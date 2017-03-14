@@ -1617,11 +1617,15 @@ InitErgmTerm.gwdsp<-function(nw, arglist, initialfit=FALSE, ...) {
 #   ergm.checkdirected("gwdsp", is.directed(nw), requirement=FALSE)
 # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("alpha","fixed","cutoff"),
-                      vartypes = c("numeric","logical","numeric"),
-                      defaultvalues = list(0, FALSE, 30),
-                      required = c(FALSE, FALSE, FALSE))
-  alpha<-a$alpha;fixed<-a$fixed
+                      varnames = c("decay","fixed","cutoff","alpha"),
+                      vartypes = c("numeric","logical","numeric","numeric"),
+                      defaultvalues = list(0, FALSE, 30, NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE))
+  if(!is.null(a$alpha)){
+    stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
+  }
+  
+  decay<-a$decay;fixed<-a$fixed
   cutoff<-a$cutoff
   if(!initialfit && !fixed){ # This is a curved exponential family model
 #   d <- 1:(network.size(nw)-1)
@@ -1640,15 +1644,15 @@ InitErgmTerm.gwdsp<-function(nw, arglist, initialfit=FALSE, ...) {
     }
     if(is.directed(nw)){dname <- "tdsp"}else{dname <- "dsp"}
     list(name=dname, coef.names=paste("gwdsp#",d,sep=""), 
-         inputs=c(d), params=list(gwdsp=NULL,gwdsp.alpha=alpha),
+         inputs=c(d), params=list(gwdsp=NULL,gwdsp.decay=decay),
          map=map, gradient=gradient)
   }else{
     if (initialfit && !fixed) # First pass to get MPLE coefficient
       coef.names <- "gwdsp"   # must match params$gwdsp above
     else  # fixed == TRUE
-      coef.names <- paste("gwdsp.fixed.",alpha,sep="")
+      coef.names <- paste("gwdsp.fixed.",decay,sep="")
   if(is.directed(nw)){dname <- "gwtdsp"}else{dname <- "gwdsp"}
-  list(name=dname, coef.names=coef.names, inputs=c(alpha))
+  list(name=dname, coef.names=coef.names, inputs=c(decay))
   }
 }
 
@@ -1660,13 +1664,17 @@ InitErgmTerm.gwesp<-function(nw, arglist, initialfit=FALSE, ...) {
 #   ergm.checkdirected("gwesp", is.directed(nw), requirement=FALSE)
 # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("alpha","fixed","cutoff"),
-                      vartypes = c("numeric","logical","numeric"),
-                      defaultvalues = list(0, FALSE, 30),
-                      required = c(FALSE, FALSE, FALSE))
-  alpha<-a$alpha;fixed<-a$fixed
+                      varnames = c("decay","fixed","cutoff", "alpha"),
+                      vartypes = c("numeric","logical","numeric", "numeric"),
+                      defaultvalues = list(0, FALSE, 30, NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE))
+  if(!is.null(a$alpha)){
+    stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
+  }
+  
+  decay<-a$decay;fixed<-a$fixed
   cutoff<-a$cutoff
-  alpha=alpha[1] # Not sure why anyone would enter a vector here, but...
+  decay=decay[1] # Not sure why anyone would enter a vector here, but...
   if(!initialfit && !fixed){ # This is a curved exponential family model
 #   d <- 1:(network.size(nw)-2)
      maxesp <- min(cutoff,network.size(nw)-2)
@@ -1684,15 +1692,15 @@ InitErgmTerm.gwesp<-function(nw, arglist, initialfit=FALSE, ...) {
     }
     if(is.directed(nw)){dname <- "tesp"}else{dname <- "esp"}
     list(name=dname, coef.names=paste("esp#",d,sep=""), 
-         inputs=c(d), params=list(gwesp=NULL,gwesp.alpha=alpha),
+         inputs=c(d), params=list(gwesp=NULL,gwesp.decay=decay),
          map=map, gradient=gradient)
   }else{
     if (initialfit && !fixed)  # First pass to get MPLE coefficient
       coef.names <- "gwesp"
     else # fixed == TRUE
-      coef.names <- paste("gwesp.fixed.",alpha,sep="")
+      coef.names <- paste("gwesp.fixed.",decay,sep="")
     if(is.directed(nw)){dname <- "gwtesp"}else{dname <- "gwesp"}
-    list(name=dname, coef.names=coef.names, inputs=c(alpha))
+    list(name=dname, coef.names=coef.names, inputs=c(decay))
   }
 }
 
@@ -1764,13 +1772,17 @@ InitErgmTerm.gwnsp<-function(nw, arglist, initialfit=FALSE, ...) {
 #    ergm.checkdirected("gwnsp", is.directed(nw), requirement=FALSE)
 # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("alpha","fixed","cutoff"),
-                      vartypes = c("numeric","logical","numeric"),
-                      defaultvalues = list(0, FALSE, 30),
-                      required = c(FALSE, FALSE, FALSE))
-  alpha<-a$alpha;fixed<-a$fixed
+                      varnames = c("decay","fixed","cutoff", "alpha"),
+                      vartypes = c("numeric","logical","numeric", "numeric"),
+                      defaultvalues = list(0, FALSE, 30, NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE))
+  if(!is.null(a$alpha)){
+    stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
+  }
+
+  decay<-a$decay;fixed<-a$fixed
   cutoff<-a$cutoff
-  alpha=alpha[1] # Not sure why anyone would enter a vector here, but...
+  decay=decay[1] # Not sure why anyone would enter a vector here, but...
   if(!initialfit && !fixed){ # This is a curved exponential family model
 #   d <- 1:(network.size(nw)-1)
      maxesp <- min(cutoff,network.size(nw)-2)
@@ -1788,15 +1800,15 @@ InitErgmTerm.gwnsp<-function(nw, arglist, initialfit=FALSE, ...) {
     }
     if(is.directed(nw)){dname <- "tnsp"}else{dname <- "nsp"}
     list(name=dname, coef.names=paste("nsp#",d,sep=""),
-         inputs=c(d), params=list(gwnsp=NULL,gwnsp.alpha=alpha),
+         inputs=c(d), params=list(gwnsp=NULL,gwnsp.decay=decay),
          map=map, gradient=gradient)
   }else{
     if (initialfit && !fixed)  # First pass to get MPLE coefficient
       coef.names <- "gwnsp"
     else # fixed == TRUE
-      coef.names <- paste("gwnsp.fixed.",alpha,sep="")
+      coef.names <- paste("gwnsp.fixed.",decay,sep="")
     if(is.directed(nw)){dname <- "gwtnsp"}else{dname <- "gwnsp"}
-    list(name=dname, coef.names=coef.names, inputs=c(alpha))    
+    list(name=dname, coef.names=coef.names, inputs=c(decay))    
   }
 }
 

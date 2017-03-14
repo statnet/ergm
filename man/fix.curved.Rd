@@ -67,7 +67,7 @@ parameters are fixed. Note that each term has to be treated as a special case.
 \examples{
 \donttest{
 data(sampson)
-gest<-ergm(samplike~edges+gwesp(alpha=.5,fixed=FALSE),
+gest<-ergm(samplike~edges+gwesp(decay=.5,fixed=FALSE),
            control=control.ergm(MCMLE.maxit=3))
 summary(gest)
 # A statistic for esp(1),...,esp(16)

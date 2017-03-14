@@ -54,10 +54,15 @@
    }
 
   
-   %% \subsection{OTHER USER-VISIBLE CHANGES}{
-   %%   \itemize{
-   %%   }
-   %% }
+   \subsection{OTHER USER-VISIBLE CHANGES}{
+     \itemize{
+       \item{
+	 The geometric decay parameter in \code{gw*sp} and
+	 \code{dgw*sp} terms has been renamed from \code{alpha} to
+	 \code{decay}, for consistency with \code{gw*degree} terms.
+       }
+     }    
+   }
 
   %% \subsection{C-LEVEL FACILITIES}{
   %%   \itemize{

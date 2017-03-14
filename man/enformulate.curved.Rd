@@ -62,7 +62,7 @@ vector. This is the form required by \code{\link{ergm}} calls.
 \examples{
 \donttest{
 data(sampson)
-gest<-ergm(samplike~edges+gwesp(alpha=.5, fixed=FALSE), 
+gest<-ergm(samplike~edges+gwesp(decay=.5, fixed=FALSE), 
     control=control.ergm(MCMLE.maxit=1))
 # Error:
 gest2<-try(ergm(gest$formula, control=control.ergm(init=coef(gest), MCMLE.maxit=2)))

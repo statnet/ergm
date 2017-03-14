@@ -63,7 +63,7 @@
 #                list should be named with the corresponding parameter name 
 #                (one or more of these will probably coincide with the 
 #                 coef.names).  For example, the gwesp term returns 
-#                params=list(gwesp=NULL,gwesp.alpha=alpha), where alpha
+#                params=list(gwesp=NULL,gwesp.decay=decay), where decay
 #                was specified as an argument to the gwesp term. 
 #           map: For curved exponential family model terms only, a function 
 #                giving the map from the canonical parameters, theta,
@@ -179,13 +179,17 @@ InitErgmTerm.desp<-function(nw, arglist, ...) {
 #
 InitErgmTerm.dgwesp<-function(nw, arglist, initialfit=FALSE, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("alpha","fixed","cutoff","type"),
-                      vartypes = c("numeric","logical","numeric","character"),
-                      defaultvalues = list(0, FALSE, 30,"OTP"),
-                      required = c(FALSE, FALSE, FALSE, FALSE))
-  alpha<-a$alpha;fixed<-a$fixed
+                      varnames = c("decay","fixed","cutoff","type", "alpha"),
+                      vartypes = c("numeric","logical","numeric","character", "numeric"),
+                      defaultvalues = list(0, FALSE, 30,"OTP", NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
+  if(!is.null(a$alpha)){
+    stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
+  }
+  
+  decay<-a$decay;fixed<-a$fixed
   cutoff<-a$cutoff
-  alpha=alpha[1] # Not sure why anyone would enter a vector here, but...
+  decay=decay[1] # Not sure why anyone would enter a vector here, but...
   type<-toupper(a$type[1])
   type.vec<-c("OTP","ITP","RTP","OSP","ISP")
   if(!(type%in%type.vec))
@@ -211,8 +215,8 @@ InitErgmTerm.dgwesp<-function(nw, arglist, initialfit=FALSE, ...) {
       a <- 1-exp(-x[2])
       exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
     }
-    params<-list(gwesp=NULL,gwesp.alpha=alpha)
-    names(params)<-c(basenam,paste(basenam,"alpha",sep="."))
+    params<-list(gwesp=NULL,gwesp.decay=decay)
+    names(params)<-c(basenam,paste(basenam,"decay",sep="."))
     list(name=dname,
          coef.names=if(is.directed(nw)) paste("esp.",type,"#",d,sep="") else paste("esp#",d,sep=""), 
          inputs=c(typecode,d), params=params, map=map, gradient=gradient)
@@ -223,11 +227,11 @@ InitErgmTerm.dgwesp<-function(nw, arglist, initialfit=FALSE, ...) {
       coef.names <- basenam
     }else{ # fixed == TRUE
       if(is.directed(nw))
-        coef.names <- paste(paste("gwesp",type,"fixed.",sep="."),alpha, sep="")
+        coef.names <- paste(paste("gwesp",type,"fixed.",sep="."),decay, sep="")
       else
-        coef.names <- paste("gwesp.fixed.",alpha,sep="")
+        coef.names <- paste("gwesp.fixed.",decay,sep="")
     }
-    list(name=dname, coef.names=coef.names, inputs=c(alpha,typecode,maxesp))
+    list(name=dname, coef.names=coef.names, inputs=c(decay,typecode,maxesp))
   }
 }
 
@@ -286,13 +290,17 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, initialfit=FALSE, ...) {
   #    ergm.checkdirected("gwdsp", is.directed(nw), requirement=FALSE)
   # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("alpha","fixed","cutoff","type"),
-                      vartypes = c("numeric","logical","numeric","character"),
-                      defaultvalues = list(0, FALSE, 30,"OTP"),
-                      required = c(FALSE, FALSE, FALSE, FALSE))
-  alpha<-a$alpha;fixed<-a$fixed
+                      varnames = c("decay","fixed","cutoff","type", "alpha"),
+                      vartypes = c("numeric","logical","numeric","character", "numeric"),
+                      defaultvalues = list(0, FALSE, 30,"OTP", NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
+  if(!is.null(a$alpha)){
+    stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
+  }
+  
+  decay<-a$decay;fixed<-a$fixed
   cutoff<-a$cutoff
-  alpha=alpha[1] # Not sure why anyone would enter a vector here, but...
+  decay=decay[1] # Not sure why anyone would enter a vector here, but...
   
   type<-toupper(a$type[1])
   type.vec<-c("OTP","ITP","RTP","OSP","ISP")
@@ -323,8 +331,8 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, initialfit=FALSE, ...) {
       exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
     }
     
-    params<-list(gwdsp=NULL,gwdsp.alpha=alpha)
-    names(params)<-c(basenam,paste(basenam,"alpha",sep="."))
+    params<-list(gwdsp=NULL,gwdsp.decay=decay)
+    names(params)<-c(basenam,paste(basenam,"decay",sep="."))
     
     list(name=dname,
          coef.names=if(is.directed(nw)) paste("dsp.",type,"#",d,sep="") else paste("dsp#",d,sep=""), 
@@ -337,12 +345,12 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, initialfit=FALSE, ...) {
       coef.names <- basenam
     else { # fixed == TRUE
       if (is.directed(nw)) 
-        coef.names <- paste("gwdsp",type,"fixed",alpha,sep=".")
+        coef.names <- paste("gwdsp",type,"fixed",decay,sep=".")
       else
-        coef.names <- paste("gwdsp.fixed",alpha,sep=".")
+        coef.names <- paste("gwdsp.fixed",decay,sep=".")
     }
     
-    list(name=dname, coef.names=coef.names, inputs=c(alpha,typecode,maxesp))
+    list(name=dname, coef.names=coef.names, inputs=c(decay,typecode,maxesp))
   }
 }
 
@@ -399,13 +407,17 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, initialfit=FALSE, ...) {
   #    ergm.checkdirected("gwnsp", is.directed(nw), requirement=FALSE)
   # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("alpha","fixed","cutoff","type"),
-                      vartypes = c("numeric","logical","numeric","character"),
-                      defaultvalues = list(0, FALSE, 30,"OTP"),
-                      required = c(FALSE, FALSE, FALSE, FALSE))
-  alpha<-a$alpha;fixed<-a$fixed
+                      varnames = c("decay","fixed","cutoff","type", "alpha"),
+                      vartypes = c("numeric","logical","numeric","character", "numeric"),
+                      defaultvalues = list(0, FALSE, 30,"OTP", NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
+  if(!is.null(a$alpha)){
+    stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
+  }
+  
+  decay<-a$decay;fixed<-a$fixed
   cutoff<-a$cutoff
-  alpha=alpha[1] # Not sure why anyone would enter a vector here, but...
+  decay=decay[1] # Not sure why anyone would enter a vector here, but...
   
   type<-toupper(a$type[1])
   type.vec<-c("OTP","ITP","RTP","OSP","ISP")
@@ -436,8 +448,8 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, initialfit=FALSE, ...) {
       exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
     }
     
-    params<-list(gwnsp=NULL,gwnsp.alpha=alpha)
-    names(params)<-c(basenam,paste(basenam,"alpha",sep="."))
+    params<-list(gwnsp=NULL,gwnsp.decay=decay)
+    names(params)<-c(basenam,paste(basenam,"decay",sep="."))
     
     list(name=dname,
          coef.names=if(is.directed(nw)) paste("nsp.",type,"#",d,sep="") else paste("nsp#",d,sep=""), 
@@ -451,11 +463,11 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, initialfit=FALSE, ...) {
       coef.names <- basenam
     else { # fixed == TRUE
       if (is.directed(nw)) 
-        coef.names <- paste("gwnsp",type,"fixed",alpha,sep=".")
+        coef.names <- paste("gwnsp",type,"fixed",decay,sep=".")
       else
-        coef.names <- paste("gwnsp.fixed",alpha,sep=".")
+        coef.names <- paste("gwnsp.fixed",decay,sep=".")
     }
     
-    list(name=dname, coef.names=coef.names, inputs=c(alpha,typecode,maxesp))
+    list(name=dname, coef.names=coef.names, inputs=c(decay,typecode,maxesp))
   }
 }

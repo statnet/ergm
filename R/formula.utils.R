@@ -147,7 +147,7 @@ fix.curved.formula <- function(object, theta, response=NULL, ...){
   recipes<-list()
   is.fixed.1<-function(a) is.null(a$fixed) || a$fixed==FALSE
   recipes$gwdsp<-recipes$gwesp<-recipes$gwnsp<-
-    list(filter=is.fixed.1, tocoef=1, toarg=list(alpha=2), constant=list(fixed=TRUE))
+    list(filter=is.fixed.1, tocoef=1, toarg=list(decay=2), constant=list(fixed=TRUE))
   recipes$altkstar<-
     list(filter=is.fixed.1, tocoef=1, toarg=list(lambda=2), constant=list(fixed=TRUE))
   recipes$gwb1degree<-recipes$gwb2degree<-recipes$gwdegree<-recipes$gwidegree<-recipes$gwodegree<-
@@ -171,7 +171,7 @@ enformulate.curved.formula <- function(object, theta, response=NULL, ...){
   recipes<-list()
   is.fixed.1<-function(a) is.null(a$fixed) || a$fixed==FALSE
   recipes$gwdsp<-recipes$gwesp<-recipes$gwnsp<-
-    list(filter=is.fixed.1, tocoef=1, toarg=list(alpha=2))
+    list(filter=is.fixed.1, tocoef=1, toarg=list(decay=2))
   recipes$altkstar<-
     list(filter=is.fixed.1, tocoef=1, toarg=list(lambda=2))
   recipes$gwb1degree<-recipes$gwb2degree<-recipes$gwdegree<-recipes$gwidegree<-recipes$gwodegree<-
