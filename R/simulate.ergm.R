@@ -176,7 +176,8 @@ simulate.ergm.model <- function(object, nsim=1, seed=NULL,
                                 verbose=FALSE, ...){
 
   check.control.class(c("simulate.formula", "simulate.ergm.model"), myname="simulate.ergm.model")
-
+  control.toplevel(..., myname="simulate.formula")
+  
   if(is.null(monitor)) monitor <- 0
   if(!is.numeric(monitor)) stop("ergm.model method for simulate() requires monitor= argument to give the number of statistics at the end of the model that are to be monitored (defaulting to 0).")
   if(is.null(basis)) stop("ergm.model method for simulate() requires the basis= argument for the initial state of the simulation.")
@@ -186,7 +187,6 @@ simulate.ergm.model <- function(object, nsim=1, seed=NULL,
     warning("Passing the parameter vector as theta0= is deprecated. Use coef= instead.")
     coef<-list(...)$theta0
   }
-  control <- control.simulate.ergm.toplevel(control,...)
   
   if(!is.null(seed)) {set.seed(as.integer(seed))}
   
