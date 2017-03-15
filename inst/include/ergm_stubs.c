@@ -45,8 +45,10 @@ return fun(n,r);
 #undef N_INPUT_PARAMS
 #undef ZERO_ALL_CHANGESTATS
 #undef FOR_EACH_TOGGLE
+#undef IF_MORE_TO_COME
 #undef TOGGLE_IF_MORE_TO_COME
 #undef TOGGLE_DISCORD_IF_MORE_TO_COME
+#undef UNDO_PREVIOUS
 #undef UNDO_PREVIOUS_TOGGLES
 #undef UNDO_PREVIOUS_DISCORD_TOGGLES
 #undef ALLOC_STORAGE
@@ -56,8 +58,8 @@ return fun(n,r);
 #undef GET_AUX_STORAGE_NUM
 #undef ALLOC_AUX_SOCIOMATRIX
 #undef FREE_AUX_SOCIOMATRIX
-#undef INIT_STORAGE
 #undef CHANGESTAT_FN
+#undef C_CHANGESTAT_FN
 #undef D_CHANGESTAT_FN
 #undef I_CHANGESTAT_FN
 #undef U_CHANGESTAT_FN
@@ -300,8 +302,10 @@ fun(MH,theta,gain,meanstats,nphase1,nsubphases,networkstatistics,samplesize,burn
 #undef N_INPUT_PARAMS
 #undef ZERO_ALL_CHANGESTATS
 #undef FOR_EACH_TOGGLE
+#undef IF_MORE_TO_COME
 #undef TOGGLE_IF_MORE_TO_COME
 #undef TOGGLE_DISCORD_IF_MORE_TO_COME
+#undef UNDO_PREVIOUS
 #undef UNDO_PREVIOUS_TOGGLES
 #undef UNDO_PREVIOUS_DISCORD_TOGGLES
 #undef ALLOC_STORAGE
@@ -311,8 +315,8 @@ fun(MH,theta,gain,meanstats,nphase1,nsubphases,networkstatistics,samplesize,burn
 #undef GET_AUX_STORAGE_NUM
 #undef ALLOC_AUX_SOCIOMATRIX
 #undef FREE_AUX_SOCIOMATRIX
-#undef INIT_STORAGE
 #undef CHANGESTAT_FN
+#undef C_CHANGESTAT_FN
 #undef D_CHANGESTAT_FN
 #undef I_CHANGESTAT_FN
 #undef U_CHANGESTAT_FN
@@ -336,6 +340,13 @@ fun(MH,theta,gain,meanstats,nphase1,nsubphases,networkstatistics,samplesize,burn
 #undef XNOR
 #undef BD_LOOP
 #undef BD_COND_LOOP
+#undef FOR_EACH_TERM
+#undef EXEC_THROUGH_TERMS
+#undef FOR_EACH_TERM_INREVERSE
+#undef EXEC_THROUGH_TERMS_INREVERSE
+#undef EXEC_THROUGH_TERMS_INTO
+#undef UPDATE_STORAGE
+#undef UPDATE_C_STORAGE
 #include "R_ext/Rdynload.h"
 #include "MHproposal.h"
 DegreeBound* DegreeBoundInitialize(int *attribs, int *maxout, int *maxin,int *minout, int *minin, int condAllDegExact,int attriblength, Network *nwp){
@@ -409,11 +420,6 @@ static void (*fun)(unsigned int,Vertex *,Vertex *,Network *,Model *) = NULL;
 if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,Network *,Model *)) R_FindSymbol("ChangeStats", "ergm", NULL);
 fun(ntoggles,toggletail,togglehead,nwp,m);
 }
-void UpdateStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, Network *nwp, Model *m){
-static void (*fun)(unsigned int,Vertex *,Vertex *,Network *,Model *) = NULL;
-if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,Network *,Model *)) R_FindSymbol("UpdateStats", "ergm", NULL);
-fun(ntoggles,toggletail,togglehead,nwp,m);
-}
 void InitStats(Network *nwp, Model *m){
 static void (*fun)(Network *,Model *) = NULL;
 if(fun==NULL) fun = (void (*)(Network *,Model *)) R_FindSymbol("InitStats", "ergm", NULL);
@@ -464,8 +470,10 @@ fun(nwp,m);
 #undef N_INPUT_PARAMS
 #undef ZERO_ALL_CHANGESTATS
 #undef FOR_EACH_TOGGLE
+#undef IF_MORE_TO_COME
 #undef TOGGLE_IF_MORE_TO_COME
 #undef TOGGLE_DISCORD_IF_MORE_TO_COME
+#undef UNDO_PREVIOUS
 #undef UNDO_PREVIOUS_TOGGLES
 #undef UNDO_PREVIOUS_DISCORD_TOGGLES
 #undef ALLOC_STORAGE
@@ -475,8 +483,8 @@ fun(nwp,m);
 #undef GET_AUX_STORAGE_NUM
 #undef ALLOC_AUX_SOCIOMATRIX
 #undef FREE_AUX_SOCIOMATRIX
-#undef INIT_STORAGE
 #undef CHANGESTAT_FN
+#undef C_CHANGESTAT_FN
 #undef D_CHANGESTAT_FN
 #undef I_CHANGESTAT_FN
 #undef U_CHANGESTAT_FN
@@ -485,6 +493,13 @@ fun(nwp,m);
 #undef D_FROM_S
 #undef D_FROM_S_FN
 #undef INPUT_ATTRIB
+#undef FOR_EACH_TERM
+#undef EXEC_THROUGH_TERMS
+#undef FOR_EACH_TERM_INREVERSE
+#undef EXEC_THROUGH_TERMS_INREVERSE
+#undef EXEC_THROUGH_TERMS_INTO
+#undef UPDATE_STORAGE
+#undef UPDATE_C_STORAGE
 #include "R_ext/Rdynload.h"
 #include "wtchangestat.h"
 #undef MIN
@@ -541,9 +556,12 @@ fun(nwp,m);
 #undef OLDWT
 #undef GETOLDTOGGLEINFO
 #undef GETTOGGLEINFO
+#undef GETNEWTOGGLEINFO
 #undef SETWT_WITH_BACKUP
 #undef UNDO_SETWT
+#undef IF_MORE_TO_COME
 #undef SETWT_IF_MORE_TO_COME
+#undef UNDO_PREVIOUS
 #undef UNDO_PREVIOUS_SETWTS
 #undef EXEC_THROUGH_TOGGLES
 #undef SAMEDYAD
@@ -557,7 +575,7 @@ fun(nwp,m);
 #undef GET_AUX_STORAGE_NUM
 #undef ALLOC_AUX_SOCIOMATRIX
 #undef FREE_AUX_SOCIOMATRIX
-#undef INIT_STORAGE
+#undef WtC_CHANGESTAT_FN
 #undef WtD_CHANGESTAT_FN
 #undef WtI_CHANGESTAT_FN
 #undef WtU_CHANGESTAT_FN
@@ -803,9 +821,12 @@ return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 #undef OLDWT
 #undef GETOLDTOGGLEINFO
 #undef GETTOGGLEINFO
+#undef GETNEWTOGGLEINFO
 #undef SETWT_WITH_BACKUP
 #undef UNDO_SETWT
+#undef IF_MORE_TO_COME
 #undef SETWT_IF_MORE_TO_COME
+#undef UNDO_PREVIOUS
 #undef UNDO_PREVIOUS_SETWTS
 #undef EXEC_THROUGH_TOGGLES
 #undef SAMEDYAD
@@ -819,7 +840,7 @@ return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 #undef GET_AUX_STORAGE_NUM
 #undef ALLOC_AUX_SOCIOMATRIX
 #undef FREE_AUX_SOCIOMATRIX
-#undef INIT_STORAGE
+#undef WtC_CHANGESTAT_FN
 #undef WtD_CHANGESTAT_FN
 #undef WtI_CHANGESTAT_FN
 #undef WtU_CHANGESTAT_FN
@@ -841,6 +862,13 @@ return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 #undef MH_QUIT_UNSUCCESSFUL
 #undef XOR
 #undef XNOR
+#undef FOR_EACH_TERM
+#undef EXEC_THROUGH_TERMS
+#undef FOR_EACH_TERM_INREVERSE
+#undef EXEC_THROUGH_TERMS_INREVERSE
+#undef EXEC_THROUGH_TERMS_INTO
+#undef UPDATE_STORAGE
+#undef UPDATE_C_STORAGE
 #include "R_ext/Rdynload.h"
 #include "wtMHproposal.h"
 void WtMH_init(WtMHproposal *MH,char *MHproposaltype, char *MHproposalpackage,double *inputs,int fVerbose,WtNetwork *nwp){
@@ -885,11 +913,6 @@ fun(m,nwp);
 void WtChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, double *toggleweight, WtNetwork *nwp, WtModel *m){
 static void (*fun)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *) = NULL;
 if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *)) R_FindSymbol("WtChangeStats", "ergm", NULL);
-fun(ntoggles,toggletail,togglehead,toggleweight,nwp,m);
-}
-void WtUpdateStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, double *toggleweight, WtNetwork *nwp, WtModel *m){
-static void (*fun)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *) = NULL;
-if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *)) R_FindSymbol("WtUpdateStats", "ergm", NULL);
 fun(ntoggles,toggletail,togglehead,toggleweight,nwp,m);
 }
 void WtInitStats(WtNetwork *nwp, WtModel *m){
@@ -956,9 +979,12 @@ fun(nwp,m);
 #undef OLDWT
 #undef GETOLDTOGGLEINFO
 #undef GETTOGGLEINFO
+#undef GETNEWTOGGLEINFO
 #undef SETWT_WITH_BACKUP
 #undef UNDO_SETWT
+#undef IF_MORE_TO_COME
 #undef SETWT_IF_MORE_TO_COME
+#undef UNDO_PREVIOUS
 #undef UNDO_PREVIOUS_SETWTS
 #undef EXEC_THROUGH_TOGGLES
 #undef SAMEDYAD
@@ -972,7 +998,7 @@ fun(nwp,m);
 #undef GET_AUX_STORAGE_NUM
 #undef ALLOC_AUX_SOCIOMATRIX
 #undef FREE_AUX_SOCIOMATRIX
-#undef INIT_STORAGE
+#undef WtC_CHANGESTAT_FN
 #undef WtD_CHANGESTAT_FN
 #undef WtI_CHANGESTAT_FN
 #undef WtU_CHANGESTAT_FN
@@ -981,3 +1007,10 @@ fun(nwp,m);
 #undef D_FROM_S
 #undef WtD_FROM_S_FN
 #undef INPUT_ATTRIB
+#undef FOR_EACH_TERM
+#undef EXEC_THROUGH_TERMS
+#undef FOR_EACH_TERM_INREVERSE
+#undef EXEC_THROUGH_TERMS_INREVERSE
+#undef EXEC_THROUGH_TERMS_INTO
+#undef UPDATE_STORAGE
+#undef UPDATE_C_STORAGE
