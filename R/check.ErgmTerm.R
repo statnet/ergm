@@ -111,7 +111,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
                      name, "argument"), call.=FALSE)
         }
         # valid name match with mth variable if we got to here
-        if (all(sapply(strsplit(vartypes[m],",",fixed=TRUE)[[1]], function(vartype) !eval(call(paste("is.",vartype,sep=""),arglist[[i]]))))) {
+        if (all(sapply(strsplit(vartypes[m],",",fixed=TRUE)[[1]], function(vartype) !is(arglist[[i]], vartype)))) {
           # Wrong type
           stop(paste(name, "argument to", fname, "model term is not of",
                      "the expected", vartypes[m], "type"), call.=FALSE)
@@ -123,7 +123,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
           stop(paste("unnamed argument follows named argument in",
                      fname,"model term"), call.=FALSE)
         }
-        if (all(sapply(strsplit(vartypes[i],",",fixed=TRUE)[[1]], function(vartype) !eval(call(paste("is.",vartype,sep=""),arglist[[i]]))))) {
+        if (all(sapply(strsplit(vartypes[i],",",fixed=TRUE)[[1]], function(vartype) !is(arglist[[i]], vartype)))) {
           # Wrong type
           stop(paste("argument number", i, "to", fname, "model term is not",
                      "of the expected", vartypes[i], "type"), call.=FALSE)
