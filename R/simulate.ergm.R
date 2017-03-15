@@ -77,6 +77,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           control=control.simulate.ergm(),
                           verbose=FALSE, ...) {
   check.control.class(c("simulate.ergm","simulate.formula"))
+  control.toplevel(...)
   control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges","parallel","parallel.type","parallel.version.check")
   for(arg in control.transfer)
     if(is.null(control[[arg]]))
@@ -104,12 +105,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
                                control=control.simulate.formula(),
                                verbose=FALSE, ...) {
   check.control.class(myname="ERGM simulate.formula")
-  # Backwards-compatibility code:
-  if("theta0" %in% names(list(...))){
-    warning("Passing the parameter vector as theta0= is deprecated. Use coef= instead.")
-    coef<-list(...)$theta0
-  }
-  control <- control.simulate.ergm.toplevel(control,...)
+  control.toplevel(...)
   
   if(!is.null(seed)) {set.seed(as.integer(seed))}
   

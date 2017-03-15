@@ -313,14 +313,8 @@ control.ergm<-function(drop=TRUE,
   set.control.class()
 }
 
-control.ergm.toplevel<-function(control,...){
-  ergm.args<-list(...)
-  old.controls<-list(burnin="MCMC.burnin",MCMCsamplesize="MCMC.samplesize",interval="MCMC.interval",maxit="MCMLE.maxit",seed="seed",theta0="init",coef="init")
-  for(arg in names(old.controls))
-    if(arg %in% names(ergm.args)){
-      warning("Passing ",arg," to ergm(...) is deprecated and may be removed in a future version. Specify it as control.ergm(",old.controls[[arg]],"=...) instead.")
-      control[old.controls[[arg]]]<-list(ergm.args[[arg]])
-    }
-  
-  control
+control.toplevel<-function(..., myname={sc <- sys.calls(); myname <- as.character(sc[[length(sc)-1]][[1]])}){
+  myctrlname <- paste0("control.",myname) 
+  control.names <- names(list(...))[names(list(...)) %in% names(formals(get(myctrlname, mode="function")))]
+  if(length(control.names)) stop("Argument(s) ", paste.and(sQuote(control.names)), " should be passed via control.",myname,"().")
 }
