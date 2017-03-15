@@ -157,7 +157,7 @@ gof.formula <- function(object, ...,
                         control=control.gof.formula(),
 			unconditional=TRUE,
                         verbose=FALSE) {
-  check.control.class()
+  check.control.class(c("gof.formula","gof.ergm"))
   control.toplevel(...)
 
   if("response" %in% names(list(...))) stop("GoF for valued ERGMs is not implemented at this time.")
