@@ -31,3 +31,53 @@ InitErgmTerm.meta <- function(nw, arglist, response=NULL, ...){
 
   list(name="meta_term", coef.names = paste0('meta(',m$coef.names,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs)
 }
+
+## This will always be passed with two arguments in arglist, which
+## will cause an error if we actually try to evaluate them. So,
+## there's no check.ErgmTerm() but rather an immediate substitute() to
+## grab the actual names or calls being passed.
+`InitErgmTerm.:` <- function(nw, arglist, response=NULL, ...){
+  arglist <- substitute(arglist)
+  n1 <- arglist[[2]]
+  n2 <- arglist[[3]]
+
+  f <- ~nw
+  f[[3]] <- call("+",n1,n2)
+  
+  m <- ergm.getmodel(f, nw, response=response,...)
+  Clist <- ergm.Cprepare(nw, m, response=response)
+
+  fnames <- .encode.str(Clist$fnamestring)
+  snames <- .encode.str(Clist$snamestring)
+
+  inputs <- c(fnames, snames, Clist$inputs)
+
+  cn <- outer(m$terms[[1]]$coef.names,m$terms[[2]]$coef.names,paste,sep=":") 
+  
+  list(name="interact", coef.names = cn, inputs=inputs, dependence=!is.dyad.independent(m))
+}
+
+## This will always be passed with two arguments in arglist, which
+## will cause an error if we actually try to evaluate them. So,
+## there's no check.ErgmTerm() but rather an immediate substitute() to
+## grab the actual names or calls being passed.
+`InitErgmTerm.*` <- function(nw, arglist, response=NULL, ...){
+  arglist <- substitute(arglist)
+  n1 <- arglist[[2]]
+  n2 <- arglist[[3]]
+
+  f <- ~nw
+  f[[3]] <- call("+",n1,n2)
+  
+  m <- ergm.getmodel(f, nw, response=response,...)
+  Clist <- ergm.Cprepare(nw, m, response=response)
+
+  fnames <- .encode.str(Clist$fnamestring)
+  snames <- .encode.str(Clist$snamestring)
+
+  inputs <- c(fnames, snames, Clist$inputs)
+
+  cn <- c(m$terms[[1]]$coef.names,m$terms[[2]]$coef.names,outer(m$terms[[1]]$coef.names,m$terms[[2]]$coef.names,paste,sep=":"))
+  
+  list(name="main_interact", coef.names = cn, inputs=inputs, dependence=!is.dyad.independent(m))
+}
