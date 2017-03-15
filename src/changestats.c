@@ -2261,7 +2261,9 @@ D_CHANGESTAT_FN(d_diff) {
       break;
     }
 
-    if(p!=1.0){
+    if(p==0.0){ // Special case: take the sign of the difference instead.
+      change = sign(change);
+    }else if(p!=1.0){
       change = pow(change, p);
     }
     
