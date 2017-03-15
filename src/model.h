@@ -37,6 +37,15 @@ typedef struct Modelstruct {
     }									\
   }
 
+#define FOR_EACH_TERM_INREVERSE for(ModelTerm *mtp = m->termarray + m->n_terms - 1; mtp >= m->termarray; mtp--)
+
+#define EXEC_THROUGH_TERMS_INREVERSE(subroutine){			\
+    FOR_EACH_TERM_INREVERSE{							\
+      subroutine;							\
+    }									\
+  }
+
+
 #define EXEC_THROUGH_TERMS_INTO(output, subroutine){			\
     double *dstats = output;						\
     FOR_EACH_TERM{							\

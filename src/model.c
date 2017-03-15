@@ -263,7 +263,8 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
   A helper's helper function to initialize storage for functions that use it.
 */
 void InitStats(Network *nwp, Model *m){
-  EXEC_THROUGH_TERMS({
+  // Iterate in reverse, so that auxliary terms get initialized first.  
+  EXEC_THROUGH_TERMS_INREVERSE({
       double *dstats = mtp->dstats;
       mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
       if(mtp->i_func)
