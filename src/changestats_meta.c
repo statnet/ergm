@@ -21,8 +21,10 @@ I_CHANGESTAT_FN(i_meta_term){
   int n_terms = *(inputs++);
   char *fnames = (char *) dec_str(&inputs);
   char *snames = (char *) dec_str(&inputs);
-  
   Model *m = store->m = ModelInitialize(fnames, snames, &inputs, n_terms);
+  free(fnames);
+  free(snames);
+
   // Before we pass nwp down, we swap the aux_storage in for our own version.
   void **nwp_aux_storage = nwp->aux_storage;
   if(m->n_aux){
@@ -76,8 +78,10 @@ I_CHANGESTAT_FN(i_interact){
   int n_terms = 2;
   char *fnames = (char *) dec_str(&inputs);
   char *snames = (char *) dec_str(&inputs);
-  
   Model *m = store->m = ModelInitialize(fnames, snames, &inputs, n_terms);
+  free(fnames);
+  free(snames);
+
   // Before we pass nwp down, we swap the aux_storage in for our own version.
   void **nwp_aux_storage = nwp->aux_storage;
   if(m->n_aux){
@@ -137,8 +141,10 @@ I_CHANGESTAT_FN(i_main_interact){
   int n_terms = 2;
   char *fnames = (char *) dec_str(&inputs);
   char *snames = (char *) dec_str(&inputs);
-  
   Model *m = store->m = ModelInitialize(fnames, snames, &inputs, n_terms);
+  free(fnames);
+  free(snames);
+
   // Before we pass nwp down, we swap the aux_storage in for our own version.
   void **nwp_aux_storage = nwp->aux_storage;
   if(m->n_aux){
