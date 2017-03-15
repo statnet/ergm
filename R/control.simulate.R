@@ -133,15 +133,3 @@ control.simulate.ergm<-function(MCMC.burnin=NULL,
  
   set.control.class()
 }
-
-control.simulate.ergm.toplevel<-function(control,...){
-  ergm.simulate.args<-list(...)
-  old.controls<-list(burnin="MCMC.burnin",MCMCsamplesize="MCMLE.samplesize",interval="MCMC.interval")
-  for(arg in names(old.controls))
-    if(arg %in% names(ergm.simulate.args)){
-      warning("Passing ",arg," to simulate.ergm(...) is deprecated and may be removed in a future version. Specify it as control.simulate.ergm(",old.controls[[arg]],"=...) instead.")
-      control[old.controls[[arg]]]<-list(ergm.simulate.args[[arg]])
-    }
-  
-  control
-}

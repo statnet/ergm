@@ -11,9 +11,9 @@ test.approx = function(a, b, message, tol=1e-5) {
 net <- faux.dixon.high
 if (!all(summary(net ~ dgwdsp(fixed=F, type='OTP'))[1:5] == c(4871, 1077, 228, 53, 17)))
   stop("DSP OTP count on large network incorrect")
-test.approx(summary(net ~ dgwdsp(fixed=T, type='OTP', alpha=0.1)), 6379.609, tol=1e-3, "GWDSP summary")
+test.approx(summary(net ~ dgwdsp(fixed=T, type='OTP', decay=0.1)), 6379.609, tol=1e-3, "GWDSP summary")
 
-test.approx(ergm(net ~ edges + dgwdsp(fixed=T, alpha=0.1, type="OTP"), estimate = "MPLE")$coef[2], 0.006467, "MPLE estimate on larger nw")
+test.approx(ergm(net ~ edges + dgwdsp(fixed=T, decay=0.1, type="OTP"), estimate = "MPLE")$coef[2], 0.006467, "MPLE estimate on larger nw")
 
 # OTP and ITP are the same for dyadwise SP
 if (summary(net ~ ddsp(type="OTP", d=2)) != 1077) stop("ddsp OTP count error")
@@ -35,9 +35,9 @@ for (i in 1:100) {
 }
 espcounts
 
-test.approx(summary(net~dgwdsp(fixed=T, alpha=0.1, type="OTP")), 5.095163, "GWDSP_OTP wrong stat")
+test.approx(summary(net~dgwdsp(fixed=T, decay=0.1, type="OTP")), 5.095163, "GWDSP_OTP wrong stat")
 
-test.approx(ergm(net ~ edges + dgwdsp(fixed=T, alpha=0.1, type="OTP"), estimate = "MPLE")$coef[2], -1.2014723, "GWDSP_OTP ergm MPLE wrong estimate")
+test.approx(ergm(net ~ edges + dgwdsp(fixed=T, decay=0.1, type="OTP"), estimate = "MPLE")$coef[2], -1.2014723, "GWDSP_OTP ergm MPLE wrong estimate")
 
 # larger network
 
@@ -58,9 +58,9 @@ for (i in 1:100) {
 }
 espcounts
 
-test.approx(summary(net~dgwdsp(fixed=T, alpha=0.1, type="ITP")), 5.095163, "GWDSP_ITP wrong stat")
+test.approx(summary(net~dgwdsp(fixed=T, decay=0.1, type="ITP")), 5.095163, "GWDSP_ITP wrong stat")
 
-test.approx(ergm(net ~ edges + dgwdsp(fixed=T, alpha=0.1, type="ITP"), estimate = "MPLE")$coef[2], -1.2014723, "GWDSP_ITP ergm MPLE wrong estimate")
+test.approx(ergm(net ~ edges + dgwdsp(fixed=T, decay=0.1, type="ITP"), estimate = "MPLE")$coef[2], -1.2014723, "GWDSP_ITP ergm MPLE wrong estimate")
 
 
 
@@ -80,9 +80,9 @@ for (i in 1:100) {
 }
 espcounts
 
-test.approx(summary(net~dgwdsp(fixed=T, alpha=0.1, type="OSP")), 6.190325, "GWDSP_OSP wrong stat")
+test.approx(summary(net~dgwdsp(fixed=T, decay=0.1, type="OSP")), 6.190325, "GWDSP_OSP wrong stat")
 
-test.approx(ergm(net ~ edges + dgwdsp(fixed=T, alpha=0.1, type="OSP"), estimate = "MPLE")$coef[2], -0.2104664, "GWDSP_OSP ergm MPLE wrong estimate")
+test.approx(ergm(net ~ edges + dgwdsp(fixed=T, decay=0.1, type="OSP"), estimate = "MPLE")$coef[2], -0.2104664, "GWDSP_OSP ergm MPLE wrong estimate")
 
 
 # GWDSP ISP test
@@ -101,9 +101,9 @@ for (i in 1:100) {
 }
 espcounts
 
-test.approx(summary(net~dgwdsp(fixed=T, alpha=0.1, type="ISP")), 6.190325, "GWDSP_ISP wrong stat")
+test.approx(summary(net~dgwdsp(fixed=T, decay=0.1, type="ISP")), 6.190325, "GWDSP_ISP wrong stat")
 
-test.approx(ergm(net ~ edges + dgwdsp(fixed=T, alpha=0.1, type="ISP"), estimate = "MPLE")$coef[2], -0.2104664, "GWDSP_ISP ergm MPLE wrong estimate")
+test.approx(ergm(net ~ edges + dgwdsp(fixed=T, decay=0.1, type="ISP"), estimate = "MPLE")$coef[2], -0.2104664, "GWDSP_ISP ergm MPLE wrong estimate")
 
 
 # ============
@@ -121,8 +121,8 @@ test.approx = function(a, b, message, tol=1e-6) {
 net <- faux.dixon.high
 if (!all(summary(net ~ dgwesp(fixed=F, type='OTP'))[1:5] == c(516, 222, 65, 21, 3)))
   stop("ESP OTP count on large network incorrect")
-test.approx(summary(net ~ dgwesp(fixed=T, type='OTP', alpha=0.1)), 857.4225, tol=1e-3, "GWESP summary")
-test.approx(ergm(net ~ edges + dgwesp(fixed=T, alpha=0.1, type="OTP"), estimate = "MPLE")$coef[2], 1.807995, "MPLE estimate on larger nw")
+test.approx(summary(net ~ dgwesp(fixed=T, type='OTP', decay=0.1)), 857.4225, tol=1e-3, "GWESP summary")
+test.approx(ergm(net ~ edges + dgwesp(fixed=T, decay=0.1, type="OTP"), estimate = "MPLE")$coef[2], 1.807995, "MPLE estimate on larger nw")
 
 if (summary(net ~ desp(type="OTP", d=2)) != 222) stop("desp OTP count error")
 if (summary(net ~ desp(type="ITP", d=2)) != 185) stop("desp ITP count error")
@@ -144,9 +144,9 @@ for (i in 1:100) {
 }
 espcounts
 
-test.approx(summary(net~dgwesp(fixed=T, alpha=0.1, type="OTP")), 2.095163, "GWESP_OTP wrong stat")
+test.approx(summary(net~dgwesp(fixed=T, decay=0.1, type="OTP")), 2.095163, "GWESP_OTP wrong stat")
 
-test.approx(ergm(net ~ edges + dgwesp(fixed=T, alpha=0.1, type="OTP"), estimate = "MPLE")$coef[2], 0.9157069, "GWESP_OTP ergm MPLE wrong estimate")
+test.approx(ergm(net ~ edges + dgwesp(fixed=T, decay=0.1, type="OTP"), estimate = "MPLE")$coef[2], 0.9157069, "GWESP_OTP ergm MPLE wrong estimate")
 
 
 # GWESP ITP test
@@ -164,9 +164,9 @@ for (i in 1:100) {
 }
 espcounts
 
-test.approx(summary(net~dgwesp(fixed=T, alpha=0.1, type="ITP")), 8.095163, "GWESP_ITP wrong stat")
+test.approx(summary(net~dgwesp(fixed=T, decay=0.1, type="ITP")), 8.095163, "GWESP_ITP wrong stat")
 
-test.approx(ergm(net ~ edges + dgwesp(fixed=T, alpha=0.1, type="ITP"), estimate = "MPLE")$coef[2], 1.97197, "GWESP_ITP ergm MPLE wrong estimate")
+test.approx(ergm(net ~ edges + dgwesp(fixed=T, decay=0.1, type="ITP"), estimate = "MPLE")$coef[2], 1.97197, "GWESP_ITP ergm MPLE wrong estimate")
 
 
 
@@ -186,9 +186,9 @@ for (i in 1:100) {
 }
 espcounts
 
-test.approx(summary(net~dgwesp(fixed=T, alpha=0.1, type="OSP")), 2.095163 , "GWESP_OSP wrong stat")
+test.approx(summary(net~dgwesp(fixed=T, decay=0.1, type="OSP")), 2.095163 , "GWESP_OSP wrong stat")
 
-test.approx(ergm(net ~ edges + dgwesp(fixed=T, alpha=0.1, type="OSP"), estimate = "MPLE")$coef[2], 1.137139, "GWESP_OSP ergm MPLE wrong estimate")
+test.approx(ergm(net ~ edges + dgwesp(fixed=T, decay=0.1, type="OSP"), estimate = "MPLE")$coef[2], 1.137139, "GWESP_OSP ergm MPLE wrong estimate")
 
 
 # GWESP ISP test
@@ -207,9 +207,9 @@ for (i in 1:100) {
 }
 espcounts
 
-test.approx(summary(net~dgwesp(fixed=T, alpha=0.1, type="ISP")), 2.095163, "GWESP_ISP wrong stat")
+test.approx(summary(net~dgwesp(fixed=T, decay=0.1, type="ISP")), 2.095163, "GWESP_ISP wrong stat")
 
-test.approx(ergm(net ~ edges + dgwesp(fixed=T, alpha=0.1, type="ISP"), estimate = "MPLE")$coef[2], 1.137139, "GWESP_ISP ergm MPLE wrong estimate")
+test.approx(ergm(net ~ edges + dgwesp(fixed=T, decay=0.1, type="ISP"), estimate = "MPLE")$coef[2], 1.137139, "GWESP_ISP ergm MPLE wrong estimate")
 
 # ========
 
@@ -226,10 +226,10 @@ test.approx = function(a, b, message, tol=1e-5) {
 net <- faux.dixon.high
 if (!all(summary(net ~ dgwnsp(fixed=F, type='OTP'))[1:5] == c(4355, 855,163,32,14)))
   stop("NSP OTP count on large network incorrect")
-test.approx(summary(net ~ dgwnsp(fixed=T, type='OTP', alpha=0.1)), 5522.186 , "GWNSP summary", tol=1e-3)
-test.approx(ergm(net ~ edges + dgwnsp(fixed=T, alpha=0.1, type="OTP"), estimate = "MPLE")$coef[2], -0.07421213 , "MPLE estimate on larger nw")
+test.approx(summary(net ~ dgwnsp(fixed=T, type='OTP', decay=0.1)), 5522.186 , "GWNSP summary", tol=1e-3)
+test.approx(ergm(net ~ edges + dgwnsp(fixed=T, decay=0.1, type="OTP"), estimate = "MPLE")$coef[2], -0.07421213 , "MPLE estimate on larger nw")
 
-test.approx(summary(net ~ dgwdsp(fixed=T, type='OTP', alpha=0.1)), summary(net ~ dgwesp(fixed=T, type='OTP', alpha=0.1)) + summary(net ~ dgwnsp(fixed=T, type='OTP', alpha=0.1)),
+test.approx(summary(net ~ dgwdsp(fixed=T, type='OTP', decay=0.1)), summary(net ~ dgwesp(fixed=T, type='OTP', decay=0.1)) + summary(net ~ dgwnsp(fixed=T, type='OTP', decay=0.1)),
             "GWDSP should equal GWESP + GWNSP")
 
 if (summary(net ~ dnsp(type="OTP", d=2)) != 855) stop("dnsp OTP count error")
@@ -251,9 +251,9 @@ for (i in 1:100) {
 }
 espcounts
 
-test.approx(summary(net~dgwnsp(fixed=T, alpha=0.1, type="OTP")), 4.095163, "GWNSP_OTP wrong stat")
+test.approx(summary(net~dgwnsp(fixed=T, decay=0.1, type="OTP")), 4.095163, "GWNSP_OTP wrong stat")
 
-test.approx(ergm(net ~ edges + dgwnsp(fixed=T, alpha=0.1, type="OTP"), estimate = "MPLE")$coef[2], -0.8563381 , "GWNSP_OTP ergm MPLE wrong estimate")
+test.approx(ergm(net ~ edges + dgwnsp(fixed=T, decay=0.1, type="OTP"), estimate = "MPLE")$coef[2], -0.8563381 , "GWNSP_OTP ergm MPLE wrong estimate")
 
 
 
@@ -273,9 +273,9 @@ for (i in 1:100) {
 }
 espcounts
 
-test.approx(summary(net~dgwnsp(fixed=T, alpha=0.1, type="ITP")), 2.095163, "GWNSP_ITP wrong stat")
+test.approx(summary(net~dgwnsp(fixed=T, decay=0.1, type="ITP")), 2.095163, "GWNSP_ITP wrong stat")
 
-test.approx(ergm(net ~ edges + dgwnsp(fixed=T, alpha=0.1, type="ITP"), estimate = "MPLE")$coef[2], -1.760084 , "GWNSP_ITP ergm MPLE wrong estimate")
+test.approx(ergm(net ~ edges + dgwnsp(fixed=T, decay=0.1, type="ITP"), estimate = "MPLE")$coef[2], -1.760084 , "GWNSP_ITP ergm MPLE wrong estimate")
 
 
 
@@ -295,9 +295,9 @@ for (i in 1:100) {
 }
 espcounts
 
-test.approx(summary(net~dgwnsp(fixed=T, alpha=0.1, type="OSP")), 5.190325 , "GWNSP_OSP wrong stat")
+test.approx(summary(net~dgwnsp(fixed=T, decay=0.1, type="OSP")), 5.190325 , "GWNSP_OSP wrong stat")
 
-test.approx(ergm(net ~ edges + dgwnsp(fixed=T, alpha=0.1, type="OSP"), estimate = "MPLE")$coef[2], -0.2865438, "GWNSP_OSP ergm MPLE wrong estimate")
+test.approx(ergm(net ~ edges + dgwnsp(fixed=T, decay=0.1, type="OSP"), estimate = "MPLE")$coef[2], -0.2865438, "GWNSP_OSP ergm MPLE wrong estimate")
 
 
 # GWNSP ISP test
@@ -316,7 +316,7 @@ for (i in 1:100) {
 }
 espcounts
 
-test.approx(summary(net~dgwnsp(fixed=T, alpha=0.1, type="ISP")), 5.190325, "GWNSP_ISP wrong stat")
+test.approx(summary(net~dgwnsp(fixed=T, decay=0.1, type="ISP")), 5.190325, "GWNSP_ISP wrong stat")
 
-test.approx(ergm(net ~ edges + dgwnsp(fixed=T, alpha=0.1, type="ISP"), estimate = "MPLE")$coef[2], -0.2865438, "GWNSP_ISP ergm MPLE wrong estimate")
+test.approx(ergm(net ~ edges + dgwnsp(fixed=T, decay=0.1, type="ISP"), estimate = "MPLE")$coef[2], -0.2865438, "GWNSP_ISP ergm MPLE wrong estimate")
 

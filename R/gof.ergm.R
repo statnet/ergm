@@ -99,6 +99,7 @@ gof.ergm <- function (object, ...,
                       control=control.gof.ergm(),
                       verbose=FALSE) {
   check.control.class(c("gof.ergm","gof.formula"))
+  control.toplevel(...)
   nw <- as.network(object$network)
 
   if(!is.null(object$response)) stop("GoF for valued ERGMs is not implemented at this time.")
@@ -156,7 +157,8 @@ gof.formula <- function(object, ...,
                         control=control.gof.formula(),
 			unconditional=TRUE,
                         verbose=FALSE) {
-  check.control.class()
+  check.control.class(c("gof.formula","gof.ergm"))
+  control.toplevel(...)
 
   if("response" %in% names(list(...))) stop("GoF for valued ERGMs is not implemented at this time.")
 

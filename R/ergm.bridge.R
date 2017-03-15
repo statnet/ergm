@@ -38,6 +38,7 @@ ergm.bridge.preproc<-function(object, basis, response){
 ## details. Other parameters are same as simulate.ergm.
 ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constraints=~., from, to, obs.constraints=~observed, target.stats=NULL, basis=NULL, verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){
   check.control.class("ergm.bridge")
+  control.toplevel(..., myname="ergm.bridge")
 
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
   
@@ -127,6 +128,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
 ## having log-likelihood of 0.
 ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, ..., llkonly=TRUE, control=control.ergm.bridge()){
   check.control.class("ergm.bridge")
+  control.toplevel(...,myname="ergm.bridge")
   br<-ergm.bridge.llr(object, from=rep(0,length(coef)), to=coef, response=response, reference=reference, control=control, ...)
   if(llkonly) br$llr
   else c(br,llk=br$llr)
@@ -142,6 +144,8 @@ ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, .
 ## formula with an edges term added unless redundant.
 ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef, obs.constraints=~observed, target.stats=NULL, dind=NULL, coef.dind=NULL,  basis=NULL, ..., llkonly=TRUE, control=control.ergm.bridge()){
   check.control.class("ergm.bridge")
+  control.toplevel(...,myname="ergm.bridge")
+
   if(!is.null(response)) stop("Only binary ERGMs are supported at this time.")
 
   ## Here, we need to get the model object to get the list of
