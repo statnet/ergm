@@ -14,7 +14,7 @@
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
 
-\section{Changes in version 3.6.2}{
+\section{Changes in version 3.7.0}{
 
   \subsection{NEW FEATURES}{
     \itemize{
@@ -47,6 +47,9 @@
        \item{The bug in the Contrastive Divergence code that caused ERGM
 	 fits with \code{bd} constraint to hang has been fixed.}
 
+       \item{Documentation for the curved ERGM terms has been clarified
+	 in a number of places.}
+       
        \item{Miscellaneous fixes and robustifications in the step-length
 	 code.}
        
@@ -60,6 +63,12 @@
 	 The geometric decay parameter in \code{gw*sp} and
 	 \code{dgw*sp} terms has been renamed from \code{alpha} to
 	 \code{decay}, for consistency with \code{gw*degree} terms.
+       }
+
+       \item{
+	 It is now explicitly an error to pass a \code{control=}
+	 parameter to the function directly. (Previously, such
+	 parameters were silently ignored.)
        }
      }    
    }
