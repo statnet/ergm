@@ -138,8 +138,8 @@
 	    partners (\code{\link{dgwnsp}})}
 	}
 	In addition, terms for specific shared partner counts
-	(\code{\link{ddsp}}, \code{\link{desp}}, and \code{\link{dnsp}}) are also
-	implemented. See \code{\link{ergm-terms}} for help.
+	(\code{\link{ddsp}}, \code{\link{desp}}, and \code{\link{dnsp}})
+	have been implemented. See \code{\link{ergm-terms}} for help.
       }
       
       \item{New terms (binary and valued) \code{\link{b1cov}} and \code{\link{b2cov}} have
