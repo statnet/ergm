@@ -109,7 +109,7 @@ EDGETREE_INLINE int WtElapsedTime (Vertex tail, Vertex head, WtNetwork *nwp);
 EDGETREE_INLINE void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp);
 
 #ifdef INLINE_EDGETREE
-#include "wtedgetree_inline.h"
+#include "wtedgetree_inline.inc"
 #endif
 
 /* Utility functions. */
