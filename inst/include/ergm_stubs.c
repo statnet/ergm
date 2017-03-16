@@ -106,81 +106,6 @@ static Network * (*fun)(Network *,Network *) = NULL;
 if(fun==NULL) fun = (Network * (*)(Network *,Network *)) R_FindSymbol("NetworkCopy", "ergm", NULL);
 return fun(dest,src);
 }
-Edge EdgetreeSearch(Vertex a, Vertex b, TreeNode *edges){
-static Edge (*fun)(Vertex,Vertex,TreeNode *) = NULL;
-if(fun==NULL) fun = (Edge (*)(Vertex,Vertex,TreeNode *)) R_FindSymbol("EdgetreeSearch", "ergm", NULL);
-return fun(a,b,edges);
-}
-Edge EdgetreeSuccessor(TreeNode *edges, Edge x){
-static Edge (*fun)(TreeNode *,Edge) = NULL;
-if(fun==NULL) fun = (Edge (*)(TreeNode *,Edge)) R_FindSymbol("EdgetreeSuccessor", "ergm", NULL);
-return fun(edges,x);
-}
-Edge EdgetreePredecessor(TreeNode *edges, Edge x){
-static Edge (*fun)(TreeNode *,Edge) = NULL;
-if(fun==NULL) fun = (Edge (*)(TreeNode *,Edge)) R_FindSymbol("EdgetreePredecessor", "ergm", NULL);
-return fun(edges,x);
-}
-Edge EdgetreeMinimum(TreeNode *edges, Edge x){
-static Edge (*fun)(TreeNode *,Edge) = NULL;
-if(fun==NULL) fun = (Edge (*)(TreeNode *,Edge)) R_FindSymbol("EdgetreeMinimum", "ergm", NULL);
-return fun(edges,x);
-}
-Edge EdgetreeMaximum(TreeNode *edges, Edge x){
-static Edge (*fun)(TreeNode *,Edge) = NULL;
-if(fun==NULL) fun = (Edge (*)(TreeNode *,Edge)) R_FindSymbol("EdgetreeMaximum", "ergm", NULL);
-return fun(edges,x);
-}
-int ToggleEdge(Vertex tail, Vertex head, Network *nwp){
-static int (*fun)(Vertex,Vertex,Network *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,Network *)) R_FindSymbol("ToggleEdge", "ergm", NULL);
-return fun(tail,head,nwp);
-}
-int ToggleEdgeWithTimestamp(Vertex tail, Vertex head, Network *nwp){
-static int (*fun)(Vertex,Vertex,Network *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,Network *)) R_FindSymbol("ToggleEdgeWithTimestamp", "ergm", NULL);
-return fun(tail,head,nwp);
-}
-int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp){
-static int (*fun)(Vertex,Vertex,Network *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,Network *)) R_FindSymbol("AddEdgeToTrees", "ergm", NULL);
-return fun(tail,head,nwp);
-}
-void AddHalfedgeToTree(Vertex a, Vertex b, TreeNode *edges, Edge *last_edge){
-static void (*fun)(Vertex,Vertex,TreeNode *,Edge *) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,TreeNode *,Edge *)) R_FindSymbol("AddHalfedgeToTree", "ergm", NULL);
-fun(a,b,edges,last_edge);
-}
-void CheckEdgetreeFull(Network *nwp){
-static void (*fun)(Network *) = NULL;
-if(fun==NULL) fun = (void (*)(Network *)) R_FindSymbol("CheckEdgetreeFull", "ergm", NULL);
-fun(nwp);
-}
-int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp){
-static int (*fun)(Vertex,Vertex,Network *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,Network *)) R_FindSymbol("DeleteEdgeFromTrees", "ergm", NULL);
-return fun(tail,head,nwp);
-}
-int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,Edge *last_edge){
-static int (*fun)(Vertex,Vertex,TreeNode *,Edge *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,TreeNode *,Edge *)) R_FindSymbol("DeleteHalfedgeFromTree", "ergm", NULL);
-return fun(a,b,edges,last_edge);
-}
-void RelocateHalfedge(Edge from, Edge to, TreeNode *edges){
-static void (*fun)(Edge,Edge,TreeNode *) = NULL;
-if(fun==NULL) fun = (void (*)(Edge,Edge,TreeNode *)) R_FindSymbol("RelocateHalfedge", "ergm", NULL);
-fun(from,to,edges);
-}
-int ElapsedTime(Vertex tail, Vertex head, Network *nwp){
-static int (*fun)(Vertex,Vertex,Network *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,Network *)) R_FindSymbol("ElapsedTime", "ergm", NULL);
-return fun(tail,head,nwp);
-}
-void TouchEdge(Vertex tail, Vertex head, Network *nwp){
-static void (*fun)(Vertex,Vertex,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,Network *)) R_FindSymbol("TouchEdge", "ergm", NULL);
-fun(tail,head,nwp);
-}
 int FindithEdge(Vertex *tail, Vertex *head, Edge i, Network *nwp){
 static int (*fun)(Vertex *,Vertex *,Edge,Network *) = NULL;
 if(fun==NULL) fun = (int (*)(Vertex *,Vertex *,Edge,Network *)) R_FindSymbol("FindithEdge", "ergm", NULL);
@@ -345,8 +270,8 @@ fun(MH,theta,gain,meanstats,nphase1,nsubphases,networkstatistics,samplesize,burn
 #undef FOR_EACH_TERM_INREVERSE
 #undef EXEC_THROUGH_TERMS_INREVERSE
 #undef EXEC_THROUGH_TERMS_INTO
+#undef UPDATE_STORAGE_COND
 #undef UPDATE_STORAGE
-#undef UPDATE_C_STORAGE
 #include "R_ext/Rdynload.h"
 #include "MHproposal.h"
 DegreeBound* DegreeBoundInitialize(int *attribs, int *maxout, int *maxin,int *minout, int *minin, int condAllDegExact,int attriblength, Network *nwp){
@@ -498,8 +423,8 @@ fun(nwp,m);
 #undef FOR_EACH_TERM_INREVERSE
 #undef EXEC_THROUGH_TERMS_INREVERSE
 #undef EXEC_THROUGH_TERMS_INTO
+#undef UPDATE_STORAGE_COND
 #undef UPDATE_STORAGE
-#undef UPDATE_C_STORAGE
 #include "R_ext/Rdynload.h"
 #include "wtchangestat.h"
 #undef MIN
@@ -605,96 +530,6 @@ WtNetwork * WtNetworkCopy(WtNetwork *dest, WtNetwork *src){
 static WtNetwork * (*fun)(WtNetwork *,WtNetwork *) = NULL;
 if(fun==NULL) fun = (WtNetwork * (*)(WtNetwork *,WtNetwork *)) R_FindSymbol("WtNetworkCopy", "ergm", NULL);
 return fun(dest,src);
-}
-Edge WtEdgetreeSearch(Vertex a, Vertex b, WtTreeNode *edges){
-static Edge (*fun)(Vertex,Vertex,WtTreeNode *) = NULL;
-if(fun==NULL) fun = (Edge (*)(Vertex,Vertex,WtTreeNode *)) R_FindSymbol("WtEdgetreeSearch", "ergm", NULL);
-return fun(a,b,edges);
-}
-double WtGetEdge(Vertex tail, Vertex head, WtNetwork *nwp){
-static double (*fun)(Vertex,Vertex,WtNetwork *) = NULL;
-if(fun==NULL) fun = (double (*)(Vertex,Vertex,WtNetwork *)) R_FindSymbol("WtGetEdge", "ergm", NULL);
-return fun(tail,head,nwp);
-}
-Edge WtEdgetreeSuccessor(WtTreeNode *edges, Edge x){
-static Edge (*fun)(WtTreeNode *,Edge) = NULL;
-if(fun==NULL) fun = (Edge (*)(WtTreeNode *,Edge)) R_FindSymbol("WtEdgetreeSuccessor", "ergm", NULL);
-return fun(edges,x);
-}
-Edge WtEdgetreePredecessor(WtTreeNode *edges, Edge x){
-static Edge (*fun)(WtTreeNode *,Edge) = NULL;
-if(fun==NULL) fun = (Edge (*)(WtTreeNode *,Edge)) R_FindSymbol("WtEdgetreePredecessor", "ergm", NULL);
-return fun(edges,x);
-}
-Edge WtEdgetreeMinimum(WtTreeNode *edges, Edge x){
-static Edge (*fun)(WtTreeNode *,Edge) = NULL;
-if(fun==NULL) fun = (Edge (*)(WtTreeNode *,Edge)) R_FindSymbol("WtEdgetreeMinimum", "ergm", NULL);
-return fun(edges,x);
-}
-Edge WtEdgetreeMaximum(WtTreeNode *edges, Edge x){
-static Edge (*fun)(WtTreeNode *,Edge) = NULL;
-if(fun==NULL) fun = (Edge (*)(WtTreeNode *,Edge)) R_FindSymbol("WtEdgetreeMaximum", "ergm", NULL);
-return fun(edges,x);
-}
-void WtSetEdge(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
-static void (*fun)(Vertex,Vertex,double,WtNetwork *) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,WtNetwork *)) R_FindSymbol("WtSetEdge", "ergm", NULL);
-fun(tail,head,weight,nwp);
-}
-void WtSetEdgeWithTimestamp(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
-static void (*fun)(Vertex,Vertex,double,WtNetwork *) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,WtNetwork *)) R_FindSymbol("WtSetEdgeWithTimestamp", "ergm", NULL);
-fun(tail,head,weight,nwp);
-}
-int WtToggleEdge(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
-static int (*fun)(Vertex,Vertex,double,WtNetwork *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,double,WtNetwork *)) R_FindSymbol("WtToggleEdge", "ergm", NULL);
-return fun(tail,head,weight,nwp);
-}
-int WtToggleEdgeWithTimestamp(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
-static int (*fun)(Vertex,Vertex,double,WtNetwork *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,double,WtNetwork *)) R_FindSymbol("WtToggleEdgeWithTimestamp", "ergm", NULL);
-return fun(tail,head,weight,nwp);
-}
-int WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
-static int (*fun)(Vertex,Vertex,double,WtNetwork *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,double,WtNetwork *)) R_FindSymbol("WtAddEdgeToTrees", "ergm", NULL);
-return fun(tail,head,weight,nwp);
-}
-void WtAddHalfedgeToTree(Vertex a, Vertex b, double weight, WtTreeNode *edges, Edge *last_edge){
-static void (*fun)(Vertex,Vertex,double,WtTreeNode *,Edge *) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,WtTreeNode *,Edge *)) R_FindSymbol("WtAddHalfedgeToTree", "ergm", NULL);
-fun(a,b,weight,edges,last_edge);
-}
-void WtCheckEdgetreeFull(WtNetwork *nwp){
-static void (*fun)(WtNetwork *) = NULL;
-if(fun==NULL) fun = (void (*)(WtNetwork *)) R_FindSymbol("WtCheckEdgetreeFull", "ergm", NULL);
-fun(nwp);
-}
-int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp){
-static int (*fun)(Vertex,Vertex,WtNetwork *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,WtNetwork *)) R_FindSymbol("WtDeleteEdgeFromTrees", "ergm", NULL);
-return fun(tail,head,nwp);
-}
-int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,Edge *last_edge){
-static int (*fun)(Vertex,Vertex,WtTreeNode *,Edge *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,WtTreeNode *,Edge *)) R_FindSymbol("WtDeleteHalfedgeFromTree", "ergm", NULL);
-return fun(a,b,edges,last_edge);
-}
-void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges){
-static void (*fun)(Edge,Edge,WtTreeNode *) = NULL;
-if(fun==NULL) fun = (void (*)(Edge,Edge,WtTreeNode *)) R_FindSymbol("WtRelocateHalfedge", "ergm", NULL);
-fun(from,to,edges);
-}
-int WtElapsedTime(Vertex tail, Vertex head, WtNetwork *nwp){
-static int (*fun)(Vertex,Vertex,WtNetwork *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,WtNetwork *)) R_FindSymbol("WtElapsedTime", "ergm", NULL);
-return fun(tail,head,nwp);
-}
-void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp){
-static void (*fun)(Vertex,Vertex,WtNetwork *) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,WtNetwork *)) R_FindSymbol("WtTouchEdge", "ergm", NULL);
-fun(tail,head,nwp);
 }
 int WtFindithEdge(Vertex *tail, Vertex *head, double *weight, Edge i, WtNetwork *nwp){
 static int (*fun)(Vertex *,Vertex *,double *,Edge,WtNetwork *) = NULL;
@@ -867,8 +702,8 @@ return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 #undef FOR_EACH_TERM_INREVERSE
 #undef EXEC_THROUGH_TERMS_INREVERSE
 #undef EXEC_THROUGH_TERMS_INTO
+#undef UPDATE_STORAGE_COND
 #undef UPDATE_STORAGE
-#undef UPDATE_C_STORAGE
 #include "R_ext/Rdynload.h"
 #include "wtMHproposal.h"
 void WtMH_init(WtMHproposal *MH,char *MHproposaltype, char *MHproposalpackage,double *inputs,int fVerbose,WtNetwork *nwp){
@@ -1012,5 +847,5 @@ fun(nwp,m);
 #undef FOR_EACH_TERM_INREVERSE
 #undef EXEC_THROUGH_TERMS_INREVERSE
 #undef EXEC_THROUGH_TERMS_INTO
+#undef UPDATE_STORAGE_COND
 #undef UPDATE_STORAGE
-#undef UPDATE_C_STORAGE

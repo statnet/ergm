@@ -482,7 +482,3 @@ void WtShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges){
     weights[i-1] = w;
   }
 }
-
-#ifndef INLINE_EDGETREE
-#include "wtedgetree_inline.inc"
-#endif

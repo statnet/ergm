@@ -1,4 +1,4 @@
-/*  File inst/include/wtedgetree.h in package ergm, part of the Statnet suite
+/*  File src/wtedgetree.h in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -15,6 +15,7 @@
 #include <Rinternals.h>
 #include <Rmath.h>
 #include "edgetree.h"
+
 
 /* WtTreeNode is just like TreeNode but with an extra field for a
    weight, or value, that might be associated with the node */
@@ -79,35 +80,36 @@ WtNetwork WtNetworkInitializeD(double *tails, double *heads, double *weights, Ed
 
 WtNetwork *WtNetworkCopy(WtNetwork *dest, WtNetwork *src);
 
-/* Accessors. */
-Edge WtEdgetreeSearch (Vertex a, Vertex b, WtTreeNode *edges);
-double WtGetEdge (Vertex tail, Vertex head, WtNetwork *nwp);
-Edge WtEdgetreeSuccessor (WtTreeNode *edges, Edge x);
-Edge WtEdgetreePredecessor (WtTreeNode *edges, Edge x);
-Edge WtEdgetreeMinimum (WtTreeNode *edges, Edge x);
-Edge WtEdgetreeMaximum (WtTreeNode *edges, Edge x);
+/* /\* Accessors. *\/ */
+/* static inline Edge WtEdgetreeSearch (Vertex a, Vertex b, WtTreeNode *edges); */
+/* static inline double WtGetEdge (Vertex tail, Vertex head, WtNetwork *nwp); */
+/* static inline Edge WtEdgetreeSuccessor (WtTreeNode *edges, Edge x); */
+/* static inline Edge WtEdgetreePredecessor (WtTreeNode *edges, Edge x); */
+/* static inline Edge WtEdgetreeMinimum (WtTreeNode *edges, Edge x); */
+/* static inline Edge WtEdgetreeMaximum (WtTreeNode *edges, Edge x); */
 
-/* Modifiers. */
+/* /\* Modifiers. *\/ */
 
-/* *** don't forget,  tails -> heads, so all the functions below using
-   heads & tails, now list tails before heads */
+/* /\* *** don't forget,  tails -> heads, so all the functions below using */
+/*    heads & tails, now list tails before heads *\/ */
 
+/* static inline void WtSetEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp); */
+/* static inline void WtSetEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork *nwp); */
+/* static inline int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp); */
+/* static inline int WtToggleEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork *nwp); */
+/* static inline int WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp); */
+/* static inline void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, WtTreeNode *edges, Edge *last_edge); */
+/* static inline void WtCheckEdgetreeFull (WtNetwork *nwp); */
+/* static inline int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp); */
+/* static inline int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges, */
+/* 		     Edge *last_edge); */
+/* static inline void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges); */
 
-void WtSetEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
-void WtSetEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
-int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
-int WtToggleEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
-int WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp);
-void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, WtTreeNode *edges, Edge *last_edge);
-void WtCheckEdgetreeFull (WtNetwork *nwp);
-int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp);
-int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
-		     Edge *last_edge);
-void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges);
+/* /\* Duration functions. *\/ */
+/* static inline int WtElapsedTime (Vertex tail, Vertex head, WtNetwork *nwp); */
+/* static inline void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp); */
 
-/* Duration functions. */
-int WtElapsedTime (Vertex tail, Vertex head, WtNetwork *nwp);
-void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp);
+#include "wtedgetree_inline.inc"
 
 /* Utility functions. */
 int WtFindithEdge (Vertex *tail, Vertex *head, double *weight, Edge i, WtNetwork *nwp);

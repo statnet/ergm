@@ -1,4 +1,4 @@
-/*  File inst/include/edgetree.h in package ergm, part of the Statnet suite
+/*  File src/edgetree.h in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -14,6 +14,7 @@
 #include <R.h>
 #include <Rinternals.h>
 #include <Rmath.h>
+
 
 #define MIN(a,b) ((a)<(b) ? (a) : (b))
 #define MAX(a,b) ((a)<(b) ? (b) : (a))
@@ -100,31 +101,33 @@ Network NetworkInitializeD(double *tails, double *heads, Edge nedges,
 
 Network *NetworkCopy(Network *dest, Network *src);
 
-/* Accessors. */
-Edge EdgetreeSearch (Vertex a, Vertex b, TreeNode *edges);
-Edge EdgetreeSuccessor (TreeNode *edges, Edge x);
-Edge EdgetreePredecessor (TreeNode *edges, Edge x);
-Edge EdgetreeMinimum (TreeNode *edges, Edge x);
-Edge EdgetreeMaximum (TreeNode *edges, Edge x);
+/* /\* Accessors. *\/ */
+/* static inline Edge EdgetreeSearch (Vertex a, Vertex b, TreeNode *edges); */
+/* static inline Edge EdgetreeSuccessor (TreeNode *edges, Edge x); */
+/* static inline Edge EdgetreePredecessor (TreeNode *edges, Edge x); */
+/* static inline Edge EdgetreeMinimum (TreeNode *edges, Edge x); */
+/* static inline Edge EdgetreeMaximum (TreeNode *edges, Edge x); */
 
-/* Modifiers. */
+/* /\* Modifiers. *\/ */
 
-/* *** don't forget,  tails -> heads, so all the functions below using
-   heads & tails, now list tails before heads */
+/* /\* *** don't forget,  tails -> heads, so all the functions below using */
+/*    heads & tails, now list tails before heads *\/ */
 
-int ToggleEdge (Vertex tail, Vertex head, Network *nwp);
-int ToggleEdgeWithTimestamp (Vertex tail, Vertex head, Network *nwp);
-int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp);
-void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge);
-void CheckEdgetreeFull (Network *nwp);
-int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp);
-int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
-		     Edge *last_edge);
-void RelocateHalfedge(Edge from, Edge to, TreeNode *edges);
+/* static inline int ToggleEdge (Vertex tail, Vertex head, Network *nwp); */
+/* static inline int ToggleEdgeWithTimestamp (Vertex tail, Vertex head, Network *nwp); */
+/* static inline int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp); */
+/* static inline void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge); */
+/* static inline void CheckEdgetreeFull (Network *nwp); */
+/* static inline int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp); */
+/* static inline int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges, */
+/* 		     Edge *last_edge); */
+/* static inline void RelocateHalfedge(Edge from, Edge to, TreeNode *edges); */
 
-/* Duration functions. */
-int ElapsedTime(Vertex tail, Vertex head, Network *nwp);
-void TouchEdge(Vertex tail, Vertex head, Network *nwp);
+/* /\* Duration functions. *\/ */
+/* static inline int ElapsedTime(Vertex tail, Vertex head, Network *nwp); */
+/* static inline void TouchEdge(Vertex tail, Vertex head, Network *nwp); */
+
+#include "edgetree_inline.inc"
 
 /* Utility functions. */
 int FindithEdge(Vertex *tail, Vertex *head, Edge i, Network *nwp);
