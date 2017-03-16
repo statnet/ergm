@@ -66,7 +66,7 @@ WtNetwork *nwp, WtModel *m, double *stats){
   Edge ntoggles = n_edges; // So that we can use the macros
 
   /* Initialize storage for terms that don't have s_functions.  */
-  EXEC_THROUGH_TERMS({
+  WtEXEC_THROUGH_TERMS({
 #ifdef DEBUG
       double *dstats = mtp->dstats;
       mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
@@ -81,7 +81,7 @@ WtNetwork *nwp, WtModel *m, double *stats){
     });
     
   /* Calculate statistics for terms that don't have c_functions or s_functions.  */
-  EXEC_THROUGH_TERMS_INTO(stats, {
+  WtEXEC_THROUGH_TERMS_INTO(stats, {
       if(mtp->s_func==NULL && mtp->c_func==NULL && mtp->d_func){
 	(*(mtp->d_func))(ntoggles, tails, heads, weights,
 			 mtp, nwp);  /* Call d_??? function */
@@ -95,7 +95,7 @@ WtNetwork *nwp, WtModel *m, double *stats){
   FOR_EACH_TOGGLE{
     GETNEWTOGGLEINFO();
     
-    EXEC_THROUGH_TERMS_INTO(stats, {
+    WtEXEC_THROUGH_TERMS_INTO(stats, {
 	if(mtp->s_func==NULL && mtp->c_func){
 	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
 			   mtp, nwp);  /* Call c_??? function */
@@ -107,12 +107,12 @@ WtNetwork *nwp, WtModel *m, double *stats){
       });
     
     /* Update storage and network */    
-    UPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, m, nwp, mtp->s_func==NULL && mtp->d_func==NULL);
+    WtUPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, m, nwp, mtp->s_func==NULL && mtp->d_func==NULL);
     SETWT(TAIL, HEAD, NEWWT);
   }
   
   /* Calculate statistics for terms have s_functions  */
-  EXEC_THROUGH_TERMS_INTO(stats, {
+  WtEXEC_THROUGH_TERMS_INTO(stats, {
       if(mtp->s_func){
 	(*(mtp->s_func))(mtp, nwp);  /* Call d_??? function */
 	for(unsigned int k=0; k<N_CHANGE_STATS; k++){

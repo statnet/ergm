@@ -28,31 +28,12 @@ typedef struct WtModelTermstruct {
   void *storage; /* optional space for persistent storage */
 } WtModelTerm;
 
-
-/* binomial coefficient macro: */
-#define CHOOSE(n,r) ((n)<(r) ? (0) : (my_choose((double)(n),(int)(r)))) 
-
-/* Macros to test for logical inequality (XOR) and logical equality (XNOR). */
-#define XOR(a,b) (((a)==0) != ((b)==0))
-#define XNOR(a,b) (((a)==0) == ((b)==0))
+#include "changestat_common.inc"
 
 /* macros that tell whether a particular edge exists */
 #define IS_OUTEDGE(a,b) (WtEdgetreeSearch((a),(b),nwp->outedges)!=0?1:0)
 #define IS_INEDGE(a,b) (WtEdgetreeSearch((a),(b),nwp->inedges)!=0?1:0)
 #define IS_UNDIRECTED_EDGE(a,b) IS_OUTEDGE(MIN(a,b), MAX(a,b))
-
-/* The OUTVAL and INVAL macros give the "other endnode" of edge e, depending
-   on whether it is an in-edge or an out-edge.  Presumably the first endnode
-   of the edge is already known in this context. */
-#define OUTVAL(e) (nwp->outedges[(e)].value)
-#define INVAL(e) (nwp->inedges[(e)].value)
-
-/* The OUTWT and INWT macros give the weight of edge e, depending
-   on whether it is an in-edge or an out-edge.  Presumably the first endnode
-   of the edge is already known in this context. */
-#define OUTWT(e) (nwp->outedges[(e)].weight)
-#define INWT(e) (nwp->inedges[(e)].weight)
-
 
 /* Return the Edge number of the smallest-labelled neighbor of the node 
    labelled "a".  Or, return the Edge number of the next-largest neighbor 
@@ -64,12 +45,11 @@ typedef struct WtModelTermstruct {
 #define NEXT_OUTEDGE(e) (WtEdgetreeSuccessor(nwp->outedges,(e)))
 #define NEXT_INEDGE(e) (WtEdgetreeSuccessor(nwp->inedges,(e)))
 
-/* Return each of the out-neighbors or in-neighbors, one at a time,
-   of node a.  At each iteration of the loop, the variable v gives the node 
-   number of the corresponding neighbor.  The e variable, which should be
-   initialized as type Edge, is merely the looping variable. */
-#define STEP_THROUGH_OUTEDGES(a,e,v) for((e)=MIN_OUTEDGE(a);((v)=OUTVAL(e))!=0;(e)=NEXT_OUTEDGE(e))
-#define STEP_THROUGH_INEDGES(a,e,v) for((e)=MIN_INEDGE(a);((v)=INVAL(e))!=0;(e)=NEXT_INEDGE(e))
+/* The OUTWT and INWT macros give the weight of edge e, depending
+   on whether it is an in-edge or an out-edge.  Presumably the first endnode
+   of the edge is already known in this context. */
+#define OUTWT(e) (nwp->outedges[(e)].weight)
+#define INWT(e) (nwp->inedges[(e)].weight)
 
 // These are "declaring" versions of the above, optimized for use in EXEC_TROUGH_*EDGES macros.
 #define STEP_THROUGH_OUTEDGES_DECL(a,e,v) for(Edge e=MIN_OUTEDGE(a);OUTVAL(e)!=0;e=NEXT_OUTEDGE(e))
@@ -99,39 +79,6 @@ typedef struct WtModelTermstruct {
 /* Get and set the weight of the (a,b) edge. */
 #define GETWT(a,b) (WtGetEdge(a,b,nwp))
 #define SETWT(a,b,w) (WtSetEdge(a,b,w,nwp))
-
-#define N_NODES (nwp->nnodes) /* Total number of nodes in the network */
-#define N_DYADS (DYADCOUNT(nwp->nnodes,nwp->bipartite,nwp->directed_flag))
-#define OUT_DEG (nwp->outdegree) /* Vector of length N_NODES giving current outdegrees */
-#define IN_DEG (nwp->indegree) /* Vector of length N_NODES giving current indegrees */
-#define DIRECTED (nwp->directed_flag) /* 0 if network is undirected, 1 if directed */
-#define N_EDGES (nwp->nedges) /* Total number of edges in the network currently */
-
-/* 0 if network is not bipartite, otherwise number of first node of second type */
-#define BIPARTITE (nwp->bipartite)
-
-/* Get the number of tails and the number of heads consistently for both bipartite and unipartite networks. */
-#define N_TAILS (BIPARTITE ? BIPARTITE : N_NODES)
-#define N_HEADS (BIPARTITE ? N_NODES-BIPARTITE : N_NODES)
-
-/* Used for internal purposes:  assigning the next in- and out-edge when
-   needed */
-#define NEXT_INEDGE_NUM (nwp->next_inedge)
-#define NEXT_OUTEDGE_NUM (nwp->next_outedge)
-
-/* Vector of change statistics to be modified by the function*/
-#define CHANGE_STAT (mtp->dstats)
-/* Number of change statistics required by the current term */
-#define N_CHANGE_STATS (mtp->nstats)
-
-/* Vector of values passed via "inputs" from R */
-#define INPUT_PARAM (mtp->inputparams)
-#define N_INPUT_PARAMS (mtp->ninputparams) /* Number of inputs passed */
-
-#define TOGGLEIND toggleind_var
-
-/* macro to set all changestats to zero at start of function */
-#define ZERO_ALL_CHANGESTATS() memset(CHANGE_STAT, 0, sizeof(double)*N_CHANGE_STATS);
 
 /* Cycle through all toggles proposed for the current step, then
    make the current toggle in case of more than one proposed toggle, then
@@ -171,47 +118,6 @@ typedef struct WtModelTermstruct {
 #define GETNEWWT(a,b) (SAMEDYAD(TAIL,HEAD,a,b)?NEWWT:GETWT(a,b))
 #define GETNEWWTOLD(a,b,old) (SAMEDYAD(TAIL,HEAD,a,b)?NEWWT:(old))
 
-#define ALLOC_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (mtp->storage = calloc(nmemb, sizeof(stored_type)));
-#define GET_STORAGE(stored_type, store_into) stored_type *store_into = (stored_type *) mtp->storage;
-
-#define ALLOC_AUX_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (nwp->aux_storage[(unsigned int) INPUT_PARAM[0]] = calloc(nmemb, sizeof(stored_type)));
-#define GET_AUX_STORAGE(stored_type, store_into) stored_type *store_into = (stored_type *) nwp->aux_storage[(unsigned int) INPUT_PARAM[0]];
-#define GET_AUX_STORAGE_NUM(stored_type, store_into, ind) stored_type *store_into = (stored_type *) nwp->aux_storage[(unsigned int) INPUT_PARAM[ind]];
-
-/* Allocate a sociomatrix as auxiliary storage. */
-#define ALLOC_AUX_SOCIOMATRIX(stored_type, store_into)			\
-  /* Note: the following code first sets up a 2D array indexed from 0, then shifts all pointers by -1 so that sm[t][h] would work for vertex IDs. */ \
-  ALLOC_AUX_STORAGE(N_TAILS, stored_type*, store_into);			\
-  Dyad sm_size = BIPARTITE? N_TAILS*N_HEADS : DIRECTED ? N_NODES*N_NODES : N_NODES*(N_NODES+1)/2; /* For consistency, and possible future capabilities, include diagonal: */ \
-  ALLOC_STORAGE(sm_size, stored_type, data); /* A stored_type* to data. */ \
-  Dyad pos = 0;	  /* Start of the next row's data in the data vector. */ \
-  for(Vertex t=0; t<N_TAILS; t++){                                      \
-  /* First set up the pointer to the right location in the data vector, */ \
-  if(BIPARTITE){							\
-  store_into[t] = data+pos - N_TAILS; /* This is so that store_into[t][h=BIPARTITE] would address the 0th element of that row. */ \
-  pos += N_HEADS;							\
-  }else if(DIRECTED){							\
-    store_into[t] = data+pos;						\
-    pos += N_HEADS;							\
-  }else{ /* Undirected. */						\
-    store_into[t] = data+pos - t; /* tail <= head, so this is so that store_into[t][h=t] would address the 0th element of that row. */ \
-    pos += N_HEADS-t+1; /* Each row has N_NODES - t + 1 elements (including diagonal). */ \
-  }									\
-  store_into[t]--; /* Now, shift the pointer by -1. */			\
-  }									\
-									\
-  store_into--; /* Shift the pointer array by -1. */			\
-  nwp->aux_storage[(unsigned int) INPUT_PARAM[0]] = store_into; /* This is needed to make sure the pointer array itself is updated. */
-
-/* Free a sociomatrix in auxiliary storage. */
-#define FREE_AUX_SOCIOMATRIX						\
-  unsigned int myslot = (unsigned int) INPUT_PARAM[0];			\
-  /* If we hadn't shifted the pointers by -1, this would not have been necessary. */ \
-  GET_AUX_STORAGE(void*, sm);						\
-  free(sm + 1);								\
-  nwp->aux_storage[myslot] = NULL;					\
-  /* nwp->storage was not shifted, so it'll be freed automatically. */	
-
 /****************************************************/
 /* changestat function prototypes, 
    plus a few supporting function prototypes */
@@ -238,8 +144,5 @@ typedef struct WtModelTermstruct {
 
 /* This macro constructs a function that wraps D_FROM_S. */
 #define WtD_FROM_S_FN(a) WtD_CHANGESTAT_FN(a) D_FROM_S
-
-/* Not often used */
-#define INPUT_ATTRIB (mtp->attrib)
 
 #endif
