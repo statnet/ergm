@@ -247,13 +247,13 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
 
     /* Execute storage updates */
     IF_MORE_TO_COME(toggle){
-      UPDATE_C_STORAGE(tails[toggle],heads[toggle], m, nwp);
+      UPDATE_STORAGE_COND(tails[toggle],heads[toggle], m, nwp, mtp->d_func==NULL);
       TOGGLE(tails[toggle],heads[toggle]);
     }
   }
   /* Undo previous storage updates and toggles */
   UNDO_PREVIOUS(toggle){
-    UPDATE_C_STORAGE(tails[toggle],heads[toggle], m, nwp);
+    UPDATE_STORAGE_COND(tails[toggle],heads[toggle], m, nwp, mtp->d_func==NULL);
     TOGGLE(tails[toggle],heads[toggle]);
   }
 }

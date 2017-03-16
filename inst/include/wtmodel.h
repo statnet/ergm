@@ -1,4 +1,4 @@
-/*  File inst/include/wtmodel.h in package ergm, part of the Statnet suite
+/*  File src/wtmodel.h in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -40,7 +40,7 @@ typedef struct WtModelstruct {
 #define FOR_EACH_TERM_INREVERSE for(WtModelTerm *mtp = m->termarray + m->n_terms - 1; mtp >= m->termarray; mtp--)
 
 #define EXEC_THROUGH_TERMS_INREVERSE(subroutine){			\
-    FOR_EACH_TERM_INREVERSE{							\
+    FOR_EACH_TERM_INREVERSE{						\
       subroutine;							\
     }									\
   }
@@ -59,44 +59,31 @@ typedef struct WtModelstruct {
     statistics; then restore it. Otherwise, don't bother. */
 #ifdef DEBUG
 
-#define UPDATE_STORAGE(tail, head, weight, m, nwp){			\
+#define UPDATE_STORAGE_COND(tail, head, weight, m, nwp, cond){		\
     EXEC_THROUGH_TERMS({						\
 	double *dstats = mtp->dstats; /* Back up mtp->dstats. */	\
 	mtp->dstats = NULL; /* Trigger segfault if u_func tries to write to change statistics. */ \
-	if(mtp->u_func) /* Skip if no update. */			\
+	if(mtp->u_func && (cond))					\
 	  (*(mtp->u_func))(tail, head, weight, mtp, nwp);  /* Call u_??? function */ \
 	mtp->dstats = dstats; /* Restore mtp->dstats. */		\
       });								\
   }
 
-#define UPDATE_C_STORAGE(tail, head, weight, m, nwp){			\
-    EXEC_THROUGH_TERMS({						\
-      double *dstats = mtp->dstats; /* Back up mtp->dstats. */		\
-      mtp->dstats = NULL; /* Trigger segfault if u_func tries to write to change statistics. */ \
-      if(mtp->u_func && mtp->d_func==NULL) /* Skip if either no update or it's a d_func, so it doesn't require storage updates for provisional updates. */ \
-	(*(mtp->u_func))(tail, head, weight, mtp, nwp);  /* Call u_??? function */ \
-      mtp->dstats = dstats; /* Restore mtp->dstats. */			\
-    });									\
-  }
-
 #else
 
-#define UPDATE_STORAGE(tail, head, weight, m, nwp){			\
-    EXEC_THROUGH_TERMS({						\
-	if(mtp->u_func) /* Skip if no update. */			\
-	  (*(mtp->u_func))(tail, head, weight, mtp, nwp);  /* Call u_??? function */ \
-      });								\
-  }
 
-#define UPDATE_C_STORAGE(tail, head, weight, m, nwp){			\
+#define UPDATE_STORAGE_COND(tail, head, weight, m, nwp, cond){		\
     EXEC_THROUGH_TERMS({						\
-	if(mtp->u_func && mtp->d_func==NULL) /* Skip if either no update or it's a d_func, so it doesn't require storage updates for provisional updates. */ \
+	if(mtp->u_func && (cond))					\
 	  (*(mtp->u_func))(tail, head, weight, mtp, nwp);  /* Call u_??? function */ \
       });								\
   }
 
 #endif
 
+#define UPDATE_STORAGE(tail, head, weight, m, nwp){			\
+    UPDATE_STORAGE_COND(tail, head, weight, m, nwp, TRUE);		\
+  }
 
 WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputs,
 			int n_terms);

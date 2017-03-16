@@ -807,13 +807,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     \code{density} equals \code{edges} or \code{istar(1)} or \code{ostar(1)}
     divided by \eqn{n(n-1)}. }
 
-    \item{\code{diff(attrname, pow=1, dir="t-h",
-    sign.action="identity")} (binary) (dyad-independent)
-    (frequently-used) (directed) (undirected) (quantitative nodal
-    attribute), \code{diff(attrname, pow=1, dir="t-h",
-    sign.action="identity", form ="sum")} (valued) (dyad-independent)
-    (directed) (undirected) (quantitative nodal
-    attribute)}{\emph{Difference:} The \code{attrname} argument is a
+    \item{\code{diff(attrname, pow=1, dir="t-h", sign.action="identity")} (binary) (dyad-independent) (frequently-used) (directed) (undirected) (quantitative nodal attribute), \code{diff(attrname, pow=1, dir="t-h", sign.action="identity", form ="sum")} (valued) (dyad-independent) (directed) (undirected) (quantitative nodal attribute)}{\emph{Difference:}
+      The \code{attrname} argument is a
     character string giving the name of a quantitative attribute in the
     network's vertex attribute list. For values of \code{pow} other than
     \code{0}, this term adds one network statistic to the model,

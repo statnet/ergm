@@ -107,7 +107,7 @@ WtNetwork *nwp, WtModel *m, double *stats){
       });
     
     /* Update storage and network */    
-    UPDATE_C_STORAGE(TAIL, HEAD, NEWWT, m, nwp);
+    UPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, m, nwp, mtp->s_func==NULL && mtp->d_func==NULL);
     SETWT(TAIL, HEAD, NEWWT);
   }
   

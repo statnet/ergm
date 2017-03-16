@@ -3,14 +3,11 @@
 /*****************
  changestat: d_concurrent_ties
 *****************/
-D_CHANGESTAT_FN(d_concurrent_ties) { 
-  int i, echange;
-  Vertex tail, head, taildeg, headdeg;
+C_CHANGESTAT_FN(c_concurrent_ties) { 
+  int echange;
+  Vertex taildeg, headdeg;
 
   CHANGE_STAT[0] = 0.0;  
-  FOR_EACH_TOGGLE(i) {
-    tail = TAIL(i);
-    head = HEAD(i);
     echange = IS_OUTEDGE(tail, head) ? -1 : 1;
     taildeg = OUT_DEG[tail];
     headdeg = IN_DEG[head];
@@ -27,26 +24,20 @@ D_CHANGESTAT_FN(d_concurrent_ties) {
       if(taildeg>=2) CHANGE_STAT[0]--;
       if(headdeg>=2) CHANGE_STAT[0]--;
     }
-    TOGGLE_IF_MORE_TO_COME(i);
-  }
-  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
  changestat: d_concurrent_ties_by_attr
 *****************/
-D_CHANGESTAT_FN(d_concurrent_ties_by_attr) { 
+C_CHANGESTAT_FN(c_concurrent_ties_by_attr) { 
   /*The inputparams are assumed to be set up as follows:
     The first 2*nstats values are in pairs:  (degree, attrvalue)
     The values following the first 2*nstats values are the nodal attributes.
   */
-  int i, j, echange, tailattr, headattr;
-  Vertex tail, head, taildeg, headdeg;
+  int j, echange, tailattr, headattr;
+  Vertex taildeg, headdeg;
 
   ZERO_ALL_CHANGESTATS(i);
-  FOR_EACH_TOGGLE(i) {
-    tail = TAIL(i);
-    head = HEAD(i);
     echange = IS_OUTEDGE(tail, head) ? -1 : 1;
     taildeg = OUT_DEG[tail];
     headdeg = IN_DEG[head];
@@ -67,9 +58,6 @@ D_CHANGESTAT_FN(d_concurrent_ties_by_attr) {
         if(headattr == INPUT_PARAM[j] && headdeg>=2) CHANGE_STAT[j]--;
       }
     }
-    TOGGLE_IF_MORE_TO_COME(i);
-  }
-  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 
