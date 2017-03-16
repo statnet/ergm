@@ -249,14 +249,14 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
 
     /* Update storage and network */    
     IF_MORE_TO_COME{
-      UPDATE_C_STORAGE(TAIL, HEAD, NEWWT, m, nwp);
+      UPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, m, nwp, mtp->d_func==NULL);
       SETWT_WITH_BACKUP();
     }
   }
   /* Undo previous storage updates and toggles */
   UNDO_PREVIOUS{
     GETOLDTOGGLEINFO();
-    UPDATE_C_STORAGE(TAIL,HEAD,weights[TOGGLEIND], m, nwp);
+    UPDATE_STORAGE_COND(TAIL,HEAD,weights[TOGGLEIND], m, nwp, mtp->d_func==NULL);
     SETWT(TAIL,HEAD,weights[TOGGLEIND]);
     weights[TOGGLEIND]=OLDWT;
   }
@@ -267,7 +267,8 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
   A helper's helper function to initialize storage for functions that use it.
 */
 void WtInitStats(WtNetwork *nwp, WtModel *m){
-  EXEC_THROUGH_TERMS({
+  // Iterate in reverse, so that auxliary terms get initialized first.  
+  EXEC_THROUGH_TERMS_INREVERSE({
       double *dstats = mtp->dstats;
       mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
       if(mtp->i_func)

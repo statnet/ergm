@@ -19,7 +19,7 @@ ergm.auxstorage <- function(model, nw, response=NULL,...){
   uniq.aux.outlists <- unique(unlist(aux.outlists, recursive=FALSE))
 
   # Initialize the auxiliary model.
-  aux.model <- structure(list(formula=formula, coef.names = NULL,
+  aux.model <- structure(list(formula=NULL, coef.names = NULL,
                           offset = NULL,
                           terms = NULL, networkstats.0 = NULL, etamap = NULL),
                          class = "model.ergm")

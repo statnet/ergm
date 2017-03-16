@@ -113,7 +113,7 @@ Network *nwp, Model *m, double *stats){
       });
     
     /* Update storage and network */    
-    UPDATE_C_STORAGE(t, h, m, nwp);
+    UPDATE_STORAGE_COND(t, h, m, nwp, mtp->s_func==NULL && mtp->d_func==NULL);
     TOGGLE(t, h);
   }
   

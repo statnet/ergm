@@ -25,7 +25,7 @@ ergm.getglobalstats <- function(nw, m, response=NULL) {
   Clist <- ergm.Cprepare(nw, m, response=response)
 
   # Adjust to global values. This needs to happen before the C call,
-  # so that an s_function, if exists could override.
+  # so that an s_function, if exists, could override.
                                                                 
   # New method:  Use $emptynwstats added to m$terms by the InitErgmTerm function
   # Read the comments at the top of InitErgm.R or InitErgmTerm.R for 

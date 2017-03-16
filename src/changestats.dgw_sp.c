@@ -15,24 +15,21 @@ L2hk - for each h<->k neq t: k<->t, count u such that k<->u<->t
 
 This function will only work properly with undirected graphs, and should only be called in that case.
 */
-void dspUTP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
+static inline void dspUTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
   Edge e, f;
-  int i, j, echange;
+  int j, echange;
   int L2th, L2tu, L2uh;
   Vertex deg;
-  Vertex tail, head, u, v;
+  Vertex u, v;
   
-  for(i=0;i<nd;i++)  /*Initialize the changestat vector*/
-    cs[i]=0.0;
-
+  memset(cs, 0, nd*sizeof(double));
   //Rprintf("dvec:\n");
   //for(i=0;i<nd;i++)
   //  Rprintf("%d ",(int)dvec[i]);
   //Rprintf("\n");
 
-  FOR_EACH_TOGGLE(i) {
     L2th=0;
-    echange = (EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges) == 0) ? 1 : -1;
+    echange = (EdgetreeSearch(tail, head, nwp->outedges) == 0) ? 1 : -1;
     /* step through outedges of head */
     for(e = EdgetreeMinimum(nwp->outedges, head); 
     (u = nwp->outedges[e].value) != 0; e = EdgetreeSuccessor(nwp->outedges, e)) {
@@ -89,9 +86,6 @@ void dspUTP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Ne
       deg = (Vertex)dvec[j];
       cs[j] += echange*(L2th == deg);
     }
-    TOGGLE_IF_MORE_TO_COME(i);
-  }  
-  UNDO_PREVIOUS_TOGGLES(i);
 
   //Rprintf("cs:\n");
   //for(i=0;i<nd;i++)
@@ -107,20 +101,18 @@ Changescore for dsps based on outgoing two-paths, i.e. configurations for non-ed
 
 This function should only be used in the directed case
 */
-void dspOTP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
+static inline void dspOTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
   Edge e, f;
-  int i, j, echange;
+  int j, echange;
   int L2tk, L2kh; /*Two-path counts for t->h, t->k, and k->h edges*/
   Vertex deg;
-  Vertex tail, head, k, u;
+  Vertex k, u;
   
   //ZERO_ALL_CHANGESTATS
-  for(i=0;i<nd;i++)  /*Initialize the changestat vector*/
-  cs[i]=0.0;
+  memset(cs, 0, nd*sizeof(double));
   
-  FOR_EACH_TOGGLE(i) {
     //Rprintf("Working on toggle %d (%d,%d)\n",i,TAIL(i),HEAD(i));
-    echange = (IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) == 0) ? 1 : -1;
+    echange = (IS_OUTEDGE(tail, head) == 0) ? 1 : -1;
     
     /* step through outedges of head (i.e., k: t->k)*/
     STEP_THROUGH_OUTEDGES(head, e, k) {
@@ -154,10 +146,6 @@ void dspOTP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Ne
         }
       }
     }
-    
-    TOGGLE_IF_MORE_TO_COME(i);
-  }  
-  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 
@@ -172,19 +160,16 @@ L2kt - for each k->i neq j: j->k, count u such that i->u->k
 
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-void dspITP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
+static inline void dspITP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
   Edge e, f;
-  int i, j, echange;
+  int j, echange;
   int L2hk, L2kt; /*Two-path counts for t->h, h->k, and k->t edges*/
   Vertex deg;
-  Vertex tail, head, k, u;
+  Vertex k, u;
   
   //ZERO_ALL_CHANGESTATS
-  for(i=0;i<nd;i++)  /*Initialize the changestat vector*/
-    cs[i]=0.0;
-
-  FOR_EACH_TOGGLE(i) {
-    echange = (IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) == 0) ? 1 : -1;
+  memset(cs, 0, nd*sizeof(double));
+    echange = (IS_OUTEDGE(tail, head) == 0) ? 1 : -1;
     /* step through outedges of head (i.e., k: h->k)*/
     STEP_THROUGH_OUTEDGES(head, e, k) {
       if((k!=tail)){ /*Only use contingent cases*/
@@ -217,10 +202,6 @@ void dspITP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Ne
         }
       }
     }
-    
-    TOGGLE_IF_MORE_TO_COME(i);
-  }  
-  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 
@@ -234,19 +215,16 @@ L2kt - for each k->t neq h: k->h, count u such that t->u, k->u
 
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-void dspOSP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
+static inline void dspOSP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
   Edge e, f;
-  int i, j, echange;
+  int j, echange;
   int L2tk; /*Two-path counts for t->h, t->k, and k->t edges*/
   Vertex deg;
-  Vertex tail, head, k, u;
+  Vertex k, u;
   
   //ZERO_ALL_CHANGESTATS
-  for(i=0;i<nd;i++)  /*Initialize the changestat vector*/
-    cs[i]=0.0;
-
-  FOR_EACH_TOGGLE(i) {
-    echange = (IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) == 0) ? 1 : -1;
+  memset(cs, 0, nd*sizeof(double));
+    echange = (IS_OUTEDGE(tail, head) == 0) ? 1 : -1;
     /* step through outedges of tail (i.e., k: t->k, k->h, k!=h)*/
     STEP_THROUGH_INEDGES(head, e, k) {
       if(k!=tail){
@@ -267,10 +245,6 @@ void dspOSP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Ne
         
       }
     }
-    
-    TOGGLE_IF_MORE_TO_COME(i);
-  }  
-  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 
@@ -284,19 +258,16 @@ L2kh - for each k->h neq t: t->k, count u such that u->h, u->k
 
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-void dspISP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
+static inline void dspISP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
   Edge e, f;
-  int i, j, echange;
+  int j, echange;
   int L2kh; /*Two-path counts for t->h, h->k, and k->h edges*/
   Vertex deg;
-  Vertex tail, head, k, u;
+  Vertex k, u;
   
   //ZERO_ALL_CHANGESTATS
-  for(i=0;i<nd;i++)  /*Initialize the changestat vector*/
-    cs[i]=0.0;
-
-  FOR_EACH_TOGGLE(i) {
-    echange = (IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) == 0) ? 1 : -1;
+  memset(cs, 0, nd*sizeof(double));
+    echange = (IS_OUTEDGE(tail, head) == 0) ? 1 : -1;
     /* step through inedges of head (i.e., k: k->h, t->k, k!=t)*/
     STEP_THROUGH_OUTEDGES(tail, e, k) {
       if(k!=head){
@@ -315,10 +286,6 @@ void dspISP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Ne
         
       }
     }
-    
-    TOGGLE_IF_MORE_TO_COME(i);
-  }  
-  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 
@@ -334,19 +301,16 @@ L2hk - for each h->k neq t: h->t,k<->t, count u such that k<->u<->h
 
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-void dspRTP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
+static inline void dspRTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
   Edge e, f;
-  int i, j, echange, htedge;
+  int j, echange, htedge;
   int L2th,L2tk,L2kt,L2hk,L2kh; /*Two-path counts for various edges*/
   Vertex deg;
-  Vertex tail, head, k, u;
+  Vertex k, u;
   
-  for(i=0;i<nd;i++)  /*Initialize the changestat vector*/
-    cs[i]=0.0;
-
-  FOR_EACH_TOGGLE(i) {
+  memset(cs, 0, nd*sizeof(double));
     L2th=0;
-    echange = (EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges) == 0) ? 1 : -1;
+    echange = (EdgetreeSearch(tail, head, nwp->outedges) == 0) ? 1 : -1;
     htedge=IS_OUTEDGE(head,tail);  /*Is there an h->t (reciprocating) edge?*/
     /* step through inedges of tail (k->t: k!=h,h->t,k<->h)*/
     for(e = EdgetreeMinimum(nwp->inedges, tail); 
@@ -435,9 +399,6 @@ void dspRTP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Ne
       deg = (Vertex)dvec[j];
       cs[j] += echange*(L2th == deg);
     }
-    TOGGLE_IF_MORE_TO_COME(i);
-  }  
-  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 
@@ -460,8 +421,8 @@ Type codes are as follows (where (i,j) is the focal edge):
 
 Only one type may be specified per esp term.  UTP should always be used for undirected graphs; OTP is the traditional directed default.
 */
-D_CHANGESTAT_FN(d_ddsp) { 
-  int i,type;
+C_CHANGESTAT_FN(c_ddsp) { 
+  int type;
   double *dvec,*cs;
   
   /*Set things up*/
@@ -472,12 +433,12 @@ D_CHANGESTAT_FN(d_ddsp) {
 
   /*Obtain the ESP changescores (by type)*/
   switch(type){
-    case ESPUTP: dspUTP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
-    case ESPOTP: dspOTP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
-    case ESPITP: dspITP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
-    case ESPRTP: dspRTP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
-    case ESPOSP: dspOSP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
-    case ESPISP: dspISP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
+    case ESPUTP: dspUTP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
+    case ESPOTP: dspOTP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
+    case ESPITP: dspITP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
+    case ESPRTP: dspRTP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
+    case ESPOSP: dspOSP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
+    case ESPISP: dspISP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
   }
   /*We're done!  (Changestats were written in by the calc routine.)*/  
 }
@@ -498,7 +459,7 @@ Note that d_gwesp is a meta-function for all geometrically weighted ESP stats; t
 
 Only one type may be specified per esp term.  The default, OTP, retains the original behavior of esp/gwesp.  In the case of undirected graphs, OTP should be used (the others assume a directed network memory structure, and are not safe in the undirected case).
 */
-D_CHANGESTAT_FN(d_dgwdsp) { 
+C_CHANGESTAT_FN(c_dgwdsp) { 
   int type;
   Vertex i,maxesp;
   double alpha, oneexpa,*dvec,*cs;
@@ -509,19 +470,19 @@ D_CHANGESTAT_FN(d_dgwdsp) {
   oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
   type=(int)INPUT_PARAM[1];     /*Get the ESP type code to be used*/
   maxesp=(int)INPUT_PARAM[2];   /*Get the max ESP cutoff to use*/
-  cs=Calloc(maxesp,double);     /*Allocate memory for the ESP changescores*/
-  dvec=Calloc(maxesp,double);   /*Allocate memory for the ESP vals*/
+  cs=alloca(maxesp*sizeof(double));     /*Allocate memory for the ESP changescores*/
+  dvec=alloca(maxesp*sizeof(double));   /*Allocate memory for the ESP vals*/
   for(i=0;i<maxesp;i++)         /*Initialize the ESP vals*/
     dvec[i]=i+1.0;
 
   /*Obtain the DSP changescores (by type)*/
   switch(type){
-    case ESPUTP: dspUTP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs); break;
-    case ESPOTP: dspOTP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs); break;
-    case ESPITP: dspITP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs); break;
-    case ESPRTP: dspRTP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs); break;
-    case ESPOSP: dspOSP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs); break;
-    case ESPISP: dspISP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs); break;
+    case ESPUTP: dspUTP_calc(tail,head,mtp,nwp,maxesp,dvec,cs); break;
+    case ESPOTP: dspOTP_calc(tail,head,mtp,nwp,maxesp,dvec,cs); break;
+    case ESPITP: dspITP_calc(tail,head,mtp,nwp,maxesp,dvec,cs); break;
+    case ESPRTP: dspRTP_calc(tail,head,mtp,nwp,maxesp,dvec,cs); break;
+    case ESPOSP: dspOSP_calc(tail,head,mtp,nwp,maxesp,dvec,cs); break;
+    case ESPISP: dspISP_calc(tail,head,mtp,nwp,maxesp,dvec,cs); break;
   }
   
   /*Compute the gwdsp changescore*/
@@ -532,10 +493,6 @@ D_CHANGESTAT_FN(d_dgwdsp) {
     }
   }
   CHANGE_STAT[0]*=exp(alpha);
-  
-  /*Free the changescore memory*/
-  Free(cs);
-  Free(dvec);
 }
 
 
@@ -554,24 +511,21 @@ L2hk - for each h<->k neq t: k<->t, count u such that k<->u<->t
 
 This function will only work properly with undirected graphs, and should only be called in that case.
 */
-void espUTP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
+static inline void espUTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
   Edge e, f;
-  int i, j, echange;
+  int j, echange;
   int L2th, L2tu, L2uh;
   Vertex deg;
-  Vertex tail, head, u, v;
+  Vertex u, v;
   
-  for(i=0;i<nd;i++)  /*Initialize the changestat vector*/
-    cs[i]=0.0;
-
+  memset(cs, 0, nd*sizeof(double));
   //Rprintf("dvec:\n");
   //for(i=0;i<nd;i++)
   //  Rprintf("%d ",(int)dvec[i]);
   //Rprintf("\n");
 
-  FOR_EACH_TOGGLE(i) {
     L2th=0;
-    echange = (EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges) == 0) ? 1 : -1;
+    echange = (EdgetreeSearch(tail, head, nwp->outedges) == 0) ? 1 : -1;
     /* step through outedges of head */
     for(e = EdgetreeMinimum(nwp->outedges, head); 
     (u = nwp->outedges[e].value) != 0; e = EdgetreeSuccessor(nwp->outedges, e)) {
@@ -628,9 +582,6 @@ void espUTP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Ne
       deg = (Vertex)dvec[j];
       cs[j] += echange*(L2th == deg);
     }
-    TOGGLE_IF_MORE_TO_COME(i);
-  }  
-  UNDO_PREVIOUS_TOGGLES(i);
 
   //Rprintf("cs:\n");
   //for(i=0;i<nd;i++)
@@ -650,21 +601,18 @@ L2kh - for each k->j neq i: k->i, count u such that k->u->j
 
 This function should only be used in the directed case, with espUTP being used in the undirected case.
 */
-void espOTP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
+static inline void espOTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
   Edge e, f;
-  int i, j, echange;
+  int j, echange;
   int L2th, L2tk, L2kh; /*Two-path counts for t->h, t->k, and k->h edges*/
   Vertex deg;
-  Vertex tail, head, k, u;
+  Vertex k, u;
   
   //Rprintf("Clearing changestats\n");
-  for(i=0;i<nd;i++)  /*Initialize the changestat vector*/
-    cs[i]=0.0;
-
-  FOR_EACH_TOGGLE(i) {
+  memset(cs, 0, nd*sizeof(double));
     //Rprintf("Working on toggle %d (%d,%d)\n",i,TAIL(i),HEAD(i));
     L2th=0;
-    echange = (EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges) == 0) ? 1 : -1;
+    echange = (EdgetreeSearch(tail, head, nwp->outedges) == 0) ? 1 : -1;
     //Rprintf("\tEdge change is %d\n",echange);
     /* step through outedges of tail (i.e., k: t->k)*/
     //Rprintf("Walking through outedges of tail\n",echange);
@@ -719,9 +667,6 @@ void espOTP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Ne
       deg = (Vertex)dvec[j];
       cs[j] += echange*(L2th == deg);
     }
-    TOGGLE_IF_MORE_TO_COME(i);
-  }  
-  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 
@@ -735,21 +680,18 @@ L2kt - for each k->i neq j: j->k, count u such that i->u->k
 
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-void espITP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
+static inline void espITP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
   Edge e, f;
-  int i, j, echange;
+  int j, echange;
   int L2th, L2hk, L2kt; /*Two-path counts for t->h, h->k, and k->t edges*/
   Vertex deg;
-  Vertex tail, head, k, u;
+  Vertex k, u;
   
   //Rprintf("Clearing changestats\n");
-  for(i=0;i<nd;i++)  /*Initialize the changestat vector*/
-    cs[i]=0.0;
-
-  FOR_EACH_TOGGLE(i) {
+  memset(cs, 0, nd*sizeof(double));
     //Rprintf("Working on toggle %d (%d,%d)\n",i,TAIL(i),HEAD(i));
     L2th=0;
-    echange = (EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges) == 0) ? 1 : -1;
+    echange = (EdgetreeSearch(tail, head, nwp->outedges) == 0) ? 1 : -1;
     //Rprintf("\tEdge change is %d\n",echange);
     /* step through outedges of head (i.e., k: h->k)*/
     //Rprintf("Walking through outedges of head\n",echange);
@@ -802,9 +744,6 @@ void espITP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Ne
       deg = (Vertex)dvec[j];
       cs[j] += echange*(L2th == deg);
     }
-    TOGGLE_IF_MORE_TO_COME(i);
-  }  
-  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 
@@ -818,19 +757,16 @@ L2kt - for each k->t neq h: k->h, count u such that t->u, k->u
 
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-void espOSP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
+static inline void espOSP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
   Edge e, f;
-  int i, j, echange;
+  int j, echange;
   int L2th, L2tk, L2kt; /*Two-path counts for t->h, t->k, and k->t edges*/
   Vertex deg;
-  Vertex tail, head, k, u;
+  Vertex k, u;
   
-  for(i=0;i<nd;i++)  /*Initialize the changestat vector*/
-    cs[i]=0.0;
-
-  FOR_EACH_TOGGLE(i) {
+  memset(cs, 0, nd*sizeof(double));
     L2th=0;
-    echange = (EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges) == 0) ? 1 : -1;
+    echange = (EdgetreeSearch(tail, head, nwp->outedges) == 0) ? 1 : -1;
     /* step through outedges of tail (i.e., k: t->k, k->h, k!=h)*/
     for(e = EdgetreeMinimum(nwp->outedges, tail); 
     (k = nwp->outedges[e].value) != 0; e = EdgetreeSuccessor(nwp->outedges, e)) {
@@ -876,9 +812,6 @@ void espOSP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Ne
       deg = (Vertex)dvec[j];
       cs[j] += echange*(L2th == deg);
     }
-    TOGGLE_IF_MORE_TO_COME(i);
-  }  
-  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 
@@ -892,19 +825,16 @@ L2kh - for each k->h neq t: t->k, count u such that u->h, u->k
 
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-void espISP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
+static inline void espISP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
   Edge e, f;
-  int i, j, echange;
+  int j, echange;
   int L2th, L2hk, L2kh; /*Two-path counts for t->h, h->k, and k->h edges*/
   Vertex deg;
-  Vertex tail, head, k, u;
+  Vertex k, u;
   
-  for(i=0;i<nd;i++)  /*Initialize the changestat vector*/
-    cs[i]=0.0;
-
-  FOR_EACH_TOGGLE(i) {
+  memset(cs, 0, nd*sizeof(double));
     L2th=0;
-    echange = (EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges) == 0) ? 1 : -1;
+    echange = (EdgetreeSearch(tail, head, nwp->outedges) == 0) ? 1 : -1;
     /* step through inedges of head (i.e., k: k->h, t->k, k!=t)*/
     for(e = EdgetreeMinimum(nwp->inedges, head); 
     (k = nwp->inedges[e].value) != 0; e = EdgetreeSuccessor(nwp->inedges, e)) {
@@ -950,9 +880,6 @@ void espISP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Ne
       deg = (Vertex)dvec[j];
       cs[j] += echange*(L2th == deg);
     }
-    TOGGLE_IF_MORE_TO_COME(i);
-  }  
-  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 
@@ -968,19 +895,17 @@ L2hk - for each h->k neq t: h->t,k<->t, count u such that k<->u<->h
 
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-void espRTP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
+static inline void espRTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
   Edge e, f;
-  int i, j, echange, htedge;
+  int j, echange, htedge;
   int L2th,L2tk,L2kt,L2hk,L2kh; /*Two-path counts for various edges*/
   Vertex deg;
-  Vertex tail, head, k, u;
+  Vertex k, u;
   
-  for(i=0;i<nd;i++)  /*Initialize the changestat vector*/
-    cs[i]=0.0;
-
-  FOR_EACH_TOGGLE(i) {
+  memset(cs, 0, nd*sizeof(double));
+ 
     L2th=0;
-    echange = (EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges) == 0) ? 1 : -1;
+    echange = (EdgetreeSearch(tail, head, nwp->outedges) == 0) ? 1 : -1;
     htedge=IS_OUTEDGE(head,tail);  /*Is there an h->t (reciprocating) edge?*/
     /* step through inedges of tail (k->t: k!=h,h->t,k<->h)*/
     for(e = EdgetreeMinimum(nwp->inedges, tail); 
@@ -1069,9 +994,6 @@ void espRTP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Ne
       deg = (Vertex)dvec[j];
       cs[j] += echange*(L2th == deg);
     }
-    TOGGLE_IF_MORE_TO_COME(i);
-  }  
-  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 
@@ -1094,8 +1016,8 @@ Type codes are as follows (where (i,j) is the focal edge):
 
 Only one type may be specified per esp term.  UTP should always be used for undirected graphs; OTP is the traditional directed default.
 */
-D_CHANGESTAT_FN(d_desp) { 
-  int i,type;
+C_CHANGESTAT_FN(c_desp) { 
+  int type;
   double *dvec,*cs;
   
   /*Set things up*/
@@ -1106,12 +1028,12 @@ D_CHANGESTAT_FN(d_desp) {
 
   /*Obtain the ESP changescores (by type)*/
   switch(type){
-    case ESPUTP: espUTP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
-    case ESPOTP: espOTP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
-    case ESPITP: espITP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
-    case ESPRTP: espRTP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
-    case ESPOSP: espOSP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
-    case ESPISP: espISP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
+    case ESPUTP: espUTP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
+    case ESPOTP: espOTP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
+    case ESPITP: espITP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
+    case ESPRTP: espRTP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
+    case ESPOSP: espOSP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
+    case ESPISP: espISP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs); break;
   }
   /*We're done!  (Changestats were written in by the calc routine.)*/  
 }
@@ -1132,7 +1054,7 @@ Note that d_gwesp is a meta-function for all geometrically weighted ESP stats; t
 
 Only one type may be specified per esp term.  The default, OTP, retains the original behavior of esp/gwesp.  In the case of undirected graphs, OTP should be used (the others assume a directed network memory structure, and are not safe in the undirected case).
 */
-D_CHANGESTAT_FN(d_dgwesp) { 
+C_CHANGESTAT_FN(c_dgwesp) { 
   int type;
   Vertex i,maxesp;
   double alpha, oneexpa,*dvec,*cs;
@@ -1143,19 +1065,19 @@ D_CHANGESTAT_FN(d_dgwesp) {
   oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
   type=(int)INPUT_PARAM[1];     /*Get the ESP type code to be used*/
   maxesp=(int)INPUT_PARAM[2];   /*Get the max ESP cutoff to use*/
-  cs=Calloc(maxesp,double);     /*Allocate memory for the ESP changescores*/
-  dvec=Calloc(maxesp,double);   /*Allocate memory for the ESP vals*/
+  cs=alloca(maxesp*sizeof(double));     /*Allocate memory for the ESP changescores*/
+  dvec=alloca(maxesp*sizeof(double));   /*Allocate memory for the ESP vals*/
   for(i=0;i<maxesp;i++)         /*Initialize the ESP vals*/
     dvec[i]=i+1.0;
 
   /*Obtain the ESP changescores (by type)*/
   switch(type){
-    case ESPUTP: espUTP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs); break;
-    case ESPOTP: espOTP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs); break;
-    case ESPITP: espITP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs); break;
-    case ESPRTP: espRTP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs); break;
-    case ESPOSP: espOSP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs); break;
-    case ESPISP: espISP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs); break;
+    case ESPUTP: espUTP_calc(tail,head,mtp,nwp,maxesp,dvec,cs); break;
+    case ESPOTP: espOTP_calc(tail,head,mtp,nwp,maxesp,dvec,cs); break;
+    case ESPITP: espITP_calc(tail,head,mtp,nwp,maxesp,dvec,cs); break;
+    case ESPRTP: espRTP_calc(tail,head,mtp,nwp,maxesp,dvec,cs); break;
+    case ESPOSP: espOSP_calc(tail,head,mtp,nwp,maxesp,dvec,cs); break;
+    case ESPISP: espISP_calc(tail,head,mtp,nwp,maxesp,dvec,cs); break;
   }
   
   /*Compute the gwesp changescore*/
@@ -1166,10 +1088,6 @@ D_CHANGESTAT_FN(d_dgwesp) {
     }
   }
   CHANGE_STAT[0]*=exp(alpha);
-  
-  /*Free the changescore memory*/
-  Free(cs);
-  Free(dvec);
 }
 
 
@@ -1193,7 +1111,7 @@ Type codes are as follows (where (i,j) is the focal edge):
 
 Only one type may be specified per esp term.  UTP should always be used for undirected graphs; OTP is the traditional directed default.
 */
-D_CHANGESTAT_FN(d_dnsp) { 
+C_CHANGESTAT_FN(c_dnsp) { 
   int i,type;
   double *dvec,*cs_esp, *cs_dsp;
   
@@ -1201,44 +1119,40 @@ D_CHANGESTAT_FN(d_dnsp) {
   ZERO_ALL_CHANGESTATS(i);
   type=(int)INPUT_PARAM[0];     /*Get the ESP type code to be used*/
   dvec=INPUT_PARAM+1;           /*Get the pointer to the ESP stats list*/
-  cs_esp=Calloc(N_CHANGE_STATS,double);     /*Allocate memory for the DSP changescores*/
-  cs_dsp=Calloc(N_CHANGE_STATS,double);     /*Allocate memory for the DSP changescores*/
+  cs_esp=alloca(N_CHANGE_STATS*sizeof(double));     /*Allocate memory for the DSP changescores*/
+  cs_dsp=alloca(N_CHANGE_STATS*sizeof(double));     /*Allocate memory for the DSP changescores*/
 
   /*Obtain the ESP changescores (by type)*/
   switch(type){
   case ESPUTP: 
-    espUTP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs_esp);
-    dspUTP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs_dsp); 
+    espUTP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs_esp);
+    dspUTP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs_dsp); 
     break;
   case ESPOTP: 
-    espOTP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs_esp);
-    dspOTP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs_dsp); 
+    espOTP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs_esp);
+    dspOTP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs_dsp); 
     break;
   case ESPITP: 
-    espITP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs_esp);
-    dspITP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs_dsp); 
+    espITP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs_esp);
+    dspITP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs_dsp); 
     break;
   case ESPRTP: 
-    espRTP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs_esp);
-    dspRTP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs_dsp); 
+    espRTP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs_esp);
+    dspRTP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs_dsp); 
     break;
   case ESPOSP: 
-    espOSP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs_esp);
-    dspOSP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs_dsp); 
+    espOSP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs_esp);
+    dspOSP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs_dsp); 
     break;
   case ESPISP: 
-    espISP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs_esp);
-    dspISP_calc(ntoggles,tails,heads,mtp,nwp,N_CHANGE_STATS,dvec,cs_dsp); 
+    espISP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs_esp);
+    dspISP_calc(tail,head,mtp,nwp,N_CHANGE_STATS,dvec,cs_dsp); 
     break;
   }
   /*We're done!  (Changestats were written in by the calc routine.)*/  
   
   for(i=0;i<N_CHANGE_STATS;i++)
     CHANGE_STAT[i]=(cs_dsp[i]-cs_esp[i]);
-    
-  /*Free the changescore memory*/
-  Free(cs_esp);
-  Free(cs_dsp);
 }
 
 
@@ -1257,7 +1171,7 @@ Note that d_gwesp is a meta-function for all geometrically weighted ESP stats; t
 
 Only one type may be specified per esp term.  The default, OTP, retains the original behavior of esp/gwesp.  In the case of undirected graphs, OTP should be used (the others assume a directed network memory structure, and are not safe in the undirected case).
 */
-D_CHANGESTAT_FN(d_dgwnsp) { 
+C_CHANGESTAT_FN(c_dgwnsp) { 
   int type;
   Vertex i,maxesp;
   double alpha, oneexpa,*dvec,*cs_esp, *cs_dsp;
@@ -1268,38 +1182,38 @@ D_CHANGESTAT_FN(d_dgwnsp) {
   oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
   type=(int)INPUT_PARAM[1];     /*Get the ESP type code to be used*/
   maxesp=(int)INPUT_PARAM[2];   /*Get the max ESP cutoff to use*/
-  cs_esp=Calloc(maxesp,double);     /*Allocate memory for the ESP changescores*/
-  dvec=Calloc(maxesp,double);   /*Allocate memory for the ESP vals*/
+  cs_esp=alloca(maxesp*sizeof(double));     /*Allocate memory for the ESP changescores*/
+  dvec=alloca(maxesp*sizeof(double));   /*Allocate memory for the ESP vals*/
   for(i=0;i<maxesp;i++)         /*Initialize the ESP vals*/
     dvec[i]=i+1.0;
   
-  cs_dsp=Calloc(maxesp,double);     /*Allocate memory for the ESP changescores*/
+  cs_dsp=alloca(maxesp*sizeof(double));     /*Allocate memory for the ESP changescores*/
 
   /*Obtain the changescores (by type)*/
   switch(type){
     case ESPUTP: 
-      espUTP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs_esp);
-      dspUTP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs_dsp); 
+      espUTP_calc(tail,head,mtp,nwp,maxesp,dvec,cs_esp);
+      dspUTP_calc(tail,head,mtp,nwp,maxesp,dvec,cs_dsp); 
       break;
     case ESPOTP: 
-      espOTP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs_esp);
-      dspOTP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs_dsp); 
+      espOTP_calc(tail,head,mtp,nwp,maxesp,dvec,cs_esp);
+      dspOTP_calc(tail,head,mtp,nwp,maxesp,dvec,cs_dsp); 
       break;
     case ESPITP: 
-      espITP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs_esp);
-      dspITP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs_dsp); 
+      espITP_calc(tail,head,mtp,nwp,maxesp,dvec,cs_esp);
+      dspITP_calc(tail,head,mtp,nwp,maxesp,dvec,cs_dsp); 
       break;
     case ESPRTP: 
-      espRTP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs_esp);
-      dspRTP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs_dsp); 
+      espRTP_calc(tail,head,mtp,nwp,maxesp,dvec,cs_esp);
+      dspRTP_calc(tail,head,mtp,nwp,maxesp,dvec,cs_dsp); 
       break;
     case ESPOSP: 
-      espOSP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs_esp);
-      dspOSP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs_dsp); 
+      espOSP_calc(tail,head,mtp,nwp,maxesp,dvec,cs_esp);
+      dspOSP_calc(tail,head,mtp,nwp,maxesp,dvec,cs_dsp); 
       break;
     case ESPISP: 
-      espISP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs_esp);
-      dspISP_calc(ntoggles,tails,heads,mtp,nwp,maxesp,dvec,cs_dsp); 
+      espISP_calc(tail,head,mtp,nwp,maxesp,dvec,cs_esp);
+      dspISP_calc(tail,head,mtp,nwp,maxesp,dvec,cs_dsp); 
       break;
   }
   
@@ -1309,10 +1223,6 @@ D_CHANGESTAT_FN(d_dgwnsp) {
       CHANGE_STAT[0]+=(1.0-pow(oneexpa,dvec[i]))*(cs_dsp[i]-cs_esp[i]);
   CHANGE_STAT[0]*=exp(alpha);
 
-  /*Free the changescore memory*/
-  Free(cs_esp);
-  Free(cs_dsp);
-  Free(dvec);
 }
 
 

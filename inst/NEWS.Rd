@@ -19,7 +19,7 @@
   \subsection{NEW FEATURES}{
     \itemize{
       \item{
-	Curved ERGMs are no longer "second class citizens". It is now
+	Curved ERGMs are no longer \dQuote{second class citizens}. It is now
 	possible to obtain their MPLE, pass curved parameters via
 	\code{coef=} and \code{init=} arguments, etc.. 
       }
@@ -35,13 +35,6 @@
 	and Slavcovic (2016).)
       }
 
-      \item{
-	By default, \code{\link{gof}} now checks goodness-of-fit
-	with respect to the estimated model in addition to the specified
-	terms. This can be used to diagnose convergence.
-      }
-
-      
     }
   }
    
@@ -60,7 +53,7 @@
    \subsection{OTHER USER-VISIBLE CHANGES}{
      \itemize{
        \code{\link{enformulate.curved}} family of functions has been deprecated.
-     }
+     }    
    }
 
   \subsection{C-LEVEL FACILITIES}{
@@ -72,6 +65,91 @@
       before every toggle.
     }
   }
+
+  % \subsection{UTILITIES}{
+  %   \itemize{
+  %     \item Likewise, "UTILITIES" is probably unnecessary.
+  %   }
+  % }
+
+  % \subsection{INSTALLATION}{
+  %   \itemize{
+  %     \item ... as is "INSTALLATION".
+  %   }
+  % }
+
+  % \subsection{PACKAGE INSTALLATION}{
+  %   \itemize{
+  %     \item ditto.
+  %   }
+  % }
+
+}
+
+
+\section{Changes in version 3.7.0}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+
+      \item{
+	New term \code{\link[ergm]{diff}}, a directed analogue to
+	\code{\link{absdiff}} has been added, allowing for different
+	ways to handle differences in nodal attributes.
+      }
+      
+      \item{
+	By default, \code{\link{gof}} now checks goodness-of-fit
+	with respect to the estimated model in addition to the specified
+	terms. This can be used to diagnose convergence.
+      }
+
+      
+    }
+  }
+   
+  
+   \subsection{BUG FIXES}{
+     \itemize{
+       
+       \item{Terms \code{\link{concurrent}}, \code{\link{degree}},
+	 \code{\link{degrange}}, and \code{concurrentties}
+	 \dQuote{\code{byarg}} argument has been corrected to
+	 \dQuote{\code{by}}.}
+
+       \item{The bug in the Contrastive Divergence code that caused ERGM
+	 fits with \code{bd} constraint to hang has been fixed.}
+
+       \item{Documentation for the curved ERGM terms has been clarified
+	 in a number of places.}
+       
+       \item{Miscellaneous fixes and robustifications in the step-length
+	 code.}
+       
+     }
+   }
+
+  
+   \subsection{OTHER USER-VISIBLE CHANGES}{
+     \itemize{
+       \item{
+	 The geometric decay parameter in \code{gw*sp} and
+	 \code{dgw*sp} terms has been renamed from \code{alpha} to
+	 \code{decay}, for consistency with \code{gw*degree} terms.
+       }
+
+       \item{
+	 It is now explicitly an error to pass a \code{control=}
+	 parameter to the function directly. (Previously, such
+	 parameters were silently ignored.)
+       }
+     }    
+   }
+
+  %% \subsection{C-LEVEL FACILITIES}{
+  %%   \itemize{
+  %%   }
+  %% }
 
   % \subsection{UTILITIES}{
   %   \itemize{

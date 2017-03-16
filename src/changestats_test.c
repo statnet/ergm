@@ -1,18 +1,11 @@
 #include"changestats_test.h"
 
-D_CHANGESTAT_FN(d_test_abs_edges_minus_5){
+C_CHANGESTAT_FN(c_test_abs_edges_minus_5){
   GET_STORAGE(Edge, stored_edges_ptr);
   long int edges = *stored_edges_ptr;
-  int i;
-  CHANGE_STAT[0] = 0.0;
-  FOR_EACH_TOGGLE(i){
-    unsigned int edgeflag = IS_OUTEDGE(TAIL(i), HEAD(i));
-    CHANGE_STAT[0] -= labs(edges-5);
-    edges += edgeflag ? - 1 : 1;
-    CHANGE_STAT[0] += labs(edges-5);
-    TOGGLE_IF_MORE_TO_COME(i);
-  }
-  UNDO_PREVIOUS_TOGGLES(i);
+  unsigned int edgeflag = IS_OUTEDGE(tail, head);
+  CHANGE_STAT[0] = -labs(edges-5);
+  CHANGE_STAT[0] += labs(edges-5 + (edgeflag?-1:1));
 }
 
 I_CHANGESTAT_FN(i_test_abs_edges_minus_5){
@@ -38,7 +31,7 @@ S_CHANGESTAT_FN(s_test_abs_edges_minus_5){
   }
 }
 
-D_CHANGESTAT_FN(d_test_abs_edges_minus_5_no_s){d_test_abs_edges_minus_5(ntoggles, tails, heads, mtp, nwp);}
+C_CHANGESTAT_FN(c_test_abs_edges_minus_5_no_s){c_test_abs_edges_minus_5(tail, head, mtp, nwp);}
 I_CHANGESTAT_FN(i_test_abs_edges_minus_5_no_s){i_test_abs_edges_minus_5(mtp, nwp);}
 U_CHANGESTAT_FN(u_test_abs_edges_minus_5_no_s){u_test_abs_edges_minus_5(tail, head, mtp, nwp);}
 
@@ -65,19 +58,12 @@ F_CHANGESTAT_FN(f__isociomatrix){
 }
 
 
-D_CHANGESTAT_FN(d_isociomatrix){
+C_CHANGESTAT_FN(c_isociomatrix){
   GET_AUX_STORAGE(int *, sm);
-  int i;
   
   ZERO_ALL_CHANGESTATS(i);
-  FOR_EACH_TOGGLE(i){
-    Vertex tail=TAIL(i), head=HEAD(i);
     Dyad pos = tail-1 + (head-1)*N_NODES;
-    int edgeflag = sm[tail][head];
-    if(CHANGE_STAT[pos]==0)
-      CHANGE_STAT[pos] += edgeflag? -1 : +1;
-    else CHANGE_STAT[pos] *= -1;
-  }
+    CHANGE_STAT[pos] += sm[tail][head]? -1 : +1;
 }
 
 I_CHANGESTAT_FN(i__discord_net){

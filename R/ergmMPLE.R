@@ -43,6 +43,7 @@ ergmMPLE <- function(formula, fitmodel=FALSE, output=c("matrix", "array", "fit")
       if(fitmodel) output <- "fit"
   }
   check.control.class("ergm")
+  control.toplevel(...,myname="ergm")
   output <- match.arg(output)
   if (output=="fit") {
     return(ergm(formula, estimate="MPLE", control=control, verbose=verbose, ...))

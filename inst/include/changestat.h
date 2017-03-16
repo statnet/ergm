@@ -1,4 +1,4 @@
-/*  File src/changestat.h in package ergm, part of the Statnet suite
+/*  File inst/include/changestat.h in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -14,9 +14,10 @@
 #include "edgelist.h"
 
 typedef struct ModelTermstruct {
+  void (*c_func)(Vertex, Vertex, struct ModelTermstruct*, Network*);
   void (*d_func)(Edge, Vertex*, Vertex*, struct ModelTermstruct*, Network*);
   void (*i_func)(struct ModelTermstruct*, Network*);
-  void (*u_func)(Edge, Vertex*, Vertex*, struct ModelTermstruct*, Network*);
+  void (*u_func)(Vertex, Vertex, struct ModelTermstruct*, Network*);
   void (*f_func)(struct ModelTermstruct*, Network*);
   void (*s_func)(struct ModelTermstruct*, Network*);
   double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
@@ -120,10 +121,12 @@ double my_choose(double n, int r);
 /* *** don't forget tail-> head, so these functions now toggle (tails, heads), instead of (heads, tails) */
 
 #define FOR_EACH_TOGGLE(a) for((a)=0; (a)<ntoggles; (a)++)
-#define TOGGLE_IF_MORE_TO_COME(a) if((a)+1<ntoggles) TOGGLE(tails[(a)],heads[(a)])
-#define TOGGLE_DISCORD_IF_MORE_TO_COME(a) if((a)+1<ntoggles) TOGGLE_DISCORD(tails[(a)],heads[(a)])
-#define UNDO_PREVIOUS_TOGGLES(a) (a)--; while(--(a)>=0) TOGGLE(tails[(a)],heads[(a)])
-#define UNDO_PREVIOUS_DISCORD_TOGGLES(a) (a)--; while(--(a)>=0) {TOGGLE(tails[(a)],heads[(a)]); TOGGLE_DISCORD(tails[(a)],heads[(a)])}
+#define IF_MORE_TO_COME(a) if((a)+1<ntoggles)
+#define TOGGLE_IF_MORE_TO_COME(a) IF_MORE_TO_COME(a){TOGGLE(tails[(a)],heads[(a)])}
+#define TOGGLE_DISCORD_IF_MORE_TO_COME(a) IF_MORE_TO_COME(a){TOGGLE_DISCORD(tails[(a)],heads[(a)])}
+#define UNDO_PREVIOUS(a) (a)--; while(--(a)>=0)
+#define UNDO_PREVIOUS_TOGGLES(a)  UNDO_PREVIOUS(a){TOGGLE(tails[(a)],heads[(a)])}
+#define UNDO_PREVIOUS_DISCORD_TOGGLES(a) UNDO_PREVIOUS(a){TOGGLE(tails[(a)],heads[(a)]); TOGGLE_DISCORD(tails[(a)],heads[(a)])}
 
 #define ALLOC_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (mtp->storage = calloc(nmemb, sizeof(stored_type)));
 #define GET_STORAGE(stored_type, store_into) stored_type *store_into = (stored_type *) mtp->storage;
@@ -166,14 +169,6 @@ double my_choose(double n, int r);
   nwp->aux_storage[myslot] = NULL;					\
   /* nwp->storage was not shifted, so it'll be freed automatically. */	
 
-
-#define INIT_STORAGE(stored_type, store_into, initialization_code)	\
-  stored_type *store_into;						\
-  if(!mtp->storage){							\
-    store_into = (stored_type *) (mtp->storage = malloc(sizeof(stored_type))); \
-    {initialization_code};						\
-  }else store_into = (stored_type *) mtp->storage;
-
 /****************************************************/
 /* changestat function prototypes */
 
@@ -182,9 +177,10 @@ double my_choose(double n, int r);
 #define CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp)
 
 /* NB:  CHANGESTAT_FN is now deprecated (replaced by D_CHANGESTAT_FN) */
+#define C_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp)
 #define D_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp)
 #define I_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
-#define U_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp)
+#define U_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp)
 #define F_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
 #define S_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
 
