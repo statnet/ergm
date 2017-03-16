@@ -3083,49 +3083,6 @@ C_CHANGESTAT_FN(c_hamming) {
 }
 
 /*****************
- changestat: d_hammingmix_constant
-*****************/
-D_CHANGESTAT_FN(d_hammingmix_constant) { 
-  int i, nhedge, discord;
-  int matchvaltail, matchvalhead;
-  
-  nhedge = INPUT_PARAM[0];
-/*  Rprintf("nhedge %d\n", nhedge); */
-  if(ntoggles==2){
-   matchvaltail = INPUT_PARAM[TAIL(0)+2*nhedge];
-   matchvalhead = INPUT_PARAM[HEAD(0)+2*nhedge];
-   if(matchvaltail != INPUT_PARAM[TAIL(1)+2*nhedge] ||
-      matchvalhead != INPUT_PARAM[HEAD(1)+2*nhedge]){
-      CHANGE_STAT[0] = 10000.0;
-      return;
-   }
-  }
-  CHANGE_STAT[0] = 0.0;
-/*  Rprintf("Warning: hammingconstantmix can only be used with ConstantEdges terms.\n");
-  Rprintf("nhedge %d i0 %f i1 %f i2 %f i3 %f\n", nhedge, INPUT_PARAM[0],
-                                 INPUT_PARAM[1],
-                                 INPUT_PARAM[2],
-                                 INPUT_PARAM[3]
-		  ); */
-     
-
-  /* *** don't forget tail -> head */    
-  FOR_EACH_TOGGLE(i)
-    {
-      discord=XOR(dEdgeListSearch(TAIL(i), HEAD(i), INPUT_PARAM), IS_OUTEDGE(TAIL(i), HEAD(i)));
-      CHANGE_STAT[0] += (discord ? -1.0 : 1.0);
-
-    if (i+1 < ntoggles){
-      ToggleEdge(TAIL(i), HEAD(i), &nwp[0]);  /* Toggle this edge if more to come */
-    }
-  }
-  i--;
-  while (--i>=0){  /*  Undo all previous toggles. */
-    ToggleEdge(TAIL(i), HEAD(i), &nwp[0]);
-  }
-}
-
-/*****************
  changestat: d_hammingmix
 *****************/
 C_CHANGESTAT_FN(c_hammingmix) { 
