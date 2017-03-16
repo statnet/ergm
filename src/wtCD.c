@@ -224,7 +224,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 	  ntoggled++;
 	  mtoggled++;
 
-	  UPDATE_STORAGE(t, h, w, m, nwp);
+	  WtUPDATE_STORAGE(t, h, w, m, nwp);
 	  
 	  if(MHp->discord)
 	    for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
@@ -280,7 +280,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 	  undoweight[ntoggled]=WtGetEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 	  ntoggled++;
 
-	  UPDATE_STORAGE(t, h, w, m, nwp);
+	  WtUPDATE_STORAGE(t, h, w, m, nwp);
 
 	  if(MHp->discord)
 	    for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
@@ -309,7 +309,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 
 	/* FIXME: This should be done in one call, but it's very easy
 	   to make a fencepost error here. */
-	UPDATE_STORAGE(t, h, w, m, nwp);
+	WtUPDATE_STORAGE(t, h, w, m, nwp);
       	
 	if(MHp->discord)
 	  for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
@@ -329,7 +329,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 
     /* FIXME: This should be done in one call, but it's very easy
        to make a fencepost error here. */
-    UPDATE_STORAGE(t, h, w, m, nwp);
+    WtUPDATE_STORAGE(t, h, w, m, nwp);
     
     if(MHp->discord)
       for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){

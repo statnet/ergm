@@ -210,7 +210,7 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
   memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */ 
 
   /* Make a pass through terms with d_functions. */
-  EXEC_THROUGH_TERMS_INTO(m->workspace, {
+  WtEXEC_THROUGH_TERMS_INTO(m->workspace, {
       mtp->dstats = dstats; /* Stuck the change statistic here.*/
       if(mtp->c_func==NULL && mtp->d_func)
 	(*(mtp->d_func))(ntoggles, tails, heads, weights,
@@ -223,7 +223,7 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
      toggle. */
   if(ntoggles!=1){
     unsigned int i = 0;
-    EXEC_THROUGH_TERMS({
+    WtEXEC_THROUGH_TERMS({
 	mtp->dstats = m->dstatarray[i];
 	i++;
       });
@@ -233,7 +233,7 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
   FOR_EACH_TOGGLE{
     GETTOGGLEINFO();
     
-    EXEC_THROUGH_TERMS_INTO(m->workspace, {
+    WtEXEC_THROUGH_TERMS_INTO(m->workspace, {
 	mtp->dstats = dstats;
 	if(mtp->c_func){
 	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
@@ -249,14 +249,14 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
 
     /* Update storage and network */    
     IF_MORE_TO_COME{
-      UPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, m, nwp, mtp->d_func==NULL);
+      WtUPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, m, nwp, mtp->d_func==NULL);
       SETWT_WITH_BACKUP();
     }
   }
   /* Undo previous storage updates and toggles */
   UNDO_PREVIOUS{
     GETOLDTOGGLEINFO();
-    UPDATE_STORAGE_COND(TAIL,HEAD,weights[TOGGLEIND], m, nwp, mtp->d_func==NULL);
+    WtUPDATE_STORAGE_COND(TAIL,HEAD,weights[TOGGLEIND], m, nwp, mtp->d_func==NULL);
     SETWT(TAIL,HEAD,weights[TOGGLEIND]);
     weights[TOGGLEIND]=OLDWT;
   }
@@ -268,7 +268,7 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
 */
 void WtInitStats(WtNetwork *nwp, WtModel *m){
   // Iterate in reverse, so that auxliary terms get initialized first.  
-  EXEC_THROUGH_TERMS_INREVERSE({
+  WtEXEC_THROUGH_TERMS_INREVERSE({
       double *dstats = mtp->dstats;
       mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
       if(mtp->i_func)
@@ -285,7 +285,7 @@ void WtInitStats(WtNetwork *nwp, WtModel *m){
 */
 void WtDestroyStats(WtNetwork *nwp, WtModel *m){
   unsigned int i=0;
-  EXEC_THROUGH_TERMS({
+  WtEXEC_THROUGH_TERMS({
       if(mtp->f_func)
 	(*(mtp->f_func))(mtp, nwp);  /* Call f_??? function */
       free(m->dstatarray[i]);

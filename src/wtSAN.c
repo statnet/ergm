@@ -299,7 +299,7 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHproposal *MHp,
 	Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];
 	double w=MHp->toggleweight[i];
 
-	UPDATE_STORAGE(t, h, w, m, nwp);
+	WtUPDATE_STORAGE(t, h, w, m, nwp);
 	
 	if(MHp->discord)
 	  for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
