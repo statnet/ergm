@@ -15,6 +15,15 @@
 #include <Rinternals.h>
 #include <Rmath.h>
 
+#define INLINE_EDGETREE
+
+#ifdef INLINE_EDGETREE
+#define EDGETREE_INLINE static inline
+#else
+#define EDGETREE_INLINE
+#endif
+
+
 #define MIN(a,b) ((a)<(b) ? (a) : (b))
 #define MAX(a,b) ((a)<(b) ? (b) : (a))
 #define DYADCOUNT(nnodes, bipartite, directed) ((bipartite)? (unsigned long)((nnodes)-(bipartite))*(unsigned long)(bipartite) : ((directed)? (unsigned long)(nnodes)*(unsigned long)((nnodes)-1) : (((unsigned long)(nnodes)*(unsigned long)((nnodes)-1))/2)))
@@ -101,32 +110,34 @@ Network NetworkInitializeD(double *tails, double *heads, Edge nedges,
 Network *NetworkCopy(Network *dest, Network *src);
 
 /* Accessors. */
-/* Edge EdgetreeSearch (Vertex a, Vertex b, TreeNode *edges); */
-/* Edge EdgetreeSuccessor (TreeNode *edges, Edge x); */
-/* Edge EdgetreePredecessor (TreeNode *edges, Edge x); */
-/* Edge EdgetreeMinimum (TreeNode *edges, Edge x); */
-/* Edge EdgetreeMaximum (TreeNode *edges, Edge x); */
+EDGETREE_INLINE Edge EdgetreeSearch (Vertex a, Vertex b, TreeNode *edges);
+EDGETREE_INLINE Edge EdgetreeSuccessor (TreeNode *edges, Edge x);
+EDGETREE_INLINE Edge EdgetreePredecessor (TreeNode *edges, Edge x);
+EDGETREE_INLINE Edge EdgetreeMinimum (TreeNode *edges, Edge x);
+EDGETREE_INLINE Edge EdgetreeMaximum (TreeNode *edges, Edge x);
 
 /* Modifiers. */
 
 /* *** don't forget,  tails -> heads, so all the functions below using
    heads & tails, now list tails before heads */
 
-/* int ToggleEdge (Vertex tail, Vertex head, Network *nwp); */
-/* int ToggleEdgeWithTimestamp (Vertex tail, Vertex head, Network *nwp); */
-/* int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp); */
-/* void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge); */
-/* void CheckEdgetreeFull (Network *nwp); */
-/* int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp); */
-/* int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges, */
-/* 		     Edge *last_edge); */
-/* void RelocateHalfedge(Edge from, Edge to, TreeNode *edges); */
+EDGETREE_INLINE int ToggleEdge (Vertex tail, Vertex head, Network *nwp);
+EDGETREE_INLINE int ToggleEdgeWithTimestamp (Vertex tail, Vertex head, Network *nwp);
+EDGETREE_INLINE int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp);
+EDGETREE_INLINE void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge);
+EDGETREE_INLINE void CheckEdgetreeFull (Network *nwp);
+EDGETREE_INLINE int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp);
+EDGETREE_INLINE int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
+		     Edge *last_edge);
+EDGETREE_INLINE void RelocateHalfedge(Edge from, Edge to, TreeNode *edges);
 
 /* Duration functions. */
-/* int ElapsedTime(Vertex tail, Vertex head, Network *nwp); */
-/* void TouchEdge(Vertex tail, Vertex head, Network *nwp); */
+EDGETREE_INLINE int ElapsedTime(Vertex tail, Vertex head, Network *nwp);
+EDGETREE_INLINE void TouchEdge(Vertex tail, Vertex head, Network *nwp);
 
+#ifdef INLINE_EDGETREE
 #include "edgetree_inline.h"
+#endif
 
 /* Utility functions. */
 int FindithEdge(Vertex *tail, Vertex *head, Edge i, Network *nwp);

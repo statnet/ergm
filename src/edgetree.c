@@ -476,3 +476,7 @@ void ShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges){
     heads[i-1] = head;
   }
 }
+
+#ifndef INLINE_EDGETREE
+#include "edgetree_inline.h"
+#endif

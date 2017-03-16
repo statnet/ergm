@@ -19,7 +19,7 @@
  in the tree rooted at edges[a].  Return i such that 
  edges[i] is that TreeNode, or 0 if none.
 *****************/
-static inline Edge EdgetreeSearch (Vertex a, Vertex b, TreeNode *edges) {
+EDGETREE_INLINE Edge EdgetreeSearch (Vertex a, Vertex b, TreeNode *edges) {
   TreeNode *es;
   Edge e = a;
   Vertex v;
@@ -41,7 +41,7 @@ static inline Edge EdgetreeSearch (Vertex a, Vertex b, TreeNode *edges) {
  Return the index of the TreeNode with the
  smallest value in the subtree rooted at x
 *****************/
-static inline Edge EdgetreeMinimum (TreeNode *edges, Edge x) {
+EDGETREE_INLINE Edge EdgetreeMinimum (TreeNode *edges, Edge x) {
   Edge y;
 
   while ((y=(edges+x)->left) != 0)
@@ -55,7 +55,7 @@ static inline Edge EdgetreeMinimum (TreeNode *edges, Edge x) {
  Return the index of the TreeNode with the
  greatest value in the subtree rooted at x
 *****************/
-static inline Edge EdgetreeMaximum (TreeNode *edges, Edge x) {
+EDGETREE_INLINE Edge EdgetreeMaximum (TreeNode *edges, Edge x) {
   Edge y;
 
   while ((y=(edges+x)->right) != 0)
@@ -75,7 +75,7 @@ static inline Edge EdgetreeMaximum (TreeNode *edges, Edge x) {
  if none.  This is used by (for instance)
  the DeleteHalfedgeFromTree function.
 *****************/
-static inline Edge EdgetreeSuccessor (TreeNode *edges, Edge x) {
+EDGETREE_INLINE Edge EdgetreeSuccessor (TreeNode *edges, Edge x) {
   TreeNode *ptr;
   Edge y;
 
@@ -94,7 +94,7 @@ static inline Edge EdgetreeSuccessor (TreeNode *edges, Edge x) {
  if none.  This is used by (for instance)
  the DeleteHalfedgeFromTree function.
 *****************/
-static inline Edge EdgetreePredecessor (TreeNode *edges, Edge x) {
+EDGETREE_INLINE Edge EdgetreePredecessor (TreeNode *edges, Edge x) {
   TreeNode *ptr;
   Edge y;
 
@@ -114,7 +114,7 @@ static inline Edge EdgetreePredecessor (TreeNode *edges, Edge x) {
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-static inline int ElapsedTime(Vertex tail, Vertex head, Network *nwp){
+EDGETREE_INLINE int ElapsedTime(Vertex tail, Vertex head, Network *nwp){
   Edge k;
   /* don't forget, tails < heads now in undirected networks */
   if (!(nwp->directed_flag) && tail > head) {
@@ -150,7 +150,7 @@ static inline int ElapsedTime(Vertex tail, Vertex head, Network *nwp){
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-static inline void TouchEdge(Vertex tail, Vertex head, Network *nwp){
+EDGETREE_INLINE void TouchEdge(Vertex tail, Vertex head, Network *nwp){
   unsigned int k;
   if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
     if(nwp->bipartite){
@@ -172,9 +172,9 @@ static inline void TouchEdge(Vertex tail, Vertex head, Network *nwp){
        in before heads */
 
 /*****************
-static inline void CheckEdgetreeFull
+EDGETREE_INLINE void CheckEdgetreeFull
 *****************/
-static inline void CheckEdgetreeFull (Network *nwp) {
+EDGETREE_INLINE void CheckEdgetreeFull (Network *nwp) {
   const unsigned int mult=2;
   
   // Note that maximum index in the nwp->*edges is nwp->maxedges-1, and we need to keep one element open for the next insertion.
@@ -196,7 +196,7 @@ static inline void CheckEdgetreeFull (Network *nwp) {
 /*****************
  void AddHalfedgeToTree:  Only called by AddEdgeToTrees
 *****************/
-static inline void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge){
+EDGETREE_INLINE void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge){
   TreeNode *eptr = edges+a, *newnode;
   Edge e;
 
@@ -228,7 +228,7 @@ static inline void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge 
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-static inline int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp){
+EDGETREE_INLINE int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp){
   if (EdgetreeSearch(tail, head, nwp->outedges) == 0) {
     AddHalfedgeToTree(tail, head, nwp->outedges, &(nwp->last_outedge));
     AddHalfedgeToTree(head, tail, nwp->inedges, &(nwp->last_inedge));
@@ -241,7 +241,7 @@ static inline int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp){
   return 0;
 }
 
-static inline void RelocateHalfedge(Edge from, Edge to, TreeNode *edges){
+EDGETREE_INLINE void RelocateHalfedge(Edge from, Edge to, TreeNode *edges){
   if(from==to) return;
   TreeNode *toptr=edges+to, *fromptr=edges+from;
 
@@ -268,7 +268,7 @@ static inline void RelocateHalfedge(Edge from, Edge to, TreeNode *edges){
  Return 0 if no such TreeNode exists, 1 otherwise.  Also update the
  value of *last_edge appropriately.
 *****************/
-static inline int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
+EDGETREE_INLINE int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
 		     Edge *last_edge){
   Edge x, z, root=(Edge)a;
   TreeNode *xptr, *zptr, *ptr;
@@ -326,7 +326,7 @@ static inline int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-static inline int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp){
+EDGETREE_INLINE int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp){
   if (DeleteHalfedgeFromTree(tail, head, nwp->outedges,&(nwp->last_outedge))&&
       DeleteHalfedgeFromTree(head, tail, nwp->inedges, &(nwp->last_inedge))) {
     --nwp->outdegree[tail];
@@ -349,7 +349,7 @@ static inline int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp){
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-static inline int ToggleEdge (Vertex tail, Vertex head, Network *nwp) 
+EDGETREE_INLINE int ToggleEdge (Vertex tail, Vertex head, Network *nwp) 
 {
   /* don't forget tails < heads now for undirected networks */
   if (!(nwp->directed_flag) && tail > head) {
@@ -379,7 +379,7 @@ static inline int ToggleEdge (Vertex tail, Vertex head, Network *nwp)
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-static inline int ToggleEdgeWithTimestamp(Vertex tail, Vertex head, Network *nwp){
+EDGETREE_INLINE int ToggleEdgeWithTimestamp(Vertex tail, Vertex head, Network *nwp){
   Edge k;
 
   /* don't forget, tails < heads in undirected networks now  */

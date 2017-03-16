@@ -80,36 +80,37 @@ WtNetwork WtNetworkInitializeD(double *tails, double *heads, double *weights, Ed
 WtNetwork *WtNetworkCopy(WtNetwork *dest, WtNetwork *src);
 
 /* Accessors. */
-/* Edge WtEdgetreeSearch (Vertex a, Vertex b, WtTreeNode *edges); */
-/* double WtGetEdge (Vertex tail, Vertex head, WtNetwork *nwp); */
-/* Edge WtEdgetreeSuccessor (WtTreeNode *edges, Edge x); */
-/* Edge WtEdgetreePredecessor (WtTreeNode *edges, Edge x); */
-/* Edge WtEdgetreeMinimum (WtTreeNode *edges, Edge x); */
-/* Edge WtEdgetreeMaximum (WtTreeNode *edges, Edge x); */
+EDGETREE_INLINE Edge WtEdgetreeSearch (Vertex a, Vertex b, WtTreeNode *edges);
+EDGETREE_INLINE double WtGetEdge (Vertex tail, Vertex head, WtNetwork *nwp);
+EDGETREE_INLINE Edge WtEdgetreeSuccessor (WtTreeNode *edges, Edge x);
+EDGETREE_INLINE Edge WtEdgetreePredecessor (WtTreeNode *edges, Edge x);
+EDGETREE_INLINE Edge WtEdgetreeMinimum (WtTreeNode *edges, Edge x);
+EDGETREE_INLINE Edge WtEdgetreeMaximum (WtTreeNode *edges, Edge x);
 
 /* Modifiers. */
 
 /* *** don't forget,  tails -> heads, so all the functions below using
    heads & tails, now list tails before heads */
 
-
-/* void WtSetEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp); */
-/* void WtSetEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork *nwp); */
-/* int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp); */
-/* int WtToggleEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork *nwp); */
-/* int WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp); */
-/* void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, WtTreeNode *edges, Edge *last_edge); */
-/* void WtCheckEdgetreeFull (WtNetwork *nwp); */
-/* int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp); */
-/* int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges, */
-/* 		     Edge *last_edge); */
-/* void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges); */
+EDGETREE_INLINE void WtSetEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
+EDGETREE_INLINE void WtSetEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
+EDGETREE_INLINE int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
+EDGETREE_INLINE int WtToggleEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
+EDGETREE_INLINE int WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp);
+EDGETREE_INLINE void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, WtTreeNode *edges, Edge *last_edge);
+EDGETREE_INLINE void WtCheckEdgetreeFull (WtNetwork *nwp);
+EDGETREE_INLINE int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp);
+EDGETREE_INLINE int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
+		     Edge *last_edge);
+EDGETREE_INLINE void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges);
 
 /* Duration functions. */
-/* int WtElapsedTime (Vertex tail, Vertex head, WtNetwork *nwp); */
-/* void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp); */
+EDGETREE_INLINE int WtElapsedTime (Vertex tail, Vertex head, WtNetwork *nwp);
+EDGETREE_INLINE void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp);
 
+#ifdef INLINE_EDGETREE
 #include "wtedgetree_inline.h"
+#endif
 
 /* Utility functions. */
 int WtFindithEdge (Vertex *tail, Vertex *head, double *weight, Edge i, WtNetwork *nwp);
