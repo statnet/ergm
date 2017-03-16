@@ -108,24 +108,24 @@ Network *NetworkCopy(Network *dest, Network *src);
 /* static inline Edge EdgetreeMinimum (TreeNode *edges, Edge x); */
 /* static inline Edge EdgetreeMaximum (TreeNode *edges, Edge x); */
 
-/* /\* Modifiers. *\/ */
+/* Modifiers. */
 
-/* /\* *** don't forget,  tails -> heads, so all the functions below using */
-/*    heads & tails, now list tails before heads *\/ */
+/* *** don't forget,  tails -> heads, so all the functions below using
+   heads & tails, now list tails before heads */
 
-/* static inline int ToggleEdge (Vertex tail, Vertex head, Network *nwp); */
-/* static inline int ToggleEdgeWithTimestamp (Vertex tail, Vertex head, Network *nwp); */
-/* static inline int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp); */
-/* static inline void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge); */
-/* static inline void CheckEdgetreeFull (Network *nwp); */
-/* static inline int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp); */
-/* static inline int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges, */
-/* 		     Edge *last_edge); */
-/* static inline void RelocateHalfedge(Edge from, Edge to, TreeNode *edges); */
+int ToggleEdge (Vertex tail, Vertex head, Network *nwp);
+int ToggleEdgeWithTimestamp (Vertex tail, Vertex head, Network *nwp);
+int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp);
+void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge);
+void CheckEdgetreeFull (Network *nwp);
+int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp);
+int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
+		     Edge *last_edge);
+void RelocateHalfedge(Edge from, Edge to, TreeNode *edges);
 
 /* /\* Duration functions. *\/ */
 /* static inline int ElapsedTime(Vertex tail, Vertex head, Network *nwp); */
-/* static inline void TouchEdge(Vertex tail, Vertex head, Network *nwp); */
+void TouchEdge(Vertex tail, Vertex head, Network *nwp);
 
 #include "edgetree_inline.inc"
 
