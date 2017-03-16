@@ -131,7 +131,7 @@ typedef struct WtModelTermstruct {
 #define TOGGLEIND toggleind_var
 
 /* macro to set all changestats to zero at start of function */
-#define ZERO_ALL_CHANGESTATS() for(unsigned int TOGGLEIND=0; TOGGLEIND<N_CHANGE_STATS; TOGGLEIND++) memset(CHANGE_STAT, 0, sizeof(double)*N_CHANGE_STATS);
+#define ZERO_ALL_CHANGESTATS() memset(CHANGE_STAT, 0, sizeof(double)*N_CHANGE_STATS);
 
 /* Cycle through all toggles proposed for the current step, then
    make the current toggle in case of more than one proposed toggle, then
