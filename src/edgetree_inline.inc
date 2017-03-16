@@ -1,4 +1,4 @@
-/*  File src/wtedgetree_inline.c in package ergm, part of the Statnet suite
+/*  File src/edgetree_inline.h in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -13,14 +13,14 @@
        in before heads */
 
 /*****************
- Edge WtEdgetreeSearch
+ Edge EdgetreeSearch
 
- Check to see if there's a WtTreeNode with value b 
+ Check to see if there's a TreeNode with value b 
  in the tree rooted at edges[a].  Return i such that 
- edges[i] is that WtTreeNode, or 0 if none.
+ edges[i] is that TreeNode, or 0 if none.
 *****************/
-EDGETREE_INLINE Edge WtEdgetreeSearch (Vertex a, Vertex b, WtTreeNode *edges) {
-  WtTreeNode *es;
+static inline Edge EdgetreeSearch (Vertex a, Vertex b, TreeNode *edges) {
+  TreeNode *es;
   Edge e = a;
   Vertex v;
 
@@ -34,13 +34,14 @@ EDGETREE_INLINE Edge WtEdgetreeSearch (Vertex a, Vertex b, WtTreeNode *edges) {
   return e;
 }
 
-/*****************
- Edge WtEdgetreeMinimum
 
- Return the index of the WtTreeNode with the
+/*****************
+ Edge EdgetreeMinimum
+
+ Return the index of the TreeNode with the
  smallest value in the subtree rooted at x
 *****************/
-EDGETREE_INLINE Edge WtEdgetreeMinimum (WtTreeNode *edges, Edge x) {
+static inline Edge EdgetreeMinimum (TreeNode *edges, Edge x) {
   Edge y;
 
   while ((y=(edges+x)->left) != 0)
@@ -49,12 +50,12 @@ EDGETREE_INLINE Edge WtEdgetreeMinimum (WtTreeNode *edges, Edge x) {
 }
 
 /*****************
- Edge WtEdgetreeMaximum
+ Edge EdgetreeMaximum
 
- Return the index of the WtTreeNode with the
+ Return the index of the TreeNode with the
  greatest value in the subtree rooted at x
 *****************/
-EDGETREE_INLINE Edge WtEdgetreeMaximum (WtTreeNode *edges, Edge x) {
+static inline Edge EdgetreeMaximum (TreeNode *edges, Edge x) {
   Edge y;
 
   while ((y=(edges+x)->right) != 0)
@@ -69,36 +70,36 @@ EDGETREE_INLINE Edge WtEdgetreeMaximum (WtTreeNode *edges, Edge x) {
 /*****************
  Edge EdgetreeSuccessor
 
- Return the index of the WtTreeNode with the smallest value
+ Return the index of the TreeNode with the smallest value
  greater than edges[x].value in the same edge tree, or 0
  if none.  This is used by (for instance)
  the DeleteHalfedgeFromTree function.
 *****************/
-EDGETREE_INLINE Edge WtEdgetreeSuccessor (WtTreeNode *edges, Edge x) {
-  WtTreeNode *ptr;
+static inline Edge EdgetreeSuccessor (TreeNode *edges, Edge x) {
+  TreeNode *ptr;
   Edge y;
 
   if ((y=(ptr=edges+x)->right) != 0) 
-    return WtEdgetreeMinimum (edges, y);
+    return EdgetreeMinimum (edges, y);
   while ((y=ptr->parent)!=0 && x==(ptr=edges+y)->right) 
     x=y;
   return y; 
 }   
 
 /*****************
- Edge WtEdgetreePredecessor
+ Edge EdgetreePredecessor
 
- Return the index of the WtTreeNode with the smallest value
+ Return the index of the TreeNode with the smallest value
  greater than edges[x].value in the same edge tree, or 0
  if none.  This is used by (for instance)
- the WtDeleteHalfedgeFromTree function.
+ the DeleteHalfedgeFromTree function.
 *****************/
-EDGETREE_INLINE Edge WtEdgetreePredecessor (WtTreeNode *edges, Edge x) {
-  WtTreeNode *ptr;
+static inline Edge EdgetreePredecessor (TreeNode *edges, Edge x) {
+  TreeNode *ptr;
   Edge y;
 
   if ((y=(ptr=edges+x)->left) != 0) 
-    return WtEdgetreeMaximum (edges, y);
+    return EdgetreeMaximum (edges, y);
   while ((y=ptr->parent)!=0 && x==(ptr=edges+y)->left) 
     x=y;
   return y; 
@@ -113,7 +114,7 @@ EDGETREE_INLINE Edge WtEdgetreePredecessor (WtTreeNode *edges, Edge x) {
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-EDGETREE_INLINE int WtElapsedTime (Vertex tail, Vertex head, WtNetwork *nwp){
+static inline int ElapsedTime(Vertex tail, Vertex head, Network *nwp){
   Edge k;
   /* don't forget, tails < heads now in undirected networks */
   if (!(nwp->directed_flag) && tail > head) {
@@ -149,7 +150,7 @@ EDGETREE_INLINE int WtElapsedTime (Vertex tail, Vertex head, WtNetwork *nwp){
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-EDGETREE_INLINE void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp){
+static inline void TouchEdge(Vertex tail, Vertex head, Network *nwp){
   unsigned int k;
   if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
     if(nwp->bipartite){
@@ -171,42 +172,40 @@ EDGETREE_INLINE void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp){
        in before heads */
 
 /*****************
-void CheckEdgetreeFull
+static inline void CheckEdgetreeFull
 *****************/
-EDGETREE_INLINE void WtCheckEdgetreeFull (WtNetwork *nwp) {
+static inline void CheckEdgetreeFull (Network *nwp) {
   const unsigned int mult=2;
   
   // Note that maximum index in the nwp->*edges is nwp->maxedges-1, and we need to keep one element open for the next insertion.
   if(nwp->last_outedge==nwp->maxedges-2 || nwp->last_inedge==nwp->maxedges-2){
     // Only enlarge the non-root part of the array.
     Edge newmax = nwp->maxedges + (nwp->maxedges - nwp->nnodes - 1)*mult;
-    nwp->inedges = (WtTreeNode *) realloc(nwp->inedges, 
-					  sizeof(WtTreeNode) * newmax);
+    nwp->inedges = (TreeNode *) realloc(nwp->inedges, 
+					  sizeof(TreeNode) * newmax);
     memset(nwp->inedges+nwp->last_inedge+2,0,
-	   sizeof(WtTreeNode) * (newmax-nwp->maxedges));
-    nwp->outedges = (WtTreeNode *) realloc(nwp->outedges, 
-					   sizeof(WtTreeNode) * newmax);
+	   sizeof(TreeNode) * (newmax-nwp->maxedges));
+    nwp->outedges = (TreeNode *) realloc(nwp->outedges, 
+					   sizeof(TreeNode) * newmax);
     memset(nwp->outedges+nwp->last_outedge+2,0,
-	   sizeof(WtTreeNode) * (newmax-nwp->maxedges));
+	   sizeof(TreeNode) * (newmax-nwp->maxedges));
     nwp->maxedges = newmax;
   }
 }
 
 /*****************
- void WtAddHalfedgeToTree:  Only called by WtAddEdgeToTrees
+ void AddHalfedgeToTree:  Only called by AddEdgeToTrees
 *****************/
-EDGETREE_INLINE void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, WtTreeNode *edges, Edge *last_edge){
-  WtTreeNode *eptr = edges+a, *newnode;
+static inline void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge){
+  TreeNode *eptr = edges+a, *newnode;
   Edge e;
 
   if (eptr->value==0) { /* This is the first edge for vertex a. */
     eptr->value=b;
-    eptr->weight = weight;  /*  Add weight too */
     return;
   }
   (newnode = edges + (++*last_edge))->value=b;  
   newnode->left = newnode->right = 0;
-  newnode->weight=weight;  /*  Add weight too */
   /* Now find the parent of this new edge */
   for (e=a; e!=0; e=(b < (eptr=edges+e)->value) ? eptr->left : eptr->right);
   newnode->parent=eptr-edges;  /* Point from the new edge to the parent... */
@@ -229,31 +228,31 @@ EDGETREE_INLINE void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, WtT
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-EDGETREE_INLINE int WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
-  if (WtEdgetreeSearch(tail, head, nwp->outedges) == 0) {
-    WtAddHalfedgeToTree(tail, head, weight, nwp->outedges, &(nwp->last_outedge));
-    WtAddHalfedgeToTree(head, tail, weight, nwp->inedges, &(nwp->last_inedge));
+static inline int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp){
+  if (EdgetreeSearch(tail, head, nwp->outedges) == 0) {
+    AddHalfedgeToTree(tail, head, nwp->outedges, &(nwp->last_outedge));
+    AddHalfedgeToTree(head, tail, nwp->inedges, &(nwp->last_inedge));
     ++nwp->outdegree[tail];
     ++nwp->indegree[head];
     ++nwp->nedges;
-    WtCheckEdgetreeFull(nwp); 
+    CheckEdgetreeFull(nwp); 
     return 1;
   }
   return 0;
 }
 
-EDGETREE_INLINE void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges){
+static inline void RelocateHalfedge(Edge from, Edge to, TreeNode *edges){
   if(from==to) return;
-  WtTreeNode *toptr=edges+to, *fromptr=edges+from;
+  TreeNode *toptr=edges+to, *fromptr=edges+from;
 
   if(fromptr->left) edges[fromptr->left].parent = to;
   if(fromptr->right) edges[fromptr->right].parent = to;
   if(fromptr->parent){
-    WtTreeNode *parentptr = edges+fromptr->parent;
+    TreeNode *parentptr = edges+fromptr->parent;
     if(parentptr->left==from) parentptr->left = to;
     else parentptr->right =  to;
   }
-  memcpy(toptr,fromptr,sizeof(WtTreeNode));
+  memcpy(toptr,fromptr,sizeof(TreeNode));
   fromptr->value = 0;
 }
 
@@ -263,28 +262,27 @@ EDGETREE_INLINE void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges){
        in before heads */
 
 /*****************
- int WtDeleteHalfedgeFromTree
+ int DeleteHalfedgeFromTree
 
- Delete the WtTreeNode with value b from the tree rooted at edges[a].
- Return 0 if no such WtTreeNode exists, 1 otherwise.  Also update the
+ Delete the TreeNode with value b from the tree rooted at edges[a].
+ Return 0 if no such TreeNode exists, 1 otherwise.  Also update the
  value of *last_edge appropriately.
 *****************/
-EDGETREE_INLINE int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
-		     Edge *last_edge){ 
+static inline int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
+		     Edge *last_edge){
   Edge x, z, root=(Edge)a;
-  WtTreeNode *xptr, *zptr, *ptr;
+  TreeNode *xptr, *zptr, *ptr;
 
-  if ((z=WtEdgetreeSearch(a, b, edges))==0)  /* z is the current WtTreeNode. */
-    return 0; /* This edge doesn't exist, so return 0 */
+  if ((z=EdgetreeSearch(a, b, edges))==0)  /* z is the current TreeNode. */
+    return 0;  /* This edge doesn't exist, so return 0 */
   /* First, determine which node to splice out; this is z.  If the current
      z has two children, then we'll actually splice out its successor. */
   if ((zptr=edges+z)->left != 0 && zptr->right != 0) {
     if(unif_rand()<0.5)
-      z=WtEdgetreeSuccessor(edges, z);  
+      z=EdgetreeSuccessor(edges, z);  
     else
-      z=WtEdgetreePredecessor(edges, z);  
+      z=EdgetreePredecessor(edges, z);  
     zptr->value = (ptr=edges+z)->value;
-    zptr->weight = ptr->weight;
     zptr=ptr;
   }
   /* Set x to the child of z (there is at most one). */
@@ -293,7 +291,6 @@ EDGETREE_INLINE int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edg
   /* Splice out node z */
   if (z == root) {
     zptr->value = (xptr=edges+x)->value;
-    zptr->weight = xptr->weight;
     if (x != 0) {
       if ((zptr->left=xptr->left) != 0)
 	(edges+zptr->left)->parent = z;
@@ -313,14 +310,14 @@ EDGETREE_INLINE int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edg
   /* Clear z node, update *last_edge if necessary. */
   zptr->value=0;
   if(z!=root){
-    WtRelocateHalfedge(*last_edge,z,edges);
+    RelocateHalfedge(*last_edge,z,edges);
     (*last_edge)--;
   }
   return 1;
 }
 
 /*****************
- int WtDeleteEdgeFromTrees
+ int DeleteEdgeFromTrees
 
  Find and delete the edge from tail to head.  
  Return 1 if successful, 0 otherwise.  As with AddEdgeToTrees, this must
@@ -329,9 +326,9 @@ EDGETREE_INLINE int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edg
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-EDGETREE_INLINE int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp){
-  if (WtDeleteHalfedgeFromTree(tail, head, nwp->outedges,&(nwp->last_outedge))&&
-      WtDeleteHalfedgeFromTree(head, tail, nwp->inedges, &(nwp->last_inedge))) {
+static inline int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp){
+  if (DeleteHalfedgeFromTree(tail, head, nwp->outedges,&(nwp->last_outedge))&&
+      DeleteHalfedgeFromTree(head, tail, nwp->inedges, &(nwp->last_inedge))) {
     --nwp->outdegree[tail];
     --nwp->indegree[head];
     --nwp->nedges;
@@ -344,7 +341,7 @@ EDGETREE_INLINE int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *n
 
 
 /*****************
- int WtToggleEdge
+ Edge ToggleEdge
 
  Toggle an edge:  Set it to the opposite of its current
  value.  Return 1 if edge added, 0 if deleted.
@@ -352,7 +349,7 @@ EDGETREE_INLINE int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *n
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-EDGETREE_INLINE int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp) 
+static inline int ToggleEdge (Vertex tail, Vertex head, Network *nwp) 
 {
   /* don't forget tails < heads now for undirected networks */
   if (!(nwp->directed_flag) && tail > head) {
@@ -361,12 +358,11 @@ EDGETREE_INLINE int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNet
     tail = head;
     head = temp;
   }
-  if (WtAddEdgeToTrees(tail,head,weight,nwp))
+  if (AddEdgeToTrees(tail,head,nwp))
     return 1;
   else 
-    return 1 - WtDeleteEdgeFromTrees(tail,head,nwp);
+    return 1 - DeleteEdgeFromTrees(tail,head,nwp);
 }
-
 
 
 /* *** don't forget, edges are now given by tails -> heads, and as
@@ -383,8 +379,7 @@ EDGETREE_INLINE int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNet
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-EDGETREE_INLINE int WtToggleEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork *nwp) 
-{
+static inline int ToggleEdgeWithTimestamp(Vertex tail, Vertex head, Network *nwp){
   Edge k;
 
   /* don't forget, tails < heads in undirected networks now  */
@@ -406,107 +401,16 @@ EDGETREE_INLINE int WtToggleEdgeWithTimestamp (Vertex tail, Vertex head, double 
     }
     nwp->duration_info.lasttoggle[k] = nwp->duration_info.time;
   }
-
-  if (WtAddEdgeToTrees(tail,head,weight,nwp))
+  
+  if (AddEdgeToTrees(tail,head,nwp))
     return 1;
   else 
-    return 1 - WtDeleteEdgeFromTrees(tail,head,nwp);
+    return 1 - DeleteEdgeFromTrees(tail,head,nwp);
 }
 
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed
        in before heads */
 
-/*****************
- int WtSetEdge
 
- Set an weighted edge value: set it to its new weight. Create if it
-does not exist, destroy by setting to 0. 
-*****************/
-EDGETREE_INLINE void WtSetEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp) 
-{
-  if (!(nwp->directed_flag) && tail > head) {
-    Vertex temp;
-    temp = tail; /*  Make sure tail<head always for undirected edges */
-    tail = head;
-    head = temp;
-  }
-
-  if(weight==0){
-    // If the function is to set the edge value to 0, just delete it.
-    WtDeleteEdgeFromTrees(tail,head,nwp);
-  }else{
-    // Find the out-edge
-    Edge oe=WtEdgetreeSearch(tail,head,nwp->outedges);
-    if(oe){
-      // If it exists AND already has the target weight, do nothing.
-      if(nwp->outedges[oe].weight==weight) return;
-      else{
-	// Find the corresponding in-edge.
-	Edge ie=WtEdgetreeSearch(head,tail,nwp->inedges);
-	nwp->inedges[ie].weight=nwp->outedges[oe].weight=weight;
-      }
-    }else{
-      // Otherwise, create a new edge with that weight.
-      WtAddEdgeToTrees(tail,head,weight,nwp);
-    }
-  }
-}
-
-/*****************
- int WtGetEdge
-
-Get weighted edge value. Return 0 if edge does not exist.
-*****************/
-EDGETREE_INLINE double WtGetEdge (Vertex tail, Vertex head, WtNetwork *nwp) 
-{
-  if (!(nwp->directed_flag) && tail > head) {
-    Vertex temp;
-    temp = tail; /*  Make sure tail<head always for undirected edges */
-    tail = head;
-    head = temp;
-  }
-
-  Edge oe=WtEdgetreeSearch(tail,head,nwp->outedges);
-  if(oe) return nwp->outedges[oe].weight;
-  else return 0;
-}
-
-/*****************
- Edge WtSetEdgeWithTimestamp
-
- Same as WtSetEdge, but this time with the additional
- step of updating the matrix of 'lasttoggle' times
- *****************/
-EDGETREE_INLINE void WtSetEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork *nwp) 
-{
-  Edge k;
-
-  if (!(nwp->directed_flag) && tail > head) {
-    Vertex temp;
-    temp = tail; /*  Make sure tail<head always for undirected edges */
-    tail = head;
-    head = temp;
-  }
-  
-  if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
-    if(nwp->bipartite){
-      k = (head-nwp->bipartite-1)*(nwp->bipartite) + tail - 1;
-    }else{
-      if (nwp->directed_flag) 
-	k = (head-1)*(nwp->nnodes-1) + tail - ((tail>head) ? 1:0) - 1; 
-      else
-	k = (head-1)*(head-2)/2 + tail - 1;    
-    }
-    nwp->duration_info.lasttoggle[k] = nwp->duration_info.time;
-  }
-
-  WtSetEdge(tail,head,weight,nwp);
-}
-
-
-
-/* *** don't forget, edges are now given by tails -> heads, and as
-       such, the function definitions now require tails to be passed
-       in before heads */
 
