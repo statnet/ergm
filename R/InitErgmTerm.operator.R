@@ -1,4 +1,4 @@
-.encode.str <- function(s) c(nchar(s), strtoi(charToRaw(s), 16L))
+pack.strtoint <- function(s) c(nchar(s), strtoi(charToRaw(s), 16L))
 
 InitErgmTerm.meta <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
@@ -13,8 +13,8 @@ InitErgmTerm.meta <- function(nw, arglist, response=NULL, ...){
   m <- ergm.getmodel(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
-  fnames <- .encode.str(Clist$fnamestring)
-  snames <- .encode.str(Clist$snamestring)
+  fnames <- pack.strtoint(Clist$fnamestring)
+  snames <- pack.strtoint(Clist$snamestring)
 
   inputs <- c(Clist$nterms, fnames, snames, Clist$inputs)
 
@@ -47,8 +47,8 @@ InitErgmTerm.meta <- function(nw, arglist, response=NULL, ...){
   m <- ergm.getmodel(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
-  fnames <- .encode.str(Clist$fnamestring)
-  snames <- .encode.str(Clist$snamestring)
+  fnames <- pack.strtoint(Clist$fnamestring)
+  snames <- pack.strtoint(Clist$snamestring)
 
   inputs <- c(fnames, snames, Clist$inputs)
 
@@ -72,8 +72,8 @@ InitErgmTerm.meta <- function(nw, arglist, response=NULL, ...){
   m <- ergm.getmodel(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
-  fnames <- .encode.str(Clist$fnamestring)
-  snames <- .encode.str(Clist$snamestring)
+  fnames <- pack.strtoint(Clist$fnamestring)
+  snames <- pack.strtoint(Clist$snamestring)
 
   inputs <- c(fnames, snames, Clist$inputs)
 
