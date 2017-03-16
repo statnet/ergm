@@ -1,10 +1,5 @@
 #include "R_ext/Rdynload.h"
 #include "changestat.h"
-double my_choose(double n, int r){
-static double (*fun)(double,int) = NULL;
-if(fun==NULL) fun = (double (*)(double,int)) R_FindSymbol("my_choose", "ergm", NULL);
-return fun(n,r);
-}
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
@@ -13,21 +8,10 @@ return fun(n,r);
 #undef EQUAL
 #undef XOR
 #undef XNOR
-#undef TAIL
-#undef HEAD
-#undef IS_OUTEDGE
-#undef IS_INEDGE
-#undef IS_UNDIRECTED_EDGE
-#undef MIN_OUTEDGE
-#undef MIN_INEDGE
-#undef NEXT_OUTEDGE
-#undef NEXT_INEDGE
 #undef STEP_THROUGH_OUTEDGES
 #undef STEP_THROUGH_INEDGES
 #undef OUTVAL
 #undef INVAL
-#undef TOGGLE
-#undef TOGGLE_DISCORD
 #undef N_NODES
 #undef N_DYADS
 #undef OUT_DEG
@@ -44,13 +28,6 @@ return fun(n,r);
 #undef INPUT_PARAM
 #undef N_INPUT_PARAMS
 #undef ZERO_ALL_CHANGESTATS
-#undef FOR_EACH_TOGGLE
-#undef IF_MORE_TO_COME
-#undef TOGGLE_IF_MORE_TO_COME
-#undef TOGGLE_DISCORD_IF_MORE_TO_COME
-#undef UNDO_PREVIOUS
-#undef UNDO_PREVIOUS_TOGGLES
-#undef UNDO_PREVIOUS_DISCORD_TOGGLES
 #undef ALLOC_STORAGE
 #undef GET_STORAGE
 #undef ALLOC_AUX_STORAGE
@@ -58,6 +35,25 @@ return fun(n,r);
 #undef GET_AUX_STORAGE_NUM
 #undef ALLOC_AUX_SOCIOMATRIX
 #undef FREE_AUX_SOCIOMATRIX
+#undef INPUT_ATTRIB
+#undef TAIL
+#undef HEAD
+#undef IS_OUTEDGE
+#undef IS_INEDGE
+#undef IS_UNDIRECTED_EDGE
+#undef MIN_OUTEDGE
+#undef MIN_INEDGE
+#undef NEXT_OUTEDGE
+#undef NEXT_INEDGE
+#undef TOGGLE
+#undef TOGGLE_DISCORD
+#undef FOR_EACH_TOGGLE
+#undef IF_MORE_TO_COME
+#undef TOGGLE_IF_MORE_TO_COME
+#undef TOGGLE_DISCORD_IF_MORE_TO_COME
+#undef UNDO_PREVIOUS
+#undef UNDO_PREVIOUS_TOGGLES
+#undef UNDO_PREVIOUS_DISCORD_TOGGLES
 #undef CHANGESTAT_FN
 #undef C_CHANGESTAT_FN
 #undef D_CHANGESTAT_FN
@@ -67,7 +63,6 @@ return fun(n,r);
 #undef S_CHANGESTAT_FN
 #undef D_FROM_S
 #undef D_FROM_S_FN
-#undef INPUT_ATTRIB
 #include "R_ext/Rdynload.h"
 #include "edgelist.h"
 unsigned int dEdgeListSearch(Vertex tail, Vertex head, double *el){
@@ -105,6 +100,51 @@ Network * NetworkCopy(Network *dest, Network *src){
 static Network * (*fun)(Network *,Network *) = NULL;
 if(fun==NULL) fun = (Network * (*)(Network *,Network *)) R_FindSymbol("NetworkCopy", "ergm", NULL);
 return fun(dest,src);
+}
+int ToggleEdge(Vertex tail, Vertex head, Network *nwp){
+static int (*fun)(Vertex,Vertex,Network *) = NULL;
+if(fun==NULL) fun = (int (*)(Vertex,Vertex,Network *)) R_FindSymbol("ToggleEdge", "ergm", NULL);
+return fun(tail,head,nwp);
+}
+int ToggleEdgeWithTimestamp(Vertex tail, Vertex head, Network *nwp){
+static int (*fun)(Vertex,Vertex,Network *) = NULL;
+if(fun==NULL) fun = (int (*)(Vertex,Vertex,Network *)) R_FindSymbol("ToggleEdgeWithTimestamp", "ergm", NULL);
+return fun(tail,head,nwp);
+}
+int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp){
+static int (*fun)(Vertex,Vertex,Network *) = NULL;
+if(fun==NULL) fun = (int (*)(Vertex,Vertex,Network *)) R_FindSymbol("AddEdgeToTrees", "ergm", NULL);
+return fun(tail,head,nwp);
+}
+void AddHalfedgeToTree(Vertex a, Vertex b, TreeNode *edges, Edge *last_edge){
+static void (*fun)(Vertex,Vertex,TreeNode *,Edge *) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,TreeNode *,Edge *)) R_FindSymbol("AddHalfedgeToTree", "ergm", NULL);
+fun(a,b,edges,last_edge);
+}
+void CheckEdgetreeFull(Network *nwp){
+static void (*fun)(Network *) = NULL;
+if(fun==NULL) fun = (void (*)(Network *)) R_FindSymbol("CheckEdgetreeFull", "ergm", NULL);
+fun(nwp);
+}
+int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp){
+static int (*fun)(Vertex,Vertex,Network *) = NULL;
+if(fun==NULL) fun = (int (*)(Vertex,Vertex,Network *)) R_FindSymbol("DeleteEdgeFromTrees", "ergm", NULL);
+return fun(tail,head,nwp);
+}
+int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,Edge *last_edge){
+static int (*fun)(Vertex,Vertex,TreeNode *,Edge *) = NULL;
+if(fun==NULL) fun = (int (*)(Vertex,Vertex,TreeNode *,Edge *)) R_FindSymbol("DeleteHalfedgeFromTree", "ergm", NULL);
+return fun(a,b,edges,last_edge);
+}
+void RelocateHalfedge(Edge from, Edge to, TreeNode *edges){
+static void (*fun)(Edge,Edge,TreeNode *) = NULL;
+if(fun==NULL) fun = (void (*)(Edge,Edge,TreeNode *)) R_FindSymbol("RelocateHalfedge", "ergm", NULL);
+fun(from,to,edges);
+}
+void TouchEdge(Vertex tail, Vertex head, Network *nwp){
+static void (*fun)(Vertex,Vertex,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,Network *)) R_FindSymbol("TouchEdge", "ergm", NULL);
+fun(tail,head,nwp);
 }
 int FindithEdge(Vertex *tail, Vertex *head, Edge i, Network *nwp){
 static int (*fun)(Vertex *,Vertex *,Edge,Network *) = NULL;
@@ -195,21 +235,10 @@ fun(MH,theta,gain,meanstats,nphase1,nsubphases,networkstatistics,samplesize,burn
 #undef EQUAL
 #undef XOR
 #undef XNOR
-#undef TAIL
-#undef HEAD
-#undef IS_OUTEDGE
-#undef IS_INEDGE
-#undef IS_UNDIRECTED_EDGE
-#undef MIN_OUTEDGE
-#undef MIN_INEDGE
-#undef NEXT_OUTEDGE
-#undef NEXT_INEDGE
 #undef STEP_THROUGH_OUTEDGES
 #undef STEP_THROUGH_INEDGES
 #undef OUTVAL
 #undef INVAL
-#undef TOGGLE
-#undef TOGGLE_DISCORD
 #undef N_NODES
 #undef N_DYADS
 #undef OUT_DEG
@@ -226,13 +255,6 @@ fun(MH,theta,gain,meanstats,nphase1,nsubphases,networkstatistics,samplesize,burn
 #undef INPUT_PARAM
 #undef N_INPUT_PARAMS
 #undef ZERO_ALL_CHANGESTATS
-#undef FOR_EACH_TOGGLE
-#undef IF_MORE_TO_COME
-#undef TOGGLE_IF_MORE_TO_COME
-#undef TOGGLE_DISCORD_IF_MORE_TO_COME
-#undef UNDO_PREVIOUS
-#undef UNDO_PREVIOUS_TOGGLES
-#undef UNDO_PREVIOUS_DISCORD_TOGGLES
 #undef ALLOC_STORAGE
 #undef GET_STORAGE
 #undef ALLOC_AUX_STORAGE
@@ -240,6 +262,25 @@ fun(MH,theta,gain,meanstats,nphase1,nsubphases,networkstatistics,samplesize,burn
 #undef GET_AUX_STORAGE_NUM
 #undef ALLOC_AUX_SOCIOMATRIX
 #undef FREE_AUX_SOCIOMATRIX
+#undef INPUT_ATTRIB
+#undef TAIL
+#undef HEAD
+#undef IS_OUTEDGE
+#undef IS_INEDGE
+#undef IS_UNDIRECTED_EDGE
+#undef MIN_OUTEDGE
+#undef MIN_INEDGE
+#undef NEXT_OUTEDGE
+#undef NEXT_INEDGE
+#undef TOGGLE
+#undef TOGGLE_DISCORD
+#undef FOR_EACH_TOGGLE
+#undef IF_MORE_TO_COME
+#undef TOGGLE_IF_MORE_TO_COME
+#undef TOGGLE_DISCORD_IF_MORE_TO_COME
+#undef UNDO_PREVIOUS
+#undef UNDO_PREVIOUS_TOGGLES
+#undef UNDO_PREVIOUS_DISCORD_TOGGLES
 #undef CHANGESTAT_FN
 #undef C_CHANGESTAT_FN
 #undef D_CHANGESTAT_FN
@@ -249,7 +290,6 @@ fun(MH,theta,gain,meanstats,nphase1,nsubphases,networkstatistics,samplesize,burn
 #undef S_CHANGESTAT_FN
 #undef D_FROM_S
 #undef D_FROM_S_FN
-#undef INPUT_ATTRIB
 #undef NO_EDGE
 #undef OLD_EDGE
 #undef NEW_EDGE
@@ -363,21 +403,10 @@ fun(nwp,m);
 #undef EQUAL
 #undef XOR
 #undef XNOR
-#undef TAIL
-#undef HEAD
-#undef IS_OUTEDGE
-#undef IS_INEDGE
-#undef IS_UNDIRECTED_EDGE
-#undef MIN_OUTEDGE
-#undef MIN_INEDGE
-#undef NEXT_OUTEDGE
-#undef NEXT_INEDGE
 #undef STEP_THROUGH_OUTEDGES
 #undef STEP_THROUGH_INEDGES
 #undef OUTVAL
 #undef INVAL
-#undef TOGGLE
-#undef TOGGLE_DISCORD
 #undef N_NODES
 #undef N_DYADS
 #undef OUT_DEG
@@ -394,13 +423,6 @@ fun(nwp,m);
 #undef INPUT_PARAM
 #undef N_INPUT_PARAMS
 #undef ZERO_ALL_CHANGESTATS
-#undef FOR_EACH_TOGGLE
-#undef IF_MORE_TO_COME
-#undef TOGGLE_IF_MORE_TO_COME
-#undef TOGGLE_DISCORD_IF_MORE_TO_COME
-#undef UNDO_PREVIOUS
-#undef UNDO_PREVIOUS_TOGGLES
-#undef UNDO_PREVIOUS_DISCORD_TOGGLES
 #undef ALLOC_STORAGE
 #undef GET_STORAGE
 #undef ALLOC_AUX_STORAGE
@@ -408,6 +430,25 @@ fun(nwp,m);
 #undef GET_AUX_STORAGE_NUM
 #undef ALLOC_AUX_SOCIOMATRIX
 #undef FREE_AUX_SOCIOMATRIX
+#undef INPUT_ATTRIB
+#undef TAIL
+#undef HEAD
+#undef IS_OUTEDGE
+#undef IS_INEDGE
+#undef IS_UNDIRECTED_EDGE
+#undef MIN_OUTEDGE
+#undef MIN_INEDGE
+#undef NEXT_OUTEDGE
+#undef NEXT_INEDGE
+#undef TOGGLE
+#undef TOGGLE_DISCORD
+#undef FOR_EACH_TOGGLE
+#undef IF_MORE_TO_COME
+#undef TOGGLE_IF_MORE_TO_COME
+#undef TOGGLE_DISCORD_IF_MORE_TO_COME
+#undef UNDO_PREVIOUS
+#undef UNDO_PREVIOUS_TOGGLES
+#undef UNDO_PREVIOUS_DISCORD_TOGGLES
 #undef CHANGESTAT_FN
 #undef C_CHANGESTAT_FN
 #undef D_CHANGESTAT_FN
@@ -417,7 +458,6 @@ fun(nwp,m);
 #undef S_CHANGESTAT_FN
 #undef D_FROM_S
 #undef D_FROM_S_FN
-#undef INPUT_ATTRIB
 #undef FOR_EACH_TERM
 #undef EXEC_THROUGH_TERMS
 #undef FOR_EACH_TERM_INREVERSE
@@ -432,31 +472,13 @@ fun(nwp,m);
 #undef DYADCOUNT
 #undef GetRandDyad
 #undef CHOOSE
+#undef EQUAL
 #undef XOR
 #undef XNOR
-#undef IS_OUTEDGE
-#undef IS_INEDGE
-#undef IS_UNDIRECTED_EDGE
-#undef OUTVAL
-#undef INVAL
-#undef OUTWT
-#undef INWT
-#undef MIN_OUTEDGE
-#undef MIN_INEDGE
-#undef NEXT_OUTEDGE
-#undef NEXT_INEDGE
 #undef STEP_THROUGH_OUTEDGES
 #undef STEP_THROUGH_INEDGES
-#undef STEP_THROUGH_OUTEDGES_DECL
-#undef STEP_THROUGH_INEDGES_DECL
-#undef EXEC_THROUGH_OUTEDGES
-#undef EXEC_THROUGH_INEDGES
-#undef EXEC_THROUGH_EDGES
-#undef EXEC_THROUGH_FOUTEDGES
-#undef EXEC_THROUGH_FINEDGES
-#undef EXEC_THROUGH_NET_EDGES
-#undef GETWT
-#undef SETWT
+#undef OUTVAL
+#undef INVAL
 #undef N_NODES
 #undef N_DYADS
 #undef OUT_DEG
@@ -472,8 +494,34 @@ fun(nwp,m);
 #undef N_CHANGE_STATS
 #undef INPUT_PARAM
 #undef N_INPUT_PARAMS
-#undef TOGGLEIND
 #undef ZERO_ALL_CHANGESTATS
+#undef ALLOC_STORAGE
+#undef GET_STORAGE
+#undef ALLOC_AUX_STORAGE
+#undef GET_AUX_STORAGE
+#undef GET_AUX_STORAGE_NUM
+#undef ALLOC_AUX_SOCIOMATRIX
+#undef FREE_AUX_SOCIOMATRIX
+#undef INPUT_ATTRIB
+#undef IS_OUTEDGE
+#undef IS_INEDGE
+#undef IS_UNDIRECTED_EDGE
+#undef MIN_OUTEDGE
+#undef MIN_INEDGE
+#undef NEXT_OUTEDGE
+#undef NEXT_INEDGE
+#undef OUTWT
+#undef INWT
+#undef STEP_THROUGH_OUTEDGES_DECL
+#undef STEP_THROUGH_INEDGES_DECL
+#undef EXEC_THROUGH_OUTEDGES
+#undef EXEC_THROUGH_INEDGES
+#undef EXEC_THROUGH_EDGES
+#undef EXEC_THROUGH_FOUTEDGES
+#undef EXEC_THROUGH_FINEDGES
+#undef EXEC_THROUGH_NET_EDGES
+#undef GETWT
+#undef SETWT
 #undef FOR_EACH_TOGGLE
 #undef TAIL
 #undef HEAD
@@ -493,13 +541,6 @@ fun(nwp,m);
 #undef GETOLDWT
 #undef GETNEWWT
 #undef GETNEWWTOLD
-#undef ALLOC_STORAGE
-#undef GET_STORAGE
-#undef ALLOC_AUX_STORAGE
-#undef GET_AUX_STORAGE
-#undef GET_AUX_STORAGE_NUM
-#undef ALLOC_AUX_SOCIOMATRIX
-#undef FREE_AUX_SOCIOMATRIX
 #undef WtC_CHANGESTAT_FN
 #undef WtD_CHANGESTAT_FN
 #undef WtI_CHANGESTAT_FN
@@ -508,7 +549,6 @@ fun(nwp,m);
 #undef WtS_CHANGESTAT_FN
 #undef D_FROM_S
 #undef WtD_FROM_S_FN
-#undef INPUT_ATTRIB
 #include "R_ext/Rdynload.h"
 #include "wtedgetree.h"
 WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle, unsigned int n_aux){
@@ -530,6 +570,61 @@ WtNetwork * WtNetworkCopy(WtNetwork *dest, WtNetwork *src){
 static WtNetwork * (*fun)(WtNetwork *,WtNetwork *) = NULL;
 if(fun==NULL) fun = (WtNetwork * (*)(WtNetwork *,WtNetwork *)) R_FindSymbol("WtNetworkCopy", "ergm", NULL);
 return fun(dest,src);
+}
+void WtSetEdge(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
+static void (*fun)(Vertex,Vertex,double,WtNetwork *) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,WtNetwork *)) R_FindSymbol("WtSetEdge", "ergm", NULL);
+fun(tail,head,weight,nwp);
+}
+void WtSetEdgeWithTimestamp(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
+static void (*fun)(Vertex,Vertex,double,WtNetwork *) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,WtNetwork *)) R_FindSymbol("WtSetEdgeWithTimestamp", "ergm", NULL);
+fun(tail,head,weight,nwp);
+}
+int WtToggleEdge(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
+static int (*fun)(Vertex,Vertex,double,WtNetwork *) = NULL;
+if(fun==NULL) fun = (int (*)(Vertex,Vertex,double,WtNetwork *)) R_FindSymbol("WtToggleEdge", "ergm", NULL);
+return fun(tail,head,weight,nwp);
+}
+int WtToggleEdgeWithTimestamp(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
+static int (*fun)(Vertex,Vertex,double,WtNetwork *) = NULL;
+if(fun==NULL) fun = (int (*)(Vertex,Vertex,double,WtNetwork *)) R_FindSymbol("WtToggleEdgeWithTimestamp", "ergm", NULL);
+return fun(tail,head,weight,nwp);
+}
+int WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
+static int (*fun)(Vertex,Vertex,double,WtNetwork *) = NULL;
+if(fun==NULL) fun = (int (*)(Vertex,Vertex,double,WtNetwork *)) R_FindSymbol("WtAddEdgeToTrees", "ergm", NULL);
+return fun(tail,head,weight,nwp);
+}
+void WtAddHalfedgeToTree(Vertex a, Vertex b, double weight, WtTreeNode *edges, Edge *last_edge){
+static void (*fun)(Vertex,Vertex,double,WtTreeNode *,Edge *) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,WtTreeNode *,Edge *)) R_FindSymbol("WtAddHalfedgeToTree", "ergm", NULL);
+fun(a,b,weight,edges,last_edge);
+}
+void WtCheckEdgetreeFull(WtNetwork *nwp){
+static void (*fun)(WtNetwork *) = NULL;
+if(fun==NULL) fun = (void (*)(WtNetwork *)) R_FindSymbol("WtCheckEdgetreeFull", "ergm", NULL);
+fun(nwp);
+}
+int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp){
+static int (*fun)(Vertex,Vertex,WtNetwork *) = NULL;
+if(fun==NULL) fun = (int (*)(Vertex,Vertex,WtNetwork *)) R_FindSymbol("WtDeleteEdgeFromTrees", "ergm", NULL);
+return fun(tail,head,nwp);
+}
+int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,Edge *last_edge){
+static int (*fun)(Vertex,Vertex,WtTreeNode *,Edge *) = NULL;
+if(fun==NULL) fun = (int (*)(Vertex,Vertex,WtTreeNode *,Edge *)) R_FindSymbol("WtDeleteHalfedgeFromTree", "ergm", NULL);
+return fun(a,b,edges,last_edge);
+}
+void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges){
+static void (*fun)(Edge,Edge,WtTreeNode *) = NULL;
+if(fun==NULL) fun = (void (*)(Edge,Edge,WtTreeNode *)) R_FindSymbol("WtRelocateHalfedge", "ergm", NULL);
+fun(from,to,edges);
+}
+void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp){
+static void (*fun)(Vertex,Vertex,WtNetwork *) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,WtNetwork *)) R_FindSymbol("WtTouchEdge", "ergm", NULL);
+fun(tail,head,nwp);
 }
 int WtFindithEdge(Vertex *tail, Vertex *head, double *weight, Edge i, WtNetwork *nwp){
 static int (*fun)(Vertex *,Vertex *,double *,Edge,WtNetwork *) = NULL;
@@ -607,31 +702,13 @@ return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 #undef DYADCOUNT
 #undef GetRandDyad
 #undef CHOOSE
+#undef EQUAL
 #undef XOR
 #undef XNOR
-#undef IS_OUTEDGE
-#undef IS_INEDGE
-#undef IS_UNDIRECTED_EDGE
-#undef OUTVAL
-#undef INVAL
-#undef OUTWT
-#undef INWT
-#undef MIN_OUTEDGE
-#undef MIN_INEDGE
-#undef NEXT_OUTEDGE
-#undef NEXT_INEDGE
 #undef STEP_THROUGH_OUTEDGES
 #undef STEP_THROUGH_INEDGES
-#undef STEP_THROUGH_OUTEDGES_DECL
-#undef STEP_THROUGH_INEDGES_DECL
-#undef EXEC_THROUGH_OUTEDGES
-#undef EXEC_THROUGH_INEDGES
-#undef EXEC_THROUGH_EDGES
-#undef EXEC_THROUGH_FOUTEDGES
-#undef EXEC_THROUGH_FINEDGES
-#undef EXEC_THROUGH_NET_EDGES
-#undef GETWT
-#undef SETWT
+#undef OUTVAL
+#undef INVAL
 #undef N_NODES
 #undef N_DYADS
 #undef OUT_DEG
@@ -647,8 +724,34 @@ return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 #undef N_CHANGE_STATS
 #undef INPUT_PARAM
 #undef N_INPUT_PARAMS
-#undef TOGGLEIND
 #undef ZERO_ALL_CHANGESTATS
+#undef ALLOC_STORAGE
+#undef GET_STORAGE
+#undef ALLOC_AUX_STORAGE
+#undef GET_AUX_STORAGE
+#undef GET_AUX_STORAGE_NUM
+#undef ALLOC_AUX_SOCIOMATRIX
+#undef FREE_AUX_SOCIOMATRIX
+#undef INPUT_ATTRIB
+#undef IS_OUTEDGE
+#undef IS_INEDGE
+#undef IS_UNDIRECTED_EDGE
+#undef MIN_OUTEDGE
+#undef MIN_INEDGE
+#undef NEXT_OUTEDGE
+#undef NEXT_INEDGE
+#undef OUTWT
+#undef INWT
+#undef STEP_THROUGH_OUTEDGES_DECL
+#undef STEP_THROUGH_INEDGES_DECL
+#undef EXEC_THROUGH_OUTEDGES
+#undef EXEC_THROUGH_INEDGES
+#undef EXEC_THROUGH_EDGES
+#undef EXEC_THROUGH_FOUTEDGES
+#undef EXEC_THROUGH_FINEDGES
+#undef EXEC_THROUGH_NET_EDGES
+#undef GETWT
+#undef SETWT
 #undef FOR_EACH_TOGGLE
 #undef TAIL
 #undef HEAD
@@ -668,13 +771,6 @@ return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 #undef GETOLDWT
 #undef GETNEWWT
 #undef GETNEWWTOLD
-#undef ALLOC_STORAGE
-#undef GET_STORAGE
-#undef ALLOC_AUX_STORAGE
-#undef GET_AUX_STORAGE
-#undef GET_AUX_STORAGE_NUM
-#undef ALLOC_AUX_SOCIOMATRIX
-#undef FREE_AUX_SOCIOMATRIX
 #undef WtC_CHANGESTAT_FN
 #undef WtD_CHANGESTAT_FN
 #undef WtI_CHANGESTAT_FN
@@ -683,7 +779,6 @@ return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 #undef WtS_CHANGESTAT_FN
 #undef D_FROM_S
 #undef WtD_FROM_S_FN
-#undef INPUT_ATTRIB
 #undef NO_EDGE
 #undef OLD_EDGE
 #undef NEW_EDGE
@@ -765,31 +860,13 @@ fun(nwp,m);
 #undef DYADCOUNT
 #undef GetRandDyad
 #undef CHOOSE
+#undef EQUAL
 #undef XOR
 #undef XNOR
-#undef IS_OUTEDGE
-#undef IS_INEDGE
-#undef IS_UNDIRECTED_EDGE
-#undef OUTVAL
-#undef INVAL
-#undef OUTWT
-#undef INWT
-#undef MIN_OUTEDGE
-#undef MIN_INEDGE
-#undef NEXT_OUTEDGE
-#undef NEXT_INEDGE
 #undef STEP_THROUGH_OUTEDGES
 #undef STEP_THROUGH_INEDGES
-#undef STEP_THROUGH_OUTEDGES_DECL
-#undef STEP_THROUGH_INEDGES_DECL
-#undef EXEC_THROUGH_OUTEDGES
-#undef EXEC_THROUGH_INEDGES
-#undef EXEC_THROUGH_EDGES
-#undef EXEC_THROUGH_FOUTEDGES
-#undef EXEC_THROUGH_FINEDGES
-#undef EXEC_THROUGH_NET_EDGES
-#undef GETWT
-#undef SETWT
+#undef OUTVAL
+#undef INVAL
 #undef N_NODES
 #undef N_DYADS
 #undef OUT_DEG
@@ -805,8 +882,34 @@ fun(nwp,m);
 #undef N_CHANGE_STATS
 #undef INPUT_PARAM
 #undef N_INPUT_PARAMS
-#undef TOGGLEIND
 #undef ZERO_ALL_CHANGESTATS
+#undef ALLOC_STORAGE
+#undef GET_STORAGE
+#undef ALLOC_AUX_STORAGE
+#undef GET_AUX_STORAGE
+#undef GET_AUX_STORAGE_NUM
+#undef ALLOC_AUX_SOCIOMATRIX
+#undef FREE_AUX_SOCIOMATRIX
+#undef INPUT_ATTRIB
+#undef IS_OUTEDGE
+#undef IS_INEDGE
+#undef IS_UNDIRECTED_EDGE
+#undef MIN_OUTEDGE
+#undef MIN_INEDGE
+#undef NEXT_OUTEDGE
+#undef NEXT_INEDGE
+#undef OUTWT
+#undef INWT
+#undef STEP_THROUGH_OUTEDGES_DECL
+#undef STEP_THROUGH_INEDGES_DECL
+#undef EXEC_THROUGH_OUTEDGES
+#undef EXEC_THROUGH_INEDGES
+#undef EXEC_THROUGH_EDGES
+#undef EXEC_THROUGH_FOUTEDGES
+#undef EXEC_THROUGH_FINEDGES
+#undef EXEC_THROUGH_NET_EDGES
+#undef GETWT
+#undef SETWT
 #undef FOR_EACH_TOGGLE
 #undef TAIL
 #undef HEAD
@@ -826,13 +929,6 @@ fun(nwp,m);
 #undef GETOLDWT
 #undef GETNEWWT
 #undef GETNEWWTOLD
-#undef ALLOC_STORAGE
-#undef GET_STORAGE
-#undef ALLOC_AUX_STORAGE
-#undef GET_AUX_STORAGE
-#undef GET_AUX_STORAGE_NUM
-#undef ALLOC_AUX_SOCIOMATRIX
-#undef FREE_AUX_SOCIOMATRIX
 #undef WtC_CHANGESTAT_FN
 #undef WtD_CHANGESTAT_FN
 #undef WtI_CHANGESTAT_FN
@@ -841,7 +937,6 @@ fun(nwp,m);
 #undef WtS_CHANGESTAT_FN
 #undef D_FROM_S
 #undef WtD_FROM_S_FN
-#undef INPUT_ATTRIB
 #undef FOR_EACH_TERM
 #undef EXEC_THROUGH_TERMS
 #undef FOR_EACH_TERM_INREVERSE
