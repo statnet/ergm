@@ -263,7 +263,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
     }
     
     /* if we accept the proposed network */
-    if (cutoff >= 0.0 || log(unif_rand()) < cutoff) { 
+    if (cutoff >= 0.0 || logf(unif_rand()) < cutoff) { 
       if(fVerbose>=5){
 	Rprintf("Accepted.\n");
       }
