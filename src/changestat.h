@@ -102,7 +102,8 @@ double my_choose(double n, int r);
 #define N_INPUT_PARAMS (mtp->ninputparams) /* Number of inputs passed */
 
 /* Set all changestats to zero at start of function */
-#define ZERO_ALL_CHANGESTATS(a) for((a)=0; (a)<N_CHANGE_STATS; (a)++) CHANGE_STAT[(a)]=0.0
+/* #define ZERO_ALL_CHANGESTATS(a) for((a)=0; (a)<N_CHANGE_STATS; (a)++) CHANGE_STAT[(a)]=0.0 */
+#define ZERO_ALL_CHANGESTATS(...) memset(CHANGE_STAT, 0, N_CHANGE_STATS*sizeof(double))
 
 /* Cycle through all toggles proposed for the current step, then
    make the current toggle in case of more than one proposed toggle, then

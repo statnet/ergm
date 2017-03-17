@@ -98,7 +98,6 @@ D_CHANGESTAT_FN(d_gwtesp);
 D_CHANGESTAT_FN(d_gwtnsp);
 /********************  changestats:   H    ***********/
 D_CHANGESTAT_FN(d_hamming);
-D_CHANGESTAT_FN(d_hammingmix_constant);
 D_CHANGESTAT_FN(d_hammingmix);
 /********************  changestats:   I    ***********/
 D_CHANGESTAT_FN(d_idegree);

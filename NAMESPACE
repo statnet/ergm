@@ -21,7 +21,7 @@ importFrom("stats", "AIC", "BIC", "ar", "as.formula", "coef", "cov",
              "vcov", "weighted.mean", "window")
 importFrom("utils", "packageDescription","capture.output", "flush.console", "methods",
              "packageVersion", "tail","getAnywhere")
-importFrom("methods",'findFunction')
+importFrom("methods",'findFunction',"is")
 
 # Export all names that do not begin with a dot.
 #exportPattern("^[^\\.]")
