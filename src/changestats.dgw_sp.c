@@ -29,25 +29,22 @@ static inline void dspUTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
   //Rprintf("\n");
 
     L2th=0;
-    echange = (EdgetreeSearch(tail, head, nwp->outedges) == 0) ? 1 : -1;
+    echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     /* step through outedges of head */
-    for(e = EdgetreeMinimum(nwp->outedges, head); 
-    (u = nwp->outedges[e].value) != 0; e = EdgetreeSuccessor(nwp->outedges, e)) {
-      if (EdgetreeSearch(MIN(u,tail), MAX(u,tail), nwp->outedges) != 0){
+    STEP_THROUGH_OUTEDGES(head,e,u){
+      if (IS_UNDIRECTED_EDGE(u,tail) != 0){
         L2th++;
         L2tu=0;
         L2uh=0;
         /* step through outedges of u */
-        for(f = EdgetreeMinimum(nwp->outedges, u); (v = nwp->outedges[f].value) != 0;
-        f = EdgetreeSuccessor(nwp->outedges, f)){
-          if(EdgetreeSearch(MIN(v,head),MAX(v,head),nwp->outedges)!= 0) L2uh++;
-          if(EdgetreeSearch(MIN(v,tail),MAX(v,tail),nwp->outedges)!= 0) L2tu++;
+        STEP_THROUGH_OUTEDGES(u,f,v){
+          if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;
+          if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;
         }
         /* step through inedges of u */
-        for(f = EdgetreeMinimum(nwp->inedges, u); (v = nwp->inedges[f].value) != 0;
-        f = EdgetreeSuccessor(nwp->inedges, f)){
-          if(EdgetreeSearch(MIN(v,head),MAX(v,head),nwp->outedges)!= 0) L2uh++;
-          if(EdgetreeSearch(MIN(v,tail),MAX(v,tail),nwp->outedges)!= 0) L2tu++;
+        STEP_THROUGH_INEDGES(u,f,v){
+          if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;
+          if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;
         }
         for(j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
@@ -57,23 +54,20 @@ static inline void dspUTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
       }
     }
     /* step through inedges of head */
-    for (e = EdgetreeMinimum(nwp->inedges, head); (u = nwp->inedges[e].value) != 0;
-    e = EdgetreeSuccessor(nwp->inedges, e)){
-      if (EdgetreeSearch(MIN(u,tail), MAX(u,tail), nwp->outedges) != 0){
+    STEP_THROUGH_INEDGES(head,e,u){
+      if (IS_UNDIRECTED_EDGE(u,tail) != 0){
         L2th++;
         L2tu=0;
         L2uh=0;
         /* step through outedges of u */
-        for(f = EdgetreeMinimum(nwp->outedges, u); (v = nwp->outedges[f].value) != 0;
-        f = EdgetreeSuccessor(nwp->outedges, f)){
-          if(EdgetreeSearch(MIN(v,head),MAX(v,head),nwp->outedges)!= 0) L2uh++;
-          if(EdgetreeSearch(MIN(v,tail),MAX(v,tail),nwp->outedges)!= 0) L2tu++;
+        STEP_THROUGH_OUTEDGES(u,f,v){
+          if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;
+          if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;
         }
         /* step through inedges of u */
-        for(f = EdgetreeMinimum(nwp->inedges, u); (v = nwp->inedges[f].value) != 0;
-        f = EdgetreeSuccessor(nwp->inedges, f)){
-          if(EdgetreeSearch(MIN(v,head),MAX(v,head),nwp->outedges)!= 0) L2uh++;
-          if(EdgetreeSearch(MIN(v,tail),MAX(v,tail),nwp->outedges)!= 0) L2tu++;
+        STEP_THROUGH_INEDGES(u,f,v){
+          if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;
+          if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;
         }
         for(j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
@@ -310,19 +304,17 @@ static inline void dspRTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
   
   memset(cs, 0, nd*sizeof(double));
     L2th=0;
-    echange = (EdgetreeSearch(tail, head, nwp->outedges) == 0) ? 1 : -1;
+    echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     htedge=IS_OUTEDGE(head,tail);  /*Is there an h->t (reciprocating) edge?*/
     /* step through inedges of tail (k->t: k!=h,h->t,k<->h)*/
-    for(e = EdgetreeMinimum(nwp->inedges, tail); 
-    (k = nwp->inedges[e].value) != 0; e = EdgetreeSuccessor(nwp->inedges, e)) {
+    STEP_THROUGH_INEDGES(tail,e,k){
       if(k!=head){
         /*Do we have a t<->k<->h TP?  If so, add it to our count.*/
         L2th+=(IS_OUTEDGE(tail,k)&&IS_OUTEDGE(head,k)&&IS_OUTEDGE(k,head));
         if(htedge&&IS_OUTEDGE(head,k)&&IS_OUTEDGE(k,head)){ /*Only consider stats that could change*/
           L2kt=0;
           /*Now, count # u such that k<->u<->t (to get (k,t)'s ESP value)*/
-          for(f = EdgetreeMinimum(nwp->outedges, k); 
-          (u = nwp->outedges[f].value) != 0; f = EdgetreeSuccessor(nwp->outedges, f)) { 
+          STEP_THROUGH_OUTEDGES(k,f,u){ 
             if((u!=tail)&&(IS_OUTEDGE(u,k)))
               L2kt+=(IS_OUTEDGE(u,tail)&&IS_OUTEDGE(tail,u));  /*k<->u<->t?*/
           }
@@ -335,14 +327,12 @@ static inline void dspRTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
       }
     }
     /* step through outedges of tail (t->k: k!=h,h->t,k<->h)*/
-    for(e = EdgetreeMinimum(nwp->outedges, tail); 
-    (k = nwp->outedges[e].value) != 0; e = EdgetreeSuccessor(nwp->outedges, e)) {
+    STEP_THROUGH_OUTEDGES(tail,e,k) {
       if(k!=head){
         if(htedge&&IS_OUTEDGE(head,k)&&IS_OUTEDGE(k,head)){ /*Only consider stats that could change*/
           L2tk=0;
           /*Now, count # u such that k<->u<->t (to get (tk)'s ESP value)*/
-          for(f = EdgetreeMinimum(nwp->outedges, k); 
-          (u = nwp->outedges[f].value) != 0; f = EdgetreeSuccessor(nwp->outedges, f)) { 
+          STEP_THROUGH_OUTEDGES(k,f,u){ 
             if((u!=tail)&&(IS_OUTEDGE(u,k)))
               L2tk+=(IS_OUTEDGE(u,tail)&&IS_OUTEDGE(tail,u));  /*k<->u<->t?*/
           }
@@ -355,14 +345,12 @@ static inline void dspRTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
       }
     }
     /* step through inedges of head (k->h: k!=t,h->t,k<->t)*/
-    for(e = EdgetreeMinimum(nwp->inedges, head); 
-    (k = nwp->inedges[e].value) != 0; e = EdgetreeSuccessor(nwp->inedges, e)) {
+    STEP_THROUGH_INEDGES(head,e,k){
       if(k!=tail){
         if(htedge&&IS_OUTEDGE(tail,k)&&IS_OUTEDGE(k,tail)){ /*Only consider stats that could change*/
           L2kh=0;
           /*Now, count # u such that k<->u<->h (to get k->h's ESP value)*/
-          for(f = EdgetreeMinimum(nwp->outedges, k); 
-          (u = nwp->outedges[f].value) != 0; f = EdgetreeSuccessor(nwp->outedges, f)) { 
+          STEP_THROUGH_OUTEDGES(k,f,u){ 
             if((u!=head)&&(IS_OUTEDGE(u,k)))
               L2kh+=(IS_OUTEDGE(u,head)&&IS_OUTEDGE(head,u));  /*k<->u<->h?*/
           }
@@ -375,14 +363,12 @@ static inline void dspRTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
       }
     }
     /* step through outedges of head (h->k: k!=t,h->t,k<->t)*/
-    for(e = EdgetreeMinimum(nwp->outedges, head); 
-    (k = nwp->outedges[e].value) != 0; e = EdgetreeSuccessor(nwp->outedges, e)) {
+    STEP_THROUGH_OUTEDGES(head,e,k){
       if(k!=tail){
         if(htedge&&IS_OUTEDGE(tail,k)&&IS_OUTEDGE(k,tail)){ /*Only consider stats that could change*/
           L2hk=0;
           /*Now, count # u such that k<->u<->h (to get h->k's ESP value)*/
-          for(f = EdgetreeMinimum(nwp->outedges, k); 
-          (u = nwp->outedges[f].value) != 0; f = EdgetreeSuccessor(nwp->outedges, f)) { 
+          STEP_THROUGH_OUTEDGES(k,f,u){ 
             if((u!=head)&&(IS_OUTEDGE(u,k)))
               L2hk+=(IS_OUTEDGE(u,head)&&IS_OUTEDGE(head,u));  /*k<->u<->h?*/
           }
@@ -525,25 +511,22 @@ static inline void espUTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
   //Rprintf("\n");
 
     L2th=0;
-    echange = (EdgetreeSearch(tail, head, nwp->outedges) == 0) ? 1 : -1;
+    echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     /* step through outedges of head */
-    for(e = EdgetreeMinimum(nwp->outedges, head); 
-    (u = nwp->outedges[e].value) != 0; e = EdgetreeSuccessor(nwp->outedges, e)) {
-      if (EdgetreeSearch(MIN(u,tail), MAX(u,tail), nwp->outedges) != 0){
+    STEP_THROUGH_OUTEDGES(head,e,u){
+      if (IS_UNDIRECTED_EDGE(u,tail) != 0){
         L2th++;
         L2tu=0;
         L2uh=0;
         /* step through outedges of u */
-        for(f = EdgetreeMinimum(nwp->outedges, u); (v = nwp->outedges[f].value) != 0;
-        f = EdgetreeSuccessor(nwp->outedges, f)){
-          if(EdgetreeSearch(MIN(v,head),MAX(v,head),nwp->outedges)!= 0) L2uh++;
-          if(EdgetreeSearch(MIN(v,tail),MAX(v,tail),nwp->outedges)!= 0) L2tu++;
+        STEP_THROUGH_OUTEDGES(u,f,v){
+          if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;
+          if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;
         }
         /* step through inedges of u */
-        for(f = EdgetreeMinimum(nwp->inedges, u); (v = nwp->inedges[f].value) != 0;
-        f = EdgetreeSuccessor(nwp->inedges, f)){
-          if(EdgetreeSearch(MIN(v,head),MAX(v,head),nwp->outedges)!= 0) L2uh++;
-          if(EdgetreeSearch(MIN(v,tail),MAX(v,tail),nwp->outedges)!= 0) L2tu++;
+        STEP_THROUGH_INEDGES(u,f,v){
+          if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;
+          if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;
         }
         for(j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
@@ -553,23 +536,20 @@ static inline void espUTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
       }
     }
     /* step through inedges of head */
-    for (e = EdgetreeMinimum(nwp->inedges, head); (u = nwp->inedges[e].value) != 0;
-    e = EdgetreeSuccessor(nwp->inedges, e)){
-      if (EdgetreeSearch(MIN(u,tail), MAX(u,tail), nwp->outedges) != 0){
+    STEP_THROUGH_INEDGES(head,e,u){
+      if (IS_UNDIRECTED_EDGE(u,tail) != 0){
         L2th++;
         L2tu=0;
         L2uh=0;
         /* step through outedges of u */
-        for(f = EdgetreeMinimum(nwp->outedges, u); (v = nwp->outedges[f].value) != 0;
-        f = EdgetreeSuccessor(nwp->outedges, f)){
-          if(EdgetreeSearch(MIN(v,head),MAX(v,head),nwp->outedges)!= 0) L2uh++;
-          if(EdgetreeSearch(MIN(v,tail),MAX(v,tail),nwp->outedges)!= 0) L2tu++;
+        STEP_THROUGH_OUTEDGES(u,f,v){
+          if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;
+          if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;
         }
         /* step through inedges of u */
-        for(f = EdgetreeMinimum(nwp->inedges, u); (v = nwp->inedges[f].value) != 0;
-        f = EdgetreeSuccessor(nwp->inedges, f)){
-          if(EdgetreeSearch(MIN(v,head),MAX(v,head),nwp->outedges)!= 0) L2uh++;
-          if(EdgetreeSearch(MIN(v,tail),MAX(v,tail),nwp->outedges)!= 0) L2tu++;
+        STEP_THROUGH_INEDGES(u,f,v){
+          if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;
+          if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;
         }
         for(j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
@@ -612,12 +592,11 @@ static inline void espOTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
   memset(cs, 0, nd*sizeof(double));
     //Rprintf("Working on toggle %d (%d,%d)\n",i,TAIL(i),HEAD(i));
     L2th=0;
-    echange = (EdgetreeSearch(tail, head, nwp->outedges) == 0) ? 1 : -1;
+    echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     //Rprintf("\tEdge change is %d\n",echange);
     /* step through outedges of tail (i.e., k: t->k)*/
     //Rprintf("Walking through outedges of tail\n",echange);
-    for(e = EdgetreeMinimum(nwp->outedges, tail); 
-    (k = nwp->outedges[e].value) != 0; e = EdgetreeSuccessor(nwp->outedges, e)) {
+    STEP_THROUGH_OUTEDGES(tail,e,k) {
       if((k!=head)&&(IS_OUTEDGE(k,head))){
         /*We have a t->k->h two-path, so add it to our count.*/
         L2th++;
@@ -626,8 +605,7 @@ static inline void espOTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
         //Rprintf("\tk==%d, passed criteria\n",k);
         L2tk=0;
         /*Now, count # u such that t->u->k (to find t->k's ESP value)*/
-        for(f = EdgetreeMinimum(nwp->inedges, k); 
-        (u = nwp->inedges[f].value) != 0; f = EdgetreeSuccessor(nwp->inedges, f)) {
+        STEP_THROUGH_INEDGES(k,f,u){
           //Rprintf("\t\tTrying u==%d\n",u);
           if(u!=tail) 
             L2tk+=IS_OUTEDGE(tail,u); /*Increment if there is a trans edge*/
@@ -642,14 +620,12 @@ static inline void espOTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     }
     /* step through inedges of head (i.e., k: k->h)*/
     //Rprintf("Walking through inedges of head\n",k);
-    for(e = EdgetreeMinimum(nwp->inedges, head); 
-    (k = nwp->inedges[e].value) != 0; e = EdgetreeSuccessor(nwp->inedges, e)) {
+    STEP_THROUGH_INEDGES(head,e,k){
       if((k!=tail)&&(IS_OUTEDGE(k,tail))){ /*Only use contingent cases*/
         //Rprintf("\tk==%d, passed criteria\n",k);
         L2kh=0;
         /*Now, count # u such that k->u->j (to find k->h's ESP value)*/
-        for(f = EdgetreeMinimum(nwp->outedges, k); 
-        (u = nwp->outedges[f].value) != 0; f = EdgetreeSuccessor(nwp->outedges, f)) {
+        STEP_THROUGH_OUTEDGES(k,f,u){
           if(u!=head) 
             L2kh+=IS_OUTEDGE(u,head); /*Increment if there is a trans edge*/
         }
@@ -691,20 +667,18 @@ static inline void espITP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
   memset(cs, 0, nd*sizeof(double));
     //Rprintf("Working on toggle %d (%d,%d)\n",i,TAIL(i),HEAD(i));
     L2th=0;
-    echange = (EdgetreeSearch(tail, head, nwp->outedges) == 0) ? 1 : -1;
+    echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     //Rprintf("\tEdge change is %d\n",echange);
     /* step through outedges of head (i.e., k: h->k)*/
     //Rprintf("Walking through outedges of head\n",echange);
-    for(e = EdgetreeMinimum(nwp->outedges, head); 
-    (k = nwp->outedges[e].value) != 0; e = EdgetreeSuccessor(nwp->outedges, e)) {
+    STEP_THROUGH_OUTEDGES(head,e,k){
       if((k!=tail)&&(IS_OUTEDGE(k,tail))){ /*Only use contingent cases*/
         //Rprintf("\tk==%d, passed criteria\n",k);
         /*We have a h->k->t two-path, so add it to our count.*/
         L2th++;
         L2hk=0;
         /*Now, count # u such that k->u->h (so that we know k's ESP value)*/
-        for(f = EdgetreeMinimum(nwp->outedges, k); 
-        (u = nwp->outedges[f].value) != 0; f = EdgetreeSuccessor(nwp->outedges, f)) {
+        STEP_THROUGH_OUTEDGES(k,f,u){
           //Rprintf("\t\tTrying u==%d\n",u);
           if(u!=head) 
             L2hk+=IS_OUTEDGE(u,head); /*Increment if there is a cyclic edge*/
@@ -719,14 +693,12 @@ static inline void espITP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     }
     /* step through inedges of tail (i.e., k: k->t)*/
     //Rprintf("Walking through inedges of tail\n",k);
-    for(e = EdgetreeMinimum(nwp->inedges, tail); 
-    (k = nwp->inedges[e].value) != 0; e = EdgetreeSuccessor(nwp->inedges, e)) {
+    STEP_THROUGH_INEDGES(tail,e,k){
       if((k!=head)&&(IS_OUTEDGE(head,k))){ /*Only use contingent cases*/
         //Rprintf("\tk==%d, passed criteria\n",k);
         L2kt=0;
         /*Now, count # u such that t->u->k (so that we know k's ESP value)*/
-        for(f = EdgetreeMinimum(nwp->inedges, k); 
-        (u = nwp->inedges[f].value) != 0; f = EdgetreeSuccessor(nwp->inedges, f)) {
+        STEP_THROUGH_INEDGES(k,f,u){
           if(u!=tail) 
             L2kt+=IS_OUTEDGE(tail,u); /*Increment if there is a cyclic edge*/
         }
@@ -766,18 +738,16 @@ static inline void espOSP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
   
   memset(cs, 0, nd*sizeof(double));
     L2th=0;
-    echange = (EdgetreeSearch(tail, head, nwp->outedges) == 0) ? 1 : -1;
+    echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     /* step through outedges of tail (i.e., k: t->k, k->h, k!=h)*/
-    for(e = EdgetreeMinimum(nwp->outedges, tail); 
-    (k = nwp->outedges[e].value) != 0; e = EdgetreeSuccessor(nwp->outedges, e)) {
+    STEP_THROUGH_OUTEDGES(tail,e,k) {
       if(k!=head){
         /*Do we have a t->k,h->k SP?  If so, add it to our count.*/
         L2th+=IS_OUTEDGE(head,k);
         if(IS_OUTEDGE(k,head)){ /*Only consider stats that could change*/
           L2tk=0;
           /*Now, count # u such that t->u,k->u (to get t->k's ESP value)*/
-          for(f = EdgetreeMinimum(nwp->outedges, k); 
-          (u = nwp->outedges[f].value) != 0; f = EdgetreeSuccessor(nwp->outedges, f)) { 
+          STEP_THROUGH_OUTEDGES(k,f,u){ 
             if(u!=tail)
               L2tk+=IS_OUTEDGE(tail,u);  /*Increment if there is an OSP*/
           }
@@ -790,13 +760,11 @@ static inline void espOSP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
       }
     }
     /* step through inedges of tail (i.e., k: k->t, k->h, k!=h)*/
-    for(e = EdgetreeMinimum(nwp->inedges, tail); 
-    (k = nwp->inedges[e].value) != 0; e = EdgetreeSuccessor(nwp->inedges, e)) {
+    STEP_THROUGH_INEDGES(tail,e,k){
       if((k!=head)&&(IS_OUTEDGE(k,head))){ /*Only stats that could change*/
         L2kt=0;
         /*Now, count # u such that t->u,k->u (to get k->t's ESP value)*/
-        for(f = EdgetreeMinimum(nwp->outedges, k); 
-        (u = nwp->outedges[f].value) != 0; f = EdgetreeSuccessor(nwp->outedges, f)) { 
+        STEP_THROUGH_OUTEDGES(k,f,u){ 
           if(u!=tail)
             L2kt+=IS_OUTEDGE(tail,u);  /*Increment if there is an OSP*/
         }
@@ -834,18 +802,16 @@ static inline void espISP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
   
   memset(cs, 0, nd*sizeof(double));
     L2th=0;
-    echange = (EdgetreeSearch(tail, head, nwp->outedges) == 0) ? 1 : -1;
+    echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     /* step through inedges of head (i.e., k: k->h, t->k, k!=t)*/
-    for(e = EdgetreeMinimum(nwp->inedges, head); 
-    (k = nwp->inedges[e].value) != 0; e = EdgetreeSuccessor(nwp->inedges, e)) {
+    STEP_THROUGH_INEDGES(head,e,k){
       if(k!=tail){
         /*Do we have a k->t,k->h SP?  If so, add it to our count.*/
         L2th+=IS_OUTEDGE(k,tail);
         if(IS_OUTEDGE(tail,k)){ /*Only consider stats that could change*/
           L2kh=0;
           /*Now, count # u such that u->h,u->k (to get h>k's ESP value)*/
-          for(f = EdgetreeMinimum(nwp->inedges, k); 
-          (u = nwp->inedges[f].value) != 0; f = EdgetreeSuccessor(nwp->inedges, f)) { 
+          STEP_THROUGH_INEDGES(k,f,u){ 
             if(u!=head)
               L2kh+=IS_OUTEDGE(u,head);  /*Increment if there is an ISP*/
           }
@@ -858,13 +824,11 @@ static inline void espISP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
       }
     }
     /* step through outedges of head (i.e., k: h->k, t->k, k!=t)*/
-    for(e = EdgetreeMinimum(nwp->outedges, head); 
-    (k = nwp->outedges[e].value) != 0; e = EdgetreeSuccessor(nwp->outedges, e)) {
+    STEP_THROUGH_OUTEDGES(head,e,k){
       if((k!=tail)&&(IS_OUTEDGE(tail,k))){ /*Only stats that could change*/
         L2hk=0;
         /*Now, count # u such that u->h,u->k (to get k->h's ESP value)*/
-        for(f = EdgetreeMinimum(nwp->inedges, k); 
-        (u = nwp->inedges[f].value) != 0; f = EdgetreeSuccessor(nwp->inedges, f)) { 
+        STEP_THROUGH_INEDGES(k,f,u){ 
           if(u!=head)
             L2hk+=IS_OUTEDGE(u,head);  /*Increment if there is an ISP*/
         }
@@ -905,19 +869,17 @@ static inline void espRTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
   memset(cs, 0, nd*sizeof(double));
  
     L2th=0;
-    echange = (EdgetreeSearch(tail, head, nwp->outedges) == 0) ? 1 : -1;
+    echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     htedge=IS_OUTEDGE(head,tail);  /*Is there an h->t (reciprocating) edge?*/
     /* step through inedges of tail (k->t: k!=h,h->t,k<->h)*/
-    for(e = EdgetreeMinimum(nwp->inedges, tail); 
-    (k = nwp->inedges[e].value) != 0; e = EdgetreeSuccessor(nwp->inedges, e)) {
+    STEP_THROUGH_INEDGES(tail,e,k){
       if(k!=head){
         /*Do we have a t<->k<->h TP?  If so, add it to our count.*/
         L2th+=(IS_OUTEDGE(tail,k)&&IS_OUTEDGE(head,k)&&IS_OUTEDGE(k,head));
         if(htedge&&IS_OUTEDGE(head,k)&&IS_OUTEDGE(k,head)){ /*Only consider stats that could change*/
           L2kt=0;
           /*Now, count # u such that k<->u<->t (to get (k,t)'s ESP value)*/
-          for(f = EdgetreeMinimum(nwp->outedges, k); 
-          (u = nwp->outedges[f].value) != 0; f = EdgetreeSuccessor(nwp->outedges, f)) { 
+          STEP_THROUGH_OUTEDGES(k,f,u){ 
             if((u!=tail)&&(IS_OUTEDGE(u,k)))
               L2kt+=(IS_OUTEDGE(u,tail)&&IS_OUTEDGE(tail,u));  /*k<->u<->t?*/
           }
@@ -930,14 +892,12 @@ static inline void espRTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
       }
     }
     /* step through outedges of tail (t->k: k!=h,h->t,k<->h)*/
-    for(e = EdgetreeMinimum(nwp->outedges, tail); 
-    (k = nwp->outedges[e].value) != 0; e = EdgetreeSuccessor(nwp->outedges, e)) {
+    STEP_THROUGH_OUTEDGES(tail,e,k) {
       if(k!=head){
         if(htedge&&IS_OUTEDGE(head,k)&&IS_OUTEDGE(k,head)){ /*Only consider stats that could change*/
           L2tk=0;
           /*Now, count # u such that k<->u<->t (to get (tk)'s ESP value)*/
-          for(f = EdgetreeMinimum(nwp->outedges, k); 
-          (u = nwp->outedges[f].value) != 0; f = EdgetreeSuccessor(nwp->outedges, f)) { 
+          STEP_THROUGH_OUTEDGES(k,f,u){ 
             if((u!=tail)&&(IS_OUTEDGE(u,k)))
               L2tk+=(IS_OUTEDGE(u,tail)&&IS_OUTEDGE(tail,u));  /*k<->u<->t?*/
           }
@@ -950,14 +910,12 @@ static inline void espRTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
       }
     }
     /* step through inedges of head (k->h: k!=t,h->t,k<->t)*/
-    for(e = EdgetreeMinimum(nwp->inedges, head); 
-    (k = nwp->inedges[e].value) != 0; e = EdgetreeSuccessor(nwp->inedges, e)) {
+    STEP_THROUGH_INEDGES(head,e,k){
       if(k!=tail){
         if(htedge&&IS_OUTEDGE(tail,k)&&IS_OUTEDGE(k,tail)){ /*Only consider stats that could change*/
           L2kh=0;
           /*Now, count # u such that k<->u<->h (to get k->h's ESP value)*/
-          for(f = EdgetreeMinimum(nwp->outedges, k); 
-          (u = nwp->outedges[f].value) != 0; f = EdgetreeSuccessor(nwp->outedges, f)) { 
+          STEP_THROUGH_OUTEDGES(k,f,u){ 
             if((u!=head)&&(IS_OUTEDGE(u,k)))
               L2kh+=(IS_OUTEDGE(u,head)&&IS_OUTEDGE(head,u));  /*k<->u<->h?*/
           }
@@ -970,14 +928,12 @@ static inline void espRTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
       }
     }
     /* step through outedges of head (h->k: k!=t,h->t,k<->t)*/
-    for(e = EdgetreeMinimum(nwp->outedges, head); 
-    (k = nwp->outedges[e].value) != 0; e = EdgetreeSuccessor(nwp->outedges, e)) {
+    STEP_THROUGH_OUTEDGES(head,e,k){
       if(k!=tail){
         if(htedge&&IS_OUTEDGE(tail,k)&&IS_OUTEDGE(k,tail)){ /*Only consider stats that could change*/
           L2hk=0;
           /*Now, count # u such that k<->u<->h (to get h->k's ESP value)*/
-          for(f = EdgetreeMinimum(nwp->outedges, k); 
-          (u = nwp->outedges[f].value) != 0; f = EdgetreeSuccessor(nwp->outedges, f)) { 
+          STEP_THROUGH_OUTEDGES(k,f,u){ 
             if((u!=head)&&(IS_OUTEDGE(u,k)))
               L2hk+=(IS_OUTEDGE(u,head)&&IS_OUTEDGE(head,u));  /*k<->u<->h?*/
           }
