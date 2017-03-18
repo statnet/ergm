@@ -1,4 +1,4 @@
-%  File man/san.Rd in package ergm, part of the Statnet suite
+%  File man/MHproposal.Rd in package ergm, part of the Statnet suite
 %  of packages for network analysis, http://statnet.org .
 %
 %  This software is distributed under the GPL-3 license.  It is free,
