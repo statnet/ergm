@@ -483,6 +483,7 @@ gof.formula <- function(object, ...,
     dimnames(pval.model)[[2]] <- c("obs","min","mean","max","MC p-value")
     pobs.model <- pval.model.top
     psim.model <- apply(sim.model,2,rank)/nrow(sim.model)
+    psim.model <- matrix(psim.model, ncol=ncol(sim.model)) # Guard against the case of sim.model having only one row.
     bds.model <- apply(psim.model,2,quantile,probs=c(0.025,0.975))
 
     returnlist$summary.model <- returnlist$pval.model <- pval.model
