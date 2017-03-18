@@ -124,6 +124,8 @@ ergm.Cprepare <- function(nw, m, response=NULL)
       # Auxiliaries do not produce stats.
     }
   }
+
+  Clist$slots.extra.aux <- unlist(m$slots.extra.aux)
   
   while (substring(Clist$fnamestring, 1, 1)==" ")
     Clist$fnamestring <- substring(Clist$fnamestring, 2)
