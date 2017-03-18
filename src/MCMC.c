@@ -275,12 +275,6 @@ MCMCStatus MetropolisHastings(MHproposal *MHp,
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for(unsigned int i=0; i < MHp->ntoggles; i++){
 	UPDATE_STORAGE(MHp->toggletail[i], MHp->togglehead[i], m, nwp);
-		
-	if(MHp->discord)
-	  for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	    ToggleEdge(MHp->toggletail[i],  MHp->togglehead[i], *nwd);
-	  }
-
 	ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
       }
       /* record network statistics for posterity */

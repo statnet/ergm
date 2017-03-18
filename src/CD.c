@@ -223,11 +223,6 @@ MCMCStatus CDStep(MHproposal *MHp,
 	  mtoggled++;
 
 	  UPDATE_STORAGE(MHp->toggletail[i], MHp->togglehead[i], m, nwp);
-	  	  
-	  if(MHp->discord)
-	    for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	      ToggleEdge(MHp->toggletail[i],  MHp->togglehead[i], *nwd);
-	    }
 	  ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 	}
       }
@@ -274,12 +269,6 @@ MCMCStatus CDStep(MHproposal *MHp,
 	  ntoggled++;
 
 	  UPDATE_STORAGE(MHp->toggletail[i],  MHp->togglehead[i], m, nwp);
-	  
-	  if(MHp->discord)
-	    for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	      ToggleEdge(MHp->toggletail[i],  MHp->togglehead[i], *nwd);
-	    }
-
 	  ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 	}
       }
@@ -301,12 +290,6 @@ MCMCStatus CDStep(MHproposal *MHp,
 	/* FIXME: This should be done in one call, but it's very easy
 	   to make a fencepost error here. */
 	UPDATE_STORAGE(t, h, m, nwp);
-      	
-	if(MHp->discord)
-	  for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	    ToggleEdge(t, h, *nwd);
-	  }
-
 	ToggleEdge(t, h, nwp);
       }
     }
@@ -319,12 +302,6 @@ MCMCStatus CDStep(MHproposal *MHp,
     /* FIXME: This should be done in one call, but it's very easy
        to make a fencepost error here. */
     UPDATE_STORAGE(t, h, m, nwp);
-    
-    if(MHp->discord)
-      for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	ToggleEdge(t, h, *nwd);
-      }
-
     ToggleEdge(t, h, nwp);
   }
   

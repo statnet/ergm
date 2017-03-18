@@ -277,13 +277,6 @@ WtMCMCStatus WtMetropolisHastings (WtMHproposal *MHp,
 	double w=MHp->toggleweight[i];
 
 	WtUPDATE_STORAGE(t, h, w, m, nwp);
-	
-	if(MHp->discord)
-	  for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	    // This could be speeded up by implementing an "incrementation" function.
-	    WtSetEdge(t, h, WtGetEdge(t,  h, *nwd) + w - WtGetEdge(t, h, nwp), *nwd);
-	  }
-
 	WtSetEdge(t, h, w, nwp);
       }
       /* record network statistics for posterity */

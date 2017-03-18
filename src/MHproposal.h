@@ -78,7 +78,6 @@ typedef struct MHproposalstruct {
   double logratio;
   int status;
   DegreeBound *bd;
-  Network **discord;
   double *inputs; /* may be used if needed, ignored if not. */
 } MHproposal;
 

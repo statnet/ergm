@@ -225,13 +225,6 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 	  mtoggled++;
 
 	  WtUPDATE_STORAGE(t, h, w, m, nwp);
-	  
-	  if(MHp->discord)
-	    for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	      // This could be speeded up by implementing an "incrementation" function.
-	      WtSetEdge(t, h, WtGetEdge(t, h, *nwd) + w - WtGetEdge(t, h, nwp), *nwd);
-	    }
-	  
 	  WtSetEdge(t, h, w, nwp);
 	}
       }
@@ -281,13 +274,6 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 	  ntoggled++;
 
 	  WtUPDATE_STORAGE(t, h, w, m, nwp);
-
-	  if(MHp->discord)
-	    for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	      // This could be speeded up by implementing an "incrementation" function.
-	      WtSetEdge(t, h, WtGetEdge(t, h, *nwd) + w - WtGetEdge(t, h, nwp), *nwd);
-	    }
-
 	  WtSetEdge(t, h, w, nwp);
 	}
       }
@@ -310,13 +296,6 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 	/* FIXME: This should be done in one call, but it's very easy
 	   to make a fencepost error here. */
 	WtUPDATE_STORAGE(t, h, w, m, nwp);
-      	
-	if(MHp->discord)
-	  for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	    // This could be speeded up by implementing an "incrementation" function.
-	    WtSetEdge(t, h, WtGetEdge(t, h, *nwd) + w - WtGetEdge(t, h, nwp), *nwd);
-	  }
-
 	WtSetEdge(t, h, w, nwp);
       }
     }
@@ -330,13 +309,6 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
     /* FIXME: This should be done in one call, but it's very easy
        to make a fencepost error here. */
     WtUPDATE_STORAGE(t, h, w, m, nwp);
-    
-    if(MHp->discord)
-      for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	// This could be speeded up by implementing an "incrementation" function.
-	WtSetEdge(t, h, WtGetEdge(t, h, *nwd) + w - WtGetEdge(t, h, nwp), *nwd);
-      }
-    
     WtSetEdge(t, h, w, nwp);
   }
   

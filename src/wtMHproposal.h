@@ -61,7 +61,6 @@ typedef struct WtMHproposalstruct {
   double *toggleweight;
   double logratio;
   int status;
-  WtNetwork **discord;
   double *inputs; /* may be used if needed, ignored if not. */
 } WtMHproposal;
 

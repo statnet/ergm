@@ -165,17 +165,9 @@ InitMHP.NonObservedTNT <- function(arguments, nw) {
   if(network.naedgecount(nw)==0){
    stop("The passed network does not have any non-observed dyads.\n Hence constraining to the observed will hold the network fixed at this network.\n Either the network or the constraint need to be altered.")
   }
-  MHproposal <- list(name = "listTNT", inputs=ergm.Cprepare.miss(nw))
-  MHproposal
-}
-
-InitMHP.NonObservedTNT_aux <- function(arguments, nw) {
-  if(network.naedgecount(nw)==0){
-   stop("The passed network does not have any non-observed dyads.\n Hence constraining to the observed will hold the network fixed at this network.\n Either the network or the constraint need to be altered.")
-  }
 
   nw.miss <- is.na(nw)
-  MHproposal <- list(name = "listTNT_aux", inputs=ergm.Cprepare.el(nw.miss), auxiliaries=~.intersect.net(nw.miss,assume_all_toggles_in_list=TRUE))
+  MHproposal <- list(name = "listTNT", inputs=ergm.Cprepare.el(nw.miss), auxiliaries=~.intersect.net(nw.miss,assume_all_toggles_in_list=TRUE))
   MHproposal
 }
 
@@ -192,7 +184,7 @@ InitMHP.fixedas <- function(arguments, nw){
 InitMHP.fixedasTNT <- function(arguments, nw){
 	y0<-arguments$constraints$fixedas$free.dyads()
 	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	MHproposal <- list(name = "listTNT", inputs=c(ergm.Cprepare.el(y0)), pkgname="ergm")
+	MHproposal <- list(name = "listTNT", inputs=c(ergm.Cprepare.el(y0)), auxiliaries=~.intersect.net(y0,assume_all_toggles_in_list=TRUE), pkgname="ergm")
 	
 	MHproposal
 	
@@ -211,7 +203,7 @@ InitMHP.fixallbut <- function(arguments, nw){
 InitMHP.fixallbutTNT <- function(arguments, nw){
 	y0<-arguments$constraints$fixallbut$free.dyads()
 	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	MHproposal <- list(name = "listTNT", inputs=c(ergm.Cprepare.el(y0)), pkgname="ergm")
+	MHproposal <- list(name = "listTNT", inputs=c(ergm.Cprepare.el(y0)), auxiliaries=~.intersect.net(y0,assume_all_toggles_in_list=TRUE), pkgname="ergm")
 	
 	MHproposal
 	
