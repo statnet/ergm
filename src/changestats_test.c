@@ -112,6 +112,29 @@ F_CHANGESTAT_FN(f__intersect_net){
   NetworkDestroy(dnwp);
 }
 
+I_CHANGESTAT_FN(i__intersect_net_toggles_in_list){
+  ALLOC_AUX_STORAGE(1, Network, dnwp);
+  *dnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL, 0);
+  Edge nedges = INPUT_PARAM[1];
+  for(Edge i=0; i<nedges; i++){
+    Vertex tail=INPUT_PARAM[2+i], head=INPUT_PARAM[2+nedges+i];
+    if(IS_OUTEDGE(tail, head)!=0)
+      ToggleEdge(tail,head, dnwp);
+  }
+}
+
+U_CHANGESTAT_FN(u__intersect_net_toggles_in_list){
+  GET_AUX_STORAGE(Network, dnwp);
+
+  ToggleEdge(tail, head, dnwp);
+}
+
+F_CHANGESTAT_FN(f__intersect_net_toggles_in_list){
+  GET_AUX_STORAGE(Network, dnwp);
+
+  NetworkDestroy(dnwp);
+}
+
 I_CHANGESTAT_FN(i__union_net){
   ALLOC_AUX_STORAGE(1, Network, dnwp);
   NetworkCopy(dnwp, nwp);
