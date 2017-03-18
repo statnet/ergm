@@ -38,7 +38,7 @@ ergm.auxstorage <- function(model, nw, response=NULL,..., extra.aux=list()){
       if(i<=length(model$terms)) # If it's a model term.
         model$terms[[i]]$inputs[3+seq_len(length(aux.outlists[[i]]))] <- aux.slots[[i]]-1
       else # If it's some other entity requesting auxiliaries.
-        slots.extra[[i-length(model$terms)]] <- aux.slots[[i]]-1
+        slots.extra.aux[[i-length(model$terms)]] <- aux.slots[[i]]-1
     }
   }
  
