@@ -580,6 +580,67 @@ void MH_listTNT (MHproposal *MHp, Network *nwp)
   MHp->logratio += logratio;
 }
 
+
+/********************
+   void MH_listTNT
+   Propose ONLY edges on a static list
+   Use TNT weights.
+   This is a fusion of MH_DissolutionMLETNT and MH_TNT:
+
+   A "discord" network is constructed that is the intersection of
+   dyads on the static list and the edges present in nwp. Then,
+   standard TNT procedure is followed, but the dyad space (and the
+   number of dyads) is the number of dyads in the static list and the
+   network for the ties is the ties in the discord network.
+***********************/
+void MH_listTNT_aux (MHproposal *MHp, Network *nwp) 
+{
+  static double comp=0.5, odds;
+  static Dyad ndyads;
+  static double *list;
+  Network *intersect = (Network *) nwp->aux_storage[(unsigned int) MHp->inputs[0]];
+  
+  if(MHp->ntoggles == 0) { /* Initialize */
+    MHp->ntoggles=1;
+    odds = comp/(1.0-comp);
+
+    ndyads = MHp->inputs[1]; // Note that ndyads here is the number of dyads in the list.
+
+    list = MHp->inputs+1;
+    
+    return;
+  }
+  
+  Edge nedges=intersect->nedges;
+  double logratio=0;
+  BD_LOOP({
+      if (unif_rand() < comp && nedges > 0) { /* Select a tie at random from the network of eligibles */
+	GetRandEdge(Mtail, Mhead, intersect);
+	/* Thanks to Robert Goudie for pointing out an error in the previous 
+	   version of this sampler when proposing to go from nedges==0 to nedges==1 
+	   or vice versa.  Note that this happens extremely rarely unless the 
+	   network is small or the parameter values lead to extremely sparse 
+	   networks.  */
+	logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+			      nedges / (odds*ndyads + nedges)));
+      }else{ /* Select a dyad at random from the list */
+	Edge rane = 1 + unif_rand() * ndyads;
+	Mtail[0]=list[rane];
+	Mhead[0]=list[ndyads+rane];
+	
+	if(EdgetreeSearch(Mtail[0],Mhead[0],intersect->outedges)!=0){
+	  logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+				nedges / (odds*ndyads + nedges)));
+	}else{
+	  logratio = log((nedges==0 ? comp*ndyads + (1.0-comp) :
+				1.0 + (odds*ndyads)/(nedges + 1)));
+	}
+      }
+    });
+  MHp->logratio += logratio;
+}
+
+
 /* The ones below have not been tested */
 
 /*********************

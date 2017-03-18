@@ -44,6 +44,7 @@
   ergm.MHP.table("c", "Bernoulli", "hamming",  0, "random", "HammingTNT")
   ergm.MHP.table("c", "Bernoulli", "bd+observed",  0, "random", "randomtoggleNonObserved")
   ergm.MHP.table("c", "Bernoulli", "bd+observed",  1, "TNT", "NonObservedTNT")
+  ergm.MHP.table("c", "Bernoulli", "observed",  -1, "auxtest", "NonObservedTNT_aux")
   ergm.MHP.table("c", "Bernoulli", "observed",  0, "random", "randomtoggleNonObserved")
   ergm.MHP.table("c", "Bernoulli", "observed",  1, "TNT", "NonObservedTNT")
   ergm.MHP.table("c", "Bernoulli", "blockdiag", 0, "random", "blockdiag")

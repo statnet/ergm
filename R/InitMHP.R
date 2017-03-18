@@ -169,6 +169,16 @@ InitMHP.NonObservedTNT <- function(arguments, nw) {
   MHproposal
 }
 
+InitMHP.NonObservedTNT_aux <- function(arguments, nw) {
+  if(network.naedgecount(nw)==0){
+   stop("The passed network does not have any non-observed dyads.\n Hence constraining to the observed will hold the network fixed at this network.\n Either the network or the constraint need to be altered.")
+  }
+
+  nw.miss <- is.na(nw)
+  MHproposal <- list(name = "listTNT_aux", inputs=ergm.Cprepare.el(nw.miss), auxiliaries=~.intersect.net(nw.miss,assume_all_toggles_in_list=TRUE))
+  MHproposal
+}
+
 
 InitMHP.fixedas <- function(arguments, nw){
 	y0<-arguments$constraints$fixedas$free.dyads()
