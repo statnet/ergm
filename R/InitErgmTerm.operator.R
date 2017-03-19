@@ -1,4 +1,10 @@
-pack.strtonum <- function(s) c(nchar(s), strtoi(charToRaw(s), 16L))
+pack.strasnum <- function(s) c(nchar(s), strtoi(charToRaw(s), 16L))
+pack.Clistasnum <- function(Clist){
+  fnames <- pack.strasnum(Clist$fnamestring)
+  snames <- pack.strasnum(Clist$snamestring)
+  c(Clist$nterms, fnames, snames, Clist$inputs)
+}
+
 
 InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
@@ -13,10 +19,7 @@ InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
   m <- ergm.getmodel(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
-  fnames <- pack.strtonum(Clist$fnamestring)
-  snames <- pack.strtonum(Clist$snamestring)
-
-  inputs <- c(Clist$nterms, fnames, snames, Clist$inputs)
+  inputs <- pack.Clistasnum(Clist)
 
   gs <- rep(0, Clist$nstats)
   i <- 1
@@ -38,21 +41,28 @@ InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
 ## grab the actual names or calls being passed.
 `InitErgmTerm.:` <- function(nw, arglist, response=NULL, ...){
   arglist <- substitute(arglist)
-  n1 <- arglist[[2]]
-  n2 <- arglist[[3]]
+  e1 <- arglist[[2]]
+  e2 <- arglist[[3]]
 
+  e1 <- term.list.formula(e1)
+  e2 <- term.list.formula(e2)
+
+  n1 <- length(e1)
+  n2 <- length(e2)
+  
   f <- ~nw
-  f[[3]] <- call("+",n1,n2)
+  f <- append.rhs.formula(f, c(e1,e2))
   
   m <- ergm.getmodel(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
-  fnames <- pack.strtonum(Clist$fnamestring)
-  snames <- pack.strtonum(Clist$snamestring)
 
-  inputs <- c(fnames, snames, Clist$inputs)
+  cn1 <- unlist(lapply(m$terms[seq_len(n1)], "[[", "coef.names"))
+  cn2 <- unlist(lapply(m$terms[n1+seq_len(n2)], "[[", "coef.names"))
 
-  cn <- outer(m$terms[[1]]$coef.names,m$terms[[2]]$coef.names,paste,sep=":") 
+  inputs <- c(length(cn1), length(cn2), pack.Clistasnum(Clist))
+  
+  cn <- outer(cn1,cn2,paste,sep=":")
   
   list(name="interact", coef.names = cn, inputs=inputs, dependence=!is.dyad.independent(m))
 }
@@ -63,21 +73,25 @@ InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
 ## grab the actual names or calls being passed.
 `InitErgmTerm.*` <- function(nw, arglist, response=NULL, ...){
   arglist <- substitute(arglist)
-  n1 <- arglist[[2]]
-  n2 <- arglist[[3]]
 
+  e1 <- term.list.formula(e1)
+  e2 <- term.list.formula(e2)
+
+  n1 <- length(e1)
+  n2 <- length(e2)
+  
   f <- ~nw
-  f[[3]] <- call("+",n1,n2)
+  f <- append.rhs.formula(f, c(e1,e2))
   
   m <- ergm.getmodel(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
-  fnames <- pack.strtonum(Clist$fnamestring)
-  snames <- pack.strtonum(Clist$snamestring)
+  cn1 <- unlist(lapply(m$terms[seq_len(n1)], "[[", "coef.names"))
+  cn2 <- unlist(lapply(m$terms[n1+seq_len(n2)], "[[", "coef.names"))
 
-  inputs <- c(fnames, snames, Clist$inputs)
+  inputs <- c(length(cn1), length(cn2), pack.Clistasnum(Clist))
 
-  cn <- c(m$terms[[1]]$coef.names,m$terms[[2]]$coef.names,outer(m$terms[[1]]$coef.names,m$terms[[2]]$coef.names,paste,sep=":"))
+  cn <- c(cn1,cn2,outer(cn1,cn2,paste,sep=":"))
   
   list(name="main_interact", coef.names = cn, inputs=inputs, dependence=!is.dyad.independent(m))
 }
