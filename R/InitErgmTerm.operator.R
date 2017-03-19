@@ -1,6 +1,6 @@
-pack.strtoint <- function(s) c(nchar(s), strtoi(charToRaw(s), 16L))
+pack.strtonum <- function(s) c(nchar(s), strtoi(charToRaw(s), 16L))
 
-InitErgmTerm.meta <- function(nw, arglist, response=NULL, ...){
+InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
                       vartypes = c("formula"),
@@ -13,8 +13,8 @@ InitErgmTerm.meta <- function(nw, arglist, response=NULL, ...){
   m <- ergm.getmodel(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
-  fnames <- pack.strtoint(Clist$fnamestring)
-  snames <- pack.strtoint(Clist$snamestring)
+  fnames <- pack.strtonum(Clist$fnamestring)
+  snames <- pack.strtonum(Clist$snamestring)
 
   inputs <- c(Clist$nterms, fnames, snames, Clist$inputs)
 
@@ -29,7 +29,7 @@ InitErgmTerm.meta <- function(nw, arglist, response=NULL, ...){
     i <- i + k
   }
 
-  list(name="meta_term", coef.names = paste0('meta(',m$coef.names,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs)
+  list(name="passthrough_term", coef.names = paste0('meta(',m$coef.names,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs)
 }
 
 ## This will always be passed with two arguments in arglist, which
@@ -47,8 +47,8 @@ InitErgmTerm.meta <- function(nw, arglist, response=NULL, ...){
   m <- ergm.getmodel(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
-  fnames <- pack.strtoint(Clist$fnamestring)
-  snames <- pack.strtoint(Clist$snamestring)
+  fnames <- pack.strtonum(Clist$fnamestring)
+  snames <- pack.strtonum(Clist$snamestring)
 
   inputs <- c(fnames, snames, Clist$inputs)
 
@@ -72,8 +72,8 @@ InitErgmTerm.meta <- function(nw, arglist, response=NULL, ...){
   m <- ergm.getmodel(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
-  fnames <- pack.strtoint(Clist$fnamestring)
-  snames <- pack.strtoint(Clist$snamestring)
+  fnames <- pack.strtonum(Clist$fnamestring)
+  snames <- pack.strtonum(Clist$snamestring)
 
   inputs <- c(fnames, snames, Clist$inputs)
 

@@ -3,7 +3,7 @@
 
 typedef struct{void **aux_storage; Model *m;} StoreAuxAndModel;
 
-static inline unsigned char *dec_str(double **x){
+static inline unsigned char *unpack_strtodouble(double **x){
   unsigned int l = (*x)[0];
   unsigned char *s = (unsigned char *) malloc((l+1)*sizeof(char));
   for(unsigned int i=0; i<l; i++){
@@ -14,13 +14,13 @@ static inline unsigned char *dec_str(double **x){
   return s;
 }
 
-I_CHANGESTAT_FN(i_meta_term){
+I_CHANGESTAT_FN(i_passthrough_term){
   double *inputs = INPUT_PARAM;
   ALLOC_STORAGE(1, StoreAuxAndModel, store);
 
   int n_terms = *(inputs++);
-  char *fnames = (char *) dec_str(&inputs);
-  char *snames = (char *) dec_str(&inputs);
+  char *fnames = (char *) unpack_strtodouble(&inputs);
+  char *snames = (char *) unpack_strtodouble(&inputs);
   Model *m = store->m = ModelInitialize(fnames, snames, &inputs, n_terms);
   free(fnames);
   free(snames);
@@ -38,7 +38,7 @@ I_CHANGESTAT_FN(i_meta_term){
   nwp->aux_storage = nwp_aux_storage;
 }
 
-D_CHANGESTAT_FN(d_meta_term){
+D_CHANGESTAT_FN(d_passthrough_term){
   GET_STORAGE(StoreAuxAndModel, store);
   Model *m = store->m;
     
@@ -50,7 +50,7 @@ D_CHANGESTAT_FN(d_meta_term){
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
 
-U_CHANGESTAT_FN(u_meta_term){
+U_CHANGESTAT_FN(u_passthrough_term){
   GET_STORAGE(StoreAuxAndModel, store);
   Model *m = store->m;
 
@@ -60,7 +60,7 @@ U_CHANGESTAT_FN(u_meta_term){
   nwp->aux_storage = nwp_aux_storage;
 }
 
-F_CHANGESTAT_FN(f_meta_term){
+F_CHANGESTAT_FN(f_passthrough_term){
   GET_STORAGE(StoreAuxAndModel, store);
   Model *m = store->m;
 
@@ -76,8 +76,8 @@ I_CHANGESTAT_FN(i_interact){
   ALLOC_STORAGE(1, StoreAuxAndModel, store);
 
   int n_terms = 2;
-  char *fnames = (char *) dec_str(&inputs);
-  char *snames = (char *) dec_str(&inputs);
+  char *fnames = (char *) unpack_strtodouble(&inputs);
+  char *snames = (char *) unpack_strtodouble(&inputs);
   Model *m = store->m = ModelInitialize(fnames, snames, &inputs, n_terms);
   free(fnames);
   free(snames);
@@ -139,8 +139,8 @@ I_CHANGESTAT_FN(i_main_interact){
   ALLOC_STORAGE(1, StoreAuxAndModel, store);
 
   int n_terms = 2;
-  char *fnames = (char *) dec_str(&inputs);
-  char *snames = (char *) dec_str(&inputs);
+  char *fnames = (char *) unpack_strtodouble(&inputs);
+  char *snames = (char *) unpack_strtodouble(&inputs);
   Model *m = store->m = ModelInitialize(fnames, snames, &inputs, n_terms);
   free(fnames);
   free(snames);
