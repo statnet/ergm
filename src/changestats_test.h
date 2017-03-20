@@ -3,6 +3,7 @@
 
 #include "edgetree.h"
 #include "changestat.h"
+#include "storage.h"
 
 D_CHANGESTAT_FN(d_test_abs_edges_minus_5);
 I_CHANGESTAT_FN(i_test_abs_edges_minus_5);
