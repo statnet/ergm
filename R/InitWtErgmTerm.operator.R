@@ -1,5 +1,5 @@
 
-InitWtErgmTerm.import <- function(nw, arglist, response=NULL, ...){
+InitWtErgmTerm.b <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "form"),
                       vartypes = c("formula", "character"),
@@ -16,12 +16,8 @@ InitWtErgmTerm.import <- function(nw, arglist, response=NULL, ...){
   if(!is.dyad.independent(m) && form=="sum") stop("Only dyad-independent binary terms can be imported with form 'sum'.")
   
   Clist <- ergm.Cprepare(nw, m)
-
-  fnames <- pack.strtoint(Clist$fnamestring)
-  snames <- pack.strtoint(Clist$snamestring)
-
-  inputs <- c(Clist$nterms, fnames, snames, Clist$inputs)
-
+  inputs <- pack.Clistasnum(Clist)
+  
   gs <- rep(0, Clist$nstats)
 
   if(form=="nonzero"){
@@ -36,5 +32,5 @@ InitWtErgmTerm.import <- function(nw, arglist, response=NULL, ...){
     }
   }
 
-  list(name=paste("import_binary_term",form,sep="_"), coef.names = paste0(form,'(',m$coef.names,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs)
+  list(name=paste("import_binary_term",form,sep="_"), coef.names = paste0(form,'(',m$coef.names,')'), inputs=inputs, dependence=FALSE, emptynwstats = gs)
 }
