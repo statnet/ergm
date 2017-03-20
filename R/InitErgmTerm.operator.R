@@ -56,6 +56,7 @@ InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
   m <- ergm.getmodel(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
+  if(!is.dyad.independent(m)) stop("Interaction terms are not meaningful for dyad-dependent terms.")
 
   cn1 <- unlist(lapply(m$terms[seq_len(n1)], "[[", "coef.names"))
   cn2 <- unlist(lapply(m$terms[n1+seq_len(n2)], "[[", "coef.names"))
@@ -64,7 +65,7 @@ InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
   
   cn <- outer(cn1,cn2,paste,sep=":")
   
-  list(name="interact", coef.names = cn, inputs=inputs, dependence=!is.dyad.independent(m))
+  list(name="interact", coef.names = cn, inputs=inputs, dependence=FALSE)
 }
 
 ## This will always be passed with two arguments in arglist, which
@@ -86,6 +87,8 @@ InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
   m <- ergm.getmodel(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
+  if(!is.dyad.independent(m)) stop("Interaction terms are not meaningful for dyad-dependent terms.")
+  
   cn1 <- unlist(lapply(m$terms[seq_len(n1)], "[[", "coef.names"))
   cn2 <- unlist(lapply(m$terms[n1+seq_len(n2)], "[[", "coef.names"))
 
@@ -93,5 +96,5 @@ InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
 
   cn <- c(cn1,cn2,outer(cn1,cn2,paste,sep=":"))
   
-  list(name="main_interact", coef.names = cn, inputs=inputs, dependence=!is.dyad.independent(m))
+  list(name="main_interact", coef.names = cn, inputs=inputs, dependence=FALSE)
 }
