@@ -14,6 +14,60 @@
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
 
+\section{Changes in version 3.7.1}{
+
+  %% \subsection{NEW FEATURES}{
+  %%   \itemize{
+  %%     \item{
+  %%     }
+  %%   }
+  %% }
+   
+  
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+	Reverted a non-portable use of C function
+	\code{alloca()}. (Thanks to Prof. Brian Ripley for pointing out
+	the problem.)
+      }
+    }
+  }
+  
+  
+  %% \subsection{OTHER USER-VISIBLE CHANGES}{
+  %%   \itemize{
+  %%     \item{
+  %%     }
+  %%   }    
+  %% }
+
+  %% \subsection{C-LEVEL FACILITIES}{
+  %%   \itemize{
+  %%   }
+  %% }
+
+  % \subsection{UTILITIES}{
+  %   \itemize{
+  %     \item Likewise, "UTILITIES" is probably unnecessary.
+  %   }
+  % }
+
+  % \subsection{INSTALLATION}{
+  %   \itemize{
+  %     \item ... as is "INSTALLATION".
+  %   }
+  % }
+
+  % \subsection{PACKAGE INSTALLATION}{
+  %   \itemize{
+  %     \item ditto.
+  %   }
+  % }
+
+}
+
+
 \section{Changes in version 3.7.0}{
 
   \subsection{NEW FEATURES}{
@@ -72,30 +126,6 @@
        }
      }    
    }
-
-  %% \subsection{C-LEVEL FACILITIES}{
-  %%   \itemize{
-  %%   }
-  %% }
-
-  % \subsection{UTILITIES}{
-  %   \itemize{
-  %     \item Likewise, "UTILITIES" is probably unnecessary.
-  %   }
-  % }
-
-  % \subsection{INSTALLATION}{
-  %   \itemize{
-  %     \item ... as is "INSTALLATION".
-  %   }
-  % }
-
-  % \subsection{PACKAGE INSTALLATION}{
-  %   \itemize{
-  %     \item ditto.
-  %   }
-  % }
-
 }
 
 
