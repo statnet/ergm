@@ -456,8 +456,8 @@ C_CHANGESTAT_FN(c_dgwdsp) {
   oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
   type=(int)INPUT_PARAM[1];     /*Get the ESP type code to be used*/
   maxesp=(int)INPUT_PARAM[2];   /*Get the max ESP cutoff to use*/
-  cs=alloca(maxesp*sizeof(double));     /*Allocate memory for the ESP changescores*/
-  dvec=alloca(maxesp*sizeof(double));   /*Allocate memory for the ESP vals*/
+  cs=Calloc(maxesp,double);     /*Allocate memory for the ESP changescores*/
+  dvec=Calloc(maxesp,double);   /*Allocate memory for the ESP vals*/
   for(i=0;i<maxesp;i++)         /*Initialize the ESP vals*/
     dvec[i]=i+1.0;
 
@@ -479,6 +479,8 @@ C_CHANGESTAT_FN(c_dgwdsp) {
     }
   }
   CHANGE_STAT[0]*=exp(alpha);
+  Free(cs);
+  Free(dvec);
 }
 
 
@@ -1021,8 +1023,8 @@ C_CHANGESTAT_FN(c_dgwesp) {
   oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
   type=(int)INPUT_PARAM[1];     /*Get the ESP type code to be used*/
   maxesp=(int)INPUT_PARAM[2];   /*Get the max ESP cutoff to use*/
-  cs=alloca(maxesp*sizeof(double));     /*Allocate memory for the ESP changescores*/
-  dvec=alloca(maxesp*sizeof(double));   /*Allocate memory for the ESP vals*/
+  cs=Calloc(maxesp,double);     /*Allocate memory for the ESP changescores*/
+  dvec=Calloc(maxesp,double);   /*Allocate memory for the ESP vals*/
   for(i=0;i<maxesp;i++)         /*Initialize the ESP vals*/
     dvec[i]=i+1.0;
 
@@ -1044,6 +1046,9 @@ C_CHANGESTAT_FN(c_dgwesp) {
     }
   }
   CHANGE_STAT[0]*=exp(alpha);
+
+  Free(cs);
+  Free(dvec);
 }
 
 
@@ -1075,8 +1080,8 @@ C_CHANGESTAT_FN(c_dnsp) {
   ZERO_ALL_CHANGESTATS(i);
   type=(int)INPUT_PARAM[0];     /*Get the ESP type code to be used*/
   dvec=INPUT_PARAM+1;           /*Get the pointer to the ESP stats list*/
-  cs_esp=alloca(N_CHANGE_STATS*sizeof(double));     /*Allocate memory for the DSP changescores*/
-  cs_dsp=alloca(N_CHANGE_STATS*sizeof(double));     /*Allocate memory for the DSP changescores*/
+  cs_esp=Calloc(N_CHANGE_STATS,double);     /*Allocate memory for the DSP changescores*/
+  cs_dsp=Calloc(N_CHANGE_STATS,double);     /*Allocate memory for the DSP changescores*/
 
   /*Obtain the ESP changescores (by type)*/
   switch(type){
@@ -1109,6 +1114,9 @@ C_CHANGESTAT_FN(c_dnsp) {
   
   for(i=0;i<N_CHANGE_STATS;i++)
     CHANGE_STAT[i]=(cs_dsp[i]-cs_esp[i]);
+
+  Free(cs_esp);
+  Free(cs_dsp);
 }
 
 
@@ -1138,12 +1146,12 @@ C_CHANGESTAT_FN(c_dgwnsp) {
   oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
   type=(int)INPUT_PARAM[1];     /*Get the ESP type code to be used*/
   maxesp=(int)INPUT_PARAM[2];   /*Get the max ESP cutoff to use*/
-  cs_esp=alloca(maxesp*sizeof(double));     /*Allocate memory for the ESP changescores*/
-  dvec=alloca(maxesp*sizeof(double));   /*Allocate memory for the ESP vals*/
+  cs_esp=Calloc(maxesp,double);     /*Allocate memory for the ESP changescores*/
+  dvec=Calloc(maxesp,double);   /*Allocate memory for the ESP vals*/
   for(i=0;i<maxesp;i++)         /*Initialize the ESP vals*/
     dvec[i]=i+1.0;
   
-  cs_dsp=alloca(maxesp*sizeof(double));     /*Allocate memory for the ESP changescores*/
+  cs_dsp=Calloc(maxesp,double);     /*Allocate memory for the ESP changescores*/
 
   /*Obtain the changescores (by type)*/
   switch(type){
@@ -1179,6 +1187,9 @@ C_CHANGESTAT_FN(c_dgwnsp) {
       CHANGE_STAT[0]+=(1.0-pow(oneexpa,dvec[i]))*(cs_dsp[i]-cs_esp[i]);
   CHANGE_STAT[0]*=exp(alpha);
 
+  Free(cs_esp);
+  Free(cs_dsp);
+  Free(dvec);  
 }
 
 

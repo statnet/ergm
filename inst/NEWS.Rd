@@ -87,6 +87,21 @@
 }
 
 
+\section{Changes in version 3.7.1}{
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+	Reverted a non-portable use of C function
+	\code{alloca()}. (Thanks to Prof. Brian Ripley for pointing out
+	the problem.)
+      }
+    }
+  }
+
+}
+
+
 \section{Changes in version 3.7.0}{
 
   \subsection{NEW FEATURES}{
@@ -145,30 +160,6 @@
        }
      }    
    }
-
-  %% \subsection{C-LEVEL FACILITIES}{
-  %%   \itemize{
-  %%   }
-  %% }
-
-  % \subsection{UTILITIES}{
-  %   \itemize{
-  %     \item Likewise, "UTILITIES" is probably unnecessary.
-  %   }
-  % }
-
-  % \subsection{INSTALLATION}{
-  %   \itemize{
-  %     \item ... as is "INSTALLATION".
-  %   }
-  % }
-
-  % \subsection{PACKAGE INSTALLATION}{
-  %   \itemize{
-  %     \item ditto.
-  %   }
-  % }
-
 }
 
 
