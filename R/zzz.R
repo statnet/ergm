@@ -94,3 +94,6 @@
   ergm.init.methods("DiscUnif", c("CD","zeros"))
 }
 
+.onUnload <- function(libpath){
+  library.dynam.unload("ergm",libpath)
+}
