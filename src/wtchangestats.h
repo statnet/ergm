@@ -12,6 +12,7 @@
 
 #include "wtedgetree.h"
 #include "wtchangestat.h"
+#include "storage.h"
 
 /********************  Utility macros    ***********/
 

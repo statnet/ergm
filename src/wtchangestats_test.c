@@ -1,4 +1,4 @@
-#include"wtchangestats_test.h"
+#include "wtchangestats_test.h"
 
 WtC_CHANGESTAT_FN(c_test_abs_sum_minus_5){
   GET_STORAGE(double, stored_sum_ptr);

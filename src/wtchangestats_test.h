@@ -3,6 +3,7 @@
 
 #include "wtedgetree.h"
 #include "wtchangestat.h"
+#include "storage.h"
 
 WtD_CHANGESTAT_FN(d_test_abs_sum_minus_5);
 WtI_CHANGESTAT_FN(i_test_abs_sum_minus_5);

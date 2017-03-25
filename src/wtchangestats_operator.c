@@ -3,7 +3,7 @@
 #include "model.h"
 #include "wtchangestat.h"
 #include "wtmodel.h"
-
+#include "storage.h"
 
 typedef struct{Network nw; Model *m;} StoreNetAndModel;
 
@@ -38,7 +38,7 @@ WtI_CHANGESTAT_FN(i_import_binary_term_sum){
   free(fnames);
   free(snames);
 
-  store->nw = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL, m->n_aux);
+  store->nw = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
   Network *mynwp = &(store->nw);
   
   InitStats(mynwp, m);
@@ -95,7 +95,7 @@ WtI_CHANGESTAT_FN(i_import_binary_term_nonzero){
   free(fnames);
   free(snames);
 
-  store->nw = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL, m->n_aux);
+  store->nw = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
   Network *mynwp = &(store->nw);
   // FIXME: This is suboptimal, since all trees will be highly
   // unbalanced.

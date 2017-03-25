@@ -29,26 +29,26 @@ typedef struct WtModelstruct {
   unsigned int n_aux;
 } WtModel;
 
-#define FOR_EACH_TERM for(WtModelTerm *mtp = m->termarray; mtp < m->termarray + m->n_terms; mtp++)
+#define WtFOR_EACH_TERM for(WtModelTerm *mtp = m->termarray; mtp < m->termarray + m->n_terms; mtp++)
 
-#define EXEC_THROUGH_TERMS(subroutine){					\
-    FOR_EACH_TERM{							\
+#define WtEXEC_THROUGH_TERMS(subroutine){				\
+    WtFOR_EACH_TERM{							\
       subroutine;							\
     }									\
   }
 
-#define FOR_EACH_TERM_INREVERSE for(WtModelTerm *mtp = m->termarray + m->n_terms - 1; mtp >= m->termarray; mtp--)
+#define WtFOR_EACH_TERM_INREVERSE for(WtModelTerm *mtp = m->termarray + m->n_terms - 1; mtp >= m->termarray; mtp--)
 
-#define EXEC_THROUGH_TERMS_INREVERSE(subroutine){			\
-    FOR_EACH_TERM_INREVERSE{						\
+#define WtEXEC_THROUGH_TERMS_INREVERSE(subroutine){			\
+    WtFOR_EACH_TERM_INREVERSE{						\
       subroutine;							\
     }									\
   }
 
 
-#define EXEC_THROUGH_TERMS_INTO(output, subroutine){			\
+#define WtEXEC_THROUGH_TERMS_INTO(output, subroutine){			\
     double *dstats = output;						\
-    FOR_EACH_TERM{							\
+    WtFOR_EACH_TERM{							\
       subroutine;							\
       dstats += mtp->nstats;						\
     }									\
@@ -59,8 +59,8 @@ typedef struct WtModelstruct {
     statistics; then restore it. Otherwise, don't bother. */
 #ifdef DEBUG
 
-#define UPDATE_STORAGE_COND(tail, head, weight, m, nwp, cond){		\
-    EXEC_THROUGH_TERMS({						\
+#define WtUPDATE_STORAGE_COND(tail, head, weight, m, nwp, cond){	\
+    WtEXEC_THROUGH_TERMS({						\
 	double *dstats = mtp->dstats; /* Back up mtp->dstats. */	\
 	mtp->dstats = NULL; /* Trigger segfault if u_func tries to write to change statistics. */ \
 	if(mtp->u_func && (cond))					\
@@ -72,8 +72,8 @@ typedef struct WtModelstruct {
 #else
 
 
-#define UPDATE_STORAGE_COND(tail, head, weight, m, nwp, cond){		\
-    EXEC_THROUGH_TERMS({						\
+#define WtUPDATE_STORAGE_COND(tail, head, weight, m, nwp, cond){	\
+    WtEXEC_THROUGH_TERMS({						\
 	if(mtp->u_func && (cond))					\
 	  (*(mtp->u_func))(tail, head, weight, mtp, nwp);  /* Call u_??? function */ \
       });								\
@@ -81,8 +81,8 @@ typedef struct WtModelstruct {
 
 #endif
 
-#define UPDATE_STORAGE(tail, head, weight, m, nwp){			\
-    UPDATE_STORAGE_COND(tail, head, weight, m, nwp, TRUE);		\
+#define WtUPDATE_STORAGE(tail, head, weight, m, nwp){			\
+    WtUPDATE_STORAGE_COND(tail, head, weight, m, nwp, TRUE);		\
   }
 
 WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputs,
@@ -99,8 +99,6 @@ void WtChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead
 void WtInitStats(WtNetwork *nwp, WtModel *m);
 
 void WtDestroyStats(WtNetwork *nwp, WtModel *m);
-
-
 
 #endif
 

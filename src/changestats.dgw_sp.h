@@ -3,6 +3,7 @@
 
 #include "edgetree.h"
 #include "changestat.h"
+#include "storage.h"
 
 #define ESPUTP 0
 #define ESPOTP 1
@@ -30,14 +31,18 @@ static inline void espISP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
 
 /*Changescore functions*/
 C_CHANGESTAT_FN(c_desp);
+I_CHANGESTAT_FN(i_dgwesp);
 C_CHANGESTAT_FN(c_dgwesp);
 
 /*Changescore functions*/
 C_CHANGESTAT_FN(c_ddsp);
+I_CHANGESTAT_FN(i_dgwdsp);
 C_CHANGESTAT_FN(c_dgwdsp);
 
 /*Changescore functions*/
+I_CHANGESTAT_FN(i_dnsp);
 C_CHANGESTAT_FN(c_dnsp);
+I_CHANGESTAT_FN(i_dgwnsp);
 C_CHANGESTAT_FN(c_dgwnsp);
 
 #endif

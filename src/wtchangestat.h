@@ -26,6 +26,7 @@ typedef struct WtModelTermstruct {
   double *inputparams; /* ptr to input parameters passed */
   double *statcache; /* vector of the same length as dstats */
   void *storage; /* optional space for persistent storage */
+  void **aux_storage; /* optional space for persistent public (auxiliary) storage */
 } WtModelTerm;
 
 #include "changestat_common.inc"

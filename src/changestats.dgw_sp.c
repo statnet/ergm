@@ -445,7 +445,14 @@ Note that d_gwesp is a meta-function for all geometrically weighted ESP stats; t
 
 Only one type may be specified per esp term.  The default, OTP, retains the original behavior of esp/gwesp.  In the case of undirected graphs, OTP should be used (the others assume a directed network memory structure, and are not safe in the undirected case).
 */
-C_CHANGESTAT_FN(c_dgwdsp) { 
+
+I_CHANGESTAT_FN(i_dgwdsp) {
+  ALLOC_STORAGE((int)INPUT_PARAM[2]*2, double, storage);
+  (void)storage; // Get rid of an unused warning.
+}
+
+C_CHANGESTAT_FN(c_dgwdsp) {
+  GET_STORAGE(double, storage);
   int type;
   Vertex i,maxesp;
   double alpha, oneexpa,*dvec,*cs;
@@ -456,8 +463,8 @@ C_CHANGESTAT_FN(c_dgwdsp) {
   oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
   type=(int)INPUT_PARAM[1];     /*Get the ESP type code to be used*/
   maxesp=(int)INPUT_PARAM[2];   /*Get the max ESP cutoff to use*/
-  cs=alloca(maxesp*sizeof(double));     /*Allocate memory for the ESP changescores*/
-  dvec=alloca(maxesp*sizeof(double));   /*Allocate memory for the ESP vals*/
+  cs=storage;                   /*Grab memory for the ESP changescores*/
+  dvec=storage+maxesp;          /*Grab memory for the ESP vals*/
   for(i=0;i<maxesp;i++)         /*Initialize the ESP vals*/
     dvec[i]=i+1.0;
 
@@ -1010,7 +1017,13 @@ Note that d_gwesp is a meta-function for all geometrically weighted ESP stats; t
 
 Only one type may be specified per esp term.  The default, OTP, retains the original behavior of esp/gwesp.  In the case of undirected graphs, OTP should be used (the others assume a directed network memory structure, and are not safe in the undirected case).
 */
+I_CHANGESTAT_FN(i_dgwesp) {
+  ALLOC_STORAGE((int)INPUT_PARAM[2]*2, double, storage);
+  (void)storage; // Get rid of an unused warning.
+}
+
 C_CHANGESTAT_FN(c_dgwesp) { 
+  GET_STORAGE(double, storage);
   int type;
   Vertex i,maxesp;
   double alpha, oneexpa,*dvec,*cs;
@@ -1021,8 +1034,8 @@ C_CHANGESTAT_FN(c_dgwesp) {
   oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
   type=(int)INPUT_PARAM[1];     /*Get the ESP type code to be used*/
   maxesp=(int)INPUT_PARAM[2];   /*Get the max ESP cutoff to use*/
-  cs=alloca(maxesp*sizeof(double));     /*Allocate memory for the ESP changescores*/
-  dvec=alloca(maxesp*sizeof(double));   /*Allocate memory for the ESP vals*/
+  cs=storage;                   /*Grab memory for the ESP changescores*/
+  dvec=storage+maxesp;          /*Grab memory for the ESP vals*/
   for(i=0;i<maxesp;i++)         /*Initialize the ESP vals*/
     dvec[i]=i+1.0;
 
@@ -1067,7 +1080,13 @@ Type codes are as follows (where (i,j) is the focal edge):
 
 Only one type may be specified per esp term.  UTP should always be used for undirected graphs; OTP is the traditional directed default.
 */
-C_CHANGESTAT_FN(c_dnsp) { 
+I_CHANGESTAT_FN(i_dnsp) {
+  ALLOC_STORAGE((int)N_CHANGE_STATS*2, double, storage);
+  (void)storage; // Get rid of an unused warning.
+}
+
+C_CHANGESTAT_FN(c_dnsp) {
+  GET_STORAGE(double, storage);
   int i,type;
   double *dvec,*cs_esp, *cs_dsp;
   
@@ -1075,8 +1094,8 @@ C_CHANGESTAT_FN(c_dnsp) {
   ZERO_ALL_CHANGESTATS(i);
   type=(int)INPUT_PARAM[0];     /*Get the ESP type code to be used*/
   dvec=INPUT_PARAM+1;           /*Get the pointer to the ESP stats list*/
-  cs_esp=alloca(N_CHANGE_STATS*sizeof(double));     /*Allocate memory for the DSP changescores*/
-  cs_dsp=alloca(N_CHANGE_STATS*sizeof(double));     /*Allocate memory for the DSP changescores*/
+  cs_esp=storage;               /*Grab memory for the DSP changescores*/
+  cs_dsp=storage+N_CHANGE_STATS;/*Grab memory for the DSP changescores*/
 
   /*Obtain the ESP changescores (by type)*/
   switch(type){
@@ -1127,7 +1146,13 @@ Note that d_gwesp is a meta-function for all geometrically weighted ESP stats; t
 
 Only one type may be specified per esp term.  The default, OTP, retains the original behavior of esp/gwesp.  In the case of undirected graphs, OTP should be used (the others assume a directed network memory structure, and are not safe in the undirected case).
 */
+I_CHANGESTAT_FN(i_dgwnsp) {
+  ALLOC_STORAGE((int)INPUT_PARAM[2]*3, double, storage);
+  (void)storage; // Get rid of an unused warning.
+}
+
 C_CHANGESTAT_FN(c_dgwnsp) { 
+  GET_STORAGE(double, storage);
   int type;
   Vertex i,maxesp;
   double alpha, oneexpa,*dvec,*cs_esp, *cs_dsp;
@@ -1138,12 +1163,12 @@ C_CHANGESTAT_FN(c_dgwnsp) {
   oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
   type=(int)INPUT_PARAM[1];     /*Get the ESP type code to be used*/
   maxesp=(int)INPUT_PARAM[2];   /*Get the max ESP cutoff to use*/
-  cs_esp=alloca(maxesp*sizeof(double));     /*Allocate memory for the ESP changescores*/
-  dvec=alloca(maxesp*sizeof(double));   /*Allocate memory for the ESP vals*/
+  cs_esp=storage;     /*Grab memory for the ESP changescores*/
+  dvec=storage+maxesp;   /*Grab memory for the ESP vals*/
   for(i=0;i<maxesp;i++)         /*Initialize the ESP vals*/
     dvec[i]=i+1.0;
   
-  cs_dsp=alloca(maxesp*sizeof(double));     /*Allocate memory for the ESP changescores*/
+  cs_dsp=storage+maxesp+maxesp;     /*Grab memory for the ESP changescores*/
 
   /*Obtain the changescores (by type)*/
   switch(type){
@@ -1178,7 +1203,6 @@ C_CHANGESTAT_FN(c_dgwnsp) {
     if((cs_dsp[i]-cs_esp[i])!=0.0)                  /*Filtering to save a few pow() calls*/
       CHANGE_STAT[0]+=(1.0-pow(oneexpa,dvec[i]))*(cs_dsp[i]-cs_esp[i]);
   CHANGE_STAT[0]*=exp(alpha);
-
 }
 
 

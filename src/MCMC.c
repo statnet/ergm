@@ -56,7 +56,7 @@ void MCMC_wrapper(int *dnumnets, int *nedges,
   
   /* Form the network */
   nw[0]=NetworkInitialize(tails, heads, nedges[0], 
-                          n_nodes, directed_flag, bip, 0, 0, NULL, m->n_aux);
+                          n_nodes, directed_flag, bip, 0, 0, NULL);
 
   /* Trigger initial storage update */
   InitStats(nw, m);
@@ -341,7 +341,7 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
 
   /* Form the missing network */
   nw[0]=NetworkInitialize(tails, heads, n_edges,
-                          n_nodes, directed_flag, bip, 0, 0, NULL, m->n_aux);
+                          n_nodes, directed_flag, bip, 0, 0, NULL);
 
 
   MH_init(&MH,
