@@ -68,10 +68,10 @@ WtF_CHANGESTAT_FN(f_import_binary_term_sum){
 
 WtI_CHANGESTAT_FN(i_import_binary_term_nonzero){
   double *inputs = INPUT_PARAM;
-  GET_AUX_STORAGE(Network, bnwp);
-  GET_STORAGE(Model, m);
+  GET_AUX_STORAGE(Network, bnwp); inputs++;
+  GET_STORAGE(Model, m); // Only need the pointer, no allocation needed.
 
-  m = unpack_Modelasdouble(&inputs);
+  mtp->storage = m = unpack_Modelasdouble(&inputs);
 
   InitStats(bnwp, m);
 }
@@ -105,6 +105,7 @@ WtF_CHANGESTAT_FN(f_import_binary_term_nonzero){
   GET_STORAGE(Model, m);
 
   ModelDestroy(m, bnwp);
+  mtp->storage = NULL;
 }
 
 /* _binary_nonzero_net 
@@ -135,6 +136,6 @@ WtU_CHANGESTAT_FN(u__binary_nonzero_net){
 }
 
 WtF_CHANGESTAT_FN(f__binary_nonzero_net){
-  GET_STORAGE(Network, bnwp);
+  GET_AUX_STORAGE(Network, bnwp);
   NetworkDestroy(bnwp);
 }

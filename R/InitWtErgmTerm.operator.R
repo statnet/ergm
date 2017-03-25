@@ -32,7 +32,7 @@ InitWtErgmTerm.b <- function(nw, arglist, response=NULL, ...){
     }
   }
 
-  list(name=paste("import_binary_term",form,sep="_"), coef.names = paste0(form,'(',m$coef.names,')'), inputs=inputs, dependence=FALSE, emptynwstats = gs)
+  list(name=paste("import_binary_term",form,sep="_"), coef.names = paste0(form,'(',m$coef.names,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries=if(form=="nonzero") ~.binary.nonzero.net)
 }
 
 InitWtErgmTerm..binary.nonzero.net <- function(nw, arglist, response=NULL, ...){
