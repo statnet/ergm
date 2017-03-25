@@ -103,15 +103,31 @@ tst(sum(abs(outer(q,q,"-")^2)*dirm,na.rm=TRUE), dirnw ~ absdiff("q",pow=2))
 tst(sum(abs(outer(q,q,"-"))*(dirm!=0),na.rm=TRUE), dirnw ~ absdiff("q", form="nonzero"))
 tst(sum(abs(outer(q,q,"-")^2)*(dirm!=0),na.rm=TRUE), dirnw ~ absdiff("q",pow=2, form="nonzero"))
 
+tst(sum(abs(outer(q,q,"-"))*dirm,na.rm=TRUE), dirnw ~ b(~absdiff("q"), form="sum"))
+tst(sum(abs(outer(q,q,"-")^2)*dirm,na.rm=TRUE), dirnw ~ b(~absdiff("q",pow=2), form="sum"))
+tst(sum(abs(outer(q,q,"-"))*(dirm!=0),na.rm=TRUE), dirnw ~ b(~absdiff("q"), form="nonzero"))
+tst(sum(abs(outer(q,q,"-")^2)*(dirm!=0),na.rm=TRUE), dirnw ~ b(~absdiff("q",pow=2), form="nonzero"))
+
 tst(sum(abs(outer(q,q,"-"))*undm,na.rm=TRUE)/2, undnw ~ absdiff("q"))
 tst(sum(abs(outer(q,q,"-")^2)*undm,na.rm=TRUE)/2, undnw ~ absdiff("q",pow=2))
 tst(sum(abs(outer(q,q,"-"))*(undm!=0),na.rm=TRUE)/2, undnw ~ absdiff("q", form="nonzero"))
 tst(sum(abs(outer(q,q,"-")^2)*(undm!=0),na.rm=TRUE)/2, undnw ~ absdiff("q",pow=2, form="nonzero"))
 
+tst(sum(abs(outer(q,q,"-"))*undm,na.rm=TRUE)/2, undnw ~ b(~absdiff("q"), form="sum"))
+tst(sum(abs(outer(q,q,"-")^2)*undm,na.rm=TRUE)/2, undnw ~ b(~absdiff("q",pow=2), form="sum"))
+tst(sum(abs(outer(q,q,"-"))*(undm!=0),na.rm=TRUE)/2, undnw ~ b(~absdiff("q"), form="nonzero"))
+tst(sum(abs(outer(q,q,"-")^2)*(undm!=0),na.rm=TRUE)/2, undnw ~ b(~absdiff("q",pow=2), form="nonzero"))
+
 tst(sum(abs(outer(q1,q2,"-"))*bipm,na.rm=TRUE), bipnw ~ absdiff("q"))
 tst(sum(abs(outer(q1,q2,"-")^2)*bipm,na.rm=TRUE), bipnw ~ absdiff("q",pow=2))
 tst(sum(abs(outer(q1,q2,"-"))*(bipm!=0),na.rm=TRUE), bipnw ~ absdiff("q", form="nonzero"))
 tst(sum(abs(outer(q1,q2,"-")^2)*(bipm!=0),na.rm=TRUE), bipnw ~ absdiff("q",pow=2, form="nonzero"))
+
+tst(sum(abs(outer(q1,q2,"-"))*bipm,na.rm=TRUE), bipnw ~ b(~absdiff("q"), form="sum"))
+tst(sum(abs(outer(q1,q2,"-")^2)*bipm,na.rm=TRUE), bipnw ~ b(~absdiff("q",pow=2), form="sum"))
+tst(sum(abs(outer(q1,q2,"-"))*(bipm!=0),na.rm=TRUE), bipnw ~ b(~absdiff("q"), form="nonzero"))
+tst(sum(abs(outer(q1,q2,"-")^2)*(bipm!=0),na.rm=TRUE), bipnw ~ b(~absdiff("q",pow=2), form="nonzero"))
+
 
 # absdiffcat
 diffs <- sort(unique(c(abs(outer(q,q,"-")))))
