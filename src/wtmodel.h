@@ -100,7 +100,5 @@ void WtInitStats(WtNetwork *nwp, WtModel *m);
 
 void WtDestroyStats(WtNetwork *nwp, WtModel *m);
 
-
-
 #endif
 
