@@ -27,6 +27,7 @@ typedef struct ModelTermstruct {
   double *inputparams; /* ptr to input parameters passed */
   double *statcache; /* vector of the same length as dstats */
   void *storage; /* optional space for persistent storage */
+  void **aux_storage; /* optional space for persistent public (auxiliary) storage */
 } ModelTerm;
 
 #include "changestat_common.inc"
