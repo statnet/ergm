@@ -1,5 +1,4 @@
-
-#include "changestat.h"
+#include "changestat_operator.h"
 #include "model.h"
 #define STRICT_Wt_HEADERS
 #include "wtchangestat.h"
@@ -8,17 +7,6 @@
 #include "storage.h"
 
 typedef struct{Network nw; Model *m;} StoreNetAndModel;
-
-static inline unsigned char *unpack_doubletochar(double **x){
-  unsigned int l = (*x)[0];
-  unsigned char *s = (unsigned char *) malloc((l+1)*sizeof(char));
-  for(unsigned int i=0; i<l; i++){
-    s[i] = (unsigned char) (unsigned int) (*x)[i+1];
-  }
-  s[l] = (unsigned char) 0;
-  (*x)+=l+1;
-  return s;
-}
 
 /* import_binary_term_sum 
 
@@ -33,12 +21,7 @@ WtI_CHANGESTAT_FN(i_import_binary_term_sum){
   double *inputs = INPUT_PARAM;
   ALLOC_STORAGE(1, StoreNetAndModel, store);
 
-  int n_terms = *(inputs++);
-  char *fnames = (char *) unpack_doubletochar(&inputs);
-  char *snames = (char *) unpack_doubletochar(&inputs);
-  Model *m = store->m = ModelInitialize(fnames, snames, &inputs, n_terms);
-  free(fnames);
-  free(snames);
+  Model *m = store->m = unpack_Modelasdouble(&inputs);
 
   store->nw = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
   Network *mynwp = &(store->nw);
@@ -81,64 +64,77 @@ WtF_CHANGESTAT_FN(f_import_binary_term_sum){
    network that mirrors the valued one in that it has an edge wherever
    the value is not 0.
 
-   FIXME: Use auxiliary storage so that multiple terms can share the network.
-
 */
-
 
 WtI_CHANGESTAT_FN(i_import_binary_term_nonzero){
   double *inputs = INPUT_PARAM;
-  ALLOC_STORAGE(1, StoreNetAndModel, store);
+  GET_AUX_STORAGE(Network, bnwp);
+  GET_STORAGE(Model, m);
 
-  int n_terms = *(inputs++);
-  char *fnames = (char *) unpack_doubletochar(&inputs);
-  char *snames = (char *) unpack_doubletochar(&inputs);
-  Model *m = store->m = ModelInitialize(fnames, snames, &inputs, n_terms);
-  free(fnames);
-  free(snames);
+  m = unpack_Modelasdouble(&inputs);
 
-  store->nw = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
-  Network *mynwp = &(store->nw);
-  // FIXME: This is suboptimal, since all trees will be highly
-  // unbalanced.
-  WtEXEC_THROUGH_NET_EDGES(t, h, e, w, {
-      if(w!=0) ToggleEdge(t, h, mynwp);
-    });
-  
-  InitStats(mynwp, m);
+  InitStats(bnwp, m);
 }
 
 WtC_CHANGESTAT_FN(c_import_binary_term_nonzero){
-  GET_STORAGE(StoreNetAndModel, store);
-  Model *m = store->m;
-  Network *mynwp = &(store->nw);
+  GET_AUX_STORAGE(Network, bnwp);
+  GET_STORAGE(Model, m);
+  
   double oldweight = WtGETWT(tail,head);
 
   if((weight!=0)!=(oldweight!=0)){ // If going from 0 to nonzero or vice versa...
-    ChangeStats(1, &tail, &head, mynwp, m);
-
-    for(unsigned int i=0; i<N_CHANGE_STATS; i++)
-      CHANGE_STAT[i] = m->workspace[i];
+    ChangeStats(1, &tail, &head, bnwp, m);
   }
+  
+  memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
 
 WtU_CHANGESTAT_FN(u_import_binary_term_nonzero){
-  GET_STORAGE(StoreNetAndModel, store);
-  Model *m = store->m;
-  Network *mynwp = &(store->nw);
+  GET_AUX_STORAGE(Network, bnwp);
+  GET_STORAGE(Model, m);
+  
   double oldweight = WtGETWT(tail,head);
 
   if((weight!=0)!=(oldweight!=0)){ // If going from 0 to nonzero or vice versa...
-    UPDATE_STORAGE(tail, head, m, mynwp);
-    ToggleEdge(tail, head, mynwp);
+    UPDATE_STORAGE(tail, head, m, bnwp);
   }
 }
 
 WtF_CHANGESTAT_FN(f_import_binary_term_nonzero){
-  GET_STORAGE(StoreNetAndModel, store);
-  Model *m = store->m;
-  Network *mynwp = &(store->nw);
+  GET_AUX_STORAGE(Network, bnwp);
+  GET_STORAGE(Model, m);
 
-  ModelDestroy(m, mynwp);
-  NetworkDestroy(mynwp);
+  ModelDestroy(m, bnwp);
+}
+
+/* _binary_nonzero_net 
+
+   Maintain a binary network that mirrors the valued one in that it
+   has an edge wherever the value is not 0.
+
+*/
+
+WtI_CHANGESTAT_FN(i__binary_nonzero_net){
+  ALLOC_AUX_STORAGE(1, Network, bnwp);
+
+  *bnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
+  // FIXME: This is suboptimal, since all trees will be highly
+  // unbalanced.
+  WtEXEC_THROUGH_NET_EDGES(t, h, e, w, {
+      if(w!=0) ToggleEdge(t, h, bnwp);
+    });
+}
+
+WtU_CHANGESTAT_FN(u__binary_nonzero_net){
+  GET_AUX_STORAGE(Network, bnwp);
+  double oldweight = WtGETWT(tail,head);
+
+  if((weight!=0)!=(oldweight!=0)){ // If going from 0 to nonzero or vice versa...
+    ToggleEdge(tail, head, bnwp);
+  }
+}
+
+WtF_CHANGESTAT_FN(f__binary_nonzero_net){
+  GET_STORAGE(Network, bnwp);
+  NetworkDestroy(bnwp);
 }

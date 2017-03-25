@@ -221,7 +221,7 @@ network
   passing a non-NULL value as the \code{response} argument, giving the
   edge attribute name to be modeled/simulated.
 
-  Binary ERGM statistics cannot be used in valued mode and vice versa. However,
+  Binary ERGM statistics cannot be used directly in valued mode and vice versa. However,
   a substantial number of binary ERGM statistics --- particularly the
   ones with dyadic indepenence --- have simple generalizations to valued
   ERGMs, and have been adapted in
@@ -233,6 +233,17 @@ network
   dyad \eqn{(i,j)} and \eqn{x_{i,j}} is the term's covariate associated
   with it. The latter computes the binary version, with the edge
   considered to be present if its value is not 0.
+
+  Binary \code{ergm} terms without valued implementations can be
+  passed in valued mode by putting them on the RHS of a one-sided
+  formula and enclosing them in \code{b(...)} (for \emph{b}inary). For
+  example, \code{b(~nodecov("a"), form="sum")} is equivalent to
+  \code{nodecov("a", form="sum")} and similarly with
+  \code{form="nonzero"}. For \code{form="sum"}, only dyad-independent
+  terms can be imported in this way, but for \code{form="nonzero"} all
+  terms can be. More than one term can be used in this
+  formula. When a valued implementation is available, it should be
+  preferred, as it is likely to be faster.
 
   Valued version of some binary ERGM terms have an argument
   \code{threshold}, which sets the value above which a dyad is conidered

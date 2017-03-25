@@ -34,3 +34,13 @@ InitWtErgmTerm.b <- function(nw, arglist, response=NULL, ...){
 
   list(name=paste("import_binary_term",form,sep="_"), coef.names = paste0(form,'(',m$coef.names,')'), inputs=inputs, dependence=FALSE, emptynwstats = gs)
 }
+
+InitWtErgmTerm..binary.nonzero.net <- function(nw, arglist, response=NULL, ...){
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c(),
+                      vartypes = c(),
+                      defaultvalues = list(),
+                      required = c())
+
+  list(name="_binary_nonzero_net", depenence=FALSE)
+}
