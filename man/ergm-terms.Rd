@@ -174,7 +174,44 @@ network
   object, and \code{<term 1>}, \code{<term 2>}, etc, are each terms chosen 
   from the list given below.
   To create a network object in \R, use the \code{\link[network]{network}} function,
-  then add nodal attributes to it using the \code{\%v\%} operator if necessary.}
+  then add nodal attributes to it using the \code{\%v\%} operator if
+  necessary.
+
+  \subsection{Interactions}{
+
+    For binary ERGMs, interactions between dyad-independent
+    \code{\link{ergm}} terms can be specified in a manner similar to
+    \code{\link{lm}} and others, as using the \code{:} and \code{*}
+    operators. However, they must be interpreted carefully, especially
+    for dyad-dependent terms. (Interactions involving curved terms are
+    not supported at this time.)
+
+    Generally, if term \code{a} has \eqn{n_a} statistics and \code{b}
+    has \eqn{n_b}, \code{a:b} will add \eqn{p_a \times p_b} statistics
+    to the model, corresponding to each element of \eqn{g_a(y)}
+    interacted with each element of \eqn{g_b(y)}.
+
+    The interaction is defined as follows. Dyad-independent terms can be
+    expressed in the general form \eqn{g(y;x)=\sum_{i,j} x_{i,j}y_{i,j}}
+    for some edge covariate matrix \eqn{x},
+    \eqn{g_{a_k:b_l}(y)=\sum_{i,j} x_{a_k,i,j}x_{b_l,i,j}y_{i,j}}. In
+    other words, rather than being a product of their sufficient
+    statistics (\eqn{g_{a_k}(y)g_{b_l}(y)}), it is a dyadwise product of
+    their dyad-level effects.
+
+    This means that an interaction between two dyad-independent terms
+    can be interpreted the same way as it would be in the corresponding
+    logistic regression for each potential edge. However, for undirected
+    networks in particular, this may lead to somewhat counterintuitive
+    results. For example, given two nodal covariates \code{"a"} and
+    \code{"b"} (whose values for node \eqn{i} are denoted \eqn{a_i} and
+    \eqn{b_i}, respectively), \code{nodecov("a")} adds one statistic of
+    the form \eqn{\sum_{i,j} x_{i,j}y_{i,j}} with
+    \eqn{x_{a,i,j}=(a_{i}+a_{j})}, similarly for \code{nodecov("b")}, so
+    \code{nodecov("a"):nodecov("b")} produces \eqn{\sum_{i,j}
+    x_{i,j}y_{i,j}}.
+  }
+}
 
 \section{Binary and valued ERGM terms}{
 
