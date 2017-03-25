@@ -212,6 +212,12 @@ for(dd in c("t-h", "h-t")){
     tst(sum(df(outer(q,q,"-"))^2*dirm,na.rm=TRUE), dirnw ~ diff("q",pow=2, dir=dd, sign.action=sa))
     tst(sum(df(outer(q,q,"-"))*(dirm!=0),na.rm=TRUE), dirnw ~ diff("q", dir=dd, sign.action=sa, form="nonzero"))
     tst(sum(df(outer(q,q,"-"))^2*(dirm!=0),na.rm=TRUE), dirnw ~ diff("q",pow=2, dir=dd, sign.action=sa, form="nonzero"))
+
+    tst(sum(df(outer(q,q,"-"))*dirm,na.rm=TRUE), dirnw ~ b(~diff("q", dir=dd, sign.action=sa), form="sum"))
+    tst(sum(df(outer(q,q,"-"))^2*dirm,na.rm=TRUE), dirnw ~ b(~diff("q",pow=2, dir=dd, sign.action=sa), form="sum"))
+    tst(sum(df(outer(q,q,"-"))*(dirm!=0),na.rm=TRUE), dirnw ~ b(~diff("q", dir=dd, sign.action=sa), form="nonzero"))
+    tst(sum(df(outer(q,q,"-"))^2*(dirm!=0),na.rm=TRUE), dirnw ~ b(~diff("q",pow=2, dir=dd, sign.action=sa), form="nonzero"))
+
   }
 }
 
