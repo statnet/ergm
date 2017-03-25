@@ -1,8 +1,10 @@
 
 #include "changestat.h"
 #include "model.h"
+#define STRICT_Wt_HEADERS
 #include "wtchangestat.h"
 #include "wtmodel.h"
+
 #include "storage.h"
 
 typedef struct{Network nw; Model *m;} StoreNetAndModel;
@@ -48,7 +50,7 @@ WtC_CHANGESTAT_FN(c_import_binary_term_sum){
   GET_STORAGE(StoreNetAndModel, store);
   Model *m = store->m;
   Network *mynwp = &(store->nw);
-  double oldweight = GETWT(tail,head);
+  double oldweight = WtGETWT(tail,head);
     
   ChangeStats(1, &tail, &head, mynwp, m);
 
@@ -99,7 +101,7 @@ WtI_CHANGESTAT_FN(i_import_binary_term_nonzero){
   Network *mynwp = &(store->nw);
   // FIXME: This is suboptimal, since all trees will be highly
   // unbalanced.
-  EXEC_THROUGH_NET_EDGES(t, h, e, w, {
+  WtEXEC_THROUGH_NET_EDGES(t, h, e, w, {
       if(w!=0) ToggleEdge(t, h, mynwp);
     });
   
@@ -110,7 +112,7 @@ WtC_CHANGESTAT_FN(c_import_binary_term_nonzero){
   GET_STORAGE(StoreNetAndModel, store);
   Model *m = store->m;
   Network *mynwp = &(store->nw);
-  double oldweight = GETWT(tail,head);
+  double oldweight = WtGETWT(tail,head);
 
   if((weight!=0)!=(oldweight!=0)){ // If going from 0 to nonzero or vice versa...
     ChangeStats(1, &tail, &head, mynwp, m);
@@ -124,7 +126,7 @@ WtU_CHANGESTAT_FN(u_import_binary_term_nonzero){
   GET_STORAGE(StoreNetAndModel, store);
   Model *m = store->m;
   Network *mynwp = &(store->nw);
-  double oldweight = GETWT(tail,head);
+  double oldweight = WtGETWT(tail,head);
 
   if((weight!=0)!=(oldweight!=0)){ // If going from 0 to nonzero or vice versa...
     UPDATE_STORAGE(tail, head, m, mynwp);
