@@ -119,6 +119,35 @@ typedef struct WtModelTermstruct {
 #define WtGETNEWWT(a,b) (SAMEDYAD(WtTAIL,WtHEAD,a,b)?WtNEWWT:WtGETWT(a,b))
 #define WtGETNEWWTOLD(a,b,old) (SAMEDYAD(WtTAIL,WtHEAD,a,b)?WtNEWWT:(old))
 
+
+/****************************************************/
+/* changestat function prototypes, 
+   plus a few supporting function prototypes */
+#define WtC_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtModelTerm *mtp, WtNetwork *nwp)
+#define WtD_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, double *weights, WtModelTerm *mtp, WtNetwork *nwp)
+#define WtI_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
+#define WtU_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtModelTerm *mtp, WtNetwork *nwp)
+#define WtF_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
+#define WtS_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
+
+/* This macro wraps two calls to an s_??? function with toggles
+   between them. */
+#define WtD_FROM_S							\
+  {									\
+    (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */		\
+    memcpy(mtp->statcache,mtp->dstats,N_CHANGE_STATS*sizeof(double));	\
+    /* Note: This cannot be abstracted into EXEC_THROUGH_TOGGLES. */	\
+    WtFOR_EACH_TOGGLE{ WtGETTOGGLEINFO(); WtSETWT_WITH_BACKUP(); }		\
+    (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */		\
+    for(unsigned int i=0; i<N_CHANGE_STATS; i++)			\
+      mtp->dstats[i] -= mtp->statcache[i];				\
+    WtFOR_EACH_TOGGLE{ WtUNDO_SETWT(); }					\
+  }
+
+/* This macro constructs a function that wraps D_FROM_S. */
+#define WtD_FROM_S_FN(a) WtD_CHANGESTAT_FN(a) WtD_FROM_S
+
+
 /* If STRICT_Wt_HEADERS is not set, give the terms more generic names. */
 #ifndef STRICT_Wt_HEADERS
 
@@ -162,34 +191,8 @@ typedef struct WtModelTermstruct {
 #define GETNEWWT WtGETNEWWT
 #define GETNEWWTOLD WtGETNEWWTOLD
 
-#endif
+#define D_FROM_S WtD_FROM_S
 
-
-/****************************************************/
-/* changestat function prototypes, 
-   plus a few supporting function prototypes */
-#define WtC_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtModelTerm *mtp, WtNetwork *nwp)
-#define WtD_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, double *weights, WtModelTerm *mtp, WtNetwork *nwp)
-#define WtI_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
-#define WtU_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtModelTerm *mtp, WtNetwork *nwp)
-#define WtF_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
-#define WtS_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
-
-/* This macro wraps two calls to an s_??? function with toggles
-   between them. */
-#define D_FROM_S							\
-  {									\
-    (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */		\
-    memcpy(mtp->statcache,mtp->dstats,N_CHANGE_STATS*sizeof(double));	\
-    /* Note: This cannot be abstracted into EXEC_THROUGH_TOGGLES. */	\
-    FOR_EACH_TOGGLE{ GETTOGGLEINFO(); SETWT_WITH_BACKUP(); }		\
-    (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */		\
-    for(unsigned int i=0; i<N_CHANGE_STATS; i++)			\
-      mtp->dstats[i] -= mtp->statcache[i];				\
-    FOR_EACH_TOGGLE{ UNDO_SETWT(); }					\
-  }
-
-/* This macro constructs a function that wraps D_FROM_S. */
-#define WtD_FROM_S_FN(a) WtD_CHANGESTAT_FN(a) D_FROM_S
+#endif // STRICT_Wt_HEADERS
 
 #endif
