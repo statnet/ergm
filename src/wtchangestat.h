@@ -53,8 +53,8 @@ typedef struct WtModelTermstruct {
 #define INWT(e) (nwp->inedges[(e)].weight)
 
 // These are "declaring" versions of the above, optimized for use in EXEC_TROUGH_*EDGES macros.
-#define WtSTEP_THROUGH_OUTEDGES_DECL(a,e,v) for(Edge e=MIN_OUTEDGE(a);OUTVAL(e)!=0;e=NEXT_OUTEDGE(e))
-#define WtSTEP_THROUGH_INEDGES_DECL(a,e,v) for(Edge e=MIN_INEDGE(a);INVAL(e)!=0;e=NEXT_INEDGE(e))
+#define WtSTEP_THROUGH_OUTEDGES_DECL(a,e,v) for(Edge e=WtMIN_OUTEDGE(a);OUTVAL(e)!=0;e=WtNEXT_OUTEDGE(e))
+#define WtSTEP_THROUGH_INEDGES_DECL(a,e,v) for(Edge e=WtMIN_INEDGE(a);INVAL(e)!=0;e=WtNEXT_INEDGE(e))
 
 /* Instead of stepping through execute "subroutine" for each neighbor
    automatically adapting to undirected networks. w gets the weight of
