@@ -44,7 +44,7 @@ void CD_wrapper(int *dnumnets, int *nedges,
 
   /* Form the network */
   nw[0]=NetworkInitialize(tails, heads, nedges[0], 
-                          n_nodes, directed_flag, bip, 0, 0, NULL, m->n_aux);
+                          n_nodes, directed_flag, bip, 0, 0, NULL);
   
   /* Trigger initial storage update */
   InitStats(nw, m);
@@ -55,7 +55,8 @@ void CD_wrapper(int *dnumnets, int *nedges,
 	  inputs,
 	  *fVerbose,
 	  nw, attribs, maxout, maxin, minout, minin,
-	  *condAllDegExact, *attriblength);
+	  *condAllDegExact, *attriblength,
+	  m->termarray->aux_storage);
 
   undotail = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
   undohead = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));

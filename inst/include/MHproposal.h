@@ -78,8 +78,8 @@ typedef struct MHproposalstruct {
   double logratio;
   int status;
   DegreeBound *bd;
-  Network **discord;
   double *inputs; /* may be used if needed, ignored if not. */
+  void **aux_storage;
 } MHproposal;
 
 
@@ -90,7 +90,8 @@ void MH_init(MHproposal *MHp,
 	     Network *nwp, 
 	     int *attribs, int *maxout, int *maxin, 
 	     int *minout, int *minin, int condAllDegExact, 
-	     int attriblength);
+	     int attriblength,
+	     void **aux_storage);
 
 void MH_free(MHproposal *MHp);
 

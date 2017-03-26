@@ -22,7 +22,8 @@ void MH_init(MHproposal *MHp,
 	     Network *nwp,
 	     int *attribs, int *maxout, int *maxin, 
 	     int *minout, int *minin, int condAllDegExact, 
-	     int attriblength){
+	     int attriblength,
+	     void **aux_storage){
 
   char *fn, *sn;
   int i;
@@ -66,6 +67,7 @@ void MH_init(MHproposal *MHp,
   free((void *)fn);
   free((void *)sn);
 
+  MHp->aux_storage = aux_storage;  
   MHp->ntoggles=0;
   (*(MHp->func))(MHp, nwp); /* Call MH proposal function to initialize */
   MHp->toggletail = (Vertex *)malloc(MHp->ntoggles * sizeof(Vertex));

@@ -90,7 +90,7 @@ F_CHANGESTAT_FN(f__discord_net){
 
 I_CHANGESTAT_FN(i__intersect_net){
   ALLOC_AUX_STORAGE(1, Network, dnwp);
-  *dnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL, 0);
+  *dnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
   Edge nedges = INPUT_PARAM[1];
   for(Edge i=0; i<nedges; i++){
     Vertex tail=INPUT_PARAM[2+i], head=INPUT_PARAM[2+nedges+i];
@@ -114,7 +114,7 @@ F_CHANGESTAT_FN(f__intersect_net){
 
 I_CHANGESTAT_FN(i__intersect_net_toggles_in_list){
   ALLOC_AUX_STORAGE(1, Network, dnwp);
-  *dnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL, 0);
+  *dnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
   Edge nedges = INPUT_PARAM[1];
   for(Edge i=0; i<nedges; i++){
     Vertex tail=INPUT_PARAM[2+i], head=INPUT_PARAM[2+nedges+i];

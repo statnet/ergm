@@ -56,7 +56,7 @@ void MCMC_wrapper(int *dnumnets, int *nedges,
   
   /* Form the network */
   nw[0]=NetworkInitialize(tails, heads, nedges[0], 
-                          n_nodes, directed_flag, bip, 0, 0, NULL, m->n_aux);
+                          n_nodes, directed_flag, bip, 0, 0, NULL);
 
   /* Trigger initial storage update */
   InitStats(nw, m);
@@ -67,7 +67,8 @@ void MCMC_wrapper(int *dnumnets, int *nedges,
 	  inputs,
 	  *fVerbose,
 	  nw, attribs, maxout, maxin, minout, minin,
-	  *condAllDegExact, *attriblength);
+	  *condAllDegExact, *attriblength,
+	  m->termarray->aux_storage);
 
   *status = MCMCSample(&MH,
 		       theta0, sample, *samplesize,
@@ -335,7 +336,7 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
 
   /* Form the missing network */
   nw[0]=NetworkInitialize(tails, heads, n_edges,
-                          n_nodes, directed_flag, bip, 0, 0, NULL, m->n_aux);
+                          n_nodes, directed_flag, bip, 0, 0, NULL);
 
 
   MH_init(&MH,
@@ -343,7 +344,8 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
 	  inputs,
 	  *fVerbose,
 	  nw, attribs, maxout, maxin, minout, minin,
-	  *condAllDegExact, *attriblength);
+	  *condAllDegExact, *attriblength,
+	  m->termarray->aux_storage);
   
   MCMCSamplePhase12 (&MH,
 		     theta0, *gain, meanstats, nphase1, nsubphases, sample, *samplesize,

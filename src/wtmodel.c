@@ -16,6 +16,22 @@
 void WtModelDestroy(WtModel *m, WtNetwork *nwp)
 {  
   WtDestroyStats(nwp, m);
+
+  for(unsigned int i=0; i < m->n_aux; i++)
+    if(m->termarray[0].aux_storage[i]!=NULL){
+      free(m->termarray[0].aux_storage[i]);
+      m->termarray[0].aux_storage[i] = NULL;
+    }
+  
+  if(m->termarray[0].aux_storage!=NULL){
+    free(m->termarray[0].aux_storage);
+  }
+  
+  WtEXEC_THROUGH_TERMS({
+      if(mtp->aux_storage!=NULL)
+	mtp->aux_storage=NULL;
+    });
+  
   free(m->dstatarray);
   free(m->termarray);
   free(m->workspace); 
@@ -47,6 +63,7 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       
       /* Initialize storage and term functions to NULL. */
       thisterm->storage = NULL;
+      thisterm->aux_storage = NULL;
       thisterm->d_func = NULL;
       thisterm->c_func = NULL;
       thisterm->s_func = NULL;
@@ -196,6 +213,14 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
   for(i=0; i < m->n_stats; i++)
     m->workspace[i] = 0.0;
 
+  
+  /* Allocate auxiliary storage and put a pointer to it on every model term. */
+  if(m->n_aux){
+    m->termarray[0].aux_storage = (void *) calloc(m->n_aux, sizeof(void *));
+    for(l=1; l < n_terms; l++)
+      m->termarray[l].aux_storage = m->termarray[0].aux_storage;
+  }
+  
   *inputsp = inputs;
   return m;
 }

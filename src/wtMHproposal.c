@@ -19,7 +19,8 @@ void WtMH_init(WtMHproposal *MHp,
 	     char *MHproposaltype, char *MHproposalpackage, 
 	       double *inputs,
 	     int fVerbose,
-	     WtNetwork *nwp){
+	     WtNetwork *nwp,
+	     void **aux_storage){
 
   char *fn, *sn;
   int i;
@@ -60,6 +61,7 @@ void WtMH_init(WtMHproposal *MHp,
   free((void *)fn);
   free((void *)sn);
 
+  MHp->aux_storage = aux_storage;  
   MHp->ntoggles=0;
   (*(MHp->func))(MHp, nwp); /* Call MH proposal function to initialize */
   MHp->toggletail = (Vertex *)malloc(MHp->ntoggles * sizeof(Vertex));

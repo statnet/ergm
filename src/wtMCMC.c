@@ -56,7 +56,7 @@ void WtMCMC_wrapper(int *dnumnets, int *nedges,
 
   /* Form the network */
   nw[0]=WtNetworkInitialize(tails, heads, weights, nedges[0], 
-			    n_nodes, directed_flag, bip, 0, 0, NULL, m->n_aux);
+			    n_nodes, directed_flag, bip, 0, 0, NULL);
 
   /* Trigger initial storage update */
   WtInitStats(nw, m);
@@ -66,7 +66,8 @@ void WtMCMC_wrapper(int *dnumnets, int *nedges,
 	    *MHproposaltype, *MHproposalpackage,
 	    inputs,
 	    *fVerbose,
-	    nw);
+	    nw,
+	    m->termarray->aux_storage);
 
   *status = WtMCMCSample(&MH,
 			 theta0, sample, *samplesize,

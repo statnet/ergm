@@ -527,7 +527,7 @@ void MH_listTNT(MHproposal *MHp, Network *nwp)
   static double comp=0.5, odds;
   static Dyad ndyads;
   static double *list;
-  Network *intersect = (Network *) nwp->aux_storage[(unsigned int) MHp->inputs[0]];
+  Network *intersect = (Network *) MHp->aux_storage[(unsigned int) MHp->inputs[0]];
   
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;

@@ -61,16 +61,17 @@ typedef struct WtMHproposalstruct {
   double *toggleweight;
   double logratio;
   int status;
-  WtNetwork **discord;
   double *inputs; /* may be used if needed, ignored if not. */
+  void **aux_storage;
 } WtMHproposal;
 
 
 void WtMH_init(WtMHproposal *MH, 
-	     char *MHproposaltype, char *MHproposalpackage, 
+	       char *MHproposaltype, char *MHproposalpackage, 
 	       double *inputs,
-	     int fVerbose,
-	     WtNetwork *nwp);
+	       int fVerbose,
+	       WtNetwork *nwp,
+	       void **aux_storage);
 
 void WtMH_free(WtMHproposal *MH);
 

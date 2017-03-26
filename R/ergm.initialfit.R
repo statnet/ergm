@@ -55,9 +55,6 @@ ergm.initialfit<-function(init, initial.is.final,
                           MPLEtype="glm",
                           control=NULL, MHproposal=NULL, MHproposal.obs=NULL,
                           verbose=FALSE, ...) {
-  Clist <- ergm.Cprepare(nw, m)
-  Clist.miss <- ergm.Cprepare(NVL(get.miss.dyads(MHproposal$arguments$constraints, MHproposal.obs$arguments$constraints), is.na(nw)), m)
-  control$Clist.miss<-Clist.miss
 
   # Respect init elements that are not offsets if it's only a starting value.
   if(!initial.is.final){ 
@@ -69,10 +66,16 @@ ergm.initialfit<-function(init, initial.is.final,
     # supplied by the user, use MPLE.   
     # Also make sure that any initial values specified by the user are respected.
     fit <- switch(method,
-                  MPLE = ergm.mple(Clist, Clist.miss, m, MPLEtype=MPLEtype,
-                    init=init, 
-                    control=control, MHproposal=MHproposal,
-                    verbose=verbose, ...),
+                  MPLE = {
+                    Clist <- ergm.Cprepare(nw, m)
+                    Clist.miss <- ergm.Cprepare(NVL(get.miss.dyads(MHproposal$arguments$constraints, MHproposal.obs$arguments$constraints), is.na(nw)), m)
+                    control$Clist.miss<-Clist.miss
+                    
+                    ergm.mple(Clist, Clist.miss, m, MPLEtype=MPLEtype,
+                              init=init, 
+                              control=control, MHproposal=MHproposal,
+                              verbose=verbose, ...)
+                  },
                   zeros = structure(list(coef=ifelse(is.na(init),0,init)),class="ergm"),
                   CD = ergm.CD.fixed(ifelse(is.na(init),0,init),
                       nw, m, control, MHproposal, MHproposal.obs, verbose,response=response,...),
