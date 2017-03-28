@@ -72,7 +72,7 @@ Network *nwp, Model *m, double *stats){
   Edge ntoggles = n_edges; // So that we can use the macros
 
   /* Initialize storage for terms that don't have s_functions.  */
-  EXEC_THROUGH_TERMS({
+  EXEC_THROUGH_TERMS_INREVERSE({
 #ifdef DEBUG
       double *dstats = mtp->dstats;
       mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
