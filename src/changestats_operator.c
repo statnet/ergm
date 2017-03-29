@@ -6,8 +6,8 @@ I_CHANGESTAT_FN(i_passthrough_term){
   double *inputs = INPUT_PARAM;
   GET_STORAGE(Model, m); // No need to allocate it: we are only storing a pointer to a model.
 
-  m = unpack_Modelasdouble(&inputs);
-
+  mtp->storage = m = unpack_Modelasdouble(&inputs);
+ 
   InitStats(nwp, m);
 }
 
