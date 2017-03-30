@@ -33,8 +33,8 @@ tails (first column), with ties broken by heads.
 
 */
 
-static inline unsigned int dEdgeListSearch(Vertex tail, Vertex head, double *el);
-static inline unsigned int iEdgeListSearch(Vertex tail, Vertex head, int *el);
+/* static inline unsigned int dEdgeListSearch(Vertex tail, Vertex head, double *el); */
+/* static inline unsigned int iEdgeListSearch(Vertex tail, Vertex head, int *el); */
 
 /*********************
  unsigned int dEdgeListSearch
