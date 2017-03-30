@@ -58,26 +58,6 @@
 #undef D_FROM_S_FN
 #include "R_ext/Rdynload.h"
 #include "edgelist.h"
-static inline unsigned int dEdgeListSearch(Vertex tail, Vertex head, double *el){
-static static inline unsigned int (*fun)(Vertex,Vertex,double *) = NULL;
-if(fun==NULL) fun = (static inline unsigned int (*)(Vertex,Vertex,double *)) R_FindSymbol("dEdgeListSearch", "ergm", NULL);
-return fun(tail,head,el);
-}
-static inline unsigned int iEdgeListSearch(Vertex tail, Vertex head, int *el){
-static static inline unsigned int (*fun)(Vertex,Vertex,int *) = NULL;
-if(fun==NULL) fun = (static inline unsigned int (*)(Vertex,Vertex,int *)) R_FindSymbol("iEdgeListSearch", "ergm", NULL);
-return fun(tail,head,el);
-}
-else return(0){
-static else (*fun)() = NULL;
-if(fun==NULL) fun = (else (*)()) R_FindSymbol("return", "ergm", NULL);
-return fun(0);
-}
-else return(0){
-static else (*fun)() = NULL;
-if(fun==NULL) fun = (else (*)()) R_FindSymbol("return", "ergm", NULL);
-return fun(0);
-}
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
@@ -350,6 +330,18 @@ fun(nwp,m);
 #undef UPDATE_STORAGE_COND
 #undef UPDATE_STORAGE
 #include "R_ext/Rdynload.h"
+#include "storage.h"
+#undef ALLOC_STORAGE
+#undef STORAGE
+#undef GET_STORAGE
+#undef ALLOC_AUX_STORAGE
+#undef AUX_STORAGE
+#undef GET_AUX_STORAGE
+#undef AUX_STORAGE_NUM
+#undef GET_AUX_STORAGE_NUM
+#undef ALLOC_AUX_SOCIOMATRIX
+#undef FREE_AUX_SOCIOMATRIX
+#include "R_ext/Rdynload.h"
 #include "wtchangestat.h"
 #undef MIN
 #undef MAX
@@ -380,6 +372,52 @@ fun(nwp,m);
 #undef N_INPUT_PARAMS
 #undef ZERO_ALL_CHANGESTATS
 #undef INPUT_ATTRIB
+#undef WtIS_OUTEDGE
+#undef WtIS_INEDGE
+#undef WtIS_UNDIRECTED_EDGE
+#undef WtMIN_OUTEDGE
+#undef WtMIN_INEDGE
+#undef WtNEXT_OUTEDGE
+#undef WtNEXT_INEDGE
+#undef OUTWT
+#undef INWT
+#undef WtSTEP_THROUGH_OUTEDGES_DECL
+#undef WtSTEP_THROUGH_INEDGES_DECL
+#undef WtEXEC_THROUGH_OUTEDGES
+#undef WtEXEC_THROUGH_INEDGES
+#undef WtEXEC_THROUGH_EDGES
+#undef WtEXEC_THROUGH_FOUTEDGES
+#undef WtEXEC_THROUGH_FINEDGES
+#undef WtEXEC_THROUGH_NET_EDGES
+#undef WtGETWT
+#undef WtSETWT
+#undef WtFOR_EACH_TOGGLE
+#undef WtTAIL
+#undef WtHEAD
+#undef WtNEWWT
+#undef WtOLDWT
+#undef WtGETOLDTOGGLEINFO
+#undef WtGETTOGGLEINFO
+#undef WtGETNEWTOGGLEINFO
+#undef WtSETWT_WITH_BACKUP
+#undef WtUNDO_SETWT
+#undef WtIF_MORE_TO_COME
+#undef WtSETWT_IF_MORE_TO_COME
+#undef WtUNDO_PREVIOUS
+#undef WtUNDO_PREVIOUS_SETWTS
+#undef WtEXEC_THROUGH_TOGGLES
+#undef SAMEDYAD
+#undef WtGETOLDWT
+#undef WtGETNEWWT
+#undef WtGETNEWWTOLD
+#undef WtC_CHANGESTAT_FN
+#undef WtD_CHANGESTAT_FN
+#undef WtI_CHANGESTAT_FN
+#undef WtU_CHANGESTAT_FN
+#undef WtF_CHANGESTAT_FN
+#undef WtS_CHANGESTAT_FN
+#undef WtD_FROM_S
+#undef WtD_FROM_S_FN
 #undef IS_OUTEDGE
 #undef IS_INEDGE
 #undef IS_UNDIRECTED_EDGE
@@ -387,8 +425,6 @@ fun(nwp,m);
 #undef MIN_INEDGE
 #undef NEXT_OUTEDGE
 #undef NEXT_INEDGE
-#undef OUTWT
-#undef INWT
 #undef STEP_THROUGH_OUTEDGES_DECL
 #undef STEP_THROUGH_INEDGES_DECL
 #undef EXEC_THROUGH_OUTEDGES
@@ -404,6 +440,7 @@ fun(nwp,m);
 #undef HEAD
 #undef NEWWT
 #undef OLDWT
+#undef TOGGLEIND
 #undef GETOLDTOGGLEINFO
 #undef GETTOGGLEINFO
 #undef GETNEWTOGGLEINFO
@@ -414,18 +451,10 @@ fun(nwp,m);
 #undef UNDO_PREVIOUS
 #undef UNDO_PREVIOUS_SETWTS
 #undef EXEC_THROUGH_TOGGLES
-#undef SAMEDYAD
 #undef GETOLDWT
 #undef GETNEWWT
 #undef GETNEWWTOLD
-#undef WtC_CHANGESTAT_FN
-#undef WtD_CHANGESTAT_FN
-#undef WtI_CHANGESTAT_FN
-#undef WtU_CHANGESTAT_FN
-#undef WtF_CHANGESTAT_FN
-#undef WtS_CHANGESTAT_FN
 #undef D_FROM_S
-#undef WtD_FROM_S_FN
 #include "R_ext/Rdynload.h"
 #include "wtedgetree.h"
 WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle){
@@ -642,6 +671,52 @@ fun(nwp,m);
 #undef N_INPUT_PARAMS
 #undef ZERO_ALL_CHANGESTATS
 #undef INPUT_ATTRIB
+#undef WtIS_OUTEDGE
+#undef WtIS_INEDGE
+#undef WtIS_UNDIRECTED_EDGE
+#undef WtMIN_OUTEDGE
+#undef WtMIN_INEDGE
+#undef WtNEXT_OUTEDGE
+#undef WtNEXT_INEDGE
+#undef OUTWT
+#undef INWT
+#undef WtSTEP_THROUGH_OUTEDGES_DECL
+#undef WtSTEP_THROUGH_INEDGES_DECL
+#undef WtEXEC_THROUGH_OUTEDGES
+#undef WtEXEC_THROUGH_INEDGES
+#undef WtEXEC_THROUGH_EDGES
+#undef WtEXEC_THROUGH_FOUTEDGES
+#undef WtEXEC_THROUGH_FINEDGES
+#undef WtEXEC_THROUGH_NET_EDGES
+#undef WtGETWT
+#undef WtSETWT
+#undef WtFOR_EACH_TOGGLE
+#undef WtTAIL
+#undef WtHEAD
+#undef WtNEWWT
+#undef WtOLDWT
+#undef WtGETOLDTOGGLEINFO
+#undef WtGETTOGGLEINFO
+#undef WtGETNEWTOGGLEINFO
+#undef WtSETWT_WITH_BACKUP
+#undef WtUNDO_SETWT
+#undef WtIF_MORE_TO_COME
+#undef WtSETWT_IF_MORE_TO_COME
+#undef WtUNDO_PREVIOUS
+#undef WtUNDO_PREVIOUS_SETWTS
+#undef WtEXEC_THROUGH_TOGGLES
+#undef SAMEDYAD
+#undef WtGETOLDWT
+#undef WtGETNEWWT
+#undef WtGETNEWWTOLD
+#undef WtC_CHANGESTAT_FN
+#undef WtD_CHANGESTAT_FN
+#undef WtI_CHANGESTAT_FN
+#undef WtU_CHANGESTAT_FN
+#undef WtF_CHANGESTAT_FN
+#undef WtS_CHANGESTAT_FN
+#undef WtD_FROM_S
+#undef WtD_FROM_S_FN
 #undef IS_OUTEDGE
 #undef IS_INEDGE
 #undef IS_UNDIRECTED_EDGE
@@ -649,8 +724,6 @@ fun(nwp,m);
 #undef MIN_INEDGE
 #undef NEXT_OUTEDGE
 #undef NEXT_INEDGE
-#undef OUTWT
-#undef INWT
 #undef STEP_THROUGH_OUTEDGES_DECL
 #undef STEP_THROUGH_INEDGES_DECL
 #undef EXEC_THROUGH_OUTEDGES
@@ -666,6 +739,7 @@ fun(nwp,m);
 #undef HEAD
 #undef NEWWT
 #undef OLDWT
+#undef TOGGLEIND
 #undef GETOLDTOGGLEINFO
 #undef GETTOGGLEINFO
 #undef GETNEWTOGGLEINFO
@@ -676,18 +750,10 @@ fun(nwp,m);
 #undef UNDO_PREVIOUS
 #undef UNDO_PREVIOUS_SETWTS
 #undef EXEC_THROUGH_TOGGLES
-#undef SAMEDYAD
 #undef GETOLDWT
 #undef GETNEWWT
 #undef GETNEWWTOLD
-#undef WtC_CHANGESTAT_FN
-#undef WtD_CHANGESTAT_FN
-#undef WtI_CHANGESTAT_FN
-#undef WtU_CHANGESTAT_FN
-#undef WtF_CHANGESTAT_FN
-#undef WtS_CHANGESTAT_FN
 #undef D_FROM_S
-#undef WtD_FROM_S_FN
 #undef WtFOR_EACH_TERM
 #undef WtEXEC_THROUGH_TERMS
 #undef WtFOR_EACH_TERM_INREVERSE
