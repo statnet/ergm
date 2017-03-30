@@ -66,7 +66,7 @@ WtNetwork *nwp, WtModel *m, double *stats){
   Edge ntoggles = n_edges; // So that we can use the macros
 
   /* Initialize storage for terms that don't have s_functions.  */
-  WtEXEC_THROUGH_TERMS({
+  WtEXEC_THROUGH_TERMS_INREVERSE({
 #ifdef DEBUG
       double *dstats = mtp->dstats;
       mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
