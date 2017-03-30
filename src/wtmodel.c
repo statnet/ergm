@@ -16,7 +16,7 @@
 void WtModelDestroy(WtModel *m, WtNetwork *nwp)
 {  
   WtDestroyStats(nwp, m);
-
+  
   for(unsigned int i=0; i < m->n_aux; i++)
     if(m->termarray[0].aux_storage[i]!=NULL){
       free(m->termarray[0].aux_storage[i]);
@@ -259,7 +259,6 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
     GETTOGGLEINFO();
     
     WtEXEC_THROUGH_TERMS_INTO(m->workspace, {
-	mtp->dstats = dstats;
 	if(mtp->c_func){
 	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
 			   mtp, nwp);  /* Call d_??? function */
