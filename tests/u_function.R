@@ -60,3 +60,10 @@ s <- attr(sim, "stats")
 stopifnot(all(abs(s[,1]-5)==s[,2]) && all(abs(s[,1]-5)==s[,3]))
 sim.dyads <- t(sapply(lapply(sim, as.matrix, attrname="v"), c))
 stopifnot(all(sim.dyads==s[,-(1:3)]))
+
+# Multiplicitous proposal
+sim <- simulate(nw~sum,monitor=~test.abs.sum.minus.5+test.abs.sum.minus.5(FALSE), response="v", reference=~DiscUnif(-1,2), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1,MCMC.prop.weights="random2"))
+s <- attr(sim, "stats")
+stopifnot(all(abs(s[,1]-5)==s[,2]) && all(abs(s[,1]-5)==s[,3]))
+sim.dyads <- t(sapply(lapply(sim, as.matrix, attrname="v"), c))
+stopifnot(all(sim.dyads==s[,-(1:3)]))
