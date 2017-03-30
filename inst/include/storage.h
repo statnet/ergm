@@ -10,12 +10,12 @@
 
 /* Storage utilities */
 
-#define ALLOC_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (mtp->storage = calloc(nmemb, sizeof(stored_type)));
 #define STORAGE (/* (stored_type *) */ mtp->storage)
+#define ALLOC_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (STORAGE = calloc(nmemb, sizeof(stored_type)));
 #define GET_STORAGE(stored_type, store_into) stored_type *store_into = (stored_type *) STORAGE;
 
-#define ALLOC_AUX_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (mtp->aux_storage[(unsigned int) INPUT_PARAM[0]] = calloc(nmemb, sizeof(stored_type)));
 #define AUX_STORAGE (/* (stored_type *) */ mtp->aux_storage[(unsigned int) INPUT_PARAM[0]])
+#define ALLOC_AUX_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (AUX_STORAGE = calloc(nmemb, sizeof(stored_type)));
 #define GET_AUX_STORAGE(stored_type, store_into) stored_type *store_into = AUX_STORAGE;
 #define AUX_STORAGE_NUM(ind) (/* (stored_type *) */ mtp->aux_storage[(unsigned int) INPUT_PARAM[ind]])
 #define GET_AUX_STORAGE_NUM(stored_type, store_into, ind) stored_type *store_into = AUX_STORAGE_NUM(ind);

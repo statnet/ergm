@@ -331,11 +331,11 @@ fun(nwp,m);
 #undef UPDATE_STORAGE
 #include "R_ext/Rdynload.h"
 #include "storage.h"
-#undef ALLOC_STORAGE
 #undef STORAGE
+#undef ALLOC_STORAGE
 #undef GET_STORAGE
-#undef ALLOC_AUX_STORAGE
 #undef AUX_STORAGE
+#undef ALLOC_AUX_STORAGE
 #undef GET_AUX_STORAGE
 #undef AUX_STORAGE_NUM
 #undef GET_AUX_STORAGE_NUM
