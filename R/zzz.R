@@ -68,6 +68,8 @@
   
   ergm.MHP.table("c", "DiscUnif", "",  0, "random", "DiscUnif")
   ergm.MHP.table("c", "DiscUnif", "observed",  0, "random", "DiscUnifNonObserved")  
+
+  ergm.MHP.table("c", "DiscUnif", "",  -1, "random2", "DiscUnif2")
 }
 
 .RegisterConstraintImplications <- function(){
