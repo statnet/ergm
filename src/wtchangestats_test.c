@@ -18,7 +18,7 @@ WtI_CHANGESTAT_FN(i_test_abs_sum_minus_5){
 
 WtU_CHANGESTAT_FN(u_test_abs_sum_minus_5){
   GET_STORAGE(double, sum);
-  *sum = weight-GETWT(tail, head);
+  *sum += weight-GETWT(tail, head);
 }
 
 WtS_CHANGESTAT_FN(s_test_abs_sum_minus_5){
