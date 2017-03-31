@@ -77,6 +77,8 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var
   novar <- diag(vcov.d)==0
   p <- p-sum(novar)
 
+  if(p==0) stop("data are essentially contstant")
+  
   ivcov.d <-ginv(vcov.d[!novar,!novar,drop=FALSE])
   
   method <- paste("Hotelling's",

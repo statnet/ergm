@@ -1,13 +1,18 @@
 InitWtErgmTerm.test.abs.sum.minus.5<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = "summary",
-                      vartypes = "logical",
-                      defaultvalues = list(TRUE),
-                      required = FALSE)
+                      varnames = c("summary","aux"),
+                      vartypes = c("logical","logical"),
+                      defaultvalues = list(TRUE, FALSE),
+                      required = c(FALSE,FALSE))
   
-  list(name=if(a$summary) "test_abs_sum_minus_5" else "test_abs_sum_minus_5_no_s",
-       coef.names=if(a$summary) "test_abs_sum_minus_5" else "test_abs_sum_minus_5_no_summary", dependence=TRUE, emptynwstats = 5,
-       minval = 0, maxval = +Inf, conflicts.constraints="sum")
+  list(name=if(a$aux) "test_abs_sum_minus_5_aux"
+            else if(a$summary) "test_abs_sum_minus_5"
+            else "test_abs_sum_minus_5_no_s",
+       coef.names=if(a$aux) "test_abs_sum_minus_5_aux"
+                  else if(a$summary) "test_abs_sum_minus_5"
+                  else "test_abs_sum_minus_5_no_summary", dependence=TRUE, emptynwstats = 5,
+       minval = 0, maxval = +Inf, conflicts.constraints="sum",
+       auxiliaries=if(a$aux) ~.sum)
 }
 
 InitWtErgmTerm..sociomatrix<-function(nw, arglist, ...) {
@@ -43,3 +48,13 @@ InitWtErgmTerm.sociomatrix<-function(nw, arglist, ...) {
        auxiliaries = ~.sociomatrix(mode))
 }
 
+InitWtErgmTerm..sum<-function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c(),
+                      vartypes = c(),
+                      defaultvalues = list(),
+                      required = c())
+
+  list(name="_sum",
+       coef.names=c(), dependence=FALSE)
+}

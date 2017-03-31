@@ -58,26 +58,6 @@
 #undef D_FROM_S_FN
 #include "R_ext/Rdynload.h"
 #include "edgelist.h"
-static inline unsigned int dEdgeListSearch(Vertex tail, Vertex head, double *el){
-static static inline unsigned int (*fun)(Vertex,Vertex,double *) = NULL;
-if(fun==NULL) fun = (static inline unsigned int (*)(Vertex,Vertex,double *)) R_FindSymbol("dEdgeListSearch", "ergm", NULL);
-return fun(tail,head,el);
-}
-static inline unsigned int iEdgeListSearch(Vertex tail, Vertex head, int *el){
-static static inline unsigned int (*fun)(Vertex,Vertex,int *) = NULL;
-if(fun==NULL) fun = (static inline unsigned int (*)(Vertex,Vertex,int *)) R_FindSymbol("iEdgeListSearch", "ergm", NULL);
-return fun(tail,head,el);
-}
-else return(0){
-static else (*fun)() = NULL;
-if(fun==NULL) fun = (else (*)()) R_FindSymbol("return", "ergm", NULL);
-return fun(0);
-}
-else return(0){
-static else (*fun)() = NULL;
-if(fun==NULL) fun = (else (*)()) R_FindSymbol("return", "ergm", NULL);
-return fun(0);
-}
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
@@ -349,6 +329,18 @@ fun(nwp,m);
 #undef EXEC_THROUGH_TERMS_INTO
 #undef UPDATE_STORAGE_COND
 #undef UPDATE_STORAGE
+#include "R_ext/Rdynload.h"
+#include "storage.h"
+#undef STORAGE
+#undef ALLOC_STORAGE
+#undef GET_STORAGE
+#undef AUX_STORAGE
+#undef ALLOC_AUX_STORAGE
+#undef GET_AUX_STORAGE
+#undef AUX_STORAGE_NUM
+#undef GET_AUX_STORAGE_NUM
+#undef ALLOC_AUX_SOCIOMATRIX
+#undef FREE_AUX_SOCIOMATRIX
 #include "R_ext/Rdynload.h"
 #include "wtchangestat.h"
 #undef MIN

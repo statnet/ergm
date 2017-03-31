@@ -176,3 +176,41 @@ void MH_DiscUnifNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {
 
   MHp->logratio += 0; // h(y) is uniform and the proposal is symmetric
 }
+
+/*********************
+ void MH_DiscUnifTwice
+
+ MH algorithm for discrete-uniform-reference ERGM, twice
+*********************/
+void MH_DiscUnif2(WtMHproposal *MHp, WtNetwork *nwp)  {  
+  double oldwt;
+  static int a, b;
+  
+  if(MHp->ntoggles == 0) { // Initialize DiscUnif 
+    MHp->ntoggles=2;
+    a = MHp->inputs[0];
+    b = MHp->inputs[1];
+    return;
+  }
+  
+  GetRandDyad(Mtail, Mhead, nwp);
+  
+  oldwt = GETWT(Mtail[0],Mhead[0]);
+
+  do{
+    Mweight[0] = floor(runif(a,b+1));
+  }while(Mweight[0]==oldwt);
+
+  do{
+    GetRandDyad(Mtail+1, Mhead+1, nwp);
+    
+    oldwt = GETWT(Mtail[1],Mhead[1]);
+    
+    do{
+      Mweight[1] = floor(runif(a,b+1));
+    }while(Mweight[1]==oldwt);
+  }while(Mtail[0]==Mtail[1] && Mhead[0]==Mhead[1]);
+  
+  MHp->logratio += 0; // h(y) is uniform and the proposal is symmetric
+}
+

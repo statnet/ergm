@@ -259,6 +259,7 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
   FOR_EACH_TOGGLE(toggle){
     EXEC_THROUGH_TERMS_INTO(m->workspace, {
 	if(mtp->c_func){
+	  if(ntoggles!=1) ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(*(tails+toggle), *(heads+toggle),
 			   mtp, nwp);  /* Call d_??? function */
 	  

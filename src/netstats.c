@@ -72,7 +72,7 @@ Network *nwp, Model *m, double *stats){
   Edge ntoggles = n_edges; // So that we can use the macros
 
   /* Initialize storage for terms that don't have s_functions.  */
-  EXEC_THROUGH_TERMS({
+  EXEC_THROUGH_TERMS_INREVERSE({
 #ifdef DEBUG
       double *dstats = mtp->dstats;
       mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
@@ -103,6 +103,7 @@ Network *nwp, Model *m, double *stats){
     
     EXEC_THROUGH_TERMS_INTO(stats, {
 	if(mtp->s_func==NULL && mtp->c_func){
+	  ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(t, h,
 			   mtp, nwp);  /* Call c_??? function */
 	  
@@ -120,6 +121,7 @@ Network *nwp, Model *m, double *stats){
   /* Calculate statistics for terms have s_functions  */
   EXEC_THROUGH_TERMS_INTO(stats, {
       if(mtp->s_func){
+	ZERO_ALL_CHANGESTATS();
 	(*(mtp->s_func))(mtp, nwp);  /* Call d_??? function */
 	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
 	  dstats[k] = mtp->dstats[k]; // Overwrite, not accumulate.
