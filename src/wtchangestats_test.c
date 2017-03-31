@@ -68,3 +68,25 @@ WtC_CHANGESTAT_FN(c_dsociomatrix){
       Dyad pos = tail-1 + (head-1)*N_NODES;
       CHANGE_STAT[pos] = weight - sm[tail][head];
 }
+
+
+WtI_CHANGESTAT_FN(i__sum){
+  ALLOC_AUX_STORAGE(1, double, sum);
+  *sum = 0;
+  EXEC_THROUGH_NET_EDGES(tail, e1, head, y, {
+      *sum+=y;
+      (void) head; (void) e1; // Prevent a compiler warning.
+    });
+}
+
+WtU_CHANGESTAT_FN(u__sum){
+  GET_AUX_STORAGE(double, sum);
+  *sum += weight-GETWT(tail, head);
+}
+
+WtC_CHANGESTAT_FN(c_test_abs_sum_minus_5_aux){
+  GET_AUX_STORAGE(double, stored_sum_ptr);
+  double sum = *stored_sum_ptr;
+    CHANGE_STAT[0] = -fabs(sum-5);
+    CHANGE_STAT[0] += fabs(sum-5 + weight - GETWT(tail,head));
+}
