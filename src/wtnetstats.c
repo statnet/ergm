@@ -97,6 +97,7 @@ WtNetwork *nwp, WtModel *m, double *stats){
     
     WtEXEC_THROUGH_TERMS_INTO(stats, {
 	if(mtp->s_func==NULL && mtp->c_func){
+	  ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
 			   mtp, nwp);  /* Call c_??? function */
 	  
@@ -114,6 +115,7 @@ WtNetwork *nwp, WtModel *m, double *stats){
   /* Calculate statistics for terms have s_functions  */
   WtEXEC_THROUGH_TERMS_INTO(stats, {
       if(mtp->s_func){
+	ZERO_ALL_CHANGESTATS();
 	(*(mtp->s_func))(mtp, nwp);  /* Call d_??? function */
 	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
 	  dstats[k] = mtp->dstats[k]; // Overwrite, not accumulate.

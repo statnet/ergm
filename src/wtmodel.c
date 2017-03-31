@@ -260,6 +260,7 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
     
     WtEXEC_THROUGH_TERMS_INTO(m->workspace, {
 	if(mtp->c_func){
+	  if(ntoggles!=1) ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
 			   mtp, nwp);  /* Call d_??? function */
 	  

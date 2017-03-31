@@ -103,6 +103,7 @@ Network *nwp, Model *m, double *stats){
     
     EXEC_THROUGH_TERMS_INTO(stats, {
 	if(mtp->s_func==NULL && mtp->c_func){
+	  ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(t, h,
 			   mtp, nwp);  /* Call c_??? function */
 	  
@@ -120,6 +121,7 @@ Network *nwp, Model *m, double *stats){
   /* Calculate statistics for terms have s_functions  */
   EXEC_THROUGH_TERMS_INTO(stats, {
       if(mtp->s_func){
+	ZERO_ALL_CHANGESTATS();
 	(*(mtp->s_func))(mtp, nwp);  /* Call d_??? function */
 	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
 	  dstats[k] = mtp->dstats[k]; // Overwrite, not accumulate.
