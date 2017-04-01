@@ -210,5 +210,15 @@ InitMHP.fixallbutTNT <- function(arguments, nw){
 }
 
 
+InitMHP.fixallbutTNT_iuf <- function(arguments, nw){
+	y0<-arguments$constraints$fixallbut$free.dyads()
+	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
+	MHproposal <- list(name = "listTNT_iuf", inputs=c(ergm.Cprepare.el(y0)), pkgname="ergm")
+	
+	MHproposal
+	
+}
+
+
 
 

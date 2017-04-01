@@ -10,10 +10,7 @@
 #include "MHproposals.h"
 #include "edgelist.h"
 #include "changestat.h"
-
-/* Shorthand. */
-#define Mtail (MHp->toggletail)
-#define Mhead (MHp->togglehead)
+#include "MHstorage.h"
 
 /*********************
  void MH_randomtoggle
@@ -490,7 +487,7 @@ void MH_randomtoggleList (MHproposal *MHp, Network *nwp)
 
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
-    nedges0 = MHp->inputs[0];
+    nedges0 = MH_INPUTS[0];
     return;
   }
   
@@ -505,8 +502,8 @@ void MH_randomtoggleList (MHproposal *MHp, Network *nwp)
 	 have a convenient sampling frame.) */
       /* Generate. */
       Edge rane = 1 + unif_rand() * nedges0;
-      Mtail[0]=MHp->inputs[rane];
-      Mhead[0]=MHp->inputs[nedges0+rane];
+      Mtail[0]=MH_INPUTS[rane];
+      Mhead[0]=MH_INPUTS[nedges0+rane];
     });
 }
 
@@ -527,15 +524,15 @@ void MH_listTNT(MHproposal *MHp, Network *nwp)
   static double comp=0.5, odds;
   static Dyad ndyads;
   static double *list;
-  Network *intersect = (Network *) MHp->aux_storage[(unsigned int) MHp->inputs[0]];
+  GET_AUX_STORAGE(Network, intersect);
   
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
     odds = comp/(1.0-comp);
 
-    ndyads = MHp->inputs[1]; // Note that ndyads here is the number of dyads in the list.
+    ndyads = MH_INPUTS[1]; // Note that ndyads here is the number of dyads in the list.
 
-    list = MHp->inputs+1;
+    list = MH_INPUTS+1;
     
     return;
   }
@@ -569,6 +566,83 @@ void MH_listTNT(MHproposal *MHp, Network *nwp)
   MHp->logratio += logratio;
 }
 
+
+/********************
+   void MH_listTNT
+   Propose ONLY edges on a static list
+   Use TNT weights.
+   This is a fusion of MH_DissolutionMLETNT and MH_TNT:
+
+   The "intersect" network is requested that is the intersection of
+   dyads on the static list and the edges present in nwp. Then,
+   standard TNT procedure is followed, but the dyad space (and the
+   number of dyads) is the number of dyads in the static list and the
+   network for the ties is the ties in the intersect network.
+***********************/
+void Mi_listTNT_iuf(MHproposal *MHp, Network *nwp) 
+{
+  Dyad ndyads = MH_INPUTS[1]; // Note that ndyads here is the number of dyads in the list.
+  double *list = MH_INPUTS+1;
+  ALLOC_STORAGE(1, Network, intersect);
+  *intersect = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
+  for(Edge i=0; i<ndyads; i++){
+    Vertex tail=list[i], head=list[ndyads+i];
+    if(IS_OUTEDGE(tail, head)!=0)
+      ToggleEdge(tail,head, intersect);
+  }
+  
+  MHp->ntoggles=1;
+}
+
+void Mu_listTNT_iuf(Vertex tail, Vertex head, MHproposal *MHp, Network *nwp) 
+{
+  GET_STORAGE(Network, intersect);
+  ToggleEdge(tail,head, intersect);
+}
+
+void Mp_listTNT_iuf(MHproposal *MHp, Network *nwp) 
+{
+  const double comp=0.5, odds=comp/(1.0-comp);
+  Dyad ndyads = MH_INPUTS[1]; // Note that ndyads here is the number of dyads in the list.
+  double *list = MH_INPUTS+1;
+
+  GET_STORAGE(Network, intersect);
+
+  Edge nedges=intersect->nedges;
+  
+  double logratio=0;
+  BD_LOOP({
+      if (unif_rand() < comp && nedges > 0) { /* Select a tie at random from the network of eligibles */
+	GetRandEdge(Mtail, Mhead, intersect);
+	/* Thanks to Robert Goudie for pointing out an error in the previous 
+	   version of this sampler when proposing to go from nedges==0 to nedges==1 
+	   or vice versa.  Note that this happens extremely rarely unless the 
+	   network is small or the parameter values lead to extremely sparse 
+	   networks.  */
+	logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+			      nedges / (odds*ndyads + nedges)));
+      }else{ /* Select a dyad at random from the list */
+	Edge rane = 1 + unif_rand() * ndyads;
+	Mtail[0]=list[rane];
+	Mhead[0]=list[ndyads+rane];
+	
+	if(EdgetreeSearch(Mtail[0],Mhead[0],intersect->outedges)!=0){
+	  logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+				nedges / (odds*ndyads + nedges)));
+	}else{
+	  logratio = log((nedges==0 ? comp*ndyads + (1.0-comp) :
+				1.0 + (odds*ndyads)/(nedges + 1)));
+	}
+      }
+    });
+  MHp->logratio += logratio;
+}
+
+void Mf_listTNT_iuf(MHproposal *MHp, Network *nwp) 
+{
+  GET_STORAGE(Network, intersect);
+  NetworkDestroy(intersect);
+}
 
 /* The ones below have not been tested */
 
@@ -622,7 +696,7 @@ void MH_ConstrainedCondOutDegDist (MHproposal *MHp, Network *nwp){
   }
   
   for(k=0; k < 2; k++){
-    if (dEdgeListSearch(Mtail[k], Mhead[k], MHp->inputs)==0){
+    if (dEdgeListSearch(Mtail[k], Mhead[k], MH_INPUTS)==0){
       Mtail[0] = Mhead[0] = 0;
       Mtail[1] = Mhead[1] = 0;
     }
@@ -1071,7 +1145,7 @@ void MH_ConstrainedCondDegDist (MHproposal *MHp, Network *nwp)  {
       Mhead[0] = head;
     }
   
-  if (dEdgeListSearch(Mtail[0], Mhead[0], MHp->inputs)==0){
+  if (dEdgeListSearch(Mtail[0], Mhead[0], MH_INPUTS)==0){
     Mtail[0] = Mhead[0] = 0;
     Mtail[1] = Mhead[1] = 0;
   }
@@ -1112,7 +1186,7 @@ void MH_ConstrainedCondDegDist (MHproposal *MHp, Network *nwp)  {
       Mhead[1] = tail;
     }
   
-  if (dEdgeListSearch(Mtail[1], Mhead[1], MHp->inputs)==0){
+  if (dEdgeListSearch(Mtail[1], Mhead[1], MH_INPUTS)==0){
     Mtail[0] = Mhead[0] = 0;
     Mtail[1] = Mhead[1] = 0;
   }
@@ -1351,7 +1425,7 @@ void MH_ConstrainedTwoRandomToggles (MHproposal *MHp,
       Mtail[i] = 1 + unif_rand() * N_NODES; 
       while ((Mhead[i] = 1 + unif_rand() * N_NODES) == Mtail[i]);
       
-      while(dEdgeListSearch(Mtail[i], Mhead[i], MHp->inputs)==0){
+      while(dEdgeListSearch(Mtail[i], Mhead[i], MH_INPUTS)==0){
 	Mtail[i] = 1 + unif_rand() * N_NODES; 
 	while ((Mhead[i] = 1 + unif_rand() * N_NODES) == Mtail[i]);
       }

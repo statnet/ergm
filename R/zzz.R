@@ -58,6 +58,7 @@
   ergm.MHP.table("c", "Bernoulli", "fixedas",  1, "TNT", "fixedasTNT")
   ergm.MHP.table("c", "Bernoulli", "fixallbut",  0, "random", "fixallbut")
   ergm.MHP.table("c", "Bernoulli", "fixallbut",  1, "TNT", "fixallbutTNT")
+  ergm.MHP.table("c", "Bernoulli", "fixallbut",  1, "TNT_aux", "fixallbutTNT_aux")
   ergm.MHP.table("c", "Bernoulli", "dyadnoise",  1, "TNT", "dyadnoiseTNT")
   ergm.MHP.table("c", "Bernoulli", "dyadnoise",  0, "random", "dyadnoise")
   
