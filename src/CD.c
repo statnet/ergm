@@ -158,14 +158,13 @@ MCMCStatus CDStep(MHproposal *MHp,
 		  Model *m, double* extraworkspace) {
 
   unsigned int unsuccessful=0, ntoggled=0;
-  unsigned int nsteps=CDparams[0], multiplicity=multiplicity;
 
-  for(unsigned int step=0; step<nsteps; step++){
+  for(unsigned int step=0; step<CDparams[0]; step++){
     unsigned int mtoggled=0;
     memset(extraworkspace, 0, m->n_stats*sizeof(double));
     double cumlr = 0;
     
-    for(unsigned int mult=0; mult<multiplicity; mult++){
+    for(unsigned int mult=0; mult<CDparams[1]; mult++){
       MHp->logratio = 0;
       (*(MHp->p_func))(MHp, nwp); /* Call MH function to propose toggles */
 
@@ -189,7 +188,7 @@ MCMCStatus CDStep(MHproposal *MHp,
 	  
 	case MH_CONSTRAINT:
 	  MHp->logratio = -INFINITY; // Force rejection of proposal.
-	  break; // Do not attempt any more proposals in this multiplicity chain.
+	  break; // Do not attempt any more proposals in this CDparams[1] chain.
 	}
       }
       
@@ -216,7 +215,7 @@ MCMCStatus CDStep(MHproposal *MHp,
 	Rprintf(")\n");
       }
 
-      if(mult<multiplicity-1){
+      if(mult<CDparams[1]-1){
 	/* Make proposed toggles provisionally. */
 	for(unsigned int i=0; i < MHp->ntoggles; i++){
 	  undotail[ntoggled]=MHp->toggletail[i];
@@ -262,7 +261,7 @@ MCMCStatus CDStep(MHproposal *MHp,
       }
       (*staken)++; 
 
-      if(step<nsteps-1){
+      if(step<CDparams[0]-1){
 	/* Make the remaining proposed toggles (which we did not make provisionally) */
 	/* Then, make the changes. */
 	for(unsigned int i=0; i < MHp->ntoggles; i++){
