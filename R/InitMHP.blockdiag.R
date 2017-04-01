@@ -66,78 +66,93 @@
   list(values=o, lengths1=l1, lengths2=l2)
 }
 
-.InitMHP.blockdiag.bipartite.setup <- function(arguments, nw){
+#' @title Compute and serialize information needed by the block-diagonal
+#' Metropolis-Hastings samplers.
+#'
+#' @description Given a nodal attribute vector specifying the blocks
+#'   and (optionally) bipartite information, returns a list containing
+#'   information needed to efficiently sample at random dyads in those blocks.
+#'
+#' @param nw the network of interest.
+#' @param a either a vector (of any mode) or a vertex attribute of
+#'   \code{nw} whose \eqn{i}th element identifies the block to which
+#'   vertex \eqn{i} belongs. Blocks must be continguous.
+#' 
+#' @return A list with the following elements:
+#' \describe{
+#'
+#' \item{\code{nblk}} number of blocks
+#' 
+#' \item{\code{pos} (for unipartite), \code{b1pos} and \code{b2pos}
+#' (for bipartite)} vectors of length \code{nblk+1} such that
+#' \code{pos[i]+1}:\code{pos[i+1]} are the numbers of the vertices in
+#' block \code{i}.
+#'
+#' \item{\code{cumwt}} vector of length \code{nblk} with values such
+#' that generating \eqn{U\sim \mathrm{Uniform}(0,1)} selecting the
+#' index of the first element in \code{cumwt} that is greater than
+#' \eqn{U} will sample from the blocks in proportion to the number of
+#' dyads in the block.
+#'
+#' }
+#'
+#' In addition, an attribute \code{ndyads} is attached, containing the
+#' total number of dyads in all blocks put together.
+#'
+#' \code{unlist(pack.BlockDiagInfo_as_num(nw, blkattr)} can be
+#' passed as input to an MH proposal function that knows how to parse
+#' it.
+#' 
+#' @export
+pack.BlockDiagInfo_as_num <- function(nw, a){
   bip <- nw %n% "bipartite"
-
-  ea <- (nw %v% arguments$constraints$blockdiag$attrname)[seq_len(bip)]
-  aa <- (nw %v% arguments$constraints$blockdiag$attrname)[bip+seq_len(network.size(nw)-bip)]
+  a <- if(length(a)>1) a else nw %v% a
+  if(bip){
+    ea <- a[seq_len(bip)]
+    aa <- a[bip+seq_len(network.size(nw)-bip)]
   
-  ## rle() returns contigous runs of values.
-  # If we have more runs than unique values, the blocks must not be all contiguous.
-  if(length(rle(ea)$lengths)!=length(unique(rle(ea)$values)) || length(rle(aa)$lengths)!=length(unique(rle(aa)$values))) stop("Current implementation of block-diagonal sampling requires that the blocks of the egos and the alters be contiguous. See help('ergm-constraionts') for more information.")
+    ## rle() returns contigous runs of values.
+    # If we have more runs than unique values, the blocks must not be all contiguous.
+    if(length(rle(ea)$lengths)!=length(unique(rle(ea)$values)) || length(rle(aa)$lengths)!=length(unique(rle(aa)$values))) stop("Current implementation of block-diagonal sampling requires that the blocks of the egos and the alters be contiguous. See help('ergm-constraionts') for more information.")
 
-  tmp <- .double.rle(ea, aa)
+    tmp <- .double.rle(ea, aa)
 
-  nd <- sum(tmp$lengths1*tmp$lengths2)
-  eb <- cumsum(c(0,tmp$lengths1)) # upper bounds of ego blocks
-  ab <- cumsum(c(0,tmp$lengths2))+bip # upper bounds of alter blocks
-  w <- cumsum(tmp$lengths1*tmp$lengths2) # cumulative block weights ~ # dyads in the block
-  w <- w/max(w)
-  # Note that this automagically takes care of singleton blocks by giving them weight 0.
-
-  list(nd=nd, eb=eb, ab=ab, w=w)
+    eb <- cumsum(c(0,tmp$lengths1)) # upper bounds of ego blocks
+    ab <- cumsum(c(0,tmp$lengths2))+bip # upper bounds of alter blocks
+    w <- cumsum(tmp$lengths1*tmp$lengths2) # cumulative block weights ~ # dyads in the block
+    w <- w/max(w)
+    # Note that this automagically takes care of singleton blocks by giving them weight 0.
+    out <- list(nblk=length(w),  b1pos=eb, b2pos=ab, cumwt=w)
+    attr(out, "ndyads") <- sum(tmp$lengths1*tmp$lengths2)
+  }else{
+    ## rle() returns contigous runs of values.
+    a <- rle(a)
+    # If we have more runs than unique values, the blocks must not be all contiguous.
+    if(length(a$lengths)!=length(unique(a$values))) stop("Current implementation of block-diagonal sampling requires that the blocks be contiguous.")
+    b <- cumsum(c(0,a$lengths)) # upper bounds of blocks
+    w <- cumsum(a$lengths*(a$lengths-1)) # cumulative block weights ~ # dyads in the block
+    w <- w/max(w)
+    # Note that this automagically takes care of singleton blocks by giving them weight 0.
+    out <- list(nblk=length(w),  pos=b, cumwt=w)
+    attr(out, "ndyads") <- sum(a$lengths*(a$lengths-1)/(if(is.directed(nw)) 1 else 2))
+  }
+  return(out)
 }
 
 InitMHP.blockdiag <- function(arguments, nw){
-  if(is.bipartite(nw)) return(.InitMHP.blockdiag.bipartite(arguments, nw))
-  # rle() returns contigous runs of values.
-  a <- rle(nw %v% arguments$constraints$blockdiag$attrname)
-  # If we have more runs than unique values, the blocks must not be all contiguous.
-  if(length(a$lengths)!=length(unique(a$values))) stop("Current implementation of block-diagonal sampling requires that the blocks be contiguous.")
-  b <- cumsum(c(0,a$lengths)) # upper bounds of blocks
-  w <- cumsum(a$lengths*(a$lengths-1)) # cumulative block weights ~ # dyads in the block
-  w <- w/max(w)
-  # Note that this automagically takes care of singleton blocks by giving them weight 0.
-  
-  MHproposal <- list(name = "blockdiag", inputs=c(length(b)-1,  b, w))
-  MHproposal
+  BDI <- pack.BlockDiagInfo_as_num(nw, arguments$constraints$blockdiag$attrname)  
+  list(name = "blockdiag", inputs=unlist(BDI))
 }
-
-.InitMHP.blockdiag.bipartite <- function(arguments, nw){
-  tmp <- .InitMHP.blockdiag.bipartite.setup(arguments, nw)  
-  MHproposal <- list(name = "blockdiag", inputs=c(length(tmp$eb)-1, tmp$eb, tmp$ab, tmp$w))
-  MHproposal
-}
-
 
 InitMHP.blockdiagTNT <- function(arguments, nw){
-  if(is.bipartite(nw)) return(.InitMHP.blockdiagTNT.bipartite(arguments, nw))
-
   el <- as.edgelist(nw)
   a <- nw %v% arguments$constraints$blockdiag$attrname
   
   if(any(a[el[,1]]!=a[el[,2]])) stop("Block-diagonal TNT sampler implementation does not support sampling networks with off-block-diagonal ties at this time.")
 
+  BDI <- pack.BlockDiagInfo_as_num(nw, arguments$constraints$blockdiag$attrname)
   
-  # rle() returns contigous runs of values.
-  a <- rle(a)
-  # If we have more runs than unique values, the blocks must not be all contiguous.
-  if(length(a$lengths)!=length(unique(a$values))) stop("Current implementation of block-diagonal sampling requires that the blocks be contiguous.")
-
-  nd <- sum(a$lengths*(a$lengths-1)/(if(is.directed(nw)) 1 else 2))
-  b <- cumsum(c(0,a$lengths)) # upper bounds of blocks
-  w <- cumsum(a$lengths*(a$lengths-1)) # cumulative block weights ~ # dyads in the block
-  w <- w/max(w)
-  # Note that this automagically takes care of singleton blocks by giving them weight 0.
-  
-  MHproposal <- list(name = "blockdiagTNT", inputs=c(nd, length(b)-1,  b, w))
-  MHproposal
-}
-
-.InitMHP.blockdiagTNT.bipartite <- function(arguments, nw){
-  tmp <- .InitMHP.blockdiag.bipartite.setup(arguments, nw)  
-  MHproposal <- list(name = "blockdiagTNT", inputs=c(tmp$nd, length(tmp$eb)-1, tmp$eb, tmp$ab, tmp$w))
-  MHproposal
+  list(name = "blockdiagTNT", inputs=c(attr(BDI,"ndyads"), unlist(BDI)))
 }
 
 ## Helper function, since the following two have the same body except for the MH_ function.
@@ -149,8 +164,7 @@ InitMHP.blockdiagTNT <- function(arguments, nw){
   el <- as.edgelist(is.na(nw))
   el <- el[a[el[,1]]==a[el[,2]],,drop=FALSE]
   
-  MHproposal <- c(list(inputs=ergm.Cprepare.el(el)), list(...))
-  MHproposal
+  c(list(inputs=ergm.Cprepare.el(el)), list(...))
 }
 
 
