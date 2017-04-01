@@ -41,7 +41,6 @@ MH_P_FN(MH_blockdiag){
    Block-diagonal TNT sampling
 ***********************/
 MH_P_FN(MH_blockdiagTNT){
-{
   /* *** don't forget tail-> head now */
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
@@ -50,13 +49,12 @@ MH_P_FN(MH_blockdiagTNT){
 
   const double comp=0.5, odds = comp/(1.0-comp);
   
-  Dyad ndyads = *MH_INPUTS;
+  Dyad ndyads = MH_INPUTS[0];
   MH_BlockDiagInfo b = unpack_BlockDiagInfo(MH_INPUTS+1, BIPARTITE, DIRECTED);
   Edge nedges=nwp->nedges;
   
   double logratio=0; 
 
-  
   BD_LOOP({
       if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
 	// Note that, by construction, this tie will be within a block.
@@ -66,10 +64,10 @@ MH_P_FN(MH_blockdiagTNT){
 	   or vice versa.  Note that this happens extremely rarely unless the 
 	   network is small or the parameter values lead to extremely sparse 
 	   networks.  */
-	logratio = log((nedges==1 ? 1.0/(comp*b.ndyads + (1.0-comp)) :
-			 nedges / (odds*b.ndyads + nedges)));
+	logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+			 nedges / (odds*ndyads + nedges)));
       }else{ /* Select a dyad at random within a block */
-	GetRendDyadBlockDiag(Mtail, Mhead, &b);
+	GetRandDyadBlockDiag(Mtail, Mhead, &b);
 	
 	if(IS_OUTEDGE(Mtail[0],Mhead[0])!=0){
 	  logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
