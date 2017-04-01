@@ -55,12 +55,13 @@ typedef struct {
 } MH_BlockDiagInfo;
 
 static inline MH_BlockDiagInfo unpack_BlockDiagInfo(double *inputs, Vertex bipartite, unsigned int directed_flag){
+  Vertex n = inputs[0]; // number of blocks
   MH_BlockDiagInfo out = {
     .directed_flag=directed_flag,
-    .n=inputs[0],
+    .n=n,
     .epos=inputs+1,
-    .apos=bipartite ? inputs+2+(Vertex)(inputs[1]) : inputs+1,
-    .cwt=bipartite ? inputs+3+(Vertex)(inputs[1])+(Vertex)(inputs[1]) : inputs+2+(Vertex)(inputs[1])
+    .apos=bipartite ? inputs+2+n : inputs+1,
+    .cwt=bipartite ? inputs+3+n+n : inputs+2+n
   };
   return out;
 }
@@ -68,6 +69,7 @@ static inline MH_BlockDiagInfo unpack_BlockDiagInfo(double *inputs, Vertex bipar
 static inline void GetRandDyadBlockDiag(Vertex *tail, Vertex *head, const MH_BlockDiagInfo *b){
   Vertex blk = 1, t, h;
   double r = unif_rand();
+  // FIXME: Change to a binary search to change from O(b->n) to O(log(b->n)).
   while(r>b->cwt[blk-1]) blk++;
   t = b->epos[blk-1]+1 + unif_rand() * (b->epos[blk]-b->epos[blk-1]);
   while ((h = b->apos[blk-1]+1 + unif_rand() * (b->apos[blk]-b->apos[blk-1])) == t);
