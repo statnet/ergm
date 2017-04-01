@@ -234,6 +234,25 @@ return fun(MHp,nwp);
 #undef XNOR
 #undef BD_LOOP
 #undef BD_COND_LOOP
+#undef MH_INPUTS
+#undef Mtail
+#undef Mhead
+#include "R_ext/Rdynload.h"
+#include "MHstorage.h"
+#undef MH_STORAGE
+#undef MH_ALLOC_STORAGE
+#undef MH_GET_STORAGE
+#undef MH_AUX_STORAGE
+#undef MH_GET_AUX_STORAGE
+#undef MH_AUX_STORAGE_NUM
+#undef MH_GET_AUX_STORAGE_NUM
+#undef STORAGE
+#undef ALLOC_STORAGE
+#undef GET_STORAGE
+#undef AUX_STORAGE
+#undef GET_AUX_STORAGE
+#undef AUX_STORAGE_NUM
+#undef GET_AUX_STORAGE_NUM
 #include "R_ext/Rdynload.h"
 #include "model.h"
 Model* ModelInitialize(char *fnames, char *sonames, double **inputs,int n_terms){
@@ -337,6 +356,9 @@ fun(nwp,m);
 #undef XNOR
 #undef BD_LOOP
 #undef BD_COND_LOOP
+#undef MH_INPUTS
+#undef Mtail
+#undef Mhead
 #undef FOR_EACH_TERM
 #undef EXEC_THROUGH_TERMS
 #undef FOR_EACH_TERM_INREVERSE
@@ -632,6 +654,10 @@ fun(MH,nwp);
 #undef MH_QUIT_UNSUCCESSFUL
 #undef XOR
 #undef XNOR
+#undef MH_INPUTS
+#undef Mtail
+#undef Mhead
+#undef Mweight
 #include "R_ext/Rdynload.h"
 #include "wtmodel.h"
 WtModel* WtModelInitialize(char *fnames, char *sonames, double **inputs,int n_terms){
@@ -784,6 +810,10 @@ fun(nwp,m);
 #undef MH_QUIT_UNSUCCESSFUL
 #undef XOR
 #undef XNOR
+#undef MH_INPUTS
+#undef Mtail
+#undef Mhead
+#undef Mweight
 #undef WtFOR_EACH_TERM
 #undef WtEXEC_THROUGH_TERMS
 #undef WtFOR_EACH_TERM_INREVERSE
