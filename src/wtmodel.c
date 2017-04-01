@@ -13,7 +13,7 @@
 /*****************
   void WtModelDestroy
 ******************/
-void WtModelDestroy(WtModel *m, WtNetwork *nwp)
+void WtModelDestroy(WtNetwork *nwp, WtModel *m)
 {  
   WtDestroyStats(nwp, m);
   
@@ -274,14 +274,14 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
 
     /* Update storage and network */    
     IF_MORE_TO_COME{
-      WtUPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, m, nwp, mtp->d_func==NULL);
+      WtUPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, nwp, m, mtp->d_func==NULL);
       SETWT_WITH_BACKUP();
     }
   }
   /* Undo previous storage updates and toggles */
   UNDO_PREVIOUS{
     GETOLDTOGGLEINFO();
-    WtUPDATE_STORAGE_COND(TAIL,HEAD,weights[TOGGLEIND], m, nwp, mtp->d_func==NULL);
+    WtUPDATE_STORAGE_COND(TAIL,HEAD,weights[TOGGLEIND], nwp, m, mtp->d_func==NULL);
     SETWT(TAIL,HEAD,weights[TOGGLEIND]);
     weights[TOGGLEIND]=OLDWT;
   }

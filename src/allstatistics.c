@@ -108,7 +108,7 @@ void AllStatistics (
            cumulativeStats, covmat, weightsvector, *maxNumDyadTypes, nwp, m);
 
   /* Step 5:  Deallocate memory and return */
-  ModelDestroy(m, nwp);
+  ModelDestroy(nwp, m);
   NetworkDestroy(nwp);
   PutRNGstate(); /* Must be called after GetRNGstate before returning to R */
 }
@@ -147,7 +147,7 @@ void RecurseOffOn(
       });
     
     /* Inform u_* functions that the network is about to change. */
-    UPDATE_STORAGE(*(nodelist1+currentnodes), *(nodelist2+currentnodes), m, nwp);
+    UPDATE_STORAGE(*(nodelist1+currentnodes), *(nodelist2+currentnodes), nwp, m);
     
     for (int j=0; j < m->n_stats; j++) cumulativeStats[j] += changeStats[j];
     /* Now toggle the dyad so it's ready for the next pass */

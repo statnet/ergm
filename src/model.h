@@ -59,7 +59,7 @@ typedef struct Modelstruct {
     statistics; then restore it. Otherwise, don't bother. */
 #ifdef DEBUG
 
-#define UPDATE_STORAGE_COND(tail, head, m, nwp, cond){			\
+#define UPDATE_STORAGE_COND(tail, head, nwp, m, cond){			\
     EXEC_THROUGH_TERMS({						\
       double *dstats = mtp->dstats; /* Back up mtp->dstats. */		\
       mtp->dstats = NULL; /* Trigger segfault if u_func tries to write to change statistics. */ \
@@ -72,7 +72,7 @@ typedef struct Modelstruct {
 #else
 
 
-#define UPDATE_STORAGE_COND(tail, head, m, nwp, cond){			\
+#define UPDATE_STORAGE_COND(tail, head, nwp, m, cond){			\
     EXEC_THROUGH_TERMS({						\
 	if(mtp->u_func && (cond))					\
 	  (*(mtp->u_func))(tail, head, mtp, nwp);  /* Call u_??? function */ \
@@ -81,14 +81,14 @@ typedef struct Modelstruct {
 
 #endif
 
-#define UPDATE_STORAGE(tail, head, m, nwp){				\
-  UPDATE_STORAGE_COND(tail, head, m, nwp, TRUE);			\
+#define UPDATE_STORAGE(tail, head, nwp, m){				\
+  UPDATE_STORAGE_COND(tail, head, nwp, m, TRUE);			\
   }
 
 Model* ModelInitialize (char *fnames, char *sonames, double **inputs,
 			int n_terms);
 
-void ModelDestroy(Model *m, Network *nwp);
+void ModelDestroy(Network *nwp, Model *m);
 
 /* A Model object contains information about an entire ERGM, including the
    total numbers of terms, parameters, and statistics along with a pointer
