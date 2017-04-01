@@ -11,6 +11,7 @@
 #include "edgelist.h"
 #include "changestat.h"
 #include "MHblockdiag.h"
+#include "MHstorage.h"
 
 /* Shorthand. */
 
@@ -19,19 +20,17 @@
 
  Block-diagonal sampling
 *********************/
-MH_P_FN(MH_blockdiag){
+MH_I_FN(Mi_blockdiag){
+  ALLOC_STORAGE(1, MH_BlockDiagInfo, b);
+  *b = unpack_BlockDiagInfo(MH_INPUTS, BIPARTITE, DIRECTED);
+  MHp->ntoggles=1;
+}
 
-  /* *** don't forget tail-> head now */
+MH_P_FN(Mp_blockdiag){
+  GET_STORAGE(MH_BlockDiagInfo, b);
 
-  MH_BlockDiagInfo b = unpack_BlockDiagInfo(MH_INPUTS, BIPARTITE, DIRECTED);
-  
-  if(MHp->ntoggles == 0) { /* Initialize randomtoggle */
-    MHp->ntoggles=1;
-    return;
-  }
-  
   BD_LOOP({
-      GetRandDyadBlockDiag(Mtail, Mhead, &b);
+      GetRandDyadBlockDiag(Mtail, Mhead, b);
     });
 }
 
@@ -40,17 +39,18 @@ MH_P_FN(MH_blockdiag){
 
    Block-diagonal TNT sampling
 ***********************/
-MH_P_FN(MH_blockdiagTNT){
-  /* *** don't forget tail-> head now */
-  if(MHp->ntoggles == 0) { /* Initialize */
-    MHp->ntoggles=1;
-    return;
-  }
+MH_I_FN(Mi_blockdiagTNT){
+  ALLOC_STORAGE(1, MH_BlockDiagInfo, b);
+  *b = unpack_BlockDiagInfo(MH_INPUTS+1, BIPARTITE, DIRECTED);
+  MHp->ntoggles=1;
+}
+
+MH_P_FN(Mp_blockdiagTNT){
+  GET_STORAGE(MH_BlockDiagInfo, b);
 
   const double comp=0.5, odds = comp/(1.0-comp);
   
   Dyad ndyads = MH_INPUTS[0];
-  MH_BlockDiagInfo b = unpack_BlockDiagInfo(MH_INPUTS+1, BIPARTITE, DIRECTED);
   Edge nedges=nwp->nedges;
   
   double logratio=0; 
@@ -67,7 +67,7 @@ MH_P_FN(MH_blockdiagTNT){
 	logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
 			 nedges / (odds*ndyads + nedges)));
       }else{ /* Select a dyad at random within a block */
-	GetRandDyadBlockDiag(Mtail, Mhead, &b);
+	GetRandDyadBlockDiag(Mtail, Mhead, b);
 	
 	if(IS_OUTEDGE(Mtail[0],Mhead[0])!=0){
 	  logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
