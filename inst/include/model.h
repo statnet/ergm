@@ -67,7 +67,7 @@ typedef struct Modelstruct {
 #endif
 
 #define UPDATE_STORAGE_COND(tail, head, nwp, m, MHp, cond){		\
-    if(MHp && MHp->u_func) ((MHproposal*)MHp)->u_func(tail, head, MHp, nwp); \
+    if(MHp && ((MHproposal*)MHp)->u_func) ((MHproposal*)MHp)->u_func(tail, head, MHp, nwp); \
     EXEC_THROUGH_TERMS({						\
 	  IFDEBUG_BACKUP_DSTATS;					\
 	  if(mtp->u_func && (cond))					\
