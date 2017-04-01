@@ -79,6 +79,13 @@ void WtMH_init(WtMHproposal *MH,
 
 void WtMH_free(WtMHproposal *MH, WtNetwork *nwp);
 
+/* Helper macros */
+#define MH_INPUTS MHp->inputs
+
+#define Mtail (MHp->toggletail)
+#define Mhead (MHp->togglehead)
+#define Mweight (MHp->toggleweight)
+
 #endif 
 
 
