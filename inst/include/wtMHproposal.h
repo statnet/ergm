@@ -54,25 +54,42 @@
 /* *** don't forget tail-> head */
 
 typedef struct WtMHproposalstruct {
-  void (*func)(struct WtMHproposalstruct*, WtNetwork*);
+  void (*i_func)(struct WtMHproposalstruct*, WtNetwork*);
+  void (*p_func)(struct WtMHproposalstruct*, WtNetwork*);
+  void (*u_func)(Vertex tail, Vertex head, double weight, struct WtMHproposalstruct*, WtNetwork*);
+  void (*f_func)(struct WtMHproposalstruct*, WtNetwork*);
   Edge ntoggles;
   Vertex *toggletail;
   Vertex *togglehead;
   double *toggleweight;
   double logratio;
   int status;
-  WtNetwork **discord;
   double *inputs; /* may be used if needed, ignored if not. */
+  void *storage;
+  void **aux_storage;
 } WtMHproposal;
 
 
 void WtMH_init(WtMHproposal *MH, 
-	     char *MHproposaltype, char *MHproposalpackage, 
+	       char *MHproposaltype, char *MHproposalpackage, 
 	       double *inputs,
-	     int fVerbose,
-	     WtNetwork *nwp);
+	       int fVerbose,
+	       WtNetwork *nwp,
+	       void **aux_storage);
 
-void WtMH_free(WtMHproposal *MH);
+void WtMH_free(WtMHproposal *MH, WtNetwork *nwp);
+
+/* Helper macros */
+#define MH_INPUTS MHp->inputs
+
+#define Mtail (MHp->toggletail)
+#define Mhead (MHp->togglehead)
+#define Mweight (MHp->toggleweight)
+
+#define WtMH_I_FN(a) void (a) (WtMHproposal *MHp, WtNetwork *nwp)
+#define WtMH_U_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtMHproposal *MHp, WtNetwork *nwp)
+#define WtMH_P_FN(a) void (a) (WtMHproposal *MHp, WtNetwork *nwp)
+#define WtMH_F_FN(a) void (a) (WtMHproposal *MHp, WtNetwork *nwp)
 
 #endif 
 

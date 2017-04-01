@@ -46,7 +46,7 @@ void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timi
      statistics will simply overwrite them.*/
   WtSummStats(n_edges, tails, heads, weights, nw, m,stats);
   
-  WtModelDestroy(m, nw);
+  WtModelDestroy(nw, m);
   WtNetworkDestroy(nw);
 }
 
@@ -67,17 +67,12 @@ WtNetwork *nwp, WtModel *m, double *stats){
 
   /* Initialize storage for terms that don't have s_functions.  */
   WtEXEC_THROUGH_TERMS_INREVERSE({
-#ifdef DEBUG
-      double *dstats = mtp->dstats;
-      mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
-#endif
+      IFDEBUG_BACKUP_DSTATS;
       if(mtp->s_func==NULL && mtp->i_func)
 	(*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
       else if(mtp->s_func==NULL && mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
 	(*(mtp->u_func))(0, 0, 0, mtp, nwp);  /* Call u_??? function */
-#ifdef DEBUG
-      mtp->dstats = dstats;
-#endif
+      IFDEBUG_RESTORE_DSTATS;
     });
     
   /* Calculate statistics for terms that don't have c_functions or s_functions.  */
@@ -97,6 +92,7 @@ WtNetwork *nwp, WtModel *m, double *stats){
     
     WtEXEC_THROUGH_TERMS_INTO(stats, {
 	if(mtp->s_func==NULL && mtp->c_func){
+	  ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
 			   mtp, nwp);  /* Call c_??? function */
 	  
@@ -107,13 +103,14 @@ WtNetwork *nwp, WtModel *m, double *stats){
       });
     
     /* Update storage and network */    
-    WtUPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, m, nwp, mtp->s_func==NULL && mtp->d_func==NULL);
+    WtUPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, nwp, m, NULL, mtp->s_func==NULL && mtp->d_func==NULL);
     SETWT(TAIL, HEAD, NEWWT);
   }
   
   /* Calculate statistics for terms have s_functions  */
   WtEXEC_THROUGH_TERMS_INTO(stats, {
       if(mtp->s_func){
+	ZERO_ALL_CHANGESTATS();
 	(*(mtp->s_func))(mtp, nwp);  /* Call d_??? function */
 	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
 	  dstats[k] = mtp->dstats[k]; // Overwrite, not accumulate.

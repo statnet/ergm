@@ -27,7 +27,7 @@ ergm.bridge.preproc<-function(object, basis, response){
   # New formula (no longer use 'object'):
   form <- ergm.update.formula(object, nw ~ ., from.new="nw")
   
-  list(nw=nw, form=form, model=ergm.getmodel(form, nw, response=response))
+  list(nw=nw, form=form)
 }
 
 
@@ -44,13 +44,10 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   
   ## Here, we need to get the model object to get the likelihood and gradient functions.
   tmp<-ergm.bridge.preproc(object,basis,response)
-  nw<-tmp$nw; m<-tmp$model; form<-tmp$form; rm(tmp)
-
+  nw<-tmp$nw; form<-tmp$form; rm(tmp)
 
   ## Generate the path.
   path<-t(rbind(sapply(seq(from=0+1/2/(control$nsteps+1),to=1-1/2/(control$nsteps+1),length.out=control$nsteps),function(u) cbind(to*u + from*(1-u)))))
-
-  stats<-matrix(NA,control$nsteps,m$etamap$etalength)
 
   tmp <- .handle.obs.constraints(nw, constraints, obs.constraints, target.stats)
   nw <- tmp$nw
@@ -60,14 +57,19 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   ## Preinitialize MHproposals and set "observed" statistics:
   MHproposal <- MHproposal(constraints,arguments=control$MCMC.prop.args,
                            nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
+  m<-ergm.getmodel(object, nw, response=response, extra.aux=list(MHproposal$auxiliaries))
 
   if(!is.null(constraints.obs)){
     MHproposal.obs <- MHproposal(constraints.obs,arguments=control$obs.MCMC.prop.args,
                                  nw=nw, weights=control$obs.MCMC.prop.weights, class="c",reference=reference,response=response)
+    m.obs<-ergm.getmodel(object, nw, response=response, extra.aux=list(MHproposal.obs$auxiliaries))
+
     stats.obs <- matrix(NA,control$nsteps,m$etamap$etalength)
-  }else stats.obs<-matrix(NVL(target.stats,ergm.getglobalstats(nw, m, response=response)),control$nsteps,m$etamap$etalength,byrow=TRUE)  
+  }else
+    stats.obs<-matrix(NVL(target.stats,ergm.getglobalstats(nw, m, response=response)),control$nsteps,m$etamap$etalength,byrow=TRUE)
 
-
+  stats<-matrix(NA,control$nsteps,m$etamap$etalength)
+  
   cat("Using", control$nsteps, "bridges: ")
   
   for(i in seq_len(control$nsteps)){
@@ -94,7 +96,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
                               nsim=ceiling(control$MCMC.samplesize/control$nsteps), ...))
     
     if(!is.null(constraints.obs)){
-      nw.state.obs<-simulate(m, coef=theta, nsim=1, response=response, reference=reference, constraints=MHproposal.obs, basis=nw, statsonly=FALSE, verbose=max(verbose-1,0),
+      nw.state.obs<-simulate(m.obs, coef=theta, nsim=1, response=response, reference=reference, constraints=MHproposal.obs, basis=nw, statsonly=FALSE, verbose=max(verbose-1,0),
                              control=control.simulate.formula(MCMC.burnin=if(i==1) control$obs.MCMC.burnin else ceiling(control$obs.MCMC.burnin/sqrt(control$nsteps)),
                                MCMC.interval=1,
                                MCMC.packagenames=control$MCMC.packagenames,
@@ -102,7 +104,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
                                parallel.type=control$parallel.type,
                                parallel.version.check=control$parallel.version.check), ...)
 
-      stats.obs[i,]<-colMeans(simulate(m, coef=theta, response=response, reference=reference, constraints=MHproposal.obs, basis=nw.state.obs, statsonly=TRUE, verbose=max(verbose-1,0),
+      stats.obs[i,]<-colMeans(simulate(m.obs, coef=theta, response=response, reference=reference, constraints=MHproposal.obs, basis=nw.state.obs, statsonly=TRUE, verbose=max(verbose-1,0),
                                 control=control.simulate.formula(MCMC.burnin=0,
                                   MCMC.interval=control$obs.MCMC.interval,
                                   MCMC.packagenames=control$MCMC.packagenames,
@@ -151,8 +153,10 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   ## Here, we need to get the model object to get the list of
   ## dyad-independent terms.
   tmp<-ergm.bridge.preproc(object,basis,response)
-  nw<-tmp$nw; m<-tmp$model; form<-tmp$form; rm(tmp)
+  nw<-tmp$nw; form<-tmp$form; rm(tmp)
 
+  m<-ergm.getmodel(object, nw, response=response)
+  
   q.pos.full <- c(0,cumsum(coef.sublength.model(m)))
   p.pos.full <- c(0,cumsum(eta.sublength.model(m)))
   

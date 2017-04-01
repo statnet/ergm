@@ -21,6 +21,14 @@ InitWtMHP.DiscUnif <- function(arguments, nw, response) {
   MHproposal
 }
 
+InitWtMHP.DiscUnif2 <- function(arguments, nw, response) {
+  a <- NVL(arguments$reference$a, -Inf)
+  b <- NVL(arguments$reference$b, Inf)
+  if(!is.finite(a) || !is.finite(b)) stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
+  MHproposal <- list(name = "DiscUnif2", inputs=c(a,b))
+  MHproposal
+}
+
 InitWtMHP.DiscUnifNonObserved <- function(arguments, nw, response) {
   a <- NVL(arguments$reference$a, -Inf)
   b <- NVL(arguments$reference$b, Inf)

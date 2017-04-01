@@ -206,13 +206,24 @@ ergm <- function(formula, response=NULL,
   if (verbose) cat("Initializing Metropolis-Hastings proposal(s):") 
   
   MHproposal <- MHproposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
-  if (verbose) cat(" ",MHproposal$pkgname,":MH_",MHproposal$name,sep="")
-  
-  
+  if (verbose) cat(" Unconstrained ",MHproposal$pkgname,":MH_",MHproposal$name,sep="")
+
+  if(!is.null(MHproposal$auxiliaries)){
+    if(verbose) cat("(requests auxiliaries: reinitializing model)")
+    model <- ergm.getmodel(formula, nw, response=response, extra.aux=list(MHproposal$auxiliaries))
+  }
+    
   if(!is.null(constraints.obs)){
     MHproposal.obs <- MHproposal(constraints.obs, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
-    if (verbose) cat(" ",MHproposal.obs$pkgname,":MH_",MHproposal.obs$name,sep="")
+    if (verbose) cat("Constrained ",MHproposal.obs$pkgname,":MH_",MHproposal.obs$name,sep="")
+
+    if(!is.null(MHproposal.obs$auxiliaries)){
+      if(verbose) cat("(requests auxiliaries: reinitializing model)")
+      model$obs.model <- ergm.getmodel(formula, nw, response=response, extra.aux=list(MHproposal.obs$auxiliaries))
+    }
   }else MHproposal.obs <- NULL
+
+  
   
   if(verbose) cat("\n")
   

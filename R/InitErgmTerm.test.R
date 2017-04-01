@@ -58,12 +58,12 @@ InitErgmTerm..discord.net<-function(nw, arglist, ...) {
 
 InitErgmTerm..intersect.net<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("x"),
-                      vartypes = c("network,matrix"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      varnames = c("x", "assume_all_toggles_in_list"),
+                      vartypes = c("network,matrix", "logical"),
+                      defaultvalues = list(NULL, FALSE),
+                      required = c(TRUE, FALSE))
   
-  list(name="_intersect_net",
+  list(name=if(a$assume_all_toggles_in_list) "_intersect_net_toggles_in_list" else "_intersect_net",
        coef.names=c(),
        inputs=ergm.Cprepare.el(a$x, prototype=nw),
        dependence=FALSE)

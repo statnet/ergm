@@ -137,12 +137,18 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     monitored.length <- 0
   }
 
+  # Construct the proposal; this needs to be done here so that the
+  # auxiliary requests could be passed to ergm.getmodel().
+  MHproposal <- if(inherits(constraints, "MHproposal")) constraints
+                else MHproposal(constraints,arguments=control$MCMC.prop.args,
+                                nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
+  
   # Prepare inputs to ergm.getMCMCsample
-  m <- ergm.getmodel(form, basis, response=response, role="static")
+  m <- ergm.getmodel(form, basis, response=response, role="static", extra.aux=list(MHproposal$auxiliaries))
 
   out <- simulate(m, nsim=nsim, seed=seed,
                   coef=coef, response=response, reference=reference,
-                  constraints=constraints,
+                  constraints=MHproposal,
                   monitor=monitored.length,
                   basis=basis,
                   statsonly=statsonly,
@@ -209,8 +215,11 @@ simulate.ergm.model <- function(object, nsim=1, seed=NULL,
 
   MHproposal <- if(inherits(constraints, "MHproposal")) constraints
                 else MHproposal(constraints,arguments=control$MCMC.prop.args,
-                                nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
+                                nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
 
+  if(length(MHproposal$auxiliaries) && !length(m$slots.extra.aux))
+    stop("The MHproposal appears to be requesting auxiliaries, but the initialized model does not export any extra auxiliaries.")
+  
   if (any(is.nan(coef) | is.na(coef)))
     stop("Illegal value of coef passed to simulate.formula")
   

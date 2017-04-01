@@ -13,6 +13,7 @@
 #include "wtedgetree.h"
 #include "wtchangestat.h"
 #include "R_ext/Rdynload.h"
+#include "wtMHproposal.h"
 
 /* A WtModel object contains information about an entire ERGM, including the
    total numbers of terms, parameters, and statistics along with a pointer
@@ -58,37 +59,31 @@ typedef struct WtModelstruct {
     to trigger a segfault if u_func tries to write to change
     statistics; then restore it. Otherwise, don't bother. */
 #ifdef DEBUG
-
-#define WtUPDATE_STORAGE_COND(tail, head, weight, m, nwp, cond){	\
-    WtEXEC_THROUGH_TERMS({						\
-	double *dstats = mtp->dstats; /* Back up mtp->dstats. */	\
-	mtp->dstats = NULL; /* Trigger segfault if u_func tries to write to change statistics. */ \
-	if(mtp->u_func && (cond))					\
-	  (*(mtp->u_func))(tail, head, weight, mtp, nwp);  /* Call u_??? function */ \
-	mtp->dstats = dstats; /* Restore mtp->dstats. */		\
-      });								\
-  }
-
+#define IFDEBUG_BACKUP_DSTATS double *dstats = mtp->dstats; mtp->dstats = NULL;
+#define IFDEBUG_RESTORE_DSTATS mtp->dstats = dstats;
 #else
-
-
-#define WtUPDATE_STORAGE_COND(tail, head, weight, m, nwp, cond){	\
-    WtEXEC_THROUGH_TERMS({						\
-	if(mtp->u_func && (cond))					\
-	  (*(mtp->u_func))(tail, head, weight, mtp, nwp);  /* Call u_??? function */ \
-      });								\
-  }
-
+#define IFDEBUG_BACKUP_DSTATS
+#define IFDEBUG_RESTORE_DSTATS
 #endif
 
-#define WtUPDATE_STORAGE(tail, head, weight, m, nwp){			\
-    WtUPDATE_STORAGE_COND(tail, head, weight, m, nwp, TRUE);		\
+#define WtUPDATE_STORAGE_COND(tail, head, weight, nwp, m, MHp, cond){	\
+    if(MHp && ((WtMHproposal*)MHp)->u_func) ((WtMHproposal*)MHp)->u_func(tail, head, weight, MHp, nwp); \
+    WtEXEC_THROUGH_TERMS({						\
+	IFDEBUG_BACKUP_DSTATS;						\
+	if(mtp->u_func && (cond))					\
+	  (*(mtp->u_func))(tail, head, weight, mtp, nwp);  /* Call u_??? function */ \
+	IFDEBUG_RESTORE_DSTATS;						\
+      });								\
+  }
+
+#define WtUPDATE_STORAGE(tail, head, weight, nwp, m, MHp){			\
+    WtUPDATE_STORAGE_COND(tail, head, weight, nwp, m, MHp, TRUE);	\
   }
 
 WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputs,
 			int n_terms);
 
-void WtModelDestroy(WtModel *m, WtNetwork *nwp);
+void WtModelDestroy(WtNetwork *nwp, WtModel *m);
 
 /* A WtModel object contains information about an entire ERGM, including the
    total numbers of terms, parameters, and statistics along with a pointer

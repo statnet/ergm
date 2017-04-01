@@ -46,7 +46,7 @@ WtU_CHANGESTAT_FN(u_import_binary_term_sum){
   Model *m = store->m;
   Network *mynwp = &(store->nw);
 
-  UPDATE_STORAGE(tail, head, m, mynwp);
+  UPDATE_STORAGE(tail, head, mynwp, m, NULL);
 }
 
 WtF_CHANGESTAT_FN(f_import_binary_term_sum){
@@ -54,7 +54,7 @@ WtF_CHANGESTAT_FN(f_import_binary_term_sum){
   Model *m = store->m;
   Network *mynwp = &(store->nw);
 
-  ModelDestroy(m, mynwp);
+  ModelDestroy(mynwp, m);
   NetworkDestroy(mynwp);
 }
 
@@ -96,7 +96,7 @@ WtU_CHANGESTAT_FN(u_import_binary_term_nonzero){
   double oldweight = WtGETWT(tail,head);
 
   if((weight!=0)!=(oldweight!=0)){ // If going from 0 to nonzero or vice versa...
-    UPDATE_STORAGE(tail, head, m, bnwp);
+    UPDATE_STORAGE(tail, head, bnwp, m, NULL);
   }
 }
 
@@ -104,7 +104,7 @@ WtF_CHANGESTAT_FN(f_import_binary_term_nonzero){
   GET_AUX_STORAGE(Network, bnwp);
   GET_STORAGE(Model, m);
 
-  ModelDestroy(m, bnwp);
+  ModelDestroy(bnwp, m);
   mtp->storage = NULL;
 }
 

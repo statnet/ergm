@@ -22,13 +22,13 @@ D_CHANGESTAT_FN(d_passthrough_term){
 U_CHANGESTAT_FN(u_passthrough_term){
   GET_STORAGE(Model, m);
 
-  UPDATE_STORAGE(tail, head, m, nwp);
+  UPDATE_STORAGE(tail, head, nwp, m, NULL);
 }
 
 F_CHANGESTAT_FN(f_passthrough_term){
   GET_STORAGE(Model, m);
 
-  ModelDestroy(m, nwp);
+  ModelDestroy(nwp, m);
 
   STORAGE = NULL;
 }
@@ -47,13 +47,13 @@ I_CHANGESTAT_FN(i__submodel_term){
 U_CHANGESTAT_FN(u__submodel_term){
   GET_AUX_STORAGE(Model, m);
 
-  UPDATE_STORAGE(tail, head, m, nwp);
+  UPDATE_STORAGE(tail, head, nwp, m, NULL);
 }
 
 F_CHANGESTAT_FN(f__submodel_term){
   GET_AUX_STORAGE(Model, m);
 
-  ModelDestroy(m, nwp);
+  ModelDestroy(nwp, m);
 
   AUX_STORAGE=NULL;
 }
@@ -95,7 +95,7 @@ I_CHANGESTAT_FN(i__summary_term){
       ChangeStats(1, &tail, &head, &nw, m);
       for(unsigned int k=0; k<m->n_stats; k++)
 	stats[k] += m->workspace[k];
-      UPDATE_STORAGE(tail, head, m, &nw);
+      UPDATE_STORAGE(tail, head, &nw, m, NULL);
       ToggleEdge(tail, head, &nw);
     }
   }
@@ -111,13 +111,13 @@ U_CHANGESTAT_FN(u__summary_term){
   for(unsigned int k=0; k<m->n_stats; k++)
     stats[k] += m->workspace[k];
 
-  UPDATE_STORAGE(tail, head, m, nwp);
+  UPDATE_STORAGE(tail, head, nwp, m, NULL);
 }
 
 F_CHANGESTAT_FN(f__summary_term){
   GET_STORAGE(Model, m);
 
-  ModelDestroy(m, nwp);
+  ModelDestroy(nwp, m);
 
   STORAGE=NULL;
 }

@@ -195,15 +195,15 @@ static void (*fun)(DegreeBound *) = NULL;
 if(fun==NULL) fun = (void (*)(DegreeBound *)) R_FindSymbol("DegreeBoundDestroy", "ergm", NULL);
 fun(bd);
 }
-void MH_init(MHproposal *MHp,char *MHproposaltype, char *MHproposalpackage,double *inputs,int fVerbose,Network *nwp,int *attribs, int *maxout, int *maxin,int *minout, int *minin, int condAllDegExact,int attriblength){
-static void (*fun)(MHproposal *,char *,char *,double *,int,Network *,int *,int *,int *,int *,int *,int,int) = NULL;
-if(fun==NULL) fun = (void (*)(MHproposal *,char *,char *,double *,int,Network *,int *,int *,int *,int *,int *,int,int)) R_FindSymbol("MH_init", "ergm", NULL);
-fun(MHp,MHproposaltype,MHproposalpackage,inputs,fVerbose,nwp,attribs,maxout,maxin,minout,minin,condAllDegExact,attriblength);
+void MH_init(MHproposal *MHp,char *MHproposaltype, char *MHproposalpackage,double *inputs,int fVerbose,Network *nwp,int *attribs, int *maxout, int *maxin,int *minout, int *minin, int condAllDegExact,int attriblength,void **aux_storage){
+static void (*fun)(MHproposal *,char *,char *,double *,int,Network *,int *,int *,int *,int *,int *,int,int,void **) = NULL;
+if(fun==NULL) fun = (void (*)(MHproposal *,char *,char *,double *,int,Network *,int *,int *,int *,int *,int *,int,int,void **)) R_FindSymbol("MH_init", "ergm", NULL);
+fun(MHp,MHproposaltype,MHproposalpackage,inputs,fVerbose,nwp,attribs,maxout,maxin,minout,minin,condAllDegExact,attriblength,aux_storage);
 }
-void MH_free(MHproposal *MHp){
-static void (*fun)(MHproposal *) = NULL;
-if(fun==NULL) fun = (void (*)(MHproposal *)) R_FindSymbol("MH_free", "ergm", NULL);
-fun(MHp);
+void MH_free(MHproposal *MHp, Network *nwp){
+static void (*fun)(MHproposal *,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(MHproposal *,Network *)) R_FindSymbol("MH_free", "ergm", NULL);
+fun(MHp,nwp);
 }
 int CheckTogglesValid(MHproposal *MHp, Network *nwp){
 static int (*fun)(MHproposal *,Network *) = NULL;
@@ -234,6 +234,29 @@ return fun(MHp,nwp);
 #undef XNOR
 #undef BD_LOOP
 #undef BD_COND_LOOP
+#undef MH_INPUTS
+#undef Mtail
+#undef Mhead
+#undef MH_I_FN
+#undef MH_U_FN
+#undef MH_P_FN
+#undef MH_F_FN
+#include "R_ext/Rdynload.h"
+#include "MHstorage.h"
+#undef MH_STORAGE
+#undef MH_ALLOC_STORAGE
+#undef MH_GET_STORAGE
+#undef MH_AUX_STORAGE
+#undef MH_GET_AUX_STORAGE
+#undef MH_AUX_STORAGE_NUM
+#undef MH_GET_AUX_STORAGE_NUM
+#undef STORAGE
+#undef ALLOC_STORAGE
+#undef GET_STORAGE
+#undef AUX_STORAGE
+#undef GET_AUX_STORAGE
+#undef AUX_STORAGE_NUM
+#undef GET_AUX_STORAGE_NUM
 #include "R_ext/Rdynload.h"
 #include "model.h"
 Model* ModelInitialize(char *fnames, char *sonames, double **inputs,int n_terms){
@@ -241,10 +264,10 @@ static Model* (*fun)(char *,char *,double **,int) = NULL;
 if(fun==NULL) fun = (Model* (*)(char *,char *,double **,int)) R_FindSymbol("ModelInitialize", "ergm", NULL);
 return fun(fnames,sonames,inputs,n_terms);
 }
-void ModelDestroy(Model *m, Network *nwp){
-static void (*fun)(Model *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(Model *,Network *)) R_FindSymbol("ModelDestroy", "ergm", NULL);
-fun(m,nwp);
+void ModelDestroy(Network *nwp, Model *m){
+static void (*fun)(Network *,Model *) = NULL;
+if(fun==NULL) fun = (void (*)(Network *,Model *)) R_FindSymbol("ModelDestroy", "ergm", NULL);
+fun(nwp,m);
 }
 int GetIndexForAttrValue(int value){
 static int (*fun)(int) = NULL;
@@ -322,20 +345,44 @@ fun(nwp,m);
 #undef S_CHANGESTAT_FN
 #undef D_FROM_S
 #undef D_FROM_S_FN
+#undef NO_EDGE
+#undef OLD_EDGE
+#undef NEW_EDGE
+#undef CAN_IGNORE
+#undef MAX_TRIES
+#undef MH_FAILED
+#undef MH_UNRECOVERABLE
+#undef MH_IMPOSSIBLE
+#undef MH_UNSUCCESSFUL
+#undef MH_CONSTRAINT
+#undef MH_QUIT_UNSUCCESSFUL
+#undef XOR
+#undef XNOR
+#undef BD_LOOP
+#undef BD_COND_LOOP
+#undef MH_INPUTS
+#undef Mtail
+#undef Mhead
+#undef MH_I_FN
+#undef MH_U_FN
+#undef MH_P_FN
+#undef MH_F_FN
 #undef FOR_EACH_TERM
 #undef EXEC_THROUGH_TERMS
 #undef FOR_EACH_TERM_INREVERSE
 #undef EXEC_THROUGH_TERMS_INREVERSE
 #undef EXEC_THROUGH_TERMS_INTO
+#undef IFDEBUG_BACKUP_DSTATS
+#undef IFDEBUG_RESTORE_DSTATS
 #undef UPDATE_STORAGE_COND
 #undef UPDATE_STORAGE
 #include "R_ext/Rdynload.h"
 #include "storage.h"
-#undef ALLOC_STORAGE
 #undef STORAGE
+#undef ALLOC_STORAGE
 #undef GET_STORAGE
-#undef ALLOC_AUX_STORAGE
 #undef AUX_STORAGE
+#undef ALLOC_AUX_STORAGE
 #undef GET_AUX_STORAGE
 #undef AUX_STORAGE_NUM
 #undef GET_AUX_STORAGE_NUM
@@ -588,15 +635,15 @@ return fun(tails,heads,weights,nwp,nmax);
 #undef GetRandDyad
 #include "R_ext/Rdynload.h"
 #include "wtMHproposal.h"
-void WtMH_init(WtMHproposal *MH,char *MHproposaltype, char *MHproposalpackage,double *inputs,int fVerbose,WtNetwork *nwp){
-static void (*fun)(WtMHproposal *,char *,char *,double *,int,WtNetwork *) = NULL;
-if(fun==NULL) fun = (void (*)(WtMHproposal *,char *,char *,double *,int,WtNetwork *)) R_FindSymbol("WtMH_init", "ergm", NULL);
-fun(MH,MHproposaltype,MHproposalpackage,inputs,fVerbose,nwp);
+void WtMH_init(WtMHproposal *MH,char *MHproposaltype, char *MHproposalpackage,double *inputs,int fVerbose,WtNetwork *nwp,void **aux_storage){
+static void (*fun)(WtMHproposal *,char *,char *,double *,int,WtNetwork *,void **) = NULL;
+if(fun==NULL) fun = (void (*)(WtMHproposal *,char *,char *,double *,int,WtNetwork *,void **)) R_FindSymbol("WtMH_init", "ergm", NULL);
+fun(MH,MHproposaltype,MHproposalpackage,inputs,fVerbose,nwp,aux_storage);
 }
-void WtMH_free(WtMHproposal *MH){
-static void (*fun)(WtMHproposal *) = NULL;
-if(fun==NULL) fun = (void (*)(WtMHproposal *)) R_FindSymbol("WtMH_free", "ergm", NULL);
-fun(MH);
+void WtMH_free(WtMHproposal *MH, WtNetwork *nwp){
+static void (*fun)(WtMHproposal *,WtNetwork *) = NULL;
+if(fun==NULL) fun = (void (*)(WtMHproposal *,WtNetwork *)) R_FindSymbol("WtMH_free", "ergm", NULL);
+fun(MH,nwp);
 }
 #undef MIN
 #undef MAX
@@ -615,6 +662,14 @@ fun(MH);
 #undef MH_QUIT_UNSUCCESSFUL
 #undef XOR
 #undef XNOR
+#undef MH_INPUTS
+#undef Mtail
+#undef Mhead
+#undef Mweight
+#undef WtMH_I_FN
+#undef WtMH_U_FN
+#undef WtMH_P_FN
+#undef WtMH_F_FN
 #include "R_ext/Rdynload.h"
 #include "wtmodel.h"
 WtModel* WtModelInitialize(char *fnames, char *sonames, double **inputs,int n_terms){
@@ -622,10 +677,10 @@ static WtModel* (*fun)(char *,char *,double **,int) = NULL;
 if(fun==NULL) fun = (WtModel* (*)(char *,char *,double **,int)) R_FindSymbol("WtModelInitialize", "ergm", NULL);
 return fun(fnames,sonames,inputs,n_terms);
 }
-void WtModelDestroy(WtModel *m, WtNetwork *nwp){
-static void (*fun)(WtModel *,WtNetwork *) = NULL;
-if(fun==NULL) fun = (void (*)(WtModel *,WtNetwork *)) R_FindSymbol("WtModelDestroy", "ergm", NULL);
-fun(m,nwp);
+void WtModelDestroy(WtNetwork *nwp, WtModel *m){
+static void (*fun)(WtNetwork *,WtModel *) = NULL;
+if(fun==NULL) fun = (void (*)(WtNetwork *,WtModel *)) R_FindSymbol("WtModelDestroy", "ergm", NULL);
+fun(nwp,m);
 }
 void WtChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, double *toggleweight, WtNetwork *nwp, WtModel *m){
 static void (*fun)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *) = NULL;
@@ -754,10 +809,33 @@ fun(nwp,m);
 #undef GETNEWWT
 #undef GETNEWWTOLD
 #undef D_FROM_S
+#undef NO_EDGE
+#undef OLD_EDGE
+#undef NEW_EDGE
+#undef CAN_IGNORE
+#undef MAX_TRIES
+#undef MH_FAILED
+#undef MH_UNRECOVERABLE
+#undef MH_IMPOSSIBLE
+#undef MH_UNSUCCESSFUL
+#undef MH_CONSTRAINT
+#undef MH_QUIT_UNSUCCESSFUL
+#undef XOR
+#undef XNOR
+#undef MH_INPUTS
+#undef Mtail
+#undef Mhead
+#undef Mweight
+#undef WtMH_I_FN
+#undef WtMH_U_FN
+#undef WtMH_P_FN
+#undef WtMH_F_FN
 #undef WtFOR_EACH_TERM
 #undef WtEXEC_THROUGH_TERMS
 #undef WtFOR_EACH_TERM_INREVERSE
 #undef WtEXEC_THROUGH_TERMS_INREVERSE
 #undef WtEXEC_THROUGH_TERMS_INTO
+#undef IFDEBUG_BACKUP_DSTATS
+#undef IFDEBUG_RESTORE_DSTATS
 #undef WtUPDATE_STORAGE_COND
 #undef WtUPDATE_STORAGE

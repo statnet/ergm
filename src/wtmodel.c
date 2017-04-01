@@ -13,10 +13,10 @@
 /*****************
   void WtModelDestroy
 ******************/
-void WtModelDestroy(WtModel *m, WtNetwork *nwp)
+void WtModelDestroy(WtNetwork *nwp, WtModel *m)
 {  
   WtDestroyStats(nwp, m);
-
+  
   for(unsigned int i=0; i < m->n_aux; i++)
     if(m->termarray[0].aux_storage[i]!=NULL){
       free(m->termarray[0].aux_storage[i]);
@@ -259,8 +259,8 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
     GETTOGGLEINFO();
     
     WtEXEC_THROUGH_TERMS_INTO(m->workspace, {
-	mtp->dstats = dstats;
 	if(mtp->c_func){
+	  if(ntoggles!=1) ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
 			   mtp, nwp);  /* Call d_??? function */
 	  
@@ -274,14 +274,14 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
 
     /* Update storage and network */    
     IF_MORE_TO_COME{
-      WtUPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, m, nwp, mtp->d_func==NULL);
+      WtUPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, nwp, m, NULL, mtp->d_func==NULL);
       SETWT_WITH_BACKUP();
     }
   }
   /* Undo previous storage updates and toggles */
   UNDO_PREVIOUS{
     GETOLDTOGGLEINFO();
-    WtUPDATE_STORAGE_COND(TAIL,HEAD,weights[TOGGLEIND], m, nwp, mtp->d_func==NULL);
+    WtUPDATE_STORAGE_COND(TAIL,HEAD,weights[TOGGLEIND], nwp, m, NULL, mtp->d_func==NULL);
     SETWT(TAIL,HEAD,weights[TOGGLEIND]);
     weights[TOGGLEIND]=OLDWT;
   }

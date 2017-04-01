@@ -22,10 +22,16 @@ void MH_init(MHproposal *MHp,
 	     Network *nwp,
 	     int *attribs, int *maxout, int *maxin, 
 	     int *minout, int *minin, int condAllDegExact, 
-	     int attriblength){
+	     int attriblength,
+	     void **aux_storage){
 
   char *fn, *sn;
   int i;
+
+  MHp->i_func=MHp->p_func=MHp->f_func=NULL;
+  MHp->u_func=NULL;
+  MHp->storage=NULL;
+  
   for (i = 0; MHproposaltype[i] != ' ' && MHproposaltype[i] != 0; i++);
   MHproposaltype[i] = 0;
   /* Extract the required string information from the relevant sources */
@@ -50,25 +56,47 @@ void MH_init(MHproposal *MHp,
   sn[i]='\0';
   
   /* Search for the MH proposal function pointer */
-  MHp->func=(void (*)(MHproposal*, Network*)) R_FindSymbol(fn,sn,NULL);
-  if(MHp->func==NULL){
-    error("Error in MH_* initialization: could not find function %s in "
-	  "namespace for package %s."
-	  "Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
+  // Old-style name:
+  MHp->p_func=(void (*)(MHproposal*, Network*)) R_FindSymbol(fn,sn,NULL);
+  if(MHp->p_func==NULL){
+    // New-style name:
+    fn[1] = 'p';
+    MHp->p_func=(void (*)(MHproposal*, Network*)) R_FindSymbol(fn,sn,NULL);
+    if(MHp->p_func==NULL){    
+      error("Error in the proposal initialization: could not find function %s in "
+	    "namespace for package %s."
+	    "Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
+    }
   }
 
+  // Optional functions
+  fn[1] = 'i';
+  MHp->i_func=(void (*)(MHproposal*, Network*)) R_FindSymbol(fn,sn,NULL);
+  fn[1] = 'u';
+  MHp->u_func=(void (*)(Vertex tail, Vertex head, MHproposal*, Network*)) R_FindSymbol(fn,sn,NULL);
+  fn[1] = 'f';
+  MHp->f_func=(void (*)(MHproposal*, Network*)) R_FindSymbol(fn,sn,NULL);
+    
   MHp->inputs=inputs;
 
   MHp->bd=DegreeBoundInitialize(attribs, maxout, maxin, minout, minin,
 			       condAllDegExact, attriblength, nwp);
-  MHp->discord=NULL;
 
   /*Clean up by freeing sn and fn*/
   free((void *)fn);
   free((void *)sn);
 
+  MHp->aux_storage = aux_storage;
+
   MHp->ntoggles=0;
-  (*(MHp->func))(MHp, nwp); /* Call MH proposal function to initialize */
+  if(MHp->i_func){
+    // New-style initialization
+    (*(MHp->i_func))(MHp, nwp);
+  }else{
+    // Old-style initialization
+    (*(MHp->p_func))(MHp, nwp); /* Call MH proposal function to initialize */
+  }
+  
   MHp->toggletail = (Vertex *)malloc(MHp->ntoggles * sizeof(Vertex));
   MHp->togglehead = (Vertex *)malloc(MHp->ntoggles * sizeof(Vertex));
 }
@@ -78,14 +106,14 @@ void MH_init(MHproposal *MHp,
 
  A helper function to free memory allocated by MH_init.
 *********************/
-void MH_free(MHproposal *MHp){
+void MH_free(MHproposal *MHp, Network *nwp){
   if(MHp->bd)DegreeBoundDestroy(MHp->bd);
-  if(MHp->discord){
-    for(Network **nwp=MHp->discord; *nwp!=NULL; nwp++){
-      NetworkDestroy(*nwp);
-    }
-    free(MHp->discord);
+  if(MHp->f_func) (*(MHp->f_func))(MHp, nwp);
+  if(MHp->storage){
+    free(MHp->storage);
+    MHp->storage=NULL;
   }
+  MHp->aux_storage=NULL;
   free(MHp->toggletail);
   free(MHp->togglehead);
 }

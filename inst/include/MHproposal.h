@@ -71,15 +71,19 @@ void DegreeBoundDestroy(DegreeBound *bd);
 /* *** don't forget tail-> head */
 
 typedef struct MHproposalstruct {
-  void (*func)(struct MHproposalstruct*, Network*);
+  void (*i_func)(struct MHproposalstruct*, Network*);
+  void (*p_func)(struct MHproposalstruct*, Network*);
+  void (*u_func)(Vertex tail, Vertex head, struct MHproposalstruct*, Network*);
+  void (*f_func)(struct MHproposalstruct*, Network*);
   Edge ntoggles;
   Vertex *toggletail;
   Vertex *togglehead;
   double logratio;
   int status;
   DegreeBound *bd;
-  Network **discord;
   double *inputs; /* may be used if needed, ignored if not. */
+  void *storage;
+  void **aux_storage;
 } MHproposal;
 
 
@@ -90,9 +94,10 @@ void MH_init(MHproposal *MHp,
 	     Network *nwp, 
 	     int *attribs, int *maxout, int *maxin, 
 	     int *minout, int *minin, int condAllDegExact, 
-	     int attriblength);
+	     int attriblength,
+	     void **aux_storage);
 
-void MH_free(MHproposal *MHp);
+void MH_free(MHproposal *MHp, Network *nwp);
 
 int CheckTogglesValid(MHproposal *MHp, Network *nwp);
 int CheckConstrainedTogglesValid(MHproposal *MHp, Network *nwp);
@@ -112,6 +117,17 @@ int CheckConstrainedTogglesValid(MHproposal *MHp, Network *nwp);
     MHp->toggletail[0]=MH_FAILED;					\
     MHp->togglehead[0]=MH_CONSTRAINT;                                   \
   }									
+
+/* Helper macros */
+#define MH_INPUTS MHp->inputs
+
+#define Mtail (MHp->toggletail)
+#define Mhead (MHp->togglehead)
+
+#define MH_I_FN(a) void (a) (MHproposal *MHp, Network *nwp)
+#define MH_U_FN(a) void (a) (Vertex tail, Vertex head, MHproposal *MHp, Network *nwp)
+#define MH_P_FN(a) void (a) (MHproposal *MHp, Network *nwp)
+#define MH_F_FN(a) void (a) (MHproposal *MHp, Network *nwp)
 
 #endif 
 

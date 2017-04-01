@@ -32,14 +32,14 @@ U_CHANGESTAT_FN(u_interact){
   GET_STORAGE(StoreModelAnd2Stats, store);
   Model *m = store->m;
 
-  UPDATE_STORAGE(tail, head, m, nwp);
+  UPDATE_STORAGE(tail, head, nwp, m, NULL);
 }
 
 F_CHANGESTAT_FN(f_interact){
   GET_STORAGE(StoreModelAnd2Stats, store);
   Model *m = store->m;
 
-  ModelDestroy(m, nwp);
+  ModelDestroy(nwp, m);
 }
 
 
@@ -81,14 +81,14 @@ U_CHANGESTAT_FN(u_main_interact){
   GET_STORAGE(StoreModelAnd2Stats, store);
   Model *m = store->m;
 
-  UPDATE_STORAGE(tail, head, m, nwp);
+  UPDATE_STORAGE(tail, head, nwp, m, NULL);
 }
 
 F_CHANGESTAT_FN(f_main_interact){
   GET_STORAGE(StoreModelAnd2Stats, store);
   Model *m = store->m;
 
-  ModelDestroy(m, nwp);
+  ModelDestroy(nwp, m);
 
   mtp->storage=NULL;
 }

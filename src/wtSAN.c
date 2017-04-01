@@ -66,14 +66,15 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
 	    *MHproposaltype, *MHproposalpackage,
 	    inputs,
 	    *fVerbose,
-	    nw);
+	    nw,
+	    m->termarray->aux_storage);
 
   *status = WtSANSample (&MH,
 			 theta0, invcov, tau, sample, *samplesize,
 			 *burnin, *interval,
 			 *fVerbose, nmax, nw, m);
   
-  WtMH_free(&MH);
+  WtMH_free(&MH, nw);
 
 /* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
 
@@ -82,7 +83,7 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
   if(*status == WtMCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
     newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList(newnetworktails+1,newnetworkheads,newnetworkweights,nw,nmax-1);
 
-  WtModelDestroy(m, nw);
+  WtModelDestroy(nw, m);
   WtNetworkDestroy(nw);
   PutRNGstate();  /* Disable RNG before returning */
 }
@@ -226,7 +227,7 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHproposal *MHp,
     Rprintf("Now proposing %d WtMH steps... ", nsteps); */
   for(unsigned int step=0; step < nsteps; step++) {
     MHp->logratio = 0;
-    (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
+    (*(MHp->p_func))(MHp, nwp); /* Call MH function to propose toggles */
 
     if(MHp->toggletail[0]==MH_FAILED){
       switch(MHp->togglehead[0]){
@@ -299,14 +300,7 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHproposal *MHp,
 	Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];
 	double w=MHp->toggleweight[i];
 
-	WtUPDATE_STORAGE(t, h, w, m, nwp);
-	
-	if(MHp->discord)
-	  for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	    // This could be speeded up by implementing an "incrementation" function.
-	    WtSetEdge(t, h, WtGetEdge(t,  h, *nwd) + w - WtGetEdge(t, h, nwp), *nwd);
-	  }
-
+	WtUPDATE_STORAGE(t, h, w, nwp, m, MHp);
 	WtSetEdge(t, h, w, nwp);
       }
       /* record network statistics for posterity */

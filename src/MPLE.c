@@ -58,7 +58,7 @@ void MPLE_wrapper(int *tails, int *heads, int *dnedges,
   if(*wl) MpleInit_hash_wl(responsevec, covmat, weightsvector, lel, *maxDyadTypes, nw, m); 
   else MpleInit_hash_bl(responsevec, covmat, weightsvector, lel, *maxDyads, *maxDyadTypes, nw, m); 
 
-  ModelDestroy(m, nw);
+  ModelDestroy(nw, m);
   NetworkDestroy(nw);
   PutRNGstate(); /* Must be called after GetRNGstate before returning to R */
 }

@@ -13,6 +13,7 @@
 #include "edgetree.h"
 #include "changestat.h"
 #include "R_ext/Rdynload.h"
+#include "MHproposal.h"
 
 /* A Model object contains information about an entire ERGM, including the
    total numbers of terms, parameters, and statistics along with a pointer
@@ -58,37 +59,31 @@ typedef struct Modelstruct {
     to trigger a segfault if u_func tries to write to change
     statistics; then restore it. Otherwise, don't bother. */
 #ifdef DEBUG
-
-#define UPDATE_STORAGE_COND(tail, head, m, nwp, cond){			\
-    EXEC_THROUGH_TERMS({						\
-      double *dstats = mtp->dstats; /* Back up mtp->dstats. */		\
-      mtp->dstats = NULL; /* Trigger segfault if u_func tries to write to change statistics. */ \
-      if(mtp->u_func && (cond))						\
-	(*(mtp->u_func))(tail, head, mtp, nwp);  /* Call u_??? function */ \
-      mtp->dstats = dstats; /* Restore mtp->dstats. */			\
-    });									\
-  }
-
+#define IFDEBUG_BACKUP_DSTATS double *dstats = mtp->dstats; mtp->dstats = NULL;
+#define IFDEBUG_RESTORE_DSTATS mtp->dstats = dstats;
 #else
-
-
-#define UPDATE_STORAGE_COND(tail, head, m, nwp, cond){			\
-    EXEC_THROUGH_TERMS({						\
-	if(mtp->u_func && (cond))					\
-	  (*(mtp->u_func))(tail, head, mtp, nwp);  /* Call u_??? function */ \
-      });								\
-  }
-
+#define IFDEBUG_BACKUP_DSTATS
+#define IFDEBUG_RESTORE_DSTATS
 #endif
 
-#define UPDATE_STORAGE(tail, head, m, nwp){				\
-  UPDATE_STORAGE_COND(tail, head, m, nwp, TRUE);			\
-  }
+#define UPDATE_STORAGE_COND(tail, head, nwp, m, MHp, cond){		\
+    if(MHp && ((MHproposal*)MHp)->u_func) ((MHproposal*)MHp)->u_func(tail, head, MHp, nwp); \
+    EXEC_THROUGH_TERMS({						\
+	  IFDEBUG_BACKUP_DSTATS;					\
+	  if(mtp->u_func && (cond))					\
+	    (*(mtp->u_func))(tail, head, mtp, nwp);  /* Call u_??? function */ \
+	  IFDEBUG_RESTORE_DSTATS;					\
+	});								\
+    }
+
+#define UPDATE_STORAGE(tail, head, nwp, m, MHp){			\
+      UPDATE_STORAGE_COND(tail, head, nwp, m, MHp, TRUE);		\
+    }
 
 Model* ModelInitialize (char *fnames, char *sonames, double **inputs,
 			int n_terms);
 
-void ModelDestroy(Model *m, Network *nwp);
+void ModelDestroy(Network *nwp, Model *m);
 
 /* A Model object contains information about an entire ERGM, including the
    total numbers of terms, parameters, and statistics along with a pointer
