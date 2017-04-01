@@ -237,6 +237,10 @@ return fun(MHp,nwp);
 #undef MH_INPUTS
 #undef Mtail
 #undef Mhead
+#undef MH_I_FN
+#undef MH_U_FN
+#undef MH_P_FN
+#undef MH_F_FN
 #include "R_ext/Rdynload.h"
 #include "MHstorage.h"
 #undef MH_STORAGE
@@ -359,6 +363,10 @@ fun(nwp,m);
 #undef MH_INPUTS
 #undef Mtail
 #undef Mhead
+#undef MH_I_FN
+#undef MH_U_FN
+#undef MH_P_FN
+#undef MH_F_FN
 #undef FOR_EACH_TERM
 #undef EXEC_THROUGH_TERMS
 #undef FOR_EACH_TERM_INREVERSE
@@ -658,6 +666,10 @@ fun(MH,nwp);
 #undef Mtail
 #undef Mhead
 #undef Mweight
+#undef WtMH_I_FN
+#undef WtMH_U_FN
+#undef WtMH_P_FN
+#undef WtMH_F_FN
 #include "R_ext/Rdynload.h"
 #include "wtmodel.h"
 WtModel* WtModelInitialize(char *fnames, char *sonames, double **inputs,int n_terms){
@@ -814,6 +826,10 @@ fun(nwp,m);
 #undef Mtail
 #undef Mhead
 #undef Mweight
+#undef WtMH_I_FN
+#undef WtMH_U_FN
+#undef WtMH_P_FN
+#undef WtMH_F_FN
 #undef WtFOR_EACH_TERM
 #undef WtEXEC_THROUGH_TERMS
 #undef WtFOR_EACH_TERM_INREVERSE

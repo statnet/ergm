@@ -124,6 +124,11 @@ int CheckConstrainedTogglesValid(MHproposal *MHp, Network *nwp);
 #define Mtail (MHp->toggletail)
 #define Mhead (MHp->togglehead)
 
+#define MH_I_FN(a) void (a) (MHproposal *MHp, Network *nwp)
+#define MH_U_FN(a) void (a) (Vertex tail, Vertex head, MHproposal *MHp, Network *nwp)
+#define MH_P_FN(a) void (a) (MHproposal *MHp, Network *nwp)
+#define MH_F_FN(a) void (a) (MHproposal *MHp, Network *nwp)
+
 #endif 
 
 

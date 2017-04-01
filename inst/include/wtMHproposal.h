@@ -86,6 +86,11 @@ void WtMH_free(WtMHproposal *MH, WtNetwork *nwp);
 #define Mhead (MHp->togglehead)
 #define Mweight (MHp->toggleweight)
 
+#define WtMH_I_FN(a) void (a) (WtMHproposal *MHp, WtNetwork *nwp)
+#define WtMH_U_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtMHproposal *MHp, WtNetwork *nwp)
+#define WtMH_P_FN(a) void (a) (WtMHproposal *MHp, WtNetwork *nwp)
+#define WtMH_F_FN(a) void (a) (WtMHproposal *MHp, WtNetwork *nwp)
+
 #endif 
 
 
