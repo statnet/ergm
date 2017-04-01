@@ -40,6 +40,11 @@
      1, etc.)
 */
 
+#ifndef MHBLOCKDIAG_H
+#define MHBLOCKDIAG_H
+
+#include "MHproposal.h"
+
 typedef struct {
   double *epos; // starts and ends of blocks (b1)
   double *apos; // starts and ends of blocks (b2) == b1 if unipartite
@@ -74,3 +79,5 @@ static inline void GetRandDyadBlockDiag(Vertex *tail, Vertex *head, const MH_Blo
     *head = h;
   }
 }
+
+#endif
