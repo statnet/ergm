@@ -9,11 +9,23 @@
  */
 
 /* Storage utilities for MH proposal clients */
-#define STORAGE (/* (stored_type *) */ MHp->storage)
-#define ALLOC_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (STORAGE = calloc(nmemb, sizeof(stored_type)));
-#define GET_STORAGE(stored_type, store_into) stored_type *store_into = (stored_type *) STORAGE;
+#define MH_STORAGE (/* (stored_type *) */ MHp->storage)
+#define MH_ALLOC_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (MH_STORAGE = calloc(nmemb, sizeof(stored_type)));
+#define MH_GET_STORAGE(stored_type, store_into) stored_type *store_into = (stored_type *) MH_STORAGE;
 
-#define AUX_STORAGE (/* (stored_type *) */ MHp->aux_storage[(unsigned int) MH_INPUTS[0]])
-#define GET_AUX_STORAGE(stored_type, store_into) stored_type *store_into = AUX_STORAGE;
-#define AUX_STORAGE_NUM(ind) (/* (stored_type *) */ MHp->aux_storage[(unsigned int) MH_INPUTS[ind]])
-#define GET_AUX_STORAGE_NUM(stored_type, store_into, ind) stored_type *store_into = AUX_STORAGE_NUM(ind);
+#define MH_AUX_STORAGE (/* (stored_type *) */ MHp->aux_storage[(unsigned int) MH_INPUTS[0]])
+#define MH_GET_AUX_STORAGE(stored_type, store_into) stored_type *store_into = MH_AUX_STORAGE;
+#define MH_AUX_STORAGE_NUM(ind) (/* (stored_type *) */ MHp->aux_storage[(unsigned int) MH_INPUTS[ind]])
+#define MH_GET_AUX_STORAGE_NUM(stored_type, store_into, ind) stored_type *store_into = MH_AUX_STORAGE_NUM(ind);
+
+#ifndef STRICT_MH_HEADERS
+
+#define STORAGE MH_STORAGE
+#define ALLOC_STORAGE MH_ALLOC_STORAGE
+#define GET_STORAGE MH_GET_STORAGE
+#define AUX_STORAGE MH_AUX_STORAGE
+#define GET_AUX_STORAGE MH_GET_AUX_STORAGE
+#define AUX_STORAGE_NUM MH_AUX_STORAGE_NUM
+#define GET_AUX_STORAGE_NUM MH_GET_AUX_STORAGE_NUM
+
+#endif // STRICT_MH_HEADERS
