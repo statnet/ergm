@@ -38,7 +38,7 @@ void MH_randomtoggle (MHproposal *MHp, Network *nwp)  {
    to simple random toggles that rarely do so in sparse 
    networks
 ***********************/
-void MH_TNT (MHproposal *MHp, Network *nwp) 
+MH_P_FN(MH_TNT)
 {
   /* *** don't forget tail-> head now */
   
@@ -519,8 +519,7 @@ void MH_randomtoggleList (MHproposal *MHp, Network *nwp)
    number of dyads) is the number of dyads in the static list and the
    network for the ties is the ties in the intersect network.
 ***********************/
-void Mi_listTNT(MHproposal *MHp, Network *nwp) 
-{
+MH_I_FN(Mi_listTNT){
   Dyad ndyads = MH_INPUTS[0]; // Note that ndyads here is the number of dyads in the list.
   double *list = MH_INPUTS+1;
   ALLOC_STORAGE(1, Network, intersect);
@@ -534,14 +533,12 @@ void Mi_listTNT(MHproposal *MHp, Network *nwp)
   MHp->ntoggles=1;
 }
 
-void Mu_listTNT(Vertex tail, Vertex head, MHproposal *MHp, Network *nwp) 
-{
+MH_U_FN(Mu_listTNT){
   GET_STORAGE(Network, intersect);
   ToggleEdge(tail, head, intersect);
 }
 
-void Mp_listTNT(MHproposal *MHp, Network *nwp) 
-{
+MH_P_FN(Mp_listTNT){
   const double comp=0.5, odds=comp/(1.0-comp);
   Dyad ndyads = MH_INPUTS[0]; // Note that ndyads here is the number of dyads in the list.
   double *list = MH_INPUTS+1;
@@ -578,8 +575,7 @@ void Mp_listTNT(MHproposal *MHp, Network *nwp)
   MHp->logratio += logratio;
 }
 
-void Mf_listTNT(MHproposal *MHp, Network *nwp) 
-{
+MH_F_FN(Mf_listTNT){
   GET_STORAGE(Network, intersect);
   NetworkDestroy(intersect);
 }
