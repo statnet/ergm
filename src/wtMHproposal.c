@@ -85,7 +85,7 @@ void WtMH_init(WtMHproposal *MHp,
   MHp->ntoggles=0;
   if(MHp->i_func){
     // New-style initialization
-    MHp->i_func(MHp, nwp);
+    (*(MHp->i_func))(MHp, nwp);
   }else{
     // Old-style initialization
     (*(MHp->p_func))(MHp, nwp); /* Call MH proposal function to initialize */
@@ -102,7 +102,7 @@ void WtMH_init(WtMHproposal *MHp,
  A helper function to free memory allocated by WtMH_init.
 *********************/
 void WtMH_free(WtMHproposal *MHp, WtNetwork *nwp){
-  if(MHp->f_func) MHp->f_func(MHp, nwp);
+  if(MHp->f_func) (*(MHp->f_func))(MHp, nwp);
   if(MHp->storage){
     free(MHp->storage);
     MHp->storage=NULL;

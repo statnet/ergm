@@ -167,7 +167,7 @@ InitMHP.NonObservedTNT <- function(arguments, nw) {
   }
 
   nw.miss <- is.na(nw)
-  MHproposal <- list(name = "listTNT", inputs=ergm.Cprepare.el(nw.miss), auxiliaries=~.intersect.net(nw.miss,assume_all_toggles_in_list=TRUE))
+  MHproposal <- list(name = "listTNT", inputs=ergm.Cprepare.el(nw.miss))
   MHproposal
 }
 
@@ -184,7 +184,7 @@ InitMHP.fixedas <- function(arguments, nw){
 InitMHP.fixedasTNT <- function(arguments, nw){
 	y0<-arguments$constraints$fixedas$free.dyads()
 	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	MHproposal <- list(name = "listTNT", inputs=c(ergm.Cprepare.el(y0)), auxiliaries=~.intersect.net(y0,assume_all_toggles_in_list=TRUE), pkgname="ergm")
+	MHproposal <- list(name = "listTNT", inputs=c(ergm.Cprepare.el(y0)), pkgname="ergm")
 	
 	MHproposal
 	
@@ -203,17 +203,17 @@ InitMHP.fixallbut <- function(arguments, nw){
 InitMHP.fixallbutTNT <- function(arguments, nw){
 	y0<-arguments$constraints$fixallbut$free.dyads()
 	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	MHproposal <- list(name = "listTNT", inputs=c(ergm.Cprepare.el(y0)), auxiliaries=~.intersect.net(y0,assume_all_toggles_in_list=TRUE), pkgname="ergm")
+	MHproposal <- list(name = "listTNT", inputs=c(ergm.Cprepare.el(y0)), pkgname="ergm")
 	
 	MHproposal
 	
 }
 
 
-InitMHP.fixallbutTNT_iuf <- function(arguments, nw){
+InitMHP.fixallbutTNT <- function(arguments, nw){
 	y0<-arguments$constraints$fixallbut$free.dyads()
 	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	MHproposal <- list(name = "listTNT_iuf", inputs=c(ergm.Cprepare.el(y0)), pkgname="ergm")
+	MHproposal <- list(name = "listTNT", inputs=c(ergm.Cprepare.el(y0)), pkgname="ergm")
 	
 	MHproposal
 	

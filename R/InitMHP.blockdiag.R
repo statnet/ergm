@@ -159,5 +159,5 @@ InitMHP.blockdiagNonObserved <- function(arguments, nw){
 }
 
 InitMHP.blockdiagNonObservedTNT <- function(arguments, nw){
-  .InitMHP.blockdiagNonObserved(arguments, nw, name = "listTNT", auxiliaries=~.intersect.net(y0,assume_all_toggles_in_list=TRUE))
+  .InitMHP.blockdiagNonObserved(arguments, nw, name = "listTNT")
 }

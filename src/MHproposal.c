@@ -91,7 +91,7 @@ void MH_init(MHproposal *MHp,
   MHp->ntoggles=0;
   if(MHp->i_func){
     // New-style initialization
-    MHp->i_func(MHp, nwp);
+    (*(MHp->i_func))(MHp, nwp);
   }else{
     // Old-style initialization
     (*(MHp->p_func))(MHp, nwp); /* Call MH proposal function to initialize */
@@ -108,7 +108,7 @@ void MH_init(MHproposal *MHp,
 *********************/
 void MH_free(MHproposal *MHp, Network *nwp){
   if(MHp->bd)DegreeBoundDestroy(MHp->bd);
-  if(MHp->f_func) MHp->f_func(MHp, nwp);
+  if(MHp->f_func) (*(MHp->f_func))(MHp, nwp);
   if(MHp->storage){
     free(MHp->storage);
     MHp->storage=NULL;
