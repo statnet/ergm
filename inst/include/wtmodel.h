@@ -13,6 +13,7 @@
 #include "wtedgetree.h"
 #include "wtchangestat.h"
 #include "R_ext/Rdynload.h"
+#include "wtMHproposal.h"
 
 /* A WtModel object contains information about an entire ERGM, including the
    total numbers of terms, parameters, and statistics along with a pointer
@@ -65,8 +66,8 @@ typedef struct WtModelstruct {
 #define IFDEBUG_RESTORE_DSTATS
 #endif
 
-
-#define WtUPDATE_STORAGE_COND(tail, head, weight, nwp, m, cond){	\
+#define WtUPDATE_STORAGE_COND(tail, head, weight, nwp, m, MHp, cond){	\
+    if(MHp) ((WtMHproposal*)MHp)->u_func(tail, head, weight, MHp, nwp); \
     WtEXEC_THROUGH_TERMS({						\
 	IFDEBUG_BACKUP_DSTATS;						\
 	if(mtp->u_func && (cond))					\
@@ -75,8 +76,8 @@ typedef struct WtModelstruct {
       });								\
   }
 
-#define WtUPDATE_STORAGE(tail, head, weight, nwp, m){			\
-    WtUPDATE_STORAGE_COND(tail, head, weight, nwp, m, TRUE);		\
+#define WtUPDATE_STORAGE(tail, head, weight, nwp, m, MHp){			\
+    WtUPDATE_STORAGE_COND(tail, head, weight, nwp, m, MHp, TRUE);	\
   }
 
 WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputs,
