@@ -55,7 +55,8 @@ void CD_wrapper(int *dnumnets, int *nedges,
 	  inputs,
 	  *fVerbose,
 	  nw, attribs, maxout, maxin, minout, minin,
-	  *condAllDegExact, *attriblength);
+	  *condAllDegExact, *attriblength,
+	  m->termarray->aux_storage);
 
   undotail = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
   undohead = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
@@ -68,7 +69,7 @@ void CD_wrapper(int *dnumnets, int *nedges,
   free(undotail);
   free(undohead);
   free(extraworkspace);
-  MH_free(&MH);
+  MH_free(&MH, nw);
 
   ModelDestroy(nw, m);
   NetworkDestroy(nw);
@@ -165,7 +166,7 @@ MCMCStatus CDStep(MHproposal *MHp,
     
     for(unsigned int mult=0; mult<CDparams[1]; mult++){
       MHp->logratio = 0;
-      (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
+      (*(MHp->p_func))(MHp, nwp); /* Call MH function to propose toggles */
 
       if(MHp->toggletail[0]==MH_FAILED){
 	switch(MHp->togglehead[0]){
@@ -187,7 +188,7 @@ MCMCStatus CDStep(MHproposal *MHp,
 	  
 	case MH_CONSTRAINT:
 	  MHp->logratio = -INFINITY; // Force rejection of proposal.
-	  break; // Do not attempt any more proposals in this multiplicity chain.
+	  break; // Do not attempt any more proposals in this CDparams[1] chain.
 	}
       }
       
@@ -222,12 +223,7 @@ MCMCStatus CDStep(MHproposal *MHp,
 	  ntoggled++;
 	  mtoggled++;
 
-	  UPDATE_STORAGE(MHp->toggletail[i], MHp->togglehead[i], nwp, m);
-	  	  
-	  if(MHp->discord)
-	    for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	      ToggleEdge(MHp->toggletail[i],  MHp->togglehead[i], *nwd);
-	    }
+	  UPDATE_STORAGE(MHp->toggletail[i], MHp->togglehead[i], nwp, m, MHp);
 	  ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 	}
       }
@@ -273,13 +269,7 @@ MCMCStatus CDStep(MHproposal *MHp,
 	  undohead[ntoggled]=MHp->togglehead[i];
 	  ntoggled++;
 
-	  UPDATE_STORAGE(MHp->toggletail[i],  MHp->togglehead[i], nwp, m);
-	  
-	  if(MHp->discord)
-	    for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	      ToggleEdge(MHp->toggletail[i],  MHp->togglehead[i], *nwd);
-	    }
-
+	  UPDATE_STORAGE(MHp->toggletail[i],  MHp->togglehead[i], nwp, m, MHp);
 	  ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 	}
       }
@@ -300,13 +290,7 @@ MCMCStatus CDStep(MHproposal *MHp,
 
 	/* FIXME: This should be done in one call, but it's very easy
 	   to make a fencepost error here. */
-	UPDATE_STORAGE(t, h, nwp, m);
-      	
-	if(MHp->discord)
-	  for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	    ToggleEdge(t, h, *nwd);
-	  }
-
+	UPDATE_STORAGE(t, h, nwp, m, MHp);
 	ToggleEdge(t, h, nwp);
       }
     }
@@ -318,13 +302,7 @@ MCMCStatus CDStep(MHproposal *MHp,
 
     /* FIXME: This should be done in one call, but it's very easy
        to make a fencepost error here. */
-    UPDATE_STORAGE(t, h, nwp, m);
-    
-    if(MHp->discord)
-      for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	ToggleEdge(t, h, *nwd);
-      }
-
+    UPDATE_STORAGE(t, h, nwp, m, MHp);
     ToggleEdge(t, h, nwp);
   }
   

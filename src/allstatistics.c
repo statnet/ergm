@@ -147,7 +147,7 @@ void RecurseOffOn(
       });
     
     /* Inform u_* functions that the network is about to change. */
-    UPDATE_STORAGE(*(nodelist1+currentnodes), *(nodelist2+currentnodes), nwp, m);
+    UPDATE_STORAGE(*(nodelist1+currentnodes), *(nodelist2+currentnodes), nwp, m, NULL);
     
     for (int j=0; j < m->n_stats; j++) cumulativeStats[j] += changeStats[j];
     /* Now toggle the dyad so it's ready for the next pass */

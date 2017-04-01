@@ -13,6 +13,7 @@
 #include "edgetree.h"
 #include "changestat.h"
 #include "R_ext/Rdynload.h"
+#include "MHproposal.h"
 
 /* A Model object contains information about an entire ERGM, including the
    total numbers of terms, parameters, and statistics along with a pointer
@@ -65,18 +66,19 @@ typedef struct Modelstruct {
 #define IFDEBUG_RESTORE_DSTATS
 #endif
 
-#define UPDATE_STORAGE_COND(tail, head, nwp, m, cond){			\
+#define UPDATE_STORAGE_COND(tail, head, nwp, m, MHp, cond){		\
+    if(MHp && ((MHproposal*)MHp)->u_func) ((MHproposal*)MHp)->u_func(tail, head, MHp, nwp); \
     EXEC_THROUGH_TERMS({						\
-	IFDEBUG_BACKUP_DSTATS;						\
-	if(mtp->u_func && (cond))					\
-	  (*(mtp->u_func))(tail, head, mtp, nwp);  /* Call u_??? function */ \
-	IFDEBUG_RESTORE_DSTATS;						\
-      });								\
-  }
+	  IFDEBUG_BACKUP_DSTATS;					\
+	  if(mtp->u_func && (cond))					\
+	    (*(mtp->u_func))(tail, head, mtp, nwp);  /* Call u_??? function */ \
+	  IFDEBUG_RESTORE_DSTATS;					\
+	});								\
+    }
 
-#define UPDATE_STORAGE(tail, head, nwp, m){				\
-  UPDATE_STORAGE_COND(tail, head, nwp, m, TRUE);			\
-  }
+#define UPDATE_STORAGE(tail, head, nwp, m, MHp){			\
+      UPDATE_STORAGE_COND(tail, head, nwp, m, MHp, TRUE);		\
+    }
 
 Model* ModelInitialize (char *fnames, char *sonames, double **inputs,
 			int n_terms);

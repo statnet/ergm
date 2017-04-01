@@ -46,7 +46,7 @@
 #
 #####################################################################################
 
-ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="static",...) {
+ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="static",...,extra.aux=list()) {
   if ((dc<-data.class(formula)) != "formula")
     stop (paste("Invalid formula of class ",dc), call.=FALSE)
 
@@ -90,7 +90,7 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
     model <- updatemodel.ErgmTerm(model, outlist)
   }
 
-  model <- ergm.auxstorage(model, nw, response=response, ...)
+  model <- ergm.auxstorage(model, nw, response=response, ..., extra.aux=extra.aux)
   
   model$etamap <- ergm.etamap(model)
 

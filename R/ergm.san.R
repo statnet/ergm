@@ -116,13 +116,13 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   }
 
 # model <- ergm.getmodel(formula, nw, drop=control$drop)
-  model <- ergm.getmodel(formula, nw, response=response)
+  MHproposal<-MHproposal(constraints,arguments=control$SAN.prop.args,nw=nw,weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
+  model <- ergm.getmodel(formula, nw, response=response, extra.aux=list(MHproposal$auxiliaries))
   Clist <- ergm.Cprepare(nw, model, response=response)
   Clist.miss <- ergm.design(nw, model, verbose=verbose)
   
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
-  MHproposal<-MHproposal(constraints,arguments=control$SAN.prop.args,nw=nw,weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
 # if(is.null(control$coef)) {
 #   warning("No parameter values given, using the MPLE for the passed network.\n\t")
 # }
@@ -198,7 +198,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
                 as.character(Clist$snamestring), 
                 as.character(MHproposal$name),
                 as.character(MHproposal$pkgname),
-                as.double(c(Clist$inputs,MHproposal$inputs)),
+                as.double(c(Clist$inputs,Clist$slots.extra.aux,MHproposal$inputs)),
                 as.double(.deinf(eta0)),
                 as.double(.deinf(tau)),
                 as.integer(1), # "samplesize"
@@ -227,7 +227,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
                 as.character(Clist$snamestring), 
                 as.character(MHproposal$name),
                 as.character(MHproposal$pkgname),
-                as.double(c(Clist$inputs,MHproposal$inputs)),
+                as.double(c(Clist$inputs,Clist$slots.extra.aux,MHproposal$inputs)),
                 as.double(.deinf(eta0)),
                 as.double(.deinf(tau)),
                 as.integer(1), # "samplesize"

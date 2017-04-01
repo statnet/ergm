@@ -1,6 +1,6 @@
-ergm.auxstorage <- function(model, nw, response=NULL,...){
+ergm.auxstorage <- function(model, nw, response=NULL,..., extra.aux=list()){
   # As formulas
-  aux.forms <- lapply(model$terms, "[[", "auxiliaries")
+  aux.forms <- c(lapply(model$terms, "[[", "auxiliaries"), extra.aux)
 
   # A nested list: outer list are the model terms requesting
   # auxiliaries and the inner list is the outputs from InitErgmTerm
@@ -31,11 +31,18 @@ ergm.auxstorage <- function(model, nw, response=NULL,...){
 
   # Which term is requiring which auxiliary slot? (+1)
   aux.slots <- lapply(aux.outlists, match, uniq.aux.outlists)
-
-  for(i in seq_along(model$terms))
-    if(length(aux.outlists[[i]]))
-      model$terms[[i]]$inputs[3+seq_len(length(aux.outlists[[i]]))] <- aux.slots[[i]]-1
-
+  slots.extra.aux <- list()
+  
+  for(i in seq_along(aux.outlists)){
+    if(length(aux.outlists[[i]])){
+      if(i<=length(model$terms)) # If it's a model term.
+        model$terms[[i]]$inputs[3+seq_len(length(aux.outlists[[i]]))] <- aux.slots[[i]]-1
+      else # If it's some other entity requesting auxiliaries.
+        slots.extra.aux[[i-length(model$terms)]] <- aux.slots[[i]]-1
+    }
+  }
+ 
   model$model.aux <- aux.model
+  model$slots.extra.aux <- slots.extra.aux
   model
 }

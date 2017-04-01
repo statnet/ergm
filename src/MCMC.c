@@ -67,14 +67,15 @@ void MCMC_wrapper(int *dnumnets, int *nedges,
 	  inputs,
 	  *fVerbose,
 	  nw, attribs, maxout, maxin, minout, minin,
-	  *condAllDegExact, *attriblength);
+	  *condAllDegExact, *attriblength,
+	  m->termarray->aux_storage);
 
   *status = MCMCSample(&MH,
 		       theta0, sample, *samplesize,
 		       *burnin, *interval,
 		       *fVerbose, nmax, nw, m);
   
-  MH_free(&MH);
+  MH_free(&MH, nw);
         
 /* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
 
@@ -211,7 +212,7 @@ MCMCStatus MetropolisHastings(MHproposal *MHp,
     Rprintf("Now proposing %d MH steps... ", nsteps); */
   for(unsigned int step=0; step < nsteps; step++) {
     MHp->logratio = 0;
-    (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
+    (*(MHp->p_func))(MHp, nwp); /* Call MH function to propose toggles */
 
     if(MHp->toggletail[0]==MH_FAILED){
       switch(MHp->togglehead[0]){
@@ -274,13 +275,7 @@ MCMCStatus MetropolisHastings(MHproposal *MHp,
 
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for(unsigned int i=0; i < MHp->ntoggles; i++){
-	UPDATE_STORAGE(MHp->toggletail[i], MHp->togglehead[i], nwp, m);
-		
-	if(MHp->discord)
-	  for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	    ToggleEdge(MHp->toggletail[i],  MHp->togglehead[i], *nwd);
-	  }
-
+	UPDATE_STORAGE(MHp->toggletail[i], MHp->togglehead[i], nwp, m, MHp);
 	ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
       }
       /* record network statistics for posterity */
@@ -349,14 +344,15 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
 	  inputs,
 	  *fVerbose,
 	  nw, attribs, maxout, maxin, minout, minin,
-	  *condAllDegExact, *attriblength);
+	  *condAllDegExact, *attriblength,
+	  m->termarray->aux_storage);
   
   MCMCSamplePhase12 (&MH,
 		     theta0, *gain, meanstats, nphase1, nsubphases, sample, *samplesize,
 		     *burnin, *interval,
 		     (int)*fVerbose, nw, m);
 
-  MH_free(&MH);
+  MH_free(&MH, nw);
   
   /* record new generated network to pass back to R */
   if(nmax>0 && newnetworktails && newnetworkheads)

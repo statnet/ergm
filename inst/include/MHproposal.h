@@ -71,15 +71,19 @@ void DegreeBoundDestroy(DegreeBound *bd);
 /* *** don't forget tail-> head */
 
 typedef struct MHproposalstruct {
-  void (*func)(struct MHproposalstruct*, Network*);
+  void (*i_func)(struct MHproposalstruct*, Network*);
+  void (*p_func)(struct MHproposalstruct*, Network*);
+  void (*u_func)(Vertex tail, Vertex head, struct MHproposalstruct*, Network*);
+  void (*f_func)(struct MHproposalstruct*, Network*);
   Edge ntoggles;
   Vertex *toggletail;
   Vertex *togglehead;
   double logratio;
   int status;
   DegreeBound *bd;
-  Network **discord;
   double *inputs; /* may be used if needed, ignored if not. */
+  void *storage;
+  void **aux_storage;
 } MHproposal;
 
 
@@ -90,9 +94,10 @@ void MH_init(MHproposal *MHp,
 	     Network *nwp, 
 	     int *attribs, int *maxout, int *maxin, 
 	     int *minout, int *minin, int condAllDegExact, 
-	     int attriblength);
+	     int attriblength,
+	     void **aux_storage);
 
-void MH_free(MHproposal *MHp);
+void MH_free(MHproposal *MHp, Network *nwp);
 
 int CheckTogglesValid(MHproposal *MHp, Network *nwp);
 int CheckConstrainedTogglesValid(MHproposal *MHp, Network *nwp);

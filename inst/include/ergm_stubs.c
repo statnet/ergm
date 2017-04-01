@@ -195,15 +195,15 @@ static void (*fun)(DegreeBound *) = NULL;
 if(fun==NULL) fun = (void (*)(DegreeBound *)) R_FindSymbol("DegreeBoundDestroy", "ergm", NULL);
 fun(bd);
 }
-void MH_init(MHproposal *MHp,char *MHproposaltype, char *MHproposalpackage,double *inputs,int fVerbose,Network *nwp,int *attribs, int *maxout, int *maxin,int *minout, int *minin, int condAllDegExact,int attriblength){
-static void (*fun)(MHproposal *,char *,char *,double *,int,Network *,int *,int *,int *,int *,int *,int,int) = NULL;
-if(fun==NULL) fun = (void (*)(MHproposal *,char *,char *,double *,int,Network *,int *,int *,int *,int *,int *,int,int)) R_FindSymbol("MH_init", "ergm", NULL);
-fun(MHp,MHproposaltype,MHproposalpackage,inputs,fVerbose,nwp,attribs,maxout,maxin,minout,minin,condAllDegExact,attriblength);
+void MH_init(MHproposal *MHp,char *MHproposaltype, char *MHproposalpackage,double *inputs,int fVerbose,Network *nwp,int *attribs, int *maxout, int *maxin,int *minout, int *minin, int condAllDegExact,int attriblength,void **aux_storage){
+static void (*fun)(MHproposal *,char *,char *,double *,int,Network *,int *,int *,int *,int *,int *,int,int,void **) = NULL;
+if(fun==NULL) fun = (void (*)(MHproposal *,char *,char *,double *,int,Network *,int *,int *,int *,int *,int *,int,int,void **)) R_FindSymbol("MH_init", "ergm", NULL);
+fun(MHp,MHproposaltype,MHproposalpackage,inputs,fVerbose,nwp,attribs,maxout,maxin,minout,minin,condAllDegExact,attriblength,aux_storage);
 }
-void MH_free(MHproposal *MHp){
-static void (*fun)(MHproposal *) = NULL;
-if(fun==NULL) fun = (void (*)(MHproposal *)) R_FindSymbol("MH_free", "ergm", NULL);
-fun(MHp);
+void MH_free(MHproposal *MHp, Network *nwp){
+static void (*fun)(MHproposal *,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(MHproposal *,Network *)) R_FindSymbol("MH_free", "ergm", NULL);
+fun(MHp,nwp);
 }
 int CheckTogglesValid(MHproposal *MHp, Network *nwp){
 static int (*fun)(MHproposal *,Network *) = NULL;
@@ -322,6 +322,21 @@ fun(nwp,m);
 #undef S_CHANGESTAT_FN
 #undef D_FROM_S
 #undef D_FROM_S_FN
+#undef NO_EDGE
+#undef OLD_EDGE
+#undef NEW_EDGE
+#undef CAN_IGNORE
+#undef MAX_TRIES
+#undef MH_FAILED
+#undef MH_UNRECOVERABLE
+#undef MH_IMPOSSIBLE
+#undef MH_UNSUCCESSFUL
+#undef MH_CONSTRAINT
+#undef MH_QUIT_UNSUCCESSFUL
+#undef XOR
+#undef XNOR
+#undef BD_LOOP
+#undef BD_COND_LOOP
 #undef FOR_EACH_TERM
 #undef EXEC_THROUGH_TERMS
 #undef FOR_EACH_TERM_INREVERSE
@@ -590,15 +605,15 @@ return fun(tails,heads,weights,nwp,nmax);
 #undef GetRandDyad
 #include "R_ext/Rdynload.h"
 #include "wtMHproposal.h"
-void WtMH_init(WtMHproposal *MH,char *MHproposaltype, char *MHproposalpackage,double *inputs,int fVerbose,WtNetwork *nwp){
-static void (*fun)(WtMHproposal *,char *,char *,double *,int,WtNetwork *) = NULL;
-if(fun==NULL) fun = (void (*)(WtMHproposal *,char *,char *,double *,int,WtNetwork *)) R_FindSymbol("WtMH_init", "ergm", NULL);
-fun(MH,MHproposaltype,MHproposalpackage,inputs,fVerbose,nwp);
+void WtMH_init(WtMHproposal *MH,char *MHproposaltype, char *MHproposalpackage,double *inputs,int fVerbose,WtNetwork *nwp,void **aux_storage){
+static void (*fun)(WtMHproposal *,char *,char *,double *,int,WtNetwork *,void **) = NULL;
+if(fun==NULL) fun = (void (*)(WtMHproposal *,char *,char *,double *,int,WtNetwork *,void **)) R_FindSymbol("WtMH_init", "ergm", NULL);
+fun(MH,MHproposaltype,MHproposalpackage,inputs,fVerbose,nwp,aux_storage);
 }
-void WtMH_free(WtMHproposal *MH){
-static void (*fun)(WtMHproposal *) = NULL;
-if(fun==NULL) fun = (void (*)(WtMHproposal *)) R_FindSymbol("WtMH_free", "ergm", NULL);
-fun(MH);
+void WtMH_free(WtMHproposal *MH, WtNetwork *nwp){
+static void (*fun)(WtMHproposal *,WtNetwork *) = NULL;
+if(fun==NULL) fun = (void (*)(WtMHproposal *,WtNetwork *)) R_FindSymbol("WtMH_free", "ergm", NULL);
+fun(MH,nwp);
 }
 #undef MIN
 #undef MAX
@@ -756,6 +771,19 @@ fun(nwp,m);
 #undef GETNEWWT
 #undef GETNEWWTOLD
 #undef D_FROM_S
+#undef NO_EDGE
+#undef OLD_EDGE
+#undef NEW_EDGE
+#undef CAN_IGNORE
+#undef MAX_TRIES
+#undef MH_FAILED
+#undef MH_UNRECOVERABLE
+#undef MH_IMPOSSIBLE
+#undef MH_UNSUCCESSFUL
+#undef MH_CONSTRAINT
+#undef MH_QUIT_UNSUCCESSFUL
+#undef XOR
+#undef XNOR
 #undef WtFOR_EACH_TERM
 #undef WtEXEC_THROUGH_TERMS
 #undef WtFOR_EACH_TERM_INREVERSE

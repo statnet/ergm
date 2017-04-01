@@ -66,14 +66,15 @@ void WtMCMC_wrapper(int *dnumnets, int *nedges,
 	    *MHproposaltype, *MHproposalpackage,
 	    inputs,
 	    *fVerbose,
-	    nw);
+	    nw,
+	    m->termarray->aux_storage);
 
   *status = WtMCMCSample(&MH,
 			 theta0, sample, *samplesize,
 			 *burnin, *interval,
 			 *fVerbose, nmax, nw, m);
 
-  WtMH_free(&MH);
+  WtMH_free(&MH, nw);
         
 /* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
 
@@ -210,7 +211,7 @@ WtMCMCStatus WtMetropolisHastings (WtMHproposal *MHp,
     Rprintf("Now proposing %d MH steps... ", nsteps); */
   for(unsigned int step=0; step < nsteps; step++) {
     MHp->logratio = 0;
-    (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
+    (*(MHp->p_func))(MHp, nwp); /* Call MH function to propose toggles */
 
     if(MHp->toggletail[0]==MH_FAILED){
       switch(MHp->togglehead[0]){
@@ -276,14 +277,7 @@ WtMCMCStatus WtMetropolisHastings (WtMHproposal *MHp,
 	Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];
 	double w=MHp->toggleweight[i];
 
-	WtUPDATE_STORAGE(t, h, w, nwp, m);
-	
-	if(MHp->discord)
-	  for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	    // This could be speeded up by implementing an "incrementation" function.
-	    WtSetEdge(t, h, WtGetEdge(t,  h, *nwd) + w - WtGetEdge(t, h, nwp), *nwd);
-	  }
-
+	WtUPDATE_STORAGE(t, h, w, nwp, m, MHp);
 	WtSetEdge(t, h, w, nwp);
       }
       /* record network statistics for posterity */

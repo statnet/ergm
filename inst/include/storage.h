@@ -9,7 +9,6 @@
  */
 
 /* Storage utilities */
-
 #define STORAGE (/* (stored_type *) */ mtp->storage)
 #define ALLOC_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (STORAGE = calloc(nmemb, sizeof(stored_type)));
 #define GET_STORAGE(stored_type, store_into) stored_type *store_into = (stored_type *) STORAGE;
