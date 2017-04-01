@@ -67,17 +67,12 @@ WtNetwork *nwp, WtModel *m, double *stats){
 
   /* Initialize storage for terms that don't have s_functions.  */
   WtEXEC_THROUGH_TERMS_INREVERSE({
-#ifdef DEBUG
-      double *dstats = mtp->dstats;
-      mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
-#endif
+      IFDEBUG_BACKUP_DSTATS;
       if(mtp->s_func==NULL && mtp->i_func)
 	(*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
       else if(mtp->s_func==NULL && mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
 	(*(mtp->u_func))(0, 0, 0, mtp, nwp);  /* Call u_??? function */
-#ifdef DEBUG
-      mtp->dstats = dstats;
-#endif
+      IFDEBUG_RESTORE_DSTATS;
     });
     
   /* Calculate statistics for terms that don't have c_functions or s_functions.  */

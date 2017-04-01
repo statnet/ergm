@@ -58,28 +58,21 @@ typedef struct Modelstruct {
     to trigger a segfault if u_func tries to write to change
     statistics; then restore it. Otherwise, don't bother. */
 #ifdef DEBUG
-
-#define UPDATE_STORAGE_COND(tail, head, nwp, m, cond){			\
-    EXEC_THROUGH_TERMS({						\
-      double *dstats = mtp->dstats; /* Back up mtp->dstats. */		\
-      mtp->dstats = NULL; /* Trigger segfault if u_func tries to write to change statistics. */ \
-      if(mtp->u_func && (cond))						\
-	(*(mtp->u_func))(tail, head, mtp, nwp);  /* Call u_??? function */ \
-      mtp->dstats = dstats; /* Restore mtp->dstats. */			\
-    });									\
-  }
-
+#define IFDEBUG_BACKUP_DSTATS double *dstats = mtp->dstats; mtp->dstats = NULL;
+#define IFDEBUG_RESTORE_DSTATS mtp->dstats = dstats;
 #else
-
+#define IFDEBUG_BACKUP_DSTATS
+#define IFDEBUG_RESTORE_DSTATS
+#endif
 
 #define UPDATE_STORAGE_COND(tail, head, nwp, m, cond){			\
     EXEC_THROUGH_TERMS({						\
+	IFDEBUG_BACKUP_DSTATS;						\
 	if(mtp->u_func && (cond))					\
 	  (*(mtp->u_func))(tail, head, mtp, nwp);  /* Call u_??? function */ \
+	IFDEBUG_RESTORE_DSTATS;						\
       });								\
   }
-
-#endif
 
 #define UPDATE_STORAGE(tail, head, nwp, m){				\
   UPDATE_STORAGE_COND(tail, head, nwp, m, TRUE);			\
