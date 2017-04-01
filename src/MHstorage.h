@@ -8,6 +8,9 @@
  *  Copyright 2003-2013 Statnet Commons
  */
 
+#ifndef MHSTORAGE_H
+#define MHSTORAGE_H
+
 /* Storage utilities for MH proposal clients */
 #define MH_STORAGE (/* (stored_type *) */ MHp->storage)
 #define MH_ALLOC_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (MH_STORAGE = calloc(nmemb, sizeof(stored_type)));
@@ -29,3 +32,5 @@
 #define GET_AUX_STORAGE_NUM MH_GET_AUX_STORAGE_NUM
 
 #endif // STRICT_MH_HEADERS
+
+#endif // MHSTORAGE_H

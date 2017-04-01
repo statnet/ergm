@@ -8,6 +8,9 @@
  *  Copyright 2003-2013 Statnet Commons
  */
 
+#ifndef STORAGE_H
+#define STORAGE_H
+
 /* Storage utilities */
 #define STORAGE (/* (stored_type *) */ mtp->storage)
 #define ALLOC_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (STORAGE = calloc(nmemb, sizeof(stored_type)));
@@ -53,3 +56,4 @@
   mtp->aux_storage[myslot] = NULL;					\
   /* nwp->storage was not shifted, so it'll be freed automatically. */	
 
+#endif // STORAGE_H
