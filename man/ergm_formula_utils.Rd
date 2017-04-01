@@ -17,7 +17,8 @@ Internal Functions for Querying, Validating and Extracting from ERGM Formulas
 These are all functions that are generally not called directly by users, but may be employed by other depending packages.  
 }
 \usage{
-ergm.getmodel(formula, nw, response = NULL, silent = FALSE, role = "static", ...)
+ergm.getmodel(formula, nw, response = NULL, silent = FALSE,
+              role = "static", ..., extra.aux = list())
 
 ergm.getnetwork(form, loopswarning = TRUE)
 
@@ -55,7 +56,9 @@ additional parameters for model formulation
   
   \item{object}{formula object to be updated}
   \item{new}{new formula to be used in updating}
-  \item{from.new}{logical or character vector of variable names. controls how environment of formula gets updated.}
+  \item{from.new}{logical or character vector of variable
+    names. controls how environment of formula gets updated.}
+  \item{extra.aux}{a list of formulas giving additional auxiliaries to initialize.}
 }
 \details{
 \itemize{
