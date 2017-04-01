@@ -27,6 +27,7 @@ void WtMH_init(WtMHproposal *MHp,
 
   MHp->i_func=MHp->p_func=MHp->f_func=NULL;
   MHp->u_func=NULL;
+  MHp->storage=NULL;
   
   for (i = 0; MHproposaltype[i] != ' ' && MHproposaltype[i] != 0; i++);
   MHproposaltype[i] = 0;
@@ -81,12 +82,12 @@ void WtMH_init(WtMHproposal *MHp,
 
   MHp->aux_storage = aux_storage;
 
+  MHp->ntoggles=0;
   if(MHp->i_func){
     // New-style initialization
     MHp->i_func(MHp, nwp);
   }else{
     // Old-style initialization
-    MHp->ntoggles=0;
     (*(MHp->p_func))(MHp, nwp); /* Call MH proposal function to initialize */
   }
   
@@ -101,7 +102,7 @@ void WtMH_init(WtMHproposal *MHp,
  A helper function to free memory allocated by WtMH_init.
 *********************/
 void WtMH_free(WtMHproposal *MHp, WtNetwork *nwp){
-  MHp->f_func(MHp, nwp);
+  if(MHp->f_func) MHp->f_func(MHp, nwp);
   if(MHp->storage){
     free(MHp->storage);
     MHp->storage=NULL;
