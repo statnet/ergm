@@ -46,7 +46,7 @@ void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timi
      statistics will simply overwrite them.*/
   WtSummStats(n_edges, tails, heads, weights, nw, m,stats);
   
-  WtModelDestroy(m, nw);
+  WtModelDestroy(nw, m);
   WtNetworkDestroy(nw);
 }
 
@@ -108,7 +108,7 @@ WtNetwork *nwp, WtModel *m, double *stats){
       });
     
     /* Update storage and network */    
-    WtUPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, m, nwp, mtp->s_func==NULL && mtp->d_func==NULL);
+    WtUPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, nwp, m, mtp->s_func==NULL && mtp->d_func==NULL);
     SETWT(TAIL, HEAD, NEWWT);
   }
   

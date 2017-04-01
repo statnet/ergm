@@ -71,7 +71,7 @@ void CD_wrapper(int *dnumnets, int *nedges,
   free(extraworkspace);
   MH_free(&MH);
 
-  ModelDestroy(m, nw);
+  ModelDestroy(nw, m);
   NetworkDestroy(nw);
   PutRNGstate();  /* Disable RNG before returning */
 }
@@ -223,7 +223,7 @@ MCMCStatus CDStep(MHproposal *MHp,
 	  ntoggled++;
 	  mtoggled++;
 
-	  UPDATE_STORAGE(MHp->toggletail[i], MHp->togglehead[i], m, nwp);
+	  UPDATE_STORAGE(MHp->toggletail[i], MHp->togglehead[i], nwp, m);
 	  ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 	}
       }
@@ -269,7 +269,7 @@ MCMCStatus CDStep(MHproposal *MHp,
 	  undohead[ntoggled]=MHp->togglehead[i];
 	  ntoggled++;
 
-	  UPDATE_STORAGE(MHp->toggletail[i],  MHp->togglehead[i], m, nwp);
+	  UPDATE_STORAGE(MHp->toggletail[i],  MHp->togglehead[i], nwp, m);
 	  ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 	}
       }
@@ -290,7 +290,7 @@ MCMCStatus CDStep(MHproposal *MHp,
 
 	/* FIXME: This should be done in one call, but it's very easy
 	   to make a fencepost error here. */
-	UPDATE_STORAGE(t, h, m, nwp);
+	UPDATE_STORAGE(t, h, nwp, m);
 	ToggleEdge(t, h, nwp);
       }
     }
@@ -302,7 +302,7 @@ MCMCStatus CDStep(MHproposal *MHp,
 
     /* FIXME: This should be done in one call, but it's very easy
        to make a fencepost error here. */
-    UPDATE_STORAGE(t, h, m, nwp);
+    UPDATE_STORAGE(t, h, nwp, m);
     ToggleEdge(t, h, nwp);
   }
   

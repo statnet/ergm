@@ -59,7 +59,7 @@ typedef struct WtModelstruct {
     statistics; then restore it. Otherwise, don't bother. */
 #ifdef DEBUG
 
-#define WtUPDATE_STORAGE_COND(tail, head, weight, m, nwp, cond){	\
+#define WtUPDATE_STORAGE_COND(tail, head, weight, nwp, m, cond){	\
     WtEXEC_THROUGH_TERMS({						\
 	double *dstats = mtp->dstats; /* Back up mtp->dstats. */	\
 	mtp->dstats = NULL; /* Trigger segfault if u_func tries to write to change statistics. */ \
@@ -72,7 +72,7 @@ typedef struct WtModelstruct {
 #else
 
 
-#define WtUPDATE_STORAGE_COND(tail, head, weight, m, nwp, cond){	\
+#define WtUPDATE_STORAGE_COND(tail, head, weight, nwp, m, cond){	\
     WtEXEC_THROUGH_TERMS({						\
 	if(mtp->u_func && (cond))					\
 	  (*(mtp->u_func))(tail, head, weight, mtp, nwp);  /* Call u_??? function */ \
@@ -81,14 +81,14 @@ typedef struct WtModelstruct {
 
 #endif
 
-#define WtUPDATE_STORAGE(tail, head, weight, m, nwp){			\
-    WtUPDATE_STORAGE_COND(tail, head, weight, m, nwp, TRUE);		\
+#define WtUPDATE_STORAGE(tail, head, weight, nwp, m){			\
+    WtUPDATE_STORAGE_COND(tail, head, weight, nwp, m, TRUE);		\
   }
 
 WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputs,
 			int n_terms);
 
-void WtModelDestroy(WtModel *m, WtNetwork *nwp);
+void WtModelDestroy(WtNetwork *nwp, WtModel *m);
 
 /* A WtModel object contains information about an entire ERGM, including the
    total numbers of terms, parameters, and statistics along with a pointer

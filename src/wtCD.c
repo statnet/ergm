@@ -73,7 +73,7 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
         
 /* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
   
-  WtModelDestroy(m, nw);
+  WtModelDestroy(nw, m);
   WtNetworkDestroy(nw);
   PutRNGstate();  /* Disable RNG before returning */
 }
@@ -225,7 +225,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 	  ntoggled++;
 	  mtoggled++;
 
-	  WtUPDATE_STORAGE(t, h, w, m, nwp);
+	  WtUPDATE_STORAGE(t, h, w, nwp, m);
 	  WtSetEdge(t, h, w, nwp);
 	}
       }
@@ -274,7 +274,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 	  undoweight[ntoggled]=WtGetEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 	  ntoggled++;
 
-	  WtUPDATE_STORAGE(t, h, w, m, nwp);
+	  WtUPDATE_STORAGE(t, h, w, nwp, m);
 	  WtSetEdge(t, h, w, nwp);
 	}
       }
@@ -296,7 +296,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 
 	/* FIXME: This should be done in one call, but it's very easy
 	   to make a fencepost error here. */
-	WtUPDATE_STORAGE(t, h, w, m, nwp);
+	WtUPDATE_STORAGE(t, h, w, nwp, m);
 	WtSetEdge(t, h, w, nwp);
       }
     }
@@ -309,7 +309,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 
     /* FIXME: This should be done in one call, but it's very easy
        to make a fencepost error here. */
-    WtUPDATE_STORAGE(t, h, w, m, nwp);
+    WtUPDATE_STORAGE(t, h, w, nwp, m);
     WtSetEdge(t, h, w, nwp);
   }
   

@@ -49,7 +49,7 @@ void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int 
      statistics will simply overwrite them. */
   SummStats(n_edges, tails, heads, nw, m, stats);
   
-  ModelDestroy(m, nw);
+  ModelDestroy(nw, m);
   NetworkDestroy(nw);
 }
 
@@ -114,7 +114,7 @@ Network *nwp, Model *m, double *stats){
       });
     
     /* Update storage and network */    
-    UPDATE_STORAGE_COND(t, h, m, nwp, mtp->s_func==NULL && mtp->d_func==NULL);
+    UPDATE_STORAGE_COND(t, h, nwp, m, mtp->s_func==NULL && mtp->d_func==NULL);
     TOGGLE(t, h);
   }
   

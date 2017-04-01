@@ -82,7 +82,7 @@ void WtMCMC_wrapper(int *dnumnets, int *nedges,
   if(*status == WtMCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
     newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,newnetworkweights+1,nw,nmax-1);
   
-  WtModelDestroy(m, nw);
+  WtModelDestroy(nw, m);
   WtNetworkDestroy(nw);
   PutRNGstate();  /* Disable RNG before returning */
 }
@@ -277,7 +277,7 @@ WtMCMCStatus WtMetropolisHastings (WtMHproposal *MHp,
 	Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];
 	double w=MHp->toggleweight[i];
 
-	WtUPDATE_STORAGE(t, h, w, m, nwp);
+	WtUPDATE_STORAGE(t, h, w, nwp, m);
 	WtSetEdge(t, h, w, nwp);
       }
       /* record network statistics for posterity */

@@ -90,7 +90,7 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
   if(*status == MCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
     newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,nw,nmax-1);
   
-  ModelDestroy(m, nw);
+  ModelDestroy(nw, m);
   NetworkDestroy(nw);
   PutRNGstate();  /* Disable RNG before returning */
 }
@@ -305,7 +305,7 @@ MCMCStatus SANMetropolisHastings (MHproposal *MHp,
 
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for(unsigned int i=0; i < MHp->ntoggles; i++){
-	UPDATE_STORAGE(MHp->toggletail[i],  MHp->togglehead[i], m, nwp);
+	UPDATE_STORAGE(MHp->toggletail[i],  MHp->togglehead[i], nwp, m);
 	ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
       }
       /* record network statistics for posterity */
