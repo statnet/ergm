@@ -69,7 +69,7 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
   free(undohead);
   free(undoweight);
   free(extraworkspace);
-  WtMH_free(&MH);
+  WtMH_free(&MH, nw);
         
 /* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
   
@@ -165,7 +165,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
     
     for(unsigned int mult=0; mult<CDparams[1]; mult++){
       MHp->logratio = 0;
-      (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
+      (*(MHp->p_func))(MHp, nwp); /* Call MH function to propose toggles */
 
       if(MHp->toggletail[0]==MH_FAILED){
 	switch(MHp->togglehead[0]){
@@ -225,7 +225,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 	  ntoggled++;
 	  mtoggled++;
 
-	  WtUPDATE_STORAGE(t, h, w, nwp, m);
+	  WtUPDATE_STORAGE(t, h, w, nwp, m, MHp);
 	  WtSetEdge(t, h, w, nwp);
 	}
       }
@@ -274,7 +274,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 	  undoweight[ntoggled]=WtGetEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 	  ntoggled++;
 
-	  WtUPDATE_STORAGE(t, h, w, nwp, m);
+	  WtUPDATE_STORAGE(t, h, w, nwp, m, MHp);
 	  WtSetEdge(t, h, w, nwp);
 	}
       }
@@ -296,7 +296,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 
 	/* FIXME: This should be done in one call, but it's very easy
 	   to make a fencepost error here. */
-	WtUPDATE_STORAGE(t, h, w, nwp, m);
+	WtUPDATE_STORAGE(t, h, w, nwp, m, MHp);
 	WtSetEdge(t, h, w, nwp);
       }
     }
@@ -309,7 +309,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 
     /* FIXME: This should be done in one call, but it's very easy
        to make a fencepost error here. */
-    WtUPDATE_STORAGE(t, h, w, nwp, m);
+    WtUPDATE_STORAGE(t, h, w, nwp, m, MHp);
     WtSetEdge(t, h, w, nwp);
   }
   

@@ -54,7 +54,10 @@
 /* *** don't forget tail-> head */
 
 typedef struct WtMHproposalstruct {
-  void (*func)(struct WtMHproposalstruct*, WtNetwork*);
+  void (*i_func)(struct WtMHproposalstruct*, WtNetwork*);
+  void (*p_func)(struct WtMHproposalstruct*, WtNetwork*);
+  void (*u_func)(Vertex tail, Vertex head, double weight, struct WtMHproposalstruct*, WtNetwork*);
+  void (*f_func)(struct WtMHproposalstruct*, WtNetwork*);
   Edge ntoggles;
   Vertex *toggletail;
   Vertex *togglehead;
@@ -62,6 +65,7 @@ typedef struct WtMHproposalstruct {
   double logratio;
   int status;
   double *inputs; /* may be used if needed, ignored if not. */
+  void *storage;
   void **aux_storage;
 } WtMHproposal;
 
@@ -73,7 +77,7 @@ void WtMH_init(WtMHproposal *MH,
 	       WtNetwork *nwp,
 	       void **aux_storage);
 
-void WtMH_free(WtMHproposal *MH);
+void WtMH_free(WtMHproposal *MH, WtNetwork *nwp);
 
 #endif 
 

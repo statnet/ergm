@@ -82,7 +82,7 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
 		       *burnin, *interval,
 		       *fVerbose, nmax, nw, m);
   
-  MH_free(&MH);
+  MH_free(&MH, nw);
         
 /* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
 
@@ -235,7 +235,7 @@ MCMCStatus SANMetropolisHastings (MHproposal *MHp,
     Rprintf("Now proposing %d MH steps... ", nsteps); */
   for(unsigned int step=0; step < nsteps; step++) {
     MHp->logratio = 0;
-    (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
+    (*(MHp->p_func))(MHp, nwp); /* Call MH function to propose toggles */
 
       if(MHp->toggletail[0]==MH_FAILED){
 	switch(MHp->togglehead[0]){
@@ -305,7 +305,7 @@ MCMCStatus SANMetropolisHastings (MHproposal *MHp,
 
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for(unsigned int i=0; i < MHp->ntoggles; i++){
-	UPDATE_STORAGE(MHp->toggletail[i],  MHp->togglehead[i], nwp, m);
+	UPDATE_STORAGE(MHp->toggletail[i],  MHp->togglehead[i], nwp, m, MHp);
 	ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
       }
       /* record network statistics for posterity */
