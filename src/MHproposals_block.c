@@ -10,171 +10,52 @@
 #include "MHproposals.h"
 #include "edgelist.h"
 #include "changestat.h"
+#include "MHblockdiag.h"
 
 /* Shorthand. */
-#define Mtail (MHp->toggletail)
-#define Mhead (MHp->togglehead)
 
 /*********************
  void MH_blockdiag
 
  Block-diagonal sampling
 *********************/
-void MH_blockdiag (MHproposal *MHp, Network *nwp)  {  
+MH_P_FN(MH_blockdiag){
 
   /* *** don't forget tail-> head now */
 
-  Vertex tail, head;
-  static Vertex blks;
-  static double *blkpos, *blkcwt; 
+  MH_BlockDiagInfo b = unpack_BlockDiagInfo(MH_INPUTS, BIPARTITE, DIRECTED);
   
   if(MHp->ntoggles == 0) { /* Initialize randomtoggle */
-    blks=MHp->inputs[0];
-    blkpos = MHp->inputs+1;
-    blkcwt = MHp->inputs+1+blks+1; 
     MHp->ntoggles=1;
     return;
   }
   
   BD_LOOP({
-      double r = unif_rand();
-      // TODO: Use bisection to perform this search in O(log b) instead of O(b) time. 
-      Vertex blk = 1;
-      while(r>blkcwt[blk-1]) blk++;
-      tail = blkpos[blk-1]+1 + unif_rand() * (blkpos[blk]-blkpos[blk-1]);
-      while ((head = blkpos[blk-1]+1 + unif_rand() * (blkpos[blk]-blkpos[blk-1])) == tail);
-      
-      if (!DIRECTED && tail > head) {
-	Mtail[0] = head;
-	Mhead[0] = tail;
-      }else{
-	Mtail[0] = tail;
-	Mhead[0] = head;
-      }
+      GetRandDyadBlockDiag(Mtail, Mhead, &b);
     });
 }
-
-/*********************
- void MH_blockdiagB
-
- Block-diagonal sampling for bipartite graphs
-*********************/
-void MH_blockdiagB (MHproposal *MHp, Network *nwp)  {  
-
-  /* *** don't forget tail-> head now */
-
-  static Vertex blks;
-  static double *eblkpos, *ablkpos, *blkcwt; 
-  
-  if(MHp->ntoggles == 0) { /* Initialize randomtoggle */
-    blks=MHp->inputs[0];
-    eblkpos = MHp->inputs+1;
-    ablkpos = MHp->inputs+1+blks+1;
-    blkcwt = MHp->inputs+1+blks+1+blks+1;
-    MHp->ntoggles=1;
-    return;
-  }
-  
-  BD_LOOP({
-      double r = unif_rand();
-      // TODO: Use bisection to perform this search in O(log b) instead of O(b) time. 
-      Vertex blk = 1;
-      while(r>blkcwt[blk-1]) blk++;
-      Mtail[0] = eblkpos[blk-1]+1 + unif_rand() * (eblkpos[blk]-eblkpos[blk-1]);
-      Mhead[0] = ablkpos[blk-1]+1 + unif_rand() * (ablkpos[blk]-ablkpos[blk-1]);
-    });
-}
-
 
 /********************
    void MH_blockTNT
 
    Block-diagonal TNT sampling
 ***********************/
-void MH_blockdiagTNT (MHproposal *MHp, Network *nwp) 
+MH_P_FN(MH_blockdiagTNT){
 {
   /* *** don't forget tail-> head now */
-  
-  Vertex tail, head, blks=MHp->inputs[1];
-  double *blkpos = MHp->inputs+2, *blkcwt = MHp->inputs+2+blks+1, logratio=0; 
-  Edge nedges=nwp->nedges;
-  static double comp=0.5;
-  static double odds;
-  static Dyad ndyads;
-  
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
-    odds = comp/(1.0-comp);
-    ndyads = MHp->inputs[0];
     return;
   }
+
+  const double comp=0.5, odds = comp/(1.0-comp);
   
-  BD_LOOP({
-      if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
-	// Note that, by construction, this tie will be within a block.
-	GetRandEdge(Mtail, Mhead, nwp);
-	/* Thanks to Robert Goudie for pointing out an error in the previous 
-	   version of this sampler when proposing to go from nedges==0 to nedges==1 
-	   or vice versa.  Note that this happens extremely rarely unless the 
-	   network is small or the parameter values lead to extremely sparse 
-	   networks.  */
-	logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
-			 nedges / (odds*ndyads + nedges)));
-      }else{ /* Select a dyad at random within a block */
-	double r = unif_rand();
-	// TODO: Use bisection to perform this search in O(log b) instead of O(b) time. 
-	Vertex blk = 1;
-	while(r>blkcwt[blk-1]) blk++;
-	tail = blkpos[blk-1]+1 + unif_rand() * (blkpos[blk]-blkpos[blk-1]);
-	while ((head = blkpos[blk-1]+1 + unif_rand() * (blkpos[blk]-blkpos[blk-1])) == tail);
-	
-	if (tail > head && !DIRECTED)  {
-	  Mtail[0] = head;
-	  Mhead[0] = tail;
-	}else{
-	  Mtail[0] = tail;
-	  Mhead[0] = head;
-	}
-	if(IS_OUTEDGE(Mtail[0],Mhead[0])!=0){
-	  logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
-				nedges / (odds*ndyads + nedges)));
-	}else{
-	  logratio = log((nedges==0 ? comp*ndyads + (1.0-comp) :
-				1.0 + (odds*ndyads)/(nedges + 1)));
-	}
-      }
-    });
-  MHp->logratio += logratio;
-}
-
-/********************
-   void MH_blockTNTB
-
-   Block-diagonal TNT sampling for bipartite graphs
-***********************/
-void MH_blockdiagTNTB (MHproposal *MHp, Network *nwp) 
-{
-  /* *** don't forget tail-> head now */
-
-  static double *eblkpos, *ablkpos, *blkcwt; 
-  static Vertex blks;
+  Dyad ndyads = *MH_INPUTS;
+  MH_BlockDiagInfo b = unpack_BlockDiagInfo(MH_INPUTS+1, BIPARTITE, DIRECTED);
+  Edge nedges=nwp->nedges;
+  
   double logratio=0; 
-  Edge nedges=nwp->nedges;
-  static double comp=0.5;
-  static double odds;
-  static Dyad ndyads;
 
-  if(MHp->ntoggles == 0) { /* Initialize */
-    MHp->ntoggles=1;
-    blks=MHp->inputs[1];
-    eblkpos = MHp->inputs+2;
-    ablkpos = MHp->inputs+2+blks+1;
-    blkcwt = MHp->inputs+2+blks+1+blks+1;
-    
-    odds = comp/(1.0-comp);
-    ndyads = MHp->inputs[0];
-    return;
-  }
   
   BD_LOOP({
       if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
@@ -185,16 +66,11 @@ void MH_blockdiagTNTB (MHproposal *MHp, Network *nwp)
 	   or vice versa.  Note that this happens extremely rarely unless the 
 	   network is small or the parameter values lead to extremely sparse 
 	   networks.  */
-	logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
-			 nedges / (odds*ndyads + nedges)));
+	logratio = log((nedges==1 ? 1.0/(comp*b.ndyads + (1.0-comp)) :
+			 nedges / (odds*b.ndyads + nedges)));
       }else{ /* Select a dyad at random within a block */
-	double r = unif_rand();
-	// TODO: Use bisection to perform this search in O(log b) instead of O(b) time. 
-	Vertex blk = 1;
-	while(r>blkcwt[blk-1]) blk++;
-	Mtail[0] = eblkpos[blk-1]+1 + unif_rand() * (eblkpos[blk]-eblkpos[blk-1]);
-	Mhead[0] = ablkpos[blk-1]+1 + unif_rand() * (ablkpos[blk]-ablkpos[blk-1]);
-
+	GetRendDyadBlockDiag(Mtail, Mhead, &b);
+	
 	if(IS_OUTEDGE(Mtail[0],Mhead[0])!=0){
 	  logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
 				nedges / (odds*ndyads + nedges)));

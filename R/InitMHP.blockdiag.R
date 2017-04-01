@@ -36,7 +36,7 @@
 ## TODO: Document functions and export them, for use by tergm.
 .consensus.order <- function(x1, x2){
   o <- intersect(x1, x2)
-  if(!all(x1[x1 %in% o] == x2[x2 %in% o])) stop("Current implementation of block-diagonal sampling requires the common blocks of egos and blocks of alters to have the same order. See help('ergm-constraionts') for more information.")
+  if(!all(x1[x1 %in% o] == x2[x2 %in% o])) stop("Current implementation of block-diagonal sampling requires the common blocks of egos and blocks of alters to have the same order. See help('ergm-constraints') for more information.")
   o1 <- c(0, which(x1 %in% o),length(x1)+1)
   o2 <- c(0, which(x2 %in% o),length(x2)+1)
   n <- length(o1) - 1
@@ -105,7 +105,7 @@ InitMHP.blockdiag <- function(arguments, nw){
 
 .InitMHP.blockdiag.bipartite <- function(arguments, nw){
   tmp <- .InitMHP.blockdiag.bipartite.setup(arguments, nw)  
-  MHproposal <- list(name = "blockdiagB", inputs=c(length(tmp$eb)-1, tmp$eb, tmp$ab, tmp$w))
+  MHproposal <- list(name = "blockdiag", inputs=c(length(tmp$eb)-1, tmp$eb, tmp$ab, tmp$w))
   MHproposal
 }
 
@@ -136,7 +136,7 @@ InitMHP.blockdiagTNT <- function(arguments, nw){
 
 .InitMHP.blockdiagTNT.bipartite <- function(arguments, nw){
   tmp <- .InitMHP.blockdiag.bipartite.setup(arguments, nw)  
-  MHproposal <- list(name = "blockdiagTNTB", inputs=c(tmp$nd, length(tmp$eb)-1, tmp$eb, tmp$ab, tmp$w))
+  MHproposal <- list(name = "blockdiagTNT", inputs=c(tmp$nd, length(tmp$eb)-1, tmp$eb, tmp$ab, tmp$w))
   MHproposal
 }
 
