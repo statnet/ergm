@@ -241,10 +241,10 @@ static Model* (*fun)(char *,char *,double **,int) = NULL;
 if(fun==NULL) fun = (Model* (*)(char *,char *,double **,int)) R_FindSymbol("ModelInitialize", "ergm", NULL);
 return fun(fnames,sonames,inputs,n_terms);
 }
-void ModelDestroy(Model *m, Network *nwp){
-static void (*fun)(Model *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(Model *,Network *)) R_FindSymbol("ModelDestroy", "ergm", NULL);
-fun(m,nwp);
+void ModelDestroy(Network *nwp, Model *m){
+static void (*fun)(Network *,Model *) = NULL;
+if(fun==NULL) fun = (void (*)(Network *,Model *)) R_FindSymbol("ModelDestroy", "ergm", NULL);
+fun(nwp,m);
 }
 int GetIndexForAttrValue(int value){
 static int (*fun)(int) = NULL;
@@ -622,10 +622,10 @@ static WtModel* (*fun)(char *,char *,double **,int) = NULL;
 if(fun==NULL) fun = (WtModel* (*)(char *,char *,double **,int)) R_FindSymbol("WtModelInitialize", "ergm", NULL);
 return fun(fnames,sonames,inputs,n_terms);
 }
-void WtModelDestroy(WtModel *m, WtNetwork *nwp){
-static void (*fun)(WtModel *,WtNetwork *) = NULL;
-if(fun==NULL) fun = (void (*)(WtModel *,WtNetwork *)) R_FindSymbol("WtModelDestroy", "ergm", NULL);
-fun(m,nwp);
+void WtModelDestroy(WtNetwork *nwp, WtModel *m){
+static void (*fun)(WtNetwork *,WtModel *) = NULL;
+if(fun==NULL) fun = (void (*)(WtNetwork *,WtModel *)) R_FindSymbol("WtModelDestroy", "ergm", NULL);
+fun(nwp,m);
 }
 void WtChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, double *toggleweight, WtNetwork *nwp, WtModel *m){
 static void (*fun)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *) = NULL;
