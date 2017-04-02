@@ -952,7 +952,7 @@ WtC_CHANGESTAT_FN(c_nodesqrtcovar_centered){
 WtU_CHANGESTAT_FN(u_nodesqrtcovar_centered){
   double *ssq;
   if(!mtp->storage){
-    mtp->storage = malloc(sizeof(double));
+    mtp->storage = Calloc(1, double);
     ssq = (double *)mtp->storage;
     *ssq = 0;
     EXEC_THROUGH_NET_EDGES(i, e, j, yij, {

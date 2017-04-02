@@ -58,17 +58,17 @@ void CD_wrapper(int *dnumnets, int *nedges,
 	  *condAllDegExact, *attriblength,
 	  m->termarray->aux_storage);
 
-  undotail = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
-  undohead = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
-  double *extraworkspace = calloc(m->n_stats, sizeof(double));
+  undotail = Calloc(MH.ntoggles * CDparams[0] * CDparams[1], Vertex);
+  undohead = Calloc(MH.ntoggles * CDparams[0] * CDparams[1], Vertex);
+  double *extraworkspace = Calloc(m->n_stats, double);
 
   *status = CDSample(&MH,
 		     theta0, sample, *samplesize, CDparams, undotail, undohead,
 		     *fVerbose, nw, m, extraworkspace);
   
-  free(undotail);
-  free(undohead);
-  free(extraworkspace);
+  Free(undotail);
+  Free(undohead);
+  Free(extraworkspace);
   MH_free(&MH, nw);
 
   ModelDestroy(nw, m);

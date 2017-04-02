@@ -1570,10 +1570,7 @@ void edgewise_path_recurse(Network *nwp, Vertex dest, Vertex curnode,
   /*If possible, keep searching for novel paths*/
   if((availcount>0)&&(curlen<maxlen-2)){
     if(availcount>1){    /*Remove the current node from the available list*/
-      if((newavail=(Vertex *)malloc(sizeof(Vertex)*(availcount-1)))==NULL){
-        Rprintf("Unable to allocate %d bytes for available node list in edgewise_path_recurse.  Trying to terminate recursion gracefully, but your path count is probably wrong.\n",sizeof(Vertex)*(availcount-1));
-        return;
-      }
+      newavail=Calloc(availcount-1, Vertex);
       j=0;
       for(i=0;i<availcount;i++)      /*Create the reduced list, fur passin'*/
         if(availnodes[i]!=curnode)
@@ -1592,7 +1589,7 @@ void edgewise_path_recurse(Network *nwp, Vertex dest, Vertex curnode,
     }
     /*Free the available node list*/
     if(newavail!=NULL)
-      free((void *)newavail);
+      Free(newavail);
   }
 
   /*Check for interrupts (if recursion is taking way too long...)*/
@@ -1622,10 +1619,7 @@ void edgewise_cycle_census(Network *nwp, Vertex tail, Vertex head,
     return;                 /*Failsafe for graphs of order 2*/
   
   /*Perform the recursive path count*/
-  if((availnodes=(Vertex *)malloc(sizeof(Vertex)*(n-2)))==NULL){
-    Rprintf("Unable to allocate %d bytes for available node list in edgewise_cycle_census.  Exiting.\n",sizeof(Vertex)*(n-2));
-    return;
-  }
+  availnodes=Calloc(n-2, Vertex);
   j=0;                             /*Initialize the list of available nodes*/
   for(i=1;i<=n;i++)
     if((i!=head)&&(i!=tail))
@@ -1636,7 +1630,7 @@ void edgewise_cycle_census(Network *nwp, Vertex tail, Vertex head,
     if(rflag)
       edgewise_path_recurse(nwp,tail,availnodes[i],availnodes,n-2,1,countv,maxlen);
   }
-  free((void *)availnodes);  /*Free the available node list*/
+  Free(availnodes);  /*Free the available node list*/
 }
 
 /********************  changestats:  D    ***********/
@@ -4290,7 +4284,7 @@ S_CHANGESTAT_FN(s_rdegcor) {
   Edge e;
   double mu, mu2, sigma2, cross;
   Vertex tailrank, headrank;
-  Vertex *ndeg=malloc(sizeof(Vertex)*(N_NODES+1));
+  Vertex *ndeg=Calloc(N_NODES+1, Vertex);
 
   for(Vertex tail=0; tail <= N_NODES; tail++) { ndeg[tail]=0; }
   for(Vertex tail=0; tail < N_NODES; tail++) {
@@ -4325,7 +4319,7 @@ for(Vertex tail=1; tail <= N_NODES; tail++) {
   mu = mu / (2.0*N_EDGES);
   sigma2 = mu2/(2.0*N_EDGES) -  mu*mu;
   CHANGE_STAT[0] = (cross / (2.0*N_EDGES) -  mu*mu) / sigma2;
-  free(ndeg);
+  Free(ndeg);
 }
 
 /*****************
