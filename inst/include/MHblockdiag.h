@@ -54,15 +54,23 @@ typedef struct {
   unsigned int directed_flag; // directed flag
 } MH_BlockDiagInfo;
 
-static inline MH_BlockDiagInfo unpack_BlockDiagInfo(double *inputs, Vertex bipartite, unsigned int directed_flag){
-  Vertex n = inputs[0]; // number of blocks
+static inline MH_BlockDiagInfo unpack_BlockDiagInfo(double **inputs, Vertex bipartite, unsigned int directed_flag){
+  double *x = *inputs;
+  Vertex n = (x++)[0]; // number of blocks
+
   MH_BlockDiagInfo out = {
     .directed_flag=directed_flag,
-    .n=n,
-    .epos=inputs+1,
-    .apos=bipartite ? inputs+2+n : inputs+1,
-    .cwt=bipartite ? inputs+3+n+n : inputs+2+n
-  };
+    .n=n};
+
+  out.epos=x; x+=n+1;
+
+  if(bipartite){
+    out.apos=x; x+=n+1;
+  }else out.apos=out.epos;
+  
+  out.cwt=x; x+=n;
+
+  *inputs=x;
   return out;
 }
 
