@@ -22,7 +22,8 @@
 *********************/
 MH_I_FN(Mi_blockdiag){
   ALLOC_STORAGE(1, MH_BlockDiagInfo, b);
-  *b = unpack_BlockDiagInfo(MH_INPUTS, BIPARTITE, DIRECTED);
+  double *inputs = MH_INPUTS; // Need an throw-away variable since unpacker updates the position. 
+  *b = unpack_BlockDiagInfo(&inputs, BIPARTITE, DIRECTED);
   MHp->ntoggles=1;
 }
 
@@ -41,7 +42,8 @@ MH_P_FN(Mp_blockdiag){
 ***********************/
 MH_I_FN(Mi_blockdiagTNT){
   ALLOC_STORAGE(1, MH_BlockDiagInfo, b);
-  *b = unpack_BlockDiagInfo(MH_INPUTS+1, BIPARTITE, DIRECTED);
+  double *inputs = MH_INPUTS+1; // Need an throw-away variable since unpacker updates the position. 
+  *b = unpack_BlockDiagInfo(&inputs, BIPARTITE, DIRECTED);
   MHp->ntoggles=1;
 }
 
