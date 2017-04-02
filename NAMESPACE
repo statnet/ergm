@@ -219,7 +219,8 @@ export(
   #nologLik.message,     made internal 
   nvattr.copy.network,             
   offset.info.formula,
-  ostar2deg,             # deprecated          
+  ostar2deg,             # deprecated
+  pack.BlockDiagInfo_as_num,
   plot.ergm,
   plot.gofobject,                  
   plot.mcmc.list.ergm,
