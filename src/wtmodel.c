@@ -19,12 +19,12 @@ void WtModelDestroy(WtNetwork *nwp, WtModel *m)
   
   for(unsigned int i=0; i < m->n_aux; i++)
     if(m->termarray[0].aux_storage[i]!=NULL){
-      free(m->termarray[0].aux_storage[i]);
+      Free(m->termarray[0].aux_storage[i]);
       m->termarray[0].aux_storage[i] = NULL;
     }
   
   if(m->termarray[0].aux_storage!=NULL){
-    free(m->termarray[0].aux_storage);
+    Free(m->termarray[0].aux_storage);
   }
   
   WtEXEC_THROUGH_TERMS({
@@ -32,10 +32,10 @@ void WtModelDestroy(WtNetwork *nwp, WtModel *m)
 	mtp->aux_storage=NULL;
     });
   
-  free(m->dstatarray);
-  free(m->termarray);
-  free(m->workspace); 
-  free(m);
+  Free(m->dstatarray);
+  Free(m->termarray);
+  Free(m->workspace); 
+  Free(m);
 }
 
 /*****************
@@ -52,10 +52,10 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
   WtModel *m;
   double *inputs=*inputsp;
   
-  m = (WtModel *) malloc(sizeof(WtModel));
+  m = (WtModel *) Calloc(1, WtModel);
   m->n_terms = n_terms;
-  m->termarray = (WtModelTerm *) malloc(sizeof(WtModelTerm) * n_terms);
-  m->dstatarray = (double **) malloc(sizeof(double *) * n_terms);
+  m->termarray = (WtModelTerm *) Calloc(n_terms, WtModelTerm);
+  m->dstatarray = (double **) Calloc(n_terms, double *);
   m->n_stats = 0;
   m->n_aux = 0;
   for (l=0; l < n_terms; l++) {
@@ -86,20 +86,14 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       for (j = 0; sonames[j] != ' ' && sonames[j] != 0; j++);
       sonames[j] = 0;
       /* Extract the required string information from the relevant sources */
-      if((fn=(char *)malloc(sizeof(char)*(i+3)))==NULL){
-        error("Error in WtModelInitialize: Can't allocate %d bytes for fn. Memory has not been deallocated, so restart R sometime soon.\n",
-		sizeof(char)*(i+3));
-      }
+      fn=Calloc(i+3, char);
       fn[1]='_';
       for(k=0;k<i;k++)
         fn[k+2]=fnames[k];
       fn[i+2]='\0';
       /* fn is now the string 'd_[name]', where [name] is fname */
 /*      Rprintf("fn: %s\n",fn); */
-      if((sn=(char *)malloc(sizeof(char)*(j+1)))==NULL){
-        error("Error in WtModelInitialize: Can't allocate %d bytes for sn. Memory has not been deallocated, so restart R sometime soon.\n",
-		sizeof(char)*(j+1));
-      }
+      sn=Calloc(j+1, char);
       sn=strncpy(sn,sonames,j);
       sn[j]='\0';
 
@@ -118,13 +112,13 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       
       /*  Update the running total of statistics */
       m->n_stats += thisterm->nstats; 
-      m->dstatarray[l] = (double *) malloc(sizeof(double) * thisterm->nstats);
+      m->dstatarray[l] = (double *) Calloc(thisterm->nstats, double);
       thisterm->dstats = m->dstatarray[l];  /* This line is important for
-                                               eventually freeing up malloc'ed
+                                               eventually freeing up allocated
 					       memory, since thisterm->dstats
 					       can be modified but 
 					       m->dstatarray[l] cannot be.  */
-      thisterm->statcache = (double *) malloc(sizeof(double) * thisterm->nstats);
+      thisterm->statcache = (double *) Calloc(thisterm->nstats, double);
 
       thisterm->ninputparams = (int) *inputs++; /* Set # of inputs */
       /* thisterm->inputparams is a ptr to inputs */
@@ -197,8 +191,8 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
 
       
       /*Clean up by freeing sn and fn*/
-      free((void *)fn);
-      free((void *)sn);
+      Free(fn);
+      Free(sn);
 
       /*  The lines above set thisterm->inputparams to point to needed input
       parameters (or zero if none) and then increments the inputs pointer so
@@ -209,14 +203,14 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       sonames += j;
     }
   
-  m->workspace = (double *) malloc(sizeof(double) * m->n_stats);
+  m->workspace = (double *) Calloc(m->n_stats, double);
   for(i=0; i < m->n_stats; i++)
     m->workspace[i] = 0.0;
 
   
   /* Allocate auxiliary storage and put a pointer to it on every model term. */
   if(m->n_aux){
-    m->termarray[0].aux_storage = (void *) calloc(m->n_aux, sizeof(void *));
+    m->termarray[0].aux_storage = (void *) Calloc(m->n_aux, void *);
     for(l=1; l < n_terms; l++)
       m->termarray[l].aux_storage = m->termarray[0].aux_storage;
   }
@@ -313,10 +307,10 @@ void WtDestroyStats(WtNetwork *nwp, WtModel *m){
   WtEXEC_THROUGH_TERMS({
       if(mtp->f_func)
 	(*(mtp->f_func))(mtp, nwp);  /* Call f_??? function */
-      free(m->dstatarray[i]);
-      free(mtp->statcache);
+      Free(m->dstatarray[i]);
+      Free(mtp->statcache);
       if(mtp->storage){
-	free(mtp->storage);
+	Free(mtp->storage);
 	mtp->storage = NULL;
       }
       i++;

@@ -396,9 +396,9 @@ void MCMCSamplePhase12(MHproposal *MHp,
   all be zero
   *********************/
   double *ubar, *u2bar, *aDdiaginv;
-  ubar = (double *)malloc( m->n_stats * sizeof(double));
-  u2bar = (double *)malloc( m->n_stats * sizeof(double));
-  aDdiaginv = (double *)malloc( m->n_stats * sizeof(double));
+  ubar = (double *)Calloc(m->n_stats, double);
+  u2bar = (double *)Calloc(m->n_stats, double);
+  aDdiaginv = (double *)Calloc(m->n_stats, double);
   for (j=0; j < m->n_stats; j++){
     networkstatistics[j] = -meanstats[j];
     ubar[j] = 0.0;
@@ -536,7 +536,7 @@ void MCMCSamplePhase12(MHproposal *MHp,
     Rprintf("Phase 3: MCMC-Newton-Raphson\n");
   }
 
-  free(ubar);
-  free(u2bar);
+  Free(ubar);
+  Free(u2bar);
 }
 

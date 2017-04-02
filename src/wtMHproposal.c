@@ -32,10 +32,7 @@ void WtMH_init(WtMHproposal *MHp,
   for (i = 0; MHproposaltype[i] != ' ' && MHproposaltype[i] != 0; i++);
   MHproposaltype[i] = 0;
   /* Extract the required string information from the relevant sources */
-  if((fn=(char *)malloc(sizeof(char)*(i+4)))==NULL){
-    error("Error in MCMCSample: Can't allocate %d bytes for fn. Memory has not been deallocated, so restart R sometime soon.\n",
-	  sizeof(char)*(i+4));
-  }
+  fn=Calloc(i+4, char);
   fn[0]='M';
   fn[1]='H';
   fn[2]='_';
@@ -45,10 +42,7 @@ void WtMH_init(WtMHproposal *MHp,
   /* fn is now the string 'MH_[name]', where [name] is MHproposaltype */
   for (i = 0; MHproposalpackage[i] != ' ' && MHproposalpackage[i] != 0; i++);
   MHproposalpackage[i] = 0;
-  if((sn=(char *)malloc(sizeof(char)*(i+1)))==NULL){
-    error("Error in ModelInitialize: Can't allocate %d bytes for sn. Memory has not been deallocated, so restart R sometime soon.\n",
-	  sizeof(char)*(i+1));
-  }
+  sn=Calloc(i+1, char);
   sn=strncpy(sn,MHproposalpackage,i);
   sn[i]='\0';
   
@@ -77,8 +71,8 @@ void WtMH_init(WtMHproposal *MHp,
   MHp->inputs=inputs;
 
   /*Clean up by freeing sn and fn*/
-  free((void *)fn);
-  free((void *)sn);
+  Free(fn);
+  Free(sn);
 
   MHp->aux_storage = aux_storage;
 
@@ -91,9 +85,9 @@ void WtMH_init(WtMHproposal *MHp,
     (*(MHp->p_func))(MHp, nwp); /* Call MH proposal function to initialize */
   }
   
-  MHp->toggletail = (Vertex *)malloc(MHp->ntoggles * sizeof(Vertex));
-  MHp->togglehead = (Vertex *)malloc(MHp->ntoggles * sizeof(Vertex));
-  MHp->toggleweight = (double *)malloc(MHp->ntoggles * sizeof(double));
+  MHp->toggletail = (Vertex *)Calloc(MHp->ntoggles, Vertex);
+  MHp->togglehead = (Vertex *)Calloc(MHp->ntoggles, Vertex);
+  MHp->toggleweight = (double *)Calloc(MHp->ntoggles, double);
 }
 
 /*********************
@@ -104,12 +98,12 @@ void WtMH_init(WtMHproposal *MHp,
 void WtMH_free(WtMHproposal *MHp, WtNetwork *nwp){
   if(MHp->f_func) (*(MHp->f_func))(MHp, nwp);
   if(MHp->storage){
-    free(MHp->storage);
+    Free(MHp->storage);
     MHp->storage=NULL;
   }
   MHp->aux_storage=NULL;
-  free(MHp->toggletail);
-  free(MHp->togglehead);
-  free(MHp->toggleweight);
+  Free(MHp->toggletail);
+  Free(MHp->togglehead);
+  Free(MHp->toggleweight);
 }
 

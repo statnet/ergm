@@ -184,6 +184,34 @@ return fun(tails,heads,nwp,nmax);
 #undef DYADCOUNT
 #undef GetRandDyad
 #include "R_ext/Rdynload.h"
+#include "MHblockdiag.h"
+#undef MIN
+#undef MAX
+#undef DYADCOUNT
+#undef GetRandDyad
+#undef NO_EDGE
+#undef OLD_EDGE
+#undef NEW_EDGE
+#undef CAN_IGNORE
+#undef MAX_TRIES
+#undef MH_FAILED
+#undef MH_UNRECOVERABLE
+#undef MH_IMPOSSIBLE
+#undef MH_UNSUCCESSFUL
+#undef MH_CONSTRAINT
+#undef MH_QUIT_UNSUCCESSFUL
+#undef XOR
+#undef XNOR
+#undef BD_LOOP
+#undef BD_COND_LOOP
+#undef MH_INPUTS
+#undef Mtail
+#undef Mhead
+#undef MH_I_FN
+#undef MH_U_FN
+#undef MH_P_FN
+#undef MH_F_FN
+#include "R_ext/Rdynload.h"
 #include "MHproposal.h"
 DegreeBound* DegreeBoundInitialize(int *attribs, int *maxout, int *maxin,int *minout, int *minin, int condAllDegExact,int attriblength, Network *nwp){
 static DegreeBound* (*fun)(int *,int *,int *,int *,int *,int,int,Network *) = NULL;
