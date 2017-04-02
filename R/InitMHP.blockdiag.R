@@ -70,36 +70,36 @@
 #' Metropolis-Hastings samplers.
 #'
 #' @description Given a nodal attribute vector specifying the blocks
-#'   and (optionally) bipartite information, returns a list containing
-#'   information needed to efficiently sample at random dyads in those blocks.
+#'   returns a list containing information needed to efficiently
+#'   sample dyads in those blocks.
 #'
 #' @param nw the network of interest.
 #' @param a either a vector (of any mode) or a vertex attribute of
-#'   \code{nw} whose \eqn{i}th element identifies the block to which
+#'   `nw` whose \eqn{i}th element identifies the block to which
 #'   vertex \eqn{i} belongs. Blocks must be continguous.
 #' 
 #' @return A list with the following elements:
 #' \describe{
 #'
-#' \item{\code{nblk}} number of blocks
+#' \item{`nblk`}{number of blocks}
 #' 
-#' \item{\code{pos} (for unipartite), \code{b1pos} and \code{b2pos}
-#' (for bipartite)} vectors of length \code{nblk+1} such that
-#' \code{pos[i]+1}:\code{pos[i+1]} are the numbers of the vertices in
-#' block \code{i}.
+#' \item{`pos` (for unipartite), `b1pos` and `b2pos` (for
+#' bipartite)}{vectors of length `nblk+1` such that
+#' `(pos[i]+1):(pos[i+1])` are the numbers of the vertices in block
+#' `i`.}
 #'
-#' \item{\code{cumwt}} vector of length \code{nblk} with values such
-#' that generating \eqn{U\sim \mathrm{Uniform}(0,1)} selecting the
-#' index of the first element in \code{cumwt} that is greater than
-#' \eqn{U} will sample from the blocks in proportion to the number of
-#' dyads in the block.
+#' \item{`cumwt`}{vector of length `nblk` with values such that
+#' generating \eqn{U\sim \mathrm{Uniform}(0,1)}{U ~ Uniform(0,1)}
+#' selecting the index of the first element in `cumwt` that is greater
+#' than \eqn{U} will sample from the blocks in proportion to the
+#' number of dyads in the block.}
 #'
 #' }
 #'
-#' In addition, an attribute \code{ndyads} is attached, containing the
+#' In addition, an attribute `"ndyads"` is attached, containing the
 #' total number of dyads in all blocks put together.
 #'
-#' \code{unlist(pack.BlockDiagInfo_as_num(nw, blkattr)} can be
+#' `unlist(pack.BlockDiagInfo_as_num(nw, blkattr)` can be
 #' passed as input to an MH proposal function that knows how to parse
 #' it.
 #' 
