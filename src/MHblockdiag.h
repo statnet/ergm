@@ -52,13 +52,13 @@ typedef struct {
   Dyad ndyads; // number of dyads
   Vertex n; // number of blocks
   unsigned int directed_flag; // directed flag
-} MH_BlockDiagInfo;
+} MH_BlockDiagSampInfo;
 
-static inline MH_BlockDiagInfo unpack_BlockDiagInfo(double **inputs, Vertex bipartite, unsigned int directed_flag){
+static inline MH_BlockDiagSampInfo unpack_BlockDiagSampInfo(double **inputs, Vertex bipartite, unsigned int directed_flag){
   double *x = *inputs;
   Vertex n = (x++)[0]; // number of blocks
 
-  MH_BlockDiagInfo out = {
+  MH_BlockDiagSampInfo out = {
     .directed_flag=directed_flag,
     .n=n};
 
@@ -74,7 +74,7 @@ static inline MH_BlockDiagInfo unpack_BlockDiagInfo(double **inputs, Vertex bipa
   return out;
 }
 
-static inline void GetRandDyadBlockDiag(Vertex *tail, Vertex *head, const MH_BlockDiagInfo *b){
+static inline void GetRandDyadBlockDiag(Vertex *tail, Vertex *head, const MH_BlockDiagSampInfo *b){
   Vertex blk = 1, t, h;
   double r = unif_rand();
   // FIXME: Change to a binary search to change from O(b->n) to O(log(b->n)).

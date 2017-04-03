@@ -21,14 +21,14 @@
  Block-diagonal sampling
 *********************/
 MH_I_FN(Mi_blockdiag){
-  ALLOC_STORAGE(1, MH_BlockDiagInfo, b);
+  ALLOC_STORAGE(1, MH_BlockDiagSampInfo, b);
   double *inputs = MH_INPUTS; // Need an throw-away variable since unpacker updates the position. 
-  *b = unpack_BlockDiagInfo(&inputs, BIPARTITE, DIRECTED);
+  *b = unpack_BlockDiagSampInfo(&inputs, BIPARTITE, DIRECTED);
   MHp->ntoggles=1;
 }
 
 MH_P_FN(Mp_blockdiag){
-  GET_STORAGE(MH_BlockDiagInfo, b);
+  GET_STORAGE(MH_BlockDiagSampInfo, b);
 
   BD_LOOP({
       GetRandDyadBlockDiag(Mtail, Mhead, b);
@@ -41,14 +41,14 @@ MH_P_FN(Mp_blockdiag){
    Block-diagonal TNT sampling
 ***********************/
 MH_I_FN(Mi_blockdiagTNT){
-  ALLOC_STORAGE(1, MH_BlockDiagInfo, b);
+  ALLOC_STORAGE(1, MH_BlockDiagSampInfo, b);
   double *inputs = MH_INPUTS+1; // Need an throw-away variable since unpacker updates the position. 
-  *b = unpack_BlockDiagInfo(&inputs, BIPARTITE, DIRECTED);
+  *b = unpack_BlockDiagSampInfo(&inputs, BIPARTITE, DIRECTED);
   MHp->ntoggles=1;
 }
 
 MH_P_FN(Mp_blockdiagTNT){
-  GET_STORAGE(MH_BlockDiagInfo, b);
+  GET_STORAGE(MH_BlockDiagSampInfo, b);
 
   const double comp=0.5, odds = comp/(1.0-comp);
   

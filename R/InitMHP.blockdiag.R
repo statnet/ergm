@@ -99,12 +99,12 @@
 #' In addition, an attribute `"ndyads"` is attached, containing the
 #' total number of dyads in all blocks put together.
 #'
-#' `unlist(pack.BlockDiagInfo_as_num(nw, blkattr)` can be
+#' `unlist(pack.BlockDiagSampInfo_as_num(nw, blkattr)` can be
 #' passed as input to an MH proposal function that knows how to parse
 #' it.
 #' 
 #' @export
-pack.BlockDiagInfo_as_num <- function(nw, a){
+pack.BlockDiagSampInfo_as_num <- function(nw, a){
   bip <- nw %n% "bipartite"
   a <- if(length(a)>1) a else nw %v% a
   if(bip){
@@ -140,7 +140,7 @@ pack.BlockDiagInfo_as_num <- function(nw, a){
 }
 
 InitMHP.blockdiag <- function(arguments, nw){
-  BDI <- pack.BlockDiagInfo_as_num(nw, arguments$constraints$blockdiag$attrname)  
+  BDI <- pack.BlockDiagSampInfo_as_num(nw, arguments$constraints$blockdiag$attrname)  
   list(name = "blockdiag", inputs=unlist(BDI))
 }
 
@@ -150,7 +150,7 @@ InitMHP.blockdiagTNT <- function(arguments, nw){
   
   if(any(a[el[,1]]!=a[el[,2]])) stop("Block-diagonal TNT sampler implementation does not support sampling networks with off-block-diagonal ties at this time.")
 
-  BDI <- pack.BlockDiagInfo_as_num(nw, arguments$constraints$blockdiag$attrname)
+  BDI <- pack.BlockDiagSampInfo_as_num(nw, arguments$constraints$blockdiag$attrname)
   
   list(name = "blockdiagTNT", inputs=c(attr(BDI,"ndyads"), unlist(BDI)))
 }
