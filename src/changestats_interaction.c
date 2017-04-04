@@ -90,5 +90,5 @@ F_CHANGESTAT_FN(f_main_interact){
 
   ModelDestroy(nwp, m);
 
-  mtp->storage=NULL;
+  STORAGE=NULL;
 }

@@ -71,7 +71,7 @@ WtI_CHANGESTAT_FN(i_import_binary_term_nonzero){
   GET_AUX_STORAGE(Network, bnwp); inputs++;
   GET_STORAGE(Model, m); // Only need the pointer, no allocation needed.
 
-  mtp->storage = m = unpack_Modelasdouble(&inputs);
+  STORAGE = m = unpack_Modelasdouble(&inputs);
 
   InitStats(bnwp, m);
 }
@@ -105,7 +105,7 @@ WtF_CHANGESTAT_FN(f_import_binary_term_nonzero){
   GET_STORAGE(Model, m);
 
   ModelDestroy(bnwp, m);
-  mtp->storage = NULL;
+  STORAGE = NULL;
 }
 
 /* _binary_nonzero_net 

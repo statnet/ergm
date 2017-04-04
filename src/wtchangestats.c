@@ -565,7 +565,7 @@ WtC_CHANGESTAT_FN(c_nodecov_nonzero){
 *****************/
 WtC_CHANGESTAT_FN(c_nodecovar){
   unsigned int transcode = INPUT_ATTRIB[0], center = INPUT_ATTRIB[1];
-  double sum = center?*(double *)mtp->storage : 0;
+  double sum = center?*(double *)STORAGE : 0;
   
   ZERO_ALL_CHANGESTATS();
       double diff = TRANSFORM_DYADVAL(weight,transcode)-TRANSFORM_DYADVAL(GETWT(tail,head),transcode);
@@ -688,7 +688,7 @@ WtC_CHANGESTAT_FN(c_nodefactor_sum){
 *****************/
 WtC_CHANGESTAT_FN(c_nodeicovar){
   unsigned int transcode = INPUT_ATTRIB[0], center = INPUT_ATTRIB[1];
-  double sum = center?*(double *)mtp->storage : 0;
+  double sum = center?*(double *)STORAGE : 0;
   
   ZERO_ALL_CHANGESTATS();
       double diff = TRANSFORM_DYADVAL(weight,transcode)-TRANSFORM_DYADVAL(GETWT(tail,head),transcode);
@@ -854,7 +854,7 @@ WtC_CHANGESTAT_FN(c_nodemix_sum) {
 *****************/
 WtC_CHANGESTAT_FN(c_nodeocovar){
   unsigned int transcode = INPUT_ATTRIB[0], center = INPUT_ATTRIB[1];
-  double sum = center?*(double *)mtp->storage : 0;
+  double sum = center?*(double *)STORAGE : 0;
   
   ZERO_ALL_CHANGESTATS();
       double diff = TRANSFORM_DYADVAL(weight,transcode)-TRANSFORM_DYADVAL(GETWT(tail,head),transcode);
@@ -929,7 +929,7 @@ WtC_CHANGESTAT_FN(c_nodeofactor_sum){
 
 WtC_CHANGESTAT_FN(c_nodesqrtcovar_centered){
   // Compute sum(sqrt(y)) (directed) or twice that (undirected). We can update it for each toggle.
-  double ssq = *(double *)mtp->storage;
+  double ssq = *(double *)STORAGE;
 
   ZERO_ALL_CHANGESTATS();
       double change = 0;
@@ -951,16 +951,16 @@ WtC_CHANGESTAT_FN(c_nodesqrtcovar_centered){
 }
 WtU_CHANGESTAT_FN(u_nodesqrtcovar_centered){
   double *ssq;
-  if(!mtp->storage){
-    mtp->storage = Calloc(1, double);
-    ssq = (double *)mtp->storage;
+  if(!STORAGE){
+    STORAGE = Calloc(1, double);
+    ssq = (double *)STORAGE;
     *ssq = 0;
     EXEC_THROUGH_NET_EDGES(i, e, j, yij, {
 	*ssq += sqrt(yij); j=j; e=e; /* j=j and e=e are silly, just to prevent compiler warnings */
       });
 
   if(!DIRECTED) *ssq *= 2;
-  }else ssq = (double *)mtp->storage; 
+  }else ssq = (double *)STORAGE; 
 
   if(tail){
     double sqrtdiff = sqrt(weight)-sqrt(GETWT(tail,head));
