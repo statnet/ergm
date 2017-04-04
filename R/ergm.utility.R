@@ -479,6 +479,8 @@ locate.InitFunction <- function(name, prefix, errname=NULL, env = parent.frame()
       if(!is.null(errname)) stop(errname,' ', sQuote(name), " initialization function ", sQuote(fname), " not found.") else f <- NULL
     }
   }
+  attr(f, "fname") <- fname
+  attr(f, "pkgname") <- environmentName(environment(f))
   f
 }
 

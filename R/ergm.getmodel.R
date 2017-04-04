@@ -113,13 +113,16 @@ call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ...){
   }else args <- list()
   
   termFun<-locate.InitFunction(term, paste0(termroot,"Term"), "ERGM term")  # check in all namespaces for function found anywhere
-  
-  term<-as.call(list(termFun))
+
+  # A kludge so that a term can read its own name.
+  term.env <- new.env(parent=env) # Create a temporary new environment within env.
+  assign(attr(termFun,"fname"), termFun, pos=term.env) # Assign the function body there.
+  term<-as.call(list(as.name(attr(termFun,"fname"))))
   
   term[[2]] <- nw
-  names(term)[2] <-  ""
+  names(term)[2] <-  "nw"
   term[[3]] <- args
-  names(term)[3] <- ""
+  names(term)[3] <- "arglist"
   dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), list(...))
   for(j in seq_along(dotdotdot)) {
     if(is.null(dotdotdot[[j]])) next
@@ -128,9 +131,9 @@ call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ...){
   }
   #Call the InitErgm function in the environment where the formula was created
   # so that it will have access to any parameters of the ergm terms
-  out <- eval(term,env)
+  out <- eval(term,term.env)
   # If SO package name not specified explicitly, autodetect.
-  if(!is.null(out) && is.null(out$pkgname)) out$pkgname <- environmentName(environment(termFun))
+  if(!is.null(out) && is.null(out$pkgname)) out$pkgname <- attr(termFun,"pkgname")
   out
 }
 
