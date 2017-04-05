@@ -90,4 +90,13 @@ static inline void GetRandDyadBlockDiag(Vertex *tail, Vertex *head, const MH_Blo
   }
 }
 
+static inline Vertex GetBlockID(Vertex tail, Vertex head, const MH_BlockDiagSampInfo *b){
+  Vertex tblk = 1;
+  while(tail>b->epos[tblk]) tblk++; 
+  Vertex hblk = 1;
+  while(head>b->epos[hblk]) hblk++;
+  if(tblk==hblk) return tblk;
+  else return 0;
+}
+
 #endif
