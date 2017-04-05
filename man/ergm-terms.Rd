@@ -141,12 +141,13 @@
   The function \code{\link{ergm}} is used to fit exponential 
   random graph models, in which
   the probability of a given network, \eqn{y}, on a set of nodes is 
-  \eqn{h(y) \exp\{\eta(\theta) \cdot
-    g(y)\}/c(\theta)}, where
+  \deqn{h(y) \exp\{\eta(\theta) \cdot
+    g(y)\}/c(\theta)}{h(y) exp\{eta(theta).g(y)\} / c(theta),} where
   \eqn{h(y)} is the reference measure (for valued network models),
   \eqn{g(y)} is a vector of network statistics for \eqn{y},
   \eqn{\eta(\theta)} is a natural parameter vector of the same 
-  length (with \eqn{\eta(\theta)=\theta} for most terms), and \eqn{c(\theta)} is the
+  length (with \eqn{\eta(\theta)\equiv\theta}{eta(theta)=theta} for most
+  terms), \eqn{\cdot}{.} is the dot product, and \eqn{c(\theta)} is the
   normalizing constant for the distribution.
 
   The network statistics \eqn{g(y)} are entered as terms in the 
@@ -229,8 +230,8 @@ network
   binary ERGM counterparts, with an additional argument: \code{form}, which, at
   this time, has two possible values: \code{"sum"} (the default) and
   \code{"nonzero"}. The former creates a statistic of the form
-  \eqn{\sum_{i,j} x_{i,j} y_{i,j}}, where \eqn{y_{i,j}} is the value of
-  dyad \eqn{(i,j)} and \eqn{x_{i,j}} is the term's covariate associated
+  \eqn{\sum_{i,j} x_{i,j} y_{i,j}}{sum[i,j] x[i,j]*y[i,j]}, where \eqn{y_{i,j}}{y[i,j]} is the value of
+  dyad \eqn{(i,j)} and \eqn{x_{i,j}}{x[i,j]} is the term's covariate associated
   with it. The latter computes the binary version, with the edge
   considered to be present if its value is not 0.
 
@@ -472,8 +473,8 @@ network
     distinct \code{k[i]}-stars whose center node is in the first mode of the
     network. The first mode of a bipartite network object is sometimes known as
     the "actor" mode. A \eqn{k}-star is defined to be a center node \eqn{N} and
-    a set of \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}} such that the
-    ties \eqn{\{N, O_i\}} exist for \eqn{i=1, \dots, k}. The optional argument
+    a set of \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}}{\{O[1], ..., O[k]\}} such that the
+    ties \eqn{\{N, O_i\}}{\{N, O[i]\}} exist for \eqn{i=1, \dots, k}. The optional argument
     \code{attrname} is a character string giving the name of an attribute in the
     network's vertex attribute list. If this is specified then the count is over
     the number of \eqn{k}-stars (with center node in the first mode) where all
@@ -656,8 +657,8 @@ network
     distinct \code{k[i]}-stars whose center node is in the second mode of the
     network. The second mode of a bipartite network object is sometimes known as
     the "event" mode. A \eqn{k}-star is defined to be a center node \eqn{N} and
-    a set of \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}} such that the
-    ties \eqn{\{N, O_i\}} exist for \eqn{i=1, \dots, k}. The optional argument
+    a set of \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}}{\{O[1], ..., O[k]\}} such that the
+    ties \eqn{\{N, O_i\}}{\{N, O[i]\}} exist for \eqn{i=1, \dots, k}. The optional argument
     \code{attrname} is a character string giving the name of an attribute in the
     network's vertex attribute list. If this is specified then the count is over
     the number of \eqn{k}-stars (with center node in the second mode) where all
@@ -1230,7 +1231,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     model for each element in \code{k}. The \eqn{i}th such statistic counts the
     number of distinct \code{k[i]}-instars in the network, where a
     \eqn{k}-instar is defined to be a node \eqn{N} and a set of \eqn{k}
-    different nodes \eqn{\{O_1, \dots, O_k\}} such that the ties
+    different nodes \eqn{\{O_1, \dots, O_k\}}{\{O[1], ..., O[k]\}} such that the ties
     \eqn{(O_j{\rightarrow}N)}{(O_j, N)} exist for \eqn{j=1, \dots, k}. The
     optional argument \code{attrname} is a character string giving the name of
     an attribute in the network's vertex attribute list. If this is specified
@@ -1245,8 +1246,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     network statistic to the model for each element in \code{k}. The \eqn{i}th
     such statistic counts the number of distinct \code{k[i]}-stars in the
     network, where a \eqn{k}-star is defined to be a node \eqn{N} and a set of
-    \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}} such that the ties
-    \eqn{\{N, O_i\}} exist for \eqn{i=1, \dots, k}. The optional argument
+    \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}}{\{O[1], ..., O[k]\}} such that the ties
+    \eqn{\{N, O_i\}}{\{N, O[i]\}} exist for \eqn{i=1, \dots, k}. The optional argument
     \code{attrname} is a character string giving the name of an attribute in the
     network's vertex attribute list. If this is specified then the count is over
     the number of \eqn{k}-stars where all nodes have the same value of the
@@ -1643,7 +1644,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     model for each element in \code{k}. The \eqn{i}th such statistic counts the
     number of distinct \code{k[i]}-outstars in the network, where a
     \eqn{k}-outstar is defined to be a node \eqn{N} and a set of \eqn{k}
-    different nodes \eqn{\{O_1, \dots, O_k\}} such that the ties
+    different nodes \eqn{\{O_1, \dots, O_k\}}{\{O[1], ..., O[k]\}} such that the ties
     \eqn{(N{\rightarrow}O_j)}{(N,O_j)} exist for \eqn{j=1, \dots, k}. The
     optional argument \code{attrname} is a character string giving the name of
     an attribute in the network's vertex attribute list. If this is specified
