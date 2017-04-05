@@ -45,7 +45,7 @@ InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
 
   inputs <- pack.Clist_as_num(Clist)
 
-  gs <- ergm.emptynwstats(m)
+  gs <- ergm.emptynwstats.model(m)
 
   list(name="passthrough_term", coef.names = paste0('passthrough(',m$coef.names,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs)
 }
@@ -67,7 +67,7 @@ InitErgmTerm..submodel <- function(nw, arglist, response=NULL, ...){
 
   inputs <- pack.Clist_as_num(Clist)
 
-  gs <- ergm.emptynwstats(m)
+  gs <- ergm.emptynwstats.model(m)
 
   list(name="_submodel_term", coef.names = c(), inputs=inputs, dependence=!is.dyad.independent(m))
 }
@@ -87,7 +87,7 @@ InitErgmTerm.submodel.test <- function(nw, arglist, response=NULL, ...){
   m <- ergm.getmodel(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
-  gs <- ergm.emptynwstats(m)
+  gs <- ergm.emptynwstats.model(m)
   
   list(name="submodel_test_term", coef.names = paste0("submod.test(",m$coef.names,")"), emptynwstats = gs, dependence=!is.dyad.independent(m), auxiliaries = ~.submodel(a$formula))
 }
@@ -111,7 +111,7 @@ InitErgmTerm..summary <- function(nw, arglist, response=NULL, ...){
 
   inputs <- pack.Clist_as_num(Clist)
 
-  gs <- ergm.emptynwstats(m)
+  gs <- ergm.emptynwstats.model(m)
 
   list(name="_summary_term", coef.names = c(), inputs=c(inputs,gs), dependence=!is.dyad.independent(m))
 }

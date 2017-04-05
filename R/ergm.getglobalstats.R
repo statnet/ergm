@@ -31,7 +31,7 @@
 #'   statistics of the model containing the statistics evaluated on an empt network.
 #'
 #' @export
-ergm.emptynwstats <- function(m){
+ergm.emptynwstats.model <- function(m){
   # New method:  Use $emptynwstats added to m$terms by the InitErgmTerm function
   # Read the comments at the top of InitErgm.R or InitErgmTerm.R for 
   # an explanation of the $emptynwstats mechanism
@@ -54,7 +54,7 @@ ergm.getglobalstats <- function(nw, m, response=NULL) {
   # Adjust to global values. This needs to happen before the C call,
   # so that an s_function, if exists, could override.
 
-  gs <- ergm.emptynwstats(m)
+  gs <- ergm.emptynwstats.model(m)
   
   # Note that the empty network statistics are passed to the C
   # code. The reason is that if an s_??? function exists, it can
