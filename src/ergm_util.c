@@ -1,3 +1,4 @@
+#include <R.h>
 #include "ergm_util.h"
 
 unsigned char *unpack_strasdouble(double **x){

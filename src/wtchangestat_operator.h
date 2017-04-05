@@ -2,7 +2,8 @@
 #define WTCHANGESTAT_OPERATOR_H
 
 #include "wtmodel.h"
+#include "storage.h"
 
-Model *unpack_WtModelasdouble(double **x);
+WtModel *unpack_WtModelasdouble(double **x);
 
 #endif
