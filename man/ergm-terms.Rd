@@ -180,24 +180,25 @@ network
 
   \subsection{Interactions}{
 
-    For binary ERGMs, interactions between dyad-independent
+    For binary ERGMs, interactions between
     \code{\link{ergm}} terms can be specified in a manner similar to
     \code{\link{lm}} and others, as using the \code{:} and \code{*}
     operators. However, they must be interpreted carefully, especially
     for dyad-dependent terms. (Interactions involving curved terms are
     not supported at this time.)
 
-    Generally, if term \code{a} has \eqn{n_a} statistics and \code{b}
-    has \eqn{n_b}, \code{a:b} will add \eqn{p_a \times p_b} statistics
-    to the model, corresponding to each element of \eqn{g_a(y)}
-    interacted with each element of \eqn{g_b(y)}.
+    Generally, if term \code{a} has \eqn{p_a}{p[a]} statistics and \code{b}
+    has \eqn{p_b}{p[b]}, \code{a:b} will add \eqn{p_a \times p_b}{p[a]*p[b]} statistics
+    to the model, corresponding to each element of \eqn{g_a(y)}{g[a](y)}
+    interacted with each element of \eqn{g_b(y)}{g[b](y)}.
 
     The interaction is defined as follows. Dyad-independent terms can be
-    expressed in the general form \eqn{g(y;x)=\sum_{i,j} x_{i,j}y_{i,j}}
+    expressed in the general form \eqn{g(y;x)=\sum_{i,j}
+    x_{i,j}y_{i,j}}{sum[i,j] x[i,j]*y[i,j]}
     for some edge covariate matrix \eqn{x},
-    \eqn{g_{a_k:b_l}(y)=\sum_{i,j} x_{a_k,i,j}x_{b_l,i,j}y_{i,j}}. In
+    \deqn{g_{a:b}(y)=\sum_{i,j} x_{a,i,j}x_{b,i,j}y_{i,j}.}{g[a:b](y) = \sum[i,j] x[a,i,j]*x[b,i,j]*y[i,j].} In
     other words, rather than being a product of their sufficient
-    statistics (\eqn{g_{a_k}(y)g_{b_l}(y)}), it is a dyadwise product of
+    statistics (\eqn{g_{a}(y)g_{b}(y)}{g[a](y)*g[b](y)}), it is a dyadwise product of
     their dyad-level effects.
 
     This means that an interaction between two dyad-independent terms
@@ -205,12 +206,12 @@ network
     logistic regression for each potential edge. However, for undirected
     networks in particular, this may lead to somewhat counterintuitive
     results. For example, given two nodal covariates \code{"a"} and
-    \code{"b"} (whose values for node \eqn{i} are denoted \eqn{a_i} and
-    \eqn{b_i}, respectively), \code{nodecov("a")} adds one statistic of
-    the form \eqn{\sum_{i,j} x_{i,j}y_{i,j}} with
-    \eqn{x_{a,i,j}=(a_{i}+a_{j})}, similarly for \code{nodecov("b")}, so
-    \code{nodecov("a"):nodecov("b")} produces \eqn{\sum_{i,j}
-    x_{i,j}y_{i,j}}.
+    \code{"b"} (whose values for node \eqn{i} are denoted \eqn{a_i}{a[i]} and
+    \eqn{b_i}{b[i]}, respectively), \code{nodecov("a")} adds one statistic of
+    the form \eqn{\sum_{i,j} (a_{i}+a_{j}) y_{i,j}}{sum[i,j]
+    (a[i]+a[j])*y[i,j]} and analogously for \code{nodecov("b")}, so
+  \code{nodecov("a"):nodecov("b")} produces
+  \deqn{\sum_{i,j} (a_{i}+a_{j}) (b_{i}+b_{j}) y_{i,j}.}{sum[i,j] (a[i]+a[j])*(b[i]+b[j])*y[i,j].}
   }
 }
 
