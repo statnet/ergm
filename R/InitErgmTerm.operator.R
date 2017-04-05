@@ -1,7 +1,7 @@
-pack.str.as.num <- function(s) c(nchar(s), strtoi(charToRaw(s), 16L))
+pack.str_as_num <- function(s) c(nchar(s), strtoi(charToRaw(s), 16L))
 pack.Clist_as_num <- function(Clist){
-  fnames <- pack.str.as.num(Clist$fnamestring)
-  snames <- pack.str.as.num(Clist$snamestring)
+  fnames <- pack.str_as_num(Clist$fnamestring)
+  snames <- pack.str_as_num(Clist$snamestring)
   c(Clist$nterms, fnames, snames, Clist$inputs)
 }
 
