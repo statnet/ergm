@@ -20,17 +20,8 @@ InitWtErgmTerm.b <- function(nw, arglist, response=NULL, ...){
   
   gs <- rep(0, Clist$nstats)
 
-  if(form=="nonzero"){
-    i <- 1
-    for (j in 1:length(m$terms)) {
-      tmp <- m$terms[[j]]
-      k <- tmp$inputs[2] # Number of statistics for this model term
-      if (!is.null(tmp$emptynwstats)) {
-        gs[i:(i+k-1)] <- gs[i:(i+k-1)] + tmp$emptynwstats
-      }
-      i <- i + k
-    }
-  }
+  if(form=="nonzero")
+    gs <- ergm.emptynwstats(m)
 
   list(name=paste("import_binary_term",form,sep="_"), coef.names = paste0(form,'(',m$coef.names,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries=if(form=="nonzero") ~.binary.nonzero.net)
 }
