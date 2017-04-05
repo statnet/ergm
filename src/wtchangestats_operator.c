@@ -21,7 +21,7 @@ WtI_CHANGESTAT_FN(i_import_binary_term_sum){
   double *inputs = INPUT_PARAM;
   ALLOC_STORAGE(1, StoreNetAndModel, store);
 
-  Model *m = store->m = unpack_Modelasdouble(&inputs);
+  Model *m = store->m = unpack_Model_as_double(&inputs);
 
   store->nw = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
   Network *mynwp = &(store->nw);
@@ -71,7 +71,7 @@ WtI_CHANGESTAT_FN(i_import_binary_term_nonzero){
   GET_AUX_STORAGE(Network, bnwp); inputs++;
   GET_STORAGE(Model, m); // Only need the pointer, no allocation needed.
 
-  STORAGE = m = unpack_Modelasdouble(&inputs);
+  STORAGE = m = unpack_Model_as_double(&inputs);
 
   InitStats(bnwp, m);
 }

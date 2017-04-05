@@ -1,7 +1,7 @@
 #include <R.h>
 #include "ergm_util.h"
 
-unsigned char *unpack_strasdouble(double **x){
+unsigned char *unpack_str_as_double(double **x){
   unsigned int l = (*x)[0];
   unsigned char *s = (unsigned char *) Calloc(l+1, char);
   for(unsigned int i=0; i<l; i++){

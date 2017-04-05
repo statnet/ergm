@@ -8,7 +8,7 @@ I_CHANGESTAT_FN(i_interact){
 
   store->n_stats_1 = *(inputs++);
   store->n_stats_2 = *(inputs++);
-  Model *m = store->m = unpack_Modelasdouble(&inputs);
+  Model *m = store->m = unpack_Model_as_double(&inputs);
 
   InitStats(nwp, m);
 }
@@ -49,7 +49,7 @@ I_CHANGESTAT_FN(i_main_interact){
 
   store->n_stats_1 = *(inputs++);
   store->n_stats_2 = *(inputs++);
-  Model *m = store->m = unpack_Modelasdouble(&inputs);
+  Model *m = store->m = unpack_Model_as_double(&inputs);
 
   InitStats(nwp, m);
 }

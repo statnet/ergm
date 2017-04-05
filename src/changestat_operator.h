@@ -4,6 +4,6 @@
 #include "model.h"
 #include "storage.h"
 
-Model *unpack_Modelasdouble(double **x);
+Model *unpack_Model_as_double(double **x);
 
 #endif

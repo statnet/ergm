@@ -4,6 +4,6 @@
 #include "wtmodel.h"
 #include "storage.h"
 
-WtModel *unpack_WtModelasdouble(double **x);
+WtModel *unpack_WtModel_as_double(double **x);
 
 #endif

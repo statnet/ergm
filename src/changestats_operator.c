@@ -6,7 +6,7 @@ I_CHANGESTAT_FN(i_passthrough_term){
   double *inputs = INPUT_PARAM;
   // No need to allocate it: we are only storing a pointer to a model.
 
-  STORAGE = unpack_Modelasdouble(&inputs);
+  STORAGE = unpack_Model_as_double(&inputs);
  
   InitStats(nwp, STORAGE);
 }
@@ -39,7 +39,7 @@ I_CHANGESTAT_FN(i__submodel_term){
   double *inputs = INPUT_PARAM+1;
   // No need to allocate it: we are only storing a pointer to a model.
 
-  AUX_STORAGE = unpack_Modelasdouble(&inputs);
+  AUX_STORAGE = unpack_Model_as_double(&inputs);
 
   InitStats(nwp, AUX_STORAGE);
 }
@@ -77,7 +77,7 @@ I_CHANGESTAT_FN(i__summary_term){
   GET_STORAGE(Model, m); // No need to allocate, since we just need a pointer.
 
   // Unpack the submodel.
-  STORAGE = m = unpack_Modelasdouble(&inputs);
+  STORAGE = m = unpack_Model_as_double(&inputs);
   // Initialize empty network.
   Network nw = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
 
