@@ -221,6 +221,7 @@ export(
   offset.info.formula,
   ostar2deg,             # deprecated
   pack.BlockDiagSampInfo_as_num,
+  pack.Clist_as_num,
   plot.ergm,
   plot.gofobject,                  
   plot.mcmc.list.ergm,

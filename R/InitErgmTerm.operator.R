@@ -1,4 +1,23 @@
 pack.str_as_num <- function(s) c(nchar(s), strtoi(charToRaw(s), 16L))
+
+#' Serialize model information in a `Clist` into a numeric vector
+#'
+#' This function takes the output of `ergm.Cprepare` that pertains to
+#' the model (not the network) and serializes it by encoding term
+#' names and libraries as numeric vectors and concatenating them with
+#' inputs and other information.
+#'
+#' @param Clist output of `ergm.Cprepare`
+#'
+#' @return a numeric vector concatenating the following:
+#' * number of terms in the model;
+#' * length of and encoded string of term names;
+#' * length of and encoded string of library names; and
+#' * vector of intputs to the model.
+#' 
+#' This is intended to be decoded by `unpack_*Model_as_double()` C routines.
+#'
+#' @export
 pack.Clist_as_num <- function(Clist){
   fnames <- pack.str_as_num(Clist$fnamestring)
   snames <- pack.str_as_num(Clist$snamestring)
