@@ -16,7 +16,7 @@ InitWtErgmTerm.b <- function(nw, arglist, response=NULL, ...){
   if(!is.dyad.independent(m) && form=="sum") stop("Only dyad-independent binary terms can be imported with form 'sum'.")
   
   Clist <- ergm.Cprepare(nw, m)
-  inputs <- pack.Clistasnum(Clist)
+  inputs <- pack.Clist_as_num(Clist)
   
   gs <- rep(0, Clist$nstats)
 

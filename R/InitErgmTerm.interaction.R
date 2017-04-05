@@ -25,7 +25,7 @@
   cn1 <- unlist(lapply(m$terms[seq_len(n1)], "[[", "coef.names"))
   cn2 <- unlist(lapply(m$terms[n1+seq_len(n2)], "[[", "coef.names"))
 
-  inputs <- c(length(cn1), length(cn2), pack.Clistasnum(Clist))
+  inputs <- c(length(cn1), length(cn2), pack.Clist_as_num(Clist))
   
   cn <- outer(cn1,cn2,paste,sep=":")
   
@@ -56,7 +56,7 @@
   cn1 <- unlist(lapply(m$terms[seq_len(n1)], "[[", "coef.names"))
   cn2 <- unlist(lapply(m$terms[n1+seq_len(n2)], "[[", "coef.names"))
 
-  inputs <- c(length(cn1), length(cn2), pack.Clistasnum(Clist))
+  inputs <- c(length(cn1), length(cn2), pack.Clist_as_num(Clist))
 
   cn <- c(cn1,cn2,outer(cn1,cn2,paste,sep=":"))
   

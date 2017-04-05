@@ -1,7 +1,7 @@
-pack.strasnum <- function(s) c(nchar(s), strtoi(charToRaw(s), 16L))
-pack.Clistasnum <- function(Clist){
-  fnames <- pack.strasnum(Clist$fnamestring)
-  snames <- pack.strasnum(Clist$snamestring)
+pack.str.as.num <- function(s) c(nchar(s), strtoi(charToRaw(s), 16L))
+pack.Clist_as_num <- function(Clist){
+  fnames <- pack.str.as.num(Clist$fnamestring)
+  snames <- pack.str.as.num(Clist$snamestring)
   c(Clist$nterms, fnames, snames, Clist$inputs)
 }
 
@@ -24,7 +24,7 @@ InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
   m <- ergm.getmodel(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
-  inputs <- pack.Clistasnum(Clist)
+  inputs <- pack.Clist_as_num(Clist)
 
   gs <- ergm.emptynwstats(m)
 
@@ -46,7 +46,7 @@ InitErgmTerm..submodel <- function(nw, arglist, response=NULL, ...){
   m <- ergm.getmodel(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
-  inputs <- pack.Clistasnum(Clist)
+  inputs <- pack.Clist_as_num(Clist)
 
   gs <- ergm.emptynwstats(m)
 
@@ -90,7 +90,7 @@ InitErgmTerm..summary <- function(nw, arglist, response=NULL, ...){
   m <- ergm.getmodel(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
-  inputs <- pack.Clistasnum(Clist)
+  inputs <- pack.Clist_as_num(Clist)
 
   gs <- ergm.emptynwstats(m)
 
