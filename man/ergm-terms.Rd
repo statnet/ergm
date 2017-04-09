@@ -20,6 +20,7 @@
 \alias{asymmetric}
 \alias{atleast}
 \alias{atmost}
+\alias{b}
 \alias{b1concurrent}
 \alias{b1cov}
 \alias{b1degrange}
@@ -223,29 +224,75 @@ network
   passing a non-NULL value as the \code{response} argument, giving the
   edge attribute name to be modeled/simulated.
 
-  Binary ERGM statistics cannot be used directly in valued mode and vice versa. However,
-  a substantial number of binary ERGM statistics --- particularly the
-  ones with dyadic indepenence --- have simple generalizations to valued
-  ERGMs, and have been adapted in
-  \code{\link[=ergm-package]{ergm}}. They have the same form as their
-  binary ERGM counterparts, with an additional argument: \code{form}, which, at
-  this time, has two possible values: \code{"sum"} (the default) and
-  \code{"nonzero"}. The former creates a statistic of the form
-  \eqn{\sum_{i,j} x_{i,j} y_{i,j}}{sum[i,j] x[i,j]*y[i,j]}, where \eqn{y_{i,j}}{y[i,j]} is the value of
-  dyad \eqn{(i,j)} and \eqn{x_{i,j}}{x[i,j]} is the term's covariate associated
-  with it. The latter computes the binary version, with the edge
-  considered to be present if its value is not 0.
+  \subsection{Generalizations of binary terms}{
+    Binary ERGM statistics cannot be used directly in valued mode and vice versa. However,
+    a substantial number of binary ERGM statistics --- particularly the
+    ones with dyadic indepenence --- have simple generalizations to valued
+    ERGMs, and have been adapted in
+    \code{\link[=ergm-package]{ergm}}. They have the same form as their
+    binary ERGM counterparts, with an additional argument: \code{form}, which, at
+    this time, has two possible values: \code{"sum"} (the default) and
+    \code{"nonzero"}. The former creates a statistic of the form
+    \eqn{\sum_{i,j} x_{i,j} y_{i,j}}{sum[i,j] x[i,j]*y[i,j]}, where \eqn{y_{i,j}}{y[i,j]} is the value of
+    dyad \eqn{(i,j)} and \eqn{x_{i,j}}{x[i,j]} is the term's covariate associated
+    with it. The latter computes the binary version, with the edge
+    considered to be present if its value is not 0.
+  }
+  
+  \subsection{The \code{b()} operator}{
+    Binary \code{ergm} terms without valued implementations can be
+    passed in valued mode by wrapping them in an operator term
+    \code{b(formula, form)} (for \emph{b}inary), with the following
+    arguments:
+    \describe{
+      \item{\code{formula}}{A one-sided formula whose RHS contains the
+	binary \code{ergm} terms to be used. Which terms may be used
+	depends on the argument \code{form}.}
+      \item{\code{form}}{
+	One of three values:
+	\describe{
+	  \item{\code{"sum"}}{as above; all terms in \code{formula} must
+	    be dyad-independent.}
+	  \item{\code{"nonzero"}}{as above; any binary \code{ergm} terms
+	    may be used in \code{formula}.}
+	  \item{a one-sided formula}{value-dependent
+	    network. \code{form} must contain one \emph{valued} \code{ergm} term, with
+	    the following properties:
+	    \itemize{
+	      \item{dyadic independence;}
+	      \item{dyadwise contribution of either 0 or 1; and}
+	      \item{dyadwise contribution of 0 for a 0-valued dyad.}
+	    }
+	    Formally, this means that it is expressable as
+	    \deqn{g(y) = \sum_{i,j} f_{i,j}(y_{i,j})}{sum[i,j]
+	      f[i,j](y[i,j])}, where for all \eqn{i}, \eqn{j}, and \eqn{y},
+	    \eqn{f_{i,j}(y_{i,j})} is either 0 or 1 and, in particular,
+	    \eqn{f_{i,j}(0)=0}{f[i,j](0)=0}.
 
-  Binary \code{ergm} terms without valued implementations can be
-  passed in valued mode by putting them on the RHS of a one-sided
-  formula and enclosing them in \code{b(...)} (for \emph{b}inary). For
-  example, \code{b(~nodecov("a"), form="sum")} is equivalent to
-  \code{nodecov("a", form="sum")} and similarly with
-  \code{form="nonzero"}. For \code{form="sum"}, only dyad-independent
-  terms can be imported in this way, but for \code{form="nonzero"} all
-  terms can be. More than one term can be used in this
-  formula. When a valued implementation is available, it should be
-  preferred, as it is likely to be faster.
+	    Examples of such terms include \code{nonzero},
+	    \code{ininterval()}, \code{atleast()}, \code{atmost()},
+	    \code{greaterthan()}, \code{lessthen()}, and \code{equalto()}.
+	    
+	    Then, the value of the statistic will be the value of the
+	    statistics in \code{formula} evaluated on a binary network that is
+	    defined to have an edge if and only if the corresponding
+	    dyad of the valued network adds 1 to the valued term in
+	    \code{form}.
+	    
+	  }
+	}
+      }
+    }
+    formula and enclosing them in \code{b(...)} For
+    example, \code{b(~nodecov("a"), form="sum")} is equivalent to
+    \code{nodecov("a", form="sum")} and similarly with
+    \code{form="nonzero"}. For \code{form="sum"}, only dyad-independent
+    terms can be imported in this way, but for \code{form="nonzero"} all
+    terms can be. More than one term can be used in this
+    formula. When a valued implementation is available, it should be
+    preferred, as it is likely to be faster.
+
+  }
 
   Valued version of some binary ERGM terms have an argument
   \code{threshold}, which sets the value above which a dyad is conidered
