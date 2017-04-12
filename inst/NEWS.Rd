@@ -44,7 +44,12 @@
        
        \item{A large number of bugs in bridge sampling has been fixed.}
 
-       \item{Miscellaneous fixes to the documentation and robustifications.}
+       \item{Miscellaneous fixes to the documentation and
+	 robustifications.}
+
+       \item{\code{\link{ddsp}} and \code{\link{dnsp}} terms now work
+       correctly for 0 shared partners. (Thanks to Wouter Spekkink for
+       reporting this bug.)
 
      }
    }
