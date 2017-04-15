@@ -14,13 +14,14 @@
 \alias{terms.ergm}
 \alias{InitErgmTerm}
 
+\alias{B}
+\alias{OnMatch}
 \alias{absdiff}
 \alias{absdiffcat}
 \alias{altkstar}
 \alias{asymmetric}
 \alias{atleast}
 \alias{atmost}
-\alias{b}
 \alias{b1concurrent}
 \alias{b1cov}
 \alias{b1degrange}
@@ -179,6 +180,15 @@ network
   then add nodal attributes to it using the \code{\%v\%} operator if
   necessary.
 
+  \subsection{Operator terms}{
+    Operator terms, such as \code{B} and \code{OnMatch} take
+    formulas with other \code{ergm} terms as their arguments and
+    trnasform them by modifying their inputs (e.g., the network they
+    evaluate) and/or their outputs.
+
+    By convention, their names are capitalized.
+  }
+  
   \subsection{Interactions}{
 
     For binary ERGMs, interactions between
@@ -210,9 +220,9 @@ network
     \code{"b"} (whose values for node \eqn{i} are denoted \eqn{a_i}{a[i]} and
     \eqn{b_i}{b[i]}, respectively), \code{nodecov("a")} adds one statistic of
     the form \eqn{\sum_{i,j} (a_{i}+a_{j}) y_{i,j}}{sum[i,j]
-    (a[i]+a[j])*y[i,j]} and analogously for \code{nodecov("b")}, so
-  \code{nodecov("a"):nodecov("b")} produces
-  \deqn{\sum_{i,j} (a_{i}+a_{j}) (b_{i}+b_{j}) y_{i,j}.}{sum[i,j] (a[i]+a[j])*(b[i]+b[j])*y[i,j].}
+      (a[i]+a[j])*y[i,j]} and analogously for \code{nodecov("b")}, so
+    \code{nodecov("a"):nodecov("b")} produces
+    \deqn{\sum_{i,j} (a_{i}+a_{j}) (b_{i}+b_{j}) y_{i,j}.}{sum[i,j] (a[i]+a[j])*(b[i]+b[j])*y[i,j].}
   }
 }
 
@@ -237,62 +247,11 @@ network
     dyad \eqn{(i,j)} and \eqn{x_{i,j}}{x[i,j]} is the term's covariate associated
     with it. The latter computes the binary version, with the edge
     considered to be present if its value is not 0.
-  }
-  
-  \subsection{The \code{b()} operator}{
-    Binary \code{ergm} terms without valued implementations can be
-    passed in valued mode by wrapping them in an operator term
-    \code{b(formula, form)} (for \emph{b}inary), with the following
-    arguments:
-    \describe{
-      \item{\code{formula}}{A one-sided formula whose RHS contains the
-	binary \code{ergm} terms to be used. Which terms may be used
-	depends on the argument \code{form}.}
-      \item{\code{form}}{
-	One of three values:
-	\describe{
-	  \item{\code{"sum"}}{as above; all terms in \code{formula} must
-	    be dyad-independent.}
-	  \item{\code{"nonzero"}}{as above; any binary \code{ergm} terms
-	    may be used in \code{formula}.}
-	  \item{a one-sided formula}{value-dependent
-	    network. \code{form} must contain one \emph{valued} \code{ergm} term, with
-	    the following properties:
-	    \itemize{
-	      \item{dyadic independence;}
-	      \item{dyadwise contribution of either 0 or 1; and}
-	      \item{dyadwise contribution of 0 for a 0-valued dyad.}
-	    }
-	    Formally, this means that it is expressable as
-	    \deqn{g(y) = \sum_{i,j} f_{i,j}(y_{i,j})}{sum[i,j]
-	      f[i,j](y[i,j])}, where for all \eqn{i}, \eqn{j}, and \eqn{y},
-	    \eqn{f_{i,j}(y_{i,j})} is either 0 or 1 and, in particular,
-	    \eqn{f_{i,j}(0)=0}{f[i,j](0)=0}.
 
-	    Examples of such terms include \code{nonzero},
-	    \code{ininterval()}, \code{atleast()}, \code{atmost()},
-	    \code{greaterthan()}, \code{lessthen()}, and \code{equalto()}.
-	    
-	    Then, the value of the statistic will be the value of the
-	    statistics in \code{formula} evaluated on a binary network that is
-	    defined to have an edge if and only if the corresponding
-	    dyad of the valued network adds 1 to the valued term in
-	    \code{form}.
-	    
-	  }
-	}
-      }
-    }
-    formula and enclosing them in \code{b(...)} For
-    example, \code{b(~nodecov("a"), form="sum")} is equivalent to
-    \code{nodecov("a", form="sum")} and similarly with
-    \code{form="nonzero"}. For \code{form="sum"}, only dyad-independent
-    terms can be imported in this way, but for \code{form="nonzero"} all
-    terms can be. More than one term can be used in this
-    formula. When a valued implementation is available, it should be
-    preferred, as it is likely to be faster.
-
-  }
+    The \code{B()} operator term documented below can be used to pass
+    other binary terms to valued models, and is more flexible, at the
+    cost of being somewhat slower.
+  }  
 
   Valued version of some binary ERGM terms have an argument
   \code{threshold}, which sets the value above which a dyad is conidered
@@ -324,6 +283,68 @@ network
     % documentation about ergm terms. (parsing functions are in build_term_index.R)
     % The list of term tags must appear on the same line as the term name to be parsed correctly
     %%beginTerms%%
+    \item{\code{B(formula, form)} (valued) (operator)}{
+    Wraps binary \code{ergm} terms for use in valued models, with \code{formula} specifying which terms
+    are to be wrapped and \code{form} specifying how they are to be
+    used and how the binary network they are evaluated on is to be constructed. More precisely,
+    \describe{
+      \item{\code{formula}}{A one-sided formula whose RHS contains the
+	binary \code{ergm} terms to be used. Which terms may be used
+	depends on the argument \code{form}.}
+      \item{\code{form}}{
+	One of three values:
+	\describe{
+	  \item{\code{"sum"}}{see section \dQuote{Generalizations of
+  binary terms} above; all terms in \code{formula} must
+	    be dyad-independent.}
+	  \item{\code{"nonzero"}}{section \dQuote{Generalizations of
+  binary terms} above; any binary \code{ergm} terms
+	    may be used in \code{formula}.}
+	  \item{a one-sided formula}{value-dependent
+	    network. \code{form} must contain one \emph{valued} \code{ergm} term, with
+	    the following properties:
+	    \itemize{
+	      \item{dyadic independence;}
+	      \item{dyadwise contribution of either 0 or 1; and}
+	      \item{dyadwise contribution of 0 for a 0-valued dyad.}
+	    }
+	    Formally, this means that it is expressable as
+	    \deqn{g(y) = \sum_{i,j} f_{i,j}(y_{i,j})}{sum[i,j]
+	      f[i,j](y[i,j])}, where for all \eqn{i}, \eqn{j}, and \eqn{y},
+	    \eqn{f_{i,j}(y_{i,j})} is either 0 or 1 and, in particular,
+	    \eqn{f_{i,j}(0)=0}{f[i,j](0)=0}.
+
+	    Examples of such terms include \code{nonzero},
+	    \code{ininterval()}, \code{atleast()}, \code{atmost()},
+	    \code{greaterthan()}, \code{lessthen()}, and \code{equalto()}.
+	    
+	    Then, the value of the statistic will be the value of the
+	    statistics in \code{formula} evaluated on a binary network that is
+	    defined to have an edge if and only if the corresponding
+	    dyad of the valued network adds 1 to the valued term in
+	    \code{form}.
+	    
+	  }
+	}
+      }
+    }
+    For example, \code{B(~nodecov("a"), form="sum")} is equivalent to
+    \code{nodecov("a", form="sum")} and similarly with
+    \code{form="nonzero"}.
+
+    When a valued implementation is available, it should be
+    preferred, as it is likely to be faster.
+  }
+
+  \item{\code{OnMatch(formula, attrname)} (binary) (operator)}{
+    Evaluates the terms specified in \code{formula} on a network
+    constructed by taking \eqn{y} and removing any edges for which
+    \code{attrname(i)!=attrname(j)}. The \code{attrname} argument is a character vector giving one or
+    more names of attributes in the network's vertex attribute
+    list.
+  }
+
+  
     \item{\code{absdiff(attrname, pow=1)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (quantitative nodal attribute),
     \code{absdiff(attrname, pow=1, form ="sum")}  (valued)  (dyad-independent) (directed)  (undirected) (quantitative nodal attribute)}{\emph{Absolute difference:}
     The \code{attrname} argument is a character string giving the name

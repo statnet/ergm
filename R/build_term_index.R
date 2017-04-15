@@ -198,8 +198,8 @@
   
   for (term in terms){
     
-    # every term must include at least one of 'directed' and 'undirected'
-    if (!any(c('directed','undirected')%in%term$categories)){
+    # every term must include at least one of 'directed', 'undirected', or 'operator'
+    if (!any(c('directed','undirected','operator')%in%term$categories)){
       stop('the term ',term$term.name,' must be marked as directed and/or undirected in the documentation')
     }
     # every term must include either 'valued' or 'binary'
