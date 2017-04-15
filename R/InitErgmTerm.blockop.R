@@ -20,7 +20,7 @@ InitErgmTerm.within.block <- function(nw, arglist, response=NULL, ...){
 
   gs <- ergm.emptynwstats.model(m)
 
-  list(name="within_block", coef.names = paste0('within.block(',m$coef.names,a$attrname,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries=~.within.block(attrname))
+  list(name="within_block", coef.names = paste0('within.block(',m$coef.names,a$attrname,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries=~.within.block(a$attrname))
 }
 
 ## Creates a submodel that tracks the given formula.
@@ -32,7 +32,15 @@ InitErgmTerm..within.block <- function(nw, arglist, response=NULL, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
   ### Process the arguments
-  nodecov <- get.node.attr(nw, a$attrname)
+    ### Process the arguments
+  nodecov <-
+    if(length(a$attrname)==1)
+      get.node.attr(nw, a$attrname)
+    else{
+      do.call(paste,c(sapply(a$attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
+    }
+  u <- sort(unique(nodecov))
+  nodecov <- match(nodecov,u)
 
   list(name="_within_block", coef.names = c(), inputs=nodecov, dependence=FALSE)
 }

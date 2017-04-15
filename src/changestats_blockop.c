@@ -18,10 +18,10 @@ C_CHANGESTAT_FN(c_within_block){
   Network *bnwp=&(blkinfo->nw);
   double *b = blkinfo->b;
 
-  if(b[tail]==b[head])
+  if(b[tail]==b[head]){
     ChangeStats(1, &tail, &head, bnwp, m);
-  
-  memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
+    memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
+  }
 }
 
 U_CHANGESTAT_FN(u_within_block){
