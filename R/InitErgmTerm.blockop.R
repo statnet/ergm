@@ -3,7 +3,7 @@
 ##
 ## FIXME: Handle curved terms.
 
-InitErgmTerm.within.block <- function(nw, arglist, response=NULL, ...){
+InitErgmTerm.OnMatch <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "attrname"),
                       vartypes = c("formula", "character"),
@@ -20,12 +20,12 @@ InitErgmTerm.within.block <- function(nw, arglist, response=NULL, ...){
 
   gs <- ergm.emptynwstats.model(m)
 
-  list(name="within_block", coef.names = paste0('within.block(',m$coef.names,a$attrname,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries=~.within.block(a$attrname))
+  list(name="OnMatch", coef.names = paste0('OnMatch(',m$coef.names,a$attrname,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries=~.blockdiag.net(a$attrname))
 }
 
-## Creates a submodel that tracks the given formula.
+## Exports a network that tracks the current network but excludes ties outside of the blocks specified by attrname.
 
-InitErgmTerm..within.block <- function(nw, arglist, response=NULL, ...){
+InitErgmTerm..blockdiag.net <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attrname"),
                       vartypes = c("character"),
@@ -42,5 +42,5 @@ InitErgmTerm..within.block <- function(nw, arglist, response=NULL, ...){
   u <- sort(unique(nodecov))
   nodecov <- match(nodecov,u)
 
-  list(name="_within_block", coef.names = c(), inputs=nodecov, dependence=FALSE)
+  list(name="_blockdiag_net", coef.names = c(), inputs=nodecov, dependence=FALSE)
 }

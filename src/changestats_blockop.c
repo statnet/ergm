@@ -1,8 +1,8 @@
 #include "changestats_blockop.h"
 
-/* within_block(formula) */
+/* OnMatch(formula) */
 
-I_CHANGESTAT_FN(i_within_block){
+I_CHANGESTAT_FN(i_OnMatch){
   GET_AUX_STORAGE(StoreNetAndBID, blkinfo);
   double *inputs = INPUT_PARAM+1;
   Network *bnwp=&(blkinfo->nw);
@@ -12,7 +12,7 @@ I_CHANGESTAT_FN(i_within_block){
   InitStats(bnwp, STORAGE);
 }
 
-C_CHANGESTAT_FN(c_within_block){
+C_CHANGESTAT_FN(c_OnMatch){
   GET_STORAGE(Model, m);
   GET_AUX_STORAGE(StoreNetAndBID, blkinfo);
   Network *bnwp=&(blkinfo->nw);
@@ -24,7 +24,7 @@ C_CHANGESTAT_FN(c_within_block){
   }
 }
 
-U_CHANGESTAT_FN(u_within_block){
+U_CHANGESTAT_FN(u_OnMatch){
   GET_STORAGE(Model, m);
   GET_AUX_STORAGE(StoreNetAndBID, blkinfo);
   Network *bnwp=&(blkinfo->nw);
@@ -34,7 +34,7 @@ U_CHANGESTAT_FN(u_within_block){
     UPDATE_STORAGE(tail, head, bnwp, m, NULL);
 }
 
-F_CHANGESTAT_FN(f_within_block){
+F_CHANGESTAT_FN(f_OnMatch){
   GET_STORAGE(Model, m);
 
   ModelDestroy(nwp, m);
@@ -42,14 +42,14 @@ F_CHANGESTAT_FN(f_within_block){
   STORAGE = NULL;
 }
 
-/* within_block:
+/* blockdiag_net:
 
    maintains a network that mirrors the main network but excludes ties
    not within specified blocks; also exports a numeric vector of block
    memberships
  */
 
-I_CHANGESTAT_FN(i__within_block){
+I_CHANGESTAT_FN(i__blockdiag_net){
   ALLOC_AUX_STORAGE(1, StoreNetAndBID, blkinfo);
   blkinfo->nw = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
   Network *bnwp = &(blkinfo->nw);
@@ -65,7 +65,7 @@ I_CHANGESTAT_FN(i__within_block){
   }
 }
 
-U_CHANGESTAT_FN(u__within_block){
+U_CHANGESTAT_FN(u__blockdiag_net){
   GET_AUX_STORAGE(StoreNetAndBID, blkinfo);
   Network *bnwp = &(blkinfo->nw);
   double *b = blkinfo->b;
@@ -74,7 +74,7 @@ U_CHANGESTAT_FN(u__within_block){
     ToggleEdge(tail, head, bnwp);
 }
 
-F_CHANGESTAT_FN(f__within_block){
+F_CHANGESTAT_FN(f__blockdiag_net){
   GET_AUX_STORAGE(StoreNetAndBID, blkinfo);
   Network *bnwp = &(blkinfo->nw);
   NetworkDestroy(bnwp);
