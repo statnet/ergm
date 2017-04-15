@@ -1,5 +1,5 @@
 
-InitWtErgmTerm.b <- function(nw, arglist, response=NULL, ...){
+InitWtErgmTerm.B <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "form"),
                       vartypes = c("formula", "character,formula"),
