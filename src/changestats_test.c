@@ -136,25 +136,30 @@ F_CHANGESTAT_FN(f__intersect_net_toggles_in_list){
 }
 
 I_CHANGESTAT_FN(i__union_net){
-  ALLOC_AUX_STORAGE(1, Network, dnwp);
+  ALLOC_AUX_STORAGE(1, StoreNetAndRefEL, storage);
+  Network *dnwp = &(storage->nw);
+  double *ref_el = storage->ref_el = INPUT_PARAM + 1;
   NetworkCopy(dnwp, nwp);
-  Edge nedges = INPUT_PARAM[1];
+  Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
-    Vertex tail=INPUT_PARAM[2+i], head=INPUT_PARAM[2+nedges+i];
+    Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i];
     if(IS_OUTEDGE(tail, head)==0)
       ToggleEdge(tail,head, dnwp);
   }
 }
 
 U_CHANGESTAT_FN(u__union_net){
-  GET_AUX_STORAGE(Network, dnwp);
+  GET_AUX_STORAGE(StoreNetAndRefEL, storage);
+  Network *dnwp = &(storage->nw);
+  double *ref_el = storage->ref_el;
 
-  if(dEdgeListSearch(tail, head, INPUT_PARAM+1)==0)
+  if(dEdgeListSearch(tail, head, ref_el)==0)
     ToggleEdge(tail, head, dnwp);
 }
 
 F_CHANGESTAT_FN(f__union_net){
-  GET_AUX_STORAGE(Network, dnwp);
+  GET_AUX_STORAGE(StoreNetAndRefEL, storage);
+  Network *dnwp = &(storage->nw);
 
   NetworkDestroy(dnwp);
 }

@@ -5,6 +5,8 @@
 #include "changestat.h"
 #include "storage.h"
 
+typedef struct{Network nw; double *ref_el;} StoreNetAndRefEL;
+
 D_CHANGESTAT_FN(d_test_abs_edges_minus_5);
 I_CHANGESTAT_FN(i_test_abs_edges_minus_5);
 U_CHANGESTAT_FN(u_test_abs_edges_minus_5);
