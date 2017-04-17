@@ -11,15 +11,42 @@
 #ifndef STORAGE_H
 #define STORAGE_H
 
-/* Storage utilities */
-#define STORAGE (/* (stored_type *) */ mtp->storage)
+/*** Storage utilities ***/
+
+/** Private storage **/
+
+// Pointer to a term's private storage
+#define STORAGE (mtp->storage)
+
+// 1. Declares a stored_type *store_into.
+// 2. Allocates a vector of `nmemb` elements of type `stored_type`.
+// 3. Saves its pointer to private storage.
+// 4. Also assigns its pointer to store_into.
 #define ALLOC_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (STORAGE = Calloc(nmemb, stored_type));
+
+// 1. Declares a stored_type *store_into.
+// 2. Assigns pointer to private storage to store_into.
 #define GET_STORAGE(stored_type, store_into) stored_type *store_into = (stored_type *) STORAGE;
 
-#define AUX_STORAGE (/* (stored_type *) */ mtp->aux_storage[(unsigned int) INPUT_PARAM[0]])
+
+/** Public (auxiliary) storage **/
+
+// Pointer to an auxiliary term's assigned storage slot or to the storage slot of a statistic's first requested auxiliary.
+#define AUX_STORAGE (mtp->aux_storage[(unsigned int) INPUT_PARAM[0]])
+
+// Should be used by auxiliary terms' initialization or updating function only.
+// 1. Declares a stored_type *store_into.
+// 2. Allocates a vector of `nmemb` elements of type `stored_type`.
+// 3. Saves its pointer to its assigned public storage slot.
+// 4. Also assigns its pointer to store_into.
 #define ALLOC_AUX_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (AUX_STORAGE = Calloc(nmemb, stored_type));
+// 1. Declares a stored_type *store_into.
+// 2. Assigns pointer to its assigned auxiliary storage slot (or, for a statistic, its first requested auxiliary) to store_into.
 #define GET_AUX_STORAGE(stored_type, store_into) stored_type *store_into = AUX_STORAGE;
-#define AUX_STORAGE_NUM(ind) (/* (stored_type *) */ mtp->aux_storage[(unsigned int) INPUT_PARAM[ind]])
+// Pointer to the storage slot of a statistic's ind'th requested auxiliary.
+#define AUX_STORAGE_NUM(ind) (mtp->aux_storage[(unsigned int) INPUT_PARAM[ind]])
+// 1. Declares a stored_type *store_into.
+// 2. Assigns pointer to its ind'th requested auxiliary to store_into.
 #define GET_AUX_STORAGE_NUM(stored_type, store_into, ind) stored_type *store_into = AUX_STORAGE_NUM(ind);
 
 /* Allocate a sociomatrix as auxiliary storage. */

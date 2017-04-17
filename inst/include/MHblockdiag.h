@@ -52,13 +52,25 @@ typedef struct {
   Dyad ndyads; // number of dyads
   Vertex n; // number of blocks
   unsigned int directed_flag; // directed flag
-} MH_BlockDiagInfo;
+} MH_BlockDiagSampInfo;
 
-static inline MH_BlockDiagInfo unpack_BlockDiagInfo(double **inputs, Vertex bipartite, unsigned int directed_flag){
+/**
+Unpack input from R into block diagonal sampling information
+
+Unpack a double *input vector containing block diagonal sampling
+information into a `MH_BlockDiagSampInfo` structure and advance the
+pointer to the end of the block diagonal informatio nsegment.
+
+@param inputs a pointer to a pointer to a vector of inputs; will be
+  updated by the procedure
+@param bipartite the number of b1 vertices, or 0 if unipartite
+@param directed_flag whether the network is directed
+*/
+static inline MH_BlockDiagSampInfo unpack_BlockDiagSampInfo(double **inputs, Vertex bipartite, unsigned int directed_flag){
   double *x = *inputs;
   Vertex n = (x++)[0]; // number of blocks
 
-  MH_BlockDiagInfo out = {
+  MH_BlockDiagSampInfo out = {
     .directed_flag=directed_flag,
     .n=n};
 
@@ -74,7 +86,14 @@ static inline MH_BlockDiagInfo unpack_BlockDiagInfo(double **inputs, Vertex bipa
   return out;
 }
 
-static inline void GetRandDyadBlockDiag(Vertex *tail, Vertex *head, const MH_BlockDiagInfo *b){
+/**
+Generate a random dyad that belongs a block
+
+@param tail pointer to which to assign the tail value
+@param head pointer to which to assign the head value
+@param b block information
+*/
+static inline void GetRandDyadBlockDiag(Vertex *tail, Vertex *head, const MH_BlockDiagSampInfo *b){
   Vertex blk = 1, t, h;
   double r = unif_rand();
   // FIXME: Change to a binary search to change from O(b->n) to O(log(b->n)).
@@ -88,6 +107,24 @@ static inline void GetRandDyadBlockDiag(Vertex *tail, Vertex *head, const MH_Blo
     *tail = t;
     *head = h;
   }
+}
+
+/**
+Obtain index of the block to which the given dyad belongs
+
+@param tail tail of the dyad
+@param head head of the dyad
+@param b block information
+
+@returns index of the block (from 1) or 0 if not in a block
+*/
+static inline Vertex GetBlockID(Vertex tail, Vertex head, const MH_BlockDiagSampInfo *b){
+  Vertex tblk = 1;
+  while(tail>b->epos[tblk]) tblk++; 
+  Vertex hblk = 1;
+  while(head>b->epos[hblk]) hblk++;
+  if(tblk==hblk) return tblk;
+  else return 0;
 }
 
 #endif
