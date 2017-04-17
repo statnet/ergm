@@ -97,5 +97,5 @@ InitErgmTerm.discord.inter.union.net <- function(nw, arglist, ...) {
        auxiliaries = ~ .discord.net(a$x) + .intersect.net(a$x) + .union.net(a$x),
        inputs=ergm.Cprepare.el(a$x, prototype=nw),
        emptynwstats=c(nedges, 0, nedges, nedges^2, 0, nedges^2),
-       dependence=FALSE)
+       dependence=TRUE)
 }
