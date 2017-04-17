@@ -1,4 +1,4 @@
-#include"changestats_netop.h"
+#include"changestats_auxnet.h"
 
 I_CHANGESTAT_FN(i__isociomatrix){
   ALLOC_AUX_SOCIOMATRIX(int, sm);

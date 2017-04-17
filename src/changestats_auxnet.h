@@ -1,5 +1,5 @@
-#ifndef CHANGESTATS_NETOP_H
-#define CHANGESTATS_NETOP_H
+#ifndef CHANGESTATS_AUXNET_H
+#define CHANGESTATS_AUXNET_H
 
 #include "edgetree.h"
 #include "changestat.h"
