@@ -51,3 +51,25 @@ InitErgmTerm..union.net<-function(nw, arglist, ...) {
        inputs=ergm.Cprepare.el(a$x, prototype=nw),
        dependence=FALSE)
 }
+
+## Exports a network that tracks the current network but excludes ties outside of the blocks specified by attrname.
+
+InitErgmTerm..blockdiag.net <- function(nw, arglist, response=NULL, ...){
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("attrname"),
+                      vartypes = c("character"),
+                      defaultvalues = list(NULL),
+                      required = c(TRUE))
+  ### Process the arguments
+    ### Process the arguments
+  nodecov <-
+    if(length(a$attrname)==1)
+      get.node.attr(nw, a$attrname)
+    else{
+      do.call(paste,c(sapply(a$attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
+    }
+  u <- sort(unique(nodecov))
+  nodecov <- match(nodecov,u)
+
+  list(name="_blockdiag_net", coef.names = c(), inputs=nodecov, dependence=FALSE)
+}

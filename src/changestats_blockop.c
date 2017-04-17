@@ -1,4 +1,5 @@
 #include "changestats_blockop.h"
+#include "changestats_auxnet.h"
 
 /* OnMatch(formula) */
 
@@ -42,40 +43,3 @@ F_CHANGESTAT_FN(f_OnMatch){
   STORAGE = NULL;
 }
 
-/* blockdiag_net:
-
-   maintains a network that mirrors the main network but excludes ties
-   not within specified blocks; also exports a numeric vector of block
-   memberships
- */
-
-I_CHANGESTAT_FN(i__blockdiag_net){
-  ALLOC_AUX_STORAGE(1, StoreNetAndBID, blkinfo);
-  blkinfo->nw = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
-  Network *bnwp = &(blkinfo->nw);
-  double *b = blkinfo->b = INPUT_PARAM;
-
-  for(Vertex tail=1; tail <= N_TAILS; tail++){
-    Vertex head;
-    Edge e;
-    STEP_THROUGH_OUTEDGES(tail, e, head) {
-      if(b[tail]==b[head])
-	ToggleEdge(tail, head, bnwp);
-    }
-  }
-}
-
-U_CHANGESTAT_FN(u__blockdiag_net){
-  GET_AUX_STORAGE(StoreNetAndBID, blkinfo);
-  Network *bnwp = &(blkinfo->nw);
-  double *b = blkinfo->b;
-
-  if(b[tail]==b[head])
-    ToggleEdge(tail, head, bnwp);
-}
-
-F_CHANGESTAT_FN(f__blockdiag_net){
-  GET_AUX_STORAGE(StoreNetAndBID, blkinfo);
-  Network *bnwp = &(blkinfo->nw);
-  NetworkDestroy(bnwp);
-}
