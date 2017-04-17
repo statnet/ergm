@@ -182,7 +182,6 @@ unsigned long int gcd(unsigned long int a, unsigned long int b){
 void MpleInit_hash_bl(int *responsevec, double *covmat, int *weightsvector,
 		      int *bl, 
 		      Edge maxDyads, Edge maxDyadTypes, Network *nwp, Model *m){
-  double *newRow = (double *) R_alloc(m->n_stats,sizeof(double));
   /* Note:  This function uses macros found in changestat.h */
 
   Dyad dc = DYADCOUNT(N_NODES, BIPARTITE, DIRECTED);
@@ -201,29 +200,18 @@ void MpleInit_hash_bl(int *responsevec, double *covmat, int *weightsvector,
     if((!DIRECTED && t>=h) || iEdgeListSearch(t,h,bl)) continue;
 
     int response = IS_OUTEDGE(t,h);
-    unsigned int totalStats = 0;
     /* Let mtp loop through each model term */
-    EXEC_THROUGH_TERMS({
-      mtp->dstats = newRow + totalStats;
-      /* Now call d_xxx function, which updates mtp->dstats to reflect
-	 changing the current dyad.  */
-      if(mtp->c_func) (*(mtp->c_func))(t, h, mtp, nwp);
-      else (*(mtp->d_func))(1, &t, &h, mtp, nwp);
-      /* dstats values reflect changes in current dyad; for MPLE, 
-	 values must reflect going from 0 to 1.  Thus, we have to reverse 
-	 the sign of dstats whenever the current edge exists. */
-      if(response){
-	  for(unsigned int l=0; l<mtp->nstats; l++){
-	    mtp->dstats[l] = -mtp->dstats[l];
-	  }
+    ChangeStats(1, &t, &h, nwp, m);
+    if(response){
+      for(unsigned int l=0; l<m->n_stats; l++){
+	m->workspace[l] = -m->workspace[l];
       }
-      /* Update mtp->dstats pointer to skip ahead by mtp->nstats */
-      totalStats += mtp->nstats; 
-      });
+    }
+    
     /* In next command, if there is an offset vector then its total
        number of entries should match the number of times through the 
        inner loop (i.e., the number of dyads in the network) */          
-    if(!insCovMatRow(newRow, covmat, m->n_stats,
+    if(!insCovMatRow(m->workspace, covmat, m->n_stats,
 		     maxDyadTypes, response, 
 		     responsevec, weightsvector)) {
       warning("Too many unique dyads. MPLE is approximate, and MPLE standard errors are suspect.");
@@ -235,7 +223,6 @@ void MpleInit_hash_bl(int *responsevec, double *covmat, int *weightsvector,
 void MpleInit_hash_wl(int *responsevec, double *covmat, int *weightsvector,
 		      int *wl, 
 		      Edge maxDyadTypes, Network *nwp, Model *m){
-  double *newRow = (double *) R_alloc(m->n_stats,sizeof(double));
   /* Note:  This function uses macros found in changestat.h */
   Edge wledges = wl[0];
   wl++;
@@ -244,29 +231,16 @@ void MpleInit_hash_wl(int *responsevec, double *covmat, int *weightsvector,
     Vertex t=wl[wlpos], h=(wl+wledges)[wlpos];
     
     int response = IS_OUTEDGE(t,h);
-    unsigned int totalStats = 0;
-    /* Let mtp loop through each model term */
-    EXEC_THROUGH_TERMS({
-      mtp->dstats = newRow + totalStats;
-      /* Now call d_xxx function, which updates mtp->dstats to reflect
-	 changing the current dyad.  */
-      if(mtp->c_func) (*(mtp->c_func))(t, h, mtp, nwp);
-      else (*(mtp->d_func))(1, &t, &h, mtp, nwp);
-      /* dstats values reflect changes in current dyad; for MPLE, 
-	 values must reflect going from 0 to 1.  Thus, we have to reverse 
-	 the sign of dstats whenever the current edge exists. */
-      if(response){
-	for(unsigned int l=0; l<mtp->nstats; l++){
-	  mtp->dstats[l] = -mtp->dstats[l];
-	}
+    ChangeStats(1, &t, &h, nwp, m);
+    if(response){
+      for(unsigned int l=0; l<m->n_stats; l++){
+	m->workspace[l] = -m->workspace[l];
       }
-      /* Update mtp->dstats pointer to skip ahead by mtp->nstats */
-      totalStats += mtp->nstats; 
-      });
+    }
     /* In next command, if there is an offset vector then its total
        number of entries should match the number of times through the 
        inner loop (i.e., the number of dyads in the network) */          
-    if(!insCovMatRow(newRow, covmat, m->n_stats,
+    if(!insCovMatRow(m->workspace, covmat, m->n_stats,
 		     maxDyadTypes, response, 
 		     responsevec, weightsvector)) {
       warning("Too many unique dyads. MPLE is approximate, and MPLE standard errors are suspect.");
