@@ -8,8 +8,8 @@
  *  Copyright 2003-2013 Statnet Commons
  */
 
-#ifndef MHSTORAGE_H
-#define MHSTORAGE_H
+#ifndef _ERGM_MHSTORAGE_H_
+#define _ERGM_MHSTORAGE_H_
 
 /* Storage utilities for MH proposal clients */
 #define MH_STORAGE (/* (stored_type *) */ MHp->storage)
@@ -33,4 +33,4 @@
 
 #endif // STRICT_MH_HEADERS
 
-#endif // MHSTORAGE_H
+#endif // _ERGM_MHSTORAGE_H_

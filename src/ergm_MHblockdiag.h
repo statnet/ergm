@@ -40,8 +40,8 @@
      1, etc.)
 */
 
-#ifndef MHBLOCKDIAG_H
-#define MHBLOCKDIAG_H
+#ifndef _ERGM_MHBLOCKDIAG_H_
+#define _ERGM_MHBLOCKDIAG_H_
 
 #include "MHproposal.h"
 

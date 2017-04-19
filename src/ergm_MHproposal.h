@@ -7,8 +7,8 @@
  *
  *  Copyright 2003-2013 Statnet Commons
  */
-#ifndef MHproposal_H
-#define MHproposal_H
+#ifndef _ERGM_MHPROPOSAL_H_
+#define _ERGM_MHPROPOSAL_H_
 
 #include "edgetree.h"
 #include "R_ext/Rdynload.h"

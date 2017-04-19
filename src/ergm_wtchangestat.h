@@ -7,8 +7,8 @@
  *
  *  Copyright 2003-2013 Statnet Commons
  */
-#ifndef WTCHANGESTAT_H
-#define WTCHANGESTAT_H
+#ifndef _ERGM_WTCHANGESTAT_H_
+#define _ERGM_WTCHANGESTAT_H_
 
 #include "wtedgetree.h"
 

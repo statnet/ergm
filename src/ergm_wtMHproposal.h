@@ -7,8 +7,8 @@
  *
  *  Copyright 2003-2013 Statnet Commons
  */
-#ifndef WTMHPROPOSAL_H
-#define WTMHPROPOSAL_H
+#ifndef _ERGM_WTMHPROPOSAL_H_
+#define _ERGM_WTMHPROPOSAL_H_
 
 #include "wtedgetree.h"
 #include "R_ext/Rdynload.h"

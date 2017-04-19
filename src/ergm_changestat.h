@@ -7,8 +7,8 @@
  *
  *  Copyright 2003-2013 Statnet Commons
  */
-#ifndef CHANGESTAT_H
-#define CHANGESTAT_H
+#ifndef _ERGM_CHANGESTAT_H_
+#define _ERGM_CHANGESTAT_H_
 
 #include "edgetree.h"
 #include "edgelist.h"

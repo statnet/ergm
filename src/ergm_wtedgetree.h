@@ -7,8 +7,8 @@
  *
  *  Copyright 2003-2013 Statnet Commons
  */
-#ifndef WTEDGETREE_H
-#define WTEDGETREE_H
+#ifndef _ERGM_WTEDGETREE_H_
+#define _ERGM_WTEDGETREE_H_
 
 #include <math.h>
 #include <R.h>

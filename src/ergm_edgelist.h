@@ -7,8 +7,8 @@
  *
  *  Copyright 2003-2013 Statnet Commons
  */
-#ifndef EDGELIST_H
-#define EDGELIST_H
+#ifndef _ERGM_EDGELIST_H_
+#define _ERGM_EDGELIST_H_
 
 #include "edgetree.h"
 

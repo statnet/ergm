@@ -7,8 +7,8 @@
  *
  *  Copyright 2003-2013 Statnet Commons
  */
-#ifndef EDGETREE_H
-#define EDGETREE_H
+#ifndef _ERGM_EDGETREE_H_
+#define _ERGM_EDGETREE_H_
 
 #include <math.h>
 #include <R.h>

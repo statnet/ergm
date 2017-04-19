@@ -7,8 +7,8 @@
  *
  *  Copyright 2003-2013 Statnet Commons
  */
-#ifndef WTMODEL_H
-#define WTMODEL_H
+#ifndef _ERGM_WTMODEL_H_
+#define _ERGM_WTMODEL_H_
 
 #include "wtedgetree.h"
 #include "wtchangestat.h"

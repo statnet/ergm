@@ -7,8 +7,8 @@
  *
  *  Copyright 2003-2013 Statnet Commons
  */
-#ifndef MODEL_H
-#define MODEL_H
+#ifndef _ERGM_MODEL_H_
+#define _ERGM_MODEL_H_
 
 #include "edgetree.h"
 #include "changestat.h"

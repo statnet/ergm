@@ -8,8 +8,8 @@
  *  Copyright 2003-2013 Statnet Commons
  */
 
-#ifndef STORAGE_H
-#define STORAGE_H
+#ifndef _ERGM_STORAGE_H_
+#define _ERGM_STORAGE_H_
 
 /*** Storage utilities ***/
 
@@ -80,4 +80,4 @@
    automatically deallocated. */
 #define FREE_AUX_SOCIOMATRIX AUX_STORAGE = (void **)AUX_STORAGE + 1;
 
-#endif // STORAGE_H
+#endif // _ERGM_STORAGE_H_
