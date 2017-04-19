@@ -43,7 +43,7 @@
 #ifndef _ERGM_MHBLOCKDIAG_H_
 #define _ERGM_MHBLOCKDIAG_H_
 
-#include "MHproposal.h"
+#include "ergm_MHproposal.h"
 
 typedef struct {
   double *epos; // starts and ends of blocks (b1)

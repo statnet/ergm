@@ -1,9 +1,9 @@
 #ifndef WTCHANGESTATS_TEST_H
 #define WTCHANGESTATS_TEST_H
 
-#include "wtedgetree.h"
-#include "wtchangestat.h"
-#include "storage.h"
+#include "ergm_wtedgetree.h"
+#include "ergm_wtchangestat.h"
+#include "ergm_storage.h"
 
 WtD_CHANGESTAT_FN(d_test_abs_sum_minus_5);
 WtI_CHANGESTAT_FN(i_test_abs_sum_minus_5);

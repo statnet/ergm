@@ -8,10 +8,10 @@
  *  Copyright 2003-2013 Statnet Commons
  */
 #include "MHproposals.h"
-#include "edgelist.h"
-#include "changestat.h"
-#include "MHblockdiag.h"
-#include "MHstorage.h"
+#include "ergm_edgelist.h"
+#include "ergm_changestat.h"
+#include "ergm_MHblockdiag.h"
+#include "ergm_MHstorage.h"
 
 /* Shorthand. */
 

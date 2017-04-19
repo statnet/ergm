@@ -10,7 +10,7 @@
 #ifndef _ERGM_WTMHPROPOSAL_H_
 #define _ERGM_WTMHPROPOSAL_H_
 
-#include "wtedgetree.h"
+#include "ergm_wtedgetree.h"
 #include "R_ext/Rdynload.h"
 
 #define NO_EDGE       0x00 /*these four used in realocateWithReplacement */

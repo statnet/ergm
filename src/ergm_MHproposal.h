@@ -10,7 +10,7 @@
 #ifndef _ERGM_MHPROPOSAL_H_
 #define _ERGM_MHPROPOSAL_H_
 
-#include "edgetree.h"
+#include "ergm_edgetree.h"
 #include "R_ext/Rdynload.h"
 
 typedef struct DegreeBoundstruct {

@@ -14,7 +14,7 @@
 #include <R.h>
 #include <Rinternals.h>
 #include <Rmath.h>
-#include "edgetree.h"
+#include "ergm_edgetree.h"
 
 
 /* WtTreeNode is just like TreeNode but with an extra field for a

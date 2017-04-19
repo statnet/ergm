@@ -9,7 +9,7 @@
  */
 #ifndef MHPROPOSALS_DEGREE_H
 #define MHPROPOSALS_DEGREE_H
-#include "MHproposal.h"
+#include "ergm_MHproposal.h"
 
 void MH_CondDegree (MHproposal *MHp, Network *nwp);
 void MH_CondDegreeTetrad (MHproposal *MHp, Network *nwp);

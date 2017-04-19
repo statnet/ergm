@@ -1,5 +1,5 @@
 #include "MHproposals_dyadnoise.h" 
-#include "changestat.h"
+#include "ergm_changestat.h"
 /* Shorthand. */
 #define Mtail (MHp->toggletail)
 #define Mhead (MHp->togglehead)

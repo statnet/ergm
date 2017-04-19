@@ -1,9 +1,9 @@
 #ifndef CHANGESTATS_TEST_H
 #define CHANGESTATS_TEST_H
 
-#include "edgetree.h"
-#include "changestat.h"
-#include "storage.h"
+#include "ergm_edgetree.h"
+#include "ergm_changestat.h"
+#include "ergm_storage.h"
 
 D_CHANGESTAT_FN(d_test_abs_edges_minus_5);
 I_CHANGESTAT_FN(i_test_abs_edges_minus_5);

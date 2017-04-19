@@ -8,7 +8,7 @@
  *  Copyright 2003-2013 Statnet Commons
  */
 #include <string.h>
-#include "wtmodel.h"
+#include "ergm_wtmodel.h"
 
 /*****************
   void WtModelDestroy

@@ -10,7 +10,7 @@
 #ifndef MHproposals_H
 #define MHproposals_H
 
-#include "MHproposal.h"
+#include "ergm_MHproposal.h"
 
 void MH_randomtoggle (MHproposal *MHp, Network *nwp);
 void MH_TNT (MHproposal *MHp, Network *nwp);

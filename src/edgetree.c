@@ -7,7 +7,7 @@
  *
  *  Copyright 2003-2013 Statnet Commons
  */
-#include "edgetree.h"
+#include "ergm_edgetree.h"
 
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed

@@ -10,10 +10,10 @@
 #ifndef _ERGM_WTMODEL_H_
 #define _ERGM_WTMODEL_H_
 
-#include "wtedgetree.h"
-#include "wtchangestat.h"
+#include "ergm_wtedgetree.h"
+#include "ergm_wtchangestat.h"
 #include "R_ext/Rdynload.h"
-#include "wtMHproposal.h"
+#include "ergm_wtMHproposal.h"
 
 /* A WtModel object contains information about an entire ERGM, including the
    total numbers of terms, parameters, and statistics along with a pointer

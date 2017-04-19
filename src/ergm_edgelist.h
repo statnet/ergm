@@ -10,7 +10,7 @@
 #ifndef _ERGM_EDGELIST_H_
 #define _ERGM_EDGELIST_H_
 
-#include "edgetree.h"
+#include "ergm_edgetree.h"
 
 /*
 Edgelists are so simple, there is no point in definding a struct for

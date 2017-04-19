@@ -8,7 +8,7 @@
  *  Copyright 2003-2013 Statnet Commons
  */
 #include "wtMHproposals.h"
-#include "wtchangestat.h"
+#include "ergm_wtchangestat.h"
 
 /* Shorthand. */
 #define Mtail (MHp->toggletail)

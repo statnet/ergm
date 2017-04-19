@@ -10,7 +10,7 @@
 #ifndef _ERGM_WTCHANGESTAT_H_
 #define _ERGM_WTCHANGESTAT_H_
 
-#include "wtedgetree.h"
+#include "ergm_wtedgetree.h"
 
 typedef struct WtModelTermstruct {
   void (*c_func)(Vertex, Vertex, double, struct WtModelTermstruct*, WtNetwork*);

@@ -10,8 +10,8 @@
 #ifndef _ERGM_CHANGESTAT_H_
 #define _ERGM_CHANGESTAT_H_
 
-#include "edgetree.h"
-#include "edgelist.h"
+#include "ergm_edgetree.h"
+#include "ergm_edgelist.h"
 
 typedef struct ModelTermstruct {
   void (*c_func)(Vertex, Vertex, struct ModelTermstruct*, Network*);

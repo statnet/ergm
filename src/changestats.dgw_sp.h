@@ -1,9 +1,9 @@
 #ifndef CHANGESTATS_H
 #define CHANGESTATS_H
 
-#include "edgetree.h"
-#include "changestat.h"
-#include "storage.h"
+#include "ergm_edgetree.h"
+#include "ergm_changestat.h"
+#include "ergm_storage.h"
 
 #define ESPUTP 0
 #define ESPOTP 1
