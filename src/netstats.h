@@ -10,9 +10,9 @@
 #ifndef NETSTATS_H
 #define NETSTATS_H
 
-#include "edgetree.h"
-#include "model.h"
-#include "MHproposal.h"
+#include "ergm_edgetree.h"
+#include "ergm_model.h"
+#include "ergm_MHproposal.h"
 
 /* *** don't forget tail -> head, so these functions accept tails first, not heads */
 

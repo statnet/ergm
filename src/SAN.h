@@ -10,10 +10,10 @@
 #ifndef SAN_H
 #define SAN_H
 
-#include "edgetree.h"
-#include "changestat.h"
-#include "MHproposal.h"
-#include "model.h"
+#include "ergm_edgetree.h"
+#include "ergm_changestat.h"
+#include "ergm_MHproposal.h"
+#include "ergm_model.h"
 #include "MCMC.h"
 
 /* *** don't forget tail -> head, so this function accepts tails first, not heads  */

@@ -7,7 +7,7 @@
  *
  *  Copyright 2003-2013 Statnet Commons
  */
-#include "MHproposal.h"
+#include "ergm_MHproposal.h"
 
 
 /*********************

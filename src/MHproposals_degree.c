@@ -8,7 +8,7 @@
  *  Copyright 2003-2013 Statnet Commons
  */
 #include "MHproposals_degree.h"
-#include "changestat.h"
+#include "ergm_changestat.h"
 
 /* Shorthand. */
 #define Mhead (MHp->togglehead)

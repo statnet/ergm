@@ -10,9 +10,9 @@
 #ifndef WTCHANGESTATS_H
 #define WTCHANGESTATS_H
 
-#include "wtedgetree.h"
-#include "wtchangestat.h"
-#include "storage.h"
+#include "ergm_wtedgetree.h"
+#include "ergm_wtchangestat.h"
+#include "ergm_storage.h"
 
 /********************  Utility macros    ***********/
 

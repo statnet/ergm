@@ -166,12 +166,11 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
  
   if(!is.dyad.independent(mk.conlist(constraints,nw), mk.conlist(constraints.obs,nw))) stop("Bridge sampling with dyad-independent start does not work with dyad-dependent constraints.")
 
-  # If target.stats are given and they differ from nw's, then we need
-  # to adjust for the difference. This means that the dyad-independent
+  # If target.stats are given, then we need between passed network and
+  # target stats, if any. It also means that the dyad-independent
   # submodel cannot contain any statistics that target.stats does not,
   # so edges are not added on.
-  ts.adj <- !is.null(target.stats) && !isTRUE(all.equal(ergm.getglobalstats(nw, m)[!m$etamap$offsetmap], target.stats))
-  if(ts.adj && !is.null(dind)) stop("Non-default dyad-independent model is not supported when target.stats is passed and passed network's statistics do not match it.")
+  if(!is.null(target.stats) && !is.null(dind)) stop("Non-default dyad-independent model is not supported when target.stats is passed and passed network's statistics do not match it.")
 
   ## From this point on, target.stats has NAs corresponding to offset
   ## terms.
@@ -182,17 +181,17 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   ## get their coefficients zeroed out below.
   ## FIXME: What to do about dyad-independent curved terms?
   offset.dind <- c()
-  if(ts.adj) ts.dind <- c()
+  if(!is.null(target.stats)) ts.dind <- c()
   if(is.null(dind)){
     dind<-~.
     terms.full<-term.list.formula(form[[3]])[!m$term.skipped] # Ensure that terms to be added to the dyad-independent formula are aligned with terms that had actually made it into the model.
     for(i in seq_along(terms.full))
       if(NVL(m$terms[[i]]$dependence, TRUE) == FALSE){
         dind<-append.rhs.formula(dind,list(terms.full[[i]]))
-        if(ts.adj && !m$offset[i]) ts.dind <- c(ts.dind, target.stats[(p.pos.full[i]+1):p.pos.full[i+1]])
+        if(!is.null(target.stats) && !m$offset[i]) ts.dind <- c(ts.dind, target.stats[(p.pos.full[i]+1):p.pos.full[i+1]])
         if(m$offset[i]) offset.dind <- c(offset.dind, coef[(q.pos.full[i]+1):q.pos.full[i+1]])
       }
-    if(!ts.adj) dind<-append.rhs.formula(dind,list(as.name("edges")))
+    if(!!is.null(target.stats)) dind<-append.rhs.formula(dind,list(as.name("edges")))
     environment(dind) <- environment(object)
   }
   
@@ -214,11 +213,11 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
         (network.dyadcount(ergm.dind$network,FALSE) - network.edgecount(NVL(get.miss.dyads(ergm.dind$constrained, ergm.dind$constrained.obs),network.initialize(1))))*log(1/2)
   }
   
-  # If there are target.stats and they are distinct from nw.stats (to
-  # which the dyad-independent MLE was actually fit), we need to
-  # adjust the log-likelihood:
+  # If there are target.stats we need to adjust the log-likelihood in
+  # case they are different from those to which the dyad-independent
+  # submodel was actually fit:
   # l(theta,ts)-l(theta,ns)=sum(theta*(ts-ns)).
-  if(ts.adj) llk.dind <- llk.dind + c(crossprod(coef.dind, NVL(c(ts.dind), ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]) - ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]))
+  if(!is.null(target.stats)) llk.dind <- llk.dind + c(crossprod(coef.dind, NVL(c(ts.dind), ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]) - ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]))
 
   ## Construct the augmented formula.
   form.aug<-append.rhs.formula(object, term.list.formula(dind[[3]])[!ergm.dind$etamap$offset])
@@ -231,7 +230,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
     target.stats[m$etamap$offsetmap] <- ergm.getglobalstats(nw, m)[m$etamap$offsetmap]
   }
 
-  br<-ergm.bridge.llr(form.aug, response=response, constraints=constraints, from=from, to=to, basis=basis, target.stats=c(target.stats, if(ts.adj) ts.dind), control=control)
+  br<-ergm.bridge.llr(form.aug, response=response, constraints=constraints, from=from, to=to, basis=basis, target.stats=c(target.stats, if(!is.null(target.stats)) ts.dind), control=control)
   
   if(llkonly) llk.dind + br$llr
   else c(br,llk.dind=llk.dind, llk=llk.dind + br$llr)

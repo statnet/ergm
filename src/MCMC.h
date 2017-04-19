@@ -10,10 +10,10 @@
 #ifndef MCMC_H
 #define MCMC_H
 
-#include "edgetree.h"
-#include "changestat.h"
-#include "MHproposal.h"
-#include "model.h"
+#include "ergm_edgetree.h"
+#include "ergm_changestat.h"
+#include "ergm_MHproposal.h"
+#include "ergm_model.h"
 
 // TODO: This might be worth moving into a common "constants.h".
 typedef enum MCMCStatus_enum {

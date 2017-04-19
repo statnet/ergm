@@ -8,7 +8,7 @@
  *  Copyright 2003-2013 Statnet Commons
  */
 #include "MPLE.h"
-#include "changestat.h"
+#include "ergm_changestat.h"
 
 /* *****************
  void MPLE_wrapper

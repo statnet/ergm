@@ -8,7 +8,7 @@
  *  Copyright 2003-2013 Statnet Commons
  */
 #include "MPLE.h"
-#include "changestat.h"
+#include "ergm_changestat.h"
 
 void RecurseOffOn(int *nodelist1,int *nodelist2, int nodelistlength, 
        int currentnodes, double *changeStats, double *cumulativeStats,
