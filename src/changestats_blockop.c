@@ -1,5 +1,5 @@
-#include "changestats_blockop.h"
-#include "changestats_auxnet.h"
+#include "ergm_changestats_blockop.h"
+#include "ergm_changestats_auxnet.h"
 
 /* OnMatch(formula) */
 

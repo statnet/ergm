@@ -1,9 +1,9 @@
-#ifndef WTCHANGESTATS_OPERATOR_H
-#define WTCHANGESTATS_OPERATOR_H
+#ifndef _WTCHANGESTATS_OPERATOR_H_
+#define _WTCHANGESTATS_OPERATOR_H_
 
 #define STRICT_Wt_HEADERS
-#include "changestat_operator.h"
-#include "wtchangestat_operator.h"
+#include "ergm_changestat_operator.h"
+#include "ergm_wtchangestat_operator.h"
 #include "ergm_model.h"
 #include "ergm_wtchangestat.h"
 #include "ergm_wtmodel.h"

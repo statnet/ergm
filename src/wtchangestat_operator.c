@@ -1,4 +1,4 @@
-#include "wtchangestat_operator.h"
+#include "ergm_wtchangestat_operator.h"
 #include "ergm_util.h"
 
 WtModel *unpack_WtModel_as_double(double **x){

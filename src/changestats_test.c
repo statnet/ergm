@@ -1,5 +1,5 @@
 #include"changestats_test.h"
-#include"changestats_auxnet.h"
+#include"ergm_changestats_auxnet.h"
 
 C_CHANGESTAT_FN(c_test_abs_edges_minus_5){
   GET_STORAGE(Edge, stored_edges_ptr);

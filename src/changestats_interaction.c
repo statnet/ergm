@@ -1,4 +1,4 @@
-#include "changestat_operator.h"
+#include "ergm_changestat_operator.h"
 
 typedef struct{Model *m; unsigned int n_stats_1, n_stats_2;} StoreModelAnd2Stats;
 

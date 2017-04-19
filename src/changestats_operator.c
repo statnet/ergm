@@ -1,4 +1,4 @@
-#include "changestat_operator.h"
+#include "ergm_changestat_operator.h"
 
 /* passthrough(formula) */
 

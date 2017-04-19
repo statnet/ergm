@@ -1,5 +1,5 @@
-#ifndef WTCHANGESTAT_OPERATOR_H
-#define WTCHANGESTAT_OPERATOR_H
+#ifndef _ERGM_WTCHANGESTAT_OPERATOR_H_
+#define _ERGM_WTCHANGESTAT_OPERATOR_H_
 
 #include "ergm_wtmodel.h"
 #include "ergm_storage.h"

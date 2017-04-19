@@ -1,5 +1,5 @@
-#ifndef CHANGESTATS_AUXNET_H
-#define CHANGESTATS_AUXNET_H
+#ifndef _ERGM_CHANGESTATS_AUXNET_H_
+#define _ERGM_CHANGESTATS_AUXNET_H_
 
 #include "ergm_edgetree.h"
 #include "ergm_changestat.h"
