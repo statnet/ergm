@@ -1,12 +1,9 @@
 #include "R_ext/Rdynload.h"
 #include "changestat.h"
-#undef _ERGM_CHANGESTAT_H_
-#undef _ERGM_EDGETREE_H_
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
 #undef GetRandDyad
-#undef _ERGM_EDGELIST_H_
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
@@ -61,28 +58,22 @@
 #undef D_FROM_S_FN
 #include "R_ext/Rdynload.h"
 #include "edgelist.h"
-#undef _ERGM_EDGELIST_H_
-#undef _ERGM_EDGETREE_H_
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
 #undef GetRandDyad
 #include "R_ext/Rdynload.h"
 #include "edgetree.h"
-#undef _ERGM_EDGETREE_H_
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
 #undef GetRandDyad
 #include "R_ext/Rdynload.h"
 #include "ergm_changestat.h"
-#undef _ERGM_CHANGESTAT_H_
-#undef _ERGM_EDGETREE_H_
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
 #undef GetRandDyad
-#undef _ERGM_EDGELIST_H_
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
@@ -137,8 +128,6 @@
 #undef D_FROM_S_FN
 #include "R_ext/Rdynload.h"
 #include "ergm_edgelist.h"
-#undef _ERGM_EDGELIST_H_
-#undef _ERGM_EDGETREE_H_
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
@@ -260,16 +249,12 @@ static Edge (*fun)(Vertex *,Vertex *,Network *,Edge) = NULL;
 if(fun==NULL) fun = (Edge (*)(Vertex *,Vertex *,Network *,Edge)) R_FindSymbol("EdgeTree2EdgeList", "ergm", NULL);
 return fun(tails,heads,nwp,nmax);
 }
-#undef _ERGM_EDGETREE_H_
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
 #undef GetRandDyad
 #include "R_ext/Rdynload.h"
 #include "ergm_MHblockdiag.h"
-#undef _ERGM_MHBLOCKDIAG_H_
-#undef _ERGM_MHPROPOSAL_H_
-#undef _ERGM_EDGETREE_H_
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
@@ -328,8 +313,6 @@ static int (*fun)(MHproposal *,Network *) = NULL;
 if(fun==NULL) fun = (int (*)(MHproposal *,Network *)) R_FindSymbol("CheckConstrainedTogglesValid", "ergm", NULL);
 return fun(MHp,nwp);
 }
-#undef _ERGM_MHPROPOSAL_H_
-#undef _ERGM_EDGETREE_H_
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
@@ -358,7 +341,6 @@ return fun(MHp,nwp);
 #undef MH_F_FN
 #include "R_ext/Rdynload.h"
 #include "ergm_MHstorage.h"
-#undef _ERGM_MHSTORAGE_H_
 #undef MH_STORAGE
 #undef MH_ALLOC_STORAGE
 #undef MH_GET_STORAGE
@@ -405,14 +387,10 @@ static void (*fun)(Network *,Model *) = NULL;
 if(fun==NULL) fun = (void (*)(Network *,Model *)) R_FindSymbol("DestroyStats", "ergm", NULL);
 fun(nwp,m);
 }
-#undef _ERGM_MODEL_H_
-#undef _ERGM_EDGETREE_H_
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
 #undef GetRandDyad
-#undef _ERGM_CHANGESTAT_H_
-#undef _ERGM_EDGELIST_H_
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
@@ -465,7 +443,6 @@ fun(nwp,m);
 #undef S_CHANGESTAT_FN
 #undef D_FROM_S
 #undef D_FROM_S_FN
-#undef _ERGM_MHPROPOSAL_H_
 #undef NO_EDGE
 #undef OLD_EDGE
 #undef NEW_EDGE
@@ -499,7 +476,6 @@ fun(nwp,m);
 #undef UPDATE_STORAGE
 #include "R_ext/Rdynload.h"
 #include "ergm_storage.h"
-#undef _ERGM_STORAGE_H_
 #undef STORAGE
 #undef ALLOC_STORAGE
 #undef GET_STORAGE
@@ -512,9 +488,6 @@ fun(nwp,m);
 #undef FREE_AUX_SOCIOMATRIX
 #include "R_ext/Rdynload.h"
 #include "ergm_wtchangestat.h"
-#undef _ERGM_WTCHANGESTAT_H_
-#undef _ERGM_WTEDGETREE_H_
-#undef _ERGM_EDGETREE_H_
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
@@ -754,8 +727,6 @@ static Edge (*fun)(Vertex *,Vertex *,double *,WtNetwork *,Edge) = NULL;
 if(fun==NULL) fun = (Edge (*)(Vertex *,Vertex *,double *,WtNetwork *,Edge)) R_FindSymbol("WtEdgeTree2EdgeList", "ergm", NULL);
 return fun(tails,heads,weights,nwp,nmax);
 }
-#undef _ERGM_WTEDGETREE_H_
-#undef _ERGM_EDGETREE_H_
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
@@ -772,9 +743,6 @@ static void (*fun)(WtMHproposal *,WtNetwork *) = NULL;
 if(fun==NULL) fun = (void (*)(WtMHproposal *,WtNetwork *)) R_FindSymbol("WtMH_free", "ergm", NULL);
 fun(MH,nwp);
 }
-#undef _ERGM_WTMHPROPOSAL_H_
-#undef _ERGM_WTEDGETREE_H_
-#undef _ERGM_EDGETREE_H_
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
@@ -827,14 +795,10 @@ static void (*fun)(WtNetwork *,WtModel *) = NULL;
 if(fun==NULL) fun = (void (*)(WtNetwork *,WtModel *)) R_FindSymbol("WtDestroyStats", "ergm", NULL);
 fun(nwp,m);
 }
-#undef _ERGM_WTMODEL_H_
-#undef _ERGM_WTEDGETREE_H_
-#undef _ERGM_EDGETREE_H_
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
 #undef GetRandDyad
-#undef _ERGM_WTCHANGESTAT_H_
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
@@ -943,7 +907,6 @@ fun(nwp,m);
 #undef GETNEWWT
 #undef GETNEWWTOLD
 #undef D_FROM_S
-#undef _ERGM_WTMHPROPOSAL_H_
 #undef NO_EDGE
 #undef OLD_EDGE
 #undef NEW_EDGE
@@ -976,9 +939,6 @@ fun(nwp,m);
 #undef WtUPDATE_STORAGE
 #include "R_ext/Rdynload.h"
 #include "MHblockdiag.h"
-#undef _ERGM_MHBLOCKDIAG_H_
-#undef _ERGM_MHPROPOSAL_H_
-#undef _ERGM_EDGETREE_H_
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
@@ -1007,8 +967,6 @@ fun(nwp,m);
 #undef MH_F_FN
 #include "R_ext/Rdynload.h"
 #include "MHproposal.h"
-#undef _ERGM_MHPROPOSAL_H_
-#undef _ERGM_EDGETREE_H_
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
@@ -1037,7 +995,6 @@ fun(nwp,m);
 #undef MH_F_FN
 #include "R_ext/Rdynload.h"
 #include "MHstorage.h"
-#undef _ERGM_MHSTORAGE_H_
 #undef MH_STORAGE
 #undef MH_ALLOC_STORAGE
 #undef MH_GET_STORAGE
@@ -1054,14 +1011,10 @@ fun(nwp,m);
 #undef GET_AUX_STORAGE_NUM
 #include "R_ext/Rdynload.h"
 #include "model.h"
-#undef _ERGM_MODEL_H_
-#undef _ERGM_EDGETREE_H_
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
 #undef GetRandDyad
-#undef _ERGM_CHANGESTAT_H_
-#undef _ERGM_EDGELIST_H_
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
@@ -1114,7 +1067,6 @@ fun(nwp,m);
 #undef S_CHANGESTAT_FN
 #undef D_FROM_S
 #undef D_FROM_S_FN
-#undef _ERGM_MHPROPOSAL_H_
 #undef NO_EDGE
 #undef OLD_EDGE
 #undef NEW_EDGE
@@ -1148,7 +1100,6 @@ fun(nwp,m);
 #undef UPDATE_STORAGE
 #include "R_ext/Rdynload.h"
 #include "storage.h"
-#undef _ERGM_STORAGE_H_
 #undef STORAGE
 #undef ALLOC_STORAGE
 #undef GET_STORAGE
@@ -1161,9 +1112,6 @@ fun(nwp,m);
 #undef FREE_AUX_SOCIOMATRIX
 #include "R_ext/Rdynload.h"
 #include "wtchangestat.h"
-#undef _ERGM_WTCHANGESTAT_H_
-#undef _ERGM_WTEDGETREE_H_
-#undef _ERGM_EDGETREE_H_
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
@@ -1278,17 +1226,12 @@ fun(nwp,m);
 #undef D_FROM_S
 #include "R_ext/Rdynload.h"
 #include "wtedgetree.h"
-#undef _ERGM_WTEDGETREE_H_
-#undef _ERGM_EDGETREE_H_
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
 #undef GetRandDyad
 #include "R_ext/Rdynload.h"
 #include "wtMHproposal.h"
-#undef _ERGM_WTMHPROPOSAL_H_
-#undef _ERGM_WTEDGETREE_H_
-#undef _ERGM_EDGETREE_H_
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
@@ -1316,14 +1259,10 @@ fun(nwp,m);
 #undef WtMH_F_FN
 #include "R_ext/Rdynload.h"
 #include "wtmodel.h"
-#undef _ERGM_WTMODEL_H_
-#undef _ERGM_WTEDGETREE_H_
-#undef _ERGM_EDGETREE_H_
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
 #undef GetRandDyad
-#undef _ERGM_WTCHANGESTAT_H_
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
@@ -1432,7 +1371,6 @@ fun(nwp,m);
 #undef GETNEWWT
 #undef GETNEWWTOLD
 #undef D_FROM_S
-#undef _ERGM_WTMHPROPOSAL_H_
 #undef NO_EDGE
 #undef OLD_EDGE
 #undef NEW_EDGE
