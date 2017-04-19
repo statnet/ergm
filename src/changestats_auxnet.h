@@ -1,9 +1,9 @@
 #ifndef CHANGESTATS_AUXNET_H
 #define CHANGESTATS_AUXNET_H
 
-#include "edgetree.h"
-#include "changestat.h"
-#include "storage.h"
+#include "ergm_edgetree.h"
+#include "ergm_changestat.h"
+#include "ergm_storage.h"
 
 typedef struct{Network nw; double *ref_el;} StoreNetAndRefEL;
 typedef struct{Network nw; double *b;} StoreNetAndBID;
