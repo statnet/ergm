@@ -220,7 +220,7 @@
 #    edge.lwd <- matrix(edge.lwd,n,n)
 #  }
    if(!missing(edge.col) && length(edge.col)==1 && is.character(edge.col)){
-     trycol <- is.null(get.edge.attribute(x$mel,edge.col))
+     trycol <- is.null(get.edge.value(x,edge.col))
      if(!trycol){
        trycol <- as.sociomatrix(x, attrname=edge.col)
        ucols <- sort(unique(as.vector(trycol)))

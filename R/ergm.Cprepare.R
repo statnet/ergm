@@ -53,7 +53,7 @@ ergm.Cprepare <- function(nw, m, response=NULL)
   n <- network.size(nw)
   dir <- is.directed(nw)
   Clist<-list(n=n, dir=dir)
-  bip <- nw$gal$bipartite
+  bip <- nw %n% bipartite
   if (is.null(bip)) bip <- 0
   Clist$bipartite <- bip
   Clist$ndyads <- network.dyadcount(nw)

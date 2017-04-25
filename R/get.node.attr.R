@@ -42,12 +42,11 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
   # not sure what this code above was supposed to do, but it was only checking if the attribute existed if the network	was bipartite
   # maybe, if it was bipartite, it should check if appropriate values exist for the mode in question? and should use 'is.bipartite()' for the check
   
-  if (!any(attrname==unique(unlist(lapply(nw$val,names))))){
+  if (! attrname %in% list.vertex.attributes(nw)){
     stop(paste("Attribute '", attrname, "' named in", functionname,
                "model term is not a vertex attribute  of the network."),
          call.=FALSE)
   }
-  #"[["(nw$val,attrname)
   out <- unlist(get.vertex.attribute(nw,attrname))
   if(numeric && !is.numeric(out)) {
     stop("The ", attrname, " attribute for the ", functionname, 
