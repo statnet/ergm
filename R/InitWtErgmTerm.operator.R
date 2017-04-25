@@ -1,4 +1,3 @@
-
 InitWtErgmTerm.B <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "form"),
@@ -32,12 +31,13 @@ InitWtErgmTerm.B <- function(nw, arglist, response=NULL, ...){
     auxiliaries <- if(form=="nonzero") ~.binary.nonzero.net
   }
   
-  list(name=name,
-       coef.names = paste0(form.name,'(',m$coef.names,')'),
-       inputs=inputs,
-       dependence=!is.dyad.independent(m),
-       emptynwstats = gs,
-       auxiliaries=auxiliaries)
+  c(list(name=name,
+         coef.names = paste0(form.name,'(',m$coef.names,')'),
+         inputs=inputs,
+         dependence=!is.dyad.independent(m),
+         emptynwstats = gs,
+         auxiliaries=auxiliaries),
+    passthrough.curved.ergm.model(m, function(x) paste0(form.name,'(',x,')')))
 }
 
 InitWtErgmTerm..binary.nonzero.net <- function(nw, arglist, response=NULL, ...){

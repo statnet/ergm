@@ -1,7 +1,5 @@
 ## Creates a submodel that ignores any edges not within the
 ## blocks.
-##
-## FIXME: Handle curved terms.
 
 InitErgmTerm.OnMatch <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
@@ -20,6 +18,7 @@ InitErgmTerm.OnMatch <- function(nw, arglist, response=NULL, ...){
 
   gs <- ergm.emptynwstats.model(m)
 
-  list(name="OnMatch", coef.names = paste0('OnMatch(',m$coef.names,a$attrname,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries=~.blockdiag.net(a$attrname))
+  c(list(name="OnMatch", coef.names = paste0('OnMatch(',m$coef.names,a$attrname,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries=~.blockdiag.net(a$attrname)),
+    passthrough.curved.ergm.model(m, function(x) paste0('OnMatch(',x,a$attrname,')')))
 }
 
