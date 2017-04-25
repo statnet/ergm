@@ -44,10 +44,21 @@ InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
   Clist <- ergm.Cprepare(nw, m, response=response)
 
   inputs <- pack.Clist_as_num(Clist)
-
+  
   gs <- ergm.emptynwstats.model(m)
 
-  list(name="passthrough_term", coef.names = paste0('passthrough(',m$coef.names,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs)
+  if(is.curved(m)){
+    map <- function(x, n, ...){
+      ergm.eta(x, m$etamap)
+    }
+    gradient <- function(x, n, ...){
+      ergm.etagrad(x, m$etamap)
+    }
+    params <- rep(list(NULL), coef.length.model(m))
+    names(params) <- .coef.names.model(m, canonical=FALSE)
+  }else map <- gradient <- params <- NULL
+  
+  list(name="passthrough_term", coef.names = paste0('passthrough(',m$coef.names,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, map = map, gradient = gradient, params = params)
 }
 
 ## Creates a submodel that tracks the given formula.
