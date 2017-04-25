@@ -20,7 +20,8 @@
   m <- ergm.getmodel(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
-  if(!is.dyad.independent(m)) message("Note that interactions may not meaningful for dyad-dependent terms.")
+  if(!is.dyad.independent(m)) message("Note that interactions might not be meaningful for dyad-dependent terms.")
+  if(is.curved(m)) stop("Interactions are undefined for curved terms at this time.")
 
   cn1 <- unlist(lapply(m$terms[seq_len(n1)], "[[", "coef.names"))
   cn2 <- unlist(lapply(m$terms[n1+seq_len(n2)], "[[", "coef.names"))
@@ -29,7 +30,7 @@
   
   cn <- outer(cn1,cn2,paste,sep=":")
   
-  list(name="interact", coef.names = cn, inputs=inputs, dependence=FALSE)
+  list(name="interact", coef.names = cn, inputs=inputs, dependence=!is.dyad.independent(m))
 }
 
 ## This will always be passed with two arguments in arglist, which
@@ -51,7 +52,8 @@
   m <- ergm.getmodel(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
-  if(!is.dyad.independent(m)) message("Note that interactions may not meaningful for dyad-dependent terms.")
+  if(!is.dyad.independent(m)) message("Note that interactions might not be meaningful for dyad-dependent terms.")
+  if(is.curved(m)) stop("Interactions are undefined for curved terms at this time.")
   
   cn1 <- unlist(lapply(m$terms[seq_len(n1)], "[[", "coef.names"))
   cn2 <- unlist(lapply(m$terms[n1+seq_len(n2)], "[[", "coef.names"))
@@ -60,5 +62,5 @@
 
   cn <- c(cn1,cn2,outer(cn1,cn2,paste,sep=":"))
   
-  list(name="main_interact", coef.names = cn, inputs=inputs, dependence=FALSE)
+  list(name="main_interact", coef.names = cn, inputs=inputs, dependence=!is.dyad.independent(m))
 }
