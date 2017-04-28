@@ -125,8 +125,14 @@ eta.length.model <- function(object, offset=NA, ...){
   sum(eta.sublength.model(object, offset=offset, ...))
 }
 
-
-.coef.names.model <- function(object, canonical){
-    if(canonical) object$coef.names
-    else unlist(lapply(object$terms, function(term) NVL(names(term$params),term$coef.names)))
+#' Parameters names of an initialized ergm model
+#'
+#' @param object an `ergm.model`.
+#' @param canonical whether the canonical (natural) parameters or the
+#'   model (curved) parameters are wanted.
+#'
+#' @return a character vector of parameter names.
+coef.names.model <- function(object, canonical){
+  if(canonical) object$coef.names
+  else unlist(lapply(object$terms, function(term) NVL(names(term$params),term$coef.names)))
 }
