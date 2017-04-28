@@ -218,7 +218,7 @@ ergm.compute.degeneracy<-function(xobs, init, etamap, statsmatrix,
   varweight <- 0.5
   if (verbose) cat("Optimizing loglikelihood\n")
   Lout <- try(optim(par=guess, 
-                    fn=llik.fun, #  gr=llik.grad,
+                    fn=llik.fun.lognormal, #  gr=llik.grad,
                     hessian=FALSE,
                     method="BFGS",
                     control=list(trace=trace,fnscale=-1,reltol=nr.reltol,

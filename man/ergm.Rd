@@ -456,14 +456,12 @@ molecule \%v\% "atomic type" <- c(1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3)
 plot(molecule, vertex.col="atomic type",vertex.cex=3)
 
 # measure tendency to match within each atomic type
-gest <- ergm(molecule ~ edges + kstar(2) + triangle + nodematch("atomic type"),
-  control=control.ergm(MCMC.samplesize=10000))
+gest <- ergm(molecule ~ edges + kstar(2) + triangle + nodematch("atomic type"))
 summary(gest)
 
 # compare it to differential homophily by atomic type
 gest <- ergm(molecule ~ edges + kstar(2) + triangle
-                              + nodematch("atomic type",diff=TRUE),
-  control=control.ergm(MCMC.samplesize=10000))
+                              + nodematch("atomic type",diff=TRUE))
 summary(gest)
 }
 }

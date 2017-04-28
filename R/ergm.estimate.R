@@ -153,48 +153,48 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
   if (verbose) { cat("Using", metric, "metric (see control.ergm function).\n") }
   if (obsprocess) {
     loglikelihoodfn <- switch(metric,
-                              Likelihood=llik.fun.obs,
-                              lognormal=llik.fun.obs,
-                              logtaylor=llik.fun.obs,
-                              Median.Likelihood=llik.fun.obs,
-                              EF.Likelihood=llik.fun.obs,
-                              llik.fun.obs.robust)
+                              Likelihood=llik.fun.obs.lognormal,
+                              lognormal=llik.fun.obs.lognormal,
+                              logtaylor=llik.fun.obs.lognormal,
+                              Median.Likelihood=llik.fun.obs.robust,
+                              EF.Likelihood=llik.fun.obs.lognormal,
+                              llik.fun.obs.IS)
     gradientfn <- switch(metric,
-                         Likelihood=llik.grad.obs,
-                         lognormal=llik.grad.obs,
-                         logtaylor=llik.grad.obs,
-                         Median.Likelihood=llik.grad.obs,
-                         EF.Likelihood=llik.grad.obs,
-                         llik.grad.obs)
+                         Likelihood=llik.grad.obs.IS,
+                         lognormal=llik.grad.obs.IS,
+                         logtaylor=llik.grad.obs.IS,
+                         Median.Likelihood=llik.grad.obs.IS,
+                         EF.Likelihood=llik.grad.obs.IS,
+                         llik.grad.obs.IS)
     Hessianfn <- switch(metric,
-                        Likelihood=llik.hessian.obs,
-                        lognormal=llik.hessian.obs,
-                        logtaylor=llik.hessian.obs,
-                        Median.Likelihood=llik.hessian.obs,
-                        EF.Likelihood=llik.hessian.obs,
-                        llik.hessian.obs)
+                        Likelihood=llik.hessian.obs.IS,
+                        lognormal=llik.hessian.obs.IS,
+                        logtaylor=llik.hessian.obs.IS,
+                        Median.Likelihood=llik.hessian.obs.IS,
+                        EF.Likelihood=llik.hessian.obs.IS,
+                        llik.hessian.obs.IS)
   } else {
     loglikelihoodfn <- switch(metric,
-                              Likelihood=llik.fun,
-                              lognormal=llik.fun,
+                              Likelihood=llik.fun.lognormal,
+                              lognormal=llik.fun.lognormal,
                               logtaylor=llik.fun.logtaylor,
                               Median.Likelihood=llik.fun.median,
                               EF.Likelihood=llik.fun.EF,
-                              llik.fun2)
+                              llik.fun.IS)
     gradientfn <- switch(metric,
-                         Likelihood=llik.grad,
-                         lognormal=llik.grad,
-                         logtaylor=llik.grad,
-                         Median.Likelihood=llik.grad,
-                         EF.Likelihood=llik.grad,
-                         llik.grad)
+                         Likelihood=llik.grad.IS,
+                         lognormal=llik.grad.IS,
+                         logtaylor=llik.grad.IS,
+                         Median.Likelihood=llik.grad.IS,
+                         EF.Likelihood=llik.grad.IS,
+                         llik.grad.IS)
     Hessianfn <- switch(metric,
-                        Likelihood=llik.hessian,
-                        lognormal=llik.hessian,
-                        logtaylor=llik.hessian,
-                        Median.Likelihood=llik.hessian,
-                        EF.Likelihood=llik.hessian,
-                        llik.hessian)
+                        Likelihood=llik.hessian.IS,
+                        lognormal=llik.hessian.IS,
+                        logtaylor=llik.hessian.IS,
+                        Median.Likelihood=llik.hessian.IS,
+                        EF.Likelihood=llik.hessian.IS,
+                        llik.hessian.IS)
   }
   
   # Now find maximizer of approximate loglikelihood ratio l(eta) - l(eta0).
@@ -316,7 +316,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                           failure=FALSE),
                         class="ergm"))
   } else {
-    gradienttheta <- llik.grad(theta=Lout$par, xobs=xobs, xsim=xsim,
+    gradienttheta <- llik.grad.IS(theta=Lout$par, xobs=xobs, xsim=xsim,
                           probs=probs, 
                           xsim.obs=xsim.obs, probs.obs=probs.obs,
                           varweight=varweight, eta0=eta0, etamap=model$etamap)
