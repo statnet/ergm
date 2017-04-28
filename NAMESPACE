@@ -87,7 +87,8 @@ export(
   # ergm.curved.statsmatrix,    proposed to make internal
   ergm.degeneracy,                 
   ergm.design,
-  ergm.el.lasttoggle,              
+  ergm.el.lasttoggle,   
+  ergm.emptynwstats.model,
   #ergm.estimate,    made internal
   ergm.eta,                        
   ergm.etagrad,
