@@ -171,7 +171,7 @@ out$offsettheta <- etamap$offsettheta[!etamap$offsettheta]
     term
   })
   # Filter out those terms for which the "to" map is not all nonzeros.
-  out$curved <- out$curved[sapply(lapply(etamap$curved, "[[", "to"), all)]
+  out$curved <- out$curved[!sapply(lapply(lapply(out$curved, "[[", "to"),"==",0), any)]
   out$etalength <- length(out$offsetmap)
 
   out
