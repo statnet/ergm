@@ -74,10 +74,10 @@ llik.fun.obs.lognormal <- function(theta, xobs, xsim, lprobs, xsim.obs=NULL, lpr
 # llr <- sum(xobs * etaparam) - maxbase - log(sum(exp(lprobs)*exp(basepred-maxbase)))
 #
 # alternative based on log-normal approximation
-  mb <- sum(basepred*exp(lprobs))
-  vb <- sum(basepred*basepred*exp(lprobs)) - mb*mb
-  mm <- sum(obspred*exp(lprobs.obs))
-  vm <- sum(obspred*obspred*exp(lprobs.obs)) - mm*mm
+  mb <- lweighted.mean(basepred,lprobs)
+  vb <- lweighted.var(basepred,lprobs)
+  mm <- lweighted.mean(obspred,lprobs.obs)
+  vm <- lweighted.var(obspred,lprobs.obs)
 # 
 # This is the log-likelihood ratio (and not its negative)
 #

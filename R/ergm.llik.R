@@ -73,8 +73,8 @@ llik.fun.lognormal <- function(theta, xobs, xsim, lprobs, xsim.obs=NULL, lprobs.
   etaparam <- eta-eta0
 
   basepred <- xsim %*% etaparam
-  mb <- sum(basepred*exp(lprobs))
-  vb <- sum(basepred*basepred*exp(lprobs)) - mb*mb
+  mb <- lweighted.mean(basepred,lprobs)
+  vb <- lweighted.var(basepred,lprobs)
   llr <- sum(xobs * etaparam) - mb - varweight*vb
   #
 
@@ -148,20 +148,6 @@ llik.hessian.IS <- function(theta, xobs, xsim, lprobs, xsim.obs=NULL, lprobs.obs
   dimnames(H) <- list(names(theta), names(theta))
   H
 }
-
-
-# DH:  This llik.exp function does not appear to be used anywhere.
-# MSH: Yep, just another idea based on exp. family theory
-# llik.exp <- function(theta, xobs, xsim, lprobs, 
-#                      varweight=0.5, eta0, etamap){
-#   eta <- ergm.eta(theta.offset, etamap)
-#   etaparam <- eta-eta0
-#   vb <- var(xsim)
-#   llr <- -sum(xobs * etaparam) + varweight*(t(etaparam) %*% vb %*% etaparam)
-#   if(is.infinite(llr) | is.na(llr)){llr <- -800}
-#   llr
-# }
-
 
 
 #####################################################################################
