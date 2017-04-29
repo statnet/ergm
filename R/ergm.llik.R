@@ -62,7 +62,7 @@
 #        normally  distributed so that exp(eta * stats) is lognormal
 #####################################################################################
 
-llik.fun.lognormal <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
+llik.fun.lognormal <- function(theta, xobs, xsim, lprobs, xsim.obs=NULL, lprobs.obs=NULL,
                      varweight=0.5, trustregion=20, 
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
@@ -73,8 +73,8 @@ llik.fun.lognormal <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
   etaparam <- eta-eta0
 
   basepred <- xsim %*% etaparam
-  mb <- sum(basepred*probs)
-  vb <- sum(basepred*basepred*probs) - mb*mb
+  mb <- sum(basepred*exp(lprobs))
+  vb <- sum(basepred*basepred*exp(lprobs)) - mb*mb
   llr <- sum(xobs * etaparam) - mb - varweight*vb
   #
 
@@ -96,7 +96,7 @@ llik.fun.lognormal <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
 #   llg: the gradient of the log-likelihood using "naive" (importance sampling) method
 #####################################################################################
 
-llik.grad.IS <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
+llik.grad.IS <- function(theta, xobs, xsim, lprobs,  xsim.obs=NULL, lprobs.obs=NULL,
                      varweight=0.5, trustregion=20, 
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
@@ -106,7 +106,7 @@ llik.grad.IS <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NUL
   etaparam <- eta-eta0
 
   # Calculate log-importance-weights
-  basepred <- xsim %*% etaparam + log(probs)
+  basepred <- xsim %*% etaparam + lprobs
   
   # Calculate the estimating function values sans offset
   llg <- xobs - lweighted.mean(xsim, basepred)
@@ -128,7 +128,7 @@ llik.grad.IS <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NUL
 #              w_i = normalized version of exp((eta-eta0)^t g_i) so that sum_i w_i=1
 #       this is equation (3.5) of Hunter & Handcock (2006)
 #####################################################################################
-llik.hessian.IS <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
+llik.hessian.IS <- function(theta, xobs, xsim, lprobs, xsim.obs=NULL, lprobs.obs=NULL,
                      varweight=0.5, trustregion=20, 
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
@@ -137,7 +137,7 @@ llik.hessian.IS <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=N
   etaparam <- eta-eta0
 
   # Calculate log-importance-weights
-  basepred <- xsim %*% etaparam + log(probs)
+  basepred <- xsim %*% etaparam + lprobs
 
   # Calculate the estimating function values sans offset
   esim <- t(ergm.etagradmult(theta, t(xsim), etamap))
@@ -152,7 +152,7 @@ llik.hessian.IS <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=N
 
 # DH:  This llik.exp function does not appear to be used anywhere.
 # MSH: Yep, just another idea based on exp. family theory
-# llik.exp <- function(theta, xobs, xsim, probs, 
+# llik.exp <- function(theta, xobs, xsim, lprobs, 
 #                      varweight=0.5, eta0, etamap){
 #   eta <- ergm.eta(theta.offset, etamap)
 #   etaparam <- eta-eta0
@@ -169,19 +169,19 @@ llik.hessian.IS <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=N
 #   llr: the log-likelihood ratio of l(eta) - l(eta0) using ?? (what sort of approach)
 #####################################################################################
 
-llik.fun.EF <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
+llik.fun.EF <- function(theta, xobs, xsim, lprobs, xsim.obs=NULL, lprobs.obs=NULL,
                      varweight=0.5, trustregion=20,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
 # The next line is right!
-# aaa <- sum(xobs * etaparam) - log(sum(probs*exp(xsim %*% etaparam)))
+# aaa <- sum(xobs * etaparam) - log(sum(exp(lprobs)*exp(xsim %*% etaparam)))
 # These lines standardize:
   basepred <- xsim %*% etaparam
 #
   maxbase <- max(basepred)
-  llr <- sum(xobs * etaparam) - maxbase - log(sum(probs*exp(basepred-maxbase)))
+  llr <- sum(xobs * etaparam) - maxbase - log(sum(exp(lprobs)*exp(basepred-maxbase)))
   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #
 # Penalize changes to trustregion
@@ -193,7 +193,7 @@ llik.fun.EF <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
   }
 #
 # cat(paste("max, log-lik",maxbase,llr,"\n"))
-# aaa <- sum(xobs * etaparam) - log(sum(probs*exp(xsim %*% etaparam)))
+# aaa <- sum(xobs * etaparam) - log(sum(exp(lprobs)*exp(xsim %*% etaparam)))
 # cat(paste("log-lik",llr,aaa,"\n"))
 # aaa
   llr
@@ -208,7 +208,7 @@ llik.fun.EF <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
 #            "Simple convergence"
 #####################################################################################
 
-llik.fun.IS <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL, 
+llik.fun.IS <- function(theta, xobs, xsim, lprobs, xsim.obs=NULL, lprobs.obs=NULL, 
                      varweight=0.5, trustregion=20,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
@@ -217,7 +217,7 @@ llik.fun.IS <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
   etaparam <- eta-eta0
 
   # Calculate log-importance-weights and the likelihood ratio
-  basepred <- xsim %*% etaparam + log(probs)
+  basepred <- xsim %*% etaparam + lprobs
   llr <- sum(xobs * etaparam) - log_sum_exp(basepred)
   # trustregion is the maximum value of llr that we actually trust.
   # So if llr>trustregion, return a value less than trustregion instead.
@@ -233,7 +233,7 @@ llik.fun.IS <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
 #   llr: the log-likelihood ratio of l(eta) - l(eta0) using ?? (what sort of approach)
 #####################################################################################
 
-llik.fun.median <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
+llik.fun.median <- function(theta, xobs, xsim, lprobs, xsim.obs=NULL, lprobs.obs=NULL,
                      varweight=0.5, trustregion=20,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
@@ -248,11 +248,11 @@ llik.fun.median <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=N
   basepred <- xsim %*% etaparam
 #
 # maxbase <- max(basepred)
-# llr <- sum(xobs * etaparam) - maxbase - log(sum(probs*exp(basepred-maxbase)))
+# llr <- sum(xobs * etaparam) - maxbase - log(sum(exp(lprobs)*exp(basepred-maxbase)))
 #
 # alternative based on log-normal approximation
-  mb <- wtd.median(basepred, weight=probs)
-  sdb <- 1.4826*wtd.median(abs(basepred-mb), weight=probs)
+  mb <- wtd.median(basepred, weight=exp(lprobs))
+  sdb <- 1.4826*wtd.median(abs(basepred-mb), weight=exp(lprobs))
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
@@ -268,13 +268,13 @@ llik.fun.median <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=N
   }
 #
 # cat(paste("max, log-lik",maxbase,llr,"\n"))
-# aaa <- sum(xobs * etaparam) - log(sum(probs*exp(xsim %*% etaparam)))
+# aaa <- sum(xobs * etaparam) - log(sum(exp(lprobs)*exp(xsim %*% etaparam)))
 # cat(paste("log-lik",llr,aaa,"\n"))
 # aaa
   llr
 }
 
-llik.fun.logtaylor <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL, 
+llik.fun.logtaylor <- function(theta, xobs, xsim, lprobs, xsim.obs=NULL, lprobs.obs=NULL, 
 	 	                     varweight=0.5, trustregion=20,  
 	 	                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1, 
 	 	                     eta0, etamap){ 
@@ -296,11 +296,11 @@ llik.fun.logtaylor <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
 	 	 
 	 	  basepred <- xsim %*% etaparam 
 	 	  ns <- length(basepred) 
-	 	  mb <- sum(basepred*probs) 
-	 	  vb <- sum(basepred*basepred*probs)-mb*mb 
-	 	  skew <- sqrt(ns*(ns-1))*sum(((basepred-mb)^3)*probs)/(vb^(3/2)*(ns-2)) 
+	 	  mb <- sum(basepred*exp(lprobs)) 
+	 	  vb <- sum(basepred*basepred*exp(lprobs))-mb*mb 
+	 	  skew <- sqrt(ns*(ns-1))*sum(((basepred-mb)^3)*exp(lprobs))/(vb^(3/2)*(ns-2)) 
 	 	  if(!is.finite(skew) | is.na(skew)){skew <- 0} 
-	 	  part <- mb+vb/2 + sum(((basepred-mb)^3)*probs)/6 
+	 	  part <- mb+vb/2 + sum(((basepred-mb)^3)*exp(lprobs))/6 
 	 	  llr <- sum(xobs * etaparam) - part 
 	 	  # 
 	 	 

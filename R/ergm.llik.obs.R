@@ -60,7 +60,7 @@
 #        approximation; i.e., assuming that the network statistics are approximately
 #        normally  distributed so that exp(eta * stats) is lognormal
 #####################################################################################                           
-llik.fun.obs.lognormal <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
+llik.fun.obs.lognormal <- function(theta, xobs, xsim, lprobs, xsim.obs=NULL, lprobs.obs=NULL,
                      varweight=0.5, trustregion=20,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
@@ -71,13 +71,13 @@ llik.fun.obs.lognormal <- function(theta, xobs, xsim, probs, xsim.obs=NULL, prob
   obspred <- xsim.obs %*% etaparam
 #
 # maxbase <- max(basepred)
-# llr <- sum(xobs * etaparam) - maxbase - log(sum(probs*exp(basepred-maxbase)))
+# llr <- sum(xobs * etaparam) - maxbase - log(sum(exp(lprobs)*exp(basepred-maxbase)))
 #
 # alternative based on log-normal approximation
-  mb <- sum(basepred*probs)
-  vb <- sum(basepred*basepred*probs) - mb*mb
-  mm <- sum(obspred*probs.obs)
-  vm <- sum(obspred*obspred*probs.obs) - mm*mm
+  mb <- sum(basepred*exp(lprobs))
+  vb <- sum(basepred*basepred*exp(lprobs)) - mb*mb
+  mm <- sum(obspred*exp(lprobs.obs))
+  vm <- sum(obspred*obspred*exp(lprobs.obs)) - mm*mm
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
@@ -99,7 +99,7 @@ llik.fun.obs.lognormal <- function(theta, xobs, xsim, probs, xsim.obs=NULL, prob
 # --RETURNED--
 #   llg: the gradient of the not-offset eta parameters with ??
 #####################################################################################
-llik.grad.obs.IS <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
+llik.grad.obs.IS <- function(theta, xobs, xsim, lprobs,  xsim.obs=NULL, lprobs.obs=NULL,
                       varweight=0.5, trustregion=20,
                       dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                       eta0, etamap){
@@ -108,10 +108,10 @@ llik.grad.obs.IS <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs
   etaparam <- eta-eta0
   
   # Calculate log-importance-weights (unconstrained)
-  basepred <- xsim %*% etaparam + log(probs)
+  basepred <- xsim %*% etaparam + lprobs
 
   # Calculate log-importance-weights (constrained)
-  obspred <- xsim.obs %*% etaparam + log(probs.obs)
+  obspred <- xsim.obs %*% etaparam + lprobs.obs
   
   llg <- xobs + lweighted.mean(xsim.obs, obspred) - lweighted.mean(xsim, basepred)
   llg <- t(ergm.etagradmult(theta, llg, etamap))
@@ -128,7 +128,7 @@ llik.grad.obs.IS <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs
 #   He: the ?? Hessian matrix
 #####################################################################################
 
-llik.hessian.obs.IS <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
+llik.hessian.obs.IS <- function(theta, xobs, xsim, lprobs, xsim.obs=NULL, lprobs.obs=NULL,
                      varweight=0.5, trustregion=20,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
@@ -137,10 +137,10 @@ llik.hessian.obs.IS <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.o
   etaparam <- eta-eta0
 
   # Calculate log-importance-weights (unconstrained)
-  basepred <- xsim %*% etaparam + log(probs)
+  basepred <- xsim %*% etaparam + lprobs
 
   # Calculate log-importance-weights (constrained)
-  obspred <- xsim.obs %*% etaparam + log(probs.obs)
+  obspred <- xsim.obs %*% etaparam + lprobs.obs
 
   # Calculate the estimating function values sans offset
   esim <- t(ergm.etagradmult(theta, t(xsim), etamap))
@@ -160,7 +160,7 @@ llik.hessian.obs.IS <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.o
 #            "Simple convergence"
 #####################################################################################
 
-llik.fun.obs.IS <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL, 
+llik.fun.obs.IS <- function(theta, xobs, xsim, lprobs, xsim.obs=NULL, lprobs.obs=NULL, 
                      varweight=0.5, trustregion=20,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
@@ -169,8 +169,8 @@ llik.fun.obs.IS <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=N
   etaparam <- eta-eta0
   
   # Calculate log-importance-weights and the likelihood ratio
-  basepred <- xsim %*% etaparam + log(probs)
-  obspred <- xsim.obs %*% etaparam + log(probs.obs)
+  basepred <- xsim %*% etaparam + lprobs
+  obspred <- xsim.obs %*% etaparam + lprobs.obs
   llr <- sum(xobs * etaparam) + log_sum_exp(obspred) - log_sum_exp(basepred)
   
   # trustregion is the maximum value of llr that we actually trust.
@@ -189,7 +189,7 @@ llik.fun.obs.IS <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=N
 #                "robust obsing data code"
 #####################################################################################
 
-llik.fun.obs.robust<- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
+llik.fun.obs.robust<- function(theta, xobs, xsim, lprobs, xsim.obs=NULL, lprobs.obs=NULL,
                      varweight=0.5, trustregion=20,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
@@ -200,14 +200,14 @@ llik.fun.obs.robust<- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
   obspred <- xsim.obs %*% etaparam
 #
 # maxbase <- max(basepred)
-# llr <- sum(xobs * etaparam) - maxbase - log(sum(probs*exp(basepred-maxbase)))
+# llr <- sum(xobs * etaparam) - maxbase - log(sum(exp(lprobs)*exp(basepred-maxbase)))
 #
 # alternative based on log-normal approximation
-  mb <- wtd.median(basepred, weight=probs)
-  vb <- 1.4826*wtd.median(abs(basepred-mb), weight=probs)
-# print(c(mean(probs),mean(probs.obs),var(probs),var(probs.obs)))
-  mm <- wtd.median(obspred, weight=probs.obs)
-  vm <- 1.4826*wtd.median(abs(obspred-mm), weight=probs.obs)
+  mb <- wtd.median(basepred, weight=exp(lprobs))
+  vb <- 1.4826*wtd.median(abs(basepred-mb), weight=exp(lprobs))
+# print(c(mean(exp(lprobs)),mean(exp(lprobs.obs)),var(exp(lprobs)),var(exp(lprobs.obs))))
+  mm <- wtd.median(obspred, weight=exp(lprobs.obs))
+  vm <- 1.4826*wtd.median(abs(obspred-mm), weight=exp(lprobs.obs))
 # 
 # This is the log-likelihood ratio (and not its negative)
 #

@@ -76,13 +76,13 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
   if (obsprocess) {
     if (compress) { # See comment below for explanation of "compress"
       statsmatrix0.obs <- ergm.sufftoprob(statsmatrix.obs, compress=TRUE)
-      probs.obs <- statsmatrix0.obs[,ncol(statsmatrix0.obs)]
+      lprobs.obs <- log(statsmatrix0.obs[,ncol(statsmatrix0.obs)])
       statsmatrix0.obs <- statsmatrix0.obs[,-ncol(statsmatrix0.obs), drop=FALSE]      
     }
     statsmatrix0.obs <- statsmatrix.obs
-    probs.obs <- rep(1/nrow(statsmatrix0.obs),nrow(statsmatrix0.obs))
+    lprobs.obs <- rep(log(nrow(statsmatrix0.obs)),nrow(statsmatrix0.obs))
   } else { # these objects should be defined as NULL so they exist later on
-    probs.obs <- NULL
+    lprobs.obs <- NULL
     xsim.obs <- NULL
   }
 
@@ -92,11 +92,11 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
   if(compress){
     if (verbose) { cat("Compressing the matrix of sampled sufficient statistcs.\n") }
     statsmatrix0 <- ergm.sufftoprob(statsmatrix,compress=TRUE)
-    probs <- statsmatrix0[,ncol(statsmatrix0)]
+    lprobs <- log(statsmatrix0[,ncol(statsmatrix0)])
     statsmatrix0 <- statsmatrix0[,-ncol(statsmatrix0), drop=FALSE]
   } else {
     statsmatrix0 <- statsmatrix
-    probs <- rep(1/nrow(statsmatrix0),nrow(statsmatrix0))
+    lprobs <- rep(-log(nrow(statsmatrix0)),nrow(statsmatrix0))
   }
 
   # It is assumed that the statsmatrix0 matrix has already had the
@@ -107,9 +107,9 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
   # of center (e.g., the column means).  Since this shifts the scale, the
   # value of xobs (playing the role of "observed statistics") must be
   # adjusted accordingly.
-# av <- apply(sweep(statsmatrix0,1,probs,"*"), 2, sum)
+# av <- apply(sweep(statsmatrix0,1,exp(lprobs),"*"), 2, sum)
   if(cov.type=="robust"){
-   av <- apply(statsmatrix0,2,wtd.median,weight=probs)
+   av <- apply(statsmatrix0,2,wtd.median,weight=exp(lprobs))
    V=try(
       covMcd(statsmatrix0[,!model$etamap$offsetmap,drop=FALSE])$cov,
        silent=TRUE)
@@ -117,7 +117,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     V=cov(statsmatrix0[,!model$etamap$offsetmap,drop=FALSE])
    }
   }else{
-   av <- apply(statsmatrix0, 2, weighted.mean, w=probs)
+   av <- apply(statsmatrix0, 2, weighted.mean, w=exp(lprobs))
    V=cov(statsmatrix0[,!model$etamap$offsetmap,drop=FALSE])
   }
   xsim <- sweep(statsmatrix0, 2, av,"-")
@@ -132,13 +132,13 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                silent=TRUE)
      if(inherits(V.obs,"try-error")){
       V.obs=cov(statsmatrix0.obs[,!model$etamap$offsetmap,drop=FALSE])
-      av.obs <- apply(statsmatrix0.obs,2,wtd.median,weight=probs.obs)
+      av.obs <- apply(statsmatrix0.obs,2,wtd.median,weight=exp(lprobs.obs))
      }
     }else{
      V.obs=cov(statsmatrix0.obs[, !model$etamap$offsetmap, drop=FALSE])
-     av.obs <- apply(statsmatrix0.obs, 2, weighted.mean, w=probs.obs)
+     av.obs <- apply(statsmatrix0.obs, 2, weighted.mean, w=exp(lprobs.obs))
     }
-#   av.obs <- apply(sweep(statsmatrix0.obs,1,probs.obs,"*"), 2, sum)
+#   av.obs <- apply(sweep(statsmatrix0.obs,1,exp(lprobs.obs),"*"), 2, sum)
     xsim.obs <- sweep(statsmatrix0.obs, 2, av.obs,"-")
     xobs <- av.obs-av
   }
@@ -266,8 +266,8 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                       rmax=100, 
                       parscale=rep(1,length(guess)), minimize=FALSE,
                       xobs=xobs,
-                      xsim=xsim, probs=probs,
-                      xsim.obs=xsim.obs, probs.obs=probs.obs,
+                      xsim=xsim, lprobs=lprobs,
+                      xsim.obs=xsim.obs, lprobs.obs=lprobs.obs,
                       varweight=varweight, trustregion=trustregion,
                       dampening=dampening,
                       dampening.min.ess=dampening.min.ess,
@@ -294,8 +294,8 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                         control=list(trace=trace,fnscale=-1,maxit=100*nr.maxit,
                                      reltol=nr.reltol),
                         xobs=xobs,
-                        xsim=xsim, probs=probs,
-                        xsim.obs=xsim.obs, probs.obs=probs.obs,
+                        xsim=xsim, lprobs=lprobs,
+                        xsim.obs=xsim.obs, lprobs.obs=lprobs.obs,
                         varweight=varweight, trustregion=trustregion,
                         dampening=dampening,
                         dampening.min.ess=dampening.min.ess,
@@ -325,8 +325,8 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                         class="ergm"))
   } else {
     gradienttheta <- llik.grad.IS(theta=Lout$par, xobs=xobs,
-                        xsim=xsim, probs=probs,
-                        xsim.obs=xsim.obs, probs.obs=probs.obs,
+                        xsim=xsim, lprobs=lprobs,
+                        xsim.obs=xsim.obs, lprobs.obs=lprobs.obs,
                         varweight=varweight, trustregion=trustregion,
                         eta0=eta0, etamap=etamap.no)
     gradient <- rep(NA, length=length(init))
@@ -342,8 +342,8 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
       #  covar <- ginv(cov(xsim))
       #  Lout$hessian <- cov(xsim)
       Lout$hessian <- Hessianfn(theta=Lout$par, xobs=xobs,
-                        xsim=xsim, probs=probs,
-                        xsim.obs=xsim.obs, probs.obs=probs.obs,
+                        xsim=xsim, lprobs=lprobs,
+                        xsim.obs=xsim.obs, lprobs.obs=lprobs.obs,
                         varweight=varweight, trustregion=trustregion,
                         eta0=eta0, etamap=etamap.no
                         )
@@ -375,12 +375,12 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
       }
     }
     c0  <- loglikelihoodfn(theta=Lout$par, xobs=xobs,
-                           xsim=xsim, probs=probs,
-                           xsim.obs=xsim.obs, probs.obs=probs.obs,
+                           xsim=xsim, lprobs=lprobs,
+                           xsim.obs=xsim.obs, lprobs.obs=lprobs.obs,
                            varweight=0.5, eta0=eta0, etamap=etamap.no)
     c01 <- loglikelihoodfn(theta=Lout$par-Lout$par, xobs=xobs,
-                           xsim=xsim, probs=probs,
-                           xsim.obs=xsim.obs, probs.obs=probs.obs,
+                           xsim=xsim, lprobs=lprobs,
+                           xsim.obs=xsim.obs, lprobs.obs=lprobs.obs,
                            varweight=0.5, eta0=eta0, etamap=etamap.no)
     #
     # This is the log-likelihood calc from init=0
