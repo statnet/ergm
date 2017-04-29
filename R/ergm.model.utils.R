@@ -136,3 +136,43 @@ coef.names.model <- function(object, canonical){
   if(canonical) object$coef.names
   else unlist(lapply(object$terms, function(term) NVL(names(term$params),term$coef.names)))
 }
+
+#' `ergm.model`'s `etamap` with all offset terms removed and remapped
+#'
+#' @param etamap the `etamap` element of the `ergm.model`.
+#'
+#' @return a copy of the input as if all offset terms were dropped
+#'   from the model
+deoffset.etamap <- function(etamap){
+  if(!any(etamap$offsetmap)) return(etamap) # Nothing to do.
+
+  # Construct "mappings" from model with offset to model without.
+  remap.theta <- cumsum(!etamap$offsettheta)
+  remap.theta[etamap$offsettheta] <- 0
+  remap.eta <- cumsum(!etamap$offsetmap)
+  remap.eta[etamap$offsetmap] <- 0
+
+  out <- list()  
+  # Canonical map: for those non-offset elements of $canonical that
+  # are not 0, copy them over after remapping them to their new
+  # positions.
+  out$canonical <- rep(0, sum(!etamap$offsettheta))
+  out$canonical[etamap$canonical[!etamap$offsettheta]>0] <- remap.eta[etamap$canonical[!etamap$offsettheta]]
+
+  # These are just the non-FALSE elements.
+  out$offsetmap <- etamap$offsetmap[!etamap$offsetmap]
+out$offsettheta <- etamap$offsettheta[!etamap$offsettheta]
+  out$offset <- etamap$offset[!etamap$offset]
+
+  # For each curved term,
+  out$curved <- lapply(etamap$curved, function(term){
+    term$from <- remap.theta[term$from] # remap from
+    term$to <- remap.eta[term$to] # remap to
+    term
+  })
+  # Filter out those terms for which the "to" map is not all nonzeros.
+  out$curved <- out$curved[!sapply(lapply(etamap$curved, "[[", "to"), all)]
+  out$etalength <- length(out$offsetmap)
+
+  out
+}
