@@ -121,7 +121,8 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
    V=cov(statsmatrix0[,!model$etamap$offsetmap,drop=FALSE])
   }
   xsim <- sweep(statsmatrix0, 2, av,"-")
-  xobs <-  -av 
+  xobs <-  -av
+  
   # Do the same recentering for the statsmatrix0.obs matrix, if appropriate.
   # Note that xobs must be adjusted too.
   if(obsprocess) {
@@ -142,9 +143,17 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     xobs <- av.obs-av
   }
   
-  # Convert init (possibly "curved" parameters) to eta0 (canonical parameters)
-  eta0 <- ergm.eta(init, model$etamap)
+  # Construct an offsetless map and convert init (possibly "curved"
+  # parameters) to eta0 (canonical parameters)
+  etamap <- model$etamap
+  etamap.no <- deoffset.etamap(etamap)
+  eta0 <- ergm.eta(init[!etamap$offsettheta], etamap.no)
 
+  # Drop offset statistics
+  xobs <- xobs[!etamap$offsetmap]
+  xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
+  if(obsprocess) xsim.obs <- xsim.obs[,!etamap$offsetmap, drop=FALSE]
+  
   # Choose appropriate loglikelihood, gradient, and Hessian functions
   # depending on metric chosen and also whether obsprocess==TRUE
   # Also, choose varweight multiplier for covariance term in loglikelihood
@@ -210,16 +219,16 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
       if (verbose) { cat("Using log-normal approx (no optim)\n") }
       Lout <- list(hessian = -V)
     }
-    Lout$par <- try(eta0[!model$etamap$offsetmap] 
-                    - solve(Lout$hessian, xobs[!model$etamap$offsetmap]),
+    Lout$par <- try(eta0 
+                    - solve(Lout$hessian, xobs),
                     silent=TRUE)
     # If there's an error, first try a robust matrix inverse.  This can often
     # happen if the matrix of simulated statistics does not ever change for one
     # or more statistics.
     if(inherits(Lout$par,"try-error")){
-      Lout$par <- try(eta0[!model$etamap$offsetmap] 
+      Lout$par <- try(eta0 
                       - ginv(Lout$hessian) %*% 
-                      xobs[!model$etamap$offsetmap],
+                      xobs,
                       silent=TRUE)
     }
     # If there's still an error, use the Matrix package to try to find an 
@@ -230,19 +239,15 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
       }else{
         Lout <- list(hessian = -(as.matrix(nearPD(V)$mat)))
       }
-      Lout$par <- eta0[!model$etamap$offsetmap] - solve(Lout$hessian, xobs[!model$etamap$offsetmap])
+      Lout$par <- eta0 - solve(Lout$hessian, xobs)
     }
     Lout$convergence <- 0 # maybe add some error-checking here to get other codes
-    Lout$value <- 0.5*crossprod(xobs[!model$etamap$offsetmap],
-                                Lout$par - eta0[!model$etamap$offsetmap])
+    Lout$value <- 0.5*crossprod(xobs,
+                                Lout$par - eta0)
     hessianflag <- TRUE # to make sure we don't recompute the Hessian later on
   } else {
     # "guess" will be the starting point for the optim search algorithm.
-    # But only the non-offset values are relevant; the others will be
-    # passed to the likelihood functions by way of the etamap$init element
-    # of the model object.  NB:  This is a really ugly way to do this!  Change it?
     guess <- init[!model$etamap$offsettheta]
-    model$etamap$init <- init
     
     loglikelihoodfn.trust<-function(trustregion=20, ...){
       value<-loglikelihoodfn(trustregion=trustregion, ...)
@@ -267,7 +272,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                       dampening=dampening,
                       dampening.min.ess=dampening.min.ess,
                       dampening.level=dampening.level,
-                      eta0=eta0, etamap=model$etamap),
+                      eta0=eta0, etamap=etamap.no),
             silent=FALSE)
     Lout$par<-Lout$argument
 #   if(Lout$value < trustregion-0.001){
@@ -288,11 +293,14 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                         method="Nelder-Mead",
                         control=list(trace=trace,fnscale=-1,maxit=100*nr.maxit,
                                      reltol=nr.reltol),
-                        xobs=xobs, 
-                        xsim=xsim, probs=probs, 
+                        xobs=xobs,
+                        xsim=xsim, probs=probs,
                         xsim.obs=xsim.obs, probs.obs=probs.obs,
                         varweight=varweight, trustregion=trustregion,
-                        eta0=eta0, etamap=model$etamap),
+                        dampening=dampening,
+                        dampening.min.ess=dampening.min.ess,
+                        dampening.level=dampening.level,
+                        eta0=eta0, etamap=etamap.no),
               silent=FALSE)
       if(inherits(Lout,"try-error") || Lout$value > max(500, trustregion) ){
         cat(paste("No direct MLE exists!\n"))
@@ -316,10 +324,11 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                           failure=FALSE),
                         class="ergm"))
   } else {
-    gradienttheta <- llik.grad.IS(theta=Lout$par, xobs=xobs, xsim=xsim,
-                          probs=probs, 
-                          xsim.obs=xsim.obs, probs.obs=probs.obs,
-                          varweight=varweight, eta0=eta0, etamap=model$etamap)
+    gradienttheta <- llik.grad.IS(theta=Lout$par, xobs=xobs,
+                        xsim=xsim, probs=probs,
+                        xsim.obs=xsim.obs, probs.obs=probs.obs,
+                        varweight=varweight, trustregion=trustregion,
+                        eta0=eta0, etamap=etamap.no)
     gradient <- rep(NA, length=length(init))
     gradient[!model$etamap$offsettheta] <- gradienttheta
     #
@@ -332,12 +341,12 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     if(!hessianflag){
       #  covar <- ginv(cov(xsim))
       #  Lout$hessian <- cov(xsim)
-      Lout$hessian <- Hessianfn(theta=Lout$par, xobs=xobs, xsim=xsim,
-                                probs=probs, 
-                                xsim.obs=xsim.obs, probs.obs=probs.obs,
-                                varweight=varweight,
-                                eta0=eta0, etamap=model$etamap
-                                )
+      Lout$hessian <- Hessianfn(theta=Lout$par, xobs=xobs,
+                        xsim=xsim, probs=probs,
+                        xsim.obs=xsim.obs, probs.obs=probs.obs,
+                        varweight=varweight, trustregion=trustregion,
+                        eta0=eta0, etamap=etamap.no
+                        )
     }
     
     covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
@@ -368,11 +377,11 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     c0  <- loglikelihoodfn(theta=Lout$par, xobs=xobs,
                            xsim=xsim, probs=probs,
                            xsim.obs=xsim.obs, probs.obs=probs.obs,
-                           varweight=0.5, eta0=eta0, etamap=model$etamap)
+                           varweight=0.5, eta0=eta0, etamap=etamap.no)
     c01 <- loglikelihoodfn(theta=Lout$par-Lout$par, xobs=xobs,
                            xsim=xsim, probs=probs,
                            xsim.obs=xsim.obs, probs.obs=probs.obs,
-                           varweight=0.5, eta0=eta0, etamap=model$etamap)
+                           varweight=0.5, eta0=eta0, etamap=etamap.no)
     #
     # This is the log-likelihood calc from init=0
     #
@@ -398,9 +407,6 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     statsmatrix.all <- statsmatrix
     statsmatrix <- ergm.curved.statsmatrix(statsmatrix,theta,model$etamap)$sm
     statsmatrix0 <- statsmatrix
-    if(all(dim(statsmatrix.all)==dim(statsmatrix))){
-      statsmatrix.all <- NULL
-    }
 
     # Output results as ergm-class object
     return(structure(list(coef=theta, sample=statsmatrix, sample.obs=statsmatrix.obs, 

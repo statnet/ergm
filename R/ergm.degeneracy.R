@@ -210,24 +210,24 @@ ergm.compute.degeneracy<-function(xobs, init, etamap, statsmatrix,
 # Set up the initial estimate
 #
   if (verbose) cat("Converting init to eta0\n")
-  eta0 <- ergm.eta(init, etamap) #unsure about this
-  etamap$init <- init
+  etamap.no <- deoffset.etamap(etamap)
+  eta0 <- ergm.eta(init, etamap.no) #unsure about this
 #
 # Log-Likelihood and gradient functions
 #
   varweight <- 0.5
   if (verbose) cat("Optimizing loglikelihood\n")
   Lout <- try(optim(par=guess, 
-                    fn=llik.fun.lognormal, #  gr=llik.grad,
+                    fn=llik.fun.lognormal,  gr=llik.grad.IS,
                     hessian=FALSE,
                     method="BFGS",
                     control=list(trace=trace,fnscale=-1,reltol=nr.reltol,
                                  maxit=nr.maxit),
-                    xobs=xobs,
-                    xsim=xsim, probs=probs,
-                    xsim.obs=xsim.obs, probs.obs=probs.obs,
+                    xobs=xobs[!etamap$offsetmap],
+                    xsim=xsim[,!etamap$offsetmap, drop=FALSE], probs=probs,
+                    xsim.obs=xsim.obs[,!etamap$offsetmap, drop=FALSE], probs.obs=probs.obs,
                     varweight=varweight, trustregion=trustregion,
-                    eta0=eta0, etamap=etamap),silent=TRUE)
+                    eta0=eta0[!etamap$offsetmap], etamap=etamap.no),silent=TRUE)
   if(verbose){cat("the change in the log-likelihood is", Lout$value,"\n")}
   if(inherits(Lout,"try-error") || Lout$value > 199 ||
     Lout$value < -790) {

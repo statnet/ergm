@@ -64,17 +64,8 @@ llik.fun.obs.lognormal <- function(theta, xobs, xsim, probs, xsim.obs=NULL, prob
                      varweight=0.5, trustregion=20,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
-  theta.offset <- etamap$init
-  theta.offset[!etamap$offsettheta] <- theta
-  eta <- ergm.eta(theta.offset, etamap)
+  eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
-# MSH: Is this robust?
-  etaparam <- etaparam[!etamap$offsetmap]
-  xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
-  xsim.obs <- xsim.obs[,!etamap$offsetmap, drop=FALSE]
-  xobs <- xobs[!etamap$offsetmap]
-# The next line is right!
-# aaa <- sum(xobs * etaparam) - log(sum(probs*exp(xsim %*% etaparam)))
 # These lines standardize:
   basepred <- xsim %*% etaparam
   obspred <- xsim.obs %*% etaparam
@@ -112,25 +103,18 @@ llik.grad.obs.IS <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs
                       varweight=0.5, trustregion=20,
                       dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                       eta0, etamap){
-  # Construct the parameter vector incl. offsets
-  theta.offset <- etamap$init
-  theta.offset[!etamap$offsettheta] <- theta
-
   # Obtain canonical parameters incl. offsets and difference from sampled-from
-  eta <- ergm.eta(theta.offset, etamap)
+  eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
   
   # Calculate log-importance-weights (unconstrained)
-  etaparam.no <- etaparam[!etamap$offsetmap]
-  xsim.no <- xsim[,!etamap$offsetmap, drop=FALSE]
-  basepred <- xsim.no %*% etaparam.no + log(probs)
+  basepred <- xsim %*% etaparam + log(probs)
 
   # Calculate log-importance-weights (constrained)
-  xsim.obs.no <- xsim.obs[,!etamap$offsetmap, drop=FALSE]
-  obspred <- xsim.obs.no %*% etaparam.no + log(probs.obs)
+  obspred <- xsim.obs %*% etaparam + log(probs.obs)
   
   llg <- xobs + lweighted.mean(xsim.obs, obspred) - lweighted.mean(xsim, basepred)
-  llg <- t(ergm.etagradmult(theta.offset, llg, etamap))[,!etamap$offsettheta,drop=FALSE]
+  llg <- t(ergm.etagradmult(theta, llg, etamap))
 
   llg[is.na(llg)] <- 0 # Note: Before, infinite values would get zeroed as well. Let's see if this works.
   
@@ -148,32 +132,25 @@ llik.hessian.obs.IS <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.o
                      varweight=0.5, trustregion=20,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
-  # Construct the parameter vector incl. offsets
-  theta.offset <- etamap$init
-  theta.offset[!etamap$offsettheta] <- theta
-
   # Obtain canonical parameters incl. offsets and difference from sampled-from
-  eta <- ergm.eta(theta.offset, etamap)
+  eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
 
   # Calculate log-importance-weights (unconstrained)
-  etaparam.no <- etaparam[!etamap$offsetmap]
-  xsim.no <- xsim[,!etamap$offsetmap, drop=FALSE]
-  basepred <- xsim.no %*% etaparam.no + log(probs)
+  basepred <- xsim %*% etaparam + log(probs)
 
   # Calculate log-importance-weights (constrained)
-  xsim.obs.no <- xsim.obs[,!etamap$offsetmap, drop=FALSE]
-  obspred <- xsim.obs.no %*% etaparam.no + log(probs.obs)
+  obspred <- xsim.obs %*% etaparam + log(probs.obs)
 
   # Calculate the estimating function values sans offset
-  esim.no <- t(ergm.etagradmult(theta.offset, t(xsim), etamap))[,!etamap$offsettheta,drop=FALSE]
-  osim.no <- t(ergm.etagradmult(theta.offset, t(xsim.obs), etamap))[,!etamap$offsettheta,drop=FALSE]
+  esim <- t(ergm.etagradmult(theta, t(xsim), etamap))
+  osim <- t(ergm.etagradmult(theta, t(xsim.obs), etamap))
   
   # Weighted variance-covariance matrix of estimating functions ~ -Hessian
-  H.no <- lweighted.var(osim.no, obspred) - lweighted.var(esim.no, basepred)
+  H <- lweighted.var(osim, obspred) - lweighted.var(esim, basepred)
 
-  dimnames(H.no) <- list(names(theta), names(theta))
-  H.no
+  dimnames(H) <- list(names(theta), names(theta))
+  H
 }
 
 
@@ -187,26 +164,14 @@ llik.fun.obs.IS <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=N
                      varweight=0.5, trustregion=20,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
-  # Construct the parameter vector incl. offsets
-  theta.offset <- etamap$init
-  theta.offset[!etamap$offsettheta] <- theta
-
   # Obtain canonical parameters incl. offsets and difference from sampled-from
-  eta <- ergm.eta(theta.offset, etamap)
+  eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
-
-  # Obtain canonical parameters incl. offsets and difference from sampled-from (unconstrained)
-  etaparam.no <- etaparam[!etamap$offsetmap]
-  xsim.no <- xsim[,!etamap$offsetmap, drop=FALSE]
-  xobs.no <- xobs[!etamap$offsetmap]
-
-    # Obtain canonical parameters incl. offsets and difference from sampled-from  (unconstrained)
-  xsim.obs.no <- xsim[,!etamap$offsetmap, drop=FALSE]
   
   # Calculate log-importance-weights and the likelihood ratio
   basepred <- xsim %*% etaparam + log(probs)
   obspred <- xsim.obs %*% etaparam + log(probs.obs)
-  llr <- sum(xobs.no * etaparam.no) + log_sum_exp(obspred) - log_sum_exp(basepred)
+  llr <- sum(xobs * etaparam) + log_sum_exp(obspred) - log_sum_exp(basepred)
   
   # trustregion is the maximum value of llr that we actually trust.
   # So if llr>trustregion, return a value less than trustregion instead.
@@ -228,17 +193,9 @@ llik.fun.obs.robust<- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
                      varweight=0.5, trustregion=20,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
-  theta.offset <- etamap$init
-  theta.offset[!etamap$offsettheta] <- theta
-  eta <- ergm.eta(theta.offset, etamap)
+  eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
-# MSH: Is this robust?
-  etaparam <- etaparam[!etamap$offsetmap]
-  xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
-  xsim.obs <- xsim.obs[,!etamap$offsetmap, drop=FALSE]
-  xobs <- xobs[!etamap$offsetmap]
-# aaa <- sum(xobs * etaparam) - log(sum(probs*exp(xsim %*% etaparam)))
-# These lines standardize:
+
   basepred <- xsim %*% etaparam
   obspred <- xsim.obs %*% etaparam
 #
