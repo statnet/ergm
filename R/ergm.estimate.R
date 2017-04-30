@@ -71,74 +71,60 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                         cov.type="normal",# cov.type="robust", 
                         estimateonly=FALSE, ...) {
   # If there is an observation process to deal with, statsmatrix.obs
-  # will not be NULL; in this case, do some preprocessing.  Otherwise,
-  # skip ahead.
+  # will not be NULL.
   obsprocess <- !is.null(statsmatrix.obs)
-  if (obsprocess) {
-    statsmatrix0.obs <- compress_rows(as.logwmatrix(statsmatrix.obs))
-  } else { # these objects should be defined as NULL so they exist later on
-    xsim.obs <- NULL
-  }
 
-  # Now check to see whether to compress the statsmatrix by searching for
-  # nonunique rows.  After compression, rows should be unique and each row
-  # has a 'prob' weight telling what proportion of the original rows match it.
-  statsmatrix0 <- compress_rows(as.logwmatrix(statsmatrix))
-
-  # It is assumed that the statsmatrix0 matrix has already had the
-  # "observed statistics" subtracted out.  Another way to say this is
-  # that when ergm.estimate is called, the "observed statistics"
-  # should equal zero when measured on the scale of the statsmatrix0
-  # statistics.  Here, we recenter the statsmatrix0 matrix by
-  # subtracting some measure of center (e.g., the column means).
-  # Since this shifts the scale, the value of xobs (playing the role
-  # of "observed statistics") must be adjusted accordingly.  av <-
-  # apply(sweep(statsmatrix0,1,exp(lprobs),"*"), 2, sum)
-  if(cov.type=="robust"){
-    tmp <- covMcd(decompress_rows(statsmatrix0[,!model$etamap$offsetmap,drop=FALSE]))    
-    av <- tmp$center
-    V <- tmp$cov
-  }else{
-    av <- lweighted.mean(statsmatrix0, lrowweights(statsmatrix0))
-    V <- lweighted.var(statsmatrix0[,!model$etamap$offsetmap,drop=FALSE], lrowweights(statsmatrix0))
-  }
-  
-  xsim <- statsmatrix0
-  sweep_cols.matrix(xsim, av, TRUE)
-  xobs <- -av
-  
-  # Do the same recentering for the statsmatrix0.obs matrix, if appropriate.
-  # Note that xobs must be adjusted too.
-  if(obsprocess) {
-    if(cov.type=="robust"){
-      tmp <- covMcd(decompress_rows(statsmatrix0.obs[,!model$etamap$offsetmap,drop=FALSE]))    
-      av.obs <- tmp$center
-      V.obs <- tmp$cov
-    }else{
-      av.obs <- lweighted.mean(statsmatrix0.obs, lrowweights(statsmatrix0.obs))
-      V.obs <- lweighted.var(statsmatrix0.obs[,!model$etamap$offsetmap,drop=FALSE], lrowweights(statsmatrix0.obs))
-    }
-
-    xsim.obs <- statsmatrix0.obs
-    sweep_cols.matrix(xsim.obs, av.obs)
-    xobs <- av.obs - av
-  }
-  
   # Construct an offsetless map and convert init (possibly "curved"
   # parameters) to eta0 (canonical parameters)
   etamap <- model$etamap
   etamap.no <- deoffset.etamap(etamap)
   eta0 <- ergm.eta(init[!etamap$offsettheta], etamap.no)
+  
+  # Copy and compress the stats matrices after dropping the offset terms.
+  xsim <- compress_rows(as.logwmatrix(statsmatrix[,!etamap$offsetmap, drop=FALSE]))
+  lrowweights(xsim) <- -log_sum_exp(lrowweights(xsim)) # I.e., divide all weights by their sum.
 
-  # Drop offset statistics
-  xobs <- xobs[!etamap$offsetmap]
-  xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
-  lrowweights(xsim) <- -log_sum_exp(xsim) 
   if(obsprocess){
-    xsim.obs <- xsim.obs[,!etamap$offsetmap, drop=FALSE]
-    lrowweights(xsim.obs) <- -log_sum_exp(xsim.obs) 
+    xsim.obs <- compress_rows(as.logwmatrix(statsmatrix.obs[,!etamap$offsetmap, drop=FALSE]))
+    lrowweights(xsim.obs) <- -log_sum_exp(lrowweights(xsim.obs)) 
+  }else xsim.obs <- NULL
+  
+  # It is assumed that the statsmatrix matrix has already had the
+  # "observed statistics" subtracted out.  Another way to say this is
+  # that when ergm.estimate is called, the "observed statistics"
+  # should equal zero when measured on the scale of the statsmatrix
+  # statistics.  Here, we recenter the statsmatrix matrix by
+  # subtracting some measure of center (e.g., the column means).
+  # Since this shifts the scale, the value of xobs (playing the role
+  # of "observed statistics") must be adjusted accordingly.
+  if(cov.type=="robust"){
+    tmp <- covMcd(decompress_rows(xsim, target.nrows=nrow(statsmatrix)))    
+    av <- tmp$center
+    V <- tmp$cov
+  }else{
+    av <- lweighted.mean(xsim, lrowweights(xsim))
+    V <- lweighted.var(xsim, lrowweights(xsim))
   }
   
+  xsim <- sweep_cols.matrix(xsim, av, TRUE)
+  xobs <- -av
+  
+  # Do the same recentering for the statsmatrix.obs matrix, if appropriate.
+  # Note that xobs must be adjusted too.
+  if(obsprocess) {
+    if(cov.type=="robust"){
+      tmp <- covMcd(decompress_rows(xsim.obs, target.nrows=nrow(statsmatrix.obs)))    
+      av.obs <- tmp$center
+      V.obs <- tmp$cov
+    }else{
+      av.obs <- lweighted.mean(xsim.obs, lrowweights(xsim.obs))
+      V.obs <- lweighted.var(xsim.obs, lrowweights(xsim.obs))
+    }
+
+    xsim.obs <- sweep_cols.matrix(xsim.obs, av.obs, TRUE)
+    xobs <- av.obs - av
+  }
+    
   # Choose appropriate loglikelihood, gradient, and Hessian functions
   # depending on metric chosen and also whether obsprocess==TRUE
   # Also, choose varweight multiplier for covariance term in loglikelihood
@@ -304,7 +290,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     # Output results as ergm-class object
     return(structure(list(coef=theta,
                           MCMCtheta=init,
-                          samplesize=NROW(statsmatrix),
+                          samplesize=nrow(statsmatrix),
                           loglikelihood=Lout$value, 
                           failure=FALSE),
                         class="ergm"))
@@ -348,13 +334,13 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
         if ((metric=="lognormal" || metric=="Likelihood")
             && length(model$etamap$curved)==0) {
           ergm.MCMCse.lognormal(theta=theta, init=init, 
-                                statsmatrix=statsmatrix0, 
+                                statsmatrix=statsmatrix, 
                                 statsmatrix.obs=statsmatrix.obs,
                                 H=V, H.obs=V.obs,
                                 model=model)
         } else {
         ergm.MCMCse(theta=theta,init=init, 
-                    statsmatrix=statsmatrix0,
+                    statsmatrix=statsmatrix,
                     statsmatrix.obs=statsmatrix.obs,
                     model=model)
       }
@@ -384,15 +370,6 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     #
     names(theta) <- names(init)
     
-    ############################
-    #
-    #  Reconstruct the reduced form statsmatrix for curved 
-    #  parametrizations
-    #
-    statsmatrix.all <- statsmatrix
-    statsmatrix <- ergm.curved.statsmatrix(statsmatrix,theta,model$etamap)$sm
-    statsmatrix0 <- statsmatrix
-
     # Output results as ergm-class object
     return(structure(list(coef=theta, sample=statsmatrix, sample.obs=statsmatrix.obs, 
                           iterations=iteration, #mcmcloglik=mcmcloglik,
