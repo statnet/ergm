@@ -349,7 +349,7 @@ ergm <- function(formula, response=NULL,
   model$target.stats <- target.stats
   
   if(control$init.method=="CD") if(is.null(names(control$init)))
-      names(control$init) <- .coef.names.model(model, FALSE)
+      names(control$init) <- coef.names.model(model, FALSE)
   
   initialfit <- ergm.initialfit(init=control$init, initial.is.final=!MCMCflag,
                                 formula=formula, nw=nw, reference=reference, 
@@ -415,7 +415,7 @@ ergm <- function(formula, response=NULL,
   # Revise the initial value, if necessary:
   init <- initialfit$coef
   init[is.na(init)] <- 0
-  names(init) <- .coef.names.model(model, FALSE)
+  names(init) <- coef.names.model(model, FALSE)
   
   if (verbose) cat("Fitting ERGM.\n")
   mainfit <- switch(control$main.method,

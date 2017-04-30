@@ -13,7 +13,7 @@
 ###################################################################
 
 # For backwards compatibility.
-ergm.update.formula <- nonsimp.update.formula
+ergm.update.formula <- statnet.common::nonsimp.update.formula
 
 model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
   ## Recipe syntax:

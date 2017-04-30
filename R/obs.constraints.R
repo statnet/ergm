@@ -43,8 +43,8 @@
 
 .align.target.stats.offset <- function(model, target.stats){
   om <- model$etamap$offsetmap
-  cno <- .coef.names.model(model, canonical=TRUE)
-  cn <- .coef.names.model(model, canonical=TRUE)[!om]
+  cno <- coef.names.model(model, canonical=TRUE)
+  cn <- coef.names.model(model, canonical=TRUE)[!om]
   target.stats <- na.omit(vector.namesmatch(target.stats, cn))
   tmp <- rep(NA, length(om))
   tmp[!om] <- target.stats

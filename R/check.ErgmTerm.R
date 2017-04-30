@@ -56,7 +56,6 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
   fname <- sub('.*[.]', '', fname) # truncate up to last '.'
   message <- NULL
   if (!is.null(directed) && directed != (dnw<-is.directed(nw))) {
-    #directed != (dnw<-eval(expression(nw$gal$dir),parent.frame()))) {
     message <- paste("networks with directed==", dnw, sep="")
   }
   
