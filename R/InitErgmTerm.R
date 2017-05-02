@@ -1298,24 +1298,25 @@ InitErgmTerm.dsp<-function(nw, arglist, ...) {
 InitErgmTerm.dyadcov<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("x","attrname"),
-                      vartypes = c("matrix,network","character"),
+                      vartypes = c("matrix,network,character","character"),
                       defaultvalues = list(NULL,NULL),
                       required = c(TRUE,FALSE))
-  x<-a$x;attrname<-a$attrname
-  #Coerce x to an adjacency matrix
-  if(is.network(x))
-    xm<-as.matrix.network(x,matrix.type="adjacency",attrname)
-  else if(is.character(x))
-#   xm<-as.matrix.network(nw,matrix.type="adjacency",x)
-    xm<-get.network.attribute(nw,x)
+  ### Process the arguments
+  if(is.network(a$x))
+    xm<-as.matrix.network(a$x,matrix.type="adjacency",a$attrname)
+  else if(is.character(a$x)){
+    xm<-get.network.attribute(nw,a$x)
+    if (is.null(xm)){
+      stop("There is no network attribute named ",a$x,call.=FALSE)
+    }
+  }
   else
-    xm<-as.matrix(x)
-
+    xm<-as.matrix(a$x)
 
 #Update the terms list, adding the vectorized adjacency matrix
-  if(!is.null(attrname))
+  if(!is.null(a$attrname))
     cn<-paste("dyadcov", as.character(sys.call(0)[[3]][2]), 
-              as.character(attrname), sep = ".")
+              as.character(a$attrname), sep = ".")
   else
     cn<-paste("dyadcov", as.character(sys.call(0)[[3]][2]), sep = ".")
  
