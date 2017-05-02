@@ -871,12 +871,13 @@ of the degrees of all pairs of nodes in the network which are tied.
     the nodes in the dyad).}
     
     \item{\code{dyadcov(x, attrname=NULL)}  (binary)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute)
-    }{\emph{Dyadic covariate:}
-    If the network is directed, \code{x} is either a (symmetric) matrix of
-    covariates, one for each possible dyad \eqn{(i,j)}, or an undirected
-    network; if the latter, optional argument \code{attrname} provides the name
-    of the quantitative edge attribute to use for covariate values (in this
-    case, missing edges in \code{x} are assigned a covariate value of zero).
+    }{\emph{Dyadic covariate:} The \code{x}
+    argument is either a square matrix of covariates, one for each possible
+    edge in the network, the name of a network attribute of covariates,
+    or a network; if the latter, optional argument \code{attrname} provides
+    the name of the quantitative edge attribute to use for covariate values
+    (in this case, missing edges in \code{x} are assigned a covariate value
+    of zero).
     This term adds three statistics to the model, each equal to the sum of the
     covariate values for all dyads occupying one of the three possible non-empty
     dyad states (mutual, upper-triangular asymmetric, and lower-triangular
