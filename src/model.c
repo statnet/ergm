@@ -253,7 +253,8 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
   FOR_EACH_TOGGLE(toggle){
 
 #pragma omp parallel for
-    FOR_EACH_TERM{
+    for(unsigned int i = 0; i < m->n_terms; i++){
+      ModelTerm *mtp = m->termarray + i;
       if(mtp->c_func){
 	if(ntoggles!=1) ZERO_ALL_CHANGESTATS();
 	(*(mtp->c_func))(tails[toggle], heads[toggle],
