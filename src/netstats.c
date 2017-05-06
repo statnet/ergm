@@ -95,7 +95,8 @@ Network *nwp, Model *m, double *stats){
   /* Calculate statistics for terms that have c_functions but not s_functions.  */
   for(Edge e=0; e<n_edges; e++){
     Vertex t=TAIL(e), h=HEAD(e); 
-    
+
+#pragma omp parallel for        
     EXEC_THROUGH_TERMS_INTO(stats, {
 	if(mtp->s_func==NULL && mtp->c_func){
 	  ZERO_ALL_CHANGESTATS();
