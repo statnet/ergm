@@ -142,12 +142,16 @@ void RecurseOffOn(
     /* Calculate the change statistic(s) associated with toggling the 
        dyad represented by nodelist1[currentnodes], nodelist2[currentnodes] */
     EXEC_THROUGH_TERMS({
-      if(mtp->c_func) (*(mtp->c_func))(*(nodelist1+currentnodes), *(nodelist2+currentnodes), mtp, nwp);
-      else (*(mtp->d_func))(1, nodelist1+currentnodes, nodelist2+currentnodes, mtp, nwp);
+	if(mtp->c_func){
+	  ZERO_ALL_CHANGESTATS();
+	  (*(mtp->c_func))(nodelist1[currentnodes], nodelist2[currentnodes], mtp, nwp);
+	}else if(mtp->d_func){
+	  (*(mtp->d_func))(1, nodelist1+currentnodes, nodelist2+currentnodes, mtp, nwp);
+	}
       });
     
     /* Inform u_* functions that the network is about to change. */
-    UPDATE_STORAGE(*(nodelist1+currentnodes), *(nodelist2+currentnodes), nwp, m, NULL);
+    UPDATE_STORAGE(nodelist1[currentnodes], nodelist2[currentnodes], nwp, m, NULL);
     
     for (int j=0; j < m->n_stats; j++) cumulativeStats[j] += changeStats[j];
     /* Now toggle the dyad so it's ready for the next pass */
