@@ -156,3 +156,66 @@ ergm.sample.tomcmc<-function(sample, params){
     mcmc(sample, start = params$MCMC.burnin, thin = params$MCMC.interval)
   }
 }
+
+#' Multithreaded evaluation of change statistics
+#'
+#' Query and control whether `ergm` package's C code will attempt to
+#' evaluate qualified terms' change statistics in multiple threads.
+#'
+#' @param x a logical flag to set whether multithreading will be
+#'   attempted; is `FALSE` on loading
+#'
+#' @return Both functions return the new state of the multithreading
+#'   flag, `set.parallel_terms()` invisibly.
+#' 
+#' @details Dividing up change statistics into multiple threads
+#'   executed in parallel can speed up summary statistic calculation
+#'   and MCMC sampling by evaluating different terms in
+#'   parallel. However, it introduces a significant computational
+#'   overhead. The following are the major factors affecting whether
+#'   it is worthwhile:
+#' 
+#' * The more terms with statistics the model has, the more
+#'   benefit from parallel execution.
+#' 
+#' * The more expensive the terms in the model are, the more benefit
+#'   from parallel execution. For example, models with terms like
+#'   [`gwdsp`] will generally get more benefit than models where all
+#'   terms are dyad-independent.
+#'
+#' * Sampling more dense networks will generally get more benefit than
+#'   sparse networks. Network size has little, if any, effect.
+#'
+#' * More CPUs/cores usually give greater speed-up, but only up to a
+#'   point, because the amount of overhead grows with the number of
+#'   threads; it is often better to ``batch'' the terms into a smaller
+#'   number of threads than possible. On Unix-alikes, running \R with
+#'   environmental variable `OMP_THREAD_LIMIT` set to a limit can be
+#'   used to do this.
+#'
+#' * Any other workload on the system will have a more severe effect
+#'   on multithreaded execution. In particular, do not run more
+#'   threads than CPUs/cores that you want to allocate to the tasks.
+#'
+#' @note This flag is a setting global to the `ergm` package and all
+#'   of its C functions, including when called from other packages via
+#'   the `Linking-To` mechanism.
+#'
+#' @note These functions only set the flag; they do *not* set limits
+#'   on the number of processes.
+#'
+#' @name multithread_terms
+NULL
+
+#' @rdname multithread_terms
+#' @export
+set.multithread_terms <- function(x){
+  .Call("set_ergm_omp_terms", x, PACKAGE="ergm")
+  invisible(.Call("get_ergm_omp_terms", PACKAGE="ergm"))
+}
+
+#' @rdname multithread_terms
+#' @export
+get.multithread_terms <- function(x){
+  .Call("get_ergm_omp_terms", PACKAGE="ergm")
+}

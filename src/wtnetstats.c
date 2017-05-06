@@ -8,6 +8,7 @@
  *  Copyright 2003-2013 Statnet Commons
  */
 #include "wtnetstats.h"
+#include "ergm_omp.h"
 /*****************
  void network_stats_wrapper
 
@@ -90,7 +91,7 @@ WtNetwork *nwp, WtModel *m, double *stats){
   FOR_EACH_TOGGLE{
     GETNEWTOGGLEINFO();
     
-#pragma omp parallel for    
+#pragma omp parallel for if(ergm_omp_terms)
     WtEXEC_THROUGH_TERMS_INTO(stats, {
 	if(mtp->s_func==NULL && mtp->c_func){
 	  ZERO_ALL_CHANGESTATS();

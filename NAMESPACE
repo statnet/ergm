@@ -267,7 +267,9 @@ export(
   # updatemodel.ErgmTerm,    proposed to make internal 
   vcov.ergm,                       
   # which.package.InitFunction, proposed to make internal
-  wtd.median
+  wtd.median,
+  get.multithread_terms,
+  set.multithread_terms
 )
 
 # export all the ergm terms

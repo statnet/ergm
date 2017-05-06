@@ -9,7 +9,7 @@
  */
 #include <string.h>
 #include "ergm_model.h"
-
+#include "ergm_omp.h"
 /*****************
   void ModelDestroy
 ******************/
@@ -257,7 +257,7 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
   int toggle;
   FOR_EACH_TOGGLE(toggle){
 
-#pragma omp parallel for    
+#pragma omp parallel for if(ergm_omp_terms)    
     EXEC_THROUGH_TERMS_INTO(m->workspace, {
 	if(mtp->c_func){
 	  if(ntoggles!=1) ZERO_ALL_CHANGESTATS();
