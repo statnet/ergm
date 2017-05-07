@@ -7,6 +7,144 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
+
+#' Parallel Processing in the `ergm` Package
+#'
+#' Using clusters multiple CPUs or CPU cores to speed up ERGM
+#' estimation and simulation.
+#'
+#' @details
+#'
+#' For estimation that require MCMC, [ergm][=ergm-package] can take
+#' advantage of multiple CPUs or CPU cores on the system on which it
+#' runs, as well as computing clusters through one of two mechanisms:
+#'
+#' \describe{\item{Running MCMC chains in parallel}{ Packages
+#' `parallel` and `snow` are used to to facilitate this, all cluster
+#' types that they support are supported.
+#' 
+#' The number of nodes used and the parallel API are controlled using
+#' the `parallel` and `parallel.type` arguments passed to the control
+#' functions, such as [control.ergm()].
+#'   
+#' The [ergm.getCluster()] function is usually called internally by
+#' the ergm process (in [ergm.getMCMCsample()]) and will attempt to
+#' start the appropriate type of cluster indicated by the
+#' [control.ergm()] settings. The [ergm.stopCluster()] is helpful if
+#' the user has directly created a cluster.
+#'     
+#' Further details on the various cluster types are included below.}
+#' 
+#' \item{Multithreaded evaluation of model terms}{ Rather than running
+#' multiple MCMC chains, it is possible to attempt to accelerate
+#' sampling by evaluating qualified terms' change statistics in
+#' multiple threads run in parallel. This is done using the
+#' [OpenMP](http://www.openmp.org/) API.
+#'
+#' However, this introduces a nontrivial amont of computational
+#' overhead. See below for a list of the major factors affecting
+#' whether it is worthwhile.}}
+#'
+#' Generally, the two approaches should not be used at the same time
+#' without caution. Their relative advantages and disadvantages are as
+#' follows:
+#'
+#' * Multithreading terms cannot take advantage of clusters but only
+#'   of CPUs and cores.
+#'
+#' * Parallel MCMC chains produce several independent chains;
+#'   multithreading still only produces one.
+#' 
+#' * Multithreading terms actually accellerates sampling, including
+#'   the burn-in phase; parallel MCMC's multiple burn-in runs are
+#'   effectively \dQuote{wasted}.
+#' 
+#' 
+#' 
+#' \subsection{ Different types of clusters}{
+#'
+#' \describe{\item{PSOCK clusters}{ The `parallel` package is used with PSOCK clusters
+#' by default, to utilize multiple cores on a system. The number of
+#' cores on a system can be determined with the [detectCores()]
+#' function.
+#'   
+#' This method works with the base installation of R on all platforms,
+#' and does not require additional software.
+#'   
+#' For more advanced applications, such as clusters that span multiple
+#' machines on a network, the clusters can be initialized manually,
+#' and passed into [ergm()] and others using the `parallel` control
+#' argument. See the second example below.}
+#'
+#' \item{MPI clusters}{ To use MPI to accelerate ERGM sampling,
+#' pass the control parameter `parallel.type="MPI"`.
+#' [ergm][ergm-package] requires the `snow` and `Rmpi` packages to
+#' communicate with an MPI cluster.
+#'   
+#' Using MPI clusters requires the system to have an existing MPI
+#' installation.  See the MPI documentation for your particular
+#' platform for instructions.
+#' 
+#' To use [ergm()] across multiple machines in a high performance
+#' computing environment, see the section "User initiated clusters"
+#' below.}
+#' 
+#' \item{User initiated clusters}{ A cluster can be passed into [ergm()]
+#' with the `parallel` control parameter. [ergm()] will detect the
+#' number of nodes in the cluster, and use all of them for MCMC
+#' sampling. This method is flexible: it will accept any cluster type
+#' that is compatible with `snow` or `parallel` packages. Usage
+#' examples for a multiple-machine high performance MPI cluster can be
+#' found at the [Statnet
+#' wiki](https://statnet.csde.washington.edu/trac/wiki/ergmParallel).
+#' }}}
+#'
+#' \subsection{ When is multithreading terms worthwhile?}{
+#' 
+#' * The more terms with statistics the model has, the more
+#'   benefit from parallel execution.
+#' 
+#' * The more expensive the terms in the model are, the more benefit
+#'   from parallel execution. For example, models with terms like
+#'   [`gwdsp`] will generally get more benefit than models where all
+#'   terms are dyad-independent.
+#'
+#' * Sampling more dense networks will generally get more benefit than
+#'   sparse networks. Network size has little, if any, effect.
+#'
+#' * More CPUs/cores usually give greater speed-up, but only up to a
+#'   point, because the amount of overhead grows with the number of
+#'   threads; it is often better to \dQuote{batch} the terms into a smaller
+#'   number of threads than possible.
+#'
+#' * Any other workload on the system will have a more severe effect
+#'   on multithreaded execution. In particular, do not run more
+#'   threads than CPUs/cores that you want to allocate to the tasks.
+#'
+#' }
+#' 
+#' @examples
+#'
+#' \donttest{
+#' # Uses 2 SOCK clusters for MCMLE estimation
+#' data(faux.mesa.high)
+#' nw <- faux.mesa.high
+#' fauxmodel.01 <- ergm(nw ~ edges + isolates + gwesp(0.2, fixed=TRUE), 
+#'                      control=control.ergm(parallel=2, parallel.type="PSOCK"))
+#' summary(fauxmodel.01)
+#' 
+#' }
+#'
+#' @rdname ergm-parallel
+#' @name ergm-parallel
+#' @aliases parallel ergm.parallel parallel.ergm parallel-ergm
+#'
+NULL
+ 
+
+
+
+
 # Set up a flag for whether we are in charge of a cluster.
 ergm.cluster.started <- local({
   started <- FALSE
@@ -31,7 +169,17 @@ ergm.MCMC.packagenames <- local({
 myLibLoc <- function()
   sub('/ergm/Meta/package.rds','',attr(packageDescription("ergm"),"file"))
 
-# Acquires a cluster of specified type.
+#' [ergm.getCluster()] starts and/or acquires a cluster of specified type.
+#'
+#' @param control a [control.ergm()] list of parameter
+#'   values from which the parallel settings should be read
+#' @param verbose logical, should detailed status info be printed to
+#'   console
+#'
+#' @return [ergm.getCluster()] returns an object of type `cluster`.
+#'
+#' @rdname ergm-parallel
+#' @export
 ergm.getCluster <- function(control, verbose=FALSE){
   
   if(inherits(control$parallel,"cluster")){
@@ -111,12 +259,19 @@ ergm.getCluster <- function(control, verbose=FALSE){
 }
 
 
-# Shuts down clusters.
+#' [ergm.stopCluster()] acquires a cluster of specified type.
+#' 
+#' @param object an object, probably of class "cluster"
+#' @param ... not currently used
+#' 
+#' @rdname ergm-parallel
+#' @export
 ergm.stopCluster <- function(object, ...){
   UseMethod("ergm.stopCluster")
 }
 
 # Only stop the MPI cluster if we were the ones who had started it.
+#' @rdname ergm-parallel
 ergm.stopCluster.MPIcluster <- function(object, ...){
   if(ergm.cluster.started()){
     ergm.cluster.started(FALSE)
@@ -124,14 +279,13 @@ ergm.stopCluster.MPIcluster <- function(object, ...){
   }
 }
 
+#' @rdname ergm-parallel
 ergm.stopCluster.default <- function(object, ...){
   if(ergm.cluster.started()){
     ergm.cluster.started(FALSE)
     stopCluster(object)
   }
 }
-
-
 
 ergm.sample.tomcmc<-function(sample, params){
   if (inherits(params$parallel,"cluster")) 
@@ -157,64 +311,37 @@ ergm.sample.tomcmc<-function(sample, params){
   }
 }
 
-#' Multithreaded evaluation of change statistics
-#'
-#' Query and control whether `ergm` package's C code will attempt to
-#' evaluate qualified terms' change statistics in multiple threads.
+#' [set.multithread_terms()] sets the flag controlling whether
+#' multithreading of model terms will be attempted.
 #'
 #' @param x a logical flag to set whether multithreading will be
 #'   attempted; is `FALSE` on loading
-#'
-#' @return Both functions return the new state of the multithreading
-#'   flag, `set.parallel_terms()` invisibly.
 #' 
-#' @details Dividing up change statistics into multiple threads
-#'   executed in parallel can speed up summary statistic calculation
-#'   and MCMC sampling by evaluating different terms in
-#'   parallel. However, it introduces a significant computational
-#'   overhead. The following are the major factors affecting whether
-#'   it is worthwhile:
-#' 
-#' * The more terms with statistics the model has, the more
-#'   benefit from parallel execution.
-#' 
-#' * The more expensive the terms in the model are, the more benefit
-#'   from parallel execution. For example, models with terms like
-#'   [`gwdsp`] will generally get more benefit than models where all
-#'   terms are dyad-independent.
+#' @return [set.multithread_terms()] returns the new state of the
+#'   multithreading flag, invisibly.
 #'
-#' * Sampling more dense networks will generally get more benefit than
-#'   sparse networks. Network size has little, if any, effect.
+#' @note The multithreaded flag is a setting global to the `ergm`
+#'   package and all of its C functions, including when called from
+#'   other packages via the `Linking-To` mechanism. These functions
+#'   only set the flag; they do *not* set limits on the number of
+#'   processes. On Unix-alikes, running \R with environmental variable
+#'   `OMP_THREAD_LIMIT` set to a limit can be used to do this.
 #'
-#' * More CPUs/cores usually give greater speed-up, but only up to a
-#'   point, because the amount of overhead grows with the number of
-#'   threads; it is often better to ``batch'' the terms into a smaller
-#'   number of threads than possible. On Unix-alikes, running \R with
-#'   environmental variable `OMP_THREAD_LIMIT` set to a limit can be
-#'   used to do this.
-#'
-#' * Any other workload on the system will have a more severe effect
-#'   on multithreaded execution. In particular, do not run more
-#'   threads than CPUs/cores that you want to allocate to the tasks.
-#'
-#' @note This flag is a setting global to the `ergm` package and all
-#'   of its C functions, including when called from other packages via
-#'   the `Linking-To` mechanism.
-#'
-#' @note These functions only set the flag; they do *not* set limits
-#'   on the number of processes.
-#'
-#' @name multithread_terms
-NULL
-
-#' @rdname multithread_terms
+#' @rdname ergm-parallel
 #' @export
 set.multithread_terms <- function(x){
   .Call("set_ergm_omp_terms", x, PACKAGE="ergm")
   invisible(.Call("get_ergm_omp_terms", PACKAGE="ergm"))
 }
 
-#' @rdname multithread_terms
+#' [get.multithread_terms()] queries the current value of the flag
+#' controlling whether multithreading of model terms will be
+#' attempted.
+#'
+#' @return [get.multithread_terms()] returns the current state of the
+#'   multithreading flag.
+#'
+#' @rdname ergm-parallel
 #' @export
 get.multithread_terms <- function(x){
   .Call("get_ergm_omp_terms", PACKAGE="ergm")
