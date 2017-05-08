@@ -97,7 +97,7 @@ Network *nwp, Model *m, double *stats){
   for(Edge e=0; e<n_edges; e++){
     Vertex t=TAIL(e), h=HEAD(e); 
 
-#pragma omp parallel for if(ergm_omp_terms)        
+ergm_PARALLEL_FOR        
     EXEC_THROUGH_TERMS_INTO(stats, {
 	if(mtp->s_func==NULL && mtp->c_func){
 	  ZERO_ALL_CHANGESTATS();

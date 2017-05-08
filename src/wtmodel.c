@@ -257,7 +257,7 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
   FOR_EACH_TOGGLE{
     GETTOGGLEINFO();
     
-#pragma omp parallel for if(ergm_omp_terms)
+ergm_PARALLEL_FOR
     WtEXEC_THROUGH_TERMS_INTO(m->workspace, {
 	if(mtp->c_func){
 	  if(ntoggles!=1) ZERO_ALL_CHANGESTATS();

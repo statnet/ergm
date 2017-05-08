@@ -91,7 +91,7 @@ WtNetwork *nwp, WtModel *m, double *stats){
   FOR_EACH_TOGGLE{
     GETNEWTOGGLEINFO();
     
-#pragma omp parallel for if(ergm_omp_terms)
+ergm_PARALLEL_FOR
     WtEXEC_THROUGH_TERMS_INTO(stats, {
 	if(mtp->s_func==NULL && mtp->c_func){
 	  ZERO_ALL_CHANGESTATS();

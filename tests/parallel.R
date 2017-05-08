@@ -106,3 +106,15 @@ opttest({
   }
   
 }, "parallel_MPI", testvar="ENABLE_MPI_TESTS")
+
+library(ergm)
+data(florentine)
+set.seed(0)
+sim.ser <- simulate(flomarriage~edges+triangle, nsim=100, control=control.simulate(MCMC.burnin=1, MCMC.interval=1), statsonly=TRUE)
+
+prev <- set.MT_terms(2)
+set.seed(0)
+sim.par <- simulate(flomarriage~edges+triangle, nsim=100, control=control.simulate(MCMC.burnin=1, MCMC.interval=1), statsonly=TRUE)
+set.MT_terms(prev)
+
+stopifnot(all.equal(sim.ser,sim.par))

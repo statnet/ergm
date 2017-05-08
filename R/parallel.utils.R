@@ -169,10 +169,12 @@ ergm.MCMC.packagenames <- local({
 myLibLoc <- function()
   sub('/ergm/Meta/package.rds','',attr(packageDescription("ergm"),"file"))
 
-#' [ergm.getCluster()] starts and/or acquires a cluster of specified type.
+#' [ergm.getCluster()] starts and/or acquires a cluster of specified
+#' type, loads `ergm`, user term, and other needed packages, and
+#' checks that their versions match.
 #'
-#' @param control a [control.ergm()] list of parameter
-#'   values from which the parallel settings should be read
+#' @param control a list of control parameters (like those returned by
+#'   [control.ergm()]) containing the parallel settings
 #' @param verbose logical, should detailed status info be printed to
 #'   console
 #'
@@ -181,6 +183,7 @@ myLibLoc <- function()
 #' @rdname ergm-parallel
 #' @export
 ergm.getCluster <- function(control, verbose=FALSE){
+  if(get.MT_terms()) warning("Using term multithreading in combination with parallel MCMC is generally not advised. See help('ergm-parallel') for more information.")
   
   if(inherits(control$parallel,"cluster")){
     ergm.cluster.started(FALSE)
@@ -311,38 +314,35 @@ ergm.sample.tomcmc<-function(sample, params){
   }
 }
 
-#' [set.multithread_terms()] sets the flag controlling whether
-#' multithreading of model terms will be attempted.
+#' [set.MT_terms()] controls multithreading of model terms.
 #'
-#' @param x a logical flag to set whether multithreading will be
-#'   attempted; is `FALSE` on loading
+#' @param n an integer specifying the number of threads to use; 0 (the
+#'   starting value) disables multithreading, and \eqn{-1} or
+#'   \code{NA} sets it to the number of CPUs detected.
 #' 
-#' @return [set.multithread_terms()] returns the new state of the
-#'   multithreading flag, invisibly.
+#' @return [set.MT_terms()] returns the previous setting, invisibly.
 #'
-#' @note The multithreaded flag is a setting global to the `ergm`
-#'   package and all of its C functions, including when called from
-#'   other packages via the `Linking-To` mechanism. These functions
-#'   only set the flag; they do *not* set limits on the number of
-#'   processes. On Unix-alikes, running \R with environmental variable
-#'   `OMP_THREAD_LIMIT` set to a limit can be used to do this.
+#' @note The this is a setting global to the `ergm` package and all of
+#'   its C functions, including when called from other packages via
+#'   the `Linking-To` mechanism.
 #'
 #' @rdname ergm-parallel
 #' @export
-set.multithread_terms <- function(x){
-  .Call("set_ergm_omp_terms", x, PACKAGE="ergm")
-  invisible(.Call("get_ergm_omp_terms", PACKAGE="ergm"))
+set.MT_terms <- function(n){
+  old <- get.MT_terms()
+  n <- as.integer(n)
+  if(is.na(n) || n < -1) n <- -1L
+  .Call("set_ergm_omp_terms", n, PACKAGE="ergm")
+  invisible(old)
 }
 
-#' [get.multithread_terms()] queries the current value of the flag
-#' controlling whether multithreading of model terms will be
-#' attempted.
+#' [get.MT_terms()] queries the current number of term calculation
+#' threads.
 #'
-#' @return [get.multithread_terms()] returns the current state of the
-#'   multithreading flag.
+#' @return [get.MT_terms()] returns the current setting.
 #'
 #' @rdname ergm-parallel
 #' @export
-get.multithread_terms <- function(x){
+get.MT_terms <- function(){
   .Call("get_ergm_omp_terms", PACKAGE="ergm")
 }

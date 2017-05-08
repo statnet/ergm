@@ -10,8 +10,8 @@
 \alias{ergm.stopCluster}
 \alias{ergm.stopCluster.MPIcluster}
 \alias{ergm.stopCluster.default}
-\alias{set.multithread_terms}
-\alias{get.multithread_terms}
+\alias{set.MT_terms}
+\alias{get.MT_terms}
 \title{Parallel Processing in the \code{ergm} Package}
 \usage{
 ergm.getCluster(control, verbose = FALSE)
@@ -22,13 +22,13 @@ ergm.stopCluster(object, ...)
 
 \method{ergm.stopCluster}{default}(object, ...)
 
-set.multithread_terms(x)
+set.MT_terms(n)
 
-get.multithread_terms(x)
+get.MT_terms()
 }
 \arguments{
-\item{control}{a \code{\link[=control.ergm]{control.ergm()}} list of parameter
-values from which the parallel settings should be read}
+\item{control}{a list of control parameters (like those returned by
+\code{\link[=control.ergm]{control.ergm()}}) containing the parallel settings}
 
 \item{verbose}{logical, should detailed status info be printed to
 console}
@@ -37,32 +37,31 @@ console}
 
 \item{...}{not currently used}
 
-\item{x}{a logical flag to set whether multithreading will be
-attempted; is \code{FALSE} on loading}
+\item{n}{an integer specifying the number of threads to use; 0 (the
+starting value) disables multithreading, and \eqn{-1} or
+\code{NA} sets it to the number of CPUs detected.}
 }
 \value{
 \code{\link[=ergm.getCluster]{ergm.getCluster()}} returns an object of type \code{cluster}.
 
-\code{\link[=set.multithread_terms]{set.multithread_terms()}} returns the new state of the
-multithreading flag, invisibly.
+\code{\link[=set.MT_terms]{set.MT_terms()}} returns the previous setting, invisibly.
 
-\code{\link[=get.multithread_terms]{get.multithread_terms()}} returns the current state of the
-multithreading flag.
+\code{\link[=get.MT_terms]{get.MT_terms()}} returns the current setting.
 }
 \description{
 Using clusters multiple CPUs or CPU cores to speed up ERGM
 estimation and simulation.
 
-\code{\link[=ergm.getCluster]{ergm.getCluster()}} starts and/or acquires a cluster of specified type.
+\code{\link[=ergm.getCluster]{ergm.getCluster()}} starts and/or acquires a cluster of specified
+type, loads \code{ergm}, user term, and other needed packages, and
+checks that their versions match.
 
 \code{\link[=ergm.stopCluster]{ergm.stopCluster()}} acquires a cluster of specified type.
 
-\code{\link[=set.multithread_terms]{set.multithread_terms()}} sets the flag controlling whether
-multithreading of model terms will be attempted.
+\code{\link[=set.MT_terms]{set.MT_terms()}} controls multithreading of model terms.
 
-\code{\link[=get.multithread_terms]{get.multithread_terms()}} queries the current value of the flag
-controlling whether multithreading of model terms will be
-attempted.
+\code{\link[=get.MT_terms]{get.MT_terms()}} queries the current number of term calculation
+threads.
 }
 \details{
 For estimation that require MCMC, \link[==ergm-package]{ergm} can take
@@ -167,12 +166,9 @@ threads than CPUs/cores that you want to allocate to the tasks.
 }
 }
 \note{
-The multithreaded flag is a setting global to the \code{ergm}
-package and all of its C functions, including when called from
-other packages via the \code{Linking-To} mechanism. These functions
-only set the flag; they do \emph{not} set limits on the number of
-processes. On Unix-alikes, running \R with environmental variable
-\code{OMP_THREAD_LIMIT} set to a limit can be used to do this.
+The this is a setting global to the \code{ergm} package and all of
+its C functions, including when called from other packages via
+the \code{Linking-To} mechanism.
 }
 \examples{
 

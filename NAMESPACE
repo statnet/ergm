@@ -268,8 +268,8 @@ export(
   vcov.ergm,                       
   # which.package.InitFunction, proposed to make internal
   wtd.median,
-  get.multithread_terms,
-  set.multithread_terms
+  get.MT_terms,
+  set.MT_terms
 )
 
 # export all the ergm terms
