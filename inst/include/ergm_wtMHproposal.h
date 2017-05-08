@@ -91,15 +91,6 @@ void WtMH_free(WtMHproposal *MH, WtNetwork *nwp);
 #define WtMH_P_FN(a) void (a) (WtMHproposal *MHp, WtNetwork *nwp)
 #define WtMH_F_FN(a) void (a) (WtMHproposal *MHp, WtNetwork *nwp)
 
-// FIXME: Split into a separate file to eliminate code duplication.
-static inline double dotprod(double *x, double *y, unsigned int n){
-  double out = 0;
-  for(unsigned int i = 0; i < n; i++, x++, y++){
-    out += *x * *y;
-  }
-  return out;
-}
-
 #endif 
 
 
