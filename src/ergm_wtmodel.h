@@ -32,27 +32,22 @@ typedef struct WtModelstruct {
 
 #define WtFOR_EACH_TERM for(WtModelTerm *mtp = m->termarray; mtp < m->termarray + m->n_terms; mtp++)
 
-#define WtEXEC_THROUGH_TERMS(subroutine){				\
-    WtFOR_EACH_TERM{							\
-      subroutine;							\
-    }									\
+#define WtEXEC_THROUGH_TERMS(subroutine)				\
+  WtFOR_EACH_TERM{							\
+    subroutine;								\
   }
 
 #define WtFOR_EACH_TERM_INREVERSE for(WtModelTerm *mtp = m->termarray + m->n_terms - 1; mtp >= m->termarray; mtp--)
 
-#define WtEXEC_THROUGH_TERMS_INREVERSE(subroutine){			\
-    WtFOR_EACH_TERM_INREVERSE{						\
-      subroutine;							\
-    }									\
-  }
+#define WtEXEC_THROUGH_TERMS_INREVERSE(subroutine)			\
+  WtFOR_EACH_TERM_INREVERSE{						\
+    subroutine;								\
+  }  
 
-
-#define WtEXEC_THROUGH_TERMS_INTO(output, subroutine){			\
-    double *dstats = output;						\
-    WtFOR_EACH_TERM{							\
-      subroutine;							\
-      dstats += mtp->nstats;						\
-    }									\
+#define WtEXEC_THROUGH_TERMS_INTO(output, subroutine)			\
+  WtFOR_EACH_TERM{							\
+    double *dstats = output + mtp->statspos;				\
+    subroutine;								\
   }
 
  /* If DEBUG is set, back up mtp->dstats and set it to NULL in order

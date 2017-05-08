@@ -62,7 +62,7 @@ passthrough.curved.ergm.model <- function(m, namewrap = identity){
       ergm.etagrad(x, m$etamap)
     }
     params <- rep(list(NULL), coef.length.model(m))
-    names(params) <- sapply(.coef.names.model(m, canonical=FALSE), namewrap)
+    names(params) <- sapply(coef.names.model(m, canonical=FALSE), namewrap)
   }else map <- gradient <- params <- NULL
 
   list(map = map, gradient = gradient, params = params)

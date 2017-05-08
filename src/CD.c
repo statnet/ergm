@@ -1,4 +1,5 @@
 #include "CD.h"
+#include "ergm_util.h"
 
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
@@ -240,11 +241,9 @@ MCMCStatus CDStep(MHproposal *MHp,
       Rprintf(")\n");
     }
     
-    /* Calculate inner product */
-    double ip=0;
-    for (unsigned int i=0; i<m->n_stats; i++){
-      ip += theta[i] * extraworkspace[i];
-    }
+    /* Calculate inner (dot) product */
+    double ip = dotprod(theta, extraworkspace, m->n_stats);
+
     /* The logic is to set cutoff = ip+logratio ,
        then let the MH probability equal min{exp(cutoff), 1.0}.
        But we'll do it in log space instead.  */

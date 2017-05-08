@@ -382,16 +382,15 @@ nvattr.copy.network <- function(to, from, ignore=c("bipartite","directed","hyper
 standardize.network <- function(nw, preserve.eattr=TRUE){
   if(preserve.eattr){
     el <- rbind(as.edgelist(nw),as.edgelist(is.na(nw)))
-    eids <- apply(el, 1, function(e) get.edgeIDs(nw, e[1], e[2], na.omit=FALSE))
-    if(is.list(eids)){ # I.e., apply() wasn't able to simplify.
-      bad.ei <- which(sapply(eids,length)>1)
-      for(ei in bad.ei){
-        dup.eids <- duplicated(nw$mel[eids[[ei]]])
-        if(sum(!dup.eids)!=1) stop("Edge (",el[ei,1],",",el[ei,2],") has multiple IDs with distinct attributes. Cannot repair.")
-        eids[[ei]] <- eids[[ei]][!dup.eids]
-      }
-      eids <- unlist(eids)
+    eids <- lapply(seq_len(nrow(el)), function(i) get.edgeIDs(nw, el[i,1], el[i,2], na.omit=FALSE))
+
+    bad.ei <- which(sapply(eids,length)>1)
+    for(ei in bad.ei){
+      dup.eids <- duplicated(nw$mel[eids[[ei]]])
+      if(sum(!dup.eids)!=1) stop("Edge (",el[ei,1],",",el[ei,2],") has multiple IDs with distinct attributes. Cannot repair.")
+      eids[[ei]] <- eids[[ei]][!dup.eids]
     }
+    eids <- unlist(eids)
     
     vals <- lapply(nw$mel,"[[","atl")[eids]
     names <- lapply(vals, names)

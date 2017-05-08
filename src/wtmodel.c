@@ -9,7 +9,7 @@
  */
 #include <string.h>
 #include "ergm_wtmodel.h"
-
+#include "ergm_omp.h"
 /*****************
   void WtModelDestroy
 ******************/
@@ -207,6 +207,11 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
   for(i=0; i < m->n_stats; i++)
     m->workspace[i] = 0.0;
 
+  unsigned int pos = 0;
+  WtFOR_EACH_TERM{
+    mtp->statspos = pos;
+    pos += mtp->nstats;
+  }
   
   /* Allocate auxiliary storage and put a pointer to it on every model term. */
   if(m->n_aux){
@@ -252,12 +257,12 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
   FOR_EACH_TOGGLE{
     GETTOGGLEINFO();
     
+    ergm_PARALLEL_FOR_LIMIT(m->n_terms)
     WtEXEC_THROUGH_TERMS_INTO(m->workspace, {
 	if(mtp->c_func){
 	  if(ntoggles!=1) ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
 			   mtp, nwp);  /* Call d_??? function */
-	  
 	  if(ntoggles!=1){
 	    for(unsigned int k=0; k<N_CHANGE_STATS; k++){
 	      dstats[k] += mtp->dstats[k];

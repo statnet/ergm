@@ -8,6 +8,7 @@
  *  Copyright 2003-2013 Statnet Commons
  */
 #include "MCMC.h"
+#include "ergm_util.h"
 
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
@@ -253,11 +254,9 @@ MCMCStatus MetropolisHastings(MHproposal *MHp,
       Rprintf(")\n");
     }
     
-    /* Calculate inner product */
-    double ip=0;
-    for (unsigned int i=0; i<m->n_stats; i++){
-      ip += theta[i] * m->workspace[i];
-    }
+    /* Calculate inner (dot) product */
+    double ip = dotprod(theta, m->workspace, m->n_stats);
+    
     /* The logic is to set cutoff = ip+logratio ,
        then let the MH probability equal min{exp(cutoff), 1.0}.
        But we'll do it in log space instead.  */

@@ -9,7 +9,7 @@
  */
 #include <string.h>
 #include "ergm_model.h"
-
+#include "ergm_omp.h"
 /*****************
   void ModelDestroy
 ******************/
@@ -207,6 +207,11 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
   for(i=0; i < m->n_stats; i++)
     m->workspace[i] = 0.0;
 
+  unsigned int pos = 0;
+  FOR_EACH_TERM{
+    mtp->statspos = pos;
+    pos += mtp->nstats;
+  }
   
   /* Allocate auxiliary storage and put a pointer to it on every model term. */
   if(m->n_aux){
@@ -251,12 +256,13 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
   /* Make a pass through terms with c_functions. */
   int toggle;
   FOR_EACH_TOGGLE(toggle){
+
+    ergm_PARALLEL_FOR_LIMIT(m->n_terms)    
     EXEC_THROUGH_TERMS_INTO(m->workspace, {
 	if(mtp->c_func){
 	  if(ntoggles!=1) ZERO_ALL_CHANGESTATS();
-	  (*(mtp->c_func))(*(tails+toggle), *(heads+toggle),
+	  (*(mtp->c_func))(tails[toggle], heads[toggle],
 			   mtp, nwp);  /* Call d_??? function */
-	  
 	  if(ntoggles!=1){
 	    for(unsigned int k=0; k<N_CHANGE_STATS; k++){
 	      dstats[k] += mtp->dstats[k];
