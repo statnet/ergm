@@ -64,7 +64,7 @@ checks that their versions match.
 threads.
 }
 \details{
-For estimation that require MCMC, \link[==ergm-package]{ergm} can take
+For estimation that require MCMC, \link[=ergm-package]{ergm} can take
 advantage of multiple CPUs or CPU cores on the system on which it
 runs, as well as computing clusters through one of two mechanisms:
 

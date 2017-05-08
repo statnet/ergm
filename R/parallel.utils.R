@@ -15,7 +15,7 @@
 #'
 #' @details
 #'
-#' For estimation that require MCMC, [ergm][=ergm-package] can take
+#' For estimation that require MCMC, [ergm][ergm-package] can take
 #' advantage of multiple CPUs or CPU cores on the system on which it
 #' runs, as well as computing clusters through one of two mechanisms:
 #'
