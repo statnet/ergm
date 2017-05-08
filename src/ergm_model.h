@@ -32,27 +32,24 @@ typedef struct Modelstruct {
 
 #define FOR_EACH_TERM for(ModelTerm *mtp = m->termarray; mtp < m->termarray + m->n_terms; mtp++)
 
-#define EXEC_THROUGH_TERMS(subroutine){					\
-    FOR_EACH_TERM{							\
-      subroutine;							\
-    }									\
+#define EXEC_THROUGH_TERMS(subroutine)					\
+  FOR_EACH_TERM{							\
+    subroutine;								\
   }
+
 
 #define FOR_EACH_TERM_INREVERSE for(ModelTerm *mtp = m->termarray + m->n_terms - 1; mtp >= m->termarray; mtp--)
 
-#define EXEC_THROUGH_TERMS_INREVERSE(subroutine){			\
-    FOR_EACH_TERM_INREVERSE{							\
-      subroutine;							\
-    }									\
+#define EXEC_THROUGH_TERMS_INREVERSE(subroutine)			\
+  FOR_EACH_TERM_INREVERSE{						\
+    subroutine;								\
   }
 
 
-#define EXEC_THROUGH_TERMS_INTO(output, subroutine){			\
-    double *dstats = output;						\
-    FOR_EACH_TERM{							\
-      subroutine;							\
-      dstats += mtp->nstats;						\
-    }									\
+#define EXEC_THROUGH_TERMS_INTO(output, subroutine)			\
+  FOR_EACH_TERM{							\
+    double *dstats = output + mtp->statspos;				\
+    subroutine;								\
   }
 
  /* If DEBUG is set, back up mtp->dstats and set it to NULL in order
