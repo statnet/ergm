@@ -8,7 +8,7 @@
  *  Copyright 2003-2013 Statnet Commons
  */
 #include "wtMCMC.h"
-
+#include "ergm_util.h"
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
  as (j,k) rather than (k,j).  In other words, only directed networks

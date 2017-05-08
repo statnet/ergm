@@ -8,6 +8,7 @@
  *  Copyright 2003-2013 Statnet Commons
  */
 #include "MCMC.h"
+#include "ergm_util.h"
 
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
