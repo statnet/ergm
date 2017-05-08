@@ -97,7 +97,7 @@ Network *nwp, Model *m, double *stats){
   for(Edge e=0; e<n_edges; e++){
     Vertex t=TAIL(e), h=HEAD(e); 
 
-ergm_PARALLEL_FOR        
+    ergm_PARALLEL_FOR_LIMIT(m->n_terms)        
     EXEC_THROUGH_TERMS_INTO(stats, {
 	if(mtp->s_func==NULL && mtp->c_func){
 	  ZERO_ALL_CHANGESTATS();

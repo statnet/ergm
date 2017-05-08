@@ -257,7 +257,7 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
   int toggle;
   FOR_EACH_TOGGLE(toggle){
 
-ergm_PARALLEL_FOR    
+    ergm_PARALLEL_FOR_LIMIT(m->n_terms)    
     EXEC_THROUGH_TERMS_INTO(m->workspace, {
 	if(mtp->c_func){
 	  if(ntoggles!=1) ZERO_ALL_CHANGESTATS();
