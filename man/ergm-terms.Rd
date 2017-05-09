@@ -15,7 +15,7 @@
 \alias{InitErgmTerm}
 
 \alias{B}
-\alias{OnMatch}
+\alias{NodematchFilter}
 \alias{absdiff}
 \alias{absdiffcat}
 \alias{altkstar}
@@ -181,7 +181,7 @@ network
   necessary.
 
   \subsection{Operator terms}{
-    Operator terms, such as \code{B} and \code{OnMatch} take
+    Operator terms like \code{B} and \code{NodematchFilter} take
     formulas with other \code{ergm} terms as their arguments and
     trnasform them by modifying their inputs (e.g., the network they
     evaluate) and/or their outputs.
@@ -336,8 +336,8 @@ network
     preferred, as it is likely to be faster.
   }
 
-  \item{\code{OnMatch(formula, attrname)} (binary) (operator)}{
-    Evaluates the terms specified in \code{formula} on a network
+  \item{\code{NodematchFilter(formula, attrname)} (binary) (operator)}{
+    Filtering on \code{\link{nodematch}}: evaluates the terms specified in \code{formula} on a network
     constructed by taking \eqn{y} and removing any edges for which
     \code{attrname(i)!=attrname(j)}. The \code{attrname} argument is a character vector giving one or
     more names of attributes in the network's vertex attribute

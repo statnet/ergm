@@ -1,7 +1,7 @@
 ## Creates a submodel that ignores any edges not within the
 ## blocks.
 
-InitErgmTerm.OnMatch <- function(nw, arglist, response=NULL, ...){
+InitErgmTerm.NodematchFilter <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "attrname"),
                       vartypes = c("formula", "character"),
@@ -18,7 +18,7 @@ InitErgmTerm.OnMatch <- function(nw, arglist, response=NULL, ...){
 
   gs <- ergm.emptynwstats.model(m)
 
-  c(list(name="OnMatch", coef.names = paste0('OnMatch(',m$coef.names,a$attrname,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries=~.blockdiag.net(a$attrname)),
-    passthrough.curved.ergm.model(m, function(x) paste0('OnMatch(',x,a$attrname,')')))
+  c(list(name="NodematchFilter", coef.names = paste0('NodematchFilter(',m$coef.names,a$attrname,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries=~.blockdiag.net(a$attrname)),
+    passthrough.curved.ergm.model(m, function(x) paste0('NodematchFilter(',x,a$attrname,')')))
 }
 

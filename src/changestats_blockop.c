@@ -1,9 +1,9 @@
 #include "ergm_changestats_blockop.h"
 #include "ergm_changestats_auxnet.h"
 
-/* OnMatch(formula) */
+/* NodematchFilter(formula) */
 
-I_CHANGESTAT_FN(i_OnMatch){
+I_CHANGESTAT_FN(i_NodematchFilter){
   GET_AUX_STORAGE(StoreNetAndBID, blkinfo);
   double *inputs = INPUT_PARAM+1;
   Network *bnwp=&(blkinfo->nw);
@@ -13,7 +13,7 @@ I_CHANGESTAT_FN(i_OnMatch){
   InitStats(bnwp, STORAGE);
 }
 
-C_CHANGESTAT_FN(c_OnMatch){
+C_CHANGESTAT_FN(c_NodematchFilter){
   GET_STORAGE(Model, m);
   GET_AUX_STORAGE(StoreNetAndBID, blkinfo);
   Network *bnwp=&(blkinfo->nw);
@@ -25,7 +25,7 @@ C_CHANGESTAT_FN(c_OnMatch){
   }
 }
 
-U_CHANGESTAT_FN(u_OnMatch){
+U_CHANGESTAT_FN(u_NodematchFilter){
   GET_STORAGE(Model, m);
   GET_AUX_STORAGE(StoreNetAndBID, blkinfo);
   Network *bnwp=&(blkinfo->nw);
@@ -35,7 +35,7 @@ U_CHANGESTAT_FN(u_OnMatch){
     UPDATE_STORAGE(tail, head, bnwp, m, NULL);
 }
 
-F_CHANGESTAT_FN(f_OnMatch){
+F_CHANGESTAT_FN(f_NodematchFilter){
   GET_STORAGE(Model, m);
 
   ModelDestroy(nwp, m);
