@@ -22,14 +22,6 @@ double my_choose(double n, int r);
 /****************************************************
  Macros to make life easier when writing C code for change statistics:  */
 
-
-/* Return each of the out-neighbors or in-neighbors, one at a time,
-   of node a.  At each iteration of the loop, the variable v gives the node 
-   number of the corresponding neighbor.  The e variable, which should be
-   initialized as type Edge, is merely the looping variable. */
-#define STEP_THROUGH_OUTEDGES(a,e,v) for((e)=MIN_OUTEDGE(a);((v)=OUTVAL(e))!=0;(e)=NEXT_OUTEDGE(e))
-#define STEP_THROUGH_INEDGES(a,e,v) for((e)=MIN_INEDGE(a);((v)=INVAL(e))!=0;(e)=NEXT_INEDGE(e))
-
 /* The OUTVAL and INVAL macros give the "other endnode" of edge e, depending
    on whether it is an in-edge or an out-edge.  Presumably the first endnode
    of the edge is already known in this context. */

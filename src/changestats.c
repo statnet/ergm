@@ -4792,76 +4792,77 @@ C_CHANGESTAT_FN(c_transitiveties) {
   /* *** don't forget tail -> head */    
     cumchange=0.0;
     L2th=0;
-    ochange = IS_OUTEDGE(tail, head) ? -1 : 0;
+    ochange = GETWT(tail, head) ? -1 : 0;
     echange = 2*ochange + 1;
     if(N_INPUT_PARAMS>0){ /* match on attributes */
       tailattr = INPUT_ATTRIB[tail-1];
       if(tailattr == INPUT_ATTRIB[head-1]){
        /* step through outedges of head  */
-       STEP_THROUGH_OUTEDGES(head, e, u){
-         if (IS_OUTEDGE(tail, u) && (tailattr == INPUT_ATTRIB[u-1])){
+       EXEC_THROUGH_OUTEDGES(head,  e,  u, {
+         if (GETWT(tail, u) && (tailattr == INPUT_ATTRIB[u-1])){
 	   L2tu=ochange;
 	   /* step through inedges of u */
-	   STEP_THROUGH_INEDGES(u, f, v){
-	     if(IS_OUTEDGE(tail, v) && (tailattr == INPUT_ATTRIB[v-1])){
+	   EXEC_THROUGH_INEDGES(u,  f,  v, {
+	     if(GETWT(tail, v) && (tailattr == INPUT_ATTRIB[v-1])){
 	       L2tu++;
 	       if(L2tu>0) {break;}
 	     }
-	   }
+	     });
 	   cumchange += (L2tu==0);
          }
-       }
+       });
        /* step through inedges of head */
        
-       STEP_THROUGH_INEDGES(head, e, u){
-         if (IS_OUTEDGE(tail, u) && (tailattr == INPUT_ATTRIB[u-1])){
+       EXEC_THROUGH_INEDGES(head,  e,  u, {
+         if (GETWT(tail, u) && (tailattr == INPUT_ATTRIB[u-1])){
 	   L2th++;
          }
-         if (IS_OUTEDGE(u, tail) && (tailattr == INPUT_ATTRIB[u-1])){
+         if (GETWT(u, tail) && (tailattr == INPUT_ATTRIB[u-1])){
 	   L2uh=ochange;
 	   /* step through outedges of u */
-	   STEP_THROUGH_OUTEDGES(u, f, v){
-	     if(IS_OUTEDGE(v, head) && (tailattr == INPUT_ATTRIB[v-1])){
+	   EXEC_THROUGH_OUTEDGES(u,  f,  v, {
+	     if(GETWT(v, head) && (tailattr == INPUT_ATTRIB[v-1])){
 	       L2uh++;
 	       if(L2uh>0) {break;}
 	     }
-	   }
+	   });
 	   cumchange += (L2uh==0) ;
          }
-       }}
+       });
+      }
       }else{ /* no attributes */
     /* step through outedges of head  */
-    STEP_THROUGH_OUTEDGES(head, e, u){
-      if (IS_OUTEDGE(tail, u)){
+    EXEC_THROUGH_OUTEDGES(head,  e,  u, {
+      if (GETWT(tail, u)){
 	L2tu=ochange;
 	/* step through inedges of u */
-	STEP_THROUGH_INEDGES(u, f, v){
-	  if(IS_OUTEDGE(tail, v)){
+	EXEC_THROUGH_INEDGES(u,  f,  v, {
+	  if(GETWT(tail, v)){
 	    L2tu++;
 	    if(L2tu>0) {break;}
 	  }
-	}
+	});
 	cumchange += (L2tu==0);
       }
-    }
+    });
     /* step through inedges of head */
     
-    STEP_THROUGH_INEDGES(head, e, u){
-      if (IS_OUTEDGE(tail, u)){
+    EXEC_THROUGH_INEDGES(head,  e,  u, {
+      if (GETWT(tail, u)){
 	L2th++;
       }
-      if (IS_OUTEDGE(u, tail)){
+      if (GETWT(u, tail)){
 	L2uh=ochange;
 	/* step through outedges of u */
-	STEP_THROUGH_OUTEDGES(u, f, v){
-	  if(IS_OUTEDGE(v, head)){
+	EXEC_THROUGH_OUTEDGES(u,  f,  v, {
+	  if(GETWT(v, head)){
 	    L2uh++;
 	    if(L2uh>0) {break;}
 	  }
-	}
+	});
 	cumchange += (L2uh==0) ;
       }
-    }
+    });
     }
     
     cumchange += (L2th>0) ;
@@ -4869,48 +4870,6 @@ C_CHANGESTAT_FN(c_transitiveties) {
     cumchange  = echange*cumchange;
     (CHANGE_STAT[0]) += cumchange;
 }
-///*****************
-// globalstat: s_transitiveties
-//*****************/
-//S_CHANGESTAT_FN(s_transitiveties) { 
-//  Edge e1, e2;
-//  Vertex change, node3;
-//  double tailattr;
-//  int hnottrans;
-//  
-//  /* *** don't forget tail -> head */    
-//  change=0;
-//  if(N_INPUT_PARAMS > 0){ /* match on attributes */
-//    for (tail=1; tail <= N_NODES; tail++) { 
-//      tailattr = INPUT_ATTRIB[tail-1];
-//      STEP_THROUGH_OUTEDGES(tail, e1, head) {
-//        if(tailattr == INPUT_ATTRIB[head-1]) {
-//          hnottrans=1;
-//          STEP_THROUGH_INEDGES(head, e2, node3) { 
-//            if(hnottrans && IS_INEDGE(node3, tail) && (tailattr == INPUT_ATTRIB[node3-1])){ /* tail -> head base forms transitive */
-//              hnottrans=0;
-//              change++;
-//            }
-//          }
-//        }
-//      }
-//    }
-//  }else{
-//    /* *** don't forget tail -> head */    
-//    for (tail=1; tail <= N_NODES; tail++) { 
-//      STEP_THROUGH_OUTEDGES(tail, e1, head) {
-//        hnottrans=1;
-//        STEP_THROUGH_INEDGES(head, e2, node3) { 
-//          if(hnottrans && IS_INEDGE(node3, tail)){ /* tail -> head base forms transitive */
-//            hnottrans=0;
-//            change++;
-//          }
-//        }
-//      }
-//    }
-//  }
-//  CHANGE_STAT[0] = change;
-//}
 
 C_CHANGESTAT_FN(c_cyclicalties) { 
   Edge e, f;
@@ -4925,76 +4884,77 @@ C_CHANGESTAT_FN(c_cyclicalties) {
   /* *** don't forget tail -> head */    
     cumchange=0.0;
     L2th=0;
-    ochange = IS_OUTEDGE(tail, head) ? -1 : 0;
+    ochange = GETWT(tail, head) ? -1 : 0;
     echange = 2*ochange + 1;
     if(N_INPUT_PARAMS>0){ /* match on attributes */
       tailattr = INPUT_ATTRIB[tail-1];
       if(tailattr == INPUT_ATTRIB[head-1]){
        /* step through outedges of head  */
-       STEP_THROUGH_OUTEDGES(head, e, u){
-         if (IS_INEDGE(tail, u) && (tailattr == INPUT_ATTRIB[u-1])){
+       EXEC_THROUGH_OUTEDGES(head,  e,  u, {
+         if (GETWT(u, tail) && (tailattr == INPUT_ATTRIB[u-1])){
 	   L2tu=ochange;
 	   /* step through inedges of u */
-	   STEP_THROUGH_INEDGES(u, f, v){
-	     if(IS_OUTEDGE(tail, v) && (tailattr == INPUT_ATTRIB[v-1])){
+	   EXEC_THROUGH_INEDGES(u,  f,  v, {
+	     if(GETWT(tail, v) && (tailattr == INPUT_ATTRIB[v-1])){
 	       L2tu++;
 	       if(L2tu>0) {break;}
 	     }
-	   }
+	   });
 	   cumchange += (L2tu==0);
          }
-       }
+       });
        /* step through inedges of head */
        
-       STEP_THROUGH_OUTEDGES(head, e, u){
-         if (IS_INEDGE(tail, u) && (tailattr == INPUT_ATTRIB[u-1])){
+       EXEC_THROUGH_OUTEDGES(head,  e,  u, {
+         if (GETWT(u, tail) && (tailattr == INPUT_ATTRIB[u-1])){
 	   L2th++;
          }
-         if (IS_OUTEDGE(u, tail) && (tailattr == INPUT_ATTRIB[u-1])){
+         if (GETWT(u, tail) && (tailattr == INPUT_ATTRIB[u-1])){
 	   L2uh=ochange;
 	   /* step through outedges of u */
-	   STEP_THROUGH_OUTEDGES(u, f, v){
-	     if(IS_OUTEDGE(v, head) && (tailattr == INPUT_ATTRIB[v-1])){
+	   EXEC_THROUGH_OUTEDGES(u,  f,  v, {
+	     if(GETWT(v, head) && (tailattr == INPUT_ATTRIB[v-1])){
 	       L2uh++;
 	       if(L2uh>0) {break;}
 	     }
-	   }
+	   });
 	   cumchange += (L2uh==0) ;
          }
-       }}
+       });
+      }
       }else{ /* no attributes */
     /* step through outedges of head  */
-    STEP_THROUGH_OUTEDGES(head, e, u){
-      if (IS_INEDGE(tail, u)){
+    EXEC_THROUGH_OUTEDGES(head,  e,  u, {
+      if (GETWT(u, tail)){
 	L2tu=ochange;
 	/* step through inedges of u */
-	STEP_THROUGH_INEDGES(u, f, v){
-	  if(IS_OUTEDGE(tail, v)){
+	EXEC_THROUGH_INEDGES(u,  f,  v, {
+	  if(GETWT(tail, v)){
 	    L2tu++;
 	    if(L2tu>0) {break;}
 	  }
-	}
+	});
 	cumchange += (L2tu==0);
       }
-    }
+    });
     /* step through outedges of head */
     
-    STEP_THROUGH_OUTEDGES(head, e, u){
-      if (IS_INEDGE(tail, u)){
+    EXEC_THROUGH_OUTEDGES(head,  e,  u, {
+      if (GETWT(u, tail)){
 	L2th++;
       }
-      if (IS_OUTEDGE(u, tail)){
+      if (GETWT(u, tail)){
 	L2uh=ochange;
 	/* step through outedges of u */
-	STEP_THROUGH_OUTEDGES(u, f, v){
-	  if(IS_OUTEDGE(v, head)){
+	EXEC_THROUGH_OUTEDGES(u,  f,  v, {
+	  if(GETWT(v, head)){
 	    L2uh++;
 	    if(L2uh>0) {break;}
 	  }
-	}
+	});
 	cumchange += (L2uh==0) ;
       }
-    }
+    });
     }
     
     cumchange += (L2th>0) ;
