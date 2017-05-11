@@ -92,6 +92,14 @@ typedef struct ModelTermstruct {
 #define TOGGLE(a,b) (ToggleEdge((a),(b),nwp));
 #define TOGGLE_DISCORD(a,b) (ToggleEdge((a),(b),nwp+1));
 
+/* Get and set the value (0 or 1) of the (a,b) edge. */
+#define GETWT(a,b) (DIRECTED ? IS_OUTEDGE(a,b) : IS_UNDIRECTED_EDGE(a,b))
+#define SETWT(a,b,w) \
+  (w ? /* Adding or removing? */					\
+  (DIRECTED ? AddEdgeToTrees(a, b, nwp) : AddEdgeToTrees(MIN(a,b), MAX(a,b), nwp)) : \
+  (DIRECTED ? DeleteEdgeFromTrees(a, b, nwp) : DeleteEdgeFromTrees(MIN(a,b), MAX(a,b), nwp)) \
+   )
+
 /* *** don't forget tail-> head, so these functions now toggle (tails, heads), instead of (heads, tails) */
 
 #define FOR_EACH_TOGGLE(a) for((a)=0; (a)<ntoggles; (a)++)
