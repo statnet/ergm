@@ -56,6 +56,13 @@ typedef struct ModelTermstruct {
 #define NEXT_OUTEDGE(e) (EdgetreeSuccessor(nwp->outedges,(e)))
 #define NEXT_INEDGE(e) (EdgetreeSuccessor(nwp->inedges,(e)))
 
+/* Return each of the out-neighbors or in-neighbors, one at a time,
+   of node a.  At each iteration of the loop, the variable v gives the node 
+   number of the corresponding neighbor.  The e variable, which should be
+   initialized as type Edge, is merely the looping variable. */
+#define STEP_THROUGH_OUTEDGES(a,e,v) for((e)=MIN_OUTEDGE(a);((v)=OUTVAL(e))!=0;(e)=NEXT_OUTEDGE(e))
+#define STEP_THROUGH_INEDGES(a,e,v) for((e)=MIN_INEDGE(a);((v)=INVAL(e))!=0;(e)=NEXT_INEDGE(e))
+
 /* Change the status of the (a,b) edge:  Add it if it's absent, or 
    delete it if it's present. */
 #define TOGGLE(a,b) (ToggleEdge((a),(b),nwp));

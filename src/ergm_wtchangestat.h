@@ -53,6 +53,13 @@ typedef struct WtModelTermstruct {
 #define OUTWT(e) (nwp->outedges[(e)].weight)
 #define INWT(e) (nwp->inedges[(e)].weight)
 
+/* Return each of the out-neighbors or in-neighbors, one at a time,
+   of node a.  At each iteration of the loop, the variable v gives the node 
+   number of the corresponding neighbor.  The e variable, which should be
+   initialized as type Edge, is merely the looping variable. */
+#define WtSTEP_THROUGH_OUTEDGES(a,e,v) for((e)=WtMIN_OUTEDGE(a);((v)=OUTVAL(e))!=0;(e)=WtNEXT_OUTEDGE(e))
+#define WtSTEP_THROUGH_INEDGES(a,e,v) for((e)=WtMIN_INEDGE(a);((v)=INVAL(e))!=0;(e)=WtNEXT_INEDGE(e))
+
 // These are "declaring" versions of the above, optimized for use in EXEC_TROUGH_*EDGES macros.
 #define WtSTEP_THROUGH_OUTEDGES_DECL(a,e,v) for(Edge e=WtMIN_OUTEDGE(a);OUTVAL(e)!=0;e=WtNEXT_OUTEDGE(e))
 #define WtSTEP_THROUGH_INEDGES_DECL(a,e,v) for(Edge e=WtMIN_INEDGE(a);INVAL(e)!=0;e=WtNEXT_INEDGE(e))
@@ -159,6 +166,8 @@ typedef struct WtModelTermstruct {
 #define MIN_INEDGE WtMIN_INEDGE
 #define NEXT_OUTEDGE WtNEXT_OUTEDGE
 #define NEXT_INEDGE WtNEXT_INEDGE
+#define STEP_THROUGH_OUTEDGES WtSTEP_THROUGH_OUTEDGES
+#define STEP_THROUGH_INEDGES WtSTEP_THROUGH_INEDGES
 #define STEP_THROUGH_OUTEDGES_DECL WtSTEP_THROUGH_OUTEDGES_DECL
 #define STEP_THROUGH_INEDGES_DECL WtSTEP_THROUGH_INEDGES_DECL
 #define EXEC_THROUGH_OUTEDGES WtEXEC_THROUGH_OUTEDGES
