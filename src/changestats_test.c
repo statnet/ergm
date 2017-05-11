@@ -36,25 +36,6 @@ C_CHANGESTAT_FN(c_test_abs_edges_minus_5_no_s){c_test_abs_edges_minus_5(tail, he
 I_CHANGESTAT_FN(i_test_abs_edges_minus_5_no_s){i_test_abs_edges_minus_5(mtp, nwp);}
 U_CHANGESTAT_FN(u_test_abs_edges_minus_5_no_s){u_test_abs_edges_minus_5(tail, head, mtp, nwp);}
 
-I_CHANGESTAT_FN(i__isociomatrix){
-  ALLOC_AUX_SOCIOMATRIX(int, sm);
-  
-  // Now, populate the sociomatrix.
-  EXEC_THROUGH_NET_EDGES(tail, head, e, {
-      sm[tail][head] = 1;
-    });
-}
-
-U_CHANGESTAT_FN(u__isociomatrix){
-  GET_AUX_STORAGE(int*, sm);
-  sm[tail][head]  = 1 - sm[tail][head];
-}
-
-F_CHANGESTAT_FN(f__isociomatrix){
-  FREE_AUX_SOCIOMATRIX;
-}
-
-
 C_CHANGESTAT_FN(c_isociomatrix){
   GET_AUX_STORAGE(int *, sm);
   

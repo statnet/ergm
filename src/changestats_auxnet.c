@@ -4,13 +4,9 @@ I_CHANGESTAT_FN(i__isociomatrix){
   ALLOC_AUX_SOCIOMATRIX(int, sm);
   
   // Now, populate the sociomatrix.
-  for(Vertex tail=1; tail <= N_TAILS; tail++){
-    Vertex head;
-    Edge e;
-    STEP_THROUGH_OUTEDGES(tail, e, head) {
+  EXEC_THROUGH_NET_EDGES(tail, head, e, {
       sm[tail][head] = 1;
-    }
-  }
+    });
 }
 
 U_CHANGESTAT_FN(u__isociomatrix){
