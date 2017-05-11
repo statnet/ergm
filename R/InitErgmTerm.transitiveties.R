@@ -11,7 +11,7 @@
 
 #################################################################################
 InitErgmTerm.transitiveties<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=TRUE,
+  a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attrname", "diff"),
                       vartypes = c("character", "logical"),
                       defaultvalues = list(NULL, FALSE),
@@ -44,7 +44,7 @@ InitErgmTerm.transitiveties<-function (nw, arglist, ...) {
 
 #################################################################################
 InitErgmTerm.cyclicalties<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=TRUE,
+  a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attrname", "diff"),
                       vartypes = c("character", "logical"),
                       defaultvalues = list(NULL, FALSE),

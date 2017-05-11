@@ -83,6 +83,21 @@ if (!all(s.0==258)||round(e.0$coef+3.234,3)!=0 ||
 	print("Passed concurrentties term test")
 }
 
+# cyclicalties, directed
+num.tests=num.tests + 1
+s.0 <- summary(fmh~cyclicalties)
+e.0 <- ergm(fmh~cyclicalties, estimate="MPLE")
+s.a <- summary(fmh~cyclicalties("Race"))
+e.a <- ergm(fmh~cyclicalties("Race"), estimate="MPLE")
+if (s.0 != 120 || round(e.0$coef + 0.4868, 3) != 0 ||
+    s.a != 40 || round(e.a$coef + 0.4430, 3) != 0) {
+	print(list(s.0=s.0, e.0=e.0, s.a=s.a, e.a=e.a))
+	stop("Failed cyclicalties term test")
+} else {
+	num.passed.tests=num.passed.tests+1
+	print("Passed cyclicalties term test")
+}
+
 
 # degree, undirected
 num.tests=num.tests+1
@@ -239,6 +254,21 @@ if (!all(head(s.0)==c(4,0,0,1,0,0)) ||
  print("Passed sociality term test")
 }
 
+
+# transitiveties, directed
+num.tests=num.tests + 1
+s.0 <- summary(fmh~transitiveties)
+e.0 <- ergm(fmh~transitiveties, estimate="MPLE")
+s.a <- summary(fmh~transitiveties("Race"))
+e.a <- ergm(fmh~transitiveties("Race"), estimate="MPLE")
+if (s.0 != 120 || round(e.0$coef + 0.4868, 3) != 0 ||
+    s.a != 40 || round(e.a$coef + 0.4430, 3) != 0) {
+	print(list(s.0=s.0, e.0=e.0, s.a=s.a, e.a=e.a))
+	stop("Failed transitiveties term test")
+} else {
+	num.passed.tests=num.passed.tests+1
+	print("Passed transitiveties term test")
+}
 
 # tripercent, undirected
 num.tests=num.tests+1

@@ -696,16 +696,14 @@ equal to the number of (first mode) mutual partners of that pair.
     equivalent to \code{triangle}, and there is no undirected cycle term of
     length 2.}
 
-  \item{\code{cyclicalties(attrname=NULL)}   (binary)  (directed), \code{cyclicalties(threshold=0)}   (valued)  (directed)  (undirected)}{\emph{Cyclical ties:} 
+  \item{\code{cyclicalties(attrname=NULL)}   (binary)  (directed) (undirected), \code{cyclicalties(threshold=0)}   (valued)  (directed)  (undirected)}{\emph{Cyclical ties:} 
     This term adds one statistic, equal to the number of ties 
     \eqn{i\rightarrow j}{i-->j} such that there exists a two-path from
     \eqn{i} to \eqn{j}.  (Related to the \code{ttriple} term.)
     The binary version takes a nodal attribute \code{attrname}, and, if
     given, all three nodes
     involved (\eqn{i}, \eqn{j}, and the node on the two-path) must match
-    on this attribute in order for \eqn{i\rightarrow j}{i-->j} to be counted.
-    The binary version of this term can only be used with directed
-    networks. The valued version can be used with both directed and undirected.}
+    on this attribute in order for \eqn{i\rightarrow j}{i-->j} to be counted.}
 
 
   \item{\code{cyclicalweights(twopath="min",combine="max",affect="min")} (valued)  (directed)  (undirected)}{\emph{Cyclical
@@ -1724,7 +1722,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     Note the distinction from the \code{ttriple} term. This term can only be
     used with directed networks.}
     
-    \item{\code{transitiveties(attrname=NULL)}   (binary)  (directed) (triad-related) (categorical nodal attribute)
+    \item{\code{transitiveties(attrname=NULL)}   (binary)  (directed) (undirected) (triad-related) (categorical nodal attribute)
     , \code{transitiveties(threshold=0)}   (valued)  (directed)  (undirected) (triad-related)}{\emph{Transitive ties:} 
     This term adds one statistic, equal to the number of ties 
     \eqn{i\rightarrow j}{i-->j} such that there exists a two-path from
@@ -1732,10 +1730,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     The binary version takes a nodal attribute \code{attrname}, and, if
     given, all three nodes
     involved (\eqn{i}, \eqn{j}, and the node on the two-path) must match
-    on this attribute in order for \eqn{i\rightarrow j}{i-->j} to be counted.
-    The binary version of this term can only be used with directed
-    networks. The valued version can be used with both directed and
-    undirected.}
+    on this attribute in order for \eqn{i\rightarrow j}{i-->j} to be counted.}
 
   \item{\code{transitiveweights(twopath="min",combine="max",affect="min")}  (valued)  (directed)  (undirected)  (non-negative) (triad-related)
   }{\emph{Transitive
