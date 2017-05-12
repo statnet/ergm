@@ -265,7 +265,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   
   if(!is.null(x2) && nrow(x2crs) > x2.num.max){
     ## If constrained sample size > x2.num.max
-    if(verbose){cat("Using fast and approximate Hummel et al search.\n")}
+    if(verbose>1){cat("Using fast and approximate Hummel et al search.\n")}
     if(last){x2.num.max <- 1}
     if(last){steplength.maxit  <- 0}
     d <- rowSums(sweep(x2crs, 2, m1crs)^2)
@@ -298,7 +298,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 #  out <- c(i,g,low,high,z)
 #  names(out) <- c("iters","est","low","high","z")
 #  print(out)
-   if(verbose) cat(sprintf("iter= %d, est=%f, low=%f, high=%f, test=%d.\n",i,g,low,high,z))
+   if(verbose>1) cat(sprintf("iter= %d, est=%f, low=%f, high=%f, test=%d.\n",i,g,low,high,z))
   }
   g
 }
