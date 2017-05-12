@@ -178,3 +178,57 @@ InitErgmTerm.summary.test <- function(nw, arglist, response=NULL, ...){
   list(name="summary_test_term", coef.names = 'summ.test', inputs=c(coef.length.model(m)), dependence=!is.dyad.independent(m), auxiliaries=~.summary(a$formula))
 }
 
+InitErgmTerm.F <- function(nw, arglist, response=NULL, ...){
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("formula", "form"),
+                      vartypes = c("formula", "formula"),
+                      defaultvalues = list(NULL, "sum"),
+                      required = c(TRUE, FALSE))
+  form <- a$form
+  f <- a$formula
+  if(length(f)==2) f <- nonsimp.update.formula(f, nw~.)
+  else nw <- ergm.getnetwork(f)
+
+  m <- ergm.getmodel(f, nw,...)
+  Clist <- ergm.Cprepare(nw, m)
+  inputs <- pack.Clist_as_num(Clist)
+  
+  gs <- ergm.emptynwstats.model(m)
+
+  form.name <- deparse(form[[length(form)]])
+  name <- "filter_term_form"
+  auxiliaries <- ~.filter.formula.net(form)
+  
+  c(list(name=name,
+         coef.names = paste0(form.name,'(',m$coef.names,')'),
+         inputs=inputs,
+         dependence=!is.dyad.independent(m),
+         emptynwstats = gs,
+         auxiliaries=auxiliaries),
+    passthrough.curved.ergm.model(m, function(x) paste0(form.name,'(',x,')')))
+}
+
+InitErgmTerm..filter.formula.net <- function(nw, arglist, response=NULL, ...){
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("formula"),
+                      vartypes = c("formula"),
+                      defaultvalues = list(NULL),
+                      required = c(TRUE))
+
+  # Form is a model.
+  f<-a$formula
+  if(length(f)==2) f <- nonsimp.update.formula(f, nw~.)
+  else nw <- ergm.getnetwork(f)
+  
+  m <- ergm.getmodel(f, nw, response=response,...)
+
+  if(!is.dyad.independent(m) || coef.length.model(m)!=1) stop("The filter test formula must be dyad-independent and have exactly one statistc.")
+
+  Clist <- ergm.Cprepare(nw, m)
+  inputs <- pack.Clist_as_num(Clist)
+
+  gs <- ergm.emptynwstats.model(m)
+  if(gs!=0) stop("At this time, the filter test term must have the property that its dyadwise components are 0 for 0-valued relations. This limitation may be removed in the future.")
+  
+  list(name="_filter_formula_net", inputs=c(inputs), depenence=FALSE)
+}

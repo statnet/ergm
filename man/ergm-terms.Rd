@@ -15,6 +15,7 @@
 \alias{InitErgmTerm}
 
 \alias{B}
+\alias{F}
 \alias{NodematchFilter}
 \alias{absdiff}
 \alias{absdiffcat}
@@ -309,8 +310,8 @@ network
 	      \item{dyadwise contribution of 0 for a 0-valued dyad.}
 	    }
 	    Formally, this means that it is expressable as
-	    \deqn{g(y) = \sum_{i,j} f_{i,j}(y_{i,j})}{sum[i,j]
-	      f[i,j](y[i,j])}, where for all \eqn{i}, \eqn{j}, and \eqn{y},
+	    \deqn{g(y) = \sum_{i,j} f_{i,j}(y_{i,j}),}{sum[i,j]
+	      f[i,j](y[i,j]),}, where for all \eqn{i}, \eqn{j}, and \eqn{y},
 	    \eqn{f_{i,j}(y_{i,j})} is either 0 or 1 and, in particular,
 	    \eqn{f_{i,j}(0)=0}{f[i,j](0)=0}.
 
@@ -336,6 +337,29 @@ network
     preferred, as it is likely to be faster.
   }
 
+  \item{\code{F(formula, form)} (binary) (operator)}{
+    Filtering on arbitrary one-term model. \code{form} must contain one binary \code{ergm} term, with
+	    the following properties:
+	    \itemize{
+	      \item{dyadic independence;}
+	      \item{dyadwise contribution of 0 for a 0-valued dyad.}
+	    }
+	    Formally, this means that it is expressable as
+	    \deqn{g(y) = \sum_{i,j} f_{i,j}(y_{i,j}),}{sum[i,j]
+	      f[i,j](y[i,j]),} where for all \eqn{i}, \eqn{j}, and \eqn{y},
+	    \eqn{f_{i,j}(y_{i,j})} for which 
+	    \eqn{f_{i,j}(0)=0}{f[i,j](0)=0}.
+
+	    Examples of such terms include \code{nodemix},
+	    \code{nodematch}, \code{nodefactor}, and \code{nodecov} and
+	    \code{edgecov} with appropriate covariates.
+	    
+	    \code{formula} will be evaluated on a network constructed by
+	     taking \eqn{y} and removing any edges for which
+	     \eqn{f_{i,j}(y_{i,j}) = 0}{f[i,j](y[i,j])=0}.
+  }
+
+  
   \item{\code{NodematchFilter(formula, attrname)} (binary) (operator)}{
     Filtering on \code{\link{nodematch}}: evaluates the terms specified in \code{formula} on a network
     constructed by taking \eqn{y} and removing any edges for which

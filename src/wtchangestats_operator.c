@@ -104,7 +104,7 @@ WtF_CHANGESTAT_FN(f_import_binary_term_nonzero){
 /* import_binary_term_form 
 
    A term to wrap abitrary binary ergm terms by constructing a binary
-   network that mirrors the valued one in that it has an edge the term
+   network that mirrors the valued one in that it has an edge iff the term
    in the second formula contributes +1 due to that dyad.
 
 */

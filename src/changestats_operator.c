@@ -1,4 +1,5 @@
 #include "ergm_changestat_operator.h"
+#include "changestats_operator.h"
 
 /* passthrough(formula) */
 
@@ -143,4 +144,108 @@ F_CHANGESTAT_FN(f_summary_test_term){
   /* Rprintf(" ]\n"); */
 }
 
+/* filter_term_form 
 
+   A term to wrap abitrary binary ergm terms by constructing a binary
+   network that mirrors the LHS network in that it has an edge iff the term
+   in the second formula contributes +1 due to that dyad.
+
+*/
+
+I_CHANGESTAT_FN(i_filter_term_form){
+  double *inputs = INPUT_PARAM;
+  GET_AUX_STORAGE(StoreNetAndModel, storage); inputs++;
+  Network *bnwp = &(storage->nw);
+
+  GET_STORAGE(Model, m); // Only need the pointer, no allocation needed.
+
+  STORAGE = m = unpack_Model_as_double(&inputs);
+
+  InitStats(bnwp, m);
+}
+
+C_CHANGESTAT_FN(c_filter_term_form){
+  GET_AUX_STORAGE(StoreNetAndModel, storage);
+  Network *bnwp = &(storage->nw);
+  GET_STORAGE(Model, m);
+
+  ChangeStats(1, &tail, &head, nwp, storage->m);
+  
+  if(*(storage->m->workspace)!=0){ // If the binary view changes...
+    ChangeStats(1, &tail, &head, bnwp, m);
+    memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
+  } // Otherwise, leave the change stats at 0.
+}
+
+U_CHANGESTAT_FN(u_filter_term_form){
+  GET_AUX_STORAGE(StoreNetAndModel, storage);
+  Network *bnwp = &(storage->nw);
+  GET_STORAGE(Model, m);
+
+  ChangeStats(1, &tail, &head, nwp, storage->m);
+  
+  if(*(storage->m->workspace)!=0){ // If the binary view changes...
+    UPDATE_STORAGE(tail, head, bnwp, m, NULL);
+  }
+}
+
+F_CHANGESTAT_FN(f_filter_term_form){
+  GET_AUX_STORAGE(StoreNetAndModel, storage);
+  Network *bnwp = &(storage->nw);
+  GET_STORAGE(Model, m);
+
+  ModelDestroy(bnwp, m);
+  STORAGE = NULL;
+}
+
+/* _filter_formula_net 
+
+   Maintain a binary network that has an edge wherever the
+   contribution of the a given term (edges, nodematch, etc.) whose
+   dyadwise value is either 0 or 1 is 1.
+
+*/
+
+
+I_CHANGESTAT_FN(i__filter_formula_net){
+  double *inputs = INPUT_PARAM;
+  ALLOC_AUX_STORAGE(1, StoreNetAndModel, storage); inputs++;
+  Model *m = storage->m = unpack_Model_as_double(&inputs);
+  Network *bnwp = &(storage->nw);
+  
+  InitStats(nwp, m);
+  
+  *bnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
+  // FIXME: This is suboptimal, since all trees will be highly
+  // unbalanced.
+  EXEC_THROUGH_NET_EDGES(t, h, e, {
+	ChangeStats(1, &t, &h, nwp, m);
+	// I.e., if toggling the dyad changes the statistic, add
+	// edge to the filter network.
+	if(*(m->workspace)!=0) 
+	  AddEdgeToTrees(t, h, bnwp);
+    });
+}
+
+U_CHANGESTAT_FN(u__filter_formula_net){
+  GET_AUX_STORAGE(StoreNetAndModel, storage);
+  Model *m = storage->m;
+  Network *bnwp = &(storage->nw);
+
+  ChangeStats(1, &tail, &head, nwp, m);
+  if(*(m->workspace)!=0){
+    if(IS_OUTEDGE(tail, head)) DeleteEdgeFromTrees(tail,head,bnwp);
+    else AddEdgeToTrees(tail,head,bnwp);
+  }
+
+  UPDATE_STORAGE(tail, head, nwp, m, NULL);
+}
+
+F_CHANGESTAT_FN(f__filter_formula_net){
+  GET_AUX_STORAGE(StoreNetAndModel, storage);
+  Model *m = storage->m;
+  Network *bnwp = &(storage->nw);
+  ModelDestroy(nwp, m);
+  NetworkDestroy(bnwp);
+  // DestroyStats() will deallocate the rest.
+}

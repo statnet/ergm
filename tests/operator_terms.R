@@ -12,6 +12,7 @@ g <- samplike%v%"group"
 sameg <- outer(g,g,"==")
 
 out <- simulate(samplike~nodematch("group")+odegree(0:5, by="group", homophily=TRUE)+idegree(0:5, by="group", homophily=TRUE)+localtriangle(sameg)+
-                  NodematchFilter(~edges+odegree(0:5)+idegree(0:5)+triangle,"group"), statsonly=TRUE, nsim=20, control=control.simulate.formula(MCMC.burnin=0, MCMC.interval=1))
+                  NodematchFilter(~edges+odegree(0:5)+idegree(0:5)+triangle,"group")+
+                  F(~edges+odegree(0:5)+idegree(0:5)+triangle,~nodematch("group")), statsonly=TRUE, nsim=20, control=control.simulate.formula(MCMC.burnin=0, MCMC.interval=1))
 
-all(out[,1:14]==out[,15:28])
+stopifnot(all(out[,1:14]==out[,15:28]), all(out[,1:14]==out[,29:42]))
