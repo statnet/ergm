@@ -134,7 +134,7 @@ ergm.MCMLE <- function(init, nw, model,
   for(iteration in 1:control$MCMLE.maxit){
     if(verbose){
       cat("Iteration ",iteration," of at most ", control$MCMLE.maxit,
-          " with parameter:", sep="")
+          " with parameter:\n", sep="")
       print(mcmc.init)
     }else{
       message("Iteration ",iteration," of at most ", control$MCMLE.maxit,":")
