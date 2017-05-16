@@ -22,55 +22,6 @@
 #      <catchToList>
 #==============================================================      
 
-
-
-###############################################################################
-# The <ostar2deg> function ??
-#
-# --PARAMETERS--
-#   object  : an ergm object
-#   ninflast: whether ??
-#
-# --RETURNED--
-#   odeg: the vector of ??
-#
-###############################################################################
-
-ostar2deg <- function(object, ninflast=TRUE){
-.Deprecated(msg="ostar2deg will not be supported in future versions of ergm." )
- nnodes <- network.size(object$newnetwork)
- nodeg <- paste("odeg",1:(nnodes-1),sep="")
- nostar <- paste("ostar",1:(nnodes-1),sep="")
- if(ninflast){
-  ostar <- rep(-10000,nnodes-1)
- }else{
-  ostar <- rep(0,nnodes-1)
- }
- names(ostar) <- nostar
- mostar <- match(nostar,names(object$coef))
- for(i in 1:(nnodes-1)){
-  if(!is.na(mostar[i])){
-   ostar[i] <- object$coef[mostar[i]]
-  }
- }
- odeg <- rep(0,nnodes-1)
- names(odeg) <- nodeg
- for(j in 1:(nnodes-1)){
-  odeg[j] <- sum(choose(rep(j,j), 1:j)*ostar[nostar[1:j]])
- }
- odeg
-}
-
-
-
-is.invertible <- function(V, tol=1e-12)
-{
-  .Deprecated(msg="is.invertible will not be supported in future versions of ergm. use 'rcond' instead" )
-    ev <- eigen(V, symmetric = TRUE, only.values = TRUE)$values
-    all(ev/max(ev) > tol)
-}
-
-
 is.ergm <- function(object)
 {
     class(object)=="ergm"
@@ -167,93 +118,6 @@ degreedistfactor <- function(g,x)
 	 	 invisible(degrees) 
 	 	} 
 
-
-
-
-espartnerdist <- function(g, print=TRUE)
-{
-  .Deprecated("espartnerdist function will not be supported in future versions of ergm.  use summary.formula with esp term instead")
- if(!is.network(g)){
-  stop("espartnerdist() requires a network object")
- }
- mesp <- paste("c(",paste(0:(network.size(g)-2),collapse=","),")",sep="")
- degrees <- summary(as.formula(paste('g ~ esp(',mesp,')',sep="")))
-#names(degrees) <- paste(0:(network.size(g)-2))
- if(print){
-  cat("ESP (edgewise shared partner) distribution:\n")
-  if(!is.null(degrees)){print(degrees[degrees>0])}
- }
- invisible(degrees)
-}
-
-
-
-
-
-dspartnerdist <- function(g, print=TRUE)
-{
-  .Deprecated("dspartnerdist function will not be supported in future versions of ergm.  use summary.formula with dsp term instead")
- if(!is.network(g)){
-  stop("dspartnerdist() requires a network object")
- }
- mesp <- paste("c(",paste(0:(network.size(g)-2),collapse=","),")",sep="")
- degrees <- summary(as.formula(paste('g ~ dsp(',mesp,')',sep="")))
-#names(degrees) <- paste(0:(network.size(g)-2))
- if(print){
-  cat("DSP (dyadwise shared partner) distribution:\n")
-  if(!is.null(degrees)){print(degrees[degrees>0])}
- }
- invisible(degrees)
-}
-
-
-
-twopathdist <- function(g, print=TRUE)
-{
-  .Deprecated("twopathdist function will not be supported in future versions of ergm")
- if(!is.network(g)){
-  stop("twopathdist() requires a network object")
- }
-# twopaths
- smatrix <- as.sociomatrix(g)
-#twopaths <- crossprod(smatrix)
- twopaths <- t(smatrix) %*% smatrix
-# (transitive) three-triangle (= triangle for directed)
-#twopaths[smatrix==0] <- 0
- degrees <- tabulate(twopaths[row(twopaths)<col(twopaths)]+1,
-                     nbins=network.size(g)-1)
- if(is.directed(g)){
-  degrees[1] <- sum(smatrix)-sum(degrees[-1])
- }else{
-  degrees[1] <- 0.5*sum(smatrix)-sum(degrees[-1])
- }
- names(degrees) <- paste(0:(network.size(g)-2))
- if(print){
-  cat("twopath distribution:\n")
-  if(!is.null(degrees)){print(degrees[degrees>0])}
- }
- invisible(degrees)
-}
-
-
-rspartnerdist <- function (g, print = TRUE) 
-{
-  .Deprecated("rspartnerdist function will not be supported in future versions of ergm.  use summary.formula with esp and dsp terms instead")
-    if (!is.network(g)) {
-        stop("rspartnerdist() requires a network object")
-    }
-    ds <- dspartnerdist(g,print=FALSE)
-    es <- espartnerdist(g,print=FALSE)
-    vec <- 0: (network.size(g) - 2)
-    upperlimit <- max(vec[ds>0]) + 1
-    rs <- es[1:upperlimit]/ds[1:upperlimit]
-
-    if (print) {
-        cat("ESP/DSP ratio distribution:\n")
-        print(rs)
-    }
-    invisible(rs)
-}
 
 
 summary.statsmatrix.ergm <- function(object, ...){
@@ -435,28 +299,6 @@ get.miss.dyads <- function(constraints, constraints.obs){
 
 .hash.el <- function(x){
   apply(x, 1, paste, collapse="\r")
-}
-
-invert.network <- function(nw){
-  .Deprecated(msg="invert.network has been deprecated, use '!.network' instead")
-  n <- network.size(nw)
-  m <- nw %n% "bipartite"
-
-  # Borrows from !.network:
-  el <- cbind(rep(1:n, each = n), rep(1:n, n))
-  if (!is.directed(nw)) 
-    el <- el[el[, 1] <= el[, 2], , drop=FALSE]
-  if (!has.loops(nw)) 
-    el <- el[el[, 1] != el[, 2], , drop=FALSE]
-
-  if(m) el <- el[(el[,1]<=m)!=(el[,2]<=m), , drop=FALSE]
-
-  # el now contains the set of possible dyads
-
-  el <- el[! .hash.el(el) %in% .hash.el(as.edgelist(nw)), , drop=FALSE]
-
-  network.update(nw, el, matrix.type="edgelist")
-  
 }
 
 locate.InitFunction <- function(name, prefix, errname=NULL, env = parent.frame()){
