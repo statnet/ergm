@@ -90,7 +90,7 @@ sampling by evaluating qualified terms' change statistics in
 multiple threads run in parallel. This is done using the
 \href{http://www.openmp.org/}{OpenMP} API.
 
-However, this introduces a nontrivial amount of computational
+However, this introduces a nontrivial amont of computational
 overhead. See below for a list of the major factors affecting
 whether it is worthwhile.}}
 
@@ -106,9 +106,6 @@ multithreading still only produces one.
 the burn-in phase; parallel MCMC's multiple burn-in runs are
 effectively \dQuote{wasted}.
 }
-
-To use OpenMP for multithreaded evaluation of model terms, \code{\link[=ergm]{ergm}} must
-be compiled with an OpenMPI enabled. For the Macintosh, the default compiler on OS X (10.12) does not support OpenMP. However \code{lvvm} does and it can easily be installed (e.g., \code{brew install lvvm}).
 
 \subsection{ Different types of clusters}{
 
