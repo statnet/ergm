@@ -121,6 +121,11 @@
 #'   on multithreaded execution. In particular, do not run more
 #'   threads than CPUs/cores that you want to allocate to the tasks.
 #'
+#' * Under Windows, even compiling with OpenMP appears to introduce
+#'   unacceptable amounts of overhead, so it is disabled for Windows
+#'   at compile time. To enable, *delete* `src/Makevars.win` and
+#'   recompile from scratch.
+#' 
 #' }
 #' 
 #' @examples
