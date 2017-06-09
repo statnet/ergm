@@ -93,7 +93,9 @@ WtC_CHANGESTAT_FN(c_absdiffcat_sum){
 *****************/
 WtC_CHANGESTAT_FN(c_atleast){
   ZERO_ALL_CHANGESTATS();
-      CHANGE_STAT[0] += (weight>=INPUT_ATTRIB[0]) - (GETWT(tail,head)>=INPUT_ATTRIB[0]);
+  double oldwt = GETWT(tail,head);
+  for(unsigned int i=0; i<N_CHANGE_STATS; i++)
+    CHANGE_STAT[i] += (weight>=INPUT_ATTRIB[i]) - (oldwt>=INPUT_ATTRIB[i]);
 }
 
 /*****************
@@ -101,7 +103,9 @@ WtC_CHANGESTAT_FN(c_atleast){
 *****************/
 WtC_CHANGESTAT_FN(c_atmost){
   ZERO_ALL_CHANGESTATS();
-      CHANGE_STAT[0] += (weight<=INPUT_ATTRIB[0]) - (GETWT(tail,head)<=INPUT_ATTRIB[0]);
+  double oldwt = GETWT(tail,head);
+  for(unsigned int i=0; i<N_CHANGE_STATS; i++)
+    CHANGE_STAT[i] += (weight<=INPUT_ATTRIB[i]) - (oldwt<=INPUT_ATTRIB[i]);
 }
 
 /********************  changestats:   B    ***********/
@@ -456,7 +460,9 @@ WtC_CHANGESTAT_FN(c_diff_sum) {
 *****************/
 WtC_CHANGESTAT_FN(c_greaterthan){
   ZERO_ALL_CHANGESTATS();
-      CHANGE_STAT[0] += (weight>INPUT_ATTRIB[0]) - (GETWT(tail,head)>INPUT_ATTRIB[0]);
+  double oldwt = GETWT(tail,head);
+  for(unsigned int i=0; i<N_CHANGE_STATS; i++)
+    CHANGE_STAT[i] += (weight>INPUT_ATTRIB[i]) - (oldwt>INPUT_ATTRIB[i]);
 }
 
 /********************  changestats:   I    ***********/
@@ -1018,7 +1024,9 @@ WtC_CHANGESTAT_FN(c_nonzero){
 *****************/
 WtC_CHANGESTAT_FN(c_smallerthan){
   ZERO_ALL_CHANGESTATS();
-      CHANGE_STAT[0] += (weight<INPUT_ATTRIB[0]) - (GETWT(tail,head)<INPUT_ATTRIB[0]);
+  double oldwt = GETWT(tail,head);
+  for(unsigned int i=0; i<N_CHANGE_STATS; i++)
+    CHANGE_STAT[i] += (weight<INPUT_ATTRIB[i]) - (oldwt<INPUT_ATTRIB[i]);
 }
 
 /*****************

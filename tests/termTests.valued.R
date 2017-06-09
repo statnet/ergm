@@ -130,13 +130,19 @@ for(base in c(0, seq_along(diffs))){
 
 # atleast
 for(v in dirvt) tst(sum(dirm >= v,na.rm=TRUE), dirnw ~ atleast(v))
+tst(sapply(dirvt, function(v) sum(dirm >= v,na.rm=TRUE)), dirnw ~ atleast(dirvt))
 for(v in undvt) tst(sum(undm >= v,na.rm=TRUE)/2, undnw ~ atleast(v))
+tst(sapply(undvt, function(v) sum(undm >= v,na.rm=TRUE)/2), undnw ~ atleast(undvt))
 for(v in bipvt) tst(sum(bipm >= v,na.rm=TRUE), bipnw ~ atleast(v))
+tst(sapply(bipvt, function(v) sum(bipm >= v,na.rm=TRUE)), bipnw ~ atleast(bipvt))
 
 # atmost
 for(v in dirvt) tst(sum(dirm <= v,na.rm=TRUE), dirnw ~ atmost(v))
+tst(sapply(dirvt, function(v) sum(dirm <= v,na.rm=TRUE)), dirnw ~ atmost(dirvt))
 for(v in undvt) tst(sum(undm <= v,na.rm=TRUE)/2, undnw ~ atmost(v))
+tst(sapply(undvt, function(v) sum(undm <= v,na.rm=TRUE)/2), undnw ~ atmost(undvt))
 for(v in bipvt) tst(sum(bipm <= v,na.rm=TRUE), bipnw ~ atmost(v))
+tst(sapply(bipvt, function(v) sum(bipm <= v,na.rm=TRUE)), bipnw ~ atmost(bipvt))
 
 # b1cov
 tst(sum(q1*bipm,na.rm=TRUE), bipnw ~ b1cov("q"))
@@ -201,8 +207,11 @@ for(dd in c("t-h", "h-t")){
 
 # greaterthan
 for(v in dirvt) tst(sum(dirm > v,na.rm=TRUE), dirnw ~ greaterthan(v))
+tst(sapply(dirvt, function(v) sum(dirm > v,na.rm=TRUE)), dirnw ~ greaterthan(dirvt))
 for(v in undvt) tst(sum(undm > v,na.rm=TRUE)/2, undnw ~ greaterthan(v))
+tst(sapply(undvt, function(v) sum(undm > v,na.rm=TRUE)/2), undnw ~ greaterthan(undvt))
 for(v in bipvt) tst(sum(bipm > v,na.rm=TRUE), bipnw ~ greaterthan(v))
+tst(sapply(bipvt, function(v) sum(bipm > v,na.rm=TRUE)), bipnw ~ greaterthan(bipvt))
 
 # equalto
 for(v in dirvt) tst(sum(dirm == v,na.rm=TRUE), dirnw ~ equalto(v))
@@ -253,8 +262,11 @@ tst(sum(apply(sqrt(undpm)-mean(na.omit(c(sqrt(undpm)))), 1, function(r) (sum(na.
 
 # smallerthan
 for(v in dirvt) tst(sum(dirm < v,na.rm=TRUE), dirnw ~ smallerthan(v))
+tst(sapply(dirvt, function(v) sum(dirm < v,na.rm=TRUE)), dirnw ~ smallerthan(dirvt))
 for(v in undvt) tst(sum(undm < v,na.rm=TRUE)/2, undnw ~ smallerthan(v))
+tst(sapply(undvt, function(v) sum(undm < v,na.rm=TRUE)/2), undnw ~ smallerthan(undvt))
 for(v in bipvt) tst(sum(bipm < v,na.rm=TRUE), bipnw ~ smallerthan(v))
+tst(sapply(bipvt, function(v) sum(bipm < v,na.rm=TRUE)), bipnw ~ smallerthan(bipvt))
  
 # nodecov
 tst(sum(q*(dirm+t(dirm)),na.rm=TRUE), dirnw ~ nodecov("q"))

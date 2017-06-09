@@ -67,7 +67,7 @@ InitWtErgmTerm.atleast<-function(nw, arglist, response, ...) {
        inputs=a$threshold,
        dependence=FALSE,
        minval=0, maxval=network.dyadcount(nw,FALSE),
-       emptynwstats=if(0>=a$threshold) network.dyadcount(nw,FALSE) else 0)
+       emptynwstats=ifelse(0>=a$threshold, network.dyadcount(nw,FALSE), 0))
 }
 
 InitWtErgmTerm.atmost<-function(nw, arglist, response, ...) {
@@ -81,7 +81,7 @@ InitWtErgmTerm.atmost<-function(nw, arglist, response, ...) {
        inputs=a$threshold,
        dependence=FALSE,
        minval=0, maxval=network.dyadcount(nw,FALSE),
-       emptynwstats=if(0<=a$threshold) network.dyadcount(nw,FALSE) else 0)
+       emptynwstats=ifelse(0<=a$threshold, network.dyadcount(nw,FALSE), 0))
 }
 
 InitWtErgmTerm.b1cov<-function (nw, arglist, ...) {
@@ -298,7 +298,7 @@ InitWtErgmTerm.greaterthan<-function(nw, arglist, response, ...) {
        inputs=a$threshold,
        dependence=FALSE,
        minval=0, maxval=network.dyadcount(nw,FALSE),
-       emptynwstats=if(0>a$threshold) network.dyadcount(nw,FALSE) else 0)
+       emptynwstats=ifelse(0>a$threshold, network.dyadcount(nw,FALSE), 0))
 }
 
 InitWtErgmTerm.smallerthan<-function(nw, arglist, response, ...) {
@@ -312,7 +312,7 @@ InitWtErgmTerm.smallerthan<-function(nw, arglist, response, ...) {
        inputs=a$threshold,
        dependence=FALSE,
        minval=0, maxval=network.dyadcount(nw,FALSE),
-       emptynwstats=if(0<a$threshold) network.dyadcount(nw,FALSE) else 0)
+       emptynwstats=ifelse(0<a$threshold, network.dyadcount(nw,FALSE), 0))
 }
 
 
