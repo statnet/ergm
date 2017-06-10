@@ -45,11 +45,11 @@ is.ergm <- function(object)
 #                      distribution
 ###############################################################################
 
-degreedist <- function(g, print=TRUE)
+degreedist <- function(object, ...) UseMethod("degreedist")
+
+degreedist.network <- function(object, print=TRUE, ...)
 {
- if(!is.network(g)){
-  stop("degreedist() requires a network object")
- }
+ g <- object
  if(is.directed(g)){                                      
    mesp <- paste("c(",paste(0:(network.size(g)-1),collapse=","),")",sep="")
    outdegrees <- summary(as.formula(paste('g ~ odegree(',mesp,')',sep="")))

@@ -1,5 +1,6 @@
 \name{degreedist}
 \alias{degreedist}
+\alias{degreedist.network}
 
 
 \title{
@@ -12,17 +13,22 @@ Computes and Returns the Degree Distribution Information for a Given Network
  distribution for a network and a given factor (vertex attribute name)
 }
 \usage{
-degreedist(g, print = TRUE)
+degreedist(object, \dots)
+
+\method{degreedist}{network}(object, print = TRUE, \dots)
 
 }
 \arguments{
-  \item{g}{
-a \code{network} object
+  \item{object}{
+a \code{network} object or some other object for which degree
+distribution is meaningful.
 }
   \item{print}{
-logical, whether to print the degree distribution; default=TRUE
+logical, whether to print the degree distribution; default=TRUE.
 }
 
+\item{\dots}{Additional arguments to functions.}
+  }
 }
 \details{
 Calculates the degrees using the appropriate ergm terms for for network type. 
