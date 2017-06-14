@@ -9,3 +9,7 @@ r_github_packages:
 - statnet/statnet.common-private
 - statnet/ergm-private
 - statnet/ergm.count-private
+addons:
+  apt:
+    packages:
+      - r-cran-rmpi
