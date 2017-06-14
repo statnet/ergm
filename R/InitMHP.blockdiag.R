@@ -106,7 +106,7 @@
 #' @export
 pack.BlockDiagSampInfo_as_num <- function(nw, a){
   bip <- nw %n% "bipartite"
-  a <- if(length(a)>1) a else nw %v% a
+  a <- if(length(a)==network.size(nw)) a else get.vertex.attributes(nw, a, sep="\t")
   if(bip){
     ea <- a[seq_len(bip)]
     aa <- a[bip+seq_len(network.size(nw)-bip)]
@@ -146,7 +146,7 @@ InitMHP.blockdiag <- function(arguments, nw){
 
 InitMHP.blockdiagTNT <- function(arguments, nw){
   el <- as.edgelist(nw)
-  a <- nw %v% arguments$constraints$blockdiag$attrname
+  a <- get.vertex.attributes(nw, arguments$constraints$blockdiag$attrname, sep="\t")
   
   if(any(a[el[,1]]!=a[el[,2]])) stop("Block-diagonal TNT sampler implementation does not support sampling networks with off-block-diagonal ties at this time.")
 
@@ -159,7 +159,7 @@ InitMHP.blockdiagTNT <- function(arguments, nw){
 .InitMHP.blockdiagNonObserved <- function(arguments, nw, ...){
   ## Bipartite is handled seamlessly.
   
-  a <- nw %v% arguments$constraints$blockdiag$attrname
+  a <- get.vertex.attributes(nw, arguments$constraints$blockdiag$attrname, sep="\t")
 
   el <- as.edgelist(is.na(nw))
   el <- el[a[el[,1]]==a[el[,2]],,drop=FALSE]
