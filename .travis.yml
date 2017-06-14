@@ -7,4 +7,5 @@ cache: packages
 r_github_packages:
 - statnet/network-private
 - statnet/statnet.common-private
+- statnet/ergm-private
 - statnet/ergm.count-private
