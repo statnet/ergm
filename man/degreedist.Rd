@@ -28,7 +28,6 @@ logical, whether to print the degree distribution; default=TRUE.
 }
 
 \item{\dots}{Additional arguments to functions.}
-  }
 }
 \details{
 Calculates the degrees using the appropriate ergm terms for for network type. 
