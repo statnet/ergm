@@ -105,9 +105,9 @@ opttest({
 	
 	s1 <-simulate(t1,1000)
 	
-	fixed.dyads.state <- net1[as.edgelist(invert.network(network.update(net1,free.dyads,matrix.type="edgelist")))]
+	fixed.dyads.state <- net1[as.edgelist(!network.update(net1,free.dyads,matrix.type="edgelist"))]
 	
-	stopifnot(all(sapply(s1,function(x) all.equal(x[as.edgelist(invert.network(network.update(x,free.dyads,matrix.type="edgelist")))],fixed.dyads.state))))
+	stopifnot(all(sapply(s1,function(x) all.equal(x[as.edgelist(!network.update(x,free.dyads,matrix.type="edgelist"))],fixed.dyads.state))))
 	
 	
 })
