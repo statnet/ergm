@@ -8,7 +8,7 @@ get.vertex.attributes(x, attrnames, na.omit = FALSE, null.na = TRUE,
   unlist = TRUE, sep = NULL)
 }
 \arguments{
-\item{x, na.omit, null.na}{see \code{\link[network:get.vertex.attribute]{network::get.vertex.attribute()}}.}
+\item{x, na.omit, null.na, unlist}{see \code{\link[network:get.vertex.attribute]{network::get.vertex.attribute()}}.}
 
 \item{attrnames}{a character vector of one or more vertex attribute
 names; see \code{\link[network:get.vertex.attribute]{network::get.vertex.attribute()}}.}

@@ -33,7 +33,7 @@
 
 #' Get multiple vertex attributes at once and paste them together.
 #'
-#' @param x,na.omit,null.na see [network::get.vertex.attribute()].
+#' @param x,na.omit,null.na,unlist see [network::get.vertex.attribute()].
 #' @param attrnames a character vector of one or more vertex attribute
 #'   names; see [network::get.vertex.attribute()].
 #' @param sep an optional character vector of length 1 to use as a
