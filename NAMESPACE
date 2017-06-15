@@ -25,6 +25,7 @@ importFrom("methods",'findFunction',"is")
 # Export all names that do not begin with a dot.
 #exportPattern("^[^\\.]")
 export(
+  Layer,
   anova.ergm,
   anova.ergmlist,                  
   approx.hotelling.diff.test,      
