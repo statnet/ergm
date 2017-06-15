@@ -31,7 +31,7 @@ all.same <- function(x){
 
 #' A single block-diagonal network created by combining multiple networks
 #'
-#' Given a list of compatible networks, the function returns a single
+#' Given a list of compatible networks, the [combine_networks()] returns a single
 #' block-diagonal network, preserving attributes that can be
 #' preserved.
 #'
@@ -68,7 +68,7 @@ all.same <- function(x){
 #'   its bipartite equivalent) comprising the networks passed in
 #'   `nwl`. In particular,
 #'
-#' * the returned network's size is the sum of the input networks;
+#' * the returned network's size is the sum of the input networks';
 #' 
 #' * its basic properties (directedness and bipartednes) are the same;
 #'
@@ -105,26 +105,26 @@ all.same <- function(x){
 #'
 #' data(samplk)
 #' 
-#' o1 <- combine.networks(list(samplk1, samplk2, samplk3))
+#' o1 <- combine_networks(list(samplk1, samplk2, samplk3))
 #' image(as.matrix(o1))
 #' head(get.vertex.attribute(o1, ".NetworkID"))
-#' o2 <- combine.networks(list(o1, o1))
+#' o2 <- combine_networks(list(o1, o1))
 #' image(as.matrix(o2))
 #' head(get.vertex.attribute(o2, ".NetworkID", unlist=FALSE))
 #'
 #' data(florentine)
-#' f1 <- combine.networks(list(business=flobusiness, marriage=flomarriage), blockName.vattr=".NetworkName") 
+#' f1 <- combine_networks(list(business=flobusiness, marriage=flomarriage), blockName.vattr=".NetworkName") 
 #' image(as.matrix(f1))
 #' head(get.vertex.attribute(f1, ".NetworkID"))
 #' head(get.vertex.attribute(f1, ".NetworkName"))
 #' @export
-combine.networks <- function(nwl, ignore.nattr=c("bipartite","directed","hyper","loops","mnext","multiple","n"), ignore.vattr=c(), ignore.eattr=c(), blockID.vattr=".NetworkID", blockName.vattr=NULL, detect.edgecov=FALSE, standardized=FALSE, keep.unshared.attr=FALSE){
-  if(any(sapply(nwl, is.bipartite))) .combine.networks.bipartite(nwl=nwl, ignore.nattr=ignore.nattr, ignore.vattr=ignore.vattr, ignore.eattr=ignore.eattr, blockID.vattr=blockID.vattr, blockName.vattr=blockName.vattr, detect.edgecov=detect.edgecov, standardized=standardized, keep.unshared.attr=keep.unshared.attr)
-  else .combine.networks.unipartite(nwl=nwl, ignore.nattr=ignore.nattr, ignore.vattr=ignore.vattr, ignore.eattr=ignore.eattr, blockID.vattr=blockID.vattr, blockName.vattr=blockName.vattr, detect.edgecov=detect.edgecov, standardized=standardized, keep.unshared.attr=keep.unshared.attr)
+combine_networks <- function(nwl, ignore.nattr=c("bipartite","directed","hyper","loops","mnext","multiple","n"), ignore.vattr=c(), ignore.eattr=c(), blockID.vattr=".NetworkID", blockName.vattr=NULL, detect.edgecov=FALSE, standardized=FALSE, keep.unshared.attr=FALSE){
+  if(any(sapply(nwl, is.bipartite))) .combine_networks.bipartite(nwl=nwl, ignore.nattr=ignore.nattr, ignore.vattr=ignore.vattr, ignore.eattr=ignore.eattr, blockID.vattr=blockID.vattr, blockName.vattr=blockName.vattr, detect.edgecov=detect.edgecov, standardized=standardized, keep.unshared.attr=keep.unshared.attr)
+  else .combine_networks.unipartite(nwl=nwl, ignore.nattr=ignore.nattr, ignore.vattr=ignore.vattr, ignore.eattr=ignore.eattr, blockID.vattr=blockID.vattr, blockName.vattr=blockName.vattr, detect.edgecov=detect.edgecov, standardized=standardized, keep.unshared.attr=keep.unshared.attr)
 }
 
 
-.combine.networks.unipartite <- function(nwl, ignore.nattr=c("bipartite","directed","hyper","loops","mnext","multiple","n"), ignore.vattr=c(), ignore.eattr=c(), blockID.vattr=".NetworkID", blockName.vattr=NULL, detect.edgecov=FALSE, standardized=FALSE, keep.unshared.attr=FALSE){
+.combine_networks.unipartite <- function(nwl, ignore.nattr=c("bipartite","directed","hyper","loops","mnext","multiple","n"), ignore.vattr=c(), ignore.eattr=c(), blockID.vattr=".NetworkID", blockName.vattr=NULL, detect.edgecov=FALSE, standardized=FALSE, keep.unshared.attr=FALSE){
   if(any(diff(sapply(nwl, is.directed)))) stop("All networks must have the same directedness.")
   if(keep.unshared.attr && detect.edgecov) stop("Detection of edge covariates is not compatible with retaining unshared attributes.")
   attrset <- if(keep.unshared.attr) union else intersect
@@ -227,7 +227,7 @@ combine.networks <- function(nwl, ignore.nattr=c("bipartite","directed","hyper",
 }
 
 
-.combine.networks.bipartite <- function(nwl, ignore.nattr=c("bipartite","directed","hyper","loops","mnext","multiple","n"), ignore.vattr=c(), ignore.eattr=c(), blockID.vattr=".NetworkID", blockName.vattr=NULL, detect.edgecov=FALSE, standardized=FALSE, keep.unshared.attr=FALSE){
+.combine_networks.bipartite <- function(nwl, ignore.nattr=c("bipartite","directed","hyper","loops","mnext","multiple","n"), ignore.vattr=c(), ignore.eattr=c(), blockID.vattr=".NetworkID", blockName.vattr=NULL, detect.edgecov=FALSE, standardized=FALSE, keep.unshared.attr=FALSE){
   if(!all(sapply(nwl, is.bipartite))) stop("This function operates only on bipartite networks.")
   if(any(sapply(nwl, is.directed))) stop("Bipartite directed networks are not supported at this time.")
   if(keep.unshared.attr && detect.edgecov) stop("Detection of edge covariates is not compatible with retaining unshared attributes.")
@@ -334,4 +334,104 @@ combine.networks <- function(nwl, ignore.nattr=c("bipartite","directed","hyper",
   }
   
   out
+}
+
+.pop_vattrv <- function(nw, vattr){
+  av <- get.vertex.attribute(nw, vattr, unlist=FALSE)
+  a <- sapply(av, "[", 1)
+  rest <- lapply(av, "[", -1)
+  nw <- set.vertex.attribute(nw, vattr, rest)
+  
+  list(nw = nw, vattr = a)
+}
+
+
+#' A [split()] method for [`network::network`] objects.
+#'
+#' Split a network into subnetworks on a factor.
+#'
+#' @param x a [`network::network`] object.
+#'
+#' @param f a vector of length equal to .
+#'
+#' @param f,drop see [split()]; note that `f` must have length equal to `network.size(x)`.
+#'
+#' @return A [`network.list`] containing the networks. Note that these
+#'   networks will inherit all vertex and edge attributes, as well as
+#'   relevant network attributes.
+#' 
+#' @seealso [network::get.inducedSubgraph()]
+#' @export
+split.network <- function(x, f, drop = FALSE, sep = ".", lex.order = FALSE, ...) 
+{
+  ### NOTE: This is taken from the split.default() implementation, but is trivial.
+  if(!missing(...)) 
+    .NotYetUsed(deparse(...), error = FALSE)
+  if(is.list(f)) 
+    f <- interaction(f, drop = drop, sep = sep, lex.order = lex.order)
+  else if (!is.factor(f)) 
+    f <- as.factor(f)
+  else if (drop) 
+    f <- factor(f)
+  ### END Taken from split.default().
+  
+  o <- lapply(levels(f), function(l) network::get.inducedSubgraph(x, which(f==l)))
+  class(o) <- c("network.list", class(o))
+  o
+}
+
+#' Split up a network into a list of subgraphs
+#'
+#' Given a network created by [combine_networks()], [uncombine_networks()] returns a list of networks,
+#' preserving attributes that can be preserved.
+#'
+#' @param nw a [`network::network`] created by [combine_networks()].
+#'
+#' @param ignore.nattr,ignore.vattr,ignore.eattr network, vertex, and
+#'   edge attributes not to be processed as described below.
+#'
+#' @param split.vattr name of the vertex attribute on which to split.
+#'
+#' @param detect.edgecov if `TRUE`, split up network attributes that
+#'   look like dyadic covariate ([`ergm::edgecov`]) matrices.
+#'
+#' @param names.vattr optional name of the vertex attribute to use as network
+#'   names in the output list.
+#'
+#' @return a list of [`network::network`]s containing subgraphs on `split.vattr`. In particular,
+#'
+#' * their basic properties (directedness and bipartednes) are the same as those of the input network;
+#'
+#' * vertex attributes are split;
+#'
+#' * edge attributes are assigned to their respective edges in
+#'   the returned networks.
+#'
+#' If `split.vattr` is a vector, only the first element is used and it's "popped".
+#'
+#' @seealso [split.network()]
+#' @examples
+#'
+#' data(samplk)
+#' 
+#' o1 <- combine_networks(list(samplk1, samplk2, samplk3))
+#' image(as.matrix(o1))
+#'
+#' ol <- uncombine_network(o1)
+#'
+#' @export
+uncombine_network <- function(nw, ignore.nattr=c("bipartite","directed","hyper","loops","mnext","multiple","n"), ignore.vattr=c(), ignore.eattr=c(), split.vattr=".NetworkID", names.vattr=NULL){
+  tmp <- .pop_vattrv(nw, split.vattr); nw <- tmp$nw; f <- tmp$vattr
+  if(!is.null(names.vattr)) tmp <- .pop_vattrv(nw, names.vattr); nw <- tmp$nw; nwnames <- tmp$vattr
+  nwl <- split(nw, f)
+
+  for(a in setdiff(list.network.attributes(nw),
+                   ignore.nattr)){ # I.e., iterate through common attributes.
+    nwl <- mapply(set.network.attribute, x=nwl, value=get.network.attribute(nw, a, unlist=FALSE), MoreArgs=list(attrname=a), SIMPLIFY=FALSE)
+  }
+
+  if(!is.null(names.vattr)) names(nwl) <- unique(nwnames)
+  
+  class(nwl) <- c("network.list", class(nwl))
+  nwl
 }
