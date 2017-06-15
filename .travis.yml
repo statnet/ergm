@@ -1,0 +1,16 @@
+language: r
+r:
+- release
+- devel
+sudo: false
+cache: packages
+r_github_packages:
+- statnet/network-private
+- statnet/statnet.common-private
+- statnet/ergm-private
+- statnet/ergm.count-private
+addons:
+  apt:
+    packages:
+      - r-cran-rmpi
+warnings_are_errors: false

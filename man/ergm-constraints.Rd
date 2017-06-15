@@ -76,6 +76,10 @@
       the same ordering in both partitions. (They do not, however,
       require that all blocks be represented in both partitions, but
       those that overlap must have the same order.)
+
+      If multiple block-diagonal constraints are given, or if
+      \code{attrname} is a vector with multiple attribute names, blocks
+      will be constructed on \emph{all} attributes matching.
     }
     \item{\code{degrees} and \code{nodedegrees}}{
       Preserve the degree of each vertex of the given network: only networks

@@ -425,13 +425,17 @@ network
     to this term for details and an example.}
 
   \item{\code{atleast(threshold=0)}  (valued)  (directed)  (undirected) (dyad-independent)}{\emph{Number of dyads with values
-      greater than or equal to a threshold} Adds one statistic
-    equaling to the number of dyads whose values equal or exceed
+      greater than or equal to a threshold} Adds the number of
+      statistics equal to the length of \code{threashold}
+    equaling to the number of dyads whose values equal or exceed the
+      corresponding element of 
     \code{threshold}.  }
 
   \item{\code{atmost(threshold=0)}  (valued)  (directed)  (undirected) (dyad-independent)}{\emph{Number of dyads with values
-      less than or equal to a threshold} Adds one statistic
-    equaling to the number of dyads whose values equal or are exceeded by
+      less than or equal to a threshold} Adds  the number of
+      statistics equal to the length of \code{threashold}
+    equaling to the number of dyads whose values equal or are exceeded by the
+      corresponding element of 
     \code{threshold}.  }
   
   \item{\code{b1concurrent(by=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
@@ -1071,8 +1075,10 @@ of the degrees of all pairs of nodes in the network which are tied.
        
     \item{\code{greaterthan(threshold=0)}  (valued)  (directed)  (undirected) (dyad-independent)}{\emph{Number of dyads with
 	values strictly greater than a threshold:}
-      Adds one statistic equal to the number of dyads whose values
-      exceed \code{threshold}.
+      Adds  the number of
+      statistics equal to the length of \code{threashold}
+    equaling to the number of dyads whose values exceed the
+      corresponding element of \code{threshold}.
     }
   
   
@@ -1349,8 +1355,10 @@ of the degrees of all pairs of nodes in the network which are tied.
 
     \item{\code{smallerthan(threshold=0)}  (valued)  (directed)  (undirected) (dyad-independent)}{\emph{Number of dyads with
 	values strictly smaller than a threshold:}
-      Adds one statistic equaling to the number of dyads whose values
-      exceeded by \code{threshold}.
+      Adds  the number of
+      statistics equal to the length of \code{threashold}
+    equaling to the number of dyads whose values are exceeded by the
+      corresponding element of \code{threshold}.
     }
   
     \item{\code{localtriangle(x)}  (binary)  (triad-related)  (directed)  (undirected)}{\emph{Triangles within neighborhoods: } 

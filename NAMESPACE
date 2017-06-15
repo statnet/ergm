@@ -390,3 +390,5 @@ S3method(summary.statistics,network.list)
 S3method(summary,statsmatrix.ergm)
          
 S3method(vcov,ergm)
+
+S3method(degreedist,network)

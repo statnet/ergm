@@ -82,3 +82,36 @@ M[]<-0
 M[6,2]<-1
 
 stopifnot(all(as.matrix(y)==M))
+
+#### Multiple ####
+
+n <- 10
+a1 <- rep(1:4,1:4)
+a2 <- rep(1:2,each=5)
+
+M1<- matrix(0,n,n)
+for(i in unique(a1)){
+  M1[a1==i,a1==i]<-1
+}
+diag(M1)<-0
+
+M2<- matrix(0,n,n)
+for(i in unique(a2)){
+  M2[a2==i,a2==i]<-1
+}
+diag(M2)<-0
+
+M <- M1*M2
+
+y0 <- network.initialize(n, directed=FALSE)
+y0 %v% "b1" <- a1
+y0 %v% "b2" <- a2
+
+y <- simulate(y0~edges, coef=100, constraints=~blockdiag(c("b1","b2")), control=control.simulate.formula(MCMC.burnin=10000))
+
+stopifnot(all(as.matrix(y)==M))
+
+y <- simulate(y0~edges, coef=100, constraints=~blockdiag("b1") + blockdiag("b2"), control=control.simulate.formula(MCMC.burnin=10000))
+
+stopifnot(all(as.matrix(y)==M))
+
