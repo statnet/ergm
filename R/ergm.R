@@ -141,10 +141,11 @@ ergm <- function(formula, response=NULL,
   nw <- ergm.getnetwork(formula)
   proposalclass <- "c"  
   
-  # Handle the observation process constraints.
-  tmp <- .handle.obs.constraints(nw, constraints, obs.constraints, target.stats)
+  # Handle the observation process and other "automatic" constraints.
+  tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats)
   nw <- tmp$nw
   constraints.obs <- tmp$constraints.obs
+  constraints <- tmp$constraints
 
   model <- ergm.getmodel(formula, nw, response=response)
 

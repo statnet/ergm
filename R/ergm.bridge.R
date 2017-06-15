@@ -49,7 +49,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   ## Generate the path.
   path<-t(rbind(sapply(seq(from=0+1/2/(control$nsteps+1),to=1-1/2/(control$nsteps+1),length.out=control$nsteps),function(u) cbind(to*u + from*(1-u)))))
 
-  tmp <- .handle.obs.constraints(nw, constraints, obs.constraints, target.stats)
+  tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats)
   nw <- tmp$nw
   constraints.obs <- tmp$constraints.obs
   
@@ -160,9 +160,10 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   q.pos.full <- c(0,cumsum(coef.sublength.model(m)))
   p.pos.full <- c(0,cumsum(eta.sublength.model(m)))
   
-  tmp <- .handle.obs.constraints(nw, constraints, obs.constraints, target.stats)
+  tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats)
   nw <- tmp$nw
   constraints.obs <- tmp$constraints.obs
+  constraints <- tmp$constraints
  
   if(!is.dyad.independent(mk.conlist(constraints,nw), mk.conlist(constraints.obs,nw))) stop("Bridge sampling with dyad-independent start does not work with dyad-dependent constraints.")
 

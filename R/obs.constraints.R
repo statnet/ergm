@@ -8,7 +8,7 @@
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
 
-.handle.obs.constraints <- function(nw,
+.handle.auto.constraints <- function(nw,
                                     constraints=~.,
                                     obs.constraints=~observed,
                                     target.stats=NULL) {
@@ -38,7 +38,19 @@
   constraints.obs<-append.rhs.formula(constraints, obs.constraints, TRUE)
   if(constraints==constraints.obs) constraints.obs<-NULL
 
-  list(nw = nw, constraints.obs = constraints.obs)
+  # We have layer information.
+  if(".LayerID" %in% list.vertex.attributes(nw)){
+    nw %v% ".LayerBlocks" <- sapply(get.vertex.attribute(nw, ".LayerID", unlist=FALSE), paste, collapse=".")
+    if(constraints==~.)
+      constraints <- ~blockdiag(".LayerBlocks")
+    else
+      constraints <- append.rhs.formula(constraints, alist(blockdiag(".LayerBlocks")), TRUE)
+
+    if(!is.null(constraints.obs))
+      constraints.obs <- append.rhs.formula(constraints.obs, alist(blockdiag(".LayerBlocks")), TRUE)
+  }
+  
+  list(nw = nw, constraints = constraints, constraints.obs = constraints.obs)
 }
 
 .align.target.stats.offset <- function(model, target.stats){
