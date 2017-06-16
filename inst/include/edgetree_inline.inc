@@ -117,12 +117,7 @@ static inline Edge EdgetreePredecessor (TreeNode *edges, Edge x) {
 static inline int ElapsedTime(Vertex tail, Vertex head, Network *nwp){
   Edge k;
   /* don't forget, tails < heads now in undirected networks */
-  if (!(nwp->directed_flag) && tail > head) {
-    Vertex temp;
-    temp = tail; /*  Make sure tail<head always for undirected edges */
-    tail = head;
-    head = temp;
-  }
+  ENSURE_TH_ORDER;
 
   if(nwp->duration_info.lasttoggle){ /* Return 0 if no duration info. */
     if(nwp->bipartite){
@@ -140,4 +135,15 @@ static inline int ElapsedTime(Vertex tail, Vertex head, Network *nwp){
      is valid output. Need to think about it. */
 }
 
+/*****************
+ int GetEdge
+
+Get edge value. Return 0 if edge does not exist.
+*****************/
+static inline unsigned int GetEdge (Vertex tail, Vertex head, Network *nwp) 
+{
+  ENSURE_TH_ORDER;
+
+  return EdgetreeSearch(tail,head,nwp->outedges)!=0;
+}
 

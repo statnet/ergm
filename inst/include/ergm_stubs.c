@@ -3,6 +3,7 @@
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #include "R_ext/Rdynload.h"
 #include "ergm_edgetree.h"
@@ -25,6 +26,16 @@ Network * NetworkCopy(Network *dest, Network *src){
 static Network * (*fun)(Network *,Network *) = NULL;
 if(fun==NULL) fun = (Network * (*)(Network *,Network *)) R_FindSymbol("NetworkCopy", "ergm", NULL);
 return fun(dest,src);
+}
+void SetEdge(Vertex tail, Vertex head, unsigned int weight, Network *nwp){
+static void (*fun)(Vertex,Vertex,unsigned int,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,unsigned int,Network *)) R_FindSymbol("SetEdge", "ergm", NULL);
+fun(tail,head,weight,nwp);
+}
+void SetEdgeWithTimestamp(Vertex tail, Vertex head, unsigned int weight, Network *nwp){
+static void (*fun)(Vertex,Vertex,unsigned int,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,unsigned int,Network *)) R_FindSymbol("SetEdgeWithTimestamp", "ergm", NULL);
+fun(tail,head,weight,nwp);
 }
 int ToggleEdge(Vertex tail, Vertex head, Network *nwp){
 static int (*fun)(Vertex,Vertex,Network *) = NULL;
@@ -124,6 +135,7 @@ return fun(tails,heads,nwp,nmax);
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #include "R_ext/Rdynload.h"
 #include "ergm_MHproposal.h"
@@ -160,6 +172,7 @@ return fun(MHp,nwp);
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef NO_EDGE
 #undef OLD_EDGE
@@ -218,6 +231,7 @@ fun(nwp,m);
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef CHOOSE
 #undef EQUAL
@@ -442,6 +456,7 @@ return fun(tails,heads,weights,nwp,nmax);
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #include "R_ext/Rdynload.h"
 #include "ergm_wtMHproposal.h"
@@ -458,6 +473,7 @@ fun(MH,nwp);
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef NO_EDGE
 #undef OLD_EDGE
@@ -510,6 +526,7 @@ fun(nwp,m);
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef CHOOSE
 #undef EQUAL
