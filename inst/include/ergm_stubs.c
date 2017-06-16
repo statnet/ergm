@@ -8,13 +8,12 @@ return fun(x);
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
 #undef XNOR
-#undef STEP_THROUGH_OUTEDGES
-#undef STEP_THROUGH_INEDGES
 #undef OUTVAL
 #undef INVAL
 #undef N_NODES
@@ -43,8 +42,20 @@ return fun(x);
 #undef MIN_INEDGE
 #undef NEXT_OUTEDGE
 #undef NEXT_INEDGE
+#undef STEP_THROUGH_OUTEDGES
+#undef STEP_THROUGH_INEDGES
+#undef STEP_THROUGH_OUTEDGES_DECL
+#undef STEP_THROUGH_INEDGES_DECL
+#undef EXEC_THROUGH_OUTEDGES
+#undef EXEC_THROUGH_INEDGES
+#undef EXEC_THROUGH_EDGES
+#undef EXEC_THROUGH_FOUTEDGES
+#undef EXEC_THROUGH_FINEDGES
+#undef EXEC_THROUGH_NET_EDGES
 #undef TOGGLE
 #undef TOGGLE_DISCORD
+#undef GETWT
+#undef SETWT
 #undef FOR_EACH_TOGGLE
 #undef IF_MORE_TO_COME
 #undef TOGGLE_IF_MORE_TO_COME
@@ -107,6 +118,7 @@ return fun(x);
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #include "R_ext/Rdynload.h"
 #include "ergm_edgetree.h"
@@ -129,6 +141,16 @@ Network * NetworkCopy(Network *dest, Network *src){
 static Network * (*fun)(Network *,Network *) = NULL;
 if(fun==NULL) fun = (Network * (*)(Network *,Network *)) R_FindSymbol("NetworkCopy", "ergm", NULL);
 return fun(dest,src);
+}
+void SetEdge(Vertex tail, Vertex head, unsigned int weight, Network *nwp){
+static void (*fun)(Vertex,Vertex,unsigned int,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,unsigned int,Network *)) R_FindSymbol("SetEdge", "ergm", NULL);
+fun(tail,head,weight,nwp);
+}
+void SetEdgeWithTimestamp(Vertex tail, Vertex head, unsigned int weight, Network *nwp){
+static void (*fun)(Vertex,Vertex,unsigned int,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,unsigned int,Network *)) R_FindSymbol("SetEdgeWithTimestamp", "ergm", NULL);
+fun(tail,head,weight,nwp);
 }
 int ToggleEdge(Vertex tail, Vertex head, Network *nwp){
 static int (*fun)(Vertex,Vertex,Network *) = NULL;
@@ -228,6 +250,7 @@ return fun(tails,heads,nwp,nmax);
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #include "R_ext/Rdynload.h"
 #include "ergm_MHproposal.h"
@@ -264,6 +287,7 @@ return fun(MHp,nwp);
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef NO_EDGE
 #undef OLD_EDGE
@@ -322,6 +346,7 @@ fun(nwp,m);
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef CHOOSE
 #undef EQUAL
@@ -426,13 +451,12 @@ return fun(x);
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
 #undef XNOR
-#undef STEP_THROUGH_OUTEDGES
-#undef STEP_THROUGH_INEDGES
 #undef OUTVAL
 #undef INVAL
 #undef N_NODES
@@ -461,6 +485,8 @@ return fun(x);
 #undef WtNEXT_INEDGE
 #undef OUTWT
 #undef INWT
+#undef WtSTEP_THROUGH_OUTEDGES
+#undef WtSTEP_THROUGH_INEDGES
 #undef WtSTEP_THROUGH_OUTEDGES_DECL
 #undef WtSTEP_THROUGH_INEDGES_DECL
 #undef WtEXEC_THROUGH_OUTEDGES
@@ -505,6 +531,8 @@ return fun(x);
 #undef MIN_INEDGE
 #undef NEXT_OUTEDGE
 #undef NEXT_INEDGE
+#undef STEP_THROUGH_OUTEDGES
+#undef STEP_THROUGH_INEDGES
 #undef STEP_THROUGH_OUTEDGES_DECL
 #undef STEP_THROUGH_INEDGES_DECL
 #undef EXEC_THROUGH_OUTEDGES
@@ -705,6 +733,7 @@ return fun(tails,heads,weights,nwp,nmax);
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #include "R_ext/Rdynload.h"
 #include "ergm_wtMHproposal.h"
@@ -721,6 +750,7 @@ fun(MH,nwp);
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef NO_EDGE
 #undef OLD_EDGE
@@ -773,6 +803,7 @@ fun(nwp,m);
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef CHOOSE
 #undef EQUAL
