@@ -665,12 +665,7 @@ int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp){
 int ToggleEdge (Vertex tail, Vertex head, Network *nwp) 
 {
   /* don't forget tails < heads now for undirected networks */
-  if (!(nwp->directed_flag) && tail > head) {
-    Vertex temp;
-    temp = tail; /*  Make sure tail<head always for undirected edges */
-    tail = head;
-    head = temp;
-  }
+  ENSURE_TH_ORDER;
   if (AddEdgeToTrees(tail,head,nwp))
     return 1;
   else 
@@ -696,12 +691,7 @@ int ToggleEdgeWithTimestamp(Vertex tail, Vertex head, Network *nwp){
   Edge k;
 
   /* don't forget, tails < heads in undirected networks now  */
-  if (!(nwp->directed_flag) && tail > head) {
-    Vertex temp;
-    temp = tail; /*  Make sure tail<head always for undirected edges */
-    tail = head;
-    head = temp;
-  }
+  ENSURE_TH_ORDER;
   
   if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
     if(nwp->bipartite){
@@ -733,12 +723,7 @@ does not exist, destroy by setting to 0.
 *****************/
 void SetEdge (Vertex tail, Vertex head, unsigned int weight, Network *nwp) 
 {
-  if (!(nwp->directed_flag) && tail > head) {
-    Vertex temp;
-    temp = tail; /*  Make sure tail<head always for undirected edges */
-    tail = head;
-    head = temp;
-  }
+  ENSURE_TH_ORDER;
 
   if(weight==0){
     DeleteEdgeFromTrees(tail,head,nwp);
@@ -757,12 +742,7 @@ void SetEdgeWithTimestamp (Vertex tail, Vertex head, unsigned int weight, Networ
 {
   Edge k;
 
-  if (!(nwp->directed_flag) && tail > head) {
-    Vertex temp;
-    temp = tail; /*  Make sure tail<head always for undirected edges */
-    tail = head;
-    head = temp;
-  }
+  ENSURE_TH_ORDER;
   
   if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
     if(nwp->bipartite){
