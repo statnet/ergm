@@ -116,12 +116,7 @@ static inline Edge WtEdgetreePredecessor (WtTreeNode *edges, Edge x) {
 static inline int WtElapsedTime (Vertex tail, Vertex head, WtNetwork *nwp){
   Edge k;
   /* don't forget, tails < heads now in undirected networks */
-  if (!(nwp->directed_flag) && tail > head) {
-    Vertex temp;
-    temp = tail; /*  Make sure tail<head always for undirected edges */
-    tail = head;
-    head = temp;
-  }
+  ENSURE_TH_ORDER;
 
   if(nwp->duration_info.lasttoggle){ /* Return 0 if no duration info. */
     if(nwp->bipartite){
@@ -146,12 +141,7 @@ Get weighted edge value. Return 0 if edge does not exist.
 *****************/
 static inline double WtGetEdge (Vertex tail, Vertex head, WtNetwork *nwp) 
 {
-  if (!(nwp->directed_flag) && tail > head) {
-    Vertex temp;
-    temp = tail; /*  Make sure tail<head always for undirected edges */
-    tail = head;
-    head = temp;
-  }
+  ENSURE_TH_ORDER;
 
   Edge oe=WtEdgetreeSearch(tail,head,nwp->outedges);
   if(oe) return nwp->outedges[oe].weight;

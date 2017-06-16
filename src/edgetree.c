@@ -665,12 +665,7 @@ int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp){
 int ToggleEdge (Vertex tail, Vertex head, Network *nwp) 
 {
   /* don't forget tails < heads now for undirected networks */
-  if (!(nwp->directed_flag) && tail > head) {
-    Vertex temp;
-    temp = tail; /*  Make sure tail<head always for undirected edges */
-    tail = head;
-    head = temp;
-  }
+  ENSURE_TH_ORDER;
   if (AddEdgeToTrees(tail,head,nwp))
     return 1;
   else 
@@ -696,12 +691,7 @@ int ToggleEdgeWithTimestamp(Vertex tail, Vertex head, Network *nwp){
   Edge k;
 
   /* don't forget, tails < heads in undirected networks now  */
-  if (!(nwp->directed_flag) && tail > head) {
-    Vertex temp;
-    temp = tail; /*  Make sure tail<head always for undirected edges */
-    tail = head;
-    head = temp;
-  }
+  ENSURE_TH_ORDER;
   
   if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
     if(nwp->bipartite){
@@ -725,3 +715,52 @@ int ToggleEdgeWithTimestamp(Vertex tail, Vertex head, Network *nwp){
        such, the function definitions now require tails to be passed
        in before heads */
 
+/*****************
+ int SetEdge
+
+ Set an edge value: set it to its new weight. Create if it
+does not exist, destroy by setting to 0. 
+*****************/
+void SetEdge (Vertex tail, Vertex head, unsigned int weight, Network *nwp) 
+{
+  ENSURE_TH_ORDER;
+
+  if(weight==0){
+    DeleteEdgeFromTrees(tail,head,nwp);
+  }else{
+    AddEdgeToTrees(tail,head,nwp);
+  }
+}
+
+/*****************
+ Edge SetEdgeWithTimestamp
+
+ Same as SetEdge, but this time with the additional
+ step of updating the matrix of 'lasttoggle' times
+ *****************/
+void SetEdgeWithTimestamp (Vertex tail, Vertex head, unsigned int weight, Network *nwp) 
+{
+  Edge k;
+
+  ENSURE_TH_ORDER;
+  
+  if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
+    if(nwp->bipartite){
+      k = (head-nwp->bipartite-1)*(nwp->bipartite) + tail - 1;
+    }else{
+      if (nwp->directed_flag) 
+	k = (head-1)*(nwp->nnodes-1) + tail - ((tail>head) ? 1:0) - 1; 
+      else
+	k = (head-1)*(head-2)/2 + tail - 1;    
+    }
+    nwp->duration_info.lasttoggle[k] = nwp->duration_info.time;
+  }
+
+  SetEdge(tail,head,weight,nwp);
+}
+
+
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */

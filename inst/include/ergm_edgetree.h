@@ -15,10 +15,19 @@
 #include <Rinternals.h>
 #include <Rmath.h>
 
-
 #define MIN(a,b) ((a)<(b) ? (a) : (b))
 #define MAX(a,b) ((a)<(b) ? (b) : (a))
 #define DYADCOUNT(nnodes, bipartite, directed) ((bipartite)? (unsigned long)((nnodes)-(bipartite))*(unsigned long)(bipartite) : ((directed)? (unsigned long)(nnodes)*(unsigned long)((nnodes)-1) : (((unsigned long)(nnodes)*(unsigned long)((nnodes)-1))/2)))
+
+/* Ensure that tail < head for undriected networks. */
+#define ENSURE_TH_ORDER							\
+  if(!(nwp->directed_flag) && tail>head){				\
+					 Vertex temp;			\
+					 temp = tail;			\
+					 tail = head;			\
+					 head = temp;			\
+					 }
+  
 
 /*typedef unsigned int Vertex; */
 typedef int Vertex;
@@ -111,6 +120,8 @@ Network *NetworkCopy(Network *dest, Network *src);
 /* *** don't forget,  tails -> heads, so all the functions below using
    heads & tails, now list tails before heads */
 
+void SetEdge (Vertex tail, Vertex head, unsigned int weight, Network *nwp);
+void SetEdgeWithTimestamp (Vertex tail, Vertex head, unsigned int weight, Network *nwp);
 int ToggleEdge (Vertex tail, Vertex head, Network *nwp);
 int ToggleEdgeWithTimestamp (Vertex tail, Vertex head, Network *nwp);
 int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp);
