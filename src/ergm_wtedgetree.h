@@ -27,28 +27,6 @@ typedef struct WtTreeNodestruct {
   double weight;
 } WtTreeNode;
 
-
-
-
-
-/* Network is a structure containing all essential elements
-   of a given network; it is a slightly rewritten version of the old Gptr,
-   with some changes of awkard things, deletion of unnecessary things, and
-   a new name more reflective of what it does!
-
-   Some of the fields in a Network structure are:
-   inedges and outedges are arrays of TreeNode that are used to 
-     store all of the incoming and outgoing edges, respectively. 
-   directed_flag is 1 or 0, depending on whether or not the 
-     network is directed. 
-   last_inedge and last_outedge are continually updated to give
-     the highest index of an edge object being used.  
-   outdegree[] and indegree[] are continually updated to give
-     the appropriate degree values for each vertex.  These should
-     point to Vertex-vectors of length nnodes+1.  
-   value:  optional value(s) associated with this network 
-   Dur_Inf:  See typedef for Dur_Infstruct above
-*/
 /* WtNetwork is a structure just like Network except it is for a network with 
    weighted (valued) edges.  */
 typedef struct WtNetworkstruct {
