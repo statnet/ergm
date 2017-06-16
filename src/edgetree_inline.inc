@@ -140,4 +140,20 @@ static inline int ElapsedTime(Vertex tail, Vertex head, Network *nwp){
      is valid output. Need to think about it. */
 }
 
+/*****************
+ int GetEdge
+
+Get edge value. Return 0 if edge does not exist.
+*****************/
+static inline unsigned int GetEdge (Vertex tail, Vertex head, Network *nwp) 
+{
+  if (!(nwp->directed_flag) && tail > head) {
+    Vertex temp;
+    temp = tail; /*  Make sure tail<head always for undirected edges */
+    tail = head;
+    head = temp;
+  }
+
+  return EdgetreeSearch(tail,head,nwp->outedges)!=0;
+}
 

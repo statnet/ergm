@@ -111,6 +111,8 @@ Network *NetworkCopy(Network *dest, Network *src);
 /* *** don't forget,  tails -> heads, so all the functions below using
    heads & tails, now list tails before heads */
 
+void SetEdge (Vertex tail, Vertex head, unsigned int weight, Network *nwp);
+void SetEdgeWithTimestamp (Vertex tail, Vertex head, unsigned int weight, Network *nwp);
 int ToggleEdge (Vertex tail, Vertex head, Network *nwp);
 int ToggleEdgeWithTimestamp (Vertex tail, Vertex head, Network *nwp);
 int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp);
