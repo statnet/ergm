@@ -40,3 +40,17 @@ stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
 (logic <- logit((network.edgecount(nw1)+network.edgecount(nw2))/(network.dyadcount(nw1)+network.dyadcount(nw2))))
 stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
 
+
+data(samplk)
+
+(layer <- summary(Layer(samplk1, samplk2)~mutual(layer1=~1,layer2=~2)))
+m1 <- as.matrix(samplk1)
+m2 <- as.matrix(samplk2)
+(logic <- (sum(m1*t(m2)+m2*t(m1))/2))
+stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
+
+(layer <- summary(Layer(samplk1, samplk2)~mutual(layer1=~1,layer2=~2&1)))
+m1 <- as.matrix(samplk1)
+m2 <- as.matrix(samplk2) * as.matrix(samplk1)
+(logic <- (sum(m1*t(m2)+m2*t(m1))/2))
+stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))

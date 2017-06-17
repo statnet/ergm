@@ -8,7 +8,8 @@
  *  Copyright 2003-2013 Statnet Commons
  */
 #include "changestats.h"
-
+#include "ergm_changestat_layers.h"
+#include "ergm_storage.h"
 /********************  changestats:  A    ***********/
 /*****************                       
  changestat: c_absdiff
@@ -3621,6 +3622,51 @@ C_CHANGESTAT_FN(c_mutual) {
 }
 
 /*****************
+ changestat: d_mutual_ml
+
+ (1,1) -> anything = -1
+ anything -> (1,1) = +1
+*****************/
+C_CHANGESTAT_FN(c_mutual_ml){
+  GET_AUX_STORAGE_NUM(StoreLayerLogic, ll1, 0);
+  GET_AUX_STORAGE_NUM(StoreLayerLogic, ll2, 1);
+  
+  double matchval;
+  int j, ninputs, noattr;
+
+  ninputs = N_INPUT_PARAMS - N_NODES - 2;
+  noattr = (N_INPUT_PARAMS == 2);
+
+  /* *** don't forget tail -> head */
+  Vertex lt = ll1->lmap[tail], lh = ll1->lmap[head]; 
+  int l1change = ergm_LayerLogic(tail, head, ll1, TRUE);
+  int l1reverse = GetEdge(lh, lt, ll1->onwp);
+  int l2change = ergm_LayerLogic(tail, head, ll2, TRUE);
+  int l2reverse = GetEdge(lh, lt, ll2->onwp);
+
+  int change = l1reverse*l2change + l2reverse*l1change;
+  
+  if(change) { /* otherwise, no change occurs */
+      if (noattr) { /* "plain vanilla" mutual, without node attributes */
+        CHANGE_STAT[0] += change;
+      } else { /* Only consider mutuals where node attributes match */
+        matchval = INPUT_PARAM[tail+ninputs-1+2];
+        if (matchval == INPUT_PARAM[head+ninputs-1+2]) { /* We have a match! */
+          if (ninputs==0) {/* diff=F in network statistic specification */
+            CHANGE_STAT[0] += change;
+          } else { /* diff=T */
+            for (j=0; j<ninputs; j++) {
+              if (matchval == INPUT_PARAM[j+2]) 
+                CHANGE_STAT[j] += change;
+            }
+          }
+        }
+      }
+    }
+}
+
+
+/*****************
  changestat: d_mutual_by_attr
 *****************/
 C_CHANGESTAT_FN(c_mutual_by_attr) { 
@@ -3636,6 +3682,35 @@ C_CHANGESTAT_FN(c_mutual_by_attr) {
       for (j=0; j<ninputs; j++) {
         if (INPUT_PARAM[tail+ninputs-1] == INPUT_PARAM[j]){CHANGE_STAT[j] += change;}
         if (INPUT_PARAM[head+ninputs-1] == INPUT_PARAM[j]){CHANGE_STAT[j] += change;}
+      }
+    }
+}
+
+/*****************
+ changestat: d_mutual_by_attr_ml
+*****************/
+C_CHANGESTAT_FN(c_mutual_by_attr_ml) { 
+  GET_AUX_STORAGE_NUM(StoreLayerLogic, ll1, 0);
+  GET_AUX_STORAGE_NUM(StoreLayerLogic, ll2, 1);
+
+  int j, ninputs;
+
+  ninputs = N_INPUT_PARAMS - N_NODES - 2;
+
+  /* *** don't forget tail -> head */
+  Vertex lt = ll1->lmap[tail], lh = ll1->lmap[head]; 
+  int l1change = ergm_LayerLogic(tail, head, ll1, TRUE);
+  int l1reverse = GetEdge(lh, lt, ll1->onwp);
+  int l2change = ergm_LayerLogic(tail, head, ll2, TRUE);
+  int l2reverse = GetEdge(lh, lt, ll2->onwp);
+
+  int change = l1reverse*l2change + l2reverse*l1change;
+  
+  /* *** don't forget tail -> head */    
+    if (change) { /* otherwise, no change occurs */
+      for (j=0; j<ninputs; j++) {
+        if (INPUT_PARAM[tail+ninputs-1+2] == INPUT_PARAM[j+2]){CHANGE_STAT[j] += change;}
+        if (INPUT_PARAM[head+ninputs-1+2] == INPUT_PARAM[j+2]){CHANGE_STAT[j] += change;}
       }
     }
 }
