@@ -1,5 +1,3 @@
-
-
 Layer <- function(...){
   args <- list(...)
   if(length(args)==2 && is(args[[1]], "network") && is(args[[2]], "vector")){
@@ -70,6 +68,8 @@ InitErgmTerm..layer.net <- function(nw, arglist, response=NULL, ...){
   if(length(term.list.formula(a$layers[[2]]))!=1) stop("Currently, the .layer.net() auxiliary formula must have exactly one term.", call.=FALSE)
   
   ll <- pack.LayerLogic_formula_as_double(a$layers, namemap)
+
+  if(any(sapply(ll, test_eval.LayerLogic, FALSE))) stop("Layer specifications that produce edges on the output layer for empty input layers are not supported at this time.", call.=FALSE)
   
   list(name="_layer_net", coef.names=c(), inputs=c(unlist(.layer_vertexmap(nw)),unlist(ll)), dependence=FALSE)
 }
@@ -108,6 +108,40 @@ pack.LayerLogic_formula_as_double <- function(formula, namemap){
   
   o <- lapply(lterms, postfix)
   lapply(o, function(com) c(length(com), com))
+}
+
+test_eval.LayerLogic <- function(commands, lv){
+  coms <- commands[-1]
+  lv <- rep(lv, length.out=max(coms))
+  stack <- c()
+  if(length(coms)!=commands[1]) stop("Layer specification command vector specifies incorrect number of commands.", call.=FALSE)
+  for(i in 1:commands[1]){
+    com <- coms[i]
+    if(com==-1){
+      x0 <- stack[1]; stack <- stack[-1]
+      stack <- c(!x0, stack)
+    }else if(com==-2){
+      x0 <- stack[1]; stack <- stack[-1]
+      y0 <- stack[1]; stack <- stack[-1]
+      stack <- c(x0 && y0, stack)
+    }else if(com==-3){
+      x0 <- stack[1]; stack <- stack[-1]
+      y0 <- stack[1]; stack <- stack[-1]
+      stack <- c(x0 || y0, stack)
+    }else if(com==-4){
+      x0 <- stack[1]; stack <- stack[-1]
+      y0 <- stack[1]; stack <- stack[-1]
+      stack <- c(x0 == y0, stack)
+    }else if(com==-5){
+      x0 <- stack[1]; stack <- stack[-1]
+      y0 <- stack[1]; stack <- stack[-1]
+      stack <- c(x0 != y0, stack)
+    }else{
+      stack <- c(lv[com], stack)
+    }
+  }
+  if(length(stack)!=1) stop("Invalid layer specification command sequence.", call.=FALSE)
+  stack
 }
 
 .all_layers_terms <- function(n){
