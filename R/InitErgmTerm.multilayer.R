@@ -22,7 +22,7 @@ Layer <- function(...){
 #' Calculate a vector that maps the global LHS network Vertex indices within-layer Vertex and a Vertex to layer lookup table.
 #' @noRd
 .layer_vertexmap <- function(nw){
-  a <- .pop_vattrv(nw, ".LayerID")$vattr
+  a <- .peek_vattrv(nw, ".LayerID")
   n <- length(a)
   bip <- nw %n% "bipartite"
   if(NVL(bip,0)){
@@ -152,6 +152,16 @@ test_eval.LayerLogic <- function(commands, lv){
   o
 }
 
+.mk_.layer.net_auxform <- function(trms, nl){
+  # Replace . with all layers.
+  trms <- do.call(substitute, list(trms, list(`.`=.all_layers_terms(nl))))
+  # Get the formula as a list of term calls.
+  trms <- term.list.formula(trms[[2]])
+  trmcalls <- lapply(trms, function(ltrm) as.formula(call("~", ltrm)))
+  trmcalls <- lapply(trmcalls, function(ltrm) call(".layer.net", ltrm))
+  append.rhs.formula(~.,trmcalls)[-2]
+}
+
 InitErgmTerm.OnLayer <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "layers"),
@@ -169,12 +179,8 @@ InitErgmTerm.OnLayer <- function(nw, arglist, response=NULL, ...){
   names(namemap) <- nwnames
 
   layers <- a$layers
-  layers <- do.call(substitute, list(layers, list(`.`=.all_layers_terms(length(nwl)))))
-  ltrms <- term.list.formula(layers[[2]])
-  nltrms <- length(ltrms)
-  trmcalls <- lapply(ltrms, function(ltrm) as.formula(call("~", ltrm)))
-  trmcalls <- lapply(trmcalls, function(ltrm) call(".layer.net", ltrm))
-  auxiliaries <- append.rhs.formula(~.,trmcalls)[-2]
+  auxiliaries <- .mk_.layer.net_auxform(layers, length(nwl))
+  nltrms <- length(term.list.formula(auxiliaries[[2]]))
 
   nw1 <- nwl[[1]]
   

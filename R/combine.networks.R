@@ -336,6 +336,11 @@ combine_networks <- function(nwl, ignore.nattr=c("bipartite","directed","hyper",
   out
 }
 
+.peek_vattrv <- function(nw, vattr){
+  av <- get.vertex.attribute(nw, vattr, unlist=FALSE)
+  sapply(av, "[", 1)
+}
+
 .pop_vattrv <- function(nw, vattr){
   av <- get.vertex.attribute(nw, vattr, unlist=FALSE)
   a <- sapply(av, "[", 1)
