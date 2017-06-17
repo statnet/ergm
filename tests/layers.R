@@ -10,6 +10,8 @@ nw0 <- network.initialize(5, dir=FALSE)
                     OnLayer(~edges, ~1) +
                     OnLayer(~edges, ~2) +
                     OnLayer(~edges, ~1+2) +
+                    OnLayer(~density) +
+                    OnLayer(~meandeg) +
                     OnLayer(~edges, ~1&2) +
                     OnLayer(~edges, ~1||2) +
                     OnLayer(~edges, ~(!1)&2) +
@@ -19,6 +21,8 @@ nw0 <- network.initialize(5, dir=FALSE)
 (logic <- c(summary(nw1~edges),
             summary(nw2~edges),
             summary(nw1~edges)+summary(nw2~edges),
+            summary(nw1~density)+summary(nw2~density),
+            summary(nw1~meandeg)+summary(nw2~meandeg),
             summary((nw1&nw2)~edges),
             summary((nw1|nw2)~edges),
             summary(((!nw1)&nw2)~edges),

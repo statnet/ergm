@@ -110,12 +110,20 @@ pack.LayerLogic_formula_as_double <- function(formula, namemap){
   lapply(o, function(com) c(length(com), com))
 }
 
+.all_layers_terms <- function(n){
+  if(n<1) return(NULL)
+  if(n==1) return(1)
+  o <- call("+", 1, 2)
+  for(i in seq_len(n-2)+2) o <- call("+", o, i)
+  o
+}
+
 InitErgmTerm.OnLayer <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "layers"),
                       vartypes = c("formula", "formula"),
                       defaultvalues = list(NULL, ~.),
-                      required = c(TRUE, TRUE))
+                      required = c(TRUE, FALSE))
 
   f <- a$formula
 
@@ -127,8 +135,8 @@ InitErgmTerm.OnLayer <- function(nw, arglist, response=NULL, ...){
   names(namemap) <- nwnames
 
   layers <- a$layers
-  layers
-  ltrms <- term.list.formula(a$layers[[2]])
+  layers <- do.call(substitute, list(layers, list(`.`=.all_layers_terms(length(nwl)))))
+  ltrms <- term.list.formula(layers[[2]])
   nltrms <- length(ltrms)
   trmcalls <- lapply(ltrms, function(ltrm) as.formula(call("~", ltrm)))
   trmcalls <- lapply(trmcalls, function(ltrm) call(".layer.net", ltrm))
