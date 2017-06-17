@@ -1,3 +1,5 @@
+
+
 Layer <- function(...){
   args <- list(...)
   if(length(args)==2 && is(args[[1]], "network") && is(args[[2]], "vector")){
@@ -32,12 +34,12 @@ Layer <- function(...){
     al <- rle(aa)$lengths
     if(!all.same(el) || !all.same(al)) stop("Layers must be networks of the same dimensions.", call.=FALSE)
 
-    c(length(el), a, seq_len(n) - c((ea-1)*el[1], (aa-1)*al[1]))
+    list(nl = length(el), lids = a, lmap = seq_len(n) - c((ea-1)*el[1], bip - el[1] + (aa-1)*al[1]))
     
   }else{
     l <- rle(a)$lengths
     if(!all.same(l)) stop("Layers must be networks of the same size.", call.=FALSE)
-    c(length(l), a, seq_len(n) - (a-1)*l[1])
+    c(nl = length(l), lids = a, lmap = seq_len(n) - (a-1)*l[1])
   }
 }
 
@@ -47,7 +49,65 @@ InitErgmTerm..layer.nets <- function(nw, arglist, response=NULL, ...){
                       vartypes = c(),
                       defaultvalues = list(),
                       required = c())
-  list(name="_layer_nets", coef.names=c(), inputs=.layer_vertexmap(nw), dependence=FALSE)
+  list(name="_layer_nets", coef.names=c(), inputs=unlist(.layer_vertexmap(nw)), dependence=FALSE)
+}
+
+InitErgmTerm..layer.net <- function(nw, arglist, response=NULL, ...){
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("layers"),
+                      vartypes = c("formula"),
+                      defaultvalues = list(NULL),
+                      required = c(TRUE))
+
+  
+  nwl <- uncombine_network(nw, split.vattr=".LayerID", names.vattr=".LayerName")
+  nwnames <- names(nwl)
+
+  # Process layer specification
+  namemap <- seq_along(nwl)
+  names(namemap) <- nwnames
+
+  if(length(term.list.formula(a$layers[[2]]))!=1) stop("Currently, the .layer.net() auxiliary formula must have exactly one term.", call.=FALSE)
+  
+  ll <- pack.LayerLogic_formula_as_double(a$layers, namemap)
+  
+  list(name="_layer_net", coef.names=c(), inputs=c(unlist(.layer_vertexmap(nw)),unlist(ll)), dependence=FALSE)
+}
+
+pack.LayerLogic_formula_as_double <- function(formula, namemap){
+  OPMAP <- c(`(` = 0,
+             `!` = -1,
+             `&` = -2,
+             `&&` = -2,
+             `|` = -3,
+             `||` = -3,
+             `==` = -4,
+             `!=` = -5,
+             `xor` = -5)
+  
+  lterms <- term.list.formula(formula[[2]])
+
+  lidMap <- function(l){
+    switch(class(l),
+           numeric = l,
+           namemap[as.character(l)])
+  }
+  
+  postfix <- function(call, coml=c()){
+    if(is.call(call)){
+      op <- call[[1]]
+      for(i in seq_along(call[-1])+1){
+        coml <- c(coml, postfix(call[[i]]))
+      }
+      coml <- c(coml, OPMAP[as.character(op)])
+    }else{
+      coml <- c(coml, lidMap(call))
+    }
+    coml[coml!=0]
+  }
+  
+  o <- lapply(lterms, postfix)
+  lapply(o, function(com) c(length(com), com))
 }
 
 InitErgmTerm.OnLayer <- function(nw, arglist, response=NULL, ...){
@@ -55,7 +115,7 @@ InitErgmTerm.OnLayer <- function(nw, arglist, response=NULL, ...){
                       varnames = c("formula", "layers"),
                       vartypes = c("formula", "formula"),
                       defaultvalues = list(NULL, ~.),
-                      required = c(TRUE, FALSE))
+                      required = c(TRUE, TRUE))
 
   f <- a$formula
 
@@ -66,33 +126,28 @@ InitErgmTerm.OnLayer <- function(nw, arglist, response=NULL, ...){
   namemap <- seq_along(nwl)
   names(namemap) <- nwnames
 
-  lIDs <- term.list.formula(a$layers[[2]])
-  lIDs <- sapply(lIDs, function(l)
-    switch(class(l),
-           numeric = l,
-           namemap[as.character(l)])
-    )
+  layers <- a$layers
+  layers
+  ltrms <- term.list.formula(a$layers[[2]])
+  nltrms <- length(ltrms)
+  trmcalls <- lapply(ltrms, function(ltrm) as.formula(call("~", ltrm)))
+  trmcalls <- lapply(trmcalls, function(ltrm) call(".layer.net", ltrm))
+  auxiliaries <- append.rhs.formula(~.,trmcalls)[-2]
 
-  nl <- length(lIDs)           
-
-  nwl <- nwl[lIDs]
+  nw1 <- nwl[[1]]
   
-  ml <- lapply(nwl, function(nw, ...){
-    if(length(f)==2) f <- nonsimp.update.formula(f, nw~.)
-    else nw <- ergm.getnetwork(f)
-    
-    ergm.getmodel(f, nw, response=response,...)
-  }, ...)
-
-  inputsl <- mapply(function(nw, m){
-    Clist <- ergm.Cprepare(nw, m, response=response)
-    inputs <- pack.Clist_as_num(Clist)
-  }, nwl, ml, SIMPLIFY=FALSE)
-  inputs <- c(nl, lIDs, unlist(inputsl))
-
-  gsl <- lapply(ml, ergm.emptynwstats.model)
-  gs <- Reduce(`+`, gsl)
+  if(length(f)==2) f <- nonsimp.update.formula(f, nw1~.)
+  else nw1 <- ergm.getnetwork(f)
   
-  c(list(name="OnLayer", coef.names = paste0('OnLayer(',ml[[1]]$coef.names,',',deparse(a$layers),')'), inputs=inputs, dependence=!is.dyad.independent(ml[[1]]), emptynwstats = gs), auxiliaries = ~.layer.nets,
-    passthrough.curved.ergm.model(ml[[1]], function(x) paste0('OnLayer(',x,',',deparse(a$layers),')')))
+  m <- ergm.getmodel(f, nw1, response=response,...)
+  
+  Clist <- ergm.Cprepare(nw1, m, response=response)
+  inputs <- pack.Clist_as_num(Clist)
+  
+  inputs <- c(nltrms, inputs)
+
+  gs <- ergm.emptynwstats.model(m) * nltrms
+  
+  c(list(name="OnLayer", coef.names = paste0('OnLayer(',m$coef.names,',',deparse(a$layers),')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries = auxiliaries),
+    passthrough.curved.ergm.model(m, function(x) paste0('OnLayer(',x,',',deparse(a$layers),')')))
 }
