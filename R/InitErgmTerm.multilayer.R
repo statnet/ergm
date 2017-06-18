@@ -174,10 +174,6 @@ InitErgmTerm.OnLayer <- function(nw, arglist, response=NULL, ...){
   nwl <- uncombine_network(nw, split.vattr=".LayerID", names.vattr=".LayerName")
   nwnames <- names(nwl)
 
-  # Process layer specification
-  namemap <- seq_along(nwl)
-  names(namemap) <- nwnames
-
   layers <- a$layers
   auxiliaries <- .mk_.layer.net_auxform(layers, length(nwl))
   nltrms <- length(term.list.formula(auxiliaries[[2]]))
@@ -198,4 +194,21 @@ InitErgmTerm.OnLayer <- function(nw, arglist, response=NULL, ...){
   
   c(list(name="OnLayer", coef.names = paste0('OnLayer(',m$coef.names,',',deparse(a$layers),')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries = auxiliaries),
     passthrough.curved.ergm.model(m, function(x) paste0('OnLayer(',x,',',deparse(a$layers),')')))
+}
+
+InitErgmTerm.layerCMB <- function(nw, arglist, response=NULL, ...){
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("layers"),
+                      vartypes = c("formula"),
+                      defaultvalues = list(~.),
+                      required = c(FALSE))
+
+  nwl <- uncombine_network(nw, split.vattr=".LayerID", names.vattr=".LayerName")
+  layers <- a$layers
+  auxiliaries <- .mk_.layer.net_auxform(layers, length(nwl))
+  nltrms <- length(term.list.formula(auxiliaries[[2]]))
+
+  inputs <- c(nltrms)
+
+  list(name="layerCMB", coef.names = paste0('layerCMB(',deparse(a$layers),')'), inputs=inputs, dependence=FALSE, auxiliaries = auxiliaries, emptynwstats = network.dyadcount(nwl[[1]], FALSE)*lfactorial(nltrms))
 }

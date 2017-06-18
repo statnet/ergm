@@ -122,3 +122,21 @@ F_CHANGESTAT_FN(f_OnLayer){
     ModelDestroy(ll->onwp, ms[ml]);
   }
 }
+
+/* layerCMB: Conway-Maxwell-Binomial for the sum of layer combinations */
+
+C_CHANGESTAT_FN(c_layerCMB){
+  unsigned int nml = *INPUT_ATTRIB;
+
+  // FIXME: Cache current values, perhaps via a valued auxiliary?
+
+  unsigned int oldct=0, newct=0;
+  for(unsigned int ml=0; ml < nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    unsigned int v = ergm_LayerLogic(tail, head, ll, 2);
+    if(v&1) oldct++; // Pre-toggle edge present.
+    if(v&2) newct++; // Post-toggle edge present.
+  }
+  
+  CHANGE_STAT[0] = lgamma1p(newct)-lgamma1p(oldct) + lgamma1p(nml-newct)-lgamma1p(nml-oldct); 
+}

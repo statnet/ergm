@@ -54,3 +54,12 @@ m1 <- as.matrix(samplk1)
 m2 <- as.matrix(samplk2) * as.matrix(samplk1)
 (logic <- (sum(m1*t(m2)+m2*t(m1))/2))
 stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
+
+(layer <- summary(Layer(samplk1, samplk2, samplk3)~layerCMB))
+m1 <- as.matrix(samplk1)
+m2 <- as.matrix(samplk2)
+m3 <- as.matrix(samplk3)
+msum <- m1 + m2 + m3
+diag(msum) <- NA
+(logic <- sum(lfactorial(msum) + lfactorial(3-msum), na.rm=TRUE))
+stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
