@@ -121,7 +121,7 @@
 #  UTP - Undirected two-path (undirected graphs only)
 #  OTP - Outgoing two-path (i->k->j)
 #  ITP - Incoming two-path (i<-k<-j)
-#  RTP - Recursive two-path (i<->k<->j)
+#  RTP - Reciprocated two-path (i<->k<->j)
 #  OSP - Outgoing shared partner (i->k<-j)
 #  ISP - Incoming shared partner (i<-k->j)
 #
@@ -168,7 +168,7 @@ InitErgmTerm.desp<-function(nw, arglist, ...) {
 #  UTP - Undirected two-path (undirected graphs only)
 #  OTP - Outgoing two-path (i->k->j)
 #  ITP - Incoming two-path (i<-k<-j)
-#  RTP - Recursive two-path (i<->k<->j)
+#  RTP - Reciprocated two-path (i<->k<->j)
 #  OSP - Outgoing shared partner (i->k<-j)
 #  ISP - Incoming shared partner (i<-k->j)
 #
@@ -245,7 +245,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
 #  UTP - Undirected two-path (undirected graphs only)
 #  OTP - Outgoing two-path (i->k->j)
 #  ITP - Incoming two-path (i<-k<-j)
-#  RTP - Recursive two-path (i<->k<->j)
+#  RTP - Reciprocated two-path (i<->k<->j)
 #  OSP - Outgoing shared partner (i->k<-j)
 #  ISP - Incoming shared partner (i<-k->j)
 #
@@ -376,7 +376,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
 #  UTP - Undirected two-path (undirected graphs only)
 #  OTP - Outgoing two-path (i->k->j)
 #  ITP - Incoming two-path (i<-k<-j)
-#  RTP - Recursive two-path (i<->k<->j)
+#  RTP - Reciprocated two-path (i<->k<->j)
 #  OSP - Outgoing shared partner (i->k<-j)
 #  ISP - Incoming shared partner (i<-k->j)
 #
