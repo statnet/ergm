@@ -735,6 +735,7 @@ return fun(tails,heads,weights,nwp,nmax);
 #undef DYADCOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 #include "R_ext/Rdynload.h"
 #include "ergm_wtMHproposal.h"
 void WtMH_init(WtMHproposal *MH,char *MHproposaltype, char *MHproposalpackage,double *inputs,int fVerbose,WtNetwork *nwp,void **aux_storage){
@@ -752,6 +753,7 @@ fun(MH,nwp);
 #undef DYADCOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 #undef NO_EDGE
 #undef OLD_EDGE
 #undef NEW_EDGE
@@ -805,6 +807,7 @@ fun(nwp,m);
 #undef DYADCOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
