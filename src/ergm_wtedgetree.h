@@ -16,6 +16,14 @@
 #include <Rmath.h>
 #include "ergm_edgetree.h"
 
+/* Ensure that tail < head for undriected networks. */
+#define ENSURE_TH_ORDER							\
+  if(!(nwp->directed_flag) && tail>head){				\
+    Vertex temp;							\
+    temp = tail;							\
+    tail = head;							\
+    head = temp;							\
+  }
 
 /* WtTreeNode is just like TreeNode but with an extra field for a
    weight, or value, that might be associated with the node */

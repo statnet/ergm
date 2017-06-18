@@ -284,7 +284,7 @@ static inline void dspISP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
 
 
 /*
-Changescore for ESPs based on recursive two-paths, i.e. configurations for edge i->j such that i<->k and j<->k (with k!=j).
+Changescore for ESPs based on reciprocated two-paths, i.e. configurations for edge i->j such that i<->k and j<->k (with k!=j).
 
 RTP:
 L2th - count t<->k<->h
@@ -401,7 +401,7 @@ Type codes are as follows (where (i,j) is the focal edge):
   UTP - Undirected two-path (undirected graphs only)
   OTP - Outgoing two-path (i->k->j)
   ITP - Incoming two-path (i<-k<-j)
-  RTP - Recursive two-path (i<->k<->j)
+  RTP - Reciprocated two-path (i<->k<->j)
   OSP - Outgoing shared partner (i->k<-j)
   ISP - Incoming shared partner (i<-k->j)
 
@@ -439,7 +439,7 @@ Note that d_gwesp is a meta-function for all geometrically weighted ESP stats; t
 
   OTP (0) - Outgoing two-path (i->k->j)
   ITP (1) - Incoming two-path (i<-k<-j)
-  RTP (2) - Recursive two-path (i<->k<->j)
+  RTP (2) - Reciprocated two-path (i<->k<->j)
   OSP (3) - Outgoing shared partner (i->k<-j)
   ISP (4) - Incoming shared partner (i<-k->j)
 
@@ -855,7 +855,7 @@ static inline void espISP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
 
 
 /*
-Changescore for ESPs based on recursive two-paths, i.e. configurations for edge i->j such that i<->k and j<->k (with k!=j).
+Changescore for ESPs based on reciprocated two-paths, i.e. configurations for edge i->j such that i<->k and j<->k (with k!=j).
 
 RTP:
 L2th - count t<->k<->h
@@ -973,7 +973,7 @@ Type codes are as follows (where (i,j) is the focal edge):
   UTP - Undirected two-path (undirected graphs only)
   OTP - Outgoing two-path (i->k->j)
   ITP - Incoming two-path (i<-k<-j)
-  RTP - Recursive two-path (i<->k<->j)
+  RTP - Reciprocated two-path (i<->k<->j)
   OSP - Outgoing shared partner (i->k<-j)
   ISP - Incoming shared partner (i<-k->j)
 
@@ -1011,7 +1011,7 @@ Note that d_gwesp is a meta-function for all geometrically weighted ESP stats; t
 
   OTP (0) - Outgoing two-path (i->k->j)
   ITP (1) - Incoming two-path (i<-k<-j)
-  RTP (2) - Recursive two-path (i<->k<->j)
+  RTP (2) - Reciprocated two-path (i<->k<->j)
   OSP (3) - Outgoing shared partner (i->k<-j)
   ISP (4) - Incoming shared partner (i<-k->j)
 
@@ -1074,7 +1074,7 @@ Type codes are as follows (where (i,j) is the focal edge):
   UTP - Undirected two-path (undirected graphs only)
   OTP - Outgoing two-path (i->k->j)
   ITP - Incoming two-path (i<-k<-j)
-  RTP - Recursive two-path (i<->k<->j)
+  RTP - Reciprocated two-path (i<->k<->j)
   OSP - Outgoing shared partner (i->k<-j)
   ISP - Incoming shared partner (i<-k->j)
 
@@ -1140,7 +1140,7 @@ Note that d_gwesp is a meta-function for all geometrically weighted ESP stats; t
 
   OTP (0) - Outgoing two-path (i->k->j)
   ITP (1) - Incoming two-path (i<-k<-j)
-  RTP (2) - Recursive two-path (i<->k<->j)
+  RTP (2) - Reciprocated two-path (i<->k<->j)
   OSP (3) - Outgoing shared partner (i->k<-j)
   ISP (4) - Incoming shared partner (i<-k->j)
 

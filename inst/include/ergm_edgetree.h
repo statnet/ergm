@@ -19,20 +19,19 @@
 #define MAX(a,b) ((a)<(b) ? (b) : (a))
 #define DYADCOUNT(nnodes, bipartite, directed) ((bipartite)? (unsigned long)((nnodes)-(bipartite))*(unsigned long)(bipartite) : ((directed)? (unsigned long)(nnodes)*(unsigned long)((nnodes)-1) : (((unsigned long)(nnodes)*(unsigned long)((nnodes)-1))/2)))
 
-/* Ensure that tail < head for undriected networks. */
-#define ENSURE_TH_ORDER							\
-  if(!(nwp->directed_flag) && tail>head){				\
-					 Vertex temp;			\
-					 temp = tail;			\
-					 tail = head;			\
-					 head = temp;			\
-					 }
-  
-
 /*typedef unsigned int Vertex; */
 typedef int Vertex;
 typedef unsigned int Edge;
 typedef unsigned long int Dyad;
+
+/* Ensure that tail < head for undriected networks. */
+#define ENSURE_TH_ORDER							\
+  if(!(nwp->directed_flag) && tail>head){				\
+    Vertex temp;							\
+    temp = tail;							\
+    tail = head;							\
+    head = temp;							\
+  }
 
 /*  TreeNode is a binary tree structure, which is how the edgelists 
     are stored.  The root of the tree for vertex i will be inedges[i]
