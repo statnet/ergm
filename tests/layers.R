@@ -2,21 +2,21 @@ library(ergm)
 
 logit <- function(p) log(p/(1-p))
 
-nw0 <- network.initialize(5, dir=FALSE)
+nw0 <- network.initialize(10, dir=FALSE)
 (nw1 <- simulate(nw0~edges, coef=-.5))
 (nw2 <- simulate(nw0~edges, coef=+.5))
 
-(layer <- summary(Layer(nw1, nw2) ~
-                    OnLayer(~edges, ~1) +
+(layer <- summary(Layer(A=nw1, B=nw2) ~
+                    OnLayer(~edges, ~A) +
                     OnLayer(~edges, ~2) +
-                    OnLayer(~edges, ~1+2) +
+                    OnLayer(~edges, ~1+B) +
                     OnLayer(~density) +
                     OnLayer(~meandeg) +
-                    OnLayer(~edges, ~1&2) +
+                    OnLayer(~edges, ~A&B) +
                     OnLayer(~edges, ~1||2) +
-                    OnLayer(~edges, ~(!1)&2) +
+                    OnLayer(~edges, ~(!A)&2) +
                     OnLayer(~edges, ~(1!=2)) +
-                    OnLayer(~edges, ~xor(1,2))
+                    OnLayer(~edges, ~xor(1,B))
                   ))
 (logic <- c(summary(nw1~edges),
             summary(nw2~edges),
