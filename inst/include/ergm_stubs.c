@@ -453,6 +453,7 @@ return fun(x);
 #undef DYADCOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
