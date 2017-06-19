@@ -24,7 +24,7 @@
 
 all_same <- function(x){
   if(length(x)==0) return(TRUE)
-  v0 <- x[1]
+  v0 <- x[[1]]
   for(v in x[-1]) if(!identical(v0,v)) return(FALSE)
   return(TRUE)
 }
