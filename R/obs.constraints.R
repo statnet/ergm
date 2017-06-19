@@ -12,6 +12,15 @@
                                     constraints=~.,
                                     obs.constraints=~observed,
                                     target.stats=NULL) {
+
+  # We have constraint information.
+  if("constraints" %in% list.network.attributes(nw)){
+    constraints <- as.formula(do.call(substitute, list(constraints, list(`.` = nw %n% "constraints"))))
+  }
+  # We have observational process information.
+  if("obs.constraints" %in% list.network.attributes(nw)){
+    obs.constraints <- as.formula(do.call(substitute, list(obs.constraints, list(`.` = nw %n% "obs.constraints"))))
+  }
   
   # Observation process handling only needs to happen if the
   # sufficient statistics are not specified. If the sufficient
@@ -37,18 +46,6 @@
   
   constraints.obs<-append.rhs.formula(constraints, obs.constraints, TRUE)
   if(constraints==constraints.obs) constraints.obs<-NULL
-
-  # We have layer information.
-  if(".LayerID" %in% list.vertex.attributes(nw)){
-    nw %v% ".LayerBlocks" <- sapply(get.vertex.attribute(nw, ".LayerID", unlist=FALSE), paste, collapse=".")
-    if(constraints==~.)
-      constraints <- ~blockdiag(".LayerBlocks")
-    else
-      constraints <- append.rhs.formula(constraints, alist(blockdiag(".LayerBlocks")), TRUE)
-
-    if(!is.null(constraints.obs))
-      constraints.obs <- append.rhs.formula(constraints.obs, alist(blockdiag(".LayerBlocks")), TRUE)
-  }
   
   list(nw = nw, constraints = constraints, constraints.obs = constraints.obs)
 }

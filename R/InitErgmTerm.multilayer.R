@@ -1,3 +1,8 @@
+.unenv <- function(f){
+  environment(f) <- NULL
+  f
+}
+
 Layer <- function(...){
   args <- list(...)
   if(length(args)==2 && is(args[[1]], "network") && is(args[[2]], "vector")){
@@ -15,8 +20,23 @@ Layer <- function(...){
   }else if(is.list(args[[1]]) && all(sapply(args[[1]], is, "network"))){
     nwl <- args[[1]]
   }else stop("Unrecognized format for multilayer specification. See help for information.")
+
+  constraintsl <- lapply(nwl, get.network.attribute, "constraints")
+  if(!all_same(lapply(constraintsl, .unenv))) stop("Layers have differing constraint structures. This is not supported at this time.")
+  constraints.obsl <- lapply(nwl, get.network.attribute, "constraints.obs")
+  if(!all_same(lapply(constraintsl, .unenv))) stop("Layers have differing observation processes. This is not supported at this time.")
   
-  combine_networks(nwl, blockID.vattr=".LayerID", blockName.vattr=".LayerName")
+  nw <- combine_networks(nwl, blockID.vattr=".LayerID", blockName.vattr=".LayerName", ignore.nattr = c(eval(formals(combine_networks)$ignore.nattr), "constraints", "constraints.obs"))
+  nw %n% "constraints" <-
+      if(NVL(nwl[[1]]%n%"constraints",~.)==~.)
+        ~blockdiag(".LayerID")
+      else
+        append.rhs.formula(nwl[[1]]%n%"constraints", alist(blockdiag(".LayerBlocks")), TRUE)
+  nw
+}
+
+.layer_split_network <- function(nw){
+  uncombine_network(nw, split.vattr=".LayerID", names.vattr=".LayerName", ignore.nattr = c(eval(formals(uncombine_network)$ignore.nattr), "constraints", "constraints.obs"))
 }
 
 #' Calculate a vector that maps the global LHS network Vertex indices within-layer Vertex and a Vertex to layer lookup table.
@@ -58,7 +78,7 @@ InitErgmTerm..layer.net <- function(nw, arglist, response=NULL, ...){
                       required = c(TRUE))
 
   
-  nwl <- uncombine_network(nw, split.vattr=".LayerID", names.vattr=".LayerName")
+  nwl <- .layer_split_network(nw)
   nwnames <- names(nwl)
 
   # Process layer specification
@@ -171,7 +191,7 @@ InitErgmTerm.OnLayer <- function(nw, arglist, response=NULL, ...){
 
   f <- a$formula
 
-  nwl <- uncombine_network(nw, split.vattr=".LayerID", names.vattr=".LayerName")
+  nwl <- .layer_split_network(nw)
   nwnames <- names(nwl)
 
   layers <- a$layers
@@ -203,7 +223,7 @@ InitErgmTerm.layerCMB <- function(nw, arglist, response=NULL, ...){
                       defaultvalues = list(~.),
                       required = c(FALSE))
 
-  nwl <- uncombine_network(nw, split.vattr=".LayerID", names.vattr=".LayerName")
+  nwl <- .layer_split_network(nw)
   layers <- a$layers
   auxiliaries <- .mk_.layer.net_auxform(layers, length(nwl))
   nltrms <- length(term.list.formula(auxiliaries[[2]]))
