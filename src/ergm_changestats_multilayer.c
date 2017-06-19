@@ -21,7 +21,7 @@ I_CHANGESTAT_FN(i__layer_net){
   
   EXEC_THROUGH_NET_EDGES(t, h, e, {
       if(ergm_LayerLogic(t, h, ll, TRUE)){
-	ToggleEdge(ll->lmap[t], ll->lmap[h], ll->onwp);
+	ML_TOGGLE(ll, ML_IO_TAIL(ll, t), ML_IO_HEAD(ll, h));
       }
     });
 }
@@ -29,7 +29,7 @@ I_CHANGESTAT_FN(i__layer_net){
 U_CHANGESTAT_FN(u__layer_net){ 
   GET_AUX_STORAGE(StoreLayerLogic, ll);
   if(ergm_LayerLogic(tail, head, ll, TRUE)){
-    ToggleEdge(ll->lmap[tail], ll->lmap[head], ll->onwp);
+    ML_TOGGLE(ll, ML_IO_TAIL(ll, tail), ML_IO_HEAD(ll, head));
   }
 }
 
@@ -40,34 +40,34 @@ F_CHANGESTAT_FN(f__layer_net){
   Free(ll->stacks);
 }
 
-I_CHANGESTAT_FN(i__layer_nets){
-  ALLOC_AUX_STORAGE(1, StoreNetsAndLIDAndLMapAndNL, li);
-  li->nl = INPUT_PARAM[1];
-  Vertex lnnodes = N_NODES/li->nl, lbip = BIPARTITE/li->nl;
-  li->nwp = Calloc(li->nl+1, Network);
-  li->lid = INPUT_PARAM+2 -1; // The -1 is because Vertex IDs count from 1.
-  li->lmap = INPUT_PARAM+2+N_NODES -1;
-  for(unsigned int l = 1; l <= li->nl; l++){
-    li->nwp[l] = NetworkInitialize(NULL, NULL, 0, lnnodes, DIRECTED, lbip, 0, 0, NULL);
-  }
+/* I_CHANGESTAT_FN(i__layer_nets){ */
+/*   ALLOC_AUX_STORAGE(1, StoreNetsAndLIDAndLMapAndNL, li); */
+/*   li->nl = INPUT_PARAM[1]; */
+/*   Vertex lnnodes = N_NODES/li->nl, lbip = BIPARTITE/li->nl; */
+/*   li->nwp = Calloc(li->nl+1, Network); */
+/*   li->lid = INPUT_PARAM+2 -1; // The -1 is because Vertex IDs count from 1. */
+/*   li->lmap = INPUT_PARAM+2+N_NODES -1; */
+/*   for(unsigned int l = 1; l <= li->nl; l++){ */
+/*     li->nwp[l] = NetworkInitialize(NULL, NULL, 0, lnnodes, DIRECTED, lbip, 0, 0, NULL); */
+/*   } */
   
-  EXEC_THROUGH_NET_EDGES(t, h, e, {
-      ToggleEdge(li->lmap[t], li->lmap[h], li->nwp + (int)li->lid[t]);
-    });
-}
+/*   EXEC_THROUGH_NET_EDGES(t, h, e, { */
+/*       ToggleEdge(li->lmap[t], li->lmap[h], li->nwp + (int)li->lid[t]); */
+/*     }); */
+/* } */
 
-U_CHANGESTAT_FN(u__layer_nets){ 
-  GET_AUX_STORAGE(StoreNetsAndLIDAndLMapAndNL, li);
-  ToggleEdge(li->lmap[tail], li->lmap[head], li->nwp + (int)li->lid[tail]);
-}
+/* U_CHANGESTAT_FN(u__layer_nets){  */
+/*   GET_AUX_STORAGE(StoreNetsAndLIDAndLMapAndNL, li); */
+/*   ToggleEdge(li->lmap[tail], li->lmap[head], li->nwp + (int)li->lid[tail]); */
+/* } */
 
-F_CHANGESTAT_FN(f__layer_nets){ 
-  GET_AUX_STORAGE(StoreNetsAndLIDAndLMapAndNL, li);
-  for(unsigned int l = 1; l <= li->nl; l++){
-    NetworkDestroy(li->nwp + l);
-  }
-  Free(li->nwp);
-}
+/* F_CHANGESTAT_FN(f__layer_nets){  */
+/*   GET_AUX_STORAGE(StoreNetsAndLIDAndLMapAndNL, li); */
+/*   for(unsigned int l = 1; l <= li->nl; l++){ */
+/*     NetworkDestroy(li->nwp + l); */
+/*   } */
+/*   Free(li->nwp); */
+/* } */
 
 I_CHANGESTAT_FN(i_OnLayer){
   
@@ -91,7 +91,7 @@ C_CHANGESTAT_FN(c_OnLayer){
   for(unsigned int ml=0; ml < nml; ml++){
     GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
     if(ergm_LayerLogic(tail, head, ll, TRUE)){ // network affected
-      Vertex lt = ll->lmap[tail], lh = ll->lmap[head];
+      Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
       ChangeStats(1, &lt, &lh, ll->onwp, ms[ml]);
       for(unsigned int i=0; i<N_CHANGE_STATS; i++)
 	CHANGE_STAT[i] += ms[ml]->workspace[i];
@@ -107,7 +107,7 @@ U_CHANGESTAT_FN(u_OnLayer){
   for(unsigned int ml=0; ml < nml; ml++){
     GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
     if(ergm_LayerLogic(tail, head, ll, TRUE)){ // network affected
-      Vertex lt = ll->lmap[tail], lh = ll->lmap[head];
+      Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
       Model *m = ms[ml];
       UPDATE_STORAGE(lt, lh, ll->onwp, ms[ml], NULL);
     }

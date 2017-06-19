@@ -2409,7 +2409,7 @@ InitErgmTerm.mutual<-function (nw, arglist, ...) {
     auxiliaries <- .mk_.layer.net_auxform(layer1, nl)
     aux2 <- .mk_.layer.net_auxform(layer2, nl)
     auxiliaries[[2]] <- call("+", auxiliaries[[2]], aux2[[2]])
-    name <- paste(name, "ml", sep="_")
+    name <- paste(name, "ML", sep="_")
   }else auxiliaries <- NULL
   
   list(name=name,                      #name: required

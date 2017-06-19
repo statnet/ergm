@@ -3622,12 +3622,12 @@ C_CHANGESTAT_FN(c_mutual) {
 }
 
 /*****************
- changestat: d_mutual_ml
+ changestat: d_mutual_ML
 
  (1,1) -> anything = -1
  anything -> (1,1) = +1
 *****************/
-C_CHANGESTAT_FN(c_mutual_ml){
+C_CHANGESTAT_FN(c_mutual_ML){
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll1, 0);
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll2, 1);
   
@@ -3638,11 +3638,11 @@ C_CHANGESTAT_FN(c_mutual_ml){
   noattr = (N_INPUT_PARAMS == 2);
 
   /* *** don't forget tail -> head */
-  Vertex lt = ll1->lmap[tail], lh = ll1->lmap[head]; 
+  Vertex lt = ML_IO_TAIL(ll1, tail), lh = ML_IO_HEAD(ll1, head);
   int l1change = ergm_LayerLogic(tail, head, ll1, TRUE);
-  int l1reverse = GetEdge(lh, lt, ll1->onwp);
+  int l1reverse = ML_GETWT(ll1, lh, lt);
   int l2change = ergm_LayerLogic(tail, head, ll2, TRUE);
-  int l2reverse = GetEdge(lh, lt, ll2->onwp);
+  int l2reverse = ML_GETWT(ll2, lh, lt);
 
   int change = l1reverse*l2change + l2reverse*l1change;
   
@@ -3687,9 +3687,9 @@ C_CHANGESTAT_FN(c_mutual_by_attr) {
 }
 
 /*****************
- changestat: d_mutual_by_attr_ml
+ changestat: d_mutual_by_attr_ML
 *****************/
-C_CHANGESTAT_FN(c_mutual_by_attr_ml) { 
+C_CHANGESTAT_FN(c_mutual_by_attr_ML) { 
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll1, 0);
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll2, 1);
 
@@ -3700,9 +3700,9 @@ C_CHANGESTAT_FN(c_mutual_by_attr_ml) {
   /* *** don't forget tail -> head */
   Vertex lt = ll1->lmap[tail], lh = ll1->lmap[head]; 
   int l1change = ergm_LayerLogic(tail, head, ll1, TRUE);
-  int l1reverse = GetEdge(lh, lt, ll1->onwp);
+  int l1reverse = ML_GETWT(ll1, lh, lt);
   int l2change = ergm_LayerLogic(tail, head, ll2, TRUE);
-  int l2reverse = GetEdge(lh, lt, ll2->onwp);
+  int l2reverse = ML_GETWT(ll2, lh, lt);
 
   int change = l1reverse*l2change + l2reverse*l1change;
   
