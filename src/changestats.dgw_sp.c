@@ -30,19 +30,14 @@ static inline void dspUTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
 
     L2th=0;
     echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
-    /* step through outedges of head */
-    EXEC_THROUGH_OUTEDGES(head,e,u, {
+    /* step through edges of head */
+    EXEC_THROUGH_EDGES(head,e,u, {
       if (IS_UNDIRECTED_EDGE(u,tail) != 0){
         L2th++;
         L2tu=0;
         L2uh=0;
-        /* step through outedges of u */
-        EXEC_THROUGH_OUTEDGES(u,f,v, {
-          if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;
-          if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;
-	  });
-        /* step through inedges of u */
-        EXEC_THROUGH_INEDGES(u,f,v, {
+        /* step through edges of u */
+        EXEC_THROUGH_EDGES(u,f,v, {
           if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;
           if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;
 	  });
@@ -53,29 +48,6 @@ static inline void dspUTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
         }
       }
       });
-    /* step through inedges of head */
-    EXEC_THROUGH_INEDGES(head,e,u, {
-      if (IS_UNDIRECTED_EDGE(u,tail) != 0){
-        L2th++;
-        L2tu=0;
-        L2uh=0;
-        /* step through outedges of u */
-        EXEC_THROUGH_OUTEDGES(u,f,v, {
-          if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;
-          if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;
-	  });
-        /* step through inedges of u */
-        EXEC_THROUGH_INEDGES(u,f,v, {
-          if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;
-          if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;
-        });
-        for(j = 0; j < nd; j++){
-          deg = (Vertex)dvec[j];
-          cs[j] += ((L2tu + echange == deg) - (L2tu == deg));
-          cs[j] += ((L2uh + echange == deg) - (L2uh == deg));
-        }
-      }
-    });
     for(j = 0; j < nd; j++){
       deg = (Vertex)dvec[j];
       cs[j] += echange*(L2th == deg);
@@ -520,41 +492,13 @@ static inline void espUTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     L2th=0;
     echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     /* step through outedges of head */
-    EXEC_THROUGH_OUTEDGES(head,e,u, {
+    EXEC_THROUGH_EDGES(head,e,u, {
       if (IS_UNDIRECTED_EDGE(u,tail) != 0){
         L2th++;
         L2tu=0;
         L2uh=0;
-        /* step through outedges of u */
-        EXEC_THROUGH_OUTEDGES(u,f,v, {
-          if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;
-          if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;
-        });
-        /* step through inedges of u */
-        EXEC_THROUGH_INEDGES(u,f,v, {
-          if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;
-          if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;
-        });
-        for(j = 0; j < nd; j++){
-          deg = (Vertex)dvec[j];
-          cs[j] += ((L2tu + echange == deg) - (L2tu == deg));
-          cs[j] += ((L2uh + echange == deg) - (L2uh == deg));
-        }
-      }
-    });
-    /* step through inedges of head */
-    EXEC_THROUGH_INEDGES(head,e,u, {
-      if (IS_UNDIRECTED_EDGE(u,tail) != 0){
-        L2th++;
-        L2tu=0;
-        L2uh=0;
-        /* step through outedges of u */
-        EXEC_THROUGH_OUTEDGES(u,f,v, {
-          if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;
-          if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;
-        });
-        /* step through inedges of u */
-        EXEC_THROUGH_INEDGES(u,f,v, {
+        /* step through edges of u */
+        EXEC_THROUGH_EDGES(u,f,v, {
           if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;
           if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;
         });

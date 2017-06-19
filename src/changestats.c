@@ -2236,7 +2236,7 @@ S_CHANGESTAT_FN(s_edges) {
 }
 
 /*****************
- changestat: d_esp
+ changestat: c_esp
 *****************/
 C_CHANGESTAT_FN(c_esp) { 
   Edge e, f;

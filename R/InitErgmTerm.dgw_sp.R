@@ -151,6 +151,7 @@ InitErgmTerm.desp<-function(nw, arglist, ...) {
     dname <- "desp"
   }else{
     message("Use the ergm term 'esp' for undirected networks.")
+    dname <- "desp"
     conam<-"esp"
     type<-"UTP"
     typecode<-0
@@ -196,7 +197,9 @@ InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
     stop("Illegal type code for gwesp; valid types are:",paste(type.vec, collapse=","))
   dname<-"desp"
   if(!is.directed(nw)){  
-    stop("Use the gwesp term for undirected networks.")
+    message("Use the gwesp term for undirected networks.")
+    type <- "UTP"
+    typecode<-0
   }else{
     typecode<-which(type==type.vec)
     basenam<-paste("gwesp",type,sep=".")
@@ -322,7 +325,10 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
   dname<-"ddsp"
   
   if(!is.directed(nw)){  
-    stop("Use the gwnsp term for undirected networks.")
+    message("Use the gwdsp term for undirected networks.")
+    type <- "UTP"
+    basenam<-"gwdsp"
+    typecode<-0
   }else{
     typecode<-which(type==type.vec)
     basenam<-paste("gwdsp",type,sep=".")
