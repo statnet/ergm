@@ -30,13 +30,13 @@ Layer <- function(...){
     aa <- a[bip+seq_len(n-bip)]
     el <- rle(ea)$lengths
     al <- rle(aa)$lengths
-    if(!all.same(el) || !all.same(al)) stop("Layers must be networks of the same dimensions.", call.=FALSE)
+    if(!all_same(el) || !all_same(al)) stop("Layers must be networks of the same dimensions.", call.=FALSE)
 
     list(nl = length(el), lids = a, lmap = seq_len(n) - c((ea-1)*el[1], bip - el[1] + (aa-1)*al[1]))
     
   }else{
     l <- rle(a)$lengths
-    if(!all.same(l)) stop("Layers must be networks of the same size.", call.=FALSE)
+    if(!all_same(l)) stop("Layers must be networks of the same size.", call.=FALSE)
     c(nl = length(l), lids = a, lmap = seq_len(n) - (a-1)*l[1])
   }
 }

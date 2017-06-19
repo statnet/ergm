@@ -18,11 +18,11 @@
 #'
 #' @examples
 #'
-#' stopifnot(!all.same(1:3))
+#' stopifnot(!all_same(1:3))
 #'
-#' stopifnot(all.same(list("a", "a", "a")))
+#' stopifnot(all_same(list("a", "a", "a")))
 
-all.same <- function(x){
+all_same <- function(x){
   if(length(x)==0) return(TRUE)
   v0 <- x[1]
   for(v in x[-1]) if(!identical(v0,v)) return(FALSE)
@@ -147,7 +147,7 @@ combine_networks <- function(nwl, ignore.nattr=c("bipartite","directed","hyper",
        && all(sapply(vl, is.matrix))
        && all(sapply(vl, nrow)==ns)
        && all(sapply(vl, ncol)==ns)
-       && all.same(sapply(vl, mode))){
+       && all_same(sapply(vl, mode))){
 
       # A logical vector that extracts off-diagonal element of the ns*ns matrix.
 
@@ -253,7 +253,7 @@ combine_networks <- function(nwl, ignore.nattr=c("bipartite","directed","hyper",
        && all(sapply(vl, is.matrix))
        && all(sapply(vl, nrow)==es)
        && all(sapply(vl, ncol)==ns-es)
-       && all.same(sapply(vl, mode))){
+       && all_same(sapply(vl, mode))){
 
       # It doesn't matter what the "filler" elements are, as long as
       # adding them doesn't add another category and it's not NA. So,
