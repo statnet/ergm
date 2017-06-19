@@ -1,5 +1,5 @@
-#ifndef _ERGM_CHANGESTAT_LAYERS_H_
-#define _ERGM_CHANGESTAT_LAYERS_H_
+#ifndef _ERGM_CHANGESTAT_MULTILAYER_H_
+#define _ERGM_CHANGESTAT_MULTILAYER_H_
 
 #include "ergm_edgetree.h"
 

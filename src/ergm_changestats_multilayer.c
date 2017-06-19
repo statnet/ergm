@@ -1,4 +1,4 @@
-#include "ergm_changestat_layers.h"
+#include "ergm_changestat_multilayer.h"
 #include "ergm_changestat.h"
 #include "ergm_changestat_operator.h"
 

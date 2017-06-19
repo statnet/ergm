@@ -8,7 +8,7 @@
  *  Copyright 2003-2013 Statnet Commons
  */
 #include "changestats.h"
-#include "ergm_changestat_layers.h"
+#include "ergm_changestat_multilayer.h"
 #include "ergm_storage.h"
 /********************  changestats:  A    ***********/
 /*****************                       
