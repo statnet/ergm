@@ -1,4 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^.*\.RSession$
+^.*\.RData$
 .travis.yml
 appveyor.yml
