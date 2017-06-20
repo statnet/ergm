@@ -8,27 +8,6 @@
 #  Copyright 2003-2014 Statnet Commons
 #######################################################################
 
-#' Test if all items in a vector or a list are identical.
-#'
-#' @param x a vector or a list
-#'
-#' @return `TRUE` if all elements of `x` are identical to each other.
-#'
-#' @seealso [base::identical()]
-#'
-#' @examples
-#'
-#' stopifnot(!all_same(1:3))
-#'
-#' stopifnot(all_same(list("a", "a", "a")))
-
-all_same <- function(x){
-  if(length(x)==0) return(TRUE)
-  v0 <- x[[1]]
-  for(v in x[-1]) if(!identical(v0,v)) return(FALSE)
-  return(TRUE)
-}
-
 #' A single block-diagonal network created by combining multiple networks
 #'
 #' Given a list of compatible networks, the [combine_networks()] returns a single
@@ -147,7 +126,7 @@ combine_networks <- function(nwl, ignore.nattr=c("bipartite","directed","hyper",
        && all(sapply(vl, is.matrix))
        && all(sapply(vl, nrow)==ns)
        && all(sapply(vl, ncol)==ns)
-       && all_same(sapply(vl, mode))){
+       && all_identical(sapply(vl, mode))){
 
       # A logical vector that extracts off-diagonal element of the ns*ns matrix.
 
@@ -253,7 +232,7 @@ combine_networks <- function(nwl, ignore.nattr=c("bipartite","directed","hyper",
        && all(sapply(vl, is.matrix))
        && all(sapply(vl, nrow)==es)
        && all(sapply(vl, ncol)==ns-es)
-       && all_same(sapply(vl, mode))){
+       && all_identical(sapply(vl, mode))){
 
       # It doesn't matter what the "filler" elements are, as long as
       # adding them doesn't add another category and it's not NA. So,

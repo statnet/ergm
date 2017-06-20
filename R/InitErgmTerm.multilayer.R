@@ -22,9 +22,9 @@ Layer <- function(...){
   }else stop("Unrecognized format for multilayer specification. See help for information.")
 
   constraintsl <- lapply(nwl, get.network.attribute, "constraints")
-  if(!all_same(lapply(constraintsl, .unenv))) stop("Layers have differing constraint structures. This is not supported at this time.")
+  if(!all_identical(lapply(constraintsl, .unenv))) stop("Layers have differing constraint structures. This is not supported at this time.")
   constraints.obsl <- lapply(nwl, get.network.attribute, "constraints.obs")
-  if(!all_same(lapply(constraintsl, .unenv))) stop("Layers have differing observation processes. This is not supported at this time.")
+  if(!all_identical(lapply(constraintsl, .unenv))) stop("Layers have differing observation processes. This is not supported at this time.")
   
   nw <- combine_networks(nwl, blockID.vattr=".LayerID", blockName.vattr=".LayerName", ignore.nattr = c(eval(formals(combine_networks)$ignore.nattr), "constraints", "constraints.obs"))
   nw %n% "constraints" <-
@@ -50,13 +50,13 @@ Layer <- function(...){
     aa <- a[bip+seq_len(n-bip)]
     el <- rle(ea)$lengths
     al <- rle(aa)$lengths
-    if(!all_same(el) || !all_same(al)) stop("Layers must be networks of the same dimensions.", call.=FALSE)
+    if(!all_identical(el) || !all_identical(al)) stop("Layers must be networks of the same dimensions.", call.=FALSE)
 
     list(nl = length(el), lids = a, lmap = seq_len(n) - c((ea-1)*el[1], bip - el[1] + (aa-1)*al[1]))
     
   }else{
     l <- rle(a)$lengths
-    if(!all_same(l)) stop("Layers must be networks of the same size.", call.=FALSE)
+    if(!all_identical(l)) stop("Layers must be networks of the same size.", call.=FALSE)
     c(nl = length(l), lids = a, lmap = seq_len(n) - (a-1)*l[1])
   }
 }
