@@ -18,7 +18,7 @@ This function will only work properly with undirected graphs, and should only be
 static inline void dspUTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
   Edge e, f;
   int j, echange;
-  int L2th, L2tu, L2uh;
+  int L2tu, L2uh;
   Vertex deg;
   Vertex u, v;
   
@@ -28,30 +28,34 @@ static inline void dspUTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
   //  Rprintf("%d ",(int)dvec[i]);
   //Rprintf("\n");
 
-    L2th=0;
     echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     /* step through edges of head */
     EXEC_THROUGH_EDGES(head,e,u, {
-      if (IS_UNDIRECTED_EDGE(u,tail) != 0){
-        L2th++;
+      if (u!=tail){
         L2tu=0;
-        L2uh=0;
         /* step through edges of u */
         EXEC_THROUGH_EDGES(u,f,v, {
-          if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;
           if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;
 	  });
         for(j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
           cs[j] += ((L2tu + echange == deg) - (L2tu == deg));
+        }
+      }
+      });
+    EXEC_THROUGH_EDGES(tail,e,u, {
+      if (u!=head){
+        L2uh=0;
+        /* step through edges of u */
+        EXEC_THROUGH_EDGES(u,f,v, {
+          if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;
+	  });
+        for(j = 0; j < nd; j++){
+          deg = (Vertex)dvec[j];
           cs[j] += ((L2uh + echange == deg) - (L2uh == deg));
         }
       }
       });
-    for(j = 0; j < nd; j++){
-      deg = (Vertex)dvec[j];
-      cs[j] += echange*(L2th == deg);
-    }
 
   //Rprintf("cs:\n");
   //for(i=0;i<nd;i++)

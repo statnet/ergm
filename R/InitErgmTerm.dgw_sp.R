@@ -200,6 +200,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
     message("Use the gwesp term for undirected networks.")
     type <- "UTP"
     typecode<-0
+    basenam<-paste("gwesp",sep=".")
   }else{
     typecode<-which(type==type.vec)
     basenam<-paste("gwesp",type,sep=".")
@@ -271,14 +272,14 @@ InitErgmTerm.ddsp<-function(nw, arglist, ...) {
   type.vec<-c("OTP","ITP","RTP","OSP","ISP")
   if(!(type%in%type.vec))
     stop("Illegal type code for sp; valid types are:",paste(type.vec, collapse=","))
-  dname<-"dsp"
+  dname<-"ddsp"
   if(is.directed(nw)){
     conam <- paste("dsp",type,sep=".")
     typecode<-which(type==type.vec)
     dname <- "ddsp"
   }else{
     message("Use the ergm term 'dsp' for undirected networks.")
-    conam<-"dsp"
+    conam <- paste("dsp",sep=".")
     type<-"UTP"
     typecode<-0
   }
@@ -405,11 +406,10 @@ InitErgmTerm.dnsp<-function(nw, arglist, ...) {
   type.vec<-c("OTP","ITP","RTP","OSP","ISP")
   if(!(type%in%type.vec))
     stop("Illegal type code for sp; valid types are:",paste(type.vec, collapse=","))
-  dname<-"nsp"
+  dname<-"dnsp"
   if(is.directed(nw)){
     conam <- paste("nsp",type,sep=".")
     typecode<-which(type==type.vec)
-    dname <- "dnsp"
   }else{
     message("Use the ergm term 'nsp' for undirected networks.")
     conam<-"nsp"
@@ -457,7 +457,10 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, ...) {
   dname<-"dnsp"
   
   if(!is.directed(nw)){  
-    stop("Use the gwnsp term for undirected networks.")
+    message("Use the gwnsp term for undirected networks.")
+    type <- "UTP"
+    basenam<-"gwdsp"
+    typecode<-0
   }else{
     typecode<-which(type==type.vec)
     basenam<-paste("gwnsp",type,sep=".")
