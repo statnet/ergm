@@ -1,5 +1,5 @@
-#ifndef CHANGESTATS_H
-#define CHANGESTATS_H
+#ifndef _CHANGESTATS_DGW_SP_H_
+#define _CHANGESTATS_DGW_SP_H_
 
 #include "ergm_edgetree.h"
 #include "ergm_changestat.h"
@@ -45,4 +45,4 @@ C_CHANGESTAT_FN(c_dnsp);
 I_CHANGESTAT_FN(i_dgwnsp);
 C_CHANGESTAT_FN(c_dgwnsp);
 
-#endif
+#endif // _CHANGESTATS_DGW_SP_H_
