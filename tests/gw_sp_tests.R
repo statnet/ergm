@@ -320,3 +320,37 @@ test.approx(summary(net~dgwnsp(fixed=T, decay=0.1, type="ISP")), 5.190325, "GWNS
 
 test.approx(ergm(net ~ edges + dgwnsp(fixed=T, decay=0.1, type="ISP"), estimate = "MPLE")$coef[2], -0.2865438, "GWNSP_ISP ergm MPLE wrong estimate")
 
+
+# undirected tests
+data(faux.mesa.high)
+net <- faux.mesa.high
+
+# dsp
+if (!all(summary(net ~ dgwdsp(fixed=F)) == summary(net ~ gwdsp(fixed=F))))
+  stop("DSP OTP count on large network incorrect")
+test.approx(summary(net ~ dgwdsp(fixed=T, decay=0.1)), summary(net ~ gwdsp(fixed=T, decay=0.1)), tol=1e-3, "GWDSP summary")
+
+test.approx(coef(ergm(net ~ edges + dgwdsp(fixed=T, decay=0.1), estimate = "MPLE"))[2], coef(ergm(net ~ edges + gwdsp(fixed=T, decay=0.1), estimate = "MPLE"))[2], "MPLE estimate on larger nw")
+
+if (summary(net ~ ddsp(d=2)) != summary(net ~ dsp(d=2))) stop("ddsp UTP count error")
+
+# esp
+if (!all(summary(net ~ dgwesp(fixed=F)) == summary(net ~ gwesp(fixed=F))))
+  stop("ESP UTP count on large network incorrect")
+test.approx(summary(net ~ dgwesp(fixed=T, decay=0.1)), summary(net ~ gwesp(fixed=T, decay=0.1)), tol=1e-3, "GWESP summary")
+
+test.approx(coef(ergm(net ~ edges + dgwesp(fixed=T, decay=0.1), estimate = "MPLE"))[2], coef(ergm(net ~ edges + gwesp(fixed=T, decay=0.1), estimate = "MPLE"))[2], "MPLE estimate on larger nw")
+
+if (summary(net ~ desp(d=2)) != summary(net ~ esp(d=2))) stop("desp UTP count error")
+
+
+# nsp
+if (!all(summary(net ~ dgwnsp(fixed=F)) == summary(net ~ gwnsp(fixed=F))))
+  stop("NSP UTP count on large network incorrect")
+test.approx(summary(net ~ dgwnsp(fixed=T, decay=0.1)), summary(net ~ gwnsp(fixed=T, decay=0.1)), tol=1e-3, "GWNSP summary")
+
+test.approx(coef(ergm(net ~ edges + dgwnsp(fixed=T, decay=0.1), estimate = "MPLE"))[2], coef(ergm(net ~ edges + gwnsp(fixed=T, decay=0.1), estimate = "MPLE"))[2], "MPLE estimate on larger nw")
+
+if (summary(net ~ dnsp(d=2)) != summary(net ~ nsp(d=2))) stop("dnsp UTP count error")
+
+
