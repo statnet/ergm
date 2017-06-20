@@ -1,6 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^.*\.RSession$
-^.*\.RData$
+.RSession
+^.*/\.RData$
 .travis.yml
 appveyor.yml
