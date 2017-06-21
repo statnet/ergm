@@ -287,29 +287,33 @@ network
 
   Some terms are \emph{layer-aware}. These terms have explicit (usually
   optional) layer specification arguments. For other terms, an operator
-  \code{L(formula, L=~.)} can be used to specify to which layers they
-  apply. How layers are specified explicitly follows.
+  \code{L(formula, Ls=~.)} can be used to specify to which layer(s) they
+  apply. Layer specification documentation follows.
 
   \subsection{Layer Logic}{
-    The layers on which a term is to be evaluated is specified by a
-    one-sided formula, with one term.
+    
+    Each term (summand) in one-sided layer specification formula
+    describes an observed layer \emph{or} some \dQuote{logical} layer,
+    whose ties are a function of corresponding ties in observed layers.
 
-    This term must contain a logical expression in terms of the layers,
-    referenced either by name or by number (i.e., order in which they
-    were passed to \code{\link{Layer}}), and
+    The observed layers can be referenced either by name or by number
+    (i.e., order in which they were passed to \code{\link{Layer}}), and
     \link[base::Logic]{logical operators} (\code{!}, \code{|}, \code{&},
-    etc.) between them. Testing for equality or inequality (\code{==},
-    \code{!=}, and \code{xor}) is also supported. Note that standard \R
-    \link[base::Syntax]{operator precedence} applies, so use of
-    parentheses is recommended to ensure the logical expression is what
-    it looks like.
+    etc.) can be used to combine them. Testing for equality or
+    inequality (\code{==}, \code{!=}, and \code{xor}) is also
+    supported. Standard \R \link[base::Syntax]{operator precedence}
+    applies, so use of parentheses is recommended to ensure the logical
+    expression is what it looks like.
 
     For example, if LHS is \code{Layer(A=nwA, B=nwB)}, both \code{~2}
-    and \code{~B} refer to the second layer, while \code{A&!B} refers to
-    a \dQuote{logical} layer that has ties that are in A but not in B.
+    and \code{~B} refer to \code{nwB}, while \code{A&!B} refers to a
+    \dQuote{logical} layer that has ties that are in \code{nwA} but not
+    in \code{nwB}.
 
     At this time, logical expressions that produce complete graphs from
-    empty graph inputs (e.g., \code{A==B}) are not supported. 
+    empty graph inputs (e.g., \code{A==B} or \code{!A}) are not
+    supported.
+
   }
 
   \subsection{Summing layers}{
