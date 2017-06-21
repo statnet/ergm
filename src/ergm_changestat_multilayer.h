@@ -8,7 +8,7 @@
 /* layer-aware macros eponymous to ergm_changestat.h */
 #define ML_IS_OUTEDGE(ll, a,b) (EdgetreeSearch((a),(b),(ll)->onwp->outedges)!=0?1:0)
 #define ML_IS_INEDGE(ll, a,b) (EdgetreeSearch((a),(b),(ll)->onwp->inedges)!=0?1:0)
-#define ML_IS_UNDIRECTED_EDGE(ll, a,b) ML_IS_OUTEDGE(MIN(a,b), MAX(a,b))
+#define ML_IS_UNDIRECTED_EDGE(ll, a,b) ML_IS_OUTEDGE((ll), MIN(a,b), MAX(a,b))
 #define ML_MIN_OUTEDGE(ll, a) (EdgetreeMinimum((ll)->onwp->outedges, (a)))
 #define ML_MIN_INEDGE(ll, a) (EdgetreeMinimum((ll)->onwp->inedges, (a)))
 #define ML_NEXT_OUTEDGE(ll, e) (EdgetreeSuccessor((ll)->onwp->outedges,(e)))

@@ -110,6 +110,46 @@
 #  These inputs are automatically supplied to the d_xxxy function by the 
 #  network_stats_wrapper function 
 
+.sp.handle_layers <- function(nw, a, type, has_base){
+  out <- list()
+  
+  path.l1 <- a$path.l1
+  path.l2 <- a$path.l2
+  base.l <- a$base.l
+
+  if(is.null(path.l1) && is.null(path.l2) && is.null(base.l)) return(out)
+
+  if(is.null(path.l1)) path.l1 <- NVL(path.l2, base.l)
+  if(is.null(path.l2)) path.l2 <- NVL(path.l1, base.l)
+  if(has_base && is.null(base.l)) base.l <- NVL(path.l1, path.l2)
+  
+  nl <- max(.peek_vattrv(nw, ".LayerID"))
+
+  layer0 <-
+    if(has_base)
+      as.formula(call("~",call("|",call("|", path.l1[[2]], path.l2[[2]]),base.l[[2]])))
+    else
+      as.formula(call("~",call("|", path.l1[[2]], path.l2[[2]])))
+
+  out$auxiliaries <- .mk_.layer.net_auxform(layer0, nl)
+  aux1 <- .mk_.layer.net_auxform(path.l1, nl)
+  out$auxiliaries[[2]] <- call("+", out$auxiliaries[[2]], aux1[[2]])
+  aux2 <- .mk_.layer.net_auxform(path.l2, nl)
+  out$auxiliaries[[2]] <- call("+", out$auxiliaries[[2]], aux2[[2]])
+  if(has_base){
+    aux3 <- .mk_.layer.net_auxform(base.l, nl)
+    out$auxiliaries[[2]] <- call("+", out$auxiliaries[[2]], aux3[[2]])
+  }
+  
+  out$coef.names_prefix <- paste0("L(path=(",paste(trimws(deparse(path.l1[[2]])), trimws(deparse(path.l2[[2]])), sep=","),")",if(has_base) paste0(",base=",trimws(deparse(base.l[[2]]))) else "","):")
+  out$any_order <- if(type%in%c("UTP","OSP","ISP")) TRUE else a$any_order
+  out$name_suffix <- "_ML"
+  out$nw1 <- .layer_split_network(nw)[[1]] # Needed for emptynwstats.
+
+  out
+}
+
+
 
 
 ################################################################################
@@ -132,10 +172,10 @@
 #
 InitErgmTerm.desp<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("d","type"),
-                      vartypes = c("numeric","character"),
-                      defaultvalues = list(NULL,"OTP"),
-                      required = c(TRUE, FALSE))
+                      varnames = c("d","type","base.l","path.l1","path.l2","any_order"),
+                      vartypes = c("numeric","character","formula","formula","formula","logical"),
+                      defaultvalues = list(NULL,"OTP",NULL,NULL,NULL,FALSE),
+                      required = c(TRUE, FALSE,FALSE,FALSE,FALSE,FALSE))
   d<-a$d
   ld<-length(d)
   if(ld==0){return(NULL)}
@@ -156,7 +196,10 @@ InitErgmTerm.desp<-function(nw, arglist, ...) {
     type<-"UTP"
     typecode<-0
   }
-  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0)
+
+  linfo <- .sp.handle_layers(nw, a, type, TRUE)
+  
+  list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,paste(conam,d,sep="")), auxiliaries=linfo$auxiliaries, inputs=c(linfo$any_order,typecode,d), minval=0)
 }
 
 
@@ -180,10 +223,10 @@ InitErgmTerm.desp<-function(nw, arglist, ...) {
 #
 InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("decay","fixed","cutoff","type", "alpha"),
-                      vartypes = c("numeric","logical","numeric","character", "numeric"),
-                      defaultvalues = list(NULL, FALSE, 30,"OTP", NULL),
-                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
+                      varnames = c("decay","fixed","cutoff","type", "alpha","base.l","path.l1","path.l2","any_order"),
+                      vartypes = c("numeric","logical","numeric","character", "numeric","formula","formula","formula","logical"),
+                      defaultvalues = list(NULL, FALSE, 30,"OTP", NULL,NULL,NULL,NULL,FALSE),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE,FALSE,FALSE,FALSE,FALSE))
   if(!is.null(a$alpha)){
     stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
   }
@@ -205,6 +248,9 @@ InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
     typecode<-which(type==type.vec)
     basenam<-paste("gwesp",type,sep=".")
   }
+  
+  linfo <- .sp.handle_layers(nw, a, type, TRUE)
+  
   if(!fixed){ # This is a curved exponential family model
     if(!is.null(a$decay)) warning("In term 'dgwesp': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
 
@@ -223,9 +269,10 @@ InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
     }
     params<-list(gwesp=NULL,gwesp.decay=decay)
     names(params)<-c(basenam,paste(basenam,"decay",sep="."))
-    list(name=dname,
-         coef.names=if(is.directed(nw)) paste("esp.",type,"#",d,sep="") else paste("esp#",d,sep=""), 
-         inputs=c(typecode,d), params=params, map=map, gradient=gradient)
+
+    list(name=paste0(dname,linfo$name_suffix),
+         coef.names=paste0(linfo$coef.names_prefix,if(is.directed(nw)) paste("esp.",type,"#",d,sep="") else paste("esp#",d,sep="")),auxiliaries=linfo$auxiliaries, 
+         inputs=c(linfo$any_order,typecode,d), params=params, map=map, gradient=gradient)
   }else{
     if(is.null(a$decay)) stop("Term 'dgwesp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -235,7 +282,8 @@ InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
       coef.names <- paste(paste("gwesp",type,"fixed.",sep="."),decay, sep="")
     else
       coef.names <- paste("gwesp.fixed.",decay,sep="")
-    list(name=dname, coef.names=coef.names, inputs=c(decay,typecode,maxesp))
+
+    list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,coef.names), inputs=c(linfo$any_order,decay,typecode,maxesp),auxiliaries=linfo$auxiliaries)
   }
 }
 
@@ -260,10 +308,10 @@ InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
 #
 InitErgmTerm.ddsp<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("d","type"),
-                      vartypes = c("numeric","character"),
-                      defaultvalues = list(NULL,"OTP"),
-                      required = c(TRUE, FALSE))
+                      varnames = c("d","type","path.l1","path.l2","any_order"),
+                      vartypes = c("numeric","character","formula","formula","logical"),
+                      defaultvalues = list(NULL,"OTP",NULL,NULL,FALSE),
+                      required = c(TRUE, FALSE,FALSE,FALSE,FALSE))
   d<-a$d
   ld<-length(d)
   if(ld==0){return(NULL)}
@@ -283,6 +331,10 @@ InitErgmTerm.ddsp<-function(nw, arglist, ...) {
     type<-"UTP"
     typecode<-0
   }
+
+  linfo <- .sp.handle_layers(nw, a, type, FALSE)
+  nw <- linfo$nw1
+  
   if (any(d==0)) {
     emptynwstats <- rep(0, length(d))
     if(is.bipartite(nw)){
@@ -295,8 +347,8 @@ InitErgmTerm.ddsp<-function(nw, arglist, ...) {
   }else{
     emptynwstats <- NULL
   }
-
-  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0, emptynwstats=emptynwstats)
+  
+  list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,paste0(conam,d)), auxiliaries=linfo$auxiliaries, inputs=c(linfo$any_order,typecode,d), minval=0, emptynwstats=emptynwstats)
 }
 
 
@@ -307,10 +359,10 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
   #    ergm.checkdirected("gwdsp", is.directed(nw), requirement=FALSE)
   # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("decay","fixed","cutoff","type", "alpha"),
-                      vartypes = c("numeric","logical","numeric","character", "numeric"),
-                      defaultvalues = list(NULL, FALSE, 30,"OTP", NULL),
-                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
+                      varnames = c("decay","fixed","cutoff","type", "alpha","path.l1","path.l2","any_order"),
+                      vartypes = c("numeric","logical","numeric","character", "numeric","formula","formula","logical"),
+                      defaultvalues = list(NULL, FALSE, 30,"OTP", NULL,NULL,NULL,FALSE),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE,FALSE,FALSE,FALSE))
   if(!is.null(a$alpha)){
     stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
   }
@@ -334,6 +386,8 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
     typecode<-which(type==type.vec)
     basenam<-paste("gwdsp",type,sep=".")
   }
+
+  linfo <- .sp.handle_layers(nw, a, type, FALSE)
   
   if(!fixed){ # This is a curved exponential family model
     if(!is.null(a$decay)) warning("In term 'dgwdsp': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
@@ -356,10 +410,10 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
     params<-list(gwdsp=NULL,gwdsp.decay=decay)
     names(params)<-c(basenam,paste(basenam,"decay",sep="."))
     
-    list(name=dname,
-         coef.names=if(is.directed(nw)) paste("dsp.",type,"#",d,sep="") else paste("dsp#",d,sep=""), 
-         inputs=c(typecode,d), params=params,
-         map=map, gradient=gradient)
+    list(name=paste0(dname,linfo$name_suffix),
+         coef.names=paste0(linfo$coef.names_prefix,if(is.directed(nw)) paste("dsp.",type,"#",d,sep="") else paste("dsp#",d,sep="")), 
+         inputs=c(linfo$any_order,typecode,d), params=params,
+         map=map, gradient=gradient, auxiliaries = linfo$auxiliaries)
   }else{
     if(is.null(a$decay)) stop("Term 'dgwdsp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -370,7 +424,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
     else
       coef.names <- paste("gwdsp.fixed",decay,sep=".")
     
-    list(name=dname, coef.names=coef.names, inputs=c(decay,typecode,maxesp))
+    list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,coef.names), inputs=c(linfo$any_order, decay,typecode,maxesp), auxiliaries=auxiliaries)
   }
 }
 
@@ -394,10 +448,10 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
 #
 InitErgmTerm.dnsp<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("d","type"),
-                      vartypes = c("numeric","character"),
-                      defaultvalues = list(NULL,"OTP"),
-                      required = c(TRUE, FALSE))
+                      varnames = c("d","type","base.l","path.l1","path.l2","any_order"),
+                      vartypes = c("numeric","character","formula","formula","formula","logical"),
+                      defaultvalues = list(NULL,"OTP",NULL,NULL,NULL,FALSE),
+                      required = c(TRUE, FALSE,FALSE,FALSE,FALSE,FALSE))
   d<-a$d
   ld<-length(d)
   if(ld==0){return(NULL)}
@@ -416,6 +470,10 @@ InitErgmTerm.dnsp<-function(nw, arglist, ...) {
     type<-"UTP"
     typecode<-0
   }
+
+  linfo <- .sp.handle_layers(nw, a, type, TRUE)
+  nw <- linfo$nw1
+
   if (any(d==0)) {
     emptynwstats <- rep(0, length(d))
     if(is.bipartite(nw)){
@@ -428,7 +486,7 @@ InitErgmTerm.dnsp<-function(nw, arglist, ...) {
   }else{
     emptynwstats <- NULL
   }
-  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0, emptynwstats=emptynwstats)
+  list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,paste0(conam,d)), auxiliaries=linfo$auxiliaries, inputs=c(linfo$any_order,typecode,d), minval=0, emptynwstats=emptynwstats)
 }
 
 
@@ -438,10 +496,10 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, ...) {
   #    ergm.checkdirected("gwnsp", is.directed(nw), requirement=FALSE)
   # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("decay","fixed","cutoff","type", "alpha"),
-                      vartypes = c("numeric","logical","numeric","character", "numeric"),
-                      defaultvalues = list(NULL, FALSE, 30,"OTP", NULL),
-                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
+                      varnames = c("decay","fixed","cutoff","type", "alpha","base.l","path.l1","path.l2","any_order"),
+                      vartypes = c("numeric","logical","numeric","character", "numeric","formula","formula","formula","logical"),
+                      defaultvalues = list(NULL, FALSE, 30,"OTP", NULL,NULL,NULL,NULL,FALSE),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE,FALSE,FALSE,FALSE,FALSE))
   if(!is.null(a$alpha)){
     stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
   }
@@ -466,6 +524,8 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, ...) {
     basenam<-paste("gwnsp",type,sep=".")
   }
   
+  linfo <- .sp.handle_layers(nw, a, type, TRUE)
+
   if(!fixed){ # This is a curved exponential family model
     if(!is.null(a$decay)) warning("In term 'dgwnsp': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
 
@@ -487,11 +547,10 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, ...) {
     params<-list(gwnsp=NULL,gwnsp.decay=decay)
     names(params)<-c(basenam,paste(basenam,"decay",sep="."))
     
-    list(name=dname,
-         coef.names=if(is.directed(nw)) paste("nsp.",type,"#",d,sep="") else paste("nsp#",d,sep=""), 
-
-         inputs=c(typecode,d), params=params,
-         map=map, gradient=gradient)
+    list(name=paste0(dname,linfo$name_suffix),
+         coef.names=paste0(linfo$coef.names_prefix,if(is.directed(nw)) paste("nsp.",type,"#",d,sep="") else paste("nsp#",d,sep="")), 
+         inputs=c(linfo$any_order,typecode,d), params=params,
+         map=map, gradient=gradient, auxiliaries = linfo$auxiliaries)
   }else{
     if(is.null(a$decay)) stop("Term 'dgwnsp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -502,6 +561,6 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, ...) {
     else
       coef.names <- paste("gwnsp.fixed",decay,sep=".")
     
-    list(name=dname, coef.names=coef.names, inputs=c(decay,typecode,maxesp))
+    list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,coef.names), inputs=c(linfo$any_order, decay,typecode,maxesp), auxiliaries=auxiliaries)
   }
 }

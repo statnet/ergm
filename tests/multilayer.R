@@ -43,13 +43,13 @@ stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
 
 data(samplk)
 
-(layer <- summary(Layer(samplk1, samplk2)~mutual(layer1=~1,layer2=~2)))
+(layer <- summary(Layer(samplk1, samplk2)~mutual(l1=~1,l2=~2)))
 m1 <- as.matrix(samplk1)
 m2 <- as.matrix(samplk2)
 (logic <- (sum(m1*t(m2)+m2*t(m1))/2))
 stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
 
-(layer <- summary(Layer(samplk1, samplk2)~mutual(layer1=~1,layer2=~2&1)))
+(layer <- summary(Layer(samplk1, samplk2)~mutual(l1=~1,l2=~2&1)))
 m1 <- as.matrix(samplk1)
 m2 <- as.matrix(samplk2) * as.matrix(samplk1)
 (logic <- (sum(m1*t(m2)+m2*t(m1))/2))
@@ -62,4 +62,15 @@ m3 <- as.matrix(samplk3)
 msum <- m1 + m2 + m3
 diag(msum) <- NA
 (logic <- sum(lfactorial(msum) + lfactorial(3-msum), na.rm=TRUE))
+stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
+
+data(florentine)
+(layer <- summary(Layer(m=flomarriage, b=flobusiness)~ddsp(0:10,path.l1=~b,path.l2=~b)))
+(logic <- summary(flobusiness~dsp(0:10)))
+stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
+(layer <- summary(Layer(m=flomarriage, b=flobusiness)~desp(0:10,path.l1=~b,path.l2=~b,base.l=~b)))
+(logic <- summary(flobusiness~esp(0:10)))
+stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
+(layer <- summary(Layer(m=flomarriage, b=flobusiness)~dnsp(0:10,path.l1=~b,path.l2=~b,base.l=~b)))
+(logic <- summary(flobusiness~nsp(0:10)))
 stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
