@@ -142,7 +142,7 @@
   }
   
   out$coef.names_prefix <- paste0("L(path=(",paste(trimws(deparse(path.l1[[2]])), trimws(deparse(path.l2[[2]])), sep=","),")",if(has_base) paste0(",base=",trimws(deparse(base.l[[2]]))) else "","):")
-  out$any_order <- if(type%in%c("UTP","OSP","ISP")) TRUE else a$any_order
+  out$any_order <- if(type=="UTP" || (type%in%c("OSP","ISP") && !has_base)) TRUE else a$any_order
   out$name_suffix <- "_ML"
   out$nw1 <- .layer_split_network(nw)[[1]] # Needed for emptynwstats.
 

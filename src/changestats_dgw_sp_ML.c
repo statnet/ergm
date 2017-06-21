@@ -50,6 +50,7 @@ This function will only work properly with undirected graphs, and should only be
 */
 static inline void dspUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs) { 
   SETUP_calc_dsp;
+  any_order = TRUE;
   
   /* step through edges of head */
   ML_EXEC_THROUGH_EDGES(ll0, h,e,u, {
@@ -163,7 +164,7 @@ static inline void dspITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
         /*Update the changestat for the k->t edge*/
         for(unsigned int j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
-	  UPDATE_CS_1(hk,k,t,t,h);
+	  UPDATE_CS_2(hk,k,t,t,h);
         }
       }
     });
@@ -182,6 +183,7 @@ We assume that this is only called for directed graphs - otherwise, use the base
 */
 static inline void dspOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs) { 
   SETUP_calc_dsp;
+  any_order = TRUE;
   
   ML_EXEC_THROUGH_INEDGES(ll0,h, e, k, {
       if(k!=t){
@@ -215,6 +217,7 @@ We assume that this is only called for directed graphs - otherwise, use the base
 */
 static inline void dspISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs) { 
   SETUP_calc_dsp;
+  any_order = TRUE;
 
   ML_EXEC_THROUGH_OUTEDGES(ll0,t, e, k, {
       if(k!=h){
@@ -464,6 +467,7 @@ This function will only work properly with undirected graphs, and should only be
 */
 static inline void espUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs) { 
   SETUP_calc_esp;
+  any_order = TRUE;
   
   unsigned int L2th=0;
   ML_EXEC_THROUGH_EDGES(ll0, h,e,u, {
