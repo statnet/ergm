@@ -113,36 +113,39 @@
 .sp.handle_layers <- function(nw, a, type, has_base){
   out <- list()
   
-  Lpath1 <- a$Lpath1
-  Lpath2 <- a$Lpath2
-  Lbase <- a$Lbase
+  L.path1 <- a$L.path1
+  L.path2 <- a$L.path2
+  L.base <- a$L.base
 
-  if(is.null(Lpath1) && is.null(Lpath2) && is.null(Lbase)) return(out)
+  if(is.null(L.path1) && is.null(L.path2) && is.null(L.base)) return(out)
 
-  if(is.null(Lpath1)) Lpath1 <- NVL(Lpath2, Lbase)
-  if(is.null(Lpath2)) Lpath2 <- NVL(Lpath1, Lbase)
-  if(has_base && is.null(Lbase)) Lbase <- NVL(Lpath1, Lpath2)
+  if(type=="RTP") stop("Layer-aware shared partner terms do not support reciprocated two-paths at this time.",call.=FALSE)
+
+  
+  NVL(L.path1) <- NVL(L.path2, L.base)
+  NVL(L.path2) <- NVL(L.path1, L.base)
+  if(has_base) NVL(L.base) <- NVL(L.path1, L.path2)
   
   nl <- max(.peek_vattrv(nw, ".LayerID"))
 
   layer0 <-
     if(has_base)
-      as.formula(call("~",call("|",call("|", Lpath1[[2]], Lpath2[[2]]),Lbase[[2]])))
+      as.formula(call("~",call("|",call("|", L.path1[[2]], L.path2[[2]]),L.base[[2]])))
     else
-      as.formula(call("~",call("|", Lpath1[[2]], Lpath2[[2]])))
+      as.formula(call("~",call("|", L.path1[[2]], L.path2[[2]])))
 
   out$auxiliaries <- .mk_.layer.net_auxform(layer0, nl)
-  aux1 <- .mk_.layer.net_auxform(Lpath1, nl)
+  aux1 <- .mk_.layer.net_auxform(L.path1, nl)
   out$auxiliaries[[2]] <- call("+", out$auxiliaries[[2]], aux1[[2]])
-  aux2 <- .mk_.layer.net_auxform(Lpath2, nl)
+  aux2 <- .mk_.layer.net_auxform(L.path2, nl)
   out$auxiliaries[[2]] <- call("+", out$auxiliaries[[2]], aux2[[2]])
   if(has_base){
-    aux3 <- .mk_.layer.net_auxform(Lbase, nl)
+    aux3 <- .mk_.layer.net_auxform(L.base, nl)
     out$auxiliaries[[2]] <- call("+", out$auxiliaries[[2]], aux3[[2]])
   }
   
-  out$any_order <- if(type=="UTP" || (type%in%c("OSP","ISP") && !has_base)) TRUE else a$any_order
-  out$coef.names_prefix <- .lspec_coef.names(list(path1=Lpath1,path2=Lpath2,base=if(has_base) Lbase,any_order=a$any_order))
+  out$any_order <- if(type=="UTP" || (type%in%c("OSP","ISP") && !has_base)) TRUE else !a$L.in_order
+  out$coef.names_prefix <- paste0(.lspec_coef.names(list(pth1=L.path1,pth2=L.path2,bse=if(has_base) L.base,inord=a$L.in_order)),":")
   out$name_suffix <- "_ML"
   out$nw1 <- .layer_split_network(nw)[[1]] # Needed for emptynwstats.
 
@@ -172,7 +175,7 @@
 #
 InitErgmTerm.desp<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("d","type","Lbase","Lpath1","Lpath2","any_order"),
+                      varnames = c("d","type","L.base","L.path1","L.path2","L.in_order"),
                       vartypes = c("numeric","character","formula","formula","formula","logical"),
                       defaultvalues = list(NULL,"OTP",NULL,NULL,NULL,FALSE),
                       required = c(TRUE, FALSE,FALSE,FALSE,FALSE,FALSE))
@@ -223,7 +226,7 @@ InitErgmTerm.desp<-function(nw, arglist, ...) {
 #
 InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("decay","fixed","cutoff","type", "alpha","Lbase","Lpath1","Lpath2","any_order"),
+                      varnames = c("decay","fixed","cutoff","type", "alpha","L.base","L.path1","L.path2","L.in_order"),
                       vartypes = c("numeric","logical","numeric","character", "numeric","formula","formula","formula","logical"),
                       defaultvalues = list(NULL, FALSE, 30,"OTP", NULL,NULL,NULL,NULL,FALSE),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE,FALSE,FALSE,FALSE,FALSE))
@@ -308,7 +311,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
 #
 InitErgmTerm.ddsp<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("d","type","Lpath1","Lpath2","any_order"),
+                      varnames = c("d","type","L.path1","L.path2","L.in_order"),
                       vartypes = c("numeric","character","formula","formula","logical"),
                       defaultvalues = list(NULL,"OTP",NULL,NULL,FALSE),
                       required = c(TRUE, FALSE,FALSE,FALSE,FALSE))
@@ -359,7 +362,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
   #    ergm.checkdirected("gwdsp", is.directed(nw), requirement=FALSE)
   # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("decay","fixed","cutoff","type", "alpha","Lpath1","Lpath2","any_order"),
+                      varnames = c("decay","fixed","cutoff","type", "alpha","L.path1","L.path2","L.in_order"),
                       vartypes = c("numeric","logical","numeric","character", "numeric","formula","formula","logical"),
                       defaultvalues = list(NULL, FALSE, 30,"OTP", NULL,NULL,NULL,FALSE),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE,FALSE,FALSE,FALSE))
@@ -424,7 +427,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
     else
       coef.names <- paste("gwdsp.fixed",decay,sep=".")
     
-    list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,coef.names), inputs=c(linfo$any_order, decay,typecode,maxesp), auxiliaries=auxiliaries)
+    list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,coef.names), inputs=c(linfo$any_order, decay,typecode,maxesp), auxiliaries=linfo$auxiliaries)
   }
 }
 
@@ -448,7 +451,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
 #
 InitErgmTerm.dnsp<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("d","type","Lbase","Lpath1","Lpath2","any_order"),
+                      varnames = c("d","type","L.base","L.path1","L.path2","L.in_order"),
                       vartypes = c("numeric","character","formula","formula","formula","logical"),
                       defaultvalues = list(NULL,"OTP",NULL,NULL,NULL,FALSE),
                       required = c(TRUE, FALSE,FALSE,FALSE,FALSE,FALSE))
@@ -496,7 +499,7 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, ...) {
   #    ergm.checkdirected("gwnsp", is.directed(nw), requirement=FALSE)
   # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("decay","fixed","cutoff","type", "alpha","Lbase","Lpath1","Lpath2","any_order"),
+                      varnames = c("decay","fixed","cutoff","type", "alpha","L.base","L.path1","L.path2","L.in_order"),
                       vartypes = c("numeric","logical","numeric","character", "numeric","formula","formula","formula","logical"),
                       defaultvalues = list(NULL, FALSE, 30,"OTP", NULL,NULL,NULL,NULL,FALSE),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE,FALSE,FALSE,FALSE,FALSE))
@@ -561,6 +564,6 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, ...) {
     else
       coef.names <- paste("gwnsp.fixed",decay,sep=".")
     
-    list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,coef.names), inputs=c(linfo$any_order, decay,typecode,maxesp), auxiliaries=auxiliaries)
+    list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,coef.names), inputs=c(linfo$any_order, decay,typecode,maxesp), auxiliaries=linfo$auxiliaries)
   }
 }

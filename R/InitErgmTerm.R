@@ -2402,17 +2402,20 @@ InitErgmTerm.mutual<-function (nw, arglist, ...) {
      inputs <- NULL
   }
 
+  maxval <- network.dyadcount(nw,FALSE)/2
+  
   L1 <- a$L1
   L2 <- a$L2
   if(!is.null(L1) || !is.null(L2)){
-    if(is.null(L1)) L1 <- L2
-    else if(is.null(L2)) L2 <- L1
+    NVL(L1) <- L2
+    NVL(L2) <- L1
     nl <- max(.peek_vattrv(nw, ".LayerID"))
     auxiliaries <- .mk_.layer.net_auxform(L1, nl)
     aux2 <- .mk_.layer.net_auxform(L2, nl)
     auxiliaries[[2]] <- call("+", auxiliaries[[2]], aux2[[2]])
     name <- paste(name, "ML", sep="_")
     coef.names <- paste0(.lspec_coef.names(if(L1==L2) list(L1) else list(L1,L2)),":",coef.names)
+    maxval <- maxval*2
   }else auxiliaries <- NULL
   
   list(name=name,                      #name: required
@@ -2420,7 +2423,7 @@ InitErgmTerm.mutual<-function (nw, arglist, ...) {
        inputs=inputs,
        auxiliaries = auxiliaries,
        minval = 0,
-       maxval = network.dyadcount(nw,FALSE)/2) 
+       maxval = maxval) 
 }
 
 #=======================InitErgmTerm functions:  N============================#

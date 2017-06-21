@@ -16,6 +16,7 @@
 
 \alias{B}
 \alias{F}
+\alias{L}
 \alias{NodematchFilter}
 \alias{absdiff}
 \alias{absdiffcat}
@@ -90,6 +91,7 @@
 \alias{isolates}
 \alias{istar}
 \alias{kstar}
+\alias{layerCMB}
 \alias{localtriangle}
 \alias{m2star}
 \alias{match}
@@ -187,7 +189,7 @@ network
     trnasform them by modifying their inputs (e.g., the network they
     evaluate) and/or their outputs.
 
-    By convention, their names are capitalized.
+    By convention, their names are capitalized and CamelCased.
   }
   
   \subsection{Interactions}{
@@ -275,6 +277,48 @@ network
   help identify it.
 }
 
+\section{Multilayer networks}{
+  In order to fit a model for multilayer networks, first use
+  \code{\link{Layer}} construct an LHS network that \code{\link{ergm}}
+  will understand as multilayered.
+
+  Used on the formula directly, most, but not all, terms included in
+  this package will sum their statistics over the layers.
+
+  Some terms are \emph{layer-aware}. These terms have explicit (usually
+  optional) layer specification arguments. For other terms, an operator
+  \code{L(formula, L=~.)} can be used to specify to which layers they
+  apply. How layers are specified explicitly follows.
+
+  \subsection{Layer Logic}{
+    The layers on which a term is to be evaluated is specified by a
+    one-sided formula, with one term.
+
+    This term must contain a logical expression in terms of the layers,
+    referenced either by name or by number (i.e., order in which they
+    were passed to \code{\link{Layer}}), and
+    \link[base::Logic]{logical operators} (\code{!}, \code{|}, \code{&},
+    etc.) between them. Testing for equality or inequality (\code{==},
+    \code{!=}, and \code{xor}) is also supported. Note that standard \R
+    \link[base::Syntax]{operator precedence} applies, so use of
+    parentheses is recommended to ensure the logical expression is what
+    it looks like.
+
+    For example, if LHS is \code{Layer(A=nwA, B=nwB)}, both \code{~2}
+    and \code{~B} refer to the second layer, while \code{A&!B} refers to
+    a \dQuote{logical} layer that has ties that are in A but not in B.
+
+    At this time, logical expressions that produce complete graphs from
+    empty graph inputs (e.g., \code{A==B}) are not supported. 
+  }
+
+  \subsection{Summing layers}{
+    Some terms combine multiple layers. I that case, the formula may have multiple terms separated by the \code{+} operator. For example \code{Layer(nw1,nw2)~L(~edges, ~1+(2&!1))} produces the
+    number of edges in layer 1 plus the number of edges in layer 2 but
+    not in layer 1.
+  }
+}
+
 \section{Terms to represent network statistics included in the
   \code{\link[=ergm-package]{ergm}} package}{
   A cross-referenced html version of the term documentation is is available via \code{vignette('ergm-term-crossRef')} and terms can also be searched via \code{\link{search.ergmTerms}}.
@@ -359,15 +403,21 @@ network
 	     \eqn{f_{i,j}(y_{i,j}) = 0}{f[i,j](y[i,j])=0}.
   }
 
+  \item{\code{L(formula, Ls=~.)} (binary) (operator) (layer-aware)}{\emph{Evaluation on layers}:
+    Evaluates the terms in \code{formula} on an actual or logical layers
+    specified in formula \code{Ls} and sums the results. \code{Ls} is a
+    one-sided formula with terms separated by \code{+} operators, and
+    corresponding statistics for each layer specification is summed
+    up. A dot (\code{.}) stands for summing all layers.
+  }
   
-  \item{\code{NodematchFilter(formula, attrname)} (binary) (operator)}{
-    Filtering on \code{\link{nodematch}}: evaluates the terms specified in \code{formula} on a network
+  \item{\code{NodematchFilter(formula, attrname)} (binary) (operator)}{\emph{Filtering on \code{\link{nodematch}}}:
+    evaluates the terms specified in \code{formula} on a network
     constructed by taking \eqn{y} and removing any edges for which
     \code{attrname(i)!=attrname(j)}. The \code{attrname} argument is a character vector giving one or
     more names of attributes in the network's vertex attribute
     list.
   }
-
   
     \item{\code{absdiff(attrname, pow=1)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (quantitative nodal attribute),
     \code{absdiff(attrname, pow=1, form ="sum")}  (valued)  (dyad-independent) (directed)  (undirected) (quantitative nodal attribute)}{\emph{Absolute difference:}
@@ -868,7 +918,7 @@ equal to the number of (first mode) mutual partners of that pair.
 	to induce a multimodal distribution of networks.
   }
   
-    \item{\code{ddsp(d, type="OTP")} (binary) (directed)}{  \emph{Directed dyadwise shared partners:} This term adds one network statistic to the model for each element in \code{d} where the \eqn{i}th such statistic equals the number of \emph{dyads} in the network with exactly \code{d[i]} shared partners. This term can only be used with directed networks.  Multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to be counted (see below for type codes).  By default, outgoing two-paths are employed.
+    \item{\code{ddsp(d, type="OTP", L.path1=NULL, L.path2=NULL, L.in_order=FALSE)} (binary) (directed) (undirected) (layer-aware)}{  \emph{Directed dyadwise shared partners:} This term adds one network statistic to the model for each element in \code{d} where the \eqn{i}th such statistic equals the number of \emph{dyads} in the network with exactly \code{d[i]} shared partners. This term can only be used with directed networks.  Multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to be counted (see below for type codes).  By default, outgoing two-paths are employed.
     
     While there is only one shared partner configuration in the undirected case, nine distinct configurations are possible for directed graphs.  Currently, edgewise shared partner terms may be defined with respect to five of these configurations; they are defined here as follows (using terminology from Butts (2008) and the \code{relevent} package):
 
@@ -879,7 +929,9 @@ equal to the number of (first mode) mutual partners of that pair.
     \item{Incoming Shared Partner (ISP)}{vertex \eqn{k} is an ISP shared partner of ordered pair \eqn{(i,j)} iff \eqn{k \to i, k \to j}{k->i, k->j}.}
   }
 
-Note that Robins et al. (2009) define closely related statistics to several of the above, using slightly different terminology.
+  Note that Robins et al. (2009) define closely related statistics to several of the above, using slightly different terminology.
+
+  For a multilayer network, \code{L.path1} and \code{L.path2} provide the layer specifications for the ties of the 2-path or the shared partnership. (If only one of the two is given, the one given overwrites the other.) If \code{L.in_order==TRUE}, the first tie of the two-path must be in \code{L.path1} and the second in \code{L.path2}; otherwise, any ordering counts, provided there is exactly one of each.  
    }
 
   \item{\code{degrange(from, to=+Inf, by=NULL, homophily=FALSE)} (binary)  (undirected) (categorical nodal attribute)
@@ -992,18 +1044,31 @@ of the degrees of all pairs of nodes in the network which are tied.
     lower-indexed vertex to the higher-indexed vertex.
   }
   
-    \item{\code{desp(d, type="OTP")} (binary) (directed)}{  \emph{Directed edgewise shared partners:} This term adds one network statistic to the model for each element in \code{d} where the \eqn{i}th such statistic equals the number of \emph{edges} in the network with exactly \code{d[i]} shared partners. This term can only be used with directed networks.  Multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to be counted (see \code{ddsp} for type codes).  By default, outgoing two-paths are employed. }
+  \item{\code{desp(d, type="OTP", L.base=NULL, L.path1=NULL, L.path2=NULL, L.in_order=FALSE)} (binary) (directed) (undirected) (layer-aware)}{  \emph{Directed edgewise shared partners:} This term adds one network statistic to the model for each element in \code{d} where the \eqn{i}th such statistic equals the number of \emph{edges} in the network with exactly \code{d[i]} shared partners. This term can only be used with directed networks.  Multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to be counted (see \code{ddsp} for type codes).  By default, outgoing two-paths are employed.
+
+  For a multilayer network, \code{L.path1} and \code{L.path2} provide the layer specifications for the ties of the 2-path or the shared partnership. (If only one of the two is given, the one given overwrites the other.) \code{L.base} gives the layer specification for the base. If \code{L.in_order==TRUE}, the first tie of the two-path must be in \code{L.path1} and the second in \code{L.path2}; otherwise, any ordering counts, provided there is exactly one of each. (For types \code{"OSP"} and \code{"ISP"}, the \dQuote{first} tie is considered to be the one incident on the tail of the base tie.)
+
+  }
     
-    \item{\code{dgwdsp(decay, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed)}{  \emph{Geometrically weighted dyadwise shared partner distribution:} This term adds one network statistic to the model equal to the geometrically weighted dyadwise shared partner distribution with decay parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for this parameter may be fixed (if \code{fixed=TRUE}), or it may be used instead as the starting value for the estimation of \code{decay} in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006).  Note that the GWDSP statistic is equal to the sum of GWNSP plus GWESP. For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying DSP terms to use in computing the statistics to reduce the computational burden.
+  \item{\code{dgwdsp(decay, fixed=FALSE, cutoff=30, type="OTP", L.path1=NULL, L.path2=NULL, L.in_order=FALSE)} (binary) (directed) (undirected) (layer-aware)}{  \emph{Geometrically weighted dyadwise shared partner distribution:} This term adds one network statistic to the model equal to the geometrically weighted dyadwise shared partner distribution with decay parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for this parameter may be fixed (if \code{fixed=TRUE}), or it may be used instead as the starting value for the estimation of \code{decay} in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006).  Note that the GWDSP statistic is equal to the sum of GWNSP plus GWESP. For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying DSP terms to use in computing the statistics to reduce the computational burden.
+
+    See term \code{ddsp} for layer specification information.
    }
    
-   \item{\code{dgwesp(decay, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed)}{ \emph{Geometrically weighted edgewise shared partner distribution:} This term adds a statistic equal to the geometrically weighted \emph{edgewise} (not dyadwise) shared partner distribution with decay parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for this parameter may be fixed (if \code{fixed=TRUE}), or it may be used instead as the starting value for the estimation of \code{decay} in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006). For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying ESP terms to use in computing the statistics to reduce the computational burden.
+   \item{\code{dgwesp(decay, fixed=FALSE, cutoff=30, type="OTP", L.base=NULL, L.path1=NULL, L.path2=NULL, L.in_order=FALSE)} (binary) (directed) (undirected) (layer-aware)}{ \emph{Geometrically weighted edgewise shared partner distribution:} This term adds a statistic equal to the geometrically weighted \emph{edgewise} (not dyadwise) shared partner distribution with decay parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for this parameter may be fixed (if \code{fixed=TRUE}), or it may be used instead as the starting value for the estimation of \code{decay} in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006). For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying ESP terms to use in computing the statistics to reduce the computational burden.
+
+     See term \code{desp} for layer specification information.
    }
   
-   \item{\code{dgwnsp(decay, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed)}{ \emph{Geometrically weighted non-edgewise shared partner distribution:} This term is just like gwesp and gwdsp except it adds a statistic equal to the geometrically weighted nonedgewise (that is, over dyads that do not have an edge) shared partner distribution with decay parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for this parameter may be fixed (if \code{fixed=TRUE}), or it may be used instead as the starting value for the estimation of \code{decay} in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006). For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying NSP terms to use in computing the statistics to reduce the computational burden.
+   \item{\code{dgwnsp(decay, fixed=FALSE, cutoff=30, type="OTP", L.base=NULL, L.path1=NULL, L.path2=NULL, L.in_order=FALSE)} (binary) (directed) (undirected) (layer-aware)}{ \emph{Geometrically weighted non-edgewise shared partner distribution:} This term is just like gwesp and gwdsp except it adds a statistic equal to the geometrically weighted nonedgewise (that is, over dyads that do not have an edge) shared partner distribution with decay parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for this parameter may be fixed (if \code{fixed=TRUE}), or it may be used instead as the starting value for the estimation of \code{decay} in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006). For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying NSP terms to use in computing the statistics to reduce the computational burden.
+
+     See term \code{desp} for layer specification information.
    }
     
-    \item{\code{dnsp(d, type="OTP")} (binary) (directed)}{  \emph{Directed non-edgewise shared partners:} This term adds one network statistic to the model for each element in \code{d} where the \eqn{i}th such statistic equals the number of \emph{non-edges} in the network with exactly \code{d[i]} shared partners. This term can only be used with directed networks.  Multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to be counted (see \code{ddsp} for type codes).  By default, outgoing two-paths are employed. }
+   \item{\code{dnsp(d, type="OTP", L.base=NULL, L.path1=NULL, L.path2=NULL, L.in_order=FALSE)} (binary) (directed) (undirected) (layer-aware)}{  \emph{Directed non-edgewise shared partners:} This term adds one network statistic to the model for each element in \code{d} where the \eqn{i}th such statistic equals the number of \emph{non-edges} in the network with exactly \code{d[i]} shared partners. This term can only be used with directed networks.  Multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to be counted (see \code{ddsp} for type codes).  By default, outgoing two-paths are employed.
+
+     See term \code{desp} for layer specification information.     
+   }
     
     \item{\code{dsp(d)}  (binary)  (directed)  (undirected)}{\emph{Dyadwise shared partners:} 
     The \code{d} argument is a vector of distinct integers. This term adds one
@@ -1360,7 +1425,26 @@ of the degrees of all pairs of nodes in the network which are tied.
     equaling to the number of dyads whose values are exceeded by the
       corresponding element of \code{threshold}.
     }
-  
+
+    \item{\code{layerCMB(Ls=~.)} (binary) (layer-aware)}{\emph{Conway--Maxwell-Binomial dependence among layers}:
+
+      Models marginal dependence among dyads within a layer by imposing
+      a Conway--Maxwell-Binomial (CMB) distribution on the number of
+      layers in each dyad that have a tie.
+
+      \code{Ls} is a one-sided formula with terms separated by \code{+}
+      operators. A dot (\code{.}) stands for all layers together.
+
+      The term adds one statistic to the model, equalling the sum over
+      all the dyads in the network of \eqn{\log\{E!(R-E)!\}}, where
+      \eqn{E} is the number of layers in \code{Ls} with an edge in that
+      dyad and \eqn{R} being the total number of layers in \code{Ls}.
+
+      A positive coefficient induces positive dependence and a negative
+      one induces negative dependence.
+  }
+
+    
     \item{\code{localtriangle(x)}  (binary)  (triad-related)  (directed)  (undirected)}{\emph{Triangles within neighborhoods: } 
     This term adds one statistic to the model equal to the number of triangles
     in the network between nodes \dQuote{close to} each other. For an undirected
@@ -1390,7 +1474,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     average degree of a node.  Note that this term is a constant multiple of
     both \code{edges} and \code{density}.}
   
-    \item{\code{mutual(same=NULL, diff=FALSE, by=NULL, keep=NULL)} (binary)  (directed)  (frequently-used), \code{mutual(form="min",threshold=0)}  (valued)  (directed)
+    \item{\code{mutual(same=NULL, diff=FALSE, by=NULL, keep=NULL, L1=NULL, L2=NULL)} (binary)  (directed)  (frequently-used) (layer-aware), \code{mutual(form="min",threshold=0)}  (valued)  (directed)
      }{\emph{Mutuality:} 
     In binary ERGMs, equal to the number of
     pairs of actors \eqn{i} and \eqn{j} for which \eqn{(i{\rightarrow}j)}{(i,j)}
@@ -1419,6 +1503,12 @@ of the degrees of all pairs of nodes in the network which are tied.
     Finally, if \code{keep} is passed a numerical vector, this vector of integers
     tells which statistics should be kept whenever the \code{mutual} term would
     ordinarily result in multiple statistics.
+
+    If layer specification is given in arguments \code{L1} and
+    \code{L2}, the statistic will count the number of dyads where a tie
+    in \code{L1} reciprocates a tie in \code{L2} and vice versa. (Note
+    that dyad that has mutual ties in \code{L1} and in \code{L2} will
+    add 2 to this statistic.) 
   }
     
     \item{\code{nearsimmelian}  (binary)  (directed)  (triad-related)}{\emph{Near simmelian triads:} 
