@@ -3,6 +3,22 @@
   f
 }
 
+.despace <- function(s) gsub("[[:space:]]", "", s)
+
+.lspec_coef.names <- function(Llist){
+  reprs <- sapply(seq_along(Llist), function(l){
+    name <- names(Llist)[l]
+    L <- Llist[[l]]
+    s <- switch(class(L),
+                formula = .despace(deparse(L[[2]])),
+                character = L,
+                as.character(L))
+    if(NVL(name,"")!="") s <- paste0(name,"=",s)
+    s
+  })
+  paste0("L(",paste0(reprs, collapse=","),")")
+}
+
 #' A multilayer network representation.
 #'
 #' A function for specifying the LHS of a multilayer (a.k.a. multiplex
@@ -28,11 +44,11 @@
 #'
 #' # Method 1: list of networks
 #' flo <- Layer(list(m = flomarriage, b = flobusiness))
-#' ergm(flo ~ OnLayer(~edges, ~m)+OnLayer(~edges, ~b))
+#' ergm(flo ~ L(~edges, ~m)+L(~edges, ~b))
 #'
 #' # Method 2: networks as arguments
 #' flo <- Layer(m = flomarriage, b = flobusiness)
-#' ergm(flo ~ OnLayer(~edges, ~m)+OnLayer(~edges, ~b))
+#' ergm(flo ~ L(~edges, ~m)+L(~edges, ~b))
 #'
 #' # Method 3: edge attributes:
 #' flo <- flomarriage
@@ -40,7 +56,7 @@
 #' flo[,, names.eval="m"] <- as.matrix(flomarriage)
 #' flo[,, names.eval="b"] <- as.matrix(flobusiness)
 #' flo <- Layer(flo, c("m","b"))
-#' ergm(flo ~ OnLayer(~edges, ~m)+OnLayer(~edges, ~b))
+#' ergm(flo ~ L(~edges, ~m)+L(~edges, ~b))
 #'
 #' @export
 Layer <- function(...){
@@ -112,7 +128,7 @@ InitErgmTerm..layer.nets <- function(nw, arglist, response=NULL, ...){
 
 InitErgmTerm..layer.net <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("layers"),
+                      varnames = c("L"),
                       vartypes = c("formula"),
                       defaultvalues = list(NULL),
                       required = c(TRUE))
@@ -125,9 +141,9 @@ InitErgmTerm..layer.net <- function(nw, arglist, response=NULL, ...){
   namemap <- seq_along(nwl)
   names(namemap) <- nwnames
 
-  if(length(term.list.formula(a$layers[[2]]))!=1) stop("Currently, the .layer.net() auxiliary formula must have exactly one term.", call.=FALSE)
+  if(length(term.list.formula(a$L[[2]]))!=1) stop("Currently, the .layer.net() auxiliary formula must have exactly one term.", call.=FALSE)
   
-  ll <- pack.LayerLogic_formula_as_double(a$layers, namemap)
+  ll <- pack.LayerLogic_formula_as_double(a$L, namemap)
 
   if(any(sapply(ll, test_eval.LayerLogic, FALSE))) stop("Layer specifications that produce edges on the output layer for empty input layers are not supported at this time.", call.=FALSE)
   
@@ -222,9 +238,9 @@ test_eval.LayerLogic <- function(commands, lv){
   append.rhs.formula(~.,trmcalls)[-2]
 }
 
-InitErgmTerm.OnLayer <- function(nw, arglist, response=NULL, ...){
+InitErgmTerm.L <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("formula", "layers"),
+                      varnames = c("formula", "Ls"),
                       vartypes = c("formula", "formula"),
                       defaultvalues = list(NULL, ~.),
                       required = c(TRUE, FALSE))
@@ -234,8 +250,8 @@ InitErgmTerm.OnLayer <- function(nw, arglist, response=NULL, ...){
   nwl <- .layer_split_network(nw)
   nwnames <- names(nwl)
 
-  layers <- a$layers
-  auxiliaries <- .mk_.layer.net_auxform(layers, length(nwl))
+  Ls <- a$Ls
+  auxiliaries <- .mk_.layer.net_auxform(Ls, length(nwl))
   nltrms <- length(term.list.formula(auxiliaries[[2]]))
 
   nw1 <- nwl[[1]]
@@ -252,23 +268,23 @@ InitErgmTerm.OnLayer <- function(nw, arglist, response=NULL, ...){
 
   gs <- ergm.emptynwstats.model(m) * nltrms
   
-  c(list(name="OnLayer", coef.names = paste0('OnLayer(',m$coef.names,',',deparse(a$layers),')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries = auxiliaries),
-    passthrough.curved.ergm.model(m, function(x) paste0('OnLayer(',x,',',deparse(a$layers),')')))
+  c(list(name="OnLayer", coef.names = paste0(.lspec_coef.names(list(a$Ls)),":",m$coef.names), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries = auxiliaries),
+    passthrough.curved.ergm.model(m, function(x) paste0(.lspec_coef.names(list(a$Ls)),":",x)))
 }
 
 InitErgmTerm.layerCMB <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("layers"),
+                      varnames = c("Ls"),
                       vartypes = c("formula"),
                       defaultvalues = list(~.),
                       required = c(FALSE))
 
   nwl <- .layer_split_network(nw)
-  layers <- a$layers
-  auxiliaries <- .mk_.layer.net_auxform(layers, length(nwl))
+  Ls <- a$Ls
+  auxiliaries <- .mk_.layer.net_auxform(Ls, length(nwl))
   nltrms <- length(term.list.formula(auxiliaries[[2]]))
 
   inputs <- c(nltrms)
 
-  list(name="layerCMB", coef.names = paste0('layerCMB(',deparse(a$layers),')'), inputs=inputs, dependence=FALSE, auxiliaries = auxiliaries, emptynwstats = network.dyadcount(nwl[[1]], FALSE)*lfactorial(nltrms))
+  list(name="layerCMB", coef.names = paste0('layerCMB(',.despace(deparse(Ls)),')'), inputs=inputs, dependence=FALSE, auxiliaries = auxiliaries, emptynwstats = network.dyadcount(nwl[[1]], FALSE)*lfactorial(nltrms))
 }

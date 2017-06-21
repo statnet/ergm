@@ -113,36 +113,36 @@
 .sp.handle_layers <- function(nw, a, type, has_base){
   out <- list()
   
-  path.l1 <- a$path.l1
-  path.l2 <- a$path.l2
-  base.l <- a$base.l
+  Lpath1 <- a$Lpath1
+  Lpath2 <- a$Lpath2
+  Lbase <- a$Lbase
 
-  if(is.null(path.l1) && is.null(path.l2) && is.null(base.l)) return(out)
+  if(is.null(Lpath1) && is.null(Lpath2) && is.null(Lbase)) return(out)
 
-  if(is.null(path.l1)) path.l1 <- NVL(path.l2, base.l)
-  if(is.null(path.l2)) path.l2 <- NVL(path.l1, base.l)
-  if(has_base && is.null(base.l)) base.l <- NVL(path.l1, path.l2)
+  if(is.null(Lpath1)) Lpath1 <- NVL(Lpath2, Lbase)
+  if(is.null(Lpath2)) Lpath2 <- NVL(Lpath1, Lbase)
+  if(has_base && is.null(Lbase)) Lbase <- NVL(Lpath1, Lpath2)
   
   nl <- max(.peek_vattrv(nw, ".LayerID"))
 
   layer0 <-
     if(has_base)
-      as.formula(call("~",call("|",call("|", path.l1[[2]], path.l2[[2]]),base.l[[2]])))
+      as.formula(call("~",call("|",call("|", Lpath1[[2]], Lpath2[[2]]),Lbase[[2]])))
     else
-      as.formula(call("~",call("|", path.l1[[2]], path.l2[[2]])))
+      as.formula(call("~",call("|", Lpath1[[2]], Lpath2[[2]])))
 
   out$auxiliaries <- .mk_.layer.net_auxform(layer0, nl)
-  aux1 <- .mk_.layer.net_auxform(path.l1, nl)
+  aux1 <- .mk_.layer.net_auxform(Lpath1, nl)
   out$auxiliaries[[2]] <- call("+", out$auxiliaries[[2]], aux1[[2]])
-  aux2 <- .mk_.layer.net_auxform(path.l2, nl)
+  aux2 <- .mk_.layer.net_auxform(Lpath2, nl)
   out$auxiliaries[[2]] <- call("+", out$auxiliaries[[2]], aux2[[2]])
   if(has_base){
-    aux3 <- .mk_.layer.net_auxform(base.l, nl)
+    aux3 <- .mk_.layer.net_auxform(Lbase, nl)
     out$auxiliaries[[2]] <- call("+", out$auxiliaries[[2]], aux3[[2]])
   }
   
-  out$coef.names_prefix <- paste0("L(path=(",paste(trimws(deparse(path.l1[[2]])), trimws(deparse(path.l2[[2]])), sep=","),")",if(has_base) paste0(",base=",trimws(deparse(base.l[[2]]))) else "","):")
   out$any_order <- if(type=="UTP" || (type%in%c("OSP","ISP") && !has_base)) TRUE else a$any_order
+  out$coef.names_prefix <- .lspec_coef.names(list(path1=Lpath1,path2=Lpath2,base=if(has_base) Lbase,any_order=a$any_order))
   out$name_suffix <- "_ML"
   out$nw1 <- .layer_split_network(nw)[[1]] # Needed for emptynwstats.
 
@@ -172,7 +172,7 @@
 #
 InitErgmTerm.desp<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("d","type","base.l","path.l1","path.l2","any_order"),
+                      varnames = c("d","type","Lbase","Lpath1","Lpath2","any_order"),
                       vartypes = c("numeric","character","formula","formula","formula","logical"),
                       defaultvalues = list(NULL,"OTP",NULL,NULL,NULL,FALSE),
                       required = c(TRUE, FALSE,FALSE,FALSE,FALSE,FALSE))
@@ -223,7 +223,7 @@ InitErgmTerm.desp<-function(nw, arglist, ...) {
 #
 InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("decay","fixed","cutoff","type", "alpha","base.l","path.l1","path.l2","any_order"),
+                      varnames = c("decay","fixed","cutoff","type", "alpha","Lbase","Lpath1","Lpath2","any_order"),
                       vartypes = c("numeric","logical","numeric","character", "numeric","formula","formula","formula","logical"),
                       defaultvalues = list(NULL, FALSE, 30,"OTP", NULL,NULL,NULL,NULL,FALSE),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE,FALSE,FALSE,FALSE,FALSE))
@@ -308,7 +308,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
 #
 InitErgmTerm.ddsp<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("d","type","path.l1","path.l2","any_order"),
+                      varnames = c("d","type","Lpath1","Lpath2","any_order"),
                       vartypes = c("numeric","character","formula","formula","logical"),
                       defaultvalues = list(NULL,"OTP",NULL,NULL,FALSE),
                       required = c(TRUE, FALSE,FALSE,FALSE,FALSE))
@@ -359,7 +359,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
   #    ergm.checkdirected("gwdsp", is.directed(nw), requirement=FALSE)
   # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("decay","fixed","cutoff","type", "alpha","path.l1","path.l2","any_order"),
+                      varnames = c("decay","fixed","cutoff","type", "alpha","Lpath1","Lpath2","any_order"),
                       vartypes = c("numeric","logical","numeric","character", "numeric","formula","formula","logical"),
                       defaultvalues = list(NULL, FALSE, 30,"OTP", NULL,NULL,NULL,FALSE),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE,FALSE,FALSE,FALSE))
@@ -448,7 +448,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
 #
 InitErgmTerm.dnsp<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("d","type","base.l","path.l1","path.l2","any_order"),
+                      varnames = c("d","type","Lbase","Lpath1","Lpath2","any_order"),
                       vartypes = c("numeric","character","formula","formula","formula","logical"),
                       defaultvalues = list(NULL,"OTP",NULL,NULL,NULL,FALSE),
                       required = c(TRUE, FALSE,FALSE,FALSE,FALSE,FALSE))
@@ -496,7 +496,7 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, ...) {
   #    ergm.checkdirected("gwnsp", is.directed(nw), requirement=FALSE)
   # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("decay","fixed","cutoff","type", "alpha","base.l","path.l1","path.l2","any_order"),
+                      varnames = c("decay","fixed","cutoff","type", "alpha","Lbase","Lpath1","Lpath2","any_order"),
                       vartypes = c("numeric","logical","numeric","character", "numeric","formula","formula","formula","logical"),
                       defaultvalues = list(NULL, FALSE, 30,"OTP", NULL,NULL,NULL,NULL,FALSE),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE,FALSE,FALSE,FALSE,FALSE))
