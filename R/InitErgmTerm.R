@@ -2351,9 +2351,9 @@ InitErgmTerm.meandeg<-function(nw, arglist, ...) {
 InitErgmTerm.mutual<-function (nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
-                      varnames = c("same", "by", "diff", "keep", "layer1", "layer2"),
+                      varnames = c("same", "by", "diff", "keep", "l1", "l2"),
                       vartypes = c("character", "character", "logical", "numeric", "formula", "formula"),
-                      defaultvalues = list(NULL, NULL, FALSE, NULL, ~., ~.),
+                      defaultvalues = list(NULL, NULL, FALSE, NULL, NULL, NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE))
   ### Process the arguments
   if (!is.null(a$same) || !is.null(a$by)) {
@@ -2402,14 +2402,17 @@ InitErgmTerm.mutual<-function (nw, arglist, ...) {
      inputs <- NULL
   }
 
-  layer1 <- a$layer1
-  layer2 <- a$layer2
-  if((layer1!=~.) || (layer2!=~.)){
+  l1 <- a$l1
+  l2 <- a$l2
+  if(!is.null(l1) || !is.null(l2)){
+    if(is.null(l1)) l1 <- l2
+    else if(is.null(l2)) l2 <- l1
     nl <- max(.peek_vattrv(nw, ".LayerID"))
-    auxiliaries <- .mk_.layer.net_auxform(layer1, nl)
-    aux2 <- .mk_.layer.net_auxform(layer2, nl)
+    auxiliaries <- .mk_.layer.net_auxform(l1, nl)
+    aux2 <- .mk_.layer.net_auxform(l2, nl)
     auxiliaries[[2]] <- call("+", auxiliaries[[2]], aux2[[2]])
     name <- paste(name, "ML", sep="_")
+    coef.names <- paste0("L(", if(l1==l2) trimws(deparse(l1[[2]])) else paste(trimws(deparse(l1[[2]])), trimws(deparse(l2[[2]])), sep=","),"):",coef.names)
   }else auxiliaries <- NULL
   
   list(name=name,                      #name: required
