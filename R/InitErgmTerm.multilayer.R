@@ -3,6 +3,46 @@
   f
 }
 
+#' A multilayer network representation.
+#'
+#' A function for specifying the LHS of a multilayer (a.k.a. multiplex
+#' a.k.a. multirelational a.k.a. multivariate) ERGM.
+#'
+#' @param ... layer specification, in one of three formats:
+#' 
+#'   1. An (optionally named) list of identically-dimensioned and
+#'      directed networks.
+#'
+#'   1. Several networks as (optionally named) arguments.
+#'
+#'   1. A single network and a chararacter vector. Then, the layers are
+#'      values of the named edge attributes.
+#'
+#' @return A network object with layer metadata.
+#'
+#' @seealso [Help on model specification][ergm-terms] for specific terms.
+#' 
+#' @examples
+#'
+#' data(florentine)
+#'
+#' # Method 1: list of networks
+#' flo <- Layer(list(m = flomarriage, b = flobusiness))
+#' ergm(flo ~ OnLayer(~edges, ~m)+OnLayer(~edges, ~b))
+#'
+#' # Method 2: networks as arguments
+#' flo <- Layer(m = flomarriage, b = flobusiness)
+#' ergm(flo ~ OnLayer(~edges, ~m)+OnLayer(~edges, ~b))
+#'
+#' # Method 3: edge attributes:
+#' flo <- flomarriage
+#' flo <- flomarriage | flobusiness
+#' flo[,, names.eval="m"] <- as.matrix(flomarriage)
+#' flo[,, names.eval="b"] <- as.matrix(flobusiness)
+#' flo <- Layer(flo, c("m","b"))
+#' ergm(flo ~ OnLayer(~edges, ~m)+OnLayer(~edges, ~b))
+#'
+#' @export
 Layer <- function(...){
   args <- list(...)
   if(length(args)==2 && is(args[[1]], "network") && is(args[[2]], "vector")){
