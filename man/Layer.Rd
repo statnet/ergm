@@ -29,11 +29,11 @@ data(florentine)
 
 # Method 1: list of networks
 flo <- Layer(list(m = flomarriage, b = flobusiness))
-ergm(flo ~ OnLayer(~edges, ~m)+OnLayer(~edges, ~b))
+ergm(flo ~ L(~edges, ~m)+L(~edges, ~b))
 
 # Method 2: networks as arguments
 flo <- Layer(m = flomarriage, b = flobusiness)
-ergm(flo ~ OnLayer(~edges, ~m)+OnLayer(~edges, ~b))
+ergm(flo ~ L(~edges, ~m)+L(~edges, ~b))
 
 # Method 3: edge attributes:
 flo <- flomarriage
@@ -41,7 +41,7 @@ flo <- flomarriage | flobusiness
 flo[,, names.eval="m"] <- as.matrix(flomarriage)
 flo[,, names.eval="b"] <- as.matrix(flobusiness)
 flo <- Layer(flo, c("m","b"))
-ergm(flo ~ OnLayer(~edges, ~m)+OnLayer(~edges, ~b))
+ergm(flo ~ L(~edges, ~m)+L(~edges, ~b))
 
 }
 \seealso{
