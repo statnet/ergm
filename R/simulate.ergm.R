@@ -137,6 +137,10 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     monitored.length <- 0
   }
 
+  # Inherit constraints from nw if needed.
+  tmp <- .handle.auto.constraints(nw, constraints, NULL, NULL)
+  nw <- tmp$nw; constraints <- tmp$constraints
+  
   # Construct the proposal; this needs to be done here so that the
   # auxiliary requests could be passed to ergm.getmodel().
   MHproposal <- if(inherits(constraints, "MHproposal")) constraints
