@@ -40,7 +40,8 @@ export(
   coef.ergm,
   coefficients.ergm,               
   coef.length.model,
-  coef.sublength.model,            
+  coef.sublength.model,
+  combine_networks,
   eta.length.model,
   eta.sublength.model,            
   colMeans.mcmc.list,
@@ -268,6 +269,7 @@ export(
   # twopathdist,     proposed to make internal 
   # unset.offset.formula,      proposed to make internal      
   # updatemodel.ErgmTerm,    proposed to make internal 
+  uncombine_network,
   vcov.ergm,                       
   # which.package.InitFunction, proposed to make internal
   wtd.median,
