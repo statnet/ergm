@@ -10,6 +10,10 @@ install:
   ps: Bootstrap
 
 build_script:
+  - travis-tool.sh install_github statnet/statnet.common
+  - travis-tool.sh install_github statnet/network
+  - travis-tool.sh install_github statnet/ergm
+  - travis-tool.sh install_github statnet/ergm.count
   - travis-tool.sh install_deps
 
 test_script:
