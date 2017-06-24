@@ -2,11 +2,18 @@ language: r
 r:
 - release
 - devel
+os:
+- linux
+- osx
+matrix:
+  exclude:
+  - r: devel
+    os: osx
 sudo: false
 cache: packages
 r_github_packages:
-- statnet/network-private
 - statnet/statnet.common-private
+- statnet/network-private
 - statnet/ergm-private
 - statnet/ergm.count-private
 addons:
