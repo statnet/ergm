@@ -37,13 +37,13 @@ typedef struct {
   unsigned int *stacks;
 } StoreLayerLogic;
 
-#define ML_OI_TAIL(ll, l, t) ((ll)->inwp->bipartite? (t) + ((l)-1)*(ll)->onwp->bipartite : (t) + ((l)-1)*(ll)->onwp->nnodes)
-#define ML_OI_HEAD(ll, l, h) ((ll)->inwp->bipartite? (h) + (ll)->inwp->bipartite - (ll)->onwp->bipartite + ((l)-1)*((ll)->onwp->nnodes-(ll)->onwp->bipartite) : (h) + ((l)-1)*(ll)->onwp->nnodes)
+#define ML_OI_TAIL(ll, l, t) ((Vertex) ((ll)->inwp->bipartite? (t) + ((l)-1)*(ll)->onwp->bipartite : (t) + ((l)-1)*(ll)->onwp->nnodes))
+#define ML_OI_HEAD(ll, l, h) ((Vertex) ((ll)->inwp->bipartite? (h) + (ll)->inwp->bipartite - (ll)->onwp->bipartite + ((l)-1)*((ll)->onwp->nnodes-(ll)->onwp->bipartite) : (h) + ((l)-1)*(ll)->onwp->nnodes))
 
-#define ML_IO_TAIL(ll, t) ((ll)->lmap[t])
-#define ML_IO_HEAD(ll, h) ((ll)->lmap[h])
-#define ML_LID_TAIL(ll, t) ((ll)->lid[t])
-#define ML_LID_HEAD(ll, h) ((ll)->lid[h])
+#define ML_IO_TAIL(ll, t) ((Vertex) ((ll)->lmap[t]))
+#define ML_IO_HEAD(ll, h) ((Vertex) (ll)->lmap[h])
+#define ML_LID_TAIL(ll, t) ((Vertex) ((ll)->lid[t]))
+#define ML_LID_HEAD(ll, h) ((Vertex) ((ll)->lid[h]))
 
 #define ML_IGETWT(ll, l,a,b) (GetEdge(ML_OI_TAIL(ll, l, a), ML_OI_HEAD(ll, l, b), ll->inwp))
 #define ML_ISETWT(ll, l,a,b,w) (SetEdge(ML_OI_TAIL(ll, l, a), ML_OI_HEAD(ll, l, b),w,(ll)->inwp))

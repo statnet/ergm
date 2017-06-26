@@ -26,6 +26,7 @@ importFrom("methods",'findFunction',"is")
 #exportPattern("^[^\\.]")
 export(
   Layer,
+  Networks,
   anova.ergm,
   anova.ergmlist,                  
   approx.hotelling.diff.test,      

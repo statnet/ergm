@@ -91,40 +91,15 @@ Layer <- function(...){
   nw
 }
 
-.layer_split_network <- function(nw){
-  uncombine_network(nw, split.vattr=".LayerID", names.vattr=".LayerName", ignore.nattr = c(eval(formals(uncombine_network)$ignore.nattr), "constraints", "constraints.obs"))
-}
 
-#' Calculate a vector that maps the global LHS network Vertex indices within-layer Vertex and a Vertex to layer lookup table.
-#' @noRd
-.layer_vertexmap <- function(nw){
-  a <- .peek_vattrv(nw, ".LayerID")
-  n <- length(a)
-  bip <- nw %n% "bipartite"
-  if(NVL(bip,0)){
-    ea <- a[seq_len(bip)]
-    aa <- a[bip+seq_len(n-bip)]
-    el <- rle(ea)$lengths
-    al <- rle(aa)$lengths
-    if(!all_identical(el) || !all_identical(al)) stop("Layers must be networks of the same dimensions.", call.=FALSE)
-
-    list(nl = length(el), lids = a, lmap = seq_len(n) - c((ea-1)*el[1], bip - el[1] + (aa-1)*al[1]))
-    
-  }else{
-    l <- rle(a)$lengths
-    if(!all_identical(l)) stop("Layers must be networks of the same size.", call.=FALSE)
-    c(nl = length(l), lids = a, lmap = seq_len(n) - (a-1)*l[1])
-  }
-}
-
-InitErgmTerm..layer.nets <- function(nw, arglist, response=NULL, ...){
-  a <- check.ErgmTerm(nw, arglist,
-                      varnames = c(),
-                      vartypes = c(),
-                      defaultvalues = list(),
-                      required = c())
-  list(name="_layer_nets", coef.names=c(), inputs=unlist(.layer_vertexmap(nw)), dependence=FALSE)
-}
+## InitErgmTerm..layer.nets <- function(nw, arglist, response=NULL, ...){
+##   a <- check.ErgmTerm(nw, arglist,
+##                       varnames = c(),
+##                       vartypes = c(),
+##                       defaultvalues = list(),
+##                       required = c())
+##   list(name="_layer_nets", coef.names=c(), inputs=unlist(.block_vertexmap(nw, ".LayerID", TRUE)), dependence=FALSE)
+## }
 
 InitErgmTerm..layer.net <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
@@ -134,7 +109,7 @@ InitErgmTerm..layer.net <- function(nw, arglist, response=NULL, ...){
                       required = c(TRUE))
 
   
-  nwl <- .layer_split_network(nw)
+  nwl <- .split_constr_network(nw,".LayerID",".NetworkID")
   nwnames <- names(nwl)
 
   # Process layer specification
@@ -147,7 +122,7 @@ InitErgmTerm..layer.net <- function(nw, arglist, response=NULL, ...){
 
   if(any(sapply(ll, test_eval.LayerLogic, FALSE))) stop("Layer specifications that produce edges on the output layer for empty input layers are not supported at this time.", call.=FALSE)
   
-  list(name="_layer_net", coef.names=c(), inputs=c(unlist(.layer_vertexmap(nw)),unlist(ll)), dependence=FALSE)
+  list(name="_layer_net", coef.names=c(), inputs=c(unlist(.block_vertexmap(nw, ".LayerID", TRUE)),unlist(ll)), dependence=FALSE)
 }
 
 pack.LayerLogic_formula_as_double <- function(formula, namemap){
@@ -247,7 +222,7 @@ InitErgmTerm.L <- function(nw, arglist, response=NULL, ...){
 
   f <- a$formula
 
-  nwl <- .layer_split_network(nw)
+  nwl <- .split_constr_network(nw,".LayerID",".NetworkID")
   nwnames <- names(nwl)
 
   Ls <- a$Ls
@@ -279,7 +254,7 @@ InitErgmTerm.layerCMB <- function(nw, arglist, response=NULL, ...){
                       defaultvalues = list(~.),
                       required = c(FALSE))
 
-  nwl <- .layer_split_network(nw)
+  nwl <- .split_constr_network(nw,".LayerID",".NetworkID")
   Ls <- a$Ls
   auxiliaries <- .mk_.layer.net_auxform(Ls, length(nwl))
   nltrms <- length(term.list.formula(auxiliaries[[2]]))

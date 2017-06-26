@@ -8,16 +8,33 @@ I_CHANGESTAT_FN(i__layer_net){
   ALLOC_AUX_STORAGE(1, StoreLayerLogic, ll); inputs++;
   ll->nl = *(inputs++);
   ll->inwp = nwp;
-  ll->onwp = Calloc(1, Network);
+
+  /* Set up the layer information. */
   ll->lid = inputs - 1; // The -1 is because Vertex IDs count from 1.
   inputs += N_NODES;
   ll->lmap = inputs - 1;
   inputs += N_NODES;
+
+  Vertex lnnodes, lbip;
+  if(BIPARTITE){
+    lbip = lnnodes = *(inputs++);
+    lnnodes += *(inputs++);
+    inputs += (ll->nl-1)*2; // There will be a total of nl*2 network sizes.
+  }else{
+    lbip = 0;
+    lnnodes = *(inputs++);
+    inputs += (ll->nl-1); // There will be a total of nl network sizes.
+  }
+
+  ll->onwp = Calloc(1, Network);
+  ll->onwp[0] = NetworkInitialize(NULL, NULL, 0, lnnodes, DIRECTED, lbip, 0, 0, NULL);
+  
+  /* Set up the layer logic. */
+
   ll->commands = inputs;
   ll->stacks = Calloc(2*ll->commands[0], unsigned int);
 
-  Vertex lnnodes = N_NODES/ll->nl, lbip = BIPARTITE/ll->nl;
-  ll->onwp[0] = NetworkInitialize(NULL, NULL, 0, lnnodes, DIRECTED, lbip, 0, 0, NULL);
+  /* Construct the output (logical layer) network: */  
   
   EXEC_THROUGH_NET_EDGES(t, h, e, {
       if(ergm_LayerLogic(t, h, ll, TRUE)){

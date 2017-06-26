@@ -419,3 +419,33 @@ uncombine_network <- function(nw, ignore.nattr=c("bipartite","directed","hyper",
   class(nwl) <- c("network.list", class(nwl))
   nwl
 }
+
+.split_constr_network <- function(nw, split.vattr=".NetworkID", names.vattr=".NetworkName"){
+  uncombine_network(nw, split.vattr=split.vattr, names.vattr=split.nattr, ignore.nattr = c(eval(formals(uncombine_network)$ignore.nattr), "constraints", "constraints.obs"))
+}
+
+  #' Calculate a vector that maps the global LHS network Vertex indices within-layer Vertex and a Vertex to layer lookup table.
+#' @noRd
+.block_vertexmap <- function(nw, by=".NetworkID", same_dim=FALSE){
+  a <- .peek_vattrv(nw, by)
+  n <- length(a)
+  bip <- nw %n% "bipartite"
+  if(NVL(bip,0)){
+    ea <- a[seq_len(bip)]
+    aa <- a[bip+seq_len(n-bip)]
+    el <- rle(ea)$lengths
+    al <- rle(aa)$lengths
+    if(same_dim) if(!all_identical(el) || !all_identical(al)) stop("Layers must be networks of the same dimensions.", call.=FALSE)
+
+    eoff <- rep(cumsum(c(0,el[-length(el)])), el)
+    aoff <- rep(cumsum(c(0,el[-length(al)])), al) + sum(el)
+    
+    o <- list(nb = length(el), bids = a, bmap = seq_len(n) - c(eoff,aoff), ns = rbind(el,al))
+  }else{
+    l <- rle(a)$lengths
+    if(same_dim) if(!all_identical(l)) stop("Layers must be networks of the same size.", call.=FALSE)
+    off <- rep(cumsum(c(0,l[-length(l)])), l)
+    o <- list(nb = length(l), bids = a, bmap = seq_len(n) - off, ns = l)
+  }
+  o
+}
