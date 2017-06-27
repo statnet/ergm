@@ -82,7 +82,7 @@
 \alias{isolates}
 \alias{istar}
 \alias{kstar}
-\alias{layerCMB}
+\alias{lCMB}
 \alias{localtriangle}
 \alias{m2star}
 \alias{match}
@@ -1429,7 +1429,7 @@ of the degrees of all pairs of nodes in the network which are tied.
       corresponding element of \code{threshold}.
     }
 
-    \item{\code{layerCMB(Ls=~.)} (binary) (directed) (undirected) (layer-aware)}{\emph{Conway--Maxwell-Binomial dependence among layers}:
+    \item{\code{lCMB(Ls=~.)} (binary) (directed) (undirected) (layer-aware)}{\emph{Conway--Maxwell-Binomial dependence among layers}:
 
       Models marginal dependence among dyads within a layer by imposing
       a Conway--Maxwell-Binomial (CMB) distribution on the number of

@@ -55,7 +55,7 @@ m2 <- as.matrix(samplk2) * as.matrix(samplk1)
 (logic <- (sum(m1*t(m2)+m2*t(m1))/2))
 stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
 
-(layer <- summary(Layer(samplk1, samplk2, samplk3)~layerCMB))
+(layer <- summary(Layer(samplk1, samplk2, samplk3)~lCMB))
 m1 <- as.matrix(samplk1)
 m2 <- as.matrix(samplk2)
 m3 <- as.matrix(samplk3)
