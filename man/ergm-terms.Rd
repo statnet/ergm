@@ -556,7 +556,12 @@ network
     attribute list. If this is specified 
     then each node's degree is tabulated only with other nodes having the same
     value of the \code{by} attribute.
-    This term can only be used with undirected bipartite networks.}
+    This term can only be used with undirected bipartite networks.
+    
+    If a list of layer specifications is given, degree of a node
+    \code{i} is considered to be the number of edges in all layers,
+    combined.
+}
     
   \item{\code{b1factor(attrname, base=1)}  (binary)  (bipartite) (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute),
     \code{b1factor(attrname, base=1, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute)
@@ -738,7 +743,12 @@ network
     network's vertex attribute list. If this is specified 
     then each node's degree is tabulated only with other nodes having the same
     value of the \code{by} attribute.
-    This term can only be used with undirected bipartite networks.}
+    This term can only be used with undirected bipartite networks.
+
+    If a list of layer specifications is given, degree of a node
+    \code{i} is considered to be the number of edges in all layers,
+    combined.
+}
     
   \item{\code{b2factor(attrname, base=1)}  (binary)  (bipartite) (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used),
     \code{b2factor(attrname, base=1, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used)
@@ -964,7 +974,7 @@ equal to the number of (first mode) mutual partners of that pair.
     the specified degree range. To count only nodes of the first mode ("actors"), use \code{b1degrange}
     and to count only those fo the second mode ("events"), use \code{b2degrange}.}
   
-  \item{\code{degree(d, by=NULL, homophily=FALSE)}  (binary)  (undirected)  (categorical nodal attribute) (frequently-used)}{\emph{Degree:} 
+  \item{\code{degree(d, by=NULL, homophily=FALSE, Ls=NULL)}  (binary)  (undirected)  (categorical nodal attribute) (frequently-used)}{\emph{Degree:} 
     The \code{d} argument is a vector of distinct integers. This term adds one
     network statistic to the model for each element in \code{d}; the \eqn{i}th
     such statistic equals the number of nodes in the network of degree
@@ -979,7 +989,12 @@ equal to the number of (first mode) mutual partners of that pair.
     statistics are calculated for nodes having each separate
     value of the attribute.
     This term can only be used with undirected networks; for directed networks
-    see \code{idegree} and \code{odegree}. }
+    see \code{idegree} and \code{odegree}.
+
+    If a list of layer specifications is given, degree of a node
+    \code{i} is considered to be the number of edges in all layers,
+    combined.
+  }
 
   \item{\code{degreepopularity}  (binary)  (undirected)
   }{\emph{Degree popularity:} This
@@ -1354,7 +1369,12 @@ of the degrees of all pairs of nodes in the network which are tied.
     statistics are calculated for nodes having each separate
     value of the attribute.
     This term can only be used with directed networks; for undirected networks
-    see \code{degree}. }
+    see \code{degree}.
+
+    If a list of layer specifications is given, degree of a node
+    \code{i} is considered to be the number of edges in all layers,
+    combined.
+  }
 
   \item{\code{idegreepopularity}  (binary)  (directed)}{\emph{In-degree popularity:}
     This term adds one network statistic to the model equaling the sum
@@ -1816,7 +1836,12 @@ of the degrees of all pairs of nodes in the network which are tied.
     statistics are calculated for nodes having each separate
     value of the attribute.
     This term can only be used with directed networks; for undirected networks
-    see \code{degree}. }
+    see \code{degree}.
+
+    If a list of layer specifications is given, degree of a node
+    \code{i} is considered to be the number of edges in all layers,
+    combined.
+}
   
   \item{\code{odegreepopularity}  (binary)  (directed)
   }{\emph{Out-degree popularity:}

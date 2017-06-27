@@ -289,6 +289,33 @@ C_CHANGESTAT_FN(c_b1degree) {
 }
 
 /*****************
+ changestat: d_b1degree_ML_sum
+*****************/
+C_CHANGESTAT_FN(c_b1degree_ML_sum) { 
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+  double *degs = inputs;
+
+  /* *** don't forget tail -> head */
+
+  unsigned int b1deg = 0;
+  int degchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *od=ML_OUT_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    degchange += ergm_LayerLogic(tail, head, ll, TRUE);
+    b1deg += od[lt];
+  }
+  
+  for(unsigned int j = 0; j < N_CHANGE_STATS; j++) {
+    Vertex deg = (Vertex)degs[j];
+    CHANGE_STAT[j] += (b1deg + degchange == deg) - (b1deg == deg);
+  }
+}
+
+/*****************
  changestat: d_b1degree_by_attr
 *****************/
 C_CHANGESTAT_FN(c_b1degree_by_attr) { 
@@ -310,6 +337,39 @@ C_CHANGESTAT_FN(c_b1degree_by_attr) {
         CHANGE_STAT[j] += (b1deg + echange == d) - (b1deg == d);
       }
     }
+}
+
+/*****************
+ changestat: d_b1degree_by_attr_ML_sum
+*****************/
+C_CHANGESTAT_FN(c_b1degree_by_attr_ML_sum) { 
+  /* The inputparams are assumed to be set up as follows:
+  The first 2*nstats values are in pairs:  (degree, attrvalue)
+  The values following the first 2*nstats values are the nodal attributes.
+  */
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+
+  /* *** don't forget tail -> head */    
+
+  unsigned int b1deg = 0;
+  int degchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *od=ML_IN_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    degchange += ergm_LayerLogic(tail, head, ll, TRUE);
+    b1deg += od[lt];
+  }   
+
+  int tailattr = inputs[2*N_CHANGE_STATS + head - 1]; 
+  for(unsigned int j = 0; j < N_CHANGE_STATS; j++) {
+    Vertex d = (Vertex)inputs[2*j];
+    int testattr = inputs[2*j + 1]; 
+    if (tailattr == testattr)  /* we have head attr match */
+      CHANGE_STAT[j] += (b1deg + degchange == d) - (b1deg == d);
+  }
 }
 
 /*****************
@@ -725,6 +785,33 @@ C_CHANGESTAT_FN(c_b2degree) {
 }
 
 /*****************
+ changestat: d_b2degree_ML_sum
+*****************/
+C_CHANGESTAT_FN(c_b2degree_ML_sum) { 
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+  double *degs = inputs;
+
+  /* *** don't forget tail -> head */
+
+  unsigned int b2deg = 0;
+  int degchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *id=ML_IN_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    degchange += ergm_LayerLogic(tail, head, ll, TRUE);
+    b2deg += id[lh];
+  }
+  
+  for(unsigned int j = 0; j < N_CHANGE_STATS; j++) {
+    Vertex deg = (Vertex)degs[j];
+    CHANGE_STAT[j] += (b2deg + degchange == deg) - (b2deg == deg);
+  }
+}
+
+/*****************
  changestat: d_b2degree_by_attr
 *****************/
 C_CHANGESTAT_FN(c_b2degree_by_attr) { 
@@ -747,6 +834,39 @@ C_CHANGESTAT_FN(c_b2degree_by_attr) {
         CHANGE_STAT[j] += (b2deg + echange == d) - (b2deg == d);
       }
     }
+}
+
+/*****************
+ changestat: d_b2degree_by_attr_ML_sum
+*****************/
+C_CHANGESTAT_FN(c_b2degree_by_attr_ML_sum) { 
+  /* The inputparams are assumed to be set up as follows:
+  The first 2*nstats values are in pairs:  (degree, attrvalue)
+  The values following the first 2*nstats values are the nodal attributes.
+  */
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+
+  /* *** don't forget tail -> head */    
+
+  unsigned int b2deg = 0;
+  int degchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *id=ML_IN_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    degchange += ergm_LayerLogic(tail, head, ll, TRUE);
+    b2deg += id[lh];
+  }   
+
+  int headattr = inputs[2*N_CHANGE_STATS + head - 1]; 
+  for(unsigned int j = 0; j < N_CHANGE_STATS; j++) {
+    Vertex d = (Vertex)inputs[2*j];
+    int testattr = inputs[2*j + 1]; 
+    if (headattr == testattr)  /* we have head attr match */
+      CHANGE_STAT[j] += (b2deg + degchange == d) - (b2deg == d);
+  }
 }
 
 /*****************
@@ -1865,7 +1985,36 @@ C_CHANGESTAT_FN(c_degree) {
       CHANGE_STAT[j] += (headdeg + echange == deg) - (headdeg == deg);
     }
 }
- 
+
+/*****************
+ changestat: d_degree_ML_sum
+*****************/
+C_CHANGESTAT_FN(c_degree_ML_sum) { 
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+  double *degs = inputs;
+
+  /* *** don't forget tail -> head */
+
+  unsigned int taildeg = 0, headdeg = 0;
+  int degchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *id=ML_IN_DEG(ll), *od=ML_OUT_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    degchange += ergm_LayerLogic(tail, head, ll, TRUE);
+    taildeg += od[lt] + id[lt];
+    headdeg += od[lh] + id[lh];
+  }
+  
+  for(unsigned int j = 0; j < N_CHANGE_STATS; j++) {
+    Vertex deg = (Vertex)degs[j];
+    CHANGE_STAT[j] += (taildeg + degchange == deg) - (taildeg == deg);
+    CHANGE_STAT[j] += (headdeg + degchange == deg) - (headdeg == deg);
+  }
+}
+
 /*****************
  changestat: d_degreepopularity
 *****************/
@@ -1922,6 +2071,44 @@ C_CHANGESTAT_FN(c_degree_by_attr) {
         CHANGE_STAT[j] += (headdeg + echange == d) - (headdeg == d);
     }
 }
+
+/*****************
+ changestat: d_degree_by_attr_ML_sum
+*****************/
+C_CHANGESTAT_FN(c_degree_by_attr_ML_sum) { 
+  /* The inputparams are assumed to be set up as follows:
+  The first 2*nstats values are in pairs:  (degree, attrvalue)
+  The values following the first 2*nstats values are the nodal attributes.
+  */
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+
+  /* *** don't forget tail -> head */    
+
+  unsigned int taildeg = 0, headdeg = 0;
+  int degchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *id=ML_IN_DEG(ll), *od=ML_OUT_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    degchange += ergm_LayerLogic(tail, head, ll, TRUE);
+    taildeg += od[lt] + id[lt];
+    headdeg += od[lh] + id[lh];
+  }   
+
+  int tailattr = inputs[2*N_CHANGE_STATS + tail - 1]; 
+  int headattr = inputs[2*N_CHANGE_STATS + head - 1]; 
+  for(unsigned int j = 0; j < N_CHANGE_STATS; j++) {
+    Vertex d = (Vertex)inputs[2*j];
+    int testattr = inputs[2*j + 1]; 
+    if (tailattr == testattr)  /* we have tail attr match */
+      CHANGE_STAT[j] += (taildeg + degchange == d) - (taildeg == d);
+    if (headattr == testattr)  /* we have head attr match */
+      CHANGE_STAT[j] += (headdeg + degchange == d) - (headdeg == d);
+  }
+}
+
 
 /*****************
  changestat: d_degree_w_homophily
@@ -3198,6 +3385,33 @@ C_CHANGESTAT_FN(c_idegree) {
 }
 
 /*****************
+ changestat: d_idegree_ML_sum
+*****************/
+C_CHANGESTAT_FN(c_idegree_ML_sum) { 
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+  double *degs = inputs;
+
+  /* *** don't forget tail -> head */
+
+  unsigned int headdeg = 0;
+  int degchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *id=ML_IN_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    degchange += ergm_LayerLogic(tail, head, ll, TRUE);
+    headdeg += id[lh];
+  }
+  
+  for(unsigned int j = 0; j < N_CHANGE_STATS; j++) {
+    Vertex deg = (Vertex)degs[j];
+    CHANGE_STAT[j] += (headdeg + degchange == deg) - (headdeg == deg);
+  }
+}
+
+/*****************
  changestat: d_idegree_by_attr
 *****************/
 C_CHANGESTAT_FN(c_idegree_by_attr) { 
@@ -3221,6 +3435,39 @@ C_CHANGESTAT_FN(c_idegree_by_attr) {
       if (headattr == testattr)  /* we have head attr match */
         CHANGE_STAT[j] += (headdeg + echange == d) - (headdeg == d);
     }
+}
+
+/*****************
+ changestat: d_degree_by_attr_ML_sum
+*****************/
+C_CHANGESTAT_FN(c_idegree_by_attr_ML_sum) { 
+  /* The inputparams are assumed to be set up as follows:
+  The first 2*nstats values are in pairs:  (degree, attrvalue)
+  The values following the first 2*nstats values are the nodal attributes.
+  */
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+
+  /* *** don't forget tail -> head */    
+
+  unsigned int headdeg = 0;
+  int degchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *id=ML_IN_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    degchange += ergm_LayerLogic(tail, head, ll, TRUE);
+    headdeg += id[lh];
+  }   
+
+  int headattr = inputs[2*N_CHANGE_STATS + head - 1]; 
+  for(unsigned int j = 0; j < N_CHANGE_STATS; j++) {
+    Vertex d = (Vertex)inputs[2*j];
+    int testattr = inputs[2*j + 1]; 
+    if (headattr == testattr)  /* we have head attr match */
+      CHANGE_STAT[j] += (headdeg + degchange == d) - (headdeg == d);
+  }
 }
 
 /*****************
@@ -4130,6 +4377,33 @@ C_CHANGESTAT_FN(c_odegree) {
 }
 
 /*****************
+ changestat: d_odegree_ML_sum
+*****************/
+C_CHANGESTAT_FN(c_odegree_ML_sum) { 
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+  double *degs = inputs;
+
+  /* *** don't forget tail -> head */
+
+  unsigned int taildeg = 0;
+  int degchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *od=ML_OUT_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    degchange += ergm_LayerLogic(tail, head, ll, TRUE);
+    taildeg += od[lt];
+  }
+  
+  for(unsigned int j = 0; j < N_CHANGE_STATS; j++) {
+    Vertex deg = (Vertex)degs[j];
+    CHANGE_STAT[j] += (taildeg + degchange == deg) - (taildeg == deg);
+  }
+}
+
+/*****************
  changestat: d_odegree_by_attr
 *****************/
 C_CHANGESTAT_FN(c_odegree_by_attr) { 
@@ -4154,6 +4428,39 @@ C_CHANGESTAT_FN(c_odegree_by_attr) {
         CHANGE_STAT[j] += (taildeg + echange == d) - (taildeg == d);
       }
     }
+}
+
+/*****************
+ changestat: d_odegree_by_attr_ML_sum
+*****************/
+C_CHANGESTAT_FN(c_odegree_by_attr_ML_sum) { 
+  /* The inputparams are assumed to be set up as follows:
+  The first 2*nstats values are in pairs:  (degree, attrvalue)
+  The values following the first 2*nstats values are the nodal attributes.
+  */
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+
+  /* *** don't forget tail -> head */    
+
+  unsigned int taildeg = 0;
+  int degchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *od=ML_OUT_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    degchange += ergm_LayerLogic(tail, head, ll, TRUE);
+    taildeg += od[lt];
+  }   
+
+  int tailattr = inputs[2*N_CHANGE_STATS + tail - 1]; 
+  for(unsigned int j = 0; j < N_CHANGE_STATS; j++) {
+    Vertex d = (Vertex)inputs[2*j];
+    int testattr = inputs[2*j + 1]; 
+    if (tailattr == testattr)  /* we have tail attr match */
+      CHANGE_STAT[j] += (taildeg + degchange == d) - (taildeg == d);
+  }
 }
 
 /*****************

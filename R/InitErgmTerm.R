@@ -404,10 +404,10 @@ InitErgmTerm.b1cov<-function (nw, arglist, ...) {
 InitErgmTerm.b1degree <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("d", "by"),
-                       vartypes = c("numeric", "character"),
-                       defaultvalues = list(NULL, NULL),
-                       required = c(TRUE, FALSE))
+                       varnames = c("d", "by", "Ls"),
+                       vartypes = c("numeric", "character", "formula,list"),
+                       defaultvalues = list(NULL, NULL, NULL),
+                       required = c(TRUE, FALSE, FALSE))
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
   if (!is.null(a$by)) {  # CASE 1:  a$by GIVEN
@@ -437,8 +437,20 @@ InitErgmTerm.b1degree <- function(nw, arglist, ...) {
       emptynwstats[a$d==0] <- nb1
     }
   }
+
+  if(!is.null(a$Ls)){
+    Ls <- a$Ls
+    if(is(Ls,"formula")) Ls <- list(Ls)
+    auxiliaries <- .mk_.layer.net_auxform(Ls, length(nwl))
+    inputs <- c(length(Ls), inputs)
+    emptynwstats <- emptynwstats / length(unique(.peek_vattrv(nw, ".LayerID")))
+    name <- paste0(name,"_ML_sum")
+    coef.names <- paste0(.lspec_coef.names(Ls),":",coef.names)
+  }else auxiliaries <- NULL
+  
   list(name=name, coef.names=coef.names, #name and coef.names: required
-       inputs = inputs, emptynwstats=emptynwstats, minval=0, maxval=nb1)
+       inputs = inputs, emptynwstats=emptynwstats, minval=0, maxval=nb1,
+       auxiliaries=auxiliaries)
 }
 
 
@@ -719,10 +731,10 @@ InitErgmTerm.b2degrange<-function(nw, arglist, ...) {
 InitErgmTerm.b2degree <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("d", "by"),
-                       vartypes = c("numeric", "character"),
-                       defaultvalues = list(NULL, NULL),
-                       required = c(TRUE, FALSE))
+                       varnames = c("d", "by", "Ls"),
+                       vartypes = c("numeric", "character", "formula,list"),
+                       defaultvalues = list(NULL, NULL, NULL),
+                       required = c(TRUE, FALSE, FALSE))
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
   n <- network.size(nw)
@@ -753,8 +765,20 @@ InitErgmTerm.b2degree <- function(nw, arglist, ...) {
       emptynwstats[a$d==0] <- n-nb1
     }
   }
+
+  if(!is.null(a$Ls)){
+    Ls <- a$Ls
+    if(is(Ls,"formula")) Ls <- list(Ls)
+    auxiliaries <- .mk_.layer.net_auxform(Ls, length(nwl))
+    inputs <- c(length(Ls), inputs)
+    emptynwstats <- emptynwstats / length(unique(.peek_vattrv(nw, ".LayerID")))
+    name <- paste0(name,"_ML_sum")
+    coef.names <- paste0(.lspec_coef.names(Ls),":",coef.names)
+  }else auxiliaries <- NULL
+  
   list(name=name, coef.names=coef.names, #name and coef.names: required
-       inputs = inputs, emptynwstats=emptynwstats, minval=0, maxval=network.size(nw)-nb1)
+       inputs = inputs, emptynwstats=emptynwstats, minval=0, maxval=network.size(nw)-nb1,
+       auxiliaries=auxiliaries)
 }
 
 ################################################################################
@@ -1147,10 +1171,10 @@ InitErgmTerm.degrange<-function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.degree<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
-                      varnames = c("d", "by", "homophily"),
-                      vartypes = c("numeric", "character", "logical"),
-                      defaultvalues = list(NULL, NULL, FALSE),
-                      required = c(TRUE, FALSE, FALSE))
+                      varnames = c("d", "by", "homophily", "Ls"),
+                      vartypes = c("numeric", "character", "logical", "formula,list"),
+                      defaultvalues = list(NULL, NULL, FALSE, NULL),
+                      required = c(TRUE, FALSE, FALSE, FALSE))
   d<-a$d; byarg <- a$by; homophily <- a$homophily
   emptynwstats<-NULL
   if(!is.null(byarg)) {
@@ -1196,11 +1220,24 @@ InitErgmTerm.degree<-function(nw, arglist, ...) {
     name <- "degree_by_attr"
     inputs <- c(as.vector(du), nodecov)
   }
+
+  if(!is.null(a$Ls)){
+    Ls <- a$Ls
+    if(is(Ls,"formula")) Ls <- list(Ls)
+    auxiliaries <- .mk_.layer.net_auxform(Ls, length(nwl))
+    inputs <- c(length(Ls), inputs)
+    emptynwstats <- emptynwstats / length(unique(.peek_vattrv(nw, ".LayerID")))
+    name <- paste0(name,"_ML_sum")
+    coef.names <- paste0(.lspec_coef.names(Ls),":",coef.names)
+  }else auxiliaries <- NULL
+  
   if (!is.null(emptynwstats)){
     list(name=name,coef.names=coef.names, inputs=inputs,
-         emptynwstats=emptynwstats, dependence=TRUE, minval = 0)
+         emptynwstats=emptynwstats, dependence=TRUE, minval = 0,
+         auxiliaries=auxiliaries)
   }else{
-    list(name=name,coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw), conflicts.constraints="degreedist")
+    list(name=name,coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw), conflicts.constraints="degreedist",
+         auxiliaries=auxiliaries)
   }
 }
 
@@ -2121,10 +2158,10 @@ InitErgmTerm.idegrange<-function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.idegree<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("d", "by", "homophily"),
-                      vartypes = c("numeric", "character", "logical"),
-                      defaultvalues = list(NULL, NULL, FALSE),
-                      required = c(TRUE, FALSE, FALSE))
+                      varnames = c("d", "by", "homophily", "Ls"),
+                      vartypes = c("numeric", "character", "logical", "formula,list"),
+                      defaultvalues = list(NULL, NULL, FALSE, NULL),
+                      required = c(TRUE, FALSE, FALSE, FALSE))
   d<-a$d; byarg <- a$by; homophily <- a$homophily
   emptynwstats<-NULL
   if(!is.null(byarg)) {
@@ -2169,11 +2206,24 @@ InitErgmTerm.idegree<-function(nw, arglist, ...) {
     coef.names <- paste("ideg", du[1,], ".", byarg,u[du[2,]], sep="")
     inputs <- c(as.vector(du), nodecov)
   }
+
+  if(!is.null(a$Ls)){
+    Ls <- a$Ls
+    if(is(Ls,"formula")) Ls <- list(Ls)
+    auxiliaries <- .mk_.layer.net_auxform(Ls, length(nwl))
+    inputs <- c(length(Ls), inputs)
+    emptynwstats <- emptynwstats / length(unique(.peek_vattrv(nw, ".LayerID")))
+    name <- paste0(name,"_ML_sum")
+    coef.names <- paste0(.lspec_coef.names(Ls),":",coef.names)
+  }else auxiliaries <- NULL
+  
   if (!is.null(emptynwstats)){
     list(name=name, coef.names=coef.names, inputs=inputs,
-         emptynwstats=emptynwstats, dependence=TRUE)
+         emptynwstats=emptynwstats, dependence=TRUE,
+         auxiliaries=auxiliaries)
   }else{
-    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw), conflicts.constraints="idegreedist")
+    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw), conflicts.constraints="idegreedist",
+         auxiliaries=auxiliaries)
   }
 }
 
@@ -2839,10 +2889,10 @@ InitErgmTerm.odegrange<-function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.odegree<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("d", "by", "homophily"),
-                      vartypes = c("numeric", "character", "logical"),
-                      defaultvalues = list(NULL, NULL, FALSE),
-                      required = c(TRUE, FALSE, FALSE))
+                      varnames = c("d", "by", "homophily", "Ls"),
+                      vartypes = c("numeric", "character", "logical", "formula,list"),
+                      defaultvalues = list(NULL, NULL, FALSE, NULL),
+                      required = c(TRUE, FALSE, FALSE, FALSE))
   d<-a$d; byarg <- a$by; homophily <- a$homophily
   emptynwstats<-NULL
   if(!is.null(byarg)) {
@@ -2888,11 +2938,24 @@ InitErgmTerm.odegree<-function(nw, arglist, ...) {
     coef.names <- paste("odeg", du[1,], ".", byarg,u[du[2,]], sep="")
     inputs <- c(as.vector(du), nodecov)
   }
+
+  if(!is.null(a$Ls)){
+    Ls <- a$Ls
+    if(is(Ls,"formula")) Ls <- list(Ls)
+    auxiliaries <- .mk_.layer.net_auxform(Ls, length(nwl))
+    inputs <- c(length(Ls), inputs)
+    emptynwstats <- emptynwstats / length(unique(.peek_vattrv(nw, ".LayerID")))
+    name <- paste0(name,"_ML_sum")
+    coef.names <- paste0(.lspec_coef.names(Ls),":",coef.names)
+  }else auxiliaries <- NULL
+  
   if (!is.null(emptynwstats)){
     list(name=name, coef.names=coef.names, inputs=inputs,
-         emptynwstats=emptynwstats, dependence=TRUE, minval=0)
+         emptynwstats=emptynwstats, dependence=TRUE, minval=0,
+         auxiliaries=auxiliaries)
   }else{
-    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval=0, maxval=network.size(nw), conflicts.constraints="odegreedist")
+    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval=0, maxval=network.size(nw), conflicts.constraints="odegreedist",
+         auxiliaries=auxiliaries)
   }
 }
 
