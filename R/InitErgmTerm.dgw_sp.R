@@ -156,7 +156,7 @@
   out$any_order <- if(type=="UTP" || (type%in%c("OSP","ISP") && !has_base)) TRUE else !a$L.in_order
   out$coef.names_prefix <- paste0(.lspec_coef.names(list(pth1=L.path1,pth2=L.path2,bse=if(has_base) L.base,inord=a$L.in_order)),":")
   out$name_suffix <- "_ML"
-  out$nw1 <- .layer_split_network(nw)[[1]] # Needed for emptynwstats.
+  out$nw1 <- .split_constr_network(nw, ".LayerID", ".LayerName")[[1]] # Needed for emptynwstats.
 
   out
 }

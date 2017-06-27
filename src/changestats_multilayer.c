@@ -32,7 +32,7 @@ I_CHANGESTAT_FN(i__layer_net){
   /* Set up the layer logic. */
 
   ll->commands = inputs;
-  ll->stacks = Calloc(2*ll->commands[0], unsigned int);
+  ll->stacks = Calloc(2*ll->commands[0], double);
 
   /* Construct the output (logical layer) network: */  
   

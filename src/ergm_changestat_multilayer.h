@@ -1,8 +1,7 @@
 #ifndef _ERGM_CHANGESTAT_MULTILAYER_H_
 #define _ERGM_CHANGESTAT_MULTILAYER_H_
 
-#include "ergm_edgetree.h"
-
+#include "ergm_changestat.h"
 #include "changestat_multilayer_common.inc"
 
 /* layer-aware macros eponymous to ergm_changestat.h */
@@ -34,7 +33,7 @@ typedef struct {
   double *lid;
   double *lmap;
   double *commands;
-  unsigned int *stacks;
+  double *stacks;
 } StoreLayerLogic;
 
 #define ML_OI_TAIL(ll, l, t) ((Vertex) ((ll)->inwp->bipartite? (t) + ((l)-1)*(ll)->onwp->bipartite : (t) + ((l)-1)*(ll)->onwp->nnodes))
@@ -53,28 +52,73 @@ typedef struct {
   Network logic language:
   
   com > 0: reference to layer; look up dyad value and push
-  
-  com == -1: negation; pop, invert, push
-  
-  com == -2: logical and; pop 2, take conjunction, push
 
-  com == -3: logical or; pop 2, take disjunction, push
+  com == 0: numeric literal; push value of next command
 
-  com == -4: test for equality; pop 2, check equality, push
-
-  com == -5: test for inequality (xor); pop 2, check inequality, push
+  see lookup table in R/InitErgmTerm.multilayer.R
+    pack.LayerLogic_formula_as_double() for com < 0
 
   change = 0 a.k.a. FALSE: Just evaluate as is.
 
   change = 1 a.k.a. TRUE: Difference between a hypothetical toggle of
     (tail,head) and its current state.
    
-  change = 2: "encode": Instead of the difference return: a binary "encoding" of both:
-    asis*1 + toggled*2
+  change = 2: "encode": Instead of the difference return: a binary
+    "encoding" of both: asis*1 + toggled*2
 
   change = 3: Return the post-toggle network.
 
  */
+
+
+#define ergm_UNOP(op)				\
+  {						\
+    double x0 = *(stack0--);			\
+    *(++stack0) = (op x0);			\
+    if(stack1){					\
+      double x1 = *(stack1--);			\
+      *(++stack1) = (op x1);			\
+    }						\
+    break;}
+
+#define ergm_UNFUN(fun)				\
+  {						\
+    double x0 = *(stack0--);			\
+    *(++stack0) = fun(x0);			\
+    if(stack1){					\
+      double x1 = *(stack1--);			\
+      *(++stack1) = fun(x1);			\
+    }						\
+    break;}
+
+
+#define ergm_BINOP(op)				\
+  {						\
+    double x0 = *(stack0--);			\
+    double y0 = *(stack0--);			\
+    *(++stack0) = (x0 op y0);			\
+    if(stack1){					\
+      double x1 = *(stack1--);			\
+      double y1 = *(stack1--);			\
+      *(++stack1) = (x1 op y1);			\
+    }						\
+    break;}
+
+#define ergm_BINFUN(fun)			\
+  {						\
+    double x0 = *(stack0--);			\
+    double y0 = *(stack0--);			\
+    *(++stack0) = fun(x0, y0);			\
+    if(stack1){					\
+      double x1 = *(stack1--);			\
+      double y1 = *(stack1--);			\
+      *(++stack1) = fun(x1, y1);		\
+    }						\
+    break;}
+
+#define ergm_FLOORDIV(x,y) floor(x/y)
+
+#define ergm_FROUND(x) fround(x,0)
 
 static inline int ergm_LayerLogic(Vertex tail, Vertex head, // Dyad to toggle on LHS network.
 				  StoreLayerLogic *ll, // Layer Logic
@@ -82,60 +126,41 @@ static inline int ergm_LayerLogic(Vertex tail, Vertex head, // Dyad to toggle on
 				  ){
   double *commands = ll->commands;
   unsigned int ncom = *(commands++);
-  unsigned int *stack0=ll->stacks-1, *stack1=change? ll->stacks+ncom-1 : NULL; // stack0 and stack1 always point to the top element (if any)
+  double *stack0=ll->stacks-1, *stack1=change? ll->stacks+ncom-1 : NULL; // stack0 and stack1 always point to the top element (if any)
   Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head), tl = ML_LID_TAIL(ll, tail);
 
   for(unsigned int i=0; i<ncom; i++){
     int com = *(commands++);
     switch(com){
-    case -1:{
-      unsigned int x0 = *(stack0--);
-      *(++stack0) = !x0;
+    case 0:{
+      double x0 = *(commands++);
+      *(++stack0) = x0;
       if(stack1){
-	unsigned int x1 = *(stack1--);
-	*(++stack1) = !x1;
+	*(++stack1) = x0;
       }
       break;}
-    case -2:{
-      unsigned int x0 = *(stack0--);
-      unsigned int y0 = *(stack0--);
-      *(++stack0) = x0 && y0;
-      if(stack1){
-	unsigned int x1 = *(stack1--);
-	unsigned int y1 = *(stack1--);
-	*(++stack1) = x1 && y1;
-      }
-      break;}
-    case -3:{
-      unsigned int x0 = *(stack0--);
-      unsigned int y0 = *(stack0--);
-      *(++stack0) = x0 || y0;
-      if(stack1){
-	unsigned int x1 = *(stack1--);
-	unsigned int y1 = *(stack1--);
-	*(++stack1) = x1 || y1;
-      }
-      break;}
-    case -4:{
-      unsigned int x0 = *(stack0--);
-      unsigned int y0 = *(stack0--);
-      *(++stack0) = x0 == y0;
-      if(stack1){
-	unsigned int x1 = *(stack1--);
-	unsigned int y1 = *(stack1--);
-	*(++stack1) = x1 == y1;
-      }
-      break;}
-    case -5:{
-      unsigned int x0 = *(stack0--);
-      unsigned int y0 = *(stack0--);
-      *(++stack0) = x0 != y0;
-      if(stack1){
-	unsigned int x1 = *(stack1--);
-	unsigned int y1 = *(stack1--);
-	*(++stack1) = x1 != y1;
-      }
-      break;}
+    case -1:ergm_UNOP(!)
+    case -2:ergm_BINOP(&&)
+    case -3:ergm_BINOP(||)
+    case -4:ergm_BINFUN(XOR)
+    case -5:ergm_BINOP(==)
+    case -6:ergm_BINOP(!=)
+    case -7:ergm_BINOP(<)
+    case -8:ergm_BINOP(>)
+    case -9:ergm_BINOP(<=)
+    case -10:ergm_BINOP(>=)
+    case -11:ergm_BINOP(+)
+    case -12:ergm_BINOP(-)
+    case -13:ergm_BINOP(*)
+    case -14:ergm_BINOP(/)
+    case -15:ergm_BINFUN(fmod)
+    case -16:ergm_UNOP(-)
+    case -17:ergm_UNFUN(fabs)
+    case -18:ergm_BINFUN(pow)
+    case -19:ergm_BINFUN(ergm_FLOORDIV)
+    case -20:ergm_UNFUN(ergm_FROUND)
+    case -21:ergm_BINFUN(fround)
+    case -22:ergm_UNFUN(sign)
     default:{
       Vertex l = com; 
       unsigned int x0 = ML_IGETWT(ll, l, lt, lh);
@@ -149,11 +174,17 @@ static inline int ergm_LayerLogic(Vertex tail, Vertex head, // Dyad to toggle on
   }
 
   switch(change){
-  case 1: return (int)*stack1 - (int)*stack0;
-  case 2: return *stack0 | (*stack1<<1);
-  case 3: return *stack1;
-  default: return *stack0;
+  case 1: return (int)(*stack1!=0) - (int)(*stack0!=0);
+  case 2: return (*stack0!=0) | ((*stack1!=0)<<1);
+  case 3: return (*stack1!=0);
+  default: return (*stack0!=0);
   }
 }
+
+#undef ergm_UNOP
+#undef ergm_UNFUN
+#undef ergm_BINOP
+#undef ergm_BINFUN
+#undef ergm_FLOORDIV
 
 #endif // _ERGM_CHANGESTAT_MULTILAYER_H_

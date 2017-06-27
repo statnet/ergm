@@ -50,7 +50,6 @@ I_CHANGESTAT_FN(i_MultiNet){
   double *inputs = INPUT_PARAM; 
   GET_AUX_STORAGE(StoreSubnets, sn); inputs++;
   unsigned int ns = sn->ns;
-  double *w = inputs;
   inputs+=ns;
   ALLOC_STORAGE(ns, Model*, ms);
 
@@ -78,7 +77,6 @@ C_CHANGESTAT_FN(c_MultiNet){
 U_CHANGESTAT_FN(u_MultiNet){
   GET_AUX_STORAGE(StoreSubnets, sn);
   GET_STORAGE(Model*, ms);
-  double *w = INPUT_PARAM+1;
 
   for(unsigned int i=0; i<sn->ns; i++){
     Vertex st = MN_IO_TAIL(sn, tail), sh = MN_IO_HEAD(sn, head);

@@ -18,26 +18,11 @@
 #define ML_BIPARTITE(ll) (ll->onwp->bipartite)
 
 /* Get the number of tails and the number of heads consistently for both bipartite and unipartite networks. */
-#define ML_N_TAILS(ll) (BIPARTITE(ll) ? BIPARTITE(ll) : N_NODES(ll))
-#define ML_N_HEADS(ll) (BIPARTITE(ll) ? N_NODES(ll)-BIPARTITE(ll) : N_NODES(ll))
+#define ML_N_TAILS(ll) (BIPARTITE(ll) ? ML_BIPARTITE(ll) : ML_N_NODES(ll))
+#define ML_N_HEADS(ll) (BIPARTITE(ll) ? ML_N_NODES(ll)-ML_BIPARTITE(ll) : ML_N_NODES(ll))
 
 /* Used for internal purposes:  assigning the next in- and out-edge when
    needed */
 #define ML_NEXT_INEDGE_NUM(ll) (ll->onwp->next_inedge)
 #define ML_NEXT_OUTEDGE_NUM(ll) (ll->onwp->next_outedge)
-
-/* Vector of change statistics to be modified by the function*/
-#define CHANGE_STAT (mtp->dstats)
-/* Number of change statistics required by the current term */
-#define N_CHANGE_STATS (mtp->nstats)
-
-/* Vector of values passed via "inputs" from R */
-#define INPUT_PARAM (mtp->inputparams)
-#define N_INPUT_PARAMS (mtp->ninputparams) /* Number of inputs passed */
-
-/* Set all changestats to zero at start of function: takes arbitrary arguments, for backwards compatibility. */
-#define ZERO_ALL_CHANGESTATS(...) memset(CHANGE_STAT, 0, N_CHANGE_STATS*sizeof(double))
-
-/* Not often used */
-#define INPUT_ATTRIB (mtp->attrib)
 

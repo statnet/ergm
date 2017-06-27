@@ -77,6 +77,8 @@ Layer <- function(...){
     nwl <- args[[1]]
   }else stop("Unrecognized format for multilayer specification. See help for information.")
 
+  if(any(!is.na(suppressWarnings(sapply(names(nwl), as.numeric))))) warning("Using numeric layer names is ambiguous.")
+
   constraintsl <- lapply(nwl, get.network.attribute, "constraints")
   if(!all_identical(lapply(constraintsl, .unenv))) stop("Layers have differing constraint structures. This is not supported at this time.")
   constraints.obsl <- lapply(nwl, get.network.attribute, "constraints.obs")
@@ -109,7 +111,7 @@ InitErgmTerm..layer.net <- function(nw, arglist, response=NULL, ...){
                       required = c(TRUE))
 
   
-  nwl <- .split_constr_network(nw,".LayerID",".NetworkID")
+  nwl <- .split_constr_network(nw,".LayerID",".LayerName")
   nwnames <- names(nwl)
 
   # Process layer specification
@@ -126,22 +128,46 @@ InitErgmTerm..layer.net <- function(nw, arglist, response=NULL, ...){
 }
 
 pack.LayerLogic_formula_as_double <- function(formula, namemap){
-  OPMAP <- c(`(` = 0,
-             `!` = -1,
-             `&` = -2,
-             `&&` = -2,
-             `|` = -3,
-             `||` = -3,
-             `==` = -4,
-             `!=` = -5,
-             `xor` = -5)
+  OPMAP <- list(
+    # Unary operators
+    c(`(` = NA,
+      `!` = -1,
+      `+` = NA,
+      `-` = -16,
+      `abs` = -17,
+      `round` = -20,
+      `sign` = -22),
+    # Binary operators
+    c(`&` = -2,
+      `&&` = -2,
+      `|` = -3,
+      `||` = -3,
+      `xor` = -4,
+      `==` = -5,
+      `!=` = -6,
+      `<` = -7,
+      `>` = -8,
+      `<=` = -9,
+      `>=` = -10,
+      `+` = -11,
+      `-` = -12,
+      `*` = -13,
+      `/` = -14,
+      `%%` = -15,
+      `^` = -18,
+      `%/%` = -19,
+      `round` = -21))
+
+  
   
   lterms <- term.list.formula(formula[[2]])
 
   lidMap <- function(l){
     switch(class(l),
-           numeric = l,
-           namemap[as.character(l)])
+           numeric = c(0,l),
+           character =,
+           name = if(regexpr('[0-9]+',l)!=-1) as.integer(as.character(l))
+                  else namemap[as.character(l)])
   }
   
   postfix <- function(call, coml=c()){
@@ -150,25 +176,29 @@ pack.LayerLogic_formula_as_double <- function(formula, namemap){
       for(i in seq_along(call[-1])+1){
         coml <- c(coml, postfix(call[[i]]))
       }
-      coml <- c(coml, OPMAP[as.character(op)])
+      coml <- c(coml, OPMAP[[length(call)-1]][as.character(op)])
     }else{
       coml <- c(coml, lidMap(call))
     }
-    coml[coml!=0]
+    coml[!is.na(coml)]
   }
   
   o <- lapply(lterms, postfix)
-  lapply(o, function(com) c(length(com), com))
+  lapply(o, function(com) c(sum(com!=0), com))
 }
 
 test_eval.LayerLogic <- function(commands, lv){
   coms <- commands[-1]
   lv <- rep(lv, length.out=max(coms))
   stack <- c()
-  if(length(coms)!=commands[1]) stop("Layer specification command vector specifies incorrect number of commands.", call.=FALSE)
+  if(sum(coms!=0)!=commands[1]) stop("Layer specification command vector specifies incorrect number of commands.", call.=FALSE)
   for(i in 1:commands[1]){
-    com <- coms[i]
-    if(com==-1){
+    com <- coms[1]
+    if(com==0){
+      coms <- coms[-1]
+      com <- coms[1]
+      stack <- c(com, stack)
+    }else if(com==-1){
       x0 <- stack[1]; stack <- stack[-1]
       stack <- c(!x0, stack)
     }else if(com==-2){
@@ -182,33 +212,93 @@ test_eval.LayerLogic <- function(commands, lv){
     }else if(com==-4){
       x0 <- stack[1]; stack <- stack[-1]
       y0 <- stack[1]; stack <- stack[-1]
-      stack <- c(x0 == y0, stack)
+      stack <- c(xor(x0, y0), stack)
     }else if(com==-5){
       x0 <- stack[1]; stack <- stack[-1]
       y0 <- stack[1]; stack <- stack[-1]
+      stack <- c(x0 == y0, stack)
+    }else if(com==-6){
+      x0 <- stack[1]; stack <- stack[-1]
+      y0 <- stack[1]; stack <- stack[-1]
       stack <- c(x0 != y0, stack)
+    }else if(com==-7){
+      x0 <- stack[1]; stack <- stack[-1]
+      y0 <- stack[1]; stack <- stack[-1]
+      stack <- c(x0 < y0, stack)
+    }else if(com==-8){
+      x0 <- stack[1]; stack <- stack[-1]
+      y0 <- stack[1]; stack <- stack[-1]
+      stack <- c(x0 > y0, stack)
+    }else if(com==-9){
+      x0 <- stack[1]; stack <- stack[-1]
+      y0 <- stack[1]; stack <- stack[-1]
+      stack <- c(x0 <= y0, stack)
+    }else if(com==-10){
+      x0 <- stack[1]; stack <- stack[-1]
+      y0 <- stack[1]; stack <- stack[-1]
+      stack <- c(x0 >= y0, stack)
+    }else if(com==-11){
+      x0 <- stack[1]; stack <- stack[-1]
+      y0 <- stack[1]; stack <- stack[-1]
+      stack <- c(x0 + y0, stack)
+    }else if(com==-12){
+      x0 <- stack[1]; stack <- stack[-1]
+      y0 <- stack[1]; stack <- stack[-1]
+      stack <- c(x0 - y0, stack)
+    }else if(com==-13){
+      x0 <- stack[1]; stack <- stack[-1]
+      y0 <- stack[1]; stack <- stack[-1]
+      stack <- c(x0 * y0, stack)
+    }else if(com==-14){
+      x0 <- stack[1]; stack <- stack[-1]
+      y0 <- stack[1]; stack <- stack[-1]
+      stack <- c(x0 / y0, stack)
+    }else if(com==-15){
+      x0 <- stack[1]; stack <- stack[-1]
+      y0 <- stack[1]; stack <- stack[-1]
+      stack <- c(x0 %% y0, stack)
+    }else if(com==-16){
+      x0 <- stack[1]; stack <- stack[-1]
+      stack <- c(-x0, stack)
+    }else if(com==-17){
+      x0 <- stack[1]; stack <- stack[-1]
+      stack <- c(abs(x0), stack)
+    }else if(com==-18){
+      x0 <- stack[1]; stack <- stack[-1]
+      y0 <- stack[1]; stack <- stack[-1]
+      stack <- c(x0 ^ y0, stack)
+    }else if(com==-19){
+      x0 <- stack[1]; stack <- stack[-1]
+      y0 <- stack[1]; stack <- stack[-1]
+      stack <- c(x0 %/% y0, stack)
+    }else if(com==-20){
+      x0 <- stack[1]; stack <- stack[-1]
+      stack <- c(round(x0), stack)
+    }else if(com==-21){
+      x0 <- stack[1]; stack <- stack[-1]
+      y0 <- stack[1]; stack <- stack[-1]
+      stack <- c(round(x0, y0), stack)
+    }else if(com==-22){
+      x0 <- stack[1]; stack <- stack[-1]
+      stack <- c(sign(x0), stack)
     }else{
       stack <- c(lv[com], stack)
     }
+    coms <- coms[-1]
   }
   if(length(stack)!=1) stop("Invalid layer specification command sequence.", call.=FALSE)
   stack
 }
 
 .all_layers_terms <- function(n){
-  if(n<1) return(NULL)
-  if(n==1) return(1)
-  o <- call("+", 1, 2)
-  for(i in seq_len(n-2)+2) o <- call("+", o, i)
-  o
+  lapply(seq_len(n), function(i) substitute(~i,list(i=as.name(i))))
 }
 
-.mk_.layer.net_auxform <- function(trms, nl){
+.mk_.layer.net_auxform <- function(ll, nl){
+  if(is(ll, "formula")) ll <- list(ll)
   # Replace . with all layers.
-  trms <- do.call(substitute, list(trms, list(`.`=.all_layers_terms(nl))))
+  trmcalls <- do.call(c, lapply(ll, function(f) if(f==~.) .all_layers_terms(nl) else list(f)))
   # Get the formula as a list of term calls.
-  trms <- term.list.formula(trms[[2]])
-  trmcalls <- lapply(trms, function(ltrm) as.formula(call("~", ltrm)))
   trmcalls <- lapply(trmcalls, function(ltrm) call(".layer.net", ltrm))
   append.rhs.formula(~.,trmcalls)[-2]
 }
@@ -216,13 +306,12 @@ test_eval.LayerLogic <- function(commands, lv){
 InitErgmTerm.L <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "Ls"),
-                      vartypes = c("formula", "formula"),
+                      vartypes = c("formula", "formula,list"),
                       defaultvalues = list(NULL, ~.),
                       required = c(TRUE, FALSE))
-
   f <- a$formula
 
-  nwl <- .split_constr_network(nw,".LayerID",".NetworkID")
+  nwl <- .split_constr_network(nw,".LayerID",".LayerID")
   nwnames <- names(nwl)
 
   Ls <- a$Ls
@@ -254,7 +343,7 @@ InitErgmTerm.layerCMB <- function(nw, arglist, response=NULL, ...){
                       defaultvalues = list(~.),
                       required = c(FALSE))
 
-  nwl <- .split_constr_network(nw,".LayerID",".NetworkID")
+  nwl <- .split_constr_network(nw,".LayerID",".LayerID")
   Ls <- a$Ls
   auxiliaries <- .mk_.layer.net_auxform(Ls, length(nwl))
   nltrms <- length(term.list.formula(auxiliaries[[2]]))

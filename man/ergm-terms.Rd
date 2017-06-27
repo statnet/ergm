@@ -282,21 +282,26 @@ network
   apply. Layer specification documentation follows.
 
   \subsection{Layer Logic}{
-    
-    Each term (summand) in one-sided layer specification formula
-    describes an observed layer \emph{or} some \dQuote{logical} layer,
-    whose ties are a function of corresponding ties in observed layers.
+
+    Each one-sided formula describes an observed layer \emph{or} some
+    \dQuote{logical} layer, whose ties are a function of corresponding
+    ties in observed layers.
 
     The observed layers can be referenced either by name or by number
-    (i.e., order in which they were passed to \code{\link{Layer}}), and
-    \link[base::Logic]{logical operators} (\code{!}, \code{|}, \code{&},
-    etc.) can be used to combine them. Testing for equality or
-    inequality (\code{==}, \code{!=}, and \code{xor}) is also
-    supported. Standard \R \link[base::Syntax]{operator precedence}
-    applies, so use of parentheses is recommended to ensure the logical
-    expression is what it looks like.
+    (i.e., order in which they were passed to \code{\link{Layer}}). When
+    referencing by number, enclose the number in quotation marks (e.g.,
+    \dQuote{"1"}) or backticks (e.g., \dQuote{`1`}).
 
-    For example, if LHS is \code{Layer(A=nwA, B=nwB)}, both \code{~2}
+    \link[base::Arithmetic]{Arithmetical},
+    \link[base::Comparison]{relational}, and \link[base::Logic]{logical}
+    operators can be used to combine them. (All listed operators are
+    implemented, as well as functions \code{\link{abs}},
+    \code{\link{round}}, and \code{\link{sign}}.) Standard \R
+    \link[base::Syntax]{operator precedence} applies, so use of
+    parentheses is recommended to ensure the logical expression is what
+    it looks like.
+
+    For example, if LHS is \code{Layer(A=nwA, B=nwB)}, both \code{~`2`}
     and \code{~B} refer to \code{nwB}, while \code{A&!B} refers to a
     \dQuote{logical} layer that has ties that are in \code{nwA} but not
     in \code{nwB}.
@@ -308,9 +313,12 @@ network
   }
 
   \subsection{Summing layers}{
-    Some terms combine multiple layers. I that case, the formula may have multiple terms separated by the \code{+} operator. For example \code{Layer(nw1,nw2)~L(~edges, ~1+(2&!1))} produces the
-    number of edges in layer 1 plus the number of edges in layer 2 but
-    not in layer 1.
+
+    Some terms combine multiple layers. I that case al ist of formulas
+    may be passed. For example, \code{Layer(nw1,nw2)~L(~edges,
+    c(~`1`,~(`2`&!`1`)))} produces the number of edges in layer 1 plus the
+    number of edges in layer 2 but not in layer 1.
+
   }
 }
 

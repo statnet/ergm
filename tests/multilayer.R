@@ -8,15 +8,15 @@ nw0 <- network.initialize(10, dir=FALSE)
 
 (layer <- summary(Layer(A=nw1, B=nw2) ~
                     L(~edges, ~A) +
-                    L(~edges, ~2) +
-                    L(~edges, ~1+B) +
+                    L(~edges, ~`2`) +
+                    L(~edges, c(~`1`,~B)) +
                     L(~density) +
                     L(~meandeg) +
                     L(~edges, ~A&B) +
-                    L(~edges, ~1||2) +
-                    L(~edges, ~(!A)&2) +
-                    L(~edges, ~(1!=2)) +
-                    L(~edges, ~xor(1,B))
+                    L(~edges, ~`1`||`2`) +
+                    L(~edges, ~(!A)&`2`) +
+                    L(~edges, ~(`1`!=`2`)) +
+                    L(~edges, ~xor(`1`,B))
                   ))
 (logic <- c(summary(nw1~edges),
             summary(nw2~edges),
@@ -32,24 +32,24 @@ nw0 <- network.initialize(10, dir=FALSE)
 
 stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
 
-(layer <- coef(ergm(Layer(nw1, nw2) ~ L(~edges, ~1) + L(~edges, ~2))))
+(layer <- coef(ergm(Layer(nw1, nw2) ~ L(~edges, ~`1`) + L(~edges, ~`2`))))
 (logic <- c(coef(ergm(nw1~edges)), coef(ergm(nw2~edges))))
 stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
 
-(layer <- coef(ergm(Layer(nw1, nw2) ~ L(~edges, ~1+2))))
+(layer <- coef(ergm(Layer(nw1, nw2) ~ L(~edges, c(~`1`,~`2`)))))
 (logic <- logit((network.edgecount(nw1)+network.edgecount(nw2))/(network.dyadcount(nw1)+network.dyadcount(nw2))))
 stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
 
 
 data(samplk)
 
-(layer <- summary(Layer(samplk1, samplk2)~mutual(L1=~1,L2=~2)))
+(layer <- summary(Layer(samplk1, samplk2)~mutual(L1=~`1`,L2=~`2`)))
 m1 <- as.matrix(samplk1)
 m2 <- as.matrix(samplk2)
 (logic <- (sum(m1*t(m2)+m2*t(m1))/2))
 stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
 
-(layer <- summary(Layer(samplk1, samplk2)~mutual(L1=~1,L2=~2&1)))
+(layer <- summary(Layer(samplk1, samplk2)~mutual(L1=~`1`,L2=~`2`&`1`)))
 m1 <- as.matrix(samplk1)
 m2 <- as.matrix(samplk2) * as.matrix(samplk1)
 (logic <- (sum(m1*t(m2)+m2*t(m1))/2))
