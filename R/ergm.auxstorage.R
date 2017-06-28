@@ -31,7 +31,7 @@ ergm.auxstorage <- function(model, nw, response=NULL,..., extra.aux=list()){
   aux.model <- structure(list(formula=NULL, coef.names = NULL,
                           offset = NULL,
                           terms = NULL, networkstats.0 = NULL, etamap = NULL),
-                         class = "model.ergm")
+                         class = "ergm.model")
   for(i in seq_along(uniq.aux.outlists)){
     aux.outlist <- uniq.aux.outlists[[i]]
     aux.model <- updatemodel.ErgmTerm(aux.model, aux.outlist)

@@ -17,7 +17,7 @@ is.dyad.independent<-function(object,...) UseMethod("is.dyad.independent")
 is.dyad.independent.NULL <- function(object, ...) TRUE # By convention.
 
 is.dyad.independent.ergm.model <- function(object, ...){
-  ! any(sapply(object$terms, function(term) is.null(term$dependence) || term$dependence))
+  ! any(sapply(object$terms, function(term) is.null(term$dependence) || term$dependence)) && is.dyad.independent(object$model.aux)
 }
 
 is.dyad.independent.formula<-function(object,response=NULL,basis=NULL,...){
