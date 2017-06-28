@@ -83,6 +83,7 @@
 \alias{istar}
 \alias{kstar}
 \alias{lCMB}
+\alias{ldegree}
 \alias{localtriangle}
 \alias{m2star}
 \alias{match}
@@ -1285,6 +1286,27 @@ of the degrees of all pairs of nodes in the network which are tied.
     combined.
   }
 
+
+      \item{\code{gwldegree(decay, fixed=FALSE, cutoff=30, Ls, dir)}  (binary)  (directed) (curved)}{\emph{Geometrically weighted
+    layer-combination-degree distribution:} This term adds one network statistic to the model
+    equal to the weighted layer-cumulative degree distribution with decay parameter
+    \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for
+    this parameter may be fixed (if \code{fixed=TRUE}),
+    or it may be used instead as the starting value for the estimation of \code{decay}
+    in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006). This
+    term can only be used with directed networks.
+    The optional argument \code{cutoff}
+    is only relevant if \code{fixed=FALSE}. In that case it only uses this 
+    number of terms in computing the statistics to reduce the computational
+    burden.
+
+    In this term, the layer-cumulative degree frequency equals
+    the number of nodes in the network whose total degree across all
+    layers listed in \code{Ls} combined (with direction being
+    corresponding element of vector \code{dir}, \code{"in"} or \code{"out"}), is \code{d[i]}.
+  }
+
+  
     \item{\code{gwnsp(decay, fixed=FALSE, cutoff=30)}  (binary)  (directed)  (undirected) (curved)}{\emph{Geometrically weighted
     nonedgewise shared partner distribution:} This term is just like
     \code{gwesp} and \code{gwdsp} except it adds a statistic equal to

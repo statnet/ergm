@@ -406,26 +406,72 @@ InitErgmTerm.ldegree<-function(nw, arglist, ...) {
     inputs <- c(as.vector(du), nodecov)
   }
 
-  if(!is.null(a$Ls)){
-    Ls <- a$Ls
-    nlayers <- length(unique(.peek_vattrv(nw, ".LayerID")))
-    if(is(Ls,"formula")) Ls <- list(Ls)
-    auxiliaries <- .mk_.layer.net_auxform(Ls, nlayers)
-    dir <- rep(a$dir, length.out=length(Ls))
-    dir <- pmatch(a$dir, c("in","all","out"))-2
-    if(any(is.na(dir) | dir==0)) stop("Invalid direction specification.")
-    inputs <- c(length(Ls), dir, inputs)
-    emptynwstats <- emptynwstats / nlayers
-    name <- paste0("l",name,"_ML_sum")
-    coef.names <- paste0(.lspec_coef.names(Ls),":",coef.names)
-  }else stop("A layer specification is required for the ldegree term.")
+  if(is.null(a$Ls) || is.null(a$dir)) stop("A layer and direction specification is required for the ldegree term.")
   
-  if (!is.null(emptynwstats)){
-    list(name=name,coef.names=coef.names, inputs=inputs,
-         emptynwstats=emptynwstats, dependence=TRUE, minval = 0,
-         auxiliaries=auxiliaries)
-  }else{
-    list(name=name,coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw), conflicts.constraints="degreedist",
-         auxiliaries=auxiliaries)
+  c(.process_layers_degree(nw, a, name=name,coef.names=coef.names, inputs=inputs, emptynwstats=emptynwstats), minval = 0)
+}
+
+################################################################################
+InitErgmTerm.gwldegree<-function(nw, arglist,  ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=TRUE,
+                      varnames = c("decay", "fixed", "attrname","cutoff", "Ls", "dir"),
+                      vartypes = c("numeric", "logical", "character","numeric", "formula,list", "character"),
+                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
+  decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
+  cutoff<-a$cutoff
+
+  if(is.null(a$Ls) || is.null(a$dir)) stop("A layer and direction specification is required for the gwldegree term.")
+
+  # d <- 1:(network.size(nw)-1)
+   maxesp <- min(cutoff,network.size(nw)-1)
+  d <- 1:maxesp
+  if (!is.null(attrname) && !fixed ) {
+    stop("The gwldegree term cannot yet handle a nonfixed decay ",
+            "term with an attribute. Use fixed=TRUE.", call.=FALSE)
+    
+  }
+  if(!fixed){ # This is a curved exponential family model
+    if(!is.null(a$decay)) warning("In term 'gwldegree': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
+    ld<-length(d)
+    if(ld==0){return(NULL)}
+    map <- function(x,n,...) {
+      i <- 1:n
+      x[1]*(exp(x[2])*(1-(1-exp(-x[2]))^i))
+    }
+    gradient <- function(x,n,...) {
+      i <- 1:n
+      rbind(exp(x[2])*(1-(1-exp(-x[2]))^i),
+            x[1]*(exp(x[2])-(1-exp(-x[2]))^{i-1}*(1+i-exp(-x[2])))
+           )
+    }
+    c(.process_layers_degree(nw, a, name="odegree", coef.names=paste("gwldegree#",d,sep=""), inputs=c(d)),
+      params=list(gwldegree=NULL,gwldegree.decay=decay),
+      map=map, gradient=gradient, conflicts.constraints="degreedist")
+  } else {
+    if(is.null(a$decay)) stop("Term 'gwldegree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
+
+    if(!is.null(attrname)) {
+      nodecov <- get.node.attr(nw, attrname, "gwldegree")
+      u<-sort(unique(nodecov))
+      if(any(is.na(nodecov))){u<-c(u,NA)}
+      nodecov <- match(nodecov,u) # Recode to numeric
+      if (length(u)==1)
+        stop ("Attribute given to gwldegree() has only one value", call.=FALSE)
+      # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+      lu <- length(u)
+      du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+      if(nrow(du)==0) {return(NULL)}
+      #  No covariates here, so "ParamsBeforeCov" unnecessary
+      name <- "gwldegree_by_attr"
+      coef.names <- paste("gwodeg", decay, ".", attrname, u, sep="")
+      inputs <- c(decay, nodecov)
+    }else{
+      name <- "gwldegree"
+      coef.names <- paste("gwodeg.fixed.",decay,sep="")
+      inputs <- c(decay)
+    }
+    c(.process_layers_degree(nw, a, name=name, coef.names=coef.names, inputs=inputs), conflicts.constraints="degreedist")
   }
 }
+

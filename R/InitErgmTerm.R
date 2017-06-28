@@ -134,7 +134,12 @@
     if(is(Ls,"formula")) Ls <- list(Ls)
     nlayers <- length(unique(.peek_vattrv(nw, ".LayerID")))
     auxiliaries <- .mk_.layer.net_auxform(Ls, nlayers)
-    inputs <- c(length(Ls), inputs)
+    if(!is.null(a$dir)){
+      dir <- rep(a$dir, length.out=length(Ls))
+      dir <- pmatch(a$dir, c("in","all","out"))-2
+      if(any(is.na(dir) | dir==0)) stop("Invalid direction specification.")
+    } else dir <- NULL
+    inputs <- c(length(Ls), dir, inputs)
     if(!is.null(emptynwstats)) emptynwstats <- emptynwstats / length(unique(.peek_vattrv(nw, ".LayerID")))
     name <- paste0(name,"_ML_sum")
     coef.names <- paste0(.lspec_coef.names(Ls),":",coef.names)
