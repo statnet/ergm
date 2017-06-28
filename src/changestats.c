@@ -2109,7 +2109,6 @@ C_CHANGESTAT_FN(c_degree_by_attr_ML_sum) {
   }
 }
 
-
 /*****************
  changestat: d_degree_w_homophily
 *****************/

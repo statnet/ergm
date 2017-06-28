@@ -441,7 +441,8 @@ InitErgmTerm.b1degree <- function(nw, arglist, ...) {
   if(!is.null(a$Ls)){
     Ls <- a$Ls
     if(is(Ls,"formula")) Ls <- list(Ls)
-    auxiliaries <- .mk_.layer.net_auxform(Ls, length(nwl))
+    nlayers <- length(unique(.peek_vattrv(nw, ".LayerID")))
+    auxiliaries <- .mk_.layer.net_auxform(Ls, nlayers)
     inputs <- c(length(Ls), inputs)
     emptynwstats <- emptynwstats / length(unique(.peek_vattrv(nw, ".LayerID")))
     name <- paste0(name,"_ML_sum")
@@ -769,7 +770,8 @@ InitErgmTerm.b2degree <- function(nw, arglist, ...) {
   if(!is.null(a$Ls)){
     Ls <- a$Ls
     if(is(Ls,"formula")) Ls <- list(Ls)
-    auxiliaries <- .mk_.layer.net_auxform(Ls, length(nwl))
+    nlayers <- length(unique(.peek_vattrv(nw, ".LayerID")))
+    auxiliaries <- .mk_.layer.net_auxform(Ls, nlayers)
     inputs <- c(length(Ls), inputs)
     emptynwstats <- emptynwstats / length(unique(.peek_vattrv(nw, ".LayerID")))
     name <- paste0(name,"_ML_sum")
@@ -1224,7 +1226,8 @@ InitErgmTerm.degree<-function(nw, arglist, ...) {
   if(!is.null(a$Ls)){
     Ls <- a$Ls
     if(is(Ls,"formula")) Ls <- list(Ls)
-    auxiliaries <- .mk_.layer.net_auxform(Ls, length(nwl))
+    nlayers <- length(unique(.peek_vattrv(nw, ".LayerID")))
+    auxiliaries <- .mk_.layer.net_auxform(Ls, nlayers)
     inputs <- c(length(Ls), inputs)
     emptynwstats <- emptynwstats / length(unique(.peek_vattrv(nw, ".LayerID")))
     name <- paste0(name,"_ML_sum")
@@ -2210,7 +2213,8 @@ InitErgmTerm.idegree<-function(nw, arglist, ...) {
   if(!is.null(a$Ls)){
     Ls <- a$Ls
     if(is(Ls,"formula")) Ls <- list(Ls)
-    auxiliaries <- .mk_.layer.net_auxform(Ls, length(nwl))
+    nlayers <- length(unique(.peek_vattrv(nw, ".LayerID")))
+    auxiliaries <- .mk_.layer.net_auxform(Ls, nlayers)
     inputs <- c(length(Ls), inputs)
     emptynwstats <- emptynwstats / length(unique(.peek_vattrv(nw, ".LayerID")))
     name <- paste0(name,"_ML_sum")
@@ -2942,7 +2946,8 @@ InitErgmTerm.odegree<-function(nw, arglist, ...) {
   if(!is.null(a$Ls)){
     Ls <- a$Ls
     if(is(Ls,"formula")) Ls <- list(Ls)
-    auxiliaries <- .mk_.layer.net_auxform(Ls, length(nwl))
+    nlayers <- length(unique(.peek_vattrv(nw, ".LayerID")))
+    auxiliaries <- .mk_.layer.net_auxform(Ls, nlayers)
     inputs <- c(length(Ls), inputs)
     emptynwstats <- emptynwstats / length(unique(.peek_vattrv(nw, ".LayerID")))
     name <- paste0(name,"_ML_sum")

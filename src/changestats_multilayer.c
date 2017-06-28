@@ -157,3 +157,87 @@ C_CHANGESTAT_FN(c_layerCMB){
   
   CHANGE_STAT[0] = lgamma1p(newct)-lgamma1p(oldct) + lgamma1p(nml-newct)-lgamma1p(nml-oldct); 
 }
+
+
+
+/*****************
+ changestat: d_ldegree_ML_sum
+*****************/
+C_CHANGESTAT_FN(c_ldegree_ML_sum) { 
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+  double *dirs = inputs;
+  inputs += nml;
+  double *degs = inputs;
+
+  /* *** don't forget tail -> head */
+
+  unsigned int taildeg = 0, headdeg = 0;
+  int tdegchange = 0, hdegchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *id=ML_IN_DEG(ll), *od=ML_OUT_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    int degchange = ergm_LayerLogic(tail, head, ll, TRUE);
+    if(dirs[ml]==0 || dirs[ml]==+1){
+      tdegchange += degchange;
+      taildeg += od[lt];
+    }
+    if(dirs[ml]==0 || dirs[ml]==-1){
+      hdegchange += degchange;
+      headdeg += id[lh];
+    }
+  }
+  
+  for(unsigned int j = 0; j < N_CHANGE_STATS; j++) {
+    Vertex deg = (Vertex)degs[j];
+    CHANGE_STAT[j] += (taildeg + tdegchange == deg) - (taildeg == deg);
+    CHANGE_STAT[j] += (headdeg + hdegchange == deg) - (headdeg == deg);
+  }
+}
+
+/*****************
+ changestat: d_ldegree_by_attr_ML_sum
+*****************/
+C_CHANGESTAT_FN(c_ldegree_by_attr_ML_sum) { 
+  /* The inputparams are assumed to be set up as follows:
+  The first 2*nstats values are in pairs:  (degree, attrvalue)
+  The values following the first 2*nstats values are the nodal attributes.
+  */
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+  double *dirs = inputs;
+  inputs += nml;
+
+  /* *** don't forget tail -> head */    
+
+  unsigned int taildeg = 0, headdeg = 0;
+  int tdegchange = 0, hdegchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *id=ML_IN_DEG(ll), *od=ML_OUT_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    int degchange = ergm_LayerLogic(tail, head, ll, TRUE);
+    if(dirs[ml]==0 || dirs[ml]==+1){
+      tdegchange += degchange;
+      taildeg += od[lt];
+    }
+    if(dirs[ml]==0 || dirs[ml]==-1){
+      hdegchange += degchange;
+      headdeg += id[lh];
+    }
+  }   
+
+  int tailattr = inputs[2*N_CHANGE_STATS + tail - 1]; 
+  int headattr = inputs[2*N_CHANGE_STATS + head - 1]; 
+  for(unsigned int j = 0; j < N_CHANGE_STATS; j++) {
+    Vertex d = (Vertex)inputs[2*j];
+    int testattr = inputs[2*j + 1]; 
+    if (tailattr == testattr)  /* we have tail attr match */
+      CHANGE_STAT[j] += (taildeg + tdegchange == d) - (taildeg == d);
+    if (headattr == testattr)  /* we have head attr match */
+      CHANGE_STAT[j] += (headdeg + hdegchange == d) - (headdeg == d);
+  }
+}

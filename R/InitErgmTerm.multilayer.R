@@ -352,3 +352,80 @@ InitErgmTerm.lCMB <- function(nw, arglist, response=NULL, ...){
 
   list(name="layerCMB", coef.names = paste0('lCMB(',.despace(deparse(Ls)),')'), inputs=inputs, dependence=FALSE, auxiliaries = auxiliaries, emptynwstats = network.dyadcount(nwl[[1]], FALSE)*lfactorial(nltrms))
 }
+
+################################################################################
+InitErgmTerm.ldegree<-function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=TRUE,
+                      varnames = c("d", "by", "Ls", "dir"),
+                      vartypes = c("numeric", "character", "formula,list", "character"),
+                      defaultvalues = list(NULL, NULL, NULL, NULL),
+                      required = c(TRUE, FALSE, FALSE, FALSE))
+  d<-a$d; byarg <- a$by; homophily <- a$homophily
+  emptynwstats<-NULL
+  if(!is.null(byarg)) {
+    nodecov <- get.node.attr(nw, byarg, "degree")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    if (length(u)==1)
+         stop ("Attribute given to degree() has only one value", call.=FALSE)
+  }
+  if(!is.null(byarg) && !homophily) {
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+    if (any(du[1,]==0)) {
+      emptynwstats <- rep(0, ncol(du))
+      tmp <- du[2,du[1,]==0]
+      for(i in 1:length(tmp)) tmp[i] <- sum(nodecov==tmp[i])
+        emptynwstats[du[1,]==0] <- tmp
+    }
+  } else {
+    if (any(d==0)) {
+      emptynwstats <- rep(0, length(d))
+      emptynwstats[d==0] <- network.size(nw)
+    }
+  }
+  if(is.null(byarg)) {
+    if(length(d)==0){return(NULL)}
+    coef.names <- paste("degree",d,sep="")
+    name <- "degree"
+    inputs <- c(d)
+  } else if (homophily) {
+    if(length(d)==0){return(NULL)}
+    # See comment in d_degree_w_homophily function
+    coef.names <- paste("deg", d, ".homophily.",byarg, sep="")
+    name <- "degree_w_homophily"
+    inputs <- c(d, nodecov)
+  } else {
+    if(ncol(du)==0) {return(NULL)}
+    #  No covariates here, so "ParamsBeforeCov" unnecessary
+    # See comment in d_degree_by_attr function
+    coef.names <- paste("deg", du[1,], ".", byarg,u[du[2,]], sep="")
+    name <- "degree_by_attr"
+    inputs <- c(as.vector(du), nodecov)
+  }
+
+  if(!is.null(a$Ls)){
+    Ls <- a$Ls
+    nlayers <- length(unique(.peek_vattrv(nw, ".LayerID")))
+    if(is(Ls,"formula")) Ls <- list(Ls)
+    auxiliaries <- .mk_.layer.net_auxform(Ls, nlayers)
+    dir <- rep(a$dir, length.out=length(Ls))
+    dir <- pmatch(a$dir, c("in","all","out"))-2
+    if(any(is.na(dir) | dir==0)) stop("Invalid direction specification.")
+    inputs <- c(length(Ls), dir, inputs)
+    emptynwstats <- emptynwstats / nlayers
+    name <- paste0("l",name,"_ML_sum")
+    coef.names <- paste0(.lspec_coef.names(Ls),":",coef.names)
+  }else stop("A layer specification is required for the ldegree term.")
+  
+  if (!is.null(emptynwstats)){
+    list(name=name,coef.names=coef.names, inputs=inputs,
+         emptynwstats=emptynwstats, dependence=TRUE, minval = 0,
+         auxiliaries=auxiliaries)
+  }else{
+    list(name=name,coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw), conflicts.constraints="degreedist",
+         auxiliaries=auxiliaries)
+  }
+}

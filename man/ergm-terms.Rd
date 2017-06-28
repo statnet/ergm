@@ -1441,6 +1441,19 @@ of the degrees of all pairs of nodes in the network which are tied.
     networks, see \code{istar}, \code{ostar}, \code{twopath} and \code{m2star}.
     Note that \code{kstar(1)} is equal to \code{edges}. }
 
+  \item{\code{ldegree(d, by=NULL, Ls, dir)}  (binary)  (directed)  (categorical nodal attribute) (frequently-used)}{\emph{Layer-combinaton-degree:} The \code{d} argument
+    is a vector of distinct integers. This term adds one network statistic to
+    the model for each element in \code{d}; the \eqn{i}th such statistic equals
+    the number of nodes in the network whose total degree across all
+    layers listed in \code{Ls} combined (with direction being
+    corresponding element of vector \code{dir}, \code{"in"} or \code{"out"}), is \code{d[i]}.
+    If \code{by} is specified, then separate degree 
+    statistics are calculated for nodes having each separate
+    value of the attribute.
+    This term can only be used with directed networks; for undirected networks
+    see \code{degree}.
+  }
+  
     \item{\code{smallerthan(threshold=0)}  (valued)  (directed)  (undirected) (dyad-independent)}{\emph{Number of dyads with
 	values strictly smaller than a threshold:}
       Adds  the number of
