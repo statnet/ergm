@@ -103,6 +103,13 @@ Layer <- function(...){
 ##   list(name="_layer_nets", coef.names=c(), inputs=unlist(.block_vertexmap(nw, ".LayerID", TRUE)), dependence=FALSE)
 ## }
 
+.depends_on_layers <- function(commands){
+  coms <- commands[-1]
+  if(any(coms==0)) coms <- coms[-(which(coms==0)+1)] # Drop all numeric literals (i.e., numbers preceded by 0).
+  coms <- coms[coms>=1] # Drop all commands.
+  unique(coms)
+}
+
 InitErgmTerm..layer.net <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("L"),
@@ -117,14 +124,15 @@ InitErgmTerm..layer.net <- function(nw, arglist, response=NULL, ...){
   # Process layer specification
   namemap <- seq_along(nwl)
   names(namemap) <- nwnames
-
-  if(length(term.list.formula(a$L[[2]]))!=1) stop("Currently, the .layer.net() auxiliary formula must have exactly one term.", call.=FALSE)
   
   ll <- pack.LayerLogic_formula_as_double(a$L, namemap)
-
-  if(any(sapply(ll, test_eval.LayerLogic, FALSE))) stop("Layer specifications that produce edges on the output layer for empty input layers are not supported at this time.", call.=FALSE)
+  # Terms on this logical layer will induce dyadic independence if its
+  # value depends on more than one other layer value.
+  dependence <- length(.depends_on_layers(ll))>1
   
-  list(name="_layer_net", coef.names=c(), inputs=c(unlist(.block_vertexmap(nw, ".LayerID", TRUE)),unlist(ll)), dependence=FALSE)
+  if(test_eval.LayerLogic(ll, FALSE)) stop("Layer specifications that produce edges on the output layer for empty input layers are not supported at this time.", call.=FALSE)
+  
+  list(name="_layer_net", coef.names=c(), inputs=c(unlist(.block_vertexmap(nw, ".LayerID", TRUE)),ll), dependence=dependence)
 }
 
 pack.LayerLogic_formula_as_double <- function(formula, namemap){
@@ -158,10 +166,7 @@ pack.LayerLogic_formula_as_double <- function(formula, namemap){
       `%/%` = -19,
       `round` = -21))
 
-  
-  
-  lterms <- term.list.formula(formula[[2]])
-
+    
   lidMap <- function(l){
     switch(class(l),
            numeric = c(0,l),
@@ -183,8 +188,8 @@ pack.LayerLogic_formula_as_double <- function(formula, namemap){
     coml[!is.na(coml)]
   }
   
-  o <- lapply(lterms, postfix)
-  lapply(o, function(com) c(sum(com!=0), com))
+  com <- postfix(formula[[2]])
+  c(sum(com!=0), com)
 }
 
 test_eval.LayerLogic <- function(commands, lv){
@@ -315,7 +320,7 @@ InitErgmTerm.L <- function(nw, arglist, response=NULL, ...){
   nwnames <- names(nwl)
 
   Ls <- a$Ls
-  auxiliaries <- .mk_.layer.net_auxform(Ls, length(nwl))
+  auxiliaries <- .mk_.layer.net_auxform(Ls, length(nwl))  
   nltrms <- length(term.list.formula(auxiliaries[[2]]))
 
   nw1 <- nwl[[1]]
@@ -324,6 +329,9 @@ InitErgmTerm.L <- function(nw, arglist, response=NULL, ...){
   else nw1 <- ergm.getnetwork(f)
   
   m <- ergm.getmodel(f, nw1, response=response,...)
+
+  dependence <- !is.dyad.independent(m) || !is.dyad.independent(nonsimp.update.formula(auxiliaries, nw~., from.new="nw"))
+
   
   Clist <- ergm.Cprepare(nw1, m, response=response)
   inputs <- pack.Clist_as_num(Clist)
@@ -332,7 +340,7 @@ InitErgmTerm.L <- function(nw, arglist, response=NULL, ...){
 
   gs <- ergm.emptynwstats.model(m) * nltrms
   
-  c(list(name="OnLayer", coef.names = paste0(.lspec_coef.names(list(a$Ls)),":",m$coef.names), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries = auxiliaries),
+  c(list(name="OnLayer", coef.names = paste0(.lspec_coef.names(list(a$Ls)),":",m$coef.names), inputs=inputs, dependence=dependence, emptynwstats = gs, auxiliaries = auxiliaries),
     passthrough.curved.ergm.model(m, function(x) paste0(.lspec_coef.names(list(a$Ls)),":",x)))
 }
 
