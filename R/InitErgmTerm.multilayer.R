@@ -339,7 +339,7 @@ InitErgmTerm.L <- function(nw, arglist, response=NULL, ...){
 InitErgmTerm.lCMB <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("Ls"),
-                      vartypes = c("formula"),
+                      vartypes = c("formula,list"),
                       defaultvalues = list(~.),
                       required = c(FALSE))
 
