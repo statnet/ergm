@@ -350,7 +350,7 @@ InitErgmTerm.lCMB <- function(nw, arglist, response=NULL, ...){
 
   inputs <- c(nltrms)
 
-  list(name="layerCMB", coef.names = paste0('lCMB(',.despace(deparse(Ls)),')'), inputs=inputs, dependence=FALSE, auxiliaries = auxiliaries, emptynwstats = network.dyadcount(nwl[[1]], FALSE)*lfactorial(nltrms))
+  list(name="layerCMB", coef.names = paste0('lCMB(',.despace(deparse(Ls)),')'), inputs=inputs, dependence=TRUE, auxiliaries = auxiliaries, emptynwstats = network.dyadcount(nwl[[1]], FALSE)*lfactorial(nltrms))
 }
 
 ################################################################################
