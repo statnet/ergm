@@ -74,3 +74,21 @@ stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
 (layer <- summary(Layer(m=flomarriage, b=flobusiness)~dnsp(0:10,L.path1=~b,L.path2=~b,L.base=~b)))
 (logic <- summary(flobusiness~nsp(0:10)))
 stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
+
+
+nw0 <- network.initialize(3, dir=FALSE)
+nw1 <- nw0
+nw1[1,2] <- 1
+nw1[2,3] <- 1
+
+nw2 <- nw0
+nw2[1,2] <- 1
+nw2[1,3] <- 1
+
+layer_and_MLE <- function(nw1, nw2){
+  nd <- network.dyadcount(nw1)
+  ne <- summary(nw1&nw2~edges)
+  log(3*ne/nd)-log(1-ne/nd)
+}
+
+stopifnot(isTRUE(all.equal(layer_and_MLE(nw1,nw2),coef(ergm(Layer(nw1,nw2)~L(~edges, ~`1`&`2`))),check.attributes=FALSE,tolerance=.1)))

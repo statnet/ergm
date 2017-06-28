@@ -37,8 +37,8 @@ I_CHANGESTAT_FN(i__layer_net){
   /* Construct the output (logical layer) network: */  
   
   EXEC_THROUGH_NET_EDGES(t, h, e, {
-      if(ergm_LayerLogic(t, h, ll, TRUE)){
-	ML_TOGGLE(ll, ML_IO_TAIL(ll, t), ML_IO_HEAD(ll, h));
+      if(ergm_LayerLogic(t, h, ll, 0)){
+	ML_SETWT(ll, ML_IO_TAIL(ll, t), ML_IO_HEAD(ll, h), 1);
       }
     });
 }

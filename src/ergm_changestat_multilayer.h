@@ -116,6 +116,52 @@ typedef struct {
     }						\
     break;}
 
+#define ergm_LUNOP(op)				\
+  {						\
+    double x0 = *(stack0--);			\
+    *(++stack0) = (op (x0!=0));			\
+    if(stack1){					\
+      double x1 = *(stack1--);			\
+      *(++stack1) = (op (x1!=0));		\
+    }						\
+    break;}
+
+#define ergm_LUNFUN(fun)			\
+  {						\
+    double x0 = *(stack0--);			\
+    *(++stack0) = fun(x0!=0);			\
+    if(stack1){					\
+      double x1 = *(stack1--);			\
+      *(++stack1) = fun(x1!=0);			\
+    }						\
+    break;}
+
+
+#define ergm_LBINOP(op)				\
+  {						\
+    double x0 = *(stack0--);			\
+    double y0 = *(stack0--);			\
+    *(++stack0) = ((x0!=0) op (y0!=0));		\
+    if(stack1){					\
+      double x1 = *(stack1--);			\
+      double y1 = *(stack1--);			\
+      *(++stack1) = ((x1!=0) op (y1!=0));	\
+    }						\
+    break;}
+
+#define ergm_LBINFUN(fun)			\
+  {						\
+    double x0 = *(stack0--);			\
+    double y0 = *(stack0--);			\
+    *(++stack0) = fun(x0!=0, y0!=0);		\
+    if(stack1){					\
+      double x1 = *(stack1--);			\
+      double y1 = *(stack1--);			\
+      *(++stack1) = fun(x1!=0, y1!=0);		\
+    }						\
+    break;}
+
+
 #define ergm_FLOORDIV(x,y) floor(x/y)
 
 #define ergm_FROUND(x) fround(x,0)
@@ -139,10 +185,10 @@ static inline int ergm_LayerLogic(Vertex tail, Vertex head, // Dyad to toggle on
 	*(++stack1) = x0;
       }
       break;}
-    case -1:ergm_UNOP(!)
-    case -2:ergm_BINOP(&&)
-    case -3:ergm_BINOP(||)
-    case -4:ergm_BINFUN(XOR)
+    case -1:ergm_LUNOP(!)
+    case -2:ergm_LBINOP(&&)
+    case -3:ergm_LBINOP(||)
+    case -4:ergm_LBINFUN(XOR)
     case -5:ergm_BINOP(==)
     case -6:ergm_BINOP(!=)
     case -7:ergm_BINOP(<)
@@ -166,7 +212,7 @@ static inline int ergm_LayerLogic(Vertex tail, Vertex head, // Dyad to toggle on
       unsigned int x0 = ML_IGETWT(ll, l, lt, lh);
       *(++stack0) = x0;
       if(stack1){
-	unsigned int x1 = tl==l? !x0 : x0;
+	unsigned int x1 = tl==l? !(x0!=0) : x0;
 	*(++stack1) = x1;
       }
       break;}
