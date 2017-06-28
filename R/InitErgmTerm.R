@@ -128,6 +128,20 @@
 ################################################################################
 
 
+.process_layers_degree <- function(nw, a, name, coef.names, inputs, emptynwstats){
+  if(!is.null(a$Ls)){
+    Ls <- a$Ls
+    if(is(Ls,"formula")) Ls <- list(Ls)
+    nlayers <- length(unique(.peek_vattrv(nw, ".LayerID")))
+    auxiliaries <- .mk_.layer.net_auxform(Ls, nlayers)
+    inputs <- c(length(Ls), inputs)
+    emptynwstats <- emptynwstats / length(unique(.peek_vattrv(nw, ".LayerID")))
+    name <- paste0(name,"_ML_sum")
+    coef.names <- paste0(.lspec_coef.names(Ls),":",coef.names)
+  }else auxiliaries <- NULL
+
+  list(name = name, coef.names = coef.names, inputs = inputs, emptynwstats = emptynwstats, auxiliaries=auxiliaries, minval=0, maxval=network.size(nw), dependence=TRUE)
+}
 
 
 #=======================InitErgmTerm functions:  A============================#
@@ -438,20 +452,8 @@ InitErgmTerm.b1degree <- function(nw, arglist, ...) {
     }
   }
 
-  if(!is.null(a$Ls)){
-    Ls <- a$Ls
-    if(is(Ls,"formula")) Ls <- list(Ls)
-    nlayers <- length(unique(.peek_vattrv(nw, ".LayerID")))
-    auxiliaries <- .mk_.layer.net_auxform(Ls, nlayers)
-    inputs <- c(length(Ls), inputs)
-    emptynwstats <- emptynwstats / length(unique(.peek_vattrv(nw, ".LayerID")))
-    name <- paste0(name,"_ML_sum")
-    coef.names <- paste0(.lspec_coef.names(Ls),":",coef.names)
-  }else auxiliaries <- NULL
-  
-  list(name=name, coef.names=coef.names, #name and coef.names: required
-       inputs = inputs, emptynwstats=emptynwstats, minval=0, maxval=nb1,
-       auxiliaries=auxiliaries)
+  c(.process_layers_degree(nw, a, name, coef.names, inputs, emptynwstats),
+    minval = 0, maxval=nb1, conflicts.constraints="odegreedist")
 }
 
 
@@ -767,20 +769,8 @@ InitErgmTerm.b2degree <- function(nw, arglist, ...) {
     }
   }
 
-  if(!is.null(a$Ls)){
-    Ls <- a$Ls
-    if(is(Ls,"formula")) Ls <- list(Ls)
-    nlayers <- length(unique(.peek_vattrv(nw, ".LayerID")))
-    auxiliaries <- .mk_.layer.net_auxform(Ls, nlayers)
-    inputs <- c(length(Ls), inputs)
-    emptynwstats <- emptynwstats / length(unique(.peek_vattrv(nw, ".LayerID")))
-    name <- paste0(name,"_ML_sum")
-    coef.names <- paste0(.lspec_coef.names(Ls),":",coef.names)
-  }else auxiliaries <- NULL
-  
-  list(name=name, coef.names=coef.names, #name and coef.names: required
-       inputs = inputs, emptynwstats=emptynwstats, minval=0, maxval=network.size(nw)-nb1,
-       auxiliaries=auxiliaries)
+  c(.process_layers_degree(nw, a, name, coef.names, inputs, emptynwstats),
+    minval = 0, maxval=network.size(nw)-nb1, conflicts.constraints="idegreedist")
 }
 
 ################################################################################
@@ -1223,25 +1213,8 @@ InitErgmTerm.degree<-function(nw, arglist, ...) {
     inputs <- c(as.vector(du), nodecov)
   }
 
-  if(!is.null(a$Ls)){
-    Ls <- a$Ls
-    if(is(Ls,"formula")) Ls <- list(Ls)
-    nlayers <- length(unique(.peek_vattrv(nw, ".LayerID")))
-    auxiliaries <- .mk_.layer.net_auxform(Ls, nlayers)
-    inputs <- c(length(Ls), inputs)
-    emptynwstats <- emptynwstats / length(unique(.peek_vattrv(nw, ".LayerID")))
-    name <- paste0(name,"_ML_sum")
-    coef.names <- paste0(.lspec_coef.names(Ls),":",coef.names)
-  }else auxiliaries <- NULL
-  
-  if (!is.null(emptynwstats)){
-    list(name=name,coef.names=coef.names, inputs=inputs,
-         emptynwstats=emptynwstats, dependence=TRUE, minval = 0,
-         auxiliaries=auxiliaries)
-  }else{
-    list(name=name,coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw), conflicts.constraints="degreedist",
-         auxiliaries=auxiliaries)
-  }
+  c(.process_layers_degree(nw, a, name, coef.names, inputs, emptynwstats),
+    minval = 0, maxval=network.size(nw), conflicts.constraints="degreedist")
 }
 
 ################################################################################
@@ -1595,10 +1568,10 @@ InitErgmTerm.gwb2degree<-function(nw, arglist,  ...) {
 ################################################################################
 InitErgmTerm.gwdegree<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
-                      varnames = c("decay", "fixed", "attrname","cutoff"),
-                      vartypes = c("numeric", "logical", "character", "numeric"),
-                      defaultvalues = list(NULL, FALSE, NULL, 30),
-                      required = c(FALSE, FALSE, FALSE, FALSE))
+                      varnames = c("decay", "fixed", "attrname","cutoff", "Ls"),
+                      vartypes = c("numeric", "logical", "character", "numeric", "formula,list"),
+                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   cutoff<-a$cutoff
 # d <- 1:(network.size(nw)-1)
@@ -2210,25 +2183,8 @@ InitErgmTerm.idegree<-function(nw, arglist, ...) {
     inputs <- c(as.vector(du), nodecov)
   }
 
-  if(!is.null(a$Ls)){
-    Ls <- a$Ls
-    if(is(Ls,"formula")) Ls <- list(Ls)
-    nlayers <- length(unique(.peek_vattrv(nw, ".LayerID")))
-    auxiliaries <- .mk_.layer.net_auxform(Ls, nlayers)
-    inputs <- c(length(Ls), inputs)
-    emptynwstats <- emptynwstats / length(unique(.peek_vattrv(nw, ".LayerID")))
-    name <- paste0(name,"_ML_sum")
-    coef.names <- paste0(.lspec_coef.names(Ls),":",coef.names)
-  }else auxiliaries <- NULL
-  
-  if (!is.null(emptynwstats)){
-    list(name=name, coef.names=coef.names, inputs=inputs,
-         emptynwstats=emptynwstats, dependence=TRUE,
-         auxiliaries=auxiliaries)
-  }else{
-    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw), conflicts.constraints="idegreedist",
-         auxiliaries=auxiliaries)
-  }
+  c(.process_layers_degree(nw, a, name, coef.names, inputs, emptynwstats),
+    minval = 0, maxval=network.size(nw), conflicts.constraints="idegreedist")
 }
 
 
@@ -2943,25 +2899,8 @@ InitErgmTerm.odegree<-function(nw, arglist, ...) {
     inputs <- c(as.vector(du), nodecov)
   }
 
-  if(!is.null(a$Ls)){
-    Ls <- a$Ls
-    if(is(Ls,"formula")) Ls <- list(Ls)
-    nlayers <- length(unique(.peek_vattrv(nw, ".LayerID")))
-    auxiliaries <- .mk_.layer.net_auxform(Ls, nlayers)
-    inputs <- c(length(Ls), inputs)
-    emptynwstats <- emptynwstats / length(unique(.peek_vattrv(nw, ".LayerID")))
-    name <- paste0(name,"_ML_sum")
-    coef.names <- paste0(.lspec_coef.names(Ls),":",coef.names)
-  }else auxiliaries <- NULL
-  
-  if (!is.null(emptynwstats)){
-    list(name=name, coef.names=coef.names, inputs=inputs,
-         emptynwstats=emptynwstats, dependence=TRUE, minval=0,
-         auxiliaries=auxiliaries)
-  }else{
-    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval=0, maxval=network.size(nw), conflicts.constraints="odegreedist",
-         auxiliaries=auxiliaries)
-  }
+  c(.process_layers_degree(nw, a, name, coef.names, inputs, emptynwstats),
+    minval = 0, maxval=network.size(nw), conflicts.constraints="odegreedist")
 }
 
 
