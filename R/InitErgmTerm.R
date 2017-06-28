@@ -128,14 +128,14 @@
 ################################################################################
 
 
-.process_layers_degree <- function(nw, a, name, coef.names, inputs, emptynwstats){
+.process_layers_degree <- function(nw, a, name, coef.names, inputs, emptynwstats=NULL){
   if(!is.null(a$Ls)){
     Ls <- a$Ls
     if(is(Ls,"formula")) Ls <- list(Ls)
     nlayers <- length(unique(.peek_vattrv(nw, ".LayerID")))
     auxiliaries <- .mk_.layer.net_auxform(Ls, nlayers)
     inputs <- c(length(Ls), inputs)
-    emptynwstats <- emptynwstats / length(unique(.peek_vattrv(nw, ".LayerID")))
+    if(!is.null(emptynwstats)) emptynwstats <- emptynwstats / length(unique(.peek_vattrv(nw, ".LayerID")))
     name <- paste0(name,"_ML_sum")
     coef.names <- paste0(.lspec_coef.names(Ls),":",coef.names)
   }else auxiliaries <- NULL
@@ -770,7 +770,7 @@ InitErgmTerm.b2degree <- function(nw, arglist, ...) {
   }
 
   c(.process_layers_degree(nw, a, name, coef.names, inputs, emptynwstats),
-    minval = 0, maxval=network.size(nw)-nb1, conflicts.constraints="idegreedist")
+    minval = 0, maxval=network.size(nw)-nb1, conflicts.constraints="b2degreedist")
 }
 
 ################################################################################
@@ -1438,10 +1438,10 @@ InitErgmTerm.esp<-function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.gwb1degree<-function(nw, arglist,  ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,                     
-                      varnames = c("decay", "fixed", "attrname","cutoff"),
-                      vartypes = c("numeric", "logical", "character","numeric"),
-                      defaultvalues = list(NULL, FALSE, NULL, 30),
-                      required = c(FALSE, FALSE, FALSE, FALSE))
+                      varnames = c("decay", "fixed", "attrname","cutoff", "Ls"),
+                      vartypes = c("numeric", "logical", "character","numeric", "formula,list"),
+                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname;fixed<-a$fixed
   cutoff<-a$cutoff
   nb1 <- get.network.attribute(nw,"bipartite")
@@ -1468,9 +1468,9 @@ InitErgmTerm.gwb1degree<-function(nw, arglist,  ...) {
                   {i-1}*(1+i-exp(-x[2])))
             )
     }
-    list(name="b1degree", coef.names=paste("gwb1degree#",d,sep=""),
-         inputs=c(d), params=list(gwb1degree=NULL,gwb1degree.decay=decay),
-         map=map, gradient=gradient, conflicts.constraints="b1degreedist")
+    c(.process_layers_degree(nw, a, name="b1degree", coef.names=paste("gwb1degree#",d,sep=""), inputs=c(d)),
+      params=list(gwb1degree=NULL,gwb1degree.decay=decay),
+      map=map, gradient=gradient, conflicts.constraints="b1degreedist")
   } else {
     if(is.null(a$decay)) stop("Term 'gwb1degree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -1495,7 +1495,7 @@ InitErgmTerm.gwb1degree<-function(nw, arglist,  ...) {
       coef.names <- paste("gwb1deg.fixed.",decay,sep="")
       inputs <- c(decay)
     }
-    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, conflicts.constraints="b1degreedist")
+    c(.process_layers_degree(nw, a, name=name, coef.names=coef.names, inputs=inputs), conflicts.constraints="b1degreedist")
   }
 }
 
@@ -1504,10 +1504,10 @@ InitErgmTerm.gwb1degree<-function(nw, arglist,  ...) {
 ################################################################################
 InitErgmTerm.gwb2degree<-function(nw, arglist,  ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                      varnames = c("decay", "fixed", "attrname","cutoff"),
-                      vartypes = c("numeric", "logical", "character", "numeric"),
-                      defaultvalues = list(NULL, FALSE, NULL, 30),
-                      required = c(FALSE, FALSE, FALSE, FALSE))
+                      varnames = c("decay", "fixed", "attrname","cutoff", "Ls"),
+                      vartypes = c("numeric", "logical", "character", "numeric", "formula,list"),
+                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname;fixed<-a$fixed
   cutoff<-a$cutoff
   nb1 <- get.network.attribute(nw,"bipartite")
@@ -1532,9 +1532,9 @@ InitErgmTerm.gwb2degree<-function(nw, arglist,  ...) {
                   {i-1}*(1+i-exp(-x[2])))
             )
     }
-    list(name="b2degree", coef.names=paste("gwb2degree#",d,sep=""),
-         inputs=c(d), params=list(gwb2degree=NULL,gwb2degree.decay=decay),
-         map=map, gradient=gradient, conflicts.constraints="b2degreedist")
+    c(.process_layers_degree(nw, a, name="b2degree", coef.names=paste("gwb2degree#",d,sep=""), inputs=c(d)),
+      params=list(gwb2degree=NULL,gwb2degree.decay=decay),
+      map=map, gradient=gradient, conflicts.constraints="b2degreedist")
   } else { 
     if(is.null(a$decay)) stop("Term 'gwb2degree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -1559,7 +1559,7 @@ InitErgmTerm.gwb2degree<-function(nw, arglist,  ...) {
       coef.names <- paste("gwb2deg.fixed.",decay,sep="")
       inputs <- c(decay)
     }
-    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, conflicts.constraints="b2degreedist")
+    c(.process_layers_degree(nw, a, name=name, coef.names=coef.names, inputs=inputs), conflicts.constraints="b2degreedist")
   }
 }
 
@@ -1595,9 +1595,10 @@ InitErgmTerm.gwdegree<-function(nw, arglist, ...) {
             x[1]*(exp(x[2])-(1-exp(-x[2]))^{i-1}*(1+i-exp(-x[2])))
            )
     }
-    list(name="degree", coef.names=paste("gwdegree#",d,sep=""), 
-         inputs=c(d), params=list(gwdegree=NULL,gwdegree.decay=decay),
-         map=map, gradient=gradient, conflicts.constraints="degreedist")
+    
+    c(.process_layers_degree(nw, a, name="degree", coef.names=paste("gwdegree#",d,sep=""), inputs=c(d)),
+      params=list(gwdegree=NULL,gwdegree.decay=decay),
+      map=map, gradient=gradient, conflicts.constraints="degreedist")
   } else {
     if(is.null(a$decay)) stop("Term 'gwdegree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -1621,7 +1622,7 @@ InitErgmTerm.gwdegree<-function(nw, arglist, ...) {
       coef.names <- paste("gwdeg.fixed.",decay,sep="")
       inputs <- c(decay)
     }
-    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, conflicts.constraints="degreedist")
+    c(.process_layers_degree(nw, a, name=name, coef.names=coef.names, inputs=inputs), conflicts.constraints="degreedist")
   }
 }
 
@@ -1729,10 +1730,10 @@ InitErgmTerm.gwesp<-function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.gwidegree<-function(nw, arglist,  ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("decay", "fixed", "attrname","cutoff"),
-                      vartypes = c("numeric", "logical", "character","numeric"),
-                      defaultvalues = list(NULL, FALSE, NULL, 30),
-                      required = c(FALSE, FALSE, FALSE, FALSE))
+                      varnames = c("decay", "fixed", "attrname","cutoff", "Ls"),
+                      vartypes = c("numeric", "logical", "character","numeric", "formula,list"),
+                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   cutoff<-a$cutoff
 # d <- 1:(network.size(nw)-1)
@@ -1757,9 +1758,9 @@ InitErgmTerm.gwidegree<-function(nw, arglist,  ...) {
             x[1]*(exp(x[2])-(1-exp(-x[2]))^{i-1}*(1+i-exp(-x[2])))
            )
     }
-    list(name="idegree", coef.names=paste("gwidegree#",d,sep=""), 
-         inputs=c(d), params=list(gwidegree=NULL,gwidegree.decay=decay),
-         map=map, gradient=gradient, conflicts.constraints="idegreedist")
+    c(.process_layers_degree(nw, a, name="idegree", coef.names=paste("gwidegree#",d,sep=""), inputs=c(d)),
+      params=list(gwidegree=NULL,gwidegree.decay=decay),
+      map=map, gradient=gradient, conflicts.constraints="idegreedist")
   } else { 
     if(is.null(a$decay)) stop("Term 'gwidegree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -1783,7 +1784,7 @@ InitErgmTerm.gwidegree<-function(nw, arglist,  ...) {
       coef.names <- paste("gwideg.fixed.",decay,sep="")
       inputs <- c(decay)
     }
-    list(name=name, coef.names=coef.names, inputs=inputs, conflicts.constraints="idegreedist")
+    c(.process_layers_degree(nw, a, name=name, coef.names=coef.names, inputs=inputs), conflicts.constraints="idegreedist")
   }
 }
 
@@ -1839,10 +1840,10 @@ InitErgmTerm.gwnsp<-function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.gwodegree<-function(nw, arglist,  ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("decay", "fixed", "attrname","cutoff"),
-                      vartypes = c("numeric", "logical", "character","numeric"),
-                      defaultvalues = list(NULL, FALSE, NULL, 30),
-                      required = c(FALSE, FALSE, FALSE, FALSE))
+                      varnames = c("decay", "fixed", "attrname","cutoff", "Ls"),
+                      vartypes = c("numeric", "logical", "character","numeric", "formula,list"),
+                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   cutoff<-a$cutoff
 # d <- 1:(network.size(nw)-1)
@@ -1867,9 +1868,9 @@ InitErgmTerm.gwodegree<-function(nw, arglist,  ...) {
             x[1]*(exp(x[2])-(1-exp(-x[2]))^{i-1}*(1+i-exp(-x[2])))
            )
     }
-    list(name="odegree", coef.names=paste("gwodegree#",d,sep=""),
-         inputs=c(d), params=list(gwodegree=NULL,gwodegree.decay=decay),
-         map=map, gradient=gradient, conflicts.constraints="odegreedist")
+    c(.process_layers_degree(nw, a, name="odegree", coef.names=paste("gwodegree#",d,sep=""), inputs=c(d)),
+      params=list(gwodegree=NULL,gwodegree.decay=decay),
+      map=map, gradient=gradient, conflicts.constraints="odegreedist")
   } else {
     if(is.null(a$decay)) stop("Term 'gwodegree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -1893,7 +1894,7 @@ InitErgmTerm.gwodegree<-function(nw, arglist,  ...) {
       coef.names <- paste("gwodeg.fixed.",decay,sep="")
       inputs <- c(decay)
     }
-    list(name=name, coef.names=coef.names, inputs=inputs, conflicts.constraints="odegreedist")
+    c(.process_layers_degree(nw, a, name=name, coef.names=coef.names, inputs=inputs), conflicts.constraints="odegreedist")
   }
 }
 

@@ -1165,7 +1165,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     }
   
   
-    \item{\code{gwb1degree(decay, fixed=FALSE, cutoff=30)}  (binary)  (bipartite)  (undirected) (curved)}{\emph{Geometrically weighted
+    \item{\code{gwb1degree(decay, fixed=FALSE, cutoff=30, Ls=NULL)}  (binary)  (bipartite)  (undirected) (curved)}{\emph{Geometrically weighted
     degree distribution for the first mode in a bipartite (aka two-mode)
     network:} 
     This term adds one network statistic to the model equal to the weighted
@@ -1183,9 +1183,14 @@ of the degrees of all pairs of nodes in the network which are tied.
     number of terms in computing the statistics to reduce the computational
     burden.
     This term can only be used with undirected bipartite
-    networks.}
+    networks.
+
+    If a list of layer specifications is given, degree of a node
+    \code{i} is considered to be the number of edges in all layers,
+    combined.
+  }
     
-    \item{\code{gwb2degree(decay, fixed=FALSE, cutoff=30)}  (binary)  (bipartite)  (undirected) (curved)}{\emph{Geometrically weighted
+    \item{\code{gwb2degree(decay, fixed=FALSE, cutoff=30, Ls=NULL)}  (binary)  (bipartite)  (undirected) (curved)}{\emph{Geometrically weighted
     degree distribution for the second mode in a bipartite (aka two-mode)
     network:} 
     This term adds one network statistic to the model equal to the weighted
@@ -1203,7 +1208,12 @@ of the degrees of all pairs of nodes in the network which are tied.
     number of terms in computing the statistics to reduce the computational
     burden.
     This term can only be used with undirected bipartite
-    networks.}
+    networks.
+
+    If a list of layer specifications is given, degree of a node
+    \code{i} is considered to be the number of edges in all layers,
+    combined.
+  }
     
     \item{\code{gwdegree(decay, fixed=FALSE, cutoff=30)}  (binary)  (undirected)  (curved) (frequently-used)
     }{\emph{Geometrically weighted
@@ -1218,7 +1228,12 @@ of the degrees of all pairs of nodes in the network which are tied.
     The optional argument \code{cutoff}
     is only relevant if \code{fixed=FALSE}. In that case it only uses this 
     number of terms in computing the statistics to reduce the computational
-    burden.    This term can only be used with undirected networks.}
+    burden.    This term can only be used with undirected networks.
+
+    If a list of layer specifications is given, degree of a node
+    \code{i} is considered to be the number of edges in all layers,
+    combined.
+}
 
     \item{\code{gwdsp(decay, fixed=FALSE, cutoff=30)}  (binary)  (directed)  (undirected)  (curved)}{\emph{Geometrically weighted
     dyadwise shared partner distribution:} 
@@ -1263,7 +1278,12 @@ of the degrees of all pairs of nodes in the network which are tied.
     The optional argument \code{cutoff}
     is only relevant if \code{fixed=FALSE}. In that case it only uses this 
     number of terms in computing the statistics to reduce the computational
-    burden.}
+    burden.
+
+    If a list of layer specifications is given, degree of a node
+    \code{i} is considered to be the number of edges in all layers,
+    combined.
+  }
 
     \item{\code{gwnsp(decay, fixed=FALSE, cutoff=30)}  (binary)  (directed)  (undirected) (curved)}{\emph{Geometrically weighted
     nonedgewise shared partner distribution:} This term is just like
@@ -1295,7 +1315,12 @@ of the degrees of all pairs of nodes in the network which are tied.
     The optional argument \code{cutoff}
     is only relevant if \code{fixed=FALSE}. In that case it only uses this 
     number of terms in computing the statistics to reduce the computational
-    burden.}
+    burden.
+
+    If a list of layer specifications is given, degree of a node
+    \code{i} is considered to be the number of edges in all layers,
+    combined.
+  }
     
     \item{\code{hamming(x, cov, attrname=NULL)}  (binary)  (dyad-independent)  (directed)  (undirected)}{\emph{Hamming distance:} 
     This term adds one statistic to the model equal to the weighted or

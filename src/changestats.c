@@ -2522,6 +2522,33 @@ C_CHANGESTAT_FN(c_gwb1degree) {
 }
 
 /*****************
+ changestat: d_gwb1degree_ML_sum
+*****************/
+C_CHANGESTAT_FN(c_gwb1degree_ML_sum) { 
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+  double decay = *(inputs++);
+  double oneexpd = 1.0-exp(-decay);
+
+  unsigned int b1deg = 0;
+  int degchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *od=ML_OUT_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    degchange += ergm_LayerLogic(tail, head, ll, TRUE);
+    b1deg += od[lt];
+  }
+
+    
+  /* *** don't forget tail -> head */    
+  CHANGE_STAT[0] =
+    exp(decay) * ((1-pow(oneexpd,b1deg+degchange)) - (1-pow(oneexpd,b1deg)));
+}
+
+
+/*****************
  changestat: d_gwb1degree_by_attr
 *****************/
 C_CHANGESTAT_FN(c_gwb1degree_by_attr) { 
@@ -2554,6 +2581,39 @@ C_CHANGESTAT_FN(c_gwb1degree_by_attr) {
 }
 
 /*****************
+ changestat: d_gwb1degree_by_attr_ML_sum
+*****************/
+C_CHANGESTAT_FN(c_gwb1degree_by_attr_ML_sum) { 
+  /*The inputparams are assumed to be set up as follows:
+    The first value is the decay parameter (as in Hunter et al, JASA 200?)
+    The next sequence of values is the nodal attributes, coded as integers
+         from 1 through N_CHANGE_STATS
+  */
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+  double decay = *(inputs++);
+  double *attrs = inputs-1;
+  double oneexpd = 1.0-exp(-decay);
+
+  unsigned int b1deg = 0, headdeg = 0;
+  int degchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *od=ML_OUT_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    degchange += ergm_LayerLogic(tail, head, ll, TRUE);
+    b1deg += od[lt];
+  }
+
+    
+  /* *** don't forget tail -> head */    
+  CHANGE_STAT[(int)attrs[tail]] =
+    exp(decay) * ((1-pow(oneexpd,b1deg+degchange)) - (1-pow(oneexpd,b1deg)));
+}
+
+
+/*****************
  changestat: d_gwdegree
 *****************/
 C_CHANGESTAT_FN(c_gwdegree) { 
@@ -2575,6 +2635,35 @@ C_CHANGESTAT_FN(c_gwdegree) {
       
   CHANGE_STAT[0] = change;
   
+}
+
+/*****************
+ changestat: d_gwdegree_ML
+*****************/
+C_CHANGESTAT_FN(c_gwdegree_ML_sum) { 
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+  double decay = *(inputs++);
+  double oneexpd = 1.0-exp(-decay);
+
+  unsigned int taildeg = 0, headdeg = 0;
+  int degchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *id=ML_IN_DEG(ll), *od=ML_OUT_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    degchange += ergm_LayerLogic(tail, head, ll, TRUE);
+    taildeg += od[lt] + id[lt];
+    headdeg += od[lh] + id[lh];
+  }
+
+  /* *** don't forget tail -> head */    
+  CHANGE_STAT[0] =
+    exp(decay) * (
+		  ((1-pow(oneexpd,taildeg+degchange)) - (1-pow(oneexpd,taildeg))) +
+		  ((1-pow(oneexpd,headdeg+degchange)) - (1-pow(oneexpd,headdeg)))
+		  );
 }
 
 /*****************
@@ -2606,6 +2695,42 @@ C_CHANGESTAT_FN(c_gwdegree_by_attr) {
     headattr = INPUT_PARAM[head]; 
     CHANGE_STAT[headattr-1] += echange*(pow(oneexpd,(double)headd));
       
+}
+
+/*****************
+ changestat: d_gwdegree_by_attr
+*****************/
+C_CHANGESTAT_FN(c_gwdegree_by_attr_ML_sum) { 
+  /*The inputparams are assumed to be set up as follows:
+    The first value is the decay parameter (as in Hunter et al, JASA 200?)
+    The next sequence of values is the nodal attributes, coded as integers
+         from 1 through N_CHANGE_STATS
+  */
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+  double decay = *(inputs++);
+  double *attrs = inputs-1;
+  double oneexpd = 1.0-exp(-decay);
+
+  unsigned int taildeg = 0, headdeg = 0;
+  int degchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *id=ML_IN_DEG(ll), *od=ML_OUT_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    degchange += ergm_LayerLogic(tail, head, ll, TRUE);
+    taildeg += od[lt] + id[lt];
+    headdeg += od[lh] + id[lh];
+  }
+
+    
+  /* *** don't forget tail -> head */    
+  CHANGE_STAT[(int)attrs[tail]] =
+    exp(decay) * ((1-pow(oneexpd,taildeg+degchange)) - (1-pow(oneexpd,taildeg)));
+  
+  CHANGE_STAT[(int)attrs[head]] =
+    exp(decay) * ((1-pow(oneexpd,headdeg+degchange)) - (1-pow(oneexpd,headdeg)));
 }
 
 /*****************
@@ -2718,6 +2843,33 @@ C_CHANGESTAT_FN(c_gwb2degree) {
 }
 
 /*****************
+ changestat: d_gwb2degree_ML_sum
+*****************/
+C_CHANGESTAT_FN(c_gwb2degree_ML_sum) { 
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+  double decay = *(inputs++);
+  double oneexpd = 1.0-exp(-decay);
+
+  unsigned int b2deg = 0;
+  int degchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *id=ML_IN_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    degchange += ergm_LayerLogic(tail, head, ll, TRUE);
+    b2deg += id[lh];
+  }
+
+    
+  /* *** don't forget tail -> head */    
+  CHANGE_STAT[0] =
+        exp(decay) * ((1-pow(oneexpd,b2deg+degchange)) - (1-pow(oneexpd,b2deg)));
+}
+
+
+/*****************
  changestat: d_gwb2degree_by_attr
 *****************/
 C_CHANGESTAT_FN(c_gwb2degree_by_attr) { 
@@ -2747,6 +2899,39 @@ C_CHANGESTAT_FN(c_gwb2degree_by_attr) {
 /*  Rprintf("tail %d b2 %d b2deg %d b2attr %d echange %d\n",tail, b2, b2deg, b2attr, echange); */
     CHANGE_STAT[b2attr-1] += echange * pow(oneexpd,(double)b2deg);
 }
+
+/*****************
+ changestat: d_gwb2degree_by_attr_ML_sum
+*****************/
+C_CHANGESTAT_FN(c_gwb2degree_by_attr_ML_sum) { 
+  /*The inputparams are assumed to be set up as follows:
+    The first value is the decay parameter (as in Hunter et al, JASA 200?)
+    The next sequence of values is the nodal attributes, coded as integers
+         from 1 through N_CHANGE_STATS
+  */
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+  double decay = *(inputs++);
+  double *attrs = inputs-1;
+  double oneexpd = 1.0-exp(-decay);
+
+  unsigned int b2deg = 0;
+  int degchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *id=ML_IN_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    degchange += ergm_LayerLogic(tail, head, ll, TRUE);
+    b2deg += id[lh];
+  }
+
+    
+  /* *** don't forget tail -> head */    
+  CHANGE_STAT[(int)attrs[head]] =
+    exp(decay) * ((1-pow(oneexpd,b2deg+degchange)) - (1-pow(oneexpd,b2deg)));
+}
+
 
 /*****************
  changestat: d_gwesp
@@ -2838,6 +3023,33 @@ C_CHANGESTAT_FN(c_gwidegree) {
 }
 
 /*****************
+ changestat: d_gwidegree_ML_sum
+*****************/
+C_CHANGESTAT_FN(c_gwidegree_ML_sum) { 
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+  double decay = *(inputs++);
+  double oneexpd = 1.0-exp(-decay);
+
+  unsigned int headdeg = 0;
+  int degchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *id=ML_IN_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    degchange += ergm_LayerLogic(tail, head, ll, TRUE);
+    headdeg += id[lh];
+  }
+
+    
+  /* *** don't forget tail -> head */
+  CHANGE_STAT[0] =
+    exp(decay) * ((1-pow(oneexpd,headdeg+degchange)) - (1-pow(oneexpd,headdeg)));      
+}
+
+
+/*****************
  changestat: d_gwidegree_by_attr
 *****************/
 C_CHANGESTAT_FN(c_gwidegree_by_attr) { 
@@ -2859,6 +3071,38 @@ C_CHANGESTAT_FN(c_gwidegree_by_attr) {
     headd = IN_DEG[head] + (echange - 1)/2;
     headattr = INPUT_PARAM[head]; 
     CHANGE_STAT[headattr-1] += echange*(pow(oneexpd,(double)headd));      
+}
+
+/*****************
+ changestat: d_gwidegree_by_attr_ML_sum
+*****************/
+C_CHANGESTAT_FN(c_gwidegree_by_attr_ML_sum) { 
+  /*The inputparams are assumed to be set up as follows:
+    The first value is the decay parameter (as in Hunter et al, JASA 200?)
+    The next sequence of values is the nodal attributes, coded as integers
+         from 1 through N_CHANGE_STATS
+  */
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+  double decay = *(inputs++);
+  double *attrs = inputs-1;
+  double oneexpd = 1.0-exp(-decay);
+
+  unsigned int headdeg = 0;
+  int degchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *id=ML_IN_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    degchange += ergm_LayerLogic(tail, head, ll, TRUE);
+    headdeg += id[lh];
+  }
+
+    
+  /* *** don't forget tail -> head */    
+  CHANGE_STAT[(int)attrs[head]] =
+    exp(decay) * ((1-pow(oneexpd,headdeg+degchange)) - (1-pow(oneexpd,headdeg)));      
 }
 
 /*****************
@@ -3023,6 +3267,31 @@ C_CHANGESTAT_FN(c_gwodegree) {
 }
 
 /*****************
+ changestat: d_gwodegree_ML_sum
+*****************/
+C_CHANGESTAT_FN(c_gwodegree_ML_sum) { 
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+  double decay = *(inputs++);
+  double oneexpd = 1.0-exp(-decay);
+
+  unsigned int taildeg = 0;
+  int degchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *od=ML_OUT_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    degchange += ergm_LayerLogic(tail, head, ll, TRUE);
+    taildeg += od[lt];
+  }
+    
+  /* *** don't forget tail -> head */    
+  CHANGE_STAT[0] =
+    exp(decay) * ((1-pow(oneexpd,taildeg+degchange)) - (1-pow(oneexpd,taildeg)));      
+}
+
+/*****************
  changestat: d_gwodegree_by_attr
 *****************/
 C_CHANGESTAT_FN(c_gwodegree_by_attr) { 
@@ -3044,6 +3313,38 @@ C_CHANGESTAT_FN(c_gwodegree_by_attr) {
     taild = OUT_DEG[tail] + (echange - 1)/2;
     tailattr = INPUT_PARAM[tail]; 
     CHANGE_STAT[tailattr-1] += echange*(pow(oneexpd,(double)taild));      
+}
+
+/*****************
+ changestat: d_gwodegree_by_attr_ML_sum
+*****************/
+C_CHANGESTAT_FN(c_gwodegree_by_attr_ML_sum) { 
+  /*The inputparams are assumed to be set up as follows:
+    The first value is the decay parameter (as in Hunter et al, JASA 200?)
+    The next sequence of values is the nodal attributes, coded as integers
+         from 1 through N_CHANGE_STATS
+  */
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int nml = *(inputs++);
+  double decay = *(inputs++);
+  double *attrs = inputs-1;
+  double oneexpd = 1.0-exp(-decay);
+
+  unsigned int taildeg = 0, headdeg = 0;
+  int degchange = 0;
+
+  for(unsigned int ml=0; ml<nml; ml++){
+    GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+    Vertex *od=ML_OUT_DEG(ll);
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    degchange += ergm_LayerLogic(tail, head, ll, TRUE);
+    taildeg += od[lt];
+  }
+
+    
+  /* *** don't forget tail -> head */    
+  CHANGE_STAT[(int)attrs[tail]] =
+    exp(decay) * ((1-pow(oneexpd,taildeg+degchange)) - (1-pow(oneexpd,taildeg)));
 }
 
 /*****************
