@@ -284,7 +284,7 @@ network
 
   \subsection{Layer Logic}{
 
-    Each one-sided formula describes an observed layer \emph{or} some
+    Each formula's right-hand side describes an observed layer \emph{or} some
     \dQuote{logical} layer, whose ties are a function of corresponding
     ties in observed layers.
 
@@ -320,6 +320,12 @@ network
     c(~`1`,~(`2`&!`1`)))} produces the number of edges in layer 1 plus the
     number of edges in layer 2 but not in layer 1.
 
+    For these formulas, one can specify the layer's weight on its
+    left-handside. For example, \code{Layer(nw1,nw2)~L(~edges,
+    c(3~`1`,-1~(`2`&!`1`)))} will produce three times the number of
+    edges in layer 1, minus the number of edges in layer 2 but not in
+    layer 1.
+    
   }
 }
 

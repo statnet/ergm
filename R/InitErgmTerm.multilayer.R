@@ -1,3 +1,5 @@
+## TODO: LL-Constrained proposals.
+## TODO: Check that noncommutative LL operators work as intended.
 .unenv <- function(f){
   environment(f) <- NULL
   f
@@ -10,7 +12,7 @@
     name <- names(Llist)[l]
     L <- Llist[[l]]
     s <- switch(class(L),
-                formula = .despace(deparse(L[[2]])),
+                formula = .despace(deparse(if(length(L)==2) L[[2]] else L)),
                 character = L,
                 as.character(L))
     if(NVL(name,"")!="") s <- paste0(name,"=",s)
@@ -188,7 +190,7 @@ pack.LayerLogic_formula_as_double <- function(formula, namemap){
     coml[!is.na(coml)]
   }
   
-  com <- postfix(formula[[2]])
+  com <- postfix(formula[[length(formula)]])
   c(sum(com!=0), com)
 }
 
@@ -295,17 +297,24 @@ test_eval.LayerLogic <- function(commands, lv){
   stack
 }
 
-.all_layers_terms <- function(n){
-  lapply(seq_len(n), function(i) substitute(~i,list(i=as.name(i))))
+.all_layers_terms <- function(n, LHS=NULL){
+  if(is.null(LHS))
+    lapply(seq_len(n), function(i) as.formula(substitute(~i,list(i=as.name(i)))))
+  else
+    lapply(seq_len(n), function(i) as.formula(substitute(lhs~i,list(lhs=LHS, i=as.name(i)))))
 }
 
 .mk_.layer.net_auxform <- function(ll, nl){
-  if(is(ll, "formula")) ll <- list(ll)
-  # Replace . with all layers.
-  trmcalls <- do.call(c, lapply(ll, function(f) if(f==~.) .all_layers_terms(nl) else list(f)))
+  trmcalls <- .layers_expand_dot(ll, nl)
   # Get the formula as a list of term calls.
   trmcalls <- lapply(trmcalls, function(ltrm) call(".layer.net", ltrm))
   append.rhs.formula(~.,trmcalls)[-2]
+}
+
+.layers_expand_dot <- function(ll, nl){
+  if(is(ll, "formula")) ll <- list(ll)
+  # Replace . with all layers.
+  do.call(c, lapply(ll, function(f) if(f[[length(f)]]=='.') .all_layers_terms(nl, LHS = if(length(f)==3) f[[2]]) else list(as.formula(f))))
 }
 
 InitErgmTerm.L <- function(nw, arglist, response=NULL, ...){
@@ -320,9 +329,17 @@ InitErgmTerm.L <- function(nw, arglist, response=NULL, ...){
   nwnames <- names(nwl)
 
   Ls <- a$Ls
+  if(is(Ls, "formula")) Ls <- list(Ls)
+  Ls.dotexp <- .layers_expand_dot(Ls, length(nwl))
+  
+
   auxiliaries <- .mk_.layer.net_auxform(Ls, length(nwl))  
   nltrms <- length(term.list.formula(auxiliaries[[2]]))
 
+  w <- rep(1,nltrms)
+  have.LHS <- sapply(Ls.dotexp, length)==3
+  w[have.LHS] <- as.numeric(sapply(lapply(Ls.dotexp[have.LHS], "[[", 2), eval,environment(Ls[[1]])))
+  
   nw1 <- nwl[[1]]
   
   if(length(f)==2) f <- nonsimp.update.formula(f, nw1~.)
@@ -336,7 +353,7 @@ InitErgmTerm.L <- function(nw, arglist, response=NULL, ...){
   Clist <- ergm.Cprepare(nw1, m, response=response)
   inputs <- pack.Clist_as_num(Clist)
   
-  inputs <- c(nltrms, inputs)
+  inputs <- c(nltrms, w, inputs)
 
   gs <- ergm.emptynwstats.model(m) * nltrms
   
@@ -482,4 +499,3 @@ InitErgmTerm.gwldegree<-function(nw, arglist,  ...) {
     c(.process_layers_degree(nw, a, name=name, coef.names=coef.names, inputs=inputs), conflicts.constraints="degreedist")
   }
 }
-

@@ -89,12 +89,12 @@ F_CHANGESTAT_FN(f__layer_net){
 I_CHANGESTAT_FN(i_OnLayer){
   
   unsigned int nml = *INPUT_ATTRIB; // Number of layers *in the term*. Already shifted past the auxiliaries.
-  
+
   ALLOC_STORAGE(nml, Model*, ms);
 
   for(unsigned int ml=0; ml<nml; ml++){
     GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
-    double *inputs = INPUT_ATTRIB+1; // Rewind to the start of model spec.
+    double *inputs = INPUT_ATTRIB+nml+1; // Rewind to the start of model spec.
     ms[ml] = unpack_Model_as_double(&inputs);
     InitStats(ll->onwp, ms[ml]);
   }
@@ -103,6 +103,7 @@ I_CHANGESTAT_FN(i_OnLayer){
 C_CHANGESTAT_FN(c_OnLayer){
   GET_STORAGE(Model*, ms);
   unsigned int nml = *INPUT_ATTRIB;
+  double *w = INPUT_ATTRIB+1;
 
   // Find the affected models.
   for(unsigned int ml=0; ml < nml; ml++){
@@ -111,7 +112,7 @@ C_CHANGESTAT_FN(c_OnLayer){
       Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
       ChangeStats(1, &lt, &lh, ll->onwp, ms[ml]);
       for(unsigned int i=0; i<N_CHANGE_STATS; i++)
-	CHANGE_STAT[i] += ms[ml]->workspace[i];
+	CHANGE_STAT[i] += ms[ml]->workspace[i] * w[ml];
     }
   }
 }
