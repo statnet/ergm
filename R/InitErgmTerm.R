@@ -2367,10 +2367,10 @@ InitErgmTerm.meandeg<-function(nw, arglist, ...) {
 InitErgmTerm.mutual<-function (nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
-                      varnames = c("same", "by", "diff", "keep", "L1", "L2"),
-                      vartypes = c("character", "character", "logical", "numeric", "formula", "formula"),
-                      defaultvalues = list(NULL, NULL, FALSE, NULL, NULL, NULL),
-                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE))
+                      varnames = c("same", "by", "diff", "keep", "Ls"),
+                      vartypes = c("character", "character", "logical", "numeric", "formula,list"),
+                      defaultvalues = list(NULL, NULL, FALSE, NULL, NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
   ### Process the arguments
   if (!is.null(a$same) || !is.null(a$by)) {
     if (!is.null(a$same)) {
@@ -2419,9 +2419,10 @@ InitErgmTerm.mutual<-function (nw, arglist, ...) {
   }
 
   maxval <- network.dyadcount(nw,FALSE)/2
-  
-  L1 <- a$L1
-  L2 <- a$L2
+
+  if(is(a$Ls,"formula")) a$Ls <- list(a$Ls)
+  L1 <- a$Ls[[1]]
+  L2 <- a$Ls[[2]]
   if(!is.null(L1) || !is.null(L2)){
     NVL(L1) <- L2
     NVL(L2) <- L1

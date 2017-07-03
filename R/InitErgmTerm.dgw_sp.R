@@ -121,9 +121,10 @@
 
 .sp.handle_layers <- function(nw, a, type, has_base){
   out <- list()
-  
-  L.path1 <- a$L.path1
-  L.path2 <- a$L.path2
+
+  if(is(a$Ls.path,"formula")) a$Ls.path <- list(a$Ls.path)
+  L.path1 <- a$Ls.path[[1]]
+  L.path2 <- a$Ls.path[[2]]
   L.base <- a$L.base
 
   if(is.null(L.path1) && is.null(L.path2) && is.null(L.base)) return(out)
@@ -154,7 +155,7 @@
   }
   
   out$any_order <- if(type=="UTP" || (type%in%c("OSP","ISP") && !has_base)) TRUE else !a$L.in_order
-  out$coef.names_prefix <- paste0(.lspec_coef.names(list(pth1=L.path1,pth2=L.path2,bse=if(has_base) L.base,inord=a$L.in_order)),":")
+  out$coef.names_prefix <- paste0(.lspec_coef.names(list(pth=c(NVL(L.path1,if(L.path2!=L.path1)L.path2)),bse=if(has_base) L.base,inord=a$L.in_order)),":")
   out$name_suffix <- "_ML"
   out$nw1 <- .split_constr_network(nw, ".LayerID", ".LayerName")[[1]] # Needed for emptynwstats.
 
@@ -184,10 +185,10 @@
 #
 InitErgmTerm.desp<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("d","type","L.base","L.path1","L.path2","L.in_order"),
-                      vartypes = c("numeric","character","formula","formula","formula","logical"),
-                      defaultvalues = list(NULL,"OTP",NULL,NULL,NULL,FALSE),
-                      required = c(TRUE, FALSE,FALSE,FALSE,FALSE,FALSE))
+                      varnames = c("d","type","L.base","Ls.path","L.in_order"),
+                      vartypes = c("numeric","character","formula","formula,list","logical"),
+                      defaultvalues = list(NULL,"OTP",NULL,NULL,FALSE),
+                      required = c(TRUE, FALSE,FALSE,FALSE,FALSE))
   d<-a$d
   ld<-length(d)
   if(ld==0){return(NULL)}
@@ -235,10 +236,10 @@ InitErgmTerm.desp<-function(nw, arglist, ...) {
 #
 InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("decay","fixed","cutoff","type", "alpha","L.base","L.path1","L.path2","L.in_order"),
-                      vartypes = c("numeric","logical","numeric","character", "numeric","formula","formula","formula","logical"),
-                      defaultvalues = list(NULL, FALSE, 30,"OTP", NULL,NULL,NULL,NULL,FALSE),
-                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE,FALSE,FALSE,FALSE,FALSE))
+                      varnames = c("decay","fixed","cutoff","type", "alpha","L.base","Ls.path","L.in_order"),
+                      vartypes = c("numeric","logical","numeric","character", "numeric","formula","formula,list","logical"),
+                      defaultvalues = list(NULL, FALSE, 30,"OTP", NULL,NULL,NULL,FALSE),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE,FALSE,FALSE,FALSE))
   if(!is.null(a$alpha)){
     stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
   }
@@ -320,9 +321,9 @@ InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
 #
 InitErgmTerm.ddsp<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("d","type","L.path1","L.path2","L.in_order"),
-                      vartypes = c("numeric","character","formula","formula","logical"),
-                      defaultvalues = list(NULL,"OTP",NULL,NULL,FALSE),
+                      varnames = c("d","type","Ls.path","L.in_order"),
+                      vartypes = c("numeric","character","formula,list","logical"),
+                      defaultvalues = list(NULL,"OTP",NULL,FALSE),
                       required = c(TRUE, FALSE,FALSE,FALSE,FALSE))
   d<-a$d
   ld<-length(d)
@@ -371,9 +372,9 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
   #    ergm.checkdirected("gwdsp", is.directed(nw), requirement=FALSE)
   # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("decay","fixed","cutoff","type", "alpha","L.path1","L.path2","L.in_order"),
-                      vartypes = c("numeric","logical","numeric","character", "numeric","formula","formula","logical"),
-                      defaultvalues = list(NULL, FALSE, 30,"OTP", NULL,NULL,NULL,FALSE),
+                      varnames = c("decay","fixed","cutoff","type", "alpha","Ls.path","L.in_order"),
+                      vartypes = c("numeric","logical","numeric","character", "numeric","formula,list","logical"),
+                      defaultvalues = list(NULL, FALSE, 30,"OTP", NULL,NULL,FALSE),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE,FALSE,FALSE,FALSE))
   if(!is.null(a$alpha)){
     stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
@@ -460,10 +461,10 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
 #
 InitErgmTerm.dnsp<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("d","type","L.base","L.path1","L.path2","L.in_order"),
-                      vartypes = c("numeric","character","formula","formula","formula","logical"),
-                      defaultvalues = list(NULL,"OTP",NULL,NULL,NULL,FALSE),
-                      required = c(TRUE, FALSE,FALSE,FALSE,FALSE,FALSE))
+                      varnames = c("d","type","L.base","Ls.path","L.in_order"),
+                      vartypes = c("numeric","character","formula","formula,list","logical"),
+                      defaultvalues = list(NULL,"OTP",NULL,NULL,FALSE),
+                      required = c(TRUE, FALSE,FALSE,FALSE,FALSE))
   d<-a$d
   ld<-length(d)
   if(ld==0){return(NULL)}
@@ -508,10 +509,10 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, ...) {
   #    ergm.checkdirected("gwnsp", is.directed(nw), requirement=FALSE)
   # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("decay","fixed","cutoff","type", "alpha","L.base","L.path1","L.path2","L.in_order"),
-                      vartypes = c("numeric","logical","numeric","character", "numeric","formula","formula","formula","logical"),
-                      defaultvalues = list(NULL, FALSE, 30,"OTP", NULL,NULL,NULL,NULL,FALSE),
-                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE,FALSE,FALSE,FALSE,FALSE))
+                      varnames = c("decay","fixed","cutoff","type", "alpha","L.base","Ls.path","L.in_order"),
+                      vartypes = c("numeric","logical","numeric","character", "numeric","formula","formula,list","logical"),
+                      defaultvalues = list(NULL, FALSE, 30,"OTP", NULL,NULL,NULL,FALSE),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE,FALSE,FALSE,FALSE))
   if(!is.null(a$alpha)){
     stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
   }
