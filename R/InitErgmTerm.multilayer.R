@@ -68,8 +68,10 @@ Layer <- function(...){
       lapply(args[[2]], function(eattr){
         nw <- args[[1]]
         el <- as.edgelist(nw, eattr)
+        nael <- as.edgelist(is.na(nw))
         nw[,]<-0
         nw[el[,-3]] <- el[,3]
+        nw[nael] <- NA
         nw
       })
     names(nwl) <- args[[2]]
@@ -173,7 +175,7 @@ pack.LayerLogic_formula_as_double <- function(formula, namemap){
     switch(class(l),
            numeric = c(0,l),
            character =,
-           name = if(regexpr('[0-9]+',l)!=-1) as.integer(as.character(l))
+           name = if(regexpr('^[0-9]+$',l)!=-1) as.integer(as.character(l))
                   else namemap[as.character(l)])
   }
   
