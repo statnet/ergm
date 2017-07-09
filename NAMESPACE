@@ -235,6 +235,7 @@ export(
   print.network.list,
   print.summary.ergm,              
   #prune.conlist,     # made internal
+  rank_test.ergm,
   remove.offset.formula,           
   robust.inverse, # deprecated
   rspartnerdist,         # deprecated    
