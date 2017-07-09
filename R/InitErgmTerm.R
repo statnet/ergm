@@ -130,11 +130,11 @@
 #=======================InitErgmTerm utility functions============================#
 
 GWDECAY <- list(
-  map <- function(x,n,...) {
+  map = function(x,n,...) {
     i <- 1:n
     x[1]*(exp(x[2])*(1-(1-exp(-x[2]))^i))
   },
-  gradient <- function(x,n,...) {
+  gradient = function(x,n,...) {
     i <- 1:n
     a <- 1-exp(-x[2])
     exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
