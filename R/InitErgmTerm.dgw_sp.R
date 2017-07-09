@@ -221,20 +221,11 @@ InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
     d <- 1:maxesp
     ld<-length(d)
     if(ld==0){return(NULL)}
-    map <- function(x,n,...){
-      i <- 1:n
-      x[1]*exp(x[2])*(1-(1-exp(-x[2]))^i)
-    }
-    gradient <- function(x,n,...){
-      i <- 1:n
-      a <- 1-exp(-x[2])
-      exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
-    }
     params<-list(gwesp=NULL,gwesp.decay=decay)
     names(params)<-c(basenam,paste(basenam,"decay",sep="."))
-    list(name=dname,
+    c(list(name=dname,
          coef.names=if(is.directed(nw)) paste("esp.",type,"#",d,sep="") else paste("esp#",d,sep=""), 
-         inputs=c(typecode,d), params=params, map=map, gradient=gradient)
+         inputs=c(typecode,d), params=params), GWDECAY)
   }else{
     if(is.null(a$decay)) stop("Term 'dgwesp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -352,23 +343,14 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
     d <- 1:maxesp
     ld<-length(d)
     if(ld==0){return(NULL)}
-    map <- function(x,n,...){
-      i <- 1:n
-      x[1]*exp(x[2])*(1-(1-exp(-x[2]))^i)
-    }
-    gradient <- function(x,n,...){
-      i <- 1:n
-      a <- 1-exp(-x[2])
-      exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
-    }
     
     params<-list(gwdsp=NULL,gwdsp.decay=decay)
     names(params)<-c(basenam,paste(basenam,"decay",sep="."))
     
-    list(name=dname,
+    c(list(name=dname,
          coef.names=if(is.directed(nw)) paste("dsp.",type,"#",d,sep="") else paste("dsp#",d,sep=""), 
-         inputs=c(typecode,d), params=params,
-         map=map, gradient=gradient)
+         inputs=c(typecode,d), params=params),
+      GWDECAY)
   }else{
     if(is.null(a$decay)) stop("Term 'dgwdsp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -483,24 +465,14 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, ...) {
     d <- 1:maxesp
     ld<-length(d)
     if(ld==0){return(NULL)}
-    map <- function(x,n,...){
-      i <- 1:n
-      x[1]*exp(x[2])*(1-(1-exp(-x[2]))^i)
-    }
-    gradient <- function(x,n,...){
-      i <- 1:n
-      a <- 1-exp(-x[2])
-      exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
-    }
     
     params<-list(gwnsp=NULL,gwnsp.decay=decay)
     names(params)<-c(basenam,paste(basenam,"decay",sep="."))
     
-    list(name=dname,
+    c(list(name=dname,
          coef.names=if(is.directed(nw)) paste("nsp.",type,"#",d,sep="") else paste("nsp#",d,sep=""), 
 
-         inputs=c(typecode,d), params=params,
-         map=map, gradient=gradient)
+         inputs=c(typecode,d), params=params),GWDECAY)
   }else{
     if(is.null(a$decay)) stop("Term 'dgwnsp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
