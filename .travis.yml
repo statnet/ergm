@@ -11,6 +11,8 @@ matrix:
     os: osx
 sudo: false
 cache: packages
+before_install:
+- tlmgr install
 r_github_packages:
 - statnet/statnet.common
 - statnet/network
