@@ -192,7 +192,7 @@ MCMCStatus CDStep(MHproposal *MHp,
 	  
 	case MH_CONSTRAINT:
 	  cumlr = MHp->logratio = -INFINITY; // Force rejection of proposal.
-	  break; // Do not attempt any more proposals in this multiplicity chain.
+	  goto REJECT;
 	}
       }
       
@@ -290,6 +290,7 @@ MCMCStatus CDStep(MHproposal *MHp,
       }
 
     }else{
+    REJECT:
       if(fVerbose>=5){
 	Rprintf("Rejected.\n");
       }
