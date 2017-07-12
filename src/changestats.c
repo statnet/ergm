@@ -4780,10 +4780,8 @@ C_CHANGESTAT_FN(c_transitive) {
 }
 
 C_CHANGESTAT_FN(c_transitiveties) { 
-  Edge e, f;
   int  echange, ochange;
   int L2th, L2tu, L2uh;
-  Vertex u, v;
   double cumchange;
   double tailattr;
   
@@ -4872,10 +4870,8 @@ C_CHANGESTAT_FN(c_transitiveties) {
 }
 
 C_CHANGESTAT_FN(c_cyclicalties) { 
-  Edge e, f;
   int  echange, ochange;
   int L2th, L2tu, L2uh;
-  Vertex u, v;
   double cumchange;
   double tailattr;
   
