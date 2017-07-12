@@ -25,11 +25,9 @@ L2hk - for each h<->k neq t: k<->t, count u such that k<->u<->t
 This function will only work properly with undirected graphs, and should only be called in that case.
 */
 static inline void dspUTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
-  Edge e, f;
   int j, echange;
   int L2tu, L2uh;
   Vertex deg;
-  Vertex u, v;
   
   memset(cs, 0, nd*sizeof(double));
   //Rprintf("dvec:\n");
@@ -81,11 +79,9 @@ Changescore for dsps based on outgoing two-paths, i.e. configurations for non-ed
 This function should only be used in the directed case
 */
 static inline void dspOTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
-  Edge e, f;
   int j, echange;
   int L2tk, L2kh; /*Two-path counts for t->h, t->k, and k->h edges*/
   Vertex deg;
-  Vertex k, u;
   
   //ZERO_ALL_CHANGESTATS
   memset(cs, 0, nd*sizeof(double));
@@ -140,11 +136,9 @@ L2kt - for each k->i neq j: j->k, count u such that i->u->k
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
 static inline void dspITP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
-  Edge e, f;
   int j, echange;
   int L2hk, L2kt; /*Two-path counts for t->h, h->k, and k->t edges*/
   Vertex deg;
-  Vertex k, u;
   
   //ZERO_ALL_CHANGESTATS
   memset(cs, 0, nd*sizeof(double));
@@ -195,11 +189,9 @@ L2kt - for each k->t neq h: k->h, count u such that t->u, k->u
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
 static inline void dspOSP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
-  Edge e, f;
   int j, echange;
   int L2tk; /*Two-path counts for t->h, t->k, and k->t edges*/
   Vertex deg;
-  Vertex k, u;
   
   //ZERO_ALL_CHANGESTATS
   memset(cs, 0, nd*sizeof(double));
@@ -238,11 +230,9 @@ L2kh - for each k->h neq t: t->k, count u such that u->h, u->k
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
 static inline void dspISP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
-  Edge e, f;
   int j, echange;
   int L2kh; /*Two-path counts for t->h, h->k, and k->h edges*/
   Vertex deg;
-  Vertex k, u;
   
   //ZERO_ALL_CHANGESTATS
   memset(cs, 0, nd*sizeof(double));
@@ -281,11 +271,9 @@ L2hk - for each h->k neq t: h->t,k<->t, count u such that k<->u<->h
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
 static inline void dspRTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
-  Edge e, f;
   int j, echange, htedge;
   int L2th,L2tk,L2kt,L2hk,L2kh; /*Two-path counts for various edges*/
   Vertex deg;
-  Vertex k, u;
   
   memset(cs, 0, nd*sizeof(double));
     L2th=0;
@@ -490,11 +478,9 @@ L2hk - for each h<->k neq t: k<->t, count u such that k<->u<->t
 This function will only work properly with undirected graphs, and should only be called in that case.
 */
 static inline void espUTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
-  Edge e, f;
   int j, echange;
   int L2th, L2tu, L2uh;
   Vertex deg;
-  Vertex u, v;
   
   memset(cs, 0, nd*sizeof(double));
   //Rprintf("dvec:\n");
@@ -546,11 +532,9 @@ L2kh - for each k->j neq i: k->i, count u such that k->u->j
 This function should only be used in the directed case, with espUTP being used in the undirected case.
 */
 static inline void espOTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
-  Edge e, f;
   int j, echange;
   int L2th, L2tk, L2kh; /*Two-path counts for t->h, t->k, and k->h edges*/
   Vertex deg;
-  Vertex k, u;
   
   //Rprintf("Clearing changestats\n");
   memset(cs, 0, nd*sizeof(double));
@@ -621,11 +605,9 @@ L2kt - for each k->i neq j: j->k, count u such that i->u->k
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
 static inline void espITP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
-  Edge e, f;
   int j, echange;
   int L2th, L2hk, L2kt; /*Two-path counts for t->h, h->k, and k->t edges*/
   Vertex deg;
-  Vertex k, u;
   
   //Rprintf("Clearing changestats\n");
   memset(cs, 0, nd*sizeof(double));
@@ -694,11 +676,9 @@ L2kt - for each k->t neq h: k->h, count u such that t->u, k->u
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
 static inline void espOSP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
-  Edge e, f;
   int j, echange;
   int L2th, L2tk, L2kt; /*Two-path counts for t->h, t->k, and k->t edges*/
   Vertex deg;
-  Vertex k, u;
   
   memset(cs, 0, nd*sizeof(double));
     L2th=0;
@@ -758,11 +738,9 @@ L2kh - for each k->h neq t: t->k, count u such that u->h, u->k
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
 static inline void espISP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
-  Edge e, f;
   int j, echange;
   int L2th, L2hk, L2kh; /*Two-path counts for t->h, h->k, and k->h edges*/
   Vertex deg;
-  Vertex k, u;
   
   memset(cs, 0, nd*sizeof(double));
     L2th=0;
@@ -824,11 +802,9 @@ L2hk - for each h->k neq t: h->t,k<->t, count u such that k<->u<->h
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
 static inline void espRTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
-  Edge e, f;
   int j, echange, htedge;
   int L2th,L2tk,L2kt,L2hk,L2kh; /*Two-path counts for various edges*/
   Vertex deg;
-  Vertex k, u;
   
   memset(cs, 0, nd*sizeof(double));
  
