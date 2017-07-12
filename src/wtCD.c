@@ -190,7 +190,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 	  continue;
 	  
 	case MH_CONSTRAINT:
-	  MHp->logratio = -INFINITY; // Force rejection of proposal.
+	  cumlr = MHp->logratio = -INFINITY; // Force rejection of proposal.
 	  break; // Do not attempt any more proposals in this multiplicity chain.
 	}
       }
