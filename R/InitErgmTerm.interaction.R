@@ -39,6 +39,8 @@
 ## grab the actual names or calls being passed.
 `InitErgmTerm.*` <- function(nw, arglist, response=NULL, ...){
   arglist <- substitute(arglist)
+  e1 <- arglist[[2]]
+  e2 <- arglist[[3]]
 
   e1 <- term.list.formula(e1)
   e2 <- term.list.formula(e2)
