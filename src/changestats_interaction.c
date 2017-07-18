@@ -16,14 +16,15 @@ I_CHANGESTAT_FN(i_interact){
 C_CHANGESTAT_FN(c_interact){
   GET_STORAGE(StoreModelAnd2Stats, store);
   Model *m = store->m;
-  
+
+  int change = GETWT(tail, head) ? -1 : +1;
   ChangeStats(1, &tail, &head, nwp, m);
 
   double *w2 = m->workspace + store->n_stats_1;
   unsigned int pos = 0;
   for(unsigned int j=0; j<store->n_stats_2; j++){
     for(unsigned int i=0; i<store->n_stats_1; i++){
-      CHANGE_STAT[pos++] = m->workspace[i]*w2[j];
+      CHANGE_STAT[pos++] = m->workspace[i]*w2[j]*change;
     }
   }
 }
@@ -59,6 +60,7 @@ C_CHANGESTAT_FN(c_main_interact){
   GET_STORAGE(StoreModelAnd2Stats, store);
   Model *m = store->m;
   
+  int change = GETWT(tail, head) ? -1 : +1;
   ChangeStats(1, &tail, &head, nwp, m);
 
   double *w2 = m->workspace + store->n_stats_1;
@@ -72,7 +74,7 @@ C_CHANGESTAT_FN(c_main_interact){
   }
   for(unsigned int j=0; j<store->n_stats_2; j++){
     for(unsigned int i=0; i<store->n_stats_1; i++){
-      CHANGE_STAT[pos++] = m->workspace[i]*w2[j];
+      CHANGE_STAT[pos++] = m->workspace[i]*w2[j] * change;
     }
   }
 }
