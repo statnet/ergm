@@ -158,9 +158,8 @@ ergm <- function(formula, response=NULL,
     }
     
     # no need to pass the offset term's init to SAN
-    offset.terms <- offset.info.formula(formula)$term
     san.control <- control$SAN.control
-    san.control$coef <- san.control$coef[!offset.terms]
+    san.control$coef <- san.control$coef[!model$etamap$offsettheta]
     
     if(verbose) cat("Constructing an approximate response network.\n")
     ## If target.stats are given, overwrite the given network and formula
