@@ -1,12 +1,3 @@
-/*  File inst/include/ergm_stubs.c in package ergm, part of the Statnet suite
- *  of packages for network analysis, http://statnet.org .
- *
- *  This software is distributed under the GPL-3 license.  It is free,
- *  open source, and has the attribution requirements (GPL Section 7) at
- *  http://statnet.org/attribution
- *
- *  Copyright 2003-2017 Statnet Commons
- */
 #include "R_ext/Rdynload.h"
 #include "changestat.h"
 double my_choose(double n, int r){
@@ -439,73 +430,6 @@ fun(ntoggles,toggletail,togglehead,nwp,m);
 #undef S_CHANGESTAT_FN
 #undef D_FROM_S
 #undef D_FROM_S_FN
-#undef INPUT_ATTRIB
-#include "R_ext/Rdynload.h"
-#include "wtchangestat.h"
-#undef MIN
-#undef MAX
-#undef DYADCOUNT
-#undef GetRandDyad
-#undef CHOOSE
-#undef XOR
-#undef XNOR
-#undef IS_OUTEDGE
-#undef IS_INEDGE
-#undef IS_UNDIRECTED_EDGE
-#undef OUTVAL
-#undef INVAL
-#undef OUTWT
-#undef INWT
-#undef MIN_OUTEDGE
-#undef MIN_INEDGE
-#undef NEXT_OUTEDGE
-#undef NEXT_INEDGE
-#undef STEP_THROUGH_OUTEDGES
-#undef STEP_THROUGH_INEDGES
-#undef STEP_THROUGH_OUTEDGES_DECL
-#undef STEP_THROUGH_INEDGES_DECL
-#undef EXEC_THROUGH_OUTEDGES
-#undef EXEC_THROUGH_INEDGES
-#undef EXEC_THROUGH_EDGES
-#undef EXEC_THROUGH_FOUTEDGES
-#undef EXEC_THROUGH_FINEDGES
-#undef GETWT
-#undef SETWT
-#undef N_NODES
-#undef N_DYADS
-#undef OUT_DEG
-#undef IN_DEG
-#undef DIRECTED
-#undef N_EDGES
-#undef BIPARTITE
-#undef NEXT_INEDGE_NUM
-#undef NEXT_OUTEDGE_NUM
-#undef CHANGE_STAT
-#undef N_CHANGE_STATS
-#undef INPUT_PARAM
-#undef N_INPUT_PARAMS
-#undef TOGGLEIND
-#undef ZERO_ALL_CHANGESTATS
-#undef FOR_EACH_TOGGLE
-#undef TAIL
-#undef HEAD
-#undef NEWWT
-#undef OLDWT
-#undef GETOLDTOGGLEINFO
-#undef GETTOGGLEINFO
-#undef SETWT_WITH_BACKUP
-#undef UNDO_SETWT
-#undef SETWT_IF_MORE_TO_COME
-#undef UNDO_PREVIOUS_SETWTS
-#undef EXEC_THROUGH_TOGGLES
-#undef SAMEDYAD
-#undef GETOLDWT
-#undef GETNEWWT
-#undef GETNEWWTOLD
-#undef WtD_CHANGESTAT_FN
-#undef WtS_CHANGESTAT_FN
-#undef D_FROM_S
-#undef WtD_FROM_S_FN
 #undef INPUT_ATTRIB
 #include "R_ext/Rdynload.h"
 #include "wtedgetree.h"
