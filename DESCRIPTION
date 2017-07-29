@@ -13,9 +13,10 @@ Authors@R: c(
            person("Kirk","Li",role=c("ctb"),email="kirkli@uw.edu"),
 	   person("Skye", "Bender-deMoll", role=c("ctb"), email="skyebend@uw.edu"))
 Depends: statnet.common (>= 3.3), network (>= 1.13)
-Imports: robustbase (>= 0.9-10), coda (>= 0.18-1), trust, Matrix, lpSolve, parallel, methods, MASS
+Imports: robustbase (>= 0.9-10), coda (>= 0.18-1), trust, Matrix, lpSolve, parallel, methods, MASS, S4Vectors
 Suggests: lattice, latticeExtra, sna, latentnet, rmarkdown, ergm.userterms, tergm, Rmpi
 Description: An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGMs). 'ergm' is a part of the Statnet suite of packages for network analysis.
 License: GPL-3 + file LICENSE
 URL: http://statnet.org
 VignetteBuilder: rmarkdown
+biocView:
