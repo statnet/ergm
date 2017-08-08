@@ -208,5 +208,16 @@ InitMHP.fixallbutTNT <- function(arguments, nw){
 }
 
 
+InitMHP.RLE <- function(arguments, nw){
+  fdrle <- get.fdrle(arguments$constraints)
 
+  runlen <- cumsum(as.numeric(fdrle$lengths[fdrle$values==TRUE]))
+  nruns <- length(runlen)
+  ndyads <- runlen[nruns]
+  runstart <- cumsum(c(1,as.numeric(fdrle$lengths)))
+  runstart <- runstart[-length(runstart)]
+  runstart <- runstart[fdrle$values==TRUE]
+  nruns <- 
 
+  MHproposal <- list(name = "RLE", inputs=c(nruns, ndyads, runlen, runstart), pkgname="ergm")
+}

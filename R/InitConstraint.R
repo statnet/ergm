@@ -31,6 +31,38 @@
 #
 ##########################################################################################
 
+# Baseline constraint incorporating network attributes such as
+# directedness, bipartitedness, and self-loops.
+InitConstraint..attributes <- function(conlist, lhs.nw, ...){
+  conlist$.attributes<-list()
+
+  conlist$.attributes$free.dyads <- function(){
+    n <- network.size(lhs.nw)
+    ## NB: Free dyad RLE matrix is stored in a column-major order for
+    ## consistency with R.
+    d <- compact.rle(
+      if(has.loops(lhs.nw)) rep(rep(rle(TRUE),n,scale="run"),n,scale="run")
+      else do.call(c, lapply(seq_along(n), function(i) rep(rle(TRUE,FALSE,TRUE), c(i-1, 1, n-i),scale="run")))
+    )
+    
+    if(is.bipartite(lhs.nw)){
+      n1 <- lhs.nw%n%"bipartite"
+      n2 <- n - n1
+      
+      d <- d &
+        compact.rle(c(rep(rep(rle(c(FALSE)),n,scale="run"),n1,scale="run"),
+                      rep(rep(rle(c(TRUE,FALSE)),c(n1,n2),scale="run"),n2,scale="run")))
+    }
+    
+    if(!is.directed(lhs.nw)){
+      d <- d &
+        compact.rle(do.call(c, lapply(seq_along(n), function(i) rep(rle(TRUE,FALSE), c(i-1, n-i+1),scale="run"))))
+    }
+    
+    compact.rle(d)
+  }
+}
+
 InitConstraint.edges<-function(conlist, lhs.nw, ...){
    if(length(list(...)))
      stop(paste("Edge count constraint does not take arguments at this time."), call.=FALSE)
@@ -127,6 +159,27 @@ InitConstraint.hamming<-function(conlist, lhs.nw, ...){
 }
 #ergm.ConstraintImplications("hamming", c())
 
+.rle_dyad_matrix_from_el <- function(n, el, el_free){
+  ## NB: Free dyad RLE matrix is stored in a column-major order for
+  ## consistency with R.
+  
+  ils <- lapply(seq_len(n), function(j) fel[fel[,2]==j,1])
+  o <- lapply(ils, function(il){
+    # If el_free, construct an rle of the form c(FALSE, TRUE, FALSE,
+    # ..., FALSE, TRUE, FALSE); otherwise, construct its logical
+    # negation.
+    o <- rle(c(rep(c(!el_free,el_free), length(il)),!el_free))
+      
+    # Construct repetition counts: gaps between the is', as well as
+    # the gap before the first i and after the last i for that j,
+    # and interleave it with 1s.
+    lens <- c(rbind(diff(c(0,il,n+1))-1,1))
+    lens <- lens[-length(lens)]
+    rep(o, lens, scale='run')
+  })
+  # Concatenate the RLEs and compact.
+  compact_rle(do.call(c, o))  
+}
 
 InitConstraint.observed <- function(conlist, lhs.nw, ...){
   if(length(list(...)))
@@ -134,7 +187,7 @@ InitConstraint.observed <- function(conlist, lhs.nw, ...){
   conlist$observed<-list()
 
   conlist$observed$free.dyads <- function(){
-   standardize.network(is.na(lhs.nw))
+    .rle_dyad_matrix_from_el(network.size(lhs.nw), as.edgelist(is.na(lhs.nw)), TRUE)
   }
   conlist
 }
@@ -147,12 +200,13 @@ InitConstraint.blockdiag<-function(conlist, lhs.nw, attrname=NULL, ...){
   
   # This definition should "remember" attrname and lhs.nw.
   conlist$blockdiag$free.dyads <- function(){
+    n <- network.size(lhs.nw)
     a <- lhs.nw %v% attrname
-    el <- do.call(rbind,tapply(seq_along(a),INDEX=list(a),simplify=FALSE,FUN=function(i) do.call(rbind,lapply(i,function(j) cbind(j,i)))))
-    el <- el[el[,1]!=el[,2],]
-    el <- as.edgelist(el, n=network.size(lhs.nw), directed=is.directed(lhs.nw))
-    # standardize.network() not needed here, since el is already in standard order.
-    network.update(lhs.nw, el, matrix.type="edgelist")
+    a <- rle(a)
+    compact_rle(do.call(c,
+                        mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend))},
+                               a$lengths, cumsum(a$lengths), SIMPLIFY=FALSE)
+                        ))
   }
   
   conlist
@@ -179,18 +233,18 @@ InitConstraint.fixedas<-function(conlist, lhs.nw, present=NULL, absent=NULL,...)
 			stop("Argument 'absent' in fixedas constraint should be either a network or edgelist")
 		}
 	}
-	conlist$fixedas$free.dyads<-function(){ 
-	fixed <- rbind(present,absent)
-		if(any(duplicated(fixed))){
-			stop("Dyads cannot be fixed at both present and absent")
-		}
-		standardize.network(!network.update(lhs.nw,fixed, matrix.type = "edgelist"))
-	}
+	conlist$fixedas$free.dyads<-function(){
+          # FixedEdgeList
+          fixed <- rbind(present,absent)
+          if(any(duplicated(fixed))){
+            stop("Dyads cannot be fixed at both present and absent")
+          }
+
+          .rle_dyad_matrix_from_el(network.size(lhs.nw), fixed, FALSE)
+        }
+        
 	conlist
 }
-
-
-
 
 
 InitConstraint.fixallbut<-function(conlist, lhs.nw, free.dyads=NULL,...){
@@ -218,7 +272,7 @@ InitConstraint.fixallbut<-function(conlist, lhs.nw, free.dyads=NULL,...){
 #	
 #	
 	conlist$fixallbut$free.dyads<-function(){ 
-		standardize.network(network.update(lhs.nw,free.dyads, matrix.type = "edgelist"))
+          .rle_dyad_matrix_from_el(network.size(lhs.nw), free.dyads, TRUE)
 	}
 	conlist
 }

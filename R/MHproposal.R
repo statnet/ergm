@@ -162,7 +162,7 @@ mk.conlist <- function(object, nw){
   if(is.null(object)) return(NULL)
   ## Construct a list of constraints and arguments from the formula.
   conlist<-list()
-  constraints<-as.list(attr(terms(object,allowDotAsName=TRUE),"variables"))[-1]
+  constraints<-c(list(call(".attributes")),term.list.formula(object[[2]]))
   for(constraint in constraints){
     ## The . in the default formula means no constrains.
     ## There may be other constraints in the formula, however.

@@ -412,10 +412,10 @@ get.free.dyads <- function(constraints){
   y <- NULL
   for(con in constraints){
     if(!is.null(con$free.dyads)){
-      y <- if(is.null(y)) standardize.network(con$free.dyads(),FALSE) else y & standardize.network(con$free.dyads(),FALSE)
+      y <- if(is.null(y)) con$free.dyads() else y & con$free.dyads()
     }
   }
-  y
+  compact.rle(y)
 }
 
 get.miss.dyads <- function(constraints, constraints.obs){
@@ -428,9 +428,14 @@ get.miss.dyads <- function(constraints, constraints.obs){
     if(is.null(free.dyads.obs)) NULL
     else free.dyads.obs
   }else{
-    if(is.null(free.dyads.obs)) standardize.network(!free.dyads,FALSE)
-    else standardize.network(!free.dyads,FALSE) | free.dyads.obs
+    if(is.null(free.dyads.obs)) !free.dyads
+    else (!free.dyads) | free.dyads.obs
   }
+}
+
+.dyadcount.dyadrle <- function(x){
+  Tlens <- x$lengths[x$values==TRUE]
+  sum(as.numeric(Tlens))
 }
 
 .hash.el <- function(x){
