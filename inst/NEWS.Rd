@@ -14,22 +14,28 @@
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
 
-\section{Changes in version 3.7.1}{
+\section{Changes in version 3.7.2}{
 
-  %% \subsection{NEW FEATURES}{
-  %%   \itemize{
-  %%     \item{
-  %%     }
-  %%   }
-  %% }
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+	Development of \code{ergm} and associated packages is now hosted
+	on GitHub.
+      }
+      \item{
+	Some terms, particularly \code{\link{dyadcov}} have been improved.
+      }
+    }
+  }
    
   
   \subsection{BUG FIXES}{
     \itemize{
       \item{
-	Reverted a non-portable use of C function
-	\code{alloca()}. (Thanks to Prof. Brian Ripley for pointing out
-	the problem.)
+	Bug fixes to contrastive divergence code.
+      }
+      \item{
+	Miscellaneous bug fixes, typo corrections, and robustifications.
       }
     }
   }
@@ -65,6 +71,23 @@
   %   }
   % }
 
+}
+
+
+\section{Changes in version 3.7.1}{
+
+  
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+	Reverted a non-portable use of C function
+	\code{alloca()}. (Thanks to Prof. Brian Ripley for pointing out
+	the problem.)
+      }
+    }
+  }
+  
+  
 }
 
 
