@@ -1,12 +1,3 @@
-/*  File inst/include/ergm_stubs.c in package ergm, part of the Statnet suite
- *  of packages for network analysis, http://statnet.org .
- *
- *  This software is distributed under the GPL-3 license.  It is free,
- *  open source, and has the attribution requirements (GPL Section 7) at
- *  http://statnet.org/attribution
- *
- *  Copyright 2003-2017 Statnet Commons
- */
 #include "R_ext/Rdynload.h"
 #include "ergm_changestat_operator.h"
 Model * unpack_Model_as_double(double **x){
@@ -811,6 +802,294 @@ void WtDestroyStats(WtNetwork *nwp, WtModel *m){
 static void (*fun)(WtNetwork *,WtModel *) = NULL;
 if(fun==NULL) fun = (void (*)(WtNetwork *,WtModel *)) R_FindSymbol("WtDestroyStats", "ergm", NULL);
 fun(nwp,m);
+}
+#undef MIN
+#undef MAX
+#undef DYADCOUNT
+#undef ENSURE_TH_ORDER
+#undef GetRandDyad
+#undef ENSURE_TH_ORDER
+#undef CHOOSE
+#undef EQUAL
+#undef XOR
+#undef XNOR
+#undef OUTVAL
+#undef INVAL
+#undef N_NODES
+#undef N_DYADS
+#undef OUT_DEG
+#undef IN_DEG
+#undef DIRECTED
+#undef N_EDGES
+#undef BIPARTITE
+#undef N_TAILS
+#undef N_HEADS
+#undef NEXT_INEDGE_NUM
+#undef NEXT_OUTEDGE_NUM
+#undef CHANGE_STAT
+#undef N_CHANGE_STATS
+#undef INPUT_PARAM
+#undef N_INPUT_PARAMS
+#undef ZERO_ALL_CHANGESTATS
+#undef INPUT_ATTRIB
+#undef WtIS_OUTEDGE
+#undef WtIS_INEDGE
+#undef WtIS_UNDIRECTED_EDGE
+#undef WtMIN_OUTEDGE
+#undef WtMIN_INEDGE
+#undef WtNEXT_OUTEDGE
+#undef WtNEXT_INEDGE
+#undef OUTWT
+#undef INWT
+#undef WtSTEP_THROUGH_OUTEDGES
+#undef WtSTEP_THROUGH_INEDGES
+#undef WtSTEP_THROUGH_OUTEDGES_DECL
+#undef WtSTEP_THROUGH_INEDGES_DECL
+#undef WtEXEC_THROUGH_OUTEDGES
+#undef WtEXEC_THROUGH_INEDGES
+#undef WtEXEC_THROUGH_EDGES
+#undef WtEXEC_THROUGH_FOUTEDGES
+#undef WtEXEC_THROUGH_FINEDGES
+#undef WtEXEC_THROUGH_NET_EDGES
+#undef WtGETWT
+#undef WtSETWT
+#undef WtFOR_EACH_TOGGLE
+#undef WtTAIL
+#undef WtHEAD
+#undef WtNEWWT
+#undef WtOLDWT
+#undef WtGETOLDTOGGLEINFO
+#undef WtGETTOGGLEINFO
+#undef WtGETNEWTOGGLEINFO
+#undef WtSETWT_WITH_BACKUP
+#undef WtUNDO_SETWT
+#undef WtIF_MORE_TO_COME
+#undef WtSETWT_IF_MORE_TO_COME
+#undef WtUNDO_PREVIOUS
+#undef WtUNDO_PREVIOUS_SETWTS
+#undef WtEXEC_THROUGH_TOGGLES
+#undef SAMEDYAD
+#undef WtGETOLDWT
+#undef WtGETNEWWT
+#undef WtGETNEWWTOLD
+#undef WtC_CHANGESTAT_FN
+#undef WtD_CHANGESTAT_FN
+#undef WtI_CHANGESTAT_FN
+#undef WtU_CHANGESTAT_FN
+#undef WtF_CHANGESTAT_FN
+#undef WtS_CHANGESTAT_FN
+#undef WtD_FROM_S
+#undef WtD_FROM_S_FN
+#undef IS_OUTEDGE
+#undef IS_INEDGE
+#undef IS_UNDIRECTED_EDGE
+#undef MIN_OUTEDGE
+#undef MIN_INEDGE
+#undef NEXT_OUTEDGE
+#undef NEXT_INEDGE
+#undef STEP_THROUGH_OUTEDGES
+#undef STEP_THROUGH_INEDGES
+#undef STEP_THROUGH_OUTEDGES_DECL
+#undef STEP_THROUGH_INEDGES_DECL
+#undef EXEC_THROUGH_OUTEDGES
+#undef EXEC_THROUGH_INEDGES
+#undef EXEC_THROUGH_EDGES
+#undef EXEC_THROUGH_FOUTEDGES
+#undef EXEC_THROUGH_FINEDGES
+#undef EXEC_THROUGH_NET_EDGES
+#undef GETWT
+#undef SETWT
+#undef FOR_EACH_TOGGLE
+#undef TAIL
+#undef HEAD
+#undef NEWWT
+#undef OLDWT
+#undef TOGGLEIND
+#undef GETOLDTOGGLEINFO
+#undef GETTOGGLEINFO
+#undef GETNEWTOGGLEINFO
+#undef SETWT_WITH_BACKUP
+#undef UNDO_SETWT
+#undef IF_MORE_TO_COME
+#undef SETWT_IF_MORE_TO_COME
+#undef UNDO_PREVIOUS
+#undef UNDO_PREVIOUS_SETWTS
+#undef EXEC_THROUGH_TOGGLES
+#undef GETOLDWT
+#undef GETNEWWT
+#undef GETNEWWTOLD
+#undef D_FROM_S
+#undef NO_EDGE
+#undef OLD_EDGE
+#undef NEW_EDGE
+#undef CAN_IGNORE
+#undef MAX_TRIES
+#undef MH_FAILED
+#undef MH_UNRECOVERABLE
+#undef MH_IMPOSSIBLE
+#undef MH_UNSUCCESSFUL
+#undef MH_CONSTRAINT
+#undef MH_QUIT_UNSUCCESSFUL
+#undef XOR
+#undef XNOR
+#undef MH_INPUTS
+#undef Mtail
+#undef Mhead
+#undef Mweight
+#undef WtMH_I_FN
+#undef WtMH_U_FN
+#undef WtMH_P_FN
+#undef WtMH_F_FN
+#undef WtFOR_EACH_TERM
+#undef WtEXEC_THROUGH_TERMS
+#undef WtFOR_EACH_TERM_INREVERSE
+#undef WtEXEC_THROUGH_TERMS_INREVERSE
+#undef WtEXEC_THROUGH_TERMS_INTO
+#undef IFDEBUG_BACKUP_DSTATS
+#undef IFDEBUG_RESTORE_DSTATS
+#undef WtUPDATE_STORAGE_COND
+#undef WtUPDATE_STORAGE
+#include "R_ext/Rdynload.h"
+#include "MCMC.h"
+void MCMC_wrapper(int *dnumnets, int *dnedges,int *tails, int *heads,int *dn, int *dflag, int *bipartite,int *nterms, char **funnames,char **sonames,char **MHproposaltype, char **MHproposalpackage,double *inputs, double *theta0, int *samplesize,double *sample, int *burnin, int *interval,int *newnetworktails,int *newnetworkheads,int *fVerbose,int *attribs, int *maxout, int *maxin, int *minout,int *minin, int *condAllDegExact, int *attriblength,int *maxedges,int *status){
+static void (*fun)(int *,int *,int *,int *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *) = NULL;
+if(fun==NULL) fun = (void (*)(int *,int *,int *,int *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *)) R_FindSymbol("MCMC_wrapper", "ergm", NULL);
+fun(dnumnets,dnedges,tails,heads,dn,dflag,bipartite,nterms,funnames,sonames,MHproposaltype,MHproposalpackage,inputs,theta0,samplesize,sample,burnin,interval,newnetworktails,newnetworkheads,fVerbose,attribs,maxout,maxin,minout,minin,condAllDegExact,attriblength,maxedges,status);
+}
+MCMCStatus MCMCSample(MHproposal *MHp,double *theta, double *networkstatistics,int samplesize, int burnin,int interval, int fVerbose, int nmax,Network *nwp, Model *m){
+static MCMCStatus (*fun)(MHproposal *,double *,double *,int,int,int,int,int,Network *,Model *) = NULL;
+if(fun==NULL) fun = (MCMCStatus (*)(MHproposal *,double *,double *,int,int,int,int,int,Network *,Model *)) R_FindSymbol("MCMCSample", "ergm", NULL);
+return fun(MHp,theta,networkstatistics,samplesize,burnin,interval,fVerbose,nmax,nwp,m);
+}
+MCMCStatus MetropolisHastings(MHproposal *MHp,double *theta, double *statistics,int nsteps, int *staken,int fVerbose,Network *nwp, Model *m){
+static MCMCStatus (*fun)(MHproposal *,double *,double *,int,int *,int,Network *,Model *) = NULL;
+if(fun==NULL) fun = (MCMCStatus (*)(MHproposal *,double *,double *,int,int *,int,Network *,Model *)) R_FindSymbol("MetropolisHastings", "ergm", NULL);
+return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
+}
+void MCMCPhase12(int *tails, int *heads, int *dnedges,int *dn, int *dflag, int *bipartite,int *nterms, char **funnames,char **sonames,char **MHproposaltype, char **MHproposalpackage,double *inputs,double *theta0, int *samplesize,double *gain, double *meanstats, int *phase1, int *nsub,double *sample, int *burnin, int *interval,int *newnetworktails,int *newnetworkheads,int *fVerbose,int *attribs, int *maxout, int *maxin, int *minout,int *minin, int *condAllDegExact, int *attriblength,int *maxedges,int *mtails, int *mheads, int *mdnedges){
+static void (*fun)(int *,int *,int *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,double *,int *,int *,double *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *) = NULL;
+if(fun==NULL) fun = (void (*)(int *,int *,int *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,double *,int *,int *,double *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *)) R_FindSymbol("MCMCPhase12", "ergm", NULL);
+fun(tails,heads,dnedges,dn,dflag,bipartite,nterms,funnames,sonames,MHproposaltype,MHproposalpackage,inputs,theta0,samplesize,gain,meanstats,phase1,nsub,sample,burnin,interval,newnetworktails,newnetworkheads,fVerbose,attribs,maxout,maxin,minout,minin,condAllDegExact,attriblength,maxedges,mtails,mheads,mdnedges);
+}
+void MCMCSamplePhase12(MHproposal *MH,double *theta, double gain, double *meanstats,int nphase1, int nsubphases, double *networkstatistics,int samplesize, int burnin,int interval, int fVerbose,Network *nwp, Model *m){
+static void (*fun)(MHproposal *,double *,double,double *,int,int,double *,int,int,int,int,Network *,Model *) = NULL;
+if(fun==NULL) fun = (void (*)(MHproposal *,double *,double,double *,int,int,double *,int,int,int,int,Network *,Model *)) R_FindSymbol("MCMCSamplePhase12", "ergm", NULL);
+fun(MH,theta,gain,meanstats,nphase1,nsubphases,networkstatistics,samplesize,burnin,interval,fVerbose,nwp,m);
+}
+#undef MIN
+#undef MAX
+#undef DYADCOUNT
+#undef ENSURE_TH_ORDER
+#undef GetRandDyad
+#undef CHOOSE
+#undef EQUAL
+#undef XOR
+#undef XNOR
+#undef OUTVAL
+#undef INVAL
+#undef N_NODES
+#undef N_DYADS
+#undef OUT_DEG
+#undef IN_DEG
+#undef DIRECTED
+#undef N_EDGES
+#undef BIPARTITE
+#undef N_TAILS
+#undef N_HEADS
+#undef NEXT_INEDGE_NUM
+#undef NEXT_OUTEDGE_NUM
+#undef CHANGE_STAT
+#undef N_CHANGE_STATS
+#undef INPUT_PARAM
+#undef N_INPUT_PARAMS
+#undef ZERO_ALL_CHANGESTATS
+#undef INPUT_ATTRIB
+#undef TAIL
+#undef HEAD
+#undef IS_OUTEDGE
+#undef IS_INEDGE
+#undef IS_UNDIRECTED_EDGE
+#undef MIN_OUTEDGE
+#undef MIN_INEDGE
+#undef NEXT_OUTEDGE
+#undef NEXT_INEDGE
+#undef STEP_THROUGH_OUTEDGES
+#undef STEP_THROUGH_INEDGES
+#undef STEP_THROUGH_OUTEDGES_DECL
+#undef STEP_THROUGH_INEDGES_DECL
+#undef EXEC_THROUGH_OUTEDGES
+#undef EXEC_THROUGH_INEDGES
+#undef EXEC_THROUGH_EDGES
+#undef EXEC_THROUGH_FOUTEDGES
+#undef EXEC_THROUGH_FINEDGES
+#undef EXEC_THROUGH_NET_EDGES
+#undef TOGGLE
+#undef TOGGLE_DISCORD
+#undef GETWT
+#undef SETWT
+#undef FOR_EACH_TOGGLE
+#undef IF_MORE_TO_COME
+#undef TOGGLE_IF_MORE_TO_COME
+#undef TOGGLE_DISCORD_IF_MORE_TO_COME
+#undef UNDO_PREVIOUS
+#undef UNDO_PREVIOUS_TOGGLES
+#undef UNDO_PREVIOUS_DISCORD_TOGGLES
+#undef CHANGESTAT_FN
+#undef C_CHANGESTAT_FN
+#undef D_CHANGESTAT_FN
+#undef I_CHANGESTAT_FN
+#undef U_CHANGESTAT_FN
+#undef F_CHANGESTAT_FN
+#undef S_CHANGESTAT_FN
+#undef D_FROM_S
+#undef D_FROM_S_FN
+#undef NO_EDGE
+#undef OLD_EDGE
+#undef NEW_EDGE
+#undef CAN_IGNORE
+#undef MAX_TRIES
+#undef MH_FAILED
+#undef MH_UNRECOVERABLE
+#undef MH_IMPOSSIBLE
+#undef MH_UNSUCCESSFUL
+#undef MH_CONSTRAINT
+#undef MH_QUIT_UNSUCCESSFUL
+#undef XOR
+#undef XNOR
+#undef BD_LOOP
+#undef BD_COND_LOOP
+#undef MH_INPUTS
+#undef Mtail
+#undef Mhead
+#undef MH_I_FN
+#undef MH_U_FN
+#undef MH_P_FN
+#undef MH_F_FN
+#undef FOR_EACH_TERM
+#undef EXEC_THROUGH_TERMS
+#undef FOR_EACH_TERM_INREVERSE
+#undef EXEC_THROUGH_TERMS_INREVERSE
+#undef EXEC_THROUGH_TERMS_INTO
+#undef IFDEBUG_BACKUP_DSTATS
+#undef IFDEBUG_RESTORE_DSTATS
+#undef UPDATE_STORAGE_COND
+#undef UPDATE_STORAGE
+#include "R_ext/Rdynload.h"
+#include "wtMCMC.h"
+void WtMCMC_wrapper(int *dnumnets, int *nedges,int *tails, int *heads, double *weights,int *dn, int *dflag, int *bipartite,int *nterms, char **funnames,char **sonames,char **MHproposaltype, char **MHproposalpackage,double *inputs, double *theta0, int *samplesize,double *sample, int *burnin, int *interval,int *newnetworktails,int *newnetworkheads,double *newnetworkweights,int *fVerbose,int *maxedges,int *status){
+static void (*fun)(int *,int *,int *,int *,double *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,double *,int *,int *,int *) = NULL;
+if(fun==NULL) fun = (void (*)(int *,int *,int *,int *,double *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,double *,int *,int *,int *)) R_FindSymbol("WtMCMC_wrapper", "ergm", NULL);
+fun(dnumnets,nedges,tails,heads,weights,dn,dflag,bipartite,nterms,funnames,sonames,MHproposaltype,MHproposalpackage,inputs,theta0,samplesize,sample,burnin,interval,newnetworktails,newnetworkheads,newnetworkweights,fVerbose,maxedges,status);
+}
+WtMCMCStatus WtMCMCSample(WtMHproposal *MHp,double *theta, double *networkstatistics,int samplesize, int burnin,int interval, int fVerbose, int nmax,WtNetwork *nwp, WtModel *m){
+static WtMCMCStatus (*fun)(WtMHproposal *,double *,double *,int,int,int,int,int,WtNetwork *,WtModel *) = NULL;
+if(fun==NULL) fun = (WtMCMCStatus (*)(WtMHproposal *,double *,double *,int,int,int,int,int,WtNetwork *,WtModel *)) R_FindSymbol("WtMCMCSample", "ergm", NULL);
+return fun(MHp,theta,networkstatistics,samplesize,burnin,interval,fVerbose,nmax,nwp,m);
+}
+WtMCMCStatus WtMetropolisHastings(WtMHproposal *MHp,double *theta, double *statistics,int nsteps, int *staken,int fVerbose,WtNetwork *nwp, WtModel *m){
+static WtMCMCStatus (*fun)(WtMHproposal *,double *,double *,int,int *,int,WtNetwork *,WtModel *) = NULL;
+if(fun==NULL) fun = (WtMCMCStatus (*)(WtMHproposal *,double *,double *,int,int *,int,WtNetwork *,WtModel *)) R_FindSymbol("WtMetropolisHastings", "ergm", NULL);
+return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 }
 #undef MIN
 #undef MAX

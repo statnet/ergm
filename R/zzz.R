@@ -11,7 +11,7 @@
   sm <- statnetStartupMessage("ergm", c("statnet","ergm.count","tergm"), TRUE)
   if(!is.null(sm)){
     packageStartupMessage(sm)
-    packageStartupMessage(paste(c(strwrap(paste("NOTE: Versions before 3.6.1 had a bug in the implementation of the bd() constriant which distorted the sampled distribution somewhat. In addition, Sampson's Monks datasets had mislabeled verteces. See the NEWS and the documentation for more details.",sep="")),""),collapse="\n"))
+    packageStartupMessage(paste(c(strwrap(paste("NOTE: Versions before 3.6.1 had a bug in the implementation of the bd() constriant which distorted the sampled distribution somewhat. In addition, Sampson's Monks datasets had mislabeled vertices. See the NEWS and the documentation for more details.",sep="")),""),collapse="\n"))
   }
 }
 

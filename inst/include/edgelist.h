@@ -1,4 +1,4 @@
-/*  File inst/include/edgelist.h in package ergm, part of the Statnet suite
+/*  File src/edgelist.h in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,

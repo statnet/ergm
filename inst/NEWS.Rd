@@ -33,6 +33,7 @@
 	networks whose edges have been randomly flipped with known
 	probabilities (say, to preserve privacy). (See Karwa, Krivitsky,
 	and Slavcovic (2016).)
+
       }
 
     }
@@ -91,9 +92,34 @@
 
 }
 
+\section{Changes in version 3.7.2}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+	Development of \code{ergm} and associated packages is now hosted
+	on GitHub.
+      }
+      \item{
+	Some terms, particularly \code{\link{dyadcov}} have been improved.
+      }
+    }
+  }
+   
+  
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+	Bug fixes to contrastive divergence code.
+      }
+      \item{
+	Miscellaneous bug fixes, typo corrections, and robustifications.
+      }
+    }
+  }
+}
 
 \section{Changes in version 3.7.1}{
-
   \subsection{BUG FIXES}{
     \itemize{
       \item{

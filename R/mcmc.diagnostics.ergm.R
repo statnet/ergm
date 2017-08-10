@@ -213,7 +213,7 @@ mcmc.diagnostics.ergm <- function(object,
    }
   }
   
-  if(requireNamespace('latticeExtra')){  
+  if(requireNamespace('latticeExtra', quietly=TRUE)){  
     plot.mcmc.list.ergm(sm,main="Sample statistics",vars.per.page=vars.per.page,...)
     if(!is.null(sm.obs)) plot.mcmc.list.ergm(sm.obs,main="Constrained sample statistics",vars.per.page=vars.per.page,...)
   }else{
