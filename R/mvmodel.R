@@ -165,7 +165,7 @@ mvmodel.ergm <- function (object, ..., nsim=100,
                           control=control.simulate.ergm(),
                           statistic=NULL) {
   .Deprecated(new = 'simulate.ergm', .Deprecated(new = 'simulate.formula',msg = "mvmodel functions will not be supported in future versions of ergm. use simulate.ergm instead"))
-  check.control.class("simulate.ergm")
+  check.control.class("simulate.ergm", "mvmodel.ergm")
   
 # trms <- ergm.getterms(object$formula)
 # g <- as.network(eval(trms[[2]], sys.parent()))

@@ -51,7 +51,7 @@ ergmMPLE <- function(formula, fitmodel=FALSE, output=c("matrix", "array", "fit")
       warning("Argument fitmodel= to ergmMPLE() has been deprecated and will be removed in a future version. Use output=\"fit\" instead.")
       if(fitmodel) output <- "fit"
   }
-  check.control.class("ergm")
+  check.control.class("ergm", "ergmMPLE")
   control.toplevel(...,myname="ergm")
   output <- match.arg(output)
   if (output=="fit") {

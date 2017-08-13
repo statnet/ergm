@@ -76,7 +76,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           sequential=TRUE,
                           control=control.simulate.ergm(),
                           verbose=FALSE, ...) {
-  check.control.class(c("simulate.ergm","simulate.formula"))
+  check.control.class(c("simulate.ergm","simulate.formula"), "simulate.ergm")
   control.toplevel(...)
   control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges","parallel","parallel.type","parallel.version.check")
   for(arg in control.transfer)
@@ -104,7 +104,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
                                sequential=TRUE,
                                control=control.simulate.formula(),
                                verbose=FALSE, ...) {
-  check.control.class(myname="ERGM simulate.formula")
+  check.control.class("simulate.formula", myname="ERGM simulate.formula")
   control.toplevel(...)
   
   if(!is.null(seed)) {set.seed(as.integer(seed))}

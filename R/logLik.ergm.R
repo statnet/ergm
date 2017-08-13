@@ -14,7 +14,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
 
   # Then, we need to recalculate...
   
-  check.control.class()
+  check.control.class("logLik.ergm", "logLik.ergm")
   control.toplevel(...)
  
   control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights",
@@ -95,7 +95,7 @@ nologLik.message<-function(objname){
 logLikNull <- function(object, ...) UseMethod("logLikNull")
 
 logLikNull.ergm <- function(object, control=control.logLik.ergm(), ...){
-  check.control.class("logLik.ergm")
+  check.control.class("logLik.ergm", "logLikNull.ergm")
 
   control.toplevel(..., myname="logLik.ergm")
   

@@ -48,7 +48,7 @@ ergm.degeneracy <- function(object,
                           fast=TRUE,
                           test.only=FALSE,
                           verbose=FALSE) {
-  check.control.class(control, "ergm")
+  check.control.class("ergm", "ergm.degeneracy")
   
   if(!is.ergm(object)){
     stop("A ergm object argument must be given.")

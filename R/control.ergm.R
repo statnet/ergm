@@ -310,7 +310,7 @@ control.ergm<-function(drop=TRUE,
   if((MCMLE.steplength!=1 || is.null(MCMLE.steplength.margin)) && MCMLE.termination %in% c("Hummel", "precision"))
     stop("Hummel and precision-based termination require non-null MCMLE.steplength.margin and MCMLE.steplength = 1.")
   
-  set.control.class()
+  set.control.class("control.ergm")
 }
 
 control.toplevel<-function(..., myname={sc <- sys.calls(); myname <- as.character(sc[[length(sc)-1]][[1]])}){
