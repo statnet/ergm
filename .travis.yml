@@ -16,8 +16,8 @@ before_install:
 r_github_packages:
 - statnet/statnet.common-private
 - statnet/network-private
-- statnet/ergm-private
-- statnet/ergm.count-private
+- statnet/ergm-private@dev
+- statnet/ergm.count-private@dev
 addons:
   apt:
     packages:
