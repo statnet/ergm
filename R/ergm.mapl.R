@@ -56,7 +56,7 @@ ergm.mapl <- function(formula, init="MPLE",
                  control=control.ergm(MPLEtype="penalized"),
                  tau=1, invcov=NULL,
                  verbose=FALSE, ...) {
-  check.control.class("ergm")
+  check.control.class("ergm", "ergm.mapl")
   control.toplevel(...,myname="ergm")
 
   if (verbose) cat("Evaluating network in model\n")

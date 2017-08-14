@@ -121,7 +121,7 @@ ergm <- function(formula, response=NULL,
                  estimate=c("MLE", "MPLE", "CD"),
                  control=control.ergm(),
                  verbose=FALSE,...) {
-  check.control.class()
+  check.control.class("ergm", "ergm")
   control.toplevel(control,...)
   
   estimate <- match.arg(estimate)

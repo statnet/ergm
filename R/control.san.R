@@ -72,5 +72,5 @@ control.san<-function(coef=NULL,
   for(arg in names(formals(sys.function())))
     control[arg]<-list(get(arg))
 
-  set.control.class()
+  set.control.class("control.san")
 }

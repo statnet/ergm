@@ -87,7 +87,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
                         sequential=TRUE,
                         control=control.san(),
                         verbose=FALSE, ...) {
-  check.control.class("san")
+  check.control.class("san", "san")
   control.toplevel(...,myname="san")
 
   out.list <- list()
