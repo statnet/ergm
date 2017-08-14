@@ -12,7 +12,7 @@ matrix:
 sudo: false
 cache: packages
 before_install:
-- tlmgr install
+- sudo tlmgr install comment
 r_github_packages:
 - statnet/statnet.common
 - statnet/network
