@@ -12,7 +12,7 @@ matrix:
 sudo: false
 cache: packages
 before_install:
-- sudo tlmgr install comment
+- if [ "${TRAVIS_OS_NAME}" == "osx" ]; then sudo tlmgr install comment multirow; fi
 r_github_packages:
 - statnet/statnet.common
 - statnet/network
