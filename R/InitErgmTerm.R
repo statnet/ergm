@@ -1219,7 +1219,20 @@ InitErgmTerm.degree<-function(nw, arglist, ...) {
 }
 
 ################################################################################
+InitErgmTerm.degree1.5<-function (nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE,
+                      varnames = NULL,
+                      vartypes = NULL,
+                      defaultvalues = list(),
+                      required = NULL)
+  list(name="degreepopularity", coef.names="degree1.5",
+       minval=0, maxval=network.dyadcount(nw,FALSE)*sqrt(network.size(nw)-1), conflicts.constraints="degreedist")
+}
+
+
+################################################################################
 InitErgmTerm.degreepopularity<-function (nw, arglist, ...) {
+  .Deprecated("degree1.5")
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
                       varnames = NULL,
                       vartypes = NULL,
@@ -2116,7 +2129,20 @@ InitErgmTerm.idegree<-function(nw, arglist, ...) {
 
 
 ################################################################################
+InitErgmTerm.idegree1.5<-function (nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=TRUE,
+                      varnames = NULL,
+                      vartypes = NULL,
+                      defaultvalues = list(),
+                      required = NULL)
+  list(name="idegreepopularity", coef.names="idegree1.5",
+       minval=0, maxval=network.dyadcount(nw,FALSE)*sqrt(network.size(nw)-1), conflicts.constraints="idegreedist")
+}
+
+
+################################################################################
 InitErgmTerm.idegreepopularity<-function (nw, arglist, ...) {
+  .Deprecated("idegree1.5")
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = NULL,
                       vartypes = NULL,
@@ -2817,7 +2843,20 @@ InitErgmTerm.odegree<-function(nw, arglist, ...) {
 
 
 ################################################################################
+InitErgmTerm.odegree1.5<-function (nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=TRUE,
+                      varnames = NULL,
+                      vartypes = NULL,
+                      defaultvalues = list(),
+                      required = NULL)
+  list(name="odegreepopularity", coef.names="odegree1.5",
+       minval=0, maxval=network.dyadcount(nw,FALSE)*sqrt(network.size(nw)-1), conflicts.constraints="odegreedist")
+}
+
+
+################################################################################
 InitErgmTerm.odegreepopularity<-function (nw, arglist, ...) {
+  .Deprecated("odegree1.5")
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = NULL,
                       vartypes = NULL,

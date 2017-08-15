@@ -45,6 +45,7 @@
 \alias{degcrossprod}
 \alias{degrange}
 \alias{degree}
+\alias{degree1.5}
 \alias{degreepopularity}
 \alias{diff}
 \alias{density}
@@ -72,6 +73,7 @@
 \alias{hammingmix}
 \alias{idegrange}
 \alias{idegree}
+\alias{idegree1.5}
 \alias{idegreepopularity}
 \alias{ininterval}
 \alias{intransitive}
@@ -103,6 +105,7 @@
 \alias{nsp}
 \alias{odegrange}
 \alias{odegree}
+\alias{odegree1.5}
 \alias{odegreepopularity}
 \alias{opentriad}
 \alias{ostar}
@@ -776,13 +779,16 @@ Note that Robins et al. (2009) define closely related statistics to several of t
     This term can only be used with undirected networks; for directed networks
     see \code{idegree} and \code{odegree}. }
 
-  \item{\code{degreepopularity}  (binary)  (undirected)
-  }{\emph{Degree popularity:} This
+  \item{\code{degree1.5}  (binary)  (undirected)
+  }{\emph{Degree to the 3/2 power:} This
     term adds one network statistic to the model equaling the sum over
     the actors of each actor's degree taken to the 3/2 power (or,
     equivalently, multiplied by its square root). This term is an
     undirected analog to the terms of Snijders et al. (2010), equations
     (11) and (12). This term can only be used with undirected networks.}
+
+  \item{\code{degreepopularity}  (binary)  (undirected) (deprecated)
+  }{\emph{Degree popularity (deprecated):} see \code{degree1.5}.}
   
     \item{\code{degcrossprod}  (binary)  (undirected)}{\emph{Degree Cross-Product:} 
     This term adds one network statistic equal to the mean of the cross-products
@@ -1138,12 +1144,16 @@ of the degrees of all pairs of nodes in the network which are tied.
     This term can only be used with directed networks; for undirected networks
     see \code{degree}. }
 
-  \item{\code{idegreepopularity}  (binary)  (directed)}{\emph{In-degree popularity:}
+  \item{\code{idegree1.5}  (binary)  (directed)
+  }{\emph{In-degree to the 3/2 power:}
     This term adds one network statistic to the model equaling the sum
-    over the actors of each actor's in-degree taken to the 3/2 power
+    over the actors of each actor's indegree taken to the 3/2 power
     (or, equivalently, multiplied by its square root). This term is
-    analogous to the term of Snijders et al. (2010), equation (11). This
+    analogous to the term of Snijders et al. (2010), equation (12). This
     term can only be used with directed networks.}
+
+  \item{\code{idegreepopularity}  (binary)  (directed) (deprecated)
+  }{\emph{In-degree popularity (deprecated):} see \code{idegree1.5}.}
 
   \item{\code{ininterval(lower=-Inf, upper=+Inf, open=c(TRUE,TRUE))}  (valued)  (directed)  (undirected) (dyad-independent)
   }{\emph{Number of dyads
@@ -1575,14 +1585,17 @@ of the degrees of all pairs of nodes in the network which are tied.
     This term can only be used with directed networks; for undirected networks
     see \code{degree}. }
   
-  \item{\code{odegreepopularity}  (binary)  (directed)
-  }{\emph{Out-degree popularity:}
+  \item{\code{odegree1.5}  (binary)  (directed)
+  }{\emph{Out-degree to the 3/2 power:}
     This term adds one network statistic to the model equaling the sum
     over the actors of each actor's outdegree taken to the 3/2 power
     (or, equivalently, multiplied by its square root). This term is
     analogous to the term of Snijders et al. (2010), equation (12). This
     term can only be used with directed networks.}
 
+  \item{\code{odegreepopularity}  (binary)  (directed) (deprecated)
+  }{\emph{Out-degree popularity (deprecated):} see \code{odegree1.5}.}
+    
     \item{\code{opentriad}  (binary)  (undirected) (triad-related)}{\emph{Open triads:} This term
     adds one statistic to the model equal to the number of 2-stars minus
     three times the number of triangles in the network. It is currently
