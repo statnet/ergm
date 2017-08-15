@@ -211,7 +211,9 @@ ergm.MCMLE <- function(init, nw, model,
     # We can either pretty-print the p-value here, or we can print the
     # full thing. What the latter gives us is a nice "progress report"
     # on whether the estimation is getting better..
-    if(verbose){
+
+    # These are only nontrivial when the model is curved or when there are missing data.
+    if(verbose && (is.curved(model)||obs)){
       cat("Average estimating equation values:\n")
       print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else colMeans(esteq))
     }
