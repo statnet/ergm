@@ -14,7 +14,7 @@
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
 
-\section{Changes in version 3.7.2}{
+\section{Changes in version 3.8.0}{
 
   \subsection{NEW FEATURES}{
     \itemize{
@@ -41,12 +41,15 @@
   }
   
   
-  %% \subsection{OTHER USER-VISIBLE CHANGES}{
-  %%   \itemize{
-  %%     \item{
-  %%     }
-  %%   }    
-  %% }
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+	Terms \code{degreepopularity}, \code{idegreepopularity}, and
+	\code{odegreepopularity} have been renamed to \code{degree1.5},
+	\code{idegree1.5}, and \code{odegree1.5} respectively.
+      }
+    }    
+  }
 
   %% \subsection{C-LEVEL FACILITIES}{
   %%   \itemize{
