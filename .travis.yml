@@ -14,10 +14,7 @@ cache: packages
 before_install:
 - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then sudo tlmgr install comment multirow; export _R_CHECK_FORCE_SUGGESTS_=FALSE; fi
 r_github_packages:
-- statnet/statnet.common
-- statnet/network
-- statnet/ergm
-- statnet/ergm.count
+- statnet/ergm@3.8
 addons:
   apt:
     packages:
@@ -26,7 +23,4 @@ addons:
       - r-cran-rsprng
       - mpi-default-dev
 warnings_are_errors: true
-env:
-- ENABLE_statnet_TESTS=yes
 r_check_revdep: true
-r_check_args: --as-cran --run-donttest --timings
