@@ -22,4 +22,11 @@ addons:
   apt:
     packages:
       - r-cran-rmpi
-warnings_are_errors: false
+      - r-cran-snow
+      - r-cran-rsprng
+      - mpi-default-dev
+warnings_are_errors: true
+env:
+- ENABLE_statnet_TESTS=yes
+r_check_revdep: true
+r_check_args: --as-cran --run-donttest --timings
