@@ -164,7 +164,7 @@ gof.formula <- function(object, ...,
 
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
   if (verbose) 
-    cat("Starting GOF for the given ERGM formula.\n")
+    message("Starting GOF for the given ERGM formula.")
   # Unused code
   coefmissing <- NULL
   # get network
@@ -241,7 +241,7 @@ gof.formula <- function(object, ...,
 
   # If missing simulate from the conditional model
   if(network.naedgecount(nw) & unconditional){
-   if(verbose){cat("Conditional simulations for missing fit\n")}
+   if(verbose){message("Conditional simulations for missing fit")}
    if(is.null(coefmissing)){coefmissing <- coef}
    constraints.obs<-ergm.update.formula(constraints,~.+observed)
    SimCond <- gof(object=object, coef=coefmissing,
@@ -270,7 +270,7 @@ gof.formula <- function(object, ...,
   # Calculate network statistics for the observed graph
   # Set up the output arrays of sim variables
   if(verbose)
-    cat("Calculating observed network statistics.\n")
+    message("Calculating observed network statistics.")
   
   if ('model' %in% all.gof.vars) {
    if(!network.naedgecount(nw) | !unconditional){
@@ -398,12 +398,12 @@ gof.formula <- function(object, ...,
 # network.list object
 
   if(verbose)
-    cat("Starting simulations.\n")
+    message("Starting simulations.")
 
   tempnet <- nw
   for (i in 1:control$nsim) {
     if(verbose){
-      cat("Sim",i,"of",control$nsim,": ")
+      message("Sim ",i," of ",control$nsim,": ",appendLF=FALSE)
     }
     if(network.naedgecount(nw) & !unconditional){tempnet <- nw}
     tempnet <- simulate(object, nsim=1, coef=coef,
@@ -468,7 +468,7 @@ gof.formula <- function(object, ...,
     }
   }
   if(verbose){
-    cat("\n")
+    message("")
   }
 
   # calculate p-values

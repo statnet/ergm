@@ -90,7 +90,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
   # nonunique rows.  After compression, rows should be unique and each row
   # has a 'prob' weight telling what proportion of the original rows match it.
   if(compress){
-    if (verbose) { cat("Compressing the matrix of sampled sufficient statistcs.\n") }
+    if (verbose) { message("Compressing the matrix of sampled sufficient statistcs.") }
     statsmatrix0 <- ergm.sufftoprob(statsmatrix,compress=TRUE)
     probs <- statsmatrix0[,ncol(statsmatrix0)]
     statsmatrix0 <- statsmatrix0[,-ncol(statsmatrix0), drop=FALSE]
@@ -150,7 +150,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
   # Also, choose varweight multiplier for covariance term in loglikelihood
   # where 0.5 is the "true" value but this can be increased or decreased
   varweight <- 0.5
-  if (verbose) { cat("Using", metric, "metric (see control.ergm function).\n") }
+  if (verbose) { message("Using ", metric, " metric (see control.ergm function).") }
   if (obsprocess) {
     loglikelihoodfn <- switch(metric,
                               Likelihood=llik.fun.obs,
@@ -204,10 +204,10 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
   if (all(model$etamap$canonical!=0) && 
       (metric=="lognormal" || metric=="Likelihood")) {
     if (obsprocess) {
-      if (verbose) { cat("Using log-normal approx with missing (no optim)\n") }
+      if (verbose) { message("Using log-normal approx with missing (no optim)") }
       Lout <- list(hessian = -(V-V.obs))
     } else {
-      if (verbose) { cat("Using log-normal approx (no optim)\n") }
+      if (verbose) { message("Using log-normal approx (no optim)") }
       Lout <- list(hessian = -V)
     }
     Lout$par <- try(eta0[!model$etamap$offsetmap] 
@@ -249,13 +249,13 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
       grad<-gradientfn(trustregion=trustregion, ...)
       hess<-Hessianfn(...)
       hess[upper.tri(hess)]<-t(hess)[upper.tri(hess)]
-#      print(value)
-#      print(grad)
-#      print(hess)
+#      .message_print(value)
+#      .message_print(grad)
+#      .message_print(hess)
       list(value=value,gradient=as.vector(grad),hessian=hess)
     }
 
-    if (verbose) { cat("Optimizing loglikelihood\n") }
+    if (verbose) { message("Optimizing loglikelihood") }
     Lout <- try(trust(objfun=loglikelihoodfn.trust, parinit=guess,
                       rinit=1, 
                       rmax=100, 
@@ -273,15 +273,15 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
 #   if(Lout$value < trustregion-0.001){
 #     current.scipen <- options()$scipen
 #     options(scipen=3)
-#     cat("the log-likelihood improved by",
-#         format.pval(Lout$value,digits=4,eps=1e-4),"\n")
+#     message("the log-likelihood improved by",
+#         format.pval(Lout$value,digits=4,eps=1e-4),"")
 #     options(scipen=current.scipen)
 #   }else{
-#     cat("the log-likelihood did not improve.\n")
+#     message("the log-likelihood did not improve.")
 #   }
     if(inherits(Lout,"try-error") || Lout$value > max(199, trustregion) || Lout$value < -790) {
-      if(!inherits(Lout,"try-error")) cat("Apparent likelihood improvement:", Lout$value, ".\n")
-      cat("MLE could not be found. Trying Nelder-Mead...\n")
+      if(!inherits(Lout,"try-error")) message("Apparent likelihood improvement: ", Lout$value, ".")
+      message("MLE could not be found. Trying Nelder-Mead...")
       Lout <- try(optim(par=guess, 
                         fn=llik.fun.median,
                         hessian=hessianflag,
@@ -295,12 +295,12 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                         eta0=eta0, etamap=model$etamap),
               silent=FALSE)
       if(inherits(Lout,"try-error") || Lout$value > max(500, trustregion) ){
-        cat(paste("No direct MLE exists!\n"))
+        message(paste("No direct MLE exists!"))
       }
       if(Lout$convergence != 0 ){
-        cat("Non-convergence after", nr.maxit, "iterations.\n")
+        message("Non-convergence after ", nr.maxit, " iterations.")
       }
-      cat("Nelder-Mead Log-likelihood ratio is ", Lout$value,"\n")
+      message("Nelder-Mead Log-likelihood ratio is ", Lout$value," ")
     }
   }
 
@@ -349,7 +349,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     Lout$hessian <- He
     
     if(calc.mcmc.se){
-      if (verbose) { cat("Starting MCMC s.e. computation.\n") }
+      if (verbose) { message("Starting MCMC s.e. computation.") }
       mc.cov <-
         if ((metric=="lognormal" || metric=="Likelihood")
             && length(model$etamap$curved)==0) {
