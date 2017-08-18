@@ -361,6 +361,12 @@ single.impute.dyads <- function(nw, response=NULL){
   list(value = val, warnings = myWarnings, error=myError)
 } 
 
+## A is a matrix. V is a column vector that may contain Infs
+## computes A %*% V, counting 0*Inf as 0
+.multiply.with.inf <- function(A,V) {
+  cbind(colSums(t(A)*c(V), na.rm=TRUE))
+}
+
 # TODO: Move to statnet.common for the next statnet.common release.
 .message_print <- function(...){
   message(paste(capture.output(print(...)),collapse="\n"))
