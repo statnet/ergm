@@ -7,7 +7,7 @@
 %
 %  Copyright 2003-2017 Statnet Commons
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\name{ergm_deprecated}
+\name{ergm-deprecated}
 \alias{robust.inverse}
 
 %- Also NEED an '\alias' for EACH other topic documented here.
