@@ -110,11 +110,8 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
   fit$iter <- fit$iterations
   asycov <- ginv(-fit$hessian)
   fit$cov.unscaled <- asycov
-# cat("\nCoefficients:\n"); print(fit$par)
-# # R: use fit$value and fit$convergence
-# cat("\nResidual Deviance:", format(fit$value), "\n")
   if(!fit$converged)
-      cat("Trust region algorithm did not converge.\n")
+      message("Trust region algorithm did not converge.")
   invisible(fit)
 }
 

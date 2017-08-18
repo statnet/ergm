@@ -12,6 +12,8 @@ opttest({
 library(ergm)
 data(sampson)
 
+set.seed(0)
+
 total.theta <- coef(ergm(samplike~edges))
 offset.theta <- pi
 

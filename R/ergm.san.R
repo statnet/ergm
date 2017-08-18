@@ -129,9 +129,9 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
 # control$coef <- c(control$coef[1],rep(0,Clist$nstats-1))
   
   if (verb) {
-    cat(paste("Starting ",nsim," MCMC iteration", ifelse(nsim>1,"s",""),
+    message(paste("Starting ",nsim," MCMC iteration", ifelse(nsim>1,"s",""),
         " of ", control$SAN.burnin+control$SAN.interval*(nsim-1), 
-        " steps", ifelse(nsim>1, " each", ""), ".\n", sep=""))
+        " steps", ifelse(nsim>1, " each", ""), ".", sep=""))
   }
 
   for(i in 1:nsim){
@@ -139,7 +139,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
 #   Clist.miss <- ergm.design(nw, model, verbose=verbose)
     maxedges <- max(control$SAN.init.maxedges, Clist$nedges)
     if (verb) {
-       cat(paste("#", i, " of ", nsim, ": ", sep=""))
+       message(paste("#", i, " of ", nsim, ": ", sep=""),appendLF=FALSE)
      }
 
     if(is.null(control$coef)) {

@@ -89,7 +89,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
           PACKAGE="ergm")
   uvals <- z$weightsvector!=0
   if (verbose) {
-    cat(paste("MPLE covariate matrix has", sum(uvals), "rows.\n"))
+    message(paste("MPLE covariate matrix has", sum(uvals), "rows."))
   }
   zy <- z$y[uvals]
   wend <- as.numeric(z$weightsvector[uvals])
@@ -100,7 +100,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   # If we ran out of space, AND we have a sparse network, then, use
   # case-control MPLE.
   if(sum(wend)<Clist$ndyads && mean(zy)<1/2){
-    if(verbose) cat("A sparse network with too many unique dyads encountered. Using case-control MPLE.\n")
+    if(verbose) message("A sparse network with too many unique dyads encountered. Using case-control MPLE.")
     # Strip out the rows associated with ties.
     wend <- wend[zy==0]
     xmat <- xmat[zy==0,,drop=FALSE]

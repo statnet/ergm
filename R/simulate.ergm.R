@@ -235,8 +235,8 @@ simulate.ergm.model <- function(object, nsim=1, seed=NULL,
   
   # Explain how many iterations and steps will ensue if verbose==TRUE
   if (verbose) {
-    cat (paste ("Starting MCMC iterations to generate ", nsim,
-                " network", ifelse(nsim>1,"s\n","\n"), sep=""))
+    message(paste ("Starting MCMC iterations to generate ", nsim,
+                " network", ifelse(nsim>1,"s","")))
   }
 
   nthreads <- max(
@@ -308,7 +308,7 @@ simulate.ergm.model <- function(object, nsim=1, seed=NULL,
         curstats <- curstats + z$statsmatrix
       }
 
-      if(verbose){cat(sprintf("Finished simulation %d of %d.\n",i, nsim))}
+      if(verbose){message(sprintf("Finished simulation %d of %d.",i, nsim))}
     }
     
     # done with parallel cluster

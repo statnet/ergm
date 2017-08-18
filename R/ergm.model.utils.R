@@ -39,8 +39,8 @@ ergm.checkextreme.model <- function(model, nw, init, response, target.stats, dro
 
     if(!silent){
       # Inform the user what's getting dropped.
-      if(any(low.drop.theta)) cat(paste("Observed statistic(s)", paste.and(names.theta[low.drop.theta]), "are at their smallest attainable values. Their coefficients will be fixed at -Inf.\n", sep=" "))
-      if(any(high.drop.theta)) cat(paste("Observed statistic(s)", paste.and(names.theta[high.drop.theta]), "are at their greatest attainable values. Their coefficients will be fixed at +Inf.\n", sep=" "))
+      if(any(low.drop.theta)) message(paste("Observed statistic(s)", paste.and(names.theta[low.drop.theta]), "are at their smallest attainable values. Their coefficients will be fixed at -Inf.", sep=" "))
+      if(any(high.drop.theta)) message(paste("Observed statistic(s)", paste.and(names.theta[high.drop.theta]), "are at their greatest attainable values. Their coefficients will be fixed at +Inf.", sep=" "))
     }
     
     # If the user specified a non-fixed element of init, and that element is getting dropped, warn the user.
