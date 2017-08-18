@@ -256,11 +256,11 @@ ergm <- function(formula, response=NULL,
   # If some control$init is specified...
   if(!is.null(control$init)){
     # Check length of control$init.
-    if (length(control$init)!=length(model.initial$etamap$offsettheta)) {
+    if (length(control$init)!=length(model$etamap$offsettheta)) {
       if(verbose){
         message("control$init =")
         .message_print(control$init)
-        message("number of statistics is ",length(model.initial$coef.names), "")
+        message("number of statistics is ",length(model$coef.names), "")
       }
       stop(paste("Invalid starting parameter vector control$init:",
                  "wrong number of parameters.",
