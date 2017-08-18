@@ -65,3 +65,6 @@ mvmodel.ergm <- function (object, ..., nsim=100,
                           seed=NULL,
                           control=control.simulate.ergm(),
                           statistic=NULL) .Defunct(new = 'simulate.ergm')
+
+degreedistfactor <- function(g,x) .Defunct("summary.formula with 'degree' terms")
+

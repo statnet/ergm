@@ -20,6 +20,7 @@
 \alias{mvmodel.ergm}
 \alias{mvmodel.formula}
 \alias{ergm.mahalanobis}
+\alias{degreedistfactor}
 
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
@@ -49,5 +50,6 @@ Functions that have been removed after a period of deprecation.
 \item{mvmodel.ergm}
 \item{mvmodel.formula}
 \item{ergm.mahalanobis}
+\item{degreedistfactor}
 }
 }

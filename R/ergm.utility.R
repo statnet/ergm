@@ -89,36 +89,6 @@ degreedist <- function(g, print=TRUE)
  invisible(degrees)
 }
 
-degreedistfactor <- function(g,x) 
-	 	{ 
-  .Deprecated(msg = "This function will probably not be supported in future versions of ergm")
-	 	 if(!is.network(g)){ 
-	 	  stop("degreedist() requires a network object") 
-	 	 } 
-	 	 x <- get.vertex.attribute(g,x) 
-	 	 degrees <- as.edgelist(g) 
-	 	 if(length(degrees)>0){ 
-	 	  if(is.directed(g)){ 
-	 	   outdegrees <- table(degrees[,1],x[degrees[,2]]) 
-	 	#  outdegrees <- c(rep(0, network.size(g)-nrow(outdegrees)), outdegrees) 
-	 	   if(!is.null(outdegrees)){print(table(outdegrees[,1]))} 
-	 	   if(!is.null(outdegrees)){print(table(outdegrees[,2]))} 
-	 	   indegrees <- table(degrees[,2],x[degrees[,1]]) 
-	 	#  indegrees <- c(rep(0, network.size(g)-nrow(indegrees)), indegrees) 
-	 	   if(!is.null(indegrees)){print(table(indegrees[,1]))} 
-	 	   if(!is.null(indegrees)){print(table(indegrees[,2]))} 
-	 	   degrees <- list(indegrees=indegrees, outdegrees=outdegrees) 
-	 	#  degrees <- rbind(indegrees, outdegrees) 
-	 	  }else{ 
-	 	   degrees <- table(degrees,x[degrees]) 
-	 	   degrees <- c(rep(0, network.size(g)-nrow(degrees)), degrees) 
-	 	   if(!is.null(degrees)){print(table(degrees))} 
-	 	  } 
-	 	 } 
-	 	 invisible(degrees) 
-	 	} 
-
-
 
 summary.statsmatrix.ergm <- function(object, ...){
  c(summary(round(object,digits=8), ...),
