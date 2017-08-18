@@ -288,7 +288,20 @@ InitErgmTerm.ddsp<-function(nw, arglist, ...) {
     type<-"UTP"
     typecode<-0
   }
-  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0)
+  if (any(d==0)) {
+    emptynwstats <- rep(0, length(d))
+    if(is.bipartite(nw)){
+      nb1 <- get.network.attribute(nw, "bipartite")
+      nb2 <- network.size(nw) - nb1
+      emptynwstats[d==0] <- nb1*(nb1-1)/2 + nb2*(nb2-1)/2
+    }else{
+      emptynwstats[d==0] <- network.dyadcount(nw,FALSE)
+    }
+  }else{
+    emptynwstats <- NULL
+  }
+
+  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0, emptynwstats=emptynwstats)
 }
 
 
@@ -406,7 +419,19 @@ InitErgmTerm.dnsp<-function(nw, arglist, ...) {
     type<-"UTP"
     typecode<-0
   }
-  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0)
+  if (any(d==0)) {
+    emptynwstats <- rep(0, length(d))
+    if(is.bipartite(nw)){
+      nb1 <- get.network.attribute(nw, "bipartite")
+      nb2 <- network.size(nw) - nb1
+      emptynwstats[d==0] <- nb1*(nb1-1)/2 + nb2*(nb2-1)/2
+    }else{
+      emptynwstats[d==0] <- network.dyadcount(nw,FALSE)
+    }
+  }else{
+    emptynwstats <- NULL
+  }
+  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0, emptynwstats=emptynwstats)
 }
 
 
