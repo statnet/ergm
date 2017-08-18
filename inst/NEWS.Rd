@@ -48,6 +48,15 @@
 	\code{odegreepopularity} have been renamed to \code{degree1.5},
 	\code{idegree1.5}, and \code{odegree1.5} respectively.
       }
+      \item{
+	Progress reports for ERGM fits and simulations are now printed
+	using \code{\link{message}}, so they can be suppressed with
+	\code{\link{suppressMessages}}.
+      }
+      \item{
+	A number of functions deprecated in 2015 have been removed. See
+	\code{help('ergm-defunct')} for the list.
+      }
     }    
   }
 
