@@ -23,4 +23,4 @@ addons:
       - r-cran-rsprng
       - mpi-default-dev
 warnings_are_errors: true
-r_check_revdep: true
+
