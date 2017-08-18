@@ -72,10 +72,10 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
     
     hi <- control$Step.gridsize  # Goal: Let gamma be largest possible multiple of .01
     lo <- gamm <- 0
-    cat("Iteration #",iter, ". ")
+    message("Iteration #",iter, ". ",appendLF=FALSE)
     if (verbose) {
-      cat("Current canonical parameter:\n")
-      print(eta[[iter]])
+      message("Current canonical parameter:")
+      .message_print(eta[[iter]])
     }
     while (hi-lo>1 || hi > gamm) {
       gamm<-ceiling((hi+lo)/2)
@@ -107,7 +107,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
     # in Hummel, Hunter, Handcock (2011, JCGS).
     if (gamm == control$Step.gridsize) {
       if (verbose) 
-        cat("Observed stats are well inside the convex hull.\n")
+        message("Observed stats are well inside the convex hull.")
       countdown <- countdown - 1
     } else {
       countdown <- 2 #  Reset countdown
@@ -117,7 +117,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
     finished = (countdown==0) || (iter >= control$Step.maxit)
     
     # When the stepped xi is in the convex hull (but not on the boundary), find the MLE for gyobs=xi
-    cat("  Trying gamma=", gamma[[iter]],"\n")  
+    message("  Trying gamma=", gamma[[iter]],"")  
     flush.console()
     
     ############# PLOTS print if VERBOSE=TRUE #################
@@ -153,7 +153,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
                      ...)
     eta[[iter+1]]<-v$coef
   }
-  cat("Now ending with one large sample for MLE. \n")
+  message("Now ending with one large sample for MLE. ")
   flush.console()
   iter <- iter+1
   finalsample <- simulate.formula(formula, nsim=control$MCMC.samplesize,
@@ -184,7 +184,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
           col=c(rep(1, nrow(finalsample)), 2, 3),# all black used for JCGS article 
           pch=c(rep(46, nrow(finalsample)),3 ,4 ),
           cex=c(rep(1, nrow(finalsample)), 1.4, 1.4),
-          main=paste("Final Stepping Iteration (#", iter, ")", sep=""),# "\n",
+          main=paste("Final Stepping Iteration (#", iter, ")", sep=""),# "",
           cex.main=1.5, cex.axis=1.5, cex.lab=1.5)
   } #ends if(verbose)
   ############## END PLOT #################    
@@ -265,7 +265,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   
   if(!is.null(x2) && nrow(x2crs) > x2.num.max){
     ## If constrained sample size > x2.num.max
-    if(verbose){cat("Using fast and approximate Hummel et al search.\n")}
+    if(verbose>1){message("Using fast and approximate Hummel et al search.")}
     if(last){x2.num.max <- 1}
     if(last){steplength.maxit  <- 0}
     d <- rowSums(sweep(x2crs, 2, m1crs)^2)
@@ -297,8 +297,8 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
    i <- i+1
 #  out <- c(i,g,low,high,z)
 #  names(out) <- c("iters","est","low","high","z")
-#  print(out)
-   if(verbose) cat(sprintf("iter= %d, est=%f, low=%f, high=%f, test=%d.\n",i,g,low,high,z))
+#  .message_print(out)
+   if(verbose>1) message(sprintf("iter= %d, est=%f, low=%f, high=%f, test=%d.",i,g,low,high,z))
   }
   g
 }

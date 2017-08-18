@@ -325,11 +325,6 @@ llik.fun.EF <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
   } else {
     return(llr)
   }
-#
-# cat(paste("max, log-lik",maxbase,llr,"\n"))
-# aaa <- sum(xobs * etaparam) - log(sum(probs*exp(xsim %*% etaparam)))
-# cat(paste("log-lik",llr,aaa,"\n"))
-# aaa
   llr
 }
 
@@ -528,11 +523,6 @@ llik.fun.median <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=N
   } else {
     return(llr)
   }
-#
-# cat(paste("max, log-lik",maxbase,llr,"\n"))
-# aaa <- sum(xobs * etaparam) - log(sum(probs*exp(xsim %*% etaparam)))
-# cat(paste("log-lik",llr,aaa,"\n"))
-# aaa
   llr
 }
 

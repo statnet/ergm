@@ -123,8 +123,8 @@ ergm.getCDsample <- function(nw, model, MHproposal, eta0, control,
   statsmatrix <- do.call(rbind,statsmatrices)
   colnames(statsmatrix) <- model$coef.names
 
-  if(verbose){cat("Sample size =",nrow(statsmatrix),"by",
-                  control.parallel$MCMC.samplesize,"\n")}
+  if(verbose){message("Sample size = ",nrow(statsmatrix)," by ",
+                  control.parallel$MCMC.samplesize,".")}
   
   statsmatrix[is.na(statsmatrix)] <- 0
   list(statsmatrix=statsmatrix, statsmatrices=statsmatrices, status=0)

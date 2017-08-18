@@ -52,14 +52,14 @@ ergm.stocapprox <- function(init, nw, model, Clist,
   n1 <- control$SA.phase1_n
   if(is.null(n1)) {n1 <- max(200,7 + 3 * model$etamap$etalength)} #default value
   eta0 <- ergm.eta(init, model$etamap)
-  cat("Stochastic approximation algorithm with theta_0 equal to:\n")
+  message("Stochastic approximation algorithm with theta_0 equal to:")
   print(init)
   control <- c(control, list(phase1=n1,
                   stats=summary.statistics.network(model$formula, basis=nw)-model$target.stats,
                   target.stats=model$target.stats)
                  )
-# cat(paste("Phase 1: ",n1,"iterations"))
-# cat(paste(" (interval=",control$MCMC.interval,")\n",sep=""))
+# message(paste("Phase 1: ",n1,"iterations"))
+# message(paste(" (interval=",control$MCMC.interval,")",sep=""))
   nw.orig <- nw
   #phase 2:  Main phase
   a <- control$SA.initial_gain
@@ -84,7 +84,7 @@ ergm.stocapprox <- function(init, nw, model, Clist,
   for(i in 1:n_sub){
     control$MCMC.samplesize <- trunc(control$MCMC.samplesize*2.52)+1 # 2.52 is approx. 2^(4/3)
   }
-# cat(paste("Phase 2: a=",a,"Total Samplesize",control$MCMC.samplesize,"\n"))
+# message(paste("Phase 2: a=",a,"Total Samplesize",control$MCMC.samplesize,""))
 # aDdiaginv <- a * Ddiaginv
   z <- ergm.phase12(nw, model, MHproposal, 
                     eta, control, verbose=TRUE)
@@ -93,19 +93,19 @@ ergm.stocapprox <- function(init, nw, model, Clist,
 # control$maxchanges <- z$maxchanges
   theta <- z$eta
   names(theta) <- names(init)
-  cat(paste(" (eta[",seq(along=theta),"] = ",paste(theta),")\n",sep=""))
+  message(paste(" (eta[",seq(along=theta),"] = ",paste(theta),")",sep=""))
   
   #phase 3:  Estimate covariance matrix for final theta
   n3 <- control$SA.phase3_n
   if(is.null(n3)) {n3 <- 1000} #default
   control$MCMC.samplesize <- n3
-  cat(paste("Phase 3: ",n3,"iterations"))
-  cat(paste(" (interval=",control$MCMC.interval,")\n",sep=""))
-#cat(paste(" (samplesize=",control$MCMC.samplesize,")\n",sep=""))
-#cat(paste(" theta=",theta,")\n",sep=""))
+  message(paste("Phase 3: ",n3,"iterations"),appendLF=FALSE)
+  message(paste(" (interval=",control$MCMC.interval,")",sep=""))
+#message(paste(" (samplesize=",control$MCMC.samplesize,")",sep=""))
+#message(paste(" theta=",theta,")",sep=""))
   eta <- ergm.eta(theta, model$etamap)
-#cat(paste(" (samplesize=",control$MCMC.samplesize,")\n",sep=""))
-#cat(paste(" eta=",eta,")\n",sep=""))
+#message(paste(" (samplesize=",control$MCMC.samplesize,")",sep=""))
+#message(paste(" eta=",eta,")",sep=""))
 
   # Obtain MCMC sample
   z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, control, verbose)
@@ -120,8 +120,8 @@ ergm.stocapprox <- function(init, nw, model, Clist,
 # hessian <- (t(z$statsmatrix) %*% z$statsmatrix)/n3 - outer(ubar,ubar)
 # covar <- ginv(covar)
   
-  if(verbose){cat("Calling MCMLE Optimization...\n")}
-  if(verbose){cat("Using Newton-Raphson Step ...\n")}
+  if(verbose){message("Calling MCMLE Optimization...")}
+  if(verbose){message("Using Newton-Raphson Step ...")}
 
   ve<-ergm.estimate(init=theta, model=model,
                    statsmatrix=statsmatrix,

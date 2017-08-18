@@ -79,11 +79,11 @@ is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly 
              ...
              )
    if(ans$objval!=0){
-    if(verbose) cat(sprintf("is.inCH: iter= %d, outside hull.\n",i))
+    if(verbose>1) message(sprintf("is.inCH: iter= %d, outside hull.",i))
     return(FALSE)  #if the min is not zero, the point p[i,] is not in the CH of the points M
    }
   }
-  if(verbose) cat(sprintf("is.inCH: iter= %d, inside hull.\n",i))
+  if(verbose>1) message(sprintf("is.inCH: iter= %d, inside hull.",i))
   return(TRUE) # If all points passed the test, return TRUE.
 
 ##############################################

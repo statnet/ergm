@@ -63,7 +63,7 @@ ergm.CD.fixed <- function(init, nw, model,
                              verbose=FALSE,
                              estimate=TRUE,
                              response=NULL, ...) {
-  cat("Starting contrastive divergence estimation via CD-MCMLE:\n",sep="")
+  message("Starting contrastive divergence estimation via CD-MCMLE:")
   # Initialize the history of parameters and statistics.
   coef.hist <- rbind(init)
   stats.hist <- matrix(NA, 0, length(model$nw.stats))
@@ -122,11 +122,11 @@ ergm.CD.fixed <- function(init, nw, model,
   for(iteration in 1:control$CD.maxit){
     if(iteration == control$CD.maxit) finished <- TRUE
     if(verbose){
-      cat("Iteration ",iteration," of at most ", control$CD.maxit,
-          " with parameter: \n", sep="")
-      print(mcmc.init)
+      message("Iteration ",iteration," of at most ", control$CD.maxit,
+          " with parameter: ")
+      .message_print(mcmc.init)
     }else{
-      cat("Iteration ",iteration," of at most ", control$CD.maxit,": \n",sep="")
+      message("Iteration ",iteration," of at most ", control$CD.maxit,": ")
     }
 
     # Obtain MCMC sample
@@ -144,8 +144,8 @@ ergm.CD.fixed <- function(init, nw, model,
     statsmatrix <- do.call(rbind,statsmatrices)
     
     if(verbose){
-      cat("Back from unconstrained CD. Average statistics:\n")
-      print(apply(statsmatrix, 2, mean))
+      message("Back from unconstrained CD. Average statistics:")
+      .message_print(apply(statsmatrix, 2, mean))
     }
     
     ##  Does the same, if observation process:
@@ -157,8 +157,8 @@ ergm.CD.fixed <- function(init, nw, model,
       statsmatrix.obs <- do.call(rbind,statsmatrices.obs)
       
       if(verbose){
-        cat("Back from constrained MCMC. Average statistics:\n")
-        print(apply(statsmatrix.obs, 2, mean))
+        message("Back from constrained MCMC. Average statistics:")
+        .message_print(apply(statsmatrix.obs, 2, mean))
       }
     }else{
       statsmatrices.obs <- statsmatrix.obs <- NULL
@@ -176,17 +176,17 @@ ergm.CD.fixed <- function(init, nw, model,
     # full thing. What the latter gives us is a nice "progress report"
     # on whether the estimation is getting better..
     if(verbose){
-      cat("Average estimating equation values:\n")
-      print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else colMeans(esteq))
+      message("Average estimating equation values:")
+      .message_print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else colMeans(esteq))
     }
-    cat("Convergence test P-value:",format(conv.pval, scientific=TRUE,digits=2),"\n")
+    message("Convergence test P-value:",format(conv.pval, scientific=TRUE,digits=2),"")
     if(conv.pval>control$CD.conv.min.pval){
-      cat("Convergence detected. Stopping.\n")
+      message("Convergence detected. Stopping.")
       finished <- TRUE
     }
 
     if(!estimate){
-      if(verbose){cat("Skipping optimization routines...\n")}
+      if(verbose){message("Skipping optimization routines...")}
       l <- list(coef=mcmc.init, mc.se=rep(NA,length=length(mcmc.init)),
                 sample=statsmatrix, sample.obs=statsmatrix.obs,
                 iterations=1, MCMCtheta=mcmc.init,
@@ -201,7 +201,7 @@ ergm.CD.fixed <- function(init, nw, model,
     statsmatrix.0 <- statsmatrix
     statsmatrix.0.obs <- statsmatrix.obs
     if(control$CD.steplength=="adaptive"){
-      if(verbose){cat("Calling adaptive MCMLE Optimization...\n")}
+      if(verbose){message("Calling adaptive MCMLE Optimization...")}
       adaptive.steplength <- 2
       statsmean <- apply(statsmatrix.0,2,mean)
       v <- list(loglikelihood=control$CD.adaptive.trustregion*2)
@@ -212,7 +212,7 @@ ergm.CD.fixed <- function(init, nw, model,
         }else{
           statsmatrix <- sweep(statsmatrix.0,2,(1-adaptive.steplength)*statsmean,"-")
         }
-        if(verbose){cat(paste("Using Newton-Raphson Step with step length",adaptive.steplength,"...\n"))}
+        if(verbose){message(paste("Using Newton-Raphson Step with step length",adaptive.steplength,"..."))}
         #
         #   If not the last iteration do not compute all the extraneous
         #   statistics that are not needed until output
@@ -235,11 +235,11 @@ ergm.CD.fixed <- function(init, nw, model,
       if(v$loglikelihood < control$CD.trustregion-0.001){
         current.scipen <- options()$scipen
         options(scipen=3)
-        cat("The log-likelihood improved by",
-            format.pval(v$loglikelihood,digits=4,eps=1e-4),"\n")
+        message("The log-likelihood improved by",
+            format.pval(v$loglikelihood,digits=4,eps=1e-4),"")
         options(scipen=current.scipen)
       }else{
-        cat("The log-likelihood did not improve.\n")
+        message("The log-likelihood did not improve.")
       }
       steplen.hist <- c(steplen.hist, adaptive.steplength)
     }else{
@@ -252,7 +252,7 @@ ergm.CD.fixed <- function(init, nw, model,
             x2.num.max=control$CD.Hummel.miss.sample, steplength.maxit=control$CD.Hummel.maxit)
         else control$CD.steplength
       
-      if(verbose){cat("Calling MCMLE Optimization...\n")}
+      if(verbose){message("Calling MCMLE Optimization...")}
       statsmean <- apply(statsmatrix.0,2,base::mean)
       if(!is.null(statsmatrix.0.obs)){
         statsmatrix.obs <- t(steplen*t(statsmatrix.0.obs) + (1-steplen)*statsmean) # I.e., shrink each point of statsmatrix.obs towards the centroid of statsmatrix.
@@ -265,7 +265,7 @@ ergm.CD.fixed <- function(init, nw, model,
         stop("MCMLE estimation stuck. There may be excessive correlation between model terms, suggesting a poor model for the observed data. If target.stats are specified, try increasing SAN parameters.")
       }    
       
-      if(verbose){cat(paste("Using Newton-Raphson Step with step length ",steplen," ...\n"))}
+      if(verbose){message(paste("Using Newton-Raphson Step with step length ",steplen," ..."))}
       # Use estimateonly=TRUE if this is not the last iteration.
       v<-ergm.estimate(init=mcmc.init, model=model,
                        statsmatrix=statsmatrix, 
@@ -286,11 +286,11 @@ ergm.CD.fixed <- function(init, nw, model,
       if(v$loglikelihood < control$CD.trustregion-0.001){
         current.scipen <- options()$scipen
         options(scipen=3)
-        cat("The log-likelihood improved by",
-            format.pval(v$loglikelihood,digits=4,eps=1e-4),"\n")
+        message("The log-likelihood improved by",
+            format.pval(v$loglikelihood,digits=4,eps=1e-4),"")
         options(scipen=current.scipen)
       }else{
-        cat("The log-likelihood did not improve.\n")
+        message("The log-likelihood did not improve.")
       }
     }
           
