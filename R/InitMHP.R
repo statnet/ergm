@@ -96,9 +96,9 @@ InitMHP.CondB2Degree <- function(arguments, nw) {
 InitMHP.CondDegreeDist <- function(arguments, nw) {
   MHproposal <- list(name = "CondDegreeDist", inputs=NULL)
   if (is.directed(nw)) {
-    cat("Warning:  Using the 'degreedist' constraint with a directed network\n",
-          "is currently perilous.  We recommend that you use 'outdegree' or\n",
-          "'idegrees' instead.\n")
+    message("Warning:  Using the 'degreedist' constraint with a directed network ",
+          "is currently perilous.  We recommend that you use 'outdegree' or ",
+          "'idegrees' instead.")
   }
   if(is.bipartite(nw)){
      MHproposal$name <- "BipartiteCondDegreeDist"
@@ -109,9 +109,9 @@ InitMHP.CondDegreeDist <- function(arguments, nw) {
 InitMHP.CondInDegreeDist <- function(arguments, nw) {
   MHproposal <- list(name = "CondInDegreeDist", inputs=NULL)
   if (!is.directed(nw)) {
-    cat("Warning:  Using the 'idegreedist' constraint with an undirected network\n",
-          "is currently perilous.  We recommend that you use 'degreedist'\n",
-          " instead.\n")
+    message("Warning:  Using the 'idegreedist' constraint with an undirected network ",
+          "is currently perilous.  We recommend that you use 'degreedist' ",
+          " instead.")
   }
   if(is.bipartite(nw)){
      MHproposal$name <- "BipartiteCondDegreeDist"
@@ -122,9 +122,9 @@ InitMHP.CondInDegreeDist <- function(arguments, nw) {
 InitMHP.CondOutDegreeDist <- function(arguments, nw) {
   MHproposal <- list(name = "CondOutDegreeDist", inputs=NULL)
   if (!is.directed(nw)) {
-    cat("Warning:  Using the 'odegreedist' constraint with an undirected network\n",
-          "is currently perilous.  We recommend that you use 'degreedist'\n",
-          " instead.\n")
+    message("Warning:  Using the 'odegreedist' constraint with an undirected network n",
+          "is currently perilous.  We recommend that you use 'degreedist' ",
+          " instead.")
   }
   if(is.bipartite(nw)){
      MHproposal$name <- "BipartiteCondDegreeDist"

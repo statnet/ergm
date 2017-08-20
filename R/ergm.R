@@ -121,7 +121,7 @@ ergm <- function(formula, response=NULL,
                  estimate=c("MLE", "MPLE", "CD"),
                  control=control.ergm(),
                  verbose=FALSE,...) {
-  check.control.class()
+  check.control.class("ergm", "ergm")
   control.toplevel(control,...)
   
   estimate <- match.arg(estimate)
@@ -136,10 +136,10 @@ ergm <- function(formula, response=NULL,
   }
   
   if(!is.null(control$seed))  set.seed(as.integer(control$seed))
-  if (verbose) cat("Evaluating network in model\n")
+  if (verbose) message("Evaluating network in model.")
   
   nw <- ergm.getnetwork(formula)
-  proposalclass <- "c"  
+  proposalclass <- "c"
   
   # Handle the observation process and other "automatic" constraints.
   tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats)
@@ -162,7 +162,7 @@ ergm <- function(formula, response=NULL,
     san.control <- control$SAN.control
     san.control$coef <- san.control$coef[!model$etamap$offsettheta]
     
-    if(verbose) cat("Constructing an approximate response network.\n")
+    if(verbose) message("Constructing an approximate response network.")
     ## If target.stats are given, overwrite the given network and formula
     ## with SAN-ed network and formula.
     if(control$SAN.maxit > 0){
@@ -177,15 +177,15 @@ ergm <- function(formula, response=NULL,
         nw.stats <- summary(remove.offset.formula(formula),response=response)
         srun <- srun + 1
         if(verbose){
-          cat(paste("Finished SAN run",srun,"\n"))
+          message(paste("Finished SAN run",srun,""))
         }
         if(verbose){
-          cat("SAN summary statistics:\n")
-          print(nw.stats)
-          cat("Meanstats Goal:\n")
-          print(target.stats)
-          cat("Difference: SAN target.stats - Goal target.stats =\n")
-          print(round(nw.stats-target.stats,0))
+          message("SAN summary statistics:")
+          .message_print(nw.stats)
+          message("Meanstats Goal:")
+          .message_print(target.stats)
+          message("Difference: SAN target.stats - Goal target.stats =")
+          .message_print(round(nw.stats-target.stats,0))
         }
         if(sum((nw.stats-target.stats)^2) <= 5) break
       }
@@ -203,35 +203,34 @@ ergm <- function(formula, response=NULL,
     if (network.edgecount(nw) == 0) warning("Network is empty and no target stats are specified.")
   }
   
-  if (verbose) cat("Initializing Metropolis-Hastings proposal(s):") 
+  if (verbose) message("Initializing Metropolis-Hastings proposal(s):",appendLF=FALSE) 
   
   MHproposal <- MHproposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
-  if (verbose) cat(" Unconstrained ",MHproposal$pkgname,":MH_",MHproposal$name,sep="")
+  if (verbose) message(" Unconstrained ",MHproposal$pkgname,":MH_",MHproposal$name, appendLF=FALSE)
 
   if(!is.null(MHproposal$auxiliaries)){
-    if(verbose) cat("(requests auxiliaries: reinitializing model)")
+    if(verbose) message("(requests auxiliaries: reinitializing model)")
     model <- ergm.getmodel(formula, nw, response=response, extra.aux=list(MHproposal$auxiliaries))
   }
     
   if(!is.null(constraints.obs)){
     MHproposal.obs <- MHproposal(constraints.obs, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
-    if (verbose) cat("Constrained ",MHproposal.obs$pkgname,":MH_",MHproposal.obs$name,sep="")
+    if (verbose) message("Constrained ",MHproposal.obs$pkgname,":MH_",MHproposal.obs$name, appendLF=FALSE)
 
     if(!is.null(MHproposal.obs$auxiliaries)){
-      if(verbose) cat("(requests auxiliaries: reinitializing model)")
+      if(verbose) message("(requests auxiliaries: reinitializing model)")
       model$obs.model <- ergm.getmodel(formula, nw, response=response, extra.aux=list(MHproposal.obs$auxiliaries))
     }
   }else MHproposal.obs <- NULL
 
   
   
-  if(verbose) cat("\n")
   
   # conddeg MPLE has been superceded, but let the user know:
   if(!is.directed(nw) && ("degrees" %in% names(MHproposal$arguments$constraints) ||
                                            all(c("b1degrees","b2degrees") %in% names(MHproposal$arguments$constraints)))) message("Note that degree-conditional MPLE has been removed in version 4.0, having been superceded by Contrastive Divergence.")  
   
-  if (verbose) cat("Initializing model.\n")
+  if (verbose) message("Initializing model.")
   
   # Construct the initial model.
   
@@ -245,11 +244,11 @@ ergm <- function(formula, response=NULL,
   if("MPLE" %in% init.candidates && !is.dyad.independent(MHproposal$arguments$constraints,
                                                          MHproposal.obs$arguments$constraints)){
     init.candidates <- init.candidates[init.candidates!="MPLE"]
-    if(verbose) cat("MPLE cannot be used for this constraint structure.\n")
+    if(verbose) message("MPLE cannot be used for this constraint structure.")
   }
 
   control$init.method <- match.arg(control$init.method, init.candidates)
-  if(verbose) cat(paste0("Using initial method '",control$init.method,"'.\n"))
+  if(verbose) message(paste0("Using initial method '",control$init.method,"'."))
 
   if(length(model$etamap$curved)){ # Curved model: use ergm.logitreg() rather than glm().
       control$MPLE.type <- "logitreg"
@@ -259,7 +258,11 @@ ergm <- function(formula, response=NULL,
   if(!is.null(control$init)){
     # Check length of control$init.
     if (length(control$init)!=length(model$etamap$offsettheta)) {
-      if(verbose) cat("control$init is", control$init, "\n", "number of statistics is",length(model$coef.names), "\n")
+      if(verbose){
+        message("control$init =")
+        .message_print(control$init)
+        message("number of statistics is ",length(model$coef.names), "")
+      }
       stop(paste("Invalid starting parameter vector control$init:",
                  "wrong number of parameters.",
                  "If you are passing output from another ergm run as control$init,",
@@ -288,7 +291,7 @@ ergm <- function(formula, response=NULL,
   extremecheck <- ergm.checkextreme.model(model=model, nw=nw, init=control$init, response=response, target.stats=target.stats, drop=control$drop)
   model <- extremecheck$model; control$init <- extremecheck$init
   
-  # MPLE is not supported for curved ERGMs.
+  # MPLE is not supported for valued ERGMs.
   if(estimate=="MPLE"){
     if(!is.null(response)) stop("Maximum Pseudo-Likelihood (MPLE) estimation for valued ERGM terms is not implemented at this time. You may want to use Contrastive Divergence by passing estimate='CD' instead.")
     if(!is.dyad.independent(MHproposal$arguments$constraints,
@@ -296,7 +299,7 @@ ergm <- function(formula, response=NULL,
       stop("Maximum Pseudo-Likelihood (MPLE) estimation for ERGMs with dyad-dependent constraints is only implemented for certain degree constraints at this time. You may want to use Contrastive Divergence by passing estimate='CD' instead.")
   }
   
-  if (verbose) { cat("Fitting initial model.\n") }
+  if (verbose) { message("Fitting initial model.") }
   
   MPLE.is.MLE <- (MHproposal$reference$name=="Bernoulli"
                   && is.dyad.independent(model)
@@ -315,7 +318,7 @@ ergm <- function(formula, response=NULL,
   # Short-circuit the optimization if all terms are either offsets or dropped.
   if(all(model$etamap$offsettheta)){
     # Note that this cannot be overridden with control$force.main.
-    cat("All terms are either offsets or extreme values. No optimization is performed.\n")
+    message("All terms are either offsets or extreme values. No optimization is performed.")
     return(structure(list(coef=control$init,
                           iterations=0,
                           loglikelihood=NA,
@@ -388,9 +391,9 @@ ergm <- function(formula, response=NULL,
     
     if(eval.loglik) initialfit$null.lik <- logLikNull.ergm(initialfit, verbose=verbose)
     if(any(!model$etamap$offsettheta) && eval.loglik){
-      cat("Evaluating log-likelihood at the estimate. ")
+      message("Evaluating log-likelihood at the estimate. ",appendLF=FALSE)
       initialfit<-logLik.ergm(initialfit, add=TRUE, control=control$loglik.control, verbose=verbose)
-      cat("\n")
+      message("")
     }
     return(initialfit)
   }
@@ -417,7 +420,7 @@ ergm <- function(formula, response=NULL,
   init[is.na(init)] <- 0
   names(init) <- coef.names.model(model, FALSE)
   
-  if (verbose) cat("Fitting ERGM.\n")
+  if (verbose) message("Fitting ERGM.")
   mainfit <- switch(control$main.method,
                     "Robbins-Monro" = ergm.robmon(init, nw, model, 
                                                   MHproposal=MHproposal, verbose=verbose, control=control),
@@ -452,7 +455,7 @@ ergm <- function(formula, response=NULL,
   
   if(!is.null(control$MCMLE.check.degeneracy) && control$MCMLE.check.degeneracy && (is.null(mainfit$theta1$independent) || !all(mainfit$theta1$independent))){
     if(verbose) {
-      cat("Checking for degeneracy.\n")
+      message("Checking for degeneracy.")
     }
     degeneracy <- ergm.degeneracy(mainfit, test.only=TRUE)
   } else {
@@ -492,7 +495,7 @@ ergm <- function(formula, response=NULL,
     mainfit$sample <- NULL
   
   if(eval.loglik){
-    cat("Evaluating log-likelihood at the estimate. ")
+    message("Evaluating log-likelihood at the estimate. ", appendLF=FALSE)
     mainfit<-logLik.ergm(mainfit, add=TRUE, control=control$loglik.control, verbose=verbose)
   }
   
@@ -504,8 +507,8 @@ ergm <- function(formula, response=NULL,
   ergm.stopCluster(clus)
   
   if (MCMCflag) {
-    cat("\nThis model was fit using MCMC.  To examine model diagnostics", 
-        "and check for degeneracy, use the mcmc.diagnostics() function.\n")
+    message("This model was fit using MCMC.  To examine model diagnostics ", 
+        "and check for degeneracy, use the mcmc.diagnostics() function.")
   }
   
   mainfit

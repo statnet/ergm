@@ -131,5 +131,5 @@ control.simulate.ergm<-function(MCMC.burnin=NULL,
       control[old.controls[[arg]]]<-list(list(...)[[arg]])
     }
  
-  set.control.class()
+  set.control.class("control.simulate.ergm")
 }

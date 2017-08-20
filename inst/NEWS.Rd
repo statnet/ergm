@@ -14,6 +14,57 @@
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
 
+%% \section{Changes in version X.Y.Z}{
+
+%%   \subsection{NEW FEATURES}{
+%%     \itemize{
+%%       \item{
+%%       }
+%%     }
+%%   }
+
+
+%%   \subsection{BUG FIXES}{
+%%     \itemize{
+%%       \item{
+%%       }
+%%     }
+%%   }
+
+
+%%   \subsection{OTHER USER-VISIBLE CHANGES}{
+%%     \itemize{
+%%       \item{
+%%       }
+%%     }
+%%   }
+
+  %% \subsection{C-LEVEL FACILITIES}{
+  %%   \itemize{
+  %%   }
+  %% }
+
+  % \subsection{UTILITIES}{
+  %   \itemize{
+  %     \item Likewise, "UTILITIES" is probably unnecessary.
+  %   }
+  % }
+
+  % \subsection{INSTALLATION}{
+  %   \itemize{
+  %     \item ... as is "INSTALLATION".
+  %   }
+  % }
+
+  % \subsection{PACKAGE INSTALLATION}{
+  %   \itemize{
+  %     \item ditto.
+  %   }
+  % }
+
+%% }
+
+
 \section{Changes in version 4.0.0}{
 
   \subsection{NEW FEATURES}{
@@ -48,10 +99,6 @@
        \item{Miscellaneous fixes to the documentation and
 	 robustifications.}
 
-       \item{\code{\link{ddsp}} and \code{\link{dnsp}} terms now work
-       correctly for 0 shared partners. (Thanks to Wouter Spekkink for
-       reporting this bug.)}
-
      }
    }
 
@@ -71,28 +118,9 @@
       before every toggle.
     }
   }
-
-  % \subsection{UTILITIES}{
-  %   \itemize{
-  %     \item Likewise, "UTILITIES" is probably unnecessary.
-  %   }
-  % }
-
-  % \subsection{INSTALLATION}{
-  %   \itemize{
-  %     \item ... as is "INSTALLATION".
-  %   }
-  % }
-
-  % \subsection{PACKAGE INSTALLATION}{
-  %   \itemize{
-  %     \item ditto.
-  %   }
-  % }
-
 }
 
-\section{Changes in version 3.7.2}{
+\section{Changes in version 3.8.0}{
 
   \subsection{NEW FEATURES}{
     \itemize{
@@ -112,10 +140,37 @@
       \item{
 	Bug fixes to contrastive divergence code.
       }
+      
+      \item{
+	\code{\link{ddsp}} and \code{\link{dnsp}} terms now work
+	correctly for 0 shared partners. (Thanks to Wouter Spekkink for
+	reporting this bug.)
+	}
+
       \item{
 	Miscellaneous bug fixes, typo corrections, and robustifications.
       }
     }
+  }
+  
+  
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+	Terms \code{degreepopularity}, \code{idegreepopularity}, and
+	\code{odegreepopularity} have been renamed to \code{degree1.5},
+	\code{idegree1.5}, and \code{odegree1.5} respectively.
+      }
+      \item{
+	Progress reports for ERGM fits and simulations are now printed
+	using \code{\link{message}}, so they can be suppressed with
+	\code{\link{suppressMessages}}.
+      }
+      \item{
+	A number of functions deprecated in 2015 have been removed. See
+	\code{help('ergm-defunct')} for the list.
+      }
+    }    
   }
 }
 

@@ -81,7 +81,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
   }
   
   if(!is.null(control.parallel$MCMC.effectiveSize)){
-    if(verbose) cat("Beginning adaptive MCMC...\n")
+    if(verbose) message("Beginning adaptive MCMC...")
 
     howmuchmore <- function(target.ess, current.ss, current.ess, current.burnin){
       (target.ess-current.ess)*(current.ss-current.burnin)/current.ess
@@ -94,17 +94,17 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
       if(mcrun==1){
         samplesize <- control.parallel$MCMC.samplesize
         if(verbose)
-          cat("First run: running each chain forward by",samplesize, "steps with interval", interval, ".\n")
+          message("First run: running each chain forward by ",samplesize, " steps with interval ", interval, ".")
       }else{
         if(meS$eS<1){
           samplesize <- control.parallel$MCMC.samplesize
           if(verbose)
-            cat("Insufficient ESS to determine the number of steps remaining: running forward by",samplesize, "steps with interval", interval, ".\n")
+            message("Insufficient ESS to determine the number of steps remaining: running forward by ",samplesize, " steps with interval ", interval, ".")
         }else{
           pred.ss <- howmuchmore(control.parallel$MCMC.effectiveSize, NVL(nrow(outl[[1]]$s),0), meS$eS, meS$burnin)
           damp.ss <- pred.ss*(meS$eS/(control.parallel$MCMC.effectiveSize.damp+meS$eS))+control.parallel$MCMC.samplesize*(1-meS$eS/(control.parallel$MCMC.effectiveSize.damp+meS$eS))
           samplesize <- round(damp.ss)
-          if(verbose) cat("Predicted additional sample size:",pred.ss, "dampened to",damp.ss, ", so running", samplesize, "steps forward.\n")
+          if(verbose) message("Predicted additional sample size: ",pred.ss, " dampened to ",damp.ss, ", so running ", samplesize, " steps forward.")
         }
       }
         
@@ -121,7 +121,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
       while(nrow(outl[[1]]$s)-meS$burnin>=(control.parallel$MCMC.samplesize)*2){
         for(i in seq_along(outl)) outl[[i]]$s <- outl[[i]]$s[seq_len(floor(nrow(outl[[i]]$s)/2))*2,,drop=FALSE]
         interval <- interval*2
-        if(verbose) cat("Increasing thinning to",interval,".\n")
+        if(verbose) message("Increasing thinning to ",interval,".")
       }
       
       esteq <- lapply(outl, function(out)
@@ -130,7 +130,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
                       )
       
       meS <- .max.effectiveSize(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, ar.order=control$MCMC.effectiveSize.order)
-      if(verbose) cat("Maximum Harmonic mean ESS of",meS$eS,"attained with burn-in of", round(meS$b/nrow(outl[[1]]$s)*100,2),"%.\n")
+      if(verbose) message("Maximum Harmonic mean ESS of ",meS$eS," attained with burn-in of ", round(meS$b/nrow(outl[[1]]$s)*100,2),"%.")
 
       if(control.parallel$MCMC.runtime.traceplot){
         for (i in seq_along(esteq)) colnames(esteq[[i]]) <- names(list(...)$theta)
@@ -139,7 +139,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
       }
 
       if(meS$eS>=control.parallel$MCMC.effectiveSize){
-        if(verbose) cat("Target ESS achieved. Returning.\n")      
+        if(verbose) message("Target ESS achieved. Returning.")      
         break
       }
     }
@@ -201,8 +201,8 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
   statsmatrix <- do.call(rbind,statsmatrices)
   colnames(statsmatrix) <- model$coef.names
 
-  if(verbose){cat("Sample size =",nrow(statsmatrix),"by",
-                  control.parallel$MCMC.samplesize,"\n")}
+  if(verbose){message("Sample size = ",nrow(statsmatrix)," by ",
+                  control.parallel$MCMC.samplesize,".")}
   
   statsmatrix[is.na(statsmatrix)] <- 0
   list(statsmatrix=statsmatrix, statsmatrices=statsmatrices, newnetwork=newnetwork, newnetworks=newnetworks, status=0, final.interval=final.interval)

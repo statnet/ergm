@@ -41,8 +41,8 @@ ergm.design <- function(nw, model, verbose=FALSE){
   }else{
     Clist.miss <- ergm.Cprepare(is.na(nw), model)
     if(verbose){
-      cat("Design matrix:\n")
-      print(summary(is.na(nw)))
+      message("Design matrix:")
+      .message_print(summary(is.na(nw)))
     }
   }
   Clist.miss

@@ -94,8 +94,8 @@ ergm.bounddeg <- function(bounddeg,nw){
     maxin [is.na(maxin )] <- nnodes-1
     maxout[is.na(maxout)] <- nnodes-1
     if (any(outdeg>maxout | outdeg<minout) || (is.directed(nw) && any(indeg>maxin | indeg<minin))) {
-      cat("Warning:  Initial network does not satisfy degree constraints.\n",
-          "Proceeding anyway, but final network may not satisfy constraints.\n")
+      message("Warning:  Initial network does not satisfy degree constraints. ",
+          "Proceeding anyway, but final network may not satisfy constraints.")
     }
     attribs[is.na(attribs)] <- 0
   }
