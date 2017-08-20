@@ -12,4 +12,4 @@ data(florentine)
 
 efit <- ergm(flomarriage~edges, constraints=~edges)
 
-stopifnot(length(warnings())==1)
+stopifnot("The specified model's sample space constraint holds statistic(s) edges  constant. They will be ignored." %in% names(warnings()))

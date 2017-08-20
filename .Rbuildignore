@@ -4,3 +4,5 @@
 ^.*/\.RData$
 .travis.yml
 appveyor.yml
+.*\.orig$
+.*\.rej$
