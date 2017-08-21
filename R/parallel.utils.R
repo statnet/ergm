@@ -36,14 +36,14 @@ ergm.getCluster <- function(control, verbose=FALSE){
   
   if(inherits(control$parallel,"cluster")){
     ergm.cluster.started(FALSE)
-    if(verbose) cat("Cluster passed by user.\n", sep="")
+    if(verbose) message("Cluster passed by user.")
     cl <- control$parallel
   }else{
     
     #type <- if(is.null(control$parallel.type)) getClusterOption("type") else control$parallel.type
     type <- if(is.null(control$parallel.type)) "PSOCK" else control$parallel.type
     
-    if(verbose) cat("Using ",type,".\n", sep="")
+    if(verbose) message("Using ",type,".")
     
     #   Start Cluster
     cl <- switch(type,
@@ -54,7 +54,7 @@ ergm.getCluster <- function(control, verbose=FALSE){
                    #                if(inherits(PVM.running,"try-error")){
                    #                  hostfile <- paste(Sys.getenv("HOME"),"/.xpvm_hosts",sep="")
                    #                  .PVM.start.pvmd(hostfile)
-                   #                  cat("PVM not running. Attempting to start.\n")
+                   #                  message("PVM not running. Attempting to start.")
                    #                }
                    ergm.cluster.started(TRUE)
                    makeCluster(control$parallel,type="PVM")
@@ -92,7 +92,7 @@ ergm.getCluster <- function(control, verbose=FALSE){
                                    lib.loc=myLibLoc()))
     # If something failed, warn and try loading from anywhere.
     if(!all(attached)){
-      if(verbose) cat("Failed to attach ergm on the slave nodes from the same location as the master node. Will try to load from anywhere in the library path.\n")
+      if(verbose) message("Failed to attach ergm on the slave nodes from the same location as the master node. Will try to load from anywhere in the library path.")
       attached <- clusterCall(cl, require,
                               package=pkg,
                               character.only=TRUE)      

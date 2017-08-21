@@ -56,14 +56,14 @@ ergm.mapl <- function(formula, init="MPLE",
                  control=control.ergm(MPLEtype="penalized"),
                  tau=1, invcov=NULL,
                  verbose=FALSE, ...) {
-  check.control.class("ergm")
+  check.control.class("ergm", "ergm.mapl")
   control.toplevel(...,myname="ergm")
 
-  if (verbose) cat("Evaluating network in model\n")
+  if (verbose) message("Evaluating network in model.")
 
   nw <- ergm.getnetwork(formula)
   
-  if (verbose) cat("Fitting initial model.\n")
+  if (verbose) message("Fitting initial model.")
 
   proposalclass <- "c"
     
@@ -85,7 +85,7 @@ ergm.mapl <- function(formula, init="MPLE",
             constraints=~., #constraints=constraints,
             proposaltype=proposaltype,
             tau=tau, invcov=invcov, burnin=10*burnin, verbose=verbose)
-    if(verbose){print(summary(formula, basis=nw)-target.stats)}
+    if(verbose){.message_print(summary(formula, basis=nw)-target.stats)}
   }
   
   Clist.initial <- ergm.Cprepare(nw, model.initial)
@@ -119,8 +119,8 @@ ergm.mapl <- function(formula, init="MPLE",
                proposaltype=proposaltype,
                tau=tau, invcov=invcov, burnin=burnin, 
                constraints=constraints, basis=sim)
-    if(verbose){print(summary(formula, basis=sim)-target.stats)}
-    if(verbose){print(sum(sim[,] != nw[,]))}
+    if(verbose){.message_print(summary(formula, basis=sim)-target.stats)}
+    if(verbose){.message_print(sum(sim[,] != nw[,]))}
     Clist.initial <- ergm.Cprepare(sim, model.initial)
     Clist.miss.initial <- ergm.design(sim, model.initial, verbose=verbose)
     Clist.initial$target.stats=target.stats

@@ -61,7 +61,7 @@ ergm.phase12 <- function(g, model,
   while(z$newnwtails[1] >= maxedges){
     maxedges <- 5*maxedges
     control$MCMC.init.maxedges <- 5*control$MCMC.init.maxedges
-    if(verbose){cat(paste("MCMC workspace is",maxedges,"\n"))}
+    if(verbose){message(paste("MCMC workspace is ",maxedges,"."))}
     # *** don't forget, pass in tails first now, not heads
     z <- .C("MCMCPhase12",
             as.integer(Clist$tails), as.integer(Clist$heads), 

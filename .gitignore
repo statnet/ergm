@@ -84,6 +84,10 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+# patch files
+*.orig
+*.rej
+
 # Backup files
 *~
 *.bak

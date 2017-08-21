@@ -93,7 +93,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
           PACKAGE="ergm")
   uvals <- z$weightsvector!=0
   if (verbose) {
-    cat(paste("MPLE covariate matrix has", sum(uvals), "rows.\n"))
+    message(paste("MPLE covariate matrix has", sum(uvals), "rows."))
   }
   zy <- z$y[uvals]
   wend <- as.numeric(z$weightsvector[uvals])
@@ -104,7 +104,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   # If we ran out of space, AND we have a sparse network, then, use
   # case-control MPLE.
   if(sum(wend)<Clist$ndyads && mean(zy)<1/2){
-    if(verbose) cat("A sparse network with too many unique dyads encountered. Using case-control MPLE.\n")
+    if(verbose) message("A sparse network with too many unique dyads encountered. Using case-control MPLE.")
     # Strip out the rows associated with ties.
     wend <- wend[zy==0]
     xmat <- xmat[zy==0,,drop=FALSE]
@@ -153,7 +153,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   
   }else{
     if (verbose) {
-      cat("Using the MPLE conditional on degree.\n")
+      message("Using the MPLE conditional on degree.")
     }
     # Conditional on degree version
     eta0 <- ergm.eta(rep(0,length(conddeg$m$coef.names)), conddeg$m$etamap)
@@ -207,7 +207,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
                           byrow = TRUE)
     colnames(statsmatrix) <- data$conddeg$m$coef.names
     xb <- ergm.sufftoprob(statsmatrix[-c(1,data$control$MPLE.samplesize+1),],compress=TRUE)
-# if (verbose) {cat("Finished compression.\n")}
+# if (verbose) {message("Finished compression.")}
     xmat <- xb[,-c(1,ncol(xb)),drop=FALSE]
     wend <- xb[,ncol(xb)]
 #   xb <- statsmatrix[-1,]

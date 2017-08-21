@@ -151,16 +151,16 @@ if (!all(round(s.0 + c(0.09789041 ),3)==0) || round(e.0$coef - c(0.2282))!= 0) {
 
 
 
-# degreepopularity, undirected
+# degree1.5, undirected
 num.tests=num.tests + 1
-s.0 <- summary(fmh~degreepopularity)
-e.0 <- ergm(fmh~degreepopularity, estimate="MPLE")
+s.0 <- summary(fmh~degree1.5)
+e.0 <- ergm(fmh~degree1.5, estimate="MPLE")
 if (round(s.0-795.7458,3) != 0 || round(e.0$coef + 1.1398, 3) != 0) {
  print(list(s.0=s.0, e.0=e.0))
- stop("Failed degreepopularity term test")
+ stop("Failed degree1.5 term test")
 } else {
   num.passed.tests=num.passed.tests+1
-  print("Passed degreepopularity term test")
+  print("Passed degree1.5 term test")
 }
 
 

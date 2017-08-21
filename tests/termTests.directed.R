@@ -215,16 +215,16 @@ if (s.0 != 224 || round(e.0$coef + .21, 3) != 0) {
 
 
                      
-# idegreepopularity, directed
+# idegree1.5, directed
 num.tests=num.tests + 1
-s.0 <- summary(samplike~idegreepopularity)
-e.0 <- ergm(samplike~idegreepopularity, estimate="MPLE")
+s.0 <- summary(samplike~idegree1.5)
+e.0 <- ergm(samplike~idegree1.5, estimate="MPLE")
 if (round(s.0-214.6543,3) != 0 || round(e.0$coef + .2387, 3) != 0) {
  print(list(s.0=s.0, e.0=e.0))
- stop("Failed idegreepopularity term test")
+ stop("Failed idegree1.5 term test")
 } else {
   num.passed.tests=num.passed.tests+1
-  print("Passed idegreepopularity term test")
+  print("Passed idegree1.5 term test")
 }
 
 
@@ -414,16 +414,16 @@ if (!all(s.k == c(88,178, 191)) ||
 
 
                      
-# odegreepopularity, directed
+# odegree1.5, directed
 num.tests=num.tests + 1
-s.0 <- summary(samplike~odegreepopularity)
-e.0 <- ergm(samplike~odegreepopularity, estimate="MPLE")
+s.0 <- summary(samplike~odegree1.5)
+e.0 <- ergm(samplike~odegree1.5, estimate="MPLE")
 if (round(s.0-196.9432,3) != 0 || round(e.0$coef + 0.2909, 3) != 0) {
  print(list(s.0=s.0, e.0=e.0))
- stop("Failed odegreepopularity term test")
+ stop("Failed odegree1.5 term test")
 } else {
   num.passed.tests=num.passed.tests+1
-  print("Passed odegreepopularity term test")
+  print("Passed odegree1.5 term test")
 }
 
 

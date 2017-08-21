@@ -65,7 +65,7 @@ control.gof.ergm<-function(nsim=100,
   for(arg in names(formals(sys.function())))
     control[arg]<-list(get(arg))
 
-  set.control.class()
+  set.control.class("control.gof.ergm")
 }
 
 
@@ -89,5 +89,5 @@ control.gof.formula<-function(nsim=100,
   for(arg in names(formals(sys.function())))
     control[arg]<-list(get(arg))
   
-  set.control.class()
+  set.control.class("control.gof.formula")
 }

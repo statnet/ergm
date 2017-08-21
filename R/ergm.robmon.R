@@ -55,15 +55,15 @@ ergm.robmon <- function(init, nw, model,
   n1 <- control$SA.phase1_n
   if(is.null(n1)) {n1 <- 7 + 3 * model$etamap$etalength} #default value
   eta0 <- ergm.eta(init, model$etamap)
-  cat("Robbins-Monro algorithm with theta_0 equal to:\n")
+  message("Robbins-Monro algorithm with theta_0 equal to:")
   print(init)
 #  stats <- matrix(0,ncol=model$etamap$etalength,nrow=n1)
 #  stats[1,] <- model$nw.stats - model$target.stats
 ## stats[,]<-  rep(model$nw.stats - model$target.stats,rep(nrow(stats),model$etamap$etalength))
 ## control$stats <- stats
   control$MCMC.samplesize=n1
-  cat(paste("Phase 1: ",n1,"iterations"))
-  cat(paste(" (interval=",control$MCMC.interval,")\n",sep=""))
+  message(paste("Phase 1: ",n1,"iterations"),appendLF=FALSE)
+  message(paste(" (interval=",control$MCMC.interval,")",sep=""))
   z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, control, verbose)
   steplength <- control$MCMLE.steplength
   # post-processing of sample statistics:  Shift each row by the
@@ -81,7 +81,7 @@ ergm.robmon <- function(init, nw, model,
   Ddiag <- apply(statsmatrix^2, 2, base::mean)
   # This is equivalent to, but more efficient than,
   # Ddiag <- diag(t(z$statsmatrix) %*% z$statsmatrix / phase1_n - outer(ubar,ubar))
-  cat("Phase 1 complete; estimated variances are:\n")
+  message("Phase 1 complete; estimated variances are:")
   print(Ddiag)
 #browser()
 # require(covRobust)
@@ -105,12 +105,12 @@ ergm.robmon <- function(init, nw, model,
   }
   for(subphase in 1:n_sub) {
     thetamatrix <- NULL # Will hold matrix of all theta values for this subphase
-    cat(paste("Phase 2, subphase",subphase,": a=",a,",",n_iter,"iterations"))
-    cat(paste(" (burnin=",control$MCMC.burnin,")\n",sep=""))
+    message(paste("Phase 2, subphase",subphase,": a=",a,",",n_iter,"iterations"), appendLF=FALSE)
+    message(paste(" (burnin=",control$MCMC.burnin,")",sep=""))
     for(iteration in 1:n_iter) {
-#cat(paste("theta:",theta,"\n"))
+#message(paste("theta:",theta,""))
       eta <- ergm.eta(theta, model$etamap)
-#cat(paste("eta:",eta,"\n"))
+#message(paste("eta:",eta,""))
 
       # control$MCMC.burnin should perhaps be increased here, since
       # each iteration begins from the observed network, which must be 
@@ -128,11 +128,11 @@ ergm.robmon <- function(init, nw, model,
       }
       
       Ddiaginv<-1/Ddiag
-#cat(paste("Ddiaginv:",Ddiaginv,"\n"))
+#message(paste("Ddiaginv:",Ddiaginv,""))
 #     theta <- theta - a * Ddiaginv * statsmatrix
       theta <- theta - a * Ddiaginv * statsmean
     }
-cat(paste("theta new:",theta,"\n"))
+message(paste("theta new:",theta,""))
     a <- a/2
     n_iter <- round(n_iter*2.52) # 2.52 is approx. 2^(4/3)
     thetamatrix <- rbind(thetamatrix,theta)
@@ -143,8 +143,8 @@ cat(paste("theta new:",theta,"\n"))
   n3 <- control$SA.phase3_n
   if(is.null(n3)) {n3 <- 20} #default
   control$MCMC.samplesize <- n3
-  cat(paste("Phase 3: ",n3,"iterations"))
-  cat(paste(" (interval=",control$MCMC.interval,")\n",sep=""))
+  message(paste("Phase 3: ",n3,"iterations"),appendLF=FALSE)
+  message(paste(" (interval=",control$MCMC.interval,")",sep=""))
   eta <- ergm.eta(theta, model$etamap)
   control$nmatrixentries = control$MCMC.samplesize * model$etamap$etalength
   z <- ergm.getMCMCsample(nw, model, MHproposal, eta, control, verbose=FALSE)
@@ -157,8 +157,8 @@ cat(paste("theta new:",theta,"\n"))
 # hessian <- (t(z$statsmatrix) %*% z$statsmatrix)/n3 - outer(ubar,ubar)
 # covar <- ginv(covar)
   
-  if(verbose){cat("Calling MCMLE Optimization...\n")}
-  if(verbose){cat("Using Newton-Raphson Step ...\n")}
+  if(verbose){message("Calling MCMLE Optimization...")}
+  if(verbose){message("Using Newton-Raphson Step ...")}
 
   ve<-ergm.estimate(init=theta, model=model,
                    statsmatrix=statsmatrix,

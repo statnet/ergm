@@ -48,7 +48,7 @@ ergm.degeneracy <- function(object,
                           fast=TRUE,
                           test.only=FALSE,
                           verbose=FALSE) {
-  check.control.class(control, "ergm")
+  check.control.class("ergm", "ergm.degeneracy")
   
   if(!is.ergm(object)){
     stop("A ergm object argument must be given.")
@@ -82,7 +82,7 @@ ergm.degeneracy <- function(object,
     }else{
      wgts <- object$mplefit$glm$prior.weights
      if(nrow(changeobs) > 1000){
-      cat("This computation may take a while ...\n")
+      message("This computation may take a while ...")
      }
     }
     object$degeneracy.type <- try(
@@ -143,7 +143,7 @@ ergm.degeneracy <- function(object,
     }
   }
   if(verbose){
-    print(object$degeneracy.type)
+    .message_print(object$degeneracy.type)
   }
   return(invisible(object))
 }
@@ -209,14 +209,14 @@ ergm.compute.degeneracy<-function(xobs, init, etamap, statsmatrix,
 #
 # Set up the initial estimate
 #
-  if (verbose) cat("Converting init to eta0\n")
+  if (verbose) message("Converting init to eta0")
   eta0 <- ergm.eta(init, etamap) #unsure about this
   etamap$init <- init
 #
 # Log-Likelihood and gradient functions
 #
   varweight <- 0.5
-  if (verbose) cat("Optimizing loglikelihood\n")
+  if (verbose) message("Optimizing loglikelihood")
   Lout <- try(optim(par=guess, 
                     fn=llik.fun, #  gr=llik.grad,
                     hessian=FALSE,
@@ -228,12 +228,12 @@ ergm.compute.degeneracy<-function(xobs, init, etamap, statsmatrix,
                     xsim.obs=xsim.obs, probs.obs=probs.obs,
                     varweight=varweight, trustregion=trustregion,
                     eta0=eta0, etamap=etamap),silent=TRUE)
-  if(verbose){cat("the change in the log-likelihood is", Lout$value,"\n")}
+  if(verbose){message("the change in the log-likelihood is ", Lout$value,"")}
   if(inherits(Lout,"try-error") || Lout$value > 199 ||
     Lout$value < -790) {
     if(verbose){
-      cat("MLE could not be found. Degenerate!\n")
-      cat("Nelder-Mead Log-likelihood ratio is ", Lout$value,"\n")
+      message("MLE could not be found. Degenerate!")
+      message("Nelder-Mead Log-likelihood ratio is ", Lout$value,"")
     }
     return(c(Inf, guess))
   }

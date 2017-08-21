@@ -37,7 +37,7 @@ ergm.bridge.preproc<-function(object, basis, response){
 ## returns only the estimate. Otherwise, returns a list with more
 ## details. Other parameters are same as simulate.ergm.
 ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis=NULL, verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){
-  check.control.class("ergm.bridge")
+  check.control.class("ergm.bridge", "ergm.bridge.llr")
   control.toplevel(..., myname="ergm.bridge")
 
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
@@ -58,12 +58,12 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
     stats.obs <- matrix(NA,control$nsteps,m$etamap$etalength)  
   }else stats.obs<-matrix(summary(form,response=response),control$nsteps,m$etamap$etalength,byrow=TRUE)  
 
-  cat("Using", control$nsteps, "bridges: ")
+  message("Using ", control$nsteps, " bridges: ", appendLF=FALSE)
   for(i in seq_len(control$nsteps)){
     theta<-path[i,]
-    if(verbose==0) cat(i,"")
-    if(verbose>0) cat("Running theta=[",paste(format(theta),collapse=","),"].\n",sep="")
-    if(verbose>1) cat("Burning in...\n",sep="")
+    if(verbose==0) message(i," ",appendLF=FALSE)
+    if(verbose>0) message("Running theta=[",paste(format(theta),collapse=","),"].")
+    if(verbose>1) message("Burning in...")
     ## First burn-in has to be longer, but those thereafter should be shorter if the bridges are closer together.
     nw.state<-simulate(form, coef=theta, nsim=1, response=response, constraints=constraints, statsonly=FALSE, verbose=max(verbose-1,0),
                        control=control.simulate.formula(MCMC.burnin=if(i==1) control$MCMC.burnin else ceiling(control$MCMC.burnin/sqrt(control$nsteps)),
@@ -101,7 +101,7 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
                                 nsim=ceiling(control$obs.MCMC.samplesize/control$nsteps), ...),2,mean)
     }
   }
-  cat(".\n")
+  message(".")
     
   Dtheta.Du<-to-from
 
@@ -116,7 +116,7 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
 ## measure*. That is, the configuration with theta=0 is defined as
 ## having log-likelihood of 0.
 ergm.bridge.0.llk<-function(object, response=response, coef, ..., llkonly=TRUE, control=control.ergm.bridge()){
-  check.control.class("ergm.bridge")
+  check.control.class("ergm.bridge", "ergm.bridge.0.llk")
   control.toplevel(...,myname="ergm.bridge")
 
   br<-ergm.bridge.llr(object, from=rep(0,length(coef)), to=coef, response=response, control=control, ...)
@@ -133,7 +133,7 @@ ergm.bridge.0.llk<-function(object, response=response, coef, ..., llkonly=TRUE, 
 ## `dind' defaults to the dyad-independent terms of the `object'
 ## formula with an edges term added unless redundant.
 ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef, dind=NULL, coef.dind=NULL,  basis=NULL, ..., llkonly=TRUE, control=control.ergm.bridge()){
-  check.control.class("ergm.bridge")
+  check.control.class("ergm.bridge", "ergm.bridge.dindstart.llk")
   control.toplevel(...,myname="ergm.bridge")
 
   if(!is.null(response)) stop("Only binary ERGMs are supported at this time.")

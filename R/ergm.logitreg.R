@@ -77,11 +77,8 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
   fit$iter <- fit$counts[1]
   asycov <- ginv(fit$hessian)
   fit$cov.unscaled <- asycov
-# cat("\nCoefficients:\n"); print(fit$par)
-# # R: use fit$value and fit$convergence
-# cat("\nResidual Deviance:", format(fit$value), "\n")
   if(fit$convergence > 0)
-      cat("\nConvergence code:", fit$convergence, "\n")
+      message("Convergence code: ", fit$convergence, ".")
   invisible(fit)
 }
 
