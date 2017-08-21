@@ -1490,7 +1490,7 @@ InitErgmTerm.gwb1degree<-function(nw, arglist,  ...) {
     ld<-length(d)
     if(ld==0){return(NULL)}
     c(.process_layers_degree(nw, a, name="b1degree", coef.names=paste("gwb1degree#",d,sep=""), inputs=c(d)),
-      params=list(gwb1degree=NULL,gwb1degree.decay=decay),
+      params=list(list(gwb1degree=NULL,gwb1degree.decay=decay)),
       GWDECAY, conflicts.constraints="b1degreedist")
   } else {
     if(is.null(a$decay)) stop("Term 'gwb1degree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
@@ -1543,7 +1543,7 @@ InitErgmTerm.gwb2degree<-function(nw, arglist,  ...) {
     ld<-length(d)
     if(ld==0){return(NULL)}
     c(.process_layers_degree(nw, a, name="b2degree", coef.names=paste("gwb2degree#",d,sep=""), inputs=c(d)),
-      params=list(gwb2degree=NULL,gwb2degree.decay=decay),
+      params=list(list(gwb2degree=NULL,gwb2degree.decay=decay)),
       GWDECAY, conflicts.constraints="b2degreedist")
   } else { 
     if(is.null(a$decay)) stop("Term 'gwb2degree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
@@ -1596,7 +1596,7 @@ InitErgmTerm.gwdegree<-function(nw, arglist, ...) {
     ld<-length(d)
     if(ld==0){return(NULL)}
     c(.process_layers_degree(nw, a, name="degree", coef.names=paste("gwdegree#",d,sep=""), inputs=c(d)),
-      params=list(gwdegree=NULL,gwdegree.decay=decay),
+      params=list(list(gwdegree=NULL,gwdegree.decay=decay)),
       GWDECAY, conflicts.constraints="degreedist")
   } else {
     if(is.null(a$decay)) stop("Term 'gwdegree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
@@ -1730,7 +1730,7 @@ InitErgmTerm.gwidegree<-function(nw, arglist,  ...) {
     ld<-length(d)
     if(ld==0){return(NULL)}
     c(.process_layers_degree(nw, a, name="idegree", coef.names=paste("gwidegree#",d,sep=""), inputs=c(d)),
-      params=list(gwidegree=NULL,gwidegree.decay=decay),
+      params=list(list(gwidegree=NULL,gwidegree.decay=decay)),
       GWDECAY, conflicts.constraints="idegreedist")
   } else { 
     if(is.null(a$decay)) stop("Term 'gwidegree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
@@ -1821,7 +1821,7 @@ InitErgmTerm.gwodegree<-function(nw, arglist,  ...) {
     ld<-length(d)
     if(ld==0){return(NULL)}
     c(.process_layers_degree(nw, a, name="odegree", coef.names=paste("gwodegree#",d,sep=""), inputs=c(d)),
-      params=list(gwodegree=NULL,gwodegree.decay=decay),
+      params=list(list(gwodegree=NULL,gwodegree.decay=decay)),
       GWDECAY, conflicts.constraints="odegreedist")
   } else {
     if(is.null(a$decay)) stop("Term 'gwodegree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
