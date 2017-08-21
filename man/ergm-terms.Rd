@@ -1540,15 +1540,16 @@ of the degrees of all pairs of nodes in the network which are tied.
 
     \item{\code{lCMB(Ls=~.)} (binary) (directed) (undirected) (layer-aware)}{\emph{Conway--Maxwell-Binomial dependence among layers}:
 
-      Models marginal dependence among dyads within a layer by imposing
+      Models marginal dependence layers within each dyad by imposing
       a Conway--Maxwell-Binomial (CMB) distribution on the number of
       layers in each dyad that have a tie.
 
-      \code{Ls} is a one-sided formula with terms separated by \code{+}
-      operators. A dot (\code{.}) stands for all layers together.
+      \code{Ls} is a list of one-sided formulas indicating the layers
+      whose dependence is being modeled. A dot (\code{.}) stands for all
+      layers in the network.
 
       The term adds one statistic to the model, equalling the sum over
-      all the dyads in the network of \eqn{\log\{E!(R-E)!\}}, where
+      all the dyads in the network of \eqn{\log\{E!(R-E)!/R!\}}, where
       \eqn{E} is the number of layers in \code{Ls} with an edge in that
       dyad and \eqn{R} being the total number of layers in \code{Ls}.
 
