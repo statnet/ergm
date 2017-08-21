@@ -173,7 +173,7 @@ InitMHP.NonObservedTNT <- function(arguments, nw) {
 InitMHP.fixedas <- function(arguments, nw){
 	y0<-arguments$constraints$fixedas$free.dyads()
 	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	MHproposal <- list(name = "randomtoggleList", inputs=c(ergm.Cprepare.el(y0)), pkgname="ergm")
+	MHproposal <- list(name = "randomtoggleList", inputs=c(ergm.Cprepare.el(y0, prototype=nw)), pkgname="ergm")
 	
 	MHproposal
 	
@@ -182,7 +182,7 @@ InitMHP.fixedas <- function(arguments, nw){
 InitMHP.fixedasTNT <- function(arguments, nw){
 	y0<-arguments$constraints$fixedas$free.dyads()
 	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	MHproposal <- list(name = "listTNT", inputs=c(ergm.Cprepare.el(y0)), pkgname="ergm")
+	MHproposal <- list(name = "listTNT", inputs=c(ergm.Cprepare.el(y0, prototype=nw)), pkgname="ergm")
 	
 	MHproposal
 	
@@ -191,7 +191,7 @@ InitMHP.fixedasTNT <- function(arguments, nw){
 InitMHP.fixallbut <- function(arguments, nw){
 	y0<-arguments$constraints$fixallbut$free.dyads()
 	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	MHproposal <- list(name = "randomtoggleList", inputs=c(ergm.Cprepare.el(y0)), pkgname="ergm")
+	MHproposal <- list(name = "randomtoggleList", inputs=c(ergm.Cprepare.el(y0, prototype=nw)), pkgname="ergm")
 	
 	MHproposal
 	
@@ -201,7 +201,7 @@ InitMHP.fixallbut <- function(arguments, nw){
 InitMHP.fixallbutTNT <- function(arguments, nw){
 	y0<-arguments$constraints$fixallbut$free.dyads()
 	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	MHproposal <- list(name = "listTNT", inputs=c(ergm.Cprepare.el(y0)), pkgname="ergm")
+	MHproposal <- list(name = "listTNT", inputs=c(ergm.Cprepare.el(y0, prototype=nw)), pkgname="ergm")
 	
 	MHproposal
 	
@@ -209,15 +209,27 @@ InitMHP.fixallbutTNT <- function(arguments, nw){
 
 
 InitMHP.RLE <- function(arguments, nw){
-  fdrle <- get.fdrle(arguments$constraints)
+  fdrle <- get.free.dyads(arguments$constraints)
 
-  runlen <- cumsum(as.numeric(fdrle$lengths[fdrle$values==TRUE]))
-  nruns <- length(runlen)
-  ndyads <- runlen[nruns]
+  cumlen <- cumsum(as.numeric(fdrle$lengths[fdrle$values==TRUE]))
+  nruns <- length(cumlen)
+  ndyads <- cumlen[nruns]
   runstart <- cumsum(c(1,as.numeric(fdrle$lengths)))
   runstart <- runstart[-length(runstart)]
   runstart <- runstart[fdrle$values==TRUE]
-  nruns <- 
 
-  MHproposal <- list(name = "RLE", inputs=c(nruns, ndyads, runlen, runstart), pkgname="ergm")
+  MHproposal <- list(name = "RLE", inputs=c(ndyads, nruns, c(0,cumlen), runstart), pkgname="ergm")
+}
+
+InitMHP.RLETNT <- function(arguments, nw){
+  fdrle <- get.free.dyads(arguments$constraints)
+
+  cumlen <- cumsum(as.numeric(fdrle$lengths[fdrle$values==TRUE]))
+  nruns <- length(cumlen)
+  ndyads <- cumlen[nruns]
+  runstart <- cumsum(c(1,as.numeric(fdrle$lengths)))
+  runstart <- runstart[-length(runstart)]
+  runstart <- runstart[fdrle$values==TRUE]
+
+  MHproposal <- list(name = "RLETNT", inputs=c(ndyads, nruns, c(0,cumlen), runstart), pkgname="ergm")
 }

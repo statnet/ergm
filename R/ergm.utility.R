@@ -267,6 +267,26 @@ get.miss.dyads <- function(constraints, constraints.obs){
   }
 }
 
+as.edgelist.rle <- function(x, n){
+  starts <- cumsum(1,as.numeric(x$lengths))
+  starts <- starts[-length(starts)]
+
+  starts <- starts[x$values!=0]
+  lengths <- x$lengths[x$values!=0]
+  ends <- starts + lengths - 1
+  values <- x$values[x$values!=0]
+  
+  d <- do.call(rbind,
+               mapply(function(s,e,v){
+                 cbind(s:e,v)
+               }, starts, ends, values, SIMPLIFY=FALSE))
+  
+  el <- cbind((d[,1]-1) %% n + 1, (d[,1]-1) %/% n + 1)
+  if(!is.logical(values)) el <- cbind(el, d[,2])
+  attr(el, "n") <- n
+  el
+}
+
 .dyadcount.dyadrle <- function(x){
   Tlens <- x$lengths[x$values==TRUE]
   sum(as.numeric(Tlens))
