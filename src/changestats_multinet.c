@@ -9,6 +9,7 @@ I_CHANGESTAT_FN(i__subnets){
   sn->ns = *(inputs++);
   sn->inwp = nwp;
   sn->onwp = Calloc(sn->ns, Network);
+  sn->onwp--; // The -- is because Network IDs count from 1.
 
   /* Set up the layer information. */
   sn->sid = inputs - 1; // The -1 is because Vertex IDs count from 1.
@@ -16,7 +17,7 @@ I_CHANGESTAT_FN(i__subnets){
   sn->smap = inputs - 1;
   inputs += N_NODES;
 
-  for(unsigned int i=0; i<sn->ns; i++){
+  for(unsigned int i=1; i<=sn->ns; i++){
     Vertex lnnodes, lbip;
     if(BIPARTITE){
       lbip = lnnodes = *(inputs++);
@@ -41,8 +42,9 @@ U_CHANGESTAT_FN(u__subnets){
 
 F_CHANGESTAT_FN(f__subnets){
   GET_AUX_STORAGE(StoreSubnets, sn);
-  for(unsigned int i=0; i<sn->ns; i++)
+  for(unsigned int i=1; i<=sn->ns; i++)
     NetworkDestroy(sn->onwp + i);
+  sn->onwp++;
   Free(sn->onwp);
 }
 
@@ -53,24 +55,24 @@ I_CHANGESTAT_FN(i_MultiNet){
   inputs+=ns;
   ALLOC_STORAGE(ns, Model*, ms);
 
-  for(unsigned int i=0; i<sn->ns; i++){
-    ms[i] = unpack_Model_as_double(&inputs);
-    InitStats(sn->onwp + i, ms[i]);
+  for(unsigned int i=1; i<=sn->ns; i++){
+    ms[i-1] = unpack_Model_as_double(&inputs);
+    InitStats(sn->onwp + i, ms[i-1]);
   }
 }
 
 C_CHANGESTAT_FN(c_MultiNet){
   GET_AUX_STORAGE(StoreSubnets, sn);
   GET_STORAGE(Model*, ms);
-  double *w = INPUT_PARAM+1;
+  double *w = INPUT_PARAM; // Subnetworks are coded from 1.
 
-  for(unsigned int i=0; i<sn->ns; i++){
-    if(w[i]){
-      Vertex st = MN_IO_TAIL(sn, tail), sh = MN_IO_HEAD(sn, head);
-      ChangeStats(1, &st, &sh, sn->onwp + i, ms[i]);
+  unsigned int i = MN_SID_TAIL(sn, tail);
+  if(w[i]){
+    Vertex st = MN_IO_TAIL(sn, tail), sh = MN_IO_HEAD(sn, head);
+    Model *m = ms[i-1];
+      ChangeStats(1, &st, &sh, sn->onwp + i, m);
       for(unsigned int j=0; j<N_CHANGE_STATS; j++)
-	CHANGE_STAT[j] += ms[i]->workspace[j]*w[i];
-    }
+	CHANGE_STAT[j] += m->workspace[j]*w[i];
   }
 }
 
@@ -78,9 +80,9 @@ U_CHANGESTAT_FN(u_MultiNet){
   GET_AUX_STORAGE(StoreSubnets, sn);
   GET_STORAGE(Model*, ms);
 
-  for(unsigned int i=0; i<sn->ns; i++){
+  for(unsigned int i=1; i<=sn->ns; i++){
     Vertex st = MN_IO_TAIL(sn, tail), sh = MN_IO_HEAD(sn, head);
-    Model *m = ms[i];
+    Model *m = ms[i-1];
     UPDATE_STORAGE(st, sh, sn->onwp + i, m, NULL);
   }
 }
@@ -88,10 +90,9 @@ U_CHANGESTAT_FN(u_MultiNet){
 F_CHANGESTAT_FN(f_MultiNet){
   GET_AUX_STORAGE(StoreSubnets, sn);
   GET_STORAGE(Model*, ms);
-  double *w = INPUT_PARAM+1;
 
-  for(unsigned int i=0; i<sn->ns; i++){
-    ModelDestroy(sn->onwp + i, ms[i]);
+  for(unsigned int i=1; i<=sn->ns; i++){
+    ModelDestroy(sn->onwp + i, ms[i-1]);
   }
 }
 

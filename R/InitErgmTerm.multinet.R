@@ -63,7 +63,7 @@ InitErgmTerm..subnets <- function(nw, arglist, response=NULL, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  list(name="_subnet", coef.names=c(), inputs=c(unlist(.block_vertexmap(nw, "attrname"))), dependence=FALSE)
+  list(name="_subnets", coef.names=c(), inputs=c(unlist(.block_vertexmap(nw, a$attrname))), dependence=FALSE)
 }
 
 InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
@@ -98,8 +98,10 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
 
   inputs <- c(w, unlist(lapply(ms, "[[", "inputs")))
 
+  ## FIXME: The following assumes that the formula evaluated on all the subnetworks produces the same set of statistics (or, at least, one with the same set of names).
+  
   gs <- crossprod(sapply(ms, "[[", "gs"), w)
   
-  c(list(name="MultiNet", coef.names = paste0(NVL(a$wname,"sum"),"*",m$coef.names), inputs=inputs, dependence=!is.dyad.independent(ms[[1]]$m), emptynwstats = gs, auxiliaries = auxiliaries),
+  c(list(name="MultiNet", coef.names = paste0(NVL(a$wname,"sum"),"*",ms[[1]]$model$coef.names), inputs=inputs, dependence=!is.dyad.independent(ms[[1]]$model), emptynwstats = gs, auxiliaries = auxiliaries),
     passthrough.curved.ergm.model(ms[[1]]$m, function(x) paste0(NVL(a$wname,"sum"),"*",x)))
 }
