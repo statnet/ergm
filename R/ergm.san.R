@@ -119,7 +119,6 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   MHproposal<-MHproposal(constraints,arguments=control$SAN.prop.args,nw=nw,weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
   model <- ergm.getmodel(formula, nw, response=response, extra.aux=list(MHproposal$auxiliaries))
   Clist <- ergm.Cprepare(nw, model, response=response)
-  Clist.miss <- ergm.design(nw, model, verbose=verbose)
   
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
@@ -136,7 +135,6 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
 
   for(i in 1:nsim){
     Clist <- ergm.Cprepare(nw, model,response=response)
-#   Clist.miss <- ergm.design(nw, model, verbose=verbose)
     maxedges <- max(control$SAN.init.maxedges, Clist$nedges)
     if (verb) {
        message(paste("#", i, " of ", nsim, ": ", sep=""),appendLF=FALSE)
