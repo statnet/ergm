@@ -132,7 +132,7 @@ void MpleInit_hash_wl_RLE(int *responsevec, double *covmat, int *weightsvector,
   Edge step = MAX(N_NODES/3,2);
   while(gcd(dc,step)!=1) step++;
 
-  { // Start a scope for local variables.
+  { // Start a scope for loop variables.
     Vertex t, h;
     GetRandDyadRLED(&t,&h, wl); // Find a random starting point.
     Dyad d = TH2Dyad(nwp->n_nodes, t,h);
@@ -170,5 +170,5 @@ void MpleInit_hash_wl_RLE(int *responsevec, double *covmat, int *weightsvector,
 	break;
       }
     }
-  }
+  } // End scope for loop variables.
 }
