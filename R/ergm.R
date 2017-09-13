@@ -225,27 +225,19 @@ ergm <- function(formula, response=NULL,
     if (verbose) message(" ",MHproposal.obs$pkgname,":MH_",MHproposal.obs$name)
   }
   
-  # conddeg MPLE only handles tetrad toggles, so it must be restricted:
-  conddeg <- switch(!is.directed(nw) && ("degrees" %in% names(MHproposal$arguments$constraints) ||
-                                           all(c("b1degrees","b2degrees") %in% names(MHproposal$arguments$constraints))),
-                    control$drop,
-                    NULL)
-  if(!is.null(conddeg)) .Deprecated("Contrastive Divergence", old="Degree-Conditioned MPLE")
-  
   if (verbose) message("Initializing model.")
   
   # Construct the initial model.
   
   # The following kludge knocks out MPLE if the sample space
   # constraints are not dyad-independent. For example, ~observed
-  # constraint is dyad-independent, while ~edges is not. The exception
-  # is conddeg, which is a special case.
+  # constraint is dyad-independent, while ~edges is not.
   #
   # TODO: Create a flexible and general framework to manage methods
   # for obtaining initial values.
   init.candidates <- ergm.init.methods(MHproposal$reference$name)
   if("MPLE" %in% init.candidates && !is.dyad.independent(MHproposal$arguments$constraints,
-                                                         MHproposal.obs$arguments$constraints) && is.null(conddeg)){
+                                                         MHproposal.obs$arguments$constraints)){
     init.candidates <- init.candidates[init.candidates!="MPLE"]
     if(verbose) message("MPLE cannot be used for this constraint structure.")
   }
@@ -302,7 +294,7 @@ ergm <- function(formula, response=NULL,
     if(!is.null(response)) stop("Maximum Pseudo-Likelihood (MPLE) estimation for valued ERGMs is not implemented at this time. You may want to pass fixed=TRUE parameter in curved terms to specify the curved parameters as fixed.")
     if(length(model$etamap$offsetmap)!=length(model.initial$etamap$offsetmap)) stop("Maximum Pseudo-Likelihood (MPLE) estimation for curved ERGMs is not implemented at this time. You may want to pass fixed=TRUE parameter in curved terms to specify the curved parameters as fixed.")
     if(!is.dyad.independent(MHproposal$arguments$constraints,
-                            MHproposal.obs$arguments$constraints) && is.null(conddeg))
+                            MHproposal.obs$arguments$constraints))
       stop("Maximum Pseudo-Likelihood (MPLE) estimation for ERGMs with dyad-dependent constraints is only implemented for certain degree constraints at this time.")
   }
   
@@ -365,7 +357,7 @@ ergm <- function(formula, response=NULL,
                                 formula=formula, nw=nw, reference=reference, 
                                 m=model.initial, method=control$init.method,
                                 MPLEtype=control$MPLE.type, 
-                                conddeg=conddeg, control=control,
+                                control=control,
                                 MHproposal=MHproposal,
                                 MHproposal.obs=MHproposal.obs,
                                 verbose=verbose, response=response,
