@@ -21,12 +21,12 @@ The \code{ergm.mple} function finds a maximizer to the psuedolikelihood function
 }
 \usage{
 ergm.mple(Clist, Clist.miss, m, init = NULL, MPLEtype = "glm", family = "binomial",
-         maxMPLEsamplesize = 1e+06, save.glm = TRUE, theta1 = NULL, conddeg = NULL, 
+         maxMPLEsamplesize = 1e+06, save.glm = TRUE, theta1 = NULL, 
          control = NULL, MHproposal = NULL, verbose = FALSE, ...)
 
 ergm.pl(Clist, Clist.miss, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
-                    conddeg=NULL, control, MHproposal,
+                    control, MHproposal,
                     verbose=FALSE)
 }                    
 
@@ -63,11 +63,6 @@ whether the mple fit and the null mple fit should be
 the independence theta; if specified and non-NULL, this is
                      ignored except to return its value in the returned ergm;
                      default=NULL, in which case 'theta1' is computed
-}
-  \item{conddeg}{
-an indicator of whether the MPLE should be conditional
-                      on degree; non-NULL values indicate yes, NULL no;
-                     default=NULL.
 }
   \item{control}{
 a list of MCMC related parameters; recognized components

@@ -10,7 +10,7 @@
 ###############################################################################
 # The <ergm.pl> function prepares many of the components needed by <ergm.mple>
 # for the regression rountines that are used to find the MPLE estimated ergm;
-# this is largely done through <MPLE_wrapper.C> or <MPLEconddeg_wrapper>
+# this is largely done through <MPLE_wrapper>
 #
 # --PARAMETERS--
 #   Clist            : a list of parameters used for fitting and returned
@@ -22,9 +22,6 @@
 #                      coefficients are offset, i.e. fixed
 #   maxMPLEsamplesize: the sample size to use for endogenous sampling in the
 #                      pseudolikelihood computation; default=1e6
-#   conddeg          : an indicator of whether the MPLE should be conditional
-#                      on degree; non-NULL values indicate yes, NULL no;
-#                      default=NULL 
 #   control       : a list of MCMC related parameters; recognized variables
 #                      include:
 #         samplesize : the number of networks to sample, which will inform the size
@@ -62,7 +59,7 @@
 
 ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
-                    conddeg=NULL, control, MHproposal,
+                    control, MHproposal,
                     verbose=FALSE) {
   bip <- Clist$bipartite
   n <- Clist$n
@@ -73,7 +70,6 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
                         
   # May have to think harder about what maxNumDyadTypes should be if we 
   # implement a hash-table approach to compression.
-  if(is.null(conddeg)){
   # *** don't forget, pass in tails first now, not heads
   z <- .C("MPLE_wrapper",
           as.integer(Clist$tails), as.integer(Clist$heads),
@@ -149,97 +145,6 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     xmat <- rbind(xmat, xmat.e)
 
     rm(zy.e, wend.e, xmat.e)
-  }
-  
-  }else{
-    if (verbose) {
-      message("Using the MPLE conditional on degree.")
-    }
-    # Conditional on degree version
-    eta0 <- ergm.eta(rep(0,length(conddeg$m$coef.names)), conddeg$m$etamap)
-    
-    maxedges <- max(5000, conddeg$Clist$nedges)
-    nsim <- 1
-    if(control$MPLE.samplesize > 50000){
-     nsim <- ceiling(control$MPLE.samplesize / 50000)
-     control$MPLE.samplesize <- 50000
-
-     cl <- ergm.getCluster(control, verbose)
-    }
-    flush.console()
-#
-    control$stats <- matrix(0,ncol=conddeg$Clist$nstats,nrow=control$MPLE.samplesize+1)
-    data <- list(conddeg=conddeg,Clist=Clist,
-         MHproposal=MHproposal, eta0=eta0,
-         control=control,maxedges=maxedges,verbose=verbose)
-    simfn <- function(i, data){
-     # *** don't forget, pass in tails first now, not heads    
-     z <- .C("MPLEconddeg_wrapper",
-            as.integer(1), as.integer(data$conddeg$Clist$nedges),
-            as.integer(data$conddeg$Clist$tails), as.integer(data$conddeg$Clist$heads),
-            as.integer(data$conddeg$Clist$n),
-            as.integer(data$conddeg$Clist$dir), as.integer(data$conddeg$Clist$bipartite),
-            as.integer(data$conddeg$Clist$nterms),
-            as.character(data$conddeg$Clist$fnamestring),
-            as.character(data$conddeg$Clist$snamestring),
-            as.character(data$MHproposal$name), as.character(data$MHproposal$pkgname),
-            as.double(data$conddeg$Clist$inputs), as.double(data$eta0),
-            as.integer(data$control$MPLE.samplesize),
-            s = as.double(t(data$control$stats)),
-            as.integer(0), 
-            as.integer(1),
-            newnwtails = integer(data$maxedges),
-            newnwheads = integer(data$maxedges),
-            as.integer(data$verbose), as.integer(data$MHproposal$arguments$constraints$bd$attribs),
-            as.integer(data$MHproposal$arguments$constraints$bd$maxout), as.integer(data$MHproposal$arguments$constraints$bd$maxin),
-            as.integer(data$MHproposal$arguments$constraints$bd$minout), as.integer(data$MHproposal$arguments$constraints$bd$minin),
-            as.integer(data$MHproposal$arguments$constraints$bd$condAllDegExact),
-            as.integer(length(data$MHproposal$arguments$constraints$bd$attribs)),
-            as.integer(data$maxedges),
-            status = integer(1),
-            PACKAGE="ergm")
-    # save the results
-    z <- list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads)
-    
-    nedges <- z$newnwtails[1]
-    statsmatrix <- matrix(z$s, nrow=data$control$MPLE.samplesize+1,
-                          ncol=data$conddeg$Clist$nstats,
-                          byrow = TRUE)
-    colnames(statsmatrix) <- data$conddeg$m$coef.names
-    xb <- ergm.sufftoprob(statsmatrix[-c(1,data$control$MPLE.samplesize+1),],compress=TRUE)
-# if (verbose) {message("Finished compression.")}
-    xmat <- xb[,-c(1,ncol(xb)),drop=FALSE]
-    wend <- xb[,ncol(xb)]
-#   xb <- statsmatrix[-1,]
-    zy <- round(xb[,1]-1)
-    xmat[zy==1,] <- -xmat[zy==1,]
-#   wend <- zy-zy+1
-    return(list(zy=zy,xmat=xmat,wend=wend))
-    }
-#
-    if(nsim >1){
-      outlist <- clusterApplyLB(cl, as.list(1:nsim), simfn, data)
-#
-#     Process the results
-#
-      zy <- NULL
-      xmat <- NULL
-      wend <- NULL
-      for(i in (1:nsim)){
-       z <- outlist[[i]]
-       zy <- c(zy, z$zy)
-       xmat <- rbind(xmat, z$xmat)
-       wend <- c(wend, z$wend)
-      }
-      rm(outlist)
-      ergm.stopCluster(cl)
-     }else{
-      z <- simfn(1, data)
-      zy <- z$zy
-      xmat <- z$xmat
-      wend <- z$wend
-      rm(z)
-     }
   }
 
   #

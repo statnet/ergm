@@ -28,7 +28,6 @@
 #                    or "logitreg"; this is ignored if ML estimation is used;
 #                    default="glm" 
 #   initial.loglik:  the initial log likelihood; default=NULL
-#   conddeg       :  a formula for the conditional degree terms
 #   control    :  a list of parameters for tuning the MCMC sampling;
 #                    the only recognized component is 'samplesize'
 #   MHproposal    :  an MHproposal object as returned by <getMHproposal>
@@ -54,18 +53,8 @@ ergm.initialfit<-function(init, initial.is.final,
                           formula, nw,
                           m, response=NULL, reference=~Bernoulli, method = NULL,
                           MPLEtype="glm",
-                          conddeg=NULL, control=NULL, MHproposal=NULL, MHproposal.obs=NULL,
+                          control=NULL, MHproposal=NULL, MHproposal.obs=NULL,
                           verbose=FALSE, ...) {
-  # conddeg, whatever it does.
-  if(method=="MPLE" && !is.null(conddeg)){
-   formula.conddegmple <- ergm.update.formula(formula, . ~ conddegmple + .)
-   m.conddeg <- ergm.getmodel(formula.conddegmple, nw, initialfit=TRUE)
-   Clist <- ergm.Cprepare(nw, m.conddeg)
-   Clist.miss <- ergm.design(nw, m.conddeg, verbose=FALSE)
-   m$target.stats=c(1,m$target.stats)
-   conddeg <- list(m=m.conddeg, Clist=Clist, Clist.miss=Clist.miss)
-  }
-
   Clist <- ergm.Cprepare(nw, m)
   Clist.miss <- ergm.Cprepare(NVL(get.miss.dyads(MHproposal$arguments$constraints, MHproposal.obs$arguments$constraints), is.na(nw)), m)
   control$Clist.miss<-Clist.miss
@@ -81,7 +70,7 @@ ergm.initialfit<-function(init, initial.is.final,
     # Also make sure that any initial values specified by the user are respected.
     fit <- switch(method,
                   MPLE = ergm.mple(Clist, Clist.miss, m, MPLEtype=MPLEtype,
-                    init=init, conddeg=conddeg, 
+                    init=init, 
                     control=control, MHproposal=MHproposal,
                     verbose=verbose, ...),
                   zeros = structure(list(coef=ifelse(is.na(init),0,init)),class="ergm"),

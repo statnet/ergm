@@ -32,9 +32,6 @@
 #   thetal           : the independence theta; if specified and non-NULL, this is
 #                      ignored except to return its value in the returned ergm;
 #                      default=NULL, in which case 'theta1' is computed
-#   conddeg          : an indicator of whether the MPLE should be conditional
-#                      on degree; non-NULL values indicate yes, NULL no;
-#                      default=NULL.
 #   control       : a list of MCMC related parameters; recognized components
 #                      include:
 #         samplesize : the number of networks to sample
@@ -57,13 +54,12 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
                     maxMPLEsamplesize=1e+6,
                     save.glm=TRUE,
                     theta1=NULL, 
-		    conddeg=NULL, control=NULL, MHproposal=NULL,
+		    control=NULL, MHproposal=NULL,
                     verbose=FALSE,
                     ...) {
   pl <- ergm.pl(Clist=Clist, Clist.miss=Clist.miss, m=m,
                 theta.offset=init,
                 maxMPLEsamplesize=maxMPLEsamplesize,
-                conddeg=conddeg, 
 		control=control, MHproposal=MHproposal,
                 verbose=verbose)
 
