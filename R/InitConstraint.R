@@ -42,7 +42,7 @@ InitConstraint..attributes <- function(conlist, lhs.nw, ...){
     ## consistency with R.
     d <- compact.rle(
       if(has.loops(lhs.nw)) rep(rep(rle(TRUE),n,scale="run"),n,scale="run")
-      else do.call(c, lapply(seq_along(n), function(i) rep(rle(TRUE,FALSE,TRUE), c(i-1, 1, n-i),scale="run")))
+      else do.call(c, lapply(seq_len(n), function(i) rep(rle(c(TRUE,FALSE,TRUE)), c(i-1, 1, n-i),scale="run")))
     )
     
     if(is.bipartite(lhs.nw)){
@@ -56,11 +56,13 @@ InitConstraint..attributes <- function(conlist, lhs.nw, ...){
     
     if(!is.directed(lhs.nw)){
       d <- d &
-        compact.rle(do.call(c, lapply(seq_along(n), function(i) rep(rle(TRUE,FALSE), c(i-1, n-i+1),scale="run"))))
+        compact.rle(do.call(c, lapply(seq_len(n), function(i) rep(rle(c(TRUE,FALSE)), c(i-1, n-i+1),scale="run"))))
     }
     
     compact.rle(d)
   }
+
+  conlist
 }
 
 InitConstraint.edges<-function(conlist, lhs.nw, ...){
@@ -158,28 +160,6 @@ InitConstraint.hamming<-function(conlist, lhs.nw, ...){
    conlist
 }
 #ergm.ConstraintImplications("hamming", c())
-
-.rle_dyad_matrix_from_el <- function(n, el, el_free){
-  ## NB: Free dyad RLE matrix is stored in a column-major order for
-  ## consistency with R.
-  
-  ils <- lapply(seq_len(n), function(j) fel[fel[,2]==j,1])
-  o <- lapply(ils, function(il){
-    # If el_free, construct an rle of the form c(FALSE, TRUE, FALSE,
-    # ..., FALSE, TRUE, FALSE); otherwise, construct its logical
-    # negation.
-    o <- rle(c(rep(c(!el_free,el_free), length(il)),!el_free))
-      
-    # Construct repetition counts: gaps between the is', as well as
-    # the gap before the first i and after the last i for that j,
-    # and interleave it with 1s.
-    lens <- c(rbind(diff(c(0,il,n+1))-1,1))
-    lens <- lens[-length(lens)]
-    rep(o, lens, scale='run')
-  })
-  # Concatenate the RLEs and compact.
-  compact_rle(do.call(c, o))  
-}
 
 InitConstraint.observed <- function(conlist, lhs.nw, ...){
   if(length(list(...)))

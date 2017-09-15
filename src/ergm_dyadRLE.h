@@ -29,7 +29,7 @@
 
 */
 
-#define TH2Dyad(n, tail, head) ((tail-1)+m->n*(Dyad)(head-1) + 1)
+#define TH2Dyad(n, tail, head) ((tail-1)+n*(Dyad)(head-1) + 1)
 #define Dyad2T(n, d) ((Vertex)((d-1)%(Vertex)n) + 1)
 #define Dyad2H(n, d) ((Vertex)(((Dyad)(d-1))/(Vertex)n) + 1)
 
@@ -66,11 +66,10 @@ pointer to the end of the segment.
 */
 static inline BoolRLESqMatrixD unpack_BoolRLESqMatrixD(double **inputs, Vertex n){
   double *x = *inputs;
-  BoolRLESqMatrixD out = {
-    .n = n,
-    .ndyads = *(x++),
-    .nruns = *(x++)
-  };
+  BoolRLESqMatrixD out;
+  out.n = n;
+  out.ndyads = *(x++);
+  out.nruns = *(x++);
   out.starts = x; x += out.nruns;
   out.cumlens = x; x += out.nruns+1;
   *inputs = x;
@@ -117,7 +116,7 @@ static inline unsigned int GetDyadRLED(Vertex tail, Vertex head, const BoolRLESq
   // FIXME: Radix search could be faster than O(log(nruns))?
   RLERun l=1, h=m->nruns;
   while(l!=h){
-    RLERun r = (l+h)/2;
+    RLERun r = (l+h+1)/2;
     if(d<m->starts[r-1]) h=r-1; else l=r;
   }
 
@@ -136,13 +135,13 @@ Advance to the strideth next nonzero dyad index
 */
 static inline Dyad NextDyadRLED(Dyad d, Dyad stride, const BoolRLESqMatrixD *m, RLERun *hint){
   RLERun l;
-  if(hint && hint!=0){
+  if(hint && *hint!=0){
     l = *hint;
   }else{
     l = 1;
     RLERun h=m->nruns;
     while(l!=h){
-      RLERun r = (l+h)/2;
+      RLERun r = (l+h+1)/2;
       if(d<m->starts[r-1]) h=r-1; else l=r;
     }
   }

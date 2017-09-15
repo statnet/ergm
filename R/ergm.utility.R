@@ -242,55 +242,6 @@ standardize.network <- function(nw, preserve.eattr=TRUE){
   nw
 }
 
-get.free.dyads <- function(constraints){
-  y <- NULL
-  for(con in constraints){
-    if(!is.null(con$free.dyads)){
-      y <- if(is.null(y)) con$free.dyads() else y & con$free.dyads()
-    }
-  }
-  compact.rle(y)
-}
-
-get.miss.dyads <- function(constraints, constraints.obs){
-# Returns a network indicating the missing dyads in the network (
-# (respecting the constraints).
-  free.dyads <- get.free.dyads(constraints)
-  free.dyads.obs <- get.free.dyads(constraints.obs)
-  
-  if(is.null(free.dyads)){
-    if(is.null(free.dyads.obs)) NULL
-    else free.dyads.obs
-  }else{
-    if(is.null(free.dyads.obs)) !free.dyads
-    else (!free.dyads) | free.dyads.obs
-  }
-}
-
-as.edgelist.rle <- function(x, n){
-  starts <- cumsum(1,as.numeric(x$lengths))
-  starts <- starts[-length(starts)]
-
-  starts <- starts[x$values!=0]
-  lengths <- x$lengths[x$values!=0]
-  ends <- starts + lengths - 1
-  values <- x$values[x$values!=0]
-  
-  d <- do.call(rbind,
-               mapply(function(s,e,v){
-                 cbind(s:e,v)
-               }, starts, ends, values, SIMPLIFY=FALSE))
-  
-  el <- cbind((d[,1]-1) %% n + 1, (d[,1]-1) %/% n + 1)
-  if(!is.logical(values)) el <- cbind(el, d[,2])
-  attr(el, "n") <- n
-  el
-}
-
-.dyadcount.dyadrle <- function(x){
-  Tlens <- x$lengths[x$values==TRUE]
-  sum(as.numeric(Tlens))
-}
 
 .hash.el <- function(x){
   apply(x, 1, paste, collapse="\r")

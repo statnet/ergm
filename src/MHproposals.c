@@ -539,7 +539,7 @@ void MH_RLE (MHproposal *MHp, Network *nwp)
       /* Select a dyad at random that is in the reference graph. (We
 	 have a convenient sampling frame.) */
       /* Generate. */
-      GetRandDyadRLE(Mtail, Mhead, &r);
+      GetRandDyadRLED(Mtail, Mhead, &r);
     });
 }
 
@@ -651,7 +651,7 @@ void MH_RLETNT (MHproposal *MHp, Network *nwp)
       Vertex head;
       Edge e;
       STEP_THROUGH_OUTEDGES(tail, e, head){
-	if(GetDyadRLE(tail, head, &r)){
+	if(GetDyadRLED(tail, head, &r)){
 	  ToggleEdge(tail,head, &discord);
 	}
       }
@@ -672,7 +672,7 @@ void MH_RLETNT (MHproposal *MHp, Network *nwp)
 	logratio = log((nedges==1 ? 1.0/(comp*r.ndyads + (1.0-comp)) :
 			      nedges / (odds*r.ndyads + nedges)));
       }else{ /* Select a dyad at random from the list */
-	GetRandDyadRLE(Mtail, Mhead, &r);
+	GetRandDyadRLED(Mtail, Mhead, &r);
 	
 	if(EdgetreeSearch(Mtail[0],Mhead[0],discord.outedges)!=0){
 	  logratio = log((nedges==1 ? 1.0/(comp*r.ndyads + (1.0-comp)) :

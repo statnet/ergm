@@ -57,7 +57,7 @@
 #    
 ###############################################################################
 
-ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
+ergm.pl<-function(Clist, fdrle, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
                     control, MHproposal,
                     verbose=FALSE) {
@@ -74,8 +74,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   z <- .C("MPLE_wrapper",
           as.integer(Clist$tails), as.integer(Clist$heads),
           as.integer(Clist$nedges),
-          as.integer(FALSE),
-          as.integer(c(Clist.miss$nedges,Clist.miss$tails,Clist.miss$heads)),
+          as.double(pack_free.dyads_as_numeric(fdrle)),
           as.integer(n), 
           as.integer(Clist$dir),     as.integer(bip),
           as.integer(Clist$nterms), 
@@ -106,15 +105,12 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     xmat <- xmat[zy==0,,drop=FALSE]
     zy <- zy[zy==0]
 
-    ## Run a whitelist PL over all of the edges in the network.
-    # Generate a random permutation of edges, in case we run out of space here as well.
-    missing <- paste(Clist$tails,Clist$heads,sep=".") %in% paste(Clist.miss$tails,Clist.miss$heads,sep=".")
-    ordering <- sample.int(Clist$nedges-sum(missing))
+    ## Run a whitelist PL over all of the toggleable edges in the network.
+    presentrle <- .rle_dyad_matrix_from_el(n, cbind(Clist$tails, Clist$heads), TRUE) & fdrle
     z <- .C("MPLE_wrapper",
             as.integer(Clist$tails), as.integer(Clist$heads),
             as.integer(Clist$nedges),
-            as.integer(TRUE),
-            as.integer(c(Clist$nedges-sum(missing),Clist$tails[!missing][ordering],Clist$heads[!missing][ordering])),
+            as.numeric(pack_free.dyads_as_numeric(presentrle)),
             as.integer(n), 
             as.integer(Clist$dir),     as.integer(bip),
             as.integer(Clist$nterms), 

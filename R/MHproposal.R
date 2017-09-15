@@ -51,10 +51,10 @@ ergm.ConstraintImplications <- local({
 
 prune.conlist <- function(conlist){
   ## Remove constraints implied by other constraints.
-  for(constr in names(conlist))
+  for(constr in names(conlist)){
     for(impl in ergm.ConstraintImplications()[[constr]])
       conlist[[impl]]<-NULL
-
+  }
   conlist
 }
 
@@ -207,7 +207,7 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
   if(is.null(names(conlist))) {
     constraints <- ""
   } else {
-    constraints <- paste(sort(tolower(names(conlist))),collapse="+")
+    constraints <- paste(sort(tolower(Filter(function(x)!startsWith(x,"."), names(conlist)))),collapse="+")
   }
   
   MHqualifying<-with(ergm.MHP.table(),ergm.MHP.table()[Class==class & Constraints==constraints & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])

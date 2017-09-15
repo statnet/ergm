@@ -8,8 +8,6 @@
  *  Copyright 2003-2017 Statnet Commons
  */
 #include "MPLE.h"
-#include "changestat.h"
-#include "ergm_dyadRLE.h"
 /* *****************
  void MPLE_wrapper
 
@@ -47,14 +45,14 @@ void MPLE_wrapper(int *tails, int *heads, int *dnedges,
   Vertex bip = (Vertex) *bipartite;
   Model *m;
   double *tmp = wl;
-  BoolRLESqMatrixD wlm = unpack_BoolRLESqMatrixD(&tmp);
+  BoolRLESqMatrixD wlm = unpack_BoolRLESqMatrixD(&tmp, n_nodes);
 
   GetRNGstate(); /* Necessary for R random number generator */
   nw[0]=NetworkInitialize(tails, heads, n_edges,
                           n_nodes, directed_flag, bip, 0, 0, NULL);
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
   
-  MpleInit_hash_wl_RLE(responsevec, covmat, weightsvector, wlm, *maxDyads, *maxDyadTypes, nw, m); 
+  MpleInit_hash_wl_RLE(responsevec, covmat, weightsvector, &wlm, *maxDyads, *maxDyadTypes, nw, m); 
 
   ModelDestroy(m);
   NetworkDestroy(nw);
@@ -135,11 +133,11 @@ void MpleInit_hash_wl_RLE(int *responsevec, double *covmat, int *weightsvector,
   { // Start a scope for loop variables.
     Vertex t, h;
     GetRandDyadRLED(&t,&h, wl); // Find a random starting point.
-    Dyad d = TH2Dyad(nwp->n_nodes, t,h);
+    Dyad d = TH2Dyad(nwp->nnodes, t,h);
     RLERun r=0;
     
     for(Dyad i = 0; i < MIN(maxDyads,dc); i++, d=NextDyadRLED(d, step, wl, &r)){
-      TH2Dyad(nwp->n_nodes, t,h);
+      d = TH2Dyad(nwp->nnodes, t,h);
       
       int response = IS_OUTEDGE(t,h);
       unsigned int totalStats = 0;
