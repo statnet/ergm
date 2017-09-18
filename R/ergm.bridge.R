@@ -182,8 +182,8 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
     lin.pred <- model.matrix(ergm.dind$glm) %*% coef.dind
     llk.dind<-
       crossprod(lin.pred,ergm.dind$glm$y*ergm.dind$glm$prior.weights)-sum(log1p(exp(lin.pred))*ergm.dind$glm$prior.weights) -
-        (network.dyadcount(ergm.dind$network,FALSE) - network.edgecount(NVL(get.miss.dyads(ergm.dind$constrained, ergm.dind$constrained.obs),network.initialize(1))))*log(1/2)
-  }  
+      sum(get.active.dyads(ergm.dind$constrained, ergm.dind$constrained.obs))*log(1/2)
+  }
 
   ## Construct the augmented formula.
   form.aug<-append.rhs.formula(object, term.list.formula(dind[[3]]))
