@@ -137,7 +137,7 @@ void MpleInit_hash_wl_RLE(int *responsevec, double *covmat, int *weightsvector,
     RLERun r=0;
     
     for(Dyad i = 0; i < MIN(maxDyads,dc); i++, d=NextDyadRLED(d, step, wl, &r)){
-      d = TH2Dyad(nwp->nnodes, t,h);
+      Dyad2TH(&t, &h, d, N_NODES);
       
       int response = IS_OUTEDGE(t,h);
       unsigned int totalStats = 0;
