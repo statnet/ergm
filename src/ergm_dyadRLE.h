@@ -164,7 +164,7 @@ static inline Dyad NextDyadRLED(Dyad d, Dyad stride, const BoolRLESqMatrixD *m, 
   // Update the hint if active.
   if(hint) *hint = nxtl;
   
-  return nxtdi - m->cumlens[l-1] + m->starts[l-1];
+  return nxtdi - m->cumlens[nxtl-1] + m->starts[nxtl-1];
 }
 
 #endif // _ERGM_DYADRLE_H_
