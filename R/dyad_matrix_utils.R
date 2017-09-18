@@ -83,5 +83,5 @@ pack_free.dyads_as_numeric <- function(fdrle){
   runstart <- runstart[-length(runstart)]
   runstart <- runstart[fdrle$values==TRUE]
 
-  c(ndyads, nruns, c(0,cumlen), runstart)
+  c(ndyads, nruns, runstart, c(0,cumlen))
 }
