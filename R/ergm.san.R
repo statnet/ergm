@@ -118,7 +118,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
 # model <- ergm.getmodel(formula, nw, drop=control$drop)
   model <- ergm.getmodel(formula, nw, response=response)
   Clist <- ergm.Cprepare(nw, model, response=response)
-  Clist.miss <- ergm.design(nw, model, verbose=verbose)
+  fdrle <- ergm.design(nw, verbose=verbose)
   
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
@@ -136,7 +136,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
 
   for(i in 1:nsim){
     Clist <- ergm.Cprepare(nw, model,response=response)
-#   Clist.miss <- ergm.design(nw, model, verbose=verbose)
+#   fdrle <- ergm.design(nw, verbose=verbose)
     maxedges <- max(control$SAN.init.maxedges, Clist$nedges)
     if (verb) {
        message(paste("#", i, " of ", nsim, ": ", sep=""),appendLF=FALSE)
@@ -144,7 +144,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
 
     if(is.null(control$coef)) {
       if(reference==~Bernoulli){
-        fit <- suppressWarnings(try(ergm.mple(Clist=Clist, Clist.miss=Clist.miss, 
+        fit <- suppressWarnings(try(ergm.mple(Clist=Clist, fdrle=fdrle, 
                          control=control, MHproposal=MHproposal,
                          m=model, verbose=verbose, ...)))
         control$coef <- if(inherits(fit, "try-error")) rep(0,length(model$coef.names)) else fit$coef

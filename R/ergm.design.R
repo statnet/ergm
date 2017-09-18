@@ -17,7 +17,7 @@
 #   verbose: whether the design matrix should be printed (T or F); default=FALSE
 #
 # --RETURNED--
-#   Clist.miss
+#   fdrle
 #      if 'nw' has missing edges, see the return list, 'Clist', from the
 #                                 <ergm.Cprepare> function header
 #      if 'nw' hasn't any missing edges, the list will only contain NULL
@@ -35,17 +35,10 @@
 #      missing edges, and the remainder a column-major edgelist
 ################################################################################
 
-ergm.design <- function(nw, model, verbose=FALSE){
-  if(network.naedgecount(nw)==0){
-    Clist.miss <- list(tails=NULL, heads=NULL, nedges=0, dir=is.directed(nw))
-  }else{
-    Clist.miss <- ergm.Cprepare(is.na(nw), model)
-    if(verbose){
-      message("Design matrix:")
-      .message_print(summary(is.na(nw)))
-    }
-  }
-  Clist.miss
+ergm.design <- function(nw, verbose=FALSE){
+  basecon <- mk.conlist(~.attributes, nw)
+  misscon <- if(network.naedgecount(nw)) mk.conlist(~.attributes+observed, nw)
+  get.active.dyads(basecon, misscon)
 }
 
 ergm.Cprepare.miss <- function(nw){

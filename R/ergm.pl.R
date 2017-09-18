@@ -15,7 +15,7 @@
 # --PARAMETERS--
 #   Clist            : a list of parameters used for fitting and returned
 #                      by <ergm.Cprepare>
-#   Clist.miss       : the corresponding 'Clist' for the network of missing
+#   fdrle       : the corresponding 'Clist' for the network of missing
 #                      edges returned by <ergm.design>
 #   m                : the model, as returned by <ergm.getmodel>
 #   theta.offset     : a logical vector specifying which of the model
@@ -26,7 +26,7 @@
 #                      include:
 #         samplesize : the number of networks to sample, which will inform the size
 #                      of the returned 'xmat'
-#         Clist.miss : see 'Clist.miss' above; some of the code uses this Clist.miss,
+#         fdrle : see 'fdrle' above; some of the code uses this fdrle,
 #                      some uses the one above, does this seem right?
 #   MHproposal       : an MHproposal object, as returned by <ergm.getMHproposal>
 #   verbose          : whether this and the C routines should be verbose (T or F);

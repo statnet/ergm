@@ -89,11 +89,11 @@ ergm.mapl <- function(formula, init="MPLE",
   }
   
   Clist.initial <- ergm.Cprepare(nw, model.initial)
-  Clist.miss.initial <- ergm.design(nw, model.initial, verbose=verbose)
+  fdrle.initial <- ergm.design(nw, verbose=verbose)
   Clist.initial$target.stats=target.stats
   initcopy <- init
   
-  pl <- ergm.pl(Clist=Clist.initial, Clist.miss=Clist.miss.initial,
+  pl <- ergm.pl(Clist=Clist.initial, fdrle=fdrle.initial,
                 m=model.initial,theta.offset=ifelse(extremeval!=0,extremeval*Inf,NA),
                 verbose=verbose)
   initialfit <- ergm.maple(pl=pl, model.initial,
@@ -122,9 +122,9 @@ ergm.mapl <- function(formula, init="MPLE",
     if(verbose){.message_print(summary(formula, basis=sim)-target.stats)}
     if(verbose){.message_print(sum(sim[,] != nw[,]))}
     Clist.initial <- ergm.Cprepare(sim, model.initial)
-    Clist.miss.initial <- ergm.design(sim, model.initial, verbose=verbose)
+    fdrle.initial <- ergm.design(sim, verbose=verbose)
     Clist.initial$target.stats=target.stats
-    sim.pl <- ergm.pl(Clist=Clist.initial, Clist.miss=Clist.miss.initial,
+    sim.pl <- ergm.pl(Clist=Clist.initial, fdrle=fdrle.initial,
                       m=model.initial,theta.offset=ifelse(extremeval!=0,extremeval*Inf,NA),
                       verbose=verbose)
     pl$zy <- c(pl$zy,sim.pl$zy)
