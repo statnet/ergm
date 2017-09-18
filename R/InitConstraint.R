@@ -183,7 +183,7 @@ InitConstraint.blockdiag<-function(conlist, lhs.nw, attrname=NULL, ...){
     n <- network.size(lhs.nw)
     a <- lhs.nw %v% attrname
     a <- rle(a)
-    compact_rle(do.call(c,
+    compact.rle(do.call(c,
                         mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend))},
                                a$lengths, cumsum(a$lengths), SIMPLIFY=FALSE)
                         ))

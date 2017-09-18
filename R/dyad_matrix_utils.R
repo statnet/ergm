@@ -3,7 +3,7 @@
   ## NB: Free dyad RLE matrix is stored in a column-major order for
   ## consistency with R.
   
-  ils <- lapply(seq_len(n), function(j) fel[fel[,2]==j,1])
+  ils <- lapply(seq_len(n), function(j) el[el[,2]==j,1])
   o <- lapply(ils, function(il){
     # If el_free, construct an rle of the form c(FALSE, TRUE, FALSE,
     # ..., FALSE, TRUE, FALSE); otherwise, construct its logical
@@ -18,7 +18,7 @@
     rep(o, lens, scale='run')
   })
   # Concatenate the RLEs and compact.
-  compact_rle(do.call(c, o))  
+  compact.rle(do.call(c, o))  
 }
 
 get.free.dyads <- function(constraints){
