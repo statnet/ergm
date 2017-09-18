@@ -51,7 +51,7 @@ get.active.dyads <- function(constraints, constraints.obs){
 }
 
 as.edgelist.rle <- function(x, n){
-  starts <- cumsum(1,as.numeric(x$lengths))
+  starts <- cumsum(c(1,as.numeric(x$lengths)))
   starts <- starts[-length(starts)]
 
   starts <- starts[x$values!=0]
