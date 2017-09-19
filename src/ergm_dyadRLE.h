@@ -96,7 +96,7 @@ static inline void GetRandDyadRLED(Vertex *tail, Vertex *head, const BoolRLESqMa
   }
 
   // Dyad ID
-  Dyad d = m->starts[l-1] + (i-m->cumlens[l-1]);
+  Dyad d = (Dyad)m->starts[l-1] + (i-1-(Dyad)m->cumlens[l-1]);
 
   Dyad2TH(tail, head, d, m->n);
 }
@@ -158,7 +158,7 @@ static inline Dyad NextDyadRLED(Dyad d, Dyad stride, const BoolRLESqMatrixD *m, 
     nxtl = l;
   }
 
-  while(nxtdi > m->cumlens[nxtl]) nxtl++;
+  while(nxtdi >= m->cumlens[nxtl]) nxtl++;
   // nxtl is now the 1-based run index of the next dyad.
 
   // Update the hint if active.
