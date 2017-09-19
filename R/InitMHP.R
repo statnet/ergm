@@ -209,27 +209,9 @@ InitMHP.fixallbutTNT <- function(arguments, nw){
 
 
 InitMHP.RLE <- function(arguments, nw){
-  fdrle <- get.free.dyads(arguments$constraints)
-
-  cumlen <- cumsum(as.numeric(fdrle$lengths[fdrle$values==TRUE]))
-  nruns <- length(cumlen)
-  ndyads <- cumlen[nruns]
-  runstart <- cumsum(c(1,as.numeric(fdrle$lengths)))
-  runstart <- runstart[-length(runstart)]
-  runstart <- runstart[fdrle$values==TRUE]
-
-  MHproposal <- list(name = "RLE", inputs=c(ndyads, nruns, c(0,cumlen), runstart), pkgname="ergm")
+  MHproposal <- list(name = "RLE", inputs=pack_rlebdm_as_numeric(as.rlebdm(arguments$constraints)), pkgname="ergm")
 }
 
 InitMHP.RLETNT <- function(arguments, nw){
-  fdrle <- get.free.dyads(arguments$constraints)
-
-  cumlen <- cumsum(as.numeric(fdrle$lengths[fdrle$values==TRUE]))
-  nruns <- length(cumlen)
-  ndyads <- cumlen[nruns]
-  runstart <- cumsum(c(1,as.numeric(fdrle$lengths)))
-  runstart <- runstart[-length(runstart)]
-  runstart <- runstart[fdrle$values==TRUE]
-
-  MHproposal <- list(name = "RLETNT", inputs=c(ndyads, nruns, c(0,cumlen), runstart), pkgname="ergm")
+  MHproposal <- list(name = "RLETNT", inputs=pack_rlebdm_as_numeric(as.rlebdm(arguments$constraints)), pkgname="ergm")
 }

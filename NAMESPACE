@@ -142,9 +142,7 @@ export(
   fix.curved,
   fix.curved.ergm,                 
   fix.curved.formula,
-  get.free.dyads,                  
   # get.InitErgm.fname,  made internal
-  get.miss.dyads,                  
   get.node.attr,
   gof,                             
   gof.default,
@@ -384,3 +382,22 @@ S3method(summary.statistics,network.list)
 S3method(summary,statsmatrix.ergm)
          
 S3method(vcov,ergm)
+
+
+export(rlebdm, as.rlebdm)
+S3method(as.rlebdm,matrix)
+S3method(as.rlebdm,edgelist)
+S3method(as.edgelist,rlebdm)
+S3method(as.rlebdm,conlist)
+S3method(as.rlebdm,NULL)
+S3method(as.matrix,rlebdm)
+S3method(print,rlebdm)
+S3method("!",rlebdm)
+S3method("&",rlebdm)
+S3method("|",rlebdm)
+S3method("<",rlebdm)
+S3method(">",rlebdm)
+S3method("<=",rlebdm)
+S3method(">=",rlebdm)
+S3method("==",rlebdm)
+S3method("!=",rlebdm)

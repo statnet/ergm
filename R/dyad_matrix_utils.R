@@ -1,56 +1,192 @@
+#' RLE-Compressed Boolean Dyad Matrix
+#'
+#' A simple class representing boolean (logical) square matrix
+#' run-length encoded in a column-major order.
+#'
+#' @param x for [rlebdm()], an [rle()] object or a vector that is converted to one; it will be coerced to [logical()] before processing; for [as.rlebdm.matrix()], a matrix.
+#' @param n the dimensions of the square matrix represented.
+#' 
+#' @export
+rlebdm <- function(x, n){
+  if(is(x, "rlebdm")) return(x)
+  o <- as.rle(x)
+  o$values <- as.logical(o$values)
+  l <- n*n
+  if(length(o)!=l){
+    if(length(o)!=1) stop("Populating the matrix can only be done with a constant value at this time.")
+    nr <- l%/%.Machine$integer.max
+    nl <- l%%.Machine$integer.max
+    o$values <- rep(o$values, nr + 1)
+    o$lengths <- c(rep.int(.Machine$integer.max, nr), as.integer(nl))
+  }
+  attr(o, "n") <- n
+  class(o) <- c("rlebdm", class(o))
+  o
+}
 
-.rle_dyad_matrix_from_el <- function(n, el, el_free){
-  ## NB: Free dyad RLE matrix is stored in a column-major order for
-  ## consistency with R.
-  
-  ils <- lapply(seq_len(n), function(j) el[el[,2]==j,1])
-  o <- lapply(ils, function(il){
-    # If el_free, construct an rle of the form c(FALSE, TRUE, FALSE,
-    # ..., FALSE, TRUE, FALSE); otherwise, construct its logical
-    # negation.
-    o <- rle(c(rep(c(!el_free,el_free), length(il)),!el_free))
+#' @rdname rlebdm
+#' @export
+as.rlebdm <- function(x, ...) UseMethod("as.rlebdm")
+
+#' @noRd
+#' @export
+as.rlebdm.NULL <- function(x, ...) NULL
+
+#' @rdname rlebdm
+#'
+#' @param matrix.type a string (or a substring) of `"adjacency"` or
+#'   `"edgelist"` specifying the type of matrix being converted. If
+#'   `"adjacency"`, the given matrix is simply the matrix to be
+#'   converted; if `"edgelist"`, a two-column matrix giving the
+#'   indices of nonzero cells.
+#' 
+#' @export
+as.rlebdm.matrix <- function(x, matrix.type = c("adjacency", "edgelist"), ...){
+  matrix.type <- match.arg(matrix.type, )
+  switch(matrix.type,
+         adjacency = {
+           if(nrow(x)!=ncol(x)) stop("Input matrix must be square at this time.")
+           rlebdm(x, nrow(x))
+         },
+         edgelist = {
+           n <- attr(x, "n")
+           ils <- lapply(lapply(lapply(seq_len(n), function(j) x[x[,2]==j,1]), unique), sort)
+           o <- lapply(ils, function(il){
+             o <- rle(c(rep(c(FALSE,TRUE), length(il)),FALSE))
       
-    # Construct repetition counts: gaps between the is', as well as
-    # the gap before the first i and after the last i for that j,
-    # and interleave it with 1s.
-    lens <- c(rbind(diff(c(0,il,n+1))-1,1))
-    lens <- lens[-length(lens)]
-    rep(o, lens, scale='run')
-  })
-  # Concatenate the RLEs and compact.
-  compact.rle(do.call(c, o))  
+             # Construct repetition counts: gaps between the i's, as well as
+             # the gap before the first i and after the last i for that j,
+             # and interleave it with 1s.
+             lens <- c(rbind(diff(c(0,il,n+1))-1,1))
+             lens <- lens[-length(lens)]
+             rep(o, lens, scale='run')
+           })
+           # Concatenate the RLEs and compact.
+           rlebdm(compact.rle(do.call(c, o)), attr(x, "n"))
+         }
+         )
 }
 
-get.free.dyads <- function(constraints){
-  y <- NULL
-  for(con in constraints){
-    if(!is.null(con$free.dyads)){
-      y <- if(is.null(y)) con$free.dyads() else y & con$free.dyads()
-    }
-  }
-  if(!is.null(y)) compact.rle(y)
+#' @rdname rlebdm
+#' @export
+as.rlebdm.edgelist <- function(x, ...){
+  NextMethod("as.rlebdm", x, matrix.type="edgelist", ...)
 }
 
-get.miss.dyads <- function(constraints, constraints.obs){
-# Returns an RLE dyad matrix indicating the missing dyads in the
-# network (respecting the constraints).
-  free.dyads <- get.free.dyads(constraints)
-  free.dyads.obs <- get.free.dyads(constraints.obs)
-  
-  if(is.null(free.dyads)){
-    if(is.null(free.dyads.obs)) NULL
-    else free.dyads.obs
-  }else{
-    if(is.null(free.dyads.obs)) !free.dyads
-    else (!free.dyads) | free.dyads.obs
-  }
+#' @rdname rlebdm
+#' @export
+as.matrix.rlebdm <- function(x, ...){
+  matrix(inverse.rle(x), attr(x, "n"), attr(x, "n"))
 }
 
-get.active.dyads <- function(constraints, constraints.obs){
-  get.free.dyads(constraints) & ! get.miss.dyads(constraints,constraints.obs)
+#' @rdname rlebdm
+#' @export
+print.rlebdm <- function(x, ...){
+  print(as.matrix(x), ...)
 }
 
-as.edgelist.rle <- function(x, n){
+#' @rdname rlebdm
+#' @export
+`!.rlebdm` <- function(x){
+  o <- NextMethod()
+  rlebdm(o, attr(x, "n"))
+}
+
+#' @rdname rlebdm
+#' @param e1,e2 arguments to the binary operations.
+#' @export
+`|.rlebdm` <- function(e1, e2){
+  o <- NextMethod()
+  rlebdm(o, attr(e1, "n"))
+}
+
+#' @rdname rlebdm
+#' @export
+`&.rlebdm` <- function(e1, e2){
+  o <- NextMethod()
+  rlebdm(o, attr(e1, "n"))
+}
+
+#' @rdname rlebdm
+#' @export
+`<.rlebdm` <- function(e1, e2){
+  o <- NextMethod()
+  rlebdm(o, attr(e1, "n"))
+}
+
+#' @rdname rlebdm
+#' @export
+`>.rlebdm` <- function(e1, e2){
+  o <- NextMethod()
+  rlebdm(o, attr(e1, "n"))
+}
+
+#' @rdname rlebdm
+#' @export
+`<=.rlebdm` <- function(e1, e2){
+  o <- NextMethod()
+  rlebdm(o, attr(e1, "n"))
+}
+
+#' @rdname rlebdm
+#' @export
+`>=.rlebdm` <- function(e1, e2){
+  o <- NextMethod()
+  rlebdm(o, attr(e1, "n"))
+}
+
+#' @rdname rlebdm
+#' @export
+`==.rlebdm` <- function(e1, e2){
+  o <- NextMethod()
+  rlebdm(o, attr(e1, "n"))
+}
+
+#' @rdname rlebdm
+#' @export
+`!=.rlebdm` <- function(e1, e2){
+  o <- NextMethod()
+  rlebdm(o, attr(e1, "n"))
+}
+
+#' @noRd
+#' @export
+as.rlebdm.conlist <- function(constraints, constraints.obs = NULL, which = c("free", "missing", "active"), ...){
+  # FIXME: Probably don't need all these recursive calls.
+  which <- match.arg(which)
+  switch(which,
+         free={
+           y <- NULL
+           for(con in constraints){
+             if(!is.null(con$free.dyads)){
+               y <- if(is.null(y)) con$free.dyads() else y & con$free.dyads()
+             }
+           }
+           if(!is.null(y)) compact.rle(y)
+         },
+         missing={
+           # Returns an RLE dyad matrix indicating the missing dyads in the
+           # network (respecting the constraints).
+           free.dyads <- as.rlebdm(constraints)
+           free.dyads.obs <- as.rlebdm(constraints.obs)
+           
+           if(is.null(free.dyads)){
+             if(is.null(free.dyads.obs)) NULL
+             else free.dyads.obs
+           }else{
+             if(is.null(free.dyads.obs)) !free.dyads
+             else (!free.dyads) | free.dyads.obs
+           }
+         },
+         active={
+           as.rlebdm(constraints) & ! as.rlebdm(constraints,constraints.obs, which="missing")
+         }
+         )
+}
+
+#' @rdname rlebdm
+as.edgelist.rlebdm <- function(x, ...){
+  n <- attr(x, "n")
   starts <- cumsum(c(1,as.numeric(x$lengths)))
   starts <- starts[-length(starts)]
 
@@ -70,18 +206,13 @@ as.edgelist.rle <- function(x, n){
   el
 }
 
-.dyadcount.dyadrle <- function(x){
-  Tlens <- x$lengths[x$values==TRUE]
-  sum(as.numeric(Tlens))
-}
-
-pack_free.dyads_as_numeric <- function(fdrle){
-  cumlen <- cumsum(as.numeric(fdrle$lengths[fdrle$values==TRUE]))
+pack_rlebdm_as_numeric <- function(x){
+  cumlen <- cumsum(as.numeric(x$lengths[x$values==TRUE]))
   nruns <- length(cumlen)
   ndyads <- cumlen[nruns]
-  runstart <- cumsum(c(1,as.numeric(fdrle$lengths)))
+  runstart <- cumsum(c(1,as.numeric(x$lengths)))
   runstart <- runstart[-length(runstart)]
-  runstart <- runstart[fdrle$values==TRUE]
+  runstart <- runstart[x$values==TRUE]
 
   c(ndyads, nruns, runstart, c(0,cumlen))
 }

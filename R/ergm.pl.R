@@ -74,7 +74,7 @@ ergm.pl<-function(Clist, fdrle, m, theta.offset=NULL,
   z <- .C("MPLE_wrapper",
           as.integer(Clist$tails), as.integer(Clist$heads),
           as.integer(Clist$nedges),
-          as.double(pack_free.dyads_as_numeric(fdrle)),
+          as.double(pack_rlebdm_as_numeric(fdrle)),
           as.integer(n), 
           as.integer(Clist$dir),     as.integer(bip),
           as.integer(Clist$nterms), 
@@ -105,12 +105,14 @@ ergm.pl<-function(Clist, fdrle, m, theta.offset=NULL,
     xmat <- xmat[zy==0,,drop=FALSE]
     zy <- zy[zy==0]
 
+    el <- cbind(Clist$tails, Clist$heads)
+    attr(el, "n") <- n
     ## Run a whitelist PL over all of the toggleable edges in the network.
-    presentrle <- .rle_dyad_matrix_from_el(n, cbind(Clist$tails, Clist$heads), TRUE) & fdrle
+    presentrle <- as.rlebdm(el) & fdrle
     z <- .C("MPLE_wrapper",
             as.integer(Clist$tails), as.integer(Clist$heads),
             as.integer(Clist$nedges),
-            as.numeric(pack_free.dyads_as_numeric(presentrle)),
+            as.numeric(pack_rlebdm_as_numeric(presentrle)),
             as.integer(n), 
             as.integer(Clist$dir),     as.integer(bip),
             as.integer(Clist$nterms), 

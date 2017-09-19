@@ -73,7 +73,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
         warning("The number of observed dyads in this network is ill-defined due to complex constraints on the sample space.")
       }
       
-      sum(get.active.dyads(object$constrained, object$constrained.obs))
+      sum(as.rlebdm(object$constrained, object$constrained.obs, which="active"))
     }else attr(object$null.lik,"nobs")
   }
 
@@ -101,7 +101,7 @@ logLikNull.ergm <- function(object, control=control.logLik.ergm(), ...){
   
   if(!is.null(object$null.lik)) object$null.lik
 
-  nobs <- if(is.null(object$mle.lik)) sum(get.active.dyads(object$constrained, object$constrained.obs)) else attr(object$mle.lik,"nobs")
+  nobs <- if(is.null(object$mle.lik)) sum(as.rlebdm(object$constrained, object$constrained.obs, which="active")) else attr(object$mle.lik,"nobs")
   
   llk <-
     if(!is.null(object$response)){

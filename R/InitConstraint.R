@@ -40,26 +40,25 @@ InitConstraint..attributes <- function(conlist, lhs.nw, ...){
     n <- network.size(lhs.nw)
     ## NB: Free dyad RLE matrix is stored in a column-major order for
     ## consistency with R.
-    d <- compact.rle(
+    d <-
       if(has.loops(lhs.nw)) rep(rep(rle(TRUE),n,scale="run"),n,scale="run")
       else do.call(c, lapply(seq_len(n), function(i) rep(rle(c(TRUE,FALSE,TRUE)), c(i-1, 1, n-i),scale="run")))
-    )
     
     if(is.bipartite(lhs.nw)){
       n1 <- lhs.nw%n%"bipartite"
       n2 <- n - n1
       
       d <- d &
-        compact.rle(c(rep(rep(rle(c(FALSE)),n,scale="run"),n1,scale="run"),
-                      rep(rep(rle(c(TRUE,FALSE)),c(n1,n2),scale="run"),n2,scale="run")))
+        c(rep(rep(rle(c(FALSE)),n,scale="run"),n1,scale="run"),
+          rep(rep(rle(c(TRUE,FALSE)),c(n1,n2),scale="run"),n2,scale="run"))
     }
     
     if(!is.directed(lhs.nw)){
       d <- d &
-        compact.rle(do.call(c, lapply(seq_len(n), function(i) rep(rle(c(TRUE,FALSE)), c(i-1, n-i+1),scale="run"))))
+        do.call(c, lapply(seq_len(n), function(i) rep(rle(c(TRUE,FALSE)), c(i-1, n-i+1),scale="run")))
     }
     
-    compact.rle(d)
+    rlebdm(compact.rle(d), n)
   }
 
   conlist
@@ -167,7 +166,7 @@ InitConstraint.observed <- function(conlist, lhs.nw, ...){
   conlist$observed<-list()
 
   conlist$observed$free.dyads <- function(){
-    .rle_dyad_matrix_from_el(network.size(lhs.nw), as.edgelist(is.na(lhs.nw)), TRUE)
+    as.rlebdm(as.edgelist(is.na(lhs.nw)), matrix.type="edgelist")
   }
   conlist
 }
@@ -183,10 +182,10 @@ InitConstraint.blockdiag<-function(conlist, lhs.nw, attrname=NULL, ...){
     n <- network.size(lhs.nw)
     a <- lhs.nw %v% attrname
     a <- rle(a)
-    compact.rle(do.call(c,
+    rlebdm(compact.rle(do.call(c,
                         mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend))},
                                a$lengths, cumsum(a$lengths), SIMPLIFY=FALSE)
-                        ))
+                        )), n)
   }
   
   conlist
@@ -220,7 +219,8 @@ InitConstraint.fixedas<-function(conlist, lhs.nw, present=NULL, absent=NULL,...)
             stop("Dyads cannot be fixed at both present and absent")
           }
 
-          .rle_dyad_matrix_from_el(network.size(lhs.nw), fixed, FALSE)
+          attr(fixed, "n") <- network.size(lhs.nw)
+          !as.rlebdm(fixed, matrix.type="edgelist")
         }
         
 	conlist
@@ -252,7 +252,8 @@ InitConstraint.fixallbut<-function(conlist, lhs.nw, free.dyads=NULL,...){
 #	
 #	
 	conlist$fixallbut$free.dyads<-function(){ 
-          .rle_dyad_matrix_from_el(network.size(lhs.nw), free.dyads, TRUE)
+          attr(free.dyads, "n") <- network.size(lhs.nw)
+          as.rlebdm(free.dyads, matrix.type="edgelist")
 	}
 	conlist
 }

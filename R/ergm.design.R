@@ -38,7 +38,7 @@
 ergm.design <- function(nw, verbose=FALSE){
   basecon <- mk.conlist(~.attributes, nw)
   misscon <- if(network.naedgecount(nw)) mk.conlist(~.attributes+observed, nw)
-  get.active.dyads(basecon, misscon)
+  as.rlebdm(basecon, misscon, which="active")
 }
 
 ergm.Cprepare.miss <- function(nw){
