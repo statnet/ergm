@@ -14,10 +14,7 @@ rlebdm <- function(x, n){
   l <- n*n
   if(length(o)!=l){
     if(length(o)!=1) stop("Populating the matrix can only be done with a constant value at this time.")
-    nr <- l%/%.Machine$integer.max
-    nl <- l%%.Machine$integer.max
-    o$values <- rep(o$values, nr + 1)
-    o$lengths <- c(rep.int(.Machine$integer.max, nr), as.integer(nl))
+    o <- rep(o, l, scale="run")
   }
   attr(o, "n") <- n
   class(o) <- c("rlebdm", class(o))
@@ -162,7 +159,7 @@ as.rlebdm.conlist <- function(constraints, constraints.obs = NULL, which = c("fr
                y <- if(is.null(y)) con$free_dyads else y & con$free_dyads
              }
            }
-           if(!is.null(y)) compact.rle(y)
+           if(!is.null(y)) rlebdm(compact.rle(y), sqrt(length(y)))
          },
          missing={
            # Returns an RLE dyad matrix indicating the missing dyads in the

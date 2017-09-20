@@ -178,14 +178,43 @@ InitConstraint.blockdiag<-function(conlist, lhs.nw, attrname=NULL, ...){
          free_dyads = {
            n <- network.size(lhs.nw)
            a <- lhs.nw %v% attrname
-           a <- rle(a)
-           rlebdm(compact.rle(do.call(c,
-                                      mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend))},
-                                             a$lengths, cumsum(a$lengths), SIMPLIFY=FALSE)
-                                      )), n)
+           if(NVL(lhs.nw%n%"bipartite",0)){
+             bip <- lhs.nw %n% "bipartite"
+             ea <- a[seq_len(bip)]
+             aa <- a[bip+seq_len(n-bip)]
+             if(length(rle(ea)$lengths)!=length(unique(rle(ea)$values)) || length(rle(aa)$lengths)!=length(unique(rle(aa)$values))) stop("Current implementation of block-diagonal sampling requires that the blocks of the egos and the alters be contiguous. See help('ergm-constraints') for more information.")
+             
+             tmp <- .double.rle(ea, aa)
+             el <- tmp$lengths1
+             al <- tmp$lengths2
+             
+             o <- rlebdm(c(rep(rle(FALSE), bip*n, scale="run"),
+                           do.call(c,rep(
+                                       mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend), scale="run")},
+                                              el, cumsum(el), SIMPLIFY=FALSE),
+                                       al)
+                                   )), n)
+             # Future-proofing: in case it's bipartite directed, add
+             # both thte blocks and their transposes. (If undirected,
+             # it'll get filtered out by the .attributes constraints.)
+             ot <- rlebdm(c(do.call(c,rep(
+                                      mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bip+bend-blen, blen, n-bip-bend), scale="run")},
+                                             al, cumsum(al), SIMPLIFY=FALSE),
+                                      el)
+                                    ),
+                            rep(rle(FALSE), (n-bip)*n, scale="run")), n)
+             o | ot
+           }else{
+             a <- rle(a)
+             rlebdm(compact.rle(do.call(c,rep(
+                                            mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend), scale="run")},
+                                                   a$lengths, cumsum(a$lengths), SIMPLIFY=FALSE),
+                                            a$lengths)
+                                        )), n)
+           }
          },
          dependence = FALSE)
-  
+
   conlist
 }
 
