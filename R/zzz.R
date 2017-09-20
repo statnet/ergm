@@ -22,10 +22,10 @@
 }
 
 .RegisterMHPs <- function(){
-  ergm.MHP.table("c", "Bernoulli", "",  0, "random", "randomtoggle")
-  ergm.MHP.table("c", "Bernoulli", "bd",  0, "random", "randomtoggle")
-  ergm.MHP.table("c", "Bernoulli", "",  1, "TNT", "TNT")
-  ergm.MHP.table("c", "Bernoulli", "bd",  1, "TNT", "TNT")
+  ergm.MHP.table("c", "Bernoulli", "",  0, "random", "RLE")
+  ergm.MHP.table("c", "Bernoulli", "bd",  0, "random", "RLE")
+  ergm.MHP.table("c", "Bernoulli", "",  1, "TNT", "RLETNT")
+  ergm.MHP.table("c", "Bernoulli", "bd",  1, "TNT", "RLETNT")
   ergm.MHP.table("c", "Bernoulli", "", -1, "TNT10", "TNT10")
   ergm.MHP.table("c", "Bernoulli", "degrees",  0, "random", "CondDegree")
   ergm.MHP.table("c", "Bernoulli", "degreesmix",  0, "random", "CondDegreeMix")
@@ -42,23 +42,7 @@
   ergm.MHP.table("c", "Bernoulli", "edges",  0, "random", "ConstantEdges")
   ergm.MHP.table("c", "Bernoulli", "edges+hamming",  0, "random", "HammingConstantEdges")
   ergm.MHP.table("c", "Bernoulli", "hamming",  0, "random", "HammingTNT")
-  ergm.MHP.table("c", "Bernoulli", "bd+observed",  0, "random", "randomtoggleNonObserved")
-  ergm.MHP.table("c", "Bernoulli", "bd+observed",  1, "TNT", "NonObservedTNT")
-  ergm.MHP.table("c", "Bernoulli", "observed",  0, "random", "randomtoggleNonObserved")
-  ergm.MHP.table("c", "Bernoulli", "observed",  1, "TNT", "NonObservedTNT")
-  ergm.MHP.table("c", "Bernoulli", "blockdiag", 0, "random", "blockdiag")
-  ergm.MHP.table("c", "Bernoulli", "blockdiag", 1, "TNT", "blockdiagTNT")
-  ergm.MHP.table("c", "Bernoulli", "bd+blockdiag", 0, "random", "blockdiag")
-  ergm.MHP.table("c", "Bernoulli", "bd+blockdiag", 1, "TNT", "blockdiagTNT")
-  ergm.MHP.table("c", "Bernoulli", "blockdiag+observed",  0, "random", "blockdiagNonObserved")
-  ergm.MHP.table("c", "Bernoulli", "blockdiag+observed",  1, "TNT", "blockdiagNonObservedTNT")
-  ergm.MHP.table("c", "Bernoulli", "bd+blockdiag+observed",  0, "random", "blockdiagNonObserved")
-  ergm.MHP.table("c", "Bernoulli", "bd+blockdiag+observed",  1, "TNT", "blockdiagNonObservedTNT")
-  ergm.MHP.table("c", "Bernoulli", "fixedas",  0, "random", "fixedas")
-  ergm.MHP.table("c", "Bernoulli", "fixedas",  1, "TNT", "fixedasTNT")
-  ergm.MHP.table("c", "Bernoulli", "fixallbut",  0, "random", "fixallbut")
-  ergm.MHP.table("c", "Bernoulli", "fixallbut",  1, "TNT", "fixallbutTNT")
-  
+ 
   
   ergm.MHP.table("c", "StdNormal", "",  0, "random", "StdNormal")
 
@@ -81,9 +65,7 @@
   ergm.ConstraintImplications("idegreedist", c("edges"))
   ergm.ConstraintImplications("odegreedist", c("edges"))
   ergm.ConstraintImplications("bd", c())
-  ergm.ConstraintImplications("blockdiag", c())
   ergm.ConstraintImplications("hamming", c())
-  ergm.ConstraintImplications("observed", c())
 }
 
 .RegisterInitMethods <- function(){

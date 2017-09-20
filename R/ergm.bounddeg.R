@@ -50,6 +50,7 @@ ergm.bounddeg <- function(bounddeg,nw){
     maxin <- NULL
     minout <- NULL
     minin <- NULL
+    dependence <- FALSE
   } else {
     attribs <- bounddeg$attribs
     maxout <- bounddeg$maxout
@@ -98,12 +99,14 @@ ergm.bounddeg <- function(bounddeg,nw){
           "Proceeding anyway, but final network may not satisfy constraints.")
     }
     attribs[is.na(attribs)] <- 0
+    dependence <- TRUE
   }
   list(condAllDegExact=FALSE,
        attribs=attribs,
        maxout=maxout,
        maxin=maxin,
        minout=minout,
-       minin=minin)
+       minin=minin,
+       dependence=dependence)
 }
 

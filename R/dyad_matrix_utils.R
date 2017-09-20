@@ -158,8 +158,8 @@ as.rlebdm.conlist <- function(constraints, constraints.obs = NULL, which = c("fr
          free={
            y <- NULL
            for(con in constraints){
-             if(!is.null(con$free.dyads)){
-               y <- if(is.null(y)) con$free.dyads() else y & con$free.dyads()
+             if(!is.null(con$free_dyads)){
+               y <- if(is.null(y)) con$free_dyads else y & con$free_dyads
              }
            }
            if(!is.null(y)) compact.rle(y)
@@ -167,19 +167,20 @@ as.rlebdm.conlist <- function(constraints, constraints.obs = NULL, which = c("fr
          missing={
            # Returns an RLE dyad matrix indicating the missing dyads in the
            # network (respecting the constraints).
-           free.dyads <- as.rlebdm(constraints)
-           free.dyads.obs <- as.rlebdm(constraints.obs)
+           free_dyads <- as.rlebdm(constraints)
+           free_dyads.obs <- as.rlebdm(constraints.obs)
            
-           if(is.null(free.dyads)){
-             if(is.null(free.dyads.obs)) NULL
-             else free.dyads.obs
+           if(is.null(free_dyads)){
+             if(is.null(free_dyads.obs)) NULL
+             else free_dyads.obs
            }else{
-             if(is.null(free.dyads.obs)) !free.dyads
-             else (!free.dyads) | free.dyads.obs
+             if(is.null(free_dyads.obs)) !free_dyads
+             else (!free_dyads) | free_dyads.obs
            }
          },
          active={
-           as.rlebdm(constraints) & ! as.rlebdm(constraints,constraints.obs, which="missing")
+           y <- as.rlebdm(constraints)
+           if(is.null(constraints.obs)) y else y & !as.rlebdm(constraints,constraints.obs, which="missing")
          }
          )
 }

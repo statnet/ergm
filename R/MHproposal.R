@@ -178,7 +178,14 @@ mk.conlist <- function(object, nw){
     }
     conlist <- eval(as.call(init.call), environment(object))
   }
+
   conlist <- prune.conlist(conlist)
+
+  ## allfree <- rlebdm(TRUE, network.size(nw))
+  ## for(name in names(conlist)){
+  ##   NVL(conlist[[name]]$free_dyads) <- allfree
+  ## }
+  
   class(conlist) <- "conlist"
   conlist
 }
@@ -207,7 +214,8 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
   if(is.null(names(conlist))) {
     constraints <- ""
   } else {
-    constraints <- paste(sort(tolower(Filter(function(x)!startsWith(x,"."), names(conlist)))),collapse="+")
+    filtercons <- conlist[!sapply(names(conlist), startsWith,".") & sapply(conlist, `[[`, "dependence")]
+    constraints <- paste(sort(tolower(names(filtercons))),collapse="+")
   }
   
   MHqualifying<-with(ergm.MHP.table(),ergm.MHP.table()[Class==class & Constraints==constraints & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])

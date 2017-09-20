@@ -42,9 +42,8 @@ is.dyad.independent.formula<-function(object,response=NULL,basis=NULL,...){
 
 is.dyad.independent.conlist <- function(object, object.obs=NULL, ...){
   dind <- TRUE
-  for(con in names(object)){
-    if(con=="bd" && isTRUE(all.equal(unlist(object[[con]]),FALSE,check.attributes=FALSE))) next
-    if(is.null(object[[con]]$free.dyads)) dind <- FALSE
+  for(con in object){
+    if(con$dependence) dind <- FALSE
   }
   dind && if(!is.null(object.obs)) is.dyad.independent(object.obs) else TRUE
 }
