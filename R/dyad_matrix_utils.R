@@ -77,9 +77,19 @@ as.matrix.rlebdm <- function(x, ...){
 }
 
 #' @rdname rlebdm
+#'
+#' @param compact whether to print the matrix compactly (dots and stars) or to print it as a logical matrix.
+#' 
 #' @export
-print.rlebdm <- function(x, ...){
-  print(as.matrix(x), ...)
+print.rlebdm <- function(x, compact=TRUE, ...){
+  x <- as.matrix(x)
+  if(compact){
+    x <- ifelse(x, "*", ".")
+    x <- paste0(apply(x, 1, paste0, collapse=""),collapse="\n")
+    cat(x,"\n")
+  }else{
+    print(x, ...)
+  }
 }
 
 #' @rdname rlebdm

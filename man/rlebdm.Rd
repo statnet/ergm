@@ -29,7 +29,7 @@ as.rlebdm(x, ...)
 
 \method{as.matrix}{rlebdm}(x, ...)
 
-\method{print}{rlebdm}(x, ...)
+\method{print}{rlebdm}(x, compact = TRUE, ...)
 
 \method{!}{rlebdm}(x)
 
@@ -61,6 +61,8 @@ as.rlebdm(x, ...)
 `"adjacency"`, the given matrix is simply the matrix to be
 converted; if `"edgelist"`, a two-column matrix giving the
 indices of nonzero cells.}
+
+\item{compact}{whether to print the matrix compactly (dots and stars) or to print it as a logical matrix.}
 
 \item{e1, e2}{arguments to the binary operations.}
 }
