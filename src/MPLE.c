@@ -132,7 +132,7 @@ void MpleInit_hash_wl_RLE(int *responsevec, double *covmat, int *weightsvector,
 
   { // Start a scope for loop variables.
     Vertex t, h;
-    GetRandDyadRLED(&t,&h, wl); // Find a random starting point.
+    GetRandDyadRLED_RS(&t,&h, wl); // Find a random starting point.
     Dyad d = TH2Dyad(nwp->nnodes, t,h);
     RLERun r=0;
     

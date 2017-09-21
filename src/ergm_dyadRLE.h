@@ -50,6 +50,7 @@ typedef struct {
   Dyad ndyads; // number of dyads
   double *starts; // start of a run of free dyads
   double *cumlens; // cumulative lengths of runs of free dyads
+  unsigned int maxlen; // length of the longest run of free dyads (useful in rejection sampling)
 } BoolRLESqMatrixD;
 
 
@@ -73,17 +74,26 @@ static inline BoolRLESqMatrixD unpack_BoolRLESqMatrixD(double **inputs, Vertex n
   out.starts = x; x += out.nruns;
   out.cumlens = x; x += out.nruns+1;
   *inputs = x;
+
+  out.maxlen=0;
+  for(unsigned int r=1; r<=out.nruns; r++){
+    unsigned int l = out.cumlens[r]-out.cumlens[r-1];
+    if(l > out.maxlen) l = out.maxlen;
+  }
+  
   return out;
 }
 
 /**
-Generate a random dyad that belongs to a run
+Generate a random dyad that belongs to a run using inverse transform sampling
 
 @param tail pointer to which to assign the tail value
 @param head pointer to which to assign the head value
 @param r RLE information
+
+@note This procedure is O(log(n)) in m->nruns.
 */
-static inline void GetRandDyadRLED(Vertex *tail, Vertex *head, const BoolRLESqMatrixD *m){
+static inline void GetRandDyadRLED_ITS(Vertex *tail, Vertex *head, const BoolRLESqMatrixD *m){
   // Select a dyad index at random
   Dyad i = unif_rand() * m->ndyads + 1;
 
@@ -101,6 +111,36 @@ static inline void GetRandDyadRLED(Vertex *tail, Vertex *head, const BoolRLESqMa
   Dyad2TH(tail, head, d, m->n);
 }
 
+/**
+Generate a random dyad that belongs to a run using rejection sampling
+
+@param tail pointer to which to assign the tail value
+@param head pointer to which to assign the head value
+@param r RLE information
+
+@note This procedure is O(1) in m->nruns, but with a larger constant
+due to multiple unif_rand() calls. However, because runs tend to have
+similar lengths, the acceptance probability is likely to be high.
+
+*/
+static inline void GetRandDyadRLED_RS(Vertex *tail, Vertex *head, const BoolRLESqMatrixD *m){
+
+  RLERun r;
+  double l;
+  do{
+    // Select a run at random
+    r = unif_rand() * m->nruns + 1;
+    l = m->cumlens[r]-m->cumlens[r-1];
+  }while(l/m->maxlen < unif_rand());
+
+  // The run r now has probability of selection proportional to its
+  // length, and l is its length.
+
+  // Dyad ID
+  Dyad d = (Dyad)m->starts[(unsigned int)l-1] + unif_rand()*l;
+
+  Dyad2TH(tail, head, d, m->n);
+}
 
 /**
 Test if a dyad is present in a run

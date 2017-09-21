@@ -539,7 +539,7 @@ void MH_RLE (MHproposal *MHp, Network *nwp)
       /* Select a dyad at random that is in the reference graph. (We
 	 have a convenient sampling frame.) */
       /* Generate. */
-      GetRandDyadRLED(Mtail, Mhead, &r);
+      GetRandDyadRLED_RS(Mtail, Mhead, &r);
     });
 }
 
@@ -656,14 +656,21 @@ void MH_RLETNT (MHproposal *MHp, Network *nwp)
 	}
       }
     }
+
+    if(discord.nedges==nwp->nedges){ // There are no ties in the initial network that are fixed.
+      NetworkDestroy(&discord);
+      free(MHp->discord);
+      MHp->discord = NULL;
+    }
     return;
   }
-  
-  Edge nedges=discord.nedges;
+
+  Network *nwp1 = MHp->discord? &discord : nwp;
+  Edge nedges= nwp1->nedges;
   double logratio=0;
   BD_LOOP({
       if (unif_rand() < comp && nedges > 0) { /* Select a tie at random from the network of eligibles */
-	GetRandEdge(Mtail, Mhead, &discord);
+	GetRandEdge(Mtail, Mhead, nwp1);
 	/* Thanks to Robert Goudie for pointing out an error in the previous 
 	   version of this sampler when proposing to go from nedges==0 to nedges==1 
 	   or vice versa.  Note that this happens extremely rarely unless the 
@@ -672,9 +679,9 @@ void MH_RLETNT (MHproposal *MHp, Network *nwp)
 	logratio = log((nedges==1 ? 1.0/(comp*r.ndyads + (1.0-comp)) :
 			      nedges / (odds*r.ndyads + nedges)));
       }else{ /* Select a dyad at random from the list */
-	GetRandDyadRLED(Mtail, Mhead, &r);
+	GetRandDyadRLED_RS(Mtail, Mhead, &r);
 	
-	if(EdgetreeSearch(Mtail[0],Mhead[0],discord.outedges)!=0){
+	if(EdgetreeSearch(Mtail[0],Mhead[0],nwp1->outedges)!=0){
 	  logratio = log((nedges==1 ? 1.0/(comp*r.ndyads + (1.0-comp)) :
 				nedges / (odds*r.ndyads + nedges)));
 	}else{
