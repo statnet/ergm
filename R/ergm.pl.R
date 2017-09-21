@@ -15,7 +15,7 @@
 # --PARAMETERS--
 #   Clist            : a list of parameters used for fitting and returned
 #                      by <ergm.Cprepare>
-#   fdrle       : the corresponding 'Clist' for the network of missing
+#   fd       : the corresponding 'Clist' for the network of missing
 #                      edges returned by <ergm.design>
 #   m                : the model, as returned by <ergm.getmodel>
 #   theta.offset     : a logical vector specifying which of the model
@@ -26,7 +26,7 @@
 #                      include:
 #         samplesize : the number of networks to sample, which will inform the size
 #                      of the returned 'xmat'
-#         fdrle : see 'fdrle' above; some of the code uses this fdrle,
+#         fd : see 'fd' above; some of the code uses this fd,
 #                      some uses the one above, does this seem right?
 #   MHproposal       : an MHproposal object, as returned by <ergm.getMHproposal>
 #   verbose          : whether this and the C routines should be verbose (T or F);
@@ -57,7 +57,7 @@
 #    
 ###############################################################################
 
-ergm.pl<-function(Clist, fdrle, m, theta.offset=NULL,
+ergm.pl<-function(Clist, fd, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
                     control, MHproposal,
                     verbose=FALSE) {
@@ -74,7 +74,7 @@ ergm.pl<-function(Clist, fdrle, m, theta.offset=NULL,
   z <- .C("MPLE_wrapper",
           as.integer(Clist$tails), as.integer(Clist$heads),
           as.integer(Clist$nedges),
-          as.double(pack_rlebdm_as_numeric(fdrle)),
+          as.double(pack_rlebdm_as_numeric(fd)),
           as.integer(n), 
           as.integer(Clist$dir),     as.integer(bip),
           as.integer(Clist$nterms), 
@@ -108,7 +108,7 @@ ergm.pl<-function(Clist, fdrle, m, theta.offset=NULL,
     el <- cbind(Clist$tails, Clist$heads)
     attr(el, "n") <- n
     ## Run a whitelist PL over all of the toggleable edges in the network.
-    presentrle <- as.rlebdm(el) & fdrle
+    presentrle <- as.rlebdm(el) & fd
     z <- .C("MPLE_wrapper",
             as.integer(Clist$tails), as.integer(Clist$heads),
             as.integer(Clist$nedges),

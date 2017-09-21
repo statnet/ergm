@@ -24,6 +24,7 @@ rlebdm <- function(x, n){
 }
 
 #' @rdname rlebdm
+#' @param ... additional arguments, currently unused.
 #' @export
 as.rlebdm <- function(x, ...) UseMethod("as.rlebdm")
 
@@ -172,6 +173,7 @@ print.rlebdm <- function(x, compact=TRUE, ...){
 #'   dyads that are free but considered unobserved under the
 #'   constraints, and `informative` for dyads that are both free and
 #'   observed.
+#' @param ... additional arguments, currently unused.
 #'
 #' @note In both arguments and return values, `NULL` is treated as a
 #'   placeholder for no constraint (i.e., a constant matrix of

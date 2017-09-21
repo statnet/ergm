@@ -17,7 +17,7 @@
 #   verbose: whether the design matrix should be printed (T or F); default=FALSE
 #
 # --RETURNED--
-#   fdrle
+#   fd
 #      if 'nw' has missing edges, see the return list, 'Clist', from the
 #                                 <ergm.Cprepare> function header
 #      if 'nw' hasn't any missing edges, the list will only contain NULL

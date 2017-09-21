@@ -56,6 +56,8 @@ as.rlebdm(x, ...)
 
 \item{n}{the dimensions of the square matrix represented.}
 
+\item{...}{additional arguments, currently unused.}
+
 \item{compact}{whether to print the matrix compactly (dots and stars) or to print it as a logical matrix.}
 
 \item{e1, e2}{arguments to the binary operations.}

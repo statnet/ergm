@@ -18,6 +18,8 @@ dyads that *may* be toggled under the constraint, `missing` for
 dyads that are free but considered unobserved under the
 constraints, and `informative` for dyads that are both free and
 observed.}
+
+\item{...}{additional arguments, currently unused.}
 }
 \description{
 A function to combine the `free_dyads` attributes of the
