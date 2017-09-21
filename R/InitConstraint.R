@@ -59,6 +59,7 @@ InitConstraint..attributes <- function(conlist, lhs.nw, ...){
       
       rlebdm(compact.rle(d), n)
     },
+    constrain = character(0),
     dependence = FALSE)
 
   conlist
@@ -164,7 +165,7 @@ InitConstraint.hamming<-function(conlist, lhs.nw, ...){
 InitConstraint.observed <- function(conlist, lhs.nw, ...){
   if(length(list(...)))
     stop(paste("Toggle non-observed constraint does not take arguments at this time."), call.=FALSE)
-  conlist$observed<-list(free_dyads = as.rlebdm(as.edgelist(is.na(lhs.nw)), matrix.type="edgelist"),
+  conlist$observed<-list(free_dyads = as.rlebdm(as.edgelist(is.na(lhs.nw))),
                          dependence = FALSE)
   conlist
 }
@@ -242,13 +243,16 @@ InitConstraint.fixedas<-function(conlist, lhs.nw, present=NULL, absent=NULL,...)
 	conlist$fixedas <-
           list(free_dyads = {
             # FixedEdgeList
-            fixed <- rbind(present,absent)
+            fixed <- as.edgelist(rbind(present,absent),
+                                 n=lhs.nw%n%"n",
+                                 directed=lhs.nw%n%"directed",
+                                 bipartite=lhs.nw%n%"bipartite",
+                                 loops=lhs.nw%n%"loops")
             if(any(duplicated(fixed))){
               stop("Dyads cannot be fixed at both present and absent")
             }
-            
-            attr(fixed, "n") <- network.size(lhs.nw)
-            !as.rlebdm(fixed, matrix.type="edgelist")
+
+            !as.rlebdm(fixed)
           },
           dependence = FALSE)
         
@@ -282,8 +286,12 @@ InitConstraint.fixallbut<-function(conlist, lhs.nw, free.dyads=NULL,...){
 #	
 	conlist$fixallbut <-
           list(free_dyads = { 
-            attr(free.dyads, "n") <- network.size(lhs.nw)
-            as.rlebdm(free.dyads, matrix.type="edgelist")
+            fixed <- as.edgelist(free.dyads,
+                                 n=lhs.nw%n%"n",
+                                 directed=lhs.nw%n%"directed",
+                                 bipartite=lhs.nw%n%"bipartite",
+                                 loops=lhs.nw%n%"loops")
+            as.rlebdm(free.dyads)
           },
           dependence = FALSE)
         

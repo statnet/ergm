@@ -22,10 +22,14 @@
 }
 
 .RegisterMHPs <- function(){
-  ergm.MHP.table("c", "Bernoulli", "",  0, "random", "RLE")
-  ergm.MHP.table("c", "Bernoulli", "bd",  0, "random", "RLE")
-  ergm.MHP.table("c", "Bernoulli", "",  1, "TNT", "RLETNT")
-  ergm.MHP.table("c", "Bernoulli", "bd",  1, "TNT", "RLETNT")
+  ergm.MHP.table("c", "Bernoulli", "",  0, "random", "randomtoggle")
+  ergm.MHP.table("c", "Bernoulli", "bd",  0, "random", "randomtoggle")
+  ergm.MHP.table("c", "Bernoulli", "",  1, "TNT", "TNT")
+  ergm.MHP.table("c", "Bernoulli", "bd",  1, "TNT", "TNT")
+  ergm.MHP.table("c", "Bernoulli", ".dyads",  0, "random", "RLE")
+  ergm.MHP.table("c", "Bernoulli", ".dyads+bd",  0, "random", "RLE")
+  ergm.MHP.table("c", "Bernoulli", ".dyads",  1, "TNT", "RLETNT")
+  ergm.MHP.table("c", "Bernoulli", ".dyads+bd",  1, "TNT", "RLETNT")
   ergm.MHP.table("c", "Bernoulli", "", -1, "TNT10", "TNT10")
   ergm.MHP.table("c", "Bernoulli", "degrees",  0, "random", "CondDegree")
   ergm.MHP.table("c", "Bernoulli", "degreesmix",  0, "random", "CondDegreeMix")

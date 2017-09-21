@@ -51,7 +51,7 @@ ergm.ConstraintImplications <- local({
 
 prune.conlist <- function(conlist){
   ## Remove constraints implied by other constraints.
-  for(constr in names(conlist)){
+  for(constr in unlist(lapply(conlist, `[[`, "constrain"))){
     for(impl in ergm.ConstraintImplications()[[constr]])
       conlist[[impl]]<-NULL
   }
@@ -164,7 +164,7 @@ mk.conlist <- function(object, nw){
   conlist<-list()
   constraints<-c(list(call(".attributes")),term.list.formula(object[[2]]))
   for(constraint in constraints){
-    ## The . in the default formula means no constrains.
+    ## The . in the default formula means no constraints.
     ## There may be other constraints in the formula, however.
     if(constraint==".") next
 
@@ -177,6 +177,17 @@ mk.conlist <- function(object, nw){
       init.call <- list(f, conlist=conlist, lhs.nw=nw)
     }
     conlist <- eval(as.call(init.call), environment(object))
+  }
+
+  for(con in names(conlist)){
+    NVL(conlist[[con]]$dependence) <- TRUE
+  }
+  
+  for(con in names(conlist)){
+    if(is.null(conlist[[con]]$constrain)){
+      if(!conlist[[con]]$dependence) conlist[[con]]$constrain <- ".dyads"
+      else conlist[[con]]$constrain <- con
+    }
   }
 
   conlist <- prune.conlist(conlist)
@@ -211,12 +222,8 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
   }
   
   ## Convert vector of constraints to a "standard form".
-  if(is.null(names(conlist))) {
-    constraints <- ""
-  } else {
-    filtercons <- conlist[!sapply(names(conlist), startsWith,".") & sapply(conlist, `[[`, "dependence")]
-    constraints <- paste(sort(tolower(names(filtercons))),collapse="+")
-  }
+  constraints <- tolower(unlist(lapply(conlist, `[[`, "constrain")))
+  constraints <- paste(sort(unique(constraints)),collapse="+")
   
   MHqualifying<-with(ergm.MHP.table(),ergm.MHP.table()[Class==class & Constraints==constraints & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
 

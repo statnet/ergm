@@ -51,6 +51,7 @@ ergm.bounddeg <- function(bounddeg,nw){
     minout <- NULL
     minin <- NULL
     dependence <- FALSE
+    constrains <- character(0)
   } else {
     attribs <- bounddeg$attribs
     maxout <- bounddeg$maxout
@@ -100,6 +101,7 @@ ergm.bounddeg <- function(bounddeg,nw){
     }
     attribs[is.na(attribs)] <- 0
     dependence <- TRUE
+    constrains <- "bd"    
   }
   list(condAllDegExact=FALSE,
        attribs=attribs,
@@ -107,6 +109,7 @@ ergm.bounddeg <- function(bounddeg,nw){
        maxin=maxin,
        minout=minout,
        minin=minin,
-       dependence=dependence)
+       dependence=dependence,
+       constrains=constrains)
 }
 
