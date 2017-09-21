@@ -157,14 +157,13 @@ print.rlebdm <- function(x, compact=TRUE, ...){
 }
 
 #' @noRd
-#' @export
-as.rlebdm.conlist <- function(constraints, constraints.obs = NULL, which = c("free", "missing", "active"), ...){
+as.rlebdm.conlist <- function(x, constraints.obs = NULL, which = c("free", "missing", "active"), ...){
   # FIXME: Probably don't need all these recursive calls.
   which <- match.arg(which)
   switch(which,
          free={
            y <- NULL
-           for(con in constraints){
+           for(con in x){
              if(!is.null(con$free_dyads)){
                y <- if(is.null(y)) con$free_dyads else y & con$free_dyads
              }
@@ -174,7 +173,7 @@ as.rlebdm.conlist <- function(constraints, constraints.obs = NULL, which = c("fr
          missing={
            # Returns an RLE dyad matrix indicating the missing dyads in the
            # network (respecting the constraints).
-           free_dyads <- as.rlebdm(constraints)
+           free_dyads <- as.rlebdm(x)
            free_dyads.obs <- as.rlebdm(constraints.obs)
            
            if(is.null(free_dyads)){
@@ -186,8 +185,8 @@ as.rlebdm.conlist <- function(constraints, constraints.obs = NULL, which = c("fr
            }
          },
          active={
-           y <- as.rlebdm(constraints)
-           if(is.null(constraints.obs)) y else y & !as.rlebdm(constraints,constraints.obs, which="missing")
+           y <- as.rlebdm(x)
+           if(is.null(constraints.obs)) y else y & !as.rlebdm(x,constraints.obs, which="missing")
          }
          )
 }
