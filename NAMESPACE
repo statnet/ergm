@@ -156,7 +156,7 @@ export(
   is.durational.formula,           
   is.durational.NULL,
   is.dyad.independent,             
-  is.dyad.independent.conlist,
+  is.dyad.independent.ergm_conlist,
   is.dyad.independent.ergm,        
   is.dyad.independent.ergm.model,
   is.dyad.independent.formula,     
@@ -202,7 +202,7 @@ export(
   MHproposal.MHproposal,
   MHproposal.NULL,                 
   #midarrow,  proposed delete
-  #mk.conlist,         made internal                 
+  #ergm_conlist,         made internal                 
   #mk.edge.to.pos.lasttoggle.f,   made internal
   # model.matrix.pen.glm,               made internal 
   # model.transform.formula,   made internal
@@ -225,7 +225,7 @@ export(
   print.gofobject,                 
   print.network.list,
   print.summary.ergm,              
-  #prune.conlist,     # made internal
+  #prune.ergm_conlist,     # made internal
   remove.offset.formula,           
   robust.inverse, # deprecated
   rspartnerdist,         # deprecated    
@@ -323,7 +323,7 @@ S3method(is.durational,ergm.model)
 S3method(is.durational,formula)
 
 S3method(is.dyad.independent,NULL)
-S3method(is.dyad.independent,conlist) 
+S3method(is.dyad.independent,ergm_conlist) 
 S3method(is.dyad.independent,ergm)
 S3method(is.dyad.independent,ergm.model)
 S3method(is.dyad.independent,formula)
@@ -388,7 +388,7 @@ export(rlebdm, as.rlebdm)
 S3method(as.rlebdm,matrix)
 S3method(as.rlebdm,edgelist)
 S3method(as.edgelist,rlebdm)
-S3method(as.rlebdm,conlist)
+S3method(as.rlebdm,ergm_conlist)
 S3method(as.rlebdm,NULL)
 S3method(as.matrix,rlebdm)
 S3method(print,rlebdm)

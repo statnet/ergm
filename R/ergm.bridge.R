@@ -150,7 +150,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   else
     NULL
 
-  if(!is.dyad.independent(mk.conlist(constraints,nw), mk.conlist(constraints.obs,nw))) stop("Bridge sampling with dyad-independent start does not work with dyad-dependent constraints.")
+  if(!is.dyad.independent(ergm_conlist(constraints,nw), ergm_conlist(constraints.obs,nw))) stop("Bridge sampling with dyad-independent start does not work with dyad-dependent constraints.")
 
   ## By default, take dyad-independent terms in the formula, fit a
   ## model with these terms and "edges". Terms that are redundant (NA)

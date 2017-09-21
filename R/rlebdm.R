@@ -6,7 +6,7 @@
 #' @param x for [rlebdm()], an [rle()] object or a vector that is converted to one; it will be coerced to [logical()] before processing; for [as.rlebdm.matrix()], a matrix.
 #' @param n the dimensions of the square matrix represented.
 #'
-#' @seealso [as.rlebdm.conlist()]
+#' @seealso [as.rlebdm.ergm_conlist()]
 #' 
 #' @export
 rlebdm <- function(x, n){
@@ -178,7 +178,7 @@ print.rlebdm <- function(x, compact=TRUE, ...){
 #'   `TRUE`).
 #'
 #' @export
-as.rlebdm.conlist <- function(x, constraints.obs = NULL, which = c("free", "missing", "informative"), ...){
+as.rlebdm.ergm_conlist <- function(x, constraints.obs = NULL, which = c("free", "missing", "informative"), ...){
   # FIXME: Probably don't need all these recursive calls.
   which <- match.arg(which)
   switch(which,

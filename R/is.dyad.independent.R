@@ -40,7 +40,7 @@ is.dyad.independent.formula<-function(object,response=NULL,basis=NULL,...){
   is.dyad.independent(m)
 }
 
-is.dyad.independent.conlist <- function(object, object.obs=NULL, ...){
+is.dyad.independent.ergm_conlist <- function(object, object.obs=NULL, ...){
   dind <- TRUE
   for(con in object){
     if(con$dependence) dind <- FALSE

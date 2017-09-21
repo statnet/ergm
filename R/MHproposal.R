@@ -49,7 +49,7 @@ ergm.ConstraintImplications <- local({
 })
 
 
-prune.conlist <- function(conlist){
+prune.ergm_conlist <- function(conlist){
   ## Remove constraints implied by other constraints.
   for(constr in unlist(lapply(conlist, `[[`, "constrain"))){
     for(impl in ergm.ConstraintImplications()[[constr]])
@@ -158,7 +158,7 @@ MHproposal.character <- function(object, arguments, nw, ..., response=NULL, refe
 #
 ########################################################################################
 
-mk.conlist <- function(object, nw){
+ergm_conlist <- function(object, nw){
   if(is.null(object)) return(NULL)
   ## Construct a list of constraints and arguments from the formula.
   conlist<-list()
@@ -192,9 +192,9 @@ mk.conlist <- function(object, nw){
     }
   }
   
-  conlist <- prune.conlist(conlist)
+  conlist <- prune.ergm_conlist(conlist)
   
-  class(conlist) <- "conlist"
+  class(conlist) <- "ergm_conlist"
   conlist
 }
 
@@ -212,10 +212,10 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
   reference <- eval(as.call(ref.call),environment(reference))
 
   if("constraints" %in% names(arguments)){
-    conlist <- prune.conlist(arguments$constraints)
-    class(conlist) <- "conlist"
+    conlist <- prune.ergm_conlist(arguments$constraints)
+    class(conlist) <- "ergm_conlist"
   }else{
-    conlist <- mk.conlist(object, nw)
+    conlist <- ergm_conlist(object, nw)
   }
   
   ## Convert vector of constraints to a "standard form".

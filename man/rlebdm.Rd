@@ -78,5 +78,5 @@ integer matrix giving the cells with `TRUE` values.
 }}
 
 \seealso{
-[as.rlebdm.conlist()]
+[as.rlebdm.ergm_conlist()]
 }
