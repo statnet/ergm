@@ -30,44 +30,29 @@ as.rlebdm <- function(x, ...) UseMethod("as.rlebdm")
 as.rlebdm.NULL <- function(x, ...) NULL
 
 #' @rdname rlebdm
-#'
-#' @param matrix.type a string (or a substring) of `"adjacency"` or
-#'   `"edgelist"` specifying the type of matrix being converted. If
-#'   `"adjacency"`, the given matrix is simply the matrix to be
-#'   converted; if `"edgelist"`, a two-column matrix giving the
-#'   indices of nonzero cells.
-#' 
 #' @export
-as.rlebdm.matrix <- function(x, matrix.type = c("adjacency", "edgelist"), ...){
-  matrix.type <- match.arg(matrix.type, )
-  switch(matrix.type,
-         adjacency = {
-           if(nrow(x)!=ncol(x)) stop("Input matrix must be square at this time.")
-           rlebdm(x, nrow(x))
-         },
-         edgelist = {
-           n <- attr(x, "n")
-           ils <- lapply(lapply(lapply(seq_len(n), function(j) x[x[,2]==j,1]), unique), sort)
-           o <- lapply(ils, function(il){
-             o <- rle(c(rep(c(FALSE,TRUE), length(il)),FALSE))
-      
-             # Construct repetition counts: gaps between the i's, as well as
-             # the gap before the first i and after the last i for that j,
-             # and interleave it with 1s.
-             lens <- c(rbind(diff(c(0,il,n+1))-1,1))
-             lens <- lens[-length(lens)]
-             rep(o, lens, scale='run')
-           })
-           # Concatenate the RLEs and compact.
-           rlebdm(compact.rle(do.call(c, o)), attr(x, "n"))
-         }
-         )
+as.rlebdm.matrix <- function(x, ...){
+  if(nrow(x)!=ncol(x)) stop("Input matrix must be square at this time.")
+  rlebdm(x, nrow(x))
 }
 
 #' @rdname rlebdm
 #' @export
 as.rlebdm.edgelist <- function(x, ...){
-  NextMethod("as.rlebdm", x, matrix.type="edgelist", ...)
+  n <- attr(x, "n")
+  ils <- lapply(lapply(lapply(seq_len(n), function(j) x[x[,2]==j,1]), unique), sort)
+  o <- lapply(ils, function(il){
+    o <- rle(c(rep(c(FALSE,TRUE), length(il)),FALSE))
+    
+    # Construct repetition counts: gaps between the i's, as well as
+    # the gap before the first i and after the last i for that j,
+    # and interleave it with 1s.
+    lens <- c(rbind(diff(c(0,il,n+1))-1,1))
+    lens <- lens[-length(lens)]
+    rep(o, lens, scale='run')
+  })
+  # Concatenate the RLEs and compact.
+  rlebdm(compact.rle(do.call(c, o)), attr(x, "n"))
 }
 
 #' @rdname rlebdm
