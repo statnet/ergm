@@ -34,7 +34,7 @@
 # Baseline constraint incorporating network attributes such as
 # directedness, bipartitedness, and self-loops.
 InitConstraint..attributes <- function(conlist, lhs.nw, ...){
-  conlist$.attributes<-list(
+  con <- list(
     free_dyads = {
       n <- network.size(lhs.nw)
       ## NB: Free dyad RLE matrix is stored in a column-major order for
@@ -62,7 +62,7 @@ InitConstraint..attributes <- function(conlist, lhs.nw, ...){
     constrain = character(0),
     dependence = FALSE)
 
-  conlist
+  c(conlist, list(con))
 }
 
 InitConstraint.edges<-function(conlist, lhs.nw, ...){
@@ -146,7 +146,7 @@ InitConstraint.odegreedist<-function(conlist, lhs.nw, ...){
 #ergm.ConstraintImplications("odegreedist", c("edges"))
 
 
-InitConstraint.bd<-function(conlist, lhs.nw, attribs=NULL, maxout=NA, maxin=NA, minout=NA, minin=NA){
+InitConstraint.bd<-function(conlist, lhs.nw, attribs=NULL, maxout=NA, maxin=NA, minout=NA, minin=NA, ...){
    if(nargs()>6)
      stop(paste("Bounded degrees constraint takes at most 5 arguments; ",nargs()-1," given.",sep=""), call.=FALSE)
    conlist$bd<-list(attribs=attribs,maxout=maxout,maxin=maxin,minout=minout,minin=minin)
@@ -174,105 +174,104 @@ InitConstraint.observed <- function(conlist, lhs.nw, ...){
 InitConstraint.blockdiag<-function(conlist, lhs.nw, attrname=NULL, ...){
   if(length(list(...)))
     stop(paste("Block diagonal constraint takes one argument at this time."), call.=FALSE)
-  conlist$blockdiag <-
-    list(attrname=attrname,
-         free_dyads = {
-           n <- network.size(lhs.nw)
-           a <- lhs.nw %v% attrname
-           if(NVL(lhs.nw%n%"bipartite",0)){
-             bip <- lhs.nw %n% "bipartite"
-             ea <- a[seq_len(bip)]
-             aa <- a[bip+seq_len(n-bip)]
-             if(length(rle(ea)$lengths)!=length(unique(rle(ea)$values)) || length(rle(aa)$lengths)!=length(unique(rle(aa)$values))) stop("Current implementation of block-diagonal sampling requires that the blocks of the egos and the alters be contiguous. See help('ergm-constraints') for more information.")
-             
-             tmp <- .double.rle(ea, aa)
-             el <- tmp$lengths1
-             al <- tmp$lengths2
-             
-             o <- rlebdm(c(rep(rle(FALSE), bip*n, scale="run"),
-                           do.call(c,rep(
-                                       mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend), scale="run")},
-                                              el, cumsum(el), SIMPLIFY=FALSE),
-                                       al)
-                                   )), n)
-             # Future-proofing: in case it's bipartite directed, add
-             # both thte blocks and their transposes. (If undirected,
-             # it'll get filtered out by the .attributes constraints.)
-             ot <- rlebdm(c(do.call(c,rep(
-                                      mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bip+bend-blen, blen, n-bip-bend), scale="run")},
-                                             al, cumsum(al), SIMPLIFY=FALSE),
-                                      el)
-                                    ),
-                            rep(rle(FALSE), (n-bip)*n, scale="run")), n)
-             o | ot
-           }else{
-             a <- rle(a)
-             rlebdm(compact.rle(do.call(c,rep(
+  con <- list(attrname=attrname,
+              free_dyads = {
+                n <- network.size(lhs.nw)
+                a <- lhs.nw %v% attrname
+                if(NVL(lhs.nw%n%"bipartite",0)){
+                  bip <- lhs.nw %n% "bipartite"
+                  ea <- a[seq_len(bip)]
+                  aa <- a[bip+seq_len(n-bip)]
+                  if(length(rle(ea)$lengths)!=length(unique(rle(ea)$values)) || length(rle(aa)$lengths)!=length(unique(rle(aa)$values))) stop("Current implementation of block-diagonal sampling requires that the blocks of the egos and the alters be contiguous. See help('ergm-constraints') for more information.")
+                  
+                  tmp <- .double.rle(ea, aa)
+                  el <- tmp$lengths1
+                  al <- tmp$lengths2
+                  
+                  o <- rlebdm(c(rep(rle(FALSE), bip*n, scale="run"),
+                                do.call(c,rep(
                                             mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend), scale="run")},
-                                                   a$lengths, cumsum(a$lengths), SIMPLIFY=FALSE),
-                                            a$lengths)
+                                                   el, cumsum(el), SIMPLIFY=FALSE),
+                                            al)
                                         )), n)
-           }
-         },
-         dependence = FALSE)
-
-  conlist
+                  # Future-proofing: in case it's bipartite directed, add
+                  # both thte blocks and their transposes. (If undirected,
+                  # it'll get filtered out by the .attributes constraints.)
+                  ot <- rlebdm(c(do.call(c,rep(
+                                             mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bip+bend-blen, blen, n-bip-bend), scale="run")},
+                                                    al, cumsum(al), SIMPLIFY=FALSE),
+                                             el)
+                                         ),
+                                 rep(rle(FALSE), (n-bip)*n, scale="run")), n)
+                  o | ot
+                }else{
+                  a <- rle(a)
+                  rlebdm(compact.rle(do.call(c,rep(
+                                                 mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend), scale="run")},
+                                                        a$lengths, cumsum(a$lengths), SIMPLIFY=FALSE),
+                                                 a$lengths)
+                                             )), n)
+                }
+              },
+              dependence = FALSE)
+  
+  c(conlist, list(con))
 }
 
 
 
 InitConstraint.fixedas<-function(conlist, lhs.nw, present=NULL, absent=NULL,...){
-	if(is.null(present) & is.null(absent))
-		stop(paste("fixedas constraint takes at least one argument, either present or absent or both."), call.=FALSE)
-	if(!is.null(present)){
-		if(is.network(present)){
-			present <- as.edgelist(present)
-		}
-		if(!is.matrix(present)){
-			stop("Argument 'present' in fixedas constraint should be either a network or edgelist")
-		}
-	}
-	if(!is.null(absent)){
-		if(is.network(absent)){
-			absent <- as.edgelist(absent)
-		}
-		if(!is.matrix(absent)){
-			stop("Argument 'absent' in fixedas constraint should be either a network or edgelist")
-		}
-	}
-	conlist$fixedas <-
-          list(free_dyads = {
-            # FixedEdgeList
-            fixed <- as.edgelist(rbind(present,absent),
-                                 n=lhs.nw%n%"n",
-                                 directed=lhs.nw%n%"directed",
-                                 bipartite=lhs.nw%n%"bipartite",
-                                 loops=lhs.nw%n%"loops")
-            if(any(duplicated(fixed))){
-              stop("Dyads cannot be fixed at both present and absent")
-            }
+  if(is.null(present) & is.null(absent))
+    stop(paste("fixedas constraint takes at least one argument, either present or absent or both."), call.=FALSE)
+  if(!is.null(present)){
+    if(is.network(present)){
+      present <- as.edgelist(present)
+    }
+    if(!is.matrix(present)){
+      stop("Argument 'present' in fixedas constraint should be either a network or edgelist")
+    }
+  }
+  if(!is.null(absent)){
+    if(is.network(absent)){
+      absent <- as.edgelist(absent)
+    }
+    if(!is.matrix(absent)){
+      stop("Argument 'absent' in fixedas constraint should be either a network or edgelist")
+    }
+  }
+  con <- list(
+    free_dyads = {
+      # FixedEdgeList
+      fixed <- as.edgelist(rbind(present,absent),
+                           n=lhs.nw%n%"n",
+                           directed=lhs.nw%n%"directed",
+                           bipartite=lhs.nw%n%"bipartite",
+                           loops=lhs.nw%n%"loops")
+      if(any(duplicated(fixed))){
+        stop("Dyads cannot be fixed at both present and absent")
+      }
 
-            !as.rlebdm(fixed)
-          },
-          dependence = FALSE)
-        
-	conlist
+      !as.rlebdm(fixed)
+    },
+    dependence = FALSE)
+  
+  c(conlist, list(con))
 }
 
 
 InitConstraint.fixallbut<-function(conlist, lhs.nw, free.dyads=NULL,...){
-	if(is.null(free.dyads))
-		stop(paste("fixallbut constraint takes one required argument free.dyads and one optional argument fixed.state"), call.=FALSE)
-	
-
-		if(is.network(free.dyads)){
-			free.dyads <- as.edgelist(free.dyads)
-		}
-		
-		if(!is.matrix(free.dyads)){
-			stop("Argument 'free.dyads' in fixallbut constraint should be either a network or edgelist")
-		}
-	
+  if(is.null(free.dyads))
+    stop(paste("fixallbut constraint takes one required argument free.dyads and one optional argument fixed.state"), call.=FALSE)
+  
+  
+  if(is.network(free.dyads)){
+    free.dyads <- as.edgelist(free.dyads)
+  }
+  
+  if(!is.matrix(free.dyads)){
+    stop("Argument 'free.dyads' in fixallbut constraint should be either a network or edgelist")
+  }
+  
 #	
 #	if(!is.null(fixed.state)){
 #		if(length(fixed.state)==1)
@@ -284,18 +283,18 @@ InitConstraint.fixallbut<-function(conlist, lhs.nw, free.dyads=NULL,...){
 #	}
 #	
 #	
-	conlist$fixallbut <-
-          list(free_dyads = { 
-            fixed <- as.edgelist(free.dyads,
-                                 n=lhs.nw%n%"n",
-                                 directed=lhs.nw%n%"directed",
-                                 bipartite=lhs.nw%n%"bipartite",
-                                 loops=lhs.nw%n%"loops")
-            as.rlebdm(free.dyads)
-          },
-          dependence = FALSE)
-        
-	conlist
+  con <- list(
+    free_dyads = { 
+      fixed <- as.edgelist(free.dyads,
+                           n=lhs.nw%n%"n",
+                           directed=lhs.nw%n%"directed",
+                           bipartite=lhs.nw%n%"bipartite",
+                           loops=lhs.nw%n%"loops")
+      as.rlebdm(free.dyads)
+    },
+    dependence = FALSE)
+  
+  c(conlist, list(con))
 }
 
 

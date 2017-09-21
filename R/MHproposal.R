@@ -179,23 +179,20 @@ mk.conlist <- function(object, nw){
     conlist <- eval(as.call(init.call), environment(object))
   }
 
-  for(con in names(conlist)){
-    NVL(conlist[[con]]$dependence) <- TRUE
+  for(i in seq_along(conlist)){
+    NVL(conlist[[i]]$dependence) <- TRUE
   }
   
-  for(con in names(conlist)){
-    if(is.null(conlist[[con]]$constrain)){
-      if(!conlist[[con]]$dependence) conlist[[con]]$constrain <- ".dyads"
-      else conlist[[con]]$constrain <- con
+  for(i in seq_along(conlist)){
+    if(is.null(conlist[[i]]$constrain)){
+      conlist[[i]]$constrain <-
+        if(!conlist[[i]]$dependence) ".dyads"
+        else if(names(conlist)[i]!="") names(conlist)[i]
+        else character(0)
     }
   }
-
+  
   conlist <- prune.conlist(conlist)
-
-  ## allfree <- rlebdm(TRUE, network.size(nw))
-  ## for(name in names(conlist)){
-  ##   NVL(conlist[[name]]$free_dyads) <- allfree
-  ## }
   
   class(conlist) <- "conlist"
   conlist
