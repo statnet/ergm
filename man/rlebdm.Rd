@@ -64,3 +64,19 @@ as.rlebdm(x, ...)
 A simple class representing boolean (logical) square matrix
 run-length encoded in a column-major order.
 }
+\section{Methods (by generic)}{
+\itemize{
+\item \code{as.rlebdm}: Convert a square matrix of mode coercible to [`logical`] to an
+[`rlebdm`].
+
+\item \code{as.rlebdm}: Convert an object of class [`edgelist`] to an [`rledbm`] object
+whose cells in the edge list are set to `TRUE` and whose other
+cells are set to `FALSE`.
+
+\item \code{as.edgelist}: Convert an [`rlebdm`] object to an [`edgelist`]: a two-column
+integer matrix giving the cells with `TRUE` values.
+}}
+
+\seealso{
+[as.rlebdm.conlist()]
+}

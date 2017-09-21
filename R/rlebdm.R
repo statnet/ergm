@@ -5,6 +5,8 @@
 #'
 #' @param x for [rlebdm()], an [rle()] object or a vector that is converted to one; it will be coerced to [logical()] before processing; for [as.rlebdm.matrix()], a matrix.
 #' @param n the dimensions of the square matrix represented.
+#'
+#' @seealso [as.rlebdm.conlist()]
 #' 
 #' @export
 rlebdm <- function(x, n){
@@ -27,16 +29,30 @@ as.rlebdm <- function(x, ...) UseMethod("as.rlebdm")
 
 #' @noRd
 #' @export
+as.rlebdm.rlebdm <- function(x, ...) x
+
+
+#' @noRd
+#' @export
 as.rlebdm.NULL <- function(x, ...) NULL
 
-#' @rdname rlebdm
+#' @describeIn rlebdm
+#'
+#' Convert a square matrix of mode coercible to [`logical`] to an
+#' [`rlebdm`].
+#' 
 #' @export
 as.rlebdm.matrix <- function(x, ...){
   if(nrow(x)!=ncol(x)) stop("Input matrix must be square at this time.")
   rlebdm(x, nrow(x))
 }
 
-#' @rdname rlebdm
+#' @describeIn rlebdm
+#'
+#' Convert an object of class [`edgelist`] to an [`rledbm`] object
+#' whose cells in the edge list are set to `TRUE` and whose other
+#' cells are set to `FALSE`.
+#' 
 #' @export
 as.rlebdm.edgelist <- function(x, ...){
   n <- attr(x, "n")
@@ -141,7 +157,27 @@ print.rlebdm <- function(x, compact=TRUE, ...){
   rlebdm(o, attr(e1, "n"))
 }
 
-#' @noRd
+#' Extract dyad-level ERGM constraint information into an [`rlebdm`] object
+#'
+#' A function to combine the `free_dyads` attributes of the
+#' constraints appropriately to generate an [`rlebdm`] of dyads
+#' toggleable and/or missing and/or informative under that combination
+#' of constraints.
+#'
+#' @param x an [`conlist`] object: a list of initialised constraints.
+#' @param constraints.obs observation process constraints; defaults to
+#'   `NULL` for no such constraints.
+#' @param which which aspect of the constraint to extract: `free` for
+#'   dyads that *may* be toggled under the constraint, `missing` for
+#'   dyads that are free but considered unobserved under the
+#'   constraints, and `informative` for dyads that are both free and
+#'   observed.
+#'
+#' @note In both arguments and return values, `NULL` is treated as a
+#'   placeholder for no constraint (i.e., a constant matrix of
+#'   `TRUE`).
+#'
+#' @export
 as.rlebdm.conlist <- function(x, constraints.obs = NULL, which = c("free", "missing", "informative"), ...){
   # FIXME: Probably don't need all these recursive calls.
   which <- match.arg(which)
@@ -176,7 +212,12 @@ as.rlebdm.conlist <- function(x, constraints.obs = NULL, which = c("free", "miss
          )
 }
 
-#' @rdname rlebdm
+#' @describeIn rlebdm
+#'
+#' Convert an [`rlebdm`] object to an [`edgelist`]: a two-column
+#' integer matrix giving the cells with `TRUE` values.
+#'
+#' @export
 as.edgelist.rlebdm <- function(x, ...){
   n <- attr(x, "n")
   starts <- cumsum(c(1,as.numeric(x$lengths)))
@@ -195,6 +236,7 @@ as.edgelist.rlebdm <- function(x, ...){
   el <- cbind((d[,1]-1) %% n + 1, (d[,1]-1) %/% n + 1)
   if(!is.logical(values)) el <- cbind(el, d[,2])
   attr(el, "n") <- n
+  class(el) <- c("edgelist","matrix")
   el
 }
 
