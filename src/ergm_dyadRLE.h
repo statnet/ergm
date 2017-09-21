@@ -78,7 +78,7 @@ static inline BoolRLESqMatrixD unpack_BoolRLESqMatrixD(double **inputs, Vertex n
   out.maxlen=0;
   for(unsigned int r=1; r<=out.nruns; r++){
     unsigned int l = out.cumlens[r]-out.cumlens[r-1];
-    if(l > out.maxlen) l = out.maxlen;
+    if(l > out.maxlen) out.maxlen = l;
   }
   
   return out;
@@ -137,7 +137,7 @@ static inline void GetRandDyadRLED_RS(Vertex *tail, Vertex *head, const BoolRLES
   // length, and l is its length.
 
   // Dyad ID
-  Dyad d = (Dyad)m->starts[(unsigned int)l-1] + unif_rand()*l;
+  Dyad d = (Dyad)m->starts[r-1] + unif_rand()*l;
 
   Dyad2TH(tail, head, d, m->n);
 }
