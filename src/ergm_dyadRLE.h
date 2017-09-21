@@ -151,6 +151,8 @@ Test if a dyad is present in a run
 */
 static inline unsigned int GetDyadRLED(Vertex tail, Vertex head, const BoolRLESqMatrixD *m){
   Dyad d = TH2Dyad(m->n, tail, head);
+
+  if(d<m->starts[0]) return FALSE; // d precedes the first run.
   
   // Find the correct run via binary search.
   // FIXME: Radix search could be faster than O(log(nruns))?
