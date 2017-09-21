@@ -115,7 +115,7 @@ summary.ergm <- function (object, ...,
                            )
   
   nodes<- network.size(object$network)
-  dyads<- sum(as.rlebdm(object$constrained, object$constrained.obs, which="active"))
+  dyads<- sum(as.rlebdm(object$constrained, object$constrained.obs, which="informative"))
   df <- length(object$coef)
 
 

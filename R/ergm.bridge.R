@@ -182,7 +182,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
     lin.pred <- model.matrix(ergm.dind$glm) %*% coef.dind
     llk.dind<-
       crossprod(lin.pred,ergm.dind$glm$y*ergm.dind$glm$prior.weights)-sum(log1p(exp(lin.pred))*ergm.dind$glm$prior.weights) -
-      sum(as.rlebdm(ergm.dind$constrained, ergm.dind$constrained.obs, which="active"))*log(1/2)
+      sum(as.rlebdm(ergm.dind$constrained, ergm.dind$constrained.obs, which="informative"))*log(1/2)
   }
 
   ## Construct the augmented formula.

@@ -142,7 +142,7 @@ print.rlebdm <- function(x, compact=TRUE, ...){
 }
 
 #' @noRd
-as.rlebdm.conlist <- function(x, constraints.obs = NULL, which = c("free", "missing", "active"), ...){
+as.rlebdm.conlist <- function(x, constraints.obs = NULL, which = c("free", "missing", "informative"), ...){
   # FIXME: Probably don't need all these recursive calls.
   which <- match.arg(which)
   switch(which,
@@ -169,7 +169,7 @@ as.rlebdm.conlist <- function(x, constraints.obs = NULL, which = c("free", "miss
              else (!free_dyads) | free_dyads.obs
            }
          },
-         active={
+         informative={
            y <- as.rlebdm(x)
            if(is.null(constraints.obs)) y else y & !as.rlebdm(x,constraints.obs, which="missing")
          }
