@@ -26,14 +26,14 @@ ergm.Cprepare.el(x, attrname=NULL, prototype=NULL)
 
 ergm.Cprepare.miss(nw)
 
-ergm.design(nw, model, verbose = FALSE)
+ergm.design(nw, verbose = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{nw,x}{
 a network object
 }
-  \item{m,model}{
+  \item{m}{
 a model object, as returned by \code{\link{ergm.getmodel}}
 }
   \item{response,attrname}{
