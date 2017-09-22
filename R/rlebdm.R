@@ -45,7 +45,7 @@ as.rlebdm.NULL <- function(x, ...) NULL
 #' @export
 as.rlebdm.matrix <- function(x, ...){
   if(nrow(x)!=ncol(x)) stop("Input matrix must be square at this time.")
-  rlebdm(x, nrow(x))
+  rlebdm(c(x), nrow(x))
 }
 
 #' @describeIn rlebdm
