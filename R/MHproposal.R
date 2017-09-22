@@ -211,30 +211,39 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
   }
   reference <- eval(as.call(ref.call),environment(reference))
 
+  if(length(object)==3){
+    if(is.character(object[[2]])){
+      name <- object[[2]]
+      object <- object[-2]
+    }else stop("Constraints formula must be either one-sided or have a string as its LHS.")
+  }else name <- NULL
+  
   if("constraints" %in% names(arguments)){
     conlist <- prune.ergm_conlist(arguments$constraints)
     class(conlist) <- "ergm_conlist"
   }else{
     conlist <- ergm_conlist(object, nw)
   }
-  
-  ## Convert vector of constraints to a "standard form".
-  constraints <- tolower(unlist(lapply(conlist, `[[`, "constrain")))
-  constraints <- paste(sort(unique(constraints)),collapse="+")
-  
-  MHqualifying<-with(ergm.MHP.table(),ergm.MHP.table()[Class==class & Constraints==constraints & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
 
-  if(nrow(MHqualifying)<1){
-    commonalities<-(ergm.MHP.table()$Class==class)+(ergm.MHP.table()$Weights==weights)+(ergm.MHP.table()$Reference==reference)+(ergm.MHP.table()$Constraints==constraints)
-    stop("The combination of class (",class,"), model constraints (",constraints,"), reference measure (",reference,"), and proposal weighting (",weights,") is not implemented. ", "Check your arguments for typos. ", if(any(commonalities>=3)) paste("Nearest matching proposals: (",paste(apply(ergm.MHP.table()[commonalities==3,-5],1,paste, sep="), (",collapse=", "),collapse="), ("),")",sep="",".") else "")
-  }
-
-  if(nrow(MHqualifying)==1){
-    name<-MHqualifying$MHP
-  }else{
-    name<-with(MHqualifying,MHP[which.max(Priority)])
-  }
+  if(is.null(name)){ # Unless specified, autodetect.
+    ## Convert vector of constraints to a "standard form".
+    constraints <- tolower(unlist(lapply(conlist, `[[`, "constrain")))
+    constraints <- paste(sort(unique(constraints)),collapse="+")
     
+    MHqualifying<-with(ergm.MHP.table(),ergm.MHP.table()[Class==class & Constraints==constraints & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
+    
+    if(nrow(MHqualifying)<1){
+      commonalities<-(ergm.MHP.table()$Class==class)+(ergm.MHP.table()$Weights==weights)+(ergm.MHP.table()$Reference==reference)+(ergm.MHP.table()$Constraints==constraints)
+      stop("The combination of class (",class,"), model constraints (",constraints,"), reference measure (",reference,"), and proposal weighting (",weights,") is not implemented. ", "Check your arguments for typos. ", if(any(commonalities>=3)) paste("Nearest matching proposals: (",paste(apply(ergm.MHP.table()[commonalities==3,-5],1,paste, sep="), (",collapse=", "),collapse="), ("),")",sep="",".") else "")
+    }
+    
+    if(nrow(MHqualifying)==1){
+      name<-MHqualifying$MHP
+    }else{
+      name<-with(MHqualifying,MHP[which.max(Priority)])
+    }
+  }
+  
   arguments$constraints<-conlist
   ## Hand it off to the class character method.
   MHproposal.character(name, arguments, nw, response=response, reference=reference)
