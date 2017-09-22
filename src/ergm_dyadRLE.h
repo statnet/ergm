@@ -105,8 +105,10 @@ static inline void GetRandDyadRLED_ITS(Vertex *tail, Vertex *head, const BoolRLE
     if(i>m->cumlens[r]) l=r+1; else h=r;
   }
 
+  unsigned int rl = m->cumlens[l] - m->cumlens[l-1];
+  
   // Dyad ID
-  Dyad d = (Dyad)m->starts[l-1] + (i-1-(Dyad)m->cumlens[l-1]);
+  Dyad d = (Dyad)m->starts[l-1] + (rl==1 ? 0 : rl*unif_rand());
 
   Dyad2TH(tail, head, d, m->n);
 }
@@ -124,20 +126,28 @@ similar lengths, the acceptance probability is likely to be high.
 
 */
 static inline void GetRandDyadRLED_RS(Vertex *tail, Vertex *head, const BoolRLESqMatrixD *m){
-
   RLERun r;
   double l;
+  double u;
+  double pr;
   do{
     // Select a run at random
-    r = unif_rand() * m->nruns + 1;
+    u = unif_rand(); // ~Uniform(0,1)
+    double x = u * m->nruns + 1; // ~Uniform(1, m->nruns+1)
+    r = floor(x); // ~DUniform(1..m->nruns)
+    u = x - r; // ~Uniform(0,1)
     l = m->cumlens[r]-m->cumlens[r-1];
-  }while(l/m->maxlen < unif_rand());
+    pr = l/m->maxlen;
+  }while(pr < u);
+  // So u < pr.
+
+  // u /= pr; // ~Uniform(0,1); but there might not be enough bits left.
 
   // The run r now has probability of selection proportional to its
   // length, and l is its length.
 
   // Dyad ID
-  Dyad d = (Dyad)m->starts[r-1] + unif_rand()*l;
+  Dyad d = (Dyad)m->starts[r-1] + (l==1 ? 0 : unif_rand()*l);
 
   Dyad2TH(tail, head, d, m->n);
 }
