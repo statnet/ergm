@@ -62,7 +62,7 @@ InitConstraint..attributes <- function(conlist, lhs.nw, ...){
     constrain = character(0),
     dependence = FALSE)
 
-  c(conlist, list(con))
+  c(conlist, .attributes=list(con))
 }
 
 InitConstraint.edges<-function(conlist, lhs.nw, ...){
@@ -215,7 +215,7 @@ InitConstraint.blockdiag<-function(conlist, lhs.nw, attrname=NULL, ...){
               },
               dependence = FALSE)
   
-  c(conlist, list(con))
+  c(conlist, blockdiag=list(con))
 }
 
 
@@ -255,7 +255,7 @@ InitConstraint.fixedas<-function(conlist, lhs.nw, present=NULL, absent=NULL,...)
     },
     dependence = FALSE)
   
-  c(conlist, list(con))
+  c(conlist, fixedas=list(con))
 }
 
 
@@ -294,7 +294,7 @@ InitConstraint.fixallbut<-function(conlist, lhs.nw, free.dyads=NULL,...){
     },
     dependence = FALSE)
   
-  c(conlist, list(con))
+  c(conlist, fixallbut=list(con))
 }
 
 
