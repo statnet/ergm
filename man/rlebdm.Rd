@@ -77,7 +77,7 @@ run-length encoded in a column-major order.
 \item \code{as.rlebdm}: Convert a square matrix of mode coercible to [`logical`] to an
 [`rlebdm`].
 
-\item \code{as.rlebdm}: Convert an object of class [`edgelist`] to an [`rledbm`] object
+\item \code{as.rlebdm}: Convert an object of class [`edgelist`] to an [`rlebdm`] object
 whose cells in the edge list are set to `TRUE` and whose other
 cells are set to `FALSE`.
 

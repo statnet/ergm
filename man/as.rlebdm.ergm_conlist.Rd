@@ -8,7 +8,7 @@
   which = c("free", "missing", "informative"), ...)
 }
 \arguments{
-\item{x}{an [`conlist`] object: a list of initialised constraints.}
+\item{x}{an [`ergm_conlist`] object: a list of initialised constraints.}
 
 \item{constraints.obs}{observation process constraints; defaults to
 `NULL` for no such constraints.}

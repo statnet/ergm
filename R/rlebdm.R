@@ -50,7 +50,7 @@ as.rlebdm.matrix <- function(x, ...){
 
 #' @describeIn rlebdm
 #'
-#' Convert an object of class [`edgelist`] to an [`rledbm`] object
+#' Convert an object of class [`edgelist`] to an [`rlebdm`] object
 #' whose cells in the edge list are set to `TRUE` and whose other
 #' cells are set to `FALSE`.
 #' 
@@ -165,7 +165,7 @@ print.rlebdm <- function(x, compact=TRUE, ...){
 #' toggleable and/or missing and/or informative under that combination
 #' of constraints.
 #'
-#' @param x an [`conlist`] object: a list of initialised constraints.
+#' @param x an [`ergm_conlist`] object: a list of initialised constraints.
 #' @param constraints.obs observation process constraints; defaults to
 #'   `NULL` for no such constraints.
 #' @param which which aspect of the constraint to extract: `free` for
