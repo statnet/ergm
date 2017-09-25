@@ -186,8 +186,7 @@ ergm_conlist <- function(object, nw){
   for(i in seq_along(conlist)){
     if(is.null(conlist[[i]]$constrain)){
       conlist[[i]]$constrain <-
-        if(!conlist[[i]]$dependence) ".dyads"
-        else if(names(conlist)[i]!="") names(conlist)[i]
+        if(names(conlist)[i]!="") names(conlist)[i]
         else character(0)
     }
   }
@@ -227,14 +226,22 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
 
   if(is.null(name)){ # Unless specified, autodetect.
     ## Convert vector of constraints to a "standard form".
-    constraints <- tolower(unlist(lapply(conlist, `[[`, "constrain")))
-    constraints <- paste(sort(unique(constraints)),collapse="+")
-    
-    MHqualifying<-with(ergm.MHP.table(),ergm.MHP.table()[Class==class & Constraints==constraints & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
+
+    # Try the specific constraint combination.
+    constraints.specific <- tolower(unlist(lapply(conlist, `[[`, "constrain")))
+    constraints.specific <- paste(sort(unique(constraints.specific)),collapse="+")
+    MHqualifying.specific <- with(ergm.MHP.table(),ergm.MHP.table()[Class==class & Constraints==constraints.specific & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
+
+    # Try the general dyad-independent constraint combination.
+    constraints.general <- tolower(unlist(ifelse(sapply(conlist,`[[`,"dependence"),lapply(conlist, `[[`, "constrain"), ".dyads")))
+    constraints.general <- paste(sort(unique(constraints.general)),collapse="+")
+    MHqualifying.general <- with(ergm.MHP.table(),ergm.MHP.table()[Class==class & Constraints==constraints.general & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
+
+    MHqualifying <- rbind(MHqualifying.general, MHqualifying.specific)
     
     if(nrow(MHqualifying)<1){
-      commonalities<-(ergm.MHP.table()$Class==class)+(ergm.MHP.table()$Weights==weights)+(ergm.MHP.table()$Reference==reference)+(ergm.MHP.table()$Constraints==constraints)
-      stop("The combination of class (",class,"), model constraints (",constraints,"), reference measure (",reference,"), and proposal weighting (",weights,") is not implemented. ", "Check your arguments for typos. ", if(any(commonalities>=3)) paste("Nearest matching proposals: (",paste(apply(ergm.MHP.table()[commonalities==3,-5],1,paste, sep="), (",collapse=", "),collapse="), ("),")",sep="",".") else "")
+      commonalities<-(ergm.MHP.table()$Class==class)+(ergm.MHP.table()$Weights==weights)+(ergm.MHP.table()$Reference==reference)+(ergm.MHP.table()$Constraints==constraints.specific)
+      stop("The combination of class (",class,"), model constraints (",constraints.specific,"), reference measure (",reference,"), and proposal weighting (",weights,") is not implemented. ", "Check your arguments for typos. ", if(any(commonalities>=3)) paste("Nearest matching proposals: (",paste(apply(ergm.MHP.table()[commonalities==3,-5],1,paste, sep="), (",collapse=", "),collapse="), ("),")",sep="",".") else "")
     }
     
     if(nrow(MHqualifying)==1){
