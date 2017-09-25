@@ -122,7 +122,7 @@ ergm.Cprepare <- function(nw, m, response=NULL)
 ## by heads.
 ergm.Cprepare.el<-function(x, attrname=NULL, prototype=NULL){
   xm <- if(is.network(x)) as.edgelist(x, attrname=attrname)
-        else if(is(x, "rle")) as.edgelist(x, network.size(prototype)) 
+        else if(is(x, "rlebdm")) as.edgelist(x, prototype=prototype)
         else if(!is.null(prototype)) as.edgelist.matrix(x, n=network.size(prototype), directed=is.directed(prototype),
                                                         bipartite=if(is.bipartite(prototype)) prototype%n%"bipartite" else 0,
                                                         loops=has.loops(prototype))
