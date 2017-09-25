@@ -227,8 +227,8 @@ as.rlebdm.ergm_conlist <- function(x, constraints.obs = NULL, which = c("free", 
 #'
 #' @export
 as.edgelist.rlebdm <- function(x, prototype=NULL, ...){
-  dir <- if(is.null(prototype)) TRUE else is.directed(x)
-  loop <- if(is.null(prototype)) TRUE else has.loops(x)
+  dir <- if(is.null(prototype)) TRUE else is.directed(prototype)
+  loop <- if(is.null(prototype)) TRUE else has.loops(prototype)
   bip <- if(is.null(prototype)) FALSE else prototype %n% "bipartite"
   
   n <- attr(x, "n")
