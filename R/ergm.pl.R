@@ -105,8 +105,7 @@ ergm.pl<-function(Clist, fd, m, theta.offset=NULL,
     xmat <- xmat[zy==0,,drop=FALSE]
     zy <- zy[zy==0]
 
-    el <- cbind(Clist$tails, Clist$heads)
-    attr(el, "n") <- n
+    el <- as.edgelist(cbind(Clist$tails, Clist$heads), n, directed=TRUE, bipartite=FALSE, loops=TRUE) # This will be filtered by fd anyway.
     ## Run a whitelist PL over all of the toggleable edges in the network.
     presentrle <- as.rlebdm(el) & fd
     z <- .C("MPLE_wrapper",
@@ -132,7 +131,7 @@ ergm.pl<-function(Clist, fd, m, theta.offset=NULL,
     rm(z,uvals)
 
     # Divvy up the sampling weight of the ties:
-    wend.e.total <- (Clist$nedges-sum(missing))
+    wend.e.total <- Clist$nedges
     wend.e <- wend.e / sum(wend.e) * wend.e.total
 
     # Divvy up the sampling weight of the nonties:
