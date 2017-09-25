@@ -219,8 +219,18 @@ as.rlebdm.ergm_conlist <- function(x, constraints.obs = NULL, which = c("free", 
 #' Convert an [`rlebdm`] object to an [`edgelist`]: a two-column
 #' integer matrix giving the cells with `TRUE` values.
 #'
+#' @param prototype an optional network with network attributes that
+#'   are transferred to the edgelist and will filter it (e.g., if the
+#'   prototype network is given and does not allow self-loops, the
+#'   edgelist will not have self-loops either,e ven if the dyad matrix
+#'   has non-`FALSE` diagonal).
+#'
 #' @export
-as.edgelist.rlebdm <- function(x, ...){
+as.edgelist.rlebdm <- function(x, prototype=NULL, ...){
+  dir <- if(is.null(prototype)) TRUE else is.directed(x)
+  loop <- if(is.null(prototype)) TRUE else has.loops(x)
+  bip <- if(is.null(prototype)) FALSE else prototype %n% "bipartite"
+  
   n <- attr(x, "n")
   starts <- cumsum(c(1,as.numeric(x$lengths)))
   starts <- starts[-length(starts)]
@@ -237,6 +247,17 @@ as.edgelist.rlebdm <- function(x, ...){
   
   el <- cbind((d[,1]-1) %% n + 1, (d[,1]-1) %/% n + 1)
   if(!is.logical(values)) el <- cbind(el, d[,2])
+
+  if(!dir) el <- el[el[,1]<=el[,2],]
+  if(!loop) el <- el[el[,1]!=el[,2],]
+  if(bip) el <- el[(el[,1]<=bip) != (el[,2]<=bip),]
+
+  if(!is.null(prototype)){
+    attr(el, "directed") <- dir
+    attr(el, "bipartite") <- bip
+    attr(el, "loops") <- loop
+  }
+    
   attr(el, "n") <- n
   class(el) <- c("edgelist","matrix")
   el

@@ -49,7 +49,7 @@ as.rlebdm(x, ...)
 
 \method{!=}{rlebdm}(e1, e2)
 
-\method{as.edgelist}{rlebdm}(x, ...)
+\method{as.edgelist}{rlebdm}(x, prototype = NULL, ...)
 }
 \arguments{
 \item{x}{for [rlebdm()], an [rle()] object or a vector that is converted to one; it will be coerced to [logical()] before processing; for [as.rlebdm.matrix()], a matrix.}
@@ -61,6 +61,12 @@ as.rlebdm(x, ...)
 \item{compact}{whether to print the matrix compactly (dots and stars) or to print it as a logical matrix.}
 
 \item{e1, e2}{arguments to the binary operations.}
+
+\item{prototype}{an optional network with network attributes that
+are transferred to the edgelist and will filter it (e.g., if the
+prototype network is given and does not allow self-loops, the
+edgelist will not have self-loops either,e ven if the dyad matrix
+has non-`FALSE` diagonal).}
 }
 \description{
 A simple class representing boolean (logical) square matrix
