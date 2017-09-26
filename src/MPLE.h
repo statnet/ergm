@@ -13,7 +13,7 @@
 #include "edgetree.h"
 #include "changestat.h"
 #include "model.h"
-#include "ergm_dyadRLE.h"
+#include "ergm_rlebdm.h"
 
 void MPLE_wrapper(int *tails, int *heads, int *dnedges,
 		  double *wl,

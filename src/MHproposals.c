@@ -9,7 +9,7 @@
  */
 #include "MHproposals.h"
 #include "edgelist.h"
-#include "ergm_dyadRLE.h"
+#include "ergm_rlebdm.h"
 #include "changestat.h"
 
 /* Shorthand. */

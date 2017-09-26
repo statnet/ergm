@@ -1,5 +1,5 @@
 #include <R.h>
-#include "ergm_dyadRLE.h"
+#include "ergm_rlebdm.h"
 
 void PrintBoolRLESqMatrixD(const BoolRLESqMatrixD *m){
   Rprintf("Note: the following matrix is printed transposed:\n");
