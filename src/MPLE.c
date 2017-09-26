@@ -45,7 +45,7 @@ void MPLE_wrapper(int *tails, int *heads, int *dnedges,
   Vertex bip = (Vertex) *bipartite;
   Model *m;
   double *tmp = wl;
-  BoolRLESqMatrixD wlm = unpack_BoolRLESqMatrixD(&tmp, n_nodes);
+  RLEBDM1D wlm = unpack_RLEBDM1D(&tmp, n_nodes);
 
   GetRNGstate(); /* Necessary for R random number generator */
   nw[0]=NetworkInitialize(tails, heads, n_edges,
@@ -118,7 +118,7 @@ unsigned long int gcd(unsigned long int a, unsigned long int b){
 }
 
 void MpleInit_hash_wl_RLE(int *responsevec, double *covmat, int *weightsvector,
-			  BoolRLESqMatrixD *wl, 
+			  RLEBDM1D *wl, 
 			  Edge maxDyads, Edge maxDyadTypes, Network *nwp, Model *m){
   double *newRow = (double *) R_alloc(m->n_stats,sizeof(double));
   /* Note:  This function uses macros found in changestat.h */
@@ -132,7 +132,7 @@ void MpleInit_hash_wl_RLE(int *responsevec, double *covmat, int *weightsvector,
 
   { // Start a scope for loop variables.
     Vertex t, h;
-    GetRandDyadRLED_RS(&t,&h, wl); // Find a random starting point.
+    GetRandRLEBDM1D_RS(&t,&h, wl); // Find a random starting point.
     Dyad d = TH2Dyad(nwp->nnodes, t,h);
     RLERun r=0;
     

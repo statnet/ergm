@@ -1,7 +1,7 @@
 #include <R.h>
 #include "ergm_rlebdm.h"
 
-void PrintBoolRLESqMatrixD(const BoolRLESqMatrixD *m){
+void PrintRLEBDM1D(const RLEBDM1D *m){
   Rprintf("Note: the following matrix is printed transposed:\n");
   Dyad d = 1, dmax = m->n*m->n;
   for(RLERun r = 1; r <= m->nruns; r++){

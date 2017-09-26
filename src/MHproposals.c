@@ -520,12 +520,12 @@ void MH_randomtoggleList (MHproposal *MHp, Network *nwp)
 ***********************/
 void MH_RLE (MHproposal *MHp, Network *nwp) 
 {  
-  static BoolRLESqMatrixD r;
+  static RLEBDM1D r;
 
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
     double *inputs = MHp->inputs;
-    r = unpack_BoolRLESqMatrixD(&inputs, nwp->nnodes);
+    r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
     return;
   }
   
@@ -539,7 +539,7 @@ void MH_RLE (MHproposal *MHp, Network *nwp)
       /* Select a dyad at random that is in the reference graph. (We
 	 have a convenient sampling frame.) */
       /* Generate. */
-      GetRandDyadRLED_RS(Mtail, Mhead, &r);
+      GetRandRLEBDM1D_RS(Mtail, Mhead, &r);
     });
 }
 
@@ -627,7 +627,7 @@ void MH_listTNT (MHproposal *MHp, Network *nwp)
 ***********************/
 void MH_RLETNT (MHproposal *MHp, Network *nwp) 
 {
-  static BoolRLESqMatrixD r;
+  static RLEBDM1D r;
 
   static Vertex nnodes;
   static double comp=0.5, odds;
@@ -639,7 +639,7 @@ void MH_RLETNT (MHproposal *MHp, Network *nwp)
     odds = comp/(1.0-comp);
 
     double *inputs = MHp->inputs;
-    r = unpack_BoolRLESqMatrixD(&inputs, nwp->nnodes);
+    r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
 
     MHp->discord = (Network**) calloc(2,sizeof(Network*)); // A space for the sentinel NULL pointer.
     MHp->discord[0] = &discord;
@@ -679,7 +679,7 @@ void MH_RLETNT (MHproposal *MHp, Network *nwp)
 	logratio = log((nedges==1 ? 1.0/(comp*r.ndyads + (1.0-comp)) :
 			      nedges / (odds*r.ndyads + nedges)));
       }else{ /* Select a dyad at random from the list */
-	GetRandDyadRLED_RS(Mtail, Mhead, &r);
+	GetRandRLEBDM1D_RS(Mtail, Mhead, &r);
 	
 	if(EdgetreeSearch(Mtail[0],Mhead[0],nwp1->outedges)!=0){
 	  logratio = log((nedges==1 ? 1.0/(comp*r.ndyads + (1.0-comp)) :

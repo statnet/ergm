@@ -23,6 +23,6 @@ void MPLE_wrapper(int *tails, int *heads, int *dnedges,
 		  int *weightsvector,
 		  int *maxDyads, int *maxDyadTypes);
 void MpleInit_hash_wl_RLE(int *responsevec, double *covmat, int *weightsvector,
-			  BoolRLESqMatrixD *wl, 
+			  RLEBDM1D *wl, 
 			  Edge maxDyads, Edge maxDyadTypes, Network *nwp, Model *m);
 #endif

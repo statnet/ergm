@@ -1,22 +1,24 @@
-#ifndef _ERGM_DYADRLE_H_
-#define _ERGM_DYADRLE_H_
+#ifndef _ERGM_RLEBDM_H_
+#define _ERGM_RLEBDM_H_
 
 #include "edgetree.h"
 
-/* # Standard format for RLE-encoded dyad matrix for MHproposals #
+/* Serialization format for RLE-encoded Binary Dyad Matrix with only
+   TRUE (1) values stored, with indices and lengths stored as Double
+   (RLEBDM1D), serialized as a double type vector.
 
    Let double *x point to the start of the dyad matrix information
-   segment and let r be the number of runs of nonzero dyads. Here, the
+   segment and let r be the number of runs of TRUE dyads. Here, the
    slice notation x[a : b] denotes elements of the array x[a] through
    x[b] inclusive.
 
    The matrix is required to be square. For bipartite and undirected
    networks, this simply means that only block- or triangle-subset of
-   dyads are nonzero.
+   dyads are TRUE.
 
    x[0] = number of runs (r)
 
-   x[1] = number of nonzero dyads (i.e., sum of all run lengths)
+   x[1] = number of TRUE dyads (i.e., sum of all run lengths)
 
    x[2 : 2+r] = an r-vector whose i'th
      element is the index of the first cell (listed in column-major
@@ -51,23 +53,23 @@ typedef struct {
   double *starts; // start of a run of free dyads
   double *cumlens; // cumulative lengths of runs of free dyads
   unsigned int maxlen; // length of the longest run of free dyads (useful in rejection sampling)
-} BoolRLESqMatrixD;
+} RLEBDM1D;
 
 
 /**
 Unpack input from R into dyad matrix sampling information
 
 Unpack a double *input vector containing block diagonal sampling
-information into a `BoolRLESqMatrixD` structure and advance the
+information into a `RLEBDM1D` structure and advance the
 pointer to the end of the segment.
 
 @param inputs a pointer to a pointer to a vector of inputs; will be
   updated by the procedure
 @param network size
 */
-static inline BoolRLESqMatrixD unpack_BoolRLESqMatrixD(double **inputs, Vertex n){
+static inline RLEBDM1D unpack_RLEBDM1D(double **inputs, Vertex n){
   double *x = *inputs;
-  BoolRLESqMatrixD out;
+  RLEBDM1D out;
   out.n = n;
   out.ndyads = *(x++);
   out.nruns = *(x++);
@@ -93,7 +95,7 @@ Generate a random dyad that belongs to a run using inverse transform sampling
 
 @note This procedure is O(log(n)) in m->nruns.
 */
-static inline void GetRandDyadRLED_ITS(Vertex *tail, Vertex *head, const BoolRLESqMatrixD *m){
+static inline void GetRandRLEBDM1D_ITS(Vertex *tail, Vertex *head, const RLEBDM1D *m){
   // Select a dyad index at random
   Dyad i = unif_rand() * m->ndyads + 1;
 
@@ -125,7 +127,7 @@ due to multiple unif_rand() calls. However, because runs tend to have
 similar lengths, the acceptance probability is likely to be high.
 
 */
-static inline void GetRandDyadRLED_RS(Vertex *tail, Vertex *head, const BoolRLESqMatrixD *m){
+static inline void GetRandRLEBDM1D_RS(Vertex *tail, Vertex *head, const RLEBDM1D *m){
   RLERun r;
   double l;
   double u;
@@ -159,7 +161,7 @@ Test if a dyad is present in a run
 @param head head index (from 1)
 @param m RLE information
 */
-static inline unsigned int GetDyadRLED(Vertex tail, Vertex head, const BoolRLESqMatrixD *m){
+static inline unsigned int GetDyadRLED(Vertex tail, Vertex head, const RLEBDM1D *m){
   Dyad d = TH2Dyad(m->n, tail, head);
 
   if(d<m->starts[0]) return FALSE; // d precedes the first run.
@@ -173,19 +175,19 @@ static inline unsigned int GetDyadRLED(Vertex tail, Vertex head, const BoolRLESq
   }
 
   // If d's 0-indexed position in rth run is strictly less than the
-  // length of that run, the dyad is nonzero.
+  // length of that run, the dyad is TRUE.
   return (d-m->starts[l-1]) < m->cumlens[l]-m->cumlens[l-1];
 }
 
 /**
-Advance to the strideth next nonzero dyad index 
+Advance to the strideth next TRUE dyad index 
 
 @param d current dyad's number
 @param stride how much to advance
 @param m dyad matrix
 @param hint a pointer to an integer containing the RLE run, which is updated; set to 0 to initialise and to NULL to disable
 */
-static inline Dyad NextDyadRLED(Dyad d, Dyad stride, const BoolRLESqMatrixD *m, RLERun *hint){
+static inline Dyad NextDyadRLED(Dyad d, Dyad stride, const RLEBDM1D *m, RLERun *hint){
   RLERun l;
   if(hint && *hint!=0){
     l = *hint;
@@ -198,9 +200,9 @@ static inline Dyad NextDyadRLED(Dyad d, Dyad stride, const BoolRLESqMatrixD *m, 
     }
   }
 
-  // 0-based index of the current dyad in the list of nonzero dyads.
+  // 0-based index of the current dyad in the list of TRUE dyads.
   Dyad di = d - m->starts[l-1] + m->cumlens[l-1];
-  // 0-based index of the next dyad in the list of nonzero dyads.
+  // 0-based index of the next dyad in the list of TRUE dyads.
   Dyad nxtdi = (di+stride) % m->ndyads;
 
   RLERun nxtl;  
@@ -219,4 +221,4 @@ static inline Dyad NextDyadRLED(Dyad d, Dyad stride, const BoolRLESqMatrixD *m, 
   return nxtdi - m->cumlens[nxtl-1] + m->starts[nxtl-1];
 }
 
-#endif // _ERGM_DYADRLE_H_
+#endif // _ERGM_RLEBDM_H_
