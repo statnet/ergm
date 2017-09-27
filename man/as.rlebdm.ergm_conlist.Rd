@@ -2,33 +2,33 @@
 % Please edit documentation in R/rlebdm.R
 \name{as.rlebdm.ergm_conlist}
 \alias{as.rlebdm.ergm_conlist}
-\title{Extract dyad-level ERGM constraint information into an [`rlebdm`] object}
+\title{Extract dyad-level ERGM constraint information into an \code{\link{rlebdm}} object}
 \usage{
 \method{as.rlebdm}{ergm_conlist}(x, constraints.obs = NULL,
   which = c("free", "missing", "informative"), ...)
 }
 \arguments{
-\item{x}{an [`ergm_conlist`] object: a list of initialised constraints.}
+\item{x}{an \code{\link{ergm_conlist}} object: a list of initialised constraints.}
 
 \item{constraints.obs}{observation process constraints; defaults to
-`NULL` for no such constraints.}
+\code{NULL} for no such constraints.}
 
-\item{which}{which aspect of the constraint to extract: `free` for
-dyads that *may* be toggled under the constraint, `missing` for
+\item{which}{which aspect of the constraint to extract: \code{free} for
+dyads that \emph{may} be toggled under the constraint, \code{missing} for
 dyads that are free but considered unobserved under the
-constraints, and `informative` for dyads that are both free and
+constraints, and \code{informative} for dyads that are both free and
 observed.}
 
 \item{...}{additional arguments, currently unused.}
 }
 \description{
-A function to combine the `free_dyads` attributes of the
-constraints appropriately to generate an [`rlebdm`] of dyads
+A function to combine the \code{free_dyads} attributes of the
+constraints appropriately to generate an \code{\link{rlebdm}} of dyads
 toggleable and/or missing and/or informative under that combination
 of constraints.
 }
 \note{
-In both arguments and return values, `NULL` is treated as a
-  placeholder for no constraint (i.e., a constant matrix of
-  `TRUE`).
+In both arguments and return values, \code{NULL} is treated as a
+placeholder for no constraint (i.e., a constant matrix of
+\code{TRUE}).
 }

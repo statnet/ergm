@@ -52,7 +52,7 @@ as.rlebdm(x, ...)
 \method{as.edgelist}{rlebdm}(x, prototype = NULL, ...)
 }
 \arguments{
-\item{x}{for [rlebdm()], an [rle()] object or a vector that is converted to one; it will be coerced to [logical()] before processing; for [as.rlebdm.matrix()], a matrix.}
+\item{x}{for \code{\link[=rlebdm]{rlebdm()}}, an \code{\link[=rle]{rle()}} object or a vector that is converted to one; it will be coerced to \code{\link[=logical]{logical()}} before processing; for \code{\link[=as.rlebdm.matrix]{as.rlebdm.matrix()}}, a matrix.}
 
 \item{n}{the dimensions of the square matrix represented.}
 
@@ -66,7 +66,7 @@ as.rlebdm(x, ...)
 are transferred to the edgelist and will filter it (e.g., if the
 prototype network is given and does not allow self-loops, the
 edgelist will not have self-loops either,e ven if the dyad matrix
-has non-`FALSE` diagonal).}
+has non-\code{FALSE} diagonal).}
 }
 \description{
 A simple class representing boolean (logical) square matrix
@@ -74,17 +74,17 @@ run-length encoded in a column-major order.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{as.rlebdm}: Convert a square matrix of mode coercible to [`logical`] to an
-[`rlebdm`].
+\item \code{as.rlebdm}: Convert a square matrix of mode coercible to \code{\link{logical}} to an
+\code{\link{rlebdm}}.
 
-\item \code{as.rlebdm}: Convert an object of class [`edgelist`] to an [`rlebdm`] object
-whose cells in the edge list are set to `TRUE` and whose other
-cells are set to `FALSE`.
+\item \code{as.rlebdm}: Convert an object of class \code{\link{edgelist}} to an \code{\link{rlebdm}} object
+whose cells in the edge list are set to \code{TRUE} and whose other
+cells are set to \code{FALSE}.
 
-\item \code{as.edgelist}: Convert an [`rlebdm`] object to an [`edgelist`]: a two-column
-integer matrix giving the cells with `TRUE` values.
+\item \code{as.edgelist}: Convert an \code{\link{rlebdm}} object to an \code{\link{edgelist}}: a two-column
+integer matrix giving the cells with \code{TRUE} values.
 }}
 
 \seealso{
-[as.rlebdm.ergm_conlist()]
+\code{\link[=as.rlebdm.ergm_conlist]{as.rlebdm.ergm_conlist()}}
 }
