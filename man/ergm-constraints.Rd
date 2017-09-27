@@ -22,6 +22,7 @@
 \alias{InitConstraint.odegreedist}
 \alias{InitConstraint.fixedas}
 \alias{InitConstraint.fixallbut}
+\alias{InitConstraint.egocentric}
 
 \docType{methods}
 
@@ -126,10 +127,20 @@
       Preserve the dyad status in all but free.dyads. free.dyads can 
       take input object as edgelist and network, the latter will 
       convert to the corresponding edgelist.
- 	}
+    }
+
+    \item{\code{egocentric(attrname = NULL, direction = c("both","out","in"))}}{
+      Preserve values of dyads incident on vertices with attribute
+      \code{attrname} being \code{TRUE} or if \code{attrname} is
+      \code{NULL}, the vertex attribute \code{"na"} being `FALSE`. For
+      directed networks, \code{direction=="out"} only preserves the
+      out-dyads of those actors, and \code{direction=="in"} preserves
+      their in-dyads.
+    }
+
   Not all combinations of the above are supported.
   }
-}  
+}
 \section{Placing Bounds on Degrees:}{
 There are many times when one may wish to condition on the
 number of inedges or outedges possessed by a node, either as a

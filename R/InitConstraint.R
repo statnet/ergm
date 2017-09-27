@@ -332,3 +332,33 @@ InitConstraint.dyadnoise<-function(conlist, lhs.nw, p01, p10, ...){
 
 
 #ergm.ConstraintImplications("edges", c())
+
+
+InitConstraint.egocentric <- function(conlist, lhs.nw, attrname=NULL, direction = c("both", "out", "in")){
+  direction <- match.arg(direction)
+  if(!is.directed(lhs.nw) && direction!="both"){
+    stop("Directed egocentric constraint cannot be used for an undirected network.")
+  }
+  n <- network.size(lhs.nw)
+  a <- ( # Are that node's dyads toggleable?
+    if(is.null(attrname)) get.vertex.attribute(lhs.nw, "na")
+    else !get.vertex.attribute(lhs.nw, attrname)
+  )
+
+  con <- list(
+    free_dyads = {
+      # Remember: column-major order.
+
+      rlea <- rle(a)
+      
+      fd <- rlebdm(switch(direction,
+                          `out` = rep(rlea, n),
+                          `in` = rep(rlea, rep(n, length(rlea$lengths)), scale="run"),
+                          `both` = rep(rlea, n) & rep(rlea, rep(n, length(rlea$lengths)), scale="run")),
+                   n)
+    },
+    dependence = FALSE
+  )
+
+  c(conlist, egocentric=list(con))
+}
