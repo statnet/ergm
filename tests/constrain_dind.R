@@ -16,11 +16,6 @@ mean_mat <- function(Mmin, Mmax){
   matrix(ifelse(rbinom(length(Mmin), 1, .5), Mmin, Mmax), nrow(Mmin), ncol(Mmin))
 }
 
-bip_aug <- function(M){
-  rbind(cbind(matrix(0, nrow(M), nrow(M)), M),
-        cbind(t(M), matrix(0, ncol(M), ncol(M))))
-}
-
 test_dind_constr <- function(y0, con, Mmin=NULL, Mmax=NULL){
   nn <- network.dyadcount(y0, FALSE)
   if(!is.null(Mmin)){
@@ -35,6 +30,63 @@ test_dind_constr <- function(y0, con, Mmin=NULL, Mmax=NULL){
 
 n <- 10
 m <- 7
+
+###### Unconstrained ######
+
+Mmin <- matrix(0,n,n)
+Mmax <- matrix(1,n,n)
+diag(Mmax)<-0
+
+#### Directed ####
+
+y0 <- as.network(mean_mat(Mmin,Mmax), matrix.type="adjacency", directed=TRUE)
+
+test_dind_constr(y0, ~., Mmin, Mmax)
+
+#### Undirected ####
+
+y0 <- as.network(mean_mat(Mmin,Mmax), matrix.type="adjacency", directed=FALSE)
+
+test_dind_constr(y0, ~., Mmin, Mmax)
+
+#### Unobserved ####
+
+y0 <- as.network(mean_mat(Mmin,Mmax), matrix.type="adjacency", directed=TRUE)
+y0[2,3]<-NA
+y0[2,10]<-NA
+
+Mmin <- Mmax <- as.matrix(y0)
+
+Mmin[2,10] <- Mmin[2,3] <- 0
+Mmax[2,10] <- Mmax[2,3] <- 1
+
+test_dind_constr(y0, ~observed, Mmin, Mmax)
+
+#### Bipartite ####
+
+Mmin <- matrix(0,m,n-m)
+Mmax <- matrix(1,m,n-m)
+
+y0 <- as.network(mean_mat(Mmin,Mmax), matrix.type="adjacency", directed=FALSE, bipartite=m)
+
+test_dind_constr(y0, ~., Mmin, Mmax)
+
+#### Bipartite Unobserved ####
+
+y0[7,8]<-NA
+y0[6,9]<-NA
+
+Mmin <- Mmax <- as.matrix(y0)
+
+Mmin[6,2] <- Mmin[7,1] <- 0
+Mmax[6,2] <- Mmax[7,1] <- 1
+
+test_dind_constr(y0, ~observed, Mmin, Mmax) # in the block OR unobserved
+
+
+
+######### Block diagonal #########
+
 a <- rep(1:4,1:4)
 
 Mmax <- Mmin <- matrix(0,n,n)
@@ -113,3 +165,5 @@ Mmin[6,2] <- 0
 Mmax[6,2] <- 1
 
 test_dind_constr(y0, ~blockdiag("b")+observed, Mmin, Mmax) # in the block AND unobserved
+
+
