@@ -161,7 +161,7 @@ Test if a dyad is present in a run
 @param head head index (from 1)
 @param m RLE information
 */
-static inline unsigned int GetDyadRLED(Vertex tail, Vertex head, const RLEBDM1D *m){
+static inline unsigned int GetRLEBDM1D(Vertex tail, Vertex head, const RLEBDM1D *m){
   Dyad d = TH2Dyad(m->n, tail, head);
 
   if(d<m->starts[0]) return FALSE; // d precedes the first run.
@@ -187,7 +187,7 @@ Advance to the strideth next TRUE dyad index
 @param m dyad matrix
 @param hint a pointer to an integer containing the RLE run, which is updated; set to 0 to initialise and to NULL to disable
 */
-static inline Dyad NextDyadRLED(Dyad d, Dyad stride, const RLEBDM1D *m, RLERun *hint){
+static inline Dyad NextRLEBDM1D(Dyad d, Dyad stride, const RLEBDM1D *m, RLERun *hint){
   RLERun l;
   if(hint && *hint!=0){
     l = *hint;
@@ -220,5 +220,7 @@ static inline Dyad NextDyadRLED(Dyad d, Dyad stride, const RLEBDM1D *m, RLERun *
   
   return nxtdi - m->cumlens[nxtl-1] + m->starts[nxtl-1];
 }
+
+void PrintRLEBDM1D(const RLEBDM1D *m);
 
 #endif // _ERGM_RLEBDM_H_

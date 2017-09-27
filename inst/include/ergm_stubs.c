@@ -221,6 +221,15 @@ return fun(tails,heads,nwp,nmax);
 #undef DYADCOUNT
 #undef GetRandDyad
 #include "R_ext/Rdynload.h"
+#include "ergm_rlebdm.h"
+#undef MIN
+#undef MAX
+#undef DYADCOUNT
+#undef GetRandDyad
+#undef TH2Dyad
+#undef Dyad2T
+#undef Dyad2H
+#include "R_ext/Rdynload.h"
 #include "MCMC.h"
 void MCMC_wrapper(int *dnumnets, int *dnedges,int *tails, int *heads,int *dn, int *dflag, int *bipartite,int *nterms, char **funnames,char **sonames,char **MHproposaltype, char **MHproposalpackage,double *inputs, double *theta0, int *samplesize,double *sample, int *burnin, int *interval,int *newnetworktails,int *newnetworkheads,int *fVerbose,int *attribs, int *maxout, int *maxin, int *minout,int *minin, int *condAllDegExact, int *attriblength,int *maxedges,int *status){
 static void (*fun)(int *,int *,int *,int *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *) = NULL;
