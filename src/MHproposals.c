@@ -512,18 +512,16 @@ void MH_randomtoggleList (MHproposal *MHp, Network *nwp)
    void MH_randomtoggleRLE
    Propose ONLY edges on an RLE-compressed list
 ***********************/
-void MH_RLE (MHproposal *MHp, Network *nwp) 
-{  
-  static RLEBDM1D r;
+MH_I_FN(Mi_RLE){
+  ALLOC_STORAGE(1, RLEBDM1D, r);
+  double *inputs = MHp->inputs;
+  *r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
+  MHp->ntoggles=1;
+}
 
-  if(MHp->ntoggles == 0) { /* Initialize */
-    MHp->ntoggles=1;
-    double *inputs = MHp->inputs;
-    r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
-    return;
-  }
-  
-  if(r.ndyads==0){ /* No dyads to toggle. */
+MH_P_FN(Mp_RLE){
+  GET_STORAGE(RLEBDM1D, r);
+  if(r->ndyads==0){ /* No dyads to toggle. */
     Mtail[0]=MH_FAILED;
     Mhead[0]=MH_IMPOSSIBLE;
     return;
@@ -533,10 +531,9 @@ void MH_RLE (MHproposal *MHp, Network *nwp)
       /* Select a dyad at random that is in the reference graph. (We
 	 have a convenient sampling frame.) */
       /* Generate. */
-      GetRandRLEBDM1D_RS(Mtail, Mhead, &r);
+      GetRandRLEBDM1D_RS(Mtail, Mhead, r);
     });
 }
-
 
 /********************
    void MH_listTNT
@@ -650,7 +647,6 @@ MH_I_FN(Mi_RLETNT){
 MH_P_FN(Mp_RLETNT){
   GET_STORAGE(StoreRLEBDM1DAndNet, storage);
 
-  Vertex nnodes = nwp->nnodes;
   const double comp=0.5, odds=comp/(1.0-comp);
 
   Network *nwp1 = storage->intersect.nnodes ? &storage->intersect : nwp;
