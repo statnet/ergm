@@ -808,7 +808,6 @@ int WtFindithNonedge (Vertex *tail, Vertex *head, Dyad i, WtNetwork *nwp) {
   Vertex taili=1;
   Edge e;
   Dyad ndyads = DYADCOUNT(nwp->nnodes, nwp->bipartite, nwp->directed_flag);
-  Vertex nheads = nwp->bipartite ? nwp->nnodes-nwp->bipartite : nwp->nnodes-1;
   
   // If the index is too high or too low, exit immediately.
   if (i > ndyads - nwp->nedges || i<=0)
@@ -817,9 +816,10 @@ int WtFindithNonedge (Vertex *tail, Vertex *head, Dyad i, WtNetwork *nwp) {
   /* TODO: This could be speeded up by a factor of 3 or more by starting
      the search from the tail n rather than tail 1 if i > ndyads/2. */
 
-
-  while (i > nheads - nwp->outdegree[taili]) {   // nheads - nwp->oudegree[taili] is the number of nonoutties of taili.
-    i -= nheads - nwp->outdegree[taili];
+  Vertex nnt;
+  while (i > (nnt = nwp->nnodes - (nwp->bipartite ? nwp->bipartite : (nwp->directed_flag?1:taili))
+	      - nwp->outdegree[taili])) {   // nnt is the number of nonties incident on taili. Note that when network is undirected, tail<head.
+    i -= nnt;
     taili++;
   }
 
@@ -828,12 +828,19 @@ int WtFindithNonedge (Vertex *tail, Vertex *head, Dyad i, WtNetwork *nwp) {
   /* TODO: This could be speeded up by a factor of 3 or more by starting
      the search from the tree maximum rather than minimum (left over) i > outdegree[taili]. */
 
-  Vertex lhead = 0;
-  e = WtEdgetreeMinimum(nwp->outedges,taili);
+ Vertex lhead = (
+		  nwp->bipartite ? 
+		  nwp->bipartite :
+		  (nwp->directed_flag ?
+		   taili==1 : taili)
+		  );
+   e = WtEdgetreeMinimum(nwp->outedges,taili);
   Vertex rhead = nwp->outedges[e].value;
-  // Note that rhead-lhead-1 is the number of nonties between two successive ties.
-  while (i > rhead-lhead-1) {
-    i -= rhead-lhead-1;
+  // Note that rhead-lhead-1-(lhead<taili && taili<rhead) is the number of nonties between two successive ties.
+  // the -(lhead<taili && taili<rhead) is because (taili,taili) is not a valid nontie and must be skipped.
+  // Note that if taili is an isolate, rhead will be 0.
+  while (rhead && i > rhead-lhead-1-(lhead<taili && taili<rhead)) {
+    i -= rhead-lhead-1-(lhead<taili && taili<rhead);
     lhead = rhead;
     e = WtEdgetreeSuccessor(nwp->outedges, e);
     // If rhead was the highest-indexed head, then e is now 0.
@@ -844,7 +851,8 @@ int WtFindithNonedge (Vertex *tail, Vertex *head, Dyad i, WtNetwork *nwp) {
   // Now, the head we are looking for is (left over) i after lhead.
 
   *tail = taili;
-  *head = lhead + i;
+  *head = lhead + i + (nwp->directed_flag && lhead<taili && lhead+i>=taili); // Skip over the (taili,taili) dyad, if the network is directed.
+
   return 1;
 }
 
