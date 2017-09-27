@@ -50,8 +50,8 @@
 #                        implies the coefficient was fixed, 0 otherwise; if
 #                        the model hasn't any curved terms, the first entry
 #                        of this vector is one of
-#                           log(Clist$nedges/(Clist$ndyads-Clist$nedges))
-#                           log(1/(Clist$ndyads-1))
+#                           log(Clist$nedges/(sum(fd)-Clist$nedges))
+#                           log(1/(sum(fd)-1))
 #                        depending on 'Clist$nedges'
 #     maxMPLEsamplesize: the 'maxMPLEsamplesize' inputted to <ergm.pl>
 #    
@@ -98,7 +98,7 @@ ergm.pl<-function(Clist, fd, m, theta.offset=NULL,
 
   # If we ran out of space, AND we have a sparse network, then, use
   # case-control MPLE.
-  if(sum(wend)<Clist$ndyads && mean(zy)<1/2){
+  if(sum(wend)<sum(fd) && mean(zy)<1/2){
     if(verbose) message("A sparse network with too many unique dyads encountered. Using case-control MPLE.")
     # Strip out the rows associated with ties.
     wend <- wend[zy==0]
@@ -135,7 +135,7 @@ ergm.pl<-function(Clist, fd, m, theta.offset=NULL,
     wend.e <- wend.e / sum(wend.e) * wend.e.total
 
     # Divvy up the sampling weight of the nonties:
-    wend <- wend / sum(wend) * (Clist$ndyads-wend.e.total)
+    wend <- wend / sum(wend) * (sum(fd)-wend.e.total)
 
     zy <- c(zy,zy.e)
     wend <- c(wend, wend.e)
@@ -176,9 +176,9 @@ ergm.pl<-function(Clist, fd, m, theta.offset=NULL,
     foffset <- rep(0, length=length(zy))
     theta.offset <- rep(0, length=Clist$nstats)
     if(Clist$nedges>0){
-      theta.offset[1] <- log(Clist$nedges/(Clist$ndyads-Clist$nedges))
+      theta.offset[1] <- log(Clist$nedges/(sum(fd)-Clist$nedges))
     }else{
-      theta.offset[1] <- log(1/(Clist$ndyads-1))
+      theta.offset[1] <- log(1/(sum(fd)-1))
     }
     names(theta.offset) <- m$coef.names
   }
