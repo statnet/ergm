@@ -707,7 +707,7 @@ int GetRandEdge(Vertex *tail, Vertex *head, Network *nwp) {
    be needed. */      
   /* *** but if it is needed, don't forget,  tail -> head */
 
-int FindithNonedge (Vertex *tail, Vertex *head, Edge i, Network *nwp) {
+int FindithNonedge (Vertex *tail, Vertex *head, Dyad i, Network *nwp) {
   Vertex taili=1;
   Edge e;
   Dyad ndyads = DYADCOUNT(nwp->nnodes, nwp->bipartite, nwp->directed_flag);
@@ -755,7 +755,7 @@ int FindithNonedge (Vertex *tail, Vertex *head, Edge i, Network *nwp) {
   // Now, the head we are looking for is (left over) i after lhead.
 
   *tail = taili;
-  *head = lhead + i + (nwp->directed_flag && lhead+i>=taili); // Skip over the (taili,taili) dyad, if the network is directed.
+  *head = lhead + i + (nwp->directed_flag && lhead<taili && lhead+i>=taili); // Skip over the (taili,taili) dyad, if the network is directed.
 
   return 1;
 }
