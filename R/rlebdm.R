@@ -178,6 +178,11 @@ print.rlebdm <- function(x, compact=TRUE, ...){
 #' @note In both arguments and return values, `NULL` is treated as a
 #'   placeholder for no constraint (i.e., a constant matrix of
 #'   `TRUE`).
+#' @note Each element in the constraint list has a sign, which
+#'   determins whether the constraint further restricts (for `+`) or
+#'   potentially relaxes restriction (for `-`).
+#'
+#' @seealso [ergm-constraints]
 #'
 #' @export
 as.rlebdm.ergm_conlist <- function(x, constraints.obs = NULL, which = c("free", "missing", "informative"), ...){
@@ -188,7 +193,12 @@ as.rlebdm.ergm_conlist <- function(x, constraints.obs = NULL, which = c("free", 
            y <- NULL
            for(con in x){
              if(!is.null(con$free_dyads)){
-               y <- if(is.null(y)) con$free_dyads else y & con$free_dyads
+               y <-
+                 if(is.null(y)) con$free_dyads
+                 else{
+                   if(NVL(con$sign, +1)==+1) y & con$free_dyads
+                   else y | con$free_dyads
+                 }
              }
            }
            if(!is.null(y)) rlebdm(compact.rle(y), sqrt(length(y)))
