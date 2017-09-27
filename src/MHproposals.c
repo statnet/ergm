@@ -651,7 +651,7 @@ void MH_RLETNT (MHproposal *MHp, Network *nwp)
       Vertex head;
       Edge e;
       STEP_THROUGH_OUTEDGES(tail, e, head){
-	if(GetDyadRLED(tail, head, &r)){
+	if(GetRLEBDM1D(tail, head, &r)){
 	  ToggleEdge(tail,head, &discord);
 	}
       }
