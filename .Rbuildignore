@@ -6,3 +6,4 @@
 appveyor.yml
 .*\.orig$
 .*\.rej$
+.gdb_history
