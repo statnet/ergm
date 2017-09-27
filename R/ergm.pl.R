@@ -92,6 +92,7 @@ ergm.pl<-function(Clist, fd, m, theta.offset=NULL,
   }
   zy <- z$y[uvals]
   wend <- as.numeric(z$weightsvector[uvals])
+  informative.ties <- sum(wend[zy==1])
   xmat <- matrix(z$x, ncol=Clist$nstats, byrow=TRUE)[uvals,,drop=FALSE]
   colnames(xmat) <- m$coef.names
   rm(z,uvals)
@@ -131,7 +132,7 @@ ergm.pl<-function(Clist, fd, m, theta.offset=NULL,
     rm(z,uvals)
 
     # Divvy up the sampling weight of the ties:
-    wend.e.total <- Clist$nedges
+    informative.ties <- wend.e.total <- sum(presentrle)
     wend.e <- wend.e / sum(wend.e) * wend.e.total
 
     # Divvy up the sampling weight of the nonties:
@@ -175,8 +176,8 @@ ergm.pl<-function(Clist, fd, m, theta.offset=NULL,
   }else{
     foffset <- rep(0, length=length(zy))
     theta.offset <- rep(0, length=Clist$nstats)
-    if(Clist$nedges>0){
-      theta.offset[1] <- log(Clist$nedges/(sum(fd)-Clist$nedges))
+    if(informative.ties>0){
+      theta.offset[1] <- log(informative.ties/(sum(fd)-informative.ties))
     }else{
       theta.offset[1] <- log(1/(sum(fd)-1))
     }
