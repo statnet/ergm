@@ -10,7 +10,7 @@
 ###############################################################################
 # The <ergm.pl> function prepares many of the components needed by <ergm.mple>
 # for the regression rountines that are used to find the MPLE estimated ergm;
-# this is largely done through <MPLE_wrapper.C>.
+# this is largely done through <MPLE_wrapper>
 #
 # --PARAMETERS--
 #   Clist            : a list of parameters used for fitting and returned
@@ -90,6 +90,7 @@ ergm.pl<-function(Clist, fd, m, theta.offset=NULL,
   }
   zy <- z$y[uvals]
   wend <- as.numeric(z$weightsvector[uvals])
+  informative.ties <- sum(wend[zy==1])
   xmat <- matrix(z$x, ncol=Clist$nstats, byrow=TRUE)[uvals,,drop=FALSE]
   colnames(xmat) <- m$coef.names
   rm(z,uvals)
@@ -129,7 +130,7 @@ ergm.pl<-function(Clist, fd, m, theta.offset=NULL,
     rm(z,uvals)
 
     # Divvy up the sampling weight of the ties:
-    wend.e.total <- Clist$nedges
+    informative.ties <- wend.e.total <- sum(presentrle)
     wend.e <- wend.e / sum(wend.e) * wend.e.total
 
     # Divvy up the sampling weight of the nonties:

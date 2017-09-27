@@ -162,8 +162,13 @@ ergm_conlist <- function(object, nw){
   if(is.null(object)) return(NULL)
   ## Construct a list of constraints and arguments from the formula.
   conlist<-list()
-  constraints<-c(list(call(".attributes")),term.list.formula(object[[2]]))
-  for(constraint in constraints){
+  constraints<-term.list.formula(object[[2]])
+  consigns <- c(+1,attr(constraints, "sign"))
+  constraints<-c(list(call(".attributes")),constraints)
+  for(i in seq_along(constraints)){
+    constraint <- constraints[[i]]
+    consign <- consigns[[i]]
+    
     ## The . in the default formula means no constraints.
     ## There may be other constraints in the formula, however.
     if(constraint==".") next
@@ -171,24 +176,22 @@ ergm_conlist <- function(object, nw){
     f <- locate.InitFunction(constraint, "InitConstraint", "Sample space constraint")
     
     if(is.call(constraint)){
-      init.call<-list(f, conlist=conlist, lhs.nw=nw)
+      conname <- as.character(constraint[[1]])
+      init.call<-list(f, lhs.nw=nw)
       init.call<-c(init.call,as.list(constraint)[-1])
     }else{
-      init.call <- list(f, conlist=conlist, lhs.nw=nw)
+      conname <- as.character(constraint)
+      init.call <- list(f, lhs.nw=nw)
     }
-    conlist <- eval(as.call(init.call), environment(object))
-  }
+    con <- eval(as.call(init.call), environment(object))
+    NVL(con$dependence) <- TRUE
+    if(con$dependence && consign < 0) stop("Only dyad-independent costraints can have negative signs.")
+    con$sign <- consign
 
-  for(i in seq_along(conlist)){
-    NVL(conlist[[i]]$dependence) <- TRUE
-  }
-  
-  for(i in seq_along(conlist)){
-    if(is.null(conlist[[i]]$constrain)){
-      conlist[[i]]$constrain <-
-        if(names(conlist)[i]!="") names(conlist)[i]
-        else character(0)
-    }
+    if(is.null(con$constrain)) con$constrain <- conname
+    
+    conlist[[length(conlist)+1]] <- con
+    names(conlist)[length(conlist)] <- conname
   }
   
   conlist <- prune.ergm_conlist(conlist)
@@ -211,10 +214,14 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
   reference <- eval(as.call(ref.call),environment(reference))
 
   if(length(object)==3){
-    if(is.character(object[[2]])){
+    lhs <- object[[2]]
+    if(is.character(lhs)){
       name <- object[[2]]
-      object <- object[-2]
-    }else stop("Constraints formula must be either one-sided or have a string as its LHS.")
+    }else{
+      name <- try(eval(lhs, envir=environment(object)), silent=TRUE)
+      if(is(name, "try-error") || !is.character(name)) stop("Constraints formula must be either one-sided or have a string expression as its LHS.")
+    }
+    object <- object[-2]
   }else name <- NULL
   
   if("constraints" %in% names(arguments)){
@@ -230,7 +237,11 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
     # Try the specific constraint combination.
     constraints.specific <- tolower(unlist(lapply(conlist, `[[`, "constrain")))
     constraints.specific <- paste(sort(unique(constraints.specific)),collapse="+")
-    MHqualifying.specific <- with(ergm.MHP.table(),ergm.MHP.table()[Class==class & Constraints==constraints.specific & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
+
+    MHqualifying.specific <-
+      if(all(sapply(conlist, `[[`, "sign")==+1)){ # If all constraints are conjunctive...
+        with(ergm.MHP.table(),ergm.MHP.table()[Class==class & Constraints==constraints.specific & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
+      }
 
     # Try the general dyad-independent constraint combination.
     constraints.general <- tolower(unlist(ifelse(sapply(conlist,`[[`,"dependence"),lapply(conlist, `[[`, "constrain"), ".dyads")))
@@ -241,7 +252,7 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
     
     if(nrow(MHqualifying)<1){
       commonalities<-(ergm.MHP.table()$Class==class)+(ergm.MHP.table()$Weights==weights)+(ergm.MHP.table()$Reference==reference)+(ergm.MHP.table()$Constraints==constraints.specific)
-      stop("The combination of class (",class,"), model constraints (",constraints.specific,"), reference measure (",reference,"), and proposal weighting (",weights,") is not implemented. ", "Check your arguments for typos. ", if(any(commonalities>=3)) paste("Nearest matching proposals: (",paste(apply(ergm.MHP.table()[commonalities==3,-5],1,paste, sep="), (",collapse=", "),collapse="), ("),")",sep="",".") else "")
+      stop("The combination of class (",class,"), model constraints (",constraints.specific,"), reference measure (",reference,"), proposal weighting (",weights,"), and conjunctions and disjunctions is not implemented. ", "Check your arguments for typos. ", if(any(commonalities>=3)) paste("Nearest matching proposals: (",paste(apply(ergm.MHP.table()[commonalities==3,-5],1,paste, sep="), (",collapse=", "),collapse="), ("),")",sep="",".") else "")
     }
     
     if(nrow(MHqualifying)==1){

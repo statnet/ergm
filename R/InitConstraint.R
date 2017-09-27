@@ -52,8 +52,8 @@ get.vertex.attributes <- function(x, attrnames, na.omit = FALSE, null.na = TRUE,
 
 # Baseline constraint incorporating network attributes such as
 # directedness, bipartitedness, and self-loops.
-InitConstraint..attributes <- function(conlist, lhs.nw, ...){
-  con <- list(
+InitConstraint..attributes <- function(lhs.nw, ...){
+  list(
     free_dyads = {
       n <- network.size(lhs.nw)
       ## NB: Free dyad RLE matrix is stored in a column-major order for
@@ -80,166 +80,149 @@ InitConstraint..attributes <- function(conlist, lhs.nw, ...){
     },
     constrain = character(0),
     dependence = FALSE)
-
-  c(conlist, .attributes=list(con))
 }
 
-InitConstraint.edges<-function(conlist, lhs.nw, ...){
+InitConstraint.edges<-function(lhs.nw, ...){
    if(length(list(...)))
      stop(paste("Edge count constraint does not take arguments at this time."), call.=FALSE)
-   conlist$edges<-list(dependence = TRUE)
-   
-   conlist
+   list(dependence = TRUE)
 }
 #ergm.ConstraintImplications("edges", c())
 
-InitConstraint.degrees<-InitConstraint.nodedegrees<-function(conlist, lhs.nw, ...){
+InitConstraint.degrees<-InitConstraint.nodedegrees<-function(lhs.nw, ...){
    if(length(list(...)))
      stop(paste("Vertex degrees constraint does not take arguments at this time."), call.=FALSE)
-   conlist$degrees<-list(dependence = TRUE)
-   conlist
+   list(dependence = TRUE, constrain = "degrees")
 }
 
 #ergm.ConstraintImplications("degrees", c("edges", "idegrees", "odegrees", "idegreedist", "odegreedist", "degreedist", "bd"))
 
-InitConstraint.odegrees<-function(conlist, lhs.nw, ...){
+InitConstraint.odegrees<-function(lhs.nw, ...){
    if(length(list(...)))
      stop(paste("Vertex odegrees constraint does not take arguments at this time."), call.=FALSE)
    if(!is.directed(lhs.nw)) stop("Vertex odegrees constraint is only meaningful for directed networks.", call.=FALSE)
-   conlist$odegrees<-list(dependence = TRUE)
-   conlist
+   list(dependence = TRUE)
 }
 #ergm.ConstraintImplications("odegrees", c("edges", "odegreedist"))
 
-InitConstraint.idegrees<-function(conlist, lhs.nw, ...){
+InitConstraint.idegrees<-function(lhs.nw, ...){
    if(length(list(...)))
      stop(paste("Vertex idegrees constraint does not take arguments at this time."), call.=FALSE)
    if(!is.directed(lhs.nw)) stop("Vertex idegrees constraint is only meaningful for directed networks.", call.=FALSE)
-   conlist$idegrees<-list(dependence = TRUE)
-   conlist
+   list(dependence = TRUE)
 }
 #ergm.ConstraintImplications("idegrees", c("edges", "idegreedist"))
 
-InitConstraint.b1degrees<-function(conlist, lhs.nw, ...){
+InitConstraint.b1degrees<-function(lhs.nw, ...){
    if(length(list(...)))
      stop(paste("B1 vertex degrees constraint does not take arguments at this time."), call.=FALSE)
    if(!is.bipartite(lhs.nw)) stop("B1 vertex degrees constraint is only meaningful for bipartite networks.", call.=FALSE)
-   conlist$b1degrees<-list(dependence = TRUE)
-   conlist
+   list(dependence = TRUE)
 }
 #ergm.ConstraintImplications("b1degrees", c("edges"))
 
-InitConstraint.b2degrees<-function(conlist, lhs.nw, ...){
+InitConstraint.b2degrees<-function(lhs.nw, ...){
    if(length(list(...)))
      stop(paste("B2 vertex degrees constraint does not take arguments at this time."), call.=FALSE)
    if(!is.bipartite(lhs.nw)) stop("B2 vertex degrees constraint is only meaningful for bipartite networks.", call.=FALSE)
-   conlist$b2degrees<-list(dependence = TRUE)
-   conlist
+   list(dependence = TRUE)
 }
 #ergm.ConstraintImplications("b2degrees", c("edges"))
 
-InitConstraint.degreedist<-function(conlist, lhs.nw, ...){
+InitConstraint.degreedist<-function(lhs.nw, ...){
    if(length(list(...)))
      stop(paste("Degree distribution constraint does not take arguments at this time."), call.=FALSE)
-   conlist$degreedist<-list(dependence = TRUE)
-   conlist
+   list(dependence = TRUE)
 }
 #ergm.ConstraintImplications("degreedist", c("edges", "idegreedist", "odegreedist"))
 
 
-InitConstraint.idegreedist<-function(conlist, lhs.nw, ...){
+InitConstraint.idegreedist<-function(lhs.nw, ...){
    if(length(list(...)))
      stop(paste("InDegree distribution constraint does not take arguments at this time."), call.=FALSE)
-   conlist$idegreedist<-list(dependence = TRUE)
-   conlist
+   list(dependence = TRUE)
 }
 #ergm.ConstraintImplications("idegreedist", c("edges"))
 
 
-InitConstraint.odegreedist<-function(conlist, lhs.nw, ...){
+InitConstraint.odegreedist<-function(lhs.nw, ...){
    if(length(list(...)))
      stop(paste("OutDegree distribution constraint does not take arguments at this time."), call.=FALSE)
-   conlist$odegreedist<-list(dependence = TRUE)
-   conlist
+   list(dependence = TRUE)
 }
 #ergm.ConstraintImplications("odegreedist", c("edges"))
 
 
-InitConstraint.bd<-function(conlist, lhs.nw, attribs=NULL, maxout=NA, maxin=NA, minout=NA, minin=NA, ...){
+InitConstraint.bd<-function(lhs.nw, attribs=NULL, maxout=NA, maxin=NA, minout=NA, minin=NA, ...){
    if(nargs()>6)
      stop(paste("Bounded degrees constraint takes at most 5 arguments; ",nargs()-1," given.",sep=""), call.=FALSE)
-   conlist$bd<-list(attribs=attribs,maxout=maxout,maxin=maxin,minout=minout,minin=minin)
-   conlist
+   list(attribs=attribs,maxout=maxout,maxin=maxin,minout=minout,minin=minin)
 }
 #ergm.ConstraintImplications("bd", c())
 
-InitConstraint.hamming<-function(conlist, lhs.nw, ...){
+InitConstraint.hamming<-function(lhs.nw, ...){
    if(length(list(...)))
      stop(paste("Hamming distance constraint does not take arguments at this time."), call.=FALSE)
-   conlist$hamming<-list(dependence = TRUE)
-   conlist
+   list(dependence = TRUE)
 }
 #ergm.ConstraintImplications("hamming", c())
 
-InitConstraint.observed <- function(conlist, lhs.nw, ...){
+InitConstraint.observed <- function(lhs.nw, ...){
   if(length(list(...)))
     stop(paste("Toggle non-observed constraint does not take arguments at this time."), call.=FALSE)
-  conlist$observed<-list(free_dyads = as.rlebdm(as.edgelist(is.na(lhs.nw))),
-                         dependence = FALSE)
-  conlist
+  list(free_dyads = as.rlebdm(as.edgelist(is.na(lhs.nw))),
+       dependence = FALSE)
 }
 #ergm.ConstraintImplications("observed", c())
 
-InitConstraint.blockdiag<-function(conlist, lhs.nw, attrname=NULL, ...){
+InitConstraint.blockdiag<-function(lhs.nw, attrname=NULL, ...){
   if(length(list(...)))
     stop(paste("Block diagonal constraint takes one argument at this time."), call.=FALSE)
-  con <- list(attrname=attrname,
-              free_dyads = {
-                n <- network.size(lhs.nw)
-                a <- lhs.nw %v% attrname
-                if(NVL(lhs.nw%n%"bipartite",0)){
-                  bip <- lhs.nw %n% "bipartite"
-                  ea <- a[seq_len(bip)]
-                  aa <- a[bip+seq_len(n-bip)]
-                  if(length(rle(ea)$lengths)!=length(unique(rle(ea)$values)) || length(rle(aa)$lengths)!=length(unique(rle(aa)$values))) stop("Current implementation of block-diagonal sampling requires that the blocks of the egos and the alters be contiguous. See help('ergm-constraints') for more information.")
-                  
-                  tmp <- .double.rle(ea, aa)
-                  el <- tmp$lengths1
-                  al <- tmp$lengths2
-                  
-                  o <- rlebdm(c(rep(rle(FALSE), bip*n, scale="run"),
-                                do.call(c,rep(
-                                            mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend), scale="run")},
-                                                   el, cumsum(el), SIMPLIFY=FALSE),
-                                            al)
-                                        )), n)
-                  # Future-proofing: in case it's bipartite directed, add
-                  # both thte blocks and their transposes. (If undirected,
-                  # it'll get filtered out by the .attributes constraints.)
-                  ot <- rlebdm(c(do.call(c,rep(
-                                             mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bip+bend-blen, blen, n-bip-bend), scale="run")},
-                                                    al, cumsum(al), SIMPLIFY=FALSE),
-                                             el)
-                                         ),
-                                 rep(rle(FALSE), (n-bip)*n, scale="run")), n)
-                  o | ot
-                }else{
-                  a <- rle(a)
-                  rlebdm(compact.rle(do.call(c,rep(
-                                                 mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend), scale="run")},
-                                                        a$lengths, cumsum(a$lengths), SIMPLIFY=FALSE),
-                                                 a$lengths)
-                                             )), n)
-                }
-              },
-              dependence = FALSE)
-    
-  c(conlist, blockdiag=list(con))
+  list(attrname=attrname,
+       free_dyads = {
+         n <- network.size(lhs.nw)
+         a <- lhs.nw %v% attrname
+         if(NVL(lhs.nw%n%"bipartite",0)){
+           bip <- lhs.nw %n% "bipartite"
+           ea <- a[seq_len(bip)]
+           aa <- a[bip+seq_len(n-bip)]
+           if(length(rle(ea)$lengths)!=length(unique(rle(ea)$values)) || length(rle(aa)$lengths)!=length(unique(rle(aa)$values))) stop("Current implementation of block-diagonal sampling requires that the blocks of the egos and the alters be contiguous. See help('ergm-constraints') for more information.")
+           
+           tmp <- .double.rle(ea, aa)
+           el <- tmp$lengths1
+           al <- tmp$lengths2
+           
+           o <- rlebdm(c(rep(rle(FALSE), bip*n, scale="run"),
+                         do.call(c,rep(
+                                     mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend), scale="run")},
+                                            el, cumsum(el), SIMPLIFY=FALSE),
+                                     al)
+                                 )), n)
+           # Future-proofing: in case it's bipartite directed, add
+           # both thte blocks and their transposes. (If undirected,
+           # it'll get filtered out by the .attributes constraints.)
+           ot <- rlebdm(c(do.call(c,rep(
+                                      mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bip+bend-blen, blen, n-bip-bend), scale="run")},
+                                             al, cumsum(al), SIMPLIFY=FALSE),
+                                      el)
+                                  ),
+                          rep(rle(FALSE), (n-bip)*n, scale="run")), n)
+           o | ot
+         }else{
+           a <- rle(a)
+           rlebdm(compact.rle(do.call(c,rep(
+                                          mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend), scale="run")},
+                                                 a$lengths, cumsum(a$lengths), SIMPLIFY=FALSE),
+                                          a$lengths)
+                                      )), n)
+         }
+       },
+       dependence = FALSE)
 }
 
 
 
-InitConstraint.fixedas<-function(conlist, lhs.nw, present=NULL, absent=NULL,...){
+InitConstraint.fixedas<-function(lhs.nw, present=NULL, absent=NULL,...){
   if(is.null(present) & is.null(absent))
     stop(paste("fixedas constraint takes at least one argument, either present or absent or both."), call.=FALSE)
   if(!is.null(present)){
@@ -258,7 +241,7 @@ InitConstraint.fixedas<-function(conlist, lhs.nw, present=NULL, absent=NULL,...)
       stop("Argument 'absent' in fixedas constraint should be either a network or edgelist")
     }
   }
-  con <- list(
+  list(
     free_dyads = {
       # FixedEdgeList
       fixed <- as.edgelist(rbind(present,absent),
@@ -273,12 +256,10 @@ InitConstraint.fixedas<-function(conlist, lhs.nw, present=NULL, absent=NULL,...)
       !as.rlebdm(fixed)
     },
     dependence = FALSE)
-  
-  c(conlist, fixedas=list(con))
 }
 
 
-InitConstraint.fixallbut<-function(conlist, lhs.nw, free.dyads=NULL,...){
+InitConstraint.fixallbut<-function(lhs.nw, free.dyads=NULL,...){
   if(is.null(free.dyads))
     stop(paste("fixallbut constraint takes one required argument free.dyads and one optional argument fixed.state"), call.=FALSE)
   
@@ -302,7 +283,7 @@ InitConstraint.fixallbut<-function(conlist, lhs.nw, free.dyads=NULL,...){
 #	}
 #	
 #	
-  con <- list(
+  list(
     free_dyads = { 
       fixed <- as.edgelist(free.dyads,
                            n=lhs.nw%n%"n",
@@ -312,12 +293,10 @@ InitConstraint.fixallbut<-function(conlist, lhs.nw, free.dyads=NULL,...){
       as.rlebdm(free.dyads)
     },
     dependence = FALSE)
-  
-  c(conlist, fixallbut=list(con))
 }
 
 
-InitConstraint.dyadnoise<-function(conlist, lhs.nw, p01, p10, ...){
+InitConstraint.dyadnoise<-function(lhs.nw, p01, p10, ...){
   if(length(list(...)))
     stop(paste("Dyadic noise \"constraint\" takes one argument at this time."), call.=FALSE)
 
@@ -325,8 +304,7 @@ InitConstraint.dyadnoise<-function(conlist, lhs.nw, p01, p10, ...){
         any(dim(as.matrix(lhs.nw, matrix.type="adjacency")) != c(dim(p01),dim(p10)))))
     stop("p01 and p10 must be either scalars or matrices of the same dimension as the adjacency matrices of the LHS network.")
   
-  conlist$dyadnoise <- list(p01=p01, p10=p10)
-  conlist
+  list(p01=p01, p10=p10)
 }
 
 
@@ -334,7 +312,7 @@ InitConstraint.dyadnoise<-function(conlist, lhs.nw, p01, p10, ...){
 #ergm.ConstraintImplications("edges", c())
 
 
-InitConstraint.egocentric <- function(conlist, lhs.nw, attrname=NULL, direction = c("both", "out", "in")){
+InitConstraint.egocentric <- function(lhs.nw, attrname=NULL, direction = c("both", "out", "in")){
   direction <- match.arg(direction)
   if(!is.directed(lhs.nw) && direction!="both"){
     stop("Directed egocentric constraint cannot be used for an undirected network.")
@@ -345,7 +323,7 @@ InitConstraint.egocentric <- function(conlist, lhs.nw, attrname=NULL, direction 
     else !get.vertex.attribute(lhs.nw, attrname)
   )
 
-  con <- list(
+  list(
     free_dyads = {
       # Remember: column-major order.
 
@@ -359,6 +337,4 @@ InitConstraint.egocentric <- function(conlist, lhs.nw, attrname=NULL, direction 
     },
     dependence = FALSE
   )
-
-  c(conlist, egocentric=list(con))
 }

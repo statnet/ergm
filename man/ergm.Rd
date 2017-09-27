@@ -63,7 +63,9 @@ ergm (formula,
     on the support of the distribution of the networks being modeled,
     using syntax similar to the \code{formula} argument, on the
     right-hand side. Multiple constraints
-    may be given, separated by \dQuote{+} operators.
+    may be given, separated by \dQuote{+} and \dQuote{-} operators. (See
+    \link[=ergm-constraints]{ERGM constraints} for the explanation of
+    their semantics.)
     Together with the model terms in the formula and the reference measure, the constraints
     define the distribution of networks being modeled.
 
@@ -81,7 +83,9 @@ ergm (formula,
     package. Other packages may add their own constraints.
     
     Note that not all possible combinations of constraints and reference
-    measures are supported.
+    measures are supported. However, for relatively simple constraints
+    (i.e., those that simply permit or forbid specific dyads or sets of
+    dyads from changing), arbitrary combinations should be possible.
   }
   
   \item{obs.constraints}{
