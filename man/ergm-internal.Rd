@@ -62,7 +62,7 @@
 %\alias{midarrow}
 %\alias{model.matrix.pen.glm}
 
-%\alias{mk.conlist}
+%\alias{ergm_conlist}
 %\alias{myLibLoc}
 %\alias{nologLik.message}
 \alias{summary.statsmatrix.ergm}
@@ -70,7 +70,7 @@
 
 %\alias{updatemodel.ErgmTerm}
 
-%\alias{prune.conlist}
+%\alias{prune.ergm_conlist}
 \alias{geweke.diag.ar}
 
 %\alias{mk.edge.to.pos.lasttoggle.f}

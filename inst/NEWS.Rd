@@ -120,6 +120,61 @@
   }
 }
 
+\section{Changes in version X.Y.Z}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+	A new API allows arbitrary combinations of dyad-level sample
+	space constraints.
+      }
+    }
+  }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+	A numerical instability in penalised pseudolikelihood
+	calculation identified by Kevin Reuning has been fixed.
+      }
+    }
+  }
+
+
+  %% \subsection{OTHER USER-VISIBLE CHANGES}{
+  %%   \itemize{
+  %%     \item{
+  %%     }
+  %%   }
+  %% }
+
+  %% \subsection{C-LEVEL FACILITIES}{
+  %%   \itemize{
+  %%   }
+  %% }
+
+  %% \subsection{UTILITIES}{
+  %%   \itemize{
+  %%     \item Likewise, "UTILITIES" is probably unnecessary.
+  %%   }
+  %% }
+
+  %% \subsection{INSTALLATION}{
+  %%   \itemize{
+  %%     \item ... as is "INSTALLATION".
+  %%   }
+  %% }
+
+  %% \subsection{PACKAGE INSTALLATION}{
+  %%   \itemize{
+  %%     \item ditto.
+  %%   }
+  %% }
+
+}
+
+
 \section{Changes in version 3.8.0}{
 
   \subsection{NEW FEATURES}{

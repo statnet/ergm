@@ -68,10 +68,9 @@ ergm.initialfit<-function(init, initial.is.final,
     fit <- switch(method,
                   MPLE = {
                     Clist <- ergm.Cprepare(nw, m)
-                    Clist.miss <- ergm.Cprepare(NVL(get.miss.dyads(MHproposal$arguments$constraints, MHproposal.obs$arguments$constraints), is.na(nw)), m)
-                    control$Clist.miss<-Clist.miss
+                    fd <- as.rlebdm(MHproposal$arguments$constraints, MHproposal.obs$arguments$constraints, which="informative")
                     
-                    ergm.mple(Clist, Clist.miss, m, MPLEtype=MPLEtype,
+                    ergm.mple(Clist, fd, m, MPLEtype=MPLEtype,
                               init=init, 
                               control=control, MHproposal=MHproposal,
                               verbose=verbose, ...)

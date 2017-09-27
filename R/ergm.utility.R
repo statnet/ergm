@@ -242,30 +242,6 @@ standardize.network <- function(nw, preserve.eattr=TRUE){
   nw
 }
 
-get.free.dyads <- function(constraints){
-  y <- NULL
-  for(con in constraints){
-    if(!is.null(con$free.dyads)){
-      y <- if(is.null(y)) standardize.network(con$free.dyads(),FALSE) else y & standardize.network(con$free.dyads(),FALSE)
-    }
-  }
-  y
-}
-
-get.miss.dyads <- function(constraints, constraints.obs){
-# Returns a network indicating the missing dyads in the network (
-# (respecting the constraints).
-  free.dyads <- get.free.dyads(constraints)
-  free.dyads.obs <- get.free.dyads(constraints.obs)
-  
-  if(is.null(free.dyads)){
-    if(is.null(free.dyads.obs)) NULL
-    else free.dyads.obs
-  }else{
-    if(is.null(free.dyads.obs)) standardize.network(!free.dyads,FALSE)
-    else standardize.network(!free.dyads,FALSE) | free.dyads.obs
-  }
-}
 
 .hash.el <- function(x){
   apply(x, 1, paste, collapse="\r")

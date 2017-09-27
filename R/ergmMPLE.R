@@ -63,8 +63,8 @@ ergmMPLE <- function(formula, fitmodel=FALSE, output=c("matrix", "array", "fit")
   nw <- ergm.getnetwork(formula)
   model <- ergm.getmodel(formula, nw, initialfit=as.initialfit)
   Clist <- ergm.Cprepare(nw, model)
-  Clist.miss <- ergm.design(nw, model, verbose=verbose)
-  pl <- ergm.pl(Clist, Clist.miss, model, verbose=verbose, control=control,...)
+  fd <- ergm.design(nw, verbose=verbose)
+  pl <- ergm.pl(Clist, fd, model, verbose=verbose, control=control,...)
 
   switch(output,
          matrix = list(response = pl$zy, predictor = pl$xmat, 

@@ -59,17 +59,22 @@ ergm (formula,
     See help for \link[=ergm-references]{ERGM reference measures} implemented in the
     \code{\link[=ergm-package]{ergm}} package.}
   
-  \item{constraints}{A one-sided formula specifying one or more constraints
+  \item{constraints}{A formula specifying one or more constraints
     on the support of the distribution of the networks being modeled,
-    using syntax similar to the \code{formula} argument. Multiple constraints
-    may be given, separated by \dQuote{+} operators.
+    using syntax similar to the \code{formula} argument, on the
+    right-hand side. Multiple constraints
+    may be given, separated by \dQuote{+} and \dQuote{-} operators. (See
+    \link[=ergm-constraints]{ERGM constraints} for the explanation of
+    their semantics.)
     Together with the model terms in the formula and the reference measure, the constraints
     define the distribution of networks being modeled.
 
     It is also possible to specify a proposal function directly
-    by passing a string with the function's name. In that case,
+    either by passing a string with the function's name (in which case,
     arguments to the proposal should be specified through the
-    \code{prop.args} argument to \code{\link{control.ergm}}.
+    \code{prop.args} argument to \code{\link{control.ergm}}) or by
+    giving it on the LHS of the constraints formula, in which case it
+    will override the one chosen automatically.
 
     The default is \code{~.}, for an unconstrained model.
 
@@ -78,7 +83,9 @@ ergm (formula,
     package. Other packages may add their own constraints.
     
     Note that not all possible combinations of constraints and reference
-    measures are supported.
+    measures are supported. However, for relatively simple constraints
+    (i.e., those that simply permit or forbid specific dyads or sets of
+    dyads from changing), arbitrary combinations should be possible.
   }
   
   \item{obs.constraints}{

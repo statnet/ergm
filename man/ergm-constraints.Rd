@@ -22,6 +22,7 @@
 \alias{InitConstraint.odegreedist}
 \alias{InitConstraint.fixedas}
 \alias{InitConstraint.fixallbut}
+\alias{InitConstraint.egocentric}
 
 \docType{methods}
 
@@ -44,9 +45,49 @@
   constraints.
 
 }
+\section{Constraints formula}{
+  
+  A constraints formula is a one- or two-sided formula whose left-hand
+  side is an optional direct selection of the \code{InitMHP} function
+  and whose right-hand
+  side is a series of one or more terms separated by \dQuote{\code{+}}
+  and \dQuote{\code{-}} operators, specifying the constraint.
+
+  The sample space (over and above the reference distribution) is
+  determined by iterating over the constraints terms from left to right,
+  each term updating it as follows:
+  \itemize{
+    \item If the constraint introduces complex dependence structure
+    (e.g., constrains degree or number of edges in the network), then
+    this constraint always restricts the sample space. It may only have
+    a \dQuote{\code{+}} sign.
+    
+    \item If the constraint only restricts the set of dyads that may
+    vary in the sample space (e.g., block-diagonal structure or fixing
+    specific dyads at specific values) and has a \dQuote{\code{+}} sign,
+    the set of dyads that may vary is restricted to those that may vary
+    according to this constraint \emph{and} all the constraints to date.
+
+    \item If the constraint only restricts the set of dyads that may
+    vary in the sample space but has a \dQuote{\code{-}} sign,
+    the set of dyads that may vary is expanded to those that may vary
+    according to this constraint \emph{or} all the constraints up to date.    
+  }
+
+  For example, a constraints formula \code{~a-b+c-d} with all
+  constraints dyadic will allow dyads permitted by either `a` or `b` but
+  only if they are also permitted by `c`; as well as all dyads permitted
+  by `d`. If `A`, `B`, `C`, and `D` were logical matrices, the matrix of
+  variable dyads would be equal to `((A|B)&C)|D`.
+  
+  Terms with a positive sign can be viewed as \dQuote{adding} a
+  constraint while those with a negative sign can be viewed as
+  \dQuote{relaxing} a constraint.
+}
+
 \section{Constraints implemented in  the \code{\link[=ergm-package]{ergm}} package}{
   \describe{
-    \item{\code{.} or \code{NULL}}{
+    \item{\code{.} or \code{NULL} (dyad-independent)}{
       A placeholder for no constraints: all networks of a
       particular size and type have non-zero probability.
       Cannot be combined with other constraints.
@@ -56,7 +97,7 @@
       \dQuote{Placing Bounds
         on Degrees} section for more information.
     }
-    \item{\code{blockdiag(attrname)}}{
+    \item{\code{blockdiag(attrname)} (dyad-independent)}{
       Force a block-diagonal structure (and its bipartite analogue) on
       the network. Only dyads \eqn{(i,j)} for which
       \code{attrname(i)==attrname(j)} can have edges.
@@ -113,23 +154,33 @@
       having the same number of edges as the network passed
       in the model formula have non-zero probability.
     }
-    \item{\code{observed}}{
+    \item{\code{observed} (dyad-independent)}{
       Preserve the observed dyads of the given network.
     }
-    \item{\code{fixedas(present,absent)}}{
+    \item{\code{fixedas(present,absent)} (dyad-independent)}{
       Preserve the edges in 'present' and preclude the edges in 'absent'. 
       Both 'present' and 'absent' can take input object as edgelist and 
       network, the latter will convert to the corresponding edgelist.
  	}
  	
- 	\item{\code{fixallbut(free.dyads)}}{
+ 	\item{\code{fixallbut(free.dyads)} (dyad-independent)}{
       Preserve the dyad status in all but free.dyads. free.dyads can 
       take input object as edgelist and network, the latter will 
       convert to the corresponding edgelist.
- 	}
+    }
+
+    \item{\code{egocentric(attrname = NULL, direction = c("both","out","in"))}}{
+      Preserve values of dyads incident on vertices with attribute
+      \code{attrname} being \code{TRUE} or if \code{attrname} is
+      \code{NULL}, the vertex attribute \code{"na"} being `FALSE`. For
+      directed networks, \code{direction=="out"} only preserves the
+      out-dyads of those actors, and \code{direction=="in"} preserves
+      their in-dyads.
+    }
+
   Not all combinations of the above are supported.
   }
-}  
+}
 \section{Placing Bounds on Degrees:}{
 There are many times when one may wish to condition on the
 number of inedges or outedges possessed by a node, either as a

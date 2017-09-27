@@ -66,6 +66,13 @@
   list(values=o, lengths1=l1, lengths2=l2)
 }
 
+.get.blockdiag.attr <- function(nw, conlist, conpat = "^blockdiag$"){
+  conlist <- conlist[grep(conpat, names(conlist))]
+  a <- sapply(conlist, `[[`, "attrname")
+  aa <- lapply(a, get.vertex.attribute, x=nw)
+  do.call(paste, c(aa, list(sep="\t")))
+}
+
 #' @title Compute and serialize information needed by the block-diagonal
 #' Metropolis-Hastings samplers.
 #'
@@ -74,9 +81,9 @@
 #'   sample dyads in those blocks.
 #'
 #' @param nw the network of interest.
-#' @param a either a vector (of any mode) or a vertex attribute of
-#'   `nw` whose \eqn{i}th element identifies the block to which
-#'   vertex \eqn{i} belongs. Blocks must be continguous.
+#' @param a either a vector (of any mode) whose \eqn{i}th element
+#'   identifies the block to which vertex \eqn{i} belongs. Blocks must
+#'   be continguous.
 #' 
 #' @return A list with the following elements:
 #' \describe{
@@ -106,7 +113,6 @@
 #' @export
 pack.BlockDiagSampInfo_as_num <- function(nw, a){
   bip <- nw %n% "bipartite"
-  a <- if(length(a)==network.size(nw)) a else get.vertex.attributes(nw, a, sep="\t")
   if(bip){
     ea <- a[seq_len(bip)]
     aa <- a[bip+seq_len(network.size(nw)-bip)]
@@ -140,17 +146,17 @@ pack.BlockDiagSampInfo_as_num <- function(nw, a){
 }
 
 InitMHP.blockdiag <- function(arguments, nw){
-  BDI <- pack.BlockDiagSampInfo_as_num(nw, arguments$constraints$blockdiag$attrname)  
+  BDI <- pack.BlockDiagSampInfo_as_num(nw, .get.blockdiag.attr(nw, arguments$constraints))
   list(name = "blockdiag", inputs=unlist(BDI))
 }
 
 InitMHP.blockdiagTNT <- function(arguments, nw){
   el <- as.edgelist(nw)
-  a <- get.vertex.attributes(nw, arguments$constraints$blockdiag$attrname, sep="\t")
+  a <- .get.blockdiag.attr(nw, arguments$constraints)
   
   if(any(a[el[,1]]!=a[el[,2]])) stop("Block-diagonal TNT sampler implementation does not support sampling networks with off-block-diagonal ties at this time.")
 
-  BDI <- pack.BlockDiagSampInfo_as_num(nw, arguments$constraints$blockdiag$attrname)
+  BDI <- pack.BlockDiagSampInfo_as_num(nw, a)
   
   list(name = "blockdiagTNT", inputs=c(attr(BDI,"ndyads"), unlist(BDI)))
 }
@@ -159,7 +165,7 @@ InitMHP.blockdiagTNT <- function(arguments, nw){
 .InitMHP.blockdiagNonObserved <- function(arguments, nw, ...){
   ## Bipartite is handled seamlessly.
   
-  a <- get.vertex.attributes(nw, arguments$constraints$blockdiag$attrname, sep="\t")
+  a <- .get.blockdiag.attr(nw, arguments$constraints)
 
   el <- as.edgelist(is.na(nw))
   el <- el[a[el[,1]]==a[el[,2]],,drop=FALSE]

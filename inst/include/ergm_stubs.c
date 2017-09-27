@@ -442,6 +442,16 @@ fun(nwp,m);
 #undef UPDATE_STORAGE_COND
 #undef UPDATE_STORAGE
 #include "R_ext/Rdynload.h"
+#include "ergm_rlebdm.h"
+#undef MIN
+#undef MAX
+#undef DYADCOUNT
+#undef ENSURE_TH_ORDER
+#undef GetRandDyad
+#undef TH2Dyad
+#undef Dyad2T
+#undef Dyad2H
+#include "R_ext/Rdynload.h"
 #include "ergm_wtchangestat_operator.h"
 WtModel * unpack_WtModel_as_double(double **x){
 static WtModel * (*fun)(double **) = NULL;

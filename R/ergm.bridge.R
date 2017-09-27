@@ -165,7 +165,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   constraints.obs <- tmp$constraints.obs
   constraints <- tmp$constraints
  
-  if(!is.dyad.independent(mk.conlist(constraints,nw), mk.conlist(constraints.obs,nw))) stop("Bridge sampling with dyad-independent start does not work with dyad-dependent constraints.")
+  if(!is.dyad.independent(ergm_conlist(constraints,nw), ergm_conlist(constraints.obs,nw))) stop("Bridge sampling with dyad-independent start does not work with dyad-dependent constraints.")
 
   # If target.stats are given, then we need between passed network and
   # target stats, if any. It also means that the dyad-independent
@@ -192,7 +192,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
         if(!is.null(target.stats) && !m$offset[i]) ts.dind <- c(ts.dind, target.stats[(p.pos.full[i]+1):p.pos.full[i+1]])
         if(m$offset[i]) offset.dind <- c(offset.dind, coef[(q.pos.full[i]+1):q.pos.full[i+1]])
       }
-    if(!!is.null(target.stats)) dind<-append.rhs.formula(dind,list(as.name("edges")))
+    if(is.null(target.stats)) dind<-append.rhs.formula(dind,list(as.name("edges")))
     environment(dind) <- environment(object)
   }
   
@@ -211,7 +211,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
     lin.pred <- model.matrix(ergm.dind$glm) %*% coef.dind
     llk.dind <- 
       crossprod(lin.pred,ergm.dind$glm$y*ergm.dind$glm$prior.weights)-sum(log1p(exp(lin.pred))*ergm.dind$glm$prior.weights) -
-        (network.dyadcount(ergm.dind$network,FALSE) - network.edgecount(NVL(get.miss.dyads(ergm.dind$constrained, ergm.dind$constrained.obs),network.initialize(1))))*log(1/2)
+        (network.dyadcount(ergm.dind$network,FALSE) - network.edgecount(NVL(as.rlebdm(ergm.dind$constrained, ergm.dind$constrained.obs,which="missing"),network.initialize(1))))*log(1/2)
   }
   
   # If there are target.stats we need to adjust the log-likelihood in

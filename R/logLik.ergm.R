@@ -69,7 +69,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
         warning("The number of observed dyads in this network is ill-defined due to complex constraints on the sample space.")
       }
       
-      network.dyadcount(object$network,FALSE) - network.edgecount(NVL(get.miss.dyads(object$constrained, object$constrained.obs),network.initialize(1)))
+      sum(as.rlebdm(object$constrained, object$constrained.obs, which="informative"))
     }else attr(object$null.lik,"nobs")
   }
 
@@ -96,7 +96,7 @@ logLikNull.ergm <- function(object, control=control.logLik.ergm(), ...){
   control.toplevel(..., myname="logLik.ergm")
   if(!is.null(object$null.lik)) return(object$null.lik)
 
-  nobs <- if(is.null(object$mle.lik)) network.dyadcount(object$network,FALSE) - network.edgecount(NVL(get.miss.dyads(object$constrained, object$constrained.obs),network.initialize(1))) else attr(object$mle.lik,"nobs")
+  nobs <- if(is.null(object$mle.lik)) sum(as.rlebdm(object$constrained, object$constrained.obs, which="informative")) else attr(object$mle.lik,"nobs")
   
   llk <-
     if(!is.null(object$response)){

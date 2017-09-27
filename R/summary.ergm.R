@@ -115,7 +115,7 @@ summary.ergm <- function (object, ...,
                            )
   
   nodes<- network.size(object$network)
-  dyads<- network.dyadcount(object$network,FALSE)-network.edgecount(NVL(get.miss.dyads(object$constrained, object$constrained.obs),network.initialize(1)))
+  dyads<- sum(as.rlebdm(object$constrained, object$constrained.obs, which="informative"))
   df <- length(object$coef)
 
 
