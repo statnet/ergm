@@ -26,7 +26,11 @@
   ergm.MHP.table("c", "Bernoulli", "bd",  0, "random", "randomtoggle")
   ergm.MHP.table("c", "Bernoulli", "",  1, "TNT", "TNT")
   ergm.MHP.table("c", "Bernoulli", "bd",  1, "TNT", "TNT")
-  ergm.MHP.table("c", "Bernoulli", "", -1, "TNT10", "TNT10")
+  ergm.MHP.table("c", "Bernoulli", ".dyads",  -2, "random", "RLE")
+  ergm.MHP.table("c", "Bernoulli", ".dyads+bd",  -2, "random", "RLE")
+  ergm.MHP.table("c", "Bernoulli", ".dyads",  -1, "TNT", "RLETNT")
+  ergm.MHP.table("c", "Bernoulli", ".dyads+bd",  -1, "TNT", "RLETNT")
+  ergm.MHP.table("c", "Bernoulli", "", -100, "TNT10", "TNT10")
   ergm.MHP.table("c", "Bernoulli", "degrees",  0, "random", "CondDegree")
   ergm.MHP.table("c", "Bernoulli", "degreesmix",  0, "random", "CondDegreeMix")
   ergm.MHP.table("c", "Bernoulli", "idegrees+odegrees",  0, "random", "CondDegree")
@@ -84,9 +88,7 @@
   ergm.ConstraintImplications("idegreedist", c("edges"))
   ergm.ConstraintImplications("odegreedist", c("edges"))
   ergm.ConstraintImplications("bd", c())
-  ergm.ConstraintImplications("blockdiag", c())
   ergm.ConstraintImplications("hamming", c())
-  ergm.ConstraintImplications("observed", c())
 }
 
 .RegisterInitMethods <- function(){

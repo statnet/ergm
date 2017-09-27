@@ -49,12 +49,12 @@ ergm.ConstraintImplications <- local({
 })
 
 
-prune.conlist <- function(conlist){
+prune.ergm_conlist <- function(conlist){
   ## Remove constraints implied by other constraints.
-  for(constr in names(conlist))
+  for(constr in unlist(lapply(conlist, `[[`, "constrain"))){
     for(impl in ergm.ConstraintImplications()[[constr]])
       conlist[[impl]]<-NULL
-
+  }
   conlist
 }
 
@@ -158,13 +158,13 @@ MHproposal.character <- function(object, arguments, nw, ..., response=NULL, refe
 #
 ########################################################################################
 
-mk.conlist <- function(object, nw){
+ergm_conlist <- function(object, nw){
   if(is.null(object)) return(NULL)
   ## Construct a list of constraints and arguments from the formula.
   conlist<-list()
-  constraints<-as.list(attr(terms(object,allowDotAsName=TRUE),"variables"))[-1]
+  constraints<-c(list(call(".attributes")),term.list.formula(object[[2]]))
   for(constraint in constraints){
-    ## The . in the default formula means no constrains.
+    ## The . in the default formula means no constraints.
     ## There may be other constraints in the formula, however.
     if(constraint==".") next
 
@@ -178,8 +178,22 @@ mk.conlist <- function(object, nw){
     }
     conlist <- eval(as.call(init.call), environment(object))
   }
-  conlist <- prune.conlist(conlist)
-  class(conlist) <- "conlist"
+
+  for(i in seq_along(conlist)){
+    NVL(conlist[[i]]$dependence) <- TRUE
+  }
+  
+  for(i in seq_along(conlist)){
+    if(is.null(conlist[[i]]$constrain)){
+      conlist[[i]]$constrain <-
+        if(names(conlist)[i]!="") names(conlist)[i]
+        else character(0)
+    }
+  }
+  
+  conlist <- prune.ergm_conlist(conlist)
+  
+  class(conlist) <- "ergm_conlist"
   conlist
 }
 
@@ -196,33 +210,47 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
   }
   reference <- eval(as.call(ref.call),environment(reference))
 
+  if(length(object)==3){
+    if(is.character(object[[2]])){
+      name <- object[[2]]
+      object <- object[-2]
+    }else stop("Constraints formula must be either one-sided or have a string as its LHS.")
+  }else name <- NULL
+  
   if("constraints" %in% names(arguments)){
-    conlist <- prune.conlist(arguments$constraints)
-    class(conlist) <- "conlist"
+    conlist <- prune.ergm_conlist(arguments$constraints)
+    class(conlist) <- "ergm_conlist"
   }else{
-    conlist <- mk.conlist(object, nw)
-  }
-  
-  ## Convert vector of constraints to a "standard form".
-  if(is.null(names(conlist))) {
-    constraints <- ""
-  } else {
-    constraints <- paste(sort(tolower(names(conlist))),collapse="+")
-  }
-  
-  MHqualifying<-with(ergm.MHP.table(),ergm.MHP.table()[Class==class & Constraints==constraints & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
-
-  if(nrow(MHqualifying)<1){
-    commonalities<-(ergm.MHP.table()$Class==class)+(ergm.MHP.table()$Weights==weights)+(ergm.MHP.table()$Reference==reference)+(ergm.MHP.table()$Constraints==constraints)
-    stop("The combination of class (",class,"), model constraints (",constraints,"), reference measure (",reference,"), and proposal weighting (",weights,") is not implemented. ", "Check your arguments for typos. ", if(any(commonalities>=3)) paste("Nearest matching proposals: (",paste(apply(ergm.MHP.table()[commonalities==3,-5],1,paste, sep="), (",collapse=", "),collapse="), ("),")",sep="",".") else "")
+    conlist <- ergm_conlist(object, nw)
   }
 
-  if(nrow(MHqualifying)==1){
-    name<-MHqualifying$MHP
-  }else{
-    name<-with(MHqualifying,MHP[which.max(Priority)])
-  }
+  if(is.null(name)){ # Unless specified, autodetect.
+    ## Convert vector of constraints to a "standard form".
+
+    # Try the specific constraint combination.
+    constraints.specific <- tolower(unlist(lapply(conlist, `[[`, "constrain")))
+    constraints.specific <- paste(sort(unique(constraints.specific)),collapse="+")
+    MHqualifying.specific <- with(ergm.MHP.table(),ergm.MHP.table()[Class==class & Constraints==constraints.specific & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
+
+    # Try the general dyad-independent constraint combination.
+    constraints.general <- tolower(unlist(ifelse(sapply(conlist,`[[`,"dependence"),lapply(conlist, `[[`, "constrain"), ".dyads")))
+    constraints.general <- paste(sort(unique(constraints.general)),collapse="+")
+    MHqualifying.general <- with(ergm.MHP.table(),ergm.MHP.table()[Class==class & Constraints==constraints.general & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
+
+    MHqualifying <- rbind(MHqualifying.general, MHqualifying.specific)
     
+    if(nrow(MHqualifying)<1){
+      commonalities<-(ergm.MHP.table()$Class==class)+(ergm.MHP.table()$Weights==weights)+(ergm.MHP.table()$Reference==reference)+(ergm.MHP.table()$Constraints==constraints.specific)
+      stop("The combination of class (",class,"), model constraints (",constraints.specific,"), reference measure (",reference,"), and proposal weighting (",weights,") is not implemented. ", "Check your arguments for typos. ", if(any(commonalities>=3)) paste("Nearest matching proposals: (",paste(apply(ergm.MHP.table()[commonalities==3,-5],1,paste, sep="), (",collapse=", "),collapse="), ("),")",sep="",".") else "")
+    }
+    
+    if(nrow(MHqualifying)==1){
+      name<-MHqualifying$MHP
+    }else{
+      name<-with(MHqualifying,MHP[which.max(Priority)])
+    }
+  }
+  
   arguments$constraints<-conlist
   ## Hand it off to the class character method.
   MHproposal.character(name, arguments, nw, response=response, reference=reference)

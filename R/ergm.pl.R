@@ -15,7 +15,7 @@
 # --PARAMETERS--
 #   Clist            : a list of parameters used for fitting and returned
 #                      by <ergm.Cprepare>
-#   Clist.miss       : the corresponding 'Clist' for the network of missing
+#   fd       : the corresponding 'Clist' for the network of missing
 #                      edges returned by <ergm.design>
 #   m                : the model, as returned by <ergm.getmodel>
 #   theta.offset     : a logical vector specifying which of the model
@@ -26,8 +26,6 @@
 #                      include:
 #         samplesize : the number of networks to sample, which will inform the size
 #                      of the returned 'xmat'
-#         Clist.miss : see 'Clist.miss' above; some of the code uses this Clist.miss,
-#                      some uses the one above, does this seem right?
 #   MHproposal       : an MHproposal object, as returned by <ergm.getMHproposal>
 #   verbose          : whether this and the C routines should be verbose (T or F);
 #                      default=FALSE
@@ -50,14 +48,14 @@
 #                        implies the coefficient was fixed, 0 otherwise; if
 #                        the model hasn't any curved terms, the first entry
 #                        of this vector is one of
-#                           log(Clist$nedges/(Clist$ndyads-Clist$nedges))
-#                           log(1/(Clist$ndyads-1))
+#                           log(Clist$nedges/(sum(fd)-Clist$nedges))
+#                           log(1/(sum(fd)-1))
 #                        depending on 'Clist$nedges'
 #     maxMPLEsamplesize: the 'maxMPLEsamplesize' inputted to <ergm.pl>
 #    
 ###############################################################################
 
-ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
+ergm.pl<-function(Clist, fd, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
                     control, MHproposal, ignore.offset=FALSE,
                     verbose=FALSE) {
@@ -74,8 +72,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   z <- .C("MPLE_wrapper",
           as.integer(Clist$tails), as.integer(Clist$heads),
           as.integer(Clist$nedges),
-          as.integer(FALSE),
-          as.integer(c(Clist.miss$nedges,Clist.miss$tails,Clist.miss$heads)),
+          as.double(pack_rlebdm_as_numeric(fd)),
           as.integer(n), 
           as.integer(Clist$dir),     as.integer(bip),
           as.integer(Clist$nterms), 
@@ -99,22 +96,20 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
 
   # If we ran out of space, AND we have a sparse network, then, use
   # case-control MPLE.
-  if(sum(wend)<Clist$ndyads && mean(zy)<1/2){
+  if(sum(wend)<sum(fd) && mean(zy)<1/2){
     if(verbose) message("A sparse network with too many unique dyads encountered. Using case-control MPLE.")
     # Strip out the rows associated with ties.
     wend <- wend[zy==0]
     xmat <- xmat[zy==0,,drop=FALSE]
     zy <- zy[zy==0]
 
-    ## Run a whitelist PL over all of the edges in the network.
-    # Generate a random permutation of edges, in case we run out of space here as well.
-    missing <- paste(Clist$tails,Clist$heads,sep=".") %in% paste(Clist.miss$tails,Clist.miss$heads,sep=".")
-    ordering <- sample.int(Clist$nedges-sum(missing))
+    el <- as.edgelist(cbind(Clist$tails, Clist$heads), n, directed=TRUE, bipartite=FALSE, loops=TRUE) # This will be filtered by fd anyway.
+    ## Run a whitelist PL over all of the toggleable edges in the network.
+    presentrle <- as.rlebdm(el) & fd
     z <- .C("MPLE_wrapper",
             as.integer(Clist$tails), as.integer(Clist$heads),
             as.integer(Clist$nedges),
-            as.integer(TRUE),
-            as.integer(c(Clist$nedges-sum(missing),Clist$tails[!missing][ordering],Clist$heads[!missing][ordering])),
+            as.numeric(pack_rlebdm_as_numeric(presentrle)),
             as.integer(n), 
             as.integer(Clist$dir),     as.integer(bip),
             as.integer(Clist$nterms), 
@@ -134,11 +129,11 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     rm(z,uvals)
 
     # Divvy up the sampling weight of the ties:
-    wend.e.total <- (Clist$nedges-sum(missing))
+    wend.e.total <- Clist$nedges
     wend.e <- wend.e / sum(wend.e) * wend.e.total
 
     # Divvy up the sampling weight of the nonties:
-    wend <- wend / sum(wend) * (Clist$ndyads-wend.e.total)
+    wend <- wend / sum(wend) * (sum(fd)-wend.e.total)
 
     zy <- c(zy,zy.e)
     wend <- c(wend, wend.e)
@@ -146,7 +141,6 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
 
     rm(zy.e, wend.e, xmat.e)
   }
-  
 
   #
   # Adjust for the offset

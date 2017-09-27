@@ -46,14 +46,14 @@
 #
 ######################################################################################
 
-ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
+ergm.mple<-function(Clist, fd, m, init=NULL,
                     MPLEtype="glm", family="binomial",
                     maxMPLEsamplesize=1e+6,
                     save.glm=TRUE,
 		    control=NULL, MHproposal=NULL,
                     verbose=FALSE,
                     ...) {
-  pl <- ergm.pl(Clist=Clist, Clist.miss=Clist.miss, m=m,
+  pl <- ergm.pl(Clist=Clist, fd=fd, m=m,
                 theta.offset=init,
                 maxMPLEsamplesize=maxMPLEsamplesize,
 		control=control, MHproposal=MHproposal,

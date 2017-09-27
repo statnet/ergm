@@ -327,6 +327,16 @@ fun(nwp,m);
 #undef UPDATE_STORAGE_COND
 #undef UPDATE_STORAGE
 #include "R_ext/Rdynload.h"
+#include "ergm_rlebdm.h"
+#undef MIN
+#undef MAX
+#undef DYADCOUNT
+#undef ENSURE_TH_ORDER
+#undef GetRandDyad
+#undef TH2Dyad
+#undef Dyad2T
+#undef Dyad2H
+#include "R_ext/Rdynload.h"
 #include "ergm_wtedgetree.h"
 WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle){
 static WtNetwork (*fun)(Vertex *,Vertex *,double *,Edge,Vertex,int,Vertex,int,int,int *) = NULL;

@@ -10,6 +10,7 @@
 #include "MHproposals.h"
 #include "ergm_edgelist.h"
 #include "ergm_changestat.h"
+#include "ergm_rlebdm.h"
 #include "ergm_MHstorage.h"
 
 /*********************
@@ -508,6 +509,36 @@ void MH_randomtoggleList (MHproposal *MHp, Network *nwp)
 }
 
 /********************
+   void MH_randomtoggleRLE
+   Propose ONLY edges on an RLE-compressed list
+***********************/
+void MH_RLE (MHproposal *MHp, Network *nwp) 
+{  
+  static RLEBDM1D r;
+
+  if(MHp->ntoggles == 0) { /* Initialize */
+    MHp->ntoggles=1;
+    double *inputs = MHp->inputs;
+    r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
+    return;
+  }
+  
+  if(r.ndyads==0){ /* No dyads to toggle. */
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_IMPOSSIBLE;
+    return;
+  }
+
+  BD_LOOP({
+      /* Select a dyad at random that is in the reference graph. (We
+	 have a convenient sampling frame.) */
+      /* Generate. */
+      GetRandRLEBDM1D_RS(Mtail, Mhead, &r);
+    });
+}
+
+
+/********************
    void MH_listTNT
    Propose ONLY edges on a static list
    Use TNT weights.
@@ -578,6 +609,84 @@ MH_P_FN(Mp_listTNT){
 MH_F_FN(Mf_listTNT){
   GET_STORAGE(Network, intersect);
   NetworkDestroy(intersect);
+}
+
+/********************
+   void MH_RLETNT
+   Propose ONLY edges on a static list
+   Use TNT weights.
+   This is a fusion of MH_DissolutionMLETNT and MH_TNT:
+
+   A "intersect" network is constructed that is the intersection of
+   dyads on the static list and the edges present in nwp. Then,
+   standard TNT procedure is followed, but the dyad space (and the
+   number of dyads) is the number of dyads in the static list and the
+   network for the ties is the ties in the discord network.
+***********************/
+typedef struct {
+  RLEBDM1D r;
+  Network intersect;
+} StoreRLEBDM1DAndNet;
+
+MH_I_FN(Mi_RLETNT){
+  ALLOC_STORAGE(1, StoreRLEBDM1DAndNet, storage);
+  storage->intersect = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
+  EXEC_THROUGH_NET_EDGES(t, h, e, {
+      if(GetRLEBDM1D(t, h, &storage->r)){
+	ToggleEdge(t, h, &storage->intersect);
+      }
+    });
+  
+  if(storage->intersect.nedges==nwp->nedges){ // There are no ties in the initial network that are fixed.
+    NetworkDestroy(&storage->intersect);
+    storage->intersect.nnodes = 0; // "Signal" that there is no discordance network.
+  }
+
+  MHp->ntoggles=1;
+}
+
+MH_P_FN(Mp_RLETNT){
+  GET_STORAGE(StoreRLEBDM1DAndNet, storage);
+
+  Vertex nnodes = nwp->nnodes;
+  const double comp=0.5, odds=comp/(1.0-comp);
+
+  Network *nwp1 = storage->intersect.nnodes ? &storage->intersect : nwp;
+  Edge nedges= nwp1->nedges;
+  double logratio=0;
+  BD_LOOP({
+      if (unif_rand() < comp && nedges > 0) { /* Select a tie at random from the network of eligibles */
+	GetRandEdge(Mtail, Mhead, nwp1);
+	/* Thanks to Robert Goudie for pointing out an error in the previous 
+	   version of this sampler when proposing to go from nedges==0 to nedges==1 
+	   or vice versa.  Note that this happens extremely rarely unless the 
+	   network is small or the parameter values lead to extremely sparse 
+	   networks.  */
+	logratio = log((nedges==1 ? 1.0/(comp*storage->r.ndyads + (1.0-comp)) :
+			      nedges / (odds*storage->r.ndyads + nedges)));
+      }else{ /* Select a dyad at random from the list */
+	GetRandRLEBDM1D_RS(Mtail, Mhead, &storage->r);
+	
+	if(EdgetreeSearch(Mtail[0],Mhead[0],nwp1->outedges)!=0){
+	  logratio = log((nedges==1 ? 1.0/(comp*storage->r.ndyads + (1.0-comp)) :
+				nedges / (odds*storage->r.ndyads + nedges)));
+	}else{
+	  logratio = log((nedges==0 ? comp*storage->r.ndyads + (1.0-comp) :
+				1.0 + (odds*storage->r.ndyads)/(nedges + 1)));
+	}
+      }
+    });
+  MHp->logratio += logratio;
+}
+
+MH_U_FN(Mu_RLETNT){
+  GET_STORAGE(StoreRLEBDM1DAndNet, storage);
+  if(storage->intersect.nnodes) ToggleEdge(tail, head, &storage->intersect);
+}
+
+MH_F_FN(Mf_RLETNT){
+  GET_STORAGE(StoreRLEBDM1DAndNet, storage);
+  if(storage->intersect.nnodes) NetworkDestroy(&storage->intersect);
 }
 
 /* The ones below have not been tested */

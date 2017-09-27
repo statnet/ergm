@@ -20,11 +20,11 @@ The \code{ergm.mple} function finds a maximizer to the psuedolikelihood function
 \code{ergm.pl} is an even more internal workhorse function that prepares many of the components needed by \code{ergm.mple} for the regression rountines that are used to find the MPLE estimated ergm. It should not be called directly by the user. 
 }
 \usage{
-ergm.mple(Clist, Clist.miss, m, init = NULL, MPLEtype = "glm", family = "binomial",
+ergm.mple(Clist, fd, m, init = NULL, MPLEtype = "glm", family = "binomial",
          maxMPLEsamplesize = 1e+06, save.glm = TRUE,
          control = NULL, MHproposal = NULL, verbose = FALSE, ...)
 
-ergm.pl(Clist, Clist.miss, m, theta.offset=NULL,
+ergm.pl(Clist, fd, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
                     control, MHproposal, ignore.offset=FALSE,
                     verbose=FALSE)
@@ -34,9 +34,8 @@ ergm.pl(Clist, Clist.miss, m, theta.offset=NULL,
   \item{Clist}{
 a list of parameters used for fitting and returned by \code{\link{ergm.Cprepare}}
 }
-  \item{Clist.miss}{
-the corresponding 'Clist' for the network of missing
-                  edges returned by \code{\link{ergm.design}}
+  \item{fd}{
+    An \code{\link{rlebdm}} with informative dyads.
 }
   \item{m}{
 the model, as returned by \code{\link{ergm.getmodel}}

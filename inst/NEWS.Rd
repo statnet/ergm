@@ -122,12 +122,14 @@
 
 \section{Changes in version X.Y.Z}{
 
-  %% \subsection{NEW FEATURES}{
-  %%   \itemize{
-  %%     \item{
-  %%     }
-  %%   }
-  %% }
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+	A new API allows arbitrary combinations of dyad-level sample
+	space constraints.
+      }
+    }
+  }
 
 
   \subsection{BUG FIXES}{

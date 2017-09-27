@@ -10,9 +10,9 @@ pack.BlockDiagSampInfo_as_num(nw, a)
 \arguments{
 \item{nw}{the network of interest.}
 
-\item{a}{either a vector (of any mode) or a vertex attribute of
-\code{nw} whose \eqn{i}th element identifies the block to which
-vertex \eqn{i} belongs. Blocks must be continguous.}
+\item{a}{either a vector (of any mode) whose \eqn{i}th element
+identifies the block to which vertex \eqn{i} belongs. Blocks must
+be continguous.}
 }
 \value{
 A list with the following elements:

@@ -107,10 +107,6 @@ y0 <- network.initialize(n, directed=FALSE)
 y0 %v% "b1" <- a1
 y0 %v% "b2" <- a2
 
-y <- simulate(y0~edges, coef=100, constraints=~blockdiag(c("b1","b2")), control=control.simulate.formula(MCMC.burnin=10000))
-
-stopifnot(all(as.matrix(y)==M))
-
 y <- simulate(y0~edges, coef=100, constraints=~blockdiag("b1") + blockdiag("b2"), control=control.simulate.formula(MCMC.burnin=10000))
 
 stopifnot(all(as.matrix(y)==M))

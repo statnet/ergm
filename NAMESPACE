@@ -143,9 +143,7 @@ export(
   fix.curved,
   fix.curved.ergm,                 
   fix.curved.formula,
-  get.free.dyads,                  
   # get.InitErgm.fname,  made internal
-  get.miss.dyads,                  
   get.node.attr,
   gof,                             
   gof.default,
@@ -159,7 +157,7 @@ export(
   is.durational.formula,           
   is.durational.NULL,
   is.dyad.independent,             
-  is.dyad.independent.conlist,
+  is.dyad.independent.ergm_conlist,
   is.dyad.independent.ergm,        
   is.dyad.independent.ergm.model,
   is.dyad.independent.formula,     
@@ -205,7 +203,7 @@ export(
   MHproposal.MHproposal,
   MHproposal.NULL,                 
   #midarrow,  proposed delete
-  #mk.conlist,         made internal                 
+  #ergm_conlist,         made internal                 
   #mk.edge.to.pos.lasttoggle.f,   made internal
   # model.matrix.pen.glm,               made internal 
   # model.transform.formula,   made internal
@@ -229,7 +227,7 @@ export(
   print.gofobject,                 
   print.network.list,
   print.summary.ergm,              
-  #prune.conlist,     # made internal
+  #prune.ergm_conlist,     # made internal
   rank_test.ergm,
   remove.offset.formula,           
   robust.inverse, # deprecated
@@ -330,7 +328,7 @@ S3method(is.durational,ergm.model)
 S3method(is.durational,formula)
 
 S3method(is.dyad.independent,NULL)
-S3method(is.dyad.independent,conlist) 
+S3method(is.dyad.independent,ergm_conlist) 
 S3method(is.dyad.independent,ergm)
 S3method(is.dyad.independent,ergm.model)
 S3method(is.dyad.independent,formula)
@@ -391,3 +389,21 @@ S3method(summary,statsmatrix.ergm)
 S3method(vcov,ergm)
 
 S3method(degreedist,network)
+
+export(rlebdm, as.rlebdm)
+S3method(as.rlebdm,matrix)
+S3method(as.rlebdm,edgelist)
+S3method(as.edgelist,rlebdm)
+S3method(as.rlebdm,ergm_conlist)
+S3method(as.rlebdm,NULL)
+S3method(as.matrix,rlebdm)
+S3method(print,rlebdm)
+S3method("!",rlebdm)
+S3method("&",rlebdm)
+S3method("|",rlebdm)
+S3method("<",rlebdm)
+S3method(">",rlebdm)
+S3method("<=",rlebdm)
+S3method(">=",rlebdm)
+S3method("==",rlebdm)
+S3method("!=",rlebdm)
