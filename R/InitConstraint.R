@@ -73,7 +73,7 @@ InitConstraint.edges<-function(lhs.nw, ...){
 InitConstraint.degrees<-InitConstraint.nodedegrees<-function(lhs.nw, ...){
    if(length(list(...)))
      stop(paste("Vertex degrees constraint does not take arguments at this time."), call.=FALSE)
-   list(dependence = TRUE, constrains = "degrees")
+   list(dependence = TRUE, constrain = "degrees")
 }
 
 #ergm.ConstraintImplications("degrees", c("edges", "idegrees", "odegrees", "idegreedist", "odegreedist", "degreedist", "bd"))
