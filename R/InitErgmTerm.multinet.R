@@ -43,7 +43,7 @@ Networks <- function(...){
       if(NVL(nwl[[1]]%n%"constraints",~.)==~.)
         ~blockdiag(".NetworkID")
       else
-        append.rhs.formula(nwl[[1]]%n%"constraints", alist(blockdiag(".NetworkBlocks")), TRUE)
+        append.rhs.formula(nwl[[1]]%n%"constraints", alist(blockdiag(".NetworkID")), TRUE)
   if("obs.constraints" %in% list.network.attributes(nwl[[1]])) nw %n% "obs.constraints" <- nwl[[1]]%n%"obs.constraints"
 
   nw
