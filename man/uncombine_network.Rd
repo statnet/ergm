@@ -5,7 +5,7 @@
 \title{Split up a network into a list of subgraphs}
 \usage{
 uncombine_network(nw, ignore.nattr = c("bipartite", "directed", "hyper",
-  "loops", "mnext", "multiple", "n"), ignore.vattr = c(),
+  "loops", "mnext", "multiple", "n", ".subnetcache"), ignore.vattr = c(),
   ignore.eattr = c(), split.vattr = ".NetworkID", names.vattr = NULL)
 }
 \arguments{

@@ -5,10 +5,10 @@
 \title{A single block-diagonal network created by combining multiple networks}
 \usage{
 combine_networks(nwl, ignore.nattr = c("bipartite", "directed", "hyper",
-  "loops", "mnext", "multiple", "n"), ignore.vattr = c(),
+  "loops", "mnext", "multiple", "n", ".subnetcache"), ignore.vattr = c(),
   ignore.eattr = c(), blockID.vattr = ".NetworkID",
   blockName.vattr = NULL, detect.edgecov = FALSE, standardized = FALSE,
-  keep.unshared.attr = FALSE)
+  keep.unshared.attr = FALSE, subnet.cache = FALSE)
 }
 \arguments{
 \item{nwl}{a list of \code{\link[network:network]{network::network}}s to be combined; they
@@ -39,6 +39,12 @@ and edge attributes not shared by all networks in the list; if
 \code{TRUE}, positions corresponding to networks lacking the
 attribute are replaced with \code{NA}, \code{NULL}, or some other
 placeholder; incompatible with \code{detect.edgecov==TRUE}.}
+
+\item{subnet.cache}{whether to save the input network list as an
+attribute of the combined network, so that if the network is
+resplit using on the same attribute (e.g. using
+\code{\link[=uncombine_networks]{uncombine_networks()}}), an expensive call to \code{\link[=split.network]{split.network()}}
+can be avoided, at the cost of storage.}
 }
 \value{
 a \code{\link[network:network]{network::network}} with a block-diagonal structure (or
