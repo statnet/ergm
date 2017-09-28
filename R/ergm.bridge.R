@@ -36,7 +36,7 @@ ergm.bridge.preproc<-function(object, basis, response){
 ## a formula `object', using `nsteps' MCMC samples. If llronly==TRUE,
 ## returns only the estimate. Otherwise, returns a list with more
 ## details. Other parameters are same as simulate.ergm.
-ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constraints=~., from, to, obs.constraints=~observed, target.stats=NULL, basis=NULL, verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){
+ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constraints=~., from, to, obs.constraints=~-observed, target.stats=NULL, basis=NULL, verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){
   check.control.class("ergm.bridge", "ergm.bridge.llr")
   control.toplevel(..., myname="ergm.bridge")
 
@@ -144,7 +144,7 @@ ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, .
 ## model whose likelihood is being evaluated, but don't have to.
 ## `dind' defaults to the dyad-independent terms of the `object'
 ## formula with an edges term added unless redundant.
-ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef, obs.constraints=~observed, target.stats=NULL, dind=NULL, coef.dind=NULL,  basis=NULL, ..., llkonly=TRUE, control=control.ergm.bridge()){
+ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef, obs.constraints=~-observed, target.stats=NULL, dind=NULL, coef.dind=NULL,  basis=NULL, ..., llkonly=TRUE, control=control.ergm.bridge()){
   check.control.class("ergm.bridge", "ergm.bridge.dindstart.llk")
   control.toplevel(...,myname="ergm.bridge")
 

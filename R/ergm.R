@@ -114,7 +114,7 @@
 ergm <- function(formula, response=NULL,
                  reference=~Bernoulli,
                  constraints=~.,
-                 obs.constraints=~observed,
+                 obs.constraints=~-observed,
                  offset.coef=NULL,
                  target.stats=NULL,
                  eval.loglik=TRUE,
