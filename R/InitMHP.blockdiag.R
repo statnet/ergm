@@ -69,7 +69,7 @@
 .get.blockdiag.attr <- function(nw, conlist, conpat = "^blockdiag$"){
   conlist <- conlist[grep(conpat, names(conlist))]
   a <- sapply(conlist, `[[`, "attrname")
-  aa <- lapply(a, get.vertex.attribute, x=nw)
+  aa <- lapply(a, function(b) paste(get.vertex.attribute(nw, b, unlist=FALSE)))
   do.call(paste, c(aa, list(sep="\t")))
 }
 
