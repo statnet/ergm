@@ -80,11 +80,10 @@ U_CHANGESTAT_FN(u_MultiNet){
   GET_AUX_STORAGE(StoreSubnets, sn);
   GET_STORAGE(Model*, ms);
 
-  for(unsigned int i=1; i<=sn->ns; i++){
-    Vertex st = MN_IO_TAIL(sn, tail), sh = MN_IO_HEAD(sn, head);
-    Model *m = ms[i-1];
-    UPDATE_STORAGE(st, sh, sn->onwp + i, m, NULL);
-  }
+  unsigned int i = MN_SID_TAIL(sn, tail);
+  Vertex st = MN_IO_TAIL(sn, tail), sh = MN_IO_HEAD(sn, head);
+  Model *m = ms[i-1];
+  UPDATE_STORAGE(st, sh, sn->onwp + i, m, NULL);
 }
 
 F_CHANGESTAT_FN(f_MultiNet){
