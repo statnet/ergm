@@ -93,7 +93,7 @@ Layer <- function(...){
       if(NVL(nwl[[1]]%n%"constraints",~.)==~.)
         ~blockdiag(".LayerID")
       else
-        append.rhs.formula(nwl[[1]]%n%"constraints", alist(blockdiag(".LayerBlocks")), TRUE)
+        append.rhs.formula(nwl[[1]]%n%"constraints", alist(blockdiag(".LayerID")), TRUE)
   nw %n% "constraints.obs" <- nwl[[1]]%n%"constraints.obs"
 
   nw
