@@ -421,7 +421,7 @@ uncombine_network <- function(nw, ignore.nattr=c("bipartite","directed","hyper",
 }
 
 .split_constr_network <- function(nw, split.vattr=".NetworkID", names.vattr=".NetworkName"){
-  uncombine_network(nw, split.vattr=split.vattr, names.vattr=names.vattr, ignore.nattr = c(eval(formals(uncombine_network)$ignore.nattr), "constraints", "constraints.obs"))
+  uncombine_network(nw, split.vattr=split.vattr, names.vattr=names.vattr, ignore.nattr = c(eval(formals(uncombine_network)$ignore.nattr), "constraints", "obs.constraints"))
 }
 
   #' Calculate a vector that maps the global LHS network Vertex indices within-layer Vertex and a Vertex to layer lookup table.
