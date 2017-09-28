@@ -35,16 +35,16 @@ Networks <- function(...){
 
   constraintsl <- lapply(nwl, get.network.attribute, "constraints")
   if(!all_identical(lapply(constraintsl, .unenv))) stop("Networks have differing constraint structures. This is not supported at this time.")
-  constraints.obsl <- lapply(nwl, get.network.attribute, "constraints.obs")
-  if(!all_identical(lapply(constraints.obsl, .unenv))) stop("Networks have differing observation processes. This is not supported at this time.")
+  obs.constraintsl <- lapply(nwl, get.network.attribute, "obs.constraints")
+  if(!all_identical(lapply(obs.constraintsl, .unenv))) stop("Networks have differing observation processes. This is not supported at this time.")
   
-  nw <- combine_networks(nwl, blockID.vattr=".NetworkID", blockName.vattr=".NetworkName", ignore.nattr = c(eval(formals(combine_networks)$ignore.nattr), "constraints", "constraints.obs"))
+  nw <- combine_networks(nwl, blockID.vattr=".NetworkID", blockName.vattr=".NetworkName", ignore.nattr = c(eval(formals(combine_networks)$ignore.nattr), "constraints", "obs.constraints"))
   nw %n% "constraints" <-
       if(NVL(nwl[[1]]%n%"constraints",~.)==~.)
         ~blockdiag(".NetworkID")
       else
         append.rhs.formula(nwl[[1]]%n%"constraints", alist(blockdiag(".NetworkBlocks")), TRUE)
-  nw %n% "constraints.obs" <- nwl[[1]]%n%"constraints.obs"
+  if("obs.constraints" %in% list.network.attributes(nwl[[1]])) nw %n% "obs.constraints" <- nwl[[1]]%n%"obs.constraints"
 
   nw
 }

@@ -15,7 +15,7 @@
 
 .handle.auto.constraints <- function(nw,
                                      constraints=~.,
-                                     obs.constraints=~-observed,
+                                     obs.constraints=~.-observed,
                                      target.stats=NULL) {
 
   # We have constraint information.
@@ -36,7 +36,7 @@
       if(network.naedgecount(nw)){
         warning("Target statistics specified in a network with missing dyads. Missingness will be overridden.")
         nw[as.matrix(is.na(nw),matrix.type="edgelist")] <- 0
-      }else if(obs.constraints!=~-observed){
+      }else if(obs.constraints!=~.-observed){
         cat("Target statistics specified in a network with a nontrivial observation process. Observation process will be ignored.\n")
       }
       obs.constraints <- ~.
