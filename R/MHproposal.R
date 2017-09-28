@@ -163,8 +163,8 @@ ergm_conlist <- function(object, nw){
   ## Construct a list of constraints and arguments from the formula.
   conlist<-list()
   constraints<-term.list.formula(object[[2]])
-  consigns <- c(+1,attr(constraints, "sign"))
-  constraints<-c(list(call(".attributes")),constraints)
+  consigns <- c(attr(constraints, "sign"), +1)
+  constraints<-c(constraints, list(call(".attributes")))
   for(i in seq_along(constraints)){
     constraint <- constraints[[i]]
     consign <- consigns[[i]]
