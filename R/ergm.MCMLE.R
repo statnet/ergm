@@ -76,6 +76,7 @@ ergm.MCMLE <- function(init, nw, model,
 
   control$MCMC.effectiveSize <- control$MCMLE.effectiveSize
   control$MCMC.base.samplesize <- control$MCMC.samplesize
+  control$obs.MCMC.base.samplesize <- control$obs.MCMC.samplesize
 
   nthreads <- max(
     if(inherits(control$parallel,"cluster")) nrow(summary(control$parallel))
@@ -117,6 +118,7 @@ ergm.MCMLE <- function(init, nw, model,
   
   if(obs){
     control.obs <- control
+    control.obs$MCMC.base.samplesize <- control$obs.MCMC.base.samplesize
     control.obs$MCMC.samplesize <- control$obs.MCMC.samplesize
     control.obs$MCMC.interval <- control$obs.MCMC.interval
     control.obs$MCMC.burnin <- control$obs.MCMC.burnin
@@ -288,8 +290,23 @@ ergm.MCMLE <- function(init, nw, model,
             x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit,
 	    last=(iteration==control$MCMLE.maxit))
         else control$MCMLE.steplength
+
+      # If the step length margin is operative, negative, and signals
+      # convergence, rerun with margin at 0 and use the results to
+      # test convergence.
+      steplen.converged <- 
+        control$MCMLE.steplength ==
+        if(is.null(control$MCMLE.steplength.margin,1)>=0 || steplen < control$MCMLE.steplength) steplen
+        else
+          .Hummel.steplength(
+            if(control$MCMLE.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
+            if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
+            0, control$MCMLE.steplength,steplength.prev=steplen,verbose=verbose,
+            x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit,
+	    last=(iteration==control$MCMLE.maxit))
+
       
-      if(steplen==control$MCMLE.steplength || is.null(control$MCMLE.steplength.margin) || iteration==control$MCMLE.maxit) calc.MCSE <- TRUE
+      if(steplen.converged || is.null(control$MCMLE.steplength.margin) || iteration==control$MCMLE.maxit) calc.MCSE <- TRUE
       
       statsmean <- apply(statsmatrix.0,2,base::mean)
       if(!is.null(statsmatrix.0.obs)){
@@ -335,9 +352,10 @@ ergm.MCMLE <- function(init, nw, model,
     
     # This allows premature termination.
     
-    if(steplen<control$MCMLE.steplength){ # If step length is less than its maximum, don't bother with precision stuff.
+    if(!steplen.converged){ # If step length is less than its maximum, don't bother with precision stuff.
       last.adequate <- FALSE
       control$MCMC.samplesize <- control$MCMC.base.samplesize
+      if(obs) control.obs$MCMC.samplesize <- control.obs$MCMC.base.samplesize
       
     } else {
     
@@ -362,6 +380,7 @@ ergm.MCMLE <- function(init, nw, model,
       }else{
         last.adequate <- FALSE
         prec.scl <- max(sqrt(mean(prec.loss^2, na.rm=TRUE))/control$MCMLE.MCMC.precision, 1) # Never decrease it.
+        
         if (!is.null(control$MCMC.effectiveSize)) { # ESS-based sampling
           control$MCMC.effectiveSize <- round(control$MCMC.effectiveSize * prec.scl)
           if(control$MCMC.effectiveSize/control$MCMC.samplesize>control$MCMLE.MCMC.max.ESS.frac) control$MCMC.samplesize <- control$MCMC.effectiveSize/control$MCMLE.MCMC.max.ESS.frac
@@ -371,6 +390,19 @@ ergm.MCMLE <- function(init, nw, model,
           control$MCMC.samplesize <- round(control$MCMC.samplesize * prec.scl)
           control$MCMC.burnin <- round(control$MCMC.burnin * prec.scl)
           message("Increasing MCMC sample size to ", control$MCMC.samplesize, ", burn-in to",control$MCMC.burnin,".")
+        }
+
+        if(obs){
+          if (!is.null(control$MCMC.effectiveSize)) { # ESS-based sampling
+            control$MCMC.effectiveSize <- round(control$MCMC.effectiveSize * prec.scl)
+            if(control$MCMC.effectiveSize/control.obs$MCMC.samplesize>control$MCMLE.MCMC.max.ESS.frac) control.obs$MCMC.samplesize <- control$MCMC.effectiveSize/control$MCMLE.MCMC.max.ESS.frac
+            # control$MCMC.samplesize <- round(control$MCMC.samplesize * prec.scl)
+            message("Increasing target constrained MCMC sample size to ", control.obs$MCMC.samplesize, ", ESS to",control$MCMC.effectiveSize,".")
+          } else { # Fixed-interval sampling
+            control.obs$MCMC.samplesize <- round(control.obs$MCMC.samplesize * prec.scl)
+            control.obs$MCMC.burnin <- round(control.obs$MCMC.burnin * prec.scl)
+            message("Increasing constrained MCMC sample size to ", control.obs$MCMC.samplesize, ", burn-in to",control.obs$MCMC.burnin,".")
+          }
         }
       }
     }else if(control$MCMLE.termination=='Hotelling'){
@@ -388,7 +420,7 @@ ergm.MCMLE <- function(init, nw, model,
         message("Step length converged once. Increasing MCMC sample size.")
         last.adequate <- TRUE
         control$MCMC.samplesize <- control$MCMC.base.samplesize * control$MCMLE.last.boost
-        if(obs) control.obs$MCMC.samplesize <- control.obs$MCMC.base.samplesize * control.obs$MCMLE.last.boost
+        if(obs) control.obs$MCMC.samplesize <- control.obs$MCMC.base.samplesize * control$MCMLE.last.boost
       }
     }
     
