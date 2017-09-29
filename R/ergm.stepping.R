@@ -275,7 +275,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   ## Here, if x2 is defined, check against every point in it, without
   ## the margin and against its centroid m2 with the
   ## margin. Otherwise, just check against m2 with the margin.
-  passed <- function(gamma){is.inCH(rbind(if(!is.null(x2)) t(gamma * t(x2crs)  + (1-margin*gamma)*c(m1crs)),
+  passed <- function(gamma){is.inCH(rbind(if(!is.null(x2)) t(gamma * t(x2crs)  + (1-gamma)*c(m1crs)),
                                           margin*gamma * m2crs  + (1-margin*gamma)*m1crs),
                                     x1crs, verbose=verbose)}
 
