@@ -281,31 +281,41 @@ ergm.MCMLE <- function(init, nw, model,
       steplen <- adaptive.steplength
     }else{
       if(verbose){message("Starting MCMLE Optimization...")}
-      steplen <-
-        if(!is.null(control$MCMLE.steplength.margin))
-          .Hummel.steplength(
-            if(control$MCMLE.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
-            if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
-            control$MCMLE.steplength.margin, control$MCMLE.steplength,steplength.prev=steplen,verbose=verbose,
-            x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit,
-	    last=(iteration==control$MCMLE.maxit))
-        else control$MCMLE.steplength
-
-      # If the step length margin is operative, negative, and signals
-      # convergence, rerun with margin at 0 and use the results to
-      # test convergence.
-      steplen.converged <- 
-        control$MCMLE.steplength ==
-        if(is.null(control$MCMLE.steplength.margin) || control$MCMLE.steplength.margin>=0 || steplen < control$MCMLE.steplength) steplen
-        else
-          .Hummel.steplength(
-            if(control$MCMLE.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
-            if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
-            0, control$MCMLE.steplength,steplength.prev=steplen,verbose=verbose,
-            x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit,
-	    last=(iteration==control$MCMLE.maxit))
-
       
+      if(!is.null(control$MCMLE.steplength.margin)){
+        steplen <- .Hummel.steplength(
+          if(control$MCMLE.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
+          if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
+          control$MCMLE.steplength.margin, control$MCMLE.steplength,steplength.prev=steplen,verbose=verbose,
+          x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit,
+          last=(iteration==control$MCMLE.maxit))
+      
+        # If the step length margin is negative and signals convergence,
+        # rerun with margin of 0 and use the results to test
+        # convergence.
+        steplen0 <-
+          if(control$MCMLE.steplength.margin<0 && control$MCMLE.steplength==steplen)
+            .Hummel.steplength(
+              if(control$MCMLE.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
+              if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
+              0, control$MCMLE.steplength,steplength.prev=steplen,verbose=verbose,
+              x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit,
+              last=(iteration==control$MCMLE.maxit))
+          else steplen
+        
+        steplen.converged <- control$MCMLE.steplength==steplen0
+        
+        
+      }else{
+        steplen <- control$MCMLE.steplength
+        steplen.converged <- TRUE
+      }
+
+      message("Optimizing with step length ",steplen,".")
+      if(control$MCMLE.steplength==steplen && !steplen.converged)
+        message("Note that convergence diagnostic step length is ",steplen0,".")
+      
+        
       if(steplen.converged || is.null(control$MCMLE.steplength.margin) || iteration==control$MCMLE.maxit) calc.MCSE <- TRUE
       
       statsmean <- apply(statsmatrix.0,2,base::mean)
@@ -316,7 +326,6 @@ ergm.MCMLE <- function(init, nw, model,
       }
       steplen.hist <- c(steplen.hist, steplen)
       
-      message("Optimizing with step length ",steplen,".")
       # Use estimateonly=TRUE if this is not the last iteration.
       v<-ergm.estimate(init=mcmc.init, model=model,
                        statsmatrix=statsmatrix, 
