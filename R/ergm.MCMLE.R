@@ -75,6 +75,7 @@ ergm.MCMLE <- function(init, nw, model,
   if(control$MCMLE.steplength=="adaptive") steplen <- 1
 
   control$MCMC.effectiveSize <- control$MCMLE.effectiveSize
+  control$MCMC.base.effectiveSize <- control$MCMLE.effectiveSize
   control$MCMC.base.samplesize <- control$MCMC.samplesize
   control$obs.MCMC.base.samplesize <- control$obs.MCMC.samplesize
 
@@ -364,8 +365,11 @@ ergm.MCMLE <- function(init, nw, model,
     if(!steplen.converged){ # If step length is less than its maximum, don't bother with precision stuff.
       last.adequate <- FALSE
       control$MCMC.samplesize <- control$MCMC.base.samplesize
-      if(obs) control.obs$MCMC.samplesize <- control.obs$MCMC.base.samplesize
-      
+      control$MCMC.effectiveSize <- control$MCMC.base.effectiveSize
+      if(obs){
+        control.obs$MCMC.samplesize <- control.obs$MCMC.base.samplesize
+        control.obs$MCMC.effectiveSize <- control.obs$MCMC.base.effectiveSize
+      }
     } else {
     
     if(control$MCMLE.termination == "precision"){
@@ -402,11 +406,11 @@ ergm.MCMLE <- function(init, nw, model,
         }
 
         if(obs){
-          if (!is.null(control$MCMC.effectiveSize)) { # ESS-based sampling
-            control$MCMC.effectiveSize <- round(control$MCMC.effectiveSize * prec.scl)
-            if(control$MCMC.effectiveSize/control.obs$MCMC.samplesize>control$MCMLE.MCMC.max.ESS.frac) control.obs$MCMC.samplesize <- control$MCMC.effectiveSize/control$MCMLE.MCMC.max.ESS.frac
+          if (!is.null(control.obs$MCMC.effectiveSize)) { # ESS-based sampling
+            control.obs$MCMC.effectiveSize <- round(control.obs$MCMC.effectiveSize * prec.scl)
+            if(control.obs$MCMC.effectiveSize/control.obs$MCMC.samplesize>control.obs$MCMLE.MCMC.max.ESS.frac) control.obs$MCMC.samplesize <- control.obs$MCMC.effectiveSize/control.obs$MCMLE.MCMC.max.ESS.frac
             # control$MCMC.samplesize <- round(control$MCMC.samplesize * prec.scl)
-            message("Increasing target constrained MCMC sample size to ", control.obs$MCMC.samplesize, ", ESS to",control$MCMC.effectiveSize,".")
+            message("Increasing target constrained MCMC sample size to ", control.obs$MCMC.samplesize, ", ESS to",control.obs$MCMC.effectiveSize,".")
           } else { # Fixed-interval sampling
             control.obs$MCMC.samplesize <- round(control.obs$MCMC.samplesize * prec.scl)
             control.obs$MCMC.burnin <- round(control.obs$MCMC.burnin * prec.scl)
@@ -429,7 +433,11 @@ ergm.MCMLE <- function(init, nw, model,
         message("Step length converged once. Increasing MCMC sample size.")
         last.adequate <- TRUE
         control$MCMC.samplesize <- control$MCMC.base.samplesize * control$MCMLE.last.boost
-        if(obs) control.obs$MCMC.samplesize <- control.obs$MCMC.base.samplesize * control$MCMLE.last.boost
+        control$MCMC.effectiveSize <- control$MCMC.effectiveSize * control$MCMLE.last.boost
+        if(obs){
+          control.obs$MCMC.samplesize <- control.obs$MCMC.base.samplesize * control$MCMLE.last.boost
+          control.obs$MCMC.effectiveSize <- control.obs$MCMC.effectiveSize * control$MCMLE.last.boost
+        }
       }
     }
     
