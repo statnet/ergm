@@ -389,7 +389,7 @@ ergm.MCMLE <- function(init, nw, model,
         message("Step length converged once. Increasing MCMC sample size.")
         last.adequate <- TRUE
         control$MCMC.samplesize <- control$MCMC.base.samplesize * control$MCMLE.last.boost
-        control.obs$MCMC.samplesize <- control.obs$MCMC.base.samplesize * control.obs$MCMLE.last.boost
+        if(obs) control.obs$MCMC.samplesize <- control.obs$MCMC.base.samplesize * control.obs$MCMLE.last.boost
       }
     }
     
