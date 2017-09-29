@@ -16,6 +16,7 @@ d <- 0.1
 
 od <- function(nw) apply(as.matrix(nw, matrix.type="adjacency"), 1, sum)
 id <- function(nw) apply(as.matrix(nw, matrix.type="adjacency"), 2, sum)
+e <- function(nw) network.edgecount(nw)
 
 ###### Directed
 y0 <- as.network(n, density=d, directed=TRUE)
@@ -35,12 +36,22 @@ stopifnot(all(sweep(ys, 2, c(od(y0),id(y0)))==0))
 ys <- simulate(y0~sender(base=0)+receiver(base=0), constraints=~odegrees+idegrees, coef=rep(0,n*2), nsim=nsim, statsonly=TRUE)
 stopifnot(all(sweep(ys, 2, c(od(y0),id(y0)))==0))
 
+### Edges
+ys <- simulate(y0~sender(base=0)+receiver(base=0), constraints=~edges, coef=rep(0,n*2), nsim=nsim, statsonly=TRUE)
+stopifnot(all(e(y0)==rowSums(ys[,1:n])), all(e(y0)==rowSums(ys[,-(1:n)])),
+          any(sweep(ys[,1:n], 2, od(y0))!=0), any(sweep(ys[,-(1:n)], 2, id(y0))!=0)) # Edges shouldn't vary, but in- and out-degrees should.
+
 ###### Undirected
 y0 <- as.network(n, density=d, directed=FALSE)
 
 ### Degrees
 ys <- simulate(y0~sociality(base=0), constraints=~degrees, coef=rep(0,n), nsim=nsim, statsonly=TRUE)
 stopifnot(all(sweep(ys, 2, od(y0))==0))
+
+### Edges
+ys <- simulate(y0~sociality(base=0), constraints=~edges, coef=rep(0,n), nsim=nsim, statsonly=TRUE)
+stopifnot(all(e(y0)==rowSums(ys)/2),
+          any(sweep(ys, 2, od(y0))!=0)) # Edges shouldn't vary, but degrees should.
 
 ###### Bipartite undirected
 y0 <- as.network(n-m, density=d, directed=FALSE, bipartite=m)
@@ -59,3 +70,8 @@ stopifnot(all(sweep(ys, 2, c(od(y0),id(y0)))==0))
 
 ys <- simulate(y0~sociality(base=0), constraints=~b1degrees+b2degrees, coef=rep(0,n), nsim=nsim, statsonly=TRUE)
 stopifnot(all(sweep(ys, 2, c(od(y0),id(y0)))==0))
+
+### Edges
+ys <- simulate(y0~sociality(base=0), constraints=~edges, coef=rep(0,n), nsim=nsim, statsonly=TRUE)
+stopifnot(all(e(y0)==rowSums(ys)/2),
+          any(sweep(ys, 2, c(od(y0),id(y0)))!=0)) # Edges shouldn't vary, but degrees should.
