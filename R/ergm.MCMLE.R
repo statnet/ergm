@@ -296,7 +296,7 @@ ergm.MCMLE <- function(init, nw, model,
       # test convergence.
       steplen.converged <- 
         control$MCMLE.steplength ==
-        if(is.null(control$MCMLE.steplength.margin,1)>=0 || steplen < control$MCMLE.steplength) steplen
+        if(is.null(control$MCMLE.steplength.margin) || control$MCMLE.steplength.margin>=0 || steplen < control$MCMLE.steplength) steplen
         else
           .Hummel.steplength(
             if(control$MCMLE.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
