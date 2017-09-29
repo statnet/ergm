@@ -31,4 +31,11 @@ of constraints.
 In both arguments and return values, \code{NULL} is treated as a
 placeholder for no constraint (i.e., a constant matrix of
 \code{TRUE}).
+
+Each element in the constraint list has a sign, which
+determins whether the constraint further restricts (for \code{+}) or
+potentially relaxes restriction (for \code{-}).
+}
+\seealso{
+\link{ergm-constraints}
 }

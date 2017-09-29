@@ -109,7 +109,6 @@ ergm.CD.fixed <- function(init, nw, model,
     control.obs$MCMC.samplesize <- control$obs.MCMC.samplesize
     control.obs$MCMC.interval <- control$obs.MCMC.interval
     control.obs$MCMC.burnin <- control$obs.MCMC.burnin
-    control.obs$MCMC.burnin.min <- control$obs.MCMC.burnin.min
 
     nws.obs <- lapply(nws, network.copy)
     statshifts.obs <- statshifts
