@@ -85,7 +85,7 @@ ergm.mapl <- function(formula, init="MPLE",
             constraints=~., #constraints=constraints,
             proposaltype=proposaltype,
             tau=tau, invcov=invcov, burnin=10*burnin, verbose=verbose)
-    if(verbose){.message_print(summary(formula, basis=nw)-target.stats)}
+    if(verbose){message_print(summary(formula, basis=nw)-target.stats)}
   }
   
   Clist.initial <- ergm.Cprepare(nw, model.initial)
@@ -119,8 +119,8 @@ ergm.mapl <- function(formula, init="MPLE",
                proposaltype=proposaltype,
                tau=tau, invcov=invcov, burnin=burnin, 
                constraints=constraints, basis=sim)
-    if(verbose){.message_print(summary(formula, basis=sim)-target.stats)}
-    if(verbose){.message_print(sum(sim[,] != nw[,]))}
+    if(verbose){message_print(summary(formula, basis=sim)-target.stats)}
+    if(verbose){message_print(sum(sim[,] != nw[,]))}
     Clist.initial <- ergm.Cprepare(sim, model.initial)
     fd.initial <- ergm.design(sim, verbose=verbose)
     Clist.initial$target.stats=target.stats

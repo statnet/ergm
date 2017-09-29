@@ -169,7 +169,7 @@
       convert to the corresponding edgelist.
     }
 
-    \item{\code{egocentric(attrname = NULL, direction = c("both","out","in"))}}{
+    \item{\code{egocentric(attrname = NULL, direction = c("both","out","in"))} (dyad-independent)}{
       Preserve values of dyads incident on vertices with attribute
       \code{attrname} being \code{TRUE} or if \code{attrname} is
       \code{NULL}, the vertex attribute \code{"na"} being `FALSE`. For

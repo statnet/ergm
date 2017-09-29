@@ -143,7 +143,7 @@ ergm.degeneracy <- function(object,
     }
   }
   if(verbose){
-    .message_print(object$degeneracy.type)
+    message_print(object$degeneracy.type)
   }
   return(invisible(object))
 }

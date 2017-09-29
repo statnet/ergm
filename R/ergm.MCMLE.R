@@ -65,7 +65,7 @@ ergm.MCMLE <- function(init, nw, model,
                              sequential=control$MCMLE.sequential,
                              estimate=TRUE,
                              response=NULL, ...) {
-  message("Starting maximum likelihood estimation via MCMLE:")
+  message("Starting Monte Carlo maximum likelihood estimation (MCMLE):")
   # Initialize the history of parameters and statistics.
   coef.hist <- rbind(init)
   stats.hist <- matrix(NA, 0, length(model$nw.stats))
@@ -120,7 +120,6 @@ ergm.MCMLE <- function(init, nw, model,
     control.obs$MCMC.samplesize <- control$obs.MCMC.samplesize
     control.obs$MCMC.interval <- control$obs.MCMC.interval
     control.obs$MCMC.burnin <- control$obs.MCMC.burnin
-    control.obs$MCMC.burnin.min <- control$obs.MCMC.burnin.min
 
     nws.obs <- lapply(nws, network::network.copy)
     statshifts.obs <- statshifts
@@ -135,7 +134,7 @@ ergm.MCMLE <- function(init, nw, model,
     if(verbose){
       message("\nIteration ",iteration," of at most ", control$MCMLE.maxit,
           " with parameter:")
-      .message_print(mcmc.init)
+      message_print(mcmc.init)
     }else{
       message("Iteration ",iteration," of at most ", control$MCMLE.maxit,":")
     }
@@ -159,7 +158,7 @@ ergm.MCMLE <- function(init, nw, model,
     
     if(verbose){
       message("Back from unconstrained MCMC. Average statistics:")
-      .message_print(apply(statsmatrix, 2, base::mean))
+      message_print(apply(statsmatrix, 2, base::mean))
     }
     
     ##  Does the same, if observation process:
@@ -175,7 +174,7 @@ ergm.MCMLE <- function(init, nw, model,
       
       if(verbose){
         message("Back from constrained MCMC. Average statistics:")
-        .message_print(apply(statsmatrix.obs, 2, base::mean))
+        message_print(apply(statsmatrix.obs, 2, base::mean))
       }
     }else{
       statsmatrices.obs <- statsmatrix.obs <- NULL
@@ -215,7 +214,7 @@ ergm.MCMLE <- function(init, nw, model,
     # These are only nontrivial when the model is curved or when there are missing data.
     if(verbose && (is.curved(model)||obs)){
       message("Average estimating equation values:")
-      .message_print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else colMeans(esteq))
+      message_print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else colMeans(esteq))
     }
 
     if(!estimate){
@@ -346,11 +345,11 @@ ergm.MCMLE <- function(init, nw, model,
       prec.loss <- (sqrt(diag(v$mc.cov+v$covar))-sqrt(diag(v$covar)))/sqrt(diag(v$mc.cov+v$covar))
       if(verbose){
         message("Standard Error:")
-        .message_print(sqrt(diag(v$covar)))
+        message_print(sqrt(diag(v$covar)))
         message("MC SE:")
-        .message_print(sqrt(diag(v$mc.cov)))
+        message_print(sqrt(diag(v$mc.cov)))
         message("Linear scale precision loss due to MC estimation of the likelihood:")
-        .message_print(prec.loss)
+        message_print(prec.loss)
       }
       if(sqrt(mean(prec.loss^2, na.rm=TRUE)) <= control$MCMLE.MCMC.precision){
         if(last.adequate){
@@ -389,6 +388,7 @@ ergm.MCMLE <- function(init, nw, model,
         message("Step length converged once. Increasing MCMC sample size.")
         last.adequate <- TRUE
         control$MCMC.samplesize <- control$MCMC.base.samplesize * control$MCMLE.last.boost
+        if(obs) control.obs$MCMC.samplesize <- control.obs$MCMC.base.samplesize * control.obs$MCMLE.last.boost
       }
     }
     
@@ -403,6 +403,8 @@ ergm.MCMLE <- function(init, nw, model,
       message("MCMLE estimation did not converge after ", control$MCMLE.maxit, " iterations. The estimated coefficients may not be accurate. Estimation may be resumed by passing the coefficients as initial values; see 'init' under ?control.ergm for details.")
     }
   } # end of main loop
+
+  message("Finished MCMLE.")
 
   # FIXME:  We should not be "tacking on" extra list items to the 
   # object returned by ergm.estimate.  Instead, it is more transparent

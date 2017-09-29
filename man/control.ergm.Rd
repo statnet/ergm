@@ -26,9 +26,13 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   parallel.version.check = parallel.version.check),
   MCMLE.termination = c("Hummel", "Hotelling", "precision", "none"),
   MCMLE.maxit = 20, MCMLE.conv.min.pval = 0.5, MCMLE.NR.maxit = 100,
-  MCMLE.NR.reltol = sqrt(.Machine$double.eps),
-  obs.MCMC.samplesize = MCMC.samplesize, obs.MCMC.interval = MCMC.interval,
-  obs.MCMC.burnin = MCMC.burnin, obs.MCMC.burnin.min = obs.MCMC.burnin/10,
+  MCMLE.NR.reltol = sqrt(.Machine$double.eps), obs.MCMC.mul = 1/4,
+  obs.MCMC.samplesize.mul = sqrt(obs.MCMC.mul),
+  obs.MCMC.samplesize = round(MCMC.samplesize * obs.MCMC.samplesize.mul),
+  obs.MCMC.interval.mul = sqrt(obs.MCMC.mul),
+  obs.MCMC.interval = round(MCMC.interval * obs.MCMC.interval.mul),
+  obs.MCMC.burnin.mul = sqrt(obs.MCMC.mul),
+  obs.MCMC.burnin = round(MCMC.burnin * obs.MCMC.burnin.mul),
   obs.MCMC.prop.weights = MCMC.prop.weights,
   obs.MCMC.prop.args = MCMC.prop.args, MCMLE.check.degeneracy = FALSE,
   MCMLE.MCMC.precision = 0.005, MCMLE.MCMC.max.ESS.frac = 0.1,
@@ -268,8 +272,21 @@ iterations and relative tolerance to use within the \code{optim} rountine in
 the MLE optimization. Note that by default, ergm uses \code{trust}, and
 falls back to \code{optim} only when \code{trust} fails.}
 
-\item{obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.burnin.min}{Sample size, burnin, and interval parameters for the MCMC sampling used when
-unobserved data are present in the estimation routine.}
+\item{obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.mul, obs.MCMC.samplesize.mul, obs.MCMC.burnin.mul, obs.MCMC.interval.mul}{Sample size, burnin, and interval parameters for the MCMC
+sampling used when unobserved data are present in the estimation
+routine. By default, they are controlled by the \code{*.mul}
+parameters, as fractions of the corresponding settings for the
+unconstrained (standard) MCMC.
+
+These can, in turn, be controlled by \code{obs.MCMC.mul}, which can be
+used to set the overal multiplier for the number of MCMC steps in
+the constrained sample; one half of its effect applies to the
+burn-in and interval and the other half to the total sample
+size. For example, for \code{obs.MCMC.mul=1/4} (the default),
+\code{obs.MCMC.samplesize} is set to \eqn{\sqrt{1/4}=1/2} that of
+\code{obs.MCMC.samplesize}, and \code{obs.MCMC.burnin} and
+\code{obs.MCMC.interval} are set to \eqn{\sqrt{1/4}=1/2} of their
+respective unconstrained sampling parameters.}
 
 \item{MCMLE.check.degeneracy}{Logical: If TRUE, employ a check for model
 degeneracy.}

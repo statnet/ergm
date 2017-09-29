@@ -181,11 +181,11 @@ ergm <- function(formula, response=NULL,
         }
         if(verbose){
           message("SAN summary statistics:")
-          .message_print(nw.stats)
+          message_print(nw.stats)
           message("Meanstats Goal:")
-          .message_print(target.stats)
+          message_print(target.stats)
           message("Difference: SAN target.stats - Goal target.stats =")
-          .message_print(round(nw.stats-target.stats,0))
+          message_print(round(nw.stats-target.stats,0))
         }
         if(sum((nw.stats-target.stats)^2) <= 5) break
       }
@@ -260,7 +260,7 @@ ergm <- function(formula, response=NULL,
     if (length(control$init)!=length(model$etamap$offsettheta)) {
       if(verbose){
         message("control$init =")
-        .message_print(control$init)
+        message_print(control$init)
         message("number of statistics is ",length(model$coef.names), "")
       }
       stop(paste("Invalid starting parameter vector control$init:",
@@ -420,7 +420,6 @@ ergm <- function(formula, response=NULL,
   init[is.na(init)] <- 0
   names(init) <- coef.names.model(model, FALSE)
   
-  if (verbose) message("Fitting ERGM.")
   mainfit <- switch(control$main.method,
                     "Robbins-Monro" = ergm.robmon(init, nw, model, 
                                                   MHproposal=MHproposal, verbose=verbose, control=control),

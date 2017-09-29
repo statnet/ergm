@@ -109,7 +109,6 @@ ergm.CD.fixed <- function(init, nw, model,
     control.obs$MCMC.samplesize <- control$obs.MCMC.samplesize
     control.obs$MCMC.interval <- control$obs.MCMC.interval
     control.obs$MCMC.burnin <- control$obs.MCMC.burnin
-    control.obs$MCMC.burnin.min <- control$obs.MCMC.burnin.min
 
     nws.obs <- lapply(nws, network.copy)
     statshifts.obs <- statshifts
@@ -124,7 +123,7 @@ ergm.CD.fixed <- function(init, nw, model,
     if(verbose){
       message("Iteration ",iteration," of at most ", control$CD.maxit,
           " with parameter: ")
-      .message_print(mcmc.init)
+      message_print(mcmc.init)
     }else{
       message("Iteration ",iteration," of at most ", control$CD.maxit,": ")
     }
@@ -145,7 +144,7 @@ ergm.CD.fixed <- function(init, nw, model,
     
     if(verbose){
       message("Back from unconstrained CD. Average statistics:")
-      .message_print(apply(statsmatrix, 2, mean))
+      message_print(apply(statsmatrix, 2, mean))
     }
     
     ##  Does the same, if observation process:
@@ -158,7 +157,7 @@ ergm.CD.fixed <- function(init, nw, model,
       
       if(verbose){
         message("Back from constrained MCMC. Average statistics:")
-        .message_print(apply(statsmatrix.obs, 2, mean))
+        message_print(apply(statsmatrix.obs, 2, mean))
       }
     }else{
       statsmatrices.obs <- statsmatrix.obs <- NULL
@@ -177,7 +176,7 @@ ergm.CD.fixed <- function(init, nw, model,
     # on whether the estimation is getting better..
     if(verbose){
       message("Average estimating equation values:")
-      .message_print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else colMeans(esteq))
+      message_print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else colMeans(esteq))
     }
     message("Convergence test P-value:",format(conv.pval, scientific=TRUE,digits=2),"")
     if(conv.pval>control$CD.conv.min.pval){
