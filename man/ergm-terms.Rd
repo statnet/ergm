@@ -8,6 +8,7 @@
 \alias{B}
 \alias{F}
 \alias{L}
+\alias{N}
 \alias{NodematchFilter}
 \alias{absdiff}
 \alias{absdiffcat}
@@ -423,6 +424,20 @@ network
     corresponding statistics for each layer specification is summed
     up. A dot (\code{.}) stands for summing all layers.
   }
+
+  \item{\code{N(formula, weight=NULL, wname=NULL)} (binary) (operator)}{\emph{Evaluation on multiple networks}:
+    Evaluates the terms in \code{formula} on each of the networks joined
+    using \code{\link{Networks}} function, and sums the results, optionally weighted
+    by \code{weight} (if given). \code{weight} argument can be a
+    string giving the name of the network attribute found on each of the
+    constituent networks, a numeric vector having the same length as the
+    number of constituent networks, or a function that will be evaluated
+    on each of the networks to produce the weights. \code{wname} can be
+    used to provide a name for the weighting scheme in the coefficient
+    name.  
+  }
+
+  
   
   \item{\code{NodematchFilter(formula, attrname)} (binary) (operator)}{\emph{Filtering on \code{\link{nodematch}}}:
     evaluates the terms specified in \code{formula} on a network

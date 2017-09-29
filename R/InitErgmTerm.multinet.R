@@ -18,11 +18,11 @@
 #'
 #' # Method 1: list of networks
 #' monks <- Networks(list(samplk1, samplk2))
-#' ergm(monks ~ edges)
+#' ergm(monks ~ N(~edges))
 #'
 #' # Method 2: networks as arguments
 #' monks <- Networks(list(samplk1, samplk2))
-#' ergm(monks ~ edges)
+#' ergm(monks ~ N(~edges))
 #' 
 #' @export
 Networks <- function(...){
