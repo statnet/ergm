@@ -335,7 +335,3 @@ single.impute.dyads <- function(nw, response=NULL){
   list(value = val, warnings = myWarnings, error=myError)
 } 
 
-# TODO: Move to statnet.common for the next statnet.common release.
-.message_print <- function(...){
-  message(paste(capture.output(print(...)),collapse="\n"))
-}

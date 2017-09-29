@@ -135,7 +135,7 @@ ergm.MCMLE <- function(init, nw, model,
     if(verbose){
       message("\nIteration ",iteration," of at most ", control$MCMLE.maxit,
           " with parameter:")
-      .message_print(mcmc.init)
+      message_print(mcmc.init)
     }else{
       message("Iteration ",iteration," of at most ", control$MCMLE.maxit,":")
     }
@@ -159,7 +159,7 @@ ergm.MCMLE <- function(init, nw, model,
     
     if(verbose){
       message("Back from unconstrained MCMC. Average statistics:")
-      .message_print(apply(statsmatrix, 2, base::mean))
+      message_print(apply(statsmatrix, 2, base::mean))
     }
     
     ##  Does the same, if observation process:
@@ -175,7 +175,7 @@ ergm.MCMLE <- function(init, nw, model,
       
       if(verbose){
         message("Back from constrained MCMC. Average statistics:")
-        .message_print(apply(statsmatrix.obs, 2, base::mean))
+        message_print(apply(statsmatrix.obs, 2, base::mean))
       }
     }else{
       statsmatrices.obs <- statsmatrix.obs <- NULL
@@ -215,7 +215,7 @@ ergm.MCMLE <- function(init, nw, model,
     # These are only nontrivial when the model is curved or when there are missing data.
     if(verbose && (is.curved(model)||obs)){
       message("Average estimating equation values:")
-      .message_print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else colMeans(esteq))
+      message_print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else colMeans(esteq))
     }
 
     if(!estimate){
@@ -346,11 +346,11 @@ ergm.MCMLE <- function(init, nw, model,
       prec.loss <- (sqrt(diag(v$mc.cov+v$covar))-sqrt(diag(v$covar)))/sqrt(diag(v$mc.cov+v$covar))
       if(verbose){
         message("Standard Error:")
-        .message_print(sqrt(diag(v$covar)))
+        message_print(sqrt(diag(v$covar)))
         message("MC SE:")
-        .message_print(sqrt(diag(v$mc.cov)))
+        message_print(sqrt(diag(v$mc.cov)))
         message("Linear scale precision loss due to MC estimation of the likelihood:")
-        .message_print(prec.loss)
+        message_print(prec.loss)
       }
       if(sqrt(mean(prec.loss^2, na.rm=TRUE)) <= control$MCMLE.MCMC.precision){
         if(last.adequate){

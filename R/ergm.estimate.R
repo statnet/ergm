@@ -249,9 +249,9 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
       grad<-gradientfn(trustregion=trustregion, ...)
       hess<-Hessianfn(...)
       hess[upper.tri(hess)]<-t(hess)[upper.tri(hess)]
-#      .message_print(value)
-#      .message_print(grad)
-#      .message_print(hess)
+#      message_print(value)
+#      message_print(grad)
+#      message_print(hess)
       list(value=value,gradient=as.vector(grad),hessian=hess)
     }
 

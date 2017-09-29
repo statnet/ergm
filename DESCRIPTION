@@ -1,5 +1,5 @@
 Package: ergm
-Version: 3.9.0-3370
+Version: 3.9.0-3371
 Date: 2017-09-29
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
@@ -12,7 +12,7 @@ Authors@R: c(
            person("Li","Wang",role=c("ctb"),email="lxwang@gmail.com"),
            person("Kirk","Li",role=c("ctb"),email="kirkli@uw.edu"),
 	   person("Skye", "Bender-deMoll", role=c("ctb"), email="skyebend@uw.edu"))
-Depends: statnet.common (>= 4.0.0), network (>= 1.13)
+Depends: statnet.common (>= 4.1.0), network (>= 1.13)
 Imports: robustbase (>= 0.9-10), coda (>= 0.18-1), trust, Matrix, lpSolve, parallel, methods, MASS
 Suggests: lattice, latticeExtra, sna, latentnet, rmarkdown, knitr, ergm.userterms, tergm, Rmpi
 BugReports: https://github.com/statnet/ergm/issues

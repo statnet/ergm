@@ -75,7 +75,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
     message("Iteration #",iter, ". ",appendLF=FALSE)
     if (verbose) {
       message("Current canonical parameter:")
-      .message_print(eta[[iter]])
+      message_print(eta[[iter]])
     }
     while (hi-lo>1 || hi > gamm) {
       gamm<-ceiling((hi+lo)/2)
@@ -297,7 +297,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
    i <- i+1
 #  out <- c(i,g,low,high,z)
 #  names(out) <- c("iters","est","low","high","z")
-#  .message_print(out)
+#  message_print(out)
    if(verbose>1) message(sprintf("iter= %d, est=%f, low=%f, high=%f, test=%d.",i,g,low,high,z))
   }
   g
