@@ -202,7 +202,7 @@ ergm <- function(formula, response=NULL,
     if (network.edgecount(nw) == 0) warning("Network is empty and no target stats are specified.")
   }
   
-  if (verbose) message("Initializing Metropolis-Hastings proposal(s):",appendLF=FALSE) 
+  if (verbose) message("Initializing Metropolis-Hastings proposal(s):")
   
   MHproposal <- MHproposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
   if (verbose) message(" Unconstrained ",MHproposal$pkgname,":MH_",MHproposal$name, " ", appendLF=FALSE)
