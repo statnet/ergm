@@ -65,7 +65,7 @@ ergm.MCMLE <- function(init, nw, model,
                              sequential=control$MCMLE.sequential,
                              estimate=TRUE,
                              response=NULL, ...) {
-  message("Starting maximum likelihood estimation via MCMLE:")
+  message("Starting Monte Carlo maximum likelihood estimation (MCMLE):")
   # Initialize the history of parameters and statistics.
   coef.hist <- rbind(init)
   stats.hist <- matrix(NA, 0, length(model$nw.stats))
@@ -404,6 +404,8 @@ ergm.MCMLE <- function(init, nw, model,
       message("MCMLE estimation did not converge after ", control$MCMLE.maxit, " iterations. The estimated coefficients may not be accurate. Estimation may be resumed by passing the coefficients as initial values; see 'init' under ?control.ergm for details.")
     }
   } # end of main loop
+
+  message("Finished MCMLE.")
 
   # FIXME:  We should not be "tacking on" extra list items to the 
   # object returned by ergm.estimate.  Instead, it is more transparent

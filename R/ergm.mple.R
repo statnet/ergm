@@ -57,12 +57,15 @@ ergm.mple<-function(Clist, fd, m, init=NULL,
 		    control=NULL, MHproposal=NULL,
                     verbose=FALSE,
                     ...) {
+  message("Starting maximum pseudolikelihood estimation (MPLE):")
+  message("Evaluating the predictor and response matrix.")
   pl <- ergm.pl(Clist=Clist, fd=fd, m=m,
                 theta.offset=init,
                 maxMPLEsamplesize=maxMPLEsamplesize,
 		control=control, MHproposal=MHproposal,
                 verbose=verbose)
 
+  message("Maximizing the pseudolikelihood.")
   if(MPLEtype=="penalized"){
    if(verbose) message("Using penalized MPLE.")
    mplefit <- ergm.pen.glm(
@@ -257,7 +260,7 @@ ergm.mple<-function(Clist, fd, m, init=NULL,
     glm <- NULL
     glm.null <- NULL
   }
-
+  message("Finished MPLE.")
   # Output results as ergm-class object
   structure(list(coef=theta,
       iterations=iteration, 

@@ -365,6 +365,7 @@ ergm <- function(formula, response=NULL,
                                 ...)
   
   if (!MCMCflag){ # Just return initial (non-MLE) fit and exit.
+    message("Stopping at the initial estimate.")
     initialfit$offset <- model.initial$etamap$offsettheta
     initialfit$drop <- if(control$drop) extremecheck$extremeval.theta
     initialfit$estimable <- constrcheck$estimable
@@ -433,7 +434,6 @@ ergm <- function(formula, response=NULL,
   model$nw.stats <- summary(model$formula, response=response)
   model$target.stats <- if(!is.null(target.stats)) target.stats else model$nw.stats
   
-  if (verbose) message("Fitting ERGM.")
   mainfit <- switch(control$main.method,
                     "Robbins-Monro" = ergm.robmon(init, nw, model, 
                                                   MHproposal=MHproposal, verbose=verbose, control=control),
