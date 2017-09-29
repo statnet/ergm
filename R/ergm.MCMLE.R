@@ -288,8 +288,23 @@ ergm.MCMLE <- function(init, nw, model,
             x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit,
 	    last=(iteration==control$MCMLE.maxit))
         else control$MCMLE.steplength
+
+      # If the step length margin is operative, negative, and signals
+      # convergence, rerun with margin at 0 and use the results to
+      # test convergence.
+      steplen.converged <- 
+        control$MCMLE.steplength ==
+        if(is.null(control$MCMLE.steplength.margin,1)>=0 || steplen < control$MCMLE.steplength) steplen
+        else
+          .Hummel.steplength(
+            if(control$MCMLE.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
+            if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
+            0, control$MCMLE.steplength,steplength.prev=steplen,verbose=verbose,
+            x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit,
+	    last=(iteration==control$MCMLE.maxit))
+
       
-      if(steplen==control$MCMLE.steplength || is.null(control$MCMLE.steplength.margin) || iteration==control$MCMLE.maxit) calc.MCSE <- TRUE
+      if(steplen.converged || is.null(control$MCMLE.steplength.margin) || iteration==control$MCMLE.maxit) calc.MCSE <- TRUE
       
       statsmean <- apply(statsmatrix.0,2,base::mean)
       if(!is.null(statsmatrix.0.obs)){
@@ -335,7 +350,7 @@ ergm.MCMLE <- function(init, nw, model,
     
     # This allows premature termination.
     
-    if(steplen<control$MCMLE.steplength){ # If step length is less than its maximum, don't bother with precision stuff.
+    if(!steplen.converged){ # If step length is less than its maximum, don't bother with precision stuff.
       last.adequate <- FALSE
       control$MCMC.samplesize <- control$MCMC.base.samplesize
       
