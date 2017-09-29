@@ -75,6 +75,7 @@ ergm.MCMLE <- function(init, nw, model,
   if(control$MCMLE.steplength=="adaptive") steplen <- 1
 
   control$MCMC.effectiveSize <- control$MCMLE.effectiveSize
+  control$MCMC.base.effectiveSize <- control$MCMLE.effectiveSize
   control$MCMC.base.samplesize <- control$MCMC.samplesize
   control$obs.MCMC.base.samplesize <- control$obs.MCMC.samplesize
 
@@ -364,6 +365,7 @@ ergm.MCMLE <- function(init, nw, model,
     if(!steplen.converged){ # If step length is less than its maximum, don't bother with precision stuff.
       last.adequate <- FALSE
       control$MCMC.samplesize <- control$MCMC.base.samplesize
+      control$MCMC.effectiveSize <- control$MCMC.base.effectiveSize
       if(obs) control.obs$MCMC.samplesize <- control.obs$MCMC.base.samplesize
       
     } else {
@@ -429,6 +431,7 @@ ergm.MCMLE <- function(init, nw, model,
         message("Step length converged once. Increasing MCMC sample size.")
         last.adequate <- TRUE
         control$MCMC.samplesize <- control$MCMC.base.samplesize * control$MCMLE.last.boost
+        control$MCMC.effectiveSize <- control$MCMC.effectiveSize * control$MCMLE.last.boost
         if(obs) control.obs$MCMC.samplesize <- control.obs$MCMC.base.samplesize * control$MCMLE.last.boost
       }
     }
