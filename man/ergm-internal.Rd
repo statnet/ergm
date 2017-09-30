@@ -71,7 +71,7 @@
 %\alias{midarrow}
 %\alias{model.matrix.pen.glm}
 
-%\alias{ergm_conlist}
+\alias{ergm_conlist}
 %\alias{myLibLoc}
 %\alias{nologLik.message}
 \alias{summary.statsmatrix.ergm}
