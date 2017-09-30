@@ -61,15 +61,15 @@ print.summary.ergm <- function (x,
            } else {
              cat("\nMaximum Pseudolikelihood Results:\n")
            },
-           MLE = if(!is.null(control$main.method)) switch(control$main.method,
+           MLE = NVL3(control$main.method, switch(.,
              MCMLE = cat("\nMonte Carlo MLE Results:\n"),
              `Stochastic-Approximation`=cat("\nMonte Carlo MLE Results:\n"),
              `Robbins-Monro`=cat("\nRobbins-Monro MLE Results:\n"),
              `Stepping`=cat("\n Stepping MLE Results:\n"),
-             stop("Unknown estimation method. This is a bug.")),
-           EGMME = if(!is.null(control$EGMME.main.method))  switch(control$EGMME.main.method,
+             stop("Unknown estimation method. This is a bug."))),
+           EGMME = NVL3(control$EGMME.main.method, switch(.,
              `Gradient-Descent`=cat("\nEquilibrium Generalized Method of Moments Results:\n"),
-             stop("Unknown estimation method. This is a bug.")),
+             stop("Unknown estimation method. This is a bug."))),
            stop("Unknown estimate type. This is a bug.")
            )
   }

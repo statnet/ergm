@@ -109,14 +109,11 @@ MHproposal.character <- function(object, arguments, nw, ..., response=NULL, refe
 
   arguments$reference <- reference
 
-  f <- locate.InitFunction(name, if(is.null(response)) "InitMHP" else "InitWtMHP", "Metropolis-Hastings proposal")
+  f <- locate.InitFunction(name, NVL2(response, "InitWtMHP", "InitMHP"), "Metropolis-Hastings proposal")
 
-  proposal <- {
-    if(is.null(response))
-      eval(as.call(list(f, arguments, nw)))
-    else
-      eval(as.call(list(f, arguments, nw, response)))
-  }
+  proposal <- NVL3(response,
+                   eval(as.call(list(f, arguments, nw, .))),
+                   eval(as.call(list(f, arguments, nw))))
 
   proposal$arguments <- arguments
   proposal$arguments$reference <- NULL

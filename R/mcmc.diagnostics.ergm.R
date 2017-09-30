@@ -83,8 +83,8 @@ mcmc.diagnostics.ergm <- function(object,
   # operations to assume mcmc.list. The reason [["sample"]] is being
   # used here rather than $sample is because there is an unlikely
   # possibility that $sample doesn't exist but $sample.obs does.
-  sm <- if(is.null(object[["sample"]])) NULL else as.mcmc.list(object[["sample"]])
-  sm.obs <- if(is.null(object[["sample.obs"]])) NULL else as.mcmc.list(object[["sample.obs"]])
+  sm <- NVL3(object[["sample"]], as.mcmc.list(.))
+  sm.obs <- NVL3(object[["sample.obs"]], as.mcmc.list(.))
 
   if(is.null(sm)) stop("MCMC was not run or MCMC sample was not stored.")
 
