@@ -333,7 +333,7 @@ ergm.MCMLE <- function(init, nw, model,
           
     mcmc.init <- v$coef
     coef.hist <- rbind(coef.hist, mcmc.init)
-    stats.obs.hist <- if(!is.null(statsmatrix.obs)) rbind(stats.obs.hist, apply(statsmatrix.obs[], 2, base::mean)) else NULL
+    stats.obs.hist <- NVL3(statsmatrix.obs, rbind(stats.obs.hist, apply(.[], 2, base::mean)))
     stats.hist <- rbind(stats.hist, apply(statsmatrix, 2, base::mean))
     
     # This allows premature termination.

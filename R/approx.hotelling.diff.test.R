@@ -89,22 +89,24 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var
   ivcov.d <-ginv(vcov.d[!novar,!novar,drop=FALSE])
   
   method <- paste("Hotelling's",
-                  if(is.null(y)) "One" else "Two",
+                  NVL2(y, "Two", "One"),
                   "-Sample",if(var.equal) "Pooled","T^2-Test", if(!assume.indep) "with correction for autocorrelation")
   
   # If a statistic doesn't vary and doesn't match, return a 0 p-value:
   if(any((d-mu0)[novar]!=0)){
     warning("Vector(s) ", paste.and(colnames(x)[novar]),
-            if(is.null(y)) " do not vary in x or in y and have differences unequal to mu0"
-            else " do not vary and do not equal mu0",
+            NVL2(y,
+                 " do not vary and do not equal mu0",
+                 " do not vary in x or in y and have differences unequal to mu0"),
             "; P-value has been set to 0.")
         
     T2 <- +Inf
   }else{
     if(any(novar)){
       warning("Vector(s) ", paste.and(colnames(x)[novar]),
-              if(is.null(y)) " do not vary in x or in y but have differences equal to mu0"
-              else " do not vary but equal mu0",
+              NVL2(y,
+                   " do not vary but equal mu0",
+                   " do not vary in x or in y but have differences equal to mu0"),
               "; they have been ignored for the purposes of testing.")
     }
     T2 <- c(t((d-mu0)[!novar])%*%ivcov.d%*%(d-mu0)[!novar])
@@ -219,7 +221,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var
       arfit <- arfit$value
       arvar <- arfit$var.pred
       arcoefs <- arfit$ar
-      arcoefs <- if(is.null(dim(arcoefs))) sum(arcoefs) else apply(arcoefs,2:3,base::sum)
+      arcoefs <- NVL2(dim(arcoefs), apply(arcoefs,2:3,base::sum), sum(arcoefs))
 
       adj <- diag(1,nrow=ncol(xr)) - arcoefs
       iadj <- solve(adj)

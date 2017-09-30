@@ -348,7 +348,7 @@ ergm <- function(formula, response=NULL,
   }
   
   model.initial$nw.stats <- summary(model.initial$formula, response=response, initialfit=control$init.method=="MPLE")
-  model.initial$target.stats <- if(!is.null(target.stats)) target.stats else model.initial$nw.stats
+  model.initial$target.stats <- NVL(target.stats, model.initial$nw.stats)
   
   if(control$init.method=="CD") if(is.null(names(control$init)))
     names(control$init) <- .coef.names.model(model.initial, FALSE)
@@ -432,7 +432,7 @@ ergm <- function(formula, response=NULL,
   model <- extremecheck$model; init <- extremecheck$init
   
   model$nw.stats <- summary(model$formula, response=response)
-  model$target.stats <- if(!is.null(target.stats)) target.stats else model$nw.stats
+  model$target.stats <- NVL(target.stats, model$nw.stats)
   
   mainfit <- switch(control$main.method,
                     "Robbins-Monro" = ergm.robmon(init, nw, model, 

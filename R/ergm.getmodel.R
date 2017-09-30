@@ -65,7 +65,7 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
                       terms = NULL, networkstats.0 = NULL, etamap = NULL),
                  class = "model.ergm")
 
-  termroot<-if(is.null(response)) "InitErgm" else "InitWtErgm"
+  termroot<-NVL2(response, "InitWtErgm", "InitErgm")
 
   
   for (i in 1:length(v)) {
@@ -150,13 +150,13 @@ updatemodel.ErgmTerm <- function(model, outlist) {
                         length(outlist$coef.names), 
                         length(outlist$inputs), outlist$inputs)
     model$minval <- c(model$minval,
-                      rep(if(!is.null(outlist$minval)) outlist$minval else -Inf,
+                      rep(NVL(outlist$minval, -Inf),
                           length.out=length(outlist$coef.names)))
     model$maxval <- c(model$maxval,
-                      rep(if(!is.null(outlist$maxval)) outlist$maxval else +Inf,
+                      rep(NVL(outlist$maxval, +Inf),
                           length.out=length(outlist$coef.names)))
     model$duration <- c(model$duration,
-                      if(!is.null(outlist$duration)) outlist$duration else FALSE)
+                      NVL(outlist$duration, FALSE))
     model$terms[[termnumber]] <- outlist
   }
   model

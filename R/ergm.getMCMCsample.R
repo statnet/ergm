@@ -70,7 +70,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
   Clists <- lapply(nws, ergm::ergm.Cprepare, model, response=response)
 
   control.parallel <- control
-  if(!is.null(control$MCMC.samplesize)) control.parallel$MCMC.samplesize <- ceiling(control$MCMC.samplesize / nthreads)
+  control.parallel$MCMC.samplesize <- NVL3(control$MCMC.samplesize, ceiling(. / nthreads))
 
   flush.console()
 
@@ -112,7 +112,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
                   burnin = interval, # I.e., skip that much before the first draw.
                   samplesize = samplesize,
                   interval = interval,
-                  maxedges = if(!is.null(outl[[1]])) max(sapply(outl,"[[","maxedges")) else NULL
+                  maxedges = if(!is.null(outl[[1]])) max(sapply(outl,"[[","maxedges"))
                   )
       
       # Stop if something went wrong.

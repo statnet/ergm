@@ -16,6 +16,9 @@
 }
 
 .onLoad <- function(lib, pkg){
+  # . is used as a placeholder by stantet.common::NVL3().
+  utils::globalVariables(".")
+
   .RegisterMHPs()
   .RegisterConstraintImplications()
   .RegisterInitMethods()
@@ -94,4 +97,3 @@
   ergm.init.methods("Unif", c("CD","zeros"))
   ergm.init.methods("DiscUnif", c("CD","zeros"))
 }
-

@@ -45,7 +45,7 @@ is.dyad.independent.ergm_conlist <- function(object, object.obs=NULL, ...){
   for(con in object){
     if(con$dependence) dind <- FALSE
   }
-  dind && if(!is.null(object.obs)) is.dyad.independent(object.obs) else TRUE
+  dind && NVL3(object.obs, is.dyad.independent(.), TRUE)
 }
 
 is.dyad.independent.ergm<-function(object,...){
