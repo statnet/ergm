@@ -75,7 +75,11 @@ ergm.MCMLE <- function(init, nw, model,
   if(control$MCMLE.steplength=="adaptive") steplen <- 1
 
   control$MCMC.effectiveSize <- control$MCMLE.effectiveSize
-  control$MCMC.base.effectiveSize <- control$MCMLE.effectiveSize
+  control$obs.MCMC.effectiveSize <- control$obs.MCMLE.effectiveSize
+  
+  control$MCMC.base.effectiveSize <- control$MCMC.effectiveSize
+  control$obs.MCMC.base.effectiveSize <- control$obs.MCMC.effectiveSize
+  
   control$MCMC.base.samplesize <- control$MCMC.samplesize
   control$obs.MCMC.base.samplesize <- control$obs.MCMC.samplesize
 
@@ -120,7 +124,9 @@ ergm.MCMLE <- function(init, nw, model,
   if(obs){
     control.obs <- control
     control.obs$MCMC.base.samplesize <- control$obs.MCMC.base.samplesize
+    control.obs$MCMC.base.effectiveSize <- control$obs.MCMC.base.effectiveSize
     control.obs$MCMC.samplesize <- control$obs.MCMC.samplesize
+    control.obs$MCMC.effectiveSize <- control$obs.MCMC.effectiveSize
     control.obs$MCMC.interval <- control$obs.MCMC.interval
     control.obs$MCMC.burnin <- control$obs.MCMC.burnin
 

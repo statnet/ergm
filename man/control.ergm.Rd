@@ -29,6 +29,7 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MCMLE.NR.reltol = sqrt(.Machine$double.eps), obs.MCMC.mul = 1/4,
   obs.MCMC.samplesize.mul = sqrt(obs.MCMC.mul),
   obs.MCMC.samplesize = round(MCMC.samplesize * obs.MCMC.samplesize.mul),
+  obs.MCMC.effectiveSize = NVL3(MCMC.effectiveSize, . * obs.MCMC.mul),
   obs.MCMC.interval.mul = sqrt(obs.MCMC.mul),
   obs.MCMC.interval = round(MCMC.interval * obs.MCMC.interval.mul),
   obs.MCMC.burnin.mul = sqrt(obs.MCMC.mul),
@@ -44,16 +45,18 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   (is.null(MCMLE.steplength.margin)) 0.5 else 1,
   MCMLE.adaptive.trustregion = 3, MCMLE.sequential = TRUE,
   MCMLE.density.guard.min = 10000, MCMLE.density.guard = exp(3),
-  MCMLE.effectiveSize = NULL, MCMLE.last.boost = 4,
-  MCMLE.Hummel.esteq = TRUE, MCMLE.Hummel.miss.sample = 100,
-  MCMLE.Hummel.maxit = 25, MCMLE.steplength.min = 1e-04,
-  SA.phase1_n = NULL, SA.initial_gain = NULL, SA.nsubphases = 4,
-  SA.niterations = NULL, SA.phase3_n = NULL, SA.trustregion = 0.5,
-  RM.phase1n_base = 7, RM.phase2n_base = 100, RM.phase2sub = 7,
-  RM.init_gain = 0.5, RM.phase3n = 500, Step.MCMC.samplesize = 100,
-  Step.maxit = 50, Step.gridsize = 100, CD.nsteps = 8,
-  CD.multiplicity = 1, CD.nsteps.obs = 128, CD.multiplicity.obs = 1,
-  CD.maxit = 60, CD.conv.min.pval = 0.5, CD.NR.maxit = 100,
+  MCMLE.effectiveSize = NULL,
+  obs.MCMLE.effectiveSize = NVL3(MCMLE.effectiveSize, . * obs.MCMC.mul),
+  MCMLE.last.boost = 4, MCMLE.Hummel.esteq = TRUE,
+  MCMLE.Hummel.miss.sample = 100, MCMLE.Hummel.maxit = 25,
+  MCMLE.steplength.min = 1e-04, SA.phase1_n = NULL,
+  SA.initial_gain = NULL, SA.nsubphases = 4, SA.niterations = NULL,
+  SA.phase3_n = NULL, SA.trustregion = 0.5, RM.phase1n_base = 7,
+  RM.phase2n_base = 100, RM.phase2sub = 7, RM.init_gain = 0.5,
+  RM.phase3n = 500, Step.MCMC.samplesize = 100, Step.maxit = 50,
+  Step.gridsize = 100, CD.nsteps = 8, CD.multiplicity = 1,
+  CD.nsteps.obs = 128, CD.multiplicity.obs = 1, CD.maxit = 60,
+  CD.conv.min.pval = 0.5, CD.NR.maxit = 100,
   CD.NR.reltol = sqrt(.Machine$double.eps), CD.metric = c("naive",
   "lognormal", "logtaylor", "Median.Likelihood", "EF.Likelihood"),
   CD.method = c("BFGS", "Nelder-Mead"), CD.trustregion = 20,
@@ -272,7 +275,7 @@ iterations and relative tolerance to use within the \code{optim} rountine in
 the MLE optimization. Note that by default, ergm uses \code{trust}, and
 falls back to \code{optim} only when \code{trust} fails.}
 
-\item{obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.mul, obs.MCMC.samplesize.mul, obs.MCMC.burnin.mul, obs.MCMC.interval.mul}{Sample size, burnin, and interval parameters for the MCMC
+\item{obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.mul, obs.MCMC.samplesize.mul, obs.MCMC.burnin.mul, obs.MCMC.interval.mul, obs.MCMC.effectiveSize}{Sample size, burnin, and interval parameters for the MCMC
 sampling used when unobserved data are present in the estimation
 routine. By default, they are controlled by the \code{*.mul}
 parameters, as fractions of the corresponding settings for the
