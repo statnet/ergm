@@ -214,11 +214,6 @@ Although each of the statistics in a given model is a summary
 statistic for the entire network, it is rarely necessary to
 calculate statistics for an entire network
 in a proposed Metropolis-Hastings step.
-%  The reason for this is that we may assume that each statistic equals
-% zero for the observed network (translating each statistic by
-% a constant does not change the probability model), and then
-% it is only necessary to calculate the changes in the various
-%statistics for a proposed Metropolis-Hastings step.  
 Thus, for example, if the triangle term is included in the model,
 a census of all triangles in the observed network is never
 taken; instead, only the change in the number of triangles
@@ -232,9 +227,6 @@ simple Newton-Raphson algorithm to approximate the MLE.
 An alternative style of maximum likelihood estimation is to use a stochastic
 approximation algorithm. This can be chosen with the
 \code{control.ergm(style="Robbins-Monro")} option.
-%There seems little reason to implement the Newton-Raphson
-%algorithm in C since it moves very quickly in \R and
-%it is easier to alter the code if it is written in \R.
 
 The mechanism for proposing new networks for the MCMC sampling
 scheme, which is a Metropolis-Hastings algorithm, depends on
