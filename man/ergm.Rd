@@ -5,23 +5,6 @@
 \alias{is.ergm}
 \alias{ergm.object}
 \title{Exponential-Family Random Graph Models}
-\description{
-\code{\link{ergm}} is used to fit exponential-family random graph
-models (ERGMs), in which
-the probability of a given network, \eqn{y}, on a set of nodes is
-\eqn{h(y) \exp\{\eta(\theta) \cdot
-g(y)\}/c(\theta)}, where
-\eqn{h(y)} is the reference measure (usually \eqn{h(y)=1}),
-\eqn{g(y)} is a vector of network statistics for \eqn{y},
-\eqn{\eta(\theta)} is a natural parameter vector of the same
-length (with \eqn{\eta(\theta)=\theta} for most terms), and \eqn{c(\theta)} is the
-normalizing constant for the distribution.
-\code{\link{ergm}} can return a maximum pseudo-likelihood
-estimate, an approximate maximum likelihood estimate based on a Monte
-Carlo scheme, or an approximate contrastive divergence estimate based
-on a similar scheme.
-(For an overview of the package, see \code{\link{ergm-package}}.)
-}
 \usage{
 ergm(formula, response = NULL, reference = ~Bernoulli, constraints = ~.,
   obs.constraints = ~-observed, offset.coef = NULL, target.stats = NULL,
@@ -214,6 +197,7 @@ corresponding statistics on the observed network, and how:
 \code{+Inf}.}
 }
 }
+
 \item{estimable}{A logical vector indicating which terms could not be
 estimated due to a \code{constraints} constraint fixing that term at a
 constant value.
@@ -234,6 +218,23 @@ an \code{\link{ergm}} object is printed.  Note that the
 method \code{\link{summary.ergm}} returns a summary of the
 relevant parts of the \code{\link{ergm}} object in concise summary
 format.
+}
+\description{
+\code{\link{ergm}} is used to fit exponential-family random graph
+models (ERGMs), in which
+the probability of a given network, \eqn{y}, on a set of nodes is
+\eqn{h(y) \exp\{\eta(\theta) \cdot
+g(y)\}/c(\theta)}, where
+\eqn{h(y)} is the reference measure (usually \eqn{h(y)=1}),
+\eqn{g(y)} is a vector of network statistics for \eqn{y},
+\eqn{\eta(\theta)} is a natural parameter vector of the same
+length (with \eqn{\eta(\theta)=\theta} for most terms), and \eqn{c(\theta)} is the
+normalizing constant for the distribution.
+\code{\link{ergm}} can return a maximum pseudo-likelihood
+estimate, an approximate maximum likelihood estimate based on a Monte
+Carlo scheme, or an approximate contrastive divergence estimate based
+on a similar scheme.
+(For an overview of the package, see \code{\link{ergm-package}}.)
 }
 \section{Notes on model specification}{
 
@@ -269,6 +270,81 @@ The package is designed so that the user could conceivably add additional
 proposal types.
 }
 
+\examples{
+\donttest{
+#
+# load the Florentine marriage data matrix
+#
+data(flo)
+#
+# attach the sociomatrix for the Florentine marriage data
+# This is not yet a network object.
+#
+flo
+#
+# Create a network object out of the adjacency matrix
+#
+flomarriage <- network(flo,directed=FALSE)
+flomarriage
+#
+# print out the sociomatrix for the Florentine marriage data
+#
+flomarriage[,]
+#
+# create a vector indicating the wealth of each family (in thousands of lira) 
+# and add it as a covariate to the network object
+#
+flomarriage \%v\% "wealth" <- c(10,36,27,146,55,44,20,8,42,103,48,49,10,48,32,3)
+flomarriage
+#
+# create a plot of the social network
+#
+plot(flomarriage)
+#
+# now make the vertex size proportional to their wealth
+#
+plot(flomarriage, vertex.cex=flomarriage \%v\% "wealth" / 20, main="Marriage Ties")
+#
+# Use 'data(package = "ergm")' to list the data sets in a
+#
+data(package="ergm")
+#
+# Load a network object of the Florentine data
+#
+data(florentine)
+#
+# Fit a model where the propensity to form ties between
+# families depends on the absolute difference in wealth
+#
+gest <- ergm(flomarriage ~ edges + absdiff("wealth"))
+summary(gest)
+#
+# add terms for the propensity to form 2-stars and triangles
+# of families 
+#
+gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle)
+summary(gest)
+
+# import synthetic network that looks like a molecule
+data(molecule)
+# Add a attribute to it to mimic the atomic type
+molecule \%v\% "atomic type" <- c(1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3)
+#
+# create a plot of the social network
+# colored by atomic type
+#
+plot(molecule, vertex.col="atomic type",vertex.cex=3)
+
+# measure tendency to match within each atomic type
+gest <- ergm(molecule ~ edges + kstar(2) + triangle + nodematch("atomic type"))
+summary(gest)
+
+# compare it to differential homophily by atomic type
+gest <- ergm(molecule ~ edges + kstar(2) + triangle
+                        + nodematch("atomic type",diff=TRUE))
+summary(gest)
+}
+}
 \references{
 Admiraal R, Handcock MS (2007).
 \pkg{networksis}: Simulate bipartite graphs with fixed
@@ -362,86 +438,8 @@ Journal of Social Structure.
 Available from
 \url{http://www.cmu.edu/joss/content/articles/volume3/Snijders.pdf}.
 }
-
-
 \seealso{
 network, \%v\%, \%n\%, \code{\link{ergm-terms}}, \code{\link{ergmMPLE}},
 \code{\link{summary.ergm}}, \code{\link{print.ergm}}
-}
-
-\examples{
-\donttest{
-#
-# load the Florentine marriage data matrix
-#
-data(flo)
-#
-# attach the sociomatrix for the Florentine marriage data
-# This is not yet a network object.
-#
-flo
-#
-# Create a network object out of the adjacency matrix
-#
-flomarriage <- network(flo,directed=FALSE)
-flomarriage
-#
-# print out the sociomatrix for the Florentine marriage data
-#
-flomarriage[,]
-#
-# create a vector indicating the wealth of each family (in thousands of lira) 
-# and add it as a covariate to the network object
-#
-flomarriage \\\%v\\\% "wealth" <- c(10,36,27,146,55,44,20,8,42,103,48,49,10,48,32,3)
-flomarriage
-#
-# create a plot of the social network
-#
-plot(flomarriage)
-#
-# now make the vertex size proportional to their wealth
-#
-plot(flomarriage, vertex.cex=flomarriage \\\%v\\\% "wealth" / 20, main="Marriage Ties")
-#
-# Use 'data(package = "ergm")' to list the data sets in a
-#
-data(package="ergm")
-#
-# Load a network object of the Florentine data
-#
-data(florentine)
-#
-# Fit a model where the propensity to form ties between
-# families depends on the absolute difference in wealth
-#
-gest <- ergm(flomarriage ~ edges + absdiff("wealth"))
-summary(gest)
-#
-# add terms for the propensity to form 2-stars and triangles
-# of families 
-#
-gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle)
-summary(gest)
-
-# import synthetic network that looks like a molecule
-data(molecule)
-# Add a attribute to it to mimic the atomic type
-molecule \\\%v\\\% "atomic type" <- c(1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3)
-#
-# create a plot of the social network
-# colored by atomic type
-#
-plot(molecule, vertex.col="atomic type",vertex.cex=3)
-
-# measure tendency to match within each atomic type
-gest <- ergm(molecule ~ edges + kstar(2) + triangle + nodematch("atomic type"))
-summary(gest)
-
-# compare it to differential homophily by atomic type
-gest <- ergm(molecule ~ edges + kstar(2) + triangle
-                        + nodematch("atomic type",diff=TRUE))
-summary(gest)
-}
 }
 \keyword{models}
