@@ -98,6 +98,7 @@ logLikNull.ergm <- function(object, control=control.logLik.ergm(), ...){
   check.control.class("logLik.ergm", "logLikNull.ergm")
 
   control.toplevel(..., myname="logLik.ergm")
+  if(!is.null(object$null.lik)) return(object$null.lik)
   
   nobs <- NVL3(object$mle.lik,
                attr(.,"nobs"),
