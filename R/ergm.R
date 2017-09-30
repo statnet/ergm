@@ -448,7 +448,7 @@
 #' # create a vector indicating the wealth of each family (in thousands of lira) 
 #' # and add it as a covariate to the network object
 #' #
-#' flomarriage \%v\% "wealth" <- c(10,36,27,146,55,44,20,8,42,103,48,49,10,48,32,3)
+#' flomarriage %v% "wealth" <- c(10,36,27,146,55,44,20,8,42,103,48,49,10,48,32,3)
 #' flomarriage
 #' #
 #' # create a plot of the social network
@@ -457,7 +457,7 @@
 #' #
 #' # now make the vertex size proportional to their wealth
 #' #
-#' plot(flomarriage, vertex.cex=flomarriage \%v\% "wealth" / 20, main="Marriage Ties")
+#' plot(flomarriage, vertex.cex=flomarriage %v% "wealth" / 20, main="Marriage Ties")
 #' #
 #' # Use 'data(package = "ergm")' to list the data sets in a
 #' #
@@ -482,7 +482,7 @@
 #' # import synthetic network that looks like a molecule
 #' data(molecule)
 #' # Add a attribute to it to mimic the atomic type
-#' molecule \%v\% "atomic type" <- c(1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3)
+#' molecule %v% "atomic type" <- c(1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3)
 #' #
 #' # create a plot of the social network
 #' # colored by atomic type
