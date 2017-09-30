@@ -7,9 +7,51 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
+
+#' Extract Model Fit Coefficients and Uncertainty Estimates
+#' 
+#' \code{coef} extracts model coefficients from objects returned by
+#' the \code{\link{ergm}} function.
+#' 
+#' @param object {an object for which the extraction of model coefficients is
+#'     meaningful.}
+#' @param ... {other arguments.}
+#' 
+#' @return Coefficients extracted from the model object \code{object}.
+#' 
+#' @seealso \code{\link{fitted.values}} and \code{\link{residuals}} for related methods;
+#'   \code{\link{glm}}, \code{\link{lm}} for model fitting.
+#' 
+#' @examples
+#' data(florentine)
+#' fit <- ergm(flomarriage ~ edges + concurrent)
+#' coef(fit)
+#' 
+#' @keywords regression models
+#' @export
 coef.ergm <- function(object, ...){object$coef}
+
+#' @rdname coef.ergm
+#'
+#' @description
+#' \code{coefficients} is an \emph{alias} for \code{ergm}.
+#' @export
 coefficients.ergm <- coef.ergm
 
+#' @rdname coef.ergm
+#'
+#' @description
+#' \code{vcov} extracts the variance-covariance matrix of parameter
+#'   estimates.
+#' 
+#' @param sources {Specify whether to return the covariance matrix
+#'   from the ERGM model, the estimation process, or both combined.}
+#'
+#' @examples
+#' vcov(fit, sources="model")
+#' vcov(fit, sources="estimation")
+#' vcov(fit, sources="all") # the default
+#' @export
 vcov.ergm <- function(object, sources=c("all","model","estimation"), ...){
   sources <- match.arg(sources)
 

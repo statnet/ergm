@@ -7,21 +7,19 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
-#################################################################################
-# The <wtd.median> function determines and returns the weighted median of a
-# vector x
-#
-# --PARAMETERS--
-#   x     : a numeric vector
-#   na.rm : whether missing values should be removed (T or F); default=FALSE
-#   weight: a vector of weights for each value in x
-#
-# --RETURNED--
-#   NA                     if x has missing values and 'na.rm'=FALSE
-#   the weighted median    otherwise  
-#
-################################################################################
 
+#' Weighted Median
+#' 
+#' Compute weighted median.
+#' 
+#' Uses a simple algorithm based on sorting.
+#' 
+#' @param x Vector of data, same length as \code{weight}
+#' @param na.rm Logical: Should NAs be stripped before computation proceeds?
+#' @param weight Vector of weights
+#' @return Returns an empirical .5 quantile from a weighted sample.
+#' @keywords robust
+#' @export
 wtd.median <- function(x, na.rm = FALSE, weight=FALSE) {
  	if(mode(x) != "numeric")
  		stop("need numeric data")
