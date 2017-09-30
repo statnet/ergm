@@ -28,7 +28,7 @@ Coefficients extracted from the model object \code{object}.
 \code{coef} extracts model coefficients from objects returned by
 the \code{\link{ergm}} function.
 
-\code{coefficients} is an \emph{alias} for \coef{ergm}.
+\code{coefficients} is an \emph{alias} for \code{ergm}.
 
 \code{vcov} extracts the variance-covariance matrix of parameter
 estimates.

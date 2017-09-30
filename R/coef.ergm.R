@@ -34,7 +34,7 @@ coef.ergm <- function(object, ...){object$coef}
 #' @rdname coef.ergm
 #'
 #' @description
-#' \code{coefficients} is an \emph{alias} for \coef{ergm}.
+#' \code{coefficients} is an \emph{alias} for \code{ergm}.
 #' @export
 coefficients.ergm <- coef.ergm
 
