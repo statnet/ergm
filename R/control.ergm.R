@@ -200,7 +200,7 @@
 #' falls back to \code{optim} only when \code{trust} fails.
 #'
 #' @param
-#'   obs.MCMC.samplesize,obs.MCMC.burnin,obs.MCMC.interval,obs.MCMC.mul,obs.MCMC.samplesize.mul,obs.MCMC.burnin.mul,obs.MCMC.interval.mul
+#'   obs.MCMC.samplesize,obs.MCMC.burnin,obs.MCMC.interval,obs.MCMC.mul,obs.MCMC.samplesize.mul,obs.MCMC.burnin.mul,obs.MCMC.interval.mul,obs.MCMC.effectiveSize
 #'   Sample size, burnin, and interval parameters for the MCMC
 #'   sampling used when unobserved data are present in the estimation
 #'   routine. By default, they are controlled by the `*.mul`
@@ -472,6 +472,7 @@ control.ergm<-function(drop=TRUE,
                        obs.MCMC.mul=1/4,
                        obs.MCMC.samplesize.mul=sqrt(obs.MCMC.mul),
                        obs.MCMC.samplesize=round(MCMC.samplesize*obs.MCMC.samplesize.mul),
+                       obs.MCMC.effectiveSize=NVL3(MCMC.effectiveSize, .*obs.MCMC.mul),
                        obs.MCMC.interval.mul=sqrt(obs.MCMC.mul),
                        obs.MCMC.interval=round(MCMC.interval*obs.MCMC.interval.mul),
                        obs.MCMC.burnin.mul=sqrt(obs.MCMC.mul),
@@ -496,6 +497,7 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.density.guard.min=10000,
                        MCMLE.density.guard=exp(3),
                        MCMLE.effectiveSize=NULL,
+                       obs.MCMLE.effectiveSize=NVL3(MCMLE.effectiveSize, .*obs.MCMC.mul),
                        MCMLE.last.boost=4,
                        MCMLE.Hummel.esteq=TRUE, 
                        MCMLE.Hummel.miss.sample=100,
