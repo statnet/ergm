@@ -210,16 +210,14 @@ as.rlebdm.ergm_conlist <- function(x, constraints.obs = NULL, which = c("free", 
            free_dyads.obs <- as.rlebdm(constraints.obs)
            
            if(is.null(free_dyads)){
-             if(is.null(free_dyads.obs)) NULL
-             else free_dyads.obs
+             free_dyads.obs
            }else{
-             if(is.null(free_dyads.obs)) !free_dyads
-             else (!free_dyads) | free_dyads.obs
+             NVL3(free_dyads.obs, (!free_dyads) | .,  !free_dyads)
            }
          },
          informative={
            y <- as.rlebdm(x)
-           if(is.null(constraints.obs)) y else y & !as.rlebdm(x,constraints.obs, which="missing")
+           NVL3(constraints.obs, y & !as.rlebdm(x, ., which="missing"), y)
          }
          )
 }
@@ -237,9 +235,9 @@ as.rlebdm.ergm_conlist <- function(x, constraints.obs = NULL, which = c("free", 
 #'
 #' @export
 as.edgelist.rlebdm <- function(x, prototype=NULL, ...){
-  dir <- if(is.null(prototype)) TRUE else is.directed(prototype)
-  loop <- if(is.null(prototype)) TRUE else has.loops(prototype)
-  bip <- if(is.null(prototype)) FALSE else prototype %n% "bipartite"
+  dir <- NVL3(prototype, is.directed(.), TRUE)
+  loop <- NVL3(prototype, has.loops(.), TRUE)
+  bip <- NVL3(prototype, . %n% "bipartite", FALSE)
   
   n <- attr(x, "n")
   starts <- cumsum(c(1,as.numeric(x$lengths)))

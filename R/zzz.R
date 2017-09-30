@@ -16,6 +16,9 @@
 }
 
 .onLoad <- function(lib, pkg){
+  # . is used as a placeholder by stantet.common::NVL3().
+  utils::globalVariables(".")
+
   .RegisterMHPs()
   .RegisterConstraintImplications()
   .RegisterInitMethods()

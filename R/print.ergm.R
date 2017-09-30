@@ -59,10 +59,7 @@ print.ergm <- function (x, digits = max(3, getOption("digits") - 3), ...) {
     scale.MLE <- scale.MLE / choose(nrow(x$Z.mle),2)
     cat("Scale = ",scale.MLE,"\n")
     n <- network.size(x$newnetwork)
-    if(!is.null(x$Z.pmode))
-      p <- ncol(x$Z.pmode)
-    else
-      p <- 0
+    p <- NVL3(x$Z.pmode, ncol(.), 0)
     r <- length(x$coef) + (n) * p - p*(p+1)/2
     n <- n*(n-1)
     cat("\nBIC = ",2 * x$mle.lik - r*log(n),"\n")

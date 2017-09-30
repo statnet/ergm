@@ -172,13 +172,13 @@ updatemodel.ErgmTerm <- function(model, outlist) {
                         length(outlist$coef.names), 
                         length(outlist$inputs)+aux.space, rep(NA, aux.space), outlist$inputs)
     model$minval <- c(model$minval,
-                      rep(if(!is.null(outlist$minval)) outlist$minval else -Inf,
+                      rep(NVL(outlist$minval, -Inf),
                           length.out=length(outlist$coef.names)))
     model$maxval <- c(model$maxval,
-                      rep(if(!is.null(outlist$maxval)) outlist$maxval else +Inf,
+                      rep(NVL(outlist$maxval, +Inf),
                           length.out=length(outlist$coef.names)))
     model$duration <- c(model$duration,
-                      if(!is.null(outlist$duration)) outlist$duration else FALSE)
+                      NVL(outlist$duration, FALSE))
     model$terms[[termnumber]] <- outlist
   }
   model

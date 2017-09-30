@@ -295,7 +295,7 @@ ergm.CD.fixed <- function(init, nw, model,
           
     mcmc.init <- v$coef
     coef.hist <- rbind(coef.hist, mcmc.init)
-    stats.obs.hist <- if(!is.null(statsmatrix.obs)) rbind(stats.obs.hist, apply(statsmatrix.obs[], 2, mean)) else NULL
+    stats.obs.hist <- NVL3(statsmatrix.obs, rbind(stats.obs.hist, apply(.[], 2, mean)))
     stats.hist <- rbind(stats.hist, apply(statsmatrix, 2, mean))
     if(finished) break # This allows premature termination.
   } # end of main loop

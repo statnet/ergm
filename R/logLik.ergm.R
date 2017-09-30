@@ -96,7 +96,9 @@ logLikNull.ergm <- function(object, control=control.logLik.ergm(), ...){
   control.toplevel(..., myname="logLik.ergm")
   if(!is.null(object$null.lik)) return(object$null.lik)
 
-  nobs <- if(is.null(object$mle.lik)) sum(as.rlebdm(object$constrained, object$constrained.obs, which="informative")) else attr(object$mle.lik,"nobs")
+  nobs <- NVL3(object$mle.lik,
+               attr(.,"nobs"),
+               sum(as.rlebdm(object$constrained, object$constrained.obs, which="informative")))
   
   llk <-
     if(!is.null(object$response)){

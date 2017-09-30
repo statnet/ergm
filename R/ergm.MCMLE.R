@@ -357,7 +357,7 @@ ergm.MCMLE <- function(init, nw, model,
           
     mcmc.init <- v$coef
     coef.hist <- rbind(coef.hist, mcmc.init)
-    stats.obs.hist <- if(!is.null(statsmatrix.obs)) rbind(stats.obs.hist, apply(statsmatrix.obs[], 2, base::mean)) else NULL
+    stats.obs.hist <- NVL3(statsmatrix.obs, rbind(stats.obs.hist, apply(.[], 2, base::mean)))
     stats.hist <- rbind(stats.hist, apply(statsmatrix, 2, base::mean))
     
     # This allows premature termination.
@@ -433,10 +433,10 @@ ergm.MCMLE <- function(init, nw, model,
         message("Step length converged once. Increasing MCMC sample size.")
         last.adequate <- TRUE
         control$MCMC.samplesize <- control$MCMC.base.samplesize * control$MCMLE.last.boost
-        control$MCMC.effectiveSize <- control$MCMC.effectiveSize * control$MCMLE.last.boost
+        control$MCMC.effectiveSize <- NVL3(control$MCMC.effectiveSize, . * control$MCMLE.last.boost)
         if(obs){
           control.obs$MCMC.samplesize <- control.obs$MCMC.base.samplesize * control$MCMLE.last.boost
-          control.obs$MCMC.effectiveSize <- control.obs$MCMC.effectiveSize * control$MCMLE.last.boost
+          control.obs$MCMC.effectiveSize <- NVL3(control.obs$MCMC.effectiveSize, . * control$MCMLE.last.boost)
         }
       }
     }

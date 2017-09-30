@@ -7,57 +7,65 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
-#==========================================================
-# This file contains the following 2 functions for
-# controlling simulation routines
-#        <control.simulate> = <control.simulate.formula>
-#        <control.simulate.ergm>
-#==========================================================
 
-
-########################################################################
-# The <control.simulate.X> functions each create a list of paramaters
-# for customizing simulation rountines
-#
-# --PARAMETERS--
-#   prop.weights  : specifies the method used to allocate probabilities
-#                   of being proposed to dyads; options are "TNT",
-#                   "random", "nonobserved" and "default"; default=
-#                   NULL if X is an ergm (which then uses the weights
-#                   that the ergm was fit by); default="default" if
-#                   X is a formula (which picks a reasonable default
-#                   considering any constraints)
-#   maxedges      : the maximum number of edges expected in network;
-#                   default=20000
-#   packagenames  : the names of packages to load on the created
-#                   cluster when using parallel threads; currently,
-#                   the only recognized package name is "ergm";
-#                   default="ergm"
-#   network.output: the R class with which to output networks; the
-#                   options are "NULL", "network" and "edgelist.compressed"
-#                   (which saves space but only supports networks
-#                   without vertex attributes); "NULL" does not
-#                   return networks; default="network"
-#   parallel      : number of threads in which to run the sampling
-#
-# --IGNORED--
-#   prop.args     : an alternative, direct way of specifying additional
-#                   arguments to proposal; as far as I can tell, the
-#                   only use for 'prop.args' is to supply the name
-#                   of a nodal attribute for use in the
-#                   <InitMHP.nobetweengroupties> function, but this
-#                   function will never be called in the path from
-#                   <ergm.san> which is the only code using this
-#                   control list.
-#   maxchanges    : ??; default=1000000 
-#
-#
-# --RETURNED--
-#   a list of the above parameters
-#
-#########################################################################
-
-control.simulate<-control.simulate.formula<-control.simulate.formula.ergm<-function(MCMC.burnin=10000,
+#' Auxiliary for Controlling ERGM Simulation
+#' 
+#' Auxiliary function as user interface for fine-tuning ERGM
+#' simulation. `control.simulate`, `control.simulate.formula`, and
+#' `control.simulate.formula.ergm` are all aliases for the same
+#' function.
+#' 
+#' This function is only used within a call to the \code{\link{simulate}}
+#' function.  See the \code{usage} section in \code{\link{simulate.ergm}} for
+#' details.
+#'
+#' @param MCMC.prop.weights Specifies the proposal distribution used in the
+#' MCMC Metropolis-Hastings algorithm.  Possible choices are \code{"TNT"} or
+#' \code{"random"}; the \code{"default"} is one of these two, depending on the
+#' constraints in place (as defined by the \code{constraints} argument of the
+#' \code{\link{ergm}} function), though not all weights may be used with all
+#' constraints.  The \code{TNT} (tie / no tie) option puts roughly equal weight
+#' on selecting a dyad with or without a tie as a candidate for toggling,
+#' whereas the \code{random} option puts equal weight on all possible dyads,
+#' though the interpretation of \code{random} may change according to the
+#' constraints in place.  When no constraints are in place, the default is TNT,
+#' which appears to improve Markov chain mixing particularly for networks with
+#' a low edge density, as is typical of many realistic social networks.
+#' @param MCMC.prop.args An alternative, direct way of specifying additional
+#' arguments to proposal.
+#' @param MCMC.burnin Number of proposals before any MCMC sampling is done. It
+#' typically is set to a fairly large number.
+#' @param MCMC.interval Number of proposals between sampled statistics.
+#' @param MCMC.init.maxedges Maximum number of edges expected in network.
+#' @param MCMC.packagenames Names of packages in which to look for change
+#' statistic functions in addition to those autodetected. This argument should
+#' not be needed outside of very strange setups.
+#' @param MCMC.runtime.traceplot Logical: If TRUE, plot traceplots of the MCMC
+#' sample after every MCMC MLE iteration.
+#' @param network.output R class with which to output networks. The options are
+#' "network" (default) and "edgelist.compressed" (which saves space but only
+#' supports networks without vertex attributes)
+#' @param parallel Number of threads in which to run the sampling. Defaults to
+#' 0 (no parallelism). See the entry on [parallel processing][ergm-parallel] for details and troubleshooting.
+#' @param parallel.type API to use for parallel processing. Supported values
+#' are \code{"MPI"} and \code{"PSOCK"}. Defaults to using the \code{parallel}
+#' package with PSOCK clusters. See \code{\link{ergm-parallel}}
+#' @param parallel.version.check Logical: If TRUE, check that the version of
+#' \code{\link[=ergm-package]{ergm}} running on the slave nodes is the same as
+#' that running on the master node.
+#' @param \dots Additional arguments, passed to other functions This argument
+#' is helpful because it collects any control parameters that have been
+#' deprecated; a warning message is printed in case of deprecated arguments.
+#' @return A list with arguments as components.
+#' @seealso \code{\link{simulate.ergm}}, \code{\link{simulate.formula}}.
+#' \code{\link{control.ergm}} performs a similar function for
+#' \code{\link{ergm}}; \code{\link{control.gof}} performs a similar function
+#' for \code{\link{gof}}.
+#'
+#' @name control.simulate.ergm
+#' @keywords models
+#' @export control.simulate.formula.ergm
+control.simulate.formula.ergm<-function(MCMC.burnin=10000,
                                                      MCMC.interval=1000,
                                                      MCMC.prop.weights="default",
                                                      MCMC.prop.args=list(),
@@ -97,6 +105,21 @@ control.simulate<-control.simulate.formula<-control.simulate.formula.ergm<-funct
   set.control.class("control.simulate.formula")
 }
 
+#' @rdname control.simulate.ergm
+#' @export control.simulate
+control.simulate<-control.simulate.formula.ergm
+#' @rdname control.simulate.ergm
+#' @export control.simulate.formula
+control.simulate.formula<-control.simulate.formula.ergm
+
+#' @rdname control.simulate.ergm
+#'
+#' @description While the others supply a full set of simulation
+#'   settings, `control.simulate.ergm` when passed as a control
+#'   parameter to [simulate.ergm()] allows some settings to be
+#'   inherited from the ERGM stimation while overriding others.
+#' 
+#' @export control.simulate.ergm
 control.simulate.ergm<-function(MCMC.burnin=NULL,
                                 MCMC.interval=NULL,
                                 MCMC.prop.weights=NULL,

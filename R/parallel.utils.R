@@ -197,7 +197,7 @@ ergm.getCluster <- function(control, verbose=FALSE){
   }else{
     
     #type <- if(is.null(control$parallel.type)) getClusterOption("type") else control$parallel.type
-    type <- if(is.null(control$parallel.type)) "PSOCK" else control$parallel.type
+    type <- NVL(control$parallel.type, "PSOCK")
     
     if(verbose) message("Using ",type,".")
     
