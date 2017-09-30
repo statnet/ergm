@@ -74,16 +74,16 @@
 #' allocates space based on \code{MPLE.max.dyad.types}.
 #' @param MPLE.samplesize Not currently documented; used in
 #' conditional-on-degree version of MPLE.
-#' @param MPLE.type One of \code{"glm"}, \code{"penalized"}, or
-#' \code{"logitreg"}.  Chooses method of calculating MPLE.  \code{"glm"} is the
+#' @param MPLE.type One of `"glm"`, `"penalized"`, or
+#' `"logitreg"`.  Chooses method of calculating MPLE.  `"glm"` is the
 #' usual formal logistic regression called via \code{\link{glm}}, whereas
-#' \code{"penalized"} uses the bias-reduced method of Firth (1993) as
+#' `"penalized"` uses the bias-reduced method of Firth (1993) as
 #' originally implemented by Meinhard Ploner, Daniela Dunkler, Harry
-#' Southworth, and Georg Heinze in the "logistf" package. \code{"logitreg"} is
+#' Southworth, and Georg Heinze in the "logistf" package. `"logitreg"` is
 #' an "in-house" implementation that is slower and probably less stable but
 #' supports nonlinear logistic regression. It is invoked automatically when the
 #' model has curved terms.
-#' @param MPLE.maxit Maximum number of iterations for \code{"logitreg"}
+#' @param MPLE.maxit Maximum number of iterations for `"logitreg"`
 #' implementation of MPLE.
 #' @param MCMC.prop.weights,obs.MCMC.prop.weights Specifies the proposal
 #' distribution used in the MCMC Metropolis-Hastings algorithm.  Possible
@@ -414,6 +414,7 @@
 #' 
 #' }
 #' @keywords models
+#' @export control.ergm
 control.ergm<-function(drop=TRUE,
 
                        init=NULL,
