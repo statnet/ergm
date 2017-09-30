@@ -631,21 +631,21 @@ ergm <- function(formula, response=NULL,
   if (verbose) message(" Unconstrained ",MHproposal$pkgname,":MH_",MHproposal$name, " ", appendLF=FALSE)
 
   if(!is.null(MHproposal$auxiliaries)){
-    if(verbose) message("(requests auxiliaries: reinitializing model)")
+    if(verbose) message("(requests auxiliaries: reinitializing model) ")
     model <- ergm.getmodel(formula, nw, response=response, extra.aux=list(MHproposal$auxiliaries))
-  }else message()
+  }
     
   if(!is.null(constraints.obs)){
     MHproposal.obs <- MHproposal(constraints.obs, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
     if (verbose) message("Constrained ",MHproposal.obs$pkgname,":MH_",MHproposal.obs$name, " ", appendLF=FALSE)
 
     if(!is.null(MHproposal.obs$auxiliaries)){
-      if(verbose) message("(requests auxiliaries: reinitializing model)")
+      if(verbose) message("(requests auxiliaries: reinitializing model) ")
       model$obs.model <- ergm.getmodel(formula, nw, response=response, extra.aux=list(MHproposal.obs$auxiliaries))
-    }else message()
+    }
   }else MHproposal.obs <- NULL
 
-  
+  if(verbose) message()
   
   
   # conddeg MPLE has been superceded, but let the user know:
