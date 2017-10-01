@@ -27,6 +27,36 @@
 #
 ###############################################################################
 
+
+
+#' Retrieve and check assumptions about vertex attributes (nodal covariates) in
+#' a network
+#' 
+#' The \code{get.node.attr} function returns the vector of nodal covariates for
+#' the given network and specified attribute if the attribute exists -
+#' execution will halt if the attribute is not correctly given as a single
+#' string or is not found in the vertex attribute list; optionally
+#' \code{get.node.attr} will also check that return vector is numeric, halting
+#' execution if not. The purpose is to validate assumptions before passing
+#' attribute data into an ergm term.
+#' 
+#' 
+#' @param nw a \code{\link{network}} object
+#' @param attrname the name of a nodal attribute, as a character string
+#' @param functionname the name of the calling function a character string;
+#' this is only used for the warning messages that accompany a halt
+#' @param numeric logical, whether to halt execution if the return vector is
+#' not numeric; default=FALSE
+#' @return returns the vector of 'attrname' covariates for the vertices in the
+#' network
+#' @seealso \code{\link[network]{get.vertex.attribute}} for a version without
+#' the checking functionality
+#' @examples
+#' 
+#' data(faux.mesa.high)
+#' get.node.attr(faux.mesa.high,'Grade')
+#' 
+#' @export get.node.attr
 get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {  
 
 # This is a kludge, which has been patched to bring it in line with the
