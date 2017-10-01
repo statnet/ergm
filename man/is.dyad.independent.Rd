@@ -13,7 +13,7 @@
 \alias{is.dyad.independent.ergm}
 \alias{is.dyad.independent.NULL}
 \alias{is.dyad.independent.ergm_conlist}
-\alias{is.dyad.independent.ergm.model}
+\alias{is.dyad.independent.ergm_model}
 \title{
 Testing for dyad-independence
 }
@@ -30,7 +30,7 @@ dyad-independent.
 \method{is.dyad.independent}{ergm_conlist}(object, 
                     object.obs = NULL, 
                     ...)
-\method{is.dyad.independent}{ergm.model}(object, ...)
+\method{is.dyad.independent}{ergm_model}(object, ...)
 \method{is.dyad.independent}{NULL}(object, ...)
 }
 \arguments{

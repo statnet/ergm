@@ -16,7 +16,7 @@ is.curved<-function(object,...) UseMethod("is.curved")
 
 is.curved.NULL <- function(object, ...) FALSE # By convention.
 
-is.curved.ergm.model <- function(object, ...){
+is.curved.ergm_model <- function(object, ...){
   any(object$etamap$canonical==0)
 }
 

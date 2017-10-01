@@ -10,7 +10,7 @@
 \name{is.durational}
 \alias{is.durational}
 \alias{is.durational.formula}
-\alias{is.durational.ergm.model}
+\alias{is.durational.ergm_model}
 \alias{is.durational.NULL}
 \alias{is.durational.character}
 \title{
@@ -22,7 +22,7 @@ durational dependent or not. If the formula or model does not include any terms 
 }
 \usage{
 \method{is.durational}{character}(object, ...)
-\method{is.durational}{ergm.model}(object, ...)
+\method{is.durational}{ergm_model}(object, ...)
 \method{is.durational}{formula}(object, 
                                       response=NULL,
                                       basis=NULL,
