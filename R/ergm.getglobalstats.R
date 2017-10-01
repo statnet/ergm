@@ -25,7 +25,7 @@
 #'
 #' Given an ergm model, return a vector of statistics of that model evaluated on an empty network.
 #'
-#' @param m an `ergm.model`.
+#' @param m an `ergm_model`.
 #'
 #' @return a numeric vector equal in length to the number of
 #'   statistics of the model containing the statistics evaluated on an empt network.

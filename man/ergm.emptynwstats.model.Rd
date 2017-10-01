@@ -7,7 +7,7 @@
 ergm.emptynwstats.model(m)
 }
 \arguments{
-\item{m}{an \code{ergm.model}.}
+\item{m}{an \code{ergm_model}.}
 }
 \value{
 a numeric vector equal in length to the number of

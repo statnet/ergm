@@ -19,6 +19,6 @@ InitErgmTerm.NodematchFilter <- function(nw, arglist, response=NULL, ...){
   gs <- ergm.emptynwstats.model(m)
 
   c(list(name="NodematchFilter", coef.names = paste0('NodematchFilter(',m$coef.names,a$attrname,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries=~.blockdiag.net(a$attrname)),
-    passthrough.curved.ergm.model(m, function(x) paste0('NodematchFilter(',x,a$attrname,')')))
+    passthrough.curved.ergm_model(m, function(x) paste0('NodematchFilter(',x,a$attrname,')')))
 }
 

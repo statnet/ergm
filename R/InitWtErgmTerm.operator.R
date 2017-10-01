@@ -37,7 +37,7 @@ InitWtErgmTerm.B <- function(nw, arglist, response=NULL, ...){
          dependence=!is.dyad.independent(m),
          emptynwstats = gs,
          auxiliaries=auxiliaries),
-    passthrough.curved.ergm.model(m, function(x) paste0(form.name,'(',x,')')))
+    passthrough.curved.ergm_model(m, function(x) paste0(form.name,'(',x,')')))
 }
 
 InitWtErgmTerm..binary.nonzero.net <- function(nw, arglist, response=NULL, ...){

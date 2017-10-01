@@ -44,7 +44,7 @@ pack.Clist_as_num <- function(Clist){
 #' `ergm.etagrad()` into `map()` and `gradient()` functions, similarly
 #' with the `params` element.
 #'
-#' @param m an `ergm.model` object
+#' @param m an `ergm_model` object
 #' @param namewrap an optional function taking a character string and
 #'   returning a character string, gold on the model's curved
 #'   parameter names to wrap them.
@@ -52,7 +52,7 @@ pack.Clist_as_num <- function(Clist){
 #' @return a list with elements `map`, `gradient`, and `params`
 #'   suitable for concatenating with an `InitErgmTerm` or
 #'   `InitWtErgmTerm` output list.
-passthrough.curved.ergm.model <- function(m, namewrap = identity){
+passthrough.curved.ergm_model <- function(m, namewrap = identity){
   
   if(is.curved(m)){
     map <- function(x, n, ...){
@@ -90,7 +90,7 @@ InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
   gs <- ergm.emptynwstats.model(m)
   
   c(list(name="passthrough_term", coef.names = paste0('passthrough(',m$coef.names,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs),
-    passthrough.curved.ergm.model(m, function(x) paste0('passthrough(',x,')')))
+    passthrough.curved.ergm_model(m, function(x) paste0('passthrough(',x,')')))
 }
 
 ## Creates a submodel that tracks the given formula.
@@ -205,7 +205,7 @@ InitErgmTerm.F <- function(nw, arglist, response=NULL, ...){
          dependence=!is.dyad.independent(m),
          emptynwstats = gs,
          auxiliaries=auxiliaries),
-    passthrough.curved.ergm.model(m, function(x) paste0(form.name,'(',x,')')))
+    passthrough.curved.ergm_model(m, function(x) paste0(form.name,'(',x,')')))
 }
 
 InitErgmTerm..filter.formula.net <- function(nw, arglist, response=NULL, ...){
