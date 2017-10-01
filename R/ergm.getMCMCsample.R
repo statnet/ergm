@@ -31,7 +31,7 @@
 #' @param control list of MCMC tuning parameters; see
 #'   [control.ergm()].
 #' @param verbose verbosity level.
-#' @param response characher, name of an edge attribute.
+#' @template response
 #' @param ... additional arugments.
 #' @return
 #' \code{ergm.getMCMCsample} returns a list

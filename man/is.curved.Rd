@@ -23,7 +23,11 @@ is.curved(object, ...)
 
 \item{\dots}{Arguments passed on to lower-level functions.}
 
-\item{response, basis}{See \code{\link[=ergm]{ergm()}}.}
+\item{response}{Name of the edge attribute whose value is to be
+modeled in the valued ERGM framework. Defaults to \code{NULL} for
+simple presence or absence, modeled via a binary ERGM.}
+
+\item{basis}{See \code{\link[=ergm]{ergm()}}.}
 }
 \value{
 \code{TRUE} if the object represents a

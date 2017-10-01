@@ -40,18 +40,11 @@ ergm.bridge.preproc<-function(object, basis, response){
 #' 
 #' 
 #' @param object A model formula. See \code{\link{ergm}} for details.
-#' @param response {Name of the edge attribute whose value is to be
-#'   modeled. Defaults to \code{NULL} for simple presence or absence,
-#'   modeled via binary ERGM terms. Passing anything but \code{NULL}
-#'   uses valued ERGM terms. For `ergm.bridge.dindstart.llk`, this
-#'   argument is included solely for consistency, since it can only
-#'   handle binary ERGMs.}
+#' @template response
 #' @param constraints A one-sided formula specifying one or more
 #'   constraints on the support of the distribution of the networks
 #'   being simulated. See the documentation for a similar argument for
-#'   \code{\link{ergm}} for more information. Note that only
-#'   constraints that do not induce dyadic dependence can be handled
-#'   by \code{ergm.bridge.dindstart.llk}.
+#'   \code{\link{ergm}} for more information.
 #' @param from,to The initial and final parameter vectors.
 #' @param basis An optional \code{\link[network]{network}} object to
 #'   start the Markov chain.  If omitted, the default is the
@@ -66,21 +59,19 @@ ergm.bridge.preproc<-function(object, basis, response){
 #' @param coef A vector of coefficients for the configuration of
 #'   interest.
 #' @param llkonly Whether only the estiamted log-likelihood should be
-#'   returned by the `ergm.bridge.0.llk` and `ergm.bridge.dindstart.llk`.  (Defaults to TRUE.)
-#' @return If `llronly=TRUE` or `llkonly=TRUE`, these functions return the scalar
-#'   log-likelihood-ratio or the log-likelihood.  Otherwise, they return a list with the
-#'   following components:
-#' \item{llr}{The estimated log-ratio.}
-#' \item{llrs}{The estimated log-ratios for each of the
-#'   \code{nsteps} bridges.}
-#' \item{path}{A numeric matrix with nsteps
-#'   rows, with each row being the respective bridge's parameter
-#'   configuration.} 
-#' \item{stats}{A numeric matrix with nsteps rows,
-#'   with each row being the respective bridge's vector of simulated
-#'   statistics.}
-#' \item{Dtheta.Du}{The gradient vector of the
-#'   parameter values with respect to position of the bridge.}
+#'   returned by the `ergm.bridge.0.llk` and
+#'   `ergm.bridge.dindstart.llk`.  (Defaults to TRUE.)
+#' @return If `llronly=TRUE` or `llkonly=TRUE`, these functions return
+#'   the scalar log-likelihood-ratio or the log-likelihood.
+#'   Otherwise, they return a list with the following components:
+#'   \item{llr}{The estimated log-ratio.}  \item{llrs}{The estimated
+#'   log-ratios for each of the \code{nsteps} bridges.}  \item{path}{A
+#'   numeric matrix with nsteps rows, with each row being the
+#'   respective bridge's parameter configuration.}  \item{stats}{A
+#'   numeric matrix with nsteps rows, with each row being the
+#'   respective bridge's vector of simulated statistics.}
+#'   \item{Dtheta.Du}{The gradient vector of the parameter values with
+#'   respect to position of the bridge.}
 #' @seealso \code{\link{simulate.formula.ergm}}
 #' @references Hunter, D. R. and Handcock, M. S. (2006)
 #'   \emph{Inference in curved exponential family models for
@@ -188,9 +179,11 @@ ergm.bridge.0.llk<-function(object, response=response, constraints=~., coef, ...
 #' @rdname ergm.bridge.llr
 #'
 #' @description `ergm.bridge.dindstart.llk` is a wrapper that uses a
-#' dyad-independent ERGM as a starting point for bridge sampling to estimate
-#' the log-likelihood for a given dyad-dependent model and parameter
-#' configuration.
+#'   dyad-independent ERGM as a starting point for bridge sampling to
+#'   estimate the log-likelihood for a given dyad-dependent model and
+#'   parameter configuration.  Note that it only handles binary ERGMs
+#'   (`response=NULL`) and with constraints (`constraints=`) that that
+#'   do not induce dyadic dependence.
 #'
 #' @param dind A one-sided formula with the dyad-independent model to use as a
 #' starting point. Defaults to the dyad-independent terms found in the formula

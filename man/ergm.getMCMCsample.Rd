@@ -29,7 +29,9 @@ Metropolis-Hastings proposals and the result of calling
 
 \item{verbose}{verbosity level.}
 
-\item{response}{characher, name of an edge attribute.}
+\item{response}{Name of the edge attribute whose value is to be
+modeled in the valued ERGM framework. Defaults to \code{NULL} for
+simple presence or absence, modeled via a binary ERGM.}
 
 \item{...}{additional arugments.}
 

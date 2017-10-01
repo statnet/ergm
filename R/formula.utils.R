@@ -195,8 +195,7 @@ fix.curved.ergm <- function(object,...){
 
 #' @rdname fix.curved
 #' @param theta Curved model parameter configuration.
-#' @param response For valued ERGM, an edge attribute used as the response
-#' variable.
+#' @template response
 #' @export
 fix.curved.formula <- function(object, theta, response=NULL, ...){
   recipes<-list()
@@ -267,7 +266,7 @@ enformulate.curved.ergm <- function(object,...){
 
 #' @rdname enformulate.curved
 #' @param theta Curved model parameter configuration.
-#' @param response Not for release.
+#' @template response
 #' @export
 enformulate.curved.formula <- function(object, theta, response=NULL, ...){
   recipes<-list()
