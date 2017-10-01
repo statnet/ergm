@@ -29,6 +29,14 @@
 #
 #################################################################################
 
+#' @rdname anova.ergm
+#' @param test a character string specifying the test statistic to be used. Can
+#' be one of \code{"F"}, \code{"Chisq"} or \code{"Cp"}, with partial matching
+#' allowed, or \code{NULL} for no test.
+#' @param scale numeric. An estimate of the noise variance
+#' \eqn{\sigma^2}{sigma^2}. If zero this will be estimated from the largest
+#' model considered.
+#' @export
 anova.ergmlist <- function (object, ..., eval.loglik=FALSE, scale = 0, test = "F") 
 {
   objects <- list(object, ...)
