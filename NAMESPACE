@@ -383,6 +383,7 @@ S3method(summary,statsmatrix.ergm)
          
 S3method(vcov,ergm)
 
+S3method(degreedist,network)
 
 export(rlebdm, as.rlebdm)
 S3method(as.rlebdm,matrix)
