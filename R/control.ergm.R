@@ -200,7 +200,7 @@
 #' falls back to \code{optim} only when \code{trust} fails.
 #'
 #' @param
-#'   obs.MCMC.samplesize,obs.MCMC.burnin,obs.MCMC.interval,obs.MCMC.mul,obs.MCMC.samplesize.mul,obs.MCMC.burnin.mul,obs.MCMC.interval.mul,obs.MCMC.effectiveSize
+#'   obs.MCMLE.effectiveSize,obs.MCMC.samplesize,obs.MCMC.burnin,obs.MCMC.interval,obs.MCMC.mul,obs.MCMC.samplesize.mul,obs.MCMC.burnin.mul,obs.MCMC.interval.mul,obs.MCMC.effectiveSize
 #'   Sample size, burnin, and interval parameters for the MCMC
 #'   sampling used when unobserved data are present in the estimation
 #'   routine. By default, they are controlled by the `*.mul`
@@ -215,7 +215,10 @@
 #'   `obs.MCMC.samplesize` is set to \eqn{\sqrt{1/4}=1/2} that of
 #'   `obs.MCMC.samplesize`, and `obs.MCMC.burnin` and
 #'   `obs.MCMC.interval` are set to \eqn{\sqrt{1/4}=1/2} of their
-#'   respective unconstrained sampling parameters.
+#'   respective unconstrained sampling parameters. When
+#'   `MCMC.effectiveSize` or `MCMLE.effectiveSize` are given, their
+#'   corresponding `obs` parameters are set to them multiplied by
+#'   `obs.MCMC.mul`.
 #' 
 #' @param MCMLE.check.degeneracy Logical: If TRUE, employ a check for model
 #' degeneracy.

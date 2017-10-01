@@ -29,8 +29,12 @@ uses valued ERGM terms. For \code{ergm.bridge.dindstart.llk}, this
 argument is included solely for consistency, since it can only
 handle binary ERGMs.}}
 
-\item{constraints, obs.constraints}{One-sided formula specifying one
-or more constraints on the support of the distribution of the
+\item{reference}{{A one-sided formula specifying the reference
+measure (\eqn{h(y)}) to be used.  (Defaults to
+\code{~Bernoulli}.)}}
+
+\item{constraints, obs.constraints}{One-sided formulas specifying
+one or more constraints on the support of the distribution of the
 networks being simulated and on the observation process
 respectively. See the documentation for a similar argument for
 \code{\link{ergm}} for more information. Note that only
@@ -38,6 +42,9 @@ constraints that do not induce dyadic dependence can be handled
 by \code{ergm.bridge.dindstart.llk}.}
 
 \item{from, to}{The initial and final parameter vectors.}
+
+\item{target.stats}{{A vector of sufficient statistics to be used
+in place of those of the network in the formula.}}
 
 \item{basis}{An optional \code{\link[network]{network}} object to
 start the Markov chain.  If omitted, the default is the
