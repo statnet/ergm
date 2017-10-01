@@ -23,7 +23,49 @@
   fq / ((df - param + 1)/(param*df))
 }
 
-approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var.equal=FALSE){
+
+
+#' Approximate Hotelling T^2-Test for One Sample Means
+#' 
+#' A multivariate hypothesis test for a single population mean or a
+#' difference between them. This version attempts to adjust for
+#' multivariate autocorrelation in the samples.
+#'
+#' @param x a numeric matrix of data values with cases in rows and
+#'   variables in columns.
+#' @param y an optinal matrix of data values with cases in rows and
+#'   variables in columns for a 2-sample test.
+#' @param mu0 an optional numeric vector: for a 1-sample test, the
+#'   poulation mean under the null hypothesis; and for a 2-sample
+#'   test, the difference between population means under the null
+#'   hypothesis; defaults to a vector of 0s.
+#' @param assume.indep if `TRUE`, performs an ordinary Hotelling's
+#'   test without attempting to account for autocorrelation.
+#' @param var.equal for a 2-sample test, perform the pooled test:
+#'   assume population variance-covariance matrices of the two
+#'   variables are equal.
+#'
+#' @return An object of class `htest` with the following information:
+#' \item{statistic}{The \eqn{T^2} statistic.}
+#' \item{parameter}{Degrees of freedom.}
+#' \item{p.value}{P-value.}
+#' \item{method}{Method specifics.}
+#' \item{null.value}{Null hypothesis mean or mean difference.}
+#' \item{alternative}{Always `"two.sided"`.}
+#' \item{estimate}{Sample difference.}
+#' \item{covariance}{Estimated variance-covariance matrix of the estimate of the difference.}
+#' 
+#' It has a print method [print.htest()].
+#'
+#' @seealso [t.test()]
+#' @references
+#' 
+#' Hotelling, H. (1947). Multivariate Quality Control. In C. Eisenhart, M. W.
+#' Hastay, and W. A. Wallis, eds. Techniques of Statistical Analysis. New York:
+#' McGraw-Hill.
+#'
+#' @export approx.hotelling.diff.test
+approx.hotelling.diff.test<-function(x,y=NULL, mu0=rep(0, NCOL(x)), assume.indep=FALSE, var.equal=FALSE){
 
   tr <- function(x) sum(diag(as.matrix(x)))
 
@@ -80,7 +122,6 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var
 
 
   p <- ncol(x$v)
-  if(is.null(mu0)) mu0 <- rep(0,p)
   names(mu0)<-colnames(x$v)
 
   novar <- diag(vcov.d)==0

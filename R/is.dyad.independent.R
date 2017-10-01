@@ -12,14 +12,40 @@
 ## manipulating ERGM formulas.                                   ##
 ###################################################################
 
+
+
+#' Testing for dyad-independence
+#' 
+#' These functions test whether an ERGM fit, a formula, or some other
+#' object represents a dyad-independent model.
+#' 
+#' Dyad independence is determined by checking if all of the
+#' constituent parts of the object (formula, ergm terms, constraints,
+#' etc.) are flagged as dyad-independent.
+#' 
+#' @param object The object to be tested for dyadic independence.
+#' @param \dots Unused at this time.
+#' @return \code{TRUE} if the model implied by the object is
+#'   dyad-independent; \code{FALSE} otherwise.
+#' @keywords model
+#' @export is.dyad.independent
 is.dyad.independent<-function(object,...) UseMethod("is.dyad.independent")
 
+#' @rdname is.dyad.independent
+#' @description The method for `NULL` always returns `FALSE` by
+#'   convention.
+#' @export
 is.dyad.independent.NULL <- function(object, ...) TRUE # By convention.
 
+#' @rdname is.dyad.independent
+#' @export
 is.dyad.independent.ergm_model <- function(object, ...){
   ! any(sapply(object$terms, function(term) is.null(term$dependence) || term$dependence)) && is.dyad.independent(object$model.aux)
 }
 
+#' @rdname is.dyad.independent
+#' @param response,basis See \code{\link{ergm}}.
+#' @export
 is.dyad.independent.formula<-function(object,response=NULL,basis=NULL,...){
   # If basis is not null, replace network in formula by basis.
   # In either case, let nw be network object from formula.
@@ -40,6 +66,9 @@ is.dyad.independent.formula<-function(object,response=NULL,basis=NULL,...){
   is.dyad.independent(m)
 }
 
+#' @rdname is.dyad.independent
+#' @param object.obs For the [`ergm_conlist`] method, the observed data constraint.
+#' @export
 is.dyad.independent.ergm_conlist <- function(object, object.obs=NULL, ...){
   dind <- TRUE
   for(con in object){
@@ -48,6 +77,8 @@ is.dyad.independent.ergm_conlist <- function(object, object.obs=NULL, ...){
   dind && NVL3(object.obs, is.dyad.independent(.), TRUE)
 }
 
+#' @rdname is.dyad.independent
+#' @export
 is.dyad.independent.ergm<-function(object,...){
   with(object,
        is.dyad.independent(formula,object$response,network)
