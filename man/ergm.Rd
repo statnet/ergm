@@ -120,6 +120,12 @@ information, including goodness of fit statistics.
 arguments, to be passed to lower-level functions.
 }}
 
+\item{x, digits}{See \code{\link[=print]{print()}}.
+
+Automatically called when an object of class \code{\link{ergm}} is printed.
+Currently, summarizes the size of the MCMC sample, the \eqn{\theta}
+vector governing the selection of the sample, and the Monte Carlo MLE. The optional \code{digits} argument specifies the significant digits for coefficients}
+
 \item{object}{{an \code{ergm} object.}}
 
 \item{sources}{For the \code{vcov} method, specify whether to return
@@ -228,9 +234,7 @@ on a similar scheme.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{print}: Automatically called when an object of class \code{\link{ergm}} is printed.
-Currently, summarizes the size of the MCMC sample, the \eqn{\theta}
-vector governing the selection of the sample, and the Monte Carlo MLE. The optional \code{digits} argument specifies the significant digits for coefficients
+\item \code{print}: 
 
 \item \code{coef}: extracts estimated model coefficients.
 

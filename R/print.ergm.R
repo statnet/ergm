@@ -24,6 +24,8 @@
 
 
 #' @describeIn ergm
+#'
+#' @param x,digits See [print()].
 #' 
 #' Automatically called when an object of class \code{\link{ergm}} is printed.
 #' Currently, summarizes the size of the MCMC sample, the \eqn{\theta}
