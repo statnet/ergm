@@ -17,7 +17,7 @@ is.durational<-function(object,...) UseMethod("is.durational")
 
 is.durational.NULL <- function(object, ...) FALSE # By convention.
 is.durational.character <- function(object,...) FALSE # for mon="all"
-is.durational.ergm.model <- function(object, ...){
+is.durational.ergm_model <- function(object, ...){
 	any(object$duration)
 }
 

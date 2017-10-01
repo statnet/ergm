@@ -8,7 +8,7 @@
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
 #===================================================================================
-# This file contains the following 2 functions for creating the 'ergm.model' object
+# This file contains the following 2 functions for creating the 'ergm_model' object
 #             <ergm.getmodel>
 #             <updatemodel.ErgmTerm>
 #===================================================================================
@@ -99,7 +99,7 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
   ergm.MCMC.packagenames(unlist(sapply(model$terms, "[[", "pkgname")))
   ergm.MCMC.packagenames(unlist(sapply(model$model.aux$terms, "[[", "pkgname")))
   
-  class(model) <- "ergm.model"
+  class(model) <- "ergm_model"
   model
 }
 

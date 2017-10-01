@@ -163,14 +163,14 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   
   # If we get this far, statsonly==FALSE and nsim > 1, so out is a
   # network.list. Therefore, set the simulation and monitor formulas,
-  # which simulate.ergm.model() doesn't know.
+  # which simulate.ergm_model() doesn't know.
   attributes(out) <- c(attributes(out),
                        list(formula=object, monitor=monitor))
   out
 }
 
 
-simulate.ergm.model <- function(object, nsim=1, seed=NULL,
+simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                                 coef, response=NULL, reference=~Bernoulli,
                                 constraints=~.,
                                 monitor=NULL,
@@ -181,12 +181,12 @@ simulate.ergm.model <- function(object, nsim=1, seed=NULL,
                                 control=control.simulate.formula(),
                                 verbose=FALSE, ...){
 
-  check.control.class(c("simulate.formula", "simulate.ergm.model"), myname="simulate.ergm.model")
+  check.control.class(c("simulate.formula", "simulate.ergm_model"), myname="simulate.ergm_model")
   control.toplevel(..., myname="simulate.formula")
   
   if(is.null(monitor)) monitor <- 0
-  if(!is.numeric(monitor)) stop("ergm.model method for simulate() requires monitor= argument to give the number of statistics at the end of the model that are to be monitored (defaulting to 0).")
-  if(is.null(basis)) stop("ergm.model method for simulate() requires the basis= argument for the initial state of the simulation.")
+  if(!is.numeric(monitor)) stop("ergm_model method for simulate() requires monitor= argument to give the number of statistics at the end of the model that are to be monitored (defaulting to 0).")
+  if(is.null(basis)) stop("ergm_model method for simulate() requires the basis= argument for the initial state of the simulation.")
  
   # Backwards-compatibility code:
   if("theta0" %in% names(list(...))){

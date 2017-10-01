@@ -46,14 +46,11 @@ ergm.bridge.preproc<-function(object, basis, response){
 #'   uses valued ERGM terms. For `ergm.bridge.dindstart.llk`, this
 #'   argument is included solely for consistency, since it can only
 #'   handle binary ERGMs.}
-#' @param constraints,obs.constraints One-sided formula specifying one
+#' @param constraints,obs.constraints One-sided formulas specifying one
 #'   or more constraints on the support of the distribution of the
 #'   networks being simulated and on the observation process
 #'   respectively. See the documentation for a similar argument for
-#'   \code{\link{ergm}} for more information. For
-#'   \code{simulate.formula}, defaults to no constraints. For
-#'   \code{simulate.ergm}, defaults to using the same constraints as
-#'   those with which \code{object} was fitted. Note that only
+#'   \code{\link{ergm}} for more information. Note that only
 #'   constraints that do not induce dyadic dependence can be handled
 #'   by \code{ergm.bridge.dindstart.llk}.
 #' @param from,to The initial and final parameter vectors.

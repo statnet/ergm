@@ -1,4 +1,4 @@
-#  File R/ergm.model.utils.R in package ergm, part of the Statnet suite
+#  File R/ergm_model.utils.R in package ergm, part of the Statnet suite
 #  of packages for network analysis, http://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
@@ -127,7 +127,7 @@ eta.length.model <- function(object, offset=NA, ...){
 
 #' Parameters names of an initialized ergm model
 #'
-#' @param object an `ergm.model`.
+#' @param object an `ergm_model`.
 #' @param canonical whether the canonical (natural) parameters or the
 #'   model (curved) parameters are wanted.
 #'
@@ -137,9 +137,9 @@ coef.names.model <- function(object, canonical){
   else unlist(lapply(object$terms, function(term) NVL(names(term$params),term$coef.names)))
 }
 
-#' `ergm.model`'s `etamap` with all offset terms removed and remapped
+#' `ergm_model`'s `etamap` with all offset terms removed and remapped
 #'
-#' @param etamap the `etamap` element of the `ergm.model`.
+#' @param etamap the `etamap` element of the `ergm_model`.
 #'
 #' @return a copy of the input as if all offset terms were dropped
 #'   from the model

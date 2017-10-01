@@ -153,18 +153,18 @@ export(
   invert.network,       # deprecated         
   is.durational,
   is.durational.character,         
-  is.durational.ergm.model,
+  is.durational.ergm_model,
   is.durational.formula,           
   is.durational.NULL,
   is.dyad.independent,             
   is.dyad.independent.ergm_conlist,
   is.dyad.independent.ergm,        
-  is.dyad.independent.ergm.model,
+  is.dyad.independent.ergm_model,
   is.dyad.independent.formula,     
   is.dyad.independent.NULL,
   is.curved,             
   is.curved.ergm,        
-  is.curved.ergm.model,
+  is.curved.ergm_model,
   is.curved.formula,     
   is.curved.NULL,
   is.ergm,                         
@@ -324,18 +324,18 @@ S3method(gof,formula)
 
 S3method(is.durational,NULL)
 S3method(is.durational,character)
-S3method(is.durational,ergm.model)
+S3method(is.durational,ergm_model)
 S3method(is.durational,formula)
 
 S3method(is.dyad.independent,NULL)
 S3method(is.dyad.independent,ergm_conlist) 
 S3method(is.dyad.independent,ergm)
-S3method(is.dyad.independent,ergm.model)
+S3method(is.dyad.independent,ergm_model)
 S3method(is.dyad.independent,formula)
 
 S3method(is.curved,NULL)
 S3method(is.curved,ergm)
-S3method(is.curved,ergm.model)
+S3method(is.curved,ergm_model)
 S3method(is.curved,formula)
 
 S3method(logLik,ergm)
