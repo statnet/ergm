@@ -51,6 +51,55 @@
 #
 ##########################################################################
 
+
+
+#' Create a Simple Random network of a Given Size
+#' 
+#' \code{\link{as.network.numeric}} creates a random Bernoulli network of the
+#' given size as an object of class \code{\link[network]{network}}.
+#' 
+#' The network will have not have vertex, edge or network attributes.  These
+#' can be added with operators such as \code{%v%}, \code{%n%}, \code{%e%}.
+#' 
+#' @param x count; the number of nodes in the network. If
+#' \code{bipartite=TRUE}, it is the number of events in the network.
+#' @param directed logical; should edges be interpreted as directed?
+#' @param hyper logical; are hyperedges allowed? Currently ignored.
+#' @param loops logical; should loops be allowed? Currently ignored.
+#' @param multiple logical; are multiplex edges allowed? Currently ignored.
+#' @param bipartite count; should the network be interpreted as bipartite? If
+#' present (i.e., non-NULL) it is the count of the number of actors in the
+#' bipartite network. In this case, the number of nodes is equal to the number
+#' of actors plus the number of events (with all actors preceding all events).
+#' The edges are then interpreted as nondirected.
+#' @param ignore.eval logical; ignore edge values? Currently ignored.
+#' @param names.eval optionally, the name of the attribute in which edge values
+#' should be stored. Currently ignored.
+#' @param edge.check logical; perform consistency checks on new edges?
+#' @param density numeric; the probability of a tie for Bernoulli networks. If
+#' neither density nor \code{init} is given, it defaults to the number of nodes
+#' divided by the number of dyads (so the expected number of ties is the same
+#' as the number of nodes.)
+#' @param init numeric; the log-odds of a tie for Bernoulli networks.  It is
+#' only used if density is not specified.
+#' @param numedges count; if present, sample the Bernoulli network conditional
+#' on this number of edges (rather than independently with the specified
+#' probability).
+#' @param ... additional arguments
+#' @return An object of class \code{\link[network]{network}}
+#' @seealso \code{\link[network]{network}}
+#' @references Butts, C.T.  2002.  ``Memory Structures for Relational Data in
+#' R: Classes and Interfaces'' Working Paper.
+#' @keywords classes graphs
+#' @examples
+#' 
+#' #Draw a random directed network with 25 nodes
+#' g<-network(25)
+#' #Draw a random undirected network with density 0.1
+#' g<-network(25, directed=FALSE, density=0.1)
+#' #Draw a random bipartite network with 10 events and 5 actors and density 0.1
+#' g<-network(5, bipartite=10, density=0.1)
+#' @export
 as.network.numeric<-function(x,
     directed = TRUE,
     hyper = FALSE, loops = FALSE, multiple = FALSE, bipartite = FALSE,
