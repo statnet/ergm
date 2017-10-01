@@ -503,7 +503,9 @@ NULL
 #' 
 #' This well-known social network dataset, collected by Bruce Kapferer in
 #' Zambia from June 1965 to August 1965, involves interactions among workers in
-#' a tailor shop as observed by Kapferer himself.  Here, an interaction is
+#' a tailor shop as observed by Kapferer himself.
+#'
+#' An interaction is
 #' defined by Kapferer as "continuous uninterrupted social activity involving
 #' the participation of at least two persons"; only transactions that were
 #' relatively frequent are recorded. All of the interactions in this particular
