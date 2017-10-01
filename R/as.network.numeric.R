@@ -7,51 +7,6 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
-###########################################################################
-# The <as.network.numeric> function creates and returns a bernouli
-# network.
-#
-# --PARAMETERS--
-#   x        : for a non-bipartite network, the number of nodes;
-#              for a bipartite network, the number of events.
-#               (the number of actors is specied via the bipartite param)
-#   directed : whether the network is to be directed; default=TRUE
-#   bipartite: the count of actors if the network should be bipartite; 0
-#              if 'x' is not bipartite; default=FALSE
-#   density  : the probability of a tie; default=the number of nodes divided
-#              by the number of possible dyad IF init isn't provided, NULL
-#              otherwise
-#   init   : the log-odds of a tie, this parameter is ignored if density
-#              is given; default=the number of nodes divided by the number of
-#              possible dyad IF density isn't provided, NULL otherwise
-#   numedges : the number of edges that the returned network must have;
-#              default=NULL, in which case numedges will result from
-#              the random process
-#
-#
-# --IGNORED PARAMETERS--
-#   hyper       : whether the network should allow hyper edges; default=FALSE
-#   loops       : whether the network should allow loops; default=FALSE
-#   multiple    : whether the network should allow multiplex edges;
-#                 default=FALSE
-#   ignore.eval : whether edge values should be ignored; default=FALSE
-#                 default=FALSE
-#   names.eval  : the attribute in which edge values are to be stored;
-#                 default=NULL
-#   edge.check  : whether a consistency check should be performed;
-#                 default=FALSE
-#   ...         : additional parameters
-#
-#
-# --RETURNED--
-#   a random bernoulli network with the specified size and desired
-#   probabilistic qualities
-#
-# author: MSH
-#
-##########################################################################
-
-
 
 #' Create a Simple Random network of a Given Size
 #' 
@@ -59,7 +14,7 @@
 #' given size as an object of class \code{\link[network]{network}}.
 #' 
 #' The network will have not have vertex, edge or network attributes.  These
-#' can be added with operators such as \code{%v%}, \code{%n%}, \code{%e%}.
+#' can be added with operators such as \code{\%v\%}, \code{\%n\%}, \code{\%e\%}.
 #' 
 #' @param x count; the number of nodes in the network. If
 #' \code{bipartite=TRUE}, it is the number of events in the network.

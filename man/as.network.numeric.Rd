@@ -55,6 +55,10 @@ An object of class \code{\link[network]{network}}
 \code{\link{as.network.numeric}} creates a random Bernoulli network of the
 given size as an object of class \code{\link[network]{network}}.
 }
+\details{
+The network will have not have vertex, edge or network attributes.  These
+can be added with operators such as \code{\%v\%}, \code{\%n\%}, \code{\%e\%}.
+}
 \examples{
 
 #Draw a random directed network with 25 nodes
