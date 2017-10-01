@@ -13,14 +13,45 @@
 # To make an (T)ERGM term durational dependent, simply add an "duration" object
 # to terms in InitErgmTerm.duration.R
 ###############################################################################
+
+
+#' Testing for durational dependent models
+#' 
+#' These functions test whether an ERGM model or formula is durational
+#' dependent or not. If the formula or model does not include any terms that
+#' need information about the duration of existing ties, the ergm proceass can
+#' use more efficient internal data structures.
+#' 
+#' @param object An \code{\link{ergm}} object or an ERGM formula, or some
+#' characters, e.g., object="all" for monitoring purpose.
+#' @param \dots Unused at this time.
+#' @return \code{TRUE} if the ERGM terms in the formula or model are durational
+#' dependent ; \code{FALSE} otherwise.
+#' @keywords model
+#' @export
 is.durational<-function(object,...) UseMethod("is.durational")
 
+#' @rdname is.durational
+#' @description The method for `NULL` always returns `FALSE` by
+#'   convention.
+#' @export
 is.durational.NULL <- function(object, ...) FALSE # By convention.
+
+#' @rdname is.durational
+#' @description The method for `character` always returns `FALSE` by
+#'   convention.
+#' @export
 is.durational.character <- function(object,...) FALSE # for mon="all"
+
+#' @rdname is.durational
+#' @export
 is.durational.ergm_model <- function(object, ...){
 	any(object$duration)
 }
 
+#' @rdname is.durational
+#' @param response,basis See [ergm()].
+#' @export
 is.durational.formula<-function(object,response=NULL,basis=NULL,...){
 	# If basis is not null, replace network in formula by basis.
 	# In either case, let nw be network object from formula.

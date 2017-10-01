@@ -8,49 +8,36 @@
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
 
-#' Extract Model Fit Coefficients and Uncertainty Estimates
+#' @describeIn ergm extracts estimated model coefficients.
 #' 
-#' \code{coef} extracts model coefficients from objects returned by
-#' the \code{\link{ergm}} function.
-#' 
-#' @param object {an object for which the extraction of model coefficients is
-#'     meaningful.}
-#' @param ... {other arguments.}
-#' 
-#' @return Coefficients extracted from the model object \code{object}.
-#' 
-#' @seealso \code{\link{fitted.values}} and \code{\link{residuals}} for related methods;
-#'   \code{\link{glm}}, \code{\link{lm}} for model fitting.
-#' 
+#' @param object {an `ergm` object.}
 #' @examples
-#' data(florentine)
-#' fit <- ergm(flomarriage ~ edges + concurrent)
-#' coef(fit)
-#' 
-#' @keywords regression models
+#' \donttest{
+#' # Extract parameter estimates as a numeric vector:
+#' coef(gest)
+#' }
 #' @export
 coef.ergm <- function(object, ...){object$coef}
 
-#' @rdname coef.ergm
-#'
-#' @description
-#' \code{coefficients} is an \emph{alias} for \code{ergm}.
+#' @describeIn ergm An \emph{alias} for
+#'   \code{ergm}.
 #' @export
 coefficients.ergm <- coef.ergm
 
-#' @rdname coef.ergm
-#'
-#' @description
-#' \code{vcov} extracts the variance-covariance matrix of parameter
-#'   estimates.
+#' @describeIn ergm extracts the variance-covariance matrix of
+#'   parameter estimates.
 #' 
-#' @param sources {Specify whether to return the covariance matrix
-#'   from the ERGM model, the estimation process, or both combined.}
+#' @param sources For the `vcov` method, specify whether to return
+#'   the covariance matrix from the ERGM model, the estimation
+#'   process, or both combined.
 #'
 #' @examples
-#' vcov(fit, sources="model")
-#' vcov(fit, sources="estimation")
-#' vcov(fit, sources="all") # the default
+#' \donttest{
+#' # Sources of variation in parameter estimates:
+#' vcov(gest, sources="model")
+#' vcov(gest, sources="estimation")
+#' vcov(gest, sources="all") # the default
+#' }
 #' @export
 vcov.ergm <- function(object, sources=c("all","model","estimation"), ...){
   sources <- match.arg(sources)
