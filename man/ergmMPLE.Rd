@@ -7,10 +7,6 @@
 ergmMPLE(formula, fitmodel = FALSE, output = c("matrix", "array", "fit"),
   as.initialfit = TRUE, control = control.ergm(), verbose = FALSE, ...)
 }
-\description{
-Return the predictor matrix, response vector, and vector of weights that can
-be used to calculate the MPLE for an ERGM.
-}
 \arguments{
 \item{formula}{An ERGM formula. See \code{\link{ergm}}.}
 
@@ -31,26 +27,6 @@ ERGM.  Most of these parameters are irrelevant in this context.  See
 additional information.}
 
 \item{\dots}{Additional arguments, to be passed to lower-level functions.}
-}
-\details{
-The MPLE for an ERGM is calculated by first finding the matrix of change
-statistics.  Each row of this matrix is associated with a particular pair
-(ordered or unordered, depending on whether the network is directed or
-undirected) of nodes, and the row equals the change in the vector of network
-statistics (as defined in \code{formula}) when that pair is toggled from a 0
-(no edge) to a 1 (edge), holding all the rest of the network fixed.  The
-MPLE results if we perform a logistic regression in which the predictor
-matrix is the matrix of change statistics and the response vector is the
-observed network (i.e., each entry is either 0 or 1, depending on whether
-the corresponding edge exists or not).
-
-Using \code{output="matrix"}, note that the result of the fit may be
-obtained from the \code{\link{glm}} function, as shown in the examples
-below.
-
-When \code{output="array"}, the \code{MPLE.max.dyad.types} control parameter
-must be greater than \code{network.dyadcount(.)} of the response network, or
-not all elements of the array that ought to be filled in will be.
 }
 \value{
 If \code{output=="matrix"} (the default), then only the response, predictor,
@@ -81,6 +57,30 @@ If \code{output=="fit"}, then \code{ergmMPLE} simply calls the
 \code{\link{ergm}} function with the \code{estimate="MPLE"} option set,
 returning an object of class \code{ergm} that gives the fitted
 pseudolikelihood model.
+}
+\description{
+Return the predictor matrix, response vector, and vector of weights that can
+be used to calculate the MPLE for an ERGM.
+}
+\details{
+The MPLE for an ERGM is calculated by first finding the matrix of change
+statistics.  Each row of this matrix is associated with a particular pair
+(ordered or unordered, depending on whether the network is directed or
+undirected) of nodes, and the row equals the change in the vector of network
+statistics (as defined in \code{formula}) when that pair is toggled from a 0
+(no edge) to a 1 (edge), holding all the rest of the network fixed.  The
+MPLE results if we perform a logistic regression in which the predictor
+matrix is the matrix of change statistics and the response vector is the
+observed network (i.e., each entry is either 0 or 1, depending on whether
+the corresponding edge exists or not).
+
+Using \code{output="matrix"}, note that the result of the fit may be
+obtained from the \code{\link{glm}} function, as shown in the examples
+below.
+
+When \code{output="array"}, the \code{MPLE.max.dyad.types} control parameter
+must be greater than \code{network.dyadcount(.)} of the response network, or
+not all elements of the array that ought to be filled in will be.
 }
 \examples{
 
