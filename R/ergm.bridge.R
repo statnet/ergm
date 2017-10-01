@@ -40,6 +40,7 @@ ergm.bridge.preproc<-function(object, basis, response){
 #' 
 #' 
 #' @param object A model formula. See \code{\link{ergm}} for details.
+#' @template response
 #' @param response {Name of the edge attribute whose value is to be
 #'   modeled. Defaults to \code{NULL} for simple presence or absence,
 #'   modeled via binary ERGM terms. Passing anything but \code{NULL}
@@ -50,9 +51,7 @@ ergm.bridge.preproc<-function(object, basis, response){
 #'   one or more constraints on the support of the distribution of the
 #'   networks being simulated and on the observation process
 #'   respectively. See the documentation for a similar argument for
-#'   \code{\link{ergm}} for more information. Note that only
-#'   constraints that do not induce dyadic dependence can be handled
-#'   by \code{ergm.bridge.dindstart.llk}.
+#'   \code{\link{ergm}} for more information.
 #' @param reference {A one-sided formula specifying the reference
 #'   measure (\eqn{h(y)}) to be used.  (Defaults to
 #'   \code{~Bernoulli}.)}
@@ -204,9 +203,11 @@ ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, .
 #' @rdname ergm.bridge.llr
 #'
 #' @description `ergm.bridge.dindstart.llk` is a wrapper that uses a
-#' dyad-independent ERGM as a starting point for bridge sampling to estimate
-#' the log-likelihood for a given dyad-dependent model and parameter
-#' configuration.
+#'   dyad-independent ERGM as a starting point for bridge sampling to
+#'   estimate the log-likelihood for a given dyad-dependent model and
+#'   parameter configuration.  Note that it only handles binary ERGMs
+#'   (`response=NULL`) and with constraints (`constraints=`) that that
+#'   do not induce dyadic dependence.
 #'
 #' @param dind A one-sided formula with the dyad-independent model to use as a
 #' starting point. Defaults to the dyad-independent terms found in the formula

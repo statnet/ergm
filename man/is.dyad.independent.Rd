@@ -27,7 +27,11 @@ is.dyad.independent(object, ...)
 
 \item{\dots}{Unused at this time.}
 
-\item{response, basis}{See \code{\link{ergm}}.}
+\item{response}{Name of the edge attribute whose value is to be
+modeled in the valued ERGM framework. Defaults to \code{NULL} for
+simple presence or absence, modeled via a binary ERGM.}
+
+\item{basis}{See \code{\link{ergm}}.}
 
 \item{object.obs}{For the \code{\link{ergm_conlist}} method, the observed data constraint.}
 }
