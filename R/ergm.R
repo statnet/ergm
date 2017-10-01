@@ -142,11 +142,7 @@
 #' operator if necessary. Enclosing a model term in \code{offset()}
 #' fixes its value to one specified in \code{offset.coef}.
 #' }
-#' @param response {Name of the edge attribute whose value is to be
-#' modeled. Defaults to \code{NULL} for simple presence or
-#' absence, modeled via binary ERGM terms. Passing
-#' anything but \code{NULL} uses valued ERGM terms.} 
-#' 
+#' @template response
 #' @param reference {A one-sided formula specifying
 #' the reference measure (\eqn{h(y)}) to be used. (Defaults to \code{~Bernoulli}.)
 #' See help for [ERGM reference measures][ergm-references] implemented in the

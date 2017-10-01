@@ -22,12 +22,9 @@ ergm.bridge.dindstart.llk(object, response = NULL, constraints = ~., coef,
 \arguments{
 \item{object}{A model formula. See \code{\link{ergm}} for details.}
 
-\item{response}{{Name of the edge attribute whose value is to be
-modeled. Defaults to \code{NULL} for simple presence or absence,
-modeled via binary ERGM terms. Passing anything but \code{NULL}
-uses valued ERGM terms. For \code{ergm.bridge.dindstart.llk}, this
-argument is included solely for consistency, since it can only
-handle binary ERGMs.}}
+\item{response}{Name of the edge attribute whose value is to be
+modeled in the valued ERGM framework. Defaults to \code{NULL} for
+simple presence or absence, modeled via a binary ERGM.}
 
 \item{reference}{{A one-sided formula specifying the reference
 measure (\eqn{h(y)}) to be used.  (Defaults to
@@ -37,9 +34,7 @@ measure (\eqn{h(y)}) to be used.  (Defaults to
 one or more constraints on the support of the distribution of the
 networks being simulated and on the observation process
 respectively. See the documentation for a similar argument for
-\code{\link{ergm}} for more information. Note that only
-constraints that do not induce dyadic dependence can be handled
-by \code{ergm.bridge.dindstart.llk}.}
+\code{\link{ergm}} for more information.}
 
 \item{from, to}{The initial and final parameter vectors.}
 
@@ -75,6 +70,13 @@ redundant.}
 
 \item{coef.dind}{Parameter configuration for the dyad-independent starting
 point. Defaults to the MLE of \code{dind}.}
+
+\item{response}{{Name of the edge attribute whose value is to be
+modeled. Defaults to \code{NULL} for simple presence or absence,
+modeled via binary ERGM terms. Passing anything but \code{NULL}
+uses valued ERGM terms. For \code{ergm.bridge.dindstart.llk}, this
+argument is included solely for consistency, since it can only
+handle binary ERGMs.}}
 }
 \value{
 If \code{llronly=TRUE} or \code{llkonly=TRUE}, these functions return
@@ -110,9 +112,11 @@ configuration with \eqn{\theta=0} is defined as having log-likelihood of
 0.
 
 \code{ergm.bridge.dindstart.llk} is a wrapper that uses a
-dyad-independent ERGM as a starting point for bridge sampling to estimate
-the log-likelihood for a given dyad-dependent model and parameter
-configuration.
+dyad-independent ERGM as a starting point for bridge sampling to
+estimate the log-likelihood for a given dyad-dependent model and
+parameter configuration.  Note that it only handles binary ERGMs
+(\code{response=NULL}) and with constraints (\code{constraints=}) that that
+do not induce dyadic dependence.
 }
 \references{
 Hunter, D. R. and Handcock, M. S. (2006)

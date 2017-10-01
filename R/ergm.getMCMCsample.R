@@ -7,52 +7,44 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
-#==============================================================================
-# This file contains the 2 following functions for getting an MCMC sample
-#      <ergm.getMCMCsample>
-#      <ergm.mcmcslave>
-#==============================================================================
 
-
-
-
-#########################################################################################
-# The <ergm.getMCMCsample> function samples networks using an MCMC algorithm via
-# <MCMC_wrapper.C>. Unlike its <ergm.getMCMCsample> counterpart, this function is
-# caple of running in multiple threads.  Note that the returned stats will be relative to
-# the original network, i.e., the calling function must shift the statistics if required. 
-# The calling function must also attach column names to the statistics matrix if required.
-#
-# --PARAMETERS--
-#   nw        :  a network object
-#   model     :  a model for the given 'nw' as returned by <ergm.getmodel>
-#   MHproposal:  a list of the parameters needed for Metropolis-Hastings proposals and
-#                the result of calling <MHproposal>
-#   eta0      :  the initial eta coefficients
-#   verbose   :  whether the C functions should be verbose; default=FALSE
-#   control:  list of MCMC tuning parameters; those recognized include
-#       parallel    : the number of threads in which to run the sampling
-#       packagenames: names of packages; this is only relevant if "ergm" is given
-#       samplesize  : the number of networks to be sampled
-#       interval    : the number of proposals to ignore between sampled networks
-#       burnin      : the number of proposals to initially ignore for the burn-in
-#                     period
-#
-# Note:  In reality, there should be many fewer arguments to this function,
-# since most info should be passed via Clist (this is, after all, what Clist
-# is for:  Holding all arguments required for the .C call).  In particular,
-# the elements of MHproposal, control, verbose should certainly
-# be part of Clist.  But this is a project for another day!
-#
-# --RETURNED--
-#   the sample as a list containing:
-#     statsmatrix:  the stats matrix for the sampled networks, RELATIVE TO THE ORIGINAL
-#                   NETWORK!
-#     newnetwork :  the edgelist of the final sampled network
-#     nedges     :  the number of edges in the 'newnetwork' ??
-#
-#########################################################################################
-
+#' Internal Function to Sample Networks and Network Statistics
+#' 
+#' This is an internal function, not normally called directly by the
+#' user. The \code{ergm.getMCMCsample} function samples networks and
+#' network statistics using an MCMC algorithm via \code{MCMC_wrapper}
+#' and is caple of running in multiple threads using
+#' `ergm.mcmcslave`.
+#' 
+#' 
+#' Note that the returned stats will be relative to the original network, i.e.,
+#' the calling function must shift the statistics if required. The calling
+#' function must also attach column names to the statistics matrix if required.
+#' 
+#' @param nw a [`network`] object representing the sampler state.
+#' @param model an [`ergm_model`] to be sampled from, as returned by
+#'   [ergm.getmodel()].
+#' @param MHproposal a list of the parameters needed for
+#'   Metropolis-Hastings proposals and the result of calling
+#'   [MHproposal()].
+#' @param eta0 the natural parameters of the model.
+#' @param control list of MCMC tuning parameters; see
+#'   [control.ergm()].
+#' @param verbose verbosity level.
+#' @template response
+#' @param ... additional arugments.
+#' @return
+#' \code{ergm.getMCMCsample} returns a list
+#'   containing:
+#' \item{statsmatrices}{a list of stats matrices for the
+#'   sampled networks, relative to the original network, one for each thread.}
+#' \item{newnetwork}{a list of final sampled networks, one for each thread.}
+#' \item{statsmatrix}{combined stats matrix for the
+#'   sampled networks, relative to the original network.}
+#' \item{newnetwork}{the final sampled network from the first (or only) thread.}
+#' \item{status}{status code, propagated from `ergm.mcmcslave`.}
+#' \item{final.interval}{adaptively determined MCMC interval.}
+#' @export ergm.getMCMCsample
 ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control, 
                                         verbose, response=NULL, ...) {
   nthreads <- max(
@@ -238,6 +230,26 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
 #
 ###############################################################################
 
+#' @rdname ergm.getMCMCsample
+#' @description The \code{ergm.mcmcslave} function calls the actual C
+#'   routine and does minimal preprocessing.
+#'
+#' @param prev.run a summary of the state of the sampler allowing a
+#'   run to be resumed quickly by `ergm.mcmcslave`.
+#' @param burnin,samplesize,interval,maxedges MCMC paramters that can
+#'   be used to temporarily override those in the `control` list.
+#' @param Clist the list of parameters returned by
+#'   \code{\link{ergm.Cprepare}}
+#' @return \code{ergm.mcmcslave} returns the MCMC sample as a list of
+#'   the following: \item{s}{the matrix of statistics.}
+#'   \item{newnwtails}{the vector of tails for the new network.}
+#'   \item{newnwheads}{the vector of heads for the new network.}
+#'   \item{newnwweights}{the vector of weights for the new network (if
+#'   applicable)} \item{status}{success or failure code: `0` is
+#'   success, `1` for too many edges, and `2` for a
+#'   Metropolis-Hastings proposal failing.}  \item{maxedges}{maximum
+#'   allowed edges at the time of return.}
+#' @export ergm.mcmcslave
 ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL) {
 
   numnetworks <- 0

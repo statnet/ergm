@@ -137,12 +137,66 @@ model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
 ## into the formula according to a set of recipes. Returns the new
 ## formula and the appropriate parameter vector.
 
+
+
+#' Convert a curved ERGM into a corresponding "fixed" ERGM.
+#' 
+#' The generic \code{fix.curved} converts an \code{\link{ergm}} object or
+#' formula of a model with curved terms to the variant in which the curved
+#' parameters are fixed. Note that each term has to be treated as a special
+#' case.
+#' 
+#' Some ERGM terms such as \code{\link{gwesp}} and \code{\link{gwdegree}} have
+#' two forms: a curved form, for which their decay or similar parameters are to
+#' be estimated, and whose canonical statistics is a vector of the term's
+#' components (\code{\link{esp}(1)}, \code{\link{esp}(2)}, \dots{} and
+#' \code{\link{degree}(1)}, \code{\link{degree}(2)}, \dots{}, respectively) and
+#' a "fixed" form where the decay or similar parameters are fixed, and whose
+#' canonical statistic is just the term itself. It is often desirable to fit a
+#' model estimating the curved parameters but simulate the "fixed" statistic.
+#' 
+#' This function thus takes in a fit or a formula and performs this mapping,
+#' returning a "fixed" model and parameter specification.  It only works for
+#' curved ERGM terms included with the \code{\link[=ergm-package]{ergm}}
+#' package. It does not work with curved terms not included in ergm.
+#' 
+#' @param object An \code{\link{ergm}} object or an ERGM formula. The curved
+#' terms of the given formula (or the formula used in the fit) must have all of
+#' their arguments passed by name.
+#' @param \dots Unused at this time.
+#' @return A list with the following components: \item{formula}{The "fixed"
+#' formula.} \item{theta}{The "fixed" parameter vector.}
+#' @seealso \code{\link{ergm}}, \code{\link{simulate.ergm}}
+#' @keywords model
+#' @examples
+#' 
+#' \donttest{
+#' data(sampson)
+#' gest<-ergm(samplike~edges+gwesp(decay=.5,fixed=FALSE),
+#'            control=control.ergm(MCMLE.maxit=3))
+#' summary(gest)
+#' # A statistic for esp(1),...,esp(16)
+#' simulate(gest,statsonly=TRUE)
+#' 
+#' tmp<-fix.curved(gest)
+#' tmp
+#' # A gwesp() statistic only
+#' simulate(tmp$formula, coef=tmp$theta, statsonly=TRUE) 
+#' }
+#' 
+#' @export fix.curved
 fix.curved <- function(object, ...) UseMethod("fix.curved")
 
+#' @rdname fix.curved
+#' @export
 fix.curved.ergm <- function(object,...){
   fix.curved.formula(object$formula, coef(object), response=object$response, ...)
 }
 
+#' @rdname fix.curved
+#' @param theta Curved model parameter configuration.
+#' @template response
+#' @export
 fix.curved.formula <- function(object, theta, response=NULL, ...){
   recipes<-list()
   is.fixed.1<-function(a) is.null(a$fixed) || a$fixed==FALSE
@@ -157,17 +211,65 @@ fix.curved.formula <- function(object, theta, response=NULL, ...){
 }
 
 
-## Convert a fitted curved ERGM (or its formula + theta) into a curved
-## model suitable for use as input to ergm().  This is a workaround
-## around a current issue in ERGM and may be eliminated in the future.
-
+#' Convert a curved ERGM into a form suitable as initial values for the same
+#' ergm. Deprecated in 4.0.0.
+#' 
+#' The generic \code{enformulate.curved} converts an \code{\link{ergm}} object
+#' or formula of a model with curved terms to the variant in which the curved
+#' parameters embedded into the formula and are removed from the parameter
+#' vector. This is the form that used to be required by \code{\link{ergm}} calls.
+#' 
+#' Because of a current kludge in \code{\link{ergm}}, output from one run
+#' cannot be directly passed as initial values (\code{control.ergm(init=)}) for
+#' the next run if any of the terms are curved. One workaround is to embed the
+#' curved parameters into the formula (while keeping \code{fixed=FALSE}) and
+#' remove them from \code{control.ergm(init=)}.
+#' 
+#' This function automates this process for curved ERGM terms included with the
+#' \code{\link[=ergm-package]{ergm}} package. It does not work with curved
+#' terms not included in ergm.
+#' 
+#' @param object An \code{\link{ergm}} object or an ERGM formula. The curved
+#' terms of the given formula (or the formula used in the fit) must have all of
+#' their arguments passed by name.
+#' @param \dots Unused at this time.
+#' @return A list with the following components: \item{formula}{The formula
+#' with curved parameter estimates incorporated.} \item{theta}{The coefficient
+#' vector with curved parameter estimates removed.}
+#' @seealso \code{\link{ergm}}, \code{\link{simulate.ergm}}
+#' @keywords model
+#' @name enformulate.curved-deprecated
+## #' @examples
+## #' 
+## #' \donttest{
+## #' data(sampson)
+## #' gest<-ergm(samplike~edges+gwesp(decay=.5, fixed=FALSE), 
+## #'     control=control.ergm(MCMLE.maxit=1))
+## #' # Error:
+## #' gest2<-try(ergm(gest$formula, control=control.ergm(init=coef(gest), MCMLE.maxit=2)))
+## #' print(gest2)
+## #' 
+## #' # Works:
+## #' tmp<-enformulate.curved(gest)
+## #' tmp
+## #' gest2<-try(ergm(tmp$formula, control=control.ergm(init=tmp$theta, MCMLE.maxit=2)))
+## #' summary(gest2)
+## #' }
+#' 
+#' @export enformulate.curved
 enformulate.curved <- function(object, ...) UseMethod("enformulate.curved")
 
+#' @rdname enformulate.curved-deprecated
+#' @export
 enformulate.curved.ergm <- function(object,...){
   .Deprecated(msg="enformulate.curved() family of functions has been obviated by native handling of curved ERGM terms.")
   fix.curved.formula(object$formula, coef(object), response=object$response, ...)
 }
 
+#' @rdname enformulate.curved-deprecated
+#' @param theta Curved model parameter configuration.
+#' @template response
+#' @export
 enformulate.curved.formula <- function(object, theta, response=NULL, ...){
   recipes<-list()
   is.fixed.1<-function(a) is.null(a$fixed) || a$fixed==FALSE

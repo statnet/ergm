@@ -24,7 +24,11 @@ characters, e.g., object="all" for monitoring purpose.}
 
 \item{\dots}{Unused at this time.}
 
-\item{response, basis}{See \code{\link[=ergm]{ergm()}}.}
+\item{response}{Name of the edge attribute whose value is to be
+modeled in the valued ERGM framework. Defaults to \code{NULL} for
+simple presence or absence, modeled via a binary ERGM.}
+
+\item{basis}{See \code{\link[=ergm]{ergm()}}.}
 }
 \value{
 \code{TRUE} if the ERGM terms in the formula or model are durational

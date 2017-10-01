@@ -42,7 +42,8 @@ is.curved.ergm_model <- function(object, ...){
 }
 
 #' @rdname is.curved 
-#' @param response,basis See [ergm()].
+#' @template response
+#' @param basis See [ergm()].
 #' @export
 is.curved.formula<-function(object,response=NULL,basis=NULL,...){
   # If basis is not null, replace network in formula by basis.

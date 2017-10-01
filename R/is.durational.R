@@ -50,7 +50,8 @@ is.durational.ergm_model <- function(object, ...){
 }
 
 #' @rdname is.durational
-#' @param response,basis See [ergm()].
+#' @template response
+#' @param basis See [ergm()].
 #' @export
 is.durational.formula<-function(object,response=NULL,basis=NULL,...){
 	# If basis is not null, replace network in formula by basis.
