@@ -275,22 +275,6 @@ iterations and relative tolerance to use within the \code{optim} rountine in
 the MLE optimization. Note that by default, ergm uses \code{trust}, and
 falls back to \code{optim} only when \code{trust} fails.}
 
-\item{obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.mul, obs.MCMC.samplesize.mul, obs.MCMC.burnin.mul, obs.MCMC.interval.mul, obs.MCMC.effectiveSize}{Sample size, burnin, and interval parameters for the MCMC
-sampling used when unobserved data are present in the estimation
-routine. By default, they are controlled by the \code{*.mul}
-parameters, as fractions of the corresponding settings for the
-unconstrained (standard) MCMC.
-
-These can, in turn, be controlled by \code{obs.MCMC.mul}, which can be
-used to set the overal multiplier for the number of MCMC steps in
-the constrained sample; one half of its effect applies to the
-burn-in and interval and the other half to the total sample
-size. For example, for \code{obs.MCMC.mul=1/4} (the default),
-\code{obs.MCMC.samplesize} is set to \eqn{\sqrt{1/4}=1/2} that of
-\code{obs.MCMC.samplesize}, and \code{obs.MCMC.burnin} and
-\code{obs.MCMC.interval} are set to \eqn{\sqrt{1/4}=1/2} of their
-respective unconstrained sampling parameters.}
-
 \item{MCMLE.check.degeneracy}{Logical: If TRUE, employ a check for model
 degeneracy.}
 
@@ -363,6 +347,25 @@ error.}
 burn-in and the MCMC length needed to get the specified effective size using
 the method of Sahlin (2011); 50 is a reasonable value.  This feature is in
 experimental status until we verify the coverage of the standard errors.}
+
+\item{obs.MCMLE.effectiveSize, obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.mul, obs.MCMC.samplesize.mul, obs.MCMC.burnin.mul, obs.MCMC.interval.mul, obs.MCMC.effectiveSize}{Sample size, burnin, and interval parameters for the MCMC
+sampling used when unobserved data are present in the estimation
+routine. By default, they are controlled by the \code{*.mul}
+parameters, as fractions of the corresponding settings for the
+unconstrained (standard) MCMC.
+
+These can, in turn, be controlled by \code{obs.MCMC.mul}, which can be
+used to set the overal multiplier for the number of MCMC steps in
+the constrained sample; one half of its effect applies to the
+burn-in and interval and the other half to the total sample
+size. For example, for \code{obs.MCMC.mul=1/4} (the default),
+\code{obs.MCMC.samplesize} is set to \eqn{\sqrt{1/4}=1/2} that of
+\code{obs.MCMC.samplesize}, and \code{obs.MCMC.burnin} and
+\code{obs.MCMC.interval} are set to \eqn{\sqrt{1/4}=1/2} of their
+respective unconstrained sampling parameters. When
+\code{MCMC.effectiveSize} or \code{MCMLE.effectiveSize} are given, their
+corresponding \code{obs} parameters are set to them multiplied by
+\code{obs.MCMC.mul}.}
 
 \item{MCMLE.last.boost}{For the Hummel termination criterion, increase the
 MCMC sample size of the last iteration by this factor.}

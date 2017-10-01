@@ -46,16 +46,18 @@ ergm.bridge.preproc<-function(object, basis, response){
 #'   uses valued ERGM terms. For `ergm.bridge.dindstart.llk`, this
 #'   argument is included solely for consistency, since it can only
 #'   handle binary ERGMs.}
-#' @param constraints,obs.constraints One-sided formula specifying one
-#'   or more constraints on the support of the distribution of the
+#' @param constraints,obs.constraints One-sided formulas specifying
+#'   one or more constraints on the support of the distribution of the
 #'   networks being simulated and on the observation process
 #'   respectively. See the documentation for a similar argument for
-#'   \code{\link{ergm}} for more information. For
-#'   \code{simulate.formula}, defaults to no constraints. For
-#'   \code{simulate.ergm}, defaults to using the same constraints as
-#'   those with which \code{object} was fitted. Note that only
+#'   \code{\link{ergm}} for more information. Note that only
 #'   constraints that do not induce dyadic dependence can be handled
 #'   by \code{ergm.bridge.dindstart.llk}.
+#' @param reference {A one-sided formula specifying the reference
+#'   measure (\eqn{h(y)}) to be used.  (Defaults to
+#'   \code{~Bernoulli}.)}
+#' @param target.stats {A vector of sufficient statistics to be used
+#'   in place of those of the network in the formula.}
 #' @param from,to The initial and final parameter vectors.
 #' @param basis An optional \code{\link[network]{network}} object to
 #'   start the Markov chain.  If omitted, the default is the
