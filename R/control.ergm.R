@@ -144,9 +144,6 @@
 #' @param MCMC.compress Logical: If TRUE, the matrix of sample statistics
 #' returned is compressed to the set of unique statistics with a column of
 #' frequencies post-pended.
-#' @param MCMC.packagenames Names of packages in which to look for change
-#' statistic functions in addition to those autodetected. This argument should
-#' not be needed outside of very strange setups.
 #' @param SAN.maxit When \code{target.stats} argument is passed to
 #' [ergm()], the maximum number of attempts to use \code{\link{san}}
 #' to obtain a network with statistics close to those specified.
@@ -349,17 +346,7 @@
 #' 
 #' Note that only the Hotelling's stopping criterion is implemented for CD.
 #' @param loglik.control See \code{\link{control.ergm.bridge}}
-#' @param seed Seed value (integer) for the random number generator.  See
-#' \code{\link[base]{set.seed}}
-#' @param parallel Number of threads in which to run the sampling. Defaults to
-#' 0 (no parallelism). See the entry on [parallel processing][ergm-parallel]
-#' for details and troubleshooting.
-#' @param parallel.type API to use for parallel processing. Supported values
-#' are \code{"MPI"} and \code{"PSOCK"}. Defaults to using the \code{parallel}
-#' package with PSOCK clusters. See \code{\link{ergm-parallel}}
-#' @param parallel.version.check Logical: If TRUE, check that the version of
-#' \code{\link[=ergm-package]{ergm}} running on the slave nodes is the same as
-#' that running on the master node.
+#' @template control_MCMC_misc
 #' @param \dots Additional arguments, passed to other functions This argument
 #' is helpful because it collects any control parameters that have been
 #' deprecated; a warning message is printed in case of deprecated arguments.

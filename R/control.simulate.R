@@ -37,22 +37,12 @@
 #' typically is set to a fairly large number.
 #' @param MCMC.interval Number of proposals between sampled statistics.
 #' @param MCMC.init.maxedges Maximum number of edges expected in network.
-#' @param MCMC.packagenames Names of packages in which to look for change
-#' statistic functions in addition to those autodetected. This argument should
-#' not be needed outside of very strange setups.
 #' @param MCMC.runtime.traceplot Logical: If TRUE, plot traceplots of the MCMC
 #' sample after every MCMC MLE iteration.
 #' @param network.output R class with which to output networks. The options are
 #' "network" (default) and "edgelist.compressed" (which saves space but only
 #' supports networks without vertex attributes)
-#' @param parallel Number of threads in which to run the sampling. Defaults to
-#' 0 (no parallelism). See the entry on [parallel processing][ergm-parallel] for details and troubleshooting.
-#' @param parallel.type API to use for parallel processing. Supported values
-#' are \code{"MPI"} and \code{"PSOCK"}. Defaults to using the \code{parallel}
-#' package with PSOCK clusters. See \code{\link{ergm-parallel}}
-#' @param parallel.version.check Logical: If TRUE, check that the version of
-#' \code{\link[=ergm-package]{ergm}} running on the slave nodes is the same as
-#' that running on the master node.
+#' @template control_MCMC_misc
 #' @param \dots Additional arguments, passed to other functions This argument
 #' is helpful because it collects any control parameters that have been
 #' deprecated; a warning message is printed in case of deprecated arguments.

@@ -32,8 +32,6 @@ To create a \code{\link[network]{network}} object in , use the
 distribution on the set of all networks, returned by the Metropolis-Hastings
 algorithm.}
 
-\item{seed}{Random number integer seed.  See \code{\link[base]{set.seed}}.}
-
 \item{coef}{Vector of parameter values for the model from which the sample
 is to be drawn.  If \code{object} is of class \code{ergm}, the default value
 is the vector of estimated coefficients.}

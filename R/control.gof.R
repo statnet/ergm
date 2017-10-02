@@ -76,25 +76,12 @@
 #' @param MCMC.prop.args An alternative, direct way of specifying additional
 #' arguments to proposal.
 #' @param MCMC.init.maxedges Maximum number of edges expected in network.
-#' @param MCMC.packagenames Names of packages in which to look for change
-#' statistic functions in addition to those autodetected. This argument should
-#' not be needed outside of very strange setups.
 #' @param MCMC.runtime.traceplot Logical: If TRUE, plot traceplots of the MCMC
 #' sample after every MCMC MLE iteration.
 #' @param network.output R class with which to output networks. The options are
 #' "network" (default) and "edgelist.compressed" (which saves space but only
 #' supports networks without vertex attributes)
-#' @param seed Seed value (integer) for the random number generator.  See
-#' \code{\link[base]{set.seed}}
-#' @param parallel Number of threads in which to run the sampling. Defaults to
-#' 0 (no parallelism). See the entry on \link[=ergm-parallel]{parallel
-#' processing} for details and troubleshooting.
-#' @param parallel.type API to use for parallel processing. Supported values
-#' are \code{"MPI"} and \code{"PSOCK"}. Defaults to using the \code{parallel}
-#' package with PSOCK clusters. See \code{\link{ergm-parallel}}
-#' @param parallel.version.check Logical: If TRUE, check that the version of
-#' \code{\link[=ergm-package]{ergm}} running on the slave nodes is the same as
-#' that running on the master node.
+#' @template control_MCMC_misc
 #' @return A list with arguments as components.
 #' @seealso \code{\link{gof}}. The \code{\link{control.simulate}} function
 #' performs a similar function for \code{\link{simulate.ergm}};

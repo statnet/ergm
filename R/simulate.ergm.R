@@ -49,7 +49,6 @@
 #' @param nsim Number of networks to be randomly drawn from the given
 #' distribution on the set of all networks, returned by the Metropolis-Hastings
 #' algorithm.
-#' @param seed Random number integer seed.  See \code{\link[base]{set.seed}}.
 #' @param coef Vector of parameter values for the model from which the sample
 #' is to be drawn.  If \code{object} is of class \code{ergm}, the default value
 #' is the vector of estimated coefficients.

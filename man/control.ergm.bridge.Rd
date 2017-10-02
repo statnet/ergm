@@ -50,11 +50,11 @@ statistic functions in addition to those autodetected. This argument should
 not be needed outside of very strange setups.}
 
 \item{seed}{Seed value (integer) for the random number generator.  See
-\code{\link[base]{set.seed}}}
+\code{\link[base]{set.seed}}.}
 
 \item{parallel}{Number of threads in which to run the sampling. Defaults to
-0 (no parallelism). See the entry on \link[=ergm-parallel]{parallel
-processing} for details and troubleshooting.}
+0 (no parallelism). See the entry on [parallel processing][ergm-parallel]
+for details and troubleshooting.}
 
 \item{parallel.type}{API to use for parallel processing. Supported values
 are \code{"MPI"} and \code{"PSOCK"}. Defaults to using the \code{parallel}
