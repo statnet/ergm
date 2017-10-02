@@ -7,6 +7,8 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
+
+
 #' Auxiliary for Controlling SAN
 #' 
 #' Auxiliary function as user interface for fine-tuning simulated annealing
@@ -46,9 +48,10 @@
 #' "network" (default) and "edgelist.compressed" (which saves space but only
 #' supports networks without vertex attributes)
 #' @param seed Seed value (integer) for the random number generator.  See
-#' \code{\link[base]{set.seed}}
+#' [base::set.seed].
 #' @param parallel Number of threads in which to run the sampling. Defaults to
-#' 0 (no parallelism). See the entry on [parallel processing][ergm-parallel] for details and troubleshooting.
+#' 0 (no parallelism). See the entry on \link[=ergm-parallel]{parallel
+#' processing} for details and troubleshooting.
 #' @param parallel.type API to use for parallel processing. Supported values
 #' are \code{"MPI"} and \code{"PSOCK"}. Defaults to using the \code{parallel}
 #' package with PSOCK clusters. See \code{\link{ergm-parallel}}

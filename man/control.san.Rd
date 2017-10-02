@@ -55,10 +55,11 @@ conditional-on-degree version of MPLE.}
 supports networks without vertex attributes)}
 
 \item{seed}{Seed value (integer) for the random number generator.  See
-\code{\link[base]{set.seed}}}
+\link[base:set.seed]{base::set.seed}.}
 
 \item{parallel}{Number of threads in which to run the sampling. Defaults to
-0 (no parallelism). See the entry on \link[=ergm-parallel]{parallel processing} for details and troubleshooting.}
+0 (no parallelism). See the entry on \link\link{=ergm-parallel}{parallel
+processing} for details and troubleshooting.}
 
 \item{parallel.type}{API to use for parallel processing. Supported values
 are \code{"MPI"} and \code{"PSOCK"}. Defaults to using the \code{parallel}
