@@ -346,7 +346,9 @@
 #' 
 #' Note that only the Hotelling's stopping criterion is implemented for CD.
 #' @param loglik.control See \code{\link{control.ergm.bridge}}
-#' @template control_MCMC_misc
+#' @template control_MCMC_parallel
+#' @template seed
+#' @template control_MCMC_packagenames
 #' @param \dots Additional arguments, passed to other functions This argument
 #' is helpful because it collects any control parameters that have been
 #' deprecated; a warning message is printed in case of deprecated arguments.

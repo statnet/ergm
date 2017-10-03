@@ -342,9 +342,9 @@ NULL
 #' Breiger \& Pattison (1986), in their discussion of local role analysis, use
 #' a subset of data on the social relations among Renaissance Florentine
 #' families (person aggregates) collected by John Padgett from historical
-#' documents. The two relations are business ties (\code{\link{flobusiness}} -
+#' documents. The two relations are business ties (\code{flobusiness} -
 #' specifically, recorded financial ties such as loans, credits and joint
-#' partnerships) and marriage alliances (\code{\link{flomarriage}}).
+#' partnerships) and marriage alliances (\code{flomarriage}).
 #' 
 #' As Breiger \& Pattison point out, the original data are symmetrically coded.
 #' This is acceptable perhaps for marital ties, but is unfortunate for the
@@ -366,6 +366,7 @@ NULL
 #' data(florentine)
 #' @docType data
 #' @name florentine
+#' @aliases flobusiness flomarriage
 #' 
 #' 
 #' @seealso flo, network, plot.network, ergm

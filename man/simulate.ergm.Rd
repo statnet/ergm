@@ -3,6 +3,7 @@
 \name{simulate.ergm}
 \alias{simulate.ergm}
 \alias{simulate.formula}
+\alias{simulate.formula.ergm}
 \alias{simulate.ergm}
 \title{Draw from the distribution of an Exponential Family Random Graph Model}
 \usage{
@@ -31,6 +32,9 @@ To create a \code{\link[network]{network}} object in , use the
 \item{nsim}{Number of networks to be randomly drawn from the given
 distribution on the set of all networks, returned by the Metropolis-Hastings
 algorithm.}
+
+\item{seed}{Seed value (integer) for the random number generator.  See
+\code{\link[base]{set.seed}}.}
 
 \item{coef}{Vector of parameter values for the model from which the sample
 is to be drawn.  If \code{object} is of class \code{ergm}, the default value

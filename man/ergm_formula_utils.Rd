@@ -11,6 +11,7 @@
 \alias{ergm.getmodel}
 \alias{ergm.getnetwork}
 \alias{ergm.getterms}
+\alias{ergm_model}
 %\alias{ergm.rhs.formula}
 \alias{ergm.update.formula}
 %\alias{model.transform.formula}

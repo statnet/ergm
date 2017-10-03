@@ -42,7 +42,8 @@
 #' @param network.output R class with which to output networks. The options are
 #' "network" (default) and "edgelist.compressed" (which saves space but only
 #' supports networks without vertex attributes)
-#' @template control_MCMC_misc
+#' @template control_MCMC_parallel
+#' @template control_MCMC_packagenames
 #' @param \dots Additional arguments, passed to other functions This argument
 #' is helpful because it collects any control parameters that have been
 #' deprecated; a warning message is printed in case of deprecated arguments.

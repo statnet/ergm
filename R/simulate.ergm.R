@@ -49,6 +49,7 @@
 #' @param nsim Number of networks to be randomly drawn from the given
 #' distribution on the set of all networks, returned by the Metropolis-Hastings
 #' algorithm.
+#' @template seed
 #' @param coef Vector of parameter values for the model from which the sample
 #' is to be drawn.  If \code{object} is of class \code{ergm}, the default value
 #' is the vector of estimated coefficients.
@@ -164,6 +165,7 @@
 #'             control=control.simulate.ergm(MCMC.burnin=1000, MCMC.interval=100))
 #' g.sim
 #' @name simulate.ergm
+#' @aliases simulate.formula.ergm
 #' @export
 simulate.formula <- function(object, nsim=1, seed=NULL,
                                coef, response=NULL, reference=~Bernoulli,

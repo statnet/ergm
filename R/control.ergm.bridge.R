@@ -43,7 +43,9 @@
 #' @param MCMC.prop.args An alternative, direct way of specifying additional
 #' arguments to proposal.
 #' @param MCMC.init.maxedges Maximum number of edges expected in network.
-#' @template control_MCMC_misc
+#' @template control_MCMC_parallel
+#' @template seed
+#' @template control_MCMC_packagenames
 #' @return A list with arguments as components.
 #' @seealso \code{\link{ergm.bridge.llr}},
 #' \code{\link{ergm.bridge.dindstart.llk}}

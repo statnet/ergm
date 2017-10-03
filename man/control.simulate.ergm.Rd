@@ -82,9 +82,6 @@ that running on the master node.}
 \item{\dots}{Additional arguments, passed to other functions This argument
 is helpful because it collects any control parameters that have been
 deprecated; a warning message is printed in case of deprecated arguments.}
-
-\item{seed}{Seed value (integer) for the random number generator.  See
-\code{\link[base]{set.seed}}.}
 }
 \value{
 A list with arguments as components.

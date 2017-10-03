@@ -47,7 +47,8 @@
 #' @param network.output R class with which to output networks. The options are
 #' "network" (default) and "edgelist.compressed" (which saves space but only
 #' supports networks without vertex attributes)
-#' @template control_MCMC_misc
+#' @template control_MCMC_parallel
+#' @template seed
 #' @return A list with arguments as components.
 #' @seealso \code{\link{san}}
 #' @keywords models
