@@ -250,7 +250,7 @@ export(
   summary.statistics,
   summary.statistics.default,      
   summary.statistics.ergm,
-  summary.statistics.formula,      
+  ## summary.statistics.formula,      
   summary.statistics.matrix,
   summary.statistics.network,      
   summary.statistics.network.list,
@@ -375,7 +375,7 @@ S3method(summary,network.list)
 S3method(summary,statistics)
 S3method(summary.statistics,default)
 S3method(summary.statistics,ergm)
-S3method(summary.statistics,formula)
+## S3method(summary.statistics,formula)
 S3method(summary.statistics,matrix)
 S3method(summary.statistics,network)
 S3method(summary.statistics,network.list)

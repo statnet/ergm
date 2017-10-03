@@ -33,11 +33,74 @@
 #   gs: the vector of global stats, as returned by <ergm.getglobalstats>
 #############################################################################
 
+
+
+#' Calculation of network or graph statistics
+#' 
+#' Used to calculate the specified statistics for an observed network if its
+#' argument is a formula for an \code{\link{ergm}}.  See
+#' \code{\link{ergm-terms}} for more information on the statistics that may be
+#' specified.
+#' 
+#' If \code{object} is of class \code{\link{formula}}, then
+#' \code{\link[base]{summary}} may be used in lieu of \code{summary.statistics}
+#' because \code{summary.formula} calls the \code{summary.statistics} function.
+#' %If neither of those are given as the
+#' %first argument then a \code{ergm.Cprepare} object is expected. This last
+#' %option is meant for internal use.
+#' The function actually cumulates the change statistics when
+#' removing edges from the observed network one by one until the empty network
+#' results.  Since each model term has a prespecified value (zero by default)
+#' for the corresponding statistic(s) on an empty network, these change
+#' statistics give the absolute statistics on the original network.
+#' 
+#' \code{summary.formula} for networks understands the \code{\link{lasttoggle}}
+#' "API".
+#' 
+#' %More information can be found by looking at the documentation of
+#' %\code{\link{ergm}}.
+#' 
+#' @aliases summary
+#' @param object Either an \code{\link{formula}} object (see above) or an
+#' \code{\link{ergm}} model object.  In the latter case,
+#' \code{summary.statistics} is called for the \code{object$formula} object.
+#' In the former case, \code{object} is of the form \code{y ~ <model terms>},
+#' where \code{y} is a \code{\link[network]{network}} object or a matrix that
+#' can be coerced to a \code{\link[network]{network}} object.  For the details
+#' on the possible \code{<model terms>}, see \code{\link{ergm-terms}}.  To
+#' create a \code{\link[network]{network}} object in , use the \code{network()}
+#' function, then add nodal attributes to it using the \code{\%v\%} operator if
+#' necessary.
+#' @param response Name of the edge attribute whose value is to be modeled.
+#' Defaults to \code{NULL} for simple presence or absence, modeled via binary
+#' ERGM terms. Passing anything but \code{NULL} uses valued ERGM terms.
+#' @param basis An optional \code{\link[network]{network}} object relative to
+#' which the global statistics should be calculated.
+#' @param \dots further arguments passed to or used by methods.
+#' @return A vector of statistics measured on the network.
+#' @seealso [ergm()], [network()], [ergm-terms]
+#' @keywords models
+#' @examples
+#' 
+#' #
+#' # Lets look at the Florentine marriage data
+#' #
+#' data(florentine)
+#' #
+#' # test the summary.statistics function
+#' #
+#' summary(flomarriage ~ edges + kstar(2))
+#' m <- as.matrix(flomarriage)
+#' summary(m ~ edges)  # twice as large as it should be
+#' summary(m ~ edges, directed=FALSE) # Now it's correct
+#' 
+#' @export summary.statistics
 summary.statistics <- function(object, ..., basis=NULL) {
   UseMethod("summary.statistics")
 }
 
-
+#' @rdname summary.statistics
+#' @export
 summary.formula <- function(object, ...){
   if(length(object)!=3 || object[[1]]!="~")
     stop ("Formula must be of form 'y ~ model'.")
@@ -46,18 +109,22 @@ summary.formula <- function(object, ...){
 }
 
 
+## #' @describeIn summary.statistics an [ergm()] [`formula`] method.
+## #' @export
+## summary.statistics.formula <- function(object, ..., basis=NULL) {
+##   summary.statistics.network(object, ..., basis=basis)
+## }
 
-summary.statistics.formula <- function(object, ..., basis=NULL) {
-  summary.statistics.network(object, ..., basis=basis)
-}
 
-
-
+#' @describeIn summary.statistics an [`ergm`] fit method, extracting its model from the fit.
+#' @export
 summary.statistics.ergm <- function(object, ..., basis=NULL)
 {
   summary.statistics.network(object$formula, ..., basis=basis)
 }
 
+#' @describeIn summary.statistics a method for a [`network.list`] on the LHS of the formula.
+#' @export
 summary.statistics.network.list <- function(object, response=NULL, ..., basis=NULL){
   if(!is.null(basis)){
     if(inherits(basis,'network.list'))
@@ -69,8 +136,8 @@ summary.statistics.network.list <- function(object, response=NULL, ..., basis=NU
   do.call(rbind,out)
 }
 
-summary.statistics.default <-
-summary.statistics.matrix <- 
+#' @describeIn summary.statistics a method for a [`network`] on the LHS of the formula.
+#' @export
 summary.statistics.network <- function(object, response=NULL,...,basis=NULL) {
   if(is.network(basis)){
     nw <- basis
@@ -86,6 +153,12 @@ summary.statistics.network <- function(object, response=NULL,...,basis=NULL) {
   gs
 }
 
+#' @describeIn summary.statistics a method for a [`matrix`] on the LHS of the formula.
+#' @export
+summary.statistics.matrix <- summary.statistics.network
+#' @describeIn summary.statistics a fallback method.
+#' @export
+summary.statistics.default <- summary.statistics.network
 
 
 
