@@ -19,6 +19,29 @@
 # MHproposals.  For the moment, there is no way to delete rows, but
 # one can always add a row with identical elements but higher
 # priority.
+
+
+#' Table mapping reference,constraints, etc. to Metropolis Hastings Proposals
+#' (MHP)
+#' 
+#' This is a low-level function not intended to be called directly by
+#' end users. For information on Metropolis-Hastings proposal methods,
+#' \link{ergm_MH_proposals}. This function sets up the table mapping
+#' constraints, references, etc. to MHproposals. Calling it with
+#' arguments adds a new row to this table. Calling it without
+#' arguments returns the table so far.
+#' 
+#' 
+#' @param Class default to "c"
+#' @param Reference The reference measure used in the model. For the list of
+#' reference measures, see \code{\link{ergm-references}}
+#' @param Constraints The constraints used in the model. For the list of
+#' constraints, see \code{\link{ergm-constraints}}
+#' @param Priority On existence of multiple qualifying MHPs, specifies the
+#' priority (`-1`,`0`,`1`, etc.) of MHPs to be used.
+#' @param Weights The sampling weights on selecting toggles (random, TNT, etc).
+#' @param MHP The matching MHP from the previous arguments.
+#' @export ergm.MHP.table
 ergm.MHP.table <- local({
   MHPs <- data.frame(Class = character(0), Reference = character(0),
                      Constraints = character(0), Priority = numeric(0), Weights = character(0),
@@ -34,7 +57,20 @@ ergm.MHP.table <- local({
   }
 })
 
-# Set up the list mapping constraint implications.
+#' Set up the implied constraints from the current constraint
+#' 
+#' This is a low-level function not intended to be called directly by
+#' end users. For information on constraints, see the
+#' \code{\link{ergm-constraints}} page.  Calling this function with
+#' arguments adds the specified constraint implication to the
+#' list. Calling it without arguments returns the implication list so
+#' far.
+#' 
+#' @param implier The current constraint specified in the model.  For the list
+#' of constraints, see \code{\link{ergm-constraints}}
+#' @param implies Implied constraints from the current constraint (based on the
+#' user's knowledge).
+#' @export ergm.ConstraintImplications
 ergm.ConstraintImplications <- local({
   implications <- list()
   
@@ -80,13 +116,49 @@ prune.ergm_conlist <- function(conlist){
 #
 ########################################################################################
 
+
+
+#' Functions to initialize the MHproposal object
+#' 
+#' S3 Functions that initialize the Metropolis-Hastings Proposal (MHproposal)
+#' object using the `InitMHP.*` function that corresponds to the name given in
+#' 'object'.  These functions are not generally called directly by the user.
+#' See \link{ergm_MH_proposals} for general explanation and lists of available
+#' Metropolis-Hastings proposal types.
+#' 
+#' 
+#' @aliases MHproposal.NULL MHproposal.MHproposal
+#' @param object Either a character, a \code{\link{formula}} or an
+#' \code{\link{ergm}} object.  The \code{\link{formula}} should be of the form
+#' \code{y ~ <model terms>}, where \code{y} is a network object or a matrix
+#' that can be coerced to a \code{\link[network]{network}} object.
+#' @param \dots Further arguments passed to other functions.
+#' @return Returns an MHproposal object: a list with class \code{'MHProposal'}
+#' containing the following named elements:
+#' \item{ name}{the C name of the proposal}
+#' \item{inputs}{inputs to be passed to C}
+#' \item{package}{shared library name where the proposal
+#' can be found (usually `"ergm"`)}
+#' \item{arguments}{list of arguments passed to
+#' the `InitMHP` function; in particular,
+#' \describe{
+#' \item{`constraints`}{list of constraints}
+#' }
+#' }
+#' @seealso \code{\link{InitMHP}}
+#' @keywords models
+#' @export
 MHproposal<-function(object, ...) UseMethod("MHproposal")
 
 
+#' @noRd
+#' @export
 # This could be useful for trapping bugs before they become mysterious segfaults.
 MHproposal.NULL<-function(object, ...) stop("NULL passed to MHproposal. This may be due to passing an ergm object from an earlier version. If this is the case, please refit it with the latest version, and try again. If this is not the case, this may be a bug, so please file a bug report.")
 
 
+#' @noRd
+#' @export
 MHproposal.MHproposal<-function(object,...) return(object)
 
 
@@ -104,6 +176,15 @@ MHproposal.MHproposal<-function(object,...) return(object)
 #
 ########################################################################################
 
+#' @describeIn MHproposal `object` argument is a character string
+#'   giving the \R name of the proposal.
+#' @param nw The network object originally given to \code{\link{ergm}}
+#'   via 'formula'
+#' @param arguments A list of parameters used by the Init.MHP routines
+#' @template response
+#' @param reference One-sided formula whose RHS gives the reference
+#'   measure to be used. (Defaults to \code{~Bernoulli}.)
+#' @export
 MHproposal.character <- function(object, arguments, nw, ..., response=NULL, reference=reference){
   name<-object
 
@@ -197,6 +278,17 @@ ergm_conlist <- function(object, nw){
   conlist
 }
 
+#' @describeIn MHproposal `object` argument is an ERGM constraint formula.
+#' @param weights Specifies the method used to allocate probabilities of being
+#' proposed to dyads; options are "TNT", "TNT10", "random", "nonobserved" and
+#' "default"; default="default"
+#' @param class The class of the proposal; choices include "c", "f", and "d"
+#' default="c".
+#' @param constraints A one-sided formula specifying one or more constraints on
+#' the support of the distribution of the networks being simulated. See the
+#' documentation for a similar argument for \code{\link{ergm}} and see
+#' [list of implemented constraints][ergm-constraints] for more information.
+#' @export
 MHproposal.formula <- function(object, arguments, nw, weights="default", class="c", reference=~Bernoulli, response=NULL, ...) {
   reference <- reference
 
@@ -286,6 +378,8 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
 #
 ########################################################################################
 
+#' @describeIn MHproposal `object` argument is an [`ergm`] fit whose proposals are extracted which is reproduced as best as possible.
+#' @export
 MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, weights=NULL,class="c", reference=NULL, response=NULL){
   if(is.null(constraints)) constraints<-object$constraints
   if(is.null(arguments)) arguments<-object$control$MCMC.prop.args
