@@ -65,8 +65,9 @@
 #' McGraw-Hill.
 #'
 #' @export approx.hotelling.diff.test
-approx.hotelling.diff.test<-function(x,y=NULL, mu0=rep(0, NCOL(x)), assume.indep=FALSE, var.equal=FALSE){
-
+approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.equal=FALSE){
+  mu0 <- rep(mu0, length.out = NCOL(x))
+  
   tr <- function(x) sum(diag(as.matrix(x)))
 
   vars <- list(x=list(v=x))
