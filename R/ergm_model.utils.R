@@ -92,6 +92,11 @@ ergm.checkconstraints.model <- function(model, MHproposal, init, silent=FALSE){
   list(model=model, init=init, estimable=!conflict.coefs)
 }
 
+#' @rdname coef.length.model
+#'
+#' @return \code{coef.sublength.model} returns a vector containing the number
+#' of model parameters corresponding to each model term.
+#' @export coef.sublength.model
 coef.sublength.model<-function(object, ...){
   sapply(object$terms, function(term){
     ## curved term
@@ -101,6 +106,20 @@ coef.sublength.model<-function(object, ...){
   })
 }
 
+
+
+#' Extract Number of parameters in ergm Model
+#' 
+#' \code{coef.sublength} and \code{coef.length} are methods that extract the
+#' numbers of parameters for ergm model objects.
+#' 
+#' @param object an ergm model object
+#' @param \dots other arguments.
+#' @return \code{coef.length.model} returns the length of the
+#'   parameter vector of the model.
+#' @note These are *not* methods at this time. This may change in the future.
+#' @keywords models
+#' @export coef.length.model
 coef.length.model <- function(object, ...){
   sum(coef.sublength.model(object))
 }
