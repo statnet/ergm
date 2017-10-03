@@ -220,11 +220,11 @@ export(
   ostar2deg,             # deprecated
   pack.BlockDiagSampInfo_as_num,
   plot.ergm,
-  plot.gofobject,                  
+  plot.gof,                  
   plot.mcmc.list.ergm,
   plot.network.ergm,               
   print.ergm,
-  print.gofobject,                 
+  print.gof,                 
   print.network.list,
   print.summary.ergm,              
   #prune.ergm_conlist,     # made internal
@@ -248,7 +248,7 @@ export(
   standardize.network,             
   summary.ergm,
   summary.formula,                 
-  summary.gofobject,
+  summary.gof,
   summary.network.list,            
   summary.statistics,
   summary.statistics.default,      
@@ -351,12 +351,12 @@ S3method(mvmodel,ergm)
 S3method(mvmodel,formula)
 
 S3method(plot,ergm)
-S3method(plot,gofobject)
+S3method(plot,gof)
 S3method(plot,mcmc.list.ergm)
 S3method(plot,network.ergm)
 
 S3method(print,ergm)
-S3method(print,gofobject)
+S3method(print,gof)
 S3method(print,network.list)
 S3method(print,summary.ergm)
 
@@ -375,7 +375,7 @@ S3method(sociality,network)
 
 S3method(summary,ergm)
 S3method(summary,formula)
-S3method(summary,gofobject)
+S3method(summary,gof)
 S3method(summary,network.list)
 S3method(summary,statistics)
 S3method(summary.statistics,default)

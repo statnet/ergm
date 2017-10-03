@@ -70,13 +70,6 @@ redundant.}
 
 \item{coef.dind}{Parameter configuration for the dyad-independent starting
 point. Defaults to the MLE of \code{dind}.}
-
-\item{response}{{Name of the edge attribute whose value is to be
-modeled. Defaults to \code{NULL} for simple presence or absence,
-modeled via binary ERGM terms. Passing anything but \code{NULL}
-uses valued ERGM terms. For \code{ergm.bridge.dindstart.llk}, this
-argument is included solely for consistency, since it can only
-handle binary ERGMs.}}
 }
 \value{
 If \code{llronly=TRUE} or \code{llkonly=TRUE}, these functions return

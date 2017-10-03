@@ -7,81 +7,67 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
-#=========================================================================
-# This file contains 4 functions for created "SAN-ed" networks & formulas
-#           <san>              <san.formula>
-#           <san.default>      <san.ergm>
-#=========================================================================
 
-
-
-
-####################################################################
-# Each of the <san.X> functions samples one or more networks via
-# <SAN_wrapper.C> according to the vector of mean stats given;
-# execution will halt
-#    - if X is neither an ergm object or a formula
-#    - if the formula does not correctly specify a network
-#    - no mean stats are given
-#
-# --PARAMETERS--
-#   object     : an ergm object of a formula for such
-#   nsim       : the number of sampled networks to return;
-#                default=1
-#   seed       : the number at which to start the random number
-#                generator; default=NULL
-#   init     : a vector of initial values for the theta coefficients;
-#                default=those returned by <ergm.mple>
-#   invcov     : the initial inverse covariance matrix used to
-#                calculate the Mahalanobis distance; default=that 
-#                from the mple fit if 'init'=NULL, else default=the
-#                identity matrix of size 'init'
-#   burnin     : the number of proposal to disregard before sampling
-#                begins; default=1e4
-#   interval   : the number of proposals between sampled statistics;
-#                default=1e4
-#   target.stats  : a vector of the mean statistics for each model
-#                coefficient; default=NULL (which will halt execution)
-#   basis      : optionally, a network can be provided in 'basis' and
-#                this replaces that given by 'object'; default=NULL
-#   sequential : whether subsequent sampling should start with the
-#                previously sampled network; the alternative is to
-#                always begin sampling from the original network;
-#                default=TRUE
-#   constraints: a one-sided formula giving one or more constraints on
-#                the support of the distribution of the networks being
-#                modeled; a list of availabe options is described in the
-#                <ergm> R documentation; default=~.
-#   control    : a control list for tuning the MHproposals and other
-#                elements of the fit; default=<control.san>()
-#   verbose    : whether this and the C program should be verbose;
-#                default=FALSE
-#   ...        : additional parameters that will passed onto <ergm.mple>
-#
-# --IGNORED--
-#   tau:  this is passed along to several C functions; its use in
-#         <SANMetropolisHastings.c> is commented out
-#
-# --RETURNED--
-#   outlist: either a single sampled network if 'nsim'=1, else a
-#            network.list object as list containing
-#              formula :  the formula given by 'object'
-#              networks:  the list of sampled networks
-#              stats   :  the summary statistics of the sampled networks
-#              coef    :  the initial theta coefficients used by
-#                         the sampling rountine, i.e. 'init'
-#            
-##############################################################################
-
+#' Use Simulated Annealing to attempt to match a network to a vector of mean
+#' statistics
+#' 
+#' This function attempts to find a network or networks whose statistics match
+#' those passed in via the \code{target.stats} vector.
+#' 
+#' 
+#' @param object Either a [`formula`] or an [`ergm`] object. The
+#'   [`formula`] should be of the form \code{y ~ <model terms>}, where
+#'   \code{y} is a network object or a matrix that can be coerced to a
+#'   [`network`] object.  For the details on the
+#'   possible \code{<model terms>}, see \code{\link{ergm-terms}}.  To
+#'   create a \code{\link[network]{network}} object in , use the
+#'   \code{network()} function, then add nodal attributes to it using
+#'   the \code{\%v\%} operator if necessary.
+#' @return A network or list of networks that hopefully have network
+#'   statistics close to the \code{target.stats} vector.
+#' @keywords models
+#' @aliases san.default
+#' @export
 san <- function(object, ...){
  UseMethod("san")
 }
 
+#' @noRd
+#' @export
 san.default <- function(object,...)
 {
   stop("Either a ergm object or a formula argument must be given")
 }
-
+#' @describeIn san Sufficient statistics are specified by a [`formula`].
+#' 
+#' @param response Name of the edge attribute whose value
+#' is to be modeled. Defaults to \code{NULL} for simple presence or absence.
+#' @param reference One-sided formula whose RHS gives the
+#' reference measure to be used. (Defaults to \code{~Bernoulli}.)
+#' @param formula (By default, the \code{formula} is taken from the \code{ergm}
+#' object.  If a different \code{formula} object is wanted, specify it here.
+#' @param constraints A one-sided formula specifying one or more constraints on
+#' the support of the distribution of the networks being simulated. See the
+#' documentation for a similar argument for \code{\link{ergm}} and see
+#' [list of implemented constraints][ergm-constraints] for more information. For
+#' \code{simulate.formula}, defaults to no constraints. For
+#' \code{simulate.ergm}, defaults to using the same constraints as those with
+#' which \code{object} was fitted.
+#' @param target.stats A vector of the same length as the number of terms
+#' implied by the formula, which is either \code{object} itself in the case of
+#' \code{san.formula} or \code{object$formula} in the case of \code{san.ergm}.
+#' @param nsim Number of desired networks.
+#' @param basis If not NULL, a \code{network} object used to start the Markov
+#' chain.  If NULL, this is taken to be the network named in the formula.
+#' @param sequential Logical: If TRUE, the returned draws always use the prior
+#' draw as the starting network; if FALSE, they always use the original
+#' network.
+#' @param control A list of control parameters for algorithm tuning; see
+#' \code{\link{control.san}}.
+#' @param verbose Logical: If TRUE, print out more detailed information as the
+#' simulation runs.
+#' @param \dots Further arguments passed to other functions.
+#' @export
 san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints=~., target.stats=NULL,
                         nsim=1, basis=NULL,
                         sequential=TRUE,
@@ -270,6 +256,9 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   return(out.list)
 }
 
+#' @describeIn san Sufficient statistics and other settings are
+#'   inherited from the [`ergm`] fit unless overridden.
+#' @export
 san.ergm <- function(object, formula=object$formula, 
                      constraints=object$constraints, 
                      target.stats=object$target.stats,
