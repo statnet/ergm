@@ -52,6 +52,46 @@
 #
 ################################################################################
 
+
+
+#' Summarizing ERGM Model Fits
+#' 
+#' \code{\link[base]{summary}} method for [`ergm`] fits.
+#' 
+#' \code{\link{summary.ergm}} tries to be smart about formatting the
+#' coefficients, standard errors, etc.
+#' 
+#' @aliases print.summary.ergm
+#' @param object an object of class \code{"ergm"}, usually, a result
+#'   of a call to \code{\link{ergm}}.
+#' @param digits Significant digits for coefficients
+#' @param correlation logical; if \code{TRUE}, the correlation matrix
+#'   of the estimated parameters is returned and printed.
+#' @param covariance logical; if \code{TRUE}, the covariance matrix of
+#'   the estimated parameters is returned and printed.
+#' @param total.variation logical; if \code{TRUE}, the standard errors
+#'   reported in the \code{Std. Error} column are based on the sum of
+#'   the likelihood variation and the MCMC variation. If \code{FALSE}
+#'   only the likelihood varuation is used. The \eqn{p}-values are
+#'   based on this source of variation.
+#' @param \dots Arguments to \code{\link{logLik.ergm}}
+#' @return The function \code{\link{summary.ergm}} computes and
+#'   returns a list of summary statistics of the fitted
+#'   \code{\link{ergm}} model given in \code{object}.
+#' @seealso network, ergm, print.ergm.  The model fitting function
+#'   \code{\link{ergm}}, \code{\link{summary}}.
+#' 
+#' Function \code{\link{coef}} will extract the matrix of coefficients with
+#' standard errors, t-statistics and p-values.
+#' @keywords regression models
+#' @examples
+#' 
+#'  data(florentine)
+#' 
+#'  x <- ergm(flomarriage ~ density)
+#'  summary(x)
+#' 
+#' @export
 summary.ergm <- function (object, ..., 
                           digits = max(3, getOption("digits") - 3),
                           correlation=FALSE, covariance=FALSE,

@@ -7,20 +7,27 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
-###########################################################################
-# The <ergm.getglobalstats> function calculates and returns the global
-# statistics for a given network via <network_stats_wrapper.C>
-#
-# --PARAMETERS--
-#   nw:  a network object
-#   m :  the model in use with network nw, as returned by <ergm.getmodel>
-#
-#
-# --RETURNED--
-#   gs:  a vector of the global statistics
-#
-#############################################################################
 
+#' Internal function to return global statistics for a given network
+#' 
+#' The \code{ergm.getglobalstats} function is a low-level function not normally
+#' called by the user. It calculates and returns the global statistics for a
+#' given network and model.
+#' 
+#' Calculates and returns the global statistics for a given network via
+#' \code{\link{ergm.Cprepare}} and \code{network_stats_wrapper.C} or
+#' \code{wt_network_stats_wrapper.C} if the model is weighted. It is called by
+#' \code{\link{summary.statistics.network}} which is generally the better way
+#' to access the functionality.
+#' 
+#' @param nw a \code{\link{network}} object
+#' @param m the model in use with network \code{nw}, as returned by
+#' \code{\link{ergm.getmodel}}
+#' @param response character name of an edge attribute to be used (for weighted
+#' ergm models)
+#' @return returns a vector of the global statistics
+#' @seealso \code{\link{summary.statistics.network}}
+#' @export ergm.getglobalstats
 ergm.getglobalstats <- function(nw, m, response=NULL) {
   Clist <- ergm.Cprepare(nw, m, response=response)
 

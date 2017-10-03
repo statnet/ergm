@@ -7,42 +7,33 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
-#==================================================================================
-# This file contains the following 2 functions for assessing degeneracy
-#            <ergm.degeneracy>
-#            <ergm.compute.degeneracy>
-#==================================================================================
 
-
-
-
-
-####################################################################################
-# The <ergm.degeneracy> function checks a given ergm object for degeneracy by
-# computing and returning the instability value of the model and the value
-# of the log-likelihood function at the maximized theta values
-#
-# --PARAMETERS--
-#   object   :  an ergm object
-#   control  :  the list of controls as returned by <control.ergm>;
-#               default=control.ergm()
-#   fast     :  whether the degeneracy check should be "fast", i.e to sample
-#               changeobs(?) when there are > 100, rather than use all changeobs;
-#               default=TRUE
-#   test.only:  whether to silence printing of the model instability calculation
-#               (T or F); this parameter is ignored if the instability > 1;
-#               default=FALSE
-#   verbose  :  whether to print a notification when 'object' is deemed degenerate
-#               (T or F); default=FALSE
-#
-#
-# --RETURNED--
-#   the original ergm object with 2 additional components:
-#     degeneracy.value:  the instability of the model
-#     degeneracy.type :  the vector returned by <ergm.compute.degeneracy>;
-#
-#######################################################################################
-
+#' Checks an ergm Object for Degeneracy
+#' 
+#' The \code{ergm.degeneracy} function checks a given ergm object for
+#' degeneracy by computing and returning the instability value of the model and
+#' the value of the log-likelihood function at the maximized theta values
+#' 
+#' 
+#' @param object an \code{\link{ergm}} object
+#' @param control the list of control parameters as returned by
+#' \code{control.ergm}; default=control.ergm()
+#' @param fast whether the degeneracy check should be "fast", i.e to sample
+#' changeobs(?) when there are > 100, rather than use all changeobs;
+#' default=TRUE
+#' @param test.only whether to silence printing of the model instability
+#' calculation (T or F); this parameter is ignored if the instability > 1;
+#' default=FALSE
+#' @param verbose whether to print a notification when 'object' is deemed
+#' degenerate (T or F); default=FALSE
+#' @return returns the original ergm object with 2 additional components:
+#' \item{degeneracy.value}{the instability of the model}
+#' \item{degeneracy.type}{a 2-element vector containing \describe{
+#' \item{`loglikelihood`}{the value of the log-likelihood function corresponding to 'theta'; if degenerate, this is a vector of Inf}
+#' \item{`theta`}{the vector of theta values found through maximixing the log- likelihood; if degenerate, this is 'guess' }
+#' }
+#' }
+#' @export ergm.degeneracy
 ergm.degeneracy <- function(object, 
                           control=object$control,
                           fast=TRUE,
