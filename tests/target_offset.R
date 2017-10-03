@@ -11,6 +11,7 @@ library(ergm)
 
 data(florentine)
 warnf <- function(w) NULL
+library(statnet.common)
 opttest({
   warnf <- function(w) stop('unexpected warning in target + offset test', w)
 })
