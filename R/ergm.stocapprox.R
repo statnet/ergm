@@ -112,7 +112,7 @@ ergm.stocapprox <- function(init, nw, model, Clist,
   
   # post-processing of sample statistics:  Shift each row,
   # attach column names
-  statshift <- summary.statistics.network(model$formula, basis=nw) - NVL(model$target.stats,model$nw.stats)
+  statshift <- summary_statistics.network(model$formula, basis=nw) - NVL(model$target.stats,model$nw.stats)
   statsmatrix <- sweep(z$statsmatrix, 2, statshift, "+")
   colnames(statsmatrix) <- model$coef.names
   #v$sample <- statsmatrix

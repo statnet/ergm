@@ -58,14 +58,114 @@
 #
 ##########################################################################
 
+
+
+#' Conduct MCMC diagnostics on a model fit
+#' 
+#' This function prints diagnistic information and creates simple diagnostic
+#' plots for MCMC sampled statistics produced from a fit.
+#' 
+#' A pair of plots are produced for each statistic:a trace of the sampled
+#' output statistic values on the left and density estimate for each variable
+#' in the MCMC chain on the right.  Diagnostics printed to the console include
+#' correlations and convergence diagnostics.
+#'
+#' @aliases mcmc.diagnostics.default
+#' @param object A model fit object to be diagnosed.
+#' @param \dots Additional arguments, to be passed to plotting functions.
+#' @seealso \code{\link{ergm}}, \code{network} package, \code{coda} package,
+#' \code{\link{summary.ergm}}
+#' @references % Warnes, G.W. (2000).  Multi-Chain and Parallel Algorithms for
+#' Markov % Chain Monte Carlo. Dissertation, Department of Biostatistics, %
+#' University of Washington, % Raftery, A.E. and Lewis, S.M. (1992).  One long
+#' run with diagnostics: Implementation strategies for Markov chain Monte
+#' Carlo. Statistical Science, 7, 493-497.
+#' 
+#' Raftery, A.E. and Lewis, S.M. (1995).  The number of iterations, convergence
+#' diagnostics and generic Metropolis algorithms.  In Practical Markov Chain
+#' Monte Carlo (W.R. Gilks, D.J. Spiegelhalter and S. Richardson, eds.).
+#' London, U.K.: Chapman and Hall.
+#' 
+#' This function is based on the \code{coda} package It is based on the the R
+#' function \code{raftery.diag} in \code{coda}.  \code{raftery.diag}, in turn,
+#' is based on the FORTRAN program \code{gibbsit} written by Steven Lewis which
+#' is available from the Statlib archive.
+#' @keywords models
+#' @examples
+#' 
+#' \dontrun{
+#' #
+#' data(florentine)
+#' #
+#' # test the mcmc.diagnostics function
+#' #
+#' gest <- ergm(flomarriage ~ edges + kstar(2))
+#' summary(gest)
+#' 
+#' #
+#' # Plot the probabilities first
+#' #
+#' mcmc.diagnostics(gest)
+#' #
+#' # Use coda directly
+#' #
+#' library(coda)
+#' #
+#' plot(gest$sample, ask=FALSE)
+#' #
+#' # A full range of diagnostics is available 
+#' # using codamenu()
+#' #
+#' }
+#' 
+#' @export mcmc.diagnostics
 mcmc.diagnostics <- function(object, ...) {
   UseMethod("mcmc.diagnostics")
 }
 
+#' @noRd
+#' @export
 mcmc.diagnostics.default <- function(object, ...) {
   stop("An ergm object must be given as an argument ")
 }
 
+#' @describeIn mcmc.diagnostics
+#'
+#' @details For [ergm()] specifically, recent changes in the
+#'   estimation algorithm mean that these plots can no longer be used
+#'   to ensure that the mean statistics from the model match the
+#'   observed network statistics. For that functionality, please use
+#'   the GOF command: \code{gof(object, GOF=~model)}.
+#' 
+#'   In fact, an ergm output \code{object} contains the matrix of
+#'   statistics from the MCMC run as component \code{$sample}.  This
+#'   matrix is actually an object of class \code{mcmc} and can be used
+#'   directly in the \code{coda} package to assess MCMC
+#'   convergence. \emph{Hence all MCMC diagnostic methods available in
+#'   \code{coda} are available directly.} See the examples and
+#'   \url{http://www.mrc-bsu.cam.ac.uk/software/bugs/the-bugs-project-winbugs/coda-readme/}.
+#' 
+#'   More information can be found by looking at the documentation of
+#'   \code{\link{ergm}}.
+#' 
+#' @param center Logical: If TRUE, center the samples on the
+#'   observed statistics.
+#' @param esteq Logical: If TRUE, for statistics corresponding to
+#'   curved ERGM terms, summarize the curved statistics by their
+#'   estimating equation values (evaluated at the MLE of any curved
+#'   parameters) (i.e., \eqn{\eta'_{I}(\hat{\theta})\cdot g_{I}(y)}
+#'   for \eqn{I} being indices of the canonical parameters in
+#'   question), rather than the canonical (sufficient) vectors of the
+#'   curved statistics (\eqn{g_{I}(y)}).
+#' @param vars.per.page Number of rows (one variable per row) per
+#'   plotting page.  Ignored if \code{latticeExtra} package is not
+#'   installed.
+#' @return \code{\link{mcmc.diagnostics.ergm}} returns some degeneracy
+#' information, if it is included in the original object.  The function is
+#' mainly used for its side effect, which is to produce plots and summary
+#' output based on those plots.
+#' 
+#' @export
 mcmc.diagnostics.ergm <- function(object,
                                   center=TRUE,
                                   esteq=TRUE,
@@ -228,6 +328,19 @@ mcmc.diagnostics.ergm <- function(object,
                  degeneracy.type=degeneracy.type))
 }
 
+#' Plot MCMC list using `lattice` package graphics
+#'
+#' @param x an [`mcmc.list`] object containing the mcmc diagnostic
+#'   samples.
+#' @param main character, main plot heading title.
+#' @param vars.per.page Number of rows (one variable per row) per
+#'   plotting page.  Ignored if \code{latticeExtra} package is not
+#'   installed.
+#' @param ... additional arguments, currently unused.
+#' @note This is *not* a method; there already is a `plot` method for
+#'   `mcmc.list` objects in the `coda` package.
+#'
+#' @export plot.mcmc.list.ergm
 plot.mcmc.list.ergm <- function(x, main=NULL, vars.per.page=3,...){
   requireNamespace('lattice', quietly=TRUE, warn.conflicts=FALSE)
   
@@ -249,8 +362,32 @@ plot.mcmc.list.ergm <- function(x, main=NULL, vars.per.page=3,...){
 
 
 # Some utility functions:
+
+
+#' Utility operations for [`mcmc.list`] objects
+#' 
+#' \code{colMeans.mcmc.list} is a "method" for (non-generic) [colMeans()] applicable to [`mcmc.list`] objects.
+#' 
+#' @param x a \code{\link{mcmc.list}} object.
+#' @param \dots additional arguments to \code{\link{colMeans}} or
+#'   \code{\link{sweep}}.
+#' @return \code{colMeans.mcmc} returns a vector with length equal to
+#'   the number of mcmc chains in \code{x} with the mean value for
+#'   each chain.
+#' @seealso [colMeans()]
+#' @export colMeans.mcmc.list
 colMeans.mcmc.list<-function(x,...) colMeans(as.matrix(x),...)
 
+#' @rdname colMeans.mcmc.list
+#'
+#' @description \code{sweep.mcmc.list} is a "method" for (non-generic)
+#'   [sweep()] applicable to [`mcmc.list`] objects.
+#' 
+#' @param STATS,FUN,check.margin See help for [sweep()].
+#' @return \code{sweep.mcmc.lists} returns an appropriately modified
+#'   version of \code{x}
+#' @seealso [sweep()]
+#' @export sweep.mcmc.list
 sweep.mcmc.list<-function(x, STATS, FUN="-", check.margin=TRUE, ...){
   for(chain in seq_along(x)){
     x[[chain]] <- sweep(x[[chain]], 2, STATS, FUN, check.margin, ...)

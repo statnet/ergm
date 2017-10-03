@@ -22,6 +22,15 @@
 #
 #################################################################################
 
+#' @rdname ergm.eta
+#' @description The \code{ergm.etagradmult} function calculates and
+#'   returns the product of the gradient of eta with a vector `v`.
+#' @param v a vector of the same length as the vector of mapped eta
+#'   parameters
+#' @return For \code{ergm.etagradmult}, the vector that is the product
+#'   of the gradient of eta and \code{v}; infinite values are replaced
+#'   by (+-)10000.
+#' @export ergm.etagradmult
 ergm.etagradmult <- function(theta, v, etamap) {
   v <- as.matrix(v)
   ans <- matrix(0, length(theta), dim(v)[2])

@@ -41,6 +41,31 @@
 #
 ###############################################################################
 
+#' @rdname ergm.eta
+#' @description The \code{ergm.etamap} function takes a model object
+#'   and creates a mapping from the model parameters, theta, to the
+#'   canonical (linear) eta parameters; the mapping is carried out by
+#'   \code{ergm.eta}.
+#' @param model model object, as returned by
+#'   \code{\link{ergm.getmodel}}
+#' @return
+#' For \code{ergm.etamap}, a data structure describing the theta-to-eta mapping given by a list of the
+#' following:
+#' \item{canonical}{ a numeric vector whose ith entry specifies whether the ith component of theta is canonical (via non-negative integers) or curved (via zeroes)}
+#' \item{offsetmap}{ a logical vector whose i'th entry tells whether the ith coefficient of the canonical parameterization was "offset", i.e fixed}
+#' \item{offset}{ a logical vector whose ith entry tells whether the ith model term was offset/fixed}
+#' \item{offsettheta}{ a logical vector whose ith entry tells whether the ith curved theta coeffient was offset/fixed;}
+#' \item{curved}{ a list with one component per curved EF term in
+#' the model containing \describe{
+#' \item{`from`}{ the indices of the curved theta parameter that are to be mapped from}
+#' \item{`to`}{ the indices of the canonical eta parameters to be mapped to}
+#' \item{`map`}{ the map provided by <InitErgmTerm>}
+#' \item{`gradient`}{ the gradient function provided by \link{InitErgmTerm}}
+#' \item{`cov`}{ optional additional covariates to be passed to the map and the gradient functions }
+#' \item{`etalength`}{ the length of the eta vector}
+#' }
+#' }
+#' @export ergm.etamap
 ergm.etamap <- function(model) {
   etamap <- list(canonical = NULL, offsetmap=NULL, offset=model$offset,
                  offsettheta=NULL, curved=list(), etalength=0)

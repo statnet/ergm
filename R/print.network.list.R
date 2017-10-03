@@ -7,6 +7,8 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
+#' @describeIn network.list A [print()] method for network lists.
+#' @export
 print.network.list <- function(x, stats.print=FALSE, ...) {
   summary.network.list(x, stats.print=stats.print, ...)
   invisible(x)

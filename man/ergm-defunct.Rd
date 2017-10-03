@@ -29,6 +29,7 @@
 \alias{mvmodel.ergm}
 \alias{mvmodel.formula}
 \alias{ergm.mahalanobis}
+\alias{degreedistfactor}
 \title{
 Functions that have been removed from this package
 }
@@ -56,5 +57,6 @@ Functions that have been removed after a period of deprecation.
 \item{mvmodel.ergm}
 \item{mvmodel.formula}
 \item{ergm.mahalanobis}
+\item{degreedistfactor}
 }
 }
