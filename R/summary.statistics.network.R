@@ -9,9 +9,9 @@
 #######################################################################
 #==========================================================================
 # This file contains the following 5 functions for computing summary stats
-#      <summary.statistics>           <summary.statistics.formula>
-#      <summary.formula>              <summary.statistics.ergm>
-#      <summary.statisitcs.default>   <summary.statistics.network>
+#      <summary_statistics>           <summary_statistics.formula>
+#      <summary.formula>              <summary_statistics.ergm>
+#      <summary.statisitcs.default>   <summary_statistics.network>
 #      <summary.statisitics.matrix>
 #==========================================================================
 
@@ -19,7 +19,7 @@
 
 
 #############################################################################
-# Each of the <summary.statistics.X> functions and <summary.formula> checks
+# Each of the <summary_statistics.X> functions and <summary.formula> checks
 # that the implicit formula is correctly given as 'nw ~ term(s)' and returns
 # the global statistics of the network specified by the formula
 #
@@ -43,8 +43,8 @@
 #' specified.
 #' 
 #' If \code{object} is of class \code{\link{formula}}, then
-#' \code{\link[base]{summary}} may be used in lieu of \code{summary.statistics}
-#' because \code{summary.formula} calls the \code{summary.statistics} function.
+#' \code{\link[base]{summary}} may be used in lieu of \code{summary_statistics}
+#' because \code{summary.formula} calls the \code{summary_statistics} function.
 #' %If neither of those are given as the
 #' %first argument then a \code{ergm.Cprepare} object is expected. This last
 #' %option is meant for internal use.
@@ -63,7 +63,7 @@
 #' @aliases summary
 #' @param object Either an \code{\link{formula}} object (see above) or an
 #' \code{\link{ergm}} model object.  In the latter case,
-#' \code{summary.statistics} is called for the \code{object$formula} object.
+#' \code{summary_statistics} is called for the \code{object$formula} object.
 #' In the former case, \code{object} is of the form \code{y ~ <model terms>},
 #' where \code{y} is a \code{\link[network]{network}} object or a matrix that
 #' can be coerced to a \code{\link[network]{network}} object.  For the details
@@ -87,58 +87,59 @@
 #' #
 #' data(florentine)
 #' #
-#' # test the summary.statistics function
+#' # test the summary_statistics function
 #' #
 #' summary(flomarriage ~ edges + kstar(2))
 #' m <- as.matrix(flomarriage)
 #' summary(m ~ edges)  # twice as large as it should be
 #' summary(m ~ edges, directed=FALSE) # Now it's correct
 #' 
-#' @export summary.statistics
-summary.statistics <- function(object, ..., basis=NULL) {
-  UseMethod("summary.statistics")
+#' @export summary_statistics
+summary_statistics <- function(object, ..., basis=NULL) {
+  UseMethod("summary_statistics")
 }
 
-#' @rdname summary.statistics
+#' @rdname summary_statistics
+#' @usage \method{summary}{formula}(object, \dots)
 #' @export
 summary.formula <- function(object, ...){
   if(length(object)!=3 || object[[1]]!="~")
     stop ("Formula must be of form 'y ~ model'.")
   lhs <- eval(object[[2]], envir = environment(object))
-  UseMethod("summary.statistics",object=lhs)
+  UseMethod("summary_statistics",object=lhs)
 }
 
 
-## #' @describeIn summary.statistics an [ergm()] [`formula`] method.
+## #' @describeIn summary_statistics an [ergm()] [`formula`] method.
 ## #' @export
-## summary.statistics.formula <- function(object, ..., basis=NULL) {
-##   summary.statistics.network(object, ..., basis=basis)
+## summary_statistics.formula <- function(object, ..., basis=NULL) {
+##   summary_statistics.network(object, ..., basis=basis)
 ## }
 
 
-#' @describeIn summary.statistics an [`ergm`] fit method, extracting its model from the fit.
+#' @describeIn summary_statistics an [`ergm`] fit method, extracting its model from the fit.
 #' @export
-summary.statistics.ergm <- function(object, ..., basis=NULL)
+summary_statistics.ergm <- function(object, ..., basis=NULL)
 {
-  summary.statistics.network(object$formula, ..., basis=basis)
+  summary_statistics.network(object$formula, ..., basis=basis)
 }
 
-#' @describeIn summary.statistics a method for a [`network.list`] on the LHS of the formula.
+#' @describeIn summary_statistics a method for a [`network.list`] on the LHS of the formula.
 #' @export
-summary.statistics.network.list <- function(object, response=NULL, ..., basis=NULL){
+summary_statistics.network.list <- function(object, response=NULL, ..., basis=NULL){
   if(!is.null(basis)){
     if(inherits(basis,'network.list'))
       object[[2]] <- basis
     else stop('basis, if specified, should be the same type as the LHS of the formula (network.list, in this case).')
   }
   nwl <- eval(object[[2]], envir=environment(object))
-  out<-lapply(nwl, function(nw) summary.statistics.network(object, response=response, ..., basis=nw))
+  out<-lapply(nwl, function(nw) summary_statistics.network(object, response=response, ..., basis=nw))
   do.call(rbind,out)
 }
 
-#' @describeIn summary.statistics a method for a [`network`] on the LHS of the formula.
+#' @describeIn summary_statistics a method for a [`network`] on the LHS of the formula.
 #' @export
-summary.statistics.network <- function(object, response=NULL,...,basis=NULL) {
+summary_statistics.network <- function(object, response=NULL,...,basis=NULL) {
   if(is.network(basis)){
     nw <- basis
     formula <- as.formula(object)
@@ -153,12 +154,12 @@ summary.statistics.network <- function(object, response=NULL,...,basis=NULL) {
   gs
 }
 
-#' @describeIn summary.statistics a method for a [`matrix`] on the LHS of the formula.
+#' @describeIn summary_statistics a method for a [`matrix`] on the LHS of the formula.
 #' @export
-summary.statistics.matrix <- summary.statistics.network
-#' @describeIn summary.statistics a fallback method.
+summary_statistics.matrix <- summary_statistics.network
+#' @describeIn summary_statistics a fallback method.
 #' @export
-summary.statistics.default <- summary.statistics.network
+summary_statistics.default <- summary_statistics.network
 
 
 

@@ -27,9 +27,9 @@ given network and model.
 Calculates and returns the global statistics for a given network via
 \code{\link{ergm.Cprepare}} and \code{network_stats_wrapper.C} or
 \code{wt_network_stats_wrapper.C} if the model is weighted. It is called by
-\code{\link{summary.statistics.network}} which is generally the better way
+\code{\link{summary_statistics.network}} which is generally the better way
 to access the functionality.
 }
 \seealso{
-\code{\link{summary.statistics.network}}
+\code{\link{summary_statistics.network}}
 }
