@@ -279,7 +279,7 @@
 #' # print out the content for a specific term
 #' search.ergmTerms(name='b2factor')
 #' 
-#' 
+#' @importFrom utils capture.output
 #' @export search.ergmTerms
 search.ergmTerms<-function(keyword,net,categories,name){
   

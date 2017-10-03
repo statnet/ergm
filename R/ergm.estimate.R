@@ -107,7 +107,8 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
   # of center (e.g., the column means).  Since this shifts the scale, the
   # value of xobs (playing the role of "observed statistics") must be
   # adjusted accordingly.
-# av <- apply(sweep(statsmatrix0,1,probs,"*"), 2, sum)
+  # av <- apply(sweep(statsmatrix0,1,probs,"*"), 2, sum)
+  #' @importFrom robustbase covMcd
   if(cov.type=="robust"){
    av <- apply(statsmatrix0,2,wtd.median,weight=probs)
    V=try(
@@ -216,6 +217,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     # If there's an error, first try a robust matrix inverse.  This can often
     # happen if the matrix of simulated statistics does not ever change for one
     # or more statistics.
+    #' @importFrom MASS ginv
     if(inherits(Lout$par,"try-error")){
       Lout$par <- try(eta0[!model$etamap$offsetmap] 
                       - ginv(Lout$hessian) %*% 
@@ -224,6 +226,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     }
     # If there's still an error, use the Matrix package to try to find an 
     # alternative Hessian approximant that has no zero eigenvalues.
+    #' @importFrom Matrix nearPD
     if(inherits(Lout$par,"try-error")){
       if (obsprocess) {
         Lout <- list(hessian = -(as.matrix(nearPD(V-V.obs)$mat)))
@@ -256,6 +259,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     }
 
     if (verbose) { message("Optimizing loglikelihood") }
+    #' @importFrom trust trust
     Lout <- try(trust(objfun=loglikelihoodfn.trust, parinit=guess,
                       rinit=1, 
                       rmax=100, 

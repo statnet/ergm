@@ -110,7 +110,6 @@ colnames(ergmMPLE(formula2, as.initialfit=TRUE)$predictor)
 
 # The term is treated as curved: individual esp# terms are returned:
 colnames(ergmMPLE(formula2, as.initialfit=FALSE)$predictor)
-
 }
 \seealso{
 \code{\link{ergm}}, \code{\link{glm}}

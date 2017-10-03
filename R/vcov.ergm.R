@@ -16,11 +16,14 @@
 #' # Extract parameter estimates as a numeric vector:
 #' coef(gest)
 #' }
+#' @import stats
+#' @importFrom stats coef
 #' @export
 coef.ergm <- function(object, ...){object$coef}
 
 #' @describeIn ergm An \emph{alias} for
 #'   \code{ergm}.
+#' @importFrom stats coefficients
 #' @export
 coefficients.ergm <- coef.ergm
 
@@ -38,6 +41,7 @@ coefficients.ergm <- coef.ergm
 #' vcov(gest, sources="estimation")
 #' vcov(gest, sources="all") # the default
 #' }
+#' @importFrom stats vcov
 #' @export
 vcov.ergm <- function(object, sources=c("all","model","estimation"), ...){
   sources <- match.arg(sources)

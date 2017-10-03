@@ -117,7 +117,8 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
     finished = (countdown==0) || (iter >= control$Step.maxit)
     
     # When the stepped xi is in the convex hull (but not on the boundary), find the MLE for gyobs=xi
-    message("  Trying gamma=", gamma[[iter]],"")  
+    message("  Trying gamma=", gamma[[iter]],"")
+    #' @importFrom utils flush.console
     flush.console()
     
     ############# PLOTS print if VERBOSE=TRUE #################
@@ -125,6 +126,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
       # Take a look at obsstats (in red dot) and the "new obsstats" (in green triangle):
       # par(mgp = c(2,.8,0), mar = .1+c(3,3,3,1)) ## How do I put more margin at the top?
       par(ask=TRUE)
+      #' @importFrom graphics pairs
       pairs(rbind(samples[[iter]], obsstats, xi[[iter]], sampmeans[[iter]]), 
             col=c(rep(1, nrow(samples[[iter]])), 2, 7, 3), # all black used for JCGS article 
             pch=c(rep(46, nrow(samples[[iter]])), 3, 16, 4),

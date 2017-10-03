@@ -215,7 +215,7 @@ ergm.checkdegeneracy <- function(statsmatrix, statsmatrix.obs=NULL, verbose=FALS
  if(all(novar)){
   if(verbose){
     warning("All the MCMC sample statistics are the same.\n", call.=FALSE)
-    print(apply(statsmatrix,2,ergm::summary.statsmatrix.ergm),scipen=6)
+    print(apply(statsmatrix,2,summary.statsmatrix.ergm),scipen=6)
   }
   degen <- TRUE
  }

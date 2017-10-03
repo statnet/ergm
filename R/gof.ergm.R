@@ -100,6 +100,7 @@ gof <- function(object, ...){
 
 
 #' @noRd
+#' @importFrom utils methods
 #' @export
 gof.default <- function(object,...) {
   classes <- setdiff(gsub(pattern="^gof.",replacement="",as.vector(methods("gof"))), "default")
@@ -139,6 +140,7 @@ gof.ergm <- function (object, ...,
   # Add a model term, unless it is explicitly excluded
   model_trms <- unlist(dimnames(attr(terms(GOF),"factors"))[1])
   if(!("model" %in% model_trms)){
+    #' @importFrom statnet.common nonsimp.update.formula
     GOF <- nonsimp.update.formula(GOF, ~ . + model)
   }
 
@@ -766,6 +768,7 @@ summary.gof <- function(object, ...) {
 #' proportions.
 #' @keywords graphs
 #' 
+#' @importFrom graphics boxplot points lines mtext plot
 #' @export
 plot.gof <- function(x, ..., 
          cex.axis=0.7, plotlogodds=FALSE,

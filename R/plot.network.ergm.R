@@ -195,7 +195,9 @@
 #' plot(flomarriage)  #Plot the Florentine Marriage data
 #' plot(network(10))  #Plot a random network
 #' \dontrun{plot(flomarriage,interactive="points")}
-#' 
+#'
+#' @importFrom grDevices colors rainbow dev.cur pictex dev.off dev.set
+#' @importFrom graphics par
 #' @export plot.network.ergm
 "plot.network.ergm"<-function(x,
     attrname=NULL,

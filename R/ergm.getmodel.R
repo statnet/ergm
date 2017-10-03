@@ -62,6 +62,7 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
   if (length(formula) < 3) 
     stop(paste("No model specified for network ", formula[[2]]), call.=FALSE)
 
+  #' @importFrom statnet.common term.list.formula
   v<-term.list.formula(formula[[3]])
   
   formula.env<-environment(formula)

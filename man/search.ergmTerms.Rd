@@ -56,7 +56,6 @@ search.ergmTerms(categories=c('bipartite','dyad-independent'))
 # print out the content for a specific term
 search.ergmTerms(name='b2factor')
 
-
 }
 \seealso{
 See also \code{\link{ergm.terms}} for the complete documentation
