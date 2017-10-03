@@ -7,48 +7,77 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
-##########################################################################
-# The <ergm.mple> function finds a maximizer to the psuedolikelihood
-# function
-#
-# --PARAMETERS--
-#   Clist            : a list of parameters used for fitting and returned
-#                      by <ergm.Cprepare>
-#   Clist.miss       : the corresponding 'Clist' for the network of missing
-#                      edges returned by <ergm.design>            
-#   m                : the model, as returned by <ergm.getmodel>
-#   init           : a vector a vector of initial theta coefficients
-#   theta.offset     : a logical vector specifying which of the model
-#                      coefficients are offset, i.e. fixed  
-#   MPLEtype         : the method for MPL estimation as "penalized", "glm" or
-#                      "logitreg"; default="glm"    
-#   family           : the family to use in the R native routine <glm>; only
-#                      applicable if "glm" is the 'MPLEtype'; default="binomial"
-#   maxMPLEsamplesize: the sample size to use for endogenous sampling in the psuedo-
-#                      likelihood computation; default=1e6
-#   save.glm         : whether the mple fit and the null mple fit should be
-#                      returned (T or F); if false, NULL is returned for both;
-#                      default==TRUE
-#   thetal           : the independence theta; if specified and non-NULL, this is
-#                      ignored except to return its value in the returned ergm;
-#                      default=NULL, in which case 'theta1' is computed
-#   control       : a list of MCMC related parameters; recognized components
-#                      include:
-#         samplesize : the number of networks to sample
-#         Clist.miss : see 'Clist.miss' above; some of the code uses this Clist.miss,
-#                      some uses the one above, does this seem right?
-#   MHproposal       : an MHproposal object, as returned by <ergm.getMHproposal>
-#   verbose          : whether this and the C routines should be verbose (T or F);
-#                      default=FALSE
-#   ...              : additional parameters passed from within; all will be
-#                      ignored
-#
-# --RETURNED--
-#   an ergm object as a list containing several items; for details see
-#   the return list in the <ergm> function header (<ergm.mple>=!);
-#
-######################################################################################
 
+#' Find a maximizer to the psuedolikelihood function
+#' 
+#' The \code{ergm.mple} function finds a maximizer to the psuedolikelihood
+#' function (MPLE). It is the default method for finding the ERGM starting
+#' coefficient values. It is normally called internally the ergm process and
+#' not directly by the user. Generally \code{\link{ergmMPLE}} would be called
+#' by users instead.
+#' 
+#' According to Hunter et al. (2008): "The maximizer of the pseudolikelihood
+#' may thus easily be found (at least in principle) by using logistic
+#' regression as a computational device." In order for this to work, the
+#' predictors of the logistic regression model must be calculated.  These are
+#' the change statistics as described in Section 3.2 of Hunter et al. (2008),
+#' put into matrix form so that each pair of nodes is one row whose values are
+#' the vector of change statistics for that node pair.  The ergm.pl function
+#' computes these change statistics and the ergm.mple function implements the
+#' logistic regression using R's glm function.  Generally, neither ergm.mple
+#' nor ergm.pl should be called by users if the logistic regression output is
+#' desired; instead, use the \code{\link{ergmMPLE}} function.
+#' 
+#' In the case where the ERGM is a dyadic independence model, the MPLE is the
+#' same as the MLE.  However, in general this is not the case and, as van Duijn
+#' et al. (2009) warn, the statistical properties of MPLEs in general are
+#' somewhat mysterious.
+#' 
+#' MPLE values are used even in the case of dyadic dependence models as
+#' starting points for the MCMC algorithm.
+#' 
+#' @param Clist a list of parameters used for fitting and returned by
+#'   \code{\link{ergm.Cprepare}}
+#' @param fd An \code{\link{rlebdm}} with informative dyads.
+#' @param m the model, as returned by \code{\link{ergm.getmodel}}
+#' @param init a vector a vector of initial theta coefficients
+#' @param MPLEtype the method for MPL estimation as "penalized", "glm"
+#'   or "logitreg"; default="glm"
+#' @param family the family to use in the R native routine
+#'   \code{\link{glm}}; only applicable if "glm" is the 'MPLEtype';
+#'   default="binomial"
+#' @param maxMPLEsamplesize the sample size to use for endogenous
+#'   sampling in the psuedo-likelihood computation; default=1e6
+#' @param save.glm whether the mple fit and the null mple fit should
+#'   be returned (T or F); if false, NULL is returned for both;
+#'   default==TRUE
+#' @param theta1 the independence theta; if specified and non-NULL,
+#'   this is ignored except to return its value in the returned ergm;
+#'   default=NULL, in which case 'theta1' is computed
+#' @param control a list of MCMC related parameters; recognized
+#'   components include: samplesize : the number of networks to sample
+#'   Clist.miss : see 'Clist.miss' above; some of the code uses this
+#'   Clist.miss,
+#' @param MHproposal an MHproposal object, as returned by
+#'   \code{\link{MHproposal}}
+#' @param verbose whether this and the C routines should be verbose (T
+#'   or F); default=FALSE
+#' @param \dots additional parameters passed from within; all will be
+#'   ignored
+#' @return \code{ergm.mple} returns an ergm object as a list
+#'   containing several items; for details see the return list in the
+#'   \code{\link{ergm}}
+#' 
+#' @seealso \code{\link{ergmMPLE}},
+#' \code{\link{ergm}},\code{\link{control.ergm}}
+#' @references Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris and
+#' Martina (2008).  "ergm: A Package to Fit, Simulate and Diagnose
+#' Exponential-Family Models for Networks." _Journal of Statistical Software_,
+#' *24*(3), pp. 1-29. \url{http://www.jstatsoft.org/article/view/v024i03}
+#' 
+#' van Duijn MAJ, Gile K, Handcock MS (2009).  "Comparison of Maximum Pseudo
+#' Likelihood and Maximum Likelihood Estimation of Exponential Family Random
+#' Graph Models." _Social Networks_, *31*, pp. 52-62.
 ergm.mple<-function(Clist, fd, m, init=NULL,
                     MPLEtype="glm", family="binomial",
                     maxMPLEsamplesize=1e+6,
@@ -62,7 +91,7 @@ ergm.mple<-function(Clist, fd, m, init=NULL,
   pl <- ergm.pl(Clist=Clist, fd=fd, m=m,
                 theta.offset=init,
                 maxMPLEsamplesize=maxMPLEsamplesize,
-		control=control, MHproposal=MHproposal,
+		control=control,
                 verbose=verbose)
 
   message("Maximizing the pseudolikelihood.")
