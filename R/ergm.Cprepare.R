@@ -136,7 +136,6 @@ ergm.Cprepare.el<-function(x, attrname=NULL, prototype=NULL){
   c(nrow(xm),c(xm))
 }
 
-# Note: this converter must be kept in sync with whatever edgetree.c does.
 mk.edge.to.pos.lasttoggle.f <- function(nw){
   if(is.bipartite(nw)){
     b <- if(is.bipartite(nw)) nw %n% "bipartite"
@@ -150,12 +149,66 @@ mk.edge.to.pos.lasttoggle.f <- function(nw){
   }
 }
 
+#' Storing last toggle information in a network
+#' 
+#' An informal extension to \code{\link{network}} objects allowing
+#' some limited temporal information to be stored.
+#' WARNING: THIS DOCUMENTATION IS PROVIDED AS A COURTESY, AND THE API
+#' DESCRIBED IS SUBJECT TO CHANGE WITHOUT NOTICE, DOWN TO COMPLETE
+#' REMOVAL. NOT ALL FUNCTIONS THAT COULD SUPPORT IT DO. USE AT YOUR
+#' OWN RISK.
+#' 
+#' While \code{\link[networkDynamic]{networkDynamic}} provides a flexible,
+#' consistent method for storing dynamic networks, the \code{C} routines of
+#' \code{\link[=ergm-package]{ergm}} and
+#' \code{\link[tergm:tergm-package]{tergm}} required a simpler and more
+#' lightweight representation.
+#' 
+#' This representation consisted of a single integer representing the
+#' time stamp and an integer vector of length to
+#' \code{\link{network.dyadcount}(nw)} --- the number of potential
+#' ties in the network, giving the last time point during which each
+#' of the dyads in the network had changed.
+#' 
+#' Though this is an API intended for internal use, some functions,
+#' like \code{\link[tergm]{stergm}} (for EGMME),
+#' \code{\link[tergm:simulate.stergm]{simulate}}, and
+#' \code{\link[=summary.formula]{summary}} can be passed networks with
+#' this information using the following \code{\link{network}} (i.e.,
+#' \code{\link{%n%}}) attributes: \describe{ \item{list("time")}{the
+#' time stamp associated with the network} \item{list("lasttoggle")}{a
+#' vector of length \code{\link{network.dyadcount}(nw)}, giving the
+#' last change time associated with each dyad. See the source code of
+#' \code{\link[=ergm-package]{ergm}} internal functions
+#' \code{to.matrix.lasttoggle}, \code{ergm.el.lasttoggle}, and
+#' \code{to.lasttoggle.matrix} for how they are serialized.} }
+#' 
+#' For technical reasons, the \code{\link[tergm:tergm-package]{tergm}}
+#' routines treat the \code{lasttoggle} time points as shifted by
+#' \eqn{-1}.
+#' 
+#' Again, this API is subject to change without notice.
+#'
+#' @param nw network, possibly with a `"lasttoggle"` network attribute.
+#' @aliases lasttoggle last.toggle last-toggle
+#' @name lasttoggle
+NULL
+
+#' @describeIn lasttoggle Returns a 3-column matrix whose first two
+#'   columns are tails and heads of extant edges and whose third
+#'   column are the creation times for those edges.
+#' @param nw the network, otpionally with a `"lasttoggle"` network
+#'   attribute.
+#' @export
 ergm.el.lasttoggle <- function(nw){
   edge.to.pos <- mk.edge.to.pos.lasttoggle.f(nw)
   el <- as.edgelist(nw)
   cbind(el,NVL((nw %n% "lasttoggle"),0)[apply(el,1,edge.to.pos)]) # change to 0 if null
 }
 
+#' @describeIn lasttoggle Returns a numeric sociomatrix whose values
+#'   are last toggle times for the corresponding dyads.
+#' @export
 to.matrix.lasttoggle <- function(nw){
   n <- network.size(nw)
   b <- if(is.bipartite(nw)) nw %n% "bipartite"
@@ -173,6 +226,13 @@ to.matrix.lasttoggle <- function(nw){
   m
 }
 
+#' @describeIn lasttoggle Serializes a matrix of last toggle times
+#'   into the form used by C code.
+#' @param m a sociomatrix of appropriate dimension (rectangular for
+#'   bipartite networks).
+#' @param directed,bipartite whether the matrix represents a directed
+#'   and/or a bipartite networks.
+#' @export
 to.lasttoggle.matrix <- function(m, directed=TRUE, bipartite=FALSE){
   if(bipartite) c(m)
   else if(directed) c(m[as.logical(1-diag(1,nrow=nrow(m)))])
