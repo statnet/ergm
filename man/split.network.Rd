@@ -10,14 +10,12 @@
 \arguments{
 \item{x}{a \code{\link[network:network]{network::network}} object.}
 
-\item{f}{a vector of length equal to .}
-
-\item{f, drop}{see \code{\link[=split]{split()}}; note that \code{f} must have length equal to \code{network.size(x)}.}
+\item{f, drop, sep, lex.order}{see \code{\link[=split]{split()}}; note that \code{f} must have length equal to \code{network.size(x)}.}
 }
 \value{
-A \code{\link{network.list}} containing the networks. Note that these
-networks will inherit all vertex and edge attributes, as well as
-relevant network attributes.
+A \code{\link{network.list}} containing the networks. These networks
+will inherit all vertex and edge attributes, as well as relevant
+network attributes.
 }
 \description{
 Split a network into subnetworks on a factor.

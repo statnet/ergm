@@ -18,9 +18,6 @@ edge attributes not to be processed as described below.}
 
 \item{names.vattr}{optional name of the vertex attribute to use as network
 names in the output list.}
-
-\item{detect.edgecov}{if \code{TRUE}, split up network attributes that
-look like dyadic covariate (\code{\link[ergm:edgecov]{ergm::edgecov}}) matrices.}
 }
 \value{
 a list of \code{\link[network:network]{network::network}}s containing subgraphs on \code{split.vattr}. In particular,
@@ -34,7 +31,7 @@ the returned networks.
 If \code{split.vattr} is a vector, only the first element is used and it's "popped".
 }
 \description{
-Given a network created by \code{\link[=combine_networks]{combine_networks()}}, \code{\link[=uncombine_networks]{uncombine_networks()}} returns a list of networks,
+Given a network created by \code{\link[=combine_networks]{combine_networks()}}, \code{\link[=uncombine_network]{uncombine_network()}} returns a list of networks,
 preserving attributes that can be preserved.
 }
 \examples{

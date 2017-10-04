@@ -352,13 +352,11 @@ combine_networks <- function(nwl, ignore.nattr=c("bipartite","directed","hyper",
 #'
 #' @param x a [`network::network`] object.
 #'
-#' @param f a vector of length equal to .
+#' @param f,drop,sep,lex.order see [split()]; note that `f` must have length equal to `network.size(x)`.
 #'
-#' @param f,drop see [split()]; note that `f` must have length equal to `network.size(x)`.
-#'
-#' @return A [`network.list`] containing the networks. Note that these
-#'   networks will inherit all vertex and edge attributes, as well as
-#'   relevant network attributes.
+#' @return A [`network.list`] containing the networks. These networks
+#'   will inherit all vertex and edge attributes, as well as relevant
+#'   network attributes.
 #' 
 #' @seealso [network::get.inducedSubgraph()]
 #' @export
@@ -382,7 +380,7 @@ split.network <- function(x, f, drop = FALSE, sep = ".", lex.order = FALSE, ...)
 
 #' Split up a network into a list of subgraphs
 #'
-#' Given a network created by [combine_networks()], [uncombine_networks()] returns a list of networks,
+#' Given a network created by [combine_networks()], [uncombine_network()] returns a list of networks,
 #' preserving attributes that can be preserved.
 #'
 #' @param nw a [`network::network`] created by [combine_networks()].
@@ -392,8 +390,8 @@ split.network <- function(x, f, drop = FALSE, sep = ".", lex.order = FALSE, ...)
 #'
 #' @param split.vattr name of the vertex attribute on which to split.
 #'
-#' @param detect.edgecov if `TRUE`, split up network attributes that
-#'   look like dyadic covariate ([`ergm::edgecov`]) matrices.
+## #' @param detect.edgecov if `TRUE`, split up network attributes that
+## #'   look like dyadic covariate ([`ergm::edgecov`]) matrices.
 #'
 #' @param names.vattr optional name of the vertex attribute to use as network
 #'   names in the output list.
