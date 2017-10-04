@@ -30,6 +30,17 @@
 #
 ###############################################################################
 
+#' @rdname summary.ergm
+#' @param x object of class `summary.ergm` returned by
+#'   [summary.ergm()].
+#' @param signif.stars whether to print dots and stars to signify
+#'   statistical significance. See [print.summary.lm()].
+#' @param eps.Pvalue \eqn{p}-values below this level will be printed
+#'   as "`<eps.Pvalue`".
+#' @param
+#'   print.header,print.formula,print.fitinfo,print.coefmat,print.message,print.deviances,print.drop,print.offset,print.degeneracy
+#'   which components of the fit summary to print.
+#' @export
 print.summary.ergm <- function (x, 
               digits = max(3, getOption("digits") - 3),
               correlation=FALSE, covariance=FALSE,
