@@ -12,7 +12,7 @@ library(statnet.common)
 opttest({
 library(ergm)
 data(sampson)
-m <- simulate.formula(samplike~odegree(3)+idegree(3), coef=c(100,-100))
+m <- simulate(samplike~odegree(3)+idegree(3), coef=c(100,-100))
 s <- summary(m~odegree(3)+idegree(3))
 if (diff(s) >=0) stop("failed odegree and idegree simulation test.")
 }, "extreme outdegree and indegree simulation test")
