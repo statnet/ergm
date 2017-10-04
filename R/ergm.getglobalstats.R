@@ -44,7 +44,7 @@ ergm.emptynwstats.model <- function(m){
 #' Calculates and returns the global statistics for a given network via
 #' \code{\link{ergm.Cprepare}} and \code{network_stats_wrapper.C} or
 #' \code{wt_network_stats_wrapper.C} if the model is weighted. It is called by
-#' \code{\link{summary_statistics.network}} which is generally the better way
+#' \code{\link{summary_formula.network}} which is generally the better way
 #' to access the functionality.
 #' 
 #' @param nw a \code{\link{network}} object
@@ -53,7 +53,7 @@ ergm.emptynwstats.model <- function(m){
 #' @param response character name of an edge attribute to be used (for weighted
 #' ergm models)
 #' @return returns a vector of the global statistics
-#' @seealso \code{\link{summary_statistics.network}}
+#' @seealso \code{\link{summary.formula}}
 #' @export ergm.getglobalstats
 ergm.getglobalstats <- function(nw, m, response=NULL) {
   Clist <- ergm.Cprepare(nw, m, response=response)
