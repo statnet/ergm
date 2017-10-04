@@ -448,7 +448,8 @@ ergm.MCMLE <- function(init, nw, model,
     }
     
     }
-    
+
+    #' @importFrom utils tail
     # stop if MCMLE is stuck (steplen stuck near 0)
     if ((length(steplen.hist) > 2) && sum(tail(steplen.hist,2)) < 2*control$MCMLE.steplength.min) {
       stop("MCMLE estimation stuck. There may be excessive correlation between model terms, suggesting a poor model for the observed data. If target.stats are specified, try increasing SAN parameters.")

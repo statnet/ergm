@@ -399,7 +399,6 @@ NULL
 #' @seealso florentine, network, plot.network, ergm
 #' @source Steve Goodreau
 #' @keywords datasets
-#' @export
 #' @examples
 #' 
 #' data(g4)

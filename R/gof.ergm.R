@@ -100,6 +100,7 @@ gof <- function(object, ...){
 
 
 #' @noRd
+#' @importFrom utils methods
 #' @export
 gof.default <- function(object,...) {
   classes <- setdiff(gsub(pattern="^gof.",replacement="",as.vector(methods("gof"))), "default")
@@ -766,6 +767,7 @@ summary.gof <- function(object, ...) {
 #' proportions.
 #' @keywords graphs
 #' 
+#' @importFrom graphics boxplot points lines mtext plot
 #' @export
 plot.gof <- function(x, ..., 
          cex.axis=0.7, plotlogodds=FALSE,

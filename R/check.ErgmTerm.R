@@ -87,7 +87,8 @@
 #' @return A list of the values for each possible argument of term X;
 #'   user provided values are used when given, default values
 #'   otherwise.
-#' 
+#'
+#' @import network
 #' @export check.ErgmTerm
 check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegative=FALSE,
                            varnames=NULL, vartypes=NULL,

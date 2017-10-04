@@ -164,7 +164,7 @@ mcmc.diagnostics.default <- function(object, ...) {
 #' information, if it is included in the original object.  The function is
 #' mainly used for its side effect, which is to produce plots and summary
 #' output based on those plots.
-#' 
+#' @import coda
 #' @export
 mcmc.diagnostics.ergm <- function(object,
                                   center=TRUE,

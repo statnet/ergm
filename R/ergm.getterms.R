@@ -23,6 +23,16 @@
 #          
 ###########################################################################
 
+#' @rdname ergm.getmodel
+#' @description The \code{ergm.getterms} function returns the terms of
+#'   a given formula and ensures that the formula is indeed a formula
+#'   with the necessary \code{~} operator
+#' @return \code{ergm.getterms} returns: \itemize{ \item the terms
+#'   object associated with the formula and returned by the native R
+#'   function \code{\link{terms}}. see
+#'   \code{\link[stats]{terms.object}} for details about the
+#'   components }
+#' @export
 ergm.getterms<-function(formula) {
     if ((dc<-data.class(formula)) != "formula")
         stop (paste("Invalid formula of class ",dc))

@@ -12,7 +12,16 @@
 ## manipulating ERGM formulas.                                   ##
 ###################################################################
 
-# For backwards compatibility.
+#' @rdname ergm.getmodel
+#' @description \code{ergm.update.formula} (DEPRECATED: use
+#'   \code{\link[statnet.common]{nonsimp.update.formula}} instead) is
+#'   a reimplementation of \code{\link{update.formula}} that does not
+#'   simplify.  Note that the resulting formula's environment is set
+#'   as follows. If \code{from.new==FALSE}, it is set to that of
+#'   object. Otherwise, a new sub-environment of object, containing,
+#'   in addition, variables in new listed in from.new (if a character
+#'   vector) or all of new (if TRUE).
+#' @export
 ergm.update.formula <- statnet.common::nonsimp.update.formula
 
 model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
@@ -305,7 +314,11 @@ unset.offset.formula <- function(object, which=TRUE, response=NULL){
   ergm.update.formula(object, append.rhs.formula(~.,terms)) # append.rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
 }
 
-# Delete all offset() terms in an ERGM formula.
+
+#' @rdname ergm.getmodel
+#' @description \code{remove.offset.formula} deletes all \code{\link{offset}} terms in
+#' an ERGM formula.
+#' @export remove.offset.formula
 remove.offset.formula <- function(object, response=NULL){
   terms <- term.list.formula(object[[3]])
   for(i in rev(seq_along(terms)))
@@ -314,8 +327,10 @@ remove.offset.formula <- function(object, response=NULL){
   ergm.update.formula(object, append.rhs.formula(~.,terms)) # append.rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
 }
 
-# A lightweight function that simply returns the offset vectors
-# associated with a formula.
+#' @rdname ergm.getmodel
+#' @description \code{offset.info.formula} returns the offset
+#'   vectors associated with a formula.
+#' @export offset.info.formula
 offset.info.formula <- function(object, response=NULL){
   nw <- ergm.getnetwork(object)
   m<-ergm.getmodel(object, nw, response=response,role="target")

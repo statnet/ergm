@@ -65,6 +65,7 @@ predict.ergm.model<- function(model)  # only for Directed Network
 }
 
 
+library(statnet.common)
 opttest({
 #data(florentine)
 data(g4)

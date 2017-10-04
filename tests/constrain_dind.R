@@ -9,6 +9,7 @@
 #######################################################################
 
 library(ergm)
+library(statnet.common)
 
 mean_mat <- function(Mmin, Mmax){
   Mmin <- NVL(Mmin, Mmax)

@@ -66,6 +66,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
 
   flush.console()
 
+  #' @importFrom parallel clusterMap
   doruns <- function(prev.runs=rep(list(NULL),nthreads), burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL){
     if(!is.null(cl)) clusterMap(cl,ergm.mcmcslave,
                                   Clist=Clists, prev.run=prev.runs, MoreArgs=list(MHproposal=MHproposal,eta0=eta0,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges))
@@ -249,6 +250,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
 #'   success, `1` for too many edges, and `2` for a
 #'   Metropolis-Hastings proposal failing.}  \item{maxedges}{maximum
 #'   allowed edges at the time of return.}
+#' @useDynLib ergm
 #' @export ergm.mcmcslave
 ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL) {
 

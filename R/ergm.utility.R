@@ -23,6 +23,7 @@
 #==============================================================      
 
 #' @rdname ergm
+#' @importFrom methods is
 #' @export
 is.ergm <- function(object)
 {
@@ -358,6 +359,7 @@ locate.InitFunction <- function(name, prefix, errname=NULL, env = parent.frame()
   
   f <- try(get(fname, mode='function', envir=env), silent=TRUE)
   if(inherits(f, "try-error")){
+    #' @importFrom utils getAnywhere
     m <- getAnywhere(fname)
     if(length(m$objs)){
       ## Prioritise visible over not:

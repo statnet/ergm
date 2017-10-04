@@ -7,7 +7,7 @@
 #' @param n the dimensions of the square matrix represented.
 #'
 #' @seealso [as.rlebdm.ergm_conlist()]
-#' 
+#' @import statnet.common
 #' @export
 rlebdm <- function(x, n){
   if(is(x, "rlebdm")) return(x)
@@ -232,7 +232,7 @@ as.rlebdm.ergm_conlist <- function(x, constraints.obs = NULL, which = c("free", 
 #'   prototype network is given and does not allow self-loops, the
 #'   edgelist will not have self-loops either,e ven if the dyad matrix
 #'   has non-`FALSE` diagonal).
-#'
+#' @importFrom network as.edgelist
 #' @export
 as.edgelist.rlebdm <- function(x, prototype=NULL, ...){
   dir <- NVL3(prototype, is.directed(.), TRUE)

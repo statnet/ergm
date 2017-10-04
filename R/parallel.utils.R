@@ -171,6 +171,7 @@ ergm.MCMC.packagenames <- local({
   }
 })
 
+#' @importFrom utils packageDescription
 myLibLoc <- function()
   sub('/ergm/Meta/package.rds','',attr(packageDescription("ergm"),"file"))
 
@@ -202,6 +203,7 @@ ergm.getCluster <- function(control, verbose=FALSE){
     if(verbose) message("Using ",type,".")
     
     #   Start Cluster
+    #' @importFrom parallel makeCluster
     cl <- switch(type,
                  # The rpvm package is apparently not being maintained.
                  PVM={              
@@ -234,7 +236,8 @@ ergm.getCluster <- function(control, verbose=FALSE){
                  }
     )
   }
-  # Set RNG up. 
+  # Set RNG up.
+  #' @importFrom parallel clusterSetRNGStream
   clusterSetRNGStream(cl)
   
   # On the off chance that user wants to load extra packages which we don't know about already.
@@ -242,6 +245,7 @@ ergm.getCluster <- function(control, verbose=FALSE){
 
   for(pkg in ergm.MCMC.packagenames()){
     # Try loading from the same location as the master.
+  #' @importFrom parallel clusterCall
     attached <- unlist(clusterCall(cl, require,
                                    package=pkg,
                                    character.only=TRUE,
@@ -257,6 +261,7 @@ ergm.getCluster <- function(control, verbose=FALSE){
     
     if(control$parallel.version.check){
       slave.versions <- clusterCall(cl,packageVersion,pkg)
+      #' @importFrom utils packageVersion
       master.version <- packageVersion(pkg)
       
       if(!all(sapply(slave.versions,identical,master.version)))
@@ -280,6 +285,7 @@ ergm.stopCluster <- function(object, ...){
 
 # Only stop the MPI cluster if we were the ones who had started it.
 #' @rdname ergm-parallel
+#' @importFrom parallel stopCluster
 ergm.stopCluster.MPIcluster <- function(object, ...){
   if(ergm.cluster.started()){
     ergm.cluster.started(FALSE)

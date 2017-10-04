@@ -36,6 +36,7 @@ rank_test.ergm<-function(x,plot=FALSE){
   if(plot){
     plot(density(etasum, weights=w),main=expression(paste("Density of ",log(Pr(paste(Y,";",hat(theta)))/Pr(paste(y["obs"],";",hat(theta)))))),
          xlab=expression(log(Pr(paste(Y,";",hat(theta)))/Pr(paste(y["obs"],";",hat(theta))))),zero.line=FALSE)
+    #' @importFrom graphics abline
     if(!obs)
       abline(v=0)
     else

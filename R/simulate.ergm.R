@@ -165,6 +165,7 @@
 #'             control=control.simulate.ergm(MCMC.burnin=1000, MCMC.interval=100))
 #' g.sim
 #' @name simulate.ergm
+#' @importFrom stats simulate
 #' @aliases simulate.formula.ergm
 #' @export
 simulate.formula <- function(object, nsim=1, seed=NULL,
@@ -176,7 +177,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
                                esteq=FALSE,
                                sequential=TRUE,
                                control=control.simulate.formula(),
-                               verbose=FALSE, ...) {
+                             verbose=FALSE, ...) {
+  #' @importFrom statnet.common check.control.class
   check.control.class("simulate.formula", myname="ERGM simulate.formula")
   control.toplevel(...)
   
