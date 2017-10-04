@@ -11,6 +11,8 @@
 \item{x}{a \code{\link[network:network]{network::network}} object.}
 
 \item{f, drop, sep, lex.order}{see \code{\link[=split]{split()}}; note that \code{f} must have length equal to \code{network.size(x)}.}
+
+\item{...}{additional arguments, currently unused.}
 }
 \value{
 A \code{\link{network.list}} containing the networks. These networks

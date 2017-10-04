@@ -43,7 +43,7 @@ placeholder; incompatible with \code{detect.edgecov==TRUE}.}
 \item{subnet.cache}{whether to save the input network list as an
 attribute of the combined network, so that if the network is
 resplit using on the same attribute (e.g. using
-\code{\link[=uncombine_networks]{uncombine_networks()}}), an expensive call to \code{\link[=split.network]{split.network()}}
+\code{\link[=uncombine_network]{uncombine_network()}}), an expensive call to \code{\link[=split.network]{split.network()}}
 can be avoided, at the cost of storage.}
 }
 \value{

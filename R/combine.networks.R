@@ -46,7 +46,7 @@
 #' @param subnet.cache whether to save the input network list as an
 #'   attribute of the combined network, so that if the network is
 #'   resplit using on the same attribute (e.g. using
-#'   [uncombine_networks()]), an expensive call to [split.network()]
+#'   [uncombine_network()]), an expensive call to [split.network()]
 #'   can be avoided, at the cost of storage.
 #'
 #' @return a [`network::network`] with a block-diagonal structure (or
@@ -353,6 +353,8 @@ combine_networks <- function(nwl, ignore.nattr=c("bipartite","directed","hyper",
 #' @param x a [`network::network`] object.
 #'
 #' @param f,drop,sep,lex.order see [split()]; note that `f` must have length equal to `network.size(x)`.
+#'
+#' @param ... additional arguments, currently unused.
 #'
 #' @return A [`network.list`] containing the networks. These networks
 #'   will inherit all vertex and edge attributes, as well as relevant
