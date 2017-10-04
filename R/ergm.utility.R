@@ -14,7 +14,7 @@
 #      <is.ergm>                <ergm.t.summary>
 #      <is.latent>
 #      <degreedist>             <is.latent.cluster>
-#      <degreedistfactor>       <newnw.extract>
+#      <newnw.extract>
 #      <espartnerdist>          <dspartnerdist>         
 #      <rspartnerdist>         
 #      <twopathdist>            <copy.named>
@@ -22,6 +22,9 @@
 #      <catchToList>
 #==============================================================      
 
+#' @rdname ergm
+#' @importFrom methods is
+#' @export
 is.ergm <- function(object)
 {
     is(object,"ergm")
@@ -45,8 +48,34 @@ is.ergm <- function(object)
 #                      distribution
 ###############################################################################
 
+
+
+#' Computes and Returns the Degree Distribution Information for a Given Network
+#' 
+#' The \code{degreedist} generic computes and returns the degree distribution
+#' (number of vertices in the network with each degree value) for a given
+#' network.
+#' 
+#' @param object a \code{network} object or some other object for
+#'   which degree distribution is meaningful.
+#' @param \dots Additional arguments to functions.
+#' @return If directed, a matrix of the distributions of in and out
+#'   degrees; this is row bound and only contains degrees for which
+#'   one of the in or out distributions has a positive count.  If
+#'   bipartite, a list containing the degree distributions of b1 and
+#'   b2.  Otherwise, a vector of the positive values in the degree
+#'   distribution
+#' @examples
+#' 
+#' data(faux.mesa.high)
+#' degreedist(faux.mesa.high)
+#' 
+#' @export
 degreedist <- function(object, ...) UseMethod("degreedist")
 
+#' @describeIn degreedist Method for [`network`] objects.
+#' @param print logical, whether to print the degree distribution.
+#' @export
 degreedist.network <- function(object, print=TRUE, ...)
 {
  g <- object
@@ -171,6 +200,33 @@ function(x, alternative = c("two.sided", "less", "greater"),
 }
 
 # generate a network object from the edgelist output of the mcmc sample
+
+
+#' Internal function to create a new network from the ergm MCMC sample output
+#' 
+#' An internal function to generate a new \code{\link{network}} object using
+#' the output (lists of toggled heads and tail vertices) from an ERGM MCMC or
+#' SAN process.
+#' 
+#' 
+#' @param oldnw a network object (presumably input to the ergm process) from
+#' which the network- and vertex-level attributes will be copied
+#' @param z a list having either a component named \code{newedgelist} or two
+#' components \code{newtails} and \code{newheads} containing the ids of the
+#' head and tails vertices of the edges.  Optionall \code{newweights}
+#' containing edgewights.
+#' @param output passed to \code{\link{network.update}}, which claims not to
+#' use it
+#' @param response optional character string giving the name of the edge
+#' attribute where the edge values (weight/count) should be stored.
+#' @return a \code{\link{network}} object with properties copied from
+#' \code{oldnw} and edges corresponding to the lists of tails and head vertex
+#' ids in \code{z}
+#' @note This is an internal ergm function, it most cases with edgelists to be
+#' converted to networks it will probably be simpler to use
+#' \code{\link{network.edgelist}}
+#' @seealso \code{\link{network.edgelist}}, \code{\link{network.update}}
+#' @export newnw.extract
 newnw.extract<-function(oldnw,z,output="network",response=NULL){
   # if z has a newedgelist attached, use it
   if("newedgelist" %in% names(z)){
@@ -196,7 +252,25 @@ newnw.extract<-function(oldnw,z,output="network",response=NULL){
   newnw
 }
 
-# copy network and vertex attributes between two networks
+
+#' Copy network- and vertex-level attributes between two network objects
+#' 
+#' An internal ergm utility function to copy the network-level attributes and
+#' vertex-level attributes from one \code{\link{network}} object to another,
+#' ignoring some standard properties by default.
+#' 
+#' 
+#' @param to the \code{\link{network}} that attributes should be copied to
+#' @param from the \code{\link{network}} that attributes should be copied to
+#' @param ignore vector of charcter names of network attributes that should not
+#' be copied. Default is the standard list of network properties created by
+#' \code{\link{network.initialize}}
+#' @return returns the \code{to} network, with attributes copied from
+#' \code{from}
+#' @note does not check that networks are of the same size, etc
+#' @seealso \code{\link{set.vertex.attribute}},
+#' \code{\link{set.network.attribute}}
+#' @export nvattr.copy.network
 nvattr.copy.network <- function(to, from, ignore=c("bipartite","directed","hyper","loops","mnext","multiple","n")){
   for(a in list.vertex.attributes(from)){
     if(! a%in%ignore)
@@ -210,9 +284,40 @@ nvattr.copy.network <- function(to, from, ignore=c("bipartite","directed","hyper
 }
 
 
-# Create a copy of a network of interest with certain guarantees about its internal representation:
-# * tails < heads
-# * no (tail,head) pair has more than one edge ID associated with it
+
+#' Copy a network object enforcing ergm-appropriate guarantees about its
+#' internal representation
+#' 
+#' Create a copy of a \code{\link{network}} of interest with certain guarantees
+#' about its internal representation: \itemize{ \item for every edge, the id of
+#' the 'tails' vertex is < id of the 'heads' vertex if the network is
+#' undirected \item no (tail,head) id pair has more than one edge ID associated
+#' with it (no multiplex edges) }
+#' 
+#' This function is needed because the \code{\link{network}} object can support
+#' added non-directed edges in arbitrary order, as well as multiplex edges and
+#' hypergraphs (even if the network is not marked as such), which are not
+#' supported in the underlying ergm processes. Uses \code{\link{as.edgelist}}
+#' internally to make the conversion.
+#' 
+#' @param nw a \code{\link{network}} object to be copied
+#' @param preserve.eattr logical; should the edge attributes be preserved
+#' during the copying process (presumably slower)
+#' @return returns an ergm-appropriate network object.
+#' @note This function may be time expensive.  Also, the transformation is
+#' performed by deleting edges in initial network and re-adding them.
+#' @keywords internal
+#' @examples
+#' 
+#' test<-network.initialize(5,directed=FALSE)
+#' test[2,1]<-1  #ergm wont like this
+#' test$mel[[1]] # peek at internal representation
+#' 
+#' test2<-standardize.network(test) # enforce!
+#' test2$mel[[2]]  # 1 and 2 have traded places
+#' 
+#' 
+#' @export standardize.network
 standardize.network <- function(nw, preserve.eattr=TRUE){
   if(preserve.eattr){
     el <- rbind(as.edgelist(nw),as.edgelist(is.na(nw)))
@@ -254,6 +359,7 @@ locate.InitFunction <- function(name, prefix, errname=NULL, env = parent.frame()
   
   f <- try(get(fname, mode='function', envir=env), silent=TRUE)
   if(inherits(f, "try-error")){
+    #' @importFrom utils getAnywhere
     m <- getAnywhere(fname)
     if(length(m$objs)){
       ## Prioritise visible over not:

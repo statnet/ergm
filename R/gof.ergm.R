@@ -7,91 +7,117 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
-#=============================================================================
-# This file contains the following 8 functions for assessing goodness of fit
-#         <gof>              <summary.gofobject>
-#         <gof.default>      <plot.gofobject>
-#         <gof.ergm>         <ergm.get.terms.formula>
-#         <gof.formula>      <ergm.rhs.formula>
-#=============================================================================
 
-
-
-###############################################################################
-# Each of the <gof.X> functions assesses the goodness of fit of X by comparison
-# with 'control$nsim' ergm simulations of X
-#
-# --PARAMETERS--
-#   object/formula: either an ergm object or a formula
-#   ...           : additional parameters passed from within the program;
-#                   these are ignored
-#   init        : the parameters from which the simulations will be drawn;
-#                   default=NULL;
-#   control$nsim          : the number of simulated ergms, with which to compare X;
-#                   default=100
-#   burnin        : the number of proposals to disregard before any MCMC
-#                   sampling is done; this is passed along to the simulation
-#                   routines; default=10000
-#   interval      : the number of proposals between sampled ergm statistics;
-#                   this is passed along to the simulation rountines;
-#                   default=1000
-#   GOF           : a one-sided formula specifying which summary statistics
-#                   should be used in the GOF comparison; choices include
-#                       distance      espartners    dspartners
-#                       odegree       idegree       degree
-#                       triadcensus   model
-#                   default=NULL; is internally mapped to 
-#                   ~degree+espartners+distance if nw is undirected, and
-#                   ~idegree+odegree+espartners+distance otherwise
-#   constraints   : a one-sided formula of the constraint terms; options are
-#                         bd        degrees        nodegrees
-#                         edges     degreedist     idegreedist
-#                         observed  odegreedist
-#                   default="~ ."   
-#   control       : a list of parameters for controlling GOF evaluation, as
-#                   returned by <control.gof.X>; default=control.gof.X()
-#                   (note that <control.gof.X> has different defaults 
-#                    depending on the class of X)
-#   seed          : an integer value at which to set the random generator;
-#                   default=NULL
-#   verbose       : whether to print information on the progress of the
-#                   simulations; default=FALSE
-#
-# --RETURNED--
-#   returnlist: a list with the following components for each term
-#               G given in 'GOF'
-#      summary.G: a matrix of summary statistics for the observed and
-#                 simulated G's; if G takes on the values {G1, G2,...,Gq},
-#                 the entries of 'summary.G' are
-#         [i,1]-- the observed frequency of Gi
-#         [i,2]-- the minimum value of Gi from the simulations
-#         [i,3]-- the mean value of Gi from the simulations
-#         [i,4]-- the maximum value of Gi from the simulations
-#         [i,5]-- the p-value for the observed Gi estimated from the
-#                 distribution of simulations
-#      pobs.G   : a vector giving G's observed probability distribution
-#      psim.G   : a matrix of G's simulated probability distributions; each
-#                 row gives a distribution
-#      bds.G    : the estimatd confidence interval, as the .025 and .975
-#                 quantile values of the simulations
-#      obs.G    : the vector of summary statistics for the observed X
-#      sim.G    : the matrix of summary statistics for each simulated
-#                 version of X
-#
-###############################################################################
-
+#' Conduct Goodness-of-Fit Diagnostics on a Exponential Family Random Graph
+#' Model
+#' 
+#' \code{\link{gof}} calculates \eqn{p}-values for geodesic distance, degree,
+#' and reachability summaries to diagnose the goodness-of-fit of exponential
+#' family random graph models.  See \code{\link{ergm}} for more information on
+#' these models.
+#' 
+#' A sample of graphs is randomly drawn from the specified model.  The first
+#' argument is typically the output of a call to \code{\link{ergm}} and the
+#' model used for that call is the one fit.
+#' 
+#' For \code{GOF = ~model}, the model's observed sufficient statistics are
+#' plotted as quantiles of the simulated sample. In a good fit, the observed
+#' statistics should be near the sample median (0.5).
+#'
+#' @aliases gof.default
+#' @param object Either a formula or an \code{\link{ergm}} object.
+#' See documentation for \code{\link{ergm}}.
+#' @param \dots Additional arguments, to be passed to lower-level functions.
+#' @param coef When given either a formula or an object of class ergm,
+#' \code{coef} are the parameters from which the sample is drawn. By default
+#' set to a vector of 0.
+#' @param GOF formula; an formula object, of the form \code{~ <model terms>}
+#' specifying the statistics to use to diagnosis the goodness-of-fit of the
+#' model.  They do not need to be in the model formula specified in
+#' \code{formula}, and typically are not.  Currently supported terms are the
+#' degree distribution (\dQuote{degree} for undirected graphs, or
+#' \dQuote{idegree} and/or \dQuote{odegree} for directed graphs), geodesic
+#' distances (\dQuote{distance}), shared partner distributions
+#' (\dQuote{espartners} and \dQuote{dspartners}), the triad census
+#' (\dQuote{triadcensus}), and the terms of the original model
+#' (\dQuote{model}). The default formula for undirected networks is \code{~
+#' degree + espartners + distance + model}, and the default formula for
+#' directed networks is \code{~ idegree + odegree + espartners + distance +
+#' model}.  By default a \dQuote{model} term is added to the formula.  It is a
+#' very useful overall validity check and a reminder of the statistical
+#' variation in the estimates of the mean value parameters.  To omit the
+#' \dQuote{model} term, add \dQuote{- model} to the formula.
+#' @param constraints A one-sided formula specifying one or more constraints on
+#' the support of the distribution of the networks being modeled. See the help
+#' for similarly-named argument in \code{\link{ergm}} for more information. For
+#' \code{gof.formula}, defaults to unconstrained. For \code{gof.ergm}, defaults
+#' to the constraints with which \code{object} was fitted.
+#' @param control A list to control parameters, constructed using
+#' \code{\link{control.gof.formula}} or \code{\link{control.gof.ergm}} (which
+#' have different defaults).
+#' @param unconditional logical; if \code{TRUE}, the simulation is
+#' unconditional on the observed dyads.  if not \code{TRUE}, the simulation is
+#' conditional on the observed dyads. This is primarily used internally when
+#' the network has missing data and a conditional GoF is produced.
+#' @param verbose Provide verbose information on the progress of the
+#' simulation.
+#' @return \code{\link{gof}}, \code{\link{gof.ergm}}, and
+#' \code{\link{gof.formula}} return an object of class \code{gof}.  This
+#' is a list of the tables of statistics and \eqn{p}-values.  This is typically
+#' plotted using \code{\link{plot.gof}}.
+#' @seealso [ergm()], [network()], [simulate.ergm()], [summary.ergm()]
+#' @keywords models
+#' @examples
+#' 
+#' \donttest{
+#' data(florentine)
+#' gest <- ergm(flomarriage ~ edges + kstar(2))
+#' gest
+#' summary(gest)
+#' 
+#' # test the gof.ergm function
+#' gofflo <- gof(gest)
+#' gofflo
+#' 
+#' # Plot all three on the same page
+#' # with nice margins
+#' par(mfrow=c(1,3))
+#' par(oma=c(0.5,2,1,0.5))
+#' plot(gofflo)
+#' 
+#' # And now the log-odds
+#' plot(gofflo, plotlogodds=TRUE)
+#' 
+#' # Use the formula version of gof
+#' gofflo2 <-gof(flomarriage ~ edges + kstar(2), coef=c(-1.6339, 0.0049))
+#' plot(gofflo2)
+#' }
+#' 
+#' @export gof
 gof <- function(object, ...){
       UseMethod("gof")
     }
 
 
+#' @noRd
+#' @importFrom utils methods
+#' @export
 gof.default <- function(object,...) {
   classes <- setdiff(gsub(pattern="^gof.",replacement="",as.vector(methods("gof"))), "default")
   stop("Goodness-of-Fit methods have been implemented only for class(es) ",
        paste.and(paste('"',classes,'"',sep="")), " in the packages loaded.")
 }
 
-
+#' @describeIn gof Perform simulation to evaluate goodness-of-fit for
+#'   a specific [ergm()] fit.
+#'
+#' @note For \code{gof.ergm} and \code{gof.formula}, default behavior depends on the
+#' directedness of the network involved; if undirected then degree, espartners,
+#' and distance are used as default properties to examine.  If the network in
+#' question is directed, \dQuote{degree} in the above is replaced by idegree
+#' and odegree.
+#'
+#' @export
 gof.ergm <- function (object, ..., 
                       coef=NULL,
                       GOF=NULL, 
@@ -150,6 +176,11 @@ gof.ergm <- function (object, ...,
 
 
 
+#' @describeIn gof Perform simulation to evaluate goodness-of-fit for
+#'   a model configuration specified by a [`formula`], coefficient,
+#'   constraints, and other settings.
+#' 
+#' @export
 gof.formula <- function(object, ..., 
                         coef=NULL,
                         GOF=NULL,
@@ -626,25 +657,37 @@ gof.formula <- function(object, ...,
     returnlist$obs.triadcensus <- obs.triadcensus
     returnlist$sim.triadcensus <- sim.triadcensus
   }
-  class(returnlist) <- "gofobject"
+  class(returnlist) <- "gof"
   returnlist
 }
 
 
 
 ################################################################
-# The <print.gofobject> function prints the summary matrices
-# of each GOF term included in the build of the gofobject
+# The <print.gof> function prints the summary matrices
+# of each GOF term included in the build of the gof
 #
 # --PARAMETERS--
-#   x  : a gofobject, as returned by one of the <gof.X> functions
+#   x  : a gof, as returned by one of the <gof.X> functions
 #   ...: additional printing parameters; these are ignored
 #
 # --RETURNED--
 #   NULL
 #################################################################
 
-print.gofobject <- function(x, ...){
+#' @describeIn gof
+#' 
+#' \code{\link{print.gof}} summaries the diagnostics such as the
+#' degree distribution, geodesic distances, shared partner
+#' distributions, and reachability for the goodness-of-fit of
+#' exponential family random graph models.  See \code{\link{ergm}} for
+#' more information on these models. (`summary.gof` is a deprecated
+#' alias that may be repurposed in the future.)
+#' 
+#' @param x an object of class \code{gof} for printing or plotting.
+#' @aliases summary.gof
+#' @export
+print.gof <- function(x, ...){
   all.gof.vars <- ergm.rhs.formula(x$GOF)
   # match variables
   goftypes <- matrix( c(
@@ -672,17 +715,21 @@ print.gofobject <- function(x, ...){
 
 
 
-summary.gofobject <- function(object, ...) {
-  print.gofobject(object, ...) # Nothing better for now
+
+#' @noRd
+#' @export
+summary.gof <- function(object, ...) {
+  .Deprecated("print.gof")
+  print.gof(object, ...) # Nothing better for now
 }
 
 
 ###################################################################
-# The <plot.gofobject> function plots the GOF diagnostics for each
-# term included in the build of the gofobject
+# The <plot.gof> function plots the GOF diagnostics for each
+# term included in the build of the gof
 #
 # --PARAMETERS--
-#   x          : a gofobject, as returned by one of the <gof.X>
+#   x          : a gof, as returned by one of the <gof.X>
 #                functions
 #   ...        : additional par arguments to send to the native R
 #                plotting functions
@@ -700,7 +747,29 @@ summary.gofobject <- function(object, ...) {
 #
 ###################################################################
 
-plot.gofobject <- function(x, ..., 
+
+
+#' @describeIn gof
+#' 
+#' \code{\link{plot.gof}} plots diagnostics such as the degree
+#' distribution, geodesic distances, shared partner distributions, and
+#' reachability for the goodness-of-fit of exponential family random graph
+#' models.  See \code{\link{ergm}} for more information on these models.
+#' 
+#' @param cex.axis Character expansion of the axis labels relative to that for
+#' the plot.
+#' @param plotlogodds Plot the odds of a dyad having given characteristics
+#' (e.g., reachability, minimum geodesic distance, shared partners). This is an
+#' alternative to the probability of a dyad having the same property.
+#' @param main Title for the goodness-of-fit plots.
+#' @param normalize.reachability Should the reachability proportion be
+#' normalized to make it more comparable with the other geodesic distance
+#' proportions.
+#' @keywords graphs
+#' 
+#' @importFrom graphics boxplot points lines mtext plot
+#' @export
+plot.gof <- function(x, ..., 
          cex.axis=0.7, plotlogodds=FALSE,
          main="Goodness-of-fit diagnostics", 
          normalize.reachability=FALSE,

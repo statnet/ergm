@@ -16,6 +16,37 @@
 
 
 
+
+
+#' Calculate geodesic distance distribution for a network or edgelist
+#' 
+#' \code{ergm.geodistdist} calculates geodesic distance distribution for a
+#' given \code{\link{network}} and returns it as a vector.
+#' 
+#' \code{ergm.geodistdist} is a network wrapper for \code{ergm.geodistn}, which
+#' calculates and returns the geodesic distance distribution for a given
+#' network via full_geodesic_distribution.C
+#' 
+#' @aliases ergm.geodistdist ergm.geodesicmatrix ergm.geodesicmatrix.edgelist
+#' ergm.geodistn ergm.nodegeodesics ergm.pairgeodesic
+#' @param nw \code{\link{network}} object over which distances should be
+#' calculated
+#' @param directed logical, should the network be treated as directed
+#' @param edgelist an edgelist representation of a network as an mx2 matrix
+#' @param n integer, size of the network
+#' @return a vector \code{ans} with length equal to the size of the network
+#' where \itemize{
+#' \item `ans[i], i=1, ..., n-1` is the number of pairs of
+#' geodesic length `i`
+#' \item `ans[n]` is the number of pairs of geodesic length
+#' infinity.  }
+#' @seealso See also the sna package \code{\link[sna]{geodist}} function
+#' @examples
+#' 
+#' data(faux.mesa.high)
+#' ergm.geodistdist(faux.mesa.high)
+#' 
+#' @export ergm.geodistdist
 ergm.geodistdist<-function(nw, directed=is.directed(nw)){
  ergm.geodistn(edgelist=as.edgelist(nw),
                n=network.size(nw), directed=directed)/(2-is.directed(nw))
@@ -43,6 +74,13 @@ ergm.geodistdist<-function(nw, directed=is.directed(nw)){
 #
 ################################################################################
 
+#' @rdname ergm.geodistdist
+#' @description \code{ergm.geodistn} calculates geodesic deistance
+#'   distribution based on an input edgelist, and has very little
+#'   error checking so should not normally be called by users. The C
+#'   code requires the edgelist to be directed and sorted correctly.
+#' 
+#' @export
 ergm.geodistn <- function(edgelist, n=max(edgelist), directed=FALSE) {
   if(!directed){
    ndyads <- n*(n-1)/2

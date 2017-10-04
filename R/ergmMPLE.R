@@ -144,7 +144,6 @@
 #' 
 #' # The term is treated as curved: individual esp# terms are returned:
 #' colnames(ergmMPLE(formula2, as.initialfit=FALSE)$predictor)
-#' 
 #' @export ergmMPLE
 ergmMPLE <- function(formula, fitmodel=FALSE, output=c("matrix", "array", "fit"), as.initialfit = TRUE, control=control.ergm(),
                      verbose=FALSE, ...){

@@ -29,6 +29,7 @@
 #' future.
 #' 
 #' @param x an [ergm()] object.
+#' @param ... additional arguments, passed to [mcmc.diagnostics()].
 #'
 #' @seealso [mcmc.diagnostics()]
 plot.ergm <- function (x, ...)

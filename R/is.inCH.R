@@ -120,7 +120,8 @@ is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly 
   for(i in seq_len(nrow(p))){
    q = c(1, p[i,]) 
 ############################################
-# USE lp FUNCTION FROM lpSolve PACKAGE:
+   # USE lp FUNCTION FROM lpSolve PACKAGE:
+   #' @importFrom lpSolve lp
    ans <- lp(objective.in = c(-q, q),
              const.mat = rbind( c(q, -q), cbind(L, -L)),
              const.dir = "<=",

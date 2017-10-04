@@ -92,6 +92,12 @@ ergm.checkconstraints.model <- function(model, MHproposal, init, silent=FALSE){
   list(model=model, init=init, estimable=!conflict.coefs)
 }
 
+#' @rdname coef.length.model
+#'
+#' @description \code{coef.sublength.model} returns a vector
+#'   containing the number of model parameters corresponding to each
+#'   model term.
+#' @export coef.sublength.model
 coef.sublength.model<-function(object, offset=NA, ...){
   terms <-
     if(is.na(offset)) object$terms
@@ -106,10 +112,31 @@ coef.sublength.model<-function(object, offset=NA, ...){
   })
 }
 
+#' Extract Number of parameters in ergm Model
+#' 
+#' \code{coef.length.model} returns the total number of parameters of
+#' an [`ergm_model`].
+#' 
+#' @param object an [`ergm_model`] object
+#' @param offset If `NA` (the default), all model terms are counted;
+#'   if \code{TRUE}, only offset terms are counted; and if
+#'   \code{FALSE}, offset terms are skipped.
+#' @param \dots other arguments.
+#' @return \code{coef.length.model} returns the length of the
+#'   parameter vector of the model.
+#' @note These are *not* methods at this time. This may change in the
+#'   future.
+#' @keywords models
+#' @export coef.length.model
 coef.length.model <- function(object, offset=NA, ...){
   sum(coef.sublength.model(object, offset=offset, ...))
 }
 
+#' @rdname coef.length.model
+#' @description \code{eta.sublength.model} returns a vector containing
+#'   the number of canonical parameters (also the number of sufficient
+#'   statistics) corresponding to each model term.
+#' @export eta.sublength.model
 eta.sublength.model<-function(object, offset=NA, ...){
   terms <-
     if(is.na(offset)) object$terms
@@ -121,6 +148,10 @@ eta.sublength.model<-function(object, offset=NA, ...){
   })
 }
 
+#' @rdname coef.length.model
+#' @description \code{eta.length.model} returns the total number of
+#'   canonical parameters.
+#' @export eta.sublength.model
 eta.length.model <- function(object, offset=NA, ...){
   sum(eta.sublength.model(object, offset=offset, ...))
 }

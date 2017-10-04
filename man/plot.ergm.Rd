@@ -8,6 +8,8 @@
 }
 \arguments{
 \item{x}{an \code{\link[=ergm]{ergm()}} object.}
+
+\item{...}{additional arguments, passed to \code{\link[=mcmc.diagnostics]{mcmc.diagnostics()}}.}
 }
 \description{
 Originally, a plotting method for latent positions, before latent

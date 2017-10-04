@@ -23,6 +23,15 @@
 #
 ################################################################################
 
+#' @rdname ergm.eta
+#' @description The \code{ergm.etagrad} function caculates and returns
+#'   the gradient of eta mapped from theta using the etamap object
+#'   created by \code{ergm.etamap}. If the gradient is only intended
+#'   to be a multiplier for some vector, the more efficient
+#'   \code{ergm.etagradmult} is recommended.
+#' @return For \code{ergm.etagrad}, a matrix of the gradient of eta
+#'   with respect to theta.
+#' @export ergm.etagrad
 ergm.etagrad <- function(theta, etamap) {
   etagrad <- matrix(0, length(theta), etamap$etalength)
   ec <- etamap$canonical

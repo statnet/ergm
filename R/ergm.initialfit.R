@@ -72,7 +72,7 @@ ergm.initialfit<-function(init, initial.is.final,
                     
                     ergm.mple(Clist, fd, m, MPLEtype=MPLEtype,
                               init=init, 
-                              control=control, MHproposal=MHproposal,
+                              control=control,
                               verbose=verbose, ...)
                   },
                   zeros = structure(list(coef=ifelse(is.na(init),0,init)),class="ergm"),

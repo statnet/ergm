@@ -21,14 +21,16 @@ data(kapferer)
 \description{
 This well-known social network dataset, collected by Bruce Kapferer in
 Zambia from June 1965 to August 1965, involves interactions among workers in
-a tailor shop as observed by Kapferer himself.  Here, an interaction is
+a tailor shop as observed by Kapferer himself.
+}
+\details{
+An interaction is
 defined by Kapferer as "continuous uninterrupted social activity involving
 the participation of at least two persons"; only transactions that were
 relatively frequent are recorded. All of the interactions in this particular
 dataset are "sociational", as opposed to "instrumental".  Kapferer explains
 the difference (p. 164) as follows:
-}
-\details{
+
 "I have classed as transactions which were sociational in content those
 where the activity was markedly convivial such as general conversation, the
 sharing of gossip and the enjoyment of a drink together.  Examples of

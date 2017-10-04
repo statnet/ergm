@@ -41,12 +41,6 @@ ergm.bridge.preproc<-function(object, basis, response){
 #' 
 #' @param object A model formula. See \code{\link{ergm}} for details.
 #' @template response
-#' @param response {Name of the edge attribute whose value is to be
-#'   modeled. Defaults to \code{NULL} for simple presence or absence,
-#'   modeled via binary ERGM terms. Passing anything but \code{NULL}
-#'   uses valued ERGM terms. For `ergm.bridge.dindstart.llk`, this
-#'   argument is included solely for consistency, since it can only
-#'   handle binary ERGMs.}
 #' @param constraints,obs.constraints One-sided formulas specifying
 #'   one or more constraints on the support of the distribution of the
 #'   networks being simulated and on the observation process

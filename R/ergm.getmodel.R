@@ -13,39 +13,46 @@
 #             <updatemodel.ErgmTerm>
 #===================================================================================
 
-
-
-
-
-###################################################################################
-# The <ergm.getmodel> function parses the given formula, and initiliazes each ergm
-# term via the <InitErgmTerm> functions to create a 'model.ergm' object for the
-# given network
-#
-# --PARAMETERS--
-#   formula:  a formula of the form 'network ~ model.term(s)'
-#   nw     :  the network of interest
-#   silent :  whether to print the warning messages from the initialization of each
-#             model term (T or F); default=FALSE
-#   ...    :  additional parameters for model formulation;
-#             recognized parameters include
-#               initialfit: whether curved exponential terms have been initially fit
-#                           by MPLE (T or F)
-#
-# --RETURNED--
-#   a 'model.ergm' object as a list containing:
-#     formula       :  the formula inputted to <ergm.getmodel>
-#     coef.names    :  a vector of coefficient names
-#     offset        :  a logical vector of whether each term was "offset", i.e. fixed
-#     terms         :  a list of terms and 'term components' initialized by the 
-#                      appropriate <InitErgmTerm.X> function.  See the <InitErgm> 
-#                      function header for details about the 'terms' list
-#     network.stats0:  NULL always??
-#     etamap        :  the theta -> eta mapping as a list returned from <ergm.etamap> 
-#     class         :  the character string "model.ergm" 
-#
-#####################################################################################
-
+#' Internal Functions for Querying, Validating and Extracting from ERGM
+#' Formulas
+#' 
+#' These are all functions that are generally not called directly by
+#' users, but may be employed by other depending packages.  The
+#' \code{ergm.getmodel} function parses the given formula, and
+#' initiliazes each ergm term via the \code{InitErgmTerm} functions to
+#' create a \code{model_ergm} object.
+#' 
+#' @aliases ergm_model
+#' @param formula a formula of the form \code{network ~ model.term(s)}
+#' @param nw the network of interest
+#' @param response charcter, name of edge attribute containing edge weights
+#' @param silent logical, whether to print the warning messages from the
+#' initialization of each model term; default=FALSE
+#' @param role A hint about how the model will be used. Used primarily for
+#' dynamic network models.
+#' @param \dots additional parameters for model formulation
+#' @param form same as formula, a formula of the form \code{network ~ model.term(s)}
+#' @param loopswarning whether warnings about loops should be printed (T or
+#' F);default=TRUE
+#' @param object formula object to be updated
+#' @param new new formula to be used in updating
+#' @param from.new logical or character vector of variable names. controls how
+#' environment of formula gets updated.
+#' @param extra.aux a list of formulas giving additional auxiliaries to initialize.
+#' @return \code{ergm.getmodel} returns a 'model.ergm' object as a list
+#' containing:
+#' \item{ formula}{the formula inputted to
+#' \code{\link{ergm.getmodel}}}
+#' \item{coef.names}{a vector of coefficient names}
+#' \item{offset}{a logical vector of whether each term was "offset", i.e.
+#' fixed}
+#' \item{terms}{a list of terms and 'term components' initialized by the
+#' appropriate \code{InitErgmTerm.X} function.}
+#' \item{network.stats0}{NULL always??}
+#' \item{etamap}{the theta -> eta mapping as a list returned from
+#' <ergm.etamap>}
+#' \item{class}{the character string "model.ergm" }
+#' @export
 ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="static",...,extra.aux=list()) {
   if ((dc<-data.class(formula)) != "formula")
     stop (paste("Invalid formula of class ",dc), call.=FALSE)
@@ -56,6 +63,7 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
   if (length(formula) < 3) 
     stop(paste("No model specified for network ", formula[[2]]), call.=FALSE)
 
+  #' @importFrom statnet.common term.list.formula
   v<-term.list.formula(formula[[3]])
   
   formula.env<-environment(formula)

@@ -54,6 +54,7 @@
 #' g<-network(25, directed=FALSE, density=0.1)
 #' #Draw a random bipartite network with 10 events and 5 actors and density 0.1
 #' g<-network(5, bipartite=10, density=0.1)
+#' @importFrom network as.network
 #' @export
 as.network.numeric<-function(x,
     directed = TRUE,
