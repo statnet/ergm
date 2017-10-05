@@ -5,7 +5,6 @@
 \alias{control.simulate.formula.ergm}
 \alias{control.simulate}
 \alias{control.simulate.formula}
-\alias{control.simulate.ergm}
 \title{Auxiliary for Controlling ERGM Simulation}
 \usage{
 control.simulate.formula.ergm(MCMC.burnin = 10000, MCMC.interval = 1000,
@@ -68,7 +67,7 @@ sample after every MCMC MLE iteration.}
 supports networks without vertex attributes)}
 
 \item{parallel}{Number of threads in which to run the sampling. Defaults to
-0 (no parallelism). See the entry on [parallel processing][ergm-parallel]
+0 (no parallelism). See the entry on \link[=ergm-parallel]{parallel processing}
 for details and troubleshooting.}
 
 \item{parallel.type}{API to use for parallel processing. Supported values

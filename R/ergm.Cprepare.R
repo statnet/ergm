@@ -175,7 +175,7 @@ mk.edge.to.pos.lasttoggle.f <- function(nw){
 #' \code{\link[tergm:simulate.stergm]{simulate}}, and
 #' \code{\link[=summary.formula]{summary}} can be passed networks with
 #' this information using the following \code{\link{network}} (i.e.,
-#' \code{\link{%n%}}) attributes: \describe{ \item{list("time")}{the
+#' \code{\link{\%n\%}}) attributes: \describe{ \item{list("time")}{the
 #' time stamp associated with the network} \item{list("lasttoggle")}{a
 #' vector of length \code{\link{network.dyadcount}(nw)}, giving the
 #' last change time associated with each dyad. See the source code of
