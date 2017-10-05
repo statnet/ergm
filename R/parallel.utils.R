@@ -61,7 +61,7 @@
 #' 
 #' 
 #' 
-#' \subsection{ Different types of clusters}{
+#' @section Different types of clusters:
 #'
 #' \describe{\item{PSOCK clusters}{ The `parallel` package is used with PSOCK clusters
 #' by default, to utilize multiple cores on a system. The number of
@@ -97,9 +97,9 @@
 #' examples for a multiple-machine high performance MPI cluster can be
 #' found at the [Statnet
 #' wiki](https://statnet.csde.washington.edu/trac/wiki/ergmParallel).
-#' }}}
+#' }}
 #'
-#' \subsection{ When is multithreading terms worthwhile?}{
+#' @section When is multithreading terms worthwhile?:
 #' 
 #' * The more terms with statistics the model has, the more
 #'   benefit from parallel execution.
@@ -126,7 +126,7 @@
 #'   at compile time. To enable, *delete* `src/Makevars.win` and
 #'   recompile from scratch.
 #' 
-#' }
+#' 
 #' 
 #' @examples
 #'
@@ -140,7 +140,6 @@
 #' 
 #' }
 #'
-#' @rdname ergm-parallel
 #' @name ergm-parallel
 #' @aliases parallel ergm.parallel parallel.ergm parallel-ergm
 #'
@@ -175,9 +174,10 @@ ergm.MCMC.packagenames <- local({
 myLibLoc <- function()
   sub('/ergm/Meta/package.rds','',attr(packageDescription("ergm"),"file"))
 
-#' [ergm.getCluster()] starts and/or acquires a cluster of specified
-#' type, loads `ergm`, user term, and other needed packages, and
-#' checks that their versions match.
+#' @rdname ergm-parallel
+#' @description [ergm.getCluster()] starts and/or acquires a cluster
+#'   of specified type, loads `ergm`, user term, and other needed
+#'   packages, and checks that their versions match.
 #'
 #' @param control a list of control parameters (like those returned by
 #'   [control.ergm()]) containing the parallel settings
@@ -186,7 +186,6 @@ myLibLoc <- function()
 #'
 #' @return [ergm.getCluster()] returns an object of type `cluster`.
 #'
-#' @rdname ergm-parallel
 #' @export
 ergm.getCluster <- function(control, verbose=FALSE){
   if(get.MT_terms()) warning("Using term multithreading in combination with parallel MCMC is generally not advised. See help('ergm-parallel') for more information.")
@@ -272,28 +271,18 @@ ergm.getCluster <- function(control, verbose=FALSE){
 }
 
 
-#' [ergm.stopCluster()] acquires a cluster of specified type.
-#' 
-#' @param object an object, probably of class "cluster"
-#' @param ... not currently used
-#' 
 #' @rdname ergm-parallel
-#' @export
+#' @description The \code{ergm.stopCluster} shuts down a
+#'   cluster, but only if `ergm.getCluster` was responsible for
+#'   starting it.
+#'
+#' @export ergm.stopCluster
 ergm.stopCluster <- function(object, ...){
   UseMethod("ergm.stopCluster")
 }
 
-# Only stop the MPI cluster if we were the ones who had started it.
 #' @rdname ergm-parallel
 #' @importFrom parallel stopCluster
-ergm.stopCluster.MPIcluster <- function(object, ...){
-  if(ergm.cluster.started()){
-    ergm.cluster.started(FALSE)
-    stopCluster(object)
-  }
-}
-
-#' @rdname ergm-parallel
 ergm.stopCluster.default <- function(object, ...){
   if(ergm.cluster.started()){
     ergm.cluster.started(FALSE)
