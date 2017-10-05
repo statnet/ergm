@@ -32,7 +32,92 @@ ergm.MCMC.packagenames <- local({
 myLibLoc <- function()
   sub('/ergm/Meta/package.rds','',attr(packageDescription("ergm"),"file"))
 
-# Acquires a cluster of specified type.
+#' Parallel Processing in the \code{\link[=ergm-package]{ergm}} Package
+#' 
+#' For estimation that require MCMC, \code{\link[=ergm-package]{ergm}}
+#' can take advantage of multiple CPUs or CPU cores on the system on
+#' which it runs, as well as computing clusters. It uses package
+#' \code{parallel} and \code{snow} to facilitate this, and supports
+#' all cluster types that they does. The number of nodes used and the
+#' parallel API are controlled using the \code{parallel} and
+#' \code{parallel.type} arguments passed to the control functions,
+#' such as \code{\link{control.ergm}}.
+#' 
+#' 
+#' Further details on the various cluster types are included below.
+#' 
+#' 
+#' @name ergm-parallel
+#' @aliases ergm-parallel parallel ergm.parallel parallel.ergm parallel-ergm
+#' 
+#' @docType methods
+#' @param control a \code{\link{control.ergm}} (or similar) list of
+#'   parameter values from which the parallel settings should be read.
+#' @param object an object, probably of class `cluster`.
+#' @param verbose logical, should detailed status info be printed to
+#'   console?
+#' @param \dots not currently used
+#' @section PSOCK clusters: The \code{parallel} package is used with
+#'   PSOCK clusters by default, to utilize multiple cores on a
+#'   system. The number of cores on a system can be determined with
+#'   the \code{detectCores} function.
+#' 
+#'   This method works with the base installation of R on all
+#'   platforms, and does not require additional software.
+#' 
+#'   For more advanced applications, such as clusters that span
+#'   multiple machines on a network, the clusters can be initialized
+#'   manually, and passed into \code{ergm} using the \code{parallel}
+#'   control argument. See the second example below.
+#'
+#' @section MPI clusters: To use MPI to accelerate ERGM sampling, pass
+#'   the control parameter \code{parallel.type="MPI"}.
+#'   \code{\link[=ergm-package]{ergm}} requires the \code{snow} and
+#'   \code{Rmpi} packages to communicate with an MPI cluster.
+#'  
+#'   Using MPI clusters requires the system to have an existing MPI
+#'   installation.  See the MPI documentation for your particular
+#'   platform for instructions.
+#'
+#'   To use `ergm` across multiple machines in a high performance
+#'   computing environment, see the section "User initiated clusters"
+#'   below.
+#'
+#'
+#' @section User initiated clusters: A cluster can be passed into
+#'   \code{ergm} with the \code{parallel} control parameter.
+#'   \code{ergm} will detect the number of nodes in the cluster, and
+#'   use all of them for MCMC sampling. This method is flexible: it
+#'   will accept any cluster type that is compatible with \code{snow}
+#'   or \code{parallel} packages. Usage examples for a
+#'   multiple-machine high performance MPI cluster can be found at the
+#'   statnet wiki:
+#'   \url{https://statnet.csde.washington.edu/trac/wiki/ergmParallel}
+#'
+#'
+#' @examples
+#' 
+#' \donttest{
+#' # Uses 2 SOCK clusters for MCMLE estimation
+#' data(faux.mesa.high)
+#' nw <- faux.mesa.high
+#' fauxmodel.01 <- ergm(nw ~ edges + isolates + gwesp(0.2, fixed=TRUE), 
+#'                      control=control.ergm(parallel=2, parallel.type="PSOCK"))
+#' summary(fauxmodel.01)
+#' 
+#' }
+#'
+NULL
+
+#' @rdname ergm-parallel
+#' @description The \code{ergm.getCluster} function is usually called
+#'   internally by the ergm process (in
+#'   \code{\link{ergm.getMCMCsample}}) and will attempt to start the
+#'   appropriate type of cluster indicated by the
+#'   \code{\link{control.ergm}} settings. It will also check that the
+#'   same version of `ergm` is installed on each node.
+#' 
+#' @export ergm.getCluster
 ergm.getCluster <- function(control, verbose=FALSE){
   
   if(inherits(control$parallel,"cluster")){
@@ -116,20 +201,18 @@ ergm.getCluster <- function(control, verbose=FALSE){
 }
 
 
-# Shuts down clusters.
+#' @rdname ergm-parallel
+#' @description The \code{ergm.stopCluster} shuts down a
+#'   cluster, but only if `ergm.getCluster` was responsible for
+#'   starting it.
+#'
+#' @export ergm.stopCluster
 ergm.stopCluster <- function(object, ...){
   UseMethod("ergm.stopCluster")
 }
 
-# Only stop the MPI cluster if we were the ones who had started it.
+#' @rdname ergm-parallel
 #' @importFrom parallel stopCluster
-ergm.stopCluster.MPIcluster <- function(object, ...){
-  if(ergm.cluster.started()){
-    ergm.cluster.started(FALSE)
-    stopCluster(object)
-  }
-}
-
 ergm.stopCluster.default <- function(object, ...){
   if(ergm.cluster.started()){
     ergm.cluster.started(FALSE)
