@@ -3,7 +3,6 @@
 \name{print.summary.ergm}
 \alias{print.summary.ergm}
 \alias{summary.ergm}
-\alias{print.summary.ergm}
 \title{Summarizing ERGM Model Fits}
 \usage{
 \method{print}{summary.ergm}(x, digits = max(3, getOption("digits") - 3),
@@ -32,7 +31,7 @@ the estimated parameters is returned and printed.}
 statistical significance. See \code{\link[=print.summary.lm]{print.summary.lm()}}.}
 
 \item{eps.Pvalue}{\eqn{p}-values below this level will be printed
-as "\code{<eps.Pvalue}".}
+as "<\code{eps.Pvalue}".}
 
 \item{print.header, print.formula, print.fitinfo, print.coefmat, print.message, print.deviances, print.drop, print.offset, print.degeneracy}{which components of the fit summary to print.}
 

@@ -480,7 +480,7 @@ Note that only the Hotelling's stopping criterion is implemented for CD.}
 \code{\link[base]{set.seed}}.}
 
 \item{parallel}{Number of threads in which to run the sampling. Defaults to
-0 (no parallelism). See the entry on [parallel processing][ergm-parallel]
+0 (no parallelism). See the entry on \link[=ergm-parallel]{parallel processing}
 for details and troubleshooting.}
 
 \item{parallel.type}{API to use for parallel processing. Supported values

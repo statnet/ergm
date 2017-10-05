@@ -8,7 +8,6 @@
 \alias{parallel-ergm}
 \alias{ergm.getCluster}
 \alias{ergm.stopCluster}
-\alias{ergm.stopCluster.MPIcluster}
 \alias{ergm.stopCluster.default}
 \alias{set.MT_terms}
 \alias{get.MT_terms}
@@ -17,8 +16,6 @@
 ergm.getCluster(control, verbose = FALSE)
 
 ergm.stopCluster(object, ...)
-
-\method{ergm.stopCluster}{MPIcluster}(object, ...)
 
 \method{ergm.stopCluster}{default}(object, ...)
 
@@ -32,10 +29,6 @@ get.MT_terms()
 
 \item{verbose}{logical, should detailed status info be printed to
 console}
-
-\item{object}{an object, probably of class "cluster"}
-
-\item{...}{not currently used}
 
 \item{n}{an integer specifying the number of threads to use; 0 (the
 starting value) disables multithreading, and \eqn{-1} or
@@ -52,16 +45,13 @@ starting value) disables multithreading, and \eqn{-1} or
 Using clusters multiple CPUs or CPU cores to speed up ERGM
 estimation and simulation.
 
-\code{\link[=ergm.getCluster]{ergm.getCluster()}} starts and/or acquires a cluster of specified
-type, loads \code{ergm}, user term, and other needed packages, and
-checks that their versions match.
+\code{\link[=ergm.getCluster]{ergm.getCluster()}} starts and/or acquires a cluster
+of specified type, loads \code{ergm}, user term, and other needed
+packages, and checks that their versions match.
 
-\code{\link[=ergm.stopCluster]{ergm.stopCluster()}} acquires a cluster of specified type.
-
-\code{\link[=set.MT_terms]{set.MT_terms()}} controls multithreading of model terms.
-
-\code{\link[=get.MT_terms]{get.MT_terms()}} queries the current number of term calculation
-threads.
+The \code{ergm.stopCluster} shuts down a
+cluster, but only if \code{ergm.getCluster} was responsible for
+starting it.
 }
 \details{
 For estimation that require MCMC, \link[=ergm-package]{ergm} can take
@@ -106,8 +96,14 @@ multithreading still only produces one.
 the burn-in phase; parallel MCMC's multiple burn-in runs are
 effectively \dQuote{wasted}.
 }
+}
+\note{
+The this is a setting global to the \code{ergm} package and all of
+its C functions, including when called from other packages via
+the \code{Linking-To} mechanism.
+}
+\section{Different types of clusters}{
 
-\subsection{ Different types of clusters}{
 
 \describe{\item{PSOCK clusters}{ The \code{parallel} package is used with PSOCK clusters
 by default, to utilize multiple cores on a system. The number of
@@ -141,10 +137,12 @@ number of nodes in the cluster, and use all of them for MCMC
 sampling. This method is flexible: it will accept any cluster type
 that is compatible with \code{snow} or \code{parallel} packages. Usage
 examples for a multiple-machine high performance MPI cluster can be
-found at the \href{https://statnet.csde.washington.edu/trac/wiki/ergmParallel}{Statnetwiki}.
-}}}
+found at the \href{https://statnet.csde.washington.edu/trac/wiki/ergmParallel}{Statnet wiki}.
+}}
+}
 
-\subsection{ When is multithreading terms worthwhile?}{
+\section{When is multithreading terms worthwhile?}{
+
 \itemize{
 \item The more terms with statistics the model has, the more
 benefit from parallel execution.
@@ -166,14 +164,8 @@ unacceptable amounts of overhead, so it is disabled for Windows
 at compile time. To enable, \emph{delete} \code{src/Makevars.win} and
 recompile from scratch.
 }
+}
 
-}
-}
-\note{
-The this is a setting global to the \code{ergm} package and all of
-its C functions, including when called from other packages via
-the \code{Linking-To} mechanism.
-}
 \examples{
 
 \donttest{
