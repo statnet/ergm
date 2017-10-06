@@ -224,6 +224,20 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   v
 }  # Ends the whole function
 
+
+#' Transform points represented by rows of `m` such that their
+#' centroid is shifted `1-gamma.tr` of the way toward `x` and their
+#' spread around their centroid is scaled by a factor of
+#' `gamma.scl`. Both `gamma.tr` and `gamma.scl` can be vectors equal
+#' in length to the number of columns of `m`.
+#' @noRd
+.shift_scale_points <- function(m, x, gamma.tr, gamma.scl=gamma.tr){
+  m.c <- colMeans(m)
+  m <- sweep_cols.matrix(m, m.c, disable_checks=TRUE)
+  m.c <- c(m.c*gamma.tr + x*(1-gamma.tr))
+  t(t(m) * gamma.scl + m.c)
+}
+
 ## Given two matrices x1 and x2 with d columns (and any positive
 ## numbers of rows), find the greatest gamma<=steplength.max s.t., the
 ## points of x2 shrunk towards the centroid of x1 a factor of gamma,
@@ -235,7 +249,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 
 ## This is a variant of Hummel et al. (2010)'s steplength algorithm
 ## also usable for missing data MLE.
-.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, steplength.prev=steplength.max, x2.num.max=100, steplength.maxit=25, last=FALSE, verbose=FALSE){
+.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, steplength.prev=steplength.max, point.gamma.exp=1, x2.num.max=100, steplength.maxit=25, last=FALSE, verbose=FALSE){
   margin <- 1 + margin
   point.margin <- min(1, margin)
   x1 <- rbind(x1); m1 <- rbind(colMeans(x1)); x1 <- unique(x1)
@@ -281,7 +295,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   ## Here, if x2 is defined, check against every point in it, without
   ## the margin and against its centroid m2 with the
   ## margin. Otherwise, just check against m2 with the margin.
-  passed <- function(gamma){is.inCH(rbind(if(!is.null(x2)) t(point.margin*gamma * t(x2crs)  + (1-point.margin*gamma)*c(m1crs)),
+  passed <- function(gamma){is.inCH(rbind(if(!is.null(x2)) .shift_scale_points(x2crs, m1crs, point.margin*gamma, (point.margin*gamma)^point.gamma.exp),
                                           margin*gamma * m2crs  + (1-margin*gamma)*m1crs),
                                     x1crs, verbose=verbose)}
 
