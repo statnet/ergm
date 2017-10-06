@@ -83,7 +83,7 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
 
   w <- switch(mode(a$weight),
               character = sapply(nwl, get.network.attribute, a$weight),
-              numeric = w,
+              numeric = rep(w, length.out=nn),
               `function` = sapply(nwl, a$weight),
               `NULL` = rep(1,nn))
   
@@ -102,7 +102,7 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
 
   ## FIXME: The following assumes that the formula evaluated on all the subnetworks produces the same set of statistics (or, at least, one with the same set of names).
   
-  gs <- crossprod(sapply(ms, "[[", "gs"), w)
+  gs <- c(sapply(ms, "[[", "gs")%*%w)
   
   c(list(name="MultiNet", coef.names = paste0(NVL(a$wname,"sum"),"*",ms[[1]]$model$coef.names), inputs=inputs, dependence=!is.dyad.independent(ms[[1]]$model), emptynwstats = gs, auxiliaries = auxiliaries),
     passthrough.curved.ergm_model(ms[[1]]$m, function(x) paste0(NVL(a$wname,"sum"),"*",x)))
