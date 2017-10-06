@@ -16,16 +16,14 @@ to.matrix.lasttoggle(nw)
 to.lasttoggle.matrix(m, directed = TRUE, bipartite = FALSE)
 }
 \arguments{
-\item{nw}{network, possibly with a \code{"lasttoggle"} network attribute.}
+\item{nw}{the network, otpionally with a \code{"lasttoggle"} network
+attribute.}
 
 \item{m}{a sociomatrix of appropriate dimension (rectangular for
 bipartite networks).}
 
 \item{directed, bipartite}{whether the matrix represents a directed
 and/or a bipartite networks.}
-
-\item{nw}{the network, otpionally with a \code{"lasttoggle"} network
-attribute.}
 }
 \description{
 An informal extension to \code{\link{network}} objects allowing

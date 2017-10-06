@@ -51,12 +51,6 @@ myLibLoc <- function()
 #' @aliases ergm-parallel parallel ergm.parallel parallel.ergm parallel-ergm
 #' 
 #' @docType methods
-#' @param control a \code{\link{control.ergm}} (or similar) list of
-#'   parameter values from which the parallel settings should be read.
-#' @param object an object, probably of class `cluster`.
-#' @param verbose logical, should detailed status info be printed to
-#'   console?
-#' @param \dots not currently used
 #' @section PSOCK clusters: The \code{parallel} package is used with
 #'   PSOCK clusters by default, to utilize multiple cores on a
 #'   system. The number of cores on a system can be determined with
@@ -116,6 +110,10 @@ NULL
 #'   appropriate type of cluster indicated by the
 #'   \code{\link{control.ergm}} settings. It will also check that the
 #'   same version of `ergm` is installed on each node.
+#' @param control a \code{\link{control.ergm}} (or similar) list of
+#'   parameter values from which the parallel settings should be read.
+#' @param verbose logical, should detailed status info be printed to
+#'   console?
 #' 
 #' @export ergm.getCluster
 ergm.getCluster <- function(control, verbose=FALSE){
@@ -206,6 +204,8 @@ ergm.getCluster <- function(control, verbose=FALSE){
 #'   cluster, but only if `ergm.getCluster` was responsible for
 #'   starting it.
 #'
+#' @param object an object, probably of class `cluster`.
+#' @param \dots not currently used
 #' @export ergm.stopCluster
 ergm.stopCluster <- function(object, ...){
   UseMethod("ergm.stopCluster")
