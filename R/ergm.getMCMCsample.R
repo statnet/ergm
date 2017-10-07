@@ -123,7 +123,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
                       )
       
       meS <- .max.effectiveSize(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, ar.order=control$MCMC.effectiveSize.order)
-      if(verbose) message("Maximum Harmonic mean ESS of ",meS$eS," attained with burn-in of ", round(meS$b/nrow(outl[[1]]$s)*100,2),"%.")
+      if(verbose) message("Maximum harmonic mean ESS of ",meS$eS," attained with burn-in of ", round(meS$b/nrow(outl[[1]]$s)*100,2),"%.")
 
       if(control.parallel$MCMC.runtime.traceplot){
         for (i in seq_along(esteq)) colnames(esteq[[i]]) <- names(list(...)$theta)
@@ -352,17 +352,21 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
   if(!is.list(x)) x <- list(x)
   es <- function(b){
     if(b>0) x <- lapply(lapply(x, "[", -seq_len(b),,drop=FALSE),coda::mcmc)
-    effSizes <- if(ar.order) .fast.effectiveSize(as.matrix(coda::as.mcmc.list(x), ar.order=ar.order))
-                else effectiveSize(as.matrix(coda::as.mcmc.list(x)))
-    mean.fn <- function(x) x^(-1)
-    mean.ifn <- function(x) x^(-1)
-    mean.ifn(mean(mean.fn(effSizes)))
+    if(ar.order) .fast.effectiveSize(as.matrix(coda::as.mcmc.list(x), ar.order=ar.order))
+    else effectiveSize(as.matrix(coda::as.mcmc.list(x)))
   }
 
+  # TODO: Implement bisection algorithm here.
   pts <- sort(round(base^seq_len(npts)*nrow(x[[1]])))
-  ess <- sapply(pts, es)
+  ess <- sapply(pts, es) # I.e., variables in rows and burn-in test points in columns.
 
-  list(burnin=pts[which.max(ess)], eS=max(ess))
+  best <- max(apply(ess, 1, which.max))
+
+  mean.fn <- function(x) x^(-1)
+  mean.ifn <- function(x) x^(-1)
+  hmean <- mean.ifn(mean(mean.fn(ess[,best])))
+  
+  list(burnin=pts[best], eS=hmean)
 }
 
 .fast.effectiveSize <- function(x, ar.order=1){
