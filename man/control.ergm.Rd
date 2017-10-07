@@ -43,9 +43,9 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MCMLE.dampening.min.ess = 20, MCMLE.dampening.level = 0.1,
   MCMLE.steplength.margin = 0.05, MCMLE.steplength = if
   (is.null(MCMLE.steplength.margin)) 0.5 else 1,
-  MCMLE.adaptive.trustregion = 3, MCMLE.sequential = TRUE,
-  MCMLE.density.guard.min = 10000, MCMLE.density.guard = exp(3),
-  MCMLE.effectiveSize = NULL,
+  MCMLE.steplength.point.exp = 1, MCMLE.adaptive.trustregion = 3,
+  MCMLE.sequential = TRUE, MCMLE.density.guard.min = 10000,
+  MCMLE.density.guard = exp(3), MCMLE.effectiveSize = NULL,
   obs.MCMLE.effectiveSize = NVL3(MCMLE.effectiveSize, . * obs.MCMC.mul),
   MCMLE.last.boost = 4, MCMLE.Hummel.esteq = TRUE,
   MCMLE.Hummel.miss.sample = 100, MCMLE.Hummel.maxit = 25,
@@ -324,6 +324,11 @@ be set using the algorithm of Hummel et al. (2010). In that case, it will
 serve as the maximum step length considered. However, setting it to anything
 other than 1 will preclude using Hummel or precision as termination
 criteria.}
+
+\item{MCMLE.steplength.point.exp}{For observation process ERGMs,
+allows the step length to scale the spread of points differently
+from the amount of shift towards the centroid by exponentiating
+the former by \code{MCMLE.steplength.point.exp}.}
 
 \item{MCMLE.adaptive.trustregion}{Maximum increase the algorithm will allow
 for the approximated loglikelihood at a given iteration when

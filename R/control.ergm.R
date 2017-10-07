@@ -248,6 +248,10 @@
 #' to \code{NULL} to use fixed step length. Note that this parameter is
 #' required to be non-\code{NULL} for MCMLE termination using Hummel or
 #' precision criteria.
+#' @param MCMLE.steplength.point.exp For observation process ERGMs,
+#'   allows the step length to scale the spread of points differently
+#'   from the amount of shift towards the centroid by exponentiating
+#'   the former by `MCMLE.steplength.point.exp`.
 #' @param MCMLE.steplength Multiplier for step length, which may (for values
 #' less than one) make fitting more stable at the cost of computational
 #' efficiency.  Can be set to "adaptive"; see
@@ -484,6 +488,7 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.dampening.level=0.1,
                        MCMLE.steplength.margin=0.05,
                        MCMLE.steplength=if(is.null(MCMLE.steplength.margin)) 0.5 else 1,
+                       MCMLE.steplength.point.exp=1,
                        MCMLE.adaptive.trustregion=3,
                        MCMLE.sequential=TRUE,
                        MCMLE.density.guard.min=10000,

@@ -722,7 +722,7 @@ ergm <- function(formula, response=NULL,
   
   MPLE.is.MLE <- (MHproposal$reference$name=="Bernoulli"
                   && is.dyad.independent(model)
-                  && !is.curved(formula, response=response)
+                  && !is.curved(model)
                   && !control$force.main
                   && is.dyad.independent(MHproposal$arguments$constraints,
                                          MHproposal.obs$arguments$constraints))

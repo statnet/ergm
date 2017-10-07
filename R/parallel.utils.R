@@ -276,6 +276,8 @@ ergm.getCluster <- function(control, verbose=FALSE){
 #'   cluster, but only if `ergm.getCluster` was responsible for
 #'   starting it.
 #'
+#' @param object an object, probably of class `cluster`.
+#' @param \dots not currently used
 #' @export ergm.stopCluster
 ergm.stopCluster <- function(object, ...){
   UseMethod("ergm.stopCluster")

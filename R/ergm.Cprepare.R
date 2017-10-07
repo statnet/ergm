@@ -215,7 +215,6 @@ mk.edge.to.pos.lasttoggle.f <- function(nw){
 #' 
 #' Again, this API is subject to change without notice.
 #'
-#' @param nw network, possibly with a `"lasttoggle"` network attribute.
 #' @aliases lasttoggle last.toggle last-toggle
 #' @name lasttoggle
 NULL

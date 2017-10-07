@@ -293,7 +293,7 @@ ergm.MCMLE <- function(init, nw, model,
         steplen <- .Hummel.steplength(
           if(control$MCMLE.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
           if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
-          control$MCMLE.steplength.margin, control$MCMLE.steplength,steplength.prev=steplen,verbose=verbose,
+          control$MCMLE.steplength.margin, control$MCMLE.steplength,point.gamma.exp=control$MCMLE.steplength.point.exp,steplength.prev=steplen,verbose=verbose,
           x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit,
           last=(iteration==control$MCMLE.maxit))
       
@@ -305,7 +305,7 @@ ergm.MCMLE <- function(init, nw, model,
             .Hummel.steplength(
               if(control$MCMLE.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
               if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
-              0, control$MCMLE.steplength,steplength.prev=steplen,verbose=verbose,
+              0, control$MCMLE.steplength,steplength.prev=steplen,point.gamma.exp=control$MCMLE.steplength.point.exp,verbose=verbose,
               x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit,
               last=(iteration==control$MCMLE.maxit))
           else steplen
@@ -327,7 +327,7 @@ ergm.MCMLE <- function(init, nw, model,
       
       statsmean <- apply(statsmatrix.0,2,base::mean)
       if(!is.null(statsmatrix.0.obs)){
-        statsmatrix.obs <- t(steplen*t(statsmatrix.0.obs) + (1-steplen)*statsmean) # I.e., shrink each point of statsmatrix.obs towards the centroid of statsmatrix.
+        statsmatrix.obs <- .shift_scale_points(statsmatrix.0.obs, statsmean, steplen, steplen^control$MCMLE.steplength.point.exp) # I.e., shrink each point of statsmatrix.obs towards the centroid of statsmatrix.
       }else{
         statsmatrix <- sweep(statsmatrix.0,2,(1-steplen)*statsmean,"-")
       }
