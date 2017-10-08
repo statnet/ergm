@@ -249,17 +249,28 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 
 ## This is a variant of Hummel et al. (2010)'s steplength algorithm
 ## also usable for missing data MLE.
-.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, steplength.prev=steplength.max, point.gamma.exp=1, x2.num.max=100, steplength.maxit=25, last=FALSE, verbose=FALSE){
+.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, x1.prefilter=FALSE, x2.prefilter=FALSE, steplength.prev=steplength.max, point.gamma.exp=1, x2.num.max=100, steplength.maxit=25, last=FALSE, verbose=FALSE){
   margin <- 1 + margin
   point.margin <- min(1, margin)
-  x1 <- rbind(x1); m1 <- rbind(colMeans(x1)); x1 <- unique(x1)
+  x1 <- rbind(x1); m1 <- rbind(colMeans(x1)); ; n1 <- nrow(x1)
   if(is.null(x2)){
     m2 <- rbind(rep(0,ncol(x1)))
   }else{                                      
     x2 <- rbind(x2)
     m2 <- rbind(colMeans(x2))
-    x2 <- unique(x2)
   }
+  n2 <- nrow(x2)
+
+  # Drop duplicated elements in x1, *and* those elements in x2 that
+  # duplicate those in x1.
+  d12 <- duplicated(rbind(x1,x2))
+  d1 <- d12[seq_len(n1)]
+  d2 <- d12[-seq_len(n1)]
+  x1 <- x1[!d1,,drop=FALSE]
+  x2 <- x2[!d2,,drop=FALSE]
+  if(length(x2)==0) x2 <- NULL
+
+  if(verbose>1) message("Eliminating repeated points: ", sum(d1),"/",length(d1), " from target set, ", sum(d2),"/",length(d2)," from test set.")
 
   ## Use PCA to rotate x1 into something numerically stable and drop
   ## unused dimensions, then apply the same affine transformation to
@@ -281,6 +292,22 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
     m1crs <- sweep(sweep(m1, 2, x1m, "-")%*%Q, 2, x1crsd, "/")
     if(!is.null(x2)) x2crs <- sweep(sweep(x2, 2, x1m, "-")%*%Q, 2, x1crsd, "/")
     m2crs <- sweep(sweep(m2, 2, x1m, "-")%*%Q, 2, x1crsd, "/")
+  }
+
+  if(x1.prefilter){
+    # Find the most extreme point according to each coordinate:
+    x1crse <- x1crs[unique(c(apply(x1crs, 2, function(x) c(which.min(x), which.max(x))))),,drop=FALSE]
+    # Drop all points that are in the convex hull of those.
+    x1crs <- rbind(x1crse, x1crs[!apply(x1crs, MARGIN=1, is.inCH, M=x1crse),])
+    if(verbose>1) message("Prefiltered target set: ", sum(!d1)-nrow(x1crs), "/", sum(!d1), " eliminated.")
+  }
+
+  if(!is.null(x2) && x2.prefilter){
+    # Find the most extreme point according to each coordinate:
+    x2crse <- x2crs[unique(c(apply(x2crs, 2, function(x) c(which.min(x), which.max(x))))),,drop=FALSE]
+    # Drop all points that are in the convex hull of those.
+    x2crs <- rbind(x2crse, x2crs[!apply(x2crs, MARGIN=1, is.inCH, M=x2crse),])
+    if(verbose>1) message("Prefiltered test set: ", sum(!d2)-nrow(x2crs), "/", sum(!d2), " eliminated.")
   }
   
   if(!is.null(x2) && nrow(x2crs) > x2.num.max){
