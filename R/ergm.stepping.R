@@ -296,7 +296,11 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 
   if(x1.prefilter){
     # Find the most extreme point according to each coordinate:
-    x1crse <- x1crs[unique(c(apply(x1crs, 2, function(x) c(which.min(x), which.max(x))))),,drop=FALSE]
+    e1 <- unique(c(apply(x1crs, 2, function(x) c(which.min(x), which.max(x)))))
+    # Find the most extreme point according to each coordinate*coordinate:
+    e2 <- unique(c(apply(sapply(seq_len(nrow(x1crs)), function(i) c(outer(x1crs[i,],x1crs[i,],"+"), outer(x1crs[i,],x1crs[i,],"-"))),
+          1, function(x) c(which.min(x), which.max(x)))))
+    x1crse <- x1crs[unique(c(e1,e2)),,drop=FALSE]
     # Drop all points that are in the convex hull of those.
     x1crs <- rbind(x1crse, x1crs[!apply(x1crs, MARGIN=1, is.inCH, M=x1crse),])
     if(verbose>1) message("Prefiltered target set: ", sum(!d1)-nrow(x1crs), "/", sum(!d1), " eliminated.")
@@ -304,7 +308,11 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 
   if(!is.null(x2) && x2.prefilter){
     # Find the most extreme point according to each coordinate:
-    x2crse <- x2crs[unique(c(apply(x2crs, 2, function(x) c(which.min(x), which.max(x))))),,drop=FALSE]
+    e1 <- unique(c(apply(x2crs, 2, function(x) c(which.min(x), which.max(x)))))
+    # Find the most extreme point according to each pair of coordinates equally weighted:
+    e2 <- unique(c(apply(sapply(seq_len(nrow(x2crs)), function(i) c(outer(x2crs[i,],x2crs[i,],"+"), outer(x2crs[i,],x2crs[i,],"-"))),
+          1, function(x) c(which.min(x), which.max(x)))))
+    x2crse <- x2crs[unique(c(e1,e2)),,drop=FALSE]
     # Drop all points that are in the convex hull of those.
     x2crs <- rbind(x2crse, x2crs[!apply(x2crs, MARGIN=1, is.inCH, M=x2crse),])
     if(verbose>1) message("Prefiltered test set: ", sum(!d2)-nrow(x2crs), "/", sum(!d2), " eliminated.")
