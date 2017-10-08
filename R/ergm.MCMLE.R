@@ -368,7 +368,22 @@ ergm.MCMLE <- function(init, nw, model,
     
     # This allows premature termination.
     
-    if(!steplen.converged){ # If step length is less than its maximum, don't bother with precision stuff.
+    if(control$MCMLE.termination=='Hotelling'){
+      conv.pval <- ERRVL(try(approx.hotelling.diff.test(esteq, esteq.obs)$p.value), NA)
+      message("Nonconvergence test p-value:",conv.pval,"")
+      # I.e., so that the probability of one false nonconvergence in two successive iterations is control$MCMLE.conv.min.pval (sort of).
+      if(!is.na(conv.pval) && conv.pval>=1-sqrt(1-control$MCMLE.conv.min.pval)){   
+        if(last.adequate){
+          message("No nonconvergence detected twice. Stopping.")
+          break
+        }else{
+          message("No nonconvergence detected once.")
+          last.adequate <- TRUE
+        }
+      }else{
+        last.adequate <- FALSE
+      }
+    }else if(!steplen.converged){ # If step length is less than its maximum, don't bother with precision stuff.
       last.adequate <- FALSE
       control$MCMC.samplesize <- control$MCMC.base.samplesize
       control$MCMC.effectiveSize <- control$MCMC.base.effectiveSize
@@ -376,9 +391,7 @@ ergm.MCMLE <- function(init, nw, model,
         control.obs$MCMC.samplesize <- control.obs$MCMC.base.samplesize
         control.obs$MCMC.effectiveSize <- control.obs$MCMC.base.effectiveSize
       }
-    } else {
-    
-    if(control$MCMLE.termination == "precision"){
+    }else if(control$MCMLE.termination == "precision"){
       prec.loss <- (sqrt(diag(v$mc.cov+v$covar))-sqrt(diag(v$covar)))/sqrt(diag(v$mc.cov+v$covar))
       if(verbose){
         message("Standard Error:")
@@ -424,13 +437,6 @@ ergm.MCMLE <- function(init, nw, model,
           }
         }
       }
-    }else if(control$MCMLE.termination=='Hotelling'){
-      conv.pval <- ERRVL(try(approx.hotelling.diff.test(esteq, esteq.obs)$p.value), NA)
-      message("Nonconvergence test p-value:",conv.pval,"")
-      if(!is.na(conv.pval) && conv.pval>=control$MCMLE.conv.min.pval){
-        message("No nonconvergence detected. Stopping.")
-        break
-      }      
     }else if(control$MCMLE.termination=='Hummel'){
       if(last.adequate){
         message("Step length converged twice. Stopping.")
@@ -447,8 +453,6 @@ ergm.MCMLE <- function(init, nw, model,
       }
     }
     
-    }
-
     #' @importFrom utils tail
     # stop if MCMLE is stuck (steplen stuck near 0)
     if ((length(steplen.hist) > 2) && sum(tail(steplen.hist,2)) < 2*control$MCMLE.steplength.min) {
