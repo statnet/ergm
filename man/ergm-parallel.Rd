@@ -30,6 +30,10 @@ get.MT_terms()
 \item{verbose}{logical, should detailed status info be printed to
 console}
 
+\item{object}{an object, probably of class \code{cluster}.}
+
+\item{\dots}{not currently used}
+
 \item{n}{an integer specifying the number of threads to use; 0 (the
 starting value) disables multithreading, and \eqn{-1} or
 \code{NA} sets it to the number of CPUs detected.}

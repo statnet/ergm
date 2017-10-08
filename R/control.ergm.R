@@ -252,6 +252,10 @@
 #'   allows the step length to scale the spread of points differently
 #'   from the amount of shift towards the centroid by exponentiating
 #'   the former by `MCMLE.steplength.point.exp`.
+#' @param MCMLE.steplength.prefilter Whether to enable
+#'   pre-filtering of target and test points in the Hummel step length
+#'   calculation. May improve performance for large MCMC sample sizes
+#'   with missing data MLE.
 #' @param MCMLE.steplength Multiplier for step length, which may (for values
 #' less than one) make fitting more stable at the cost of computational
 #' efficiency.  Can be set to "adaptive"; see
@@ -487,8 +491,9 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.dampening.min.ess=20,
                        MCMLE.dampening.level=0.1,
                        MCMLE.steplength.margin=0.05,
-                       MCMLE.steplength=if(is.null(MCMLE.steplength.margin)) 0.5 else 1,
                        MCMLE.steplength.point.exp=1,
+                       MCMLE.steplength.prefilter=FALSE,
+                       MCMLE.steplength=NVL2(MCMLE.steplength.margin, 1, 0.5),
                        MCMLE.adaptive.trustregion=3,
                        MCMLE.sequential=TRUE,
                        MCMLE.density.guard.min=10000,

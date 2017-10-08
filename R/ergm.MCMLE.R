@@ -293,7 +293,7 @@ ergm.MCMLE <- function(init, nw, model,
         steplen <- .Hummel.steplength(
           if(control$MCMLE.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
           if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
-          control$MCMLE.steplength.margin, control$MCMLE.steplength,point.gamma.exp=control$MCMLE.steplength.point.exp,steplength.prev=steplen,verbose=verbose,
+          control$MCMLE.steplength.margin, control$MCMLE.steplength,point.gamma.exp=control$MCMLE.steplength.point.exp,steplength.prev=steplen,x1.prefilter=control$MCMLE.steplength.prefilter,x2.prefilter=control$MCMLE.steplength.prefilter,verbose=verbose,
           x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit,
           last=(iteration==control$MCMLE.maxit))
       
@@ -305,7 +305,7 @@ ergm.MCMLE <- function(init, nw, model,
             .Hummel.steplength(
               if(control$MCMLE.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
               if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
-              0, control$MCMLE.steplength,steplength.prev=steplen,point.gamma.exp=control$MCMLE.steplength.point.exp,verbose=verbose,
+              0, control$MCMLE.steplength,steplength.prev=steplen,point.gamma.exp=control$MCMLE.steplength.point.exp,x1.prefilter=control$MCMLE.steplength.prefilter,x2.prefilter=control$MCMLE.steplength.prefilter,verbose=verbose,
               x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit,
               last=(iteration==control$MCMLE.maxit))
           else steplen
