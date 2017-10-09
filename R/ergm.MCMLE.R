@@ -489,3 +489,23 @@ ergm.MCMLE <- function(init, nw, model,
   v
 }
 
+#' Find the shortest `W`-weighted squared Mahalanobis distance from a point
+#' `y` to an ellipsoid defined by x'U x = 1, provided that `y` is in
+#' the interior of the ellipsoid.
+#'
+#' @param y a vector
+#' @param W,U a square matrix
+#'
+#' @noRd
+.ellipsoid_mahalanobis <- function(y, W, U){
+  y <- c(y)
+  if(y%*%U%*%y>=1) stop("Point is not in the interior of the ellipsoid.")
+  I <- diag(length(y))
+  WiU <- solve(W, U)
+  x <- function(l) c(solve(I+l*WiU, y)) # Singluar for negative reciprocals of eigenvalues of WiU.
+  zerofn <- function(l) {x <- x(l); c(x%*%U%*%x)-1}
+
+  l <- uniroot(zerofn, lower=-1/max(eigen(WiU, only.values=TRUE)$values), upper=0)$root
+  x <- x(l)
+  (y-x)%*%W%*%(y-x)
+}
