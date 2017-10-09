@@ -68,6 +68,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                         dampening=FALSE,
                         dampening.min.ess=100,
                         dampening.level=0.1,
+                        steplen=1, steplen.point.exp=1,
                         cov.type="normal",# cov.type="robust", 
                         estimateonly=FALSE, ...) {
   # If there is an observation process to deal with, statsmatrix.obs
@@ -79,15 +80,36 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
   etamap <- model$etamap
   etamap.no <- deoffset.etamap(etamap)
   eta0 <- ergm.eta(init[!etamap$offsettheta], etamap.no)
+
+
+  
+  statsmatrix.orig <- statsmatrix
+  statsmatrix.orig.obs <- statsmatrix.obs
+
+  statsmean <- apply(statsmatrix.orig,2,base::mean)
+  if(!is.null(statsmatrix.orig.obs)){
+    statsmatrix.obs <- .shift_scale_points(statsmatrix.orig.obs, statsmean, steplen, steplen^steplen.point.exp) # I.e., shrink each point of statsmatrix.obs towards the centroid of statsmatrix.
+  }else{
+    statsmatrix <- sweep(statsmatrix.orig,2,(1-steplen)*statsmean,"-")
+  }
   
   # Copy and compress the stats matrices after dropping the offset terms.
   xsim <- compress_rows(as.logwmatrix(statsmatrix[,!etamap$offsetmap, drop=FALSE]))
   lrowweights(xsim) <- -log_sum_exp(lrowweights(xsim)) # I.e., divide all weights by their sum.
 
+  xsim.orig <- compress_rows(as.logwmatrix(statsmatrix.orig[,!etamap$offsetmap, drop=FALSE]))
+  lrowweights(xsim.orig) <- -log_sum_exp(lrowweights(xsim.orig)) # I.e., divide all weights by their sum.
+
   if(obsprocess){
     xsim.obs <- compress_rows(as.logwmatrix(statsmatrix.obs[,!etamap$offsetmap, drop=FALSE]))
     lrowweights(xsim.obs) <- -log_sum_exp(lrowweights(xsim.obs)) 
-  }else xsim.obs <- NULL
+
+    xsim.orig.obs <- compress_rows(as.logwmatrix(statsmatrix.orig.obs[,!etamap$offsetmap, drop=FALSE]))
+    lrowweights(xsim.orig.obs) <- -log_sum_exp(lrowweights(xsim.orig.obs)) 
+  }else{
+    xsim.obs <- NULL
+    xsim.orig.obs <- NULL
+  }
   
   # It is assumed that the statsmatrix matrix has already had the
   # "observed statistics" subtracted out.  Another way to say this is
@@ -306,13 +328,11 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     mc.se <- rep(NA, length=length(theta))
     mc.cov <- matrix(NA, length(theta), length(theta))
     covar <- NA
-    if(!hessianflag){
-      #  covar <- ginv(cov(xsim))
-      #  Lout$hessian <- cov(xsim)
+    if(!hessianflag || steplen!=1){
       Lout$hessian <- Hessianfn(theta=Lout$par,
-                        xsim=xsim,
-                        xsim.obs=xsim.obs,
-                        varweight=varweight, trustregion=trustregion,
+                        xsim=xsim.orig,
+                        xsim.obs=xsim.orig.obs,
+                        varweight=varweight,trustregion=+Inf,
                         eta0=eta0, etamap=etamap.no
                         )
     }

@@ -249,11 +249,6 @@ ergm.MCMLE <- function(init, nw, model,
       v <- list(loglikelihood=control$MCMLE.adaptive.trustregion*2)
       while(v$loglikelihood > control$MCMLE.adaptive.trustregion){
         adaptive.steplength <- adaptive.steplength / 2
-        if(!is.null(statsmatrix.0.obs)){
-          statsmatrix.obs <- t(adaptive.steplength*t(statsmatrix.0.obs) + (1-adaptive.steplength)*statsmean) # I.e., shrink each point of statsmatrix.obs towards the centroid of statsmatrix.
-        }else{
-          statsmatrix <- sweep(statsmatrix.0,2,(1-adaptive.steplength)*statsmean,"-")
-        }
         if(verbose){message("Optimizing with step length ",adaptive.steplength,".")}
         #
         #   If not the last iteration do not compute all the extraneous
@@ -272,6 +267,7 @@ ergm.MCMLE <- function(init, nw, model,
                          dampening=control$MCMLE.dampening,
                          dampening.min.ess=control$MCMLE.dampening.min.ess,
                          dampening.level=control$MCMLE.dampening.level,
+                         steplen=adaptive.steplength,
                          compress=control$MCMC.compress, verbose=verbose,
                          estimateonly=TRUE)
       }
@@ -325,12 +321,6 @@ ergm.MCMLE <- function(init, nw, model,
         
       if(steplen.converged || is.null(control$MCMLE.steplength.margin) || iteration==control$MCMLE.maxit) calc.MCSE <- TRUE
       
-      statsmean <- apply(statsmatrix.0,2,base::mean)
-      if(!is.null(statsmatrix.0.obs)){
-        statsmatrix.obs <- .shift_scale_points(statsmatrix.0.obs, statsmean, steplen, steplen^control$MCMLE.steplength.point.exp) # I.e., shrink each point of statsmatrix.obs towards the centroid of statsmatrix.
-      }else{
-        statsmatrix <- sweep(statsmatrix.0,2,(1-steplen)*statsmean,"-")
-      }
       steplen.hist <- c(steplen.hist, steplen)
       
       # Use estimateonly=TRUE if this is not the last iteration.
@@ -348,6 +338,7 @@ ergm.MCMLE <- function(init, nw, model,
                        dampening.min.ess=control$MCMLE.dampening.min.ess,
                        dampening.level=control$MCMLE.dampening.level,
                        metric=control$MCMLE.metric,
+                       steplen=steplen, steplen.point.exp=control$MCMLE.steplength.point.exp,
                        compress=control$MCMC.compress, verbose=verbose,
                        estimateonly=!calc.MCSE)
       if(v$loglikelihood < control$MCMLE.trustregion-0.001){
