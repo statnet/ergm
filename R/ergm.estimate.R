@@ -68,6 +68,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                         dampening=FALSE,
                         dampening.min.ess=100,
                         dampening.level=0.1,
+                        steplen=1, steplen.point.exp=1,
                         cov.type="normal",# cov.type="robust", 
                         estimateonly=FALSE, ...) {
   # If there is an observation process to deal with, statsmatrix.obs
@@ -79,24 +80,42 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
   etamap <- model$etamap
   etamap.no <- deoffset.etamap(etamap)
   eta0 <- ergm.eta(init[!etamap$offsettheta], etamap.no)
+
+
+  
+  statsmatrix.orig <- statsmatrix
+  statsmatrix.orig.obs <- statsmatrix.obs
+
+  statsmean <- apply(statsmatrix.orig,2,base::mean)
+  if(!is.null(statsmatrix.orig.obs)){
+    statsmatrix.obs <- .shift_scale_points(statsmatrix.orig.obs, statsmean, steplen, steplen^steplen.point.exp) # I.e., shrink each point of statsmatrix.obs towards the centroid of statsmatrix.
+  }else{
+    statsmatrix <- sweep(statsmatrix.orig,2,(1-steplen)*statsmean,"-")
+  }
   
   # Copy and compress the stats matrices after dropping the offset terms.
   xsim <- compress_rows(as.logwmatrix(statsmatrix[,!etamap$offsetmap, drop=FALSE]))
   lrowweights(xsim) <- -log_sum_exp(lrowweights(xsim)) # I.e., divide all weights by their sum.
 
+  xsim.orig <- compress_rows(as.logwmatrix(statsmatrix.orig[,!etamap$offsetmap, drop=FALSE]))
+  lrowweights(xsim.orig) <- -log_sum_exp(lrowweights(xsim.orig)) # I.e., divide all weights by their sum.
+
   if(obsprocess){
     xsim.obs <- compress_rows(as.logwmatrix(statsmatrix.obs[,!etamap$offsetmap, drop=FALSE]))
     lrowweights(xsim.obs) <- -log_sum_exp(lrowweights(xsim.obs)) 
-  }else xsim.obs <- NULL
+
+    xsim.orig.obs <- compress_rows(as.logwmatrix(statsmatrix.orig.obs[,!etamap$offsetmap, drop=FALSE]))
+    lrowweights(xsim.orig.obs) <- -log_sum_exp(lrowweights(xsim.orig.obs)) 
+  }else{
+    xsim.obs <- NULL
+    xsim.orig.obs <- NULL
+  }
   
   # It is assumed that the statsmatrix matrix has already had the
   # "observed statistics" subtracted out.  Another way to say this is
   # that when ergm.estimate is called, the "observed statistics"
   # should equal zero when measured on the scale of the statsmatrix
-  # statistics.  Here, we recenter the statsmatrix matrix by
-  # subtracting some measure of center (e.g., the column means).
-  # Since this shifts the scale, the value of xobs (playing the role
-  # of "observed statistics") must be adjusted accordingly.
+  # statistics.
   #' @importFrom robustbase covMcd
   if(cov.type=="robust"){
     tmp <- covMcd(decompress_rows(xsim, target.nrows=nrow(statsmatrix)))    
@@ -107,7 +126,6 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     V <- lweighted.var(xsim, lrowweights(xsim))
   }
   
-  xsim <- sweep_cols.matrix(xsim, av, TRUE)
   xobs <- -av
   
   # Do the same recentering for the statsmatrix.obs matrix, if appropriate.
@@ -122,7 +140,6 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
       V.obs <- lweighted.var(xsim.obs, lrowweights(xsim.obs))
     }
 
-    xsim.obs <- sweep_cols.matrix(xsim.obs, av.obs, TRUE)
     xobs <- av.obs - av
   }
     
@@ -240,7 +257,6 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                       rinit=1, 
                       rmax=100, 
                       parscale=rep(1,length(guess)), minimize=FALSE,
-                      xobs=xobs,
                       xsim=xsim,
                       xsim.obs=xsim.obs,
                       varweight=varweight, trustregion=trustregion,
@@ -268,7 +284,6 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                         method="Nelder-Mead",
                         control=list(trace=trace,fnscale=-1,maxit=100*nr.maxit,
                                      reltol=nr.reltol),
-                        xobs=xobs,
                         xsim=xsim,
                         xsim.obs=xsim.obs,
                         varweight=varweight, trustregion=trustregion,
@@ -299,7 +314,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                           failure=FALSE),
                         class="ergm"))
   } else {
-    gradienttheta <- llik.grad.IS(theta=Lout$par, xobs=xobs,
+    gradienttheta <- llik.grad.IS(theta=Lout$par,
                         xsim=xsim,
                         xsim.obs=xsim.obs,
                         varweight=varweight, trustregion=trustregion,
@@ -313,13 +328,11 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     mc.se <- rep(NA, length=length(theta))
     mc.cov <- matrix(NA, length(theta), length(theta))
     covar <- NA
-    if(!hessianflag){
-      #  covar <- ginv(cov(xsim))
-      #  Lout$hessian <- cov(xsim)
-      Lout$hessian <- Hessianfn(theta=Lout$par, xobs=xobs,
-                        xsim=xsim,
-                        xsim.obs=xsim.obs,
-                        varweight=varweight, trustregion=trustregion,
+    if(!hessianflag || steplen!=1){
+      Lout$hessian <- Hessianfn(theta=Lout$par,
+                        xsim=xsim.orig,
+                        xsim.obs=xsim.orig.obs,
+                        varweight=varweight,trustregion=+Inf,
                         eta0=eta0, etamap=etamap.no
                         )
     }
@@ -349,11 +362,11 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                     model=model)
       }
     }
-    c0  <- loglikelihoodfn(theta=Lout$par, xobs=xobs,
+    c0  <- loglikelihoodfn(theta=Lout$par,
                            xsim=xsim,
                            xsim.obs=xsim.obs,
                            varweight=0.5, eta0=eta0, etamap=etamap.no)
-    c01 <- loglikelihoodfn(theta=Lout$par-Lout$par, xobs=xobs,
+    c01 <- loglikelihoodfn(theta=Lout$par-Lout$par,
                            xsim=xsim,
                            xsim.obs=xsim.obs,
                            varweight=0.5, eta0=eta0, etamap=etamap.no)

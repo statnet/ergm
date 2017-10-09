@@ -29,7 +29,6 @@
 #   theta      : the vector of theta parameters; this is only used to solidify
 #                offset coefficients; the not-offset terms are given by 'init'
 #                of the 'etamap'
-#   xobs       : the vector of observed statistics
 #   xsim       : the matrix of simulated statistics
 #   probs      : the probability weight for each row of the stats matrix
 #   xsim.obs  : the 'xsim' counterpart for observation process
@@ -39,7 +38,7 @@
 #                reflect what this parameter actually is; default=0.5, which is the
 #                "true"  weight, in the sense that the lognormal approximation is
 #                given by
-#                           sum(xobs * x) - mb - 0.5*vb
+#                           - mb - 0.5*vb
 #   trustregion: the maximum value of the log-likelihood ratio that is trusted;
 #                default=20
 #   eta0       : the initial eta vector
@@ -60,7 +59,7 @@
 #        approximation; i.e., assuming that the network statistics are approximately
 #        normally  distributed so that exp(eta * stats) is lognormal
 #####################################################################################                           
-llik.fun.obs.lognormal <- function(theta, xobs, xsim, xsim.obs=NULL,
+llik.fun.obs.lognormal <- function(theta, xsim, xsim.obs=NULL,
                      varweight=0.5, trustregion=20,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
@@ -71,7 +70,7 @@ llik.fun.obs.lognormal <- function(theta, xobs, xsim, xsim.obs=NULL,
   obspred <- xsim.obs %*% etaparam
 #
 # maxbase <- max(basepred)
-# llr <- sum(xobs * etaparam) - maxbase - log(sum(rowweights(xsim))*exp(basepred-maxbase)))
+# llr <- - maxbase - log(sum(rowweights(xsim))*exp(basepred-maxbase)))
 #
 # alternative based on log-normal approximation
   mb <- lweighted.mean(basepred,lrowweights(xsim))
@@ -81,7 +80,7 @@ llik.fun.obs.lognormal <- function(theta, xobs, xsim, xsim.obs=NULL,
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
-  llr <- sum(xobs * etaparam) + (mm + varweight*vm) - (mb + varweight*vb)
+  llr <- (mm + varweight*vm) - (mb + varweight*vb)
   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #
 # Penalize changes to trustregion
@@ -99,7 +98,7 @@ llik.fun.obs.lognormal <- function(theta, xobs, xsim, xsim.obs=NULL,
 # --RETURNED--
 #   llg: the gradient of the not-offset eta parameters with ??
 #####################################################################################
-llik.grad.obs.IS <- function(theta, xobs, xsim,  xsim.obs=NULL,
+llik.grad.obs.IS <- function(theta, xsim,  xsim.obs=NULL,
                       varweight=0.5, trustregion=20,
                       dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                       eta0, etamap){
@@ -113,7 +112,7 @@ llik.grad.obs.IS <- function(theta, xobs, xsim,  xsim.obs=NULL,
   # Calculate log-importance-weights (constrained)
   obspred <- xsim.obs %*% etaparam + lrowweights(xsim.obs)
   
-  llg <- xobs + lweighted.mean(xsim.obs, obspred) - lweighted.mean(xsim, basepred)
+  llg <- lweighted.mean(xsim.obs, obspred) - lweighted.mean(xsim, basepred)
   llg <- t(ergm.etagradmult(theta, llg, etamap))
 
   llg[is.na(llg)] <- 0 # Note: Before, infinite values would get zeroed as well. Let's see if this works.
@@ -128,7 +127,7 @@ llik.grad.obs.IS <- function(theta, xobs, xsim,  xsim.obs=NULL,
 #   He: the ?? Hessian matrix
 #####################################################################################
 
-llik.hessian.obs.IS <- function(theta, xobs, xsim, xsim.obs=NULL,
+llik.hessian.obs.IS <- function(theta, xsim, xsim.obs=NULL,
                      varweight=0.5, trustregion=20,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
@@ -160,7 +159,7 @@ llik.hessian.obs.IS <- function(theta, xobs, xsim, xsim.obs=NULL,
 #            "Simple convergence"
 #####################################################################################
 
-llik.fun.obs.IS <- function(theta, xobs, xsim, xsim.obs=NULL, 
+llik.fun.obs.IS <- function(theta, xsim, xsim.obs=NULL, 
                      varweight=0.5, trustregion=20,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
@@ -171,7 +170,7 @@ llik.fun.obs.IS <- function(theta, xobs, xsim, xsim.obs=NULL,
   # Calculate log-importance-weights and the likelihood ratio
   basepred <- xsim %*% etaparam + lrowweights(xsim)
   obspred <- xsim.obs %*% etaparam + lrowweights(xsim.obs)
-  llr <- sum(xobs * etaparam) + log_sum_exp(obspred) - log_sum_exp(basepred)
+  llr <- log_sum_exp(obspred) - log_sum_exp(basepred)
   
   # trustregion is the maximum value of llr that we actually trust.
   # So if llr>trustregion, return a value less than trustregion instead.
@@ -189,7 +188,7 @@ llik.fun.obs.IS <- function(theta, xobs, xsim, xsim.obs=NULL,
 #                "robust obsing data code"
 #####################################################################################
 
-llik.fun.obs.robust<- function(theta, xobs, xsim, xsim.obs=NULL,
+llik.fun.obs.robust<- function(theta, xsim, xsim.obs=NULL,
                      varweight=0.5, trustregion=20,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
@@ -200,7 +199,7 @@ llik.fun.obs.robust<- function(theta, xobs, xsim, xsim.obs=NULL,
   obspred <- xsim.obs %*% etaparam
 #
 # maxbase <- max(basepred)
-# llr <- sum(xobs * etaparam) - maxbase - log(sum(rowweights(xsim))*exp(basepred-maxbase)))
+# llr <- - maxbase - log(sum(rowweights(xsim))*exp(basepred-maxbase)))
 #
 # alternative based on log-normal approximation
   mb <- wtd.median(basepred, weight=rowweights(xsim))
@@ -211,7 +210,7 @@ llik.fun.obs.robust<- function(theta, xobs, xsim, xsim.obs=NULL,
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
-  llr <- sum(xobs * etaparam) + (mm + varweight*vm*vm) - (mb + varweight*vb*vb)
+  llr <- (mm + varweight*vm*vm) - (mb + varweight*vb*vb)
   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #
 # Penalize changes to trustregion

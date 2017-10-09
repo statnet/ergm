@@ -249,11 +249,6 @@ ergm.MCMLE <- function(init, nw, model,
       v <- list(loglikelihood=control$MCMLE.adaptive.trustregion*2)
       while(v$loglikelihood > control$MCMLE.adaptive.trustregion){
         adaptive.steplength <- adaptive.steplength / 2
-        if(!is.null(statsmatrix.0.obs)){
-          statsmatrix.obs <- t(adaptive.steplength*t(statsmatrix.0.obs) + (1-adaptive.steplength)*statsmean) # I.e., shrink each point of statsmatrix.obs towards the centroid of statsmatrix.
-        }else{
-          statsmatrix <- sweep(statsmatrix.0,2,(1-adaptive.steplength)*statsmean,"-")
-        }
         if(verbose){message("Optimizing with step length ",adaptive.steplength,".")}
         #
         #   If not the last iteration do not compute all the extraneous
@@ -272,6 +267,7 @@ ergm.MCMLE <- function(init, nw, model,
                          dampening=control$MCMLE.dampening,
                          dampening.min.ess=control$MCMLE.dampening.min.ess,
                          dampening.level=control$MCMLE.dampening.level,
+                         steplen=adaptive.steplength,
                          compress=control$MCMC.compress, verbose=verbose,
                          estimateonly=TRUE)
       }
@@ -325,12 +321,6 @@ ergm.MCMLE <- function(init, nw, model,
         
       if(steplen.converged || is.null(control$MCMLE.steplength.margin) || iteration==control$MCMLE.maxit) calc.MCSE <- TRUE
       
-      statsmean <- apply(statsmatrix.0,2,base::mean)
-      if(!is.null(statsmatrix.0.obs)){
-        statsmatrix.obs <- .shift_scale_points(statsmatrix.0.obs, statsmean, steplen, steplen^control$MCMLE.steplength.point.exp) # I.e., shrink each point of statsmatrix.obs towards the centroid of statsmatrix.
-      }else{
-        statsmatrix <- sweep(statsmatrix.0,2,(1-steplen)*statsmean,"-")
-      }
       steplen.hist <- c(steplen.hist, steplen)
       
       # Use estimateonly=TRUE if this is not the last iteration.
@@ -348,6 +338,7 @@ ergm.MCMLE <- function(init, nw, model,
                        dampening.min.ess=control$MCMLE.dampening.min.ess,
                        dampening.level=control$MCMLE.dampening.level,
                        metric=control$MCMLE.metric,
+                       steplen=steplen, steplen.point.exp=control$MCMLE.steplength.point.exp,
                        compress=control$MCMC.compress, verbose=verbose,
                        estimateonly=!calc.MCSE)
       if(v$loglikelihood < control$MCMLE.trustregion-0.001){
@@ -368,7 +359,22 @@ ergm.MCMLE <- function(init, nw, model,
     
     # This allows premature termination.
     
-    if(!steplen.converged){ # If step length is less than its maximum, don't bother with precision stuff.
+    if(control$MCMLE.termination=='Hotelling'){
+      conv.pval <- ERRVL(try(approx.hotelling.diff.test(esteq, esteq.obs)$p.value), NA)
+      message("Nonconvergence test p-value:",conv.pval,"")
+      # I.e., so that the probability of one false nonconvergence in two successive iterations is control$MCMLE.conv.min.pval (sort of).
+      if(!is.na(conv.pval) && conv.pval>=1-sqrt(1-control$MCMLE.conv.min.pval)){   
+        if(last.adequate){
+          message("No nonconvergence detected twice. Stopping.")
+          break
+        }else{
+          message("No nonconvergence detected once.")
+          last.adequate <- TRUE
+        }
+      }else{
+        last.adequate <- FALSE
+      }
+    }else if(!steplen.converged){ # If step length is less than its maximum, don't bother with precision stuff.
       last.adequate <- FALSE
       control$MCMC.samplesize <- control$MCMC.base.samplesize
       control$MCMC.effectiveSize <- control$MCMC.base.effectiveSize
@@ -376,9 +382,7 @@ ergm.MCMLE <- function(init, nw, model,
         control.obs$MCMC.samplesize <- control.obs$MCMC.base.samplesize
         control.obs$MCMC.effectiveSize <- control.obs$MCMC.base.effectiveSize
       }
-    } else {
-    
-    if(control$MCMLE.termination == "precision"){
+    }else if(control$MCMLE.termination == "precision"){
       prec.loss <- (sqrt(diag(v$mc.cov+v$covar))-sqrt(diag(v$covar)))/sqrt(diag(v$mc.cov+v$covar))
       if(verbose){
         message("Standard Error:")
@@ -424,13 +428,6 @@ ergm.MCMLE <- function(init, nw, model,
           }
         }
       }
-    }else if(control$MCMLE.termination=='Hotelling'){
-      conv.pval <- ERRVL(try(approx.hotelling.diff.test(esteq, esteq.obs)$p.value), NA)
-      message("Nonconvergence test p-value:",conv.pval,"")
-      if(!is.na(conv.pval) && conv.pval>=control$MCMLE.conv.min.pval){
-        message("No nonconvergence detected. Stopping.")
-        break
-      }      
     }else if(control$MCMLE.termination=='Hummel'){
       if(last.adequate){
         message("Step length converged twice. Stopping.")
@@ -447,8 +444,6 @@ ergm.MCMLE <- function(init, nw, model,
       }
     }
     
-    }
-
     #' @importFrom utils tail
     # stop if MCMLE is stuck (steplen stuck near 0)
     if ((length(steplen.hist) > 2) && sum(tail(steplen.hist,2)) < 2*control$MCMLE.steplength.min) {
