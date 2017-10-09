@@ -93,10 +93,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
   # "observed statistics" subtracted out.  Another way to say this is
   # that when ergm.estimate is called, the "observed statistics"
   # should equal zero when measured on the scale of the statsmatrix
-  # statistics.  Here, we recenter the statsmatrix matrix by
-  # subtracting some measure of center (e.g., the column means).
-  # Since this shifts the scale, the value of xobs (playing the role
-  # of "observed statistics") must be adjusted accordingly.
+  # statistics.
   #' @importFrom robustbase covMcd
   if(cov.type=="robust"){
     tmp <- covMcd(decompress_rows(xsim, target.nrows=nrow(statsmatrix)))    
@@ -107,7 +104,6 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     V <- lweighted.var(xsim, lrowweights(xsim))
   }
   
-  xsim <- sweep_cols.matrix(xsim, av, TRUE)
   xobs <- -av
   
   # Do the same recentering for the statsmatrix.obs matrix, if appropriate.
@@ -122,7 +118,6 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
       V.obs <- lweighted.var(xsim.obs, lrowweights(xsim.obs))
     }
 
-    xsim.obs <- sweep_cols.matrix(xsim.obs, av.obs, TRUE)
     xobs <- av.obs - av
   }
     
@@ -240,7 +235,6 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                       rinit=1, 
                       rmax=100, 
                       parscale=rep(1,length(guess)), minimize=FALSE,
-                      xobs=xobs,
                       xsim=xsim,
                       xsim.obs=xsim.obs,
                       varweight=varweight, trustregion=trustregion,
@@ -268,7 +262,6 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                         method="Nelder-Mead",
                         control=list(trace=trace,fnscale=-1,maxit=100*nr.maxit,
                                      reltol=nr.reltol),
-                        xobs=xobs,
                         xsim=xsim,
                         xsim.obs=xsim.obs,
                         varweight=varweight, trustregion=trustregion,
@@ -299,7 +292,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                           failure=FALSE),
                         class="ergm"))
   } else {
-    gradienttheta <- llik.grad.IS(theta=Lout$par, xobs=xobs,
+    gradienttheta <- llik.grad.IS(theta=Lout$par,
                         xsim=xsim,
                         xsim.obs=xsim.obs,
                         varweight=varweight, trustregion=trustregion,
@@ -316,7 +309,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     if(!hessianflag){
       #  covar <- ginv(cov(xsim))
       #  Lout$hessian <- cov(xsim)
-      Lout$hessian <- Hessianfn(theta=Lout$par, xobs=xobs,
+      Lout$hessian <- Hessianfn(theta=Lout$par,
                         xsim=xsim,
                         xsim.obs=xsim.obs,
                         varweight=varweight, trustregion=trustregion,
@@ -349,11 +342,11 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                     model=model)
       }
     }
-    c0  <- loglikelihoodfn(theta=Lout$par, xobs=xobs,
+    c0  <- loglikelihoodfn(theta=Lout$par,
                            xsim=xsim,
                            xsim.obs=xsim.obs,
                            varweight=0.5, eta0=eta0, etamap=etamap.no)
-    c01 <- loglikelihoodfn(theta=Lout$par-Lout$par, xobs=xobs,
+    c01 <- loglikelihoodfn(theta=Lout$par-Lout$par,
                            xsim=xsim,
                            xsim.obs=xsim.obs,
                            varweight=0.5, eta0=eta0, etamap=etamap.no)
