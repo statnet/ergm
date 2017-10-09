@@ -360,13 +360,21 @@ ergm.MCMLE <- function(init, nw, model,
       conv.pval <- ERRVL(try(approx.hotelling.diff.test(esteq, esteq.obs)$p.value), NA)
       message("Nonconvergence test p-value:",conv.pval,"")
       # I.e., so that the probability of one false nonconvergence in two successive iterations is control$MCMLE.conv.min.pval (sort of).
-      if(!is.na(conv.pval) && conv.pval>=1-sqrt(1-control$MCMLE.conv.min.pval)){   
+      if(!is.na(conv.pval) && conv.pval>=1-sqrt(1-control$MCMLE.conv.min.pval)){
         if(last.adequate){
           message("No nonconvergence detected twice. Stopping.")
           break
         }else{
-          message("No nonconvergence detected once.")
+          message("No nonconvergence detected once; increasing sample size if not already increased.")
           last.adequate <- TRUE
+          if(control$MCMC.samplesize == control$MCMC.base.samplesize){
+            control$MCMC.samplesize <- control$MCMC.base.samplesize * control$MCMLE.last.boost
+            control$MCMC.effectiveSize <- NVL3(control$MCMC.effectiveSize, . * control$MCMLE.last.boost)
+            if(obs){
+              control.obs$MCMC.samplesize <- control.obs$MCMC.base.samplesize * control$MCMLE.last.boost
+              control.obs$MCMC.effectiveSize <- NVL3(control.obs$MCMC.effectiveSize, . * control$MCMLE.last.boost)
+            }
+          }
         }
       }else{
         last.adequate <- FALSE
