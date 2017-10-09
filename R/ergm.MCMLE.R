@@ -240,12 +240,9 @@ ergm.MCMLE <- function(init, nw, model,
       return(structure (l, class="ergm"))
     } 
 
-    statsmatrix.0 <- statsmatrix
-    statsmatrix.0.obs <- statsmatrix.obs
     if(control$MCMLE.steplength=="adaptive"){
       if(verbose){message("Starting adaptive MCMLE Optimization...")}
       adaptive.steplength <- 2
-      statsmean <- apply(statsmatrix.0,2,base::mean)
       v <- list(loglikelihood=control$MCMLE.adaptive.trustregion*2)
       while(v$loglikelihood > control$MCMLE.adaptive.trustregion){
         adaptive.steplength <- adaptive.steplength / 2
@@ -287,8 +284,8 @@ ergm.MCMLE <- function(init, nw, model,
       
       if(!is.null(control$MCMLE.steplength.margin)){
         steplen <- .Hummel.steplength(
-          if(control$MCMLE.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
-          if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
+          if(control$MCMLE.Hummel.esteq) esteq else statsmatrix[,!model$etamap$offsetmap,drop=FALSE], 
+          if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.obs[,!model$etamap$offsetmap,drop=FALSE],
           control$MCMLE.steplength.margin, control$MCMLE.steplength,point.gamma.exp=control$MCMLE.steplength.point.exp,steplength.prev=steplen,x1.prefilter=control$MCMLE.steplength.prefilter,x2.prefilter=control$MCMLE.steplength.prefilter,verbose=verbose,
           x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit,
           last=(iteration==control$MCMLE.maxit))
@@ -299,8 +296,8 @@ ergm.MCMLE <- function(init, nw, model,
         steplen0 <-
           if(control$MCMLE.steplength.margin<0 && control$MCMLE.steplength==steplen)
             .Hummel.steplength(
-              if(control$MCMLE.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
-              if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
+              if(control$MCMLE.Hummel.esteq) esteq else statsmatrix[,!model$etamap$offsetmap,drop=FALSE], 
+              if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.obs[,!model$etamap$offsetmap,drop=FALSE],
               0, control$MCMLE.steplength,steplength.prev=steplen,point.gamma.exp=control$MCMLE.steplength.point.exp,x1.prefilter=control$MCMLE.steplength.prefilter,x2.prefilter=control$MCMLE.steplength.prefilter,verbose=verbose,
               x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit,
               last=(iteration==control$MCMLE.maxit))
@@ -363,13 +360,21 @@ ergm.MCMLE <- function(init, nw, model,
       conv.pval <- ERRVL(try(approx.hotelling.diff.test(esteq, esteq.obs)$p.value), NA)
       message("Nonconvergence test p-value:",conv.pval,"")
       # I.e., so that the probability of one false nonconvergence in two successive iterations is control$MCMLE.conv.min.pval (sort of).
-      if(!is.na(conv.pval) && conv.pval>=1-sqrt(1-control$MCMLE.conv.min.pval)){   
+      if(!is.na(conv.pval) && conv.pval>=1-sqrt(1-control$MCMLE.conv.min.pval)){
         if(last.adequate){
           message("No nonconvergence detected twice. Stopping.")
           break
         }else{
-          message("No nonconvergence detected once.")
+          message("No nonconvergence detected once; increasing sample size if not already increased.")
           last.adequate <- TRUE
+          if(control$MCMC.samplesize == control$MCMC.base.samplesize){
+            control$MCMC.samplesize <- control$MCMC.base.samplesize * control$MCMLE.last.boost
+            control$MCMC.effectiveSize <- NVL3(control$MCMC.effectiveSize, . * control$MCMLE.last.boost)
+            if(obs){
+              control.obs$MCMC.samplesize <- control.obs$MCMC.base.samplesize * control$MCMLE.last.boost
+              control.obs$MCMC.effectiveSize <- NVL3(control.obs$MCMC.effectiveSize, . * control$MCMLE.last.boost)
+            }
+          }
         }
       }else{
         last.adequate <- FALSE
@@ -461,8 +466,8 @@ ergm.MCMLE <- function(init, nw, model,
   # object returned by ergm.estimate.  Instead, it is more transparent
   # if we build the output object (v) from scratch, of course using 
   # some of the info returned from ergm.estimate.
-  v$sample <- ergm.sample.tomcmc(statsmatrix.0, control) 
-  if(obs) v$sample.obs <- ergm.sample.tomcmc(statsmatrix.0.obs, control)
+  v$sample <- ergm.sample.tomcmc(statsmatrix, control) 
+  if(obs) v$sample.obs <- ergm.sample.tomcmc(statsmatrix.obs, control)
   
   v$network <- nw.orig
   v$newnetworks <- nws.returned
