@@ -238,7 +238,18 @@ ergm.MCMLE <- function(init, nw, model,
                 newnetwork = nws.returned[[1]],
                 newnetworks = nws.returned)
       return(structure (l, class="ergm"))
-    } 
+    }
+
+
+    # Need to compute MCMC SE for "confidence" termination criterion
+    # if it has the possibility of terminating.
+    if(control$MCMLE.termination=='confidence'){
+      pprec <- diag(1/sqrt(control$MCMLE.MCMC.precision), nrow=ncol(esteq))
+      iVm <- pprec%*%ginv(cov(esteq) - NVL3(esteq.obs, cov(.), 0))%*%pprec
+      y <- NVL3(esteq.obs, colMeans(.), 0) - colMeans(esteq)
+      if(y%*%iVm%*%y<1) last.adequate <- TRUE
+    }
+      
 
     if(control$MCMLE.steplength=="adaptive"){
       if(verbose){message("Starting adaptive MCMLE Optimization...")}
@@ -541,6 +552,7 @@ ergm.MCMLE <- function(init, nw, model,
   x <- function(l) c(solve(I+l*WU, y)) # Singluar for negative reciprocals of eigenvalues of WiU.
   zerofn <- function(l) {x <- x(l); c(x%*%U%*%x)-1}
 
+  # For some reason, WU sometimes has 0i element in its eigenvalues.
   eig <- Re(eigen(WU, only.values=TRUE)$values)
   lmin <- -1/max(eig)+sqrt(.Machine$double.eps)
   l <- uniroot(zerofn, lower=lmin, upper=0)$root
