@@ -379,6 +379,42 @@ ergm.MCMLE <- function(init, nw, model,
       }else{
         last.adequate <- FALSE
       }
+    }else if(control$MCMLE.termination=='confidence'){
+      pprec <- diag(1/sqrt(control$MCMLE.MCMC.precision), nrow=ncol(esteq))
+      iVm <- pprec%*%ginv(cov(esteq) - NVL3(esteq.obs, cov(.), 0))%*%pprec
+      y <- NVL3(esteq.obs, colMeans(.), 0) - colMeans(esteq)
+      if(y%*%iVm%*%y>=1){ # Not within tolerance ellipsoid.
+        message("Estimating equations not within tolerance region.")
+      }else{
+        hotel <- try(approx.hotelling.diff.test(esteq, esteq.obs))
+        if(inherits(hotel, "try-error")){ # Within tolerance ellipsoid, but cannot be tested.
+          message("Unable to test for convergence; increasing sample size.")
+          control$MCMC.samplesize <- control$MCMC.samplesize * control$MCMLE.last.boost
+          control$MCMC.effectiveSize <- NVL3(control$MCMC.effectiveSize, . * control$MCMLE.last.boost)
+          if(obs){
+            control.obs$MCMC.samplesize <- control.obs$MCMC.samplesize * control$MCMLE.last.boost
+            control.obs$MCMC.effectiveSize <- NVL3(control.obs$MCMC.effectiveSize, . * control$MCMLE.last.boost)
+          }
+        }else{ # Within tolerance ellipsoid, can be tested.
+          T2 <- with(hotel, .ellipsoid_mahalanobis(estimate, covariance, iVm[!novar, !novar])) # Distance to the nearest point on the tolerance region boundary.
+          nonconv.pval <- .ptsq(T2, hotel$parameter["param"], hotel$parameter["df"], lower.tail=FALSE)
+          message("Convergence test p-value: ",nonconv.pval,". ", appendLF=FALSE)
+          if(nonconv.pval < 1-control$MCMLE.conv.confidence){
+            message("Converged with ",control$MCMLE.conv.confidence*100,"% confidence.")
+            break
+          }else{
+            message("Not converged with ",control$MCMLE.conv.confidence*100,"% confidence; increasing sample size.")
+            critval <- .qtsq(control$MCMLE.conv.confidence, hotel$parameter["param"], hotel$parameter["df"])
+            boost <- min((critval/T2),2) # I.e., we want to increase the denominator far enough to reach the critical value.
+            control$MCMC.samplesize <- control$MCMC.samplesize * boost
+            control$MCMC.effectiveSize <- NVL3(control$MCMC.effectiveSize, . * boost)
+            if(obs){
+              control.obs$MCMC.samplesize <- control.obs$MCMC.samplesize * boost
+              control.obs$MCMC.effectiveSize <- NVL3(control.obs$MCMC.effectiveSize, . * boost)
+            }
+          }
+        }
+      }
     }else if(!steplen.converged){ # If step length is less than its maximum, don't bother with precision stuff.
       last.adequate <- FALSE
       control$MCMC.samplesize <- control$MCMC.base.samplesize
@@ -489,9 +525,9 @@ ergm.MCMLE <- function(init, nw, model,
   v
 }
 
-#' Find the shortest `W`-weighted squared Mahalanobis distance from a point
-#' `y` to an ellipsoid defined by x'U x = 1, provided that `y` is in
-#' the interior of the ellipsoid.
+#' Find the shortest squared Mahalanobis distance (with covariance W)
+#' from a point `y` to an ellipsoid defined by `x'U x = 1`, provided
+#' that `y` is in the interior of the ellipsoid.
 #'
 #' @param y a vector
 #' @param W,U a square matrix
@@ -501,11 +537,13 @@ ergm.MCMLE <- function(init, nw, model,
   y <- c(y)
   if(y%*%U%*%y>=1) stop("Point is not in the interior of the ellipsoid.")
   I <- diag(length(y))
-  WiU <- solve(W, U)
-  x <- function(l) c(solve(I+l*WiU, y)) # Singluar for negative reciprocals of eigenvalues of WiU.
+  WU <- W%*%U
+  x <- function(l) c(solve(I+l*WU, y)) # Singluar for negative reciprocals of eigenvalues of WiU.
   zerofn <- function(l) {x <- x(l); c(x%*%U%*%x)-1}
 
-  l <- uniroot(zerofn, lower=-1/max(eigen(WiU, only.values=TRUE)$values), upper=0)$root
+  eig <- Re(eigen(WU, only.values=TRUE)$values)
+  lmin <- -1/max(eig)+sqrt(.Machine$double.eps)
+  l <- uniroot(zerofn, lower=lmin, upper=0)$root
   x <- x(l)
   (y-x)%*%W%*%(y-x)
 }

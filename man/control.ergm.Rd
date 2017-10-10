@@ -24,8 +24,9 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   SAN.packagenames = MCMC.packagenames, MPLE.max.dyad.types =
   MPLE.max.dyad.types, parallel = parallel, parallel.type = parallel.type,
   parallel.version.check = parallel.version.check),
-  MCMLE.termination = c("Hummel", "Hotelling", "precision", "none"),
-  MCMLE.maxit = 20, MCMLE.conv.min.pval = 0.5, MCMLE.NR.maxit = 100,
+  MCMLE.termination = c("Hummel", "Hotelling", "precision", "confidence",
+  "none"), MCMLE.maxit = 20, MCMLE.conv.min.pval = 0.5,
+  MCMLE.conv.confidence = 0.99, MCMLE.NR.maxit = 100,
   MCMLE.NR.reltol = sqrt(.Machine$double.eps), obs.MCMC.mul = 1/4,
   obs.MCMC.samplesize.mul = sqrt(obs.MCMC.mul),
   obs.MCMC.samplesize = round(MCMC.samplesize * obs.MCMC.samplesize.mul),
@@ -259,6 +260,12 @@ Note that this criterion is incompatible with
 \eqn{\code{MCMLE.steplength}\ne 1} or
 \eqn{\code{MCMLE.steplength.margin}=\code{NULL}}.
 \itemize{
+\item \code{"equivalence"}: Performs an equivalence test to prove with level
+of confidence \code{MCMLE.conv.confidence} that the true value of
+the deviation of the simulated mean value parameter from the
+observed is within an ellipsoid defined by the
+inverse-variance-covariance of the sufficient statistics multiplied
+by a scaling factor \code{control$MCMLE.MCMC.precision}.
 \item \code{"none"} Stop after
 \code{MCMLE.maxit} iterations.
 }}
@@ -270,6 +277,9 @@ current sample.}
 
 \item{MCMLE.conv.min.pval}{The P-value used in the Hotelling test for early
 termination.}
+
+\item{MCMLE.conv.confidence}{The confidence level for declaring
+convergence for \code{"confidence"} methods.}
 
 \item{MCMLE.NR.maxit, MCMLE.NR.reltol}{The method, maximum number of
 iterations and relative tolerance to use within the \code{optim} rountine in
