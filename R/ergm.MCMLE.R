@@ -238,7 +238,18 @@ ergm.MCMLE <- function(init, nw, model,
                 newnetwork = nws.returned[[1]],
                 newnetworks = nws.returned)
       return(structure (l, class="ergm"))
-    } 
+    }
+
+
+    # Need to compute MCMC SE for "confidence" termination criterion
+    # if it has the possibility of terminating.
+    if(control$MCMLE.termination=='confidence'){
+      pprec <- diag(1/sqrt(control$MCMLE.MCMC.precision), nrow=ncol(esteq))
+      iVm <- pprec%*%ginv(cov(esteq) - NVL3(esteq.obs, cov(.), 0))%*%pprec
+      estdiff <- NVL3(esteq.obs, colMeans(.), 0) - colMeans(esteq)
+      if(estdiff%*%iVm%*%estdiff<1) last.adequate <- TRUE
+    }
+      
 
     if(control$MCMLE.steplength=="adaptive"){
       if(verbose){message("Starting adaptive MCMLE Optimization...")}
@@ -379,6 +390,53 @@ ergm.MCMLE <- function(init, nw, model,
       }else{
         last.adequate <- FALSE
       }
+    }else if(control$MCMLE.termination=='confidence'){
+      d2 <- estdiff%*%iVm%*%estdiff
+      if(d2>=1){ # Not within tolerance ellipsoid.
+        message("Estimating equations are not within tolerance region.")
+        if(iteration>1){
+          d2.prev <- estdiff.prev%*%iVm%*%estdiff.prev
+          if(d2 > d2.prev){
+            message("Estimating equations did not move closer to tolerance region; increasing sample size.")
+            control$MCMC.samplesize <- control$MCMC.samplesize * control$MCMLE.confidence.boost
+            control$MCMC.effectiveSize <- NVL3(control$MCMC.effectiveSize, . * control$MCMLE.confidence.boost)
+            if(obs){
+              control.obs$MCMC.samplesize <- control.obs$MCMC.samplesize * control$MCMLE.confidence.boost
+              control.obs$MCMC.effectiveSize <- NVL3(control.obs$MCMC.effectiveSize, . * control$MCMLE.confidence.boost)
+            }
+          }
+        }
+      }else{
+        hotel <- try(approx.hotelling.diff.test(esteq, esteq.obs))
+        if(inherits(hotel, "try-error")){ # Within tolerance ellipsoid, but cannot be tested.
+          message("Unable to test for convergence; increasing sample size.")
+          control$MCMC.samplesize <- control$MCMC.samplesize * control$MCMLE.confidence.boost
+          control$MCMC.effectiveSize <- NVL3(control$MCMC.effectiveSize, . * control$MCMLE.confidence.boost)
+          if(obs){
+            control.obs$MCMC.samplesize <- control.obs$MCMC.samplesize * control$MCMLE.confidence.boost
+            control.obs$MCMC.effectiveSize <- NVL3(control.obs$MCMC.effectiveSize, . * control$MCMLE.confidence.boost)
+          }
+        }else{ # Within tolerance ellipsoid, can be tested.
+          T2 <- with(hotel, .ellipsoid_mahalanobis(estimate, covariance, iVm[!novar, !novar])) # Distance to the nearest point on the tolerance region boundary.
+          nonconv.pval <- .ptsq(T2, hotel$parameter["param"], hotel$parameter["df"], lower.tail=FALSE)
+          message("Convergence test p-value: ",nonconv.pval,". ", appendLF=FALSE)
+          if(nonconv.pval < 1-control$MCMLE.confidence){
+            message("Converged with ",control$MCMLE.confidence*100,"% confidence.")
+            break
+          }else{
+            message("Not converged with ",control$MCMLE.confidence*100,"% confidence; increasing sample size.")
+            critval <- .qtsq(control$MCMLE.confidence, hotel$parameter["param"], hotel$parameter["df"])
+            boost <- min((critval/T2),control$MCMLE.confidence.boost) # I.e., we want to increase the denominator far enough to reach the critical value.
+            control$MCMC.samplesize <- control$MCMC.samplesize * boost
+            control$MCMC.effectiveSize <- NVL3(control$MCMC.effectiveSize, . * boost)
+            if(obs){
+              control.obs$MCMC.samplesize <- control.obs$MCMC.samplesize * boost
+              control.obs$MCMC.effectiveSize <- NVL3(control.obs$MCMC.effectiveSize, . * boost)
+            }
+          }
+        }
+      }
+      estdiff.prev <- estdiff
     }else if(!steplen.converged){ # If step length is less than its maximum, don't bother with precision stuff.
       last.adequate <- FALSE
       control$MCMC.samplesize <- control$MCMC.base.samplesize
@@ -489,3 +547,26 @@ ergm.MCMLE <- function(init, nw, model,
   v
 }
 
+#' Find the shortest squared Mahalanobis distance (with covariance W)
+#' from a point `y` to an ellipsoid defined by `x'U x = 1`, provided
+#' that `y` is in the interior of the ellipsoid.
+#'
+#' @param y a vector
+#' @param W,U a square matrix
+#'
+#' @noRd
+.ellipsoid_mahalanobis <- function(y, W, U){
+  y <- c(y)
+  if(y%*%U%*%y>=1) stop("Point is not in the interior of the ellipsoid.")
+  I <- diag(length(y))
+  WU <- W%*%U
+  x <- function(l) c(solve(I+l*WU, y)) # Singluar for negative reciprocals of eigenvalues of WiU.
+  zerofn <- function(l) {x <- x(l); c(x%*%U%*%x)-1}
+
+  # For some reason, WU sometimes has 0i element in its eigenvalues.
+  eig <- Re(eigen(WU, only.values=TRUE)$values)
+  lmin <- -1/max(eig)+sqrt(.Machine$double.eps)
+  l <- uniroot(zerofn, lower=lmin, upper=0)$root
+  x <- x(l)
+  (y-x)%*%W%*%(y-x)
+}

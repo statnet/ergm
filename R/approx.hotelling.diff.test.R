@@ -19,7 +19,7 @@
 }
 
 .qtsq <- function(p, param, df, lower.tail = TRUE, log.p = FALSE){
-  fq <- qf(fq, param, df - param + 1, lower.tail=lower.tail, log.p=log.p)
+  fq <- qf(p, param, df - param + 1, lower.tail=lower.tail, log.p=log.p)
   fq / ((df - param + 1)/(param*df))
 }
 
@@ -178,7 +178,8 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
               null.value=mu0,
               alternative="two.sided",
               estimate = d,
-              covariance = vcov.d)
+              covariance = vcov.d,
+              novar = novar)
   class(out)<-"htest"
   out
 }

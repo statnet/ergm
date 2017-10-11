@@ -182,7 +182,15 @@
 #' 
 #' Note that this criterion is incompatible with
 #' \eqn{\code{MCMLE.steplength}\ne 1} or
-#' \eqn{\code{MCMLE.steplength.margin}=\code{NULL}}.  
+#' \eqn{\code{MCMLE.steplength.margin}=\code{NULL}}.
+#' 
+#' * `"confidence"`: Performs an equivalence test to prove with level
+#' of confidence \code{MCMLE.confidence} that the true value of
+#' the deviation of the simulated mean value parameter from the
+#' observed is within an ellipsoid defined by the
+#' inverse-variance-covariance of the sufficient statistics multiplied
+#' by a scaling factor `control$MCMLE.MCMC.precision`.
+#' 
 #' * `"none"` Stop after
 #' \code{MCMLE.maxit} iterations.  
 #' @param MCMLE.maxit Maximum number of times the parameter for the MCMC should
@@ -191,6 +199,12 @@
 #' current sample.
 #' @param MCMLE.conv.min.pval The P-value used in the Hotelling test for early
 #' termination.
+#' @param MCMLE.confidence The confidence level for declaring
+#'   convergence for `"confidence"` methods.
+#' @param MCMLE.confidence.boost The maximum increase factor in sample
+#'   size (or target effective size, if enabled) when the
+#'   `"confidence"` termination criterion is either not approaching
+#'   the tolerance region or is unable to prove convergence.
 #' @param MCMLE.NR.maxit,MCMLE.NR.reltol The method, maximum number of
 #' iterations and relative tolerance to use within the \code{optim} rountine in
 #' the MLE optimization. Note that by default, ergm uses \code{trust}, and
@@ -464,9 +478,11 @@ control.ergm<-function(drop=TRUE,
                          parallel.type=parallel.type,
                          parallel.version.check=parallel.version.check),
                        
-                       MCMLE.termination=c("Hummel", "Hotelling", "precision", "none"),
+                       MCMLE.termination=c("Hummel", "Hotelling", "precision", "confidence", "none"),
                        MCMLE.maxit=20,
                        MCMLE.conv.min.pval=0.5,
+                       MCMLE.confidence=0.99,
+                       MCMLE.confidence.boost=2,
                        MCMLE.NR.maxit=100,
                        MCMLE.NR.reltol=sqrt(.Machine$double.eps),
                        obs.MCMC.mul=1/4,
