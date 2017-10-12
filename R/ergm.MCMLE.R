@@ -275,14 +275,9 @@ ergm.MCMLE <- function(init, nw, model,
         last.adequate <- FALSE
         iVm <- NULL
       }else{
-        Vm.eig <- Re(eigen(Vm[!novar,!novar], symmetric=TRUE, only.values=TRUE)$values)
-        if(any(Vm.eig<=0)){
-          last.adequate <- FALSE
-          iVm <- NULL
-        }else{
-          iVm <- ginv(Vm)
-          if(estdiff%*%iVm%*%estdiff<1) last.adequate <- TRUE
-        }
+        Vm[!novar,!novar] <- as.matrix(nearPD(Vm[!novar,!novar])$mat) # Ensure tolerance hyperellipsoid is positive definite.
+        iVm <- ginv(Vm)
+        if(estdiff%*%iVm%*%estdiff<1) last.adequate <- TRUE
       }
     }
 
