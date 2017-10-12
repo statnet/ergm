@@ -148,6 +148,12 @@ ergm.MCMLE <- function(init, nw, model,
     }
     NULL
   }
+
+
+  if(control$MCMLE.termination=='confidence'){
+    estdiff.prev <- NULL
+  }
+
   
   # mcmc.init will change at each iteration.  It is the value that is used
   # to generate the MCMC samples.  init will never change.
@@ -420,7 +426,7 @@ ergm.MCMLE <- function(init, nw, model,
         d2 <- estdiff%*%iVm%*%estdiff
         if(d2>=1){ # Not within tolerance ellipsoid.
           message("Estimating equations are not within tolerance region.")
-          if(iteration>1){
+          if(!is.null(estdiff.prev)){
             d2.prev <- estdiff.prev%*%iVm%*%estdiff.prev
             if(d2 > d2.prev){
               message("Estimating equations did not move closer to tolerance region; increasing sample size.")
