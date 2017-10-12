@@ -64,7 +64,7 @@ ergm.MCMLE <- function(init, nw, model,
                              verbose=FALSE,
                              sequential=control$MCMLE.sequential,
                              estimate=TRUE,
-                             response=NULL, ...) {
+                       response=NULL, ...) {
   message("Starting Monte Carlo maximum likelihood estimation (MCMLE):")
   # Initialize the history of parameters and statistics.
   coef.hist <- rbind(init)
@@ -133,6 +133,22 @@ ergm.MCMLE <- function(init, nw, model,
     nws.obs <- lapply(nws, network::network.copy)
     statshifts.obs <- statshifts
   }
+
+  # A helper function to increase the MCMC sample size and target effective size by the specified factor.
+  .boost_samplesize <- function(boost, base=FALSE){
+    control <- get("control", parent.frame())
+    control$MCMC.samplesize <- round((if(base) control$MCMC.base.samplesize else control$MCMC.samplesize) * boost)
+    control$MCMC.effectiveSize <- NVL3((if(base) control$MCMC.base.effectiveSize else control$MCMC.effectiveSize), . * boost)
+    assign("control", control, parent.frame())
+    if(obs){
+      control.obs <- get("control.obs", parent.frame())
+      control.obs$MCMC.samplesize <- round((if(base) control.obs$MCMC.base.samplesize else control.obs$MCMC.samplesize) * boost)
+      control.obs$MCMC.effectiveSize <- NVL3((if(base) control.obs$MCMC.base.effectiveSize else control.obs$MCMC.effectiveSize), . * boost)
+      assign("control.obs", control.obs, parent.frame())
+    }
+    NULL
+  }
+  
   # mcmc.init will change at each iteration.  It is the value that is used
   # to generate the MCMC samples.  init will never change.
   mcmc.init <- init
@@ -244,12 +260,25 @@ ergm.MCMLE <- function(init, nw, model,
     # Need to compute MCMC SE for "confidence" termination criterion
     # if it has the possibility of terminating.
     if(control$MCMLE.termination=='confidence'){
-      pprec <- diag(1/sqrt(control$MCMLE.MCMC.precision), nrow=ncol(esteq))
-      iVm <- pprec%*%ginv(cov(esteq) - NVL3(esteq.obs, cov(.), 0))%*%pprec
       estdiff <- NVL3(esteq.obs, colMeans(.), 0) - colMeans(esteq)
-      if(estdiff%*%iVm%*%estdiff<1) last.adequate <- TRUE
+      pprec <- diag(sqrt(control$MCMLE.MCMC.precision), nrow=length(estdiff))
+      Vm <- pprec%*%(cov(esteq) - NVL3(esteq.obs, cov(.), 0))%*%pprec
+      novar <- diag(Vm) < sqrt(.Machine$double.eps)
+      if(any(abs(estdiff[novar]) > sqrt(.Machine$double.eps))){
+        # If any estimating function for which observed does not equal expected has no variability, don't continue.
+        last.adequate <- FALSE
+        iVm <- NULL
+      }else{
+        Vm.eig <- Re(eigen(Vm[!novar,!novar], symmetric=TRUE, only.values=TRUE)$values)
+        if(any(Vm.eig<=0)){
+          last.adequate <- FALSE
+          iVm <- NULL
+        }else{
+          iVm <- ginv(Vm)
+          if(estdiff%*%iVm%*%estdiff<1) last.adequate <- TRUE
+        }
+      }
     }
-      
 
     if(control$MCMLE.steplength=="adaptive"){
       if(verbose){message("Starting adaptive MCMLE Optimization...")}
@@ -378,73 +407,54 @@ ergm.MCMLE <- function(init, nw, model,
         }else{
           message("No nonconvergence detected once; increasing sample size if not already increased.")
           last.adequate <- TRUE
-          if(control$MCMC.samplesize == control$MCMC.base.samplesize){
-            control$MCMC.samplesize <- control$MCMC.base.samplesize * control$MCMLE.last.boost
-            control$MCMC.effectiveSize <- NVL3(control$MCMC.effectiveSize, . * control$MCMLE.last.boost)
-            if(obs){
-              control.obs$MCMC.samplesize <- control.obs$MCMC.base.samplesize * control$MCMLE.last.boost
-              control.obs$MCMC.effectiveSize <- NVL3(control.obs$MCMC.effectiveSize, . * control$MCMLE.last.boost)
-            }
-          }
+          .boost_samplesize(MCMLE.last.boost, TRUE)
         }
       }else{
         last.adequate <- FALSE
       }
     }else if(control$MCMLE.termination=='confidence'){
-      d2 <- estdiff%*%iVm%*%estdiff
-      if(d2>=1){ # Not within tolerance ellipsoid.
-        message("Estimating equations are not within tolerance region.")
-        if(iteration>1){
-          d2.prev <- estdiff.prev%*%iVm%*%estdiff.prev
-          if(d2 > d2.prev){
-            message("Estimating equations did not move closer to tolerance region; increasing sample size.")
-            control$MCMC.samplesize <- control$MCMC.samplesize * control$MCMLE.confidence.boost
-            control$MCMC.effectiveSize <- NVL3(control$MCMC.effectiveSize, . * control$MCMLE.confidence.boost)
-            if(obs){
-              control.obs$MCMC.samplesize <- control.obs$MCMC.samplesize * control$MCMLE.confidence.boost
-              control.obs$MCMC.effectiveSize <- NVL3(control.obs$MCMC.effectiveSize, . * control$MCMLE.confidence.boost)
-            }
-          }
-        }
+      if(is.null(iVm)){
+        message("Tolerance region could not be computed; increasing sample size.")
+        .boost_samplesize(control$MCMLE.confidence.boost)
       }else{
-        hotel <- try(approx.hotelling.diff.test(esteq, esteq.obs))
-        if(inherits(hotel, "try-error")){ # Within tolerance ellipsoid, but cannot be tested.
-          message("Unable to test for convergence; increasing sample size.")
-          control$MCMC.samplesize <- control$MCMC.samplesize * control$MCMLE.confidence.boost
-          control$MCMC.effectiveSize <- NVL3(control$MCMC.effectiveSize, . * control$MCMLE.confidence.boost)
-          if(obs){
-            control.obs$MCMC.samplesize <- control.obs$MCMC.samplesize * control$MCMLE.confidence.boost
-            control.obs$MCMC.effectiveSize <- NVL3(control.obs$MCMC.effectiveSize, . * control$MCMLE.confidence.boost)
+        d2 <- estdiff%*%iVm%*%estdiff
+        if(d2>=1){ # Not within tolerance ellipsoid.
+          message("Estimating equations are not within tolerance region.")
+          if(iteration>1){
+            d2.prev <- estdiff.prev%*%iVm%*%estdiff.prev
+            if(d2 > d2.prev){
+              message("Estimating equations did not move closer to tolerance region; increasing sample size.")
+              .boost_samplesize(control$MCMLE.confidence.boost)
+            }
           }
-        }else{ # Within tolerance ellipsoid, can be tested.
-          T2 <- with(hotel, .ellipsoid_mahalanobis(estimate, covariance, iVm[!novar, !novar])) # Distance to the nearest point on the tolerance region boundary.
-          nonconv.pval <- .ptsq(T2, hotel$parameter["param"], hotel$parameter["df"], lower.tail=FALSE)
-          message("Convergence test p-value: ",nonconv.pval,". ", appendLF=FALSE)
-          if(nonconv.pval < 1-control$MCMLE.confidence){
-            message("Converged with ",control$MCMLE.confidence*100,"% confidence.")
-            break
-          }else{
-            message("Not converged with ",control$MCMLE.confidence*100,"% confidence; increasing sample size.")
-            critval <- .qtsq(control$MCMLE.confidence, hotel$parameter["param"], hotel$parameter["df"])
-            boost <- min((critval/T2),control$MCMLE.confidence.boost) # I.e., we want to increase the denominator far enough to reach the critical value.
-            control$MCMC.samplesize <- control$MCMC.samplesize * boost
-            control$MCMC.effectiveSize <- NVL3(control$MCMC.effectiveSize, . * boost)
-            if(obs){
-              control.obs$MCMC.samplesize <- control.obs$MCMC.samplesize * boost
-              control.obs$MCMC.effectiveSize <- NVL3(control.obs$MCMC.effectiveSize, . * boost)
+        }else{
+          hotel <- try(approx.hotelling.diff.test(esteq, esteq.obs))
+          if(inherits(hotel, "try-error")){ # Within tolerance ellipsoid, but cannot be tested.
+            message("Unable to test for convergence; increasing sample size.")
+            .boost_samplesize(control$MCMLE.confidence.boost)
+          }else{ # Within tolerance ellipsoid, can be tested.
+            T2 <- with(hotel, .ellipsoid_mahalanobis(estimate, covariance, iVm[!novar, !novar])) # Distance to the nearest point on the tolerance region boundary.
+            nonconv.pval <- .ptsq(T2, hotel$parameter["param"], hotel$parameter["df"], lower.tail=FALSE)
+            if(verbose) message("Test statistic: T^2 = ",T2,", with ",
+                                hotel$parameter["param"], " free parameters and ",hotel$parameter["df"], " degrees of freedom.")
+            message("Convergence test p-value: ",nonconv.pval,". ", appendLF=FALSE)
+            if(nonconv.pval < 1-control$MCMLE.confidence){
+              message("Converged with ",control$MCMLE.confidence*100,"% confidence.")
+              break
+            }else{
+              message("Not converged with ",control$MCMLE.confidence*100,"% confidence; increasing sample size.")
+              critval <- .qtsq(control$MCMLE.confidence, hotel$parameter["param"], hotel$parameter["df"])
+              if(verbose) message(control$MCMLE.confidence*100,"% confidence critical value = ",critval,".")
+              boost <- min((critval/T2),control$MCMLE.confidence.boost) # I.e., we want to increase the denominator far enough to reach the critical value.
+              .boost_samplesize(boost)
             }
           }
         }
+        estdiff.prev <- estdiff
       }
-      estdiff.prev <- estdiff
     }else if(!steplen.converged){ # If step length is less than its maximum, don't bother with precision stuff.
       last.adequate <- FALSE
-      control$MCMC.samplesize <- control$MCMC.base.samplesize
-      control$MCMC.effectiveSize <- control$MCMC.base.effectiveSize
-      if(obs){
-        control.obs$MCMC.samplesize <- control.obs$MCMC.base.samplesize
-        control.obs$MCMC.effectiveSize <- control.obs$MCMC.base.effectiveSize
-      }
+      .boost_samplesize(1, TRUE)
     }else if(control$MCMLE.termination == "precision"){
       prec.loss <- (sqrt(diag(v$mc.cov+v$covar))-sqrt(diag(v$covar)))/sqrt(diag(v$mc.cov+v$covar))
       if(verbose){
@@ -498,12 +508,7 @@ ergm.MCMLE <- function(init, nw, model,
       }else{
         message("Step length converged once. Increasing MCMC sample size.")
         last.adequate <- TRUE
-        control$MCMC.samplesize <- control$MCMC.base.samplesize * control$MCMLE.last.boost
-        control$MCMC.effectiveSize <- NVL3(control$MCMC.effectiveSize, . * control$MCMLE.last.boost)
-        if(obs){
-          control.obs$MCMC.samplesize <- control.obs$MCMC.base.samplesize * control$MCMLE.last.boost
-          control.obs$MCMC.effectiveSize <- NVL3(control.obs$MCMC.effectiveSize, . * control$MCMLE.last.boost)
-        }
+        .boost_samplesize(control$MCMLE.last.boost, TRUE)
       }
     }
     
