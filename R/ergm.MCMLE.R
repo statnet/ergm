@@ -269,16 +269,9 @@ ergm.MCMLE <- function(init, nw, model,
       estdiff <- NVL3(esteq.obs, colMeans(.), 0) - colMeans(esteq)
       pprec <- diag(sqrt(control$MCMLE.MCMC.precision), nrow=length(estdiff))
       Vm <- pprec%*%(cov(esteq) - NVL3(esteq.obs, cov(.), 0))%*%pprec
-      novar <- diag(Vm) < sqrt(.Machine$double.eps)
-      if(any(abs(estdiff[novar]) > sqrt(.Machine$double.eps))){
-        # If any estimating function for which observed does not equal expected has no variability, don't continue.
-        last.adequate <- FALSE
-        iVm <- NULL
-      }else{
-        Vm[!novar,!novar] <- as.matrix(nearPD(Vm[!novar,!novar])$mat) # Ensure tolerance hyperellipsoid is positive definite.
-        iVm <- ginv(Vm)
-        if(estdiff%*%iVm%*%estdiff<1) last.adequate <- TRUE
-      }
+      Vm <- as.matrix(nearPD(Vm, posd.tol=0)$mat) # Ensure tolerance hyperellipsoid is PSD. (If it's not PD, the ellipsoid is workable, if flat.)
+      iVm <- ginv(Vm)
+      if(estdiff%*%iVm%*%estdiff<1) last.adequate <- TRUE
     }
 
     if(control$MCMLE.steplength=="adaptive"){
