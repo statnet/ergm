@@ -323,12 +323,12 @@ ergm.MCMLE <- function(init, nw, model,
           control$MCMLE.steplength.margin, control$MCMLE.steplength,point.gamma.exp=control$MCMLE.steplength.point.exp,steplength.prev=steplen,x1.prefilter=control$MCMLE.steplength.prefilter,x2.prefilter=control$MCMLE.steplength.prefilter,verbose=verbose,
           x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit,
           last=(iteration==control$MCMLE.maxit))
-      
+
         # If the step length margin is negative and signals convergence,
         # rerun with margin of 0 and use the results to test
         # convergence.
         steplen0 <-
-          if(control$MCMLE.steplength.margin<0 && control$MCMLE.steplength==steplen)
+          if(control$MCMLE.termination%in%c("precision","Hummel") && control$MCMLE.steplength.margin<0 && control$MCMLE.steplength==steplen)
             .Hummel.steplength(
               if(control$MCMLE.Hummel.esteq) esteq else statsmatrix[,!model$etamap$offsetmap,drop=FALSE], 
               if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.obs[,!model$etamap$offsetmap,drop=FALSE],
@@ -567,5 +567,5 @@ ergm.MCMLE <- function(init, nw, model,
   lmin <- -1/max(eig)+sqrt(.Machine$double.eps)
   l <- uniroot(zerofn, lower=lmin, upper=0)$root
   x <- x(l)
-  (y-x)%*%W%*%(y-x)
+  (y-x)%*%solve(W)%*%(y-x)
 }

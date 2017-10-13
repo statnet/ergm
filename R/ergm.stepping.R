@@ -340,7 +340,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   low <- 0
   g <- high <- steplength.max # We start at the maximum, because we need to first check that we've already arrived.
   i <- 0
-  while(i < steplength.maxit & abs(high-low)>0.001){
+  while(i < steplength.maxit & abs(high-low)>0.01){
    z=passed(g)
    if(z){
     low <- g

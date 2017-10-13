@@ -519,7 +519,7 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.last.boost=4,
                        MCMLE.Hummel.esteq=TRUE, 
                        MCMLE.Hummel.miss.sample=100,
-                       MCMLE.Hummel.maxit=25, 
+                       MCMLE.Hummel.maxit=if(MCMLE.steplength.margin<0) 5 else 25,
                        MCMLE.steplength.min=0.0001,
                        
                        SA.phase1_n=NULL, SA.initial_gain=NULL, 
