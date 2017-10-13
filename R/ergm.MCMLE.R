@@ -271,7 +271,8 @@ ergm.MCMLE <- function(init, nw, model,
       Vm <- pprec%*%(cov(esteq) - NVL3(esteq.obs, cov(.), 0))%*%pprec
       Vm <- as.matrix(nearPD(Vm, posd.tol=0)$mat) # Ensure tolerance hyperellipsoid is PSD. (If it's not PD, the ellipsoid is workable, if flat.)
       iVm <- ginv(Vm)
-      if(estdiff%*%iVm%*%estdiff<1) last.adequate <- TRUE
+      d2 <- estdiff%*%iVm%*%estdiff
+      if(d2<1) last.adequate <- TRUE
     }
 
     if(control$MCMLE.steplength=="adaptive"){
@@ -411,11 +412,11 @@ ergm.MCMLE <- function(init, nw, model,
         message("Tolerance region could not be computed; increasing sample size.")
         .boost_samplesize(control$MCMLE.confidence.boost)
       }else{
-        d2 <- estdiff%*%iVm%*%estdiff
         if(d2>=1){ # Not within tolerance ellipsoid.
           message("Estimating equations are not within tolerance region.")
           if(!is.null(estdiff.prev)){
             d2.prev <- estdiff.prev%*%iVm%*%estdiff.prev
+            if(verbose) message("Distance from origin on tolerance region scale: ", d2, " (previously ", d2.prev, ").")
             if(d2 > d2.prev){
               message("Estimating equations did not move closer to tolerance region; increasing sample size.")
               .boost_samplesize(control$MCMLE.confidence.boost)

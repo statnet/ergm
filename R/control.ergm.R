@@ -185,11 +185,11 @@
 #' \eqn{\code{MCMLE.steplength.margin}=\code{NULL}}.
 #' 
 #' * `"confidence"`: Performs an equivalence test to prove with level
-#' of confidence \code{MCMLE.confidence} that the true value of
-#' the deviation of the simulated mean value parameter from the
-#' observed is within an ellipsoid defined by the
-#' inverse-variance-covariance of the sufficient statistics multiplied
-#' by a scaling factor `control$MCMLE.MCMC.precision`.
+#' of confidence \code{MCMLE.confidence} that the true value of the
+#' deviation of the simulated mean value parameter from the observed
+#' is within an ellipsoid defined by the inverse-variance-covariance
+#' of the sufficient statistics multiplied by a scaling factor
+#' `control$MCMLE.MCMC.precision` (which has a different default).
 #' 
 #' * `"none"` Stop after
 #' \code{MCMLE.maxit} iterations.  
@@ -496,7 +496,7 @@ control.ergm<-function(drop=TRUE,
                        obs.MCMC.prop.weights=MCMC.prop.weights, obs.MCMC.prop.args=MCMC.prop.args,
 
                        MCMLE.check.degeneracy=FALSE,
-                       MCMLE.MCMC.precision=0.005,
+                       MCMLE.MCMC.precision=if(startsWith("confidence", MCMLE.termination)) 0.1 else 0.005,
                        MCMLE.MCMC.max.ESS.frac=0.1,
                        MCMLE.metric=c("lognormal", "logtaylor",
                          "Median.Likelihood",
