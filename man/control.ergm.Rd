@@ -37,13 +37,13 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   obs.MCMC.burnin = round(MCMC.burnin * obs.MCMC.burnin.mul),
   obs.MCMC.prop.weights = MCMC.prop.weights,
   obs.MCMC.prop.args = MCMC.prop.args, MCMLE.check.degeneracy = FALSE,
-  MCMLE.MCMC.precision = 0.005, MCMLE.MCMC.max.ESS.frac = 0.1,
-  MCMLE.metric = c("lognormal", "logtaylor", "Median.Likelihood",
-  "EF.Likelihood", "naive"), MCMLE.method = c("BFGS", "Nelder-Mead"),
-  MCMLE.trustregion = 20, MCMLE.dampening = FALSE,
-  MCMLE.dampening.min.ess = 20, MCMLE.dampening.level = 0.1,
-  MCMLE.steplength.margin = 0.05, MCMLE.steplength.point.exp = 1,
-  MCMLE.steplength.prefilter = FALSE,
+  MCMLE.MCMC.precision = if (startsWith("confidence", MCMLE.termination)) 0.1
+  else 0.005, MCMLE.MCMC.max.ESS.frac = 0.1, MCMLE.metric = c("lognormal",
+  "logtaylor", "Median.Likelihood", "EF.Likelihood", "naive"),
+  MCMLE.method = c("BFGS", "Nelder-Mead"), MCMLE.trustregion = 20,
+  MCMLE.dampening = FALSE, MCMLE.dampening.min.ess = 20,
+  MCMLE.dampening.level = 0.1, MCMLE.steplength.margin = 0.05,
+  MCMLE.steplength.point.exp = 1, MCMLE.steplength.prefilter = FALSE,
   MCMLE.steplength = NVL2(MCMLE.steplength.margin, 1, 0.5),
   MCMLE.adaptive.trustregion = 3, MCMLE.sequential = TRUE,
   MCMLE.density.guard.min = 10000, MCMLE.density.guard = exp(3),
@@ -261,11 +261,11 @@ Note that this criterion is incompatible with
 \eqn{\code{MCMLE.steplength.margin}=\code{NULL}}.
 \itemize{
 \item \code{"confidence"}: Performs an equivalence test to prove with level
-of confidence \code{MCMLE.confidence} that the true value of
-the deviation of the simulated mean value parameter from the
-observed is within an ellipsoid defined by the
-inverse-variance-covariance of the sufficient statistics multiplied
-by a scaling factor \code{control$MCMLE.MCMC.precision}.
+of confidence \code{MCMLE.confidence} that the true value of the
+deviation of the simulated mean value parameter from the observed
+is within an ellipsoid defined by the inverse-variance-covariance
+of the sufficient statistics multiplied by a scaling factor
+\code{control$MCMLE.MCMC.precision} (which has a different default).
 \item \code{"none"} Stop after
 \code{MCMLE.maxit} iterations.
 }}
