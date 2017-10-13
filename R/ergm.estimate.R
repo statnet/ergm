@@ -203,7 +203,13 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
       (metric=="lognormal" || metric=="Likelihood")) {
     if (obsprocess) {
       if (verbose) { message("Using log-normal approx with missing (no optim)") }
-      Lout <- list(hessian = -(V-V.obs))
+      # Here, setting posd.tol=0 ensures that the matrix is
+      # nonnegative-definite: it is possible for some simulated
+      # statistics not to change, but it is not possible for the
+      # constrained sample to have a higher variance than the
+      # unconstrained.
+      #' @importFrom Matrix nearPD
+      Lout <- list(hessian = -as.matrix(nearPD(V-V.obs,posd.tol=0)$mat))
     } else {
       if (verbose) { message("Using log-normal approx (no optim)") }
       Lout <- list(hessian = -V)

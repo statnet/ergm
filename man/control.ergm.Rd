@@ -26,9 +26,9 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   parallel.version.check = parallel.version.check),
   MCMLE.termination = c("Hummel", "Hotelling", "precision", "confidence",
   "none"), MCMLE.maxit = 20, MCMLE.conv.min.pval = 0.5,
-  MCMLE.conv.confidence = 0.99, MCMLE.NR.maxit = 100,
-  MCMLE.NR.reltol = sqrt(.Machine$double.eps), obs.MCMC.mul = 1/4,
-  obs.MCMC.samplesize.mul = sqrt(obs.MCMC.mul),
+  MCMLE.confidence = 0.99, MCMLE.confidence.boost = 2,
+  MCMLE.NR.maxit = 100, MCMLE.NR.reltol = sqrt(.Machine$double.eps),
+  obs.MCMC.mul = 1/4, obs.MCMC.samplesize.mul = sqrt(obs.MCMC.mul),
   obs.MCMC.samplesize = round(MCMC.samplesize * obs.MCMC.samplesize.mul),
   obs.MCMC.effectiveSize = NVL3(MCMC.effectiveSize, . * obs.MCMC.mul),
   obs.MCMC.interval.mul = sqrt(obs.MCMC.mul),
@@ -260,8 +260,8 @@ Note that this criterion is incompatible with
 \eqn{\code{MCMLE.steplength}\ne 1} or
 \eqn{\code{MCMLE.steplength.margin}=\code{NULL}}.
 \itemize{
-\item \code{"equivalence"}: Performs an equivalence test to prove with level
-of confidence \code{MCMLE.conv.confidence} that the true value of
+\item \code{"confidence"}: Performs an equivalence test to prove with level
+of confidence \code{MCMLE.confidence} that the true value of
 the deviation of the simulated mean value parameter from the
 observed is within an ellipsoid defined by the
 inverse-variance-covariance of the sufficient statistics multiplied
@@ -278,8 +278,13 @@ current sample.}
 \item{MCMLE.conv.min.pval}{The P-value used in the Hotelling test for early
 termination.}
 
-\item{MCMLE.conv.confidence}{The confidence level for declaring
+\item{MCMLE.confidence}{The confidence level for declaring
 convergence for \code{"confidence"} methods.}
+
+\item{MCMLE.confidence.boost}{The maximum increase factor in sample
+size (or target effective size, if enabled) when the
+\code{"confidence"} termination criterion is either not approaching
+the tolerance region or is unable to prove convergence.}
 
 \item{MCMLE.NR.maxit, MCMLE.NR.reltol}{The method, maximum number of
 iterations and relative tolerance to use within the \code{optim} rountine in
