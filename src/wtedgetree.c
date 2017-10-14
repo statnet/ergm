@@ -911,35 +911,14 @@ Edge WtEdgeTree2EdgeList(Vertex *tails, Vertex *heads, double *weights, WtNetwor
   Edge nextedge=0;
 
   /* *** don't forget,  tail -> head */
-  if (nwp->directed_flag) {
-    for (Vertex v=1; v<=nwp->nnodes; v++){
-      for(Vertex e = WtEdgetreeMinimum(nwp->outedges, v);
-      nwp->outedges[e].value != 0 && nextedge < nmax;
-      e = WtEdgetreeSuccessor(nwp->outedges, e)){
-        tails[nextedge] = v;
-        heads[nextedge] = nwp->outedges[e].value;
-	if(weights) weights[nextedge] = nwp->outedges[e].weight;
-        nextedge++;
-      }
-    }
-  }else{
-    for (Vertex v=1; v<=nwp->nnodes; v++){
-      for(Vertex e = WtEdgetreeMinimum(nwp->outedges, v);
-      nwp->outedges[e].value != 0 && nextedge < nmax;
-      e = WtEdgetreeSuccessor(nwp->outedges, e)){
-        Vertex k = nwp->outedges[e].value;
-        if(v < k){
-          tails[nextedge] = k;
-          heads[nextedge] = v;
-	  if(weights) weights[nextedge] = nwp->outedges[e].weight;
-          nextedge++;
-        }else{
-          tails[nextedge] = v;
-          heads[nextedge] = k;
-	  if(weights) weights[nextedge] = nwp->outedges[e].weight;
-          nextedge++;
-        }
-      }
+  for (Vertex v=1; v<=nwp->nnodes; v++){
+    for(Vertex e = WtEdgetreeMinimum(nwp->outedges, v);
+	nwp->outedges[e].value != 0 && nextedge < nmax;
+	e = WtEdgetreeSuccessor(nwp->outedges, e)){
+      tails[nextedge] = v;
+      heads[nextedge] = nwp->outedges[e].value;
+      if(weights) weights[nextedge] = nwp->outedges[e].weight;
+      nextedge++;
     }
   }
   return nextedge;

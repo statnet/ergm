@@ -815,32 +815,13 @@ Edge EdgeTree2EdgeList(Vertex *tails, Vertex *heads, Network *nwp, Edge nmax){
   Edge nextedge=0;
 
   /* *** don't forget,  tail -> head */
-  if (nwp->directed_flag) {
-    for (Vertex v=1; v<=nwp->nnodes; v++){
-      for(Vertex e = EdgetreeMinimum(nwp->outedges, v);
-      nwp->outedges[e].value != 0 && nextedge < nmax;
-      e = EdgetreeSuccessor(nwp->outedges, e)){
-        tails[nextedge] = v;
-        heads[nextedge] = nwp->outedges[e].value;
-        nextedge++;
-      }
-    }
-  }else{
-    for (Vertex v=1; v<=nwp->nnodes; v++){
-      for(Vertex e = EdgetreeMinimum(nwp->outedges, v);
-      nwp->outedges[e].value != 0 && nextedge < nmax;
-      e = EdgetreeSuccessor(nwp->outedges, e)){
-        Vertex k = nwp->outedges[e].value;
-        if(v < k){
-          tails[nextedge] = k;
-          heads[nextedge] = v;
-          nextedge++;
-        }else{
-          tails[nextedge] = v;
-          heads[nextedge] = k;
-          nextedge++;
-        }
-      }
+  for (Vertex v=1; v<=nwp->nnodes; v++){
+    for(Vertex e = EdgetreeMinimum(nwp->outedges, v);
+	nwp->outedges[e].value != 0 && nextedge < nmax;
+	e = EdgetreeSuccessor(nwp->outedges, e)){
+      tails[nextedge] = v;
+      heads[nextedge] = nwp->outedges[e].value;
+      nextedge++;
     }
   }
   return nextedge;
