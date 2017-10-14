@@ -4,16 +4,19 @@
 \alias{newnw.extract}
 \title{Internal function to create a new network from the ergm MCMC sample output}
 \usage{
-newnw.extract(oldnw, z, output = "network", response = NULL)
+newnw.extract(oldnw, z = NULL, output = "network", response = NULL)
 }
 \arguments{
 \item{oldnw}{a network object (presumably input to the ergm process) from
 which the network- and vertex-level attributes will be copied}
 
-\item{z}{a list having either a component named \code{newedgelist} or two
-components \code{newtails} and \code{newheads} containing the ids of the
-head and tails vertices of the edges.  Optionall \code{newweights}
-containing edgewights.}
+\item{z}{a list having either a component named \code{newedgelist}
+or two components \code{newtails} and \code{newheads} containing
+the ids of the head and tails vertices of the edges. Optionally,
+it may also contain \code{newweights}, containing edgewights. If
+not passed, \code{newnw.extract} searches for an \code{.update} network
+attribute on \code{oldnw} and attempts to use that instead, deleting
+it from the returned network.}
 
 \item{output}{passed to \code{\link{network.update}}, which claims not to
 use it}

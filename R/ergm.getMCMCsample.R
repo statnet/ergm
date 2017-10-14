@@ -32,21 +32,30 @@
 #'   [control.ergm()].
 #' @param verbose verbosity level.
 #' @template response
+#' @param update.nws whether to actually update the network state or
+#'   to return an object "promising" to update the network.
 #' @param ... additional arugments.
+#'
 #' @return
 #' \code{ergm.getMCMCsample} returns a list
 #'   containing:
 #' \item{statsmatrices}{a list of stats matrices for the
 #'   sampled networks, relative to the original network, one for each thread.}
-#' \item{newnetwork}{a list of final sampled networks, one for each thread.}
+#' \item{newnetworks}{a list of final sampled networks, one for each thread.}
 #' \item{statsmatrix}{combined stats matrix for the
 #'   sampled networks, relative to the original network.}
 #' \item{newnetwork}{the final sampled network from the first (or only) thread.}
 #' \item{status}{status code, propagated from `ergm.mcmcslave`.}
 #' \item{final.interval}{adaptively determined MCMC interval.}
+#'
+#' If `update.nws==FALSE`, rather than returning the updated networks,
+#' the function will remove all edges from the input networks, attach
+#' a network attribute `.update` with the new edge information, and
+#' change class name to prevent the resulting object from being
+#' accessed or modified by functions that do not understand it.
 #' @export ergm.getMCMCsample
 ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control, 
-                                        verbose, response=NULL, ...) {
+                                        verbose=FALSE, response=NULL, update.nws = TRUE,...) {
   nthreads <- max(
     if(inherits(control$parallel,"cluster")) nrow(summary(control$parallel))
     else control$parallel,
@@ -181,9 +190,19 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
       }
     
     statsmatrices[[i]] <- z$s
-    
-    newnetworks[[i]]<-newnw.extract(nws[[i]],z,
-                                    response=response,output=control.parallel$network.output)
+
+    if(update.nws){
+      newnetworks[[i]] <- newnw.extract(nws[[i]],z, response=response,
+                                        output=control.parallel$network.output)
+    }else{
+      if(length(newnetworks)<i) newnetworks[[i]] <- nws[[i]]
+      class(newnetworks[[i]]) <- "network"
+      if(network.edgecount(newnetworks[[i]])!=0) newnetworks[[i]] <- empty_network(newnetworks[[i]])
+      newnetworks[[i]]%n%".update" <- z[c("newnwtails","newnwheads","newnwweights")]
+      # Make sure that nobody treats this as an actual network object
+      # by mistake.
+      class(newnetworks[[i]]) <- "pending_update_network"
+    }
     final.interval <- c(final.interval, z$final.interval)
   }
   newnetwork<-newnetworks[[1]]

@@ -199,8 +199,37 @@ function(x, alternative = c("two.sided", "less", "greater"),
     return(rval)
 }
 
-# generate a network object from the edgelist output of the mcmc sample
+.extract_z_edgelist <- function(z, response=NULL){
+  # if z has a newedgelist attached, use it
+  if("newedgelist" %in% names(z)){
+    newedgelist<-z$newedgelist[,1:2,drop=FALSE]
+    if(!is.null(response))
+      newnwweights<-z$newedgelist[,3]
+  }else{
+    # expect that z will have seperate lists of heads and tails
+    nedges<-z$newnwtails[1]
+    # *** don't forget - edgelists are cbind(tails, heads) now
+    newedgelist <-
+      if(nedges>0) cbind(z$newnwtails[2:(nedges+1)],z$newnwheads[2:(nedges+1)])
+      else matrix(0, ncol=2, nrow=0)
+    newnwweights <- z$newnwweights[2:(nedges+1)]
+    newedgelist <- cbind(newedgelist, newnwweights)
+  }
+  newedgelist
+}
 
+#' @method as.edgelist pending_update_network
+as.edgelist.pending_update_network <- function(x,attrname=NULL,...){
+  class(x) <- "network"
+  e <- .extract_z_edgelist(x%n%".update", response=attrname)
+  if(length(e)!=0) e <- e[order(e[,1],e[,2]),,drop=FALSE]
+  attr(e, "n") <- network.size(x)
+  attr(e, "vnames") <- x%v%"vertex.names"
+  attr(e, "directed") <- is.directed(x)
+  attr(e, "bipartite") <- x%n%"bipartite"
+  attr(e, "loops") <- has.loops(x)
+  e
+}
 
 #' Internal function to create a new network from the ergm MCMC sample output
 #' 
@@ -211,10 +240,13 @@ function(x, alternative = c("two.sided", "less", "greater"),
 #' 
 #' @param oldnw a network object (presumably input to the ergm process) from
 #' which the network- and vertex-level attributes will be copied
-#' @param z a list having either a component named \code{newedgelist} or two
-#' components \code{newtails} and \code{newheads} containing the ids of the
-#' head and tails vertices of the edges.  Optionall \code{newweights}
-#' containing edgewights.
+#' @param z a list having either a component named \code{newedgelist}
+#'   or two components \code{newtails} and \code{newheads} containing
+#'   the ids of the head and tails vertices of the edges. Optionally,
+#'   it may also contain \code{newweights}, containing edgewights. If
+#'   not passed, `newnw.extract` searches for an `.update` network
+#'   attribute on `oldnw` and attempts to use that instead, deleting
+#'   it from the returned network.
 #' @param output passed to \code{\link{network.update}}, which claims not to
 #' use it
 #' @param response optional character string giving the name of the edge
@@ -227,24 +259,18 @@ function(x, alternative = c("two.sided", "less", "greater"),
 #' \code{\link{network.edgelist}}
 #' @seealso \code{\link{network.edgelist}}, \code{\link{network.update}}
 #' @export newnw.extract
-newnw.extract<-function(oldnw,z,output="network",response=NULL){
-  # if z has a newedgelist attached, use it
-  if("newedgelist" %in% names(z)){
-    newedgelist<-z$newedgelist[,1:2,drop=FALSE]
-    if(!is.null(response))
-       newnwweights<-z$newedgelist[,3]
-  }else{
-    # expect that z will have seperate lists of heads and tails
-    nedges<-z$newnwtails[1]
-    # *** don't forget - edgelists are cbind(tails, heads) now
-    newedgelist <-
-      if(nedges>0) cbind(z$newnwtails[2:(nedges+1)],z$newnwheads[2:(nedges+1)])
-      else matrix(0, ncol=2, nrow=0)
-    newnwweights <- z$newnwweights[2:(nedges+1)]
+newnw.extract<-function(oldnw,z=NULL,output="network",response=NULL){
+  if(is(oldnw,"pending_update_network") && is.null(z)){
+    class(oldnw) <- "network"
+    z <- oldnw%n%".update"
+    delete.network.attribute(oldnw, ".update")
   }
+
+  newedgelist <- .extract_z_edgelist(z, response)
   
   newnw<-network.update(oldnw,newedgelist,matrix.type="edgelist",output=output)
   if(!is.null(response)){
+    newnwweights <- newedgelist[,3]
     # It's very important that the order of weights here is the same
     # as the one that network accepts.
     newnw<-set.edge.attribute(newnw,attrname=response,newnwweights,e=apply(newedgelist,1,function(e) get.edgeIDs(newnw,e[1],e[2])))

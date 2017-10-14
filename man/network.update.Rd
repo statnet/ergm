@@ -2,7 +2,7 @@
 % Please edit documentation in R/network.update.R
 \name{network.update}
 \alias{network.update}
-\title{Replaces the sociomatrix in a network object}
+\title{Replace the sociomatrix in a network object}
 \usage{
 network.update(nw, newmatrix, matrix.type = NULL, output = "network",
   ignore.nattr = c("bipartite", "directed", "hyper", "loops", "mnext",

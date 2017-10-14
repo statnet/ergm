@@ -35,9 +35,28 @@
 #
 ###############################################################################
 
+#' Create an empty copy of a network object
+#' 
+#' Initializes an empty network with the same vertex and network
+#' attributes as the original network, but no edges.
+#'
+#' @param nw a [`network`] object
+#' @param ignore.nattr character vector of the names of network-level
+#'   attributes to ignore when updating network objects (defaults to
+#'   standard network properties)
+#' @param ignore.vattr character vector of the names of vertex-level
+#'   attributes to ignore when updating network objects
+empty_network <- function(nw, ignore.nattr=c("bipartite","directed","hyper","loops","mnext","multiple","n"), ignore.vattr=c()){
+  if(network.edgecount(nw)==0) return(nw)
+  
+  unw <- network.initialize(n=network.size(nw), directed = is.directed(nw), hyper = is.hyper(nw), loops = has.loops(nw),
+         multiple = is.multiplex(nw), bipartite = nw %n% "bipartite")
+  for(a in setdiff(list.network.attributes(nw),ignore.nattr)) unw <- set.network.attribute(unw, a, get.network.attribute(nw, a, unlist=FALSE))
+  for(a in setdiff(list.vertex.attributes(nw),ignore.vattr)) unw <- set.vertex.attribute(unw, a, get.vertex.attribute(nw, a, unlist=FALSE))
+  unw
+}
 
-
-#' Replaces the sociomatrix in a network object
+#' Replace the sociomatrix in a network object
 #' 
 #' Replaces the edges in a network object with the edges corresponding
 #' to the sociomatrix specified by \code{newmatrix}.  See
@@ -85,11 +104,7 @@
 #' 
 #' @export network.update
 network.update<-function(nw, newmatrix, matrix.type=NULL, output="network", ignore.nattr=c("bipartite","directed","hyper","loops","mnext","multiple","n"), ignore.vattr=c()){
-  unw <- network.initialize(n=network.size(nw), directed = is.directed(nw), hyper = is.hyper(nw), loops = has.loops(nw),
-         multiple = is.multiplex(nw), bipartite = nw %n% "bipartite")
-  for(a in setdiff(list.network.attributes(nw),ignore.nattr)) unw <- set.network.attribute(unw, a, get.network.attribute(nw, a, unlist=FALSE))
-  for(a in setdiff(list.vertex.attributes(nw),ignore.vattr)) unw <- set.vertex.attribute(unw, a, get.vertex.attribute(nw, a, unlist=FALSE))
-
+  unw <- empty_network(nw, ignore.nattr=ignore.nattr, ignore.vattr=ignore.vattr)
 
   if(is.null(matrix.type)){
     warning("Don't leave matrix type to chance! Pass matrix.type to network.update!")
