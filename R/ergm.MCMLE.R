@@ -186,11 +186,11 @@ ergm.MCMLE <- function(init, nw, model,
     
     if(sequential) {
       nws <- nws.returned
-      statshifts <- lapply(nws, function(nw) summary(model$formula, basis=nw, response=response) - model$target.stats)
+      statshifts <- lapply(statsmatrices, function(sm) sm[nrow(sm),])
       
       if(obs){
         nws.obs <- nws.obs.returned
-        statshifts.obs <- lapply(nws.obs, function(nw.obs) summary(model$formula, basis=nw.obs, response=response) - model$target.stats)
+        statshifts.obs <- lapply(statsmatrices.obs, function(sm) sm[nrow(sm),])
       }      
     }
 
