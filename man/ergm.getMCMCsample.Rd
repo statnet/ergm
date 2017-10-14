@@ -5,8 +5,8 @@
 \alias{ergm.mcmcslave}
 \title{Internal Function to Sample Networks and Network Statistics}
 \usage{
-ergm.getMCMCsample(nw, model, MHproposal, eta0, control, verbose,
-  response = NULL, ...)
+ergm.getMCMCsample(nw, model, MHproposal, eta0, control, verbose = FALSE,
+  response = NULL, update.nws = TRUE, ...)
 
 ergm.mcmcslave(Clist, MHproposal, eta0, control, verbose, ...,
   prev.run = NULL, burnin = NULL, samplesize = NULL, interval = NULL,
@@ -33,6 +33,9 @@ Metropolis-Hastings proposals and the result of calling
 modeled in the valued ERGM framework. Defaults to \code{NULL} for
 simple presence or absence, modeled via a binary ERGM.}
 
+\item{update.nws}{whether to actually update the network state or
+to return an object "promising" to update the network.}
+
 \item{...}{additional arugments.}
 
 \item{Clist}{the list of parameters returned by
@@ -49,12 +52,18 @@ be used to temporarily override those in the \code{control} list.}
 containing:
 \item{statsmatrices}{a list of stats matrices for the
 sampled networks, relative to the original network, one for each thread.}
-\item{newnetwork}{a list of final sampled networks, one for each thread.}
+\item{newnetworks}{a list of final sampled networks, one for each thread.}
 \item{statsmatrix}{combined stats matrix for the
 sampled networks, relative to the original network.}
 \item{newnetwork}{the final sampled network from the first (or only) thread.}
 \item{status}{status code, propagated from \code{ergm.mcmcslave}.}
 \item{final.interval}{adaptively determined MCMC interval.}
+
+If \code{update.nws==FALSE}, rather than returning the updated networks,
+the function will remove all edges from the input networks, attach
+a network attribute \code{.update} with the new edge information, and
+change class name to prevent the resulting object from being
+accessed or modified by functions that do not understand it.
 
 \code{ergm.mcmcslave} returns the MCMC sample as a list of
 the following: \item{s}{the matrix of statistics.}
