@@ -403,7 +403,7 @@ ergm.MCMLE <- function(init, nw, model,
         }else{
           message("No nonconvergence detected once; increasing sample size if not already increased.")
           last.adequate <- TRUE
-          .boost_samplesize(MCMLE.last.boost, TRUE)
+          .boost_samplesize(control$MCMLE.last.boost, TRUE)
         }
       }else{
         last.adequate <- FALSE
