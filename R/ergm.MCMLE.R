@@ -172,7 +172,7 @@ ergm.MCMLE <- function(init, nw, model,
 
     # Obtain MCMC sample
     mcmc.eta0 <- ergm.eta(mcmc.init, model$etamap)
-    z <- ergm.getMCMCsample(nws, model, MHproposal, mcmc.eta0, control, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
+    z <- ergm.getMCMCsample(nws, model, MHproposal, mcmc.eta0, control, verbose, response=response, theta=mcmc.init, etamap=model$etamap, update.nws=FALSE)
         
     if(z$status==1) stop("Number of edges in a simulated network exceeds that in the observed by a factor of more than ",floor(control$MCMLE.density.guard),". This is a strong indicator of model degeneracy or a very poor starting parameter configuration. If you are reasonably certain that neither of these is the case, increase the MCMLE.density.guard control.ergm() parameter.")
         
@@ -184,7 +184,7 @@ ergm.MCMLE <- function(init, nw, model,
     # parameters that will give a mean vector of zero)
     statsmatrices <- mapply(sweep, z$statsmatrices, statshifts, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
     for(i in seq_along(statsmatrices)) colnames(statsmatrices[[i]]) <- model$coef.names
-    nws.returned <- lapply(z$newnetworks,network::network.copy)
+    nws.returned <- z$newnetworks
     statsmatrix <- do.call(rbind,statsmatrices)
     
     if(verbose){
@@ -194,13 +194,13 @@ ergm.MCMLE <- function(init, nw, model,
     
     ##  Does the same, if observation process:
     if(obs){
-      z.obs <- ergm.getMCMCsample(nws.obs, NVL(model$obs.model,model), MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
+      z.obs <- ergm.getMCMCsample(nws.obs, NVL(model$obs.model,model), MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response, theta=mcmc.init, etamap=model$etamap, update.nws=FALSE)
       
       if(z.obs$status==1) stop("Number of edges in the simulated network exceeds that observed by a large factor (",control$MCMC.max.maxedges,"). This is a strong indication of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
       
       statsmatrices.obs <- mapply(sweep, z.obs$statsmatrices, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
       for(i in seq_along(statsmatrices.obs)) colnames(statsmatrices.obs[[i]]) <- model$coef.names
-      nws.obs.returned <- lapply(z.obs$newnetworks, network::network.copy)
+      nws.obs.returned <- z.obs$newnetworks
       statsmatrix.obs <- do.call(rbind,statsmatrices.obs)
       
       if(verbose){
@@ -214,11 +214,11 @@ ergm.MCMLE <- function(init, nw, model,
     
     if(sequential) {
       nws <- nws.returned
-      statshifts <- lapply(nws, function(nw){nw.stats <- ergm.getglobalstats(nw, model, response=response); nw.stats - NVL(model$target.stats,model$nw.stats)})
+      statshifts <- lapply(statsmatrices, function(sm) sm[nrow(sm),])
       
       if(obs){
         nws.obs <- nws.obs.returned
-        statshifts.obs <- lapply(nws.obs, function(nw.obs){nw.stats <- ergm.getglobalstats(nw.obs, model, response=response) - NVL(model$target.stats,model$nw.stats)})
+        statshifts.obs <- lapply(statsmatrices.obs, function(sm) sm[nrow(sm),])
       }      
     }
 
@@ -250,6 +250,7 @@ ergm.MCMLE <- function(init, nw, model,
 
     if(!estimate){
       if(verbose){message("Skipping optimization routines...")}
+      nws.returned <- lapply(nws.returned, newnw.extract, response=response)
       l <- list(coef=mcmc.init, mc.se=rep(NA,length=length(mcmc.init)),
                 sample=statsmatrix, sample.obs=statsmatrix.obs,
                 iterations=1, MCMCtheta=mcmc.init,
@@ -402,7 +403,7 @@ ergm.MCMLE <- function(init, nw, model,
         }else{
           message("No nonconvergence detected once; increasing sample size if not already increased.")
           last.adequate <- TRUE
-          .boost_samplesize(MCMLE.last.boost, TRUE)
+          .boost_samplesize(control$MCMLE.last.boost, TRUE)
         }
       }else{
         last.adequate <- FALSE
@@ -527,6 +528,7 @@ ergm.MCMLE <- function(init, nw, model,
   v$sample <- ergm.sample.tomcmc(statsmatrix, control) 
   if(obs) v$sample.obs <- ergm.sample.tomcmc(statsmatrix.obs, control)
   
+  nws.returned <- lapply(nws.returned, newnw.extract, response=response)
   v$network <- nw.orig
   v$newnetworks <- nws.returned
   v$newnetwork <- nws.returned[[1]]

@@ -46,6 +46,9 @@
 #' @export ergm.Cprepare
 ergm.Cprepare <- function(nw, m, response=NULL)
 {
+  e<-as.edgelist(nw,attrname=response) # Ensures that for undirected networks, tail<head.
+  class(nw) <- "network"
+
   n <- network.size(nw)
   dir <- is.directed(nw)
   Clist<-list(n=n, dir=dir)
@@ -53,7 +56,7 @@ ergm.Cprepare <- function(nw, m, response=NULL)
   if (is.null(bip)) bip <- 0
   Clist$bipartite <- bip
   Clist$ndyads <- network.dyadcount(nw)
-  e<-as.edgelist(nw,attrname=response) # Ensures that for undirected networks, tail<head.
+
   if(length(e)==0){
     Clist$nedges<-0
     Clist$tails<-NULL
@@ -152,7 +155,7 @@ ergm.Cprepare <- function(nw, m, response=NULL)
 #' @param attrname name of an edge attribute.
 #' @export ergm.Cprepare.el
 ergm.Cprepare.el<-function(x, attrname=NULL, prototype=NULL){
-  xm <- if(is.network(x)) as.edgelist(x, attrname=attrname)
+  xm <- if(is.network(x) || is(x, "pending_update_network")) as.edgelist(x, attrname=attrname)
         else if(is(x, "rlebdm")) as.edgelist(x, prototype=prototype)
         else if(!is.null(prototype)) as.edgelist.matrix(x, n=network.size(prototype), directed=is.directed(prototype),
                                                         bipartite=if(is.bipartite(prototype)) prototype%n%"bipartite" else 0,
