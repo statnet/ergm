@@ -152,6 +152,7 @@ ergm.MCMLE <- function(init, nw, model,
 
   if(control$MCMLE.termination=='confidence'){
     estdiff.prev <- NULL
+    d2.not.improved <- 0
   }
 
   
@@ -418,9 +419,17 @@ ergm.MCMLE <- function(init, nw, model,
           if(!is.null(estdiff.prev)){
             d2.prev <- estdiff.prev%*%iVm%*%estdiff.prev
             if(verbose) message("Distance from origin on tolerance region scale: ", d2, " (previously ", d2.prev, ").")
-            if(d2 > d2.prev){
-              message("Estimating equations did not move closer to tolerance region; increasing sample size.")
-              .boost_samplesize(control$MCMLE.confidence.boost)
+            if(d2 >= d2.prev){
+              if(d2.not.improved > 0){
+                message("Estimating equations did not move closer to tolerance region twice in a row; increasing sample size.")
+                .boost_samplesize(control$MCMLE.confidence.boost)
+                d2.not.improved <- 0
+              }else{
+                message("Estimating equations did not move closer to tolerance region.")
+                d2.not.improved <- d2.not.improved + 1
+              }
+            }else{
+              d2.not.improved <- 0
             }
           }
         }else{
