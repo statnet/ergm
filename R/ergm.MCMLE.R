@@ -136,19 +136,22 @@ ergm.MCMLE <- function(init, nw, model,
 
   # A helper function to increase the MCMC sample size and target effective size by the specified factor.
   .boost_samplesize <- function(boost, base=FALSE){
-    control <- get("control", parent.frame())
-    control$MCMC.samplesize <- round((if(base) control$MCMC.base.samplesize else control$MCMC.samplesize) * boost)
-    control$MCMC.effectiveSize <- NVL3((if(base) control$MCMC.base.effectiveSize else control$MCMC.effectiveSize), . * boost)
-    assign("control", control, parent.frame())
-    if(obs){
-      control.obs <- get("control.obs", parent.frame())
-      control.obs$MCMC.samplesize <- round((if(base) control.obs$MCMC.base.samplesize else control.obs$MCMC.samplesize) * boost)
-      control.obs$MCMC.effectiveSize <- NVL3((if(base) control.obs$MCMC.base.effectiveSize else control.obs$MCMC.effectiveSize), . * boost)
-      assign("control.obs", control.obs, parent.frame())
+    for(ctrl in c("control", if(obs) "control.obs")){
+      control <- get(ctrl, parent.frame())
+      sampsize.boost <-
+        NVL2(control$MCMC.effectiveSize,
+             boost^control$MCMLE.sampsize.boost.pow,
+             boost)
+    
+      control$MCMC.samplesize <- round((if(base) control$MCMC.base.samplesize else control$MCMC.samplesize) * sampsize.boost)
+      control$MCMC.effectiveSize <- NVL3((if(base) control$MCMC.base.effectiveSize else control$MCMC.effectiveSize), . * boost)
+      
+      control$MCMC.samplesize <- ceiling(max(control$MCMC.samplesize, control$MCMC.effectiveSize*control$MCMLE.min.depfac))
+      
+      assign(ctrl, control, parent.frame())
     }
     NULL
   }
-
 
   if(control$MCMLE.termination=='confidence'){
     estdiff.prev <- NULL

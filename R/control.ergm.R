@@ -201,6 +201,7 @@
 #' termination.
 #' @param MCMLE.confidence The confidence level for declaring
 #'   convergence for `"confidence"` methods.
+#' @param MCMLE.min.depfac,MCMLE.sampsize.boost.pow When using adaptive MCMC effective size, and methods that increase the MCMC sample size, use `MCMLE.sampsize.boost.pow` as the power of the boost amount (relative to the boost of the target effective size), but ensure that sample size is no less than `MCMLE.min.depfac` times the target effective size.
 #' @param MCMLE.confidence.boost The maximum increase factor in sample
 #'   size (or target effective size, if enabled) when the
 #'   `"confidence"` termination criterion is either not approaching
@@ -494,7 +495,8 @@ control.ergm<-function(drop=TRUE,
                        obs.MCMC.burnin.mul=sqrt(obs.MCMC.mul),
                        obs.MCMC.burnin=round(MCMC.burnin*obs.MCMC.burnin.mul),
                        obs.MCMC.prop.weights=MCMC.prop.weights, obs.MCMC.prop.args=MCMC.prop.args,
-
+                       MCMLE.min.depfac=2,
+                       MCMLE.sampsize.boost.pow=0.5,
                        MCMLE.check.degeneracy=FALSE,
                        MCMLE.MCMC.precision=if(startsWith("confidence", MCMLE.termination[1])) 0.1 else 0.005,
                        MCMLE.MCMC.max.ESS.frac=0.1,
