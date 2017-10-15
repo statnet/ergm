@@ -27,8 +27,9 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MCMLE.termination = c("Hummel", "Hotelling", "precision", "confidence",
   "none"), MCMLE.maxit = 20, MCMLE.conv.min.pval = 0.5,
   MCMLE.confidence = 0.99, MCMLE.confidence.boost = 2,
-  MCMLE.NR.maxit = 100, MCMLE.NR.reltol = sqrt(.Machine$double.eps),
-  obs.MCMC.mul = 1/4, obs.MCMC.samplesize.mul = sqrt(obs.MCMC.mul),
+  MCMLE.confidence.boost.lag = 4, MCMLE.NR.maxit = 100,
+  MCMLE.NR.reltol = sqrt(.Machine$double.eps), obs.MCMC.mul = 1/4,
+  obs.MCMC.samplesize.mul = sqrt(obs.MCMC.mul),
   obs.MCMC.samplesize = round(MCMC.samplesize * obs.MCMC.samplesize.mul),
   obs.MCMC.effectiveSize = NVL3(MCMC.effectiveSize, . * obs.MCMC.mul),
   obs.MCMC.interval.mul = sqrt(obs.MCMC.mul),
@@ -36,14 +37,16 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   obs.MCMC.burnin.mul = sqrt(obs.MCMC.mul),
   obs.MCMC.burnin = round(MCMC.burnin * obs.MCMC.burnin.mul),
   obs.MCMC.prop.weights = MCMC.prop.weights,
-  obs.MCMC.prop.args = MCMC.prop.args, MCMLE.check.degeneracy = FALSE,
-  MCMLE.MCMC.precision = if (startsWith("confidence", MCMLE.termination)) 0.1
-  else 0.005, MCMLE.MCMC.max.ESS.frac = 0.1, MCMLE.metric = c("lognormal",
-  "logtaylor", "Median.Likelihood", "EF.Likelihood", "naive"),
-  MCMLE.method = c("BFGS", "Nelder-Mead"), MCMLE.trustregion = 20,
-  MCMLE.dampening = FALSE, MCMLE.dampening.min.ess = 20,
-  MCMLE.dampening.level = 0.1, MCMLE.steplength.margin = 0.05,
-  MCMLE.steplength.point.exp = 1, MCMLE.steplength.prefilter = FALSE,
+  obs.MCMC.prop.args = MCMC.prop.args, MCMLE.min.depfac = 2,
+  MCMLE.sampsize.boost.pow = 0.5, MCMLE.check.degeneracy = FALSE,
+  MCMLE.MCMC.precision = if (startsWith("confidence", MCMLE.termination[1]))
+  0.1 else 0.005, MCMLE.MCMC.max.ESS.frac = 0.1,
+  MCMLE.metric = c("lognormal", "logtaylor", "Median.Likelihood",
+  "EF.Likelihood", "naive"), MCMLE.method = c("BFGS", "Nelder-Mead"),
+  MCMLE.trustregion = 20, MCMLE.dampening = FALSE,
+  MCMLE.dampening.min.ess = 20, MCMLE.dampening.level = 0.1,
+  MCMLE.steplength.margin = 0.05, MCMLE.steplength.point.exp = 1,
+  MCMLE.steplength.prefilter = FALSE,
   MCMLE.steplength = NVL2(MCMLE.steplength.margin, 1, 0.5),
   MCMLE.adaptive.trustregion = 3, MCMLE.sequential = TRUE,
   MCMLE.density.guard.min = 10000, MCMLE.density.guard = exp(3),
@@ -286,10 +289,14 @@ size (or target effective size, if enabled) when the
 \code{"confidence"} termination criterion is either not approaching
 the tolerance region or is unable to prove convergence.}
 
+\item{MCMLE.confidence.boost.lag}{Sample size or target effective size will be increaed if the distane from the tolerance region fails to decrease more than once in this many successive iterations.}
+
 \item{MCMLE.NR.maxit, MCMLE.NR.reltol}{The method, maximum number of
 iterations and relative tolerance to use within the \code{optim} rountine in
 the MLE optimization. Note that by default, ergm uses \code{trust}, and
 falls back to \code{optim} only when \code{trust} fails.}
+
+\item{MCMLE.min.depfac, MCMLE.sampsize.boost.pow}{When using adaptive MCMC effective size, and methods that increase the MCMC sample size, use \code{MCMLE.sampsize.boost.pow} as the power of the boost amount (relative to the boost of the target effective size), but ensure that sample size is no less than \code{MCMLE.min.depfac} times the target effective size.}
 
 \item{MCMLE.check.degeneracy}{Logical: If TRUE, employ a check for model
 degeneracy.}

@@ -201,10 +201,12 @@
 #' termination.
 #' @param MCMLE.confidence The confidence level for declaring
 #'   convergence for `"confidence"` methods.
+#' @param MCMLE.min.depfac,MCMLE.sampsize.boost.pow When using adaptive MCMC effective size, and methods that increase the MCMC sample size, use `MCMLE.sampsize.boost.pow` as the power of the boost amount (relative to the boost of the target effective size), but ensure that sample size is no less than `MCMLE.min.depfac` times the target effective size.
 #' @param MCMLE.confidence.boost The maximum increase factor in sample
 #'   size (or target effective size, if enabled) when the
 #'   `"confidence"` termination criterion is either not approaching
 #'   the tolerance region or is unable to prove convergence.
+#' @param MCMLE.confidence.boost.lag Sample size or target effective size will be increaed if the distane from the tolerance region fails to decrease more than once in this many successive iterations.
 #' @param MCMLE.NR.maxit,MCMLE.NR.reltol The method, maximum number of
 #' iterations and relative tolerance to use within the \code{optim} rountine in
 #' the MLE optimization. Note that by default, ergm uses \code{trust}, and
@@ -483,6 +485,7 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.conv.min.pval=0.5,
                        MCMLE.confidence=0.99,
                        MCMLE.confidence.boost=2,
+                       MCMLE.confidence.boost.lag=4,
                        MCMLE.NR.maxit=100,
                        MCMLE.NR.reltol=sqrt(.Machine$double.eps),
                        obs.MCMC.mul=1/4,
@@ -494,7 +497,8 @@ control.ergm<-function(drop=TRUE,
                        obs.MCMC.burnin.mul=sqrt(obs.MCMC.mul),
                        obs.MCMC.burnin=round(MCMC.burnin*obs.MCMC.burnin.mul),
                        obs.MCMC.prop.weights=MCMC.prop.weights, obs.MCMC.prop.args=MCMC.prop.args,
-
+                       MCMLE.min.depfac=2,
+                       MCMLE.sampsize.boost.pow=0.5,
                        MCMLE.check.degeneracy=FALSE,
                        MCMLE.MCMC.precision=if(startsWith("confidence", MCMLE.termination[1])) 0.1 else 0.005,
                        MCMLE.MCMC.max.ESS.frac=0.1,
