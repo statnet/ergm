@@ -121,7 +121,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
       if(any(sapply(outl,"[[","status")!=0)) break
       
       while(nrow(outl[[1]]$s)-meS$burnin>=(control.parallel$MCMC.samplesize)*2){
-        for(i in seq_along(outl)) outl[[i]]$s <- outl[[i]]$s[seq_len(floor(nrow(outl[[i]]$s)/2))*2,,drop=FALSE]
+        for(i in seq_along(outl)) outl[[i]]$s <- outl[[i]]$s[seq_len(floor(nrow(outl[[i]]$s)/2))*2+nrow(outl[[i]]$s)%%2,,drop=FALSE]
         interval <- interval*2
         if(verbose) message("Increasing thinning to ",interval,".")
       }
