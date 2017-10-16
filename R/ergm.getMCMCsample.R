@@ -98,10 +98,10 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
         if(verbose)
           message("First run: running each chain forward by ",samplesize, " steps with interval ", interval, ".")
       }else{
-        if(meS$eS<1){
+        if(meS$eS<1 || meS$pts.rank==1){
           samplesize <- control.parallel$MCMC.samplesize
           if(verbose)
-            message("Insufficient ESS to determine the number of steps remaining: running forward by ",samplesize, " steps with interval ", interval, ".")
+            message("Insufficient ESS or untrustworthy burn-in estimate to determine the number of steps remaining: running forward by ",samplesize, " steps with interval ", interval, ".")
         }else{
           pred.ss <- howmuchmore(control.parallel$MCMC.effectiveSize, NVL(nrow(outl[[1]]$s),0), meS$eS, meS$burnin)
           damp.ss <- pred.ss*(meS$eS/(control.parallel$MCMC.effectiveSize.damp+meS$eS))+control.parallel$MCMC.samplesize*(1-meS$eS/(control.parallel$MCMC.effectiveSize.damp+meS$eS))
@@ -140,8 +140,8 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
              ,ask=FALSE,smooth=TRUE,density=FALSE)
       }
 
-      if(meS$eS>=control.parallel$MCMC.effectiveSize){
-        if(verbose) message("Target ESS achieved. Returning.")      
+      if(meS$pts.rank!=1 && meS$eS>=control.parallel$MCMC.effectiveSize){
+        if(verbose) message("Target ESS achieved and is trustworthy. Returning.")
         break
       }
     }
@@ -385,7 +385,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
   mean.ifn <- function(x) x^(-1)
   hmean <- mean.ifn(mean(mean.fn(ess[,best])))
   
-  list(burnin=pts[best], eS=hmean)
+  list(burnin=pts[best], eS=hmean, pts.rank=length(pts)-best+1)
 }
 
 .fast.effectiveSize <- function(x, ar.order=1){
