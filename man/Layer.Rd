@@ -36,7 +36,6 @@ flo <- Layer(m = flomarriage, b = flobusiness)
 ergm(flo ~ L(~edges, ~m)+L(~edges, ~b))
 
 # Method 3: edge attributes:
-flo <- flomarriage
 flo <- flomarriage | flobusiness
 flo[,, names.eval="m"] <- as.matrix(flomarriage)
 flo[,, names.eval="b"] <- as.matrix(flobusiness)

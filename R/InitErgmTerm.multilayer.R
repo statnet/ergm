@@ -21,6 +21,45 @@
   paste0("L(",paste0(reprs, collapse=","),")")
 }
 
+#' Extract a binary network "view".
+#'
+#' Returns a binary network with only those edges retained that fulfil
+#' a specific criterion.
+#'
+#' @param x a [`network`] object.
+#' @param attrname a character vector of length 1 giving the name of
+#'   the edge attribute to test.
+#' @param test.f an optional vector function that takes a vector of
+#'   selected edge attribute values and returns a logical vector
+#'   indicating whether an attribute should be kept; returning `NA`
+#'   sets the edge to missing.
+#'
+#' @return A [`network`] object with vertex and network attributes retained from `x`.
+#'
+#' @examples
+#' data(florentine)
+#' flo <- flomarriage
+#' flo[,,add.edges=TRUE] <- as.matrix(flomarriage) | as.matrix(flobusiness)
+#' flo[,, names.eval="m"] <- as.matrix(flomarriage)
+#' flobusiness[3,5] <- NA
+#' flo[,, names.eval="b"] <- as.matrix(flobusiness)
+#' flo
+#' (flob <- network_view(flo, "b"))
+#' (flobusiness) # for comparison
+#'
+#' stopifnot(all(identical(as.matrix(flobusiness),as.matrix(flob))))
+#' @export
+network_view <- function(x, attrname, test.f = as.logical){
+  el <- as.edgelist(x, attrname)
+  keep <- test.f(el[,3])
+  del <- na.omit(el[!keep,,drop=FALSE])
+  nael <- el[is.na(keep),,drop=FALSE]
+  x[del] <- 0
+  x[nael] <- NA
+  for(a in list.edge.attributes(x)) delete.network.attribute(x, a)
+  x
+}
+
 #' A multilayer network representation.
 #'
 #' A function for specifying the LHS of a multilayer (a.k.a. multiplex
@@ -53,7 +92,6 @@
 #' ergm(flo ~ L(~edges, ~m)+L(~edges, ~b))
 #'
 #' # Method 3: edge attributes:
-#' flo <- flomarriage
 #' flo <- flomarriage | flobusiness
 #' flo[,, names.eval="m"] <- as.matrix(flomarriage)
 #' flo[,, names.eval="b"] <- as.matrix(flobusiness)
@@ -66,13 +104,7 @@ Layer <- function(...){
   if(length(args)==2 && is(args[[1]], "network") && is(args[[2]], "vector")){
     nwl <-
       lapply(args[[2]], function(eattr){
-        nw <- args[[1]]
-        el <- as.edgelist(nw, eattr)
-        nael <- as.edgelist(is.na(nw))
-        nw[,]<-0
-        nw[el[,-3]] <- el[,3]
-        nw[nael] <- NA
-        nw
+        network_view(args[[1]], eattr)
       })
     names(nwl) <- args[[2]]
   }else if(all(sapply(args, is, "network"))){
