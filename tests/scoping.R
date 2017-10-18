@@ -11,7 +11,7 @@ library(statnet.common)
 opttest({
 library(ergm)
 temp.func <- function(nw,deg) {
-  fit <- ergm(nw~edges+degree(deg))
+  fit <- ergm(nw~edges+degree(deg), estimate="MPLE")
   return(fit)
 }
 mynet <- network.initialize(50,directed=F)
