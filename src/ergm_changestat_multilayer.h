@@ -12,16 +12,28 @@
 #define ML_MIN_INEDGE(ll, a) (EdgetreeMinimum((ll)->onwp->inedges, (a)))
 #define ML_NEXT_OUTEDGE(ll, e) (EdgetreeSuccessor((ll)->onwp->outedges,(e)))
 #define ML_NEXT_INEDGE(ll, e) (EdgetreeSuccessor((ll)->onwp->inedges,(e)))
+#define ML_NEXT_OUTEDGE_PRE(ll, e) (EdgetreePreSuccessor((ll)->onwp->outedges,(e)))
+#define ML_NEXT_INEDGE_PRE(ll, e) (EdgetreePreSuccessor((ll)->onwp->inedges,(e)))
 #define ML_STEP_THROUGH_OUTEDGES(ll, a,e,v) for((e)=ML_MIN_OUTEDGE((ll), a);((v)=ML_OUTVAL((ll), e))!=0;(e)=ML_NEXT_OUTEDGE((ll), e))
 #define ML_STEP_THROUGH_INEDGES(ll, a,e,v) for((e)=ML_MIN_INEDGE((ll), a);((v)=ML_INVAL((ll), e))!=0;(e)=ML_NEXT_INEDGE((ll), e))
-#define ML_STEP_THROUGH_OUTEDGES_DECL(ll, a,e,v) for(Edge e=ML_MIN_OUTEDGE((ll), a);ML_OUTVAL((ll), e)!=0;e=ML_NEXT_OUTEDGE((ll), e))
-#define ML_STEP_THROUGH_INEDGES_DECL(ll, a,e,v) for(Edge e=ML_MIN_INEDGE((ll), a);ML_INVAL((ll), e)!=0;e=ML_NEXT_INEDGE((ll), e))
-#define ML_EXEC_THROUGH_OUTEDGES(ll, a,e,v,subroutine) if(ML_DIRECTED((ll))){ ML_STEP_THROUGH_OUTEDGES_DECL((ll), a,e,v) {Vertex v=ML_OUTVAL((ll), e); subroutine} } else { ML_EXEC_THROUGH_EDGES((ll), a,e,v,subroutine) }
-#define ML_EXEC_THROUGH_INEDGES(ll, a,e,v,subroutine) if(ML_DIRECTED((ll))){ ML_STEP_THROUGH_INEDGES_DECL((ll), a,e,v) {Vertex v=ML_INVAL((ll), e); subroutine} } else { ML_EXEC_THROUGH_EDGES((ll), a,e,v,subroutine) }
-#define ML_EXEC_THROUGH_EDGES(ll, a,e,v,subroutine) { ML_STEP_THROUGH_OUTEDGES_DECL((ll), a,e,v) {Vertex v=ML_OUTVAL((ll), e); subroutine}  ML_STEP_THROUGH_INEDGES_DECL((ll), a,e,v) {Vertex v=ML_INVAL((ll), e); subroutine} }
-#define ML_EXEC_THROUGH_FOUTEDGES(ll, a,e,v,subroutine) ML_STEP_THROUGH_OUTEDGES_DECL((ll), a,e,v) {Vertex v=ML_OUTVAL((ll), e); subroutine}
-#define ML_EXEC_THROUGH_FINEDGES(ll, a,e,v,subroutine) ML_STEP_THROUGH_INEDGES_DECL((ll), a,e,v) {Vertex v=ML_INVAL((ll), e); subroutine}
-#define ML_EXEC_THROUGH_NET_EDGES(ll, a,b,e,subroutine) for(Vertex a=1; a <= N_NODES; a++)  ML_EXEC_THROUGH_FOUTEDGES((ll), a, e, b, {subroutine});
+#define ML_STEP_THROUGH_OUTEDGES_PRE(ll, a,e,v) for((e)=(a);((v)=ML_OUTVAL((ll), e))!=0;(e)=ML_NEXT_OUTEDGE_PRE((ll), e))
+#define ML_STEP_THROUGH_INEDGES_PRE(ll, a,e,v) for((e)=(a);((v)=ML_INVAL((ll), e))!=0;(e)=ML_NEXT_INEDGE_PRE((ll), e))
+#define ML_STEP_THROUGH_OUTEDGES_DECL(ll, a,e,v) Vertex v; for(Edge e=ML_MIN_OUTEDGE((ll), a);((v)=ML_OUTVAL((ll), e))!=0;e=ML_NEXT_OUTEDGE((ll), e))
+#define ML_STEP_THROUGH_INEDGES_DECL(ll, a,e,v) Vertex v; for(Edge e=ML_MIN_INEDGE((ll), a);((v)=ML_INVAL((ll), e))!=0;e=ML_NEXT_INEDGE((ll), e))
+#define ML_STEP_THROUGH_OUTEDGES_PRE_DECL(ll, a,e,v) Vertex v; for(Edge e=(a);((v)=ML_OUTVAL((ll), e))!=0;e=ML_NEXT_OUTEDGE_PRE((ll), e))
+#define ML_STEP_THROUGH_INEDGES_PRE_DECL(ll, a,e,v) Vertex v; for(Edge e=(a);((v)=ML_INVAL((ll), e))!=0;e=ML_NEXT_INEDGE_PRE((ll), e))
+#define ML_EXEC_THROUGH_OUTEDGES(ll, a,e,v,subroutine) {if(ML_DIRECTED((ll))){ ML_STEP_THROUGH_OUTEDGES_DECL((ll), a,e,v) {subroutine} } else { ML_EXEC_THROUGH_EDGES((ll), a,e,v,subroutine) }}
+#define ML_EXEC_THROUGH_INEDGES(ll, a,e,v,subroutine) {if(ML_DIRECTED((ll))){ ML_STEP_THROUGH_INEDGES_DECL((ll), a,e,v) {subroutine} } else { ML_EXEC_THROUGH_EDGES((ll), a,e,v,subroutine) }}
+#define ML_EXEC_THROUGH_EDGES(ll, a,e,v,subroutine) { {ML_STEP_THROUGH_OUTEDGES_DECL((ll), a,e,v) {subroutine}};  {ML_STEP_THROUGH_INEDGES_DECL((ll), a,e,v) {subroutine}}; }
+#define ML_EXEC_THROUGH_OUTEDGES_PRE(ll, a,e,v,subroutine) {if(ML_DIRECTED((ll))){ ML_STEP_THROUGH_OUTEDGES_PRE_DECL((ll), a,e,v) {subroutine} } else { ML_EXEC_THROUGH_EDGES_PRE((ll), a,e,v,subroutine) }}
+#define ML_EXEC_THROUGH_INEDGES_PRE(ll, a,e,v,subroutine) {if(ML_DIRECTED((ll))){ ML_STEP_THROUGH_INEDGES_PRE_DECL((ll), a,e,v) {subroutine} } else { ML_EXEC_THROUGH_EDGES_PRE((ll), a,e,v,subroutine) }}
+#define ML_EXEC_THROUGH_EDGES_PRE(ll, a,e,v,subroutine) { {ML_STEP_THROUGH_OUTEDGES_PRE_DECL((ll), a,e,v) {subroutine}};  {ML_STEP_THROUGH_INEDGES_PRE_DECL((ll), a,e,v) {subroutine}}; }
+#define ML_EXEC_THROUGH_FOUTEDGES(ll, a,e,v,subroutine) ML_STEP_THROUGH_OUTEDGES_DECL((ll), a,e,v) {subroutine}
+#define ML_EXEC_THROUGH_FINEDGES(ll, a,e,v,subroutine) ML_STEP_THROUGH_INEDGES_DECL((ll), a,e,v) {subroutine}
+#define ML_EXEC_THROUGH_NET_EDGES(ll, a,b,e,subroutine) {for(Vertex a=1; a <= N_NODES; a++){ML_EXEC_THROUGH_FOUTEDGES((ll), a, e, b, {subroutine});}}
+#define ML_EXEC_THROUGH_FOUTEDGES_PRE(ll, a,e,v,subroutine) ML_STEP_THROUGH_OUTEDGES_PRE_DECL((ll), a,e,v) {subroutine}
+#define ML_EXEC_THROUGH_FINEDGES_PRE(ll, a,e,v,subroutine) ML_STEP_THROUGH_INEDGES_PRE_DECL((ll), a,e,v) {subroutine}
+#define ML_EXEC_THROUGH_NET_EDGES_PRE(ll, a,b,e,subroutine) {for(Vertex a=1; a <= N_NODES; a++){ML_EXEC_THROUGH_FOUTEDGES_PRE((ll), a, e, b, {subroutine});}}
 #define ML_TOGGLE(ll, a,b) (ToggleEdge((a),(b),(ll)->onwp));
 #define ML_TOGGLE_DISCORD(ll, a,b) (ToggleEdge((a),(b),(ll)->onwp+1));
 #define ML_GETWT(ll, a,b) (GetEdge(a,b,(ll)->onwp))
