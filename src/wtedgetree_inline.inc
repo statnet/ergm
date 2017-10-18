@@ -86,6 +86,30 @@ static inline Edge WtEdgetreeSuccessor (WtTreeNode *edges, Edge x) {
 }   
 
 /*****************
+ Edge WtEdgetreePre(order)Successor
+
+ Return the index of the next WtTreeNode in a preorder traversal.
+*****************/
+static inline Edge WtEdgetreePreSuccessor (WtTreeNode *edges, Edge x) {
+  WtTreeNode *ptr;
+  Edge y, z;
+
+  // If we can go left, go left.
+  if ((y=(ptr=edges+x)->left) != 0) 
+    return y;
+  // If we can go right, go right.
+  if ((y=ptr->right) != 0) 
+    return y;
+  // Otherwise, keep going up until we can go right unless we just
+  // went up from the right node.
+  while ((y=ptr->parent)!=0){
+    if((z=(ptr=(edges+y))->right)!=0 && z!=x) return z;
+    x=y;
+  }
+  return y; 
+}
+
+/*****************
  Edge WtEdgetreePredecessor
 
  Return the index of the WtTreeNode with the smallest value
