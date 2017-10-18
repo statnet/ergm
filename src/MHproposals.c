@@ -630,7 +630,7 @@ MH_I_FN(Mi_RLETNT){
   double *inputs = MHp->inputs;
   storage->r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
   storage->intersect = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
-  EXEC_THROUGH_NET_EDGES(t, h, e, {
+  EXEC_THROUGH_NET_EDGES_PRE(t, h, e, {
       if(GetRLEBDM1D(t, h, &storage->r)){
 	ToggleEdge(t, h, &storage->intersect);
       }
