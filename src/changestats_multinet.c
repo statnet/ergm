@@ -30,7 +30,7 @@ I_CHANGESTAT_FN(i__subnets){
     sn->onwp[i] = NetworkInitialize(NULL, NULL, 0, lnnodes, DIRECTED, lbip, 0, 0, NULL);
   }
   
-  EXEC_THROUGH_NET_EDGES(t, h, e, {
+  EXEC_THROUGH_NET_EDGES_PRE(t, h, e, {
       ToggleEdge(MN_IO_TAIL(sn, t), MN_IO_HEAD(sn, h), sn->onwp + MN_SID_TAIL(sn, t));
     });
 }

@@ -216,9 +216,7 @@ I_CHANGESTAT_FN(i__filter_formula_net){
   InitStats(nwp, m);
   
   *bnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
-  // FIXME: This is suboptimal, since all trees will be highly
-  // unbalanced.
-  EXEC_THROUGH_NET_EDGES(t, h, e, {
+  EXEC_THROUGH_NET_EDGES_PRE(t, h, e, {
 	ChangeStats(1, &t, &h, nwp, m);
 	// I.e., if toggling the dyad changes the statistic, add
 	// edge to the filter network.

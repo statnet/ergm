@@ -166,9 +166,7 @@ WtI_CHANGESTAT_FN(i__binary_nonzero_net){
   ALLOC_AUX_STORAGE(1, Network, bnwp);
 
   *bnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
-  // FIXME: This is suboptimal, since all trees will be highly
-  // unbalanced.
-  WtEXEC_THROUGH_NET_EDGES(t, h, e, w, {
+  WtEXEC_THROUGH_NET_EDGES_PRE(t, h, e, w, {
       if(w!=0) ToggleEdge(t, h, bnwp);
     });
 }
@@ -207,9 +205,7 @@ WtI_CHANGESTAT_FN(i__binary_formula_net){
   WtInitStats(nwp, m);
   
   *bnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
-  // FIXME: This is suboptimal, since all trees will be highly
-  // unbalanced.
-  WtEXEC_THROUGH_NET_EDGES(t, h, e, w, {
+  WtEXEC_THROUGH_NET_EDGES_PRE(t, h, e, w, {
       if(w!=0){
 	WtChangeStats(1, &t, &h, 0, nwp, m);
 	// I.e., if reducing the value from the current value to 0

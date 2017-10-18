@@ -36,7 +36,7 @@ I_CHANGESTAT_FN(i__layer_net){
 
   /* Construct the output (logical layer) network: */  
   
-  EXEC_THROUGH_NET_EDGES(t, h, e, {
+  EXEC_THROUGH_NET_EDGES_PRE(t, h, e, {
       if(ergm_LayerLogic(t, h, ll, 0)){
 	ML_SETWT(ll, ML_IO_TAIL(ll, t), ML_IO_HEAD(ll, h), 1);
       }
@@ -68,7 +68,7 @@ F_CHANGESTAT_FN(f__layer_net){
 /*     li->nwp[l] = NetworkInitialize(NULL, NULL, 0, lnnodes, DIRECTED, lbip, 0, 0, NULL); */
 /*   } */
   
-/*   EXEC_THROUGH_NET_EDGES(t, h, e, { */
+/*   EXEC_THROUGH_NET_EDGES_PRE(t, h, e, { */
 /*       ToggleEdge(li->lmap[t], li->lmap[h], li->nwp + (int)li->lid[t]); */
 /*     }); */
 /* } */
