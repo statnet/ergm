@@ -60,8 +60,6 @@ InitErgmTerm..blockdiag.net <- function(nw, arglist, response=NULL, ...){
                       vartypes = c("character"),
                       defaultvalues = list(NULL),
                       required = c(TRUE))
-  ### Process the arguments
-    ### Process the arguments
   nodecov <-
     if(length(a$attrname)==1)
       get.node.attr(nw, a$attrname)
@@ -73,3 +71,18 @@ InitErgmTerm..blockdiag.net <- function(nw, arglist, response=NULL, ...){
 
   list(name="_blockdiag_net", coef.names = c(), inputs=nodecov, dependence=FALSE)
 }
+
+InitErgmTerm..undir.net <- function(nw, arglist, response=NULL, ...){
+  a <- check.ErgmTerm(nw, arglist, directed = TRUE,
+                      varnames = c("rule"),
+                      vartypes = c("character"),
+                      defaultvalues = list("weak"),
+                      required = c(FALSE))
+  RULES <- c("weak","strong","upper","lower")
+  rule <- match.arg(a$rule, RULES)
+  ruleID <- which(RULES==rule)
+
+  list(name="_undir_net", coef.names = c(), inputs=ruleID,
+       dependence=rule%in%c("weak","strong")) # Just discarding half the network does not induce dependence.
+}
+

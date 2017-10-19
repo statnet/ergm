@@ -183,3 +183,72 @@ F_CHANGESTAT_FN(f__blockdiag_net){
   Network *bnwp = &(blkinfo->nw);
   NetworkDestroy(bnwp);
 }
+
+/* _undir_net 
+
+   Maintain an undirected binary network symmetrized from LHS according to the specified rule:
+
+   1: weak
+   2: strong
+   3: upper (tail < head)
+   4: lower (tail > head)
+
+*/
+I_CHANGESTAT_FN(i__undir_net){
+  double *inputs = INPUT_PARAM;
+  ALLOC_AUX_STORAGE(1, Network, unwp); inputs++;
+  unsigned int rule = *inputs;
+   
+  *unwp = NetworkInitialize(NULL, NULL, 0, N_NODES, FALSE, BIPARTITE, FALSE, 0, NULL);
+  EXEC_THROUGH_NET_EDGES_PRE(t, h, e, {
+      unsigned int toadd;
+      switch(rule){
+      case 1: // weak
+	toadd = TRUE;
+	break;
+      case 2: // strong
+	toadd = IS_OUTEDGE(h,t);
+	break;
+      case 3: // upper
+	toadd = t<=h;
+	break;
+      case 4: // lower
+	toadd = t>=h;
+	break;
+      default: // never reached, but avoids a warning
+	toadd = FALSE;
+      }
+      if(toadd) AddEdgeToTrees(t, h, unwp);
+    });
+}
+
+U_CHANGESTAT_FN(u__undir_net){
+  double *inputs = INPUT_PARAM;
+  GET_AUX_STORAGE(Network, unwp); inputs++;
+  unsigned int rule = *inputs;
+
+  unsigned int totoggle;
+  switch(rule){
+  case 1: // weak
+    totoggle = !IS_OUTEDGE(head,tail);
+    break;
+  case 2: // strong
+    totoggle = IS_OUTEDGE(head,tail);
+    break;
+  case 3: // upper
+    totoggle = tail<=head;
+    break;
+  case 4: // lower
+    totoggle = tail>=head;
+    break;
+  default: // never reached, but avoids a warning
+    totoggle = FALSE;
+  }
+  if(totoggle) ToggleEdge(tail,head,unwp);
+}
+
+F_CHANGESTAT_FN(f__undir_net){
+  GET_AUX_STORAGE(Network, unwp);
+  NetworkDestroy(unwp);
+  // DestroyStats() will deallocate the rest.
+}

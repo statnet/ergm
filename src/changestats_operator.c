@@ -247,3 +247,75 @@ F_CHANGESTAT_FN(f__filter_formula_net){
   NetworkDestroy(bnwp);
   // DestroyStats() will deallocate the rest.
 }
+
+/* undir */
+I_CHANGESTAT_FN(i_undir){
+  double *inputs = INPUT_ATTRIB+1;
+    
+  ALLOC_STORAGE(1, Model*, mp);
+  GET_AUX_STORAGE(Network, unwp);
+  *mp = unpack_Model_as_double(&inputs);
+  InitStats(unwp, *mp);
+}
+
+C_CHANGESTAT_FN(c_undir){
+  GET_STORAGE(Model*, mp);
+  GET_AUX_STORAGE(Network, unwp);
+  unsigned int rule = *INPUT_ATTRIB;
+
+  unsigned int totoggle;
+  switch(rule){
+  case 1: // weak
+    totoggle = !IS_OUTEDGE(head,tail);
+    break;
+  case 2: // strong
+    totoggle = IS_OUTEDGE(head,tail);
+    break;
+  case 3: // upper
+    totoggle = tail<=head;
+    break;
+  case 4: // lower
+    totoggle = tail>=head;
+    break;
+  default: // never reached, but avoids a warning
+    totoggle = FALSE;
+  }
+
+  double *ws = (*mp)->workspace;
+  (*mp)->workspace = CHANGE_STAT;
+  if(totoggle) ChangeStats(1, &tail, &head, unwp, *mp);
+  (*mp)->workspace = ws;
+}
+
+U_CHANGESTAT_FN(u_undir){
+  GET_STORAGE(Model*, mp);
+  GET_AUX_STORAGE(Network, unwp);
+  unsigned int rule = *INPUT_ATTRIB;
+
+  unsigned int totoggle;
+  switch(rule){
+  case 1: // weak
+    totoggle = !IS_OUTEDGE(head,tail);
+    break;
+  case 2: // strong
+    totoggle = IS_OUTEDGE(head,tail);
+    break;
+  case 3: // upper
+    totoggle = tail<=head;
+    break;
+  case 4: // lower
+    totoggle = tail>=head;
+    break;
+  default: // never reached, but avoids a warning
+    totoggle = FALSE;
+  }
+
+  Model *m = *mp;
+  if(totoggle) UPDATE_STORAGE(tail, head, unwp, m, NULL);
+}
+
+F_CHANGESTAT_FN(f_undir){
+  GET_STORAGE(Model*, mp);
+  GET_AUX_STORAGE(Network, unwp);
+  ModelDestroy(unwp, *mp);
+}

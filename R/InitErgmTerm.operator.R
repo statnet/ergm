@@ -232,3 +232,51 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, response=NULL, ...){
   
   list(name="_filter_formula_net", inputs=c(inputs), depenence=FALSE)
 }
+
+
+#' Return a symmetrized version of a binary network
+#'
+#' @param x a [`network`] object.
+#' @param rule a string specifying how the network is to be
+#'   symmetrized; see [sna::symmetrize()] for details.
+symmetrize.network <- function(x, rule=c("weak","strong","upper","lower")){
+  rule <- match.arg(rule)
+  el <- sna::symmetrize(x, rule=rule, return.as.edgelist=TRUE)
+  o <- network.initialize(network.size(x), directed=FALSE, bipartite=x%n%"bipartite", loops=has.loops(x), hyper=is.hyper(x), multiple=is.multiplex(x))
+  el <- el[seq_len(nrow(el))/2,-3,drop=FALSE]
+  o <- network.edgelist(el, o)
+  nvattr.copy.network(o, x)
+}
+
+InitErgmTerm.Undir <- function(nw, arglist, response=NULL, ...){
+  a <- check.ErgmTerm(nw, arglist, directed = TRUE,
+                      varnames = c("formula", "rule"),
+                      vartypes = c("formula", "character"),
+                      defaultvalues = list(NULL, "weak"),
+                      required = c(TRUE, FALSE))
+  RULES <- c("weak","strong","upper","lower")
+  rule <- match.arg(a$rule, RULES)
+
+  f <- a$formula
+  if(length(f)==3) nw <- ergm.getnetwork(f)
+  if(is.directed(nw)) nw <- symmetrize.network(nw, rule)
+  
+  if(length(f)==2) f <- nonsimp.update.formula(f, nw~.)
+
+  m <- ergm.getmodel(f, nw,...)
+  Clist <- ergm.Cprepare(nw, m)
+  inputs <- pack.Clist_as_num(Clist)
+  
+  gs <- ergm.emptynwstats.model(m)
+
+  auxiliaries <- ~.undir.net(rule)
+  
+  c(list(name="undir",
+         coef.names = paste0('Undir(',m$coef.names,')'),
+         inputs=c(which(RULES==rule),inputs),
+         dependence=!is.dyad.independent(m) || rule%in%c("weak","strong"),
+         emptynwstats = gs,
+         auxiliaries=auxiliaries),
+    passthrough.curved.ergm_model(m, function(x) paste0('Undir(',x,')')))
+}
+
