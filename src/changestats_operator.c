@@ -252,14 +252,13 @@ F_CHANGESTAT_FN(f__filter_formula_net){
 I_CHANGESTAT_FN(i_undir){
   double *inputs = INPUT_ATTRIB+1;
     
-  ALLOC_STORAGE(1, Model*, mp);
   GET_AUX_STORAGE(Network, unwp);
-  *mp = unpack_Model_as_double(&inputs);
-  InitStats(unwp, *mp);
+  Model *m = STORAGE = unpack_Model_as_double(&inputs);
+  InitStats(unwp, m);
 }
 
 C_CHANGESTAT_FN(c_undir){
-  GET_STORAGE(Model*, mp);
+  GET_STORAGE(Model, m);
   GET_AUX_STORAGE(Network, unwp);
   unsigned int rule = *INPUT_ATTRIB;
 
@@ -281,14 +280,14 @@ C_CHANGESTAT_FN(c_undir){
     totoggle = FALSE;
   }
 
-  double *ws = (*mp)->workspace;
-  (*mp)->workspace = CHANGE_STAT;
-  if(totoggle) ChangeStats(1, &tail, &head, unwp, *mp);
-  (*mp)->workspace = ws;
+  if(totoggle){
+    ChangeStats(1, &tail, &head, unwp, m);
+    memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
+  }
 }
 
 U_CHANGESTAT_FN(u_undir){
-  GET_STORAGE(Model*, mp);
+  GET_STORAGE(Model, m);
   GET_AUX_STORAGE(Network, unwp);
   unsigned int rule = *INPUT_ATTRIB;
 
@@ -310,12 +309,12 @@ U_CHANGESTAT_FN(u_undir){
     totoggle = FALSE;
   }
 
-  Model *m = *mp;
   if(totoggle) UPDATE_STORAGE(tail, head, unwp, m, NULL);
 }
 
 F_CHANGESTAT_FN(f_undir){
-  GET_STORAGE(Model*, mp);
+  GET_STORAGE(Model, m);
   GET_AUX_STORAGE(Network, unwp);
-  ModelDestroy(unwp, *mp);
+  ModelDestroy(unwp, m);
+  STORAGE = NULL;
 }

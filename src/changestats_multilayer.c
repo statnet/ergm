@@ -126,7 +126,6 @@ U_CHANGESTAT_FN(u_OnLayer){
     GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
     if(ergm_LayerLogic(tail, head, ll, TRUE)){ // network affected
       Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
-      Model *m = ms[ml];
       UPDATE_STORAGE(lt, lh, ll->onwp, ms[ml], NULL);
     }
   }
@@ -319,7 +318,6 @@ C_CHANGESTAT_FN(c_gwldegree_by_attr_ML_sum) {
   int tailattr = inputs[2*N_CHANGE_STATS + tail - 1]; 
   int headattr = inputs[2*N_CHANGE_STATS + head - 1]; 
   for(unsigned int j = 0; j < N_CHANGE_STATS; j++) {
-    Vertex d = (Vertex)inputs[2*j];
     int testattr = inputs[2*j + 1]; 
     if (tailattr == testattr)  /* we have tail attr match */
       CHANGE_STAT[j] +=

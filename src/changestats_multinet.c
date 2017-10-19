@@ -82,8 +82,7 @@ U_CHANGESTAT_FN(u_MultiNet){
 
   unsigned int i = MN_SID_TAIL(sn, tail);
   Vertex st = MN_IO_TAIL(sn, tail), sh = MN_IO_HEAD(sn, head);
-  Model *m = ms[i-1];
-  UPDATE_STORAGE(st, sh, sn->onwp + i, m, NULL);
+  UPDATE_STORAGE(st, sh, sn->onwp + i, ms[i-1], NULL);
 }
 
 F_CHANGESTAT_FN(f_MultiNet){
