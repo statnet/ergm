@@ -67,7 +67,7 @@ WtNetwork *nwp, WtModel *m, double *stats){
   Edge ntoggles = n_edges; // So that we can use the macros
 
   /* Initialize storage for terms that don't have s_functions.  */
-  WtEXEC_THROUGH_TERMS_INREVERSE({
+  WtEXEC_THROUGH_TERMS_INREVERSE(m, {
       IFDEBUG_BACKUP_DSTATS;
       if(mtp->s_func==NULL && mtp->i_func)
 	(*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
@@ -77,7 +77,7 @@ WtNetwork *nwp, WtModel *m, double *stats){
     });
     
   /* Calculate statistics for terms that don't have c_functions or s_functions.  */
-  WtEXEC_THROUGH_TERMS_INTO(stats, {
+  WtEXEC_THROUGH_TERMS_INTO(m, stats, {
       if(mtp->s_func==NULL && mtp->c_func==NULL && mtp->d_func){
 	(*(mtp->d_func))(ntoggles, tails, heads, weights,
 			 mtp, nwp);  /* Call d_??? function */
@@ -92,7 +92,7 @@ WtNetwork *nwp, WtModel *m, double *stats){
     GETNEWTOGGLEINFO();
     
     ergm_PARALLEL_FOR_LIMIT(m->n_terms)
-    WtEXEC_THROUGH_TERMS_INTO(stats, {
+    WtEXEC_THROUGH_TERMS_INTO(m, stats, {
 	if(mtp->s_func==NULL && mtp->c_func){
 	  ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
@@ -110,7 +110,7 @@ WtNetwork *nwp, WtModel *m, double *stats){
   }
   
   /* Calculate statistics for terms have s_functions  */
-  WtEXEC_THROUGH_TERMS_INTO(stats, {
+  WtEXEC_THROUGH_TERMS_INTO(m, stats, {
       if(mtp->s_func){
 	ZERO_ALL_CHANGESTATS();
 	(*(mtp->s_func))(mtp, nwp);  /* Call d_??? function */

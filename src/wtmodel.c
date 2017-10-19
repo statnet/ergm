@@ -27,7 +27,7 @@ void WtModelDestroy(WtNetwork *nwp, WtModel *m)
     Free(m->termarray[0].aux_storage);
   }
   
-  WtEXEC_THROUGH_TERMS({
+  WtEXEC_THROUGH_TERMS(m, {
       if(mtp->aux_storage!=NULL)
 	mtp->aux_storage=NULL;
     });
@@ -208,7 +208,7 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
     m->workspace[i] = 0.0;
 
   unsigned int pos = 0;
-  WtFOR_EACH_TERM{
+  WtFOR_EACH_TERM(m){
     mtp->statspos = pos;
     pos += mtp->nstats;
   }
@@ -234,7 +234,7 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
   memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */ 
 
   /* Make a pass through terms with d_functions. */
-  WtEXEC_THROUGH_TERMS_INTO(m->workspace, {
+  WtEXEC_THROUGH_TERMS_INTO(m, m->workspace, {
       mtp->dstats = dstats; /* Stuck the change statistic here.*/
       if(mtp->c_func==NULL && mtp->d_func)
 	(*(mtp->d_func))(ntoggles, tails, heads, weights,
@@ -247,7 +247,7 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
      toggle. */
   if(ntoggles!=1){
     unsigned int i = 0;
-    WtEXEC_THROUGH_TERMS({
+    WtEXEC_THROUGH_TERMS(m, {
 	mtp->dstats = m->dstatarray[i];
 	i++;
       });
@@ -258,7 +258,7 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
     GETTOGGLEINFO();
     
     ergm_PARALLEL_FOR_LIMIT(m->n_terms)
-    WtEXEC_THROUGH_TERMS_INTO(m->workspace, {
+    WtEXEC_THROUGH_TERMS_INTO(m, m->workspace, {
 	if(mtp->c_func){
 	  if(ntoggles!=1) ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
@@ -292,7 +292,7 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
 */
 void WtInitStats(WtNetwork *nwp, WtModel *m){
   // Iterate in reverse, so that auxliary terms get initialized first.  
-  WtEXEC_THROUGH_TERMS_INREVERSE({
+  WtEXEC_THROUGH_TERMS_INREVERSE(m, {
       double *dstats = mtp->dstats;
       mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
       if(mtp->i_func)
@@ -309,7 +309,7 @@ void WtInitStats(WtNetwork *nwp, WtModel *m){
 */
 void WtDestroyStats(WtNetwork *nwp, WtModel *m){
   unsigned int i=0;
-  WtEXEC_THROUGH_TERMS({
+  WtEXEC_THROUGH_TERMS(m, {
       if(mtp->f_func)
 	(*(mtp->f_func))(mtp, nwp);  /* Call f_??? function */
       Free(m->dstatarray[i]);

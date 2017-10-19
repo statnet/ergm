@@ -30,24 +30,23 @@ typedef struct Modelstruct {
   unsigned int n_aux;
 } Model;
 
-#define FOR_EACH_TERM for(ModelTerm *mtp = m->termarray; mtp < m->termarray + m->n_terms; mtp++)
+#define FOR_EACH_TERM(m) for(ModelTerm *mtp = (m)->termarray; mtp < (m)->termarray + (m)->n_terms; mtp++)
 
-#define EXEC_THROUGH_TERMS(subroutine)					\
-  FOR_EACH_TERM{							\
+
+#define EXEC_THROUGH_TERMS(m, subroutine)				\
+  FOR_EACH_TERM(m){							\
     subroutine;								\
   }
 
+#define FOR_EACH_TERM_INREVERSE(m) for(ModelTerm *mtp = (m)->termarray + (m)->n_terms - 1; mtp >= (m)->termarray; mtp--)
 
-#define FOR_EACH_TERM_INREVERSE for(ModelTerm *mtp = m->termarray + m->n_terms - 1; mtp >= m->termarray; mtp--)
-
-#define EXEC_THROUGH_TERMS_INREVERSE(subroutine)			\
-  FOR_EACH_TERM_INREVERSE{						\
+#define EXEC_THROUGH_TERMS_INREVERSE(m, subroutine)			\
+  FOR_EACH_TERM_INREVERSE(m){						\
     subroutine;								\
   }
 
-
-#define EXEC_THROUGH_TERMS_INTO(output, subroutine)			\
-  FOR_EACH_TERM{							\
+#define EXEC_THROUGH_TERMS_INTO(m, output, subroutine)			\
+  FOR_EACH_TERM(m){							\
     double *dstats = output + mtp->statspos;				\
     subroutine;								\
   }
@@ -65,17 +64,17 @@ typedef struct Modelstruct {
 
 #define UPDATE_STORAGE_COND(tail, head, nwp, m, MHp, cond){		\
     if(MHp && ((MHproposal*)MHp)->u_func) ((MHproposal*)MHp)->u_func(tail, head, MHp, nwp); \
-    EXEC_THROUGH_TERMS({						\
-	  IFDEBUG_BACKUP_DSTATS;					\
-	  if(mtp->u_func && (cond))					\
-	    (*(mtp->u_func))(tail, head, mtp, nwp);  /* Call u_??? function */ \
-	  IFDEBUG_RESTORE_DSTATS;					\
-	});								\
-    }
+    EXEC_THROUGH_TERMS(m, {						\
+	IFDEBUG_BACKUP_DSTATS;						\
+	if(mtp->u_func && (cond))					\
+	  (*(mtp->u_func))(tail, head, mtp, nwp);  /* Call u_??? function */ \
+	IFDEBUG_RESTORE_DSTATS;						\
+      });								\
+  }
 
 #define UPDATE_STORAGE(tail, head, nwp, m, MHp){			\
-      UPDATE_STORAGE_COND(tail, head, nwp, m, MHp, TRUE);		\
-    }
+    UPDATE_STORAGE_COND(tail, head, nwp, m, MHp, TRUE);			\
+  }
 
 Model* ModelInitialize (char *fnames, char *sonames, double **inputs,
 			int n_terms);

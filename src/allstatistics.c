@@ -93,7 +93,7 @@ void AllStatistics (
   for (int i=0; i < m->n_stats; i++) cumulativeStats[i]=0.0;
 
   unsigned int totalStats = 0;
-  EXEC_THROUGH_TERMS({
+  EXEC_THROUGH_TERMS(m, {
     mtp->dstats = changeStats + totalStats;
     /* Update mtp->dstats pointer to skip atail by mtp->nstats */
     totalStats += mtp->nstats; 
@@ -141,7 +141,7 @@ void RecurseOffOn(
 
     /* Calculate the change statistic(s) associated with toggling the 
        dyad represented by nodelist1[currentnodes], nodelist2[currentnodes] */
-    EXEC_THROUGH_TERMS({
+    EXEC_THROUGH_TERMS(m, {
 	if(mtp->c_func){
 	  ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(nodelist1[currentnodes], nodelist2[currentnodes], mtp, nwp);
