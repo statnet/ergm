@@ -73,7 +73,7 @@ Network *nwp, Model *m, double *stats){
   Edge ntoggles = n_edges; // So that we can use the macros
 
   /* Initialize storage for terms that don't have s_functions.  */
-  EXEC_THROUGH_TERMS_INREVERSE({
+  EXEC_THROUGH_TERMS_INREVERSE(m, {
       IFDEBUG_BACKUP_DSTATS;
       if(mtp->s_func==NULL && mtp->i_func)
 	(*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
@@ -83,7 +83,7 @@ Network *nwp, Model *m, double *stats){
     });
     
   /* Calculate statistics for terms that don't have c_functions or s_functions.  */
-  EXEC_THROUGH_TERMS_INTO(stats, {
+  EXEC_THROUGH_TERMS_INTO(m, stats, {
       if(mtp->s_func==NULL && mtp->c_func==NULL && mtp->d_func){
 	(*(mtp->d_func))(ntoggles, tails, heads,
 			 mtp, nwp);  /* Call d_??? function */
@@ -98,7 +98,7 @@ Network *nwp, Model *m, double *stats){
     Vertex t=TAIL(e), h=HEAD(e); 
 
     ergm_PARALLEL_FOR_LIMIT(m->n_terms)        
-    EXEC_THROUGH_TERMS_INTO(stats, {
+    EXEC_THROUGH_TERMS_INTO(m, stats, {
 	if(mtp->s_func==NULL && mtp->c_func){
 	  ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(t, h,
@@ -116,7 +116,7 @@ Network *nwp, Model *m, double *stats){
   }
   
   /* Calculate statistics for terms have s_functions  */
-  EXEC_THROUGH_TERMS_INTO(stats, {
+  EXEC_THROUGH_TERMS_INTO(m, stats, {
       if(mtp->s_func){
 	ZERO_ALL_CHANGESTATS();
 	(*(mtp->s_func))(mtp, nwp);  /* Call d_??? function */
