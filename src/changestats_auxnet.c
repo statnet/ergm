@@ -218,7 +218,7 @@ I_CHANGESTAT_FN(i__undir_net){
       default: // never reached, but avoids a warning
 	toadd = FALSE;
       }
-      if(toadd) AddEdgeToTrees(t, h, unwp);
+      if(toadd) AddEdgeToTrees(MIN(t,h), MAX(t,h), unwp);
     });
 }
 
@@ -244,7 +244,7 @@ U_CHANGESTAT_FN(u__undir_net){
   default: // never reached, but avoids a warning
     totoggle = FALSE;
   }
-  if(totoggle) ToggleEdge(tail,head,unwp);
+  if(totoggle) ToggleEdge(MIN(tail,head),MAX(tail,head),unwp);
 }
 
 F_CHANGESTAT_FN(f__undir_net){

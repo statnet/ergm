@@ -281,7 +281,9 @@ C_CHANGESTAT_FN(c_undir){
   }
 
   if(totoggle){
-    ChangeStats(1, &tail, &head, unwp, m);
+    if(tail <= head) ChangeStats(1, &tail, &head, unwp, m);
+    else ChangeStats(1, &head, &tail, unwp, m);
+
     memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
   }
 }
@@ -309,7 +311,7 @@ U_CHANGESTAT_FN(u_undir){
     totoggle = FALSE;
   }
 
-  if(totoggle) UPDATE_STORAGE(tail, head, unwp, m, NULL);
+  if(totoggle) UPDATE_STORAGE(MIN(tail,head), MAX(tail,head), unwp, m, NULL);
 }
 
 F_CHANGESTAT_FN(f_undir){
