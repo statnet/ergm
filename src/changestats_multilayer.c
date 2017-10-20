@@ -14,10 +14,6 @@ I_CHANGESTAT_FN(i__layer_net){
   inputs += N_NODES;
   ll->lmap = inputs - 1;
   inputs += N_NODES;
-  if(DIRECTED){
-    ll->symm = inputs - 1; // The -1 is because layer IDs count from 1.
-    inputs += ll->nl;
-  }else ll->symm = NULL;
 
   Vertex lnnodes, lbip;
   if(BIPARTITE){
@@ -29,6 +25,11 @@ I_CHANGESTAT_FN(i__layer_net){
     lnnodes = *(inputs++);
     inputs += (ll->nl-1); // There will be a total of nl network sizes.
   }
+
+  if(DIRECTED){
+    ll->symm = inputs - 1; // The -1 is because layer IDs count from 1.
+    inputs += ll->nl;
+  }else ll->symm = NULL;
 
   ll->onwp = Calloc(1, Network);
   ll->onwp[0] = NetworkInitialize(NULL, NULL, 0, lnnodes, DIRECTED, lbip, 0, 0, NULL);
