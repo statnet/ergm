@@ -181,8 +181,7 @@ U_CHANGESTAT_FN(u_OnLayer){
 	// FIXME: This might break bipartite networks. We do not have
 	// directed bipartite networks at this time, but this may
 	// change in the future.
-	Vertex lt = ML_IO_TAIL(ll, head), lh = ML_IO_HEAD(ll, tail);
-	UPDATE_STORAGE(lt, lh, ll->onwp, ms[ml], NULL);
+	UPDATE_STORAGE(lh, lt, ll->onwp, ms[ml], NULL);
 	// Reverse the provisional toggle.
 	ToggleEdge(lt, lh, ll->onwp);
       }

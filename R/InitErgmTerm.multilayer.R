@@ -173,7 +173,7 @@ Layer <- function(...){
       else
         append.rhs.formula(nwl[[1]]%n%"constraints", list(call("blockdiag",".LayerID")), TRUE)
   
-  if(any(symm)) append.rhs.formula(nwl[[1]]%n%"constraints", list(call("upper_tri",".undirected")), TRUE)
+  if(any(symm)) nw %n% "constraints" <- append.rhs.formula(nw%n%"constraints", list(call("upper_tri",".undirected")), TRUE)
 
   if("obs.constraints" %in% list.network.attributes(nwl[[1]])) nw %n% "obs.constraints" <- nwl[[1]]%n%"obs.constraints"
 

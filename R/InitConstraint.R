@@ -186,7 +186,7 @@ InitConstraint.upper_tri<-function(lhs.nw, attrname=NULL, ...){
          # The pattern is TRUE,...,TRUE,FALSE,...,FALSE for those
          # columns i where restrict[i]==TRUE, and it's just
          # TRUE,...,TRUE,TRUE,...,TRUE where restrict[i]==FALSE.
-         d <- do.call(c, lapply(seq_len(n), function(i) rep(rle(c(TRUE,!restrict[i])), c(i-1, n-i+1),scale="run")))
+         d <- do.call(c, lapply(seq_len(n), function(i) rep(c(rle(TRUE),rle(!restrict[i])), c(i-1, n-i+1),scale="run")))
          rlebdm(compact.rle(d), n)
        },
        dependence = FALSE
