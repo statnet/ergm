@@ -14,6 +14,10 @@ I_CHANGESTAT_FN(i__layer_net){
   inputs += N_NODES;
   ll->lmap = inputs - 1;
   inputs += N_NODES;
+  if(DIRECTED){
+    ll->symm = inputs - 1; // The -1 is because layer IDs count from 1.
+    inputs += ll->nl;
+  }else ll->symm = NULL;
 
   Vertex lnnodes, lbip;
   if(BIPARTITE){
@@ -37,16 +41,26 @@ I_CHANGESTAT_FN(i__layer_net){
   /* Construct the output (logical layer) network: */  
   
   EXEC_THROUGH_NET_EDGES_PRE(t, h, e, {
+      Vertex tl = ML_LID_TAIL(ll, t);
       if(ergm_LayerLogic(t, h, ll, 0)){
 	ML_SETWT(ll, ML_IO_TAIL(ll, t), ML_IO_HEAD(ll, h), 1);
+      }
+      // If the physical layer is symmetrized then also check the
+      // layer logic of its recirpocation.
+      if(ll->symm && ll->symm[tl]!=0 && ergm_LayerLogic(h, t, ll, 0)){
+	ML_SETWT(ll, ML_IO_HEAD(ll, h), ML_IO_TAIL(ll, t), 1);	
       }
     });
 }
 
 U_CHANGESTAT_FN(u__layer_net){ 
   GET_AUX_STORAGE(StoreLayerLogic, ll);
+  Vertex tl = ML_LID_TAIL(ll, tail);
   if(ergm_LayerLogic(tail, head, ll, TRUE)){
     ML_TOGGLE(ll, ML_IO_TAIL(ll, tail), ML_IO_HEAD(ll, head));
+  }
+  if(ll->symm && ll->symm[tl]!=0 && ergm_LayerLogic(head, tail, ll, TRUE)){
+    ML_TOGGLE(ll, ML_IO_HEAD(ll, head), ML_IO_TAIL(ll, tail));
   }
 }
 
@@ -108,11 +122,35 @@ C_CHANGESTAT_FN(c_OnLayer){
   // Find the affected models.
   for(unsigned int ml=0; ml < nml; ml++){
     GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
-    if(ergm_LayerLogic(tail, head, ll, TRUE)){ // network affected
-      Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
-      ChangeStats(1, &lt, &lh, ll->onwp, ms[ml]);
-      for(unsigned int i=0; i<N_CHANGE_STATS; i++)
-	CHANGE_STAT[i] += ms[ml]->workspace[i] * w[ml];
+    Vertex tl = ML_LID_TAIL(ll, tail);
+    if(!ll->symm || ll->symm[tl]==0){ // Toggle not symmetrized
+      if(ergm_LayerLogic(tail, head, ll, TRUE)){ // network affected
+	Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+	ChangeStats(1, &lt, &lh, ll->onwp, ms[ml]);
+	for(unsigned int i=0; i<N_CHANGE_STATS; i++)
+	  CHANGE_STAT[i] += ms[ml]->workspace[i] * w[ml];
+      }
+    }else{ // Toggle symmetrized
+      unsigned int nt = 0;
+      Vertex lt[2], lh[2];
+      if(ergm_LayerLogic(tail, head, ll, TRUE)){
+	lt[nt] = ML_IO_TAIL(ll, tail);
+	lh[nt] = ML_IO_HEAD(ll, head);
+	nt++;
+      }
+      if(ergm_LayerLogic(head, tail, ll, TRUE)){
+	// FIXME: This might break bipartite networks. We do not have
+	// directed bipartite networks at this time, but this may
+	// change in the future.
+	lh[nt] = ML_IO_TAIL(ll, tail);
+	lt[nt] = ML_IO_HEAD(ll, head);
+	nt++;
+      }
+      if(nt){
+	ChangeStats(nt, lt, lh, ll->onwp, ms[ml]);
+	for(unsigned int i=0; i<N_CHANGE_STATS; i++)
+	  CHANGE_STAT[i] += ms[ml]->workspace[i] * w[ml];
+      }
     }
   }
 }
@@ -124,9 +162,29 @@ U_CHANGESTAT_FN(u_OnLayer){
   // Find the affected models.
   for(unsigned int ml=0; ml < nml; ml++){
     GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
-    if(ergm_LayerLogic(tail, head, ll, TRUE)){ // network affected
+    Vertex tl = ML_LID_TAIL(ll, tail);
+    if(!ll->symm || ll->symm[tl]==0){ // Toggle not symmetrized
+      if(ergm_LayerLogic(tail, head, ll, TRUE)){ // network affected
+	Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+	UPDATE_STORAGE(lt, lh, ll->onwp, ms[ml], NULL);
+      }
+    }else{ // Toggle symmetrized
       Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
-      UPDATE_STORAGE(lt, lh, ll->onwp, ms[ml], NULL);
+      if(ergm_LayerLogic(tail, head, ll, TRUE)){
+	UPDATE_STORAGE(lt, lh, ll->onwp, ms[ml], NULL);
+      }	
+      if(ergm_LayerLogic(head, tail, ll, TRUE)){
+	// We need to make a provisional toggle here, since
+	// UPDATE_STORAGE expects one toggle at a time.
+	ToggleEdge(lt, lh, ll->onwp);
+	// FIXME: This might break bipartite networks. We do not have
+	// directed bipartite networks at this time, but this may
+	// change in the future.
+	Vertex lt = ML_IO_TAIL(ll, head), lh = ML_IO_HEAD(ll, tail);
+	UPDATE_STORAGE(lt, lh, ll->onwp, ms[ml], NULL);
+	// Reverse the provisional toggle.
+	ToggleEdge(lt, lh, ll->onwp);
+      }
     }
   }
 }

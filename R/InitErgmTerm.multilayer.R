@@ -60,6 +60,25 @@ network_view <- function(x, attrname, test.f = as.logical){
   x
 }
 
+#' Returns a directed version of an undirected binary network
+#'
+#' @param x a [`network`] object.
+#' @param rule a string specifying how the network is to be
+#'   constructed.
+direct.network <- function(x, rule=c("both", "upper", "lower")){
+  rule <- match.arg(rule)
+
+  el <- as.edgelist(x)
+  el <- switch(rule,
+               both = rbind(el, el[,2:1,drop=FASLSE]),
+               upper = cbind(pmin(el[,1],el[,2]),pmax(el[,1],el[,2])),
+               lower = cbind(pmax(el[,1],el[,2]),pmin(el[,1],el[,2])))
+  
+  o <- network.initialize(network.size(x), directed=TRUE, bipartite=x%n%"bipartite", loops=has.loops(x), hyper=is.hyper(x), multiple=is.multiplex(x))
+  o <- network.edgelist(el, o)
+  nvattr.copy.network(o, x)
+}
+
 #' A multilayer network representation.
 #'
 #' A function for specifying the LHS of a multilayer (a.k.a. multiplex
@@ -67,13 +86,15 @@ network_view <- function(x, attrname, test.f = as.logical){
 #'
 #' @param ... layer specification, in one of three formats:
 #' 
-#'   1. An (optionally named) list of identically-dimensioned and
-#'      directed networks.
+#'   1. An (optionally named) list of identically-dimensioned
+#'      networks.
 #'
 #'   1. Several networks as (optionally named) arguments.
 #'
-#'   1. A single network and a chararacter vector. Then, the layers are
-#'      values of the named edge attributes.
+#'   1. A single network, a chararacter vector, and an optional
+#'      logical vector. Then, the layers are values of the named edge
+#'      attributes. If the network is directed, the logical vector
+#'      specifies which of the layers should be treated as undirected.
 #'
 #' @return A network object with layer metadata.
 #'
@@ -101,11 +122,23 @@ network_view <- function(x, attrname, test.f = as.logical){
 #' @export
 Layer <- function(...){
   args <- list(...)
-  if(length(args)==2 && is(args[[1]], "network") && is(args[[2]], "vector")){
+  if(length(args)%in%2:3 && is(args[[1]], "network") && is(args[[2]], "vector") && (length(args)!=3 || is(args[[3]], "vector"))){
     nwl <-
       lapply(args[[2]], function(eattr){
         network_view(args[[1]], eattr)
       })
+    if(length(args)==3){
+      symm <- as.logical(args[[3]])
+      for(i in which(symm)){
+        # There is probably a more efficient way to do this, but we need
+        # to compute nw1 anyway.
+        nw1 <- symmetrize.network(nwl[[i]], rule="weak")
+        nw2 <- symmetrize.network(nwl[[i]], rule="strong")
+        if(!identical(as.vector(as.edgelist(nw1)),as.vector(as.edgelist(nw2))))
+          stop("Layer specified to be treated as undirected is not symmetric.")
+        nwl[[i]] <- nw1
+      }
+    }
     names(nwl) <- args[[2]]
   }else if(all(sapply(args, is, "network"))){
     nwl <- args
@@ -113,6 +146,19 @@ Layer <- function(...){
     nwl <- args[[1]]
   }else stop("Unrecognized format for multilayer specification. See help for information.")
 
+  # nwl may now be a list with networks of heterogeneous directedness.
+  
+  dir <- sapply(nwl, is.directed)
+  symm <- if(all_identical(dir)) rep(FALSE, length(nwl)) else !dir
+
+  nwl <- mapply(function(nw, symm) {
+    nw %v% ".undirected" <- symm
+    if(symm) direct.network(nw,rule="upper") else nw
+  }, nwl, symm, SIMPLIFY=FALSE)
+
+  # nwl is now a list of networks with homogeneous directedness, some
+  # networks tagged with vertex attribute .undirected.
+  
   if(any(!is.na(suppressWarnings(sapply(names(nwl), as.numeric))))) warning("Using numeric layer names is ambiguous.")
 
   constraintsl <- lapply(nwl, get.network.attribute, "constraints")
@@ -126,6 +172,9 @@ Layer <- function(...){
         ~blockdiag(".LayerID")
       else
         append.rhs.formula(nwl[[1]]%n%"constraints", list(call("blockdiag",".LayerID")), TRUE)
+  
+  if(any(symm)) append.rhs.formula(nwl[[1]]%n%"constraints", list(call("upper_tri",".undirected")), TRUE)
+
   if("obs.constraints" %in% list.network.attributes(nwl[[1]])) nw %n% "obs.constraints" <- nwl[[1]]%n%"obs.constraints"
 
   nw
@@ -170,7 +219,7 @@ InitErgmTerm..layer.net <- function(nw, arglist, response=NULL, ...){
   
   if(test_eval.LayerLogic(ll, FALSE)) stop("Layer specifications that produce edges on the output layer for empty input layers are not supported at this time.", call.=FALSE)
   
-  list(name="_layer_net", coef.names=c(), inputs=c(unlist(.block_vertexmap(nw, ".LayerID", TRUE)),ll), dependence=dependence)
+  list(name="_layer_net", coef.names=c(), inputs=c(unlist(.block_vertexmap(nw, ".LayerID", TRUE)),if(is.directed(nw)) sapply(nwl, function(nw) (nw%v% ".undirected")[1]), ll), dependence=dependence)
 }
 
 pack.LayerLogic_formula_as_double <- function(formula, namemap){

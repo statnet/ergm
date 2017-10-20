@@ -44,6 +44,7 @@ typedef struct {
   Network *inwp, *onwp;
   double *lid;
   double *lmap;
+  double *symm;
   double *commands;
   double *stacks;
 } StoreLayerLogic;
@@ -222,6 +223,9 @@ static inline int ergm_LayerLogic(Vertex tail, Vertex head, // Dyad to toggle on
     default:{
       Vertex l = com; 
       unsigned int x0 = ML_IGETWT(ll, l, lt, lh);
+      // If the physical layer is symmetrized, also consider it a TRUE
+      // if its reciprocation is present.
+      if(ll->symm && ll->symm[l]!=0) x0 |= ML_IGETWT(ll, l, lh, lt);
       *(++stack0) = x0;
       if(stack1){
 	unsigned int x1 = tl==l? !(x0!=0) : x0;
