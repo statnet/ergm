@@ -442,16 +442,16 @@ network
     Evaluates the terms in \code{formula} on an undirected network
     constructed by symmetrizing the LHS network using one of four rules:
     \describe{
-      \code{"weak"}{A tie \eqn{(i,j)} is present in the constructed
+      \item{\code{"weak"}}{A tie \eqn{(i,j)} is present in the constructed
 	network if the LHS network has either tie \eqn{(i,j)} or
 	\eqn{(j,i)} (or both).}
-      \code{"strong"}{A tie \eqn{(i,j)} is present in the constructed
+      \item{\code{"strong"}}{A tie \eqn{(i,j)} is present in the constructed
 	network if the LHS network has both tie \eqn{(i,j)} and tie
 	\eqn{(j,i)}.}
-      \code{"upper"}{A tie \eqn{(i,j)} is present in the constructed
+      \item{\code{"upper"}}{A tie \eqn{(i,j)} is present in the constructed
 	network if the LHS network has tie \eqn{(\min(i,j),\max(i,j))}:
 	the upper triangle of the LHS network.}
-      \code{"upper"}{A tie \eqn{(i,j)} is present in the constructed
+      \item{\code{"upper"}}{A tie \eqn{(i,j)} is present in the constructed
 	network if the LHS network has tie \eqn{(\max(i,j),\min(i,j))}:
 	the lower triangle of the LHS network.}
     }
