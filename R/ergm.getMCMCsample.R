@@ -98,7 +98,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
         if(verbose)
           message("First run: running each chain forward by ",samplesize, " steps with interval ", interval, ".")
       }else{
-        if(meS$eS<1 || meS$pts.rank==1){
+        if(meS$eS<1 || meS$pts.rank==1 || burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
           samplesize <- control.parallel$MCMC.samplesize
           if(verbose)
             message("Insufficient ESS or untrustworthy burn-in estimate to determine the number of steps remaining: running forward by ",samplesize, " steps with interval ", interval, ".")
@@ -132,7 +132,17 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
                       )
       
       meS <- .max.effectiveSize(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, ar.order=control$MCMC.effectiveSize.order)
-      if(verbose) message("Maximum harmonic mean ESS of ",meS$eS," attained with burn-in of ", round(meS$b/nrow(outl[[1]]$s)*100,2),"%.")
+
+      # Confirm burn-in: when burning-in all statistics tend to go in
+      # the same direction, so perform the PCA.
+      esteqPCA <- lapply(lapply(lapply(lapply(lapply(esteq, `[`, -seq_len(meS$burnin), , drop=FALSE), function(s) s[,apply(s,2,var)>.Machine$double.eps,drop=FALSE]), prcomp, rank.=1, scale.=TRUE, retx=TRUE), `[[`, "x"), c)
+      esteq.pvals <- sapply(esteqPCA, function(y){
+        2*pnorm(-abs(geweke.diag(y)$z))
+      })
+      
+      burnin.pval <- pchisq(-2 * sum(log(esteq.pvals)), 2*length(esteq.pvals), lower.tail=FALSE)
+        
+      if(verbose) message("Maximum harmonic mean ESS of ",meS$eS," attained with burn-in of ", round(meS$b/nrow(outl[[1]]$s)*100,2),"%; convergence p-value = ", burnin.pval, ".")
 
       if(control.parallel$MCMC.runtime.traceplot){
         for (i in seq_along(esteq)) colnames(esteq[[i]]) <- names(list(...)$theta)
@@ -140,12 +150,16 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
              ,ask=FALSE,smooth=TRUE,density=FALSE)
       }
 
-      if(meS$pts.rank!=1 && meS$eS>=control.parallel$MCMC.effectiveSize){
-        if(verbose) message("Target ESS achieved and is trustworthy. Returning.")
-        break
+      if(meS$eS>=control.parallel$MCMC.effectiveSize){
+        if(burnin.pval > control$MCMC.effectiveSize.burnin.pval && meS$pts.rank!=1){
+          if(verbose) message("Target ESS achieved and is trustworthy. Returning.")
+          break
+        }else{
+          if(verbose) message("ESS and burn-in estimates are not trustworthy.")
+        }
       }
     }
-    
+
     if(meS$eS<control.parallel$MCMC.effectiveSize)
       warning("Unable to reach target effective size in iterations alotted.")
 
@@ -377,7 +391,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
 
   # TODO: Implement bisection algorithm here.
   pts <- sort(round(base^seq_len(npts)*nrow(x[[1]])))
-  ess <- sapply(pts, es) # I.e., variables in rows and burn-in test points in columns.
+  ess <- rbind(sapply(pts, es)) # I.e., variables in rows and burn-in test points in columns.
 
   best <- max(apply(ess, 1, which.max))
 
