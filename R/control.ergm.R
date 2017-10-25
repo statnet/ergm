@@ -119,20 +119,14 @@
 #' Metropolis-Hastings algorithm.  Increasing sample size may increase the
 #' precision in the estimates by reducing MCMC error, at the expense of time.
 #' Set it higher for larger networks, or when using parallel functionality.
-#' @param
-#' MCMLE.effectiveSize,MCMC.effectiveSize,MCMC.effectiveSize.damp,MCMC.effectiveSize.maxruns,
-#' 
-#' Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively determine the
-#' burn-in and the MCMC length needed to get the specified effective size using
-#' the method of Sahlin (2011); 50 is a reasonable value.  This feature is in
-#' experimental status until we verify the coverage of the standard errors.
 #' 
 #' @param
-#' MCMC.effectiveSize.base,MCMC.effectiveSize.points,MCMC.effectiveSize.order
-#' Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively determine the
-#' burn-in and the MCMC length needed to get the specified effective size using
-#' the method of Sahlin (2011); 50 is a reasonable value.  This feature is in
-#' experimental status until we verify the coverage of the standard errors.
+#'   MCMLE.effectiveSize,MCMC.effectiveSize,MCMC.effectiveSize.damp,MCMC.effectiveSize.maxruns,MCMC.effectiveSize.base,MCMC.effectiveSize.points,MCMC.effectiveSize.order,MCMC.effectiveSize.burnin.pval
+#'   Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively
+#'   determine the burn-in and the MCMC length needed to get the
+#'   specified effective size using the method of Sahlin (2011); 50 is
+#'   a reasonable value.  This feature is in experimental status until
+#'   we verify the coverage of the standard errors.
 #' 
 #' @param MCMC.return.stats Logical: If TRUE, return the matrix of MCMC-sampled
 #' network statistics.  This matrix should have \code{MCMC.samplesize} rows.
@@ -456,6 +450,7 @@ control.ergm<-function(drop=TRUE,
                        MCMC.effectiveSize.base=1/2,
                        MCMC.effectiveSize.points=5,
                        MCMC.effectiveSize.order=1,
+                       MCMC.effectiveSize.burnin.pval=0.05,
                        MCMC.return.stats=TRUE,
                        MCMC.runtime.traceplot=FALSE,
                        MCMC.init.maxedges=20000,
