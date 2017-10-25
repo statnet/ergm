@@ -377,7 +377,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
 
   # TODO: Implement bisection algorithm here.
   pts <- sort(round(base^seq_len(npts)*nrow(x[[1]])))
-  ess <- sapply(pts, es) # I.e., variables in rows and burn-in test points in columns.
+  ess <- rbind(sapply(pts, es)) # I.e., variables in rows and burn-in test points in columns.
 
   best <- max(apply(ess, 1, which.max))
 
