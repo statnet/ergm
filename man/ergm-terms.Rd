@@ -1620,7 +1620,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     average degree of a node.  Note that this term is a constant multiple of
     both \code{edges} and \code{density}.}
   
-    \item{\code{mutual(same=NULL, diff=FALSE, by=NULL, keep=NULL, L1=NULL, L2=NULL)} (binary)  (directed)  (frequently-used) (layer-aware), \code{mutual(form="min",threshold=0)}  (valued)  (directed)
+    \item{\code{mutual(same=NULL, diff=FALSE, by=NULL, keep=NULL, Ls=NULL)} (binary)  (directed)  (frequently-used) (layer-aware), \code{mutual(form="min",threshold=0)}  (valued)  (directed)
      }{\emph{Mutuality:} 
     In binary ERGMs, equal to the number of
     pairs of actors \eqn{i} and \eqn{j} for which \eqn{(i{\rightarrow}j)}{(i,j)}
@@ -1650,11 +1650,13 @@ of the degrees of all pairs of nodes in the network which are tied.
     tells which statistics should be kept whenever the \code{mutual} term would
     ordinarily result in multiple statistics.
 
-    If layer specification is given in arguments \code{L1} and
-    \code{L2}, the statistic will count the number of dyads where a tie
-    in \code{L1} reciprocates a tie in \code{L2} and vice versa. (Note
-    that dyad that has mutual ties in \code{L1} and in \code{L2} will
-    add 2 to this statistic.) 
+    If layer specification is given in argument \code{Ls} (as either a
+    list of two layer logic formulas or a single layer logic formula),
+    the statistic will count the number of dyads where a tie in
+    \code{Ls[[1]]} reciprocates a tie in \code{Ls[[2]]} and vice
+    versa. (Note that dyad that has mutual ties in \code{Ls[[1]]} and in
+    \code{Ls[[2]]} will add 2 to this statistic.) If a formula is given,
+    it is replicated.
   }
     
     \item{\code{nearsimmelian}  (binary)  (directed)  (triad-related)}{\emph{Near simmelian triads:} 
