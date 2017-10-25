@@ -17,12 +17,13 @@ static inline int ergm_c_LayerLogic2Path(Vertex tail1, Vertex head1, Vertex tail
 					 int c11, int c12, int c21, int c22){
   if(!ll1->onwp->directed_flag) any_order = TRUE;
   
-  unsigned int e11o = c11? c11==-1 : ML_GETWT(ll1, tail1, head1), e22o = c22? c22==-1 : ML_GETWT(ll2, tail2, head2), e12o=0, e21o=0;
+  Vertex t1 = ML_IO_TAIL(ll1, tail1), h1 = ML_IO_HEAD(ll1, head1), t2 = ML_IO_TAIL(ll2, tail2), h2 = ML_IO_HEAD(ll2, head2);
+  unsigned int e11o = c11? c11==-1 : ML_GETWT(ll1, t1, h1), e22o = c22? c22==-1 : ML_GETWT(ll2, t2, h2), e12o=0, e21o=0;
   unsigned int e11n = c11? c11==+1 : e11o, e22n = c22? c22==+1 : e22o, e12n=0, e21n=0;
   
   if(any_order){
-    e12o = c12? c12==-1 : ML_GETWT(ll2, tail1, head1);
-    e21o = c12? c21==-1 : ML_GETWT(ll1, tail2, head2);
+    e12o = c12? c12==-1 : ML_GETWT(ll2, t1, h1);
+    e21o = c12? c21==-1 : ML_GETWT(ll1, t2, h2);
     e12n = c12? c12==+1 : e12o;
     e21n = c21? c21==+1 : e21o;
   }
@@ -35,10 +36,11 @@ static inline int ergm_c_LayerLogic2Path(Vertex tail1, Vertex head1, Vertex tail
 static inline unsigned int ergm_LayerLogic2Path(Vertex tail1, Vertex head1, Vertex tail2, Vertex head2, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order){
   if(!ll1->onwp->directed_flag) any_order = TRUE;
 
-  unsigned int e11 = ML_GETWT(ll1, tail1, head1), e22 = ML_GETWT(ll2, tail2, head2), e12, e21;
+  Vertex t1 = ML_IO_TAIL(ll1, tail1), h1 = ML_IO_HEAD(ll1, head1), t2 = ML_IO_TAIL(ll2, tail2), h2 = ML_IO_HEAD(ll2, head2);
+  unsigned int e11 = ML_GETWT(ll1, t1, t1), e22 = ML_GETWT(ll2, t2, h2), e12, e21;
   if(any_order){
-    e12 = ML_GETWT(ll2, tail1, head1);
-    e21 = ML_GETWT(ll1, tail2, head2);
+    e12 = ML_GETWT(ll2, t1, h1);
+    e21 = ML_GETWT(ll1, t2, h2);
   }
   return ergm_Check2Path(e11, e12, e21, e22, any_order);
 }

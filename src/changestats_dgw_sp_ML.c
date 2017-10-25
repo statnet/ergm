@@ -662,7 +662,7 @@ static inline void espOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
         ML_EXEC_THROUGH_OUTEDGES(ll0,k,f,u, { 
           if(u!=t)
 	    /*Increment if there is an OSP*/
-            INC_IF_TWOPATH(kt,t,u,f,u);
+            INC_IF_TWOPATH(kt,t,u,k,u);
 	  });
         /*Update the changestat for the k->t edge*/
         for(unsigned int j = 0; j < nd; j++){
