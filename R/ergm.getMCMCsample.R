@@ -133,14 +133,8 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
       
       meS <- .max.effectiveSize(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, ar.order=control$MCMC.effectiveSize.order)
 
-      # Confirm burn-in: when burning-in all statistics tend to go in
-      # the same direction, so perform the PCA.
-      esteqPCA <- lapply(lapply(lapply(lapply(lapply(esteq, `[`, -seq_len(meS$burnin), , drop=FALSE), function(s) s[,apply(s,2,var)>.Machine$double.eps,drop=FALSE]), prcomp, rank.=1, scale.=TRUE, retx=TRUE), `[[`, "x"), c)
-      esteq.pvals <- sapply(esteqPCA, function(y){
-        2*pnorm(-abs(geweke.diag(y)$z))
-      })
-      
-      burnin.pval <- pchisq(-2 * sum(log(esteq.pvals)), 2*length(esteq.pvals), lower.tail=FALSE)
+      # Sanity check that we didn't underestimate the burn-in.
+      burnin.pval <- geweke.diag.mv(structure(lapply(lapply(esteq, `[`, -seq_len(meS$burnin), , drop=FALSE), mcmc), class="mcmc.list"))$p.value
         
       if(verbose) message("Maximum harmonic mean ESS of ",meS$eS," attained with burn-in of ", round(meS$b/nrow(outl[[1]]$s)*100,2),"%; convergence p-value = ", burnin.pval, ".")
 
