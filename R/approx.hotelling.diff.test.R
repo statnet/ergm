@@ -68,8 +68,13 @@
 #'
 #' @export approx.hotelling.diff.test
 approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.equal=FALSE){
-  mu0 <- rep(mu0, length.out = NCOL(x))
-  
+  if(!is.mcmc.list(x))
+    x <- mcmc.list(mcmc(as.matrix(x)))
+  if(!is.null(y) && !is.mcmc.list(y))
+    y <- mcmc.list(mcmc(as.matrix(y)))
+
+  mu0 <- rep(mu0, length.out = nvar(x))
+
   tr <- function(x) sum(diag(as.matrix(x)))
 
   vars <- list(x=list(v=x))
@@ -77,13 +82,11 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
   
   mywithin <- function(data, ...) within(data, ...) # This is a workaround suggsted by Duncan Murdoch: calling lapply(X, within, {CODE}) would leave CODE unable to see any objects in f.
   vars <- lapply(vars, mywithin, {
-    if(!is.mcmc.list(v))
-      v <- mcmc.list(mcmc(as.matrix(v)))
     vcovs.indep <- lapply(v, cov)
     if(assume.indep){
       vcovs <- vcovs.indep
     }else{
-      vcovs <- lapply(lapply(v, sectrum0.mvar), function(m) matrix(ifelse(is.na(c(m)), 0, c(m)),nrow(m),ncol(m)))
+      vcovs <- lapply(lapply(v, spectrum0.mvar), function(m) matrix(ifelse(is.na(c(m)), 0, c(m)),nrow(m),ncol(m)))
     }
     ms <- lapply(v, base::colMeans)
     m <- colMeans(as.matrix(v))
@@ -103,7 +106,6 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
     neff <- n / infl
     
     vcov.m <- vcov/n # Here, vcov already incorporates the inflation due to autocorrelation.
-    v <- as.matrix(v)
   })
   rm(mywithin)
   
@@ -124,8 +126,8 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
   }
 
 
-  p <- ncol(x$v)
-  names(mu0)<-colnames(x$v)
+  p <- nvar(x$v)
+  names(mu0)<-varnames(x$v)
 
   novar <- diag(vcov.d)==0
   p <- p-sum(novar)
@@ -287,7 +289,7 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
       arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, ...))
       # If ar() failed or produced a variance matrix estimate that's
       # not positive semidefinite, try with a lower order.
-      while((!is.null(arfit$error) || any(eigen(arfit$value$var.pred, only.values=TRUE)$values<0)) && ord > 1){
+      while((!is.null(arfit$error) || ERRVL(try(any(eigen(arfit$value$var.pred, only.values=TRUE)$values<0), silent=TRUE), TRUE)) && ord > 1){
         ord <- ord - 1
         arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, ...))
       }

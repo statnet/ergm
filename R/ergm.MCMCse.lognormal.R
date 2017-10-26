@@ -57,7 +57,7 @@ ergm.MCMCse.lognormal<-function(theta, init, statsmatrix, statsmatrix.obs,
 
   #  Calculate the auto-covariance of the MCMC suff. stats.
   #  and hence the MCMC s.e.
-  cov.zbar <- sectrum0.mvar(gsim) / nrow(gsim)
+  cov.zbar <- spectrum0.mvar(gsim) / nrow(gsim)
 
   # Identify canonical parameters corresponding to non-offset statistics that do not vary
   novar <- rep(TRUE, nrow(H))
@@ -66,7 +66,7 @@ ergm.MCMCse.lognormal<-function(theta, init, statsmatrix, statsmatrix.obs,
   #  Calculate the auto-covariance of the Conditional MCMC suff. stats.
   #  and hence the Conditional MCMC s.e.
   if(!is.null(statsmatrix.obs)){
-    cov.zbar.obs <- sectrum0.mvar(gsim.obs) / nrow(gsim.obs)
+    cov.zbar.obs <- spectrum0.mvar(gsim.obs) / nrow(gsim.obs)
 
     novar <- novar & (diag(H.obs)<sqrt(.Machine$double.eps))
   }else{
