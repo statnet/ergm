@@ -58,6 +58,8 @@
 #' It has a print method [print.htest()].
 #'
 #' @seealso [t.test()]
+#' @note For [`mcmc.list`] input, the variance for this test is
+#'   estimated with unpooled means. This is not strictly correct.
 #' @references
 #' 
 #' Hotelling, H. (1947). Multivariate Quality Control. In C. Eisenhart, M. W.
@@ -81,7 +83,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
     if(assume.indep){
       vcovs <- vcovs.indep
     }else{
-      vcovs <- lapply(lapply(v, .ergm.mvar.spec0), function(m) matrix(ifelse(is.na(c(m)), 0, c(m)),nrow(m),ncol(m)))
+      vcovs <- lapply(lapply(v, sectrum0.mvar), function(m) matrix(ifelse(is.na(c(m)), 0, c(m)),nrow(m),ncol(m)))
     }
     ms <- lapply(v, base::colMeans)
     m <- colMeans(as.matrix(v))
@@ -221,27 +223,35 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
   esteq
 }
 
-# This function can be viewed as a multivariate version of coda's
-# spectrum0.ar().  Its return value, divided by nrow(cbind(x)), is the
-# estimated variance-covariance matrix of the sampling distribution of
-# the mean of x if x is a multivatriate time series with AR(p)
-# structure, with p determined by AIC.
-#
-# ar() fails if crossprod(x) is singular, which is remedied by mapping
-# the variables onto the principal components of x, dropping redundant
-# dementions.
-#
-# FIXME: Actually, for MCMC with multiple chains, we should be using the pooled mean.
-.ergm.mvar.spec0 <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machine$double.eps^0.5, ...){
-    x <- cbind(x)
-    n <- nrow(x)
-    p <- ncol(x)
-
-    v <- matrix(NA,p,p)
-    novar <- abs(apply(x,2,stats::sd))<tol
-    x <- x[,!novar,drop=FALSE]
-
-    if(ncol(x)){
+#' Multivariate version of `coda`'s [spectrum0.ar()].
+#'
+#' Its return value, divided by `nrow(cbind(x))`, is the estimated
+#' variance-covariance matrix of the sampling distribution of the mean
+#' of `x` if `x` is a multivatriate time series with AR(\eqn{p}) structure, with
+#' \eqn{p} determined by AIC.
+#'
+#' @param x a matrix with observations in rows and variables in
+#'   columns.
+#' @param order.max maximum (or fixed) order for the AR model.
+#' @param aic use AIC to select the order (up to `order.max`).
+#' @param tol drop components until the reciprocal condition number of
+#'   the transformed variance-covariance matrix is greater than this.
+#' @param ... additional arguments to [ar()].
+#'
+#' @note [ar()] fails if `crossprod(x)` is singular,
+#' which is remedied by mapping the variables onto the principal
+#' components of `x`, dropping redundant dimentions.
+#' @export spectrum0.mvar
+spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machine$double.eps^0.5, ...){
+  x <- cbind(x)
+  n <- nrow(x)
+  p <- ncol(x)
+  
+  v <- matrix(NA,p,p)
+  novar <- abs(apply(x,2,stats::sd))<tol
+  x <- x[,!novar,drop=FALSE]
+  
+  if(ncol(x)){
       # Map the variables onto their principal components, dropping
       # redundant (linearly-dependent) dimensions. Here, we keep the
       # eigenvectors such that the reciprocal condition number defined
@@ -254,9 +264,11 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
 
       # Calculate the time-series variance of the mean on the PC scale.
 
-      if(is.null(order.max)){ord <- 10*log10(nrow(xr))}
+      if(is.null(order.max)){ord <- ceiling(10*log10(nrow(xr)))}
       arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, ...))
-      while(!is.null(arfit$error) & ord > 1){
+      # If ar() failed or produced a variance matrix estimate that's
+      # not positive semidefinite, try with a lower order.
+      while((!is.null(arfit$error) || any(eigen(arfit$value$var.pred, only.values=TRUE)$values<0)) && ord > 1){
         ord <- ord - 1
         arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, ...))
       }

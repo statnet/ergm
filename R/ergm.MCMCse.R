@@ -67,7 +67,7 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
 
   #  Calculate the auto-covariance of the MCMC suff. stats.
   #  and hence the MCMC s.e.
-  cov.zbar <- .ergm.mvar.spec0(gsim) * sum(prob^2)
+  cov.zbar <- sectrum0.mvar(gsim) * sum(prob^2)
   imp.factor <- sum(prob^2)*length(prob)
 
   # Identify canonical parameters corresponding to non-offset statistics that do not vary
@@ -84,7 +84,7 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
     htmp.obs <- sweep(sweep(gsim.obs, 2, E.obs, "-"), 1, sqrt(prob.obs), "*")
     H.obs <- crossprod(htmp.obs, htmp.obs)
 
-    cov.zbar.obs <- .ergm.mvar.spec0(gsim.obs) * sum(prob.obs^2)
+    cov.zbar.obs <- sectrum0.mvar(gsim.obs) * sum(prob.obs^2)
     imp.factor.obs <- sum(prob.obs^2)*length(prob.obs)
 
     novar <- novar & (diag(H.obs)<sqrt(.Machine$double.eps))
