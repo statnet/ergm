@@ -183,20 +183,39 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
   out
 }
 
-## The following function's bookkeeping parts (e.g., handling of
-## mcmc.list and calculation of windows starts and ends) are loosely
-## based on parts of geweke.diag() from the coda R package.
-##
-## Rather than comparing each mean independently, compares them
-## jointly. Note that it returns an htest object, not a geweke.diag
-## object.
-##
-## If approx.hotelling.diff.test returns an error, then assume that
-## burn-in is insufficient.
-.geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5){
-  if(inherits(x, "mcmc.list"))
-    return(lapply(x, .geweke.diag.mv, frac1, frac2))
-  x <- as.mcmc(x)
+#' Multivariate version of `coda`'s [coda::geweke.diag()].
+#' 
+#' Rather than comparing each mean independently, compares them
+#' jointly. Note that it returns an `htest` object, not a `geweke.diag`
+#' object.
+#'
+#' @param x an [`mcmc`], [`mcmc.list`], or just a matrix with
+#'   observations in rows and variables in columns.
+#' @param frac1,frac2 the fraction at the start and, respectively, at
+#'   the end of the sample to compare.
+#' @param split.mcmc.list when given an `mcmc.list`, whether to test
+#'   each chain individually.
+#' @note If [approx.hotelling.diff.test()] returns an error, then
+#'   assume that burn-in is insufficient.
+#' @return An object of class `htest`, inheriting from that returned
+#'   by [approx.hotelling.diff.test()], but with p-value considered to
+#'   be 0 on insufficient sample size.
+#'
+#' @seealso [coda::geweke.diag()], [approx.hotelling.diff.test()]
+#' @export
+geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE){
+  # The following function's bookkeeping parts (e.g., handling of
+  # mcmc.list and calculation of windows starts and ends) are loosely
+  # based on parts of geweke.diag() from the coda R package.
+  
+  if(is.mcmc.list(x)){
+    if(split.mcmc.list){
+      return(lapply(x, geweke.diag.mv, frac1, frac2))
+    }
+  }else{
+    x <- as.mcmc(x)
+  }
+  
   x.len <- end(x) - start(x)
   x1 <- window(x, start=start(x), end=start(x) + frac1*x.len)
   x2 <- window(x, start=end(x) - frac2*x.len, end=end(x))
