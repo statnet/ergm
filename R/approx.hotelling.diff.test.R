@@ -58,6 +58,8 @@
 #' It has a print method [print.htest()].
 #'
 #' @seealso [t.test()]
+#' @note For [`mcmc.list`] input, the variance for this test is
+#'   estimated with unpooled means. This is not strictly correct.
 #' @references
 #' 
 #' Hotelling, H. (1947). Multivariate Quality Control. In C. Eisenhart, M. W.
@@ -66,8 +68,13 @@
 #'
 #' @export approx.hotelling.diff.test
 approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.equal=FALSE){
-  mu0 <- rep(mu0, length.out = NCOL(x))
-  
+  if(!is.mcmc.list(x))
+    x <- mcmc.list(mcmc(as.matrix(x)))
+  if(!is.null(y) && !is.mcmc.list(y))
+    y <- mcmc.list(mcmc(as.matrix(y)))
+
+  mu0 <- rep(mu0, length.out = nvar(x))
+
   tr <- function(x) sum(diag(as.matrix(x)))
 
   vars <- list(x=list(v=x))
@@ -75,13 +82,11 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
   
   mywithin <- function(data, ...) within(data, ...) # This is a workaround suggsted by Duncan Murdoch: calling lapply(X, within, {CODE}) would leave CODE unable to see any objects in f.
   vars <- lapply(vars, mywithin, {
-    if(!is.mcmc.list(v))
-      v <- mcmc.list(mcmc(as.matrix(v)))
     vcovs.indep <- lapply(v, cov)
     if(assume.indep){
       vcovs <- vcovs.indep
     }else{
-      vcovs <- lapply(lapply(v, .ergm.mvar.spec0), function(m) matrix(ifelse(is.na(c(m)), 0, c(m)),nrow(m),ncol(m)))
+      vcovs <- lapply(lapply(v, spectrum0.mvar), function(m) matrix(ifelse(is.na(c(m)), 0, c(m)),nrow(m),ncol(m)))
     }
     ms <- lapply(v, base::colMeans)
     m <- colMeans(as.matrix(v))
@@ -101,7 +106,6 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
     neff <- n / infl
     
     vcov.m <- vcov/n # Here, vcov already incorporates the inflation due to autocorrelation.
-    v <- as.matrix(v)
   })
   rm(mywithin)
   
@@ -122,8 +126,8 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
   }
 
 
-  p <- ncol(x$v)
-  names(mu0)<-colnames(x$v)
+  p <- nvar(x$v)
+  names(mu0)<-varnames(x$v)
 
   novar <- diag(vcov.d)==0
   p <- p-sum(novar)
@@ -184,20 +188,39 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
   out
 }
 
-## The following function's bookkeeping parts (e.g., handling of
-## mcmc.list and calculation of windows starts and ends) are loosely
-## based on parts of geweke.diag() from the coda R package.
-##
-## Rather than comparing each mean independently, compares them
-## jointly. Note that it returns an htest object, not a geweke.diag
-## object.
-##
-## If approx.hotelling.diff.test returns an error, then assume that
-## burn-in is insufficient.
-.geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5){
-  if(inherits(x, "mcmc.list"))
-    return(lapply(x, .geweke.diag.mv, frac1, frac2))
-  x <- as.mcmc(x)
+#' Multivariate version of `coda`'s [coda::geweke.diag()].
+#' 
+#' Rather than comparing each mean independently, compares them
+#' jointly. Note that it returns an `htest` object, not a `geweke.diag`
+#' object.
+#'
+#' @param x an [`mcmc`], [`mcmc.list`], or just a matrix with
+#'   observations in rows and variables in columns.
+#' @param frac1,frac2 the fraction at the start and, respectively, at
+#'   the end of the sample to compare.
+#' @param split.mcmc.list when given an `mcmc.list`, whether to test
+#'   each chain individually.
+#' @note If [approx.hotelling.diff.test()] returns an error, then
+#'   assume that burn-in is insufficient.
+#' @return An object of class `htest`, inheriting from that returned
+#'   by [approx.hotelling.diff.test()], but with p-value considered to
+#'   be 0 on insufficient sample size.
+#'
+#' @seealso [coda::geweke.diag()], [approx.hotelling.diff.test()]
+#' @export
+geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE){
+  # The following function's bookkeeping parts (e.g., handling of
+  # mcmc.list and calculation of windows starts and ends) are loosely
+  # based on parts of geweke.diag() from the coda R package.
+  
+  if(is.mcmc.list(x)){
+    if(split.mcmc.list){
+      return(lapply(x, geweke.diag.mv, frac1, frac2))
+    }
+  }else{
+    x <- as.mcmc(x)
+  }
+  
   x.len <- end(x) - start(x)
   x1 <- window(x, start=start(x), end=start(x) + frac1*x.len)
   x2 <- window(x, start=end(x) - frac2*x.len, end=end(x))
@@ -224,27 +247,35 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
   esteq
 }
 
-# This function can be viewed as a multivariate version of coda's
-# spectrum0.ar().  Its return value, divided by nrow(cbind(x)), is the
-# estimated variance-covariance matrix of the sampling distribution of
-# the mean of x if x is a multivatriate time series with AR(p)
-# structure, with p determined by AIC.
-#
-# ar() fails if crossprod(x) is singular, which is remedied by mapping
-# the variables onto the principal components of x, dropping redundant
-# dementions.
-#
-# FIXME: Actually, for MCMC with multiple chains, we should be using the pooled mean.
-.ergm.mvar.spec0 <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machine$double.eps^0.5, ...){
-    x <- cbind(x)
-    n <- nrow(x)
-    p <- ncol(x)
-
-    v <- matrix(NA,p,p)
-    novar <- abs(apply(x,2,stats::sd))<tol
-    x <- x[,!novar,drop=FALSE]
-
-    if(ncol(x)){
+#' Multivariate version of `coda`'s [spectrum0.ar()].
+#'
+#' Its return value, divided by `nrow(cbind(x))`, is the estimated
+#' variance-covariance matrix of the sampling distribution of the mean
+#' of `x` if `x` is a multivatriate time series with AR(\eqn{p}) structure, with
+#' \eqn{p} determined by AIC.
+#'
+#' @param x a matrix with observations in rows and variables in
+#'   columns.
+#' @param order.max maximum (or fixed) order for the AR model.
+#' @param aic use AIC to select the order (up to `order.max`).
+#' @param tol drop components until the reciprocal condition number of
+#'   the transformed variance-covariance matrix is greater than this.
+#' @param ... additional arguments to [ar()].
+#'
+#' @note [ar()] fails if `crossprod(x)` is singular,
+#' which is remedied by mapping the variables onto the principal
+#' components of `x`, dropping redundant dimentions.
+#' @export spectrum0.mvar
+spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machine$double.eps^0.5, ...){
+  x <- cbind(x)
+  n <- nrow(x)
+  p <- ncol(x)
+  
+  v <- matrix(NA,p,p)
+  novar <- abs(apply(x,2,stats::sd))<tol
+  x <- x[,!novar,drop=FALSE]
+  
+  if(ncol(x)){
       # Map the variables onto their principal components, dropping
       # redundant (linearly-dependent) dimensions. Here, we keep the
       # eigenvectors such that the reciprocal condition number defined
@@ -257,9 +288,11 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
 
       # Calculate the time-series variance of the mean on the PC scale.
 
-      if(is.null(order.max)){ord <- 10*log10(nrow(xr))}
+      if(is.null(order.max)){ord <- ceiling(10*log10(nrow(xr)))}
       arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, ...))
-      while(!is.null(arfit$error) & ord > 1){
+      # If ar() failed or produced a variance matrix estimate that's
+      # not positive semidefinite, try with a lower order.
+      while((!is.null(arfit$error) || ERRVL(try(any(eigen(arfit$value$var.pred, only.values=TRUE)$values<0), silent=TRUE), TRUE)) && ord > 1){
         ord <- ord - 1
         arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, ...))
       }
