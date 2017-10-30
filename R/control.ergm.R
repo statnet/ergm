@@ -200,7 +200,7 @@
 #'   size (or target effective size, if enabled) when the
 #'   `"confidence"` termination criterion is either not approaching
 #'   the tolerance region or is unable to prove convergence.
-#' @param MCMLE.confidence.boost.lag Sample size or target effective size will be increaed if the distane from the tolerance region fails to decrease more than once in this many successive iterations.
+#' @param MCMLE.confidence.boost.threshold,MCMLE.confidence.boost.lag Sample size or target effective size will be increaed if the distance from the tolerance region fails to decrease more than MCMLE.confidence.boost.threshold in this many successive iterations.
 #' @param MCMLE.NR.maxit,MCMLE.NR.reltol The method, maximum number of
 #' iterations and relative tolerance to use within the \code{optim} rountine in
 #' the MLE optimization. Note that by default, ergm uses \code{trust}, and
@@ -480,6 +480,7 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.conv.min.pval=0.5,
                        MCMLE.confidence=0.99,
                        MCMLE.confidence.boost=2,
+                       MCMLE.confidence.boost.threshold=1,
                        MCMLE.confidence.boost.lag=4,
                        MCMLE.NR.maxit=100,
                        MCMLE.NR.reltol=sqrt(.Machine$double.eps),

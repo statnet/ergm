@@ -428,8 +428,8 @@ ergm.MCMLE <- function(init, nw, model,
       
       if(d2>=1){ # Not within tolerance ellipsoid.
         message("Estimating equations are not within tolerance region.")
-        if(sum(d2.not.improved) > 1){
-          message("Estimating equations did not move closer to tolerance region twice in ", control$MCMLE.confidence.boost.lag, " steps; increasing sample size.")
+        if(sum(d2.not.improved) > control$MCMLE.confidence.boost.threshold){
+          message("Estimating equations did not move closer to tolerance region more than ", control$MCMLE.confidence.boost.threshold," time(s) in ", control$MCMLE.confidence.boost.lag, " steps; increasing sample size.")
           .boost_samplesize(control$MCMLE.confidence.boost)
           d2.not.improved[] <- FALSE
         }
