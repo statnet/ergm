@@ -27,9 +27,10 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   parallel.version.check), MCMLE.termination = c("Hummel", "Hotelling",
   "precision", "confidence", "none"), MCMLE.maxit = 20,
   MCMLE.conv.min.pval = 0.5, MCMLE.confidence = 0.99,
-  MCMLE.confidence.boost = 2, MCMLE.confidence.boost.lag = 4,
-  MCMLE.NR.maxit = 100, MCMLE.NR.reltol = sqrt(.Machine$double.eps),
-  obs.MCMC.mul = 1/4, obs.MCMC.samplesize.mul = sqrt(obs.MCMC.mul),
+  MCMLE.confidence.boost = 2, MCMLE.confidence.boost.threshold = 1,
+  MCMLE.confidence.boost.lag = 4, MCMLE.NR.maxit = 100,
+  MCMLE.NR.reltol = sqrt(.Machine$double.eps), obs.MCMC.mul = 1/4,
+  obs.MCMC.samplesize.mul = sqrt(obs.MCMC.mul),
   obs.MCMC.samplesize = round(MCMC.samplesize * obs.MCMC.samplesize.mul),
   obs.MCMC.effectiveSize = NVL3(MCMC.effectiveSize, . * obs.MCMC.mul),
   obs.MCMC.interval.mul = sqrt(obs.MCMC.mul),
@@ -284,7 +285,7 @@ size (or target effective size, if enabled) when the
 \code{"confidence"} termination criterion is either not approaching
 the tolerance region or is unable to prove convergence.}
 
-\item{MCMLE.confidence.boost.lag}{Sample size or target effective size will be increaed if the distane from the tolerance region fails to decrease more than once in this many successive iterations.}
+\item{MCMLE.confidence.boost.threshold, MCMLE.confidence.boost.lag}{Sample size or target effective size will be increaed if the distance from the tolerance region fails to decrease more than MCMLE.confidence.boost.threshold in this many successive iterations.}
 
 \item{MCMLE.NR.maxit, MCMLE.NR.reltol}{The method, maximum number of
 iterations and relative tolerance to use within the \code{optim} rountine in
