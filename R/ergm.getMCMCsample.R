@@ -132,15 +132,16 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
                       )
       
       meS <- .max.effectiveSize(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, ar.order=control$MCMC.effectiveSize.order)
-
+      postburnin.mcmc <- structure(lapply(lapply(esteq, `[`, -seq_len(meS$burnin), , drop=FALSE), mcmc), class="mcmc.list")
+      
       # Sanity check that we didn't underestimate the burn-in.
-      burnin.pval <- geweke.diag.mv(structure(lapply(lapply(esteq, `[`, -seq_len(meS$burnin), , drop=FALSE), mcmc), class="mcmc.list"))$p.value
+      burnin.pval <- geweke.diag.mv(postburnin.mcmc)$p.value
         
       if(verbose) message("Maximum harmonic mean ESS of ",meS$eS," attained with burn-in of ", round(meS$b/nrow(outl[[1]]$s)*100,2),"%; convergence p-value = ", burnin.pval, ".")
 
       if(control.parallel$MCMC.runtime.traceplot){
         for (i in seq_along(esteq)) colnames(esteq[[i]]) <- names(list(...)$theta)
-        plot(coda::as.mcmc.list(lapply(lapply(esteq, coda::mcmc), window, thin=max(1,floor(nrow(esteq)/1000))))
+        plot(window(postburnin.mcmc, thin=max(1,floor(nrow(esteq)/1000)))
              ,ask=FALSE,smooth=TRUE,density=FALSE)
       }
 
