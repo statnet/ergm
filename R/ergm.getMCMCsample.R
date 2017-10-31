@@ -406,9 +406,15 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
     names(v0) <- names(order) <- colnames(x)
     z <- 1:nrow(x)
     for (i in 1:ncol(x)) {
-      ar.out <- ar(x[, i], aic = FALSE, order.max=ar.order)
-      v0[i] <- ar.out$var.pred/(1 - sum(ar.out$ar))^2
-      order[i] <- ar.out$order
+      novar <- var(x[,i])<.Machine$double.eps
+      if(novar){
+        v0[i] <- 0
+        order[i] <- 0
+      }else{
+        ar.out <- ar(x[, i], aic = FALSE, order.max=ar.order)
+        v0[i] <- ar.out$var.pred/(1 - sum(ar.out$ar))^2
+        order[i] <- ar.out$order
+      }
     }
     return(list(spec = v0, order = order))
 }
