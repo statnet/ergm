@@ -136,8 +136,9 @@ GWDECAY <- list(
   },
   gradient = function(x,n,...) {
     i <- 1:n
+    e2 <- exp(x[2])
     a <- 1-exp(-x[2])
-    exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
+    rbind((1-a^i)*e2, x[1] * ( (1-a^i)*e2 - i*a^(i-1) ) )
   }
 )
 
