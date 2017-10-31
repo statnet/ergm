@@ -9,11 +9,13 @@ Layer(...)
 \arguments{
 \item{...}{layer specification, in one of three formats:
 \enumerate{
-\item An (optionally named) list of identically-dimensioned and
-directed networks.
+\item An (optionally named) list of identically-dimensioned
+networks.
 \item Several networks as (optionally named) arguments.
-\item A single network and a chararacter vector. Then, the layers are
-values of the named edge attributes.
+\item A single network, a chararacter vector, and an optional
+logical vector. Then, the layers are values of the named edge
+attributes. If the network is directed, the logical vector
+specifies which of the layers should be treated as undirected.
 }}
 }
 \value{

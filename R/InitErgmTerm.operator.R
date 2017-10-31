@@ -239,6 +239,7 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, response=NULL, ...){
 #' @param x a [`network`] object.
 #' @param rule a string specifying how the network is to be
 #'   symmetrized; see [sna::symmetrize()] for details.
+#' @export
 symmetrize.network <- function(x, rule=c("weak","strong","upper","lower")){
   rule <- match.arg(rule)
   el <- sna::symmetrize(x, rule=rule, return.as.edgelist=TRUE)
