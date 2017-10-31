@@ -103,7 +103,7 @@ ergm.mple<-function(Clist, fd, m, init=NULL,
     mplefit <- model.matrix(terms(pl$zy ~ .-1,data=data.frame(pl$xmat)),
                            data=data.frame(pl$xmat))
     mplefit <- ergm.logitreg(x=mplefit, y=pl$zy, m=m, wt=pl$wend,
-                             start=init, maxit=control$MPLE.maxit)
+                             start=init, maxit=control$MPLE.maxit, verbose=max(verbose-2,0))
     mplefit.summary <- list(cov.unscaled=mplefit$cov.unscaled)
    }else{
 #     mplefit <- suppressWarnings(try(
@@ -194,7 +194,7 @@ ergm.mple<-function(Clist, fd, m, init=NULL,
     mplefit.null <- ergm.pen.glm(pl$zy ~ -1 + offset(pl$foffset), weights=pl$wend)
   }else if(MPLEtype=="logitreg"){
     mplefit.null <- ergm.logitreg(x=matrix(0,ncol=1,nrow=length(pl$zy)),
-                                  y=pl$zy, offset=pl$foffset, wt=pl$wend)
+                                  y=pl$zy, offset=pl$foffset, wt=pl$wend, verbose=max(verbose-2,0))
   }else{
     mplefit.null <- try(glm(pl$zy ~ -1 + offset(pl$foffset), family=family, weights=pl$wend),
                         silent = TRUE)
