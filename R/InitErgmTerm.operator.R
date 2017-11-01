@@ -277,7 +277,7 @@ InitErgmTerm.Undir <- function(nw, arglist, response=NULL, ...){
 
   f <- a$formula
   if(length(f)==3) nw <- ergm.getnetwork(f)
-  if(is.directed(nw)) nw <- symmetrize.network(nw, rule)
+  if(is.directed(nw)) nw <- symmetrize(nw, rule)
   
   if(length(f)==2) f <- nonsimp.update.formula(f, nw~.)
 
