@@ -233,12 +233,29 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, response=NULL, ...){
   list(name="_filter_formula_net", inputs=c(inputs), depenence=FALSE)
 }
 
-
 #' Return a symmetrized version of a binary network
 #'
-#' @param x a [`network`] object.
+#' @param x an object representing a network.
 #' @param rule a string specifying how the network is to be
 #'   symmetrized; see [sna::symmetrize()] for details.
+#' @export
+symmetrize <- function(x, rule=c("weak","strong","upper","lower"), ...){
+  UseMethod("symmetrize")
+}
+
+#' @describeIn symmetrize
+#'
+#' The default method, passing the input on to [sna::symmetrize()].
+#' 
+#' @export
+symmetrize.default <- function(x, rule=c("weak","strong","upper","lower"), ...){
+  sna::symmetrize(x, rule=rule, ...)
+}
+
+#' @describeIn symmetrize
+#'
+#' A method for [`network`] objects, which preserves network and vertex attributes.
+#' 
 #' @export
 symmetrize.network <- function(x, rule=c("weak","strong","upper","lower")){
   rule <- match.arg(rule)
