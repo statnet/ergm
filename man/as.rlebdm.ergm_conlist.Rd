@@ -8,16 +8,26 @@
   which = c("free", "missing", "informative"), ...)
 }
 \arguments{
-\item{x}{an \code{\link{ergm_conlist}} object: a list of initialised constraints.}
+\item{x}{an \code{\link{ergm_conlist}} object: a list of initialised
+constraints. \code{NULL} is treated as a placeholder for no constraint
+(i.e., a constant matrix of \code{TRUE}).}
 
 \item{constraints.obs}{observation process constraints; defaults to
-\code{NULL} for no such constraints.}
+\code{NULL} for all dyads observed (i.e., a constant matrix of
+\code{FALSE}).}
 
-\item{which}{which aspect of the constraint to extract: \code{free} for
-dyads that \emph{may} be toggled under the constraint, \code{missing} for
-dyads that are free but considered unobserved under the
-constraints, and \code{informative} for dyads that are both free and
-observed.}
+\item{which}{which aspect of the constraint to extract:
+\describe{
+
+\item{\code{free}}{for dyads that \emph{may} be toggled under the constraints
+\code{x}; ignores \code{constraints.obs};}
+
+\item{\code{missing}}{for dyads that are free but considered unobserved
+under the constraints; and}
+
+\item{\code{informative}}{for dyads that are both free and observed.}
+
+}}
 
 \item{...}{additional arguments, currently unused.}
 }
@@ -28,9 +38,9 @@ toggleable and/or missing and/or informative under that combination
 of constraints.
 }
 \note{
-In both arguments and return values, \code{NULL} is treated as a
-placeholder for no constraint (i.e., a constant matrix of
-\code{TRUE}).
+For \code{which=="free"} or \code{"informative"}, \code{NULL} return value
+is a placeholder for a matrix of \code{TRUE}, whereas for
+\code{which=="missing"} it is a placeholder for a matrix of \code{FALSE}.
 
 Each element in the constraint list has a sign, which
 determins whether the constraint further restricts (for \code{+}) or
