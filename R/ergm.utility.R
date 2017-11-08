@@ -424,25 +424,52 @@ which.package.InitFunction <- function(f, env = parent.frame()){
   
 }
 
-single.impute.dyads <- function(nw, response=NULL){
+single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints.obs=NULL){
+  stopifnot(is.null(constraints)==is.null(constraints.obs))
+  
+  if(!is.null(constraints)){
+    imputable <- as.rlebdm(constraints, constraints.obs, "missing")
+    nae <- NVL3(imputable, sum(.), 0)
+    na.el <- as.edgelist(imputable) # FIXME: Avoid creating edgelists.
+  }else{
     nae <- network.naedgecount(nw)
-    if(nae==0) return(nw)
-    
     na.el <- as.edgelist(is.na(nw))
+  }
+  if(nae==0) return(nw)
 
+  el2s <- function(el) apply(el, 1, paste, collapse=",")
+  
+  if(!is.null(constraints)){ # Constraints
+    informative <- as.rlebdm(constraints, constraints.obs, "informative")
+    nonzeros <- as.rlebdm(nw)
     if(is.null(response)){
-        d <- network.edgecount(nw,na.omit=TRUE)/network.dyadcount(nw,na.omit=TRUE)
-        nimpute <- round(d*nae)
-        nw[na.el] <- 0
-        nw[na.el[sample.int(nae,nimpute),,drop=FALSE]] <- 1
+      d <- sum(nonzeros & informative)/sum(informative)
+      nimpute <- round(d*nae)
     }else{
-        x <- as.edgelist(nw,attrname=response)[,3]
-        zeros <- network.dyadcount(nw,na.omit=TRUE)-length(x)
-        nw[na.el] <- 0
-        nw[na.el,names.eval=response,add.edges=TRUE] <- sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))
+      x <- as.edgelist(nw,attrname=response)
+      x.el <- x[,1:2,drop=FALSE]
+      x <- x.el[! el2s(x.el)%in%el2s(na.el),3]
+      zeros <- sum(informative) - length(x)
     }
+  }else{ # No Constraints
+    if(is.null(response)){
+      d <- network.edgecount(nw,na.omit=TRUE)/network.dyadcount(nw,na.omit=TRUE)
+      nimpute <- round(d*nae)
+    }else{
+      x <- as.edgelist(nw,attrname=response)[,3]
+      zeros <- network.dyadcount(nw,na.omit=TRUE)-length(x)
+    }
+  }
+  
+  nw[na.el] <- 0
 
-    nw
+  if(is.null(response)){
+    nw[na.el[sample.int(nae,nimpute),,drop=FALSE]] <- 1
+  }else{
+    nw[na.el,names.eval=response,add.edges=TRUE] <- sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))
+  }
+
+  nw
 }
 
 # Given a vector, truncate all infinite (or, really, bigger in

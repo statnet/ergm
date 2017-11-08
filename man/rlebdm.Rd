@@ -5,7 +5,9 @@
 \alias{as.rlebdm}
 \alias{as.rlebdm.matrix}
 \alias{as.rlebdm.edgelist}
+\alias{as.rlebdm.network}
 \alias{as.matrix.rlebdm}
+\alias{dim.rlebdm}
 \alias{print.rlebdm}
 \alias{!.rlebdm}
 \alias{|.rlebdm}
@@ -27,7 +29,11 @@ as.rlebdm(x, ...)
 
 \method{as.rlebdm}{edgelist}(x, ...)
 
+\method{as.rlebdm}{network}(x, ...)
+
 \method{as.matrix}{rlebdm}(x, ...)
+
+\method{dim}{rlebdm}(x)
 
 \method{print}{rlebdm}(x, compact = TRUE, ...)
 
@@ -80,6 +86,10 @@ run-length encoded in a column-major order.
 \item \code{as.rlebdm}: Convert an object of class \code{\link{edgelist}} to an \code{\link{rlebdm}} object
 whose cells in the edge list are set to \code{TRUE} and whose other
 cells are set to \code{FALSE}.
+
+\item \code{as.rlebdm}: Convert an object of class \code{\link{network}} to an \code{\link{rlebdm}} object
+whose cells corresponding to extant edges are set to \code{TRUE} and
+whose other cells are set to \code{FALSE}.
 
 \item \code{as.edgelist}: Convert an \code{\link{rlebdm}} object to an \code{\link{edgelist}}: a two-column
 integer matrix giving the cells with \code{TRUE} values.
