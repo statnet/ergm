@@ -87,7 +87,7 @@ ergm.MCMLE <- function(init, nw, model,
   nw.orig <- network.copy(nw)
 
   # Impute missing dyads.
-  nw <- single.impute.dyads(nw, response=response)
+  nw <- single.impute.dyads(nw, response=response, constraints=MHproposal$constraints, constraints.obs=MHproposal.obs$constraints)
   model$nw.stats <- summary(model$formula, response=response, basis=nw)
 
   if(control$MCMLE.density.guard>1){
