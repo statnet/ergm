@@ -72,10 +72,28 @@ as.rlebdm.edgelist <- function(x, ...){
   rlebdm(compact.rle(do.call(c, o)), attr(x, "n"))
 }
 
+#' @describeIn rlebdm
+#'
+#' Convert an object of class [`network`] to an [`rlebdm`] object
+#' whose cells corresponding to extant edges are set to `TRUE` and
+#' whose other cells are set to `FALSE`.
+#' 
+#' @export
+as.rlebdm.network <- function(x, ...){
+  as.rlebdm(as.edgelist(x,...))
+}
+
+
 #' @rdname rlebdm
 #' @export
 as.matrix.rlebdm <- function(x, ...){
   matrix(inverse.rle(x), attr(x, "n"), attr(x, "n"))
+}
+
+#' @rdname rlebdm
+#' @export
+dim.rlebdm <- function(x){
+  rep(attr(x, "n"),2)
 }
 
 #' @rdname rlebdm
@@ -165,19 +183,29 @@ print.rlebdm <- function(x, compact=TRUE, ...){
 #' toggleable and/or missing and/or informative under that combination
 #' of constraints.
 #'
-#' @param x an [`ergm_conlist`] object: a list of initialised constraints.
+#' @param x an [`ergm_conlist`] object: a list of initialised
+#'   constraints. `NULL` is treated as a placeholder for no constraint
+#'   (i.e., a constant matrix of `TRUE`).
 #' @param constraints.obs observation process constraints; defaults to
-#'   `NULL` for no such constraints.
-#' @param which which aspect of the constraint to extract: `free` for
-#'   dyads that *may* be toggled under the constraint, `missing` for
-#'   dyads that are free but considered unobserved under the
-#'   constraints, and `informative` for dyads that are both free and
-#'   observed.
+#'   `NULL` for all dyads observed (i.e., a constant matrix of
+#'   `FALSE`).
+#' @param which which aspect of the constraint to extract:
+#' \describe{
+#' 
+#' \item{`free`}{for dyads that *may* be toggled under the constraints
+#'   `x`; ignores `constraints.obs`;}
+#' 
+#' \item{`missing`}{for dyads that are free but considered unobserved
+#'   under the constraints; and}
+#' 
+#' \item{`informative`}{for dyads that are both free and observed.}
+#' 
+#' }
 #' @param ... additional arguments, currently unused.
 #'
-#' @note In both arguments and return values, `NULL` is treated as a
-#'   placeholder for no constraint (i.e., a constant matrix of
-#'   `TRUE`).
+#' @note For `which=="free"` or `"informative"`, `NULL` return value
+#'   is a placeholder for a matrix of `TRUE`, whereas for
+#'   `which=="missing"` it is a placeholder for a matrix of `FALSE`.
 #' @note Each element in the constraint list has a sign, which
 #'   determins whether the constraint further restricts (for `+`) or
 #'   potentially relaxes restriction (for `-`).
@@ -204,15 +232,13 @@ as.rlebdm.ergm_conlist <- function(x, constraints.obs = NULL, which = c("free", 
            if(!is.null(y)) rlebdm(compact.rle(y), sqrt(length(y)))
          },
          missing={
-           # Returns an RLE dyad matrix indicating the missing dyads in the
-           # network (respecting the constraints).
            free_dyads <- as.rlebdm(x)
            free_dyads.obs <- as.rlebdm(constraints.obs)
            
            if(is.null(free_dyads)){
              free_dyads.obs
            }else{
-             NVL3(free_dyads.obs, (!free_dyads) | .,  !free_dyads)
+             NVL3(free_dyads.obs, free_dyads & .,  NULL)
            }
          },
          informative={
