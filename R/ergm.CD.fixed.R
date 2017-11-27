@@ -235,7 +235,7 @@ ergm.CD.fixed <- function(init, nw, model,
       if(v$loglikelihood < control$CD.trustregion-0.001){
         current.scipen <- options()$scipen
         options(scipen=3)
-        message("The log-likelihood improved by",
+        message("The log-likelihood improved by ",
             format.pval(v$loglikelihood,digits=4,eps=1e-4),"")
         options(scipen=current.scipen)
       }else{
@@ -286,7 +286,7 @@ ergm.CD.fixed <- function(init, nw, model,
       if(v$loglikelihood < control$CD.trustregion-0.001){
         current.scipen <- options()$scipen
         options(scipen=3)
-        message("The log-likelihood improved by",
+        message("The log-likelihood improved by ",
             format.pval(v$loglikelihood,digits=4,eps=1e-4),"")
         options(scipen=current.scipen)
       }else{
