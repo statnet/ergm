@@ -423,15 +423,15 @@ which.package.InitFunction <- function(f, env = parent.frame()){
 }
 
 single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints.obs=NULL){
-  stopifnot(is.null(constraints)==is.null(constraints.obs))
+  stopifnot(!is.null(constraints)||is.null(constraints.obs))
   
   if(!is.null(constraints)){
     imputable <- as.rlebdm(constraints, constraints.obs, "missing")
     nae <- NVL3(imputable, sum(.), 0)
-    na.el <- as.edgelist(imputable) # FIXME: Avoid creating edgelists.
+    if(nae) na.el <- as.edgelist(imputable) # FIXME: Avoid creating edgelists.
   }else{
     nae <- network.naedgecount(nw)
-    na.el <- as.edgelist(is.na(nw))
+    if(nae) na.el <- as.edgelist(is.na(nw))
   }
   if(nae==0) return(nw)
 
