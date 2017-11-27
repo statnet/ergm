@@ -201,7 +201,7 @@ ergm.CD.fixed <- function(init, nw, model,
     statsmatrix.0 <- statsmatrix
     statsmatrix.0.obs <- statsmatrix.obs
     if(control$CD.steplength=="adaptive"){
-      if(verbose){message("Calling adaptive MCMLE Optimization...")}
+      if(verbose){message("Calling adaptive CD-MCMLE Optimization...")}
       adaptive.steplength <- 2
       statsmean <- apply(statsmatrix.0,2,mean)
       v <- list(loglikelihood=control$CD.adaptive.trustregion*2)
@@ -252,7 +252,7 @@ ergm.CD.fixed <- function(init, nw, model,
             x2.num.max=control$CD.Hummel.miss.sample, steplength.maxit=control$CD.Hummel.maxit)
         else control$CD.steplength
       
-      if(verbose){message("Calling MCMLE Optimization...")}
+      if(verbose){message("Calling CD-MCMLE Optimization...")}
       statsmean <- apply(statsmatrix.0,2,base::mean)
       if(!is.null(statsmatrix.0.obs)){
         statsmatrix.obs <- t(steplen*t(statsmatrix.0.obs) + (1-steplen)*statsmean) # I.e., shrink each point of statsmatrix.obs towards the centroid of statsmatrix.
@@ -262,7 +262,7 @@ ergm.CD.fixed <- function(init, nw, model,
       steplen.hist <- c(steplen.hist, steplen)
       # stop if MCMLE is stuck (steplen stuck near 0)
       if ((length(steplen.hist) > 2) && sum(tail(steplen.hist,2)) < 2*control$CD.steplength.min) {
-        stop("MCMLE estimation stuck. There may be excessive correlation between model terms, suggesting a poor model for the observed data. If target.stats are specified, try increasing SAN parameters.")
+        stop("CD-MCMLE estimation stuck. There may be excessive correlation between model terms, suggesting a poor model for the observed data. If target.stats are specified, try increasing SAN parameters.")
       }    
       
       if(verbose){message(paste("Using Newton-Raphson Step with step length ",steplen," ..."))}
