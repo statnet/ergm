@@ -28,6 +28,15 @@ I_CHANGESTAT_FN(i__layer_net){
 
   if(DIRECTED){
     ll->symm = inputs - 1; // The -1 is because layer IDs count from 1.
+    unsigned int need_symm = FALSE;
+    for(unsigned int l=1; l<=ll->nl; l++){
+      if(ll->symm[l]){
+	need_symm = TRUE;
+	break;
+      }
+    }
+    if(!need_symm) ll->symm = NULL;
+    
     inputs += ll->nl;
   }else ll->symm = NULL;
 
@@ -205,17 +214,49 @@ C_CHANGESTAT_FN(c_layerCMB){
 
   // FIXME: Cache current values, perhaps via a valued auxiliary?
 
-  unsigned int oldct=0, newct=0;
+  unsigned int need_symm = FALSE;
   for(unsigned int ml=0; ml < nml; ml++){
     GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
-    unsigned int v = ergm_LayerLogic(tail, head, ll, 2);
-    if(v&1) oldct++; // Pre-toggle edge present.
-    if(v&2) newct++; // Post-toggle edge present.
+    if(ll->symm){
+      need_symm = TRUE;
+      break;
+    }
   }
   
-  CHANGE_STAT[0] = lgamma1p(newct)-lgamma1p(oldct) + lgamma1p(nml-newct)-lgamma1p(nml-oldct); 
+  if(need_symm){ // Symmetrized layers
+    unsigned int oldct_th=0, newct_th=0,
+      oldct_ht=0, newct_ht=0;
+    for(unsigned int ml=0; ml < nml; ml++){
+      GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+      Vertex tl = ML_LID_TAIL(ll, tail);
+      unsigned int v = ergm_LayerLogic(tail, head, ll, 2);
+      if(v&1) oldct_th++; // Pre-toggle edge present.
+      if(v&2) newct_th++; // Post-toggle edge present.
+      if(ll->symm[tl]){ // Symmetrize toggle
+	v = ergm_LayerLogic(head, tail, ll, 2);
+	if(v&1) oldct_ht++; // Pre-toggle edge present.
+	if(v&2) newct_ht++; // Post-toggle edge present.
+      }else{
+	if(ergm_LayerLogic(head, tail, ll, 0)){
+	  oldct_ht++;
+	  newct_ht++;
+	}
+      }
+    }
+    CHANGE_STAT[0] =
+      lgamma1p(newct_th)-lgamma1p(oldct_th) + lgamma1p(nml-newct_th)-lgamma1p(nml-oldct_th)
+      +(newct_ht!=oldct_ht? lgamma1p(newct_ht)-lgamma1p(oldct_ht) + lgamma1p(nml-newct_ht)-lgamma1p(nml-oldct_ht) : 0);    
+  }else{ // No symmetrized layers
+    unsigned int oldct=0, newct=0;
+    for(unsigned int ml=0; ml < nml; ml++){
+      GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
+      unsigned int v = ergm_LayerLogic(tail, head, ll, 2);
+      if(v&1) oldct++; // Pre-toggle edge present.
+      if(v&2) newct++; // Post-toggle edge present.
+    }
+    CHANGE_STAT[0] = lgamma1p(newct)-lgamma1p(oldct) + lgamma1p(nml-newct)-lgamma1p(nml-oldct);
+  }
 }
-
 
 
 /*****************

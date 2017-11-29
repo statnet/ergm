@@ -100,3 +100,13 @@ layer_and_MLE <- function(nw1, nw2){
 }
 
 stopifnot(isTRUE(all.equal(layer_and_MLE(nw1,nw2),coef(ergm(Layer(nw1,nw2)~L(~edges, ~`1`&`2`))),check.attributes=FALSE,tolerance=.1)))
+
+# Heterogeneous directedness
+
+nwu <- network.initialize(2, dir=FALSE)
+nwu[1,2] <- 1
+nwd <- network.initialize(2, dir=TRUE)
+nwd[2,1] <- 1
+
+lnw <- Layer(nwu, nwd)
+stopifnot(summary(lnw~L(~edges,~`1`)+L(~edges,~`2`)+lCMB)==c(2,1,-sum(lchoose(2,as.matrix(nwu)+as.matrix(nwd)))))
