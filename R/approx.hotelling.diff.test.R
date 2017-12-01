@@ -274,42 +274,53 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   v <- matrix(NA,p,p)
   novar <- abs(apply(x,2,stats::sd))<tol
   x <- x[,!novar,drop=FALSE]
+
+  # Index of the first local minimum in a sequence.
+  first_local_min <- function(x){
+    d <- diff(c(Inf,x,Inf))
+    min(which(d>=0))-1
+  }
   
   if(ncol(x)){
-      # Map the variables onto their principal components, dropping
-      # redundant (linearly-dependent) dimensions. Here, we keep the
-      # eigenvectors such that the reciprocal condition number defined
-      # as s.min/s.max, where s.min and s.max are the smallest and the
-      # biggest singular values, respectively, is greater than the
-      # tolerance.
-      e <- eigen(cov(x), symmetric=TRUE)
-      Q <- e$vec[,sqrt(pmax(e$val,0)/max(e$val))>tol*2,drop=FALSE]
-      xr <- x%*%Q # Columns of xr are guaranteed to be linearly independent.
-
-      # Calculate the time-series variance of the mean on the PC scale.
-
-      if(is.null(order.max)){ord <- ceiling(10*log10(nrow(xr)))}
-      arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, ...))
-      # If ar() failed or produced a variance matrix estimate that's
-      # not positive semidefinite, try with a lower order.
-      while((!is.null(arfit$error) || ERRVL(try(any(eigen(arfit$value$var.pred, only.values=TRUE)$values<0), silent=TRUE), TRUE)) && ord > 1){
-        ord <- ord - 1
-        arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, ...))
-      }
-      arfit <- arfit$value
-      arvar <- arfit$var.pred
-      arcoefs <- arfit$ar
-      arcoefs <- NVL2(dim(arcoefs), apply(arcoefs,2:3,base::sum), sum(arcoefs))
-
-      adj <- diag(1,nrow=ncol(xr)) - arcoefs
-      iadj <- solve(adj)
-      v.var <- iadj %*% arvar %*% t(iadj)
-
-      # Reverse the mapping for the variance estimate.
-      v.var <- Q%*%v.var%*%t(Q)
+    # Map the variables onto their principal components, dropping
+    # redundant (linearly-dependent) dimensions. Here, we keep the
+    # eigenvectors such that the reciprocal condition number defined
+    # as s.min/s.max, where s.min and s.max are the smallest and the
+    # biggest singular values, respectively, is greater than the
+    # tolerance.
+    e <- eigen(cov(x), symmetric=TRUE)
+    Q <- e$vec[,sqrt(pmax(e$val,0)/max(e$val))>tol*2,drop=FALSE]
+    xr <- x%*%Q # Columns of xr are guaranteed to be linearly independent.
     
-      v[!novar,!novar] <- v.var
+    # Calculate the time-series variance of the mean on the PC scale.
+
+    ord <- NVL(order.max, ceiling(10*log10(nrow(xr))))
+    arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, ...))
+    # If ar() failed or produced a variance matrix estimate that's
+    # not positive semidefinite, try with a lower order.
+    while((!is.null(arfit$error) || ERRVL(try(any(eigen(arfit$value$var.pred, only.values=TRUE)$values<0), silent=TRUE), TRUE)) && ord > 1){
+      ord <- ord - 1
+      arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, ...))
     }
-    v
+    
+    arfit <- arfit$value
+    if(aic && arfit$order>(ord <- first_local_min(arfit$aic)-1)){
+      arfit <- ar(xr, aic=ord==0, order.max=max(ord,1)) # Workaround since ar() won't take order.max=0.
+    }
+    
+    arvar <- arfit$var.pred
+    arcoefs <- arfit$ar
+    arcoefs <- NVL2(dim(arcoefs), apply(arcoefs,2:3,base::sum), sum(arcoefs))
+    
+    adj <- diag(1,nrow=ncol(xr)) - arcoefs
+    iadj <- solve(adj)
+    v.var <- iadj %*% arvar %*% t(iadj)
+    
+    # Reverse the mapping for the variance estimate.
+    v.var <- Q%*%v.var%*%t(Q)
+    
+    v[!novar,!novar] <- v.var
+  }
+  v
 }
 
