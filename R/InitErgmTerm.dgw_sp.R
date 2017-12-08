@@ -120,6 +120,14 @@
 #  network_stats_wrapper function 
 
 
+## Miscellaneous
+
+.spcache.aux <- function(type){
+  type <- toupper(type)
+  as.formula(as.call(list(as.name('~'), as.call(list(as.name('.spcache.net'),type=if(type=='ITP')'OTP' else type)))))
+}
+
+
 
 ################################################################################
 #Term to count ESP statistics, where the shared partners may be any of
@@ -165,7 +173,8 @@ InitErgmTerm.desp<-function(nw, arglist, ...) {
     type<-"UTP"
     typecode<-0
   }
-  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0)
+
+  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0, auxiliaries=.spcache.aux(type))
 }
 
 
@@ -214,6 +223,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
     typecode<-which(type==type.vec)
     basenam<-paste("gwesp",type,sep=".")
   }
+
   if(!fixed){ # This is a curved exponential family model
     if(!is.null(a$decay)) warning("In term 'dgwesp': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
 
@@ -225,7 +235,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
     names(params)<-c(basenam,paste(basenam,"decay",sep="."))
     c(list(name=dname,
          coef.names=if(is.directed(nw)) paste("esp.",type,"#",d,sep="") else paste("esp#",d,sep=""), 
-         inputs=c(typecode,d), params=params), GWDECAY)
+         inputs=c(typecode,d), params=params, auxiliaries=.spcache.aux(type)), GWDECAY)
   }else{
     if(is.null(a$decay)) stop("Term 'dgwesp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -235,7 +245,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
       coef.names <- paste(paste("gwesp",type,"fixed.",sep="."),decay, sep="")
     else
       coef.names <- paste("gwesp.fixed.",decay,sep="")
-    list(name=dname, coef.names=coef.names, inputs=c(decay,typecode,maxesp))
+    list(name=dname, coef.names=coef.names, inputs=c(decay,typecode,maxesp), auxiliaries=.spcache.aux(type))
   }
 }
 
@@ -296,7 +306,7 @@ InitErgmTerm.ddsp<-function(nw, arglist, ...) {
     emptynwstats <- NULL
   }
 
-  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0, emptynwstats=emptynwstats)
+  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0, emptynwstats=emptynwstats, auxiliaries=.spcache.aux(type))
 }
 
 
@@ -349,7 +359,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
     
     c(list(name=dname,
          coef.names=if(is.directed(nw)) paste("dsp.",type,"#",d,sep="") else paste("dsp#",d,sep=""), 
-         inputs=c(typecode,d), params=params),
+         inputs=c(typecode,d), params=params, auxiliaries=.spcache.aux(type)),
       GWDECAY)
   }else{
     if(is.null(a$decay)) stop("Term 'dgwdsp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
@@ -361,7 +371,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
     else
       coef.names <- paste("gwdsp.fixed",decay,sep=".")
     
-    list(name=dname, coef.names=coef.names, inputs=c(decay,typecode,maxesp))
+    list(name=dname, coef.names=coef.names, inputs=c(decay,typecode,maxesp), auxiliaries=.spcache.aux(type))
   }
 }
 
@@ -419,7 +429,7 @@ InitErgmTerm.dnsp<-function(nw, arglist, ...) {
   }else{
     emptynwstats <- NULL
   }
-  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0, emptynwstats=emptynwstats)
+  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0, emptynwstats=emptynwstats, auxiliaries=.spcache.aux(type))
 }
 
 
@@ -472,7 +482,7 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, ...) {
     c(list(name=dname,
          coef.names=if(is.directed(nw)) paste("nsp.",type,"#",d,sep="") else paste("nsp#",d,sep=""), 
 
-         inputs=c(typecode,d), params=params),GWDECAY)
+         inputs=c(typecode,d), params=params, auxiliaries=.spcache.aux(type)),GWDECAY)
   }else{
     if(is.null(a$decay)) stop("Term 'dgwnsp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -483,6 +493,6 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, ...) {
     else
       coef.names <- paste("gwnsp.fixed",decay,sep=".")
     
-    list(name=dname, coef.names=coef.names, inputs=c(decay,typecode,maxesp))
+    list(name=dname, coef.names=coef.names, inputs=c(decay,typecode,maxesp), auxiliaries=.spcache.aux(type))
   }
 }
