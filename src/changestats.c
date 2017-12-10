@@ -5697,8 +5697,8 @@ D_CHANGESTAT_FN(d_cyclicalties) {
 *****************/
 D_CHANGESTAT_FN(d_triadcensus) { 
   int i, j, edgeflag, a, b, c, d, e, edgecount, t300, 
-  t210, t120C, t120U, t120D, t201, t030C, t030T, t111U, 
-  t111D, t021C, t021U, t021D, t102, t012, t003;
+      t210, t120C, t120U, t120D, t201, t030C, t030T, t111U, 
+      t111D, t021C, t021U, t021D, t102, t012, t003;
   Vertex triadtype, node3, tail, head;
 
   /* *** don't forget tail -> head */    
@@ -5707,17 +5707,17 @@ D_CHANGESTAT_FN(d_triadcensus) {
     /* directed version */
     FOR_EACH_TOGGLE(i) {      
       edgeflag = IS_OUTEDGE(tail = TAIL(i), head = HEAD(i));
-      t300 = 0;
-      t210 = 0;
-      t120C = 0;  t120U = 0;   t120D = 0;  t201 = 0;
-      t030C = 0;  t030T = 0;   t111U = 0;  t111D = 0;
-      t021C = 0;  t021U = 0;   t021D = 0;  t102 = 0;
-      t012 = 0;
+       t300 = 0;
+       t210 = 0;
+      t120C = 0; t120U = 0; t120D = 0;  t201 = 0;
+      t030C = 0; t030T = 0; t111U = 0; t111D = 0;
+      t021C = 0; t021U = 0; t021D = 0;  t102 = 0;
+       t012 = 0;
       
-      if ((EdgetreeMinimum(nwp->outedges, head) != 0) || 
-        (EdgetreeMinimum(nwp->inedges, head) != 0) || 
-        (EdgetreeMinimum(nwp->outedges, tail) != 0) ||
-        (EdgetreeMinimum(nwp->inedges, tail) != 0)) {      
+      if ( (MIN_OUTEDGE(head) != 0) || 
+           (MIN_INEDGE(head)  != 0) || 
+           (MIN_OUTEDGE(tail) != 0) ||
+           (MIN_INEDGE(tail)  != 0) ) {      
 
           /* ****** loop through node3 ****** */
           for (node3=1; node3 <= N_NODES; node3++) { 
@@ -5852,9 +5852,9 @@ D_CHANGESTAT_FN(d_triadcensus) {
               }
             }
           }    /* ******  move to next node3 ******** */
-        }
-        else 
+        }else{
           t012 = t012 + (N_NODES - 2);  
+	}
 
         for(j = 0; j < N_CHANGE_STATS; j++) { 
           triadtype = (Vertex)INPUT_PARAM[j]; 
@@ -5862,9 +5862,9 @@ D_CHANGESTAT_FN(d_triadcensus) {
           switch(triadtype) { /* SEARCH_ON_THIS_TO_TRACK_DOWN_TRIADCENSUS_CHANGE
                                  to undo triadcensus change, change - to plus in 
                                   next two lines: */
-            case 1:  t003 = -(t300+t210+t120C+t120U+t120D+t201+t030C+t030T);
-            t003 = t003-(t111U+t111D+t021C+t021U+t021D+t102+t012);
-            CHANGE_STAT[j] += edgeflag ? -(double)t003 : (double)t003;
+            case 1:   t003 = -(t300+t210+t120C+t120U+t120D+t201+t030C+t030T);
+                      t003 = t003-(t111U+t111D+t021C+t021U+t021D+t102+t012);
+                      CHANGE_STAT[j] += edgeflag ? -(double)t003 : (double)t003;
             break;
             case 2:   CHANGE_STAT[j] += edgeflag ? -(double)t012 : (double)t012;
             break;
@@ -5876,13 +5876,13 @@ D_CHANGESTAT_FN(d_triadcensus) {
             break;
             case 6:   CHANGE_STAT[j] += edgeflag ? -(double)t021C : (double)t021C;
             break;
-            case 7:	  CHANGE_STAT[j] += edgeflag ? -(double)t111D : (double)t111D;
+            case 7:   CHANGE_STAT[j] += edgeflag ? -(double)t111D : (double)t111D;
             break;
-            case 8:	  CHANGE_STAT[j] += edgeflag ? -(double)t111U : (double)t111U;
+            case 8:   CHANGE_STAT[j] += edgeflag ? -(double)t111U : (double)t111U;
             break;
-            case 9:	  CHANGE_STAT[j] += edgeflag ? -(double)t030T : (double)t030T;
+            case 9:   CHANGE_STAT[j] += edgeflag ? -(double)t030T : (double)t030T;
             break;
-            case 10:   CHANGE_STAT[j] += edgeflag ? -(double)t030C : (double)t030C;
+            case 10:  CHANGE_STAT[j] += edgeflag ? -(double)t030C : (double)t030C;
             break;
             case 11:  CHANGE_STAT[j] += edgeflag ? -(double)t201 : (double)t201;
             break;
@@ -5894,7 +5894,7 @@ D_CHANGESTAT_FN(d_triadcensus) {
             break;
             case 15:  CHANGE_STAT[j] += edgeflag ? -(double)t210 : (double)t210;
             break;
-  	        case 16:  CHANGE_STAT[j] += edgeflag ? -(double)t300 : (double)t300;
+            case 16:  CHANGE_STAT[j] += edgeflag ? -(double)t300 : (double)t300;
             break;
           }
         }
@@ -5908,10 +5908,10 @@ D_CHANGESTAT_FN(d_triadcensus) {
       edgeflag = IS_OUTEDGE(tail = TAIL(i), head = HEAD(i));
       t300 = 0; t201 = 0; t102 = 0; t012 = 0;
 
-      if ((EdgetreeMinimum(nwp->outedges, head) != 0) || 
-          (EdgetreeMinimum(nwp->inedges, head) != 0) || 
-          (EdgetreeMinimum(nwp->outedges, tail) != 0) ||
-          (EdgetreeMinimum(nwp->inedges, tail) != 0)) {      
+      if ( (MIN_OUTEDGE(head) != 0) || 
+           (MIN_INEDGE(head)  != 0) || 
+           (MIN_OUTEDGE(tail) != 0) ||
+           (MIN_INEDGE(tail)  != 0) ) {      
 
             /* ****** loop through node3 ****** */
             for (node3=1; node3 <= N_NODES; node3++) { 
@@ -5954,7 +5954,7 @@ D_CHANGESTAT_FN(d_triadcensus) {
                                   to undo triadcensus change, change - to plus in 
                                   next line: */
               case 1:  t003 = -(t102+t201+t300);
-              CHANGE_STAT[j] += edgeflag ? -(double)t003 : (double)t003;
+                       CHANGE_STAT[j] += edgeflag ? -(double)t003 : (double)t003;
               break;
               case 2:  CHANGE_STAT[j] += edgeflag ? -(double)t102 : (double)t102;
               break;
