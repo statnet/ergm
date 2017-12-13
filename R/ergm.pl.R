@@ -178,11 +178,8 @@ ergm.pl<-function(Clist, fd, m, theta.offset=NULL,
     toffset <- sweep(xmat*xmat,1,1-2*zy,"*")
     taper.scale.MPLE <- (wend %*% (xmat*xmat)) / sum(wend)
 #   taper.scale.MPLE <- (wend %*% abs(xmat)) / sum(wend)
-    print(taper.scale.MPLE)
     taperbeta <- 1/(2*length(taper.scale.MPLE)*taper.scale.MPLE)
-#   save(tapered.scale.MPLE, file="scale.absMPLE.RData")
     toffset <- multiply.with.inf(toffset, cbind(taperbeta)) 
-#   toffset <- multiply.with.inf(xmat*xmat, cbind(taperbeta)) 
     
     # Now, iff a row's offset effect is infinite, then it carries no
     # further information whatsoever, so it should be dropped.
