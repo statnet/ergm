@@ -21,11 +21,11 @@
 
 /* .C calls */
 extern void AllStatistics(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void CD_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void CD_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void full_geodesic_distribution(void *, void *, void *, void *, void *, void *, void *, void *);
 extern void geodesic_matrix(void *, void *, void *, void *, void *, void *, void *);
-extern void MCMC_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void MCMCPhase12(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void MCMC_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void MCMCPhase12(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void MPLE_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void network_stats_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void node_geodesics(void *, void *, void *, void *, void *, void *, void *, void *);
@@ -38,11 +38,11 @@ extern void WtSAN_wrapper(void *, void *, void *, void *, void *, void *, void *
 
 static const R_CMethodDef CEntries[] = {
     {"AllStatistics",              (DL_FUNC) &AllStatistics,              13},
-    {"CD_wrapper",                 (DL_FUNC) &CD_wrapper,                 26},
+    {"CD_wrapper",                 (DL_FUNC) &CD_wrapper,                 27},
     {"full_geodesic_distribution", (DL_FUNC) &full_geodesic_distribution,  8},
     {"geodesic_matrix",            (DL_FUNC) &geodesic_matrix,             7},
-    {"MCMC_wrapper",               (DL_FUNC) &MCMC_wrapper,               30},
-    {"MCMCPhase12",                (DL_FUNC) &MCMCPhase12,                35},
+    {"MCMC_wrapper",               (DL_FUNC) &MCMC_wrapper,               31},
+    {"MCMCPhase12",                (DL_FUNC) &MCMCPhase12,                36},
     {"MPLE_wrapper",               (DL_FUNC) &MPLE_wrapper,               16},
     {"network_stats_wrapper",      (DL_FUNC) &network_stats_wrapper,      14},
     {"node_geodesics",             (DL_FUNC) &node_geodesics,              8},

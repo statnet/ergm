@@ -177,6 +177,15 @@
 #' dyads from changing), arbitrary combinations should be possible.
 #' }
 #' @param offset.coef {A vector of coefficients for the offset terms.}
+#' @param taper.coef {A vector of coefficients for the tapering of the terms.
+#' If \code{NULL} is passed, the tapering coefficients are set 
+#' to \code{1/(4*target.stats)}, the default in Fellows and Handcock (2016).
+#' If a numeric vector is given, there are interpreted as the tapering
+#' cofficients of the terms in the #' model, including the terms enclosed in
+#' \code{offset()}. If a numeric scalar is given, it is interpreted as a
+#' multiplier of the default tapering cofficients , that is,
+#' \code{1/(4*target.stats)}.
+#' }
 #' @param target.stats {vector of "observed network statistics,"
 #' if these statistics are for some reason different than the 
 #' actual statistics of the network on the left-hand side of
@@ -503,6 +512,7 @@ ergm <- function(formula, response=NULL,
                  reference=~Bernoulli,
                  constraints=~.,
                  offset.coef=NULL,
+                 taper.coef=NULL,
                  target.stats=NULL,
                  eval.loglik=TRUE,
                  estimate=c("MLE", "MPLE", "CD"),
@@ -737,10 +747,12 @@ ergm <- function(formula, response=NULL,
   
   model.initial$nw.stats <- summary(model.initial$formula, response=response, initialfit=control$init.method=="MPLE")
   model.initial$target.stats <- NVL(target.stats, model.initial$nw.stats)
-  
+
   if(control$init.method=="CD") if(is.null(names(control$init)))
     names(control$init) <- .coef.names.model(model.initial, FALSE)
   
+  if(!is.null(taper.coef)){ control[["MPLE.type"]] <- "tapered" }
+
   initialfit <- ergm.initialfit(init=control$init, initial.is.final=!MCMCflag,
                                 formula=formula, nw=nw, reference=reference, 
                                 m=model.initial, method=control$init.method,
@@ -751,6 +763,35 @@ ergm <- function(formula, response=NULL,
                                 verbose=verbose, response=response,
                                 maxNumDyadTypes=control$MPLE.max.dyad.types,
                                 ...)
+  
+  if(control[["MPLE.type"]] == "tapered"){
+    if(!is.null(taper.coef) & all(is.character(taper.coef)) & taper.coef[1] == "adaptive"){ 
+      if(!is.null(initialfit$taperbeta)){
+        model.initial$etamap$taperbeta<-initialfit$taperbeta
+      }else{
+        model.initial$etamap$taperbeta<- 1 / ((2^2) * model.initial$target.stats)
+      }
+    }else{
+     if(!is.null(taper.coef)){ taper.mult <- taper.coef }else{ taper.mult <- 1 }
+     # TODO: Names matching here?
+     if(length(model.initial$target.stats)==length(taper.mult) & length(model.initial$target.stats) > 1) {
+       model.initial$etamap$taperbeta<-taper.mult
+     }else{if(length(taper.mult)==1){
+       model.initial$etamap$taperbeta<-taper.mult / ((2^2) * model.initial$target.stats)
+     }else{
+       stop("Invalid tapering parameter vector taper.coef: ",
+            "wrong number of parameters: expected ",
+            length(model.initial$target.stats),
+            " or 1, but got ",length(taper.mult),".")
+     }}
+    }
+#   control[["MPLE.type"]] <- "tapered"
+    control[["MCMLE.sequential"]] <- FALSE
+    message("Using a tapered version of the model.")
+#   message(sprintf("taper.coef: %d",))
+    message("taper.coef:")
+    print(model.initial$etamap$taperbeta)
+  }
   
   if (!MCMCflag){ # Just return initial (non-MLE) fit and exit.
     message("Stopping at the initial estimate.")
@@ -821,6 +862,12 @@ ergm <- function(formula, response=NULL,
   
   model$nw.stats <- summary(model$formula, response=response)
   model$target.stats <- NVL(target.stats, model$nw.stats)
+
+  if(!is.null(taper.coef)){
+    model$etamap$taperbeta<-model.initial$etamap$taperbeta
+  }else{
+    model$etamap$taperbeta<-rep(0,length(model$target.stats))
+  }
   
   mainfit <- switch(control$main.method,
                     "Robbins-Monro" = ergm.robmon(init, nw, model, 

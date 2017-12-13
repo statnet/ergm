@@ -17,8 +17,8 @@ gof(object, ...)
   constraints = NULL, control = control.gof.ergm(), verbose = FALSE)
 
 \method{gof}{formula}(object, ..., coef = NULL, GOF = NULL,
-  constraints = ~., control = control.gof.formula(), unconditional = TRUE,
-  verbose = FALSE)
+  constraints = ~., taperbeta = NULL, control = control.gof.formula(),
+  unconditional = TRUE, verbose = FALSE)
 
 \method{print}{gof}(x, ...)
 
@@ -85,8 +85,52 @@ alternative to the probability of a dyad having the same property.}
 \item{normalize.reachability}{Should the reachability proportion be
 normalized to make it more comparable with the other geodesic distance
 proportions.}
+
+\item{object}{Either a formula or an \code{\link{ergm}} object.
+See documentation for \code{\link{ergm}}.}
+
+\item{\dots}{Additional arguments, to be passed to lower-level functions.}
+
+\item{coef}{When given either a formula or an object of class ergm,
+\code{coef} are the parameters from which the sample is drawn. By default
+set to a vector of 0.}
+
+\item{GOF}{formula; an formula object, of the form \code{~ <model terms>}
+specifying the statistics to use to diagnosis the goodness-of-fit of the
+model.  They do not need to be in the model formula specified in
+\code{formula}, and typically are not.  Currently supported terms are the
+degree distribution (\dQuote{degree} for undirected graphs, or
+\dQuote{idegree} and/or \dQuote{odegree} for directed graphs), geodesic
+distances (\dQuote{distance}), shared partner distributions
+(\dQuote{espartners} and \dQuote{dspartners}), the triad census
+(\dQuote{triadcensus}), and the terms of the original model
+(\dQuote{model}). The default formula for undirected networks is \code{~
+degree + espartners + distance + model}, and the default formula for
+directed networks is \code{~ idegree + odegree + espartners + distance +
+model}.  By default a \dQuote{model} term is added to the formula.  It is a
+very useful overall validity check and a reminder of the statistical
+variation in the estimates of the mean value parameters.  To omit the
+\dQuote{model} term, add \dQuote{- model} to the formula.}
+
+\item{constraints}{A one-sided formula specifying one or more constraints on
+the support of the distribution of the networks being modeled. See the help
+for similarly-named argument in \code{\link{ergm}} for more information. For
+\code{gof.formula}, defaults to unconstrained. For \code{gof.ergm}, defaults
+to the constraints with which \code{object} was fitted.}
+
+\item{control}{A list to control parameters, constructed using
+\code{\link{control.gof.formula}} or \code{\link{control.gof.ergm}} (which
+have different defaults).}
+
+\item{verbose}{Provide verbose information on the progress of the
+simulation.}
 }
 \value{
+\code{\link{gof}}, \code{\link{gof.ergm}}, and
+\code{\link{gof.formula}} return an object of class \code{gof}.  This
+is a list of the tables of statistics and \eqn{p}-values.  This is typically
+plotted using \code{\link{plot.gof}}.
+
 \code{\link{gof}}, \code{\link{gof.ergm}}, and
 \code{\link{gof.formula}} return an object of class \code{gof}.  This
 is a list of the tables of statistics and \eqn{p}-values.  This is typically
@@ -116,14 +160,14 @@ a specific \code{\link[=ergm]{ergm()}} fit.
 a model configuration specified by a \code{\link{formula}}, coefficient,
 constraints, and other settings.
 
-\item \code{gof}: \code{\link{print.gof}} summaries the diagnostics such as the
+\item \code{gof}: Summaries the diagnostics such as the
 degree distribution, geodesic distances, shared partner
 distributions, and reachability for the goodness-of-fit of
 exponential family random graph models.  See \code{\link{ergm}} for
 more information on these models. (\code{summary.gof} is a deprecated
 alias that may be repurposed in the future.)
 
-\item \code{gof}: \code{\link{plot.gof}} plots diagnostics such as the degree
+\item \code{gof}: Plots diagnostics such as the degree
 distribution, geodesic distances, shared partner distributions, and
 reachability for the goodness-of-fit of exponential family random graph
 models.  See \code{\link{ergm}} for more information on these models.
@@ -165,6 +209,8 @@ plot(gofflo2)
 }
 \seealso{
 \code{\link[=ergm]{ergm()}}, \code{\link[=network]{network()}}, \code{\link[=simulate.ergm]{simulate.ergm()}}, \code{\link[=summary.ergm]{summary.ergm()}}
+
+\code{\link[=ergm]{ergm()}}, \code{\link[=network]{network()}}, \code{\link[=simulate.formula]{simulate.formula()}}, \code{\link[=summary.ergm]{summary.ergm()}}
 }
 \keyword{graphs}
 \keyword{models}

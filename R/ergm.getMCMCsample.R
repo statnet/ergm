@@ -70,6 +70,8 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
   
   Clists <- lapply(nws, ergm::ergm.Cprepare, model, response=response)
 
+  taperbeta <- model$etamap$taperbeta
+
   control.parallel <- control
   control.parallel$MCMC.samplesize <- NVL3(control$MCMC.samplesize, ceiling(. / nthreads))
 
@@ -78,8 +80,8 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
   #' @importFrom parallel clusterMap
   doruns <- function(prev.runs=rep(list(NULL),nthreads), burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL){
     if(!is.null(cl)) clusterMap(cl,ergm.mcmcslave,
-                                  Clist=Clists, prev.run=prev.runs, MoreArgs=list(MHproposal=MHproposal,eta0=eta0,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges))
-    else list(ergm.mcmcslave(Clist=Clists[[1]], prev.run=prev.runs[[1]],burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges,MHproposal=MHproposal,eta0=eta0,control=control.parallel,verbose=verbose,...))
+                                  Clist=Clists, prev.run=prev.runs, MoreArgs=list(MHproposal=MHproposal,eta0=eta0,taperbeta=taperbeta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges))
+    else list(ergm.mcmcslave(Clist=Clists[[1]], prev.run=prev.runs[[1]],burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges,MHproposal=MHproposal,eta0=eta0,taperbeta=taperbeta,control=control.parallel,verbose=verbose,...))
   }
   
   if(!is.null(control.parallel$MCMC.effectiveSize)){
@@ -232,6 +234,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
 #   Clist     : the list of parameters returned by <ergm.Cprepare>
 #   MHproposal: the MHproposal list as returned by <getMHproposal>
 #   eta0      : the canonical eta parameters
+#   taperbeta : the vector of tapering parameters
 #   control: a list of parameters for controlling the MCMC algorithm;
 #               recognized components include:
 #       samplesize  : the number of networks to be sampled
@@ -271,7 +274,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
 #'   allowed edges at the time of return.}
 #' @useDynLib ergm
 #' @export ergm.mcmcslave
-ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL) {
+ergm.mcmcslave <- function(Clist,MHproposal,eta0,taperbeta,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL) {
 
   numnetworks <- 0
 
@@ -306,7 +309,9 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
               as.character(Clist$fnamestring),
               as.character(Clist$snamestring),
               as.character(MHproposal$name), as.character(MHproposal$pkgname),
-              as.double(c(Clist$inputs,MHproposal$inputs)), as.double(.deinf(eta0)),
+              as.double(c(Clist$inputs,MHproposal$inputs)),
+              as.double(.deinf(eta0)),
+              as.double(.deinf(taperbeta)),
               as.integer(samplesize),
               s = as.double(rep(stats, samplesize)),
               as.integer(burnin), 

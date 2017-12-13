@@ -9,8 +9,8 @@
 \method{simulate}{formula}(object, nsim = 1, seed = NULL, coef,
   response = NULL, reference = ~Bernoulli, constraints = ~.,
   monitor = NULL, basis = NULL, statsonly = FALSE, esteq = FALSE,
-  sequential = TRUE, control = control.simulate.formula(),
-  verbose = FALSE, ...)
+  sequential = TRUE, taperbeta = NULL,
+  control = control.simulate.formula(), verbose = FALSE, ...)
 
 \method{simulate}{ergm}(object, nsim = 1, seed = NULL, coef = object$coef,
   response = object$response, reference = object$reference,

@@ -29,6 +29,7 @@
 #   MHproposal:  a list of the parameters needed for Metropolis-Hastings proposals and
 #                the result of calling <MHproposal>
 #   eta0      :  the initial eta coefficients
+#   taperbeta :  the tapering coefficients
 #   verbose   :  whether the C functions should be verbose; default=FALSE
 #   control:  list of MCMC tuning parameters; those recognized include
 #       parallel    : the number of threads in which to run the sampling
@@ -69,6 +70,8 @@ ergm.getCDsample <- function(nw, model, MHproposal, eta0, control,
   
   Clists <- lapply(nws, ergm::ergm.Cprepare, model, response=response)
 
+  taperbeta <- model$etamap$taperbeta
+
   control.parallel <- control
   control.parallel$MCMC.samplesize <- NVL3(control$MCMC.samplesize, ceiling(. / nthreads))
 
@@ -76,13 +79,13 @@ ergm.getCDsample <- function(nw, model, MHproposal, eta0, control,
 
   doruns <- function(prev.runs=rep(list(NULL),nthreads), burnin=NULL, samplesize=NULL, interval=NULL){
     if(!is.null(cl)) clusterMap(cl,ergm.cdslave,
-                                  Clist=Clists, prev.run=prev.runs, MoreArgs=list(MHproposal=MHproposal,eta0=eta0,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval))
-    else list(ergm.cdslave(Clist=Clists[[1]], prev.run=prev.runs[[1]],burnin=burnin,samplesize=samplesize,interval=interval,MHproposal=MHproposal,eta0=eta0,control=control.parallel,verbose=verbose,...))
+                                  Clist=Clists, prev.run=prev.runs, MoreArgs=list(MHproposal=MHproposal,eta0=eta0,taperbeta=taperbeta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval))
+    else list(ergm.cdslave(Clist=Clists[[1]], prev.run=prev.runs[[1]],burnin=burnin,samplesize=samplesize,interval=interval,MHproposal=MHproposal,eta0=eta0,taperbeta=taperbeta,control=control.parallel,verbose=verbose,...))
   }
   
   outl <- doruns()
   for(i in seq_along(outl)){
-    outl[[i]]$s <- mcmc(outl[[i]]$s, control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval)
+    outl[[i]]$s <- coda::mcmc(outl[[i]]$s, control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval)
   }
   
   if(control.parallel$MCMC.runtime.traceplot){
@@ -91,7 +94,7 @@ ergm.getCDsample <- function(nw, model, MHproposal, eta0, control,
       else out$s[,Clists[[1]]$diagnosable,drop=FALSE]
                     )
     for (i in seq_along(esteq)) colnames(esteq[[i]]) <- names(list(...)$theta)
-    plot(as.mcmc.list(lapply(lapply(esteq, mcmc), window, thin=max(1,floor(nrow(esteq)/1000))))
+    plot(coda::as.mcmc.list(lapply(lapply(esteq, coda::mcmc), window, thin=max(1,floor(nrow(esteq)/1000))))
         ,ask=FALSE,smooth=TRUE,density=FALSE)
   }
 
@@ -159,7 +162,7 @@ ergm.getCDsample <- function(nw, model, MHproposal, eta0, control,
 #
 ###############################################################################
 
-ergm.cdslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL) {
+ergm.cdslave <- function(Clist,MHproposal,eta0,taperbeta,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL) {
 
   numnetworks <- 0
 
@@ -194,7 +197,7 @@ ergm.cdslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NULL
             as.character(Clist$fnamestring),
             as.character(Clist$snamestring),
             as.character(MHproposal$name), as.character(MHproposal$pkgname),
-            as.double(c(Clist$inputs,MHproposal$inputs)), as.double(.deinf(eta0)),
+            as.double(c(Clist$inputs,MHproposal$inputs)), as.double(.deinf(eta0)), as.double(.deinf(taperbeta)),
             as.integer(samplesize), as.integer(c(control$CD.nsteps,control$CD.multiplicity)),
             s = as.double(rep(stats, samplesize)),
             as.integer(verbose), as.integer(MHproposal$arguments$constraints$bd$attribs),
