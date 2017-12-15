@@ -751,7 +751,25 @@ ergm <- function(formula, response=NULL,
   if(control$init.method=="CD") if(is.null(names(control$init)))
     names(control$init) <- .coef.names.model(model.initial, FALSE)
   
-  if(!is.null(taper.coef)){ control[["MPLE.type"]] <- "tapered" }
+  if(!is.null(taper.coef)){ 
+    control[["MPLE.type"]] <- "tapered"
+    model.initial$etamap$taperbeta.adaptive<-TRUE
+    if(is.numeric(taper.coef)){ 
+     # TODO: Names matching here?
+     if(length(model.initial$target.stats)==length(taper.coef) & length(model.initial$target.stats) > 1) {
+       message("Using a tapered version of the model (based on passed tapering scale).")
+       model.initial$etamap$taperbeta<-taper.coef
+     }else{if(length(taper.coef)==1){
+       message("Using a tapered version of the model (based on a scaled default tapering scale).")
+       model.initial$etamap$taperbeta<-taper.coef / ((2^2) * model.initial$target.stats)
+     }else{
+       stop("Invalid tapering parameter vector taper.coef: ",
+            "wrong number of parameters: expected ",
+            length(model.initial$target.stats),
+            " or 1, but got ",length(taper.coef),".")
+     }}
+    }
+  }
 
   initialfit <- ergm.initialfit(init=control$init, initial.is.final=!MCMCflag,
                                 formula=formula, nw=nw, reference=reference, 
@@ -764,34 +782,6 @@ ergm <- function(formula, response=NULL,
                                 maxNumDyadTypes=control$MPLE.max.dyad.types,
                                 ...)
   
-  if(control[["MPLE.type"]] == "tapered"){
-    if(!is.null(taper.coef) && all(is.character(taper.coef)) && taper.coef[1] == "adaptive"){ 
-      if(!is.null(initialfit$taperbeta)){
-        model.initial$etamap$taperbeta<-initialfit$taperbeta
-      }else{
-        model.initial$etamap$taperbeta<- 1 / ((2^2) * model.initial$target.stats)
-      }
-    }else{
-     if(!is.null(taper.coef)){ taper.mult <- taper.coef }else{ taper.mult <- 1 }
-     # TODO: Names matching here?
-     if(length(model.initial$target.stats)==length(taper.mult) & length(model.initial$target.stats) > 1) {
-       model.initial$etamap$taperbeta<-taper.mult
-     }else{if(length(taper.mult)==1){
-       model.initial$etamap$taperbeta<-taper.mult / ((2^2) * model.initial$target.stats)
-     }else{
-       stop("Invalid tapering parameter vector taper.coef: ",
-            "wrong number of parameters: expected ",
-            length(model.initial$target.stats),
-            " or 1, but got ",length(taper.mult),".")
-     }}
-    }
-#   control[["MPLE.type"]] <- "tapered"
-    control[["MCMLE.sequential"]] <- FALSE
-    message("Using a tapered version of the model.")
-#   message(sprintf("taper.coef: %d",))
-    message("taper.coef:")
-    print(model.initial$etamap$taperbeta)
-  }
   
   if (!MCMCflag){ # Just return initial (non-MLE) fit and exit.
     message("Stopping at the initial estimate.")
@@ -864,7 +854,36 @@ ergm <- function(formula, response=NULL,
   model$target.stats <- NVL(target.stats, model$nw.stats)
 
   if(!is.null(taper.coef)){
-    model$etamap$taperbeta<-model.initial$etamap$taperbeta
+    model$etamap$taperbeta.adaptive<-TRUE
+    if(all(is.character(taper.coef)) && taper.coef[1] == "adaptive"){ 
+      message("Using a tapered version of the model (based on an adaptive tapering scale).")
+      taperbeta<- 1 / ((0.5^2) * model$target.stats)
+      t.ind <- unlist(sapply(model$terms,
+        function(term){a <- rep(!(is.null(term$dependence) || term$dependence),length(term$coef.names));names(a) <- term$coef.names;a}))
+      taperbeta[t.ind] <- 0
+      model$etamap$taperbeta <- taperbeta
+    }else{
+      taper.mult <- taper.coef
+      # TODO: Names matching here?
+      if(length(model$target.stats)==length(taper.mult) & length(model$target.stats) > 1) {
+       message("Using a tapered version of the model (based on passed tapering scale).")
+       model$etamap$taperbeta<-taper.mult
+       model$etamap$taperbeta.adaptive<-FALSE
+      }else{if(length(taper.mult)==1){
+       message("Using a tapered version of the model (based on a scaled default tapering scale).")
+       model$etamap$taperbeta<-taper.mult / ((2^2) * model$target.stats)
+       model$etamap$taperbeta.adaptive<-FALSE
+     }else{
+       stop("Invalid tapering parameter vector taper.coef: ",
+            "wrong number of parameters: expected ",
+            length(model$target.stats),
+            " or 1, but got ",length(taper.mult),".")
+     }}
+    }
+    control[["MCMLE.sequential"]] <- FALSE
+    message("Using a tapered version of the model.")
+    message("taper.coef:")
+    print(model$etamap$taperbeta)
   }else{
     model$etamap$taperbeta<-rep(0,length(model$target.stats))
   }
