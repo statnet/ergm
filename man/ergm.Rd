@@ -12,7 +12,7 @@
 \title{Exponential-Family Random Graph Models}
 \usage{
 ergm(formula, response = NULL, reference = ~Bernoulli, constraints = ~.,
-  offset.coef = NULL, target.stats = NULL, eval.loglik = TRUE,
+  offset.coef = NULL, taper.coef = NULL, target.stats = NULL, eval.loglik = TRUE,
   estimate = c("MLE", "MPLE", "CD"), control = control.ergm(),
   verbose = FALSE, ...)
 
@@ -80,6 +80,14 @@ dyads from changing), arbitrary combinations should be possible.
 }}
 
 \item{offset.coef}{{A vector of coefficients for the offset terms.}}
+
+\item{taper.coef}{{A vector of coefficients for the tapering of the terms.
+If \code{NULL} is passed, the tapering coefficients are set to \code{1/(4*target.stats)}, the default
+in Fellows and Handcock (2016).
+If a numeric vector is given, there are interpreted as the tapering cofficients of the terms in the
+model, including the terms enclosed in \code{offset()}.
+If a numeric scalar is given, it is interpreted as a multiplier of the default tapering cofficients , that is, \code{1/(4*target.stats)}.
+}}
 
 \item{target.stats}{{vector of "observed network statistics,"
 if these statistics are for some reason different than the

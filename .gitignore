@@ -92,3 +92,5 @@ dkms.conf
 # Backup files
 *~
 *.bak
+ergm.pl.R.with.PL.taperbeta
+ergm.R.with.PL.taperbeta

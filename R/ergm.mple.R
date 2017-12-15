@@ -296,7 +296,7 @@ ergm.mple<-function(Clist, fd, m, init=NULL,
       MCMCtheta=theta, gradient=gradient,
       hessian=hess, covar=covar, failure=FALSE,
       est.cov=est.cov, glm = glm, glm.null = glm.null,
-      theta1=theta1),
+      theta1=theta1,taperbeta=pl$taperbeta),
      class="ergm")
 }
 

@@ -176,6 +176,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
                                statsonly=FALSE,
                                esteq=FALSE,
                                sequential=TRUE,
+                               taperbeta=NULL,
                                control=control.simulate.formula(),
                              verbose=FALSE, ...) {
   #' @importFrom statnet.common check.control.class
@@ -240,6 +241,13 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   curstats<-summary(form,response=response)
   names(curstats) <- m$coef.names
 
+  # Create tapering coefficients (if present)
+  if(is.null(taperbeta)){
+    m$etamap$taperbeta <- rep(0,length(curstats))
+  }else{
+    m$etamap$taperbeta <- taperbeta
+  }
+    
   # prepare control object
   control$MCMC.init.maxedges <- 1+max(control$MCMC.init.maxedges, network.edgecount(nw))
   
@@ -385,6 +393,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                    esteq=esteq,
                    sequential=sequential, constraints=constraints,
                    monitor=monitor,
+                   taperbeta=object$etamap$taperbeta,
                    control=control, verbose=verbose, seed=seed, ...)
 }
 

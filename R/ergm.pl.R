@@ -160,6 +160,34 @@ ergm.pl<-function(Clist, fd, m, theta.offset=NULL,
     }
     names(theta.offset) <- m$coef.names
   }
+
+  # Tapering adjustment?
+  taperbeta <- rep(0, length(m$target.stats))
+  if(control$MPLE.type=="tapered"){
+    if(is.null(m$etamap$taperbeta)){
+      message("Using a tapered version of the model (based on default tapering scale).")
+      taperbeta <- 1/((2^2) * m$target.stats)
+    }else{
+      message("Using a tapered version of the model (based on passed tapering scale).")
+      taperbeta <- m$etamap$taperbeta
+    }
+    t.ind <- unlist(sapply(m$terms, 
+      function(term){a <- rep(!(is.null(term$dependence) || term$dependence),length(term$coef.names));names(a) <- term$coef.names;a}))
+    taperbeta[t.ind] <- 0
+    if(any(is.na(taperbeta))){
+      stop("Tapered terms without tapered coefficients specified!")
+    }
+    toffset <- sweep(xmat*xmat,1,1-2*zy,"*")
+    ftoffset <- multiply.with.inf(toffset, cbind(taperbeta)) + foffset
+
+    # Now, iff a row's offset effect is infinite, then it carries no
+    # further information whatsoever, so it should be dropped.
+    xmat <- xmat[is.finite(ftoffset),,drop=FALSE]
+    zy <- zy[is.finite(ftoffset)]
+    wend <- wend[is.finite(ftoffset)]
+    foffset <- ftoffset[is.finite(ftoffset)]
+#   ftoffset <- ftoffset[is.finite(ftoffset)]
+  }
   
 #
 # Sample if necessary
@@ -189,5 +217,5 @@ ergm.pl<-function(Clist, fd, m, theta.offset=NULL,
 
   list(xmat=xmat, zy=zy, foffset=foffset, wend=wend, numobs=round(sum(wend)),
        xmat.full=xmat.full, zy.full=zy.full, foffset.full=foffset.full,
-       theta.offset=theta.offset, maxMPLEsamplesize=maxMPLEsamplesize)
+       theta.offset=theta.offset, maxMPLEsamplesize=maxMPLEsamplesize, taperbeta=taperbeta)
 }

@@ -28,7 +28,8 @@ void MCMC_wrapper(int *dnumnets, int *nedges,
 		  int *nterms, char **funnames,
 		  char **sonames, 
 		  char **MHproposaltype, char **MHproposalpackage,
-		  double *inputs, double *theta0, int *samplesize, 
+		  double *inputs, double *theta0, double *taperbeta, 
+		  int *samplesize, 
 		  double *sample, int *burnin, int *interval,  
 		  int *newnetworktails, 
 		  int *newnetworkheads, 
@@ -66,8 +67,13 @@ void MCMC_wrapper(int *dnumnets, int *nedges,
 	  nw, attribs, maxout, maxin, minout, minin,
 	  *condAllDegExact, *attriblength);
 
+   Rprintf("taperbeta: (");
+   for(unsigned int i=0; i<m->n_stats; i++)
+	Rprintf(" %f ", taperbeta[i]);
+   Rprintf(")\n");
+
   *status = MCMCSample(&MH,
-		       theta0, sample, *samplesize,
+		       theta0, taperbeta, sample, *samplesize,
 		       *burnin, *interval,
 		       *fVerbose, nmax, nw, m);
   
@@ -96,7 +102,7 @@ void MCMC_wrapper(int *dnumnets, int *nedges,
  the networkstatistics array. 
 *********************/
 MCMCStatus MCMCSample(MHproposal *MHp,
-		double *theta, double *networkstatistics, 
+		double *theta, double *taperbeta, double *networkstatistics, 
 		int samplesize, int burnin, 
 		int interval, int fVerbose, int nmax,
 		Network *nwp, Model *m){
@@ -122,7 +128,7 @@ MCMCStatus MCMCSample(MHproposal *MHp,
    Burn in step.
    *********************/
 /*  Catch more edges than we can return */
-  if(MetropolisHastings(MHp, theta, networkstatistics, burnin, &staken,
+  if(MetropolisHastings(MHp, theta, taperbeta, networkstatistics, burnin, &staken,
 			fVerbose, nwp, m)!=MCMC_OK)
     return MCMC_MH_FAILED;
   if(nmax!=0 && nwp->nedges >= nmax-1){
@@ -147,7 +153,7 @@ MCMCStatus MCMCSample(MHproposal *MHp,
       /* This then adds the change statistics to these values */
       
       /* Catch massive number of edges caused by degeneracy */
-      if(MetropolisHastings(MHp, theta, networkstatistics, interval, &staken,
+      if(MetropolisHastings(MHp, theta, taperbeta, networkstatistics, interval, &staken,
 			    fVerbose, nwp, m)!=MCMC_OK)
 	return MCMC_MH_FAILED;
       if(nmax!=0 && nwp->nedges >= nmax-1){
@@ -197,7 +203,7 @@ MCMCStatus MCMCSample(MHproposal *MHp,
  essentially generates a sample of size one
 *********************/
 MCMCStatus MetropolisHastings(MHproposal *MHp,
-			      double *theta, double *networkstatistics,
+			      double *theta, double *taperbeta, double *networkstatistics,
 			      int nsteps, int *staken,
 			      int fVerbose,
 			      Network *nwp,
@@ -231,7 +237,7 @@ MCMCStatus MetropolisHastings(MHproposal *MHp,
       }
     }
     
-    if(fVerbose>=5){
+    if(step==0 & fVerbose>=5){
       Rprintf("Proposal: ");
       for(unsigned int i=0; i<MHp->ntoggles; i++)
 	Rprintf(" (%d, %d)", MHp->toggletail[i], MHp->togglehead[i]);
@@ -242,10 +248,18 @@ MCMCStatus MetropolisHastings(MHproposal *MHp,
        remembering that tail -> head */
     ChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m);
 
-    if(fVerbose>=5){
+    if(step==0 & fVerbose>=5){
+      Rprintf("Networkstatistics: (");
+      for(unsigned int i=0; i<m->n_stats; i++)
+	Rprintf(" %f ", networkstatistics[i]);
+      Rprintf(")\n");
       Rprintf("Changes: (");
       for(unsigned int i=0; i<m->n_stats; i++)
 	Rprintf(" %f ", m->workspace[i]);
+      Rprintf(")\n");
+      Rprintf("taperbeta: (");
+      for(unsigned int i=0; i<m->n_stats; i++)
+	Rprintf(" %f ", taperbeta[i]);
       Rprintf(")\n");
     }
     
@@ -254,18 +268,23 @@ MCMCStatus MetropolisHastings(MHproposal *MHp,
     for (unsigned int i=0; i<m->n_stats; i++){
       ip += theta[i] * m->workspace[i];
     }
+    // Add tapering terms
+    double ipt = 0.0;
+    for(unsigned int i=0; i<m->n_stats; i++){
+      ipt += ( (m->workspace[i])*(m->workspace[i]) + 2.0*(m->workspace[i])*(networkstatistics[i]) ) * taperbeta[i];
+    }
     /* The logic is to set cutoff = ip+logratio ,
        then let the MH probability equal min{exp(cutoff), 1.0}.
        But we'll do it in log space instead.  */
-    double cutoff = ip + MHp->logratio;
+    double cutoff = ip + MHp->logratio - ipt;
 
-    if(fVerbose>=5){
-      Rprintf("log acceptance probability: %f + %f = %f\n", ip, MHp->logratio, cutoff);
+    if(step==0 & fVerbose>=5){
+      Rprintf("log acceptance probability: %f + %f + %f= %f\n", ip, MHp->logratio, ipt, cutoff);
     }
     
     /* if we accept the proposed network */
     if (cutoff >= 0.0 || log(unif_rand()) < cutoff) { 
-      if(fVerbose>=5){
+      if(step==0 & fVerbose>=5){
 	Rprintf("Accepted.\n");
       }
 
@@ -284,7 +303,7 @@ MCMCStatus MetropolisHastings(MHproposal *MHp,
       }
       taken++;
     }else{
-      if(fVerbose>=5){
+      if(step==0 & fVerbose>=5){
 	Rprintf("Rejected.\n");
       }
     }
@@ -302,7 +321,7 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
 		  char **sonames, 
 		  char **MHproposaltype, char **MHproposalpackage,
 		  double *inputs, 
-		  double *theta0, int *samplesize,
+		  double *theta0, double *taperbeta, int *samplesize,
 		  double *gain, double *meanstats, int *phase1, int *nsub,
 		  double *sample, int *burnin, int *interval,  
 		  int *newnetworktails, 
@@ -347,7 +366,7 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
 	  *condAllDegExact, *attriblength);
   
   MCMCSamplePhase12 (&MH,
-		     theta0, *gain, meanstats, nphase1, nsubphases, sample, *samplesize,
+		     theta0, taperbeta, *gain, meanstats, nphase1, nsubphases, sample, *samplesize,
 		     *burnin, *interval,
 		     (int)*fVerbose, nw, m);
 
@@ -374,7 +393,7 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
  the networkstatistics array. 
 *********************/
 void MCMCSamplePhase12(MHproposal *MHp,
-		       double *theta, double gain, double *meanstats, int nphase1, int nsubphases, double *networkstatistics, 
+		       double *theta, double *taperbeta, double gain, double *meanstats, int nphase1, int nsubphases, double *networkstatistics, 
 		       int samplesize, int burnin, 
 		       int interval, int fVerbose,
 		       Network *nwp, Model *m){
@@ -413,14 +432,14 @@ void MCMCSamplePhase12(MHproposal *MHp,
   
     staken = 0;
     Rprintf("Starting burnin of %d steps\n", burnin);
-    MetropolisHastings (MHp, theta,
+    MetropolisHastings (MHp, theta, taperbeta,
 		  networkstatistics, burnin, &staken,
       fVerbose,
 		  nwp, m);
     Rprintf("Phase 1: %d steps (interval = %d)\n", nphase1,interval);
     /* Now sample networks */
     for (i=0; i <= nphase1; i++){
-      MetropolisHastings (MHp, theta,
+      MetropolisHastings (MHp, theta, taperbeta,
 		  networkstatistics, interval, &staken,
       fVerbose,
 		  nwp, m);
@@ -458,7 +477,7 @@ void MCMCSamplePhase12(MHproposal *MHp,
     /* Now sample networks */
     for (i=1; i < samplesize; i++){
       
-      MetropolisHastings (MHp, theta,
+      MetropolisHastings (MHp, theta, taperbeta,
 		  networkstatistics, interval, &staken,
       fVerbose,
 		  nwp, m);
