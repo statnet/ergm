@@ -765,7 +765,7 @@ ergm <- function(formula, response=NULL,
                                 ...)
   
   if(control[["MPLE.type"]] == "tapered"){
-    if(!is.null(taper.coef) && all(is.character(taper.coef)) && taper.coef[1] == "adaptive"){ 
+    if(!is.null(taper.coef) & all(is.character(taper.coef)) & taper.coef[1] == "adaptive"){ 
       if(!is.null(initialfit$taperbeta)){
         model.initial$etamap$taperbeta<-initialfit$taperbeta
       }else{
