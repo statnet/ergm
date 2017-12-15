@@ -211,7 +211,7 @@ gof.ergm <- function (object, ...,
   gof.formula(object=formula, coef=coef,
               GOF=GOF,
               constraints=constraints,
-              taperbeta=object$etamap$taperbeta,
+              taperbeta=object$taperbeta,
               control=control,
               verbose=verbose, ...)
 }
@@ -308,9 +308,9 @@ gof.formula <- function(object, ...,
 
   # Create tapering coefficients (if present)
   if(is.null(taperbeta)){
-    m$etamap$taperbeta <- rep(0,length(summary(object)))
+    m$taperbeta <- rep(0,length(summary(object)))
   }else{
-    m$etamap$taperbeta <- taperbeta
+    m$taperbeta <- taperbeta
   }
 
   if(is.null(coef)){

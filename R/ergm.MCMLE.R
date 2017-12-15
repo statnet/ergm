@@ -423,9 +423,9 @@ ergm.MCMLE <- function(init, nw, model,
       message("MCMLE estimation did not converge after ", control$MCMLE.maxit, " iterations. The estimated coefficients may not be accurate. Estimation may be resumed by passing the coefficients as initial values; see 'init' under ?control.ergm for details.")
     }
 
-    if(model$etamap$taperbeta.adaptive && !is.null(model$etamap$taperbeta) && iteration > control$MCMLE.maxit*0.5 ){
-#     model$etamap$taperbeta <-  model$etamap$taperbeta * (2 - 1 / (iteration))^2 / (2 - 1 / (iteration+1))^2
-      model$etamap$taperbeta <-  model$etamap$taperbeta / (2^(4/control$MCMLE.maxit))
+    if(!is.null(model$is_adaptive_taperbeta) && model$is_adaptive_taperbeta && !is.null(model$taperbeta) && iteration > control$MCMLE.maxit*0.5 ){
+#     model$taperbeta <-  model$taperbeta * (2 - 1 / (iteration))^2 / (2 - 1 / (iteration+1))^2
+      model$taperbeta <-  model$taperbeta / (2^(4/control$MCMLE.maxit))
       print(1/ (2^(4/control$MCMLE.maxit)))
     }
 

@@ -164,16 +164,16 @@ ergm.pl<-function(Clist, fd, m, theta.offset=NULL,
   # Tapering adjustment?
   taperbeta <- rep(0, length(m$target.stats))
   if(control$MPLE.type=="tapered"){
-    if(is.null(m$etamap$taperbeta)){
+    if(is.null(m$taperbeta)){
       message("Using a tapered version of the model (based on default tapering scale).")
       taperbeta <- 1/((2^2) * m$target.stats)
     }else{
       message("Using a tapered version of the model (based on passed tapering scale).")
-      taperbeta <- m$etamap$taperbeta
+      taperbeta <- m$taperbeta
     }
-    t.ind <- unlist(sapply(m$terms, 
-      function(term){a <- rep(!(is.null(term$dependence) || term$dependence),length(term$coef.names));names(a) <- term$coef.names;a}))
-    taperbeta[t.ind] <- 0
+#   t.ind <- unlist(sapply(m$terms, 
+#     function(term){a <- rep(!(is.null(term$dependence) || term$dependence),length(term$coef.names));names(a) <- term$coef.names;a}))
+#   taperbeta[t.ind] <- 0
     if(any(is.na(taperbeta))){
       stop("Tapered terms without tapered coefficients specified!")
     }

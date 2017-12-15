@@ -70,7 +70,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
   
   Clists <- lapply(nws, ergm::ergm.Cprepare, model, response=response)
 
-  taperbeta <- model$etamap$taperbeta
+  taperbeta <- model$taperbeta
 
   control.parallel <- control
   control.parallel$MCMC.samplesize <- NVL3(control$MCMC.samplesize, ceiling(. / nthreads))

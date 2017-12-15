@@ -243,9 +243,9 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
 
   # Create tapering coefficients (if present)
   if(is.null(taperbeta)){
-    m$etamap$taperbeta <- rep(0,length(curstats))
+    m$taperbeta <- rep(0,length(curstats))
   }else{
-    m$etamap$taperbeta <- taperbeta
+    m$taperbeta <- taperbeta
   }
     
   # prepare control object
@@ -393,7 +393,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                    esteq=esteq,
                    sequential=sequential, constraints=constraints,
                    monitor=monitor,
-                   taperbeta=object$etamap$taperbeta,
+                   taperbeta=object$taperbeta,
                    control=control, verbose=verbose, seed=seed, ...)
 }
 

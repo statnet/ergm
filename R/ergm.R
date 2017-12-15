@@ -753,19 +753,19 @@ ergm <- function(formula, response=NULL,
   
   if(!is.null(taper.coef)){ 
     control[["MPLE.type"]] <- "tapered"
-    model.initial$etamap$taperbeta.adaptive<-TRUE
+    model.initial$is_adaptive_taperbeta<-TRUE
     if(is.numeric(taper.coef)){ 
      # TODO: Names matching here?
      if(length(model.initial$target.stats)==length(taper.coef) & length(model.initial$target.stats) > 1) {
        message("Using a tapered version of the model (based on passed tapering scale).")
-       model.initial$etamap$taperbeta<-taper.coef
+       model.initial$taperbeta<-taper.coef
      }else{if(length(taper.coef)==1){
        message("Using a tapered version of the model (based on a scaled default tapering scale).")
-       model.initial$etamap$taperbeta<-taper.coef / ((2^2) * model.initial$target.stats)
-       t.ind <- unlist(sapply(model.initial$terms,
-         function(term){a <- rep(!(is.null(term$dependence) || term$dependence),length(term$coef.names))
-         names(a) <- term$coef.names;a}))
-       model.initial$etamap$taperbeta[t.ind] <- 0
+       model.initial$taperbeta<-taper.coef / ((2^2) * model.initial$target.stats)
+#      t.ind <- unlist(sapply(model.initial$terms,
+#        function(term){a <- rep(!(is.null(term$dependence) || term$dependence),length(term$coef.names))
+#        names(a) <- term$coef.names;a}))
+#      model.initial$taperbeta[t.ind] <- 0
      }else{
        stop("Invalid tapering parameter vector taper.coef: ",
             "wrong number of parameters: expected ",
@@ -858,30 +858,30 @@ ergm <- function(formula, response=NULL,
   model$target.stats <- NVL(target.stats, model$nw.stats)
 
   if(!is.null(taper.coef)){
-    model$etamap$taperbeta.adaptive<-TRUE
+    model$is_adaptive_taperbeta<-TRUE
     if(all(is.character(taper.coef)) && taper.coef[1] == "adaptive"){ 
       message("Using a tapered version of the model (based on an adaptive tapering scale).")
       taperbeta<- 1 / ((0.5^2) * model$target.stats)
-      t.ind <- unlist(sapply(model$terms,
-        function(term){a <- rep(!(is.null(term$dependence) || term$dependence),length(term$coef.names))
-        names(a) <- term$coef.names;a}))
-      taperbeta[t.ind] <- 0
-      model$etamap$taperbeta <- taperbeta
+#     t.ind <- unlist(sapply(model$terms,
+#       function(term){a <- rep(!(is.null(term$dependence) || term$dependence),length(term$coef.names))
+#       names(a) <- term$coef.names;a}))
+#     taperbeta[t.ind] <- 0
+      model$taperbeta <- taperbeta
     }else{
       taper.mult <- taper.coef
       # TODO: Names matching here?
       if(length(model$target.stats)==length(taper.mult) & length(model$target.stats) > 1) {
        message("Using a tapered version of the model (based on passed tapering scale).")
-       model$etamap$taperbeta<-taper.mult
-       model$etamap$taperbeta.adaptive<-FALSE
+       model$taperbeta<-taper.mult
+       model$is_adaptive_taperbeta<-FALSE
       }else{if(length(taper.mult)==1){
        message("Using a tapered version of the model (based on a scaled default tapering scale).")
-       model$etamap$taperbeta<-taper.mult / ((2^2) * model$target.stats)
-       t.ind <- unlist(sapply(model$terms,
-         function(term){a <- rep(!(is.null(term$dependence) || term$dependence),length(term$coef.names))
-         names(a) <- term$coef.names;a}))
-       model$etamap$taperbeta[t.ind] <- 0
-       model$etamap$taperbeta.adaptive<-FALSE
+       model$taperbeta<-taper.mult / ((2^2) * model$target.stats)
+#      t.ind <- unlist(sapply(model$terms,
+#        function(term){a <- rep(!(is.null(term$dependence) || term$dependence),length(term$coef.names))
+#        names(a) <- term$coef.names;a}))
+#      model$taperbeta[t.ind] <- 0
+       model$is_adaptive_taperbeta<-FALSE
      }else{
        stop("Invalid tapering parameter vector taper.coef: ",
             "wrong number of parameters: expected ",
@@ -892,9 +892,9 @@ ergm <- function(formula, response=NULL,
     control[["MCMLE.sequential"]] <- FALSE
     message("Using a tapered version of the model.")
     message("taper.coef:")
-    print(model$etamap$taperbeta)
+    print(model$taperbeta)
   }else{
-    model$etamap$taperbeta<-rep(0,length(model$target.stats))
+    model$taperbeta<-rep(0,length(model$target.stats))
   }
   
   mainfit <- switch(control$main.method,
@@ -962,6 +962,7 @@ ergm <- function(formula, response=NULL,
   mainfit$drop <- if(control$drop) extremecheck$extremeval.theta
   mainfit$estimable <- constrcheck$estimable
   mainfit$etamap <- model$etamap
+  mainfit$taperbeta <- model$taperbeta
   
   mainfit$null.lik<-logLikNull.ergm(mainfit, verbose=verbose)
   

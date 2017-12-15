@@ -69,6 +69,7 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
   
   model <- structure(list(formula=formula, coef.names = NULL,
                       offset = NULL,
+                      is_adaptive_taperbeta=FALSE,
                       terms = NULL, networkstats.0 = NULL, etamap = NULL),
                  class = "model.ergm")
 
