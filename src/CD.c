@@ -28,7 +28,7 @@ void CD_wrapper(int *dnumnets, int *nedges,
 		  int *nterms, char **funnames,
 		  char **sonames, 
 		  char **MHproposaltype, char **MHproposalpackage,
-		double *inputs, double *theta0, double *taperbeta, int *samplesize, int *CDparams,
+		double *inputs, double *theta0, int *samplesize, int *CDparams,
 		  double *sample,
 		  int *fVerbose, 
 		  int *attribs, int *maxout, int *maxin, int *minout,
@@ -67,7 +67,7 @@ void CD_wrapper(int *dnumnets, int *nedges,
   double *extraworkspace = calloc(m->n_stats, sizeof(double));
 
   *status = CDSample(&MH,
-		     theta0, taperbeta, sample, *samplesize, CDparams, undotail, undohead,
+		     theta0, sample, *samplesize, CDparams, undotail, undohead,
 		     *fVerbose, nw, m, extraworkspace);
   
   free(undotail);
@@ -92,7 +92,7 @@ void CD_wrapper(int *dnumnets, int *nedges,
  the networkstatistics array. 
 *********************/
 MCMCStatus CDSample(MHproposal *MHp,
-		    double *theta, double *taperbeta, double *networkstatistics, 
+		    double *theta, double *networkstatistics, 
 		    int samplesize, int *CDparams, Vertex *undotail, Vertex *undohead, int fVerbose,
 		    Network *nwp, Model *m, double *extraworkspace){
     
@@ -117,7 +117,7 @@ MCMCStatus CDSample(MHproposal *MHp,
   unsigned int i=0, sattempted=0;
   while(i<samplesize){
     
-    if(CDStep(MHp, theta, taperbeta, networkstatistics, CDparams, &staken, undotail, undohead,
+    if(CDStep(MHp, theta, networkstatistics, CDparams, &staken, undotail, undohead,
 	      fVerbose, nwp, m, extraworkspace)!=MCMC_OK)
       return MCMC_MH_FAILED;
     
@@ -154,7 +154,7 @@ MCMCStatus CDSample(MHproposal *MHp,
  essentially generates a sample of size one
 *********************/
 MCMCStatus CDStep(MHproposal *MHp,
-		  double *theta, double *taperbeta, double *networkstatistics,
+		  double *theta, double *networkstatistics,
 		  int *CDparams, int *staken,
 		  Vertex *undotail, Vertex *undohead,
 		  int fVerbose,
@@ -252,15 +252,10 @@ MCMCStatus CDStep(MHproposal *MHp,
     for (unsigned int i=0; i<m->n_stats; i++){
       ip += theta[i] * extraworkspace[i];
     }
-    // Add tapering terms
-    double ipt = 0.0;
-    for(unsigned int i=0; i<m->n_stats; i++){
-      ipt += ( (extraworkspace[i])*(extraworkspace[i]) + 2.0*(extraworkspace[i])*(networkstatistics[i]) ) * taperbeta[i];
-    }
     /* The logic is to set cutoff = ip+logratio ,
        then let the MH probability equal min{exp(cutoff), 1.0}.
        But we'll do it in log space instead.  */
-    double cutoff = ip + cumlr - ipt;
+    double cutoff = ip + cumlr;
 
     if(fVerbose>=5){
       Rprintf("log acceptance probability: %f + %f = %f\n", ip, cumlr, cutoff);

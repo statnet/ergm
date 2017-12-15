@@ -108,7 +108,6 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
     if(verbose>1) message("Burning in...")
     ## First burn-in has to be longer, but those thereafter should be shorter if the bridges are closer together.
     nw.state<-simulate(form, coef=theta, nsim=1, response=response, constraints=constraints, statsonly=FALSE, verbose=max(verbose-1,0),
-                       taperbeta=m$etamap$taperbeta,
                        control=control.simulate.formula(MCMC.burnin=if(i==1) control$MCMC.burnin else ceiling(control$MCMC.burnin/sqrt(control$nsteps)),
                          MCMC.interval=1,
                          MCMC.prop.args=control$MCMC.prop.args,
@@ -120,14 +119,12 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
                                                         ), ...)
     ergm.update.formula(form,nw.state~., from.new="nw.state")
     stats[i,]<-apply(simulate(form, coef=theta, response=response, constraints=constraints, statsonly=TRUE, verbose=max(verbose-1,0),
-                              taperbeta=m$etamap$taperbeta,
                               control=control.simulate.formula(MCMC.burnin=0,
                                 MCMC.interval=control$MCMC.interval),
                               nsim=ceiling(control$MCMC.samplesize/control$nsteps), ...),2,mean)
     
     if(network.naedgecount(nw)){
       nw.state.obs<-simulate(form.obs, coef=theta, nsim=1, response=response, constraints=constraints.obs, statsonly=FALSE, verbose=max(verbose-1,0),
-                             taperbeta=m$etamap$taperbeta,
                              control=control.simulate.formula(MCMC.burnin=if(i==1) control$obs.MCMC.burnin else ceiling(control$obs.MCMC.burnin/sqrt(control$nsteps)),
                                MCMC.interval=1,
                                MCMC.prop.args=control$MCMC.prop.args,
@@ -138,7 +135,6 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
                                parallel.version.check=control$parallel.version.check), ...)
       ergm.update.formula(form.obs,nw.state.obs~., from.new="nw.state.obs")
       stats.obs[i,]<-apply(simulate(form.obs, coef=theta, response=response, constraints=constraints.obs, statsonly=TRUE, verbose=max(verbose-1,0),
-                                taperbeta=m$etamap$taperbeta,
                                 control=control.simulate.formula(MCMC.burnin=0,
                                   MCMC.interval=control$obs.MCMC.interval,
                                   parallel=control$parallel,

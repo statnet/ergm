@@ -8,7 +8,7 @@
 ergm.getMCMCsample(nw, model, MHproposal, eta0, control, verbose = FALSE,
   response = NULL, update.nws = TRUE, ...)
 
-ergm.mcmcslave(Clist, MHproposal, eta0, taperbeta, control, verbose, ...,
+ergm.mcmcslave(Clist, MHproposal, eta0, control, verbose, ...,
   prev.run = NULL, burnin = NULL, samplesize = NULL, interval = NULL,
   maxedges = NULL)
 }

@@ -101,7 +101,6 @@ gof <- function(object, ...){
 
 #' @noRd
 #' @importFrom utils methods
-#' @method gof default
 #' @export
 gof.default <- function(object,...) {
   classes <- setdiff(gsub(pattern="^gof.",replacement="",as.vector(methods("gof"))), "default")
@@ -112,50 +111,12 @@ gof.default <- function(object,...) {
 #' @describeIn gof Perform simulation to evaluate goodness-of-fit for
 #'   a specific [ergm()] fit.
 #'
-#' @param object Either a formula or an \code{\link{ergm}} object.
-#' See documentation for \code{\link{ergm}}.
-#' @param \dots Additional arguments, to be passed to lower-level functions.
-#' @param coef When given either a formula or an object of class ergm,
-#' \code{coef} are the parameters from which the sample is drawn. By default
-#' set to a vector of 0.
-#' @param GOF formula; an formula object, of the form \code{~ <model terms>}
-#' specifying the statistics to use to diagnosis the goodness-of-fit of the
-#' model.  They do not need to be in the model formula specified in
-#' \code{formula}, and typically are not.  Currently supported terms are the
-#' degree distribution (\dQuote{degree} for undirected graphs, or
-#' \dQuote{idegree} and/or \dQuote{odegree} for directed graphs), geodesic
-#' distances (\dQuote{distance}), shared partner distributions
-#' (\dQuote{espartners} and \dQuote{dspartners}), the triad census
-#' (\dQuote{triadcensus}), and the terms of the original model
-#' (\dQuote{model}). The default formula for undirected networks is \code{~
-#' degree + espartners + distance + model}, and the default formula for
-#' directed networks is \code{~ idegree + odegree + espartners + distance +
-#' model}.  By default a \dQuote{model} term is added to the formula.  It is a
-#' very useful overall validity check and a reminder of the statistical
-#' variation in the estimates of the mean value parameters.  To omit the
-#' \dQuote{model} term, add \dQuote{- model} to the formula.
-#' @param constraints A one-sided formula specifying one or more constraints on
-#' the support of the distribution of the networks being modeled. See the help
-#' for similarly-named argument in \code{\link{ergm}} for more information. For
-#' \code{gof.formula}, defaults to unconstrained. For \code{gof.ergm}, defaults
-#' to the constraints with which \code{object} was fitted.
-#' @param control A list to control parameters, constructed using
-#' \code{\link{control.gof.formula}} or \code{\link{control.gof.ergm}} (which
-#' have different defaults).
-#' @param verbose Provide verbose information on the progress of the
-#' simulation.
-#' @return \code{\link{gof}}, \code{\link{gof.ergm}}, and
-#' \code{\link{gof.formula}} return an object of class \code{gof}.  This
-#' is a list of the tables of statistics and \eqn{p}-values.  This is typically
-#' plotted using \code{\link{plot.gof}}.
-#' @seealso [ergm()], [network()], [simulate.formula()], [summary.ergm()]
 #' @note For \code{gof.ergm} and \code{gof.formula}, default behavior depends on the
 #' directedness of the network involved; if undirected then degree, espartners,
 #' and distance are used as default properties to examine.  If the network in
 #' question is directed, \dQuote{degree} in the above is replaced by idegree
 #' and odegree.
 #'
-#' @method gof ergm
 #' @export
 gof.ergm <- function (object, ..., 
                       coef=NULL,
@@ -182,7 +143,6 @@ gof.ergm <- function (object, ...,
     #' @importFrom statnet.common nonsimp.update.formula
     GOF <- nonsimp.update.formula(GOF, ~ . + model)
   }
-
 
   ## FIXME: Need to do this differently. This approach will (probably)
   ## break if any of the terms in the formula have non-constant
@@ -211,7 +171,6 @@ gof.ergm <- function (object, ...,
   gof.formula(object=formula, coef=coef,
               GOF=GOF,
               constraints=constraints,
-              taperbeta=object$etamap$taperbeta,
               control=control,
               verbose=verbose, ...)
 }
@@ -222,13 +181,11 @@ gof.ergm <- function (object, ...,
 #'   a model configuration specified by a [`formula`], coefficient,
 #'   constraints, and other settings.
 #' 
-#' @method gof formula
 #' @export
 gof.formula <- function(object, ..., 
                         coef=NULL,
                         GOF=NULL,
                         constraints=~.,
-                        taperbeta=NULL,
                         control=control.gof.formula(),
 			unconditional=TRUE,
                         verbose=FALSE) {
@@ -306,13 +263,6 @@ gof.formula <- function(object, ...,
   m <- ergm.getmodel(object, nw)
   Clist <- ergm.Cprepare(nw, m)
 
-  # Create tapering coefficients (if present)
-  if(is.null(taperbeta)){
-    m$etamap$taperbeta <- rep(0,length(summary(object)))
-  }else{
-    m$etamap$taperbeta <- taperbeta
-  }
-
   if(is.null(coef)){
       coef <- rep(0,Clist$nstats)
       warning("No parameter values given, using 0\n\t")
@@ -329,7 +279,6 @@ gof.formula <- function(object, ...,
    SimCond <- gof(object=object, coef=coefmissing,
                   GOF=GOF, 
                   constraints=constraints.obs,
-                  taperbeta=taperbeta,
                   control=control,
                   unconditional=FALSE,
                   verbose=verbose)
@@ -491,7 +440,6 @@ gof.formula <- function(object, ...,
     if(network.naedgecount(nw) & !unconditional){tempnet <- nw}
     tempnet <- simulate(object, nsim=1, coef=coef,
                         constraints=constraints, 
-                        taperbeta=taperbeta,
                         control=set.control.class("control.simulate.formula",control),
                         basis=tempnet,
                         verbose=verbose)
@@ -565,10 +513,8 @@ gof.formula <- function(object, ...,
     pval.model <- cbind(obs.model,apply(sim.model, 2,min), apply(sim.model, 2,mean),
                         apply(sim.model, 2,max), pmin(1,2*pmin(pval.model,pval.model.top)))
     dimnames(pval.model)[[2]] <- c("obs","min","mean","max","MC p-value")
-#   pobs.model <- pval.model.top
-#   psim.model <- apply(sim.model,2,rank)/nrow(sim.model)
-    psim.model <- scale(sim.model)
-    pobs.model <- (obs.model-attr(psim.model,"scaled:center")) / attr(psim.model,"scaled:scale")
+    pobs.model <- pval.model.top
+    psim.model <- apply(sim.model,2,rank)/nrow(sim.model)
     psim.model <- matrix(psim.model, ncol=ncol(sim.model)) # Guard against the case of sim.model having only one row.
     bds.model <- apply(psim.model,2,quantile,probs=c(0.025,0.975))
 
@@ -730,7 +676,9 @@ gof.formula <- function(object, ...,
 #   NULL
 #################################################################
 
-#' @describeIn gof Summaries the diagnostics such as the
+#' @describeIn gof
+#' 
+#' \code{\link{print.gof}} summaries the diagnostics such as the
 #' degree distribution, geodesic distances, shared partner
 #' distributions, and reachability for the goodness-of-fit of
 #' exponential family random graph models.  See \code{\link{ergm}} for
@@ -739,7 +687,6 @@ gof.formula <- function(object, ...,
 #' 
 #' @param x an object of class \code{gof} for printing or plotting.
 #' @aliases summary.gof
-#' @method print gof
 #' @export
 print.gof <- function(x, ...){
   all.gof.vars <- ergm.rhs.formula(x$GOF)
@@ -803,7 +750,9 @@ summary.gof <- function(object, ...) {
 
 
 
-#' @describeIn gof Plots diagnostics such as the degree
+#' @describeIn gof
+#' 
+#' \code{\link{plot.gof}} plots diagnostics such as the degree
 #' distribution, geodesic distances, shared partner distributions, and
 #' reachability for the goodness-of-fit of exponential family random graph
 #' models.  See \code{\link{ergm}} for more information on these models.
@@ -820,7 +769,6 @@ summary.gof <- function(object, ...) {
 #' @keywords graphs
 #' 
 #' @importFrom graphics boxplot points lines mtext plot
-#' @method plot gof
 #' @export
 plot.gof <- function(x, ..., 
          cex.axis=0.7, plotlogodds=FALSE,
@@ -902,7 +850,7 @@ plot.gof <- function(x, ...,
         out <- x$psim.model
         out.obs <- x$pobs.model
         out.bds <- x$bds.model
-        ylab <- "standard units of simulations"
+        ylab <- "simulated quantiles"
     }
     pnames <- names(out.obs)
     ymin <- min(min(out,na.rm=TRUE),min(out.obs,na.rm=TRUE))
