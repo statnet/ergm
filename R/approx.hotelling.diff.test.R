@@ -258,7 +258,7 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE)
 #' components of `x`, dropping redundant dimentions.
 #' @export spectrum0.mvar
 spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machine$double.eps^0.5, ...){
-  breaks <- if(is.mcmc.list(x)) c(0,cumsum(sapply(x, niter))) else 0
+  breaks <- if(is.mcmc.list(x)) c(0,cumsum(sapply(x, niter))) else NULL
   x <- as.matrix(x)
   n <- nrow(x)
   p <- ncol(x)
@@ -284,7 +284,9 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   xr <- x%*%Q # Columns of xr are guaranteed to be linearly independent.
 
   # Convert back into an mcmc.list object.
-  xr <- do.call(mcmc.list,lapply(lapply(seq_along(breaks[-1]), function(i) xr[(breaks[i]+1):(breaks[i+1]),,drop=FALSE]), mcmc))
+  xr <-
+    if(!is.null(breaks)) do.call(mcmc.list,lapply(lapply(seq_along(breaks[-1]), function(i) xr[(breaks[i]+1):(breaks[i+1]),,drop=FALSE]), mcmc))
+    else as.mcmc.list(mcmc(xr))
   
   # Calculate the time-series variance of the mean on the PC scale.
   ord <- NVL(order.max, ceiling(10*log10(niter(xr))))
