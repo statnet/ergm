@@ -127,6 +127,21 @@
 #
 ################################################################################
 
+#=======================InitErgmTerm utility functions============================#
+
+GWDECAY <- list(
+  map = function(x,n,...) {
+    i <- 1:n
+    x[1]*(exp(x[2])*(1-(1-exp(-x[2]))^i))
+  },
+  gradient = function(x,n,...) {
+    i <- 1:n
+    e2 <- exp(x[2])
+    a <- 1-exp(-x[2])
+    rbind((1-a^i)*e2, x[1] * ( (1-a^i)*e2 - i*a^(i-1) ) )
+  }
+)
+
 
 
 
@@ -1459,20 +1474,9 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, initialfit=FALSE, ...) {
 #    }
     ld<-length(d)
     if(ld==0){return(NULL)}
-    map <- function(x,n,...) {
-      i <- 1:n
-      x[1]*(exp(x[2])*(1-(1-exp(-x[2]))^i))
-    }
-    gradient <- function(x,n,...) {
-      i <- 1:n
-      rbind(exp(x[2])*(1-(1-exp(-x[2]))^i),
-            x[1]*(exp(x[2])-(1-exp(-x[2]))^
-                  {i-1}*(1+i-exp(-x[2])))
-            )
-    }
-    list(name="b1degree", coef.names=paste("gwb1degree#",d,sep=""),
+    c(list(name="b1degree", coef.names=paste("gwb1degree#",d,sep=""),
          inputs=c(d), params=list(gwb1degree=NULL,gwb1degree.decay=decay),
-         map=map, gradient=gradient)
+         conflicts.constraints="b1degreedist"), GWDECAY)
   } else {
     if(!is.null(attrname)) {
       nodecov <- get.node.attr(nw, attrname, "gwb1degree")
@@ -1492,10 +1496,10 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, initialfit=FALSE, ...) {
       inputs <- c(decay, nodecov)
     }else{
       name <- "gwb1degree"
-      coef.names <- paste("gwb1deg",decay,sep="")
+      coef.names <- paste("gwb1deg.fixed.",decay,sep="")
       inputs <- c(decay)
     }
-    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE)
+    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, conflicts.constraints="b1degreedist")
   }
 }
 
@@ -1522,20 +1526,9 @@ InitErgmTerm.gwb2degree<-function(nw, arglist, initialfit=FALSE, ...) {
 #    }
     ld<-length(d)
     if(ld==0){return(NULL)}
-    map <- function(x,n,...) {
-      i <- 1:n
-      x[1]*(exp(x[2])*(1-(1-exp(-x[2]))^i))
-    }
-    gradient <- function(x,n,...) {
-      i <- 1:n
-      rbind(exp(x[2])*(1-(1-exp(-x[2]))^i),
-            x[1]*(exp(x[2])-(1-exp(-x[2]))^
-                  {i-1}*(1+i-exp(-x[2])))
-            )
-    }
-    list(name="b2degree", coef.names=paste("gwb2degree#",d,sep=""),
+    c(list(name="b2degree", coef.names=paste("gwb2degree#",d,sep=""),
          inputs=c(d), params=list(gwb2degree=NULL,gwb2degree.decay=decay),
-         map=map, gradient=gradient)
+         conflicts.constraints="b2degreedist"), GWDECAY)
   } else { 
     if(!is.null(attrname)) {
       nodecov <- get.node.attr(nw, attrname, "gwb2degree")
@@ -1555,10 +1548,10 @@ InitErgmTerm.gwb2degree<-function(nw, arglist, initialfit=FALSE, ...) {
       inputs <- c(decay, nodecov)
     }else{
       name <- "gwb2degree"
-      coef.names <- paste("gwb2deg",decay,sep="")
+      coef.names <- paste("gwb2deg.fixed.",decay,sep="")
       inputs <- c(decay)
     }
-    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE)
+    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, conflicts.constraints="b2degreedist")
   }
 }
 
@@ -1584,19 +1577,9 @@ InitErgmTerm.gwdegree<-function(nw, arglist, initialfit=FALSE, ...) {
   if(!initialfit && !fixed){ # This is a curved exponential family model
     ld<-length(d)
     if(ld==0){return(NULL)}
-    map <- function(x,n,...) {
-      i <- 1:n
-      x[1]*(exp(x[2])*(1-(1-exp(-x[2]))^i))
-    }
-    gradient <- function(x,n,...) {
-      i <- 1:n
-      rbind(exp(x[2])*(1-(1-exp(-x[2]))^i),
-            x[1]*(exp(x[2])-(1-exp(-x[2]))^{i-1}*(1+i-exp(-x[2])))
-           )
-    }
-    list(name="degree", coef.names=paste("gwdegree#",d,sep=""), 
+    c(list(name="degree", coef.names=paste("gwdegree#",d,sep=""), 
          inputs=c(d), params=list(gwdegree=NULL,gwdegree.decay=decay),
-         map=map, gradient=gradient, conflicts.constraints="degreedist")
+         conflicts.constraints="degreedist"), GWDECAY)
   } else {
     if(!is.null(attrname)) {
       nodecov <- get.node.attr(nw, attrname, "gwdegree")
@@ -1613,13 +1596,12 @@ InitErgmTerm.gwdegree<-function(nw, arglist, initialfit=FALSE, ...) {
       name <- "gwdegree_by_attr"
       coef.names <- paste("gwdeg", decay, ".", attrname, u, sep="")
       inputs <- c(decay, nodecov)
-      list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE)
     }else{
       name <- "gwdegree"
-      coef.names <- "gwdegree"
+      coef.names <- paste("gwdeg.fixed.",decay,sep="")
       inputs <- c(decay)
-      list(name=name, coef.names=coef.names, inputs=inputs, conflicts.constraints="degreedist")
     }
+    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, conflicts.constraints="degreedist")
   }
 }
 
@@ -1647,19 +1629,10 @@ InitErgmTerm.gwdsp<-function(nw, arglist, initialfit=FALSE, ...) {
     d <- 1:maxesp
     ld<-length(d)
     if(ld==0){return(NULL)}
-    map<- function(x,n,...) {
-      i <- 1:n
-      x[1]*exp(x[2])*(1-(1-exp(-x[2]))^i)
-    }
-    gradient <- function(x,n,...) {
-      i <- 1:n
-      a <- 1-exp(-x[2])
-      exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
-    }
     if(is.directed(nw)){dname <- "tdsp"}else{dname <- "dsp"}
-    list(name=dname, coef.names=paste("gwdsp#",d,sep=""), 
-         inputs=c(d), params=list(gwdsp=NULL,gwdsp.decay=decay),
-         map=map, gradient=gradient)
+    c(list(name=dname, coef.names=paste("gwdsp#",d,sep=""), 
+           inputs=c(d), params=list(gwdsp=NULL,gwdsp.decay=decay)),
+      GWDECAY)
   }else{
     if (initialfit && !fixed) # First pass to get MPLE coefficient
       coef.names <- "gwdsp"   # must match params$gwdsp above
@@ -1695,19 +1668,10 @@ InitErgmTerm.gwesp<-function(nw, arglist, initialfit=FALSE, ...) {
     d <- 1:maxesp
     ld<-length(d)
     if(ld==0){return(NULL)}
-    map <- function(x,n,...){
-      i <- 1:n
-      x[1]*exp(x[2])*(1-(1-exp(-x[2]))^i)
-    }
-    gradient <- function(x,n,...){
-      i <- 1:n
-      a <- 1-exp(-x[2])
-      exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
-    }
     if(is.directed(nw)){dname <- "tesp"}else{dname <- "esp"}
-    list(name=dname, coef.names=paste("esp#",d,sep=""), 
-         inputs=c(d), params=list(gwesp=NULL,gwesp.decay=decay),
-         map=map, gradient=gradient)
+    c(list(name=dname, coef.names=paste("esp#",d,sep=""), 
+         inputs=c(d), params=list(gwesp=NULL,gwesp.decay=decay)),
+      GWDECAY)
   }else{
     if (initialfit && !fixed)  # First pass to get MPLE coefficient
       coef.names <- "gwesp"
@@ -1740,19 +1704,10 @@ InitErgmTerm.gwidegree<-function(nw, arglist, initialfit=FALSE, ...) {
   if(!initialfit && !fixed){ # This is a curved exponential family model
     ld<-length(d)
     if(ld==0){return(NULL)}
-    map <- function(x,n,...) {
-      i <- 1:n
-      x[1]*(exp(x[2])*(1-(1-exp(-x[2]))^i))
-    }
-    gradient <- function(x,n,...) {
-      i <- 1:n
-      rbind(exp(x[2])*(1-(1-exp(-x[2]))^i),
-            x[1]*(exp(x[2])-(1-exp(-x[2]))^{i-1}*(1+i-exp(-x[2])))
-           )
-    }
-    list(name="idegree", coef.names=paste("gwidegree#",d,sep=""), 
+    c(list(name="idegree", coef.names=paste("gwidegree#",d,sep=""), 
          inputs=c(d), params=list(gwidegree=NULL,gwidegree.decay=decay),
-         map=map, gradient=gradient, conflicts.constraints="idegreedist")
+         conflicts.constraints="idegreedist"),
+      GWDECAY)
   } else { 
     if(!is.null(attrname)) {
       nodecov <- get.node.attr(nw, attrname, "gwidegree")
@@ -1769,13 +1724,12 @@ InitErgmTerm.gwidegree<-function(nw, arglist, initialfit=FALSE, ...) {
       name <- "gwidegree_by_attr"
       coef.names <- paste("gwideg", decay, ".", attrname, u, sep="")
       inputs <- c(decay, nodecov)
-      list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE)
     }else{
       name <- "gwidegree"
-      coef.names <- "gwidegree"
+      coef.names <- paste("gwideg.fixed.",decay,sep="")
       inputs <- c(decay)
-      list(name=name, coef.names=coef.names, inputs=inputs, conflicts.constraints="idegreedist")
     }
+    list(name=name, coef.names=coef.names, inputs=inputs, conflicts.constraints="idegreedist")
   }
 }
 
@@ -1803,19 +1757,10 @@ InitErgmTerm.gwnsp<-function(nw, arglist, initialfit=FALSE, ...) {
     d <- 1:maxesp
     ld<-length(d)
     if(ld==0){return(NULL)}
-    map <- function(x,n,...){
-      i <- 1:n
-      x[1]*exp(x[2])*(1-(1-exp(-x[2]))^i)
-    }
-    gradient <- function(x,n,...){
-      i <- 1:n
-      a <- 1-exp(-x[2])
-      exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
-    }
     if(is.directed(nw)){dname <- "tnsp"}else{dname <- "nsp"}
-    list(name=dname, coef.names=paste("nsp#",d,sep=""),
-         inputs=c(d), params=list(gwnsp=NULL,gwnsp.decay=decay),
-         map=map, gradient=gradient)
+    c(list(name=dname, coef.names=paste("nsp#",d,sep=""),
+           inputs=c(d), params=list(gwnsp=NULL,gwnsp.decay=decay)),
+      GWDECAY)
   }else{
     if (initialfit && !fixed)  # First pass to get MPLE coefficient
       coef.names <- "gwnsp"
@@ -1847,19 +1792,10 @@ InitErgmTerm.gwodegree<-function(nw, arglist, initialfit=FALSE, ...) {
   if(!initialfit && !fixed){ # This is a curved exponential family model
     ld<-length(d)
     if(ld==0){return(NULL)}
-    map <- function(x,n,...) {
-      i <- 1:n
-      x[1]*(exp(x[2])*(1-(1-exp(-x[2]))^i))
-    }
-    gradient <- function(x,n,...) {
-      i <- 1:n
-      rbind(exp(x[2])*(1-(1-exp(-x[2]))^i),
-            x[1]*(exp(x[2])-(1-exp(-x[2]))^{i-1}*(1+i-exp(-x[2])))
-           )
-    }
-    list(name="odegree", coef.names=paste("gwodegree#",d,sep=""),
+    c(list(name="odegree", coef.names=paste("gwodegree#",d,sep=""),
          inputs=c(d), params=list(gwodegree=NULL,gwodegree.decay=decay),
-         map=map, gradient=gradient, conflicts.constraints="odegreedist")
+         conflicts.constraints="odegreedist"),
+      GWDECAY)
   } else {
     if(!is.null(attrname)) {
       nodecov <- get.node.attr(nw, attrname, "gwodegree")
@@ -1876,13 +1812,12 @@ InitErgmTerm.gwodegree<-function(nw, arglist, initialfit=FALSE, ...) {
       name <- "gwodegree_by_attr"
       coef.names <- paste("gwodeg", decay, ".", attrname, u, sep="")
       inputs <- c(decay, nodecov)
-      list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE)
     }else{
       name <- "gwodegree"
-      coef.names <- "gwodegree"
+      coef.names <- paste("gwodeg.fixed.",decay,sep="")
       inputs <- c(decay)
-      list(name=name, coef.names=coef.names, inputs=inputs, conflicts.constraints="odegreedist")
     }
+    list(name=name, coef.names=coef.names, inputs=inputs, conflicts.constraints="odegreedist")
   }
 }
 

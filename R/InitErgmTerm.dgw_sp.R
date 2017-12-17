@@ -130,7 +130,7 @@
 #  UTP - Undirected two-path (undirected graphs only)
 #  OTP - Outgoing two-path (i->k->j)
 #  ITP - Incoming two-path (i<-k<-j)
-#  RTP - Recursive two-path (i<->k<->j)
+#  RTP - Reciprocated two-path (i<->k<->j)
 #  OSP - Outgoing shared partner (i->k<-j)
 #  ISP - Incoming shared partner (i<-k->j)
 #
@@ -177,7 +177,7 @@ InitErgmTerm.desp<-function(nw, arglist, ...) {
 #  UTP - Undirected two-path (undirected graphs only)
 #  OTP - Outgoing two-path (i->k->j)
 #  ITP - Incoming two-path (i<-k<-j)
-#  RTP - Recursive two-path (i<->k<->j)
+#  RTP - Reciprocated two-path (i<->k<->j)
 #  OSP - Outgoing shared partner (i->k<-j)
 #  ISP - Incoming shared partner (i<-k->j)
 #
@@ -215,20 +215,11 @@ InitErgmTerm.dgwesp<-function(nw, arglist, initialfit=FALSE, ...) {
     d <- 1:maxesp
     ld<-length(d)
     if(ld==0){return(NULL)}
-    map <- function(x,n,...){
-      i <- 1:n
-      x[1]*exp(x[2])*(1-(1-exp(-x[2]))^i)
-    }
-    gradient <- function(x,n,...){
-      i <- 1:n
-      a <- 1-exp(-x[2])
-      exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
-    }
     params<-list(gwesp=NULL,gwesp.decay=decay)
     names(params)<-c(basenam,paste(basenam,"decay",sep="."))
-    list(name=dname,
+    c(list(name=dname,
          coef.names=if(is.directed(nw)) paste("esp.",type,"#",d,sep="") else paste("esp#",d,sep=""), 
-         inputs=c(typecode,d), params=params, map=map, gradient=gradient)
+         inputs=c(typecode,d), params=params), GWDECAY)
   }else{
     dname<-"dgwesp"
     maxesp <- min(cutoff,network.size(nw)-2)
@@ -254,7 +245,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, initialfit=FALSE, ...) {
 #  UTP - Undirected two-path (undirected graphs only)
 #  OTP - Outgoing two-path (i->k->j)
 #  ITP - Incoming two-path (i<-k<-j)
-#  RTP - Recursive two-path (i<->k<->j)
+#  RTP - Reciprocated two-path (i<->k<->j)
 #  OSP - Outgoing shared partner (i->k<-j)
 #  ISP - Incoming shared partner (i<-k->j)
 #
@@ -343,23 +334,14 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, initialfit=FALSE, ...) {
     d <- 1:maxesp
     ld<-length(d)
     if(ld==0){return(NULL)}
-    map <- function(x,n,...){
-      i <- 1:n
-      x[1]*exp(x[2])*(1-(1-exp(-x[2]))^i)
-    }
-    gradient <- function(x,n,...){
-      i <- 1:n
-      a <- 1-exp(-x[2])
-      exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
-    }
     
     params<-list(gwdsp=NULL,gwdsp.decay=decay)
     names(params)<-c(basenam,paste(basenam,"decay",sep="."))
     
-    list(name=dname,
+    c(list(name=dname,
          coef.names=if(is.directed(nw)) paste("dsp.",type,"#",d,sep="") else paste("dsp#",d,sep=""), 
-         inputs=c(typecode,d), params=params,
-         map=map, gradient=gradient)
+         inputs=c(typecode,d), params=params),
+      GWDECAY)
   }else{
     dname<-"dgwdsp"
     maxesp <- min(cutoff,network.size(nw)-2)
@@ -385,7 +367,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, initialfit=FALSE, ...) {
 #  UTP - Undirected two-path (undirected graphs only)
 #  OTP - Outgoing two-path (i->k->j)
 #  ITP - Incoming two-path (i<-k<-j)
-#  RTP - Recursive two-path (i<->k<->j)
+#  RTP - Reciprocated two-path (i<->k<->j)
 #  OSP - Outgoing shared partner (i->k<-j)
 #  ISP - Incoming shared partner (i<-k->j)
 #
@@ -472,24 +454,14 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, initialfit=FALSE, ...) {
     d <- 1:maxesp
     ld<-length(d)
     if(ld==0){return(NULL)}
-    map <- function(x,n,...){
-      i <- 1:n
-      x[1]*exp(x[2])*(1-(1-exp(-x[2]))^i)
-    }
-    gradient <- function(x,n,...){
-      i <- 1:n
-      a <- 1-exp(-x[2])
-      exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
-    }
     
     params<-list(gwnsp=NULL,gwnsp.decay=decay)
     names(params)<-c(basenam,paste(basenam,"decay",sep="."))
     
-    list(name=dname,
+    c(list(name=dname,
          coef.names=if(is.directed(nw)) paste("nsp.",type,"#",d,sep="") else paste("nsp#",d,sep=""), 
 
-         inputs=c(typecode,d), params=params,
-         map=map, gradient=gradient)
+         inputs=c(typecode,d), params=params),GWDECAY)
   }else{
     dname<-"dgwnsp"
     maxesp <- min(cutoff,network.size(nw)-2)
