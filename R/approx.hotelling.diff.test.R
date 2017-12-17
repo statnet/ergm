@@ -25,7 +25,7 @@
 
 
 
-#' Approximate Hotelling T^2-Test for One Sample Means
+#' Approximate Hotelling T^2-Test for One or Two Population Means
 #' 
 #' A multivariate hypothesis test for a single population mean or a
 #' difference between them. This version attempts to adjust for
@@ -82,26 +82,17 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
   
   mywithin <- function(data, ...) within(data, ...) # This is a workaround suggsted by Duncan Murdoch: calling lapply(X, within, {CODE}) would leave CODE unable to see any objects in f.
   vars <- lapply(vars, mywithin, {
-    vcovs.indep <- lapply(v, cov)
+    vm <- as.matrix(v)
+    vcov.indep <- cov(vm)
     if(assume.indep){
-      vcovs <- vcovs.indep
+      vcov <- vcov.indep
     }else{
-      vcovs <- lapply(lapply(v, spectrum0.mvar), function(m) matrix(ifelse(is.na(c(m)), 0, c(m)),nrow(m),ncol(m)))
+      vcov <- spectrum0.mvar(v)
+      vcov[is.na(vcov)] <- 0
     }
-    ms <- lapply(v, base::colMeans)
-    m <- colMeans(as.matrix(v))
-    ns <- sapply(v,base::nrow)
-    n <- sum(ns)
-
-    # These are pooled estimates of the variance-covariance
-    # matrix. Note that the outer product of the difference between
-    # chain means (times n) is added on as well, because the chains
-    # are supposed to all have the same population mean. However, the
-    # divisor is then the combined sample size less 1, because we are
-    # assuming equal means.
-    vcov.indep <- Reduce("+", Map("+", Map("*", vcovs.indep, ns-1), Map("*", Map(outer, lapply(ms,"-",m), lapply(ms,"-",m)), ns) ))/(n-1)
-    vcov <- Reduce("+", Map("+", Map("*", vcovs, ns-1), Map("*", Map(outer, lapply(ms,"-",m), lapply(ms,"-",m)), ns) ))/(n-1)
-
+    m <- colMeans(vm)
+    n <- nrow(vm)
+    
     infl <- tr(vcov) / tr(vcov.indep) # I.e., how much bigger is the trace of the variance-covariance after taking autocorrelation into account than before.
     neff <- n / infl
     
@@ -267,7 +258,8 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE)
 #' components of `x`, dropping redundant dimentions.
 #' @export spectrum0.mvar
 spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machine$double.eps^0.5, ...){
-  x <- cbind(x)
+  breaks <- if(is.mcmc.list(x)) c(0,cumsum(sapply(x, niter))) else 0
+  x <- as.matrix(x)
   n <- nrow(x)
   p <- ncol(x)
   
@@ -281,46 +273,47 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
     min(which(d>=0))-1
   }
   
-  if(ncol(x)){
-    # Map the variables onto their principal components, dropping
-    # redundant (linearly-dependent) dimensions. Here, we keep the
-    # eigenvectors such that the reciprocal condition number defined
-    # as s.min/s.max, where s.min and s.max are the smallest and the
-    # biggest singular values, respectively, is greater than the
-    # tolerance.
-    e <- eigen(cov(x), symmetric=TRUE)
-    Q <- e$vec[,sqrt(pmax(e$val,0)/max(e$val))>tol*2,drop=FALSE]
-    xr <- x%*%Q # Columns of xr are guaranteed to be linearly independent.
-    
-    # Calculate the time-series variance of the mean on the PC scale.
+  # Map the variables onto their principal components, dropping
+  # redundant (linearly-dependent) dimensions. Here, we keep the
+  # eigenvectors such that the reciprocal condition number defined
+  # as s.min/s.max, where s.min and s.max are the smallest and the
+  # biggest singular values, respectively, is greater than the
+  # tolerance.
+  e <- eigen(cov(x), symmetric=TRUE)
+  Q <- e$vec[,sqrt(pmax(e$val,0)/max(e$val))>tol*2,drop=FALSE]
+  xr <- x%*%Q # Columns of xr are guaranteed to be linearly independent.
 
-    ord <- NVL(order.max, ceiling(10*log10(nrow(xr))))
+  # Convert back into an mcmc.list object.
+  xr <- do.call(mcmc.list,lapply(lapply(seq_along(breaks[-1]), function(i) xr[(breaks[i]+1):(breaks[i+1]),,drop=FALSE]), mcmc))
+  
+  # Calculate the time-series variance of the mean on the PC scale.
+  ord <- NVL(order.max, ceiling(10*log10(niter(xr))))
+  arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, ...))
+  # If ar() failed or produced a variance matrix estimate that's
+  # not positive semidefinite, try with a lower order.
+  while((!is.null(arfit$error) || ERRVL(try(any(eigen(arfit$value$var.pred, only.values=TRUE)$values<0), silent=TRUE), TRUE)) && ord > 1){
+    ord <- ord - 1
     arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, ...))
-    # If ar() failed or produced a variance matrix estimate that's
-    # not positive semidefinite, try with a lower order.
-    while((!is.null(arfit$error) || ERRVL(try(any(eigen(arfit$value$var.pred, only.values=TRUE)$values<0), silent=TRUE), TRUE)) && ord > 1){
-      ord <- ord - 1
-      arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, ...))
-    }
-    
-    arfit <- arfit$value
-    if(aic && arfit$order>(ord <- first_local_min(arfit$aic)-1)){
-      arfit <- ar(xr, aic=ord==0, order.max=max(ord,1)) # Workaround since ar() won't take order.max=0.
-    }
-    
-    arvar <- arfit$var.pred
-    arcoefs <- arfit$ar
-    arcoefs <- NVL2(dim(arcoefs), apply(arcoefs,2:3,base::sum), sum(arcoefs))
-    
-    adj <- diag(1,nrow=ncol(xr)) - arcoefs
-    iadj <- solve(adj)
-    v.var <- iadj %*% arvar %*% t(iadj)
-    
-    # Reverse the mapping for the variance estimate.
-    v.var <- Q%*%v.var%*%t(Q)
-    
-    v[!novar,!novar] <- v.var
   }
+  
+  arfit <- arfit$value
+  if(aic && arfit$order>(ord <- first_local_min(arfit$aic)-1)){
+    arfit <- ar(xr, aic=ord==0, order.max=max(ord,1)) # Workaround since ar() won't take order.max=0.
+  }
+  
+  arvar <- arfit$var.pred
+  arcoefs <- arfit$ar
+  arcoefs <- NVL2(dim(arcoefs), apply(arcoefs,2:3,base::sum), sum(arcoefs))
+  
+  adj <- diag(1,nrow=nvar(xr)) - arcoefs
+  iadj <- solve(adj)
+  v.var <- iadj %*% arvar %*% t(iadj)
+  
+  # Reverse the mapping for the variance estimate.
+  v.var <- Q%*%v.var%*%t(Q)
+  
+  v[!novar,!novar] <- v.var
+  
   v
 }
 
