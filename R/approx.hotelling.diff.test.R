@@ -359,7 +359,6 @@ ar.yw.mcmc.list <-
     else if (order.max >= n.obs) stop("'order.max' must be < 'n.obs'")
     xacf <- acf(x, type = "covariance", lag.max = order.max, plot = FALSE,
                 demean = demean, na.action=na.pass)$acf
-    if(nser > 1L) {
         ## multivariate case
         snames <- colnames(x)
         A <- B <- array(0, dim = c(order.max + 1L, nser, nser))
@@ -419,30 +418,7 @@ ar.yw.mcmc.list <-
         dimnames(var.pred) <- list(snames, snames)
         dimnames(partialacf) <- list(seq_len(order.max), snames, snames)
         colnames(resid) <- colnames(x)
-    } else {
-        if (xacf[1L] == 0) stop("zero-variance series")
-        ## univariate case
-        r <- as.double(drop(xacf))
-        z <- .Fortran(C_eureka, as.integer(order.max), r, r,
-                      coefs = double(order.max^2),
-                      vars = double(order.max),
-                      double(order.max))
-        coefs <- matrix(z$coefs, order.max, order.max)
-        partialacf <- array(diag(coefs), dim = c(order.max, 1L, 1L))
-        var.pred <- c(r[1L], z$vars)
-        xaic <- n.obs * log(var.pred) + 2 * (0L:order.max) + 2 * demean
-        maic <- min(aic)
-	xaic <- setNames(if(is.finite(maic)) xaic - min(xaic) else
-			 ifelse(xaic == maic, 0, Inf),
-			 0L:order.max)
-        order <- if (aic) (0L:order.max)[xaic == 0L] else order.max
-        ar <- if (order) coefs[order, seq_len(order)] else numeric()
-        var.pred <- var.pred[order + 1L]
-        ## Splus compatibility fix
-        var.pred <- var.pred * n.obs/(n.obs - (order + 1L))
-        resid <- if(order) c(rep.int(NA, order), embed(x, order + 1L) %*% c(1, -ar))
-        else as.vector(x) # we had as.matrix() above
-    }
+
     res <- list(order = order, ar = ar, var.pred = var.pred, x.mean  =  drop(xm),
                 aic  =  xaic, n.used = n.used, n.obs = n.obs, order.max = order.max,
                 partialacf = partialacf, resid = resid, method = "Yule-Walker",
