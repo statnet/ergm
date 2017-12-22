@@ -132,7 +132,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
                       )
       
       meS <- .max.effectiveSize(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, ar.order=control$MCMC.effectiveSize.order)
-      postburnin.mcmc <- structure(lapply(lapply(esteq, `[`, -seq_len(meS$burnin), , drop=FALSE), mcmc), class="mcmc.list")
+      postburnin.mcmc <- as.mcmc.list(lapply(lapply(esteq, `[`, -seq_len(meS$burnin), , drop=FALSE), mcmc))
       
       # Sanity check that we didn't underestimate the burn-in.
       burnin.pval <- geweke.diag.mv(postburnin.mcmc)$p.value
@@ -219,6 +219,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
   
   ergm.stopCluster(cl)
 
+  statsmatrices <- as.mcmc.list(statsmatrices)
   statsmatrix <- do.call(rbind,statsmatrices)
   colnames(statsmatrix) <- model$coef.names
 
