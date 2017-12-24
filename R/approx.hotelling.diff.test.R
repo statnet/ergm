@@ -363,7 +363,7 @@ ar.yw.mcmc.list <-
         snames <- colnames(x)
         A <- B <- array(0, dim = c(order.max + 1L, nser, nser))
         A[1L, , ] <- B[1L, , ] <- diag(nser)
-        EA <- EB <- xacf[1L, , , drop = TRUE]
+        EA <- EB <- matrix(xacf[1L, , , drop = TRUE], dim(xacf)[2], dim(xacf)[3])
         partialacf <- array(dim = c(order.max, nser, nser))
         xaic <- numeric(order.max + 1L)
         solve.yw <- function(m) {
