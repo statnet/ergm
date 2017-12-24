@@ -14,8 +14,8 @@
 # --PARAMETERS--
 #   theta           :  the vector of theta coefficients
 #   init          :  the vector of initial theta coefficients
-#   statsmatrix     :  the matrix of network statistics
-#   statsmatrix.obs :  the matrix of network statistics on the constrained network
+#   statsmatrices     :  the matrix of network statistics
+#   statsmatrices.obs :  the matrix of network statistics on the constrained network
 #   H               :  the Hessian matrix
 #   H.obs           :  the Hessian matrix on the constrained network
 #   model           :  the model, as returned by <ergm.getmodel>
@@ -26,7 +26,7 @@
 #
 ################################################################################
 
-ergm.MCMCse.lognormal<-function(theta, init, statsmatrix, statsmatrix.obs,
+ergm.MCMCse.lognormal<-function(theta, init, statsmatrices, statsmatrices.obs,
                       H, H.obs, model) {
   # Not sure why this is necessary, but:
   names(theta) <- names(init)
@@ -38,26 +38,32 @@ ergm.MCMCse.lognormal<-function(theta, init, statsmatrix, statsmatrix.obs,
   offsettheta <- model$etamap$offsettheta
   offsetmap <- model$etamap$offsetmap
 
-  # Center statmatrix (and statsmatrix.obs, if applicable)
-  av <- apply(statsmatrix, 2, mean)
-# av <- apply(statsmatrix,2,median)
-  xsim <- sweep(statsmatrix, 2, av, "-")
-  gsim <- .ergm.esteq(theta, model, xsim)
+  # Center statmatrix (and statsmatrices.obs, if applicable)
+  av <- colMeans.mcmc.list(statsmatrices)
+# av <- apply(statsmatrices,2,median)
+  xsims <- sweep.mcmc.list(statsmatrices, av, "-")
+  gsims <- lapply.mcmc.list(xsims, .ergm.esteq, theta=theta, model=model)
   xobs <- -av
-  if(!is.null(statsmatrix.obs)){
-   av.obs <- apply(statsmatrix.obs, 2, mean)
-#  av.obs <- apply(statsmatrix.obs, 2, median)
-   xsim.obs <- sweep(statsmatrix.obs, 2, av.obs,"-")
-   gsim.obs <- .ergm.esteq(theta, model, xsim.obs)
-   xsim.obs <- xsim.obs[,!offsetmap, drop=FALSE]
+  xsims <- xsims[,!offsetmap, drop=FALSE]
+  xsim <- as.matrix(xsims)
+  gsim <- as.matrix(gsims)
+
+  if(!is.null(statsmatrices.obs)){
+   av.obs <- colMeans.mcmc.list(statsmatrices.obs)
+#  av.obs <- apply(statsmatrices.obs, 2, median)
+   xsims.obs <- sweep.mcmc.list(statsmatrices.obs, av.obs,"-")
+   gsims.obs <- lapply.mcmc.list(xsims.obs, .ergm.esteq, theta=theta, model=model)
+   xsims.obs <- xsims.obs[,!offsetmap, drop=FALSE]
+   xsim.obs <- as.matrix(xsims.obs)
+   gsim.obs <- as.matrix(gsims.obs)
+
    xobs <- av.obs-av
   }
   xobs <- xobs[!offsetmap]
-  xsim <- xsim[,!offsetmap, drop=FALSE]
 
   #  Calculate the auto-covariance of the MCMC suff. stats.
   #  and hence the MCMC s.e.
-  cov.zbar <- spectrum0.mvar(gsim) / nrow(gsim)
+  cov.zbar <- spectrum0.mvar(gsims) / nrow(gsim)
 
   # Identify canonical parameters corresponding to non-offset statistics that do not vary
   novar <- rep(TRUE, nrow(H))
@@ -65,8 +71,8 @@ ergm.MCMCse.lognormal<-function(theta, init, statsmatrix, statsmatrix.obs,
 
   #  Calculate the auto-covariance of the Conditional MCMC suff. stats.
   #  and hence the Conditional MCMC s.e.
-  if(!is.null(statsmatrix.obs)){
-    cov.zbar.obs <- spectrum0.mvar(gsim.obs) / nrow(gsim.obs)
+  if(!is.null(statsmatrices.obs)){
+    cov.zbar.obs <- spectrum0.mvar(gsims.obs) / nrow(gsim.obs)
 
     novar <- novar & (diag(H.obs)<sqrt(.Machine$double.eps))
   }else{

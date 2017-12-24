@@ -384,7 +384,7 @@ colMeans.mcmc.list<-function(x,...) colMeans(as.matrix(x),...)
 #'   [sweep()] applicable to [`mcmc.list`] objects.
 #' 
 #' @param STATS,FUN,check.margin See help for [sweep()].
-#' @return \code{sweep.mcmc.lists} returns an appropriately modified
+#' @return \code{sweep.mcmc.list} returns an appropriately modified
 #'   version of \code{x}
 #' @seealso [sweep()]
 #' @export sweep.mcmc.list
@@ -395,3 +395,16 @@ sweep.mcmc.list<-function(x, STATS, FUN="-", check.margin=TRUE, ...){
   x
 }
 
+#' @rdname colMeans.mcmc.list
+#'
+#' @description \code{lapply.mcmc.list} is a "method" for (non-generic)
+#'   [lapply()] applicable to [`mcmc.list`] objects.
+#' 
+#' @param X An [`mcmc.list`] object.
+#' @return `lapply.mcmc.list` returns an [`mcmc.list`] each of
+#'   whose chains had been passed through `FUN`.
+#' @seealso [lapply()]
+#' @export lapply.mcmc.list
+lapply.mcmc.list<-function(X, FUN, ...){
+  as.mcmc.list(lapply(lapply(X, FUN, ...), as.mcmc))
+}

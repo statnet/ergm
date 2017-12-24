@@ -3,11 +3,14 @@
 \name{colMeans.mcmc.list}
 \alias{colMeans.mcmc.list}
 \alias{sweep.mcmc.list}
+\alias{lapply.mcmc.list}
 \title{Utility operations for \code{\link{mcmc.list}} objects}
 \usage{
 colMeans.mcmc.list(x, ...)
 
 sweep.mcmc.list(x, STATS, FUN = "-", check.margin = TRUE, ...)
+
+lapply.mcmc.list(X, FUN, ...)
 }
 \arguments{
 \item{x}{a \code{\link{mcmc.list}} object.}
@@ -16,23 +19,33 @@ sweep.mcmc.list(x, STATS, FUN = "-", check.margin = TRUE, ...)
 \code{\link{sweep}}.}
 
 \item{STATS, FUN, check.margin}{See help for \code{\link[=sweep]{sweep()}}.}
+
+\item{X}{An \code{\link{mcmc.list}} object.}
 }
 \value{
 \code{colMeans.mcmc} returns a vector with length equal to
 the number of mcmc chains in \code{x} with the mean value for
 each chain.
 
-\code{sweep.mcmc.lists} returns an appropriately modified
+\code{sweep.mcmc.list} returns an appropriately modified
 version of \code{x}
+
+\code{lapply.mcmc.list} returns an \code{\link{mcmc.list}} each of
+whose chains had been passed through \code{FUN}.
 }
 \description{
 \code{colMeans.mcmc.list} is a "method" for (non-generic) \code{\link[=colMeans]{colMeans()}} applicable to \code{\link{mcmc.list}} objects.
 
 \code{sweep.mcmc.list} is a "method" for (non-generic)
 \code{\link[=sweep]{sweep()}} applicable to \code{\link{mcmc.list}} objects.
+
+\code{lapply.mcmc.list} is a "method" for (non-generic)
+\code{\link[=lapply]{lapply()}} applicable to \code{\link{mcmc.list}} objects.
 }
 \seealso{
 \code{\link[=colMeans]{colMeans()}}
 
 \code{\link[=sweep]{sweep()}}
+
+\code{\link[=lapply]{lapply()}}
 }

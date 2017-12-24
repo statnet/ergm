@@ -58,7 +58,7 @@
 #
 ###################################################################################         
 
-ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
+ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                         epsilon=1e-10, nr.maxit=1000, nr.reltol=sqrt(.Machine$double.eps),
                         metric="lognormal",
                         method="Nelder-Mead", compress=FALSE,
@@ -71,9 +71,9 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                         steplen=1, steplen.point.exp=1,
                         cov.type="normal",# cov.type="robust", 
                         estimateonly=FALSE, ...) {
-  # If there is an observation process to deal with, statsmatrix.obs
+  # If there is an observation process to deal with, statsmatrices.obs
   # will not be NULL.
-  obsprocess <- !is.null(statsmatrix.obs)
+  obsprocess <- !is.null(statsmatrices.obs)
 
   # Construct an offsetless map and convert init (possibly "curved"
   # parameters) to eta0 (canonical parameters)
@@ -82,17 +82,22 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
   eta0 <- ergm.eta(init[!etamap$offsettheta], etamap.no)
 
 
-  
-  statsmatrix.orig <- statsmatrix
-  statsmatrix.orig.obs <- statsmatrix.obs
+  statsmatrices.orig <- statsmatrices
+  statsmatrices.orig.obs <- statsmatrices.obs
 
-  statsmean <- apply(statsmatrix.orig,2,base::mean)
-  if(!is.null(statsmatrix.orig.obs)){
-    statsmatrix.obs <- .shift_scale_points(statsmatrix.orig.obs, statsmean, steplen, steplen^steplen.point.exp) # I.e., shrink each point of statsmatrix.obs towards the centroid of statsmatrix.
+  statsmean <- colMeans.mcmc.list(statsmatrices.orig)
+  if(!is.null(statsmatrices.orig.obs)){
+    statsmatrices.obs <- lapply.mcmc.list(statsmatrices.orig.obs, .shift_scale_points, statsmean, steplen, steplen^steplen.point.exp) # I.e., shrink each point of statsmatrix.obs towards the centroid of statsmatrix.
   }else{
-    statsmatrix <- sweep(statsmatrix.orig,2,(1-steplen)*statsmean,"-")
+    statsmatrices <- lapply.mcmc.list(statsmatrices.orig,sweep,2,(1-steplen)*statsmean,"-")
   }
   
+  statsmatrix <- as.matrix(statsmatrices)
+  if(obsprocess) statsmatrix.obs <- as.matrix(statsmatrices.obs)
+  statsmatrix.orig <- as.matrix(statsmatrices.orig)
+  if(obsprocess) statsmatrix.orig.obs <- as.matrix(statsmatrices.orig.obs)
+
+    
   # Copy and compress the stats matrices after dropping the offset terms.
   xsim <- compress_rows(as.logwmatrix(statsmatrix[,!etamap$offsetmap, drop=FALSE]))
   lrowweights(xsim) <- -log_sum_exp(lrowweights(xsim)) # I.e., divide all weights by their sum.
@@ -357,14 +362,14 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
         if ((metric=="lognormal" || metric=="Likelihood")
             && length(model$etamap$curved)==0) {
           ergm.MCMCse.lognormal(theta=theta, init=init, 
-                                statsmatrix=statsmatrix, 
-                                statsmatrix.obs=statsmatrix.obs,
+                                statsmatrices=statsmatrices, 
+                                statsmatrices.obs=statsmatrices.obs,
                                 H=V, H.obs=V.obs,
                                 model=model)
         } else {
         ergm.MCMCse(theta=theta,init=init, 
-                    statsmatrix=statsmatrix,
-                    statsmatrix.obs=statsmatrix.obs,
+                    statsmatrices=statsmatrices,
+                    statsmatrices.obs=statsmatrices.obs,
                     model=model)
       }
     }
@@ -394,7 +399,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     names(theta) <- names(init)
     
     # Output results as ergm-class object
-    return(structure(list(coef=theta, sample=statsmatrix, sample.obs=statsmatrix.obs, 
+    return(structure(list(coef=theta, sample=statsmatrices, sample.obs=statsmatrices.obs, 
                           iterations=iteration, #mcmcloglik=mcmcloglik,
                           MCMCtheta=init, 
                           loglikelihood=loglikelihood, gradient=gradient, hessian=Lout$hessian,
