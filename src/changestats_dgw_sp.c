@@ -39,7 +39,14 @@ static inline void dspUTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     /* step through edges of head */
     EXEC_THROUGH_EDGES(head,e,u, {
       if (u!=tail){
-        L2tu=WtGetEdge(tail,u,wtnwp);
+	if(wtnwp) L2tu=WtGetEdge(tail,u,wtnwp);
+	else{
+	  L2tu=0;
+	  /* step through edges of u */
+	  EXEC_THROUGH_EDGES(u,f,v, {
+	      if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;
+	    });
+	}
         for(j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
           cs[j] += ((L2tu + echange == deg) - (L2tu == deg));
@@ -48,7 +55,14 @@ static inline void dspUTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
       });
     EXEC_THROUGH_EDGES(tail,e,u, {
       if (u!=head){
-        L2uh=WtGetEdge(u,head,wtnwp);
+        if(wtnwp) L2uh=WtGetEdge(u,head,wtnwp);
+	else{
+	  L2uh=0;
+	  /* step through edges of u */
+	  EXEC_THROUGH_EDGES(u,f,v, {
+	      if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;
+	    });
+	}
         for(j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
           cs[j] += ((L2uh + echange == deg) - (L2uh == deg));
@@ -85,7 +99,14 @@ static inline void dspOTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     EXEC_THROUGH_OUTEDGES(head, e, k, {
       
       if(k!=tail){ /*Only use contingent cases*/
-        L2tk=WtGetEdge(tail,k,wtnwp);
+        if(wtnwp) L2tk=WtGetEdge(tail,k,wtnwp);
+	else{
+	  L2tk=0;
+	  /* step through inedges of k, incl. (head,k) itself */
+	  EXEC_THROUGH_INEDGES(k, f, u, {
+	      L2tk+=IS_OUTEDGE(tail,u); /*Increment if there is a trans edge*/
+	    });
+	}
         /*Update the changestat for the t->k edge*/
         for(j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
@@ -96,7 +117,14 @@ static inline void dspOTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     /* step through inedges of tail (i.e., k: k->t)*/
     EXEC_THROUGH_INEDGES(tail, e, k, {
       if (k!=head){ /*Only use contingent cases*/
-	L2kh=WtGetEdge(k,head,wtnwp);
+	if(wtnwp) L2kh=WtGetEdge(k,head,wtnwp);
+	else{
+	  L2kh=0;
+	  /* step through outedges of k , incl. (k,tail) itself */
+	  EXEC_THROUGH_OUTEDGES(k, f, u, {
+	      L2kh+=IS_OUTEDGE(u,head); /*Increment if there is a trans edge*/
+	    });
+	}
         /*Update the changestat for the k->t edge*/
         for(j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
@@ -130,7 +158,14 @@ static inline void dspITP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     EXEC_THROUGH_OUTEDGES(head, e, k, {
       if((k!=tail)){ /*Only use contingent cases*/
         /*We have a h->k->t two-path, so add it to our count.*/
-        L2kt=WtGetEdge(tail,k,wtnwp); // wtnwp is an OTP cache.
+        if(wtnwp) L2kt=WtGetEdge(tail,k,wtnwp); // wtnwp is an OTP cache.
+	else{
+	  L2kt=0;
+	  /*Now, count # u such that k->u->h (so that we know k's ESP value)*/
+	  EXEC_THROUGH_INEDGES(k, f, u, {
+	      L2kt+=IS_OUTEDGE(tail,u); /*Increment if there is a cyclic edge*/
+	    });
+	}
         /*Update the changestat for the h->k edge*/
         for(j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
@@ -141,7 +176,14 @@ static inline void dspITP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     /* step through inedges of tail (i.e., k: k->t)*/
     EXEC_THROUGH_INEDGES(tail, e, k, {
       if((k!=head)){ /*Only use contingent cases*/
-        L2hk=WtGetEdge(k,head,wtnwp);
+        if(wtnwp) L2hk=WtGetEdge(k,head,wtnwp);
+	else{
+	  L2hk=0;
+	  /*Now, count # u such that t->u->k (so that we know k's ESP value)*/
+	  EXEC_THROUGH_OUTEDGES(k, f, u, {
+	      L2hk+=IS_OUTEDGE(u,head); /*Increment if there is a cyclic edge*/
+	    });
+	}
         /*Update the changestat for the k->t edge*/
         for(j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
@@ -174,7 +216,16 @@ static inline void dspOSP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     EXEC_THROUGH_INEDGES(head, e, k, {
       if(k!=tail){
         /*Do we have a t->k,h->k SP?  If so, add it to our count.*/
-        L2tk=WtGetEdge(tail,k,wtnwp);
+        if(wtnwp) L2tk=WtGetEdge(tail,k,wtnwp);
+	else{
+	  L2tk=0;
+	  /*Now, count # u such that t->u,k->u (to get t->k's ESP value)*/
+	  EXEC_THROUGH_OUTEDGES(k, f, u, {
+	      if (u != tail)
+		/*Increment if there is an OSP  */
+		L2tk+=(IS_OUTEDGE(tail,u));  
+	    });
+	}
         /*Update the changestat for the t->k edge*/
         for(j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
@@ -208,7 +259,15 @@ static inline void dspISP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     /* step through inedges of head (i.e., k: k->h, t->k, k!=t)*/
     EXEC_THROUGH_OUTEDGES(tail, e, k, {
       if(k!=head){
-        L2kh=WtGetEdge(k,head,wtnwp);
+        if(wtnwp) L2kh=WtGetEdge(k,head,wtnwp);
+	else{
+	  L2kh=0;
+	  /*Now, count # u such that u->h,u->k (to get h>k's ESP value)*/
+	  EXEC_THROUGH_INEDGES(k, f, u, {
+	      if(u!=head)
+		L2kh+=IS_OUTEDGE(u,head);  /*Increment if there is an ISP*/
+	    });
+	}
         /*Update the changestat for the k->h edge*/
         for(j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
@@ -344,7 +403,7 @@ Type codes are as follows (where (i,j) is the focal edge):
 Only one type may be specified per esp term.  UTP should always be used for undirected graphs; OTP is the traditional directed default.
 */
 C_CHANGESTAT_FN(c_ddsp) { 
-  GET_AUX_STORAGE(WtNetwork, wtnwp);
+  WtNetwork *wtnwp = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
   int type;
   double *dvec,*cs;
   
@@ -393,7 +452,7 @@ I_CHANGESTAT_FN(i_dgwdsp) {
 
 C_CHANGESTAT_FN(c_dgwdsp) {
   GET_STORAGE(double, storage);
-  GET_AUX_STORAGE(WtNetwork, wtnwp);
+  WtNetwork *wtnwp = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
   int type;
   Vertex i,maxesp;
   double alpha, oneexpa,*dvec,*cs;
@@ -454,13 +513,24 @@ static inline void espUTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
   //  Rprintf("%d ",(int)dvec[i]);
   //Rprintf("\n");
 
-    L2th=WtGetEdge(tail,head,wtnwp);
+  if(wtnwp) L2th=WtGetEdge(tail,head,wtnwp); else L2th=0;
     echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     /* step through outedges of head */
     EXEC_THROUGH_EDGES(head,e,u, {
       if (IS_UNDIRECTED_EDGE(u,tail) != 0){
-        L2tu=WtGetEdge(tail,u,wtnwp);
-        L2uh=WtGetEdge(u,head,wtnwp);
+	if(wtnwp){
+	  L2tu=WtGetEdge(tail,u,wtnwp);
+	  L2uh=WtGetEdge(u,head,wtnwp);
+	}else{
+	  L2th++;
+	  L2tu=0;
+	  L2uh=0;
+	  /* step through edges of u */
+	  EXEC_THROUGH_EDGES(u,f,v, {
+	      if(IS_UNDIRECTED_EDGE(v,head)!= 0) L2uh++;
+	      if(IS_UNDIRECTED_EDGE(v,tail)!= 0) L2tu++;
+	    });
+	}
         for(j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
           cs[j] += ((L2tu + echange == deg) - (L2tu == deg));
@@ -499,15 +569,28 @@ static inline void espOTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
   //Rprintf("Clearing changestats\n");
   memset(cs, 0, nd*sizeof(double));
     //Rprintf("Working on toggle %d (%d,%d)\n",i,TAIL(i),HEAD(i));
-    L2th=WtGetEdge(tail,head,wtnwp);
+  if(wtnwp) L2th=WtGetEdge(tail,head,wtnwp); else L2th=0;
     echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     //Rprintf("\tEdge change is %d\n",echange);
     /* step through outedges of tail (i.e., k: t->k)*/
     //Rprintf("Walking through outedges of tail\n",echange);
     EXEC_THROUGH_OUTEDGES(tail,e,k, {
+	if(!wtnwp&&(k!=head)&&(IS_OUTEDGE(k,head))){
+        /*We have a t->k->h two-path, so add it to our count.*/
+        L2th++;
+      }
       if((k!=head)&&(IS_OUTEDGE(head,k))){ /*Only use contingent cases*/
         //Rprintf("\tk==%d, passed criteria\n",k);
-        L2tk=WtGetEdge(tail,k,wtnwp);
+        if(wtnwp) L2tk=WtGetEdge(tail,k,wtnwp);
+	else{
+	  L2tk=0;
+	  /*Now, count # u such that t->u->k (to find t->k's ESP value)*/
+	  EXEC_THROUGH_INEDGES(k,f,u, {
+	      //Rprintf("\t\tTrying u==%d\n",u);
+	      if(u!=tail) 
+		L2tk+=IS_OUTEDGE(tail,u); /*Increment if there is a trans edge*/
+	    });
+	}
         /*Update the changestat for the t->k edge*/
         //Rprintf("\t2-path count was %d\n",L2tk);
         for(j = 0; j < nd; j++){
@@ -521,7 +604,15 @@ static inline void espOTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     EXEC_THROUGH_INEDGES(head,e,k, {
       if((k!=tail)&&(IS_OUTEDGE(k,tail))){ /*Only use contingent cases*/
         //Rprintf("\tk==%d, passed criteria\n",k);
-        L2kh=WtGetEdge(k,head,wtnwp);
+        if(wtnwp) L2kh=WtGetEdge(k,head,wtnwp);
+	else{
+	  L2kh=0;
+	  /*Now, count # u such that k->u->j (to find k->h's ESP value)*/
+	  EXEC_THROUGH_OUTEDGES(k,f,u, {
+	      if(u!=head) 
+		L2kh+=IS_OUTEDGE(u,head); /*Increment if there is a trans edge*/
+	    });
+	}
         /*Update the changestat for the k->t edge*/
         //Rprintf("\t2-path count was %d\n",L2kh);
         for(j = 0; j < nd; j++){
@@ -557,7 +648,8 @@ static inline void espITP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
   //Rprintf("Clearing changestats\n");
   memset(cs, 0, nd*sizeof(double));
     //Rprintf("Working on toggle %d (%d,%d)\n",i,TAIL(i),HEAD(i));
-    L2th=WtGetEdge(head,tail,wtnwp); // wtnwp has OTP two-paths
+    if(wtnwp) L2th=WtGetEdge(head,tail,wtnwp); // wtnwp has OTP two-paths
+    else L2th=0;
     echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     //Rprintf("\tEdge change is %d\n",echange);
     /* step through outedges of head (i.e., k: h->k)*/
@@ -565,7 +657,18 @@ static inline void espITP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     EXEC_THROUGH_OUTEDGES(head,e,k, {
       if((k!=tail)&&(IS_OUTEDGE(k,tail))){ /*Only use contingent cases*/
         //Rprintf("\tk==%d, passed criteria\n",k);
-        L2hk=WtGetEdge(k,head,wtnwp);
+        if(wtnwp) L2hk=WtGetEdge(k,head,wtnwp);
+	else{
+	  /*We have a h->k->t two-path, so add it to our count.*/
+	  L2th++;
+	  L2hk=0;
+	  /*Now, count # u such that k->u->h (so that we know k's ESP value)*/
+	  EXEC_THROUGH_OUTEDGES(k,f,u, {
+	      //Rprintf("\t\tTrying u==%d\n",u);
+	      if(u!=head) 
+		L2hk+=IS_OUTEDGE(u,head); /*Increment if there is a cyclic edge*/
+	    });
+	}
         /*Update the changestat for the h->k edge*/
         //Rprintf("\t2-path count was %d\n",L2hk);
         for(j = 0; j < nd; j++){
@@ -579,7 +682,15 @@ static inline void espITP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     EXEC_THROUGH_INEDGES(tail,e,k, {
       if((k!=head)&&(IS_OUTEDGE(head,k))){ /*Only use contingent cases*/
         //Rprintf("\tk==%d, passed criteria\n",k);
-        L2kt=WtGetEdge(tail,k,wtnwp);
+        if(wtnwp) L2kt=WtGetEdge(tail,k,wtnwp);
+	else{
+	  L2kt=0;
+	  /*Now, count # u such that t->u->k (so that we know k's ESP value)*/
+	  EXEC_THROUGH_INEDGES(k,f,u, {
+	      if(u!=tail) 
+		L2kt+=IS_OUTEDGE(tail,u); /*Increment if there is a cyclic edge*/
+	    });
+	}
         /*Update the changestat for the k->t edge*/
         //Rprintf("\t2-path count was %d\n",L2kt);
         for(j = 0; j < nd; j++){
@@ -613,13 +724,25 @@ static inline void espOSP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
   Vertex deg;
   
   memset(cs, 0, nd*sizeof(double));
-    L2th=WtGetEdge(tail,head,wtnwp);
+  if(wtnwp) L2th=WtGetEdge(tail,head,wtnwp); else L2th=0;
     echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     /* step through outedges of tail (i.e., k: t->k, k->h, k!=h)*/
     EXEC_THROUGH_OUTEDGES(tail,e,k, {
       if(k!=head){
-        if(IS_OUTEDGE(k,head)){ /*Only consider stats that could change*/
-          L2tk=WtGetEdge(tail,k,wtnwp);
+        if(!wtnwp)
+	  /*Do we have a t->k,h->k SP?  If so, add it to our count.*/
+	  L2th+=IS_OUTEDGE(head,k);
+	
+	if(IS_OUTEDGE(k,head)){ /*Only consider stats that could change*/
+          if(wtnwp) L2tk=WtGetEdge(tail,k,wtnwp);
+	  else{
+	    L2tk=0;
+	    /*Now, count # u such that t->u,k->u (to get t->k's ESP value)*/
+	    EXEC_THROUGH_OUTEDGES(k,f,u, { 
+		if(u!=tail)
+		  L2tk+=IS_OUTEDGE(tail,u);  /*Increment if there is an OSP*/
+	      });
+	  }
           /*Update the changestat for the t->k edge*/
           for(j = 0; j < nd; j++){
             deg = (Vertex)dvec[j];
@@ -631,7 +754,15 @@ static inline void espOSP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     /* step through inedges of tail (i.e., k: k->t, k->h, k!=h)*/
     EXEC_THROUGH_INEDGES(tail,e,k, {
       if((k!=head)&&(IS_OUTEDGE(k,head))){ /*Only stats that could change*/
-        L2kt=WtGetEdge(k,tail,wtnwp);
+        if(wtnwp) L2kt=WtGetEdge(k,tail,wtnwp);
+	else{
+	  L2kt=0;
+	  /*Now, count # u such that t->u,k->u (to get k->t's ESP value)*/
+	  EXEC_THROUGH_OUTEDGES(k,f,u, { 
+	      if(u!=tail)
+		L2kt+=IS_OUTEDGE(tail,u);  /*Increment if there is an OSP*/
+	    });
+	}
         /*Update the changestat for the k->t edge*/
         for(j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
@@ -663,13 +794,25 @@ static inline void espISP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
   Vertex deg;
   
   memset(cs, 0, nd*sizeof(double));
-    L2th=WtGetEdge(tail,head,wtnwp);
+  if(wtnwp) L2th=WtGetEdge(tail,head,wtnwp); else L2th=0;
     echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     /* step through inedges of head (i.e., k: k->h, t->k, k!=t)*/
     EXEC_THROUGH_INEDGES(head,e,k, {
       if(k!=tail){
-        if(IS_OUTEDGE(tail,k)){ /*Only consider stats that could change*/
-          L2kh=WtGetEdge(k,head,wtnwp);
+        if(!wtnwp)
+	  /*Do we have a k->t,k->h SP?  If so, add it to our count.*/
+	  L2th+=IS_OUTEDGE(k,tail);
+	
+	if(IS_OUTEDGE(tail,k)){ /*Only consider stats that could change*/
+          if(wtnwp) L2kh=WtGetEdge(k,head,wtnwp);
+	  else{
+	    L2kh=0;
+	    /*Now, count # u such that u->h,u->k (to get h>k's ESP value)*/
+	    EXEC_THROUGH_INEDGES(k,f,u, { 
+		if(u!=head)
+		  L2kh+=IS_OUTEDGE(u,head);  /*Increment if there is an ISP*/
+	      });
+	  }
           /*Update the changestat for the k->h edge*/
           for(j = 0; j < nd; j++){
             deg = (Vertex)dvec[j];
@@ -681,7 +824,15 @@ static inline void espISP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     /* step through outedges of head (i.e., k: h->k, t->k, k!=t)*/
     EXEC_THROUGH_OUTEDGES(head,e,k, {
       if((k!=tail)&&(IS_OUTEDGE(tail,k))){ /*Only stats that could change*/
-        L2hk=WtGetEdge(head,k,wtnwp);
+        if(wtnwp) L2hk=WtGetEdge(head,k,wtnwp);
+	else{
+	  L2hk=0;
+	  /*Now, count # u such that u->h,u->k (to get k->h's ESP value)*/
+	  EXEC_THROUGH_INEDGES(k,f,u, { 
+	      if(u!=head)
+		L2hk+=IS_OUTEDGE(u,head);  /*Increment if there is an ISP*/
+	    });
+	}
         /*Update the changestat for the h->k edge*/
         for(j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
@@ -821,7 +972,7 @@ Type codes are as follows (where (i,j) is the focal edge):
 Only one type may be specified per esp term.  UTP should always be used for undirected graphs; OTP is the traditional directed default.
 */
 C_CHANGESTAT_FN(c_desp) {
-  GET_AUX_STORAGE(WtNetwork, wtnwp);
+  WtNetwork *wtnwp = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
   int type;
   double *dvec,*cs;
   
@@ -869,7 +1020,7 @@ I_CHANGESTAT_FN(i_dgwesp) {
 
 C_CHANGESTAT_FN(c_dgwesp) { 
   GET_STORAGE(double, storage);
-  GET_AUX_STORAGE(WtNetwork, wtnwp);
+  WtNetwork *wtnwp = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
 
   int type;
   Vertex i,maxesp;
@@ -932,7 +1083,8 @@ I_CHANGESTAT_FN(i_dnsp) {
 
 C_CHANGESTAT_FN(c_dnsp) {
   GET_STORAGE(double, storage);
-  GET_AUX_STORAGE(WtNetwork, wtnwp);
+  WtNetwork *wtnwp = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
+
   int i,type;
   double *dvec,*cs_esp, *cs_dsp;
   
@@ -1002,7 +1154,8 @@ I_CHANGESTAT_FN(i_dgwnsp) {
 
 C_CHANGESTAT_FN(c_dgwnsp) { 
   GET_STORAGE(double, storage);
-  GET_AUX_STORAGE(WtNetwork, wtnwp);
+  WtNetwork *wtnwp = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
+
   int type;
   Vertex i,maxesp;
   double alpha, oneexpa,*dvec,*cs_esp, *cs_dsp;
