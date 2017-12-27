@@ -44,6 +44,7 @@
 #' @param warn.dyads Whether or not a warning should be issued when sample
 #' space constraints render the observed number of dyads ill-defined.
 #' @param MCMC.init.maxedges Maximum number of edges expected in network.
+#' @template term_options
 #' @template control_MCMC_parallel
 #' @template seed
 #' @template control_MCMC_packagenames
@@ -67,6 +68,7 @@ control.logLik.ergm<-function(nsteps=20,
                               MCMC.init.maxedges=NULL,
                               MCMC.packagenames=NULL,
                               
+                              term.options=list(),
                               seed=NULL,
                               parallel=NULL,
                               parallel.type=NULL,
