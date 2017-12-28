@@ -179,22 +179,6 @@ if (s.a!=sum(sthd*sm) || round(coef(e.a),3)!=0.063 ||
 
 
 
-
-# dsp, either
-num.tests=num.tests+1
-s.d <- summary(fmh~dsp(2:3))
-e.d <- ergm(samplike~dsp(4), estimate="MPLE")
-if (!all(s.d==c(75,23)) ||
-    round(e.d$coef + .04275, 3) != 0) {
-   print(list(s.d=s.d, e.d=e.d))
-    stop("Failed dsp term test")
-} else {
-  num.passed.tests=num.passed.tests+1
-  print("Passed dsp term test")
-}
-
-
-
 # dyadcov, either
 num.tests=num.tests+1
 set.seed(120)
@@ -251,12 +235,29 @@ if (s.0 != 203 || round(e.0$coef + .9072, 3) != 0) {
   print("Passed edges term test")
 }
 
+for(cache.sp in c(FALSE, TRUE)){
+
+if(cache.sp) print("Enabling shared partner cache...")
+else print("Disabling shared partner cache...")
+
+# dsp, either
+num.tests=num.tests+1
+s.d <- summary(fmh~dsp(2:3), cache.sp=cache.sp)
+e.d <- ergm(samplike~dsp(4), estimate="MPLE", control=control.ergm(term.options=list(cache.sp=cache.sp)))
+if (!all(s.d==c(75,23)) ||
+    round(e.d$coef + .04275, 3) != 0) {
+   print(list(s.d=s.d, e.d=e.d))
+    stop("Failed dsp term test")
+} else {
+  num.passed.tests=num.passed.tests+1
+  print("Passed dsp term test")
+}
 
 
 # esp, either
 num.tests=num.tests+1
-s.d <- summary(fmh~esp(2:3))
-e.d <- ergm(samplike~esp(4), estimate="MPLE")
+s.d <- summary(fmh~esp(2:3), cache.sp=cache.sp)
+e.d <- ergm(samplike~esp(4), estimate="MPLE", control=control.ergm(term.options=list(cache.sp=cache.sp)))
 if (!all(s.d==c(36,13)) ||
     round(e.d$coef - .3093, 3) != 0) {
    print(list(s.d=s.d, e.d=e.d))
@@ -267,16 +268,28 @@ if (!all(s.d==c(36,13)) ||
 }
 
 
+# nsp, either
+num.tests=num.tests+1
+s.d <- summary(fmh~nsp(2:3), cache.sp=cache.sp)
+e.d <- ergm(samplike~nsp(4), estimate="MPLE", control=control.ergm(term.options=list(cache.sp=cache.sp)))
+if (!all(s.d==c(39, 10)) ||
+   round(e.d$coef + 1.1096, 3) != 0) {
+   print(list(s.d=s.d, e.d=e.d))
+   stop("Failed nsp term test")
+} else {
+  num.passed.tests=num.passed.tests+1
+  print("Passed nsp term test")
+}
 
-
+  
 # gwdsp, either
 num.tests=num.tests+1
-s.0 <- summary(fmh~gwdsp)
-e.0 <- ergm(samplike~gwdsp(0, fixed=TRUE), estimate="MPLE")
-e.a <- ergm(samplike~gwdsp(.8, fixed=TRUE), estimate="MPLE")
-s.f <- summary(fmh~gwdsp(0, fixed=TRUE))
-s.af <- summary(fmh~gwdsp(.3, fixed=TRUE))
-e.af <- ergm(samplike~gwdsp(.2, fixed=TRUE), estimate="MPLE")
+s.0 <- summary(fmh~gwdsp, cache.sp=cache.sp)
+e.0 <- ergm(samplike~gwdsp(0, fixed=TRUE), estimate="MPLE", control=control.ergm(term.options=list(cache.sp=cache.sp)))
+e.a <- ergm(samplike~gwdsp(.8, fixed=TRUE), estimate="MPLE", control=control.ergm(term.options=list(cache.sp=cache.sp)))
+s.f <- summary(fmh~gwdsp(0, fixed=TRUE), cache.sp=cache.sp)
+s.af <- summary(fmh~gwdsp(.3, fixed=TRUE), cache.sp=cache.sp)
+e.af <- ergm(samplike~gwdsp(.2, fixed=TRUE), estimate="MPLE", control=control.ergm(term.options=list(cache.sp=cache.sp)))
 if (!all(head(s.0)==c(431, 75, 23, 1, 1, 0)) ||
     round(e.0$coef + .3309974, 3) != 0 ||
     round(e.a$coef + .1875983, 3) != 0 ||
@@ -291,15 +304,14 @@ if (!all(head(s.0)==c(431, 75, 23, 1, 1, 0)) ||
 }
 
 
-
 # gwesp, either
 num.tests=num.tests+1
-s.0 <- summary(fmh~gwesp)
-e.0 <- ergm(samplike~gwesp(0, fixed=TRUE), estimate="MPLE")
-e.a <- ergm(samplike~gwesp(.8, fixed=TRUE), estimate="MPLE")
-s.f <- summary(fmh~gwesp(0, fixed=TRUE))
-s.af <- summary(fmh~gwesp(.3, fixed=TRUE))
-e.af <- ergm(samplike~gwesp(.2, fixed=TRUE), estimate="MPLE")
+s.0 <- summary(fmh~gwesp, cache.sp=cache.sp)
+e.0 <- ergm(samplike~gwesp(0, fixed=TRUE), estimate="MPLE", control=control.ergm(term.options=list(cache.sp=cache.sp)))
+e.a <- ergm(samplike~gwesp(.8, fixed=TRUE), estimate="MPLE", control=control.ergm(term.options=list(cache.sp=cache.sp)))
+s.f <- summary(fmh~gwesp(0, fixed=TRUE), cache.sp=cache.sp)
+s.af <- summary(fmh~gwesp(.3, fixed=TRUE), cache.sp=cache.sp)
+e.af <- ergm(samplike~gwesp(.2, fixed=TRUE), estimate="MPLE", control=control.ergm(term.options=list(cache.sp=cache.sp)))
 if (!all(head(s.0)==c(70,36,13,0,1,0)) ||
     round(e.0$coef + .4115515, 3) != 0 ||
     round(e.a$coef + .1898684, 3) != 0 ||
@@ -317,12 +329,12 @@ if (!all(head(s.0)==c(70,36,13,0,1,0)) ||
 
 # gwnsp, either
 num.tests=num.tests+1
-s.0 <- summary(fmh~gwnsp)
-e.0 <- ergm(samplike~gwnsp(0, fixed=TRUE), estimate="MPLE")
-e.a <- ergm(samplike~gwnsp(.8, fixed=TRUE), estimate="MPLE")
-s.f <- summary(fmh~gwnsp(0, fixed=TRUE))
-s.af <- summary(fmh~gwnsp(.3, fixed=TRUE))
-e.af <- ergm(samplike~gwnsp(.2, fixed=TRUE), estimate="MPLE")
+s.0 <- summary(fmh~gwnsp, cache.sp=cache.sp)
+e.0 <- ergm(samplike~gwnsp(0, fixed=TRUE), estimate="MPLE", control=control.ergm(term.options=list(cache.sp=cache.sp)))
+e.a <- ergm(samplike~gwnsp(.8, fixed=TRUE), estimate="MPLE", control=control.ergm(term.options=list(cache.sp=cache.sp)))
+s.f <- summary(fmh~gwnsp(0, fixed=TRUE), cache.sp=cache.sp)
+s.af <- summary(fmh~gwnsp(.3, fixed=TRUE), cache.sp=cache.sp)
+e.af <- ergm(samplike~gwnsp(.2, fixed=TRUE), estimate="MPLE", control=control.ergm(term.options=list(cache.sp=cache.sp)))
 if (!all(head(s.0)==c(361,39,10,1,0,0)) ||
     round(e.0$coef + .4189, 3) != 0 ||
     round(e.a$coef + .3123, 3) != 0 ||
@@ -336,7 +348,7 @@ if (!all(head(s.0)==c(361,39,10,1,0,0)) ||
   print("Passed gwnsp term test")
 }
 
-
+}
 
 # hamming, any
 num.tests=num.tests+1
@@ -522,22 +534,6 @@ if (!all(s.a == c(75, 0, 33, 0, 2, 23, 1, 4, 7, 9, 1,
   print("Passed nodemix term test")
 }
 
-
-
-# nsp, either
-num.tests=num.tests+1
-s.d <- summary(fmh~nsp(2:3))
-e.d <- ergm(samplike~nsp(4), estimate="MPLE")
-if (!all(s.d==c(39, 10)) ||
-   round(e.d$coef + 1.1096, 3) != 0) {
-   print(list(s.d=s.d, e.d=e.d))
-   stop("Failed nsp term test")
-} else {
-  num.passed.tests=num.passed.tests+1
-  print("Passed nsp term test")
-}
-
-                
                 
 # smalldiff
 num.tests=num.tests+1

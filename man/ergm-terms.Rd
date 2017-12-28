@@ -993,7 +993,13 @@ equal to the number of (first mode) mutual partners of that pair.
    layers are assumed to be the same.) If \code{L.in_order==TRUE}, the
    first tie of the two-path must be the first element of \code{Ls.path}
    and the second must be the second; otherwise, any ordering counts, provided there is exactly one of each.
-   }
+
+   This and related terms take an additional term option (via the
+   \code{control$term.option} list), \code{cache.sp} controlling whether the
+   implementation will cache the number of shared partners for each dyad
+   in the network. This has a memory cost but may significuantly speed
+   up calculation, particularly for denser networks.
+ }
 
   \item{\code{degrange(from, to=+Inf, by=NULL, homophily=FALSE)} (binary)  (undirected) (categorical nodal attribute)
   }{\emph{Degree range:} 

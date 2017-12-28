@@ -13,7 +13,7 @@
 Formulas}
 \usage{
 ergm.getmodel(formula, nw, response = NULL, silent = FALSE,
-  role = "static", ..., extra.aux = list())
+  role = "static", ..., term.options = list(), extra.aux = list())
 
 ergm.getnetwork(form, loopswarning = TRUE)
 
@@ -39,6 +39,8 @@ initialization of each model term; default=FALSE}
 dynamic network models.}
 
 \item{\dots}{additional parameters for model formulation}
+
+\item{term.options}{A list of additional arguments to be passed to term initializers.}
 
 \item{extra.aux}{a list of formulas giving additional auxiliaries to initialize.}
 

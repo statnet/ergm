@@ -203,7 +203,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   if(!is.null(monitor)){
     # Construct a model to get the number of parameters monitor requires.
     monitor <- ergm.update.formula(monitor, nw~., from.new="nw")
-    monitor.m <- ergm.getmodel(monitor, basis, response=response)
+    monitor.m <- ergm.getmodel(monitor, basis, response=response,term.options=control$term.options)
     monitored.length <- coef.length.model(monitor.m)
     
     monitor <- term.list.formula(monitor[[3]])
@@ -223,7 +223,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
                                 nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
   
   # Prepare inputs to ergm.getMCMCsample
-  m <- ergm.getmodel(form, basis, response=response, role="static", extra.aux=list(MHproposal$auxiliaries))
+  m <- ergm.getmodel(form, basis, response=response, role="static", extra.aux=list(MHproposal$auxiliaries),term.options=control$term.options)
 
   out <- simulate(m, nsim=nsim, seed=seed,
                   coef=coef, response=response, reference=reference,
@@ -442,7 +442,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           verbose=FALSE, ...) {
   check.control.class(c("simulate.ergm","simulate.formula"), "simulate.ergm")
   control.toplevel(...)
-  control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges","parallel","parallel.type","parallel.version.check")
+  control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges","term.options","parallel","parallel.type","parallel.version.check")
   for(arg in control.transfer)
     if(is.null(control[[arg]]))
       control[arg] <- list(object$control[[arg]])

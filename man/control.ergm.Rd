@@ -19,18 +19,18 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MCMC.init.maxedges = 20000, MCMC.max.maxedges = Inf,
   MCMC.addto.se = TRUE, MCMC.compress = FALSE, MCMC.packagenames = c(),
   SAN.maxit = 10, SAN.burnin.times = 10, SAN.control = control.san(coef =
-  init, SAN.prop.weights = MCMC.prop.weights, SAN.prop.args = MCMC.prop.args,
-  SAN.init.maxedges = MCMC.init.maxedges, SAN.burnin = MCMC.burnin *
-  SAN.burnin.times, SAN.interval = MCMC.interval, SAN.packagenames =
-  MCMC.packagenames, MPLE.max.dyad.types = MPLE.max.dyad.types, parallel =
-  parallel, parallel.type = parallel.type, parallel.version.check =
-  parallel.version.check), MCMLE.termination = c("Hummel", "Hotelling",
-  "precision", "confidence", "none"), MCMLE.maxit = 20,
-  MCMLE.conv.min.pval = 0.5, MCMLE.confidence = 0.99,
-  MCMLE.confidence.boost = 2, MCMLE.confidence.boost.threshold = 1,
-  MCMLE.confidence.boost.lag = 4, MCMLE.NR.maxit = 100,
-  MCMLE.NR.reltol = sqrt(.Machine$double.eps), obs.MCMC.mul = 1/4,
-  obs.MCMC.samplesize.mul = sqrt(obs.MCMC.mul),
+  init, term.options = term.options, SAN.prop.weights = MCMC.prop.weights,
+  SAN.prop.args = MCMC.prop.args, SAN.init.maxedges = MCMC.init.maxedges,
+  SAN.burnin = MCMC.burnin * SAN.burnin.times, SAN.interval = MCMC.interval,
+  SAN.packagenames = MCMC.packagenames, MPLE.max.dyad.types =
+  MPLE.max.dyad.types, parallel = parallel, parallel.type = parallel.type,
+  parallel.version.check = parallel.version.check),
+  MCMLE.termination = c("Hummel", "Hotelling", "precision", "confidence",
+  "none"), MCMLE.maxit = 20, MCMLE.conv.min.pval = 0.5,
+  MCMLE.confidence = 0.99, MCMLE.confidence.boost = 2,
+  MCMLE.confidence.boost.threshold = 1, MCMLE.confidence.boost.lag = 4,
+  MCMLE.NR.maxit = 100, MCMLE.NR.reltol = sqrt(.Machine$double.eps),
+  obs.MCMC.mul = 1/4, obs.MCMC.samplesize.mul = sqrt(obs.MCMC.mul),
   obs.MCMC.samplesize = round(MCMC.samplesize * obs.MCMC.samplesize.mul),
   obs.MCMC.effectiveSize = NVL3(MCMC.effectiveSize, . * obs.MCMC.mul),
   obs.MCMC.interval.mul = sqrt(obs.MCMC.mul),
@@ -71,8 +71,9 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   CD.adaptive.trustregion = 3, CD.adaptive.epsilon = 0.01,
   CD.Hummel.esteq = TRUE, CD.Hummel.miss.sample = 100,
   CD.Hummel.maxit = 25, CD.steplength.min = 1e-04,
-  loglik.control = control.logLik.ergm(), seed = NULL, parallel = 0,
-  parallel.type = NULL, parallel.version.check = TRUE, ...)
+  loglik.control = control.logLik.ergm(), term.options = list(),
+  seed = NULL, parallel = 0, parallel.type = NULL,
+  parallel.version.check = TRUE, ...)
 }
 \arguments{
 \item{drop}{Logical: If TRUE, terms whose observed statistic values are at
@@ -505,6 +506,8 @@ the CD sampler and optimizer. These have the same meaning as their
 Note that only the Hotelling's stopping criterion is implemented for CD.}
 
 \item{loglik.control}{See \code{\link{control.ergm.bridge}}}
+
+\item{term.options}{A list of additional arguments to be passed to term initializers.}
 
 \item{seed}{Seed value (integer) for the random number generator.  See
 \code{\link[base]{set.seed}}.}

@@ -566,7 +566,7 @@ ergm <- function(formula, response=NULL,
   constraints.obs <- tmp$constraints.obs
   constraints <- tmp$constraints
 
-  model <- ergm.getmodel(formula, nw, response=response)
+  model <- ergm.getmodel(formula, nw, response=response, term.options=control$term.options)
 
   ## Construct approximate response network if target.stats are given.
   if(!is.null(target.stats)){
@@ -629,7 +629,7 @@ ergm <- function(formula, response=NULL,
 
   if(!is.null(MHproposal$auxiliaries)){
     if(verbose) message("(requests auxiliaries: reinitializing model) ")
-    model <- ergm.getmodel(formula, nw, response=response, extra.aux=list(MHproposal$auxiliaries))
+    model <- ergm.getmodel(formula, nw, response=response, extra.aux=list(MHproposal$auxiliaries), term.options=control$term.options)
   }
     
   if(!is.null(constraints.obs)){
@@ -638,7 +638,7 @@ ergm <- function(formula, response=NULL,
 
     if(!is.null(MHproposal.obs$auxiliaries)){
       if(verbose) message("(requests auxiliaries: reinitializing model) ")
-      model$obs.model <- ergm.getmodel(formula, nw, response=response, extra.aux=list(MHproposal.obs$auxiliaries))
+      model$obs.model <- ergm.getmodel(formula, nw, response=response, extra.aux=list(MHproposal.obs$auxiliaries), term.options=control$term.options)
     }
   }else MHproposal.obs <- NULL
 

@@ -38,6 +38,7 @@
 #' @param new new formula to be used in updating
 #' @param from.new logical or character vector of variable names. controls how
 #' environment of formula gets updated.
+#' @template term_options
 #' @param extra.aux a list of formulas giving additional auxiliaries to initialize.
 #' @return \code{ergm.getmodel} returns a 'model.ergm' object as a list
 #' containing:
@@ -53,7 +54,7 @@
 #' <ergm.etamap>}
 #' \item{class}{the character string "model.ergm" }
 #' @export
-ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="static",...,extra.aux=list()) {
+ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="static",...,term.options=list(),extra.aux=list()) {
   if ((dc<-data.class(formula)) != "formula")
     stop (paste("Invalid formula of class ",dc), call.=FALSE)
 
@@ -85,7 +86,7 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
     ## term is now a call or a name that is not "offset".
 
 
-    outlist <- call.ErgmTerm(term, formula.env, nw, response=response, role=role, ...)
+    outlist <- call.ErgmTerm(term, formula.env, nw, response=response, role=role, term.options=term.options, ...)
     
 
     # If initialization fails without error (e.g., all statistics have been dropped), continue.
@@ -98,7 +99,7 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
     model <- updatemodel.ErgmTerm(model, outlist)
   }
 
-  model <- ergm.auxstorage(model, nw, response=response, ..., extra.aux=extra.aux)
+  model <- ergm.auxstorage(model, nw, response=response, term.options=term.options, ..., extra.aux=extra.aux)
   
   model$etamap <- ergm.etamap(model)
 
@@ -112,7 +113,7 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
 }
 
 
-call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ...){
+call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ..., term.options=list()){
   termroot<-if(is.null(response)) "InitErgm" else "InitWtErgm"
   
   if(is.call(term)) { # This term has some arguments; save them.
@@ -131,7 +132,7 @@ call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ...){
   names(term)[2] <-  "nw"
   term[[3]] <- args
   names(term)[3] <- "arglist"
-  dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), list(...))
+  dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), c(term.options,list(...)))
   for(j in seq_along(dotdotdot)) {
     if(is.null(dotdotdot[[j]])) next
     term[[3+j]] <- dotdotdot[[j]]

@@ -387,6 +387,7 @@
 #' 
 #' Note that only the Hotelling's stopping criterion is implemented for CD.
 #' @param loglik.control See \code{\link{control.ergm.bridge}}
+#' @template term_options
 #' @template control_MCMC_parallel
 #' @template seed
 #' @template control_MCMC_packagenames
@@ -462,6 +463,7 @@ control.ergm<-function(drop=TRUE,
                        SAN.maxit=10,
                        SAN.burnin.times=10,
                        SAN.control=control.san(coef=init,
+                         term.options=term.options,
                          SAN.prop.weights=MCMC.prop.weights,
                          SAN.prop.args=MCMC.prop.args,
                          SAN.init.maxedges=MCMC.init.maxedges,
@@ -564,6 +566,8 @@ control.ergm<-function(drop=TRUE,
                        CD.steplength.min=0.0001,
                        
                        loglik.control=control.logLik.ergm(),
+
+                       term.options=list(),
 
                        seed=NULL,
                        parallel=0,

@@ -10,8 +10,8 @@ control.ergm.bridge(nsteps = 20, MCMC.burnin = 10000, MCMC.interval = 100,
   MCMC.prop.weights = "default", MCMC.prop.args = list(),
   obs.MCMC.prop.weights = MCMC.prop.weights,
   obs.MCMC.prop.args = MCMC.prop.args, MCMC.init.maxedges = 20000,
-  MCMC.packagenames = c(), seed = NULL, parallel = 0,
-  parallel.type = NULL, parallel.version.check = TRUE)
+  MCMC.packagenames = c(), term.options = list(), seed = NULL,
+  parallel = 0, parallel.type = NULL, parallel.version.check = TRUE)
 }
 \arguments{
 \item{nsteps}{Number of geometric bridges to use.}
@@ -52,6 +52,8 @@ arguments to proposal.}
 \item{MCMC.packagenames}{Names of packages in which to look for change
 statistic functions in addition to those autodetected. This argument should
 not be needed outside of very strange setups.}
+
+\item{term.options}{A list of additional arguments to be passed to term initializers.}
 
 \item{seed}{Seed value (integer) for the random number generator.  See
 \code{\link[base]{set.seed}}.}

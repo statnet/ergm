@@ -8,8 +8,9 @@ control.san(coef = NULL, SAN.tau = 1, SAN.invcov = NULL,
   SAN.burnin = 1e+05, SAN.interval = 10000, SAN.init.maxedges = 20000,
   SAN.prop.weights = "default", SAN.prop.args = list(),
   SAN.packagenames = c(), MPLE.max.dyad.types = 1e+06,
-  MPLE.samplesize = 50000, network.output = "network", seed = NULL,
-  parallel = 0, parallel.type = NULL, parallel.version.check = TRUE)
+  MPLE.samplesize = 50000, network.output = "network",
+  term.options = list(), seed = NULL, parallel = 0,
+  parallel.type = NULL, parallel.version.check = TRUE)
 }
 \arguments{
 \item{coef}{Vector of model coefficients used for MCMC simulations, one for
@@ -53,6 +54,8 @@ conditional-on-degree version of MPLE.}
 \item{network.output}{R class with which to output networks. The options are
 "network" (default) and "edgelist.compressed" (which saves space but only
 supports networks without vertex attributes)}
+
+\item{term.options}{A list of additional arguments to be passed to term initializers.}
 
 \item{seed}{Seed value (integer) for the random number generator.  See
 \code{\link[base]{set.seed}}.}
