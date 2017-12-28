@@ -135,10 +135,13 @@
 #' convergence.
 #' @param MCMC.runtime.traceplot Logical: If TRUE, plot traceplots of the MCMC
 #' sample after every MCMC MLE iteration.
-#' @param MCMC.init.maxedges,MCMC.max.maxedges Maximum number of edges expected
-#' in network. Starting at \code{MCMC.init.maxedges}, it will be incremented by
-#' a factor of 10 if exceeded during fitting, up to \code{MCMC.max.maxedges},
-#' at which point the process will stop with an error.
+#' @param MCMC.init.maxedges,MCMC.max.maxedges These parameters
+#'   control how much space is allocated for storing edgelists for
+#'   return at the end of MCMC sampling. Allocating more than needed
+#'   wastes memory, so `MCMC.init.maxedges` is the initial amount
+#'   allocated, but it will be incremented by a factor of 10 if
+#'   exceeded during the simulation, up to `MCMC.max.maxedges`, at
+#'   which point the process will stop with an error.
 #' @param MCMC.addto.se Whether to add the standard errors induced by the MCMC
 #' algorithm to the estimates' standard errors.
 #' @param MCMC.compress Logical: If TRUE, the matrix of sample statistics

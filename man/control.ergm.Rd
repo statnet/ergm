@@ -188,10 +188,13 @@ convergence.}
 \item{MCMC.runtime.traceplot}{Logical: If TRUE, plot traceplots of the MCMC
 sample after every MCMC MLE iteration.}
 
-\item{MCMC.init.maxedges, MCMC.max.maxedges}{Maximum number of edges expected
-in network. Starting at \code{MCMC.init.maxedges}, it will be incremented by
-a factor of 10 if exceeded during fitting, up to \code{MCMC.max.maxedges},
-at which point the process will stop with an error.}
+\item{MCMC.init.maxedges, MCMC.max.maxedges}{These parameters
+control how much space is allocated for storing edgelists for
+return at the end of MCMC sampling. Allocating more than needed
+wastes memory, so \code{MCMC.init.maxedges} is the initial amount
+allocated, but it will be incremented by a factor of 10 if
+exceeded during the simulation, up to \code{MCMC.max.maxedges}, at
+which point the process will stop with an error.}
 
 \item{MCMC.addto.se}{Whether to add the standard errors induced by the MCMC
 algorithm to the estimates' standard errors.}
