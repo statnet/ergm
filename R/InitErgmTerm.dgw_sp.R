@@ -119,16 +119,6 @@
 #  These inputs are automatically supplied to the d_xxxy function by the 
 #  network_stats_wrapper function 
 
-
-## Miscellaneous
-
-.spcache.aux <- function(type){
-  type <- toupper(type)
-  as.formula(as.call(list(as.name('~'), as.call(list(as.name('.spcache.net'),type=if(type=='ITP')'OTP' else type)))))
-}
-
-
-
 ################################################################################
 #Term to count ESP statistics, where the shared partners may be any of
 #several distinct types.

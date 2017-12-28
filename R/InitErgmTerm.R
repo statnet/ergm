@@ -142,6 +142,10 @@ GWDECAY <- list(
   }
 )
 
+.spcache.aux <- function(type){
+  type <- toupper(type)
+  as.formula(as.call(list(as.name('~'), as.call(list(as.name('.spcache.net'),type=if(type=='ITP')'OTP' else type)))))
+}
 
 
 
@@ -1288,7 +1292,7 @@ InitErgmTerm.diff <- function(nw, arglist, ...) {
 
 
 ################################################################################
-InitErgmTerm.dsp<-function(nw, arglist, ...) {
+InitErgmTerm.dsp<-function(nw, arglist, cache.sp=FALSE, ...) {
 # the following line was commented out in <InitErgm.dsp>:  
 #   ergm.checkdirected("dsp", is.directed(nw), requirement=FALSE)
 # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
@@ -1315,9 +1319,9 @@ InitErgmTerm.dsp<-function(nw, arglist, ...) {
   if(is.directed(nw)){dname <- "tdsp"}else{dname <- "dsp"}
   if (!is.null(emptynwstats)){
     list(name=dname, coef.names=paste("dsp",d,sep=""),
-         inputs=c(d), emptynwstats=emptynwstats, minval = 0)
+         inputs=c(if(!cache.sp) -1, d), emptynwstats=emptynwstats, minval = 0, auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)
   }else{
-    list(name=dname, coef.names=paste("dsp",d,sep=""),inputs=c(d), minval = 0)
+    list(name=dname, coef.names=paste("dsp",d,sep=""),inputs=c(if(!cache.sp) -1, d), minval = 0, auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)
   }
 }
 
@@ -1429,7 +1433,7 @@ InitErgmTerm.edges<-function(nw, arglist, ...) {
 
 
 ################################################################################
-InitErgmTerm.esp<-function(nw, arglist, ...) {
+InitErgmTerm.esp<-function(nw, arglist, cache.sp=FALSE, ...) {
 # the following line was commented out in <InitErgm.esp>:  
 #    ergm.checkdirected("esp", is.directed(nw), requirement=FALSE)
 # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
@@ -1443,7 +1447,7 @@ InitErgmTerm.esp<-function(nw, arglist, ...) {
   if(ld==0){return(NULL)}
   if(is.directed(nw)){dname <- "tesp"}else{dname <- "esp"}
 
-  list(name=dname, coef.names=paste("esp",d,sep=""), inputs=c(d), minval=0)
+  list(name=dname, coef.names=paste("esp",d,sep=""), inputs=c(if(!cache.sp) -1, d), minval=0, auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)
 }
 
 
@@ -1611,7 +1615,7 @@ InitErgmTerm.gwdegree<-function(nw, arglist, ...) {
 
 
 ################################################################################
-InitErgmTerm.gwdsp<-function(nw, arglist, ...) {
+InitErgmTerm.gwdsp<-function(nw, arglist, cache.sp=FALSE, ...) {
 # the following line was commented out in <InitErgm.gwdsp>:  
 #   ergm.checkdirected("gwdsp", is.directed(nw), requirement=FALSE)
 # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
@@ -1635,7 +1639,7 @@ InitErgmTerm.gwdsp<-function(nw, arglist, ...) {
     if(ld==0){return(NULL)}
     if(is.directed(nw)){dname <- "tdsp"}else{dname <- "dsp"}
     c(list(name=dname, coef.names=paste("gwdsp#",d,sep=""), 
-           inputs=c(d), params=list(gwdsp=NULL,gwdsp.decay=decay)),
+           inputs=c(if(!cache.sp) -1, d), params=list(gwdsp=NULL,gwdsp.decay=decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL),
       GWDECAY)
   }else{
     if(is.null(a$decay)) stop("Term 'gwdsp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
@@ -1645,14 +1649,14 @@ InitErgmTerm.gwdsp<-function(nw, arglist, ...) {
     else  # fixed == TRUE
       coef.names <- paste("gwdsp.fixed.",decay,sep="")
   if(is.directed(nw)){dname <- "gwtdsp"}else{dname <- "gwdsp"}
-  list(name=dname, coef.names=coef.names, inputs=c(decay))
+  list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)
   }
 }
 
 
 
 ################################################################################
-InitErgmTerm.gwesp<-function(nw, arglist, ...) {
+InitErgmTerm.gwesp<-function(nw, arglist, cache.sp=FALSE, ...) {
 # the following line was commented out in <InitErgm.gwesp>:
 #   ergm.checkdirected("gwesp", is.directed(nw), requirement=FALSE)
 # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
@@ -1678,14 +1682,14 @@ InitErgmTerm.gwesp<-function(nw, arglist, ...) {
     if(ld==0){return(NULL)}
     if(is.directed(nw)){dname <- "tesp"}else{dname <- "esp"}
     c(list(name=dname, coef.names=paste("esp#",d,sep=""), 
-         inputs=c(d), params=list(gwesp=NULL,gwesp.decay=decay)),
+         inputs=c(if(!cache.sp) -1, d), params=list(gwesp=NULL,gwesp.decay=decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL),
       GWDECAY)
   }else{
     if(is.null(a$decay)) stop("Term 'gwesp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
     coef.names <- paste("gwesp.fixed.",decay,sep="")
     if(is.directed(nw)){dname <- "gwtesp"}else{dname <- "gwesp"}
-    list(name=dname, coef.names=coef.names, inputs=c(decay))
+    list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)
   }
 }
 
@@ -1745,7 +1749,7 @@ InitErgmTerm.gwidegree<-function(nw, arglist,  ...) {
 
 
 ################################################################################
-InitErgmTerm.gwnsp<-function(nw, arglist, ...) {
+InitErgmTerm.gwnsp<-function(nw, arglist, cache.sp=FALSE, ...) {
 # the following line was commented out in <InitErgm.gwnsp>:
 #    ergm.checkdirected("gwnsp", is.directed(nw), requirement=FALSE)
 # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
@@ -1771,14 +1775,14 @@ InitErgmTerm.gwnsp<-function(nw, arglist, ...) {
     if(ld==0){return(NULL)}
     if(is.directed(nw)){dname <- "tnsp"}else{dname <- "nsp"}
     c(list(name=dname, coef.names=paste("nsp#",d,sep=""),
-           inputs=c(d), params=list(gwnsp=NULL,gwnsp.decay=decay)),
+           inputs=c(if(!cache.sp) -1, d), params=list(gwnsp=NULL,gwnsp.decay=decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL),
       GWDECAY)
   }else{
     if(is.null(decay)) stop("Term 'gwnsp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
     coef.names <- paste("gwnsp.fixed.",decay,sep="")
     if(is.directed(nw)){dname <- "gwtnsp"}else{dname <- "gwnsp"}
-    list(name=dname, coef.names=coef.names, inputs=c(decay))    
+    list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)    
   }
 }
 
@@ -2670,7 +2674,7 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, ...) {
 }  
 
 ################################################################################
-InitErgmTerm.nsp<-function(nw, arglist, ...) {
+InitErgmTerm.nsp<-function(nw, arglist, cache.sp=FALSE, ...) {
 # The following line was commented out in <InitErgm.nsp>
 #   ergm.checkdirected("nsp", is.directed(nw), requirement=FALSE)
 # so I have not included 'directed=TRUE' in the call to <check.ErgmTerm>
@@ -2698,10 +2702,10 @@ InitErgmTerm.nsp<-function(nw, arglist, ...) {
   if(is.directed(nw)){dname <- "tnsp"}else{dname <- "nsp"}
 
   if (!is.null(emptynwstats)) {
-    list(name=dname, coef.names=coef.names, inputs=c(d),
-         emptynwstats=emptynwstats, minval=0)
+    list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, d),
+         emptynwstats=emptynwstats, minval=0, auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)
   } else {
-    list(name=dname, coef.names=coef.names, inputs=c(d), minval=0)
+    list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, d), minval=0, auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)
   }
 }
 
