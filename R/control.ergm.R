@@ -115,15 +115,7 @@
 #' precision in the estimates by reducing MCMC error, at the expense of time.
 #' Set it higher for larger networks, or when using parallel functionality.
 #' @param
-#' MCMLE.effectiveSize,MCMC.effectiveSize,MCMC.effectiveSize.damp,MCMC.effectiveSize.maxruns,
-#' 
-#' Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively determine the
-#' burn-in and the MCMC length needed to get the specified effective size using
-#' the method of Sahlin (2011); 50 is a reasonable value.  This feature is in
-#' experimental status until we verify the coverage of the standard errors.
-#' 
-#' @param
-#' MCMC.effectiveSize.base,MCMC.effectiveSize.points,MCMC.effectiveSize.order
+#' MCMLE.effectiveSize,MCMLE.effectiveSize.interval_drop,MCMC.effectiveSize,MCMC.effectiveSize.damp,MCMC.effectiveSize.maxruns,MCMC.effectiveSize.base,MCMC.effectiveSize.points,MCMC.effectiveSize.order
 #' Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively determine the
 #' burn-in and the MCMC length needed to get the specified effective size using
 #' the method of Sahlin (2011); 50 is a reasonable value.  This feature is in
@@ -469,6 +461,7 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.Hummel.miss.sample=100,
                        MCMLE.Hummel.maxit=25, 
                        MCMLE.steplength.min=0.0001,
+                       MCMLE.effectiveSize.interval_drop=8,
                        
                        SA.phase1_n=NULL, SA.initial_gain=NULL, 
                        SA.nsubphases=4,

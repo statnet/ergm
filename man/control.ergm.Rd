@@ -42,13 +42,14 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MCMLE.effectiveSize = NULL, MCMLE.last.boost = 4,
   MCMLE.Hummel.esteq = TRUE, MCMLE.Hummel.miss.sample = 100,
   MCMLE.Hummel.maxit = 25, MCMLE.steplength.min = 1e-04,
-  SA.phase1_n = NULL, SA.initial_gain = NULL, SA.nsubphases = 4,
-  SA.niterations = NULL, SA.phase3_n = NULL, SA.trustregion = 0.5,
-  RM.phase1n_base = 7, RM.phase2n_base = 100, RM.phase2sub = 7,
-  RM.init_gain = 0.5, RM.phase3n = 500, Step.MCMC.samplesize = 100,
-  Step.maxit = 50, Step.gridsize = 100, CD.nsteps = 8,
-  CD.multiplicity = 1, CD.nsteps.obs = 128, CD.multiplicity.obs = 1,
-  CD.maxit = 60, CD.conv.min.pval = 0.5, CD.NR.maxit = 100,
+  MCMLE.effectiveSize.interval_drop = 8, SA.phase1_n = NULL,
+  SA.initial_gain = NULL, SA.nsubphases = 4, SA.niterations = NULL,
+  SA.phase3_n = NULL, SA.trustregion = 0.5, RM.phase1n_base = 7,
+  RM.phase2n_base = 100, RM.phase2sub = 7, RM.init_gain = 0.5,
+  RM.phase3n = 500, Step.MCMC.samplesize = 100, Step.maxit = 50,
+  Step.gridsize = 100, CD.nsteps = 8, CD.multiplicity = 1,
+  CD.nsteps.obs = 128, CD.multiplicity.obs = 1, CD.maxit = 60,
+  CD.conv.min.pval = 0.5, CD.NR.maxit = 100,
   CD.NR.reltol = sqrt(.Machine$double.eps), CD.metric = c("naive",
   "lognormal", "logtaylor", "Median.Likelihood", "EF.Likelihood"),
   CD.method = c("BFGS", "Nelder-Mead"), CD.trustregion = 20,
@@ -174,11 +175,6 @@ given distribution on the set of all networks, returned by the
 Metropolis-Hastings algorithm.  Increasing sample size may increase the
 precision in the estimates by reducing MCMC error, at the expense of time.
 Set it higher for larger networks, or when using parallel functionality.}
-
-\item{MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.order}{Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively determine the
-burn-in and the MCMC length needed to get the specified effective size using
-the method of Sahlin (2011); 50 is a reasonable value.  This feature is in
-experimental status until we verify the coverage of the standard errors.}
 
 \item{MCMC.return.stats}{Logical: If TRUE, return the matrix of MCMC-sampled
 network statistics.  This matrix should have \code{MCMC.samplesize} rows.
@@ -335,7 +331,7 @@ whose number of edges is exceeds the observed network by more than
 \code{MCMLE.density.guard}, the optimization process will be stopped with an
 error.}
 
-\item{MCMLE.effectiveSize, MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, }{Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively determine the
+\item{MCMLE.effectiveSize, MCMLE.effectiveSize.interval_drop, MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.order}{Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively determine the
 burn-in and the MCMC length needed to get the specified effective size using
 the method of Sahlin (2011); 50 is a reasonable value.  This feature is in
 experimental status until we verify the coverage of the standard errors.}
