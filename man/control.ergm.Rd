@@ -56,13 +56,14 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MCMLE.last.boost = 4, MCMLE.Hummel.esteq = TRUE,
   MCMLE.Hummel.miss.sample = 100, MCMLE.Hummel.maxit = if
   (MCMLE.steplength.margin < 0) 5 else 25, MCMLE.steplength.min = 1e-04,
-  SA.phase1_n = NULL, SA.initial_gain = NULL, SA.nsubphases = 4,
-  SA.niterations = NULL, SA.phase3_n = NULL, SA.trustregion = 0.5,
-  RM.phase1n_base = 7, RM.phase2n_base = 100, RM.phase2sub = 7,
-  RM.init_gain = 0.5, RM.phase3n = 500, Step.MCMC.samplesize = 100,
-  Step.maxit = 50, Step.gridsize = 100, CD.nsteps = 8,
-  CD.multiplicity = 1, CD.nsteps.obs = 128, CD.multiplicity.obs = 1,
-  CD.maxit = 60, CD.conv.min.pval = 0.5, CD.NR.maxit = 100,
+  MCMLE.effectiveSize.interval_drop = 8, SA.phase1_n = NULL,
+  SA.initial_gain = NULL, SA.nsubphases = 4, SA.niterations = NULL,
+  SA.phase3_n = NULL, SA.trustregion = 0.5, RM.phase1n_base = 7,
+  RM.phase2n_base = 100, RM.phase2sub = 7, RM.init_gain = 0.5,
+  RM.phase3n = 500, Step.MCMC.samplesize = 100, Step.maxit = 50,
+  Step.gridsize = 100, CD.nsteps = 8, CD.multiplicity = 1,
+  CD.nsteps.obs = 128, CD.multiplicity.obs = 1, CD.maxit = 60,
+  CD.conv.min.pval = 0.5, CD.NR.maxit = 100,
   CD.NR.reltol = sqrt(.Machine$double.eps), CD.metric = c("naive",
   "lognormal", "logtaylor", "Median.Likelihood", "EF.Likelihood"),
   CD.method = c("BFGS", "Nelder-Mead"), CD.trustregion = 20,
@@ -204,10 +205,13 @@ convergence.}
 \item{MCMC.runtime.traceplot}{Logical: If TRUE, plot traceplots of the MCMC
 sample after every MCMC MLE iteration.}
 
-\item{MCMC.init.maxedges, MCMC.max.maxedges}{Maximum number of edges expected
-in network. Starting at \code{MCMC.init.maxedges}, it will be incremented by
-a factor of 10 if exceeded during fitting, up to \code{MCMC.max.maxedges},
-at which point the process will stop with an error.}
+\item{MCMC.init.maxedges, MCMC.max.maxedges}{These parameters
+control how much space is allocated for storing edgelists for
+return at the end of MCMC sampling. Allocating more than needed
+wastes memory, so \code{MCMC.init.maxedges} is the initial amount
+allocated, but it will be incremented by a factor of 10 if
+exceeded during the simulation, up to \code{MCMC.max.maxedges}, at
+which point the process will stop with an error.}
 
 \item{MCMC.addto.se}{Whether to add the standard errors induced by the MCMC
 algorithm to the estimates' standard errors.}
@@ -373,11 +377,10 @@ whose number of edges is exceeds the observed network by more than
 \code{MCMLE.density.guard}, the optimization process will be stopped with an
 error.}
 
-\item{MCMLE.effectiveSize, MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.order, MCMC.effectiveSize.burnin.pval}{Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively
-determine the burn-in and the MCMC length needed to get the
-specified effective size using the method of Sahlin (2011); 50 is
-a reasonable value.  This feature is in experimental status until
-we verify the coverage of the standard errors.}
+\item{MCMLE.effectiveSize, MCMLE.effectiveSize.interval_drop, MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.order}{Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively determine the
+burn-in and the MCMC length needed to get the specified effective size using
+the method of Sahlin (2011); 50 is a reasonable value.  This feature is in
+experimental status until we verify the coverage of the standard errors.}
 
 \item{obs.MCMLE.effectiveSize, obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.mul, obs.MCMC.samplesize.mul, obs.MCMC.burnin.mul, obs.MCMC.interval.mul, obs.MCMC.effectiveSize}{Sample size, burnin, and interval parameters for the MCMC
 sampling used when unobserved data are present in the estimation
