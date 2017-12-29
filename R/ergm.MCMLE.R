@@ -236,10 +236,10 @@ ergm.MCMLE <- function(init, nw, model,
 
     # Update the interval to be used.
     if(!is.null(control$MCMC.effectiveSize)){
-      control$MCMC.interval <- round(max(z$final.interval,2)/2)
+      control$MCMC.interval <- round(max(z$final.interval/control$MCMLE.effectiveSize.interval_drop,1))
       if(verbose) message("New interval = ",control$MCMC.interval,".")
       if(obs){
-        control.obs$MCMC.interval <- round(max(z.obs$final.interval,2)/2)
+        control.obs$MCMC.interval <- round(max(z.obs$final.interval/control$MCMLE.effectiveSize.interval_drop,1))
         if(verbose) message("New constrained interval = ",control.obs$MCMC.interval,".")
       }
     }
