@@ -72,7 +72,8 @@ control.logLik.ergm<-function(nsteps=20,
                               seed=NULL,
                               parallel=NULL,
                               parallel.type=NULL,
-                              parallel.version.check=TRUE
+                              parallel.version.check=TRUE,
+                              parallel.inherit.MT=FALSE
 ){
 
   control<-list()

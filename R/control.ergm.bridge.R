@@ -73,7 +73,8 @@ control.ergm.bridge<-function(nsteps=20, # Number of geometric bridges to use
                               seed=NULL,
                               parallel=0,
                               parallel.type=NULL,
-                              parallel.version.check=TRUE
+                              parallel.version.check=TRUE,
+                              parallel.inherit.MT=FALSE
 ){
 
   control<-list()

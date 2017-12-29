@@ -12,28 +12,28 @@ control.simulate.formula.ergm(MCMC.burnin = 10000, MCMC.interval = 1000,
   MCMC.init.maxedges = 20000, MCMC.packagenames = c(),
   MCMC.runtime.traceplot = FALSE, network.output = "network",
   term.options = list(), parallel = 0, parallel.type = NULL,
-  parallel.version.check = TRUE, ...)
+  parallel.version.check = TRUE, parallel.inherit.MT = FALSE, ...)
 
 control.simulate(MCMC.burnin = 10000, MCMC.interval = 1000,
   MCMC.prop.weights = "default", MCMC.prop.args = list(),
   MCMC.init.maxedges = 20000, MCMC.packagenames = c(),
   MCMC.runtime.traceplot = FALSE, network.output = "network",
   term.options = list(), parallel = 0, parallel.type = NULL,
-  parallel.version.check = TRUE, ...)
+  parallel.version.check = TRUE, parallel.inherit.MT = FALSE, ...)
 
 control.simulate.formula(MCMC.burnin = 10000, MCMC.interval = 1000,
   MCMC.prop.weights = "default", MCMC.prop.args = list(),
   MCMC.init.maxedges = 20000, MCMC.packagenames = c(),
   MCMC.runtime.traceplot = FALSE, network.output = "network",
   term.options = list(), parallel = 0, parallel.type = NULL,
-  parallel.version.check = TRUE, ...)
+  parallel.version.check = TRUE, parallel.inherit.MT = FALSE, ...)
 
 control.simulate.ergm(MCMC.burnin = NULL, MCMC.interval = NULL,
   MCMC.prop.weights = NULL, MCMC.prop.args = NULL,
   MCMC.init.maxedges = NULL, MCMC.packagenames = NULL,
   MCMC.runtime.traceplot = FALSE, network.output = "network",
   term.options = NULL, parallel = 0, parallel.type = NULL,
-  parallel.version.check = TRUE, ...)
+  parallel.version.check = TRUE, parallel.inherit.MT = FALSE, ...)
 }
 \arguments{
 \item{MCMC.burnin}{Number of proposals before any MCMC sampling is done. It
@@ -83,6 +83,9 @@ package with PSOCK clusters. See \code{\link{ergm-parallel}}}
 \item{parallel.version.check}{Logical: If TRUE, check that the version of
 \code{\link[=ergm-package]{ergm}} running on the slave nodes is the same as
 that running on the master node.}
+
+\item{parallel.inherit.MT}{Logical: If TRUE, slave nodes and
+processes inherit the \code{\link[=set.MT_terms]{set.MT_terms()}} setting.}
 
 \item{\dots}{Additional arguments, passed to other functions This argument
 is helpful because it collects any control parameters that have been
