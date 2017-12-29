@@ -10,7 +10,8 @@ control.san(coef = NULL, SAN.tau = 1, SAN.invcov = NULL,
   SAN.packagenames = c(), MPLE.max.dyad.types = 1e+06,
   MPLE.samplesize = 50000, network.output = "network",
   term.options = list(), seed = NULL, parallel = 0,
-  parallel.type = NULL, parallel.version.check = TRUE)
+  parallel.type = NULL, parallel.version.check = TRUE,
+  parallel.inherit.MT = FALSE)
 }
 \arguments{
 \item{coef}{Vector of model coefficients used for MCMC simulations, one for
@@ -71,6 +72,9 @@ package with PSOCK clusters. See \code{\link{ergm-parallel}}}
 \item{parallel.version.check}{Logical: If TRUE, check that the version of
 \code{\link[=ergm-package]{ergm}} running on the slave nodes is the same as
 that running on the master node.}
+
+\item{parallel.inherit.MT}{Logical: If TRUE, slave nodes and
+processes inherit the \code{\link[=set.MT_terms]{set.MT_terms()}} setting.}
 }
 \value{
 A list with arguments as components.

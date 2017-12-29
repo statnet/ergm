@@ -575,6 +575,7 @@ control.ergm<-function(drop=TRUE,
                        parallel=0,
                        parallel.type=NULL,
                        parallel.version.check=TRUE,
+                       parallel.inherit.MT=FALSE,
                        
                        ...
                        ){

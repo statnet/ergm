@@ -10,13 +10,15 @@ control.gof.formula(nsim = 100, MCMC.burnin = 10000, MCMC.interval = 1000,
   MCMC.prop.weights = "default", MCMC.prop.args = list(),
   MCMC.init.maxedges = 20000, MCMC.packagenames = c(),
   MCMC.runtime.traceplot = FALSE, network.output = "network", seed = NULL,
-  parallel = 0, parallel.type = NULL, parallel.version.check = TRUE)
+  parallel = 0, parallel.type = NULL, parallel.version.check = TRUE,
+  parallel.inherit.MT = FALSE)
 
 control.gof.ergm(nsim = 100, MCMC.burnin = NULL, MCMC.interval = NULL,
   MCMC.prop.weights = NULL, MCMC.prop.args = NULL,
   MCMC.init.maxedges = NULL, MCMC.packagenames = NULL,
   MCMC.runtime.traceplot = FALSE, network.output = "network", seed = NULL,
-  parallel = 0, parallel.type = NULL, parallel.version.check = TRUE)
+  parallel = 0, parallel.type = NULL, parallel.version.check = TRUE,
+  parallel.inherit.MT = FALSE)
 }
 \arguments{
 \item{nsim}{Number of networks to be randomly drawn using Markov chain Monte
@@ -71,6 +73,9 @@ package with PSOCK clusters. See \code{\link{ergm-parallel}}}
 \item{parallel.version.check}{Logical: If TRUE, check that the version of
 \code{\link[=ergm-package]{ergm}} running on the slave nodes is the same as
 that running on the master node.}
+
+\item{parallel.inherit.MT}{Logical: If TRUE, slave nodes and
+processes inherit the \code{\link[=set.MT_terms]{set.MT_terms()}} setting.}
 }
 \value{
 A list with arguments as components.

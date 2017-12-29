@@ -74,7 +74,7 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   CD.Hummel.maxit = 25, CD.steplength.min = 1e-04,
   loglik.control = control.logLik.ergm(), term.options = list(),
   seed = NULL, parallel = 0, parallel.type = NULL,
-  parallel.version.check = TRUE, ...)
+  parallel.version.check = TRUE, parallel.inherit.MT = FALSE, ...)
 }
 \arguments{
 \item{drop}{Logical: If TRUE, terms whose observed statistic values are at
@@ -526,6 +526,9 @@ package with PSOCK clusters. See \code{\link{ergm-parallel}}}
 \item{parallel.version.check}{Logical: If TRUE, check that the version of
 \code{\link[=ergm-package]{ergm}} running on the slave nodes is the same as
 that running on the master node.}
+
+\item{parallel.inherit.MT}{Logical: If TRUE, slave nodes and
+processes inherit the \code{\link[=set.MT_terms]{set.MT_terms()}} setting.}
 
 \item{\dots}{Additional arguments, passed to other functions This argument
 is helpful because it collects any control parameters that have been

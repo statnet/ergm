@@ -7,3 +7,5 @@
 #' @param parallel.version.check Logical: If TRUE, check that the version of
 #' \code{\link[=ergm-package]{ergm}} running on the slave nodes is the same as
 #' that running on the master node.
+#' @param parallel.inherit.MT Logical: If TRUE, slave nodes and
+#' processes inherit the [set.MT_terms()] setting.

@@ -76,7 +76,8 @@ control.san<-function(coef=NULL,
                       seed=NULL,
                       parallel=0,
                       parallel.type=NULL,
-                      parallel.version.check=TRUE){
+                      parallel.version.check=TRUE,
+                      parallel.inherit.MT=FALSE){
   control<-list()
   for(arg in names(formals(sys.function())))
     control[arg]<-list(get(arg))

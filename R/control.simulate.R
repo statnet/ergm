@@ -73,6 +73,7 @@ control.simulate.formula.ergm<-function(MCMC.burnin=10000,
                                                      parallel=0,
                                                      parallel.type=NULL,
                                                      parallel.version.check=TRUE,
+                                        parallel.inherit.MT=FALSE,
                                                      ...){
   old.controls <- list(
                        maxedges="MCMC.init.maxedges",
@@ -130,6 +131,7 @@ control.simulate.ergm<-function(MCMC.burnin=NULL,
                                 parallel=0,
                                 parallel.type=NULL,
                                 parallel.version.check=TRUE,
+                                parallel.inherit.MT=FALSE,
                                 ...){
   old.controls <- list(
                        maxedges="MCMC.init.maxedges",
