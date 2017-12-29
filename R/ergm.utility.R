@@ -424,7 +424,7 @@ which.package.InitFunction <- function(f, env = parent.frame()){
   
 }
 
-single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints.obs=NULL){
+single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints.obs=NULL, verbose=FALSE){
   stopifnot(!is.null(constraints)||is.null(constraints.obs))
   
   if(!is.null(constraints)){
@@ -436,6 +436,8 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
     if(nae) na.el <- as.edgelist(is.na(nw))
   }
   if(nae==0) return(nw)
+
+  if(verbose) message("Imputing ", nae, " dyads is required.")
 
   el2s <- function(el) apply(el, 1, paste, collapse=",")
   
@@ -465,6 +467,7 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
 
   if(is.null(response)){
     nw[na.el[sample.int(nae,nimpute),,drop=FALSE]] <- 1
+    if(verbose) message("Imputing ", nimpute, " edges at random.")
   }else{
     nw[na.el,names.eval=response,add.edges=TRUE] <- sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))
   }
