@@ -87,7 +87,8 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
     if(assume.indep){
       vcov <- vcov.indep
     }else{
-      vcov <- spectrum0.mvar(v)
+      vcov <- ERRVL(try(spectrum0.mvar(v), silent=TRUE),
+                    stop("Unable to compute autocorrelation-adjusted standard errors."))
       vcov[is.na(vcov)] <- 0
     }
     m <- colMeans(vm)
@@ -216,7 +217,12 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE)
   x1 <- window(x, start=start(x), end=start(x) + frac1*x.len)
   x2 <- window(x, start=end(x) - frac2*x.len, end=end(x))
 
-  test <- approx.hotelling.diff.test(x1,x2,var.equal=TRUE) # When converged, the chain should have the same variance throughout.
+  test <-
+    ERRVL(try(approx.hotelling.diff.test(x1,x2,var.equal=TRUE), silent=TRUE),
+    {
+      warning("Multivariate Geweke diagnostic failed, probably due to insufficient sample size.", call.=FALSE, immediate.=TRUE)
+      test <- structure(list(p.value=NA), class="htest")
+    })
   if(is.na(test$p.value)) test$p.value <- 0 # Interpret too-small a sample size as insufficient burn-in.
 
   test$method <- paste("Multivariate extension to Geweke's burn-in convergence diagnostic")
@@ -301,8 +307,9 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, ...))
   # If ar() failed or produced a variance matrix estimate that's
   # not positive semidefinite, try with a lower order.
-  while((!is.null(arfit$error) || ERRVL(try(any(eigen(arfit$value$var.pred, only.values=TRUE)$values<0), silent=TRUE), TRUE)) && ord > 1){
+  while((!is.null(arfit$error) || ERRVL(try(any(eigen(arfit$value$var.pred, only.values=TRUE)$values<0), silent=TRUE), TRUE)) && ord > 0){
     ord <- ord - 1
+    if(ord<=0) stop("Unable to fit ar() even with order 1; this is likely to be due to insufficient sample size or a trend in the data.")
     arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, ...))
   }
   

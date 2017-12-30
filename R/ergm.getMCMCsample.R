@@ -135,7 +135,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
       postburnin.mcmc <- as.mcmc.list(lapply(lapply(esteq, `[`, -seq_len(meS$burnin), , drop=FALSE), mcmc))
       
       # Sanity check that we didn't underestimate the burn-in.
-      burnin.pval <- geweke.diag.mv(postburnin.mcmc)$p.value
+      burnin.pval <- suppressWarnings(geweke.diag.mv(postburnin.mcmc)$p.value)
         
       if(verbose) message("Maximum ESS of ",meS$eS," attained with burn-in of ", round(meS$b/nrow(outl[[1]]$s)*100,2),"%; convergence p-value = ", burnin.pval, ".")
 
@@ -380,9 +380,11 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
 .max.effectiveSize <- function(x, npts, base, ar.order=0){
   es <- function(b){
     if(b>0) x <- as.mcmc.list(lapply(lapply(x, `[`, -seq_len(b), , drop=FALSE), mcmc))
-    vcov <- if(ar.order) spectrum0.mvar(x, ar.order=ar.order)
-            else spectrum0.mvar(x)
-    niter(x)*nchain(x)/attr(vcov,"infl")
+    ERRVL(try({
+      vcov <- if(ar.order) spectrum0.mvar(x, ar.order=ar.order)
+              else spectrum0.mvar(x)
+      niter(x)*nchain(x)/attr(vcov,"infl")
+      }), 1)
   }
 
   # TODO: Implement bisection algorithm here.
