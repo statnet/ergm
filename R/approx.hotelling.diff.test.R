@@ -93,7 +93,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
     m <- colMeans(vm)
     n <- nrow(vm)
     
-    infl <- tr(vcov) / tr(vcov.indep) # I.e., how much bigger is the trace of the variance-covariance after taking autocorrelation into account than before.
+    infl <- attr(vcov, "infl") # Use Vats, Flegal, and Jones (2015) estimate for ESS.
     neff <- n / infl
     
     vcov.m <- vcov/n # Here, vcov already incorporates the inflation due to autocorrelation.
@@ -253,6 +253,12 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE)
 #'   the transformed variance-covariance matrix is greater than this.
 #' @param ... additional arguments to [ar()].
 #'
+#' @return A square matrix with dimension equalling to the number of
+#'   columns of `x`, with an additional attribute `"infl"` giving the
+#'   factor by which the effective sample size is reduced due to
+#'   autocorrelation, according to the Vats, Flegal, and Jones (2015)
+#'   estimate for ESS.
+#' 
 #' @note [ar()] fails if `crossprod(x)` is singular,
 #' which is remedied by mapping the variables onto the principal
 #' components of `x`, dropping redundant dimentions.
@@ -283,6 +289,8 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   Q <- e$vec[,sqrt(pmax(e$val,0)/max(e$val))>tol*2,drop=FALSE]
   xr <- x%*%Q # Columns of xr are guaranteed to be linearly independent.
 
+  ind.var <- cov(xr) # Get the sample variance of the transformed columns.
+
   # Convert back into an mcmc.list object.
   xr <-
     if(!is.null(breaks)) do.call(mcmc.list,lapply(lapply(seq_along(breaks[-1]), function(i) xr[(breaks[i]+1):(breaks[i+1]),,drop=FALSE]), mcmc))
@@ -310,12 +318,15 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   adj <- diag(1,nrow=nvar(xr)) - arcoefs
   iadj <- solve(adj)
   v.var <- iadj %*% arvar %*% t(iadj)
+
+  infl <- exp((determinant(v.var)$modulus-determinant(ind.var)$modulus)/ncol(ind.var))
   
   # Reverse the mapping for the variance estimate.
   v.var <- Q%*%v.var%*%t(Q)
   
   v[!novar,!novar] <- v.var
   
+  attr(v, "infl") <- infl
   v
 }
 
