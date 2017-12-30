@@ -137,7 +137,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
       # Sanity check that we didn't underestimate the burn-in.
       burnin.pval <- geweke.diag.mv(postburnin.mcmc)$p.value
         
-      if(verbose) message("Maximum harmonic mean ESS of ",meS$eS," attained with burn-in of ", round(meS$b/nrow(outl[[1]]$s)*100,2),"%; convergence p-value = ", burnin.pval, ".")
+      if(verbose) message("Maximum ESS of ",meS$eS," attained with burn-in of ", round(meS$b/nrow(outl[[1]]$s)*100,2),"%; convergence p-value = ", burnin.pval, ".")
 
       if(control.parallel$MCMC.runtime.traceplot){
         for (i in seq_along(esteq)) colnames(esteq[[i]]) <- names(list(...)$theta)
@@ -378,53 +378,18 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
 
 
 .max.effectiveSize <- function(x, npts, base, ar.order=0){
-  if(!is.list(x)) x <- list(x)
   es <- function(b){
-    if(b>0) x <- lapply(lapply(x, "[", -seq_len(b),,drop=FALSE),coda::mcmc)
-    if(ar.order) .fast.effectiveSize(as.matrix(coda::as.mcmc.list(x), ar.order=ar.order))
-    else effectiveSize(as.matrix(coda::as.mcmc.list(x)))
+    if(b>0) x <- as.mcmc.list(lapply(lapply(x, `[`, -seq_len(b), , drop=FALSE), mcmc))
+    vcov <- if(ar.order) spectrum0.mvar(x, ar.order=ar.order)
+            else spectrum0.mvar(x)
+    niter(x)*nchain(x)/attr(vcov,"infl")
   }
 
   # TODO: Implement bisection algorithm here.
   pts <- sort(round(base^seq_len(npts)*nrow(x[[1]])))
-  ess <- rbind(sapply(pts, es)) # I.e., variables in rows and burn-in test points in columns.
+  ess <- sapply(pts, es)
 
-  best <- max(apply(ess, 1, which.max))
-
-  mean.fn <- function(x) x^(-1)
-  mean.ifn <- function(x) x^(-1)
-  hmean <- mean.ifn(mean(mean.fn(ess[,best])))
+  best <- which.max(ess)
   
-  list(burnin=pts[best], eS=hmean, pts.rank=length(pts)-best+1)
-}
-
-.fast.effectiveSize <- function(x, ar.order=1){
-  if (coda::is.mcmc.list(x)){
-    ess <- do.call(rbind, lapply(x, .fast.effectiveSize, ar.order=ar.order))
-    ans <- apply(ess, 2, base::sum)
-  } else {
-    x <- coda::as.mcmc(x)
-    x <- as.matrix(x)
-    spec <- .fast.spectrum0.ar(x, ar.order=ar.order)$spec
-    ans <- ifelse(spec == 0, 0, nrow(x) * apply(x, 2, stats::var)/spec)
-    }
-    return(ans)
-}
-.fast.spectrum0.ar <- function (x, ar.order=1){
-    x <- as.matrix(x)
-    v0 <- order <- numeric(ncol(x))
-    names(v0) <- names(order) <- colnames(x)
-    z <- 1:nrow(x)
-    for (i in 1:ncol(x)) {
-      novar <- var(x[,i])<.Machine$double.eps
-      if(novar){
-        v0[i] <- 0
-        order[i] <- 0
-      }else{
-        ar.out <- ar(x[, i], aic = FALSE, order.max=ar.order)
-        v0[i] <- ar.out$var.pred/(1 - sum(ar.out$ar))^2
-        order[i] <- ar.out$order
-      }
-    }
-    return(list(spec = v0, order = order))
+  list(burnin=pts[best], eS=ess[best], pts.rank=length(pts)-best+1)
 }
