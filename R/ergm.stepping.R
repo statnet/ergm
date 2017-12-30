@@ -355,5 +355,5 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 #  message_print(out)
    if(verbose>1) message(sprintf("iter= %d, est=%f, low=%f, high=%f, test=%d.",i,g,low,high,z))
   }
-  g
+  low
 }
