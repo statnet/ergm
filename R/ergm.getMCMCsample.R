@@ -103,7 +103,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
           if(verbose)
             message("Insufficient ESS or untrustworthy burn-in estimate to determine the number of steps remaining: running forward by ",samplesize, " steps with interval ", interval, ".")
         }else{
-          pred.ss <- howmuchmore(control.parallel$MCMC.effectiveSize, NVL(nrow(outl[[1]]$s),0), eS, meS$burnin)
+          pred.ss <- howmuchmore(control.parallel$MCMC.effectiveSize, NVL(nrow(outl[[1]]$s),0), eS, best.burnin$burnin)
           damp.ss <- pred.ss*(eS/(control.parallel$MCMC.effectiveSize.damp+eS))+control.parallel$MCMC.samplesize*(1-eS/(control.parallel$MCMC.effectiveSize.damp+eS))
           samplesize <- round(damp.ss)
           if(verbose) message("Predicted additional sample size: ",pred.ss, " dampened to ",damp.ss, ", so running ", samplesize, " steps forward.")
@@ -131,12 +131,17 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
                       else out$s[,Clists[[1]]$diagnosable,drop=FALSE]
                       )
       
-      best.burnin <- .burnin.OK(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, min.pval=control$MCMC.effectiveSize.burnin.pval)
+      best.burnin <- .find_OK_burnin(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, min.pval=control$MCMC.effectiveSize.burnin.pval)
+      burnin.pval <- best.burnin$pval
+      if(burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
+        if(verbose) message("No adequate burn-in found. Best convergence p-value = ", burnin.pval)
+        next
+      }
       postburnin.mcmc <- as.mcmc.list(lapply(lapply(esteq, `[`, -seq_len(best.burnin$burnin), , drop=FALSE), mcmc))
       
-      eS <- niter(postburnin.mcmc)*nchains(postburnin.mcmc)*attr(spectrum0.mvar(postburnin.mcmc),"infl")
+      eS <- niter(postburnin.mcmc)*nchain(postburnin.mcmc)/attr(spectrum0.mvar(postburnin.mcmc),"infl")
               
-      if(verbose) message("ESS of ",eS," attained with burn-in of ", round(best.burnin$burnin/nrow(outl[[1]]$s)*100,2),"%; convergence p-value = ", best.burnin$pval, ".")
+      if(verbose) message("ESS of ",eS," attained with burn-in of ", round(best.burnin$burnin/nrow(outl[[1]]$s)*100,2),"%; convergence p-value = ", burnin.pval, ".")
 
       if(control.parallel$MCMC.runtime.traceplot){
         for (i in seq_along(esteq)) colnames(esteq[[i]]) <- names(list(...)$theta)
@@ -158,8 +163,8 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
       warning("Unable to reach target effective size in iterations alotted.")
 
     for(i in seq_along(outl)){
-      if(best.burninS$burnin) outl[[i]]$s <- outl[[i]]$s[-seq_len(best.burninS$burnin),,drop=FALSE]
-      outl[[i]]$s <- coda::mcmc(outl[[i]]$s, (best.burninS$burnin+1)*interval, thin=interval)
+      if(best.burnin$burnin) outl[[i]]$s <- outl[[i]]$s[-seq_len(best.burnin$burnin),,drop=FALSE]
+      outl[[i]]$s <- coda::mcmc(outl[[i]]$s, (best.burnin$burnin+1)*interval, thin=interval)
       outl[[i]]$final.interval <- interval
     }
   }else{
@@ -376,17 +381,19 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
 }
 
 
-.burnin.OK <- function(x, npts, base, min.pval=0.2){
+.find_OK_burnin <- function(x, npts, base, min.pval=0.2){
   geweke <- function(b){
     if(b>0) x <- as.mcmc.list(lapply(lapply(x, `[`, -seq_len(b), , drop=FALSE), mcmc))
-    geweke.diag.mv(x)$p.value
+    suppressWarnings(geweke.diag.mv(x)$p.value)
   }
 
   # TODO: Implement bisection algorithm here.
   pts <- sort(round(base^seq_len(npts)*nrow(x[[1]])))
   pvals <- sapply(pts, geweke)
 
-  best <- min(which(pvals>min.pval))
+  best <- suppressWarnings(min(which(pvals>min.pval)))
+  if(!is.finite(best))
+    best <- which.max(pvals)
   
-  if(is.finite(best)) list(burnin=pts[best], pval=pvals[best]) else NULL
+  list(burnin=pts[best], pval=pvals[best])
 }
