@@ -90,7 +90,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
     }
     
     interval <- control.parallel$MCMC.interval
-    meS <- list(burnin=0,eS=control.parallel$MCMC.effectiveSize)
+    best.burnin <- list(burnin=0,pval=control.parallel$MCMC.effectiveSize.burnin.pval)
     outl <- rep(list(NULL),nthreads)
     for(mcrun in seq_len(control.parallel$MCMC.effectiveSize.maxruns)){
       if(mcrun==1){
@@ -98,13 +98,13 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
         if(verbose)
           message("First run: running each chain forward by ",samplesize, " steps with interval ", interval, ".")
       }else{
-        if(meS$eS<1 || meS$pts.rank==1 || burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
+        if(burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
           samplesize <- control.parallel$MCMC.samplesize
           if(verbose)
             message("Insufficient ESS or untrustworthy burn-in estimate to determine the number of steps remaining: running forward by ",samplesize, " steps with interval ", interval, ".")
         }else{
-          pred.ss <- howmuchmore(control.parallel$MCMC.effectiveSize, NVL(nrow(outl[[1]]$s),0), meS$eS, meS$burnin)
-          damp.ss <- pred.ss*(meS$eS/(control.parallel$MCMC.effectiveSize.damp+meS$eS))+control.parallel$MCMC.samplesize*(1-meS$eS/(control.parallel$MCMC.effectiveSize.damp+meS$eS))
+          pred.ss <- howmuchmore(control.parallel$MCMC.effectiveSize, NVL(nrow(outl[[1]]$s),0), eS, meS$burnin)
+          damp.ss <- pred.ss*(eS/(control.parallel$MCMC.effectiveSize.damp+eS))+control.parallel$MCMC.samplesize*(1-eS/(control.parallel$MCMC.effectiveSize.damp+eS))
           samplesize <- round(damp.ss)
           if(verbose) message("Predicted additional sample size: ",pred.ss, " dampened to ",damp.ss, ", so running ", samplesize, " steps forward.")
         }
@@ -120,7 +120,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
       # Stop if something went wrong.
       if(any(sapply(outl,"[[","status")!=0)) break
       
-      while(nrow(outl[[1]]$s)-meS$burnin>=(control.parallel$MCMC.samplesize)*2){
+      while(nrow(outl[[1]]$s)-best.burnin$burnin>=(control.parallel$MCMC.samplesize)*2){
         for(i in seq_along(outl)) outl[[i]]$s <- outl[[i]]$s[seq_len(floor(nrow(outl[[i]]$s)/2))*2+nrow(outl[[i]]$s)%%2,,drop=FALSE]
         interval <- interval*2
         if(verbose) message("Increasing thinning to ",interval,".")
@@ -131,13 +131,12 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
                       else out$s[,Clists[[1]]$diagnosable,drop=FALSE]
                       )
       
-      meS <- .max.effectiveSize(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, ar.order=control$MCMC.effectiveSize.order)
-      postburnin.mcmc <- as.mcmc.list(lapply(lapply(esteq, `[`, -seq_len(meS$burnin), , drop=FALSE), mcmc))
+      best.burnin <- .burnin.OK(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, min.pval=control$MCMC.effectiveSize.burnin.pval)
+      postburnin.mcmc <- as.mcmc.list(lapply(lapply(esteq, `[`, -seq_len(best.burnin$burnin), , drop=FALSE), mcmc))
       
-      # Sanity check that we didn't underestimate the burn-in.
-      burnin.pval <- suppressWarnings(geweke.diag.mv(postburnin.mcmc)$p.value)
-        
-      if(verbose) message("Maximum ESS of ",meS$eS," attained with burn-in of ", round(meS$b/nrow(outl[[1]]$s)*100,2),"%; convergence p-value = ", burnin.pval, ".")
+      eS <- niter(postburnin.mcmc)*nchains(postburnin.mcmc)*attr(spectrum0.mvar(postburnin.mcmc),"infl")
+              
+      if(verbose) message("ESS of ",eS," attained with burn-in of ", round(best.burnin$burnin/nrow(outl[[1]]$s)*100,2),"%; convergence p-value = ", best.burnin$pval, ".")
 
       if(control.parallel$MCMC.runtime.traceplot){
         for (i in seq_along(esteq)) colnames(esteq[[i]]) <- names(list(...)$theta)
@@ -145,8 +144,8 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
              ,ask=FALSE,smooth=TRUE,density=FALSE)
       }
 
-      if(meS$eS>=control.parallel$MCMC.effectiveSize){
-        if(burnin.pval > control$MCMC.effectiveSize.burnin.pval && meS$pts.rank!=1){
+      if(eS>=control.parallel$MCMC.effectiveSize){
+        if(burnin.pval > control$MCMC.effectiveSize.burnin.pval){
           if(verbose) message("Target ESS achieved and is trustworthy. Returning.")
           break
         }else{
@@ -155,12 +154,12 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
       }
     }
 
-    if(meS$eS<control.parallel$MCMC.effectiveSize)
+    if(eS<control.parallel$MCMC.effectiveSize)
       warning("Unable to reach target effective size in iterations alotted.")
 
     for(i in seq_along(outl)){
-      if(meS$burnin) outl[[i]]$s <- outl[[i]]$s[-seq_len(meS$burnin),,drop=FALSE]
-      outl[[i]]$s <- coda::mcmc(outl[[i]]$s, (meS$burnin+1)*interval, thin=interval)
+      if(best.burninS$burnin) outl[[i]]$s <- outl[[i]]$s[-seq_len(best.burninS$burnin),,drop=FALSE]
+      outl[[i]]$s <- coda::mcmc(outl[[i]]$s, (best.burninS$burnin+1)*interval, thin=interval)
       outl[[i]]$final.interval <- interval
     }
   }else{
@@ -377,21 +376,17 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
 }
 
 
-.max.effectiveSize <- function(x, npts, base, ar.order=0){
-  es <- function(b){
+.burnin.OK <- function(x, npts, base, min.pval=0.2){
+  geweke <- function(b){
     if(b>0) x <- as.mcmc.list(lapply(lapply(x, `[`, -seq_len(b), , drop=FALSE), mcmc))
-    ERRVL(try({
-      vcov <- if(ar.order) spectrum0.mvar(x, ar.order=ar.order)
-              else spectrum0.mvar(x)
-      niter(x)*nchain(x)/attr(vcov,"infl")
-      }), 1)
+    geweke.diag.mv(x)$p.value
   }
 
   # TODO: Implement bisection algorithm here.
   pts <- sort(round(base^seq_len(npts)*nrow(x[[1]])))
-  ess <- sapply(pts, es)
+  pvals <- sapply(pts, geweke)
 
-  best <- which.max(ess)
+  best <- min(which(pvals>min.pval))
   
-  list(burnin=pts[best], eS=ess[best], pts.rank=length(pts)-best+1)
+  if(is.finite(best)) list(burnin=pts[best], pval=pvals[best]) else NULL
 }
