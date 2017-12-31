@@ -463,11 +463,15 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
     }
   }
   
-  nw[na.el] <- 0
-
   if(is.null(response)){
-    nw[na.el[sample.int(nae,nimpute),,drop=FALSE]] <- 1
     if(verbose) message("Imputing ", nimpute, " edges at random.")
+    y.cur <- nw[na.el]
+    i.na <- which(is.na(y.cur))
+    i.cur <- which(y.cur!=0)
+    i.new <- sample.int(nae,nimpute)
+    todel <- union(setdiff(i.cur, i.new), setdiff(i.na, i.new))
+    toadd <- union(setdiff(i.new, i.cur), intersect(i.na, i.new))
+    nw[na.el[c(todel,toadd),,drop=FALSE]] <- rep(0:1, c(length(todel),length(toadd)))
   }else{
     nw[na.el,names.eval=response,add.edges=TRUE] <- sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))
   }
