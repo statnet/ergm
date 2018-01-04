@@ -14,7 +14,7 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MCMC.samplesize = 1024, MCMC.effectiveSize = NULL,
   MCMC.effectiveSize.damp = 10, MCMC.effectiveSize.maxruns = 1000,
   MCMC.effectiveSize.base = 1/2, MCMC.effectiveSize.points = 5,
-  MCMC.effectiveSize.order = 1, MCMC.effectiveSize.burnin.pval = 0.05,
+  MCMC.effectiveSize.order = 1, MCMC.effectiveSize.burnin.pval = 0.2,
   MCMC.return.stats = TRUE, MCMC.runtime.traceplot = FALSE,
   MCMC.init.maxedges = 20000, MCMC.max.maxedges = Inf,
   MCMC.addto.se = TRUE, MCMC.compress = FALSE, MCMC.packagenames = c(),
@@ -56,14 +56,14 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MCMLE.last.boost = 4, MCMLE.Hummel.esteq = TRUE,
   MCMLE.Hummel.miss.sample = 100, MCMLE.Hummel.maxit = if
   (MCMLE.steplength.margin < 0) 5 else 25, MCMLE.steplength.min = 1e-04,
-  MCMLE.effectiveSize.interval_drop = 8, SA.phase1_n = NULL,
-  SA.initial_gain = NULL, SA.nsubphases = 4, SA.niterations = NULL,
-  SA.phase3_n = NULL, SA.trustregion = 0.5, RM.phase1n_base = 7,
-  RM.phase2n_base = 100, RM.phase2sub = 7, RM.init_gain = 0.5,
-  RM.phase3n = 500, Step.MCMC.samplesize = 100, Step.maxit = 50,
-  Step.gridsize = 100, CD.nsteps = 8, CD.multiplicity = 1,
-  CD.nsteps.obs = 128, CD.multiplicity.obs = 1, CD.maxit = 60,
-  CD.conv.min.pval = 0.5, CD.NR.maxit = 100,
+  MCMLE.effectiveSize.interval_drop = 8, MCMLE.save_intermediates = NULL,
+  SA.phase1_n = NULL, SA.initial_gain = NULL, SA.nsubphases = 4,
+  SA.niterations = NULL, SA.phase3_n = NULL, SA.trustregion = 0.5,
+  RM.phase1n_base = 7, RM.phase2n_base = 100, RM.phase2sub = 7,
+  RM.init_gain = 0.5, RM.phase3n = 500, Step.MCMC.samplesize = 100,
+  Step.maxit = 50, Step.gridsize = 100, CD.nsteps = 8,
+  CD.multiplicity = 1, CD.nsteps.obs = 128, CD.multiplicity.obs = 1,
+  CD.maxit = 60, CD.conv.min.pval = 0.5, CD.NR.maxit = 100,
   CD.NR.reltol = sqrt(.Machine$double.eps), CD.metric = c("naive",
   "lognormal", "logtaylor", "Median.Likelihood", "EF.Likelihood"),
   CD.method = c("BFGS", "Nelder-Mead"), CD.trustregion = 20,
@@ -422,6 +422,13 @@ best step length.}
 
 \item{MCMLE.steplength.min}{Stops MCMLE estimation when the step length gets
 stuck below this minimum value.}
+
+\item{MCMLE.save_intermediates}{Every iteration, after MCMC
+sampling, save the MCMC sample and some miscellaneous information
+to a file with this name. The name is passed through \code{\link[=sprintf]{sprintf()}}
+with iteration number as the second argument. (So, for example,
+\code{MCMLE.save_intermediates="step_\%03d.RData"} will save to
+\code{step_001.RData}, \code{step_002.RData}, etc.)}
 
 \item{SA.phase1_n}{Number of MCMC samples to draw in Phase 1 of the
 stochastic approximation algorithm.  Defaults to 7 plus 3 times the number
