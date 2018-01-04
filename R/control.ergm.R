@@ -262,6 +262,14 @@
 #' This parameter specifies the sample size.
 #' @param MCMLE.Hummel.maxit Maximum number of iterations in searching for the
 #' best step length.
+#' 
+#' @param MCMLE.save_intermediates Every iteration, after MCMC
+#'   sampling, save the MCMC sample and some miscellaneous information
+#'   to a file with this name. The name is passed through [sprintf()]
+#'   with iteration number as the second argument. (So, for example,
+#'   `MCMLE.save_intermediates="step_%03d.RData"` will save to
+#'   `step_001.RData`, `step_002.RData`, etc.)
+#'
 #' @param SA.phase1_n Number of MCMC samples to draw in Phase 1 of the
 #' stochastic approximation algorithm.  Defaults to 7 plus 3 times the number
 #' of terms in the model.  See Snijders (2002) for details.
@@ -462,6 +470,7 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.Hummel.maxit=25, 
                        MCMLE.steplength.min=0.0001,
                        MCMLE.effectiveSize.interval_drop=8,
+                       MCMLE.save_intermediates=NULL,
                        
                        SA.phase1_n=NULL, SA.initial_gain=NULL, 
                        SA.nsubphases=4,
