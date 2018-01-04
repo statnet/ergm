@@ -203,8 +203,7 @@ function(x, alternative = c("two.sided", "less", "greater"),
   # if z has a newedgelist attached, use it
   if("newedgelist" %in% names(z)){
     newedgelist<-z$newedgelist[,1:2,drop=FALSE]
-    if(!is.null(response))
-      newnwweights<-z$newedgelist[,3]
+    newnwweights<- if(!is.null(response)) z$newedgelist[,3]
   }else{
     # expect that z will have seperate lists of heads and tails
     nedges<-z$newnwtails[1]
@@ -213,9 +212,8 @@ function(x, alternative = c("two.sided", "less", "greater"),
       if(nedges>0) cbind(z$newnwtails[2:(nedges+1)],z$newnwheads[2:(nedges+1)])
       else matrix(0, ncol=2, nrow=0)
     newnwweights <- z$newnwweights[2:(nedges+1)]
-    newedgelist <- cbind(newedgelist, newnwweights)
   }
-  newedgelist
+  cbind(newedgelist, newnwweights)
 }
 
 #' @method as.edgelist pending_update_network
@@ -422,7 +420,8 @@ which.package.InitFunction <- function(f, env = parent.frame()){
   
 }
 
-single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints.obs=NULL, verbose=FALSE){
+single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints.obs=NULL, output=c("network","pending_update_network"), verbose=FALSE){
+  output <- match.arg(output)
   stopifnot(!is.null(constraints)||is.null(constraints.obs))
   
   if(!is.null(constraints)){
@@ -438,6 +437,7 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
   if(verbose) message("Imputing ", nae, " dyads is required.")
 
   el2s <- function(el) apply(el, 1, paste, collapse=",")
+  s2el <- function(s) matrix(as.integer(do.call(rbind,strsplit(s,","))),ncol=2)
   
   if(!is.null(constraints)){ # Constraints
     informative <- as.rlebdm(constraints, constraints.obs, "informative")
@@ -463,15 +463,32 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
   
   if(is.null(response)){
     if(verbose) message("Imputing ", nimpute, " edges at random.")
-    y.cur <- nw[na.el]
-    i.na <- which(is.na(y.cur))
-    i.cur <- which(y.cur!=0)
     i.new <- sample.int(nae,nimpute)
-    todel <- union(setdiff(i.cur, i.new), setdiff(i.na, i.new))
-    toadd <- union(setdiff(i.new, i.cur), intersect(i.na, i.new))
-    nw[na.el[c(todel,toadd),,drop=FALSE]] <- rep(0:1, c(length(todel),length(toadd)))
+    if(output=="network"){
+      y.cur <- nw[na.el]
+      i.na <- which(is.na(y.cur))
+      i.cur <- which(y.cur!=0)
+      todel <- union(setdiff(i.cur, i.new), setdiff(i.na, i.new))
+      toadd <- union(setdiff(i.new, i.cur), intersect(i.na, i.new))
+      nw[na.el[c(todel,toadd),,drop=FALSE]] <- rep(0:1, c(length(todel),length(toadd)))
+    }else{ # pending_update_network
+      el <- s2el(union(setdiff(el2s(as.edgelist(nw)), el2s(na.el)), el2s(na.el[i.new,,drop=FALSE])))
+      nw <- empty_network(nw)
+      nw%n%".update" <- list(newedgelist = el[order(el[,1],el[,2]),,drop=FALSE])
+      class(nw) <- "pending_update_network"
+    }
   }else{
-    nw[na.el,names.eval=response,add.edges=TRUE] <- sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))
+    if(output=="network"){
+      nw[na.el,names.eval=response,add.edges=TRUE] <- sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))
+    }else{ # pending_update_network
+      el <- as.edgelist(nw, attrname=response)
+      el <- el[!el2s(el[,-3,drop=FALSE])%in%el2s(na.el),,drop=FALSE]
+      el <- rbind(el, cbind(na.el, sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))))
+      el <- el[el[,3]!=0,,drop=FALSE]
+      nw <- empty_network(nw)
+      nw%n%".update" <- list(newedgelist = el[order(el[,1],el[,2]),,drop=FALSE])
+      class(nw) <- "pending_update_network"
+    }
   }
 
   nw

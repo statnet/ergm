@@ -84,19 +84,20 @@ ergm.MCMLE <- function(init, nw, model,
     1)
   
   # Store information about original network, which will be returned at end
-  nw.orig <- network.copy(nw)
+  nw.orig <- nw
 
   # Impute missing dyads.
-  nw <- single.impute.dyads(nw, response=response, constraints=MHproposal$arguments$constraints, constraints.obs=MHproposal.obs$arguments$constraints, verbose=verbose)
-  model$nw.stats <- summary(model$formula, response=response, basis=nw)
+  nw <- single.impute.dyads(nw, response=response, constraints=MHproposal$arguments$constraints, constraints.obs=MHproposal.obs$arguments$constraints, output="pending", verbose=verbose)
+  ec <- if(is(nw, "network")) network.edgecount(nw, FALSE)
+        else nrow(as.edgelist(nw))
 
   if(control$MCMLE.density.guard>1){
     # Calculate the density guard threshold.
     control$MCMC.max.maxedges <- round(min(control$MCMC.max.maxedges,
-                                           max(control$MCMLE.density.guard*network.edgecount(nw,FALSE),
+                                           max(control$MCMLE.density.guard*ec,
                                                control$MCMLE.density.guard.min)))
     control$MCMC.init.maxedges <- round(min(control$MCMC.max.maxedges, control$MCMC.init.maxedges))
-    if(verbose) message("Density guard set to ",control$MCMC.max.maxedges," from an initial count of ",network.edgecount(nw,FALSE)," edges.")
+    if(verbose) message("Density guard set to ",control$MCMC.max.maxedges," from an initial count of ",ec," edges.")
   }  
 
   nws <- rep(list(nw),nthreads) # nws is now a list of networks.
@@ -124,7 +125,7 @@ ergm.MCMLE <- function(init, nw, model,
     control.obs$MCMC.burnin <- control$obs.MCMC.burnin
     control.obs$MCMC.burnin.min <- control$obs.MCMC.burnin.min
 
-    nws.obs <- lapply(nws, network::network.copy)
+    nws.obs <- lapply(nws, identity)
     statshifts.obs <- statshifts
   }
   # mcmc.init will change at each iteration.  It is the value that is used
