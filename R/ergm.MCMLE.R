@@ -89,19 +89,21 @@ ergm.MCMLE <- function(init, nw, model,
     1)
   
   # Store information about original network, which will be returned at end
-  nw.orig <- network.copy(nw)
+  nw.orig <- nw
 
   # Impute missing dyads.
   nw <- single.impute.dyads(nw, response=response, constraints=MHproposal$arguments$constraints, constraints.obs=MHproposal.obs$arguments$constraints, verbose=verbose)
+  ec <- if(is(nw, "network")) network.edgecount(nw, FALSE)
+        else nrow(as.edgelist(nw))
   model$nw.stats <- ergm.getglobalstats(nw, model, response=response)
-
+  
   if(control$MCMLE.density.guard>1){
     # Calculate the density guard threshold.
     control$MCMC.max.maxedges <- round(min(control$MCMC.max.maxedges,
-                                           max(control$MCMLE.density.guard*network.edgecount(nw,FALSE),
+                                           max(control$MCMLE.density.guard*ec,
                                                control$MCMLE.density.guard.min)))
     control$MCMC.init.maxedges <- round(min(control$MCMC.max.maxedges, control$MCMC.init.maxedges))
-    if(verbose) message("Density guard set to ",control$MCMC.max.maxedges," from an initial count of ",network.edgecount(nw,FALSE)," edges.")
+    if(verbose) message("Density guard set to ",control$MCMC.max.maxedges," from an initial count of ",ec," edges.")
   }  
 
   nws <- rep(list(nw),nthreads) # nws is now a list of networks.
@@ -130,7 +132,7 @@ ergm.MCMLE <- function(init, nw, model,
     control.obs$MCMC.interval <- control$obs.MCMC.interval
     control.obs$MCMC.burnin <- control$obs.MCMC.burnin
 
-    nws.obs <- lapply(nws, network::network.copy)
+    nws.obs <- lapply(nws, identity)
     statshifts.obs <- statshifts
   }
 
@@ -224,6 +226,11 @@ ergm.MCMLE <- function(init, nw, model,
         nws.obs <- nws.obs.returned
         statshifts.obs <- lapply(statsmatrices.obs, function(sm) sm[nrow(sm),])
       }      
+    }
+
+    if(!is.null(control$MCMLE.save_intermediates)){
+      if(obs) save(nws, nws.obs, statshifts, statshifts.obs, coef.hist, stats.hist, stats.obs.hist, steplen.hist, file=sprintf(control$MCMLE.save_intermediates, iteration))
+      else save(nws, statshifts, coef.hist, stats.hist, steplen.hist, file=sprintf(control$MCMLE.save_intermediates, iteration))
     }
 
     # Compute the sample estimating equations and the convergence p-value. 
@@ -395,7 +402,7 @@ ergm.MCMLE <- function(init, nw, model,
     coef.hist <- rbind(coef.hist, mcmc.init)
     stats.obs.hist <- NVL3(statsmatrix.obs, rbind(stats.obs.hist, apply(.[], 2, base::mean)))
     stats.hist <- rbind(stats.hist, apply(statsmatrix, 2, base::mean))
-    
+
     # This allows premature termination.
     
     if(control$MCMLE.termination=='Hotelling'){
