@@ -92,7 +92,7 @@ ergm.MCMLE <- function(init, nw, model,
   nw.orig <- nw
 
   # Impute missing dyads.
-  nw <- single.impute.dyads(nw, response=response, constraints=MHproposal$arguments$constraints, constraints.obs=MHproposal.obs$arguments$constraints, verbose=verbose)
+  nw <- single.impute.dyads(nw, response=response, constraints=MHproposal$arguments$constraints, constraints.obs=MHproposal.obs$arguments$constraints, output="pending", verbose=verbose)
   ec <- if(is(nw, "network")) network.edgecount(nw, FALSE)
         else nrow(as.edgelist(nw))
   model$nw.stats <- ergm.getglobalstats(nw, model, response=response)
