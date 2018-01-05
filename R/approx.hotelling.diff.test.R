@@ -415,7 +415,7 @@ ar.yw.mcmc.list <-
         }
         order <- 0L
         for (m in 0L:order.max) {
-            xaic[m + 1L] <- cal.aic()
+            xaic[m + 1L] <- if(all(eigen(EA, only.values=TRUE)>=0) && n.obs > nser * (m + 1L)) cal.aic() else Inf
             if (!aic || xaic[m + 1L] == min(xaic[seq_len(m + 1L)])) {
                 ar <- A
                 order <- m
