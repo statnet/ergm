@@ -292,7 +292,7 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   # biggest singular values, respectively, is greater than the
   # tolerance.
   e <- eigen(cov(x), symmetric=TRUE)
-  Q <- e$vec[,sqrt(pmax(e$val,0)/max(e$val))>tol*2,drop=FALSE]
+  Q <- e$vectors[,sqrt(pmax(e$values,0)/max(e$values))>tol*2,drop=FALSE]
   xr <- x%*%Q # Columns of xr are guaranteed to be linearly independent.
 
   ind.var <- cov(xr) # Get the sample variance of the transformed columns.
@@ -415,7 +415,7 @@ ar.yw.mcmc.list <-
         }
         order <- 0L
         for (m in 0L:order.max) {
-            xaic[m + 1L] <- if(all(eigen(EA, only.values=TRUE)>=0) && n.obs > nser * (m + 1L)) cal.aic() else Inf
+            xaic[m + 1L] <- if(all(eigen(EA, only.values=TRUE)$values>=0) && n.obs > nser * (m + 1L)) cal.aic() else Inf
             if (!aic || xaic[m + 1L] == min(xaic[seq_len(m + 1L)])) {
                 ar <- A
                 order <- m
