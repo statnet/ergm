@@ -532,7 +532,7 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.Hummel.miss.sample=100,
                        MCMLE.Hummel.maxit=if(MCMLE.steplength.margin<0) 5 else 25,
                        MCMLE.steplength.min=0.0001,
-                       MCMLE.effectiveSize.interval_drop=8,
+                       MCMLE.effectiveSize.interval_drop=2,
                        MCMLE.save_intermediates=NULL,
                        
                        SA.phase1_n=NULL, SA.initial_gain=NULL, 
