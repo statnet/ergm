@@ -56,7 +56,7 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MCMLE.last.boost = 4, MCMLE.Hummel.esteq = TRUE,
   MCMLE.Hummel.miss.sample = 100, MCMLE.Hummel.maxit = if
   (MCMLE.steplength.margin < 0) 5 else 25, MCMLE.steplength.min = 1e-04,
-  MCMLE.effectiveSize.interval_drop = 8, MCMLE.save_intermediates = NULL,
+  MCMLE.effectiveSize.interval_drop = 2, MCMLE.save_intermediates = NULL,
   SA.phase1_n = NULL, SA.initial_gain = NULL, SA.nsubphases = 4,
   SA.niterations = NULL, SA.phase3_n = NULL, SA.trustregion = 0.5,
   RM.phase1n_base = 7, RM.phase2n_base = 100, RM.phase2sub = 7,

@@ -341,6 +341,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   g <- high <- steplength.max # We start at the maximum, because we need to first check that we've already arrived.
   i <- 0
   while(i < steplength.maxit & abs(high-low)>0.01){
+   if(verbose>1) message(sprintf("iter=%d, est=%f, low=%f, high=%f:",i,g,low,high))
    z=passed(g)
    if(z){
     low <- g
@@ -353,7 +354,6 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 #  out <- c(i,g,low,high,z)
 #  names(out) <- c("iters","est","low","high","z")
 #  message_print(out)
-   if(verbose>1) message(sprintf("iter= %d, est=%f, low=%f, high=%f, test=%d.",i,g,low,high,z))
   }
   low
 }
