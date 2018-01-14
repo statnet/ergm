@@ -47,6 +47,7 @@
 #' @param network.output R class with which to output networks. The options are
 #' "network" (default) and "edgelist.compressed" (which saves space but only
 #' supports networks without vertex attributes)
+#' @template term_options
 #' @template control_MCMC_parallel
 #' @template seed
 #' @return A list with arguments as components.
@@ -70,10 +71,13 @@ control.san<-function(coef=NULL,
 
                       network.output="network",
 
+                      term.options=list(),
+
                       seed=NULL,
                       parallel=0,
                       parallel.type=NULL,
-                      parallel.version.check=TRUE){
+                      parallel.version.check=TRUE,
+                      parallel.inherit.MT=FALSE){
   control<-list()
   for(arg in names(formals(sys.function())))
     control[arg]<-list(get(arg))

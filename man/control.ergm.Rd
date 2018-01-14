@@ -14,23 +14,23 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MCMC.samplesize = 1024, MCMC.effectiveSize = NULL,
   MCMC.effectiveSize.damp = 10, MCMC.effectiveSize.maxruns = 1000,
   MCMC.effectiveSize.base = 1/2, MCMC.effectiveSize.points = 5,
-  MCMC.effectiveSize.order = 1, MCMC.effectiveSize.burnin.pval = 0.05,
+  MCMC.effectiveSize.order = 1, MCMC.effectiveSize.burnin.pval = 0.2,
   MCMC.return.stats = TRUE, MCMC.runtime.traceplot = FALSE,
   MCMC.init.maxedges = 20000, MCMC.max.maxedges = Inf,
   MCMC.addto.se = TRUE, MCMC.compress = FALSE, MCMC.packagenames = c(),
   SAN.maxit = 10, SAN.burnin.times = 10, SAN.control = control.san(coef =
-  init, SAN.prop.weights = MCMC.prop.weights, SAN.prop.args = MCMC.prop.args,
-  SAN.init.maxedges = MCMC.init.maxedges, SAN.burnin = MCMC.burnin *
-  SAN.burnin.times, SAN.interval = MCMC.interval, SAN.packagenames =
-  MCMC.packagenames, MPLE.max.dyad.types = MPLE.max.dyad.types, parallel =
-  parallel, parallel.type = parallel.type, parallel.version.check =
-  parallel.version.check), MCMLE.termination = c("Hummel", "Hotelling",
-  "precision", "confidence", "none"), MCMLE.maxit = 20,
-  MCMLE.conv.min.pval = 0.5, MCMLE.confidence = 0.99,
-  MCMLE.confidence.boost = 2, MCMLE.confidence.boost.threshold = 1,
-  MCMLE.confidence.boost.lag = 4, MCMLE.NR.maxit = 100,
-  MCMLE.NR.reltol = sqrt(.Machine$double.eps), obs.MCMC.mul = 1/4,
-  obs.MCMC.samplesize.mul = sqrt(obs.MCMC.mul),
+  init, term.options = term.options, SAN.prop.weights = MCMC.prop.weights,
+  SAN.prop.args = MCMC.prop.args, SAN.init.maxedges = MCMC.init.maxedges,
+  SAN.burnin = MCMC.burnin * SAN.burnin.times, SAN.interval = MCMC.interval,
+  SAN.packagenames = MCMC.packagenames, MPLE.max.dyad.types =
+  MPLE.max.dyad.types, parallel = parallel, parallel.type = parallel.type,
+  parallel.version.check = parallel.version.check),
+  MCMLE.termination = c("Hummel", "Hotelling", "precision", "confidence",
+  "none"), MCMLE.maxit = 20, MCMLE.conv.min.pval = 0.5,
+  MCMLE.confidence = 0.99, MCMLE.confidence.boost = 2,
+  MCMLE.confidence.boost.threshold = 1, MCMLE.confidence.boost.lag = 4,
+  MCMLE.NR.maxit = 100, MCMLE.NR.reltol = sqrt(.Machine$double.eps),
+  obs.MCMC.mul = 1/4, obs.MCMC.samplesize.mul = sqrt(obs.MCMC.mul),
   obs.MCMC.samplesize = round(MCMC.samplesize * obs.MCMC.samplesize.mul),
   obs.MCMC.effectiveSize = NVL3(MCMC.effectiveSize, . * obs.MCMC.mul),
   obs.MCMC.interval.mul = sqrt(obs.MCMC.mul),
@@ -56,6 +56,7 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MCMLE.last.boost = 4, MCMLE.Hummel.esteq = TRUE,
   MCMLE.Hummel.miss.sample = 100, MCMLE.Hummel.maxit = if
   (MCMLE.steplength.margin < 0) 5 else 25, MCMLE.steplength.min = 1e-04,
+  MCMLE.effectiveSize.interval_drop = 2, MCMLE.save_intermediates = NULL,
   SA.phase1_n = NULL, SA.initial_gain = NULL, SA.nsubphases = 4,
   SA.niterations = NULL, SA.phase3_n = NULL, SA.trustregion = 0.5,
   RM.phase1n_base = 7, RM.phase2n_base = 100, RM.phase2sub = 7,
@@ -71,8 +72,9 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   CD.adaptive.trustregion = 3, CD.adaptive.epsilon = 0.01,
   CD.Hummel.esteq = TRUE, CD.Hummel.miss.sample = 100,
   CD.Hummel.maxit = 25, CD.steplength.min = 1e-04,
-  loglik.control = control.logLik.ergm(), seed = NULL, parallel = 0,
-  parallel.type = NULL, parallel.version.check = TRUE, ...)
+  loglik.control = control.logLik.ergm(), term.options = list(),
+  seed = NULL, parallel = 0, parallel.type = NULL,
+  parallel.version.check = TRUE, parallel.inherit.MT = FALSE, ...)
 }
 \arguments{
 \item{drop}{Logical: If TRUE, terms whose observed statistic values are at
@@ -203,10 +205,13 @@ convergence.}
 \item{MCMC.runtime.traceplot}{Logical: If TRUE, plot traceplots of the MCMC
 sample after every MCMC MLE iteration.}
 
-\item{MCMC.init.maxedges, MCMC.max.maxedges}{Maximum number of edges expected
-in network. Starting at \code{MCMC.init.maxedges}, it will be incremented by
-a factor of 10 if exceeded during fitting, up to \code{MCMC.max.maxedges},
-at which point the process will stop with an error.}
+\item{MCMC.init.maxedges, MCMC.max.maxedges}{These parameters
+control how much space is allocated for storing edgelists for
+return at the end of MCMC sampling. Allocating more than needed
+wastes memory, so \code{MCMC.init.maxedges} is the initial amount
+allocated, but it will be incremented by a factor of 10 if
+exceeded during the simulation, up to \code{MCMC.max.maxedges}, at
+which point the process will stop with an error.}
 
 \item{MCMC.addto.se}{Whether to add the standard errors induced by the MCMC
 algorithm to the estimates' standard errors.}
@@ -372,11 +377,10 @@ whose number of edges is exceeds the observed network by more than
 \code{MCMLE.density.guard}, the optimization process will be stopped with an
 error.}
 
-\item{MCMLE.effectiveSize, MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.order, MCMC.effectiveSize.burnin.pval}{Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively
-determine the burn-in and the MCMC length needed to get the
-specified effective size using the method of Sahlin (2011); 50 is
-a reasonable value.  This feature is in experimental status until
-we verify the coverage of the standard errors.}
+\item{MCMLE.effectiveSize, MCMLE.effectiveSize.interval_drop, MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.order}{Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively determine the
+burn-in and the MCMC length needed to get the specified effective size using
+the method of Sahlin (2011); 50 is a reasonable value.  This feature is in
+experimental status until we verify the coverage of the standard errors.}
 
 \item{obs.MCMLE.effectiveSize, obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.mul, obs.MCMC.samplesize.mul, obs.MCMC.burnin.mul, obs.MCMC.interval.mul, obs.MCMC.effectiveSize}{Sample size, burnin, and interval parameters for the MCMC
 sampling used when unobserved data are present in the estimation
@@ -418,6 +422,13 @@ best step length.}
 
 \item{MCMLE.steplength.min}{Stops MCMLE estimation when the step length gets
 stuck below this minimum value.}
+
+\item{MCMLE.save_intermediates}{Every iteration, after MCMC
+sampling, save the MCMC sample and some miscellaneous information
+to a file with this name. The name is passed through \code{\link[=sprintf]{sprintf()}}
+with iteration number as the second argument. (So, for example,
+\code{MCMLE.save_intermediates="step_\%03d.RData"} will save to
+\code{step_001.RData}, \code{step_002.RData}, etc.)}
 
 \item{SA.phase1_n}{Number of MCMC samples to draw in Phase 1 of the
 stochastic approximation algorithm.  Defaults to 7 plus 3 times the number
@@ -506,6 +517,8 @@ Note that only the Hotelling's stopping criterion is implemented for CD.}
 
 \item{loglik.control}{See \code{\link{control.ergm.bridge}}}
 
+\item{term.options}{A list of additional arguments to be passed to term initializers.}
+
 \item{seed}{Seed value (integer) for the random number generator.  See
 \code{\link[base]{set.seed}}.}
 
@@ -520,6 +533,9 @@ package with PSOCK clusters. See \code{\link{ergm-parallel}}}
 \item{parallel.version.check}{Logical: If TRUE, check that the version of
 \code{\link[=ergm-package]{ergm}} running on the slave nodes is the same as
 that running on the master node.}
+
+\item{parallel.inherit.MT}{Logical: If TRUE, slave nodes and
+processes inherit the \code{\link[=set.MT_terms]{set.MT_terms()}} setting.}
 
 \item{\dots}{Additional arguments, passed to other functions This argument
 is helpful because it collects any control parameters that have been

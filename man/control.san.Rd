@@ -8,8 +8,10 @@ control.san(coef = NULL, SAN.tau = 1, SAN.invcov = NULL,
   SAN.burnin = 1e+05, SAN.interval = 10000, SAN.init.maxedges = 20000,
   SAN.prop.weights = "default", SAN.prop.args = list(),
   SAN.packagenames = c(), MPLE.max.dyad.types = 1e+06,
-  MPLE.samplesize = 50000, network.output = "network", seed = NULL,
-  parallel = 0, parallel.type = NULL, parallel.version.check = TRUE)
+  MPLE.samplesize = 50000, network.output = "network",
+  term.options = list(), seed = NULL, parallel = 0,
+  parallel.type = NULL, parallel.version.check = TRUE,
+  parallel.inherit.MT = FALSE)
 }
 \arguments{
 \item{coef}{Vector of model coefficients used for MCMC simulations, one for
@@ -54,6 +56,8 @@ conditional-on-degree version of MPLE.}
 "network" (default) and "edgelist.compressed" (which saves space but only
 supports networks without vertex attributes)}
 
+\item{term.options}{A list of additional arguments to be passed to term initializers.}
+
 \item{seed}{Seed value (integer) for the random number generator.  See
 \code{\link[base]{set.seed}}.}
 
@@ -68,6 +72,9 @@ package with PSOCK clusters. See \code{\link{ergm-parallel}}}
 \item{parallel.version.check}{Logical: If TRUE, check that the version of
 \code{\link[=ergm-package]{ergm}} running on the slave nodes is the same as
 that running on the master node.}
+
+\item{parallel.inherit.MT}{Logical: If TRUE, slave nodes and
+processes inherit the \code{\link[=set.MT_terms]{set.MT_terms()}} setting.}
 }
 \value{
 A list with arguments as components.

@@ -89,8 +89,10 @@ overhead. See below for a list of the major factors affecting
 whether it is worthwhile.}}
 
 Generally, the two approaches should not be used at the same time
-without caution. Their relative advantages and disadvantages are as
-follows:
+without caution. In particular, by default, cluster slave nodes
+will not \dQuote{inherit} the multithreading setting; but
+\code{parallel.inherit.MT=} control parameter can override that. Their
+relative advantages and disadvantages are as follows:
 \itemize{
 \item Multithreading terms cannot take advantage of clusters but only
 of CPUs and cores.

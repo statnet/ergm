@@ -46,8 +46,10 @@
 #' whether it is worthwhile.}}
 #'
 #' Generally, the two approaches should not be used at the same time
-#' without caution. Their relative advantages and disadvantages are as
-#' follows:
+#' without caution. In particular, by default, cluster slave nodes
+#' will not \dQuote{inherit} the multithreading setting; but
+#' `parallel.inherit.MT=` control parameter can override that. Their
+#' relative advantages and disadvantages are as follows:
 #'
 #' * Multithreading terms cannot take advantage of clusters but only
 #'   of CPUs and cores.
@@ -188,7 +190,7 @@ myLibLoc <- function()
 #'
 #' @export
 ergm.getCluster <- function(control, verbose=FALSE){
-  if(get.MT_terms()) warning("Using term multithreading in combination with parallel MCMC is generally not advised. See help('ergm-parallel') for more information.")
+  if(get.MT_terms() && control$parallel.inherit.MT==FALSE) warning("Using term multithreading in combination with parallel MCMC is generally not advised. See help('ergm-parallel') for more information.")
   
   if(inherits(control$parallel,"cluster")){
     ergm.cluster.started(FALSE)
@@ -265,6 +267,11 @@ ergm.getCluster <- function(control, verbose=FALSE){
       
       if(!all(sapply(slave.versions,identical,master.version)))
         stop("The version of ",pkg, " attached on one or more slave nodes is different from from that on the master node (this node). Make sure that the same version is installed on all nodes. If you are absolutely certain that this message is in error, override with the parallel.version.check=FALSE control parameter.")
+    }
+
+    if(control$parallel.inherit.MT && ERRVL(try(get.MT_terms()), 0)!=0){
+      clusterCall(cl, set.MT_terms,
+                  get.MT_terms())
     }
   }
   cl

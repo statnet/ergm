@@ -89,19 +89,21 @@ ergm.MCMLE <- function(init, nw, model,
     1)
   
   # Store information about original network, which will be returned at end
-  nw.orig <- network.copy(nw)
+  nw.orig <- nw
 
   # Impute missing dyads.
-  nw <- single.impute.dyads(nw, response=response, constraints=MHproposal$arguments$constraints, constraints.obs=MHproposal.obs$arguments$constraints)
+  nw <- single.impute.dyads(nw, response=response, constraints=MHproposal$arguments$constraints, constraints.obs=MHproposal.obs$arguments$constraints, output="pending", verbose=verbose)
+  ec <- if(is(nw, "network")) network.edgecount(nw, FALSE)
+        else nrow(as.edgelist(nw))
   model$nw.stats <- ergm.getglobalstats(nw, model, response=response)
-
+  
   if(control$MCMLE.density.guard>1){
     # Calculate the density guard threshold.
     control$MCMC.max.maxedges <- round(min(control$MCMC.max.maxedges,
-                                           max(control$MCMLE.density.guard*network.edgecount(nw,FALSE),
+                                           max(control$MCMLE.density.guard*ec,
                                                control$MCMLE.density.guard.min)))
     control$MCMC.init.maxedges <- round(min(control$MCMC.max.maxedges, control$MCMC.init.maxedges))
-    if(verbose) message("Density guard set to ",control$MCMC.max.maxedges," from an initial count of ",network.edgecount(nw,FALSE)," edges.")
+    if(verbose) message("Density guard set to ",control$MCMC.max.maxedges," from an initial count of ",ec," edges.")
   }  
 
   nws <- rep(list(nw),nthreads) # nws is now a list of networks.
@@ -130,7 +132,7 @@ ergm.MCMLE <- function(init, nw, model,
     control.obs$MCMC.interval <- control$obs.MCMC.interval
     control.obs$MCMC.burnin <- control$obs.MCMC.burnin
 
-    nws.obs <- lapply(nws, network::network.copy)
+    nws.obs <- lapply(nws, identity)
     statshifts.obs <- statshifts
   }
 
@@ -186,10 +188,10 @@ ergm.MCMLE <- function(init, nw, model,
     # observed statistics or, if given, the alternative target.stats
     # (i.e., the estimation goal is to use the statsmatrix to find 
     # parameters that will give a mean vector of zero)
-    statsmatrices <- mapply(sweep, z$statsmatrices, statshifts, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
-    for(i in seq_along(statsmatrices)) colnames(statsmatrices[[i]]) <- model$coef.names
+    statsmatrices <- as.mcmc.list(mapply(sweep, z$statsmatrices, statshifts, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE))
+    varnames(statsmatrices) <- model$coef.names
     nws.returned <- z$newnetworks
-    statsmatrix <- do.call(rbind,statsmatrices)
+    statsmatrix <- as.matrix(statsmatrices)
     
     if(verbose){
       message("Back from unconstrained MCMC. Average statistics:")
@@ -202,10 +204,10 @@ ergm.MCMLE <- function(init, nw, model,
       
       if(z.obs$status==1) stop("Number of edges in the simulated network exceeds that observed by a large factor (",control$MCMC.max.maxedges,"). This is a strong indication of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
       
-      statsmatrices.obs <- mapply(sweep, z.obs$statsmatrices, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
-      for(i in seq_along(statsmatrices.obs)) colnames(statsmatrices.obs[[i]]) <- model$coef.names
+      statsmatrices.obs <- as.mcmc.list(mapply(sweep, z.obs$statsmatrices, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE))
+      varnames(statsmatrices.obs) <- model$coef.names
       nws.obs.returned <- z.obs$newnetworks
-      statsmatrix.obs <- do.call(rbind,statsmatrices.obs)
+      statsmatrix.obs <- as.matrix(statsmatrices.obs)
       
       if(verbose){
         message("Back from constrained MCMC. Average statistics:")
@@ -226,18 +228,25 @@ ergm.MCMLE <- function(init, nw, model,
       }      
     }
 
+    if(!is.null(control$MCMLE.save_intermediates)){
+      if(obs) save(nws, nws.obs, statshifts, statshifts.obs, coef.hist, stats.hist, stats.obs.hist, steplen.hist, file=sprintf(control$MCMLE.save_intermediates, iteration))
+      else save(nws, statshifts, coef.hist, stats.hist, steplen.hist, file=sprintf(control$MCMLE.save_intermediates, iteration))
+    }
+
     # Compute the sample estimating equations and the convergence p-value. 
-    esteq <- .ergm.esteq(mcmc.init, model, statsmatrix)
+    esteqs <- lapply.mcmc.list(statsmatrices, .ergm.esteq, theta=mcmc.init, model=model)
+    esteq <- as.matrix(esteqs)
     if(isTRUE(all.equal(apply(esteq,2,stats::sd), rep(0,ncol(esteq)), check.names=FALSE))&&!all(esteq==0))
       stop("Unconstrained MCMC sampling did not mix at all. Optimization cannot continue.")
-    esteq.obs <- if(obs) .ergm.esteq(mcmc.init, model, statsmatrix.obs) else NULL
+    esteqs.obs <- if(obs) lapply.mcmc.list(statsmatrices.obs, .ergm.esteq, theta=mcmc.init, model=model) else NULL
+    esteq.obs <- if(obs) as.matrix(esteqs.obs) else NULL
 
     # Update the interval to be used.
     if(!is.null(control$MCMC.effectiveSize)){
-      control$MCMC.interval <- round(max(z$final.interval,2)/2)
+      control$MCMC.interval <- round(max(z$final.interval/control$MCMLE.effectiveSize.interval_drop,1))
       if(verbose) message("New interval = ",control$MCMC.interval,".")
       if(obs){
-        control.obs$MCMC.interval <- round(max(z.obs$final.interval,2)/2)
+        control.obs$MCMC.interval <- round(max(z.obs$final.interval/control$MCMLE.effectiveSize.interval_drop,1))
         if(verbose) message("New constrained interval = ",control.obs$MCMC.interval,".")
       }
     }
@@ -256,7 +265,7 @@ ergm.MCMLE <- function(init, nw, model,
       if(verbose){message("Skipping optimization routines...")}
       nws.returned <- lapply(nws.returned, newnw.extract, response=response)
       l <- list(coef=mcmc.init, mc.se=rep(NA,length=length(mcmc.init)),
-                sample=statsmatrix, sample.obs=statsmatrix.obs,
+                sample=statsmatrices, sample.obs=statsmatrices.obs,
                 iterations=1, MCMCtheta=mcmc.init,
                 loglikelihood=NA, #mcmcloglik=NULL, 
                 mle.lik=NULL,
@@ -292,8 +301,8 @@ ergm.MCMLE <- function(init, nw, model,
         #   statistics that are not needed until output
         #
         v<-ergm.estimate(init=mcmc.init, model=model,
-                         statsmatrix=statsmatrix, 
-                         statsmatrix.obs=statsmatrix.obs, 
+                         statsmatrices=statsmatrices, 
+                         statsmatrices.obs=statsmatrices.obs, 
                          epsilon=control$epsilon,
                          nr.maxit=control$MCMLE.NR.maxit,
                          nr.reltol=control$MCMLE.NR.reltol,
@@ -362,8 +371,8 @@ ergm.MCMLE <- function(init, nw, model,
       
       # Use estimateonly=TRUE if this is not the last iteration.
       v<-ergm.estimate(init=mcmc.init, model=model,
-                       statsmatrix=statsmatrix, 
-                       statsmatrix.obs=statsmatrix.obs, 
+                       statsmatrices=statsmatrices, 
+                       statsmatrices.obs=statsmatrices.obs, 
                        epsilon=control$epsilon,
                        nr.maxit=control$MCMLE.NR.maxit,
                        nr.reltol=control$MCMLE.NR.reltol,
@@ -393,11 +402,11 @@ ergm.MCMLE <- function(init, nw, model,
     coef.hist <- rbind(coef.hist, mcmc.init)
     stats.obs.hist <- NVL3(statsmatrix.obs, rbind(stats.obs.hist, apply(.[], 2, base::mean)))
     stats.hist <- rbind(stats.hist, apply(statsmatrix, 2, base::mean))
-    
+
     # This allows premature termination.
     
     if(control$MCMLE.termination=='Hotelling'){
-      conv.pval <- ERRVL(try(approx.hotelling.diff.test(esteq, esteq.obs)$p.value), NA)
+      conv.pval <- ERRVL(try(approx.hotelling.diff.test(esteqs, esteqs.obs)$p.value), NA)
       message("Nonconvergence test p-value:",conv.pval,"")
       # I.e., so that the probability of one false nonconvergence in two successive iterations is control$MCMLE.conv.min.pval (sort of).
       if(!is.na(conv.pval) && conv.pval>=1-sqrt(1-control$MCMLE.conv.min.pval)){
@@ -434,7 +443,7 @@ ergm.MCMLE <- function(init, nw, model,
           d2.not.improved[] <- FALSE
         }
       }else{
-        hotel <- try(approx.hotelling.diff.test(esteq, esteq.obs))
+        hotel <- try(approx.hotelling.diff.test(esteqs, esteqs.obs))
         if(inherits(hotel, "try-error")){ # Within tolerance ellipsoid, but cannot be tested.
           message("Unable to test for convergence; increasing sample size.")
           .boost_samplesize(control$MCMLE.confidence.boost)
@@ -534,8 +543,8 @@ ergm.MCMLE <- function(init, nw, model,
   # object returned by ergm.estimate.  Instead, it is more transparent
   # if we build the output object (v) from scratch, of course using 
   # some of the info returned from ergm.estimate.
-  v$sample <- ergm.sample.tomcmc(statsmatrix, control) 
-  if(obs) v$sample.obs <- ergm.sample.tomcmc(statsmatrix.obs, control)
+  v$sample <- statsmatrices
+  if(obs) v$sample.obs <- statsmatrices.obs
   
   nws.returned <- lapply(nws.returned, newnw.extract, response=response)
   v$network <- nw.orig

@@ -103,7 +103,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
 
 # model <- ergm.getmodel(formula, nw, drop=control$drop)
   MHproposal<-MHproposal(constraints,arguments=control$SAN.prop.args,nw=nw,weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
-  model <- ergm.getmodel(formula, nw, response=response, extra.aux=list(MHproposal$auxiliaries))
+  model <- ergm.getmodel(formula, nw, response=response, extra.aux=list(MHproposal$auxiliaries), term.options=control$term.options)
   Clist <- ergm.Cprepare(nw, model, response=response)
   
   verb <- match(verbose,

@@ -8,8 +8,10 @@ control.logLik.ergm(nsteps = 20, MCMC.burnin = NULL, MCMC.interval = NULL,
   MCMC.samplesize = NULL, obs.MCMC.samplesize = MCMC.samplesize,
   obs.MCMC.interval = MCMC.interval, obs.MCMC.burnin = MCMC.burnin,
   MCMC.prop.weights = NULL, MCMC.prop.args = NULL, warn.dyads = TRUE,
-  MCMC.init.maxedges = NULL, MCMC.packagenames = NULL, seed = NULL,
-  parallel = NULL, parallel.type = NULL, parallel.version.check = TRUE)
+  MCMC.init.maxedges = NULL, MCMC.packagenames = NULL,
+  term.options = list(), seed = NULL, parallel = NULL,
+  parallel.type = NULL, parallel.version.check = TRUE,
+  parallel.inherit.MT = FALSE)
 }
 \arguments{
 \item{nsteps}{Number of geometric bridges to use.}
@@ -52,6 +54,8 @@ space constraints render the observed number of dyads ill-defined.}
 statistic functions in addition to those autodetected. This argument should
 not be needed outside of very strange setups.}
 
+\item{term.options}{A list of additional arguments to be passed to term initializers.}
+
 \item{seed}{Seed value (integer) for the random number generator.  See
 \code{\link[base]{set.seed}}.}
 
@@ -66,6 +70,9 @@ package with PSOCK clusters. See \code{\link{ergm-parallel}}}
 \item{parallel.version.check}{Logical: If TRUE, check that the version of
 \code{\link[=ergm-package]{ergm}} running on the slave nodes is the same as
 that running on the master node.}
+
+\item{parallel.inherit.MT}{Logical: If TRUE, slave nodes and
+processes inherit the \code{\link[=set.MT_terms]{set.MT_terms()}} setting.}
 }
 \value{
 A list with arguments as components.

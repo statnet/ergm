@@ -2,7 +2,7 @@
 % Please edit documentation in R/approx.hotelling.diff.test.R
 \name{approx.hotelling.diff.test}
 \alias{approx.hotelling.diff.test}
-\title{Approximate Hotelling T^2-Test for One Sample Means}
+\title{Approximate Hotelling T^2-Test for One or Two Population Means}
 \usage{
 approx.hotelling.diff.test(x, y = NULL, mu0 = 0, assume.indep = FALSE,
   var.equal = FALSE)

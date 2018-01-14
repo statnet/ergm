@@ -119,14 +119,12 @@
 #' Metropolis-Hastings algorithm.  Increasing sample size may increase the
 #' precision in the estimates by reducing MCMC error, at the expense of time.
 #' Set it higher for larger networks, or when using parallel functionality.
-#' 
 #' @param
-#'   MCMLE.effectiveSize,MCMC.effectiveSize,MCMC.effectiveSize.damp,MCMC.effectiveSize.maxruns,MCMC.effectiveSize.base,MCMC.effectiveSize.points,MCMC.effectiveSize.order,MCMC.effectiveSize.burnin.pval
-#'   Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively
-#'   determine the burn-in and the MCMC length needed to get the
-#'   specified effective size using the method of Sahlin (2011); 50 is
-#'   a reasonable value.  This feature is in experimental status until
-#'   we verify the coverage of the standard errors.
+#' MCMLE.effectiveSize,MCMLE.effectiveSize.interval_drop,MCMC.effectiveSize,MCMC.effectiveSize.damp,MCMC.effectiveSize.maxruns,MCMC.effectiveSize.base,MCMC.effectiveSize.points,MCMC.effectiveSize.order
+#' Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively determine the
+#' burn-in and the MCMC length needed to get the specified effective size using
+#' the method of Sahlin (2011); 50 is a reasonable value.  This feature is in
+#' experimental status until we verify the coverage of the standard errors.
 #' 
 #' @param MCMC.return.stats Logical: If TRUE, return the matrix of MCMC-sampled
 #' network statistics.  This matrix should have \code{MCMC.samplesize} rows.
@@ -134,10 +132,13 @@
 #' convergence.
 #' @param MCMC.runtime.traceplot Logical: If TRUE, plot traceplots of the MCMC
 #' sample after every MCMC MLE iteration.
-#' @param MCMC.init.maxedges,MCMC.max.maxedges Maximum number of edges expected
-#' in network. Starting at \code{MCMC.init.maxedges}, it will be incremented by
-#' a factor of 10 if exceeded during fitting, up to \code{MCMC.max.maxedges},
-#' at which point the process will stop with an error.
+#' @param MCMC.init.maxedges,MCMC.max.maxedges These parameters
+#'   control how much space is allocated for storing edgelists for
+#'   return at the end of MCMC sampling. Allocating more than needed
+#'   wastes memory, so `MCMC.init.maxedges` is the initial amount
+#'   allocated, but it will be incremented by a factor of 10 if
+#'   exceeded during the simulation, up to `MCMC.max.maxedges`, at
+#'   which point the process will stop with an error.
 #' @param MCMC.addto.se Whether to add the standard errors induced by the MCMC
 #' algorithm to the estimates' standard errors.
 #' @param MCMC.compress Logical: If TRUE, the matrix of sample statistics
@@ -308,6 +309,14 @@
 #' This parameter specifies the sample size.
 #' @param MCMLE.Hummel.maxit Maximum number of iterations in searching for the
 #' best step length.
+#' 
+#' @param MCMLE.save_intermediates Every iteration, after MCMC
+#'   sampling, save the MCMC sample and some miscellaneous information
+#'   to a file with this name. The name is passed through [sprintf()]
+#'   with iteration number as the second argument. (So, for example,
+#'   `MCMLE.save_intermediates="step_%03d.RData"` will save to
+#'   `step_001.RData`, `step_002.RData`, etc.)
+#'
 #' @param SA.phase1_n Number of MCMC samples to draw in Phase 1 of the
 #' stochastic approximation algorithm.  Defaults to 7 plus 3 times the number
 #' of terms in the model.  See Snijders (2002) for details.
@@ -387,6 +396,7 @@
 #' 
 #' Note that only the Hotelling's stopping criterion is implemented for CD.
 #' @param loglik.control See \code{\link{control.ergm.bridge}}
+#' @template term_options
 #' @template control_MCMC_parallel
 #' @template seed
 #' @template control_MCMC_packagenames
@@ -450,7 +460,7 @@ control.ergm<-function(drop=TRUE,
                        MCMC.effectiveSize.base=1/2,
                        MCMC.effectiveSize.points=5,
                        MCMC.effectiveSize.order=1,
-                       MCMC.effectiveSize.burnin.pval=0.05,
+                       MCMC.effectiveSize.burnin.pval=0.2,
                        MCMC.return.stats=TRUE,
                        MCMC.runtime.traceplot=FALSE,
                        MCMC.init.maxedges=20000,
@@ -462,6 +472,7 @@ control.ergm<-function(drop=TRUE,
                        SAN.maxit=10,
                        SAN.burnin.times=10,
                        SAN.control=control.san(coef=init,
+                         term.options=term.options,
                          SAN.prop.weights=MCMC.prop.weights,
                          SAN.prop.args=MCMC.prop.args,
                          SAN.init.maxedges=MCMC.init.maxedges,
@@ -521,6 +532,8 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.Hummel.miss.sample=100,
                        MCMLE.Hummel.maxit=if(MCMLE.steplength.margin<0) 5 else 25,
                        MCMLE.steplength.min=0.0001,
+                       MCMLE.effectiveSize.interval_drop=2,
+                       MCMLE.save_intermediates=NULL,
                        
                        SA.phase1_n=NULL, SA.initial_gain=NULL, 
                        SA.nsubphases=4,
@@ -565,10 +578,13 @@ control.ergm<-function(drop=TRUE,
                        
                        loglik.control=control.logLik.ergm(),
 
+                       term.options=list(),
+
                        seed=NULL,
                        parallel=0,
                        parallel.type=NULL,
                        parallel.version.check=TRUE,
+                       parallel.inherit.MT=FALSE,
                        
                        ...
                        ){

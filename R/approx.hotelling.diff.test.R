@@ -25,7 +25,7 @@
 
 
 
-#' Approximate Hotelling T^2-Test for One Sample Means
+#' Approximate Hotelling T^2-Test for One or Two Population Means
 #' 
 #' A multivariate hypothesis test for a single population mean or a
 #' difference between them. This version attempts to adjust for
@@ -82,27 +82,19 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
   
   mywithin <- function(data, ...) within(data, ...) # This is a workaround suggsted by Duncan Murdoch: calling lapply(X, within, {CODE}) would leave CODE unable to see any objects in f.
   vars <- lapply(vars, mywithin, {
-    vcovs.indep <- lapply(v, cov)
+    vm <- as.matrix(v)
+    vcov.indep <- cov(vm)
     if(assume.indep){
-      vcovs <- vcovs.indep
+      vcov <- vcov.indep
     }else{
-      vcovs <- lapply(lapply(v, spectrum0.mvar), function(m) matrix(ifelse(is.na(c(m)), 0, c(m)),nrow(m),ncol(m)))
+      vcov <- ERRVL(try(spectrum0.mvar(v), silent=TRUE),
+                    stop("Unable to compute autocorrelation-adjusted standard errors."))
+      vcov[is.na(vcov)] <- 0
     }
-    ms <- lapply(v, base::colMeans)
-    m <- colMeans(as.matrix(v))
-    ns <- sapply(v,base::nrow)
-    n <- sum(ns)
-
-    # These are pooled estimates of the variance-covariance
-    # matrix. Note that the outer product of the difference between
-    # chain means (times n) is added on as well, because the chains
-    # are supposed to all have the same population mean. However, the
-    # divisor is then the combined sample size less 1, because we are
-    # assuming equal means.
-    vcov.indep <- Reduce("+", Map("+", Map("*", vcovs.indep, ns-1), Map("*", Map(outer, lapply(ms,"-",m), lapply(ms,"-",m)), ns) ))/(n-1)
-    vcov <- Reduce("+", Map("+", Map("*", vcovs, ns-1), Map("*", Map(outer, lapply(ms,"-",m), lapply(ms,"-",m)), ns) ))/(n-1)
-
-    infl <- tr(vcov) / tr(vcov.indep) # I.e., how much bigger is the trace of the variance-covariance after taking autocorrelation into account than before.
+    m <- colMeans(vm)
+    n <- nrow(vm)
+    
+    infl <- attr(vcov, "infl") # Use Vats, Flegal, and Jones (2015) estimate for ESS.
     neff <- n / infl
     
     vcov.m <- vcov/n # Here, vcov already incorporates the inflation due to autocorrelation.
@@ -225,7 +217,12 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE)
   x1 <- window(x, start=start(x), end=start(x) + frac1*x.len)
   x2 <- window(x, start=end(x) - frac2*x.len, end=end(x))
 
-  test <- approx.hotelling.diff.test(x1,x2,var.equal=TRUE) # When converged, the chain should have the same variance throughout.
+  test <-
+    ERRVL(try(approx.hotelling.diff.test(x1,x2,var.equal=TRUE), silent=TRUE),
+    {
+      warning("Multivariate Geweke diagnostic failed, probably due to insufficient sample size.", call.=FALSE, immediate.=TRUE)
+      test <- structure(list(p.value=NA), class="htest")
+    })
   if(is.na(test$p.value)) test$p.value <- 0 # Interpret too-small a sample size as insufficient burn-in.
 
   test$method <- paste("Multivariate extension to Geweke's burn-in convergence diagnostic")
@@ -262,12 +259,19 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE)
 #'   the transformed variance-covariance matrix is greater than this.
 #' @param ... additional arguments to [ar()].
 #'
+#' @return A square matrix with dimension equalling to the number of
+#'   columns of `x`, with an additional attribute `"infl"` giving the
+#'   factor by which the effective sample size is reduced due to
+#'   autocorrelation, according to the Vats, Flegal, and Jones (2015)
+#'   estimate for ESS.
+#' 
 #' @note [ar()] fails if `crossprod(x)` is singular,
 #' which is remedied by mapping the variables onto the principal
 #' components of `x`, dropping redundant dimentions.
 #' @export spectrum0.mvar
 spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machine$double.eps^0.5, ...){
-  x <- cbind(x)
+  breaks <- if(is.mcmc.list(x)) c(0,cumsum(sapply(x, niter))) else NULL
+  x <- as.matrix(x)
   n <- nrow(x)
   p <- ncol(x)
   
@@ -281,46 +285,165 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
     min(which(d>=0))-1
   }
   
-  if(ncol(x)){
-    # Map the variables onto their principal components, dropping
-    # redundant (linearly-dependent) dimensions. Here, we keep the
-    # eigenvectors such that the reciprocal condition number defined
-    # as s.min/s.max, where s.min and s.max are the smallest and the
-    # biggest singular values, respectively, is greater than the
-    # tolerance.
-    e <- eigen(cov(x), symmetric=TRUE)
-    Q <- e$vec[,sqrt(pmax(e$val,0)/max(e$val))>tol*2,drop=FALSE]
-    xr <- x%*%Q # Columns of xr are guaranteed to be linearly independent.
-    
-    # Calculate the time-series variance of the mean on the PC scale.
+  # Map the variables onto their principal components, dropping
+  # redundant (linearly-dependent) dimensions. Here, we keep the
+  # eigenvectors such that the reciprocal condition number defined
+  # as s.min/s.max, where s.min and s.max are the smallest and the
+  # biggest singular values, respectively, is greater than the
+  # tolerance.
+  e <- eigen(cov(x), symmetric=TRUE)
+  Q <- e$vectors[,sqrt(pmax(e$values,0)/max(e$values))>tol*2,drop=FALSE]
+  xr <- x%*%Q # Columns of xr are guaranteed to be linearly independent.
 
-    ord <- NVL(order.max, ceiling(10*log10(nrow(xr))))
+  ind.var <- cov(xr) # Get the sample variance of the transformed columns.
+
+  # Convert back into an mcmc.list object.
+  xr <-
+    if(!is.null(breaks)) do.call(mcmc.list,lapply(lapply(seq_along(breaks[-1]), function(i) xr[(breaks[i]+1):(breaks[i+1]),,drop=FALSE]), mcmc))
+    else as.mcmc.list(mcmc(xr))
+  
+  # Calculate the time-series variance of the mean on the PC scale.
+  ord <- NVL(order.max, ceiling(10*log10(niter(xr))))
+  arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, ...))
+  # If ar() failed or produced a variance matrix estimate that's
+  # not positive semidefinite, try with a lower order.
+  while((!is.null(arfit$error) || ERRVL(try(any(eigen(arfit$value$var.pred, only.values=TRUE)$values<0), silent=TRUE), TRUE)) && ord > 0){
+    ord <- ord - 1
+    if(ord<=0) stop("Unable to fit ar() even with order 1; this is likely to be due to insufficient sample size or a trend in the data.")
     arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, ...))
-    # If ar() failed or produced a variance matrix estimate that's
-    # not positive semidefinite, try with a lower order.
-    while((!is.null(arfit$error) || ERRVL(try(any(eigen(arfit$value$var.pred, only.values=TRUE)$values<0), silent=TRUE), TRUE)) && ord > 1){
-      ord <- ord - 1
-      arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, ...))
-    }
-    
-    arfit <- arfit$value
-    if(aic && arfit$order>(ord <- first_local_min(arfit$aic)-1)){
-      arfit <- ar(xr, aic=ord==0, order.max=max(ord,1)) # Workaround since ar() won't take order.max=0.
-    }
-    
-    arvar <- arfit$var.pred
-    arcoefs <- arfit$ar
-    arcoefs <- NVL2(dim(arcoefs), apply(arcoefs,2:3,base::sum), sum(arcoefs))
-    
-    adj <- diag(1,nrow=ncol(xr)) - arcoefs
-    iadj <- solve(adj)
-    v.var <- iadj %*% arvar %*% t(iadj)
-    
-    # Reverse the mapping for the variance estimate.
-    v.var <- Q%*%v.var%*%t(Q)
-    
-    v[!novar,!novar] <- v.var
   }
+  
+  arfit <- arfit$value
+  if(aic && arfit$order>(ord <- first_local_min(arfit$aic)-1)){
+    arfit <- ar(xr, aic=ord==0, order.max=max(ord,1)) # Workaround since ar() won't take order.max=0.
+  }
+  
+  arvar <- arfit$var.pred
+  arcoefs <- arfit$ar
+  arcoefs <- NVL2(dim(arcoefs), apply(arcoefs,2:3,base::sum), sum(arcoefs))
+  
+  adj <- diag(1,nrow=nvar(xr)) - arcoefs
+  iadj <- solve(adj)
+  v.var <- iadj %*% arvar %*% t(iadj)
+
+  infl <- exp((determinant(v.var)$modulus-determinant(ind.var)$modulus)/ncol(ind.var))
+  
+  # Reverse the mapping for the variance estimate.
+  v.var <- Q%*%v.var%*%t(Q)
+  
+  v[!novar,!novar] <- v.var
+  
+  attr(v, "infl") <- infl
   v
 }
 
+## Note: This code is derived from the stats package. It incorporates
+## patches that have been submitted to the R bugzilla. It uses the NA
+## padding trick to get the ar estimate for the combined MCMC samples.
+
+#' An ar.yw method for [`mcmc.list`] objects.
+#'
+#' @param x an [`mcmc.list`] object.
+#' @param aic,order.max,na.action,demean,series,... See [ar()]. 
+#'
+#' @method ar.yw mcmc.list
+#' @export
+ar.yw.mcmc.list <-
+    function (x, aic = TRUE, order.max = NULL, na.action = na.fail,
+              demean = TRUE, series = NULL, ...)
+{
+
+  x <- lapply(x, na.action)
+  na.action <- na.pass
+  x <- do.call(rbind, lapply(x, function(z) rbind(cbind(z), matrix(NA, niter(z), nvar(z)))))
+  ## Note: Assuming that the patch for stats is accepted, the
+  ## following code can be replaced with a call to ar.yw().
+    if(is.null(series)) series <- deparse(substitute(x))
+    xfreq <- frequency(x)
+    x <- as.matrix(x)
+    if(!is.numeric(x))
+        stop("'x' must be numeric")
+    if(any(is.na(x)!=is.na(x[,1]))) stop("NAs 'x' must be the the same row-wise")
+    nser <- ncol(x)
+    if (demean) {
+        xm <- colMeans(x, na.rm=TRUE)
+        x <- sweep(x, 2L, xm, check.margin=FALSE)
+    } else xm <- rep.int(0, nser)
+    n.used <- nrow(x)
+    n.obs <- sum(!is.na(x[,1])) # number of non-missing rows
+    order.max <- if (is.null(order.max))
+	min(n.obs - 1L, floor(10 * log10(n.obs))) else round(order.max)
+    if (order.max < 1L) stop("'order.max' must be >= 1")
+    else if (order.max >= n.obs) stop("'order.max' must be < 'n.obs'")
+    xacf <- acf(x, type = "covariance", lag.max = order.max, plot = FALSE,
+                demean = demean, na.action=na.pass)$acf
+        ## multivariate case
+        snames <- colnames(x)
+        A <- B <- array(0, dim = c(order.max + 1L, nser, nser))
+        A[1L, , ] <- B[1L, , ] <- diag(nser)
+        EA <- EB <- matrix(xacf[1L, , , drop = TRUE], dim(xacf)[2], dim(xacf)[3])
+        partialacf <- array(dim = c(order.max, nser, nser))
+        xaic <- numeric(order.max + 1L)
+        solve.yw <- function(m) {
+            # Solve Yule-Walker equations with Whittle's
+            # generalization of the Levinson(-Durbin) algorithm
+            betaA <- betaB <- 0
+            for (i in 0L:m) {
+                betaA <- betaA + A[i + 1L, , ] %*% xacf[m + 2L - i, , ]
+                betaB <- betaB + B[i + 1L, , ] %*% t(xacf[m + 2L - i, , ])
+            }
+            KA <- -t(qr.solve(t(EB), t(betaA)))
+            KB <- -t(qr.solve(t(EA), t(betaB)))
+            EB <<- (diag(nser) - KB %*% KA) %*% EB
+            EA <<- (diag(nser) - KA %*% KB) %*% EA
+            Aold <- A
+            Bold <- B
+            for (i in seq_len(m + 1L)) {
+                A[i + 1L, , ] <<- Aold[i + 1L, , ] + KA %*% Bold[m + 2L - i, , ]
+                B[i + 1L, , ] <<- Bold[i + 1L, , ] + KB %*% Aold[m + 2L - i, , ]
+            }
+        }
+        cal.aic <- function() { # omits mean params, that is constant adj
+            det <- abs(prod(diag(qr(EA)$qr)))
+            return(n.obs * log(det) + 2 * m * nser * nser)
+        }
+        cal.resid <- function() {
+            resid <- array(0, dim = c(n.used - order, nser))
+            for (i in 0L:order)
+                resid <- resid + x[(order - i + 1L):(n.used - i), , drop = FALSE] %*% t(ar[i + 1L, , ])
+            return(rbind(matrix(NA, order, nser), resid))
+        }
+        order <- 0L
+        for (m in 0L:order.max) {
+            xaic[m + 1L] <- if(all(eigen(EA, only.values=TRUE)$values>=0) && n.obs > nser * (m + 1L)) cal.aic() else Inf
+            if (!aic || xaic[m + 1L] == min(xaic[seq_len(m + 1L)])) {
+                ar <- A
+                order <- m
+                var.pred <- EA * n.obs/(n.obs - nser * (m + 1L))
+            }
+            if (m < order.max) {
+                solve.yw(m)
+                partialacf[m + 1L, , ] <- -A[m + 2L, , ]
+            }
+        }
+        xaic <- setNames(xaic - min(xaic), 0L:order.max)
+        resid <- cal.resid()
+        if(order) {
+            ar <- -ar[2L:(order + 1L), , , drop = FALSE]
+            dimnames(ar) <- list(seq_len(order), snames, snames)
+        } else ar <- array(0, dim = c(0L, nser, nser),
+                           dimnames = list(NULL, snames, snames))
+        dimnames(var.pred) <- list(snames, snames)
+        dimnames(partialacf) <- list(seq_len(order.max), snames, snames)
+        colnames(resid) <- colnames(x)
+
+    res <- list(order = order, ar = ar, var.pred = var.pred, x.mean  =  drop(xm),
+                aic  =  xaic, n.used = n.used, n.obs = n.obs, order.max = order.max,
+                partialacf = partialacf, resid = resid, method = "Yule-Walker",
+                series = series, frequency = xfreq, call = match.call())
+    if(nser == 1L && order)
+        res$asy.var.coef <-
+            solve(toeplitz(drop(xacf)[seq_len(order)]))*var.pred/n.obs
+    class(res) <- "ar"
+    res
+}

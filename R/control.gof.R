@@ -106,7 +106,8 @@ control.gof.formula<-function(nsim=100,
                               seed=NULL,
                               parallel=0,
                               parallel.type=NULL,
-                              parallel.version.check=TRUE){
+                              parallel.version.check=TRUE,
+                              parallel.inherit.MT=FALSE){
   control<-list()
   for(arg in names(formals(sys.function())))
     control[arg]<-list(get(arg))
@@ -136,7 +137,8 @@ control.gof.ergm<-function(nsim=100,
                            seed=NULL,
                            parallel=0,
                            parallel.type=NULL,
-                           parallel.version.check=TRUE){
+                           parallel.version.check=TRUE,
+                           parallel.inherit.MT=FALSE){
   control<-list()
   for(arg in names(formals(sys.function())))
     control[arg]<-list(get(arg))

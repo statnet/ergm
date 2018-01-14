@@ -732,7 +732,15 @@ equal to the number of (first mode) mutual partners of that pair.
     \item{Incoming Shared Partner (ISP)}{vertex \eqn{k} is an ISP shared partner of ordered pair \eqn{(i,j)} iff \eqn{k \to i, k \to j}{k->i, k->j}.}
   }
 
-Note that Robins et al. (2009) define closely related statistics to several of the above, using slightly different terminology.
+Note that Robins et al. (2009) define closely related statistics to
+several of the above, using slightly different terminology.
+
+This and related terms take an additional term option (via the
+   \code{control$term.option} list), \code{cache.sp} controlling whether the
+   implementation will cache the number of shared partners for each dyad
+   in the network. This has a memory cost but may significuantly speed
+   up calculation, particularly for denser networks.
+   
    }
 
   \item{\code{degrange(from, to=+Inf, by=NULL, homophily=FALSE)} (binary)  (undirected) (categorical nodal attribute)

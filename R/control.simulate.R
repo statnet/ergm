@@ -42,6 +42,7 @@
 #' @param network.output R class with which to output networks. The options are
 #' "network" (default) and "edgelist.compressed" (which saves space but only
 #' supports networks without vertex attributes)
+#' @template term_options
 #' @template control_MCMC_parallel
 #' @template control_MCMC_packagenames
 #' @param \dots Additional arguments, passed to other functions This argument
@@ -66,10 +67,13 @@ control.simulate.formula.ergm<-function(MCMC.burnin=10000,
 
                                                      MCMC.runtime.traceplot=FALSE,  
                                                      network.output="network",
+
+                                                     term.options=list(),
                                                      
                                                      parallel=0,
                                                      parallel.type=NULL,
                                                      parallel.version.check=TRUE,
+                                        parallel.inherit.MT=FALSE,
                                                      ...){
   old.controls <- list(
                        maxedges="MCMC.init.maxedges",
@@ -122,9 +126,12 @@ control.simulate.ergm<-function(MCMC.burnin=NULL,
                                 MCMC.runtime.traceplot=FALSE,
                                 network.output="network",
 
+                                term.options=NULL,
+                                
                                 parallel=0,
                                 parallel.type=NULL,
                                 parallel.version.check=TRUE,
+                                parallel.inherit.MT=FALSE,
                                 ...){
   old.controls <- list(
                        maxedges="MCMC.init.maxedges",
