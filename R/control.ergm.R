@@ -120,10 +120,9 @@
 #' precision in the estimates by reducing MCMC error, at the expense of time.
 #' Set it higher for larger networks, or when using parallel functionality.
 #' @param
-#' MCMLE.effectiveSize,MCMLE.effectiveSize.interval_drop,MCMC.effectiveSize,MCMC.effectiveSize.damp,MCMC.effectiveSize.maxruns,MCMC.effectiveSize.base,MCMC.effectiveSize.points,MCMC.effectiveSize.order
+#' MCMLE.effectiveSize,MCMLE.effectiveSize.interval_drop,MCMC.effectiveSize,MCMC.effectiveSize.damp,MCMC.effectiveSize.maxruns,MCMC.effectiveSize.base,MCMC.effectiveSize.points,MCMC.effectiveSize.order,MCMC.effectiveSize.burnin.pval
 #' Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively determine the
-#' burn-in and the MCMC length needed to get the specified effective size using
-#' the method of Sahlin (2011); 50 is a reasonable value.  This feature is in
+#' burn-in and the MCMC length needed to get the specified effective size; 50 is a reasonable value.  This feature is in
 #' experimental status until we verify the coverage of the standard errors.
 #' 
 #' @param MCMC.return.stats Logical: If TRUE, return the matrix of MCMC-sampled
