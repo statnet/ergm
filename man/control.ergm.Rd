@@ -377,9 +377,8 @@ whose number of edges is exceeds the observed network by more than
 \code{MCMLE.density.guard}, the optimization process will be stopped with an
 error.}
 
-\item{MCMLE.effectiveSize, MCMLE.effectiveSize.interval_drop, MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.order}{Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively determine the
-burn-in and the MCMC length needed to get the specified effective size using
-the method of Sahlin (2011); 50 is a reasonable value.  This feature is in
+\item{MCMLE.effectiveSize, MCMLE.effectiveSize.interval_drop, MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.order, MCMC.effectiveSize.burnin.pval}{Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively determine the
+burn-in and the MCMC length needed to get the specified effective size; 50 is a reasonable value.  This feature is in
 experimental status until we verify the coverage of the standard errors.}
 
 \item{obs.MCMLE.effectiveSize, obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.mul, obs.MCMC.samplesize.mul, obs.MCMC.burnin.mul, obs.MCMC.interval.mul, obs.MCMC.effectiveSize}{Sample size, burnin, and interval parameters for the MCMC

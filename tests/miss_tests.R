@@ -84,12 +84,12 @@ y.miss <- simulate(y~edges, coef=logit(0.01))
 y[as.edgelist(y.miss)] <- NA
 
 cat("Network statistics:\n")
-print(summary(y~edges+gwesp(0.5)))
+print(summary(y~edges+gwesp()))
 truth<-correct.edges.theta(y)
 cat("Correct estimate =",truth,"\n")
 
 set.seed(654)
-mcmcfit<-ergm(y~edges+gwesp(0.5), control=control.ergm(MCMLE.maxit=5))
+mcmcfit<-ergm(y~edges+gwesp(), control=control.ergm(MCMLE.maxit=5))
 summary(mcmcfit)
 stopifnot(abs(coef(mcmcfit)[1]-truth)/sqrt(mcmcfit$covar[1])<2)
 }, "missing data")

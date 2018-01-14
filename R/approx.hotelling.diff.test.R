@@ -94,7 +94,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
     m <- colMeans(vm)
     n <- nrow(vm)
     
-    infl <- attr(vcov, "infl") # Use Vats, Flegal, and Jones (2015) estimate for ESS.
+    infl <- if(assume.indep) 1 else attr(vcov, "infl")
     neff <- n / infl
     
     vcov.m <- vcov/n # Here, vcov already incorporates the inflation due to autocorrelation.
