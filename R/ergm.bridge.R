@@ -277,7 +277,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   if(is.null(coef.dind)){
     coef.dind <- coef(ergm.dind)[!ergm.dind$etamap$offsettheta]
     coef.dind <- ifelse(is.na(coef.dind),0,coef.dind)
-    llk.dind<--ergm.dind$glm$deviance/2 - -ergm.dind$glm$null.deviance/2
+    llk.dind<--ergm.dind$glm$deviance/2 - -ergm.dind$glm.null$deviance/2
   }else{
     lin.pred <- model.matrix(ergm.dind$glm) %*% coef.dind
     llk.dind <- 

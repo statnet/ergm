@@ -89,12 +89,12 @@ anova.ergmlist <- function (object, ..., eval.loglik=FALSE, scale = 0, test = "F
 #    Rdf <- c(object$glm$df.null, resdf,object$glm$df.residual, Rdf)
 #    df <- n - Rdf
 #    if(length(resdev>0))
-#      logl <- c(-object$glm$null.deviance/2, -resdev/2,-object$glm$deviance/2, logl)
-#    else logl <- c(-object$glm$null.deviance/2, -object$glm$deviance/2, logl)
+#      logl <- c(-object$glm.null$deviance/2, -resdev/2,-object$glm$deviance/2, logl)
+#    else logl <- c(-object$glm.null$deviance/2, -object$glm$deviance/2, logl)
 #  } else {
     df <- c(0, df)
 #   Rdf <- c(object$glm$df.null, Rdf)
-#   logl <- c(-object$glm$null.deviance/2, logl)
+#   logl <- c(-object$glm.null$deviance/2, logl)
     Rdf <- c(n, Rdf)
     logl <- c(logl.null, logl)
 #  }
