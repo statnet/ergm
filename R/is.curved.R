@@ -38,7 +38,7 @@ is.curved.NULL <- function(object, ...) FALSE # By convention.
 #' @rdname is.curved 
 #' @export
 is.curved.ergm_model <- function(object, ...){
-  any(object$etamap$canonical==0)
+  length(object$etamap$curved)>0
 }
 
 #' @rdname is.curved 
@@ -68,5 +68,5 @@ is.curved.formula<-function(object,response=NULL,basis=NULL,...){
 #' @rdname is.curved 
 #' @export
 is.curved.ergm<-function(object,...){
-  any(object$etamap$canonical==0)
+  length(object$etamap$curved)>0
 }
