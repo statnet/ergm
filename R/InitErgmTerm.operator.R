@@ -267,6 +267,7 @@ InitErgmTerm.Offset <- function(nw, arglist, response=NULL, ...){
 #' @param x an object representing a network.
 #' @param rule a string specifying how the network is to be
 #'   symmetrized; see [sna::symmetrize()] for details.
+#' @param ... additional arguments to [sna::symmetrize()].
 #' @export
 symmetrize <- function(x, rule=c("weak","strong","upper","lower"), ...){
   UseMethod("symmetrize")
@@ -286,9 +287,9 @@ symmetrize.default <- function(x, rule=c("weak","strong","upper","lower"), ...){
 #' A method for [`network`] objects, which preserves network and vertex attributes.
 #' 
 #' @export
-symmetrize.network <- function(x, rule=c("weak","strong","upper","lower")){
+symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), ...){
   rule <- match.arg(rule)
-  el <- sna::symmetrize(x, rule=rule, return.as.edgelist=TRUE)
+  el <- sna::symmetrize(x, rule=rule, return.as.edgelist=TRUE, ...)
   o <- network.initialize(network.size(x), directed=FALSE, bipartite=x%n%"bipartite", loops=has.loops(x), hyper=is.hyper(x), multiple=is.multiplex(x))
   el <- el[seq_len(nrow(el))/2,-3,drop=FALSE]
   o <- network.edgelist(el, o)

@@ -70,7 +70,7 @@ direct.network <- function(x, rule=c("both", "upper", "lower")){
 
   el <- as.edgelist(x)
   el <- switch(rule,
-               both = rbind(el, el[,2:1,drop=FASLSE]),
+               both = rbind(el, el[,2:1,drop=FALSE]),
                upper = cbind(pmin(el[,1],el[,2]),pmax(el[,1],el[,2])),
                lower = cbind(pmax(el[,1],el[,2]),pmin(el[,1],el[,2])))
   

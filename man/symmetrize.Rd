@@ -11,13 +11,16 @@ symmetrize(x, rule = c("weak", "strong", "upper", "lower"), ...)
 \method{symmetrize}{default}(x, rule = c("weak", "strong", "upper", "lower"),
   ...)
 
-\method{symmetrize}{network}(x, rule = c("weak", "strong", "upper", "lower"))
+\method{symmetrize}{network}(x, rule = c("weak", "strong", "upper", "lower"),
+  ...)
 }
 \arguments{
 \item{x}{an object representing a network.}
 
 \item{rule}{a string specifying how the network is to be
 symmetrized; see \code{\link[sna:symmetrize]{sna::symmetrize()}} for details.}
+
+\item{...}{additional arguments to \code{\link[sna:symmetrize]{sna::symmetrize()}}.}
 }
 \description{
 Return a symmetrized version of a binary network
