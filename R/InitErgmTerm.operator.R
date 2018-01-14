@@ -233,6 +233,35 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, response=NULL, ...){
   list(name="_filter_formula_net", inputs=c(inputs), depenence=FALSE)
 }
 
+InitErgmTerm.Offset <- function(nw, arglist, response=NULL, ...){
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("formula", "coef"),
+                      vartypes = c("formula", "numeric"),
+                      defaultvalues = list(NULL, NULL),
+                      required = c(TRUE, TRUE))
+  f <- a$formula
+  if(length(f)==2) f <- nonsimp.update.formula(f, nw~.)
+  else nw <- ergm.getnetwork(f)
+
+  m <- ergm.getmodel(f, nw, response=response,...)
+  coef <- rep(a$coef, length(m$coef.names))
+  Clist <- ergm.Cprepare(nw, m, response=response)
+
+  inputs <- pack.Clist_as_num(Clist)
+  
+  gs <- ergm.emptynwstats.model(m)
+  
+  list(name="passthrough_term", coef.names = paste0('Offset(',m$coef.names,',',coef,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs,
+       params=list(),
+       map = function(x, n, ...){
+         ergm.eta(coef, m$etamap)
+       },
+       gradient = function(x, n, ...){
+         matrix(NA, 0, length(coef))
+       }
+       )
+}
+
 #' Return a symmetrized version of a binary network
 #'
 #' @param x an object representing a network.

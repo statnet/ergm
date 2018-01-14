@@ -10,6 +10,7 @@
 \alias{L}
 \alias{N}
 \alias{NodematchFilter}
+\alias{Offset}
 \alias{Undir}
 \alias{absdiff}
 \alias{absdiffcat}
@@ -464,7 +465,13 @@ network
     more names of attributes in the network's vertex attribute
     list.
   }
-  
+
+  \item{\code{Offset(formula, coef)} (binary) (operator)}{\emph{Terms
+      with fixed coefficients}:
+    This operator is analogous to the \code{offset()} wrapper, but the
+      coefficients are specified within the term and the curved ERGM
+      mechanism is used internally.
+    }
     \item{\code{absdiff(attrname, pow=1)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (quantitative nodal attribute),
     \code{absdiff(attrname, pow=1, form ="sum")}  (valued)  (dyad-independent) (directed)  (undirected) (quantitative nodal attribute)}{\emph{Absolute difference:}
     The \code{attrname} argument is a character string giving the name
