@@ -165,7 +165,7 @@ eta.length.model <- function(object, offset=NA, ...){
 #' @return a character vector of parameter names.
 coef.names.model <- function(object, canonical){
   if(canonical) object$coef.names
-  else unlist(lapply(object$terms, function(term) NVL(names(term$params),term$coef.names)))
+  else unlist(lapply(object$terms, function(term) NVL3(term$params, names(.), term$coef.names)))
 }
 
 #' `ergm_model`'s `etamap` with all offset terms removed and remapped

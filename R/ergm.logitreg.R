@@ -99,8 +99,8 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
         p <- plogis(eta)
         o <- list(
           value = sum(w * ifelse(y, log(p), log1p(-p))),
-          gradient = as.vector((matrix(w *dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% X %*% t(etagrad(theta)))[,!m$etamap$offsettheta]),
-          hessian = -(etagrad(theta) %*% crossprod(X*w*p*(1-p), X) %*% t(etagrad(theta)))[!m$etamap$offsettheta,!m$etamap$offsettheta]
+          gradient = as.vector((matrix(w *dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% X %*% t(etagrad(theta)))[,!m$etamap$offsettheta,drop=FALSE]),
+          hessian = -(etagrad(theta) %*% crossprod(X*w*p*(1-p), X) %*% t(etagrad(theta)))[!m$etamap$offsettheta,!m$etamap$offsettheta,drop=FALSE]
         )
         if(verbose){
           message("theta:")
