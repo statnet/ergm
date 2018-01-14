@@ -95,7 +95,7 @@ ergm.etamap <- function(model) {
     } else { # curved parameter
       k <- length(mti$params)
       etamap$canonical <- c(etamap$canonical, rep(0, k))
-      etamap$curved[[a]] <- list(from=from:(from+k-1),
+      etamap$curved[[a]] <- list(from=from+seq_len(k)-1,
                                  to=to:(to+j-1),
                                  map=mti$map, gradient=mti$gradient,
                                  cov=mti$eta.cov)  #Added by CTB 1/28/06
