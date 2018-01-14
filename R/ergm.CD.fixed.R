@@ -77,10 +77,10 @@ ergm.CD.fixed <- function(init, nw, model,
     1)
 
   # Store information about original network, which will be returned at end
-  nw.orig <- network.copy(nw)
+  nw.orig <- nw
 
   # Impute missing dyads.
-  nw <- single.impute.dyads(nw, response=response, constraints=MHproposal$arguments$constraints, constraints.obs=MHproposal.obs$arguments$constraints, verbose=verbose)
+  nw <- single.impute.dyads(nw, response=response, constraints=MHproposal$arguments$constraints, constraints.obs=MHproposal.obs$arguments$constraints, output="pending", verbose=verbose)
   model$nw.stats <- ergm.getglobalstats(nw, model, response=response)
 
   nws <- rep(list(nw),nthreads) # nws is now a list of networks.
@@ -94,7 +94,7 @@ ergm.CD.fixed <- function(init, nw, model,
   statshift <- model$nw.stats - NVL(model$target.stats,model$nw.stats)
   statshift[is.na(statshift)] <- 0
   statshifts <- rep(list(statshift), nthreads) # Each network needs its own statshift.
-  
+
   # Is there observational structure?
   obs <- ! is.null(MHproposal.obs)
   if(obs){
@@ -110,7 +110,7 @@ ergm.CD.fixed <- function(init, nw, model,
     control.obs$MCMC.interval <- control$obs.MCMC.interval
     control.obs$MCMC.burnin <- control$obs.MCMC.burnin
 
-    nws.obs <- lapply(nws, network.copy)
+    nws.obs <- lapply(nws, identity)
     statshifts.obs <- statshifts
   }
   # mcmc.init will change at each iteration.  It is the value that is used
@@ -121,8 +121,8 @@ ergm.CD.fixed <- function(init, nw, model,
   for(iteration in 1:control$CD.maxit){
     if(iteration == control$CD.maxit) finished <- TRUE
     if(verbose){
-      message("Iteration ",iteration," of at most ", control$CD.maxit,
-          " with parameter: ")
+      message("\nIteration ",iteration," of at most ", control$CD.maxit,
+          " with parameter:")
       message_print(mcmc.init)
     }else{
       message("Iteration ",iteration," of at most ", control$CD.maxit,": ")
@@ -138,26 +138,26 @@ ergm.CD.fixed <- function(init, nw, model,
     # observed statistics or, if given, the alternative target.stats
     # (i.e., the estimation goal is to use the statsmatrix to find 
     # parameters that will give a mean vector of zero)
-    statsmatrices <- mapply(sweep, z$statsmatrices, statshifts, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
-    for(i in seq_along(statsmatrices)) colnames(statsmatrices[[i]]) <- model$coef.names
-    statsmatrix <- do.call(rbind,statsmatrices)
+    statsmatrices <- as.mcmc.list(mapply(sweep, z$statsmatrices, statshifts, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE))
+    varnames(statsmatrices) <- model$coef.names
+    statsmatrix <- as.matrix(statsmatrices)
     
     if(verbose){
       message("Back from unconstrained CD. Average statistics:")
-      message_print(apply(statsmatrix, 2, mean))
+      message_print(apply(statsmatrix, 2, base::mean))
     }
     
     ##  Does the same, if observation process:
     if(obs){
       z.obs <- ergm.getCDsample(nws.obs, NVL(model$obs.model,model), MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
 
-      statsmatrices.obs <- mapply(sweep, z.obs$statsmatrices, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
-      for(i in seq_along(statsmatrices.obs)) colnames(statsmatrices.obs[[i]]) <- model$coef.names
-      statsmatrix.obs <- do.call(rbind,statsmatrices.obs)
+      statsmatrices.obs <- as.mcmc.list(mapply(sweep, z.obs$statsmatrices, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE))
+      varnames(statsmatrices.obs) <- model$coef.names
+      statsmatrix.obs <- as.matrix(statsmatrices.obs)
       
       if(verbose){
         message("Back from constrained MCMC. Average statistics:")
-        message_print(apply(statsmatrix.obs, 2, mean))
+        message_print(apply(statsmatrix.obs, 2, base::mean))
       }
     }else{
       statsmatrices.obs <- statsmatrix.obs <- NULL
@@ -165,16 +165,21 @@ ergm.CD.fixed <- function(init, nw, model,
     }
 
     # Compute the sample estimating equations and the convergence p-value. 
-    esteq <- .ergm.esteq(mcmc.init, model, statsmatrix)
-    if(isTRUE(all.equal(apply(esteq,2,sd), rep(0,ncol(esteq)), check.names=FALSE))&&!all(esteq==0))
+    esteqs <- lapply.mcmc.list(statsmatrices, .ergm.esteq, theta=mcmc.init, model=model)
+    esteq <- as.matrix(esteqs)
+    if(isTRUE(all.equal(apply(esteq,2,stats::sd), rep(0,ncol(esteq)), check.names=FALSE))&&!all(esteq==0))
       stop("Unconstrained CD sampling did not mix at all. Optimization cannot continue.")
-    esteq.obs <- if(obs) .ergm.esteq(mcmc.init, model, statsmatrix.obs) else NULL   
+    esteqs.obs <- if(obs) lapply.mcmc.list(statsmatrices.obs, .ergm.esteq, theta=mcmc.init, model=model) else NULL
+    esteq.obs <- if(obs) as.matrix(esteqs.obs) else NULL
+
     conv.pval <- suppressWarnings(approx.hotelling.diff.test(esteq, esteq.obs, assume.indep=TRUE)$p.value)
-                                            
+
     # We can either pretty-print the p-value here, or we can print the
     # full thing. What the latter gives us is a nice "progress report"
     # on whether the estimation is getting better..
-    if(verbose){
+
+    # These are only nontrivial when the model is curved or when there are missing data.
+    if(verbose && (is.curved(model)||obs)){
       message("Average estimating equation values:")
       message_print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else colMeans(esteq))
     }
@@ -187,92 +192,82 @@ ergm.CD.fixed <- function(init, nw, model,
     if(!estimate){
       if(verbose){message("Skipping optimization routines...")}
       l <- list(coef=mcmc.init, mc.se=rep(NA,length=length(mcmc.init)),
-                sample=statsmatrix, sample.obs=statsmatrix.obs,
+                sample=statsmatrices, sample.obs=statsmatrices.obs,
                 iterations=1, MCMCtheta=mcmc.init,
                 loglikelihood=NA, #mcmcloglik=NULL, 
                 mle.lik=NULL,
                 gradient=rep(NA,length=length(mcmc.init)), #acf=NULL,
                 samplesize=control$MCMC.samplesize, failure=TRUE,
-                newnetwork = nw)
+                newnetwork = nws[[1]],
+                newnetworks = nws)
       return(structure (l, class="ergm"))
     } 
 
-    statsmatrix.0 <- statsmatrix
-    statsmatrix.0.obs <- statsmatrix.obs
     if(control$CD.steplength=="adaptive"){
       if(verbose){message("Calling adaptive CD-MCMLE Optimization...")}
       adaptive.steplength <- 2
-      statsmean <- apply(statsmatrix.0,2,mean)
       v <- list(loglikelihood=control$CD.adaptive.trustregion*2)
       while(v$loglikelihood > control$CD.adaptive.trustregion){
         adaptive.steplength <- adaptive.steplength / 2
-        if(!is.null(statsmatrix.0.obs)){
-          statsmatrix.obs <- t(adaptive.steplength*t(statsmatrix.0.obs) + (1-adaptive.steplength)*statsmean) # I.e., shrink each point of statsmatrix.obs towards the centroid of statsmatrix.
-        }else{
-          statsmatrix <- sweep(statsmatrix.0,2,(1-adaptive.steplength)*statsmean,"-")
-        }
-        if(verbose){message(paste("Using Newton-Raphson Step with step length",adaptive.steplength,"..."))}
+        if(verbose){message("Optimizing with step length ",adaptive.steplength,".")}
         #
         #   If not the last iteration do not compute all the extraneous
         #   statistics that are not needed until output
         #
         v<-ergm.estimate(init=mcmc.init, model=model,
-                         statsmatrix=statsmatrix, 
-                         statsmatrix.obs=statsmatrix.obs, 
+                         statsmatrices=statsmatrices, 
+                         statsmatrices.obs=statsmatrices.obs, 
                          epsilon=control$epsilon,
                          nr.maxit=control$CD.NR.maxit,
                          nr.reltol=control$CD.NR.reltol,
-                         calc.mcmc.se=FALSE, hessianflag=control$main.hessian,
+                         calc.mcmc.se=FALSE, 
+                         hessianflag=control$main.hessian,
                          trustregion=control$CD.trustregion, method=control$CD.method,
                          metric=control$CD.metric,
                          dampening=control$CD.dampening,
                          dampening.min.ess=control$CD.dampening.min.ess,
                          dampening.level=control$CD.dampening.level,
+                         steplen=adaptive.steplength,
                          compress=control$MCMC.compress, verbose=verbose,
                          estimateonly=TRUE)
       }
       if(v$loglikelihood < control$CD.trustregion-0.001){
         current.scipen <- options()$scipen
         options(scipen=3)
-        message("The log-likelihood improved by ",
-            format.pval(v$loglikelihood,digits=4,eps=1e-4),"")
+        message("The log-likelihood improved by",
+            format.pval(v$loglikelihood,digits=4,eps=1e-4),".")
         options(scipen=current.scipen)
       }else{
         message("The log-likelihood did not improve.")
       }
       steplen.hist <- c(steplen.hist, adaptive.steplength)
+      steplen <- adaptive.steplength
     }else{
+      if(verbose){message("Calling CD-MCMLE Optimization...")}
+
       steplen <-
         if(!is.null(control$CD.steplength.margin))
           .Hummel.steplength(
-            if(control$CD.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
-            if(control$CD.Hummel.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
+            if(control$CD.Hummel.esteq) esteq else statsmatrix[,!model$etamap$offsetmap,drop=FALSE], 
+            if(control$CD.Hummel.esteq) esteq.obs else statsmatrix.obs[,!model$etamap$offsetmap,drop=FALSE],
             control$CD.steplength.margin, control$CD.steplength, steplength.prev=steplen, verbose=verbose,
             x2.num.max=control$CD.Hummel.miss.sample, steplength.maxit=control$CD.Hummel.maxit)
         else control$CD.steplength
       
-      if(verbose){message("Calling CD-MCMLE Optimization...")}
-      statsmean <- apply(statsmatrix.0,2,base::mean)
-      if(!is.null(statsmatrix.0.obs)){
-        statsmatrix.obs <- t(steplen*t(statsmatrix.0.obs) + (1-steplen)*statsmean) # I.e., shrink each point of statsmatrix.obs towards the centroid of statsmatrix.
-      }else{
-        statsmatrix <- sweep(statsmatrix.0,2,(1-steplen)*statsmean,"-")
-      }
       steplen.hist <- c(steplen.hist, steplen)
       # stop if MCMLE is stuck (steplen stuck near 0)
       if ((length(steplen.hist) > 2) && sum(tail(steplen.hist,2)) < 2*control$CD.steplength.min) {
         stop("CD-MCMLE estimation stuck. There may be excessive correlation between model terms, suggesting a poor model for the observed data. If target.stats are specified, try increasing SAN parameters.")
       }    
       
-      if(verbose){message(paste("Using Newton-Raphson Step with step length ",steplen," ..."))}
       # Use estimateonly=TRUE if this is not the last iteration.
       v<-ergm.estimate(init=mcmc.init, model=model,
-                       statsmatrix=statsmatrix, 
-                       statsmatrix.obs=statsmatrix.obs, 
+                       statsmatrices=statsmatrices, 
+                       statsmatrices.obs=statsmatrices.obs, 
                        epsilon=control$epsilon,
                        nr.maxit=control$CD.NR.maxit,
                        nr.reltol=control$CD.NR.reltol,
-                       calc.mcmc.se=FALSE, 
+                       calc.mcmc.se=FALSE,
                        hessianflag=control$main.hessian,
                        trustregion=control$CD.trustregion, 
                        method=control$CD.method,
@@ -280,13 +275,14 @@ ergm.CD.fixed <- function(init, nw, model,
                        dampening.min.ess=control$CD.dampening.min.ess,
                        dampening.level=control$CD.dampening.level,
                        metric=control$CD.metric,
+                       steplen=steplen,
                        compress=control$MCMC.compress, verbose=verbose,
                        estimateonly=!finished)
       if(v$loglikelihood < control$CD.trustregion-0.001){
         current.scipen <- options()$scipen
         options(scipen=3)
         message("The log-likelihood improved by ",
-            format.pval(v$loglikelihood,digits=4,eps=1e-4),"")
+            format.pval(v$loglikelihood,digits=4,eps=1e-4),".")
         options(scipen=current.scipen)
       }else{
         message("The log-likelihood did not improve.")
@@ -295,20 +291,23 @@ ergm.CD.fixed <- function(init, nw, model,
           
     mcmc.init <- v$coef
     coef.hist <- rbind(coef.hist, mcmc.init)
-    stats.obs.hist <- NVL3(statsmatrix.obs, rbind(stats.obs.hist, apply(.[], 2, mean)))
-    stats.hist <- rbind(stats.hist, apply(statsmatrix, 2, mean))
+    stats.obs.hist <- NVL3(statsmatrix.obs, rbind(stats.obs.hist, apply(.[], 2, base::mean)))
+    stats.hist <- rbind(stats.hist, apply(statsmatrix, 2, base::mean))
     if(finished) break # This allows premature termination.
   } # end of main loop
+
+  message("Finished CD.")
 
   # FIXME:  We should not be "tacking on" extra list items to the 
   # object returned by ergm.estimate.  Instead, it is more transparent
   # if we build the output object (v) from scratch, of course using 
   # some of the info returned from ergm.estimate.
-  v$sample <- ergm.sample.tomcmc(statsmatrix.0, control) 
-  if(obs) v$sample.obs <- ergm.sample.tomcmc(statsmatrix.0.obs, control)
+  v$sample <- statsmatrices
+  if(obs) v$sample.obs <- statsmatrices.obs
   
   v$network <- nw.orig
-  v$newnetwork <- nw
+  v$newnetworks <- nws
+  v$newnetwork <- nws[[1]]
   v$coef.init <- init
   #v$initialfit <- initialfit
   v$est.cov <- v$mc.cov

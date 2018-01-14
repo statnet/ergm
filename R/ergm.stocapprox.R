@@ -124,8 +124,8 @@ ergm.stocapprox <- function(init, nw, model, Clist,
   if(verbose){message("Using Newton-Raphson Step ...")}
 
   ve<-ergm.estimate(init=theta, model=model,
-                   statsmatrix=statsmatrix,
-                   statsmatrix.obs=NULL,
+                   statsmatrices=mcmc.list(as.mcmc(statsmatrix)),
+                   statsmatrices.obs=NULL,
                    epsilon=control$epsilon, 
                    nr.maxit=control$MCMLE.NR.maxit, 
                    nr.reltol=control$MCMLE.NR.reltol,
@@ -144,7 +144,7 @@ ergm.stocapprox <- function(init, nw, model, Clist,
 # ve$mcmcloglik <- ve$mcmcloglik - network.dyadcount(nw)*log(2)
 
   # From ergm.estimate:
-  #    structure(list(coef=theta, sample=statsmatrix, 
+  #    structure(list(coef=theta, sample=mcmc.list(as.mcmc(statsmatrix)), 
                       # iterations=iteration, mcmcloglik=mcmcloglik,
                       # MCMCtheta=init, 
                       # loglikelihood=loglikelihood, gradient=gradient,

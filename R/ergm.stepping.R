@@ -140,7 +140,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
     # observed statistics would be exactly zero on the same scale.  In this case, the
     # "observed statistics" equal xi[[iter]].
     v<-ergm.estimate(init=eta[[iter]], model=model, 
-                     statsmatrix=sweep(samples[[iter]], 2, xi[[iter]], '-'), 
+                     statsmatrices=mcmc.list(as.mcmc(sweep(samples[[iter]], 2, xi[[iter]], '-'))), 
                      nr.maxit=control$MCMLE.NR.maxit,
                      metric=control$MCMLE.metric,
                      verbose=verbose,
@@ -165,7 +165,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   sampmeans[[iter]] <- colMeans(finalsample)
   xi[[iter]] <- obsstats
   v<-ergm.estimate(init=eta[[iter]], model=model, 
-                   statsmatrix=sweep(finalsample, 2, xi[[iter]], '-'), 
+                   statsmatrices=mcmc.list(as.mcmc(sweep(finalsample, 2, xi[[iter]], '-'))), 
                    nr.maxit=control$MCMLE.NR.maxit,
                    metric=control$MCMLE.metric,
                    verbose=verbose,

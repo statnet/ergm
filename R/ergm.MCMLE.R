@@ -203,7 +203,7 @@ ergm.MCMLE <- function(init, nw, model,
       z.obs <- ergm.getMCMCsample(nws.obs, NVL(model$obs.model,model), MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response, theta=mcmc.init, etamap=model$etamap, update.nws=FALSE)
       
       if(z.obs$status==1) stop("Number of edges in the simulated network exceeds that observed by a large factor (",control$MCMC.max.maxedges,"). This is a strong indication of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
-      
+
       statsmatrices.obs <- as.mcmc.list(mapply(sweep, z.obs$statsmatrices, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE))
       varnames(statsmatrices.obs) <- model$coef.names
       nws.obs.returned <- z.obs$newnetworks
@@ -274,8 +274,7 @@ ergm.MCMLE <- function(init, nw, model,
                 newnetwork = nws.returned[[1]],
                 newnetworks = nws.returned)
       return(structure (l, class="ergm"))
-    }
-
+    } 
 
     # Need to compute MCMC SE for "confidence" termination criterion
     # if it has the possibility of terminating.
@@ -330,7 +329,7 @@ ergm.MCMLE <- function(init, nw, model,
       steplen <- adaptive.steplength
     }else{
       if(verbose){message("Starting MCMLE Optimization...")}
-      
+
       if(!is.null(control$MCMLE.steplength.margin)){
         steplen <- .Hummel.steplength(
           if(control$MCMLE.Hummel.esteq) esteq else statsmatrix[,!model$etamap$offsetmap,drop=FALSE], 
