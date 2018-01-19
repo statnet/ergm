@@ -104,6 +104,6 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
   
   gs <- c(sapply(ms, "[[", "gs")%*%w)
   
-  c(list(name="MultiNet", coef.names = paste0(NVL(a$wname,"sum"),"*",ms[[1]]$model$coef.names), inputs=inputs, dependence=!is.dyad.independent(ms[[1]]$model), emptynwstats = gs, auxiliaries = auxiliaries),
+  c(list(name="MultiNet", coef.names = paste0("N(",NVL(a$wname,"sum"),")","*",ms[[1]]$model$coef.names), inputs=inputs, dependence=!is.dyad.independent(ms[[1]]$model), emptynwstats = gs, auxiliaries = auxiliaries),
     passthrough.curved.ergm_model(ms[[1]]$m, function(x) paste0(NVL(a$wname,"sum"),"*",x)))
 }
