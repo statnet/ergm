@@ -126,17 +126,16 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
         if(verbose) message("Increasing thinning to ",interval,".")
       }
       
-      esteq <- lapply(outl, function(out)
+      esteq <- as.mcmc.list(lapply(lapply(outl, function(out)
                       if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), out$s)
                       else out$s[,Clists[[1]]$diagnosable,drop=FALSE]
-                      )
+                      ), mcmc, start=1, thin=interval))
       
       meS <- .max.effectiveSize(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, ar.order=control$MCMC.effectiveSize.order)
       if(verbose) message("Maximum harmonic mean ESS of ",meS$eS," attained with burn-in of ", round(meS$b/nrow(outl[[1]]$s)*100,2),"%.")
 
       if(control.parallel$MCMC.runtime.traceplot){
-        for (i in seq_along(esteq)) colnames(esteq[[i]]) <- names(list(...)$theta)
-        plot(coda::as.mcmc.list(lapply(lapply(esteq, coda::mcmc), window, thin=max(1,floor(nrow(esteq)/1000))))
+        plot(window(esteq, thin=thin(esteq)*max(1,floor(niter(esteq)/1000)))
              ,ask=FALSE,smooth=TRUE,density=FALSE)
       }
 
@@ -161,12 +160,11 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
     }
     
     if(control.parallel$MCMC.runtime.traceplot){
-      esteq <- lapply(outl, function(out)
+      esteq <- as.mcmc.list(lapply(lapply(outl, function(out)
         if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), out$s)
         else out$s[,Clists[[1]]$diagnosable,drop=FALSE]
-      )
-      for (i in seq_along(esteq)) colnames(esteq[[i]]) <- names(list(...)$theta)
-      plot(coda::as.mcmc.list(lapply(lapply(esteq, coda::mcmc), window, thin=max(1,floor(nrow(esteq)/1000))))
+      ), mcmc, start=control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval))
+      plot(window(esteq, thin=thin(esteq)*max(1,floor(niter(esteq)/1000)))
            ,ask=FALSE,smooth=TRUE,density=FALSE)
     }
   }
