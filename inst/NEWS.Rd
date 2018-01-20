@@ -138,6 +138,10 @@
 	A numerical instability in penalised pseudolikelihood
 	calculation identified by Kevin Reuning has been fixed.
       }
+      \item{
+	An error in runtime traceplotting for models with offset terms
+	reported by Kevin reuning has been fixed.
+      }
     }
   }
 

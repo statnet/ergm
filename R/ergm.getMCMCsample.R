@@ -126,10 +126,10 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
         if(verbose) message("Increasing thinning to ",interval,".")
       }
       
-      esteq <- lapply(outl, function(out)
+      esteq <- as.mcmc.list(lapply(lapply(outl, function(out)
                       if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), out$s)
                       else out$s[,Clists[[1]]$diagnosable,drop=FALSE]
-                      )
+                      ), mcmc, start=1, thin=interval))
       
       best.burnin <- .find_OK_burnin(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, min.pval=control$MCMC.effectiveSize.burnin.pval)
       burnin.pval <- best.burnin$pval
@@ -137,15 +137,14 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
         if(verbose) message("No adequate burn-in found. Best convergence p-value = ", burnin.pval)
         next
       }
-      postburnin.mcmc <- as.mcmc.list(lapply(lapply(esteq, `[`, -seq_len(best.burnin$burnin), , drop=FALSE), mcmc))
+      postburnin.mcmc <- window(esteq, start=best.burnin$burnin*thin(esteq)+1)
       
       eS <- niter(postburnin.mcmc)*nchain(postburnin.mcmc)/attr(spectrum0.mvar(postburnin.mcmc),"infl")
               
       if(verbose) message("ESS of ",eS," attained with burn-in of ", round(best.burnin$burnin/nrow(outl[[1]]$s)*100,2),"%; convergence p-value = ", burnin.pval, ".")
 
       if(control.parallel$MCMC.runtime.traceplot){
-        for (i in seq_along(esteq)) colnames(esteq[[i]]) <- names(list(...)$theta)
-        plot(window(postburnin.mcmc, thin=max(1,floor(nrow(esteq)/1000)))
+        plot(window(esteq, thin=thin(esteq)*max(1,floor(niter(esteq)/1000)))
              ,ask=FALSE,smooth=TRUE,density=FALSE)
       }
 
@@ -174,12 +173,11 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
     }
     
     if(control.parallel$MCMC.runtime.traceplot){
-      esteq <- lapply(outl, function(out)
+      esteq <- as.mcmc.list(lapply(lapply(outl, function(out)
         if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), out$s)
         else out$s[,Clists[[1]]$diagnosable,drop=FALSE]
-      )
-      for (i in seq_along(esteq)) colnames(esteq[[i]]) <- names(list(...)$theta)
-      plot(coda::as.mcmc.list(lapply(lapply(esteq, coda::mcmc), window, thin=max(1,floor(nrow(esteq)/1000))))
+      ), mcmc, start=control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval))
+      plot(window(esteq, thin=thin(esteq)*max(1,floor(niter(esteq)/1000)))
            ,ask=FALSE,smooth=TRUE,density=FALSE)
     }
   }

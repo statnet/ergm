@@ -229,8 +229,8 @@ ergm.MCMLE <- function(init, nw, model,
     }
 
     if(!is.null(control$MCMLE.save_intermediates)){
-      if(obs) save(nws, nws.obs, statshifts, statshifts.obs, coef.hist, stats.hist, stats.obs.hist, steplen.hist, file=sprintf(control$MCMLE.save_intermediates, iteration))
-      else save(nws, statshifts, coef.hist, stats.hist, steplen.hist, file=sprintf(control$MCMLE.save_intermediates, iteration))
+      if(obs) save(nws, nws.obs, statsmatrices, statsmatrices.obs, statshifts, statshifts.obs, coef.hist, stats.hist, stats.obs.hist, steplen.hist, file=sprintf(control$MCMLE.save_intermediates, iteration))
+      else save(nws, statsmatrices, statshifts, coef.hist, stats.hist, steplen.hist, file=sprintf(control$MCMLE.save_intermediates, iteration))
     }
 
     # Compute the sample estimating equations and the convergence p-value. 
