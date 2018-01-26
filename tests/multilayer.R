@@ -93,7 +93,7 @@ diag(msum) <- NA
 (logic <- sum(lfactorial(msum2r) + lfactorial(3-msum2r) - lfactorial(3), na.rm=TRUE))
 stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
 
-
+# Triadic effects
 
 data(florentine)
 (layer <- summary(Layer(m=flomarriage, b=flobusiness)~ddsp(0:10,Ls.path=c(~b,~b))))
@@ -106,6 +106,7 @@ stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
 (logic <- summary(flobusiness~nsp(0:10)))
 stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
 
+# MLE
 
 nw0 <- network.initialize(3, dir=FALSE)
 nw1 <- nw0

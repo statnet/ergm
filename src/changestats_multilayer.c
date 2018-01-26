@@ -210,28 +210,35 @@ C_CHANGESTAT_FN(c_ldegree_ML_sum) {
 
   /* *** don't forget tail -> head */
 
-  unsigned int taildeg = 0, headdeg = 0;
-  int tdegchange = 0, hdegchange = 0;
+  unsigned int todeg = 0, hodeg = 0, tideg = 0, hideg = 0;
+  int todegchange = 0, hodegchange = 0, tidegchange = 0, hidegchange = 0;
 
   for(unsigned int ml=0; ml<nml; ml++){
     GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
     Vertex *id=ML_IN_DEG(ll), *od=ML_OUT_DEG(ll);
     Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
-    int degchange = ergm_LayerLogic(tail, head, ll, TRUE);
+    int degchange_th = ergm_LayerLogic2(lt, lh, tail, head, ll, TRUE),
+      degchange_ht = ergm_LayerLogic2(lh, lt, tail, head, ll, TRUE);
     if(dirs[ml]==0 || dirs[ml]==+1){
-      tdegchange += degchange;
-      taildeg += od[lt];
+      todegchange += degchange_th;
+      hodegchange += degchange_ht;
+      todeg += od[lt];
+      hodeg += od[lh];
     }
     if(dirs[ml]==0 || dirs[ml]==-1){
-      hdegchange += degchange;
-      headdeg += id[lh];
+      hidegchange += degchange_th;
+      tidegchange += degchange_ht;
+      hideg += id[lh];
+      tideg += id[lt];
     }
   }
   
   for(unsigned int j = 0; j < N_CHANGE_STATS; j++) {
     Vertex deg = (Vertex)degs[j];
-    CHANGE_STAT[j] += (taildeg + tdegchange == deg) - (taildeg == deg);
-    CHANGE_STAT[j] += (headdeg + hdegchange == deg) - (headdeg == deg);
+    CHANGE_STAT[j] += (todeg + todegchange == deg) - (todeg == deg)
+      + (tideg + tidegchange == deg) - (tideg == deg) 
+      + (hodeg + hodegchange == deg) - (hodeg == deg)
+      + (hideg + hidegchange == deg) - (hideg == deg);
   }
 }
 
@@ -250,34 +257,41 @@ C_CHANGESTAT_FN(c_ldegree_by_attr_ML_sum) {
 
   /* *** don't forget tail -> head */    
 
-  unsigned int taildeg = 0, headdeg = 0;
-  int tdegchange = 0, hdegchange = 0;
+  unsigned int todeg = 0, hodeg = 0, tideg = 0, hideg = 0;
+  int todegchange = 0, hodegchange = 0, tidegchange = 0, hidegchange = 0;
 
   for(unsigned int ml=0; ml<nml; ml++){
     GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
     Vertex *id=ML_IN_DEG(ll), *od=ML_OUT_DEG(ll);
     Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
-    int degchange = ergm_LayerLogic(tail, head, ll, TRUE);
+    int degchange_th = ergm_LayerLogic2(lt, lh, tail, head, ll, TRUE),
+      degchange_ht = ergm_LayerLogic2(lh, lt, tail, head, ll, TRUE);
     if(dirs[ml]==0 || dirs[ml]==+1){
-      tdegchange += degchange;
-      taildeg += od[lt];
+      todegchange += degchange_th;
+      hodegchange += degchange_ht;
+      todeg += od[lt];
+      hodeg += od[lh];
     }
     if(dirs[ml]==0 || dirs[ml]==-1){
-      hdegchange += degchange;
-      headdeg += id[lh];
+      hidegchange += degchange_th;
+      tidegchange += degchange_ht;
+      hideg += id[lh];
+      tideg += id[lt];
     }
   }   
 
   int tailattr = inputs[2*N_CHANGE_STATS + tail - 1]; 
   int headattr = inputs[2*N_CHANGE_STATS + head - 1]; 
   for(unsigned int j = 0; j < N_CHANGE_STATS; j++) {
-    Vertex d = (Vertex)inputs[2*j];
+    Vertex deg = (Vertex)inputs[2*j];
     int testattr = inputs[2*j + 1]; 
     if (tailattr == testattr)  /* we have tail attr match */
-      CHANGE_STAT[j] += (taildeg + tdegchange == d) - (taildeg == d);
+      CHANGE_STAT[j] += (todeg + todegchange == deg) - (todeg == deg)
+	+ (tideg + tidegchange == deg) - (tideg == deg);
     if (headattr == testattr)  /* we have head attr match */
-      CHANGE_STAT[j] += (headdeg + hdegchange == d) - (headdeg == d);
-  }
+      CHANGE_STAT[j] += (hodeg + hodegchange == deg) - (hodeg == deg)
+	+ (hideg + hidegchange == deg) - (hideg == deg);
+   }
 }
 
 /*****************
@@ -293,28 +307,35 @@ C_CHANGESTAT_FN(c_gwldegree_ML_sum) {
 
   /* *** don't forget tail -> head */
 
-  unsigned int taildeg = 0, headdeg = 0;
-  int tdegchange = 0, hdegchange = 0;
+  unsigned int todeg = 0, hodeg = 0, tideg = 0, hideg = 0;
+  int todegchange = 0, hodegchange = 0, tidegchange = 0, hidegchange = 0;
 
   for(unsigned int ml=0; ml<nml; ml++){
     GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
     Vertex *id=ML_IN_DEG(ll), *od=ML_OUT_DEG(ll);
     Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
-    int degchange = ergm_LayerLogic(tail, head, ll, TRUE);
+    int degchange_th = ergm_LayerLogic2(lt, lh, tail, head, ll, TRUE),
+      degchange_ht = ergm_LayerLogic2(lh, lt, tail, head, ll, TRUE);
     if(dirs[ml]==0 || dirs[ml]==+1){
-      tdegchange += degchange;
-      taildeg += od[lt];
+      todegchange += degchange_th;
+      hodegchange += degchange_ht;
+      todeg += od[lt];
+      hodeg += od[lh];
     }
     if(dirs[ml]==0 || dirs[ml]==-1){
-      hdegchange += degchange;
-      headdeg += id[lh];
+      hidegchange += degchange_th;
+      tidegchange += degchange_ht;
+      hideg += id[lh];
+      tideg += id[lt];
     }
   }
   
   CHANGE_STAT[0] =
     exp(decay) * (
-		  ((1-pow(oneexpd,taildeg+tdegchange)) - (1-pow(oneexpd,taildeg))) +
-		  ((1-pow(oneexpd,headdeg+hdegchange)) - (1-pow(oneexpd,headdeg)))
+		  ((1-pow(oneexpd,todeg+todegchange)) - (1-pow(oneexpd,todeg))) +
+		  ((1-pow(oneexpd,hodeg+hodegchange)) - (1-pow(oneexpd,hodeg))) +
+		  ((1-pow(oneexpd,tideg+tidegchange)) - (1-pow(oneexpd,tideg))) +
+		  ((1-pow(oneexpd,hideg+hidegchange)) - (1-pow(oneexpd,hideg)))
 		  );
 }
 
@@ -335,21 +356,26 @@ C_CHANGESTAT_FN(c_gwldegree_by_attr_ML_sum) {
 
   /* *** don't forget tail -> head */    
 
-  unsigned int taildeg = 0, headdeg = 0;
-  int tdegchange = 0, hdegchange = 0;
+  unsigned int todeg = 0, hodeg = 0, tideg = 0, hideg = 0;
+  int todegchange = 0, hodegchange = 0, tidegchange = 0, hidegchange = 0;
 
   for(unsigned int ml=0; ml<nml; ml++){
     GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
     Vertex *id=ML_IN_DEG(ll), *od=ML_OUT_DEG(ll);
     Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
-    int degchange = ergm_LayerLogic(tail, head, ll, TRUE);
+    int degchange_th = ergm_LayerLogic2(lt, lh, tail, head, ll, TRUE),
+      degchange_ht = ergm_LayerLogic2(lh, lt, tail, head, ll, TRUE);
     if(dirs[ml]==0 || dirs[ml]==+1){
-      tdegchange += degchange;
-      taildeg += od[lt];
+      todegchange += degchange_th;
+      hodegchange += degchange_ht;
+      todeg += od[lt];
+      hodeg += od[lh];
     }
     if(dirs[ml]==0 || dirs[ml]==-1){
-      hdegchange += degchange;
-      headdeg += id[lh];
+      hidegchange += degchange_th;
+      tidegchange += degchange_ht;
+      hideg += id[lh];
+      tideg += id[lt];
     }
   }   
 
@@ -359,10 +385,15 @@ C_CHANGESTAT_FN(c_gwldegree_by_attr_ML_sum) {
     int testattr = inputs[2*j + 1]; 
     if (tailattr == testattr)  /* we have tail attr match */
       CHANGE_STAT[j] +=
-	exp(decay) * ((1-pow(oneexpd,taildeg+tdegchange)) - (1-pow(oneexpd,taildeg)));
+	    exp(decay) * (
+			  ((1-pow(oneexpd,todeg+todegchange)) - (1-pow(oneexpd,todeg))) +
+			  ((1-pow(oneexpd,tideg+tidegchange)) - (1-pow(oneexpd,tideg)))
+			  );
     if (headattr == testattr)  /* we have head attr match */
       CHANGE_STAT[j] +=
-	exp(decay) * ((1-pow(oneexpd,headdeg+hdegchange)) - (1-pow(oneexpd,headdeg)));
-
+	    exp(decay) * (
+			  ((1-pow(oneexpd,hodeg+hodegchange)) - (1-pow(oneexpd,hodeg))) +
+			  ((1-pow(oneexpd,hideg+hidegchange)) - (1-pow(oneexpd,hideg)))
+			  );
   }
 }
