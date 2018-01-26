@@ -49,28 +49,23 @@ I_CHANGESTAT_FN(i__layer_net){
   ll->stacks = Calloc(2*ll->commands[0], double);
 
   /* Construct the output (logical layer) network: */  
-  
+
   EXEC_THROUGH_NET_EDGES_PRE(t, h, e, {
-      Vertex tl = ML_LID_TAIL(ll, t);
-      if(ergm_LayerLogic(t, h, ll, 0)){
-	ML_SETWT(ll, ML_IO_TAIL(ll, t), ML_IO_HEAD(ll, h), 1);
-      }
-      // If the physical layer is symmetrized then also check the
-      // layer logic of its recirpocation.
-      if(ll->symm && ll->symm[tl]!=0 && ergm_LayerLogic(h, t, ll, 0)){
-	ML_SETWT(ll, ML_IO_HEAD(ll, h), ML_IO_TAIL(ll, t), 1);	
+      Vertex at[2];
+      Vertex ah[2];
+      unsigned int nt = ergm_LayerLogic_affects(t, h, ll, 0, at, ah);
+      for(unsigned int i=0; i<nt; i++){
+	ML_SETWT(ll, at[i], ah[i], 1);
       }
     });
 }
 
 U_CHANGESTAT_FN(u__layer_net){ 
   GET_AUX_STORAGE(StoreLayerLogic, ll);
-  Vertex tl = ML_LID_TAIL(ll, tail);
-  if(ergm_LayerLogic(tail, head, ll, TRUE)){
-    ML_TOGGLE(ll, ML_IO_TAIL(ll, tail), ML_IO_HEAD(ll, head));
-  }
-  if(ll->symm && ll->symm[tl]!=0 && ergm_LayerLogic(head, tail, ll, TRUE)){
-    ML_TOGGLE(ll, ML_IO_HEAD(ll, head), ML_IO_TAIL(ll, tail));
+  Vertex at[2], ah[2];
+  unsigned int nt = ergm_LayerLogic_affects(tail, head, ll, 1, at, ah);
+  for(unsigned int i=0; i<nt; i++){
+    ML_TOGGLE(ll, at[i], ah[i]);
   }
 }
 
@@ -132,35 +127,12 @@ C_CHANGESTAT_FN(c_OnLayer){
   // Find the affected models.
   for(unsigned int ml=0; ml < nml; ml++){
     GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
-    Vertex tl = ML_LID_TAIL(ll, tail);
-    if(!ll->symm || ll->symm[tl]==0){ // Toggle not symmetrized
-      if(ergm_LayerLogic(tail, head, ll, TRUE)){ // network affected
-	Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
-	ChangeStats(1, &lt, &lh, ll->onwp, ms[ml]);
-	for(unsigned int i=0; i<N_CHANGE_STATS; i++)
-	  CHANGE_STAT[i] += ms[ml]->workspace[i] * w[ml];
-      }
-    }else{ // Toggle symmetrized
-      unsigned int nt = 0;
-      Vertex lt[2], lh[2];
-      if(ergm_LayerLogic(tail, head, ll, TRUE)){
-	lt[nt] = ML_IO_TAIL(ll, tail);
-	lh[nt] = ML_IO_HEAD(ll, head);
-	nt++;
-      }
-      if(ergm_LayerLogic(head, tail, ll, TRUE)){
-	// FIXME: This might break bipartite networks. We do not have
-	// directed bipartite networks at this time, but this may
-	// change in the future.
-	lh[nt] = ML_IO_TAIL(ll, tail);
-	lt[nt] = ML_IO_HEAD(ll, head);
-	nt++;
-      }
-      if(nt){
-	ChangeStats(nt, lt, lh, ll->onwp, ms[ml]);
-	for(unsigned int i=0; i<N_CHANGE_STATS; i++)
-	  CHANGE_STAT[i] += ms[ml]->workspace[i] * w[ml];
-      }
+    Vertex at[2], ah[2];
+    unsigned int nt = ergm_LayerLogic_affects(tail, head, ll, 1, at, ah);
+    if(nt){
+      ChangeStats(nt, at, ah, ll->onwp, ms[ml]);
+      for(unsigned int i=0; i<N_CHANGE_STATS; i++)
+	CHANGE_STAT[i] += ms[ml]->workspace[i] * w[ml];
     }
   }
 }
@@ -172,29 +144,21 @@ U_CHANGESTAT_FN(u_OnLayer){
   // Find the affected models.
   for(unsigned int ml=0; ml < nml; ml++){
     GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
-    Vertex tl = ML_LID_TAIL(ll, tail);
-    if(!ll->symm || ll->symm[tl]==0){ // Toggle not symmetrized
-      if(ergm_LayerLogic(tail, head, ll, TRUE)){ // network affected
-	Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
-	UPDATE_STORAGE(lt, lh, ll->onwp, ms[ml], NULL);
-      }
-    }else{ // Toggle symmetrized
-      Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
-      if(ergm_LayerLogic(tail, head, ll, TRUE)){
-	UPDATE_STORAGE(lt, lh, ll->onwp, ms[ml], NULL);
-      }	
-      if(ergm_LayerLogic(head, tail, ll, TRUE)){
-	// We need to make a provisional toggle here, since
-	// UPDATE_STORAGE expects one toggle at a time.
-	ToggleEdge(lt, lh, ll->onwp);
-	// FIXME: This might break bipartite networks. We do not have
-	// directed bipartite networks at this time, but this may
-	// change in the future.
-	UPDATE_STORAGE(lh, lt, ll->onwp, ms[ml], NULL);
-	// Reverse the provisional toggle.
-	ToggleEdge(lt, lh, ll->onwp);
-      }
+    Vertex at[2], ah[2];
+    unsigned int nt = ergm_LayerLogic_affects(tail, head, ll, 1, at, ah);
+    int i;
+    for(i=0; i<nt; i++){
+      UPDATE_STORAGE(at[i], ah[i], ll->onwp, ms[ml], NULL);
+      // We need to make a provisional toggle here, since
+      // UPDATE_STORAGE expects one toggle at a time. Note that
+      // ll->onwp is "owned" by the .layer.net auxiliary, so this may
+      // cause a race condition for multithreaded term evaluation. The
+      // "correct" solution might involve duplicating the network,
+      // though some locking mechanism might also work.
+      if(i+1 < nt) ToggleEdge(at[i], ah[i], ll->onwp);
     }
+    // Reverse the provisional toggle.
+    i--; while(--i>=0) ToggleEdge(at[i], ah[i], ll->onwp);
   }
 }
 
@@ -214,48 +178,23 @@ C_CHANGESTAT_FN(c_layerCMB){
 
   // FIXME: Cache current values, perhaps via a valued auxiliary?
 
-  unsigned int need_symm = FALSE;
+  unsigned int oldct_th=0, newct_th=0,
+    oldct_ht=0, newct_ht=0;
   for(unsigned int ml=0; ml < nml; ml++){
     GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
-    if(ll->symm){
-      need_symm = TRUE;
-      break;
-    }
+    Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head);
+    unsigned int v = ergm_LayerLogic2(lt, lh, tail, head, ll, 2);
+    if(v&1) oldct_th++; // Pre-toggle edge present.
+    if(v&2) newct_th++; // Post-toggle edge present.
+    
+    v = ergm_LayerLogic2(lh, lt, tail, head, ll, 2);
+    if(v&1) oldct_ht++; // Pre-toggle edge present.
+    if(v&2) newct_ht++; // Post-toggle edge present.
   }
   
-  if(need_symm){ // Symmetrized layers
-    unsigned int oldct_th=0, newct_th=0,
-      oldct_ht=0, newct_ht=0;
-    for(unsigned int ml=0; ml < nml; ml++){
-      GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
-      Vertex tl = ML_LID_TAIL(ll, tail);
-      unsigned int v = ergm_LayerLogic(tail, head, ll, 2);
-      if(v&1) oldct_th++; // Pre-toggle edge present.
-      if(v&2) newct_th++; // Post-toggle edge present.
-      if(ll->symm[tl]){ // Symmetrize toggle
-	v = ergm_LayerLogic(head, tail, ll, 2);
-	if(v&1) oldct_ht++; // Pre-toggle edge present.
-	if(v&2) newct_ht++; // Post-toggle edge present.
-      }else{
-	if(ergm_LayerLogic(head, tail, ll, 0)){
-	  oldct_ht++;
-	  newct_ht++;
-	}
-      }
-    }
-    CHANGE_STAT[0] =
-      lgamma1p(newct_th)-lgamma1p(oldct_th) + lgamma1p(nml-newct_th)-lgamma1p(nml-oldct_th)
-      +(newct_ht!=oldct_ht? lgamma1p(newct_ht)-lgamma1p(oldct_ht) + lgamma1p(nml-newct_ht)-lgamma1p(nml-oldct_ht) : 0);    
-  }else{ // No symmetrized layers
-    unsigned int oldct=0, newct=0;
-    for(unsigned int ml=0; ml < nml; ml++){
-      GET_AUX_STORAGE_NUM(StoreLayerLogic, ll, ml);
-      unsigned int v = ergm_LayerLogic(tail, head, ll, 2);
-      if(v&1) oldct++; // Pre-toggle edge present.
-      if(v&2) newct++; // Post-toggle edge present.
-    }
-    CHANGE_STAT[0] = lgamma1p(newct)-lgamma1p(oldct) + lgamma1p(nml-newct)-lgamma1p(nml-oldct);
-  }
+  CHANGE_STAT[0] =
+    +(newct_th!=oldct_th? lgamma1p(newct_th)-lgamma1p(oldct_th) + lgamma1p(nml-newct_th)-lgamma1p(nml-oldct_th) : 0)
+    +(newct_ht!=oldct_ht? lgamma1p(newct_ht)-lgamma1p(oldct_ht) + lgamma1p(nml-newct_ht)-lgamma1p(nml-oldct_ht) : 0);    
 }
 
 

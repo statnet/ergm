@@ -2,6 +2,8 @@ library(ergm)
 
 logit <- function(p) log(p/(1-p))
 
+# Basic layer logic
+
 nw0 <- network.initialize(10, dir=FALSE)
 (nw1 <- simulate(nw0~edges, coef=-.5))
 (nw2 <- simulate(nw0~edges, coef=+.5))
@@ -48,6 +50,7 @@ stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
 (logic <- logit((network.edgecount(nw1)+network.edgecount(nw2))/(network.dyadcount(nw1)+network.dyadcount(nw2))))
 stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
 
+# Layered mutuality
 
 data(samplk)
 
@@ -63,6 +66,8 @@ m2 <- as.matrix(samplk2) * as.matrix(samplk1)
 (logic <- (sum(m1*t(m2)+m2*t(m1))/2))
 stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
 
+# Layered CMB
+
 (layer <- summary(Layer(samplk1, samplk2, samplk3)~lCMB))
 m1 <- as.matrix(samplk1)
 m2 <- as.matrix(samplk2)
@@ -71,6 +76,24 @@ msum <- m1 + m2 + m3
 diag(msum) <- NA
 (logic <- sum(lfactorial(msum) + lfactorial(3-msum) - lfactorial(3), na.rm=TRUE))
 stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
+
+# Direction-reversed layers
+
+(layer <- summary(Layer(samplk1, samplk2, samplk3)~
+                    L(~edges, ~`1`&t(`1`))+
+                    L(~edges, ~`1`&t(`2`))+
+                    L(~edges, ~t(`1`)&`2`)+
+                    L(~edges, ~t(`1`)|`1`)))
+(logic <- c(sum(m1*t(m1)), sum(m1*t(m2)), sum(t(m1)*m2), sum(t(m1)|m1)))
+stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
+
+(layer <- summary(Layer(samplk1, samplk2, samplk3)~lCMB(c(~`1`,~t(`2`),~`3`))))
+msum2r <- m1 + t(m2) + m3
+diag(msum) <- NA
+(logic <- sum(lfactorial(msum2r) + lfactorial(3-msum2r) - lfactorial(3), na.rm=TRUE))
+stopifnot(isTRUE(all.equal(layer, logic, check.attributes=FALSE)))
+
+
 
 data(florentine)
 (layer <- summary(Layer(m=flomarriage, b=flobusiness)~ddsp(0:10,Ls.path=c(~b,~b))))
@@ -110,3 +133,4 @@ nwd[2,1] <- 1
 
 lnw <- Layer(nwu, nwd)
 stopifnot(summary(lnw~L(~edges,~`1`)+L(~edges,~`2`)+lCMB)==c(2,1,-sum(lchoose(2,as.matrix(nwu)+as.matrix(nwd)))))
+

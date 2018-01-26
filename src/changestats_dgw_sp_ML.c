@@ -1,21 +1,31 @@
 #include "changestats_dgw_sp_ML.h"
 
-#define SETUP_calc							\
+#define SETUP_calc_dsp							\
   Vertex deg;								\
-  Vertex t = ML_IO_TAIL(ll0, tail), h = ML_IO_HEAD(ll0, head);		\
   memset(cs, 0, nd*sizeof(double));					\
-  int l1c = ergm_LayerLogic(tail, head, ll1, TRUE);			\
-  int l2c = ergm_LayerLogic(tail, head, ll2, TRUE);
+  Vertex t0 = ML_IO_TAIL(ll0, tail), h0 = ML_IO_HEAD(ll0, head);	\
+  int l1fc = ergm_LayerLogic2(t0, h0, tail, head, ll1, TRUE);		\
+  int l2fc = ergm_LayerLogic2(t0, h0, tail, head, ll2, TRUE);		\
+  int l1rc = DIRECTED ? ergm_LayerLogic2(h0, t0, tail, head, ll1, TRUE) : 0; \
+  int l2rc = DIRECTED ? ergm_LayerLogic2(h0, t0, tail, head, ll2, TRUE) : 0; \
+  int l3fc = 0, l3rc = 0;
 
-#define SETUP_calc_dsp				\
-  SETUP_calc;					\
-  if(!l1c && !l2c) return; /* No change. */
+#define SETUP_calc_esp							\
+  SETUP_calc_dsp;							\
+  l3fc = ergm_LayerLogic2(t0, h0, tail, head, ll3, TRUE);		\
+  l3rc = DIRECTED ? ergm_LayerLogic2(h0, t0, tail, head, ll3, TRUE) : 0;
 
-#define SETUP_calc_esp					\
-  SETUP_calc;						\
-  int l3c = ergm_LayerLogic(tail, head, ll3, TRUE); 	\
-  if(!l1c && !l2c && !l3c) return; /* No change. */
-
+#define CALC_with_dirs(subroutine)					\
+  if(l1fc || l2fc || l3fc){						\
+    int l1c = l1fc, l2c = l2fc, l3c = l3fc;				\
+    Vertex t = t0, h = h0;						\
+    subroutine;								\
+  }									\
+  if(l1rc || l2rc || l3rc){						\
+    int l1c = l1rc, l2c = l2rc, l3c = l3rc;				\
+    Vertex t = h0, h = t0;						\
+    subroutine;								\
+  }
 
 #define INC_IF_TWOPATH(ij, t1, h1, t2, h2) if(ergm_LayerLogic2Path(t1,h1,t2,h2, ll1, ll2, any_order)) L2 ## ij ++;
 
@@ -52,6 +62,7 @@ static inline void dspUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   SETUP_calc_dsp;
   any_order = TRUE;
   
+  CALC_with_dirs({
   /* step through edges of head */
   ML_EXEC_THROUGH_EDGES(ll0, h,e,u, {
       if (u!=t){
@@ -80,7 +91,8 @@ static inline void dspUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
           UPDATE_CS_2(uh,u,t,t,h);
         }
       }
-      });
+    });
+    });
 }
 
 
@@ -92,7 +104,8 @@ This function should only be used in the directed case
 */
 static inline void dspOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs) { 
   SETUP_calc_dsp;
-  
+
+  CALC_with_dirs({
   /* step through outedges of head (i.e., k: t->k)*/
   ML_EXEC_THROUGH_OUTEDGES(ll0,h, e, k, {
       if(k!=t){ /*Only use contingent cases*/
@@ -123,6 +136,7 @@ static inline void dspOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
         }
       }
     });
+    });
 }
 
 
@@ -140,6 +154,7 @@ We assume that this is only called for directed graphs - otherwise, use the base
 static inline void dspITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs) { 
   SETUP_calc_dsp;
 
+  CALC_with_dirs({
   /* step through outedges of head (i.e., k: h->k)*/
   ML_EXEC_THROUGH_OUTEDGES(ll0, h, e, k, {
       if((k!=t)){ /*Only use contingent cases*/
@@ -168,6 +183,7 @@ static inline void dspITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
         }
       }
     });
+    });
 }
 
 
@@ -184,7 +200,8 @@ We assume that this is only called for directed graphs - otherwise, use the base
 static inline void dspOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs) { 
   SETUP_calc_dsp;
   any_order = TRUE;
-  
+
+  CALC_with_dirs({
   ML_EXEC_THROUGH_INEDGES(ll0,h, e, k, {
       if(k!=t){
         unsigned int L2tk=0;
@@ -201,6 +218,7 @@ static inline void dspOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
         }
         
       }
+    });
     });
 }
 
@@ -219,6 +237,7 @@ static inline void dspISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   SETUP_calc_dsp;
   any_order = TRUE;
 
+  CALC_with_dirs({
   ML_EXEC_THROUGH_OUTEDGES(ll0,t, e, k, {
       if(k!=h){
         unsigned int L2kh=0;
@@ -235,6 +254,7 @@ static inline void dspISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
         }
         
       }
+    });
     });
 }
 
@@ -469,6 +489,7 @@ static inline void espUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   SETUP_calc_esp;
   any_order = TRUE;
   
+  CALC_with_dirs({
   unsigned int L2th=0;
   ML_EXEC_THROUGH_EDGES(ll0, h,e,u, {
       if (ML_IS_UNDIRECTED_EDGE(ll0,u,t) != 0){
@@ -493,6 +514,7 @@ static inline void espUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
       deg = (Vertex)dvec[j];
       cs[j] += l3c*(L2th == deg);
     }
+    });
 }
 
 
@@ -509,6 +531,7 @@ This function should only be used in the directed case, with espUTP being used i
 static inline void espOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs) { 
   SETUP_calc_esp;
 
+  CALC_with_dirs({
   if(l3c){
     unsigned int L2th=0;
     ML_EXEC_THROUGH_OUTEDGES(ll0,t,e,k, {
@@ -547,6 +570,7 @@ static inline void espOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
         }
       }
     });
+    });
 }
 
 
@@ -563,6 +587,7 @@ We assume that this is only called for directed graphs - otherwise, use the base
 static inline void espITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs) { 
    SETUP_calc_esp;
    
+  CALC_with_dirs({
   if(l3c){
     unsigned int L2th=0;
     ML_EXEC_THROUGH_INEDGES(ll0,t,e,k, {
@@ -610,6 +635,7 @@ static inline void espITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
         }
       }
     });
+    });
 }
 
 
@@ -626,6 +652,7 @@ We assume that this is only called for directed graphs - otherwise, use the base
 static inline void espOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs) { 
   SETUP_calc_esp;
   
+  CALC_with_dirs({
   if(l3c){
     unsigned int L2th=0;
     ML_EXEC_THROUGH_OUTEDGES(ll0,t,e,k, {
@@ -671,6 +698,7 @@ static inline void espOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
         }
       }
     });
+    });
 }
 
 
@@ -687,6 +715,7 @@ We assume that this is only called for directed graphs - otherwise, use the base
 static inline void espISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs) { 
    SETUP_calc_esp;
   
+  CALC_with_dirs({
   if(l3c){
     unsigned int L2th=0;
     ML_EXEC_THROUGH_INEDGES(ll0,t,e,k, {
@@ -731,6 +760,7 @@ static inline void espISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
           UPDATE_CS_1(hk,t,h,t,k);
         }
       }
+    });
     });
 }
 

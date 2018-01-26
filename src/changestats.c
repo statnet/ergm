@@ -4282,12 +4282,15 @@ C_CHANGESTAT_FN(c_mutual_ML){
 
   /* *** don't forget tail -> head */
   Vertex lt = ML_IO_TAIL(ll1, tail), lh = ML_IO_HEAD(ll1, head);
-  int l1change = ergm_LayerLogic(tail, head, ll1, TRUE);
-  int l1reverse = ML_GETWT(ll1, lh, lt);
-  int l2change = ergm_LayerLogic(tail, head, ll2, TRUE);
-  int l2reverse = ML_GETWT(ll2, lh, lt);
+  int l1th = ergm_LayerLogic2(lt, lh, tail, head, ll1, 2);
+  int l1ht = ergm_LayerLogic2(lh, lt, tail, head, ll1, 2);
+  int l2th = ergm_LayerLogic2(lt, lh, tail, head, ll2, 2);
+  int l2ht = ergm_LayerLogic2(lh, lt, tail, head, ll2, 2);
 
-  int change = l1reverse*l2change + l2reverse*l1change;
+  int change =
+    +((l1th&2)&&(l2ht&2))-((l1th&1)&&(l2ht&1)) // t-l1->h and h->l2->t
+    +((l2th&2)&&(l1ht&2))-((l2th&1)&&(l1ht&1)) // t-l2->h and h->l1->t
+    ;
   
   if(change) { /* otherwise, no change occurs */
       if (noattr) { /* "plain vanilla" mutual, without node attributes */
@@ -4341,15 +4344,17 @@ C_CHANGESTAT_FN(c_mutual_by_attr_ML) {
   ninputs = N_INPUT_PARAMS - N_NODES - 2;
 
   /* *** don't forget tail -> head */
-  Vertex lt = ll1->lmap[tail], lh = ll1->lmap[head]; 
-  int l1change = ergm_LayerLogic(tail, head, ll1, TRUE);
-  int l1reverse = ML_GETWT(ll1, lh, lt);
-  int l2change = ergm_LayerLogic(tail, head, ll2, TRUE);
-  int l2reverse = ML_GETWT(ll2, lh, lt);
+  Vertex lt = ML_IO_TAIL(ll1, tail), lh = ML_IO_HEAD(ll1, head);
+  int l1th = ergm_LayerLogic2(lt, lh, tail, head, ll1, 2);
+  int l1ht = ergm_LayerLogic2(lh, lt, tail, head, ll1, 2);
+  int l2th = ergm_LayerLogic2(lt, lh, tail, head, ll2, 2);
+  int l2ht = ergm_LayerLogic2(lh, lt, tail, head, ll2, 2);
 
-  int change = l1reverse*l2change + l2reverse*l1change;
-  
-  /* *** don't forget tail -> head */    
+  int change =
+    +((l1th&2)&&(l2ht&2))-((l1th&1)&&(l2ht&1)) // t-l1->h and h->l2->t
+    +((l2th&2)&&(l1ht&2))-((l2th&1)&&(l1ht&1)) // t-l2->h and h->l1->t
+    ;
+
     if (change) { /* otherwise, no change occurs */
       for (j=0; j<ninputs; j++) {
         if (INPUT_PARAM[tail+ninputs-1+2] == INPUT_PARAM[j+2]){CHANGE_STAT[j] += change;}

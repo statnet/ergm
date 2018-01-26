@@ -222,8 +222,11 @@ InitErgmTerm..layer.net <- function(nw, arglist, response=NULL, ...){
   list(name="_layer_net", coef.names=c(), inputs=c(unlist(.block_vertexmap(nw, ".LayerID", TRUE)),if(is.directed(nw)) sapply(nwl, function(nw) (nw%v% ".undirected")[1]), ll), dependence=dependence)
 }
 
-pack.LayerLogic_formula_as_double <- function(formula, namemap){
-  OPMAP <- list(
+LL_PREOPMAP <- list(
+    # Unary operators
+    c(`t` = -23)
+  )
+LL_POSTOPMAP <- list(
     # Unary operators
     c(`(` = NA,
       `!` = -1,
@@ -251,7 +254,11 @@ pack.LayerLogic_formula_as_double <- function(formula, namemap){
       `%%` = -15,
       `^` = -18,
       `%/%` = -19,
-      `round` = -21))
+      `round` = -21)
+    )
+
+
+pack.LayerLogic_formula_as_double <- function(formula, namemap){
 
     
   lidMap <- function(l){
@@ -261,14 +268,20 @@ pack.LayerLogic_formula_as_double <- function(formula, namemap){
            name = if(regexpr('^[0-9]+$',l)!=-1) as.integer(as.character(l))
                   else namemap[as.character(l)])
   }
-  
+
+  preops <- 0
   postfix <- function(call, coml=c()){
     if(is.call(call)){
       op <- call[[1]]
+      if(as.character(op) %in% unlist(lapply(LL_PREOPMAP, names))){
+        preops <<- preops+1
+        coml <- c(coml, LL_PREOPMAP[[length(call)-1]][[as.character(op)]])
+        postop <- FALSE
+      }else postop <- TRUE
       for(i in seq_along(call[-1])+1){
         coml <- c(coml, postfix(call[[i]]))
       }
-      coml <- c(coml, OPMAP[[length(call)-1]][as.character(op)])
+      if(postop) coml <- c(coml, LL_POSTOPMAP[[length(call)-1]][as.character(op)])
     }else{
       coml <- c(coml, lidMap(call))
     }
@@ -276,14 +289,14 @@ pack.LayerLogic_formula_as_double <- function(formula, namemap){
   }
   
   com <- postfix(formula[[length(formula)]])
-  c(sum(com!=0), com)
+  c(sum(com!=0 & !com%in%unlist(LL_PREOPMAP)), com)
 }
 
-test_eval.LayerLogic <- function(commands, lv){
+test_eval.LayerLogic <- function(commands, lv, lvr = lv){
   coms <- commands[-1]
   lv <- rep(lv, length.out=max(coms))
   stack <- c()
-  if(sum(coms!=0)!=commands[1]) stop("Layer specification command vector specifies incorrect number of commands.", call.=FALSE)
+  if(sum(coms!=0 & !coms%in%unlist(LL_PREOPMAP))!=commands[1]) stop("Layer specification command vector specifies incorrect number of commands.", call.=FALSE)
   for(i in 1:commands[1]){
     com <- coms[1]
     if(com==0){
@@ -373,6 +386,10 @@ test_eval.LayerLogic <- function(commands, lv){
     }else if(com==-22){
       x0 <- stack[1]; stack <- stack[-1]
       stack <- c(sign(x0), stack)
+    }else if(com==-23){ 
+      coms <- coms[-1]
+      x0 <- coms[1]
+      stack <- c(lvr[x0], stack)
     }else{
       stack <- c(lv[com], stack)
     }

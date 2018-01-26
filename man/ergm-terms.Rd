@@ -301,9 +301,9 @@ network
 
     \link[base:Arithmetic]{Arithmetical},
     \link[base:Comparison]{relational}, and \link[base:Logic]{logical}
-    operators can be used to combine them. (All listed operators are
+    operators can be used to combine them. All listed operators are
     implemented, as well as functions \code{\link{abs}},
-    \code{\link{round}}, and \code{\link{sign}}.) Standard \R
+    \code{\link{round}}, and \code{\link{sign}}. Standard \R
     \link[base:Syntax]{operator precedence} applies, so use of
     parentheses is recommended to ensure the logical expression is what
     it looks like.
@@ -312,6 +312,12 @@ network
     and \code{~B} refer to \code{nwB}, while \code{A&!B} refers to a
     \dQuote{logical} layer that has ties that are in \code{nwA} but not
     in \code{nwB}.
+
+    Transpose function \code{\link{t}} applied to a directed layer will
+    reverse the direction of all relations (transposing the
+    sociomatrix). Unlike the others, it can only be used on
+    an observed layer directly. For example, \code{~t(`1`)&t(`2`)} is
+    valid but \code{~t(`1`&`2`)} is not.
 
     At this time, logical expressions that produce complete graphs from
     empty graph inputs (e.g., \code{A==B} or \code{!A}) are not
