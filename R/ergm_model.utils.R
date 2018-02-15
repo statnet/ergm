@@ -71,7 +71,7 @@ ergm.checkconstraints.model <- function(model, MHproposal, init, silent=FALSE){
     else constraints.old <- constraints
   }
 
-  coef.counts <- coef.sublength.model(model)
+  coef.counts <- nparam(model, byterm=TRUE)
   conflict.coefs <- c()
   
   for(i in seq_along(model$terms))
@@ -90,82 +90,6 @@ ergm.checkconstraints.model <- function(model, MHproposal, init, silent=FALSE){
   }
   
   list(model=model, init=init, estimable=!conflict.coefs)
-}
-
-#' @rdname coef.length.model
-#'
-#' @description \code{coef.sublength.model} returns a vector
-#'   containing the number of model parameters corresponding to each
-#'   model term.
-#' @export coef.sublength.model
-coef.sublength.model<-function(object, offset=NA, ...){
-  terms <-
-    if(is.na(offset)) object$terms
-    else if(offset) object$terms[object$etamap$offset]
-    else if(!offset) object$terms[!object$etamap$offset]
-                  
-  sapply(terms, function(term){
-    ## curved term
-    if(!is.null(term$params)) length(term$params)
-    ## linear term
-    else length(term$coef.names)
-  })
-}
-
-#' Extract Number of parameters in ergm Model
-#' 
-#' \code{coef.length.model} returns the total number of parameters of
-#' an [`ergm_model`].
-#' 
-#' @param object an [`ergm_model`] object
-#' @param offset If `NA` (the default), all model terms are counted;
-#'   if \code{TRUE}, only offset terms are counted; and if
-#'   \code{FALSE}, offset terms are skipped.
-#' @param \dots other arguments.
-#' @return \code{coef.length.model} returns the length of the
-#'   parameter vector of the model.
-#' @note These are *not* methods at this time. This may change in the
-#'   future.
-#' @keywords models
-#' @export coef.length.model
-coef.length.model <- function(object, offset=NA, ...){
-  sum(coef.sublength.model(object, offset=offset, ...))
-}
-
-#' @rdname coef.length.model
-#' @description \code{eta.sublength.model} returns a vector containing
-#'   the number of canonical parameters (also the number of sufficient
-#'   statistics) corresponding to each model term.
-#' @export eta.sublength.model
-eta.sublength.model<-function(object, offset=NA, ...){
-  terms <-
-    if(is.na(offset)) object$terms
-    else if(offset) object$terms[object$etamap$offset]
-    else if(!offset) object$terms[!object$etamap$offset]
-                  
-  sapply(terms, function(term){
-    length(term$coef.names)
-  })
-}
-
-#' @rdname coef.length.model
-#' @description \code{eta.length.model} returns the total number of
-#'   canonical parameters.
-#' @export eta.sublength.model
-eta.length.model <- function(object, offset=NA, ...){
-  sum(eta.sublength.model(object, offset=offset, ...))
-}
-
-#' Parameters names of an initialized ergm model
-#'
-#' @param object an `ergm_model`.
-#' @param canonical whether the canonical (natural) parameters or the
-#'   model (curved) parameters are wanted.
-#'
-#' @return a character vector of parameter names.
-coef.names.model <- function(object, canonical){
-  if(canonical) object$coef.names
-  else unlist(lapply(object$terms, function(term) NVL3(term$params, names(.), term$coef.names)))
 }
 
 #' `ergm_model`'s `etamap` with all offset terms removed and remapped

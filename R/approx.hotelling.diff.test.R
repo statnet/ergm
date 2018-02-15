@@ -238,8 +238,8 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE)
   esteq <- t(ergm.etagradmult(theta,t(as.matrix(statsmatrix)),etamap))[,!etamap$offsettheta,drop=FALSE]
   if(is.mcmc(statsmatrix)){
     esteq <- mcmc(esteq, start=start(statsmatrix), end=end(statsmatrix), thin=thin(statsmatrix))
-    varnames(esteq) <- NVL(names(theta), coef.names.model(model, FALSE))[!etamap$offsettheta]
-  }else  colnames(esteq) <- NVL(names(theta), coef.names.model(model, FALSE))[!etamap$offsettheta]
+    varnames(esteq) <- NVL(names(theta), param_names(model, FALSE))[!etamap$offsettheta]
+  }else  colnames(esteq) <- NVL(names(theta), param_names(model, FALSE))[!etamap$offsettheta]
 
   esteq
 }

@@ -66,7 +66,7 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
   }
   if(is.null(dim(x))) dim(x) <- c(length(x), 1)
   if(is.null(offset)) offset <- rep(0,length(y))
-  dn <- if(is.null(m)) dimnames(x)[[2]] else coef.names.model(m, FALSE)
+  dn <- if(is.null(m)) dimnames(x)[[2]] else param_names(m, FALSE)
   if(!length(dn)) dn <- paste("Var", 1:ncol(x), sep="")
   p <- ncol(x) + intercept
   if(intercept) {x <- cbind(1, x); dn <- c("(Intercept)", dn)}
