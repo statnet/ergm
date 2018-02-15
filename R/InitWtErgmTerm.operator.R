@@ -19,7 +19,7 @@ InitWtErgmTerm.B <- function(nw, arglist, response=NULL, ...){
   inputs <- pack.Clist_as_num(Clist)
   
   gs <- if(form=="nonzero" || is(form, "formula")) ergm.emptynwstats.model(m)
-        else rep(0, eta.length.model(m))
+        else rep(0, nparam(m, canonical=TRUE))
 
   if(is(form, "formula")){
     form.name <- deparse(form[[length(form)]])
@@ -64,7 +64,7 @@ InitWtErgmTerm..binary.formula.net <- function(nw, arglist, response=NULL, ...){
   
   m <- ergm.getmodel(f, nw, response=response,...)
 
-  if(!is.dyad.independent(m) || coef.length.model(m)!=1) stop("The binary test formula must be dyad-independent and have exactly one statistc.")
+  if(!is.dyad.independent(m) || nparam(m)!=1) stop("The binary test formula must be dyad-independent and have exactly one statistc.")
 
   Clist <- ergm.Cprepare(nw, m)
   inputs <- pack.Clist_as_num(Clist)

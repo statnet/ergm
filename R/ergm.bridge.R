@@ -229,8 +229,8 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
 
   m<-ergm.getmodel(object, nw, response=response, term.options=control$term.options)
   
-  q.pos.full <- c(0,cumsum(coef.sublength.model(m)))
-  p.pos.full <- c(0,cumsum(eta.sublength.model(m)))
+  q.pos.full <- c(0,cumsum(nparam(m, canonical=FALSE, byterm=TRUE)))
+  p.pos.full <- c(0,cumsum(nparam(m, canonical=TRUE, byterm=TRUE)))
   
   tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats)
   nw <- tmp$nw

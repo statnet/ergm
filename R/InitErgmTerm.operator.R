@@ -62,8 +62,8 @@ passthrough.curved.ergm_model <- function(m, namewrap = identity){
     gradient <- function(x, n, ...){
       ergm.etagrad(x, m$etamap)
     }
-    params <- rep(list(NULL), coef.length.model(m))
-    names(params) <- sapply(coef.names.model(m, canonical=FALSE), namewrap)
+    params <- rep(list(NULL), nparam(m))
+    names(params) <- sapply(param_names(m, canonical=FALSE), namewrap)
   }else map <- gradient <- params <- NULL
 
   list(map = map, gradient = gradient, params = params)
@@ -176,7 +176,7 @@ InitErgmTerm.summary.test <- function(nw, arglist, response=NULL, ...){
 
   m <- ergm.getmodel(f, nw, response=response,...)
   
-  list(name="summary_test_term", coef.names = 'summ.test', inputs=c(coef.length.model(m)), dependence=!is.dyad.independent(m), auxiliaries=~.summary(a$formula))
+  list(name="summary_test_term", coef.names = 'summ.test', inputs=c(nparam(m)), dependence=!is.dyad.independent(m), auxiliaries=~.summary(a$formula))
 }
 
 InitErgmTerm.F <- function(nw, arglist, response=NULL, ...){
@@ -223,7 +223,7 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, response=NULL, ...){
   
   m <- ergm.getmodel(f, nw, response=response,...)
 
-  if(!is.dyad.independent(m) || coef.length.model(m)!=1) stop("The filter test formula must be dyad-independent and have exactly one statistc.")
+  if(!is.dyad.independent(m) || nparam(m)!=1) stop("The filter test formula must be dyad-independent and have exactly one statistc.")
 
   Clist <- ergm.Cprepare(nw, m)
   inputs <- pack.Clist_as_num(Clist)

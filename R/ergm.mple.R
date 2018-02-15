@@ -162,7 +162,7 @@ ergm.mple<-function(Clist, fd, m, init=NULL,
   if(ncol(real.cov)==1){real.cov <- as.vector(real.cov)}
   theta[!m$etamap$offsettheta] <- real.coef
 # theta[is.na(theta)] <- 0
-  names(theta) <- coef.names.model(m, FALSE)
+  names(theta) <- param_names(m, FALSE)
 
 #
 # Old end

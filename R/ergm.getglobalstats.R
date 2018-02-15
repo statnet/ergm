@@ -22,7 +22,7 @@ ergm.emptynwstats.model <- function(m){
   # New method:  Use $emptynwstats added to m$terms by the InitErgmTerm function
   # Read the comments at the top of InitErgm.R or InitErgmTerm.R for 
   # an explanation of the $emptynwstats mechanism
-  gs <- rep(0, eta.length.model(m))
+  gs <- rep(0, nparam(m, canonical=TRUE))
   i <- 1
   for (j in 1:length(m$terms)) {
     tmp <- m$terms[[j]]

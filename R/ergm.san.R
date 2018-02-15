@@ -131,7 +131,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
         fit <- try(suppressWarnings(ergm(formula=object, response=response, reference=reference,
                         constraints=constraints,eval.loglik=FALSE,estimate="MPLE",control=control.ergm(drop=FALSE))),silent=TRUE)
         if(inherits(fit, "try-error")){
-          control$coef <- rep(0,coef.length.model(model)) 
+          control$coef <- rep(0,nparam(model)) 
           if(is.null(control$invcov)) control$invcov <- diag(length(control$coef))
         }else{
           control$coef <- coef(fit)
@@ -142,7 +142,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
           }
         }
       }else{
-        control$coef<-rep(0,coef.length.model(model))
+        control$coef<-rep(0,nparam(model))
         if(is.null(control$invcov)) control$invcov <- diag(length(control$coef))
       }
     }else{

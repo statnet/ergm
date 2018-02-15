@@ -155,7 +155,7 @@ ergm.allstats <- function(formula, zeroobs = TRUE, force = FALSE,
     statmat <- sweep(statmat, 2, obsstats, '+')
   }
 
-  colnames(statmat) <- coef.names.model(model, TRUE)
+  colnames(statmat) <- param_names(model, TRUE)
   list(weights=weights, statmat=statmat)
 }
 
