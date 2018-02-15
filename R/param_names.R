@@ -3,6 +3,7 @@
 #' This is a generic that returns a vector giving the names of the parameters associated with a model or a model fit. 
 #' 
 #' @param object An object for which parameter names are defined.
+#' @param ... Additional arguments to methods.
 #' 
 #' @export
 param_names <- function(object, ...){

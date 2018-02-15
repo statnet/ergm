@@ -78,7 +78,7 @@ model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
   ## returned a constant value.
 
   m <- ergm.getmodel(object, ergm.getnetwork(object), response=response)
-  theta.inds<-cumsum(c(1,coef.sublength.model(m)))
+  theta.inds<-cumsum(c(1,nparam(m, byterm=TRUE)))
   terms<-term.list.formula(object[[3]])
   form<-object
   ## This deletes the formula's RHS, and LHS becomes RHS (for the moment).
@@ -293,7 +293,7 @@ enformulate.curved.formula <- function(object, theta, response=NULL, ...){
 set.offset.formula <- function(object, which, response=NULL){
   nw <- ergm.getnetwork(object)
   m<-ergm.getmodel(object, nw, response=response,role="target")
-  to_offset <-unique(rep(seq_along(m$terms),coef.sublength.model(m))[which]) # Figure out which terms correspond to the coefficients to be offset.
+  to_offset <-unique(rep(seq_along(m$terms),nparam(m, byterm=TRUE))[which]) # Figure out which terms correspond to the coefficients to be offset.
   terms <- term.list.formula(object[[3]])
   for(i in to_offset)
     if(!inherits(terms[[i]],"call") || terms[[i]][[1]]!="offset") # Don't offset terms already offset.
@@ -304,7 +304,7 @@ set.offset.formula <- function(object, which, response=NULL){
 unset.offset.formula <- function(object, which=TRUE, response=NULL){
   nw <- ergm.getnetwork(object)
   m<-ergm.getmodel(object, nw, response=response,role="target")
-  to_unoffset <-unique(rep(seq_along(m$terms),coef.sublength.model(m))[which]) # Figure out which terms correspond to the coefficients to be un offset.
+  to_unoffset <-unique(rep(seq_along(m$terms),nparam(m, byterm=TRUE))[which]) # Figure out which terms correspond to the coefficients to be un offset.
   terms <- term.list.formula(object[[3]])
   for(i in to_unoffset)
     if(inherits(terms[[i]],"call") && terms[[i]][[1]]=="offset") # Is the term an offset?

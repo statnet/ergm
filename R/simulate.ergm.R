@@ -206,7 +206,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     # Construct a model to get the number of parameters monitor requires.
     monitor <- ergm.update.formula(monitor, nw~., from.new="nw")
     monitor.m <- ergm.getmodel(monitor, basis, response=response)
-    monitored.length <- coef.length.model(monitor.m)
+    monitored.length <- nparam(monitor.m)
     
     monitor <- term.list.formula(monitor[[3]])
     form<-append.rhs.formula(form, monitor)
@@ -219,13 +219,13 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   # Just in case the user did not give a coef value, set it to zero.
   # (probably we could just return an error in this case!)
   if(missing(coef)) {
-    coef <- c(rep(0, coef.length.model(m)))
+    coef <- c(rep(0, nparam(m)))
     warning("No parameter values given, using Bernouli network\n\t")
   }
 
   coef <- c(coef, rep(0, monitored.length))
   
-  if(coef.length.model(m)!=length(coef)) stop("coef has ", length(coef) - monitored.length, " elements, while the model requires ",coef.length.model(m) - monitored.length," parameters.")
+  if(nparam(m)!=length(coef)) stop("coef has ", length(coef) - monitored.length, " elements, while the model requires ",nparam(m) - monitored.length," parameters.")
 
   MHproposal <- MHproposal(constraints,arguments=control$MCMC.prop.args,
                            nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  

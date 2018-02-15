@@ -739,7 +739,7 @@ ergm <- function(formula, response=NULL,
   model.initial$target.stats <- NVL(target.stats, model.initial$nw.stats)
   
   if(control$init.method=="CD") if(is.null(names(control$init)))
-    names(control$init) <- .coef.names.model(model.initial, FALSE)
+    names(control$init) <- param_names(model.initial, FALSE)
   
   initialfit <- ergm.initialfit(init=control$init, initial.is.final=!MCMCflag,
                                 formula=formula, nw=nw, reference=reference, 
@@ -809,7 +809,7 @@ ergm <- function(formula, response=NULL,
     # revise init to reflect additional parameters
     init <- ergm.reviseinit(model, init)
   }
-  names(init) <- .coef.names.model(model, FALSE)
+  names(init) <- param_names(model, FALSE)
   
   # Check if any terms are constrained to a constant and issue a warning.
   constrcheck <- ergm.checkconstraints.model(model, MHproposal, init=init, silent=TRUE)

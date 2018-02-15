@@ -3,6 +3,7 @@
 #' This is a generic that returns the number of parameters associated with a model or a model fit. 
 #' 
 #' @param object An object for which number of parameters is defined.
+#' @param ... Additional arguments to methods.
 #' 
 #' @export
 nparam <- function(object, ...){
@@ -26,7 +27,7 @@ nparam.default <- function(object, ...){
 #'   coefficients for each term.
 #' @template canonical
 #' @export
-nparam.ergm_model <- function(object, offset=NA, byterm=FALSE, canonical=FALSE, ...){
+nparam.ergm_model <- function(object, canonical=FALSE, offset=NA, byterm=FALSE, ...){
   terms <-
     if(is.na(offset)) object$terms
     else if(offset) object$terms[object$etamap$offset]

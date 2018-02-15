@@ -209,7 +209,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   tmp<-ergm.bridge.preproc(object,basis,response)
   nw<-tmp$nw; m<-tmp$model; form<-tmp$form; rm(tmp)
 
-  p.pos.full <- c(0,cumsum(coef.sublength.model(m)))
+  p.pos.full <- c(0,cumsum(nparam(m, byterm=TRUE)))
   
   constraints.obs <- if(network.naedgecount(nw))
     ergm.update.formula(constraints,~.+observed)

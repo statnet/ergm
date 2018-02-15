@@ -11,13 +11,17 @@ nparam(object, ...)
 
 \method{nparam}{default}(object, ...)
 
-\method{nparam}{ergm_model}(object, offset = NA, byterm = FALSE,
-  canonical = FALSE, ...)
+\method{nparam}{ergm_model}(object, canonical = FALSE, offset = NA,
+  byterm = FALSE, ...)
 
 \method{nparam}{ergm}(object, offset = NA, ...)
 }
 \arguments{
 \item{object}{An object for which number of parameters is defined.}
+
+\item{...}{Additional arguments to methods.}
+
+\item{canonical}{Whether the canonical (eta) parameters or the curved (theta) parameters are used.}
 
 \item{offset}{If \code{NA} (the default), all model terms are counted;
 if \code{TRUE}, only offset terms are counted; and if
@@ -25,8 +29,6 @@ if \code{TRUE}, only offset terms are counted; and if
 
 \item{byterm}{Whether to return a vector of the numbers of
 coefficients for each term.}
-
-\item{canonical}{Whether the canonical (eta) parameters or the curved (theta) parameters are used.}
 }
 \description{
 This is a generic that returns the number of parameters associated with a model or a model fit.

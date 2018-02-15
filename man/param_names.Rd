@@ -15,6 +15,8 @@ param_names(object, ...)
 \arguments{
 \item{object}{An object for which parameter names are defined.}
 
+\item{...}{Additional arguments to methods.}
+
 \item{canonical}{Whether the canonical (eta) parameters or the curved (theta) parameters are used.}
 }
 \description{
