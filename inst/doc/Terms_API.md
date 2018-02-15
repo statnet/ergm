@@ -49,9 +49,9 @@ For the purposes of this overview, the following information is relevant, and is
     1. `ChangeStats()` is called.
         1. It calls the `d_` functions, for those terms for which they are initialized.
 	    1. It iterates through the proposed toggles.
-	        1. It calls the `c_` function.
+	        1. It calls the `c_` functions.
 		    1. It adds its output to the cumulative change.
-		    1. It calls the `u_` function with the toggle (if more to come).
+		    1. It calls the `u_` functions with the toggle (if more to come).
 		    1. It makes the toggle provisionally (if more to come).
 	    1. It undoes the provisional toggles.
     1. If the proposal is accepted, `u_` function is called and network is updated for each toggle.
