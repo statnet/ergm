@@ -13,6 +13,7 @@ param_names <- function(object, ...){
 #' @describeIn param_names
 #'
 #' By default, the names of the [coef()] vector is returned.
+#' @export
 param_names.default <- function(object, ...){
   names(coef(object))
 }
@@ -21,6 +22,7 @@ param_names.default <- function(object, ...){
 #' A method to return the curved or canonical parameter names of an initialized [`ergm_model`].
 #'
 #' @template canonical
+#' @export
 param_names.ergm_model <- function(object, canonical=FALSE){
     if(canonical) object$coef.names
     else unlist(lapply(object$terms, function(term) NVL(names(term$params),term$coef.names)))
