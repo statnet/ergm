@@ -52,6 +52,7 @@ pack.Clist_as_num <- function(Clist){
 #' @return a list with elements `map`, `gradient`, and `params`
 #'   suitable for concatenating with an `InitErgmTerm` or
 #'   `InitWtErgmTerm` output list.
+#' @export passthrough.curved.ergm_model
 passthrough.curved.ergm_model <- function(m, namewrap = identity){
   
   if(is.curved(m)){
