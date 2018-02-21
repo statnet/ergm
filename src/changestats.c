@@ -4197,7 +4197,8 @@ C_CHANGESTAT_FN(c_m2star) {
 *****************/
 C_CHANGESTAT_FN(c_meandeg) {
   // Effectively, change is 2/n if undirected and 1/n if directed.
-  CHANGE_STAT[0] = (2-DIRECTED)*(IS_OUTEDGE(tail, head) ? -2.0 : 2.0)/N_NODES;
+  if(DIRECTED) CHANGE_STAT[0] = (IS_OUTEDGE(tail, head) ? -1.0 : 1.0)/N_NODES;
+  else CHANGE_STAT[0] = (IS_OUTEDGE(tail, head) ? -2.0 : 2.0)/N_NODES;
 }
 
 /*****************
