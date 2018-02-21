@@ -425,7 +425,7 @@ if (s.0 != 0 || round(e.0$coef - 5.10979, 3) != 0) {
 num.tests=num.tests+1
 s.0 <- summary(samplike~meandeg)
 e.0 <- ergm(fmh~meandeg, estimate="MPLE")
-if (round(s.0 - 9.77777, 3) != 0 ||
+if (round(s.0 - 4.8889, 3) != 0 ||
     round(e.0$coef + 474.0647, 3) != 0) {
  print(list(s.0=s.0, e.0=e.0))
  stop("Failed meandeg term test")
