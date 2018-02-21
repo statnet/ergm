@@ -140,7 +140,11 @@
       }
       \item{
 	An error in runtime traceplotting for models with offset terms
-	reported by Kevin reuning has been fixed.
+	reported by Kevin Reuning has been fixed.
+      }
+      \item{
+	A bug in the \code{\link{meandeg}} term for directed
+	networks has been fixed.
       }
     }
   }

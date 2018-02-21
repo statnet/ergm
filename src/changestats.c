@@ -3649,10 +3649,8 @@ C_CHANGESTAT_FN(c_m2star) {
  changestat: d_meandeg
 *****************/
 C_CHANGESTAT_FN(c_meandeg) {
-
-  CHANGE_STAT[0] = 0.0;
-    CHANGE_STAT[0] += (IS_OUTEDGE(tail, head) ? -2.0 : 2.0);
-  CHANGE_STAT[0]/=(double)N_NODES;
+  // Effectively, change is 2/n if undirected and 1/n if directed.
+  CHANGE_STAT[0] = (2-DIRECTED)*(IS_OUTEDGE(tail, head) ? -2.0 : 2.0)/N_NODES;
 }
 
 /*****************
