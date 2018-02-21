@@ -4043,10 +4043,10 @@ D_CHANGESTAT_FN(d_meandeg) {
 
   CHANGE_STAT[0] = 0.0;
   FOR_EACH_TOGGLE(i) {
-    CHANGE_STAT[0] += (IS_OUTEDGE(TAIL(i), HEAD(i)) ? -2.0 : 2.0);
+    CHANGE_STAT[0] += (IS_OUTEDGE(TAIL(i), HEAD(i)) ? -2 : 2);
     TOGGLE_IF_MORE_TO_COME(i);
   }
-  CHANGE_STAT[0]/=(double)N_NODES;
+  CHANGE_STAT[0]/=N_NODES*(DIRECTED+1); // Effectively, change is 2/n if undirected and 1/n if directed.
   UNDO_PREVIOUS_TOGGLES(i);
 }
 
