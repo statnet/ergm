@@ -76,6 +76,12 @@
       }
 
       \item{
+	The term API now supports box constraints on parameters or
+	coefficients, which may be set via \code{minpar} and
+	\code{maxpar} elements in the \code{InitErgmTerm}'s return list.
+      }
+
+      \item{
 	A mechanism for specifying \dQuote{observational constraints}
 	has been added, allowing more complex observation processes than
 	just missing data to be estimated.

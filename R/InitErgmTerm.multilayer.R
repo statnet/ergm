@@ -562,19 +562,8 @@ InitErgmTerm.gwldegree<-function(nw, arglist,  ...) {
     if(!is.null(a$decay)) warning("In term 'gwldegree': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
     ld<-length(d)
     if(ld==0){return(NULL)}
-    map <- function(x,n,...) {
-      i <- 1:n
-      x[1]*(exp(x[2])*(1-(1-exp(-x[2]))^i))
-    }
-    gradient <- function(x,n,...) {
-      i <- 1:n
-      rbind(exp(x[2])*(1-(1-exp(-x[2]))^i),
-            x[1]*(exp(x[2])-(1-exp(-x[2]))^{i-1}*(1+i-exp(-x[2])))
-           )
-    }
     c(.process_layers_degree(nw, a, name="odegree", coef.names=paste("gwldegree#",d,sep=""), inputs=c(d)),
-      params=list(gwldegree=NULL,gwldegree.decay=decay),
-      map=map, gradient=gradient, conflicts.constraints="degreedist")
+      list(params=list(gwldegree=NULL,gwldegree.decay=decay), conflicts.constraints="degreedist"), GWDECAY)
   } else {
     if(is.null(a$decay)) stop("Term 'gwldegree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 

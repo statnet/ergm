@@ -92,6 +92,11 @@ ergm.etamap <- function(model) {
       }else{
        etamap$offsettheta <- c(etamap$offsettheta, rep(FALSE,j))
       }
+      
+      etamap$mintheta <- c(etamap$mintheta,
+                           rep(NVL(mti$minpar, -Inf), length.out=j))
+      etamap$maxtheta <- c(etamap$maxtheta,
+                           rep(NVL(mti$maxpar, +Inf), length.out=j))
     } else { # curved parameter
       k <- length(mti$params)
       etamap$canonical <- c(etamap$canonical, rep(0, k))
@@ -107,6 +112,11 @@ ergm.etamap <- function(model) {
       }else{
        etamap$offsettheta <- c(etamap$offsettheta, rep(FALSE,k))
       }
+      
+      etamap$mintheta <- c(etamap$mintheta,
+                           rep(NVL(mti$minpar, -Inf), length.out=k))
+      etamap$maxtheta <- c(etamap$maxtheta,
+                           rep(NVL(mti$maxpar, +Inf), length.out=k))
     }
   }
   etamap$etalength <- to-1

@@ -66,7 +66,7 @@ passthrough.curved.ergm_model <- function(m, namewrap = identity){
     names(params) <- sapply(param_names(m, canonical=FALSE), namewrap)
   }else map <- gradient <- params <- NULL
 
-  list(map = map, gradient = gradient, params = params)
+  list(map = map, gradient = gradient, params = params, minpar=m$etamap$minpar, maxpar=m$etamap$maxpar)
 }
 
 ## Creates a submodel that does exactly what the model terms passed to

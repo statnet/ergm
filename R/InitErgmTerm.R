@@ -100,6 +100,8 @@
 #                  argument may be omitted.  Example:  If the degree0 term is
 #                  among the statistics, this argument is unnecessary because
 #                  degree0 = number of nodes for the empty network
+#    minpar      : the vector of minimal valid values for each of the model's parameters
+#    maxpar      : the vector of maximal valid values for each of the model's parameters
 #    params      : a list of parameter values for curved exponential family model
 #                  terms only; each item in the list should be named with the
 #                  corresponding parameter name; those that coincide with the
@@ -139,7 +141,8 @@ GWDECAY <- list(
     e2 <- exp(x[2])
     a <- 1-exp(-x[2])
     rbind((1-a^i)*e2, x[1] * ( (1-a^i)*e2 - i*a^(i-1) ) )
-  }
+  },
+  minpar = c(-Inf, 0)
 )
 
 .spcache.aux <- function(type){
@@ -251,7 +254,8 @@ InitErgmTerm.altkstar <- function(nw, arglist, ...) {
     outlist <- list(name="degree",                 #name: required
        coef.names = paste("altkstar#", d, sep=""), #coef.names: required
        inputs = d, map=map, gradient=gradient,
-       params=list(altkstar=NULL, altkstar.lambda=a$lambda)
+       params=list(altkstar=NULL, altkstar.lambda=a$lambda),
+       minpar = c(-Inf, 0)
        )
   } else {
     if(is.null(a$lambda)) stop("Term 'altkstar' with 'fixed=TRUE' requires a decay parameter 'lambda'.", call.=FALSE)
