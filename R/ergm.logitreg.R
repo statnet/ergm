@@ -117,15 +117,7 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
       }
     }
 
-  init <- if(!is.null(m)) start[!m$etamap$offsettheta] else start
-
-  if(!is.null(m)){
-    # Ensure that the starting value is in the interior of the box constraint.
-    maxtheta <- m$etamap$maxtheta[!m$etamap$offsettheta]
-    init <- pmin(init, maxtheta - .deinf(pmax(abs(maxtheta),1)*sqrt(.Machine$double.eps)))
-    mintheta <- m$etamap$mintheta[!m$etamap$offsettheta]
-    init <- pmax(init, mintheta - .deinf(pmax(abs(mintheta),1)*sqrt(.Machine$double.eps)))
-  }
+  init <- if(is.null(m)) start else .constrain_init(m, start)[!m$etamap$offsettheta]
   
   fit <- trust(objfun=loglikelihoodfn.trust, parinit=init,
                rinit=1, 

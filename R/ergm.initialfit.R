@@ -75,8 +75,8 @@ ergm.initialfit<-function(init, initial.is.final,
                               control=control,
                               verbose=verbose, ...)
                   },
-                  zeros = structure(list(coef=ifelse(is.na(init),0,init)),class="ergm"),
-                  CD = ergm.CD.fixed(ifelse(is.na(init),0,init),
+                  zeros = structure(list(coef=.constrain_init(m, ifelse(is.na(init),0,init))),class="ergm"),
+                  CD = ergm.CD.fixed(.constrain_init(m, ifelse(is.na(init),0,init)),
                       nw, m, control, MHproposal, MHproposal.obs, verbose,response=response,...),
                   stop(paste("Invalid method specified for initial parameter calculation. Available methods are ",paste.and(formals()$method),".",sep=""))
                   )
@@ -86,4 +86,14 @@ ergm.initialfit<-function(init, initial.is.final,
     fit <- structure(list(coef=init),class="ergm")
   }
   fit
+}
+
+.constrain_init <- function(m, init){
+  init.no <- init[!m$etamap$offsettheta]
+  maxtheta <- m$etamap$maxtheta[!m$etamap$offsettheta]
+  init.no <- pmin(init.no, maxtheta - .deinf(pmax(abs(maxtheta),1)*sqrt(.Machine$double.eps)))
+  mintheta <- m$etamap$mintheta[!m$etamap$offsettheta]
+  init.no <- pmax(init.no, mintheta - .deinf(pmax(abs(mintheta),1)*sqrt(.Machine$double.eps)))
+  init[!m$etamap$offsettheta] <- init.no
+  init
 }
