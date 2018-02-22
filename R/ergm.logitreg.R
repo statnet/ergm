@@ -93,8 +93,8 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
     }else{
       function(theta.no, X, y, w, offset, etamap, etagrad){
         # Check for box constraint violation.
-        if(any(theta.no < model$etamap$mintheta[!model$etamap$offsettheta]) ||
-           any(theta.no > model$etamap$maxtheta[!model$etamap$offsettheta]))
+        if(any(theta.no < m$etamap$mintheta[!m$etamap$offsettheta]) ||
+           any(theta.no > m$etamap$maxtheta[!m$etamap$offsettheta]))
           return(list(value=-Inf))
 
         theta <- start
@@ -121,10 +121,10 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
 
   if(!is.null(m)){
     # Ensure that the starting value is in the interior of the box constraint.
-    maxtheta <- model$etamap$maxtheta[!model$etamap$offsettheta]
-    init <- pmin(init, maxtheta - pmax(abs(maxtheta),1)*sqrt(.Machine$double.eps))
-    mintheta <- model$etamap$mintheta[!model$etamap$offsettheta]
-    init <- pmax(init, mintheta - pmax(abs(mintheta),1)*sqrt(.Machine$double.eps))
+    maxtheta <- m$etamap$maxtheta[!m$etamap$offsettheta]
+    init <- pmin(init, maxtheta - .deinf(pmax(abs(maxtheta),1)*sqrt(.Machine$double.eps)))
+    mintheta <- m$etamap$mintheta[!m$etamap$offsettheta]
+    init <- pmax(init, mintheta - .deinf(pmax(abs(mintheta),1)*sqrt(.Machine$double.eps)))
   }
   
   fit <- trust(objfun=loglikelihoodfn.trust, parinit=init,
