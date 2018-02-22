@@ -205,7 +205,9 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
   # closed-form.  We can't use the closed-form maximizer if we are
   # dealing with a curved exponential family.
   if (!is.curved(model) &&
-      (metric=="lognormal" || metric=="Likelihood")) {
+      (metric=="lognormal" || metric=="Likelihood") &&
+      all(model$etamap$mintheta==-Inf) &&
+      all(model$etamap$maxtheta==+Inf)) {
     if (obsprocess) {
       if (verbose) { message("Using log-normal approx with missing (no optim)") }
       # Here, setting posd.tol=0 ensures that the matrix is
@@ -251,10 +253,15 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     # "guess" will be the starting point for the optim search algorithm.
     guess <- init[!model$etamap$offsettheta]
     
-    loglikelihoodfn.trust<-function(trustregion=20, ...){
-      value<-loglikelihoodfn(trustregion=trustregion, ...)
-      grad<-gradientfn(trustregion=trustregion, ...)
-      hess<-Hessianfn(...)
+    loglikelihoodfn.trust<-function(theta, ..., trustregion=20){
+      # Check for box constraint violation.
+      if(any(theta < model$etamap$mintheta[!model$etamap$offsettheta]) ||
+         any(theta > model$etamap$maxtheta[!model$etamap$offsettheta]))
+        return(list(value=-Inf))
+      
+      value<-loglikelihoodfn(theta, ..., trustregion=trustregion)
+      grad<-gradientfn(theta, ..., trustregion=trustregion)
+      hess<-Hessianfn(theta, ..., trustregion=trustregion)
       hess[upper.tri(hess)]<-t(hess)[upper.tri(hess)]
 #      message_print(value)
 #      message_print(grad)

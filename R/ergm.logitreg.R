@@ -92,6 +92,11 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
       }
     }else{
       function(theta.no, X, y, w, offset, etamap, etagrad){
+        # Check for box constraint violation.
+        if(any(theta.no < model$etamap$mintheta[!model$etamap$offsettheta]) ||
+           any(theta.no > model$etamap$maxtheta[!model$etamap$offsettheta]))
+          return(list(value=-Inf))
+
         theta <- start
         theta[!m$etamap$offsettheta] <- theta.no
         

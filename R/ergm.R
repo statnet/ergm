@@ -668,7 +668,9 @@ ergm <- function(formula, response=NULL,
   control$init.method <- match.arg(control$init.method, init.candidates)
   if(verbose) message(paste0("Using initial method '",control$init.method,"'."))
 
-  if(length(model$etamap$curved)){ # Curved model: use ergm.logitreg() rather than glm().
+  if(is.curved(model) ||
+     !all(model$etamap$mintheta==-Inf) ||
+     !all(model$etamap$maxtheta==+Inf)){ # Curved or constrained model: use ergm.logitreg() rather than glm().
       control$MPLE.type <- "logitreg"
   }
   
