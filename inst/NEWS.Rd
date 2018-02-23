@@ -95,12 +95,14 @@
   }
 
 
-  %% \subsection{OTHER USER-VISIBLE CHANGES}{
-  %%   \itemize{
-  %%     \item{
-  %%     }
-  %%   }
-  %% }
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+	The coefficient names associated with terms enclosed in
+	\code{offset()} are now also enclosed in \code{offset()}.
+      }
+    }
+  }
 
   %% \subsection{C-LEVEL FACILITIES}{
   %%   \itemize{
