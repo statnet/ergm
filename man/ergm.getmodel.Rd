@@ -69,7 +69,6 @@ appropriate \code{InitErgmTerm.X} function.}
 \item{network.stats0}{NULL always??}
 \item{etamap}{the theta -> eta mapping as a list returned from
 <ergm.etamap>}
-\item{class}{the character string "model.ergm" }
 
 \code{ergm.getnetwork} returns: \itemize{ \item the network
 from the formula IF (i) the formula was correctly structured and
@@ -86,7 +85,7 @@ These are all functions that are generally not called directly by
 users, but may be employed by other depending packages.  The
 \code{ergm.getmodel} function parses the given formula, and
 initiliazes each ergm term via the \code{InitErgmTerm} functions to
-create a \code{model_ergm} object.
+create a \code{ergm_model} object.
 
 The \code{ergm.getnetwork} function ensures that the
 network in a given formula is valid; if so, the network is

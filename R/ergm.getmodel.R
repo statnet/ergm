@@ -20,7 +20,7 @@
 #' users, but may be employed by other depending packages.  The
 #' \code{ergm.getmodel} function parses the given formula, and
 #' initiliazes each ergm term via the \code{InitErgmTerm} functions to
-#' create a \code{model_ergm} object.
+#' create a \code{ergm_model} object.
 #' 
 #' @aliases ergm_model
 #' @param formula a formula of the form \code{network ~ model.term(s)}
@@ -52,7 +52,6 @@
 #' \item{network.stats0}{NULL always??}
 #' \item{etamap}{the theta -> eta mapping as a list returned from
 #' <ergm.etamap>}
-#' \item{class}{the character string "model.ergm" }
 #' @export
 ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="static",...,term.options=list(),extra.aux=list()) {
   if ((dc<-data.class(formula)) != "formula")
@@ -95,6 +94,12 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
       model$term.skipped <- c(model$term.skipped, TRUE)
       next
     }else model$term.skipped <- c(model$term.skipped, FALSE)
+    # If the term is an offset, rename the coefficient names and parameter names
+    if(model$offset[length(model$offset)]){
+      outlist$coef.names <- paste0("offset(",outlist$coef.names,")")
+      if(!is.null(outlist$params))
+        names(outlist$params) <- paste0("offset(",outlist$params,")")
+    }
     # Now it is necessary to add the output to the model object
     model <- updatemodel.ErgmTerm(model, outlist)
   }
