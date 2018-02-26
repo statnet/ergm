@@ -53,7 +53,7 @@ F);default=TRUE}
 environment of formula gets updated.}
 }
 \value{
-\code{ergm.getmodel} returns a 'model.ergm' object as a list
+\code{ergm.getmodel} returns a 'ergm_model' object as a list
 containing:
 \item{ formula}{the formula inputted to
 \code{\link{ergm.getmodel}}}
@@ -65,6 +65,7 @@ appropriate \code{InitErgmTerm.X} function.}
 \item{network.stats0}{NULL always??}
 \item{etamap}{the theta -> eta mapping as a list returned from
 <ergm.etamap>}
+Note that this is an internal API and may change between versions.
 
 \code{ergm.getnetwork} returns: \itemize{ \item the network
 from the formula IF (i) the formula was correctly structured and

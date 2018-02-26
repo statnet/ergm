@@ -38,7 +38,7 @@
 #' @param new new formula to be used in updating
 #' @param from.new logical or character vector of variable names. controls how
 #' environment of formula gets updated.
-#' @return \code{ergm.getmodel} returns a 'model.ergm' object as a list
+#' @return \code{ergm.getmodel} returns a 'ergm_model' object as a list
 #' containing:
 #' \item{ formula}{the formula inputted to
 #' \code{\link{ergm.getmodel}}}
@@ -50,6 +50,7 @@
 #' \item{network.stats0}{NULL always??}
 #' \item{etamap}{the theta -> eta mapping as a list returned from
 #' <ergm.etamap>}
+#' Note that this is an internal API and may change between versions.
 #' @export
 ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="static",...) {
   if ((dc<-data.class(formula)) != "formula")
@@ -69,7 +70,7 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
   model <- structure(list(formula=formula, coef.names = NULL,
                       offset = NULL,
                       terms = NULL, networkstats.0 = NULL, etamap = NULL),
-                 class = "model.ergm")
+                 class = "ergm_model")
 
   termroot<-NVL2(response, "InitWtErgm", "InitErgm")
 
