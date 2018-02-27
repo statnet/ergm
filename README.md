@@ -7,3 +7,13 @@
 
 
 An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGMs). 'ergm' is a part of the Statnet suite of packages for network analysis.
+
+## Public and Private repositories
+
+To facilitate open development of the package while giving the core developers an opportunity to publish on their developments before opening them up for general use, this project comprises two repositories:
+* A public repository `statnet/ergm`
+* A private repository `statnet/ergm-private`
+
+The intention is that all developments in `statnet/ergm-private` will eventually make their way into `statnet/ergm` and onto CRAN.
+
+Developers and Contributing Users to the Statnet Project should read https://statnet.github.io/private/ for information about the relationship between the public and the private repository and the workflows involved.
