@@ -40,7 +40,7 @@
 #' environment of formula gets updated.
 #' @template term_options
 #' @param extra.aux a list of formulas giving additional auxiliaries to initialize.
-#' @return \code{ergm.getmodel} returns a 'model.ergm' object as a list
+#' @return \code{ergm.getmodel} returns a 'ergm_model' object as a list
 #' containing:
 #' \item{ formula}{the formula inputted to
 #' \code{\link{ergm.getmodel}}}
@@ -52,6 +52,7 @@
 #' \item{network.stats0}{NULL always??}
 #' \item{etamap}{the theta -> eta mapping as a list returned from
 #' <ergm.etamap>}
+#' Note that this is an internal API and may change between versions.
 #' @export
 ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="static",...,term.options=list(),extra.aux=list()) {
   if ((dc<-data.class(formula)) != "formula")
@@ -63,15 +64,15 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
   if (length(formula) < 3) 
     stop(paste("No model specified for network ", formula[[2]]), call.=FALSE)
 
-  #' @importFrom statnet.common term.list.formula
-  v<-term.list.formula(formula[[3]])
+  #' @importFrom statnet.common list.rhs.formula
+  v<-list.rhs.formula(formula)
   
   formula.env<-environment(formula)
   
   model <- structure(list(formula=formula, coef.names = NULL,
                       offset = NULL,
                       terms = NULL, networkstats.0 = NULL, etamap = NULL),
-                 class = "model.ergm")
+                 class = "ergm_model")
   
   for (i in 1:length(v)) {
     term <- v[[i]]
@@ -179,7 +180,7 @@ updatemodel.ErgmTerm <- function(model, outlist) {
     # the parameters.
     aux.space <-
       if(!is.null(outlist$auxiliaries)) # requests auxiliaries
-        length(term.list.formula(outlist$auxiliaries[[length(outlist$auxiliaries)]]))
+        length(list.rhs.formula(outlist$auxiliaries))
       else if(length(outlist$coef.names)==0) 1 # is an auxiliary
       else 0
     outlist$inputs <- c(ifelse(is.null(tmp), 0, tmp)+aux.space,

@@ -415,9 +415,9 @@ InitErgmTerm.b1cov<-function (nw, arglist, ...) {
   attrname<-a$attrname
   f<-a$transform
   f.name<-a$transformname
-  coef.names <- paste(paste("nodeocov",f.name,sep=""),attrname,sep=".")
+  coef.names <- paste(paste("b1cov",f.name,sep=""),attrname,sep=".")
   nb1 <- get.network.attribute(nw, "bipartite")
-  nodecov <- f(get.node.attr(nw, attrname, "nodeocov", numeric=TRUE)[1:nb1])
+  nodecov <- f(get.node.attr(nw, attrname, "b1cov", numeric=TRUE)[1:nb1])
   # C implementation is identical
   list(name="nodeocov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
@@ -655,9 +655,9 @@ InitErgmTerm.b2cov<-function (nw, arglist, ...) {
   attrname<-a$attrname
   f<-a$transform
   f.name<-a$transformname
-  coef.names <- paste(paste("nodeicov",f.name,sep=""),attrname,sep=".")
+  coef.names <- paste(paste("b2cov",f.name,sep=""),attrname,sep=".")
   nb1 <- get.network.attribute(nw, "bipartite")
-  nodecov <- f(get.node.attr(nw, attrname, "nodeicov", numeric=TRUE)[(nb1+1):network.size(nw)])
+  nodecov <- f(get.node.attr(nw, attrname, "b2cov", numeric=TRUE)[(nb1+1):network.size(nw)])
   list(name="b2cov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
 
