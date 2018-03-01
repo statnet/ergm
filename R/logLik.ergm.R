@@ -183,13 +183,13 @@ logLikNull.ergm <- function(object, control=control.logLik.ergm(), ...){
   nobs <- NVL3(object$mle.lik,
                attr(.,"nobs"),
                sum(as.rlebdm(object$constrained, object$constrained.obs, which="informative")))
-  
+
   llk <-
     if(!is.null(object$response)){
-      message("Note: Null model likelihood calculation is not implemented for valued ERGMs at this time.")
+      message("Note: Null model likelihood calculation is not implemented for valued ERGMs at this time. ", NO_NULL_IMPLICATION)
       NA
     }else if(!is.dyad.independent(object$constrained, object$constrained.obs)){
-      message("Note: The constraint on the sample space is not dyad-independent. Null model likelihood is only implemented for dyad-independent constraints at this time. Number of observations is similarly ill-defined.")
+      message("Note: The constraint on the sample space is not dyad-independent. Null model likelihood is only implemented for dyad-independent constraints at this time. Number of observations is similarly poorly defined. ", NO_NULL_IMPLICATION)
       NA
     }else nobs * log(1/2)
   
@@ -200,3 +200,6 @@ logLikNull.ergm <- function(object, control=control.logLik.ergm(), ...){
 
   llk
 }
+
+NO_NULL_IMPLICATION <- "This means that all likelihood-based inference (LRT, Analysis of Deviance, AIC, BIC, etc.) is only valid between models with the same reference distribution and constraints."
+  

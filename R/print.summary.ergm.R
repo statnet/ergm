@@ -102,7 +102,7 @@ print.summary.ergm <- function (x,
     if(!is.null(x$devtable)){
       cat(x$devtable)
 
-      if(x$null.lik.0) cat("Note that the null model likelihood and deviance are defined to be 0.\n\n")
+      if(x$null.lik.0) cat("Note that the null model likelihood and deviance are defined to be 0.", NO_NULL_IMPLICATION, "\n\n")
       
       cat(paste("AIC:", format(x$aic, digits = digits), "  ", 
                 "BIC:", format(x$bic, digits = digits), "  ",

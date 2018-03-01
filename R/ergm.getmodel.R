@@ -20,7 +20,7 @@
 #' users, but may be employed by other depending packages.  The
 #' \code{ergm.getmodel} function parses the given formula, and
 #' initiliazes each ergm term via the \code{InitErgmTerm} functions to
-#' create a \code{model_ergm} object.
+#' create a \code{ergm_model} object.
 #' 
 #' @aliases ergm_model
 #' @param formula a formula of the form \code{network ~ model.term(s)}
@@ -40,7 +40,7 @@
 #' environment of formula gets updated.
 #' @template term_options
 #' @param extra.aux a list of formulas giving additional auxiliaries to initialize.
-#' @return \code{ergm.getmodel} returns a 'model.ergm' object as a list
+#' @return \code{ergm.getmodel} returns a 'ergm_model' object as a list
 #' containing:
 #' \item{ formula}{the formula inputted to
 #' \code{\link{ergm.getmodel}}}
@@ -52,7 +52,7 @@
 #' \item{network.stats0}{NULL always??}
 #' \item{etamap}{the theta -> eta mapping as a list returned from
 #' <ergm.etamap>}
-#' \item{class}{the character string "model.ergm" }
+#' Note that this is an internal API and may change between versions.
 #' @export
 ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="static",...,term.options=list(),extra.aux=list()) {
   if ((dc<-data.class(formula)) != "formula")
@@ -64,15 +64,15 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
   if (length(formula) < 3) 
     stop(paste("No model specified for network ", formula[[2]]), call.=FALSE)
 
-  #' @importFrom statnet.common term.list.formula
-  v<-term.list.formula(formula[[3]])
+  #' @importFrom statnet.common list.rhs.formula
+  v<-list.rhs.formula(formula)
   
   formula.env<-environment(formula)
   
   model <- structure(list(formula=formula, coef.names = NULL,
                       offset = NULL,
                       terms = NULL, networkstats.0 = NULL, etamap = NULL),
-                 class = "model.ergm")
+                 class = "ergm_model")
   
   for (i in 1:length(v)) {
     term <- v[[i]]
@@ -95,6 +95,12 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
       model$term.skipped <- c(model$term.skipped, TRUE)
       next
     }else model$term.skipped <- c(model$term.skipped, FALSE)
+    # If the term is an offset, rename the coefficient names and parameter names
+    if(model$offset[length(model$offset)]){
+      outlist$coef.names <- paste0("offset(",outlist$coef.names,")")
+      if(!is.null(outlist$params))
+        names(outlist$params) <- paste0("offset(",outlist$params,")")
+    }
     # Now it is necessary to add the output to the model object
     model <- updatemodel.ErgmTerm(model, outlist)
   }
@@ -174,7 +180,7 @@ updatemodel.ErgmTerm <- function(model, outlist) {
     # the parameters.
     aux.space <-
       if(!is.null(outlist$auxiliaries)) # requests auxiliaries
-        length(term.list.formula(outlist$auxiliaries[[length(outlist$auxiliaries)]]))
+        length(list.rhs.formula(outlist$auxiliaries))
       else if(length(outlist$coef.names)==0) 1 # is an auxiliary
       else 0
     outlist$inputs <- c(ifelse(is.null(tmp), 0, tmp)+aux.space,

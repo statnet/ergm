@@ -257,7 +257,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   if(!is.null(target.stats)) ts.dind <- c()
   if(is.null(dind)){
     dind<-~.
-    terms.full<-term.list.formula(form[[3]])[!m$term.skipped] # Ensure that terms to be added to the dyad-independent formula are aligned with terms that had actually made it into the model.
+    terms.full<-list.rhs.formula(form)[!m$term.skipped] # Ensure that terms to be added to the dyad-independent formula are aligned with terms that had actually made it into the model.
     for(i in seq_along(terms.full))
       if(NVL(m$terms[[i]]$dependence, TRUE) == FALSE){
         dind<-append.rhs.formula(dind,list(terms.full[[i]]))
@@ -293,7 +293,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   if(!is.null(target.stats)) llk.dind <- llk.dind + c(crossprod(coef.dind, NVL(c(ts.dind), ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]) - ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]))
 
   ## Construct the augmented formula.
-  form.aug<-append.rhs.formula(object, term.list.formula(dind[[3]])[!ergm.dind$etamap$offset])
+  form.aug<-append.rhs.formula(object, list.rhs.formula(dind)[!ergm.dind$etamap$offset])
 
   from<-c(rep(0,length(coef)),coef.dind)
   to<-c(coef,rep(0,length(coef.dind)))
