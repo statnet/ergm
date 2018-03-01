@@ -53,14 +53,11 @@
 #' Note that this is an internal API and may change between versions.
 #' @export
 ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="static",...) {
-  if ((dc<-data.class(formula)) != "formula")
-    stop (paste("Invalid formula of class ",dc), call.=FALSE)
+  if (!is(formula, "formula"))
+    stop("Invalid model formula of class ",sQuote(class(formula)),".", call.=FALSE)
 
-  if (formula[[1]]!="~")
-    stop ("Formula must be of the form 'network ~ model'.", call.=FALSE)  
-  
   if (length(formula) < 3) 
-    stop(paste("No model specified for network ", formula[[2]]), call.=FALSE)
+    stop("Model formula must have a left-hand-side.", call.=FALSE)
 
   #' @importFrom statnet.common list.rhs.formula
   v<-list.rhs.formula(formula)
