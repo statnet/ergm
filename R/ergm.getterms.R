@@ -24,7 +24,7 @@
 ###########################################################################
 
 #' @rdname ergm.getmodel
-#' @description The \code{ergm.getterms} function returns the terms of
+#' @description DEPRECATED. The \code{ergm.getterms} function returns the terms of
 #'   a given formula and ensures that the formula is indeed a formula
 #'   with the necessary \code{~} operator
 #' @return \code{ergm.getterms} returns: \itemize{ \item the terms
@@ -34,6 +34,7 @@
 #'   components }
 #' @export
 ergm.getterms<-function(formula) {
+  .Deprecated("statnet.common::list.rhs.formula() and statnet.common::eval_LHS.formula()")
     if ((dc<-data.class(formula)) != "formula")
         stop (paste("Invalid formula of class ",dc))
     trms<-terms(formula)

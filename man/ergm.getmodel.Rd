@@ -88,7 +88,7 @@ The \code{ergm.getnetwork} function ensures that the
 network in a given formula is valid; if so, the network is
 returned; if not, execution is halted with warnings
 
-The \code{ergm.getterms} function returns the terms of
+DEPRECATED. The \code{ergm.getterms} function returns the terms of
 a given formula and ensures that the formula is indeed a formula
 with the necessary \code{~} operator
 

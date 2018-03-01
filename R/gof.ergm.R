@@ -229,12 +229,6 @@ gof.formula <- function(object, ...,
     stop("A network object on the RHS of the formula argument must be given")
   }
 
-# if(is.bipartite(nw)){
-#   object <- ergm.update.formula(object, ~ . + bipartite)
-#   trms <- ergm.getterms(object)
-#   termnames <- ergm.gettermnames(trms)
-# }
-
   m <- ergm.getmodel(object, nw)
   Clist <- ergm.Cprepare(nw, m)
 
