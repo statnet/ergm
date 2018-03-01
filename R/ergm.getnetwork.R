@@ -31,26 +31,15 @@
 #'   from the formula IF (i) the formula was correctly structured and
 #'   (ii) the network is found within the formula's enviornment }
 #' @export ergm.getnetwork
-ergm.getnetwork <- function (form, loopswarning=TRUE) {
-  if ((dc<-data.class(form)) != "formula")
-    stop (paste("Invalid formula of class ",dc))
-  trms<-terms(form)
-  if (trms[[1]]!="~")
-    stop ("Formula must be of the form 'network ~ model'.")
+ergm.getnetwork <- function (form, loopswarning=TRUE){
+  nw <- ERRVL(
+    try({
+      tmp <- eval_LHS.formula(form)
+      if(is.network(tmp)) tmp else as.network(tmp)
+    }, silent = TRUE),
+    stop("Invalid network on the LHS of the formula.")
+  )
 
-  nw.env<-environment(form)
-  if(!exists(x=paste(trms[[2]]),envir=nw.env)){
-    stop(paste("The network in the formula '",capture.output(print(form)),"' cannot be found.",sep=""))
-  }
-  nw <- try(
-          {
-            tmp <- eval(trms[[2]],envir=nw.env)
-            if(is.network(tmp)) tmp else as.network(tmp)
-          },
-          silent = TRUE)
-  if(inherits(nw,"try-error")){
-      stop("Invalid network. Is the left-hand-side of the formula correct?")
-  }
   if (loopswarning) {
     e <- as.edgelist(nw)
     if(any(e[,1]==e[,2])) {
