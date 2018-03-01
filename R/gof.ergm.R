@@ -126,31 +126,13 @@ gof.ergm <- function (object, ...,
                       verbose=FALSE) {
   check.control.class(c("gof.ergm","gof.formula"), "gof.ergm")
   control.toplevel(...)
-  nw <- as.network(object$network)
+  .gof.nw <- as.network(object$network)
 
   if(!is.null(object$response)) stop("GoF for valued ERGMs is not implemented at this time.")
   
-  #Set up the defaults, if called with GOF==NULL
-  if(is.null(GOF)){
-    if(is.directed(nw))
-      GOF<- ~idegree + odegree + espartners + distance + model
-    else
-      GOF<- ~degree + espartners + distance + model
-  }
-  # Add a model term, unless it is explicitly excluded
-  model_trms <- unlist(dimnames(attr(terms(GOF),"factors"))[1])
-  if(!("model" %in% model_trms)){
-    #' @importFrom statnet.common nonsimp.update.formula
-    GOF <- nonsimp.update.formula(GOF, ~ . + model)
-  }
-
-  ## FIXME: Need to do this differently. This approach will (probably)
-  ## break if any of the terms in the formula have non-constant
-  ## arguments.
-  ## Also, this is just plain ugly.
-  formula <- as.formula(paste("nw ~",paste(ergm.rhs.formula(object$formula),collapse="+")))
+  formula <- nonsimp.update.formula(object$formula, .gof.nw~., from.new=".gof.nw")
 # paste("~",paste(unlist(dimnames(attr(terms(formula),"factors"))[-1]),collapse="+"),sep="")
-  if(!is.network(nw)){
+  if(!is.network(.gof.nw)){
     stop("A network must be given as part of the network object.")
   }
 
@@ -200,44 +182,37 @@ gof.formula <- function(object, ...,
   # Unused code
   coefmissing <- NULL
   # get network
-  trms <- ergm.getterms(object)
-  if(length(trms)>2){
-    nw <- eval(trms[[2]], sys.parent())
-  }else{
+  lhs <- ERRVL(try(eval_LHS.formula(object)),
+               stop("A network object on the RHS of the formula argument must be given"))
+  if(is.ergm(lhs)){
+    if(missing(GOF)) GOF <- nonsimp.update.formula(object, ~.) # Remove LHS from formula.
+    if(missing(constraints)) constraints <- NULL
+    if(missing(control)) control <- control.gof.ergm()
+    
+    return(gof(lhs, GOF=GOF, coef=coef, control=control, unconditional=unconditional, verbose=verbose, ...)) # Kick it back to gof.ergm.
+  }
+  
+  nw <- as.network(lhs)
+  if(!is.network(nw)){
     stop("A network object on the RHS of the formula argument must be given")
   }
-  if(is.ergm(nw)){
-    all.gof.vars <- ergm.rhs.formula(object)
-    object <- nw$formula
-    if(missing(coef)){coef <- nw$coef}
-    trms <- ergm.getterms(object)
-    if(length(trms)>2){
-      nw <- eval(trms[[2]], sys.parent())
-    }else{
-      stop("A network object on the RHS of the formula argument must be given")
-    }
-  }else{
-    nw <- as.network(nw)
-    if(!is.network(nw)){
-      stop("A network object on the RHS of the formula argument must be given")
-    }
-    if(is.null(GOF)){
-      if(is.directed(nw))
-        GOF<- ~idegree + odegree + espartners + distance + model
-      else
-        GOF<- ~degree + espartners + distance + model
-    }
-
-    # Add a model term, unless it is explicitly excluded
-    model_trms <- unlist(dimnames(attr(terms(GOF),"factors"))[1])
-    if(!("model" %in% model_trms)){
-      GOF <- nonsimp.update.formula(GOF, ~ . + model)
-    }
-  
-    all.gof.vars <- ergm.rhs.formula(GOF)
+  #Set up the defaults, if called with GOF==NULL
+  if(is.null(GOF)){
+    if(is.directed(nw))
+      GOF<- ~idegree + odegree + espartners + distance + model
+    else
+      GOF<- ~degree + espartners + distance + model
   }
+  # Add a model term, unless it is explicitly excluded
+  GOFtrms <- list.rhs.formula(GOF)
+  if(sum(attr(GOFtrms,"sign")[as.character(GOFtrms)=="model"])==0){ # either no "model"s or "-model"s don't outnumber "model"s
+    #' @importFrom statnet.common nonsimp.update.formula
+      GOF <- nonsimp.update.formula(GOF, ~ . + model)
+  }
+  
+  all.gof.vars <- as.character(list.rhs.formula(GOF))
 
-# match variables
+  # match variables
 
   for(i in seq(along=all.gof.vars)){
     all.gof.vars[i] <- match.arg(all.gof.vars[i],
@@ -689,7 +664,7 @@ gof.formula <- function(object, ...,
 #' @aliases summary.gof
 #' @export
 print.gof <- function(x, ...){
-  all.gof.vars <- ergm.rhs.formula(x$GOF)
+  all.gof.vars <- as.character(list.rhs.formula(x$GOF))
   # match variables
   goftypes <- matrix( c(
       "model", "model statistics", "summary.model",
@@ -780,7 +755,7 @@ plot.gof <- function(x, ...,
 #par(oma=c(0.5,2,1,0.5))
 
 #statsno <- (sum(stats=='deg')>0) + (sum(stats=='espart')>0) + (sum(stats=='d
- all.gof.vars <- ergm.rhs.formula(x$GOF)
+ all.gof.vars <- as.character(list.rhs.formula(x$GOF))
  statsno <- length(all.gof.vars)
 
 # match variables
@@ -1327,20 +1302,5 @@ plot.gof <- function(x, ...,
 
 
 
-#ergm.get.terms.formula <- function(formula){
-# trms <- all.names(formula)
-# ntrms <- length(trms)
-# if(ntrms == 2*trunc(ntrms/2)){
-#   ntrms <- ntrms/2
-#  }else{
-#   ntrms <- (ntrms+1)/2
-#  }
-# trms[-c(1:ntrms)]
-#}
 
 
-
-ergm.rhs.formula <- function(formula){
-#all.vars(ergm.update.formula(formula, .~0)) 
- unlist(dimnames(attr(terms(formula),"factors"))[-1])
-}
