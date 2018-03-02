@@ -25,7 +25,7 @@ ergm.bridge.preproc<-function(object, basis, response){
   }
   
   # New formula (no longer use 'object'):
-  form <- ergm.update.formula(object, nw ~ ., from.new="nw")
+  form <- nonsimp_update.formula(object, nw ~ ., from.new="nw")
   
   list(nw=nw, form=form, model=ergm.getmodel(form, nw, response=response))
 }
@@ -95,7 +95,7 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
   stats<-matrix(NA,control$nsteps,m$etamap$etalength)
   
   if(network.naedgecount(nw)){
-    constraints.obs<-ergm.update.formula(constraints,~.+observed)
+    constraints.obs<-nonsimp_update.formula(constraints,~.+observed)
     form.obs<-form
     stats.obs <- matrix(NA,control$nsteps,m$etamap$etalength)  
   }else stats.obs<-matrix(summary(form,response=response),control$nsteps,m$etamap$etalength,byrow=TRUE)  
@@ -117,7 +117,7 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
                          parallel.type=control$parallel.type,
                          parallel.version.check=control$parallel.version.check
                                                         ), ...)
-    ergm.update.formula(form,nw.state~., from.new="nw.state")
+    nonsimp_update.formula(form,nw.state~., from.new="nw.state")
     stats[i,]<-apply(simulate(form, coef=theta, response=response, constraints=constraints, statsonly=TRUE, verbose=max(verbose-1,0),
                               control=control.simulate.formula(MCMC.burnin=0,
                                 MCMC.interval=control$MCMC.interval),
@@ -133,7 +133,7 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
                                parallel=control$parallel,
                                parallel.type=control$parallel.type,
                                parallel.version.check=control$parallel.version.check), ...)
-      ergm.update.formula(form.obs,nw.state.obs~., from.new="nw.state.obs")
+      nonsimp_update.formula(form.obs,nw.state.obs~., from.new="nw.state.obs")
       stats.obs[i,]<-apply(simulate(form.obs, coef=theta, response=response, constraints=constraints.obs, statsonly=TRUE, verbose=max(verbose-1,0),
                                 control=control.simulate.formula(MCMC.burnin=0,
                                   MCMC.interval=control$obs.MCMC.interval,
@@ -212,7 +212,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   p.pos.full <- c(0,cumsum(nparam(m, byterm=TRUE)))
   
   constraints.obs <- if(network.naedgecount(nw))
-    ergm.update.formula(constraints,~.+observed)
+    nonsimp_update.formula(constraints,~.+observed)
   else
     NULL
 
@@ -234,7 +234,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
     environment(dind) <- environment(object)
   }
   
-  dind<-ergm.update.formula(dind,nw~., from.new="nw")
+  dind<-nonsimp_update.formula(dind,nw~., from.new="nw")
 
   if(!is.dyad.independent(dind))
     stop("Reference model `dind' must be dyad-independent.")

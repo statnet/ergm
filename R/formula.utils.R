@@ -22,7 +22,10 @@
 #'   in addition, variables in new listed in from.new (if a character
 #'   vector) or all of new (if TRUE).
 #' @export
-ergm.update.formula <- nonsimp_update.formula
+ergm.update.formula <- function(object, new, ..., from.new=FALSE){
+  .Deprecated("statnet.common::nonsimp_update.formula")
+  nonsimp_update.formula(object, new, ..., from.new=from.new)
+}
 
 model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
   ## Recipe syntax:
@@ -298,7 +301,7 @@ set.offset.formula <- function(object, which, response=NULL){
   for(i in to_offset)
     if(!inherits(terms[[i]],"call") || terms[[i]][[1]]!="offset") # Don't offset terms already offset.
       terms[[i]]<-call("offset", terms[[i]]) # Enclose the term in an offset.
-  ergm.update.formula(object, append_rhs.formula(~.,terms)) # append_rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
+  nonsimp_update.formula(object, append_rhs.formula(~.,terms)) # append_rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
 }
 
 unset.offset.formula <- function(object, which=TRUE, response=NULL){
@@ -309,7 +312,7 @@ unset.offset.formula <- function(object, which=TRUE, response=NULL){
   for(i in to_unoffset)
     if(inherits(terms[[i]],"call") && terms[[i]][[1]]=="offset") # Is the term an offset?
       terms[[i]]<-terms[[i]][[2]] # Grab the term inside the offset.
-  ergm.update.formula(object, append_rhs.formula(~.,terms)) # append_rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
+  nonsimp_update.formula(object, append_rhs.formula(~.,terms)) # append_rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
 }
 
 
@@ -322,7 +325,7 @@ remove.offset.formula <- function(object, response=NULL){
   for(i in rev(seq_along(terms)))
     if(inherits(terms[[i]],"call") && terms[[i]][[1]]=="offset") # Is the term an offset?
       terms[[i]]<-NULL # Delete the offset term.
-  ergm.update.formula(object, append_rhs.formula(~.,terms)) # append_rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
+  nonsimp_update.formula(object, append_rhs.formula(~.,terms)) # append_rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
 }
 
 #' @rdname ergm.getmodel

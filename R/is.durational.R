@@ -67,7 +67,7 @@ is.durational.formula<-function(object,response=NULL,basis=NULL,...){
 	}
 	
 	# New formula (no longer use 'object'):
-	form <- ergm.update.formula(object, nw ~ ., from.new="nw")
+	form <- nonsimp_update.formula(object, nw ~ ., from.new="nw")
 	# work around when durational dependent terms do not has role="target"
 #	if(	deparse(substitute(object))=="monitor")
 	m<-ergm.getmodel(form, nw, response=response, role=NULL)

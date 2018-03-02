@@ -244,7 +244,7 @@ gof.formula <- function(object, ...,
   if(network.naedgecount(nw) & unconditional){
    if(verbose){message("Conditional simulations for missing fit")}
    if(is.null(coefmissing)){coefmissing <- coef}
-   constraints.obs<-ergm.update.formula(constraints,~.+observed)
+   constraints.obs<-nonsimp_update.formula(constraints,~.+observed)
    SimCond <- gof(object=object, coef=coefmissing,
                   GOF=GOF, 
                   constraints=constraints.obs,
@@ -418,7 +418,7 @@ gof.formula <- function(object, ...,
 #     if ((i %% 10 == 0) || (i==control$nsim)) cat("\n")
 #    }
     if ('model' %in% all.gof.vars) {
-     sim.model[i,] <- summary(ergm.update.formula(object,tempnet ~ ., from.new="tempnet"))
+     sim.model[i,] <- summary(nonsimp_update.formula(object,tempnet ~ ., from.new="tempnet"))
     }
     if ('distance' %in% all.gof.vars) {
      sim.dist[i,] <- ergm.geodistdist(tempnet)
