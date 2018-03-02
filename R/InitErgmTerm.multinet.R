@@ -43,7 +43,7 @@ Networks <- function(...){
       if(NVL(nwl[[1]]%n%"constraints",~.)==~.)
         ~blockdiag(".NetworkID")
       else
-        append.rhs.formula(nwl[[1]]%n%"constraints", list(call("blockdiag",".NetworkID")), TRUE)
+        append_rhs.formula(nwl[[1]]%n%"constraints", list(call("blockdiag",".NetworkID")), TRUE)
   if("obs.constraints" %in% list.network.attributes(nwl[[1]])) nw %n% "obs.constraints" <- nwl[[1]]%n%"obs.constraints"
 
   nw
@@ -90,7 +90,7 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
   auxiliaries <- ~.subnets(".NetworkID")
 
   ms <- lapply(nwl, function(nw1){
-    f <- nonsimp.update.formula(f, nw1~.)
+    f <- nonsimp_update.formula(f, nw1~.)
     m <- ergm.getmodel(f, nw1, response=response,...)
     Clist <- ergm.Cprepare(nw1, m, response=response)
     list(model = m,

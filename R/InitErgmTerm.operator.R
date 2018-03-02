@@ -80,7 +80,7 @@ InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
   f <- a$formula
-  if(length(f)==2) f <- nonsimp.update.formula(f, nw~.)
+  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
 
   m <- ergm.getmodel(f, nw, response=response,...)
@@ -103,7 +103,7 @@ InitErgmTerm..submodel <- function(nw, arglist, response=NULL, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
   f <- a$formula
-  if(length(f)==2) f <- nonsimp.update.formula(f, nw~.)
+  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
 
   m <- ergm.getmodel(f, nw, response=response,...)
@@ -125,7 +125,7 @@ InitErgmTerm.submodel.test <- function(nw, arglist, response=NULL, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
   f <- a$formula
-  if(length(f)==2) f <- nonsimp.update.formula(f, nw~.)
+  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
 
   m <- ergm.getmodel(f, nw, response=response,...)
@@ -147,7 +147,7 @@ InitErgmTerm..summary <- function(nw, arglist, response=NULL, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
   f <- a$formula
-  if(length(f)==2) f <- nonsimp.update.formula(f, nw~.)
+  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
 
   m <- ergm.getmodel(f, nw, response=response,...)
@@ -171,7 +171,7 @@ InitErgmTerm.summary.test <- function(nw, arglist, response=NULL, ...){
                       required = c(TRUE, FALSE))
 
   f <- a$formula
-  if(length(f)==2) f <- nonsimp.update.formula(f, nw~.)
+  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
 
   m <- ergm.getmodel(f, nw, response=response,...)
@@ -187,7 +187,7 @@ InitErgmTerm.F <- function(nw, arglist, response=NULL, ...){
                       required = c(TRUE, FALSE))
   form <- a$form
   f <- a$formula
-  if(length(f)==2) f <- nonsimp.update.formula(f, nw~.)
+  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
 
   m <- ergm.getmodel(f, nw,...)
@@ -218,7 +218,7 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, response=NULL, ...){
 
   # Form is a model.
   f<-a$formula
-  if(length(f)==2) f <- nonsimp.update.formula(f, nw~.)
+  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
   
   m <- ergm.getmodel(f, nw, response=response,...)
@@ -241,7 +241,7 @@ InitErgmTerm.Offset <- function(nw, arglist, response=NULL, ...){
                       defaultvalues = list(NULL, NULL),
                       required = c(TRUE, TRUE))
   f <- a$formula
-  if(length(f)==2) f <- nonsimp.update.formula(f, nw~.)
+  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
 
   m <- ergm.getmodel(f, nw, response=response,...)
@@ -310,7 +310,7 @@ InitErgmTerm.Undir <- function(nw, arglist, response=NULL, ...){
   if(length(f)==3) nw <- ergm.getnetwork(f)
   if(is.directed(nw)) nw <- symmetrize(nw, rule)
   
-  if(length(f)==2) f <- nonsimp.update.formula(f, nw~.)
+  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
 
   m <- ergm.getmodel(f, nw,...)
   Clist <- ergm.Cprepare(nw, m)

@@ -8,7 +8,7 @@ InitErgmTerm.NodematchFilter <- function(nw, arglist, response=NULL, ...){
                       defaultvalues = list(NULL, 1),
                       required = c(TRUE, TRUE))
   f <- a$formula
-  if(length(f)==2) f <- nonsimp.update.formula(f, nw~.)
+  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
 
   m <- ergm.getmodel(f, nw, response=response,...)

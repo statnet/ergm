@@ -8,7 +8,7 @@ InitWtErgmTerm.B <- function(nw, arglist, response=NULL, ...){
           else a$form
 
   f <- a$formula
-  if(length(f)==2) f <- nonsimp.update.formula(f, nw~.)
+  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
 
   m <- ergm.getmodel(f, nw,...)
@@ -59,7 +59,7 @@ InitWtErgmTerm..binary.formula.net <- function(nw, arglist, response=NULL, ...){
 
   # Form is a model.
   f<-a$formula
-  if(length(f)==2) f <- nonsimp.update.formula(f, nw~.)
+  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
   
   m <- ergm.getmodel(f, nw, response=response,...)

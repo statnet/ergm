@@ -15,7 +15,7 @@
   n2 <- length(e2)
   
   f <- ~nw
-  f <- append.rhs.formula(f, c(e1,e2))
+  f <- append_rhs.formula(f, c(e1,e2))
   
   m <- ergm.getmodel(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
@@ -49,7 +49,7 @@
   n2 <- length(e2)
   
   f <- ~nw
-  f <- append.rhs.formula(f, c(e1,e2))
+  f <- append_rhs.formula(f, c(e1,e2))
   
   m <- ergm.getmodel(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)

@@ -171,9 +171,9 @@ Layer <- function(...){
       if(NVL(nwl[[1]]%n%"constraints",~.)==~.)
         ~blockdiag(".LayerID")
       else
-        append.rhs.formula(nwl[[1]]%n%"constraints", list(call("blockdiag",".LayerID")), TRUE)
+        append_rhs.formula(nwl[[1]]%n%"constraints", list(call("blockdiag",".LayerID")), TRUE)
   
-  if(any(symm)) nw %n% "constraints" <- append.rhs.formula(nw%n%"constraints", list(call("upper_tri",".undirected")), TRUE)
+  if(any(symm)) nw %n% "constraints" <- append_rhs.formula(nw%n%"constraints", list(call("upper_tri",".undirected")), TRUE)
 
   if("obs.constraints" %in% list.network.attributes(nwl[[1]])) nw %n% "obs.constraints" <- nwl[[1]]%n%"obs.constraints"
 
@@ -410,7 +410,7 @@ test_eval.LayerLogic <- function(commands, lv, lvr = lv){
   trmcalls <- .layers_expand_dot(ll, nl)
   # Get the formula as a list of term calls.
   trmcalls <- lapply(trmcalls, function(ltrm) call(".layer.net", ltrm))
-  append.rhs.formula(~.,trmcalls)[-2]
+  append_rhs.formula(~.,trmcalls)[-2]
 }
 
 .layers_expand_dot <- function(ll, nl){
@@ -444,12 +444,12 @@ InitErgmTerm.L <- function(nw, arglist, response=NULL, ...){
   
   nw1 <- nwl[[1]]
   
-  if(length(f)==2) f <- nonsimp.update.formula(f, nw1~.)
+  if(length(f)==2) f <- nonsimp_update.formula(f, nw1~.)
   else nw1 <- ergm.getnetwork(f)
   
   m <- ergm.getmodel(f, nw1, response=response,...)
 
-  dependence <- !is.dyad.independent(m) || !is.dyad.independent(nonsimp.update.formula(auxiliaries, nw~., from.new="nw"))
+  dependence <- !is.dyad.independent(m) || !is.dyad.independent(nonsimp_update.formula(auxiliaries, nw~., from.new="nw"))
 
   
   Clist <- ergm.Cprepare(nw1, m, response=response)

@@ -240,7 +240,7 @@ ergm_conlist <- function(object, nw){
   if(is.null(object)) return(NULL)
   ## Construct a list of constraints and arguments from the formula.
   conlist<-list()
-  constraints<-list.rhs.formula(object)
+  constraints<-list_rhs.formula(object)
   consigns <- c(attr(constraints, "sign"), +1)
   constraints<-c(constraints, list(call(".attributes")))
   for(i in seq_along(constraints)){
