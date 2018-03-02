@@ -34,7 +34,7 @@
 #'   components }
 #' @export
 ergm.getterms<-function(formula) {
-  .Deprecated("statnet.common::list.rhs.formula() and statnet.common::eval_LHS.formula()")
+  .Deprecated("statnet.common::list_rhs.formula() and statnet.common::eval_lhs.formula()")
     if ((dc<-data.class(formula)) != "formula")
         stop (paste("Invalid formula of class ",dc))
     trms<-terms(formula)

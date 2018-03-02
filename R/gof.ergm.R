@@ -182,7 +182,7 @@ gof.formula <- function(object, ...,
   # Unused code
   coefmissing <- NULL
   # get network
-  lhs <- ERRVL(try(eval_LHS.formula(object)),
+  lhs <- ERRVL(try(eval_lhs.formula(object)),
                stop("A network object on the RHS of the formula argument must be given"))
   if(is.ergm(lhs)){
     if(missing(GOF)) GOF <- nonsimp.update.formula(object, ~.) # Remove LHS from formula.
@@ -204,13 +204,13 @@ gof.formula <- function(object, ...,
       GOF<- ~degree + espartners + distance + model
   }
   # Add a model term, unless it is explicitly excluded
-  GOFtrms <- list.rhs.formula(GOF)
+  GOFtrms <- list_rhs.formula(GOF)
   if(sum(attr(GOFtrms,"sign")[as.character(GOFtrms)=="model"])==0){ # either no "model"s or "-model"s don't outnumber "model"s
     #' @importFrom statnet.common nonsimp.update.formula
       GOF <- nonsimp.update.formula(GOF, ~ . + model)
   }
   
-  all.gof.vars <- as.character(list.rhs.formula(GOF))
+  all.gof.vars <- as.character(list_rhs.formula(GOF))
 
   # match variables
 
@@ -658,7 +658,7 @@ gof.formula <- function(object, ...,
 #' @aliases summary.gof
 #' @export
 print.gof <- function(x, ...){
-  all.gof.vars <- as.character(list.rhs.formula(x$GOF))
+  all.gof.vars <- as.character(list_rhs.formula(x$GOF))
   # match variables
   goftypes <- matrix( c(
       "model", "model statistics", "summary.model",
@@ -749,7 +749,7 @@ plot.gof <- function(x, ...,
 #par(oma=c(0.5,2,1,0.5))
 
 #statsno <- (sum(stats=='deg')>0) + (sum(stats=='espart')>0) + (sum(stats=='d
- all.gof.vars <- as.character(list.rhs.formula(x$GOF))
+ all.gof.vars <- as.character(list_rhs.formula(x$GOF))
  statsno <- length(all.gof.vars)
 
 # match variables

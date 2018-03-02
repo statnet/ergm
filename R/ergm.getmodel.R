@@ -59,8 +59,8 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
   if (length(formula) < 3) 
     stop("Model formula must have a left-hand-side.", call.=FALSE)
 
-  #' @importFrom statnet.common list.rhs.formula
-  v<-list.rhs.formula(formula)
+  #' @importFrom statnet.common list_rhs.formula
+  v<-list_rhs.formula(formula)
   
   formula.env<-environment(formula)
   
