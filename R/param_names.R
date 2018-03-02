@@ -23,7 +23,7 @@ param_names.default <- function(object, ...){
 #'
 #' @template canonical
 #' @export
-param_names.ergm_model <- function(object, canonical=FALSE){
+param_names.ergm_model <- function(object, canonical=FALSE, ...){
     if(canonical) object$coef.names
     else unlist(lapply(object$terms, function(term) NVL(names(term$params),term$coef.names)))
 }
