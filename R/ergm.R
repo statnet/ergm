@@ -537,7 +537,7 @@ ergm <- function(formula, response=NULL,
     nw[as.matrix(is.na(nw),matrix.type="edgelist")] <- 0
   }
   
-  MHproposal.obs <- if(network.naedgecount(nw)==0) NULL else append.rhs.formula(constraints, list(as.name("observed")), TRUE)
+  MHproposal.obs <- if(network.naedgecount(nw)==0) NULL else append_rhs.formula(constraints, list(as.name("observed")), TRUE)
   
   ## Construct approximate response network if target.stats are given.
   

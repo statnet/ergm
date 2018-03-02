@@ -209,7 +209,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     monitored.length <- nparam(monitor.m)
     
     monitor <- list_rhs.formula(monitor)
-    form<-append.rhs.formula(form, monitor)
+    form<-append_rhs.formula(form, monitor)
   }else{
     monitored.length <- 0
   }

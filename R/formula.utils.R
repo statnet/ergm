@@ -14,7 +14,7 @@
 
 #' @rdname ergm.getmodel
 #' @description \code{ergm.update.formula} (DEPRECATED: use
-#'   \code{\link[statnet.common]{nonsimp.update.formula}} instead) is
+#'   \code{\link[statnet.common]{nonsimp_update.formula}} instead) is
 #'   a reimplementation of \code{\link{update.formula}} that does not
 #'   simplify.  Note that the resulting formula's environment is set
 #'   as follows. If \code{from.new==FALSE}, it is set to that of
@@ -22,7 +22,7 @@
 #'   in addition, variables in new listed in from.new (if a character
 #'   vector) or all of new (if TRUE).
 #' @export
-ergm.update.formula <- nonsimp.update.formula
+ergm.update.formula <- nonsimp_update.formula
 
 model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
   ## Recipe syntax:
@@ -92,7 +92,7 @@ model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
       ## If it's not a call OR is a call but does not have a recipe OR
       ## does have a recipe, but the filter function says it should be
       ## skipped (e.g. it's already fixed), then just append it.
-      form<-append.rhs.formula(form,list(terms[[i]]))
+      form<-append_rhs.formula(form,list(terms[[i]]))
       newtheta<-c(newtheta,theta[theta.inds[i]:(theta.inds[i+1]-1)])
     }else{
       ## Otherwise, it gets complicated...
@@ -103,7 +103,7 @@ model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
         ## Custom recipe
         out<-recipe$custom(orig.list,theta[theta.inds[i]:(theta.inds[i+1]-1)])
         newtheta<-c(newtheta,out$theta)
-        form<-append.rhs.formula(form,
+        form<-append_rhs.formula(form,
                                  if(is.call(out$term)) list(out$term)
                                  else as.call(c(as.name(out$term[[1]]),out$term[-1])))
       }else{
@@ -128,7 +128,7 @@ model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
             else theta[theta.inds[i]+recipe$toarg[[name]]-1]
         
         ## Now, add the newly rewritten call to the formula.
-        form<-append.rhs.formula(form,list(as.call(call.list)))
+        form<-append_rhs.formula(form,list(as.call(call.list)))
         
         ## The parts that remain in theta:
         newtheta<-c(newtheta,
@@ -298,7 +298,7 @@ set.offset.formula <- function(object, which, response=NULL){
   for(i in to_offset)
     if(!inherits(terms[[i]],"call") || terms[[i]][[1]]!="offset") # Don't offset terms already offset.
       terms[[i]]<-call("offset", terms[[i]]) # Enclose the term in an offset.
-  ergm.update.formula(object, append.rhs.formula(~.,terms)) # append.rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
+  ergm.update.formula(object, append_rhs.formula(~.,terms)) # append_rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
 }
 
 unset.offset.formula <- function(object, which=TRUE, response=NULL){
@@ -309,7 +309,7 @@ unset.offset.formula <- function(object, which=TRUE, response=NULL){
   for(i in to_unoffset)
     if(inherits(terms[[i]],"call") && terms[[i]][[1]]=="offset") # Is the term an offset?
       terms[[i]]<-terms[[i]][[2]] # Grab the term inside the offset.
-  ergm.update.formula(object, append.rhs.formula(~.,terms)) # append.rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
+  ergm.update.formula(object, append_rhs.formula(~.,terms)) # append_rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
 }
 
 
@@ -322,7 +322,7 @@ remove.offset.formula <- function(object, response=NULL){
   for(i in rev(seq_along(terms)))
     if(inherits(terms[[i]],"call") && terms[[i]][[1]]=="offset") # Is the term an offset?
       terms[[i]]<-NULL # Delete the offset term.
-  ergm.update.formula(object, append.rhs.formula(~.,terms)) # append.rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
+  ergm.update.formula(object, append_rhs.formula(~.,terms)) # append_rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
 }
 
 #' @rdname ergm.getmodel

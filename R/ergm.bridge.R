@@ -227,10 +227,10 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
     terms.full<-list_rhs.formula(form)[!m$term.skipped] # Ensure that terms to be added to the dyad-independent formula are aligned with terms that had actually made it into the model.
     for(i in seq_along(terms.full))
       if(NVL(m$terms[[i]]$dependence, TRUE) == FALSE){
-        dind<-append.rhs.formula(dind,list(terms.full[[i]]))
+        dind<-append_rhs.formula(dind,list(terms.full[[i]]))
         if(m$offset[i]) offset.dind <- c(offset.dind, coef[(p.pos.full[i]+1):p.pos.full[i+1]])
       }
-    dind<-append.rhs.formula(dind,list(as.name("edges")))
+    dind<-append_rhs.formula(dind,list(as.name("edges")))
     environment(dind) <- environment(object)
   }
   
@@ -252,7 +252,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   }
 
   ## Construct the augmented formula.
-  form.aug<-append.rhs.formula(object, list_rhs.formula(dind))
+  form.aug<-append_rhs.formula(object, list_rhs.formula(dind))
 
   from<-c(rep(0,length(coef)),coef.dind)
   to<-c(coef,rep(0,length(coef.dind)))

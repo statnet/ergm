@@ -130,7 +130,7 @@ gof.ergm <- function (object, ...,
 
   if(!is.null(object$response)) stop("GoF for valued ERGMs is not implemented at this time.")
   
-  formula <- nonsimp.update.formula(object$formula, .gof.nw~., from.new=".gof.nw")
+  formula <- nonsimp_update.formula(object$formula, .gof.nw~., from.new=".gof.nw")
 # paste("~",paste(unlist(dimnames(attr(terms(formula),"factors"))[-1]),collapse="+"),sep="")
   if(!is.network(.gof.nw)){
     stop("A network must be given as part of the network object.")
@@ -185,7 +185,7 @@ gof.formula <- function(object, ...,
   lhs <- ERRVL(try(eval_lhs.formula(object)),
                stop("A network object on the RHS of the formula argument must be given"))
   if(is.ergm(lhs)){
-    if(missing(GOF)) GOF <- nonsimp.update.formula(object, ~.) # Remove LHS from formula.
+    if(missing(GOF)) GOF <- nonsimp_update.formula(object, ~.) # Remove LHS from formula.
     if(missing(constraints)) constraints <- NULL
     if(missing(control)) control <- control.gof.ergm()
     
@@ -206,8 +206,8 @@ gof.formula <- function(object, ...,
   # Add a model term, unless it is explicitly excluded
   GOFtrms <- list_rhs.formula(GOF)
   if(sum(attr(GOFtrms,"sign")[as.character(GOFtrms)=="model"])==0){ # either no "model"s or "-model"s don't outnumber "model"s
-    #' @importFrom statnet.common nonsimp.update.formula
-      GOF <- nonsimp.update.formula(GOF, ~ . + model)
+    #' @importFrom statnet.common nonsimp_update.formula
+      GOF <- nonsimp_update.formula(GOF, ~ . + model)
   }
   
   all.gof.vars <- as.character(list_rhs.formula(GOF))
