@@ -130,7 +130,7 @@ gof.ergm <- function (object, ...,
 
   if(!is.null(object$response)) stop("GoF for valued ERGMs is not implemented at this time.")
   
-  formula <- nonsimp.update.formula(object$formula, .gof.nw~., from.new=".gof.nw")
+  formula <- nonsimp_update.formula(object$formula, .gof.nw~., from.new=".gof.nw")
 # paste("~",paste(unlist(dimnames(attr(terms(formula),"factors"))[-1]),collapse="+"),sep="")
   if(!is.network(.gof.nw)){
     stop("A network must be given as part of the network object.")
@@ -182,10 +182,10 @@ gof.formula <- function(object, ...,
   # Unused code
   coefmissing <- NULL
   # get network
-  lhs <- ERRVL(try(eval_LHS.formula(object)),
+  lhs <- ERRVL(try(eval_lhs.formula(object)),
                stop("A network object on the RHS of the formula argument must be given"))
   if(is.ergm(lhs)){
-    if(missing(GOF)) GOF <- nonsimp.update.formula(object, ~.) # Remove LHS from formula.
+    if(missing(GOF)) GOF <- nonsimp_update.formula(object, ~.) # Remove LHS from formula.
     if(missing(constraints)) constraints <- NULL
     if(missing(control)) control <- control.gof.ergm()
     
@@ -204,13 +204,13 @@ gof.formula <- function(object, ...,
       GOF<- ~degree + espartners + distance + model
   }
   # Add a model term, unless it is explicitly excluded
-  GOFtrms <- list.rhs.formula(GOF)
+  GOFtrms <- list_rhs.formula(GOF)
   if(sum(attr(GOFtrms,"sign")[as.character(GOFtrms)=="model"])==0){ # either no "model"s or "-model"s don't outnumber "model"s
-    #' @importFrom statnet.common nonsimp.update.formula
-      GOF <- nonsimp.update.formula(GOF, ~ . + model)
+    #' @importFrom statnet.common nonsimp_update.formula
+      GOF <- nonsimp_update.formula(GOF, ~ . + model)
   }
   
-  all.gof.vars <- as.character(list.rhs.formula(GOF))
+  all.gof.vars <- as.character(list_rhs.formula(GOF))
 
   # match variables
 
@@ -228,12 +228,6 @@ gof.formula <- function(object, ...,
   if(!is.network(nw)){
     stop("A network object on the RHS of the formula argument must be given")
   }
-
-# if(is.bipartite(nw)){
-#   object <- ergm.update.formula(object, ~ . + bipartite)
-#   trms <- ergm.getterms(object)
-#   termnames <- ergm.gettermnames(trms)
-# }
 
   m <- ergm.getmodel(object, nw)
   Clist <- ergm.Cprepare(nw, m)
@@ -664,7 +658,7 @@ gof.formula <- function(object, ...,
 #' @aliases summary.gof
 #' @export
 print.gof <- function(x, ...){
-  all.gof.vars <- as.character(list.rhs.formula(x$GOF))
+  all.gof.vars <- as.character(list_rhs.formula(x$GOF))
   # match variables
   goftypes <- matrix( c(
       "model", "model statistics", "summary.model",
@@ -755,7 +749,7 @@ plot.gof <- function(x, ...,
 #par(oma=c(0.5,2,1,0.5))
 
 #statsno <- (sum(stats=='deg')>0) + (sum(stats=='espart')>0) + (sum(stats=='d
- all.gof.vars <- as.character(list.rhs.formula(x$GOF))
+ all.gof.vars <- as.character(list_rhs.formula(x$GOF))
  statsno <- length(all.gof.vars)
 
 # match variables

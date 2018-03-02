@@ -206,8 +206,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     monitor.m <- ergm.getmodel(monitor, basis, response=response,term.options=control$term.options)
     monitored.length <- nparam(monitor.m)
     
-    monitor <- list.rhs.formula(monitor)
-    form<-append.rhs.formula(form, monitor)
+    monitor <- list_rhs.formula(monitor)
+    form<-append_rhs.formula(form, monitor)
   }else{
     monitored.length <- 0
   }

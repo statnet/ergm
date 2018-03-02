@@ -58,14 +58,11 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
   if ((dc<-data.class(formula)) != "formula")
     stop (paste("Invalid formula of class ",dc), call.=FALSE)
 
-  if (formula[[1]]!="~")
-    stop ("Formula must be of the form 'network ~ model'.", call.=FALSE)  
-  
   if (length(formula) < 3) 
-    stop(paste("No model specified for network ", formula[[2]]), call.=FALSE)
+    stop("Model formula must have a left-hand-side.", call.=FALSE)
 
-  #' @importFrom statnet.common list.rhs.formula
-  v<-list.rhs.formula(formula)
+  #' @importFrom statnet.common list_rhs.formula
+  v<-list_rhs.formula(formula)
   
   formula.env<-environment(formula)
   
@@ -180,7 +177,7 @@ updatemodel.ErgmTerm <- function(model, outlist) {
     # the parameters.
     aux.space <-
       if(!is.null(outlist$auxiliaries)) # requests auxiliaries
-        length(list.rhs.formula(outlist$auxiliaries))
+        length(list_rhs.formula(outlist$auxiliaries))
       else if(length(outlist$coef.names)==0) 1 # is an auxiliary
       else 0
     outlist$inputs <- c(ifelse(is.null(tmp), 0, tmp)+aux.space,

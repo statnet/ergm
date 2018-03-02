@@ -18,7 +18,7 @@ ergm.auxstorage <- function(model, nw, response=NULL,..., extra.aux=list(), term
     if(is.null(aux.form)) list()
     else{
       formula.env <- environment(aux.form)
-      lapply(list.rhs.formula(aux.form), function(aux.term){
+      lapply(list_rhs.formula(aux.form), function(aux.term){
         call.ErgmTerm(aux.term, formula.env, nw, response=response,term.options=term.options,...)
       })
     }

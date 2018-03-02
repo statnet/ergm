@@ -92,12 +92,12 @@ The \code{ergm.getnetwork} function ensures that the
 network in a given formula is valid; if so, the network is
 returned; if not, execution is halted with warnings
 
-The \code{ergm.getterms} function returns the terms of
+DEPRECATED. The \code{ergm.getterms} function returns the terms of
 a given formula and ensures that the formula is indeed a formula
 with the necessary \code{~} operator
 
 \code{ergm.update.formula} (DEPRECATED: use
-\code{\link[statnet.common]{nonsimp.update.formula}} instead) is
+\code{\link[statnet.common]{nonsimp_update.formula}} instead) is
 a reimplementation of \code{\link{update.formula}} that does not
 simplify.  Note that the resulting formula's environment is set
 as follows. If \code{from.new==FALSE}, it is set to that of

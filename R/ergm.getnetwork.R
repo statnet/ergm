@@ -34,7 +34,7 @@
 ergm.getnetwork <- function (form, loopswarning=TRUE){
   nw <- ERRVL(
     try({
-      tmp <- eval_LHS.formula(form)
+      tmp <- eval_lhs.formula(form)
       if(is.network(tmp)) tmp else as.network(tmp)
     }, silent = TRUE),
     stop("Invalid network on the LHS of the formula.")
