@@ -10,7 +10,7 @@ param_names(object, ...)
 
 \method{param_names}{default}(object, ...)
 
-\method{param_names}{ergm_model}(object, canonical = FALSE)
+\method{param_names}{ergm_model}(object, canonical = FALSE, ...)
 }
 \arguments{
 \item{object}{An object for which parameter names are defined.}
