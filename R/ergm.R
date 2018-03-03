@@ -592,7 +592,7 @@ ergm <- function(formula, response=NULL,
                 constraints=constraints,
                 control=san.control,
                 verbose=verbose)
-        formula<-ergm.update.formula(formula,nw~., from.new="nw")
+        formula<-nonsimp_update.formula(formula,nw~., from.new="nw")
         nw.stats <- summary(remove.offset.formula(formula),response=response)
         srun <- srun + 1
         if(verbose){

@@ -25,7 +25,7 @@ ergm.bridge.preproc<-function(object, basis, response){
   }
   
   # New formula (no longer use 'object'):
-  form <- ergm.update.formula(object, nw ~ ., from.new="nw")
+  form <- nonsimp_update.formula(object, nw ~ ., from.new="nw")
   
   list(nw=nw, form=form)
 }
@@ -268,7 +268,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
     environment(dind) <- environment(object)
   }
   
-  dind<-ergm.update.formula(dind,nw~., from.new="nw")
+  dind<-nonsimp_update.formula(dind,nw~., from.new="nw")
 
   if(!is.dyad.independent(dind))
     stop("Reference model `dind' must be dyad-independent.")

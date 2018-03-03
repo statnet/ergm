@@ -198,11 +198,11 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   }
 
   # New formula (no longer use 'object'):
-  form <- ergm.update.formula(object, basis ~ ., from.new="basis")
+  form <- nonsimp_update.formula(object, basis ~ ., from.new="basis")
 
   if(!is.null(monitor)){
     # Construct a model to get the number of parameters monitor requires.
-    monitor <- ergm.update.formula(monitor, nw~., from.new="nw")
+    monitor <- nonsimp_update.formula(monitor, nw~., from.new="nw")
     monitor.m <- ergm.getmodel(monitor, basis, response=response,term.options=control$term.options)
     monitored.length <- nparam(monitor.m)
     
