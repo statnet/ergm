@@ -1496,7 +1496,7 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, initialfit=FALSE, ...) {
       inputs <- c(decay, nodecov)
     }else{
       name <- "gwb1degree"
-      coef.names <- paste("gwb1deg.fixed.",decay,sep="")
+      coef.names <- if(initialfit) "gwb1degree" else paste("gwb1deg.fixed.",decay,sep="")
       inputs <- c(decay)
     }
     list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, conflicts.constraints="b1degreedist")
@@ -1548,7 +1548,7 @@ InitErgmTerm.gwb2degree<-function(nw, arglist, initialfit=FALSE, ...) {
       inputs <- c(decay, nodecov)
     }else{
       name <- "gwb2degree"
-      coef.names <- paste("gwb2deg.fixed.",decay,sep="")
+      coef.names <- if(initialfit) "gwb2degree" else paste("gwb2deg.fixed.",decay,sep="")
       inputs <- c(decay)
     }
     list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, conflicts.constraints="b2degreedist")
@@ -1598,7 +1598,7 @@ InitErgmTerm.gwdegree<-function(nw, arglist, initialfit=FALSE, ...) {
       inputs <- c(decay, nodecov)
     }else{
       name <- "gwdegree"
-      coef.names <- paste("gwdeg.fixed.",decay,sep="")
+      coef.names <- if(initialfit) "gwdegree" else paste("gwdeg.fixed.",decay,sep="")
       inputs <- c(decay)
     }
     list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, conflicts.constraints="degreedist")
@@ -1726,7 +1726,7 @@ InitErgmTerm.gwidegree<-function(nw, arglist, initialfit=FALSE, ...) {
       inputs <- c(decay, nodecov)
     }else{
       name <- "gwidegree"
-      coef.names <- paste("gwideg.fixed.",decay,sep="")
+      coef.names <- if(initialfit) "gwidegree" else paste("gwideg.fixed.",decay,sep="")
       inputs <- c(decay)
     }
     list(name=name, coef.names=coef.names, inputs=inputs, conflicts.constraints="idegreedist")
@@ -1814,7 +1814,7 @@ InitErgmTerm.gwodegree<-function(nw, arglist, initialfit=FALSE, ...) {
       inputs <- c(decay, nodecov)
     }else{
       name <- "gwodegree"
-      coef.names <- paste("gwodeg.fixed.",decay,sep="")
+      coef.names <- if(initialfit) "gwodegree" else paste("gwodeg.fixed.",decay,sep="")
       inputs <- c(decay)
     }
     list(name=name, coef.names=coef.names, inputs=inputs, conflicts.constraints="odegreedist")
