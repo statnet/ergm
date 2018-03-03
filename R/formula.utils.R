@@ -310,7 +310,7 @@ unset.offset.formula <- function(object, which=TRUE, response=NULL){
   nw <- ergm.getnetwork(object)
   m<-ergm.getmodel(object, nw, response=response,role="target")
   to_unoffset <-unique(rep(seq_along(m$terms),nparam(m, byterm=TRUE))[which]) # Figure out which terms correspond to the coefficients to be un offset.
-  terms <- list_terms.formula(object)
+  terms <- list_rhs.formula(object)
   for(i in to_unoffset)
     if(inherits(terms[[i]],"call") && terms[[i]][[1]]=="offset") # Is the term an offset?
       terms[[i]]<-terms[[i]][[2]] # Grab the term inside the offset.
