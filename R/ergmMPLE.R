@@ -158,7 +158,7 @@ ergmMPLE <- function(formula, fitmodel=FALSE, output=c("matrix", "array", "fit")
     return(ergm(formula, estimate="MPLE", control=control, verbose=verbose, ...))
   }
 
-  if(output == "array") formula <- ergm.update.formula(formula, .~indices+.)
+  if(output == "array") formula <- nonsimp_update.formula(formula, .~indices+.)
   
   nw <- ergm.getnetwork(formula)
   model <- ergm.getmodel(formula, nw, initialfit=as.initialfit)

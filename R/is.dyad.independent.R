@@ -61,7 +61,7 @@ is.dyad.independent.formula<-function(object,response=NULL,basis=NULL,...){
     }
   
   # New formula (no longer use 'object'):
-  form <- ergm.update.formula(object, nw ~ ., from.new="nw")
+  form <- nonsimp_update.formula(object, nw ~ ., from.new="nw")
   
   m<-ergm.getmodel(form, nw, response=response)
   is.dyad.independent(m)
