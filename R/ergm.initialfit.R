@@ -93,7 +93,7 @@ ergm.initialfit<-function(init, initial.is.final,
   maxtheta <- m$etamap$maxtheta[!m$etamap$offsettheta]
   init.no <- pmin(init.no, maxtheta - .deinf(pmax(abs(maxtheta),1)*sqrt(.Machine$double.eps)))
   mintheta <- m$etamap$mintheta[!m$etamap$offsettheta]
-  init.no <- pmax(init.no, mintheta - .deinf(pmax(abs(mintheta),1)*sqrt(.Machine$double.eps)))
+  init.no <- pmax(init.no, mintheta + .deinf(pmax(abs(mintheta),1)*sqrt(.Machine$double.eps)))
   init[!m$etamap$offsettheta] <- init.no
   init
 }
