@@ -71,7 +71,7 @@ InitErgmTerm..subnets <- function(nw, arglist, response=NULL, ...){
 InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula","weight","wname"),
-                      vartypes = c("formula","character,numeric,function","character"),
+                      vartypes = c("formula","character,numeric,function,formula","character"),
                       defaultvalues = list(NULL,NULL,NULL),
                       required = c(TRUE,FALSE,FALSE))
 
@@ -98,12 +98,45 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
          gs = ergm.emptynwstats.model(m))
   })
 
-  inputs <- c(w, unlist(lapply(ms, "[[", "inputs")))
+  nparams <- sapply(lapply(ms, `[[`, "model"), nparam, canonical=FALSE)
+  nstats <- sapply(lapply(ms, `[[`, "model"), nparam, canonical=TRUE)
+  
+  if(is(a$weight,"formula")){
+    if(!all_identical(nparams)) stop("N() operator with linear model weights only supports models with the same numbers of parameters for every network. This may change in the future.")
+    nparam <- nparams[1]
+    
+    nattrs <- Reduce(union, lapply(nwl, list.network.attributes))
+    nattrs <- as.data.frame(lapply(nattrs, function(nattr) sapply(lapply(nwl, get.network.attribute, nattr), function(x) if(is.null(x) || length(x)!=1) NA else x)), col.names=nattrs)
+    xm <- do.call(model.matrix, list(a$weight, nattrs), envir=environment(a$weight)) # Each network is a row.
+    xl <- lapply(split(xm, row(xm)), rbind) # Rows of xl as a list.
+    # What the following does: creates a nn-list of singleton lists
+    # containing that network's row of xl, replicates it nparam times,
+    # then binds them into nn-list of block-diagonal matrices. These
+    # can now be used as covariates to vectorized MANOVA-style
+    # parameters.
+    Xl <- lapply(lapply(mapply(rep, lapply(xl,list), nparam, SIMPLIFY=FALSE), Matrix::.bdiag), as.matrix)
 
-  ## FIXME: The following assumes that the formula evaluated on all the subnetworks produces the same set of statistics (or, at least, one with the same set of names).
-  
-  gs <- c(sapply(ms, "[[", "gs")%*%w)
-  
-  c(list(name="MultiNet", coef.names = paste0("N(",NVL(a$wname,"sum"),")","*",ms[[1]]$model$coef.names), inputs=inputs, dependence=!is.dyad.independent(ms[[1]]$model), emptynwstats = gs, auxiliaries = auxiliaries),
-    passthrough.curved.ergm_model(ms[[1]]$m, function(x) paste0(NVL(a$wname,"sum"),"*",x)))
+    inputs <- c(c(0,cumsum(nstats)[-length(nstats)]), unlist(lapply(ms, `[[`, "inputs")))
+
+    map <- function(x, n, ...){
+      unlist(mapply(ergm.eta, lapply(lapply(Xl, `%*%`, c(x)),c), lapply(lapply(ms, `[[`, "model"), `[[`, "etamap"), SIMPLIFY=FALSE))
+    }
+    gradient <- function(x, n, ...){
+      do.call(cbind,mapply(crossprod, Xl, mapply(ergm.etagrad, lapply(lapply(Xl, `%*%`, c(x)),c), lapply(lapply(ms, `[[`, "model"), `[[`, "etamap"), SIMPLIFY=FALSE), SIMPLIFY=FALSE))
+    }
+    params <- rep(list(NULL), nparam*ncol(xm))
+    names(params) <- paste0('N(',rep(colnames(xm), nparam),')*',rep(param_names(ms[[1]]$model, canonical=FALSE), each=ncol(xm)))
+    coef.names <- paste0('N#',rep(seq_len(nn), nstats),'*',unlist(lapply(lapply(ms, `[[`, "model"), param_names, canonical=TRUE)))
+    gs <- unlist(lapply(ms, `[[`, "gs"))
+
+    list(name="MultiNets", coef.names = coef.names, inputs=inputs, dependence=!all(sapply(lapply(ms, `[[`, "model"), is.dyad.independent)), emptynwstats = gs, auxiliaries = auxiliaries, map = map, gradient = gradient, params = params)
+  }else{
+    if(!all_identical(nparams) || !all_identical(nstats)) stop("N() operator only supports models with the same numbers of parameters and coefficients for every network. This may change in the future.")
+    
+    inputs <- c(w, unlist(lapply(ms, `[[`, "inputs")))
+    gs <- c(sapply(ms, `[[`, "gs")%*%w)
+    
+    c(list(name="MultiNet", coef.names = paste0("N(",NVL(a$wname,"sum"),")*",ms[[1]]$model$coef.names), inputs=inputs, dependence=!is.dyad.independent(ms[[1]]$model), emptynwstats = gs, auxiliaries = auxiliaries),
+      passthrough.curved.ergm_model(ms[[1]]$m, function(x) paste0('N(',NVL(a$wname,"sum"),")*",x)))
+  }
 }

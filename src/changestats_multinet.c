@@ -48,6 +48,8 @@ F_CHANGESTAT_FN(f__subnets){
   Free(sn->onwp);
 }
 
+// MultiNet: Take a weighted networkwise sum of the networks' statistics.
+
 I_CHANGESTAT_FN(i_MultiNet){
   double *inputs = INPUT_PARAM; 
   GET_AUX_STORAGE(StoreSubnets, sn); inputs++;
@@ -86,6 +88,51 @@ U_CHANGESTAT_FN(u_MultiNet){
 }
 
 F_CHANGESTAT_FN(f_MultiNet){
+  GET_AUX_STORAGE(StoreSubnets, sn);
+  GET_STORAGE(Model*, ms);
+
+  for(unsigned int i=1; i<=sn->ns; i++){
+    ModelDestroy(sn->onwp + i, ms[i-1]);
+  }
+}
+
+// MultiNets: Concatenate the networks' statistics; network statistic counts may be heterogeneous.
+
+I_CHANGESTAT_FN(i_MultiNets){
+  double *inputs = INPUT_PARAM; 
+  GET_AUX_STORAGE(StoreSubnets, sn); inputs++;
+  unsigned int ns = sn->ns;
+  inputs+=ns;
+  ALLOC_STORAGE(ns, Model*, ms);
+
+  for(unsigned int i=1; i<=sn->ns; i++){
+    ms[i-1] = unpack_Model_as_double(&inputs);
+    InitStats(sn->onwp + i, ms[i-1]);
+  }
+}
+
+C_CHANGESTAT_FN(c_MultiNets){
+  double *pos = INPUT_PARAM; // Starting positions of subnetworks' statistics.
+  GET_AUX_STORAGE(StoreSubnets, sn); pos++;
+  GET_STORAGE(Model*, ms);
+
+  unsigned int i = MN_SID_TAIL(sn, tail);
+  Vertex st = MN_IO_TAIL(sn, tail), sh = MN_IO_HEAD(sn, head);
+  Model *m = ms[i-1];
+  ChangeStats(1, &st, &sh, sn->onwp + i, m);
+  memcpy(CHANGE_STAT + (unsigned int)(pos[i-1]), m->workspace, m->n_stats*sizeof(double));
+}
+
+U_CHANGESTAT_FN(u_MultiNets){
+  GET_AUX_STORAGE(StoreSubnets, sn);
+  GET_STORAGE(Model*, ms);
+
+  unsigned int i = MN_SID_TAIL(sn, tail);
+  Vertex st = MN_IO_TAIL(sn, tail), sh = MN_IO_HEAD(sn, head);
+  UPDATE_STORAGE(st, sh, sn->onwp + i, ms[i-1], NULL);
+}
+
+F_CHANGESTAT_FN(f_MultiNets){
   GET_AUX_STORAGE(StoreSubnets, sn);
   GET_STORAGE(Model*, ms);
 

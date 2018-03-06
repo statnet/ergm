@@ -436,11 +436,22 @@ network
   \item{\code{N(formula, weight=NULL, wname=NULL)} (binary) (operator)}{\emph{Evaluation on multiple networks}:
     Evaluates the terms in \code{formula} on each of the networks joined
     using \code{\link{Networks}} function, and sums the results, optionally weighted
-    by \code{weight} (if given). \code{weight} argument can be a
-    string giving the name of the network attribute found on each of the
-    constituent networks, a numeric vector having the same length as the
-    number of constituent networks, or a function that will be evaluated
-    on each of the networks to produce the weights. \code{wname} can be
+    by \code{weight} (if given). \code{weight} argument can be any of
+    the following:
+    \describe{
+      \item{a character string}{the string should have the name of the network attribute found on each of the
+	constituent networks.}
+      \item{a numeric vector}{the vector should have the same length as the
+	number of constituent networks.}
+      \item{a function}{the function should return a scalar; it will be evaluated
+	on each of the networks to produce the weights.}
+      \item{a one-sided formula}{the formula should be suited as RHS of
+	an \code{\link{lm}} formula. The terms in the formula can refer
+	to numeric, character, and factor network attributes, which will
+	be used as covariates, effectively estimating a linear model for
+	the ERGM coefficients.}
+    }
+    \code{wname} can be
     used to provide a name for the weighting scheme in the coefficient
     name.  
   }
