@@ -124,6 +124,10 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
     gradient <- function(x, n, ...){
       do.call(cbind,mapply(crossprod, Xl, mapply(ergm.etagrad, lapply(lapply(Xl, `%*%`, c(x)),c), lapply(lapply(ms, `[[`, "model"), `[[`, "etamap"), SIMPLIFY=FALSE), SIMPLIFY=FALSE))
     }
+    if(with(ms[[1]]$model$etamap,
+            any(mintheta[!offsettheta]!=-Inf) || any(maxtheta[!offsettheta]!=+Inf))){
+      warning("Submodel specified to N() operator with a linear model formula has parameter constraints. They will be ignored.")
+    }
     params <- rep(list(NULL), nparam*ncol(xm))
     names(params) <- paste0('N(',rep(colnames(xm), nparam),')*',rep(param_names(ms[[1]]$model, canonical=FALSE), each=ncol(xm)))
     coef.names <- paste0('N#',rep(seq_len(nn), nstats),'*',unlist(lapply(lapply(ms, `[[`, "model"), param_names, canonical=TRUE)))
