@@ -16,7 +16,7 @@ network.list(object, ...)
   net.print = FALSE, net.summary = FALSE, ...)
 }
 \arguments{
-\item{object, x}{a list of networks or a \code{network.list} object.}
+\item{object}{a \code{list} of networks or a \code{network.list} object.}
 
 \item{...}{for \code{network.list}, additional attributes to be set on
 the network list; for others, arguments passed down to
