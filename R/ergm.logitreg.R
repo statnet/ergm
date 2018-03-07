@@ -78,10 +78,11 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
     if(is.null(m)){
       function(theta, X, y, w, offset, etamap, etagrad){
         eta <- as.vector(.multiply.with.inf(X,etamap(theta))+offset)
+        Xgradt <- X %*% t(etagrad(theta))
         p <- plogis(eta)
         o <- list(value = sum(w * ifelse(y, log(p), log1p(-p))),
-             gradient = as.vector(matrix(w *dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% X %*% t(etagrad(theta))),
-             hessian = -etagrad(theta) %*% crossprod(X*w*p*(1-p), X) %*% t(etagrad(theta)))
+             gradient = as.vector(matrix(w * dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% Xgradt),
+             hessian = -crossprod(Xgradt, w*p*(1-p)*Xgradt))
         if(verbose){
           message("theta:")
           message_print(theta)
@@ -101,11 +102,12 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
           o <- list(value=-Inf)
         }else{
           eta <- as.vector(.multiply.with.inf(X,etamap(theta))+offset)
+          Xgradt <- X %*% t(etagrad(theta))
           p <- plogis(eta)
           o <- list(
             value = sum(w * ifelse(y, log(p), log1p(-p))),
-            gradient = as.vector((matrix(w *dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% X %*% t(etagrad(theta)))[,!m$etamap$offsettheta,drop=FALSE]),
-            hessian = -(etagrad(theta) %*% crossprod(X*w*p*(1-p), X) %*% t(etagrad(theta)))[!m$etamap$offsettheta,!m$etamap$offsettheta,drop=FALSE]
+            gradient = as.vector((matrix(w * dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% Xgradt)[,!m$etamap$offsettheta,drop=FALSE]),
+            hessian = -crossprod(Xgradt, w*p*(1-p)*Xgradt)[!m$etamap$offsettheta,!m$etamap$offsettheta,drop=FALSE]
           )
         }
         if(verbose){
