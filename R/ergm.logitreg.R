@@ -71,17 +71,18 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
   p <- ncol(x) + intercept
   if(intercept) {x <- cbind(1, x); dn <- c("(Intercept)", dn)}
   if(is.factor(y)) y <- (unclass(y) != 1)
-  start[is.na(start)]<-0
+  start[is.na(start)]<-rnorm(sum(is.na(start)), 0, sqrt(.Machine$double.eps))
 
 
   loglikelihoodfn.trust <-
     if(is.null(m)){
       function(theta, X, y, w, offset, etamap, etagrad){
         eta <- as.vector(.multiply.with.inf(X,etamap(theta))+offset)
+        Xgradt <- X %*% t(etagrad(theta))
         p <- plogis(eta)
         o <- list(value = sum(w * ifelse(y, log(p), log1p(-p))),
-             gradient = as.vector(matrix(w *dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% X %*% t(etagrad(theta))),
-             hessian = -etagrad(theta) %*% crossprod(X*w*p*(1-p), X) %*% t(etagrad(theta)))
+             gradient = as.vector(matrix(w * dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% Xgradt),
+             hessian = -crossprod(Xgradt, w*p*(1-p)*Xgradt))
         if(verbose){
           message("theta:")
           message_print(theta)
@@ -92,21 +93,23 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
       }
     }else{
       function(theta.no, X, y, w, offset, etamap, etagrad){
-        # Check for box constraint violation.
-        if(any(theta.no < m$etamap$mintheta[!m$etamap$offsettheta]) ||
-           any(theta.no > m$etamap$maxtheta[!m$etamap$offsettheta]))
-          return(list(value=-Inf))
-
         theta <- start
         theta[!m$etamap$offsettheta] <- theta.no
         
-        eta <- as.vector(.multiply.with.inf(X,etamap(theta))+offset)
-        p <- plogis(eta)
-        o <- list(
-          value = sum(w * ifelse(y, log(p), log1p(-p))),
-          gradient = as.vector((matrix(w *dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% X %*% t(etagrad(theta)))[,!m$etamap$offsettheta,drop=FALSE]),
-          hessian = -(etagrad(theta) %*% crossprod(X*w*p*(1-p), X) %*% t(etagrad(theta)))[!m$etamap$offsettheta,!m$etamap$offsettheta,drop=FALSE]
-        )
+        # Check for box constraint violation.
+        if(any(theta[!m$etamap$offsettheta] < m$etamap$mintheta[!m$etamap$offsettheta]) ||
+           any(theta[!m$etamap$offsettheta] > m$etamap$maxtheta[!m$etamap$offsettheta])){
+          o <- list(value=-Inf)
+        }else{
+          eta <- as.vector(.multiply.with.inf(X,etamap(theta))+offset)
+          Xgradt <- X %*% t(etagrad(theta))
+          p <- plogis(eta)
+          o <- list(
+            value = sum(w * ifelse(y, log(p), log1p(-p))),
+            gradient = as.vector((matrix(w * dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% Xgradt)[,!m$etamap$offsettheta,drop=FALSE]),
+            hessian = -crossprod(Xgradt, w*p*(1-p)*Xgradt)[!m$etamap$offsettheta,!m$etamap$offsettheta,drop=FALSE]
+          )
+        }
         if(verbose){
           message("theta:")
           message_print(theta)
