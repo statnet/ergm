@@ -56,7 +56,7 @@ network_view <- function(x, attrname, test.f = as.logical){
   nael <- el[is.na(keep),,drop=FALSE]
   x[del] <- 0
   x[nael] <- NA
-  for(a in list.edge.attributes(x)) delete.network.attribute(x, a)
+  for(a in list.edge.attributes(x)) delete.edge.attribute(x, a)
   x
 }
 
