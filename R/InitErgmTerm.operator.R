@@ -292,7 +292,7 @@ symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), ...){
   rule <- match.arg(rule)
   el <- sna::symmetrize(x, rule=rule, return.as.edgelist=TRUE, ...)
   o <- network.initialize(network.size(x), directed=FALSE, bipartite=x%n%"bipartite", loops=has.loops(x), hyper=is.hyper(x), multiple=is.multiplex(x))
-  el <- el[seq_len(nrow(el))/2,-3,drop=FALSE]
+  el <- el[seq_len(nrow(el)/2),-3,drop=FALSE]
   o <- network.edgelist(el, o)
   nvattr.copy.network(o, x)
 }
