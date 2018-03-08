@@ -483,11 +483,15 @@ network
     list.
   }
 
-  \item{\code{Offset(formula, coef)} (binary) (operator)}{\emph{Terms
+  \item{\code{Offset(formula, coef, which)} (binary) (operator)}{\emph{Terms
       with fixed coefficients}:
     This operator is analogous to the \code{offset()} wrapper, but the
       coefficients are specified within the term and the curved ERGM
-      mechanism is used internally.
+      mechanism is used internally. In addition, the \code{which}
+      argument can be used to specify which of the \emph{parameters} in
+      the formula are fixed. It can be a logical vector (recycled as
+      needed), a numeric vector of indices of parameters to be fixed, or
+      the a character vector of parameter names.
     }
     \item{\code{absdiff(attrname, pow=1)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (quantitative nodal attribute),
     \code{absdiff(attrname, pow=1, form ="sum")}  (valued)  (dyad-independent) (directed)  (undirected) (quantitative nodal attribute)}{\emph{Absolute difference:}

@@ -236,29 +236,50 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, response=NULL, ...){
 
 InitErgmTerm.Offset <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("formula", "coef"),
-                      vartypes = c("formula", "numeric"),
-                      defaultvalues = list(NULL, NULL),
-                      required = c(TRUE, TRUE))
+                      varnames = c("formula", "coef", "which"),
+                      vartypes = c("formula", "numeric", "logical,numeric,character"),
+                      defaultvalues = list(NULL, 0, TRUE),
+                      required = c(TRUE, FALSE, FALSE))
   f <- a$formula
   if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
 
   m <- ergm.getmodel(f, nw, response=response,...)
-  coef <- rep(a$coef, length(m$coef.names))
+  parnames <- param_names(m, canonical=FALSE)
+  nparams <- nparam(m, canonical=FALSE)
+  coefnames <- param_names(m, canonical=TRUE)
+  ncoefs <- nparam(m, canonical=TRUE)
+
+  which <- switch(mode(a$which),
+                  character = match(a$which, parnames),
+                  logical = which(rep(a$which, length.out=nparams)),
+                  a$which)
+  selection <- logical(nparams)
+  if(length(which)) selection[which] <- TRUE
+  
+  offset.coef <- rep(a$coef, length.out=sum(selection))
+
+  coef0 <- .constrain_init(m, rep(0, nparams))
+  coef0[selection] <- offset.coef
+    
   Clist <- ergm.Cprepare(nw, m, response=response)
 
   inputs <- pack.Clist_as_num(Clist)
   
   gs <- ergm.emptynwstats.model(m)
   
-  list(name="passthrough_term", coef.names = paste0('Offset(',m$coef.names,',',coef,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs,
-       params=list(),
+  params <- rep(list(NULL), sum(!selection))
+  names(params) <- parnames[!selection]
+  
+  list(name="passthrough_term", coef.names = coefnames, inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs,
+       params=params,
        map = function(x, n, ...){
-         ergm.eta(coef, m$etamap)
+         coef0[!selection] <- x
+         ergm.eta(coef0, m$etamap)
        },
        gradient = function(x, n, ...){
-         matrix(NA, 0, length(coef))
+         coef0[!selection] <- x
+         ergm.etagrad(coef0, m$etamap)[!selection,,drop=FALSE]
        }
        )
 }
