@@ -307,14 +307,54 @@ symmetrize.default <- function(x, rule=c("weak","strong","upper","lower"), ...){
 #' @describeIn symmetrize
 #'
 #' A method for [`network`] objects, which preserves network and vertex attributes.
+#'
+#' @examples
+#' data(sampson)
+#' samplike[1,2] <- NA
+#' samplike[4.1] <- NA
+#' sm <- as.matrix(samplike)
+#'
+#' tst <- function(x,y){
+#'   mapply(identical, x, y)
+#' }
 #' 
+#' stopifnot(all(tst(as.logical(as.matrix(symmetrize(samplike, "weak"))), sm | t(sm))),
+#'           all(tst(as.logical(as.matrix(symmetrize(samplike, "strong"))), sm & t(sm))),
+#'           all(tst(c(as.matrix(symmetrize(samplike, "upper"))), sm[cbind(c(pmin(row(sm),col(sm))),c(pmax(row(sm),col(sm))))])),
+#'           all(tst(c(as.matrix(symmetrize(samplike, "lower"))), sm[cbind(c(pmax(row(sm),col(sm))),c(pmin(row(sm),col(sm))))])))
 #' @export
 symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), ...){
   rule <- match.arg(rule)
-  el <- sna::symmetrize(x, rule=rule, return.as.edgelist=TRUE, ...)
+  el <- rbind(cbind(as.edgelist(x),TRUE),
+              cbind(as.edgelist(is.na(x)), NA))
+  merge.el <- function(el1, el2){
+    # "Encode" NAs as TRUE, TRUE, as FALSE.
+    el1[,3] <- is.na(el1[,3])
+    el2[,3] <- is.na(el2[,3])
+    els <- merge(el1, el2, by.x = c(1:2), by.y = c(1:2), all=TRUE, suffixes = c("th","ht"), sort=FALSE)
+    # Now, NA represents FALSE, TRUE NA, and FALSE, TRUE. "Decode".
+    els <- transform(els, V3th = ifelse(is.na(V3th), FALSE, ifelse(V3th, NA, TRUE)), V3ht = ifelse(is.na(V3ht), FALSE, ifelse(V3ht, NA, TRUE)))
+    els[els$V1<=els$V2,,drop=FALSE]
+  }
+  el <- switch(rule,
+               weak = {
+                 els <- merge.el(el, el[,c(2,1,3)])
+                 el <- cbind(els[,1:2,drop=FALSE], els$V3th | els$V3ht)
+                 el[is.na(el[,3])|el[,3],,drop=FALSE]
+               },                 
+               strong = {
+                 els <- merge.el(el, el[,c(2,1,3)])
+                 el <- cbind(els[,1:2,drop=FALSE], els$V3th & els$V3ht)
+                 el[is.na(el[,3])|el[,3],,drop=FALSE]
+               },
+               upper = el[el[,1]<=el[,2],,drop=FALSE],
+               lower = el[el[,1]>=el[,2],,drop=FALSE]
+               )
+  
   o <- network.initialize(network.size(x), directed=FALSE, bipartite=x%n%"bipartite", loops=has.loops(x), hyper=is.hyper(x), multiple=is.multiplex(x))
-  el <- el[seq_len(nrow(el)/2),-3,drop=FALSE]
-  o <- network.edgelist(el, o)
+  el[,3] <- is.na(el[,3])
+  colnames(el) <- c("tails", "heads", "na")
+  o <- network.edgelist(el, o, ignore.eval=FALSE, names.eval="na")
   nvattr.copy.network(o, x)
 }
 

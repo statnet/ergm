@@ -32,3 +32,18 @@ Return a symmetrized version of a binary network
 \item \code{network}: A method for \code{\link{network}} objects, which preserves network and vertex attributes.
 }}
 
+\examples{
+data(sampson)
+samplike[1,2] <- NA
+samplike[4.1] <- NA
+sm <- as.matrix(samplike)
+
+tst <- function(x,y){
+  mapply(identical, x, y)
+}
+
+stopifnot(all(tst(as.logical(as.matrix(symmetrize(samplike, "weak"))), sm | t(sm))),
+          all(tst(as.logical(as.matrix(symmetrize(samplike, "strong"))), sm & t(sm))),
+          all(tst(c(as.matrix(symmetrize(samplike, "upper"))), sm[cbind(c(pmin(row(sm),col(sm))),c(pmax(row(sm),col(sm))))])),
+          all(tst(c(as.matrix(symmetrize(samplike, "lower"))), sm[cbind(c(pmax(row(sm),col(sm))),c(pmin(row(sm),col(sm))))])))
+}
