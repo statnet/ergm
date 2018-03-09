@@ -250,11 +250,12 @@ InitErgmTerm.Offset <- function(nw, arglist, response=NULL, ...){
   coefnames <- param_names(m, canonical=TRUE)
   ncoefs <- nparam(m, canonical=TRUE)
 
-  which <- switch(mode(a$which),
-                  character = match(a$which, parnames),
-                  logical = which(rep(a$which, length.out=nparams)),
-                  a$which)
-  selection <- logical(nparams)
+  selection <- unwhich(
+    switch(mode(a$which),
+           character = match(a$which, parnames),
+           logical = which(rep(a$which, length.out=nparams)),
+           numeric = a$which),
+    nparams)
   if(length(which)) selection[which] <- TRUE
   
   offset.coef <- rep(a$coef, length.out=sum(selection))
