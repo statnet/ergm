@@ -102,12 +102,15 @@ I_CHANGESTAT_FN(i_MultiNets){
   double *inputs = INPUT_PARAM; 
   GET_AUX_STORAGE(StoreSubnets, sn); inputs++;
   unsigned int ns = sn->ns;
-  inputs+=ns;
+  double *pos = inputs;
+  inputs+=ns+1;
   ALLOC_STORAGE(ns, Model*, ms);
 
   for(unsigned int i=1; i<=sn->ns; i++){
-    ms[i-1] = unpack_Model_as_double(&inputs);
-    InitStats(sn->onwp + i, ms[i-1]);
+    if(pos[i-1]!=pos[i]){
+      ms[i-1] = unpack_Model_as_double(&inputs);
+      InitStats(sn->onwp + i, ms[i-1]);
+    }
   }
 }
 
@@ -118,26 +121,34 @@ C_CHANGESTAT_FN(c_MultiNets){
 
   unsigned int i = MN_SID_TAIL(sn, tail);
   Vertex st = MN_IO_TAIL(sn, tail), sh = MN_IO_HEAD(sn, head);
-  Model *m = ms[i-1];
-  ChangeStats(1, &st, &sh, sn->onwp + i, m);
-  memcpy(CHANGE_STAT + (unsigned int)(pos[i-1]), m->workspace, m->n_stats*sizeof(double));
+  if(pos[i-1]!=pos[i]){
+    Model *m = ms[i-1];
+    ChangeStats(1, &st, &sh, sn->onwp + i, m);
+    memcpy(CHANGE_STAT + (unsigned int)(pos[i-1]), m->workspace, m->n_stats*sizeof(double));
+  }
 }
 
 U_CHANGESTAT_FN(u_MultiNets){
-  GET_AUX_STORAGE(StoreSubnets, sn);
+  double *pos = INPUT_PARAM; // Starting positions of subnetworks' statistics.
+  GET_AUX_STORAGE(StoreSubnets, sn); pos++;
   GET_STORAGE(Model*, ms);
 
   unsigned int i = MN_SID_TAIL(sn, tail);
-  Vertex st = MN_IO_TAIL(sn, tail), sh = MN_IO_HEAD(sn, head);
-  UPDATE_STORAGE(st, sh, sn->onwp + i, ms[i-1], NULL);
+  if(pos[i-1]!=pos[i]){
+    Vertex st = MN_IO_TAIL(sn, tail), sh = MN_IO_HEAD(sn, head);
+    UPDATE_STORAGE(st, sh, sn->onwp + i, ms[i-1], NULL);
+  }
 }
 
 F_CHANGESTAT_FN(f_MultiNets){
-  GET_AUX_STORAGE(StoreSubnets, sn);
+  double *pos = INPUT_PARAM; // Starting positions of subnetworks' statistics.
+  GET_AUX_STORAGE(StoreSubnets, sn); pos++;
   GET_STORAGE(Model*, ms);
 
   for(unsigned int i=1; i<=sn->ns; i++){
-    ModelDestroy(sn->onwp + i, ms[i-1]);
+    if(pos[i-1]!=pos[i]){
+      ModelDestroy(sn->onwp + i, ms[i-1]);
+    }
   }
 }
 

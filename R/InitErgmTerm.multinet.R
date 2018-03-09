@@ -70,26 +70,41 @@ InitErgmTerm..subnets <- function(nw, arglist, response=NULL, ...){
 
 InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("formula","weight","wname"),
-                      vartypes = c("formula","character,numeric,function,formula","character"),
-                      defaultvalues = list(NULL,NULL,NULL),
-                      required = c(TRUE,FALSE,FALSE))
+                      varnames = c("formula","lmform","subset","weights","contrasts","offset","label"),
+                      vartypes = c("formula","formula","formula,logical,numeric,expression","formula,logical,numeric,expression","list","formula,logical,numeric,expression","character"),
+                      defaultvalues = list(NULL,~1,TRUE,1,NULL,0,NULL),
+                      required = c(TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE))
 
   f <- a$formula
 
   nwl <- .split_constr_network(nw, ".NetworkID", ".NetworkName")
   nwnames <- names(nwl)
-  nn <- length(nwl) 
-
-  w <- switch(mode(a$weight),
-              character = sapply(nwl, get.network.attribute, a$weight),
-              numeric = rep(w, length.out=nn),
-              `function` = sapply(nwl, a$weight),
-              `NULL` = rep(1,nn))
+  nn <- length(nwl)
   
   auxiliaries <- ~.subnets(".NetworkID")
 
-  ms <- lapply(nwl, function(nw1){
+  nattrs <- Reduce(union, lapply(nwl, list.network.attributes))
+  nattrs <- as.data.frame(lapply(nattrs, function(nattr) sapply(lapply(nwl, get.network.attribute, nattr), function(x) if(is.null(x) || length(x)!=1) NA else x)), col.names=nattrs)
+
+  subset <-
+    if(mode(a$subset) %in% c("expression", "call")) eval(if(is(a$subset, "formula")) a$subset[[2]] else a$subset, envir = nattrs, enclos = environment(a$subset))
+    else a$subset
+  subset <- unwhich(switch(mode(subset),
+                           logical = which(rep(subset, length.out = nn)),
+                           numeric = subset),
+                    nn)
+
+  weights <- if(mode(a$weights) %in% c("expression", "call")) eval(if(is(a$weights, "formula")) a$weights[[2]] else a$weights, envir = nattrs, enclos = environment(a$weights))
+             else a$weights
+  weights <- rep(weights, length.out=nn)
+
+  offset <- if(mode(a$offset) %in% c("expression", "call")) eval(if(is(a$offset, "formula")) a$offset[[2]] else a$offset, envir = nattrs, enclos = environment(a$offset))
+             else a$offset
+  offset <- rep(offset, length.out=nn)
+
+  subset[weights==0] <- FALSE
+  
+  ms <- lapply(nwl[subset], function(nw1){
     f <- nonsimp_update.formula(f, nw1~.)
     m <- ergm.getmodel(f, nw1, response=response,...)
     Clist <- ergm.Cprepare(nw1, m, response=response)
@@ -98,49 +113,80 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
          gs = ergm.emptynwstats.model(m))
   })
 
+  nm <- sum(subset)
+
   nparams <- sapply(lapply(ms, `[[`, "model"), nparam, canonical=FALSE)
   nstats <- sapply(lapply(ms, `[[`, "model"), nparam, canonical=TRUE)
+
+  ### Linear model for parameters
+  if(!all_identical(nparams)) stop("N() operator with linear model weights only supports models with the same numbers of parameters for every network. This may change in the future.")
+  nparam <- nparams[1]
+
+  # model.frame.
+  xf <- do.call(stats::lm, list(a$lmform, data=nattrs,contrast.arg=a$contrasts, offset = offset, subset=subset, weights=weights, method="model.frame"), envir=environment(a$lmform))
+  offset <- model.offset(xf)
+  weights <- model.weights(xf)
+  xm <- model.matrix(attr(xf, "terms"), xf, contrasts=a$contrasts)
+  xl <- lapply(split(xm, row(xm)), rbind) # Rows of xl as a list.
   
-  if(is(a$weight,"formula")){
-    if(!all_identical(nparams)) stop("N() operator with linear model weights only supports models with the same numbers of parameters for every network. This may change in the future.")
-    nparam <- nparams[1]
-    
-    nattrs <- Reduce(union, lapply(nwl, list.network.attributes))
-    nattrs <- as.data.frame(lapply(nattrs, function(nattr) sapply(lapply(nwl, get.network.attribute, nattr), function(x) if(is.null(x) || length(x)!=1) NA else x)), col.names=nattrs)
-    xm <- do.call(model.matrix, list(a$weight, nattrs), envir=environment(a$weight)) # Each network is a row.
-    xl <- lapply(split(xm, row(xm)), rbind) # Rows of xl as a list.
-    # What the following does: creates a nn-list of singleton lists
-    # containing that network's row of xl, replicates it nparam times,
-    # then binds them into nn-list of block-diagonal matrices. These
-    # can now be used as covariates to vectorized MANOVA-style
-    # parameters.
-    Xl <- lapply(lapply(mapply(rep, lapply(xl,list), nparam, SIMPLIFY=FALSE), Matrix::.bdiag), as.matrix)
+  # What the following does: creates a nn-list of singleton lists
+  # containing that network's row of xl, replicates it nparam times,
+  # then binds them into nn-list of block-diagonal matrices. These
+  # can now be used as covariates to vectorized MANOVA-style
+  # parameters.
+  Xl <- lapply(lapply(mapply(rep, lapply(xl,list), nparam, SIMPLIFY=FALSE), Matrix::.bdiag), as.matrix)
 
-    inputs <- c(c(0,cumsum(nstats)[-length(nstats)]), unlist(lapply(ms, `[[`, "inputs")))
+  nstats.all <- integer(nn)
+  nstats.all[subset] <- nstats # So networks not in subset get 0 stats.
+  inputs <- c(c(0,cumsum(nstats)), unlist(lapply(ms, `[[`, "inputs")))
 
-    map <- function(x, n, ...){
-      unlist(mapply(ergm.eta, lapply(lapply(Xl, `%*%`, c(x)),c), lapply(lapply(ms, `[[`, "model"), `[[`, "etamap"), SIMPLIFY=FALSE))
-    }
-    gradient <- function(x, n, ...){
-      do.call(cbind,mapply(crossprod, Xl, mapply(ergm.etagrad, lapply(lapply(Xl, `%*%`, c(x)),c), lapply(lapply(ms, `[[`, "model"), `[[`, "etamap"), SIMPLIFY=FALSE), SIMPLIFY=FALSE))
-    }
-    if(with(ms[[1]]$model$etamap,
-            any(mintheta[!offsettheta]!=-Inf) || any(maxtheta[!offsettheta]!=+Inf))){
-      warning("Submodel specified to N() operator with a linear model formula has parameter constraints. They will be ignored.")
-    }
-    params <- rep(list(NULL), nparam*ncol(xm))
-    names(params) <- paste0('N(',rep(colnames(xm), nparam),')*',rep(param_names(ms[[1]]$model, canonical=FALSE), each=ncol(xm)))
-    coef.names <- paste0('N#',rep(seq_len(nn), nstats),'*',unlist(lapply(lapply(ms, `[[`, "model"), param_names, canonical=TRUE)))
-    gs <- unlist(lapply(ms, `[[`, "gs"))
-
-    list(name="MultiNets", coef.names = coef.names, inputs=inputs, dependence=!all(sapply(lapply(ms, `[[`, "model"), is.dyad.independent)), emptynwstats = gs, auxiliaries = auxiliaries, map = map, gradient = gradient, params = params)
-  }else{
-    if(!all_identical(nparams) || !all_identical(nstats)) stop("N() operator only supports models with the same numbers of parameters and coefficients for every network. This may change in the future.")
-    
-    inputs <- c(w, unlist(lapply(ms, `[[`, "inputs")))
-    gs <- c(sapply(ms, `[[`, "gs")%*%w)
-    
-    c(list(name="MultiNet", coef.names = paste0("N(",NVL(a$wname,"sum"),")*",ms[[1]]$model$coef.names), inputs=inputs, dependence=!is.dyad.independent(ms[[1]]$model), emptynwstats = gs, auxiliaries = auxiliaries),
-      passthrough.curved.ergm_model(ms[[1]]$m, function(x) paste0('N(',NVL(a$wname,"sum"),")*",x)))
+  map <- function(x, n, ...){
+    # What this does:
+    # 1) Calculate each network's theta as its X%*%c(x), where X is the predictor matrix and x is "theta". Return a list of submodel "thetas".
+    # 2) Evaluate ergm.eta() on these "thetas", to get submodel "thetas" to get submodel "etas". Return a list of "eta" vectors.
+    # 3) Shift the etas by their respective offsets. Return the list of shifted eta vectors.
+    # 4) Scale the etas by their respective weights. Return the list of shifted eta vectors.
+    unlist(mapply(`*`,
+                  mapply(`+`,
+                         mapply(ergm.eta, lapply(lapply(Xl, `%*%`, c(x)),c), lapply(lapply(ms, `[[`, "model"), `[[`, "etamap"), SIMPLIFY=FALSE),
+                         offset, SIMPLIFY=FALSE),
+                  weights, SIMPLIFY=FALSE)
+           )
   }
+  gradient <- function(x, n, ...){
+    do.call(cbind,
+            mapply(`*`,
+                   mapply(crossprod, Xl, mapply(ergm.etagrad, lapply(lapply(Xl, `%*%`, c(x)),c), lapply(lapply(ms, `[[`, "model"), `[[`, "etamap"), SIMPLIFY=FALSE), SIMPLIFY=FALSE),
+                   weights, SIMPLIFY=FALSE)
+            )
+  }
+  if(with(ms[[1]]$model$etamap,
+          any(mintheta[!offsettheta]!=-Inf) || any(maxtheta[!offsettheta]!=+Inf))){
+    warning("Submodel specified to N() operator with a linear model formula has parameter constraints. They will be ignored.")
+  }
+  params <- rep(list(NULL), nparam*ncol(xm))
+  parnames <- colnames(xm)
+  parnames <- ifelse(parnames=="(Intercept)", "1", parnames)
+  names(params) <- paste0('N(',NVL3(a$label,paste0(.,","),""),rep(parnames, nparam),'):',rep(param_names(ms[[1]]$model, canonical=FALSE), each=ncol(xm)))
+  coef.names <- paste0('N#',rep(seq_len(nn), nstats),':',unlist(lapply(lapply(ms, `[[`, "model"), param_names, canonical=TRUE)))
+  gs <- unlist(lapply(ms, `[[`, "gs"))
+
+  list(name="MultiNets", coef.names = coef.names, inputs=inputs, dependence=!all(sapply(lapply(ms, `[[`, "model"), is.dyad.independent)), emptynwstats = gs, auxiliaries = auxiliaries, map = map, gradient = gradient, params = params)
+
+  ## TODO: Re-add the optimised special case for when weights are fixed and constant, and all active models have the same numbers of coefficients.
+  ## ### Test if weights are constant within the network.
+  ## ### Fixed weights for networks
+  ##   w <- switch(mode(a$weight),
+  ##               character = sapply(nwl[subset], get.network.attribute, a$weight),
+  ##               numeric = rep(w, length.out=sum(subset)),
+  ##               `function` = sapply(nwl[subset], a$weight),
+  ##               `NULL` = rep(1,nn))
+  ##   if(!all_identical(nparams) || !all_identical(nstats)) stop("N() operator only supports models with the same numbers of parameters and coefficients for every network. This may change in the future.")
+    
+  ##   inputs <- c(w, unlist(lapply(ms, `[[`, "inputs")))
+  ##   gs <- c(sapply(ms, `[[`, "gs")%*%w)
+    
+  ##   c(list(name="MultiNet", coef.names = paste0("N(",NVL(a$wname,"sum"),")*",ms[[1]]$model$coef.names), inputs=inputs, dependence=!is.dyad.independent(ms[[1]]$model), emptynwstats = gs, auxiliaries = auxiliaries),
+  ##     passthrough.curved.ergm_model(ms[[1]]$m, function(x) paste0('N(',NVL(a$wname,"sum"),")*",x)))
+  ## }
 }

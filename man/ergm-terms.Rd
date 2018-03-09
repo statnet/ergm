@@ -182,7 +182,7 @@ network
   necessary.
 
   \subsection{Operator terms}{
-    Operator terms like \code{B} and \code{NodematchFilter} take
+    Operator terms like \code{B} and \code{F} take
     formulas with other \code{ergm} terms as their arguments and
     trnasform them by modifying their inputs (e.g., the network they
     evaluate) and/or their outputs.
@@ -433,27 +433,21 @@ network
     up. A dot (\code{.}) stands for summing all layers.
   }
 
-  \item{\code{N(formula, weight=NULL, wname=NULL)} (binary) (operator)}{\emph{Evaluation on multiple networks}:
+  \item{\code{N(formula, lmform=~1, subset=TRUE, weights=1, contrasts=NULL, offset=0, label=NULL)} (binary) (operator)}{\emph{Evaluation on multiple networks}:
+
     Evaluates the terms in \code{formula} on each of the networks joined
-    using \code{\link{Networks}} function, and sums the results, optionally weighted
-    by \code{weight} (if given). \code{weight} argument can be any of
-    the following:
-    \describe{
-      \item{a character string}{the string should have the name of the network attribute found on each of the
-	constituent networks.}
-      \item{a numeric vector}{the vector should have the same length as the
-	number of constituent networks.}
-      \item{a function}{the function should return a scalar; it will be evaluated
-	on each of the networks to produce the weights.}
-      \item{a one-sided formula}{the formula should be suited as RHS of
-	an \code{\link{lm}} formula. The terms in the formula can refer
-	to numeric, character, and factor network attributes, which will
-	be used as covariates, effectively estimating a linear model for
-	the ERGM coefficients.}
-    }
-    \code{wname} can be
-    used to provide a name for the weighting scheme in the coefficient
-    name.  
+    using \code{\link{Networks}} function, and returns either a weighted
+    sum or an \code{\link{lm}}-style linear model for the ERGM
+    coefficients. Its syntax follows that of \code{\link{lm}} closely,
+    with sensible defaults. In particular, with the default value of
+    \code{lmform}, passing a vector of length equalling the number of
+    constituent networks to \code{weights} will fit the model with a
+    weighted sum of the corresponding network statistics, \code{subset}
+    will remove some networks, etc.
+
+    An optional parameter \code{label} will add a label to model
+    parameters to help identify the term (which may have similar
+    predictors but, say, a different network subset) in the output.
   }
 
   \item{\code{Undir(formula, rule="weak")} (binary) (directed) (operator)}{\emph{Evaluation on symmetrized (undirected) network}:
