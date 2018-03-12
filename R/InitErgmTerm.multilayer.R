@@ -52,11 +52,11 @@
 network_view <- function(x, attrname, test.f = as.logical){
   el <- as.edgelist(x, attrname)
   keep <- test.f(el[,3])
-  del <- na.omit(el[!keep,,drop=FALSE])
-  nael <- el[is.na(keep),,drop=FALSE]
+  del <- na.omit(el[!keep,-3,drop=FALSE])
+  nael <- el[is.na(keep),-3,drop=FALSE]
   x[del] <- 0
-  x[nael] <- NA
-  for(a in list.edge.attributes(x)) delete.edge.attribute(x, a)
+  if(nrow(nael)) x[nael] <- NA
+  for(a in setdiff(list.edge.attributes(x), "na")) delete.edge.attribute(x, a)
   x
 }
 
