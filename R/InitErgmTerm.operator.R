@@ -334,7 +334,10 @@ symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), ...){
     el2[,3] <- is.na(el2[,3])
     els <- merge(el1, el2, by.x = c(1:2), by.y = c(1:2), all=TRUE, suffixes = c("th","ht"), sort=FALSE)
     # Now, NA represents FALSE, TRUE NA, and FALSE, TRUE. "Decode".
-    els <- transform(els, V3th = ifelse(is.na(V3th), FALSE, ifelse(V3th, NA, TRUE)), V3ht = ifelse(is.na(V3ht), FALSE, ifelse(V3ht, NA, TRUE)))
+    els <- within(els,{
+      V3th <- ifelse(is.na(V3th), FALSE, ifelse(V3th, NA, TRUE))
+      V3ht <- ifelse(is.na(V3ht), FALSE, ifelse(V3ht, NA, TRUE))
+    })
     els[els$V1<=els$V2,,drop=FALSE]
   }
   el <- switch(rule,
