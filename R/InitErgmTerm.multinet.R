@@ -123,7 +123,7 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
   nparam <- nparams[1]
 
   # model.frame.
-  xf <- do.call(stats::lm, list(a$lmform, data=nattrs,contrast.arg=a$contrasts, offset = offset, subset=subset, weights=weights, method="model.frame"), envir=environment(a$lmform))
+  xf <- do.call(stats::lm, list(a$lmform, data=nattrs,contrast.arg=a$contrasts, offset = offset, subset=subset, weights=weights, na.action=na.fail, method="model.frame"), envir=environment(a$lmform))
   offset <- model.offset(xf)
   weights <- model.weights(xf)
   xm <- model.matrix(attr(xf, "terms"), xf, contrasts=a$contrasts)

@@ -443,7 +443,10 @@ network
     \code{lmform}, passing a vector of length equalling the number of
     constituent networks to \code{weights} will fit the model with a
     weighted sum of the corresponding network statistics, \code{subset}
-    will remove some networks, etc.
+    will remove some networks, etc.. If \code{lmform} refers to any
+    network attributes for which some networks have missing values, the
+    term will stop with an error. This can be avoided by pre-filtering
+    with \code{subset}.
 
     An optional parameter \code{label} will add a label to model
     parameters to help identify the term (which may have similar
