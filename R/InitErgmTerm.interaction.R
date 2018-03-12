@@ -8,8 +8,8 @@
   e1 <- arglist[[2]]
   e2 <- arglist[[3]]
 
-  e1 <- term.list.formula(e1)
-  e2 <- term.list.formula(e2)
+  e1 <- list_summands.call(e1)
+  e2 <- list_summands.call(e2)
 
   n1 <- length(e1)
   n2 <- length(e2)
@@ -42,8 +42,8 @@
   e1 <- arglist[[2]]
   e2 <- arglist[[3]]
 
-  e1 <- term.list.formula(e1)
-  e2 <- term.list.formula(e2)
+  e1 <- list_summands.call(e1)
+  e2 <- list_summands.call(e2)
 
   n1 <- length(e1)
   n2 <- length(e2)

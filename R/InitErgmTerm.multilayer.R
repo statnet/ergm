@@ -436,7 +436,7 @@ InitErgmTerm.L <- function(nw, arglist, response=NULL, ...){
   
 
   auxiliaries <- .mk_.layer.net_auxform(Ls, length(nwl))  
-  nltrms <- length(term.list.formula(auxiliaries[[2]]))
+  nltrms <- length(list_rhs.formula(auxiliaries))
 
   w <- rep(1,nltrms)
   have.LHS <- sapply(Ls.dotexp, length)==3
@@ -473,7 +473,7 @@ InitErgmTerm.lCMB <- function(nw, arglist, response=NULL, ...){
   nwl <- .split_constr_network(nw,".LayerID",".LayerID")
   Ls <- a$Ls
   auxiliaries <- .mk_.layer.net_auxform(Ls, length(nwl))
-  nltrms <- length(term.list.formula(auxiliaries[[2]]))
+  nltrms <- length(list_rhs.formula(auxiliaries))
 
   inputs <- c(nltrms)
 
