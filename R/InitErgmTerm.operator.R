@@ -327,7 +327,7 @@ symmetrize.default <- function(x, rule=c("weak","strong","upper","lower"), ...){
 symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), ...){
   rule <- match.arg(rule)
   el <- rbind(cbind(as.edgelist(x),TRUE),
-              cbind(as.edgelist(is.na(x)), NA))
+              if(network.naedgecount(x)) cbind(as.edgelist(is.na(x)), NA))
   merge.el <- function(el1, el2){
     # "Encode" NAs as TRUE, TRUE, as FALSE.
     el1[,3] <- is.na(el1[,3])
