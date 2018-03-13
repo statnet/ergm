@@ -208,10 +208,8 @@ function(x, alternative = c("two.sided", "less", "greater"),
     # expect that z will have seperate lists of heads and tails
     nedges<-z$newnwtails[1]
     # *** don't forget - edgelists are cbind(tails, heads) now
-    newedgelist <-
-      if(nedges>0) cbind(z$newnwtails[2:(nedges+1)],z$newnwheads[2:(nedges+1)])
-      else matrix(0, ncol=2, nrow=0)
-    newnwweights <- z$newnwweights[2:(nedges+1)]
+    newedgelist <- cbind(z$newnwtails[seq_len(nedges)+1],z$newnwheads[seq_len(nedges)+1])
+    newnwweights <- z$newnwweights[seq_len(nedges)+1]
   }
   cbind(newedgelist, newnwweights)
 }
