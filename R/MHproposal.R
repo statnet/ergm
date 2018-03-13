@@ -41,19 +41,23 @@
 #' priority (`-1`,`0`,`1`, etc.) of MHPs to be used.
 #' @param Weights The sampling weights on selecting toggles (random, TNT, etc).
 #' @param MHP The matching MHP from the previous arguments.
+#'
+#' @note The arguments can have length greater than 1. If this is the
+#'   case, the rows added to the table are a *Cartesian product* of
+#'   their elements.
 #' @export ergm.MHP.table
 ergm.MHP.table <- local({
   MHPs <- data.frame(Class = character(0), Reference = character(0),
                      Constraints = character(0), Priority = numeric(0), Weights = character(0),
                      MHP = character(0), stringsAsFactors=FALSE)
   function(Class, Reference, Constraints, Priority, Weights, MHP) {
-    if(!missing(Class))
+    if(!missing(Class)){
+      newrows <- expand.grid(Class = Class, Reference = Reference,
+                             Constraints = Constraints, Priority = Priority, Weights = Weights,
+                             MHP = MHP, stringsAsFactors=FALSE, KEEP.OUT.ATTRS=FALSE)
       MHPs <<- rbind(MHPs,
-                     data.frame(Class = Class, Reference = Reference,
-                     Constraints = Constraints, Priority = Priority, Weights = Weights,
-                     MHP = MHP, stringsAsFactors=FALSE))
-    else
-      MHPs
+                     newrows)
+    }else MHPs
   }
 })
 
