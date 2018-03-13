@@ -52,3 +52,15 @@ InitWtMHP.UnifNonObserved <- function(arguments, nw, response) {
   MHproposal <- list(name = "UnifNonObserved", inputs=c(a,b,ergm.Cprepare.miss(nw)))
   MHproposal
 }
+
+InitWtMHP.DistRLE <- function(arguments, nw, response) {
+  inputs <- with(arguments$reference,
+                 switch(name,
+                        Unif = c(0, a, b),
+                        DiscUnif = c(1, a, b),
+                        StdNormal = c(2, 0, 1),
+                        Poisson = c(3, 0),
+                        Binomial = c(4, trials, 0.5),
+                        Bernoulli = c(4, 1, 0.5)))
+  MHproposal <- list(name = "DistRLE", inputs=c(pack_rlebdm_as_numeric(as.rlebdm(arguments$constraints)),inputs), pkgname="ergm")
+}
