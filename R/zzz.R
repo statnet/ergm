@@ -57,12 +57,16 @@
 
   
   ergm.MHP.table("c", "StdNormal", "",  0, "random", "StdNormal")
+  ergm.MHP.table("c", "StdNormal", ".dyads",  0, "random", "DistRLE")
 
   ergm.MHP.table("c", "Unif", "",  0, "random", "Unif")
   ergm.MHP.table("c", "Unif", "observed",  0, "random", "UnifNonObserved")
+  ergm.MHP.table("c", "Unif", ".dyads",  0, "random", "DistRLE")
   
   ergm.MHP.table("c", "DiscUnif", "",  0, "random", "DiscUnif")
   ergm.MHP.table("c", "DiscUnif", "observed",  0, "random", "DiscUnifNonObserved")  
+
+  ergm.MHP.table("c", c("Unif","DiscUnif","StdNormal","Poisson","Binomial"), ".dyads",  -3, "random", "DistRLE")
 }
 
 .RegisterConstraintImplications <- function(){

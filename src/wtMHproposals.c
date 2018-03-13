@@ -8,6 +8,7 @@
  *  Copyright 2003-2017 Statnet Commons
  */
 #include "wtMHproposals.h"
+#include "ergm_rlebdm.h"
 
 /* Shorthand. */
 #define Mtail (MHp->toggletail)
@@ -175,3 +176,52 @@ void MH_DiscUnifNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {
 
   MHp->logratio += 0; // h(y) is uniform and the proposal is symmetric
 }
+
+/********************
+   void MH_DistRLE
+   Propose ONLY edges on an RLE-compressed list
+***********************/
+void MH_DistRLE(WtMHproposal *MHp, WtNetwork *nwp) 
+{  
+  static RLEBDM1D r;
+  static double *inputs;
+
+  if(MHp->ntoggles == 0) { /* Initialize */
+    MHp->ntoggles=1;
+    inputs = MHp->inputs;
+    r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
+    return;
+  }
+  
+  if(r.ndyads==0){ /* No dyads to toggle. */
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_IMPOSSIBLE;
+    return;
+  }
+
+  GetRandRLEBDM1D_RS(Mtail, Mhead, &r);
+  double oldwt = WtGetEdge(Mtail[0],Mhead[0],nwp);
+
+  do{
+    switch((unsigned int) *inputs){
+    case 0:
+      Mweight[0] = runif(inputs[1],inputs[2]);
+      break;
+    case 1:
+      Mweight[0] = floor(runif(inputs[1],inputs[2]+1));
+      break;
+    case 2:
+      Mweight[0] = rnorm(inputs[1],inputs[2]);
+      break;
+    case 3:
+      Mweight[0] = rpois(inputs[1]);
+      break;
+    case 4:
+      Mweight[0] = rbinom(inputs[1],inputs[2]);
+      break;
+    }
+  }while(Mweight[0]==oldwt);
+  
+  // MHp->logratio += 0; // h(y) is uniform and the proposal is symmetric
+}
+

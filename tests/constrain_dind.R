@@ -9,6 +9,7 @@
 #######################################################################
 
 library(ergm)
+
 library(statnet.common)
 
 mean_mat <- function(Mmin, Mmax){
@@ -17,15 +18,15 @@ mean_mat <- function(Mmin, Mmax){
   matrix(ifelse(rbinom(length(Mmin), 1, .5), Mmin, Mmax), nrow(Mmin), ncol(Mmin))
 }
 
-test_dind_constr <- function(y0, con, Mmin=NULL, Mmax=NULL){
+test_dind_constr <- function(y0, con, Mmin=NULL, Mmax=NULL, response=NULL, ...){
   nn <- network.dyadcount(y0, FALSE)
   if(!is.null(Mmin)){
-    ymin <- simulate(y0~edges, coef=-100, constraints=con, control=control.simulate.formula(MCMC.burnin=nn*100))
-    stopifnot(all(na.omit(c(as.matrix(ymin)==Mmin))))
+    ymin <- simulate(NVL2(response, y0~sum, y0~edges), coef=-100, constraints=con, control=control.simulate.formula(MCMC.burnin=nn*100), response=response, ...)
+    stopifnot(all(na.omit(c(suppressWarnings(as.matrix(ymin, attrname=response))==Mmin))))
   }
   if(!is.null(Mmax)){
-    ymax <- simulate(y0~edges, coef=+100, constraints=con, control=control.simulate.formula(MCMC.burnin=nn*100))
-    stopifnot(all(na.omit(c(as.matrix(ymax)==Mmax))))
+    ymax <- simulate(NVL2(response, y0~sum, y0~edges), coef=+100, constraints=con, control=control.simulate.formula(MCMC.burnin=nn*100), response=response, ...)
+    stopifnot(all(na.omit(c(as.matrix(ymax, attrname=response)==Mmax))))
   }
 }
 
@@ -167,4 +168,20 @@ Mmax[6,2] <- 1
 
 test_dind_constr(y0, ~blockdiag("b")+observed, Mmin, Mmax) # in the block AND unobserved
 
+
+#### Valued ####
+
+a <- rep(1:4,1:4)
+
+Mmax <- Mmin <- matrix(0,n,n)
+
+for(i in unique(a)){
+  Mmax[a==i,a==i]<-4
+}
+diag(Mmax)<-0
+
+y0 <- as.network(mean_mat(Mmin,Mmax), matrix.type="adjacency", directed=TRUE, ignore.eval=FALSE, names.eval="w")
+y0 %v% "b" <- a
+
+test_dind_constr(y0, ~blockdiag("b"), Mmin, Mmax, response="w", reference=~DiscUnif(0,4))
 
