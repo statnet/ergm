@@ -32,7 +32,7 @@ arguments adds a new row to this table. Calling it without
 arguments returns the table so far.
 }
 \note{
-The arguments can have length greater than 1. If this is the
-case, the rows added to the table are a \emph{Cartesian product} of
-their elements.
+The arguments \code{Class}, \code{Reference}, and \code{Constraints} can
+have length greater than 1. If this is the case, the rows added
+to the table are a \emph{Cartesian product} of their elements.
 }

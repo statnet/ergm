@@ -42,9 +42,9 @@
 #' @param Weights The sampling weights on selecting toggles (random, TNT, etc).
 #' @param MHP The matching MHP from the previous arguments.
 #'
-#' @note The arguments can have length greater than 1. If this is the
-#'   case, the rows added to the table are a *Cartesian product* of
-#'   their elements.
+#' @note The arguments `Class`, `Reference`, and `Constraints` can
+#'   have length greater than 1. If this is the case, the rows added
+#'   to the table are a *Cartesian product* of their elements.
 #' @export ergm.MHP.table
 ergm.MHP.table <- local({
   MHPs <- data.frame(Class = character(0), Reference = character(0),
@@ -52,6 +52,8 @@ ergm.MHP.table <- local({
                      MHP = character(0), stringsAsFactors=FALSE)
   function(Class, Reference, Constraints, Priority, Weights, MHP) {
     if(!missing(Class)){
+      stopifnot(length(Class)>=1,length(Reference)>=1,length(Constraints)>=1,
+                length(Priority)==1,length(Weights)==1,length(MHP)==1)
       newrows <- expand.grid(Class = Class, Reference = Reference,
                              Constraints = Constraints, Priority = Priority, Weights = Weights,
                              MHP = MHP, stringsAsFactors=FALSE, KEEP.OUT.ATTRS=FALSE)
