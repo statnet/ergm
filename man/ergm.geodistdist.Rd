@@ -7,6 +7,7 @@
 \alias{ergm.geodistn}
 \alias{ergm.nodegeodesics}
 \alias{ergm.pairgeodesic}
+\alias{ergm.geodistn}
 \title{Calculate geodesic distance distribution for a network or edgelist}
 \usage{
 ergm.geodistdist(nw, directed = is.directed(nw))

@@ -1,37 +1,39 @@
 #' ERGM-based conditional tie probabilities
 #'
-#' This will calculate **conditional** tie probabilities for all dyads in `net`
-#' based on the ERGM model `fit`.
+#' This function calculates **conditional** tie probabilities for all dyads in a
+#' given network based on an ERGM model.
 #'
-#' @param fit fitted ERGM model object
+#' @param object fitted ERGM model object
 #' @param net network object
+#' @param ... other arguments passed to/from other methods
 #'
 #' @return 
-#' N x N matrix of conditional tie probabilities, where N is the number of nodes in `net`.
+#' N x N matrix of conditional tie probabilities, where N is the number of nodes
+#' in `net`.
 #' 
 #' @method predict ergm
 #'
 #' @export
 
-predict.ergm <- function(fit, net) {
+predict.ergm <- function(object, net, ...) {
   # Argument checking
-  stopifnot(inherits(fit, "ergm"))
+  stopifnot(inherits(object, "ergm"))
   stopifnot(inherits(net, "network"))
-  if( is.directed(fit$network) != is.directed(net) )
+  if( is.directed(object$network) != is.directed(net) )
     stop(
       "the model was fit to ",
-      if(is.directed(fit$network)) "directed" else "undirected",
+      if(is.directed(object$network)) "directed" else "undirected",
       " network while `net` is ",
       if(is.directed(net)) "directed" else "undirected"
     )
   # Fix/enformulate curved ERGMs if necessary
-  if(is.curved(fit)) {
-    fixed <- fix.curved(fit)
+  if(is.curved(object)) {
+    fixed <- fix.curved(object)
     coeff <- fixed$theta
     form <- fixed$formula
   } else {
-    coeff <- coef(fit)
-    form <- fit$formula
+    coeff <- coef(object)
+    form <- object$formula
   }
   n <-  network.size(net)
   # Substitute network object in formula's environment

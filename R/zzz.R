@@ -7,8 +7,11 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
+
+
+#' @importFrom statnet.common statnetStartupMessage
+
 .onAttach <- function(lib, pkg){
-  #' @importFrom statnet.common statnetStartupMessage
   sm <- statnetStartupMessage("ergm", c("statnet","ergm.count","tergm"), TRUE)
   if(!is.null(sm)){
     packageStartupMessage(sm)

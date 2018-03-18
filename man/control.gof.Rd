@@ -4,6 +4,7 @@
 \alias{control.gof}
 \alias{control.gof.formula}
 \alias{control.gof.ergm}
+\alias{control.gof.ergm}
 \title{Auxiliary for Controlling ERGM Goodness-of-Fit Evaluation}
 \usage{
 control.gof.formula(nsim = 100, MCMC.burnin = 10000, MCMC.interval = 1000,
@@ -61,7 +62,7 @@ supports networks without vertex attributes)}
 \code{\link[base]{set.seed}}.}
 
 \item{parallel}{Number of threads in which to run the sampling. Defaults to
-0 (no parallelism). See the entry on \link[=ergm-parallel]{parallel processing}
+0 (no parallelism). See the entry on [parallel processing][ergm-parallel]
 for details and troubleshooting.}
 
 \item{parallel.type}{API to use for parallel processing. Supported values

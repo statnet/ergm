@@ -5,6 +5,7 @@
 \alias{ergm}
 \alias{is.ergm}
 \alias{ergm.object}
+\alias{is.ergm}
 \alias{print.ergm}
 \alias{coef.ergm}
 \alias{coefficients.ergm}

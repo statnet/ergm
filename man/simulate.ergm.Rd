@@ -4,6 +4,7 @@
 \alias{simulate.ergm}
 \alias{simulate.formula}
 \alias{simulate.formula.ergm}
+\alias{simulate.ergm}
 \title{Draw from the distribution of an Exponential Family Random Graph Model}
 \usage{
 \method{simulate}{formula}(object, nsim = 1, seed = NULL, coef,

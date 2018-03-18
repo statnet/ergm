@@ -3,6 +3,7 @@
 \name{print.summary.ergm}
 \alias{print.summary.ergm}
 \alias{summary.ergm}
+\alias{print.summary.ergm}
 \title{Summarizing ERGM Model Fits}
 \usage{
 \method{print}{summary.ergm}(x, digits = max(3, getOption("digits") - 3),

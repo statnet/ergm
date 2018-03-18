@@ -3,6 +3,7 @@
 \name{anova.ergm}
 \alias{anova.ergm}
 \alias{anova.ergmlist}
+\alias{anova.ergmlist}
 \title{ANOVA for ERGM Fits}
 \usage{
 \method{anova}{ergm}(object, ..., eval.loglik = FALSE)
