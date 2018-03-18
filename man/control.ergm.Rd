@@ -362,7 +362,7 @@ stuck below this minimum value.}
 sampling, save the MCMC sample and some miscellaneous information
 to a file with this name. The name is passed through \code{\link[=sprintf]{sprintf()}}
 with iteration number as the second argument. (So, for example,
-\code{MCMLE.save_intermediates="step_%03d.RData"} will save to
+\code{MCMLE.save_intermediates="step_\%03d.RData"} will save to
 \code{step_001.RData}, \code{step_002.RData}, etc.)}
 
 \item{SA.phase1_n}{Number of MCMC samples to draw in Phase 1 of the
@@ -456,7 +456,7 @@ Note that only the Hotelling's stopping criterion is implemented for CD.}
 \code{\link[base]{set.seed}}.}
 
 \item{parallel}{Number of threads in which to run the sampling. Defaults to
-0 (no parallelism). See the entry on [parallel processing][ergm-parallel]
+0 (no parallelism). See the entry on \link[=ergm-parallel]{parallel processing}
 for details and troubleshooting.}
 
 \item{parallel.type}{API to use for parallel processing. Supported values
