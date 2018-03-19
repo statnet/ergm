@@ -103,10 +103,10 @@ InitWtErgmTerm.b1cov<-function (nw, arglist, ...) {
 
 InitWtErgmTerm.b1factor<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                      varnames = c("attrname", "base", "form"),
-                      vartypes = c("character", "numeric", "character"),
-                      defaultvalues = list(NULL, 1, "sum"),
-                      required = c(TRUE, FALSE, FALSE))                                    
+                      varnames = c("attrname", "base", "form", "levels"),
+                      vartypes = c("character", "numeric", "character", "character,numeric,logical"),
+                      defaultvalues = list(NULL, 1, "sum", NULL),
+                      required = c(TRUE, FALSE, FALSE, FALSE))                                    
   attrname<-a$attrname
   base <- a$base
   nb1 <- get.network.attribute(nw, "bipartite")
@@ -115,7 +115,7 @@ InitWtErgmTerm.b1factor<-function (nw, arglist, ...) {
   if(all(is.na(nodecov)))
 	  stop("Argument to b1factor() does not exist", call.=FALSE)
   
-  u<-sort(unique(nodecov))
+  u <- NVL(a$levels, sort(unique(nodecov)))
   if(any(is.na(nodecov))){u<-c(u,NA)}
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
   ui <- seq(along=u)
@@ -155,10 +155,10 @@ InitWtErgmTerm.b2cov<-function (nw, arglist, ...) {
 
 InitWtErgmTerm.b2factor<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                      varnames = c("attrname", "base", "form"),
-                      vartypes = c("character", "numeric", "character"),
-                      defaultvalues = list(NULL, 1, "sum"),
-                      required = c(TRUE, FALSE, FALSE))
+                      varnames = c("attrname", "base", "form", "levels"),
+                      vartypes = c("character", "numeric", "character", "character,numeric,logical"),
+                      defaultvalues = list(NULL, 1, "sum", NULL),
+                      required = c(TRUE, FALSE, FALSE, FALSE))
   attrname<-a$attrname
   base <- a$base
   nb1 <- get.network.attribute(nw, "bipartite")
@@ -167,7 +167,7 @@ InitWtErgmTerm.b2factor<-function (nw, arglist, ...) {
   if(all(is.na(nodecov)))
 	  stop("Argument to b2factor() does not exist", call.=FALSE)
   
-  u<-sort(unique(nodecov))
+  u <- NVL(a$levels, sort(unique(nodecov)))
   if(any(is.na(nodecov))){u<-c(u,NA)}
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
   ui <- seq(along=u)
@@ -375,10 +375,10 @@ InitWtErgmTerm.nodesqrtcovar<-function (nw, arglist, response, ...) {
 InitWtErgmTerm.nodefactor<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
-                      varnames = c("attrname", "base","form"),
-                      vartypes = c("character", "numeric","character"),
-                      defaultvalues = list(NULL, 1, "sum"),
-                      required = c(TRUE, FALSE, FALSE))
+                      varnames = c("attrname", "base","form","levels"),
+                      vartypes = c("character", "numeric","character", "character,numeric,logical"),
+                      defaultvalues = list(NULL, 1, "sum", NULL),
+                      required = c(TRUE, FALSE, FALSE, FALSE))
   ### Process the arguments
 
   nodecov <-
@@ -388,7 +388,7 @@ InitWtErgmTerm.nodefactor<-function (nw, arglist, response, ...) {
       do.call(paste,c(sapply(a$attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
     }
 
-  u <- sort(unique(nodecov))
+  u <- NVL(a$levels, sort(unique(nodecov)))
   if (any(NVL(a$base,0)!=0)) {
     u <- u[-a$base]
     if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
@@ -428,10 +428,10 @@ InitWtErgmTerm.nodeocovar<-function (nw, arglist, response, ...) {
 InitWtErgmTerm.nodeofactor<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed = TRUE,
-                      varnames = c("attrname", "base","form"),
-                      vartypes = c("character", "numeric","character"),
-                      defaultvalues = list(NULL, 1, "sum"),
-                      required = c(TRUE, FALSE, FALSE))
+                      varnames = c("attrname", "base","form", "levels"),
+                      vartypes = c("character", "numeric","character", "character,numeric,logical"),
+                      defaultvalues = list(NULL, 1, "sum", NULL),
+                      required = c(TRUE, FALSE, FALSE, FALSE))
   ### Process the arguments
 
   nodecov <-
@@ -441,7 +441,7 @@ InitWtErgmTerm.nodeofactor<-function (nw, arglist, response, ...) {
       do.call(paste,c(sapply(a$attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
     }
 
-  u <- sort(unique(nodecov))
+  u <- NVL(a$levels, sort(unique(nodecov)))
   if (any(NVL(a$base,0)!=0)) {
     u <- u[-a$base]
     if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
@@ -481,10 +481,10 @@ InitWtErgmTerm.nodeicovar<-function (nw, arglist, response, ...) {
 InitWtErgmTerm.nodeifactor<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed = TRUE,
-                      varnames = c("attrname", "base","form"),
-                      vartypes = c("character", "numeric","character"),
-                      defaultvalues = list(NULL, 1, "sum"),
-                      required = c(TRUE, FALSE, FALSE))
+                      varnames = c("attrname", "base","form","levels"),
+                      vartypes = c("character", "numeric","character", "character,numeric,logical"),
+                      defaultvalues = list(NULL, 1, "sum", NULL),
+                      required = c(TRUE, FALSE, FALSE, FALSE))
   ### Process the arguments
 
   nodecov <-
@@ -494,7 +494,7 @@ InitWtErgmTerm.nodeifactor<-function (nw, arglist, response, ...) {
       do.call(paste,c(sapply(a$attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
     }
 
-  u <- sort(unique(nodecov))
+  u <- NVL(a$levels, sort(unique(nodecov)))
   if (any(NVL(a$base,0)!=0)) {
     u <- u[-a$base]
     if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
@@ -519,10 +519,10 @@ InitWtErgmTerm.nodeifactor<-function (nw, arglist, response, ...) {
 InitWtErgmTerm.nodematch<-InitWtErgmTerm.match<-function (nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
-                      varnames = c("attrname", "diff", "keep", "form"),
-                      vartypes = c("character", "logical", "numeric", "character"),
-                      defaultvalues = list(NULL, FALSE, NULL, "sum"),
-                      required = c(TRUE, FALSE, FALSE, FALSE))
+                      varnames = c("attrname", "diff", "keep", "form", "levels"),
+                      vartypes = c("character", "logical", "numeric", "character", "character,numeric,logical"),
+                      defaultvalues = list(NULL, FALSE, NULL, "sum", NULL),
+                      required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
   ### Process the arguments
   nodecov <-
     if(length(a$attrname)==1)
@@ -530,7 +530,7 @@ InitWtErgmTerm.nodematch<-InitWtErgmTerm.match<-function (nw, arglist, ...) {
     else{
       do.call(paste,c(sapply(a$attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
     }
-  u <- sort(unique(nodecov))
+  u <- NVL(a$levels, sort(unique(nodecov)))
   if (!is.null(a$keep)) {
     u <- u[a$keep]
   }
@@ -561,10 +561,10 @@ InitWtErgmTerm.nodematch<-InitWtErgmTerm.match<-function (nw, arglist, ...) {
 InitWtErgmTerm.nodemix<-function (nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("attrname", "base", "form"),
-                      vartypes = c("character", "numeric", "character"),
-                      defaultvalues = list(NULL, NULL, "sum"),
-                      required = c(TRUE, FALSE, FALSE))
+                      varnames = c("attrname", "base", "form", "b1levels", "b2levels"),
+                      vartypes = c("character", "numeric", "character", "character,numeric,logical", "character,numeric,logical"),
+                      defaultvalues = list(NULL, NULL, "sum", NULL, NULL),
+                      required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
 
   form<-match.arg(a$form,c("sum","nonzero"))
 
@@ -583,11 +583,11 @@ InitWtErgmTerm.nodemix<-function (nw, arglist, ...) {
     #  So undirected network storage but directed mixing
     nb1 <- get.network.attribute(nw, "bipartite")       
     #  Recode nodecov to numeric (but retain original sorted names in "namescov")
-    b1namescov <- sort(unique(nodecov[1:nb1]))
-    b2namescov <- sort(unique(nodecov[(1+nb1):network.size(nw)]))
+    b1namescov <- NVL(a$b1levels, sort(unique(nodecov[1:nb1])))
+    b2namescov <- NVL(a$b2levels, sort(unique(nodecov[(1+nb1):network.size(nw)])))
     namescov <- c(b1namescov, b2namescov)
-    b1nodecov <- match(nodecov[1:nb1],b1namescov)
-    b2nodecov <- match(nodecov[(1+nb1):network.size(nw)],b2namescov)
+    b1nodecov <- match(nodecov[1:nb1],b1namescov,nomatch=length(b1namescov)+1)
+    b2nodecov <- match(nodecov[(1+nb1):network.size(nw)],b2namescov,nomatch=length(b2namescov)+1)
     nr <- length(b1namescov)
     nc <- length(b2namescov)
     nodecov <- c(b1nodecov, b2nodecov + nr)
@@ -602,7 +602,7 @@ InitWtErgmTerm.nodemix<-function (nw, arglist, ...) {
     inputs <- c(u[,1], u[,2], nodecov)
     attr(inputs, "ParamsBeforeCov") <- NROW(u)
   } else {# So one mode, but could be directed or undirected
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     #   Recode to numeric if necessary
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
