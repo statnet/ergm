@@ -1,7 +1,7 @@
 #' A convenience container for a list of [`network`] objects, output
 #' by \code{\link{simulate.ergm}} among others.
 #'
-#' @param object a `list` of networks or a `network.list` object.
+#' @param object,x a `list` of networks or a `network.list` object.
 #' @param ... for `network.list`, additional attributes to be set on
 #'   the network list; for others, arguments passed down to
 #'   lower-level functions.
