@@ -341,6 +341,13 @@ network
   }
 }
 
+\section{Nodal attribute levels}{
+  Terms taking a categorical nodal covariate also take \code{levels}
+  argument. This can be used to control the set and the ordering of
+  attribute levels.
+}
+
+
 \section{Terms to represent network statistics included in the
   \code{\link[=ergm-package]{ergm}} package}{
   A cross-referenced html version of the term documentation is is available via \code{vignette('ergm-term-crossRef')} and terms can also be searched via \code{\link{search.ergmTerms}}.
@@ -559,7 +566,7 @@ network
       corresponding element of 
     \code{threshold}.  }
   
-  \item{\code{b1concurrent(by=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
+  \item{\code{b1concurrent(by=NULL, levels=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
   }{\emph{Concurrent node count for the
     first mode in a bipartite (aka two-mode) network:} This term adds one
     network statistic to the model, equal to the number of nodes in the first
@@ -583,7 +590,7 @@ network
     term may only be used with bipartite networks. For categorical attributes,
     see \code{b1factor}.}
   
-  \item{\code{b1degrange(from, to=+Inf, by=NULL, homophily=FALSE)}  (binary)  (bipartite)  (undirected) 
+  \item{\code{b1degrange(from, to=+Inf, by=NULL, homophily=FALSE, levels=NULL)}  (binary)  (bipartite)  (undirected) 
   }{\emph{Degree range for the first mode in a bipartite
     (a.k.a. two-mode) network:} 
     The \code{from} and \code{to} arguments are vectors of distinct
@@ -612,7 +619,7 @@ network
     see \code{degrange}, and see \code{b2degrange}
     for degrees of the second mode ("events").}
 
-    \item{\code{b1degree(d, by=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute) (frequently-used)
+    \item{\code{b1degree(d, by=NULL, levels=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute) (frequently-used)
     }{\emph{Degree for the first mode in a
     bipartite (aka two-mode) network:} The \code{d} argument is a vector of
     distinct integers. This term adds one network statistic to the model for
@@ -631,8 +638,8 @@ network
     combined.
 }
     
-  \item{\code{b1factor(attrname, base=1)}  (binary)  (bipartite) (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute),
-    \code{b1factor(attrname, base=1, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute)
+  \item{\code{b1factor(attrname, base=1, levels=NULL)}  (binary)  (bipartite) (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute),
+    \code{b1factor(attrname, base=1, form="sum", levels=NULL)}  (valued)  (bipartite)  (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute)
     }{\emph{Factor attribute effect for
     the first mode in a bipartite (aka two-mode) network:} 
     The \code{attrname} argument is a character string giving the name of a
@@ -688,7 +695,7 @@ network
    	statistic where \code{byb2attr} set to \code{NULL}. This term can only be used with 
    	undirected bipartite networks.}
     
-    \item{\code{b1star(k, attrname=NULL)}  (binary) (bipartite)  (undirected) (categorical nodal attribute)
+    \item{\code{b1star(k, attrname=NULL, levels=NULL)}  (binary) (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{k-Stars for the first mode in a
     bipartite (aka two-mode) network: } The \code{k} argument is a vector of
     distinct integers. This term adds one network statistic to the model for
@@ -705,7 +712,7 @@ network
     undirected bipartite networks. Note that \code{b1star(1)} is equal to
     \code{b2star(1)} and to \code{edges}. }
     
-    \item{\code{b1starmix(k, attrname, base=NULL, diff=TRUE)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
+    \item{\code{b1starmix(k, attrname, base=NULL, diff=TRUE, levels=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{ Mixing
     matrix for k-stars centered on the first mode of a bipartite network:} Only
     a single value of \eqn{k} is allowed. This term counts all k-stars in which
@@ -731,7 +738,7 @@ network
     vector of indices then the corresponding terms (in the order they would be
     created when \code{base=NULL}) are left out.}
 
-    \item{\code{b1twostar(b1attrname, b2attrname, base=NULL)}  (binary) (bipartite)  (undirected) (categorical nodal attribute)
+    \item{\code{b1twostar(b1attrname, b2attrname, base=NULL, b1levels=NULL, b2levels=NULL)}  (binary) (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{ Two-star
     census for central nodes centered on the first mode of a bipartite network:}
     This term takes two nodal attribute names, one for b1 nodes (actors in some
@@ -770,7 +777,7 @@ network
     term may only be used with bipartite networks. For categorical attributes,
     see \code{b2factor}.}
   
-    \item{\code{b2degrange(from, to=+Inf, by=NULL, homophily=FALSE)}  (binary)  (bipartite)  (undirected)
+    \item{\code{b2degrange(from, to=+Inf, by=NULL, homophily=FALSE, levels=NULL)}  (binary)  (bipartite)  (undirected)
     }{\emph{Degree range for the second mode in a bipartite
     (a.k.a. two-mode) network:} 
     The \code{from} and \code{to} arguments are vectors of distinct
@@ -818,8 +825,8 @@ network
     combined.
 }
     
-  \item{\code{b2factor(attrname, base=1)}  (binary)  (bipartite) (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used),
-    \code{b2factor(attrname, base=1, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used)
+  \item{\code{b2factor(attrname, base=1, levels=NULL)}  (binary)  (bipartite) (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used),
+    \code{b2factor(attrname, base=1, form="sum", levels=NULL)}  (valued)  (bipartite)  (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used)
     }{\emph{Factor attribute effect for
     the second mode in a bipartite (aka two-mode) network :} 
     The \code{attrname} argument is a character string giving the name of a
@@ -877,7 +884,7 @@ network
    	statistic where \code{byb1attr} set to \code{NULL}. This term can only be used with 
    	undirected bipartite networks.}
 
-    \item{\code{b2star(k, attrname=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
+    \item{\code{b2star(k, attrname=NULL, levels=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{k-Stars for the second mode in a
     bipartite (aka two-mode) network: } The \code{k} argument is a vector of
     distinct integers. This term adds one network statistic to the model for
@@ -894,13 +901,13 @@ network
     undirected bipartite networks. Note that \code{b2star(1)} is equal to
     \code{b1star(1)} and to \code{edges}. }
     
-    \item{\code{b2starmix(k, attrname, base=NULL, diff=TRUE)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
+    \item{\code{b2starmix(k, attrname, base=NULL, diff=TRUE, levels=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{ Mixing
     matrix for k-stars centered on the second mode of a bipartite network:} 
     This term is exactly the same as \code{b1starmix} except that the roles of
     b1 and b2 are reversed.}
     
-    \item{\code{b2twostar(b1attrname, b2attrname, base=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
+    \item{\code{b2twostar(b1attrname, b2attrname, base=NULL, b1levels=NULL, b2levels=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{ Two-star
     census for central nodes centered on the second mode of a bipartite
     network:} This term is exactly the same as \code{b1twostar} except that the
@@ -925,7 +932,7 @@ equal to the number of (first mode) mutual partners of that pair.
     This term can only be
     used with undirected bipartite networks. }
     
-    \item{\code{concurrent(by=NULL)}  (binary) (undirected) (categorical nodal attribute)
+    \item{\code{concurrent(by=NULL, levels=NULL)}  (binary) (undirected) (categorical nodal attribute)
     }{\emph{Concurrent node count:} 
     This term adds one network statistic to the model, equal to the number of
     nodes in the network with degree 2 or higher. The optional argument
@@ -935,7 +942,7 @@ equal to the number of (first mode) mutual partners of that pair.
     This term can only be used with undirected
     networks. }
 
-    \item{\code{concurrentties(by=NULL)}  (binary) (undirected) (categorical nodal attribute)
+    \item{\code{concurrentties(by=NULL, levels=NULL)}  (binary) (undirected) (categorical nodal attribute)
     }{\emph{Concurrent tie count:} 
     This term adds one network statistic to the model, equal to the number of
     ties incident on each actor beyond the first. The optional argument
@@ -946,7 +953,7 @@ equal to the number of (first mode) mutual partners of that pair.
     networks. }
 
     
-    \item{\code{ctriple(attrname=NULL)}  (binary)  (directed)  (triad-related) (categorical nodal attribute)
+    \item{\code{ctriple(attrname=NULL, levels=NULL)}  (binary)  (directed)  (triad-related) (categorical nodal attribute)
     , 
     a.k.a. \code{ctriad}  (binary)  (directed)  (triad-related) (categorical nodal attribute)
     }{\emph{Cyclic triples:} This term adds one
@@ -972,7 +979,7 @@ equal to the number of (first mode) mutual partners of that pair.
     equivalent to \code{triangle}, and there is no undirected cycle term of
     length 2.}
 
-  \item{\code{cyclicalties(attrname=NULL)}   (binary)  (directed) (undirected), \code{cyclicalties(threshold=0)}   (valued)  (directed)  (undirected)}{\emph{Cyclical ties:} 
+  \item{\code{cyclicalties(attrname=NULL, levels=NULL)}   (binary)  (directed) (undirected), \code{cyclicalties(threshold=0)}   (valued)  (directed)  (undirected)}{\emph{Cyclical ties:} 
     This term adds one statistic, equal to the number of ties 
     \eqn{i\rightarrow j}{i-->j} such that there exists a two-path from
     \eqn{i} to \eqn{j}.  (Related to the \code{ttriple} term.)
@@ -1026,7 +1033,7 @@ equal to the number of (first mode) mutual partners of that pair.
    up calculation, particularly for denser networks.
  }
 
-  \item{\code{degrange(from, to=+Inf, by=NULL, homophily=FALSE)} (binary)  (undirected) (categorical nodal attribute)
+  \item{\code{degrange(from, to=+Inf, by=NULL, homophily=FALSE, levels=NULL)} (binary)  (undirected) (categorical nodal attribute)
   }{\emph{Degree range:} 
     The \code{from} and \code{to} arguments are vectors of distinct
     integers (or \code{+Inf}, for \code{to} (its default)). If one of the vectors has
@@ -1053,7 +1060,7 @@ equal to the number of (first mode) mutual partners of that pair.
     the specified degree range. To count only nodes of the first mode ("actors"), use \code{b1degrange}
     and to count only those fo the second mode ("events"), use \code{b2degrange}.}
   
-  \item{\code{degree(d, by=NULL, homophily=FALSE, Ls=NULL)}  (binary)  (undirected)  (categorical nodal attribute) (frequently-used)}{\emph{Degree:} 
+  \item{\code{degree(d, by=NULL, homophily=FALSE, levels=NULL, Ls=NULL)}  (binary)  (undirected)  (categorical nodal attribute) (frequently-used)}{\emph{Degree:} 
     The \code{d} argument is a vector of distinct integers. This term adds one
     network statistic to the model for each element in \code{d}; the \eqn{i}th
     such statistic equals the number of nodes in the network of degree
@@ -1255,7 +1262,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     }
   
   
-    \item{\code{gwb1degree(decay, fixed=FALSE, cutoff=30, Ls=NULL)}  (binary)  (bipartite)  (undirected) (curved)}{\emph{Geometrically weighted
+    \item{\code{gwb1degree(decay, fixed=FALSE, cutoff=30, levels=NULL, Ls=NULL)}  (binary)  (bipartite)  (undirected) (curved)}{\emph{Geometrically weighted
     degree distribution for the first mode in a bipartite (aka two-mode)
     network:} 
     This term adds one network statistic to the model equal to the weighted
@@ -1271,7 +1278,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     The optional argument \code{cutoff}
     is only relevant if \code{fixed=FALSE}. In that case it only uses this 
     number of terms in computing the statistics to reduce the computational
-    burden.
+    burden. If \code{attrname} is specified then separate degree
+    statistics are calculated for nodes having each separate
+    value of the attribute.
     This term can only be used with undirected bipartite
     networks.
 
@@ -1280,7 +1289,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     combined.
   }
     
-    \item{\code{gwb2degree(decay, fixed=FALSE, cutoff=30, Ls=NULL)}  (binary)  (bipartite)  (undirected) (curved)}{\emph{Geometrically weighted
+    \item{\code{gwb2degree(decay, fixed=FALSE, attrname=NULL, cutoff=30, levels=NULL, Ls=NULL)}  (binary)  (bipartite)  (undirected) (curved)}{\emph{Geometrically weighted
     degree distribution for the second mode in a bipartite (aka two-mode)
     network:} 
     This term adds one network statistic to the model equal to the weighted
@@ -1296,7 +1305,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     The optional argument \code{cutoff}
     is only relevant if \code{fixed=FALSE}. In that case it only uses this 
     number of terms in computing the statistics to reduce the computational
-    burden.
+    burden. If \code{attrname} is specified then separate degree
+    statistics are calculated for nodes having each separate
+    value of the attribute.
     This term can only be used with undirected bipartite
     networks.
 
@@ -1305,7 +1316,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     combined.
   }
     
-    \item{\code{gwdegree(decay, fixed=FALSE, cutoff=30)}  (binary)  (undirected)  (curved) (frequently-used)
+    \item{\code{gwdegree(decay, fixed=FALSE, attrname=NULL, cutoff=30, levels=NULL)}  (binary)  (undirected)  (curved) (frequently-used)
     }{\emph{Geometrically weighted
     degree distribution:} 
     This term adds one network statistic to the model equal to the weighted
@@ -1323,7 +1334,10 @@ of the degrees of all pairs of nodes in the network which are tied.
     If a list of layer specifications is given, degree of a node
     \code{i} is considered to be the number of edges in all layers,
     combined.
-}
+
+    If \code{attrname} is specified then separate degree
+    statistics are calculated for nodes having each separate
+    value of the attribute.  This term can only be used with undirected networks.}
 
     \item{\code{gwdsp(decay, fixed=FALSE, cutoff=30)}  (binary)  (directed)  (undirected)  (curved)}{\emph{Geometrically weighted
     dyadwise shared partner distribution:} 
@@ -1357,7 +1371,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     number of terms in computing the statistics to reduce the computational
     burden.}
  
-    \item{\code{gwidegree(decay, fixed=FALSE, cutoff=30)}  (binary)  (directed) (curved)}{\emph{Geometrically weighted
+    \item{\code{gwidegree(decay, fixed=FALSE, attrname=NULL, cutoff=30, levels=NULL)}  (binary)  (directed) (curved)}{\emph{Geometrically weighted
     in-degree distribution:} This term adds one network statistic to the model
     equal to the weighted in-degree distribution with decay parameter
     \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for
@@ -1373,10 +1387,14 @@ of the degrees of all pairs of nodes in the network which are tied.
     If a list of layer specifications is given, degree of a node
     \code{i} is considered to be the number of edges in all layers,
     combined.
+
+    If \code{attrname} is specified then separate degree
+    statistics are calculated for nodes having each separate
+    value of the attribute.
   }
 
 
-      \item{\code{gwldegree(decay, fixed=FALSE, cutoff=30, Ls, dir)}  (binary)  (directed) (curved)}{\emph{Geometrically weighted
+  \item{\code{gwldegree(decay, fixed=FALSE, attrname=NULL, cutoff=30, levels=NULL, Ls, dir)}  (binary)  (directed) (curved)}{\emph{Geometrically weighted
     layer-combination-degree distribution:} This term adds one network statistic to the model
     equal to the weighted layer-cumulative degree distribution with decay parameter
     \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for
@@ -1393,7 +1411,10 @@ of the degrees of all pairs of nodes in the network which are tied.
     the number of nodes in the network whose total degree across all
     layers listed in \code{Ls} combined (with direction being
     corresponding element of vector \code{dir}, \code{"in"} or \code{"out"}), is \code{d[i]}.
-  }
+
+    If \code{attrname} is specified then separate degree
+    statistics are calculated for nodes having each separate
+    value of the attribute.}
 
   
     \item{\code{gwnsp(decay, fixed=FALSE, cutoff=30)}  (binary)  (directed)  (undirected) (curved)}{\emph{Geometrically weighted
@@ -1415,7 +1436,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     number of terms in computing the statistics to reduce the computational
     burden.}
   
-    \item{\code{gwodegree(decay, fixed=FALSE, cutoff=30)}  (binary)  (directed) (curved)}{\emph{Geometrically weighted
+    \item{\code{gwodegree(decay, fixed=FALSE, attrname=NULL, cutoff=30, levels=NULL)}  (binary)  (directed) (curved)}{\emph{Geometrically weighted
     out-degree distribution:} This term adds one network statistic to the model
     equal to the weighted out-degree distribution with decay parameter
     \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for
@@ -1431,7 +1452,10 @@ of the degrees of all pairs of nodes in the network which are tied.
     If a list of layer specifications is given, degree of a node
     \code{i} is considered to be the number of edges in all layers,
     combined.
-  }
+
+    If \code{attrname} is specified then separate degree
+    statistics are calculated for nodes having each separate
+    value of the attribute.}
     
     \item{\code{hamming(x, cov, attrname=NULL)}  (binary)  (dyad-independent)  (directed)  (undirected)}{\emph{Hamming distance:} 
     This term adds one statistic to the model equal to the weighted or
@@ -1461,7 +1485,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     omit the second statistic, making it the de facto reference category.
     This term can only be used with directed networks.}
 
-  \item{\code{idegrange(from, to=+Inf, by=NULL, homophily=FALSE)}  (binary)  (directed) (categorical nodal attribute)
+  \item{\code{idegrange(from, to=+Inf, by=NULL, homophily=FALSE, levels=NULL)}  (binary)  (directed) (categorical nodal attribute)
   }{\emph{In-degree range:} 
     The \code{from} and \code{to} arguments are vectors of distinct
     integers (or \code{+Inf}, for \code{to} (its default)). If one of the vectors has
@@ -1490,7 +1514,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     in-degrees, see \code{idegrange}.}
 
   
-  \item{\code{idegree(d, by=NULL, homophily=FALSE)}  (binary)  (directed)  (categorical nodal attribute) (frequently-used)}{\emph{In-degree:} The \code{d} argument
+  \item{\code{idegree(d, by=NULL, homophily=FALSE, levels=NULL)}  (binary)  (directed)  (categorical nodal attribute) (frequently-used)}{\emph{In-degree:} The \code{d} argument
     is a vector of distinct integers. This term adds one network statistic to
     the model for each element in \code{d}; the \eqn{i}th such statistic equals
     the number of nodes in the network of in-degree \code{d[i]}, i.e. the number
@@ -1551,7 +1575,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     directed network, an isolate is any node with both in-degree and out-degree
     equal to zero.}
     
-    \item{\code{istar(k, attrname=NULL)}  (binary)  (directed) (categorical nodal attribute)
+    \item{\code{istar(k, attrname=NULL, levels=NULL)}  (binary)  (directed) (categorical nodal attribute)
     }{\emph{In-stars: } The \code{k} argument is a
     vector of distinct integers. This term adds one network statistic to the
     model for each element in \code{k}. The \eqn{i}th such statistic counts the
@@ -1566,7 +1590,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     networks; for undirected networks see \code{kstar}. Note that
     \code{istar(1)} is equal to both \code{ostar(1)} and \code{edges}. }
     
-    \item{\code{kstar(k, attrname=NULL)}  (binary)  (undirected) (categorical nodal attribute)
+    \item{\code{kstar(k, attrname=NULL, levels=NULL)}  (binary)  (undirected) (categorical nodal attribute)
     }{\emph{k-Stars: } 
     The \code{k} argument is a vector of distinct integers. This term adds one
     network statistic to the model for each element in \code{k}. The \eqn{i}th
@@ -1737,9 +1761,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     }
   
     
-    \item{\code{nodefactor(attrname, base=1)}  (binary)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute) (frequently-used) 
+    \item{\code{nodefactor(attrname, base=1, levels=NULL)}  (binary)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute) (frequently-used) 
     ,
-    \code{nodefactor(attrname, base=1, form="sum")}  (dyad-independent)  (valued)  (directed)  (undirected) (categorical nodal attribute)
+    \code{nodefactor(attrname, base=1, form="sum", levels=NULL)}  (dyad-independent)  (valued)  (directed)  (undirected) (categorical nodal attribute)
     }{\emph{Factor attribute
     effect:} The \code{attrname} argument is a character vector giving
     one or more names of categorical attributes in the network's vertex
@@ -1796,9 +1820,9 @@ of the degrees of all pairs of nodes in the network which are tied.
   }
 
   
-    \item{\code{nodeifactor(attrname, base=1)}  (binary)  (dyad-independent)  (directed) (categorical nodal attribute) (frequently-used)
+    \item{\code{nodeifactor(attrname, base=1, levels=NULL)}  (binary)  (dyad-independent)  (directed) (categorical nodal attribute) (frequently-used)
     ,
-    \code{nodeifactor(attrname, base=1, form="sum")}  (valued)  (dyad-independent)  (directed) (categorical nodal attribute)
+    \code{nodeifactor(attrname, base=1, form="sum", levels=NULL)}  (valued)  (dyad-independent)  (directed) (categorical nodal attribute)
     }{\emph{Factor attribute
     effect for in-edges:} The \code{attrname} argument is a character
     vector giving one or more names of a categorical attribute in the
@@ -1824,10 +1848,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     by using \code{nodefactor("fruit", base=2:3)}. For an analogous term
     for quantitative vertex attributes, see \code{nodeicov}. }
   
-    \item{\code{nodematch(attrname, diff=FALSE,
-    keep=NULL)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (categorical nodal attribute)
-    , \code{nodematch(attrname, diff=FALSE,
-    keep=NULL, form="sum")}  (valued)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute)
+    \item{\code{nodematch(attrname, diff=FALSE, keep=NULL, levels=NULL)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (categorical nodal attribute)
+    , \code{nodematch(attrname, diff=FALSE, keep=NULL, form="sum", levels=NULL)}  (valued)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute)
      a.k.a. \code{match}  (binary)  (directed)  (dyad-independent)  (undirected) (categorical nodal attribute)
      }{\emph{Uniform homophily and differential homophily:}
     The \code{attrname} argument is a character vector giving one or
@@ -1851,9 +1873,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     matches for just the 2nd and 4th categories, use \code{nodematch}
     with \code{diff=TRUE} and \code{keep=c(2,4)}.}
    
-    \item{\code{nodemix(attrname, base=NULL)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (categorical nodal attribute)
+    \item{\code{nodemix(attrname, base=NULL, levels=NULL)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (categorical nodal attribute)
     ,
-    \code{nodemix(attrname, base=NULL, form="sum")}  (valued)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute)
+    \code{nodemix(attrname, base=NULL, form="sum", levels=NULL)}  (valued)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute)
     }{\emph{Nodal attribute
     mixing:} The \code{attrname} argument is a character vector giving
     the names of categorical attributes in the network's vertex
@@ -1902,9 +1924,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     deprecated in favor of \code{nodeocovar(transform="sqrt")}.
   }
   
-    \item{\code{nodeofactor(attrname, base=1)}  (binary)  (dyad-independent)  (directed) (categorical nodal attribute)
+    \item{\code{nodeofactor(attrname, base=1, levels=NULL)}  (binary)  (dyad-independent)  (directed) (categorical nodal attribute)
     ,
-    \code{nodeofactor(attrname, base=1, form="sum")}  (valued)  (dyad-independent)  (categorical nodal attribute) (directed)}{\emph{Factor attribute
+    \code{nodeofactor(attrname, base=1, form="sum", levels=NULL)}  (valued)  (dyad-independent)  (categorical nodal attribute) (directed)}{\emph{Factor attribute
     effect for out-edges:} The \code{attrname} argument is a character
     string giving one or more names of categorical attributes in the
     network's vertex attribute list. This term adds multiple network
@@ -1949,7 +1971,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     directed two-path connecting the nodes in the non-edge and in the same
     direction).}
 
-    \item{\code{odegrange(from, to=+Inf, by=NULL, homophily=FALSE)} (binary)  (directed) (categorical nodal attribute)
+    \item{\code{odegrange(from, to=+Inf, by=NULL, homophily=FALSE, levels=NULL)} (binary)  (directed) (categorical nodal attribute)
     }{\emph{Out-degree range:} 
     The \code{from} and \code{to} arguments are vectors of distinct
     integers (or \code{+Inf}, for \code{to} (its default)). If one of the vectors has
@@ -1977,7 +1999,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     networks, see \code{b1degrange} and \code{b2degrange}. For
     in-degrees, see \code{idegrange}.}
   
-    \item{\code{odegree(d, by=NULL, homophily=FALSE)}  (binary)  (directed)  (categorical nodal attribute) (frequently-used)}{\emph{Out-degree:} The \code{d} argument
+    \item{\code{odegree(d, by=NULL, homophily=FALSE, levels=NULL)}  (binary)  (directed)  (categorical nodal attribute) (frequently-used)}{\emph{Out-degree:} The \code{d} argument
     is a vector of distinct integers. This term adds one network statistic to
     the model for each element in \code{d}; the \eqn{i}th such statistic equals
     the number of nodes in the network of out-degree \code{d[i]}, i.e. the
@@ -2015,7 +2037,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     three times the number of triangles in the network. It is currently
     only implemented for undirected networks. }
   
-    \item{\code{ostar(k, attrname=NULL)}  (binary)  (directed) (categorical nodal attribute)
+    \item{\code{ostar(k, attrname=NULL, levels=NULL)}  (binary)  (directed) (categorical nodal attribute)
     }{\emph{k-Outstars:} The \code{k} argument is
     a vector of distinct integers. This term adds one network statistic to the
     model for each element in \code{k}. The \eqn{i}th such statistic counts the
@@ -2085,7 +2107,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     number of edges between \code{i} to \code{j} such that
     \code{abs(attrname[i]-attrname[j])<cutoff}.}
      
-    \item{\code{sociality(attrname=NULL, base=1)}  (binary)  (undirected) (categorical nodal attribute)
+    \item{\code{sociality(attrname=NULL, base=1, levels=NULL)}  (binary)  (undirected) (categorical nodal attribute)
     }{\emph{Undirected degree:} 
     This term adds one network statistic for each node equal to the number of
     ties of that node. The optional \code{attrname} argument is a character
@@ -2148,7 +2170,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     Note the distinction from the \code{ttriple} term. This term can only be
     used with directed networks.}
     
-    \item{\code{transitiveties(attrname=NULL)}   (binary)  (directed) (undirected) (triad-related) (categorical nodal attribute)
+    \item{\code{transitiveties(attrname=NULL, levels=NULL)}   (binary)  (directed) (undirected) (triad-related) (categorical nodal attribute)
     , \code{transitiveties(threshold=0)}   (valued)  (directed)  (undirected) (triad-related)}{\emph{Transitive ties:} 
     This term adds one statistic, equal to the number of ties 
     \eqn{i\rightarrow j}{i-->j} such that there exists a two-path from
@@ -2196,7 +2218,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     changing the \code{d} argument to a numeric vector giving a subset of
     \eqn{\{0, 1, 2, 3\}}.}
     
-    \item{\code{triangle(attrname=NULL)}  (binary)  (frequently-used)  (triad-related)  (directed)  (undirected) (categorical nodal attribute)
+    \item{\code{triangle(attrname=NULL, levels=NULL)}  (binary)  (frequently-used)  (triad-related)  (directed)  (undirected) (categorical nodal attribute)
     }{\emph{Triangles:}
     This term adds one statistic to the model equal to the number of triangles
     in the network. For an undirected network, a triangle is defined to be any
@@ -2210,7 +2232,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     argument \code{attrname} restricts the count to those triples of nodes with
     equal values of the vertex attribute specified by \code{attrname}. }
     
-    \item{\code{tripercent(attrname=NULL)}  (binary)  (undirected)  (triad-related) (categorical nodal attribute)
+    \item{\code{tripercent(attrname=NULL, levels=NULL)}  (binary)  (undirected)  (triad-related) (categorical nodal attribute)
     }{\emph{Triangle percentage:} 
     This term adds one statistic to the model equal to 100 times the ratio of
     the number of triangles in the network to the sum of the number of triangles
@@ -2224,7 +2246,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     used with undirected networks; for directed networks, it is difficult to
     define the numerator and denominator in a consistent and meaningful way.}
     
-    \item{\code{ttriple(attrname=NULL)}  (binary)  (directed)  (triad-related) (categorical nodal attribute)
+    \item{\code{ttriple(attrname=NULL, levels=NULL)}  (binary)  (directed)  (triad-related) (categorical nodal attribute)
     , a.k.a. \code{ttriad}  (binary)  (directed)  (triad-related) (categorical nodal attribute)
     }{\emph{Transitive triples:} 
     This term adds one statistic to the model, equal to the number of transitive

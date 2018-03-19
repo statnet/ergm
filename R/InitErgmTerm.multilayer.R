@@ -541,10 +541,10 @@ InitErgmTerm.ldegree<-function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.gwldegree<-function(nw, arglist,  ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("decay", "fixed", "attrname","cutoff", "Ls", "dir"),
-                      vartypes = c("numeric", "logical", "character","numeric", "formula,list", "character"),
-                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL),
-                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
+                      varnames = c("decay", "fixed", "attrname","cutoff", "levels", "Ls", "dir"),
+                      vartypes = c("numeric", "logical", "character","numeric", "character,numeric,logical", "formula,list", "character"),
+                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL, NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   cutoff<-a$cutoff
 
@@ -569,9 +569,9 @@ InitErgmTerm.gwldegree<-function(nw, arglist,  ...) {
 
     if(!is.null(attrname)) {
       nodecov <- get.node.attr(nw, attrname, "gwldegree")
-      u<-sort(unique(nodecov))
+      u<-NVL(a$levels, sort(unique(nodecov)))
       if(any(is.na(nodecov))){u<-c(u,NA)}
-      nodecov <- match(nodecov,u) # Recode to numeric
+      nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
       if (length(u)==1)
         stop ("Attribute given to gwldegree() has only one value", call.=FALSE)
       # Combine degree and u into 2xk matrix, where k=length(d)*length(u)

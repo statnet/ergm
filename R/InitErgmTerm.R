@@ -281,7 +281,7 @@ InitErgmTerm.asymmetric <- function(nw, arglist, ...) {
   ### Process the arguments
   if (!is.null(a$attrname)) {
     nodecov <- get.node.attr(nw, a$attrname)
-    u <- sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if (!is.null(a$keep)) {
       u <- u[a$keep]
     }
@@ -318,17 +318,17 @@ InitErgmTerm.asymmetric <- function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.b1concurrent<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                      varnames = c("by"),
-                      vartypes = c("character"),
-                      defaultvalues = list(NULL),
-                      required = c(FALSE))
+                      varnames = c("by", "levels"),
+                      vartypes = c("character", "character,numeric,logical"),
+                      defaultvalues = list(NULL, NULL),
+                      required = c(FALSE, FALSE))
   byarg <- a$by
   nb1 <- get.network.attribute(nw, "bipartite")       
   if(!is.null(byarg)) {
     nodecov <- get.node.attr(nw, byarg, "b1concurrent")[seq_len(nb1)]
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
+    nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     if (length(u)==1)
       stop ("Attribute given to b1concurrent() has only one value", call.=FALSE)
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
@@ -352,10 +352,10 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.b1degrange<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, bipartite=TRUE,
-                      varnames = c("from", "to", "by", "homophily"),
-                      vartypes = c("numeric", "numeric", "character", "logical"),
-                      defaultvalues = list(NULL, Inf, NULL, FALSE),
-                      required = c(TRUE, FALSE, FALSE, FALSE))
+                      varnames = c("from", "to", "by", "homophily", "levels"),
+                      vartypes = c("numeric", "numeric", "character", "logical", "character,numeric,logical"),
+                      defaultvalues = list(NULL, Inf, NULL, FALSE, NULL),
+                      required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
   from<-a$from; to<-a$to; byarg <- a$by; homophily <- a$homophily
   to <- ifelse(to==Inf, network.size(nw)+1, to)
 
@@ -369,9 +369,9 @@ InitErgmTerm.b1degrange<-function(nw, arglist, ...) {
   if(!is.null(byarg)) {
     nodecov <- get.node.attr(nw, byarg, "b1degrange")
     if(!homophily) nodecov <- nodecov[seq_len(nb1)]
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
+    nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     if (length(u)==1)
          stop ("Attribute given to b1degrange() has only one value", call.=FALSE)
   }
@@ -446,17 +446,17 @@ InitErgmTerm.b1cov<-function (nw, arglist, ...) {
 InitErgmTerm.b1degree <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("d", "by", "Ls"),
-                       vartypes = c("numeric", "character", "formula,list"),
+                       varnames = c("d", "by", "levels", "Ls"),
+                       vartypes = c("numeric", "character", "character,numeric,logical", "formula,list"),
                        defaultvalues = list(NULL, NULL, NULL),
                        required = c(TRUE, FALSE, FALSE))
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
   if (!is.null(a$by)) {  # CASE 1:  a$by GIVEN
     nodecov <- get.node.attr(nw, a$by)[seq_len(nb1)]
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
+    nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     # Combine degree and u into 2xk matrix, where k=length(a$d)*length(u)
     lu <- length(u)
     du <- rbind(rep(a$d,lu), rep(1:lu, rep(length(a$d), lu)))
@@ -488,10 +488,10 @@ InitErgmTerm.b1degree <- function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.b1factor<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                      varnames = c("attrname", "base"),
-                      vartypes = c("character", "numeric"),
-                      defaultvalues = list(NULL, 1),
-                      required = c(TRUE, FALSE))                                    
+                      varnames = c("attrname", "base", "levels"),
+                      vartypes = c("character", "numeric", "character,numeric,logical"),
+                      defaultvalues = list(NULL, 1, NULL),
+                      required = c(TRUE, FALSE, FALSE))
   attrname<-a$attrname
   base <- a$base
   nb1 <- get.network.attribute(nw, "bipartite")
@@ -500,7 +500,7 @@ InitErgmTerm.b1factor<-function (nw, arglist, ...) {
   if(all(is.na(nodecov)))
 	  stop("Argument to b1factor() does not exist", call.=FALSE)
   
-  u<-sort(unique(nodecov))
+  u <- NVL(a$levels, sort(unique(nodecov)))
   if(any(is.na(nodecov))){u<-c(u,NA)}
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
   ui <- seq(along=u)
@@ -526,14 +526,14 @@ InitErgmTerm.b1factor<-function (nw, arglist, ...) {
 InitErgmTerm.b1star <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("k", "attrname"),
-                       vartypes = c("numeric", "character"),
-                       defaultvalues = list(NULL, NULL),
-                       required = c(TRUE, FALSE))
+                       varnames = c("k", "attrname", "levels"),
+                       vartypes = c("numeric", "character", "character,numeric,logical"),
+                       defaultvalues = list(NULL, NULL, NULL),
+                       required = c(TRUE, FALSE, FALSE))
   ### Process the arguments
   if (!is.null(a$attrname)) {
     nodecov <- get.node.attr(nw, a$attrname)
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     # Recode to numeric
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -555,14 +555,14 @@ InitErgmTerm.b1star <- function(nw, arglist, ...) {
 InitErgmTerm.b1starmix <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("k", "attrname", "base", "diff"),
-                       vartypes = c("numeric", "character", "numeric", "logical"),
-                       defaultvalues = list(NULL, NULL, NULL, TRUE),
-                       required = c(TRUE, TRUE, FALSE, FALSE))
+                       varnames = c("k", "attrname", "base", "diff", "levels"),
+                       vartypes = c("numeric", "character", "numeric", "logical", "character,numeric,logical"),
+                       defaultvalues = list(NULL, NULL, NULL, TRUE, NULL),
+                       required = c(TRUE, TRUE, FALSE, FALSE, FALSE))
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
   nodecov <- get.node.attr(nw, a$attrname)
-  u<-sort(unique(nodecov))
+  u <- NVL(a$levels, sort(unique(nodecov)))
   if(any(is.na(nodecov))){u<-c(u,NA)}
   # Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -602,19 +602,19 @@ InitErgmTerm.b1starmix <- function(nw, arglist, ...) {
 InitErgmTerm.b1twostar <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("b1attrname", "b2attrname", "base"),
-                       vartypes = c("character", "character", "numeric"),
-                       defaultvalues = list(NULL, NULL, NULL),
-                       required = c(TRUE, FALSE, FALSE))
+                       varnames = c("b1attrname", "b2attrname", "base", "b1levels", "b2levels"),
+                       vartypes = c("character", "character", "numeric", "character,numeric,logical", "character,numeric,logical"),
+                       defaultvalues = list(NULL, NULL, NULL, NULL, NULL),
+                       required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
   n <- network.size(nw)
   b1nodecov <- get.node.attr(nw, a$b1attrname)[1:nb1]
-  b1u<-sort(unique(b1nodecov))
+  b1u<-NVL(a$b1levels, sort(unique(b1nodecov)))
   if(any(is.na(b1nodecov))){ b1u<-c(b1u,NA) }
   if(is.null(a$b2attrname)) { a$b2attrname <- a$b1attrname }
   b2nodecov <- get.node.attr(nw, a$b2attrname)[(1+nb1):n]
-  b2u<-sort(unique(b2nodecov))
+  b2u<-NVL(a$b2levels, sort(unique(b2nodecov)))
   if(any(is.na(b2nodecov))){b2u<-c(b2u,NA)}
   # Recode to numeric
   b1nodecov <- match(b1nodecov,b1u,nomatch=length(b1u)+1)
@@ -634,17 +634,17 @@ InitErgmTerm.b1twostar <- function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.b2concurrent<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                      varnames = c("by"),
-                      vartypes = c("character"),
-                      defaultvalues = list(NULL),
-                      required = c(FALSE))
+                      varnames = c("by", "levels"),
+                      vartypes = c("character", "character,numeric,logical"),
+                      defaultvalues = list(NULL, NULL),
+                      required = c(FALSE, FALSE))
   byarg <- a$by
   nb1 <- get.network.attribute(nw, "bipartite")
   if(!is.null(byarg)) {
     nodecov <- get.node.attr(nw, byarg, "b2concurrent")[-seq_len(nb1)]
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
+    nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     if (length(u)==1)
       stop ("Attribute given to b2concurrent() has only one value", call.=FALSE)
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
@@ -685,10 +685,10 @@ InitErgmTerm.b2cov<-function (nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.b2degrange<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, bipartite=TRUE,
-                      varnames = c("from", "to", "by", "homophily"),
-                      vartypes = c("numeric", "numeric", "character", "logical"),
-                      defaultvalues = list(NULL, Inf, NULL, FALSE),
-                      required = c(TRUE, FALSE, FALSE, FALSE))
+                      varnames = c("from", "to", "by", "homophily", "levels"),
+                      vartypes = c("numeric", "numeric", "character", "logical", "character,numeric,logical"),
+                      defaultvalues = list(NULL, Inf, NULL, FALSE, NULL),
+                      required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
   from<-a$from; to<-a$to; byarg <- a$by; homophily <- a$homophily
   to <- ifelse(to==Inf, network.size(nw)+1, to)
 
@@ -702,9 +702,9 @@ InitErgmTerm.b2degrange<-function(nw, arglist, ...) {
   if(!is.null(byarg)) {
     nodecov <- get.node.attr(nw, byarg, "b2degrange")
     if(!homophily) nodecov <- nodecov[-seq_len(nb1)]
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
+    nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     if (length(u)==1)
          stop ("Attribute given to b2degrange() has only one value", call.=FALSE)
   }
@@ -762,8 +762,8 @@ InitErgmTerm.b2degrange<-function(nw, arglist, ...) {
 InitErgmTerm.b2degree <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("d", "by", "Ls"),
-                       vartypes = c("numeric", "character", "formula,list"),
+                       varnames = c("d", "by", "levels", "Ls"),
+                       vartypes = c("numeric", "character", "character,numeric,logical", "formula,list"),
                        defaultvalues = list(NULL, NULL, NULL),
                        required = c(TRUE, FALSE, FALSE))
   ### Process the arguments
@@ -771,9 +771,9 @@ InitErgmTerm.b2degree <- function(nw, arglist, ...) {
   n <- network.size(nw)
   if (!is.null(a$by)) {  # CASE 1:  a$by GIVEN
     nodecov <- get.node.attr(nw, a$by)[-seq_len(nb1)]
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
+    nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     # Combine degree and u into 2xk matrix, where k=length(a$d)*length(u)
     lu <- length(u)
     du <- rbind(rep(a$d,lu), rep(1:lu, rep(length(a$d), lu)))
@@ -804,10 +804,10 @@ InitErgmTerm.b2degree <- function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.b2factor<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                      varnames = c("attrname", "base"),
-                      vartypes = c("character", "numeric"),
-                      defaultvalues = list(NULL, 1),
-                      required = c(TRUE, FALSE))
+                      varnames = c("attrname", "base", "levels"),
+                      vartypes = c("character", "numeric", "character,numeric,logical"),
+                      defaultvalues = list(NULL, 1, NULL),
+                      required = c(TRUE, FALSE, FALSE))
   attrname<-a$attrname
   base <- a$base
   nb1 <- get.network.attribute(nw, "bipartite")
@@ -816,7 +816,7 @@ InitErgmTerm.b2factor<-function (nw, arglist, ...) {
   if(all(is.na(nodecov)))
 	  stop("Argument to b2factor() does not exist", call.=FALSE)
   
-  u<-sort(unique(nodecov))
+  u<-NVL(a$levels, sort(unique(nodecov)))
   if(any(is.na(nodecov))){u<-c(u,NA)}
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
   ui <- seq(along=u)
@@ -842,14 +842,14 @@ InitErgmTerm.b2factor<-function (nw, arglist, ...) {
 InitErgmTerm.b2star <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("k", "attrname"),
-                       vartypes = c("numeric", "character"),
-                       defaultvalues = list(NULL, NULL),
-                       required = c(TRUE, FALSE))
+                       varnames = c("k", "attrname", "levels"),
+                       vartypes = c("numeric", "character", "character,numeric,logical"),
+                       defaultvalues = list(NULL, NULL, NULL),
+                       required = c(TRUE, FALSE, FALSE))
   ### Process the arguments
   if (!is.null(a$attrname)) {
     nodecov <- get.node.attr(nw, a$attrname)
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     # Recode to numeric
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -871,14 +871,14 @@ InitErgmTerm.b2star <- function(nw, arglist, ...) {
 InitErgmTerm.b2starmix <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("k", "attrname", "base", "diff"),
-                       vartypes = c("numeric", "character", "numeric", "logical"),
-                       defaultvalues = list(NULL, NULL, NULL, TRUE),
-                       required = c(TRUE, TRUE, FALSE, FALSE))
+                       varnames = c("k", "attrname", "base", "diff", "levels"),
+                       vartypes = c("numeric", "character", "numeric", "logical", "character,numeric,logical"),
+                       defaultvalues = list(NULL, NULL, NULL, TRUE, NULL),
+                       required = c(TRUE, TRUE, FALSE, FALSE, FALSE))
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
   nodecov <- get.node.attr(nw, a$attrname)
-  u<-sort(unique(nodecov))
+  u <- NVL(a$levels, sort(unique(nodecov)))
   if(any(is.na(nodecov))){u<-c(u,NA)}
   # Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -918,19 +918,19 @@ InitErgmTerm.b2starmix <- function(nw, arglist, ...) {
 InitErgmTerm.b2twostar <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("b1attrname", "b2attrname", "base"),
-                       vartypes = c("character", "character", "numeric"),
-                       defaultvalues = list(NULL, NULL, NULL),
-                       required = c(TRUE, FALSE, FALSE))
+                       varnames = c("b1attrname", "b2attrname", "base", "b1levels", "b2levels"),
+                       vartypes = c("character", "character", "numeric", "character,numeric,logical", "character,numeric,logical"),
+                       defaultvalues = list(NULL, NULL, NULL, NULL, NULL),
+                       required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
   n <- network.size(nw)
   b1nodecov <- get.node.attr(nw, a$b1attrname)[1:nb1]
-  b1u<-sort(unique(b1nodecov))
+  b1u<-NVL(a$b1levels, sort(unique(b1nodecov)))
   if(any(is.na(b1nodecov))){ b1u<-c(b1u,NA) }
   if(is.null(a$b2attrname)) { a$b2attrname <- a$b1attrname }
   b2nodecov <- get.node.attr(nw, a$b2attrname)[(1+nb1):n]
-  b2u<-sort(unique(b2nodecov))
+  b2u<-NVL(a$b2levels, sort(unique(b2nodecov)))
   if(any(is.na(b2nodecov))){b2u<-c(b2u,NA)}
   # Recode to numeric
   b1nodecov <- match(b1nodecov,b1u,nomatch=length(b1u)+1)
@@ -950,15 +950,15 @@ InitErgmTerm.b2twostar <- function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.balance<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("attrname", "diff"),
-                      vartypes = c("character", "logical"),
-                      defaultvalues = list(NULL, FALSE),
-                      required = c(FALSE, FALSE))
+                      varnames = c("attrname", "diff", "levels"),
+                      vartypes = c("character", "logical", "character,numeric,logical"),
+                      defaultvalues = list(NULL, FALSE, NULL),
+                      required = c(FALSE, FALSE, FALSE))
   attrname <- a$attrname
   diff <- a$diff
   if(!is.null(attrname)){
    nodecov <- get.node.attr(nw, attrname, "balance")
-   u<-sort(unique(nodecov))
+   u <- NVL(a$levels, sort(unique(nodecov)))
    if(any(is.na(nodecov))){u<-c(u,NA)}
 #
 #  Recode to numeric if necessary
@@ -994,16 +994,16 @@ InitErgmTerm.balance<-function (nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.concurrent<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
-                      varnames = c("by"),
-                      vartypes = c("character"),
-                      defaultvalues = list(NULL),
-                      required = c(FALSE))
+                      varnames = c("by", "levels"),
+                      vartypes = c("character", "character,numeric,logical"),
+                      defaultvalues = list(NULL, NULL),
+                      required = c(FALSE, FALSE))
   byarg <- a$by
   if(!is.null(byarg)) {
     nodecov <- get.node.attr(nw, byarg, "concurrent")
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
+    nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     if (length(u)==1)
       stop ("Attribute given to concurrent() has only one value", call.=FALSE)
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
@@ -1030,14 +1030,14 @@ InitErgmTerm.concurrent<-function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.ctriple<-InitErgmTerm.ctriad<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("attrname","diff"),
-                      vartypes = c("character","logical"),
-                      defaultvalues = list(NULL,FALSE),
-                      required = c(FALSE,FALSE))
+                      varnames = c("attrname","diff", "levels"),
+                      vartypes = c("character","logical", "character,numeric,logical"),
+                      defaultvalues = list(NULL,FALSE,NULL),
+                      required = c(FALSE,FALSE,FALSE))
   attrname <- a$attrname; diff <- a$diff;
   if(!is.null(attrname)){
     nodecov <- get.node.attr(nw, attrname, "ctriple")
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
@@ -1118,10 +1118,10 @@ InitErgmTerm.degcrossprod<-function (nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.degrange<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
-                      varnames = c("from", "to", "by", "homophily"),
-                      vartypes = c("numeric", "numeric", "character", "logical"),
-                      defaultvalues = list(NULL, Inf, NULL, FALSE),
-                      required = c(TRUE, FALSE, FALSE, FALSE))
+                      varnames = c("from", "to", "by", "homophily", "levels"),
+                      vartypes = c("numeric", "numeric", "character", "logical", "character,numeric,logical"),
+                      defaultvalues = list(NULL, Inf, NULL, FALSE, NULL),
+                      required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
   from<-a$from; to<-a$to; byarg <- a$by; homophily <- a$homophily
   to <- ifelse(to==Inf, network.size(nw)+1, to)
 
@@ -1133,9 +1133,9 @@ InitErgmTerm.degrange<-function(nw, arglist, ...) {
   emptynwstats<-NULL
   if(!is.null(byarg)) {
     nodecov <- get.node.attr(nw, byarg, "degrange")
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
+    nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     if (length(u)==1)
          stop ("Attribute given to degrange() has only one value", call.=FALSE)
   }
@@ -1191,17 +1191,17 @@ InitErgmTerm.degrange<-function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.degree<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
-                      varnames = c("d", "by", "homophily", "Ls"),
-                      vartypes = c("numeric", "character", "logical", "formula,list"),
+                      varnames = c("d", "by", "homophily", "levels", "Ls"),
+                      vartypes = c("numeric", "character", "logical", "character,numeric,logical", "formula,list"),
                       defaultvalues = list(NULL, NULL, FALSE, NULL),
                       required = c(TRUE, FALSE, FALSE, FALSE))
   d<-a$d; byarg <- a$by; homophily <- a$homophily
   emptynwstats<-NULL
   if(!is.null(byarg)) {
     nodecov <- get.node.attr(nw, byarg, "degree")
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
+    nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     if (length(u)==1)
          stop ("Attribute given to degree() has only one value", call.=FALSE)
   }
@@ -1479,11 +1479,12 @@ InitErgmTerm.esp<-function(nw, arglist, cache.sp=FALSE, ...) {
 ################################################################################
 InitErgmTerm.gwb1degree<-function(nw, arglist,  ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,                     
-                      varnames = c("decay", "fixed", "attrname","cutoff", "Ls"),
-                      vartypes = c("numeric", "logical", "character","numeric", "formula,list"),
+  # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
+                      varnames = c("decay", "fixed", "attrname","cutoff", "levels", "Ls"),
+                      vartypes = c("numeric", "logical", "character","numeric", "character,numeric,logical", "formula,list"),
                       defaultvalues = list(NULL, FALSE, NULL, 30, NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
-  decay<-a$decay; attrname<-a$attrname;fixed<-a$fixed
+  decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
   cutoff<-a$cutoff
   nb1 <- get.network.attribute(nw,"bipartite")
 # d <- 1:(network.size(nw) - nb1)
@@ -1506,9 +1507,9 @@ InitErgmTerm.gwb1degree<-function(nw, arglist,  ...) {
 
     if(!is.null(attrname)) {
       nodecov <- get.node.attr(nw, attrname, "gwb1degree")
-      u<-sort(unique(nodecov))
+      u <- NVL(a$levels, sort(unique(nodecov)))
       if(any(is.na(nodecov))){u<-c(u,NA)}
-      nodecov <- match(nodecov,u) # Recode to numeric
+      nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
       if (length(u)==1)
         stop ("Attribute given to gwb1degree() has only one value", call.=FALSE)
       # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
@@ -1534,11 +1535,12 @@ InitErgmTerm.gwb1degree<-function(nw, arglist,  ...) {
 ################################################################################
 InitErgmTerm.gwb2degree<-function(nw, arglist,  ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                      varnames = c("decay", "fixed", "attrname","cutoff", "Ls"),
-                      vartypes = c("numeric", "logical", "character", "numeric", "formula,list"),
+  # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
+                      varnames = c("decay", "fixed", "attrname","cutoff", "levels", "Ls"),
+                      vartypes = c("numeric", "logical", "character", "numeric", "character,numeric,logical", "formula,list"),
                       defaultvalues = list(NULL, FALSE, NULL, 30, NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
-  decay<-a$decay; attrname<-a$attrname;fixed<-a$fixed
+  decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
   cutoff<-a$cutoff
   nb1 <- get.network.attribute(nw,"bipartite")
 # d <- 1:nb1
@@ -1559,9 +1561,9 @@ InitErgmTerm.gwb2degree<-function(nw, arglist,  ...) {
 
     if(!is.null(attrname)) {
       nodecov <- get.node.attr(nw, attrname, "gwb2degree")
-      u<-sort(unique(nodecov))
+      u <- NVL(a$levels, sort(unique(nodecov)))
       if(any(is.na(nodecov))){u<-c(u,NA)}
-      nodecov <- match(nodecov,u) # Recode to numeric
+      nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
       if (length(u)==1)
         stop ("Attribute given to gwb2degree() has only one value", call.=FALSE)
       # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
@@ -1587,8 +1589,8 @@ InitErgmTerm.gwb2degree<-function(nw, arglist,  ...) {
 ################################################################################
 InitErgmTerm.gwdegree<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
-                      varnames = c("decay", "fixed", "attrname","cutoff", "Ls"),
-                      vartypes = c("numeric", "logical", "character", "numeric", "formula,list"),
+                      varnames = c("decay", "fixed", "attrname","cutoff", "levels", "Ls"),
+                      vartypes = c("numeric", "logical", "character", "numeric", "character,numeric,logical", "formula,list"),
                       defaultvalues = list(NULL, FALSE, NULL, 30, NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
@@ -1612,9 +1614,9 @@ InitErgmTerm.gwdegree<-function(nw, arglist, ...) {
 
     if(!is.null(attrname)) {
       nodecov <- get.node.attr(nw, attrname, "gwdegree")
-      u<-sort(unique(nodecov))
+      u <- NVL(a$levels, sort(unique(nodecov)))
       if(any(is.na(nodecov))){u<-c(u,NA)}
-      nodecov <- match(nodecov,u) # Recode to numeric
+      nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
       if (length(u)==1)
         stop ("Attribute given to gwdegree() has only one value", call.=FALSE)
       # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
@@ -1720,8 +1722,8 @@ InitErgmTerm.gwesp<-function(nw, arglist, cache.sp=FALSE, ...) {
 ################################################################################
 InitErgmTerm.gwidegree<-function(nw, arglist,  ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("decay", "fixed", "attrname","cutoff", "Ls"),
-                      vartypes = c("numeric", "logical", "character","numeric", "formula,list"),
+                      varnames = c("decay", "fixed", "attrname","cutoff", "levels", "Ls"),
+                      vartypes = c("numeric", "logical", "character","numeric", "character,numeric,logical", "formula,list"),
                       defaultvalues = list(NULL, FALSE, NULL, 30, NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
@@ -1746,9 +1748,9 @@ InitErgmTerm.gwidegree<-function(nw, arglist,  ...) {
 
     if(!is.null(attrname)) {
       nodecov <- get.node.attr(nw, attrname, "gwidegree")
-      u<-sort(unique(nodecov))
+      u <- NVL(a$levels, sort(unique(nodecov)))
       if(any(is.na(nodecov))){u<-c(u,NA)}
-      nodecov <- match(nodecov,u) # Recode to numeric
+      nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
       if (length(u)==1)
         stop ("Attribute given to gwidegree() has only one value", call.=FALSE)
       # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
@@ -1811,8 +1813,8 @@ InitErgmTerm.gwnsp<-function(nw, arglist, cache.sp=FALSE, ...) {
 ################################################################################
 InitErgmTerm.gwodegree<-function(nw, arglist,  ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("decay", "fixed", "attrname","cutoff", "Ls"),
-                      vartypes = c("numeric", "logical", "character","numeric", "formula,list"),
+                      varnames = c("decay", "fixed", "attrname","cutoff", "levels", "Ls"),
+                      vartypes = c("numeric", "logical", "character","numeric", "character,numeric,logical", "formula,list"),
                       defaultvalues = list(NULL, FALSE, NULL, 30, NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
@@ -1837,9 +1839,9 @@ InitErgmTerm.gwodegree<-function(nw, arglist,  ...) {
 
     if(!is.null(attrname)) {
       nodecov <- get.node.attr(nw, attrname, "gwodegree")
-      u<-sort(unique(nodecov))
+      u <- NVL(a$levels, sort(unique(nodecov)))
       if(any(is.na(nodecov))){u<-c(u,NA)}
-      nodecov <- match(nodecov,u) # Recode to numeric
+      nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
       if (length(u)==1)
         stop ("Attribute given to gwodegree() has only one value", call.=FALSE)
       # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
@@ -2023,10 +2025,10 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.idegrange<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("from", "to", "by", "homophily"),
-                      vartypes = c("numeric", "numeric", "character", "logical"),
-                      defaultvalues = list(NULL, Inf, NULL, FALSE),
-                      required = c(TRUE, FALSE, FALSE, FALSE))
+                      varnames = c("from", "to", "by", "homophily", "levels"),
+                      vartypes = c("numeric", "numeric", "character", "logical", "character,numeric,logical"),
+                      defaultvalues = list(NULL, Inf, NULL, FALSE, NULL),
+                      required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
   from<-a$from; to<-a$to; byarg <- a$by; homophily <- a$homophily
   to <- ifelse(to==Inf, network.size(nw)+1, to)
 
@@ -2038,9 +2040,9 @@ InitErgmTerm.idegrange<-function(nw, arglist, ...) {
   emptynwstats<-NULL
   if(!is.null(byarg)) {
     nodecov <- get.node.attr(nw, byarg, "idegrange")
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
+    nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     if (length(u)==1)
          stop ("Attribute given to idegrange() has only one value", call.=FALSE)
   }
@@ -2096,17 +2098,17 @@ InitErgmTerm.idegrange<-function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.idegree<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("d", "by", "homophily", "Ls"),
-                      vartypes = c("numeric", "character", "logical", "formula,list"),
+                      varnames = c("d", "by", "homophily", "levels", "Ls"),
+                      vartypes = c("numeric", "character", "logical", "character,numeric,logical", "formula,list"),
                       defaultvalues = list(NULL, NULL, FALSE, NULL),
                       required = c(TRUE, FALSE, FALSE, FALSE))
   d<-a$d; byarg <- a$by; homophily <- a$homophily
   emptynwstats<-NULL
   if(!is.null(byarg)) {
     nodecov <- get.node.attr(nw, byarg, "idegree")
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
+    nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     if (length(u)==1)
          stop ("Attribute given to idegree() has only one value", call.=FALSE)
   }
@@ -2210,15 +2212,15 @@ InitErgmTerm.isolates <- function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.istar<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("k", "attrname"),
-                      vartypes = c("numeric", "character"),
-                      defaultvalues = list(NULL, NULL),
+                      varnames = c("k", "attrname", "levels"),
+                      vartypes = c("numeric", "character", "character,numeric,logical"),
+                      defaultvalues = list(NULL, NULL, NULL),
                       required = c(TRUE, FALSE))
   k <- a$k
   attrname <- a$attrname
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "istar")
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
 #     Recode to numeric if necessary
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -2246,14 +2248,14 @@ InitErgmTerm.istar<-function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.kstar<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
-                      varnames = c("k", "attrname"),
-                      vartypes = c("numeric", "character"),
-                      defaultvalues = list(NULL, NULL),
-                      required = c(TRUE, FALSE))
+                      varnames = c("k", "attrname", "levels"),
+                      vartypes = c("numeric", "character", "character,numeric,logical"),
+                      defaultvalues = list(NULL, NULL, NULL),
+                      required = c(TRUE, FALSE, FALSE))
   k<-a$k;attrname<-a$attrname
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "kstar")
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
 #    Recode to numeric if necessary
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -2350,7 +2352,7 @@ InitErgmTerm.mutual<-function (nw, arglist, ...) {
      attrname <- a$by
     }
     nodecov <- get.node.attr(nw, attrname)
-    u <- sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if (!is.null(a$keep)) {
       u <- u[a$keep]
     }
@@ -2447,10 +2449,10 @@ InitErgmTerm.nodecov<-InitErgmTerm.nodemain<-function (nw, arglist, ...) {
 InitErgmTerm.nodefactor<-function (nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
-                      varnames = c("attrname", "base"),
-                      vartypes = c("character", "numeric"),
-                      defaultvalues = list(NULL, 1),
-                      required = c(TRUE, FALSE))
+                      varnames = c("attrname", "base", "levels"),
+                      vartypes = c("character", "numeric", "character,numeric,logical"),
+                      defaultvalues = list(NULL, 1, NULL),
+                      required = c(TRUE, FALSE, FALSE))
   ### Process the arguments
 
   nodecov <-
@@ -2460,7 +2462,7 @@ InitErgmTerm.nodefactor<-function (nw, arglist, ...) {
       do.call(paste,c(sapply(a$attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
     }
 
-  u <- sort(unique(nodecov))
+  u <- NVL(a$levels, sort(unique(nodecov)))
   if (any(NVL(a$base,0)!=0)) {
     u <- u[-a$base]
     if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
@@ -2502,10 +2504,10 @@ InitErgmTerm.nodeicov<-function (nw, arglist, ...) {
 InitErgmTerm.nodeifactor<-function (nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
-                      varnames = c("attrname", "base"),          
-                      vartypes = c("character", "numeric"),
-                      defaultvalues = list(NULL, 1),
-                      required = c(TRUE, FALSE))
+                      varnames = c("attrname", "base", "levels"),
+                      vartypes = c("character", "numeric", "character,numeric,logical"),
+                      defaultvalues = list(NULL, 1, NULL),
+                      required = c(TRUE, FALSE, FALSE))
   ### Process the arguments
 
   nodecov <-
@@ -2515,7 +2517,7 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, ...) {
       do.call(paste,c(sapply(a$attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
     }
 
-  u <- sort(unique(nodecov))
+  u <- NVL(a$levels, sort(unique(nodecov)))
   if (any(NVL(a$base,0)!=0)) {
     u <- u[-a$base]
     if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
@@ -2551,7 +2553,7 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, ...) {
     else{
       do.call(paste,c(sapply(a$attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
     }
-  u <- sort(unique(nodecov))
+  u <- NVL(a$levels, sort(unique(nodecov)))
   if (!is.null(a$keep)) {
     u <- u[a$keep]
   }
@@ -2581,10 +2583,10 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, ...) {
 InitErgmTerm.nodemix<-function (nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("attrname", "base"),
-                      vartypes = c("character", "numeric"),
-                      defaultvalues = list(NULL, NULL),
-                      required = c(TRUE, FALSE))
+                      varnames = c("attrname", "base", "b1levels", "b2levels"),
+                      vartypes = c("character", "numeric", "character,numeric,logical", "character,numeric,logical"),
+                      defaultvalues = list(NULL, NULL, NULL, NULL),
+                      required = c(TRUE, FALSE, FALSE, FALSE))
   ### Process the arguments
   if (is.bipartite(nw) && is.directed(nw)) {
     stop("Directed bipartite networks are not currently possible")
@@ -2600,11 +2602,11 @@ InitErgmTerm.nodemix<-function (nw, arglist, ...) {
     #  So undirected network storage but directed mixing
     nb1 <- get.network.attribute(nw, "bipartite")       
     #  Recode nodecov to numeric (but retain original sorted names in "namescov")
-    b1namescov <- sort(unique(nodecov[1:nb1]))
-    b2namescov <- sort(unique(nodecov[(1+nb1):network.size(nw)]))
+    b1namescov <- NVL(a$b1levels, sort(unique(nodecov[1:nb1])))
+    b2namescov <- NVL(a$b2levels, sort(unique(nodecov[(1+nb1):network.size(nw)])))
     namescov <- c(b1namescov, b2namescov)
-    b1nodecov <- match(nodecov[1:nb1],b1namescov)
-    b2nodecov <- match(nodecov[(1+nb1):network.size(nw)],b2namescov)
+    b1nodecov <- match(nodecov[1:nb1],b1namescov,nomatch=length(b1namescov)+1)
+    b2nodecov <- match(nodecov[(1+nb1):network.size(nw)],b2namescov,nomatch=length(b2namescov)+1)
     nr <- length(b1namescov)
     nc <- length(b2namescov)
     nodecov <- c(b1nodecov, b2nodecov + nr)
@@ -2619,7 +2621,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, ...) {
     inputs <- c(u[,1], u[,2], nodecov)
     attr(inputs, "ParamsBeforeCov") <- NROW(u)
   } else {# So one mode, but could be directed or undirected
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     #   Recode to numeric if necessary
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -2675,10 +2677,10 @@ InitErgmTerm.nodeocov<-function (nw, arglist, ...) {
 InitErgmTerm.nodeofactor<-function (nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
-                      varnames = c("attrname", "base"),
-                      vartypes = c("character", "numeric"),
-                      defaultvalues = list(NULL, 1),
-                      required = c(TRUE, FALSE))
+                      varnames = c("attrname", "base", "levels"),
+                      vartypes = c("character", "numeric", "character,numeric,logical"),
+                      defaultvalues = list(NULL, 1, NULL),
+                      required = c(TRUE, FALSE, FALSE))
   ### Process the arguments
   nodecov <-
     if(length(a$attrname)==1)
@@ -2687,7 +2689,7 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, ...) {
       do.call(paste,c(sapply(a$attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
     }
 
-  u <- sort(unique(nodecov))
+  u <- NVL(a$levels, sort(unique(nodecov)))
   if (any(NVL(a$base,0)!=0)) {
     u <- u[-a$base]
     if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
@@ -2752,10 +2754,10 @@ InitErgmTerm.nsp<-function(nw, arglist, cache.sp=FALSE, ...) {
 ################################################################################
 InitErgmTerm.odegrange<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("from", "to", "by", "homophily"),
-                      vartypes = c("numeric", "numeric", "character", "logical"),
-                      defaultvalues = list(NULL, Inf, NULL, FALSE),
-                      required = c(TRUE, FALSE, FALSE, FALSE))
+                      varnames = c("from", "to", "by", "homophily", "levels"),
+                      vartypes = c("numeric", "numeric", "character", "logical", "character,numeric,logical"),
+                      defaultvalues = list(NULL, Inf, NULL, FALSE, NULL),
+                      required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
   from<-a$from; to<-a$to; byarg <- a$by; homophily <- a$homophily
   to <- ifelse(to==Inf, network.size(nw)+1, to)
 
@@ -2767,9 +2769,9 @@ InitErgmTerm.odegrange<-function(nw, arglist, ...) {
   emptynwstats<-NULL
   if(!is.null(byarg)) {
     nodecov <- get.node.attr(nw, byarg, "odegrange")
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
+    nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     if (length(u)==1)
          stop ("Attribute given to odegrange() has only one value", call.=FALSE)
   }
@@ -2825,17 +2827,17 @@ InitErgmTerm.odegrange<-function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.odegree<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("d", "by", "homophily", "Ls"),
-                      vartypes = c("numeric", "character", "logical", "formula,list"),
+                      varnames = c("d", "by", "homophily", "levels", "Ls"),
+                      vartypes = c("numeric", "character", "logical", "character,numeric,logical", "formula,list"),
                       defaultvalues = list(NULL, NULL, FALSE, NULL),
                       required = c(TRUE, FALSE, FALSE, FALSE))
   d<-a$d; byarg <- a$by; homophily <- a$homophily
   emptynwstats<-NULL
   if(!is.null(byarg)) {
     nodecov <- get.node.attr(nw, byarg, "odegree")
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
+    nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     if (length(u)==1)
          stop ("Attribute given to odegree() has only one value", call.=FALSE)
   }
@@ -2919,15 +2921,15 @@ InitErgmTerm.opentriad<-function (nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.ostar<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("k", "attrname"),
-                      vartypes = c("numeric", "character"),
-                      defaultvalues = list(NULL, NULL),
-                      required = c(TRUE, FALSE))
+                      varnames = c("k", "attrname", "levels"),
+                      vartypes = c("numeric", "character", "character,numeric,logical"),
+                      defaultvalues = list(NULL, NULL, NULL),
+                      required = c(TRUE, FALSE, FALSE))
   k<-a$k
   attrname <- a$attrname
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "ostar")
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     # Recode to numeric
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -3043,10 +3045,10 @@ InitErgmTerm.smalldiff<-function (nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.sociality<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
-                      varnames = c("attrname", "base"),
-                      vartypes = c("character", "numeric"),
-                      defaultvalues = list(NULL, 1),
-                      required = c(FALSE, FALSE))
+                      varnames = c("attrname", "base", "levels"),
+                      vartypes = c("character", "numeric", "character,numeric,logical"),
+                      defaultvalues = list(NULL, 1, NULL),
+                      required = c(FALSE, FALSE, FALSE))
   attrname<-a$attrname
   d <- 1:network.size(nw)
   if (any(NVL(a$base,0)!=0)) {
@@ -3054,7 +3056,7 @@ InitErgmTerm.sociality<-function(nw, arglist, ...) {
   }
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "sociality")
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
@@ -3175,15 +3177,15 @@ InitErgmTerm.triadcensus<-function (nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("attrname", "diff"),
-                      vartypes = c("character", "logical"),
-                      defaultvalues = list(NULL, FALSE),
-                      required = c(FALSE, FALSE))
+                      varnames = c("attrname", "diff", "levels"),
+                      vartypes = c("character", "logical", "character,numeric,logical"),
+                      defaultvalues = list(NULL, FALSE, NULL),
+                      required = c(FALSE, FALSE, FALSE))
   attrname <- a$attrname
   diff <- a$diff
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "triangle")
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
@@ -3209,15 +3211,15 @@ InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.tripercent<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
-                      varnames = c("attrname", "diff"),
-                      vartypes = c("character", "logical"),
-                      defaultvalues = list(NULL, FALSE),
-                      required = c(FALSE, FALSE))
+                      varnames = c("attrname", "diff", "levels"),
+                      vartypes = c("character", "logical", "character,numeric,logical"),
+                      defaultvalues = list(NULL, FALSE, NULL),
+                      required = c(FALSE, FALSE, FALSE))
   attrname <- a$attrname
   diff <- a$diff
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "tripercent")
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
@@ -3243,15 +3245,15 @@ InitErgmTerm.tripercent<-function (nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.ttriple<-InitErgmTerm.ttriad<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("attrname", "diff"),
-                      vartypes = c("character", "logical"),
-                      defaultvalues = list(NULL, FALSE),
-                      required = c(FALSE, FALSE))
+                      varnames = c("attrname", "diff", "levels"),
+                      vartypes = c("character", "logical", "character,numeric,logical"),
+                      defaultvalues = list(NULL, FALSE, NULL),
+                      required = c(FALSE, FALSE, FALSE))
   attrname <- a$attrname
   diff <- a$diff
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "ttriple")
-    u<-sort(unique(nodecov))
+    u <- NVL(a$levels, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
