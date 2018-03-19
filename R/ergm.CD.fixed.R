@@ -144,8 +144,11 @@ ergm.CD.fixed <- function(init, nw, model,
     statsmatrix <- do.call(rbind,statsmatrices)
     
     if(verbose){
-      message("Back from unconstrained CD. Average statistics:")
-      message_print(apply(statsmatrix, 2, mean))
+      message("Back from unconstrained CD.")
+      if(verbose>1){
+        message("Average statistics:")
+        message_print(colMeans(statsmatrix))
+      }
     }
     
     ##  Does the same, if observation process:
@@ -157,15 +160,18 @@ ergm.CD.fixed <- function(init, nw, model,
       statsmatrix.obs <- do.call(rbind,statsmatrices.obs)
       
       if(verbose){
-        message("Back from constrained MCMC. Average statistics:")
-        message_print(apply(statsmatrix.obs, 2, mean))
+        message("Back from constrained CD.")
+        if(verbose>1){
+          message("Average statistics:")
+          message_print(colMeans(statsmatrix.obs))
+        }
       }
     }else{
       statsmatrices.obs <- statsmatrix.obs <- NULL
       z.obs <- NULL
     }
 
-    # Compute the sample estimating equations and the convergence p-value. 
+    # Compute the sample estimating functions and the convergence p-value. 
     esteq <- .ergm.esteq(mcmc.init, model, statsmatrix)
     if(isTRUE(all.equal(apply(esteq,2,sd), rep(0,ncol(esteq)), check.names=FALSE))&&!all(esteq==0))
       stop("Unconstrained CD sampling did not mix at all. Optimization cannot continue.")
@@ -176,8 +182,8 @@ ergm.CD.fixed <- function(init, nw, model,
     # full thing. What the latter gives us is a nice "progress report"
     # on whether the estimation is getting better..
     if(verbose){
-      message("Average estimating equation values:")
-      message_print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else colMeans(esteq))
+      message("Average estimating function values:")
+      message_print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else -colMeans(esteq))
     }
     message("Convergence test P-value:",format(conv.pval, scientific=TRUE,digits=2),"")
     if(conv.pval>control$CD.conv.min.pval){

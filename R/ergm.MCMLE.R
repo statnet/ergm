@@ -161,8 +161,11 @@ ergm.MCMLE <- function(init, nw, model,
     statsmatrix <- do.call(rbind,statsmatrices)
     
     if(verbose){
-      message("Back from unconstrained MCMC. Average statistics:")
-      message_print(apply(statsmatrix, 2, base::mean))
+      message("Back from unconstrained MCMC.")
+      if(verbose>1){
+        message("Average statistics:")
+        message_print(colMeans(statsmatrix))
+      }
     }
     
     ##  Does the same, if observation process:
@@ -177,8 +180,11 @@ ergm.MCMLE <- function(init, nw, model,
       statsmatrix.obs <- do.call(rbind,statsmatrices.obs)
       
       if(verbose){
-        message("Back from constrained MCMC. Average statistics:")
-        message_print(apply(statsmatrix.obs, 2, base::mean))
+        message("Back from constrained MCMC.")
+        if(verbose>1){
+          message("Average statistics:")
+          message_print(colMeans(statsmatrix.obs))
+        }
       }
     }else{
       statsmatrices.obs <- statsmatrix.obs <- NULL
@@ -200,7 +206,7 @@ ergm.MCMLE <- function(init, nw, model,
       else save(nws, statsmatrices, statshifts, coef.hist, stats.hist, steplen.hist, file=sprintf(control$MCMLE.save_intermediates, iteration))
     }
 
-    # Compute the sample estimating equations and the convergence p-value. 
+    # Compute the sample estimating functions and the convergence p-value. 
     esteq <- .ergm.esteq(mcmc.init, model, statsmatrix)
     if(isTRUE(all.equal(apply(esteq,2,stats::sd), rep(0,ncol(esteq)), check.names=FALSE))&&!all(esteq==0))
       stop("Unconstrained MCMC sampling did not mix at all. Optimization cannot continue.")
@@ -221,9 +227,9 @@ ergm.MCMLE <- function(init, nw, model,
     # on whether the estimation is getting better..
 
     # These are only nontrivial when the model is curved or when there are missing data.
-    if(verbose && (is.curved(model)||obs)){
-      message("Average estimating equation values:")
-      message_print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else colMeans(esteq))
+    if(verbose){
+      message("Average estimating function values:")
+      message_print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else -colMeans(esteq))
     }
 
     if(!estimate){
