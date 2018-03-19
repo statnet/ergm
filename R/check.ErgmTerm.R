@@ -93,6 +93,7 @@
 check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegative=FALSE,
                            varnames=NULL, vartypes=NULL,
                            defaultvalues=list(), required=NULL, response=NULL) {
+  stopifnot(all_identical(c(length(varnames), length(vartypes), length(defaultvalues))))
   fname <- get.InitErgm.fname() # From what InitErgm function was this called?
   fname <- sub('.*[.]', '', fname) # truncate up to last '.'
   message <- NULL
