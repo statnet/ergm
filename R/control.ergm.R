@@ -119,12 +119,9 @@
 #' Metropolis-Hastings algorithm.  Increasing sample size may increase the
 #' precision in the estimates by reducing MCMC error, at the expense of time.
 #' Set it higher for larger networks, or when using parallel functionality.
-#' @param
-#' MCMLE.effectiveSize,MCMLE.effectiveSize.interval_drop,MCMC.effectiveSize,MCMC.effectiveSize.damp,MCMC.effectiveSize.maxruns,MCMC.effectiveSize.base,MCMC.effectiveSize.points,MCMC.effectiveSize.order,MCMC.effectiveSize.burnin.pval
-#' Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively determine the
-#' burn-in and the MCMC length needed to get the specified effective size; 50 is a reasonable value.  This feature is in
-#' experimental status until we verify the coverage of the standard errors.
-#' 
+#' @template control_MCMC_effectiveSize
+#' @param MCMLE.effectiveSize,MCMLE.effectiveSize.interval_drop
+#' Sets `MCMC.effectiveSize` and `MCMC.effectiveSize.interval_drop` when `main.method="MCMLE"` (the default). Used because defaults may be different for different methods.
 #' @param MCMC.return.stats Logical: If TRUE, return the matrix of MCMC-sampled
 #' network statistics.  This matrix should have \code{MCMC.samplesize} rows.
 #' This matrix can be used directly by the \code{coda} package to assess MCMC
@@ -458,7 +455,6 @@ control.ergm<-function(drop=TRUE,
                        MCMC.effectiveSize.maxruns=1000,
                        MCMC.effectiveSize.base=1/2,
                        MCMC.effectiveSize.points=5,
-                       MCMC.effectiveSize.order=1,
                        MCMC.effectiveSize.burnin.pval=0.2,
                        MCMC.return.stats=TRUE,
                        MCMC.runtime.traceplot=FALSE,
