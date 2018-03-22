@@ -36,6 +36,9 @@
 #' @param MCMC.burnin Number of proposals before any MCMC sampling is done. It
 #' typically is set to a fairly large number.
 #' @param MCMC.interval Number of proposals between sampled statistics.
+#'
+#' @template control_MCMC_effectiveSize
+#' 
 #' @param MCMC.init.maxedges Maximum number of edges expected in network.
 #' @param MCMC.runtime.traceplot Logical: If TRUE, plot traceplots of the MCMC
 #' sample after every MCMC MLE iteration.
@@ -58,23 +61,30 @@
 #' @keywords models
 #' @export control.simulate.formula.ergm
 control.simulate.formula.ergm<-function(MCMC.burnin=10000,
-                                                     MCMC.interval=1000,
-                                                     MCMC.prop.weights="default",
-                                                     MCMC.prop.args=list(),
-
-                                                     MCMC.init.maxedges=20000,
-                                                     MCMC.packagenames=c(),
-
-                                                     MCMC.runtime.traceplot=FALSE,  
-                                                     network.output="network",
-
-                                                     term.options=list(),
-                                                     
-                                                     parallel=0,
-                                                     parallel.type=NULL,
-                                                     parallel.version.check=TRUE,
+                                        MCMC.interval=1000,
+                                        MCMC.prop.weights="default",
+                                        MCMC.prop.args=list(),
+                                        
+                                        MCMC.effectiveSize=NULL,
+                                        MCMC.effectiveSize.damp=10,
+                                        MCMC.effectiveSize.maxruns=1000,
+                                        MCMC.effectiveSize.base=1/2,
+                                        MCMC.effectiveSize.points=5,
+                                        MCMC.effectiveSize.burnin.pval=0.2,
+                                        
+                                        MCMC.init.maxedges=20000,
+                                        MCMC.packagenames=c(),
+                                        
+                                        MCMC.runtime.traceplot=FALSE,  
+                                        network.output="network",
+                                        
+                                        term.options=list(),
+                                        
+                                        parallel=0,
+                                        parallel.type=NULL,
+                                        parallel.version.check=TRUE,
                                         parallel.inherit.MT=FALSE,
-                                                     ...){
+                                        ...){
   old.controls <- list(
                        maxedges="MCMC.init.maxedges",
                        prop.weights="MCMC.prop.weights",
@@ -119,7 +129,14 @@ control.simulate.ergm<-function(MCMC.burnin=NULL,
                                 MCMC.interval=NULL,
                                 MCMC.prop.weights=NULL,
                                 MCMC.prop.args=NULL,
-
+                                
+                                MCMC.effectiveSize=NULL,
+                                MCMC.effectiveSize.damp=10,
+                                MCMC.effectiveSize.maxruns=1000,
+                                MCMC.effectiveSize.base=1/2,
+                                MCMC.effectiveSize.points=5,
+                                MCMC.effectiveSize.burnin.pval=0.2,
+                                
                                 MCMC.init.maxedges=NULL,
                                 MCMC.packagenames=NULL,
                                 

@@ -9,6 +9,9 @@
 \usage{
 control.simulate.formula.ergm(MCMC.burnin = 10000, MCMC.interval = 1000,
   MCMC.prop.weights = "default", MCMC.prop.args = list(),
+  MCMC.effectiveSize = NULL, MCMC.effectiveSize.damp = 10,
+  MCMC.effectiveSize.maxruns = 1000, MCMC.effectiveSize.base = 1/2,
+  MCMC.effectiveSize.points = 5, MCMC.effectiveSize.burnin.pval = 0.2,
   MCMC.init.maxedges = 20000, MCMC.packagenames = c(),
   MCMC.runtime.traceplot = FALSE, network.output = "network",
   term.options = list(), parallel = 0, parallel.type = NULL,
@@ -16,6 +19,9 @@ control.simulate.formula.ergm(MCMC.burnin = 10000, MCMC.interval = 1000,
 
 control.simulate(MCMC.burnin = 10000, MCMC.interval = 1000,
   MCMC.prop.weights = "default", MCMC.prop.args = list(),
+  MCMC.effectiveSize = NULL, MCMC.effectiveSize.damp = 10,
+  MCMC.effectiveSize.maxruns = 1000, MCMC.effectiveSize.base = 1/2,
+  MCMC.effectiveSize.points = 5, MCMC.effectiveSize.burnin.pval = 0.2,
   MCMC.init.maxedges = 20000, MCMC.packagenames = c(),
   MCMC.runtime.traceplot = FALSE, network.output = "network",
   term.options = list(), parallel = 0, parallel.type = NULL,
@@ -23,6 +29,9 @@ control.simulate(MCMC.burnin = 10000, MCMC.interval = 1000,
 
 control.simulate.formula(MCMC.burnin = 10000, MCMC.interval = 1000,
   MCMC.prop.weights = "default", MCMC.prop.args = list(),
+  MCMC.effectiveSize = NULL, MCMC.effectiveSize.damp = 10,
+  MCMC.effectiveSize.maxruns = 1000, MCMC.effectiveSize.base = 1/2,
+  MCMC.effectiveSize.points = 5, MCMC.effectiveSize.burnin.pval = 0.2,
   MCMC.init.maxedges = 20000, MCMC.packagenames = c(),
   MCMC.runtime.traceplot = FALSE, network.output = "network",
   term.options = list(), parallel = 0, parallel.type = NULL,
@@ -30,6 +39,9 @@ control.simulate.formula(MCMC.burnin = 10000, MCMC.interval = 1000,
 
 control.simulate.ergm(MCMC.burnin = NULL, MCMC.interval = NULL,
   MCMC.prop.weights = NULL, MCMC.prop.args = NULL,
+  MCMC.effectiveSize = NULL, MCMC.effectiveSize.damp = 10,
+  MCMC.effectiveSize.maxruns = 1000, MCMC.effectiveSize.base = 1/2,
+  MCMC.effectiveSize.points = 5, MCMC.effectiveSize.burnin.pval = 0.2,
   MCMC.init.maxedges = NULL, MCMC.packagenames = NULL,
   MCMC.runtime.traceplot = FALSE, network.output = "network",
   term.options = NULL, parallel = 0, parallel.type = NULL,
@@ -56,6 +68,30 @@ a low edge density, as is typical of many realistic social networks.}
 
 \item{MCMC.prop.args}{An alternative, direct way of specifying additional
 arguments to proposal.}
+
+\item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.burnin.pval}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
+determine the burn-in and the MCMC length needed to get the
+specified effective size; 50 is a reasonable value. In the
+adaptive MCMC mode, MCMC is run forward repeatedly
+(\code{MCMC.samplesize*MCMC.interval} steps, up to
+\code{MCMC.effectiveSize.maxruns} times) until the target effective
+sample size is reached or exceeded. After each run, the returned
+statistics are mapped to the estimating function scale, then a
+series of \code{MCMC.effectiveSize.points} possible burn-in points are
+considered, at
+\code{MCMC.effectiveSize.base^(1:MCMC.effectiveSize.points)} of the
+way into the sample, and the earliest one whose Geweke diagnostic
+produces a \eqn{p}-value less than
+\code{MCMC.effectiveSize.burnin.pval} is selected. The effective size
+of the post-burn-in sample is computed via Vats, Flegal, and
+Jones (2015), and compared to the target effective size. If it is
+not matched, the MCMC run is resumed, with the additional draws
+needed linearly extrapolated but weighted in favor of the
+baseline \code{MCMC.samplesize} by the weighting factor
+\code{MCMC.effectiveSize.damp} (higher = less damping). Lastly, if
+after an MCMC run, the number of samples equals or exceeds
+\code{2*MCMC.samplesize}, the chain will be thinned by 2 until it
+falls below that, while doubling \code{MCMC.interval}.}
 
 \item{MCMC.init.maxedges}{Maximum number of edges expected in network.}
 
