@@ -171,3 +171,4 @@ control.simulate.ergm<-function(MCMC.burnin=NULL,
  
   set.control.class("control.simulate.ergm")
 }
+

@@ -332,7 +332,6 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     # observed statistics.
     out.mat <- sweep(z$statsmatrix[seq_len(nsim),,drop=FALSE], 2, curstats, "+")
   }else{
-    if(!is.null(control$MCMC.effectiveSize)) stop("Adaptive MCMC is only supported when sequential==TRUE and statsonly==TRUE.")
     # Create objects to store output
     if (!statsonly) { 
       nw.list <- list()
@@ -438,7 +437,14 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           verbose=FALSE, ...) {
   check.control.class(c("simulate.ergm","simulate.formula"), "simulate.ergm")
   control.toplevel(...)
-  control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges","term.options","parallel","parallel.type","parallel.version.check", "MCMC.effectiveSize", "MCMC.effectiveSize.damp", "MCMC.effectiveSize.maxruns", "MCMC.effectiveSize.base", "MCMC.effectiveSize.points", "MCMC.effectiveSize.burnin.pval")
+
+  control.transfer <-
+    c(
+      STATIC_MCMC_CONTROLS,
+      if((statsonly && sequential)  || nsim==1 || is.null(control$MCMC.effectiveSize)) ADAPTIVE_MCMC_CONTROLS
+      else warning("Adaptive MCMC is only supported when sequential==TRUE and statsonly==TRUE or if nsim==1. ", "Adaptive MCMC parameters will be ignored.")
+    )
+  
   for(arg in control.transfer)
     if(is.null(control[[arg]]))
       control[arg] <- list(object$control[[arg]])

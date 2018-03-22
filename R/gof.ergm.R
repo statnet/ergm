@@ -141,8 +141,7 @@ gof.ergm <- function (object, ...,
   ## If a different constraint was specified, use it; otherwise, copy
   ## from the ERGM.
 
-  control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges")
-  for(arg in control.transfer)
+  for(arg in STATIC_MCMC_CONTROLS)
     if(is.null(control[[arg]]))
       control[arg] <- list(object$control[[arg]])
 
