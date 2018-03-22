@@ -438,12 +438,18 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
   check.control.class(c("simulate.ergm","simulate.formula"), "simulate.ergm")
   control.toplevel(...)
 
-  control.transfer <-
-    c(
-      STATIC_MCMC_CONTROLS,
-      if((statsonly && sequential)  || nsim==1 || is.null(control$MCMC.effectiveSize)) ADAPTIVE_MCMC_CONTROLS
-      else warning("Adaptive MCMC is only supported when sequential==TRUE and statsonly==TRUE or if nsim==1. ", "Adaptive MCMC parameters will be ignored.")
-    )
+  ### TODO: Figure out when adaptive MCMC controls should be inherited.
+  ## control.transfer <-
+  ##   c(
+  ##     STATIC_MCMC_CONTROLS,
+  ##     if(!is.null(control$MCMC.effectiveSize)){
+  ##       if(statsonly && sequential && control$MCMC.effectiveSize*1.5<=nsim) ADAPTIVE_MCMC_CONTROLS
+  ##       else warning("Adaptive MCMC is only supported when sequential==TRUE, statsonly==TRUE and nsim<=1.5 * target effective size. ", "Adaptive MCMC parameters will be ignored.")
+  ##     }
+  ##   )
+
+  control.transfer <- STATIC_MCMC_CONTROLS
+
   
   for(arg in control.transfer)
     if(is.null(control[[arg]]))
