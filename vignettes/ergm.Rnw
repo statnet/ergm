@@ -365,8 +365,8 @@ ERGMs are generative models \textendash{} that is, they represent
 the process that governs tie formation at a local level. These local
 processes in turn aggregate up to produce characteristic global network
 properties, even though these global properties are not explicit terms
-in the model. One test of whether a model \textquotedbl{}fits the
-data\textquotedbl{} is therefore how well it reproduces these global
+in the model. One test of whether a model ``fits the
+data'' is therefore how well it reproduces these global
 properties. We do this by choosing a network statistic that is not
 in the model, and comparing the value of this statistic observed in
 the original network to the distribution of values we get in simulated
@@ -707,7 +707,7 @@ More information can be obtained with
 summary(ego.sim100)
 @
 
-First, we\textquoteright{}ll look at how well the simulations reproduced
+First, we'll look at how well the simulations reproduced
 the target statistics that were included in the model (note, not the
 observed full distributions):
 
@@ -761,7 +761,7 @@ value, then you can use the ``constraints=''
 argument during the \verb@ergm@ fit instead. 
 
 This is good for verifying that the simulation reproduces the target
-values we specified. So now let\textquoteright{}s see whether the
+values we specified. So now let's see whether the
 simulated complete networks also match statistics that were not set
 by the targets. We targeted edges and homophily. How well does this
 model reproduce the full degree distribution?
