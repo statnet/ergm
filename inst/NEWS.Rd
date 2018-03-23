@@ -88,6 +88,10 @@
 	reported by Kevin Reuning has been fixed.
       }
       \item{
+	An error when trying to run the Robbins-Monro algorithm with parallel
+	processing enabled, reported by George G. Vega Yon has been fixed.
+      }
+      \item{
 	A bug in the \code{\link{meandeg}} term for directed
 	networks has been fixed.
       }
