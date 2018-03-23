@@ -36,6 +36,8 @@ An object of class \code{htest} with the following information:
 \item{alternative}{Always \code{"two.sided"}.}
 \item{estimate}{Sample difference.}
 \item{covariance}{Estimated variance-covariance matrix of the estimate of the difference.}
+\item{covariance.x}{Estimated variance-covariance matrix of the estimate of the mean of \code{x}.}
+\item{covariance.y}{Estimated variance-covariance matrix of the estimate of the mean of \code{y}.}
 
 It has a print method \code{\link[=print.htest]{print.htest()}}.
 }

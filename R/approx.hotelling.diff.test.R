@@ -54,6 +54,8 @@
 #' \item{alternative}{Always `"two.sided"`.}
 #' \item{estimate}{Sample difference.}
 #' \item{covariance}{Estimated variance-covariance matrix of the estimate of the difference.}
+#' \item{covariance.x}{Estimated variance-covariance matrix of the estimate of the mean of `x`.}
+#' \item{covariance.y}{Estimated variance-covariance matrix of the estimate of the mean of `y`.}
 #' 
 #' It has a print method [print.htest()].
 #'
@@ -175,6 +177,8 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
               alternative="two.sided",
               estimate = d,
               covariance = vcov.d,
+              covariance.x = x$vcov.m,
+              covariance.y = y$vcov.m,
               novar = novar)
   class(out)<-"htest"
   out
