@@ -167,8 +167,8 @@ InitErgmTerm.summary.test <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
                       vartypes = c("formula"),
-                      defaultvalues = list(NULL, FALSE),
-                      required = c(TRUE, FALSE))
+                      defaultvalues = list(NULL),
+                      required = c(TRUE))
 
   f <- a$formula
   if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)

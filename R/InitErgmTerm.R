@@ -448,8 +448,8 @@ InitErgmTerm.b1degree <- function(nw, arglist, ...) {
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
                        varnames = c("d", "by", "levels", "Ls"),
                        vartypes = c("numeric", "character", "character,numeric,logical", "formula,list"),
-                       defaultvalues = list(NULL, NULL, NULL),
-                       required = c(TRUE, FALSE, FALSE))
+                       defaultvalues = list(NULL, NULL, NULL, NULL),
+                       required = c(TRUE, FALSE, FALSE, FALSE))
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
   if (!is.null(a$by)) {  # CASE 1:  a$by GIVEN
@@ -764,8 +764,8 @@ InitErgmTerm.b2degree <- function(nw, arglist, ...) {
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
                        varnames = c("d", "by", "levels", "Ls"),
                        vartypes = c("numeric", "character", "character,numeric,logical", "formula,list"),
-                       defaultvalues = list(NULL, NULL, NULL),
-                       required = c(TRUE, FALSE, FALSE))
+                       defaultvalues = list(NULL, NULL, NULL, NULL),
+                       required = c(TRUE, FALSE, FALSE, FALSE))
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
   n <- network.size(nw)
@@ -1193,8 +1193,8 @@ InitErgmTerm.degree<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
                       varnames = c("d", "by", "homophily", "levels", "Ls"),
                       vartypes = c("numeric", "character", "logical", "character,numeric,logical", "formula,list"),
-                      defaultvalues = list(NULL, NULL, FALSE, NULL),
-                      required = c(TRUE, FALSE, FALSE, FALSE))
+                      defaultvalues = list(NULL, NULL, FALSE, NULL, NULL),
+                      required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
   d<-a$d; byarg <- a$by; homophily <- a$homophily
   emptynwstats<-NULL
   if(!is.null(byarg)) {
@@ -1482,8 +1482,8 @@ InitErgmTerm.gwb1degree<-function(nw, arglist,  ...) {
   # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
                       varnames = c("decay", "fixed", "attrname","cutoff", "levels", "Ls"),
                       vartypes = c("numeric", "logical", "character","numeric", "character,numeric,logical", "formula,list"),
-                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL),
-                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
+                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL, NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
   cutoff<-a$cutoff
   nb1 <- get.network.attribute(nw,"bipartite")
@@ -1538,8 +1538,8 @@ InitErgmTerm.gwb2degree<-function(nw, arglist,  ...) {
   # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
                       varnames = c("decay", "fixed", "attrname","cutoff", "levels", "Ls"),
                       vartypes = c("numeric", "logical", "character", "numeric", "character,numeric,logical", "formula,list"),
-                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL),
-                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
+                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL, NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
   cutoff<-a$cutoff
   nb1 <- get.network.attribute(nw,"bipartite")
@@ -1591,8 +1591,8 @@ InitErgmTerm.gwdegree<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
                       varnames = c("decay", "fixed", "attrname","cutoff", "levels", "Ls"),
                       vartypes = c("numeric", "logical", "character", "numeric", "character,numeric,logical", "formula,list"),
-                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL),
-                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
+                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL, NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   cutoff<-a$cutoff
 # d <- 1:(network.size(nw)-1)
@@ -1724,8 +1724,8 @@ InitErgmTerm.gwidegree<-function(nw, arglist,  ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("decay", "fixed", "attrname","cutoff", "levels", "Ls"),
                       vartypes = c("numeric", "logical", "character","numeric", "character,numeric,logical", "formula,list"),
-                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL),
-                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
+                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL, NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   cutoff<-a$cutoff
 # d <- 1:(network.size(nw)-1)
@@ -1815,8 +1815,8 @@ InitErgmTerm.gwodegree<-function(nw, arglist,  ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("decay", "fixed", "attrname","cutoff", "levels", "Ls"),
                       vartypes = c("numeric", "logical", "character","numeric", "character,numeric,logical", "formula,list"),
-                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL),
-                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
+                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL, NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   cutoff<-a$cutoff
 # d <- 1:(network.size(nw)-1)
@@ -2100,8 +2100,8 @@ InitErgmTerm.idegree<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("d", "by", "homophily", "levels", "Ls"),
                       vartypes = c("numeric", "character", "logical", "character,numeric,logical", "formula,list"),
-                      defaultvalues = list(NULL, NULL, FALSE, NULL),
-                      required = c(TRUE, FALSE, FALSE, FALSE))
+                      defaultvalues = list(NULL, NULL, FALSE, NULL, NULL),
+                      required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
   d<-a$d; byarg <- a$by; homophily <- a$homophily
   emptynwstats<-NULL
   if(!is.null(byarg)) {
@@ -2829,8 +2829,8 @@ InitErgmTerm.odegree<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("d", "by", "homophily", "levels", "Ls"),
                       vartypes = c("numeric", "character", "logical", "character,numeric,logical", "formula,list"),
-                      defaultvalues = list(NULL, NULL, FALSE, NULL),
-                      required = c(TRUE, FALSE, FALSE, FALSE))
+                      defaultvalues = list(NULL, NULL, FALSE, NULL, NULL),
+                      required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
   d<-a$d; byarg <- a$by; homophily <- a$homophily
   emptynwstats<-NULL
   if(!is.null(byarg)) {
