@@ -131,6 +131,11 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
                       else out$s[,Clists[[1]]$diagnosable,drop=FALSE]
                       ), mcmc, start=1, thin=interval))
       
+      if(control.parallel$MCMC.runtime.traceplot){
+        plot(window(esteq, thin=thin(esteq)*max(1,floor(niter(esteq)/1000)))
+             ,ask=FALSE,smooth=TRUE,density=FALSE)
+      }
+
       best.burnin <- .find_OK_burnin(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, min.pval=control$MCMC.effectiveSize.burnin.pval)
       burnin.pval <- best.burnin$pval
       if(burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
@@ -142,11 +147,6 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
       eS <- niter(postburnin.mcmc)*nchain(postburnin.mcmc)/attr(spectrum0.mvar(postburnin.mcmc),"infl")
               
       if(verbose) message("ESS of ",eS," attained with burn-in of ", round(best.burnin$burnin/nrow(outl[[1]]$s)*100,2),"%; convergence p-value = ", burnin.pval, ".")
-
-      if(control.parallel$MCMC.runtime.traceplot){
-        plot(window(esteq, thin=thin(esteq)*max(1,floor(niter(esteq)/1000)))
-             ,ask=FALSE,smooth=TRUE,density=FALSE)
-      }
 
       if(eS>=control.parallel$MCMC.effectiveSize){
         if(burnin.pval > control$MCMC.effectiveSize.burnin.pval){
