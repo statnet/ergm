@@ -1,4 +1,3 @@
-
 \documentclass{article}
 \usepackage{natbib} %for easy biblo
 \usepackage{hyperref} %for url links
@@ -8,6 +7,8 @@
 \geometry{verbose,tmargin=3cm,bmargin=3cm,lmargin=3cm,rmargin=3cm}
 \usepackage{multirow}
 \setlength{\parskip}{\smallskipamount}
+
+% \VignetteIndexEntry{ergm Example}
 
 
 \begin{document}
