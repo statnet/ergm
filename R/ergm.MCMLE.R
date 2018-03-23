@@ -66,6 +66,8 @@ ergm.MCMLE <- function(init, nw, model,
                              estimate=TRUE,
                        response=NULL, ...) {
   message("Starting Monte Carlo maximum likelihood estimation (MCMLE):")
+  # Is there observational structure?
+  obs <- ! is.null(MHproposal.obs)
   # Initialize the history of parameters and statistics.
   coef.hist <- rbind(init)
   stats.hist <- matrix(NA, 0, length(model$nw.stats))
@@ -74,9 +76,17 @@ ergm.MCMLE <- function(init, nw, model,
   steplen <- control$MCMLE.steplength
   if(control$MCMLE.steplength=="adaptive") steplen <- 1
 
-  control$MCMC.effectiveSize <- control$MCMLE.effectiveSize
-  control$obs.MCMC.effectiveSize <- control$obs.MCMLE.effectiveSize
+  if(is.null(control$MCMLE.samplesize)) control$MCMLE.samplesize <- control$MCMLE.samplesize.per_theta*nparam(model,canonical=FALSE, offset=FALSE)
+  if(obs && is.null(control$obs.MCMLE.samplesize)) control$obs.MCMLE.samplesize <- control$obs.MCMLE.samplesize.per_theta*nparam(model,canonical=FALSE, offset=FALSE)
   
+  MCMLE_to_MCMC <- c("effectiveSize", "burnin", "samplesize", "interval")
+  for(ctrl in MCMLE_to_MCMC){
+    name <- paste0("MCMLE.",ctrl)
+    if(!is.null(control[[name]])) control[[paste0("MCMC.",ctrl)]] <- control[[name]]
+    name <- paste0("obs.",name)
+    if(!is.null(control[[name]])) control[[paste0("obs.MCMC.",ctrl)]] <- control[[name]]
+  }
+   
   control$MCMC.base.effectiveSize <- control$MCMC.effectiveSize
   control$obs.MCMC.base.effectiveSize <- control$obs.MCMC.effectiveSize
   
@@ -117,9 +127,6 @@ ergm.MCMLE <- function(init, nw, model,
   statshift <- model$nw.stats - NVL(model$target.stats,model$nw.stats)
   statshift[is.na(statshift)] <- 0
   statshifts <- rep(list(statshift), nthreads) # Each network needs its own statshift.
-
-  # Is there observational structure?
-  obs <- ! is.null(MHproposal.obs)
   
   # Initialize control.obs and other *.obs if there is observation structure
   
@@ -250,9 +257,11 @@ ergm.MCMLE <- function(init, nw, model,
     # Update the interval to be used.
     if(!is.null(control$MCMC.effectiveSize)){
       control$MCMC.interval <- round(max(z$final.interval/control$MCMLE.effectiveSize.interval_drop,1))
+      control$MCMC.burnin <- round(max(z$final.interval*16,16))
       if(verbose) message("New interval = ",control$MCMC.interval,".")
       if(obs){
-        control.obs$MCMC.interval <- round(max(z.obs$final.interval/control$MCMLE.effectiveSize.interval_drop,1))
+        control$obs.MCMC.interval <- control.obs$MCMC.interval <- round(max(z.obs$final.interval/control$MCMLE.effectiveSize.interval_drop,1))
+        control$obs.MCMC.burnin <- control.obs$MCMC.burnin <- round(max(z.obs$final.interval*16,16))
         if(verbose) message("New constrained interval = ",control.obs$MCMC.interval,".")
       }
     }
@@ -448,13 +457,15 @@ ergm.MCMLE <- function(init, nw, model,
           d2.not.improved[] <- FALSE
         }
       }else{
-        hotel <- try(approx.hotelling.diff.test(esteqs, esteqs.obs))
-        if(inherits(hotel, "try-error")){ # Within tolerance ellipsoid, but cannot be tested.
+        conv.test <- try({
+          hotel <- approx.hotelling.diff.test(esteqs, esteqs.obs)
+          T2 <- with(hotel, .ellipsoid_mahalanobis(estimate, covariance, iVm[!novar, !novar])) # Distance to the nearest point on the tolerance region boundary.
+          nonconv.pval <- .ptsq(T2, hotel$parameter["param"], hotel$parameter["df"], lower.tail=FALSE)
+        }, silent=TRUE)
+        if(inherits(conv.test, "try-error")){ # Within tolerance ellipsoid, but cannot be tested.
           message("Unable to test for convergence; increasing sample size.")
           .boost_samplesize(control$MCMLE.confidence.boost)
         }else{ # Within tolerance ellipsoid, can be tested.
-          T2 <- with(hotel, .ellipsoid_mahalanobis(estimate, covariance, iVm[!novar, !novar])) # Distance to the nearest point on the tolerance region boundary.
-          nonconv.pval <- .ptsq(T2, hotel$parameter["param"], hotel$parameter["df"], lower.tail=FALSE)
           if(verbose) message("Test statistic: T^2 = ",T2,", with ",
                               hotel$parameter["param"], " free parameters and ",hotel$parameter["df"], " degrees of freedom.")
           message("Convergence test p-value: ",nonconv.pval,". ", appendLF=FALSE)

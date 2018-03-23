@@ -12,25 +12,25 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MCMC.prop.weights = "default", MCMC.prop.args = list(),
   MCMC.interval = 1024, MCMC.burnin = MCMC.interval * 16,
   MCMC.samplesize = 1024, MCMC.effectiveSize = NULL,
-  MCMC.effectiveSize.damp = 10, MCMC.effectiveSize.maxruns = 1000,
+  MCMC.effectiveSize.damp = 10, MCMC.effectiveSize.maxruns = 16,
   MCMC.effectiveSize.base = 1/2, MCMC.effectiveSize.points = 5,
-  MCMC.effectiveSize.order = 1, MCMC.effectiveSize.burnin.pval = 0.2,
-  MCMC.return.stats = TRUE, MCMC.runtime.traceplot = FALSE,
-  MCMC.init.maxedges = 20000, MCMC.max.maxedges = Inf,
-  MCMC.addto.se = TRUE, MCMC.compress = FALSE, MCMC.packagenames = c(),
-  SAN.maxit = 10, SAN.burnin.times = 10, SAN.control = control.san(coef =
-  init, term.options = term.options, SAN.prop.weights = MCMC.prop.weights,
-  SAN.prop.args = MCMC.prop.args, SAN.init.maxedges = MCMC.init.maxedges,
-  SAN.burnin = MCMC.burnin * SAN.burnin.times, SAN.interval = MCMC.interval,
-  SAN.packagenames = MCMC.packagenames, MPLE.max.dyad.types =
-  MPLE.max.dyad.types, parallel = parallel, parallel.type = parallel.type,
-  parallel.version.check = parallel.version.check),
-  MCMLE.termination = c("Hummel", "Hotelling", "precision", "confidence",
-  "none"), MCMLE.maxit = 20, MCMLE.conv.min.pval = 0.5,
-  MCMLE.confidence = 0.99, MCMLE.confidence.boost = 2,
-  MCMLE.confidence.boost.threshold = 1, MCMLE.confidence.boost.lag = 4,
-  MCMLE.NR.maxit = 100, MCMLE.NR.reltol = sqrt(.Machine$double.eps),
-  obs.MCMC.mul = 1/4, obs.MCMC.samplesize.mul = sqrt(obs.MCMC.mul),
+  MCMC.effectiveSize.burnin.pval = 0.2, MCMC.return.stats = TRUE,
+  MCMC.runtime.traceplot = FALSE, MCMC.init.maxedges = 20000,
+  MCMC.max.maxedges = Inf, MCMC.addto.se = TRUE, MCMC.compress = FALSE,
+  MCMC.packagenames = c(), SAN.maxit = 10, SAN.burnin.times = 10,
+  SAN.control = control.san(coef = init, term.options = term.options,
+  SAN.prop.weights = MCMC.prop.weights, SAN.prop.args = MCMC.prop.args,
+  SAN.init.maxedges = MCMC.init.maxedges, SAN.burnin = MCMC.burnin *
+  SAN.burnin.times, SAN.interval = MCMC.interval, SAN.packagenames =
+  MCMC.packagenames, MPLE.max.dyad.types = MPLE.max.dyad.types, parallel =
+  parallel, parallel.type = parallel.type, parallel.version.check =
+  parallel.version.check), MCMLE.termination = c("confidence", "Hummel",
+  "Hotelling", "precision", "none"), MCMLE.maxit = 30,
+  MCMLE.conv.min.pval = 0.5, MCMLE.confidence = 0.99,
+  MCMLE.confidence.boost = 2, MCMLE.confidence.boost.threshold = 1,
+  MCMLE.confidence.boost.lag = 4, MCMLE.NR.maxit = 100,
+  MCMLE.NR.reltol = sqrt(.Machine$double.eps), obs.MCMC.mul = 1/4,
+  obs.MCMC.samplesize.mul = sqrt(obs.MCMC.mul),
   obs.MCMC.samplesize = round(MCMC.samplesize * obs.MCMC.samplesize.mul),
   obs.MCMC.effectiveSize = NVL3(MCMC.effectiveSize, . * obs.MCMC.mul),
   obs.MCMC.interval.mul = sqrt(obs.MCMC.mul),
@@ -51,8 +51,14 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MCMLE.steplength = NVL2(MCMLE.steplength.margin, 1, 0.5),
   MCMLE.adaptive.trustregion = 3, MCMLE.sequential = TRUE,
   MCMLE.density.guard.min = 10000, MCMLE.density.guard = exp(3),
-  MCMLE.effectiveSize = NULL,
+  MCMLE.effectiveSize = 64,
   obs.MCMLE.effectiveSize = NVL3(MCMLE.effectiveSize, . * obs.MCMC.mul),
+  MCMLE.interval = 32, MCMLE.burnin = MCMLE.interval * 16,
+  MCMLE.samplesize.per_theta = 128, MCMLE.samplesize = NULL,
+  obs.MCMLE.samplesize.per_theta = round(MCMLE.samplesize.per_theta *
+  obs.MCMC.samplesize.mul), obs.MCMLE.samplesize = NULL,
+  obs.MCMLE.interval = round(MCMLE.interval * obs.MCMC.interval.mul),
+  obs.MCMLE.burnin = round(MCMLE.burnin * obs.MCMC.burnin.mul),
   MCMLE.last.boost = 4, MCMLE.Hummel.esteq = TRUE,
   MCMLE.Hummel.miss.sample = 100, MCMLE.Hummel.maxit = if
   (MCMLE.steplength.margin < 0) 5 else 25, MCMLE.steplength.min = 1e-04,
@@ -196,6 +202,30 @@ given distribution on the set of all networks, returned by the
 Metropolis-Hastings algorithm.  Increasing sample size may increase the
 precision in the estimates by reducing MCMC error, at the expense of time.
 Set it higher for larger networks, or when using parallel functionality.}
+
+\item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.burnin.pval}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
+determine the burn-in and the MCMC length needed to get the
+specified effective size; 50 is a reasonable value. In the
+adaptive MCMC mode, MCMC is run forward repeatedly
+(\code{MCMC.samplesize*MCMC.interval} steps, up to
+\code{MCMC.effectiveSize.maxruns} times) until the target effective
+sample size is reached or exceeded. After each run, the returned
+statistics are mapped to the estimating function scale, then a
+series of \code{MCMC.effectiveSize.points} possible burn-in points are
+considered, at
+\code{MCMC.effectiveSize.base^(1:MCMC.effectiveSize.points)} of the
+way into the sample, and the earliest one whose Geweke diagnostic
+produces a \eqn{p}-value less than
+\code{MCMC.effectiveSize.burnin.pval} is selected. The effective size
+of the post-burn-in sample is computed via Vats, Flegal, and
+Jones (2015), and compared to the target effective size. If it is
+not matched, the MCMC run is resumed, with the additional draws
+needed linearly extrapolated but weighted in favor of the
+baseline \code{MCMC.samplesize} by the weighting factor
+\code{MCMC.effectiveSize.damp} (higher = less damping). Lastly, if
+after an MCMC run, the number of samples equals or exceeds
+\code{2*MCMC.samplesize}, the chain will be thinned by 2 until it
+falls below that, while doubling \code{MCMC.interval}.}
 
 \item{MCMC.return.stats}{Logical: If TRUE, return the matrix of MCMC-sampled
 network statistics.  This matrix should have \code{MCMC.samplesize} rows.
@@ -377,11 +407,13 @@ whose number of edges is exceeds the observed network by more than
 \code{MCMLE.density.guard}, the optimization process will be stopped with an
 error.}
 
-\item{MCMLE.effectiveSize, MCMLE.effectiveSize.interval_drop, MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.order, MCMC.effectiveSize.burnin.pval}{Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively determine the
-burn-in and the MCMC length needed to get the specified effective size; 50 is a reasonable value.  This feature is in
-experimental status until we verify the coverage of the standard errors.}
+\item{MCMLE.effectiveSize, MCMLE.effectiveSize.interval_drop, MCMLE.burnin, MCMLE.interval, MCMLE.samplesize, MCMLE.samplesize.per_theta}{Sets the corresponding \code{MCMC.*} when \code{main.method="MCMLE"} (the
+default). Used because defaults may be different for different
+methods. \code{MCMLE.samplesize.per_theta} controls the MCMC sample
+size (not target effective size) as a function of the number of
+(curved) parameters in the model.}
 
-\item{obs.MCMLE.effectiveSize, obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.mul, obs.MCMC.samplesize.mul, obs.MCMC.burnin.mul, obs.MCMC.interval.mul, obs.MCMC.effectiveSize}{Sample size, burnin, and interval parameters for the MCMC
+\item{obs.MCMLE.effectiveSize, obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.mul, obs.MCMC.samplesize.mul, obs.MCMC.burnin.mul, obs.MCMC.interval.mul, obs.MCMC.effectiveSize, obs.MCMLE.burnin, obs.MCMLE.interval, obs.MCMLE.samplesize, obs.MCMLE.samplesize.per_theta}{Sample size, burnin, and interval parameters for the MCMC
 sampling used when unobserved data are present in the estimation
 routine. By default, they are controlled by the \code{*.mul}
 parameters, as fractions of the corresponding settings for the

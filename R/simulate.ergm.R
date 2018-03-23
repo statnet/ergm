@@ -334,7 +334,6 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     
     # Post-processing:  Add term names to columns and shift each row by
     # observed statistics.
-    colnames(z$statsmatrix) <- m$coef.names
     out.mat <- sweep(z$statsmatrix[seq_len(nsim),,drop=FALSE], 2, curstats, "+")
   }else{
     # Create objects to store output
@@ -442,7 +441,20 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           verbose=FALSE, ...) {
   check.control.class(c("simulate.ergm","simulate.formula"), "simulate.ergm")
   control.toplevel(...)
-  control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges","term.options","parallel","parallel.type","parallel.version.check")
+
+  ### TODO: Figure out when adaptive MCMC controls should be inherited.
+  ## control.transfer <-
+  ##   c(
+  ##     STATIC_MCMC_CONTROLS,
+  ##     if(!is.null(control$MCMC.effectiveSize)){
+  ##       if(statsonly && sequential && control$MCMC.effectiveSize*1.5<=nsim) ADAPTIVE_MCMC_CONTROLS
+  ##       else warning("Adaptive MCMC is only supported when sequential==TRUE, statsonly==TRUE and nsim<=1.5 * target effective size. ", "Adaptive MCMC parameters will be ignored.")
+  ##     }
+  ##   )
+
+  control.transfer <- STATIC_MCMC_CONTROLS
+
+  
   for(arg in control.transfer)
     if(is.null(control[[arg]]))
       control[arg] <- list(object$control[[arg]])

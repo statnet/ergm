@@ -136,13 +136,12 @@ gof.ergm <- function (object, ...,
     stop("A network must be given as part of the network object.")
   }
 
-  if(missing(coef)){coef <- object$coef}
+  if(is.null(coef)) coef <- coef(object)
 
   ## If a different constraint was specified, use it; otherwise, copy
   ## from the ERGM.
 
-  control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges")
-  for(arg in control.transfer)
+  for(arg in STATIC_MCMC_CONTROLS)
     if(is.null(control[[arg]]))
       control[arg] <- list(object$control[[arg]])
 
@@ -168,12 +167,9 @@ gof.formula <- function(object, ...,
                         coef=NULL,
                         GOF=NULL,
                         constraints=~.,
-                        control=control.gof.formula(),
+                        control=NULL,
 			unconditional=TRUE,
                         verbose=FALSE) {
-  check.control.class(c("gof.formula","gof.ergm"), "ERGM gof.formula")
-  control.toplevel(...)
-
   if("response" %in% names(list(...))) stop("GoF for valued ERGMs is not implemented at this time.")
 
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
@@ -185,9 +181,9 @@ gof.formula <- function(object, ...,
   lhs <- ERRVL(try(eval_lhs.formula(object)),
                stop("A network object on the RHS of the formula argument must be given"))
   if(is.ergm(lhs)){
-    if(missing(GOF)) GOF <- nonsimp_update.formula(object, ~.) # Remove LHS from formula.
-    if(missing(constraints)) constraints <- NULL
-    if(missing(control)) control <- control.gof.ergm()
+    if(is.null(GOF)) GOF <- nonsimp_update.formula(object, ~.) # Remove LHS from formula.
+    if(is.null(constraints)) constraints <- NULL
+    if(is.null(control)) control <- control.gof.ergm()
     
     return(gof(lhs, GOF=GOF, coef=coef, control=control, unconditional=unconditional, verbose=verbose, ...)) # Kick it back to gof.ergm.
   }
@@ -196,6 +192,11 @@ gof.formula <- function(object, ...,
   if(!is.network(nw)){
     stop("A network object on the RHS of the formula argument must be given")
   }
+  if(is.null(control)) control <- control.gof.formula()
+
+  check.control.class(c("gof.formula","gof.ergm"), "ERGM gof.formula")
+  control.toplevel(...)
+
   #Set up the defaults, if called with GOF==NULL
   if(is.null(GOF)){
     if(is.directed(nw))

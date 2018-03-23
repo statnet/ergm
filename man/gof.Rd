@@ -17,7 +17,7 @@ gof(object, ...)
   constraints = NULL, control = control.gof.ergm(), verbose = FALSE)
 
 \method{gof}{formula}(object, ..., coef = NULL, GOF = NULL,
-  constraints = ~., control = control.gof.formula(), unconditional = TRUE,
+  constraints = ~., control = NULL, unconditional = TRUE,
   verbose = FALSE)
 
 \method{print}{gof}(x, ...)

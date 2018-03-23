@@ -33,5 +33,5 @@ stopifnot(isTRUE(all.equal(llk,llk.ergm, check.attributes=FALSE)))
 ts <- 3.5
 print(llk.ergm <- as.vector(logLik(ergm(flomarriage~edges, target.stats=ts))))
 print(llk <- l(y,ts))
-stopifnot(isTRUE(all.equal(llk,llk.ergm, check.attributes=FALSE,tolerance=0.001)))
+stopifnot(isTRUE(all.equal(llk,llk.ergm, check.attributes=FALSE,tolerance=0.005)))
 }, "bridge sampling with target stats")

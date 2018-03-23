@@ -1,4 +1,3 @@
-
 \documentclass{article}
 \usepackage{natbib} %for easy biblo
 \usepackage{hyperref} %for url links
@@ -9,31 +8,35 @@
 \usepackage{multirow}
 \setlength{\parskip}{\smallskipamount}
 
-%\VignetteIndexEntry{ergm Example}
+% \VignetteEngine{knitr::knitr}
+% \VignetteIndexEntry{ergm Example}
+
 
 \begin{document}
 
-\definecolor{Sinput}{rgb}{0.19,0.19,0.75}
-\definecolor{Soutput}{rgb}{0.2,0.3,0.2}
-\definecolor{Scode}{rgb}{0.75,0.19,0.19}
-\DefineVerbatimEnvironment{Sinput}{Verbatim}{formatcom = {\color{Sinput}}} 
-\DefineVerbatimEnvironment{Soutput}{Verbatim}{formatcom = {\color{Soutput}}}
-\DefineVerbatimEnvironment{Scode}{Verbatim}{formatcom = {\color{Scode}}} 
-\DefineVerbatimEnvironment{Scode}{Verbatim}{xleftmargin=2em}
-\fvset{listparameters={\setlength{\topsep}{0pt}}}
-\renewenvironment{Schunk}{\vspace{\topsep}}{\vspace{\topsep}}
 
-\SweaveOpts{concordance=TRUE}
-\SweaveOpts{width=6,height=6}
+<<include=FALSE>>=
+library(knitr)
+opts_chunk$set(
+concordance=TRUE
+)
+@
 
-\setkeys{Gin}{width=0.7\textwidth} 
+
+<<include=FALSE>>=
+library(knitr)
+opts_chunk$set(
+width=6,fig.height=6
+)
+@
+
 
 <<foo,include=FALSE,echo=FALSE>>=
 
 foo <- packageDescription("ergm")
 @
 
-<<echo=false>>=
+<<echo=FALSE>>=
 options(width=75)
 @
 
@@ -103,7 +106,7 @@ library(statnet)
 
 or 
 
-<<results=hide>>=
+<<results='hide'>>=
 library(ergm)
 library(sna)
 set.seed(1)
@@ -113,7 +116,7 @@ set.seed(1)
 The ergm package contains several network data sets that you can use
 for practice examples.
 
-<<fig=TRUE>>=
+<<>>=
 data(package='ergm') # tells us the datasets in our packages
 data(florentine) # loads flomarriage and flobusiness data
 flomarriage # Let's look at the flomarriage data
@@ -164,7 +167,7 @@ Corresponding probability is:
 which is what you would expect, since there are 20/120 ties.
 
 Let's add a term often thought to be a measure of
-\textquotedblleft{}clustering\textquotedblright{}: the number of completed
+``clustering'': the number of completed
 triangles. Note we're in stochastic simulation now
 \textendash{} your output will differ
 
@@ -173,7 +176,7 @@ flomodel.02 <- ergm(flomarriage~edges+triangle)
 summary(flomodel.02)
 @
 
-<<results=hide>>=
+<<results='hide'>>=
 coef1 = flomodel.02$coef[1]
 coef2 = flomodel.02$coef[2]
 logodds = coef1 + c(0,1,2) * coef2
@@ -207,7 +210,7 @@ class(flomodel.02) # this has the class ergm
 names(flomodel.02) # let's look straight at the ERGM obj.
 @
 
-<<fig=TRUE>>=
+<<>>=
 flomodel.02$coef 
 flomodel.02$formula 
 flomodel.02$mle.lik
@@ -303,7 +306,7 @@ not.
 
 \section{Model terms available for \textit{ergm} estimation and simulation }
 
-Model terms are the expressions (e.g. \textquotedblleft{}triangle\textquotedblright{})
+Model terms are the expressions (e.g. ``triangle'')
 used to represent predictors on the right-hand size of equations used
 in:
 \begin{itemize}
@@ -346,7 +349,7 @@ networks drawn from this distribution will be more likely to "resemble"
 the observed data. To see examples of networks drawn from this distribution
 we use the \verb@simulate@ command:
 
-<<fig=TRUE>>=
+<<>>=
 flomodel.03.sim <- simulate(flomodel.03,nsim=10)
 class(flomodel.03.sim) 
 summary(flomodel.03.sim)
@@ -364,24 +367,24 @@ ERGMs are generative models \textendash{} that is, they represent
 the process that governs tie formation at a local level. These local
 processes in turn aggregate up to produce characteristic global network
 properties, even though these global properties are not explicit terms
-in the model. One test of whether a model \textquotedbl{}fits the
-data\textquotedbl{} is therefore how well it reproduces these global
+in the model. One test of whether a model ``fits the
+data'' is therefore how well it reproduces these global
 properties. We do this by choosing a network statistic that is not
 in the model, and comparing the value of this statistic observed in
 the original network to the distribution of values we get in simulated
 networks from our model. 
 
 
-<<fig=TRUE>>=
+<<>>=
 flomodel.03.gof <- gof(flomodel.03~degree)
 
 flomodel.03.gof
 plot(flomodel.03.gof)
 @
 
-<<fig=TRUE>>=
+<<>>=
 mesamodel.02 <- ergm(mesa~edges)
-mesamodel.02.gof <- gof(mesamodel.02~distance,control=control.gof.formula(nsim=10))
+mesamodel.02.gof <- gof(mesamodel.02~distance,control=control.gof.ergm(nsim=10))
 plot(mesamodel.02.gof)
 
 @
@@ -450,7 +453,7 @@ plot(magnolia, vertex.cex=.5)
 fit <- ergm(magnolia~edges+triangle, control=control.ergm(seed=1))
 mcmc.diagnostics(fit, center=F)
 @
-<<echo=FALSE,eval=TRUE,results=verbatim,width=75>>= 
+<<echo=FALSE,eval=TRUE,results='markup',fig.width=75>>=
 try_out <- try(ergm(magnolia~edges+triangle, control=control.ergm(seed=1))) 
 cat(try_out) 
 @
@@ -479,7 +482,7 @@ Kitts and Morris 2009)
 
 <<eval=FALSE>>=
 fit <- ergm(magnolia~edges+gwesp(0.5,fixed=T),
- control =  control.ergm(seed=1))
+ control =  control.ergm(seed=1, MCMLE.MCMC.precision=0.5))
 mcmc.diagnostics(fit)
 @
 
@@ -488,7 +491,7 @@ Still degenerate, but maybe getting closer?
 <<eval=FALSE>>=
 fit <- ergm(magnolia~edges+gwesp(0.5,fixed=T)+nodematch('Grade')+nodematch('Race')+
   nodematch('Sex'),
- control = control.ergm(seed=1),
+ control = control.ergm(seed=1, MCMLE.MCMC.precision=0.5),
  verbose=T)
 
 pdf('diagnostics1.pdf')	#Use the recording function if possible, otherwise send to pdf
@@ -497,20 +500,20 @@ dev.off()			#If you saved to pdf, look at the file
 
 fit <- ergm(magnolia~edges+gwesp(0.25,fixed=T)+nodematch('Grade')+nodematch('Race')+
 	nodematch('Sex'),
- control = control.ergm(seed=1))
+ control = control.ergm(seed=1, MCMLE.MCMC.precision=0.5))
 mcmc.diagnostics(fit)
 
 @
 
 One more try...
-<<results=hide>>=
+<<results='hide'>>=
 fit <- ergm(magnolia~edges+gwesp(0.25,fixed=T)+nodematch('Grade')+nodematch('Race')+
   nodematch('Sex'),
- control = control.ergm(seed=1,MCMC.samplesize=4096,MCMC.interval=8192),
+ control = control.ergm(seed=1, MCMLE.MCMC.precision=0.5),
  verbose=T)
 @
 
-<<fig1,fig=TRUE>>=
+<<fig1>>=
 mcmc.diagnostics(fit)
 @
 
@@ -595,12 +598,12 @@ Krivitsky, Handcock and Morris 2011). We are going to work with a
 population size 500 here, equal to the number of respondents.
 \item \textbf{Directedness}: Ego data are in one sense inherently directed
 (respondents nominate alters, alters are not observed), but the relationship
-may be either. In this case (\textquotedblleft{}seen more than once\textquotedblright{})
+may be either. In this case (``seen more than once'')
 it is undirected, so we will fit and simulate an undirected network.
 \item \textbf{Bipartite}: Ego data can be bipartite (if no alters are also
 respondents, or data are collected on 2-mode networks) or not (if
 respondents are also alters). But again, the relationship may be either.
-\textquotedblleft{}Seen\textquotedblright{} is undirected, and we
+``Seen'' is undirected, and we
 will fit and simulated and undirected network.
 \end{itemize}
 In sum, we will simulate a one-mode, undirected network of size 500,
@@ -611,7 +614,7 @@ are possible.
 
 To ensure consistency between the degree distribution (which is a
 tabulation of nodes) and the mixing matrix (which is a cross-tabulation
-of ties) in our simulated \textquotedblleft{}complete network,\textquotedblright{}
+of ties) in our simulated ``complete network,''
 it is important to recognize that in a complete network, the degree
 distribution should imply twice the number of ties observed in the
 mixing matrix, because every tie is being reported by both nodes in
@@ -620,14 +623,14 @@ in this simulation, then our observed mixing matrix data needs to
 be divided by 2.
 
 Start by initializing an empty network of the desired size and assign
-the \textquotedblleft{}sex\textquotedblright{} attribute to the nodes:
+the ``sex'' attribute to the nodes:
 
 <<>>=
 ego.net <- network.initialize(500, directed=F)
 ego.net %v% 'sex' <- c(rep(0,250),rep(1,250))
 @
 
-Set up the observed statistics (adjusted for this \textquotedblleft{}complete\textquotedblright{}
+Set up the observed statistics (adjusted for this ``complete''
 network) as we will use them to assess the accuracy of the simulation
 later:
 
@@ -653,8 +656,8 @@ ego.target.stats <- c(ego.edges, ego.sexmatch)
 ego.target.stats
 @
 
-Now, fit an ERGM to this \textquotedblleft{}network\textquotedblright{},
-with terms for the statistics you want to match, and the \textquotedblleft{}\texttt{target.stats}\textquotedblright{}
+Now, fit an ERGM to this ``network'',
+with terms for the statistics you want to match, and the ``\texttt{target.stats}''
 argument for \textbf{ergm} that specifies the target values for those
 statistics:
 
@@ -672,7 +675,7 @@ summary(ego.fit)
 Now that you have a fitted model, you can simulate a complete network
 from it, and look at the results:
 
-<<fig=TRUE>>=
+<<>>=
 ego.sim1 <- simulate(ego.fit)
 plot(ego.sim1, vertex.cex=.65, vertex.col="sex")
 @
@@ -706,7 +709,7 @@ More information can be obtained with
 summary(ego.sim100)
 @
 
-First, we\textquoteright{}ll look at how well the simulations reproduced
+First, we'll look at how well the simulations reproduced
 the target statistics that were included in the model (note, not the
 observed full distributions):
 
@@ -719,7 +722,7 @@ These look pretty good \textendash{} the means of the simulated target
 stats are within 1\% of the observed. We can plot the 100 replicates
 to see check the variation for any problematic patterns:
 
-<<fig=TRUE>>=
+<<>>=
 matplot(1:nrow(sim.stats), sim.stats, 
   pch=c("e","m","0","+"), cex=.65, 
   main="100 simulations from ego.fit model", sub="(default settings)",
@@ -737,7 +740,7 @@ But, there is clear autocorrelation across the replicates, which suggests
 we might want to increase the MCMC interval to draw more independent
 realizations.
 
-<<fig=TRUE>>=
+<<>>=
 ego.sim100 <- simulate(ego.fit, nsim=100,
   control=control.simulate.ergm(MCMC.interval=10000))
 sim.stats <- attr(ego.sim100,"stats")
@@ -756,11 +759,11 @@ The variation (about +/- 10\%) represents the range of target statistics
 that are consistent with the fitted coefficients.
 
 If you wanted instead to constrain these statistics to equal a specified
-value, then you can use the \textquotedblleft{}constraints=\textquotedblright{}
+value, then you can use the ``constraints=''
 argument during the \verb@ergm@ fit instead. 
 
 This is good for verifying that the simulation reproduces the target
-values we specified. So now let\textquoteright{}s see whether the
+values we specified. So now let's see whether the
 simulated complete networks also match statistics that were not set
 by the targets. We targeted edges and homophily. How well does this
 model reproduce the full degree distribution?
@@ -796,7 +799,7 @@ simulation averages and the observed statistics are quite large. We
 can see this more clearly by plotting the degree frequencies for the
 100 replicate networks we simulated:
 
-<<fig=TRUE>>=
+<<>>=
 matplot(1:nrow(sim.deg), sim.deg, pch=as.character(0:3), cex=.5,
    main="Comparing ego.sims to non-targeted degree frequencies",
    sub = "(only total edges targeted)",
@@ -805,7 +808,7 @@ abline(h=c(180, 245, 60, 15), col=c(1:4))
 @
 
 The simulations are producing systematically more isolates than expected
-(the \textquotedblleft{}0\textquotedblright{} points vs. the black
+(the ``0'' points vs. the black
 line), and systematically more degree 1 nodes. In fact, the two degree
 frequencies are essentially reversed in the simulation. 
 
@@ -848,7 +851,7 @@ rbind(colMeans(sim.deg),ego.deg)
 
 and finally, plotting the full degree frequencies
 
-<<fig=TRUE>>=
+<<>>=
 matplot(1:nrow(sim.deg), sim.deg, pch=as.character(0:3), cex=.5,
    main="Comparing ego.sims to non-targeted degree frequencies",
    sub = "(only 0, 2+ and total edges targeted)",
