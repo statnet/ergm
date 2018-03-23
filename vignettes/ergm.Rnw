@@ -8,8 +8,8 @@
 \usepackage{multirow}
 \setlength{\parskip}{\smallskipamount}
 
-%\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{ergm Example}
+% \VignetteEngine{knitr::knitr}
+% \VignetteIndexEntry{ergm Example}
 
 
 \begin{document}
