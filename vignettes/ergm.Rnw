@@ -169,7 +169,7 @@ which is what you would expect, since there are 20/120 ties.
 Let's add a term often thought to be a measure of
 ``clustering'': the number of completed
 triangles. Note we're in stochastic simulation now
-\textendash{} your output will differ
+-- your output will differ
 
 <<>>=
 flomodel.02 <- ergm(flomarriage~edges+triangle) 
@@ -361,9 +361,9 @@ plot(flomodel.03.sim[[1]], label= flomodel.03.sim[[1]] %v% "vertex.names")
 Voila. Of course, yours will look somewhat different.
 
 
-\section{Examining the quality of model fit \textendash{} \textit{GOF} }
+\section{Examining the quality of model fit -- \textit{GOF} }
 
-ERGMs are generative models \textendash{} that is, they represent
+ERGMs are generative models -- that is, they represent
 the process that governs tie formation at a local level. These local
 processes in turn aggregate up to produce characteristic global network
 properties, even though these global properties are not explicit terms
@@ -639,7 +639,7 @@ ego.deg <- c(180, 245, 60, 15)  				# node distn
 ego.mixmat <- matrix(c(164,44,26,176)/2, nrow=2, byrow=T)	# adjusted tie distn
 @
 
-Then, pick the observed statistics you want to target \textendash{}
+Then, pick the observed statistics you want to target --
 we will start with a simple model here: the total number of ties (edges),
 and the number of sex-matched ties (homophily). These are both functions
 of the observed statistics:
@@ -718,7 +718,7 @@ sim.stats <- attr(ego.sim100,"stats")
 rbind(colMeans(sim.stats), ego.target.stats)
 @
 
-These look pretty good \textendash{} the means of the simulated target
+These look pretty good -- the means of the simulated target
 stats are within 1\% of the observed. We can plot the 100 replicates
 to see check the variation for any problematic patterns:
 
@@ -901,9 +901,9 @@ see \href{http://statnet.org/movies}{statnet.org/movies}.
 
 \begin{itemize}
 
-\item ERGMs for valued ties \textendash{} see the paper by Pavel Krivitsky (2012)
+\item ERGMs for valued ties -- see the paper by Pavel Krivitsky (2012)
 
-\item Analysis of bipartite networks \textendash{} \verb@network@ recognizes this as an attribute of the network and \verb@ergm@ provides specific model terms for such networks that begin with b1 or b2 \\
+\item Analysis of bipartite networks -- \verb@network@ recognizes this as an attribute of the network and \verb@ergm@ provides specific model terms for such networks that begin with b1 or b2 \\
 (try: \texttt{search.ergmTerms(categories=c('bipartite'))}).
 
 \end{itemize}
@@ -920,19 +920,19 @@ please visit the \verb@statnet@ webpage
 
 \begin{itemize}
 
-\item \href{https://cran.r-project.org/web/packages/sna/index.html}{\texttt{sna}} \textendash{} Traditional SNA methods and summaries.
+\item \href{https://cran.r-project.org/web/packages/sna/index.html}{\texttt{sna}} -- Traditional SNA methods and summaries.
 
 \item \href{https://cran.r-project.org/web/packages/latentnet/index.html}{\texttt{latentnet}}
-\textendash{} Latent space and latent cluster analysis.
+-- Latent space and latent cluster analysis.
 
 \item \href{https://cran.r-project.org/web/packages/netperm/index.html}{\texttt{netperm}} 
-\textendash{} Network permutation models.
+-- Network permutation models.
 
 \item \href{https://cran.r-project.org/web/packages/degreenet/index.html}{\texttt{degreenet}} 
-\textendash{} MLE estimation for degree distributions (negative binomial, Poisson, scale-free, etc.) 
+-- MLE estimation for degree distributions (negative binomial, Poisson, scale-free, etc.) 
 
 \item \href{https://cran.r-project.org/web/packages/networksis/index.html}{\texttt{networksis}}
-\textendash{} Simulation of bipartite networks with given degree distributions. 
+-- Simulation of bipartite networks with given degree distributions. 
 
 \end{itemize}
 
@@ -941,16 +941,16 @@ please visit the \verb@statnet@ webpage
 \begin{itemize}
 
 \item \href{https://cran.r-project.org/web/packages/tergm/index.html}{\texttt{tergm}}
-\textendash{} Temporal ERGMs (TERGMs): discrete-time dynamic network models for longitudinal network panel data, and other temporal extensions.
+-- Temporal ERGMs (TERGMs): discrete-time dynamic network models for longitudinal network panel data, and other temporal extensions.
 
 \item \href{https://cran.r-project.org/web/packages/relevent/index.html}{\texttt{relevent}}
-\textendash{} Relational event models: continuous-time dynamic network models for longitudinal network data.
+-- Relational event models: continuous-time dynamic network models for longitudinal network data.
 
 \item \href{https://cran.r-project.org/web/packages/networkDynamic/index.html}{\texttt{networkDynamic}}
-\textendash{} Dynamic network data storage and manipulation.
+-- Dynamic network data storage and manipulation.
 
 \item \href{https://cran.r-project.org/web/packages/ndtv/index.html}{\texttt{ndtv}}
-\textendash{} Network movie maker.
+-- Network movie maker.
 
 \end{itemize}
 
@@ -962,34 +962,34 @@ There is a growing number of R packages written by other folks that build on or 
 \begin{itemize}
 
 \item \href{https://cran.r-project.org/web/packages/EpiModel/index.html}{\texttt{EpiModel} package}
-\textendash{} Mathematical Modeling of Infectious Disease, includes functions for deterministic compartmental modeling, stochastic individual contact modeling, and stochatic network modeling
+-- Mathematical Modeling of Infectious Disease, includes functions for deterministic compartmental modeling, stochastic individual contact modeling, and stochatic network modeling
 
 \item \href{https://cran.r-project.org/web/packages/RDS/index.html}{\texttt{RDS} package}
-\textendash{} Estimation with data collected using Respondent-Driven Sampling.
+-- Estimation with data collected using Respondent-Driven Sampling.
 
-\item \href{https://cran.r-project.org/web/packages/Bergm/index.html}{\texttt{Bergm} package} \textendash{} Bayesian ERGM estimation 
+\item \href{https://cran.r-project.org/web/packages/Bergm/index.html}{\texttt{Bergm} package} -- Bayesian ERGM estimation 
 
-\item \href{https://cran.r-project.org/web/packages/hergm/index.html}{\texttt{hergm} package} \textendash{} Hierarchical Exponential-Family Random Graph Models with Local Dependence (for latent groups).
+\item \href{https://cran.r-project.org/web/packages/hergm/index.html}{\texttt{hergm} package} -- Hierarchical Exponential-Family Random Graph Models with Local Dependence (for latent groups).
 
 \item \href{https://cran.r-project.org/web/packages/lvm4net/index.html}{\texttt{lvm4net} package} 
-\textendash{} Latent variable models.
+-- Latent variable models.
 
 \item \href{https://cran.r-project.org/web/packages/VBLPC/index.html}{\texttt{VBLPCM} package}
-\textendash{} Variational Bayes Latent Position Cluster Models. 
+-- Variational Bayes Latent Position Cluster Models. 
 
 \item \href{https://cran.r-project.org/web/packages/xergm/index.html}{\texttt{xergm} package}
-\textendash{} Temporal exponential random graph models (TERGM) by bootstrapped pseudolikelihood, MCMC MLE and (temporal) network autocorrelation models.
+-- Temporal exponential random graph models (TERGM) by bootstrapped pseudolikelihood, MCMC MLE and (temporal) network autocorrelation models.
 
 \end{itemize}
 
 \subsection{Additional functionality in development:}
 \begin{itemize}
 
-\item \texttt{ergm.ego} package \textendash{} ERGM estimation and inference from egocentrically sampled data (expected May 2015)
+\item \texttt{ergm.ego} package -- ERGM estimation and inference from egocentrically sampled data (expected May 2015)
 
-\item \texttt{tsna} package \textendash{} Temporally extended (vertex and edge) SNA methods for dynamic longitudinal network data (expected May 2015)
+\item \texttt{tsna} package -- Temporally extended (vertex and edge) SNA methods for dynamic longitudinal network data (expected May 2015)
 
-\item \texttt{MLergm} package \textendash{} ERGM estimation and inference for multi-level data (for observed groups) (expected 2016)
+\item \texttt{MLergm} package -- ERGM estimation and inference for multi-level data (for observed groups) (expected 2016)
 
 \end{itemize}
 
@@ -1003,7 +1003,7 @@ There is a growing number of R packages written by other folks that build on or 
   Martina Morris <\href{mailto:morrism@u.washington.edu}{morrism@u.washington.edu}>\\
   Pavel N. Krivitsky <\href{mailto:pavel@UOW.EDU.AU}{pavel@uow.edu.au}>
   
-\section*{Appendix A: Clarifying the terms \textendash{} ergm and network }
+\section*{Appendix A: Clarifying the terms -- ergm and network }
 
 You will see the terms ergm and network used in multiple contexts
 throughout the documentation. This is common in R, but often confusing

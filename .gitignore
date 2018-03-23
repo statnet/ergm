@@ -92,3 +92,4 @@ dkms.conf
 # Backup files
 *~
 *.bak
+.Rproj.user
