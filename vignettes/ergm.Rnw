@@ -482,7 +482,7 @@ Kitts and Morris 2009)
 
 <<eval=FALSE>>=
 fit <- ergm(magnolia~edges+gwesp(0.5,fixed=T),
- control =  control.ergm(seed=1))
+ control =  control.ergm(seed=1, MCMLE.MCMC.precision=0.5))
 mcmc.diagnostics(fit)
 @
 
@@ -491,7 +491,7 @@ Still degenerate, but maybe getting closer?
 <<eval=FALSE>>=
 fit <- ergm(magnolia~edges+gwesp(0.5,fixed=T)+nodematch('Grade')+nodematch('Race')+
   nodematch('Sex'),
- control = control.ergm(seed=1),
+ control = control.ergm(seed=1, MCMLE.MCMC.precision=0.5),
  verbose=T)
 
 pdf('diagnostics1.pdf')	#Use the recording function if possible, otherwise send to pdf
@@ -500,7 +500,7 @@ dev.off()			#If you saved to pdf, look at the file
 
 fit <- ergm(magnolia~edges+gwesp(0.25,fixed=T)+nodematch('Grade')+nodematch('Race')+
 	nodematch('Sex'),
- control = control.ergm(seed=1))
+ control = control.ergm(seed=1, MCMLE.MCMC.precision=0.5))
 mcmc.diagnostics(fit)
 
 @
@@ -509,7 +509,7 @@ One more try...
 <<results='hide'>>=
 fit <- ergm(magnolia~edges+gwesp(0.25,fixed=T)+nodematch('Grade')+nodematch('Race')+
   nodematch('Sex'),
- control = control.ergm(seed=1,MCMC.samplesize=4096,MCMC.interval=8192),
+ control = control.ergm(seed=1, MCMLE.MCMC.precision=0.5),
  verbose=T)
 @
 
