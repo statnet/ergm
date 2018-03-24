@@ -468,12 +468,12 @@ ergm.MCMLE <- function(init, nw, model,
           .boost_samplesize(control$MCMLE.confidence.boost)
         }else{
           etadiff <- ergm.eta(v$coef, model$etamap) - mcmc.eta0
-          esteq.lw <- IS.lw(esteq, etadiff)
+          esteq.lw <- IS.lw(statsmatrix, etadiff)
           esteq.w <- lw2w(esteq.lw)
           estdiff <- -lweighted.mean(esteq, esteq.lw)
           estcov <- hotel$covariance.x*sum(esteq.w^2)*length(esteq.w)
           if(obs){
-            esteq.obs.lw <- IS.lw(esteq.obs, etadiff)
+            esteq.obs.lw <- IS.lw(statsmatrix.obs, etadiff)
             esteq.obs.w <- lw2w(esteq.obs.lw)
             estdiff <- estdiff + lweighted.mean(esteq.obs, esteq.obs.lw)
             estcov <- estcov + hotel$covariance.y*sum(esteq.obs.w^2)*length(esteq.obs.w)
@@ -620,8 +620,8 @@ ergm.MCMLE <- function(init, nw, model,
   if(y%*%U%*%y>=1) stop("Point is not in the interior of the ellipsoid.")
   I <- diag(length(y))
   WU <- W%*%U
-  x <- function(l) c(ERRVL(try(solve(I+l*WU, y),silent=TRUE), Inf)) # Singluar for negative reciprocals of eigenvalues of WiU.
-  zerofn <- function(l) {x <- x(l); c(x%*%U%*%x)-1}
+  x <- function(l) c(solve(I+l*WU, y)) # Singluar for negative reciprocals of eigenvalues of WiU.
+  zerofn <- function(l) ERRVL(try({x <- x(l); c(x%*%U%*%x)-1}, silent=TRUE), +Inf)
 
   # For some reason, WU sometimes has 0i element in its eigenvalues.
   eig <- Re(eigen(WU, only.values=TRUE)$values)
