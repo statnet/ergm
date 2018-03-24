@@ -620,13 +620,13 @@ ergm.MCMLE <- function(init, nw, model,
   if(y%*%U%*%y>=1) stop("Point is not in the interior of the ellipsoid.")
   I <- diag(length(y))
   WU <- W%*%U
-  x <- function(l) c(solve(I+l*WU, y)) # Singluar for negative reciprocals of eigenvalues of WiU.
+  x <- function(l) c(ERRVL(try(solve(I+l*WU, y),silent=TRUE), Inf)) # Singluar for negative reciprocals of eigenvalues of WiU.
   zerofn <- function(l) {x <- x(l); c(x%*%U%*%x)-1}
 
   # For some reason, WU sometimes has 0i element in its eigenvalues.
   eig <- Re(eigen(WU, only.values=TRUE)$values)
-  lmin <- -1/max(eig)+sqrt(.Machine$double.eps)
-  l <- uniroot(zerofn, lower=lmin, upper=0)$root
+  lmin <- -1/max(eig)
+  l <- uniroot(zerofn, lower=lmin, upper=0, tol=sqrt(.Machine$double.xmin))$root
   x <- x(l)
   (y-x)%*%solve(W)%*%(y-x)
 }
