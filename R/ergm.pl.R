@@ -14,8 +14,8 @@
 #'   \code{ergm.mple} for the regression rountines that are used to
 #'   find the MPLE estimated ergm. It should not be called directly by
 #'   the user.
-#' @param theta.offset a logical vector specifying which of the model
-#'   coefficients are offset, i.e. fixed.
+#' @param theta.offset a numeric vector used to specify the offset
+#'   (i.e., fixed) coefficients when `ignore.offset=FALSE`.
 #' @param ignore.offset If \code{FALSE} (the default), columns
 #'   corresponding to terms enclosed in \code{offset()} are not
 #'   returned with others but are instead processed by multiplying

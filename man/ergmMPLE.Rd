@@ -4,20 +4,17 @@
 \alias{ergmMPLE}
 \title{ERGM Predictors and response for logistic regression calculation of MPLE}
 \usage{
-ergmMPLE(formula, fitmodel = FALSE, output = c("matrix", "array", "fit"),
-  as.initialfit = TRUE, control = control.ergm(), verbose = FALSE, ...)
+ergmMPLE(formula, constraints = ~., obs.constraints = ~-observed,
+  fitmodel = FALSE, output = c("matrix", "array", "fit"),
+  control = control.ergm(), verbose = FALSE, ...)
 }
 \arguments{
-\item{formula}{An ERGM formula. See \code{\link{ergm}}.}
+\item{formula, constraints, obs.constraints}{An ERGM formula and
+(optional) constraint specification formulas. See \code{\link{ergm}}.}
 
 \item{fitmodel}{Deprecated. Use \code{output="fit"} instead.}
 
 \item{output}{Character, partially matched. See Value.}
-
-\item{as.initialfit}{Logical. Specifies whether terms are initialized with
-argument \code{initialfit==TRUE} (the default). Generally, if \code{TRUE},
-all curved ERGM terms will be treated as having their curved parameters
-fixed. See Example.}
 
 \item{control}{A list of control parameters for tuning the fitting of an
 ERGM.  Most of these parameters are irrelevant in this context.  See
@@ -98,18 +95,25 @@ ergmMPLE(formula, output="fit")$coef
 # We can also format the predictor matrix into an array:
 mplearray <- ergmMPLE(formula, output="array")
 
+# The resulting matrices are big, so only print the first 8 actors:
+mplearray$response[1:8,1:8]
+mplearray$predictor[1:8,1:8,]
+mplearray$weights[1:8,1:8]
+
+# Constraints are handled:
+faux.mesa.high\%v\%"block" <- seq_len(network.size(faux.mesa.high)) \%/\% 4
+mplearray <- ergmMPLE(faux.mesa.high~edges, constraints=~blockdiag("block"), output="array")
+mplearray$response[1:8,1:8]
+mplearray$predictor[1:8,1:8,]
+mplearray$weights[1:8,1:8]
+#' 
+# Curved terms produce predictors on the canonical scale:
+formula2 <- faux.mesa.high ~ gwesp
+mplearray <- ergmMPLE(formula2, output="array")
 # The resulting matrices are big, so only print the first 5 actors:
 mplearray$response[1:5,1:5]
-mplearray$predictor[1:5,1:5,]
+mplearray$predictor[1:5,1:5,1:3]
 mplearray$weights[1:5,1:5]
-
-formula2 <- faux.mesa.high ~ gwesp(0.5,fix=FALSE)
-
-# The term is treated as fixed: only the gwesp term is returned:
-colnames(ergmMPLE(formula2, as.initialfit=TRUE)$predictor)
-
-# The term is treated as curved: individual esp# terms are returned:
-colnames(ergmMPLE(formula2, as.initialfit=FALSE)$predictor)
 }
 \seealso{
 \code{\link{ergm}}, \code{\link{glm}}
