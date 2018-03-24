@@ -71,13 +71,11 @@
 #' must be greater than \code{network.dyadcount(.)} of the response network, or
 #' not all elements of the array that ought to be filled in will be.
 #' 
-#' @param formula An ERGM formula. See \code{\link{ergm}}.
+#' @param formula,constraints,obs.constraints An ERGM formula and
+#'   (optional) constraint specification formulas. See \code{\link{ergm}}.
+#' 
 #' @param fitmodel Deprecated. Use \code{output="fit"} instead.
 #' @param output Character, partially matched. See Value.
-#' @param as.initialfit Logical. Specifies whether terms are initialized with
-#' argument \code{initialfit==TRUE} (the default). Generally, if \code{TRUE},
-#' all curved ERGM terms will be treated as having their curved parameters
-#' fixed. See Example.
 #' @param control A list of control parameters for tuning the fitting of an
 #' ERGM.  Most of these parameters are irrelevant in this context.  See
 #' \code{\link{control.ergm}} for details about all of the control parameters.
@@ -132,20 +130,27 @@
 #' # We can also format the predictor matrix into an array:
 #' mplearray <- ergmMPLE(formula, output="array")
 #' 
+#' # The resulting matrices are big, so only print the first 8 actors:
+#' mplearray$response[1:8,1:8]
+#' mplearray$predictor[1:8,1:8,]
+#' mplearray$weights[1:8,1:8]
+#'
+#' # Constraints are handled:
+#' faux.mesa.high%v%"block" <- seq_len(network.size(faux.mesa.high)) %/% 4
+#' mplearray <- ergmMPLE(faux.mesa.high~edges, constraints=~blockdiag("block"), output="array")
+#' mplearray$response[1:8,1:8]
+#' mplearray$predictor[1:8,1:8,]
+#' mplearray$weights[1:8,1:8]
+#' 
+#' # Curved terms produce predictors on the canonical scale:
+#' formula2 <- faux.mesa.high ~ gwesp
+#' mplearray <- ergmMPLE(formula2, output="array")
 #' # The resulting matrices are big, so only print the first 5 actors:
 #' mplearray$response[1:5,1:5]
-#' mplearray$predictor[1:5,1:5,]
+#' mplearray$predictor[1:5,1:5,1:3]
 #' mplearray$weights[1:5,1:5]
-#' 
-#' formula2 <- faux.mesa.high ~ gwesp(0.5,fix=FALSE)
-#' 
-#' # The term is treated as fixed: only the gwesp term is returned:
-#' colnames(ergmMPLE(formula2, as.initialfit=TRUE)$predictor)
-#' 
-#' # The term is treated as curved: individual esp# terms are returned:
-#' colnames(ergmMPLE(formula2, as.initialfit=FALSE)$predictor)
 #' @export ergmMPLE
-ergmMPLE <- function(formula, fitmodel=FALSE, output=c("matrix", "array", "fit"), as.initialfit = TRUE, control=control.ergm(),
+ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmodel=FALSE, output=c("matrix", "array", "fit"), control=control.ergm(),
                      verbose=FALSE, ...){
   if(!missing(fitmodel)){
       warning("Argument fitmodel= to ergmMPLE() has been deprecated and will be removed in a future version. Use output=\"fit\" instead.")
@@ -158,13 +163,37 @@ ergmMPLE <- function(formula, fitmodel=FALSE, output=c("matrix", "array", "fit")
     return(ergm(formula, estimate="MPLE", control=control, verbose=verbose, ...))
   }
 
-  if(output == "array") formula <- nonsimp_update.formula(formula, .~indices+.)
   
+  if(output == "array") formula <- nonsimp_update.formula(formula, .~indices+.)
+
+  # Construct the model
   nw <- ergm.getnetwork(formula)
-  model <- ergm.getmodel(formula, nw, initialfit=as.initialfit)
+  model <- ergm.getmodel(formula, nw)
   Clist <- ergm.Cprepare(nw, model)
-  fd <- ergm.design(nw, verbose=verbose)
-  pl <- ergm.pl(Clist, fd, model, verbose=verbose, control=control,...)
+
+  # Handle the observation process constraints.
+  tmp <- .handle.obs.constraints(nw, constraints, obs.constraints)
+  nw <- tmp$nw
+  constraints.obs <- tmp$constraints.obs
+  
+  if("constraints" %in% names(control$MCMC.prop.args)){
+    conlist <- prune.ergm_conlist(control$MCMC.prop.args$constraints)
+    class(conlist) <- "ergm_conlist"
+  }else{
+    conlist <- ergm_conlist(constraints, nw)
+  }
+
+  if("constraints" %in% names(control$obs.MCMC.prop.args)){
+    conlist.obs <- prune.ergm_conlist(control$obs.MCMC.prop.args$constraints)
+    class(conlist.obs) <- "ergm_conlist"
+  }else{
+    conlist.obs <- ergm_conlist(constraints.obs, nw)
+  }
+
+  fd <- as.rlebdm(conlist, conlist.obs, which="informative")
+
+  # Get the MPLE predictors
+  pl <- ergm.pl(Clist, fd, model, verbose=verbose, control=control, ignore.offset=TRUE,...)
 
   switch(output,
          matrix = list(response = pl$zy, predictor = pl$xmat, 
