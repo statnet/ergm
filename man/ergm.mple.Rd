@@ -47,8 +47,8 @@ or F); default=FALSE}
 \item{\dots}{additional parameters passed from within; all will be
 ignored}
 
-\item{theta.offset}{a logical vector specifying which of the model
-coefficients are offset, i.e. fixed.}
+\item{theta.offset}{a numeric vector used to specify the offset
+(i.e., fixed) coefficients when \code{ignore.offset=FALSE}.}
 
 \item{ignore.offset}{If \code{FALSE} (the default), columns
 corresponding to terms enclosed in \code{offset()} are not
