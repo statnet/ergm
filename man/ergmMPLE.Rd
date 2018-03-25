@@ -5,7 +5,7 @@
 \title{ERGM Predictors and response for logistic regression calculation of MPLE}
 \usage{
 ergmMPLE(formula, constraints = ~., obs.constraints = ~-observed,
-  fitmodel = FALSE, output = c("matrix", "array", "fit"),
+  fitmodel = FALSE, output = c("matrix", "array", "dyadlist", "fit"),
   control = control.ergm(), verbose = FALSE, ...)
 }
 \arguments{
@@ -35,6 +35,14 @@ return a list with three elements, \code{response}, \code{predictor}, and
 \code{weights}, respectively the response vector, the predictor matrix, and
 a vector of weights, which are really counts that tell how many times each
 corresponding response, predictor pair is repeated.
+
+If \code{output=="dyadlist"}, as \code{"matrix"}, but rather than
+coalescing the duplicated rows, every relation in the network that
+is not fixed and is observed will have its own row in \code{predictor}
+and element in \code{response} and \code{weights}, and \code{predictor} matrix
+will have two additional rows at the start, \code{tail} and \code{head},
+indicating to which dyad the row and the corresponding elements
+pertain.
 
 If \code{output=="array"}, a list with similarly named three elements is
 returned, but \code{response} is formatted into a sociomatrix;
@@ -106,7 +114,14 @@ mplearray <- ergmMPLE(faux.mesa.high~edges, constraints=~blockdiag("block"), out
 mplearray$response[1:8,1:8]
 mplearray$predictor[1:8,1:8,]
 mplearray$weights[1:8,1:8]
-#' 
+
+# Or, a dyad list:
+faux.mesa.high\%v\%"block" <- seq_len(network.size(faux.mesa.high)) \%/\% 4
+mplearray <- ergmMPLE(faux.mesa.high~edges, constraints=~blockdiag("block"), output="dyadlist")
+mplearray$response[1:8]
+mplearray$predictor[1:8,]
+mplearray$weights[1:8]
+
 # Curved terms produce predictors on the canonical scale:
 formula2 <- faux.mesa.high ~ gwesp
 mplearray <- ergmMPLE(formula2, output="array")
