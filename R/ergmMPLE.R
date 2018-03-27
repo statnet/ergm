@@ -93,6 +93,14 @@
 #' \code{weights}, respectively the response vector, the predictor matrix, and
 #' a vector of weights, which are really counts that tell how many times each
 #' corresponding response, predictor pair is repeated.
+#'
+#' If \code{output=="dyadlist"}, as `"matrix"`, but rather than
+#' coalescing the duplicated rows, every relation in the network that
+#' is not fixed and is observed will have its own row in `predictor`
+#' and element in `response` and `weights`, and `predictor` matrix
+#' will have two additional rows at the start, `tail` and `head`,
+#' indicating to which dyad the row and the corresponding elements
+#' pertain.
 #' 
 #' If \code{output=="array"}, a list with similarly named three elements is
 #' returned, but \code{response} is formatted into a sociomatrix;
@@ -141,6 +149,13 @@
 #' mplearray$response[1:8,1:8]
 #' mplearray$predictor[1:8,1:8,]
 #' mplearray$weights[1:8,1:8]
+#'
+#' # Or, a dyad list:
+#' faux.mesa.high%v%"block" <- seq_len(network.size(faux.mesa.high)) %/% 4
+#' mplearray <- ergmMPLE(faux.mesa.high~edges, constraints=~blockdiag("block"), output="dyadlist")
+#' mplearray$response[1:8]
+#' mplearray$predictor[1:8,]
+#' mplearray$weights[1:8]
 #' 
 #' # Curved terms produce predictors on the canonical scale:
 #' formula2 <- faux.mesa.high ~ gwesp
@@ -150,7 +165,7 @@
 #' mplearray$predictor[1:5,1:5,1:3]
 #' mplearray$weights[1:5,1:5]
 #' @export ergmMPLE
-ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmodel=FALSE, output=c("matrix", "array", "fit"), control=control.ergm(),
+ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmodel=FALSE, output=c("matrix", "array", "dyadlist", "fit"), control=control.ergm(),
                      verbose=FALSE, ...){
   if(!missing(fitmodel)){
       warning("Argument fitmodel= to ergmMPLE() has been deprecated and will be removed in a future version. Use output=\"fit\" instead.")
@@ -163,8 +178,7 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmod
     return(ergm(formula, estimate="MPLE", control=control, verbose=verbose, ...))
   }
 
-  
-  if(output == "array") formula <- nonsimp_update.formula(formula, .~indices+.)
+  if(output %in% c("array", "dyadlist")) formula <- nonsimp_update.formula(formula, .~indices+.)
 
   # Construct the model
   nw <- ergm.getnetwork(formula)
@@ -197,7 +211,12 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmod
 
   switch(output,
          matrix = list(response = pl$zy, predictor = pl$xmat, 
-           weights = pl$wend),
+                       weights = pl$wend),
+         dyadlist = {
+           o <- order(pl$xmat[,"tail"], pl$xmat[,"head"])
+           list(response = pl$zy[o], predictor = pl$xmat[o,,drop=FALSE], 
+                weights = pl$wend[o])
+         },
          array = {
            vn <- if(all(is.na(nw %v% "vertex.names"))) 1:network.size(nw) else nw %v% "vertex.names"
            t.names <- if(is.bipartite(nw)) vn[seq_len(nw %n% "bipartite")] else vn
