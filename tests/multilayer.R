@@ -123,7 +123,17 @@ layer_and_MLE <- function(nw1, nw2){
   log(3*ne/nd)-log(1-ne/nd)
 }
 
-stopifnot(isTRUE(all.equal(layer_and_MLE(nw1,nw2),coef(ergm(Layer(nw1,nw2)~L(~edges, ~`1`&`2`))),check.attributes=FALSE,tolerance=.1)))
+layer_and_Info <- function(nw1, nw2){
+  mle <- layer_and_MLE(nw1, nw2)
+  network.dyadcount(nw1)*(3*exp(mle))/(3+exp(mle))^2
+}
+
+layer <- ergm(Layer(nw1,nw2)~L(~edges, ~`1`&`2`))
+logic.coef <- layer_and_MLE(nw1,nw2)
+logic.info <- layer_and_Info(nw1,nw2)
+
+stopifnot(isTRUE(all.equal(1/logic.info,c(vcov(layer, sources="model")),check.attributes=FALSE,tolerance=.2)))
+stopifnot(abs(layer_and_MLE(nw1,nw2)-coef(layer))/sqrt(vcov(layer, sources="estimation"))<4)
 
 # Heterogeneous directedness
 
