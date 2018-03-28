@@ -132,7 +132,7 @@ layer <- ergm(Layer(nw1,nw2)~L(~edges, ~`1`&`2`))
 logic.coef <- layer_and_MLE(nw1,nw2)
 logic.info <- layer_and_Info(nw1,nw2)
 
-stopifnot(isTRUE(all.equal(1/logic.info,c(vcov(layer, sources="model")),check.attributes=FALSE,tolerance=.2)))
+stopifnot(isTRUE(all.equal(1/logic.info,c(vcov(layer, sources="model")),check.attributes=FALSE,tolerance=.4)))
 stopifnot(abs(layer_and_MLE(nw1,nw2)-coef(layer))/sqrt(vcov(layer, sources="estimation"))<4)
 
 # Heterogeneous directedness
