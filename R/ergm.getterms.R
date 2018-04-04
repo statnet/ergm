@@ -23,7 +23,7 @@
 #          
 ###########################################################################
 
-#' @rdname ergm.getmodel
+#' @rdname ergm_model
 #' @description DEPRECATED. The \code{ergm.getterms} function returns the terms of
 #'   a given formula and ensures that the formula is indeed a formula
 #'   with the necessary \code{~} operator

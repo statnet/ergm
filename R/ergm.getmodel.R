@@ -22,23 +22,13 @@
 #' initiliazes each ergm term via the \code{InitErgmTerm} functions to
 #' create a \code{ergm_model} object.
 #' 
-#' @aliases ergm_model
 #' @param formula a formula of the form \code{network ~ model.term(s)}
-#' @param nw the network of interest
-#' @param response charcter, name of edge attribute containing edge weights
-#' @param silent logical, whether to print the warning messages from the
-#' initialization of each model term; default=FALSE
-#' @param role A hint about how the model will be used. Used primarily for
-#' dynamic network models.
-#' @param \dots additional parameters for model formulation
 #' @param form same as formula, a formula of the form \code{network ~ model.term(s)}
-#' @param loopswarning whether warnings about loops should be printed (T or
-#' F);default=TRUE
 #' @param object formula object to be updated
 #' @param new new formula to be used in updating
 #' @param from.new logical or character vector of variable names. controls how
 #' environment of formula gets updated.
-#' @return \code{ergm.getmodel} returns a 'ergm_model' object as a list
+#' @return `ergm_model` returns an  `ergm_model` object as a list
 #' containing:
 #' \item{ formula}{the formula inputted to
 #' \code{\link{ergm.getmodel}}}
@@ -50,9 +40,25 @@
 #' \item{network.stats0}{NULL always??}
 #' \item{etamap}{the theta -> eta mapping as a list returned from
 #' <ergm.etamap>}
-#' Note that this is an internal API and may change between versions.
+#' @note These functions are not meant to be called by the end-user but may be useful to extension developers. This API is not to be considered fixed and may change between versions.
 #' @export
-ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="static",...) {
+ergm_model <- function(object, ...){
+  UseMethod("ergm_model")
+}
+#' @describeIn ergm_model
+#'
+#' Main method for constructing a model object from an [ergm()] formula of the form \code{network ~ model.term(s)}.
+#' 
+#' @param nw the network of interest
+#' @param response charcter, name of edge attribute containing edge weights
+#' @param silent logical, whether to print the warning messages from the
+#' initialization of each model term; default=FALSE
+#' @param role A hint about how the model will be used. Used primarily for
+#' dynamic network models.
+#' @param \dots additional parameters for model formulation
+#'
+#' @export
+ergm_model.formula <- function(formula, nw, response=NULL, silent=FALSE, role="static",...) {
   if (!is(formula, "formula"))
     stop("Invalid model formula of class ",sQuote(class(formula)),".", call.=FALSE)
 
@@ -132,7 +138,14 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
   model
 }
 
-
+#' @rdname ergm_model
+#'
+#' @description `ergm.getmodel` is a deprecated name for the `ergm_model.formula` method.
+#' @export ergm.getmodel
+ergm.getmodel <- function(object, ...){
+  .Deprecated("ergm_model")
+  UseMethod("ergm_model")
+}
 
 #######################################################################
 # The <updatemodel.ErgmTerm> function updates an existing model object

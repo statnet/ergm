@@ -23,10 +23,12 @@
 #
 ###################################################################################
 
-#' @rdname ergm.getmodel
+#' @rdname ergm_model
 #' @description The \code{ergm.getnetwork} function ensures that the
 #'   network in a given formula is valid; if so, the network is
 #'   returned; if not, execution is halted with warnings
+#' @param loopswarning whether warnings about loops should be printed (T or
+#' F);default=TRUE
 #' @return \code{ergm.getnetwork} returns: \itemize{ \item the network
 #'   from the formula IF (i) the formula was correctly structured and
 #'   (ii) the network is found within the formula's enviornment }
