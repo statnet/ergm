@@ -155,24 +155,6 @@ ergm_Clist.ergm_model <- function(object, ...){
   Clist
 }
 
-
-
-## #' @rdname ergm_Clist
-## #' @description `ergm.Cprepare.el` constructs and serializes a very simple static
-## #'   edgelist, with the vertex having the lesser index the tail and
-## #'   sorted by tails, then by heads.
-## #' @param prototype A network whose relevant attributes (size,
-## #'   directedness, bipartitedness, and presence of loops) are imposed
-## #'   on the output edgelist if \code{x} is already an edgelist. (For
-## #'   example, if the prototype is undirected, \code{ergm.Cprepare.el}
-## #'   will ensure that \eqn{t < h}.)
-## #' @export ergm.Cprepare.el
-## ergm.Cprepare.el<-function(x, attrname=NULL, prototype=NULL){
-##         else x[order(x[,1],x[,2]),,drop=FALSE]
-                                                        
-##   c(nrow(xm),c(xm))
-## }
-
 #' @describeIn to_ergm_Cdouble
 #'
 #' Method for [`network`] objects.
@@ -196,7 +178,7 @@ to_ergm_Cdouble.pending_update_network <- to_ergm_Cdouble.network
 #' @param prototype A network whose relevant attributes (size,
 #'   directedness, bipartitedness, and presence of loops) are imposed
 #'   on the output edgelist if \code{x} is already an edgelist. (For
-#'   example, if the prototype is undirected, \code{ergm.Cprepare.el}
+#'   example, if the prototype is undirected, `to_ergm_Cdouble`
 #'   will ensure that \eqn{t < h}.)
 #' @export
 to_ergm_Cdouble.matrix <- function(x, prototype=NULL, ...){

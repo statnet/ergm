@@ -26,20 +26,23 @@ to_ergm_Cdouble(x, ...)
 \item{prototype}{A network whose relevant attributes (size,
 directedness, bipartitedness, and presence of loops) are imposed
 on the output edgelist if \code{x} is already an edgelist. (For
-example, if the prototype is undirected, \code{ergm.Cprepare.el}
+example, if the prototype is undirected, \code{to_ergm_Cdouble}
 will ensure that \eqn{t < h}.)}
 }
 \value{
-A \code{\link{double}}-precision vector.
-
-For serialization of edge lists, this usually takes the form of a
-\eqn{2 e + 1}-vector, whose first element is the number of edges
-and whose subsequent elements are tails and heads of the edges,
-sorted in tail-major order, with an optional third attribute
-column.
+The \code{\link{rlebdm}} method returns a vector with the following:
+\itemize{
+\item number of nonzero dyads,
+\item number of runs of nonzeros,
+\item starting positions of the runs, and
+\item cumulative lenght of the runs, prepended by 0.
+}
 }
 \description{
-Methods to serialize objects into numeric vectors for passing to the C side.
+These methods return a vector of \code{\link{double}}s. For edge lists, this
+usually takes the form of a \eqn{2 e + 1}- or \eqn{3 e + 1}-vector,
+containing the number of edges followed a column-major
+serialization of the edgelist matrix.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -47,8 +50,6 @@ Methods to serialize objects into numeric vectors for passing to the C side.
 
 \item \code{matrix}: Method for \code{\link{matrix}} objects, assumed to be edgelists.
 
-\item \code{rlebdm}: Method for \code{\link{rlebdm}} objects, serialized as number of dyads, then
-number of runs of nonzeros, starting points positions of the runs,
-and cumulative lenght of the runs.
+\item \code{rlebdm}: Method for \code{\link{rlebdm}} objects.
 }}
 
