@@ -35,7 +35,7 @@
 #      missing edges, and the remainder a column-major edgelist
 ################################################################################
 
-#' @rdname ergm.Cprepare
+#' @rdname ergm_Clist
 #' @description \code{ergm.design} functions as \code{ergm.Cprepare}
 #'   would, but acts on the network of missing edges
 #' @return \code{ergm.design} returns a \code{\link{rlebdm}} of
@@ -47,7 +47,7 @@ ergm.design <- function(nw, verbose=FALSE){
   as.rlebdm(basecon, misscon, which="informative")
 }
 
-#' @rdname ergm.Cprepare
+#' @rdname ergm_Clist
 #' @description \code{ergm.Cprepare.miss} constructs an edgelist as
 #'   \code{ergm.Cprepare.el}, but only includes 'missing' edges
 #'   (marked as NA)
