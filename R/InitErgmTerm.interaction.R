@@ -17,7 +17,7 @@
   f <- ~nw
   f <- append_rhs.formula(f, c(e1,e2))
   
-  m <- ergm.getmodel(f, nw, response=response,...)
+  m <- ergm_model(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
   if(!is.dyad.independent(m)) message("Note that interactions might not be meaningful for dyad-dependent terms.")
@@ -51,7 +51,7 @@
   f <- ~nw
   f <- append_rhs.formula(f, c(e1,e2))
   
-  m <- ergm.getmodel(f, nw, response=response,...)
+  m <- ergm_model(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
   if(!is.dyad.independent(m)) message("Note that interactions might not be meaningful for dyad-dependent terms.")

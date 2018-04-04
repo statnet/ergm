@@ -83,7 +83,7 @@ InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
   if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
 
-  m <- ergm.getmodel(f, nw, response=response,...)
+  m <- ergm_model(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
   inputs <- pack.Clist_as_num(Clist)
@@ -106,7 +106,7 @@ InitErgmTerm..submodel <- function(nw, arglist, response=NULL, ...){
   if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
 
-  m <- ergm.getmodel(f, nw, response=response,...)
+  m <- ergm_model(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
   inputs <- pack.Clist_as_num(Clist)
@@ -128,7 +128,7 @@ InitErgmTerm.submodel.test <- function(nw, arglist, response=NULL, ...){
   if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
 
-  m <- ergm.getmodel(f, nw, response=response,...)
+  m <- ergm_model(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
   gs <- ergm.emptynwstats.model(m)
@@ -150,7 +150,7 @@ InitErgmTerm..summary <- function(nw, arglist, response=NULL, ...){
   if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
 
-  m <- ergm.getmodel(f, nw, response=response,...)
+  m <- ergm_model(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
   inputs <- pack.Clist_as_num(Clist)
@@ -174,7 +174,7 @@ InitErgmTerm.summary.test <- function(nw, arglist, response=NULL, ...){
   if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
 
-  m <- ergm.getmodel(f, nw, response=response,...)
+  m <- ergm_model(f, nw, response=response,...)
   
   list(name="summary_test_term", coef.names = 'summ.test', inputs=c(nparam(m)), dependence=!is.dyad.independent(m), auxiliaries=~.summary(a$formula))
 }
@@ -190,7 +190,7 @@ InitErgmTerm.F <- function(nw, arglist, response=NULL, ...){
   if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
 
-  m <- ergm.getmodel(f, nw,...)
+  m <- ergm_model(f, nw,...)
   Clist <- ergm.Cprepare(nw, m)
   inputs <- pack.Clist_as_num(Clist)
   
@@ -221,7 +221,7 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, response=NULL, ...){
   if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
   
-  m <- ergm.getmodel(f, nw, response=response,...)
+  m <- ergm_model(f, nw, response=response,...)
 
   if(!is.dyad.independent(m) || nparam(m)!=1) stop("The filter test formula must be dyad-independent and have exactly one statistc.")
 
@@ -244,7 +244,7 @@ InitErgmTerm.Offset <- function(nw, arglist, response=NULL, ...){
   if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
 
-  m <- ergm.getmodel(f, nw, response=response,...)
+  m <- ergm_model(f, nw, response=response,...)
   parnames <- param_names(m, canonical=FALSE)
   nparams <- nparam(m, canonical=FALSE)
   coefnames <- param_names(m, canonical=TRUE)
@@ -377,7 +377,7 @@ InitErgmTerm.Undir <- function(nw, arglist, response=NULL, ...){
   
   if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
 
-  m <- ergm.getmodel(f, nw,...)
+  m <- ergm_model(f, nw,...)
   Clist <- ergm.Cprepare(nw, m)
   inputs <- pack.Clist_as_num(Clist)
   

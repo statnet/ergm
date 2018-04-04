@@ -18,7 +18,7 @@ ergm.Cprepare.miss(nw)
 \arguments{
 \item{nw, x}{a network or similar object}
 
-\item{m}{a model object, as returned by \code{\link{ergm.getmodel}}}
+\item{m}{a model object, as returned by \code{\link{ergm_model}}}
 
 \item{response}{Name of the edge attribute whose value is to be
 modeled in the valued ERGM framework. Defaults to \code{NULL} for

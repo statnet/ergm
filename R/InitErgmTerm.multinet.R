@@ -106,7 +106,7 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
   
   ms <- lapply(nwl[subset], function(nw1){
     f <- nonsimp_update.formula(f, nw1~.)
-    m <- ergm.getmodel(f, nw1, response=response,...)
+    m <- ergm_model(f, nw1, response=response,...)
     Clist <- ergm.Cprepare(nw1, m, response=response)
     list(model = m,
          inputs = pack.Clist_as_num(Clist),

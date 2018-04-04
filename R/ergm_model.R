@@ -1,4 +1,4 @@
-#  File R/ergm.getmodel.R in package ergm, part of the Statnet suite
+#  File R/ergm_model.R in package ergm, part of the Statnet suite
 #  of packages for network analysis, http://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
@@ -9,7 +9,7 @@
 #######################################################################
 #===================================================================================
 # This file contains the following 2 functions for creating the 'ergm_model' object
-#             <ergm.getmodel>
+#             <ergm_model>
 #             <updatemodel.ErgmTerm>
 #===================================================================================
 
@@ -18,32 +18,22 @@
 #' 
 #' These are all functions that are generally not called directly by
 #' users, but may be employed by other depending packages.  The
-#' \code{ergm.getmodel} function parses the given formula, and
+#' \code{ergm_model} function parses the given formula, and
 #' initiliazes each ergm term via the \code{InitErgmTerm} functions to
 #' create a \code{ergm_model} object.
 #' 
-#' @aliases ergm_model
 #' @param formula a formula of the form \code{network ~ model.term(s)}
-#' @param nw the network of interest
-#' @param response charcter, name of edge attribute containing edge weights
-#' @param silent logical, whether to print the warning messages from the
-#' initialization of each model term; default=FALSE
-#' @param role A hint about how the model will be used. Used primarily for
-#' dynamic network models.
-#' @param \dots additional parameters for model formulation
 #' @param form same as formula, a formula of the form \code{network ~ model.term(s)}
-#' @param loopswarning whether warnings about loops should be printed (T or
-#' F);default=TRUE
 #' @param object formula object to be updated
 #' @param new new formula to be used in updating
 #' @param from.new logical or character vector of variable names. controls how
 #' environment of formula gets updated.
 #' @template term_options
 #' @param extra.aux a list of formulas giving additional auxiliaries to initialize.
-#' @return \code{ergm.getmodel} returns a 'ergm_model' object as a list
+#' @return `ergm_model` returns an  `ergm_model` object as a list
 #' containing:
 #' \item{ formula}{the formula inputted to
-#' \code{\link{ergm.getmodel}}}
+#' \code{\link{ergm_model}}}
 #' \item{coef.names}{a vector of coefficient names}
 #' \item{offset}{a logical vector of whether each term was "offset", i.e.
 #' fixed}
@@ -52,11 +42,27 @@
 #' \item{network.stats0}{NULL always??}
 #' \item{etamap}{the theta -> eta mapping as a list returned from
 #' <ergm.etamap>}
-#' Note that this is an internal API and may change between versions.
+#' @note These functions are not meant to be called by the end-user but may be useful to extension developers. This API is not to be considered fixed and may change between versions.
 #' @export
-ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="static",...,term.options=list(),extra.aux=list()) {
-  if ((dc<-data.class(formula)) != "formula")
-    stop (paste("Invalid formula of class ",dc), call.=FALSE)
+ergm_model <- function(object, ...){
+  UseMethod("ergm_model")
+}
+#' @describeIn ergm_model
+#'
+#' Main method for constructing a model object from an [ergm()] formula of the form \code{network ~ model.term(s)}.
+#' 
+#' @param nw the network of interest
+#' @param response charcter, name of edge attribute containing edge weights
+#' @param silent logical, whether to print the warning messages from the
+#' initialization of each model term; default=FALSE
+#' @param role A hint about how the model will be used. Used primarily for
+#' dynamic network models.
+#' @param \dots additional parameters for model formulation
+#'
+#' @export
+ergm_model.formula <- function(formula, nw, response=NULL, silent=FALSE, role="static",...,term.options=list(),extra.aux=list()){
+  if (!is(formula, "formula"))
+    stop("Invalid model formula of class ",sQuote(class(formula)),".", call.=FALSE)
 
   if (length(formula) < 3) 
     stop("Model formula must have a left-hand-side.", call.=FALSE)
@@ -149,13 +155,21 @@ call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ..., term
   out
 }
 
+#' @rdname ergm_model
+#'
+#' @description `ergm_model` is a deprecated name for the `ergm_model.formula` method.
+#' @export ergm_model
+ergm_model <- function(object, ...){
+  .Deprecated("ergm_model")
+  UseMethod("ergm_model")
+}
 
 #######################################################################
 # The <updatemodel.ErgmTerm> function updates an existing model object
 # to include an initialized ergm term, X;
 #
 # --PARAMETERS--
-#   model  : the pre-existing model, as created by <ergm.getmodel>
+#   model  : the pre-existing model, as created by <ergm_model>
 #   outlist: the list describing term X, as returned by <InitErgmTerm.X>
 #
 # --RETURNED--

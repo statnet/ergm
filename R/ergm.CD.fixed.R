@@ -18,7 +18,7 @@
 # --PARAMETERS--
 #   init         : the initial theta values
 #   nw             : the network 
-#   model          : the model, as returned by <ergm.getmodel>
+#   model          : the model, as returned by <ergm_model>
 #   initialfit     : an ergm object, as the initial fit, possibly returned
 #                    by <ergm.initialfit>
 #   control     : a list of parameters for controlling the MCMC sampling;

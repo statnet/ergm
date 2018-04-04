@@ -447,7 +447,7 @@ InitErgmTerm.L <- function(nw, arglist, response=NULL, ...){
   if(length(f)==2) f <- nonsimp_update.formula(f, nw1~.)
   else nw1 <- ergm.getnetwork(f)
   
-  m <- ergm.getmodel(f, nw1, response=response,...)
+  m <- ergm_model(f, nw1, response=response,...)
 
   dependence <- !is.dyad.independent(m) || !is.dyad.independent(nonsimp_update.formula(auxiliaries, nw~., from.new="nw"))
 

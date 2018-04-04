@@ -13,7 +13,7 @@
 # the mapping is carried out by <ergm.eta>
 #
 # --PARAMETERS--
-#   model: a model object, as returned by <ergm.getmodel>
+#   model: a model object, as returned by <ergm_model>
 #
 # --RETURNED--
 #   etamap: the theta -> eta mapping given by a list of the following:
@@ -47,7 +47,7 @@
 #'   canonical (linear) eta parameters; the mapping is carried out by
 #'   \code{ergm.eta}.
 #' @param model model object, as returned by
-#'   \code{\link{ergm.getmodel}}
+#'   \code{\link{ergm_model}}
 #' @return
 #' For \code{ergm.etamap}, a data structure describing the theta-to-eta mapping given by a list of the
 #' following:

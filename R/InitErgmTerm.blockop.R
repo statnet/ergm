@@ -11,7 +11,7 @@ InitErgmTerm.NodematchFilter <- function(nw, arglist, response=NULL, ...){
   if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
 
-  m <- ergm.getmodel(f, nw, response=response,...)
+  m <- ergm_model(f, nw, response=response,...)
   Clist <- ergm.Cprepare(nw, m, response=response)
 
   inputs <- pack.Clist_as_num(Clist)

@@ -11,7 +11,7 @@ InitWtErgmTerm.B <- function(nw, arglist, response=NULL, ...){
   if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
 
-  m <- ergm.getmodel(f, nw,...)
+  m <- ergm_model(f, nw,...)
 
   if(!is.dyad.independent(m) && form=="sum") stop("Only dyad-independent binary terms can be imported with form 'sum'.")
   
@@ -62,7 +62,7 @@ InitWtErgmTerm..binary.formula.net <- function(nw, arglist, response=NULL, ...){
   if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
   
-  m <- ergm.getmodel(f, nw, response=response,...)
+  m <- ergm_model(f, nw, response=response,...)
 
   if(!is.dyad.independent(m) || nparam(m)!=1) stop("The binary test formula must be dyad-independent and have exactly one statistc.")
 

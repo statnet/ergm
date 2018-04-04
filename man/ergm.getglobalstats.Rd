@@ -10,7 +10,7 @@ ergm.getglobalstats(nw, m, response = NULL)
 \item{nw}{a \code{\link{network}} object}
 
 \item{m}{the model in use with network \code{nw}, as returned by
-\code{\link{ergm.getmodel}}}
+\code{\link{ergm_model}}}
 
 \item{response}{character name of an edge attribute to be used (for weighted
 ergm models)}

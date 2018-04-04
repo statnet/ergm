@@ -25,7 +25,7 @@
 #
 # --PARAMETERS--
 #   nw        :  a network object
-#   model     :  a model for the given 'nw' as returned by <ergm.getmodel>
+#   model     :  a model for the given 'nw' as returned by <ergm_model>
 #   MHproposal:  a list of the parameters needed for Metropolis-Hastings proposals and
 #                the result of calling <MHproposal>
 #   eta0      :  the initial eta coefficients

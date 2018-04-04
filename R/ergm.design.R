@@ -13,7 +13,7 @@
 #
 # --PARAMETERS--
 #   nw     : the network
-#   model  : the model, as returned by <ergm.getmodel>
+#   model  : the model, as returned by <ergm_model>
 #   verbose: whether the design matrix should be printed (T or F); default=FALSE
 #
 # --RETURNED--
