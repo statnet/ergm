@@ -46,15 +46,3 @@ ergm.design <- function(nw, verbose=FALSE){
   misscon <- if(network.naedgecount(nw)) ergm_conlist(~.attributes+observed, nw)
   as.rlebdm(basecon, misscon, which="informative")
 }
-
-#' @rdname ergm_Clist
-#' @description \code{ergm.Cprepare.miss} constructs an edgelist as
-#'   \code{ergm.Cprepare.el}, but only includes 'missing' edges
-#'   (marked as NA)
-#' @return \code{ergm.Cprepare.miss} returns a vector of length
-#'   1+Nmissing*2. The first element is the number of missing edges,
-#'   and the remainder a column-major edgelist
-#' @export ergm.Cprepare.miss
-ergm.Cprepare.miss <- function(nw){
-  ergm.Cprepare.el(is.na(nw))
-}

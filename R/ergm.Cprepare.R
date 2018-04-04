@@ -27,7 +27,7 @@ ergm_Clist <- function(object, ...){
 #' 
 #' @description The \code{ergm.Cprepare} is a legacy function that constructs a combination of `ergm_Clist`s from the given [`network`] and the given [`ergm_model`].
 #'
-#' @param nw,x a network or similar object
+#' @param nw a network or similar object
 #' @param m a model object, as returned by \code{\link{ergm_model}}
 #' @param verbose logical, whether the design matrix should be printed;
 #' default=FALSE
@@ -157,27 +157,56 @@ ergm_Clist.ergm_model <- function(object, ...){
 
 
 
-#' @rdname ergm_Clist
-#' @description `ergm.Cprepare.el` constructs and serializes a very simple static
-#'   edgelist, with the vertex having the lesser index the tail and
-#'   sorted by tails, then by heads.
+## #' @rdname ergm_Clist
+## #' @description `ergm.Cprepare.el` constructs and serializes a very simple static
+## #'   edgelist, with the vertex having the lesser index the tail and
+## #'   sorted by tails, then by heads.
+## #' @param prototype A network whose relevant attributes (size,
+## #'   directedness, bipartitedness, and presence of loops) are imposed
+## #'   on the output edgelist if \code{x} is already an edgelist. (For
+## #'   example, if the prototype is undirected, \code{ergm.Cprepare.el}
+## #'   will ensure that \eqn{t < h}.)
+## #' @export ergm.Cprepare.el
+## ergm.Cprepare.el<-function(x, attrname=NULL, prototype=NULL){
+##         else x[order(x[,1],x[,2]),,drop=FALSE]
+                                                        
+##   c(nrow(xm),c(xm))
+## }
+
+#' @describeIn to_ergm_Cdouble
+#'
+#' Method for [`network`] objects.
+#'
+#' @param attrname name of an edge attribute.
+#' 
+#' @export
+to_ergm_Cdouble.network <- function(x, attrname=NULL, ...){
+  xm <- as.edgelist(x, attrname=attrname)
+  c(nrow(xm),c(xm))
+}
+
+#' @noRd
+to_ergm_Cdouble.pending_update_network <- to_ergm_Cdouble.network
+
+
+#' @describeIn to_ergm_Cdouble
+#'
+#' Method for [`matrix`] objects, assumed to be edgelists.
+#'
 #' @param prototype A network whose relevant attributes (size,
 #'   directedness, bipartitedness, and presence of loops) are imposed
 #'   on the output edgelist if \code{x} is already an edgelist. (For
 #'   example, if the prototype is undirected, \code{ergm.Cprepare.el}
 #'   will ensure that \eqn{t < h}.)
-#' @param attrname name of an edge attribute.
-#' @export ergm.Cprepare.el
-ergm.Cprepare.el<-function(x, attrname=NULL, prototype=NULL){
-  xm <- if(is.network(x) || is(x, "pending_update_network")) as.edgelist(x, attrname=attrname)
-        else if(is(x, "rlebdm")) as.edgelist(x, prototype=prototype)
-        else if(!is.null(prototype)) as.edgelist.matrix(x, n=network.size(prototype), directed=is.directed(prototype),
-                                                        bipartite=if(is.bipartite(prototype)) prototype%n%"bipartite" else 0,
-                                                        loops=has.loops(prototype))
-        else x[order(x[,1],x[,2]),,drop=FALSE]
-                                                        
-  c(nrow(xm),c(xm))
+#' @export
+to_ergm_Cdouble.matrix <- function(x, prototype=NULL, ...){
+  x <- if(!is.null(prototype)) as.edgelist.matrix(x, n=network.size(prototype), directed=is.directed(prototype),
+                                                  bipartite=if(is.bipartite(prototype)) prototype%n%"bipartite" else 0,
+                                                  loops=has.loops(prototype))
+       else x[order(x[,1],x[,2]),,drop=FALSE]
+  c(nrow(x),c(x))
 }
+
 
 mk.edge.to.pos.lasttoggle.f <- function(nw){
   if(is.bipartite(nw)){

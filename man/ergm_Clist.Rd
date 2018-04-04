@@ -5,9 +5,7 @@
 \alias{ergm.Cprepare}
 \alias{ergm_Clist.network}
 \alias{ergm_Clist.ergm_model}
-\alias{ergm.Cprepare.el}
 \alias{ergm.design}
-\alias{ergm.Cprepare.miss}
 \title{Internal Functions to Prepare Data for ergm's C Interface}
 \usage{
 ergm_Clist(object, ...)
@@ -18,32 +16,20 @@ ergm.Cprepare(nw, m, response = NULL)
 
 \method{ergm_Clist}{ergm_model}(object, ...)
 
-ergm.Cprepare.el(x, attrname = NULL, prototype = NULL)
-
 ergm.design(nw, verbose = FALSE)
-
-ergm.Cprepare.miss(nw)
 }
 \arguments{
 \item{object}{object to be collated.}
 
 \item{...}{additional arguments for methods.}
 
-\item{nw, x}{a network or similar object}
+\item{nw}{a network or similar object}
 
 \item{m}{a model object, as returned by \code{\link{ergm_model}}}
 
 \item{response}{Name of the edge attribute whose value is to be
 modeled in the valued ERGM framework. Defaults to \code{NULL} for
 simple presence or absence, modeled via a binary ERGM.}
-
-\item{attrname}{name of an edge attribute.}
-
-\item{prototype}{A network whose relevant attributes (size,
-directedness, bipartitedness, and presence of loops) are imposed
-on the output edgelist if \code{x} is already an edgelist. (For
-example, if the prototype is undirected, \code{ergm.Cprepare.el}
-will ensure that \eqn{t < h}.)}
 
 \item{verbose}{logical, whether the design matrix should be printed;
 default=FALSE}
@@ -74,10 +60,6 @@ a bipartite graph }
 
 \code{ergm.design} returns a \code{\link{rlebdm}} of
 informative (non-missing, non fixed) dyads.
-
-\code{ergm.Cprepare.miss} returns a vector of length
-1+Nmissing*2. The first element is the number of missing edges,
-and the remainder a column-major edgelist
 }
 \description{
 These are internal functions not intended to be called by end
@@ -86,16 +68,8 @@ into a form suitable for being passed to the C routines.
 
 The \code{ergm.Cprepare} is a legacy function that constructs a combination of \code{ergm_Clist}s from the given \code{\link{network}} and the given \code{\link{ergm_model}}.
 
-\code{ergm.Cprepare.el} constructs and serializes a very simple static
-edgelist, with the vertex having the lesser index the tail and
-sorted by tails, then by heads.
-
 \code{ergm.design} functions as \code{ergm.Cprepare}
 would, but acts on the network of missing edges
-
-\code{ergm.Cprepare.miss} constructs an edgelist as
-\code{ergm.Cprepare.el}, but only includes 'missing' edges
-(marked as NA)
 }
 \section{Methods (by class)}{
 \itemize{
