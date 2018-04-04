@@ -17,7 +17,7 @@
 #' should never need to be called directly by the user.
 #'
 #' @param nw,x a network or similar object
-#' @param m a model object, as returned by \code{\link{ergm.getmodel}}
+#' @param m a model object, as returned by \code{\link{ergm_model}}
 #' @template response
 #' @param verbose logical, whether the design matrix should be printed;
 #' default=FALSE

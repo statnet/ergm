@@ -16,7 +16,7 @@ ergm.mcmcslave(Clist, MHproposal, eta0, control, verbose, ...,
 \item{nw}{a \code{\link{network}} object representing the sampler state.}
 
 \item{model}{an \code{\link{ergm_model}} to be sampled from, as returned by
-\code{\link[=ergm.getmodel]{ergm.getmodel()}}.}
+\code{\link[=ergm_model]{ergm_model()}}.}
 
 \item{MHproposal}{a list of the parameters needed for
 Metropolis-Hastings proposals and the result of calling

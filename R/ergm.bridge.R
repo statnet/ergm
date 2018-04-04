@@ -105,12 +105,12 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   ## Preinitialize MHproposals and set "observed" statistics:
   MHproposal <- MHproposal(constraints,arguments=control$MCMC.prop.args,
                            nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
-  m<-ergm.getmodel(object, nw, response=response, extra.aux=list(MHproposal$auxiliaries), term.options=control$term.options)
+  m<-ergm_model(object, nw, response=response, extra.aux=list(MHproposal$auxiliaries), term.options=control$term.options)
 
   if(!is.null(constraints.obs)){
     MHproposal.obs <- MHproposal(constraints.obs,arguments=control$obs.MCMC.prop.args,
                                  nw=nw, weights=control$obs.MCMC.prop.weights, class="c",reference=reference,response=response)
-    m.obs<-ergm.getmodel(object, nw, response=response, extra.aux=list(MHproposal.obs$auxiliaries), term.options=control$term.options)
+    m.obs<-ergm_model(object, nw, response=response, extra.aux=list(MHproposal.obs$auxiliaries), term.options=control$term.options)
 
     stats.obs <- matrix(NA,control$nsteps,m$etamap$etalength)
   }else
@@ -227,7 +227,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   tmp<-ergm.bridge.preproc(object,basis,response)
   nw<-tmp$nw; form<-tmp$form; rm(tmp)
 
-  m<-ergm.getmodel(object, nw, response=response, term.options=control$term.options)
+  m<-ergm_model(object, nw, response=response, term.options=control$term.options)
   
   q.pos.full <- c(0,cumsum(nparam(m, canonical=FALSE, byterm=TRUE)))
   p.pos.full <- c(0,cumsum(nparam(m, canonical=TRUE, byterm=TRUE)))

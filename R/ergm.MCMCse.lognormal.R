@@ -18,7 +18,7 @@
 #   statsmatrices.obs :  the matrix of network statistics on the constrained network
 #   H               :  the Hessian matrix
 #   H.obs           :  the Hessian matrix on the constrained network
-#   model           :  the model, as returned by <ergm.getmodel>
+#   model           :  the model, as returned by <ergm_model>
 #
 # --RETURNED--
 #   mc.se: the vector of MCMC lognormal standard error estimates for each theta

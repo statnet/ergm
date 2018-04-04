@@ -23,7 +23,7 @@
 #' 
 #' @param nw a [`network`] object representing the sampler state.
 #' @param model an [`ergm_model`] to be sampled from, as returned by
-#'   [ergm.getmodel()].
+#'   [ergm_model()].
 #' @param MHproposal a list of the parameters needed for
 #'   Metropolis-Hastings proposals and the result of calling
 #'   [MHproposal()].

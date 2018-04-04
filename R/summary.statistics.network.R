@@ -154,12 +154,12 @@ summary_formula.network <- function(object, response=NULL,...,basis=NULL) {
     nw <- basis
     formula <- as.formula(object)
     formula[[2]] <- as.name("basis") # This seems irrelevant; network name
-                                     # not needed by ergm.getmodel
+                                     # not needed by ergm_model
   }else{
     formula <- object
     nw <- ergm.getnetwork(formula)
   }
-  m <- ergm.getmodel(formula, nw, response=response, role="target",...)
+  m <- ergm_model(formula, nw, response=response, role="target",...)
   gs <- ergm.getglobalstats(nw, m, response=response)
   gs
 }

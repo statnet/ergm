@@ -23,7 +23,7 @@
 #   formula       :  a formula of the form (nw ~ term(s)) 
 #   nw            :  a network object, presumably that of 'formula'
 #   target.stats     :  the mean statistics
-#   m             :  the model as returned by <ergm.getmodel>
+#   m             :  the model as returned by <ergm_model>
 #   MPLEtype      :  the method for MPL estimation as either "glm", "penalized",
 #                    or "logitreg"; this is ignored if ML estimation is used;
 #                    default="glm" 

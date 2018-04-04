@@ -18,7 +18,7 @@ ergm.pl(Clist, fd, m, theta.offset = NULL, maxMPLEsamplesize = 1e+06,
 
 \item{fd}{An \code{\link{rlebdm}} with informative dyads.}
 
-\item{m}{the model, as returned by \code{\link{ergm.getmodel}}}
+\item{m}{the model, as returned by \code{\link{ergm_model}}}
 
 \item{init}{a vector a vector of initial theta coefficients}
 

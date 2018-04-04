@@ -203,7 +203,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   if(!is.null(monitor)){
     # Construct a model to get the number of parameters monitor requires.
     monitor <- nonsimp_update.formula(monitor, nw~., from.new="nw")
-    monitor.m <- ergm.getmodel(monitor, basis, response=response,term.options=control$term.options)
+    monitor.m <- ergm_model(monitor, basis, response=response,term.options=control$term.options)
     monitored.length <- nparam(monitor.m)
     
     monitor <- list_rhs.formula(monitor)
@@ -213,13 +213,13 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   }
 
   # Construct the proposal; this needs to be done here so that the
-  # auxiliary requests could be passed to ergm.getmodel().
+  # auxiliary requests could be passed to ergm_model().
   MHproposal <- if(inherits(constraints, "MHproposal")) constraints
                 else MHproposal(constraints,arguments=control$MCMC.prop.args,
                                 nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
   
   # Prepare inputs to ergm.getMCMCsample
-  m <- ergm.getmodel(form, basis, response=response, role="static", extra.aux=list(MHproposal$auxiliaries),term.options=control$term.options)
+  m <- ergm_model(form, basis, response=response, role="static", extra.aux=list(MHproposal$auxiliaries),term.options=control$term.options)
 
   out <- simulate(m, nsim=nsim, seed=seed,
                   coef=coef, response=response, reference=reference,

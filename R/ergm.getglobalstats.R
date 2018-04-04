@@ -22,7 +22,7 @@
 #' 
 #' @param nw a \code{\link{network}} object
 #' @param m the model in use with network \code{nw}, as returned by
-#' \code{\link{ergm.getmodel}}
+#' \code{\link{ergm_model}}
 #' @param response character name of an edge attribute to be used (for weighted
 #' ergm models)
 #' @return returns a vector of the global statistics
