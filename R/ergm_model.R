@@ -1,4 +1,4 @@
-#  File R/ergm.getmodel.R in package ergm, part of the Statnet suite
+#  File R/ergm_model.R in package ergm, part of the Statnet suite
 #  of packages for network analysis, http://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
@@ -9,7 +9,7 @@
 #######################################################################
 #===================================================================================
 # This file contains the following 2 functions for creating the 'ergm_model' object
-#             <ergm.getmodel>
+#             <ergm_model>
 #             <updatemodel.ErgmTerm>
 #===================================================================================
 
@@ -18,7 +18,7 @@
 #' 
 #' These are all functions that are generally not called directly by
 #' users, but may be employed by other depending packages.  The
-#' \code{ergm.getmodel} function parses the given formula, and
+#' \code{ergm_model} function parses the given formula, and
 #' initiliazes each ergm term via the \code{InitErgmTerm} functions to
 #' create a \code{ergm_model} object.
 #' 
@@ -31,7 +31,7 @@
 #' @return `ergm_model` returns an  `ergm_model` object as a list
 #' containing:
 #' \item{ formula}{the formula inputted to
-#' \code{\link{ergm.getmodel}}}
+#' \code{\link{ergm_model}}}
 #' \item{coef.names}{a vector of coefficient names}
 #' \item{offset}{a logical vector of whether each term was "offset", i.e.
 #' fixed}
@@ -140,9 +140,9 @@ ergm_model.formula <- function(formula, nw, response=NULL, silent=FALSE, role="s
 
 #' @rdname ergm_model
 #'
-#' @description `ergm.getmodel` is a deprecated name for the `ergm_model.formula` method.
-#' @export ergm.getmodel
-ergm.getmodel <- function(object, ...){
+#' @description `ergm_model` is a deprecated name for the `ergm_model.formula` method.
+#' @export ergm_model
+ergm_model <- function(object, ...){
   .Deprecated("ergm_model")
   UseMethod("ergm_model")
 }
@@ -152,7 +152,7 @@ ergm.getmodel <- function(object, ...){
 # to include an initialized ergm term, X;
 #
 # --PARAMETERS--
-#   model  : the pre-existing model, as created by <ergm.getmodel>
+#   model  : the pre-existing model, as created by <ergm_model>
 #   outlist: the list describing term X, as returned by <InitErgmTerm.X>
 #
 # --RETURNED--

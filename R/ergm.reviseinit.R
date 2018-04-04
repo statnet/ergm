@@ -12,7 +12,7 @@
 # parameters introduced by curved model terms
 #
 # --PARAMETERS--
-#   m     :  the model, as returned by <ergm.getmodel>
+#   m     :  the model, as returned by <ergm_model>
 #   init:  the vector of initial theta parameters
 #
 #

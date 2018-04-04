@@ -231,7 +231,7 @@ gof.formula <- function(object, ...,
     stop("A network object on the RHS of the formula argument must be given")
   }
 
-  m <- ergm.getmodel(object, nw)
+  m <- ergm_model(object, nw)
   Clist <- ergm.Cprepare(nw, m)
 
   if(is.null(coef)){

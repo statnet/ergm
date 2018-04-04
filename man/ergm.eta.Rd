@@ -26,7 +26,7 @@ mapping and is returned by \code{ergm.etamap}}
 parameters}
 
 \item{model}{model object, as returned by
-\code{\link{ergm.getmodel}}}
+\code{\link{ergm_model}}}
 }
 \value{
 For \code{ergm.eta}, the canonical eta parameters as mapped

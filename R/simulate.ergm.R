@@ -205,7 +205,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   if(!is.null(monitor)){
     # Construct a model to get the number of parameters monitor requires.
     monitor <- nonsimp_update.formula(monitor, nw~., from.new="nw")
-    monitor.m <- ergm.getmodel(monitor, basis, response=response)
+    monitor.m <- ergm_model(monitor, basis, response=response)
     monitored.length <- nparam(monitor.m)
     
     monitor <- list_rhs.formula(monitor)
@@ -215,7 +215,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   }
 
   # Prepare inputs to ergm.getMCMCsample
-  m <- ergm.getmodel(form, basis, response=response, role="static")
+  m <- ergm_model(form, basis, response=response, role="static")
   # Just in case the user did not give a coef value, set it to zero.
   # (probably we could just return an error in this case!)
   if(missing(coef)) {

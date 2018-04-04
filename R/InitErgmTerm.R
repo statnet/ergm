@@ -55,7 +55,7 @@
 #   1) checking the validity of X and its arguments via <check.ErgmTerm> and
 #   2) setting appropiate values for each of the components in the returned list
 # X is initialized for inclusion into a model that is specified by formula F and
-# built via <ergm.getmodel>
+# built via <ergm_model>
 # 
 # --PARAMETERS--
 #   nw        : the network given in formula F
@@ -67,7 +67,7 @@
 #
 # --IGNORED PARAMETERS--
 #   ... : ignored, but necessary to accomodate other arguments
-#         passed by <ergm.getmodel>
+#         passed by <ergm_model>
 #
 # --RETURNED--
 #   a list of term-specific elements required by the C changestats

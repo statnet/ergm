@@ -101,8 +101,8 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
          "must be given")
   }
 
-# model <- ergm.getmodel(formula, nw, drop=control$drop)
-  model <- ergm.getmodel(formula, nw, response=response)
+# model <- ergm_model(formula, nw, drop=control$drop)
+  model <- ergm_model(formula, nw, response=response)
   Clist <- ergm.Cprepare(nw, model, response=response)
   fd <- ergm.design(nw, verbose=verbose)
   

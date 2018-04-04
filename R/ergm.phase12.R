@@ -14,7 +14,7 @@
 #
 # --PARAMETERS--
 #   g         : a network object
-#   model     : a model for 'g', as returned by <ergm.getmodel>
+#   model     : a model for 'g', as returned by <ergm_model>
 #   MHproposal: an MHproposal object, as returned by <MHproposal>
 #   eta0      : the vector of initial eta coefficients
 #   control: a list of control parameters for the MCMC algorithm;

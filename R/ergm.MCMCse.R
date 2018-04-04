@@ -15,7 +15,7 @@
 #   init          :  the vector of initial theta coefficients
 #   statsmatrix     :  the matrix of network statistics
 #   statsmatrix.obs :  the matrix of network statistics on the constrained network
-#   model           :  the model, as returned by <ergm.getmodel>
+#   model           :  the model, as returned by <ergm_model>
 #
 # --RETURNED--
 #   the variance of the MCMC sampling as a list containing:

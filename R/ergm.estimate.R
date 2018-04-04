@@ -13,7 +13,7 @@
 #
 # --PARAMETERS--
 #   init          : the vector of theta parameters that produced 'statsmatrix'
-#   model           : the model, as returned by <ergm.getmodel>
+#   model           : the model, as returned by <ergm_model>
 #   statsmatrix     : the matrix of observed statistics that has already had the
 #                     "observed statistics" vector subtracted out (i.e., the
 #                     "observed stats" are assumed to be zero here)

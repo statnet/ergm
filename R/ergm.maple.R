@@ -14,7 +14,7 @@
 # --PARAMETERS--
 #   pl      : a list of pseudo likelihood components, as returned
 #             <ergm.pl>. 
-#   m       : the model, as returned by <ergm.getmodel>
+#   m       : the model, as returned by <ergm_model>
 #   init  : the vector of initial theta coefficients
 #   MPLEtype: the method for MPL estimation as "penalized", "glm"
 #             or "logitreg"; default="glm"

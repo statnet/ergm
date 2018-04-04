@@ -161,7 +161,7 @@ ergmMPLE <- function(formula, fitmodel=FALSE, output=c("matrix", "array", "fit")
   if(output == "array") formula <- nonsimp_update.formula(formula, .~indices+.)
   
   nw <- ergm.getnetwork(formula)
-  model <- ergm.getmodel(formula, nw, initialfit=as.initialfit)
+  model <- ergm_model(formula, nw, initialfit=as.initialfit)
   Clist <- ergm.Cprepare(nw, model)
   fd <- ergm.design(nw, verbose=verbose)
   pl <- ergm.pl(Clist, fd, model, verbose=verbose, control=control,...)

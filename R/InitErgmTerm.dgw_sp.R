@@ -18,9 +18,9 @@
 #	  		nw: The network of interest
 #      arglist: The list of arguments passed to the term xxx
 #         ... : There may be other arguments passed by 
-#               ergm.getmodel, so each InitErgmTerm function 
+#               ergm_model, so each InitErgmTerm function 
 #               must include the ... argument
-#  These inputs are automatically supplied by ergm.getmodel.
+#  These inputs are automatically supplied by ergm_model.
 #
 #  OUTPUTS:
 #  Each InitErgmTerm function should return a list.  

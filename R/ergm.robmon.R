@@ -20,7 +20,7 @@
 # --PARAMETERS--
 #   init         : the initial theta values
 #   nw             : the network
-#   model          : the model, as returned by <ergm.getmodel>
+#   model          : the model, as returned by <ergm_model>
 #   Clist          : a list of several network and model parameters,
 #                    as returned by <ergm.Cprepare>
 #   burnin         : the number of proposals to disregard before sampling

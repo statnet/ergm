@@ -27,7 +27,7 @@ ergm.bridge.preproc<-function(object, basis, response){
   # New formula (no longer use 'object'):
   form <- nonsimp_update.formula(object, nw ~ ., from.new="nw")
   
-  list(nw=nw, form=form, model=ergm.getmodel(form, nw, response=response))
+  list(nw=nw, form=form, model=ergm_model(form, nw, response=response))
 }
 
 

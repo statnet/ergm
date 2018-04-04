@@ -39,7 +39,7 @@
 #' @param Clist a list of parameters used for fitting and returned by
 #'   \code{\link{ergm.Cprepare}}
 #' @param fd An \code{\link{rlebdm}} with informative dyads.
-#' @param m the model, as returned by \code{\link{ergm.getmodel}}
+#' @param m the model, as returned by \code{\link{ergm_model}}
 #' @param init a vector a vector of initial theta coefficients
 #' @param MPLEtype the method for MPL estimation as "penalized", "glm"
 #'   or "logitreg"; default="glm"
