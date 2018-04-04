@@ -8,21 +8,46 @@
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
 
-#' Internal Function to Prepare Data for ergm's C Interface
+
+#' Internal Functions to Prepare Data for ergm's C Interface
 #' 
-#' These are internal functions not intended to be called by end users.  The
-#' \code{ergm.Cprepare} function builds an object called `Clist` that contains
-#' all the necessary ingredients to be passed to the C functions, other
-#' functions create edgelists and handle missing edge data. These low-level functions are used by other ergm-related packages, but
-#' should never need to be called directly by the user.
+#' These are internal functions not intended to be called by end
+#' users. `ergm_Clist` collates the information in the given object
+#' into a form suitable for being passed to the C routines.
 #'
-#' @param nw,x a network or similar object
+#' @param object object to be collated.
+#' @param ... additional arguments for methods.
+#' @return A list of class `"ergm_Clist"` and possibly a subclass `"ORIGINAL.ergm_Clist"` containing some subset of the following elements: 
+#' @export
+ergm_Clist <- function(object, ...){
+  UseMethod("ergm_Clist")
+}
+
+#' @rdname ergm_Clist
+#' 
+#' @description The \code{ergm.Cprepare} is a legacy function that constructs a combination of `ergm_Clist`s from the given [`network`] and the given [`ergm_model`].
+#'
+#' @param nw a network or similar object
 #' @param m a model object, as returned by \code{\link{ergm_model}}
-#' @template response
 #' @param verbose logical, whether the design matrix should be printed;
 #' default=FALSE
-#' @return \code{ergm.Cprepare} returns `Clist`: a list of parameters used by
-#' several of the fitting routines containing
+#' 
+#' @export ergm.Cprepare
+ergm.Cprepare <- function(nw, m, response=NULL){
+  nw.Clist <- ergm_Clist(nw, response=response)
+  m.Clist <- ergm_Clist(m)
+
+  c(nw.Clist, m.Clist)
+}
+
+
+#' @describeIn ergm_Clist
+#'
+#' Collates a [`network`] object.
+#'
+#' @template response
+#' 
+#' @return
 #' \item{n}{ the size of the network }
 #' \item{dir}{ whether the network is directed (T or F) }
 #' \item{bipartite}{ whether the network is bipartite (T or F) }
@@ -36,26 +61,19 @@
 #' 2nd column of the implicit edgelist, so either the higher-numbered nodes in
 #' an undirected graph, or the in nodes of a directed graph, or the b2 nodes of
 #' a bipartite graph }
-#' \item{nterms}{ the number of model terms }
-#' \item{nstats}{ the total number of change statistics for all model terms }
-#' \item{inputs}{ the concatenated vector of 'input's from each model term as returned by
-#' `InitErgmTerm.X` or `InitErgm.X` }
-#' \item{fnamestring}{ the concatenated string of model term names }
-#' \item{snamestring}{ the concatenated string of package names that contain the C function 'd_fname'; default="ergm" for each fname in fnamestring }
 #' 
-#' @export ergm.Cprepare
-ergm.Cprepare <- function(nw, m, response=NULL)
-{
-  e<-as.edgelist(nw,attrname=response) # Ensures that for undirected networks, tail<head.
-  class(nw) <- "network"
+#' @export
+ergm_Clist.network <- function(object, response=NULL, ...){
+  e<-as.edgelist(object,attrname=response) # Ensures that for undirected networks, tail<head.
+  class(object) <- "network"
 
-  n <- network.size(nw)
-  dir <- is.directed(nw)
+  n <- network.size(object)
+  dir <- is.directed(object)
   Clist<-list(n=n, dir=dir)
-  bip <- nw %n% "bipartite"
+  bip <- object %n% "bipartite"
   if (is.null(bip)) bip <- 0
   Clist$bipartite <- bip
-  Clist$ndyads <- network.dyadcount(nw)
+  Clist$ndyads <- network.dyadcount(object)
 
   if(length(e)==0){
     Clist$nedges<-0
@@ -77,11 +95,33 @@ ergm.Cprepare <- function(nw, m, response=NULL)
     if(!is.null(response)) Clist$weights<-e[,3]
   }
 
-  Clist$lasttoggle <- nw %n% "lasttoggle"
-  Clist$time <- nw %n% "time"
-  
-  mo<-m$terms 
-  
+  Clist$lasttoggle <- object %n% "lasttoggle"
+  Clist$time <- object %n% "time"
+
+  class(Clist) <- c("network.ergm_Clist", "ergm_Clist")
+  Clist
+}
+
+#' @noRd
+ergm_Clist.pending_update_network <- ergm_Clist.network
+
+#' @describeIn ergm_Clist
+#'
+#' Collates an [`ergm_model`] object.
+#'
+#' @return 
+#' \item{nterms}{ the number of model terms }
+#' \item{nstats}{ the total number of change statistics for all model terms }
+#' \item{inputs}{ the concatenated vector of 'input's from each model term as returned by
+#' `InitErgmTerm.X` or `InitErgm.X` }
+#' \item{fnamestring}{ the concatenated string of model term names }
+#' \item{snamestring}{ the concatenated string of package names that contain the C function 'd_fname'; default="ergm" for each fname in fnamestring }
+#' @export
+ergm_Clist.ergm_model <- function(object, ...){
+  mo<-object$terms 
+  Clist <- list()
+
+  Clist$nterms<-length(mo)
   Clist$nstats<-0
   Clist$fnamestring<-""
   Clist$snamestring<-""
@@ -105,7 +145,7 @@ ergm.Cprepare <- function(nw, m, response=NULL)
   }
 
   # Attach the auxiliaries
-  mo <- m$model.aux$terms
+  mo <- object$model.aux$terms
   anterms <- length(mo)
   Clist$nterms <- Clist$nterms + anterms 
   if (anterms>0) {
@@ -124,7 +164,7 @@ ergm.Cprepare <- function(nw, m, response=NULL)
     }
   }
 
-  Clist$slots.extra.aux <- unlist(m$slots.extra.aux)
+  Clist$slots.extra.aux <- unlist(object$slots.extra.aux)
   
   while (substring(Clist$fnamestring, 1, 1)==" ")
     Clist$fnamestring <- substring(Clist$fnamestring, 2)
@@ -135,35 +175,65 @@ ergm.Cprepare <- function(nw, m, response=NULL)
   
   # We don't care about diagnostics for terms that are not being
   # estimated.
-  Clist$diagnosable <- ! m$etamap$offsetmap
-  names(Clist$diagnosable) <- m$coef.names
+  Clist$diagnosable <- ! object$etamap$offsetmap
+  names(Clist$diagnosable) <- object$coef.names
     
+  class(Clist) <- c("ergm_model.ergm_Clist", "ergm_Clist")
   Clist
 }
 
 
 
-#' @rdname ergm.Cprepare
-#' @description `ergm.Cprepare.el` constructs and serializes a very simple static
-#'   edgelist, with the vertex having the lesser index the tail and
-#'   sorted by tails, then by heads.
+## #' @rdname ergm_Clist
+## #' @description `ergm.Cprepare.el` constructs and serializes a very simple static
+## #'   edgelist, with the vertex having the lesser index the tail and
+## #'   sorted by tails, then by heads.
+## #' @param prototype A network whose relevant attributes (size,
+## #'   directedness, bipartitedness, and presence of loops) are imposed
+## #'   on the output edgelist if \code{x} is already an edgelist. (For
+## #'   example, if the prototype is undirected, \code{ergm.Cprepare.el}
+## #'   will ensure that \eqn{t < h}.)
+## #' @export ergm.Cprepare.el
+## ergm.Cprepare.el<-function(x, attrname=NULL, prototype=NULL){
+##         else x[order(x[,1],x[,2]),,drop=FALSE]
+                                                        
+##   c(nrow(xm),c(xm))
+## }
+
+#' @describeIn to_ergm_Cdouble
+#'
+#' Method for [`network`] objects.
+#'
+#' @param attrname name of an edge attribute.
+#' 
+#' @export
+to_ergm_Cdouble.network <- function(x, attrname=NULL, ...){
+  xm <- as.edgelist(x, attrname=attrname)
+  c(nrow(xm),c(xm))
+}
+
+#' @noRd
+to_ergm_Cdouble.pending_update_network <- to_ergm_Cdouble.network
+
+
+#' @describeIn to_ergm_Cdouble
+#'
+#' Method for [`matrix`] objects, assumed to be edgelists.
+#'
 #' @param prototype A network whose relevant attributes (size,
 #'   directedness, bipartitedness, and presence of loops) are imposed
 #'   on the output edgelist if \code{x} is already an edgelist. (For
 #'   example, if the prototype is undirected, \code{ergm.Cprepare.el}
 #'   will ensure that \eqn{t < h}.)
-#' @param attrname name of an edge attribute.
-#' @export ergm.Cprepare.el
-ergm.Cprepare.el<-function(x, attrname=NULL, prototype=NULL){
-  xm <- if(is.network(x) || is(x, "pending_update_network")) as.edgelist(x, attrname=attrname)
-        else if(is(x, "rlebdm")) as.edgelist(x, prototype=prototype)
-        else if(!is.null(prototype)) as.edgelist.matrix(x, n=network.size(prototype), directed=is.directed(prototype),
-                                                        bipartite=if(is.bipartite(prototype)) prototype%n%"bipartite" else 0,
-                                                        loops=has.loops(prototype))
-        else x[order(x[,1],x[,2]),,drop=FALSE]
-                                                        
-  c(nrow(xm),c(xm))
+#' @export
+to_ergm_Cdouble.matrix <- function(x, prototype=NULL, ...){
+  x <- if(!is.null(prototype)) as.edgelist.matrix(x, n=network.size(prototype), directed=is.directed(prototype),
+                                                  bipartite=if(is.bipartite(prototype)) prototype%n%"bipartite" else 0,
+                                                  loops=has.loops(prototype))
+       else x[order(x[,1],x[,2]),,drop=FALSE]
+  c(nrow(x),c(x))
 }
+
 
 mk.edge.to.pos.lasttoggle.f <- function(nw){
   if(is.bipartite(nw)){

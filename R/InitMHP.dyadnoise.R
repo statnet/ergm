@@ -20,7 +20,7 @@ InitMHP.dyadnoiseTNT<-function(arguments, nw){
                                                                                 deinf(log(p0to0)-log(p1to0)), # Observed 0, State 1
                                                                                 deinf(log(p1to1)-log(p0to1)), # Observed 1, State 0
                                                                                 deinf(log(p0to1)-log(p1to1)), # Observed 1, State 1
-                                                                                ergm.Cprepare.el(nw)))
+                                                                                to_ergm_Cdouble(nw)))
 
   MHproposal                   
 }
@@ -38,7 +38,7 @@ InitMHP.dyadnoise<-function(arguments, nw){
                                                                                 deinf(log(p0to0)-log(p1to0)), # Observed 0, State 1
                                                                                 deinf(log(p1to1)-log(p0to1)), # Observed 1, State 0
                                                                                 deinf(log(p0to1)-log(p1to1)), # Observed 1, State 1
-                                                                                ergm.Cprepare.el(nw)))
+                                                                                to_ergm_Cdouble(nw)))
 
   MHproposal                   
 }

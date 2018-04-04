@@ -33,7 +33,7 @@ InitWtMHP.DiscUnifNonObserved <- function(arguments, nw, response) {
   a <- NVL(arguments$reference$a, -Inf)
   b <- NVL(arguments$reference$b, Inf)
   if(!is.finite(a) || !is.finite(b)) stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
-  MHproposal <- list(name = "DiscUnifNonObserved", inputs=c(a,b,ergm.Cprepare.miss(nw)))
+  MHproposal <- list(name = "DiscUnifNonObserved", inputs=c(a,b,to_ergm_Cdouble(is.na(nw))))
   MHproposal
 }
 
@@ -49,7 +49,7 @@ InitWtMHP.UnifNonObserved <- function(arguments, nw, response) {
   a <- NVL(arguments$reference$a, -Inf)
   b <- NVL(arguments$reference$b, Inf)
   if(!is.finite(a) || !is.finite(b)) stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
-  MHproposal <- list(name = "UnifNonObserved", inputs=c(a,b,ergm.Cprepare.miss(nw)))
+  MHproposal <- list(name = "UnifNonObserved", inputs=c(a,b,to_ergm_Cdouble(is.na(nw))))
   MHproposal
 }
 
@@ -62,5 +62,5 @@ InitWtMHP.DistRLE <- function(arguments, nw, response) {
                         Poisson = c(3, 0),
                         Binomial = c(4, trials, 0.5),
                         Bernoulli = c(4, 1, 0.5)))
-  MHproposal <- list(name = "DistRLE", inputs=c(pack_rlebdm_as_numeric(as.rlebdm(arguments$constraints)),inputs), pkgname="ergm")
+  MHproposal <- list(name = "DistRLE", inputs=c(to_ergm_Cdouble(as.rlebdm(arguments$constraints)),inputs), pkgname="ergm")
 }

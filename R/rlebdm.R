@@ -297,7 +297,12 @@ as.edgelist.rlebdm <- function(x, prototype=NULL, ...){
   el
 }
 
-pack_rlebdm_as_numeric <- function(x){
+#' @describeIn to_ergm_Cdouble
+#'
+#' Method for [`rlebdm`] objects, serialized as number of dyads, then
+#' number of runs of nonzeros, starting points positions of the runs,
+#' and cumulative lenght of the runs.
+to_ergm_Cdouble.rlebdm <- function(x, ...){
   cumlen <- cumsum(as.numeric(x$lengths[x$values==TRUE]))
   nruns <- length(cumlen)
   ndyads <- cumlen[nruns]
@@ -305,5 +310,5 @@ pack_rlebdm_as_numeric <- function(x){
   runstart <- runstart[-length(runstart)]
   runstart <- runstart[x$values==TRUE]
 
-  c(ndyads, nruns, runstart, c(0,cumlen))
+  as.double(c(ndyads, nruns, runstart, c(0,cumlen)))
 }

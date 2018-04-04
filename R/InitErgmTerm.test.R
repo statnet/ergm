@@ -61,7 +61,7 @@ InitErgmTerm..discord.net<-function(nw, arglist, ...) {
   
   list(name="_discord_net",
        coef.names=c(),
-       inputs=ergm.Cprepare.el(a$x, prototype=nw),
+       inputs=to_ergm_Cdouble(a$x, prototype=nw),
        dependence=FALSE)
 }
 
@@ -74,7 +74,7 @@ InitErgmTerm..intersect.net<-function(nw, arglist, ...) {
   
   list(name=if(a$assume_all_toggles_in_list) "_intersect_net_toggles_in_list" else "_intersect_net",
        coef.names=c(),
-       inputs=ergm.Cprepare.el(a$x, prototype=nw),
+       inputs=to_ergm_Cdouble(a$x, prototype=nw),
        dependence=FALSE)
 }
 
@@ -87,7 +87,7 @@ InitErgmTerm..union.net<-function(nw, arglist, ...) {
   
   list(name="_union_net",
        coef.names=c(),
-       inputs=ergm.Cprepare.el(a$x, prototype=nw),
+       inputs=to_ergm_Cdouble(a$x, prototype=nw),
        dependence=FALSE)
 }
 
@@ -104,7 +104,7 @@ InitErgmTerm.discord.inter.union.net <- function(nw, arglist, ...) {
   list(name="disc_inter_union_net",
        coef.names=c("Diun","dIun","diUn","Diun2","dIun2","diUn2"),
        auxiliaries = ~ .discord.net(a$x) + .intersect.net(a$x) + .union.net(a$x),
-       inputs=ergm.Cprepare.el(a$x, prototype=nw),
+       inputs=to_ergm_Cdouble(a$x, prototype=nw),
        emptynwstats=c(nedges, 0, nedges, nedges^2, 0, nedges^2),
        dependence=TRUE)
 }
