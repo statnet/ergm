@@ -157,9 +157,9 @@ call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ..., term
 
 #' @rdname ergm_model
 #'
-#' @description `ergm_model` is a deprecated name for the `ergm_model.formula` method.
+#' @description `ergm.getmodel` is a deprecated name for the `ergm_model.formula` method.
 #' @export ergm_model
-ergm_model <- function(object, ...){
+ergm.getmodel <- function(object, ...){
   .Deprecated("ergm_model")
   UseMethod("ergm_model")
 }

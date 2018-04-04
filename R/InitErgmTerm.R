@@ -1943,10 +1943,10 @@ InitErgmTerm.hamming<-function (nw, arglist, ...) {
   }
   ## Return ##
   if (!is.null(xm)) {
-    xm <- ergm.Cprepare.el(xm, prototype=nw)
+    xm <- to_ergm_Cdouble(xm, prototype=nw)
   }
   if (!is.null(covm)) {
-    covm <- ergm.Cprepare.el(covm, prototype=nw)
+    covm <- to_ergm_Cdouble(covm, prototype=nw)
   }else covm <- 0
   inputs <- c(xm, a$defaultweight, covm)
   list(name="hamming", coef.names=coef.names, #name and coef.names: required 
@@ -2006,7 +2006,7 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ...) {
                       sep=".")
   #  Number of input parameters before covariates equals twice the number
   #  of used matrix cells, namely 2*length(uui),
-  inputs=c(ergm.Cprepare.el(xm, prototype=nw), u[,1], u[,2],nodecov)
+  inputs=c(to_ergm_Cdouble(xm, prototype=nw), u[,1], u[,2],nodecov)
   attr(inputs, "ParamsBeforeCov") <- nrow(u)
   # The emptynwstats code below does not work right for
   # undirected networks, mostly since hammingmix doesn't work 

@@ -18,7 +18,6 @@
   f <- append_rhs.formula(f, c(e1,e2))
   
   m <- ergm_model(f, nw, response=response,...)
-  Clist <- ergm.Cprepare(nw, m, response=response)
 
   if(!is.dyad.independent(m)) message("Note that interactions might not be meaningful for dyad-dependent terms.")
   if(is.curved(m)) stop("Interactions are undefined for curved terms at this time.")
@@ -26,7 +25,7 @@
   cn1 <- unlist(lapply(m$terms[seq_len(n1)], "[[", "coef.names"))
   cn2 <- unlist(lapply(m$terms[n1+seq_len(n2)], "[[", "coef.names"))
 
-  inputs <- c(length(cn1), length(cn2), pack.Clist_as_num(Clist))
+  inputs <- c(length(cn1), length(cn2), to_ergm_Cdouble(m))
   
   cn <- outer(cn1,cn2,paste,sep=":")
   
@@ -52,7 +51,6 @@
   f <- append_rhs.formula(f, c(e1,e2))
   
   m <- ergm_model(f, nw, response=response,...)
-  Clist <- ergm.Cprepare(nw, m, response=response)
 
   if(!is.dyad.independent(m)) message("Note that interactions might not be meaningful for dyad-dependent terms.")
   if(is.curved(m)) stop("Interactions are undefined for curved terms at this time.")
@@ -60,7 +58,7 @@
   cn1 <- unlist(lapply(m$terms[seq_len(n1)], "[[", "coef.names"))
   cn2 <- unlist(lapply(m$terms[n1+seq_len(n2)], "[[", "coef.names"))
 
-  inputs <- c(length(cn1), length(cn2), pack.Clist_as_num(Clist))
+  inputs <- c(length(cn1), length(cn2), to_ergm_Cdouble(m))
 
   cn <- c(cn1,cn2,outer(cn1,cn2,paste,sep=":"))
   

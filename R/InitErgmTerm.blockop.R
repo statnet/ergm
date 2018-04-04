@@ -12,9 +12,7 @@ InitErgmTerm.NodematchFilter <- function(nw, arglist, response=NULL, ...){
   else nw <- ergm.getnetwork(f)
 
   m <- ergm_model(f, nw, response=response,...)
-  Clist <- ergm.Cprepare(nw, m, response=response)
-
-  inputs <- pack.Clist_as_num(Clist)
+  inputs <- to_ergm_Cdouble(m)
 
   gs <- ergm.emptynwstats.model(m)
 

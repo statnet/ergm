@@ -50,7 +50,7 @@ InitErgmTerm.discord.inter.union.net <- function(nw, arglist, ...) {
   list(name="disc_inter_union_net",
        coef.names=c("Diun","dIun","diUn","Diun2","dIun2","diUn2"),
        auxiliaries = ~ .discord.net(a$x) + .intersect.net(a$x) + .union.net(a$x),
-       inputs=ergm.Cprepare.el(a$x, prototype=nw),
+       inputs=to_ergm_Cdouble(a$x, prototype=nw),
        emptynwstats=c(nedges, 0, nedges, nedges^2, 0, nedges^2),
        dependence=TRUE)
 }

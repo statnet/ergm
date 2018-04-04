@@ -157,7 +157,7 @@ InitMHP.randomtoggleNonObserved <- function(arguments, nw) {
   if(network.naedgecount(nw)==0){
    stop("The passed network does not have any non-observed dyads.\n Hence constraining to the observed will hold the network fixed at this network.\n Either the network or the constraint need to be altered.")
   }
-  MHproposal <- list(name = "randomtoggleList", inputs=ergm.Cprepare.miss(nw))
+  MHproposal <- list(name = "randomtoggleList", inputs=to_ergm_Cdouble(is.na(nw)))
   MHproposal
 }
 
@@ -165,9 +165,7 @@ InitMHP.NonObservedTNT <- function(arguments, nw) {
   if(network.naedgecount(nw)==0){
    stop("The passed network does not have any non-observed dyads.\n Hence constraining to the observed will hold the network fixed at this network.\n Either the network or the constraint need to be altered.")
   }
-
-  nw.miss <- is.na(nw)
-  MHproposal <- list(name = "listTNT", inputs=ergm.Cprepare.el(nw.miss))
+  MHproposal <- list(name = "listTNT", inputs=to_ergm_Cdouble(is.na(nw)))
   MHproposal
 }
 
@@ -175,7 +173,7 @@ InitMHP.NonObservedTNT <- function(arguments, nw) {
 InitMHP.fixedas <- function(arguments, nw){
 	y0<-as.edgelist(arguments$constraints$fixedas$free_dyads, prototype=nw)
 	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	MHproposal <- list(name = "randomtoggleList", inputs=c(ergm.Cprepare.el(y0, prototype=nw)), pkgname="ergm")
+	MHproposal <- list(name = "randomtoggleList", inputs=to_ergm_Cdouble(y0), pkgname="ergm")
 	
 	MHproposal
 	
@@ -184,7 +182,7 @@ InitMHP.fixedas <- function(arguments, nw){
 InitMHP.fixedasTNT <- function(arguments, nw){
 	y0<-as.edgelist(arguments$constraints$fixedas$free_dyads, prototype=nw)
 	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	MHproposal <- list(name = "listTNT", inputs=c(ergm.Cprepare.el(y0, prototype=nw)), pkgname="ergm")
+	MHproposal <- list(name = "listTNT", inputs=to_ergm_Cdouble(y0), pkgname="ergm")
 	
 	MHproposal
 	
@@ -193,7 +191,7 @@ InitMHP.fixedasTNT <- function(arguments, nw){
 InitMHP.fixallbut <- function(arguments, nw){
 	y0<-as.edgelist(arguments$constraints$fixallbut$free_dyads, prototype=nw)
 	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	MHproposal <- list(name = "randomtoggleList", inputs=c(ergm.Cprepare.el(y0, prototype=nw)), pkgname="ergm")
+	MHproposal <- list(name = "randomtoggleList", inputs=to_ergm_Cdouble(y0), pkgname="ergm")
 	
 	MHproposal
 	
@@ -203,7 +201,7 @@ InitMHP.fixallbut <- function(arguments, nw){
 InitMHP.fixallbutTNT <- function(arguments, nw){
 	y0<-as.edgelist(arguments$constraints$fixallbut$free_dyads, prototype=nw)
 	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	MHproposal <- list(name = "listTNT", inputs=c(ergm.Cprepare.el(y0, prototype=nw)), pkgname="ergm")
+	MHproposal <- list(name = "listTNT", inputs=to_ergm_Cdouble(y0), pkgname="ergm")
 	
 	MHproposal
 	
@@ -211,9 +209,9 @@ InitMHP.fixallbutTNT <- function(arguments, nw){
 
 
 InitMHP.RLE <- function(arguments, nw){
-  MHproposal <- list(name = "RLE", inputs=pack_rlebdm_as_numeric(as.rlebdm(arguments$constraints)), pkgname="ergm")
+  MHproposal <- list(name = "RLE", inputs=to_ergm_Cdouble(as.rlebdm(arguments$constraints)), pkgname="ergm")
 }
 
 InitMHP.RLETNT <- function(arguments, nw){
-  MHproposal <- list(name = "RLETNT", inputs=pack_rlebdm_as_numeric(as.rlebdm(arguments$constraints)), pkgname="ergm")
+  MHproposal <- list(name = "RLETNT", inputs=to_ergm_Cdouble(as.rlebdm(arguments$constraints)), pkgname="ergm")
 }

@@ -452,8 +452,7 @@ InitErgmTerm.L <- function(nw, arglist, response=NULL, ...){
   dependence <- !is.dyad.independent(m) || !is.dyad.independent(nonsimp_update.formula(auxiliaries, nw~., from.new="nw"))
 
   
-  Clist <- ergm.Cprepare(nw1, m, response=response)
-  inputs <- pack.Clist_as_num(Clist)
+  inputs <- to_ergm_Cdouble(m)
   
   inputs <- c(nltrms, w, inputs)
 

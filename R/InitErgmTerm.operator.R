@@ -1,28 +1,19 @@
-#' Convert a string into a "standard" format for passing as a numeric variable.
+#' @describeIn to_ergm_Cdouble
 #'
-#' This function takes a character vector of length 1 and returns a numerical vector encoding it.
-#'
-#' @param s a character vector of length 1
-#'
-#' @return a numeric vector concatenating the following:
+#' @return 
+#' The `character` method takes a character vector of length 1 and returns a numerical vector encoding it. It concatenates the following:
 #' * the number of characters in the input string and
 #' * the characters in the input string encoded using ASCII encoding.
 #' 
 #' This is intended to be decoded by `unpack_str_as_double()` C routines.
 #'
 #' @export
-pack.str_as_num <- function(s) c(nchar(s), strtoi(charToRaw(s), 16L))
+to_ergm_Cdouble.character <- function(x, ...) c(nchar(x), strtoi(charToRaw(x), 16L))
 
-#' Serialize model information in a `Clist` into a numeric vector
+#' @describeIn to_ergm_Cdouble
 #'
-#' This function takes the output of `ergm.Cprepare` that pertains to
-#' the model (not the network) and serializes it by encoding term
-#' names and libraries as numeric vectors and concatenating them with
-#' inputs and other information.
-#'
-#' @param Clist output of `ergm.Cprepare`
-#'
-#' @return a numeric vector concatenating the following:
+#' @return
+#' The `ergm_model` method returns a numeric vector concatenating the following:
 #' * number of terms in the model;
 #' * length of and encoded string of term names;
 #' * length of and encoded string of library names; and
@@ -31,10 +22,11 @@ pack.str_as_num <- function(s) c(nchar(s), strtoi(charToRaw(s), 16L))
 #' This is intended to be decoded by `unpack_*Model_as_double()` C routines.
 #'
 #' @export
-pack.Clist_as_num <- function(Clist){
-  fnames <- pack.str_as_num(Clist$fnamestring)
-  snames <- pack.str_as_num(Clist$snamestring)
-  c(Clist$nterms, fnames, snames, Clist$inputs)
+to_ergm_Cdouble.ergm_model <- function(x, ...){
+  x <- ergm_Clist(x)
+  fnames <- to_ergm_Cdouble(x$fnamestring)
+  snames <- to_ergm_Cdouble(x$snamestring)
+  c(x$nterms, fnames, snames, x$inputs)
 }
 
 #' Wrap a submodel's curved specification (if present) for output from an `InitErgmTerm` or `InitWtErgmTerm`.
@@ -84,9 +76,7 @@ InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
   else nw <- ergm.getnetwork(f)
 
   m <- ergm_model(f, nw, response=response,...)
-  Clist <- ergm.Cprepare(nw, m, response=response)
-
-  inputs <- pack.Clist_as_num(Clist)
+  inputs <- to_ergm_Cdouble(m)
   
   gs <- ergm.emptynwstats.model(m)
   
@@ -107,9 +97,7 @@ InitErgmTerm..submodel <- function(nw, arglist, response=NULL, ...){
   else nw <- ergm.getnetwork(f)
 
   m <- ergm_model(f, nw, response=response,...)
-  Clist <- ergm.Cprepare(nw, m, response=response)
-
-  inputs <- pack.Clist_as_num(Clist)
+  inputs <- to_ergm_Cdouble(m)
 
   gs <- ergm.emptynwstats.model(m)
 
@@ -129,7 +117,7 @@ InitErgmTerm.submodel.test <- function(nw, arglist, response=NULL, ...){
   else nw <- ergm.getnetwork(f)
 
   m <- ergm_model(f, nw, response=response,...)
-  Clist <- ergm.Cprepare(nw, m, response=response)
+  inputs <- to_ergm_Cdouble(m)
 
   gs <- ergm.emptynwstats.model(m)
   
@@ -151,9 +139,7 @@ InitErgmTerm..summary <- function(nw, arglist, response=NULL, ...){
   else nw <- ergm.getnetwork(f)
 
   m <- ergm_model(f, nw, response=response,...)
-  Clist <- ergm.Cprepare(nw, m, response=response)
-
-  inputs <- pack.Clist_as_num(Clist)
+  inputs <- to_ergm_Cdouble(m)
 
   gs <- ergm.emptynwstats.model(m)
 
@@ -191,8 +177,7 @@ InitErgmTerm.F <- function(nw, arglist, response=NULL, ...){
   else nw <- ergm.getnetwork(f)
 
   m <- ergm_model(f, nw,...)
-  Clist <- ergm.Cprepare(nw, m)
-  inputs <- pack.Clist_as_num(Clist)
+  inputs <- to_ergm_Cdouble(m)
   
   gs <- ergm.emptynwstats.model(m)
 
@@ -224,9 +209,7 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, response=NULL, ...){
   m <- ergm_model(f, nw, response=response,...)
 
   if(!is.dyad.independent(m) || nparam(m)!=1) stop("The filter test formula must be dyad-independent and have exactly one statistc.")
-
-  Clist <- ergm.Cprepare(nw, m)
-  inputs <- pack.Clist_as_num(Clist)
+  inputs <- to_ergm_Cdouble(m)
 
   gs <- ergm.emptynwstats.model(m)
   if(gs!=0) stop("At this time, the filter test term must have the property that its dyadwise components are 0 for 0-valued relations. This limitation may be removed in the future.")
@@ -263,9 +246,7 @@ InitErgmTerm.Offset <- function(nw, arglist, response=NULL, ...){
   coef0 <- .constrain_init(m, rep(0, nparams))
   coef0[selection] <- offset.coef
     
-  Clist <- ergm.Cprepare(nw, m, response=response)
-
-  inputs <- pack.Clist_as_num(Clist)
+  inputs <- to_ergm_Cdouble(m)
   
   gs <- ergm.emptynwstats.model(m)
   
@@ -378,8 +359,7 @@ InitErgmTerm.Undir <- function(nw, arglist, response=NULL, ...){
   if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
 
   m <- ergm_model(f, nw,...)
-  Clist <- ergm.Cprepare(nw, m)
-  inputs <- pack.Clist_as_num(Clist)
+  inputs <- to_ergm_Cdouble(m)
   
   gs <- ergm.emptynwstats.model(m)
 

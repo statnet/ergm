@@ -6,6 +6,7 @@
 \alias{ergm.getterms}
 \alias{ergm_model}
 \alias{ergm_model.formula}
+\alias{ergm.getmodel}
 \alias{ergm.update.formula}
 \alias{remove.offset.formula}
 \alias{offset.info.formula}
@@ -21,7 +22,7 @@ ergm_model(object, ...)
 \method{ergm_model}{formula}(formula, nw, response = NULL, silent = FALSE,
   role = "static", ..., term.options = list(), extra.aux = list())
 
-ergm_model(object, ...)
+ergm.getmodel(object, ...)
 
 ergm.update.formula(object, new, ..., from.new = FALSE)
 
@@ -99,7 +100,7 @@ users, but may be employed by other depending packages.  The
 initiliazes each ergm term via the \code{InitErgmTerm} functions to
 create a \code{ergm_model} object.
 
-\code{ergm_model} is a deprecated name for the \code{ergm_model.formula} method.
+\code{ergm.getmodel} is a deprecated name for the \code{ergm_model.formula} method.
 
 \code{ergm.update.formula} (DEPRECATED: use
 \code{\link[statnet.common]{nonsimp_update.formula}} instead) is a
