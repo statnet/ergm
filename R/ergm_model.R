@@ -47,7 +47,7 @@ ergm_model <- function(object, ...){
 }
 #' @describeIn ergm_model
 #'
-#' Main method for constructing a model object from an [ergm()] formula of the form \code{network ~ model.term(s)}.
+#' Main method for constructing a model object from an [ergm()] formula of the form \code{network ~ model.term(s)} or \code{~ model.term(s)} with the network passed separately.
 #' 
 #' @param nw the network of interest
 #' @param response charcter, name of edge attribute containing edge weights
@@ -58,19 +58,16 @@ ergm_model <- function(object, ...){
 #' @param \dots additional parameters for model formulation
 #'
 #' @export
-ergm_model.formula <- function(formula, nw, response=NULL, silent=FALSE, role="static",...) {
-  if (!is(formula, "formula"))
-    stop("Invalid model formula of class ",sQuote(class(formula)),".", call.=FALSE)
-
-  if (length(formula) < 3) 
-    stop("Model formula must have a left-hand-side.", call.=FALSE)
+ergm_model.formula <- function(object, nw, response=NULL, silent=FALSE, role="static",...) {
+  if (!is(object, "formula"))
+    stop("Invalid model formula of class ",sQuote(class(object)),".", call.=FALSE)
 
   #' @importFrom statnet.common list_rhs.formula
-  v<-list_rhs.formula(formula)
+  v<-list_rhs.formula(object)
   
-  formula.env<-environment(formula)
+  formula.env<-environment(object)
   
-  model <- structure(list(formula=formula, coef.names = NULL,
+  model <- structure(list(formula=object, coef.names = NULL,
                       offset = NULL,
                       terms = NULL, networkstats.0 = NULL, etamap = NULL),
                  class = "ergm_model")

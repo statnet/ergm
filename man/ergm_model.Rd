@@ -19,7 +19,7 @@ ergm.getterms(formula)
 
 ergm_model(object, ...)
 
-\method{ergm_model}{formula}(formula, nw, response = NULL, silent = FALSE,
+\method{ergm_model}{formula}(object, nw, response = NULL, silent = FALSE,
   role = "static", ...)
 
 ergm.getmodel(object, ...)
@@ -115,7 +115,7 @@ vectors associated with a formula.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{formula}: Main method for constructing a model object from an \code{\link[=ergm]{ergm()}} formula of the form \code{network ~ model.term(s)}.
+\item \code{formula}: Main method for constructing a model object from an \code{\link[=ergm]{ergm()}} formula of the form \code{network ~ model.term(s)} or \code{~ model.term(s)} with the network passed separately.
 }}
 
 \note{
