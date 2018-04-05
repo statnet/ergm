@@ -101,3 +101,6 @@ initialized via the \code{InitErgmTerm} functions to create a
 \note{
 These functions are not meant to be called by the end-user but may be useful to extension developers. This API is not to be considered fixed and may change between versions.
 }
+\seealso{
+\code{\link[=summary_formula]{summary_formula()}}
+}

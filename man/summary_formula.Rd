@@ -75,5 +75,7 @@ summary(m ~ edges, directed=FALSE) # Now it's correct
 }
 \seealso{
 \code{\link[=ergm]{ergm()}}, \code{\link[=network]{network()}}, \link{ergm-terms}
+
+\code{\link[=summary.ergm_model]{summary.ergm_model()}}
 }
 \keyword{models}
