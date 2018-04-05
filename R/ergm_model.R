@@ -23,11 +23,7 @@
 #' create a \code{ergm_model} object.
 #' 
 #' @param formula a formula of the form \code{network ~ model.term(s)}
-#' @param form same as formula, a formula of the form \code{network ~ model.term(s)}
-#' @param object formula object to be updated
-#' @param new new formula to be used in updating
-#' @param from.new logical or character vector of variable names. controls how
-#' environment of formula gets updated.
+#' @param object object from which the model is to be constructed.
 #' @return `ergm_model` returns an  `ergm_model` object as a list
 #' containing:
 #' \item{ formula}{the formula inputted to
