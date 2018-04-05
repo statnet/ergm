@@ -108,7 +108,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
-  MHproposal<-MHproposal(constraints,arguments=control$SAN.prop.args,nw=nw,weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
+  proposal<-ergm_proposal(constraints,arguments=control$SAN.prop.args,nw=nw,weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
 # if(is.null(control$coef)) {
 #   warning("No parameter values given, using the MPLE for the passed network.\n\t")
 # }
@@ -131,7 +131,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
     if(is.null(control$coef)) {
       if(reference==~Bernoulli){
         fit <- suppressWarnings(try(ergm.mple(Clist=Clist, fd=fd, 
-                         control=control, MHproposal=MHproposal,
+                         control=control, proposal=proposal,
                          m=model, verbose=verbose, ...)))
         control$coef <- if(inherits(fit, "try-error")) rep(0,length(model$coef.names)) else fit$coef
         if(is.null(control$invcov)) { control$invcov <- fit$covar }
@@ -169,9 +169,9 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
                 as.integer(Clist$nterms), 
                 as.character(Clist$fnamestring),
                 as.character(Clist$snamestring), 
-                as.character(MHproposal$name),
-                as.character(MHproposal$pkgname),
-                as.double(c(Clist$inputs,MHproposal$inputs)),
+                as.character(proposal$name),
+                as.character(proposal$pkgname),
+                as.double(c(Clist$inputs,proposal$inputs)),
                 as.double(.deinf(eta0)),
                 as.double(.deinf(tau)),
                 as.integer(1), # "samplesize"
@@ -181,11 +181,11 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
                 newnwheads = integer(maxedges), 
                 as.double(control$invcov),
                 as.integer(verb),
-                as.integer(MHproposal$arguments$constraints$bd$attribs), 
-                as.integer(MHproposal$arguments$constraints$bd$maxout), as.integer(MHproposal$arguments$constraints$bd$maxin),
-                as.integer(MHproposal$arguments$constraints$bd$minout), as.integer(MHproposal$arguments$constraints$bd$minin),
-                as.integer(MHproposal$arguments$constraints$bd$condAllDegExact),
-                as.integer(length(MHproposal$arguments$constraints$bd$attribs)), 
+                as.integer(proposal$arguments$constraints$bd$attribs), 
+                as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
+                as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
+                as.integer(proposal$arguments$constraints$bd$condAllDegExact),
+                as.integer(length(proposal$arguments$constraints$bd$attribs)), 
                 as.integer(maxedges),
                 status = integer(1),
                 PACKAGE="ergm")
@@ -198,9 +198,9 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
                 as.integer(Clist$nterms), 
                 as.character(Clist$fnamestring),
                 as.character(Clist$snamestring), 
-                as.character(MHproposal$name),
-                as.character(MHproposal$pkgname),
-                as.double(c(Clist$inputs,MHproposal$inputs)),
+                as.character(proposal$name),
+                as.character(proposal$pkgname),
+                as.double(c(Clist$inputs,proposal$inputs)),
                 as.double(.deinf(eta0)),
                 as.double(.deinf(tau)),
                 as.integer(1), # "samplesize"
@@ -211,11 +211,11 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
                 newnwweights = double(maxedges), 
                 as.double(control$invcov),
                 as.integer(verb),
-                as.integer(MHproposal$arguments$constraints$bd$attribs), 
-                as.integer(MHproposal$arguments$constraints$bd$maxout), as.integer(MHproposal$arguments$constraints$bd$maxin),
-                as.integer(MHproposal$arguments$constraints$bd$minout), as.integer(MHproposal$arguments$constraints$bd$minin),
-                as.integer(MHproposal$arguments$constraints$bd$condAllDegExact),
-                as.integer(length(MHproposal$arguments$constraints$bd$attribs)), 
+                as.integer(proposal$arguments$constraints$bd$attribs), 
+                as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
+                as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
+                as.integer(proposal$arguments$constraints$bd$condAllDegExact),
+                as.integer(length(proposal$arguments$constraints$bd$attribs)), 
                 as.integer(maxedges), 
                 status = integer(1),
                 PACKAGE="ergm")

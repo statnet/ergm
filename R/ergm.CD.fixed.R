@@ -34,10 +34,10 @@
 #       epsilon    : ??, this is essentially unused, except to print it if
 #                    'verbose'=T and to pass it along to <ergm.estimate>,
 #                    which ignores it;   
-#   MHproposal     : an MHproposal object for 'nw', as returned by
-#                    <MHproposal>
-#   MHproposal.obs : an MHproposal object for the observed network of'nw',
-#                    as returned by <MHproposal>
+#   proposal     : an proposal object for 'nw', as returned by
+#                    <proposal>
+#   proposal.obs : an proposal object for the observed network of'nw',
+#                    as returned by <proposal>
 #   verbose        : whether the MCMC sampling should be verbose (T or F);
 #                    default=FALSE
 #   sequential     : whether to update the network returned in
@@ -59,7 +59,7 @@
 
 ergm.CD.fixed <- function(init, nw, model,
                              control, 
-                             MHproposal, MHproposal.obs,
+                             proposal, proposal.obs,
                              verbose=FALSE,
                              estimate=TRUE,
                              response=NULL, ...) {
@@ -80,7 +80,7 @@ ergm.CD.fixed <- function(init, nw, model,
   nw.orig <- network.copy(nw)
 
   # Impute missing dyads.
-  nw <- single.impute.dyads(nw, response=response, constraints=MHproposal$arguments$constraints, constraints.obs=MHproposal.obs$arguments$constraints, verbose=verbose)
+  nw <- single.impute.dyads(nw, response=response, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, verbose=verbose)
   model$nw.stats <- summary(model$formula, response=response, basis=nw)
 
   nws <- rep(list(nw),nthreads) # nws is now a list of networks.
@@ -96,7 +96,7 @@ ergm.CD.fixed <- function(init, nw, model,
   statshifts <- rep(list(statshift), nthreads) # Each network needs its own statshift.
   
   # Is there observational structure?
-  obs <- ! is.null(MHproposal.obs)
+  obs <- ! is.null(proposal.obs)
   if(obs){
     control$CD.nsteps<-control$CD.nsteps.obs
     control$CD.multiplicity<-control$CD.multiplicity.obs
@@ -131,7 +131,7 @@ ergm.CD.fixed <- function(init, nw, model,
 
     # Obtain MCMC sample
     mcmc.eta0 <- ergm.eta(mcmc.init, model$etamap)
-    z <- ergm.getCDsample(nws, model, MHproposal, mcmc.eta0, control, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
+    z <- ergm.getCDsample(nws, model, proposal, mcmc.eta0, control, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
 
     # post-processing of sample statistics:  Shift each row by the
     # vector model$nw.stats - model$target.stats, store returned nw
@@ -153,7 +153,7 @@ ergm.CD.fixed <- function(init, nw, model,
     
     ##  Does the same, if observation process:
     if(obs){
-      z.obs <- ergm.getCDsample(nws.obs, model, MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
+      z.obs <- ergm.getCDsample(nws.obs, model, proposal.obs, mcmc.eta0, control.obs, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
 
       statsmatrices.obs <- mapply(sweep, z.obs$statsmatrices, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
       for(i in seq_along(statsmatrices.obs)) colnames(statsmatrices.obs[[i]]) <- model$coef.names

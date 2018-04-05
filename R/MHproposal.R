@@ -1,4 +1,4 @@
-#  File R/MHproposal.R in package ergm, part of the Statnet suite
+#  File R/proposal.R in package ergm, part of the Statnet suite
 #  of packages for network analysis, http://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
@@ -9,14 +9,14 @@
 #######################################################################
 
 #=======================================================================================
-# This file contains the following 6 files for creating MHproposal objects
-#          <MHproposal>                <MHproposal.character>
-#          <MHproposal.NULL>           <MHproposal.formula>
-#          <MHproposal.MHproposal>     <MHproposal.ergm>
+# This file contains the following 6 files for creating ergm_proposal objects
+#          <ergm_proposal>                <ergm_proposal.character>
+#          <ergm_proposal.NULL>           <ergm_proposal.formula>
+#          <ergm_proposal.ergm_proposal>     <ergm_proposal.ergm>
 #=======================================================================================
 
 # Set up the table mapping constraints, references, etc. to
-# MHproposals.  For the moment, there is no way to delete rows, but
+# ergm_proposals.  For the moment, there is no way to delete rows, but
 # one can always add a row with identical elements but higher
 # priority.
 
@@ -27,7 +27,7 @@
 #' This is a low-level function not intended to be called directly by
 #' end users. For information on Metropolis-Hastings proposal methods,
 #' \link{ergm_MH_proposals}. This function sets up the table mapping
-#' constraints, references, etc. to MHproposals. Calling it with
+#' constraints, references, etc. to ergm_proposals. Calling it with
 #' arguments adds a new row to this table. Calling it without
 #' arguments returns the table so far.
 #' 
@@ -102,14 +102,14 @@ prune.ergm_conlist <- function(conlist){
 
 
 ########################################################################################
-# The <MHproposal> function initializes and returns an MHproposal object via one of the
+# The <ergm_proposal> function initializes and returns an ergm_proposal object via one of the
 # class-specific functions below
 #
 # --PARAMETERS--
 #   (see the class-specific function headers)
 #
 # --RETURNED--
-#   proposal: an MHproposal object as a list containing the following:
+#   proposal: an ergm_proposal object as a list containing the following:
 #     name   : the C name of the proposal
 #     inputs : NULL (I think - the only non-null value returned by the InitMH
 #              is for <nobetweengroupties>, but this isn't included in the 
@@ -124,22 +124,22 @@ prune.ergm_conlist <- function(conlist){
 
 
 
-#' Functions to initialize the MHproposal object
+#' Functions to initialize the ergm_proposal object
 #' 
-#' S3 Functions that initialize the Metropolis-Hastings Proposal (MHproposal)
+#' S3 Functions that initialize the Metropolis-Hastings Proposal (ergm_proposal)
 #' object using the `InitMHP.*` function that corresponds to the name given in
 #' 'object'.  These functions are not generally called directly by the user.
 #' See \link{ergm_MH_proposals} for general explanation and lists of available
 #' Metropolis-Hastings proposal types.
 #' 
 #' 
-#' @aliases MHproposal.NULL MHproposal.MHproposal
+#' @aliases ergm_proposal.NULL ergm_proposal.ergm_proposal
 #' @param object Either a character, a \code{\link{formula}} or an
 #' \code{\link{ergm}} object.  The \code{\link{formula}} should be of the form
 #' \code{y ~ <model terms>}, where \code{y} is a network object or a matrix
 #' that can be coerced to a \code{\link[network]{network}} object.
 #' @param \dots Further arguments passed to other functions.
-#' @return Returns an MHproposal object: a list with class \code{'MHProposal'}
+#' @return Returns an ergm_proposal object: a list with class \code{'MHProposal'}
 #' containing the following named elements:
 #' \item{ name}{the C name of the proposal}
 #' \item{inputs}{inputs to be passed to C}
@@ -154,24 +154,24 @@ prune.ergm_conlist <- function(conlist){
 #' @seealso \code{\link{InitMHP}}
 #' @keywords models
 #' @export
-MHproposal<-function(object, ...) UseMethod("MHproposal")
+ergm_proposal<-function(object, ...) UseMethod("ergm_proposal")
 
 
 #' @noRd
 #' @export
 # This could be useful for trapping bugs before they become mysterious segfaults.
-MHproposal.NULL<-function(object, ...) stop("NULL passed to MHproposal. This may be due to passing an ergm object from an earlier version. If this is the case, please refit it with the latest version, and try again. If this is not the case, this may be a bug, so please file a bug report.")
+ergm_proposal.NULL<-function(object, ...) stop("NULL passed to ergm_proposal. This may be due to passing an ergm object from an earlier version. If this is the case, please refit it with the latest version, and try again. If this is not the case, this may be a bug, so please file a bug report.")
 
 
 #' @noRd
 #' @export
-MHproposal.MHproposal<-function(object,...) return(object)
+ergm_proposal.ergm_proposal<-function(object,...) return(object)
 
 
 
 
 ########################################################################################
-# The <MHproposal.character> function initializes the MHproposal object using the
+# The <ergm_proposal.character> function initializes the ergm_proposal object using the
 # <InitMHP.> function that corresponds to the name given in 'object'
 #
 # --PARAMETERS--
@@ -182,7 +182,7 @@ MHproposal.MHproposal<-function(object,...) return(object)
 #
 ########################################################################################
 
-#' @describeIn MHproposal `object` argument is a character string
+#' @describeIn ergm_proposal `object` argument is a character string
 #'   giving the \R name of the proposal.
 #' @param nw The network object originally given to \code{\link{ergm}}
 #'   via 'formula'
@@ -191,7 +191,7 @@ MHproposal.MHproposal<-function(object,...) return(object)
 #' @param reference One-sided formula whose RHS gives the reference
 #'   measure to be used. (Defaults to \code{~Bernoulli}.)
 #' @export
-MHproposal.character <- function(object, arguments, nw, ..., response=NULL, reference=reference){
+ergm_proposal.character <- function(object, arguments, nw, ..., response=NULL, reference=reference){
   name<-object
 
   arguments$reference <- reference
@@ -214,7 +214,7 @@ MHproposal.character <- function(object, arguments, nw, ..., response=NULL, refe
   # Add the package to the list of those to be loaded.
   ergm.MCMC.packagenames(proposal$pkgname)
   
-  class(proposal)<-"MHproposal"
+  class(proposal)<-"ergm_proposal"
   proposal
 }
 
@@ -223,9 +223,9 @@ MHproposal.character <- function(object, arguments, nw, ..., response=NULL, refe
 
 
 ########################################################################################
-# The <MHproposal.formula> function verifies that the given constraints exist and
+# The <ergm_proposal.formula> function verifies that the given constraints exist and
 # are supported in conjuction with the given weights and class by a unique MH proposal;
-# if so the MHproposal object is created via <MHproposal.character> using the 
+# if so the ergm_proposal object is created via <ergm_proposal.character> using the 
 # MHP type found in the look-up table above.
 #
 # --PARAMETERS--
@@ -284,7 +284,7 @@ ergm_conlist <- function(object, nw){
   conlist
 }
 
-#' @describeIn MHproposal `object` argument is an ERGM constraint formula.
+#' @describeIn ergm_proposal `object` argument is an ERGM constraint formula.
 #' @param weights Specifies the method used to allocate probabilities of being
 #' proposed to dyads; options are "TNT", "TNT10", "random", "nonobserved" and
 #' "default"; default="default"
@@ -295,7 +295,7 @@ ergm_conlist <- function(object, nw){
 #' documentation for a similar argument for \code{\link{ergm}} and see
 #' [list of implemented constraints][ergm-constraints] for more information.
 #' @export
-MHproposal.formula <- function(object, arguments, nw, weights="default", class="c", reference=~Bernoulli, response=NULL, ...) {
+ergm_proposal.formula <- function(object, arguments, nw, weights="default", class="c", reference=~Bernoulli, response=NULL, ...) {
   reference <- reference
 
   f <- locate.InitFunction(reference[[2]], "InitReference", "Reference distribution") 
@@ -359,7 +359,7 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
   
   arguments$constraints<-conlist
   ## Hand it off to the class character method.
-  MHproposal.character(name, arguments, nw, response=response, reference=reference)
+  ergm_proposal.character(name, arguments, nw, response=response, reference=reference)
 }
 
 
@@ -367,7 +367,7 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
 
 
 ########################################################################################
-# The <MHproposal.ergm> function creates the MHproposal object via <MHproposal.formula>
+# The <ergm_proposal.ergm> function creates the ergm_proposal object via <ergm_proposal.formula>
 # after extracting the appropriate parameters from the given ergm object
 #
 # --PARAMETERS--
@@ -384,9 +384,9 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
 #
 ########################################################################################
 
-#' @describeIn MHproposal `object` argument is an [`ergm`] fit whose proposals are extracted which is reproduced as best as possible.
+#' @describeIn ergm_proposal `object` argument is an [`ergm`] fit whose proposals are extracted which is reproduced as best as possible.
 #' @export
-MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, weights=NULL,class="c", reference=NULL, response=NULL){
+ergm_proposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, weights=NULL,class="c", reference=NULL, response=NULL){
   if(is.null(constraints)) constraints<-object$constraints
   if(is.null(arguments)) arguments<-object$control$MCMC.prop.args
   if(is.null(weights)) weights<-object$control$MCMC.prop.weights
@@ -394,6 +394,6 @@ MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, 
   if(is.null(reference)) response<-object$reference
   if(is.null(response)) response<-object$response
   
-  MHproposal(constraints,arguments=arguments,nw=nw,weights=weights,class=class,reference=reference,response=response)
+  ergm_proposal(constraints,arguments=arguments,nw=nw,weights=weights,class=class,reference=reference,response=response)
 }
 

@@ -21,10 +21,10 @@
 #                    as returned by <ergm.Cprepare>
 #   initialfit     : an ergm object, as the initial fit
 #   control     : a list of parameters for controlling the MCMC sampling
-#   MHproposal     : an MHproposal object for 'nw', as returned by
-#                    <MHproposal>
-#   MHproposal.obs: an MHproposal object for the observed network of'nw',
-#                    as returned by <MHproposal>
+#   proposal     : an proposal object for 'nw', as returned by
+#                    <proposal>
+#   proposal.obs: an proposal object for the observed network of'nw',
+#                    as returned by <proposal>
 #   verbose        : whether the MCMC sampling should be verbose AND
 #                    the diagnostic plots should be printed ; default=FALSE
 #   ...            : additional paramters that are passed onto
@@ -37,7 +37,7 @@
 ###########################################################################      
 
 ergm.stepping = function(init, nw, model, initialfit, constraints,
-                         control, MHproposal, MHproposal.obs, 
+                         control, proposal, proposal.obs, 
                          verbose=FALSE, ...){
 
   #   preliminary, to set up structure. 

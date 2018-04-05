@@ -58,8 +58,8 @@
 #'   components include: samplesize : the number of networks to sample
 #'   Clist.miss : see 'Clist.miss' above; some of the code uses this
 #'   Clist.miss,
-#' @param MHproposal an MHproposal object, as returned by
-#'   \code{\link{MHproposal}}
+#' @param proposal an proposal object, as returned by
+#'   \code{\link{proposal}}
 #' @param verbose whether this and the C routines should be verbose (T
 #'   or F); default=FALSE
 #' @param \dots additional parameters passed from within; all will be
@@ -83,7 +83,7 @@ ergm.mple<-function(Clist, fd, m, init=NULL,
                     maxMPLEsamplesize=1e+6,
                     save.glm=TRUE,
                     theta1=NULL, 
-		    control=NULL, MHproposal=NULL,
+		    control=NULL, proposal=NULL,
                     verbose=FALSE,
                     ...) {
   message("Starting maximum pseudolikelihood estimation (MPLE):")

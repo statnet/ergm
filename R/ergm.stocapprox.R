@@ -33,8 +33,8 @@
 #                  'interval'
 #               the use of these variables is explained in the
 #               <control.ergm> function header
-#   MHproposal: an MHproposal object for 'nw', as returned by
-#               <getMHproposal>
+#   proposal: an proposal object for 'nw', as returned by
+#               <getproposal>
 #   verbose   : whether the MCMC sampling should be verbose (T or F);
 #               default=FALSE
 #
@@ -45,7 +45,7 @@
 ###########################################################################      
 
 ergm.stocapprox <- function(init, nw, model, Clist,
-                            control, MHproposal,
+                            control, proposal,
                             verbose=FALSE){
     
   #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for init)
@@ -86,7 +86,7 @@ ergm.stocapprox <- function(init, nw, model, Clist,
   }
 # message(paste("Phase 2: a=",a,"Total Samplesize",control$MCMC.samplesize,""))
 # aDdiaginv <- a * Ddiaginv
-  z <- ergm.phase12(nw, model, MHproposal, 
+  z <- ergm.phase12(nw, model, proposal, 
                     eta, control, verbose=TRUE)
   nw <- z$newnetwork
 # toggle.dyads(nw, head = z$changed[,2], tail = z$changed[,3])
@@ -108,7 +108,7 @@ ergm.stocapprox <- function(init, nw, model, Clist,
 #message(paste(" eta=",eta,")",sep=""))
 
   # Obtain MCMC sample
-  z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, control, verbose)
+  z <- ergm.getMCMCsample(nw, model, proposal, eta0, control, verbose)
   
   # post-processing of sample statistics:  Shift each row,
   # attach column names

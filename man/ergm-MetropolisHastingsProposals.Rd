@@ -126,7 +126,7 @@
 
        }}
 
-\seealso{\code{\link[=ergm-package]{ergm}} package, \code{\link{ergm}}, \code{\link{ergm-constraints}},  \code{\link{MHproposal}}}
+\seealso{\code{\link[=ergm-package]{ergm}} package, \code{\link{ergm}}, \code{\link{ergm-constraints}},  \code{\link{ergm_proposal}}}
 
   
 \references{

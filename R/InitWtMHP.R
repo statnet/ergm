@@ -9,40 +9,40 @@
 #######################################################################
 
 InitWtMHP.StdNormal <- function(arguments, nw, response) {
-  MHproposal <- list(name = "StdNormal", inputs=NULL)
-  MHproposal
+  proposal <- list(name = "StdNormal", inputs=NULL)
+  proposal
 }
 
 InitWtMHP.DiscUnif <- function(arguments, nw, response) {
   a <- NVL(arguments$reference$a, -Inf)
   b <- NVL(arguments$reference$b, Inf)
   if(!is.finite(a) || !is.finite(b)) stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
-  MHproposal <- list(name = "DiscUnif", inputs=c(a,b))
-  MHproposal
+  proposal <- list(name = "DiscUnif", inputs=c(a,b))
+  proposal
 }
 
 InitWtMHP.DiscUnifNonObserved <- function(arguments, nw, response) {
   a <- NVL(arguments$reference$a, -Inf)
   b <- NVL(arguments$reference$b, Inf)
   if(!is.finite(a) || !is.finite(b)) stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
-  MHproposal <- list(name = "DiscUnifNonObserved", inputs=c(a,b,to_ergm_Cdouble(is.na(nw))))
-  MHproposal
+  proposal <- list(name = "DiscUnifNonObserved", inputs=c(a,b,to_ergm_Cdouble(is.na(nw))))
+  proposal
 }
 
 InitWtMHP.Unif <- function(arguments, nw, response) {
   a <- NVL(arguments$reference$a, -Inf)
   b <- NVL(arguments$reference$b, Inf)
   if(!is.finite(a) || !is.finite(b)) stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
-  MHproposal <- list(name = "Unif", inputs=c(a,b))
-  MHproposal
+  proposal <- list(name = "Unif", inputs=c(a,b))
+  proposal
 }
 
 InitWtMHP.UnifNonObserved <- function(arguments, nw, response) {
   a <- NVL(arguments$reference$a, -Inf)
   b <- NVL(arguments$reference$b, Inf)
   if(!is.finite(a) || !is.finite(b)) stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
-  MHproposal <- list(name = "UnifNonObserved", inputs=c(a,b,to_ergm_Cdouble(is.na(nw))))
-  MHproposal
+  proposal <- list(name = "UnifNonObserved", inputs=c(a,b,to_ergm_Cdouble(is.na(nw))))
+  proposal
 }
 
 InitWtMHP.DistRLE <- function(arguments, nw, response) {
@@ -54,5 +54,5 @@ InitWtMHP.DistRLE <- function(arguments, nw, response) {
                         Poisson = c(3, 0),
                         Binomial = c(4, trials, 0.5),
                         Bernoulli = c(4, 1, 0.5)))
-  MHproposal <- list(name = "DistRLE", inputs=c(to_ergm_Cdouble(as.rlebdm(arguments$constraints)),inputs), pkgname="ergm")
+  proposal <- list(name = "DistRLE", inputs=c(to_ergm_Cdouble(as.rlebdm(arguments$constraints)),inputs), pkgname="ergm")
 }

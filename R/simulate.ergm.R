@@ -227,7 +227,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   
   if(nparam(m)!=length(coef)) stop("coef has ", length(coef) - monitored.length, " elements, while the model requires ",nparam(m) - monitored.length," parameters.")
 
-  MHproposal <- MHproposal(constraints,arguments=control$MCMC.prop.args,
+  proposal <- ergm_proposal(constraints,arguments=control$MCMC.prop.args,
                            nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
 
   if (any(is.nan(coef) | is.na(coef)))
@@ -261,7 +261,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     # In this case, we can make one, parallelized run of
     # ergm.getMCMCsample.
     control$MCMC.samplesize <- nsim
-    z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose, response=response)
+    z <- ergm.getMCMCsample(nw, m, proposal, eta0, control, verbose=verbose, response=response)
     
     # Post-processing:  Add term names to columns and shift each row by
     # observed statistics.
@@ -306,7 +306,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
       
       control$MCMC.samplesize <- nthreads
       control$MCMC.burnin <- if(i==1 || sequential==FALSE) control$MCMC.burnin else control$MCMC.interval
-      z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose, response=response)
+      z <- ergm.getMCMCsample(nw, m, proposal, eta0, control, verbose=verbose, response=response)
       
       out.mat <- rbind(out.mat, curstats + z$statsmatrix)
       

@@ -62,9 +62,9 @@ ergm.checkextreme.model <- function(model, nw, init, response, target.stats, dro
 
 ## Check for conflicts between model terms and constraints.
 
-ergm.checkconstraints.model <- function(model, MHproposal, init, silent=FALSE){
+ergm.checkconstraints.model <- function(model, proposal, init, silent=FALSE){
   # Get the list of all the constraints that the proposal imposes on the sample space.
-  constraints.old<-names(MHproposal$arguments$constraints)
+  constraints.old<-names(proposal$arguments$constraints)
   repeat{
     constraints <- unique(sort(c(constraints.old, unlist(ergm.ConstraintImplications()[constraints.old]))))
     if(all(constraints %in% constraints.old)) break

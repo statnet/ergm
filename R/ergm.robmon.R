@@ -27,8 +27,8 @@
 #                    begins
 #   interval       : the number of proposals between sampled statistics;
 #   initialfit     : an ergm object, as the initial fit
-#   MHproposal     : an MHproposal object for 'nw', as returned by
-#                    <getMHproposal>
+#   proposal     : an proposal object for 'nw', as returned by
+#                    <getproposal>
 #   verbose        : whether the MCMC sampling should be verbose (T or F);
 #                    default=FALSE
 #   control        : a list of parameters for controlling the fitting
@@ -48,7 +48,7 @@
 ###########################################################################      
 
 ergm.robmon <- function(init, nw, model,
-                        MHproposal,
+                        proposal,
                         verbose=FALSE, 
                         control=control.ergm() ){
   #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for init)
@@ -64,7 +64,7 @@ ergm.robmon <- function(init, nw, model,
   control$MCMC.samplesize=n1
   message(paste("Phase 1: ",n1,"iterations"),appendLF=FALSE)
   message(paste(" (interval=",control$MCMC.interval,")",sep=""))
-  z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, control, verbose)
+  z <- ergm.getMCMCsample(nw, model, proposal, eta0, control, verbose)
   steplength <- control$MCMLE.steplength
   # post-processing of sample statistics:  Shift each row by the
   # matrix model$nw.stats - model$target.stats, attach column names
@@ -119,7 +119,7 @@ ergm.robmon <- function(init, nw, model,
       # control$MCMC.burnin should perhaps be increased here, since
       # each iteration begins from the observed network, which must be 
       # "forgotten".
-      z <- ergm.getMCMCsample(nw, model, MHproposal, eta, control, verbose=FALSE)
+      z <- ergm.getMCMCsample(nw, model, proposal, eta, control, verbose=FALSE)
       # post-processing of sample statistics:  Shift each row by the
       # matrix model$nw.stats - model$target.stats, attach column names
       statsmatrix <- sweep(z$statsmatrix, 2, model$nw.stats - model$target.stats, "+")
@@ -151,7 +151,7 @@ message(paste("theta new:",theta,""))
   message(paste(" (interval=",control$MCMC.interval,")",sep=""))
   eta <- ergm.eta(theta, model$etamap)
   control$nmatrixentries = control$MCMC.samplesize * model$etamap$etalength
-  z <- ergm.getMCMCsample(nw, model, MHproposal, eta, control, verbose=FALSE)
+  z <- ergm.getMCMCsample(nw, model, proposal, eta, control, verbose=FALSE)
   # post-processing of sample statistics:  Shift each row by the
   # matrix model$nw.stats - model$target.stats, attach column names
   statsmatrix <- sweep(z$statsmatrix, 2, model$nw.stats - model$target.stats, "+")

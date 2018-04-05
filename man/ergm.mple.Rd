@@ -7,8 +7,7 @@
 \usage{
 ergm.mple(Clist, fd, m, init = NULL, MPLEtype = "glm",
   family = "binomial", maxMPLEsamplesize = 1e+06, save.glm = TRUE,
-  theta1 = NULL, control = NULL, MHproposal = NULL, verbose = FALSE,
-  ...)
+  theta1 = NULL, control = NULL, proposal = NULL, verbose = FALSE, ...)
 
 ergm.pl(Clist, fd, m, theta.offset = NULL, maxMPLEsamplesize = 1e+06,
   control, verbose = FALSE)
@@ -46,8 +45,8 @@ components include: samplesize : the number of networks to sample
 Clist.miss : see 'Clist.miss' above; some of the code uses this
 Clist.miss,}
 
-\item{MHproposal}{an MHproposal object, as returned by
-\code{\link{MHproposal}}}
+\item{proposal}{an proposal object, as returned by
+\code{\link{proposal}}}
 
 \item{verbose}{whether this and the C routines should be verbose (T
 or F); default=FALSE}

@@ -30,7 +30,7 @@
 #   initial.loglik:  the initial log likelihood; default=NULL
 #   control    :  a list of parameters for tuning the MCMC sampling;
 #                    the only recognized component is 'samplesize'
-#   MHproposal    :  an MHproposal object as returned by <getMHproposal>
+#   proposal    :  an proposal object as returned by <getproposal>
 #   force.MPLE    :  whether MPL estimation should be forced instead of ML 
 #                    estimation (T or F); this is ignored if 'MLestimate'=FALSE
 #                    or "MPLE" is an entry into 'init'; default=FALSE
@@ -53,10 +53,10 @@ ergm.initialfit<-function(init, initial.is.final,
                           formula, nw,
                           m, response=NULL, reference=~Bernoulli, method = NULL,
                           MPLEtype="glm",
-                          control=NULL, MHproposal=NULL, MHproposal.obs=NULL,
+                          control=NULL, proposal=NULL, proposal.obs=NULL,
                           verbose=FALSE, ...) {
   Clist <- ergm.Cprepare(nw, m)
-  fd <- as.rlebdm(MHproposal$arguments$constraints, MHproposal.obs$arguments$constraints, which="informative")
+  fd <- as.rlebdm(proposal$arguments$constraints, proposal.obs$arguments$constraints, which="informative")
 
   # Respect init elements that are not offsets if it's only a starting value.
   if(!initial.is.final){ 
@@ -70,11 +70,11 @@ ergm.initialfit<-function(init, initial.is.final,
     fit <- switch(method,
                   MPLE = ergm.mple(Clist, fd, m, MPLEtype=MPLEtype,
                     init=init, 
-                    control=control, MHproposal=MHproposal,
+                    control=control, proposal=proposal,
                     verbose=verbose, ...),
                   zeros = structure(list(coef=ifelse(is.na(init),0,init)),class="ergm"),
                   CD = ergm.CD.fixed(ifelse(is.na(init),0,init),
-                      nw, m, control, MHproposal, MHproposal.obs, verbose,response=response,...),
+                      nw, m, control, proposal, proposal.obs, verbose,response=response,...),
                   stop(paste("Invalid method specified for initial parameter calculation. Available methods are ",paste.and(formals()$method),".",sep=""))
                   )
   }else{

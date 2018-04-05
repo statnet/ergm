@@ -9,7 +9,7 @@
 #######################################################################
 ########################################################################
 # Each of the <InitMHP.X> functions initializes and returns a
-# MHproposal list; when appropriate, proposal types are checked against
+# proposal list; when appropriate, proposal types are checked against
 # covariates and network types for 1 of 2 side effects: to print warning
 # messages or to halt execution (only <InitMHP.nobetweengroupties> can
 # halt execution)
@@ -21,7 +21,7 @@
 #   nw       : the network given by the model
 #
 # --RETURNED--
-#   MHproposal: a list containing:
+#   proposal: a list containing:
 #        name   : the name of the proposal
 #        inputs : a vector to be passed to the proposal
 #        package: is "ergm"
@@ -99,14 +99,14 @@ InitMHP.blockdiag <- function(arguments, nw){
   w <- w/max(w)
   # Note that this automagically takes care of singleton blocks by giving them weight 0.
   
-  MHproposal <- list(name = "blockdiag", inputs=c(length(b)-1,  b, w))
-  MHproposal
+  proposal <- list(name = "blockdiag", inputs=c(length(b)-1,  b, w))
+  proposal
 }
 
 .InitMHP.blockdiag.bipartite <- function(arguments, nw){
   tmp <- .InitMHP.blockdiag.bipartite.setup(arguments, nw)  
-  MHproposal <- list(name = "blockdiagB", inputs=c(length(tmp$eb)-1, tmp$eb, tmp$ab, tmp$w))
-  MHproposal
+  proposal <- list(name = "blockdiagB", inputs=c(length(tmp$eb)-1, tmp$eb, tmp$ab, tmp$w))
+  proposal
 }
 
 
@@ -130,14 +130,14 @@ InitMHP.blockdiagTNT <- function(arguments, nw){
   w <- w/max(w)
   # Note that this automagically takes care of singleton blocks by giving them weight 0.
   
-  MHproposal <- list(name = "blockdiagTNT", inputs=c(nd, length(b)-1,  b, w))
-  MHproposal
+  proposal <- list(name = "blockdiagTNT", inputs=c(nd, length(b)-1,  b, w))
+  proposal
 }
 
 .InitMHP.blockdiagTNT.bipartite <- function(arguments, nw){
   tmp <- .InitMHP.blockdiag.bipartite.setup(arguments, nw)  
-  MHproposal <- list(name = "blockdiagTNTB", inputs=c(tmp$nd, length(tmp$eb)-1, tmp$eb, tmp$ab, tmp$w))
-  MHproposal
+  proposal <- list(name = "blockdiagTNTB", inputs=c(tmp$nd, length(tmp$eb)-1, tmp$eb, tmp$ab, tmp$w))
+  proposal
 }
 
 ## Helper function, since the following two have the same body except for the MH_ function.
@@ -149,8 +149,8 @@ InitMHP.blockdiagTNT <- function(arguments, nw){
   el <- as.edgelist(is.na(nw))
   el <- el[a[el[,1]]==a[el[,2]],,drop=FALSE]
   
-  MHproposal <- c(list(inputs=to_ergm_Cdouble(el)), list(...))
-  MHproposal
+  proposal <- c(list(inputs=to_ergm_Cdouble(el)), list(...))
+  proposal
 }
 
 
