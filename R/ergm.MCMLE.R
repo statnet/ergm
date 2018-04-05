@@ -105,7 +105,7 @@ ergm.MCMLE <- function(init, nw, model,
   nw <- single.impute.dyads(nw, response=response, constraints=MHproposal$arguments$constraints, constraints.obs=MHproposal.obs$arguments$constraints, output="pending", verbose=verbose)
   ec <- if(is(nw, "network")) network.edgecount(nw, FALSE)
         else nrow(as.edgelist(nw))
-  model$nw.stats <- ergm.getglobalstats(nw, model, response=response)
+  model$nw.stats <- summary(model, nw, response=response)
   
   if(control$MCMLE.density.guard>1){
     # Calculate the density guard threshold.

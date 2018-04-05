@@ -302,7 +302,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   eta0 <- ergm.eta(coef, m$etamap)
     
   # Create vector of current statistics
-  curstats <- ergm.getglobalstats(nw, m, response=response)
+  curstats <- summary(m, nw, response=response)
   names(curstats) <- m$coef.names
 
   # prepare control object

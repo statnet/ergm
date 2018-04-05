@@ -570,7 +570,7 @@ ergm <- function(formula, response=NULL,
   ## Construct approximate response network if target.stats are given.
   if(!is.null(target.stats)){
     formula.no <- filter_rhs.formula(formula, function(x) (if(is.call(x)) x[[1]] else x)!="offset")
-    nw.stats <- ergm.getglobalstats(nw, model, response=response)[!model$etamap$offsetmap]
+    nw.stats <- summary(model, nw, response=response)[!model$etamap$offsetmap]
     target.stats <- vector.namesmatch(target.stats, names(nw.stats))
     target.stats <- na.omit(target.stats)
     if(length(nw.stats)!=length(target.stats)){
@@ -768,7 +768,7 @@ ergm <- function(formula, response=NULL,
     
   }
   
-  model$nw.stats <- ergm.getglobalstats(nw, model, response=response)
+  model$nw.stats <- summary(model, nw, response=response)
   model$target.stats <- target.stats
   
   if(control$init.method=="CD") if(is.null(names(control$init)))
