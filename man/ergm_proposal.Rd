@@ -71,7 +71,7 @@ the \code{InitErgmProposal} function; in particular,
 S3 Functions that initialize the Metropolis-Hastings Proposal (ergm_proposal)
 object using the \code{InitErgmProposal.*} function that corresponds to the name given in
 'object'.  These functions are not generally called directly by the user.
-See \link{ergm_MH_proposals} for general explanation and lists of available
+See \link{ergm-proposals} for general explanation and lists of available
 Metropolis-Hastings proposal types.
 }
 \section{Methods (by class)}{

@@ -26,7 +26,7 @@
 #' 
 #' This is a low-level function not intended to be called directly by
 #' end users. For information on Metropolis-Hastings proposal methods,
-#' \link{ergm_MH_proposals}. This function sets up the table mapping
+#' \link{ergm-proposals}. This function sets up the table mapping
 #' constraints, references, etc. to ergm_proposals. Calling it with
 #' arguments adds a new row to this table. Calling it without
 #' arguments returns the table so far.
@@ -129,7 +129,7 @@ prune.ergm_conlist <- function(conlist){
 #' S3 Functions that initialize the Metropolis-Hastings Proposal (ergm_proposal)
 #' object using the `InitErgmProposal.*` function that corresponds to the name given in
 #' 'object'.  These functions are not generally called directly by the user.
-#' See \link{ergm_MH_proposals} for general explanation and lists of available
+#' See \link{ergm-proposals} for general explanation and lists of available
 #' Metropolis-Hastings proposal types.
 #' 
 #' 

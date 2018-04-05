@@ -1,4 +1,4 @@
-%  File man/ergm-MetropolisHastingsProposals.Rd in package ergm, part of the Statnet suite
+%  File man/ergm-proposals.Rd in package ergm, part of the Statnet suite
 %  of packages for network analysis, http://statnet.org .
 %
 %  This software is distributed under the GPL-3 license.  It is free,
@@ -7,8 +7,8 @@
 %
 %  Copyright 2003-2017 Statnet Commons
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\name{ergm_MH_proposals}
-\alias{ergm_MH_proposals}
+\name{ergm-proposals}
+\alias{ergm-proposals}
 \alias{InitErgmProposal}
 \alias{InitErgmProposal.CondDegree}
 \alias{InitErgmProposal.CondDegreeDist}
