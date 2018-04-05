@@ -5,12 +5,11 @@
 \alias{ergm.mcmcslave}
 \title{Internal Function to Sample Networks and Network Statistics}
 \usage{
-ergm.getMCMCsample(nw, model, MHproposal, eta0, control, verbose = FALSE,
+ergm.getMCMCsample(nw, model, proposal, eta0, control, verbose = FALSE,
   response = NULL, update.nws = TRUE, ...)
 
-ergm.mcmcslave(Clist, MHproposal, eta0, control, verbose, ...,
-  prev.run = NULL, burnin = NULL, samplesize = NULL, interval = NULL,
-  maxedges = NULL)
+ergm.mcmcslave(Clist, proposal, eta0, control, verbose, ..., prev.run = NULL,
+  burnin = NULL, samplesize = NULL, interval = NULL, maxedges = NULL)
 }
 \arguments{
 \item{nw}{a \code{\link{network}} object representing the sampler state.}
@@ -18,9 +17,9 @@ ergm.mcmcslave(Clist, MHproposal, eta0, control, verbose, ...,
 \item{model}{an \code{\link{ergm_model}} to be sampled from, as returned by
 \code{\link[=ergm_model]{ergm_model()}}.}
 
-\item{MHproposal}{a list of the parameters needed for
+\item{proposal}{a list of the parameters needed for
 Metropolis-Hastings proposals and the result of calling
-\code{\link[=MHproposal]{MHproposal()}}.}
+\code{\link[=ergm_proposal]{ergm_proposal()}}.}
 
 \item{eta0}{the natural parameters of the model.}
 

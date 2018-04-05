@@ -26,8 +26,8 @@ priority (\code{-1},\code{0},\code{1}, etc.) of MHPs to be used.}
 \description{
 This is a low-level function not intended to be called directly by
 end users. For information on Metropolis-Hastings proposal methods,
-\link{ergm_MH_proposals}. This function sets up the table mapping
-constraints, references, etc. to MHproposals. Calling it with
+\link{ergm-proposals}. This function sets up the table mapping
+constraints, references, etc. to ergm_proposals. Calling it with
 arguments adds a new row to this table. Calling it without
 arguments returns the table so far.
 }

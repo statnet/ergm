@@ -54,7 +54,7 @@
 #' \item{maxin}{ as defined above}
 #' \item{minout}{ as defined above}
 #' \item{minin}{ as defined above}
-#' @seealso \code{\link{ergm_MH_proposals}}
+#' @seealso \code{\link{ergm-proposals}}
 ergm.bounddeg <- function(bounddeg,nw){    
   nnodes=network.size(nw)
   if(is.null(bounddeg) ||

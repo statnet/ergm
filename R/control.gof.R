@@ -34,7 +34,7 @@
 #                   arguments to proposal; as far as I can tell, the
 #                   only use for 'prop.args' is to supply the name
 #                   of a nodal attribute for use in the
-#                   <InitMHP.nobetweengroupties> function, but this
+#                   <InitErgmProposal.nobetweengroupties> function, but this
 #                   function will never be called in the path from
 #                   <ergm.gof> which is the only code using this
 #                   control list.

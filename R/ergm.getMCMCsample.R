@@ -24,9 +24,9 @@
 #' @param nw a [`network`] object representing the sampler state.
 #' @param model an [`ergm_model`] to be sampled from, as returned by
 #'   [ergm_model()].
-#' @param MHproposal a list of the parameters needed for
+#' @param proposal a list of the parameters needed for
 #'   Metropolis-Hastings proposals and the result of calling
-#'   [MHproposal()].
+#'   [ergm_proposal()].
 #' @param eta0 the natural parameters of the model.
 #' @param control list of MCMC tuning parameters; see
 #'   [control.ergm()].
@@ -54,7 +54,7 @@
 #' change class name to prevent the resulting object from being
 #' accessed or modified by functions that do not understand it.
 #' @export ergm.getMCMCsample
-ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control, 
+ergm.getMCMCsample <- function(nw, model, proposal, eta0, control, 
                                         verbose=FALSE, response=NULL, update.nws = TRUE,...) {
   nthreads <- max(
     if(inherits(control$parallel,"cluster")) nrow(summary(control$parallel))
@@ -78,8 +78,8 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
   #' @importFrom parallel clusterMap
   doruns <- function(prev.runs=rep(list(NULL),nthreads), burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL){
     if(!is.null(cl)) clusterMap(cl,ergm.mcmcslave,
-                                  Clist=Clists, prev.run=prev.runs, MoreArgs=list(MHproposal=MHproposal,eta0=eta0,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges))
-    else list(ergm.mcmcslave(Clist=Clists[[1]], prev.run=prev.runs[[1]],burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges,MHproposal=MHproposal,eta0=eta0,control=control.parallel,verbose=verbose,...))
+                                  Clist=Clists, prev.run=prev.runs, MoreArgs=list(proposal=proposal,eta0=eta0,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges))
+    else list(ergm.mcmcslave(Clist=Clists[[1]], prev.run=prev.runs[[1]],burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges,proposal=proposal,eta0=eta0,control=control.parallel,verbose=verbose,...))
   }
   
   if(!is.null(control.parallel$MCMC.effectiveSize)){
@@ -243,7 +243,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
 #
 # --PARAMETERS--
 #   Clist     : the list of parameters returned by <ergm.Cprepare>
-#   MHproposal: the MHproposal list as returned by <getMHproposal>
+#   proposal: the proposal list as returned by <getproposal>
 #   eta0      : the canonical eta parameters
 #   control: a list of parameters for controlling the MCMC algorithm;
 #               recognized components include:
@@ -284,7 +284,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
 #'   allowed edges at the time of return.}
 #' @useDynLib ergm
 #' @export ergm.mcmcslave
-ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL) {
+ergm.mcmcslave <- function(Clist,proposal,eta0,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL) {
 
   numnetworks <- 0
 
@@ -318,18 +318,18 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
               as.integer(Clist$nterms),
               as.character(Clist$fnamestring),
               as.character(Clist$snamestring),
-              as.character(MHproposal$name), as.character(MHproposal$pkgname),
-              as.double(c(Clist$inputs,Clist$slots.extra.aux,MHproposal$inputs)), as.double(.deinf(eta0)),
+              as.character(proposal$name), as.character(proposal$pkgname),
+              as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)), as.double(.deinf(eta0)),
               as.integer(samplesize),
               s = as.double(rep(stats, samplesize)),
               as.integer(burnin), 
               as.integer(interval),
               newnwtails = integer(maxedges),
               newnwheads = integer(maxedges),
-              as.integer(verbose), as.integer(MHproposal$arguments$constraints$bd$attribs),
-              as.integer(MHproposal$arguments$constraints$bd$maxout), as.integer(MHproposal$arguments$constraints$bd$maxin),
-              as.integer(MHproposal$arguments$constraints$bd$minout), as.integer(MHproposal$arguments$constraints$bd$minin),
-              as.integer(MHproposal$arguments$constraints$bd$condAllDegExact), as.integer(length(MHproposal$arguments$constraints$bd$attribs)),
+              as.integer(verbose), as.integer(proposal$arguments$constraints$bd$attribs),
+              as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
+              as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
+              as.integer(proposal$arguments$constraints$bd$condAllDegExact), as.integer(length(proposal$arguments$constraints$bd$attribs)),
               as.integer(maxedges),
               status = integer(1),
               PACKAGE="ergm")
@@ -346,8 +346,8 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
               as.integer(Clist$nterms),
               as.character(Clist$fnamestring),
               as.character(Clist$snamestring),
-              as.character(MHproposal$name), as.character(MHproposal$pkgname),
-              as.double(c(Clist$inputs,Clist$slots.extra.aux,MHproposal$inputs)), as.double(.deinf(eta0)),
+              as.character(proposal$name), as.character(proposal$pkgname),
+              as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)), as.double(.deinf(eta0)),
               as.integer(samplesize),
               s = as.double(rep(stats, samplesize)),
               as.integer(burnin), 

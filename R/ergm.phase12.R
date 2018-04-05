@@ -15,7 +15,7 @@
 # --PARAMETERS--
 #   g         : a network object
 #   model     : a model for 'g', as returned by <ergm_model>
-#   MHproposal: an MHproposal object, as returned by <MHproposal>
+#   proposal: an proposal object, as returned by <proposal>
 #   eta0      : the vector of initial eta coefficients
 #   control: a list of control parameters for the MCMC algorithm;
 #               recognized components include:
@@ -40,7 +40,7 @@
 ###############################################################################
 
 ergm.phase12 <- function(g, model,
-                        MHproposal, eta0,
+                        proposal, eta0,
                         control, verbose) {
 # ms <- model$target.stats
 # if(!is.null(ms)) {
@@ -71,7 +71,7 @@ ergm.phase12 <- function(g, model,
             as.integer(Clist$nterms), 
             as.character(Clist$fnamestring),
             as.character(Clist$snamestring),
-            as.character(MHproposal$name), as.character(MHproposal$pkgname),
+            as.character(proposal$name), as.character(proposal$pkgname),
             as.double(Clist$inputs),
             eta=as.double(.deinf(eta0)),
             as.integer(control$MCMC.samplesize),
@@ -83,10 +83,10 @@ ergm.phase12 <- function(g, model,
             newnwtails = integer(maxedges),
             newnwheads = integer(maxedges),
             as.integer(verbose), 
-            as.integer(MHproposal$arguments$constraints$bd$attribs), 
-            as.integer(MHproposal$arguments$constraints$bd$maxout), as.integer(MHproposal$arguments$constraints$bd$maxin),
-            as.integer(MHproposal$arguments$constraints$bd$minout), as.integer(MHproposal$arguments$constraints$bd$minin),
-            as.integer(MHproposal$arguments$constraints$bd$condAllDegExact), as.integer(length(MHproposal$arguments$constraints$bd$attribs)), 
+            as.integer(proposal$arguments$constraints$bd$attribs), 
+            as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
+            as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
+            as.integer(proposal$arguments$constraints$bd$condAllDegExact), as.integer(length(proposal$arguments$constraints$bd$attribs)), 
             as.integer(maxedges),
             as.integer(0.0), as.integer(0.0), 
             as.integer(0),

@@ -102,15 +102,15 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   constraints.obs <- tmp$constraints.obs
   
 
-  ## Preinitialize MHproposals and set "observed" statistics:
-  MHproposal <- MHproposal(constraints,arguments=control$MCMC.prop.args,
+  ## Preinitialize proposals and set "observed" statistics:
+  proposal <- ergm_proposal(constraints,arguments=control$MCMC.prop.args,
                            nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
-  m<-ergm_model(object, nw, response=response, extra.aux=list(MHproposal$auxiliaries), term.options=control$term.options)
+  m<-ergm_model(object, nw, response=response, extra.aux=list(proposal$auxiliaries), term.options=control$term.options)
 
   if(!is.null(constraints.obs)){
-    MHproposal.obs <- MHproposal(constraints.obs,arguments=control$obs.MCMC.prop.args,
+    proposal.obs <- ergm_proposal(constraints.obs,arguments=control$obs.MCMC.prop.args,
                                  nw=nw, weights=control$obs.MCMC.prop.weights, class="c",reference=reference,response=response)
-    m.obs<-ergm_model(object, nw, response=response, extra.aux=list(MHproposal.obs$auxiliaries), term.options=control$term.options)
+    m.obs<-ergm_model(object, nw, response=response, extra.aux=list(proposal.obs$auxiliaries), term.options=control$term.options)
 
     stats.obs <- matrix(NA,control$nsteps,m$etamap$etalength)
   }else
@@ -126,7 +126,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
     if(verbose>0) message("Running theta=[",paste(format(theta),collapse=","),"].")
     if(verbose>1) message("Burning in...")
     ## First burn-in has to be longer, but those thereafter should be shorter if the bridges are closer together.
-    nw.state<-simulate(m, coef=theta, nsim=1, response=response, reference=reference, constraints=MHproposal, basis=nw, statsonly=FALSE, verbose=max(verbose-1,0),
+    nw.state<-simulate(m, coef=theta, nsim=1, response=response, reference=reference, constraints=proposal, basis=nw, statsonly=FALSE, verbose=max(verbose-1,0),
                        control=control.simulate.formula(MCMC.burnin=if(i==1) control$MCMC.burnin else ceiling(control$MCMC.burnin/sqrt(control$nsteps)),
                          MCMC.interval=1,
                          MCMC.packagenames=control$MCMC.packagenames,
@@ -134,7 +134,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
                          parallel.type=control$parallel.type,
                          parallel.version.check=control$parallel.version.check), ...)
 
-    stats[i,]<-colMeans(simulate(m, coef=theta, response=response, reference=reference, constraints=MHproposal, basis=nw.state, statsonly=TRUE, verbose=max(verbose-1,0),
+    stats[i,]<-colMeans(simulate(m, coef=theta, response=response, reference=reference, constraints=proposal, basis=nw.state, statsonly=TRUE, verbose=max(verbose-1,0),
                               control=control.simulate.formula(MCMC.burnin=0,
                                                                MCMC.interval=control$MCMC.interval,
                                                                MCMC.packagenames=control$MCMC.packagenames,
@@ -144,7 +144,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
                               nsim=ceiling(control$MCMC.samplesize/control$nsteps), ...))
     
     if(!is.null(constraints.obs)){
-      nw.state.obs<-simulate(m.obs, coef=theta, nsim=1, response=response, reference=reference, constraints=MHproposal.obs, basis=nw, statsonly=FALSE, verbose=max(verbose-1,0),
+      nw.state.obs<-simulate(m.obs, coef=theta, nsim=1, response=response, reference=reference, constraints=proposal.obs, basis=nw, statsonly=FALSE, verbose=max(verbose-1,0),
                              control=control.simulate.formula(MCMC.burnin=if(i==1) control$obs.MCMC.burnin else ceiling(control$obs.MCMC.burnin/sqrt(control$nsteps)),
                                MCMC.interval=1,
                                MCMC.packagenames=control$MCMC.packagenames,
@@ -152,7 +152,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
                                parallel.type=control$parallel.type,
                                parallel.version.check=control$parallel.version.check), ...)
 
-      stats.obs[i,]<-colMeans(simulate(m.obs, coef=theta, response=response, reference=reference, constraints=MHproposal.obs, basis=nw.state.obs, statsonly=TRUE, verbose=max(verbose-1,0),
+      stats.obs[i,]<-colMeans(simulate(m.obs, coef=theta, response=response, reference=reference, constraints=proposal.obs, basis=nw.state.obs, statsonly=TRUE, verbose=max(verbose-1,0),
                                 control=control.simulate.formula(MCMC.burnin=0,
                                   MCMC.interval=control$obs.MCMC.interval,
                                   MCMC.packagenames=control$MCMC.packagenames,

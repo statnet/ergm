@@ -4,12 +4,15 @@
 \alias{old.formula.utils}
 \alias{ergm.update.formula}
 \alias{remove.offset.formula}
+\alias{offset.info.formula}
 \title{Obsolete formula and model utilities. They will be removed in a
 future release.}
 \usage{
 ergm.update.formula(object, new, ..., from.new = FALSE)
 
 remove.offset.formula(object, response = NULL)
+
+offset.info.formula(object, response = NULL)
 }
 \arguments{
 \item{object}{an \code{ergm} formula.}
@@ -34,4 +37,7 @@ vector) or all of new (if TRUE).
 in an ERGM formula. (DEPRECATED: Use \code{statnet.common::filter_rhs.formula(object, function(x) (if(is.call(x)) x[[1]] else x)!="offset")}.)
 
 [[1]: R:[1
+
+\code{offset.info.formula} returns the offset
+vectors associated with a formula. DEPRECATED.
 }

@@ -348,11 +348,12 @@ remove.offset.formula <- function(object, response=NULL){
   nonsimp_update.formula(object, append_rhs.formula(~.,terms)) # append_rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
 }
 
-#' @rdname ergm_model
+#' @rdname old.formula.utils
 #' @description \code{offset.info.formula} returns the offset
-#'   vectors associated with a formula.
+#'   vectors associated with a formula. DEPRECATED.
 #' @export offset.info.formula
 offset.info.formula <- function(object, response=NULL){
+  .Deprecated()
   nw <- ergm.getnetwork(object)
   m<-ergm_model(object, nw, response=response,role="target")
   with(m$etamap, list(term=offset, theta=offsettheta,eta=offsetmap))

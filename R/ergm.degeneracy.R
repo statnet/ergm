@@ -195,7 +195,6 @@ ergm.compute.degeneracy<-function(xobs, init, etamap, statsmatrix,
   xsim <- sweep(statsmatrix0, 2, av,"-")
   xsim.obs <- NULL
   probs.obs <- NULL
-# xobs0 <- summary(model$formula)
   xobs <- -xobs - av
 #
 # Set up the initial estimate

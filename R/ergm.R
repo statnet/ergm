@@ -88,7 +88,7 @@
 #    $      #    formula         :  the 'formula' value inputted to <ergm>
 #    $      #    constraints     :  the 'constraints' value inputted to <ergm>
 #           #    prop.args       :  the list of arguments that were passed onto the
-#                                   <InitMHP> routines
+#                                   <InitErgmProposal> routines
 #    $      #    prop.weights    :  the MCMC proposal weights inputted to <ergm> via
 #                                  'control'
 #    $      #    offset          :  a vector of whether each model parameter was set at
@@ -625,30 +625,30 @@ ergm <- function(formula, response=NULL,
   
   if (verbose) message("Initializing Metropolis-Hastings proposal(s):",appendLF=FALSE) 
   
-  MHproposal <- MHproposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
-  if (verbose) message(" Unconstrained ",MHproposal$pkgname,":MH_",MHproposal$name, " ", appendLF=FALSE)
+  proposal <- ergm_proposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
+  if (verbose) message(" Unconstrained ",proposal$pkgname,":MH_",proposal$name, " ", appendLF=FALSE)
 
-  if(!is.null(MHproposal$auxiliaries)){
+  if(!is.null(proposal$auxiliaries)){
     if(verbose) message("(requests auxiliaries: reinitializing model) ")
-    model <- ergm_model(formula, nw, response=response, extra.aux=list(MHproposal$auxiliaries), term.options=control$term.options)
+    model <- ergm_model(formula, nw, response=response, extra.aux=list(proposal$auxiliaries), term.options=control$term.options)
   }
     
   if(!is.null(constraints.obs)){
-    MHproposal.obs <- MHproposal(constraints.obs, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
-    if (verbose) message("Constrained ",MHproposal.obs$pkgname,":MH_",MHproposal.obs$name, " ", appendLF=FALSE)
+    proposal.obs <- ergm_proposal(constraints.obs, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
+    if (verbose) message("Constrained ",proposal.obs$pkgname,":MH_",proposal.obs$name, " ", appendLF=FALSE)
 
-    if(!is.null(MHproposal.obs$auxiliaries)){
+    if(!is.null(proposal.obs$auxiliaries)){
       if(verbose) message("(requests auxiliaries: reinitializing model) ")
-      model$obs.model <- ergm_model(formula, nw, response=response, extra.aux=list(MHproposal.obs$auxiliaries), term.options=control$term.options)
+      model$obs.model <- ergm_model(formula, nw, response=response, extra.aux=list(proposal.obs$auxiliaries), term.options=control$term.options)
     }
-  }else MHproposal.obs <- NULL
+  }else proposal.obs <- NULL
 
   if(verbose) message()
   
   
   # conddeg MPLE has been superceded, but let the user know:
-  if(!is.directed(nw) && ("degrees" %in% names(MHproposal$arguments$constraints) ||
-                                           all(c("b1degrees","b2degrees") %in% names(MHproposal$arguments$constraints)))) message("Note that degree-conditional MPLE has been removed in version 4.0, having been superceded by Contrastive Divergence.")  
+  if(!is.directed(nw) && ("degrees" %in% names(proposal$arguments$constraints) ||
+                                           all(c("b1degrees","b2degrees") %in% names(proposal$arguments$constraints)))) message("Note that degree-conditional MPLE has been removed in version 4.0, having been superceded by Contrastive Divergence.")  
   
   if (verbose) message("Initializing model.")
   
@@ -660,9 +660,9 @@ ergm <- function(formula, response=NULL,
   #
   # TODO: Create a flexible and general framework to manage methods
   # for obtaining initial values.
-  init.candidates <- ergm.init.methods(MHproposal$reference$name)
-  if("MPLE" %in% init.candidates && !is.dyad.independent(MHproposal$arguments$constraints,
-                                                         MHproposal.obs$arguments$constraints)){
+  init.candidates <- ergm.init.methods(proposal$reference$name)
+  if("MPLE" %in% init.candidates && !is.dyad.independent(proposal$arguments$constraints,
+                                                         proposal.obs$arguments$constraints)){
     init.candidates <- init.candidates[init.candidates!="MPLE"]
     if(verbose) message("MPLE cannot be used for this constraint structure.")
   }
@@ -706,7 +706,7 @@ ergm <- function(formula, response=NULL,
   if(any(is.na(control$init) & model$etamap$offsettheta)) stop("The model contains offset terms whose parameter values have not been specified:", paste.and(model$coef.names[is.na(control$init)|model$offsettheta]), ".", sep="")
   
   # Check if any terms are constrained to a constant and issue a warning.
-  constrcheck <- ergm.checkconstraints.model(model, MHproposal, control$init)
+  constrcheck <- ergm.checkconstraints.model(model, proposal, control$init)
   model <- constrcheck$model; control$init <- constrcheck$init
   
   # Check if any terms are at their extremes and handle them depending on control$drop.
@@ -716,18 +716,18 @@ ergm <- function(formula, response=NULL,
   # MPLE is not supported for valued ERGMs.
   if(estimate=="MPLE"){
     if(!is.null(response)) stop("Maximum Pseudo-Likelihood (MPLE) estimation for valued ERGM terms is not implemented at this time. You may want to use Contrastive Divergence by passing estimate='CD' instead.")
-    if(!is.dyad.independent(MHproposal$arguments$constraints,
-                            MHproposal.obs$arguments$constraints))
+    if(!is.dyad.independent(proposal$arguments$constraints,
+                            proposal.obs$arguments$constraints))
       stop("Maximum Pseudo-Likelihood (MPLE) estimation for ERGMs with dyad-dependent constraints is only implemented for certain degree constraints at this time. You may want to use Contrastive Divergence by passing estimate='CD' instead.")
   }
   
   if (verbose) { message("Fitting initial model.") }
   
-  MPLE.is.MLE <- (MHproposal$reference$name=="Bernoulli"
+  MPLE.is.MLE <- (proposal$reference$name=="Bernoulli"
                   && is.dyad.independent(model)
                   && !control$force.main
-                  && is.dyad.independent(MHproposal$arguments$constraints,
-                                         MHproposal.obs$arguments$constraints))
+                  && is.dyad.independent(proposal$arguments$constraints,
+                                         proposal.obs$arguments$constraints))
   
   # If all other criteria for MPLE=MLE are met, _and_ SAN network matches target.stats directly, we can get away with MPLE.
   if (!is.null(target.stats) && !isTRUE(all.equal(target.stats,nw.stats))) message("Unable to match target stats. Using MCMLE estimation.")
@@ -754,8 +754,8 @@ ergm <- function(formula, response=NULL,
                           response=response,
                           newnetwork=nw,
                           formula=formula,
-                          constrained=MHproposal$arguments$constraints,
-                          constrained.obs=MHproposal.obs$arguments$constraints,
+                          constrained=proposal$arguments$constraints,
+                          constrained.obs=proposal.obs$arguments$constraints,
                           constraints=constraints,
                           target.stats=target.stats,
                           target.esteq=if(!is.null(target.stats)){
@@ -780,8 +780,8 @@ ergm <- function(formula, response=NULL,
                                 m=model, method=control$init.method,
                                 MPLEtype=control$MPLE.type, 
                                 control=control,
-                                MHproposal=MHproposal,
-                                MHproposal.obs=MHproposal.obs,
+                                proposal=proposal,
+                                proposal.obs=proposal.obs,
                                 verbose=verbose, response=response,
                                 maxNumDyadTypes=control$MPLE.max.dyad.types,
                                 ...)
@@ -795,8 +795,8 @@ ergm <- function(formula, response=NULL,
     initialfit$response <- response
     initialfit$newnetwork <- nw
     initialfit$formula <- formula
-    initialfit$constrained <- MHproposal$arguments$constraints
-    initialfit$constrained.obs <- MHproposal.obs$arguments$constraints
+    initialfit$constrained <- proposal$arguments$constraints
+    initialfit$constrained.obs <- proposal.obs$arguments$constraints
     initialfit$constraints <- constraints
     initialfit$obs.constraints <- obs.constraints 
     initialfit$target.stats <- suppressWarnings(na.omit(model$target.stats))
@@ -843,9 +843,9 @@ ergm <- function(formula, response=NULL,
   
   mainfit <- switch(control$main.method,
                     "Robbins-Monro" = ergm.robmon(init, nw, model, 
-                                                  MHproposal=MHproposal, verbose=verbose, control=control),
+                                                  proposal=proposal, verbose=verbose, control=control),
                     "Stochastic-Approximation" = ergm.stocapprox(init, nw, model, 
-                                                                 control=control, MHproposal=MHproposal,
+                                                                 control=control, proposal=proposal,
                                                                  verbose),
                     "Stepping" = ergm.stepping(init, nw, model, initialfit, constraints,
                                                #nstats=nstats, 
@@ -853,14 +853,14 @@ ergm <- function(formula, response=NULL,
                                                #control=control.ergm(nsim1=100, nsim2=1000, gridsize=100),  # simulation parameters
                                                #plots=FALSE,  # currently useless, but plots can be reimplemented
                                                control=control, 
-                                               MHproposal=MHproposal, MHproposal.obs=MHproposal.obs, 
+                                               proposal=proposal, proposal.obs=proposal.obs, 
                                                verbose=verbose,...),
                     "MCMLE" = ergm.MCMLE(init, nw,
                                          model, 
                                          # no need to pass initialfit to MCMLE
                                          initialfit=(initialfit<-NULL),
-                                         control=control, MHproposal=MHproposal,
-                                         MHproposal.obs=MHproposal.obs,
+                                         control=control, proposal=proposal,
+                                         proposal.obs=proposal.obs,
                                          verbose=verbose,
                                          response=response,
                                          ...),
@@ -892,8 +892,8 @@ ergm <- function(formula, response=NULL,
     structure(c(tmp), names=colnames(tmp))
   }))
   
-  mainfit$constrained <- MHproposal$arguments$constraints
-  mainfit$constrained.obs <- MHproposal.obs$arguments$constraints
+  mainfit$constrained <- proposal$arguments$constraints
+  mainfit$constrained.obs <- proposal.obs$arguments$constraints
   mainfit$constraints <- constraints
   mainfit$obs.constraints <- obs.constraints
   

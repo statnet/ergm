@@ -1,4 +1,4 @@
-#  File R/InitMHP.blockdiag.R in package ergm, part of the Statnet suite
+#  File R/InitErgmProposal.blockdiag.R in package ergm, part of the Statnet suite
 #  of packages for network analysis, http://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
@@ -8,20 +8,20 @@
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
 ########################################################################
-# Each of the <InitMHP.X> functions initializes and returns a
-# MHproposal list; when appropriate, proposal types are checked against
+# Each of the <InitErgmProposal.X> functions initializes and returns a
+# proposal list; when appropriate, proposal types are checked against
 # covariates and network types for 1 of 2 side effects: to print warning
-# messages or to halt execution (only <InitMHP.nobetweengroupties> can
+# messages or to halt execution (only <InitErgmProposal.nobetweengroupties> can
 # halt execution)
 #
 # --PARAMETERS--
-#   arguments: is ignored by all but <InitMHP.nobetweengroupties>,
+#   arguments: is ignored by all but <InitErgmProposal.nobetweengroupties>,
 #              where 'arguments' is used to get the nodal attributes
 #              via <get.node.attr>
 #   nw       : the network given by the model
 #
 # --RETURNED--
-#   MHproposal: a list containing:
+#   proposal: a list containing:
 #        name   : the name of the proposal
 #        inputs : a vector to be passed to the proposal
 #        package: is "ergm"
@@ -145,12 +145,12 @@ pack.BlockDiagSampInfo_as_num <- function(nw, a){
   return(out)
 }
 
-InitMHP.blockdiag <- function(arguments, nw){
+InitErgmProposal.blockdiag <- function(arguments, nw){
   BDI <- pack.BlockDiagSampInfo_as_num(nw, .get.blockdiag.attr(nw, arguments$constraints))
   list(name = "blockdiag", inputs=unlist(BDI))
 }
 
-InitMHP.blockdiagTNT <- function(arguments, nw){
+InitErgmProposal.blockdiagTNT <- function(arguments, nw){
   el <- as.edgelist(nw)
   a <- .get.blockdiag.attr(nw, arguments$constraints)
   
@@ -162,7 +162,7 @@ InitMHP.blockdiagTNT <- function(arguments, nw){
 }
 
 ## Helper function, since the following two have the same body except for the MH_ function.
-.InitMHP.blockdiagNonObserved <- function(arguments, nw, ...){
+.InitErgmProposal.blockdiagNonObserved <- function(arguments, nw, ...){
   ## Bipartite is handled seamlessly.
   
   a <- .get.blockdiag.attr(nw, arguments$constraints)
@@ -174,10 +174,10 @@ InitMHP.blockdiagTNT <- function(arguments, nw){
 }
 
 
-InitMHP.blockdiagNonObserved <- function(arguments, nw){
-  .InitMHP.blockdiagNonObserved(arguments, nw, name = "randomtoggleList")
+InitErgmProposal.blockdiagNonObserved <- function(arguments, nw){
+  .InitErgmProposal.blockdiagNonObserved(arguments, nw, name = "randomtoggleList")
 }
 
-InitMHP.blockdiagNonObservedTNT <- function(arguments, nw){
-  .InitMHP.blockdiagNonObserved(arguments, nw, name = "listTNT")
+InitErgmProposal.blockdiagNonObservedTNT <- function(arguments, nw){
+  .InitErgmProposal.blockdiagNonObserved(arguments, nw, name = "listTNT")
 }
