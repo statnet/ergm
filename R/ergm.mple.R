@@ -58,8 +58,7 @@
 #'   components include: samplesize : the number of networks to sample
 #'   Clist.miss : see 'Clist.miss' above; some of the code uses this
 #'   Clist.miss,
-#' @param proposal an proposal object, as returned by
-#'   \code{\link{proposal}}
+#' @param proposal an [ergm_proposal()] object.
 #' @param verbose whether this and the C routines should be verbose (T
 #'   or F); default=FALSE
 #' @param \dots additional parameters passed from within; all will be

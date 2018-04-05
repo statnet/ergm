@@ -45,8 +45,7 @@ components include: samplesize : the number of networks to sample
 Clist.miss : see 'Clist.miss' above; some of the code uses this
 Clist.miss,}
 
-\item{proposal}{an proposal object, as returned by
-\code{\link{proposal}}}
+\item{proposal}{an \code{\link[=ergm_proposal]{ergm_proposal()}} object.}
 
 \item{verbose}{whether this and the C routines should be verbose (T
 or F); default=FALSE}
