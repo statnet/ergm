@@ -151,7 +151,7 @@ ergm.allstats <- function(formula, zeroobs = TRUE, force = FALSE,
 
   # Add in observed statistics if they're not supposed to be zero  
   if (!zeroobs) {
-    obsstats <- summary(formula)
+    obsstats <- summary(model, nw)
     statmat <- sweep(statmat, 2, obsstats, '+')
   }
 

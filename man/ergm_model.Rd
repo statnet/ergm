@@ -19,7 +19,7 @@ ergm.getterms(formula)
 
 ergm_model(object, ...)
 
-\method{ergm_model}{formula}(formula, nw, response = NULL, silent = FALSE,
+\method{ergm_model}{formula}(object, nw, response = NULL, silent = FALSE,
   role = "static", ..., term.options = list(), extra.aux = list())
 
 ergm.getmodel(object, ...)
