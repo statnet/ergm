@@ -1,4 +1,4 @@
-#  File R/InitReferences.R in package ergm, part of the Statnet suite
+#  File R/InitErgmReferences.R in package ergm, part of the Statnet suite
 #  of packages for network analysis, http://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
@@ -7,19 +7,19 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
-InitReference.Bernoulli <- function(lhs.nw, ...){
+InitErgmReference.Bernoulli <- function(lhs.nw, ...){
   list(name="Bernoulli")  
 }
 
 
-InitReference.StdNormal <- function(lhs.nw, ...){
+InitErgmReference.StdNormal <- function(lhs.nw, ...){
   list(name="StdNormal")  
 }
 
-InitReference.Unif <- function(lhs.nw, a, b, ...){
+InitErgmReference.Unif <- function(lhs.nw, a, b, ...){
   list(name="Unif", a=a, b=b)  
 }
 
-InitReference.DiscUnif <- function(lhs.nw, a, b, ...){
+InitErgmReference.DiscUnif <- function(lhs.nw, a, b, ...){
   list(name="DiscUnif", a=a, b=b)
 }

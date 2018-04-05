@@ -8,7 +8,7 @@
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
 # For now, this file contains information about reference
-# measures. Eventually, we should create an "InitReference" or similar
+# measures. Eventually, we should create an "InitErgmReference" or similar
 # framework.
 
 

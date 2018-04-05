@@ -15,10 +15,10 @@
 \alias{Bernoulli}
 \alias{Unif}
 \alias{DiscUnif}
-\alias{InitReference.Bernoulli}
-\alias{InitReference.DiscUnif}
-\alias{InitReference.Unif}
-\alias{InitReference.StdNormal}
+\alias{InitErgmReference.Bernoulli}
+\alias{InitErgmReference.DiscUnif}
+\alias{InitErgmReference.Unif}
+\alias{InitErgmReference.StdNormal}
 \alias{InitWtErgmProposal.DiscUnif}
 \alias{InitWtErgmProposal.DiscUnifNonObserved}
 \alias{InitWtErgmProposal.Unif}

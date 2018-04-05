@@ -298,7 +298,7 @@ ergm_conlist <- function(object, nw){
 ergm_proposal.formula <- function(object, arguments, nw, weights="default", class="c", reference=~Bernoulli, response=NULL, ...) {
   reference <- reference
 
-  f <- locate.InitFunction(reference[[2]], "InitReference", "Reference distribution") 
+  f <- locate.InitFunction(reference[[2]], "InitErgmReference", "Reference distribution") 
   
   if(is.call(reference[[2]])){
     ref.call <- list(f, lhs.nw=nw)
