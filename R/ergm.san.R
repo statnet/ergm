@@ -144,7 +144,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
     }
     eta0 <- ifelse(is.na(control$coef), 0, control$coef)
     
-    netsumm<-summary(model$formula,response=response)
+    netsumm<-summary(model,nw,response=response)
     target.stats <- vector.namesmatch(target.stats, names(netsumm))
     
     stats <- matrix(netsumm-target.stats,
