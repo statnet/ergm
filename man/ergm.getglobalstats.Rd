@@ -2,7 +2,7 @@
 % Please edit documentation in R/ergm.getglobalstats.R
 \name{ergm.getglobalstats}
 \alias{ergm.getglobalstats}
-\title{Internal function to return global statistics for a given network}
+\title{Internal function to return global statistics for a given network; (DEPRECATED: use \code{\link[=summary.ergm_model]{summary.ergm_model()}}.)}
 \usage{
 ergm.getglobalstats(nw, m, response = NULL)
 }

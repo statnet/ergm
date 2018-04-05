@@ -13,17 +13,13 @@
 #             <updatemodel.ErgmTerm>
 #===================================================================================
 
-#' Internal Functions for Querying, Validating and Extracting from ERGM
-#' Formulas
+#' Internal representation of an `ergm` network model
 #' 
-#' These are all functions that are generally not called directly by
-#' users, but may be employed by other depending packages.  The
-#' \code{ergm_model} function parses the given formula, and
-#' initiliazes each ergm term via the \code{InitErgmTerm} functions to
-#' create a \code{ergm_model} object.
+#' These methods are generally not called directly by users, but may
+#' be employed by other depending packages.
 #' 
 #' @param formula a formula of the form \code{network ~ model.term(s)}
-#' @param object object from which the model is to be constructed.
+#' @param object See specific method documentation.
 #' @return `ergm_model` returns an  `ergm_model` object as a list
 #' containing:
 #' \item{ formula}{the formula inputted to
@@ -43,7 +39,11 @@ ergm_model <- function(object, ...){
 }
 #' @describeIn ergm_model
 #'
-#' Main method for constructing a model object from an [ergm()] formula of the form \code{network ~ model.term(s)} or \code{~ model.term(s)} with the network passed separately.
+#' Main method for constructing a model object from an [ergm()]
+#' formula of the form \code{network ~ model.term(s)} or \code{~
+#' model.term(s)} with the network passed separately. Each term is
+#' initialized via the \code{InitErgmTerm} functions to create a
+#' \code{ergm_model} object.
 #' 
 #' @param nw the network of interest
 #' @param response charcter, name of edge attribute containing edge weights
