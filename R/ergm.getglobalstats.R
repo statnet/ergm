@@ -35,6 +35,7 @@ ergm.getglobalstats <- function(nw, m, response=NULL) {
 #' @describeIn ergm_model
 #'
 #' The [summary()] method for an `ergm_model` returns a vector of the model's statistics for network `nw` attribute `response` (optionally). If `nw` is omitted or `NULL`, returns empty network's statistics.
+#' @export
 summary.ergm_model <- function(object, nw=NULL, response=NULL,...){
   m <- object
 
