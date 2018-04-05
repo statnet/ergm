@@ -61,7 +61,7 @@ containing the following named elements:
 \item{package}{shared library name where the proposal
 can be found (usually \code{"ergm"})}
 \item{arguments}{list of arguments passed to
-the \code{InitMHP} function; in particular,
+the \code{InitErgmProposal} function; in particular,
 \describe{
 \item{\code{constraints}}{list of constraints}
 }
@@ -69,7 +69,7 @@ the \code{InitMHP} function; in particular,
 }
 \description{
 S3 Functions that initialize the Metropolis-Hastings Proposal (ergm_proposal)
-object using the \code{InitMHP.*} function that corresponds to the name given in
+object using the \code{InitErgmProposal.*} function that corresponds to the name given in
 'object'.  These functions are not generally called directly by the user.
 See \link{ergm_MH_proposals} for general explanation and lists of available
 Metropolis-Hastings proposal types.
@@ -85,6 +85,6 @@ giving the \R name of the proposal.
 }}
 
 \seealso{
-\code{\link{InitMHP}}
+\code{\link{InitErgmProposal}}
 }
 \keyword{models}

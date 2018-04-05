@@ -1,4 +1,4 @@
-#  File R/InitMHP.blockdiag.R in package ergm, part of the Statnet suite
+#  File R/InitErgmProposal.blockdiag.R in package ergm, part of the Statnet suite
 #  of packages for network analysis, http://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
@@ -8,14 +8,14 @@
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
 ########################################################################
-# Each of the <InitMHP.X> functions initializes and returns a
+# Each of the <InitErgmProposal.X> functions initializes and returns a
 # proposal list; when appropriate, proposal types are checked against
 # covariates and network types for 1 of 2 side effects: to print warning
-# messages or to halt execution (only <InitMHP.nobetweengroupties> can
+# messages or to halt execution (only <InitErgmProposal.nobetweengroupties> can
 # halt execution)
 #
 # --PARAMETERS--
-#   arguments: is ignored by all but <InitMHP.nobetweengroupties>,
+#   arguments: is ignored by all but <InitErgmProposal.nobetweengroupties>,
 #              where 'arguments' is used to get the nodal attributes
 #              via <get.node.attr>
 #   nw       : the network given by the model
@@ -66,7 +66,7 @@
   list(values=o, lengths1=l1, lengths2=l2)
 }
 
-.InitMHP.blockdiag.bipartite.setup <- function(arguments, nw){
+.InitErgmProposal.blockdiag.bipartite.setup <- function(arguments, nw){
   bip <- nw %n% "bipartite"
 
   ea <- (nw %v% arguments$constraints$blockdiag$attrname)[seq_len(bip)]
@@ -88,8 +88,8 @@
   list(nd=nd, eb=eb, ab=ab, w=w)
 }
 
-InitMHP.blockdiag <- function(arguments, nw){
-  if(is.bipartite(nw)) return(.InitMHP.blockdiag.bipartite(arguments, nw))
+InitErgmProposal.blockdiag <- function(arguments, nw){
+  if(is.bipartite(nw)) return(.InitErgmProposal.blockdiag.bipartite(arguments, nw))
   # rle() returns contigous runs of values.
   a <- rle(nw %v% arguments$constraints$blockdiag$attrname)
   # If we have more runs than unique values, the blocks must not be all contiguous.
@@ -103,15 +103,15 @@ InitMHP.blockdiag <- function(arguments, nw){
   proposal
 }
 
-.InitMHP.blockdiag.bipartite <- function(arguments, nw){
-  tmp <- .InitMHP.blockdiag.bipartite.setup(arguments, nw)  
+.InitErgmProposal.blockdiag.bipartite <- function(arguments, nw){
+  tmp <- .InitErgmProposal.blockdiag.bipartite.setup(arguments, nw)  
   proposal <- list(name = "blockdiagB", inputs=c(length(tmp$eb)-1, tmp$eb, tmp$ab, tmp$w))
   proposal
 }
 
 
-InitMHP.blockdiagTNT <- function(arguments, nw){
-  if(is.bipartite(nw)) return(.InitMHP.blockdiagTNT.bipartite(arguments, nw))
+InitErgmProposal.blockdiagTNT <- function(arguments, nw){
+  if(is.bipartite(nw)) return(.InitErgmProposal.blockdiagTNT.bipartite(arguments, nw))
 
   el <- as.edgelist(nw)
   a <- nw %v% arguments$constraints$blockdiag$attrname
@@ -134,14 +134,14 @@ InitMHP.blockdiagTNT <- function(arguments, nw){
   proposal
 }
 
-.InitMHP.blockdiagTNT.bipartite <- function(arguments, nw){
-  tmp <- .InitMHP.blockdiag.bipartite.setup(arguments, nw)  
+.InitErgmProposal.blockdiagTNT.bipartite <- function(arguments, nw){
+  tmp <- .InitErgmProposal.blockdiag.bipartite.setup(arguments, nw)  
   proposal <- list(name = "blockdiagTNTB", inputs=c(tmp$nd, length(tmp$eb)-1, tmp$eb, tmp$ab, tmp$w))
   proposal
 }
 
 ## Helper function, since the following two have the same body except for the MH_ function.
-.InitMHP.blockdiagNonObserved <- function(arguments, nw, ...){
+.InitErgmProposal.blockdiagNonObserved <- function(arguments, nw, ...){
   ## Bipartite is handled seamlessly.
   
   a <- nw %v% arguments$constraints$blockdiag$attrname
@@ -154,10 +154,10 @@ InitMHP.blockdiagTNT <- function(arguments, nw){
 }
 
 
-InitMHP.blockdiagNonObserved <- function(arguments, nw){
-  .InitMHP.blockdiagNonObserved(arguments, nw, name = "randomtoggleList")
+InitErgmProposal.blockdiagNonObserved <- function(arguments, nw){
+  .InitErgmProposal.blockdiagNonObserved(arguments, nw, name = "randomtoggleList")
 }
 
-InitMHP.blockdiagNonObservedTNT <- function(arguments, nw){
-  .InitMHP.blockdiagNonObserved(arguments, nw, name = "listTNT")
+InitErgmProposal.blockdiagNonObservedTNT <- function(arguments, nw){
+  .InitErgmProposal.blockdiagNonObserved(arguments, nw, name = "listTNT")
 }

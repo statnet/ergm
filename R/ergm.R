@@ -88,7 +88,7 @@
 #    $      #    formula         :  the 'formula' value inputted to <ergm>
 #    $      #    constraints     :  the 'constraints' value inputted to <ergm>
 #           #    prop.args       :  the list of arguments that were passed onto the
-#                                   <InitMHP> routines
+#                                   <InitErgmProposal> routines
 #    $      #    prop.weights    :  the MCMC proposal weights inputted to <ergm> via
 #                                  'control'
 #    $      #    offset          :  a vector of whether each model parameter was set at

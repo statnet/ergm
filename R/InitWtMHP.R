@@ -1,4 +1,4 @@
-#  File R/InitWtMHP.R in package ergm, part of the Statnet suite
+#  File R/InitWtErgmProposal.R in package ergm, part of the Statnet suite
 #  of packages for network analysis, http://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
@@ -8,12 +8,12 @@
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
 
-InitWtMHP.StdNormal <- function(arguments, nw, response) {
+InitWtErgmProposal.StdNormal <- function(arguments, nw, response) {
   proposal <- list(name = "StdNormal", inputs=NULL)
   proposal
 }
 
-InitWtMHP.DiscUnif <- function(arguments, nw, response) {
+InitWtErgmProposal.DiscUnif <- function(arguments, nw, response) {
   a <- NVL(arguments$reference$a, -Inf)
   b <- NVL(arguments$reference$b, Inf)
   if(!is.finite(a) || !is.finite(b)) stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
@@ -21,7 +21,7 @@ InitWtMHP.DiscUnif <- function(arguments, nw, response) {
   proposal
 }
 
-InitWtMHP.DiscUnifNonObserved <- function(arguments, nw, response) {
+InitWtErgmProposal.DiscUnifNonObserved <- function(arguments, nw, response) {
   a <- NVL(arguments$reference$a, -Inf)
   b <- NVL(arguments$reference$b, Inf)
   if(!is.finite(a) || !is.finite(b)) stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
@@ -29,7 +29,7 @@ InitWtMHP.DiscUnifNonObserved <- function(arguments, nw, response) {
   proposal
 }
 
-InitWtMHP.Unif <- function(arguments, nw, response) {
+InitWtErgmProposal.Unif <- function(arguments, nw, response) {
   a <- NVL(arguments$reference$a, -Inf)
   b <- NVL(arguments$reference$b, Inf)
   if(!is.finite(a) || !is.finite(b)) stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
@@ -37,7 +37,7 @@ InitWtMHP.Unif <- function(arguments, nw, response) {
   proposal
 }
 
-InitWtMHP.UnifNonObserved <- function(arguments, nw, response) {
+InitWtErgmProposal.UnifNonObserved <- function(arguments, nw, response) {
   a <- NVL(arguments$reference$a, -Inf)
   b <- NVL(arguments$reference$b, Inf)
   if(!is.finite(a) || !is.finite(b)) stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
@@ -45,7 +45,7 @@ InitWtMHP.UnifNonObserved <- function(arguments, nw, response) {
   proposal
 }
 
-InitWtMHP.DistRLE <- function(arguments, nw, response) {
+InitWtErgmProposal.DistRLE <- function(arguments, nw, response) {
   inputs <- with(arguments$reference,
                  switch(name,
                         Unif = c(0, a, b),

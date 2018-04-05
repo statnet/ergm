@@ -115,7 +115,7 @@ prune.ergm_conlist <- function(conlist){
 #              is for <nobetweengroupties>, but this isn't included in the 
 #              look-up table
 #     package: shared library name where the proposal can be found (usually "ergm")
-#     arguments: list of arguments passed to the InitMHP function; in particular,
+#     arguments: list of arguments passed to the InitErgmProposal function; in particular,
 #       constraints: list of constraints
 #       constraints$bd: the list of parameters to bound degree in the fitting process
 #              and returned by <ergm.bounddeg>
@@ -127,7 +127,7 @@ prune.ergm_conlist <- function(conlist){
 #' Functions to initialize the ergm_proposal object
 #' 
 #' S3 Functions that initialize the Metropolis-Hastings Proposal (ergm_proposal)
-#' object using the `InitMHP.*` function that corresponds to the name given in
+#' object using the `InitErgmProposal.*` function that corresponds to the name given in
 #' 'object'.  These functions are not generally called directly by the user.
 #' See \link{ergm_MH_proposals} for general explanation and lists of available
 #' Metropolis-Hastings proposal types.
@@ -146,12 +146,12 @@ prune.ergm_conlist <- function(conlist){
 #' \item{package}{shared library name where the proposal
 #' can be found (usually `"ergm"`)}
 #' \item{arguments}{list of arguments passed to
-#' the `InitMHP` function; in particular,
+#' the `InitErgmProposal` function; in particular,
 #' \describe{
 #' \item{`constraints`}{list of constraints}
 #' }
 #' }
-#' @seealso \code{\link{InitMHP}}
+#' @seealso \code{\link{InitErgmProposal}}
 #' @keywords models
 #' @export
 ergm_proposal<-function(object, ...) UseMethod("ergm_proposal")
@@ -172,7 +172,7 @@ ergm_proposal.ergm_proposal<-function(object,...) return(object)
 
 ########################################################################################
 # The <ergm_proposal.character> function initializes the ergm_proposal object using the
-# <InitMHP.> function that corresponds to the name given in 'object'
+# <InitErgmProposal.> function that corresponds to the name given in 'object'
 #
 # --PARAMETERS--
 #   object     :  the name of the proposal, one found in the look-up table
@@ -196,7 +196,7 @@ ergm_proposal.character <- function(object, arguments, nw, ..., response=NULL, r
 
   arguments$reference <- reference
 
-  f <- locate.InitFunction(name, NVL2(response, "InitWtMHP", "InitMHP"), "Metropolis-Hastings proposal")
+  f <- locate.InitFunction(name, NVL2(response, "InitWtErgmProposal", "InitErgmProposal"), "Metropolis-Hastings proposal")
 
   proposal <- NVL3(response,
                    eval(as.call(list(f, arguments, nw, .))),

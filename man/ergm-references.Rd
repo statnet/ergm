@@ -19,11 +19,11 @@
 \alias{InitReference.DiscUnif}
 \alias{InitReference.Unif}
 \alias{InitReference.StdNormal}
-\alias{InitWtMHP.DiscUnif}
-\alias{InitWtMHP.DiscUnifNonObserved}
-\alias{InitWtMHP.Unif}
-\alias{InitWtMHP.UnifNonObserved}
-\alias{InitWtMHP.StdNormal}
+\alias{InitWtErgmProposal.DiscUnif}
+\alias{InitWtErgmProposal.DiscUnifNonObserved}
+\alias{InitWtErgmProposal.Unif}
+\alias{InitWtErgmProposal.UnifNonObserved}
+\alias{InitWtErgmProposal.StdNormal}
 
 \docType{methods}
 
