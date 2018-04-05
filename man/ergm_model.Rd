@@ -7,13 +7,11 @@
 \alias{ergm_model}
 \alias{ergm_model.formula}
 \alias{ergm.getmodel}
-\alias{ergm.update.formula}
-\alias{remove.offset.formula}
 \alias{offset.info.formula}
 \title{Internal Functions for Querying, Validating and Extracting from ERGM
 Formulas}
 \usage{
-ergm.getnetwork(form, loopswarning = TRUE)
+ergm.getnetwork(formula, loopswarning = TRUE)
 
 ergm.getterms(formula)
 
@@ -24,21 +22,15 @@ ergm_model(object, ...)
 
 ergm.getmodel(object, ...)
 
-ergm.update.formula(object, new, ..., from.new = FALSE)
-
-remove.offset.formula(object, response = NULL)
-
 offset.info.formula(object, response = NULL)
 }
 \arguments{
-\item{form}{same as formula, a formula of the form \code{network ~ model.term(s)}}
+\item{formula}{a formula of the form \code{network ~ model.term(s)}}
 
 \item{loopswarning}{whether warnings about loops should be printed (T or
 F);default=TRUE}
 
-\item{formula}{a formula of the form \code{network ~ model.term(s)}}
-
-\item{object}{formula object to be updated}
+\item{object}{object from which the model is to be constructed.}
 
 \item{\dots}{additional parameters for model formulation}
 
@@ -51,15 +43,6 @@ initialization of each model term; default=FALSE}
 
 \item{role}{A hint about how the model will be used. Used primarily for
 dynamic network models.}
-
-\item{term.options}{A list of additional arguments to be passed to term initializers.}
-
-\item{extra.aux}{a list of formulas giving additional auxiliaries to initialize.}
-
-\item{new}{new formula to be used in updating}
-
-\item{from.new}{logical or character vector of variable names. controls how
-environment of formula gets updated.}
 }
 \value{
 \code{ergm.getnetwork} returns: \itemize{ \item the network
@@ -102,24 +85,12 @@ create a \code{ergm_model} object.
 
 \code{ergm.getmodel} is a deprecated name for the \code{ergm_model.formula} method.
 
-\code{ergm.update.formula} (DEPRECATED: use
-\code{\link[statnet.common]{nonsimp_update.formula}} instead) is a
-reimplementation of \code{\link{update.formula}} that does not
-simplify.  Note that the resulting formula's environment is set as
-follows. If \code{from.new==FALSE}, it is set to that of
-object. Otherwise, a new sub-environment of object, containing, in
-addition, variables in new listed in from.new (if a character
-vector) or all of new (if TRUE).
-
-\code{remove.offset.formula} deletes all \code{\link{offset}} terms in
-an ERGM formula.
-
 \code{offset.info.formula} returns the offset
 vectors associated with a formula.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{formula}: Main method for constructing a model object from an \code{\link[=ergm]{ergm()}} formula of the form \code{network ~ model.term(s)}.
+\item \code{formula}: Main method for constructing a model object from an \code{\link[=ergm]{ergm()}} formula of the form \code{network ~ model.term(s)} or \code{~ model.term(s)} with the network passed separately.
 }}
 
 \note{
