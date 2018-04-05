@@ -63,7 +63,7 @@ InitErgmProposal.CondDegreeMix <- function(arguments, nw) {
 
 InitErgmProposal.CondOutDegree <- function(arguments, nw) {
   proposal <- list(name = "CondOutDegree", inputs=NULL)
-  if (!is.directed(nw)) # Really, this should never trigger, since the InitConstraint function should check.
+  if (!is.directed(nw)) # Really, this should never trigger, since the InitErgmConstraint function should check.
     stop("The CondOutDegree proposal function does not work with an",
           "undirected network.")
   
@@ -72,7 +72,7 @@ InitErgmProposal.CondOutDegree <- function(arguments, nw) {
 
 InitErgmProposal.CondInDegree <- function(arguments, nw) {
   proposal <- list(name = "CondInDegree", inputs=NULL)
-  if (!is.directed(nw)) # Really, this should never trigger, since the InitConstraint function should check.
+  if (!is.directed(nw)) # Really, this should never trigger, since the InitErgmConstraint function should check.
     stop("The CondInDegree proposal function does not work with an",
           "undirected network.")
   proposal
@@ -80,7 +80,7 @@ InitErgmProposal.CondInDegree <- function(arguments, nw) {
 
 InitErgmProposal.CondB1Degree <- function(arguments, nw) {
   proposal <- list(name = "CondB1Degree", inputs=NULL)
-  if (!is.bipartite(nw)) # Really, this should never trigger, since the InitConstraint function should check.
+  if (!is.bipartite(nw)) # Really, this should never trigger, since the InitErgmConstraint function should check.
     stop("The CondB1Degree proposal function does not work with a non-bipartite network.")
   
   proposal
@@ -88,7 +88,7 @@ InitErgmProposal.CondB1Degree <- function(arguments, nw) {
 
 InitErgmProposal.CondB2Degree <- function(arguments, nw) {
   proposal <- list(name = "CondB2Degree", inputs=NULL)
-  if (!is.bipartite(nw)) # Really, this should never trigger, since the InitConstraint function should check.
+  if (!is.bipartite(nw)) # Really, this should never trigger, since the InitErgmConstraint function should check.
     stop("The CondB2Degree proposal function does not work with a non-bipartite network.")
   proposal
 }

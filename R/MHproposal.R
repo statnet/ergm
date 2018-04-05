@@ -257,7 +257,7 @@ ergm_conlist <- function(object, nw){
     ## There may be other constraints in the formula, however.
     if(constraint==".") next
 
-    f <- locate.InitFunction(constraint, "InitConstraint", "Sample space constraint")
+    f <- locate.InitFunction(constraint, "InitErgmConstraint", "Sample space constraint")
     
     if(is.call(constraint)){
       conname <- as.character(constraint[[1]])
