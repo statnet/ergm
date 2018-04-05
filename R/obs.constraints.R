@@ -10,7 +10,7 @@
 
 .delete_from_conform_rhs <- function(f, del){
   ff <- filter_rhs.formula(f, `!=`, del)
-  if(length(ff)!=length(f)) ff <- append_rhs.formula(ff,as.name('.'))
+  if(length(ff)!=length(f)) ff[[length(ff)+1]] <- as.name('.')
   ff
 }
 
