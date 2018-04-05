@@ -54,7 +54,7 @@ ergm_model <- function(object, ...){
 #' @param \dots additional parameters for model formulation
 #'
 #' @export
-ergm_model.formula <- function(formula, nw, response=NULL, silent=FALSE, role="static",...,term.options=list(),extra.aux=list()){
+ergm_model.formula <- function(object, nw, response=NULL, silent=FALSE, role="static",...,term.options=list(),extra.aux=list()){
   if (!is(object, "formula"))
     stop("Invalid model formula of class ",sQuote(class(object)),".", call.=FALSE)
 

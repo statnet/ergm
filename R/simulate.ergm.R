@@ -214,16 +214,16 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
 
   # Construct the proposal; this needs to be done here so that the
   # auxiliary requests could be passed to ergm_model().
-  MHproposal <- if(inherits(constraints, "MHproposal")) constraints
-                else MHproposal(constraints,arguments=control$MCMC.prop.args,
+  proposal <- if(inherits(constraints, "proposal")) constraints
+                else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
                                 nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
   
   # Prepare inputs to ergm.getMCMCsample
-  m <- ergm_model(form, basis, response=response, role="static", extra.aux=list(MHproposal$auxiliaries),term.options=control$term.options)
+  m <- ergm_model(form, basis, response=response, role="static", extra.aux=list(proposal$auxiliaries),term.options=control$term.options)
 
   out <- simulate(m, nsim=nsim, seed=seed,
                   coef=coef, response=response, reference=reference,
-                  constraints=MHproposal,
+                  constraints=proposal,
                   monitor=monitored.length,
                   basis=basis,
                   statsonly=statsonly,
@@ -288,12 +288,12 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   
   if(nparam(m)!=length(coef)) stop("coef has ", length(coef) - monitored.length, " elements, while the model requires ",nparam(m) - monitored.length," parameters.")
 
-  MHproposal <- if(inherits(constraints, "MHproposal")) constraints
-                else MHproposal(constraints,arguments=control$MCMC.prop.args,
+  proposal <- if(inherits(constraints, "proposal")) constraints
+                else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
                                 nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
 
-  if(length(MHproposal$auxiliaries) && !length(m$slots.extra.aux))
-    stop("The MHproposal appears to be requesting auxiliaries, but the initialized model does not export any extra auxiliaries.")
+  if(length(proposal$auxiliaries) && !length(m$slots.extra.aux))
+    stop("The proposal appears to be requesting auxiliaries, but the initialized model does not export any extra auxiliaries.")
   
   if (any(is.nan(coef) | is.na(coef)))
     stop("Illegal value of coef passed to simulate.formula")
@@ -326,7 +326,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     # In this case, we can make one, parallelized run of
     # ergm.getMCMCsample.
     control$MCMC.samplesize <- nsim
-    z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose, response=response)
+    z <- ergm.getMCMCsample(nw, m, proposal, eta0, control, verbose=verbose, response=response)
     
     # Post-processing:  Add term names to columns and shift each row by
     # observed statistics.
@@ -370,7 +370,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
       
       control$MCMC.samplesize <- nthreads
       control$MCMC.burnin <- if(i==1 || sequential==FALSE) control$MCMC.burnin else control$MCMC.interval
-      z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose, response=response)
+      z <- ergm.getMCMCsample(nw, m, proposal, eta0, control, verbose=verbose, response=response)
       
       out.mat <- rbind(out.mat, curstats + z$statsmatrix)
       

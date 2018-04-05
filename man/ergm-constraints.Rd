@@ -5,24 +5,24 @@
 \alias{constraints.ergm}
 
 \alias{ConstraintImplications}
-\alias{InitConstraint.bd}
-\alias{InitConstraint.degreedist}
-\alias{InitConstraint.degrees}
-\alias{InitConstraint.dyadnoise}
-\alias{InitConstraint.odegrees}
-\alias{InitConstraint.idegrees}
-\alias{InitConstraint.b1degrees}
-\alias{InitConstraint.b2degrees}
-\alias{InitConstraint.blockdiag}
-\alias{InitConstraint.edges}
-\alias{InitConstraint.hamming}
-\alias{InitConstraint.idegreedist}
-\alias{InitConstraint.nodedegrees}
-\alias{InitConstraint.observed}
-\alias{InitConstraint.odegreedist}
-\alias{InitConstraint.fixedas}
-\alias{InitConstraint.fixallbut}
-\alias{InitConstraint.egocentric}
+\alias{InitErgmConstraint.bd}
+\alias{InitErgmConstraint.degreedist}
+\alias{InitErgmConstraint.degrees}
+\alias{InitErgmConstraint.dyadnoise}
+\alias{InitErgmConstraint.odegrees}
+\alias{InitErgmConstraint.idegrees}
+\alias{InitErgmConstraint.b1degrees}
+\alias{InitErgmConstraint.b2degrees}
+\alias{InitErgmConstraint.blockdiag}
+\alias{InitErgmConstraint.edges}
+\alias{InitErgmConstraint.hamming}
+\alias{InitErgmConstraint.idegreedist}
+\alias{InitErgmConstraint.nodedegrees}
+\alias{InitErgmConstraint.observed}
+\alias{InitErgmConstraint.odegreedist}
+\alias{InitErgmConstraint.fixedas}
+\alias{InitErgmConstraint.fixallbut}
+\alias{InitErgmConstraint.egocentric}
 
 \docType{methods}
 
@@ -48,7 +48,7 @@
 \section{Constraints formula}{
   
   A constraints formula is a one- or two-sided formula whose left-hand
-  side is an optional direct selection of the \code{InitMHP} function
+  side is an optional direct selection of the \code{InitErgmProposal} function
   and whose right-hand
   side is a series of one or more terms separated by \dQuote{\code{+}}
   and \dQuote{\code{-}} operators, specifying the constraint.

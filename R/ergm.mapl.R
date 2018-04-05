@@ -26,7 +26,7 @@
 #                      edges     degreedist     idegreedist
 #                      observed  odegreedist
 #                  default="~ ."
-#   proposaltype:  presumably the MHproposal type, but this is only used
+#   proposaltype:  presumably the proposal type, but this is only used
 #                  in calls to <ergm.san>, which doesn't accept a
 #                  'proposaltype' argument
 #   target.stats   :  a vector of the mean value parameters;

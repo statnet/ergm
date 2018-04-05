@@ -1,4 +1,4 @@
-#  File R/InitMHP.R in package ergm, part of the Statnet suite
+#  File R/InitErgmProposal.R in package ergm, part of the Statnet suite
 #  of packages for network analysis, http://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
@@ -8,8 +8,8 @@
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
 #===========================================================================
-# The <InitMHP> file contains the following 24 functions for
-# initializing the MHproposal object; each is prepended with 'InitMHP.'
+# The <InitErgmProposal> file contains the following 24 functions for
+# initializing the proposal object; each is prepended with 'InitErgmProposal.'
 #       <randomtoggle>      <CondOutDegreeDist> 
 #       <TNT>               <ConstantEdges>    
 #       <CondInDegree>      <CondDegree>
@@ -22,196 +22,196 @@
 
 
 ########################################################################
-# Each of the <InitMHP.X> functions initializes and returns a
-# MHproposal list; when appropriate, proposal types are checked against
+# Each of the <InitErgmProposal.X> functions initializes and returns a
+# proposal list; when appropriate, proposal types are checked against
 # covariates and network types for 1 of 2 side effects: to print warning
-# messages or to halt execution (only <InitMHP.nobetweengroupties> can
+# messages or to halt execution (only <InitErgmProposal.nobetweengroupties> can
 # halt execution)
 #
 # --PARAMETERS--
-#   arguments: is ignored by all but <InitMHP.nobetweengroupties>,
+#   arguments: is ignored by all but <InitErgmProposal.nobetweengroupties>,
 #              where 'arguments' is used to get the nodal attributes
 #              via <get.node.attr>
 #   nw       : the network given by the model
 #
 # --RETURNED--
-#   MHproposal: a list containing:
+#   proposal: a list containing:
 #        name   : the name of the proposal
 #        inputs : a vector to be passed to the proposal
 #        package: is "ergm"
 #
 ############################################################################
-InitMHP.randomtoggle <- function(arguments, nw) {
-  MHproposal <- list(name = "randomtoggle", inputs=NULL)
-  MHproposal
+InitErgmProposal.randomtoggle <- function(arguments, nw) {
+  proposal <- list(name = "randomtoggle", inputs=NULL)
+  proposal
 }
 
-InitMHP.TNT <- function(arguments, nw) {
-  MHproposal <- list(name = "TNT", inputs=NULL)
-  MHproposal
+InitErgmProposal.TNT <- function(arguments, nw) {
+  proposal <- list(name = "TNT", inputs=NULL)
+  proposal
 }
 
-InitMHP.CondDegree <- function(arguments, nw) {
-  MHproposal <- list(name = "CondDegree", inputs=NULL)
-  MHproposal
+InitErgmProposal.CondDegree <- function(arguments, nw) {
+  proposal <- list(name = "CondDegree", inputs=NULL)
+  proposal
 }
-InitMHP.CondDegreeMix <- function(arguments, nw) {
-  MHproposal <- list(name = "CondDegreeMix",
+InitErgmProposal.CondDegreeMix <- function(arguments, nw) {
+  proposal <- list(name = "CondDegreeMix",
     inputs=get.vertex.attribute(nw,arguments$constraints$degreesmix$attrib))
-  MHproposal
+  proposal
 }
 
-InitMHP.CondOutDegree <- function(arguments, nw) {
-  MHproposal <- list(name = "CondOutDegree", inputs=NULL)
-  if (!is.directed(nw)) # Really, this should never trigger, since the InitConstraint function should check.
+InitErgmProposal.CondOutDegree <- function(arguments, nw) {
+  proposal <- list(name = "CondOutDegree", inputs=NULL)
+  if (!is.directed(nw)) # Really, this should never trigger, since the InitErgmConstraint function should check.
     stop("The CondOutDegree proposal function does not work with an",
           "undirected network.")
   
-  MHproposal
+  proposal
 }
 
-InitMHP.CondInDegree <- function(arguments, nw) {
-  MHproposal <- list(name = "CondInDegree", inputs=NULL)
-  if (!is.directed(nw)) # Really, this should never trigger, since the InitConstraint function should check.
+InitErgmProposal.CondInDegree <- function(arguments, nw) {
+  proposal <- list(name = "CondInDegree", inputs=NULL)
+  if (!is.directed(nw)) # Really, this should never trigger, since the InitErgmConstraint function should check.
     stop("The CondInDegree proposal function does not work with an",
           "undirected network.")
-  MHproposal
+  proposal
 }
 
-InitMHP.CondB1Degree <- function(arguments, nw) {
-  MHproposal <- list(name = "CondB1Degree", inputs=NULL)
-  if (!is.bipartite(nw)) # Really, this should never trigger, since the InitConstraint function should check.
+InitErgmProposal.CondB1Degree <- function(arguments, nw) {
+  proposal <- list(name = "CondB1Degree", inputs=NULL)
+  if (!is.bipartite(nw)) # Really, this should never trigger, since the InitErgmConstraint function should check.
     stop("The CondB1Degree proposal function does not work with a non-bipartite network.")
   
-  MHproposal
+  proposal
 }
 
-InitMHP.CondB2Degree <- function(arguments, nw) {
-  MHproposal <- list(name = "CondB2Degree", inputs=NULL)
-  if (!is.bipartite(nw)) # Really, this should never trigger, since the InitConstraint function should check.
+InitErgmProposal.CondB2Degree <- function(arguments, nw) {
+  proposal <- list(name = "CondB2Degree", inputs=NULL)
+  if (!is.bipartite(nw)) # Really, this should never trigger, since the InitErgmConstraint function should check.
     stop("The CondB2Degree proposal function does not work with a non-bipartite network.")
-  MHproposal
+  proposal
 }
 
-InitMHP.CondDegreeDist <- function(arguments, nw) {
-  MHproposal <- list(name = "CondDegreeDist", inputs=NULL)
+InitErgmProposal.CondDegreeDist <- function(arguments, nw) {
+  proposal <- list(name = "CondDegreeDist", inputs=NULL)
   if (is.directed(nw)) {
     message("Warning:  Using the 'degreedist' constraint with a directed network ",
           "is currently perilous.  We recommend that you use 'outdegree' or ",
           "'idegrees' instead.")
   }
   if(is.bipartite(nw)){
-     MHproposal$name <- "BipartiteCondDegreeDist"
+     proposal$name <- "BipartiteCondDegreeDist"
   }
-  MHproposal
+  proposal
 }
 
-InitMHP.CondInDegreeDist <- function(arguments, nw) {
-  MHproposal <- list(name = "CondInDegreeDist", inputs=NULL)
+InitErgmProposal.CondInDegreeDist <- function(arguments, nw) {
+  proposal <- list(name = "CondInDegreeDist", inputs=NULL)
   if (!is.directed(nw)) {
     message("Warning:  Using the 'idegreedist' constraint with an undirected network ",
           "is currently perilous.  We recommend that you use 'degreedist' ",
           " instead.")
   }
   if(is.bipartite(nw)){
-     MHproposal$name <- "BipartiteCondDegreeDist"
+     proposal$name <- "BipartiteCondDegreeDist"
   }
-  MHproposal
+  proposal
 }
 
-InitMHP.CondOutDegreeDist <- function(arguments, nw) {
-  MHproposal <- list(name = "CondOutDegreeDist", inputs=NULL)
+InitErgmProposal.CondOutDegreeDist <- function(arguments, nw) {
+  proposal <- list(name = "CondOutDegreeDist", inputs=NULL)
   if (!is.directed(nw)) {
     message("Warning:  Using the 'odegreedist' constraint with an undirected network n",
           "is currently perilous.  We recommend that you use 'degreedist' ",
           " instead.")
   }
   if(is.bipartite(nw)){
-     MHproposal$name <- "BipartiteCondDegreeDist"
+     proposal$name <- "BipartiteCondDegreeDist"
   }
-  MHproposal
+  proposal
 }
 
-InitMHP.ConstantEdges <- function(arguments, nw) {
-  MHproposal <- list(name = "ConstantEdges", inputs=NULL)
-  MHproposal
+InitErgmProposal.ConstantEdges <- function(arguments, nw) {
+  proposal <- list(name = "ConstantEdges", inputs=NULL)
+  proposal
 }
 
-InitMHP.HammingConstantEdges <- function(arguments, nw) {
-  MHproposal <- list(name = "HammingConstantEdges", inputs=NULL)
+InitErgmProposal.HammingConstantEdges <- function(arguments, nw) {
+  proposal <- list(name = "HammingConstantEdges", inputs=NULL)
   if(is.bipartite(nw)){
-    MHproposal$name <- "BipartiteHammingConstantEdges"
+    proposal$name <- "BipartiteHammingConstantEdges"
   }
-  MHproposal
+  proposal
 }
 
-InitMHP.HammingTNT <- function(arguments, nw) {
-  MHproposal <- list(name = "HammingTNT", inputs=NULL)
+InitErgmProposal.HammingTNT <- function(arguments, nw) {
+  proposal <- list(name = "HammingTNT", inputs=NULL)
   if(is.bipartite(nw)){
-    MHproposal$name <- "BipartiteHammingTNT"
+    proposal$name <- "BipartiteHammingTNT"
   }
-  MHproposal
+  proposal
 }
 
-InitMHP.randomtoggleNonObserved <- function(arguments, nw) {
+InitErgmProposal.randomtoggleNonObserved <- function(arguments, nw) {
   if(network.naedgecount(nw)==0){
    stop("The passed network does not have any non-observed dyads.\n Hence constraining to the observed will hold the network fixed at this network.\n Either the network or the constraint need to be altered.")
   }
-  MHproposal <- list(name = "randomtoggleList", inputs=to_ergm_Cdouble(is.na(nw)))
-  MHproposal
+  proposal <- list(name = "randomtoggleList", inputs=to_ergm_Cdouble(is.na(nw)))
+  proposal
 }
 
-InitMHP.NonObservedTNT <- function(arguments, nw) {
+InitErgmProposal.NonObservedTNT <- function(arguments, nw) {
   if(network.naedgecount(nw)==0){
    stop("The passed network does not have any non-observed dyads.\n Hence constraining to the observed will hold the network fixed at this network.\n Either the network or the constraint need to be altered.")
   }
-  MHproposal <- list(name = "listTNT", inputs=to_ergm_Cdouble(is.na(nw)))
-  MHproposal
+  proposal <- list(name = "listTNT", inputs=to_ergm_Cdouble(is.na(nw)))
+  proposal
 }
 
 
-InitMHP.fixedas <- function(arguments, nw){
+InitErgmProposal.fixedas <- function(arguments, nw){
 	y0<-as.edgelist(arguments$constraints$fixedas$free_dyads, prototype=nw)
 	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	MHproposal <- list(name = "randomtoggleList", inputs=to_ergm_Cdouble(y0), pkgname="ergm")
+	proposal <- list(name = "randomtoggleList", inputs=to_ergm_Cdouble(y0), pkgname="ergm")
 	
-	MHproposal
+	proposal
 	
 }
 
-InitMHP.fixedasTNT <- function(arguments, nw){
+InitErgmProposal.fixedasTNT <- function(arguments, nw){
 	y0<-as.edgelist(arguments$constraints$fixedas$free_dyads, prototype=nw)
 	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	MHproposal <- list(name = "listTNT", inputs=to_ergm_Cdouble(y0), pkgname="ergm")
+	proposal <- list(name = "listTNT", inputs=to_ergm_Cdouble(y0), pkgname="ergm")
 	
-	MHproposal
+	proposal
 	
 }
 
-InitMHP.fixallbut <- function(arguments, nw){
+InitErgmProposal.fixallbut <- function(arguments, nw){
 	y0<-as.edgelist(arguments$constraints$fixallbut$free_dyads, prototype=nw)
 	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	MHproposal <- list(name = "randomtoggleList", inputs=to_ergm_Cdouble(y0), pkgname="ergm")
+	proposal <- list(name = "randomtoggleList", inputs=to_ergm_Cdouble(y0), pkgname="ergm")
 	
-	MHproposal
+	proposal
 	
 }
 
 
-InitMHP.fixallbutTNT <- function(arguments, nw){
+InitErgmProposal.fixallbutTNT <- function(arguments, nw){
 	y0<-as.edgelist(arguments$constraints$fixallbut$free_dyads, prototype=nw)
 	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	MHproposal <- list(name = "listTNT", inputs=to_ergm_Cdouble(y0), pkgname="ergm")
+	proposal <- list(name = "listTNT", inputs=to_ergm_Cdouble(y0), pkgname="ergm")
 	
-	MHproposal
+	proposal
 	
 }
 
 
-InitMHP.RLE <- function(arguments, nw){
-  MHproposal <- list(name = "RLE", inputs=to_ergm_Cdouble(as.rlebdm(arguments$constraints)), pkgname="ergm")
+InitErgmProposal.RLE <- function(arguments, nw){
+  proposal <- list(name = "RLE", inputs=to_ergm_Cdouble(as.rlebdm(arguments$constraints)), pkgname="ergm")
 }
 
-InitMHP.RLETNT <- function(arguments, nw){
-  MHproposal <- list(name = "RLETNT", inputs=to_ergm_Cdouble(as.rlebdm(arguments$constraints)), pkgname="ergm")
+InitErgmProposal.RLETNT <- function(arguments, nw){
+  proposal <- list(name = "RLETNT", inputs=to_ergm_Cdouble(as.rlebdm(arguments$constraints)), pkgname="ergm")
 }

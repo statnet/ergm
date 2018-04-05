@@ -1,4 +1,4 @@
-#  File R/InitConstraint.R in package ergm, part of the Statnet suite
+#  File R/InitErgmConstraint.R in package ergm, part of the Statnet suite
 #  of packages for network analysis, http://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
@@ -9,7 +9,7 @@
 #######################################################################
 #============================================================================
 # This file contains the following 12 functions for initializing empty
-# constraint lists (each prependend with "InitConstraint")
+# constraint lists (each prependend with "InitErgmConstraint")
 #         <edges>                   <odegreedist>
 #         <degrees>=<nodedegrees>   <bd>
 #         <degreesTetrad>           <idegrees>
@@ -19,7 +19,7 @@
 #============================================================================
 
 ##########################################################################################
-# Each of the <InitConstraint.X> functions accepts an existing constraint list, 'conlist',
+# Each of the <InitErgmConstraint.X> functions accepts an existing constraint list, 'conlist',
 # and to this adds an empty constraint list for term X; if any arguments are passed besides
 # 'conlist", execution will halt.
 #
@@ -52,7 +52,7 @@ get.vertex.attributes <- function(x, attrnames, na.omit = FALSE, null.na = TRUE,
 
 # Baseline constraint incorporating network attributes such as
 # directedness, bipartitedness, and self-loops.
-InitConstraint..attributes <- function(lhs.nw, ...){
+InitErgmConstraint..attributes <- function(lhs.nw, ...){
   list(
     free_dyads = {
       n <- network.size(lhs.nw)
@@ -82,14 +82,14 @@ InitConstraint..attributes <- function(lhs.nw, ...){
     dependence = FALSE)
 }
 
-InitConstraint.edges<-function(lhs.nw, ...){
+InitErgmConstraint.edges<-function(lhs.nw, ...){
    if(length(list(...)))
      stop(paste("Edge count constraint does not take arguments at this time."), call.=FALSE)
    list(dependence = TRUE)
 }
 #ergm.ConstraintImplications("edges", c())
 
-InitConstraint.degrees<-InitConstraint.nodedegrees<-function(lhs.nw, ...){
+InitErgmConstraint.degrees<-InitErgmConstraint.nodedegrees<-function(lhs.nw, ...){
    if(length(list(...)))
      stop(paste("Vertex degrees constraint does not take arguments at this time."), call.=FALSE)
    list(dependence = TRUE, constrain = "degrees")
@@ -97,7 +97,7 @@ InitConstraint.degrees<-InitConstraint.nodedegrees<-function(lhs.nw, ...){
 
 #ergm.ConstraintImplications("degrees", c("edges", "idegrees", "odegrees", "idegreedist", "odegreedist", "degreedist", "bd"))
 
-InitConstraint.odegrees<-function(lhs.nw, ...){
+InitErgmConstraint.odegrees<-function(lhs.nw, ...){
    if(length(list(...)))
      stop(paste("Vertex odegrees constraint does not take arguments at this time."), call.=FALSE)
    if(!is.directed(lhs.nw)) stop("Vertex odegrees constraint is only meaningful for directed networks.", call.=FALSE)
@@ -105,7 +105,7 @@ InitConstraint.odegrees<-function(lhs.nw, ...){
 }
 #ergm.ConstraintImplications("odegrees", c("edges", "odegreedist"))
 
-InitConstraint.idegrees<-function(lhs.nw, ...){
+InitErgmConstraint.idegrees<-function(lhs.nw, ...){
    if(length(list(...)))
      stop(paste("Vertex idegrees constraint does not take arguments at this time."), call.=FALSE)
    if(!is.directed(lhs.nw)) stop("Vertex idegrees constraint is only meaningful for directed networks.", call.=FALSE)
@@ -113,7 +113,7 @@ InitConstraint.idegrees<-function(lhs.nw, ...){
 }
 #ergm.ConstraintImplications("idegrees", c("edges", "idegreedist"))
 
-InitConstraint.b1degrees<-function(lhs.nw, ...){
+InitErgmConstraint.b1degrees<-function(lhs.nw, ...){
    if(length(list(...)))
      stop(paste("B1 vertex degrees constraint does not take arguments at this time."), call.=FALSE)
    if(!is.bipartite(lhs.nw)) stop("B1 vertex degrees constraint is only meaningful for bipartite networks.", call.=FALSE)
@@ -121,7 +121,7 @@ InitConstraint.b1degrees<-function(lhs.nw, ...){
 }
 #ergm.ConstraintImplications("b1degrees", c("edges"))
 
-InitConstraint.b2degrees<-function(lhs.nw, ...){
+InitErgmConstraint.b2degrees<-function(lhs.nw, ...){
    if(length(list(...)))
      stop(paste("B2 vertex degrees constraint does not take arguments at this time."), call.=FALSE)
    if(!is.bipartite(lhs.nw)) stop("B2 vertex degrees constraint is only meaningful for bipartite networks.", call.=FALSE)
@@ -129,7 +129,7 @@ InitConstraint.b2degrees<-function(lhs.nw, ...){
 }
 #ergm.ConstraintImplications("b2degrees", c("edges"))
 
-InitConstraint.degreedist<-function(lhs.nw, ...){
+InitErgmConstraint.degreedist<-function(lhs.nw, ...){
    if(length(list(...)))
      stop(paste("Degree distribution constraint does not take arguments at this time."), call.=FALSE)
    list(dependence = TRUE)
@@ -137,7 +137,7 @@ InitConstraint.degreedist<-function(lhs.nw, ...){
 #ergm.ConstraintImplications("degreedist", c("edges", "idegreedist", "odegreedist"))
 
 
-InitConstraint.idegreedist<-function(lhs.nw, ...){
+InitErgmConstraint.idegreedist<-function(lhs.nw, ...){
    if(length(list(...)))
      stop(paste("InDegree distribution constraint does not take arguments at this time."), call.=FALSE)
    list(dependence = TRUE)
@@ -145,7 +145,7 @@ InitConstraint.idegreedist<-function(lhs.nw, ...){
 #ergm.ConstraintImplications("idegreedist", c("edges"))
 
 
-InitConstraint.odegreedist<-function(lhs.nw, ...){
+InitErgmConstraint.odegreedist<-function(lhs.nw, ...){
    if(length(list(...)))
      stop(paste("OutDegree distribution constraint does not take arguments at this time."), call.=FALSE)
    list(dependence = TRUE)
@@ -153,21 +153,21 @@ InitConstraint.odegreedist<-function(lhs.nw, ...){
 #ergm.ConstraintImplications("odegreedist", c("edges"))
 
 
-InitConstraint.bd<-function(lhs.nw, attribs=NULL, maxout=NA, maxin=NA, minout=NA, minin=NA, ...){
+InitErgmConstraint.bd<-function(lhs.nw, attribs=NULL, maxout=NA, maxin=NA, minout=NA, minin=NA, ...){
    if(nargs()>6)
      stop(paste("Bounded degrees constraint takes at most 5 arguments; ",nargs()-1," given.",sep=""), call.=FALSE)
    list(attribs=attribs,maxout=maxout,maxin=maxin,minout=minout,minin=minin)
 }
 #ergm.ConstraintImplications("bd", c())
 
-InitConstraint.hamming<-function(lhs.nw, ...){
+InitErgmConstraint.hamming<-function(lhs.nw, ...){
    if(length(list(...)))
      stop(paste("Hamming distance constraint does not take arguments at this time."), call.=FALSE)
    list(dependence = TRUE)
 }
 #ergm.ConstraintImplications("hamming", c())
 
-InitConstraint.observed <- function(lhs.nw, ...){
+InitErgmConstraint.observed <- function(lhs.nw, ...){
   if(length(list(...)))
     stop(paste("Toggle non-observed constraint does not take arguments at this time."), call.=FALSE)
   list(free_dyads = as.rlebdm(as.edgelist(is.na(lhs.nw))),
@@ -175,7 +175,7 @@ InitConstraint.observed <- function(lhs.nw, ...){
 }
 #ergm.ConstraintImplications("observed", c())
 
-InitConstraint.blockdiag<-function(lhs.nw, attrname=NULL, ...){
+InitErgmConstraint.blockdiag<-function(lhs.nw, attrname=NULL, ...){
   if(length(list(...)))
     stop(paste("Block diagonal constraint takes one argument at this time."), call.=FALSE)
   list(attrname=attrname,
@@ -222,7 +222,7 @@ InitConstraint.blockdiag<-function(lhs.nw, attrname=NULL, ...){
 
 
 
-InitConstraint.fixedas<-function(lhs.nw, present=NULL, absent=NULL,...){
+InitErgmConstraint.fixedas<-function(lhs.nw, present=NULL, absent=NULL,...){
   if(is.null(present) & is.null(absent))
     stop(paste("fixedas constraint takes at least one argument, either present or absent or both."), call.=FALSE)
   if(!is.null(present)){
@@ -259,7 +259,7 @@ InitConstraint.fixedas<-function(lhs.nw, present=NULL, absent=NULL,...){
 }
 
 
-InitConstraint.fixallbut<-function(lhs.nw, free.dyads=NULL,...){
+InitErgmConstraint.fixallbut<-function(lhs.nw, free.dyads=NULL,...){
   if(is.null(free.dyads))
     stop(paste("fixallbut constraint takes one required argument free.dyads and one optional argument fixed.state"), call.=FALSE)
   
@@ -296,7 +296,7 @@ InitConstraint.fixallbut<-function(lhs.nw, free.dyads=NULL,...){
 }
 
 
-InitConstraint.dyadnoise<-function(lhs.nw, p01, p10, ...){
+InitErgmConstraint.dyadnoise<-function(lhs.nw, p01, p10, ...){
   if(length(list(...)))
     stop(paste("Dyadic noise \"constraint\" takes one argument at this time."), call.=FALSE)
 
@@ -312,7 +312,7 @@ InitConstraint.dyadnoise<-function(lhs.nw, p01, p10, ...){
 #ergm.ConstraintImplications("edges", c())
 
 
-InitConstraint.egocentric <- function(lhs.nw, attrname=NULL, direction = c("both", "out", "in")){
+InitErgmConstraint.egocentric <- function(lhs.nw, attrname=NULL, direction = c("both", "out", "in")){
   direction <- match.arg(direction)
   if(!is.directed(lhs.nw) && direction!="both"){
     stop("Directed egocentric constraint cannot be used for an undirected network.")

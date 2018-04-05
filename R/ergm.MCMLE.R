@@ -34,10 +34,10 @@
 #       epsilon    : ??, this is essentially unused, except to print it if
 #                    'verbose'=T and to pass it along to <ergm.estimate>,
 #                    which ignores it;   
-#   MHproposal     : an MHproposal object for 'nw', as returned by
-#                    <MHproposal>
-#   MHproposal.obs : an MHproposal object for the observed network of'nw',
-#                    as returned by <MHproposal>
+#   proposal     : an proposal object for 'nw', as returned by
+#                    <proposal>
+#   proposal.obs : an proposal object for the observed network of'nw',
+#                    as returned by <proposal>
 #   verbose        : whether the MCMC sampling should be verbose (T or F);
 #                    default=FALSE
 #   sequential     : whether to update the network returned in
@@ -60,14 +60,14 @@
 ergm.MCMLE <- function(init, nw, model,
                              initialfit, 
                              control, 
-                             MHproposal, MHproposal.obs,
+                             proposal, proposal.obs,
                              verbose=FALSE,
                              sequential=control$MCMLE.sequential,
                              estimate=TRUE,
                        response=NULL, ...) {
   message("Starting Monte Carlo maximum likelihood estimation (MCMLE):")
   # Is there observational structure?
-  obs <- ! is.null(MHproposal.obs)
+  obs <- ! is.null(proposal.obs)
   # Initialize the history of parameters and statistics.
   coef.hist <- rbind(init)
   stats.hist <- matrix(NA, 0, length(model$nw.stats))
@@ -102,7 +102,7 @@ ergm.MCMLE <- function(init, nw, model,
   nw.orig <- nw
 
   # Impute missing dyads.
-  nw <- single.impute.dyads(nw, response=response, constraints=MHproposal$arguments$constraints, constraints.obs=MHproposal.obs$arguments$constraints, output="pending", verbose=verbose)
+  nw <- single.impute.dyads(nw, response=response, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, output="pending", verbose=verbose)
   ec <- if(is(nw, "network")) network.edgecount(nw, FALSE)
         else nrow(as.edgelist(nw))
   model$nw.stats <- summary(model, nw, response=response)
@@ -185,7 +185,7 @@ ergm.MCMLE <- function(init, nw, model,
 
     # Obtain MCMC sample
     mcmc.eta0 <- ergm.eta(mcmc.init, model$etamap)
-    z <- ergm.getMCMCsample(nws, model, MHproposal, mcmc.eta0, control, verbose, response=response, theta=mcmc.init, etamap=model$etamap, update.nws=FALSE)
+    z <- ergm.getMCMCsample(nws, model, proposal, mcmc.eta0, control, verbose, response=response, theta=mcmc.init, etamap=model$etamap, update.nws=FALSE)
         
     if(z$status==1) stop("Number of edges in a simulated network exceeds that in the observed by a factor of more than ",floor(control$MCMLE.density.guard),". This is a strong indicator of model degeneracy or a very poor starting parameter configuration. If you are reasonably certain that neither of these is the case, increase the MCMLE.density.guard control.ergm() parameter.")
         
@@ -210,7 +210,7 @@ ergm.MCMLE <- function(init, nw, model,
     
     ##  Does the same, if observation process:
     if(obs){
-      z.obs <- ergm.getMCMCsample(nws.obs, NVL(model$obs.model,model), MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response, theta=mcmc.init, etamap=model$etamap, update.nws=FALSE)
+      z.obs <- ergm.getMCMCsample(nws.obs, NVL(model$obs.model,model), proposal.obs, mcmc.eta0, control.obs, verbose, response=response, theta=mcmc.init, etamap=model$etamap, update.nws=FALSE)
       
       if(z.obs$status==1) stop("Number of edges in the simulated network exceeds that observed by a large factor (",control$MCMC.max.maxedges,"). This is a strong indication of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
 
