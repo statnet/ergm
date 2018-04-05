@@ -109,7 +109,7 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
     m <- ergm_model(f, nw1, response=response,...)
     list(model = m,
          inputs = to_ergm_Cdouble(m),
-         gs = ergm.emptynwstats.model(m))
+         gs = summary(m))
   })
 
   nm <- sum(subset)

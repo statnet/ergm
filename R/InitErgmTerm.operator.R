@@ -78,7 +78,7 @@ InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
   m <- ergm_model(f, nw, response=response,...)
   inputs <- to_ergm_Cdouble(m)
   
-  gs <- ergm.emptynwstats.model(m)
+  gs <- summary(m)
   
   c(list(name="passthrough_term", coef.names = paste0('passthrough(',m$coef.names,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs),
     passthrough.curved.ergm_model(m, function(x) paste0('passthrough(',x,')')))
@@ -99,7 +99,7 @@ InitErgmTerm..submodel <- function(nw, arglist, response=NULL, ...){
   m <- ergm_model(f, nw, response=response,...)
   inputs <- to_ergm_Cdouble(m)
 
-  gs <- ergm.emptynwstats.model(m)
+  gs <- summary(m)
 
   list(name="_submodel_term", coef.names = c(), inputs=inputs, dependence=!is.dyad.independent(m))
 }
@@ -119,7 +119,7 @@ InitErgmTerm.submodel.test <- function(nw, arglist, response=NULL, ...){
   m <- ergm_model(f, nw, response=response,...)
   inputs <- to_ergm_Cdouble(m)
 
-  gs <- ergm.emptynwstats.model(m)
+  gs <- summary(m)
   
   list(name="submodel_test_term", coef.names = paste0("submod.test(",m$coef.names,")"), emptynwstats = gs, dependence=!is.dyad.independent(m), auxiliaries = ~.submodel(a$formula))
 }
@@ -141,7 +141,7 @@ InitErgmTerm..summary <- function(nw, arglist, response=NULL, ...){
   m <- ergm_model(f, nw, response=response,...)
   inputs <- to_ergm_Cdouble(m)
 
-  gs <- ergm.emptynwstats.model(m)
+  gs <- summary(m)
 
   list(name="_summary_term", coef.names = c(), inputs=c(inputs,gs), dependence=!is.dyad.independent(m))
 }
@@ -179,7 +179,7 @@ InitErgmTerm.F <- function(nw, arglist, response=NULL, ...){
   m <- ergm_model(f, nw,...)
   inputs <- to_ergm_Cdouble(m)
   
-  gs <- ergm.emptynwstats.model(m)
+  gs <- summary(m)
 
   form.name <- deparse(form[[length(form)]])
   name <- "filter_term_form"
@@ -211,7 +211,7 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, response=NULL, ...){
   if(!is.dyad.independent(m) || nparam(m)!=1) stop("The filter test formula must be dyad-independent and have exactly one statistc.")
   inputs <- to_ergm_Cdouble(m)
 
-  gs <- ergm.emptynwstats.model(m)
+  gs <- summary(m)
   if(gs!=0) stop("At this time, the filter test term must have the property that its dyadwise components are 0 for 0-valued relations. This limitation may be removed in the future.")
   
   list(name="_filter_formula_net", inputs=c(inputs), depenence=FALSE)
@@ -248,7 +248,7 @@ InitErgmTerm.Offset <- function(nw, arglist, response=NULL, ...){
     
   inputs <- to_ergm_Cdouble(m)
   
-  gs <- ergm.emptynwstats.model(m)
+  gs <- summary(m)
   
   params <- rep(list(NULL), sum(!selection))
   names(params) <- parnames[!selection]
@@ -361,7 +361,7 @@ InitErgmTerm.Undir <- function(nw, arglist, response=NULL, ...){
   m <- ergm_model(f, nw,...)
   inputs <- to_ergm_Cdouble(m)
   
-  gs <- ergm.emptynwstats.model(m)
+  gs <- summary(m)
 
   auxiliaries <- ~.undir.net(rule)
   

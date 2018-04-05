@@ -570,7 +570,8 @@ ergm <- function(formula, response=NULL,
 
   ## Construct approximate response network if target.stats are given.
   if(!is.null(target.stats)){
-    nw.stats <- ergm.getglobalstats(nw, model, response=response)[!model$etamap$offsetmap]
+    formula.no <- filter_rhs.formula(formula, function(x) (if(is.call(x)) x[[1]] else x)!="offset")
+    nw.stats <- summary(model, nw, response=response)[!model$etamap$offsetmap]
     target.stats <- vector.namesmatch(target.stats, names(nw.stats))
     target.stats <- na.omit(target.stats)
     if(length(nw.stats)!=length(target.stats)){
@@ -586,14 +587,14 @@ ergm <- function(formula, response=NULL,
     ## with SAN-ed network and formula.
     if(control$SAN.maxit > 0){
       for(srun in 1:control$SAN.maxit){
-        nw<-san(remove.offset.formula(formula), target.stats=target.stats,
+        nw<-san(formula.no, target.stats=target.stats,
                 response=response,
                 reference=reference,
                 constraints=constraints,
                 control=san.control,
                 verbose=verbose)
         formula<-nonsimp_update.formula(formula,nw~., from.new="nw")
-        nw.stats <- summary(remove.offset.formula(formula),response=response)
+        nw.stats <- summary(formula.no,response=response)
         srun <- srun + 1
         if(verbose){
           message(paste("Finished SAN run",srun,""))
@@ -768,7 +769,7 @@ ergm <- function(formula, response=NULL,
     
   }
   
-  model$nw.stats <- ergm.getglobalstats(nw, model, response=response)
+  model$nw.stats <- summary(model, nw, response=response)
   model$target.stats <- target.stats
   
   if(control$init.method=="CD") if(is.null(names(control$init)))

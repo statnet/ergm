@@ -33,10 +33,10 @@
 #'   from the formula IF (i) the formula was correctly structured and
 #'   (ii) the network is found within the formula's enviornment }
 #' @export ergm.getnetwork
-ergm.getnetwork <- function (form, loopswarning=TRUE){
+ergm.getnetwork <- function (formula, loopswarning=TRUE){
   nw <- ERRVL(
     try({
-      tmp <- eval_lhs.formula(form)
+      tmp <- eval_lhs.formula(formula)
       if(is.network(tmp)) tmp else as.network(tmp)
     }, silent = TRUE),
     stop("Invalid network on the LHS of the formula.")

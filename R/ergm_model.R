@@ -13,23 +13,13 @@
 #             <updatemodel.ErgmTerm>
 #===================================================================================
 
-#' Internal Functions for Querying, Validating and Extracting from ERGM
-#' Formulas
+#' Internal representation of an `ergm` network model
 #' 
-#' These are all functions that are generally not called directly by
-#' users, but may be employed by other depending packages.  The
-#' \code{ergm_model} function parses the given formula, and
-#' initiliazes each ergm term via the \code{InitErgmTerm} functions to
-#' create a \code{ergm_model} object.
+#' These methods are generally not called directly by users, but may
+#' be employed by other depending packages.
 #' 
 #' @param formula a formula of the form \code{network ~ model.term(s)}
-#' @param form same as formula, a formula of the form \code{network ~ model.term(s)}
-#' @param object formula object to be updated
-#' @param new new formula to be used in updating
-#' @param from.new logical or character vector of variable names. controls how
-#' environment of formula gets updated.
-#' @template term_options
-#' @param extra.aux a list of formulas giving additional auxiliaries to initialize.
+#' @param object See specific method documentation.
 #' @return `ergm_model` returns an  `ergm_model` object as a list
 #' containing:
 #' \item{ formula}{the formula inputted to
@@ -49,7 +39,11 @@ ergm_model <- function(object, ...){
 }
 #' @describeIn ergm_model
 #'
-#' Main method for constructing a model object from an [ergm()] formula of the form \code{network ~ model.term(s)}.
+#' Main method for constructing a model object from an [ergm()]
+#' formula of the form \code{network ~ model.term(s)} or \code{~
+#' model.term(s)} with the network passed separately. Each term is
+#' initialized via the \code{InitErgmTerm} functions to create a
+#' \code{ergm_model} object.
 #' 
 #' @param nw the network of interest
 #' @param response charcter, name of edge attribute containing edge weights
@@ -61,18 +55,15 @@ ergm_model <- function(object, ...){
 #'
 #' @export
 ergm_model.formula <- function(formula, nw, response=NULL, silent=FALSE, role="static",...,term.options=list(),extra.aux=list()){
-  if (!is(formula, "formula"))
-    stop("Invalid model formula of class ",sQuote(class(formula)),".", call.=FALSE)
-
-  if (length(formula) < 3) 
-    stop("Model formula must have a left-hand-side.", call.=FALSE)
+  if (!is(object, "formula"))
+    stop("Invalid model formula of class ",sQuote(class(object)),".", call.=FALSE)
 
   #' @importFrom statnet.common list_rhs.formula
-  v<-list_rhs.formula(formula)
+  v<-list_rhs.formula(object)
   
-  formula.env<-environment(formula)
+  formula.env<-environment(object)
   
-  model <- structure(list(formula=formula, coef.names = NULL,
+  model <- structure(list(formula=object, coef.names = NULL,
                       offset = NULL,
                       terms = NULL, networkstats.0 = NULL, etamap = NULL),
                  class = "ergm_model")

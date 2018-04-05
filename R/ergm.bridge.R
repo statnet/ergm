@@ -114,7 +114,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
 
     stats.obs <- matrix(NA,control$nsteps,m$etamap$etalength)
   }else
-    stats.obs<-matrix(NVL(target.stats,ergm.getglobalstats(nw, m, response=response)),control$nsteps,m$etamap$etalength,byrow=TRUE)
+    stats.obs<-matrix(NVL(target.stats,summary(m, nw, response=response)),control$nsteps,m$etamap$etalength,byrow=TRUE)
 
   stats<-matrix(NA,control$nsteps,m$etamap$etalength)
   
@@ -300,7 +300,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
 
   if(!is.null(target.stats) && any(is.na(target.stats))){
     warning("Using target.stats for a model with offset terms may produce an inaccurate estimate of the log-likelihood and derived quantities (deviance, AIC, BIC, etc.), because some of the target stats must be imputed.")
-    target.stats[m$etamap$offsetmap] <- ergm.getglobalstats(nw, m)[m$etamap$offsetmap]
+    target.stats[m$etamap$offsetmap] <- summary(m, nw)[m$etamap$offsetmap]
   }
 
   br<-ergm.bridge.llr(form.aug, response=response, constraints=constraints, from=from, to=to, basis=basis, target.stats=c(target.stats, if(!is.null(target.stats)) ts.dind), control=control)

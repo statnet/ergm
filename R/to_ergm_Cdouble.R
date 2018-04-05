@@ -1,14 +1,12 @@
 #' Methods to serialize objects into numeric vectors for passing to the C side.
 #'
+#' These methods return a vector of [`double`]s. For edge lists, this
+#' usually takes the form of a \eqn{2 e + 1}- or \eqn{3 e + 1}-vector,
+#' containing the number of edges followed a column-major
+#' serialization of the edgelist matrix.
+#'
 #' @param x object to be serialized.
 #' @param ... arguments for methods.
-#' @return A [`double`]-precision vector.
-#'
-#' For serialization of edge lists, this usually takes the form of a
-#' \eqn{2 e + 1}-vector, whose first element is the number of edges
-#' and whose subsequent elements are tails and heads of the edges,
-#' sorted in tail-major order, with an optional third attribute
-#' column.
 #' 
 #' @export
 to_ergm_Cdouble <- function(x, ...){

@@ -456,7 +456,7 @@ InitErgmTerm.L <- function(nw, arglist, response=NULL, ...){
   
   inputs <- c(nltrms, w, inputs)
 
-  gs <- ergm.emptynwstats.model(m) * nltrms
+  gs <- summary(m) * nltrms
   
   c(list(name="OnLayer", coef.names = paste0(.lspec_coef.names(list(a$Ls)),":",m$coef.names), inputs=inputs, dependence=dependence, emptynwstats = gs, auxiliaries = auxiliaries),
     passthrough.curved.ergm_model(m, function(x) paste0(.lspec_coef.names(list(a$Ls)),":",x)))

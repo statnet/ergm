@@ -17,7 +17,7 @@ InitWtErgmTerm.B <- function(nw, arglist, response=NULL, ...){
   
   inputs <- to_ergm_Cdouble(m)
   
-  gs <- if(form=="nonzero" || is(form, "formula")) ergm.emptynwstats.model(m)
+  gs <- if(form=="nonzero" || is(form, "formula")) summary(m)
         else rep(0, nparam(m, canonical=TRUE))
 
   if(is(form, "formula")){
@@ -67,7 +67,7 @@ InitWtErgmTerm..binary.formula.net <- function(nw, arglist, response=NULL, ...){
 
   inputs <- to_ergm_Cdouble(m)
 
-  gs <- ergm.emptynwstats.model(m)
+  gs <- summary(m)
   if(gs!=0) stop("At this time, the binary test term must have the property that its dyadwise components are 0 for 0-valued relations. This limitation may be removed in the future.")
   
   list(name="_binary_formula_net", inputs=c(inputs), depenence=FALSE)

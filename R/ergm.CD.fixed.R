@@ -81,7 +81,7 @@ ergm.CD.fixed <- function(init, nw, model,
 
   # Impute missing dyads.
   nw <- single.impute.dyads(nw, response=response, constraints=MHproposal$arguments$constraints, constraints.obs=MHproposal.obs$arguments$constraints, output="pending", verbose=verbose)
-  model$nw.stats <- ergm.getglobalstats(nw, model, response=response)
+  model$nw.stats <- summary(model, nw, response=response)
 
   nws <- rep(list(nw),nthreads) # nws is now a list of networks.
 

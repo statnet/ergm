@@ -16,24 +16,6 @@
 #==========================================================================
 
 
-
-
-#############################################################################
-# Each of the <summary_formula.X> functions and <summary.formula> checks
-# that the implicit formula is correctly given as 'nw ~ term(s)' and returns
-# the global statistics of the network specified by the formula
-#
-# --PARAMETERS--
-#   object:  a formula, matrix, ergm, or network, as appropriate
-#   basis :  optionally, the network from the formula; if a network
-#            is passed to 'basis', it is assumed that 'object' is the
-#            formula
-#
-# --RETURNED--
-#   gs: the vector of global stats, as returned by <ergm.getglobalstats>
-#############################################################################
-
-
 #' Calculation of network or graph statistics or other attributes
 #' specified on a formula
 #' 
@@ -160,8 +142,7 @@ summary_formula.network <- function(object, response=NULL,...,basis=NULL) {
     nw <- ergm.getnetwork(formula)
   }
   m <- ergm_model(formula, nw, response=response, role="target",...)
-  gs <- ergm.getglobalstats(nw, m, response=response)
-  gs
+  summary(m, nw, response=response)
 }
 
 #' @describeIn summary_formula a method for a [`matrix`] on the LHS of the formula.
@@ -170,6 +151,4 @@ summary_formula.matrix <- summary_formula.network
 #' @describeIn summary_formula a fallback method.
 #' @export
 summary_formula.default <- summary_formula.network
-
-
 
