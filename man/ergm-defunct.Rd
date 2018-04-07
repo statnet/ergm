@@ -22,6 +22,7 @@
 \alias{mvmodel}
 \alias{mvmodel.ergm}
 \alias{degreedistfactor}
+\alias{robust.inverse}
 \title{Functions that have been removed from this package}
 \usage{
 delete.isolates(x)
@@ -69,6 +70,8 @@ mvmodel(object, ...)
   control = control.simulate.ergm(), statistic = NULL)
 
 degreedistfactor(g, x)
+
+robust.inverse(H, tol = sqrt(.Machine$double.eps))
 }
 \description{
 Functions that have been removed after a period of deprecation.

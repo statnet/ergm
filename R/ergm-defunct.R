@@ -93,3 +93,7 @@ mvmodel.ergm <- function (object, ..., nsim=100,
 #' @rdname ergm-defunct
 degreedistfactor <- function(g,x) .Defunct("summary.formula with 'degree' terms")
 
+# The following were defunct-ed on 2018-04-07.
+
+#' @rdname ergm-defunct
+robust.inverse <- function (H, tol = sqrt(.Machine$double.eps)) .Defunct("MASS::ginv")
