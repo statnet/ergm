@@ -45,8 +45,8 @@
 #' @note The arguments `Class`, `Reference`, and `Constraints` can
 #'   have length greater than 1. If this is the case, the rows added
 #'   to the table are a *Cartesian product* of their elements.
-#' @export ergm.MHP.table
-ergm.MHP.table <- local({
+#' @export ergm_proposal_table
+ergm_proposal_table <- local({
   MHPs <- data.frame(Class = character(0), Reference = character(0),
                      Constraints = character(0), Priority = numeric(0), Weights = character(0),
                      MHP = character(0), stringsAsFactors=FALSE)
@@ -335,19 +335,19 @@ ergm_proposal.formula <- function(object, arguments, nw, weights="default", clas
 
     MHqualifying.specific <-
       if(all(sapply(conlist, `[[`, "sign")==+1)){ # If all constraints are conjunctive...
-        with(ergm.MHP.table(),ergm.MHP.table()[Class==class & Constraints==constraints.specific & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
+        with(ergm_proposal_table(),ergm_proposal_table()[Class==class & Constraints==constraints.specific & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
       }
 
     # Try the general dyad-independent constraint combination.
     constraints.general <- tolower(unlist(ifelse(sapply(conlist,`[[`,"dependence"),lapply(conlist, `[[`, "constrain"), ".dyads")))
     constraints.general <- paste(sort(unique(constraints.general)),collapse="+")
-    MHqualifying.general <- with(ergm.MHP.table(),ergm.MHP.table()[Class==class & Constraints==constraints.general & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
+    MHqualifying.general <- with(ergm_proposal_table(),ergm_proposal_table()[Class==class & Constraints==constraints.general & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
 
     MHqualifying <- rbind(MHqualifying.general, MHqualifying.specific)
     
     if(nrow(MHqualifying)<1){
-      commonalities<-(ergm.MHP.table()$Class==class)+(ergm.MHP.table()$Weights==weights)+(ergm.MHP.table()$Reference==reference)+(ergm.MHP.table()$Constraints==constraints.specific)
-      stop("The combination of class (",class,"), model constraints (",constraints.specific,"), reference measure (",reference,"), proposal weighting (",weights,"), and conjunctions and disjunctions is not implemented. ", "Check your arguments for typos. ", if(any(commonalities>=3)) paste("Nearest matching proposals: (",paste(apply(ergm.MHP.table()[commonalities==3,-5],1,paste, sep="), (",collapse=", "),collapse="), ("),")",sep="",".") else "")
+      commonalities<-(ergm_proposal_table()$Class==class)+(ergm_proposal_table()$Weights==weights)+(ergm_proposal_table()$Reference==reference)+(ergm_proposal_table()$Constraints==constraints.specific)
+      stop("The combination of class (",class,"), model constraints (",constraints.specific,"), reference measure (",reference,"), proposal weighting (",weights,"), and conjunctions and disjunctions is not implemented. ", "Check your arguments for typos. ", if(any(commonalities>=3)) paste("Nearest matching proposals: (",paste(apply(ergm_proposal_table()[commonalities==3,-5],1,paste, sep="), (",collapse=", "),collapse="), ("),")",sep="",".") else "")
     }
     
     if(nrow(MHqualifying)==1){
