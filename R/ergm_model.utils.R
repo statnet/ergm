@@ -64,13 +64,10 @@ ergm.checkextreme.model <- function(model, nw, init, response, target.stats, dro
 
 ergm.checkconstraints.model <- function(model, proposal, init, silent=FALSE){
   # Get the list of all the constraints that the proposal imposes on the sample space.
-  constraints.old<-names(proposal$arguments$constraints)
-  repeat{
-    constraints <- unique(sort(c(constraints.old, unlist(ergm.ConstraintImplications()[constraints.old]))))
-    if(all(constraints %in% constraints.old)) break
-    else constraints.old <- constraints
-  }
-
+  # FIXME: This doesn't cover "second-order" constraints. Is it worth
+  # it to bring back the implications API?
+  constraints <- unique(sort(unlist(lapply(proposal$arguments$constraints, `[[`, "implies"))))
+  
   coef.counts <- nparam(model, byterm=TRUE)
   conflict.coefs <- c()
   

@@ -62,39 +62,19 @@ ergm_proposal_table <- local({
   }
 })
 
-#' Set up the implied constraints from the current constraint
-#' 
-#' This is a low-level function not intended to be called directly by
-#' end users. For information on constraints, see the
-#' \code{\link{ergm-constraints}} page.  Calling this function with
-#' arguments adds the specified constraint implication to the
-#' list. Calling it without arguments returns the implication list so
-#' far.
-#' 
-#' @param implier The current constraint specified in the model.  For the list
-#' of constraints, see \code{\link{ergm-constraints}}
-#' @param implies Implied constraints from the current constraint (based on the
-#' user's knowledge).
-#' @export ergm.ConstraintImplications
-ergm.ConstraintImplications <- local({
-  implications <- list()
-  
-  function(implier, implies) {
-    if(!missing(implier)){
-      new.implies <- c(implications[[implier]], implies)
-      implications[implier] <<- if(length(new.implies)) list(sort(unique(new.implies))) else list(NULL)
-    }
-    else
-      implications
-  }
-})
-
-
 prune.ergm_conlist <- function(conlist){
   ## Remove constraints implied by other constraints.
-  for(constr in unlist(lapply(conlist, `[[`, "constrain"))){
-    for(impl in ergm.ConstraintImplications()[[constr]])
-      conlist[[impl]]<-NULL
+  for(ed in rev(seq_along(conlist))){
+    for(er in rev(seq_along(conlist))){
+      if(er==ed) next
+      er.con <- NVL(conlist[[er]]$constrain,character(0))
+      er.implies <- NVL(conlist[[er]]$implies,character(0))
+      ed.con <- NVL(conlist[[ed]]$constrain,character(0))
+      ed.impliedby <- NVL(conlist[[ed]]$impliedby,character(0))
+      
+      if(any(er.con %in% ed.impliedby) || any(ed.con %in% er.implies) || any(er.implies %in% ed.impliedby))
+        conlist[[ed]]<-NULL
+    }
   }
   conlist
 }

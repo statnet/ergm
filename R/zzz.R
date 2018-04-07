@@ -21,7 +21,6 @@
   utils::globalVariables(".")
 
   .RegisterProposals()
-  .RegisterConstraintImplications()
 }
 
 .RegisterProposals <- function(){
@@ -66,19 +65,4 @@
   ergm_proposal_table("c", "DiscUnif", "observed",  0, "random", "DiscUnifNonObserved")  
 
   ergm_proposal_table("c", c("Unif","DiscUnif","StdNormal","Poisson","Binomial"), ".dyads",  -3, "random", "DistRLE")
-}
-
-.RegisterConstraintImplications <- function(){
-  ergm.ConstraintImplications("edges", c())
-  ergm.ConstraintImplications("degrees", c("edges", "idegrees", "odegrees", "idegreedist", "odegreedist", "degreedist", "bd"))
-  ergm.ConstraintImplications("degreesmix", c("edges", "idegrees", "odegrees", "idegreedist", "odegreedist", "degreedist", "bd"))
-  ergm.ConstraintImplications("odegrees", c("edges", "odegreedist"))
-  ergm.ConstraintImplications("idegrees", c("edges", "idegreedist"))
-  ergm.ConstraintImplications("b1degrees", c("edges"))
-  ergm.ConstraintImplications("b2degrees", c("edges"))
-  ergm.ConstraintImplications("degreedist", c("edges", "idegreedist", "odegreedist"))
-  ergm.ConstraintImplications("idegreedist", c("edges"))
-  ergm.ConstraintImplications("odegreedist", c("edges"))
-  ergm.ConstraintImplications("bd", c())
-  ergm.ConstraintImplications("hamming", c())
 }
