@@ -651,7 +651,7 @@ ergm <- function(formula, response=NULL,
   #
   # TODO: Create a flexible and general framework to manage methods
   # for obtaining initial values.
-  init.candidates <- ergm.init.methods(proposal$reference$name)
+  init.candidates <- proposal$reference$init_methods
   if("MPLE" %in% init.candidates && !is.dyad.independent(proposal$arguments$constraints,
                                                          proposal.obs$arguments$constraints)){
     init.candidates <- init.candidates[init.candidates!="MPLE"]

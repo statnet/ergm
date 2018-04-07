@@ -8,18 +8,18 @@
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
 InitErgmReference.Bernoulli <- function(lhs.nw, ...){
-  list(name="Bernoulli")  
+  list(name="Bernoulli", init_methods=c("MPLE", "CD", "zeros"))
 }
 
 
 InitErgmReference.StdNormal <- function(lhs.nw, ...){
-  list(name="StdNormal")  
+  list(name="StdNormal", init_methods=c("CD","zeros"))
 }
 
 InitErgmReference.Unif <- function(lhs.nw, a, b, ...){
-  list(name="Unif", a=a, b=b)  
+  list(name="Unif", arguments=list(a=a, b=b), init_methods=c("CD","zeros"))
 }
 
 InitErgmReference.DiscUnif <- function(lhs.nw, a, b, ...){
-  list(name="DiscUnif", a=a, b=b)
+  list(name="DiscUnif", arguments=list(a=a, b=b), init_methods=c("CD","zeros"))
 }

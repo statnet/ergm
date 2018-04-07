@@ -29,7 +29,7 @@ that can be coerced to a \code{\link[network]{network}} object.}
 
 \item{\dots}{Further arguments passed to other functions.}
 
-\item{arguments}{A list of parameters used by the Init.MHP routines}
+\item{arguments}{A list of parameters used by the InitErgmProposal routines}
 
 \item{nw}{The network object originally given to \code{\link{ergm}}
 via 'formula'}
@@ -54,7 +54,7 @@ documentation for a similar argument for \code{\link{ergm}} and see
 \link[=ergm-constraints]{list of implemented constraints} for more information.}
 }
 \value{
-Returns an ergm_proposal object: a list with class \code{'ergm_proposal'}
+Returns an ergm_proposal object: a list with class \code{ergm_proposal}
 containing the following named elements:
 \item{ name}{the C name of the proposal}
 \item{inputs}{inputs to be passed to C}
