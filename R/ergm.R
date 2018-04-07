@@ -538,6 +538,41 @@ ergm <- function(formula, response=NULL,
   }
   
   proposal.obs <- if(network.naedgecount(nw)==0) NULL else append_rhs.formula(constraints, list(as.name("observed")), TRUE)
+
+  if (verbose) message("Initializing Metropolis-Hastings proposal(s):",appendLF=FALSE) 
+  
+  proposal <- ergm_proposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
+  if (verbose) message(" ",proposal$pkgname,":MH_",proposal$name)
+  
+  
+  if(!is.null(proposal.obs)){
+    proposal.obs <- ergm_proposal(proposal.obs, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
+    if (verbose) message(" ",proposal.obs$pkgname,":MH_",proposal.obs$name)
+  }
+  
+  if (verbose) message("Initializing model.")
+  
+  # Construct the initial model.
+  
+  # The following kludge knocks out MPLE if the sample space
+  # constraints are not dyad-independent. For example, ~observed
+  # constraint is dyad-independent, while ~edges is not.
+  #
+  # TODO: Create a flexible and general framework to manage methods
+  # for obtaining initial values.
+  init.candidates <- ergm.init.methods(proposal$reference$name)
+  if("MPLE" %in% init.candidates && !is.dyad.independent(proposal$arguments$constraints,
+                                                         proposal.obs$arguments$constraints)){
+    init.candidates <- init.candidates[init.candidates!="MPLE"]
+    if(verbose) message("MPLE cannot be used for this constraint structure.")
+  }
+  if("MPLE" %in% init.candidates && !is.null(target.stats) && is.curved(formula, response=response)){
+    init.candidates <- init.candidates[init.candidates!="MPLE"]
+    if(verbose) message("At this time, MPLE cannot be used for curved families when target.stats are passed.")
+  }
+  control$init.method <- match.arg(control$init.method, init.candidates)
+  if(verbose) message(paste0("Using initial method '",control$init.method,"'."))
+  model.initial <- ergm_model(formula, nw, response=response, initialfit=control$init.method=="MPLE")
   
   ## Construct approximate response network if target.stats are given.
   
@@ -601,42 +636,7 @@ ergm <- function(formula, response=NULL,
     target.stats <- tmp
   } else {
     if (network.edgecount(nw) == 0) warning("Network is empty and no target stats are specified.")
-  }
-  
-  if (verbose) message("Initializing Metropolis-Hastings proposal(s):",appendLF=FALSE) 
-  
-  proposal <- ergm_proposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
-  if (verbose) message(" ",proposal$pkgname,":MH_",proposal$name)
-  
-  
-  if(!is.null(proposal.obs)){
-    proposal.obs <- ergm_proposal(proposal.obs, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
-    if (verbose) message(" ",proposal.obs$pkgname,":MH_",proposal.obs$name)
-  }
-  
-  if (verbose) message("Initializing model.")
-  
-  # Construct the initial model.
-  
-  # The following kludge knocks out MPLE if the sample space
-  # constraints are not dyad-independent. For example, ~observed
-  # constraint is dyad-independent, while ~edges is not.
-  #
-  # TODO: Create a flexible and general framework to manage methods
-  # for obtaining initial values.
-  init.candidates <- ergm.init.methods(proposal$reference$name)
-  if("MPLE" %in% init.candidates && !is.dyad.independent(proposal$arguments$constraints,
-                                                         proposal.obs$arguments$constraints)){
-    init.candidates <- init.candidates[init.candidates!="MPLE"]
-    if(verbose) message("MPLE cannot be used for this constraint structure.")
-  }
-  if("MPLE" %in% init.candidates && !is.null(target.stats) && is.curved(formula, response=response)){
-    init.candidates <- init.candidates[init.candidates!="MPLE"]
-    if(verbose) message("At this time, MPLE cannot be used for curved families when target.stats are passed.")
-  }
-  control$init.method <- match.arg(control$init.method, init.candidates)
-  if(verbose) message(paste0("Using initial method '",control$init.method,"'."))
-  model.initial <- ergm_model(formula, nw, response=response, initialfit=control$init.method=="MPLE")
+  } 
   
   # If some control$init is specified...
   if(!is.null(control$init)){
