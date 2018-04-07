@@ -19,6 +19,8 @@
 #' be employed by other depending packages.
 #' 
 #' @param formula a formula of the form \code{network ~ model.term(s)}
+#' @param term.options a list of optional settings such as calculation tuning options to be passed to the `InitErgmTerm` functions.
+#' @param extra.aux a list of auxiliary request formulas required elsewhere.
 #' @param object See specific method documentation.
 #' @return `ergm_model` returns an  `ergm_model` object as a list
 #' containing:
