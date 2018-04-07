@@ -3,21 +3,16 @@
 \name{param_names}
 \alias{param_names}
 \alias{param_names.default}
-\alias{param_names.ergm_model}
 \title{Names of the parameters associated with an object.}
 \usage{
 param_names(object, ...)
 
 \method{param_names}{default}(object, ...)
-
-\method{param_names}{ergm_model}(object, canonical = FALSE, ...)
 }
 \arguments{
 \item{object}{An object for which parameter names are defined.}
 
 \item{...}{Additional arguments to methods.}
-
-\item{canonical}{Whether the canonical (eta) parameters or the curved (theta) parameters are used.}
 }
 \description{
 This is a generic that returns a vector giving the names of the parameters associated with a model or a model fit.
@@ -25,7 +20,5 @@ This is a generic that returns a vector giving the names of the parameters assoc
 \section{Methods (by class)}{
 \itemize{
 \item \code{default}: By default, the names of the \code{\link[=coef]{coef()}} vector is returned.
-
-\item \code{ergm_model}: A method to return the curved or canonical parameter names of an initialized \code{\link{ergm_model}}.
 }}
 

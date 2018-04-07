@@ -566,8 +566,24 @@ ergm <- function(formula, response=NULL,
   constraints.obs <- tmp$constraints.obs
   constraints <- tmp$constraints
 
-  model <- ergm_model(formula, nw, response=response, term.options=control$term.options)
+  if (verbose) message("Initializing Metropolis-Hastings proposal(s):") 
+  
+  proposal <- ergm_proposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
+  if (verbose) message("Unconstrained ",proposal$pkgname,":MH_",proposal$name," .")
 
+  if (verbose) message("Initializing model.")
+  model <- ergm_model(formula, nw, response=response, extra.aux=NVL3(proposal$auxiliaries,list(.)), term.options=control$term.options)
+    
+  if(!is.null(constraints.obs)){
+    proposal.obs <- ergm_proposal(constraints.obs, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
+    if (verbose) message("Constrained ",proposal.obs$pkgname,":MH_",proposal.obs$name, appendLF=FALSE)
+
+    if(!is.null(proposal.obs$auxiliaries)){
+      if(verbose) message(" (requests auxiliaries: reinitializing model).")
+      model$obs.model <- ergm_model(formula, nw, response=response, extra.aux=list(proposal.obs$auxiliaries), term.options=control$term.options)
+    }else if(verbose) message(" .")
+  }else proposal.obs <- NULL
+  
   ## Construct approximate response network if target.stats are given.
   if(!is.null(target.stats)){
     formula.no <- filter_rhs.formula(formula, function(x) (if(is.call(x)) x[[1]] else x)!="offset")
@@ -622,35 +638,10 @@ ergm <- function(formula, response=NULL,
   } else {
     if (network.edgecount(nw) == 0) warning("Network is empty and no target stats are specified.")
   }
-  
-  if (verbose) message("Initializing Metropolis-Hastings proposal(s):",appendLF=FALSE) 
-  
-  proposal <- ergm_proposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
-  if (verbose) message(" Unconstrained ",proposal$pkgname,":MH_",proposal$name, " ", appendLF=FALSE)
-
-  if(!is.null(proposal$auxiliaries)){
-    if(verbose) message("(requests auxiliaries: reinitializing model) ")
-    model <- ergm_model(formula, nw, response=response, extra.aux=list(proposal$auxiliaries), term.options=control$term.options)
-  }
-    
-  if(!is.null(constraints.obs)){
-    proposal.obs <- ergm_proposal(constraints.obs, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
-    if (verbose) message("Constrained ",proposal.obs$pkgname,":MH_",proposal.obs$name, " ", appendLF=FALSE)
-
-    if(!is.null(proposal.obs$auxiliaries)){
-      if(verbose) message("(requests auxiliaries: reinitializing model) ")
-      model$obs.model <- ergm_model(formula, nw, response=response, extra.aux=list(proposal.obs$auxiliaries), term.options=control$term.options)
-    }
-  }else proposal.obs <- NULL
-
-  if(verbose) message()
-  
-  
+   
   # conddeg MPLE has been superceded, but let the user know:
   if(!is.directed(nw) && ("degrees" %in% names(proposal$arguments$constraints) ||
                                            all(c("b1degrees","b2degrees") %in% names(proposal$arguments$constraints)))) message("Note that degree-conditional MPLE has been removed in version 4.0, having been superceded by Contrastive Divergence.")  
-  
-  if (verbose) message("Initializing model.")
   
   # Construct the initial model.
   

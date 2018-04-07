@@ -35,7 +35,7 @@ is.curved<-function(object,...) UseMethod("is.curved")
 #' @export
 is.curved.NULL <- function(object, ...) FALSE # By convention.
 
-#' @rdname is.curved 
+#' @describeIn ergm_model Tests whether the model is curved.
 #' @export
 is.curved.ergm_model <- function(object, ...){
   length(object$etamap$curved)>0

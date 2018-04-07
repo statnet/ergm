@@ -43,7 +43,7 @@ is.durational.NULL <- function(object, ...) FALSE # By convention.
 #' @export
 is.durational.character <- function(object,...) FALSE # for mon="all"
 
-#' @rdname is.durational
+#' @describeIn ergm_model Test if the model has duration-dependent terms, which call for [lasttoggle] data structures.
 #' @export
 is.durational.ergm_model <- function(object, ...){
 	any(object$duration)

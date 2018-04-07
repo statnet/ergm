@@ -3,7 +3,6 @@
 \name{is.curved}
 \alias{is.curved}
 \alias{is.curved.NULL}
-\alias{is.curved.ergm_model}
 \alias{is.curved.formula}
 \alias{is.curved.ergm}
 \title{Testing for curved exponential family}
@@ -11,8 +10,6 @@
 is.curved(object, ...)
 
 \method{is.curved}{NULL}(object, ...)
-
-\method{is.curved}{ergm_model}(object, ...)
 
 \method{is.curved}{formula}(object, response = NULL, basis = NULL, ...)
 
