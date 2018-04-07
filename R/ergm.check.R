@@ -55,6 +55,7 @@
 #' @export ergm.checkargs
 ergm.checkargs <- function(fname, arglist, varnames=NULL, vartypes=NULL,
                            defaultvalues=list(), required=NULL) {
+  .Deprecated("check.ErgmTerm")
   sr=sum(required)
   lv=length(varnames)
   la=length(arglist)
