@@ -22,7 +22,6 @@
 
   .RegisterProposals()
   .RegisterConstraintImplications()
-  .RegisterInitMethods()
 }
 
 .RegisterProposals <- function(){
@@ -82,11 +81,4 @@
   ergm.ConstraintImplications("odegreedist", c("edges"))
   ergm.ConstraintImplications("bd", c())
   ergm.ConstraintImplications("hamming", c())
-}
-
-.RegisterInitMethods <- function(){
-  ergm.init.methods("Bernoulli", c("MPLE", "CD", "zeros"))
-  ergm.init.methods("StdNormal", c("CD","zeros"))
-  ergm.init.methods("Unif", c("CD","zeros"))
-  ergm.init.methods("DiscUnif", c("CD","zeros"))
 }

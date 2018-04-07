@@ -97,8 +97,7 @@ ERGMs, it's maximum pseudo-likelihood estimation (MPLE). Other valid values
 include \code{"zeros"} for a \code{0} vector of appropriate length and
 \code{"CD"} for contrastive divergence.
 
-Valid initial methods for a given reference can be queried using
-\code{\link{ergm.init.methods}}.}
+Valid initial methods for a given reference are set by the \code{InitErgmReference.*} function.}
 
 \item{main.method}{One of "MCMLE" (default),"Robbins-Monro",
 "Stochastic-Approximation", or "Stepping".  Chooses the estimation method
