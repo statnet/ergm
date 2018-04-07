@@ -23,15 +23,7 @@
 #          
 ###########################################################################
 
-#' @rdname ergm_model
-#' @description DEPRECATED. The \code{ergm.getterms} function returns the terms of
-#'   a given formula and ensures that the formula is indeed a formula
-#'   with the necessary \code{~} operator
-#' @return \code{ergm.getterms} returns: \itemize{ \item the terms
-#'   object associated with the formula and returned by the native R
-#'   function \code{\link{terms}}. see
-#'   \code{\link[stats]{terms.object}} for details about the
-#'   components }
+#' @describeIn ergm-deprecated Use [statnet.common::list_rhs.formula()] and [statnet.common::eval_lhs.formula()] instead.
 #' @export
 ergm.getterms<-function(formula) {
   .Deprecated("statnet.common::list_rhs.formula() and statnet.common::eval_lhs.formula()")

@@ -8,25 +8,7 @@
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
 
-#' Internal function to return global statistics for a given network; (DEPRECATED: use [summary.ergm_model()].)
-#' 
-#' The \code{ergm.getglobalstats} function is a low-level function not normally
-#' called by the user. It calculates and returns the global statistics for a
-#' given network and model.
-#' 
-#' Calculates and returns the global statistics for a given network via
-#' \code{\link{ergm.Cprepare}} and \code{network_stats_wrapper.C} or
-#' \code{wt_network_stats_wrapper.C} if the model is weighted. It is called by
-#' \code{\link{summary_formula.network}} which is generally the better way
-#' to access the functionality.
-#' 
-#' @param nw a \code{\link{network}} object
-#' @param m the model in use with network \code{nw}, as returned by
-#' \code{\link{ergm_model}}
-#' @param response character name of an edge attribute to be used (for weighted
-#' ergm models)
-#' @return returns a vector of the global statistics
-#' @seealso \code{\link{summary.formula}}
+#' @describeIn ergm-deprecated Use [summary.ergm_model()] instead.
 #' @export ergm.getglobalstats
 ergm.getglobalstats <- function(nw, m, response=NULL) {
   .Deprecated("summary.ergm_model")
