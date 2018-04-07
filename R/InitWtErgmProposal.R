@@ -14,48 +14,48 @@ InitWtErgmProposal.StdNormal <- function(arguments, nw, response) {
 }
 
 InitWtErgmProposal.DiscUnif <- function(arguments, nw, response) {
-  a <- NVL(arguments$reference$a, -Inf)
-  b <- NVL(arguments$reference$b, Inf)
+  a <- NVL(arguments$reference$arguments$a, -Inf)
+  b <- NVL(arguments$reference$arguments$b, Inf)
   if(!is.finite(a) || !is.finite(b)) stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
   proposal <- list(name = "DiscUnif", inputs=c(a,b))
   proposal
 }
 
 InitWtErgmProposal.DiscUnif2 <- function(arguments, nw, response) {
-  a <- NVL(arguments$reference$a, -Inf)
-  b <- NVL(arguments$reference$b, Inf)
+  a <- NVL(arguments$reference$arguments$a, -Inf)
+  b <- NVL(arguments$reference$arguments$b, Inf)
   if(!is.finite(a) || !is.finite(b)) stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
   proposal <- list(name = "DiscUnif2", inputs=c(a,b))
   proposal
 }
 
 InitWtErgmProposal.DiscUnifNonObserved <- function(arguments, nw, response) {
-  a <- NVL(arguments$reference$a, -Inf)
-  b <- NVL(arguments$reference$b, Inf)
+  a <- NVL(arguments$reference$arguments$a, -Inf)
+  b <- NVL(arguments$reference$arguments$b, Inf)
   if(!is.finite(a) || !is.finite(b)) stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
   proposal <- list(name = "DiscUnifNonObserved", inputs=c(a,b,to_ergm_Cdouble(is.na(nw))))
   proposal
 }
 
 InitWtErgmProposal.Unif <- function(arguments, nw, response) {
-  a <- NVL(arguments$reference$a, -Inf)
-  b <- NVL(arguments$reference$b, Inf)
+  a <- NVL(arguments$reference$arguments$a, -Inf)
+  b <- NVL(arguments$reference$arguments$b, Inf)
   if(!is.finite(a) || !is.finite(b)) stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
   proposal <- list(name = "Unif", inputs=c(a,b))
   proposal
 }
 
 InitWtErgmProposal.UnifNonObserved <- function(arguments, nw, response) {
-  a <- NVL(arguments$reference$a, -Inf)
-  b <- NVL(arguments$reference$b, Inf)
+  a <- NVL(arguments$reference$arguments$a, -Inf)
+  b <- NVL(arguments$reference$arguments$b, Inf)
   if(!is.finite(a) || !is.finite(b)) stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
   proposal <- list(name = "UnifNonObserved", inputs=c(a,b,to_ergm_Cdouble(is.na(nw))))
   proposal
 }
 
 InitWtErgmProposal.DistRLE <- function(arguments, nw, response) {
-  inputs <- with(arguments$reference,
-                 switch(name,
+  inputs <- with(arguments$reference$arguments,
+                 switch(arguments$reference$name,
                         Unif = c(0, a, b),
                         DiscUnif = c(1, a, b),
                         StdNormal = c(2, 0, 1),
