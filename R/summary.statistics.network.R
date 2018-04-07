@@ -32,12 +32,13 @@
 #'
 #' \code{summary.formula} for networks understands the
 #' \code{\link{lasttoggle}} "API".
-#' 
+#'
+#' @aliases summary
 #' @param object A formula having as its LHS a
 #'   \code{\link[network]{network}} object or a matrix that can be
 #'   coerced to a \code{\link[network]{network}} object, a
-#'   [`network.list`] or other methods. (See
-#'   `methods('summary_formula') for the possible LHS methods.
+#'   [`network.list`], or other types to be summarized using a formula. (See
+#'   `methods('summary_formula') for the possible LHS types.
 #' @param \dots further arguments passed to or used by methods.
 #' @return A vector of statistics specified in RHS of the formula.
 #' @seealso [ergm()], [network()], [ergm-terms]
@@ -130,6 +131,7 @@ summary_formula.network.list <- function(object, response=NULL, ..., basis=NULL)
 }
 
 #' @describeIn summary_formula a method for a [`network`] on the LHS of the formula.
+#' @seealso [summary.ergm_model()]
 #' @export
 summary_formula.network <- function(object, response=NULL,...,basis=NULL) {
   if(is.network(basis)){

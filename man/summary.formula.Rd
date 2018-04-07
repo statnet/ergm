@@ -2,6 +2,7 @@
 % Please edit documentation in R/summary.statistics.network.R
 \name{summary.formula}
 \alias{summary.formula}
+\alias{summary}
 \title{Calculation of network or graph statistics or other attributes
 specified on a formula}
 \usage{
@@ -11,8 +12,8 @@ specified on a formula}
 \item{object}{A formula having as its LHS a
 \code{\link[network]{network}} object or a matrix that can be
 coerced to a \code{\link[network]{network}} object, a
-\code{\link{network.list}} or other methods. (See
-`methods('summary_formula') for the possible LHS methods.}
+\code{\link{network.list}}, or other types to be summarized using a formula. (See
+`methods('summary_formula') for the possible LHS types.}
 
 \item{\dots}{further arguments passed to or used by methods.}
 }

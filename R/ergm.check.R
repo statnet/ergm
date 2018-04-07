@@ -45,16 +45,12 @@
 #
 ######################################################################################
 
-#' @describeIn check.ErgmTerm Deprecated. Ensures for the
-#'   \code{InitErgm} function that the term X: \itemize{ \item has an
-#'   appropiate number of arguments \item has correct argument types
-#'   if arguments where provieded \item has default values assigned
-#'   for non-required arguments } by halting execution if either of
-#'   the first 2 criteria are not met.
-#' @param fname the name of the model term as a character string
+#' @describeIn ergm-deprecated Use [check.ErgmTerm()] instead.
+#' 
 #' @export ergm.checkargs
 ergm.checkargs <- function(fname, arglist, varnames=NULL, vartypes=NULL,
                            defaultvalues=list(), required=NULL) {
+  .Deprecated("check.ErgmTerm")
   sr=sum(required)
   lv=length(varnames)
   la=length(arglist)
@@ -126,15 +122,8 @@ ergm.checkargs <- function(fname, arglist, varnames=NULL, vartypes=NULL,
 #
 #################################################################################
 
-#' @describeIn check.ErgmTerm Deprecated. Halts execution for the
-#'   <InitErgm> functions with an error message if the given model
-#'   term cannot be used with the network because of its state as
-#'   (non)bipartite. (Essentially, it prints and formats the the error
-#'   message.)
-#' @param nw.bipartiteflag logical,whether the network is bipartite
-#' @param extramessage additional messages to attach to the warning; default
-#' @param requirement logical, whether the term requires a directed network
-#' value = ""
+#' @describeIn ergm-deprecated Use [check.ErgmTerm()] instead.
+#' 
 #' @export ergm.checkbipartite
 ergm.checkbipartite <- function(fname, nw.bipartiteflag, requirement,
                                extramessage="") {
@@ -167,12 +156,8 @@ ergm.checkbipartite <- function(fname, nw.bipartiteflag, requirement,
 #
 #################################################################################
 
-#' @describeIn check.ErgmTerm Deprecated. Halts execution for the
-#'   <InitErgm> functions with an error message if the given model
-#'   term cannot be used with the network because of its state as
-#'   (un)directed. (Essentially, it prints and formats the the error
-#'   message.)
-#' @param nw.directedflag logical,whether the network is directed
+#' @describeIn ergm-deprecated Use [check.ErgmTerm()] instead.
+#' 
 #' @export ergm.checkdirected
 ergm.checkdirected <- function(fname, nw.directedflag, requirement,
                                extramessage="") {
