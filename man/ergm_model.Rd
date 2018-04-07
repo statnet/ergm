@@ -36,6 +36,10 @@ initialization of each model term; default=FALSE}
 
 \item{role}{A hint about how the model will be used. Used primarily for
 dynamic network models.}
+
+\item{term.options}{a list of optional settings such as calculation tuning options to be passed to the \code{InitErgmTerm} functions.}
+
+\item{extra.aux}{a list of auxiliary request formulas required elsewhere.}
 }
 \value{
 \code{ergm.getnetwork} returns: \itemize{ \item the network
