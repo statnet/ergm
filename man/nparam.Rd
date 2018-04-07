@@ -3,16 +3,12 @@
 \name{nparam}
 \alias{nparam}
 \alias{nparam.default}
-\alias{nparam.ergm_model}
 \alias{nparam.ergm}
 \title{Length of the parameter vector associated with an object or with its terms.}
 \usage{
 nparam(object, ...)
 
 \method{nparam}{default}(object, ...)
-
-\method{nparam}{ergm_model}(object, canonical = FALSE, offset = NA,
-  byterm = FALSE, ...)
 
 \method{nparam}{ergm}(object, offset = NA, ...)
 }
@@ -21,14 +17,9 @@ nparam(object, ...)
 
 \item{...}{Additional arguments to methods.}
 
-\item{canonical}{Whether the canonical (eta) parameters or the curved (theta) parameters are used.}
-
 \item{offset}{If \code{NA} (the default), all model terms are counted;
 if \code{TRUE}, only offset terms are counted; and if
 \code{FALSE}, offset terms are skipped.}
-
-\item{byterm}{Whether to return a vector of the numbers of
-coefficients for each term.}
 }
 \description{
 This is a generic that returns the number of parameters associated with a model or a model fit.
@@ -36,8 +27,6 @@ This is a generic that returns the number of parameters associated with a model 
 \section{Methods (by class)}{
 \itemize{
 \item \code{default}: By default, the length of the \code{\link[=coef]{coef()}} vector is returned.
-
-\item \code{ergm_model}: A method to return the number of coefficients of an initialized \code{\link{ergm_model}}.
 
 \item \code{ergm}: A method to return the number of parameters of an \code{\link{ergm}} fit.
 }}

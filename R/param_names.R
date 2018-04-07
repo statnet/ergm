@@ -18,8 +18,7 @@ param_names.default <- function(object, ...){
   names(coef(object))
 }
 
-#' @describeIn param_names
-#' A method to return the curved or canonical parameter names of an initialized [`ergm_model`].
+#' @describeIn ergm_model Parameter names of the model.
 #'
 #' @template canonical
 #' @export

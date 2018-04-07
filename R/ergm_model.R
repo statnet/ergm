@@ -17,11 +17,23 @@
 #' 
 #' These methods are generally not called directly by users, but may
 #' be employed by other depending packages.
-#' 
-#' @param formula a formula of the form \code{network ~ model.term(s)}
+#' `ergm_model` constructs it from a formula. Each term is
+#' initialized via the \code{InitErgmTerm} functions to create a
+#' \code{ergm_model} object.
+#' @note This API is not to be considered fixed and may change between versions. However, an effort will be made to ensure that the methods of this class remain stable.
+#' @param formula An [ergm()]
+#' formula of the form \code{network ~ model.term(s)} or \code{~
+#' model.term(s)}, with the network passed separately.
+#' @param nw The network of interest.
+#' @template response
+#' @param silent logical, whether to print the warning messages from the
+#' initialization of each model term.
+#' @param role A hint about how the model will be used. Used primarily for
+#' dynamic network models.
+#' @param \dots additional parameters for model formulation
 #' @param term.options a list of optional settings such as calculation tuning options to be passed to the `InitErgmTerm` functions.
 #' @param extra.aux a list of auxiliary request formulas required elsewhere.
-#' @param object See specific method documentation.
+#' @param object An `ergm_model` object.
 #' @return `ergm_model` returns an  `ergm_model` object as a list
 #' containing:
 #' \item{ formula}{the formula inputted to
@@ -34,38 +46,18 @@
 #' \item{network.stats0}{NULL always??}
 #' \item{etamap}{the theta -> eta mapping as a list returned from
 #' <ergm.etamap>}
-#' @note These functions are not meant to be called by the end-user but may be useful to extension developers. This API is not to be considered fixed and may change between versions.
+#' @seealso [summary.ergm_model()]
 #' @export
-ergm_model <- function(object, ...){
-  UseMethod("ergm_model")
-}
-#' @describeIn ergm_model
-#'
-#' Main method for constructing a model object from an [ergm()]
-#' formula of the form \code{network ~ model.term(s)} or \code{~
-#' model.term(s)} with the network passed separately. Each term is
-#' initialized via the \code{InitErgmTerm} functions to create a
-#' \code{ergm_model} object.
-#' 
-#' @param nw the network of interest
-#' @param response charcter, name of edge attribute containing edge weights
-#' @param silent logical, whether to print the warning messages from the
-#' initialization of each model term; default=FALSE
-#' @param role A hint about how the model will be used. Used primarily for
-#' dynamic network models.
-#' @param \dots additional parameters for model formulation
-#'
-#' @export
-ergm_model.formula <- function(object, nw, response=NULL, silent=FALSE, role="static",...,term.options=list(),extra.aux=list()){
-  if (!is(object, "formula"))
-    stop("Invalid model formula of class ",sQuote(class(object)),".", call.=FALSE)
+ergm_model <- function(formula, nw, response=NULL, silent=FALSE, role="static",...,term.options=list(),extra.aux=list()){
+  if (!is(formula, "formula"))
+    stop("Invalid model formula of class ",sQuote(class(formula)),".", call.=FALSE)
 
   #' @importFrom statnet.common list_rhs.formula
-  v<-list_rhs.formula(object)
+  v<-list_rhs.formula(formula)
   
-  formula.env<-environment(object)
+  formula.env<-environment(formula)
   
-  model <- structure(list(formula=object, coef.names = NULL,
+  model <- structure(list(formula=formula, coef.names = NULL,
                       offset = NULL,
                       terms = NULL, networkstats.0 = NULL, etamap = NULL),
                  class = "ergm_model")
@@ -97,7 +89,7 @@ ergm_model.formula <- function(object, nw, response=NULL, silent=FALSE, role="st
       if(!is.null(outlist$params))
         names(outlist$params) <- paste0("offset(",outlist$params,")")
     }
-    # Now it is necessary to add the output to the model object
+    # Now it is necessary to add the output to the model formula
     model <- updatemodel.ErgmTerm(model, outlist)
   }
 

@@ -4,7 +4,6 @@
 \alias{is.durational}
 \alias{is.durational.NULL}
 \alias{is.durational.character}
-\alias{is.durational.ergm_model}
 \alias{is.durational.formula}
 \title{Testing for durational dependent models}
 \usage{
@@ -13,8 +12,6 @@ is.durational(object, ...)
 \method{is.durational}{NULL}(object, ...)
 
 \method{is.durational}{character}(object, ...)
-
-\method{is.durational}{ergm_model}(object, ...)
 
 \method{is.durational}{formula}(object, response = NULL, basis = NULL, ...)
 }

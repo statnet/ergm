@@ -23,15 +23,19 @@
 #
 ###################################################################################
 
-#' @rdname ergm_model
-#' @description The \code{ergm.getnetwork} function ensures that the
-#'   network in a given formula is valid; if so, the network is
-#'   returned; if not, execution is halted with warnings
-#' @param loopswarning whether warnings about loops should be printed (T or
-#' F);default=TRUE
-#' @return \code{ergm.getnetwork} returns: \itemize{ \item the network
-#'   from the formula IF (i) the formula was correctly structured and
-#'   (ii) the network is found within the formula's enviornment }
+#' Acquire and verify the network from the LHS of an `ergm` formula
+#' and verify that it is a valid network.
+#' 
+#' The function function ensures that the network in a given formula
+#' is valid; if so, the network is returned; if not, execution is
+#' halted with warnings.
+#'
+#' @param formula a two-sided formula whose LHS is a [`network`], an object that can be coerced to a [`network`], or an expression that evaluates to one.
+#' @param loopswarning whether warnings about loops should be printed
+#'   (`TRUE` or `FALSE`); defaults to `TRUE`.
+#' 
+#' @return A [`network`] object constructed by evaluating the LHS of
+#'   the model formula in the formula's environment.
 #' @export ergm.getnetwork
 ergm.getnetwork <- function (formula, loopswarning=TRUE){
   nw <- ERRVL(
