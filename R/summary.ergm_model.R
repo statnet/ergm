@@ -14,9 +14,17 @@ ergm.getglobalstats <- function(nw, m, response=NULL) {
   .Deprecated("summary.ergm_model")
   summary(m, nw, response=response)
 }
-#' @describeIn ergm_model
+#' Evaluate network summary statistics from an initialized ergm model
+#' 
+#' Returns a vector of the model's statistics for a given network or
+#' an empty network. This is a low-level function that should not be
+#' used by end-users, but may be useful to developers.
 #'
-#' The [summary()] method for an `ergm_model` returns a vector of the model's statistics for network `nw` attribute `response` (optionally). If `nw` is omitted or `NULL`, returns empty network's statistics.
+#' @param object an [`ergm_model`] object.
+#' @param nw a [`network`] whose statistics are to be evaluated. If
+#'   `NULL`, returns empty network's statistics for that model.
+#' @template response
+#' 
 #' @seealso [summary_formula()]
 #' @export
 summary.ergm_model <- function(object, nw=NULL, response=NULL,...){

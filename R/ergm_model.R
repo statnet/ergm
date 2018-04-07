@@ -17,9 +17,21 @@
 #' 
 #' These methods are generally not called directly by users, but may
 #' be employed by other depending packages.
+#' A model object is constructed from an [ergm()]
+#' formula of the form \code{network ~ model.term(s)} or \code{~
+#' model.term(s)}, with the network passed separately. Each term is
+#' initialized via the \code{InitErgmTerm} functions to create a
+#' \code{ergm_model} object.
+#' @note This API is not to be considered fixed and may change between versions. However, an effort will be made to ensure that the methods of this class remain stable.
 #' 
-#' @param formula a formula of the form \code{network ~ model.term(s)}
 #' @param object See specific method documentation.
+#' @param nw the network of interest
+#' @template response
+#' @param silent logical, whether to print the warning messages from the
+#' initialization of each model term.
+#' @param role A hint about how the model will be used. Used primarily for
+#' dynamic network models.
+#' @param \dots additional parameters for model formulation
 #' @return `ergm_model` returns an  `ergm_model` object as a list
 #' containing:
 #' \item{ formula}{the formula inputted to
@@ -32,29 +44,8 @@
 #' \item{network.stats0}{NULL always??}
 #' \item{etamap}{the theta -> eta mapping as a list returned from
 #' <ergm.etamap>}
-#' @note These functions are not meant to be called by the end-user but may be useful to extension developers. This API is not to be considered fixed and may change between versions.
 #' @export
-ergm_model <- function(object, ...){
-  UseMethod("ergm_model")
-}
-#' @describeIn ergm_model
-#'
-#' Main method for constructing a model object from an [ergm()]
-#' formula of the form \code{network ~ model.term(s)} or \code{~
-#' model.term(s)} with the network passed separately. Each term is
-#' initialized via the \code{InitErgmTerm} functions to create a
-#' \code{ergm_model} object.
-#' 
-#' @param nw the network of interest
-#' @param response charcter, name of edge attribute containing edge weights
-#' @param silent logical, whether to print the warning messages from the
-#' initialization of each model term; default=FALSE
-#' @param role A hint about how the model will be used. Used primarily for
-#' dynamic network models.
-#' @param \dots additional parameters for model formulation
-#'
-#' @export
-ergm_model.formula <- function(object, nw, response=NULL, silent=FALSE, role="static",...) {
+ergm_model <- function(object, nw, response=NULL, silent=FALSE, role="static",...) {
   if (!is(object, "formula"))
     stop("Invalid model formula of class ",sQuote(class(object)),".", call.=FALSE)
 
