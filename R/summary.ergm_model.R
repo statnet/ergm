@@ -24,6 +24,7 @@ ergm.getglobalstats <- function(nw, m, response=NULL) {
 #' @param nw a [`network`] whose statistics are to be evaluated. If
 #'   `NULL`, returns empty network's statistics for that model.
 #' @template response
+#' @template dotdotdot
 #' 
 #' @seealso [summary_formula()]
 #' @export

@@ -3,7 +3,6 @@
 \name{is.dyad.independent}
 \alias{is.dyad.independent}
 \alias{is.dyad.independent.NULL}
-\alias{is.dyad.independent.ergm_model}
 \alias{is.dyad.independent.formula}
 \alias{is.dyad.independent.ergm_conlist}
 \alias{is.dyad.independent.ergm}
@@ -12,8 +11,6 @@
 is.dyad.independent(object, ...)
 
 \method{is.dyad.independent}{NULL}(object, ...)
-
-\method{is.dyad.independent}{ergm_model}(object, ...)
 
 \method{is.dyad.independent}{formula}(object, response = NULL, basis = NULL,
   ...)

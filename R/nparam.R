@@ -17,15 +17,12 @@ nparam.default <- function(object, ...){
   length(coef(object))
 }
 
-#' @describeIn nparam
-#' A method to return the number of coefficients of an initialized [`ergm_model`].
+#' @describeIn ergm_model Number of parameters of the model.
 #' 
-#' @param offset If `NA` (the default), all model terms are counted;
-#'   if \code{TRUE}, only offset terms are counted; and if
-#'   \code{FALSE}, offset terms are skipped.
+#' @template offset..filter
 #' @param byterm Whether to return a vector of the numbers of
 #'   coefficients for each term.
-#' @template canonical
+# #' @template canonical // Documented in one of the other methods of ergm_model.
 #' @export
 nparam.ergm_model <- function(object, canonical=FALSE, offset=NA, byterm=FALSE, ...){
   terms <-
@@ -52,6 +49,8 @@ nparam.ergm_model <- function(object, canonical=FALSE, offset=NA, byterm=FALSE, 
 #' @describeIn nparam
 #' A method to return the number of parameters of an [`ergm`] fit.
 #' 
+#' @template offset..filter
+#'
 #' @export
 nparam.ergm <- function(object, offset=NA, ...){
   if(is.na(offset)) length(object$etamap$offsettheta)

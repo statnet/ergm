@@ -6,7 +6,6 @@
 \alias{gof.ergm}
 \alias{gof.formula}
 \alias{print.gof}
-\alias{summary.gof}
 \alias{plot.gof}
 \title{Conduct Goodness-of-Fit Diagnostics on a Exponential Family Random Graph
 Model}
