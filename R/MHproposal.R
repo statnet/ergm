@@ -21,13 +21,12 @@
 # priority.
 
 
-#' Table mapping reference,constraints, etc. to Metropolis Hastings Proposals
-#' (MHP)
+#' Table mapping reference,constraints, etc. to ERGM Metropolis-Hastings proposals
 #' 
 #' This is a low-level function not intended to be called directly by
 #' end users. For information on Metropolis-Hastings proposal methods,
 #' \link{ergm-proposals}. This function sets up the table mapping
-#' constraints, references, etc. to ergm_proposals. Calling it with
+#' constraints, references, etc. to `ergm_proposals`. Calling it with
 #' arguments adds a new row to this table. Calling it without
 #' arguments returns the table so far.
 #' 
@@ -37,29 +36,29 @@
 #' reference measures, see \code{\link{ergm-references}}
 #' @param Constraints The constraints used in the model. For the list of
 #' constraints, see \code{\link{ergm-constraints}}
-#' @param Priority On existence of multiple qualifying MHPs, specifies the
-#' priority (`-1`,`0`,`1`, etc.) of MHPs to be used.
+#' @param Priority On existence of multiple qualifying proposals, specifies the
+#' priority (`-1`,`0`,`1`, etc.) of proposals to be used.
 #' @param Weights The sampling weights on selecting toggles (random, TNT, etc).
-#' @param MHP The matching MHP from the previous arguments.
+#' @param Proposal The matching proposal from the previous arguments.
 #'
 #' @note The arguments `Class`, `Reference`, and `Constraints` can
 #'   have length greater than 1. If this is the case, the rows added
 #'   to the table are a *Cartesian product* of their elements.
 #' @export ergm_proposal_table
 ergm_proposal_table <- local({
-  MHPs <- data.frame(Class = character(0), Reference = character(0),
+  proposals <- data.frame(Class = character(0), Reference = character(0),
                      Constraints = character(0), Priority = numeric(0), Weights = character(0),
-                     MHP = character(0), stringsAsFactors=FALSE)
-  function(Class, Reference, Constraints, Priority, Weights, MHP) {
+                     Proposal = character(0), stringsAsFactors=FALSE)
+  function(Class, Reference, Constraints, Priority, Weights, Proposal) {
     if(!missing(Class)){
       stopifnot(length(Class)>=1,length(Reference)>=1,length(Constraints)>=1,
-                length(Priority)==1,length(Weights)==1,length(MHP)==1)
+                length(Priority)==1,length(Weights)==1,length(Proposal)==1)
       newrows <- expand.grid(Class = Class, Reference = Reference,
                              Constraints = Constraints, Priority = Priority, Weights = Weights,
-                             MHP = MHP, stringsAsFactors=FALSE, KEEP.OUT.ATTRS=FALSE)
-      MHPs <<- rbind(MHPs,
+                             Proposal = Proposal, stringsAsFactors=FALSE, KEEP.OUT.ATTRS=FALSE)
+      proposals <<- rbind(proposals,
                      newrows)
-    }else MHPs
+    }else proposals
   }
 })
 
@@ -111,7 +110,7 @@ prune.ergm_conlist <- function(conlist){
 # --RETURNED--
 #   proposal: an ergm_proposal object as a list containing the following:
 #     name   : the C name of the proposal
-#     inputs : NULL (I think - the only non-null value returned by the InitMH
+#     inputs : NULL (I think - the only non-null value returned by the InitErgmProposal
 #              is for <nobetweengroupties>, but this isn't included in the 
 #              look-up table
 #     package: shared library name where the proposal can be found (usually "ergm")
@@ -139,7 +138,7 @@ prune.ergm_conlist <- function(conlist){
 #' \code{y ~ <model terms>}, where \code{y} is a network object or a matrix
 #' that can be coerced to a \code{\link[network]{network}} object.
 #' @param \dots Further arguments passed to other functions.
-#' @return Returns an ergm_proposal object: a list with class \code{'MHProposal'}
+#' @return Returns an ergm_proposal object: a list with class `ergm_proposal`
 #' containing the following named elements:
 #' \item{ name}{the C name of the proposal}
 #' \item{inputs}{inputs to be passed to C}
@@ -176,7 +175,7 @@ ergm_proposal.ergm_proposal<-function(object,...) return(object)
 #
 # --PARAMETERS--
 #   object     :  the name of the proposal, one found in the look-up table
-#   arguments  :  a list of parameters used by the <Init.MHP> routines possibly including
+#   arguments  :  a list of parameters used by the <InitErgmProposal> routines possibly including
 #                  bd: a list of parameters used to bound degree via <ergm.bounddeg>
 #   nw         :  the network object orginally given to <ergm> via 'formula'
 #
@@ -186,7 +185,7 @@ ergm_proposal.ergm_proposal<-function(object,...) return(object)
 #'   giving the \R name of the proposal.
 #' @param nw The network object originally given to \code{\link{ergm}}
 #'   via 'formula'
-#' @param arguments A list of parameters used by the Init.MHP routines
+#' @param arguments A list of parameters used by the InitErgmProposal routines
 #' @template response
 #' @param reference One-sided formula whose RHS gives the reference
 #'   measure to be used. (Defaults to \code{~Bernoulli}.)
@@ -224,13 +223,13 @@ ergm_proposal.character <- function(object, arguments, nw, ..., response=NULL, r
 
 ########################################################################################
 # The <ergm_proposal.formula> function verifies that the given constraints exist and
-# are supported in conjuction with the given weights and class by a unique MH proposal;
+# are supported in conjuction with the given weights and class by a unique proposal;
 # if so the ergm_proposal object is created via <ergm_proposal.character> using the 
-# MHP type found in the look-up table above.
+# proposal type found in the look-up table above.
 #
 # --PARAMETERS--
 #   object     :  a one-sided formula of constraint terms ( ~ term(s))
-#   arguments  :  a list of parameters used by the <Init.MHP> routines  possibly including
+#   arguments  :  a list of parameters used by the <InitErgmProposal> routines  possibly including
 #                  bd: a list of parameters used to bound degree via <ergm.bounddeg>
 #   nw         :  a network object
 #   constraints:  the constraints as a one sided formula '~ term(s)'
@@ -333,7 +332,7 @@ ergm_proposal.formula <- function(object, arguments, nw, weights="default", clas
     constraints.specific <- tolower(unlist(lapply(conlist, `[[`, "constrain")))
     constraints.specific <- paste(sort(unique(constraints.specific)),collapse="+")
 
-    MHqualifying.specific <-
+    qualifying.specific <-
       if(all(sapply(conlist, `[[`, "sign")==+1)){ # If all constraints are conjunctive...
         with(ergm_proposal_table(),ergm_proposal_table()[Class==class & Constraints==constraints.specific & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
       }
@@ -341,19 +340,19 @@ ergm_proposal.formula <- function(object, arguments, nw, weights="default", clas
     # Try the general dyad-independent constraint combination.
     constraints.general <- tolower(unlist(ifelse(sapply(conlist,`[[`,"dependence"),lapply(conlist, `[[`, "constrain"), ".dyads")))
     constraints.general <- paste(sort(unique(constraints.general)),collapse="+")
-    MHqualifying.general <- with(ergm_proposal_table(),ergm_proposal_table()[Class==class & Constraints==constraints.general & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
+    qualifying.general <- with(ergm_proposal_table(),ergm_proposal_table()[Class==class & Constraints==constraints.general & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
 
-    MHqualifying <- rbind(MHqualifying.general, MHqualifying.specific)
+    qualifying <- rbind(qualifying.general, qualifying.specific)
     
-    if(nrow(MHqualifying)<1){
+    if(nrow(qualifying)<1){
       commonalities<-(ergm_proposal_table()$Class==class)+(ergm_proposal_table()$Weights==weights)+(ergm_proposal_table()$Reference==reference)+(ergm_proposal_table()$Constraints==constraints.specific)
       stop("The combination of class (",class,"), model constraints (",constraints.specific,"), reference measure (",reference,"), proposal weighting (",weights,"), and conjunctions and disjunctions is not implemented. ", "Check your arguments for typos. ", if(any(commonalities>=3)) paste("Nearest matching proposals: (",paste(apply(ergm_proposal_table()[commonalities==3,-5],1,paste, sep="), (",collapse=", "),collapse="), ("),")",sep="",".") else "")
     }
     
-    if(nrow(MHqualifying)==1){
-      name<-MHqualifying$MHP
+    if(nrow(qualifying)==1){
+      name<-qualifying$Proposal
     }else{
-      name<-with(MHqualifying,MHP[which.max(Priority)])
+      name<-with(qualifying,Proposal[which.max(Priority)])
     }
   }
   
@@ -374,7 +373,7 @@ ergm_proposal.formula <- function(object, arguments, nw, weights="default", clas
 #   object     :  an ergm object
 #   constraints:  the constraints as a one sided formula '~ term(s)';
 #                 default=object$constraints
-#   arguments  :  a list of parameters used by the <Init.MHP> routines  possibly including
+#   arguments  :  a list of parameters used by the <InitErgmProposal> routines  possibly including
 #                  bd: a list of parameters used to bound degree via <ergm.bounddeg>
 #   nw         :  a network object; default=object.network
 #   weights    :  the proposal weights component of <control.ergm> as either

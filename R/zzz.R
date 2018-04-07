@@ -20,12 +20,12 @@
   # . is used as a placeholder by stantet.common::NVL3().
   utils::globalVariables(".")
 
-  .RegisterMHPs()
+  .RegisterProposals()
   .RegisterConstraintImplications()
   .RegisterInitMethods()
 }
 
-.RegisterMHPs <- function(){
+.RegisterProposals <- function(){
   ergm_proposal_table("c", "Bernoulli", c("", "bd"),  0, "random", "randomtoggle")
   ergm_proposal_table("c", "Bernoulli", c("", "bd"),  1, "TNT", "TNT")
   ergm_proposal_table("c", "Bernoulli", c(".dyads",".dyads+bd"),  -2, "random", "RLE")
