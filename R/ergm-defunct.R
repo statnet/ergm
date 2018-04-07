@@ -3,6 +3,8 @@
 #' @name ergm-defunct
 #' @title Functions that have been removed from this package
 #' @description Functions that have been removed after a period of deprecation.
+#' @param x,minsize,center,cov,inverted,...,object,statistics,formula,init,nsim,burnin,interval,constraints,prop.weights,prop.args,seed,drop,ninflast,V,tol,g,print,nw,radius,probs,n,cols,control,statistic,H Arguments to defunct functions.
+
 NULL
 
 # The following were defunct-ed on 2017-05-16.

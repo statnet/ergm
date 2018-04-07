@@ -73,6 +73,9 @@ degreedistfactor(g, x)
 
 robust.inverse(H, tol = sqrt(.Machine$double.eps))
 }
+\arguments{
+\item{x, minsize, center, cov, inverted, ..., object, statistics, formula, init, nsim, burnin, interval, constraints, prop.weights, prop.args, seed, drop, ninflast, V, tol, g, print, nw, radius, probs, n, cols, control, statistic, H}{Arguments to defunct functions.}
+}
 \description{
 Functions that have been removed after a period of deprecation.
 }

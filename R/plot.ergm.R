@@ -21,17 +21,10 @@
 # 
 ###############################################################################
 
-#' Deprecated alias for [mcmc.diagnostics()].
+#' @rdname ergm-deprecated
+#' @description `plot.ergm`: deprecated alias for [mcmc.diagnostics()].
 #'
-#' Originally, a plotting method for latent positions, before latent
-#' space modelling was split out into the `latentnet` package, it now
-#' prints the MCMC diagnostics, but it may be repurposed in the
-#' future.
-#' 
-#' @param x an [ergm()] object.
-#' @param ... additional arguments, passed to [mcmc.diagnostics()].
-#'
-#' @seealso [mcmc.diagnostics()]
+#' @export
 plot.ergm <- function (x, ...)
 {
   .Deprecated("mcmc.diagnostics(x,...)")

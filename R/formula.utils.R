@@ -303,39 +303,15 @@ unset.offset.formula <- function(object, which=TRUE, response=NULL){
 
 
 
-#' @name old.formula.utils
-#'
-#' @title Obsolete formula and model utilities. They will be removed in a
-#' future release.
-#'
-#' @param object an `ergm` formula.
-NULL
-
-#' @rdname old.formula.utils
-#'
-#' @param new,...,from.new See [nonsimp_update.formula()].
-#' 
-#' @description \code{ergm.update.formula} (DEPRECATED: use
-#' \code{\link[statnet.common]{nonsimp_update.formula}} instead) is a
-#' reimplementation of \code{\link{update.formula}} that does not
-#' simplify.  Note that the resulting formula's environment is set as
-#' follows. If \code{from.new==FALSE}, it is set to that of
-#' object. Otherwise, a new sub-environment of object, containing, in
-#' addition, variables in new listed in from.new (if a character
-#' vector) or all of new (if TRUE).
-#' @export
+#' @describeIn ergm-deprecated Use \code{\link[statnet.common]{nonsimp_update.formula}} instead.
+#' @export ergm.update.formula
 ergm.update.formula <- function(object, new, ..., from.new=FALSE){
   .Deprecated("statnet.common::nonsimp_update.formula")
   nonsimp_update.formula(object, new, ..., from.new=from.new)
 }
 
 
-#' @rdname old.formula.utils
-#' 
-#' @description \code{remove.offset.formula} deletes all \code{\link{offset}} terms
-#' in an ERGM formula. (DEPRECATED: Use `statnet.common::filter_rhs.formula(object, function(x) (if(is.call(x)) x[[1]] else x)!="offset")`.)
-#'
-#' @template response
+#' @describeIn ergm-deprecated Use [statnet.common::filter_rhs.formula()] such as `statnet.common::filter_rhs.formula(object, function(x) (if(is.call(x)) x[[1]] else x)!="offset")` instead.
 #' @export remove.offset.formula
 remove.offset.formula <- function(object, response=NULL){
   .Deprecated("statnet.common::filter_rhs.formula")

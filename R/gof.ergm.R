@@ -657,7 +657,6 @@ gof.formula <- function(object, ...,
 #' alias that may be repurposed in the future.)
 #' 
 #' @param x an object of class \code{gof} for printing or plotting.
-#' @aliases summary.gof
 #' @export
 print.gof <- function(x, ...){
   all.gof.vars <- as.character(list_rhs.formula(x$GOF))
@@ -688,7 +687,8 @@ print.gof <- function(x, ...){
 
 
 
-#' @noRd
+#' @rdname ergm-deprecated
+#' @description [summary.gof()] is a deprecated alias for [print.gof()].
 #' @export
 summary.gof <- function(object, ...) {
   .Deprecated("print.gof")
