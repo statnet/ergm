@@ -15,6 +15,7 @@
 \alias{ergm.getmodel}
 \alias{ergm.update.formula}
 \alias{remove.offset.formula}
+\alias{offset.info.formula}
 \alias{summary.gof}
 \alias{plot.ergm}
 \title{Functions that will no longer be supported in future releases of the package}
@@ -41,6 +42,8 @@ ergm.getmodel(object, ...)
 ergm.update.formula(object, new, ..., from.new = FALSE)
 
 remove.offset.formula(object, response = NULL)
+
+offset.info.formula(object, response = NULL)
 
 \method{summary}{gof}(object, ...)
 
@@ -81,5 +84,8 @@ Functions that have been superceed, were never documented, or will be removed fr
 \item \code{remove.offset.formula}: Use \code{\link[statnet.common:filter_rhs.formula]{statnet.common::filter_rhs.formula()}} such as \code{statnet.common::filter_rhs.formula(object, function(x) (if(is.call(x)) x[[1]] else x)!="offset")} instead.
 
 [[1]: R:[1
+
+\item \code{offset.info.formula}: \code{offset.info.formula} returns the offset
+vectors associated with a formula.
 }}
 

@@ -322,8 +322,7 @@ remove.offset.formula <- function(object, response=NULL){
   nonsimp_update.formula(object, append_rhs.formula(~.,terms)) # append_rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
 }
 
-#' @rdname ergm_model
-#' @description \code{offset.info.formula} returns the offset
+#' @describeIn ergm-deprecated \code{offset.info.formula} returns the offset
 #'   vectors associated with a formula.
 #' @export offset.info.formula
 offset.info.formula <- function(object, response=NULL){

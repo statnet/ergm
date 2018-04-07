@@ -586,7 +586,7 @@ ergm <- function(formula, response=NULL,
     }
     
     # no need to pass the offset term's init to SAN
-    offset.terms <- offset.info.formula(formula)$term
+    offset.terms <- model.initial$etamap$offsettheta
     san.control <- control$SAN.control
     san.control$coef <- san.control$coef[!offset.terms]
     
