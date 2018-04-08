@@ -45,6 +45,7 @@
 #
 ######################################################################################
 
+#' @include ergm-deprecated.R
 #' @describeIn ergm-deprecated Use [check.ErgmTerm()] instead.
 #' 
 #' @export ergm.checkargs
