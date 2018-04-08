@@ -1240,6 +1240,7 @@ InitErgmTerm.degree1.5<-function (nw, arglist, ...) {
 
 
 ################################################################################
+#' @include ergm-deprecated.R
 #' @describeIn ergm-deprecated Use [`degree1.5`] instead.
 InitErgmTerm.degreepopularity<-function (nw, arglist, ...) {
   .Deprecated("degree1.5")
