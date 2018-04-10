@@ -73,6 +73,9 @@
 	A new API allows arbitrary combinations of dyad-level sample
 	space constraints.
       }
+      \item{
+	Most terms that take categorical nodal attributes now have a \code{levels=} argument, which can be used to control the set and the ordering of the attribute levels.
+      }
     }
   }
 
@@ -95,6 +98,10 @@
 	A bug in the \code{\link{meandeg}} term for directed
 	networks has been fixed.
       }
+      \item{
+	Miscellaneous bugs in the \code{gof} family of functions have
+	been fixed.
+      }
     }
   }
 
@@ -104,6 +111,59 @@
       \item{
 	The coefficient names associated with terms enclosed in
 	\code{offset()} are now also enclosed in \code{offset()}.
+      }
+      \item{
+	Handling of missing relations has been improved.
+      }
+      \item{
+	Some of the unofficial APIs have been changed for consistency
+	and ease of use:
+	\itemize{
+	  \item{
+	    New generics \code{\link{nparam}} and
+	    \code{\link{param_names}} can be used to query the number
+	    and the names of the parameters in a model.
+	  }
+	  \item{
+	    \code{\link{ergm_model}} (replacing
+	    \code{ergm.getmodel}) is now a full-fledged S3 class,
+	    representing initialized \code{ergm} models. See its help for the
+	    major methods. In particular, \code{ergm.getglobalstats} has
+	    been repalced with \code{\link{summary.ergm_model}}.
+	  }
+	  \item{
+	    Constraint initializers have been renamed from
+	    \code{InitConstraint} to \code{InitErgmConstraint}. The
+	    constraint implications table has been replaced with
+	    \code{implies} and \code{impliedby} constraint lists.
+	  }
+	  \item{
+	    Proposal initializers have been renamed from
+	    \code{InitMHP} (and \code{InitWtMHP}) to
+	    \code{InitErgmProposal} (and
+	    \code{InitWtErgmProposal}). \code{ergm.MHP.table} has been renamed
+	    to \code{\link{ergm_proposal_table}}.
+	  }
+	  \item{
+	    Reference initializers have been renamed from
+	    \code{InitReference} to \code{InitErgmReference}. Return
+	    format has also been changed, replacing
+	    \code{ergm.init.methods}.
+	  }
+	  \item{
+	    \code{ergm.Clist.*} functions have been refined and
+	    specialized. In particular, those that specifically return
+	    numeric vectors (not lists of numeric vectors) for passing
+	    to C code are now methods of the
+	    \code{\link{to_ergm_Cdouble}} generic.
+	  }
+	  \item{
+	    \code{ergm.getMCMCsample} and \code{ergm.mcmcslave} have
+	    been renamed to \code{ergm_MCMC_sample} and
+	    \code{ergm_MCMC_slave} respectively, and the arguments of
+	    \code{ergm_MCMC_sample} have been made more user-friendly.
+	  }
+	}
       }
     }
   }
