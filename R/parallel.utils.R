@@ -28,7 +28,7 @@
 #' functions, such as [control.ergm()].
 #'   
 #' The [ergm.getCluster()] function is usually called internally by
-#' the ergm process (in [ergm.getMCMCsample()]) and will attempt to
+#' the ergm process (in [ergm_MCMC_sample()]) and will attempt to
 #' start the appropriate type of cluster indicated by the
 #' [control.ergm()] settings. The [ergm.stopCluster()] is helpful if
 #' the user has directly created a cluster.
