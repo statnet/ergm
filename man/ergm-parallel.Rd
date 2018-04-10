@@ -41,7 +41,7 @@ such as \code{\link{control.ergm}}.
 
 The \code{ergm.getCluster} function is usually called
 internally by the ergm process (in
-\code{\link{ergm.getMCMCsample}}) and will attempt to start the
+\code{\link{ergm_MCMC_sample}}) and will attempt to start the
 appropriate type of cluster indicated by the
 \code{\link{control.ergm}} settings. It will also check that the
 same version of \code{ergm} is installed on each node.
