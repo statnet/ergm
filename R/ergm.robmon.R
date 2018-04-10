@@ -64,7 +64,7 @@ ergm.robmon <- function(init, nw, model,
   control$MCMC.samplesize=n1
   message(paste("Phase 1: ",n1,"iterations"),appendLF=FALSE)
   message(paste(" (interval=",control$MCMC.interval,")",sep=""))
-  z <- ergm.getMCMCsample(nw, model, proposal, eta0, control, verbose)
+  z <- ergm_MCMC_sample(nw, model, proposal, control, eta=eta0, verbose=verbose)
   steplength <- control$MCMLE.steplength
   # post-processing of sample statistics:  Shift each row by the
   # matrix model$nw.stats - model$target.stats, attach column names
@@ -119,7 +119,7 @@ ergm.robmon <- function(init, nw, model,
       # control$MCMC.burnin should perhaps be increased here, since
       # each iteration begins from the observed network, which must be 
       # "forgotten".
-      z <- ergm.getMCMCsample(nw, model, proposal, eta, control, verbose=FALSE)
+      z <- ergm_MCMC_sample(nw, model, proposal, control, eta=eta, verbose=FALSE)
       # post-processing of sample statistics:  Shift each row by the
       # matrix model$nw.stats - model$target.stats, attach column names
       statsmatrix <- sweep(z$statsmatrix, 2, model$nw.stats - NVL(model$target.stats,model$nw.stats), "+")
@@ -151,7 +151,7 @@ message(paste("theta new:",theta,""))
   message(paste(" (interval=",control$MCMC.interval,")",sep=""))
   eta <- ergm.eta(theta, model$etamap)
   control$nmatrixentries = control$MCMC.samplesize * model$etamap$etalength
-  z <- ergm.getMCMCsample(nw, model, proposal, eta, control, verbose=FALSE)
+  z <- ergm_MCMC_sample(nw, model, proposal, control, eta=eta, verbose=FALSE)
   # post-processing of sample statistics:  Shift each row by the
   # matrix model$nw.stats - model$target.stats, attach column names
   statsmatrix <- sweep(z$statsmatrix, 2, model$nw.stats - NVL(model$target.stats,model$nw.stats), "+")

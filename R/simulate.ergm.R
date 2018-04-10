@@ -302,9 +302,6 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   if (any(is.nan(coef) | is.na(coef)))
     stop("Illegal value of coef passed to simulate.formula")
   
-  # Create eta0 from coef
-  eta0 <- ergm.eta(coef, m$etamap)
-    
   # Create vector of current statistics
   curstats <- summary(m, nw, response=response)
   names(curstats) <- m$coef.names
@@ -330,7 +327,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     # In this case, we can make one, parallelized run of
     # ergm.getMCMCsample.
     control$MCMC.samplesize <- nsim
-    z <- ergm.getMCMCsample(nw, m, proposal, eta0, control, verbose=verbose, response=response)
+    z <- ergm_MCMC_sample(nw, m, proposal, control, theta=coef, verbose=verbose, response=response)
     
     # Post-processing:  Add term names to columns and shift each row by
     # observed statistics.
@@ -374,7 +371,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
       
       control$MCMC.samplesize <- nthreads
       control$MCMC.burnin <- if(i==1 || sequential==FALSE) control$MCMC.burnin else control$MCMC.interval
-      z <- ergm.getMCMCsample(nw, m, proposal, eta0, control, verbose=verbose, response=response)
+      z <- ergm_MCMC_sample(nw, m, proposal, control, theta=coef, verbose=verbose, response=response)
       
       out.mat <- rbind(out.mat, curstats + z$statsmatrix)
       

@@ -71,7 +71,7 @@ the \code{parallel} and \code{parallel.type} arguments passed to the control
 functions, such as \code{\link[=control.ergm]{control.ergm()}}.
 
 The \code{\link[=ergm.getCluster]{ergm.getCluster()}} function is usually called internally by
-the ergm process (in \code{\link[=ergm.getMCMCsample]{ergm.getMCMCsample()}}) and will attempt to
+the ergm process (in \code{\link[=ergm_MCMC_sample]{ergm_MCMC_sample()}}) and will attempt to
 start the appropriate type of cluster indicated by the
 \code{\link[=control.ergm]{control.ergm()}} settings. The \code{\link[=ergm.stopCluster]{ergm.stopCluster()}} is helpful if
 the user has directly created a cluster.
