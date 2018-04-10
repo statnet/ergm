@@ -8,13 +8,22 @@
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
 
+#' @include ergm-deprecated.R
+#' @describeIn ergm-deprecated Use [ergm_MCMC_sample()] instead.
+#' @export ergm.getMCMCsample
+ergm.getMCMCsample <- function(nw, model, proposal, eta0, control, 
+                               verbose=FALSE, response=NULL, update.nws = TRUE,...) {
+  .Deprecated("ergm_MCMC_sample")
+  ergm_MCMC_sample(nw, model, proposal, eta=eta0, control=control, verbose=verbose, response=response, update.nws=update.nws, theta=list(...)$theta, ...)
+}
+
 #' Internal Function to Sample Networks and Network Statistics
 #' 
 #' This is an internal function, not normally called directly by the
-#' user. The \code{ergm.getMCMCsample} function samples networks and
+#' user. The \code{ergm_MCMC_sample} function samples networks and
 #' network statistics using an MCMC algorithm via \code{MCMC_wrapper}
 #' and is caple of running in multiple threads using
-#' `ergm.mcmcslave`.
+#' `ergm_MCMC_slave`.
 #' 
 #' 
 #' Note that the returned stats will be relative to the original network, i.e.,
@@ -27,9 +36,10 @@
 #' @param proposal a list of the parameters needed for
 #'   Metropolis-Hastings proposals and the result of calling
 #'   [ergm_proposal()].
-#' @param eta0 the natural parameters of the model.
 #' @param control list of MCMC tuning parameters; see
 #'   [control.ergm()].
+#' @param theta the (possibly curved) parameters of the model.
+#' @param eta the natural parameters of the model; by default constructed from `theta`.
 #' @param verbose verbosity level.
 #' @template response
 #' @param update.nws whether to actually update the network state or
@@ -37,7 +47,7 @@
 #' @param ... additional arugments.
 #'
 #' @return
-#' \code{ergm.getMCMCsample} returns a list
+#' \code{ergm_MCMC_sample} returns a list
 #'   containing:
 #' \item{statsmatrices}{a list of stats matrices for the
 #'   sampled networks, relative to the original network, one for each thread.}
@@ -53,9 +63,12 @@
 #' a network attribute `.update` with the new edge information, and
 #' change class name to prevent the resulting object from being
 #' accessed or modified by functions that do not understand it.
-#' @export ergm.getMCMCsample
-ergm.getMCMCsample <- function(nw, model, proposal, eta0, control, 
-                                        verbose=FALSE, response=NULL, update.nws = TRUE,...) {
+#'
+#'
+
+#' @export ergm_MCMC_sample
+ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL, 
+                             response=NULL, update.nws = TRUE, verbose=FALSE,..., eta=ergm.eta(theta, model$etamap)) {
   nthreads <- max(
     if(inherits(control$parallel,"cluster")) nrow(summary(control$parallel))
     else control$parallel,
@@ -77,9 +90,9 @@ ergm.getMCMCsample <- function(nw, model, proposal, eta0, control,
 
   #' @importFrom parallel clusterMap
   doruns <- function(prev.runs=rep(list(NULL),nthreads), burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL){
-    if(!is.null(cl)) clusterMap(cl,ergm.mcmcslave,
-                                  Clist=Clists, prev.run=prev.runs, MoreArgs=list(proposal=proposal,eta0=eta0,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges))
-    else list(ergm.mcmcslave(Clist=Clists[[1]], prev.run=prev.runs[[1]],burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges,proposal=proposal,eta0=eta0,control=control.parallel,verbose=verbose,...))
+    if(!is.null(cl)) clusterMap(cl,ergm_MCMC_slave,
+                                  Clist=Clists, prev.run=prev.runs, MoreArgs=list(proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges))
+    else list(ergm_MCMC_slave(Clist=Clists[[1]], prev.run=prev.runs[[1]],burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges,proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...))
   }
   
   if(!is.null(control.parallel$MCMC.effectiveSize)){
@@ -127,8 +140,7 @@ ergm.getMCMCsample <- function(nw, model, proposal, eta0, control,
       }
       
       esteq <- as.mcmc.list(lapply(lapply(outl, function(out)
-                      if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), out$s)
-                      else out$s[,Clists[[1]]$diagnosable,drop=FALSE]
+                      NVL3(theta, .ergm.esteq(., model, out$s), out$s[,Clists[[1]]$diagnosable,drop=FALSE])
                       ), mcmc, start=1, thin=interval))
       
       meS <- .max.effectiveSize(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, ar.order=control$MCMC.effectiveSize.order)
@@ -161,8 +173,7 @@ ergm.getMCMCsample <- function(nw, model, proposal, eta0, control,
     
     if(control.parallel$MCMC.runtime.traceplot){
       esteq <- as.mcmc.list(lapply(lapply(outl, function(out)
-        if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), out$s)
-        else out$s[,Clists[[1]]$diagnosable,drop=FALSE]
+        NVL3(theta, .ergm.esteq(., model, out$s), out$s[,Clists[[1]]$diagnosable,drop=FALSE])
       ), mcmc, start=control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval))
       plot(window(esteq, thin=thin(esteq)*max(1,floor(niter(esteq)/1000)))
            ,ask=FALSE,smooth=TRUE,density=FALSE)
@@ -219,46 +230,26 @@ ergm.getMCMCsample <- function(nw, model, proposal, eta0, control,
 
 }
 
+#' @include ergm-deprecated.R
+#' @describeIn ergm-deprecated Use [ergm_MCMC_slave()] instead.
+#' @export ergm.mcmcslave
+ergm.mcmcslave <- function(Clist,proposal,eta0,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL){
+  .Deprecated("ergm_MCMC_slave")
+  ergm_MCMC_slave(Clist,proposal,eta0,control,verbose,...,prev.run=prev.run, burnin=burnin, samplesize=samplesize, interval=interval, maxedges=maxedges)
+}
 
 
-###############################################################################
-# The <ergm.mcmcslave> function is that which the slaves will call to perform
-# a validation on the mcmc equal to their slave number. It also returns an
-# MCMC sample.
-#
-# --PARAMETERS--
-#   Clist     : the list of parameters returned by <ergm.Cprepare>
-#   proposal: the proposal list as returned by <getproposal>
-#   eta0      : the canonical eta parameters
-#   control: a list of parameters for controlling the MCMC algorithm;
-#               recognized components include:
-#       samplesize  : the number of networks to be sampled
-#       interval    : the number of proposals to ignore between sampled networks
-#       burnin      : the number of proposals to initially ignore for the burn-in
-#                     period
-#   verbose   : whether the C code should be verbose (T or F)
-#   ...       : optional arguments
-#
-# --RETURNED--
-#   the MCMC sample as a list of the following:
-#     s         : the statsmatrix
-#     newnwtails: the vector of tails for the new network- is this the final
-#                 network sampled? - is this the original nw if 'maxedges' is 0
-#     newnwheads: the vector of heads for the new network - same q's
-#
-###############################################################################
-
-#' @rdname ergm.getMCMCsample
-#' @description The \code{ergm.mcmcslave} function calls the actual C
+#' @rdname ergm_MCMC_sample
+#' @description The \code{ergm_MCMC_slave} function calls the actual C
 #'   routine and does minimal preprocessing.
 #'
 #' @param prev.run a summary of the state of the sampler allowing a
-#'   run to be resumed quickly by `ergm.mcmcslave`.
+#'   run to be resumed quickly by `ergm_MCMC_slave`.
 #' @param burnin,samplesize,interval,maxedges MCMC paramters that can
 #'   be used to temporarily override those in the `control` list.
 #' @param Clist the list of parameters returned by
 #'   \code{\link{ergm.Cprepare}}
-#' @return \code{ergm.mcmcslave} returns the MCMC sample as a list of
+#' @return \code{ergm_MCMC_slave} returns the MCMC sample as a list of
 #'   the following: \item{s}{the matrix of statistics.}
 #'   \item{newnwtails}{the vector of tails for the new network.}
 #'   \item{newnwheads}{the vector of heads for the new network.}
@@ -268,9 +259,8 @@ ergm.getMCMCsample <- function(nw, model, proposal, eta0, control,
 #'   Metropolis-Hastings proposal failing.}  \item{maxedges}{maximum
 #'   allowed edges at the time of return.}
 #' @useDynLib ergm
-#' @export ergm.mcmcslave
-ergm.mcmcslave <- function(Clist,proposal,eta0,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL) {
-
+#' @export ergm_MCMC_slave
+ergm_MCMC_slave <- function(Clist,proposal,eta,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL) {
   numnetworks <- 0
 
   if(is.null(prev.run)){ # Start from Clist
@@ -304,7 +294,7 @@ ergm.mcmcslave <- function(Clist,proposal,eta0,control,verbose,...,prev.run=NULL
               as.character(Clist$fnamestring),
               as.character(Clist$snamestring),
               as.character(proposal$name), as.character(proposal$pkgname),
-              as.double(c(Clist$inputs,proposal$inputs)), as.double(.deinf(eta0)),
+              as.double(c(Clist$inputs,proposal$inputs)), as.double(.deinf(eta)),
               as.integer(samplesize),
               s = as.double(rep(stats, samplesize)),
               as.integer(burnin), 
@@ -332,7 +322,7 @@ ergm.mcmcslave <- function(Clist,proposal,eta0,control,verbose,...,prev.run=NULL
               as.character(Clist$fnamestring),
               as.character(Clist$snamestring),
               as.character(proposal$name), as.character(proposal$pkgname),
-              as.double(c(Clist$inputs,proposal$inputs)), as.double(.deinf(eta0)),
+              as.double(c(Clist$inputs,proposal$inputs)), as.double(.deinf(eta)),
               as.integer(samplesize),
               s = as.double(rep(stats, samplesize)),
               as.integer(burnin), 
