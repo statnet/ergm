@@ -14,7 +14,16 @@
 ergm.getMCMCsample <- function(nw, model, proposal, eta0, control, 
                                verbose=FALSE, response=NULL, update.nws = TRUE,...) {
   .Deprecated("ergm_MCMC_sample")
-  ergm_MCMC_sample(nw, model, proposal, eta=eta0, control=control, verbose=verbose, response=response, update.nws=update.nws, theta=list(...)$theta, ...)
+  out <- ergm_MCMC_sample(nw, model, proposal, eta=eta0, control=control, verbose=verbose, response=response, update.nws=update.nws, theta=list(...)$theta, ...)
+  
+  out$newnetworks<-out$networks
+  out$newnetwork<-out$newnetworks[[1]]
+  out$statsmatrices <- out$stats
+  out$stats <- NULL
+  out$statsmatrix <- do.call(rbind,out$statsmatrices)
+  colnames(out$statsmatrix) <- model$coef.names
+  out$statsmatrix[is.na(out$statsmatrix)] <- 0
+  out
 }
 
 #' Internal Function to Sample Networks and Network Statistics
@@ -49,12 +58,8 @@ ergm.getMCMCsample <- function(nw, model, proposal, eta0, control,
 #' @return
 #' \code{ergm_MCMC_sample} returns a list
 #'   containing:
-#' \item{statsmatrices}{a list of stats matrices for the
-#'   sampled networks, relative to the original network, one for each thread.}
-#' \item{newnetworks}{a list of final sampled networks, one for each thread.}
-#' \item{statsmatrix}{combined stats matrix for the
-#'   sampled networks, relative to the original network.}
-#' \item{newnetwork}{the final sampled network from the first (or only) thread.}
+#' \item{stats}{an [`mcmc.list`] with sampled statistics.}
+#' \item{networks}{a list of final sampled networks, one for each thread.}
 #' \item{status}{status code, propagated from `ergm.mcmcslave`.}
 #' \item{final.interval}{adaptively determined MCMC interval.}
 #'
@@ -64,8 +69,11 @@ ergm.getMCMCsample <- function(nw, model, proposal, eta0, control,
 #' change class name to prevent the resulting object from being
 #' accessed or modified by functions that do not understand it.
 #'
-#'
-
+#' @note Unlike its predecessor `ergm.getMCMCsample`,
+#'   `ergm_MCMC_sample` does not return `statsmatrix` or `newnetwork`
+#'   elements. Rather, if parallel processing is not in effect,
+#'   `stats` is an [`mcmc.list`] with one chain and
+#'   `networks` is a list with one element.
 #' @export ergm_MCMC_sample
 ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL, 
                              response=NULL, update.nws = TRUE, verbose=FALSE,..., eta=ergm.eta(theta, model$etamap)) {
@@ -214,20 +222,14 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
     }
     final.interval <- c(final.interval, z$final.interval)
   }
-  newnetwork<-newnetworks[[1]]
-  
   
   ergm.stopCluster(cl)
 
-  statsmatrix <- do.call(rbind,statsmatrices)
-  colnames(statsmatrix) <- param_names(model,canonical=TRUE)
-
-  if(verbose){message("Sample size = ",nrow(statsmatrix)," by ",
-                  control.parallel$MCMC.samplesize,".")}
+  stats <- as.mcmc.list(statsmatrices)
+  if(verbose){message("Sample size = ",niter(statsmatrices)*nchain(statsmatrices)," by ",
+                  niter(statsmatrices),".")}
   
-  statsmatrix[is.na(statsmatrix)] <- 0
-  list(statsmatrix=statsmatrix, statsmatrices=statsmatrices, newnetwork=newnetwork, newnetworks=newnetworks, status=0, final.interval=final.interval)
-
+  list(stats = stats, networks=newnetworks, status=0, final.interval=final.interval)
 }
 
 #' @include ergm-deprecated.R

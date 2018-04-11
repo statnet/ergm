@@ -259,11 +259,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     # ergm.getMCMCsample.
     control$MCMC.samplesize <- nsim
     z <- ergm_MCMC_sample(nw, m, proposal, control, theta=coef, verbose=verbose, response=response)
-    
-    # Post-processing:  Add term names to columns and shift each row by
-    # observed statistics.
-    colnames(z$statsmatrix) <- param_names(m,canonical=TRUE)
-    out.mat <- sweep(z$statsmatrix[seq_len(nsim),,drop=FALSE], 2, curstats, "+")
+    # Post-processing: Shift each row by observed statistics.
+    out.mat <- sweep(as.matrix(z$stats)[seq_len(nsim),,drop=FALSE], 2, curstats, "+")
   }else{
     # Create objects to store output
     if (!statsonly) { 
@@ -305,14 +302,14 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
       control$MCMC.burnin <- if(i==1 || sequential==FALSE) control$MCMC.burnin else control$MCMC.interval
       z <- ergm_MCMC_sample(nw, m, proposal, control, theta=coef, verbose=verbose, response=response)
       
-      out.mat <- rbind(out.mat, curstats + z$statsmatrix)
+      out.mat <- rbind(out.mat, curstats + as.matrix(z$stats))
       
       if(!statsonly) # then store the returned network:
-        if(nthreads>1) nw.list[[length(nw.list)+1]] <- z$newnetwork else nw.list <- c(nw.list, z$newnetworks)
+        nw.list[[length(nw.list)+1]] <- z$networks[[1]]
       
       if(sequential){ # then update the network state:
-        nw <- if(nthreads>1) z$newnetwork else z$newnetworks
-        curstats <- curstats + z$statsmatrix
+        nw <- z$networks
+        curstats <- curstats + as.matrix(z$stats)
       }
 
       if(verbose){message(sprintf("Finished simulation %d of %d.",i, nsim))}

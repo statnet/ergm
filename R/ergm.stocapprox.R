@@ -88,7 +88,7 @@ ergm.stocapprox <- function(init, nw, model, Clist,
 # aDdiaginv <- a * Ddiaginv
   z <- ergm.phase12(nw, model, proposal, 
                     eta, control, verbose=TRUE)
-  nw <- z$newnetwork
+  nw <- z$networks[[1]]
 # toggle.dyads(nw, head = z$changed[,2], tail = z$changed[,3])
 # control$maxchanges <- z$maxchanges
   theta <- z$eta
@@ -113,7 +113,7 @@ ergm.stocapprox <- function(init, nw, model, Clist,
   # post-processing of sample statistics:  Shift each row,
   # attach column names
   statshift <- summary(model, nw) - model$target.stats
-  statsmatrix <- sweep(z$statsmatrix, 2, statshift, "+")
+  statsmatrix <- sweep(as.matrix(z$stats), 2, statshift, "+")
   colnames(statsmatrix) <- param_names(model,canonical=TRUE)
   #v$sample <- statsmatrix
 # ubar <- apply(z$statsmatrix, 2, mean)
