@@ -139,7 +139,7 @@ ergm.CD.fixed <- function(init, nw, model,
     # (i.e., the estimation goal is to use the statsmatrix to find 
     # parameters that will give a mean vector of zero)
     statsmatrices <- as.mcmc.list(mapply(sweep, z$statsmatrices, statshifts, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE))
-    varnames(statsmatrices) <- model$coef.names
+    varnames(statsmatrices) <- param_names(model,canonical=TRUE)
     statsmatrix <- as.matrix(statsmatrices)
     
     if(verbose){
@@ -155,7 +155,7 @@ ergm.CD.fixed <- function(init, nw, model,
       z.obs <- ergm.getCDsample(nws.obs, NVL(model$obs.model,model), proposal.obs, mcmc.eta0, control.obs, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
 
       statsmatrices.obs <- as.mcmc.list(mapply(sweep, z.obs$statsmatrices, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE))
-      varnames(statsmatrices.obs) <- model$coef.names
+      varnames(statsmatrices.obs) <- param_names(model,canonical=TRUE)
       statsmatrix.obs <- as.matrix(statsmatrices.obs)
       
       if(verbose){
@@ -170,12 +170,12 @@ ergm.CD.fixed <- function(init, nw, model,
       z.obs <- NULL
     }
 
-    # Compute the sample estimating equations and the convergence p-value. 
-    esteqs <- lapply.mcmc.list(statsmatrices, .ergm.esteq, theta=mcmc.init, model=model)
+    # Compute the sample estimating functions and the convergence p-value. 
+    esteqs <- ergm.estfun(statsmatrix, mcmc.init, model)
     esteq <- as.matrix(esteqs)
     if(isTRUE(all.equal(apply(esteq,2,stats::sd), rep(0,ncol(esteq)), check.names=FALSE))&&!all(esteq==0))
       stop("Unconstrained CD sampling did not mix at all. Optimization cannot continue.")
-    esteqs.obs <- if(obs) lapply.mcmc.list(statsmatrices.obs, .ergm.esteq, theta=mcmc.init, model=model) else NULL
+    esteqs.obs <- if(obs) ergm.estfun(statsmatrix.obs, mcmc.init, model) else NULL
     esteq.obs <- if(obs) as.matrix(esteqs.obs) else NULL
 
     conv.pval <- suppressWarnings(approx.hotelling.diff.test(esteq, esteq.obs, assume.indep=TRUE)$p.value)

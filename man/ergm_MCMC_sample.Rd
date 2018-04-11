@@ -52,13 +52,9 @@ be used to temporarily override those in the \code{control} list.}
 \value{
 \code{ergm_MCMC_sample} returns a list
 containing:
-\item{statsmatrices}{a list of stats matrices for the
-sampled networks, relative to the original network, one for each thread.}
-\item{newnetworks}{a list of final sampled networks, one for each thread.}
-\item{statsmatrix}{combined stats matrix for the
-sampled networks, relative to the original network.}
-\item{newnetwork}{the final sampled network from the first (or only) thread.}
-\item{status}{status code, propagated from \code{ergm_MCMC_slave}.}
+\item{stats}{an \code{\link{mcmc.list}} with sampled statistics.}
+\item{networks}{a list of final sampled networks, one for each thread.}
+\item{status}{status code, propagated from \code{ergm.mcmcslave}.}
 \item{final.interval}{adaptively determined MCMC interval.}
 
 If \code{update.nws==FALSE}, rather than returning the updated networks,
@@ -91,4 +87,11 @@ routine and does minimal preprocessing.
 Note that the returned stats will be relative to the original network, i.e.,
 the calling function must shift the statistics if required. The calling
 function must also attach column names to the statistics matrix if required.
+}
+\note{
+Unlike its predecessor \code{ergm.getMCMCsample},
+\code{ergm_MCMC_sample} does not return \code{statsmatrix} or \code{newnetwork}
+elements. Rather, if parallel processing is not in effect,
+\code{stats} is an \code{\link{mcmc.list}} with one chain and
+\code{networks} is a list with one element.
 }

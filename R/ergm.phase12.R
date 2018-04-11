@@ -44,8 +44,8 @@ ergm.phase12 <- function(g, model,
                         control, verbose) {
 # ms <- model$target.stats
 # if(!is.null(ms)) {
-#   if (is.null(names(ms)) && length(ms) == length(model$coef.names))
-#     names(ms) <- model$coef.names
+#   if (is.null(names(ms)) && length(ms) == nparam(model,canonical=TRUE))
+#     names(ms) <- param_names(model,canonical=TRUE)
 #   obs <- control$orig.obs
 #   obs <- obs[match(names(ms), names(obs))]
 #   ms  <-  ms[match(names(obs), names(ms))]
@@ -100,7 +100,7 @@ ergm.phase12 <- function(g, model,
 
   newnetwork<-newnw.extract(g,z)
   
-  colnames(statsmatrix) <- model$coef.names
+  colnames(statsmatrix) <- param_names(model,canonical=TRUE)
   list(statsmatrix=statsmatrix, newnetwork=newnetwork, target.stats=model$target.stats, nw.stats=model$nw.stats,
        maxedges=control$MCMC.init.maxedges,
        eta=eta)
