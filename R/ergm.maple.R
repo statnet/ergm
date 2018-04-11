@@ -130,7 +130,7 @@ ergm.maple<-function(pl, m, init=NULL,
   real.cov <- mplefit.summary$cov.unscaled
   theta[!m$etamap$offsettheta] <- real.coef
 # theta[is.na(theta)] <- 0
-  names(theta) <- m$coef.names
+  names(theta) <- param_names(m,canonical=TRUE)
 
 #
 # Old end

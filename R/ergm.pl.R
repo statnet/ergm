@@ -71,7 +71,7 @@ ergm.pl<-function(Clist, fd, m, theta.offset=NULL,
   wend <- as.numeric(z$weightsvector[uvals])
   informative.ties <- sum(wend[zy==1])
   xmat <- matrix(z$x, ncol=Clist$nstats, byrow=TRUE)[uvals,,drop=FALSE]
-  colnames(xmat) <- m$coef.names
+  colnames(xmat) <- param_names(m,canonical=TRUE)
   rm(z,uvals)
 
   # If we ran out of space, AND we have a sparse network, then, use
@@ -105,7 +105,7 @@ ergm.pl<-function(Clist, fd, m, theta.offset=NULL,
     zy.e <- z$y[uvals]
     wend.e <- as.numeric(z$weightsvector[uvals])
     xmat.e <- matrix(z$x, ncol=Clist$nstats, byrow=TRUE)[uvals,,drop=FALSE]
-    colnames(xmat.e) <- m$coef.names
+    colnames(xmat.e) <- param_names(m,canonical=TRUE)
     rm(z,uvals)
 
     # Divvy up the sampling weight of the ties:
@@ -143,7 +143,7 @@ ergm.pl<-function(Clist, fd, m, theta.offset=NULL,
     
     # Remove offset covariate columns.
     xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE] 
-    colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
+    colnames(xmat) <- param_names(m,canonical=TRUE)[!m$etamap$offsettheta]
     # Now, iff a row's offset effect is infinite, then it carries no
     # further information whatsoever, so it should be dropped.
     xmat <- xmat[is.finite(foffset),,drop=FALSE]
@@ -158,7 +158,7 @@ ergm.pl<-function(Clist, fd, m, theta.offset=NULL,
     }else{
       theta.offset[1] <- log(1/(sum(fd)-1))
     }
-    names(theta.offset) <- m$coef.names
+    names(theta.offset) <- param_names(m,canonical=TRUE)
   }
   
 #

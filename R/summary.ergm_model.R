@@ -84,7 +84,7 @@ summary.ergm_model <- function(object, nw=NULL, response=NULL,...){
             gs = as.double(gs),
             PACKAGE="ergm"
             )$gs
-  names(gs) <- m$coef.names
+  names(gs) <- param_names(m,canonical=TRUE)
 
   gs
 }

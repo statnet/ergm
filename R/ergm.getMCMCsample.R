@@ -220,7 +220,7 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
   ergm.stopCluster(cl)
 
   statsmatrix <- do.call(rbind,statsmatrices)
-  colnames(statsmatrix) <- model$coef.names
+  colnames(statsmatrix) <- param_names(model,canonical=TRUE)
 
   if(verbose){message("Sample size = ",nrow(statsmatrix)," by ",
                   control.parallel$MCMC.samplesize,".")}

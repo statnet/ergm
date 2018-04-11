@@ -121,7 +121,7 @@ ergm.getCDsample <- function(nw, model, proposal, eta0, control,
   ergm.stopCluster(cl)
 
   statsmatrix <- do.call(rbind,statsmatrices)
-  colnames(statsmatrix) <- model$coef.names
+  colnames(statsmatrix) <- param_names(model,canonical=TRUE)
 
   if(verbose){message("Sample size = ",nrow(statsmatrix)," by ",
                   control.parallel$MCMC.samplesize,".")}

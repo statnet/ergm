@@ -114,7 +114,7 @@ ergm.stocapprox <- function(init, nw, model, Clist,
   # attach column names
   statshift <- summary(model, nw) - model$target.stats
   statsmatrix <- sweep(z$statsmatrix, 2, statshift, "+")
-  colnames(statsmatrix) <- model$coef.names
+  colnames(statsmatrix) <- param_names(model,canonical=TRUE)
   #v$sample <- statsmatrix
 # ubar <- apply(z$statsmatrix, 2, mean)
 # hessian <- (t(z$statsmatrix) %*% z$statsmatrix)/n3 - outer(ubar,ubar)

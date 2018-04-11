@@ -69,7 +69,7 @@ ergm.robmon <- function(init, nw, model,
   # post-processing of sample statistics:  Shift each row by the
   # matrix model$nw.stats - model$target.stats, attach column names
   statsmatrix <- sweep(z$statsmatrix, 2, model$nw.stats - model$target.stats, "+")
-  colnames(statsmatrix) <- model$coef.names
+  colnames(statsmatrix) <- param_names(model,canonical=TRUE)
 
   if(steplength<1){
     statsmean <- apply(statsmatrix,2,base::mean)
@@ -123,7 +123,7 @@ ergm.robmon <- function(init, nw, model,
       # post-processing of sample statistics:  Shift each row by the
       # matrix model$nw.stats - model$target.stats, attach column names
       statsmatrix <- sweep(z$statsmatrix, 2, model$nw.stats - model$target.stats, "+")
-      colnames(statsmatrix) <- model$coef.names
+      colnames(statsmatrix) <- param_names(model,canonical=TRUE)
 
       thetamatrix <- rbind(thetamatrix,theta)
       statsmean <- apply(statsmatrix,2,base::mean)
@@ -155,7 +155,7 @@ message(paste("theta new:",theta,""))
   # post-processing of sample statistics:  Shift each row by the
   # matrix model$nw.stats - model$target.stats, attach column names
   statsmatrix <- sweep(z$statsmatrix, 2, model$nw.stats - model$target.stats, "+")
-  colnames(statsmatrix) <- model$coef.names
+  colnames(statsmatrix) <- param_names(model,canonical=TRUE)
 
 # ubar <- apply(z$statsmatrix, 2, base::mean)
 # hessian <- (t(z$statsmatrix) %*% z$statsmatrix)/n3 - outer(ubar,ubar)

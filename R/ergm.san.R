@@ -133,10 +133,10 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
         fit <- suppressWarnings(try(ergm.mple(Clist=Clist, fd=fd, 
                          control=control, proposal=proposal,
                          m=model, verbose=verbose, ...)))
-        control$coef <- if(inherits(fit, "try-error")) rep(0,length(model$coef.names)) else fit$coef
+        control$coef <- if(inherits(fit, "try-error")) rep(0,nparam(model,canonical=TRUE)) else fit$coef
         if(is.null(control$invcov)) { control$invcov <- fit$covar }
       }else{
-        control$coef<-rep(0,length(model$coef.names))
+        control$coef<-rep(0,nparam(model,canonical=TRUE))
         if(is.null(control$invcov)) control$invcov <- diag(length(control$coef))
       }
     }else{

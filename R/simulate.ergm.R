@@ -235,7 +235,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   
   # Create vector of current statistics
   curstats<-summary(form,response=response)
-  names(curstats) <- m$coef.names
+  names(curstats) <- param_names(m,canonical=TRUE)
 
   # prepare control object
   control$MCMC.init.maxedges <- 1+max(control$MCMC.init.maxedges, network.edgecount(nw))
@@ -262,7 +262,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     
     # Post-processing:  Add term names to columns and shift each row by
     # observed statistics.
-    colnames(z$statsmatrix) <- m$coef.names
+    colnames(z$statsmatrix) <- param_names(m,canonical=TRUE)
     out.mat <- sweep(z$statsmatrix[seq_len(nsim),,drop=FALSE], 2, curstats, "+")
   }else{
     # Create objects to store output
@@ -270,7 +270,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
       nw.list <- list()
     }
     out.mat <- matrix(nrow=0, ncol=length(curstats), 
-                      dimnames = list(NULL, m$coef.names)) 
+                      dimnames = list(NULL, param_names(m,canonical=TRUE))) 
     
     # Call ergm.getMCMCsample once for each network desired.  This is much slower
     # than when sequential==TRUE and statsonly==TRUE, but here we have a 
