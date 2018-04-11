@@ -206,10 +206,10 @@ ergm.MCMLE <- function(init, nw, model,
     }
 
     # Compute the sample estimating functions and the convergence p-value. 
-    esteq <- .ergm.esteq(mcmc.init, model, statsmatrix)
+    esteq <- ergm.estfun(statsmatrix, mcmc.init, model)
     if(isTRUE(all.equal(apply(esteq,2,stats::sd), rep(0,ncol(esteq)), check.names=FALSE))&&!all(esteq==0))
       stop("Unconstrained MCMC sampling did not mix at all. Optimization cannot continue.")
-    esteq.obs <- if(obs) .ergm.esteq(mcmc.init, model, statsmatrix.obs) else NULL
+    esteq.obs <- if(obs) ergm.estfun(statsmatrix.obs, mcmc.init, model) else NULL
 
     # Update the interval to be used.
     if(!is.null(control$MCMC.effectiveSize)){

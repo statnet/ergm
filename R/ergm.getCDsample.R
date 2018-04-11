@@ -87,7 +87,7 @@ ergm.getCDsample <- function(nw, model, proposal, eta0, control,
   
   if(control.parallel$MCMC.runtime.traceplot){
     esteq <- lapply(outl, function(out)
-      if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), out$s)
+      if(all(c("theta","etamap") %in% names(list(...)))) ergm.estfun(out$s, list(...)$theta, list(etamap=list(...)$etamap))
       else out$s[,Clists[[1]]$diagnosable,drop=FALSE]
                     )
     for (i in seq_along(esteq)) colnames(esteq[[i]]) <- names(list(...)$theta)

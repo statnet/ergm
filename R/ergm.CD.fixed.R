@@ -172,10 +172,10 @@ ergm.CD.fixed <- function(init, nw, model,
     }
 
     # Compute the sample estimating functions and the convergence p-value. 
-    esteq <- .ergm.esteq(mcmc.init, model, statsmatrix)
+    esteq <- ergm.estfun(statsmatrix, mcmc.init, model)
     if(isTRUE(all.equal(apply(esteq,2,sd), rep(0,ncol(esteq)), check.names=FALSE))&&!all(esteq==0))
       stop("Unconstrained CD sampling did not mix at all. Optimization cannot continue.")
-    esteq.obs <- if(obs) .ergm.esteq(mcmc.init, model, statsmatrix.obs) else NULL   
+    esteq.obs <- if(obs) ergm.estfun(statsmatrix.obs, mcmc.init, model) else NULL   
     conv.pval <- suppressWarnings(approx.hotelling.diff.test(esteq, esteq.obs, assume.indep=TRUE)$p.value)
                                             
     # We can either pretty-print the p-value here, or we can print the

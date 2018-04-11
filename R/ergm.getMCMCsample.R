@@ -148,7 +148,7 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
       }
       
       esteq <- as.mcmc.list(lapply(lapply(outl, function(out)
-                      NVL3(theta, .ergm.esteq(., model, out$s), out$s[,Clists[[1]]$diagnosable,drop=FALSE])
+                      NVL3(theta, ergm.estfun(out$s, ., model), out$s[,Clists[[1]]$diagnosable,drop=FALSE])
                       ), mcmc, start=1, thin=interval))
       
       meS <- .max.effectiveSize(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, ar.order=control$MCMC.effectiveSize.order)
@@ -181,7 +181,7 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
     
     if(control.parallel$MCMC.runtime.traceplot){
       esteq <- as.mcmc.list(lapply(lapply(outl, function(out)
-        NVL3(theta, .ergm.esteq(., model, out$s), out$s[,Clists[[1]]$diagnosable,drop=FALSE])
+        NVL3(theta, ergm.estfun(out$s, ., model), out$s[,Clists[[1]]$diagnosable,drop=FALSE])
       ), mcmc, start=control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval))
       plot(window(esteq, thin=thin(esteq)*max(1,floor(niter(esteq)/1000)))
            ,ask=FALSE,smooth=TRUE,density=FALSE)

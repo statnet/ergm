@@ -725,10 +725,7 @@ ergm <- function(formula, response=NULL,
                           constrained.obs=proposal.obs$arguments$constraints,
                           constraints=constraints,
                           target.stats=model.initial$target.stats,
-                          target.esteq=if(!is.null(model.initial$target.stats)){
-                            tmp <- .ergm.esteq(initialfit$coef, model.initial, rbind(model.initial$target.stats))
-                            structure(c(tmp), names=colnames(tmp))
-                          },
+                          target.esteq=if(!is.null(model.initial$target.stats)) ergm.estfun(rbind(model.initial$target.stats), initialfit$coef, model.initial),
                           estimate=estimate,
                           control=control
     ),
@@ -768,10 +765,7 @@ ergm <- function(formula, response=NULL,
     initialfit$constraints <- constraints
     initialfit$target.stats <- model.initial$target.stats
     initialfit$etamap <- model.initial$etamap
-    initialfit$target.esteq <- if(!is.null(model.initial$target.stats)){
-      tmp <- .ergm.esteq(initialfit$coef, model.initial, rbind(model.initial$target.stats))
-      structure(c(tmp), names=colnames(tmp))
-    }
+    initialfit$target.esteq <- if(!is.null(model.initial$target.stats)) ergm.estfun(rbind(model.initial$target.stats), initialfit$coef, model.initial)
     initialfit$estimate <- estimate
     
     initialfit$control<-control
@@ -868,10 +862,7 @@ ergm <- function(formula, response=NULL,
   
   mainfit$formula <- formula
   mainfit$target.stats <- model$target.stats
-  mainfit$target.esteq <- if(!is.null(model$target.stats)){
-    tmp <- .ergm.esteq(mainfit$coef, model, rbind(model$target.stats))
-    structure(c(tmp), names=colnames(tmp))
-  }
+  mainfit$target.esteq <- if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), mainfit$coef, model)
   
   mainfit$constrained <- proposal$arguments$constraints
   mainfit$constrained.obs <- proposal.obs$arguments$constraints

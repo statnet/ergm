@@ -41,13 +41,13 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
   av <- apply(statsmatrix, 2, mean)
 # av <- apply(statsmatrix,2,median)
   xsim <- sweep(statsmatrix, 2, av, "-")
-  gsim <- .ergm.esteq(theta, model, xsim)
+  gsim <- ergm.estfun(xsim, theta, model)
   xobs <- -av
   if(!is.null(statsmatrix.obs)){
    av.obs <- apply(statsmatrix.obs, 2, mean)
 #  av.obs <- apply(statsmatrix.obs, 2, median)
    xsim.obs <- sweep(statsmatrix.obs, 2, av.obs,"-")
-   gsim.obs <- .ergm.esteq(theta, model, xsim.obs)
+   gsim.obs <- ergm.estfun(xsim.obs, theta, model)
    xsim.obs <- xsim.obs[,!offsetmap, drop=FALSE]
    xobs <- av.obs-av
   }

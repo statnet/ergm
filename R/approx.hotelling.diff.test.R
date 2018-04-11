@@ -229,21 +229,6 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE)
   test
 }
 
-# Compute the sample estimating equations of an ERGM. If the model is
-# linear, all non-offset statistics are passed. If the model is
-# curved, the score estimating equations (3.1) by Hunter and
-# Handcock (2006) are given instead.
-.ergm.esteq <- function(theta, model, statsmatrix){
-  etamap <- NVL(model$etamap, model)
-  esteq <- t(ergm.etagradmult(theta,t(as.matrix(statsmatrix)),etamap))[,!etamap$offsettheta,drop=FALSE]
-  if(is.mcmc(statsmatrix)){
-    esteq <- mcmc(esteq, start=start(statsmatrix), end=end(statsmatrix), thin=thin(statsmatrix))
-    varnames(esteq) <- NVL(names(theta), param_names(model, FALSE))[!etamap$offsettheta]
-  }else  colnames(esteq) <- NVL(names(theta), param_names(model, FALSE))[!etamap$offsettheta]
-
-  esteq
-}
-
 #' Multivariate version of `coda`'s [spectrum0.ar()].
 #'
 #' Its return value, divided by `nrow(cbind(x))`, is the estimated

@@ -20,27 +20,27 @@
 #' @return An object of the same class as `stats` containing
 #'   \eqn{q}-vectors of estimating function values.
 #' @export
-ergm_estfun <- function(stats, theta, model, ...){
-  UseMethod("ergm_estfun")
+ergm.estfun <- function(stats, theta, model, ...){
+  UseMethod("ergm.estfun")
 }
 
-#' @describeIn ergm_estfun Method for matrices with \eqn{p} columns.
+#' @describeIn ergm.estfun Method for matrices with \eqn{p} columns.
 #' @export
-ergm_estfun.matrix <- function(stats, theta, model, ...){
+ergm.estfun.matrix <- function(stats, theta, model, ...){
   etamap <- if(is(model, "ergm_model")) model$etamap else model
   estf <- t(ergm.etagradmult(theta,t(as.matrix(stats)),etamap))[,!etamap$offsettheta,drop=FALSE]
   colnames(estf) <- (if(is(model, "ergm_model")) param_names(model, FALSE) else names(theta))[!etamap$offsettheta]
   -estf
 }
 
-#' @describeIn ergm_estfun Method for [`mcmc`] objects with \eqn{p} variables.
+#' @describeIn ergm.estfun Method for [`mcmc`] objects with \eqn{p} variables.
 #' @export
-ergm_estfun.mcmc <- function(stats, theta, model, ...){
-  mcmc(ergm_estfun(as.matrix(stats), theta, model), start=start(stats), end=end(stats), thin=thin(stats))
+ergm.estfun.mcmc <- function(stats, theta, model, ...){
+  mcmc(ergm.estfun(as.matrix(stats), theta, model), start=start(stats), end=end(stats), thin=thin(stats))
 }
 
-#' @describeIn ergm_estfun Method for  [`mcmc.list`] objects with \eqn{p} variables.
+#' @describeIn ergm.estfun Method for  [`mcmc.list`] objects with \eqn{p} variables.
 #' @export
-ergm_estfun.mcmc.list <- function(stats, theta, model, ...){
-  lapply.mcmc.list(stats, ergm_estfun, theta, model)
+ergm.estfun.mcmc.list <- function(stats, theta, model, ...){
+  lapply.mcmc.list(stats, ergm.estfun, theta, model)
 }

@@ -326,7 +326,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
 
   out.mat <- out.mat[seq_len(nsim),,drop=FALSE]
 
-  if(esteq) out.mat <- .ergm.esteq(coef, m, out.mat)
+  if(esteq) out.mat <- ergm.estfun(out.mat, coef, m)
   
   if (statsonly)
     return(out.mat)
