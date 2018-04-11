@@ -360,38 +360,3 @@ plot.mcmc.list.ergm <- function(x, main=NULL, vars.per.page=3,...){
   print(update(c(tp,dp)[reordering],layout=c(2,vars.per.page),as.table=TRUE,main=main))
 }
 
-
-# Some utility functions:
-
-
-#' Utility operations for [`mcmc.list`] objects
-#' 
-#' \code{colMeans.mcmc.list} is a "method" for (non-generic) [colMeans()] applicable to [`mcmc.list`] objects.
-#' 
-#' @param x a \code{\link{mcmc.list}} object.
-#' @param \dots additional arguments to \code{\link{colMeans}} or
-#'   \code{\link{sweep}}.
-#' @return \code{colMeans.mcmc} returns a vector with length equal to
-#'   the number of mcmc chains in \code{x} with the mean value for
-#'   each chain.
-#' @seealso [colMeans()]
-#' @export colMeans.mcmc.list
-colMeans.mcmc.list<-function(x,...) colMeans(as.matrix(x),...)
-
-#' @rdname colMeans.mcmc.list
-#'
-#' @description \code{sweep.mcmc.list} is a "method" for (non-generic)
-#'   [sweep()] applicable to [`mcmc.list`] objects.
-#' 
-#' @param STATS,FUN,check.margin See help for [sweep()].
-#' @return \code{sweep.mcmc.lists} returns an appropriately modified
-#'   version of \code{x}
-#' @seealso [sweep()]
-#' @export sweep.mcmc.list
-sweep.mcmc.list<-function(x, STATS, FUN="-", check.margin=TRUE, ...){
-  for(chain in seq_along(x)){
-    x[[chain]] <- sweep(x[[chain]], 2, STATS, FUN, check.margin, ...)
-  }
-  x
-}
-
