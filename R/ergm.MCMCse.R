@@ -41,7 +41,7 @@ ergm.MCMCse<-function(theta, init, statsmatrices, statsmatrices.obs,
   av <- colMeans.mcmc.list(statsmatrices)
 # av <- apply(statsmatrices,2,median)
   xsims <- sweep.mcmc.list(statsmatrices, av, "-")
-  gsims <- lapply.mcmc.list(xsims, .ergm.esteq, theta=theta, model=model)
+  gsims <- ergm.estfun(xsims, theta=theta, model=model)
   xobs <- -av
   xsims <- xsims[,!offsetmap, drop=FALSE]
   xsim <- as.matrix(xsims)
@@ -51,7 +51,7 @@ ergm.MCMCse<-function(theta, init, statsmatrices, statsmatrices.obs,
    av.obs <- colMeans.mcmc.list(statsmatrices.obs)
 #  av.obs <- apply(statsmatrices.obs, 2, median)
    xsims.obs <- sweep.mcmc.list(statsmatrices.obs, av.obs,"-")
-   gsims.obs <- lapply.mcmc.list(xsims.obs, .ergm.esteq, theta=theta, model=model)
+   gsims.obs <- ergm.estfun(xsims.obs, theta=theta, model=model)
    xsims.obs <- xsims.obs[,!offsetmap, drop=FALSE]
    xsim.obs <- as.matrix(xsims.obs)
    gsim.obs <- as.matrix(gsims.obs)

@@ -14,7 +14,16 @@
 ergm.getMCMCsample <- function(nw, model, proposal, eta0, control, 
                                verbose=FALSE, response=NULL, update.nws = TRUE,...) {
   .Deprecated("ergm_MCMC_sample")
-  ergm_MCMC_sample(nw, model, proposal, eta=eta0, control=control, verbose=verbose, response=response, update.nws=update.nws, theta=list(...)$theta, ...)
+  out <- ergm_MCMC_sample(nw, model, proposal, eta=eta0, control=control, verbose=verbose, response=response, update.nws=update.nws, theta=list(...)$theta, ...)
+  
+  out$newnetworks<-out$networks
+  out$newnetwork<-out$newnetworks[[1]]
+  out$statsmatrices <- out$stats
+  out$stats <- NULL
+  out$statsmatrix <- do.call(rbind,out$statsmatrices)
+  colnames(out$statsmatrix) <- model$coef.names
+  out$statsmatrix[is.na(out$statsmatrix)] <- 0
+  out
 }
 
 #' Internal Function to Sample Networks and Network Statistics
@@ -49,13 +58,9 @@ ergm.getMCMCsample <- function(nw, model, proposal, eta0, control,
 #' @return
 #' \code{ergm_MCMC_sample} returns a list
 #'   containing:
-#' \item{statsmatrices}{a list of stats matrices for the
-#'   sampled networks, relative to the original network, one for each thread.}
-#' \item{newnetworks}{a list of final sampled networks, one for each thread.}
-#' \item{statsmatrix}{combined stats matrix for the
-#'   sampled networks, relative to the original network.}
-#' \item{newnetwork}{the final sampled network from the first (or only) thread.}
-#' \item{status}{status code, propagated from `ergm_MCMC_slave`.}
+#' \item{stats}{an [`mcmc.list`] with sampled statistics.}
+#' \item{networks}{a list of final sampled networks, one for each thread.}
+#' \item{status}{status code, propagated from `ergm.mcmcslave`.}
 #' \item{final.interval}{adaptively determined MCMC interval.}
 #'
 #' If `update.nws==FALSE`, rather than returning the updated networks,
@@ -64,8 +69,11 @@ ergm.getMCMCsample <- function(nw, model, proposal, eta0, control,
 #' change class name to prevent the resulting object from being
 #' accessed or modified by functions that do not understand it.
 #'
-#'
-
+#' @note Unlike its predecessor `ergm.getMCMCsample`,
+#'   `ergm_MCMC_sample` does not return `statsmatrix` or `newnetwork`
+#'   elements. Rather, if parallel processing is not in effect,
+#'   `stats` is an [`mcmc.list`] with one chain and
+#'   `networks` is a list with one element.
 #' @export ergm_MCMC_sample
 ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL, 
                              response=NULL, update.nws = TRUE, verbose=FALSE,..., eta=ergm.eta(theta, model$etamap)) {
@@ -141,7 +149,7 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
       }
       
       esteq <- as.mcmc.list(lapply(lapply(outl, function(out)
-                      NVL3(theta, .ergm.esteq(., model, out$s), out$s[,Clists[[1]]$diagnosable,drop=FALSE])
+                      NVL3(theta, ergm.estfun(out$s, ., model), out$s[,Clists[[1]]$diagnosable,drop=FALSE])
                       ), mcmc, start=1, thin=interval))
       
       if(control.parallel$MCMC.runtime.traceplot){
@@ -187,7 +195,7 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
     
     if(control.parallel$MCMC.runtime.traceplot){
       esteq <- as.mcmc.list(lapply(lapply(outl, function(out)
-        NVL3(theta, .ergm.esteq(., model, out$s), out$s[,Clists[[1]]$diagnosable,drop=FALSE])
+        NVL3(theta, ergm.estfun(out$s, ., model), out$s[,Clists[[1]]$diagnosable,drop=FALSE])
       ), mcmc, start=control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval))
       plot(window(esteq, thin=thin(esteq)*max(1,floor(niter(esteq)/1000)))
            ,ask=FALSE,smooth=TRUE,density=FALSE)
@@ -228,21 +236,14 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
     }
     final.interval <- c(final.interval, z$final.interval)
   }
-  newnetwork<-newnetworks[[1]]
-  
   
   ergm.stopCluster(cl)
 
-  statsmatrices <- as.mcmc.list(statsmatrices)
-  statsmatrix <- do.call(rbind,statsmatrices)
-  colnames(statsmatrix) <- model$coef.names
-
-  if(verbose){message("Sample size = ",nrow(statsmatrix)," by ",
-                  control.parallel$MCMC.samplesize,".")}
+  stats <- as.mcmc.list(statsmatrices)
+  if(verbose){message("Sample size = ",niter(statsmatrices)*nchain(statsmatrices)," by ",
+                  niter(statsmatrices),".")}
   
-  statsmatrix[is.na(statsmatrix)] <- 0
-  list(statsmatrix=statsmatrix, statsmatrices=statsmatrices, newnetwork=newnetwork, newnetworks=newnetworks, status=0, final.interval=final.interval)
-
+  list(stats = stats, networks=newnetworks, status=0, final.interval=final.interval)
 }
 
 #' @include ergm-deprecated.R

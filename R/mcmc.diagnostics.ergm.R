@@ -205,8 +205,8 @@ mcmc.diagnostics.ergm <- function(object,
 
   if(esteq){
     if (!is.null(object$coef) && !is.null(object$etamap)) {
-      sm <- do.call(mcmc.list, lapply(sm, function(x) .ergm.esteq(theta=object$coef, model=object$etamap, x)))
-      if(!is.null(sm.obs)) sm.obs <- do.call(mcmc.list, lapply(sm.obs, function(x) .ergm.esteq(theta=object$coef, model=object$etamap, x)))
+      sm <- ergm.estfun(sm, theta=coef(object), model=object$etamap)
+      if(!is.null(sm.obs)) sm.obs <- ergm.estfun(sm.obs, theta=coef(object), model=object$etamap)
     }
   }
 

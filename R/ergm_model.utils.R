@@ -79,7 +79,7 @@ ergm.checkconstraints.model <- function(model, proposal, init, silent=FALSE){
   
   if(any(conflict.coefs)){
     if(!silent){
-      warning(paste("The specified model's sample space constraint holds statistic(s)", paste.and(model$coef.names[conflict.coefs]), " constant. They will be ignored.", sep=" "))
+      warning(paste("The specified model's sample space constraint holds statistic(s)", paste.and(param_names(model,canonical=TRUE)[conflict.coefs]), " constant. They will be ignored.", sep=" "))
     }
     init[conflict.coefs] <- 0
     model$etamap$offsettheta[conflict.coefs] <- TRUE

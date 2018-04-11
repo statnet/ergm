@@ -194,9 +194,9 @@ ergm.MCMLE <- function(init, nw, model,
     # observed statistics or, if given, the alternative target.stats
     # (i.e., the estimation goal is to use the statsmatrix to find 
     # parameters that will give a mean vector of zero)
-    statsmatrices <- as.mcmc.list(mapply(sweep, z$statsmatrices, statshifts, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE))
-    varnames(statsmatrices) <- model$coef.names
-    nws.returned <- z$newnetworks
+    statsmatrices <- as.mcmc.list(mapply(sweep, z$stats, statshifts, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE))
+    varnames(statsmatrices) <- param_names(model,canonical=TRUE)
+    nws.returned <- z$networks
     statsmatrix <- as.matrix(statsmatrices)
     
     if(verbose){
@@ -213,9 +213,9 @@ ergm.MCMLE <- function(init, nw, model,
       
       if(z.obs$status==1) stop("Number of edges in the simulated network exceeds that observed by a large factor (",control$MCMC.max.maxedges,"). This is a strong indication of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
 
-      statsmatrices.obs <- as.mcmc.list(mapply(sweep, z.obs$statsmatrices, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE))
-      varnames(statsmatrices.obs) <- model$coef.names
-      nws.obs.returned <- z.obs$newnetworks
+      statsmatrices.obs <- as.mcmc.list(mapply(sweep, z.obs$stats, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE))
+      varnames(statsmatrices.obs) <- param_names(model,canonical=TRUE)
+      nws.obs.returned <- z.obs$networks
       statsmatrix.obs <- as.matrix(statsmatrices.obs)
       
       if(verbose){
@@ -246,11 +246,11 @@ ergm.MCMLE <- function(init, nw, model,
     }
 
     # Compute the sample estimating equations and the convergence p-value. 
-    esteqs <- lapply.mcmc.list(statsmatrices, .ergm.esteq, theta=mcmc.init, model=model)
+    esteqs <- ergm.estfun(statsmatrices, theta=mcmc.init, model=model)
     esteq <- as.matrix(esteqs)
     if(isTRUE(all.equal(apply(esteq,2,stats::sd), rep(0,ncol(esteq)), check.names=FALSE))&&!all(esteq==0))
       stop("Unconstrained MCMC sampling did not mix at all. Optimization cannot continue.")
-    esteqs.obs <- if(obs) lapply.mcmc.list(statsmatrices.obs, .ergm.esteq, theta=mcmc.init, model=model) else NULL
+    esteqs.obs <- if(obs) ergm.estfun(statsmatrices.obs, theta=mcmc.init, model=model) else NULL
     esteq.obs <- if(obs) as.matrix(esteqs.obs) else NULL
 
     # Update the interval to be used.
@@ -466,7 +466,7 @@ ergm.MCMLE <- function(init, nw, model,
           message("Unable to test for convergence; increasing sample size.")
           .boost_samplesize(control$MCMLE.confidence.boost)
         }else{
-          etadiff <- ergm.eta(v$coef, model$etamap) - mcmc.eta0
+          etadiff <- ergm.eta(v$coef, model$etamap) - ergm.eta(mcmc.init, model$etamap)
           esteq.lw <- IS.lw(statsmatrix, etadiff)
           esteq.w <- lw2w(esteq.lw)
           estdiff <- -lweighted.mean(esteq, esteq.lw)

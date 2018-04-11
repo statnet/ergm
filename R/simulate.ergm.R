@@ -300,7 +300,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   
   # Create vector of current statistics
   curstats <- summary(m, nw, response=response)
-  names(curstats) <- m$coef.names
+  names(curstats) <- param_names(m,canonical=TRUE)
 
   # prepare control object
   control$MCMC.init.maxedges <- 1+max(control$MCMC.init.maxedges, network.edgecount(nw))
@@ -327,14 +327,14 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     
     # Post-processing:  Add term names to columns and shift each row by
     # observed statistics.
-    out.mat <- sweep(z$statsmatrix[seq_len(nsim),,drop=FALSE], 2, curstats, "+")
+    out.mat <- sweep(as.matrix(z$stats)[seq_len(nsim),,drop=FALSE], 2, curstats, "+")
   }else{
     # Create objects to store output
     if (!statsonly) { 
       nw.list <- list()
     }
     out.mat <- matrix(nrow=0, ncol=length(curstats), 
-                      dimnames = list(NULL, m$coef.names)) 
+                      dimnames = list(NULL, param_names(m,canonical=TRUE))) 
     
     # Call ergm.getMCMCsample once for each network desired.  This is much slower
     # than when sequential==TRUE and statsonly==TRUE, but here we have a 
@@ -369,14 +369,14 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
       control$MCMC.burnin <- if(i==1 || sequential==FALSE) control$MCMC.burnin else control$MCMC.interval
       z <- ergm_MCMC_sample(nw, m, proposal, control, theta=coef, verbose=verbose, response=response)
       
-      out.mat <- rbind(out.mat, curstats + z$statsmatrix)
+      out.mat <- rbind(out.mat, curstats + as.matrix(z$stats))
       
       if(!statsonly) # then store the returned network:
-        if(nthreads>1) nw.list[[length(nw.list)+1]] <- z$newnetwork else nw.list <- c(nw.list, z$newnetworks)
+        nw.list[[length(nw.list)+1]] <- z$networks[[1]]
       
       if(sequential){ # then update the network state:
-        nw <- if(nthreads>1) z$newnetwork else z$newnetworks
-        curstats <- curstats + z$statsmatrix
+        nw <- z$networks
+        curstats <- curstats + as.matrix(z$stats)
       }
 
       if(verbose){message(sprintf("Finished simulation %d of %d.",i, nsim))}
@@ -393,7 +393,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
 
   out.mat <- out.mat[seq_len(nsim),,drop=FALSE]
 
-  if(esteq) out.mat <- .ergm.esteq(coef, m, out.mat)
+  if(esteq) out.mat <- ergm.estfun(out.mat, coef, m)
   
   if (statsonly)
     return(out.mat)

@@ -748,10 +748,7 @@ ergm <- function(formula, response=NULL,
                           constrained.obs=proposal.obs$arguments$constraints,
                           constraints=constraints,
                           target.stats=target.stats,
-                          target.esteq=if(!is.null(target.stats)){
-                            tmp <- .ergm.esteq(initialfit$coef, model, rbind(target.stats))
-                            structure(c(tmp), names=colnames(tmp))
-                          },
+                          target.esteq=if(!is.null(target.stats)) ergm.estfun(rbind(target.stats), initialfit$coef, model),
                           estimate=estimate,
                           control=control
     ),
@@ -792,10 +789,7 @@ ergm <- function(formula, response=NULL,
     initialfit$target.stats <- suppressWarnings(na.omit(model$target.stats))
     initialfit$nw.stats <- model$nw.stats
       initialfit$etamap <- model$etamap
-    initialfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)){
-      tmp <- .ergm.esteq(initialfit$coef, model, rbind(model$target.stats))
-      structure(c(tmp), names=colnames(tmp))
-    }))
+    initialfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), initialfit$coef, model)))
     initialfit$estimate <- estimate
     
     initialfit$control<-control
@@ -877,10 +871,7 @@ ergm <- function(formula, response=NULL,
   mainfit$formula <- formula
   mainfit$target.stats <- suppressWarnings(na.omit(model$target.stats))
   mainfit$nw.stats <- model$nw.stats
-  mainfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)){
-    tmp <- .ergm.esteq(mainfit$coef, model, rbind(model$target.stats))
-    structure(c(tmp), names=colnames(tmp))
-  }))
+  mainfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), mainfit$coef, model)))
   
   mainfit$constrained <- proposal$arguments$constraints
   mainfit$constrained.obs <- proposal.obs$arguments$constraints
