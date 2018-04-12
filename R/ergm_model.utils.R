@@ -66,7 +66,7 @@ ergm.checkconstraints.model <- function(model, proposal, init, silent=FALSE){
   # Get the list of all the constraints that the proposal imposes on the sample space.
   # FIXME: This doesn't cover "second-order" constraints. Is it worth
   # it to bring back the implications API?
-  constraints <- unique(sort(unlist(lapply(proposal$arguments$constraints, `[[`, "implies"))))
+  constraints <- unique(sort(as.character(unlist(lapply(proposal$arguments$constraints, `[[`, "implies")))))
   
   coef.counts <- nparam(model, byterm=TRUE)
   conflict.coefs <- c()
