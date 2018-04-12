@@ -29,11 +29,13 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   obs.MCMC.samplesize = MCMC.samplesize, obs.MCMC.interval = MCMC.interval,
   obs.MCMC.burnin = MCMC.burnin, obs.MCMC.burnin.min = obs.MCMC.burnin/10,
   obs.MCMC.prop.weights = MCMC.prop.weights,
-  obs.MCMC.prop.args = MCMC.prop.args, MCMLE.check.degeneracy = FALSE,
-  MCMLE.MCMC.precision = 0.005, MCMLE.MCMC.max.ESS.frac = 0.1,
-  MCMLE.metric = c("lognormal", "logtaylor", "Median.Likelihood",
-  "EF.Likelihood", "naive"), MCMLE.method = c("BFGS", "Nelder-Mead"),
-  MCMLE.trustregion = 20, MCMLE.dampening = FALSE,
+  obs.MCMC.prop.args = MCMC.prop.args,
+  obs.MCMC.impute.min_informative = function(nw) network.size(nw)/4,
+  obs.MCMC.impute.default_density = function(nw) 2/network.size(nw),
+  MCMLE.check.degeneracy = FALSE, MCMLE.MCMC.precision = 0.005,
+  MCMLE.MCMC.max.ESS.frac = 0.1, MCMLE.metric = c("lognormal", "logtaylor",
+  "Median.Likelihood", "EF.Likelihood", "naive"), MCMLE.method = c("BFGS",
+  "Nelder-Mead"), MCMLE.trustregion = 20, MCMLE.dampening = FALSE,
   MCMLE.dampening.min.ess = 20, MCMLE.dampening.level = 0.1,
   MCMLE.steplength.margin = 0.05,
   MCMLE.steplength = NVL2(MCMLE.steplength.margin, 1, 0.5),
@@ -261,6 +263,14 @@ falls back to \code{optim} only when \code{trust} fails.}
 
 \item{obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.burnin.min}{Sample size, burnin, and interval parameters for the MCMC sampling used when
 unobserved data are present in the estimation routine.}
+
+\item{obs.MCMC.impute.min_informative, obs.MCMC.impute.default_density}{Controls for imputation of missing dyads for initializing MCMC
+sampling. If numeric, \code{obs.MCMC.impute.min_informative} specifies
+the minimum number dyads that need to be non-missing before
+sample network density is used as the imputation density. It can
+also be specified as a function that returns this
+value. \code{obs.MCMC.impute.default_density} similarly controls the
+imputation density when number of non-missing dyads is too low.}
 
 \item{MCMLE.check.degeneracy}{Logical: If TRUE, employ a check for model
 degeneracy.}

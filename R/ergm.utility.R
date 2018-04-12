@@ -418,7 +418,7 @@ which.package.InitFunction <- function(f, env = parent.frame()){
   
 }
 
-single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints.obs=NULL, output=c("network","pending_update_network"), verbose=FALSE){
+single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints.obs=NULL, min_informative=NULL, default_density=NULL, output=c("network","pending_update_network"), verbose=FALSE){
   output <- match.arg(output)
   stopifnot(!is.null(constraints)||is.null(constraints.obs))
   
@@ -436,14 +436,25 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
 
   el2s <- function(el) apply(el, 1, paste, collapse=",")
   s2el <- function(s) matrix(as.integer(do.call(rbind,strsplit(s,","))),ncol=2)
-  
+
+  min_informative <- NVL3(min_informative, if(is.function(.)) .(nw) else ., 0)
+  default_density <- if(is.function(default_density)) default_density(nw)
+
   if(!is.null(constraints)){ # Constraints
     informative <- as.rlebdm(constraints, constraints.obs, "informative")
     nonzeros <- as.rlebdm(nw)
     if(is.null(response)){
-      d <- sum(nonzeros & informative)/sum(informative)
+      d <-
+        if(sum(informative)<min_informative){
+          message("Number of informative dyads is too low. Using default imputation density.")
+          default_density(nw)
+        }else sum(nonzeros & informative)/sum(informative)
       nimpute <- round(d*nae)
     }else{
+      if(sum(informative)<min_informative){
+        message("Number of informative dyads is too low. Imputing valued relations is not possible.")
+        return(nw)
+      }
       x <- as.edgelist(nw,attrname=response)
       x.el <- x[,1:2,drop=FALSE]
       x <- x.el[! el2s(x.el)%in%el2s(na.el),3]
@@ -451,9 +462,17 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
     }
   }else{ # No Constraints
     if(is.null(response)){
-      d <- network.edgecount(nw,na.omit=TRUE)/network.dyadcount(nw,na.omit=TRUE)
+      d <-
+        if(network.dyadcount(nw,na.omit=TRUE)<min_informative){
+          message("Number of informative dyads is too low. Using default imputation density.")
+          default_density(nw)
+        }else network.edgecount(nw,na.omit=TRUE)/network.dyadcount(nw,na.omit=TRUE)
       nimpute <- round(d*nae)
     }else{
+      if(network.dyadcount(nw,na.omit=TRUE)<min_informative){
+        message("Number of informative dyads is too low. Imputing valued relations is not possible.")
+        return(nw)
+      }
       x <- as.edgelist(nw,attrname=response)[,3]
       zeros <- network.dyadcount(nw,na.omit=TRUE)-length(x)
     }

@@ -80,7 +80,7 @@ ergm.CD.fixed <- function(init, nw, model,
   nw.orig <- network.copy(nw)
 
   # Impute missing dyads.
-  nw <- single.impute.dyads(nw, response=response, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, verbose=verbose)
+  nw <- single.impute.dyads(nw, response=response, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, verbose=verbose)
   model$nw.stats <- summary(model, nw, response=response)
 
   nws <- rep(list(nw),nthreads) # nws is now a list of networks.
