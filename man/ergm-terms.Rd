@@ -1694,7 +1694,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     number of edges between \code{i} to \code{j} such that
     \code{abs(attrname[i]-attrname[j])<cutoff}.}
      
-    \item{\code{sociality(attrname=NULL, base=1, levels=NULL)}  (binary)  (undirected) (categorical nodal attribute)
+    \item{\code{sociality(attrname=NULL, base=1, levels=NULL)}  (binary) (undirected) (dyad-independent) (categorical nodal attribute)
     }{\emph{Undirected degree:} 
     This term adds one network statistic for each node equal to the number of
     ties of that node. The optional \code{attrname} argument is a character
