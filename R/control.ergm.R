@@ -229,6 +229,16 @@
 #'   `MCMC.effectiveSize` or `MCMLE.effectiveSize` are given, their
 #'   corresponding `obs` parameters are set to them multiplied by
 #'   `obs.MCMC.mul`.
+#'
+#' @param
+#'   obs.MCMC.impute.min_informative,obs.MCMC.impute.default_density
+#'   Controls for imputation of missing dyads for initializing MCMC
+#'   sampling. If numeric, `obs.MCMC.impute.min_informative` specifies
+#'   the minimum number dyads that need to be non-missing before
+#'   sample network density is used as the imputation density. It can
+#'   also be specified as a function that returns this
+#'   value. `obs.MCMC.impute.default_density` similarly controls the
+#'   imputation density when number of non-missing dyads is too low.
 #' 
 #' @param MCMLE.check.degeneracy Logical: If TRUE, employ a check for model
 #' degeneracy.
@@ -505,8 +515,12 @@ control.ergm<-function(drop=TRUE,
                        obs.MCMC.burnin.mul=sqrt(obs.MCMC.mul),
                        obs.MCMC.burnin=round(MCMC.burnin*obs.MCMC.burnin.mul),
                        obs.MCMC.prop.weights=MCMC.prop.weights, obs.MCMC.prop.args=MCMC.prop.args,
+                       obs.MCMC.impute.min_informative = function(nw) network.size(nw)/4,
+                       obs.MCMC.impute.default_density = function(nw) 2/network.size(nw),
+
                        MCMLE.min.depfac=2,
                        MCMLE.sampsize.boost.pow=0.5,
+
                        MCMLE.check.degeneracy=FALSE,
                        MCMLE.MCMC.precision=if(startsWith("confidence", MCMLE.termination[1])) 0.1 else 0.005,
                        MCMLE.MCMC.max.ESS.frac=0.1,
@@ -544,7 +558,7 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.steplength.min=0.0001,
                        MCMLE.effectiveSize.interval_drop=2,
                        MCMLE.save_intermediates=NULL,
-                       
+
                        SA.phase1_n=NULL, SA.initial_gain=NULL, 
                        SA.nsubphases=4,
                        SA.niterations=NULL, 

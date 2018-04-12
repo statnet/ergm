@@ -240,8 +240,8 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
   ergm.stopCluster(cl)
 
   stats <- as.mcmc.list(statsmatrices)
-  if(verbose){message("Sample size = ",niter(statsmatrices)*nchain(statsmatrices)," by ",
-                  niter(statsmatrices),".")}
+  if(verbose){message("Sample size = ",niter(stats)*nchain(stats)," by ",
+                  niter(stats),".")}
   
   list(stats = stats, networks=newnetworks, status=0, final.interval=final.interval)
 }

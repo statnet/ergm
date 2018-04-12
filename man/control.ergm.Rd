@@ -38,13 +38,15 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   obs.MCMC.burnin.mul = sqrt(obs.MCMC.mul),
   obs.MCMC.burnin = round(MCMC.burnin * obs.MCMC.burnin.mul),
   obs.MCMC.prop.weights = MCMC.prop.weights,
-  obs.MCMC.prop.args = MCMC.prop.args, MCMLE.min.depfac = 2,
-  MCMLE.sampsize.boost.pow = 0.5, MCMLE.check.degeneracy = FALSE,
-  MCMLE.MCMC.precision = if (startsWith("confidence", MCMLE.termination[1]))
-  0.1 else 0.005, MCMLE.MCMC.max.ESS.frac = 0.1,
-  MCMLE.metric = c("lognormal", "logtaylor", "Median.Likelihood",
-  "EF.Likelihood", "naive"), MCMLE.method = c("BFGS", "Nelder-Mead"),
-  MCMLE.trustregion = 20, MCMLE.dampening = FALSE,
+  obs.MCMC.prop.args = MCMC.prop.args,
+  obs.MCMC.impute.min_informative = function(nw) network.size(nw)/4,
+  obs.MCMC.impute.default_density = function(nw) 2/network.size(nw),
+  MCMLE.min.depfac = 2, MCMLE.sampsize.boost.pow = 0.5,
+  MCMLE.check.degeneracy = FALSE, MCMLE.MCMC.precision = if
+  (startsWith("confidence", MCMLE.termination[1])) 0.1 else 0.005,
+  MCMLE.MCMC.max.ESS.frac = 0.1, MCMLE.metric = c("lognormal", "logtaylor",
+  "Median.Likelihood", "EF.Likelihood", "naive"), MCMLE.method = c("BFGS",
+  "Nelder-Mead"), MCMLE.trustregion = 20, MCMLE.dampening = FALSE,
   MCMLE.dampening.min.ess = 20, MCMLE.dampening.level = 0.1,
   MCMLE.steplength.margin = 0.05, MCMLE.steplength.point.exp = 1,
   MCMLE.steplength.prefilter = FALSE,
@@ -325,6 +327,14 @@ the tolerance region or is unable to prove convergence.}
 iterations and relative tolerance to use within the \code{optim} rountine in
 the MLE optimization. Note that by default, ergm uses \code{trust}, and
 falls back to \code{optim} only when \code{trust} fails.}
+
+\item{obs.MCMC.impute.min_informative, obs.MCMC.impute.default_density}{Controls for imputation of missing dyads for initializing MCMC
+sampling. If numeric, \code{obs.MCMC.impute.min_informative} specifies
+the minimum number dyads that need to be non-missing before
+sample network density is used as the imputation density. It can
+also be specified as a function that returns this
+value. \code{obs.MCMC.impute.default_density} similarly controls the
+imputation density when number of non-missing dyads is too low.}
 
 \item{MCMLE.min.depfac, MCMLE.sampsize.boost.pow}{When using adaptive MCMC effective size, and methods that increase the MCMC sample size, use \code{MCMLE.sampsize.boost.pow} as the power of the boost amount (relative to the boost of the target effective size), but ensure that sample size is no less than \code{MCMLE.min.depfac} times the target effective size.}
 
