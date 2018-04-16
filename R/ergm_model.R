@@ -79,23 +79,19 @@ ergm_model <- function(formula, nw, response=NULL, silent=FALSE, role="static",.
       args[[1]] <- as.name("list")
     }else args <- list()
     
-    termFun<-locate.InitFunction(term, paste0(termroot,"Term"), "ERGM term")  # check in all namespaces for function found anywhere
+    termFun<-locate.InitFunction(term, paste0(termroot,"Term"), "ERGM term")
+
+    termCall<-as.call(list(termFun, nw, args))
     
-    term<-as.call(list(termFun))
-    
-    term[[2]] <- nw
-    names(term)[2] <-  ""
-    term[[3]] <- args
-    names(term)[3] <- ""
     dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), list(...))
     for(j in seq_along(dotdotdot)) {
       if(is.null(dotdotdot[[j]])) next
-      term[[3+j]] <- dotdotdot[[j]]
-      names(term)[3+j] <- names(dotdotdot)[j]
+      termCall[[3+j]] <- dotdotdot[[j]]
+      names(termCall)[3+j] <- names(dotdotdot)[j]
     }
     #Call the InitErgm function in the environment where the formula was created
     # so that it will have access to any parameters of the ergm terms
-    outlist <- eval(term,formula.env)
+    outlist <- eval(termCall,formula.env)
     # If initialization fails without error (e.g., all statistics have been dropped), continue.
     if(is.null(outlist)){
       if(!silent) message("Note: Term ", deparse(v[[i]])," skipped because it contributes no statistics.")
@@ -103,7 +99,7 @@ ergm_model <- function(formula, nw, response=NULL, silent=FALSE, role="static",.
       next
     }else model$term.skipped <- c(model$term.skipped, FALSE)
     # If SO package name not specified explicitly, autodetect.
-    if(is.null(outlist$pkgname)) outlist$pkgname <- environmentName(environment(termFun))
+    if(is.null(outlist$pkgname)) outlist$pkgname <- environmentName(environment(eval(termFun)))
     # If the term is an offset, rename the coefficient names and parameter names
     if(model$offset[length(model$offset)]){
       outlist$coef.names <- paste0("offset(",outlist$coef.names,")")
