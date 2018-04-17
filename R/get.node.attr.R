@@ -277,7 +277,7 @@ ergm_get_vattr.formula <- function(object, nw, bip=c("n","b1","b2"), accept="cha
   ERRVL(try({
     eval(e, envir=vlist, enclos=environment(object)) %>%
       .rightsize_vattr(nw, bip) %>%
-      when(length(object)>2 ~ set_attrs(., name=eval_lhs.formula(object)), ~.)
+      set_attrs(name=if(length(object)>2) eval_lhs.formula(object) else .despace(deparse(e)))
   }, silent=TRUE),
   ergm_Init_abort(.)) %>%
     .check_acceptable(accept=accept, xspec=object)
