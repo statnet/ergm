@@ -11,7 +11,8 @@ implementations to provide the user with a way to extract nodal
 attributes and select their levels in standardized and flexible
 ways described under \code{\link{node-attr}}.}
 \usage{
-ergm_get_vattr(object, nw, bip = c("n", "b1", "b2"), ...)
+ergm_get_vattr(object, nw, bip = c("n", "b1", "b2"), accept = "character",
+  ...)
 
 ergm_attr_levels(object, attr, nw, levels = sort(unique(attr)), ...)
 }
@@ -22,8 +23,12 @@ or which levels to include.}
 \item{nw}{Network on the LHS of the formula.}
 
 \item{bip}{Bipartedness mode: affects either length of attribute
-vector returned or the length permited: \code{"n"} for full network, \code{"b1"}
-for first mode of a bipartite network, and \code{"b2"} for the second.}
+vector returned or the length permited: \code{"n"} for full network,
+\code{"b1"} for first mode of a bipartite network, and \code{"b2"} for the
+second.}
+
+\item{accept}{A character vector listing permitted data types for
+the output. See the Details section for the specification.}
 
 \item{...}{Additional argument to the functions of network or to
 the formula's environment.}
@@ -33,9 +38,6 @@ specifying the attribute vector.}
 
 \item{levels}{Starting set of levels to use; defaults to the sorted
 list of unique attributes.}
-
-\item{type}{Permitted types of the attribute; no checking by
-default.}
 }
 \value{
 A vector of length equal to the number of nodes giving the
@@ -55,4 +57,31 @@ nodal attribute vector. It is strongly recommended that
 attribute.  It is strongly recommended that \code{\link[=check.ErgmTerm]{check.ErgmTerm()}}'s
 corresponding
 \code{vartype="function,formula,character,numeric,logical,NULL"}
+}
+\details{
+The \code{accept} argument is meant to allow the user to
+quickly check whether the output is of an \emph{acceptable} class or
+mode. Typically, if a term accepts a character (i.e.,
+categorical) attribute, it will also accept a numeric one,
+treating each number as a category label. For this reason, the
+following outputs are defined:
+\describe{
+
+\item{\code{"character"}}{Accept any mode or class (since it can
+beconverted to character).}
+
+\item{\code{"numeric"}}{Accept real, integer, or logical.}
+
+\item{\code{"logical"}}{Accept logical.}
+
+\item{\code{"integer"}}{Accept integer or logical.}
+
+\item{\code{"natural"}}{Accept a strictly positive integer.}
+
+\item{\code{"0natural"}}{Accept a nonnegative integer or logical.}
+
+\item{\code{"nonnegative"}}{Accept a nonnegative number or logical.}
+
+\item{\code{"positive"}}{Accept a strictly positive number or logical.}
+}
 }

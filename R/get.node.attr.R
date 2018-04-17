@@ -163,13 +163,40 @@ NULL
 #'   specifying the attribute vector.
 #' @param levels Starting set of levels to use; defaults to the sorted
 #'   list of unique attributes.
-#' @param type Permitted types of the attribute; no checking by
-#'   default.
 #' @param bip Bipartedness mode: affects either length of attribute
-#'   vector returned or the length permited: `"n"` for full network, `"b1"`
-#'   for first mode of a bipartite network, and `"b2"` for the second.
+#'   vector returned or the length permited: `"n"` for full network,
+#'   `"b1"` for first mode of a bipartite network, and `"b2"` for the
+#'   second.
+#' @param accept A character vector listing permitted data types for
+#'   the output. See the Details section for the specification.
 #' @param ... Additional argument to the functions of network or to
 #'   the formula's environment.
+#'
+#' @details The `accept` argument is meant to allow the user to
+#'   quickly check whether the output is of an *acceptable* class or
+#'   mode. Typically, if a term accepts a character (i.e.,
+#'   categorical) attribute, it will also accept a numeric one,
+#'   treating each number as a category label. For this reason, the
+#'   following outputs are defined:
+#' \describe{
+#'
+#' \item{`"character"`}{Accept any mode or class (since it can
+#' beconverted to character).}
+#' 
+#' \item{`"numeric"`}{Accept real, integer, or logical.}
+#' 
+#' \item{`"logical"`}{Accept logical.}
+#' 
+#' \item{`"integer"`}{Accept integer or logical.}
+#' 
+#' \item{`"natural"`}{Accept a strictly positive integer.}
+#' 
+#' \item{`"0natural"`}{Accept a nonnegative integer or logical.}
+#' 
+#' \item{`"nonnegative"`}{Accept a nonnegative number or logical.}
+#'
+#' \item{`"positive"`}{Accept a strictly positive number or logical.}
+#' }
 #'
 #'
 NULL
@@ -186,14 +213,14 @@ NULL
 #'   `"name"`, which controls the suggested name of the attribute
 #'   combination.
 #' @export
-ergm_get_vattr <- function(object, nw, bip=c("n","b1","b2"), ...){
+ergm_get_vattr <- function(object, nw, bip=c("n","b1","b2"), accept="character", ...){
   bip <- match.arg(bip)
   UseMethod("ergm_get_vattr")
 }
 
 .rightsize_vattr <- function(a, nw, bip){
   rep_len_warn <- function(x, length.out){
-    if(length.out%%length(x)) warning("Length of vertex attribute vector is not a multiple of network size or bipartite group size.")
+    if(length.out%%length(x)) ergm_Initializer_warn("Length of vertex attribute vector is not a multiple of network size or bipartite group size.")
     rep_len(x, length.out)
   }
   if(!is.bipartite(nw) || bip=="n") rep_len_warn(a, network.size(nw))
@@ -207,42 +234,75 @@ ergm_get_vattr <- function(object, nw, bip=c("n","b1","b2"), ...){
                            b2=network.size(nw)-nw%n%"bipartite"))
 }
 
+.check_acceptable <- function(x, accept=c("character", "numeric", "logical", "integer", "natural", "0natural", "nonnegative"), xspec=NULL){
+  accept <- match.arg(accept)
+
+  ACCNAME <- list(character = "a character",
+                  logical = "a logical",
+                  numeric = "a numeric or logical",
+                  integer = "an integer or logical",
+                  natural = "a natural (positive integer) numeric",
+                  `0natural` = "a nonnegative integer or logical",
+                  nonnegative = "a nonnegative numeric or logical",
+                  positive = "a positive numeric or logical")
+  OK <-
+    if(accept == "character") TRUE
+    else if(!is.numeric(x) && !is.logical(x)) FALSE
+    else switch(accept,
+                numeric = TRUE,
+                logical = all(x %in% c(FALSE, TRUE)),
+                integer = all(round(x)==x),
+                natural = all(round(x)==x) && x>0,
+                `0natural` = all(round(x)==x) && x>=0,
+                nonnegative = x>=0,
+                positive = x>0)
+
+  if(!OK) ergm_Initializer_abort("Attribute ", NVL3(xspec, paste0(sQuote(deparse(.)), " ")), "is not ", ACCNAME[[accept]], " vector as required.")
+  x
+}
 
 #' @importFrom purrr "%>%" "map" "pmap_chr"
+#' @importFrom rlang set_attrs
 #' @export
-ergm_get_vattr.character <- function(object, nw, bip=c("n","b1","b2"), ...){
-  if(!all(object%in%list.vertex.attributes(nw))) stop(sQuote(object), " is not a valid nodal attribute.")
+ergm_get_vattr.character <- function(object, nw, bip=c("n","b1","b2"), accept="character", ...){
+  missing_attr <- setdiff(object, list.vertex.attributes(nw))
+  if(length(missing_attr)){
+    ergm_Initializer_abort(paste.and(sQuote(missing_attr)), " is/are not valid nodal attribute(s).")
+  }
 
-  o <- (if(length(object)==1) nw%v%object
-        else object %>% map(~nw%v%.) %>% pmap_chr(paste, sep=".")) %>%
-    .rightsize_vattr(nw, bip)
-  
-  attr(o, "name") <- paste(object, collapse=".")
-  o
+  (if(length(object)==1) nw%v%object
+   else object %>% map(~nw%v%.) %>% pmap_chr(paste, sep=".")) %>%
+    .rightsize_vattr(nw, bip) %>% set_attrs(name=paste(object, collapse=".")) %>%
+    .check_acceptable(accept=accept, xspec=object)
 }
 
 
 #' @export
-ergm_get_vattr.function <- function(object, nw, bip=c("n","b1","b2"), ...){
-  object(nw, ...) %>%
-    .rightsize_vattr(nw, bip)
+ergm_get_vattr.function <- function(object, nw, bip=c("n","b1","b2"), accept="character", ...){
+  ERRVL(try(object(nw, ...) %>%
+            .rightsize_vattr(nw, bip),
+            silent=TRUE),
+        ergm_Initializer_abort(.)) %>%
+    .check_acceptable(accept=accept)
 }
 
 
-#' @importFrom purrr "%>%" "map" "set_names"
-#' @importFrom tibble "lst"
+#' @importFrom purrr "%>%" map set_names when
+#' @importFrom tibble lst
 #' @export
-ergm_get_vattr.formula <- function(object, nw, bip=c("n","b1","b2"), ...){
+ergm_get_vattr.formula <- function(object, nw, bip=c("n","b1","b2"), accept="character", ...){
   a <- list.vertex.attributes(nw)
   vlist <- c(a %>% map(~nw%v%.) %>% set_names(a),
              lst(`.`=nw, .nw=nw, ...))
 
   e <- object[[length(object)]]
-  o <- eval(e, envir=vlist, enclos=environment(object)) %>%
-    .rightsize_vattr(nw, bip)
-  
-  if(length(object)>2) attr(o, "name") <- eval_lhs.formula(e)
-  o
+  ERRVL(try({
+    eval(e, envir=vlist, enclos=environment(object)) %>%
+      .rightsize_vattr(nw, bip) %>%
+      when(length(object)>2 ~ set_attrs(., name=eval_lhs.formula(object)), ~.)
+  }, silent=TRUE),
+  ergm_Initializer_abort(.)) %>%
+    .check_acceptable(accept=accept, xspec=object)
 }
 
 #' @rdname node-attr-api
