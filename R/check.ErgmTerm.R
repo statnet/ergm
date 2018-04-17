@@ -121,7 +121,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
     message <- "networks with negative dyad weights"
   }
   if (!is.null(message)) {
-    ergm_Initializer_abort("Term may not be used with ",message,".")
+    ergm_Init_abort("Term may not be used with ",message,".")
   }
 
   sr=sum(required)
@@ -134,7 +134,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
       expected = "1 argument,"
     else
       expected = paste(sr,"arguments,")
-    ergm_Initializer_abort("Model term expected ", expected, " got ", la, '.')
+    ergm_Init_abort("Model term expected ", expected, " got ", la, '.')
   }
 # The correctness of what the user typed is checked, but it is assumed
 # that each InitErgmTerm function faithfully passes in what the user typed;
@@ -147,22 +147,22 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
       if (!is.null(names(arglist)) && (name <- names(arglist)[i]) != "") {
         m = pmatch(name, varnames)# try to match user-typed name if applicable
         if(is.na(m)) { # User typed an unrecognizable name
-          ergm_Initializer_abort("Model term does not recognize ", sQuote(name), " argument.")
+          ergm_Init_abort("Model term does not recognize ", sQuote(name), " argument.")
         }
         # valid name match with mth variable if we got to here
         if (all(sapply(strsplit(vartypes[m],",",fixed=TRUE)[[1]], function(vartype) !is(arglist[[i]], vartype)))) {
           # Wrong type
-          ergm_Initializer_abort(sQuote(name), " argument is not of the expected ", sQuote(vartypes[m]), " type.")
+          ergm_Init_abort(sQuote(name), " argument is not of the expected ", sQuote(vartypes[m]), " type.")
         }
         # correct type if we got to here
         out[[m]]=arglist[[i]]
       } else { # no user-typed name for this argument
         if (!is.null(m)) {
-          ergm_Initializer_abort("Unnamed argument follows named argument.")
+          ergm_Init_abort("Unnamed argument follows named argument.")
         }
         if (all(sapply(strsplit(vartypes[i],",",fixed=TRUE)[[1]], function(vartype) !is(arglist[[i]], vartype)))) {
           # Wrong type
-          ergm_Initializer_abort("Argument number ", i, " is not of the expected ", sQuote(vartypes[i]), " type.")
+          ergm_Init_abort("Argument number ", i, " is not of the expected ", sQuote(vartypes[i]), " type.")
         }
         # correct type if we got to here
         out[[i]]=arglist[[i]]

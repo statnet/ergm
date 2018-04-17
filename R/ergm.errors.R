@@ -14,7 +14,7 @@
 #' @seealso [stop()], [abort()]
 #' @name ergm-errors
 #' @export
-ergm_Initializer_abort <- function(..., default.loc=NULL){
+ergm_Init_abort <- function(..., default.loc=NULL){
   loc <- traceback.Initializers() %>% format.traceback()
   abort(paste0('In ', NVL(loc, default.loc, "unknown function"), ': ', ...))
 }
@@ -23,7 +23,7 @@ ergm_Initializer_abort <- function(..., default.loc=NULL){
 #' @seealso [warning()], [warn()]
 #' @importFrom rlang warn
 #' @export
-ergm_Initializer_warn <- function(..., default.loc=NULL){
+ergm_Init_warn <- function(..., default.loc=NULL){
   loc <- traceback.Initializers() %>% format.traceback()
   warn(paste0('In ', NVL(loc, default.loc, "unknown function"), ': ', ...))
 }
@@ -32,7 +32,7 @@ ergm_Initializer_warn <- function(..., default.loc=NULL){
 #' @seealso [message()], [inform()]
 #' @importFrom rlang inform
 #' @export
-ergm_Initializer_inform <- function(..., default.loc=NULL){
+ergm_Init_inform <- function(..., default.loc=NULL){
   loc <- traceback.Initializers() %>% format.traceback()
   inform(paste0('In ', NVL(loc, default.loc, "unknown function"), ': ', ...))
 }

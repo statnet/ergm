@@ -2,16 +2,16 @@
 % Please edit documentation in R/ergm.errors.R
 \name{ergm-errors}
 \alias{ergm-errors}
-\alias{ergm_Initializer_abort}
-\alias{ergm_Initializer_warn}
-\alias{ergm_Initializer_inform}
+\alias{ergm_Init_abort}
+\alias{ergm_Init_warn}
+\alias{ergm_Init_inform}
 \title{Sensible error and warning messages by \code{ergm} initializers}
 \usage{
-ergm_Initializer_abort(..., default.loc = NULL)
+ergm_Init_abort(..., default.loc = NULL)
 
-ergm_Initializer_warn(..., default.loc = NULL)
+ergm_Init_warn(..., default.loc = NULL)
 
-ergm_Initializer_inform(..., default.loc = NULL)
+ergm_Init_inform(..., default.loc = NULL)
 }
 \arguments{
 \item{...}{Objects that can be coerced (via \code{\link[=paste0]{paste0()}}) into a

@@ -198,7 +198,7 @@ ergm_get_vattr <- function(object, nw, bip=c("n","b1","b2"), accept="character",
 
 .rightsize_vattr <- function(a, nw, bip){
   rep_len_warn <- function(x, length.out){
-    if(length.out%%length(x)) ergm_Initializer_warn("Length of vertex attribute vector is not a multiple of network size or bipartite group size.")
+    if(length.out%%length(x)) ergm_Init_warn("Length of vertex attribute vector is not a multiple of network size or bipartite group size.")
     rep_len(x, length.out)
   }
   if(!is.bipartite(nw) || bip=="n") rep_len_warn(a, network.size(nw))
@@ -235,7 +235,7 @@ ergm_get_vattr <- function(object, nw, bip=c("n","b1","b2"), accept="character",
                 nonnegative = x>=0,
                 positive = x>0)
 
-  if(!OK) ergm_Initializer_abort("Attribute ", NVL3(xspec, paste0(sQuote(deparse(.)), " ")), "is not ", ACCNAME[[accept]], " vector as required.")
+  if(!OK) ergm_Init_abort("Attribute ", NVL3(xspec, paste0(sQuote(deparse(.)), " ")), "is not ", ACCNAME[[accept]], " vector as required.")
   x
 }
 
@@ -245,7 +245,7 @@ ergm_get_vattr <- function(object, nw, bip=c("n","b1","b2"), accept="character",
 ergm_get_vattr.character <- function(object, nw, bip=c("n","b1","b2"), accept="character", ...){
   missing_attr <- setdiff(object, list.vertex.attributes(nw))
   if(length(missing_attr)){
-    ergm_Initializer_abort(paste.and(sQuote(missing_attr)), " is/are not valid nodal attribute(s).")
+    ergm_Init_abort(paste.and(sQuote(missing_attr)), " is/are not valid nodal attribute(s).")
   }
 
   (if(length(object)==1) nw%v%object
@@ -260,7 +260,7 @@ ergm_get_vattr.function <- function(object, nw, bip=c("n","b1","b2"), accept="ch
   ERRVL(try(object(nw, ...) %>%
             .rightsize_vattr(nw, bip),
             silent=TRUE),
-        ergm_Initializer_abort(.)) %>%
+        ergm_Init_abort(.)) %>%
     .check_acceptable(accept=accept)
 }
 
@@ -279,7 +279,7 @@ ergm_get_vattr.formula <- function(object, nw, bip=c("n","b1","b2"), accept="cha
       .rightsize_vattr(nw, bip) %>%
       when(length(object)>2 ~ set_attrs(., name=eval_lhs.formula(object)), ~.)
   }, silent=TRUE),
-  ergm_Initializer_abort(.)) %>%
+  ergm_Init_abort(.)) %>%
     .check_acceptable(accept=accept, xspec=object)
 }
 
