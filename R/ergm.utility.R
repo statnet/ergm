@@ -374,13 +374,13 @@ standardize.network <- function(nw, preserve.eattr=TRUE){
   apply(x, 1, paste, collapse="\r")
 }
 
-locate.InitFunction <- function(name, prefix, errname=NULL, env = parent.frame()){
+locate.InitFunction <- function(name, prefix, errname=NULL, env = globalenv()){
   if(is.call(name)) name <- name[[1]]
   name <- as.character(name)
   fname <- paste(prefix,name,sep=".")
-  
-  f <- try(get(fname, mode='function', envir=env), silent=TRUE)
-  if(inherits(f, "try-error")){
+
+  if(exists(fname, mode='function', envir=env)) f <- as.name(fname)
+  else{
     #' @importFrom utils getAnywhere
     m <- getAnywhere(fname)
     if(length(m$objs)){
@@ -389,35 +389,13 @@ locate.InitFunction <- function(name, prefix, errname=NULL, env = parent.frame()
         m <- lapply(m[-1], "[", m$visible)
       }
       if(length(m$objs)>1) warning("Name ",fname," matched by multiple objects; using the first one on the list.")
-      f <- m$objs[[1]] 
+      envname <- environmentName(environment(m$objs[[1]]))
+      f <- call(":::",as.name(envname),as.name(fname))
     }else{
       if(!is.null(errname)) stop(errname,' ', sQuote(name), " initialization function ", sQuote(fname), " not found.") else f <- NULL
     }
   }
-  attr(f, "fname") <- fname
-  attr(f, "pkgname") <- environmentName(environment(f))
   f
-}
-
-# Return the name of the package containing function f visible from
-# environment env.
-which.package.InitFunction <- function(f, env = parent.frame()){
-  f <- as.character(f)
-  # Find the first entity named f in the search path, and get its name
-  # attribute (if present).
-  found <- methods::findFunction(f, where=env)
-  if (length(found) > 0) {
-    loc <- attr(found[[1]], "name")
-    # If name attribute is not NULL and begins with "package:", return
-    # the package name. Otherwise, return NULL.
-    if(!is.null(loc) && grepl("^package:", loc)) sub("^package:", "", loc) else NULL
-  } else {
-    # can't find the function normally; the package might have been imported
-    # instead of attached
-    found <- get(f, envir=env)
-    environmentName(environment(found))
-  }
-  
 }
 
 single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints.obs=NULL, min_informative=NULL, default_density=NULL, output=c("network","pending_update_network"), verbose=FALSE){
