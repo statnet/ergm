@@ -162,7 +162,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
         }
         if (all(sapply(strsplit(vartypes[i],",",fixed=TRUE)[[1]], function(vartype) !is(arglist[[i]], vartype)))) {
           # Wrong type
-          ergm_Initializer_abort("Argument number ", i, " is not of the expected", sQuote(vartypes[i]), "type.")
+          ergm_Initializer_abort("Argument number ", i, " is not of the expected ", sQuote(vartypes[i]), " type.")
         }
         # correct type if we got to here
         out[[i]]=arglist[[i]]
