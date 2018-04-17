@@ -58,29 +58,7 @@
 #' 
 #' @export get.node.attr
 get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {  
-
-# This is a kludge, which has been patched to bring it in line with the
-# corrected class definitions.  -CTB
-
-  if (!is.character(attrname) || length(attrname)>1){
-    ergm_Initializer_abort("The argument ", sQuote(attrname), " must be a single character string naming a nodal attribute.", default.loc=functionname)
-  }
-  #We'll assume that every vertex must have a value, so checking the 
-  #first is reasonable.  #skye:  I think this is not a correct assumption
-	
-  if(NVL(get.network.attribute(nw,"bipartite"),FALSE)){}  
-  # not sure what this code above was supposed to do, but it was only checking if the attribute existed if the network	was bipartite
-  # maybe, if it was bipartite, it should check if appropriate values exist for the mode in question? and should use 'is.bipartite()' for the check
-  
-  if (!any(attrname==unique(unlist(lapply(nw$val,names))))){
-    ergm_Initializer_abort("Attribute ", sQuote(attrname), " is not a vertex attribute of the network.", default.loc=functionname)
-  }
-  #"[["(nw$val,attrname)
-  out <- unlist(get.vertex.attribute(nw,attrname))
-  if(numeric && !is.numeric(out)) {
-    ergm_Initializer_abort("The ", sQuote(attrname), " attribute is not numeric as required.", default.loc=functionname)
-  }
-  out
+  ergm_get_vattr(attrname, nw, accept=if(numeric)"numeric"else"character")
 }
 
 .despace <- function(s) gsub("[[:space:]]", "", s)
