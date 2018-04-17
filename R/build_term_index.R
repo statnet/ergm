@@ -215,12 +215,12 @@
     # check that there is a visable init function defined for the term
     # some terms have both valued an binary forms
     if ('valued'%in%term$categories){
-      if(!is.function(locate.InitFunction(term$term.name, 'InitWtErgmTerm'))){
+      if(!is.function(eval(locate.InitFunction(term$term.name, 'InitWtErgmTerm')))){
         stop('unable to locate an InitWtErgmTerm function defined for weighted term ',term$term.name,' in documentation')
       }
     } 
     if ('binary'%in%term$categories){
-      if(!is.function(locate.InitFunction(term$term.name, 'InitErgmTerm'))){
+      if(!is.function(eval(locate.InitFunction(term$term.name, 'InitErgmTerm')))){
         stop('unable to locate an InitErgmTerm function defined for term ',term$term.name,' in documentation')
       }
     }

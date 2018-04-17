@@ -73,10 +73,8 @@ ergm_model <- function(formula, nw, response=NULL, silent=FALSE, role="static",.
     }
     ## term is now a call or a name that is not "offset".
 
-
     outlist <- call.ErgmTerm(term, formula.env, nw, response=response, role=role, term.options=term.options, ...)
     
-
     # If initialization fails without error (e.g., all statistics have been dropped), continue.
     if(is.null(outlist)){
       if(!silent) message("Note: Term ", deparse(v[[i]])," skipped because it contributes no statistics.")
@@ -117,26 +115,26 @@ call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ..., term
   
   termFun<-locate.InitFunction(term, paste0(termroot,"Term"), "ERGM term")  # check in all namespaces for function found anywhere
 
-  # A kludge so that a term can read its own name.
-  term.env <- new.env(parent=env) # Create a temporary new environment within env.
-  assign(attr(termFun,"fname"), termFun, pos=term.env) # Assign the function body there.
-  term<-as.call(list(as.name(attr(termFun,"fname"))))
+  if(is.call(term)) { # This term has some arguments; save them.
+    args <- term
+    args[[1]] <- as.name("list")
+  }else args <- list()
   
-  term[[2]] <- nw
-  names(term)[2] <-  "nw"
-  term[[3]] <- args
-  names(term)[3] <- "arglist"
-  dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), c(term.options,list(...)))
+  termFun<-locate.InitFunction(term, paste0(termroot,"Term"), "ERGM term")
+  
+  termCall<-as.call(list(termFun, nw, args))
+  
+  dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), list(...))
   for(j in seq_along(dotdotdot)) {
     if(is.null(dotdotdot[[j]])) next
-    term[[3+j]] <- dotdotdot[[j]]
-    names(term)[3+j] <- names(dotdotdot)[j]
+    termCall[[3+j]] <- dotdotdot[[j]]
+    names(termCall)[3+j] <- names(dotdotdot)[j]
   }
   #Call the InitErgm function in the environment where the formula was created
   # so that it will have access to any parameters of the ergm terms
-  out <- eval(term,term.env)
+  out <- eval(termCall,env)
   # If SO package name not specified explicitly, autodetect.
-  if(!is.null(out) && is.null(out$pkgname)) out$pkgname <- attr(termFun,"pkgname")
+  if(!is.null(out) && is.null(out$pkgname)) out$pkgname <- environmentName(environment(eval(termFun)))
   out
 }
 
