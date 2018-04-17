@@ -67,6 +67,7 @@ Collate:
     'ergm.curved.statsmatrix.R'
     'ergm.degeneracy.R'
     'ergm.design.R'
+    'ergm.errors.R'
     'ergm.estimate.R'
     'ergm.eta.R'
     'ergm.etagrad.R'
