@@ -71,8 +71,8 @@ InitErgmTerm..subnets <- function(nw, arglist, response=NULL, ...){
 InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula","lmform","subset","weights","contrasts","offset","label"),
-                      vartypes = c("formula","formula","formula,logical,numeric,expression","formula,logical,numeric,expression","list","formula,logical,numeric,expression","character"),
-                      defaultvalues = list(NULL,~1,TRUE,1,NULL,0,NULL),
+                      vartypes = c("formula","formula","formula,logical,numeric,expression,call","formula,logical,numeric,expression,call","list","formula,logical,numeric,expression,call","character"),
+                      defaultvalues = list(NULL,~1,TRUE,1,NULL,NULL,NULL),
                       required = c(TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE))
 
   f <- a$formula
@@ -87,7 +87,7 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
   nattrs <- as.data.frame(lapply(nattrs, function(nattr) sapply(lapply(nwl, get.network.attribute, nattr), function(x) if(is.null(x) || length(x)!=1) NA else x)), col.names=nattrs)
 
   subset <-
-    if(mode(a$subset) %in% c("expression", "call")) eval(if(is(a$subset, "formula")) a$subset[[2]] else a$subset, envir = nattrs, enclos = environment(a$subset))
+    if(mode(a$subset) %in% c("expression", "call")) eval(if(is(a$subset, "formula")) a$subset[[2]] else a$subset, envir = nattrs, enclos = environment(a$lmform))
     else a$subset
   subset <- unwhich(switch(mode(subset),
                            logical = which(rep(subset, length.out = nn)),
@@ -123,7 +123,7 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
 
   # model.frame.
   xf <- do.call(stats::lm, list(a$lmform, data=nattrs,contrast.arg=a$contrasts, offset = offset, subset=subset, weights=weights, na.action=na.fail, method="model.frame"), envir=environment(a$lmform))
-  offset <- model.offset(xf) %>% matrix(nrow=nn, ncol=nparam) # offset is actually an nn*q matrix.
+  offset <- model.offset(xf) %>% NVL(0) %>% matrix(nrow=nm, ncol=nparam) # offset is actually an nm*q matrix.
   weights <- model.weights(xf)
   if(!all(weights==1)) ergm_Init_abort("Network-level weights different from 1 are not supported at this time.")
   xm <- model.matrix(attr(xf, "terms"), xf, contrasts=a$contrasts)
@@ -133,7 +133,7 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
     map(rbind) %>% # List of row vectors.
     map(list) %>% # List of singleton lists of row vectors.
     map(rep, nparam) %>% # List of lists with appropriate parameter numbers.
-    map(Matrix::.bdiag) %>% # nn-list of block-diagonal matrices. 
+    map(Matrix::.bdiag) %>% # nm-list of block-diagonal matrices. 
     map(as.matrix) # FIXME: Maintain representation as sparse matrices?
     
   # Xl can now be used as covariates to vectorized MANOVA-style
@@ -143,7 +143,7 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
 
   nstats.all <- integer(nn)
   nstats.all[subset] <- nstats # So networks not in subset get 0 stats.
-  inputs <- c(c(0,cumsum(nstats)), ms %>% map("inputs") %>% unlist())
+  inputs <- c(c(0,cumsum(nstats.all)), ms %>% map("inputs") %>% unlist())
 
   etamap <- function(x, n, ...){
     #' @importFrom purrr map map2 map2_dbl "%>%"
@@ -175,7 +175,7 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
   parnames <- colnames(xm)
   parnames <- ifelse(parnames=="(Intercept)", "1", parnames)
   names(params) <- paste0('N(',NVL3(a$label,paste0(.,","),""),rep(parnames, nparam),'):',rep(param_names(ms[[1]]$model, canonical=FALSE), each=ncol(xm)))
-  coef.names <- paste0('N#',rep(seq_len(nn), nstats),':',unlist(lapply(lapply(ms, `[[`, "model"), param_names, canonical=TRUE)))
+  coef.names <- paste0('N#',rep(seq_len(nm), nstats),':',unlist(lapply(lapply(ms, `[[`, "model"), param_names, canonical=TRUE)))
   gs <- unlist(lapply(ms, `[[`, "gs"))
 
   ## FIXME: The term needs to divide the each network's statistics by
