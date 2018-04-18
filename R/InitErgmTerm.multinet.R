@@ -94,13 +94,12 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
                            numeric = subset),
                     nn)
 
-  weights <- if(mode(a$weights) %in% c("expression", "call")) eval(if(is(a$weights, "formula")) a$weights[[2]] else a$weights, envir = nattrs, enclos = environment(a$weights))
+  weights <- if(mode(a$weights) %in% c("expression", "call")) eval(if(is(a$weights, "formula")) a$weights[[2]] else a$weights, envir = nattrs, enclos = environment(a$lmform))
              else a$weights
   weights <- rep(weights, length.out=nn)
 
-  offset <- if(mode(a$offset) %in% c("expression", "call")) eval(if(is(a$offset, "formula")) a$offset[[2]] else a$offset, envir = nattrs, enclos = environment(a$offset))
+  offset <- if(mode(a$offset) %in% c("expression", "call")) eval(if(is(a$offset, "formula")) a$offset[[2]] else a$offset, envir = nattrs, enclos = environment(a$lmform))
              else a$offset
-  offset <- rep(offset, length.out=nn)
 
   subset[weights==0] <- FALSE
   
@@ -124,8 +123,9 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
 
   # model.frame.
   xf <- do.call(stats::lm, list(a$lmform, data=nattrs,contrast.arg=a$contrasts, offset = offset, subset=subset, weights=weights, na.action=na.fail, method="model.frame"), envir=environment(a$lmform))
-  offset <- model.offset(xf)
+  offset <- model.offset(xf) %>% matrix(nrow=nn, ncol=nparam) # offset is actually an nn*q matrix.
   weights <- model.weights(xf)
+  if(!all(weights==1)) ergm_Init_abort("Network-level weights different from 1 are not supported at this time.")
   xm <- model.matrix(attr(xf, "terms"), xf, contrasts=a$contrasts)
 
   Xl <- xm %>%
@@ -139,6 +139,8 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
   # Xl can now be used as covariates to vectorized MANOVA-style
   # parameters.
 
+  ol <- offset %>% split(., row(.)) # Rows of offset as a list.
+
   nstats.all <- integer(nn)
   nstats.all[subset] <- nstats # So networks not in subset get 0 stats.
   inputs <- c(c(0,cumsum(nstats)), ms %>% map("inputs") %>% unlist())
@@ -148,21 +150,21 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
     Xl %>%
       map(`%*%`, c(x)) %>% # Evaluate X%*%c(x), where X is the predictor matrix and x is "theta".
       map(c) %>% # Output of the previous step is a matrix; convert to vector.
-      map2(offset, `+`) %>% # Add on offset.
+      map2(ol, `+`) %>% # Add on offset.
       map2(ms %>% map(c("model","etamap")), # Obtain the etamap.
            ergm.eta) %>% # Evaluate eta.
-      map2(weights, `*`) %>% # Weight.
+#      map2(weights, `*`) %>% # Weight.
       unlist()
   }
   etagradient <- function(x, n, ...){
     Xl %>%
       map(`%*%`, c(x)) %>% # Evaluate X%*%c(x), where X is the predictor matrix and x is "theta".
       map(c) %>% # Output of the previous step is a matrix; convert to vector.
-      map2(offset, `+`) %>% # Add on offset.
+      map2(ol, `+`) %>% # Add on offset.
       map2(ms %>% map(c("model","etamap")), # Obtain the etamap.
            ergm.etagrad) %>% # Evaluate eta gradient.
       map2(Xl, ., crossprod) %>%
-      map2(weights, `*`) %>% # Weight.
+#      map2(weights, `*`) %>% # Weight.
       do.call(cbind,.)
   }
   if(with(ms[[1]]$model$etamap,

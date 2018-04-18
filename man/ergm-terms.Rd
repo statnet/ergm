@@ -446,14 +446,23 @@ network
     using \code{\link{Networks}} function, and returns either a weighted
     sum or an \code{\link{lm}}-style linear model for the ERGM
     coefficients. Its syntax follows that of \code{\link{lm}} closely,
-    with sensible defaults. In particular, with the default value of
-    \code{lmform}, passing a vector of length equalling the number of
-    constituent networks to \code{weights} will fit the model with a
-    weighted sum of the corresponding network statistics, \code{subset}
-    will remove some networks, etc.. If \code{lmform} refers to any
+    with sensible defaults. The default formula (\code{~1}) sums the
+    specified network statistics. If \code{lmform} refers to any
     network attributes for which some networks have missing values, the
     term will stop with an error. This can be avoided by pre-filtering
-    with \code{subset}.
+    with \code{subset}, which controls which networks are affected by
+    the term.
+
+    \code{offset} (which can also be specified in \code{lmform} as well)
+    can be a constant, a vector of length equal to the number of
+    networks, or a matrix whose number of rows is the number of networks
+    and whose number of columns is the number of free parameters of the
+    ERGM.
+
+    Note that although \code{weights} is an argument in the term, it is
+    reserved for future use; attempting to change it will cause an
+    error: at this time, there is no way to assign sampling weights to
+    networks.
 
     An optional parameter \code{label} will add a label to model
     parameters to help identify the term (which may have similar
