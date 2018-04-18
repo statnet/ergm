@@ -114,8 +114,9 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
 
   nm <- sum(subset)
 
-  nparams <- sapply(lapply(ms, `[[`, "model"), nparam, canonical=FALSE)
-  nstats <- sapply(lapply(ms, `[[`, "model"), nparam, canonical=TRUE)
+  #' @importFrom purrr map_int
+  nparams <- ms %>% map("model") %>% map_int(nparam, canonical=FALSE)
+  nstats <-  ms %>% map("model") %>% map_int(nparam, canonical=TRUE)
 
   ### Linear model for parameters
   if(!all_identical(nparams)) stop("N() operator with linear model weights only supports models with the same numbers of parameters for every network. This may change in the future.")
@@ -126,38 +127,43 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
   offset <- model.offset(xf)
   weights <- model.weights(xf)
   xm <- model.matrix(attr(xf, "terms"), xf, contrasts=a$contrasts)
-  xl <- lapply(split(xm, row(xm)), rbind) # Rows of xl as a list.
-  
-  # What the following does: creates a nn-list of singleton lists
-  # containing that network's row of xl, replicates it nparam times,
-  # then binds them into nn-list of block-diagonal matrices. These
-  # can now be used as covariates to vectorized MANOVA-style
+
+  Xl <- xm %>%
+    split(., row(.)) %>% # Rows of xl as a list.
+    map(rbind) %>% # List of row vectors.
+    map(list) %>% # List of singleton lists of row vectors.
+    map(rep, nparam) %>% # List of lists with appropriate parameter numbers.
+    map(Matrix::.bdiag) %>% # nn-list of block-diagonal matrices. 
+    map(as.matrix) # FIXME: Maintain representation as sparse matrices?
+    
+  # Xl can now be used as covariates to vectorized MANOVA-style
   # parameters.
-  Xl <- lapply(lapply(mapply(rep, lapply(xl,list), nparam, SIMPLIFY=FALSE), Matrix::.bdiag), as.matrix)
 
   nstats.all <- integer(nn)
   nstats.all[subset] <- nstats # So networks not in subset get 0 stats.
-  inputs <- c(c(0,cumsum(nstats)), unlist(lapply(ms, `[[`, "inputs")))
+  inputs <- c(c(0,cumsum(nstats)), ms %>% map("inputs") %>% unlist())
 
-  map <- function(x, n, ...){
-    # What this does:
-    # 1) Calculate each network's theta as its X%*%c(x), where X is the predictor matrix and x is "theta". Return a list of submodel "thetas".
-    # 2) Evaluate ergm.eta() on these "thetas", to get submodel "thetas" to get submodel "etas". Return a list of "eta" vectors.
-    # 3) Shift the etas by their respective offsets. Return the list of shifted eta vectors.
-    # 4) Scale the etas by their respective weights. Return the list of shifted eta vectors.
-    unlist(mapply(`*`,
-                  mapply(`+`,
-                         mapply(ergm.eta, lapply(lapply(Xl, `%*%`, c(x)),c), lapply(lapply(ms, `[[`, "model"), `[[`, "etamap"), SIMPLIFY=FALSE),
-                         offset, SIMPLIFY=FALSE),
-                  weights, SIMPLIFY=FALSE)
-           )
+  etamap <- function(x, n, ...){
+    #' @importFrom purrr map map2 map2_dbl "%>%"
+    Xl %>%
+      map(`%*%`, c(x)) %>% # Evaluate X%*%c(x), where X is the predictor matrix and x is "theta".
+      map(c) %>% # Output of the previous step is a matrix; convert to vector.
+      map2(offset, `+`) %>% # Add on offset.
+      map2(ms %>% map(c("model","etamap")), # Obtain the etamap.
+           ergm.eta) %>% # Evaluate eta.
+      map2(weights, `*`) %>% # Weight.
+      unlist()
   }
-  gradient <- function(x, n, ...){
-    do.call(cbind,
-            mapply(`*`,
-                   mapply(crossprod, Xl, mapply(ergm.etagrad, lapply(lapply(Xl, `%*%`, c(x)),c), lapply(lapply(ms, `[[`, "model"), `[[`, "etamap"), SIMPLIFY=FALSE), SIMPLIFY=FALSE),
-                   weights, SIMPLIFY=FALSE)
-            )
+  etagradient <- function(x, n, ...){
+    Xl %>%
+      map(`%*%`, c(x)) %>% # Evaluate X%*%c(x), where X is the predictor matrix and x is "theta".
+      map(c) %>% # Output of the previous step is a matrix; convert to vector.
+      map2(offset, `+`) %>% # Add on offset.
+      map2(ms %>% map(c("model","etamap")), # Obtain the etamap.
+           ergm.etagrad) %>% # Evaluate eta gradient.
+      map2(Xl, ., crossprod) %>%
+      map2(weights, `*`) %>% # Weight.
+      do.call(cbind,.)
   }
   if(with(ms[[1]]$model$etamap,
           any(mintheta[!offsettheta]!=-Inf) || any(maxtheta[!offsettheta]!=+Inf))){
@@ -170,7 +176,10 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
   coef.names <- paste0('N#',rep(seq_len(nn), nstats),':',unlist(lapply(lapply(ms, `[[`, "model"), param_names, canonical=TRUE)))
   gs <- unlist(lapply(ms, `[[`, "gs"))
 
-  list(name="MultiNets", coef.names = coef.names, inputs=inputs, dependence=!all(sapply(lapply(ms, `[[`, "model"), is.dyad.independent)), emptynwstats = gs, auxiliaries = auxiliaries, map = map, gradient = gradient, params = params)
+  ## FIXME: The term needs to divide the each network's statistics by
+  ## its weight above, to compensate for the fact that eta and
+  ## gradient are multiplied.
+  list(name="MultiNets", coef.names = coef.names, inputs=inputs, dependence=!all(sapply(lapply(ms, `[[`, "model"), is.dyad.independent)), emptynwstats = gs, auxiliaries = auxiliaries, map = etamap, gradient = etagradient, params = params)
 
   ## TODO: Re-add the optimised special case for when weights are fixed and constant, and all active models have the same numbers of coefficients.
   ## ### Test if weights are constant within the network.
