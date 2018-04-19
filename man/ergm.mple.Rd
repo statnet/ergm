@@ -5,16 +5,15 @@
 \alias{ergm.pl}
 \title{Find a maximizer to the psuedolikelihood function}
 \usage{
-ergm.mple(Clist, fd, m, init = NULL, MPLEtype = "glm",
-  family = "binomial", maxMPLEsamplesize = 1e+06, save.glm = TRUE,
-  theta1 = NULL, control = NULL, proposal = NULL, verbose = FALSE, ...)
+ergm.mple(nw, fd, m, init = NULL, MPLEtype = "glm", family = "binomial",
+  maxMPLEsamplesize = 1e+06, save.glm = TRUE, theta1 = NULL,
+  control = NULL, proposal = NULL, verbose = FALSE, ...)
 
-ergm.pl(Clist, fd, m, theta.offset = NULL, maxMPLEsamplesize = 1e+06,
-  control, verbose = FALSE)
+ergm.pl(nw, fd, m, theta.offset = NULL, maxMPLEsamplesize = 1e+06, control,
+  verbose = FALSE)
 }
 \arguments{
-\item{Clist}{a list of parameters used for fitting and returned by
-\code{\link{ergm.Cprepare}}}
+\item{nw}{response network.}
 
 \item{fd}{An \code{\link{rlebdm}} with informative dyads.}
 
