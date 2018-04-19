@@ -70,7 +70,7 @@ InitErgmTerm..subnets <- function(nw, arglist, response=NULL, ...){
 
 InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("formula","lmform","subset","weights","contrasts","offset","label"),
+                      varnames = c("formula","lm","subset","weights","contrasts","offset","label"),
                       vartypes = c("formula","formula","formula,logical,numeric,expression,call","formula,logical,numeric,expression,call","list","formula,logical,numeric,expression,call","character"),
                       defaultvalues = list(NULL,~1,TRUE,1,NULL,NULL,NULL),
                       required = c(TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE))
@@ -87,18 +87,18 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
   nattrs <- as.data.frame(lapply(nattrs, function(nattr) sapply(lapply(nwl, get.network.attribute, nattr), function(x) if(is.null(x) || length(x)!=1) NA else x)), col.names=nattrs)
 
   subset <-
-    if(mode(a$subset) %in% c("expression", "call")) eval(if(is(a$subset, "formula")) a$subset[[2]] else a$subset, envir = nattrs, enclos = environment(a$lmform))
+    if(mode(a$subset) %in% c("expression", "call")) eval(if(is(a$subset, "formula")) a$subset[[2]] else a$subset, envir = nattrs, enclos = environment(a$lm))
     else a$subset
   subset <- unwhich(switch(mode(subset),
                            logical = which(rep(subset, length.out = nn)),
                            numeric = subset),
                     nn)
 
-  weights <- if(mode(a$weights) %in% c("expression", "call")) eval(if(is(a$weights, "formula")) a$weights[[2]] else a$weights, envir = nattrs, enclos = environment(a$lmform))
+  weights <- if(mode(a$weights) %in% c("expression", "call")) eval(if(is(a$weights, "formula")) a$weights[[2]] else a$weights, envir = nattrs, enclos = environment(a$lm))
              else a$weights
   weights <- rep(weights, length.out=nn)
 
-  offset <- if(mode(a$offset) %in% c("expression", "call")) eval(if(is(a$offset, "formula")) a$offset[[2]] else a$offset, envir = nattrs, enclos = environment(a$lmform))
+  offset <- if(mode(a$offset) %in% c("expression", "call")) eval(if(is(a$offset, "formula")) a$offset[[2]] else a$offset, envir = nattrs, enclos = environment(a$lm))
              else a$offset
 
   subset[weights==0] <- FALSE
@@ -122,7 +122,7 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, ...){
   nparam <- nparams[1]
 
   # model.frame.
-  xf <- do.call(stats::lm, list(a$lmform, data=nattrs,contrast.arg=a$contrasts, offset = offset, subset=subset, weights=weights, na.action=na.fail, method="model.frame"), envir=environment(a$lmform))
+  xf <- do.call(stats::lm, list(a$lm, data=nattrs,contrast.arg=a$contrasts, offset = offset, subset=subset, weights=weights, na.action=na.fail, method="model.frame"), envir=environment(a$lm))
   offset <- model.offset(xf) %>% NVL(0) %>% matrix(nrow=nm, ncol=nparam) # offset is actually an nm*q matrix.
   weights <- model.weights(xf)
   if(!all(weights==1)) ergm_Init_abort("Network-level weights different from 1 are not supported at this time.")

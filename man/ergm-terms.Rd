@@ -440,20 +440,20 @@ network
     up. A dot (\code{.}) stands for summing all layers.
   }
 
-  \item{\code{N(formula, lmform=~1, subset=TRUE, weights=1, contrasts=NULL, offset=0, label=NULL)} (binary) (operator)}{\emph{Evaluation on multiple networks}:
+  \item{\code{N(formula, lm=~1, subset=TRUE, weights=1, contrasts=NULL, offset=0, label=NULL)} (binary) (operator)}{\emph{Evaluation on multiple networks}:
 
     Evaluates the terms in \code{formula} on each of the networks joined
     using \code{\link{Networks}} function, and returns either a weighted
     sum or an \code{\link{lm}}-style linear model for the ERGM
     coefficients. Its syntax follows that of \code{\link{lm}} closely,
     with sensible defaults. The default formula (\code{~1}) sums the
-    specified network statistics. If \code{lmform} refers to any
+    specified network statistics. If \code{lm} refers to any
     network attributes for which some networks have missing values, the
     term will stop with an error. This can be avoided by pre-filtering
     with \code{subset}, which controls which networks are affected by
     the term.
 
-    \code{offset} (which can also be specified in \code{lmform} as well)
+    \code{offset} (which can also be specified in \code{lm} as well)
     can be a constant, a vector of length equal to the number of
     networks, or a matrix whose number of rows is the number of networks
     and whose number of columns is the number of free parameters of the
