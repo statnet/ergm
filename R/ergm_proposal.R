@@ -188,7 +188,7 @@ ergm_proposal.character <- function(object, arguments, nw, ..., response=NULL, r
 
   proposal$arguments$constraints$bd <- ergm.bounddeg(arguments$constraints$bd,nw)
   # If package not specified, autodetect.
-  if(is.null(proposal$pkgname))  proposal$pkgname <- environmentName(environment(f))
+  if(is.null(proposal$pkgname))  proposal$pkgname <- environmentName(environment(eval(f)))
 
   # Add the package to the list of those to be loaded.
   ergm.MCMC.packagenames(proposal$pkgname)
