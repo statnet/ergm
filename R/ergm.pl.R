@@ -40,10 +40,11 @@
 #'   \code{ergm.pl} }
 
 
-ergm.pl<-function(Clist, fd, m, theta.offset=NULL,
+ergm.pl<-function(nw, fd, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
                     control, ignore.offset=FALSE,
                     verbose=FALSE) {
+  Clist <- ergm.Cprepare(nw, m)
   bip <- Clist$bipartite
   n <- Clist$n
 

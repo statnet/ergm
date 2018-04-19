@@ -183,7 +183,6 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmod
   # Construct the model
   nw <- ergm.getnetwork(formula)
   model <- ergm_model(formula, nw)
-  Clist <- ergm.Cprepare(nw, model)
 
   # Handle the observation process constraints.
   tmp <- .handle.obs.constraints(nw, constraints, obs.constraints)
@@ -207,7 +206,7 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmod
   fd <- as.rlebdm(conlist, conlist.obs, which="informative")
 
   # Get the MPLE predictors
-  pl <- ergm.pl(Clist, fd, model, verbose=verbose, control=control, ignore.offset=TRUE,...)
+  pl <- ergm.pl(nw, fd, model, verbose=verbose, control=control, ignore.offset=TRUE,...)
 
   switch(output,
          matrix = list(response = pl$zy, predictor = pl$xmat, 
