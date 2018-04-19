@@ -55,7 +55,6 @@ ergm.initialfit<-function(init, initial.is.final,
                           MPLEtype="glm",
                           control=NULL, proposal=NULL, proposal.obs=NULL,
                           verbose=FALSE, ...) {
-
   # Respect init elements that are not offsets if it's only a starting value.
   if(!initial.is.final){ 
     m$etamap$offsettheta[!is.na(init)] <- TRUE
@@ -67,10 +66,10 @@ ergm.initialfit<-function(init, initial.is.final,
     # Also make sure that any initial values specified by the user are respected.
     fit <- switch(method,
                   MPLE = {
-                    Clist <- ergm.Cprepare(nw, m)
+                    nw <- single.impute.dyads(nw, response=response, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, output="pending", verbose=verbose)
                     fd <- as.rlebdm(proposal$arguments$constraints, proposal.obs$arguments$constraints, which="informative")
                     
-                    ergm.mple(Clist, fd, m, MPLEtype=MPLEtype,
+                    ergm.mple(nw, fd, m, MPLEtype=MPLEtype,
                               init=init, 
                               control=control,
                               verbose=verbose, ...)

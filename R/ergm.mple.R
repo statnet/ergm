@@ -36,8 +36,7 @@
 #' MPLE values are used even in the case of dyadic dependence models as
 #' starting points for the MCMC algorithm.
 #' 
-#' @param Clist a list of parameters used for fitting and returned by
-#'   \code{\link{ergm.Cprepare}}
+#' @param nw response network.
 #' @param fd An \code{\link{rlebdm}} with informative dyads.
 #' @param m the model, as returned by \code{\link{ergm_model}}
 #' @param init a vector a vector of initial theta coefficients
@@ -73,7 +72,7 @@
 #' van Duijn MAJ, Gile K, Handcock MS (2009).  "Comparison of Maximum Pseudo
 #' Likelihood and Maximum Likelihood Estimation of Exponential Family Random
 #' Graph Models." _Social Networks_, *31*, pp. 52-62.
-ergm.mple<-function(Clist, fd, m, init=NULL,
+ergm.mple<-function(nw, fd, m, init=NULL,
                     MPLEtype="glm", family="binomial",
                     maxMPLEsamplesize=1e+6,
                     save.glm=TRUE,
@@ -82,7 +81,7 @@ ergm.mple<-function(Clist, fd, m, init=NULL,
                     ...) {
   message("Starting maximum pseudolikelihood estimation (MPLE):")
   message("Evaluating the predictor and response matrix.")
-  pl <- ergm.pl(Clist=Clist, fd=fd, m=m,
+  pl <- ergm.pl(nw=nw, fd=fd, m=m,
                 theta.offset=init,
                 maxMPLEsamplesize=maxMPLEsamplesize,
 		control=control,
