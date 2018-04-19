@@ -184,7 +184,8 @@ NULL
 #' @description `ergm_get_vattr` extracts and processes the specified
 #'   nodal attribute vector. It is strongly recommended that
 #'   [check.ErgmTerm()]'s corresponding
-#'   `vartype="function,formula,character"`.
+#'   `vartype="function,formula,character"` (using the
+#'   `ERGM_VATTR_SPEC` constant).
 #' 
 #' @return A vector of length equal to the number of nodes giving the
 #'   selected attribute function. It may also have an attribute
@@ -195,6 +196,10 @@ ergm_get_vattr <- function(object, nw, bip=c("n","b1","b2"), accept="character",
   bip <- match.arg(bip)
   UseMethod("ergm_get_vattr")
 }
+
+#' @rdname node-attr-api
+#' @export
+ERGM_VATTR_SPEC <- "function,formula,character"
 
 .rightsize_vattr <- function(a, nw, bip){
   rep_len_warn <- function(x, length.out){
@@ -288,13 +293,18 @@ ergm_get_vattr.formula <- function(object, nw, bip=c("n","b1","b2"), accept="cha
 #' @description `ergm_attr_levels` filters the levels of the
 #'   attribute.  It is strongly recommended that [check.ErgmTerm()]'s
 #'   corresponding
-#'   `vartype="function,formula,character,numeric,logical,NULL"`
+#'   `vartype="function,formula,character,numeric,logical,NULL"` (using the
+#'   `ERGM_LEVELS_SPEC` constant).
 #' 
 #' @return A vector of levels to use and their order.
 #' @export
 ergm_attr_levels <- function(object, attr, nw, levels=sort(unique(attr)), ...){
   UseMethod("ergm_attr_levels")
 }
+
+#' @rdname node-attr-api
+#' @export
+ERGM_LEVELS_SPEC <- "function,formula,character,numeric,logical,NULL"
 
 #' @export
 ergm_attr_levels.default <- function(object, attr, nw, levels=sort(unique(attr)), ...){
