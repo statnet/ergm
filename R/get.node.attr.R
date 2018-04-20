@@ -61,8 +61,6 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
   ergm_get_vattr(attrname, nw, accept=if(numeric)"numeric"else"character")
 }
 
-.despace <- function(s) gsub("[[:space:]]", "", s)
-
 #' @name node-attr
 #' @title Specifying nodal attributes and their levels
 #'
@@ -282,7 +280,7 @@ ergm_get_vattr.formula <- function(object, nw, bip=c("n","b1","b2"), accept="cha
   ERRVL(try({
     eval(e, envir=vlist, enclos=environment(object)) %>%
       .rightsize_vattr(nw, bip) %>%
-      set_attrs(name=if(length(object)>2) eval_lhs.formula(object) else .despace(deparse(e)))
+      set_attrs(name=if(length(object)>2) eval_lhs.formula(object) else despace(deparse(e)))
   }, silent=TRUE),
   ergm_Init_abort(.)) %>%
     .check_acceptable(accept=accept, xspec=object)
