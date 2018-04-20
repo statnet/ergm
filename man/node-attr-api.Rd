@@ -15,7 +15,7 @@ attributes and select their levels in standardized and flexible
 ways described under \code{\link{node-attr}}.}
 \format{An object of class \code{character} of length 1.}
 \usage{
-ergm_get_vattr(object, nw, bip = c("n", "b1", "b2"), accept = "character",
+ergm_get_vattr(object, nw, accept = "character", bip = c("n", "b1", "b2"),
   ...)
 
 ERGM_VATTR_SPEC
@@ -30,13 +30,13 @@ or which levels to include.}
 
 \item{nw}{Network on the LHS of the formula.}
 
+\item{accept}{A character vector listing permitted data types for
+the output. See the Details section for the specification.}
+
 \item{bip}{Bipartedness mode: affects either length of attribute
 vector returned or the length permited: \code{"n"} for full network,
 \code{"b1"} for first mode of a bipartite network, and \code{"b2"} for the
 second.}
-
-\item{accept}{A character vector listing permitted data types for
-the output. See the Details section for the specification.}
 
 \item{...}{Additional argument to the functions of network or to
 the formula's environment.}

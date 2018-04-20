@@ -190,7 +190,7 @@ NULL
 #'   `"name"`, which controls the suggested name of the attribute
 #'   combination.
 #' @export
-ergm_get_vattr <- function(object, nw, bip=c("n","b1","b2"), accept="character", ...){
+ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2"), ...){
   bip <- match.arg(bip)
   UseMethod("ergm_get_vattr")
 }
@@ -245,7 +245,7 @@ ERGM_VATTR_SPEC <- "function,formula,character"
 #' @importFrom purrr "%>%" "map" "pmap_chr"
 #' @importFrom rlang set_attrs
 #' @export
-ergm_get_vattr.character <- function(object, nw, bip=c("n","b1","b2"), accept="character", ...){
+ergm_get_vattr.character <- function(object, nw, accept="character", bip=c("n","b1","b2"), ...){
   missing_attr <- setdiff(object, list.vertex.attributes(nw))
   if(length(missing_attr)){
     ergm_Init_abort(paste.and(sQuote(missing_attr)), " is/are not valid nodal attribute(s).")
@@ -259,7 +259,7 @@ ergm_get_vattr.character <- function(object, nw, bip=c("n","b1","b2"), accept="c
 
 
 #' @export
-ergm_get_vattr.function <- function(object, nw, bip=c("n","b1","b2"), accept="character", ...){
+ergm_get_vattr.function <- function(object, nw, accept="character", bip=c("n","b1","b2"), ...){
   ERRVL(try(object(nw, ...) %>%
             .rightsize_vattr(nw, bip),
             silent=TRUE),
@@ -271,7 +271,7 @@ ergm_get_vattr.function <- function(object, nw, bip=c("n","b1","b2"), accept="ch
 #' @importFrom purrr "%>%" map set_names when
 #' @importFrom tibble lst
 #' @export
-ergm_get_vattr.formula <- function(object, nw, bip=c("n","b1","b2"), accept="character", ...){
+ergm_get_vattr.formula <- function(object, nw, accept="character", bip=c("n","b1","b2"), ...){
   a <- list.vertex.attributes(nw)
   vlist <- c(a %>% map(~nw%v%.) %>% set_names(a),
              lst(`.`=nw, .nw=nw, ...))
