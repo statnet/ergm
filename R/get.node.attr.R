@@ -61,12 +61,10 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
   ergm_get_vattr(attrname, nw, accept=if(numeric)"numeric"else"character")
 }
 
-.despace <- function(s) gsub("[[:space:]]", "", s)
-
 #' @name node-attr
 #' @title Specifying nodal attributes and their levels
 #'
-#' This document describes both the ways in which to specify nodal
+#' @description This document describes both the ways in which to specify nodal
 #' attribute or functions and which levels for categorical factors to
 #' include, and the helper functions for use in `InitErgmTerm`
 #' implementations.
@@ -101,22 +99,24 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' and their ordering, use the argument `levels`.  It is interpreted
 #' as follows: \describe{
 #'
-#' \item{a vector}{Use these levels in the order specified; discard
-#' others.}
+#' \item{a numeric or logical vector}{Used for indexing of the default
+#' set of levels (typically, unique values of the attribute) in
+#' default older (typically lexicographic), i.e.,
+#' `sort(unique(attr))[levels]`. Negative values exclude. To specify
+#' numeric or logical levels literally, wrap in [I()].}
+#'
+#' \item{a character vector}{Use as is.}
 #' 
 #' \item{a function}{The function is called on the list of unique
 #' values of the attribute, the values of the attribute themselves,
-#' and the network itself, depending on its arity. Its return value
-#' may be a vector of levels to use.}
+#' and the network itself, depending on its arity. Its return value is
+#' interpreted as above.}
 #'
 #' \item{a formula}{The expression on the RHS of the formula is
 #' evaluated in an environment in which the network itself is
 #' accessible as `.nw`, the list of unique values of the attribute as
 #' `.` or as `.levels`, and the attribute vector itself as
-#' `.attr`. For example, `` would return the absolute difference of
-#' each actor's "Grade" attribute from its network-wide mean, divided
-#' by the network size. Its return value may be a vector of levels to
-#' use.}
+#' `.attr`. Its return value is interpreted as above.}
 #' 
 #' }
 #' 
@@ -129,7 +129,7 @@ NULL
 #' @name node-attr-api
 #' @title Helper functions for specifying nodal attribute levels
 #'
-#' These functions are meant to be used in `InitErgmTerm` and other
+#' @description These functions are meant to be used in `InitErgmTerm` and other
 #' implementations to provide the user with a way to extract nodal
 #' attributes and select their levels in standardized and flexible
 #' ways described under [`node-attr`].
@@ -187,19 +187,23 @@ NULL
 #'   `vartype="function,formula,character"` (using the
 #'   `ERGM_VATTR_SPEC` constant).
 #' 
-#' @return A vector of length equal to the number of nodes giving the
+#' @return `ergm_get_vattr` returns a vector of length equal to the number of nodes giving the
 #'   selected attribute function. It may also have an attribute
 #'   `"name"`, which controls the suggested name of the attribute
 #'   combination.
+#'
+#' @examples
+#' data(florentine)
+#' ergm_get_vattr("priorates", flomarriage)
+#' ergm_get_vattr(~priorates, flomarriage)
+#' ergm_get_vattr(c("wealth","priorates"), flomarriage)
+#' ergm_get_vattr(~priorates>30, flomarriage)
+#' (a <- ergm_get_vattr(~cut(priorates,c(-Inf,0,20,40,60,Inf),label=FALSE)-1, flomarriage))
 #' @export
-ergm_get_vattr <- function(object, nw, bip=c("n","b1","b2"), accept="character", ...){
+ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2"), ...){
   bip <- match.arg(bip)
   UseMethod("ergm_get_vattr")
 }
-
-#' @rdname node-attr-api
-#' @export
-ERGM_VATTR_SPEC <- "function,formula,character"
 
 .rightsize_vattr <- function(a, nw, bip){
   rep_len_warn <- function(x, length.out){
@@ -240,14 +244,15 @@ ERGM_VATTR_SPEC <- "function,formula,character"
                 nonnegative = x>=0,
                 positive = x>0)
 
-  if(!OK) ergm_Init_abort("Attribute ", NVL3(xspec, paste0(sQuote(deparse(.)), " ")), "is not ", ACCNAME[[accept]], " vector as required.")
+  if(!OK) ergm_Init_abort("Attribute ", NVL3(xspec, paste0(sQuote(paste(deparse(.),collapse="\n")), " ")), "is not ", ACCNAME[[accept]], " vector as required.")
   x
 }
 
+#' @rdname node-attr-api
 #' @importFrom purrr "%>%" "map" "pmap_chr"
 #' @importFrom rlang set_attrs
 #' @export
-ergm_get_vattr.character <- function(object, nw, bip=c("n","b1","b2"), accept="character", ...){
+ergm_get_vattr.character <- function(object, nw, accept="character", bip=c("n","b1","b2"), ...){
   missing_attr <- setdiff(object, list.vertex.attributes(nw))
   if(length(missing_attr)){
     ergm_Init_abort(paste.and(sQuote(missing_attr)), " is/are not valid nodal attribute(s).")
@@ -260,8 +265,9 @@ ergm_get_vattr.character <- function(object, nw, bip=c("n","b1","b2"), accept="c
 }
 
 
+#' @rdname node-attr-api
 #' @export
-ergm_get_vattr.function <- function(object, nw, bip=c("n","b1","b2"), accept="character", ...){
+ergm_get_vattr.function <- function(object, nw, accept="character", bip=c("n","b1","b2"), ...){
   ERRVL(try(object(nw, ...) %>%
             .rightsize_vattr(nw, bip),
             silent=TRUE),
@@ -270,10 +276,11 @@ ergm_get_vattr.function <- function(object, nw, bip=c("n","b1","b2"), accept="ch
 }
 
 
+#' @rdname node-attr-api
 #' @importFrom purrr "%>%" map set_names when
 #' @importFrom tibble lst
 #' @export
-ergm_get_vattr.formula <- function(object, nw, bip=c("n","b1","b2"), accept="character", ...){
+ergm_get_vattr.formula <- function(object, nw, accept="character", bip=c("n","b1","b2"), ...){
   a <- list.vertex.attributes(nw)
   vlist <- c(a %>% map(~nw%v%.) %>% set_names(a),
              lst(`.`=nw, .nw=nw, ...))
@@ -282,7 +289,7 @@ ergm_get_vattr.formula <- function(object, nw, bip=c("n","b1","b2"), accept="cha
   ERRVL(try({
     eval(e, envir=vlist, enclos=environment(object)) %>%
       .rightsize_vattr(nw, bip) %>%
-      set_attrs(name=if(length(object)>2) eval_lhs.formula(object) else .despace(deparse(e)))
+      set_attrs(name=if(length(object)>2) eval_lhs.formula(object) else despace(paste(deparse(e),collapse="\n")))
   }, silent=TRUE),
   ergm_Init_abort(.)) %>%
     .check_acceptable(accept=accept, xspec=object)
@@ -293,10 +300,15 @@ ergm_get_vattr.formula <- function(object, nw, bip=c("n","b1","b2"), accept="cha
 #' @description `ergm_attr_levels` filters the levels of the
 #'   attribute.  It is strongly recommended that [check.ErgmTerm()]'s
 #'   corresponding
-#'   `vartype="function,formula,character,numeric,logical,NULL"` (using the
+#'   `vartype="function,formula,character,numeric,logical,AsIs,NULL"` (using the
 #'   `ERGM_LEVELS_SPEC` constant).
 #' 
-#' @return A vector of levels to use and their order.
+#' @return `ergm_attr_levels` returns a vector of levels to use and their order.
+#' @examples
+#' ergm_attr_levels(NULL, a, flomarriage)
+#' ergm_attr_levels(-1, a, flomarriage)
+#' ergm_attr_levels(1:2, a, flomarriage)
+#' ergm_attr_levels(I(1:2), a, flomarriage)
 #' @export
 ergm_attr_levels <- function(object, attr, nw, levels=sort(unique(attr)), ...){
   UseMethod("ergm_attr_levels")
@@ -304,18 +316,31 @@ ergm_attr_levels <- function(object, attr, nw, levels=sort(unique(attr)), ...){
 
 #' @rdname node-attr-api
 #' @export
-ERGM_LEVELS_SPEC <- "function,formula,character,numeric,logical,NULL"
+ergm_attr_levels.numeric <- function(object, attr, nw, levels=sort(unique(attr)), ...){
+  levels[object]
+}
 
+#' @rdname node-attr-api
 #' @export
-ergm_attr_levels.default <- function(object, attr, nw, levels=sort(unique(attr)), ...){
+ergm_attr_levels.logical <- ergm_attr_levels.numeric
+
+#' @rdname node-attr-api
+#' @export
+ergm_attr_levels.AsIs <- function(object, attr, nw, levels=sort(unique(attr)), ...){
   object
 }
 
+#' @rdname node-attr-api
+#' @export
+ergm_attr_levels.character <- ergm_attr_levels.AsIs
+
+#' @rdname node-attr-api
 #' @export
 ergm_attr_levels.NULL <- function(object, attr, nw, levels=sort(unique(attr)), ...){
   levels
 }
 
+#' @rdname node-attr-api
 #' @export
 ergm_attr_levels.function <- function(object, attr, nw, levels=sort(unique(attr)), ...){
   object <- if('...' %in% names(formals(object))) object(levels, attr, nw, ...)
@@ -326,6 +351,7 @@ ergm_attr_levels.function <- function(object, attr, nw, levels=sort(unique(attr)
   ergm_attr_levels(object, attr, nw, levels, ...)
 }
 
+#' @rdname node-attr-api
 #' @export
 ergm_attr_levels.formula <- function(object, attr, nw, levels=sort(unique(attr)), ...){
   vlist <- lst(`.`=levels, .levels=levels, .attr=attr, .nw=nw, ...)
@@ -333,3 +359,11 @@ ergm_attr_levels.formula <- function(object, attr, nw, levels=sort(unique(attr))
   object <- eval(e, envir=vlist, enclos=environment(object))  
   ergm_attr_levels(object, attr, nw, levels, ...)
 }
+
+#' @rdname node-attr-api
+#' @export
+ERGM_VATTR_SPEC <- "function,formula,character"
+
+#' @rdname node-attr-api
+#' @export
+ERGM_LEVELS_SPEC <- "function,formula,character,numeric,logical,AsIs,NULL"

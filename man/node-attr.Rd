@@ -5,15 +5,8 @@
 \alias{attrname}
 \alias{on}
 \alias{by}
-\title{Specifying nodal attributes and their levels
-
-This document describes both the ways in which to specify nodal
-attribute or functions and which levels for categorical factors to
-include, and the helper functions for use in \code{InitErgmTerm}
-implementations.}
+\title{Specifying nodal attributes and their levels}
 \description{
-Specifying nodal attributes and their levels
-
 This document describes both the ways in which to specify nodal
 attribute or functions and which levels for categorical factors to
 include, and the helper functions for use in \code{InitErgmTerm}
@@ -48,22 +41,24 @@ For categorical attributes, to select which levels are of interest
 and their ordering, use the argument \code{levels}.  It is interpreted
 as follows: \describe{
 
-\item{a vector}{Use these levels in the order specified; discard
-others.}
+\item{a numeric or logical vector}{Used for indexing of the default
+set of levels (typically, unique values of the attribute) in
+default older (typically lexicographic), i.e.,
+\code{sort(unique(attr))[levels]}. Negative values exclude. To specify
+numeric or logical levels literally, wrap in \code{\link[=I]{I()}}.}
+
+\item{a character vector}{Use as is.}
 
 \item{a function}{The function is called on the list of unique
 values of the attribute, the values of the attribute themselves,
-and the network itself, depending on its arity. Its return value
-may be a vector of levels to use.}
+and the network itself, depending on its arity. Its return value is
+interpreted as above.}
 
 \item{a formula}{The expression on the RHS of the formula is
 evaluated in an environment in which the network itself is
 accessible as \code{.nw}, the list of unique values of the attribute as
 \code{.} or as \code{.levels}, and the attribute vector itself as
-\code{.attr}. For example, `` would return the absolute difference of
-each actor's "Grade" attribute from its network-wide mean, divided
-by the network size. Its return value may be a vector of levels to
-use.}
+\code{.attr}. Its return value is interpreted as above.}
 
 }
 

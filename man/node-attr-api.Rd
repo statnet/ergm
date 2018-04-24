@@ -4,23 +4,58 @@
 \name{node-attr-api}
 \alias{node-attr-api}
 \alias{ergm_get_vattr}
-\alias{ERGM_VATTR_SPEC}
+\alias{ergm_get_vattr.character}
+\alias{ergm_get_vattr.function}
+\alias{ergm_get_vattr.formula}
 \alias{ergm_attr_levels}
+\alias{ergm_attr_levels.numeric}
+\alias{ergm_attr_levels.logical}
+\alias{ergm_attr_levels.AsIs}
+\alias{ergm_attr_levels.character}
+\alias{ergm_attr_levels.NULL}
+\alias{ergm_attr_levels.function}
+\alias{ergm_attr_levels.formula}
+\alias{ERGM_VATTR_SPEC}
 \alias{ERGM_LEVELS_SPEC}
-\title{Helper functions for specifying nodal attribute levels
-
-These functions are meant to be used in \code{InitErgmTerm} and other
-implementations to provide the user with a way to extract nodal
-attributes and select their levels in standardized and flexible
-ways described under \code{\link{node-attr}}.}
+\title{Helper functions for specifying nodal attribute levels}
 \format{An object of class \code{character} of length 1.}
 \usage{
-ergm_get_vattr(object, nw, bip = c("n", "b1", "b2"), accept = "character",
+ergm_get_vattr(object, nw, accept = "character", bip = c("n", "b1", "b2"),
   ...)
 
-ERGM_VATTR_SPEC
+\method{ergm_get_vattr}{character}(object, nw, accept = "character",
+  bip = c("n", "b1", "b2"), ...)
+
+\method{ergm_get_vattr}{function}(object, nw, accept = "character",
+  bip = c("n", "b1", "b2"), ...)
+
+\method{ergm_get_vattr}{formula}(object, nw, accept = "character",
+  bip = c("n", "b1", "b2"), ...)
 
 ergm_attr_levels(object, attr, nw, levels = sort(unique(attr)), ...)
+
+\method{ergm_attr_levels}{numeric}(object, attr, nw,
+  levels = sort(unique(attr)), ...)
+
+\method{ergm_attr_levels}{logical}(object, attr, nw,
+  levels = sort(unique(attr)), ...)
+
+\method{ergm_attr_levels}{AsIs}(object, attr, nw, levels = sort(unique(attr)),
+  ...)
+
+\method{ergm_attr_levels}{character}(object, attr, nw,
+  levels = sort(unique(attr)), ...)
+
+\method{ergm_attr_levels}{NULL}(object, attr, nw, levels = sort(unique(attr)),
+  ...)
+
+\method{ergm_attr_levels}{function}(object, attr, nw,
+  levels = sort(unique(attr)), ...)
+
+\method{ergm_attr_levels}{formula}(object, attr, nw,
+  levels = sort(unique(attr)), ...)
+
+ERGM_VATTR_SPEC
 
 ERGM_LEVELS_SPEC
 }
@@ -30,13 +65,13 @@ or which levels to include.}
 
 \item{nw}{Network on the LHS of the formula.}
 
+\item{accept}{A character vector listing permitted data types for
+the output. See the Details section for the specification.}
+
 \item{bip}{Bipartedness mode: affects either length of attribute
 vector returned or the length permited: \code{"n"} for full network,
 \code{"b1"} for first mode of a bipartite network, and \code{"b2"} for the
 second.}
-
-\item{accept}{A character vector listing permitted data types for
-the output. See the Details section for the specification.}
 
 \item{...}{Additional argument to the functions of network or to
 the formula's environment.}
@@ -48,14 +83,19 @@ specifying the attribute vector.}
 list of unique attributes.}
 }
 \value{
-A vector of length equal to the number of nodes giving the
+\code{ergm_get_vattr} returns a vector of length equal to the number of nodes giving the
 selected attribute function. It may also have an attribute
 \code{"name"}, which controls the suggested name of the attribute
 combination.
 
-A vector of levels to use and their order.
+\code{ergm_attr_levels} returns a vector of levels to use and their order.
 }
 \description{
+These functions are meant to be used in \code{InitErgmTerm} and other
+implementations to provide the user with a way to extract nodal
+attributes and select their levels in standardized and flexible
+ways described under \code{\link{node-attr}}.
+
 \code{ergm_get_vattr} extracts and processes the specified
 nodal attribute vector. It is strongly recommended that
 \code{\link[=check.ErgmTerm]{check.ErgmTerm()}}'s corresponding
@@ -65,7 +105,7 @@ nodal attribute vector. It is strongly recommended that
 \code{ergm_attr_levels} filters the levels of the
 attribute.  It is strongly recommended that \code{\link[=check.ErgmTerm]{check.ErgmTerm()}}'s
 corresponding
-\code{vartype="function,formula,character,numeric,logical,NULL"} (using the
+\code{vartype="function,formula,character,numeric,logical,AsIs,NULL"} (using the
 \code{ERGM_LEVELS_SPEC} constant).
 }
 \details{
@@ -94,5 +134,17 @@ beconverted to character).}
 
 \item{\code{"positive"}}{Accept a strictly positive number or logical.}
 }
+}
+\examples{
+data(florentine)
+ergm_get_vattr("priorates", flomarriage)
+ergm_get_vattr(~priorates, flomarriage)
+ergm_get_vattr(c("wealth","priorates"), flomarriage)
+ergm_get_vattr(~priorates>30, flomarriage)
+(a <- ergm_get_vattr(~cut(priorates,c(-Inf,0,20,40,60,Inf),label=FALSE)-1, flomarriage))
+ergm_attr_levels(NULL, a, flomarriage)
+ergm_attr_levels(-1, a, flomarriage)
+ergm_attr_levels(1:2, a, flomarriage)
+ergm_attr_levels(I(1:2), a, flomarriage)
 }
 \keyword{datasets}
