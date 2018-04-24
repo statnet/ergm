@@ -130,9 +130,9 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
 
     if(is.null(control$coef)) {
       if(reference==~Bernoulli){
-        fit <- suppressWarnings(try(ergm.mple(nw=nw, fd=fd, 
+        fit <- suppressWarnings(suppressMessages(try(ergm.mple(nw=nw, fd=fd, 
                          control=control, proposal=proposal,
-                         m=model, verbose=verbose, ...)))
+                         m=model, verbose=verbose, ...))))
         control$coef <- if(inherits(fit, "try-error")) rep(0,nparam(model,canonical=TRUE)) else fit$coef
         if(is.null(control$invcov)) { control$invcov <- fit$covar }
       }else{
