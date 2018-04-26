@@ -52,6 +52,9 @@ ergm_model <- function(formula, nw, response=NULL, silent=FALSE, role="static",.
   if (!is(formula, "formula"))
     stop("Invalid model formula of class ",sQuote(class(formula)),".", call.=FALSE)
 
+  #' @importFrom utils modifyList
+  term.options <- modifyList(as.list(getOption("ergm.term")), as.list(term.options))
+  
   #' @importFrom statnet.common list_rhs.formula
   v<-list_rhs.formula(formula)
   
@@ -124,7 +127,7 @@ call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ..., term
   
   termCall<-as.call(list(termFun, nw, args))
   
-  dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), list(...), term.options)
+  dotdotdot <- c(if(!is.null(response)) list(response=response), list(...), list(role=role), term.options)
   for(j in seq_along(dotdotdot)) {
     if(is.null(dotdotdot[[j]])) next
     termCall[[3+j]] <- dotdotdot[[j]]

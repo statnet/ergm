@@ -56,7 +56,7 @@ conditional-on-degree version of MPLE.}
 "network" (default) and "edgelist.compressed" (which saves space but only
 supports networks without vertex attributes)}
 
-\item{term.options}{A list of additional arguments to be passed to term initializers.}
+\item{term.options}{A list of additional arguments to be passed to term initializers. It can also be set globally via \code{option(ergm.term=list(...))}.}
 
 \item{seed}{Seed value (integer) for the random number generator.  See
 \code{\link[base]{set.seed}}.}

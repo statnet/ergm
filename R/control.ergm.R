@@ -602,7 +602,7 @@ control.ergm<-function(drop=TRUE,
                        
                        loglik.control=control.logLik.ergm(),
 
-                       term.options=list(),
+                       term.options=NULL,
 
                        seed=NULL,
                        parallel=0,

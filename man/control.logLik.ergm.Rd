@@ -9,7 +9,7 @@ control.logLik.ergm(nsteps = 20, MCMC.burnin = NULL, MCMC.interval = NULL,
   obs.MCMC.interval = MCMC.interval, obs.MCMC.burnin = MCMC.burnin,
   MCMC.prop.weights = NULL, MCMC.prop.args = NULL, warn.dyads = TRUE,
   MCMC.init.maxedges = NULL, MCMC.packagenames = NULL,
-  term.options = list(), seed = NULL, parallel = NULL,
+  term.options = NULL, seed = NULL, parallel = NULL,
   parallel.type = NULL, parallel.version.check = TRUE,
   parallel.inherit.MT = FALSE)
 }
@@ -54,7 +54,7 @@ space constraints render the observed number of dyads ill-defined.}
 statistic functions in addition to those autodetected. This argument should
 not be needed outside of very strange setups.}
 
-\item{term.options}{A list of additional arguments to be passed to term initializers.}
+\item{term.options}{A list of additional arguments to be passed to term initializers. It can also be set globally via \code{option(ergm.term=list(...))}.}
 
 \item{seed}{Seed value (integer) for the random number generator.  See
 \code{\link[base]{set.seed}}.}

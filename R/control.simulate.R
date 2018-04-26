@@ -78,7 +78,7 @@ control.simulate.formula.ergm<-function(MCMC.burnin=10000,
                                         MCMC.runtime.traceplot=FALSE,  
                                         network.output="network",
                                         
-                                        term.options=list(),
+                                        term.options=NULL,
                                         
                                         parallel=0,
                                         parallel.type=NULL,

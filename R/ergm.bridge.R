@@ -10,7 +10,7 @@
 
 ## This is a helper function that constructs and returns the network
 ## object to be used and the model object.
-ergm.bridge.preproc<-function(object, basis, response){
+ergm.bridge.preproc<-function(object, basis, response, ...){
 
   # If basis is not null, replace network in formula by basis.
   # In either case, let nw be network object from formula.
@@ -128,6 +128,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
     ## First burn-in has to be longer, but those thereafter should be shorter if the bridges are closer together.
     nw.state<-simulate(m, coef=theta, nsim=1, response=response, reference=reference, constraints=proposal, basis=nw, statsonly=FALSE, verbose=max(verbose-1,0),
                        control=control.simulate.formula(MCMC.burnin=if(i==1) control$MCMC.burnin else ceiling(control$MCMC.burnin/sqrt(control$nsteps)),
+                                                        term.options=control$term.options,
                          MCMC.interval=1,
                          MCMC.packagenames=control$MCMC.packagenames,
                          parallel=control$parallel,
@@ -140,12 +141,14 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
                                                                MCMC.packagenames=control$MCMC.packagenames,
                                                                parallel=control$parallel,
                                                                parallel.type=control$parallel.type,
-                                                               parallel.version.check=control$parallel.version.check),
+                                                               parallel.version.check=control$parallel.version.check,
+                                                               term.options=control$term.options),
                               nsim=ceiling(control$MCMC.samplesize/control$nsteps), ...))
     
     if(!is.null(constraints.obs)){
       nw.state.obs<-simulate(m.obs, coef=theta, nsim=1, response=response, reference=reference, constraints=proposal.obs, basis=nw, statsonly=FALSE, verbose=max(verbose-1,0),
                              control=control.simulate.formula(MCMC.burnin=if(i==1) control$obs.MCMC.burnin else ceiling(control$obs.MCMC.burnin/sqrt(control$nsteps)),
+                                                              term.options=control$term.options,
                                MCMC.interval=1,
                                MCMC.packagenames=control$MCMC.packagenames,
                                parallel=control$parallel,
@@ -158,7 +161,8 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
                                   MCMC.packagenames=control$MCMC.packagenames,
                                   parallel=control$parallel,
                                   parallel.type=control$parallel.type,
-                                  parallel.version.check=control$parallel.version.check),
+                                  parallel.version.check=control$parallel.version.check,
+                                  term.options=control$term.options),
                                 nsim=ceiling(control$obs.MCMC.samplesize/control$nsteps), ...))
     }
   }
@@ -270,10 +274,10 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   
   dind<-nonsimp_update.formula(dind,nw~., from.new="nw")
 
-  if(!is.dyad.independent(dind))
+  if(!is.dyad.independent(dind, term.options=control$term.options))
     stop("Reference model `dind' must be dyad-independent.")
 
-  ergm.dind<-suppressMessages(suppressWarnings(ergm(dind,estimate="MPLE",constraints=constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef = offset.dind)))
+  ergm.dind<-suppressMessages(suppressWarnings(ergm(dind,estimate="MPLE",constraints=constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef = offset.dind)))
   
   if(is.null(coef.dind)){
     coef.dind <- coef(ergm.dind)[!ergm.dind$etamap$offsettheta]
