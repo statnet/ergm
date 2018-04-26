@@ -203,7 +203,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   if(!is.null(monitor)){
     # Construct a model to get the number of parameters monitor requires.
     monitor <- nonsimp_update.formula(monitor, nw~., from.new="nw")
-    monitor.m <- ergm_model(monitor, basis, response=response,term.options=control$term.options)
+    monitor.m <- ergm_model(monitor, basis, response=response, term.options=control$term.options)
     monitored.length <- nparam(monitor.m)
     
     monitor <- list_rhs.formula(monitor)
@@ -299,7 +299,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     stop("Illegal value of coef passed to simulate.formula")
   
   # Create vector of current statistics
-  curstats <- summary(m, nw, response=response)
+  curstats<-summary(m, nw, response=response, term.options=control$term.options)
   names(curstats) <- param_names(m,canonical=TRUE)
 
   # prepare control object

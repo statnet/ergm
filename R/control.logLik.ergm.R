@@ -68,7 +68,7 @@ control.logLik.ergm<-function(nsteps=20,
                               MCMC.init.maxedges=NULL,
                               MCMC.packagenames=NULL,
                               
-                              term.options=list(),
+                              term.options=NULL,
                               seed=NULL,
                               parallel=NULL,
                               parallel.type=NULL,

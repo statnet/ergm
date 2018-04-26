@@ -182,7 +182,7 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmod
 
   # Construct the model
   nw <- ergm.getnetwork(formula)
-  model <- ergm_model(formula, nw)
+  model <- ergm_model(formula, nw, term.options=control$term.options)
 
   # Handle the observation process constraints.
   tmp <- .handle.obs.constraints(nw, constraints, obs.constraints)

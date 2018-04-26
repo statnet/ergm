@@ -98,7 +98,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
               
     ## If dyad-independent or MPLE, just go from the deviance.
     if(estimate=="MPLE"
-       || (is.dyad.independent(object)
+       || (is.dyad.independent(object, term.options=control$term.options)
          && is.null(object$sample)
          && is.null(object$response)))
       -glm$deviance/2 - -glm.null$deviance/2

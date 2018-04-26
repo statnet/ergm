@@ -80,7 +80,7 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   CD.adaptive.trustregion = 3, CD.adaptive.epsilon = 0.01,
   CD.Hummel.esteq = TRUE, CD.Hummel.miss.sample = 100,
   CD.Hummel.maxit = 25, CD.steplength.min = 1e-04,
-  loglik.control = control.logLik.ergm(), term.options = list(),
+  loglik.control = control.logLik.ergm(), term.options = NULL,
   seed = NULL, parallel = 0, parallel.type = NULL,
   parallel.version.check = TRUE, parallel.inherit.MT = FALSE, ...)
 }
@@ -557,7 +557,7 @@ Note that only the Hotelling's stopping criterion is implemented for CD.}
 
 \item{loglik.control}{See \code{\link{control.ergm.bridge}}}
 
-\item{term.options}{A list of additional arguments to be passed to term initializers.}
+\item{term.options}{A list of additional arguments to be passed to term initializers. It can also be set globally via \code{option(ergm.term=list(...))}.}
 
 \item{seed}{Seed value (integer) for the random number generator.  See
 \code{\link[base]{set.seed}}.}

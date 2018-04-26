@@ -611,8 +611,8 @@ ergm <- function(formula, response=NULL,
                 constraints=constraints,
                 control=san.control,
                 verbose=verbose)
-        formula<-nonsimp_update.formula(formula,nw~., from.new="nw")
-        nw.stats <- summary(formula.no,response=response)
+        formula.no<-nonsimp_update.formula(formula.no,nw~., from.new="nw")
+        nw.stats <- summary(formula.no,response=response, term.options=control$term.options)
         srun <- srun + 1
         if(verbose){
           message(paste("Finished SAN run",srun,""))
@@ -759,7 +759,7 @@ ergm <- function(formula, response=NULL,
     
   }
   
-  model$nw.stats <- summary(model, nw, response=response)
+  model$nw.stats <- summary(model, nw, response=response, term.options=control$term.options)
   model$target.stats <- target.stats
   
   if(control$init.method=="CD") if(is.null(names(control$init)))

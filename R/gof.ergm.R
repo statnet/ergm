@@ -230,7 +230,7 @@ gof.formula <- function(object, ...,
     stop("A network object on the RHS of the formula argument must be given")
   }
 
-  m <- ergm_model(object, nw)
+  m <- ergm_model(object, nw, term.options=control$term.options)
   Clist <- ergm.Cprepare(nw, m)
 
   if(is.null(coef)){
@@ -276,7 +276,7 @@ gof.formula <- function(object, ...,
   
   if ('model' %in% all.gof.vars) {
    if(!network.naedgecount(nw) | !unconditional){
-    obs.model <- summary(object)
+    obs.model <- summary(object, term.options=control$term.options)
    }else{
     obs.model <- SimCond$obs.model
    }
@@ -419,7 +419,7 @@ gof.formula <- function(object, ...,
 #     if ((i %% 10 == 0) || (i==control$nsim)) cat("\n")
 #    }
     if ('model' %in% all.gof.vars) {
-     sim.model[i,] <- summary(nonsimp_update.formula(object,tempnet ~ ., from.new="tempnet"))
+     sim.model[i,] <- summary(nonsimp_update.formula(object,tempnet ~ ., from.new="tempnet"), term.options=control$term.options)
     }
     if ('distance' %in% all.gof.vars) {
      sim.dist[i,] <- ergm.geodistdist(tempnet)

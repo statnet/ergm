@@ -180,3 +180,16 @@ C_CHANGESTAT_FN(c_disc_inter_union_net){
   CHANGE_STAT[4] = (inwp->nedges+CHANGE_STAT[1])*(inwp->nedges+CHANGE_STAT[1]) - inwp->nedges*inwp->nedges;
   CHANGE_STAT[5] = (unwp->nedges+CHANGE_STAT[2])*(unwp->nedges+CHANGE_STAT[2]) - unwp->nedges*unwp->nedges;
 }
+
+/*****************
+ changestat: c__edges_times
+*****************/
+C_CHANGESTAT_FN(c__edges_times) {
+  int edgeflag;
+  edgeflag = IS_OUTEDGE(tail, head);
+  CHANGE_STAT[0] += edgeflag ? - *INPUT_PARAM : *INPUT_PARAM;
+}
+
+S_CHANGESTAT_FN(s__edges_tests) {
+  CHANGE_STAT[0] = N_EDGES * *INPUT_PARAM;
+}
