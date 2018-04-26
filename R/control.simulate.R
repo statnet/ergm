@@ -42,6 +42,7 @@
 #' @param network.output R class with which to output networks. The options are
 #' "network" (default) and "edgelist.compressed" (which saves space but only
 #' supports networks without vertex attributes)
+#' @template term_options
 #' @template control_MCMC_parallel
 #' @template control_MCMC_packagenames
 #' @param \dots Additional arguments, passed to other functions This argument
@@ -57,20 +58,22 @@
 #' @keywords models
 #' @export control.simulate.formula.ergm
 control.simulate.formula.ergm<-function(MCMC.burnin=10000,
-                                                     MCMC.interval=1000,
-                                                     MCMC.prop.weights="default",
-                                                     MCMC.prop.args=list(),
-
-                                                     MCMC.init.maxedges=20000,
-                                                     MCMC.packagenames=c(),
-
-                                                     MCMC.runtime.traceplot=FALSE,  
-                                                     network.output="network",
-                                                     
-                                                     parallel=0,
-                                                     parallel.type=NULL,
-                                                     parallel.version.check=TRUE,
-                                                     ...){
+                                        MCMC.interval=1000,
+                                        MCMC.prop.weights="default",
+                                        MCMC.prop.args=list(),
+                                        
+                                        MCMC.init.maxedges=20000,
+                                        MCMC.packagenames=c(),
+                                        
+                                        MCMC.runtime.traceplot=FALSE,  
+                                        network.output="network",
+                                        
+                                        term.options=NULL,
+                                        
+                                        parallel=0,
+                                        parallel.type=NULL,
+                                        parallel.version.check=TRUE,
+                                        ...){
   old.controls <- list(
                        maxedges="MCMC.init.maxedges",
                        prop.weights="MCMC.prop.weights",
@@ -122,6 +125,8 @@ control.simulate.ergm<-function(MCMC.burnin=NULL,
                                 MCMC.runtime.traceplot=FALSE,
                                 network.output="network",
 
+                                term.options=NULL,
+                                
                                 parallel=0,
                                 parallel.type=NULL,
                                 parallel.version.check=TRUE,

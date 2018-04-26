@@ -65,7 +65,7 @@ model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
   ## a simple special case of toarg, if it were given a function that
   ## returned a constant value.
 
-  m <- ergm_model(object, ergm.getnetwork(object), response=response)
+  m <- ergm_model(object, ergm.getnetwork(object), response=response, ...)
   theta.inds<-cumsum(c(1,nparam(m, byterm=TRUE)))
   terms<-list_rhs.formula(object)
   form<-object
@@ -278,9 +278,9 @@ enformulate.curved.formula <- function(object, theta, response=NULL, ...){
   model.transform.formula(object, theta, response=response, recipes, ...) 
 }
 
-set.offset.formula <- function(object, which, response=NULL){
+set.offset.formula <- function(object, which, response=NULL, ...){
   nw <- ergm.getnetwork(object)
-  m<-ergm_model(object, nw, response=response,role="target")
+  m<-ergm_model(object, nw, response=response,role="target", ...)
   to_offset <-unique(rep(seq_along(m$terms),nparam(m, byterm=TRUE))[which]) # Figure out which terms correspond to the coefficients to be offset.
   terms <- list_rhs.formula(object)
   for(i in to_offset)
@@ -289,9 +289,9 @@ set.offset.formula <- function(object, which, response=NULL){
   nonsimp_update.formula(object, append_rhs.formula(~.,terms)) # append_rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
 }
 
-unset.offset.formula <- function(object, which=TRUE, response=NULL){
+unset.offset.formula <- function(object, which=TRUE, response=NULL, ...){
   nw <- ergm.getnetwork(object)
-  m<-ergm_model(object, nw, response=response,role="target")
+  m<-ergm_model(object, nw, response=response,role="target", ...)
   to_unoffset <-unique(rep(seq_along(m$terms),nparam(m, byterm=TRUE))[which]) # Figure out which terms correspond to the coefficients to be un offset.
   terms <- list_rhs.formula(object)
   for(i in to_unoffset)
@@ -325,8 +325,8 @@ remove.offset.formula <- function(object, response=NULL){
 #' @describeIn ergm-deprecated \code{offset.info.formula} returns the offset
 #'   vectors associated with a formula.
 #' @export offset.info.formula
-offset.info.formula <- function(object, response=NULL){
+offset.info.formula <- function(object, response=NULL, ...){
   nw <- ergm.getnetwork(object)
-  m<-ergm_model(object, nw, response=response,role="target")
+  m<-ergm_model(object, nw, response=response,role="target", ...)
   with(m$etamap, list(term=offset, theta=offsettheta,eta=offsetmap))
 }

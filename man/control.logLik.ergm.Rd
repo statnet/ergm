@@ -8,8 +8,9 @@ control.logLik.ergm(nsteps = 20, MCMC.burnin = NULL, MCMC.interval = NULL,
   MCMC.samplesize = NULL, obs.MCMC.samplesize = MCMC.samplesize,
   obs.MCMC.interval = MCMC.interval, obs.MCMC.burnin = MCMC.burnin,
   MCMC.prop.weights = NULL, MCMC.prop.args = NULL, warn.dyads = TRUE,
-  MCMC.init.maxedges = NULL, MCMC.packagenames = NULL, seed = NULL,
-  parallel = NULL, parallel.type = NULL, parallel.version.check = TRUE)
+  MCMC.init.maxedges = NULL, MCMC.packagenames = NULL,
+  term.options = NULL, seed = NULL, parallel = NULL,
+  parallel.type = NULL, parallel.version.check = TRUE)
 }
 \arguments{
 \item{nsteps}{Number of geometric bridges to use.}
@@ -51,6 +52,8 @@ space constraints render the observed number of dyads ill-defined.}
 \item{MCMC.packagenames}{Names of packages in which to look for change
 statistic functions in addition to those autodetected. This argument should
 not be needed outside of very strange setups.}
+
+\item{term.options}{A list of additional arguments to be passed to term initializers.}
 
 \item{seed}{Seed value (integer) for the random number generator.  See
 \code{\link[base]{set.seed}}.}

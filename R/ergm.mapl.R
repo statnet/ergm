@@ -68,13 +68,13 @@ ergm.mapl <- function(formula, init="MPLE",
   proposalclass <- "c"
     
   if(control$drop){
-   model.initial <- ergm_model(formula, nw, initialfit=TRUE)
+   model.initial <- ergm_model(formula, nw, initialfit=TRUE, term.options=control$term.options)
    obs.stats <- NVL(target.stats, summary(formula))
    extremeval <- +(model.initial$maxval==obs.stats)-(model.initial$minval==obs.stats)
    model.initial$etamap$offsettheta[extremeval!=0] <- TRUE
   }else{
 #    model.initial <- ergm_model(formula, nw, response=response, initialfit=TRUE)
-    model.initial <- ergm_model(formula, nw)
+    model.initial <- ergm_model(formula, nw, term.options=control$term.options)
     extremeval <- rep(0, length=length(model.initial$etamap$offsettheta))
   }
 

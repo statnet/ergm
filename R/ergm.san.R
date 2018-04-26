@@ -102,7 +102,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   }
 
 # model <- ergm_model(formula, nw, drop=control$drop)
-  model <- ergm_model(formula, nw, response=response)
+  model <- ergm_model(formula, nw, response=response, term.options=control$term.options)
   Clist <- ergm.Cprepare(nw, model, response=response)
   fd <- ergm.design(nw, verbose=verbose)
   

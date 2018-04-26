@@ -49,7 +49,7 @@ ergm.update.formula(object, new, ..., from.new = FALSE)
 
 remove.offset.formula(object, response = NULL)
 
-offset.info.formula(object, response = NULL)
+offset.info.formula(object, response = NULL, ...)
 
 \method{summary}{gof}(object, ...)
 

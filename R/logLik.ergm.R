@@ -85,7 +85,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
  
   control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights",
 "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges", "MCMC.samplesize",
-"obs.MCMC.burnin", "obs.MCMC.interval", "obs.MCMC.samplesize","warn.dyads","MPLE.type","MPLE.max.dyad.types","parallel","parallel.type","parallel.version.check"
+"obs.MCMC.burnin", "obs.MCMC.interval", "obs.MCMC.samplesize","warn.dyads","MPLE.type","MPLE.max.dyad.types","parallel","parallel.type","parallel.version.check","term.options"
 )
   for(arg in control.transfer)
     if(is.null(control[[arg]]))
@@ -102,7 +102,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
               
               ## If dyad-independent or MPLE, just go from the deviance.
               if(object$estimate=="MPLE"
-                 || (is.dyad.independent(object)
+                 || (is.dyad.independent(object, term.options=control$term.options)
                      && is.null(object$sample)
                      && is.null(object$response)))
 			 if(control$MPLE.type=="penalized")

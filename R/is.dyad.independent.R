@@ -63,7 +63,7 @@ is.dyad.independent.formula<-function(object,response=NULL,basis=NULL,...){
   # New formula (no longer use 'object'):
   form <- nonsimp_update.formula(object, nw ~ ., from.new="nw")
   
-  m<-ergm_model(form, nw, response=response)
+  m<-ergm_model(form, nw, response=response, ...)
   is.dyad.independent(m)
 }
 
@@ -82,6 +82,6 @@ is.dyad.independent.ergm_conlist <- function(object, object.obs=NULL, ...){
 #' @export
 is.dyad.independent.ergm<-function(object,...){
   with(object,
-       is.dyad.independent(formula,object$response,network)
+       is.dyad.independent(formula,object$response,network,...)
        && is.dyad.independent(object$constrained, object$constrained.obs))
 }

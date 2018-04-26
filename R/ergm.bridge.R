@@ -10,7 +10,7 @@
 
 ## This is a helper function that constructs and returns the network
 ## object to be used and the model object.
-ergm.bridge.preproc<-function(object, basis, response){
+ergm.bridge.preproc<-function(object, basis, response, ...){
 
   # If basis is not null, replace network in formula by basis.
   # In either case, let nw be network object from formula.
@@ -27,7 +27,7 @@ ergm.bridge.preproc<-function(object, basis, response){
   # New formula (no longer use 'object'):
   form <- nonsimp_update.formula(object, nw ~ ., from.new="nw")
   
-  list(nw=nw, form=form, model=ergm_model(form, nw, response=response))
+  list(nw=nw, form=form, model=ergm_model(form, nw, response=response, ...))
 }
 
 
@@ -85,7 +85,7 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
   
   ## Here, we need to get the model object to get the likelihood and gradient functions.
-  tmp<-ergm.bridge.preproc(object,basis,response)
+  tmp<-ergm.bridge.preproc(object,basis,response,term.options=control$term.options)
   nw<-tmp$nw; m<-tmp$model; form<-tmp$form; rm(tmp)
 
 
@@ -98,7 +98,7 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
     constraints.obs<-nonsimp_update.formula(constraints,~.+observed)
     form.obs<-form
     stats.obs <- matrix(NA,control$nsteps,m$etamap$etalength)  
-  }else stats.obs<-matrix(summary(form,response=response),control$nsteps,m$etamap$etalength,byrow=TRUE)  
+  }else stats.obs<-matrix(summary(form,response=response, term.options=control$term.options),control$nsteps,m$etamap$etalength,byrow=TRUE)  
 
   message("Using ", control$nsteps, " bridges: ", appendLF=FALSE)
   for(i in seq_len(control$nsteps)){
@@ -109,6 +109,7 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
     ## First burn-in has to be longer, but those thereafter should be shorter if the bridges are closer together.
     nw.state<-simulate(form, coef=theta, nsim=1, response=response, constraints=constraints, statsonly=FALSE, verbose=max(verbose-1,0),
                        control=control.simulate.formula(MCMC.burnin=if(i==1) control$MCMC.burnin else ceiling(control$MCMC.burnin/sqrt(control$nsteps)),
+                                                        term.options=control$term.options,
                          MCMC.interval=1,
                          MCMC.prop.args=control$MCMC.prop.args,
                          MCMC.prop.weights=control$MCMC.prop.weights,
@@ -120,12 +121,14 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
     nonsimp_update.formula(form,nw.state~., from.new="nw.state")
     stats[i,]<-apply(simulate(form, coef=theta, response=response, constraints=constraints, statsonly=TRUE, verbose=max(verbose-1,0),
                               control=control.simulate.formula(MCMC.burnin=0,
-                                MCMC.interval=control$MCMC.interval),
+                                                               MCMC.interval=control$MCMC.interval,
+                                                               term.options=control$term.options),
                               nsim=ceiling(control$MCMC.samplesize/control$nsteps), ...),2,mean)
     
     if(network.naedgecount(nw)){
       nw.state.obs<-simulate(form.obs, coef=theta, nsim=1, response=response, constraints=constraints.obs, statsonly=FALSE, verbose=max(verbose-1,0),
                              control=control.simulate.formula(MCMC.burnin=if(i==1) control$obs.MCMC.burnin else ceiling(control$obs.MCMC.burnin/sqrt(control$nsteps)),
+                                                              term.options=control$term.options,
                                MCMC.interval=1,
                                MCMC.prop.args=control$MCMC.prop.args,
                                MCMC.prop.weights=control$MCMC.prop.weights,
@@ -139,7 +142,8 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
                                   MCMC.interval=control$obs.MCMC.interval,
                                   parallel=control$parallel,
                                   parallel.type=control$parallel.type,
-                                  parallel.version.check=control$parallel.version.check),
+                                  parallel.version.check=control$parallel.version.check,
+                                  term.options=control$term.options),
                                 nsim=ceiling(control$obs.MCMC.samplesize/control$nsteps), ...),2,mean)
     }
   }
@@ -206,7 +210,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
 
   ## Here, we need to get the model object to get the list of
   ## dyad-independent terms.
-  tmp<-ergm.bridge.preproc(object,basis,response)
+  tmp<-ergm.bridge.preproc(object,basis,response,term.options=control$term.options)
   nw<-tmp$nw; m<-tmp$model; form<-tmp$form; rm(tmp)
 
   p.pos.full <- c(0,cumsum(nparam(m, byterm=TRUE)))
@@ -236,10 +240,10 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   
   dind<-nonsimp_update.formula(dind,nw~., from.new="nw")
 
-  if(!is.dyad.independent(dind))
+  if(!is.dyad.independent(dind, term.options=control$term.options))
     stop("Reference model `dind' must be dyad-independent.")
 
-  ergm.dind<-suppressMessages(suppressWarnings(ergm(dind,estimate="MPLE",constraints=constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef = offset.dind)))
+  ergm.dind<-suppressMessages(suppressWarnings(ergm(dind,estimate="MPLE",constraints=constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef = offset.dind)))
   
   if(is.null(coef.dind)){
     coef.dind<-ifelse(is.na(coef(ergm.dind)),0,coef(ergm.dind))

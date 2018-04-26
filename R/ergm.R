@@ -566,19 +566,19 @@ ergm <- function(formula, response=NULL,
     init.candidates <- init.candidates[init.candidates!="MPLE"]
     if(verbose) message("MPLE cannot be used for this constraint structure.")
   }
-  if("MPLE" %in% init.candidates && !is.null(target.stats) && is.curved(formula, response=response)){
+  if("MPLE" %in% init.candidates && !is.null(target.stats) && is.curved(formula, response=response, term.options=control$term.options)){
     init.candidates <- init.candidates[init.candidates!="MPLE"]
     if(verbose) message("At this time, MPLE cannot be used for curved families when target.stats are passed.")
   }
   control$init.method <- match.arg(control$init.method, init.candidates)
   if(verbose) message(paste0("Using initial method '",control$init.method,"'."))
-  model.initial <- ergm_model(formula, nw, response=response, initialfit=control$init.method=="MPLE")
+  model.initial <- ergm_model(formula, nw, response=response, initialfit=control$init.method=="MPLE", term.options=control$term.options)
   
   ## Construct approximate response network if target.stats are given.
   
   if(!is.null(target.stats)){
     formula.no <- filter_rhs.formula(formula, function(x) (if(is.call(x)) x[[1]] else x)!="offset")
-    nw.stats<-summary(formula.no,response=response)
+    nw.stats<-summary(formula.no,response=response, term.options=control$term.options)
     target.stats <- vector.namesmatch(target.stats, names(nw.stats))
     target.stats <- na.omit(target.stats)
     if(length(nw.stats)!=length(target.stats)){
@@ -602,7 +602,7 @@ ergm <- function(formula, response=NULL,
                 control=san.control,
                 verbose=verbose)
         formula<-nonsimp_update.formula(formula,nw~., from.new="nw")
-        nw.stats <- summary(formula.no,response=response)
+        nw.stats <- summary(formula.no,response=response, term.options=control$term.options)
         srun <- srun + 1
         if(verbose){
           message(paste("Finished SAN run",srun,""))
@@ -619,11 +619,11 @@ ergm <- function(formula, response=NULL,
       }
     }
     
-    offinfo <- offset.info.formula(formula,response=response)
+    offinfo <- offset.info.formula(formula,response=response,term.options=control$term.options)
     tmp <- rep(NA, length(offinfo$eta))
     tmp[!offinfo$eta] <- target.stats
     names(tmp)[!offinfo$eta] <- names(target.stats)
-    s <- summary(formula,response=response)[offinfo$eta]
+    s <- summary(formula,response=response, term.options=control$term.options)[offinfo$eta]
     # tmp[offinfo$eta] <- s
     names(tmp)[offinfo$eta] <- names(s)
     
@@ -677,7 +677,7 @@ ergm <- function(formula, response=NULL,
   
   
   # Construct the curved model, and check if it's different from the initial model. If so, we know that it's curved.
-  model <- ergm_model(formula, nw, response=response, expanded=TRUE, silent=TRUE)
+  model <- ergm_model(formula, nw, response=response, expanded=TRUE, silent=TRUE, term.options=control$term.options)
   # MPLE is not supported for curved ERGMs.
   if(estimate=="MPLE"){
     if(!is.null(response)) stop("Maximum Pseudo-Likelihood (MPLE) estimation for valued ERGMs is not implemented at this time. You may want to pass fixed=TRUE parameter in curved terms to specify the curved parameters as fixed.")
@@ -691,7 +691,7 @@ ergm <- function(formula, response=NULL,
   
   MPLE.is.MLE <- (proposal$reference$name=="Bernoulli"
                   && is.dyad.independent(model.initial)
-                  && !is.curved(formula, response=response)
+                  && !is.curved(formula, response=response, term.options=control$term.options)
                   && !control$force.main
                   && is.dyad.independent(proposal$arguments$constraints,
                                          proposal.obs$arguments$constraints))
@@ -733,7 +733,7 @@ ergm <- function(formula, response=NULL,
     
   }
   
-  model.initial$nw.stats <- summary(model.initial$formula, response=response, initialfit=control$init.method=="MPLE")
+  model.initial$nw.stats <- summary(model.initial$formula, response=response, initialfit=control$init.method=="MPLE", term.options=control$term.options)
   model.initial$target.stats <- NVL(target.stats, model.initial$nw.stats)
   
   if(control$init.method=="CD") if(is.null(names(control$init)))
@@ -814,7 +814,7 @@ ergm <- function(formula, response=NULL,
   extremecheck <- ergm.checkextreme.model(model=model, nw=nw, init=init, response=response, target.stats=target.stats, drop=control$drop, silent=TRUE)
   model <- extremecheck$model; init <- extremecheck$init
   
-  model$nw.stats <- summary(model$formula, response=response)
+  model$nw.stats <- summary(model$formula, response=response, term.options=control$term.options)
   model$target.stats <- NVL(target.stats, model$nw.stats)
   
   mainfit <- switch(control$main.method,

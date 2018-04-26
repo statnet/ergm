@@ -205,7 +205,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   if(!is.null(monitor)){
     # Construct a model to get the number of parameters monitor requires.
     monitor <- nonsimp_update.formula(monitor, nw~., from.new="nw")
-    monitor.m <- ergm_model(monitor, basis, response=response)
+    monitor.m <- ergm_model(monitor, basis, response=response, term.options=control$term.options)
     monitored.length <- nparam(monitor.m)
     
     monitor <- list_rhs.formula(monitor)
@@ -215,7 +215,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   }
 
   # Prepare inputs to ergm.getMCMCsample
-  m <- ergm_model(form, basis, response=response, role="static")
+  m <- ergm_model(form, basis, response=response, role="static", term.options=control$term.options)
   # Just in case the user did not give a coef value, set it to zero.
   # (probably we could just return an error in this case!)
   if(missing(coef)) {
@@ -234,7 +234,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     stop("Illegal value of coef passed to simulate.formula")
   
   # Create vector of current statistics
-  curstats<-summary(form,response=response)
+  curstats<-summary(form,response=response, term.options=control$term.options)
   names(curstats) <- param_names(m,canonical=TRUE)
 
   # prepare control object
@@ -367,7 +367,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           verbose=FALSE, ...) {
   check.control.class(c("simulate.ergm","simulate.formula"), "simulate.ergm")
   control.toplevel(...)
-  control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges","parallel","parallel.type","parallel.version.check")
+  control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges","parallel","parallel.type","parallel.version.check","term.options")
   for(arg in control.transfer)
     if(is.null(control[[arg]]))
       control[arg] <- list(object$control[[arg]])

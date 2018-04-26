@@ -11,7 +11,7 @@
 \title{Internal representation of an \code{ergm} network model}
 \usage{
 ergm_model(formula, nw, response = NULL, silent = FALSE, role = "static",
-  ...)
+  ..., term.options = list())
 
 \method{is.curved}{ergm_model}(object, ...)
 
@@ -42,6 +42,8 @@ initialization of each model term.}
 dynamic network models.}
 
 \item{\dots}{additional parameters for model formulation}
+
+\item{term.options}{a list of optional settings such as calculation tuning options to be passed to the \code{InitErgmTerm} functions.}
 
 \item{object}{An \code{ergm_model} object.}
 

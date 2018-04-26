@@ -43,6 +43,7 @@
 #' @param MCMC.prop.args An alternative, direct way of specifying additional
 #' arguments to proposal.
 #' @param MCMC.init.maxedges Maximum number of edges expected in network.
+#' @template term_options
 #' @template control_MCMC_parallel
 #' @template seed
 #' @template control_MCMC_packagenames
@@ -65,6 +66,7 @@ control.ergm.bridge<-function(nsteps=20, # Number of geometric bridges to use
                               MCMC.init.maxedges=20000,
                               MCMC.packagenames=c(),
                               
+                              term.options=list(),
                               seed=NULL,
                               parallel=0,
                               parallel.type=NULL,
