@@ -232,7 +232,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 
 ## This is a variant of Hummel et al. (2010)'s steplength algorithm
 ## also usable for missing data MLE.
-.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, steplength.prev=steplength.max, x2.num.max=100, steplength.maxit=25, last=FALSE, verbose=FALSE){
+.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, steplength.prev=steplength.max, x2.num.max=100, steplength.maxit=25, verbose=FALSE){
   margin <- 1 + margin
   x1 <- rbind(x1); m1 <- rbind(colMeans(x1)); x1 <- unique(x1)
   if(is.null(x2)){
@@ -268,8 +268,6 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   if(!is.null(x2) && nrow(x2crs) > x2.num.max){
     ## If constrained sample size > x2.num.max
     if(verbose>1){message("Using fast and approximate Hummel et al search.")}
-    if(last){x2.num.max <- 1}
-    if(last){steplength.maxit  <- 0}
     d <- rowSums(sweep(x2crs, 2, m1crs)^2)
     x2crs <- x2crs[order(-d)[1:x2.num.max],,drop=FALSE]
   }
