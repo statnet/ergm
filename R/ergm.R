@@ -192,7 +192,7 @@
 #' fit. Has no effect for dyad-independent models.
 #' Since bridge sampling takes additional time, setting to FALSE may
 #' speed performance if likelihood values (and likelihood-based
-#' values like AIC and BIC) are not needed.
+#' values like AIC and BIC) are not needed. Can be set globally via `option(ergm.eval.loglik=...)`, which is set to `TRUE` when the package is loaded.
 #' }
 #' @param estimate {If "MPLE," then the maximum pseudolikelihood estimator
 #' is returned.  If "MLE" (the default), then an approximate maximum likelihood
@@ -504,7 +504,7 @@ ergm <- function(formula, response=NULL,
                  constraints=~.,
                  offset.coef=NULL,
                  target.stats=NULL,
-                 eval.loglik=TRUE,
+                 eval.loglik=getOption("ergm.eval.loglik"),
                  estimate=c("MLE", "MPLE", "CD"),
                  control=control.ergm(),
                  verbose=FALSE,...) {

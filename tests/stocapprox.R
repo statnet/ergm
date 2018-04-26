@@ -16,10 +16,10 @@ opttest({
   
   data(florentine)
   
-  mod.sa = ergm(flomarriage~edges+triangle,control=control.ergm(main.method="Stochastic-Approximation", SA.nsubphases = 6))
+  mod.sa = ergm(flomarriage~edges+triangle,control=control.ergm(main.method="Stochastic-Approximation", SA.nsubphases = 6), eval.loglik=FALSE)
   summary(mod.sa)
   
-  mod.mcmle = ergm(flomarriage~edges+triangle)
+  mod.mcmle = ergm(flomarriage~edges+triangle, eval.loglik=FALSE)
   summary(mod.sa)
   
   stopifnot(all(abs(mod.sa$coef - mod.mcmle$coef) < 0.5))
