@@ -86,7 +86,7 @@ ergm_model <- function(formula, nw, response=NULL, silent=FALSE, role="static",.
 
     termCall<-as.call(list(termFun, nw, args))
     
-    dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), term.options, list(...))
+    dotdotdot <- c(if(!is.null(response)) list(response=response), list(...), list(role=role), term.options)
     for(j in seq_along(dotdotdot)) {
       if(is.null(dotdotdot[[j]])) next
       termCall[[3+j]] <- dotdotdot[[j]]
