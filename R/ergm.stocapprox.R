@@ -88,7 +88,7 @@ ergm.stocapprox <- function(init, nw, model, Clist,
 # aDdiaginv <- a * Ddiaginv
   z <- ergm.phase12(nw, model, proposal, 
                     eta, control, verbose=TRUE)
-  nw <- z$networks[[1]]
+  nw <- z$newnetwork
 # toggle.dyads(nw, head = z$changed[,2], tail = z$changed[,3])
 # control$maxchanges <- z$maxchanges
   theta <- z$eta
