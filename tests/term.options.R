@@ -17,7 +17,7 @@ stopifnot(isTRUE(all.equal(logLik(e2),logLik(e1),check.attributes=FALSE,toleranc
 
 gof(e2)
 
-e3 <- ergm(samplike~.edges_times, target.stats=as.vector(summary(samplike~edges)/2), control=control.ergm(force.main=TRUE,term.options=list(times=2)))
+e3 <- ergm(samplike~.edges_times, target.stats=as.vector(summary(samplike~edges)/2), control=control.ergm(term.options=list(times=2)))
 
 ## stopifnot(isTRUE(all.equal(coef(e2),truth,check.attributes=FALSE,tolerance=.005)))
 ## stopifnot(isTRUE(all.equal(logLik(e2),logLik(e1),check.attributes=FALSE,tolerance=.005)))

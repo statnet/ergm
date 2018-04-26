@@ -601,7 +601,7 @@ ergm <- function(formula, response=NULL,
                 constraints=constraints,
                 control=san.control,
                 verbose=verbose)
-        formula<-nonsimp_update.formula(formula,nw~., from.new="nw")
+        formula.no<-nonsimp_update.formula(formula.no,nw~., from.new="nw")
         nw.stats <- summary(formula.no,response=response, term.options=control$term.options)
         srun <- srun + 1
         if(verbose){
@@ -619,13 +619,13 @@ ergm <- function(formula, response=NULL,
       }
     }
     
+    formula<-nonsimp_update.formula(formula,nw~., from.new="nw")
     offinfo <- offset.info.formula(formula,response=response,term.options=control$term.options)
     tmp <- rep(NA, length(offinfo$eta))
     tmp[!offinfo$eta] <- target.stats
     names(tmp)[!offinfo$eta] <- names(target.stats)
-    s <- summary(formula,response=response, term.options=control$term.options)[offinfo$eta]
-    # tmp[offinfo$eta] <- s
-    names(tmp)[offinfo$eta] <- names(s)
+    nw.stats <- summary(formula,response=response, term.options=control$term.options)
+    names(tmp)[offinfo$eta] <- names(nw.stats)[offinfo$eta]
     
     # From this point on, target.stats has NAs corresponding to the
     # offset terms.
@@ -733,7 +733,7 @@ ergm <- function(formula, response=NULL,
     
   }
   
-  model.initial$nw.stats <- summary(model.initial$formula, response=response, initialfit=control$init.method=="MPLE", term.options=control$term.options)
+  model.initial$nw.stats <- summary(model.initial, nw=nw, response=response, initialfit=control$init.method=="MPLE", term.options=control$term.options)
   model.initial$target.stats <- NVL(target.stats, model.initial$nw.stats)
   
   if(control$init.method=="CD") if(is.null(names(control$init)))
@@ -814,7 +814,7 @@ ergm <- function(formula, response=NULL,
   extremecheck <- ergm.checkextreme.model(model=model, nw=nw, init=init, response=response, target.stats=target.stats, drop=control$drop, silent=TRUE)
   model <- extremecheck$model; init <- extremecheck$init
   
-  model$nw.stats <- summary(model$formula, response=response, term.options=control$term.options)
+  model$nw.stats <- summary(model, nw=nw, response=response, term.options=control$term.options)
   model$target.stats <- NVL(target.stats, model$nw.stats)
   
   mainfit <- switch(control$main.method,

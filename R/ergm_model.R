@@ -51,6 +51,7 @@ ergm_model <- function(formula, nw, response=NULL, silent=FALSE, role="static",.
   if (!is(formula, "formula"))
     stop("Invalid model formula of class ",sQuote(class(formula)),".", call.=FALSE)
 
+  #' @importFrom utils modifyList
   term.options <- modifyList(as.list(getOption("ergm.term")), as.list(term.options))
   
   #' @importFrom statnet.common list_rhs.formula
