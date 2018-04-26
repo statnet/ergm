@@ -463,7 +463,7 @@ Note that only the Hotelling's stopping criterion is implemented for CD.}
 
 \item{loglik.control}{See \code{\link{control.ergm.bridge}}}
 
-\item{term.options}{A list of additional arguments to be passed to term initializers.}
+\item{term.options}{A list of additional arguments to be passed to term initializers. It can also be set globally via \code{option(ergm.term=list(...))}.}
 
 \item{seed}{Seed value (integer) for the random number generator.  See
 \code{\link[base]{set.seed}}.}
