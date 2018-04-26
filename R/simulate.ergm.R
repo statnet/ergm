@@ -260,7 +260,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     # In this case, we can make one, parallelized run of
     # ergm.getMCMCsample.
     control$MCMC.samplesize <- nsim
-    z <- ergm_MCMC_sample(nw, m, proposal, control, theta=coef, verbose=verbose, response=response)
+    z <- ergm_MCMC_sample(nw, m, proposal, control, theta=coef, verbose=max(verbose-1,0), response=response)
     # Post-processing: Shift each row by observed statistics.
     out.mat <- sweep(as.matrix(z$stats)[seq_len(nsim),,drop=FALSE], 2, curstats, "+")
   }else{
@@ -302,7 +302,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
       
       control$MCMC.samplesize <- nthreads
       control$MCMC.burnin <- if(i==1 || sequential==FALSE) control$MCMC.burnin else control$MCMC.interval
-      z <- ergm_MCMC_sample(nw, m, proposal, control, theta=coef, verbose=verbose, response=response)
+      z <- ergm_MCMC_sample(nw, m, proposal, control, theta=coef, verbose=max(verbose-1,0), response=response)
       
       out.mat <- rbind(out.mat, curstats + as.matrix(z$stats))
       

@@ -116,18 +116,18 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
     for(mcrun in seq_len(control.parallel$MCMC.effectiveSize.maxruns)){
       if(mcrun==1){
         samplesize <- control.parallel$MCMC.samplesize
-        if(verbose)
+        if(verbose>1)
           message("First run: running each chain forward by ",samplesize, " steps with interval ", interval, ".")
       }else{
         if(meS$eS<1 || meS$pts.rank==1){
           samplesize <- control.parallel$MCMC.samplesize
-          if(verbose)
+          if(verbose>1)
             message("Insufficient ESS or untrustworthy burn-in estimate to determine the number of steps remaining: running forward by ",samplesize, " steps with interval ", interval, ".")
         }else{
           pred.ss <- howmuchmore(control.parallel$MCMC.effectiveSize, NVL(nrow(outl[[1]]$s),0), meS$eS, meS$burnin)
           damp.ss <- pred.ss*(meS$eS/(control.parallel$MCMC.effectiveSize.damp+meS$eS))+control.parallel$MCMC.samplesize*(1-meS$eS/(control.parallel$MCMC.effectiveSize.damp+meS$eS))
           samplesize <- round(damp.ss)
-          if(verbose) message("Predicted additional sample size: ",pred.ss, " dampened to ",damp.ss, ", so running ", samplesize, " steps forward.")
+          if(verbose>1) message("Predicted additional sample size: ",pred.ss, " dampened to ",damp.ss, ", so running ", samplesize, " steps forward.")
         }
       }
         
@@ -152,7 +152,7 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
                       ), mcmc, start=1, thin=interval))
       
       meS <- .max.effectiveSize(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, ar.order=control$MCMC.effectiveSize.order)
-      if(verbose) message("Maximum harmonic mean ESS of ",meS$eS," attained with burn-in of ", round(meS$b/nrow(outl[[1]]$s)*100,2),"%.")
+      if(verbose>1) message("Maximum harmonic mean ESS of ",meS$eS," attained with burn-in of ", round(meS$b/nrow(outl[[1]]$s)*100,2),"%.")
 
       if(control.parallel$MCMC.runtime.traceplot){
         plot(window(esteq, thin=thin(esteq)*max(1,floor(niter(esteq)/1000)))
