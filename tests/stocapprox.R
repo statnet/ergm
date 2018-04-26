@@ -12,14 +12,15 @@
 library(statnet.common)
 opttest({
   library(ergm)
+  options(ergm.eval.loglik=FALSE)
   set.seed(2)
   
   data(florentine)
   
-  mod.sa = ergm(flomarriage~edges+triangle,control=control.ergm(main.method="Stochastic-Approximation", SA.nsubphases = 6), eval.loglik=FALSE)
+  mod.sa = ergm(flomarriage~edges+triangle,control=control.ergm(main.method="Stochastic-Approximation", SA.nsubphases = 6))
   summary(mod.sa)
   
-  mod.mcmle = ergm(flomarriage~edges+triangle, eval.loglik=FALSE)
+  mod.mcmle = ergm(flomarriage~edges+triangle)
   summary(mod.sa)
   
   stopifnot(all(abs(mod.sa$coef - mod.mcmle$coef) < 0.5))

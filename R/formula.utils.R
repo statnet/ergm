@@ -168,6 +168,9 @@ model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
 #' @examples
 #' 
 #' \donttest{
+#' \dontshow{
+#' options(ergm.eval.loglik=FALSE)
+#' }
 #' data(sampson)
 #' gest<-ergm(samplike~edges+gwesp(decay=.5,fixed=FALSE),
 #'            control=control.ergm(MCMLE.maxit=3))
@@ -238,6 +241,9 @@ fix.curved.formula <- function(object, theta, response=NULL, ...){
 #' @examples
 #' 
 #' \donttest{
+#' \dontshow{
+#' options(ergm.eval.loglik=FALSE)
+#' }
 #' data(sampson)
 #' gest<-ergm(samplike~edges+gwesp(decay=.5, fixed=FALSE), 
 #'     control=control.ergm(MCMLE.maxit=1))
