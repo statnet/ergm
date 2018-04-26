@@ -349,8 +349,8 @@ ergm.MCMLE <- function(init, nw, model,
           if(control$MCMLE.Hummel.esteq) esteq else statsmatrix[,!model$etamap$offsetmap,drop=FALSE], 
           if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.obs[,!model$etamap$offsetmap,drop=FALSE],
           control$MCMLE.steplength.margin, control$MCMLE.steplength,point.gamma.exp=control$MCMLE.steplength.point.exp,steplength.prev=steplen,x1.prefilter=control$MCMLE.steplength.prefilter,x2.prefilter=control$MCMLE.steplength.prefilter,verbose=verbose,
-          x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit,
-          last=(iteration==control$MCMLE.maxit))
+          x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit
+        )
 
         # If the step length margin is negative and signals convergence,
         # rerun with margin of 0 and use the results to test
@@ -361,8 +361,8 @@ ergm.MCMLE <- function(init, nw, model,
               if(control$MCMLE.Hummel.esteq) esteq else statsmatrix[,!model$etamap$offsetmap,drop=FALSE], 
               if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.obs[,!model$etamap$offsetmap,drop=FALSE],
               0, control$MCMLE.steplength,steplength.prev=steplen,point.gamma.exp=control$MCMLE.steplength.point.exp,x1.prefilter=control$MCMLE.steplength.prefilter,x2.prefilter=control$MCMLE.steplength.prefilter,verbose=verbose,
-              x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit,
-              last=(iteration==control$MCMLE.maxit))
+              x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit
+            )
           else steplen
         
         steplen.converged <- control$MCMLE.steplength==steplen0
