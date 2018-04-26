@@ -114,7 +114,9 @@
 #' @seealso \code{\link{ergm}}, \code{\link[network]{network}}
 #' @keywords models
 #' @examples
-#' 
+#' \dontshow{
+#' options(ergm.eval.loglik=FALSE)
+#' }
 #' #
 #' # Let's draw from a Bernoulli model with 16 nodes
 #' # and density 0.5 (i.e., coef = c(0,0))

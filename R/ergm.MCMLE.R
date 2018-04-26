@@ -299,7 +299,7 @@ ergm.MCMLE <- function(init, nw, model,
       Vm <- as.matrix(nearPD(Vm, posd.tol=0)$mat) # Ensure tolerance hyperellipsoid is PSD. (If it's not PD, the ellipsoid is workable, if flat.)
       iVm <- ginv(Vm)
       d2 <- estdiff%*%iVm%*%estdiff
-      if(d2<1) last.adequate <- TRUE
+      if(d2<2) last.adequate <- TRUE
     }
 
     if(control$MCMLE.steplength=="adaptive"){
@@ -434,7 +434,6 @@ ergm.MCMLE <- function(init, nw, model,
         last.adequate <- FALSE
       }
     }else if(control$MCMLE.termination=='confidence'){
-
       if(!is.null(estdiff.prev)){
         d2.prev <- estdiff.prev%*%iVm%*%estdiff.prev
         if(verbose) message("Distance from origin on tolerance region scale: ", d2, " (previously ", d2.prev, ").")
@@ -447,16 +446,9 @@ ergm.MCMLE <- function(init, nw, model,
       }
       estdiff.prev <- estdiff
       
-      if(d2>=1){ # Not within tolerance ellipsoid.
-        message("Estimating equations are not within tolerance region.")
-        if(sum(d2.not.improved) > control$MCMLE.confidence.boost.threshold){
-          message("Estimating equations did not move closer to tolerance region more than ", control$MCMLE.confidence.boost.threshold," time(s) in ", control$MCMLE.confidence.boost.lag, " steps; increasing sample size.")
-          .boost_samplesize(control$MCMLE.confidence.boost)
-          d2.not.improved[] <- FALSE
-        }
-      }else{
+      if(d2<2){
         IS.lw <- function(sm, etadiff){
-          nochg <- etadiff==0 # Also takes care of offset terms.
+          nochg <- etadiff==0 | apply(sm, 2, function(x) max(x)==min(x)) # Also takes care of offset terms.
           # Calculate log-importance-weights
           basepred <- sm[,!nochg,drop=FALSE] %*% etadiff[!nochg]
         }
@@ -479,30 +471,43 @@ ergm.MCMLE <- function(init, nw, model,
           }
           estdiff <- estdiff[!hotel$novar]
           estcov <- estcov[!hotel$novar, !hotel$novar]
-          
-          T2 <- try(.ellipsoid_mahalanobis(estdiff, estcov, iVm[!hotel$novar, !hotel$novar]), silent=TRUE) # Distance to the nearest point on the tolerance region boundary.
-          if(inherits(T2, "try-error")){ # Within tolerance ellipsoid, but cannot be tested.
-            message("Unable to test for convergence; increasing sample size.")
-            .boost_samplesize(control$MCMLE.confidence.boost)
-          }else{ # Within tolerance ellipsoid, can be tested.
-            nonconv.pval <- .ptsq(T2, hotel$parameter["param"], hotel$parameter["df"], lower.tail=FALSE)
-            if(verbose) message("Test statistic: T^2 = ",T2,", with ",
-                                hotel$parameter["param"], " free parameters and ",hotel$parameter["df"], " degrees of freedom.")
-            message("Convergence test p-value: ",nonconv.pval,". ", appendLF=FALSE)
-            if(nonconv.pval < 1-control$MCMLE.confidence){
-              message("Converged with ",control$MCMLE.confidence*100,"% confidence.")
-              break
-            }else{
-              message("Not converged with ",control$MCMLE.confidence*100,"% confidence; increasing sample size.")
-              critval <- .qtsq(control$MCMLE.confidence, hotel$parameter["param"], hotel$parameter["df"])
-              if(verbose) message(control$MCMLE.confidence*100,"% confidence critical value = ",critval,".")
-              boost <- min((critval/T2),control$MCMLE.confidence.boost) # I.e., we want to increase the denominator far enough to reach the critical value.
-              .boost_samplesize(boost)
+
+          d2e <- estdiff%*%iVm[!hotel$novar, !hotel$novar]%*%estdiff
+          if(d2e<1){ # Update ends within tolerance ellipsoid.
+            T2 <- try(.ellipsoid_mahalanobis(estdiff, estcov, iVm[!hotel$novar, !hotel$novar]), silent=TRUE) # Distance to the nearest point on the tolerance region boundary.
+            if(inherits(T2, "try-error")){ # Within tolerance ellipsoid, but cannot be tested.
+              message("Unable to test for convergence; increasing sample size.")
+              .boost_samplesize(control$MCMLE.confidence.boost)
+            }else{ # Within tolerance ellipsoid, can be tested.
+              nonconv.pval <- .ptsq(T2, hotel$parameter["param"], hotel$parameter["df"], lower.tail=FALSE)
+              if(verbose) message("Test statistic: T^2 = ",T2,", with ",
+                                  hotel$parameter["param"], " free parameters and ",hotel$parameter["df"], " degrees of freedom.")
+              message("Convergence test p-value: ",nonconv.pval,". ", appendLF=FALSE)
+              if(nonconv.pval < 1-control$MCMLE.confidence){
+                message("Converged with ",control$MCMLE.confidence*100,"% confidence.")
+                break
+              }else{
+                message("Not converged with ",control$MCMLE.confidence*100,"% confidence; increasing sample size.")
+                critval <- .qtsq(control$MCMLE.confidence, hotel$parameter["param"], hotel$parameter["df"])
+                if(verbose) message(control$MCMLE.confidence*100,"% confidence critical value = ",critval,".")
+                boost <- min((critval/T2),control$MCMLE.confidence.boost) # I.e., we want to increase the denominator far enough to reach the critical value.
+                .boost_samplesize(boost)
+              }
             }
           }
         }
       }
-      
+      # If either the estimating function is far from the tolerance
+      # region *or* if it's close, but did not end the iteration
+      # inside it.
+      if(d2>=2 || d2e>1){ 
+        message("Estimating equations are not within tolerance region.")
+        if(sum(d2.not.improved) > control$MCMLE.confidence.boost.threshold){
+          message("Estimating equations did not move closer to tolerance region more than ", control$MCMLE.confidence.boost.threshold," time(s) in ", control$MCMLE.confidence.boost.lag, " steps; increasing sample size.")
+          .boost_samplesize(control$MCMLE.confidence.boost)
+          d2.not.improved[] <- FALSE
+        }
+      }
     }else if(!steplen.converged){ # If step length is less than its maximum, don't bother with precision stuff.
       last.adequate <- FALSE
       .boost_samplesize(1, TRUE)

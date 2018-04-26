@@ -53,6 +53,9 @@ package. It does not work with curved terms not included in ergm.
 \examples{
 
 \donttest{
+\dontshow{
+options(ergm.eval.loglik=FALSE)
+}
 data(sampson)
 gest<-ergm(samplike~edges+gwesp(),
            control=control.ergm(MCMLE.maxit=2))
