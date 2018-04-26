@@ -140,7 +140,9 @@ More information can be found by looking at the documentation of
 \code{\link{ergm}}.
 }
 \examples{
-
+\dontshow{
+options(ergm.eval.loglik=FALSE)
+}
 #
 # Let's draw from a Bernoulli model with 16 nodes
 # and density 0.5 (i.e., coef = c(0,0))

@@ -10,6 +10,7 @@
 library(statnet.common)
 opttest({
 library(ergm)
+options(ergm.eval.loglik=FALSE)
 data(florentine)
 
 gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle,

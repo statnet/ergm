@@ -13,8 +13,8 @@
 \usage{
 ergm(formula, response = NULL, reference = ~Bernoulli, constraints = ~.,
   obs.constraints = ~-observed, offset.coef = NULL, target.stats = NULL,
-  eval.loglik = TRUE, estimate = c("MLE", "MPLE", "CD"),
-  control = control.ergm(), verbose = FALSE, ...)
+  eval.loglik = getOption("ergm.eval.loglik"), estimate = c("MLE", "MPLE",
+  "CD"), control = control.ergm(), verbose = FALSE, ...)
 
 is.ergm(object)
 
@@ -125,7 +125,7 @@ sampling to evaluate the log-likelihoood associated with the
 fit. Has no effect for dyad-independent models.
 Since bridge sampling takes additional time, setting to FALSE may
 speed performance if likelihood values (and likelihood-based
-values like AIC and BIC) are not needed.
+values like AIC and BIC) are not needed. Can be set globally via \code{option(ergm.eval.loglik=...)}, which is set to \code{TRUE} when the package is loaded.
 }}
 
 \item{estimate}{{If "MPLE," then the maximum pseudolikelihood estimator

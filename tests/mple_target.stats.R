@@ -20,7 +20,7 @@ cat("Structural check:\n")
 cat("Mean degree:", norm.stats[1]*2,".\n")
 cat("Average degree among nodes with degree 2 or higher:", (2*norm.stats[1]-norm.stats[3])/(1-norm.stats[2]-norm.stats[3]),".\n")
 
-ergm.fit<-ergm(base.net~edges+degree(c(0,1)),target.stats=n*norm.stats)
+ergm.fit<-ergm(base.net~edges+degree(c(0,1)),target.stats=n*norm.stats,estimate="MPLE")
 summary(ergm.fit)
 ergm.sim<-simulate(ergm.fit,nsim=1000,statsonly=TRUE)
 

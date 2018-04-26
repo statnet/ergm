@@ -12,6 +12,7 @@
 library(statnet.common)
 opttest({
   library(ergm)
+  options(ergm.eval.loglik=FALSE)
   set.seed(2)
   
   data(florentine)

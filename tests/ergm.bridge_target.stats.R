@@ -10,6 +10,7 @@
 library(statnet.common)
 opttest({
 library(ergm)
+set.seed(1)
 logit <- function(p) log(p/(1-p))
 expit <- function(e) exp(e)/(1+exp(e))
 l <- function(nw, ets=NULL, theta=NULL){
@@ -33,5 +34,5 @@ stopifnot(isTRUE(all.equal(llk,llk.ergm, check.attributes=FALSE)))
 ts <- 3.5
 print(llk.ergm <- as.vector(logLik(ergm(flomarriage~edges, target.stats=ts))))
 print(llk <- l(y,ts))
-stopifnot(isTRUE(all.equal(llk,llk.ergm, check.attributes=FALSE,tolerance=0.005)))
+stopifnot(isTRUE(all.equal(llk,llk.ergm, check.attributes=FALSE,tolerance=0.05)))
 }, "bridge sampling with target stats")

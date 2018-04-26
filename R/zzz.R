@@ -19,6 +19,7 @@
 .onLoad <- function(lib, pkg){
   # . is used as a placeholder by stantet.common::NVL3().
   utils::globalVariables(".")
+  options(ergm.eval.loglik=TRUE)
 
   .RegisterProposals()
 }
