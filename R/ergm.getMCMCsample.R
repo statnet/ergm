@@ -117,18 +117,18 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
     for(mcrun in seq_len(control.parallel$MCMC.effectiveSize.maxruns)){
       if(mcrun==1){
         samplesize <- control.parallel$MCMC.samplesize
-        if(verbose)
+        if(verbose>1)
           message("First run: running each chain forward by ",samplesize, " steps with interval ", interval, ".")
       }else{
         if(burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
           samplesize <- control.parallel$MCMC.samplesize
-          if(verbose)
+          if(verbose>1)
             message("Insufficient ESS or untrustworthy burn-in estimate to determine the number of steps remaining: running forward by ",samplesize, " steps with interval ", interval, ".")
         }else{
           pred.ss <- howmuchmore(control.parallel$MCMC.effectiveSize, NVL(nrow(outl[[1]]$s),0), eS, best.burnin$burnin)
           damp.ss <- pred.ss*(eS/(control.parallel$MCMC.effectiveSize.damp+eS))+control.parallel$MCMC.samplesize*(1-eS/(control.parallel$MCMC.effectiveSize.damp+eS))
           samplesize <- round(damp.ss)
-          if(verbose) message("Predicted additional sample size: ",pred.ss, " dampened to ",damp.ss, ", so running ", samplesize, " steps forward.")
+          if(verbose>1) message("Predicted additional sample size: ",pred.ss, " dampened to ",damp.ss, ", so running ", samplesize, " steps forward.")
         }
       }
         
@@ -160,7 +160,7 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
       best.burnin <- .find_OK_burnin(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, min.pval=control$MCMC.effectiveSize.burnin.pval)
       burnin.pval <- best.burnin$pval
       if(burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
-        if(verbose) message("No adequate burn-in found. Best convergence p-value = ", burnin.pval)
+        if(verbose>1) message("No adequate burn-in found. Best convergence p-value = ", burnin.pval)
         next
       }
       postburnin.mcmc <- window(esteq, start=start(esteq)+best.burnin$burnin*thin(esteq))
@@ -174,7 +174,7 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
           if(verbose) message("Target ESS achieved and is trustworthy. Returning.")
           break
         }else{
-          if(verbose) message("ESS and burn-in estimates are not trustworthy.")
+          if(verbose>1) message("ESS and burn-in estimates are not trustworthy.")
         }
       }
     }

@@ -71,6 +71,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                         steplen=1, steplen.point.exp=1,
                         cov.type="normal",# cov.type="robust", 
                         estimateonly=FALSE, ...) {
+  estimateonly <- estimateonly & !calc.mcmc.se
   # If there is an observation process to deal with, statsmatrices.obs
   # will not be NULL.
   obsprocess <- !is.null(statsmatrices.obs)

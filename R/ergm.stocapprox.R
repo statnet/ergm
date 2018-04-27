@@ -108,7 +108,7 @@ ergm.stocapprox <- function(init, nw, model, Clist,
 #message(paste(" eta=",eta,")",sep=""))
 
   # Obtain MCMC sample
-  z <- ergm_MCMC_sample(nw, model, proposal, control, eta=eta0, verbose=verbose)
+  z <- ergm_MCMC_sample(nw, model, proposal, control, eta=eta0, verbose=max(verbose-1,0))
   
   # post-processing of sample statistics:  Shift each row,
   # attach column names
