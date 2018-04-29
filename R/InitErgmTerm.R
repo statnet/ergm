@@ -2417,11 +2417,9 @@ InitErgmTerm.nodefactor<-function (nw, arglist, ...) {
     }
   }
   #   Recode to numeric
-  nodecov <- match(nodecov,u,nomatch=length(u)+1)
-  ui <- seq(along=u)
+  nodepos <- match(nodecov,u,nomatch=0)-1
   ### Construct the list to return
-  inputs <- c(ui, nodecov)
-  attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file
+  inputs <- nodepos
   list(name="nodefactor",                                        #required
        coef.names = paste("nodefactor", paste(a$attrname,collapse="."), u, sep="."), #required
        inputs = inputs,
@@ -2472,11 +2470,9 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, ...) {
     }
   }
   #   Recode to numeric
-  nodecov <- match(nodecov,u,nomatch=length(u)+1)
-  ui <- seq(along=u)
+  nodepos <- match(nodecov,u,nomatch=0)-1
   ### Construct the list to return
-  inputs <- c(ui, nodecov)
-  attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file
+  inputs <- nodepos
   list(name="nodeifactor",                                        #required
        coef.names = paste("nodeifactor", paste(a$attrname,collapse="."), u, sep="."), #required
        inputs = inputs,
@@ -2644,12 +2640,10 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, ...) {
     }
   }
   #   Recode to numeric
-  nodecov <- match(nodecov,u,nomatch=length(u)+1)
-  ui <- seq(along=u)
+  nodecov <- match(nodecov,u,nomatch=0)-1
 
   ### Construct the list to return
-  inputs <- c(ui, nodecov)
-  attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file
+  inputs <- nodepos
   list(name="nodeofactor",                                        #required
        coef.names = paste("nodeofactor", paste(a$attrname,collapse="."), u, sep="."), #required
        inputs = inputs,

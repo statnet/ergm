@@ -4220,9 +4220,9 @@ D_CHANGESTAT_FN(d_nodecov) {
  changestat: d_nodefactor
 *****************/
 D_CHANGESTAT_FN(d_nodefactor) { 
-  double s, factorval;
+  double s;
   Vertex tail, head;
-  int i, j, tailattr, headattr;
+  int i;
   
   /* *** don't forget tail -> head */    
   ZERO_ALL_CHANGESTATS(i);
@@ -4230,13 +4230,10 @@ D_CHANGESTAT_FN(d_nodefactor) {
     tail = TAIL(i);
     head = HEAD(i);
     s = IS_OUTEDGE(tail, head) ? -1.0 : 1.0;
-    tailattr = INPUT_ATTRIB[tail-1];
-    headattr = INPUT_ATTRIB[head-1];
-    for (j=0; j < N_CHANGE_STATS; j++) {
-      factorval = INPUT_PARAM[j];
-      if (tailattr == factorval) CHANGE_STAT[j] += s;
-      if (headattr == factorval) CHANGE_STAT[j] += s;
-    }
+    int tailpos = INPUT_ATTRIB[tail-1];
+    int headpos = INPUT_ATTRIB[head-1];
+    if (tailpos!=-1) CHANGE_STAT[tailpos] += s;
+    if (headpos!=-1) CHANGE_STAT[headpos] += s;
     TOGGLE_IF_MORE_TO_COME(i);
   }
   UNDO_PREVIOUS_TOGGLES(i);
@@ -4268,17 +4265,15 @@ D_CHANGESTAT_FN(d_nodeicov) {
 D_CHANGESTAT_FN(d_nodeifactor) { 
   double s;
   Vertex head;
-  int i, j, headattr;
+  int i;
   
   /* *** don't forget tail -> head */    
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
     head = HEAD(i);
     s = IS_OUTEDGE(TAIL(i), head) ? -1.0 : 1.0;
-    headattr = INPUT_ATTRIB[head-1];
-    for (j=0; j < N_CHANGE_STATS; j++) {
-      if (headattr == INPUT_PARAM[j]) CHANGE_STAT[j] += s;
-    }
+    int headpos = INPUT_ATTRIB[head-1];
+    if (headpos!=-1) CHANGE_STAT[headpos] += s;
     TOGGLE_IF_MORE_TO_COME(i);
   }
   UNDO_PREVIOUS_TOGGLES(i);
@@ -4379,17 +4374,15 @@ D_CHANGESTAT_FN(d_nodeocov) {
 D_CHANGESTAT_FN(d_nodeofactor) { 
   double s;
   Vertex tail;
-  int i, j, tailattr;
+  int i;
   
   /* *** don't forget tail -> head */    
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
     tail = TAIL(i);
     s = IS_OUTEDGE(tail, HEAD(i)) ? -1.0 : 1.0;
-    tailattr = INPUT_ATTRIB[tail-1];
-    for (j=0; j < N_CHANGE_STATS; j++) {
-      if (tailattr == INPUT_PARAM[j]) CHANGE_STAT[j] += s;
-    }
+    int tailpos = INPUT_ATTRIB[tail-1];
+    if (tailpos!=-1) CHANGE_STAT[tailpos] += s;
     TOGGLE_IF_MORE_TO_COME(i);
   }
   UNDO_PREVIOUS_TOGGLES(i);
