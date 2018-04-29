@@ -4084,6 +4084,37 @@ D_CHANGESTAT_FN(d_mix) {
 }
 
 /*****************
+ changestat: d_mixmat
+ General mixing matrix (mm) implementation.
+*****************/
+D_CHANGESTAT_FN(d_mixmat){
+  unsigned int symm = ((int)INPUT_PARAM[0]) & 1;
+  unsigned int marg = ((int)INPUT_PARAM[0]) & 2;
+  double *tx = INPUT_PARAM;
+  double *hx = BIPARTITE? INPUT_PARAM : INPUT_PARAM + N_NODES;
+  double *cells = BIPARTITE? INPUT_PARAM + N_NODES + 1: INPUT_PARAM + N_NODES*2 + 1;
+  
+  ZERO_ALL_CHANGESTATS(i);
+  int i;
+  FOR_EACH_TOGGLE(i){
+    Vertex tail=TAIL(i);
+    Vertex head=HEAD(i);
+    unsigned int edgeflag = IS_OUTEDGE(tail, head);
+    
+    for(unsigned int j=0; j<N_CHANGE_STATS; j++){
+      unsigned int w =
+	(symm && marg && (tx[tail]==tx[head] && hx[tail]==hx[head]) ? 2:1) *
+	(symm ?
+	 (tx[tail]==cells[j*2] && hx[head]==cells[j*2+1]) + (tx[head]==cells[j*2] && hx[tail]==cells[j*2+1]) :
+	 tx[tail]==cells[j*2] && hx[head]==cells[j*2+1]);
+      if(w) CHANGE_STAT[j] += edgeflag ? -w : w;
+    }
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+/*****************
  changestat: d_mutual
 
  (1,1) -> anything = -1
