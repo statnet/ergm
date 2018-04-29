@@ -184,6 +184,7 @@ ergm.MCMLE <- function(init, nw, model,
     }
 
     # Obtain MCMC sample
+    if(verbose) message("Starting unconstrained MCMC...")
     z <- ergm_MCMC_sample(nws, model, proposal, control, theta=mcmc.init, response=response, update.nws=FALSE, verbose=max(verbose-1,0))
         
     if(z$status==1) stop("Number of edges in a simulated network exceeds that in the observed by a factor of more than ",floor(control$MCMLE.density.guard),". This is a strong indicator of model degeneracy or a very poor starting parameter configuration. If you are reasonably certain that neither of these is the case, increase the MCMLE.density.guard control.ergm() parameter.")
@@ -209,6 +210,7 @@ ergm.MCMLE <- function(init, nw, model,
     
     ##  Does the same, if observation process:
     if(obs){
+      if(verbose) message("Starting constrained MCMC...")
       z.obs <- ergm_MCMC_sample(nws.obs, NVL(model$obs.model,model), proposal.obs, control.obs, theta=mcmc.init, response=response, update.nws=FALSE, verbose=max(verbose-1,0))
       
       if(z.obs$status==1) stop("Number of edges in the simulated network exceeds that observed by a large factor (",control$MCMC.max.maxedges,"). This is a strong indication of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")

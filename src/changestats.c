@@ -3682,6 +3682,37 @@ C_CHANGESTAT_FN(c_mix) {
 }
 
 /*****************
+ changestat: d_mixmat
+ General mixing matrix (mm) implementation.
+*****************/
+D_CHANGESTAT_FN(d_mixmat){
+  unsigned int symm = ((int)INPUT_PARAM[0]) & 1;
+  unsigned int marg = ((int)INPUT_PARAM[0]) & 2;
+  double *tx = INPUT_PARAM;
+  double *hx = BIPARTITE? INPUT_PARAM : INPUT_PARAM + N_NODES;
+  double *cells = BIPARTITE? INPUT_PARAM + N_NODES + 1: INPUT_PARAM + N_NODES*2 + 1;
+  
+  ZERO_ALL_CHANGESTATS(i);
+  int i;
+  FOR_EACH_TOGGLE(i){
+    Vertex tail=TAIL(i);
+    Vertex head=HEAD(i);
+    unsigned int edgeflag = IS_OUTEDGE(tail, head);
+    
+    for(unsigned int j=0; j<N_CHANGE_STATS; j++){
+      unsigned int w =
+	(symm && marg && (tx[tail]==tx[head] && hx[tail]==hx[head]) ? 2:1) *
+	(symm ?
+	 (tx[tail]==cells[j*2] && hx[head]==cells[j*2+1]) + (tx[head]==cells[j*2] && hx[tail]==cells[j*2+1]) :
+	 tx[tail]==cells[j*2] && hx[head]==cells[j*2+1]);
+      if(w) CHANGE_STAT[j] += edgeflag ? -w : w;
+    }
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+/*****************
  changestat: d_mutual
 
  (1,1) -> anything = -1
@@ -3793,19 +3824,11 @@ C_CHANGESTAT_FN(c_nodecov) {
  changestat: d_nodefactor
 *****************/
 C_CHANGESTAT_FN(c_nodefactor) { 
-  double s, factorval;
-  int j, tailattr, headattr;
-  
-  /* *** don't forget tail -> head */    
-  ZERO_ALL_CHANGESTATS(i);
-    s = IS_OUTEDGE(tail, head) ? -1.0 : 1.0;
-    tailattr = INPUT_ATTRIB[tail-1];
-    headattr = INPUT_ATTRIB[head-1];
-    for (j=0; j < N_CHANGE_STATS; j++) {
-      factorval = INPUT_PARAM[j];
-      if (tailattr == factorval) CHANGE_STAT[j] += s;
-      if (headattr == factorval) CHANGE_STAT[j] += s;
-    }
+  double s = IS_OUTEDGE(tail, head) ? -1.0 : 1.0;
+  int tailpos = INPUT_ATTRIB[tail-1];
+  int headpos = INPUT_ATTRIB[head-1];
+  if (tailpos!=-1) CHANGE_STAT[tailpos] += s;
+  if (headpos!=-1) CHANGE_STAT[headpos] += s;
 }
 
 /*****************
@@ -3826,16 +3849,9 @@ C_CHANGESTAT_FN(c_nodeicov) {
  changestat: d_nodeifactor
 *****************/
 C_CHANGESTAT_FN(c_nodeifactor) { 
-  double s;
-  int j, headattr;
-  
-  /* *** don't forget tail -> head */    
-  ZERO_ALL_CHANGESTATS(i);
-    s = IS_OUTEDGE(tail, head) ? -1.0 : 1.0;
-    headattr = INPUT_ATTRIB[head-1];
-    for (j=0; j < N_CHANGE_STATS; j++) {
-      if (headattr == INPUT_PARAM[j]) CHANGE_STAT[j] += s;
-    }
+  double s = IS_OUTEDGE(tail, head) ? -1.0 : 1.0;
+  int headpos = INPUT_ATTRIB[head-1];
+  if (headpos!=-1) CHANGE_STAT[headpos] += s;
 }
 
 /*****************
@@ -3912,16 +3928,9 @@ C_CHANGESTAT_FN(c_nodeocov) {
  changestat: d_nodeofactor
 *****************/
 C_CHANGESTAT_FN(c_nodeofactor) { 
-  double s;
-  int j, tailattr;
-  
-  /* *** don't forget tail -> head */    
-  ZERO_ALL_CHANGESTATS(i);
-    s = IS_OUTEDGE(tail, head) ? -1.0 : 1.0;
-    tailattr = INPUT_ATTRIB[tail-1];
-    for (j=0; j < N_CHANGE_STATS; j++) {
-      if (tailattr == INPUT_PARAM[j]) CHANGE_STAT[j] += s;
-    }
+  double s = IS_OUTEDGE(tail, head) ? -1.0 : 1.0;
+  int tailpos = INPUT_ATTRIB[tail-1];
+  if (tailpos!=-1) CHANGE_STAT[tailpos] += s;
 }
 
 /*****************

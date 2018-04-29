@@ -2323,6 +2323,107 @@ InitErgmTerm.meandeg<-function(nw, arglist, ...) {
 }
 
 
+################################################################################
+InitErgmTerm.mm<-function (nw, arglist, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("attrs", "levels", "levels2"),
+                      vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC),
+                      defaultvalues = list(NULL, NULL, NULL),
+                      required = c(TRUE, FALSE, FALSE))
+
+  # Some preprocessing steps are the same, so run together:
+  spec <-
+    list(attrs = a$attrs, levels = a$levels) %>%
+    map_if(~!is(., "formula"), ~call("~", .)) %>% # Embed into RHS of formula.
+    map_if(~length(.)==2, ~call("~", .[[2]], .[[2]])) %>% # Convert ~X to X~X.
+    map(as.list) %>% map(~.[-1]) %>% # Convert to list(X,X).
+    map(set_names, c("row", "col")) %>% # Name elements rowspec and colspec.
+    transpose() %>%
+    unlist(recursive=FALSE) %>% # Convert into a flat list.
+    map_if(~is.name(.)&&.==".", ~NULL) %>% # If it's just a dot, convert to NULL.
+    map_if(~is.call(.)||(is.name(.)&&.!="."), ~as.formula(call("~", .))) %>% # If it's a call or a symbol, embed in formula.
+    relist(skeleton=list(row=c(attrs=NA, levels=NA), col=c(attrs=NA, levels=NA))) # Reconstruct list.
+
+  # Extract attribute values.
+  attrval <-
+    spec %>%
+    imap(function(spec, whose){
+      if(is.null(spec$attrs)){
+        list(valcodes =
+               rep(0L,
+                   if(!is.bipartite(nw)) network.size(nw)
+                   else if(whose=="row") nw%n%"bipartite"
+                   else if(whose=="col") network.size(nw) - nw%n%"bipartite"
+                   ),
+             name = ".",
+             levels = NA,
+             levelcodes = 0
+             )
+      }else{
+        if(is(a$attrs, "formula")) environment(spec$attrs) <- environment(a$attrs)
+        x <- ergm_get_vattr(spec$attrs, nw, bip = if(is.bipartite(nw)) c(row="b1",col="b2")[whose] else "n")
+        name <- attr(x, "name")
+        list(name=name, val=x, levels=spec$levels, unique=sort(unique(x)))
+      }
+    })
+
+  # Is the mixing matrix symmetric?
+  symm <- (!is.directed(nw) && !is.bipartite(nw))
+  # Are we evaluating the margin?
+  marg <- length(attrval$row$unique)==0 || length(attrval$col$unique)==0
+  
+  # Filter the final level set and encode the attribute values.
+  attrval <- attrval %>%
+    map_if(~!is.null(.$unique), function(v){
+      if(is(a$levels, "formula")) environment(v$levels) <- environment(a$levels)
+      v$levels <- ergm_attr_levels(v$levels, v$val, nw, levels=v$unique)
+      v$levelcodes <- seq_along(v$levels)
+      v$valcodes <- match(v$val, v$levels, nomatch=0)
+      v
+    })
+
+  # Construct all pairwise level combinations (table cells) and their numeric codes.
+  levels2codes <- expand.grid(row=attrval$row$levelcodes, col=attrval$col$levelcodes) %>% transpose()
+  levels2 <- expand.grid(row=attrval$row$levels, col=attrval$col$levels, stringsAsFactors=FALSE) %>% transpose()
+
+  # Drop redundant table cells if symmetrising.
+  if(symm){
+    levels2keep <- levels2codes %>% map_lgl(with, row <= col)
+    levels2codes <- levels2codes[levels2keep]
+    levels2 <- levels2[levels2keep]
+  }
+
+  # Run the table cell list through the cell filter.
+  levels2sel <- ergm_attr_levels(a$levels2, list(row=attrval$row$val, col=attrval$col$val), nw, levels=levels2)
+  levels2codes <- levels2codes[match(levels2sel,levels2, NA)]
+  levels2 <- levels2sel; rm(levels2sel)
+
+  # Construct the level names
+  levels2names <-
+    levels2 %>%
+    transpose() %>%
+    map(unlist) %>%
+    with(paste0(
+      "[",
+      if(length(attrval$row$levels)>1)
+        paste0(attrval$row$name, "=", .$row)
+      else ".",
+      ",",
+      if(length(attrval$col$levels)>1)
+        paste0(attrval$col$name, "=", .$col)
+      else ".",
+      "]"))
+  
+  coef.names <- paste0("mm",levels2names)
+
+  list(name = "mixmat",
+       coef.names = coef.names,
+       inputs = c(symm+marg*2, attrval$row$valcodes, attrval$col$valcodes, unlist(levels2codes)),
+       dependence = FALSE,
+       minval = 0)
+}
+
 
 ################################################################################
 InitErgmTerm.mutual<-function (nw, arglist, ...) {
@@ -2441,11 +2542,9 @@ InitErgmTerm.nodefactor<-function (nw, arglist, ...) {
     }
   }
   #   Recode to numeric
-  nodecov <- match(nodecov,u,nomatch=length(u)+1)
-  ui <- seq(along=u)
+  nodepos <- match(nodecov,u,nomatch=0)-1
   ### Construct the list to return
-  inputs <- c(ui, nodecov)
-  attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file
+  inputs <- nodepos
   list(name="nodefactor",                                        #required
        coef.names = paste("nodefactor", paste(a$attrname,collapse="."), u, sep="."), #required
        inputs = inputs,
@@ -2496,11 +2595,9 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, ...) {
     }
   }
   #   Recode to numeric
-  nodecov <- match(nodecov,u,nomatch=length(u)+1)
-  ui <- seq(along=u)
+  nodepos <- match(nodecov,u,nomatch=0)-1
   ### Construct the list to return
-  inputs <- c(ui, nodecov)
-  attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file
+  inputs <- nodepos
   list(name="nodeifactor",                                        #required
        coef.names = paste("nodeifactor", paste(a$attrname,collapse="."), u, sep="."), #required
        inputs = inputs,
@@ -2668,12 +2765,10 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, ...) {
     }
   }
   #   Recode to numeric
-  nodecov <- match(nodecov,u,nomatch=length(u)+1)
-  ui <- seq(along=u)
+  nodecov <- match(nodecov,u,nomatch=0)-1
 
   ### Construct the list to return
-  inputs <- c(ui, nodecov)
-  attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file
+  inputs <- nodepos
   list(name="nodeofactor",                                        #required
        coef.names = paste("nodeofactor", paste(a$attrname,collapse="."), u, sep="."), #required
        inputs = inputs,
