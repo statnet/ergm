@@ -92,6 +92,7 @@
 \alias{localtriangle}
 \alias{m2star}
 \alias{match}
+\alias{mm}
 \alias{meandeg}
 \alias{mutual}
 \alias{nearsimmelian}
