@@ -64,20 +64,21 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' @name node-attr
 #' @title Specifying nodal attributes and their levels
 #'
-#' @description This document describes both the ways in which to specify nodal
-#' attribute or functions and which levels for categorical factors to
-#' include, and the helper functions for use in `InitErgmTerm`
-#' implementations.
+#' @description This document describes the ways in which to specify
+#'   nodal attribute or functions and which levels for categorical
+#'   factors to include. For the helper functions to facilitate this,
+#'   see [`node-attr-api`].
 #'
 #' @details
 #' 
-#' Term nodal attribute arguments, typically called `attrname`, `by`,
+#' Term nodal attribute arguments, typically called `attrs`, `attrname`, `by`,
 #' `on`, etc. are interpreted as follows: \describe{
 #' 
-#' \item{a single character string}{Extract the vertex attribute.}
+#' \item{a single character string}{Extract the vertex attribute with
+#' this name.}
 #' 
 #' \item{a character vector of length > 1}{Extract the vertex
-#' attributes and pastes them together, separated by dots.}
+#' attributes and paste them together, separated by dots.}
 #' 
 #' \item{a function}{The function is called on the LHS network,
 #' expected to return a vector of appropriate length. (Shorter vectors
@@ -99,6 +100,9 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' and their ordering, use the argument `levels`.  It is interpreted
 #' as follows: \describe{
 #'
+#' \item{an expression wrapped in [I()]}{Use the given list of levels
+#' as is.}
+#' 
 #' \item{a numeric or logical vector}{Used for indexing of the default
 #' set of levels (typically, unique values of the attribute) in
 #' default older (typically lexicographic), i.e.,
@@ -123,7 +127,21 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' Note that `levels` often has a default that is sensible for the
 #' term in question.
 #' 
-#' @aliases attrname on by
+#' @aliases attrname on by attrs
+#' @examples
+#'
+#' data(faux.mesa.high)
+#' # Mixing between lower and upper grades:
+#' summary(faux.mesa.high~mm(~Grade>=10))
+#' # Mixing between grades 7 and 8 only:
+#' summary(faux.mesa.high~mm("Grade", levels=I(c(7,8))))
+#' # or
+#' summary(faux.mesa.high~mm("Grade", levels=1:2))
+#' # or using levels2 (see ? mm) to filter the combinations of levels,
+#' summary(faux.mesa.high~mm("Grade",
+#'         levels2=~sapply(.levels,
+#'                         function(l)
+#'                           l[[1]]%in%c(7,8) && l[[2]]%in%c(7,8))))
 NULL
 
 #' @name node-attr-api
