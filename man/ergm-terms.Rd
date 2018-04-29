@@ -1275,7 +1275,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     average degree of a node.  Note that this term is a constant multiple of
     both \code{edges} and \code{density}.}
 
-  \item{\code{mm(attrs, levels, levels2, symm)} (binary)  (dyad-independent)  (frequently-used) (directed)  (undirected) (categorical nodal attribute)}{\emph{Mixing
+  \item{\code{mm(attrs, levels, levels2)} (binary)  (dyad-independent)  (frequently-used) (directed)  (undirected) (categorical nodal attribute)}{\emph{Mixing
     matrix cells and margins:}
   \code{attrs} is a two-sided formula whose LHS gives the attribute or
     attribute function (see \link[node-attr]{Specifying Vertex
