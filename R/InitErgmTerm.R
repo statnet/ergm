@@ -2309,6 +2309,8 @@ InitErgmTerm.mm<-function (nw, arglist, ...) {
                       required = c(TRUE, FALSE, FALSE))
 
   # Some preprocessing steps are the same, so run together:
+  #' @import purrr
+  #' @importFrom utils relist
   spec <-
     list(attrs = a$attrs, levels = a$levels) %>%
     map_if(~!is(., "formula"), ~call("~", .)) %>% # Embed into RHS of formula.
@@ -2344,14 +2346,16 @@ InitErgmTerm.mm<-function (nw, arglist, ...) {
       }
     })
 
-  # Is the mixing matrix symmetric?
-  symm <- (!is.directed(nw) && !is.bipartite(nw))
+  # Undirected unipartite networks with identical attribute
+  # specification produce square, symmetric mixing matrices. All
+  # others do not.
+  symm <- !is.directed(nw) && !is.bipartite(nw) && identical(spec$row$attrs, spec$col$attrs)
   # Are we evaluating the margin?
   marg <- length(attrval$row$unique)==0 || length(attrval$col$unique)==0
   
   # Filter the final level set and encode the attribute values.
   attrval <- attrval %>%
-    map_if(~!is.null(.$unique), function(v){
+    map_if(~is.null(.$levelcodes), function(v){
       if(is(a$levels, "formula")) environment(v$levels) <- environment(a$levels)
       v$levels <- ergm_attr_levels(v$levels, v$val, nw, levels=v$unique)
       v$levelcodes <- seq_along(v$levels)
@@ -2741,7 +2745,7 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, ...) {
     }
   }
   #   Recode to numeric
-  nodecov <- match(nodecov,u,nomatch=0)-1
+  nodepos <- match(nodecov,u,nomatch=0)-1
 
   ### Construct the list to return
   inputs <- nodepos

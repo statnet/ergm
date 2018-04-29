@@ -4094,19 +4094,19 @@ D_CHANGESTAT_FN(d_mixmat){
   double *hx = BIPARTITE? INPUT_PARAM : INPUT_PARAM + N_NODES;
   double *cells = BIPARTITE? INPUT_PARAM + N_NODES + 1: INPUT_PARAM + N_NODES*2 + 1;
   
-  ZERO_ALL_CHANGESTATS(i);
   int i;
+  ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i){
     Vertex tail=TAIL(i);
     Vertex head=HEAD(i);
     unsigned int edgeflag = IS_OUTEDGE(tail, head);
-    
+    unsigned int diag = tx[tail]==tx[head] && hx[tail]==hx[head];
     for(unsigned int j=0; j<N_CHANGE_STATS; j++){
-      unsigned int w =
-	(symm && marg && (tx[tail]==tx[head] && hx[tail]==hx[head]) ? 2:1) *
-	(symm ?
-	 (tx[tail]==cells[j*2] && hx[head]==cells[j*2+1]) + (tx[head]==cells[j*2] && hx[tail]==cells[j*2+1]) :
-	 tx[tail]==cells[j*2] && hx[head]==cells[j*2+1]);
+      unsigned int thmatch = tx[tail]==cells[j*2] && hx[head]==cells[j*2+1];
+      unsigned int htmatch = tx[head]==cells[j*2] && hx[tail]==cells[j*2+1];
+      
+      int w = DIRECTED || BIPARTITE? thmatch :
+	(symm ? thmatch||htmatch : thmatch+htmatch)*(symm && marg && diag?2:1);
       if(w) CHANGE_STAT[j] += edgeflag ? -w : w;
     }
     TOGGLE_IF_MORE_TO_COME(i);
