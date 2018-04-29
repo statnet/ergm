@@ -1683,6 +1683,18 @@ of the degrees of all pairs of nodes in the network which are tied.
     This term adds one network statistic to the model equal to the
     average degree of a node.  Note that this term is a constant multiple of
     both \code{edges} and \code{density}.}
+
+  \item{\code{mm(attrs, levels, levels2, symm)} (binary)  (dyad-independent)  (frequently-used) (directed)  (undirected) (categorical nodal attribute)}{\emph{Mixing
+    matrix cells and margins:}
+  \code{attrs} is a two-sided formula whose LHS gives the attribute or
+    attribute function (see \link[node-attr]{Specifying Vertex
+    Attributes and Levels}) for the rows of the mixing matrix and whose RHS gives
+    that for its columns. A one-sided formula (e.g.,
+    \code{~A}) is symmetrized (e.g., \code{A~A}). \code{levels}
+    similarly specifies the subset of rows and columns to be
+    used. \code{levels2} can then be used to filter which specific cells
+    of the matrix to include.
+  }
   
     \item{\code{mutual(same=NULL, diff=FALSE, by=NULL, keep=NULL, Ls=NULL)} (binary)  (directed)  (frequently-used) (layer-aware), \code{mutual(form="min",threshold=0)}  (valued)  (directed)
      }{\emph{Mutuality:} 
