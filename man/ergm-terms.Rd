@@ -1275,8 +1275,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     average degree of a node.  Note that this term is a constant multiple of
     both \code{edges} and \code{density}.}
 
-  \item{\code{mm(attrs, levels, levels2)} (binary)  (dyad-independent)  (frequently-used) (directed)  (undirected) (categorical nodal attribute)}{\emph{Mixing
-    matrix cells and margins:}
+  \item{\code{mm(attrs, levels, levels2)} (binary)  (dyad-independent)  (frequently-used) (directed)  (undirected) (categorical nodal attribute)}{\emph{Mixing matrix cells and margins:}
   \code{attrs} is a two-sided formula whose LHS gives the attribute or
     attribute function (see \link[node-attr]{Specifying Vertex
     Attributes and Levels}) for the rows of the mixing matrix and whose RHS gives
@@ -1284,7 +1283,10 @@ of the degrees of all pairs of nodes in the network which are tied.
     \code{~A}) is symmetrized (e.g., \code{A~A}). \code{levels}
     similarly specifies the subset of rows and columns to be
     used. \code{levels2} can then be used to filter which specific cells
-    of the matrix to include.
+    of the matrix to include. A two-sided formula with a dot on one side
+    calculates the margins of the mixing matrix, analogously to \code{nodefactor}, with
+    \code{A~.} calculating the row/sender/b1 margins and \code{.~A}
+    calculating the column/receiver/b2 margins.
   }
   
     \item{\code{mutual(same=NULL, diff=FALSE, by=NULL, keep=NULL)} (binary)  (directed)  (frequently-used), \code{mutual(form="min",threshold=0)}  (valued)  (directed)
