@@ -104,3 +104,18 @@ test_that("Undirected mm() summary with fixed levels set", {
   s.a <- summary(fmh ~ mm("Grade", levels=I(c(7,6,9,8))))
   expect_equivalent(s.a, c(75, 0, 0, 0, 0, 23, 0, 0, 2, 33))
 })
+
+test_that("Undirected valued mm() sum summary", {
+  s.a <- summary(fmh ~ mm("Grade"), response="GradeMet")
+  expect_equivalent(s.a,
+                    c(246, 0, 96, 0, 6, 75, 3, 15, 21, 24, 3, 6, 19,
+                      4, 54, 2, 5, 11, 17, 18, 16))
+})
+
+test_that("Undirected valued mm() nonzero summary", {
+  s.a <- summary(fmh ~ mm("Grade", form="nonzero"), response="GradeMet")
+  expect_equivalent(s.a,
+                    c(75, 0, 33, 0, 2, 22, 1, 4, 7, 8, 1, 2, 6, 1, 17,
+                      1, 1, 4, 5,  5, 6))
+})
+
