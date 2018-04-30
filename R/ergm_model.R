@@ -116,15 +116,7 @@ call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ..., term
     args[[1]] <- as.name("list")
   }else args <- list()
   
-  termFun<-locate.InitFunction(term, paste0(termroot,"Term"), "ERGM term")  # check in all namespaces for function found anywhere
-
-  if(is.call(term)) { # This term has some arguments; save them.
-    args <- term
-    args[[1]] <- as.name("list")
-  }else args <- list()
-  
-  termFun<-locate.InitFunction(term, paste0(termroot,"Term"), "ERGM term")
-  
+  termFun<-locate.InitFunction(term, paste0(termroot,"Term"), "ERGM term", env=env)
   termCall<-as.call(list(termFun, nw, args))
   
   dotdotdot <- c(if(!is.null(response)) list(response=response), list(...), list(role=role), term.options)

@@ -92,6 +92,7 @@
 \alias{localtriangle}
 \alias{m2star}
 \alias{match}
+\alias{mm}
 \alias{meandeg}
 \alias{mutual}
 \alias{nearsimmelian}
@@ -1684,7 +1685,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     average degree of a node.  Note that this term is a constant multiple of
     both \code{edges} and \code{density}.}
 
-  \item{\code{mm(attrs, levels, levels2)} (binary)  (dyad-independent)  (frequently-used) (directed)  (undirected) (categorical nodal attribute)}{\emph{Mixing matrix cells and margins:}
+  \item{\code{mm(attrs, levels=NULL, levels2=NULL)} (binary)  (dyad-independent)  (frequently-used) (directed)  (undirected) (categorical nodal attribute), \code{mm(attrs, levels=NULL, levels2=NULL, form="sum")} (valued)  (dyad-independent)  (frequently-used) (directed)  (undirected) (categorical nodal attribute)}{\emph{Mixing matrix cells and margins:}
   \code{attrs} is a two-sided formula whose LHS gives the attribute or
     attribute function (see \link[node-attr]{Specifying Vertex
     Attributes and Levels}) for the rows of the mixing matrix and whose RHS gives
