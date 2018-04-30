@@ -440,7 +440,7 @@ network
     up. A dot (\code{.}) stands for summing all layers.
   }
 
-  \item{\code{N(formula, lm=~1, subset=TRUE, weights=1, contrasts=NULL, offset=0, label=NULL)} (binary) (operator)}{\emph{Evaluation on multiple networks}:
+  \item{\code{N(formula, lm=~1, subset=TRUE, weights=1, contrasts=NULL, offset=0, label=NULL)} (binary) (operator), \code{N(formula, lm=~1, subset=TRUE, weights=1, contrasts=NULL, offset=0, label=NULL)} (valued) (operator)}{\emph{Evaluation on multiple networks}:
 
     Evaluates the terms in \code{formula} on each of the networks joined
     using \code{\link{Networks}} function, and returns either a weighted

@@ -1,7 +1,7 @@
-#ifndef _ERGM_CHANGESTAT_MULTINET_H_
-#define _ERGM_CHANGESTAT_MULTINET_H_
+#ifndef _ERGM_WTCHANGESTAT_MULTINET_H_
+#define _ERGM_WTCHANGESTAT_MULTINET_H_
 
-#include "ergm_edgetree.h"
+#include "ergm_wtedgetree.h"
 #include "changestat_multinet_common.inc"
 
 /* network-aware macros eponymous to ergm_changestat.h */
@@ -31,19 +31,30 @@
 
 typedef struct {
   unsigned int ns;
-  Network *inwp, *onwp;
+  WtNetwork *inwp, *onwp;
   double *sid;
   double *smap;
-} StoreSubnets;
+} StoreWtSubnets;
 
-#define MN_IO_TAIL(sn, t) ((Vertex) ((sn)->smap[t]))
-#define MN_IO_HEAD(sn, h) ((Vertex) ((sn)->smap[h]))
-#define MN_SID_TAIL(sn, t) ((Vertex) ((sn)->sid[t]))
-#define MN_SID_HEAD(sn, h) ((Vertex) ((sn)->sid[h]))
+#define WtMN_IO_TAIL(sn, t) ((Vertex) ((sn)->smap[t]))
+#define WtMN_IO_HEAD(sn, h) ((Vertex) ((sn)->smap[h]))
+#define WtMN_SID_TAIL(sn, t) ((Vertex) ((sn)->sid[t]))
+#define WtMN_SID_HEAD(sn, h) ((Vertex) ((sn)->sid[h]))
 
-#define MN_IGETWT(sn, l,a,b) (GetEdge(MN_OI_TAIL(sn, l, a), MN_OI_HEAD(sn, l, b), sn->inwp))
-#define MN_ISETWT(sn, l,a,b,w) (SetEdge(MN_OI_TAIL(sn, l, a), MN_OI_HEAD(sn, l, b),w,(sn)->inwp))
+#define WtMN_IGETWT(sn, l,a,b) (WtGetEdge(WtMN_OI_TAIL(sn, l, a), WtMN_OI_HEAD(sn, l, b), sn->inwp))
+#define WtMN_ISETWT(sn, l,a,b,w) (WtSetEdge(WtMN_OI_TAIL(sn, l, a), WtMN_OI_HEAD(sn, l, b),w,(sn)->inwp))
 
+/* If STRICT_Wt_HEADERS is not set, give the terms more generic names. */
+#ifndef STRICT_Wt_HEADERS
 
+#define MN_IO_TAIL WtMN_IO_TAIL
+#define MN_IO_HEAD WtMN_IO_HEAD
+#define MN_SID_TAIL WtMN_SID_TAIL
+#define MN_SID_HEAD WtMN_SID_HEAD
 
-#endif // _ERGM_CHANGESTAT_MULTINET_H_
+#define MN_IGETWT WtMN_IGETWT
+#define MN_ISETWT WtMN_ISETWT
+
+#endif // STRICT_Wt_HEADERS
+
+#endif // _ERGM_WTCHANGESTAT_MULTINET_H_

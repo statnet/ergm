@@ -6,8 +6,11 @@ logit <- function(p) log(p/(1-p))
 times <- 1:3
 
 samplk1%n%"t" <- times[1]
+samplk1%e%"w" <- floor(runif(network.edgecount(samplk1), 0, 4))
 samplk2%n%"t" <- times[2]
+samplk2%e%"w" <- floor(runif(network.edgecount(samplk2), 0, 4))
 samplk3%n%"t" <- times[3]
+samplk3%e%"w" <- floor(runif(network.edgecount(samplk3), 0, 4))
 samplkl <- list(samplk1, samplk2, samplk3)
 samplks <- Networks(samplk1, samplk2, samplk3)
 
@@ -24,6 +27,21 @@ test_that("N() summary with offset and compacted stats", {
   summ.l <- c(sum(summ.l), sum(summ.l*1:3))
   expect_equivalent(summ.l, summ.N)
 })
+
+test_that("Valued N() summary with an LM and noncompacted stats", {
+  summ.N <- summary(samplks~N(~sum+nodematch("cloisterville", form="sum"), ~1+t), term.options=list(N.compact_stats=FALSE), response="w")
+  summ.l <- unlist(lapply(samplkl, function(nw) summary(statnet.common::nonsimp_update.formula(~sum+nodematch("cloisterville", form="sum"), nw~., from.new="nw"), response="w")))
+  expect_equivalent(summ.l, summ.N)
+})
+
+
+test_that("Valued N() summary with offset and compacted stats", {
+  summ.N <- summary(samplks~N(~sum, offset=~t), response="w")
+  summ.l <- sapply(samplkl, function(nw) summary(statnet.common::nonsimp_update.formula(~sum, nw~., from.new="nw"), response="w"))
+  summ.l <- c(sum(summ.l), sum(summ.l*1:3))
+  expect_equivalent(summ.l, summ.N)
+})
+
 
 pl <- lapply(samplkl, function(nw) ergmMPLE(statnet.common::nonsimp_update.formula(~edges+nodematch("cloisterville"), nw~., from.new="nw")))
 
