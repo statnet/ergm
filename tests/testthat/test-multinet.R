@@ -13,11 +13,19 @@ samplks <- Networks(samplk1, samplk2, samplk3)
 
 test_that("N() summary with an LM and noncompacted stats", {
   summ.N <- summary(samplks~N(~edges+nodematch("cloisterville"), ~1+t), term.options=list(N.compact_stats=FALSE))
-  summ.l <- unlist(lapply(samplkl, function(nw) summary(nonsimp_update.formula(~edges+nodematch("cloisterville"), nw~., from.new="nw"))))
+  summ.l <- unlist(lapply(samplkl, function(nw) summary(statnet.common::nonsimp_update.formula(~edges+nodematch("cloisterville"), nw~., from.new="nw"))))
   expect_equivalent(summ.l, summ.N)
 })
 
-pl <- lapply(samplkl, function(nw) ergmMPLE(nonsimp_update.formula(~edges+nodematch("cloisterville"), nw~., from.new="nw")))
+
+test_that("N() summary with offset and compacted stats", {
+  summ.N <- summary(samplks~N(~edges, offset=~t))
+  summ.l <- sapply(samplkl, function(nw) summary(statnet.common::nonsimp_update.formula(~edges, nw~., from.new="nw")))
+  summ.l <- c(sum(summ.l), sum(summ.l*1:3))
+  expect_equivalent(summ.l, summ.N)
+})
+
+pl <- lapply(samplkl, function(nw) ergmMPLE(statnet.common::nonsimp_update.formula(~edges+nodematch("cloisterville"), nw~., from.new="nw")))
 
 for(N.compact_stats in c(FALSE,TRUE)){
   testlab <- if(N.compact_stats) "compacted stats" else "noncompacted stats"

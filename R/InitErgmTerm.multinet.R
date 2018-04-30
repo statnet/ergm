@@ -180,7 +180,7 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, N.compact_stats=TRUE,...)
     }else{
       # Offset requires a bit of extra work.
       etamap <- function(x, n, ...){
-        x %>% matrix(ncol=param) %>% rbind(1) %>% c()
+        x %>% matrix(ncol=nparam) %>% rbind(1) %>% c()
       }
       etagradm <- list(cbind(diag(1, ncol(xm)), 0)) %>%
         rep(nparam) %>%
@@ -189,6 +189,7 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, N.compact_stats=TRUE,...)
       etagradient <- function(x, n, ...){
         etagradm
       }
+      coef.names <- names(params) %>% matrix(ncol=nparam) %>% rbind(paste0("offset",seq_len(nparam))) %>% c()
     }
     
     gs <- lst(X = cbind(xm,offset.all[subset]) %>% split(., row(.)),
