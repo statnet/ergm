@@ -1233,42 +1233,38 @@ WtS_CHANGESTAT_FN(s_transitiveweights_threshold){
  changestat: d_mixmat
  General mixing matrix (mm) implementation.
 *****************/
-WtD_CHANGESTAT_FN(d_mixmat_sum){
+WtC_CHANGESTAT_FN(c_mixmat_sum){
   unsigned int symm = ((int)INPUT_PARAM[0]) & 1;
   unsigned int marg = ((int)INPUT_PARAM[0]) & 2;
   double *tx = INPUT_PARAM;
   double *hx = BIPARTITE? INPUT_PARAM : INPUT_PARAM + N_NODES;
   double *cells = BIPARTITE? INPUT_PARAM + N_NODES + 1: INPUT_PARAM + N_NODES*2 + 1;
   
-  EXEC_THROUGH_TOGGLES({
-    unsigned int diag = tx[TAIL]==tx[HEAD] && hx[TAIL]==hx[HEAD];
-    for(unsigned int j=0; j<N_CHANGE_STATS; j++){
-      unsigned int thmatch = tx[TAIL]==cells[j*2] && hx[HEAD]==cells[j*2+1];
-      unsigned int htmatch = tx[HEAD]==cells[j*2] && hx[TAIL]==cells[j*2+1];
-      
-      int w = DIRECTED || BIPARTITE? thmatch :
-	(symm ? thmatch||htmatch : thmatch+htmatch)*(symm && marg && diag?2:1);
-      if(w) CHANGE_STAT[j] += w*(NEWWT-OLDWT);
-    }
-    });
+  unsigned int diag = tx[tail]==tx[head] && hx[tail]==hx[head];
+  for(unsigned int j=0; j<N_CHANGE_STATS; j++){
+    unsigned int thmatch = tx[tail]==cells[j*2] && hx[head]==cells[j*2+1];
+    unsigned int htmatch = tx[head]==cells[j*2] && hx[tail]==cells[j*2+1];
+    
+    int w = DIRECTED || BIPARTITE? thmatch :
+      (symm ? thmatch||htmatch : thmatch+htmatch)*(symm && marg && diag?2:1);
+      if(w) CHANGE_STAT[j] += w*(weight-GETWT(tail,head));
+  }
 }
 
-WtD_CHANGESTAT_FN(d_mixmat_nonzero){
+WtC_CHANGESTAT_FN(c_mixmat_nonzero){
   unsigned int symm = ((int)INPUT_PARAM[0]) & 1;
   unsigned int marg = ((int)INPUT_PARAM[0]) & 2;
   double *tx = INPUT_PARAM;
   double *hx = BIPARTITE? INPUT_PARAM : INPUT_PARAM + N_NODES;
   double *cells = BIPARTITE? INPUT_PARAM + N_NODES + 1: INPUT_PARAM + N_NODES*2 + 1;
   
-  EXEC_THROUGH_TOGGLES({
-    unsigned int diag = tx[TAIL]==tx[HEAD] && hx[TAIL]==hx[HEAD];
-    for(unsigned int j=0; j<N_CHANGE_STATS; j++){
-      unsigned int thmatch = tx[TAIL]==cells[j*2] && hx[HEAD]==cells[j*2+1];
-      unsigned int htmatch = tx[HEAD]==cells[j*2] && hx[TAIL]==cells[j*2+1];
-      
-      int w = DIRECTED || BIPARTITE? thmatch :
-	(symm ? thmatch||htmatch : thmatch+htmatch)*(symm && marg && diag?2:1);
-      if(w) CHANGE_STAT[j] += w*((NEWWT!=0)-(OLDWT!=0));
-    }
-    });
+  unsigned int diag = tx[tail]==tx[head] && hx[tail]==hx[head];
+  for(unsigned int j=0; j<N_CHANGE_STATS; j++){
+    unsigned int thmatch = tx[tail]==cells[j*2] && hx[head]==cells[j*2+1];
+    unsigned int htmatch = tx[head]==cells[j*2] && hx[tail]==cells[j*2+1];
+    
+    int w = DIRECTED || BIPARTITE? thmatch :
+      (symm ? thmatch||htmatch : thmatch+htmatch)*(symm && marg && diag?2:1);
+    if(w) CHANGE_STAT[j] += w*((weight!=0)-(GETWT(tail,head)!=0));
+  }
 }
