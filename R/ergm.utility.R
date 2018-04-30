@@ -374,30 +374,6 @@ standardize.network <- function(nw, preserve.eattr=TRUE){
   apply(x, 1, paste, collapse="\r")
 }
 
-locate.InitFunction <- function(name, prefix, errname=NULL, env = globalenv()){
-  if(is.call(name)) name <- name[[1]]
-  name <- as.character(name)
-  fname <- paste(prefix,name,sep=".")
-
-  if(exists(fname, mode='function', envir=env)) f <- as.name(fname)
-  else{
-    #' @importFrom utils getAnywhere
-    m <- getAnywhere(fname)
-    if(length(m$objs)){
-      ## Prioritise visible over not:
-      if(any(m$visible)){
-        m <- lapply(m[-1], "[", m$visible)
-      }
-      if(length(m$objs)>1) warning("Name ",fname," matched by multiple objects; using the first one on the list.")
-      envname <- environmentName(environment(m$objs[[1]]))
-      f <- call(":::",as.name(envname),as.name(fname))
-    }else{
-      if(!is.null(errname)) stop(errname,' ', sQuote(name), " initialization function ", sQuote(fname), " not found.") else f <- NULL
-    }
-  }
-  f
-}
-
 single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints.obs=NULL, min_informative=NULL, default_density=NULL, output=c("network","pending_update_network"), verbose=FALSE){
   output <- match.arg(output)
   stopifnot(!is.null(constraints)||is.null(constraints.obs))
