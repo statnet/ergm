@@ -836,3 +836,17 @@ InitWtErgmTerm.cyclicalweights<-function (nw, arglist, response, ...) {
        minval = 0)
 }
 
+InitWtErgmTerm.mm<-function (nw, arglist, response, ...) {
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("attrs", "levels", "levels2", "form"),
+                      vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, "character"),
+                      defaultvalues = list(NULL, NULL, NULL, "sum"),
+                      required = c(TRUE, FALSE, FALSE, FALSE))
+  form<-match.arg(a$form,c("sum","nonzero"))
+  # R side is mostly identical to the binary term.
+  arglist.b <- modifyList(arglist, list(form=NULL), keep.null=FALSE)
+  term <- InitErgmTerm.mm(nw, arglist.b, ...)
+  term$name <- paste("mixmat",form,sep="_")
+  term$coef.names <- sub("mm",paste("mm",form,sep="."), term$coef.names)
+  term
+}
