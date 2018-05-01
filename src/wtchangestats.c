@@ -663,19 +663,12 @@ WtD_CHANGESTAT_FN(d_nodeocov_sum){
  stat: nodefactor (nonzero)
 *****************/
 WtD_CHANGESTAT_FN(d_nodefactor_nonzero){ 
-  double s, factorval;
-  int j, tailattr, headattr;
-  
-  
   EXEC_THROUGH_TOGGLES({
-      s = (NEWWT!=0) - (OLDWT!=0);
-      tailattr = INPUT_ATTRIB[TAIL-1];
-      headattr = INPUT_ATTRIB[HEAD-1];
-      for (j=0; j < N_CHANGE_STATS; j++){
-	factorval = INPUT_PARAM[j];
-	if (tailattr == factorval) CHANGE_STAT[j] += s;
-	if (headattr == factorval) CHANGE_STAT[j] += s;
-      }
+      double s = (NEWWT!=0) - (OLDWT!=0);
+      int tailpos = INPUT_ATTRIB[TAIL-1];
+      int headpos = INPUT_ATTRIB[HEAD-1];
+      if (tailpos != -1) CHANGE_STAT[tailpos] += s;
+      if (headpos != -1) CHANGE_STAT[headpos] += s;
     });
 }
 
@@ -683,20 +676,13 @@ WtD_CHANGESTAT_FN(d_nodefactor_nonzero){
  stat: nodefactor (sum)
 *****************/
 WtD_CHANGESTAT_FN(d_nodefactor_sum){ 
-  double s, factorval;
-  int j, tailattr, headattr;
-  
-  
   EXEC_THROUGH_TOGGLES({
-    s = NEWWT - OLDWT;
-    tailattr = INPUT_ATTRIB[TAIL-1];
-    headattr = INPUT_ATTRIB[HEAD-1];
-    for (j=0; j < N_CHANGE_STATS; j++){
-      factorval = INPUT_PARAM[j];
-      if (tailattr == factorval) CHANGE_STAT[j] += s;
-      if (headattr == factorval) CHANGE_STAT[j] += s;
-    }
-  });
+      double s = NEWWT - OLDWT;
+      int tailpos = INPUT_ATTRIB[TAIL-1];
+      int headpos = INPUT_ATTRIB[HEAD-1];
+      if (tailpos != -1) CHANGE_STAT[tailpos] += s;
+      if (headpos != -1) CHANGE_STAT[headpos] += s;
+    });
 }
 
 /*****************
@@ -729,16 +715,10 @@ WtD_CHANGESTAT_FN(d_nodeisqrtcovar){
  stat: nodeifactor (nonzero)
 *****************/
 WtD_CHANGESTAT_FN(d_nodeifactor_nonzero){ 
-  double s, factorval;
-  int j, headattr;
-  
   EXEC_THROUGH_TOGGLES({
-      s = (NEWWT!=0) - (OLDWT!=0);
-      headattr = INPUT_ATTRIB[HEAD-1];
-      for (j=0; j < N_CHANGE_STATS; j++){
-	factorval = INPUT_PARAM[j];
-	if (headattr == factorval) CHANGE_STAT[j] += s;
-      }
+      double s = (NEWWT!=0) - (OLDWT!=0);
+      int headpos = INPUT_ATTRIB[HEAD-1];
+      if (headpos != -1) CHANGE_STAT[headpos] += s;
     });
 }
 
@@ -746,17 +726,11 @@ WtD_CHANGESTAT_FN(d_nodeifactor_nonzero){
  stat: nodeifactor (sum)
 *****************/
 WtD_CHANGESTAT_FN(d_nodeifactor_sum){ 
-  double s, factorval;
-  int j, headattr;
-  
   EXEC_THROUGH_TOGGLES({
-    s = NEWWT - OLDWT;
-    headattr = INPUT_ATTRIB[HEAD-1];
-    for (j=0; j < N_CHANGE_STATS; j++){
-      factorval = INPUT_PARAM[j];
-      if (headattr == factorval) CHANGE_STAT[j] += s;
-    }
-  });
+      double s = NEWWT - OLDWT;
+      int headpos = INPUT_ATTRIB[HEAD-1];
+      if (headpos != -1) CHANGE_STAT[headpos] += s;
+    });
 }
 
 /*****************
@@ -891,17 +865,10 @@ WtD_CHANGESTAT_FN(d_nodeosqrtcovar){
  stat: nodeofactor (nonzero)
 *****************/
 WtD_CHANGESTAT_FN(d_nodeofactor_nonzero){ 
-  double s, factorval;
-  int j, tailattr;
-  
-  
   EXEC_THROUGH_TOGGLES({
-      s = (NEWWT!=0) - (OLDWT!=0);
-      tailattr = INPUT_ATTRIB[TAIL-1];
-      for (j=0; j < N_CHANGE_STATS; j++){
-	factorval = INPUT_PARAM[j];
-	if (tailattr == factorval) CHANGE_STAT[j] += s;
-      }
+      double s = (NEWWT!=0) - (OLDWT!=0);
+      int tailpos = INPUT_ATTRIB[TAIL-1];
+      if (tailpos != -1) CHANGE_STAT[tailpos] += s;
     });
 }
 
@@ -909,18 +876,11 @@ WtD_CHANGESTAT_FN(d_nodeofactor_nonzero){
  stat: nodeofactor (sum)
 *****************/
 WtD_CHANGESTAT_FN(d_nodeofactor_sum){ 
-  double s, factorval;
-  int j, tailattr;
-  
-  
   EXEC_THROUGH_TOGGLES({
-    s = NEWWT - OLDWT;
-    tailattr = INPUT_ATTRIB[TAIL-1];
-    for (j=0; j < N_CHANGE_STATS; j++){
-      factorval = INPUT_PARAM[j];
-      if (tailattr == factorval) CHANGE_STAT[j] += s;
-    }
-  });
+      double s = NEWWT - OLDWT;
+      int tailpos = INPUT_ATTRIB[TAIL-1];
+      if (tailpos != -1) CHANGE_STAT[tailpos] += s;
+    });
 }
 
 /*****************

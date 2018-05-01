@@ -371,7 +371,7 @@ network
     This term can only be used with undirected bipartite networks.}
     
   \item{\code{b1factor(attrname, base=1, levels=NULL)}  (binary)  (bipartite) (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute),
-    \code{b1factor(attrname, base=1, form="sum", levels=NULL)}  (valued)  (bipartite)  (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute)
+    \code{b1factor(attrname, base=1, levels=NULL, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute)
     }{\emph{Factor attribute effect for
     the first mode in a bipartite (aka two-mode) network:} 
     The \code{attrname} argument is a character string giving the name of a
@@ -553,7 +553,7 @@ network
     This term can only be used with undirected bipartite networks.}
     
   \item{\code{b2factor(attrname, base=1, levels=NULL)}  (binary)  (bipartite) (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used),
-    \code{b2factor(attrname, base=1, form="sum", levels=NULL)}  (valued)  (bipartite)  (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used)
+    \code{b2factor(attrname, base=1, levels=NULL, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used)
     }{\emph{Factor attribute effect for
     the second mode in a bipartite (aka two-mode) network :} 
     The \code{attrname} argument is a character string giving the name of a
@@ -1345,7 +1345,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     
     \item{\code{nodefactor(attrname, base=1, levels=NULL)}  (binary)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute) (frequently-used) 
     ,
-    \code{nodefactor(attrname, base=1, form="sum", levels=NULL)}  (dyad-independent)  (valued)  (directed)  (undirected) (categorical nodal attribute)
+    \code{nodefactor(attrname, base=1, levels=NULL, form="sum")}  (dyad-independent)  (valued)  (directed)  (undirected) (categorical nodal attribute)
     }{\emph{Factor attribute
     effect:} The \code{attrname} argument is a character vector giving
     one or more names of categorical attributes in the network's vertex
@@ -1394,7 +1394,7 @@ of the degrees of all pairs of nodes in the network which are tied.
   
     \item{\code{nodeifactor(attrname, base=1, levels=NULL)}  (binary)  (dyad-independent)  (directed) (categorical nodal attribute) (frequently-used)
     ,
-    \code{nodeifactor(attrname, base=1, form="sum", levels=NULL)}  (valued)  (dyad-independent)  (directed) (categorical nodal attribute)
+    \code{nodeifactor(attrname, base=1, levels=NULL, form="sum")}  (valued)  (dyad-independent)  (directed) (categorical nodal attribute)
     }{\emph{Factor attribute
     effect for in-edges:} The \code{attrname} argument is a character
     vector giving one or more names of a categorical attribute in the
@@ -1430,7 +1430,7 @@ of the degrees of all pairs of nodes in the network which are tied.
 
   
     \item{\code{nodematch(attrname, diff=FALSE, keep=NULL, levels=NULL)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (categorical nodal attribute)
-    , \code{nodematch(attrname, diff=FALSE, keep=NULL, form="sum", levels=NULL)}  (valued)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute)
+    , \code{nodematch(attrname, diff=FALSE, keep=NULL, levels=NULL, form="sum")}  (valued)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute)
      a.k.a. \code{match}  (binary)  (directed)  (dyad-independent)  (undirected) (categorical nodal attribute)
      }{\emph{Uniform homophily and differential homophily:}
     The \code{attrname} argument is a character vector giving one or
@@ -1456,7 +1456,7 @@ of the degrees of all pairs of nodes in the network which are tied.
    
     \item{\code{nodemix(attrname, base=NULL, levels=NULL)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (categorical nodal attribute)
     ,
-    \code{nodemix(attrname, base=NULL, form="sum", levels=NULL)}  (valued)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute)
+    \code{nodemix(attrname, base=NULL, levels=NULL, form="sum")}  (valued)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute)
     }{\emph{Nodal attribute
     mixing:} The \code{attrname} argument is a character vector giving
     the names of categorical attributes in the network's vertex
@@ -1498,7 +1498,7 @@ of the degrees of all pairs of nodes in the network which are tied.
   
     \item{\code{nodeofactor(attrname, base=1, levels=NULL)}  (binary)  (dyad-independent)  (directed) (categorical nodal attribute)
     ,
-    \code{nodeofactor(attrname, base=1, form="sum", levels=NULL)}  (valued)  (dyad-independent)  (categorical nodal attribute) (directed)}{\emph{Factor attribute
+    \code{nodeofactor(attrname, base=1, levels=NULL, form="sum")}  (valued)  (dyad-independent)  (categorical nodal attribute) (directed)}{\emph{Factor attribute
     effect for out-edges:} The \code{attrname} argument is a character
     string giving one or more names of categorical attributes in the
     network's vertex attribute list. This term adds multiple network
