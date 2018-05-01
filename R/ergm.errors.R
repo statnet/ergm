@@ -41,8 +41,8 @@ format.traceback <- function(x){
   if(nrow(x)==0) return(NULL)
   x <- x[nrow(x):1,]
   x <- ifelse(nchar(x$pkg),
-              paste(x$type, sQuote(x$name), 'in package', sQuote(x$pkg)),
-              paste(x$type, sQuote(x$name)))
+              paste(if(nchar(x$valued))"valued", x$type, sQuote(x$name), 'in package', sQuote(x$pkg)),
+              paste(if(nchar(x$valued))"valued", x$type, sQuote(x$name)))
 
   if(length(x)==1) x
   else paste0(x[1], ' (', paste('called from', x[-1], collapse=', '), ')')
@@ -61,7 +61,8 @@ traceback.search <- function(pattern, ...) {
   sys.calls() %>%
     as.list() %>%
     map(~.[[1]]) %>%
-    map_chr(deparse) %>%
+    map(deparse) %>%
+    map_chr(paste, collapse="\n") %>%
     grep(pattern, ., value=TRUE, ...)
 }
 

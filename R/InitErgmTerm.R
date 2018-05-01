@@ -191,7 +191,7 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ...) {
   napositions <- is.na(nodecov)
   nodecov[napositions] <- NAsubstitute
   if(any(napositions)){u<-c(u,NA)}
-  if(!is.null(a$base)) u <- u[-(a$base)]
+  if(any(NVL(a$base,0)!=0)) u <- u[-(a$base)]
   if (length(u)==0)
     stop ("Argument to absdiffcat() has too few distinct differences", call.=FALSE)
   u2 <- u[!is.na(u)]
@@ -476,28 +476,20 @@ InitErgmTerm.b1factor<-function (nw, arglist, ...) {
   base <- a$base
   nb1 <- get.network.attribute(nw, "bipartite")
   nodecov <- get.node.attr(nw, attrname, "b1factor")[1:nb1]
-  
-  if(all(is.na(nodecov)))
-	  stop("Argument to b1factor() does not exist", call.=FALSE)
-  
+   
   u <- NVL(a$levels, sort(unique(nodecov)))
-  if(any(is.na(nodecov))){u<-c(u,NA)}
-  nodecov <- match(nodecov,u,nomatch=length(u)+1)
-  ui <- seq(along=u)
-  lu <- length(ui)
-  if (lu==1){
-    stop ("Argument to b1factor() has only one value", call.=FALSE)
+  if (any(NVL(a$base,0)!=0)) {
+    u <- u[-a$base]
+    if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
+      return()
+    }
   }
-  if(base[1]==0){
-    coef.names <- paste("b1factor", attrname, paste(u), sep=".")
-    inputs <- c(ui, nodecov)
-    attr(inputs, "ParamsBeforeCov") <- lu
-  }else{
-    coef.names <- paste("b1factor",attrname, paste(u[-base]), sep=".")
-    inputs <- c(ui[-base], nodecov)
-    attr(inputs, "ParamsBeforeCov") <- lu-length(base)
-  }
-  list(name="b1factor", coef.names=coef.names, inputs=inputs, dependence=FALSE, minval=0)
+  #   Recode to numeric
+  nodepos <- match(nodecov,u,nomatch=0)-1
+
+  ### Construct the list to return
+  inputs <- nodepos
+  list(name="nodeofactor", coef.names=paste("b1factor", attrname, paste(u), sep="."), inputs=inputs, dependence=FALSE, minval=0)
 }
 
 
@@ -2614,10 +2606,10 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, ...) {
 InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
-                      varnames = c("attrname", "diff", "keep"),
-                      vartypes = c("character", "logical", "numeric"),
-                      defaultvalues = list(NULL, FALSE, NULL),
-                      required = c(TRUE, FALSE, FALSE))
+                      varnames = c("attrname", "diff", "keep", "levels"),
+                      vartypes = c("character", "logical", "numeric", "character,numeric,logical"),
+                      defaultvalues = list(NULL, FALSE, NULL, NULL),
+                      required = c(TRUE, FALSE, FALSE, FALSE))
   ### Process the arguments
   nodecov <-
     if(length(a$attrname)==1)

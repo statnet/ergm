@@ -654,37 +654,21 @@ WtC_CHANGESTAT_FN(c_nodeocov_sum){
  stat: nodefactor (nonzero)
 *****************/
 WtC_CHANGESTAT_FN(c_nodefactor_nonzero){ 
-  double s, factorval;
-  int j, tailattr, headattr;
-  
-  
-  ZERO_ALL_CHANGESTATS();
-      s = (weight!=0) - (GETWT(tail,head)!=0);
-      tailattr = INPUT_ATTRIB[tail-1];
-      headattr = INPUT_ATTRIB[head-1];
-      for (j=0; j < N_CHANGE_STATS; j++){
-	factorval = INPUT_PARAM[j];
-	if (tailattr == factorval) CHANGE_STAT[j] += s;
-	if (headattr == factorval) CHANGE_STAT[j] += s;
-      }
+  double s = (weight!=0) - (GETWT(tail,head)!=0);
+  int tailpos = INPUT_ATTRIB[tail-1];
+  int headpos = INPUT_ATTRIB[head-1];
+  if (tailpos != -1) CHANGE_STAT[tailpos] += s;
+  if (headpos != -1) CHANGE_STAT[headpos] += s;
 }
 /*****************
  stat: nodefactor (sum)
 *****************/
 WtC_CHANGESTAT_FN(c_nodefactor_sum){ 
-  double s, factorval;
-  int j, tailattr, headattr;
-  
-  
-  ZERO_ALL_CHANGESTATS();
-    s = weight - GETWT(tail,head);
-    tailattr = INPUT_ATTRIB[tail-1];
-    headattr = INPUT_ATTRIB[head-1];
-    for (j=0; j < N_CHANGE_STATS; j++){
-      factorval = INPUT_PARAM[j];
-      if (tailattr == factorval) CHANGE_STAT[j] += s;
-      if (headattr == factorval) CHANGE_STAT[j] += s;
-    }
+  double s = weight - GETWT(tail,head);
+  int tailpos = INPUT_ATTRIB[tail-1];
+  int headpos = INPUT_ATTRIB[head-1];
+  if (tailpos != -1) CHANGE_STAT[tailpos] += s;
+  if (headpos != -1) CHANGE_STAT[headpos] += s;
 }
 
 
@@ -734,31 +718,17 @@ WtU_CHANGESTAT_FN(u_nodeicovar){
  stat: nodeifactor (nonzero)
 *****************/
 WtC_CHANGESTAT_FN(c_nodeifactor_nonzero){ 
-  double s, factorval;
-  int j, headattr;
-  
-  ZERO_ALL_CHANGESTATS();
-      s = (weight!=0) - (GETWT(tail,head)!=0);
-      headattr = INPUT_ATTRIB[head-1];
-      for (j=0; j < N_CHANGE_STATS; j++){
-	factorval = INPUT_PARAM[j];
-	if (headattr == factorval) CHANGE_STAT[j] += s;
-      }
+  double s = (weight!=0) - (GETWT(tail,head)!=0);
+  int headpos = INPUT_ATTRIB[head-1];
+  if (headpos != -1) CHANGE_STAT[headpos] += s;
 }
 /*****************
  stat: nodeifactor (sum)
 *****************/
 WtC_CHANGESTAT_FN(c_nodeifactor_sum){ 
-  double s, factorval;
-  int j, headattr;
-  
-  ZERO_ALL_CHANGESTATS();
-    s = weight - GETWT(tail,head);
-    headattr = INPUT_ATTRIB[head-1];
-    for (j=0; j < N_CHANGE_STATS; j++){
-      factorval = INPUT_PARAM[j];
-      if (headattr == factorval) CHANGE_STAT[j] += s;
-    }
+  double s = weight - GETWT(tail,head);
+  int headpos = INPUT_ATTRIB[head-1];
+  if (headpos != -1) CHANGE_STAT[headpos] += s;
 }
 
 /*****************
@@ -900,33 +870,17 @@ WtU_CHANGESTAT_FN(u_nodeocovar){
  stat: nodeofactor (nonzero)
 *****************/
 WtC_CHANGESTAT_FN(c_nodeofactor_nonzero){ 
-  double s, factorval;
-  int j, tailattr;
-  
-  
-  ZERO_ALL_CHANGESTATS();
-      s = (weight!=0) - (GETWT(tail,head)!=0);
-      tailattr = INPUT_ATTRIB[tail-1];
-      for (j=0; j < N_CHANGE_STATS; j++){
-	factorval = INPUT_PARAM[j];
-	if (tailattr == factorval) CHANGE_STAT[j] += s;
-      }
+  double s = (weight!=0) - (GETWT(tail,head)!=0);
+  int tailpos = INPUT_ATTRIB[tail-1];
+  if (tailpos != -1) CHANGE_STAT[tailpos] += s;
 }
 /*****************
  stat: nodeofactor (sum)
 *****************/
 WtC_CHANGESTAT_FN(c_nodeofactor_sum){ 
-  double s, factorval;
-  int j, tailattr;
-  
-  
-  ZERO_ALL_CHANGESTATS();
-    s = weight - GETWT(tail,head);
-    tailattr = INPUT_ATTRIB[tail-1];
-    for (j=0; j < N_CHANGE_STATS; j++){
-      factorval = INPUT_PARAM[j];
-      if (tailattr == factorval) CHANGE_STAT[j] += s;
-    }
+  double s = weight - GETWT(tail,head);
+  int tailpos = INPUT_ATTRIB[tail-1];
+  if (tailpos != -1) CHANGE_STAT[tailpos] += s;
 }
 
 /*****************
