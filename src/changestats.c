@@ -375,24 +375,6 @@ C_CHANGESTAT_FN(c_b1degree_by_attr_ML_sum) {
 }
 
 /*****************
- changestat: d_b1factor
-*****************/
-C_CHANGESTAT_FN(c_b1factor) { 
-  double s, factorval;
-  Vertex b1;
-  int j;
-  
-  /* *** don't forget tail -> head */  
-  ZERO_ALL_CHANGESTATS(i);
-    b1 = tail;
-    s = IS_OUTEDGE(b1,head) ? -1.0 : 1.0;
-    for (j=0; j<(N_CHANGE_STATS); j++) {
-      factorval = (INPUT_PARAM[j]);
-      CHANGE_STAT[j] += ((INPUT_ATTRIB[b1-1] != factorval) ? 0.0 : s);
-    }
-}
-
-/*****************
  changestat: d_b1nodematch
 *****************/
 C_CHANGESTAT_FN(c_b1nodematch) {
