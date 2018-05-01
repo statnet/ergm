@@ -93,7 +93,7 @@
 check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegative=FALSE,
                            varnames=NULL, vartypes=NULL,
                            defaultvalues=list(), required=NULL, response=NULL) {
-  stopifnot(all_identical(c(length(varnames), length(vartypes), length(defaultvalues))))
+  stopifnot(all_identical(c(length(varnames), length(vartypes), length(defaultvalues), length(required))))
   message <- NULL
   if (!is.null(directed) && directed != (dnw<-is.directed(nw))) {
     #directed != (dnw<-eval(expression(nw$gal$dir),parent.frame()))) {
@@ -150,7 +150,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
           ergm_Init_abort("Model term does not recognize ", sQuote(name), " argument.")
         }
         # valid name match with mth variable if we got to here
-        if (all(sapply(strsplit(vartypes[m],",",fixed=TRUE)[[1]], function(vartype) !is(arglist[[i]], vartype)))) {
+        if (all(sapply(strsplit(vartypes[m],",",fixed=TRUE)[[1]], function(vartype) !is.null(arglist[[i]]) && !is(arglist[[i]], vartype)))) {
           # Wrong type
           ergm_Init_abort(sQuote(name), " argument is not of the expected ", sQuote(vartypes[m]), " type.")
         }
@@ -160,7 +160,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
         if (!is.null(m)) {
           ergm_Init_abort("Unnamed argument follows named argument.")
         }
-        if (all(sapply(strsplit(vartypes[i],",",fixed=TRUE)[[1]], function(vartype) !is(arglist[[i]], vartype)))) {
+        if (all(sapply(strsplit(vartypes[i],",",fixed=TRUE)[[1]], function(vartype) !is.null(arglist[[i]]) && !is(arglist[[i]], vartype)))) {
           # Wrong type
           ergm_Init_abort("Argument number ", i, " is not of the expected ", sQuote(vartypes[i]), " type.")
         }
