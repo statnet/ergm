@@ -364,28 +364,6 @@ D_CHANGESTAT_FN(d_b1degree_by_attr) {
 }
 
 /*****************
- changestat: d_b1factor
-*****************/
-D_CHANGESTAT_FN(d_b1factor) { 
-  double s, factorval;
-  Vertex b1;
-  int i, j;
-  
-  /* *** don't forget tail -> head */  
-  ZERO_ALL_CHANGESTATS(i);
-  FOR_EACH_TOGGLE(i) {
-    b1 = TAIL(i);
-    s = IS_OUTEDGE(b1, HEAD(i)) ? -1.0 : 1.0;
-    for (j=0; j<(N_CHANGE_STATS); j++) {
-      factorval = (INPUT_PARAM[j]);
-      CHANGE_STAT[j] += ((INPUT_ATTRIB[b1-1] != factorval) ? 0.0 : s);
-    }
-    TOGGLE_IF_MORE_TO_COME(i); /* Needed in case of multiple toggles */
-  }
-  UNDO_PREVIOUS_TOGGLES(i); /* Needed on exit in case of multiple toggles */
-}
-
-/*****************
  changestat: d_b1nodematch
 *****************/
 D_CHANGESTAT_FN(d_b1nodematch) {
