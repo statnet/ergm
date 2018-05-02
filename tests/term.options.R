@@ -1,6 +1,7 @@
 library(ergm)
 set.seed(0)
 data(sampson)
+options(ergm.eval.loglik=TRUE)
 
 times <- 2
 truth <- summary(samplike~edges)*times
@@ -16,7 +17,7 @@ e2 <- ergm(samplike~.edges_times, control=control.ergm(force.main=TRUE,term.opti
 stopifnot(isTRUE(all.equal(coef(e2),truth,check.attributes=FALSE,tolerance=.005)))
 stopifnot(isTRUE(all.equal(logLik(e2),logLik(e1),check.attributes=FALSE,tolerance=.005)))
 
-gof(e2)
+gof(e2, control=control.gof.ergm(nsim=20))
 
 options(ergm.eval.loglik=FALSE)
 e3 <- ergm(samplike~.edges_times, target.stats=as.vector(summary(samplike~edges)/2), control=control.ergm(term.options=list(times=2)))

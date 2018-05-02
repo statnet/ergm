@@ -2210,7 +2210,7 @@ InitErgmTerm.istar<-function(nw, arglist, ...) {
                       varnames = c("k", "attrname", "levels"),
                       vartypes = c("numeric", "character", "character,numeric,logical"),
                       defaultvalues = list(NULL, NULL, NULL),
-                      required = c(TRUE, FALSE))
+                      required = c(TRUE, FALSE, FALSE))
   k <- a$k
   attrname <- a$attrname
   if(!is.null(attrname)) {
