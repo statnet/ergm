@@ -320,7 +320,7 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=FALSE, ...) {
                       varnames = c("d","type","Ls.path","L.in_order"),
                       vartypes = c("numeric","character","formula,list","logical"),
                       defaultvalues = list(NULL,"OTP",NULL,FALSE),
-                      required = c(TRUE, FALSE,FALSE,FALSE,FALSE))
+                      required = c(TRUE, FALSE,FALSE,FALSE))
   d<-a$d
   ld<-length(d)
   if(ld==0){return(NULL)}
@@ -372,7 +372,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=FALSE, ...) {
                       varnames = c("decay","fixed","cutoff","type", "alpha","Ls.path","L.in_order"),
                       vartypes = c("numeric","logical","numeric","character", "numeric","formula,list","logical"),
                       defaultvalues = list(NULL, FALSE, 30,"OTP", NULL,NULL,FALSE),
-                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE,FALSE,FALSE,FALSE))
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE,FALSE,FALSE))
   if(!is.null(a$alpha)){
     stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
   }
