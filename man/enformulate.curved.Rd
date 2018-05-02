@@ -56,15 +56,15 @@ options(ergm.eval.loglik=FALSE)
 }
 data(sampson)
 gest<-ergm(samplike~edges+gwesp(decay=.5, fixed=FALSE), 
-    control=control.ergm(MCMLE.maxit=1))
+    control=control.ergm(MCMC.burnin=1024, MCMC.interval=8, MCMLE.maxit=1))
 # Error:
-gest2<-try(ergm(gest$formula, control=control.ergm(init=coef(gest), MCMLE.maxit=2)))
+gest2<-try(ergm(gest$formula, control=control.ergm(init=coef(gest), MCMC.burnin=1024, MCMC.interval=8, MCMLE.maxit=1)))
 print(gest2)
 
 # Works:
 tmp<-enformulate.curved(gest)
 tmp
-gest2<-try(ergm(tmp$formula, control=control.ergm(init=tmp$theta, MCMLE.maxit=2)))
+gest2<-try(ergm(tmp$formula, control=control.ergm(init=tmp$theta, MCMC.burnin=1024, MCMC.interval=8, MCMLE.maxit=1)))
 summary(gest2)
 }
 

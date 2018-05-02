@@ -58,7 +58,7 @@ options(ergm.eval.loglik=FALSE)
 }
 data(sampson)
 gest<-ergm(samplike~edges+gwesp(decay=.5,fixed=FALSE),
-           control=control.ergm(MCMLE.maxit=3))
+           control=control.ergm(MCMLE.maxit=3, MCMC.burnin=1024, MCMC.interval=128))
 summary(gest)
 # A statistic for esp(1),...,esp(16)
 simulate(gest,statsonly=TRUE)
