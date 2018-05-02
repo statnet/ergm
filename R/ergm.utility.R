@@ -403,7 +403,7 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
       d <-
         if(sum(informative)<min_informative){
           message("Number of informative dyads is too low. Using default imputation density.")
-          default_density(nw)
+          default_density
         }else sum(nonzeros & informative)/sum(informative)
       nimpute <- round(d*nae)
     }else{
@@ -421,7 +421,7 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
       d <-
         if(network.dyadcount(nw,na.omit=TRUE)<min_informative){
           message("Number of informative dyads is too low. Using default imputation density.")
-          default_density(nw)
+          default_density
         }else network.edgecount(nw,na.omit=TRUE)/network.dyadcount(nw,na.omit=TRUE)
       nimpute <- round(d*nae)
     }else{
