@@ -130,7 +130,8 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, N.compact_stats=TRUE,...)
   nstats <-  ms %>% map("model") %>% map_int(nparam, canonical=TRUE)
   
   # Check for MANOVA style matrix.
-  if(!all_identical(nparams)) stop("N() operator with linear model weights only supports models with the same numbers of parameters for every network. This may change in the future.")
+  if(!all_identical(nparams)) ergm_Init_abort("N() operator only supports models with the same numbers of parameters for every network. This may change in the future.")
+  if(!all_identical(ms %>% map("model") %>% map(param_names, canonical=FALSE))) ergm_Init_warn("Subnetwork models have different parameter names but the same parameter vector lengths; this may indicate specification problems.")
   nparam <- nparams[1]
 
   # Extract offsets and weights.

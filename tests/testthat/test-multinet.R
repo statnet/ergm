@@ -104,3 +104,11 @@ for(N.compact_stats in c(FALSE,TRUE)){
     }
   })
 }
+
+
+test_that("N() warns on parameter name mismatch",{
+  samplk1%v%"x" <- 1:2
+  samplk2%v%"x" <- 3:4
+  expect_warning(summary(Networks(samplk1,samplk2)~N(~nodemix("x"))),
+                 "different parameter names")
+})
