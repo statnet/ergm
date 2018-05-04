@@ -1,12 +1,18 @@
 
 # Arguments and outputs are identical to the binary version, except for the C routine name.
 InitWtErgmTerm..subnets <- function(...){
-  modifyList(InitErgmTerm..subnets(...), list(name="_wtsubnets"))
+  # Rename the function to avoid the extra nesting level in the
+  # diagnostic messages.
+  f <- InitErgmTerm..subnets
+  modifyList(f(...), list(name="_wtsubnets"))
 }
 
-  # Arguments and outputs are identical to the binary version, except for the C routine names.
+# Arguments and outputs are identical to the binary version, except for the C routine names.
 InitWtErgmTerm.N <- function(...){
-  term <- InitErgmTerm.N(...)
+  # Rename the function to avoid the extra nesting level in the
+  # diagnostic messages.
+  f <- InitErgmTerm.N
+  term <- f(...)
   term$name <- switch(term$name,
                       MultiNet = "wtMultiNet",
                       MultiNets = "wtMultiNets")
