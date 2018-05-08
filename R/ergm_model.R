@@ -23,8 +23,8 @@
 #' @note This API is not to be considered fixed and may change between versions. However, an effort will be made to ensure that the methods of this class remain stable.
 #' @param formula An [ergm()]
 #' formula of the form \code{network ~ model.term(s)} or \code{~
-#' model.term(s)}, with the network passed separately.
-#' @param nw The network of interest.
+#' model.term(s)}.
+#' @param nw The network of interest; if passed, the LHS of `formula` is ignored. This is the recommended usage.
 #' @template response
 #' @param silent logical, whether to print the warning messages from the
 #' initialization of each model term.
@@ -47,9 +47,12 @@
 #' <ergm.etamap>}
 #' @seealso [summary.ergm_model()]
 #' @export
-ergm_model <- function(formula, nw, response=NULL, silent=FALSE, role="static",...,term.options=list()){
+ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, role="static",...,term.options=list()){
   if (!is(formula, "formula"))
     stop("Invalid model formula of class ",sQuote(class(formula)),".", call.=FALSE)
+  
+  #' @importFrom statnet.common eval_lhs.formula
+  if(is.null(nw)) nw <- eval_lhs.formula(formula)
 
   #' @importFrom utils modifyList
   term.options <- modifyList(as.list(getOption("ergm.term")), as.list(term.options))

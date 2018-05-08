@@ -10,8 +10,8 @@
 \alias{param_names.ergm_model}
 \title{Internal representation of an \code{ergm} network model}
 \usage{
-ergm_model(formula, nw, response = NULL, silent = FALSE, role = "static",
-  ..., term.options = list())
+ergm_model(formula, nw = NULL, response = NULL, silent = FALSE,
+  role = "static", ..., term.options = list())
 
 \method{is.curved}{ergm_model}(object, ...)
 
@@ -27,9 +27,9 @@ ergm_model(formula, nw, response = NULL, silent = FALSE, role = "static",
 \arguments{
 \item{formula}{An \code{\link[=ergm]{ergm()}}
 formula of the form \code{network ~ model.term(s)} or \code{~
-model.term(s)}, with the network passed separately.}
+model.term(s)}.}
 
-\item{nw}{The network of interest.}
+\item{nw}{The network of interest; if passed, the LHS of \code{formula} is ignored. This is the recommended usage.}
 
 \item{response}{Name of the edge attribute whose value is to be
 modeled in the valued ERGM framework. Defaults to \code{NULL} for
