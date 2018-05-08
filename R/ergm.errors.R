@@ -40,18 +40,20 @@ ergm_Init_inform <- function(..., default.loc=NULL){
 format.traceback <- function(x){
   if(nrow(x)==0) return(NULL)
   x <- x[nrow(x):1,]
-  x <- ifelse(nchar(x$pkg),
-              paste(if(nchar(x$valued))"valued", x$type, sQuote(x$name), 'in package', sQuote(x$pkg)),
-              paste(if(nchar(x$valued))"valued", x$type, sQuote(x$name)))
+  x <- paste0(ifelse(x$valued,"valued ", ""),
+              x$type, " ",
+              sQuote(x$name),
+              ifelse(nchar(x$pkg),
+                     paste0(' in package ', sQuote(x$pkg)), ""))
 
   if(length(x)==1) x
   else paste0(x[1], ' (', paste('called from', x[-1], collapse=', '), ')')
 }
 
-#' @importFrom dplyr bind_cols
+#' @importFrom dplyr bind_rows
 traceback.Initializers <- function(){
   pat <- '^((?<pkg>[^:]+):::?)?Init(?<valued>Wt)?Ergm(?<type>Term|Proposal|Reference|Constraint)\\.(?<name>.*)$'
-  traceback.search(pat, perl=TRUE) %>% map(regexpr_list, pat) %>% bind_cols()
+  traceback.search(pat, perl=TRUE) %>% map(regexpr_list, pat) %>% bind_rows()
 }
 
 # Search back in time through sys.calls() to find the name of the last
