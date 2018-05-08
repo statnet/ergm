@@ -11,6 +11,7 @@
 \alias{N}
 \alias{NodematchFilter}
 \alias{Offset}
+\alias{Sum}
 \alias{Undir}
 \alias{absdiff}
 \alias{absdiffcat}
@@ -469,6 +470,30 @@ network
     parameters to help identify the term (which may have similar
     predictors but, say, a different network subset) in the output.
   }
+
+
+  \item{\code{Sum(formulas, label)} (binary) (operator),
+  \code{Sum(formulas, label)} (valued) (operator)}{\emph{A sum (or an arbitrary linear combination) of one or more formulas}:
+
+    \code{formulas} is a list of formulas whose corresponding RHS
+    statistics will be summed elementwise.
+
+    If a formula has an LHS, it is interpreted as follows: \describe{
+      \item{a numeric scalar}{Network statistics of this formula will be multiplied by this.}
+      \item{a numeric vector}{Corresponding network statistics of this formula will be multiplied by this.}
+      \item{a numeric matrix}{Vector of network statistics will be pre-multiplied by this.}
+    }
+    Note that each formula must either produce the same number of
+    statistics or be mapped through a matrix to produce the same
+    number of statistics.
+
+    A single formula is also permissible. This can be useful if one
+    wishes to, say, sum up the statistics returned by a formula.
+
+    \code{label} is used to specify the name of the resulting term sum
+    vector.
+  }
+
 
   \item{\code{Undir(formula, rule="weak")} (binary) (directed) (operator)}{\emph{Evaluation on symmetrized (undirected) network}:
     Evaluates the terms in \code{formula} on an undirected network

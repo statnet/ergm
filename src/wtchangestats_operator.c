@@ -241,3 +241,65 @@ WtF_CHANGESTAT_FN(f__binary_formula_net){
   NetworkDestroy(bnwp);
   // WtDestroyStats() will deallocate the rest.
 }
+
+
+// wtSum: Take a weighted sum of the models' statistics.
+
+WtI_CHANGESTAT_FN(i_wtSum){
+  /*
+    inputs expected:
+    1: number of models (nms)
+    1: total length of all weight matrices (tml)
+    tml: a list of mapping matrices in row-major order
+    nms*?: submodel specifications for nms submodels
+  */
+  
+  double *inputs = INPUT_PARAM; 
+  unsigned int nms = *(inputs++);
+  unsigned int tml = *(inputs++);
+  inputs+=tml; // Jump to start of model specifications.
+  
+  ALLOC_STORAGE(nms, WtModel*, ms);
+
+  for(unsigned int i=0; i<nms; i++){
+    ms[i] = unpack_WtModel_as_double(&inputs);
+    WtInitStats(nwp, ms[i]);
+  }
+}
+
+WtC_CHANGESTAT_FN(c_wtSum){
+  double *inputs = INPUT_PARAM; 
+  GET_STORAGE(WtModel*, ms);
+  unsigned int nms = *(inputs++);
+  inputs++; //  Skip total length of weight matrices.
+  double *wts = inputs;
+
+  for(unsigned int i=0; i<nms; i++){
+    WtModel *m = ms[i];
+    WtChangeStats(1, &tail, &head, &weight, nwp, m);
+    for(unsigned int j=0; j<m->n_stats; j++)
+      for(unsigned int k=0; k<N_CHANGE_STATS; k++)
+	CHANGE_STAT[k] += m->workspace[j]* *(wts++);
+  }
+}
+
+WtU_CHANGESTAT_FN(u_wtSum){
+  double *inputs = INPUT_PARAM; 
+  GET_STORAGE(WtModel*, ms);
+  unsigned int nms = *(inputs++);
+
+  for(unsigned int i=0; i<nms; i++){
+    WtModel *m = ms[i];
+    WtUPDATE_STORAGE(tail, head, weight, nwp, m, NULL);
+  }
+}
+
+WtF_CHANGESTAT_FN(f_wtSum){
+  double *inputs = INPUT_PARAM; 
+  GET_STORAGE(WtModel*, ms);
+  unsigned int nms = *(inputs++);
+
+  for(unsigned int i=0; i<nms; i++){
+    WtModelDestroy(nwp, ms[i]);
+  }
+}

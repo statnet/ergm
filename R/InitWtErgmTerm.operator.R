@@ -72,3 +72,13 @@ InitWtErgmTerm..binary.formula.net <- function(nw, arglist, response=NULL, ...){
   
   list(name="_binary_formula_net", inputs=c(inputs), depenence=FALSE)
 }
+
+# Arguments and outputs are identical to the binary version, except for the C routine names.
+InitWtErgmTerm.Sum <- function(...){
+  # Rename the function to avoid the extra nesting level in the
+  # diagnostic messages.
+  f <- InitErgmTerm.Sum
+  term <- f(...)
+  term$name <- "wtSum"
+  term
+}

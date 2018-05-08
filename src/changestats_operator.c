@@ -320,3 +320,65 @@ F_CHANGESTAT_FN(f_undir){
   ModelDestroy(unwp, m);
   STORAGE = NULL;
 }
+
+
+// Sum: Take a weighted sum of the models' statistics.
+
+I_CHANGESTAT_FN(i_Sum){
+  /*
+    inputs expected:
+    1: number of models (nms)
+    1: total length of all weight matrices (tml)
+    tml: a list of mapping matrices in row-major order
+    nms*?: submodel specifications for nms submodels
+  */
+  
+  double *inputs = INPUT_PARAM; 
+  unsigned int nms = *(inputs++);
+  unsigned int tml = *(inputs++);
+  inputs+=tml; // Jump to start of model specifications.
+  
+  ALLOC_STORAGE(nms, Model*, ms);
+
+  for(unsigned int i=0; i<nms; i++){
+    ms[i] = unpack_Model_as_double(&inputs);
+    InitStats(nwp, ms[i]);
+  }
+}
+
+C_CHANGESTAT_FN(c_Sum){
+  double *inputs = INPUT_PARAM; 
+  GET_STORAGE(Model*, ms);
+  unsigned int nms = *(inputs++);
+  inputs++; //  Skip total length of weight matrices.
+  double *wts = inputs;
+
+  for(unsigned int i=0; i<nms; i++){
+    Model *m = ms[i];
+    ChangeStats(1, &tail, &head, nwp, m);
+    for(unsigned int j=0; j<m->n_stats; j++)
+      for(unsigned int k=0; k<N_CHANGE_STATS; k++)
+	CHANGE_STAT[k] += m->workspace[j]* *(wts++);
+  }
+}
+
+U_CHANGESTAT_FN(u_Sum){
+  double *inputs = INPUT_PARAM; 
+  GET_STORAGE(Model*, ms);
+  unsigned int nms = *(inputs++);
+
+  for(unsigned int i=0; i<nms; i++){
+    Model *m = ms[i];
+    UPDATE_STORAGE(tail, head, nwp, m, NULL);
+  }
+}
+
+F_CHANGESTAT_FN(f_Sum){
+  double *inputs = INPUT_PARAM; 
+  GET_STORAGE(Model*, ms);
+  unsigned int nms = *(inputs++);
+
+  for(unsigned int i=0; i<nms; i++){
+    ModelDestroy(nwp, ms[i]);
+  }
+}

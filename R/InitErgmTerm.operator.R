@@ -374,3 +374,51 @@ InitErgmTerm.Undir <- function(nw, arglist, response=NULL, ...){
     passthrough.curved.ergm_model(m, function(x) paste0('Undir(',x,')')))
 }
 
+InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("formulas", "label"),
+                      vartypes = c("list,formula", "character"),
+                      defaultvalues = list(NULL, NULL),
+                      required = c(TRUE, TRUE))
+
+  fs <- a$formulas
+  if(is(fs,"formula")) fs <- list(fs)
+  nf <- length(fs)
+  
+  ms <- lapply(fs, function(f){
+    m <- ergm_model(f, nw, response=response,...)
+    if(is.curved(m)) ergm_Init_inform("Model ", sQuote(deparse(f,500)), " appears to be curved. Its canonical parameters will be used.")
+    list(model = m,
+         inputs = to_ergm_Cdouble(m),
+         gs = summary(m))
+  })
+
+  nstats <-  ms %>% map("model") %>% map_int(nparam, canonical=TRUE)
+
+  wl <- list()
+  for(i in seq_along(fs)){
+    f <- fs[[i]]
+    w <- if(length(f)==2) 1 else eval_lhs.formula(f)
+    if(!is.matrix(w)) w <- diag(w, nstats[i])
+    wl[[i]] <- w
+  }
+
+  nparams <- wl %>% map_int(nrow)
+
+  if(!all_identical(nparams)) ergm_Init_abort("Specified models and weights appear to differ in lengths of output statistics.")
+  nparam <- nparams[1]
+
+  inputs <- unlist(wl%>%map(t))
+  inputs <- c(nf, length(inputs), inputs, ms %>% map("inputs") %>% unlist())
+
+  label <- if(length(a$label)==1) paste0(a$label,seq_len(nparam)) else a$label
+  coef.names <- paste0('Sum:',label)
+  
+  gs <- lst(x = wl,
+            y = ms %>% map("gs")) %>%
+    pmap(`%*%`) %>%
+    reduce(`+`) %>%
+    c()
+  
+  list(name="Sum", coef.names = coef.names, inputs=inputs, dependence=!all(ms %>% map("model") %>% map_lgl(is.dyad.independent)), emptynwstats = gs)
+}
