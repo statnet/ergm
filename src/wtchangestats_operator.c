@@ -201,13 +201,14 @@ WtI_CHANGESTAT_FN(i__binary_formula_net){
   ALLOC_AUX_STORAGE(1, StoreNetAndWtModel, storage); inputs++;
   WtModel *m = storage->m = unpack_WtModel_as_double(&inputs);
   Network *bnwp = &(storage->nw);
+  double zero=0;
   
   WtInitStats(nwp, m);
   
   *bnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
   WtEXEC_THROUGH_NET_EDGES_PRE(t, h, e, w, {
       if(w!=0){
-	WtChangeStats(1, &t, &h, 0, nwp, m);
+	WtChangeStats(1, &t, &h, &zero, nwp, m);
 	// I.e., if reducing the value from the current value to 0
 	// decreases the statistic, add edge to the binary network.
 	if(*(m->workspace)==-1) 
