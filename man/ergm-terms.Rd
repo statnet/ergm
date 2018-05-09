@@ -1185,7 +1185,8 @@ of the degrees of all pairs of nodes in the network which are tied.
       \code{upper}. Argument \code{open}
       is a \code{logical} vector of length 2 that controls whether
       the interval is open (exclusive) on the lower and on the upper
-      end, respectively.
+      end, respectively. \code{open} can also be specified as one of
+      \code{"[]"}, \code{"(]"}, \code{"[)"}, and \code{"()"}.
     }
 
   

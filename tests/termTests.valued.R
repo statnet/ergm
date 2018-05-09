@@ -199,31 +199,29 @@ for(tol in unique(c(runif(1,0,2), dirvt, undvt, bipvt))){
 }
 
 # ininterval
+charospec <- function(o1, o2) paste0(if(o1)'('else'[',if(o2)')'else']')
 for(o1 in c(FALSE, TRUE)){
   for(o2 in c(FALSE, TRUE)){
     for(lv in c(-Inf,dirvt, Inf))
-      for(uv in c(-Inf,dirvt, Inf))
-        tst(sum(
-        ((o1 & dirm>lv) | (!o1 & dirm>=lv)) &
-        ((o2 & dirm<uv) | (!o2 & dirm<=uv)),
-        na.rm=TRUE),
-        summary(dirnw ~ ininterval(lv, uv, c(o1,o2)), response="w"))
-
+      for(uv in c(-Inf,dirvt, Inf)){
+        truth <- sum(((o1 & dirm>lv) | (!o1 & dirm>=lv)) & ((o2 & dirm<uv) | (!o2 & dirm<=uv)), na.rm=TRUE)
+        tst(truth, summary(dirnw ~ ininterval(lv, uv, c(o1,o2)), response="w"))
+        tst(truth, summary(dirnw ~ ininterval(lv, uv, charospec(o1,o2)), response="w"))
+      }
+    
     for(lv in c(-Inf,undvt, Inf))
-      for(uv in c(-Inf,undvt, Inf))
-        tst(sum(
-        ((o1 & undm>lv) | (!o1 & undm>=lv)) &
-        ((o2 & undm<uv) | (!o2 & undm<=uv)),
-        na.rm=TRUE)/2,
-        summary(undnw ~ ininterval(lv, uv, c(o1,o2)), response="w"))
-
+      for(uv in c(-Inf,undvt, Inf)){
+        truth <- sum(((o1 & undm>lv) | (!o1 & undm>=lv)) & ((o2 & undm<uv) | (!o2 & undm<=uv)), na.rm=TRUE)/2
+        tst(truth, summary(undnw ~ ininterval(lv, uv, c(o1,o2)), response="w"))
+        tst(truth, summary(undnw ~ ininterval(lv, uv, charospec(o1,o2)), response="w"))
+      }
+    
     for(lv in c(-Inf,bipvt, Inf))
-      for(uv in c(-Inf,bipvt, Inf))
-        tst(sum(
-        ((o1 & bipm>lv) | (!o1 & bipm>=lv)) &
-        ((o2 & bipm<uv) | (!o2 & bipm<=uv)),
-        na.rm=TRUE),
-        summary(bipnw ~ ininterval(lv, uv, c(o1,o2)), response="w"))
+      for(uv in c(-Inf,bipvt, Inf)){
+        truth <- sum(((o1 & bipm>lv) | (!o1 & bipm>=lv)) & ((o2 & bipm<uv) | (!o2 & bipm<=uv)), na.rm=TRUE)
+        tst(truth, summary(bipnw ~ ininterval(lv, uv, c(o1,o2)), response="w"))
+        tst(truth, summary(bipnw ~ ininterval(lv, uv, charospec(o1,o2)), response="w"))
+      }
   }
 }
 

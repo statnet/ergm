@@ -149,19 +149,29 @@ InitWtErgmTerm.equalto<-function(nw, arglist, response, ...) {
 InitWtErgmTerm.ininterval<-function(nw, arglist, response, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("lower","upper","open"),
-                      vartypes = c("numeric","numeric","logical"),
+                      vartypes = c("numeric","numeric","logical,character"),
                       defaultvalues = list(-Inf,+Inf,c(TRUE,TRUE)),
                       required = c(FALSE,FALSE,FALSE))
 
-  a$open<-rep(a$open,length.out=2)
+  open <- switch(mode(a$open),
+                 character = paste0(a$open, collapse=""),
+                 logical = rep(a$open, length.out=2))
+
+  OPENSPECS = c('()', '(]', '[)', '[]')
+  if(is(open, "character")){
+    if(! open%in%OPENSPECS) ergm_Init_abort("Interval openness specification via a string must be ", paste.and(OPENSPECS,'"','"',"or"),".")
+    open <- c(substr(open,1,1)=="(",
+              substr(open,2,2)==")")
+  }
+
   list(name="ininterval",
-       coef.names=paste("ininterval",if(a$open[1]) "(" else "[", a$lower,",",a$upper, if(a$open[2]) ")" else "]",sep=""),
-       inputs=c(.deinf(a$lower),.deinf(a$upper),a$open),
+       coef.names=paste("ininterval",if(open[1]) "(" else "[", a$lower,",",a$upper, if(open[2]) ")" else "]",sep=""),
+       inputs=c(.deinf(a$lower),.deinf(a$upper),open),
        dependence=FALSE,
        minval=0, maxval=network.dyadcount(nw,FALSE),
        emptynwstats=if(
-       ((a$open[1] & 0>a$lower) | (!a$open[1] & 0>=a$lower)) &
-       ((a$open[2] & 0<a$upper) | (!a$open[2] & 0<=a$upper))
+       ((open[1] & 0>a$lower) | (!open[1] & 0>=a$lower)) &
+       ((open[2] & 0<a$upper) | (!open[2] & 0<=a$upper))
        ) network.dyadcount(nw,FALSE) else 0)
 }
 
