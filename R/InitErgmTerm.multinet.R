@@ -86,7 +86,7 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, N.compact_stats=TRUE,...)
   auxiliaries <- ~.subnets(".NetworkID")
 
   nattrs <- Reduce(union, lapply(nwl, list.network.attributes))
-  nattrs <- as.data.frame(lapply(nattrs, function(nattr) sapply(lapply(nwl, get.network.attribute, nattr), function(x) if(is.null(x) || length(x)!=1) NA else x)), col.names=nattrs)
+  nattrs <- as.tibble(lapply(nattrs, function(nattr) sapply(lapply(nwl, get.network.attribute, nattr), NVL, NA)) %>% set_names(nattrs))
 
   subset <-
     if(mode(a$subset) %in% c("expression", "call")) eval(if(is(a$subset, "formula")) a$subset[[2]] else a$subset, envir = nattrs, enclos = environment(a$lm))
