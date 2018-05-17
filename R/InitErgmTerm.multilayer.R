@@ -21,44 +21,139 @@
   paste0("L(",paste0(reprs, collapse=","),")")
 }
 
-#' Extract a binary network "view".
+#' Construct a "view" of a network.
 #'
-#' Returns a binary network with only those edges retained that fulfil
-#' a specific criterion.
+#' Returns a network with edges optionally filtered according to a
+#' specified criterion and with edge attributes optionally computed
+#' from other edge attributes.
 #'
 #' @param x a [`network`] object.
-#' @param attrname a character vector of length 1 giving the name of
-#'   the edge attribute to test.
-#' @param test.f an optional vector function that takes a vector of
-#'   selected edge attribute values and returns a logical vector
-#'   indicating whether an attribute should be kept; returning `NA`
-#'   sets the edge to missing.
+#' @param ... a list of attribute or filtering specifications. See
+#'   Details.
+#' @param .clear whether the edge attributes not set by this call
+#'   should be deleted.
+#' @param .sep when specifying via a character vector, use this as the
+#'   separator for concatenating edge values.
 #'
-#' @return A [`network`] object with vertex and network attributes retained from `x`.
+#' @details Attribute specification arguments have the form
+#'   `<newattrname> = <expr>`, where `<newattrname>` specifies the
+#'   name of the new edge attribute (or attribute to be overwritten)
+#'   and `<expr>` can be one of the following:
+#' \describe{
+#'
+#' \item{a function}{The function will be passed two arguments, the
+#' edgelist [`tibble`] and the network, and must return a vector of
+#' edge attribute values to be set on the edges in the order
+#' specified.}
+#'
+#' \item{a formula}{The expression on the RHS of the formula will be
+#' evaluated with names in it referencing the edge attributes. The
+#' input network may be referenced as `.nw`. The expression's result
+#' is expected to be a vector of edge attribute values to be set on
+#' the edges in the order specified.}
+#' 
+#' \item{a character vector}{If of length one, the edge attribute with
+#' that name will simply be copied; if greater than one, the attribute
+#' values will be concatenated wtih the `.sep` argument as the
+#' separator.}
+#'
+#' \item{an object enclosed in [I()]}{The object will be used directly
+#' to set the edge attribute.}
+#' }
+#'
+#' Filtering arguments are specified the same way as attribute
+#' arguments, but they must be named arguments (i.e., must be passed
+#' without the `=`) and must return a logical or numeric vector
+#' suitable for indexing the edge list. Multiple filtering arguments
+#' will be specified, and the edge will be kept if it satisfise
+#' *all*. If the conjunction of the edge's original states and the
+#' filtering results is ambiguous (i.e., `NA`), it will be set as
+#' missing.
+#'
+#' @return A [`network`] object with modified edges and edge attributes.
 #'
 #' @examples
 #' data(florentine)
 #' flo <- flomarriage
 #' flo[,,add.edges=TRUE] <- as.matrix(flomarriage) | as.matrix(flobusiness)
-#' flo[,, names.eval="m"] <- as.matrix(flomarriage)
+#' flo[,, names.eval="m"] <- as.matrix(flomarriage)==1
 #' flobusiness[3,5] <- NA
-#' flo[,, names.eval="b"] <- as.matrix(flobusiness)
+#' flo[,, names.eval="b"] <- as.matrix(flobusiness)==1
 #' flo
 #' (flob <- network_view(flo, "b"))
 #' (flobusiness) # for comparison
+#' \dontshow{
+#' if(require(testthat, quietly=TRUE))
+#' testthat::expect_equivalent(as.matrix(flobusiness),as.matrix(flob))
+#' }
+#' 
+#' (flob <- network_view(flo, ~b&m))
+#' (flobusiness & flomarriage) # for comparison
+#' \dontshow{
+#' if(require(testthat, quietly=TRUE))
+#' testthat::expect_equivalent(as.matrix(flobusiness & flomarriage),as.matrix(flob))
+#' }
 #'
-#' stopifnot(all(identical(as.matrix(flobusiness),as.matrix(flob))))
+#' as.matrix(flob <- network_view(flo, bm=~b+m), attrname="bm")
+#' (as.matrix(flobusiness) + as.matrix(flomarriage)) # for comparison
+#' \dontshow{
+#' if(require(testthat, quietly=TRUE))
+#' testthat::expect_equivalent(as.matrix(flobusiness)+as.matrix(flomarriage),as.matrix(flob, attrname="bm"))
+#' }
+#'
+#' as.matrix(flob <- network_view(flo, ~b, bm=~b+m), attrname="bm")
+#' as.matrix(flobusiness)*(1+as.matrix(flomarriage)) # for comparison
+#' \dontshow{
+#' if(require(testthat, quietly=TRUE))
+#' testthat::expect_equivalent(as.matrix(flobusiness)*(1+as.matrix(flomarriage)),as.matrix(flob, attrname="bm"))
+#' }
+#' 
+#' 
 #' @export
-network_view <- function(x, attrname, test.f = as.logical){
-  el <- as.edgelist(x, attrname)
-  keep <- test.f(el[,3])
-  del <- na.omit(el[!keep,-3,drop=FALSE])
-  nael <- el[is.na(keep),-3,drop=FALSE]
-  x[del] <- 0
-  if(nrow(nael)) x[nael] <- NA
-  for(a in setdiff(list.edge.attributes(x), "na")) delete.edge.attribute(x, a)
+network_view <- function(x, ..., .clear=FALSE, .sep="."){
+  exprs <- list(...)
+  fes <- exprs[NVL(names(exprs),rep("",length(exprs)))==""]
+  oes <- exprs[NVL(names(exprs),rep("",length(exprs)))!=""]
+
+  evl <- function(e, el, x){
+    switch(class(e),
+           `function` = e(.el=el, .nw=x),
+           formula = eval(e[[length(e)]], envir=c(list(.nw=x), as.list(el)), enclos=environment(e)),
+           character = if(length(e)==1) el[[e]] else do.call(paste, c(as.list(el[e]), sep=.sep)),
+           AsIs = e,
+           abort("Unsupported specification for network_view."))
+  }
+
+  if(length(fes)){
+    el <- as_tibble(x, attrnames=list.edge.attributes(x), na.rm=FALSE)
+    keep <- !el$na
+    for(e in fes){
+      keep <- keep & evl(e, el, x)
+    }
+    del <- na.omit(el$.eid[!keep])
+    nael <- el$.eid[is.na(keep)]
+    if(length(del)) delete.edges(x, del)
+    if(length(nael)) set.edge.attribute(x, "na", TRUE, nael)
+    # This one applies to a rare situation where the edge is missing
+    # but the filter says that it should be present.
+    add <- el$.eid[el$na & !is.na(keep) & keep]
+    if(length(add)) set.edge.attribute(x, "na", FALSE, add)
+  }
+
+  for(i in seq_along(oes)){
+    el <- as_tibble(x, attrname=list.edge.attributes(x), na.rm=FALSE)
+    
+    e <- oes[[i]]
+    nm <- names(oes)[[i]]
+    
+    newval <- evl(e, el, x)
+    set.edge.attribute(x, nm, newval, el$.eid)
+  }
+  
+  if(.clear) for(a in setdiff(list.edge.attributes(x), c(nm,"na"))) delete.edge.attribute(x, a)
   x
 }
+
 
 #' Returns a directed version of an undirected binary network
 #'

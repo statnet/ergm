@@ -2,38 +2,101 @@
 % Please edit documentation in R/InitErgmTerm.multilayer.R
 \name{network_view}
 \alias{network_view}
-\title{Extract a binary network "view".}
+\title{Construct a "view" of a network.}
 \usage{
-network_view(x, attrname, test.f = as.logical)
+network_view(x, ..., .clear = FALSE, .sep = ".")
 }
 \arguments{
 \item{x}{a \code{\link{network}} object.}
 
-\item{attrname}{a character vector of length 1 giving the name of
-the edge attribute to test.}
+\item{...}{a list of attribute or filtering specifications. See
+Details.}
 
-\item{test.f}{an optional vector function that takes a vector of
-selected edge attribute values and returns a logical vector
-indicating whether an attribute should be kept; returning \code{NA}
-sets the edge to missing.}
+\item{.clear}{whether the edge attributes not set by this call
+should be deleted.}
+
+\item{.sep}{when specifying via a character vector, use this as the
+separator for concatenating edge values.}
 }
 \value{
-A \code{\link{network}} object with vertex and network attributes retained from \code{x}.
+A \code{\link{network}} object with modified edges and edge attributes.
 }
 \description{
-Returns a binary network with only those edges retained that fulfil
-a specific criterion.
+Returns a network with edges optionally filtered according to a
+specified criterion and with edge attributes optionally computed
+from other edge attributes.
+}
+\details{
+Attribute specification arguments have the form
+\code{<newattrname> = <expr>}, where \code{<newattrname>} specifies the
+name of the new edge attribute (or attribute to be overwritten)
+and \code{<expr>} can be one of the following:
+\describe{
+
+\item{a function}{The function will be passed two arguments, the
+edgelist \code{\link{tibble}} and the network, and must return a vector of
+edge attribute values to be set on the edges in the order
+specified.}
+
+\item{a formula}{The expression on the RHS of the formula will be
+evaluated with names in it referencing the edge attributes. The
+input network may be referenced as \code{.nw}. The expression's result
+is expected to be a vector of edge attribute values to be set on
+the edges in the order specified.}
+
+\item{a character vector}{If of length one, the edge attribute with
+that name will simply be copied; if greater than one, the attribute
+values will be concatenated wtih the \code{.sep} argument as the
+separator.}
+
+\item{an object enclosed in \code{\link[=I]{I()}}}{The object will be used directly
+to set the edge attribute.}
+}
+
+Filtering arguments are specified the same way as attribute
+arguments, but they must be named arguments (i.e., must be passed
+without the \code{=}) and must return a logical or numeric vector
+suitable for indexing the edge list. Multiple filtering arguments
+will be specified, and the edge will be kept if it satisfise
+\emph{all}. If the conjunction of the edge's original states and the
+filtering results is ambiguous (i.e., \code{NA}), it will be set as
+missing.
 }
 \examples{
 data(florentine)
 flo <- flomarriage
 flo[,,add.edges=TRUE] <- as.matrix(flomarriage) | as.matrix(flobusiness)
-flo[,, names.eval="m"] <- as.matrix(flomarriage)
+flo[,, names.eval="m"] <- as.matrix(flomarriage)==1
 flobusiness[3,5] <- NA
-flo[,, names.eval="b"] <- as.matrix(flobusiness)
+flo[,, names.eval="b"] <- as.matrix(flobusiness)==1
 flo
 (flob <- network_view(flo, "b"))
 (flobusiness) # for comparison
+\dontshow{
+if(require(testthat, quietly=TRUE))
+testthat::expect_equivalent(as.matrix(flobusiness),as.matrix(flob))
+}
 
-stopifnot(all(identical(as.matrix(flobusiness),as.matrix(flob))))
+(flob <- network_view(flo, ~b&m))
+(flobusiness & flomarriage) # for comparison
+\dontshow{
+if(require(testthat, quietly=TRUE))
+testthat::expect_equivalent(as.matrix(flobusiness & flomarriage),as.matrix(flob))
+}
+
+as.matrix(flob <- network_view(flo, bm=~b+m), attrname="bm")
+(as.matrix(flobusiness) + as.matrix(flomarriage)) # for comparison
+\dontshow{
+if(require(testthat, quietly=TRUE))
+testthat::expect_equivalent(as.matrix(flobusiness)+as.matrix(flomarriage),as.matrix(flob, attrname="bm"))
+}
+
+as.matrix(flob <- network_view(flo, ~b, bm=~b+m), attrname="bm")
+as.matrix(flobusiness)*(1+as.matrix(flomarriage)) # for comparison
+\dontshow{
+if(require(testthat, quietly=TRUE))
+testthat::expect_equivalent(as.matrix(flobusiness)*(1+as.matrix(flomarriage)),as.matrix(flob, attrname="bm"))
+}
+
+
 }
