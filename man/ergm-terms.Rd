@@ -1189,7 +1189,8 @@ of the degrees of all pairs of nodes in the network which are tied.
       \code{upper}. Argument \code{open}
       is a \code{logical} vector of length 2 that controls whether
       the interval is open (exclusive) on the lower and on the upper
-      end, respectively.
+      end, respectively. \code{open} can also be specified as one of
+      \code{"[]"}, \code{"(]"}, \code{"[)"}, and \code{"()"}.
     }
 
   
@@ -1654,7 +1655,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     networks; for undirected networks see \code{kstar}. Note that
     \code{ostar(1)} is equal to both \code{istar(1)} and \code{edges}. }
     
-    \item{\code{receiver(base=1)}  (binary)  (directed)  (dyad-independent)}{\emph{Receiver effect:} 
+  \item{\code{receiver(base=1)}  (binary)  (directed)  (dyad-independent)
+    ,
+  \code{receiver(base=1, form="sum")}  (valued)  (directed)  (dyad-independent)}{\emph{Receiver effect:} 
     This term adds one network statistic for each node equal to the number of
     in-ties for that node. This measures the popularity of the node. The term
     for the first node is omitted by default because of linear dependence that
@@ -1669,7 +1672,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     term can only be used with directed networks. For undirected networks, see
     \code{sociality}.}
     
-    \item{\code{sender(base=1)}  (binary)  (directed)  (dyad-independent)}{\emph{Sender effect:} 
+  \item{\code{sender(base=1)}  (binary)  (directed)  (dyad-independent)
+    ,
+  \code{sender(base=1, form="sum")}  (valued)  (directed)  (dyad-independent)}{\emph{Sender effect:} 
     This term adds one network statistic for each node equal to the number of
     out-ties for that node. This measures the activity of the node. The term for
     the first node is omitted by default because of linear dependence that
@@ -1709,7 +1714,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     number of edges between \code{i} to \code{j} such that
     \code{abs(attrname[i]-attrname[j])<cutoff}.}
      
-    \item{\code{sociality(attrname=NULL, base=1, levels=NULL)}  (binary) (undirected) (dyad-independent) (categorical nodal attribute)
+  \item{\code{sociality(attrname=NULL, base=1, levels=NULL)}  (binary) (undirected) (dyad-independent) (categorical nodal attribute)
+    ,
+    \code{sociality(attrname=NULL, base=1, levels=NULL, form="sum")}  (valued) (undirected) (dyad-independent) (categorical nodal attribute)
     }{\emph{Undirected degree:} 
     This term adds one network statistic for each node equal to the number of
     ties of that node. The optional \code{attrname} argument is a character
