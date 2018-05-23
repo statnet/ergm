@@ -686,6 +686,176 @@ WtD_CHANGESTAT_FN(d_nodefactor_sum){
 }
 
 /*****************
+ changestat: receiver (nonzero)
+*****************/
+WtD_CHANGESTAT_FN(d_receiver_nonzero){ 
+  EXEC_THROUGH_TOGGLES({
+      double s = (NEWWT!=0) - (OLDWT!=0);
+      unsigned int j=0;
+      Vertex deg = (Vertex)INPUT_PARAM[j];
+      while((deg != HEAD) && (j < (N_CHANGE_STATS-1))){
+	j++;
+	deg = (Vertex)INPUT_PARAM[j];
+      }
+      if(deg==HEAD) CHANGE_STAT[j] += s;
+    });
+}
+
+/*****************
+ changestat: receiver (sum)
+*****************/
+WtD_CHANGESTAT_FN(d_receiver_sum){ 
+  EXEC_THROUGH_TOGGLES({
+      double s = NEWWT - OLDWT;
+      unsigned int j=0;
+      Vertex deg = (Vertex)INPUT_PARAM[j];
+      while((deg != HEAD) && (j < (N_CHANGE_STATS-1))){
+	j++;
+	deg = (Vertex)INPUT_PARAM[j];
+      }
+      if(deg==HEAD) CHANGE_STAT[j] += s;
+    });
+}
+
+/*****************
+ changestat: sender (nonzero)
+*****************/
+WtD_CHANGESTAT_FN(d_sender_nonzero){ 
+  EXEC_THROUGH_TOGGLES({
+      double s = (NEWWT!=0) - (OLDWT!=0);
+      unsigned int j=0;
+      Vertex deg = (Vertex)INPUT_PARAM[j];
+      while((deg != TAIL) && (j < (N_CHANGE_STATS-1))){
+	j++;
+	deg = (Vertex)INPUT_PARAM[j];
+      }
+      if(deg==TAIL) CHANGE_STAT[j] += s;
+    });
+}
+
+/*****************
+ changestat: sender (sum)
+*****************/
+WtD_CHANGESTAT_FN(d_sender_sum){ 
+  EXEC_THROUGH_TOGGLES({
+      double s = NEWWT - OLDWT;
+      unsigned int j=0;
+      Vertex deg = (Vertex)INPUT_PARAM[j];
+      while((deg != TAIL) && (j < (N_CHANGE_STATS-1))){
+	j++;
+	deg = (Vertex)INPUT_PARAM[j];
+      }
+      if(deg==TAIL) CHANGE_STAT[j] += s;
+    });
+}
+
+/*****************
+ changestat: sociality (nonzero)
+*****************/
+WtD_CHANGESTAT_FN(d_sociality_nonzero) { 
+  int ninputs, nstats;
+  
+  ninputs = (int)N_INPUT_PARAMS;
+  nstats  = (int)N_CHANGE_STATS;
+
+  if(ninputs>nstats+1){
+    /* match on attributes */
+    EXEC_THROUGH_TOGGLES({
+	double s = (NEWWT!=0) - (OLDWT!=0);
+	double tailattr = INPUT_ATTRIB[TAIL-1+nstats+1]; // +1 for the "guard" value between vertex IDs and attribute vector
+	if(tailattr == INPUT_ATTRIB[HEAD-1+nstats+1]){
+	  unsigned int j=0;
+	  Vertex deg = (Vertex)INPUT_PARAM[j];
+	  while(deg != TAIL && j < nstats){
+	    j++;
+	    deg = (Vertex)INPUT_PARAM[j];
+	  }
+	  if(j < nstats) CHANGE_STAT[j] += s;
+	  j=0;
+	  deg = (Vertex)INPUT_PARAM[j];
+	  while(deg != HEAD && j < nstats){
+	    j++;
+	    deg = (Vertex)INPUT_PARAM[j];
+	  }
+	  if(j < nstats) CHANGE_STAT[j] += s;
+      }
+      });
+  }else{
+    /* *** don't forget TAIL -> HEAD */    
+    EXEC_THROUGH_TOGGLES({
+	double s = (NEWWT!=0) - (OLDWT!=0);
+	unsigned int j=0;
+	Vertex deg = (Vertex)INPUT_PARAM[j];
+	while(deg != TAIL && j < nstats){
+	  j++;
+	  deg = (Vertex)INPUT_PARAM[j];
+	}
+	if(j < nstats) CHANGE_STAT[j] += s;
+	j=0;
+	deg = (Vertex)INPUT_PARAM[j];
+	while(deg != HEAD && j < nstats){
+	  j++;
+	  deg = (Vertex)INPUT_PARAM[j];
+	}
+	if(j < nstats) CHANGE_STAT[j] += s;
+      });
+  }
+}
+
+/*****************
+ changestat: sociality (sum)
+*****************/
+WtD_CHANGESTAT_FN(d_sociality_sum) { 
+  int ninputs, nstats;
+  
+  ninputs = (int)N_INPUT_PARAMS;
+  nstats  = (int)N_CHANGE_STATS;
+
+  if(ninputs>nstats+1){
+    /* match on attributes */
+    EXEC_THROUGH_TOGGLES({
+	double s = NEWWT - OLDWT;
+	double tailattr = INPUT_ATTRIB[TAIL-1+nstats+1]; // +1 for the "guard" value between vertex IDs and attribute vector
+	if(tailattr == INPUT_ATTRIB[HEAD-1+nstats+1]){
+	  unsigned int j=0;
+	  Vertex deg = (Vertex)INPUT_PARAM[j];
+	  while(deg != TAIL && j < nstats){
+	    j++;
+	    deg = (Vertex)INPUT_PARAM[j];
+	  }
+	  if(j < nstats) CHANGE_STAT[j] += s;
+	  j=0;
+	  deg = (Vertex)INPUT_PARAM[j];
+	  while(deg != HEAD && j < nstats){
+	    j++;
+	    deg = (Vertex)INPUT_PARAM[j];
+	  }
+	  if(j < nstats) CHANGE_STAT[j] += s;
+      }
+      });
+  }else{
+    /* *** don't forget TAIL -> HEAD */    
+    EXEC_THROUGH_TOGGLES({
+	double s = NEWWT - OLDWT;
+	unsigned int j=0;
+	Vertex deg = (Vertex)INPUT_PARAM[j];
+	while(deg != TAIL && j < nstats){
+	  j++;
+	  deg = (Vertex)INPUT_PARAM[j];
+	}
+	if(j < nstats) CHANGE_STAT[j] += s;
+	j=0;
+	deg = (Vertex)INPUT_PARAM[j];
+	while(deg != HEAD && j < nstats){
+	  j++;
+	  deg = (Vertex)INPUT_PARAM[j];
+	}
+	if(j < nstats) CHANGE_STAT[j] += s;
+      });
+  }
+}
+
+/*****************
  stat: node i[n] covar 
 *****************/
 WtD_CHANGESTAT_FN(d_nodeicovar){

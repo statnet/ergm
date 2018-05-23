@@ -294,29 +294,36 @@ for(base in list(0, 1, 2, 1:2, 3)){
   tst(sapply(sort(unique(f))[keep], function(x) sum((f==x)*(dirm!=0),na.rm=TRUE)), summary(dirnw ~ nodeofactor("f", base=base, form="nonzero"), response="w"))
 }
 
-
 # TODO: nodeosqrtcovar
 
 # TODO: nodesqrtcovar
+
+# receiver
+for(base in list(0, 1, 2, 1:2, 3)){
+  i <- seq_len(network.size(dirnw))
+  keep <- if(all(base==0)) i else i[-base]
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*t(dirm),na.rm=TRUE)), summary(dirnw ~ receiver(base=base), response="w"))
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*t(dirm!=0),na.rm=TRUE)), summary(dirnw ~ receiver(base=base, form="nonzero"), response="w"))
+}
+
+# sender
+for(base in list(0, 1, 2, 1:2, 3)){
+  i <- seq_len(network.size(dirnw))
+  keep <- if(all(base==0)) i else i[-base]
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*dirm,na.rm=TRUE)), summary(dirnw ~ sender(base=base), response="w"))
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*(dirm!=0),na.rm=TRUE)), summary(dirnw ~ sender(base=base, form="nonzero"), response="w"))
+}
+
+# sociality
+for(base in list(0, 1, 2, 1:2, 3)){
+  i <- seq_len(network.size(dirnw))
+  keep <- if(all(base==0)) i else i[-base]
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*undm,na.rm=TRUE)), summary(undnw ~ sociality(base=base), response="w"))
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*(undm!=0),na.rm=TRUE)), summary(undnw ~ sociality(base=base, form="nonzero"), response="w"))
+}
+
 
 # sum
 tst(sum(dirm,na.rm=TRUE), summary(dirnw ~ sum, response="w"))
 tst(sum(undm,na.rm=TRUE)/2, summary(undnw ~ sum, response="w"))
 tst(sum(bipm,na.rm=TRUE), summary(bipnw ~ sum, response="w"))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

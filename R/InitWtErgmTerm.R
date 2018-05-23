@@ -304,6 +304,18 @@ InitWtErgmTerm.nodefactor<-function (nw, arglist, response, ...) {
   binary_dind_wrap("nodefactor", nw, a, ...)
 }
 
+
+InitWtErgmTerm.sociality<-function (nw, arglist, response, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, directed = FALSE,
+                      varnames = c("attrname", "base", "levels", "form"),
+                      vartypes = c("character", "numeric", "character,numeric,logical", "character"),
+                      defaultvalues = list(NULL, 1, NULL, "sum"),
+                      required = c(FALSE, FALSE, FALSE, FALSE))
+  binary_dind_wrap("sociality", nw, a, ...)
+}
+
+
 InitWtErgmTerm.nodeocovar<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed = TRUE,
@@ -327,6 +339,16 @@ InitWtErgmTerm.nodeofactor<-function (nw, arglist, response, ...) {
                       defaultvalues = list(NULL, 1, NULL, "sum"),
                       required = c(TRUE, FALSE, FALSE, FALSE))
   binary_dind_wrap("nodeofactor", nw, a, ...)
+}
+
+InitWtErgmTerm.sender<-function (nw, arglist, response, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, directed = TRUE,
+                      varnames = c("base", "form"),
+                      vartypes = c("numeric", "character"),
+                      defaultvalues = list(1, "sum"),
+                      required = c(FALSE, FALSE))
+  binary_dind_wrap("sender", nw, a, ...)
 }
 
 InitWtErgmTerm.nodeicovar<-function (nw, arglist, response, ...) {
@@ -353,6 +375,17 @@ InitWtErgmTerm.nodeifactor<-function (nw, arglist, response, ...) {
                       required = c(TRUE, FALSE, FALSE, FALSE))
   binary_dind_wrap("nodeifactor", nw, a, ...)
 }
+
+InitWtErgmTerm.receiver<-function (nw, arglist, response, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, directed = TRUE,
+                      varnames = c("base", "form"),
+                      vartypes = c("numeric", "character"),
+                      defaultvalues = list(1, "sum"),
+                      required = c(FALSE, FALSE))
+  binary_dind_wrap("receiver", nw, a, ...)
+}
+
 
 InitWtErgmTerm.nodematch<-InitWtErgmTerm.match<-function (nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
