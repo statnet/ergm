@@ -155,7 +155,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
           ergm_Init_abort(sQuote(name), " argument is not of the expected ", sQuote(vartypes[m]), " type.")
         }
         # correct type if we got to here
-        out[[m]]=arglist[[i]]
+        out[m] <- list(arglist[[i]])
       } else { # no user-typed name for this argument
         if (!is.null(m)) {
           ergm_Init_abort("Unnamed argument follows named argument.")
@@ -165,7 +165,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
           ergm_Init_abort("Argument number ", i, " is not of the expected ", sQuote(vartypes[i]), " type.")
         }
         # correct type if we got to here
-        out[[i]]=arglist[[i]]
+        out[i] <- list(arglist[[i]])
       }
     }
   }
