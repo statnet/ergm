@@ -182,9 +182,9 @@ to_ergm_Cdouble.pending_update_network <- to_ergm_Cdouble.network
 #'   will ensure that \eqn{t < h}.)
 #' @export
 to_ergm_Cdouble.matrix <- function(x, prototype=NULL, ...){
-  x <- if(!is.null(prototype)) as.edgelist.matrix(x, n=network.size(prototype), directed=is.directed(prototype),
-                                                  bipartite=if(is.bipartite(prototype)) prototype%n%"bipartite" else 0,
-                                                  loops=has.loops(prototype))
+  x <- if(!is.null(prototype)) as.edgelist(x, n=network.size(prototype), directed=is.directed(prototype),
+                                           bipartite=if(is.bipartite(prototype)) prototype%n%"bipartite" else 0,
+                                           loops=has.loops(prototype))
        else x[order(x[,1],x[,2]),,drop=FALSE]
   c(nrow(x),c(x))
 }
