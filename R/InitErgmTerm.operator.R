@@ -270,7 +270,9 @@ InitErgmTerm.Offset <- function(nw, arglist, response=NULL, ...){
 #'
 #' @param x an object representing a network.
 #' @param rule a string specifying how the network is to be
-#'   symmetrized; see [sna::symmetrize()] for details.
+#'   symmetrized; see [sna::symmetrize()] for details; for the
+#'   [`network`] method, it can also be a function or a list; see
+#'   Details.
 #' @param ... additional arguments to [sna::symmetrize()].
 #' @export
 symmetrize <- function(x, rule=c("weak","strong","upper","lower"), ...){
@@ -288,8 +290,32 @@ symmetrize.default <- function(x, rule=c("weak","strong","upper","lower"), ...){
 
 #' @describeIn symmetrize
 #'
-#' A method for [`network`] objects, which preserves network and vertex attributes.
+#' A method for [`network`] objects, which preserves network and vertex attributes, and handles edge attributes.
 #'
+#' @details The [`network`] method requires more flexibility, in order
+#'   to specify how the edge attributes are handled. Therefore, `rule`
+#'   can be one of the following types: \describe{
+#' 
+#' \item{a character vector}{The string is interpreted as in
+#' [sna::symmetrize()]. For edge attributes, `"weak"` takes the
+#' maximum value and `"strong"` takes the minimum
+#' value" for ordered attributes, and drops the unordered.}
+#'
+#' \item{a function}{ The function is evaluated on a [`data.frame`]
+#' constructed by joining (via [merge()]) the edge [`tibble`] with all
+#' attributes and `NA` indicators with itself reversing tail and head
+#' columns, and appending original columns with `".th"` and the
+#' reversed columns with `".ht"`. It is then evaluated for each
+#' attribute in turn, given two arguments: the data frame and the name
+#' of the attribute.}
+#'
+#' \item{a list}{The list must have exactly one unnamed element, and
+#' the remaining elements must be named with the names of edge
+#' attributes. The elements of the list are interpreted as above,
+#' allowing each edge attribute to be handled differently. Unnamed
+#' arguments are dropped. }
+#' 
+#' }
 #' @examples
 #' data(sampson)
 #' samplike[1,2] <- NA
@@ -306,40 +332,76 @@ symmetrize.default <- function(x, rule=c("weak","strong","upper","lower"), ...){
 #'           all(tst(c(as.matrix(symmetrize(samplike, "lower"))), sm[cbind(c(pmax(row(sm),col(sm))),c(pmin(row(sm),col(sm))))])))
 #' @export
 symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), ...){
-  rule <- match.arg(rule)
-  el <- rbind(cbind(as.edgelist(x),TRUE),
-              if(network.naedgecount(x)) cbind(as.edgelist(is.na(x)), NA))
-  merge.el <- function(el1, el2){
-    # "Encode" NAs as TRUE, TRUE, as FALSE.
-    el1[,3] <- is.na(el1[,3])
-    el2[,3] <- is.na(el2[,3])
-    els <- merge(el1, el2, by.x = c(1:2), by.y = c(1:2), all=TRUE, suffixes = c("th","ht"), sort=FALSE)
-    # Now, NA represents FALSE, TRUE NA, and FALSE, TRUE. "Decode".
-    els <- within(els,{
-      V3th <- ifelse(is.na(V3th), FALSE, ifelse(V3th, NA, TRUE))
-      V3ht <- ifelse(is.na(V3ht), FALSE, ifelse(V3ht, NA, TRUE))
-    })
-    els[els$V1<=els$V2,,drop=FALSE]
+  if(!is.directed(x)) return(x)
+
+  TH <- c(".tail",".head")
+  HT <- c(".head",".tail")
+  
+  METACOLS <- c(".tail", ".head", ".eid", "na",".eid.th","na.th",".eid.ht","na.ht")
+  
+  el <- as_tibble(x, attrnames=TRUE, na.rm=FALSE)
+  elle <- merge(el, el, by.x = TH, by.y = HT, all=TRUE, suffixes = c(".th",".ht"), sort=FALSE)
+
+  if(!is.list(rule)){
+    eattr <- setdiff(list.edge.attributes(x), METACOLS)
+    rule <- list(rule, rep(rule, length(eattr)))
+    names(rule) <- c("", eattr)
   }
-  el <- switch(rule,
-               weak = {
-                 els <- merge.el(el, el[,c(2,1,3)])
-                 el <- cbind(els[,1:2,drop=FALSE], els$V3th | els$V3ht)
-                 el[is.na(el[,3])|el[,3],,drop=FALSE]
-               },                 
-               strong = {
-                 els <- merge.el(el, el[,c(2,1,3)])
-                 el <- cbind(els[,1:2,drop=FALSE], els$V3th & els$V3ht)
-                 el[is.na(el[,3])|el[,3],,drop=FALSE]
-               },
-               upper = el[el[,1]<=el[,2],,drop=FALSE],
-               lower = el[el[,1]>=el[,2],,drop=FALSE]
+  
+  rule.edges <- which(names(rule)=="")
+  if(length(rule.edges)!=1) stop("The list-style argument for rule= must have exactly one unnamed element.")
+  rule.edges <- rule[[rule.edges]]
+
+
+  ## Resolve edges
+
+  NAmap <- function(na) ifelse(is.na(na), FALSE, ifelse(na, NA, TRUE))
+  
+  elle <-
+    if(is.character(rule.edges)){
+      keep <-
+        switch(match.arg(rule.edges, eval(formals(symmetrize.network)$rule)),
+               weak = NAmap(elle$na.th) | NAmap(elle$na.ht),
+               strong = NAmap(elle$na.th) & NAmap(elle$na.ht),
+               lower = elle$.tail>=elle$.head & NAmap(elle$na.th),
+               upper = elle$.tail<elle$.head & NAmap(elle$na.th)
                )
+      elle$na <- is.na(keep)
+      elle[is.na(keep) | keep,]
+    }else{
+      rule.edges(elle)
+    }
+
+  tmp <- elle$.tail
+  elle$.tail <- with(elle, pmin(.tail,.head))
+  elle$.head <- with(elle, pmax(tmp,.head))
+  elle <- elle[!duplicated(elle[,TH,drop=FALSE]),]
+  
+  for(attr in setdiff(names(el), METACOLS)){
+    r <- NVL(rule[[attr]], rule.edges)
+    elle[[attr]] <- ERRVL(try(
+      if(is.character(r)){
+        th <- paste0(attr,".th")
+        ht <- paste0(attr,".ht")
+        switch(match.arg(r, eval(formals(symmetrize.network)$rule)),
+               pmax =,
+               max =, 
+               weak = pmax(elle[[th]], elle[[ht]], na.rm=TRUE),
+               pmin =,
+               min =,
+               strong = pmin(elle[[th]], elle[[ht]], na.rm=TRUE),
+               lower = elle[[ht]],
+               upper = elle[[th]])
+      }else{
+        r(elle, attr)
+      },silent=TRUE), NULL)
+  }
   
   o <- network.initialize(network.size(x), directed=FALSE, bipartite=x%n%"bipartite", loops=has.loops(x), hyper=is.hyper(x), multiple=is.multiplex(x))
-  el[,3] <- is.na(el[,3])
-  colnames(el) <- c("tails", "heads", "na")
-  o <- network.edgelist(el, o, ignore.eval=FALSE, names.eval="na")
+  add.edges(o, elle$.tail, elle$.head)
+  for(attr in c(setdiff(names(el), METACOLS), "na")){
+    set.edge.attribute(o, attr, elle[[attr]])
+  }
   nvattr.copy.network(o, x)
 }
 
