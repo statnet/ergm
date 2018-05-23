@@ -170,7 +170,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
     
   Dtheta.Du<-to-from
 
-  esteq  <- sapply(seq_len(control$nsteps), function(i) ergm.etagradmult(path[i,],stats[i,]-stats.obs[i,],m$etamap))
+  esteq  <- rbind(sapply(seq_len(control$nsteps), function(i) ergm.etagradmult(path[i,],stats[i,]-stats.obs[i,],m$etamap)))
   nochg <- Dtheta.Du==0 | apply(esteq==0, 1, all)
   llrs <- -as.vector(crossprod(Dtheta.Du[!nochg],esteq[!nochg,,drop=FALSE]))
   llr <- sum(llrs)
