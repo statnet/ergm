@@ -344,7 +344,7 @@ symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), ...){
 
   if(!is.list(rule)){
     eattr <- setdiff(list.edge.attributes(x), METACOLS)
-    rule <- list(rule, rep(rule, length(eattr)))
+    rule <- c(list(rule), rep(list(rule), length(eattr)))
     names(rule) <- c("", eattr)
   }
   
