@@ -2350,8 +2350,15 @@ InitErgmTerm.mm<-function (nw, arglist, ...) {
     unlist(recursive=FALSE) %>% # Convert into a flat list.
     map_if(~is.name(.)&&.==".", ~NULL) %>% # If it's just a dot, convert to NULL.
     map_if(~is.call(.)||(is.name(.)&&.!="."), ~as.formula(call("~", .))) %>% # If it's a call or a symbol, embed in formula.
-    relist(skeleton=list(row=c(attrs=NA, levels=NA), col=c(attrs=NA, levels=NA))) # Reconstruct list.
+    relist(skeleton=list(row=c(attrs=NA, levels=NA), col=c(attrs=NA, levels=NA))) %>% # Reconstruct list.
+    transpose()
 
+  if(is(a$attrs, "formula"))
+    spec[["attrs"]] <- lapply(spec[["attrs"]], function(x){if(is(x,"formula")) environment(x) <- environment(a$attrs); x})
+  if(is(a$levels, "formula"))
+    spec[["levels"]] <- lapply(spec[["levels"]], function(x){if(is(x,"formula")) environment(x) <- environment(a$levels); x})
+  spec <- transpose(spec)
+  
   # Extract attribute values.
   attrval <-
     spec %>%
@@ -2368,7 +2375,6 @@ InitErgmTerm.mm<-function (nw, arglist, ...) {
              levelcodes = 0
              )
       }else{
-        if(is(a$attrs, "formula")) environment(spec$attrs) <- environment(a$attrs)
         x <- ergm_get_vattr(spec$attrs, nw, bip = if(is.bipartite(nw)) c(row="b1",col="b2")[whose] else "n")
         name <- attr(x, "name")
         list(name=name, val=x, levels=spec$levels, unique=sort(unique(x)))
@@ -2385,7 +2391,6 @@ InitErgmTerm.mm<-function (nw, arglist, ...) {
   # Filter the final level set and encode the attribute values.
   attrval <- attrval %>%
     map_if(~is.null(.$levelcodes), function(v){
-      if(is(a$levels, "formula")) environment(v$levels) <- environment(a$levels)
       v$levels <- ergm_attr_levels(v$levels, v$val, nw, levels=v$unique)
       v$levelcodes <- seq_along(v$levels)
       v$valcodes <- match(v$val, v$levels, nomatch=0)
