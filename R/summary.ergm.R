@@ -28,8 +28,6 @@
 #   ans: a "summary.ergm" object as a list containing the following
 #      formula         : object$formula
 #      randomeffects   : object$re
-#      digits          : the 'digits' inputted to <summary.ergm> or the default
-#                        value (despite the fact the digits will be 5)
 #      correlation     : the 'correlation' passed to <summary.ergm>
 #      degeneracy.value: object$degenarcy.value
 #      offset          : object$offset
@@ -43,7 +41,7 @@
 #                        estimates
 #      aic             : the AIC goodness of fit measure
 #      bic             : the BIC goodness of fit measure
-#      coefs           : the dataframe of parameter coefficients and their
+#      coefficients    : the dataframe of parameter coefficients and their
 #                        standard erros and p-values
 #      asycov          : the asymptotic covariance matrix
 #      asyse           : the asymptotic standard error matrix
@@ -93,10 +91,10 @@
 #' 
 #' @export
 summary.ergm <- function (object, ..., 
-                          digits = max(3, getOption("digits") - 3),
                           correlation=FALSE, covariance=FALSE,
                           total.variation=TRUE)
 {
+  if("digits" %in% names(list(...))) warn("summary.ergm() no lnger takes a digits= argument.")
   control <- object$control
   pseudolikelihood <- object$estimate=="MPLE"
   independence <- is.dyad.independent(object)
@@ -110,7 +108,7 @@ summary.ergm <- function (object, ...,
   nodes<- network.size(object$network)
 
   ans <- list(formula=object$formula,
-              digits=digits, correlation=correlation,
+              correlation=correlation,
               degeneracy.value = object$degeneracy.value,
               offset = object$offset,
               drop = NVL(object$drop, rep(0,length(object$offset))),
@@ -207,17 +205,20 @@ summary.ergm <- function (object, ...,
   ans$null.lik.0 <- is.na(null.lik)
 
   if(!inherits(mle.lik,"try-error")){
-  
-    ans$devtable <- c("",apply(cbind(paste(format(c("    Null", "Residual"), width = 8), devtext), 
-                                     format(c(if(is.na(null.lik)) 0 else -2*null.lik, -2*mle.lik), digits = digits), " on",
-                                     format(c(dyads, rdf), digits = digits)," degrees of freedom\n"), 
-                               1, paste, collapse = " "),"\n")
-    
+
+    ans$devtable <- matrix(c(if(is.na(null.lik)) 0 else -2*null.lik, -2*mle.lik,
+                             c(dyads, rdf)), 2,2, dimnames=list(c("Null","Residual"),
+                                                                c("Resid. Dev", "Resid. Df")))
+    ans$devtext <- devtext
+        
     ans$aic <- AIC(mle.lik)
     ans$bic <- BIC(mle.lik)
+    ans$mle.lik <- ERRVL(mle.lik, NA)
+    ans$null.lik <- ERRVL(null.lik, NA)
   }else ans$objname<-deparse(substitute(object))
-  
+
   ans$coefs <- as.data.frame(tempmatrix)
+  ans$coefficients <- as.data.frame(tempmatrix)
   ans$asycov <- asycov
   ans$asyse <- asyse
   class(ans) <- "summary.ergm"
