@@ -64,7 +64,7 @@ ergm.Cprepare <- function(nw, m, response=NULL){
 #' 
 #' @export
 ergm_Clist.network <- function(object, response=NULL, ...){
-  e<-as.edgelist(object,attrname=response) # Ensures that for undirected networks, tail<head.
+  e <- na.omit(as.edgelist(object,attrname=response)) # Ensures that for undirected networks, tail<head.
   class(object) <- "network"
 
   n <- network.size(object)
@@ -164,7 +164,7 @@ ergm_Clist.ergm_model <- function(object, ...){
 #' @export
 to_ergm_Cdouble.network <- function(x, attrname=NULL, ...){
   xm <- as.edgelist(x, attrname=attrname)
-  c(nrow(xm),c(xm))
+  c(nrow(xm),c(na.omit(xm)))
 }
 
 #' @noRd
@@ -186,7 +186,7 @@ to_ergm_Cdouble.matrix <- function(x, prototype=NULL, ...){
                                            bipartite=if(is.bipartite(prototype)) prototype%n%"bipartite" else 0,
                                            loops=has.loops(prototype))
        else x[order(x[,1],x[,2]),,drop=FALSE]
-  c(nrow(x),c(x))
+  c(nrow(x),c(na.omit(x)))
 }
 
 
