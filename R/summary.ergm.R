@@ -170,21 +170,18 @@ summary.ergm <- function (object, ...,
   }
 
   rdf <- dyads - df
-  tval <- object$coef / asyse
-  pval <- 2 * pt(q=abs(tval), df=rdf, lower.tail=FALSE)
+  zval <- object$coef / asyse
+  pval <- 2 * pnorm(q=abs(zval), lower.tail=FALSE)
   
   count <- 1
-  templist <- NULL
-  while (count <= length(names(object$coef)))
-    {
-     templist <- append(templist,c(object$coef[count],
-          asyse[count],est.pct[count],pval[count]))
-     count <- count+1
-    }
+  coefmat <- cbind(
+    `Estimate` = coef(object),
+    `Std. Error` = asyse,
+    `MCMC %` = est.pct,
+    `z value` = zval,
+    `Pr(>|z|)` = pval)
 
-  tempmatrix <- matrix(templist, ncol=4,byrow=TRUE)
-  colnames(tempmatrix) <- c("Estimate", "Std. Error", "MCMC %", "p-value")
-  rownames(tempmatrix) <- names(object$coef)
+  rownames(coefmat) <- param_names(object)
 
   devtext <- "Deviance:"
   if (object$estimate!="MPLE" || !independence || object$reference != as.formula(~Bernoulli)) {
@@ -217,8 +214,8 @@ summary.ergm <- function (object, ...,
     ans$null.lik <- ERRVL(null.lik, NA)
   }else ans$objname<-deparse(substitute(object))
 
-  ans$coefs <- as.data.frame(tempmatrix)
-  ans$coefficients <- as.data.frame(tempmatrix)
+  ans$coefs <- as.data.frame(coefmat)
+  ans$coefficients <- as.data.frame(coefmat)
   ans$asycov <- asycov
   ans$asyse <- asyse
   class(ans) <- "summary.ergm"

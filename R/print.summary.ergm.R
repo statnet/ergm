@@ -87,7 +87,7 @@ print.summary.ergm <- function (x,
   if(print.coefmat){
     printCoefmat(x$coefficients, digits=digits, signif.stars=signif.stars,
                  P.values=TRUE, has.Pvalue=TRUE, na.print="NA",
-                 eps.Pvalue=eps.Pvalue, ...)
+                 eps.Pvalue=eps.Pvalue, cs.ind=1:2, tst.ind=4L,...)
   }
 
   if(print.message){
