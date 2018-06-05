@@ -2,21 +2,20 @@
 
 |field    |value                                              |
 |:--------|:--------------------------------------------------|
-|version  |R Under development (unstable) (2018-05-29 r74800) |
+|version  |R Under development (unstable) (2018-06-04 r74847) |
 |os       |Debian GNU/Linux buster/sid                        |
 |system   |x86_64, linux-gnu                                  |
 |ui       |X11                                                |
 |language |(EN)                                               |
-|collate  |en_AU.UTF-8                                        |
+|collate  |en_AU.utf8                                         |
 |tz       |Australia/Sydney                                   |
-|date     |2018-05-30                                         |
+|date     |2018-06-05                                         |
 
 # Dependencies
 
 |package |old   |new        |Δ  |
 |:-------|:-----|:----------|:--|
-|ergm    |3.8.0 |3.9.0-4134 |*  |
-|purrr   |NA    |0.2.5      |*  |
+|ergm    |3.8.0 |3.9.0-4154 |*  |
 
 # Revdeps
 
@@ -47,7 +46,7 @@
 |ergm.userterms |3.1.1   |      |        |     |
 |fergm          |0.2.1   |      |        |     |
 |gwdegree       |0.1.1   |      |        |     |
-|hergm          |3.2-0   |      |        |     |
+|hergm          |3.2-1   |      |        |     |
 |latentnet      |2.8.0   |      |        |     |
 |lvm4net        |0.2     |      |        |     |
 |RDS            |0.8-1   |      |        |     |
