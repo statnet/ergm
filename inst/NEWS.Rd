@@ -65,7 +65,7 @@
 %% }
 
 
-\section{Changes in version X.Y.Z}{
+\section{Changes in version 3.9.0}{
 
   \subsection{NEW FEATURES}{
     \itemize{
@@ -75,6 +75,29 @@
       }
       \item{
 	Most terms that take categorical nodal attributes now have a \code{levels=} argument, which can be used to control the set and the ordering of the attribute levels.
+      }
+      \item{
+	More informative error messages for term initialization.
+      }
+      \item{
+	New terms have been added or improved:
+	\itemize{
+	  \item{
+	    \code{mm} for a more flexible specification
+	    for mixing matrix and marginal effects;
+	  }
+	  \item{
+	    valued versions of \code{sender}, \code{receiver},
+	    \code{sociality} terms;
+	  }
+	  \item{
+	    \code{ininterval} now allows interval openness to be
+	    specified as a character string.
+	  }
+	}
+      }
+      \item{A new \code{term.options} control parameter allows additional
+	arguments to be passed to term initializers.
       }
     }
   }
@@ -113,12 +136,36 @@
 	\code{offset()} are now also enclosed in \code{offset()}.
       }
       \item{
+	\code{\link[=summary.ergm]{summary}} method for \code{ergm} now
+	uses uses \eqn{z}-tests rather than \eqn{t}-tests, since there
+	is no \dQuote{dispersion} parameter. In addition, it no longer
+	takes a \code{digits=} argument.
+      }
+      \item{
 	Handling of missing relations has been improved.
+      }
+      \item{
+	Estimation progress when \code{verbose=TRUE} is now a bit less
+	verbose; use \code{verbose=2} and up to get more information.
+      }
+      \item{
+	The default value of the \code{eval.loglik=} argument to \code{\link{ergm}} is now
+	controlled by \code{\link{options}} option \code{ergm.eval.loglik=}.
       }
       \item{
 	Some of the unofficial APIs have been changed for consistency
 	and ease of use:
 	\itemize{
+	  \item{
+	    A new set of helper functions has been added to
+	    improve handling of nodal attributes. See
+	    \link{node-attr-api} for details.
+	  }
+	  \item{
+	    \code{\link[=summary.ergm]{summary}} method for \code{ergm}
+	    now exports a \code{$coefficients} element (like
+	    \code{\link{summary.lm}}) and \code{$devtable} is a proper table.
+	  }
 	  \item{
 	    New generics \code{\link{nparam}} and
 	    \code{\link{param_names}} can be used to query the number
