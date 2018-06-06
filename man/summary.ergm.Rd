@@ -12,8 +12,8 @@
   print.coefmat = TRUE, print.message = TRUE, print.deviances = TRUE,
   print.drop = TRUE, print.offset = TRUE, print.degeneracy = TRUE, ...)
 
-\method{summary}{ergm}(object, ..., digits = max(3, getOption("digits") - 3),
-  correlation = FALSE, covariance = FALSE, total.variation = TRUE)
+\method{summary}{ergm}(object, ..., correlation = FALSE, covariance = FALSE,
+  total.variation = TRUE)
 }
 \arguments{
 \item{x}{object of class \code{summary.ergm} returned by
