@@ -146,7 +146,7 @@ table, td, th {
 %\VignetteIndexEntry{ERGM terms cross-reference}
 -->
 <!-- to render out this file for preview when not using RStudio:  rmarkdown::render('vignettes/ergm-term-crossRef.Rmd') -->
-<p>This document is an automatically generated cross reference for the ergm model terms from the <a href="http://statnet.org">stanet project</a>. The source for this data and additional descriptions are in the <code>?ergm.terms</code> help file or the <a href="https://cran.r-project.org/web/packages/ergm/ergm.pdf">ergm manual</a>.</p>
+<p>This document is an automatically generated cross reference for the ergm model terms from the <a href="http://statnet.org">stanet project</a>. The source for this data and additional descriptions are in the <code>?ergm.terms</code> help file or the <a href="https://cran.r-project.org/package=ergm">ergm manual</a>.</p>
 <div id="interactive-searching" class="section level2">
 <h2>Interactive searching</h2>
 <p>It is possible to search the <code>ergm-terms</code> help page and search for specific categories of terms using the <code>search.ergmTerms</code> command. For example to find all the terms that mention ‘triangle’ in their description:</p>
@@ -193,7 +193,7 @@ table, td, th {
 ## b1factor(attrname, base=1, levels=NULL)
 ##  Factor attribute effect for the first mode in a bipartite (aka two-mode) network
 ## 
-## b1factor(attrname, base=1, form=&quot;sum&quot;, levels=NULL)
+## b1factor(attrname, base=1, levels=NULL, form=&quot;sum&quot;)
 ##  Factor attribute effect for the first mode in a bipartite (aka two-mode) network
 ## 
 ## b1nodematch(attrname, diff=FALSE, keep=NULL, by=NULL, alpha=1, beta=1, )
@@ -208,7 +208,7 @@ table, td, th {
 ## b2factor(attrname, base=1, levels=NULL)
 ##  Factor attribute effect for the second mode in a bipartite (aka two-mode) network 
 ## 
-## b2factor(attrname, base=1, form=&quot;sum&quot;, levels=NULL)
+## b2factor(attrname, base=1, levels=NULL, form=&quot;sum&quot;)
 ##  Factor attribute effect for the second mode in a bipartite (aka two-mode) network 
 ## 
 ## b2nodematch(attrname, diff=FALSE, keep=NULL, by=NULL, alpha=1, beta=1, )
@@ -691,6 +691,48 @@ dyad-independent
 <td align="center">
 </td>
 <td align="center">
+</td>
+</tr>
+<tr>
+<td align="center">
+<a href="#term_mm_1">mm</a>
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+</td>
+<td align="center">
+✔
+</td>
+</tr>
+<tr>
+<td align="center">
+<a href="#term_mm_2">mm</a>
+</td>
+<td align="center">
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+</td>
+<td align="center">
+✔
 </td>
 </tr>
 <tr>
@@ -2404,7 +2446,6 @@ non-negative
 ✔
 </td>
 <td align="center">
-✔
 </td>
 <td align="center">
 </td>
@@ -4212,6 +4253,84 @@ non-negative
 </tr>
 <tr>
 <td align="center">
+<a href="#term_mm_1">mm</a>
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+</tr>
+<tr>
+<td align="center">
+<a href="#term_mm_2">mm</a>
+</td>
+<td align="center">
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+</tr>
+<tr>
+<td align="center">
 <a href="#term_mutual_1">mutual</a>
 </td>
 <td align="center">
@@ -4444,41 +4563,6 @@ non-negative
 ✔
 </td>
 <td align="center">
-</td>
-<td align="center">
-</td>
-<td align="center">
-✔
-</td>
-<td align="center">
-</td>
-<td align="center">
-</td>
-<td align="center">
-</td>
-<td align="center">
-</td>
-<td align="center">
-</td>
-<td align="center">
-</td>
-<td align="center">
-</td>
-</tr>
-<tr>
-<td align="center">
-<a href="#term_nodecovar_1">nodecovar</a>
-</td>
-<td align="center">
-</td>
-<td align="center">
-</td>
-<td align="center">
-</td>
-<td align="center">
-✔
-</td>
-<td align="center">
 ✔
 </td>
 <td align="center">
@@ -4668,6 +4752,7 @@ non-negative
 <td align="center">
 </td>
 <td align="center">
+✔
 </td>
 <td align="center">
 ✔
@@ -4760,6 +4845,43 @@ non-negative
 <td align="center">
 </td>
 <td align="center">
+</td>
+</tr>
+<tr>
+<td align="center">
+<a href="#term_nodeisqrtcovar_1">nodeisqrtcovar</a>
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+✔
 </td>
 </tr>
 <tr>
@@ -5043,6 +5165,7 @@ non-negative
 <td align="center">
 </td>
 <td align="center">
+✔
 </td>
 <td align="center">
 ✔
@@ -5152,6 +5275,44 @@ non-negative
 <td align="center">
 </td>
 <td align="center">
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+✔
+</td>
+</tr>
+<tr>
+<td align="center">
+<a href="#term_nodesqrtcovar_1">nodesqrtcovar</a>
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+✔
 </td>
 <td align="center">
 ✔
@@ -5462,6 +5623,42 @@ non-negative
 </tr>
 <tr>
 <td align="center">
+<a href="#term_receiver_2">receiver</a>
+</td>
+<td align="center">
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+</tr>
+<tr>
+<td align="center">
 <a href="#term_sender_1">sender</a>
 </td>
 <td align="center">
@@ -5480,6 +5677,42 @@ non-negative
 <td align="center">
 </td>
 <td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+</tr>
+<tr>
+<td align="center">
+<a href="#term_sender_2">sender</a>
+</td>
+<td align="center">
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+✔
 </td>
 <td align="center">
 </td>
@@ -5614,6 +5847,7 @@ non-negative
 ✔
 </td>
 <td align="center">
+✔
 </td>
 <td align="center">
 </td>
@@ -5625,6 +5859,43 @@ non-negative
 <td align="center">
 </td>
 <td align="center">
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+</tr>
+<tr>
+<td align="center">
+<a href="#term_sociality_2">sociality</a>
+</td>
+<td align="center">
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+</td>
+<td align="center">
+</td>
+<td align="center">
+✔
+</td>
+<td align="center">
+</td>
+<td align="center">
+✔
 </td>
 <td align="center">
 ✔
@@ -5765,7 +6036,6 @@ non-negative
 ✔
 </td>
 <td align="center">
-✔
 </td>
 <td align="center">
 </td>
@@ -6171,7 +6441,7 @@ binary, directed, dyad-independent, triad-related
 <td>
 <a id="term_atleast_1">atleast(threshold=0)</a><br>
 <p>
-<em>Number of dyads with values greater than or equal to a threshold</em> Adds the number of statistics equal to the length of <code>threashold</code> equaling to the number of dyads whose values equal or exceed the corresponding element of <code>threshold</code>.
+<em>Number of dyads with values greater than or equal to a threshold</em> Adds one statistic equaling to the number of dyads whose values equal or exceed <code>threshold</code>.
 </p>
 </td>
 <td>
@@ -6182,7 +6452,7 @@ valued, directed, undirected, dyad-independent
 <td>
 <a id="term_atmost_1">atmost(threshold=0)</a><br>
 <p>
-<em>Number of dyads with values less than or equal to a threshold</em> Adds the number of statistics equal to the length of <code>threashold</code> equaling to the number of dyads whose values equal or are exceeded by the corresponding element of <code>threshold</code>.
+<em>Number of dyads with values less than or equal to a threshold</em> Adds one statistic equaling to the number of dyads whose values equal or are exceeded by <code>threshold</code>.
 </p>
 </td>
 <td>
@@ -6260,7 +6530,7 @@ binary, bipartite, undirected, dyad-independent, frequently-used, categorical no
 </tr>
 <tr>
 <td>
-<a id="term_b1factor_2">b1factor(attrname, base=1, form=“sum”, levels=NULL)</a><br>
+<a id="term_b1factor_2">b1factor(attrname, base=1, levels=NULL, form=“sum”)</a><br>
 <p>
 <em>Factor attribute effect for the first mode in a bipartite (aka two-mode) network:</em> The <code>attrname</code> argument is a character string giving the name of a categorical attribute in the network’s vertex attribute list. This term adds multiple network statistics to the model, one for each of (a subset of) the unique values of the <code>attrname</code> attribute. Each of these statistics gives the number of times a node with that attribute in the first mode of the network appears in an edge. The first mode of a bipartite network object is sometimes known as the “actor” mode. To include all attribute values is usually not a good idea, because the sum of all such statistics equals the number of edges and hence a linear dependency would arise in any model also including <code>edges</code>. Thus, the <code>base</code> argument tells which value(s) (numbered in order according to the <code>sort</code> function) should be omitted. The default value, <code>base=1</code>, means that the smallest (i.e., first in sorted order) attribute value is omitted. For example, if the “fruit” factor has levels “orange”, “apple”, “banana”, and “pear”, then to add just two terms, one for “apple” and one for “pear”, then set “banana” and “orange” to the base (remember to sort the values first) by using <code>nodefactor(“fruit”, base=2:3)</code>. This term can only be used with undirected bipartite networks.
 </p>
@@ -6295,7 +6565,7 @@ binary, bipartite, undirected, dyad-independent, categorical nodal attribute, fr
 <td>
 <a id="term_b1star_1">b1star(k, attrname=NULL, levels=NULL)</a><br>
 <p>
-<em>k-Stars for the first mode in a bipartite (aka two-mode) network: </em> The <code>k</code> argument is a vector of distinct integers. This term adds one network statistic to the model for each element in <code>k</code>. The <i>i</i>th such statistic counts the number of distinct <code>k[i]</code>-stars whose center node is in the first mode of the network. The first mode of a bipartite network object is sometimes known as the “actor” mode. A <i>k</i>-star is defined to be a center node <i>N</i> and a set of <i>k</i> different nodes <i>{O[1], …, O[k]}</i> such that the ties <i>{N, O[i]}</i> exist for <i>i=1, …, k</i>. The optional argument <code>attrname</code> is a character string giving the name of an attribute in the network’s vertex attribute list. If this is specified then the count is over the number of <i>k</i>-stars (with center node in the first mode) where all nodes have the same value of the attribute. This term can only be used for undirected bipartite networks. Note that <code>b1star(1)</code> is equal to <code>b2star(1)</code> and to <code>edges</code>.
+<em>k-Stars for the first mode in a bipartite (aka two-mode) network: </em> The <code>k</code> argument is a vector of distinct integers. This term adds one network statistic to the model for each element in <code>k</code>. The <i>i</i>th such statistic counts the number of distinct <code>k[i]</code>-stars whose center node is in the first mode of the network. The first mode of a bipartite network object is sometimes known as the “actor” mode. A <i>k</i>-star is defined to be a center node <i>N</i> and a set of <i>k</i> different nodes <i>{O_1, …, O_k}</i> such that the ties <i>{N, O_i}</i> exist for <i>i=1, …, k</i>. The optional argument <code>attrname</code> is a character string giving the name of an attribute in the network’s vertex attribute list. If this is specified then the count is over the number of <i>k</i>-stars (with center node in the first mode) where all nodes have the same value of the attribute. This term can only be used for undirected bipartite networks. Note that <code>b1star(1)</code> is equal to <code>b2star(1)</code> and to <code>edges</code>.
 </p>
 </td>
 <td>
@@ -6395,7 +6665,7 @@ binary, bipartite, undirected, dyad-independent, categorical nodal attribute, fr
 </tr>
 <tr>
 <td>
-<a id="term_b2factor_2">b2factor(attrname, base=1, form=“sum”, levels=NULL)</a><br>
+<a id="term_b2factor_2">b2factor(attrname, base=1, levels=NULL, form=“sum”)</a><br>
 <p>
 <em>Factor attribute effect for the second mode in a bipartite (aka two-mode) network :</em> The <code>attrname</code> argument is a character string giving the name of a categorical attribute in the network’s vertex attribute list. This term adds multiple network statistics to the model, one for each of (a subset of) the unique values of the <code>attrname</code> attribute. Each of these statistics gives the number of times a node with that attribute in the second mode of the network appears in an edge. The second mode of a bipartite network object is sometimes known as the “event” mode. To include all attribute values is usually not a good idea, because the sum of all such statistics equals the number of edges and hence a linear dependency would arise in any model also including <code>edges</code>. Thus, the <code>base</code> argument tells which value(s) (numbered in order according to the <code>sort</code> function) should be omitted. The default value, <code>base=1</code>, means that the smallest (i.e., first in sorted order) attribute value is omitted. For example, if the “fruit” factor has levels “orange”, “apple”, “banana”, and “pear”, then to add just two terms, one for “apple” and one for “pear”, then set “banana” and “orange” to the base (remember to sort the values first) by using <code>nodefactor(“fruit”, base=2:3)</code>. This term can only be used with undirected bipartite networks.
 </p>
@@ -6430,7 +6700,7 @@ binary, bipartite, undirected, dyad-independent, categorical nodal attribute, fr
 <td>
 <a id="term_b2star_1">b2star(k, attrname=NULL, levels=NULL)</a><br>
 <p>
-<em>k-Stars for the second mode in a bipartite (aka two-mode) network: </em> The <code>k</code> argument is a vector of distinct integers. This term adds one network statistic to the model for each element in <code>k</code>. The <i>i</i>th such statistic counts the number of distinct <code>k[i]</code>-stars whose center node is in the second mode of the network. The second mode of a bipartite network object is sometimes known as the “event” mode. A <i>k</i>-star is defined to be a center node <i>N</i> and a set of <i>k</i> different nodes <i>{O[1], …, O[k]}</i> such that the ties <i>{N, O[i]}</i> exist for <i>i=1, …, k</i>. The optional argument <code>attrname</code> is a character string giving the name of an attribute in the network’s vertex attribute list. If this is specified then the count is over the number of <i>k</i>-stars (with center node in the second mode) where all nodes have the same value of the attribute. This term can only be used for undirected bipartite networks. Note that <code>b2star(1)</code> is equal to <code>b1star(1)</code> and to <code>edges</code>.
+<em>k-Stars for the second mode in a bipartite (aka two-mode) network: </em> The <code>k</code> argument is a vector of distinct integers. This term adds one network statistic to the model for each element in <code>k</code>. The <i>i</i>th such statistic counts the number of distinct <code>k[i]</code>-stars whose center node is in the second mode of the network. The second mode of a bipartite network object is sometimes known as the “event” mode. A <i>k</i>-star is defined to be a center node <i>N</i> and a set of <i>k</i> different nodes <i>{O_1, …, O_k}</i> such that the ties <i>{N, O_i}</i> exist for <i>i=1, …, k</i>. The optional argument <code>attrname</code> is a character string giving the name of an attribute in the network’s vertex attribute list. If this is specified then the count is over the number of <i>k</i>-stars (with center node in the second mode) where all nodes have the same value of the attribute. This term can only be used for undirected bipartite networks. Note that <code>b2star(1)</code> is equal to <code>b1star(1)</code> and to <code>edges</code>.
 </p>
 </td>
 <td>
@@ -6540,18 +6810,18 @@ binary, directed, undirected
 <td>
 <a id="term_cyclicalties_1">cyclicalties(attrname=NULL, levels=NULL)</a><br>
 <p>
-<em>Cyclical ties:</em> This term adds one statistic, equal to the number of ties <i>i–&gt;j</i> such that there exists a two-path from <i>i</i> to <i>j</i>. (Related to the <code>ttriple</code> term.) The binary version takes a nodal attribute <code>attrname</code>, and, if given, all three nodes involved (<i>i</i>, <i>j</i>, and the node on the two-path) must match on this attribute in order for <i>i–&gt;j</i> to be counted.
+<em>Cyclical ties:</em> This term adds one statistic, equal to the number of ties <i>i–&gt;j</i> such that there exists a two-path from <i>i</i> to <i>j</i>. (Related to the <code>ttriple</code> term.) The binary version takes a nodal attribute <code>attrname</code>, and, if given, all three nodes involved (<i>i</i>, <i>j</i>, and the node on the two-path) must match on this attribute in order for <i>i–&gt;j</i> to be counted. The binary version of this term can only be used with directed networks. The valued version can be used with both directed and undirected.
 </p>
 </td>
 <td>
-binary, directed, undirected
+binary, directed
 </td>
 </tr>
 <tr>
 <td>
 <a id="term_cyclicalties_2">cyclicalties(threshold=0)</a><br>
 <p>
-<em>Cyclical ties:</em> This term adds one statistic, equal to the number of ties <i>i–&gt;j</i> such that there exists a two-path from <i>i</i> to <i>j</i>. (Related to the <code>ttriple</code> term.) The binary version takes a nodal attribute <code>attrname</code>, and, if given, all three nodes involved (<i>i</i>, <i>j</i>, and the node on the two-path) must match on this attribute in order for <i>i–&gt;j</i> to be counted.
+<em>Cyclical ties:</em> This term adds one statistic, equal to the number of ties <i>i–&gt;j</i> such that there exists a two-path from <i>i</i> to <i>j</i>. (Related to the <code>ttriple</code> term.) The binary version takes a nodal attribute <code>attrname</code>, and, if given, all three nodes involved (<i>i</i>, <i>j</i>, and the node on the two-path) must match on this attribute in order for <i>i–&gt;j</i> to be counted. The binary version of this term can only be used with directed networks. The valued version can be used with both directed and undirected.
 </p>
 </td>
 <td>
@@ -6614,10 +6884,6 @@ vertex <i>k</i> is an ISP shared partner of ordered pair <i>(i,j)</i> iff <i>k-&
 </dl>
 <p>
 Note that Robins et al. (2009) define closely related statistics to several of the above, using slightly different terminology.
-</p>
-<p>
-This and related terms take an additional term option (via the <code>control$term.option</code> list), <code>cache.sp</code> controlling whether the implementation will cache the number of shared partners for each dyad in the network. This has a memory cost but may significuantly speed up calculation, particularly for denser networks.
-</p>
 </p>
 </td>
 <td>
@@ -6825,7 +7091,7 @@ binary, directed
 </tr>
 <tr>
 <td>
-<a id="term_dgwdsp_1">dgwdsp(decay, fixed=FALSE, cutoff=30, type=“OTP”)</a><br>
+<a id="term_dgwdsp_1">dgwdsp(decay=0, fixed=FALSE, cutoff=30, type=“OTP”)</a><br>
 <p>
 <em>Geometrically weighted dyadwise shared partner distribution:</em> This term adds one network statistic to the model equal to the geometrically weighted dyadwise shared partner distribution with decay parameter <code>decay</code> parameter, which should be non-negative. (this parameter was called <code>alpha</code> prior to <code>ergm 3.7</code>). The value supplied for this parameter may be fixed (if <code>fixed=TRUE</code>), or it may be used instead as the starting value for the estimation of <code>decay</code> in a curved exponential family model (when <code>fixed=FALSE</code>, the default) (see Hunter and Handcock, 2006). Note that the GWDSP statistic is equal to the sum of GWNSP plus GWESP. For a directed network, multiple shared partner definitions are possible; the <code>type</code> argument may be used to select the type of shared partner to employ (see <code>ddsp</code> for definitions). By default, outgoing two-paths are employed. The optional argument <code>cutoff</code> sets the number of underlying DSP terms to use in computing the statistics to reduce the computational burden.
 </p>
@@ -6836,7 +7102,7 @@ binary, directed
 </tr>
 <tr>
 <td>
-<a id="term_dgwesp_1">dgwesp(decay, fixed=FALSE, cutoff=30, type=“OTP”)</a><br>
+<a id="term_dgwesp_1">dgwesp(decay=0, fixed=FALSE, cutoff=30, type=“OTP”)</a><br>
 <p>
 <em>Geometrically weighted edgewise shared partner distribution:</em> This term adds a statistic equal to the geometrically weighted <em>edgewise</em> (not dyadwise) shared partner distribution with decay parameter <code>decay</code> parameter, which should be non-negative. (this parameter was called <code>alpha</code> prior to <code>ergm 3.7</code>). The value supplied for this parameter may be fixed (if <code>fixed=TRUE</code>), or it may be used instead as the starting value for the estimation of <code>decay</code> in a curved exponential family model (when <code>fixed=FALSE</code>, the default) (see Hunter and Handcock, 2006). For a directed network, multiple shared partner definitions are possible; the <code>type</code> argument may be used to select the type of shared partner to employ (see <code>ddsp</code> for definitions). By default, outgoing two-paths are employed. The optional argument <code>cutoff</code> sets the number of underlying ESP terms to use in computing the statistics to reduce the computational burden.
 </p>
@@ -6847,7 +7113,7 @@ binary, directed
 </tr>
 <tr>
 <td>
-<a id="term_dgwnsp_1">dgwnsp(decay, fixed=FALSE, cutoff=30, type=“OTP”)</a><br>
+<a id="term_dgwnsp_1">dgwnsp(decay=0, fixed=FALSE, cutoff=30, type=“OTP”)</a><br>
 <p>
 <em>Geometrically weighted non-edgewise shared partner distribution:</em> This term is just like gwesp and gwdsp except it adds a statistic equal to the geometrically weighted nonedgewise (that is, over dyads that do not have an edge) shared partner distribution with decay parameter <code>decay</code> parameter, which should be non-negative. (this parameter was called <code>alpha</code> prior to <code>ergm 3.7</code>). The value supplied for this parameter may be fixed (if <code>fixed=TRUE</code>), or it may be used instead as the starting value for the estimation of <code>decay</code> in a curved exponential family model (when <code>fixed=FALSE</code>, the default) (see Hunter and Handcock, 2006). For a directed network, multiple shared partner definitions are possible; the <code>type</code> argument may be used to select the type of shared partner to employ (see <code>ddsp</code> for definitions). By default, outgoing two-paths are employed. The optional argument <code>cutoff</code> sets the number of underlying NSP terms to use in computing the statistics to reduce the computational burden.
 </p>
@@ -6959,7 +7225,7 @@ valued, directed, undirected, dyad-independent
 <td>
 <a id="term_greaterthan_1">greaterthan(threshold=0)</a><br>
 <p>
-<em>Number of dyads with values strictly greater than a threshold:</em> Adds the number of statistics equal to the length of <code>threashold</code> equaling to the number of dyads whose values exceed the corresponding element of <code>threshold</code>.
+<em>Number of dyads with values strictly greater than a threshold:</em> Adds one statistic equal to the number of dyads whose values exceed <code>threshold</code>.
 </p>
 </td>
 <td>
@@ -7001,7 +7267,7 @@ binary, undirected, curved, frequently-used
 </tr>
 <tr>
 <td>
-<a id="term_gwdsp_1">gwdsp(decay, fixed=FALSE, cutoff=30)</a><br>
+<a id="term_gwdsp_1">gwdsp(decay=0, fixed=FALSE, cutoff=30)</a><br>
 <p>
 <em>Geometrically weighted dyadwise shared partner distribution:</em> This term adds one network statistic to the model equal to the geometrically weighted dyadwise shared partner distribution with decay parameter <code>decay</code> parameter, which should be non-negative. The value supplied for this parameter may be fixed (if <code>fixed=TRUE</code>), or it may be used instead as the starting value for the estimation of <code>decay</code> in a curved exponential family model (when <code>fixed=FALSE</code>, the default) (see Hunter and Handcock, 2006). For directed networks the count is over homogeneous shared partners only (i.e., only partners on a directed two-path connecting the nodes in the dyad). The optional argument <code>cutoff</code> is only relevant if <code>fixed=FALSE</code>. In that case it only uses this number of terms in computing the statistics to reduce the computational burden.
 </p>
@@ -7012,7 +7278,7 @@ binary, directed, undirected, curved
 </tr>
 <tr>
 <td>
-<a id="term_gwesp_1">gwesp(decay, fixed=FALSE, cutoff=30)</a><br>
+<a id="term_gwesp_1">gwesp(decay=0, fixed=FALSE, cutoff=30)</a><br>
 <p>
 <em>Geometrically weighted edgewise shared partner distribution:</em> This term is just like <code>gwdsp</code> except it adds a statistic equal to the geometrically weighted <em>edgewise</em> (not dyadwise) shared partner distribution with decay parameter <code>decay</code> parameter, which should be non-negative. The value supplied for this parameter may be fixed (if <code>fixed=TRUE</code>), or it may be used instead as the starting value for the estimation of <code>decay</code> in a curved exponential family model (when <code>fixed=FALSE</code>, the default) (see Hunter and Handcock, 2006). This term can be used with directed and undirected networks. For directed networks the geometric weighting is over homogeneous shared partners only (i.e., only partners on a directed two-path connecting the nodes in the edge and in the same direction). The optional argument <code>cutoff</code> is only relevant if <code>fixed=FALSE</code>. In that case it only uses this number of terms in computing the statistics to reduce the computational burden.
 </p>
@@ -7034,7 +7300,7 @@ binary, directed, curved
 </tr>
 <tr>
 <td>
-<a id="term_gwnsp_1">gwnsp(decay, fixed=FALSE, cutoff=30)</a><br>
+<a id="term_gwnsp_1">gwnsp(decay=0, fixed=FALSE, cutoff=30)</a><br>
 <p>
 <em>Geometrically weighted nonedgewise shared partner distribution:</em> This term is just like <code>gwesp</code> and <code>gwdsp</code> except it adds a statistic equal to the geometrically weighted <em>nonedgewise</em> (that is, over dyads that do not have an edge) shared partner distribution with weight parameter <code>decay</code> parameter, which should be non-negative. (this parameter was called <code>alpha</code> prior to <code>ergm 3.7</code>). The optional argument <code>fixed</code> indicates whether the <code>decay</code> parameter is fixed at the given value, or is to be fit as a curved exponential-family model (see Hunter and Handcock, 2006). The default is <code>FALSE</code>, which means the scale parameter is not fixed and thus the model is a CEF model. This term can be used with directed and undirected networks. For directed networks the geometric weighting is over homogeneous shared partners only (i.e., only partners on a directed two-path connecting the nodes in the non-edge and in the same direction). The optional argument <code>cutoff</code> is only relevant if <code>fixed=FALSE</code>. In that case it only uses this number of terms in computing the statistics to reduce the computational burden.
 </p>
@@ -7127,7 +7393,7 @@ binary, directed, deprecated
 <td>
 <a id="term_ininterval_1">ininterval(lower=-Inf, upper=+Inf, open=)</a><br>
 <p>
-<em>Number of dyads whose values are in an interval</em> Adds one statistic equaling to the number of dyads whose values are between <code>lower</code> and <code>upper</code>. Argument <code>open</code> is a <code>logical</code> vector of length 2 that controls whether the interval is open (exclusive) on the lower and on the upper end, respectively.
+<em>Number of dyads whose values are in an interval</em> Adds one statistic equaling to the number of dyads whose values are between <code>lower</code> and <code>upper</code>. Argument <code>open</code> is a <code>logical</code> vector of length 2 that controls whether the interval is open (exclusive) on the lower and on the upper end, respectively. <code>open</code> can also be specified as one of <code>“[]”</code>, <code>“(]”</code>, <code>“[)”</code>, and <code>“()”</code>.
 </p>
 </td>
 <td>
@@ -7160,7 +7426,7 @@ binary, directed, undirected, frequently-used
 <td>
 <a id="term_istar_1">istar(k, attrname=NULL, levels=NULL)</a><br>
 <p>
-<em>In-stars: </em> The <code>k</code> argument is a vector of distinct integers. This term adds one network statistic to the model for each element in <code>k</code>. The <i>i</i>th such statistic counts the number of distinct <code>k[i]</code>-instars in the network, where a <i>k</i>-instar is defined to be a node <i>N</i> and a set of <i>k</i> different nodes <i>{O[1], …, O[k]}</i> such that the ties <i>(O_j, N)</i> exist for <i>j=1, …, k</i>. The optional argument <code>attrname</code> is a character string giving the name of an attribute in the network’s vertex attribute list. If this is specified then the count is over the number of <i>k</i>-instars where all nodes have the same value of the attribute. This term can only be used for directed networks; for undirected networks see <code>kstar</code>. Note that <code>istar(1)</code> is equal to both <code>ostar(1)</code> and <code>edges</code>.
+<em>In-stars: </em> The <code>k</code> argument is a vector of distinct integers. This term adds one network statistic to the model for each element in <code>k</code>. The <i>i</i>th such statistic counts the number of distinct <code>k[i]</code>-instars in the network, where a <i>k</i>-instar is defined to be a node <i>N</i> and a set of <i>k</i> different nodes <i>{O_1, …, O_k}</i> such that the ties <i>(O_j, N)</i> exist for <i>j=1, …, k</i>. The optional argument <code>attrname</code> is a character string giving the name of an attribute in the network’s vertex attribute list. If this is specified then the count is over the number of <i>k</i>-instars where all nodes have the same value of the attribute. This term can only be used for directed networks; for undirected networks see <code>kstar</code>. Note that <code>istar(1)</code> is equal to both <code>ostar(1)</code> and <code>edges</code>.
 </p>
 </td>
 <td>
@@ -7171,7 +7437,7 @@ binary, directed, categorical nodal attribute
 <td>
 <a id="term_kstar_1">kstar(k, attrname=NULL, levels=NULL)</a><br>
 <p>
-<em>k-Stars: </em> The <code>k</code> argument is a vector of distinct integers. This term adds one network statistic to the model for each element in <code>k</code>. The <i>i</i>th such statistic counts the number of distinct <code>k[i]</code>-stars in the network, where a <i>k</i>-star is defined to be a node <i>N</i> and a set of <i>k</i> different nodes <i>{O[1], …, O[k]}</i> such that the ties <i>{N, O[i]}</i> exist for <i>i=1, …, k</i>. The optional argument <code>attrname</code> is a character string giving the name of an attribute in the network’s vertex attribute list. If this is specified then the count is over the number of <i>k</i>-stars where all nodes have the same value of the attribute. This term can only be used for undirected networks; for directed networks, see <code>istar</code>, <code>ostar</code>, <code>twopath</code> and <code>m2star</code>. Note that <code>kstar(1)</code> is equal to <code>edges</code>.
+<em>k-Stars: </em> The <code>k</code> argument is a vector of distinct integers. This term adds one network statistic to the model for each element in <code>k</code>. The <i>i</i>th such statistic counts the number of distinct <code>k[i]</code>-stars in the network, where a <i>k</i>-star is defined to be a node <i>N</i> and a set of <i>k</i> different nodes <i>{O_1, …, O_k}</i> such that the ties <i>{N, O_i}</i> exist for <i>i=1, …, k</i>. The optional argument <code>attrname</code> is a character string giving the name of an attribute in the network’s vertex attribute list. If this is specified then the count is over the number of <i>k</i>-stars where all nodes have the same value of the attribute. This term can only be used for undirected networks; for directed networks, see <code>istar</code>, <code>ostar</code>, <code>twopath</code> and <code>m2star</code>. Note that <code>kstar(1)</code> is equal to <code>edges</code>.
 </p>
 </td>
 <td>
@@ -7182,7 +7448,7 @@ binary, undirected, categorical nodal attribute
 <td>
 <a id="term_smallerthan_1">smallerthan(threshold=0)</a><br>
 <p>
-<em>Number of dyads with values strictly smaller than a threshold:</em> Adds the number of statistics equal to the length of <code>threashold</code> equaling to the number of dyads whose values are exceeded by the corresponding element of <code>threshold</code>.
+<em>Number of dyads with values strictly smaller than a threshold:</em> Adds one statistic equaling to the number of dyads whose values exceeded by <code>threshold</code>.
 </p>
 </td>
 <td>
@@ -7220,6 +7486,28 @@ binary, directed
 </td>
 <td>
 binary, dyad-independent, directed, undirected
+</td>
+</tr>
+<tr>
+<td>
+<a id="term_mm_1">mm(attrs, levels=NULL, levels2=NULL)</a><br>
+<p>
+<em>Mixing matrix cells and margins:</em> <code>attrs</code> is a two-sided formula whose LHS gives the attribute or attribute function (see Specifying Vertex Attributes and Levels) for the rows of the mixing matrix and whose RHS gives that for its columns. A one-sided formula (e.g., <code>~A</code>) is symmetrized (e.g., <code>A~A</code>). <code>levels</code> similarly specifies the subset of rows and columns to be used. <code>levels2</code> can then be used to filter which specific cells of the matrix to include. A two-sided formula with a dot on one side calculates the margins of the mixing matrix, analogously to <code>nodefactor</code>, with <code>A~.</code> calculating the row/sender/b1 margins and <code>.~A</code> calculating the column/receiver/b2 margins.
+</p>
+</td>
+<td>
+binary, dyad-independent, frequently-used, directed, undirected, categorical nodal attribute
+</td>
+</tr>
+<tr>
+<td>
+<a id="term_mm_2">mm(attrs, levels=NULL, levels2=NULL, form=“sum”)</a><br>
+<p>
+<em>Mixing matrix cells and margins:</em> <code>attrs</code> is a two-sided formula whose LHS gives the attribute or attribute function (see Specifying Vertex Attributes and Levels) for the rows of the mixing matrix and whose RHS gives that for its columns. A one-sided formula (e.g., <code>~A</code>) is symmetrized (e.g., <code>A~A</code>). <code>levels</code> similarly specifies the subset of rows and columns to be used. <code>levels2</code> can then be used to filter which specific cells of the matrix to include. A two-sided formula with a dot on one side calculates the margins of the mixing matrix, analogously to <code>nodefactor</code>, with <code>A~.</code> calculating the row/sender/b1 margins and <code>.~A</code> calculating the column/receiver/b2 margins.
+</p>
+</td>
+<td>
+valued, dyad-independent, frequently-used, directed, undirected, categorical nodal attribute
 </td>
 </tr>
 <tr>
@@ -7296,20 +7584,6 @@ binary, directed, undirected
 </tr>
 <tr>
 <td>
-<a id="term_nodecovar_1">nodecovar(center, transform)</a><br>
-<p>
-<em>Covariance of undirected dyad values incident on each actor:</em> This term adds one statistic equal to <i>∑<em>{i,j&lt;k} y</em>{i,j}y_{i,k}/(n-2)</i>. This can be viewed as a valued analog of the <code>star(2)</code> statistic. If <code>center=TRUE</code>, the <i>y_{,}</i>s are centered by their mean over the whole network before the calculation. Note that this makes the model non-local, but it may alleviate multimodailty. If <code>transform=“sqrt”</code>, <i>y_{,}</i>s are repaced by their square roots before the calculation. This makes sense for counts in particular. If <code>center=TRUE</code> as well, they are centered by the mean of the square roots.
-</p>
-<p>
-Note that this term replaces <code>nodesqrtcovar</code>, which has been deprecated in favor of <code>nodecovar(transform=“sqrt”)</code>.
-</p>
-</td>
-<td>
-valued, directed
-</td>
-</tr>
-<tr>
-<td>
 <a id="term_nodecovar_1">nodecovar()</a><br>
 <p>
 <em>Uncentered covariance of dyad values incident on each actor:</em> This term adds one statistic equal to <i>∑<em>{i,j,k} (y</em>{i,j}y_{i,k}+y_{k,j}y_{k,j})</i>. This can be viewed as a valued analog of the <code>kstar(2)</code> statistic.
@@ -7332,7 +7606,7 @@ binary, dyad-independent, directed, undirected, categorical nodal attribute, fre
 </tr>
 <tr>
 <td>
-<a id="term_nodefactor_2">nodefactor(attrname, base=1, form=“sum”, levels=NULL)</a><br>
+<a id="term_nodefactor_2">nodefactor(attrname, base=1, levels=NULL, form=“sum”)</a><br>
 <p>
 <em>Factor attribute effect:</em> The <code>attrname</code> argument is a character vector giving one or more names of categorical attributes in the network’s vertex attribute list. This term adds multiple network statistics to the model, one for each of (a subset of) the unique values of the <code>attrname</code> attribute (or each combination of the attributes given). Each of these statistics gives the number of times a node with that attribute or those attributes appears in an edge in the network. In particular, for edges whose endpoints both have the same attribute values, this value is counted twice. To include all attribute values is usually not a good idea – though this may be accomplished if desired by setting <code>base=0</code> – because the sum of all such statistics equals twice the number of edges and hence a linear dependency would arise in any model also including <code>edges</code>. Thus, the <code>base</code> argument tells which value(s) (numbered in order according to the <code>sort</code> function) should be omitted. The default value, <code>base=1</code>, means that the smallest (i.e., first in sorted order) attribute value is omitted. For example, if the “fruit” factor has levels “orange”, “apple”, “banana”, and “pear”, then to add just two terms, one for “apple” and one for “pear”, then set “banana” and “orange” to the base (remember to sort the values first) by using <code>nodefactor(“fruit”, base=2:3)</code>. For an analogous term for quantitative vertex attributes, see <code>nodecov</code>.
 </p>
@@ -7365,16 +7639,13 @@ valued, directed, quantitative nodal attribute
 </tr>
 <tr>
 <td>
-<a id="term_nodeicovar_1">nodeicovar(center, transform)</a><br>
+<a id="term_nodeicovar_1">nodeicovar()</a><br>
 <p>
-<em>Covariance of in-dyad values incident on each actor:</em> This term adds one statistic equal to <i>∑<em>{i,j,k} y</em>{j,i}y_{k,i}/(n-2)</i>. This can be viewed as a valued analog of the <code>istar(2)</code> statistic. If <code>center=TRUE</code>, the <i>y_{,}</i>s are centered by their mean over the whole network before the calculation. Note that this makes the model non-local, but it may alleviate multimodailty. If <code>transform=“sqrt”</code>, <i>y_{,}</i>s are repaced by their square roots before the calculation. This makes sense for counts in particular. If <code>center=TRUE</code> as well, they are centered by the mean of the square roots.
-</p>
-<p>
-Note that this term replaces <code>nodeisqrtcovar</code>, which has been deprecated in favor of <code>nodeicovar(transform=“sqrt”)</code>.
+<em>Uncentered covariance of in-dyad values incident on each actor:</em> This term adds one statistic equal to <i>∑<em>{i,j,k} y</em>{k,j}y_{k,j}</i>. This can be viewed as a valued analog of the <code>istar(2)</code> statistic.
 </p>
 </td>
 <td>
-valued, directed
+valued, directed, quantitative nodal attribute
 </td>
 </tr>
 <tr>
@@ -7390,13 +7661,24 @@ binary, dyad-independent, directed, categorical nodal attribute, frequently-used
 </tr>
 <tr>
 <td>
-<a id="term_nodeifactor_2">nodeifactor(attrname, base=1, form=“sum”, levels=NULL)</a><br>
+<a id="term_nodeifactor_2">nodeifactor(attrname, base=1, levels=NULL, form=“sum”)</a><br>
 <p>
 <em>Factor attribute effect for in-edges:</em> The <code>attrname</code> argument is a character vector giving one or more names of a categorical attribute in the network’s vertex attribute list. This term adds multiple network statistics to the model, one for each of (a subset of) the unique values of the <code>attrname</code> attribute (or each combination of the attributes given). Each of these statistics gives the number of times a node with that attribute or those attributes appears as the terminal node of a directed tie. To include all attribute values is usually not a good idea – though this may be accomplished if desired by setting <code>base=0</code> – because the sum of all such statistics equals the number of edges and hence a linear dependency would arise in any model also including <code>edges</code>. Thus, the <code>base</code> argument tells which value(s) (numbered in order according to the <code>sort</code> function) should be omitted. The default value, <code>base=1</code>, means that the smallest (i.e., first in sorted order) attribute value is omitted. For example, if the “fruit” factor has levels “orange”, “apple”, “banana”, and “pear”, then to add just two terms, one for “apple” and one for “pear”, then set “banana” and “orange” to the base (remember to sort the values first) by using <code>nodefactor(“fruit”, base=2:3)</code>. For an analogous term for quantitative vertex attributes, see <code>nodeicov</code>.
 </p>
 </td>
 <td>
 valued, dyad-independent, directed, categorical nodal attribute
+</td>
+</tr>
+<tr>
+<td>
+<a id="term_nodeisqrtcovar_1">nodeisqrtcovar()</a><br>
+<p>
+<em>Uncentered covariance of square roots of in-dyad values incident on each actor:</em> This term adds one statistic equal to <i>∑<em>{i,j,k} √{y</em>{i,j}}√{y_{k,j}}</i>. This can be viewed as a valued analog of the <code>istar(2)</code> statistic.
+</p>
+</td>
+<td>
+valued, directed, non-negative, quantitative nodal attribute
 </td>
 </tr>
 <tr>
@@ -7415,7 +7697,7 @@ binary, dyad-independent, frequently-used, directed, undirected, categorical nod
 </tr>
 <tr>
 <td>
-<a id="term_nodematch_2">nodematch(attrname, diff=FALSE, keep=NULL, form=“sum”, levels=NULL)</a><br>
+<a id="term_nodematch_2">nodematch(attrname, diff=FALSE, keep=NULL, levels=NULL, form=“sum”)</a><br>
 <p>
 <em>Uniform homophily and differential homophily:</em> The <code>attrname</code> argument is a character vector giving one or more names of attributes in the network’s vertex attribute list. When <code>diff=FALSE</code>, this term adds one network statistic to the model, which counts the number of edges <i>(i,j)</i> for which <code>attrname(i)==attrname(j)</code>. This is also called ”uniform homophily,” because each group is assumed to have the same propensity for within-group ties. When multiple attribute names are given, the statistic counts only ties for which all of the attributes match. When <code>diff=TRUE</code>, <i>p</i> network statistics are added to the model, where <i>p</i> is the number of unique values of the <code>attrname</code> attribute. The <i>k</i>th such statistic counts the number of edges <i>(i,j)</i> for which <code>attrname(i) == attrname(j) == value(k)</code>, where <code>value(k)</code> is the <i>k</i>th smallest unique value of the attrname attribute. This is also called ”differential homophily,” because each group is allowed to have a unique propensity for within-group ties. Note that a statistical test of uniform vs. differential homophily should be conducted using the ANOVA function.
 </p>
@@ -7454,7 +7736,7 @@ binary, dyad-independent, frequently-used, directed, undirected, categorical nod
 </tr>
 <tr>
 <td>
-<a id="term_nodemix_2">nodemix(attrname, base=NULL, form=“sum”, levels=NULL)</a><br>
+<a id="term_nodemix_2">nodemix(attrname, base=NULL, levels=NULL, form=“sum”)</a><br>
 <p>
 <em>Nodal attribute mixing:</em> The <code>attrname</code> argument is a character vector giving the names of categorical attributes in the network’s vertex attribute list. By default, this term adds one network statistic to the model for each possible pairing of attribute values. The statistic equals the number of edges in the network in which the nodes have that pairing of values. (When multiple names are given, a statistic is added for each combination of attribute values for those names.) In other words, this term produces one statistic for every entry in the mixing matrix for the attribute(s). The ordering of the attribute values is alphabetical (for nominal categories) or numerical (for ordered categories). The optional <code>base</code> argument is a vector of integers corresponding to the pairings that should not be included. If <code>base</code> contains only negative integers, then these integers correspond to the only pairings that should be included. By default (i.e., with <code>base=NULL</code> or <code>base=0</code>), all pairings are included.
 </p>
@@ -7487,16 +7769,13 @@ valued, directed, dyad-independent
 </tr>
 <tr>
 <td>
-<a id="term_nodeocovar_1">nodeocovar(center, transform)</a><br>
+<a id="term_nodeocovar_1">nodeocovar()</a><br>
 <p>
-<em>Covariance of out-dyad values incident on each actor:</em> This term adds one statistic equal to <i>∑<em>{i,j,k} y</em>{i,j}y_{i,k}/(n-2)</i>. This can be viewed as a valued analog of the <code>ostar(2)</code> statistic. If <code>center=TRUE</code>, the <i>y_{,}</i>s are centered by their mean over the whole network before the calculation. Note that this makes the model non-local, but it may alleviate multimodailty. If <code>transform=“sqrt”</code>, <i>y_{,}</i>s are repaced by their square roots before the calculation. This makes sense for counts in particular. If <code>center=TRUE</code> as well, they are centered by the mean of the square roots.
-</p>
-<p>
-Note that this term replaces <code>nodeosqrtcovar</code>, which has been deprecated in favor of <code>nodeocovar(transform=“sqrt”)</code>.
+<em>Uncentered covariance of out-dyad values incident on each actor:</em> This term adds one statistic equal to <i>∑<em>{i,j,k} y</em>{i,j}y_{i,k}</i>. This can be viewed as a valued analog of the <code>ostar(2)</code> statistic.
 </p>
 </td>
 <td>
-valued, directed
+valued, directed, quantitative nodal attribute
 </td>
 </tr>
 <tr>
@@ -7512,7 +7791,7 @@ binary, dyad-independent, directed, categorical nodal attribute
 </tr>
 <tr>
 <td>
-<a id="term_nodeofactor_2">nodeofactor(attrname, base=1, form=“sum”, levels=NULL)</a><br>
+<a id="term_nodeofactor_2">nodeofactor(attrname, base=1, levels=NULL, form=“sum”)</a><br>
 <p>
 <em>Factor attribute effect for out-edges:</em> The <code>attrname</code> argument is a character string giving one or more names of categorical attributes in the network’s vertex attribute list. This term adds multiple network statistics to the model, one for each of (a subset of) the unique values of the <code>attrname</code> attribute (or each combination of the attributes given). Each of these statistics gives the number of times a node with that attribute or those attributes appears as the node of origin of a directed tie. To include all attribute values is usually not a good idea – though this may be accomplished if desired by setting <code>base=0</code> – because the sum of all such statistics equals the number of edges and hence a linear dependency would arise in any model also including <code>edges</code>. Thus, the <code>base</code> argument tells which value(s) (numbered in order according to the <code>sort</code> function) should be omitted. The default value, <code>base=1</code>, means that the smallest (i.e., first in sorted order) attribute value is omitted. For example, if the “fruit” factor has levels “orange”, “apple”, “banana”, and “pear”, then to add just two terms, one for “apple” and one for “pear”, then set “banana” and “orange” to the base (remember to sort the values first) by using <code>nodefactor(“fruit”, base=2:3)</code>. For an analogous term for quantitative vertex attributes, see <code>nodeocov</code>.
 </p>
@@ -7530,6 +7809,17 @@ valued, dyad-independent, categorical nodal attribute, directed
 </td>
 <td>
 valued, directed, non-negative
+</td>
+</tr>
+<tr>
+<td>
+<a id="term_nodesqrtcovar_1">nodesqrtcovar(center=TRUE)</a><br>
+<p>
+<em>Covariance of square roots of dyad values incident on each actor:</em> This term adds one statistic equal to <i>∑<em>{i,j,k} (√{y</em>{i,j}}√{y_{i,k}}+√{y_{k,j}}√{y_{k,j}})</i> if <code>center=FALSE</code>. This can be viewed as a valued analog of the <code>kstar(2)</code> statistic. If <code>center=FALSE</code> (the default), the statistic is instead <i>∑<em>{i,j,k} ((√{y</em>{i,j}}-{√{y}})(√{y_{i,k}}-{√{y}})+(√{y_{k,j}}-{√{y}})(√{y_{k,j}}-{√{y}}))</i>, where <i>{√{y}}</i> is the mean of the square root of dyad values.
+</p>
+</td>
+<td>
+valued, non-negative, directed, undirected, quantitative nodal attribute
 </td>
 </tr>
 <tr>
@@ -7605,7 +7895,7 @@ binary, undirected, triad-related
 <td>
 <a id="term_ostar_1">ostar(k, attrname=NULL, levels=NULL)</a><br>
 <p>
-<em>k-Outstars:</em> The <code>k</code> argument is a vector of distinct integers. This term adds one network statistic to the model for each element in <code>k</code>. The <i>i</i>th such statistic counts the number of distinct <code>k[i]</code>-outstars in the network, where a <i>k</i>-outstar is defined to be a node <i>N</i> and a set of <i>k</i> different nodes <i>{O[1], …, O[k]}</i> such that the ties <i>(N,O_j)</i> exist for <i>j=1, …, k</i>. The optional argument <code>attrname</code> is a character string giving the name of an attribute in the network’s vertex attribute list. If this is specified then the count is the number of <i>k</i>-outstars where all nodes have the same value of the attribute. This term can only be used with directed networks; for undirected networks see <code>kstar</code>. Note that <code>ostar(1)</code> is equal to both <code>istar(1)</code> and <code>edges</code>.
+<em>k-Outstars:</em> The <code>k</code> argument is a vector of distinct integers. This term adds one network statistic to the model for each element in <code>k</code>. The <i>i</i>th such statistic counts the number of distinct <code>k[i]</code>-outstars in the network, where a <i>k</i>-outstar is defined to be a node <i>N</i> and a set of <i>k</i> different nodes <i>{O_1, …, O_k}</i> such that the ties <i>(N,O_j)</i> exist for <i>j=1, …, k</i>. The optional argument <code>attrname</code> is a character string giving the name of an attribute in the network’s vertex attribute list. If this is specified then the count is the number of <i>k</i>-outstars where all nodes have the same value of the attribute. This term can only be used with directed networks; for undirected networks see <code>kstar</code>. Note that <code>ostar(1)</code> is equal to both <code>istar(1)</code> and <code>edges</code>.
 </p>
 </td>
 <td>
@@ -7625,6 +7915,17 @@ binary, directed, dyad-independent
 </tr>
 <tr>
 <td>
+<a id="term_receiver_2">receiver(base=1, form=“sum”)</a><br>
+<p>
+<em>Receiver effect:</em> This term adds one network statistic for each node equal to the number of in-ties for that node. This measures the popularity of the node. The term for the first node is omitted by default because of linear dependence that arises if this term is used together with <code>edges</code>, but its coefficient can be computed as the negative of the sum of the coefficients of all the other actors. That is, the average coefficient is zero, following the Holland-Leinhardt parametrization of the <span class="math inline"><em>p</em><sub>1</sub></span> model (Holland and Leinhardt, 1981). The <code>base</code> argument allows the user to determine which nodes’ statistics should be omitted. The <code>base</code> argument can also be a vector of negative indices, to specify which should be added instead of deleted, and <code>base=0</code> specifies that all statistics should be included. This term can only be used with directed networks. For undirected networks, see <code>sociality</code>.
+</p>
+</td>
+<td>
+valued, directed, dyad-independent
+</td>
+</tr>
+<tr>
+<td>
 <a id="term_sender_1">sender(base=1)</a><br>
 <p>
 <em>Sender effect:</em> This term adds one network statistic for each node equal to the number of out-ties for that node. This measures the activity of the node. The term for the first node is omitted by default because of linear dependence that arises if this term is used together with <code>edges</code>, but its coefficient can be computed as the negative of the sum of the coefficients of all the other actors. That is, the average coefficient is zero, following the Holland-Leinhardt parametrization of the <span class="math inline"><em>p</em><sub>1</sub></span> model (Holland and Leinhardt, 1981). The <code>base</code> argument allows the user to determine which nodes’ statistics should be omitted. The <code>base</code> argument can also be a vector of negative indices, to specify which should be added instead of deleted, and <code>base=0</code> specifies that all statistics should be included. This term can only be used with directed networks. For undirected networks, see <code>sociality</code>.
@@ -7632,6 +7933,17 @@ binary, directed, dyad-independent
 </td>
 <td>
 binary, directed, dyad-independent
+</td>
+</tr>
+<tr>
+<td>
+<a id="term_sender_2">sender(base=1, form=“sum”)</a><br>
+<p>
+<em>Sender effect:</em> This term adds one network statistic for each node equal to the number of out-ties for that node. This measures the activity of the node. The term for the first node is omitted by default because of linear dependence that arises if this term is used together with <code>edges</code>, but its coefficient can be computed as the negative of the sum of the coefficients of all the other actors. That is, the average coefficient is zero, following the Holland-Leinhardt parametrization of the <span class="math inline"><em>p</em><sub>1</sub></span> model (Holland and Leinhardt, 1981). The <code>base</code> argument allows the user to determine which nodes’ statistics should be omitted. The <code>base</code> argument can also be a vector of negative indices, to specify which should be added instead of deleted, and <code>base=0</code> specifies that all statistics should be included. This term can only be used with directed networks. For undirected networks, see <code>sociality</code>.
+</p>
+</td>
+<td>
+valued, directed, dyad-independent
 </td>
 </tr>
 <tr>
@@ -7675,7 +7987,18 @@ binary, dyad-independent, directed, undirected, quantitative nodal attribute
 </p>
 </td>
 <td>
-binary, undirected, categorical nodal attribute
+binary, undirected, dyad-independent, categorical nodal attribute
+</td>
+</tr>
+<tr>
+<td>
+<a id="term_sociality_2">sociality(attrname=NULL, base=1, levels=NULL, form=“sum”)</a><br>
+<p>
+<em>Undirected degree:</em> This term adds one network statistic for each node equal to the number of ties of that node. The optional <code>attrname</code> argument is a character string giving the name of an attribute in the network’s vertex attribute list that takes categorical values. If provided, this term only counts ties between nodes with the same value of the attribute (an actor-specific version of the <code>nodematch</code> term). This term can only be used with undirected networks. For directed networks, see <code>sender</code> and <code>receiver</code>. By default, <code>base=1</code> means that the statistic for the first node will be omitted, but this argument may be changed to control which statistics are included just as for the <code>sender</code> and <code>receiver</code> terms.
+</p>
+</td>
+<td>
+valued, undirected, dyad-independent, categorical nodal attribute
 </td>
 </tr>
 <tr>
@@ -7718,18 +8041,18 @@ binary, directed, triad-related
 <td>
 <a id="term_transitiveties_1">transitiveties(attrname=NULL, levels=NULL)</a><br>
 <p>
-<em>Transitive ties:</em> This term adds one statistic, equal to the number of ties <i>i–&gt;j</i> such that there exists a two-path from <i>i</i> to <i>j</i>. (Related to the <code>ttriple</code> term.) The binary version takes a nodal attribute <code>attrname</code>, and, if given, all three nodes involved (<i>i</i>, <i>j</i>, and the node on the two-path) must match on this attribute in order for <i>i–&gt;j</i> to be counted.
+<em>Transitive ties:</em> This term adds one statistic, equal to the number of ties <i>i–&gt;j</i> such that there exists a two-path from <i>i</i> to <i>j</i>. (Related to the <code>ttriple</code> term.) The binary version takes a nodal attribute <code>attrname</code>, and, if given, all three nodes involved (<i>i</i>, <i>j</i>, and the node on the two-path) must match on this attribute in order for <i>i–&gt;j</i> to be counted. The binary version of this term can only be used with directed networks. The valued version can be used with both directed and undirected.
 </p>
 </td>
 <td>
-binary, directed, undirected, triad-related, categorical nodal attribute
+binary, directed, triad-related, categorical nodal attribute
 </td>
 </tr>
 <tr>
 <td>
 <a id="term_transitiveties_2">transitiveties(threshold=0)</a><br>
 <p>
-<em>Transitive ties:</em> This term adds one statistic, equal to the number of ties <i>i–&gt;j</i> such that there exists a two-path from <i>i</i> to <i>j</i>. (Related to the <code>ttriple</code> term.) The binary version takes a nodal attribute <code>attrname</code>, and, if given, all three nodes involved (<i>i</i>, <i>j</i>, and the node on the two-path) must match on this attribute in order for <i>i–&gt;j</i> to be counted.
+<em>Transitive ties:</em> This term adds one statistic, equal to the number of ties <i>i–&gt;j</i> such that there exists a two-path from <i>i</i> to <i>j</i>. (Related to the <code>ttriple</code> term.) The binary version takes a nodal attribute <code>attrname</code>, and, if given, all three nodes involved (<i>i</i>, <i>j</i>, and the node on the two-path) must match on this attribute in order for <i>i–&gt;j</i> to be counted. The binary version of this term can only be used with directed networks. The valued version can be used with both directed and undirected.
 </p>
 </td>
 <td>
@@ -8041,6 +8364,9 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 <a href="#term_meandeg_1">meandeg</a> : Mean vertex degree
 </li>
 <li>
+<a href="#term_mm_1">mm</a> : Mixing matrix cells and margins
+</li>
+<li>
 <a href="#term_mutual_1">mutual</a> : Mutuality
 </li>
 <li>
@@ -8244,6 +8570,12 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 <a href="#term_meandeg_1">meandeg</a> : Mean vertex degree
 </li>
 <li>
+<a href="#term_mm_1">mm</a> : Mixing matrix cells and margins
+</li>
+<li>
+<a href="#term_mm_2">mm</a> : Mixing matrix cells and margins
+</li>
+<li>
 <a href="#term_nodecov_1">nodecov</a> : Main effect of a covariate
 </li>
 <li>
@@ -8292,10 +8624,22 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 <a href="#term_receiver_1">receiver</a> : Receiver effect
 </li>
 <li>
+<a href="#term_receiver_2">receiver</a> : Receiver effect
+</li>
+<li>
 <a href="#term_sender_1">sender</a> : Sender effect
 </li>
 <li>
+<a href="#term_sender_2">sender</a> : Sender effect
+</li>
+<li>
 <a href="#term_smalldiff_1">smalldiff</a> : Number of ties between actors with similar (but not necessarily identical) attribute values
+</li>
+<li>
+<a href="#term_sociality_1">sociality</a> : Undirected degree
+</li>
+<li>
+<a href="#term_sociality_2">sociality</a> : Undirected degree
 </li>
 </ul>
 <h3>
@@ -8367,6 +8711,12 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 </li>
 <li>
 <a href="#term_isolates_1">isolates</a> : Isolates
+</li>
+<li>
+<a href="#term_mm_1">mm</a> : Mixing matrix cells and margins
+</li>
+<li>
+<a href="#term_mm_2">mm</a> : Mixing matrix cells and margins
 </li>
 <li>
 <a href="#term_mutual_1">mutual</a> : Mutuality
@@ -8554,6 +8904,12 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 <a href="#term_meandeg_1">meandeg</a> : Mean vertex degree
 </li>
 <li>
+<a href="#term_mm_1">mm</a> : Mixing matrix cells and margins
+</li>
+<li>
+<a href="#term_mm_2">mm</a> : Mixing matrix cells and margins
+</li>
+<li>
 <a href="#term_mutual_1">mutual</a> : Mutuality
 </li>
 <li>
@@ -8572,9 +8928,6 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 <a href="#term_nodemain_3">nodemain</a> : Main effect of a covariate
 </li>
 <li>
-<a href="#term_nodecovar_1">nodecovar</a> :
-</li>
-<li>
 <a href="#term_nodecovar_1">nodecovar</a> : Uncentered covariance of dyad values incident on each actor
 </li>
 <li>
@@ -8590,13 +8943,16 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 <a href="#term_nodeicov_2">nodeicov</a> : Main effect of a covariate for in-edges
 </li>
 <li>
-<a href="#term_nodeicovar_1">nodeicovar</a> :
+<a href="#term_nodeicovar_1">nodeicovar</a> : Uncentered covariance of in-dyad values incident on each actor
 </li>
 <li>
 <a href="#term_nodeifactor_1">nodeifactor</a> : Factor attribute effect for in-edges
 </li>
 <li>
 <a href="#term_nodeifactor_2">nodeifactor</a> : Factor attribute effect for in-edges
+</li>
+<li>
+<a href="#term_nodeisqrtcovar_1">nodeisqrtcovar</a> : Uncentered covariance of square roots of in-dyad values incident on each actor
 </li>
 <li>
 <a href="#term_nodematch_1">nodematch</a> : Uniform homophily and differential homophily
@@ -8620,7 +8976,7 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 <a href="#term_nodeocov_2">nodeocov</a> : Main effect of a covariate for out-edges
 </li>
 <li>
-<a href="#term_nodeocovar_1">nodeocovar</a> :
+<a href="#term_nodeocovar_1">nodeocovar</a> : Uncentered covariance of out-dyad values incident on each actor
 </li>
 <li>
 <a href="#term_nodeofactor_1">nodeofactor</a> : Factor attribute effect for out-edges
@@ -8630,6 +8986,9 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 </li>
 <li>
 <a href="#term_nodeosqrtcovar_1">nodeosqrtcovar</a> : Uncentered covariance of square roots of out-dyad values incident on each actor
+</li>
+<li>
+<a href="#term_nodesqrtcovar_1">nodesqrtcovar</a> : Covariance of square roots of dyad values incident on each actor
 </li>
 <li>
 <a href="#term_nsp_1">nsp</a> : Nonedgewise shared partners
@@ -8653,7 +9012,13 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 <a href="#term_receiver_1">receiver</a> : Receiver effect
 </li>
 <li>
+<a href="#term_receiver_2">receiver</a> : Receiver effect
+</li>
+<li>
 <a href="#term_sender_1">sender</a> : Sender effect
+</li>
+<li>
+<a href="#term_sender_2">sender</a> : Sender effect
 </li>
 <li>
 <a href="#term_simmelian_1">simmelian</a> : Simmelian triads
@@ -8811,9 +9176,6 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 <a href="#term_cycle_1">cycle</a> : Cycles
 </li>
 <li>
-<a href="#term_cyclicalties_1">cyclicalties</a> : Cyclical ties
-</li>
-<li>
 <a href="#term_cyclicalties_2">cyclicalties</a> : Cyclical ties
 </li>
 <li>
@@ -8913,6 +9275,12 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 <a href="#term_meandeg_1">meandeg</a> : Mean vertex degree
 </li>
 <li>
+<a href="#term_mm_1">mm</a> : Mixing matrix cells and margins
+</li>
+<li>
+<a href="#term_mm_2">mm</a> : Mixing matrix cells and margins
+</li>
+<li>
 <a href="#term_nodecov_1">nodecov</a> : Main effect of a covariate
 </li>
 <li>
@@ -8946,6 +9314,9 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 <a href="#term_nodemix_2">nodemix</a> : Nodal attribute mixing
 </li>
 <li>
+<a href="#term_nodesqrtcovar_1">nodesqrtcovar</a> : Covariance of square roots of dyad values incident on each actor
+</li>
+<li>
 <a href="#term_nsp_1">nsp</a> : Nonedgewise shared partners
 </li>
 <li>
@@ -8958,13 +9329,13 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 <a href="#term_sociality_1">sociality</a> : Undirected degree
 </li>
 <li>
+<a href="#term_sociality_2">sociality</a> : Undirected degree
+</li>
+<li>
 <a href="#term_sum_1">sum</a> : Sum of dyad values (optionally taken to a power)
 </li>
 <li>
 <a href="#term_threetrail_1">threetrail</a> : Three-trails
-</li>
-<li>
-<a href="#term_transitiveties_1">transitiveties</a> : Transitive ties
 </li>
 <li>
 <a href="#term_transitiveties_2">transitiveties</a> : Transitive ties
@@ -9026,7 +9397,19 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 <a href="#term_nodeicov_2">nodeicov</a> : Main effect of a covariate for in-edges
 </li>
 <li>
+<a href="#term_nodeicovar_1">nodeicovar</a> : Uncentered covariance of in-dyad values incident on each actor
+</li>
+<li>
+<a href="#term_nodeisqrtcovar_1">nodeisqrtcovar</a> : Uncentered covariance of square roots of in-dyad values incident on each actor
+</li>
+<li>
 <a href="#term_nodeocov_1">nodeocov</a> : Main effect of a covariate for out-edges
+</li>
+<li>
+<a href="#term_nodeocovar_1">nodeocovar</a> : Uncentered covariance of out-dyad values incident on each actor
+</li>
+<li>
+<a href="#term_nodesqrtcovar_1">nodesqrtcovar</a> : Covariance of square roots of dyad values incident on each actor
 </li>
 <li>
 <a href="#term_smalldiff_1">smalldiff</a> : Number of ties between actors with similar (but not necessarily identical) attribute values
@@ -9091,13 +9474,13 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 <a href="#term_smallerthan_1">smallerthan</a> : Number of dyads with values strictly smaller than a threshold
 </li>
 <li>
+<a href="#term_mm_2">mm</a> : Mixing matrix cells and margins
+</li>
+<li>
 <a href="#term_mutual_2">mutual</a> : Mutuality
 </li>
 <li>
 <a href="#term_nodecov_2">nodecov</a> : Main effect of a covariate
-</li>
-<li>
-<a href="#term_nodecovar_1">nodecovar</a> :
 </li>
 <li>
 <a href="#term_nodecovar_1">nodecovar</a> : Uncentered covariance of dyad values incident on each actor
@@ -9109,10 +9492,13 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 <a href="#term_nodeicov_2">nodeicov</a> : Main effect of a covariate for in-edges
 </li>
 <li>
-<a href="#term_nodeicovar_1">nodeicovar</a> :
+<a href="#term_nodeicovar_1">nodeicovar</a> : Uncentered covariance of in-dyad values incident on each actor
 </li>
 <li>
 <a href="#term_nodeifactor_2">nodeifactor</a> : Factor attribute effect for in-edges
+</li>
+<li>
+<a href="#term_nodeisqrtcovar_1">nodeisqrtcovar</a> : Uncentered covariance of square roots of in-dyad values incident on each actor
 </li>
 <li>
 <a href="#term_nodematch_2">nodematch</a> : Uniform homophily and differential homophily
@@ -9124,13 +9510,25 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 <a href="#term_nodeocov_2">nodeocov</a> : Main effect of a covariate for out-edges
 </li>
 <li>
-<a href="#term_nodeocovar_1">nodeocovar</a> :
+<a href="#term_nodeocovar_1">nodeocovar</a> : Uncentered covariance of out-dyad values incident on each actor
 </li>
 <li>
 <a href="#term_nodeofactor_2">nodeofactor</a> : Factor attribute effect for out-edges
 </li>
 <li>
 <a href="#term_nodeosqrtcovar_1">nodeosqrtcovar</a> : Uncentered covariance of square roots of out-dyad values incident on each actor
+</li>
+<li>
+<a href="#term_nodesqrtcovar_1">nodesqrtcovar</a> : Covariance of square roots of dyad values incident on each actor
+</li>
+<li>
+<a href="#term_receiver_2">receiver</a> : Receiver effect
+</li>
+<li>
+<a href="#term_sender_2">sender</a> : Sender effect
+</li>
+<li>
+<a href="#term_sociality_2">sociality</a> : Undirected degree
 </li>
 <li>
 <a href="#term_sum_1">sum</a> : Sum of dyad values (optionally taken to a power)
@@ -9234,6 +9632,12 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 <a href="#term_kstar_1">kstar</a> : k-Stars:
 </li>
 <li>
+<a href="#term_mm_1">mm</a> : Mixing matrix cells and margins
+</li>
+<li>
+<a href="#term_mm_2">mm</a> : Mixing matrix cells and margins
+</li>
+<li>
 <a href="#term_nodefactor_1">nodefactor</a> : Factor attribute effect
 </li>
 <li>
@@ -9277,6 +9681,9 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 </li>
 <li>
 <a href="#term_sociality_1">sociality</a> : Undirected degree
+</li>
+<li>
+<a href="#term_sociality_2">sociality</a> : Undirected degree
 </li>
 <li>
 <a href="#term_transitiveties_1">transitiveties</a> : Transitive ties
@@ -9501,7 +9908,13 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 </h3>
 <ul>
 <li>
+<a href="#term_nodeisqrtcovar_1">nodeisqrtcovar</a> : Uncentered covariance of square roots of in-dyad values incident on each actor
+</li>
+<li>
 <a href="#term_nodeosqrtcovar_1">nodeosqrtcovar</a> : Uncentered covariance of square roots of out-dyad values incident on each actor
+</li>
+<li>
+<a href="#term_nodesqrtcovar_1">nodesqrtcovar</a> : Covariance of square roots of dyad values incident on each actor
 </li>
 <li>
 <a href="#term_transitiveweights_1">transitiveweights</a> : Transitive weights
@@ -9510,7 +9923,7 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 <hr />
 <p>This documentation was built with..</p>
 <pre class="r"><code>sessionInfo()</code></pre>
-<pre><code>## R Under development (unstable) (2018-03-18 r74422)
+<pre><code>## R Under development (unstable) (2018-06-04 r74847)
 ## Platform: x86_64-pc-linux-gnu (64-bit)
 ## Running under: Debian GNU/Linux buster/sid
 ## 
@@ -9530,22 +9943,21 @@ Jump to category:<a href="#cat_binary">binary</a> <a href="#cat_dyad-independent
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] ergm_4.0-3885    network_1.14-335
+## [1] ergm_3.9.0-4158  network_1.13.0.1 rmarkdown_1.9    rticles_0.4.1   
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] statnet.common_4.1.0-161 Rcpp_0.12.16            
-##  [3] lattice_0.20-35          digest_0.6.15           
-##  [5] rprojroot_1.3-2          MASS_7.3-49             
-##  [7] grid_3.5.0               backports_1.1.2         
-##  [9] magrittr_1.5             evaluate_0.10.1         
-## [11] coda_0.19-1              stringi_1.1.7           
-## [13] robustbase_0.92-8        Matrix_1.2-12           
-## [15] trust_0.1-7              rmarkdown_1.9           
-## [17] tools_3.5.0              stringr_1.3.0           
-## [19] DEoptimR_1.0-8           parallel_3.5.0          
-## [21] session_1.0.3            yaml_2.1.18             
-## [23] compiler_3.5.0           htmltools_0.3.6         
-## [25] knitr_1.20               lpSolve_5.6.13</code></pre>
+##  [1] Rcpp_0.12.17         bindr_0.1.1          knitr_1.20          
+##  [4] magrittr_1.5         MASS_7.3-50          tidyselect_0.2.4    
+##  [7] lattice_0.20-35      R6_2.2.2             rlang_0.2.1         
+## [10] stringr_1.3.1        dplyr_0.7.5          tools_3.6.0         
+## [13] parallel_3.6.0       grid_3.6.0           lpSolve_5.6.13      
+## [16] coda_0.19-1          htmltools_0.3.6      yaml_2.1.19         
+## [19] rprojroot_1.3-2      digest_0.6.15        assertthat_0.2.0    
+## [22] tibble_1.4.2         bindrcpp_0.2.2       Matrix_1.2-14       
+## [25] purrr_0.2.5          trust_0.1-7          robustbase_0.93-0   
+## [28] glue_1.2.0           evaluate_0.10.1      statnet.common_4.1.2
+## [31] stringi_1.2.2        DEoptimR_1.0-8       pillar_1.2.3        
+## [34] compiler_3.6.0       backports_1.1.2      pkgconfig_2.0.1</code></pre>
 </div>
 
 

@@ -46,7 +46,6 @@ print.summary.ergm <- function (x,
               correlation=FALSE, covariance=FALSE,
               signif.stars= getOption("show.signif.stars"),
               eps.Pvalue=0.0001, print.header=TRUE, print.formula=TRUE, print.fitinfo=TRUE, print.coefmat=TRUE, print.message=TRUE, print.deviances=TRUE, print.drop=TRUE, print.offset=TRUE, print.degeneracy=TRUE,...){
-  if(missing(digits)) digits <- x$digits
   
   control <- x$control
   if(print.header){
@@ -86,9 +85,9 @@ print.summary.ergm <- function (x,
   }
 
   if(print.coefmat){
-    printCoefmat(x$coefs, digits=digits, signif.stars=signif.stars,
+    printCoefmat(x$coefficients, digits=digits, signif.stars=signif.stars,
                  P.values=TRUE, has.Pvalue=TRUE, na.print="NA",
-                 eps.Pvalue=eps.Pvalue, ...)
+                 eps.Pvalue=eps.Pvalue, cs.ind=1:2, tst.ind=4L,...)
   }
 
   if(print.message){
@@ -100,7 +99,10 @@ print.summary.ergm <- function (x,
 
   if(print.deviances){
     if(!is.null(x$devtable)){
-      cat(x$devtable)
+      cat(c("",apply(cbind(paste(format(c("    Null", "Residual"), width = 8), x$devtext), 
+                                     format(x$devtable[,1], digits = digits), " on",
+                                     format(x$devtable[,2], digits = digits)," degrees of freedom\n"), 
+                               1, paste, collapse = " "),"\n"))
 
       if(x$null.lik.0) cat("Note that the null model likelihood and deviance are defined to be 0.", NO_NULL_IMPLICATION, "\n\n")
       
@@ -113,18 +115,18 @@ print.summary.ergm <- function (x,
   if(print.drop){
     if(any(x$drop!=0)){
       cat("\n Warning: The following terms have infinite coefficient estimates:\n  ")
-      cat(rownames(x$coefs)[x$drop!=0], "\n")
+      cat(rownames(x$coefficients)[x$drop!=0], "\n")
     }
     if(any(!x$estimable)){
       cat("\n Warning: The following terms could not be estimated because they conflicted with the sample space constraint:\n  ")
-      cat(rownames(x$coefs)[!x$estimable], "\n")
+      cat(rownames(x$coefficients)[!x$estimable], "\n")
     }
   }
 
   if(print.offset){
     if(any(x$offset & x$drop==0 & x$estimable)){
       cat("\n The following terms are fixed by offset and are not estimated:\n  ")
-      cat(rownames(x$coefs)[x$offset & x$drop==0 & x$estimable], "\n\n")
+      cat(rownames(x$coefficients)[x$offset & x$drop==0 & x$estimable], "\n\n")
     }
   }
 
