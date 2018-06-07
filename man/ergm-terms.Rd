@@ -830,7 +830,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     \code{sign.action(attrname[i]-attrname[j])^pow} if \code{dir} is
     \code{"t-h"} (the default), \code{"tail-head"}, or \code{"b1-b2"}
     and of \code{sign.action(attrname[j]-attrname[i])^pow} if
-    \code{"t-h"}, \code{"tail-head"}, or \code{"b2-b1"}. That is, the
+    \code{"h-t"}, \code{"head-tail"}, or \code{"b2-b1"}. That is, the
     argument \code{dir} determines which vertex's attribute is
     subtracted from which, with tail being the origin of a directed edge
     and head being its destination, and bipartite networks' edges being
