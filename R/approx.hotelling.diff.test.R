@@ -79,7 +79,8 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
 
   vars <- list(x=list(v=x))
   if(!is.null(y)) vars$y <- list(v=y)
-  
+
+  v <- NULL # Prevent a spurious R CMD check warning.
   mywithin <- function(data, ...) within(data, ...) # This is a workaround suggsted by Duncan Murdoch: calling lapply(X, within, {CODE}) would leave CODE unable to see any objects in f.
   vars <- lapply(vars, mywithin, {
     vcovs.indep <- lapply(v, cov)
@@ -107,7 +108,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
     
     vcov.m <- vcov/n # Here, vcov already incorporates the inflation due to autocorrelation.
   })
-  rm(mywithin)
+  rm(mywithin, v)
   
   x <- vars$x
   y <- vars$y
