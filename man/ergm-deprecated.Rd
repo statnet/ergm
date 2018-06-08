@@ -101,3 +101,4 @@ vectors associated with a formula.
 \item \code{ergm.getglobalstats}: Use \code{\link[=summary.ergm_model]{summary.ergm_model()}} instead.
 }}
 
+\keyword{misc}
