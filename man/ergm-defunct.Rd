@@ -6,7 +6,6 @@
 \alias{largest.components}
 \alias{central.network}
 \alias{ergm.mahalanobis}
-\alias{sociality}
 \alias{sociality.default}
 \alias{sociality.network}
 \alias{sociality.formula}
@@ -25,6 +24,8 @@
 \alias{robust.inverse}
 \title{Functions that have been removed from this package}
 \usage{
+sociality(object, ...)
+
 delete.isolates(x)
 
 largest.components(x, minsize = 4)
@@ -32,8 +33,6 @@ largest.components(x, minsize = 4)
 central.network(x)
 
 ergm.mahalanobis(x, center, cov, inverted = FALSE, ...)
-
-sociality(object, ...)
 
 \method{sociality}{default}(object, ...)
 
@@ -79,3 +78,4 @@ robust.inverse(H, tol = sqrt(.Machine$double.eps))
 \description{
 Functions that have been removed after a period of deprecation.
 }
+\keyword{internal}

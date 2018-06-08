@@ -1273,7 +1273,7 @@ of the degrees of all pairs of nodes in the network which are tied.
 
   \item{\code{mm(attrs, levels=NULL, levels2=NULL)} (binary)  (dyad-independent)  (frequently-used) (directed)  (undirected) (categorical nodal attribute), \code{mm(attrs, levels=NULL, levels2=NULL, form="sum")} (valued)  (dyad-independent)  (frequently-used) (directed)  (undirected) (categorical nodal attribute)}{\emph{Mixing matrix cells and margins:}
   \code{attrs} is a two-sided formula whose LHS gives the attribute or
-    attribute function (see \link[node-attr]{Specifying Vertex
+    attribute function (see \link[=node-attr]{Specifying Vertex
     Attributes and Levels}) for the rows of the mixing matrix and whose RHS gives
     that for its columns. A one-sided formula (e.g.,
     \code{~A}) is symmetrized (e.g., \code{A~A}). \code{levels}
