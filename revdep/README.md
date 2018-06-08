@@ -9,21 +9,22 @@
 |language |(EN)                                               |
 |collate  |en_AU.utf8                                         |
 |tz       |Australia/Sydney                                   |
-|date     |2018-06-05                                         |
+|date     |2018-06-08                                         |
 
 # Dependencies
 
-|package |old   |new        |Δ  |
-|:-------|:-----|:----------|:--|
-|ergm    |3.8.0 |3.9.0-4154 |*  |
+|package |old   |new   |Δ  |
+|:-------|:-----|:-----|:--|
+|ergm    |3.8.0 |3.9.0 |*  |
 
 # Revdeps
 
-## Couldn't check (1)
+## Couldn't check (2)
 
 |package |version |error |warning |note |
 |:-------|:-------|:-----|:-------|:----|
-|broom   |?       |      |        |     |
+|broom   |0.4.4   |      |        |     |
+|ergm    |3.8.0   |      |        |     |
 
 ## All (29)
 
@@ -32,7 +33,7 @@
 |Bergm          |4.1.0   |      |        |     |
 |Blaunet        |2.0.7   |      |        |     |
 |blkergm        |1.1     |      |        |     |
-|broom          |?       |      |        |     |
+|broom          |0.4.4   |      |        |     |
 |btergm         |1.9.1   |      |        |     |
 |CCMnet         |0.0-3   |      |        |     |
 |dnr            |0.3.2   |      |        |     |
