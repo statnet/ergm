@@ -16,7 +16,7 @@ ergm.Cprepare(nw, m, response = NULL)
 
 \method{ergm_Clist}{ergm_model}(object, ...)
 
-ergm.design(nw, verbose = FALSE)
+ergm.design(nw, model = NULL, verbose = FALSE)
 }
 \arguments{
 \item{object}{object to be collated.}
@@ -30,6 +30,8 @@ ergm.design(nw, verbose = FALSE)
 \item{response}{Name of the edge attribute whose value is to be
 modeled in the valued ERGM framework. Defaults to \code{NULL} for
 simple presence or absence, modeled via a binary ERGM.}
+
+\item{model}{an \code{\link{ergm_model}}.}
 
 \item{verbose}{logical, whether the design matrix should be printed;
 default=FALSE}
@@ -68,8 +70,7 @@ into a form suitable for being passed to the C routines.
 
 The \code{ergm.Cprepare} is a legacy function that constructs a combination of \code{ergm_Clist}s from the given \code{\link{network}} and the given \code{\link{ergm_model}}.
 
-\code{ergm.design} functions as \code{ergm.Cprepare}
-would, but acts on the network of missing edges
+\code{ergm.design} obtain the set of informative dyads based on the network structure. Note that \code{model=} argument is not needed and will be removed in a future release.
 }
 \section{Methods (by class)}{
 \itemize{
