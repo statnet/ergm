@@ -21,6 +21,8 @@
 \alias{MHproposal.character}
 \alias{MHproposal.ergm}
 \alias{MHproposal.formula}
+\alias{ergm.init.methods}
+\alias{ergm.ConstraintImplications}
 \alias{ergm.update.formula}
 \alias{remove.offset.formula}
 \alias{offset.info.formula}
@@ -63,6 +65,10 @@ MHproposal.character(...)
 MHproposal.ergm(...)
 
 MHproposal.formula(...)
+
+ergm.init.methods(...)
+
+ergm.ConstraintImplications(...)
 
 ergm.update.formula(object, new, ..., from.new = FALSE)
 
@@ -142,6 +148,10 @@ Use \code{\link[latentnet:plot.ergmm]{latentnet::plot.ergmm()}} instead.
 \item \code{MHproposal.ergm}: Deprecated name of \code{\link[=ergm_proposal]{ergm_proposal()}}.
 
 \item \code{MHproposal.formula}: Deprecated name of \code{\link[=ergm_proposal]{ergm_proposal()}}.
+
+\item \code{ergm.init.methods}: Deprecated: specify in the \code{InitErgmReference.*} implementation.
+
+\item \code{ergm.ConstraintImplications}: Deprecated: specify in the \code{InitErgmConstraint.*} implementation.
 
 \item \code{ergm.update.formula}: Use \code{\link[statnet.common]{nonsimp_update.formula}} instead.
 
