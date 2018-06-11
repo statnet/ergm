@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2017 Statnet Commons
+#  Copyright 2003-2018 Statnet Commons
 #######################################################################
 # tests to veryify the structure of the ergm-terms documentation
 # this executes functions similar to what would be run when building the ergm=term=crossRef.Rmd file

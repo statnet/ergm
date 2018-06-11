@@ -1,3 +1,12 @@
+#  File R/ergm-deprecated.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2018 Statnet Commons
+#######################################################################
 # Since deprecated functions are sprinkled all over the source code, this filename is prepended with "AAA" to ensure that it's evaluated before any others.
 
 #' @name ergm-deprecated

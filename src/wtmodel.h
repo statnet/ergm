@@ -5,7 +5,7 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  http://statnet.org/attribution
  *
- *  Copyright 2003-2017 Statnet Commons
+ *  Copyright 2003-2018 Statnet Commons
  */
 #ifndef WTMODEL_H
 #define WTMODEL_H
