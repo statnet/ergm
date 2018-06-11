@@ -22,7 +22,6 @@ Suggests:
     rmarkdown,
     knitr,
     ergm.userterms,
-    tergm,
     Rmpi,
     testthat
 BugReports: https://github.com/statnet/ergm/issues
