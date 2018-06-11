@@ -214,6 +214,9 @@
 	controlled by \code{\link{options}} option \code{ergm.eval.loglik=}.
       }
       \item{
+	\code{\link{plot.network.ergm}} has been deprecated.
+      }
+      \item{
 	Some of the unofficial APIs have been changed for consistency
 	and ease of use:
 	\itemize{

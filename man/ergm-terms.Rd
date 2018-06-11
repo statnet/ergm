@@ -832,7 +832,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     \code{sign.action(attrname[i]-attrname[j])^pow} if \code{dir} is
     \code{"t-h"} (the default), \code{"tail-head"}, or \code{"b1-b2"}
     and of \code{sign.action(attrname[j]-attrname[i])^pow} if
-    \code{"t-h"}, \code{"tail-head"}, or \code{"b2-b1"}. That is, the
+    \code{"h-t"}, \code{"head-tail"}, or \code{"b2-b1"}. That is, the
     argument \code{dir} determines which vertex's attribute is
     subtracted from which, with tail being the origin of a directed edge
     and head being its destination, and bipartite networks' edges being
@@ -1279,7 +1279,7 @@ of the degrees of all pairs of nodes in the network which are tied.
 
   \item{\code{mm(attrs, levels=NULL, levels2=NULL)} (binary)  (dyad-independent)  (frequently-used) (directed)  (undirected) (categorical nodal attribute), \code{mm(attrs, levels=NULL, levels2=NULL, form="sum")} (valued)  (dyad-independent)  (frequently-used) (directed)  (undirected) (categorical nodal attribute)}{\emph{Mixing matrix cells and margins:}
   \code{attrs} is a two-sided formula whose LHS gives the attribute or
-    attribute function (see \link[node-attr]{Specifying Vertex
+    attribute function (see \link[=node-attr]{Specifying Vertex
     Attributes and Levels}) for the rows of the mixing matrix and whose RHS gives
     that for its columns. A one-sided formula (e.g.,
     \code{~A}) is symmetrized (e.g., \code{A~A}). \code{levels}

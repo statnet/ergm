@@ -314,8 +314,8 @@ mcmc.diagnostics.ergm <- function(object,
   }
   
   if(requireNamespace('latticeExtra', quietly=TRUE)){  
-    plot.mcmc.list.ergm(sm,main="Sample statistics",vars.per.page=vars.per.page,...)
-    if(!is.null(sm.obs)) plot.mcmc.list.ergm(sm.obs,main="Constrained sample statistics",vars.per.page=vars.per.page,...)
+    print(plot.mcmc.list.ergm(sm,main="Sample statistics",vars.per.page=vars.per.page,...))
+    if(!is.null(sm.obs)) print(plot.mcmc.list.ergm(sm.obs,main="Constrained sample statistics",vars.per.page=vars.per.page,...))
   }else{
     message("Package latticeExtra is not installed. Falling back on coda's default MCMC diagnostic plots.")
     plot(sm,...)
@@ -343,6 +343,7 @@ mcmc.diagnostics.ergm <- function(object,
 #' @export plot.mcmc.list.ergm
 plot.mcmc.list.ergm <- function(x, main=NULL, vars.per.page=3,...){
   requireNamespace('lattice', quietly=TRUE, warn.conflicts=FALSE)
+  requireNamespace('latticeExtra', quietly=TRUE, warn.conflicts=FALSE)
   
   dp <- update(lattice::densityplot(x, panel=function(...){lattice::panel.densityplot(...);lattice::panel.abline(v=0)}),xlab=NULL,ylab=NULL)
   tp <- update(lattice::xyplot(x, panel=function(...){lattice::panel.xyplot(...);lattice::panel.loess(...);lattice::panel.abline(0,0)}),xlab=NULL,ylab=NULL)
@@ -357,6 +358,6 @@ plot.mcmc.list.ergm <- function(x, main=NULL, vars.per.page=3,...){
   
   reordering <- c(rbind(seq_len(nvar(x)),nvar(x)+seq_len(nvar(x))))
   
-  print(update(c(tp,dp)[reordering],layout=c(2,vars.per.page),as.table=TRUE,main=main))
+  update(c(tp,dp)[reordering],layout=c(2,vars.per.page),as.table=TRUE,main=main)
 }
 
