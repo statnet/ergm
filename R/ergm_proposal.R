@@ -62,6 +62,13 @@ ergm_proposal_table <- local({
   }
 })
 
+#' @describeIn ergm-deprecated Deprecated name for [ergm_proposal_table()].
+#' @export ergm.MHP.table
+ergm.MHP.table <- function(...){
+  .Deprecated("ergm_proposal_table()")
+  ergm_proposal_table(...)
+}
+
 prune.ergm_conlist <- function(conlist){
   ## Remove constraints implied by other constraints.
   for(ed in rev(seq_along(conlist))){
@@ -376,3 +383,30 @@ ergm_proposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NUL
   ergm_proposal(constraints,arguments=arguments,nw=nw,weights=weights,class=class,reference=reference,response=response)
 }
 
+#' @describeIn ergm-deprecated Deprecated name of [ergm_proposal()].
+#' @export MHproposal
+MHproposal <- function(...){
+  .Deprecated("ergm_proposal()")
+  ergm_proposal(...)
+}
+
+#' @describeIn ergm-deprecated Deprecated name of [ergm_proposal()].
+#' @export MHproposal.character
+MHproposal.character <- function(...){
+  .Deprecated("ergm_proposal()")
+  ergm_proposal(...)
+}
+
+#' @describeIn ergm-deprecated Deprecated name of [ergm_proposal()].
+#' @export MHproposal.ergm
+MHproposal.ergm <- function(...){
+  .Deprecated("ergm_proposal()")
+  ergm_proposal(...)
+}
+
+#' @describeIn ergm-deprecated Deprecated name of [ergm_proposal()].
+#' @export MHproposal.formula
+MHproposal.formula <- function(...){
+  .Deprecated("ergm_proposal()")
+  ergm_proposal(...)
+}
