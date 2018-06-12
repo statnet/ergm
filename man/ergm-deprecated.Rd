@@ -2,8 +2,8 @@
 % Please edit documentation in R/ergm-deprecated.R, R/InitErgmTerm.R,
 %   R/ergm.check.R, R/ergm.getMCMCsample.R, R/ergm.getterms.R,
 %   R/ergm_model.R, R/ergm_proposal.R, R/formula.utils.R, R/gof.ergm.R,
-%   R/plot.ergm.R, R/plot.network.ergm.R, R/summary.ergm_model.R,
-%   R/summary.statistics.network.R
+%   R/mcmc.diagnostics.ergm.R, R/plot.ergm.R, R/plot.network.ergm.R,
+%   R/summary.ergm_model.R, R/summary.statistics.network.R
 \name{ergm-deprecated}
 \alias{ergm-deprecated}
 \alias{InitErgmTerm.degreepopularity}
@@ -27,6 +27,7 @@
 \alias{remove.offset.formula}
 \alias{offset.info.formula}
 \alias{summary.gof}
+\alias{plot.mcmc.list.ergm}
 \alias{plot.ergm}
 \alias{plot.network.ergm}
 \alias{ergm.getglobalstats}
@@ -78,6 +79,8 @@ offset.info.formula(object, response = NULL, ...)
 
 \method{summary}{gof}(object, ...)
 
+\method{plot}{mcmc.list.ergm}(...)
+
 \method{plot}{ergm}(x, ...)
 
 \method{plot}{network.ergm}(x, attrname = NULL,
@@ -110,6 +113,8 @@ summary.statistics(...)
 Functions that have been superceed, were never documented, or will be removed from the package for other reasons
 
 \code{\link[=summary.gof]{summary.gof()}} is a deprecated alias for \code{\link[=print.gof]{print.gof()}}.
+
+\code{plot.mcmc.list.ergm} is the obsolete name for \code{\link[=ergm_plot.mcmc.list]{ergm_plot.mcmc.list()}}.
 
 \code{plot.ergm}: deprecated alias for \code{\link[=mcmc.diagnostics]{mcmc.diagnostics()}}.
 

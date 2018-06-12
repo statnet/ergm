@@ -2,6 +2,9 @@
 ^\.Rproj\.user$
 .RSession
 ^.*/\.RData$
+^.*/\.Rhistory
+^.*/Rplots.pdf
+^.*/figure/
 .travis.yml
 appveyor.yml
 .*\.orig$
