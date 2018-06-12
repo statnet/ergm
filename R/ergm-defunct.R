@@ -10,9 +10,11 @@
 # The last home for functions to removed from ergm.
 
 #' @name ergm-defunct
+#' @usage sociality(object, ...)
 #' @title Functions that have been removed from this package
 #' @description Functions that have been removed after a period of deprecation.
 #' @param x,minsize,center,cov,inverted,...,object,statistics,formula,init,nsim,burnin,interval,constraints,prop.weights,prop.args,seed,drop,ninflast,V,tol,g,print,nw,radius,probs,n,cols,control,statistic,H Arguments to defunct functions.
+#' @keywords internal
 
 NULL
 
@@ -30,9 +32,10 @@ central.network<-function(x) .Defunct()
 #' @rdname ergm-defunct
 ergm.mahalanobis <- function(x, center, cov, inverted=FALSE, ...) .Defunct('stats::mahalanobis')
 
-#' @rdname ergm-defunct
+
+# sociality() is a special case to avoid an alias conflict with ergm term "sociality".
 sociality <- function(object, ...)
-UseMethod("sociality")
+  UseMethod("sociality")
 
 #' @rdname ergm-defunct
 sociality.default <- function(object,...) .Defunct()
