@@ -321,7 +321,7 @@ on a dataset)
 For a list of available terms that can be used to specify an ERGM,
 see Appendix B, or type:
 <<eval=FALSE,echo=TRUE>>=
-help('ergm-terms')}
+help('ergm-terms')
 @ 
 
 For a more complete discussion of these terms see the 'Specifications'
