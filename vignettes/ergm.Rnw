@@ -1,11 +1,10 @@
 \documentclass{article}
 \usepackage{natbib} %for easy biblo
 \usepackage{hyperref} %for url links
-\usepackage{comment} 
-\usepackage{color} 
 \usepackage{geometry}
 \geometry{verbose,tmargin=3cm,bmargin=3cm,lmargin=3cm,rmargin=3cm}
 \usepackage{multirow}
+\newcommand{\myverb}[1]{\mbox{\texttt{#1}}}
 \setlength{\parskip}{\smallskipamount}
 
 % \VignetteEngine{knitr::knitr}
@@ -51,7 +50,7 @@ options(width=75)
 \tableofcontents
 
 \section{Getting Started}
-This vignette is based on the \verb@ergm@ tutorial presented at INSNA Sunbelt - St. Pete Beach, Florida, Feb 2011.
+This vignette is based on the \myverb{ergm} tutorial presented at INSNA Sunbelt - St. Pete Beach, Florida, Feb 2011.
 
 Open an R session, and set your working directory to the location
 where you would like to save this work. You can do this with the pull-down
@@ -310,10 +309,10 @@ Model terms are the expressions (e.g. ``triangle'')
 used to represent predictors on the right-hand size of equations used
 in:
 \begin{itemize}
-\item calls to \verb@ergm@ (to estimate an ergm model)
-\item calls to \verb@simulate@ (to simulate networks from an ergm model
+\item calls to \myverb{ergm} (to estimate an ergm model)
+\item calls to \myverb{simulate} (to simulate networks from an ergm model
 fit)
-\item calls to \verb@summary@ (to obtain measurements of network statistics
+\item calls to \myverb{summary} (to obtain measurements of network statistics
 on a dataset)
 \end{itemize}
 
@@ -321,8 +320,9 @@ on a dataset)
 
 For a list of available terms that can be used to specify an ERGM,
 see Appendix B, or type:
-
-\verb@help('ergm-terms')@
+<<eval=FALSE,echo=TRUE>>=
+help('ergm-terms')
+@ 
 
 For a more complete discussion of these terms see the 'Specifications'
 paper in J Stat Software v. 24. (link is available online at \url{www.statnet.org})
@@ -330,13 +330,13 @@ paper in J Stat Software v. 24. (link is available online at \url{www.statnet.or
 
 \subsection{Coding new terms}
 
-We have recently released a new package (\verb@ergm.userterms@)
+We have recently released a new package (\myverb{ergm.userterms})
 and tutorial aimed at making it much easier than before to write one's
 own terms. The package is available on CRAN, and installing it will
 also download the tutorial (ergmuserterms.pdf). We teach a workshop
 at the Sunbelt meetings, and are also hoping for the tutorial to appear
 soon in the \textit{Journal of Statistical Software}. Note that writing
-up new \verb@ergm@ terms requires some knowledge of C and the ability
+up new \myverb{ergm} terms requires some knowledge of C and the ability
 to build R from source (although the latter is covered in the tutorial). 
 
 \section{Network simulation: the \textit{simulate} command and \textit{network.list}
@@ -347,7 +347,7 @@ specified. It defines a probability distribution across all networks
 of this size. If the model is a good fit to the observed data, then
 networks drawn from this distribution will be more likely to "resemble"
 the observed data. To see examples of networks drawn from this distribution
-we use the \verb@simulate@ command:
+we use the \myverb{simulate} command:
 
 <<>>=
 flomodel.03.sim <- simulate(flomodel.03,nsim=10)
@@ -396,7 +396,7 @@ Friendship networks, see Goodreau, Kitts \& Morris, \textit{Demography}
 
 \section{Diagnostics: troubleshooting and checking for model degeneracy}
 
-The computational algorithms in \verb@ergm@ use MCMC to estimate
+The computational algorithms in \myverb{ergm} use MCMC to estimate
 the likelihood function. Part of this process involves simulating
 a set of networks to approximate unknown components of the likelihood. 
 
@@ -520,7 +520,7 @@ mcmc.diagnostics(fit)
 Success! Of course, in real life one might have a lot more trial and
 error.
 
-Changes in version 3.2 of the ergm estimation algorithm mean that the MCMC diagnostic plots can no longer be used to ensure that the mean statistics from the model match the observed network statistics. For that functionality, please use the GOF command: \verb@gof(fit, GOF=~model)@. The plots can still be used to assess MCMC mixing and convergence.
+Changes in version 3.2 of the ergm estimation algorithm mean that the MCMC diagnostic plots can no longer be used to ensure that the mean statistics from the model match the observed network statistics. For that functionality, please use the GOF command: \myverb{gof(fit, GOF=~model)}. The plots can still be used to assess MCMC mixing and convergence.
 
 
 \section{Working with egocentrically sampled network data}
@@ -760,7 +760,7 @@ that are consistent with the fitted coefficients.
 
 If you wanted instead to constrain these statistics to equal a specified
 value, then you can use the ``constraints=''
-argument during the \verb@ergm@ fit instead. 
+argument during the \myverb{ergm} fit instead. 
 
 This is good for verifying that the simulation reproduces the target
 values we specified. So now let's see whether the
@@ -903,7 +903,7 @@ see \href{http://statnet.org/movies}{statnet.org/movies}.
 
 \item ERGMs for valued ties -- see the paper by Pavel Krivitsky (2012)
 
-\item Analysis of bipartite networks -- \verb@network@ recognizes this as an attribute of the network and \verb@ergm@ provides specific model terms for such networks that begin with b1 or b2 \\
+\item Analysis of bipartite networks -- \myverb{network} recognizes this as an attribute of the network and \myverb{ergm} provides specific model terms for such networks that begin with b1 or b2 \\
 (try: \texttt{search.ergmTerms(categories=c('bipartite'))}).
 
 \end{itemize}
@@ -911,9 +911,9 @@ see \href{http://statnet.org/movies}{statnet.org/movies}.
 \subsection{In other packages from the statnet suite:}
 
 These are in stand-alone packages that can be downloaded either from CRAN, 
-or from the \verb@statnet@ website. Many have online training materials from our
+or from the \myverb{statnet} website. Many have online training materials from our
 workshops.  For more detailed information, 
-please visit the \verb@statnet@ webpage 
+please visit the \myverb{statnet} webpage 
 (\href{http://statnet.org}{http://statnet.org}).
 
 \subsubsection{Static (cross-sectional) network analysis packages}
@@ -1014,7 +1014,7 @@ to newcomers. To clarify:
 \item \textbf{ERGM}: the acronym for an Exponential Random Graph Model;
 a statistical model for relational data that takes a generalized exponential
 family form. 
-\item \textbf{ergm package}: one of the packages within the \verb@statnet@
+\item \textbf{ergm package}: one of the packages within the \myverb{statnet}
   suite
 \item \textbf{ergm function}: a function within the ergm package; fits an
 ERGM to a network object, creating an ergm object in the process. 
@@ -1026,10 +1026,10 @@ ergm function, representing the results of an ERGM fit to a network.
 \begin{itemize}
 \item \textbf{network}: a set of actors and the relations among them. Used
 interchangeably with the term graph. 
-\item \textbf{network package}: one of the packages within the \verb@statnet@
+\item \textbf{network package}: one of the packages within the \myverb{statnet}
   suite; used to create, store, modify and plot the information found
 in network objects. 
-\item \textbf{network object}: a class of object in \verb@R@ used to represent
+\item \textbf{network object}: a class of object in \myverb{R} used to represent
 a network.
 \end{itemize}
 

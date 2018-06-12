@@ -314,10 +314,9 @@ mcmc.diagnostics.ergm <- function(object,
   }
   
   if(requireNamespace('latticeExtra', quietly=TRUE)){  
-    print(plot.mcmc.list.ergm(sm,main="Sample statistics",vars.per.page=vars.per.page,...))
-    if(!is.null(sm.obs)) print(plot.mcmc.list.ergm(sm.obs,main="Constrained sample statistics",vars.per.page=vars.per.page,...))
+    print(ergm_plot.mcmc.list(sm,main="Sample statistics",vars.per.page=vars.per.page,...))
+    if(!is.null(sm.obs)) print(ergm_plot.mcmc.list(sm.obs,main="Constrained sample statistics",vars.per.page=vars.per.page,...))
   }else{
-    message("Package latticeExtra is not installed. Falling back on coda's default MCMC diagnostic plots.")
     plot(sm,...)
     if(!is.null(sm.obs)) plot(sm.obs,...)
   }
@@ -337,19 +336,17 @@ mcmc.diagnostics.ergm <- function(object,
 #'   plotting page.  Ignored if \code{latticeExtra} package is not
 #'   installed.
 #' @param ... additional arguments, currently unused.
-#' @note This is *not* a method; there already is a `plot` method for
-#'   `mcmc.list` objects in the `coda` package.
+#' @note This is not a method at this time.
 #'
-#' @export plot.mcmc.list.ergm
-plot.mcmc.list.ergm <- function(x, main=NULL, vars.per.page=3,...){
-  requireNamespace('lattice', quietly=TRUE, warn.conflicts=FALSE)
-  requireNamespace('latticeExtra', quietly=TRUE, warn.conflicts=FALSE)
+#' @export ergm_plot.mcmc.list
+ergm_plot.mcmc.list <- function(x, main=NULL, vars.per.page=3,...){
+  if(!requireNamespace('lattice', quietly=TRUE, warn.conflicts=FALSE) ||
+     !requireNamespace('latticeExtra', quietly=TRUE, warn.conflicts=FALSE))
+    stop("ergm_plot.mcmc.list() requires ",sQuote('lattice')," and ",sQuote('latticeExtra')," packages.",call.=FALSE)
   
   dp <- update(lattice::densityplot(x, panel=function(...){lattice::panel.densityplot(...);lattice::panel.abline(v=0)}),xlab=NULL,ylab=NULL)
   tp <- update(lattice::xyplot(x, panel=function(...){lattice::panel.xyplot(...);lattice::panel.loess(...);lattice::panel.abline(0,0)}),xlab=NULL,ylab=NULL)
-
-  #library(latticeExtra)
-
+  
   pages <- ceiling(nvar(x)/vars.per.page)
   # if the number of vars is less than vars.per.page, make adjustment
   if(nvar(x)<vars.per.page){
@@ -361,3 +358,10 @@ plot.mcmc.list.ergm <- function(x, main=NULL, vars.per.page=3,...){
   update(c(tp,dp)[reordering],layout=c(2,vars.per.page),as.table=TRUE,main=main)
 }
 
+#' @rdname ergm-deprecated
+#' @description `plot.mcmc.list.ergm` is the obsolete name for [ergm_plot.mcmc.list()].
+#' @export plot.mcmc.list.ergm
+plot.mcmc.list.ergm <- function(...){
+  .Deprecated("ergm_plot.mcmc.list()")
+  ergm_plot.mcmc.list(...)
+}
