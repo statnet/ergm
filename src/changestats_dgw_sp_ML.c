@@ -535,7 +535,8 @@ static inline void espOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   if(l3c){
     unsigned int L2th=0;
     ML_EXEC_THROUGH_OUTEDGES(ll0,t,e,k, {
-	INC_IF_TWOPATH(th,t,k,k,h);
+	if(k!=h)
+	  INC_IF_TWOPATH(th,t,k,k,h);
       });
     for(unsigned int j = 0; j < nd; j++){
       deg = (Vertex)dvec[j];
@@ -591,7 +592,8 @@ static inline void espITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   if(l3c){
     unsigned int L2th=0;
     ML_EXEC_THROUGH_INEDGES(ll0,t,e,k, {
-	INC_IF_TWOPATH(th,h,k,k,t);
+	if(k!=h)
+	  INC_IF_TWOPATH(th,h,k,k,t);
       });
     for(unsigned int j = 0; j < nd; j++){
       deg = (Vertex)dvec[j];
@@ -656,7 +658,8 @@ static inline void espOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   if(l3c){
     unsigned int L2th=0;
     ML_EXEC_THROUGH_OUTEDGES(ll0,t,e,k, {
-	INC_IF_TWOPATH(th,t,k,h,k);
+	if(k!=h)
+	  INC_IF_TWOPATH(th,t,k,h,k);
       });
     for(unsigned int j = 0; j < nd; j++){
       deg = (Vertex)dvec[j];
@@ -719,7 +722,8 @@ static inline void espISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   if(l3c){
     unsigned int L2th=0;
     ML_EXEC_THROUGH_INEDGES(ll0,t,e,k, {
-	INC_IF_TWOPATH(th,k,t,k,h);
+	if(k!=h)
+	  INC_IF_TWOPATH(th,k,t,k,h);
       });
     for(unsigned int j = 0; j < nd; j++){
       deg = (Vertex)dvec[j];
