@@ -11,10 +11,13 @@
   reprs <- sapply(seq_along(Llist), function(l){
     name <- names(Llist)[l]
     L <- Llist[[l]]
-    s <- switch(class(L),
-                formula = .despace(deparse(if(length(L)==2) L[[2]] else L)),
-                character = L,
-                as.character(L))
+    fmt <- function(x)
+      switch(class(x),
+             formula = .despace(deparse(if(length(x)==2) x[[2]] else x)),
+             character = x,
+             list = paste0('(',paste(sapply(x,fmt),collapse=","),')'),
+             as.character(x))
+    s <- fmt(L)
     if(NVL(name,"")!="") s <- paste0(name,"=",s)
     s
   })
