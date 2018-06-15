@@ -457,7 +457,7 @@ InitWtErgmTerm.transitiveweights<-function (nw, arglist, response, ...) {
                       varnames = c("twopath","combine","affect"),
                       vartypes = c("character","character","character"),
                       defaultvalues = list("min","max","min"),
-                      required = c(FALSE,FALSE), response=response)
+                      required = c(FALSE,FALSE,FALSE), response=response)
   twopaths<-c("min","geomean")
   twopath<-match.arg(a$twopath,twopaths)
   combines<-c("max","sum")
@@ -497,7 +497,7 @@ InitWtErgmTerm.cyclicalweights<-function (nw, arglist, response, ...) {
                       varnames = c("twopath","combine","affect"),
                       vartypes = c("character","character","character"),
                       defaultvalues = list("min","max","min"),
-                      required = c(FALSE,FALSE), response=response)
+                      required = c(FALSE,FALSE,FALSE), response=response)
   twopaths<-c("min","geomean")
   twopath<-match.arg(a$twopath,twopaths)
   combines<-c("max","sum")
