@@ -35,7 +35,7 @@ static inline int ergm_c_LayerLogic2Path(Vertex tail1, Vertex head1, Vertex tail
 static inline unsigned int ergm_LayerLogic2Path(Vertex tail1, Vertex head1, Vertex tail2, Vertex head2, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order){
   if(!ll1->onwp->directed_flag) any_order = TRUE;
 
-  unsigned int e11 = ML_GETWT(ll1, tail1, tail1), e22 = ML_GETWT(ll2, tail2, head2), e12, e21;
+  unsigned int e11 = ML_GETWT(ll1, tail1, head1), e22 = ML_GETWT(ll2, tail2, head2), e12, e21;
   if(any_order){
     e12 = ML_GETWT(ll2, tail1, head1);
     e21 = ML_GETWT(ll1, tail2, head2);
