@@ -9,8 +9,9 @@
 #######################################################################
 
 .delete_from_conform_rhs <- function(f, del){
-  f[[length(f)]] <- NVL(delete_term.formula(f[[length(f)]], del),as.name("."))
-  f
+  ff <- filter_rhs.formula(f, `!=`, del)
+  if(length(ff)!=length(f)) ff[[length(ff)+1]] <- as.name('.')
+  ff
 }
 
 .handle.auto.constraints <- function(nw,
