@@ -69,7 +69,7 @@ void Godfather_wrapper(int *n_edges, int *tails, int *heads,
 		       int *newnetworkheads, 
 		       int *fVerbose, 
 		       int *status){
-  Vertex nmax, bip;
+  Vertex nmax;
   /* Edge n_networks; */
   Network nw[1];
   Model *m;

@@ -65,7 +65,7 @@ void WtGodfather_wrapper(int *n_edges, int *tails, int *heads, double *weights,
 			 double *newnetworkweights, 
 			 int *fVerbose, 
 			 int *status){
-  Vertex nmax, bip;
+  Vertex nmax;
   /* Edge n_networks; */
   WtNetwork nw[1];
   WtModel *m;
