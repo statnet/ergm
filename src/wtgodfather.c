@@ -27,7 +27,6 @@ WtMCMCStatus WtGodfather(Edge n_changes, Vertex *tails, Vertex *heads, double *w
   
   /* Doing this one change at a time saves a lot of changes... */
   for(Edge e=0; e<n_changes; e++){
-    double *statspos=stats;
     Vertex t = tails[e], h = heads[e];
     double w = weights[e];
 
@@ -84,7 +83,7 @@ void WtGodfather_wrapper(int *n_edges, int *tails, int *heads, double *weights,
 			 double *newnetworkweights, 
 			 int *fVerbose, 
 			 int *status){
-  Vertex nmax, bip;
+  Vertex nmax;
   /* Edge n_networks; */
   WtNetwork nw[1];
   WtModel *m;
