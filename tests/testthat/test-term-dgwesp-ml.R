@@ -28,6 +28,7 @@ ISP <- function(m1, m2){
 
 esp <- function(x, L.base, Ls.path1, Ls.path2=Ls.path1, ...){
   TP <- UTP(Ls.path1, Ls.path2, ...)
+  L.base[L.base==0] <- NA # I.e., those with base=0 don't count at all.
   esp <- dediag(L.base*TP, NA)[upper.tri(TP)]
   tabulate(match(esp, x),length(x))
 }
@@ -40,6 +41,7 @@ dsp <- function(x, Ls.path1, Ls.path2=Ls.path1, ...){
 
 nsp <- function(x, L.base, Ls.path1, Ls.path2=Ls.path1, ...){
   TP <- UTP(Ls.path1, Ls.path2, ...)
+  L.base[L.base==1] <- NA # I.e., those with base=1 don't count at all.
   nsp <- dediag((1-L.base)*TP, NA)[upper.tri(TP)]
   tabulate(match(nsp, x),length(x))
 }
@@ -47,17 +49,20 @@ nsp <- function(x, L.base, Ls.path1, Ls.path2=Ls.path1, ...){
 
 desp <- function(x, type, L.base, Ls.path1, Ls.path2=Ls.path1, ...){
   TP <- type(Ls.path1, Ls.path2, ...)
+  L.base[L.base==0] <- NA # I.e., those with base=0 don't count at all.
   esp <- dediag(L.base*TP, NA)
   tabulate(match(esp, x),length(x))
 }
 
 ddsp <- function(x, type, Ls.path1, Ls.path2=Ls.path1, ...){
   TP <- type(Ls.path1, Ls.path2, ...)
-  tabulate(match(TP, x),length(x))
+  dsp <- dediag(TP, NA)
+  tabulate(match(dsp, x),length(x))
 }
 
 dnsp <- function(x, type, L.base, Ls.path1, Ls.path2=Ls.path1, ...){
   TP <- type(Ls.path1, Ls.path2, ...)
+  L.base[L.base==1] <- NA # I.e., those with base=1 don't count at all.
   nsp <- dediag((1-L.base)*TP, NA)
   tabulate(match(nsp, x),length(x))
 }
@@ -112,95 +117,94 @@ lnw <- Layer(nw1,nw2,nw3)
 ctrl <- control.simulate.formula(MCMC.burnin=1, MCMC.interval=1)
 
 test_that("Multilayer dgw*sp statistics for homogeneously directed networks", {
-  sim <- simulate(lnw~
+  sim <- suppressWarnings(simulate(lnw~
                     # desp distinct layers
-                    desp(1:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    desp(1:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    desp(1:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    desp(1:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    desp(1:n,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
-                    desp(1:n,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
+                    desp(0:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    desp(0:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    desp(0:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    desp(0:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    desp(0:n,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
+                    desp(0:n,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
                     # ddsp distinct layers
-                    ddsp(1:n,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    ddsp(1:n,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    ddsp(1:n,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    ddsp(1:n,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    ddsp(1:n,type="OSP",Ls.path=c(~`2`,~`3`))+
-                    ddsp(1:n,type="ISP",Ls.path=c(~`2`,~`3`))+
+                    ddsp(0:n,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    ddsp(0:n,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    ddsp(0:n,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    ddsp(0:n,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    ddsp(0:n,type="OSP",Ls.path=c(~`2`,~`3`))+
+                    ddsp(0:n,type="ISP",Ls.path=c(~`2`,~`3`))+
                     # dnsp distinct layers
-                    dnsp(1:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    dnsp(1:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    dnsp(1:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    dnsp(1:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    dnsp(1:n,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
-                    dnsp(1:n,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
+                    dnsp(0:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    dnsp(0:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    dnsp(0:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    dnsp(0:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    dnsp(0:n,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
+                    dnsp(0:n,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
                     # desp base and path distinct
-                    desp(1:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    desp(1:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    desp(1:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    desp(1:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    desp(1:n,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
-                    desp(1:n,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
+                    desp(0:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    desp(0:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    desp(0:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    desp(0:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    desp(0:n,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
+                    desp(0:n,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
                     # ddsp base and path distinct
-                    ddsp(1:n,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    ddsp(1:n,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    ddsp(1:n,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    ddsp(1:n,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    ddsp(1:n,type="OSP",Ls.path=c(~`2`,~`2`))+
-                    ddsp(1:n,type="ISP",Ls.path=c(~`2`,~`2`))+
+                    ddsp(0:n,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ddsp(0:n,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ddsp(0:n,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ddsp(0:n,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ddsp(0:n,type="OSP",Ls.path=c(~`2`,~`2`))+
+                    ddsp(0:n,type="ISP",Ls.path=c(~`2`,~`2`))+
                     # dnsp base and path distinct
-                    dnsp(1:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    dnsp(1:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    dnsp(1:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    dnsp(1:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    dnsp(1:n,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
-                    dnsp(1:n,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
+                    dnsp(0:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    dnsp(0:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    dnsp(0:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    dnsp(0:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    dnsp(0:n,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
+                    dnsp(0:n,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
                     # desp base and path same
-                    desp(1:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    desp(1:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    desp(1:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    desp(1:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    desp(1:n,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
-                    desp(1:n,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
+                    desp(0:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    desp(0:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    desp(0:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    desp(0:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    desp(0:n,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
+                    desp(0:n,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
                     # ddsp base and path same
-                    ddsp(1:n,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    ddsp(1:n,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    ddsp(1:n,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    ddsp(1:n,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    ddsp(1:n,type="OSP",Ls.path=c(~`2`,~`2`))+
-                    ddsp(1:n,type="ISP",Ls.path=c(~`2`,~`2`))+
+                    ddsp(0:n,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ddsp(0:n,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ddsp(0:n,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ddsp(0:n,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ddsp(0:n,type="OSP",Ls.path=c(~`2`,~`2`))+
+                    ddsp(0:n,type="ISP",Ls.path=c(~`2`,~`2`))+
                     # dnsp base and path same
-                    dnsp(1:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    dnsp(1:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    dnsp(1:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    dnsp(1:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    dnsp(1:n,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
-                    dnsp(1:n,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
+                    dnsp(0:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    dnsp(0:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    dnsp(0:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    dnsp(0:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    dnsp(0:n,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
+                    dnsp(0:n,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
                     # desp distinct base and one layer
-                    desp(1:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    desp(1:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    desp(1:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    desp(1:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    desp(1:n,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
-                    desp(1:n,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
+                    desp(0:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    desp(0:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    desp(0:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    desp(0:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    desp(0:n,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
+                    desp(0:n,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
                     # ddsp distinct base and one layer
-                    ddsp(1:n,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    ddsp(1:n,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    ddsp(1:n,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    ddsp(1:n,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    ddsp(1:n,type="OSP",Ls.path=c(~`2`,~`3`))+
-                    ddsp(1:n,type="ISP",Ls.path=c(~`2`,~`3`))+
+                    ddsp(0:n,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    ddsp(0:n,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    ddsp(0:n,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    ddsp(0:n,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    ddsp(0:n,type="OSP",Ls.path=c(~`2`,~`3`))+
+                    ddsp(0:n,type="ISP",Ls.path=c(~`2`,~`3`))+
                     # dnsp distinct base and one layer
-                    dnsp(1:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    dnsp(1:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    dnsp(1:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    dnsp(1:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    dnsp(1:n,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
-                    dnsp(1:n,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`3`))
+                    dnsp(0:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    dnsp(0:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    dnsp(0:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    dnsp(0:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    dnsp(0:n,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
+                    dnsp(0:n,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`3`))
                  ,
-                  coef = numeric(360),
                   control=ctrl,
-                  nsim=200)
+                  nsim=200))
 
   stats <- sapply(sim,
                   function(nw){
@@ -212,89 +216,89 @@ test_that("Multilayer dgw*sp statistics for homogeneously directed networks", {
                     
                     c(
                       # desp distinct layers
-                      desp(1:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      desp(1:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      desp(1:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      desp(1:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      desp(1:n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
-                      desp(1:n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
+                      desp(0:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      desp(0:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      desp(0:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      desp(0:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      desp(0:n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
+                      desp(0:n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
                       # ddsp distinct layers
-                      ddsp(1:n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      ddsp(1:n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      ddsp(1:n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      ddsp(1:n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      ddsp(1:n,OSP,Ls.path1=m2,Ls.path2=m3),
-                      ddsp(1:n,ISP,Ls.path1=m2,Ls.path2=m3),
+                      ddsp(0:n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      ddsp(0:n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      ddsp(0:n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      ddsp(0:n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      ddsp(0:n,OSP,Ls.path1=m2,Ls.path2=m3),
+                      ddsp(0:n,ISP,Ls.path1=m2,Ls.path2=m3),
                       # dnsp distinct layers
-                      dnsp(1:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      dnsp(1:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      dnsp(1:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      dnsp(1:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      dnsp(1:n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
-                      dnsp(1:n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
+                      dnsp(0:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      dnsp(0:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      dnsp(0:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      dnsp(0:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      dnsp(0:n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
+                      dnsp(0:n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
                       # desp base and path distinct
-                      desp(1:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      desp(1:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      desp(1:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      desp(1:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      desp(1:n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
-                      desp(1:n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
+                      desp(0:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      desp(0:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      desp(0:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      desp(0:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      desp(0:n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
+                      desp(0:n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
                       # ddsp base and path distinct
-                      ddsp(1:n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      ddsp(1:n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      ddsp(1:n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      ddsp(1:n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      ddsp(1:n,OSP,Ls.path1=m2,Ls.path2=m2),
-                      ddsp(1:n,ISP,Ls.path1=m2,Ls.path2=m2),
+                      ddsp(0:n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ddsp(0:n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ddsp(0:n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ddsp(0:n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ddsp(0:n,OSP,Ls.path1=m2,Ls.path2=m2),
+                      ddsp(0:n,ISP,Ls.path1=m2,Ls.path2=m2),
                       # dnsp base and path distinct
-                      dnsp(1:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      dnsp(1:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      dnsp(1:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      dnsp(1:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      dnsp(1:n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
-                      dnsp(1:n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
+                      dnsp(0:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      dnsp(0:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      dnsp(0:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      dnsp(0:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      dnsp(0:n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
+                      dnsp(0:n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
                       # desp base and path same
-                      desp(1:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      desp(1:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      desp(1:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      desp(1:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      desp(1:n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
-                      desp(1:n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
+                      desp(0:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      desp(0:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      desp(0:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      desp(0:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      desp(0:n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
+                      desp(0:n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
                       # ddsp base and path same
-                      ddsp(1:n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      ddsp(1:n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      ddsp(1:n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      ddsp(1:n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      ddsp(1:n,OSP,Ls.path1=m2,Ls.path2=m2),
-                      ddsp(1:n,ISP,Ls.path1=m2,Ls.path2=m2),
+                      ddsp(0:n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ddsp(0:n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ddsp(0:n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ddsp(0:n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ddsp(0:n,OSP,Ls.path1=m2,Ls.path2=m2),
+                      ddsp(0:n,ISP,Ls.path1=m2,Ls.path2=m2),
                       # dnsp base and path same
-                      dnsp(1:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      dnsp(1:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      dnsp(1:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      dnsp(1:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      dnsp(1:n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
-                      dnsp(1:n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
+                      dnsp(0:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      dnsp(0:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      dnsp(0:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      dnsp(0:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      dnsp(0:n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
+                      dnsp(0:n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
                       # desp distinct base and one layer
-                      desp(1:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      desp(1:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      desp(1:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      desp(1:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      desp(1:n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
-                      desp(1:n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
+                      desp(0:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      desp(0:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      desp(0:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      desp(0:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      desp(0:n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
+                      desp(0:n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
                       # ddsp distinct base and one layer
-                      ddsp(1:n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      ddsp(1:n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      ddsp(1:n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      ddsp(1:n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      ddsp(1:n,OSP,Ls.path1=m2,Ls.path2=m3),
-                      ddsp(1:n,ISP,Ls.path1=m2,Ls.path2=m3),
+                      ddsp(0:n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      ddsp(0:n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      ddsp(0:n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      ddsp(0:n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      ddsp(0:n,OSP,Ls.path1=m2,Ls.path2=m3),
+                      ddsp(0:n,ISP,Ls.path1=m2,Ls.path2=m3),
                       # dnsp distinct base and one layer
-                      dnsp(1:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      dnsp(1:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      dnsp(1:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      dnsp(1:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      dnsp(1:n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
-                      dnsp(1:n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m3)
+                      dnsp(0:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      dnsp(0:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      dnsp(0:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      dnsp(0:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      dnsp(0:n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
+                      dnsp(0:n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m3)
 
                     )
                   }) %>% t()
@@ -308,95 +312,94 @@ nw2 <- network.initialize(n,dir=FALSE)
 lnw <- Layer(nw1,nw2,nw3)
 
 test_that("Multilayer dgw*sp statistics for heterogeneously directed networks 1", {
-  sim <- simulate(lnw~
+  sim <- suppressWarnings(simulate(lnw~
                     # desp distinct layers
-                    desp(1:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    desp(1:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    desp(1:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    desp(1:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    desp(1:n,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
-                    desp(1:n,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
+                    desp(0:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    desp(0:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    desp(0:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    desp(0:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    desp(0:n,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
+                    desp(0:n,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
                     # ddsp distinct layers
-                    ddsp(1:n,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    ddsp(1:n,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    ddsp(1:n,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    ddsp(1:n,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    ddsp(1:n,type="OSP",Ls.path=c(~`2`,~`3`))+
-                    ddsp(1:n,type="ISP",Ls.path=c(~`2`,~`3`))+
+                    ddsp(0:n,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    ddsp(0:n,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    ddsp(0:n,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    ddsp(0:n,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    ddsp(0:n,type="OSP",Ls.path=c(~`2`,~`3`))+
+                    ddsp(0:n,type="ISP",Ls.path=c(~`2`,~`3`))+
                     # dnsp distinct layers
-                    dnsp(1:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    dnsp(1:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    dnsp(1:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    dnsp(1:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    dnsp(1:n,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
-                    dnsp(1:n,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
+                    dnsp(0:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    dnsp(0:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    dnsp(0:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    dnsp(0:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    dnsp(0:n,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
+                    dnsp(0:n,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
                     # desp base and path distinct
-                    desp(1:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    desp(1:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    desp(1:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    desp(1:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    desp(1:n,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
-                    desp(1:n,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
+                    desp(0:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    desp(0:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    desp(0:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    desp(0:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    desp(0:n,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
+                    desp(0:n,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
                     # ddsp base and path distinct
-                    ddsp(1:n,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    ddsp(1:n,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    ddsp(1:n,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    ddsp(1:n,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    ddsp(1:n,type="OSP",Ls.path=c(~`2`,~`2`))+
-                    ddsp(1:n,type="ISP",Ls.path=c(~`2`,~`2`))+
+                    ddsp(0:n,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ddsp(0:n,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ddsp(0:n,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ddsp(0:n,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ddsp(0:n,type="OSP",Ls.path=c(~`2`,~`2`))+
+                    ddsp(0:n,type="ISP",Ls.path=c(~`2`,~`2`))+
                     # dnsp base and path distinct
-                    dnsp(1:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    dnsp(1:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    dnsp(1:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    dnsp(1:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    dnsp(1:n,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
-                    dnsp(1:n,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
+                    dnsp(0:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    dnsp(0:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    dnsp(0:n,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    dnsp(0:n,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    dnsp(0:n,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
+                    dnsp(0:n,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
                     # desp base and path same
-                    desp(1:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    desp(1:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    desp(1:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    desp(1:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    desp(1:n,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
-                    desp(1:n,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
+                    desp(0:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    desp(0:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    desp(0:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    desp(0:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    desp(0:n,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
+                    desp(0:n,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
                     # ddsp base and path same
-                    ddsp(1:n,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    ddsp(1:n,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    ddsp(1:n,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    ddsp(1:n,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    ddsp(1:n,type="OSP",Ls.path=c(~`2`,~`2`))+
-                    ddsp(1:n,type="ISP",Ls.path=c(~`2`,~`2`))+
+                    ddsp(0:n,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ddsp(0:n,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ddsp(0:n,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ddsp(0:n,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ddsp(0:n,type="OSP",Ls.path=c(~`2`,~`2`))+
+                    ddsp(0:n,type="ISP",Ls.path=c(~`2`,~`2`))+
                     # dnsp base and path same
-                    dnsp(1:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    dnsp(1:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
-                    dnsp(1:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    dnsp(1:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
-                    dnsp(1:n,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
-                    dnsp(1:n,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
+                    dnsp(0:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    dnsp(0:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    dnsp(0:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    dnsp(0:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    dnsp(0:n,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
+                    dnsp(0:n,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
                     # desp distinct base and one layer
-                    desp(1:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    desp(1:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    desp(1:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    desp(1:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    desp(1:n,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
-                    desp(1:n,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
+                    desp(0:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    desp(0:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    desp(0:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    desp(0:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    desp(0:n,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
+                    desp(0:n,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
                     # ddsp distinct base and one layer
-                    ddsp(1:n,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    ddsp(1:n,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    ddsp(1:n,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    ddsp(1:n,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    ddsp(1:n,type="OSP",Ls.path=c(~`2`,~`3`))+
-                    ddsp(1:n,type="ISP",Ls.path=c(~`2`,~`3`))+
+                    ddsp(0:n,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    ddsp(0:n,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    ddsp(0:n,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    ddsp(0:n,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    ddsp(0:n,type="OSP",Ls.path=c(~`2`,~`3`))+
+                    ddsp(0:n,type="ISP",Ls.path=c(~`2`,~`3`))+
                     # dnsp distinct base and one layer
-                    dnsp(1:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    dnsp(1:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
-                    dnsp(1:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    dnsp(1:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
-                    dnsp(1:n,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
-                    dnsp(1:n,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`3`))
+                    dnsp(0:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    dnsp(0:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    dnsp(0:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    dnsp(0:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    dnsp(0:n,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
+                    dnsp(0:n,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`3`))
                  ,
-                  coef = numeric(360),
                   control=ctrl,
-                  nsim=200)
+                  nsim=200))
 
   stats <- sapply(sim,
                   function(nw){
@@ -409,89 +412,89 @@ test_that("Multilayer dgw*sp statistics for heterogeneously directed networks 1"
                     
                     c(
                       # desp distinct layers
-                      desp(1:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      desp(1:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      desp(1:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      desp(1:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      desp(1:n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
-                      desp(1:n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
+                      desp(0:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      desp(0:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      desp(0:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      desp(0:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      desp(0:n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
+                      desp(0:n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
                       # ddsp distinct layers
-                      ddsp(1:n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      ddsp(1:n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      ddsp(1:n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      ddsp(1:n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      ddsp(1:n,OSP,Ls.path1=m2,Ls.path2=m3),
-                      ddsp(1:n,ISP,Ls.path1=m2,Ls.path2=m3),
+                      ddsp(0:n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      ddsp(0:n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      ddsp(0:n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      ddsp(0:n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      ddsp(0:n,OSP,Ls.path1=m2,Ls.path2=m3),
+                      ddsp(0:n,ISP,Ls.path1=m2,Ls.path2=m3),
                       # dnsp distinct layers
-                      dnsp(1:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      dnsp(1:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      dnsp(1:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      dnsp(1:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      dnsp(1:n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
-                      dnsp(1:n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
+                      dnsp(0:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      dnsp(0:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      dnsp(0:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      dnsp(0:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      dnsp(0:n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
+                      dnsp(0:n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
                       # desp base and path distinct
-                      desp(1:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      desp(1:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      desp(1:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      desp(1:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      desp(1:n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
-                      desp(1:n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
+                      desp(0:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      desp(0:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      desp(0:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      desp(0:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      desp(0:n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
+                      desp(0:n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
                       # ddsp base and path distinct
-                      ddsp(1:n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      ddsp(1:n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      ddsp(1:n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      ddsp(1:n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      ddsp(1:n,OSP,Ls.path1=m2,Ls.path2=m2),
-                      ddsp(1:n,ISP,Ls.path1=m2,Ls.path2=m2),
+                      ddsp(0:n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ddsp(0:n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ddsp(0:n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ddsp(0:n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ddsp(0:n,OSP,Ls.path1=m2,Ls.path2=m2),
+                      ddsp(0:n,ISP,Ls.path1=m2,Ls.path2=m2),
                       # dnsp base and path distinct
-                      dnsp(1:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      dnsp(1:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      dnsp(1:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      dnsp(1:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      dnsp(1:n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
-                      dnsp(1:n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
+                      dnsp(0:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      dnsp(0:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      dnsp(0:n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      dnsp(0:n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      dnsp(0:n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
+                      dnsp(0:n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
                       # desp base and path same
-                      desp(1:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      desp(1:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      desp(1:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      desp(1:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      desp(1:n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
-                      desp(1:n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
+                      desp(0:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      desp(0:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      desp(0:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      desp(0:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      desp(0:n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
+                      desp(0:n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
                       # ddsp base and path same
-                      ddsp(1:n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      ddsp(1:n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      ddsp(1:n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      ddsp(1:n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      ddsp(1:n,OSP,Ls.path1=m2,Ls.path2=m2),
-                      ddsp(1:n,ISP,Ls.path1=m2,Ls.path2=m2),
+                      ddsp(0:n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ddsp(0:n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ddsp(0:n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ddsp(0:n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ddsp(0:n,OSP,Ls.path1=m2,Ls.path2=m2),
+                      ddsp(0:n,ISP,Ls.path1=m2,Ls.path2=m2),
                       # dnsp base and path same
-                      dnsp(1:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      dnsp(1:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
-                      dnsp(1:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      dnsp(1:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
-                      dnsp(1:n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
-                      dnsp(1:n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
+                      dnsp(0:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      dnsp(0:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      dnsp(0:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      dnsp(0:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      dnsp(0:n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
+                      dnsp(0:n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
                       # desp distinct base and one layer
-                      desp(1:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      desp(1:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      desp(1:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      desp(1:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      desp(1:n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
-                      desp(1:n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
+                      desp(0:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      desp(0:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      desp(0:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      desp(0:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      desp(0:n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
+                      desp(0:n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
                       # ddsp distinct base and one layer
-                      ddsp(1:n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      ddsp(1:n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      ddsp(1:n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      ddsp(1:n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      ddsp(1:n,OSP,Ls.path1=m2,Ls.path2=m3),
-                      ddsp(1:n,ISP,Ls.path1=m2,Ls.path2=m3),
+                      ddsp(0:n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      ddsp(0:n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      ddsp(0:n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      ddsp(0:n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      ddsp(0:n,OSP,Ls.path1=m2,Ls.path2=m3),
+                      ddsp(0:n,ISP,Ls.path1=m2,Ls.path2=m3),
                       # dnsp distinct base and one layer
-                      dnsp(1:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      dnsp(1:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
-                      dnsp(1:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      dnsp(1:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
-                      dnsp(1:n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
-                      dnsp(1:n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m3)
+                      dnsp(0:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      dnsp(0:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      dnsp(0:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      dnsp(0:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      dnsp(0:n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
+                      dnsp(0:n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m3)
 
                     )
                   }) %>% t()
@@ -505,35 +508,34 @@ nw1 <- nw2 <- nw3 <- network.initialize(n,dir=FALSE)
 lnw <- Layer(nw1,nw2,nw3)
 
 test_that("Multilayer dgw*sp statistics for undirected networks", {
-  sim <- simulate(lnw~
+  sim <- suppressWarnings(simulate(lnw~
                     # desp distinct layers
-                    desp(1:n,L.base=~`1`,Ls.path=c(~`2`,~`3`))+
+                    desp(0:n,L.base=~`1`,Ls.path=c(~`2`,~`3`))+
                     # ddsp distinct layers
-                    ddsp(1:n,Ls.path=c(~`2`,~`3`))+
+                    ddsp(0:n,Ls.path=c(~`2`,~`3`))+
                     # dnsp distinct layers
-                    dnsp(1:n,L.base=~`1`,Ls.path=c(~`2`,~`3`))+
+                    dnsp(0:n,L.base=~`1`,Ls.path=c(~`2`,~`3`))+
                     # desp base and path distinct
-                    desp(1:n,L.base=~`1`,Ls.path=c(~`2`,~`2`))+
+                    desp(0:n,L.base=~`1`,Ls.path=c(~`2`,~`2`))+
                     # ddsp base and path distinct
-                    ddsp(1:n,Ls.path=c(~`2`,~`2`))+
+                    ddsp(0:n,Ls.path=c(~`2`,~`2`))+
                     # dnsp base and path distinct
-                    dnsp(1:n,L.base=~`1`,Ls.path=c(~`2`,~`2`))+
+                    dnsp(0:n,L.base=~`1`,Ls.path=c(~`2`,~`2`))+
                     # desp base and path same
-                    desp(1:n,L.base=~`2`,Ls.path=c(~`2`,~`2`))+
+                    desp(0:n,L.base=~`2`,Ls.path=c(~`2`,~`2`))+
                     # ddsp base and path same
-                    ddsp(1:n,Ls.path=c(~`2`,~`2`))+
+                    ddsp(0:n,Ls.path=c(~`2`,~`2`))+
                     # dnsp base and path same
-                    dnsp(1:n,L.base=~`2`,Ls.path=c(~`2`,~`2`))+
+                    dnsp(0:n,L.base=~`2`,Ls.path=c(~`2`,~`2`))+
                     # desp distinct base and one layer
-                    desp(1:n,L.base=~`2`,Ls.path=c(~`2`,~`3`))+
+                    desp(0:n,L.base=~`2`,Ls.path=c(~`2`,~`3`))+
                     # ddsp distinct base and one layer
-                    ddsp(1:n,Ls.path=c(~`2`,~`3`))+
+                    ddsp(0:n,Ls.path=c(~`2`,~`3`))+
                     # dnsp distinct base and one layer
-                    dnsp(1:n,L.base=~`2`,Ls.path=c(~`2`,~`3`))
+                    dnsp(0:n,L.base=~`2`,Ls.path=c(~`2`,~`3`))
                  ,
-                  coef = numeric(60),
                   control=ctrl,
-                  nsim=200)
+                  nsim=200))
 
   stats <- sapply(sim,
                   function(nw){
@@ -545,29 +547,29 @@ test_that("Multilayer dgw*sp statistics for undirected networks", {
                     
                     c(
                       # esp distinct layers
-                      esp(1:n,L.base=m1,Ls.path1=m2,Ls.path2=m3),
+                      esp(0:n,L.base=m1,Ls.path1=m2,Ls.path2=m3),
                       # dsp distinct layers
-                      dsp(1:n,Ls.path1=m2,Ls.path2=m3),
+                      dsp(0:n,Ls.path1=m2,Ls.path2=m3),
                       # nsp distinct layers
-                      nsp(1:n,L.base=m1,Ls.path1=m2,Ls.path2=m3),
+                      nsp(0:n,L.base=m1,Ls.path1=m2,Ls.path2=m3),
                       # esp base and path distinct
-                      esp(1:n,L.base=m1,Ls.path1=m2,Ls.path2=m2),
+                      esp(0:n,L.base=m1,Ls.path1=m2,Ls.path2=m2),
                       # dsp base and path distinct
-                      dsp(1:n,Ls.path1=m2,Ls.path2=m2),
+                      dsp(0:n,Ls.path1=m2,Ls.path2=m2),
                       # nsp base and path distinct
-                      nsp(1:n,L.base=m1,Ls.path1=m2,Ls.path2=m2),
+                      nsp(0:n,L.base=m1,Ls.path1=m2,Ls.path2=m2),
                       # esp base and path same
-                      esp(1:n,L.base=m2,Ls.path1=m2,Ls.path2=m2),
+                      esp(0:n,L.base=m2,Ls.path1=m2,Ls.path2=m2),
                       # dsp base and path same
-                      dsp(1:n,Ls.path1=m2,Ls.path2=m2),
+                      dsp(0:n,Ls.path1=m2,Ls.path2=m2),
                       # nsp base and path same
-                      nsp(1:n,L.base=m2,Ls.path1=m2,Ls.path2=m2),
+                      nsp(0:n,L.base=m2,Ls.path1=m2,Ls.path2=m2),
                       # esp distinct base and one layer
-                      esp(1:n,L.base=m2,Ls.path1=m2,Ls.path2=m3),
+                      esp(0:n,L.base=m2,Ls.path1=m2,Ls.path2=m3),
                       # dsp distinct base and one layer
-                      dsp(1:n,Ls.path1=m2,Ls.path2=m3),
+                      dsp(0:n,Ls.path1=m2,Ls.path2=m3),
                       # nsp distinct base and one layer
-                      nsp(1:n,L.base=m2,Ls.path1=m2,Ls.path2=m3)
+                      nsp(0:n,L.base=m2,Ls.path1=m2,Ls.path2=m3)
                     )
                   }) %>% t()
 
