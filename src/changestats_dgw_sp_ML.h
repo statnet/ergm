@@ -22,7 +22,7 @@ static inline int ergm_c_LayerLogic2Path(Vertex tail1, Vertex head1, Vertex tail
   
   if(any_order){
     e12o = c12? c12==-1 : ML_GETWT(ll2, tail1, head1);
-    e21o = c12? c21==-1 : ML_GETWT(ll1, tail2, head2);
+    e21o = c21? c21==-1 : ML_GETWT(ll1, tail2, head2);
     e12n = c12? c12==+1 : e12o;
     e21n = c21? c21==+1 : e21o;
   }
