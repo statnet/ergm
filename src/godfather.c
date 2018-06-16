@@ -27,7 +27,6 @@ MCMCStatus Godfather(Edge n_changes, Vertex *tails, Vertex *heads, int *weights,
   
   /* Doing this one change at a time saves a lot of changes... */
   for(Edge e=0; e<n_changes; e++){
-    double *statspos=stats;
     Vertex t=TAIL(e), h=HEAD(e); 
 
     if(t==0){
@@ -85,7 +84,7 @@ void Godfather_wrapper(int *n_edges, int *tails, int *heads,
 		       int *newnetworkheads, 
 		       int *fVerbose, 
 		       int *status){
-  Vertex nmax, bip;
+  Vertex nmax;
   /* Edge n_networks; */
   Network nw[1];
   Model *m;
