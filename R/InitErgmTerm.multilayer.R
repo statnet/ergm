@@ -114,6 +114,9 @@
 #' 
 #' @export
 network_view <- function(x, ..., .clear=FALSE, .sep="."){
+  # Handle empty network
+  if(network.edgecount(x,na.omit=FALSE)==0) return(x)
+  
   exprs <- list(...)
   fes <- exprs[NVL(names(exprs),rep("",length(exprs)))==""]
   oes <- exprs[NVL(names(exprs),rep("",length(exprs)))!=""]
