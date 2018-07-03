@@ -3,6 +3,7 @@
 %   R/is.dyad.independent.R, R/nparam.R, R/param_names.R
 \name{ergm_model}
 \alias{ergm_model}
+\alias{c.ergm_model}
 \alias{is.curved.ergm_model}
 \alias{is.durational.ergm_model}
 \alias{is.dyad.independent.ergm_model}
@@ -12,6 +13,8 @@
 \usage{
 ergm_model(formula, nw = NULL, response = NULL, silent = FALSE,
   role = "static", ..., term.options = list())
+
+\method{c}{ergm_model}(...)
 
 \method{is.curved}{ergm_model}(object, ...)
 
@@ -79,6 +82,8 @@ initialized via the \code{InitErgmTerm} functions to create a
 }
 \section{Methods (by generic)}{
 \itemize{
+\item \code{c}: A method for concatenating terms of two or more initialized models.
+
 \item \code{is.curved}: Tests whether the model is curved.
 
 \item \code{is.durational}: Test if the model has duration-dependent terms, which call for \link{lasttoggle} data structures.
