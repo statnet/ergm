@@ -197,27 +197,11 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     stop("A network object on the LHS of the formula or via",
          " the 'basis' argument must be given")
   }
-  if(is.null(basis)) {
-    basis <- nw
-  }
-
-  # New formula (no longer use 'object'):
-  form <- nonsimp_update.formula(object, basis ~ ., from.new="basis")
-
-  if(!is.null(monitor)){
-    # Construct a model to get the number of parameters monitor requires.
-    monitor <- nonsimp_update.formula(monitor, nw~., from.new="nw")
-    monitor.m <- ergm_model(monitor, basis, response=response, term.options=control$term.options)
-    monitored.length <- nparam(monitor.m)
-    
-    monitor <- list_rhs.formula(monitor)
-    form<-append_rhs.formula(form, monitor)
-  }else{
-    monitored.length <- 0
-  }
+  
+  mon.m <- if(!is.null(monitor)) ergm_model(monitor, nw, response=response, term.options=control$term.options)
 
   # Prepare inputs to ergm.getMCMCsample
-  m <- ergm_model(form, basis, response=response, role="static", term.options=control$term.options)
+  m <- c(ergm_model(object, nw, response=response, role="static", term.options=control$term.options), mon.m)
   # Just in case the user did not give a coef value, set it to zero.
   # (probably we could just return an error in this case!)
   if(missing(coef)) {
@@ -225,9 +209,9 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     warning("No parameter values given, using Bernouli network\n\t")
   }
 
-  coef <- c(coef, rep(0, monitored.length))
+  coef <- c(coef, rep(0, nparam(mon.m)))
   
-  if(nparam(m)!=length(coef)) stop("coef has ", length(coef) - monitored.length, " elements, while the model requires ",nparam(m) - monitored.length," parameters.")
+  if(nparam(m)!=length(coef)) stop("coef has ", length(coef) - nparam(mon.m), " elements, while the model requires ",nparam(m) - nparam(mon.m)," parameters.")
 
   proposal <- ergm_proposal(constraints,arguments=control$MCMC.prop.args,
                            nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
@@ -236,8 +220,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     stop("Illegal value of coef passed to simulate.formula")
   
   # Create vector of current statistics
-  curstats<-summary(form,response=response, term.options=control$term.options)
-  names(curstats) <- param_names(m,canonical=TRUE)
+  curstats<-summary(m, nw, response=response, term.options=control$term.options)
+  names(curstats) <- param_names(m, canonical=TRUE)
 
   # prepare control object
   control$MCMC.init.maxedges <- 1+max(control$MCMC.init.maxedges, network.edgecount(nw))
@@ -338,7 +322,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     return(nw.list[[1]])
   } else {
     nw.list <- nw.list[seq_len(nsim)]
-    attributes(nw.list) <- list(formula=object, stats=out.mat, coef=coef,
+    attributes(nw.list) <- list(formula=object, monitor=monitor,
+                                stats=out.mat, coef=coef,
                                 control=control,
                                 constraints=constraints, reference=reference,
                                 monitor=monitor, response=response)
