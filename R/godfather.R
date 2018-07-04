@@ -79,7 +79,6 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
     x[,1:2] <- t(apply(x[,1:2,drop=FALSE], 1, sort))
   })
 
-  formula <- nonsimp_update.formula(formula, nw~., from.new="nw")
   m <- ergm_model(formula, nw, role="target", response=response, term.options=control$term.options)
   Clist <- ergm.Cprepare(nw, m, response=response)
   m$obs <- summary(m, nw, response=response)
