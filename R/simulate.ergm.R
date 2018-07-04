@@ -58,13 +58,17 @@
 #' reference measure (\eqn{h(y)}) to be used. (Defaults to \code{~Bernoulli}.)
 #' See help for [ERGM reference measures][ergm-references] implemented in
 #' the \code{\link[=ergm-package]{ergm}} package.
-#' @param constraints A one-sided formula specifying one or more constraints on
-#' the support of the distribution of the networks being simulated. See the
-#' documentation for a similar argument for \code{\link{ergm}} and see
-#' [list of implemented constraints][ergm-constraints] for more information. For
-#' \code{simulate.formula}, defaults to no constraints. For
-#' \code{simulate.ergm}, defaults to using the same constraints as those with
-#' which \code{object} was fitted.
+#'
+#' @param constraints A one-sided formula specifying one or more
+#'   constraints on the support of the distribution of the networks
+#'   being simulated. See the documentation for a similar argument for
+#'   \code{\link{ergm}} and see [list of implemented
+#'   constraints][ergm-constraints] for more information. For
+#'   \code{simulate.formula}, defaults to no constraints. For
+#'   \code{simulate.ergm}, defaults to using the same constraints as
+#'   those with which \code{object} was fitted. If string `"obs"` is
+#'   passed, observational constraints will be used instead.
+#' 
 #' @param monitor A one-sided formula specifying one or more terms whose value
 #' is to be monitored. These terms are appeneded to the model, along with a
 #' coefficient of 0, so their statistics are returned.
@@ -403,7 +407,6 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
 #'   the coefficients, the response attribute, the reference, the
 #'   constraints, and most simulation parameters from the model fit,
 #'   unless overridden by passing them explicitly.
-#' 
 #' @export
 simulate.ergm <- function(object, nsim=1, seed=NULL, 
                           coef=object$coef,
@@ -418,6 +421,8 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           verbose=FALSE, ...) {
   check.control.class(c("simulate.ergm","simulate.formula"), "simulate.ergm")
   control.toplevel(...)
+
+  if(is.character(constraints) && startsWith(constraints, "obs")) constraints <- object$obs.constraints
 
   ### TODO: Figure out when adaptive MCMC controls should be inherited.
   ## control.transfer <-
