@@ -129,6 +129,7 @@ Collate:
     'get.node.attr.R'
     'godfather.R'
     'gof.ergm.R'
+    'gofN.R'
     'is.curved.R'
     'is.durational.R'
     'is.dyad.independent.R'
