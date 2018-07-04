@@ -56,9 +56,10 @@ documentation for a similar argument for \code{\link{ergm}} and see
 \code{simulate.ergm}, defaults to using the same constraints as those with
 which \code{object} was fitted.}
 
-\item{monitor}{A one-sided formula specifying one or more terms whose value
-is to be monitored. These terms are appeneded to the model, along with a
-coefficient of 0, so their statistics are returned.}
+\item{monitor}{A one-sided formula specifying one or more terms
+whose value is to be monitored. These terms are appeneded to the
+model, along with a coefficient of 0, so their statistics are
+returned. An \code{\link{ergm_model}} objectcan be passed as well.}
 
 \item{basis}{An optional \code{\link[network]{network}} object to start the
 Markov chain.  If omitted, the default is the left-hand-side of the
