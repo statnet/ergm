@@ -193,3 +193,22 @@ c.ergm_model <- function(...){
   o$etamap <- ergm.etamap(o)
   o
 }
+
+#' @rdname ergm_model
+#' @param x object to be converted to an `ergm_model`.
+#' @export
+as.ergm_model <- function(x, ...)
+  UseMethod("as.ergm_model")
+
+#' @rdname ergm_model
+#' @export
+as.ergm_model.ergm_model <- function(x, ...) x
+
+#' @rdname ergm_model
+#' @export
+as.ergm_model.formula <- function(x, ...)
+  ergm_model(formula=x, ...)
+
+#' @noRd
+#' @export
+as.ergm_model.NULL <- function(x, ...) NULL
