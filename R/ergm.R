@@ -581,8 +581,8 @@ ergm <- function(formula, response=NULL,
     if (verbose) message(sQuote(paste0(proposal.obs$pkgname,":MH_",proposal.obs$name)), appendLF=FALSE)
 
     if(!is.null(proposal.obs$auxiliaries)){
-      if(verbose) message(" (requests auxiliaries: reinitializing model).")
-      model$obs.model <- ergm_model(formula, nw, response=response, extra.aux=list(proposal.obs$auxiliaries), term.options=control$term.options)
+      if(verbose) message(" (requests auxiliaries: updating model).")
+      model$obs.model <- c(model, ergm_model(~., nw, response=response, extra.aux=list(proposal.obs$auxiliaries), term.options=control$term.options))
       if(verbose) message("Model reinitialized.")
     }else if(verbose) message(".")
   }else proposal.obs <- NULL

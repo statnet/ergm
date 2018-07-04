@@ -78,7 +78,9 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, role="stat
       model$offset <- c(model$offset,FALSE)
     }
     ## term is now a call or a name that is not "offset".
-
+    
+    if(!is.call(term) && term==".") next
+    
     outlist <- call.ErgmTerm(term, formula.env, nw, response=response, role=role, term.options=term.options, ...)
     
     # If initialization fails without error (e.g., all statistics have been dropped), continue.
@@ -182,10 +184,70 @@ updatemodel.ErgmTerm <- function(model, outlist) {
     model$maxval <- c(model$maxval,
                       rep(NVL(outlist$maxval, +Inf),
                           length.out=length(outlist$coef.names)))
-    model$duration <- c(model$duration,
-                      NVL(outlist$duration, FALSE))
+    model$duration <- max(model$duration,
+                          NVL(outlist$duration, FALSE))
     model$terms[[termnumber]] <- outlist
   }
   model
 }
 
+#' @describeIn ergm_model A method for concatenating terms of two or more initialized models.
+#' @export
+c.ergm_model <- function(...){
+  l <- list(...)
+  o <- l[[1]]
+  for(m in l[-1]){
+    if(is.null(m)) next
+
+    # Reset auxiliaries' pointers to own slot to NA:
+    for(i in seq_along(o$model.aux$terms))
+      o$model.aux$terms[[i]]$inputs[4] <- NA
+    for(i in seq_along(m$model.aux$terms))
+      m$model.aux$terms[[i]]$inputs[4] <- NA
+
+    # Remove redundant auxiliaries:
+    uniq.aux.outlists <- unique(c(o$model.aux$terms, m$model.aux$terms))
+    
+    # To which term in the new auxilary list does each of the current auxiliary pointers correspond? Note that they are numbered from 0.
+    omap <- match(o$model.aux$terms, uniq.aux.outlists)-1
+    mmap <- match(m$model.aux$terms, uniq.aux.outlists)-1
+    
+    # Now, give them indices again:
+    for(i in seq_along(uniq.aux.outlists))
+      uniq.aux.outlists[[i]]$inputs[[4]] <- i-1
+
+    o$model.aux["terms"] <- list(uniq.aux.outlists)
+
+    # Remap client term pointers:
+    for(i in seq_along(o$terms)){
+      trm <- o$terms[[i]]
+      if(is.null(trm$auxiliaries) || (naux <- length(list_rhs.formula(trm$auxiliaries)))==0) next
+      trm$inputs[3+seq_len(naux)] <- omap[trm$inputs[3+seq_len(naux)]+1]
+      o$terms[[i]] <- trm
+    }
+    o$slots.extra.aux <-  map(o$slots.extra.aux, ~omap[.+1])
+    
+    for(i in seq_along(m$terms)){
+      trm <- m$terms[[i]]
+      if(is.null(trm$auxiliaries) || (naux <- length(list_rhs.formula(trm$auxiliaries)))==0) next
+      trm$inputs[3+seq_len(naux)] <- mmap[trm$inputs[3+seq_len(naux)]+1]
+      m$terms[[i]] <- trm
+    }
+    m$slots.extra.aux <- map(m$slots.extra.aux, ~mmap[.+1])
+    
+    for(name in c("coef.names",
+                  "inputs",
+                  "minval",
+                  "maxval",
+                  "terms",
+                  "offset",
+                  "term.skipped",
+                  "slots.extra.aux"))
+      o[[name]] <- c(o[[name]], m[[name]])
+    o$duration <- max(o$duration, m$duration)
+    o$formula <- append_rhs.formula(o$formula, m$formula, keep.onesided=TRUE)
+  }
+
+  o$etamap <- ergm.etamap(o)
+  o
+}

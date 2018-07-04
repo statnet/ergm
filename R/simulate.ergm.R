@@ -58,13 +58,17 @@
 #' reference measure (\eqn{h(y)}) to be used. (Defaults to \code{~Bernoulli}.)
 #' See help for [ERGM reference measures][ergm-references] implemented in
 #' the \code{\link[=ergm-package]{ergm}} package.
-#' @param constraints A one-sided formula specifying one or more constraints on
-#' the support of the distribution of the networks being simulated. See the
-#' documentation for a similar argument for \code{\link{ergm}} and see
-#' [list of implemented constraints][ergm-constraints] for more information. For
-#' \code{simulate.formula}, defaults to no constraints. For
-#' \code{simulate.ergm}, defaults to using the same constraints as those with
-#' which \code{object} was fitted.
+#'
+#' @param constraints A one-sided formula specifying one or more
+#'   constraints on the support of the distribution of the networks
+#'   being simulated. See the documentation for a similar argument for
+#'   \code{\link{ergm}} and see [list of implemented
+#'   constraints][ergm-constraints] for more information. For
+#'   \code{simulate.formula}, defaults to no constraints. For
+#'   \code{simulate.ergm}, defaults to using the same constraints as
+#'   those with which \code{object} was fitted. If string `"obs"` is
+#'   passed, observational constraints will be used instead.
+#' 
 #' @param monitor A one-sided formula specifying one or more terms whose value
 #' is to be monitored. These terms are appeneded to the model, along with a
 #' coefficient of 0, so their statistics are returned.
@@ -195,24 +199,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     stop("A network object on the LHS of the formula or via",
          " the 'basis' argument must be given")
   }
-  if(is.null(basis)) {
-    basis <- nw
-  }
-
-  # New formula (no longer use 'object'):
-  form <- nonsimp_update.formula(object, basis ~ ., from.new="basis")
-
-  if(!is.null(monitor)){
-    # Construct a model to get the number of parameters monitor requires.
-    monitor <- nonsimp_update.formula(monitor, nw~., from.new="nw")
-    monitor.m <- ergm_model(monitor, basis, response=response, term.options=control$term.options)
-    monitored.length <- nparam(monitor.m)
-    
-    monitor <- list_rhs.formula(monitor)
-    form<-append_rhs.formula(form, monitor)
-  }else{
-    monitored.length <- 0
-  }
+  
+  mon.m <- if(!is.null(monitor)) ergm_model(monitor, nw, response=response, term.options=control$term.options)
 
   # Inherit constraints from nw if needed.
   tmp <- .handle.auto.constraints(nw, constraints, NULL, NULL)
@@ -225,13 +213,13 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
                                 nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
   
   # Prepare inputs to ergm.getMCMCsample
-  m <- ergm_model(form, basis, response=response, role="static", extra.aux=list(proposal$auxiliaries),term.options=control$term.options)
+  m <- ergm_model(object, nw, response=response, role="static", extra.aux=list(proposal$auxiliaries),term.options=control$term.options)
 
   out <- simulate(m, nsim=nsim, seed=seed,
                   coef=coef, response=response, reference=reference,
                   constraints=proposal,
-                  monitor=monitored.length,
-                  basis=basis,
+                  monitor=mon.m,
+                  basis=nw,
                   statsonly=statsonly,
                   esteq=esteq,
                   sequential=sequential,
@@ -265,8 +253,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   check.control.class(c("simulate.formula", "simulate.ergm_model"), myname="simulate.ergm_model")
   control.toplevel(..., myname="simulate.formula")
   
-  if(is.null(monitor)) monitor <- 0
-  if(!is.numeric(monitor)) stop("ergm_model method for simulate() requires monitor= argument to give the number of statistics at the end of the model that are to be monitored (defaulting to 0).")
+  if(!is.null(monitor) && !is(monitor, "ergm_model")) stop("ergm_model method for simulate() requires monitor= argument of class ergm_model or NULL.")
   if(is.null(basis)) stop("ergm_model method for simulate() requires the basis= argument for the initial state of the simulation.")
  
   # Backwards-compatibility code:
@@ -279,9 +266,8 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   
   # define nw as either the basis argument or (if NULL) the LHS of the formula
   nw <- basis
-  monitored.length <- monitor
 
-  m <- object
+  m <- c(object, monitor)
   
   # Just in case the user did not give a coef value, set it to zero.
   # (probably we could just return an error in this case!)
@@ -290,9 +276,9 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     warning("No parameter values given, using Bernouli network\n\t")
   }
 
-  coef <- c(coef, rep(0, monitored.length))
+  coef <- c(coef, rep(0, nparam(monitor)))
   
-  if(nparam(m)!=length(coef)) stop("coef has ", length(coef) - monitored.length, " elements, while the model requires ",nparam(m) - monitored.length," parameters.")
+  if(nparam(m)!=length(coef)) stop("coef has ", length(coef) - nparam(monitor), " elements, while the model requires ",nparam(m) - nparam(monitor)," parameters.")
 
   proposal <- if(inherits(constraints, "proposal")) constraints
                 else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
@@ -306,7 +292,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   
   # Create vector of current statistics
   curstats<-summary(m, nw, response=response, term.options=control$term.options)
-  names(curstats) <- param_names(m,canonical=TRUE)
+  names(curstats) <- param_names(m, canonical=TRUE)
 
   # prepare control object
   control$MCMC.init.maxedges <- 1+max(control$MCMC.init.maxedges, network.edgecount(nw))
@@ -425,7 +411,6 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
 #'   the coefficients, the response attribute, the reference, the
 #'   constraints, and most simulation parameters from the model fit,
 #'   unless overridden by passing them explicitly.
-#' 
 #' @export
 simulate.ergm <- function(object, nsim=1, seed=NULL, 
                           coef=object$coef,
@@ -440,6 +425,8 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           verbose=FALSE, ...) {
   check.control.class(c("simulate.ergm","simulate.formula"), "simulate.ergm")
   control.toplevel(...)
+
+  if(is.character(constraints) && startsWith(constraints, "obs")) constraints <- object$obs.constraints
 
   ### TODO: Figure out when adaptive MCMC controls should be inherited.
   ## control.transfer <-

@@ -48,13 +48,15 @@ reference measure (\eqn{h(y)}) to be used. (Defaults to \code{~Bernoulli}.)
 See help for \link[=ergm-references]{ERGM reference measures} implemented in
 the \code{\link[=ergm-package]{ergm}} package.}
 
-\item{constraints}{A one-sided formula specifying one or more constraints on
-the support of the distribution of the networks being simulated. See the
-documentation for a similar argument for \code{\link{ergm}} and see
-\link[=ergm-constraints]{list of implemented constraints} for more information. For
+\item{constraints}{A one-sided formula specifying one or more
+constraints on the support of the distribution of the networks
+being simulated. See the documentation for a similar argument for
+\code{\link{ergm}} and see \link[=ergm-constraints]{list of implemented
+constraints} for more information. For
 \code{simulate.formula}, defaults to no constraints. For
-\code{simulate.ergm}, defaults to using the same constraints as those with
-which \code{object} was fitted.}
+\code{simulate.ergm}, defaults to using the same constraints as
+those with which \code{object} was fitted. If string \code{"obs"} is
+passed, observational constraints will be used instead.}
 
 \item{monitor}{A one-sided formula specifying one or more terms whose value
 is to be monitored. These terms are appeneded to the model, along with a
