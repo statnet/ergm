@@ -4,6 +4,9 @@
 \name{ergm_model}
 \alias{ergm_model}
 \alias{c.ergm_model}
+\alias{as.ergm_model}
+\alias{as.ergm_model.ergm_model}
+\alias{as.ergm_model.formula}
 \alias{is.curved.ergm_model}
 \alias{is.durational.ergm_model}
 \alias{is.dyad.independent.ergm_model}
@@ -15,6 +18,12 @@ ergm_model(formula, nw = NULL, response = NULL, silent = FALSE,
   role = "static", ..., term.options = list(), extra.aux = list())
 
 \method{c}{ergm_model}(...)
+
+as.ergm_model(x, ...)
+
+\method{as.ergm_model}{ergm_model}(x, ...)
+
+\method{as.ergm_model}{formula}(x, ...)
 
 \method{is.curved}{ergm_model}(object, ...)
 
@@ -49,6 +58,8 @@ dynamic network models.}
 \item{term.options}{a list of optional settings such as calculation tuning options to be passed to the \code{InitErgmTerm} functions.}
 
 \item{extra.aux}{a list of auxiliary request formulas required elsewhere.}
+
+\item{x}{object to be converted to an \code{ergm_model}.}
 
 \item{object}{An \code{ergm_model} object.}
 
