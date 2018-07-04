@@ -69,9 +69,11 @@
 #'   those with which \code{object} was fitted. If string `"obs"` is
 #'   passed, observational constraints will be used instead.
 #' 
-#' @param monitor A one-sided formula specifying one or more terms whose value
-#' is to be monitored. These terms are appeneded to the model, along with a
-#' coefficient of 0, so their statistics are returned.
+#' @param monitor A one-sided formula specifying one or more terms
+#'   whose value is to be monitored. These terms are appeneded to the
+#'   model, along with a coefficient of 0, so their statistics are
+#'   returned. An [`ergm_model`] objectcan be passed as well.
+#'
 #' @param basis An optional \code{\link[network]{network}} object to start the
 #' Markov chain.  If omitted, the default is the left-hand-side of the
 #' \code{formula}.  If neither a left-hand-side nor a \code{basis} is present,
@@ -200,7 +202,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
          " the 'basis' argument must be given")
   }
   
-  mon.m <- if(!is.null(monitor)) ergm_model(monitor, nw, response=response, term.options=control$term.options)
+  mon.m <- if(!is.null(monitor)) as.ergm_model(monitor, nw, response=response, term.options=control$term.options)
 
   # Inherit constraints from nw if needed.
   tmp <- .handle.auto.constraints(nw, constraints, NULL, NULL)
