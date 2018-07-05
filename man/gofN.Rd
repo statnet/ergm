@@ -2,9 +2,12 @@
 % Please edit documentation in R/gofN.R
 \name{gofN}
 \alias{gofN}
+\alias{plot.gofN}
 \title{Linear model diagnostics for multinetwork linear models}
 \usage{
 gofN(object, GOF, subset = TRUE, control = control.gof.ergm(), ...)
+
+\method{plot}{gofN}(x, ...)
 }
 \arguments{
 \item{object}{an \code{\link{ergm}} object.}
@@ -20,3 +23,8 @@ gofN(object, GOF, subset = TRUE, control = control.gof.ergm(), ...)
 \description{
 Linear model diagnostics for multinetwork linear models
 }
+\section{Methods (by generic)}{
+\itemize{
+\item \code{plot}: A plotting method, making residuals vs. fitted and scale-location plots.
+}}
+
