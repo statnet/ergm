@@ -66,8 +66,10 @@
 #'   constraints][ergm-constraints] for more information. For
 #'   \code{simulate.formula}, defaults to no constraints. For
 #'   \code{simulate.ergm}, defaults to using the same constraints as
-#'   those with which \code{object} was fitted. If string `"obs"` is
-#'   passed, observational constraints will be used instead.
+#'   those with which \code{object} was fitted.
+#'
+#' @param observed Inherit observational constraints rather than model
+#'   constraints.
 #' 
 #' @param monitor A one-sided formula specifying one or more terms
 #'   whose value is to be monitored. These terms are appeneded to the
@@ -178,7 +180,8 @@
 #' @export
 simulate.formula <- function(object, nsim=1, seed=NULL,
                                coef, response=NULL, reference=~Bernoulli,
-                               constraints=~.,
+                             constraints=~.,
+                             observational=FALSE,
                                monitor=NULL,
                                basis=NULL,
                                statsonly=FALSE,
@@ -204,9 +207,10 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   
   mon.m <- if(!is.null(monitor)) as.ergm_model(monitor, nw, response=response, term.options=control$term.options)
 
+  constraints <- rep(constraints, length.out=2)
   # Inherit constraints from nw if needed.
-  tmp <- .handle.auto.constraints(nw, constraints, NULL, NULL)
-  nw <- tmp$nw; constraints <- tmp$constraints
+  tmp <- .handle.auto.constraints(nw, constraints[[1]], constraints[[2]], NULL)
+  nw <- tmp$nw; constraints <- if(observational) tmp$constraints.obs else tmp$constraints
   
   # Construct the proposal; this needs to be done here so that the
   # auxiliary requests could be passed to ergm_model().
@@ -244,6 +248,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
 simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                                 coef, response=NULL, reference=~Bernoulli,
                                 constraints=~.,
+                                observational=FALSE,
                                 monitor=NULL,
                                 basis=NULL,
                                 statsonly=FALSE,
@@ -418,7 +423,8 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           coef=object$coef,
                           response=object$response,
                           reference=object$reference,
-                          constraints=object$constraints,
+                          constraints=list(object$constraints, object$obs.constraints),
+                          observational=FALSE,
                           monitor=NULL,
                           statsonly=FALSE,
                           esteq=FALSE,
@@ -426,9 +432,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           control=control.simulate.ergm(),
                           verbose=FALSE, ...) {
   check.control.class(c("simulate.ergm","simulate.formula"), "simulate.ergm")
-  control.toplevel(...)
-
-  if(is.character(constraints) && startsWith(constraints, "obs")) constraints <- object$obs.constraints
+  control.toplevel(...)  
 
   ### TODO: Figure out when adaptive MCMC controls should be inherited.
   ## control.transfer <-
@@ -452,7 +456,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
   simulate.formula(object$formula, nsim=nsim, coef=coef, response=response, reference=reference,
                    statsonly=statsonly,
                    esteq=esteq,
-                   sequential=sequential, constraints=constraints,
+                   sequential=sequential, constraints=constraints, observational=observational,
                    monitor=monitor,
                    control=control, verbose=verbose, seed=seed, ...)
 }

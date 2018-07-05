@@ -8,13 +8,14 @@
 \usage{
 \method{simulate}{formula}(object, nsim = 1, seed = NULL, coef,
   response = NULL, reference = ~Bernoulli, constraints = ~.,
-  monitor = NULL, basis = NULL, statsonly = FALSE, esteq = FALSE,
-  sequential = TRUE, control = control.simulate.formula(),
-  verbose = FALSE, ...)
+  observational = FALSE, monitor = NULL, basis = NULL,
+  statsonly = FALSE, esteq = FALSE, sequential = TRUE,
+  control = control.simulate.formula(), verbose = FALSE, ...)
 
 \method{simulate}{ergm}(object, nsim = 1, seed = NULL, coef = object$coef,
   response = object$response, reference = object$reference,
-  constraints = object$constraints, monitor = NULL, statsonly = FALSE,
+  constraints = list(object$constraints, object$obs.constraints),
+  observational = FALSE, monitor = NULL, statsonly = FALSE,
   esteq = FALSE, sequential = TRUE, control = control.simulate.ergm(),
   verbose = FALSE, ...)
 }
@@ -55,8 +56,7 @@ being simulated. See the documentation for a similar argument for
 constraints} for more information. For
 \code{simulate.formula}, defaults to no constraints. For
 \code{simulate.ergm}, defaults to using the same constraints as
-those with which \code{object} was fitted. If string \code{"obs"} is
-passed, observational constraints will be used instead.}
+those with which \code{object} was fitted.}
 
 \item{monitor}{A one-sided formula specifying one or more terms
 whose value is to be monitored. These terms are appeneded to the
@@ -89,6 +89,9 @@ Constructed using \code{\link{control.simulate.ergm}} or
 chain progresses.}
 
 \item{\dots}{Further arguments passed to or used by methods.}
+
+\item{observed}{Inherit observational constraints rather than model
+constraints.}
 }
 \value{
 If \code{statsonly==TRUE} a matrix containing the simulated network
