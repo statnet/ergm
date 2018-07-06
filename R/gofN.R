@@ -54,11 +54,12 @@ plot.gofN <- function(x, ..., ask = dev.interactive()){
     fitted <- colMeans(s)
     resid <- (colMeans(so)-colMeans(s))/sqrt(apply(s,2,var)-apply(so,2,var))
 
-    plot(fitted, resid, ..., main = paste("Residuals vs. Fitted for", sQuote(cn[i])), xlab="Predicted value", ylab="Pearson residual")
+    plot(fitted, resid, ..., main = paste("Residuals vs. Fitted for", sQuote(cn[i])), xlab="Predicted value", ylab="Pearson residual",type="n")
+    panel.smooth(fitted, resid, ...)
     abline(h=0, lty=3, col="gray")
-    lines(lowess(fitted, resid), col="red")
-    plot(fitted, sqrt(abs(resid)), ..., main = paste("Scale-location plot for", sQuote(cn[i])), xlab="Predicted value", ylab=expression(sqrt("|Pearson residual|")))
+    
+    plot(fitted, sqrt(abs(resid)), ..., main = paste("Scale-location plot for", sQuote(cn[i])), xlab="Predicted value", ylab=expression(sqrt("|Pearson residual|")), type="n")
+    panel.smooth(fitted, resid, ...)
     abline(h=0, lty=3, col="gray")
-    lines(lowess(fitted, resid), col="red")
   }
 }
