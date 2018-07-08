@@ -8,31 +8,57 @@
 #' @export
 gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ...){
   nw <- object$network
-
-  pernet.m <- ergm_model(~N(GOF, subset=subset), nw=nw, response = object$response, ...,
-                         term.options= modifyList(as.list(object$control$term.options), list(N.compact_stats=FALSE)))
-
   nnets <- length(unique(.peek_vattrv(nw, ".NetworkID")))
-  nstats <- nparam(pernet.m, canonical=TRUE)/nnets
 
-  sim <- simulate(object, monitor=pernet.m, nsim=control$nsim, control=set.control.class("control.simulate.ergm",control), basis=nw, statsonly=TRUE, response = object$response, ...)
-  sim <- sim[,ncol(sim)-nnets*nstats+seq_len(nnets*nstats),drop=FALSE]
+  if(is.numeric(subset)) subset <- unwhich(subset, nnets)
+  subset <- rep(subset, length.out=nnets)
+  remain <- subset
+
+  stats <- stats.obs <- NULL
   
-  if(!is.null(object$constrained.obs)){
-    sim.obs <- simulate(object, monitor=pernet.m, observational=TRUE, nsim=control$nsim, control=set.control.class("control.simulate.ergm",control), basis=nw, statsonly=TRUE, response = object$response, ...)
-    sim.obs <- sim.obs[,ncol(sim.obs)-nnets*nstats+seq_len(nnets*nstats),drop=FALSE]
-  }else{
-    sim.obs <- matrix(summary(pernet.m, object$network, response = object$response, ...), nrow(sim), ncol(sim), byrow=TRUE)
+  while(any(remain)){
+    message("Constructing GOF model.")
+    pernet.m <- ergm_model(~N(GOF, subset=remain), nw=nw, response = object$response, ...,
+                           term.options= modifyList(as.list(object$control$term.options), list(N.compact_stats=FALSE)))
+    
+    nstats <- nparam(pernet.m, canonical=TRUE)/sum(remain)
+    
+    message("Simulating unconstrained sample.")
+    sim <- simulate(object, monitor=pernet.m, nsim=control$nsim, control=set.control.class("control.simulate.ergm",control), basis=nw, statsonly=TRUE, response = object$response, ...)
+    sim <- sim[,ncol(sim)-sum(remain)*nstats+seq_len(sum(remain)*nstats),drop=FALSE]
+  
+    if(!is.null(object$constrained.obs)){
+      message("Simulating constrained sample.")
+      # FIXME: Simulations can be rerun only on the networks in the subset.
+      sim.obs <- simulate(object, monitor=pernet.m, observational=TRUE, nsim=control$nsim, control=set.control.class("control.simulate.ergm",control), basis=nw, statsonly=TRUE, response = object$response, ...)
+      sim.obs <- sim.obs[,ncol(sim.obs)-sum(remain)*nstats+seq_len(sum(remain)*nstats),drop=FALSE]
+    }else{
+      sim.obs <- matrix(summary(pernet.m, object$network, response = object$response, ...), nrow(sim), ncol(sim), byrow=TRUE)
+    }
+
+    message("Collating the simulations.")
+    cn <- colnames(sim)[seq_len(nstats)] %>% sub(".*?:","", .)
+    
+    statarray <- array(c(sim), c(control$nsim, nstats, sum(remain)))
+    dimnames(statarray) <- list(Iterations=NULL, Statistic=cn, Network=NULL)
+    statarray.obs <- array(c(sim.obs), c(control$nsim, nstats, sum(remain)))
+    dimnames(statarray.obs) <- list(Iterations=NULL, Statistic=cn, Network=NULL)
+
+    if(is.null(stats)){
+      stats <- statarray
+      stats.obs <- statarray.obs
+    }else{
+      stats[,,remain[subset]] <- statarray
+      stats.obs[,,remain[subset]] <- statarray.obs
+    }
+
+    # Calculate variances for each network and statistic.
+    dv <- apply(statarray, 2:3, var) - apply(statarray.obs, 2:3, var)
+    # If any statistic for the network has negative variance estimate, rerun it.
+    remain[remain] <- apply(dv<=0, 2, any)
+    if(any(remain)) message(sum(remain), " networks have bad simulations; rerunning.")
   }
-
-  cn <- colnames(sim)[seq_len(nstats)] %>% sub(".*?:","", .)
-  
-  statarray <- array(c(sim), c(control$nsim, nstats, nnets))
-  dimnames(statarray) <- list(Iterations=NULL, Statistic=cn, Network=NULL)
-  statarray.obs <- array(c(sim.obs), c(control$nsim, nstats, nnets))
-  dimnames(statarray.obs) <- list(Iterations=NULL, Statistic=cn, Network=NULL)
-
-  o <- structure(list(stats=statarray, stats.obs=statarray.obs, control=control), class="gofN")
+  o <- structure(list(stats=stats, stats.obs=stats.obs, control=control), class="gofN")
 }
 
 #' @describeIn gofN A plotting method, making residuals vs. fitted and scale-location plots.
