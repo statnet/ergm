@@ -85,7 +85,7 @@ plot.gofN <- function(x, ..., ask = dev.interactive()){
     abline(h=0, lty=3, col="gray")
     
     plot(fitted, sqrt(abs(resid)), ..., main = paste("Scale-location plot for", sQuote(cn[i])), xlab="Predicted value", ylab=expression(sqrt("|Pearson residual|")), type="n")
-    panel.smooth(fitted, resid, ...)
+    panel.smooth(fitted, sqrt(abs(resid)), ...)
     abline(h=0, lty=3, col="gray")
   }
 }
