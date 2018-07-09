@@ -58,17 +58,44 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ...){
     remain[remain] <- apply(dv<=0, 2, any)
     if(any(remain)) message(sum(remain), " networks have bad simulations; rerunning.")
   }
-  o <- structure(list(stats=stats, stats.obs=stats.obs, control=control), class="gofN")
+  o <- structure(list(nw=nw, subset=subset, stats=stats, stats.obs=stats.obs, control=control), class="gofN")
 }
 
-#' @describeIn gofN A plotting method, making residuals vs. fitted and scale-location plots.
+#' @describeIn gofN A plotting method, making residuals and scale-location plots.
+#' 
+#' @param against vector of values, network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against; if `NULL` (default), plots against fitted values.
+#' @param col,pch,cex vector of values (wrapped in [I()]), network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against.
+#' @param which which to plot (`1` for residuals plot, `2` for \eqn{\sqrt{|R_i|}} scale plot).
+#' 
 #' @export
-plot.gofN <- function(x, ..., ask = dev.interactive()){
+plot.gofN <- function(x, against=NULL, which=1:2, col=1, pch=1, cex=1, ..., ask = dev.interactive()){
   if(ask){
     prev.ask <- devAskNewPage(TRUE)
     on.exit(devAskNewPage(prev.ask))
   }
 
+  nattrs <- get_multinet_nattr_tibble(x$nw)[x$subset,]
+  
+  againstname <- switch(class(against),
+                        character = against,
+                        formula = despace(deparse(against[[length(against)]])),
+                        `NULL` = "Predicted value",
+                        despace(deparse(substitute(against))))
+  againstval <- switch(class(against),
+                       character = nattrs[[against]],
+                       formula = eval(against[[length(against)]], envir = nattrs, enclos = environment(against)),
+                       against)
+
+  for(gpar in c("col", "pch", "cex")){
+    a <- get(gpar)
+    a <- switch(class(a),
+                AsIs = a,
+                character = nattrs[[a]],
+                formula = eval(a[[length(a)]], envir = nattrs, enclos = environment(a)),
+                a)
+    assign(gpar, a)
+  }
+  
   statarray <- x$stats
   statarray.obs <- x$stats.obs
   control <- x$control
@@ -80,12 +107,16 @@ plot.gofN <- function(x, ..., ask = dev.interactive()){
     fitted <- colMeans(s)
     resid <- (colMeans(so)-colMeans(s))/sqrt(apply(s,2,var)-apply(so,2,var))
 
-    plot(fitted, resid, ..., main = paste("Residuals vs. Fitted for", sQuote(cn[i])), xlab="Predicted value", ylab="Pearson residual",type="n")
-    panel.smooth(fitted, resid, ...)
-    abline(h=0, lty=3, col="gray")
+    if(1L %in% which){
+      plot(NVL(againstval,fitted), resid, col=col, pch=pch, cex=cex,..., main = paste("Residuals vs. Fitted for", sQuote(cn[i])), xlab=againstname, ylab="Pearson residual",type="n")
+      panel.smooth(NVL(againstval,fitted), resid, col=col, pch=pch, cex=cex, ...)
+      abline(h=0, lty=3, col="gray")
+    }
     
-    plot(fitted, sqrt(abs(resid)), ..., main = paste("Scale-location plot for", sQuote(cn[i])), xlab="Predicted value", ylab=expression(sqrt("|Pearson residual|")), type="n")
-    panel.smooth(fitted, sqrt(abs(resid)), ...)
-    abline(h=0, lty=3, col="gray")
+    if(2L %in% which){
+      plot(NVL(againstval,fitted), sqrt(abs(resid)), col=col, pch=pch, cex=cex,..., main = paste("Scale-location plot for", sQuote(cn[i])), xlab=againstname, ylab=expression(sqrt("|Pearson residual|")), type="n")
+      panel.smooth(NVL(againstval,fitted), sqrt(abs(resid)), col=col, pch=pch, cex=cex, ...)
+      abline(h=0, lty=3, col="gray")
+    }
   }
 }

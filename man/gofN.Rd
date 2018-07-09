@@ -7,7 +7,8 @@
 \usage{
 gofN(object, GOF, subset = TRUE, control = control.gof.ergm(), ...)
 
-\method{plot}{gofN}(x, ...)
+\method{plot}{gofN}(x, against = NULL, which = 1:2, col = 1, pch = 1,
+  cex = 1, ..., ask = dev.interactive())
 }
 \arguments{
 \item{object}{an \code{\link{ergm}} object.}
@@ -18,6 +19,12 @@ gofN(object, GOF, subset = TRUE, control = control.gof.ergm(), ...)
 
 \item{\dots}{additional arguments to \code{simulate.ergm()} and \code{summary.ergm_model()}.}
 
+\item{against}{vector of values, network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against; if \code{NULL} (default), plots against fitted values.}
+
+\item{which}{which to plot (\code{1} for residuals plot, \code{2} for \eqn{\sqrt{|R_i|}} scale plot).}
+
+\item{col, pch, cex}{vector of values (wrapped in \code{\link[=I]{I()}}), network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against.}
+
 \item{See}{\code{\link[=control.gof.ergm]{control.gof.ergm()}}.}
 }
 \description{
@@ -25,6 +32,6 @@ Linear model diagnostics for multinetwork linear models
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{plot}: A plotting method, making residuals vs. fitted and scale-location plots.
+\item \code{plot}: A plotting method, making residuals and scale-location plots.
 }}
 
