@@ -68,6 +68,52 @@ InitErgmTerm..subnets <- function(nw, arglist, response=NULL, ...){
   list(name="_subnets", coef.names=c(), inputs=c(unlist(.block_vertexmap(nw, a$attrname))), dependence=FALSE)
 }
 
+get_multinet_nattr_tibble <- function(nw){
+  nwl <- if(is.network(nw)) .split_constr_network(nw, ".NetworkID", ".NetworkName")
+         else nw
+  nn <- length(nwl)
+  
+  nattrs <- Reduce(union, lapply(nwl, list.network.attributes))
+  nattrs <- as.tibble(lapply(nattrs, function(nattr) sapply(lapply(nwl, get.network.attribute, nattr), NVL, NA)) %>% set_names(nattrs))
+  nattrs
+}
+
+get_lminfo <- function(nattrs, lm=~1, subset=TRUE, contrasts=NULL, offset=NULL, weights=1){
+  nn <- nrow(nattrs)
+  
+  subset <-
+    if(mode(subset) %in% c("expression", "call")) eval(if(is(subset, "formula")) subset[[2]] else subset, envir = nattrs, enclos = environment(lm))
+    else subset
+  subset <- unwhich(switch(mode(subset),
+                           logical = which(rep(subset, length.out = nn)),
+                           numeric = subset),
+                    nn)
+
+  weights <- if(mode(weights) %in% c("expression", "call")) eval(if(is(weights, "formula")) weights[[2]] else weights, envir = nattrs, enclos = environment(lm))
+             else weights
+  weights <- rep(weights, length.out=nn)
+
+  offset <- if(mode(offset) %in% c("expression", "call")) eval(if(is(offset, "formula")) offset[[2]] else offset, envir = nattrs, enclos = environment(lm))
+             else offset
+
+  subset[weights==0] <- FALSE
+  
+  ## model.frame
+  # This loop is necessary because if the predictor vector for a
+  # network is all 0s as is its offest, it needs to be dropped.
+  subset.prev <- NULL
+  while(!identical(subset, subset.prev)){
+    nm <- sum(subset)
+    xf <- do.call(stats::lm, list(lm, data=nattrs,contrast.arg=contrasts, offset = offset, subset=subset, weights=weights, na.action=na.fail, method="model.frame"), envir=environment(lm))
+    xm <- model.matrix(attr(xf, "terms"), xf, contrasts=contrasts)
+    offset <- model.offset(xf) %>% NVL(numeric(nrow(xm))) %>% matrix(nrow=nrow(xm)) # offset needs to have reliable dimension.
+    subset.prev <- subset
+    subset[subset] <- subset[subset] & !apply(cbind(xm,offset)==0, 1, all)
+  }
+
+  list(xf=xf, xm=xm, subset=subset, offset=offset)  
+}
+
 #' @import purrr
 #' @import tibble
 InitErgmTerm.N <- function(nw, arglist, response=NULL, N.compact_stats=TRUE,...){
@@ -78,46 +124,23 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, N.compact_stats=TRUE,...)
                       required = c(TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE))
 
   f <- a$formula
+  auxiliaries <- ~.subnets(".NetworkID")
 
   nwl <- .split_constr_network(nw, ".NetworkID", ".NetworkName")
   nwnames <- names(nwl)
   nn <- length(nwl)
-  
-  auxiliaries <- ~.subnets(".NetworkID")
+  nattrs <- get_multinet_nattr_tibble(nwl)
 
-  nattrs <- Reduce(union, lapply(nwl, list.network.attributes))
-  nattrs <- as.tibble(lapply(nattrs, function(nattr) sapply(lapply(nwl, get.network.attribute, nattr), NVL, NA)) %>% set_names(nattrs))
+  lmi <- get_lminfo(nattrs, lm=a$lm, subset=a$subset, contrasts=a$contrasts, offset=a$offset, weights=a$weights)
 
-  subset <-
-    if(mode(a$subset) %in% c("expression", "call")) eval(if(is(a$subset, "formula")) a$subset[[2]] else a$subset, envir = nattrs, enclos = environment(a$lm))
-    else a$subset
-  subset <- unwhich(switch(mode(subset),
-                           logical = which(rep(subset, length.out = nn)),
-                           numeric = subset),
-                    nn)
-
-  weights <- if(mode(a$weights) %in% c("expression", "call")) eval(if(is(a$weights, "formula")) a$weights[[2]] else a$weights, envir = nattrs, enclos = environment(a$lm))
-             else a$weights
-  weights <- rep(weights, length.out=nn)
-
-  offset <- if(mode(a$offset) %in% c("expression", "call")) eval(if(is(a$offset, "formula")) a$offset[[2]] else a$offset, envir = nattrs, enclos = environment(a$lm))
-             else a$offset
-
-  subset[weights==0] <- FALSE
-
-  ## model.frame
-  # This loop is necessary because if the predictor vector for a
-  # network is all 0s as is its offest, it needs to be dropped.
-  subset.prev <- NULL
-  while(!identical(subset, subset.prev)){
-    nm <- sum(subset)
-    xf <- do.call(stats::lm, list(a$lm, data=nattrs,contrast.arg=a$contrasts, offset = offset, subset=subset, weights=weights, na.action=na.fail, method="model.frame"), envir=environment(a$lm))
-    xm <- model.matrix(attr(xf, "terms"), xf, contrasts=a$contrasts)
-    offset <- model.offset(xf) %>% NVL(numeric(nrow(xm))) %>% matrix(nrow=nrow(xm)) # offset needs to have reliable dimension.
-    subset.prev <- subset
-    subset[subset] <- subset[subset] & !apply(cbind(xm,offset)==0, 1, all)
-  }
-  
+  xf <- lmi$xf
+  xm <- lmi$xm
+  subset <- lmi$subset
+  weights <- lmi$weights
+  offset <- lmi$offset
+  nm <- sum(subset)
+  rm(lmi)
+    
   ms <- lapply(nwl[subset], function(nw1){
     f <- nonsimp_update.formula(f, nw1~.)
     m <- ergm_model(f, nw1, response=response,...)
