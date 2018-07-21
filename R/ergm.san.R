@@ -83,8 +83,6 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   if(!is.null(control$seed)) set.seed(as.integer(control$seed))
   if(!is.null(basis)) {
     nw <- basis
-    formula <- nonsimp_update.formula(formula, nw ~ ., from.new="nw")
-    object <- formula
   } else {
     nw <- ergm.getnetwork(formula)
   }

@@ -171,3 +171,44 @@ updatemodel.ErgmTerm <- function(model, outlist) {
   model
 }
 
+#' @describeIn ergm_model A method for concatenating terms of two or more initialized models.
+#' @export
+c.ergm_model <- function(...){
+  l <- list(...)
+  o <- l[[1]]
+  for(m in l[-1]){
+    if(is.null(m)) next
+    for(name in c("coef.names",
+                  "inputs",
+                  "minval",
+                  "maxval",
+                  "duration",
+                  "terms",
+                  "offset",
+                  "term.skipped"))
+      o[[name]] <- c(o[[name]], m[[name]])
+    o$formula <- append_rhs.formula(o$formula, m$formula, keep.onesided=TRUE)
+  }
+
+  o$etamap <- ergm.etamap(o)
+  o
+}
+
+#' @rdname ergm_model
+#' @param x object to be converted to an `ergm_model`.
+#' @export
+as.ergm_model <- function(x, ...)
+  UseMethod("as.ergm_model")
+
+#' @rdname ergm_model
+#' @export
+as.ergm_model.ergm_model <- function(x, ...) x
+
+#' @rdname ergm_model
+#' @export
+as.ergm_model.formula <- function(x, ...)
+  ergm_model(formula=x, ...)
+
+#' @noRd
+#' @export
+as.ergm_model.NULL <- function(x, ...) NULL

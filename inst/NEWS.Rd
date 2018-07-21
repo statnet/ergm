@@ -80,6 +80,10 @@
 	More informative error messages for term initialization.
       }
       \item{
+	\code{\link{ergm.godfather}} has been reimplemented in the
+	\code{ergm} package, along with its valued counterpart.
+      }
+      \item{
 	New terms have been added or improved:
 	\itemize{
 	  \item{
@@ -181,6 +185,9 @@
 	    major methods. In particular, \code{ergm.getglobalstats} has
 	    been repalced with \code{\link{summary.ergm_model}}.
 	  }
+	  \item{
+	    \code{\link{simulate.formula}} functions now take an
+	    \code{\link{ergm_model}} as an argument to \code{monitor=}.
 	  \item{
 	    Constraint initializers have been renamed from
 	    \code{InitConstraint} to \code{InitErgmConstraint}. The

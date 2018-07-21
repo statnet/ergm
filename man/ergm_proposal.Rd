@@ -11,11 +11,12 @@
 \usage{
 ergm_proposal(object, ...)
 
-\method{ergm_proposal}{character}(object, arguments, nw, ..., response = NULL,
-  reference = reference)
+\method{ergm_proposal}{character}(object, arguments, nw, ...,
+  response = NULL, reference = reference)
 
-\method{ergm_proposal}{formula}(object, arguments, nw, weights = "default",
-  class = "c", reference = ~Bernoulli, response = NULL, ...)
+\method{ergm_proposal}{formula}(object, arguments, nw,
+  weights = "default", class = "c", reference = ~Bernoulli,
+  response = NULL, ...)
 
 \method{ergm_proposal}{ergm}(object, ..., constraints = NULL,
   arguments = NULL, nw = NULL, weights = NULL, class = "c",

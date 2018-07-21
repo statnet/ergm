@@ -6,17 +6,19 @@
 \alias{control.gof.ergm}
 \title{Auxiliary for Controlling ERGM Goodness-of-Fit Evaluation}
 \usage{
-control.gof.formula(nsim = 100, MCMC.burnin = 10000, MCMC.interval = 1000,
-  MCMC.prop.weights = "default", MCMC.prop.args = list(),
-  MCMC.init.maxedges = 20000, MCMC.packagenames = c(),
-  MCMC.runtime.traceplot = FALSE, network.output = "network", seed = NULL,
-  parallel = 0, parallel.type = NULL, parallel.version.check = TRUE)
+control.gof.formula(nsim = 100, MCMC.burnin = 10000,
+  MCMC.interval = 1000, MCMC.prop.weights = "default",
+  MCMC.prop.args = list(), MCMC.init.maxedges = 20000,
+  MCMC.packagenames = c(), MCMC.runtime.traceplot = FALSE,
+  network.output = "network", seed = NULL, parallel = 0,
+  parallel.type = NULL, parallel.version.check = TRUE)
 
-control.gof.ergm(nsim = 100, MCMC.burnin = NULL, MCMC.interval = NULL,
-  MCMC.prop.weights = NULL, MCMC.prop.args = NULL,
-  MCMC.init.maxedges = NULL, MCMC.packagenames = NULL,
-  MCMC.runtime.traceplot = FALSE, network.output = "network", seed = NULL,
-  parallel = 0, parallel.type = NULL, parallel.version.check = TRUE)
+control.gof.ergm(nsim = 100, MCMC.burnin = NULL,
+  MCMC.interval = NULL, MCMC.prop.weights = NULL,
+  MCMC.prop.args = NULL, MCMC.init.maxedges = NULL,
+  MCMC.packagenames = NULL, MCMC.runtime.traceplot = FALSE,
+  network.output = "network", seed = NULL, parallel = 0,
+  parallel.type = NULL, parallel.version.check = TRUE)
 }
 \arguments{
 \item{nsim}{Number of networks to be randomly drawn using Markov chain Monte

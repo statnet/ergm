@@ -10,12 +10,12 @@ ergm.bridge.llr(object, response = NULL, constraints = ~., from, to,
   basis = NULL, verbose = FALSE, ..., llronly = FALSE,
   control = control.ergm.bridge())
 
-ergm.bridge.0.llk(object, response = response, constraints = ~., coef, ...,
-  llkonly = TRUE, control = control.ergm.bridge())
+ergm.bridge.0.llk(object, response = response, constraints = ~., coef,
+  ..., llkonly = TRUE, control = control.ergm.bridge())
 
-ergm.bridge.dindstart.llk(object, response = NULL, constraints = ~., coef,
-  dind = NULL, coef.dind = NULL, basis = NULL, ..., llkonly = TRUE,
-  control = control.ergm.bridge())
+ergm.bridge.dindstart.llk(object, response = NULL, constraints = ~.,
+  coef, dind = NULL, coef.dind = NULL, basis = NULL, ...,
+  llkonly = TRUE, control = control.ergm.bridge())
 }
 \arguments{
 \item{object}{A model formula. See \code{\link{ergm}} for details.}

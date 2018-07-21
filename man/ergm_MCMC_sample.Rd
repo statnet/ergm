@@ -9,8 +9,9 @@ ergm_MCMC_sample(nw, model, proposal, control, theta = NULL,
   response = NULL, update.nws = TRUE, verbose = FALSE, ...,
   eta = ergm.eta(theta, model$etamap))
 
-ergm_MCMC_slave(Clist, proposal, eta, control, verbose, ..., prev.run = NULL,
-  burnin = NULL, samplesize = NULL, interval = NULL, maxedges = NULL)
+ergm_MCMC_slave(Clist, proposal, eta, control, verbose, ...,
+  prev.run = NULL, burnin = NULL, samplesize = NULL,
+  interval = NULL, maxedges = NULL)
 }
 \arguments{
 \item{nw}{a \code{\link{network}} object representing the sampler state.}
