@@ -12,10 +12,11 @@
   sequential = TRUE, control = control.simulate.formula(),
   verbose = FALSE, ...)
 
-\method{simulate}{ergm}(object, nsim = 1, seed = NULL, coef = object$coef,
-  response = object$response, reference = object$reference,
-  constraints = object$constraints, monitor = NULL, statsonly = FALSE,
-  esteq = FALSE, sequential = TRUE, control = control.simulate.ergm(),
+\method{simulate}{ergm}(object, nsim = 1, seed = NULL,
+  coef = object$coef, response = object$response,
+  reference = object$reference, constraints = object$constraints,
+  monitor = NULL, statsonly = FALSE, esteq = FALSE,
+  sequential = TRUE, control = control.simulate.ergm(),
   verbose = FALSE, ...)
 }
 \arguments{

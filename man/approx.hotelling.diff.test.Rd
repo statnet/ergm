@@ -4,8 +4,8 @@
 \alias{approx.hotelling.diff.test}
 \title{Approximate Hotelling T^2-Test for One Sample Means}
 \usage{
-approx.hotelling.diff.test(x, y = NULL, mu0 = 0, assume.indep = FALSE,
-  var.equal = FALSE)
+approx.hotelling.diff.test(x, y = NULL, mu0 = 0,
+  assume.indep = FALSE, var.equal = FALSE)
 }
 \arguments{
 \item{x}{a numeric matrix of data values with cases in rows and

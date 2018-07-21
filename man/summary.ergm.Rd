@@ -10,10 +10,11 @@
   signif.stars = getOption("show.signif.stars"), eps.Pvalue = 1e-04,
   print.header = TRUE, print.formula = TRUE, print.fitinfo = TRUE,
   print.coefmat = TRUE, print.message = TRUE, print.deviances = TRUE,
-  print.drop = TRUE, print.offset = TRUE, print.degeneracy = TRUE, ...)
+  print.drop = TRUE, print.offset = TRUE, print.degeneracy = TRUE,
+  ...)
 
-\method{summary}{ergm}(object, ..., correlation = FALSE, covariance = FALSE,
-  total.variation = TRUE)
+\method{summary}{ergm}(object, ..., correlation = FALSE,
+  covariance = FALSE, total.variation = TRUE)
 }
 \arguments{
 \item{x}{object of class \code{summary.ergm} returned by

@@ -43,15 +43,18 @@ InitErgmTerm.odegreepopularity(nw, arglist, ...)
 ergm.checkargs(fname, arglist, varnames = NULL, vartypes = NULL,
   defaultvalues = list(), required = NULL)
 
-ergm.checkbipartite(fname, nw.bipartiteflag, requirement, extramessage = "")
+ergm.checkbipartite(fname, nw.bipartiteflag, requirement,
+  extramessage = "")
 
-ergm.checkdirected(fname, nw.directedflag, requirement, extramessage = "")
+ergm.checkdirected(fname, nw.directedflag, requirement,
+  extramessage = "")
 
 ergm.getMCMCsample(nw, model, proposal, eta0, control, verbose = FALSE,
   response = NULL, update.nws = TRUE, ...)
 
-ergm.mcmcslave(Clist, proposal, eta0, control, verbose, ..., prev.run = NULL,
-  burnin = NULL, samplesize = NULL, interval = NULL, maxedges = NULL)
+ergm.mcmcslave(Clist, proposal, eta0, control, verbose, ...,
+  prev.run = NULL, burnin = NULL, samplesize = NULL,
+  interval = NULL, maxedges = NULL)
 
 ergm.getterms(formula)
 
@@ -86,20 +89,21 @@ offset.info.formula(object, response = NULL, ...)
 \method{plot}{network.ergm}(x, attrname = NULL,
   label = network.vertex.names(x), coord = NULL, jitter = TRUE,
   thresh = 0, usearrows = TRUE, mode = "fruchtermanreingold",
-  displayisolates = TRUE, interactive = FALSE, xlab = NULL, ylab = NULL,
-  xlim = NULL, ylim = NULL, pad = 0.2, label.pad = 0.5,
-  displaylabels = FALSE, boxed.labels = TRUE, label.pos = 0,
-  label.bg = "white", vertex.sides = 8, vertex.rot = 0,
-  arrowhead.cex = 1, label.cex = 1, loop.cex = 1, vertex.cex = 1,
-  edge.col = 1, label.col = 1, vertex.col = 2, label.border = 1,
-  vertex.border = 1, edge.lty = 1, label.lty = NULL, vertex.lty = 1,
-  edge.lwd = 0, label.lwd = par("lwd"), edge.len = 0.5,
-  edge.curve = 0.1, edge.steps = 50, loop.steps = 20,
-  object.scale = 0.01, uselen = FALSE, usecurve = FALSE,
-  suppress.axes = TRUE, vertices.last = TRUE, new = TRUE,
-  layout.par = NULL, cex.main = par("cex.main"), cex.sub = par("cex.sub"),
-  seed = NULL, latent.control = list(maxit = 500, trace = 0, dyadsample =
-  10000, penalty.sigma = c(5, 0.5), nsubsample = 200), colornames = "rainbow",
+  displayisolates = TRUE, interactive = FALSE, xlab = NULL,
+  ylab = NULL, xlim = NULL, ylim = NULL, pad = 0.2,
+  label.pad = 0.5, displaylabels = FALSE, boxed.labels = TRUE,
+  label.pos = 0, label.bg = "white", vertex.sides = 8,
+  vertex.rot = 0, arrowhead.cex = 1, label.cex = 1, loop.cex = 1,
+  vertex.cex = 1, edge.col = 1, label.col = 1, vertex.col = 2,
+  label.border = 1, vertex.border = 1, edge.lty = 1,
+  label.lty = NULL, vertex.lty = 1, edge.lwd = 0,
+  label.lwd = par("lwd"), edge.len = 0.5, edge.curve = 0.1,
+  edge.steps = 50, loop.steps = 20, object.scale = 0.01,
+  uselen = FALSE, usecurve = FALSE, suppress.axes = TRUE,
+  vertices.last = TRUE, new = TRUE, layout.par = NULL,
+  cex.main = par("cex.main"), cex.sub = par("cex.sub"), seed = NULL,
+  latent.control = list(maxit = 500, trace = 0, dyadsample = 10000,
+  penalty.sigma = c(5, 0.5), nsubsample = 200), colornames = "rainbow",
   verbose = FALSE, latent = FALSE, ...)
 
 ergm.getglobalstats(nw, m, response = NULL)
@@ -161,8 +165,6 @@ Use \code{\link[latentnet:plot.ergmm]{latentnet::plot.ergmm()}} instead.
 \item \code{ergm.update.formula}: Use \code{\link[statnet.common]{nonsimp_update.formula}} instead.
 
 \item \code{remove.offset.formula}: Use \code{\link[statnet.common:filter_rhs.formula]{statnet.common::filter_rhs.formula()}} such as \code{statnet.common::filter_rhs.formula(object, function(x) (if(is.call(x)) x[[1]] else x)!="offset")} instead.
-
-[[1]: R:[1
 
 \item \code{offset.info.formula}: \code{offset.info.formula} returns the offset
 vectors associated with a formula.

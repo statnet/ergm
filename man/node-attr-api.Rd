@@ -20,8 +20,8 @@
 \title{Helper functions for specifying nodal attribute levels}
 \format{An object of class \code{character} of length 1.}
 \usage{
-ergm_get_vattr(object, nw, accept = "character", bip = c("n", "b1", "b2"),
-  ...)
+ergm_get_vattr(object, nw, accept = "character", bip = c("n", "b1",
+  "b2"), ...)
 
 \method{ergm_get_vattr}{character}(object, nw, accept = "character",
   bip = c("n", "b1", "b2"), ...)
@@ -40,14 +40,14 @@ ergm_attr_levels(object, attr, nw, levels = sort(unique(attr)), ...)
 \method{ergm_attr_levels}{logical}(object, attr, nw,
   levels = sort(unique(attr)), ...)
 
-\method{ergm_attr_levels}{AsIs}(object, attr, nw, levels = sort(unique(attr)),
-  ...)
+\method{ergm_attr_levels}{AsIs}(object, attr, nw,
+  levels = sort(unique(attr)), ...)
 
 \method{ergm_attr_levels}{character}(object, attr, nw,
   levels = sort(unique(attr)), ...)
 
-\method{ergm_attr_levels}{NULL}(object, attr, nw, levels = sort(unique(attr)),
-  ...)
+\method{ergm_attr_levels}{NULL}(object, attr, nw,
+  levels = sort(unique(attr)), ...)
 
 \method{ergm_attr_levels}{function}(object, attr, nw,
   levels = sort(unique(attr)), ...)
