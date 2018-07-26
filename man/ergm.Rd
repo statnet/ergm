@@ -11,10 +11,11 @@
 \alias{vcov.ergm}
 \title{Exponential-Family Random Graph Models}
 \usage{
-ergm(formula, response = NULL, reference = ~Bernoulli, constraints = ~.,
-  obs.constraints = ~-observed, offset.coef = NULL, target.stats = NULL,
-  eval.loglik = getOption("ergm.eval.loglik"), estimate = c("MLE", "MPLE",
-  "CD"), control = control.ergm(), verbose = FALSE, ...)
+ergm(formula, response = NULL, reference = ~Bernoulli,
+  constraints = ~., obs.constraints = ~-observed, offset.coef = NULL,
+  target.stats = NULL, eval.loglik = getOption("ergm.eval.loglik"),
+  estimate = c("MLE", "MPLE", "CD"), control = control.ergm(),
+  verbose = FALSE, ...)
 
 is.ergm(object)
 
@@ -24,7 +25,8 @@ is.ergm(object)
 
 \method{coefficients}{ergm}(object, ...)
 
-\method{vcov}{ergm}(object, sources = c("all", "model", "estimation"), ...)
+\method{vcov}{ergm}(object, sources = c("all", "model", "estimation"),
+  ...)
 }
 \arguments{
 \item{formula}{{An \R \code{\link{formula}} object, of the form

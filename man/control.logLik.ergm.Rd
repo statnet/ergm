@@ -4,8 +4,9 @@
 \alias{control.logLik.ergm}
 \title{Auxiliary for Controlling logLik.ergm}
 \usage{
-control.logLik.ergm(nsteps = 20, MCMC.burnin = NULL, MCMC.interval = NULL,
-  MCMC.samplesize = NULL, obs.MCMC.samplesize = MCMC.samplesize,
+control.logLik.ergm(nsteps = 20, MCMC.burnin = NULL,
+  MCMC.interval = NULL, MCMC.samplesize = NULL,
+  obs.MCMC.samplesize = MCMC.samplesize,
   obs.MCMC.interval = MCMC.interval, obs.MCMC.burnin = MCMC.burnin,
   MCMC.prop.weights = NULL, MCMC.prop.args = NULL, warn.dyads = TRUE,
   MCMC.init.maxedges = NULL, MCMC.packagenames = NULL,

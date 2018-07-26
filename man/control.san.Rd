@@ -5,12 +5,12 @@
 \title{Auxiliary for Controlling SAN}
 \usage{
 control.san(coef = NULL, SAN.tau = 1, SAN.invcov = NULL,
-  SAN.burnin = 1e+05, SAN.interval = 10000, SAN.init.maxedges = 20000,
-  SAN.prop.weights = "default", SAN.prop.args = list(),
-  SAN.packagenames = c(), MPLE.max.dyad.types = 1e+06,
-  MPLE.samplesize = 50000, network.output = "network",
-  term.options = list(), seed = NULL, parallel = 0,
-  parallel.type = NULL, parallel.version.check = TRUE,
+  SAN.burnin = 1e+05, SAN.interval = 10000,
+  SAN.init.maxedges = 20000, SAN.prop.weights = "default",
+  SAN.prop.args = list(), SAN.packagenames = c(),
+  MPLE.max.dyad.types = 1e+06, MPLE.samplesize = 50000,
+  network.output = "network", term.options = list(), seed = NULL,
+  parallel = 0, parallel.type = NULL, parallel.version.check = TRUE,
   parallel.inherit.MT = FALSE)
 }
 \arguments{

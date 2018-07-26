@@ -38,9 +38,10 @@ ergm.mahalanobis(x, center, cov, inverted = FALSE, ...)
 
 \method{sociality}{network}(object, ..., statistics = NULL)
 
-\method{sociality}{formula}(formula, ..., init, nsim = 100, burnin = 100,
-  interval = 100, constraints = ~., prop.weights = "default",
-  prop.args = list(), seed = NULL, drop = FALSE, statistics = NULL)
+\method{sociality}{formula}(formula, ..., init, nsim = 100,
+  burnin = 100, interval = 100, constraints = ~.,
+  prop.weights = "default", prop.args = list(), seed = NULL,
+  drop = FALSE, statistics = NULL)
 
 \method{sociality}{ergm}(object, ..., nsim = 100, burnin = 100,
   interval = 100, constraints = NULL, prop.weights = "default",
