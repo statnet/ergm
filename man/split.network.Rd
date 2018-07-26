@@ -4,8 +4,8 @@
 \alias{split.network}
 \title{A \code{\link[=split]{split()}} method for \code{\link[network:network]{network::network}} objects.}
 \usage{
-\method{split}{network}(x, f, drop = FALSE, sep = ".", lex.order = FALSE,
-  ...)
+\method{split}{network}(x, f, drop = FALSE, sep = ".",
+  lex.order = FALSE, ...)
 }
 \arguments{
 \item{x}{a \code{\link[network:network]{network::network}} object.}

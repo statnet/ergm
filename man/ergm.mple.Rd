@@ -5,12 +5,12 @@
 \alias{ergm.pl}
 \title{Find a maximizer to the psuedolikelihood function}
 \usage{
-ergm.mple(nw, fd, m, init = NULL, MPLEtype = "glm", family = "binomial",
-  maxMPLEsamplesize = 1e+06, save.glm = TRUE, control = NULL,
-  verbose = FALSE, ...)
+ergm.mple(nw, fd, m, init = NULL, MPLEtype = "glm",
+  family = "binomial", maxMPLEsamplesize = 1e+06, save.glm = TRUE,
+  control = NULL, verbose = FALSE, ...)
 
-ergm.pl(nw, fd, m, theta.offset = NULL, maxMPLEsamplesize = 1e+06, control,
-  ignore.offset = FALSE, verbose = FALSE)
+ergm.pl(nw, fd, m, theta.offset = NULL, maxMPLEsamplesize = 1e+06,
+  control, ignore.offset = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{nw}{response network.}

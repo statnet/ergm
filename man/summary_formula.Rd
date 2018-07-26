@@ -20,7 +20,8 @@ summary_formula(object, ..., basis = NULL)
 \method{summary_formula}{network}(object, response = NULL, ...,
   basis = NULL)
 
-\method{summary_formula}{matrix}(object, response = NULL, ..., basis = NULL)
+\method{summary_formula}{matrix}(object, response = NULL, ...,
+  basis = NULL)
 
 \method{summary_formula}{default}(object, response = NULL, ...,
   basis = NULL)

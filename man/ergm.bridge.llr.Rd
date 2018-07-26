@@ -11,12 +11,12 @@ ergm.bridge.llr(object, response = NULL, reference = ~Bernoulli,
   target.stats = NULL, basis = NULL, verbose = FALSE, ...,
   llronly = FALSE, control = control.ergm.bridge())
 
-ergm.bridge.0.llk(object, response = NULL, reference = ~Bernoulli, coef,
-  ..., llkonly = TRUE, control = control.ergm.bridge())
+ergm.bridge.0.llk(object, response = NULL, reference = ~Bernoulli,
+  coef, ..., llkonly = TRUE, control = control.ergm.bridge())
 
-ergm.bridge.dindstart.llk(object, response = NULL, constraints = ~., coef,
-  obs.constraints = ~. - observed, target.stats = NULL, dind = NULL,
-  coef.dind = NULL, basis = NULL, ..., llkonly = TRUE,
+ergm.bridge.dindstart.llk(object, response = NULL, constraints = ~.,
+  coef, obs.constraints = ~. - observed, target.stats = NULL,
+  dind = NULL, coef.dind = NULL, basis = NULL, ..., llkonly = TRUE,
   control = control.ergm.bridge())
 }
 \arguments{

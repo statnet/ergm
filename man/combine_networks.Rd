@@ -7,8 +7,9 @@
 combine_networks(nwl, ignore.nattr = c("bipartite", "directed", "hyper",
   "loops", "mnext", "multiple", "n", ".subnetcache"), ignore.vattr = c(),
   ignore.eattr = c(), blockID.vattr = ".NetworkID",
-  blockName.vattr = NULL, detect.edgecov = FALSE, standardized = FALSE,
-  keep.unshared.attr = FALSE, subnet.cache = FALSE)
+  blockName.vattr = NULL, detect.edgecov = FALSE,
+  standardized = FALSE, keep.unshared.attr = FALSE,
+  subnet.cache = FALSE)
 }
 \arguments{
 \item{nwl}{a list of \code{\link[network:network]{network::network}}s to be combined; they

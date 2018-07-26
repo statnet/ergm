@@ -12,10 +12,11 @@ is.dyad.independent(object, ...)
 
 \method{is.dyad.independent}{NULL}(object, ...)
 
-\method{is.dyad.independent}{formula}(object, response = NULL, basis = NULL,
-  ...)
+\method{is.dyad.independent}{formula}(object, response = NULL,
+  basis = NULL, ...)
 
-\method{is.dyad.independent}{ergm_conlist}(object, object.obs = NULL, ...)
+\method{is.dyad.independent}{ergm_conlist}(object, object.obs = NULL,
+  ...)
 
 \method{is.dyad.independent}{ergm}(object, ...)
 }

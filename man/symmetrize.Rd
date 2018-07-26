@@ -8,11 +8,11 @@
 \usage{
 symmetrize(x, rule = c("weak", "strong", "upper", "lower"), ...)
 
-\method{symmetrize}{default}(x, rule = c("weak", "strong", "upper", "lower"),
-  ...)
+\method{symmetrize}{default}(x, rule = c("weak", "strong", "upper",
+  "lower"), ...)
 
-\method{symmetrize}{network}(x, rule = c("weak", "strong", "upper", "lower"),
-  ...)
+\method{symmetrize}{network}(x, rule = c("weak", "strong", "upper",
+  "lower"), ...)
 }
 \arguments{
 \item{x}{an object representing a network.}

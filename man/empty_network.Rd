@@ -4,8 +4,8 @@
 \alias{empty_network}
 \title{Create an empty copy of a network object}
 \usage{
-empty_network(nw, ignore.nattr = c("bipartite", "directed", "hyper", "loops",
-  "mnext", "multiple", "n"), ignore.vattr = c())
+empty_network(nw, ignore.nattr = c("bipartite", "directed", "hyper",
+  "loops", "mnext", "multiple", "n"), ignore.vattr = c())
 }
 \arguments{
 \item{nw}{a \code{\link{network}} object}

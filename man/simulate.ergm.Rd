@@ -12,12 +12,12 @@
   statsonly = FALSE, esteq = FALSE, sequential = TRUE,
   control = control.simulate.formula(), verbose = FALSE, ...)
 
-\method{simulate}{ergm}(object, nsim = 1, seed = NULL, coef = object$coef,
-  response = object$response, reference = object$reference,
-  constraints = list(object$constraints, object$obs.constraints),
-  observational = FALSE, monitor = NULL, statsonly = FALSE,
-  esteq = FALSE, sequential = TRUE, control = control.simulate.ergm(),
-  verbose = FALSE, ...)
+\method{simulate}{ergm}(object, nsim = 1, seed = NULL,
+  coef = object$coef, response = object$response,
+  reference = object$reference, constraints = list(object$constraints,
+  object$obs.constraints), observational = FALSE, monitor = NULL,
+  statsonly = FALSE, esteq = FALSE, sequential = TRUE,
+  control = control.simulate.ergm(), verbose = FALSE, ...)
 }
 \arguments{
 \item{object}{Either a \code{\link{formula}} or an
@@ -52,8 +52,7 @@ the \code{\link[=ergm-package]{ergm}} package.}
 \item{constraints}{A one-sided formula specifying one or more
 constraints on the support of the distribution of the networks
 being simulated. See the documentation for a similar argument for
-\code{\link{ergm}} and see \link[=ergm-constraints]{list of implemented
-constraints} for more information. For
+\code{\link{ergm}} and see \link[=ergm-constraints]{list of implementedconstraints} for more information. For
 \code{simulate.formula}, defaults to no constraints. For
 \code{simulate.ergm}, defaults to using the same constraints as
 those with which \code{object} was fitted.}
