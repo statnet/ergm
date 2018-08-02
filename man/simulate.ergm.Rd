@@ -142,10 +142,7 @@ More information can be found by looking at the documentation of
 \code{\link{ergm}}.
 }
 \note{
-\code{simulate.ergm()} is currently exported as a function. This
-behaviour has been deprecated in \code{ergm} 3.9 and will be removed
-in a future version. Simply use \code{simulate()} instead, or
-\code{\link[=getS3method]{getS3method()}} if absolutely necessary.
+\code{simulate.ergm()} and \code{simulate.formula() are currently exported as functions. This behaviour has been deprecated in}ergm\code{3.9 and will be removed in a future version. Simply use}simulate()` instead, or \code{\link[=getS3method]{getS3method()}} if absolutely necessary.
 }
 \examples{
 \dontshow{

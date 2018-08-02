@@ -172,7 +172,7 @@
 #' @name simulate.ergm
 #' @importFrom stats simulate
 #' @aliases simulate.formula.ergm
-#' @export
+#' @export simulate.formula
 simulate.formula <- function(object, nsim=1, seed=NULL,
                                coef, response=NULL, reference=~Bernoulli,
                                constraints=~.,
@@ -183,6 +183,11 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
                                sequential=TRUE,
                                control=control.simulate.formula(),
                              verbose=FALSE, ...) {
+  me <- sys.call(0)
+  parent <- sys.call(1)
+  if(me[[1]]=="simulate.formula" && parent[[1]]!="simulate")
+    .Deprecated(msg=paste0("You appear to be calling simulate.formula() directly. simulate.formula() is a method, and will not be exported in a future version of ", sQuote("ergm"),". Use simulate() instead, or getS3method() if absolutely necessary."))
+
   #' @importFrom statnet.common check.control.class
   check.control.class("simulate.formula", myname="ERGM simulate.formula")
   control.toplevel(...)
@@ -343,10 +348,10 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
 #'   constraints, and most simulation parameters from the model fit,
 #'   unless overridden by passing them explicitly.
 #'
-#' @note `simulate.ergm()` is currently exported as a function. This
-#'   behaviour has been deprecated in `ergm` 3.9 and will be removed
-#'   in a future version. Simply use `simulate()` instead, or
-#'   [getS3method()] if absolutely necessary.
+#' @note `simulate.ergm()` and `simulate.formula() are currently
+#'   exported as functions. This behaviour has been deprecated in
+#'   `ergm` 3.9 and will be removed in a future version. Simply use
+#'   `simulate()` instead, or [getS3method()] if absolutely necessary.
 #'
 #' 
 #' @export simulate.ergm
