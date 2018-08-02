@@ -164,3 +164,7 @@ summary.statistics <- function(...){
   .Deprecated("summary_formula()")
   summary_formula(...)
 }
+
+#' @rdname ergm-deprecated
+#' @export summary.statistics.formula
+summary.statistics.formula <- summary.statistics

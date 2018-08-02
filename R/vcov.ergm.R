@@ -18,8 +18,11 @@
 #' }
 #' @import stats
 #' @importFrom stats coef
-#' @export
-coef.ergm <- function(object, ...){object$coef}
+#' @export coef.ergm
+coef.ergm <- function(object, ...){
+  .dep_method("coef","ergm")
+  object$coef
+}
 
 #' @describeIn ergm An \emph{alias} for
 #'   \code{ergm}.
