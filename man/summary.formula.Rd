@@ -35,6 +35,12 @@ class of the LHS of the formula.
 \code{summary.formula} for networks understands the
 \code{\link{lasttoggle}} "API".
 }
+\note{
+\code{summary.formula()} is currently exported as a function. This
+behaviour has been deprecated in \code{ergm} 3.9 and will be removed
+in a future version. Simply use \code{summary()} instead, or
+\code{\link[=getS3method]{getS3method()}} if absolutely necessary.
+}
 \examples{
 
 #

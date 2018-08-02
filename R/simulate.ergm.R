@@ -342,8 +342,14 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
 #'   the coefficients, the response attribute, the reference, the
 #'   constraints, and most simulation parameters from the model fit,
 #'   unless overridden by passing them explicitly.
+#'
+#' @note `simulate.ergm()` is currently exported as a function. This
+#'   behaviour has been deprecated in `ergm` 3.9 and will be removed
+#'   in a future version. Simply use `simulate()` instead, or
+#'   [getS3method()] if absolutely necessary.
+#'
 #' 
-#' @export
+#' @export simulate.ergm
 simulate.ergm <- function(object, nsim=1, seed=NULL, 
                           coef=object$coef,
                           response=object$response,
@@ -355,6 +361,11 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           sequential=TRUE,
                           control=control.simulate.ergm(),
                           verbose=FALSE, ...) {
+  me <- sys.call(0)
+  parent <- sys.call(1)
+  if(me[[1]]=="simulate.ergm" && parent[[1]]!="simulate")
+    .Deprecated(msg=paste0("You appear to be calling simulate.ergm() directly. simulate.ergm() is a method, and will not be exported in a future version of ", sQuote("ergm"),". Use simulate() instead, or getS3method() if absolutely necessary."))
+
   check.control.class(c("simulate.ergm","simulate.formula"), "simulate.ergm")
   control.toplevel(...)
   control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges","parallel","parallel.type","parallel.version.check","term.options")

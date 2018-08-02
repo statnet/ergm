@@ -29,7 +29,7 @@ Description: An integrated set of tools to analyze and simulate networks based o
 License: GPL-3 + file LICENSE
 URL: http://statnet.org
 VignetteBuilder: rmarkdown, knitr
-RoxygenNote: 6.0.1.9000
+RoxygenNote: 6.1.0
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
 Collate: 
