@@ -124,7 +124,7 @@ gof.ergm <- function (object, ...,
                       constraints=NULL,
                       control=control.gof.ergm(),
                       verbose=FALSE) {
-  .dep.method("gof","ergm")
+  .dep_method("gof","ergm")
 
   check.control.class(c("gof.ergm","gof.formula"), "gof.ergm")
   control.toplevel(...)
@@ -173,7 +173,7 @@ gof.formula <- function(object, ...,
                         control=NULL,
 			unconditional=TRUE,
                         verbose=FALSE) {
-  .dep.method("gof","formula")
+  .dep_method("gof","formula")
 
   if("response" %in% names(list(...))) stop("GoF for valued ERGMs is not implemented at this time.")
 
