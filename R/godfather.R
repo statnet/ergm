@@ -59,7 +59,12 @@
 #'   [simulate.formula()]
 #' @examples
 #' data(florentine)
-#' ergm.godfather(flomarriage~edges+absdiff("wealth")+triangles, changes=list(cbind(1:2,2:3),cbind(3,5),cbind(3,5),cbind(1:2,2:3)),stats.start=TRUE)
+#' ergm.godfather(flomarriage~edges+absdiff("wealth")+triangles,
+#'                changes=list(cbind(1:2,2:3),
+#'                             cbind(3,5),
+#'                             cbind(3,5),
+#'                             cbind(1:2,2:3)),
+#'                stats.start=TRUE)
 #' @export ergm.godfather
 ergm.godfather <- function(formula, changes=NULL, response=NULL,
                            end.network=FALSE,
