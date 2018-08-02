@@ -68,6 +68,7 @@ summary.formula <- function(object, ...){
   parent <- sys.call(1)
   if(me[[1]]=="summary.formula" && parent[[1]]!="summary")
     .Deprecated(msg=paste0("You appear to be calling summary.formula() directly. summary.formula() is a method, and will not be exported in a future version of ", sQuote("ergm"),". Use summary() instead, or getS3method() if absolutely necessary."))
+
   summary_formula(object, ...)
 }
 

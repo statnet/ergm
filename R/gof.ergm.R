@@ -117,13 +117,23 @@ gof.default <- function(object,...) {
 #' question is directed, \dQuote{degree} in the above is replaced by idegree
 #' and odegree.
 #'
-#' @export
+#' @note `gof.ergm()` is currently exported as a function. This
+#'   behaviour has been deprecated in `ergm` 3.9 and will be removed
+#'   in a future version. Simply use `gof()` instead, or
+#'   [getS3method()] if absolutely necessary.
+#' 
+#' @export gof.ergm
 gof.ergm <- function (object, ..., 
                       coef=NULL,
                       GOF=NULL, 
                       constraints=NULL,
                       control=control.gof.ergm(),
                       verbose=FALSE) {
+  me <- sys.call(0)
+  parent <- sys.call(1)
+  if(me[[1]]=="gof.ergm" && parent[[1]]!="gof")
+    .Deprecated(msg=paste0("You appear to be calling gof.ergm() directly. gof.ergm() is a method, and will not be exported in a future version of ", sQuote("ergm"),". Use gof() instead, or getS3method() if absolutely necessary."))
+
   check.control.class(c("gof.ergm","gof.formula"), "gof.ergm")
   control.toplevel(...)
   .gof.nw <- as.network(object$network)
