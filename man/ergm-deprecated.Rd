@@ -121,7 +121,7 @@ offset.info.formula(object, response = NULL, ...)
 
 ergm.getglobalstats(nw, m, response = NULL)
 
-summary.statistics(...)
+summary.statistics(object, ...)
 
 \method{summary}{statistics.formula}(object, ...)
 }

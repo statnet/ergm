@@ -159,7 +159,7 @@ summary_formula.default <- summary_formula.network
 
 #' @rdname ergm-deprecated
 #' @description [summary.statistics()] is a deprecated name of [summary_formula()].
-#' @usage summary.statistics(...)
+#' @usage summary.statistics(object, ...)
 #' @export summary.statistics
 summary.statistics <- function(object, ...){
   .Deprecated("summary_formula()")
