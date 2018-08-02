@@ -59,7 +59,12 @@ statistics of the network, and, optionally, the final network.
 }
 \examples{
 data(florentine)
-ergm.godfather(flomarriage~edges+absdiff("wealth")+triangles, changes=list(cbind(1:2,2:3),cbind(3,5),cbind(3,5),cbind(1:2,2:3)),stats.start=TRUE)
+ergm.godfather(flomarriage~edges+absdiff("wealth")+triangles,
+               changes=list(cbind(1:2,2:3),
+                            cbind(3,5),
+                            cbind(3,5),
+                            cbind(1:2,2:3)),
+               stats.start=TRUE)
 }
 \seealso{
 \code{\link[tergm:tergm.godfather]{tergm::tergm.godfather()}}, \code{\link[=simulate.ergm]{simulate.ergm()}},
