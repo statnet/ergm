@@ -89,11 +89,13 @@
 #'  x <- ergm(flomarriage ~ density)
 #'  summary(x)
 #' 
-#' @export
+#' @export summary.ergm
 summary.ergm <- function (object, ..., 
                           correlation=FALSE, covariance=FALSE,
                           total.variation=TRUE)
 {
+  .dep_method("summary","ergm")
+  
   if("digits" %in% names(list(...))) warn("summary.ergm() no lnger takes a digits= argument.")
   control <- object$control
   pseudolikelihood <- object$estimate=="MPLE"

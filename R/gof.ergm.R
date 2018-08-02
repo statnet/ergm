@@ -117,11 +117,6 @@ gof.default <- function(object,...) {
 #' question is directed, \dQuote{degree} in the above is replaced by idegree
 #' and odegree.
 #'
-#' @note `gof.ergm()` is currently exported as a function. This
-#'   behaviour has been deprecated in `ergm` 3.9 and will be removed
-#'   in a future version. Simply use `gof()` instead, or
-#'   [getS3method()] if absolutely necessary.
-#' 
 #' @export gof.ergm
 gof.ergm <- function (object, ..., 
                       coef=NULL,
@@ -129,10 +124,7 @@ gof.ergm <- function (object, ...,
                       constraints=NULL,
                       control=control.gof.ergm(),
                       verbose=FALSE) {
-  me <- sys.call(0)
-  parent <- sys.call(1)
-  if(me[[1]]=="gof.ergm" && parent[[1]]!="gof")
-    .Deprecated(msg=paste0("You appear to be calling gof.ergm() directly. gof.ergm() is a method, and will not be exported in a future version of ", sQuote("ergm"),". Use gof() instead, or getS3method() if absolutely necessary."))
+  .dep.method("gof","ergm")
 
   check.control.class(c("gof.ergm","gof.formula"), "gof.ergm")
   control.toplevel(...)
@@ -160,11 +152,11 @@ gof.ergm <- function (object, ...,
   
   if(is.null(constraints)) constraints <- object$constraints
   
-  gof.formula(object=formula, coef=coef,
-              GOF=GOF,
-              constraints=constraints,
-              control=control,
-              verbose=verbose, ...)
+  gof(object=formula, coef=coef,
+      GOF=GOF,
+      constraints=constraints,
+      control=control,
+      verbose=verbose, ...)
 }
 
 
@@ -173,7 +165,7 @@ gof.ergm <- function (object, ...,
 #'   a model configuration specified by a [`formula`], coefficient,
 #'   constraints, and other settings.
 #' 
-#' @export
+#' @export gof.formula
 gof.formula <- function(object, ..., 
                         coef=NULL,
                         GOF=NULL,
@@ -181,6 +173,8 @@ gof.formula <- function(object, ...,
                         control=NULL,
 			unconditional=TRUE,
                         verbose=FALSE) {
+  .dep.method("gof","formula")
+
   if("response" %in% names(list(...))) stop("GoF for valued ERGMs is not implemented at this time.")
 
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}

@@ -134,11 +134,6 @@ directedness of the network involved; if undirected then degree, espartners,
 and distance are used as default properties to examine.  If the network in
 question is directed, \dQuote{degree} in the above is replaced by idegree
 and odegree.
-
-\code{gof.ergm()} is currently exported as a function. This
-behaviour has been deprecated in \code{ergm} 3.9 and will be removed
-in a future version. Simply use \code{gof()} instead, or
-\code{\link[=getS3method]{getS3method()}} if absolutely necessary.
 }
 \examples{
 

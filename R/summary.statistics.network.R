@@ -33,11 +33,6 @@
 #' \code{summary.formula} for networks understands the
 #' \code{\link{lasttoggle}} "API".
 #'
-#' @note `summary.formula()` is currently exported as a function. This
-#'   behaviour has been deprecated in `ergm` 3.9 and will be removed
-#'   in a future version. Simply use `summary()` instead, or
-#'   [getS3method()] if absolutely necessary.
-#'
 #' @aliases summary
 #' @param object A formula having as its LHS a
 #'   \code{\link[network]{network}} object or a matrix that can be
@@ -64,11 +59,7 @@
 #'
 #' @export summary.formula
 summary.formula <- function(object, ...){
-  me <- sys.call(0)
-  parent <- sys.call(1)
-  if(me[[1]]=="summary.formula" && parent[[1]]!="summary")
-    .Deprecated(msg=paste0("You appear to be calling summary.formula() directly. summary.formula() is a method, and will not be exported in a future version of ", sQuote("ergm"),". Use summary() instead, or getS3method() if absolutely necessary."))
-
+  .dep_method("summary","formula")
   summary_formula(object, ...)
 }
 

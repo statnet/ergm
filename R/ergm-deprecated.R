@@ -38,3 +38,12 @@ lapply.mcmc.list <- function(...){
   .Deprecated("statnet.common::lapply.mcmc.list()")
   statnet.common::lapply.mcmc.list(...)
 }
+
+.dep_method <- function(generic, class){
+  fullname <- paste(generic,class,sep=".")
+  me <- sys.call(1)
+  parent <- sys.call(2)
+  if(me[[1]]==fullname && parent[[1]]!=generic)
+    .Deprecated(msg=paste0("You appear to be calling ", fullname,"() directly.", fullname,"() is a method, and will not be exported in a future version of ", sQuote("ergm"),". Use ", generic, "() instead, or getS3method() if absolutely necessary."))
+
+}

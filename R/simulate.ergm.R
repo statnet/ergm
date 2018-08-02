@@ -183,11 +183,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
                                sequential=TRUE,
                                control=control.simulate.formula(),
                              verbose=FALSE, ...) {
-  me <- sys.call(0)
-  parent <- sys.call(1)
-  if(me[[1]]=="simulate.formula" && parent[[1]]!="simulate")
-    .Deprecated(msg=paste0("You appear to be calling simulate.formula() directly. simulate.formula() is a method, and will not be exported in a future version of ", sQuote("ergm"),". Use simulate() instead, or getS3method() if absolutely necessary."))
-
+  .dep_method("simulate","formula")
+  
   #' @importFrom statnet.common check.control.class
   check.control.class("simulate.formula", myname="ERGM simulate.formula")
   control.toplevel(...)
@@ -366,11 +363,8 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           sequential=TRUE,
                           control=control.simulate.ergm(),
                           verbose=FALSE, ...) {
-  me <- sys.call(0)
-  parent <- sys.call(1)
-  if(me[[1]]=="simulate.ergm" && parent[[1]]!="simulate")
-    .Deprecated(msg=paste0("You appear to be calling simulate.ergm() directly. simulate.ergm() is a method, and will not be exported in a future version of ", sQuote("ergm"),". Use simulate() instead, or getS3method() if absolutely necessary."))
-
+  .dep_method("simulate","ergm")
+  
   check.control.class(c("simulate.ergm","simulate.formula"), "simulate.ergm")
   control.toplevel(...)
   control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges","parallel","parallel.type","parallel.version.check","term.options")
