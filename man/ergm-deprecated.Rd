@@ -6,6 +6,9 @@
 %   R/summary.ergm_model.R, R/summary.statistics.network.R
 \name{ergm-deprecated}
 \alias{ergm-deprecated}
+\alias{colMeans.mcmc.list}
+\alias{sweep.mcmc.list}
+\alias{lapply.mcmc.list}
 \alias{InitErgmTerm.degreepopularity}
 \alias{InitErgmTerm.idegreepopularity}
 \alias{InitErgmTerm.odegreepopularity}
@@ -34,6 +37,12 @@
 \alias{summary.statistics}
 \title{Functions that will no longer be supported in future releases of the package}
 \usage{
+colMeans.mcmc.list(...)
+
+sweep.mcmc.list(...)
+
+lapply.mcmc.list(...)
+
 InitErgmTerm.degreepopularity(nw, arglist, ...)
 
 InitErgmTerm.idegreepopularity(nw, arglist, ...)

@@ -17,3 +17,24 @@
 #' Arguments to deprecated functions.
 #' @keywords misc
 NULL
+
+#' @rdname ergm-deprecated
+#' @export colMeans.mcmc.list
+colMeans.mcmc.list <- function(...){
+  .Deprecated("statnet.common::colMeans.mcmc.list()")
+  statnet.common::colMeans.mcmc.list(...)
+}
+
+#' @rdname ergm-deprecated
+#' @export sweep.mcmc.list
+sweep.mcmc.list <- function(...){
+  .Deprecated("statnet.common::sweep.mcmc.list()")
+  statnet.common::sweep.mcmc.list(...)
+}
+
+#' @rdname ergm-deprecated
+#' @export lapply.mcmc.list
+lapply.mcmc.list <- function(...){
+  .Deprecated("statnet.common::lapply.mcmc.list()")
+  statnet.common::lapply.mcmc.list(...)
+}
