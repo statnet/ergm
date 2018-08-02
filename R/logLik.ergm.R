@@ -73,8 +73,9 @@
 #' logLikNull(gest) # == network.dyadcount(flomarriage)*log(1/2)
 #' }
 #' 
-#' @export
+#' @export logLik.ergm
 logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || force.reeval, control=control.logLik.ergm(), ...){
+  .dep_method("logLik","ergm")
 
   if(!force.reeval && !is.null(object$mle.lik)) return(object$mle.lik)
 
