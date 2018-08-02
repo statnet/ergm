@@ -9,6 +9,7 @@
 \alias{colMeans.mcmc.list}
 \alias{sweep.mcmc.list}
 \alias{lapply.mcmc.list}
+\alias{get.miss.dyads}
 \alias{InitErgmTerm.degreepopularity}
 \alias{InitErgmTerm.idegreepopularity}
 \alias{InitErgmTerm.odegreepopularity}
@@ -43,6 +44,8 @@ colMeans.mcmc.list(...)
 sweep.mcmc.list(...)
 
 lapply.mcmc.list(...)
+
+get.miss.dyads(constraints, constraints.obs)
 
 InitErgmTerm.degreepopularity(nw, arglist, ...)
 

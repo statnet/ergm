@@ -47,3 +47,11 @@ lapply.mcmc.list <- function(...){
     .Deprecated(msg=paste0("You appear to be calling ", fullname,"() directly.", fullname,"() is a method, and will not be exported in a future version of ", sQuote("ergm"),". Use ", generic, "() instead, or getS3method() if absolutely necessary."))
 
 }
+
+#' @rdname ergm-deprecated
+#' @export get.miss.dyads
+get.miss.dyads <- function(constraints, constraints.obs){
+  .Deprecated("as.rlebdm() ergm_conlist method")
+  # Returns an network indicating which dyads are missing.
+  as.network(as.edgelist(as.rlebdm(constraints, constraints.obs=constraints.obs, which="missing")), matrix.type="edgelist",directed=TRUE)
+}
