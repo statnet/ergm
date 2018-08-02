@@ -88,7 +88,8 @@
 #' 
 #'  x <- ergm(flomarriage ~ density)
 #'  summary(x)
-#' 
+#'
+#' @S3method summary ergm
 #' @export summary.ergm
 summary.ergm <- function (object, ..., 
                           correlation=FALSE, covariance=FALSE,

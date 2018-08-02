@@ -172,6 +172,7 @@
 #' @name simulate.ergm
 #' @importFrom stats simulate
 #' @aliases simulate.formula.ergm
+#' @S3method simulate formula
 #' @export simulate.formula
 simulate.formula <- function(object, nsim=1, seed=NULL,
                                coef, response=NULL, reference=~Bernoulli,
@@ -350,7 +351,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
 #'   `ergm` 3.9 and will be removed in a future version. Simply use
 #'   `simulate()` instead, or [getS3method()] if absolutely necessary.
 #'
-#' 
+#' @S3method simulate ergm
 #' @export simulate.ergm
 simulate.ergm <- function(object, nsim=1, seed=NULL, 
                           coef=object$coef,

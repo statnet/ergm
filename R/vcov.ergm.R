@@ -18,6 +18,7 @@
 #' }
 #' @import stats
 #' @importFrom stats coef
+#' @S3method coef ergm
 #' @export coef.ergm
 coef.ergm <- function(object, ...){
   .dep_method("coef","ergm")

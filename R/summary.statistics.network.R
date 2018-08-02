@@ -57,6 +57,7 @@
 #' summary(m ~ edges)  # twice as large as it should be
 #' summary(m ~ edges, directed=FALSE) # Now it's correct
 #'
+#' @S3method summary formula
 #' @export summary.formula
 summary.formula <- function(object, ...){
   .dep_method("summary","formula")

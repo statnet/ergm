@@ -117,6 +117,7 @@ gof.default <- function(object,...) {
 #' question is directed, \dQuote{degree} in the above is replaced by idegree
 #' and odegree.
 #'
+#' @S3method gof ergm
 #' @export gof.ergm
 gof.ergm <- function (object, ..., 
                       coef=NULL,
@@ -164,7 +165,8 @@ gof.ergm <- function (object, ...,
 #' @describeIn gof Perform simulation to evaluate goodness-of-fit for
 #'   a model configuration specified by a [`formula`], coefficient,
 #'   constraints, and other settings.
-#' 
+#'
+#' @S3method gof formula
 #' @export gof.formula
 gof.formula <- function(object, ..., 
                         coef=NULL,

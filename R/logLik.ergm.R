@@ -72,7 +72,8 @@
 #' # Null model likelihood can also be evaluated, but not for all constraints:
 #' logLikNull(gest) # == network.dyadcount(flomarriage)*log(1/2)
 #' }
-#' 
+#'
+#' @S3method logLik ergm
 #' @export logLik.ergm
 logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || force.reeval, control=control.logLik.ergm(), ...){
   .dep_method("logLik","ergm")
