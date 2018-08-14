@@ -773,7 +773,7 @@ ergm <- function(formula, response=NULL,
     if(eval.loglik) initialfit$null.lik <- logLikNull.ergm(initialfit, verbose=verbose)
     if(any(!model.initial$etamap$offsettheta) && eval.loglik){
       message("Evaluating log-likelihood at the estimate. ",appendLF=FALSE)
-      initialfit<-logLik.ergm(initialfit, add=TRUE, control=control$loglik.control, verbose=verbose)
+      initialfit<-logLik(initialfit, add=TRUE, control=control$loglik.control, verbose=verbose)
       message("")
     }
     return(initialfit)
@@ -887,7 +887,7 @@ ergm <- function(formula, response=NULL,
   
   if(eval.loglik){
     message("Evaluating log-likelihood at the estimate. ", appendLF=FALSE)
-    mainfit<-logLik.ergm(mainfit, add=TRUE, control=control$loglik.control, verbose=verbose)
+    mainfit<-logLik(mainfit, add=TRUE, control=control$loglik.control, verbose=verbose)
   }
   
   # done with parallel cluster
