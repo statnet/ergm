@@ -162,11 +162,14 @@ summary_formula.default <- summary_formula.network
 #' @usage summary.statistics(object, ...)
 #' @export summary.statistics
 summary.statistics <- function(object, ...){
-  .Deprecated("summary_formula()")
-  summary_formula(...)
+  .dep_once("summary_formula()")
+  summary_formula(object, ...)
 }
 
 #' @rdname ergm-deprecated
-#' @S3method summary.statistics formula
 #' @export summary.statistics.formula
 summary.statistics.formula <- summary.statistics
+
+#' @rdname ergm-deprecated
+#' @export summary.statistics.network
+summary.statistics.network <- summary.statistics

@@ -41,6 +41,23 @@ ergm.Cprepare <- function(nw, m, response=NULL){
 }
 
 
+#' @rdname ergm-deprecated
+#' 
+#' @description \code{ergm.Cprepare.el} has been replaced by [to_ergm_Cdouble.matrix()]
+#' 
+#' @export ergm.Cprepare.el
+ergm.Cprepare.el<-function(x, attrname=NULL, prototype=NULL){
+  .dep_once("to_ergm_Cdouble() matrix method")
+  xm <- if(is.network(x)) as.edgelist(x, attrname=attrname)
+        else if(!is.null(prototype)) as.edgelist.matrix(x, n=network.size(prototype), directed=is.directed(prototype),
+                                                        bipartite=if(is.bipartite(prototype)) prototype%n%"bipartite" else 0,
+                                                        loops=has.loops(prototype))
+        else x[order(x[,1],x[,2]),,drop=FALSE]
+                                                        
+  c(nrow(xm),c(xm))
+}
+
+
 #' @describeIn ergm_Clist
 #'
 #' Collates a [`network`] object.

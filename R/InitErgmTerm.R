@@ -1229,7 +1229,7 @@ InitErgmTerm.degree1.5<-function (nw, arglist, ...) {
 #' @include ergm-deprecated.R
 #' @describeIn ergm-deprecated Use [`degree1.5`] instead.
 InitErgmTerm.degreepopularity<-function (nw, arglist, ...) {
-  .Deprecated("degree1.5")
+  .dep_once("degree1.5")
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
                       varnames = NULL,
                       vartypes = NULL,
@@ -2124,7 +2124,7 @@ InitErgmTerm.idegree1.5<-function (nw, arglist, ...) {
 ################################################################################
 #' @describeIn ergm-deprecated Use [`idegree1.5`] instead.
 InitErgmTerm.idegreepopularity<-function (nw, arglist, ...) {
-  .Deprecated("idegree1.5")
+  .dep_once("idegree1.5")
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = NULL,
                       vartypes = NULL,
@@ -2943,7 +2943,7 @@ InitErgmTerm.odegree1.5<-function (nw, arglist, ...) {
 ################################################################################
 #' @describeIn ergm-deprecated Use [`odegree1.5`] instead.
 InitErgmTerm.odegreepopularity<-function (nw, arglist, ...) {
-  .Deprecated("odegree1.5")
+  .dep_once("odegree1.5")
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = NULL,
                       vartypes = NULL,

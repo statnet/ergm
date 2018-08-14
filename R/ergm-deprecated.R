@@ -21,37 +21,51 @@ NULL
 #' @rdname ergm-deprecated
 #' @export colMeans.mcmc.list
 colMeans.mcmc.list <- function(...){
-  .Deprecated("statnet.common::colMeans.mcmc.list()")
+  .dep_once("statnet.common::colMeans.mcmc.list()")
   statnet.common::colMeans.mcmc.list(...)
 }
 
 #' @rdname ergm-deprecated
 #' @export sweep.mcmc.list
 sweep.mcmc.list <- function(...){
-  .Deprecated("statnet.common::sweep.mcmc.list()")
+  .dep_once("statnet.common::sweep.mcmc.list()")
   statnet.common::sweep.mcmc.list(...)
 }
 
-#' @rdname ergm-deprecated
-#' @export lapply.mcmc.list
-lapply.mcmc.list <- function(...){
-  .Deprecated("statnet.common::lapply.mcmc.list()")
-  statnet.common::lapply.mcmc.list(...)
-}
+.dep_method <- local({
+  warned <- c()
+  function(generic, class){
+    fullname <- paste(generic,class,sep=".")
+    if(! fullname%in%warned){
+      me <- sys.call(-1)
+      parent <- sys.call(-2)
+      if(me[[1]]==fullname && NVL(parent[[1]],"")!=generic){
+        do.call(".Deprecated", list(msg=paste0("You appear to be calling ", fullname,"() directly. ", fullname,"() is a method, and will not be exported in a future version of ", sQuote("ergm"),". Use ", generic, "() instead, or getS3method() if absolutely necessary."), old=fullname))
+        warned <<- c(warned, fullname)
+      }
+    }
+  }
+})
 
-.dep_method <- function(generic, class){
-  fullname <- paste(generic,class,sep=".")
-  me <- sys.call(1)
-  parent <- sys.call(2)
-  if(me[[1]]==fullname && parent[[1]]!=generic)
-    .Deprecated(msg=paste0("You appear to be calling ", fullname,"() directly.", fullname,"() is a method, and will not be exported in a future version of ", sQuote("ergm"),". Use ", generic, "() instead, or getS3method() if absolutely necessary."))
-
-}
+# Only evaluate deprecation warning once per function.
+.dep_once <- local({
+  warned <- c()
+  function(...){
+    me <- sys.call(-1)
+    myname <- as.character(me[[1]])
+    if(! myname%in%warned){
+      do.call(".Deprecated", modifyList(list(old=myname),list(...)))
+      warned <<- c(warned, myname)
+    }
+  }
+})
 
 #' @rdname ergm-deprecated
 #' @export get.miss.dyads
 get.miss.dyads <- function(constraints, constraints.obs){
-  .Deprecated("as.rlebdm() ergm_conlist method")
+  .dep_once("as.rlebdm() ergm_conlist method")
   # Returns an network indicating which dyads are missing.
-  as.network(as.edgelist(as.rlebdm(constraints, constraints.obs=constraints.obs, which="missing")), matrix.type="edgelist",directed=TRUE)
+  NVL3(as.rlebdm(constraints, constraints.obs=constraints.obs, which="missing"),
+       as.network(as.edgelist(.), matrix.type="edgelist",directed=TRUE),
+       network.initialize(2))
 }

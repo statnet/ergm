@@ -68,7 +68,7 @@
                penalty.sigma=c(5,0.5), nsubsample=200),
     colornames="rainbow",
     verbose=FALSE, latent=FALSE, ...){
-  .Deprecated("latentnet::plot.ergmm()")
+  .dep_once("latentnet::plot.ergmm()")
 #
    #Extract the network to be displayed
    if(is.hyper(x)){    #Is this a hypergraph?  If so, use two-mode form.

@@ -66,3 +66,11 @@ nparam.ergm <- function(object, offset=NA, ...){
   else if(offset) sum(object$etamap$offsettheta)
   else if(!offset) sum(!object$etamap$offsettheta)
 }
+
+#' @rdname ergm-deprecated
+#' @description [coef.length.model()] has been replaced by the generic [nparam()].
+#' @export coef.length.model
+coef.length.model <- function(...){
+  .dep_once("nparam")
+  nparam(...)
+}

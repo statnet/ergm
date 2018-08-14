@@ -13,7 +13,7 @@
 #' @export ergm.getMCMCsample
 ergm.getMCMCsample <- function(nw, model, proposal, eta0, control, 
                                verbose=FALSE, response=NULL, update.nws = TRUE,...) {
-  .Deprecated("ergm_MCMC_sample")
+  .dep_once("ergm_MCMC_sample")
   out <- ergm_MCMC_sample(nw, model, proposal, eta=eta0, control=control, verbose=verbose, response=response, update.nws=update.nws, theta=list(...)$theta, ...)
   
   out$newnetworks<-out$networks
@@ -236,7 +236,7 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
 #' @describeIn ergm-deprecated Use [ergm_MCMC_slave()] instead.
 #' @export ergm.mcmcslave
 ergm.mcmcslave <- function(Clist,proposal,eta0,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL){
-  .Deprecated("ergm_MCMC_slave")
+  .dep_once("ergm_MCMC_slave")
   ergm_MCMC_slave(Clist,proposal,eta0,control,verbose,...,prev.run=prev.run, burnin=burnin, samplesize=samplesize, interval=interval, maxedges=maxedges)
 }
 

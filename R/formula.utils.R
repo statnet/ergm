@@ -316,7 +316,7 @@ unset.offset.formula <- function(object, which=TRUE, response=NULL, ...){
 #' @describeIn ergm-deprecated Use \code{\link[statnet.common]{nonsimp_update.formula}} instead.
 #' @export ergm.update.formula
 ergm.update.formula <- function(object, new, ..., from.new=FALSE){
-  .Deprecated("statnet.common::nonsimp_update.formula")
+  .dep_once("statnet.common::nonsimp_update.formula")
   nonsimp_update.formula(object, new, ..., from.new=from.new)
 }
 
@@ -324,7 +324,7 @@ ergm.update.formula <- function(object, new, ..., from.new=FALSE){
 #' @describeIn ergm-deprecated Use [statnet.common::filter_rhs.formula()] such as `statnet.common::filter_rhs.formula(object, function(x) (if(is.call(x)) x[[1]] else x)!="offset")` instead.
 #' @export remove.offset.formula
 remove.offset.formula <- function(object, response=NULL){
-  .Deprecated("statnet.common::filter_rhs.formula")
+  .dep_once("statnet.common::filter_rhs.formula")
   terms <- list_rhs.formula(object)
   for(i in rev(seq_along(terms)))
     if(inherits(terms[[i]],"call") && terms[[i]][[1]]=="offset") # Is the term an offset?

@@ -217,7 +217,7 @@ summary.ergm <- function (object, ...,
     ans$null.lik <- ERRVL(null.lik, NA)
   }else ans$objname<-deparse(substitute(object))
 
-  ans$coefs <- as.data.frame(coefmat)
+  ans$coefs <- as.data.frame(coefmat[,-4])
   ans$coefficients <- as.data.frame(coefmat)
   ans$asycov <- asycov
   ans$asyse <- asyse

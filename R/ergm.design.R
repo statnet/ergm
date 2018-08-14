@@ -42,8 +42,16 @@
 #'   informative (non-missing, non fixed) dyads.
 #' @export ergm.design
 ergm.design <- function(nw, model=NULL, verbose=FALSE){
-  if(!is.null(model)) .Deprecated(msg="Argument model= to ergm.design() is no longer used and will be removed in a future release.")
+  if(!is.null(model)) .dep_once(msg="Argument model= to ergm.design() is no longer used and will be removed in a future release.")
   basecon <- ergm_conlist(~.attributes, nw)
   misscon <- if(network.naedgecount(nw)) ergm_conlist(~.attributes+observed, nw)
   as.rlebdm(basecon, misscon, which="informative")
+}
+
+#' @rdname ergm-deprecated
+#' @description \code{ergm.Cprepare.miss} has been deprecated in favor of \code{\link{to_ergm_Cdouble}(is.na(nw))} or the [`rlebdm`]-based representations.
+#' @export ergm.Cprepare.miss
+ergm.Cprepare.miss <- function(nw){
+  .dep_once("to_ergm_Cdouble(is.na(nw))")
+  ergm.Cprepare.el(is.na(nw))
 }

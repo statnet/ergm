@@ -65,7 +65,7 @@ ergm_proposal_table <- local({
 #' @describeIn ergm-deprecated Deprecated name for [ergm_proposal_table()].
 #' @export ergm.MHP.table
 ergm.MHP.table <- function(...){
-  .Deprecated("ergm_proposal_table()")
+  .dep_once("ergm_proposal_table()")
   ergm_proposal_table(...)
 }
 
@@ -188,7 +188,7 @@ ergm_proposal.character <- function(object, arguments, nw, ..., response=NULL, r
     silent=TRUE
   )
   if(!is(f, "try-error")){
-    .Deprecated(msg="InitWtMHP and InitMHP convention has been replaced by InitWtErgm and InitErgm, respectively.")
+    .dep_once(msg="InitWtMHP and InitMHP convention has been replaced by InitWtErgm and InitErgm, respectively.")
   }else f <- locate.InitFunction(name, NVL2(response, "InitWtErgmProposal", "InitErgmProposal"), "Metropolis-Hastings proposal")
 
   proposal <- NVL3(response,
@@ -256,7 +256,7 @@ ergm_conlist <- function(object, nw){
       silent=TRUE
     )
     if(!is(f, "try-error")){
-      .Deprecated(msg="InitConstraint convention has been replaced by InitErgmConstraint.")
+      .dep_once(msg="InitConstraint convention has been replaced by InitErgmConstraint.")
     }else f <- locate.InitFunction(constraint, "InitErgmConstraint", "Sample space constraint")
     
     if(is.call(constraint)){
@@ -304,7 +304,7 @@ ergm_proposal.formula <- function(object, arguments, nw, weights="default", clas
     silent=TRUE
   )
   if(!is(f, "try-error")){
-    .Deprecated(msg="InitReference convention has been replaced by InitErgmReference.")
+    .dep_once(msg="InitReference convention has been replaced by InitErgmReference.")
   }else f <- locate.InitFunction(reference[[2]], "InitErgmReference", "Reference distribution") 
   
   if(is.call(reference[[2]])){
@@ -317,7 +317,7 @@ ergm_proposal.formula <- function(object, arguments, nw, weights="default", clas
 
   # TODO: Remove this around the end of 2018.
   if(is.null(reference$init_methods)){
-    .Deprecated(msg="Initial methods are now specified in the InitErgmReference.* function. Defaulting to 'CD' and 'zeros'.")
+    .dep_once(msg="Initial methods are now specified in the InitErgmReference.* function. Defaulting to 'CD' and 'zeros'.")
     reference$init_methods <- c("CD", "zeros")
   }
 
@@ -413,40 +413,40 @@ ergm_proposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NUL
 #' @describeIn ergm-deprecated Deprecated name of [ergm_proposal()].
 #' @export MHproposal
 MHproposal <- function(...){
-  .Deprecated("ergm_proposal()")
+  .dep_once("ergm_proposal()")
   ergm_proposal(...)
 }
 
 #' @describeIn ergm-deprecated Deprecated name of [ergm_proposal()].
 #' @export MHproposal.character
 MHproposal.character <- function(...){
-  .Deprecated("ergm_proposal()")
-  ergm_proposal(...)
+  .dep_once("ergm_proposal()")
+  ergm_proposal.character(...)
 }
 
 #' @describeIn ergm-deprecated Deprecated name of [ergm_proposal()].
 #' @export MHproposal.ergm
 MHproposal.ergm <- function(...){
-  .Deprecated("ergm_proposal()")
-  ergm_proposal(...)
+  .dep_once("ergm_proposal()")
+  ergm_proposal.ergm(...)
 }
 
 #' @describeIn ergm-deprecated Deprecated name of [ergm_proposal()].
 #' @export MHproposal.formula
 MHproposal.formula <- function(...){
-  .Deprecated("ergm_proposal()")
-  ergm_proposal(...)
+  .dep_once("ergm_proposal()")
+  ergm_proposal.formula(...)
 }
 
 #' @describeIn ergm-deprecated Deprecated: specify in the `InitErgmReference.*` implementation.
 #' @export ergm.init.methods
 ergm.init.methods <- function(...){
-  .Deprecated(msg="Function ergm.init.methods() has been deprecated in favor of specifying init_methods in InitErgmReference.*() functions, and has no effect.")
+  .dep_once(msg="Function ergm.init.methods() has been deprecated in favor of specifying init_methods in InitErgmReference.*() functions, and has no effect.")
 }
 
 #' @describeIn ergm-deprecated Deprecated: specify in the `InitErgmConstraint.*` implementation.
 #' @export ergm.ConstraintImplications
 ergm.ConstraintImplications <- function(...){
-  .Deprecated(msg="Function ergm.ConstraintImplications() has been deprecated in favor of specifying the implications in the InitErgmConstraint.*() functions, and has no effect.")
+  .dep_once(msg="Function ergm.ConstraintImplications() has been deprecated in favor of specifying the implications in the InitErgmConstraint.*() functions, and has no effect.")
 
 }

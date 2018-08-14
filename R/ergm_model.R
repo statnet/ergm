@@ -129,7 +129,7 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, role="stat
 #' @describeIn ergm-deprecated Use `ergm_model` instead.
 #' @export ergm.getmodel
 ergm.getmodel <- function(object, ...){
-  .Deprecated("ergm_model")
+  .dep_once("ergm_model")
   ergm_model(object, ...)
 }
 

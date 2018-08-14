@@ -11,7 +11,7 @@
 #' @describeIn ergm-deprecated Use [summary.ergm_model()] instead.
 #' @export ergm.getglobalstats
 ergm.getglobalstats <- function(nw, m, response=NULL) {
-  .Deprecated("summary.ergm_model")
+  .dep_once("summary.ergm_model")
   summary(m, nw, response=response)
 }
 #' Evaluate network summary statistics from an initialized ergm model

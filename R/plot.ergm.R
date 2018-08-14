@@ -27,7 +27,7 @@
 #' @export
 plot.ergm <- function (x, ...)
 {
-  .Deprecated("mcmc.diagnostics(x,...)")
+  .dep_once("mcmc.diagnostics(x,...)")
     if(is.null(x$sample))
       stop("No plotting method is available for ERGM fits without an MCMC sample.")
     else

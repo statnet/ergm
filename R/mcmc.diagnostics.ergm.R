@@ -362,6 +362,6 @@ ergm_plot.mcmc.list <- function(x, main=NULL, vars.per.page=3,...){
 #' @description `plot.mcmc.list.ergm` is the obsolete name for [ergm_plot.mcmc.list()].
 #' @export plot.mcmc.list.ergm
 plot.mcmc.list.ergm <- function(...){
-  .Deprecated("ergm_plot.mcmc.list()")
+  .dep_once("ergm_plot.mcmc.list()")
   ergm_plot.mcmc.list(...)
 }
