@@ -693,17 +693,17 @@ print.gof <- function(x, ...){
 #' @rdname ergm-deprecated
 #' @description [print.gofobject()] is a deprecated alias for [print.gof()].
 #' @export
-print.gofobject <- function(object, ...) {
+print.gofobject <- function(x, ...) {
   .dep_once("print.gof")
-  print.gof(object, ...) # Nothing better for now
+  print.gof(x, ...) # Nothing better for now
 }
 
 #' @rdname ergm-deprecated
 #' @description [summary.gof()] is a deprecated alias for [print.gof()].
 #' @export
-summary.gof <- function(object, ...) {
+summary.gof <- function(x, ...) {
   .dep_once("print.gof")
-  print.gof(object, ...) # Nothing better for now
+  print.gof(x, ...) # Nothing better for now
 }
 
 #' @rdname ergm-deprecated

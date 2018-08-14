@@ -102,9 +102,9 @@ remove.offset.formula(object, response = NULL)
 
 offset.info.formula(object, response = NULL, ...)
 
-\method{print}{gofobject}(object, ...)
+\method{print}{gofobject}(x, ...)
 
-\method{summary}{gof}(object, ...)
+\method{summary}{gof}(x, ...)
 
 \method{summary}{gofobject}(object, ...)
 
