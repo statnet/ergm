@@ -249,6 +249,7 @@
 	  \item{
 	    \code{\link{simulate.formula}} functions now take an
 	    \code{\link{ergm_model}} as an argument to \code{monitor=}.
+	  }
 	  \item{
 	    Constraint initializers have been renamed from
 	    \code{InitConstraint} to \code{InitErgmConstraint}. The
