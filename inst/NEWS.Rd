@@ -65,7 +65,7 @@
 %% }
 
 
-\section{Changes in version 3.9.0}{
+\section{Changes in version 3.9.4}{
 
   \subsection{NEW FEATURES}{
     \itemize{
