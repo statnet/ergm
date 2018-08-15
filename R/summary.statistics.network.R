@@ -167,9 +167,11 @@ summary.statistics <- function(object, ...){
 }
 
 #' @rdname ergm-deprecated
+#' @S3method summary.statistics formula
 #' @export summary.statistics.formula
 summary.statistics.formula <- summary.statistics
 
 #' @rdname ergm-deprecated
+#' @S3method summary.statistics network
 #' @export summary.statistics.network
 summary.statistics.network <- summary.statistics

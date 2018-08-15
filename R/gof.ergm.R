@@ -701,9 +701,9 @@ print.gofobject <- function(x, ...) {
 #' @rdname ergm-deprecated
 #' @description [summary.gof()] is a deprecated alias for [print.gof()].
 #' @export
-summary.gof <- function(x, ...) {
+summary.gof <- function(object, ...) {
   .dep_once("print.gof")
-  print.gof(x, ...) # Nothing better for now
+  print.gof(x=object, ...) # Nothing better for now
 }
 
 #' @rdname ergm-deprecated
@@ -1318,7 +1318,7 @@ plot.gof <- function(x, ...,
 #' @rdname ergm-deprecated
 #' @description [plot.gofobject()] is a deprecated alias for [plot.gof()].
 #' @export
-plot.gofobject <- function(object, ...) {
+plot.gofobject <- function(x, ...) {
   .dep_once("plot.gof")
-  plot.gof(object, ...) # Nothing better for now
+  plot.gof(x, ...) # Nothing better for now
 }
