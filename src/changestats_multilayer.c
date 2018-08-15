@@ -397,3 +397,111 @@ C_CHANGESTAT_FN(c_gwldegree_by_attr_ML_sum) {
 			  );
   }
 }
+
+/*****************
+ changestat: c_twopathL
+*****************/
+C_CHANGESTAT_FN(c_twostarL) { 
+  double *inputs = INPUT_ATTRIB; // Already shifted past the auxiliaries.
+  unsigned int typeID = inputs[0];
+  unsigned int distinct = inputs[1];
+  
+  GET_AUX_STORAGE_NUM(StoreLayerLogic, ll1, 0);
+  GET_AUX_STORAGE_NUM(StoreLayerLogic, ll2, 1);
+  
+  Vertex lt = ML_IO_TAIL(ll1, tail), lh = ML_IO_HEAD(ll1, head);
+
+  int
+    change1_th = ergm_LayerLogic2(lt, lh, tail, head, ll1, TRUE),
+    change1_ht = ergm_LayerLogic2(lh, lt, tail, head, ll1, TRUE),
+    change2_th = ergm_LayerLogic2(lt, lh, tail, head, ll2, TRUE),
+    change2_ht = ergm_LayerLogic2(lh, lt, tail, head, ll2, TRUE);
+
+  
+  Vertex *od1 = ML_OUT_DEG(ll1), *od2 = ML_OUT_DEG(ll2),
+    *id1 = ML_IN_DEG(ll1), *id2 = ML_IN_DEG(ll2);
+  
+  switch(typeID){
+  case 1: // out
+    if(change1_th || change2_th){ // lt's outstar counts change.
+      
+      // Calculate the change in number of relevant coincident relations.
+      int change12 = 0;
+      if(distinct){
+	if(ML_IS_OUTEDGE(ll1, lt, lh)) change12 += change2_th; 
+	if(ML_IS_OUTEDGE(ll2, lt, lh)) change12 += change1_th;
+	change12 += change1_th * change2_th;
+      }
+	
+      CHANGE_STAT[0] += (od1[lt]+change1_th)*(od2[lt]+change2_th) - od1[lt]*od2[lt] - change12;
+    }
+    
+    if(change1_ht || change2_ht){ // lh's outstar counts change.
+
+      // Calculate the change in number of relevant coincident relations.
+      int change12 = 0;
+      if(distinct){
+	if(ML_IS_OUTEDGE(ll1, lh, lt)) change12 += change2_ht; 
+	if(ML_IS_OUTEDGE(ll2, lh, lt)) change12 += change1_ht;
+	change12 += change1_ht * change2_ht;
+      }
+
+      CHANGE_STAT[0] += (od1[lh]+change1_ht)*(od2[lh]+change2_ht) - od1[lh]*od2[lh] - change12;
+    }
+    break;
+  case 2: // in
+    if(change1_th || change2_th){ // lh's instar counts change.
+      
+      // Calculate the change in number of relevant coincident relations.
+      int change12 = 0;
+      if(distinct){
+	if(ML_IS_INEDGE(ll1, lt, lh)) change12 += change2_th; 
+	if(ML_IS_INEDGE(ll2, lt, lh)) change12 += change1_th;
+	change12 += change1_th * change2_th;
+      }
+
+      CHANGE_STAT[0] += (id1[lh]+change1_th)*(id2[lh]+change2_th) - id1[lh]*id2[lh] - change12;
+    }
+    
+    if(change1_ht || change2_ht){ // lt's instar counts change.
+
+      // Calculate the change in number of relevant coincident relations.
+      int change12 = 0;
+      if(distinct){
+	if(ML_IS_INEDGE(ll1, lh, lt)) change12 += change2_ht; 
+	if(ML_IS_INEDGE(ll2, lh, lt)) change12 += change1_ht;
+	change12 += change1_ht * change2_ht;
+      }
+
+      CHANGE_STAT[0] += (id1[lt]+change1_ht)*(id2[lt]+change2_ht) - id1[lt]*id2[lt] - change12;
+    }
+    break;
+  case 3: // path
+    if(change1_ht || change2_th){ // two-path count through lt changes.
+
+      // Calculate the change in number of relevant coincident relations.
+      int change12 = 0;
+      if(distinct){
+	if(ML_IS_INEDGE(ll1, lt, lh)) change12 += change2_th; 
+	if(ML_IS_OUTEDGE(ll2, lt, lh)) change12 += change1_ht;
+	change12 += change1_th * change2_ht;
+      }
+
+      CHANGE_STAT[0] += (id1[lt]+change1_ht)*(od2[lt]+change2_th) - id1[lt]*od2[lt] - change12;
+    }
+    
+    if(change1_th || change2_ht){ // two-path count through lh changes.
+
+      // Calculate the change in number of relevant coincident relations.
+      int change12 = 0;
+      if(distinct){
+	if(ML_IS_INEDGE(ll1, lh, lt)) change12 += change2_ht; 
+	if(ML_IS_OUTEDGE(ll2, lh, lt)) change12 += change1_th;
+	change12 += change1_th * change2_ht;
+      }
+
+      CHANGE_STAT[0] += (id1[lh]+change1_th)*(od2[lh]+change2_ht) - id1[lh]*od2[lh] - change12;
+    }
+    break;
+  }
+}

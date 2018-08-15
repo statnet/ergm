@@ -7,7 +7,7 @@
 
 .despace <- function(s) gsub("[[:space:]]", "", s)
 
-.lspec_coef.names <- function(Llist){
+.lspec_coef.names <- function(Llist, collapse=TRUE){
   reprs <- sapply(seq_along(Llist), function(l){
     name <- names(Llist)[l]
     L <- Llist[[l]]
@@ -21,7 +21,7 @@
     if(NVL(name,"")!="") s <- paste0(name,"=",s)
     s
   })
-  paste0("L(",paste0(reprs, collapse=","),")")
+  if(collapse) paste0("L(",paste0(reprs, collapse=","),")") else reprs
 }
 
 #' Construct a "view" of a network.
@@ -689,4 +689,34 @@ InitErgmTerm.gwldegree<-function(nw, arglist,  ...) {
     }
     c(.process_layers_degree(nw, a, name=name, coef.names=coef.names, inputs=inputs), conflicts.constraints="degreedist")
   }
+}
+
+
+################################################################################
+InitErgmTerm.twostarL<-function(nw, arglist,  ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=TRUE,
+                      varnames = c("Ls", "type", "distinct"),
+                      vartypes = c("formula,list", "character", "logical"),
+                      defaultvalues = list(NULL, NULL, TRUE),
+                      required = c(TRUE, TRUE, FALSE))
+  TYPES <- c("out", "in", "path")
+  type <- match.arg(tolower(a$type), TYPES)
+  typeID <- match(type, TYPES)
+
+  Ls <- a$Ls
+  if(is(Ls, "formula")) Ls <- list(Ls)
+  Ls <- rep(Ls, length.out=2)
+
+  nlayers <- length(unique(.peek_vattrv(nw, ".LayerID")))
+  auxiliaries <- .mk_.layer.net_auxform(Ls, nlayers)
+  reprs <- .lspec_coef.names(Ls, collapse=FALSE)
+  coef.names <- paste0("twostarL(",
+                        switch(type,
+                               out = paste0(reprs, collapse="<>"),
+                               `in` = paste0(reprs, collapse="><"),
+                               path = paste0(reprs, collapse=">>")),
+                        ")")
+  
+  inputs <- c(typeID, a$distinct)
+  list(name="twostarL", coef.names=coef.names, inputs=inputs, auxiliaries=auxiliaries, minval=0, dependence=TRUE)
 }
