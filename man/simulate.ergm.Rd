@@ -52,7 +52,7 @@ the \code{\link[=ergm-package]{ergm}} package.}
 \item{constraints}{A one-sided formula specifying one or more
 constraints on the support of the distribution of the networks
 being simulated. See the documentation for a similar argument for
-\code{\link{ergm}} and see \link[=ergm-constraints]{list of implementedconstraints} for more information. For
+\code{\link{ergm}} and see \link[=ergm-constraints]{list of implemented constraints} for more information. For
 \code{simulate.formula}, defaults to no constraints. For
 \code{simulate.ergm}, defaults to using the same constraints as
 those with which \code{object} was fitted. If string \code{"obs"} is
