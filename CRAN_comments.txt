@@ -1,0 +1,40 @@
+Reverse-dependencies:
+
+* This release reorganises some parts of a low-level semi-public
+  API. All my packages that do are ready to go, and I had notified
+  maintainers of other reverse-depends back on 10 April 2018. This
+  release has been developed in a public repository, with everyone
+  having access to the development source code since around this time
+  last year.
+
+* However, I have made an effort to provide backwards-compatibility
+  shims that emulate the old API while providing deprecation
+  warnings. As a result, the packages using the deprecated APIs may
+  produce a large number deprecation warnings. I have implemented a
+  mechanism by which each function only issues such a warning the
+  first time it's called, however.
+
+* Some methods (e.g., summary.formula()) should no longer exported but
+  rather be registered using S3method. I am forcing them to be
+  exported for now, with a deprecation warning if they are called
+  directly rather than through a generic or getS3method().
+
+* All reverse- dependencies, suggests, and enhances except for
+  ergm.ego and tergm run through the R CMD check on my
+  system. ergm.ego and tergm are maintained by me.
+
+NOTEs:
+
+* ergm is released under GPLv3 with attribution clause provided in
+  file LICENSE.
+
+* Of the non-methods that look like methods (coef.length.model,
+  plot.mcmc.list.ergm, plot.network.ergm, and summary.statistics), all
+  three are deprecated and will be removed in the next major release.
+
+Other items:
+
+* The vignette may take some time to build.
+
+ 
+

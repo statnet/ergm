@@ -12,3 +12,4 @@ appveyor.yml
 .gdb_history
 ^revdep$
 ^man-roxygen$
+CRAN_comments.txt
