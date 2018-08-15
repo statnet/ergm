@@ -207,7 +207,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   
   mon.m <- if(!is.null(monitor)) as.ergm_model(monitor, nw, response=response, term.options=control$term.options)
 
-  constraints <- rep(constraints, length.out=2)
+  if(!is.list(constraints)) constraints <- list(constraints)
+    constraints <- rep(constraints, length.out=2)
   # Inherit constraints from nw if needed.
   tmp <- .handle.auto.constraints(nw, constraints[[1]], constraints[[2]], NULL)
   nw <- tmp$nw; constraints <- if(observational) tmp$constraints.obs else tmp$constraints
