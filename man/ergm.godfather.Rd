@@ -5,8 +5,8 @@
 \title{A function to apply a given series of changes to a network.}
 \usage{
 ergm.godfather(formula, changes = NULL, response = NULL,
-  end.network = FALSE, stats.start = FALSE, verbose = FALSE,
-  control = control.ergm.godfather())
+  end.network = FALSE, stats.start = FALSE, changes.only = FALSE,
+  verbose = FALSE, control = control.ergm.godfather())
 }
 \arguments{
 \item{formula}{An \code{\link{ergm}}-style formula, with a
@@ -32,6 +32,9 @@ the statistics matrix.  Defaults to \code{FALSE}, to produce
 output similar to that of \code{\link[=simulate.ergm]{simulate}}
 for ERGMs when \code{output="stats"}, where initial network's
 statistics are not returned.}
+
+\item{changes.only}{Whether to return network statistics or only
+their changes relative to the initial network.}
 
 \item{verbose}{Whether to print progress messages.}
 
