@@ -251,16 +251,15 @@ network
     dyad \eqn{(i,j)} and \eqn{x_{i,j}}{x[i,j]} is the term's covariate associated
     with it. The latter computes the binary version, with the edge
     considered to be present if its value is not 0.
+    Valued version of some binary ERGM terms have an argument
+    \code{threshold}, which sets the value above which a dyad is conidered
+    to have a tie. (Value less than or equal to \code{threshold} is
+    considered a nontie.)
 
     The \code{B()} operator term documented below can be used to pass
     other binary terms to valued models, and is more flexible, at the
     cost of being somewhat slower.
   }  
-
-  Valued version of some binary ERGM terms have an argument
-  \code{threshold}, which sets the value above which a dyad is conidered
-  to have a tie. (Value less than or equal to \code{threshold} is
-  considered a nontie.)
 }
 
 \section{Covariate transformations}{
