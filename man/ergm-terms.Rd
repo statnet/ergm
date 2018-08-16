@@ -139,6 +139,7 @@
 \alias{tripercent}
 \alias{ttriad}
 \alias{ttriple}
+\alias{twostarL}
 \alias{twopath}
 \docType{methods}
 \title{Terms used in Exponential Family Random Graph Models}
@@ -2325,6 +2326,32 @@ of the degrees of all pairs of nodes in the network which are tied.
     For undirected networks a twopath is defined as a pair of edges
     \eqn{\{i,j\}, \{j,k\}}. That is, it is an undirected path of length 2 from
     \eqn{i} to \eqn{k} via \eqn{j}, also known as a 2-star.}
+
+  \item{\code{twostarL(Ls, type, distinct=TRUE}  (binary)  (directed) (layer-aware)}{\emph{Multilayer two-star:} 
+    This term adds one statistic to the model, equal to the number of
+    cross-layer two-stars or two-paths in
+    the network. Argument \code{Ls} specifies the two layers of
+    interest, and argument \code{type} determines what is counted:
+    \describe{
+      \item{\code{"out"}}{Number of configurations
+	\eqn{(i{\rightarrow}j), (i{\rightarrow}k)}{(i,j), (i,k)}, where
+	\eqn{(i{\rightarrow}j)}{(i,j)} is in logical layer \code{Ls[[1]]}
+	and \eqn{(i{\rightarrow}k)}{(i,k)} is in logical layer \code{Ls[[2]]}.}
+      \item{\code{"in"}}{Number of configurations
+	\eqn{(j{\rightarrow}i), (k{\rightarrow}i)}{(j,i), (k,i)}, where
+	\eqn{(j{\rightarrow}i)}{(j,i)} is in logical layer \code{Ls[[1]]}
+	and \eqn{(k{\rightarrow}i)}{(k,i)} is in logical layer \code{Ls[[2]]}.}
+      \item{\code{"path"}}{Number of configurations
+	\eqn{(j{\rightarrow}i), (i{\rightarrow}k)}{(j,i), (i,k)}, where
+	\eqn{(j{\rightarrow}i)}{(j,i)} is in logical layer \code{Ls[[1]]}
+	and \eqn{(i{\rightarrow}k)}{(i,k)} is in logical layer
+	\code{Ls[[2]]}.}
+    }
+
+    If \code{distinct==TRUE}, \eqn{j} and \eqn{k} above are required to
+    be distinct. That is, the constituent edges may not be coincident or
+    reciprocal.
+  }
  }
 }
 \references{
