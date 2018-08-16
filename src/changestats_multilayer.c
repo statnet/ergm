@@ -455,8 +455,8 @@ C_CHANGESTAT_FN(c_twostarL) {
       // Calculate the change in number of relevant coincident relations.
       int change12 = 0;
       if(distinct){
-	if(ML_IS_INEDGE(ll1, lt, lh)) change12 += change2_th; 
-	if(ML_IS_INEDGE(ll2, lt, lh)) change12 += change1_th;
+	if(ML_IS_OUTEDGE(ll1, lt, lh)) change12 += change2_th; 
+	if(ML_IS_OUTEDGE(ll2, lt, lh)) change12 += change1_th;
 	change12 += change1_th * change2_th;
       }
 
@@ -468,8 +468,8 @@ C_CHANGESTAT_FN(c_twostarL) {
       // Calculate the change in number of relevant coincident relations.
       int change12 = 0;
       if(distinct){
-	if(ML_IS_INEDGE(ll1, lh, lt)) change12 += change2_ht; 
-	if(ML_IS_INEDGE(ll2, lh, lt)) change12 += change1_ht;
+	if(ML_IS_OUTEDGE(ll1, lh, lt)) change12 += change2_ht; 
+	if(ML_IS_OUTEDGE(ll2, lh, lt)) change12 += change1_ht;
 	change12 += change1_ht * change2_ht;
       }
 
@@ -482,7 +482,7 @@ C_CHANGESTAT_FN(c_twostarL) {
       // Calculate the change in number of relevant coincident relations.
       int change12 = 0;
       if(distinct){
-	if(ML_IS_INEDGE(ll1, lt, lh)) change12 += change2_th; 
+	if(ML_IS_OUTEDGE(ll1, lh, lt)) change12 += change2_th; 
 	if(ML_IS_OUTEDGE(ll2, lt, lh)) change12 += change1_ht;
 	change12 += change1_th * change2_ht;
       }

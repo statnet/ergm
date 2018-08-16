@@ -3,17 +3,18 @@ context("test-term-dgwesp-ml.R")
 # "Correct" transitivity calculators
 dediag <- function(m, x=0) {diag(m) <- x; m}
 
-istar <- function(m1,m2, distinct=FALSE){
+istar <- function(m1,m2, distinct=TRUE){
   sum(colSums(m1)*colSums(m2) - distinct*colSums(m1*m2))
 }
 
-ostar <- function(m1,m2, distinct=FALSE){
+ostar <- function(m1,m2, distinct=TRUE){
   sum(rowSums(m1)*rowSums(m2) - distinct*rowSums(m1*m2))
 }
 
-twopath <- function(m1,m2, distinct=FALSE){
+twopath <- function(m1,m2, distinct=TRUE){
   sum(colSums(m1)*rowSums(m2) - distinct*colSums(m1*t(m2)))
 }
+
 
 library(ergm)
 library(purrr)
@@ -21,13 +22,13 @@ n <- 5
 nw1 <- nw2 <- network.initialize(n,dir=TRUE)
 lnw <- Layer(nw1,nw2)
 
-ctrl <- control.simulate.formula(MCMC.burnin=1, MCMC.interval=1)
+ctrl <- control.simulate.formula(MCMC.burnin=n^2*2, MCMC.interval=n)
 
 test_that("twostarL statistics for homogeneously directed networks", {
   sim <- suppressWarnings(simulate(lnw~
-                    twostarL(c(~`1`,~`2`), "out")+
-                    twostarL(c(~`1`,~`2`), "in")+
-                    twostarL(c(~`1`,~`2`), "path")+
+                    twostarL(c(~`1`,~`2`), "out",FALSE)+
+                    twostarL(c(~`1`,~`2`), "in",FALSE)+
+                    twostarL(c(~`1`,~`2`), "path",FALSE)+
                     twostarL(c(~`1`,~`2`), "out", TRUE)+
                     twostarL(c(~`1`,~`2`), "in", TRUE)+
                     twostarL(c(~`1`,~`2`), "path", TRUE),
@@ -42,9 +43,9 @@ test_that("twostarL statistics for homogeneously directed networks", {
                     m2 <- m[seq_len(n)+n,seq_len(n)+n]
                     
                     c(
-                      ostar(m1,m2),
-                      istar(m1,m2),
-                      twopath(m1,m2),
+                      ostar(m1,m2,FALSE),
+                      istar(m1,m2,FALSE),
+                      twopath(m1,m2,FALSE),
                       ostar(m1,m2, TRUE),
                       istar(m1,m2, TRUE),
                       twopath(m1,m2, TRUE)

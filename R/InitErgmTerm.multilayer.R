@@ -715,6 +715,7 @@ InitErgmTerm.twostarL<-function(nw, arglist,  ...) {
                                out = paste0(reprs, collapse="<>"),
                                `in` = paste0(reprs, collapse="><"),
                                path = paste0(reprs, collapse=">>")),
+                       if(a$distinct) ",distinct",
                         ")")
   
   inputs <- c(typeID, a$distinct)
