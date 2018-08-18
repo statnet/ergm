@@ -213,6 +213,7 @@ ergm.stopCluster <- function(object, ...){
 
 #' @rdname ergm-parallel
 #' @importFrom parallel stopCluster
+#' @export
 ergm.stopCluster.default <- function(object, ...){
   if(ergm.cluster.started()){
     ergm.cluster.started(FALSE)
