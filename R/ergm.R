@@ -615,7 +615,7 @@ ergm <- function(formula, response=NULL,
         nw.stats <- summary(formula.no,response=response, term.options=control$term.options)
         srun <- srun + 1
         if(verbose){
-          message(paste("Finished SAN run",srun,""))
+          message(paste("Finished SAN run",srun-1,""))
         }
         if(verbose){
           message("SAN summary statistics:")
