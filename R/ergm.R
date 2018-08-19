@@ -595,13 +595,13 @@ ergm <- function(formula, response=NULL,
     ## with SAN-ed network and formula.
     if(control$SAN.maxit > 0){
       for(srun in 1:control$SAN.maxit){
-        nw<-san(formula.no, target.stats=target.stats,
+        TARGET_STATS<-san(formula.no, target.stats=target.stats,
                 response=response,
                 reference=reference,
                 constraints=constraints,
                 control=san.control,
                 verbose=verbose)
-        formula.no<-nonsimp_update.formula(formula.no,nw~., from.new="nw")
+        formula.no<-nonsimp_update.formula(formula.no,TARGET_STATS~., from.new="TARGET_STATS")
         nw.stats <- summary(formula.no,response=response, term.options=control$term.options)
         srun <- srun + 1
         if(verbose){
@@ -619,7 +619,8 @@ ergm <- function(formula, response=NULL,
       }
     }
     
-    formula<-nonsimp_update.formula(formula,nw~., from.new="nw")
+    formula<-nonsimp_update.formula(formula,TARGET_STATS~., from.new="TARGET_STATS")
+    nw <- TARGET_STATS
     offinfo <- offset.info.formula(formula,response=response,term.options=control$term.options)
     tmp <- rep(NA, length(offinfo$eta))
     tmp[!offinfo$eta] <- target.stats
