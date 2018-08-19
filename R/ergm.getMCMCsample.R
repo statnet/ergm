@@ -148,9 +148,9 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
         if(verbose) message("Increasing thinning to ",interval,".")
       }
       
-      esteq <- as.mcmc.list(lapply(lapply(outl, function(out)
+      esteq <- lapply.mcmc.list(lapply(outl, function(out)
                       NVL3(theta, ergm.estfun(out$s, ., model), out$s[,Clists[[1]]$diagnosable,drop=FALSE])
-                      ), mcmc, start=1, thin=interval))
+                      ), mcmc, start=1, thin=interval)
       
       if(control.parallel$MCMC.runtime.traceplot){
         plot(window(esteq, thin=thin(esteq)*max(1,floor(niter(esteq)/1000)))
