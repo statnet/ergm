@@ -64,6 +64,8 @@ ergm.CD.fixed <- function(init, nw, model,
                              estimate=TRUE,
                              response=NULL, ...) {
   message("Starting contrastive divergence estimation via CD-MCMLE:")
+  # Is there observational structure?
+  obs <- ! is.null(proposal.obs)
   # Initialize the history of parameters and statistics.
   coef.hist <- rbind(init)
   stats.hist <- matrix(NA, 0, length(model$nw.stats))
@@ -75,7 +77,7 @@ ergm.CD.fixed <- function(init, nw, model,
     if(inherits(control$parallel,"cluster")) nrow(summary(control$parallel))
     else control$parallel,
     1)
-
+  
   # Store information about original network, which will be returned at end
   nw.orig <- nw
 
@@ -95,17 +97,13 @@ ergm.CD.fixed <- function(init, nw, model,
   statshift[is.na(statshift)] <- 0
   statshifts <- rep(list(statshift), nthreads) # Each network needs its own statshift.
 
-  # Is there observational structure?
-  obs <- ! is.null(proposal.obs)
-  if(obs){
-    control$CD.nsteps<-control$CD.nsteps.obs
-    control$CD.multiplicity<-control$CD.multiplicity.obs
-  }
   
   # Initialize control.obs and other *.obs if there is observation structure
-  
+
   if(obs){
     control.obs <- control
+    control.obs$CD.nsteps<-control$CD.nsteps.obs
+    control.obs$CD.multiplicity<-control$CD.multiplicity.obs
     control.obs$MCMC.samplesize <- control$obs.MCMC.samplesize
     control.obs$MCMC.interval <- control$obs.MCMC.interval
     control.obs$MCMC.burnin <- control$obs.MCMC.burnin
@@ -125,12 +123,11 @@ ergm.CD.fixed <- function(init, nw, model,
           " with parameter:")
       message_print(mcmc.init)
     }else{
-      message("Iteration ",iteration," of at most ", control$CD.maxit,": ")
+      message("Iteration ",iteration," of at most ", control$CD.maxit,":")
     }
 
     # Obtain MCMC sample
-    mcmc.eta0 <- ergm.eta(mcmc.init, model$etamap)
-    z <- ergm.getCDsample(nws, model, proposal, mcmc.eta0, control, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
+    z <- ergm_CD_sample(nws, model, proposal, control, verbose=verbose, response=response, theta=mcmc.init)
 
     # post-processing of sample statistics:  Shift each row by the
     # vector model$nw.stats - model$target.stats, store returned nw
@@ -138,7 +135,7 @@ ergm.CD.fixed <- function(init, nw, model,
     # observed statistics or, if given, the alternative target.stats
     # (i.e., the estimation goal is to use the statsmatrix to find 
     # parameters that will give a mean vector of zero)
-    statsmatrices <- as.mcmc.list(mapply(sweep, z$statsmatrices, statshifts, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE))
+    statsmatrices <- as.mcmc.list(mapply(sweep, z$stats, statshifts, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE))
     varnames(statsmatrices) <- param_names(model,canonical=TRUE)
     statsmatrix <- as.matrix(statsmatrices)
     
@@ -152,9 +149,9 @@ ergm.CD.fixed <- function(init, nw, model,
     
     ##  Does the same, if observation process:
     if(obs){
-      z.obs <- ergm.getCDsample(nws.obs, NVL(model$obs.model,model), proposal.obs, mcmc.eta0, control.obs, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
+      z.obs <- ergm_CD_sample(nws.obs, NVL(model$obs.model,model), proposal.obs, control.obs, theta=mcmc.init, response=response, verbose=max(verbose-1,0))
 
-      statsmatrices.obs <- as.mcmc.list(mapply(sweep, z.obs$statsmatrices, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE))
+      statsmatrices.obs <- as.mcmc.list(mapply(sweep, z.obs$stats, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE))
       varnames(statsmatrices.obs) <- param_names(model,canonical=TRUE)
       statsmatrix.obs <- as.matrix(statsmatrices.obs)
       
@@ -171,11 +168,11 @@ ergm.CD.fixed <- function(init, nw, model,
     }
 
     # Compute the sample estimating functions and the convergence p-value. 
-    esteqs <- ergm.estfun(statsmatrix, mcmc.init, model)
+    esteqs <- ergm.estfun(statsmatrices, theta=mcmc.init, model=model)
     esteq <- as.matrix(esteqs)
     if(isTRUE(all.equal(apply(esteq,2,stats::sd), rep(0,ncol(esteq)), check.names=FALSE))&&!all(esteq==0))
       stop("Unconstrained CD sampling did not mix at all. Optimization cannot continue.")
-    esteqs.obs <- if(obs) ergm.estfun(statsmatrix.obs, mcmc.init, model) else NULL
+    esteqs.obs <- if(obs) ergm.estfun(statsmatrices.obs, theta=mcmc.init, model=model) else NULL
     esteq.obs <- if(obs) as.matrix(esteqs.obs) else NULL
 
     conv.pval <- suppressWarnings(approx.hotelling.diff.test(esteq, esteq.obs, assume.indep=TRUE)$p.value)
@@ -201,7 +198,7 @@ ergm.CD.fixed <- function(init, nw, model,
                 loglikelihood=NA, #mcmcloglik=NULL, 
                 mle.lik=NULL,
                 gradient=rep(NA,length=length(mcmc.init)), #acf=NULL,
-                samplesize=control$MCMC.samplesize, failure=TRUE,
+                samplesize=control$CD.samplesize, failure=TRUE,
                 newnetwork = nws[[1]],
                 newnetworks = nws)
       return(structure (l, class="ergm"))
@@ -248,7 +245,6 @@ ergm.CD.fixed <- function(init, nw, model,
       steplen <- adaptive.steplength
     }else{
       if(verbose){message("Calling CD-MCMLE Optimization...")}
-
       steplen <-
         if(!is.null(control$CD.steplength.margin))
           .Hummel.steplength(
@@ -293,11 +289,12 @@ ergm.CD.fixed <- function(init, nw, model,
       }
     }
           
-    mcmc.init <- v$coef
-    coef.hist <- rbind(coef.hist, mcmc.init)
+    coef.hist <- rbind(coef.hist, v$coef)
     stats.obs.hist <- NVL3(statsmatrix.obs, rbind(stats.obs.hist, apply(.[], 2, base::mean)))
     stats.hist <- rbind(stats.hist, apply(statsmatrix, 2, base::mean))
     if(finished) break # This allows premature termination.
+    # Update the coefficient for CD sampling.
+    mcmc.init <- v$coef
   } # end of main loop
 
   message("Finished CD.")

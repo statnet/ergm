@@ -61,8 +61,7 @@ network.}
 \item{control}{A list of control parameters for algorithm tuning; see
 \code{\link{control.san}}.}
 
-\item{verbose}{Logical: If TRUE, print out more detailed information as the
-simulation runs.}
+\item{verbose}{Logical or numeric giving the level of verbosity. Higher values produce more verbose output.}
 
 \item{formula}{(By default, the \code{formula} is taken from the \code{ergm}
 object.  If a different \code{formula} object is wanted, specify it here.}
