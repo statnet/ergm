@@ -98,7 +98,10 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
          "must be given")
   }
 
-# model <- ergm_model(formula, nw, drop=control$drop)
+  # Inherit constraints from nw if needed.
+  tmp <- .handle.auto.constraints(nw, constraints, constraints, NULL)
+  nw <- tmp$nw; constraints <- tmp$constraints
+
   proposal<-ergm_proposal(constraints,arguments=control$SAN.prop.args,nw=nw,weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
   model <- ergm_model(formula, nw, response=response, extra.aux=list(proposal$auxiliaries), term.options=control$term.options)
   Clist <- ergm.Cprepare(nw, model, response=response)
