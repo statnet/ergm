@@ -96,6 +96,14 @@
 #' @param verbose Logical: If TRUE, extra information is printed as the Markov
 #' chain progresses.
 #' @param \dots Further arguments passed to or used by methods.
+#' 
+#' @param do.sim Logical: If `FALSE`, do not proceed to the simulation
+#'   but rather return a list of arguments that would have been passed
+#'   to [simulate.ergm_model()]. This can be useful if, for example,
+#'   one wants to run several simulations with varying coefficients
+#'   and did not want to reinitialize the model and the proposal ever
+#'   time.
+#' 
 #' @return If \code{statsonly==TRUE} a matrix containing the simulated network
 #' statistics. If \code{control$parallel>0}, the statistics from each Markov
 #' chain are stacked.
@@ -188,7 +196,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
                                esteq=FALSE,
                                sequential=TRUE,
                                control=control.simulate.formula(),
-                             verbose=FALSE, ...) {
+                             verbose=FALSE, ..., do.sim=TRUE) {
   #' @importFrom statnet.common check.control.class
   check.control.class("simulate.formula", myname="ERGM simulate.formula")
   control.toplevel(...)
@@ -222,27 +230,40 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   # Prepare inputs to ergm.getMCMCsample
   m <- ergm_model(object, nw, response=response, role="static", extra.aux=list(proposal$auxiliaries),term.options=control$term.options)
 
-  out <- simulate(m, nsim=nsim, seed=seed,
-                  coef=coef, response=response, reference=reference,
-                  constraints=proposal,
-                  monitor=mon.m,
-                  basis=nw,
-                  statsonly=statsonly,
-                  esteq=esteq,
-                  sequential=sequential,
-                  control=control,
-                  verbose=verbose, ...)
-  
-  if(statsonly || nsim==1) # Then out is either a matrix or a single
+  if(do.sim){
+    out <- simulate(m, nsim=nsim, seed=seed,
+                    coef=coef, response=response, reference=reference,
+                    constraints=proposal,
+                    monitor=mon.m,
+                    basis=nw,
+                    statsonly=statsonly,
+                    esteq=esteq,
+                    sequential=sequential,
+                    control=control,
+                    verbose=verbose, ...)
+    
+    if(statsonly || nsim==1) # Then out is either a matrix or a single
                            # network. Return it.
-    return(out)
+      return(out)
   
-  # If we get this far, statsonly==FALSE and nsim > 1, so out is a
-  # network.list. Therefore, set the simulation and monitor formulas,
-  # which simulate.ergm_model() doesn't know.
-  attributes(out) <- c(attributes(out),
-                       list(formula=object, monitor=monitor))
-  out
+    # If we get this far, statsonly==FALSE and nsim > 1, so out is a
+    # network.list. Therefore, set the simulation and monitor formulas,
+    # which simulate.ergm_model() doesn't know.
+    attributes(out) <- c(attributes(out),
+                         list(formula=object, monitor=monitor))
+    out
+  }else{
+    list(object=m, nsim=nsim, seed=seed,
+                    coef=coef, response=response, reference=reference,
+                    constraints=proposal,
+                    monitor=mon.m,
+                    basis=nw,
+                    statsonly=statsonly,
+                    esteq=esteq,
+                    sequential=sequential,
+                    control=control,
+                    verbose=verbose, ...)
+  }
 }
 
 
