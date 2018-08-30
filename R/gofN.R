@@ -23,7 +23,7 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ...){
   prev.remain <- NULL
   while(any(remain)){
     message("Constructing GOF model.")
-    if(NVL(prev.remain!=remain, TRUE))
+    if(any(NVL(prev.remain,FALSE)!=remain))
       pernet.m <- ergm_model(~N(GOF, subset=remain), nw=nw, response = object$response, ...,
                              term.options= modifyList(as.list(object$control$term.options), list(N.compact_stats=FALSE)))
     prev.remain <- remain
