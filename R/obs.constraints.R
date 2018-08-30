@@ -14,35 +14,48 @@
   ff
 }
 
-.handle.obs.constraints <- function(nw,
-                                    constraints=~.,
-                                    obs.constraints=~-observed,
-                                    target.stats=NULL) {
-  
-  # Observation process handling only needs to happen if the
-  # sufficient statistics are not specified. If the sufficient
-  # statistics are specified, the nw's dyad states are irrelevant.
-  if(!is.null(target.stats)){
-    if(network.naedgecount(nw)){
-      warning("Target statistics specified in a network with missing dyads. Missingness will be overridden.")
-      nw[as.matrix(is.na(nw),matrix.type="edgelist")] <- 0
-    }else if(obs.constraints!=~-observed){
-      cat("Target statistics specified in a network with a nontrivial observation process. Observation process will be ignored.\n")
+.handle.auto.constraints <- function(nw,
+                                     constraints=~.,
+                                     obs.constraints=~.-observed,
+                                     target.stats=NULL) {
+
+  # We have constraint information.
+  if("constraints" %in% list.network.attributes(nw)){
+    constraints <- nonsimp_update.formula(nw %n% "constraints", constraints)
+  }
+
+  if(!is.null(obs.constraints)){
+    # We have observational process information.
+    if("obs.constraints" %in% list.network.attributes(nw)){
+      obs.constraints <- nonsimp_update.formula(nw %n% "obs.constraints", obs.constraints)
     }
-    obs.constraints <- ~.
-  }
+    
+    # Observation process handling only needs to happen if the
+    # sufficient statistics are not specified. If the sufficient
+    # statistics are specified, the nw's dyad states are irrelevant.
+    if(!is.null(target.stats)){
+      if(network.naedgecount(nw)){
+        warning("Target statistics specified in a network with missing dyads. Missingness will be overridden.")
+        nw[as.matrix(is.na(nw),matrix.type="edgelist")] <- 0
+      }else if(obs.constraints!=~.-observed){
+        cat("Target statistics specified in a network with a nontrivial observation process. Observation process will be ignored.\n")
+      }
+      obs.constraints <- ~.
+    }
 
-  # If no missing edges, remove the "observed" constraint.
-  if(network.naedgecount(nw)==0){
-    obs.constraints <- .delete_from_conform_rhs(obs.constraints, "observed")
-  }
+    # If no missing edges, remove the "observed" constraint.
+    if(network.naedgecount(nw)==0){
+      obs.constraints <- .delete_from_conform_rhs(obs.constraints, "observed")
+    }
+    
+    constraints.obs<-obs.constraints
+    constraints.obs[[length(constraints.obs)]] <- call('+', constraints.obs[[length(constraints.obs)]], constraints[[length(constraints)]])
+    constraints.obs <- .delete_from_conform_rhs(constraints.obs, ".")
+    if(constraints==constraints.obs) constraints.obs<-NULL
+    
+  }else constraints.obs<-NULL
   
-  constraints.obs<-obs.constraints
-  constraints.obs[[length(constraints.obs)]] <- call('+', constraints.obs[[length(constraints.obs)]], constraints[[length(constraints)]])
-  constraints.obs <- .delete_from_conform_rhs(constraints.obs, ".")
-  if(constraints==constraints.obs) constraints.obs<-NULL
-
-  list(nw = nw, constraints.obs = constraints.obs)
+  list(nw = nw, constraints = constraints, constraints.obs = constraints.obs)
 }
 
 .align.target.stats.offset <- function(model, target.stats){
