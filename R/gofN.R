@@ -15,22 +15,29 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ...){
   remain <- subset
 
   stats <- stats.obs <- NULL
-  
+
+  message("Constructing simulation model(s).")
+  sim_settings <- simulate(object, monitor=NULL, nsim=control$nsim, control=set.control.class("control.simulate.ergm",control), basis=nw, statsonly=TRUE, response = object$response, ..., do.sim=FALSE)
+  if(!is.null(object$constrained.obs)) sim.obs_settings <- simulate(object, monitor=NULL, observational=TRUE, nsim=control$nsim, control=set.control.class("control.simulate.ergm",control), basis=nw, statsonly=TRUE, response = object$response, ..., do.sim=FALSE)
+
+  prev.remain <- NULL
   while(any(remain)){
     message("Constructing GOF model.")
-    pernet.m <- ergm_model(~N(GOF, subset=remain), nw=nw, response = object$response, ...,
-                           term.options= modifyList(as.list(object$control$term.options), list(N.compact_stats=FALSE)))
+    if(NVL(prev.remain!=remain, TRUE))
+      pernet.m <- ergm_model(~N(GOF, subset=remain), nw=nw, response = object$response, ...,
+                             term.options= modifyList(as.list(object$control$term.options), list(N.compact_stats=FALSE)))
+    prev.remain <- remain
     
     nstats <- nparam(pernet.m, canonical=TRUE)/sum(remain)
     
     message("Simulating unconstrained sample.")
-    sim <- simulate(object, monitor=pernet.m, nsim=control$nsim, control=set.control.class("control.simulate.ergm",control), basis=nw, statsonly=TRUE, response = object$response, ...)
+    sim <- do.call(simulate, modifyList(sim_settings, list(monitor=pernet.m)))
     sim <- sim[,ncol(sim)-sum(remain)*nstats+seq_len(sum(remain)*nstats),drop=FALSE]
   
     if(!is.null(object$constrained.obs)){
       message("Simulating constrained sample.")
       # FIXME: Simulations can be rerun only on the networks in the subset.
-      sim.obs <- simulate(object, monitor=pernet.m, observational=TRUE, nsim=control$nsim, control=set.control.class("control.simulate.ergm",control), basis=nw, statsonly=TRUE, response = object$response, ...)
+      sim.obs <- do.call(simulate, modifyList(sim.obs_settings, list(monitor=pernet.m)))
       sim.obs <- sim.obs[,ncol(sim.obs)-sum(remain)*nstats+seq_len(sum(remain)*nstats),drop=FALSE]
     }else{
       sim.obs <- matrix(summary(pernet.m, object$network, response = object$response, ...), nrow(sim), ncol(sim), byrow=TRUE)
@@ -56,7 +63,7 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ...){
     dv <- apply(statarray, 2:3, var) - apply(statarray.obs, 2:3, var)
     # If any statistic for the network has negative variance estimate, rerun it.
     remain[remain] <- apply(dv<=0, 2, any)
-    if(any(remain)) message(sum(remain), " networks have bad simulations; rerunning.")
+    if(any(remain)) message(sum(remain), " networks (", paste(which(remain),collapse=", "), ") have bad simulations; rerunning.")
   }
   o <- structure(list(nw=nw, subset=subset, stats=stats, stats.obs=stats.obs, control=control), class="gofN")
 }

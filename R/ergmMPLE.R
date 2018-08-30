@@ -185,9 +185,8 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmod
   model <- ergm_model(formula, nw, term.options=control$term.options)
 
   # Handle the observation process constraints.
-  tmp <- .handle.obs.constraints(nw, constraints, obs.constraints)
-  nw <- tmp$nw
-  constraints.obs <- tmp$constraints.obs
+  tmp <- .handle.auto.constraints(nw, constraints, obs.constraints)
+  nw <- tmp$nw; constraints <- tmp$constraints; constraints.obs <- tmp$constraints.obs
   
   if("constraints" %in% names(control$MCMC.prop.args)){
     conlist <- prune.ergm_conlist(control$MCMC.prop.args$constraints)
