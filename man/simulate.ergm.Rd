@@ -10,7 +10,7 @@
   response = NULL, reference = ~Bernoulli, constraints = ~.,
   monitor = NULL, basis = NULL, statsonly = FALSE, esteq = FALSE,
   sequential = TRUE, control = control.simulate.formula(),
-  verbose = FALSE, ...)
+  verbose = FALSE, ..., do.sim = TRUE)
 
 \method{simulate}{ergm}(object, nsim = 1, seed = NULL,
   coef = object$coef, response = object$response,
@@ -89,6 +89,13 @@ Constructed using \code{\link{control.simulate.ergm}} or
 chain progresses.}
 
 \item{\dots}{Further arguments passed to or used by methods.}
+
+\item{do.sim}{Logical: If \code{FALSE}, do not proceed to the simulation
+but rather return a list of arguments that would have been passed
+to \code{\link[=simulate.ergm_model]{simulate.ergm_model()}}. This can be useful if, for example,
+one wants to run several simulations with varying coefficients
+and did not want to reinitialize the model and the proposal ever
+time.}
 }
 \value{
 If \code{statsonly==TRUE} a matrix containing the simulated network
