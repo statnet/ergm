@@ -75,11 +75,8 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   check.control.class("san", "san")
   control.toplevel(...,myname="san")
 
-  out.list <- list()
-  out.mat <- numeric(0)
   formula <- object
 
-  if(!is.null(control$seed)) set.seed(as.integer(control$seed))
   if(!is.null(basis)) {
     nw <- basis
   } else {
@@ -101,13 +98,43 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
 # model <- ergm_model(formula, nw, drop=control$drop)
   proposal<-ergm_proposal(constraints,arguments=control$SAN.prop.args,nw=nw,weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
   model <- ergm_model(formula, nw, response=response, extra.aux=list(proposal$auxiliaries), term.options=control$term.options)
+
+  san(model, response=response, reference=reference, constraints=proposal, target.stats=target.stats, nsim=nsim, basis=nw, sequential=sequential, control=control, verbose=verbose, ...)
+}
+
+#' @describeIn san A lower-level function that expects a pre-initialized [`ergm_model`].
+#' @export
+san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constraints=~., target.stats=NULL,
+                           nsim=1, basis=NULL,
+                           sequential=TRUE,
+                           control=control.san(),
+                           verbose=FALSE, ...) {
+  check.control.class("san", "san")
+  control.toplevel(...,myname="san")
+
+  model <- object
+
+  out.list <- list()
+  out.mat <- numeric(0)
+
+  if(!is.null(control$seed)) set.seed(as.integer(control$seed))
+  nw <- basis
+  nw <- as.network(nw)
+  if(is.null(target.stats)){
+    stop("You need to specify target statistic via",
+         " the 'target.stats' argument")
+  }
+  if(!is.network(nw)){
+    stop("A network object on the LHS of the formula ",
+         "must be given")
+  }
+
+  proposal <- if(inherits(constraints, "proposal")) constraints
+                else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
+                                   nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
+  
   Clist <- ergm.Cprepare(nw, model, response=response)
-  
-# if(is.null(control$coef)) {
-#   warning("No parameter values given, using the MPLE for the passed network.\n\t")
-# }
-# control$coef <- c(control$coef[1],rep(0,Clist$nstats-1))
-  
+    
   if (verbose) {
     message(paste("Starting ",nsim," MCMC iteration", ifelse(nsim>1,"s",""),
         " of ", control$SAN.burnin+control$SAN.interval*(nsim-1), 
