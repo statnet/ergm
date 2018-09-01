@@ -75,7 +75,7 @@ ergm.CD.fixed <- function(init, nw, model,
     if(inherits(control$parallel,"cluster")) nrow(summary(control$parallel))
     else control$parallel,
     1)
-
+  
   # Store information about original network, which will be returned at end
   nw.orig <- network.copy(nw)
 
@@ -94,7 +94,7 @@ ergm.CD.fixed <- function(init, nw, model,
   statshift <- model$nw.stats - model$target.stats
   statshift[is.na(statshift)] <- 0
   statshifts <- rep(list(statshift), nthreads) # Each network needs its own statshift.
-  
+
   # Is there observational structure?
   obs <- ! is.null(proposal.obs)
   if(obs){
@@ -122,16 +122,15 @@ ergm.CD.fixed <- function(init, nw, model,
   for(iteration in 1:control$CD.maxit){
     if(iteration == control$CD.maxit) finished <- TRUE
     if(verbose){
-      message("Iteration ",iteration," of at most ", control$CD.maxit,
-          " with parameter: ")
+      message("\nIteration ",iteration," of at most ", control$CD.maxit,
+          " with parameter:")
       message_print(mcmc.init)
     }else{
-      message("Iteration ",iteration," of at most ", control$CD.maxit,": ")
+      message("Iteration ",iteration," of at most ", control$CD.maxit,":")
     }
 
     # Obtain MCMC sample
-    mcmc.eta0 <- ergm.eta(mcmc.init, model$etamap)
-    z <- ergm.getCDsample(nws, model, proposal, mcmc.eta0, control, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
+    z <- ergm_CD_sample(nws, model, proposal, control, verbose=verbose, response=response, theta=mcmc.init)
 
     # post-processing of sample statistics:  Shift each row by the
     # vector model$nw.stats - model$target.stats, store returned nw
@@ -139,7 +138,7 @@ ergm.CD.fixed <- function(init, nw, model,
     # observed statistics or, if given, the alternative target.stats
     # (i.e., the estimation goal is to use the statsmatrix to find 
     # parameters that will give a mean vector of zero)
-    statsmatrices <- mapply(sweep, z$statsmatrices, statshifts, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
+    statsmatrices <- mapply(sweep, z$stats, statshifts, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
     for(i in seq_along(statsmatrices)) colnames(statsmatrices[[i]]) <- param_names(model,canonical=TRUE)
     statsmatrix <- do.call(rbind,statsmatrices)
     
@@ -153,9 +152,9 @@ ergm.CD.fixed <- function(init, nw, model,
     
     ##  Does the same, if observation process:
     if(obs){
-      z.obs <- ergm.getCDsample(nws.obs, model, proposal.obs, mcmc.eta0, control.obs, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
+      z.obs <- ergm_CD_sample(nws.obs, model, proposal.obs, control.obs, verbose, response=response, theta=mcmc.init)
 
-      statsmatrices.obs <- mapply(sweep, z.obs$statsmatrices, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
+      statsmatrices.obs <- mapply(sweep, z.obs$stats, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
       for(i in seq_along(statsmatrices.obs)) colnames(statsmatrices.obs[[i]]) <- param_names(model,canonical=TRUE)
       statsmatrix.obs <- do.call(rbind,statsmatrices.obs)
       
@@ -241,14 +240,16 @@ ergm.CD.fixed <- function(init, nw, model,
       if(v$loglikelihood < control$CD.trustregion-0.001){
         current.scipen <- options()$scipen
         options(scipen=3)
-        message("The log-likelihood improved by ",
-            format.pval(v$loglikelihood,digits=4,eps=1e-4),"")
+        message("The log-likelihood improved by",
+            format.pval(v$loglikelihood,digits=4,eps=1e-4),".")
         options(scipen=current.scipen)
       }else{
         message("The log-likelihood did not improve.")
       }
       steplen.hist <- c(steplen.hist, adaptive.steplength)
+      steplen <- adaptive.steplength
     }else{
+      if(verbose){message("Calling CD-MCMLE Optimization...")}
       steplen <-
         if(!is.null(control$CD.steplength.margin))
           .Hummel.steplength(
@@ -258,7 +259,6 @@ ergm.CD.fixed <- function(init, nw, model,
             x2.num.max=control$CD.Hummel.miss.sample, steplength.maxit=control$CD.Hummel.maxit)
         else control$CD.steplength
       
-      if(verbose){message("Calling CD-MCMLE Optimization...")}
       statsmean <- apply(statsmatrix.0,2,base::mean)
       if(!is.null(statsmatrix.0.obs)){
         statsmatrix.obs <- t(steplen*t(statsmatrix.0.obs) + (1-steplen)*statsmean) # I.e., shrink each point of statsmatrix.obs towards the centroid of statsmatrix.
@@ -271,7 +271,7 @@ ergm.CD.fixed <- function(init, nw, model,
         stop("CD-MCMLE estimation stuck. There may be excessive correlation between model terms, suggesting a poor model for the observed data. If target.stats are specified, try increasing SAN parameters.")
       }    
       
-      if(verbose){message(paste("Using Newton-Raphson Step with step length ",steplen," ..."))}
+      message("Optimizing with step length ",steplen,".")
       # Use estimateonly=TRUE if this is not the last iteration.
       v<-ergm.estimate(init=mcmc.init, model=model,
                        statsmatrix=statsmatrix, 
@@ -293,7 +293,7 @@ ergm.CD.fixed <- function(init, nw, model,
         current.scipen <- options()$scipen
         options(scipen=3)
         message("The log-likelihood improved by ",
-            format.pval(v$loglikelihood,digits=4,eps=1e-4),"")
+            format.pval(v$loglikelihood,digits=4,eps=1e-4),".")
         options(scipen=current.scipen)
       }else{
         message("The log-likelihood did not improve.")

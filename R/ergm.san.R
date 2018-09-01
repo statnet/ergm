@@ -64,8 +64,7 @@ san.default <- function(object,...)
 #' network.
 #' @param control A list of control parameters for algorithm tuning; see
 #' \code{\link{control.san}}.
-#' @param verbose Logical: If TRUE, print out more detailed information as the
-#' simulation runs.
+#' @param verbose Logical or numeric giving the level of verbosity. Higher values produce more verbose output.
 #' @param \dots Further arguments passed to other functions.
 #' @export
 san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints=~., target.stats=NULL,
@@ -104,15 +103,13 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   Clist <- ergm.Cprepare(nw, model, response=response)
   fd <- ergm.design(nw, verbose=verbose)
   
-  verb <- match(verbose,
-                c("FALSE","TRUE", "very"), nomatch=1)-1
   proposal<-ergm_proposal(constraints,arguments=control$SAN.prop.args,nw=nw,weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
 # if(is.null(control$coef)) {
 #   warning("No parameter values given, using the MPLE for the passed network.\n\t")
 # }
 # control$coef <- c(control$coef[1],rep(0,Clist$nstats-1))
   
-  if (verb) {
+  if (verbose) {
     message(paste("Starting ",nsim," MCMC iteration", ifelse(nsim>1,"s",""),
         " of ", control$SAN.burnin+control$SAN.interval*(nsim-1), 
         " steps", ifelse(nsim>1, " each", ""), ".", sep=""))
@@ -122,7 +119,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
     Clist <- ergm.Cprepare(nw, model,response=response)
 #   fd <- ergm.design(nw, verbose=verbose)
     maxedges <- max(control$SAN.init.maxedges, Clist$nedges)
-    if (verb) {
+    if (verbose) {
        message(paste("#", i, " of ", nsim, ": ", sep=""),appendLF=FALSE)
      }
 
@@ -130,7 +127,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
       if(reference==~Bernoulli){
         fit <- suppressWarnings(suppressMessages(try(ergm.mple(nw=nw, fd=fd, 
                          control=control, proposal=proposal,
-                         m=model, verbose=verbose, ...))))
+                         m=model, verbose=max(verbose-1,0), ...))))
         control$coef <- if(inherits(fit, "try-error")) rep(0,nparam(model,canonical=TRUE)) else fit$coef
         if(is.null(control$invcov)) { control$invcov <- fit$covar }
       }else{
@@ -178,7 +175,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
                 newnwtails = integer(maxedges),
                 newnwheads = integer(maxedges), 
                 as.double(control$invcov),
-                as.integer(verb),
+                as.integer(verbose),
                 as.integer(proposal$arguments$constraints$bd$attribs), 
                 as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
                 as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
@@ -208,7 +205,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
                 newnwheads = integer(maxedges),
                 newnwweights = double(maxedges), 
                 as.double(control$invcov),
-                as.integer(verb),
+                as.integer(verbose),
                 as.integer(proposal$arguments$constraints$bd$attribs), 
                 as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
                 as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),

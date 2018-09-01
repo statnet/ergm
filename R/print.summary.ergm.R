@@ -71,6 +71,7 @@ print.summary.ergm <- function (x,
            } else {
              cat("\nMaximum Pseudolikelihood Results:\n")
            },
+           CD = cat("\nContrastive Divergence results:\n"),
            MLE = NVL3(control$main.method, switch(.,
              MCMLE = cat("\nMonte Carlo MLE Results:\n"),
              `Stochastic-Approximation`=cat("\nMonte Carlo MLE Results:\n"),

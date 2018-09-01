@@ -147,9 +147,9 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
         if(verbose) message("Increasing thinning to ",interval,".")
       }
       
-      esteq <- as.mcmc.list(lapply(lapply(outl, function(out)
+      esteq <- lapply.mcmc.list(lapply(outl, function(out)
                       NVL3(theta, ergm.estfun(out$s, ., model), out$s[,Clists[[1]]$diagnosable,drop=FALSE])
-                      ), mcmc, start=1, thin=interval))
+                      ), mcmc, start=1, thin=interval)
       
       meS <- .max.effectiveSize(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, ar.order=control$MCMC.effectiveSize.order)
       if(verbose>1) message("Maximum harmonic mean ESS of ",meS$eS," attained with burn-in of ", round(meS$b/nrow(outl[[1]]$s)*100,2),"%.")

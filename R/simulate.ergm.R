@@ -375,7 +375,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
 
   control <- set.control.class("control.simulate.formula")
   
-  simulate.formula(object$formula, nsim=nsim, coef=coef, response=response, reference=reference,
+  simulate(object$formula, nsim=nsim, coef=coef, response=response, reference=reference,
                    statsonly=statsonly,
                    esteq=esteq,
                    sequential=sequential, constraints=constraints,
