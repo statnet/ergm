@@ -64,7 +64,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   while (!finished) { # Iterate until gamma==1
     iter=iter+1
     ## Generate an mcmc sample from the probability distribution determined by orig.mle
-    samples[[iter]]=simulate.formula(formula, nsim=control$Step.MCMC.samplesize,
+    samples[[iter]]=simulate(formula, nsim=control$Step.MCMC.samplesize,
                                      coef=eta[[iter]], statsonly=TRUE,
                                      constraints=constraints, 
                                      control=set.control.class("control.simulate.formula",control), ...)
@@ -158,7 +158,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   message("Now ending with one large sample for MLE. ")
   flush.console()
   iter <- iter+1
-  finalsample <- simulate.formula(formula, nsim=control$MCMC.samplesize,
+  finalsample <- simulate(formula, nsim=control$MCMC.samplesize,
                                   coef=eta[[iter]], statsonly=TRUE, 
                                   constraints=constraints, 
                                   control=set.control.class("control.simulate.formula",control), ...)

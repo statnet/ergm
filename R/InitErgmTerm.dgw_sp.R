@@ -183,7 +183,7 @@
 #routine is used (since it is safe for undirected graphs), irrespective of
 #the user's selection.  UTP cannot be chosen otherwise, since it won't work.
 #
-InitErgmTerm.desp<-function(nw, arglist, cache.sp=FALSE, ...) {
+InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("d","type","L.base","Ls.path","L.in_order"),
                       vartypes = c("numeric","character","formula","formula,list","logical"),
@@ -235,7 +235,7 @@ InitErgmTerm.desp<-function(nw, arglist, cache.sp=FALSE, ...) {
 #always used (since it is directedness-safe), and the user's input is
 #overridden.  UTP cannot be chosen otherwise, since it won't work.
 #
-InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=FALSE, ...) {
+InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff","type", "alpha","L.base","Ls.path","L.in_order"),
                       vartypes = c("numeric","logical","numeric","character", "numeric","formula","formula,list","logical"),
@@ -315,7 +315,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=FALSE, ...) {
 #routine is used (since it is safe for undirected graphs), irrespective of
 #the user's selection.  UTP cannot be chosen otherwise, since it won't work.
 #
-InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=FALSE, ...) {
+InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("d","type","Ls.path","L.in_order"),
                       vartypes = c("numeric","character","formula,list","logical"),
@@ -364,7 +364,7 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=FALSE, ...) {
 
 
 ################################################################################
-InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=FALSE, ...) {
+InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   # the following line was commented out in <InitErgm.gwdsp>:
   #    ergm.checkdirected("gwdsp", is.directed(nw), requirement=FALSE)
   # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
@@ -452,7 +452,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=FALSE, ...) {
 #routine is used (since it is safe for undirected graphs), irrespective of
 #the user's selection.  UTP cannot be chosen otherwise, since it won't work.
 #
-InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=FALSE, ...) {
+InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("d","type","L.base","Ls.path","L.in_order"),
                       vartypes = c("numeric","character","formula","formula,list","logical"),
@@ -498,7 +498,7 @@ InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=FALSE, ...) {
 
 
 ################################################################################
-InitErgmTerm.dgwnsp<-function(nw, arglist, cache.sp=FALSE, ...) {
+InitErgmTerm.dgwnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   # the following line was commented out in <InitErgm.gwnsp>:
   #    ergm.checkdirected("gwnsp", is.directed(nw), requirement=FALSE)
   # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  

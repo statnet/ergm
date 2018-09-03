@@ -126,6 +126,65 @@
   }
 }
 
+\section{Changes in version 3.9.5}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+	\code{\link{ergm.godfather}} now takes an additional \code{changes.only=} argument, to return statistics relative to initial network.
+      }
+    }
+  }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+	The default method of \code{\link{ergm.stopCluster}} had not
+	been exported.
+      }
+      \item{
+	\code{\link{summary.ergm}} fixed for CD estimation.
+      }
+      \item{
+	Some spurious warnings fixed.
+      }
+    }
+  }
+
+
+  %% \subsection{OTHER USER-VISIBLE CHANGES}{
+  %%   \itemize{
+  %%     \item{
+  %%     }
+  %%   }
+  %% }
+
+  %% \subsection{C-LEVEL FACILITIES}{
+  %%   \itemize{
+  %%   }
+  %% }
+
+  %% \subsection{UTILITIES}{
+  %%   \itemize{
+  %%     \item Likewise, "UTILITIES" is probably unnecessary.
+  %%   }
+  %% }
+
+  %% \subsection{INSTALLATION}{
+  %%   \itemize{
+  %%     \item ... as is "INSTALLATION".
+  %%   }
+  %% }
+
+  %% \subsection{PACKAGE INSTALLATION}{
+  %%   \itemize{
+  %%     \item ditto.
+  %%   }
+  %% }
+
+}
+
 \section{Changes in version 3.9.4}{
 
   \subsection{NEW FEATURES}{
