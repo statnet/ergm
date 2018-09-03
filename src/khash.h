@@ -204,6 +204,7 @@ static const double __ac_HASH_UPPER = 0.77;
 	extern void kh_destroy_##name(kh_##name##_t *h);					\
 	extern void kh_clear_##name(kh_##name##_t *h);						\
 	extern khint_t kh_get_##name(const kh_##name##_t *h, khkey_t key); 	\
+	extern khval_t kh_getval_##name(const kh_##name##_t *h, khkey_t key, khval_t d); \
 	extern int kh_resize_##name(kh_##name##_t *h, khint_t new_n_buckets); \
 	extern khint_t kh_put_##name(kh_##name##_t *h, khkey_t key, int *ret); \
 	extern void kh_del_##name(kh_##name##_t *h, khint_t x);
@@ -241,6 +242,11 @@ static const double __ac_HASH_UPPER = 0.77;
 			return __ac_iseither(h->flags, i)? h->n_buckets : i;		\
 		} else return 0;												\
 	}																	\
+	SCOPE khval_t kh_getval_##name(const kh_##name##_t *h, khkey_t key, khval_t d) \
+	{								\
+	  khiter_t pos = kh_get_##name(h, key);				\
+	  return pos==kh_end(h) ? d : kh_value(h, pos);		\
+	}								\
 	SCOPE int kh_resize_##name(kh_##name##_t *h, khint_t new_n_buckets) \
 	{ /* This function uses 0.25*n_buckets bytes of working space instead of [sizeof(key_t+val_t)+.25]*n_buckets. */ \
 		khint32_t *new_flags = 0;										\
@@ -481,6 +487,16 @@ static kh_inline khint_t __ac_Wang_hash(khint_t key)
   @return       Iterator to the found element, or kh_end(h) if the element is absent [khint_t]
  */
 #define kh_get(name, h, k) kh_get_##name(h, k)
+
+/*! @function
+  @abstract     Retrieve a value from the hash table corresponding to a key, with a default if key is not found.
+  @param  name  Name of the hash table [symbol]
+  @param  h     Pointer to the hash table [khash_t(name)*]
+  @param  k     Key [type of keys]
+  @param  d     Value to be returned if key is not in found [type of values]
+  @return       Value of the found element, or d if the element is absent [khval_t]
+ */
+#define kh_getval(name, h, k, d) kh_getval_##name(h, k, d)
 
 /*! @function
   @abstract     Remove a key from the hash table.
