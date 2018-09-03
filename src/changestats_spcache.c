@@ -29,14 +29,14 @@
 /*   } */
 /* } */
 
-#define IncEdgeMapUInt(tail, head, dir, inc, wtnwp)			\
+#define IncEdgeMapUInt(th, inc, wtnwp)					\
   {									\
     if(inc!=0){								\
       unsigned int _IEMUI_val;						\
-      kh_getval(EdgeMapUInt, wtnwp, TH(tail,head,dir), 0, _IEMUI_val);	\
+      kh_getval(EdgeMapUInt, wtnwp, th, 0, _IEMUI_val);			\
       _IEMUI_val += inc;						\
-      if(_IEMUI_val==0){kh_unset(EdgeMapUInt, wtnwp, TH(tail,head,dir));} \
-      else{kh_set(EdgeMapUInt, wtnwp, TH(tail,head,dir), _IEMUI_val);}	\
+      if(_IEMUI_val==0){kh_unset(EdgeMapUInt, wtnwp, th);}		\
+      else{kh_set(EdgeMapUInt, wtnwp, th, _IEMUI_val);}			\
     }									\
   }
 
@@ -58,7 +58,7 @@ I_CHANGESTAT_FN(i__otp_wtnet){
   EXEC_THROUGH_NET_EDGES(i, j, e1, { // Since i->j
       EXEC_THROUGH_FOUTEDGES(j, e2, k, { // and j->k
 	  if(i!=k)
-	    IncEdgeMapUInt(i,k,DIRECTED,1,wtnwp); // increment i->k.
+	    IncEdgeMapUInt(THD(i,k),1,wtnwp); // increment i->k.
 	});
     });
 }
@@ -71,14 +71,14 @@ U_CHANGESTAT_FN(u__otp_wtnet){
     // Update all t->h->k two-paths.
     EXEC_THROUGH_FOUTEDGES(head, e, k, {
 	if(tail!=k)
-	  IncEdgeMapUInt(tail,k,DIRECTED,echange,wtnwp);
+	  IncEdgeMapUInt(THD(tail,k),echange,wtnwp);
       });
   }
   {
     // Update all k->t->h two-paths.
     EXEC_THROUGH_FINEDGES(tail, e, k, {
 	if(k!=head)
-	  IncEdgeMapUInt(k,head,DIRECTED,echange,wtnwp);
+	  IncEdgeMapUInt(THD(k,head),echange,wtnwp);
       });
   }
 }
@@ -99,7 +99,7 @@ I_CHANGESTAT_FN(i__osp_wtnet){
   EXEC_THROUGH_NET_EDGES(i, j, e1, { // Since i->j
       EXEC_THROUGH_FINEDGES(j, e2, k, { // and k->j
 	  if(i<k) // Don't double-count.
-	    IncEdgeMapUInt(i,k,FALSE,1,wtnwp); // increment i-k.
+	    IncEdgeMapUInt(THU(i,k),1,wtnwp); // increment i-k.
 	});
     });
 }
@@ -111,7 +111,7 @@ U_CHANGESTAT_FN(u__osp_wtnet){
   // Update all t->h<-k shared partners.
   EXEC_THROUGH_FINEDGES(head, e, k, {
       if(tail!=k)
-	IncEdgeMapUInt(tail,k,FALSE,echange,wtnwp);
+	IncEdgeMapUInt(THU(tail,k),echange,wtnwp);
     });
 }
 
@@ -130,7 +130,7 @@ I_CHANGESTAT_FN(i__isp_wtnet){
   EXEC_THROUGH_NET_EDGES(i, j, e1, { // Since i->j
       EXEC_THROUGH_FOUTEDGES(i, e2, k, { // and i->k
 	  if(j<k) // Don't double-count.
-	    IncEdgeMapUInt(j,k,FALSE,1,wtnwp); // increment j-k.
+	    IncEdgeMapUInt(THU(j,k),1,wtnwp); // increment j-k.
 	});
     });
 }
@@ -142,7 +142,7 @@ U_CHANGESTAT_FN(u__isp_wtnet){
   // Update all h<-t->k shared partners.
   EXEC_THROUGH_FOUTEDGES(tail, e, k, {
       if(head!=k)
-	IncEdgeMapUInt(head,k,FALSE,echange,wtnwp);
+	IncEdgeMapUInt(THU(head,k),echange,wtnwp);
     });
 }
 
@@ -161,11 +161,11 @@ I_CHANGESTAT_FN(i__utp_wtnet){
   EXEC_THROUGH_NET_EDGES(i, j, e1, { // Since i-j
       EXEC_THROUGH_EDGES(i, e2, k, { // and i-k
 	  if(j<k)
-	    IncEdgeMapUInt(j,k,DIRECTED,1,wtnwp); // increment j-k.
+	    IncEdgeMapUInt(THU(j,k),1,wtnwp); // increment j-k.
 	});
       EXEC_THROUGH_EDGES(j, e2, k, { // and j-k
 	  if(i<k)
-	    IncEdgeMapUInt(i,k,DIRECTED,1,wtnwp); // increment i-k.
+	    IncEdgeMapUInt(THU(i,k),1,wtnwp); // increment i-k.
 	});
     });
 }
@@ -177,13 +177,13 @@ U_CHANGESTAT_FN(u__utp_wtnet){
   // Update all h-t-k shared partners.
   EXEC_THROUGH_EDGES(tail, e, k, {
       if(head!=k)
-	IncEdgeMapUInt(head,k,DIRECTED,echange,wtnwp);
+	IncEdgeMapUInt(THU(head,k),echange,wtnwp);
     });
 
   // Update all t-h-k shared partners.
   EXEC_THROUGH_EDGES(head, e, k, {
       if(tail!=k)
-	IncEdgeMapUInt(tail,k,DIRECTED,echange,wtnwp);
+	IncEdgeMapUInt(THU(tail,k),echange,wtnwp);
     });
 
 }

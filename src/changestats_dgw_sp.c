@@ -39,7 +39,7 @@ static inline void dspUTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     /* step through edges of head */
     EXEC_THROUGH_EDGES(head,e,u, {
       if (u!=tail){
-	if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, TH(tail,u,DIRECTED), 0, L2tu);}
+	if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, THU(tail,u), 0, L2tu);}
 	else{
 	  L2tu=0;
 	  /* step through edges of u */
@@ -55,7 +55,7 @@ static inline void dspUTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
       });
     EXEC_THROUGH_EDGES(tail,e,u, {
       if (u!=head){
-        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, TH(u,head,DIRECTED), 0, L2uh);}
+        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, THU(u,head), 0, L2uh);}
 	else{
 	  L2uh=0;
 	  /* step through edges of u */
@@ -99,7 +99,7 @@ static inline void dspOTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     EXEC_THROUGH_OUTEDGES(head, e, k, {
       
       if(k!=tail){ /*Only use contingent cases*/
-        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, TH(tail,k,DIRECTED), 0, L2tk);}
+        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, THD(tail,k), 0, L2tk);}
 	else{
 	  L2tk=0;
 	  /* step through inedges of k, incl. (head,k) itself */
@@ -117,7 +117,7 @@ static inline void dspOTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     /* step through inedges of tail (i.e., k: k->t)*/
     EXEC_THROUGH_INEDGES(tail, e, k, {
       if (k!=head){ /*Only use contingent cases*/
-	if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, TH(k,head,DIRECTED), 0, L2kh);}
+	if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, THD(k,head), 0, L2kh);}
 	else{
 	  L2kh=0;
 	  /* step through outedges of k , incl. (k,tail) itself */
@@ -158,7 +158,7 @@ static inline void dspITP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     EXEC_THROUGH_OUTEDGES(head, e, k, {
       if((k!=tail)){ /*Only use contingent cases*/
         /*We have a h->k->t two-path, so add it to our count.*/
-        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, TH(tail,k,DIRECTED), 0, L2kt);} // wtnwp is an OTP cache.
+        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, THD(tail,k), 0, L2kt);} // wtnwp is an OTP cache.
 	else{
 	  L2kt=0;
 	  /*Now, count # u such that k->u->h (so that we know k's ESP value)*/
@@ -176,7 +176,7 @@ static inline void dspITP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     /* step through inedges of tail (i.e., k: k->t)*/
     EXEC_THROUGH_INEDGES(tail, e, k, {
       if((k!=head)){ /*Only use contingent cases*/
-        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, TH(k,head,DIRECTED), 0, L2hk);}
+        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, THD(k,head), 0, L2hk);}
 	else{
 	  L2hk=0;
 	  /*Now, count # u such that t->u->k (so that we know k's ESP value)*/
@@ -216,7 +216,7 @@ static inline void dspOSP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     EXEC_THROUGH_INEDGES(head, e, k, {
       if(k!=tail){
         /*Do we have a t->k,h->k SP?  If so, add it to our count.*/
-        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, TH(tail,k,FALSE), 0, L2tk);}
+        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, THU(tail,k), 0, L2tk);}
 	else{
 	  L2tk=0;
 	  /*Now, count # u such that t->u,k->u (to get t->k's ESP value)*/
@@ -259,7 +259,7 @@ static inline void dspISP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     /* step through inedges of head (i.e., k: k->h, t->k, k!=t)*/
     EXEC_THROUGH_OUTEDGES(tail, e, k, {
       if(k!=head){
-        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, TH(k,head,FALSE), 0, L2kh);}
+        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, THU(k,head), 0, L2kh);}
 	else{
 	  L2kh=0;
 	  /*Now, count # u such that u->h,u->k (to get h>k's ESP value)*/
@@ -513,14 +513,14 @@ static inline void espUTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
   //  Rprintf("%d ",(int)dvec[i]);
   //Rprintf("\n");
 
-  if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, TH(tail,head,DIRECTED), 0, L2th);} else L2th=0;
+  if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, THU(tail,head), 0, L2th);} else L2th=0;
     echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     /* step through outedges of head */
     EXEC_THROUGH_EDGES(head,e,u, {
       if (IS_UNDIRECTED_EDGE(u,tail) != 0){
 	if(wtnwp){
-	  {kh_getval(EdgeMapUInt, wtnwp, TH(tail,u,DIRECTED), 0, L2tu);}
-	  {kh_getval(EdgeMapUInt, wtnwp, TH(u,head,DIRECTED), 0, L2uh);}
+	  {kh_getval(EdgeMapUInt, wtnwp, THU(tail,u), 0, L2tu);}
+	  {kh_getval(EdgeMapUInt, wtnwp, THU(u,head), 0, L2uh);}
 	}else{
 	  L2th++;
 	  L2tu=0;
@@ -569,7 +569,7 @@ static inline void espOTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
   //Rprintf("Clearing changestats\n");
   memset(cs, 0, nd*sizeof(double));
     //Rprintf("Working on toggle %d (%d,%d)\n",i,TAIL(i),HEAD(i));
-  if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, TH(tail,head,DIRECTED), 0, L2th);} else L2th=0;
+  if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, THD(tail,head), 0, L2th);} else L2th=0;
     echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     //Rprintf("\tEdge change is %d\n",echange);
     /* step through outedges of tail (i.e., k: t->k)*/
@@ -581,7 +581,7 @@ static inline void espOTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
       }
       if((k!=head)&&(IS_OUTEDGE(head,k))){ /*Only use contingent cases*/
         //Rprintf("\tk==%d, passed criteria\n",k);
-        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, TH(tail,k,DIRECTED), 0, L2tk);}
+        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, THD(tail,k), 0, L2tk);}
 	else{
 	  L2tk=0;
 	  /*Now, count # u such that t->u->k (to find t->k's ESP value)*/
@@ -604,7 +604,7 @@ static inline void espOTP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     EXEC_THROUGH_INEDGES(head,e,k, {
       if((k!=tail)&&(IS_OUTEDGE(k,tail))){ /*Only use contingent cases*/
         //Rprintf("\tk==%d, passed criteria\n",k);
-        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, TH(k,head,DIRECTED), 0, L2kh);}
+        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, THD(k,head), 0, L2kh);}
 	else{
 	  L2kh=0;
 	  /*Now, count # u such that k->u->j (to find k->h's ESP value)*/
@@ -648,7 +648,7 @@ static inline void espITP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
   //Rprintf("Clearing changestats\n");
   memset(cs, 0, nd*sizeof(double));
     //Rprintf("Working on toggle %d (%d,%d)\n",i,TAIL(i),HEAD(i));
-    if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, TH(head,tail,DIRECTED), 0, L2th);} // wtnwp has OTP two-paths
+    if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, THD(head,tail), 0, L2th);} // wtnwp has OTP two-paths
     else L2th=0;
     echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     //Rprintf("\tEdge change is %d\n",echange);
@@ -657,7 +657,7 @@ static inline void espITP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     EXEC_THROUGH_OUTEDGES(head,e,k, {
       if((k!=tail)&&(IS_OUTEDGE(k,tail))){ /*Only use contingent cases*/
         //Rprintf("\tk==%d, passed criteria\n",k);
-        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, TH(k,head,DIRECTED), 0, L2hk);}
+        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, THD(k,head), 0, L2hk);}
 	else{
 	  /*We have a h->k->t two-path, so add it to our count.*/
 	  L2th++;
@@ -682,7 +682,7 @@ static inline void espITP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     EXEC_THROUGH_INEDGES(tail,e,k, {
       if((k!=head)&&(IS_OUTEDGE(head,k))){ /*Only use contingent cases*/
         //Rprintf("\tk==%d, passed criteria\n",k);
-        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, TH(tail,k,DIRECTED), 0, L2kt);}
+        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, THD(tail,k), 0, L2kt);}
 	else{
 	  L2kt=0;
 	  /*Now, count # u such that t->u->k (so that we know k's ESP value)*/
@@ -724,7 +724,7 @@ static inline void espOSP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
   Vertex deg;
   
   memset(cs, 0, nd*sizeof(double));
-  if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, TH(tail,head,FALSE), 0, L2th);} else L2th=0;
+  if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, THU(tail,head), 0, L2th);} else L2th=0;
     echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     /* step through outedges of tail (i.e., k: t->k, k->h, k!=h)*/
     EXEC_THROUGH_OUTEDGES(tail,e,k, {
@@ -734,7 +734,7 @@ static inline void espOSP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
 	  L2th+=IS_OUTEDGE(head,k);
 	
 	if(IS_OUTEDGE(k,head)){ /*Only consider stats that could change*/
-          if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, TH(tail,k,FALSE), 0, L2tk);}
+          if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, THU(tail,k), 0, L2tk);}
 	  else{
 	    L2tk=0;
 	    /*Now, count # u such that t->u,k->u (to get t->k's ESP value)*/
@@ -754,7 +754,7 @@ static inline void espOSP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     /* step through inedges of tail (i.e., k: k->t, k->h, k!=h)*/
     EXEC_THROUGH_INEDGES(tail,e,k, {
       if((k!=head)&&(IS_OUTEDGE(k,head))){ /*Only stats that could change*/
-        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, TH(k,tail,FALSE), 0, L2kt);}
+        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, THU(k,tail), 0, L2kt);}
 	else{
 	  L2kt=0;
 	  /*Now, count # u such that t->u,k->u (to get k->t's ESP value)*/
@@ -794,7 +794,7 @@ static inline void espISP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
   Vertex deg;
   
   memset(cs, 0, nd*sizeof(double));
-  if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, TH(tail,head,FALSE), 0, L2th);} else L2th=0;
+  if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, THU(tail,head), 0, L2th);} else L2th=0;
     echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     /* step through inedges of head (i.e., k: k->h, t->k, k!=t)*/
     EXEC_THROUGH_INEDGES(head,e,k, {
@@ -804,7 +804,7 @@ static inline void espISP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
 	  L2th+=IS_OUTEDGE(k,tail);
 	
 	if(IS_OUTEDGE(tail,k)){ /*Only consider stats that could change*/
-          if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, TH(k,head,FALSE), 0, L2kh);}
+          if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, THU(k,head), 0, L2kh);}
 	  else{
 	    L2kh=0;
 	    /*Now, count # u such that u->h,u->k (to get h>k's ESP value)*/
@@ -824,7 +824,7 @@ static inline void espISP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     /* step through outedges of head (i.e., k: h->k, t->k, k!=t)*/
     EXEC_THROUGH_OUTEDGES(head,e,k, {
       if((k!=tail)&&(IS_OUTEDGE(tail,k))){ /*Only stats that could change*/
-        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, TH(head,k,FALSE), 0, L2hk);}
+        if(wtnwp) {kh_getval(EdgeMapUInt, wtnwp, THU(head,k), 0, L2hk);}
 	else{
 	  L2hk=0;
 	  /*Now, count # u such that u->h,u->k (to get k->h's ESP value)*/
