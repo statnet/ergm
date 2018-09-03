@@ -111,17 +111,22 @@
   
    \subsection{OTHER USER-VISIBLE CHANGES}{
      \itemize{
-       \code{\link{enformulate.curved}} family of functions has been deprecated.
+       \item{
+	 \code{\link{enformulate.curved}} family of functions has been
+	 deprecated.
+       }
      }    
    }
 
   \subsection{C-LEVEL FACILITIES}{
     \itemize{
-      The user term API now allows the C implementation to store
-      information about the network between calls to the \code{d_*}
-      function, by implementing a \code{u_*} function that initializes
-      the storage space and is called to update the stored information
-      before every toggle.
+      \item{
+	The user term API now allows the C implementation to store
+	information about the network between calls to the \code{d_*}
+	function, by implementing a \code{u_*} function that initializes
+	the storage space and is called to update the stored information
+	before every toggle.
+      }
     }
   }
 }
