@@ -4,41 +4,23 @@
 #include "changestats_spcache.h"
 
 
-// Increment the value of the edge by inc.
-/* static inline void WtIncEdge (Vertex tail, Vertex head, double inc, WtNetwork *nwp)  */
-/* { */
-/*   ENSURE_TH_ORDER; */
-
-/*   if(inc==0) return; */
-  
-/*   // Find the out-edge */
-/*   Edge oe=WtEdgetreeSearch(tail,head,nwp->outedges); */
-/*   if(oe){ */
-/*     // Find the corresponding in-edge. */
-/*     Edge ie=WtEdgetreeSearch(head,tail,nwp->inedges); */
-/*     double weight = nwp->outedges[oe].weight + inc; */
-/*     if(weight==0){ */
-/*       // If the function is to set the edge value to 0, just delete it. */
-/*       WtDeleteEdgeFromTrees(tail,head,nwp); */
-/*     }else{ */
-/*       nwp->inedges[ie].weight=nwp->outedges[oe].weight = weight; */
-/*     } */
-/*   }else{ */
-/*     // Otherwise, create a new edge with that weight 0+inc==inc. */
-/*     WtAddEdgeToTrees(tail,head,inc,nwp); */
-/*   } */
-/* } */
-
-#define IncEdgeMapUInt(th, inc, wtnwp)					\
-  {									\
-    if(inc!=0){								\
-      unsigned int _IEMUI_val;						\
-      kh_getval(EdgeMapUInt, wtnwp, th, 0, _IEMUI_val);			\
-      _IEMUI_val += inc;						\
-      if(_IEMUI_val==0){kh_unset(EdgeMapUInt, wtnwp, th);}		\
-      else{kh_set(EdgeMapUInt, wtnwp, th, _IEMUI_val);}			\
-    }									\
+// Increment the value in the hashtable by inc.
+static inline void IncEdgeMapUInt(struct TailHead th, int inc, StoreEdgeMapUInt *wtnwp){
+  if(inc!=0){
+    khiter_t pos = kh_get(EdgeMapUInt, wtnwp, th);
+    unsigned int val = pos==kh_end(wtnwp) ? 0 : kh_value(wtnwp, pos);
+    val += inc;
+    if(val==0){
+      kh_del(EdgeMapUInt, wtnwp, pos);
+    }else{
+      if(pos==kh_end(wtnwp)){
+	int ret;
+	pos = kh_put(EdgeMapUInt, wtnwp, th, &ret);
+      }
+      kh_val(wtnwp, pos) = val;
+    }
   }
+}
 
 void PrintEdgeMapUInt(StoreEdgeMapUInt *h){
   for(khiter_t i = kh_begin(h); i!=kh_end(h); ++i){
