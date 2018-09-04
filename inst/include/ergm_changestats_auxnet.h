@@ -32,4 +32,8 @@ I_CHANGESTAT_FN(i__blockdiag_net);
 U_CHANGESTAT_FN(u__blockdiag_net);
 F_CHANGESTAT_FN(f__blockdiag_net);
 
+I_CHANGESTAT_FN(i__undir_net);
+U_CHANGESTAT_FN(u__undir_net);
+F_CHANGESTAT_FN(f__undir_net);
+
 #endif

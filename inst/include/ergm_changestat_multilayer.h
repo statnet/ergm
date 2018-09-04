@@ -12,18 +12,30 @@
 #define ML_MIN_INEDGE(ll, a) (EdgetreeMinimum((ll)->onwp->inedges, (a)))
 #define ML_NEXT_OUTEDGE(ll, e) (EdgetreeSuccessor((ll)->onwp->outedges,(e)))
 #define ML_NEXT_INEDGE(ll, e) (EdgetreeSuccessor((ll)->onwp->inedges,(e)))
+#define ML_NEXT_OUTEDGE_PRE(ll, e) (EdgetreePreSuccessor((ll)->onwp->outedges,(e)))
+#define ML_NEXT_INEDGE_PRE(ll, e) (EdgetreePreSuccessor((ll)->onwp->inedges,(e)))
 #define ML_STEP_THROUGH_OUTEDGES(ll, a,e,v) for((e)=ML_MIN_OUTEDGE((ll), a);((v)=ML_OUTVAL((ll), e))!=0;(e)=ML_NEXT_OUTEDGE((ll), e))
 #define ML_STEP_THROUGH_INEDGES(ll, a,e,v) for((e)=ML_MIN_INEDGE((ll), a);((v)=ML_INVAL((ll), e))!=0;(e)=ML_NEXT_INEDGE((ll), e))
-#define ML_STEP_THROUGH_OUTEDGES_DECL(ll, a,e,v) for(Edge e=ML_MIN_OUTEDGE((ll), a);ML_OUTVAL((ll), e)!=0;e=ML_NEXT_OUTEDGE((ll), e))
-#define ML_STEP_THROUGH_INEDGES_DECL(ll, a,e,v) for(Edge e=ML_MIN_INEDGE((ll), a);ML_INVAL((ll), e)!=0;e=ML_NEXT_INEDGE((ll), e))
-#define ML_EXEC_THROUGH_OUTEDGES(ll, a,e,v,subroutine) if(ML_DIRECTED((ll))){ ML_STEP_THROUGH_OUTEDGES_DECL((ll), a,e,v) {Vertex v=ML_OUTVAL((ll), e); subroutine} } else { ML_EXEC_THROUGH_EDGES((ll), a,e,v,subroutine) }
-#define ML_EXEC_THROUGH_INEDGES(ll, a,e,v,subroutine) if(ML_DIRECTED((ll))){ ML_STEP_THROUGH_INEDGES_DECL((ll), a,e,v) {Vertex v=ML_INVAL((ll), e); subroutine} } else { ML_EXEC_THROUGH_EDGES((ll), a,e,v,subroutine) }
-#define ML_EXEC_THROUGH_EDGES(ll, a,e,v,subroutine) { ML_STEP_THROUGH_OUTEDGES_DECL((ll), a,e,v) {Vertex v=ML_OUTVAL((ll), e); subroutine}  ML_STEP_THROUGH_INEDGES_DECL((ll), a,e,v) {Vertex v=ML_INVAL((ll), e); subroutine} }
-#define ML_EXEC_THROUGH_FOUTEDGES(ll, a,e,v,subroutine) ML_STEP_THROUGH_OUTEDGES_DECL((ll), a,e,v) {Vertex v=ML_OUTVAL((ll), e); subroutine}
-#define ML_EXEC_THROUGH_FINEDGES(ll, a,e,v,subroutine) ML_STEP_THROUGH_INEDGES_DECL((ll), a,e,v) {Vertex v=ML_INVAL((ll), e); subroutine}
-#define ML_EXEC_THROUGH_NET_EDGES(ll, a,b,e,subroutine) for(Vertex a=1; a <= N_NODES; a++)  ML_EXEC_THROUGH_FOUTEDGES((ll), a, e, b, {subroutine});
-#define ML_TOGGLE(ll, a,b) (ToggleEdge((a),(b),(ll)->onwp));
-#define ML_TOGGLE_DISCORD(ll, a,b) (ToggleEdge((a),(b),(ll)->onwp+1));
+#define ML_STEP_THROUGH_OUTEDGES_PRE(ll, a,e,v) for((e)=(a);((v)=ML_OUTVAL((ll), e))!=0;(e)=ML_NEXT_OUTEDGE_PRE((ll), e))
+#define ML_STEP_THROUGH_INEDGES_PRE(ll, a,e,v) for((e)=(a);((v)=ML_INVAL((ll), e))!=0;(e)=ML_NEXT_INEDGE_PRE((ll), e))
+#define ML_STEP_THROUGH_OUTEDGES_DECL(ll, a,e,v) Vertex v; for(Edge e=ML_MIN_OUTEDGE((ll), a);((v)=ML_OUTVAL((ll), e))!=0;e=ML_NEXT_OUTEDGE((ll), e))
+#define ML_STEP_THROUGH_INEDGES_DECL(ll, a,e,v) Vertex v; for(Edge e=ML_MIN_INEDGE((ll), a);((v)=ML_INVAL((ll), e))!=0;e=ML_NEXT_INEDGE((ll), e))
+#define ML_STEP_THROUGH_OUTEDGES_PRE_DECL(ll, a,e,v) Vertex v; for(Edge e=(a);((v)=ML_OUTVAL((ll), e))!=0;e=ML_NEXT_OUTEDGE_PRE((ll), e))
+#define ML_STEP_THROUGH_INEDGES_PRE_DECL(ll, a,e,v) Vertex v; for(Edge e=(a);((v)=ML_INVAL((ll), e))!=0;e=ML_NEXT_INEDGE_PRE((ll), e))
+#define ML_EXEC_THROUGH_OUTEDGES(ll, a,e,v,subroutine) {if(ML_DIRECTED((ll))){ ML_STEP_THROUGH_OUTEDGES_DECL((ll), a,e,v) {subroutine} } else { ML_EXEC_THROUGH_EDGES((ll), a,e,v,subroutine) }}
+#define ML_EXEC_THROUGH_INEDGES(ll, a,e,v,subroutine) {if(ML_DIRECTED((ll))){ ML_STEP_THROUGH_INEDGES_DECL((ll), a,e,v) {subroutine} } else { ML_EXEC_THROUGH_EDGES((ll), a,e,v,subroutine) }}
+#define ML_EXEC_THROUGH_EDGES(ll, a,e,v,subroutine) { {ML_STEP_THROUGH_OUTEDGES_DECL((ll), a,e,v) {subroutine}};  {ML_STEP_THROUGH_INEDGES_DECL((ll), a,e,v) {subroutine}}; }
+#define ML_EXEC_THROUGH_OUTEDGES_PRE(ll, a,e,v,subroutine) {if(ML_DIRECTED((ll))){ ML_STEP_THROUGH_OUTEDGES_PRE_DECL((ll), a,e,v) {subroutine} } else { ML_EXEC_THROUGH_EDGES_PRE((ll), a,e,v,subroutine) }}
+#define ML_EXEC_THROUGH_INEDGES_PRE(ll, a,e,v,subroutine) {if(ML_DIRECTED((ll))){ ML_STEP_THROUGH_INEDGES_PRE_DECL((ll), a,e,v) {subroutine} } else { ML_EXEC_THROUGH_EDGES_PRE((ll), a,e,v,subroutine) }}
+#define ML_EXEC_THROUGH_EDGES_PRE(ll, a,e,v,subroutine) { {ML_STEP_THROUGH_OUTEDGES_PRE_DECL((ll), a,e,v) {subroutine}};  {ML_STEP_THROUGH_INEDGES_PRE_DECL((ll), a,e,v) {subroutine}}; }
+#define ML_EXEC_THROUGH_FOUTEDGES(ll, a,e,v,subroutine) ML_STEP_THROUGH_OUTEDGES_DECL((ll), a,e,v) {subroutine}
+#define ML_EXEC_THROUGH_FINEDGES(ll, a,e,v,subroutine) ML_STEP_THROUGH_INEDGES_DECL((ll), a,e,v) {subroutine}
+#define ML_EXEC_THROUGH_NET_EDGES(ll, a,b,e,subroutine) {for(Vertex a=1; a <= N_NODES; a++){ML_EXEC_THROUGH_FOUTEDGES((ll), a, e, b, {subroutine});}}
+#define ML_EXEC_THROUGH_FOUTEDGES_PRE(ll, a,e,v,subroutine) ML_STEP_THROUGH_OUTEDGES_PRE_DECL((ll), a,e,v) {subroutine}
+#define ML_EXEC_THROUGH_FINEDGES_PRE(ll, a,e,v,subroutine) ML_STEP_THROUGH_INEDGES_PRE_DECL((ll), a,e,v) {subroutine}
+#define ML_EXEC_THROUGH_NET_EDGES_PRE(ll, a,b,e,subroutine) {for(Vertex a=1; a <= N_NODES; a++){ML_EXEC_THROUGH_FOUTEDGES_PRE((ll), a, e, b, {subroutine});}}
+#define ML_TOGGLE(ll, a,b) (ToggleEdge((a),(b),(ll)->onwp))
+#define ML_TOGGLE_DISCORD(ll, a,b) (ToggleEdge((a),(b),(ll)->onwp+1))
 #define ML_GETWT(ll, a,b) (GetEdge(a,b,(ll)->onwp))
 #define ML_SETWT(ll, a,b,w) (SetEdge(a,b,w,(ll)->onwp))
 
@@ -32,6 +44,7 @@ typedef struct {
   Network *inwp, *onwp;
   double *lid;
   double *lmap;
+  double *symm;
   double *commands;
   double *stacks;
 } StoreLayerLogic;
@@ -166,14 +179,22 @@ typedef struct {
 
 #define ergm_FROUND(x) fround(x,0)
 
-static inline int ergm_LayerLogic(Vertex tail, Vertex head, // Dyad to toggle on LHS network.
-				  StoreLayerLogic *ll, // Layer Logic
-				  unsigned int change
+static inline int ergm_LayerLogic2(Vertex ltail, Vertex lhead, // Dyad whose value/change to evaluate within the logical layer.
+				   Vertex ttail, Vertex thead, // Dyad to toggle on LHS network.
+				   StoreLayerLogic *ll, // Layer Logic
+				   unsigned int change
 				  ){
   double *commands = ll->commands;
   unsigned int ncom = *(commands++);
-  double *stack0=ll->stacks-1, *stack1=change? ll->stacks+ncom-1 : NULL; // stack0 and stack1 always point to the top element (if any)
-  Vertex lt = ML_IO_TAIL(ll, tail), lh = ML_IO_HEAD(ll, head), tl = ML_LID_TAIL(ll, tail);
+  // What gets looked up?
+  Vertex lt = ltail, lh = lhead;
+  // What gets toggled?
+  Vertex tlt = ML_IO_TAIL(ll, ttail), tlh = ML_IO_HEAD(ll, thead), tl = ML_LID_TAIL(ll, ttail);
+  // Is the dyad being toggled the same one as being looked up?
+  unsigned int t_th = lt==tlt && lh==tlh, t_ht = lt==tlh && lh==tlt;
+
+  double *stack0=ll->stacks-1, // stack0 and stack1 always point to the top element (if any)
+    *stack1=change && (t_th||t_ht)? ll->stacks+ncom-1 : NULL;  // Don't bother with stack1 if toggle can't affect focus dyad.
 
   for(unsigned int i=0; i<ncom; i++){
     int com = *(commands++);
@@ -207,25 +228,81 @@ static inline int ergm_LayerLogic(Vertex tail, Vertex head, // Dyad to toggle on
     case -20:ergm_UNFUN(ergm_FROUND)
     case -21:ergm_BINFUN(fround)
     case -22:ergm_UNFUN(sign)
-    default:{
-      Vertex l = com; 
-      unsigned int x0 = ML_IGETWT(ll, l, lt, lh);
+    case -23:{ // Reverse direction
+      Vertex l = *(commands++);
+      unsigned int x0;
+      // If the physical layer is symmetrized, then only look at the upper triangle.
+      if(ll->symm && ll->symm[l]!=0) x0 = ML_IGETWT(ll, l, MIN(lt,lh), MAX(lt,lh));
+      else x0 = ML_IGETWT(ll, l, lh, lt);
       *(++stack0) = x0;
       if(stack1){
-	unsigned int x1 = tl==l? !(x0!=0) : x0;
+	unsigned int x1 = tl==l && (t_ht || (ll->symm && ll->symm[l]!=0 && t_th))? !(x0!=0) : x0;
+	*(++stack1) = x1;
+      }
+      break;}
+    default:{
+      Vertex l = com; 
+      unsigned int x0;
+      // If the physical layer is symmetrized, then only look at the upper triangle.
+      if(ll->symm && ll->symm[l]!=0) x0 = ML_IGETWT(ll, l, MIN(lt,lh), MAX(lt,lh));
+      else x0 = ML_IGETWT(ll, l, lt, lh);
+      *(++stack0) = x0;
+      if(stack1){
+	unsigned int x1 = tl==l && (t_th || (ll->symm && ll->symm[l]!=0 && t_ht))? !(x0!=0) : x0;
 	*(++stack1) = x1;
       }
       break;}
     }
   }
 
-  switch(change){
-  case 1: return (int)(*stack1!=0) - (int)(*stack0!=0);
-  case 2: return (*stack0!=0) | ((*stack1!=0)<<1);
-  case 3: return (*stack1!=0);
-  default: return (*stack0!=0);
+  if(t_th||t_ht){
+    switch(change){
+    case 1: return (int)(*stack1!=0) - (int)(*stack0!=0);
+    case 2: return (*stack0!=0) | ((*stack1!=0)<<1);
+    case 3: return (*stack1!=0);
+    default: return (*stack0!=0);
+    }
+  }else{
+    switch(change){
+    case 1: return 0;
+    case 2: return (*stack0!=0) | ((*stack0!=0)<<1);
+    case 3: return (*stack0!=0);
+    default: return (*stack0!=0);
+    }
   }
 }
+
+static inline int ergm_LayerLogic(Vertex tail, Vertex head, // Dyad to toggle and evaluate on LHS network.
+				   StoreLayerLogic *ll, // Layer Logic
+				   unsigned int change
+				  ){
+  return ergm_LayerLogic2(tail, head, tail, head, ll, change);
+}
+
+// change = 2 -> asis_th + toggled_th*2 + asis_ht*4 + toggled_ht*8
+static inline unsigned int ergm_LayerLogic_affects(Vertex ttail, Vertex thead, // Dyad to toggle on LHS network.
+						   StoreLayerLogic *ll, // Layer Logic
+						   unsigned int change,
+						   Vertex *atails, Vertex *aheads){
+  unsigned int nt = 0;
+  Vertex lt = ML_IO_TAIL(ll, ttail), lh = ML_IO_HEAD(ll, thead);
+  if(change==2){
+    return ergm_LayerLogic2(lt, lh, ttail, thead, ll, 2) | (ergm_LayerLogic2(lt, lh, ttail, thead, ll, 2)<<2);
+  }else{
+    if(ergm_LayerLogic2(lt, lh, ttail, thead, ll, change)){
+      atails[nt] = lt;
+      aheads[nt] = lh;
+      nt++;
+    }
+    if(ergm_LayerLogic2(lh, lt, ttail, thead, ll, change)){
+      atails[nt] = lh;
+      aheads[nt] = lt;
+      nt++;
+    }
+  return nt;
+  }
+}
+				  
 
 #undef ergm_UNOP
 #undef ergm_UNFUN
