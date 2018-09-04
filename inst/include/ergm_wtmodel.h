@@ -30,22 +30,22 @@ typedef struct WtModelstruct {
   unsigned int n_aux;
 } WtModel;
 
-#define WtFOR_EACH_TERM for(WtModelTerm *mtp = m->termarray; mtp < m->termarray + m->n_terms; mtp++)
+#define WtFOR_EACH_TERM(m) for(WtModelTerm *mtp = (m)->termarray; mtp < (m)->termarray + (m)->n_terms; mtp++)
 
-#define WtEXEC_THROUGH_TERMS(subroutine)				\
-  WtFOR_EACH_TERM{							\
+#define WtEXEC_THROUGH_TERMS(m, subroutine)				\
+  WtFOR_EACH_TERM(m){							\
     subroutine;								\
   }
 
-#define WtFOR_EACH_TERM_INREVERSE for(WtModelTerm *mtp = m->termarray + m->n_terms - 1; mtp >= m->termarray; mtp--)
+#define WtFOR_EACH_TERM_INREVERSE(m) for(WtModelTerm *mtp = (m)->termarray + (m)->n_terms - 1; mtp >= (m)->termarray; mtp--)
 
-#define WtEXEC_THROUGH_TERMS_INREVERSE(subroutine)			\
-  WtFOR_EACH_TERM_INREVERSE{						\
+#define WtEXEC_THROUGH_TERMS_INREVERSE(m, subroutine)			\
+  WtFOR_EACH_TERM_INREVERSE(m){						\
     subroutine;								\
   }  
 
-#define WtEXEC_THROUGH_TERMS_INTO(output, subroutine)			\
-  WtFOR_EACH_TERM{							\
+#define WtEXEC_THROUGH_TERMS_INTO(m, output, subroutine)		\
+  WtFOR_EACH_TERM(m){							\
     double *dstats = output + mtp->statspos;				\
     subroutine;								\
   }
@@ -63,7 +63,7 @@ typedef struct WtModelstruct {
 
 #define WtUPDATE_STORAGE_COND(tail, head, weight, nwp, m, MHp, cond){	\
     if(MHp && ((WtMHproposal*)MHp)->u_func) ((WtMHproposal*)MHp)->u_func(tail, head, weight, MHp, nwp); \
-    WtEXEC_THROUGH_TERMS({						\
+    WtEXEC_THROUGH_TERMS(m, {						\
 	IFDEBUG_BACKUP_DSTATS;						\
 	if(mtp->u_func && (cond))					\
 	  (*(mtp->u_func))(tail, head, weight, mtp, nwp);  /* Call u_??? function */ \
@@ -71,7 +71,7 @@ typedef struct WtModelstruct {
       });								\
   }
 
-#define WtUPDATE_STORAGE(tail, head, weight, nwp, m, MHp){			\
+#define WtUPDATE_STORAGE(tail, head, weight, nwp, m, MHp){		\
     WtUPDATE_STORAGE_COND(tail, head, weight, nwp, m, MHp, TRUE);	\
   }
 

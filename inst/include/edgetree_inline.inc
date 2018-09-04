@@ -87,6 +87,30 @@ static inline Edge EdgetreeSuccessor (TreeNode *edges, Edge x) {
 }   
 
 /*****************
+ Edge EdgetreePre(order)Successor
+
+ Return the index of the next TreeNode in a preorder traversal.
+*****************/
+static inline Edge EdgetreePreSuccessor (TreeNode *edges, Edge x) {
+  TreeNode *ptr;
+  Edge y, z;
+
+  // If we can go left, go left.
+  if ((y=(ptr=edges+x)->left) != 0) 
+    return y;
+  // If we can go right, go right.
+  if ((y=ptr->right) != 0) 
+    return y;
+  // Otherwise, keep going up until we can go right unless we just
+  // went up from the right node.
+  while ((y=ptr->parent)!=0){
+    if((z=(ptr=(edges+y))->right)!=0 && z!=x) return z;
+    x=y;
+  }
+  return y; 
+}
+
+/*****************
  Edge EdgetreePredecessor
 
  Return the index of the TreeNode with the smallest value

@@ -26,7 +26,7 @@
 /*
   An example:
 
-#include "khash.h"
+#include "ergm_khash.h"
 KHASH_MAP_INIT_INT(32, char)
 int main() {
 	int ret, is_missing;
@@ -204,7 +204,7 @@ static const double __ac_HASH_UPPER = 0.77;
 	extern void kh_destroy_##name(kh_##name##_t *h);					\
 	extern void kh_clear_##name(kh_##name##_t *h);						\
 	extern khint_t kh_get_##name(const kh_##name##_t *h, khkey_t key); 	\
-	extern khval_t kh_getval_##name(const kh_##name##_t *h, khkey_t key, khval_t d); \
+	extern khval_t kh_getval_##name(const kh_##name##_t *h, khkey_t key, khval_t defval); \
 	extern int kh_resize_##name(kh_##name##_t *h, khint_t new_n_buckets); \
 	extern khint_t kh_put_##name(kh_##name##_t *h, khkey_t key, int *ret); \
 	extern void kh_del_##name(kh_##name##_t *h, khint_t x);
@@ -242,10 +242,10 @@ static const double __ac_HASH_UPPER = 0.77;
 			return __ac_iseither(h->flags, i)? h->n_buckets : i;		\
 		} else return 0;												\
 	}																	\
-	SCOPE khval_t kh_getval_##name(const kh_##name##_t *h, khkey_t key, khval_t d) \
+	SCOPE khval_t kh_getval_##name(const kh_##name##_t *h, khkey_t key, khval_t defval) \
 	{								\
 	  khiter_t pos = kh_get_##name(h, key);				\
-	  return pos==kh_end(h) ? d : kh_value(h, pos);		\
+	  return pos==kh_end(h) ? defval : kh_value(h, pos);		\
 	}								\
 	SCOPE int kh_resize_##name(kh_##name##_t *h, khint_t new_n_buckets) \
 	{ /* This function uses 0.25*n_buckets bytes of working space instead of [sizeof(key_t+val_t)+.25]*n_buckets. */ \
@@ -639,5 +639,36 @@ typedef const char *kh_cstr_t;
  */
 #define KHASH_MAP_INIT_STR(name, khval_t)								\
 	KHASH_INIT(name, kh_cstr_t, khval_t, 1, kh_str_hash_func, kh_str_hash_equal)
+
+/*! @function
+  @abstract     Insert a key-value pair into the hash table, overwriting if present.
+  @param  name  Name of the hash table [symbol]
+  @param  h     Pointer to the hash table [khash_t(name)*]
+  @param  k     Key [type of keys]
+  @param  v   Value to be inserted [type of values]
+ */
+#define kh_set(name, h, k, v)					\
+  {								\
+    khiter_t _kh_set_pos = kh_get(name, h, k);			\
+    int _kh_set_ret;						\
+    if(_kh_set_pos==kh_end(h)){					\
+      _kh_set_pos = kh_put(name, h, k, &_kh_set_ret);		\
+    }								\
+    kh_val(h, _kh_set_pos) = v;					\
+  }
+
+/*! @function
+  @abstract     Find and remove a key from the hash table.
+  @param  name  Name of the hash table [symbol]
+  @param  h     Pointer to the hash table [khash_t(name)*]
+  @param  k     Key [type of keys]
+ */
+#define kh_unset(name, h, k)					\
+  {								\
+    khiter_t _kh_unset_pos = kh_get(name, h, k);		\
+    if(_kh_unset_pos!=kh_end(h)){				\
+      kh_del(name, h, _kh_unset_pos);				\
+    }								\
+  }
 
 #endif /* __AC_KHASH_H */
