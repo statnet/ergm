@@ -29,4 +29,7 @@ static inline unsigned int kh_scramble_int(unsigned int a){
 KHASH_INIT(DyadMapUInt, struct TailHead, unsigned int, TRUE, kh_vertexvertex_hash_func, kh_vertexvertex_hash_equal)
 typedef khash_t(DyadMapUInt) StoreDyadMapUInt;
 
+/* Utility function declarations. */
+void PrintDyadMapUInt(StoreDyadMapUInt *h);
+
 #endif // _ERGM_DYAD_HASHMAP_H_
