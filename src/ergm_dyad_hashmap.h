@@ -2,8 +2,7 @@
 #define _ERGM_DYAD_HASHMAP_H_
 
 #include "ergm_edgetree.h"
-#include "khash_helpers.h"
-
+#include "khash.h"
 
 /* Data structure to represent a dyad that can serve as a key to the hash. */
 struct TailHead{
