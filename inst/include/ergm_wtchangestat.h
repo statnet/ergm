@@ -46,6 +46,10 @@ typedef struct WtModelTermstruct {
 #define WtMIN_INEDGE(a) (WtEdgetreeMinimum(nwp->inedges, (a)))
 #define WtNEXT_OUTEDGE(e) (WtEdgetreeSuccessor(nwp->outedges,(e)))
 #define WtNEXT_INEDGE(e) (WtEdgetreeSuccessor(nwp->inedges,(e)))
+/* As WtNEXT_*EDGE, but visits the parent nodes before the child
+   nodes. */
+#define WtNEXT_OUTEDGE_PRE(e) (WtEdgetreePreSuccessor(nwp->outedges,(e)))
+#define WtNEXT_INEDGE_PRE(e) (WtEdgetreePreSuccessor(nwp->inedges,(e)))
 
 /* The OUTWT and INWT macros give the weight of edge e, depending
    on whether it is an in-edge or an out-edge.  Presumably the first endnode
@@ -60,9 +64,16 @@ typedef struct WtModelTermstruct {
 #define WtSTEP_THROUGH_OUTEDGES(a,e,v) for((e)=WtMIN_OUTEDGE(a);((v)=OUTVAL(e))!=0;(e)=WtNEXT_OUTEDGE(e))
 #define WtSTEP_THROUGH_INEDGES(a,e,v) for((e)=WtMIN_INEDGE(a);((v)=INVAL(e))!=0;(e)=WtNEXT_INEDGE(e))
 
+/* As WtSTEP_THROUGH_*EDGES, but visit the parent nodes before the child
+   nodes. This is useful for "copying" an edgetree. */
+#define WtSTEP_THROUGH_OUTEDGES_PRE(a,e,v) for((e)=(a); ((v)=OUTVAL(e))!=0;WtNEXT_OUTEDGE_PRE(e))
+#define WtSTEP_THROUGH_INEDGES_PRE(a,e,v) for((e)=(a);((v)=INVAL(e))!=0;(e)=WtNEXT_INEDGE_PRE(e))
+
 // These are "declaring" versions of the above, optimized for use in EXEC_TROUGH_*EDGES macros.
-#define WtSTEP_THROUGH_OUTEDGES_DECL(a,e,v) for(Edge e=WtMIN_OUTEDGE(a);OUTVAL(e)!=0;e=WtNEXT_OUTEDGE(e))
-#define WtSTEP_THROUGH_INEDGES_DECL(a,e,v) for(Edge e=WtMIN_INEDGE(a);INVAL(e)!=0;e=WtNEXT_INEDGE(e))
+#define WtSTEP_THROUGH_OUTEDGES_DECL(a,e,v) Vertex v; for(Edge e=WtMIN_OUTEDGE(a);((v)=OUTVAL(e))!=0;e=WtNEXT_OUTEDGE(e))
+#define WtSTEP_THROUGH_INEDGES_DECL(a,e,v) Vertex v; for(Edge e=WtMIN_INEDGE(a);((v)=INVAL(e))!=0;e=WtNEXT_INEDGE(e))
+#define WtSTEP_THROUGH_OUTEDGES_PRE_DECL(a,e,v) Vertex v; for(Edge e=(a);((v)=OUTVAL(e))!=0;e=WtNEXT_OUTEDGE_PRE(e))
+#define WtSTEP_THROUGH_INEDGES_PRE_DECL(a,e,v) Vertex v; for(Edge e=(a);((v)=INVAL(e))!=0;e=WtNEXT_INEDGE_PRE(e))
 
 /* Instead of stepping through execute "subroutine" for each neighbor
    automatically adapting to undirected networks. w gets the weight of
@@ -74,16 +85,22 @@ typedef struct WtModelTermstruct {
    double v1;
    double v2;
    works.*/
-#define WtEXEC_THROUGH_OUTEDGES(a,e,v,w,subroutine) if(DIRECTED){ WtSTEP_THROUGH_OUTEDGES_DECL(a,e,v) {Vertex v=OUTVAL(e); double w=OUTWT(e); subroutine} } else { WtEXEC_THROUGH_EDGES(a,e,v,w,subroutine) }
-#define WtEXEC_THROUGH_INEDGES(a,e,v,w,subroutine) if(DIRECTED){ WtSTEP_THROUGH_INEDGES_DECL(a,e,v) {Vertex v=INVAL(e); double w=INWT(e); subroutine} } else { WtEXEC_THROUGH_EDGES(a,e,v,w,subroutine) }
-#define WtEXEC_THROUGH_EDGES(a,e,v,w,subroutine) { WtSTEP_THROUGH_OUTEDGES_DECL(a,e,v) {Vertex v=OUTVAL(e); double w=OUTWT(e); subroutine}  WtSTEP_THROUGH_INEDGES_DECL(a,e,v) {Vertex v=INVAL(e); double w=INWT(e); subroutine} }
+#define WtEXEC_THROUGH_OUTEDGES(a,e,v,w,subroutine) {if(DIRECTED){ WtSTEP_THROUGH_OUTEDGES_DECL(a,e,v) {double w=OUTWT(e); subroutine} } else { WtEXEC_THROUGH_EDGES(a,e,v,w,subroutine) }}
+#define WtEXEC_THROUGH_INEDGES(a,e,v,w,subroutine) {if(DIRECTED){ WtSTEP_THROUGH_INEDGES_DECL(a,e,v) {double w=INWT(e); subroutine} } else { WtEXEC_THROUGH_EDGES(a,e,v,w,subroutine) }}
+#define WtEXEC_THROUGH_EDGES(a,e,v,w,subroutine) { {WtSTEP_THROUGH_OUTEDGES_DECL(a,e,v) {double w=OUTWT(e); subroutine}};  {WtSTEP_THROUGH_INEDGES_DECL(a,e,v) {Vertex v=INVAL(e); double w=INWT(e); subroutine}}; }
+#define WtEXEC_THROUGH_OUTEDGES_PRE(a,e,v,w,subroutine) {if(DIRECTED){ WtSTEP_THROUGH_OUTEDGES_PRE_DECL(a,e,v) {double w=OUTWT(e); subroutine} } else { WtEXEC_THROUGH_EDGES_PRE(a,e,v,w,subroutine) }}
+#define WtEXEC_THROUGH_INEDGES_PRE(a,e,v,w,subroutine) {if(DIRECTED){ WtSTEP_THROUGH_INEDGES_PRE_DECL(a,e,v) {double w=INWT(e); subroutine} } else { WtEXEC_THROUGH_EDGES_PRE(a,e,v,w,subroutine) }}
+#define WtEXEC_THROUGH_EDGES_PRE(a,e,v,w,subroutine) { {WtSTEP_THROUGH_OUTEDGES_PRE_DECL(a,e,v) {double w=OUTWT(e); subroutine}};  {WtSTEP_THROUGH_INEDGES_PRE_DECL(a,e,v) {double w=INWT(e); subroutine}}; }
 
 /* Non-adaptive versions of the above. (I.e. ForceOUT/INEDGES.) */
-#define WtEXEC_THROUGH_FOUTEDGES(a,e,v,w,subroutine) WtSTEP_THROUGH_OUTEDGES_DECL(a,e,v) {Vertex v=OUTVAL(e); double w=OUTWT(e); subroutine}
-#define WtEXEC_THROUGH_FINEDGES(a,e,v,w,subroutine) WtSTEP_THROUGH_INEDGES_DECL(a,e,v) {Vertex v=INVAL(e); double w=INWT(e); subroutine}
+#define WtEXEC_THROUGH_FOUTEDGES(a,e,v,w,subroutine) WtSTEP_THROUGH_OUTEDGES_DECL(a,e,v) {double w=OUTWT(e); subroutine}
+#define WtEXEC_THROUGH_FINEDGES(a,e,v,w,subroutine) WtSTEP_THROUGH_INEDGES_DECL(a,e,v) {double w=INWT(e); subroutine}
+#define WtEXEC_THROUGH_FOUTEDGES_PRE(a,e,v,w,subroutine) WtSTEP_THROUGH_OUTEDGES_PRE_DECL(a,e,v) {double w=OUTWT(e); subroutine}
+#define WtEXEC_THROUGH_FINEDGES_PRE(a,e,v,w,subroutine) WtSTEP_THROUGH_INEDGES_PRE_DECL(a,e,v) {double w=INWT(e); subroutine}
 
 /* Exectute through all edges (nonzero values) in the network. */
-#define WtEXEC_THROUGH_NET_EDGES(a,b,e,w,subroutine) for(Vertex a=1; a <= N_NODES; a++)  WtEXEC_THROUGH_FOUTEDGES(a, e, b, w, {subroutine});
+#define WtEXEC_THROUGH_NET_EDGES(a,b,e,w,subroutine) {for(Vertex a=1; a <= N_NODES; a++){WtEXEC_THROUGH_FOUTEDGES(a, e, b, w, {subroutine});}}
+#define WtEXEC_THROUGH_NET_EDGES_PRE(a,b,e,w,subroutine) {for(Vertex a=1; a <= N_NODES; a++){WtEXEC_THROUGH_FOUTEDGES_PRE(a, e, b, w, {subroutine});}}
 
 /* Get and set the weight of the (a,b) edge. */
 #define WtGETWT(a,b) (WtGetEdge(a,b,nwp))
@@ -166,16 +183,28 @@ typedef struct WtModelTermstruct {
 #define MIN_INEDGE WtMIN_INEDGE
 #define NEXT_OUTEDGE WtNEXT_OUTEDGE
 #define NEXT_INEDGE WtNEXT_INEDGE
+#define NEXT_OUTEDGE_PRE WtNEXT_OUTEDGE_PRE
+#define NEXT_INEDGE_PRE WtNEXT_INEDGE_PRE
 #define STEP_THROUGH_OUTEDGES WtSTEP_THROUGH_OUTEDGES
 #define STEP_THROUGH_INEDGES WtSTEP_THROUGH_INEDGES
+#define STEP_THROUGH_OUTEDGES_PRE WtSTEP_THROUGH_OUTEDGES_PRE
+#define STEP_THROUGH_INEDGES_PRE WtSTEP_THROUGH_INEDGES_PRE
 #define STEP_THROUGH_OUTEDGES_DECL WtSTEP_THROUGH_OUTEDGES_DECL
 #define STEP_THROUGH_INEDGES_DECL WtSTEP_THROUGH_INEDGES_DECL
+#define STEP_THROUGH_OUTEDGES_PRE_DECL WtSTEP_THROUGH_OUTEDGES_PRE_DECL
+#define STEP_THROUGH_INEDGES_PRE_DECL WtSTEP_THROUGH_INEDGES_PRE_DECL
 #define EXEC_THROUGH_OUTEDGES WtEXEC_THROUGH_OUTEDGES
 #define EXEC_THROUGH_INEDGES WtEXEC_THROUGH_INEDGES
 #define EXEC_THROUGH_EDGES WtEXEC_THROUGH_EDGES
+#define EXEC_THROUGH_OUTEDGES_PRE WtEXEC_THROUGH_OUTEDGES_PRE
+#define EXEC_THROUGH_INEDGES_PRE WtEXEC_THROUGH_INEDGES_PRE
+#define EXEC_THROUGH_EDGES_PRE WtEXEC_THROUGH_EDGES_PRE
 #define EXEC_THROUGH_FOUTEDGES WtEXEC_THROUGH_FOUTEDGES
 #define EXEC_THROUGH_FINEDGES WtEXEC_THROUGH_FINEDGES
+#define EXEC_THROUGH_FOUTEDGES_PRE WtEXEC_THROUGH_FOUTEDGES_PRE
+#define EXEC_THROUGH_FINEDGES_PRE WtEXEC_THROUGH_FINEDGES_PRE
 #define EXEC_THROUGH_NET_EDGES WtEXEC_THROUGH_NET_EDGES
+#define EXEC_THROUGH_NET_EDGES_PRE WtEXEC_THROUGH_NET_EDGES_PRE
 
 #define GETWT WtGETWT
 #define SETWT WtSETWT
