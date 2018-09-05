@@ -15,14 +15,16 @@ struct TailHead{
 #define THU(t,h) ((struct TailHead){.tail=MIN((t),(h)),.head=MAX((t),(h))})
 
 /* Hash and comparison functions designed for tail-head pairs. */
+// The of macro-ing this due to Bob Jenkins.
+#define ROT_INT(x,k) (((x)<<(k)) | ((x)>>(32-(k))))
 static inline unsigned int kh_scramble_int(unsigned int a){
   a ^= 0xc761c23c;
-  a += a>>2 ^ a<<30;
-  a ^= a>>21 ^ a<<11;
-  a += a>>12 ^ a<<20;
+  a += ROT_INT(a,30);
+  a ^= ROT_INT(a,11);
+  a += ROT_INT(a,20);
   return a;
 }
-#define kh_vertexvertex_hash_func(key) (khint32_t)(kh_scramble_int((key).tail<<16 ^ (key).tail>>16 ^ (key).head))
+#define kh_vertexvertex_hash_func(key) (khint32_t)(kh_scramble_int(ROT_INT((key).tail,16) ^ (key).head))
 #define kh_vertexvertex_hash_equal(a,b) (a.tail==b.tail && a.head==b.head)
 
 /* Predefined khash type for mapping dyads onto unsigned ints. */
