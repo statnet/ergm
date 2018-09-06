@@ -5,7 +5,8 @@
 \alias{plot.gofN}
 \title{Linear model diagnostics for multinetwork linear models}
 \usage{
-gofN(object, GOF, subset = TRUE, control = control.gof.ergm(), ...)
+gofN(object, GOF, subset = TRUE, control = control.gof.ergm(), ...,
+  obs.twostage = FALSE)
 
 \method{plot}{gofN}(x, against = NULL, which = 1:2, col = 1,
   pch = 1, cex = 1, ..., ask = dev.interactive())
@@ -17,15 +18,17 @@ gofN(object, GOF, subset = TRUE, control = control.gof.ergm(), ...)
 
 \item{subset}{argument for the \code{\link[=ergm-terms]{N}} term.}
 
+\item{control}{See \code{\link[=control.gof.ergm]{control.gof.ergm()}}.}
+
 \item{\dots}{additional arguments to \code{simulate.ergm()} and \code{summary.ergm_model()}.}
+
+\item{obs.twostage}{If not \code{FALSE}, estimate variance of the constrained sample using a two-stage process of first simulating without constraint, then with constraint conditional on that. Then, it specifies the number of unconstrained networks to simulate.}
 
 \item{against}{vector of values, network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against; if \code{NULL} (default), plots against fitted values.}
 
 \item{which}{which to plot (\code{1} for residuals plot, \code{2} for \eqn{\sqrt{|R_i|}} scale plot).}
 
 \item{col, pch, cex}{vector of values (wrapped in \code{\link[=I]{I()}}), network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against.}
-
-\item{See}{\code{\link[=control.gof.ergm]{control.gof.ergm()}}.}
 }
 \description{
 Linear model diagnostics for multinetwork linear models

@@ -1,12 +1,23 @@
+.mean_var <- function(x, s){
+  ng <- length(x)/s
+  split(x, rep(1:ng,each=s)) %>%
+    map(var) %>%
+    reduce(`+`) %>%
+    `/`(ng)
+}
+
 #' Linear model diagnostics for multinetwork linear models
 #'
 #' @param object an [`ergm`] object.
 #' @param GOF a one-sided [`ergm`] formula specifying network statistics whose goodness of fit to test.
 #' @param subset argument for the [`N`][ergm-terms] term.
-#' @param \dots additional arguments to `simulate.ergm()` and `summary.ergm_model()`. 
-#' @param See [control.gof.ergm()].
+#' @param \dots additional arguments to `simulate.ergm()` and `summary.ergm_model()`.
+#' @param control See [control.gof.ergm()].
+#' @param obs.twostage If not `FALSE`, estimate variance of the constrained sample using a two-stage process of first simulating without constraint, then with constraint conditional on that. Then, it specifies the number of unconstrained networks to simulate. 
 #' @export
-gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ...){
+gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ..., obs.twostage=FALSE){
+  if(obs.twostage && control$nsim %% obs.twostage !=0) stop("Number of imputation networks specified by obs.twostage= must divide the nsim control parameter evenly.")
+  
   nw <- object$network
   nnets <- length(unique(.peek_vattrv(nw, ".NetworkID")))
 
@@ -36,6 +47,17 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ...){
   
     if(!is.null(object$constrained.obs)){
       message("Simulating constrained sample.")
+      sim.obs2 <-
+        if(obs.twostage){
+          message("  Simulating imputed networks.")
+          sim.obs.net <- do.call(simulate, modifyList(sim_settings,
+                                                      list(statsonly=FALSE, nsim=obs.twostage)))
+          sim.obs <- lapply(sim.obs.net, function(nwimp){
+            sim.obs <- do.call(simulate, modifyList(sim.obs_settings, list(basis=nwimp, monitor=pernet.m, nsim=control$nsim/obs.twostage)))
+            sim.obs <- sim.obs[,ncol(sim.obs)-sum(remain)*nstats+seq_len(sum(remain)*nstats),drop=FALSE]
+          })
+          do.call(rbind, sim.obs)
+        }
       # FIXME: Simulations can be rerun only on the networks in the subset.
       sim.obs <- do.call(simulate, modifyList(sim.obs_settings, list(monitor=pernet.m)))
       sim.obs <- sim.obs[,ncol(sim.obs)-sum(remain)*nstats+seq_len(sum(remain)*nstats),drop=FALSE]
@@ -50,22 +72,28 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ...){
     dimnames(statarray) <- list(Iterations=NULL, Statistic=cn, Network=NULL)
     statarray.obs <- array(c(sim.obs), c(control$nsim, nstats, sum(remain)))
     dimnames(statarray.obs) <- list(Iterations=NULL, Statistic=cn, Network=NULL)
+    if(obs.twostage){
+      statarray.obs2 <- array(c(sim.obs2), c(control$nsim, nstats, sum(remain)))
+      dimnames(statarray.obs2) <- list(Iterations=NULL, Statistic=cn, Network=NULL)
+    }else statarray.obs2 <- NULL
 
     if(is.null(stats)){
       stats <- statarray
       stats.obs <- statarray.obs
+      stats.obs2 <- statarray.obs2
     }else{
       stats[,,remain[subset]] <- statarray
       stats.obs[,,remain[subset]] <- statarray.obs
+      stats.obs2[,,remain[subset]] <- statarray.obs2
     }
 
     # Calculate variances for each network and statistic.
-    dv <- apply(statarray, 2:3, var) - apply(statarray.obs, 2:3, var)
+    dv <- apply(statarray, 2:3, var) - NVL3(statarray.obs2, apply(., 2:3, .mean_var, obs.twostage), apply(statarray.obs, 2:3, var))
     # If any statistic for the network has negative variance estimate, rerun it.
     remain[remain] <- apply(dv<=0, 2, any)
     if(any(remain)) message(sum(remain), " networks (", paste(which(remain),collapse=", "), ") have bad simulations; rerunning.")
   }
-  o <- structure(list(nw=nw, subset=subset, stats=stats, stats.obs=stats.obs, control=control), class="gofN")
+  o <- structure(list(nw=nw, subset=subset, stats=stats, stats.obs=stats.obs, stats.obs2=stats.obs2, obs.twostage=obs.twostage, control=control), class="gofN")
 }
 
 #' @describeIn gofN A plotting method, making residuals and scale-location plots.
@@ -105,14 +133,18 @@ plot.gofN <- function(x, against=NULL, which=1:2, col=1, pch=1, cex=1, ..., ask 
   
   statarray <- x$stats
   statarray.obs <- x$stats.obs
+  statarray.obs2 <- x$stats.obs2
   control <- x$control
   cn <- dimnames(statarray)[[2]]
   for(i in seq_along(cn)){
     s <- statarray[,i,]
     so <- statarray.obs[,i,]
+    so2 <- statarray.obs2[,i,]
 
     fitted <- colMeans(s)
-    resid <- (colMeans(so)-colMeans(s))/sqrt(apply(s,2,var)-apply(so,2,var))
+    svar <- apply(s,2,var)
+    sovar <- if(x$obs.twostage) apply(so2,2,.mean_var,x$obs.twostage) else apply(so,2,var)
+    resid <- (colMeans(so)-colMeans(s))/sqrt(svar-sovar)
 
     if(1L %in% which){
       plot(NVL(againstval,fitted), resid, col=col, pch=pch, cex=cex,..., main = paste("Residuals vs. Fitted for", sQuote(cn[i])), xlab=againstname, ylab="Pearson residual",type="n")
