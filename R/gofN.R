@@ -44,21 +44,29 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ..., obs.
     message("Simulating unconstrained sample.")
     sim <- do.call(simulate, modifyList(sim_settings, list(monitor=pernet.m)))
     sim <- sim[,ncol(sim)-sum(remain)*nstats+seq_len(sum(remain)*nstats),drop=FALSE]
-  
+
     if(!is.null(object$constrained.obs)){
-      message("Simulating constrained sample.")
       sim.obs2 <-
         if(obs.twostage){
-          message("  Simulating imputed networks.")
-          sim.obs.net <- do.call(simulate, modifyList(sim_settings,
-                                                      list(statsonly=FALSE, nsim=obs.twostage)))
-          sim.obs <- lapply(sim.obs.net, function(nwimp){
-            sim.obs <- do.call(simulate, modifyList(sim.obs_settings, list(basis=nwimp, monitor=pernet.m, nsim=control$nsim/obs.twostage)))
-            sim.obs <- sim.obs[,ncol(sim.obs)-sum(remain)*nstats+seq_len(sum(remain)*nstats),drop=FALSE]
-          })
+          message("Simulating imputed networks.", appendLF=FALSE)
+          sim.obs <- list()
+          sim.obs.net <- sim_settings$basis
+          for(i in seq_len(obs.twostage)){
+            sim.obs.net <- do.call(simulate, modifyList(sim_settings,
+                                                        list(
+                                                          basis=sim.obs.net,
+                                                          control=modifyList(sim_settings$control,
+                                                                             list(MCMC.burnin=if(i==1)sim_settings$control$MCMC.burnin else sim_settings$control$MCMC.interval)),
+                                                          statsonly=FALSE, nsim=1)))
+            sim.obs[[i]] <- do.call(simulate, modifyList(sim.obs_settings, list(basis=sim.obs.net, monitor=pernet.m, nsim=control$nsim/obs.twostage)))
+            sim.obs[[i]] <- sim.obs[[i]][,ncol(sim.obs[[i]])-sum(remain)*nstats+seq_len(sum(remain)*nstats),drop=FALSE]
+            message(".", appendLF=FALSE)
+          }
+          message("")
           do.call(rbind, sim.obs)
         }
       # FIXME: Simulations can be rerun only on the networks in the subset.
+      message("Simulating constrained sample.")
       sim.obs <- do.call(simulate, modifyList(sim.obs_settings, list(monitor=pernet.m)))
       sim.obs <- sim.obs[,ncol(sim.obs)-sum(remain)*nstats+seq_len(sum(remain)*nstats),drop=FALSE]
     }else{
