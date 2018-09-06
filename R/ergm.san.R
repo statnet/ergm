@@ -129,7 +129,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
          "must be given")
   }
 
-  proposal <- if(inherits(constraints, "proposal")) constraints
+  proposal <- if(inherits(constraints, "ergm_proposal")) constraints
                 else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
                                    nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
   

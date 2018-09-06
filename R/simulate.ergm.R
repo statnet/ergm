@@ -214,7 +214,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
 
   # Construct the proposal; this needs to be done here so that the
   # auxiliary requests could be passed to ergm_model().
-  proposal <- if(inherits(constraints, "proposal")) constraints
+  proposal <- if(inherits(constraints, "ergm_proposal")) constraints
                 else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
                                 nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
   
@@ -299,7 +299,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   
   if(nparam(m)!=length(coef)) stop("coef has ", length(coef) - nparam(monitor), " elements, while the model requires ",nparam(m) - nparam(monitor)," parameters.")
 
-  proposal <- if(inherits(constraints, "proposal")) constraints
+  proposal <- if(inherits(constraints, "ergm_proposal")) constraints
                 else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
                                 nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
 
