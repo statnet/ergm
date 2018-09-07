@@ -136,9 +136,6 @@ summary_formula.network.list <- function(object, response=NULL, ..., basis=NULL)
 summary_formula.network <- function(object, response=NULL,...,basis=NULL) {
   if(is.network(basis)){
     nw <- basis
-    formula <- as.formula(object)
-    formula[[2]] <- as.name("basis") # This seems irrelevant; network name
-                                     # not needed by ergm_model
   }else{
     formula <- object
     nw <- ergm.getnetwork(formula)
@@ -146,6 +143,20 @@ summary_formula.network <- function(object, response=NULL,...,basis=NULL) {
   m <- ergm_model(formula, nw, response=response, role="target",...)
   summary(m, nw, response=response)
 }
+
+#' @describeIn summary_formula a method for the semi-internal [`pending_update_network`] on the LHS of the formula.
+#' @export
+summary_formula.pending_update_network <- function(object, response=NULL,...,basis=NULL) {
+  if(is(basis,"pending_update_network")){
+    nw <- basis
+  }else{
+    formula <- object
+    nw <- eval_lhs.formula(formula)
+  }
+  m <- ergm_model(formula, {tmp<-nw;class(tmp)<-"network";tmp}, response=response, role="target",...)
+  summary(m, nw, response=response)
+}
+
 
 #' @describeIn summary_formula a method for a [`matrix`] on the LHS of the formula.
 #' @export
