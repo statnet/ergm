@@ -3,17 +3,36 @@
   split(x, rep(1:ng,each=s)) %>%
     map(var) %>%
     reduce(`+`) %>%
-    `/`(ng)
+    `/`(.,ng)
 }
 
 #' Linear model diagnostics for multinetwork linear models
 #'
 #' @param object an [`ergm`] object.
-#' @param GOF a one-sided [`ergm`] formula specifying network statistics whose goodness of fit to test.
+#' @param GOF a one-sided [`ergm`] formula specifying network
+#'   statistics whose goodness of fit to test.
 #' @param subset argument for the [`N`][ergm-terms] term.
-#' @param \dots additional arguments to `simulate.ergm()` and `summary.ergm_model()`.
+#' @param \dots additional arguments to [simulate.ergm()] and
+#'   [summary.ergm_model()].
 #' @param control See [control.gof.ergm()].
-#' @param obs.twostage If not `FALSE`, estimate variance of the constrained sample using a two-stage process of first simulating without constraint, then with constraint conditional on that. Then, it specifies the number of unconstrained networks to simulate. 
+#' @param obs.twostage Either `FALSE` or an integer. If not `FALSE`,
+#'   the constrained sample variance is estimated by simulating
+#'   conditional on the observed networks. However, a more accurate
+#'   estimate can be obtained via a two-stage process: \enumerate{
+#' 
+#' \item Sample networks from the model without the observational
+#' constraint.
+#'
+#' \item Conditional on each of those networks, sample with the
+#' observational constraint, estimating the variance within each
+#' sample and then averaging over the first-stage sample.
+#'
+#' }
+#'
+#' Then, `obs.twostage` specifies the number of unconstrained networks
+#' to simulate from, which should divide the [control.gof.ergm()]'s
+#' `nsim` argument evenly.
+#'
 #' @export
 gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ..., obs.twostage=FALSE){
   if(obs.twostage && control$nsim %% obs.twostage !=0) stop("Number of imputation networks specified by obs.twostage= must divide the nsim control parameter evenly.")

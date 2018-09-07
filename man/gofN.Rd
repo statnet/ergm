@@ -14,15 +14,33 @@ gofN(object, GOF, subset = TRUE, control = control.gof.ergm(), ...,
 \arguments{
 \item{object}{an \code{\link{ergm}} object.}
 
-\item{GOF}{a one-sided \code{\link{ergm}} formula specifying network statistics whose goodness of fit to test.}
+\item{GOF}{a one-sided \code{\link{ergm}} formula specifying network
+statistics whose goodness of fit to test.}
 
 \item{subset}{argument for the \code{\link[=ergm-terms]{N}} term.}
 
 \item{control}{See \code{\link[=control.gof.ergm]{control.gof.ergm()}}.}
 
-\item{\dots}{additional arguments to \code{simulate.ergm()} and \code{summary.ergm_model()}.}
+\item{\dots}{additional arguments to \code{\link[=simulate.ergm]{simulate.ergm()}} and
+\code{\link[=summary.ergm_model]{summary.ergm_model()}}.}
 
-\item{obs.twostage}{If not \code{FALSE}, estimate variance of the constrained sample using a two-stage process of first simulating without constraint, then with constraint conditional on that. Then, it specifies the number of unconstrained networks to simulate.}
+\item{obs.twostage}{Either \code{FALSE} or an integer. If not \code{FALSE},
+the constrained sample variance is estimated by simulating
+conditional on the observed. However, a more accurate estimate
+can be obtained via a two-stage process: \enumerate{
+
+\item Sample networks from the model without the observational
+constraint.
+
+\item Conditional on each of those networks, sample with the
+observational constraint, estimating the variance within each
+sample and then averaging over the first-stage sample.
+
+}
+
+Then, \code{obs.twostage} specifies the number of unconstrained networks
+to simulate from, which should divide the \code{\link[=control.gof.ergm]{control.gof.ergm()}}'s
+\code{nsim} argument evenly.}
 
 \item{against}{vector of values, network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against; if \code{NULL} (default), plots against fitted values.}
 
