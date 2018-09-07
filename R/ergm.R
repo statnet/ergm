@@ -810,20 +810,7 @@ ergm <- function(formula, response=NULL,
   
   # Otherwise, set up the main phase of estimation:
   
-  parallel.toplevel <- NULL     # top level reminder to stop cluster
-  if (inherits(control$parallel,"cluster")) {
-    clus <- ergm.getCluster(control, verbose)
-  } else if(is.numeric(control$parallel) && control$parallel!=0){
-    clus <- ergm.getCluster(control, verbose)
-    ergm.cluster.started(FALSE)
-    parallel.toplevel <- control$parallel
-    control$parallel <- clus
-  } else {
-    clus <- NULL
-    ergm.cluster.started(FALSE)
-    if (!is.numeric(control$parallel))
-      warning("Unrecognized value passed to parallel control parameter.")
-  }
+  ergm.getCluster(control, verbose)
   
   # Revise the initial value, if necessary:
   init <- initialfit$coef
@@ -904,14 +891,7 @@ ergm <- function(formula, response=NULL,
     message("Evaluating log-likelihood at the estimate. ", appendLF=FALSE)
     mainfit<-logLik(mainfit, add=TRUE, control=control$loglik.control, verbose=verbose)
   }
-  
-  # done with parallel cluster
-  if (!is.null(parallel.toplevel)) {
-    mainfit$control$parallel <- parallel.toplevel
-    ergm.cluster.started(TRUE)
-  }
-  ergm.stopCluster(clus)
-  
+    
   if (MCMCflag) {
     message("This model was fit using MCMC.  To examine model diagnostics ", 
         "and check for degeneracy, use the mcmc.diagnostics() function.")

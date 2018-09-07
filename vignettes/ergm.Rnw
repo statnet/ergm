@@ -17,7 +17,8 @@
 <<include=FALSE>>=
 library(knitr)
 opts_chunk$set(
-concordance=TRUE
+concordance=TRUE,
+error=FALSE
 )
 @
 
@@ -449,13 +450,8 @@ plot(magnolia, vertex.cex=.5)
 @
 
 
-<<eval=FALSE>>=
+<<error=TRUE>>=
 fit <- ergm(magnolia~edges+triangle, control=control.ergm(seed=1))
-mcmc.diagnostics(fit, center=F)
-@
-<<echo=FALSE,eval=TRUE,results='markup',fig.width=75>>=
-try_out <- try(ergm(magnolia~edges+triangle, control=control.ergm(seed=1))) 
-cat(try_out) 
 @
 
 Very interesting. This model produced degenerate networks.

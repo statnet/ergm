@@ -411,20 +411,10 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     parallel.toplevel <- NULL     # top level reminder to stop cluster
     clus <- NULL
     if (ceiling(nsim/nthreads) > 1) {
-    
-      if (inherits(control$parallel,"cluster")) {
-        clus <- ergm.getCluster(control, verbose)
-      } else if(is.numeric(control$parallel) && control$parallel!=0){
-        clus <- ergm.getCluster(control, verbose)
-        ergm.cluster.started(FALSE)
-        parallel.toplevel <- control$parallel
-        control$parallel <- clus
-      } else {
-        clus <- NULL
-        ergm.cluster.started(FALSE)
-        if (!is.numeric(control$parallel))
-          warning("Unrecognized value passed to parallel control parameter.")
-      }
+      # Start the cluster if requested. We don't actually need it
+      # within this function, but ergm_MCMC_sample() will find it. It
+      # should stop automatically when the function exits.
+      ergm.getCluster(control, verbose)
     }
     
     for(i in 1:ceiling(nsim/nthreads)){
@@ -453,14 +443,6 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
       }
 
       if(verbose){message(sprintf("Finished simulation %d of %d.",i, nsim))}
-    }
-    
-    # done with parallel cluster
-    if (!is.null(clus)) {
-      if (!is.null(parallel.toplevel)) {  # if not NULL, then we started the cluster
-        ergm.cluster.started(TRUE)
-      }
-      ergm.stopCluster(clus)
     }
   }
 
