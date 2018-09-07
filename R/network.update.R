@@ -46,15 +46,32 @@
 #'   standard network properties)
 #' @param ignore.vattr character vector of the names of vertex-level
 #'   attributes to ignore when updating network objects
+#'
+#' @note This function operates directly on the internal represenation
+#'   of the network object. It may therefore be broken by a future
+#'   version of [`network`].
 empty_network <- function(nw, ignore.nattr=c("bipartite","directed","hyper","loops","mnext","multiple","n"), ignore.vattr=c()){
   if(network.edgecount(nw)==0) return(nw)
+
+  nw$oel <- rep(list(numeric(0)), length(nw$oel))
+  nw$iel <- rep(list(numeric(0)), length(nw$iel))
+  nw$mel <- list()
+  nw$gal$mnext <- 1
   
-  unw <- network.initialize(n=network.size(nw), directed = is.directed(nw), hyper = is.hyper(nw), loops = has.loops(nw),
-         multiple = is.multiplex(nw), bipartite = nw %n% "bipartite")
-  for(a in setdiff(list.network.attributes(nw),ignore.nattr)) unw <- set.network.attribute(unw, a, get.network.attribute(nw, a, unlist=FALSE))
-  for(a in setdiff(list.vertex.attributes(nw),ignore.vattr)) unw <- set.vertex.attribute(unw, a, get.vertex.attribute(nw, a, unlist=FALSE))
-  unw
+  nw
 }
+
+#### A version of empty_network() that only relies on the public API.
+##
+## empty_network <- function(nw, ignore.nattr=c("bipartite","directed","hyper","loops","mnext","multiple","n"), ignore.vattr=c()){
+##   if(network.edgecount(nw)==0) return(nw)
+  
+##   unw <- network.initialize(n=network.size(nw), directed = is.directed(nw), hyper = is.hyper(nw), loops = has.loops(nw),
+##          multiple = is.multiplex(nw), bipartite = nw %n% "bipartite")
+##   for(a in setdiff(list.network.attributes(nw),ignore.nattr)) unw <- set.network.attribute(unw, a, get.network.attribute(nw, a, unlist=FALSE))
+##   for(a in setdiff(list.vertex.attributes(nw),ignore.vattr)) unw <- set.vertex.attribute(unw, a, get.vertex.attribute(nw, a, unlist=FALSE))
+##   unw
+## }
 
 #' Replace the sociomatrix in a network object
 #' 

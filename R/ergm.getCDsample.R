@@ -27,9 +27,9 @@ ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL,
 
   flush.console()
 
-  doruns <- function(prev.runs=rep(list(NULL),nthreads), samplesize=NULL){
+  doruns <- function(samplesize=NULL){
     if(!is.null(cl)) clusterMap(cl,ergm_CD_slave,
-                                  Clist=Clists, prev.run=prev.runs, MoreArgs=list(proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...,samplesize=samplesize))
+                                  Clist=Clists, MoreArgs=list(proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...,samplesize=samplesize))
     else list(ergm_CD_slave(Clist=Clists[[1]], samplesize=samplesize,proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...))
   }
   
