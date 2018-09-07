@@ -61,12 +61,12 @@ gest<-ergm(samplike~edges+gwesp(decay=.5,fixed=FALSE),
            control=control.ergm(MCMLE.maxit=3, MCMC.burnin=1024, MCMC.interval=128))
 summary(gest)
 # A statistic for esp(1),...,esp(16)
-simulate(gest,statsonly=TRUE)
+simulate(gest,output="stats")
 
 tmp<-fix.curved(gest)
 tmp
 # A gwesp() statistic only
-simulate(tmp$formula, coef=tmp$theta, statsonly=TRUE) 
+simulate(tmp$formula, coef=tmp$theta, output="stats") 
 }
 
 }

@@ -65,7 +65,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
     iter=iter+1
     ## Generate an mcmc sample from the probability distribution determined by orig.mle
     samples[[iter]]=simulate(formula, nsim=control$Step.MCMC.samplesize,
-                                     coef=eta[[iter]], statsonly=TRUE,
+                                     coef=eta[[iter]], output="stats",
                                      constraints=constraints, 
                                      control=set.control.class("control.simulate.formula",control), ...)
     sampmeans[[iter]]=colMeans(samples[[iter]])
@@ -159,7 +159,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   flush.console()
   iter <- iter+1
   finalsample <- simulate(formula, nsim=control$MCMC.samplesize,
-                                  coef=eta[[iter]], statsonly=TRUE, 
+                                  coef=eta[[iter]], output="stats", 
                                   constraints=constraints, 
                                   control=set.control.class("control.simulate.formula",control), ...)
   sampmeans[[iter]] <- colMeans(finalsample)
