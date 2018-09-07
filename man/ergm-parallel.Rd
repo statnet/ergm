@@ -8,29 +8,30 @@
 \alias{parallel-ergm}
 \alias{ergm.getCluster}
 \alias{ergm.stopCluster}
-\alias{ergm.stopCluster.default}
 \alias{set.MT_terms}
 \alias{get.MT_terms}
 \title{Parallel Processing in the \code{ergm} Package}
 \usage{
-ergm.getCluster(control, verbose = FALSE)
+ergm.getCluster(control, verbose = FALSE,
+  stop_on_exit = parent.frame())
 
-ergm.stopCluster(object, ...)
-
-\method{ergm.stopCluster}{default}(object, ...)
+ergm.stopCluster(..., verbose = FALSE)
 
 set.MT_terms(n)
 
 get.MT_terms()
 }
 \arguments{
-\item{control}{a list of control parameters (like those returned by
-\code{\link[=control.ergm]{control.ergm()}}) containing the parallel settings}
+\item{control}{a \code{\link{control.ergm}} (or similar) list of
+parameter values from which the parallel settings should be read.}
 
 \item{verbose}{logical, should detailed status info be printed to
-console}
+console?}
 
-\item{object}{an object, probably of class \code{cluster}.}
+\item{stop_on_exit}{An \code{\link{evironment}}, or \code{NULL}. If an
+\code{environment}, defaulting to that of the calling function, the
+cluster will be stopped when the calling the frame in question
+exits.}
 
 \item{\dots}{not currently used}
 
@@ -39,8 +40,6 @@ starting value) disables multithreading, and \eqn{-1} or
 \code{NA} sets it to the number of CPUs detected.}
 }
 \value{
-\code{\link[=ergm.getCluster]{ergm.getCluster()}} returns an object of type \code{cluster}.
-
 \code{\link[=set.MT_terms]{set.MT_terms()}} returns the previous setting, invisibly.
 
 \code{\link[=get.MT_terms]{get.MT_terms()}} returns the current setting.
@@ -49,9 +48,12 @@ starting value) disables multithreading, and \eqn{-1} or
 Using clusters multiple CPUs or CPU cores to speed up ERGM
 estimation and simulation.
 
-\code{\link[=ergm.getCluster]{ergm.getCluster()}} starts and/or acquires a cluster
-of specified type, loads \code{ergm}, user term, and other needed
-packages, and checks that their versions match.
+The \code{ergm.getCluster} function is usually called
+internally by the ergm process (in
+\code{\link{ergm_MCMC_sample}}) and will attempt to start the
+appropriate type of cluster indicated by the
+\code{\link{control.ergm}} settings. It will also check that the
+same version of \code{ergm} is installed on each node.
 
 The \code{ergm.stopCluster} shuts down a
 cluster, but only if \code{ergm.getCluster} was responsible for

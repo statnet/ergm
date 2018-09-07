@@ -98,11 +98,6 @@ opttest({
     sim.stat.seq <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), output="network", sequential=FALSE)
     stopifnot(length(sim.stat.seq)==5)
     print(sim.stat.seq)
-    
-    if(exists("cl")){
-      stopCluster(cl)
-      rm(cl)
-    }
   }
   
 }, "parallel_MPI", testvar="ENABLE_MPI_TESTS")

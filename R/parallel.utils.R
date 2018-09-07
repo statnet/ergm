@@ -147,13 +147,9 @@
 #'
 NULL
  
-
-
-
-
-# Set up a flag for whether we are in charge of a cluster.
+# Save the cluster we are in charge of.
 ergm.cluster.started <- local({
-  started <- FALSE
+  started <- NULL
   function(new){
     if(!missing(new))
       started <<- new
@@ -177,27 +173,40 @@ myLibLoc <- function()
   sub('/ergm/Meta/package.rds','',attr(packageDescription("ergm"),"file"))
 
 #' @rdname ergm-parallel
-#' @description [ergm.getCluster()] starts and/or acquires a cluster
-#'   of specified type, loads `ergm`, user term, and other needed
-#'   packages, and checks that their versions match.
-#'
-#' @param control a list of control parameters (like those returned by
-#'   [control.ergm()]) containing the parallel settings
+#' @description The \code{ergm.getCluster} function is usually called
+#'   internally by the ergm process (in
+#'   \code{\link{ergm_MCMC_sample}}) and will attempt to start the
+#'   appropriate type of cluster indicated by the
+#'   \code{\link{control.ergm}} settings. It will also check that the
+#'   same version of `ergm` is installed on each node.
+#' @param control a \code{\link{control.ergm}} (or similar) list of
+#'   parameter values from which the parallel settings should be read.
 #' @param verbose logical, should detailed status info be printed to
-#'   console
-#'
-#' @return [ergm.getCluster()] returns an object of type `cluster`.
-#'
-#' @export
-ergm.getCluster <- function(control, verbose=FALSE){
+#'   console?
+#' @param stop_on_exit An [`evironment`], or `NULL`. If an
+#'   `environment`, defaulting to that of the calling function, the
+#'   cluster will be stopped when the calling the frame in question
+#'   exits.
+#' 
+#' @export ergm.getCluster
+ergm.getCluster <- function(control, verbose=FALSE, stop_on_exit=parent.frame()){
+  # If we don't want a cluster, just return NULL.
+  if (is.numeric(control$parallel) && control$parallel==0) return(NULL)
+
   if(get.MT_terms() && control$parallel.inherit.MT==FALSE) warning("Using term multithreading in combination with parallel MCMC is generally not advised. See help('ergm-parallel') for more information.")
   
   if(inherits(control$parallel,"cluster")){
-    ergm.cluster.started(FALSE)
+    # Control argument *is* a cluster. Overrides everything.
     if(verbose) message("Cluster passed by user.")
     cl <- control$parallel
+  }else if(!is.null(ergm.cluster.started())){
+    if(verbose) message("Reusing the running cluster.")
+    return(ergm.cluster.started())
   }else{
-    
+    if(verbose) message("Starting a new cluster.")
+    if (!is.numeric(control$parallel))
+      warning("Unrecognized value passed to parallel= control parameter.")
+
     #type <- if(is.null(control$parallel.type)) getClusterOption("type") else control$parallel.type
     type <- NVL(control$parallel.type, "PSOCK")
     
@@ -215,27 +224,23 @@ ergm.getCluster <- function(control, verbose=FALSE){
                    #                  .PVM.start.pvmd(hostfile)
                    #                  message("PVM not running. Attempting to start.")
                    #                }
-                   ergm.cluster.started(TRUE)
                    makeCluster(control$parallel,type="PVM")
-                   
                  },
                  MPI={
-                   
                    # Remember that we are responsible for it.
-                   ergm.cluster.started(TRUE)
                    makeCluster(control$parallel,type="MPI")
                  },
                  SOCK={
-                   ergm.cluster.started(TRUE)
                    makeCluster(control$parallel,type="PSOCK")
-                   
                  },
                  PSOCK={
-                   ergm.cluster.started(TRUE)
                    makeCluster(control$parallel,type="PSOCK")
-                   
                  }
-    )
+                 )
+    ergm.cluster.started(cl)
+
+    # Based on https://yihui.name/en/2017/12/on-exit-parent/ .
+    if(!is.null(stop_on_exit)) do.call(on.exit, list(substitute(ergm.stopCluster(verbose=verbose)), add=TRUE),envir=stop_on_exit)
   }
   # Set RNG up.
   #' @importFrom parallel clusterSetRNGStream
@@ -283,21 +288,16 @@ ergm.getCluster <- function(control, verbose=FALSE){
 #'   cluster, but only if `ergm.getCluster` was responsible for
 #'   starting it.
 #'
-#' @param object an object, probably of class `cluster`.
 #' @param \dots not currently used
 #' @export ergm.stopCluster
-ergm.stopCluster <- function(object, ...){
-  UseMethod("ergm.stopCluster")
-}
-
-#' @rdname ergm-parallel
-#' @importFrom parallel stopCluster
-#' @export
-ergm.stopCluster.default <- function(object, ...){
-  if(ergm.cluster.started()){
-    ergm.cluster.started(FALSE)
-    stopCluster(object)
-  }
+ergm.stopCluster <- function(..., verbose=FALSE){
+  if(length(list(...))) warning("Arguments to ergm.stopCluster() have been deprecated.")
+  if(!is.null(ergm.cluster.started())){
+    #' @importFrom parallel stopCluster
+    if(verbose) message("Stopping the running cluster.")
+    stopCluster(ergm.cluster.started())
+    ergm.cluster.started(NULL)
+  }else if(verbose>1) message("No cluster to stop.")
 }
 
 ergm.sample.tomcmc<-function(sample, params){
