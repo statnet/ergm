@@ -28,10 +28,12 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ..., obs.
   stats <- stats.obs <- NULL
 
   message("Constructing simulation model(s).")
-  sim_settings <- simulate(object, monitor=NULL, nsim=control$nsim, control=set.control.class("control.simulate.ergm",control), basis=nw, statsonly=TRUE, response = object$response, ..., do.sim=FALSE)
-  if(!is.null(object$constrained.obs)) sim.obs_settings <- simulate(object, monitor=NULL, observational=TRUE, nsim=control$nsim, control=set.control.class("control.simulate.ergm",control), basis=nw, statsonly=TRUE, response = object$response, ..., do.sim=FALSE)
+  sim_settings <- simulate(object, monitor=NULL, nsim=control$nsim, control=set.control.class("control.simulate.ergm",control), basis=nw, output="stats", response = object$response, ..., do.sim=FALSE)
+  if(!is.null(object$constrained.obs)) sim.obs_settings <- simulate(object, monitor=NULL, observational=TRUE, nsim=control$nsim, control=set.control.class("control.simulate.ergm",control), basis=nw, output="stats", response = object$response, ..., do.sim=FALSE)
 
   prev.remain <- NULL
+  cl <- ergm.getCluster(control)
+  nthreads <- max(length(cl),1)
   while(any(remain)){
     message("Constructing GOF model.")
     if(any(NVL(prev.remain,FALSE)!=remain))
@@ -51,17 +53,26 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ..., obs.
           message("Simulating imputed networks.", appendLF=FALSE)
           sim.obs <- list()
           sim.obs.net <- sim_settings$basis
-          for(i in seq_len(obs.twostage)){
-            sim.obs.net <- do.call(simulate, modifyList(sim_settings,
-                                                        list(
-                                                          basis=sim.obs.net,
-                                                          control=modifyList(sim_settings$control,
-                                                                             list(MCMC.burnin=if(i==1)sim_settings$control$MCMC.burnin else sim_settings$control$MCMC.interval)),
-                                                          statsonly=FALSE, nsim=1)))
-            sim.obs[[i]] <- do.call(simulate, modifyList(sim.obs_settings, list(basis=sim.obs.net, monitor=pernet.m, nsim=control$nsim/obs.twostage)))
-            sim.obs[[i]] <- sim.obs[[i]][,ncol(sim.obs[[i]])-sum(remain)*nstats+seq_len(sum(remain)*nstats),drop=FALSE]
-            message(".", appendLF=FALSE)
+          genseries <- function(){
+            for(i in seq_len(ceiling(obs.twostage/nthreads))){
+              args <- modifyList(sim_settings,
+                                 list(
+                                   basis=sim.obs.net,
+                                   control=modifyList(sim_settings$control,
+                                                      list(parallel=0,MCMC.burnin=if(i==1)sim_settings$control$MCMC.burnin else sim_settings$control$MCMC.interval)),
+                                   output="pending_update_network", nsim=1))
+              sim.obs.net <- do.call(simulate, args)
+              args <- modifyList(sim.obs_settings,
+                                 list(basis=sim.obs.net, monitor=pernet.m, nsim=control$nsim/obs.twostage,
+                                      control=modifyList(sim.obs_settings$control,
+                                                         list(parallel=0))))
+              sim.obs[[i]] <- do.call(simulate, args)
+              sim.obs[[i]] <- sim.obs[[i]][,ncol(sim.obs[[i]])-sum(remain)*nstats+seq_len(sum(remain)*nstats),drop=FALSE]
+              message(".", appendLF=FALSE)
+            }
+            sim.obs
           }
+          sim.obs <- if(!is.null(cl)) unlist(clusterCall(cl, genseries),recursive=FALSE) else genseries()
           message("")
           do.call(rbind, sim.obs)
         }
