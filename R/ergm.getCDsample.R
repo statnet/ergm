@@ -15,11 +15,9 @@ ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL,
     else control$parallel,
     1)
 
-  cl <- if(!is.numeric(control$parallel) || control$parallel!=0){
-    ergm.getCluster(control, verbose)
-  }else NULL
+  cl <- ergm.getCluster(control, verbose)
   
-  if(is.network(nw)) nw <- list(nw)
+  if(is.network(nw) || is(nw, "pending_update_network")) nw <- list(nw)
   nws <- rep(nw, length.out=nthreads)
   
   Clists <- lapply(nws, ergm::ergm.Cprepare, model, response=response)
@@ -68,8 +66,6 @@ ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL,
     statsmatrices[[i]] <- z$s
   }
   
-  ergm.stopCluster(cl)
-
   stats <- as.mcmc.list(statsmatrices)
   if(verbose){message("Sample size = ",niter(stats)*nchain(stats)," by ",
                   niter(stats),".")}

@@ -9,14 +9,12 @@
 \alias{parallel-ergm}
 \alias{ergm.getCluster}
 \alias{ergm.stopCluster}
-\alias{ergm.stopCluster.default}
 \title{Parallel Processing in the \code{\link[=ergm-package]{ergm}} Package}
 \usage{
-ergm.getCluster(control, verbose = FALSE)
+ergm.getCluster(control, verbose = FALSE,
+  stop_on_exit = parent.frame())
 
-ergm.stopCluster(object, ...)
-
-\method{ergm.stopCluster}{default}(object, ...)
+ergm.stopCluster(...)
 }
 \arguments{
 \item{control}{a \code{\link{control.ergm}} (or similar) list of
@@ -25,7 +23,10 @@ parameter values from which the parallel settings should be read.}
 \item{verbose}{logical, should detailed status info be printed to
 console?}
 
-\item{object}{an object, probably of class \code{cluster}.}
+\item{stop_on_exit}{An \code{\link{evironment}}, or \code{NULL}. If an
+\code{environment}, defaulting to that of the calling function, the
+cluster will be stopped when the calling the frame in question
+exits.}
 
 \item{\dots}{not currently used}
 }
