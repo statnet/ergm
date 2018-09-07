@@ -17,11 +17,14 @@ struct TailHead{
 /* Hash and comparison functions designed for tail-head pairs. */
 // The of macro-ing this due to Bob Jenkins.
 #define ROT_INT(x,k) (((x)<<(k)) | ((x)>>(32-(k))))
+// This combination of rotations has been taken from
+// http://faculty.otterbein.edu/psanderson/csc205/notes/lecture17.html
+// and is used in Java 5ish. It has been tested extensively.
 static inline unsigned int kh_scramble_int(unsigned int a){
-  a ^= 0xc761c23c;
-  a += ROT_INT(a,30);
-  a ^= ROT_INT(a,11);
-  a += ROT_INT(a,20);
+  a += ~(a << 9);
+  a ^= (a >> 14);
+  a += ~(a << 4);
+  a ^= (a >> 10);
   return a;
 }
 #define kh_vertexvertex_hash_func(key) (khint32_t)(kh_scramble_int(ROT_INT((key).tail,16) ^ (key).head))

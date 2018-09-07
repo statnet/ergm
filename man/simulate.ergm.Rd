@@ -9,16 +9,19 @@
 \method{simulate}{formula}(object, nsim = 1, seed = NULL, coef,
   response = NULL, reference = ~Bernoulli, constraints = ~.,
   observational = FALSE, monitor = NULL, basis = NULL,
-  statsonly = FALSE, esteq = FALSE, sequential = TRUE,
-  control = control.simulate.formula(), verbose = FALSE, ...,
-  do.sim = TRUE)
+  statsonly = FALSE, esteq = FALSE, output = c("network", "stats",
+  "edgelist", "pending_update_network"), simplify = TRUE,
+  sequential = TRUE, control = control.simulate.formula(),
+  verbose = FALSE, ..., do.sim = TRUE)
 
 \method{simulate}{ergm}(object, nsim = 1, seed = NULL,
   coef = object$coef, response = object$response,
   reference = object$reference, constraints = list(object$constraints,
   object$obs.constraints), observational = FALSE, monitor = NULL,
-  statsonly = FALSE, esteq = FALSE, sequential = TRUE,
-  control = control.simulate.ergm(), verbose = FALSE, ...)
+  statsonly = FALSE, esteq = FALSE, output = c("network", "stats",
+  "edgelist", "pending_update_network"), simplify = TRUE,
+  sequential = TRUE, control = control.simulate.ergm(),
+  verbose = FALSE, ...)
 }
 \arguments{
 \item{object}{Either a \code{\link{formula}} or an
@@ -70,12 +73,21 @@ an error results because the characteristics of the network (e.g., size and
 directedness) must be specified.}
 
 \item{statsonly}{Logical: If TRUE, return only the network statistics, not
-the network(s) themselves.}
+the network(s) themselves. Deprecated in favor of \code{output=}.}
 
 \item{esteq}{Logical: If TRUE, compute the sample estimating equations of an
 ERGM: if the model is non-curved, all non-offset statistics are returned
 either way, but if the model is curved, the score estimating function values
 (3.1) by Hunter and Handcock (2006) are returned instead.}
+
+\item{output}{Character, one of \code{"network"} (default), \code{"stats"},
+\code{"edgelist"}, or \code{"pending_update_network"}: determines the
+output format. Partial matching is performed.}
+
+\item{simplify}{Logical: If \code{TRUE} the output is "simplified":
+sampled networks are returned in a single list, statistics from
+multiple parallel chains are stacked, etc.. This makes it
+consistent with behavior prior to \code{ergm} 3.10.}
 
 \item{sequential}{Logical: If FALSE, each of the \code{nsim} simulated
 Markov chains begins at the initial network.  If TRUE, the end of one
@@ -105,25 +117,56 @@ If \code{statsonly==TRUE} a matrix containing the simulated network
 statistics. If \code{control$parallel>0}, the statistics from each Markov
 chain are stacked.
 
-Otherwise, if \code{nsim==1}, an object of class \code{network}.  If
-\code{nsim>1}, it returns an object of class \code{\link{network.list}}: a
-list of networks with the following \code{\link{attr}}-style attributes on
-the list: \item{formula}{The \code{\link{formula}} used to generate the
-sample.} \item{stats}{The \eqn{\code{nsim}\times p} matrix of network
-statistics, where \eqn{p} is the number of network statistics specified in
-the model.} \item{control}{Control parameters used to generate the sample.}
-\item{constraints}{Constraints used to generate the sample.}
-\item{reference}{The reference measure for the sample.} \item{monitor}{The
-monitoring formula.} \item{response}{The edge attribute used as a response.}
+If \code{output=="stats"} an \code{\link{mcmc}} object containing the
+simulated network statistics. If \code{control$parallel>0}, an
+\code{\link{mcmc.list}} object. If \code{simplify=TRUE} (the default), these
+would then be "stacked" and converted to a standard \code{\link{matrix}}.
 
-If \code{statsonly==FALSE && control$parallel>0} the returned networks are
-"interleaved", in the sense that for \code{y[i,j]} is the \code{j}th network
-from MCMC chain \code{i}, the sequence returned if
-\code{control$parallel==2} is \code{list(y[1,1], y[2,1], y[1,2], y[2,2],
-y[1,3], y[2,3], ...)}. This is different from the behavior when
-\code{statsonly==TRUE}. This detail may change in the future.
+Otherwise, a representation of the simulated network is returned,
+in the form specified by \code{output}. In addition to a network
+representation or a list thereof, they have the following
+\code{\link{attr}}-style attributes: \describe{
 
-This object has summary and print methods.
+\item{\code{formula}}{The \code{\link{formula}} used to generate the
+sample.}
+
+\item{\code{stats}}{An \code{\link{mcmc}} or \code{\link{mcmc.list}} object as above.}
+
+\item{\code{control}}{Control parameters used to generate the sample.}
+
+\item{\code{constraints}}{Constraints used to generate the sample.}
+
+\item{\code{reference}}{The reference measure for the sample.}
+
+\item{\code{monitor}}{The monitoring formula.}
+
+\item{\code{response}}{The edge attribute used as a response.}
+
+}
+
+The following are the permitted network formats: \describe{
+
+\item{\code{"network"}}{If \code{nsim==1}, an object of class
+\code{network}.  If \code{nsim>1}, it returns an object of class
+\code{\link{network.list}} (a list of networks) with the
+above-listed additional attributes.}
+
+\item{\code{"edgelist"}}{An \code{\link{edgelist}} representation of the network,
+or a list thereof, depending on \code{nsim}.}
+
+\item{\code{"pending_update_network"}}{A semi-internal representation of
+a network consisting of a \code{\link{network}} object emptied of edges, with
+an attached edgelist matrix, or a list thereof, depending on
+\code{nsim}.}
+
+}
+
+If \code{simplify==FALSE}, the networks are returned as a nested list,
+with outer list being the parallel chain (including 1 for no
+parallelism) and inner list being the samples within that chains
+(including 1, if one network per chain). If \code{TRUE}, they are
+concatenated, and if a total of one network had been simulated, the
+network itself will be returned.
 }
 \description{
 \code{\link[stats]{simulate}} is used to draw from exponential
@@ -202,7 +245,7 @@ summary(gest)
 # of triangles as well.
 #
 g.sim <- simulate(gest, nsim=10, 
-            monitor=~triangles, statsonly=TRUE,
+            monitor=~triangles, output="stats",
             control=control.simulate.ergm(MCMC.burnin=1000, MCMC.interval=100))
 g.sim
 }

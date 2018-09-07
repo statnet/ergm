@@ -82,11 +82,21 @@
 #' an error results because the characteristics of the network (e.g., size and
 #' directedness) must be specified.
 #' @param statsonly Logical: If TRUE, return only the network statistics, not
-#' the network(s) themselves.
+#' the network(s) themselves. Deprecated in favor of `output=`.
 #' @param esteq Logical: If TRUE, compute the sample estimating equations of an
 #' ERGM: if the model is non-curved, all non-offset statistics are returned
 #' either way, but if the model is curved, the score estimating function values
 #' (3.1) by Hunter and Handcock (2006) are returned instead.
+#' 
+#' @param output Character, one of `"network"` (default), `"stats"`,
+#'   `"edgelist"`, or `"pending_update_network"`: determines the
+#'   output format. Partial matching is performed.
+#'
+#' @param simplify Logical: If `TRUE` the output is "simplified":
+#'   sampled networks are returned in a single list, statistics from
+#'   multiple parallel chains are stacked, etc.. This makes it
+#'   consistent with behavior prior to `ergm` 3.10.
+#' 
 #' @param sequential Logical: If FALSE, each of the \code{nsim} simulated
 #' Markov chains begins at the initial network.  If TRUE, the end of one
 #' simulation is used as the start of the next.  Irrelevant when \code{nsim=1}.
@@ -108,25 +118,57 @@
 #' statistics. If \code{control$parallel>0}, the statistics from each Markov
 #' chain are stacked.
 #' 
-#' Otherwise, if \code{nsim==1}, an object of class \code{network}.  If
-#' \code{nsim>1}, it returns an object of class \code{\link{network.list}}: a
-#' list of networks with the following \code{\link{attr}}-style attributes on
-#' the list: \item{formula}{The \code{\link{formula}} used to generate the
-#' sample.} \item{stats}{The \eqn{\code{nsim}\times p} matrix of network
-#' statistics, where \eqn{p} is the number of network statistics specified in
-#' the model.} \item{control}{Control parameters used to generate the sample.}
-#' \item{constraints}{Constraints used to generate the sample.}
-#' \item{reference}{The reference measure for the sample.} \item{monitor}{The
-#' monitoring formula.} \item{response}{The edge attribute used as a response.}
+#' @return If \code{output=="stats"} an [`mcmc`] object containing the
+#'   simulated network statistics. If \code{control$parallel>0}, an
+#'   [`mcmc.list`] object. If `simplify=TRUE` (the default), these
+#'   would then be "stacked" and converted to a standard [`matrix`].
+#'
+#' Otherwise, a representation of the simulated network is returned,
+#' in the form specified by `output`. In addition to a network
+#' representation or a list thereof, they have the following
+#' \code{\link{attr}}-style attributes: \describe{
+#'
+#' \item{`formula`}{The \code{\link{formula}} used to generate the
+#' sample.}
+#'
+#' \item{`stats`}{An [`mcmc`] or [`mcmc.list`] object as above.}
+#'
+#' \item{`control`}{Control parameters used to generate the sample.}
+#'
+#' \item{`constraints`}{Constraints used to generate the sample.}
+#'
+#' \item{`reference`}{The reference measure for the sample.}
 #' 
-#' If \code{statsonly==FALSE && control$parallel>0} the returned networks are
-#' "interleaved", in the sense that for \code{y[i,j]} is the \code{j}th network
-#' from MCMC chain \code{i}, the sequence returned if
-#' \code{control$parallel==2} is \code{list(y[1,1], y[2,1], y[1,2], y[2,2],
-#' y[1,3], y[2,3], ...)}. This is different from the behavior when
-#' \code{statsonly==TRUE}. This detail may change in the future.
-#' 
-#' This object has summary and print methods.
+#' \item{`monitor`}{The monitoring formula.}
+#'
+#' \item{`response`}{The edge attribute used as a response.}
+#'
+#' }
+#'
+#' The following are the permitted network formats: \describe{
+#'
+#' \item{`"network"`}{If \code{nsim==1}, an object of class
+#' \code{network}.  If \code{nsim>1}, it returns an object of class
+#' \code{\link{network.list}} (a list of networks) with the
+#' above-listed additional attributes.}
+#'
+#' \item{`"edgelist"`}{An [`edgelist`] representation of the network,
+#' or a list thereof, depending on `nsim`.}
+#'
+#' \item{`"pending_update_network"`}{A semi-internal representation of
+#' a network consisting of a [`network`] object emptied of edges, with
+#' an attached edgelist matrix, or a list thereof, depending on
+#' `nsim`.}
+#'
+#' }
+#'
+#' If `simplify==FALSE`, the networks are returned as a nested list,
+#' with outer list being the parallel chain (including 1 for no
+#' parallelism) and inner list being the samples within that chains
+#' (including 1, if one network per chain). If `TRUE`, they are
+#' concatenated, and if a total of one network had been simulated, the
+#' network itself will be returned.
+#'
 #' @seealso \code{\link{ergm}}, \code{\link[network]{network}}
 #' @keywords models
 #' @examples
@@ -179,7 +221,7 @@
 #' # of triangles as well.
 #' #
 #' g.sim <- simulate(gest, nsim=10, 
-#'             monitor=~triangles, statsonly=TRUE,
+#'             monitor=~triangles, output="stats",
 #'             control=control.simulate.ergm(MCMC.burnin=1000, MCMC.interval=100))
 #' g.sim
 #' @name simulate.ergm
@@ -193,13 +235,21 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
                                monitor=NULL,
                                basis=NULL,
                                statsonly=FALSE,
-                               esteq=FALSE,
-                               sequential=TRUE,
+                             esteq=FALSE,
+                             output=c("network","stats","edgelist","pending_update_network"),
+                             simplify=TRUE,
+                             sequential=TRUE,
                                control=control.simulate.formula(),
                              verbose=FALSE, ..., do.sim=TRUE) {
   #' @importFrom statnet.common check.control.class
   check.control.class("simulate.formula", myname="ERGM simulate.formula")
   control.toplevel(...)
+
+  if(!missing(statsonly)){
+    .Deprecate_once(msg=paste0("Use of ",sQuote("statsonly=")," argument has been deprecated. Use ",sQuote("output='stats'")," instead."))
+    output <- if(statsonly) "stats" else "network"
+  }
+  output <- match.arg(output)
   
   # define nw as either the basis argument or (if NULL) the LHS of the formula
   if (is.null(nw <- basis)) {
@@ -238,6 +288,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
                     basis=nw,
                     statsonly=statsonly,
                     esteq=esteq,
+                    output=output,
+                    simplify=simplify,
                     sequential=sequential,
                     control=control,
                     verbose=verbose, ...)
@@ -254,15 +306,17 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     out
   }else{
     list(object=m, nsim=nsim, seed=seed,
-                    coef=coef, response=response, reference=reference,
-                    constraints=proposal,
-                    monitor=mon.m,
-                    basis=nw,
-                    statsonly=statsonly,
-                    esteq=esteq,
-                    sequential=sequential,
-                    control=control,
-                    verbose=verbose, ...)
+         coef=coef, response=response, reference=reference,
+         constraints=proposal,
+         monitor=mon.m,
+         basis=nw,
+         statsonly=statsonly,
+         esteq=esteq,
+         output=output,
+         simplify=simplify,
+         sequential=sequential,
+         control=control,
+         verbose=verbose, ...)
   }
 }
 
@@ -275,6 +329,8 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                                 basis=NULL,
                                 statsonly=FALSE,
                                 esteq=FALSE,
+                                output=c("network","stats","edgelist","pending_update_network"),
+                                simplify=TRUE,
                                 sequential=TRUE,
                                 control=control.simulate.formula(),
                                 verbose=FALSE, ...){
@@ -302,7 +358,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   # (probably we could just return an error in this case!)
   if(missing(coef)) {
     coef <- c(rep(0, nparam(m)))
-    warning("No parameter values given, using Bernouli network\n\t")
+    warning("No parameter values given, using Bernouli network.")
   }
 
   coef <- c(coef, rep(0, nparam(monitor)))
@@ -343,33 +399,30 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     if(inherits(control$parallel,"cluster")) nrow(summary(control$parallel))
     else control$parallel,
     1)
-  
-  
+
   #########################
   ## Main part of function:
-  if(sequential && statsonly){
+  if(sequential && output=="stats"){
     # In this case, we can make one, parallelized run of
     # ergm.getMCMCsample.
     control$MCMC.samplesize <- nsim
-    z <- ergm_MCMC_sample(nw, m, proposal, control, theta=coef, verbose=max(verbose-1,0), response=response)
-    
-    # Post-processing:  Add term names to columns and shift each row by
-    # observed statistics.
-    out.mat <- sweep(as.matrix(z$stats)[seq_len(nsim),,drop=FALSE], 2, curstats, "+")
+    z <- ergm_MCMC_sample(nw, m, proposal, control, theta=coef, verbose=max(verbose-1,0), response=response, update.nws=FALSE)
+    # Post-processing: Shift each row by observed statistics.
+    stats <- sweep.mcmc.list(z$stats, curstats, "+")
   }else{
     # Create objects to store output
-    if (!statsonly) { 
-      nw.list <- list()
+    if (output!="stats") { 
+      nw.list <- rep(list(list()),nthreads)
     }
-    out.mat <- matrix(nrow=0, ncol=length(curstats), 
-                      dimnames = list(NULL, param_names(m,canonical=TRUE))) 
+    stats <- rep(list(matrix(nrow=0, ncol=length(curstats), 
+                             dimnames = list(NULL, param_names(m,canonical=TRUE)))),nthreads)
     
     # Call ergm.getMCMCsample once for each network desired.  This is much slower
-    # than when sequential==TRUE and statsonly==TRUE, but here we have a 
+    # than when sequential==TRUE and output=="stats", but here we have a 
     # more complicated situation:  Either we want a network for each
-    # MCMC iteration (statsonly=FALSE) or we want to restart each chain
+    # MCMC iteration (output="network") or we want to restart each chain
     # at the original network (sequential=FALSE).
-    if(nthreads>1) curstats <- matrix(curstats, nrow=nthreads, ncol=length(curstats), byrow=TRUE)
+    curstats <- rep(list(curstats), nthreads)
     
     # start a cluster if we need to run in parallel more than once
     parallel.toplevel <- NULL     # top level reminder to stop cluster
@@ -392,19 +445,28 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     }
     
     for(i in 1:ceiling(nsim/nthreads)){
+
+      control.parallel <- modifyList(control,
+                                     list(MCMC.samplesize = nthreads,
+                                          MCMC.burnin = if(i==1 || sequential==FALSE) control$MCMC.burnin else control$MCMC.interval))
+      z <- ergm_MCMC_sample(nw, m, proposal, control.parallel, theta=coef, verbose=max(verbose-1,0), response=response, update.nws=FALSE)
       
-      control$MCMC.samplesize <- nthreads
-      control$MCMC.burnin <- if(i==1 || sequential==FALSE) control$MCMC.burnin else control$MCMC.interval
-      z <- ergm_MCMC_sample(nw, m, proposal, control, theta=coef, verbose=max(verbose-1,0), response=response)
+      stats <- mapply(function(s, cs, os) rbind(s, os+cs), stats, curstats, z$stats, SIMPLIFY=FALSE)
       
-      out.mat <- rbind(out.mat, curstats + as.matrix(z$stats))
-      
-      if(!statsonly) # then store the returned network:
-        nw.list[[length(nw.list)+1]] <- z$networks[[1]]
+      if(output!="stats") # then store the returned network:
+        # Concatenate the following...
+        nw.list <- mapply(function(nwl, newnw){nwl[[length(nwl)+1]] <- newnw; nwl}, nw.list,
+                          # Extract into a list of network representations, one for each thread:
+                          switch(output,
+                                 pending_update_network=z$networks,
+                                 network=lapply(z$networks, newnw.extract, response=response),
+                                 edgelist=lapply(z$networks, as.edgelist, attrname=response)
+                                 ),
+                          SIMPLIFY=FALSE)
       
       if(sequential){ # then update the network state:
         nw <- z$networks
-        curstats <- curstats + as.matrix(z$stats)
+        curstats <- mapply(`+`,curstats, z$stats, SIMPLIFY=FALSE)
       }
 
       if(verbose){message(sprintf("Finished simulation %d of %d.",i, nsim))}
@@ -419,26 +481,33 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     }
   }
 
-  out.mat <- out.mat[seq_len(nsim),,drop=FALSE]
+  if(esteq) stats <- lapply(ergm.estfun, stats, coef, m)
 
-  if(esteq) out.mat <- ergm.estfun(out.mat, coef, m)
+  stats <- as.mcmc.list(lapply(stats, mcmc, start=control$MCMC.burnin+1, thin=control$MCMC.interval))
+  if(simplify)
+    stats <- as.matrix(stats)[seq_len(nsim),,drop=FALSE]
+
+  if(output=="stats")
+    return(stats)
   
-  if (statsonly)
-    return(out.mat)
-  
-  # If we get here, statsonly==FALSE.
-  if (nsim==1) {
-    return(nw.list[[1]])
-  } else {
-    nw.list <- nw.list[seq_len(nsim)]
-    attributes(nw.list) <- list(stats=out.mat, coef=coef,
+  # If we get here, output!="stats".
+  if(simplify){
+    nw.list <- unlist(nw.list, recursive=FALSE)[seq_len(nsim)] # Concatenate.
+  }
+
+  if(length(nw.list)==1&&simplify){
+    nw.list <- nw.list[[1]] # Just one network.
+  }else{
+      attributes(nw.list) <- list(formula=object, monitor=monitor,
+                                stats=stats, coef=coef,
                                 control=control,
                                 constraints=constraints, reference=reference,
-                                response=response)
-
+                                monitor=monitor, response=response)
+    
     class(nw.list) <- "network.list"
-    return(nw.list)
   }
+  
+  return(nw.list)
 }
 
 #' @rdname simulate.ergm
@@ -457,6 +526,8 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           monitor=NULL,
                           statsonly=FALSE,
                           esteq=FALSE,
+                          output=c("network","stats","edgelist","pending_update_network"),
+                          simplify=TRUE,
                           sequential=TRUE,
                           control=control.simulate.ergm(),
                           verbose=FALSE, ...) {
@@ -482,11 +553,16 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
 
   control <- set.control.class("control.simulate.formula")
   
+  if(!missing(statsonly)){
+    .Deprecate_once(msg=paste0("Use of ",sQuote("statsonly=")," argument has been deprecated. Use ",sQuote("output='stats'")," instead."))
+    output <- if(statsonly) "stats" else "network"
+  }
+
   simulate(object$formula, nsim=nsim, coef=coef, response=response, reference=reference,
-                   statsonly=statsonly,
                    esteq=esteq,
                    sequential=sequential, constraints=constraints, observational=observational,
                    monitor=monitor,
+           output=output, simplify=simplify,
                    control=control, verbose=verbose, seed=seed, ...)
 }
 

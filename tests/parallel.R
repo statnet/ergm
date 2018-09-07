@@ -24,19 +24,19 @@ for(type in c("SOCK")){
   mcmc.diagnostics(gest)
 
   # FIXME: Set seeds and replace with actual values?
-  sim.STAT.SEQ <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), statsonly=TRUE, sequential=TRUE)
+  sim.STAT.SEQ <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), output="stats", sequential=TRUE)
   stopifnot(nrow(sim.STAT.SEQ)==5)
   print(sim.STAT.SEQ)
 
-  sim.STAT.seq <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), statsonly=TRUE, sequential=FALSE)
+  sim.STAT.seq <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), output="stats", sequential=FALSE)
   stopifnot(nrow(sim.STAT.seq)==5)
   print(sim.STAT.seq)
 
-  sim.stat.SEQ <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), statsonly=FALSE, sequential=TRUE)
+  sim.stat.SEQ <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), output="network", sequential=TRUE)
   stopifnot(length(sim.stat.SEQ)==5)
   print(sim.stat.SEQ)
 
-  sim.stat.seq <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), statsonly=FALSE, sequential=FALSE)
+  sim.stat.seq <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), output="network", sequential=FALSE)
   stopifnot(length(sim.stat.seq)==5)
   print(sim.stat.seq)
   
@@ -83,19 +83,19 @@ opttest({
     mcmc.diagnostics(gest)
     
     # FIXME: Set seeds and replace with actual values?
-    sim.STAT.SEQ <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), statsonly=TRUE, sequential=TRUE)
+    sim.STAT.SEQ <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), output="stats", sequential=TRUE)
     stopifnot(nrow(sim.STAT.SEQ)==5)
     print(sim.STAT.SEQ)
     
-    sim.STAT.seq <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), statsonly=TRUE, sequential=FALSE)
+    sim.STAT.seq <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), output="stats", sequential=FALSE)
     stopifnot(nrow(sim.STAT.seq)==5)
     print(sim.STAT.seq)
     
-    sim.stat.SEQ <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), statsonly=FALSE, sequential=TRUE)
+    sim.stat.SEQ <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), output="network", sequential=TRUE)
     stopifnot(length(sim.stat.SEQ)==5)
     print(sim.stat.SEQ)
     
-    sim.stat.seq <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), statsonly=FALSE, sequential=FALSE)
+    sim.stat.seq <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), output="network", sequential=FALSE)
     stopifnot(length(sim.stat.seq)==5)
     print(sim.stat.seq)
     

@@ -22,7 +22,7 @@ cat("Average degree among nodes with degree 2 or higher:", (2*norm.stats[1]-norm
 
 ergm.fit<-ergm(base.net~edges+degree(c(0,1)),target.stats=n*norm.stats,estimate="MPLE")
 summary(ergm.fit)
-ergm.sim<-simulate(ergm.fit,nsim=1000,statsonly=TRUE)
+ergm.sim<-simulate(ergm.fit,nsim=1000,output="stats")
 
 target.stats.sim<-apply(ergm.sim,2,mean)
 print(target.stats.sim)

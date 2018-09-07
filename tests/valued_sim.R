@@ -31,12 +31,12 @@ theta<-c(x.coef,xy.coef,xx.coef)
 cat("mean=",mu,", var=",sig^2,", corr=",rho,"\neta=(",paste(theta,collapse=","),")\n",sep="")
 
 s<-simulate(testnet3d~sum+mutual("product")+sum(pow=2), nsim=1000, reference=~StdNormal, response="w", coef=theta,
-            statsonly=TRUE, control=control.simulate(MCMC.burnin=10000))
+            output="stats", control=control.simulate(MCMC.burnin=10000))
 
 cat("Simulated mean (statsonly):",mean(s[,1])/6,"\n",sep="")
 
 s.full<-simulate(testnet3d~sum+mutual("product")+sum(pow=2), nsim=1000, reference=~StdNormal, response="w",
-                 coef=theta, statsonly=FALSE, control=control.simulate(MCMC.burnin=10000))
+                 coef=theta, output='network', control=control.simulate(MCMC.burnin=10000))
 
 s.cells<-sapply(s.full, function(x) as.matrix(x,m="a",a="w"),simplify=FALSE)
 cat("Simulated means (target=",mu,"):\n",sep="")
@@ -82,16 +82,16 @@ V <- function(q, a, b) sum(((a:b)-E(q,a,b))^2*exp(q*(a:b))/sum(exp(q*(a:b))))
 a <- -1; b <- 5; coefs <- c(runif(1,-3,3),0)
 
 for(coef in coefs){
-  cat("==== statsonly=TRUE, coef=",coef,"\n",sep="")
-  s <- simulate(testnet3d~sum, nsim=1000, reference=~DiscUnif(a,b), response="w", coef=coef, statsonly=TRUE, control=control.simulate(MCMC.burnin=100))
+  cat("==== output='stats', coef=",coef,"\n",sep="")
+  s <- simulate(testnet3d~sum, nsim=1000, reference=~DiscUnif(a,b), response="w", coef=coef, output='stats', control=control.simulate(MCMC.burnin=100))
   test <- approx.hotelling.diff.test(s/6,mu0=E(coef,a,b))
   if(test$p.value<0.001) {print(test); stop("Simulation test failed (mean).")}
   test <- approx.hotelling.diff.test((s-E(coef,a,b)*6)^2/6,mu0=V(coef,a,b))
   if(test$p.value<0.001) {print(test); stop("Simulation test failed (variance).")}
 
   
-  cat("==== statsonly=FALSE, coef=",coef,"\n",sep="")
-  s.full<-simulate(testnet3d~sum, nsim=1000, reference=~DiscUnif(a,b), response="w", coef=coef, statsonly=FALSE, control=control.simulate(MCMC.burnin=100))
+  cat("==== output='network', coef=",coef,"\n",sep="")
+  s.full<-simulate(testnet3d~sum, nsim=1000, reference=~DiscUnif(a,b), response="w", coef=coef, output='network', control=control.simulate(MCMC.burnin=100))
   s <- sapply(s.full, function(x) sum(as.matrix(x,m="a",a="w")),simplify=TRUE)
   test <- approx.hotelling.diff.test(s/6,mu0=E(coef,a,b))
   if(test$p.value<0.001) {print(test); stop("Simulation test failed (mean).")}
@@ -108,16 +108,16 @@ V <- function(q, a, b) if(isTRUE(all.equal(q,0))) (b-a)^2/12 else (((-b^2+2*a*b-
 a <- -1; b <- 5; coefs <- c(runif(1,-3,3),0)
 
 for(coef in coefs){
-  cat("==== statsonly=TRUE, coef=",coef,"\n",sep="")
-  s <- simulate(testnet3d~sum, nsim=1000, reference=~Unif(a,b), response="w", coef=coef, statsonly=TRUE, control=control.simulate(MCMC.burnin=100))
+  cat("==== output='stats', coef=",coef,"\n",sep="")
+  s <- simulate(testnet3d~sum, nsim=1000, reference=~Unif(a,b), response="w", coef=coef, output='stats', control=control.simulate(MCMC.burnin=100))
   test <- approx.hotelling.diff.test(s/6,mu0=E(coef,a,b))
   if(test$p.value<0.001) {print(test); stop("Simulation test failed (mean).")}
   test <- approx.hotelling.diff.test((s-E(coef,a,b)*6)^2/6,mu0=V(coef,a,b))
   if(test$p.value<0.001) {print(test); stop("Simulation test failed (variance).")}
 
   
-  cat("==== statsonly=FALSE, coef=",coef,"\n",sep="")
-  s.full<-simulate(testnet3d~sum, nsim=1000, reference=~Unif(a,b), response="w", coef=coef, statsonly=FALSE, control=control.simulate(MCMC.burnin=100))
+  cat("==== output='network', coef=",coef,"\n",sep="")
+  s.full<-simulate(testnet3d~sum, nsim=1000, reference=~Unif(a,b), response="w", coef=coef, output='network', control=control.simulate(MCMC.burnin=100))
   s <- sapply(s.full, function(x) sum(as.matrix(x,m="a",a="w")),simplify=TRUE)
   test <- approx.hotelling.diff.test(s/6,mu0=E(coef,a,b))
   if(test$p.value<0.001) {print(test); stop("Simulation test failed (mean).")}

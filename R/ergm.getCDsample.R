@@ -73,7 +73,7 @@ ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL,
   list(stats = stats, networks=newnetworks, status=0)
 }
 
-ergm_CD_slave <- function(Clist,proposal,eta,control,verbose,...,samplesize=NULL) {
+ergm_CD_slave <- function(Clist,proposal,eta,control,verbose,..., samplesize=NULL) {
 
   numnetworks <- 0
 
