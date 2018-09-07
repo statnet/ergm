@@ -29,21 +29,21 @@ ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL,
 
   flush.console()
 
-  doruns <- function(prev.runs=rep(list(NULL),nthreads), burnin=NULL, samplesize=NULL, interval=NULL){
+  doruns <- function(prev.runs=rep(list(NULL),nthreads), samplesize=NULL){
     if(!is.null(cl)) clusterMap(cl,ergm_CD_slave,
-                                  Clist=Clists, prev.run=prev.runs, MoreArgs=list(proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval))
-    else list(ergm_CD_slave(Clist=Clists[[1]], prev.run=prev.runs[[1]],burnin=burnin,samplesize=samplesize,interval=interval,proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...))
+                                  Clist=Clists, prev.run=prev.runs, MoreArgs=list(proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...,samplesize=samplesize))
+    else list(ergm_CD_slave(Clist=Clists[[1]], prev.run=prev.runs[[1]],samplesize=samplesize,proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...))
   }
   
   outl <- doruns()
   for(i in seq_along(outl)){
-    outl[[i]]$s <- mcmc(outl[[i]]$s, control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval)
+    outl[[i]]$s <- mcmc(outl[[i]]$s)
   }
   
   if(control.parallel$MCMC.runtime.traceplot){
       esteq <- lapply.mcmc.list(lapply(outl, function(out)
                       NVL3(theta, ergm.estfun(out$s, ., model), out$s[,Clists[[1]]$diagnosable,drop=FALSE])
-                      ), mcmc, start=1, thin=interval)
+                      ), mcmc, start=1)
         plot(window(esteq, thin=thin(esteq)*max(1,floor(niter(esteq)/1000)))
              ,ask=FALSE,smooth=TRUE,density=FALSE)
   }
@@ -53,7 +53,6 @@ ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL,
   #
   statsmatrices <- list()
   newnetworks <- list()
-  final.interval <- c()
   for(i in (1:nthreads)){
     z <- outl[[i]]
     
@@ -67,8 +66,6 @@ ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL,
       }
     
     statsmatrices[[i]] <- z$s
-    
-    final.interval <- c(final.interval, z$final.interval)
   }
   
   ergm.stopCluster(cl)
@@ -77,10 +74,10 @@ ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL,
   if(verbose){message("Sample size = ",niter(stats)*nchain(stats)," by ",
                   niter(stats),".")}
   
-  list(stats = stats, networks=newnetworks, status=0, final.interval=final.interval)
+  list(stats = stats, networks=newnetworks, status=0)
 }
 
-ergm_CD_slave <- function(Clist,proposal,eta0,control,verbose,...,burnin=NULL, samplesize=NULL, interval=NULL) {
+ergm_CD_slave <- function(Clist,proposal,eta,control,verbose,..., samplesize=NULL) {
 
   numnetworks <- 0
 
@@ -90,9 +87,7 @@ ergm_CD_slave <- function(Clist,proposal,eta0,control,verbose,...,burnin=NULL, s
     weights <- Clist$weights
     stats <- rep(0, Clist$nstats)
   
-  if(is.null(burnin)) burnin <- control$MCMC.burnin
   if(is.null(samplesize)) samplesize <- control$MCMC.samplesize
-  if(is.null(interval)) interval <- control$MCMC.interval
 
   samplesize <- control$MCMC.samplesize
   
@@ -106,7 +101,7 @@ ergm_CD_slave <- function(Clist,proposal,eta0,control,verbose,...,burnin=NULL, s
             as.character(Clist$fnamestring),
             as.character(Clist$snamestring),
             as.character(proposal$name), as.character(proposal$pkgname),
-            as.double(c(Clist$inputs,proposal$inputs)), as.double(.deinf(eta0)),
+            as.double(c(Clist$inputs,proposal$inputs)), as.double(.deinf(eta)),
             as.integer(samplesize), as.integer(c(control$CD.nsteps,control$CD.multiplicity)),
             s = as.double(rep(stats, samplesize)),
             as.integer(verbose), as.integer(proposal$arguments$constraints$bd$attribs),
@@ -128,7 +123,7 @@ ergm_CD_slave <- function(Clist,proposal,eta0,control,verbose,...,burnin=NULL, s
             as.character(Clist$fnamestring),
             as.character(Clist$snamestring),
             as.character(proposal$name), as.character(proposal$pkgname),
-            as.double(c(Clist$inputs,proposal$inputs)), as.double(.deinf(eta0)),
+            as.double(c(Clist$inputs,proposal$inputs)), as.double(.deinf(eta)),
             as.integer(samplesize), as.integer(c(control$CD.nsteps,control$CD.multiplicity)),
             s = as.double(rep(stats, samplesize)),
             as.integer(verbose), 
