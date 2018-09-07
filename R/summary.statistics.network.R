@@ -134,10 +134,10 @@ summary_formula.network.list <- function(object, response=NULL, ..., basis=NULL)
 #' @seealso [summary.ergm_model()]
 #' @export
 summary_formula.network <- function(object, response=NULL,...,basis=NULL) {
+  formula <- object
   if(is.network(basis)){
     nw <- basis
   }else{
-    formula <- object
     nw <- ergm.getnetwork(formula)
   }
   m <- ergm_model(formula, nw, response=response, role="target",...)
@@ -147,10 +147,10 @@ summary_formula.network <- function(object, response=NULL,...,basis=NULL) {
 #' @describeIn summary_formula a method for the semi-internal [`pending_update_network`] on the LHS of the formula.
 #' @export
 summary_formula.pending_update_network <- function(object, response=NULL,...,basis=NULL) {
+  formula <- object
   if(is(basis,"pending_update_network")){
     nw <- basis
   }else{
-    formula <- object
     nw <- eval_lhs.formula(formula)
   }
   m <- ergm_model(formula, {tmp<-nw;class(tmp)<-"network";tmp}, response=response, role="target",...)
