@@ -14,7 +14,7 @@
 ergm.getCluster(control, verbose = FALSE,
   stop_on_exit = parent.frame())
 
-ergm.stopCluster(...)
+ergm.stopCluster(..., verbose = FALSE)
 }
 \arguments{
 \item{control}{a \code{\link{control.ergm}} (or similar) list of
@@ -23,7 +23,7 @@ parameter values from which the parallel settings should be read.}
 \item{verbose}{logical, should detailed status info be printed to
 console?}
 
-\item{stop_on_exit}{An \code{\link{evironment}}, or \code{NULL}. If an
+\item{stop_on_exit}{An \code{\link{environment}}, or \code{NULL}. If an
 \code{environment}, defaulting to that of the calling function, the
 cluster will be stopped when the calling the frame in question
 exits.}
