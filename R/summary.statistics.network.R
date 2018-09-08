@@ -153,7 +153,7 @@ summary_formula.pending_update_network <- function(object, response=NULL,...,bas
   }else{
     nw <- eval_lhs.formula(formula)
   }
-  m <- ergm_model(formula, {tmp<-nw;class(tmp)<-"network";tmp}, response=response, role="target",...)
+  m <- ergm_model(formula, ensure_network(nw), response=response, role="target",...)
   summary(m, nw, response=response)
 }
 

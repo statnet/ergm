@@ -92,15 +92,13 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   if(inherits(nw,"network.list")){
     nw <- nw$networks[[1]]
   }
-  nw <- as.network(nw)
   if(is.null(target.stats)){
     stop("You need to specify target statistic via",
          " the 'target.stats' argument")
   }
-  if(!is.network(nw)){
-    stop("A network object on the LHS of the formula ",
-         "must be given")
-  }
+
+  # FIXME: figure out how to make the following work with pending_update_network.
+  nw <- as.network(ensure_network(nw))
 
 # model <- ergm_model(formula, nw, drop=control$drop)
   proposal<-ergm_proposal(constraints,arguments=control$SAN.prop.args,nw=nw,weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
@@ -270,11 +268,11 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
     #   Next update the network to be the final (possibly conditionally)
     #   simulated one
     #
-    out.list[[i]] <- pending_update_network(nw,z)
+    out.list[[i]] <- pending_update_network(nw,z,response=response)
     out.list[[i]] <- switch(output,
                             pending_update_network=out.list[[i]],
-                            network=as.network(out.list[[i]], response=response),
-                            edgelist=as.edgelist(out.list[[i]], response=response)
+                            network=as.network(out.list[[i]]),
+                            edgelist=as.edgelist(out.list[[i]])
                             )
     out.mat <- rbind(out.mat,z$s[(Clist$nstats+1):(2*Clist$nstats)])
     if(sequential){

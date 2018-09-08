@@ -38,21 +38,26 @@
 #'   the model formula in the formula's environment.
 #' @export ergm.getnetwork
 ergm.getnetwork <- function (formula, loopswarning=TRUE){
-  nw <- ERRVL(
-    try({
-      tmp <- eval_lhs.formula(formula)
-      if(is.network(tmp)) tmp else as.network(tmp)
-    }, silent = TRUE),
-    stop("Invalid network on the LHS of the formula.")
-  )
+  nw <- eval_lhs.formula(formula)
+  nw <- ensure_network(nw)
 
   if (loopswarning) {
     e <- as.edgelist(nw)
     if(any(e[,1]==e[,2])) {
       print("Warning:  This network contains loops")
-    } else if (has.loops(nw)) {
+    } else if (has.loops(as.network(nw,populate=FALSE))) {
       print("Warning:  This network is allowed to contain loops")
     }
+  }
+  nw
+}
+
+ensure_network <- function(nw){
+  if(!is.network(nw) && !is.pending_update_network(nw)){
+    nw <- ERRVL(
+      try(as.network(nw)),
+      abort("A network object on the LHS of the formula or as a basis argument must be given")
+    )
   }
   nw
 }

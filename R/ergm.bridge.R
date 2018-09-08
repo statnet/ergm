@@ -18,11 +18,7 @@ ergm.bridge.preproc<-function(object, basis, response, ...){
     nw <- ergm.getnetwork(object)
   }
 
-  nw <- as.network(nw)
-  if(!is.network(nw)){
-    stop("A network object on the LHS of the formula or via",
-         " the 'basis' argument must be given")
-  }
+  nw <- ensure_network(nw)
   
   # New formula (no longer use 'object'):
   form <- nonsimp_update.formula(object, nw ~ ., from.new="nw")

@@ -401,7 +401,7 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
       el <- el[!el2s(el[,-3,drop=FALSE])%in%el2s(na.el),,drop=FALSE]
       el <- rbind(el, cbind(na.el, sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))))
       el <- el[el[,3]!=0,,drop=FALSE]
-      nw <- pending_update_network(nw, list(newedgelist = el))
+      nw <- pending_update_network(nw, list(newedgelist = el), response=response)
     }
   }
 

@@ -17,7 +17,8 @@
 #' At this time, a `pending_update_network` object is (subject to
 #' change) a [`network`] object with all edges removed and with a
 #' network attribute `".update"` containing a two or three column
-#' matrix with a (possibly valued) edge list.
+#' matrix with a (possibly valued) edge list. The third column name
+#' also indicates the edge attribute represented.
 #'
 #' If `update` uses `"newedgelist"`, it is copied directly; othewirse,
 #' `"newnwtails"`, `"newnwheads"`, and (optionally) `"newnwweights"`
@@ -41,14 +42,17 @@
 #'
 #' @keywords internal
 #' @export
-pending_update_network <- function(nw, update=NULL){
-  if(is(nw, "pending_update_network")) class(nw) <- "network"
-  if(!is.network(nw)) stop("nw must be a network or a pending_update_network object.")
-  
-  el <-
-    if(is.null(update)||is.character(update)) as.edgelist(nw, attrname=update)
-    else .extract_z_edgelist(update, response=TRUE)
+pending_update_network <- function(nw, update=NULL, response=if(is.character(update)) update){
+  if(!is.network(nw) && !is.pending_update_network(nw)) stop("nw must be a network or a pending_update_network object.")
 
+  el <-
+    # Note that the following will get the edgelist from a pending_update_network as well.
+    if(is.null(update)||is.character(update)) as.edgelist(nw, attrname=response)
+    else .extract_z_edgelist(update, response=response)
+
+  if(!is.null(response)&&ncol(el)==3) colnames(el)[3]<-response
+
+  if(is(nw, "pending_update_network")) class(nw) <- "network"
   nw <- empty_network(nw)
   nw%n%".update" <- el
   
@@ -64,7 +68,7 @@ is.pending_update_network <- function(x){
 
 #' @rdname pending_update_network
 #' @export
-as.edgelist.pending_update_network <- function(x,attrname=NULL,...){
+as.edgelist.pending_update_network <- function(x,...){
   class(x) <- "network"
   e <- x%n%".update"
   if(length(e)!=0) e <- e[order(e[,1],e[,2]),,drop=FALSE]
@@ -80,7 +84,7 @@ as.edgelist.pending_update_network <- function(x,attrname=NULL,...){
   # if z has a newedgelist attached, use it
   if("newedgelist" %in% names(z)){
     newedgelist<-z$newedgelist[,1:2,drop=FALSE]
-    newnwweights<- if(!is.null(response) && ncol(z$newedgelist)==3) z$newedgelist[,3]
+    newnwweights<- if(ncol(z$newedgelist)==3) z$newedgelist[,3]
   }else{
     # expect that z will have seperate lists of heads and tails
     nedges<-z$newnwtails[1]
@@ -88,15 +92,19 @@ as.edgelist.pending_update_network <- function(x,attrname=NULL,...){
     newedgelist <- cbind(z$newnwtails[seq_len(nedges)+1],z$newnwheads[seq_len(nedges)+1])
     newnwweights <- z$newnwweights[seq_len(nedges)+1]
   }
-  cbind(newedgelist, newnwweights)
+  out <- cbind(newedgelist, newnwweights)
+  if(!is.null(response)&&ncol(out)==3) colnames(out)[3]<-response
+  out
 }
 
 #' @rdname pending_update_network
 #' @export
-as.network.pending_update_network <- function(x, response=NULL, ...){
+as.network.pending_update_network <- function(x, ..., populate=TRUE){
   class(x) <- "network"
+  if(!populate) return(x)
+  
   z <- x%n%".update"
   delete.network.attribute(x, ".update")
 
-  update(x,z,matrix.type="edgelist", attrname=response)
+  update(x,z,matrix.type="edgelist", attrname=if(ncol(z)==3) colnames(z)[3])
 }

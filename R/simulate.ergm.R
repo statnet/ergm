@@ -254,11 +254,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   }
   
   # Do some error-checking on the nw object
-  nw <- as.network(nw)
-  if(!is.network(nw)){
-    stop("A network object on the LHS of the formula or via",
-         " the 'basis' argument must be given")
-  }
+  # FIXME: Make the following work with pending_update_networks.
+  nw <- as.network(ensure_network(nw))
   
   mon.m <- if(!is.null(monitor)) as.ergm_model(monitor, nw, response=response, term.options=control$term.options)
 
@@ -432,8 +429,8 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                           # Extract into a list of network representations, one for each thread:
                           switch(output,
                                  pending_update_network=z$networks,
-                                 network=lapply(z$networks, as.network, response=response),
-                                 edgelist=lapply(z$networks, as.edgelist, attrname=response)
+                                 network=lapply(z$networks, as.network),
+                                 edgelist=lapply(z$networks, as.edgelist)
                                  ),
                           SIMPLIFY=FALSE)
       
