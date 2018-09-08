@@ -619,9 +619,8 @@ ergm <- function(formula, response=NULL,
         if(sum((nw.stats-target.stats)^2) <= 5) break
       }
     }
-    TARGET_STATS <- as.network(TARGET_STATS)
+    nw <- TARGET_STATS <- as.network(TARGET_STATS)
     formula<-nonsimp_update.formula(formula,TARGET_STATS~., from.new="TARGET_STATS")
-    nw <- TARGET_STATS
     offinfo <- offset.info.formula(formula,response=response,term.options=control$term.options)
     tmp <- rep(NA, length(offinfo$eta))
     tmp[!offinfo$eta] <- target.stats
