@@ -600,6 +600,7 @@ ergm <- function(formula, response=NULL,
                 reference=reference,
                 constraints=constraints,
                 control=san.control,
+                output="pending_update_network",
                 verbose=verbose)
         formula.no<-nonsimp_update.formula(formula.no,TARGET_STATS~., from.new="TARGET_STATS")
         nw.stats <- summary(formula.no,response=response, term.options=control$term.options)
@@ -618,7 +619,7 @@ ergm <- function(formula, response=NULL,
         if(sum((nw.stats-target.stats)^2) <= 5) break
       }
     }
-    
+    TARGET_STATS <- as.network(TARGET_STATS, response=response)
     formula<-nonsimp_update.formula(formula,TARGET_STATS~., from.new="TARGET_STATS")
     nw <- TARGET_STATS
     offinfo <- offset.info.formula(formula,response=response,term.options=control$term.options)

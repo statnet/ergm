@@ -62,6 +62,11 @@ san.default <- function(object,...)
 #' @param sequential Logical: If TRUE, the returned draws always use the prior
 #' draw as the starting network; if FALSE, they always use the original
 #' network.
+#'
+#' @param output Character, one of `"network"` (default),
+#'   `"edgelist"`, or `"pending_update_network"`: determines the
+#'   output format. Partial matching is performed.
+#'
 #' @param control A list of control parameters for algorithm tuning; see
 #' \code{\link{control.san}}.
 #' @param verbose Logical or numeric giving the level of verbosity. Higher values produce more verbose output.
@@ -70,10 +75,13 @@ san.default <- function(object,...)
 san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints=~., target.stats=NULL,
                         nsim=1, basis=NULL,
                         sequential=TRUE,
+                        output=c("network","edgelist","pending_update_network"),
                         control=control.san(),
                         verbose=FALSE, ...) {
   check.control.class("san", "san")
   control.toplevel(...,myname="san")
+
+  output <- match.arg(output)
 
   out.list <- list()
   out.mat <- numeric(0)
@@ -224,7 +232,12 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
     #   Next update the network to be the final (possibly conditionally)
     #   simulated one
     #
-    out.list[[i]] <- as.network(pending_update_network(nw, z), response=response)
+    out.list[[i]] <- pending_update_network(nw,z)
+    out.list[[i]] <- switch(output,
+                            pending_update_network=out.list[[i]],
+                            network=as.network(out.list[[i]], response=response),
+                            edgelist=as.edgelist(out.list[[i]], response=response)
+                            )
     out.mat <- rbind(out.mat,z$s[(Clist$nstats+1):(2*Clist$nstats)])
     if(sequential){
       nw <-  out.list[[i]]
@@ -248,6 +261,7 @@ san.ergm <- function(object, formula=object$formula,
                      target.stats=object$target.stats,
                      nsim=1, basis=NULL,
                      sequential=TRUE, 
+                     output=c("network","edgelist","pending_update_network"),
                      control=object$control$SAN.control,
                      verbose=FALSE, ...) {
   if(is.null(control$coef)) control$coef <- coef(object)
@@ -256,6 +270,7 @@ san.ergm <- function(object, formula=object$formula,
               basis=basis,
               reference = object$reference,
               sequential=sequential,
+              output=output,
               constraints=constraints,
               control=control,
               verbose=verbose, ...)
