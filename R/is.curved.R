@@ -52,11 +52,7 @@ is.curved.formula<-function(object,response=NULL,basis=NULL,...){
     nw <- ergm.getnetwork(object)
   }
   
-  nw <- as.network(nw)
-  if(!is.network(nw)){
-      stop("A network object on the LHS of the formula or via",
-           " the 'basis' argument must be given")
-    }
+  nw <- ensure_network(nw)
   
   m<-ergm_model(object, nw, response=response, ...)
   is.curved(m)

@@ -93,7 +93,8 @@ as.edgelist.pending_update_network <- function(x,...){
     newnwweights <- z$newnwweights[seq_len(nedges)+1]
   }
   out <- cbind(newedgelist, newnwweights)
-  if(!is.null(response)&&ncol(el)==3) colnames(el)[3]<-response  
+  if(!is.null(response)&&ncol(out)==3) colnames(out)[3]<-response
+  out
 }
 
 #' @rdname pending_update_network

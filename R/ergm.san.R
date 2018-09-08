@@ -96,15 +96,13 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   if(inherits(nw,"network.list")){
     nw <- nw$networks[[1]]
   }
-  nw <- as.network(nw)
   if(is.null(target.stats)){
     stop("You need to specify target statistic via",
          " the 'target.stats' argument")
   }
-  if(!is.network(nw)){
-    stop("A network object on the LHS of the formula ",
-         "must be given")
-  }
+
+  # FIXME: figure out how to make the following work with pending_update_network.
+  nw <- as.network(ensure_network(nw))
 
 # model <- ergm_model(formula, nw, drop=control$drop)
   model <- ergm_model(formula, nw, response=response, term.options=control$term.options)
