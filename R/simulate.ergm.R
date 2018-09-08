@@ -336,7 +336,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
                           # Extract into a list of network representations, one for each thread:
                           switch(output,
                                  pending_update_network=z$networks,
-                                 network=lapply(z$networks, newnw.extract, response=response),
+                                 network=lapply(z$networks, as.network, response=response),
                                  edgelist=lapply(z$networks, as.edgelist, attrname=response)
                                  ),
                           SIMPLIFY=FALSE)

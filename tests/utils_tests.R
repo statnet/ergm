@@ -9,7 +9,7 @@
 #######################################################################
 
 
-# ------------- tests for the network.update function -----
+# ------------- tests for the update.network function -----
 
 require(ergm)
 aaa <- network.initialize(10,directed=TRUE,loops=TRUE)
@@ -28,21 +28,21 @@ amat<-structure(c(1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0,  0, 1, 1, 0
 # and edgelist version of the same matrix
 ael <- structure(c(1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 3L, 3L, 3L, 4L,  4L, 4L, 4L, 4L, 5L, 5L, 5L, 5L, 5L, 5L, 5L, 6L, 6L, 6L, 6L, 6L,  7L, 7L, 7L, 7L, 7L, 7L, 8L, 8L, 8L, 8L, 8L, 9L, 9L, 10L, 10L,  10L, 10L, 10L, 10L, 1L, 2L, 4L, 5L, 6L, 8L, 3L, 8L, 9L, 6L, 9L,  10L, 1L, 3L, 4L, 6L, 10L, 2L, 3L, 5L, 7L, 8L, 9L, 10L, 3L, 4L,  5L, 7L, 8L, 3L, 4L, 5L, 7L, 8L, 10L, 1L, 4L, 5L, 8L, 9L, 1L,  2L, 1L, 2L, 4L, 5L, 6L, 7L), .Dim = c(48L, 2L))
 
-bb<-network.update(aaa,newmatrix = amat,matrix.type = 'adjacency')
+bb<-update(aaa,new = amat,matrix.type = 'adjacency')
 
 # correct number of edges created
 if(!all(as.matrix(bb)==amat)){
-  stop("network.update did not create correct edges corresponding to input adjacency matrix")
+  stop("update.network did not create correct edges corresponding to input adjacency matrix")
 }
 
 # edges removed
 if(bb[2,1]!=0){
-  stop("network.update did not correctly remove edges in input network")
+  stop("update.network did not correctly remove edges in input network")
 }
 
 # original unmodified
 if(network.edgecount(aaa) >1){
-  stop("network.update modified its input argument")
+  stop("update.network modified its input argument")
 }
 
 # attributes preserved
@@ -54,18 +54,18 @@ aaa%v%'astructure'==bb%v%'astructure',
 aaa %n% 'verymeta' == bb %n% 'verymeta',
 aaa %n% 'verybeta' == bb %n% 'verybeta'
 ))){
-  stop("network.update did not copy network and vertex attributes correctly")
+  stop("update.network did not copy network and vertex attributes correctly")
 }
 
 # flags preserved
 if(!has.loops(bb)){
-  stop("network flags were not copied correctly by network.update")
+  stop("network flags were not copied correctly by update.network")
 }
 
 # try creating from an edgeslist
 
-ccc<-network.update(aaa,ael,matrix.type='edgelist')
+ccc<-update(aaa,ael,matrix.type='edgelist')
 if(!all(as.matrix(ccc)==amat)){
-  stop('network.update did not create edges corresponding to input edgelist matrix')
+  stop('update.network did not create edges corresponding to input edgelist matrix')
 }
 

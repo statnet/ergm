@@ -21,3 +21,8 @@ attributes to ignore when updating network objects}
 Initializes an empty network with the same vertex and network
 attributes as the original network, but no edges.
 }
+\note{
+This function operates directly on the internal represenation
+of the network object. It may therefore be broken by a future
+version of \code{\link{network}}.
+}

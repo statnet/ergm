@@ -17,7 +17,7 @@ ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL,
 
   cl <- ergm.getCluster(control, verbose)
   
-  if(is.network(nw) || is(nw, "pending_update_network")) nw <- list(nw)
+  if(is.network(nw) || is.pending_update_network(nw)) nw <- list(nw)
   nws <- rep(nw, length.out=nthreads)
   
   Clists <- lapply(nws, ergm::ergm.Cprepare, model, response=response)

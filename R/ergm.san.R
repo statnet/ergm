@@ -224,10 +224,10 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
     #   Next update the network to be the final (possibly conditionally)
     #   simulated one
     #
-    out.list[[i]] <- newnw.extract(nw, z, output=control$network.output, response=response)
+    out.list[[i]] <- as.network(pending_update_network(nw, z), response=response)
     out.mat <- rbind(out.mat,z$s[(Clist$nstats+1):(2*Clist$nstats)])
     if(sequential){
-      nw <-  as.network.uncompressed(out.list[[i]])
+      nw <-  out.list[[i]]
     }
   }
   if(nsim > 1){

@@ -199,63 +199,10 @@ function(x, alternative = c("two.sided", "less", "greater"),
     return(rval)
 }
 
-.extract_z_edgelist <- function(z, response=NULL){
-  # if z has a newedgelist attached, use it
-  if("newedgelist" %in% names(z)){
-    newedgelist<-z$newedgelist[,1:2,drop=FALSE]
-    newnwweights<- if(!is.null(response)) z$newedgelist[,3]
-  }else{
-    # expect that z will have seperate lists of heads and tails
-    nedges<-z$newnwtails[1]
-    # *** don't forget - edgelists are cbind(tails, heads) now
-    newedgelist <- cbind(z$newnwtails[seq_len(nedges)+1],z$newnwheads[seq_len(nedges)+1])
-    newnwweights <- z$newnwweights[seq_len(nedges)+1]
-  }
-  cbind(newedgelist, newnwweights)
-}
-
-#' @method as.edgelist pending_update_network
-as.edgelist.pending_update_network <- function(x,attrname=NULL,...){
-  class(x) <- "network"
-  e <- .extract_z_edgelist(x%n%".update", response=attrname)
-  if(length(e)!=0) e <- e[order(e[,1],e[,2]),,drop=FALSE]
-  attr(e, "n") <- network.size(x)
-  attr(e, "vnames") <- x%v%"vertex.names"
-  attr(e, "directed") <- is.directed(x)
-  attr(e, "bipartite") <- x%n%"bipartite"
-  attr(e, "loops") <- has.loops(x)
-  e
-}
-
-#' Internal function to create a new network from the ergm MCMC sample output
-#' 
-#' An internal function to generate a new \code{\link{network}} object using
-#' the output (lists of toggled heads and tail vertices) from an ERGM MCMC or
-#' SAN process.
-#' 
-#' 
-#' @param oldnw a network object (presumably input to the ergm process) from
-#' which the network- and vertex-level attributes will be copied
-#' @param z a list having either a component named \code{newedgelist}
-#'   or two components \code{newtails} and \code{newheads} containing
-#'   the ids of the head and tails vertices of the edges. Optionally,
-#'   it may also contain \code{newweights}, containing edgewights. If
-#'   not passed, `newnw.extract` searches for an `.update` network
-#'   attribute on `oldnw` and attempts to use that instead, deleting
-#'   it from the returned network.
-#' @param output passed to \code{\link{network.update}}, which claims not to
-#' use it
-#' @param response optional character string giving the name of the edge
-#' attribute where the edge values (weight/count) should be stored.
-#' @return a \code{\link{network}} object with properties copied from
-#' \code{oldnw} and edges corresponding to the lists of tails and head vertex
-#' ids in \code{z}
-#' @note This is an internal ergm function, it most cases with edgelists to be
-#' converted to networks it will probably be simpler to use
-#' \code{\link{network.edgelist}}
-#' @seealso \code{\link{network.edgelist}}, \code{\link{network.update}}
+#' @describeIn ergm-deprecated Use the [`pending_update_network`] "API".
 #' @export newnw.extract
 newnw.extract<-function(oldnw,z=NULL,output="network",response=NULL){
+  .Deprecate_once('pending_network_update "API"')
   if(is(oldnw,"pending_update_network") && is.null(z)){
     class(oldnw) <- "network"
     z <- oldnw%n%".update"
@@ -304,8 +251,6 @@ nvattr.copy.network <- function(to, from, ignore=c("bipartite","directed","hyper
   }
   to
 }
-
-
 
 #' Copy a network object enforcing ergm-appropriate guarantees about its
 #' internal representation
@@ -446,9 +391,7 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
       nw[na.el[c(todel,toadd),,drop=FALSE]] <- rep(0:1, c(length(todel),length(toadd)))
     }else{ # pending_update_network
       el <- s2el(union(setdiff(el2s(as.edgelist(nw)), el2s(na.el)), el2s(na.el[i.new,,drop=FALSE])))
-      nw <- empty_network(nw)
-      nw%n%".update" <- list(newedgelist = el[order(el[,1],el[,2]),,drop=FALSE])
-      class(nw) <- "pending_update_network"
+      nw <- pending_update_network(nw, list(newedgelist = el))
     }
   }else{
     if(output=="network"){
@@ -458,9 +401,7 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
       el <- el[!el2s(el[,-3,drop=FALSE])%in%el2s(na.el),,drop=FALSE]
       el <- rbind(el, cbind(na.el, sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))))
       el <- el[el[,3]!=0,,drop=FALSE]
-      nw <- empty_network(nw)
-      nw%n%".update" <- list(newedgelist = el[order(el[,1],el[,2]),,drop=FALSE])
-      class(nw) <- "pending_update_network"
+      nw <- pending_update_network(nw, list(newedgelist = el))
     }
   }
 

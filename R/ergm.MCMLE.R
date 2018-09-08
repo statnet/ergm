@@ -235,7 +235,7 @@ ergm.MCMLE <- function(init, nw, model,
 
     if(!estimate){
       if(verbose){message("Skipping optimization routines...")}
-      nws.returned <- lapply(nws.returned, newnw.extract, response=response)
+      nws.returned <- lapply(nws.returned, as.network, response=response)
       l <- list(coef=mcmc.init, mc.se=rep(NA,length=length(mcmc.init)),
                 sample=statsmatrix, sample.obs=statsmatrix.obs,
                 iterations=1, MCMCtheta=mcmc.init,
@@ -446,7 +446,7 @@ ergm.MCMLE <- function(init, nw, model,
   v$sample <- ergm.sample.tomcmc(statsmatrix.0, control) 
   if(obs) v$sample.obs <- ergm.sample.tomcmc(statsmatrix.0.obs, control)
 
-  nws.returned <- lapply(nws.returned, newnw.extract, response=response)
+  nws.returned <- lapply(nws.returned, as.network, response=response)
   v$network <- nw.orig
   v$newnetworks <- nws.returned
   v$newnetwork <- nws.returned[[1]]

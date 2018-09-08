@@ -98,7 +98,7 @@ ergm.phase12 <- function(g, model,
    eta <- z$eta
   names(eta) <- names(eta0)
 
-  newnetwork<-newnw.extract(g,z)
+  newnetwork<-as.network(pending_update_network(g,z))
   
   colnames(statsmatrix) <- param_names(model,canonical=TRUE)
   list(statsmatrix=statsmatrix, newnetwork=newnetwork, target.stats=model$target.stats,

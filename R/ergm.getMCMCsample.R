@@ -84,7 +84,7 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
 
   cl <- ergm.getCluster(control, verbose)
   
-  if(is.network(nw) || is(nw, "pending_update_network")) nw <- list(nw)
+  if(is.network(nw) || is.pending_update_network(nw)) nw <- list(nw)
   nws <- rep(nw, length.out=nthreads)
   
   Clists <- lapply(nws, ergm::ergm.Cprepare, model, response=response)
@@ -206,17 +206,9 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
     
     statsmatrices[[i]] <- z$s
 
+    newnetworks[[i]] <- pending_update_network(nws[[i]],z)
     if(update.nws){
-      newnetworks[[i]] <- newnw.extract(nws[[i]],z, response=response,
-                                        output=control.parallel$network.output)
-    }else{
-      if(length(newnetworks)<i) newnetworks[[i]] <- nws[[i]]
-      class(newnetworks[[i]]) <- "network"
-      if(network.edgecount(newnetworks[[i]])!=0) newnetworks[[i]] <- empty_network(newnetworks[[i]])
-      newnetworks[[i]]%n%".update" <- z[c("newnwtails","newnwheads","newnwweights")]
-      # Make sure that nobody treats this as an actual network object
-      # by mistake.
-      class(newnetworks[[i]]) <- "pending_update_network"
+      newnetworks[[i]] <- as.network(newnetworks[[i]], response=response)
     }
     final.interval <- c(final.interval, z$final.interval)
   }
