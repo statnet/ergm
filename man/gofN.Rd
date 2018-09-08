@@ -26,8 +26,8 @@ statistics whose goodness of fit to test.}
 
 \item{obs.twostage}{Either \code{FALSE} or an integer. If not \code{FALSE},
 the constrained sample variance is estimated by simulating
-conditional on the observed. However, a more accurate estimate
-can be obtained via a two-stage process: \enumerate{
+conditional on the observed networks. However, a more accurate
+estimate can be obtained via a two-stage process: \enumerate{
 
 \item Sample networks from the model without the observational
 constraint.
