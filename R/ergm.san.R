@@ -232,11 +232,11 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
     #   Next update the network to be the final (possibly conditionally)
     #   simulated one
     #
-    out.list[[i]] <- pending_update_network(nw,z)
+    out.list[[i]] <- pending_update_network(nw,z,response=response)
     out.list[[i]] <- switch(output,
                             pending_update_network=out.list[[i]],
-                            network=as.network(out.list[[i]], response=response),
-                            edgelist=as.edgelist(out.list[[i]], response=response)
+                            network=as.network(out.list[[i]]),
+                            edgelist=as.edgelist(out.list[[i]])
                             )
     out.mat <- rbind(out.mat,z$s[(Clist$nstats+1):(2*Clist$nstats)])
     if(sequential){

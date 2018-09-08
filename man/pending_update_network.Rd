@@ -7,13 +7,14 @@
 \alias{as.network.pending_update_network}
 \title{A (Relatively) Lightweight Read-Only Representation of Network Objects}
 \usage{
-pending_update_network(nw, update = NULL)
+pending_update_network(nw, update = NULL, response = if
+  (is.character(update)) update)
 
 is.pending_update_network(x)
 
-\method{as.edgelist}{pending_update_network}(x, attrname = NULL, ...)
+\method{as.edgelist}{pending_update_network}(x, ...)
 
-\method{as.network}{pending_update_network}(x, response = NULL, ...)
+\method{as.network}{pending_update_network}(x, ..., populate = TRUE)
 }
 \arguments{
 \item{nw}{a \code{\link{network}} object.}
@@ -29,7 +30,8 @@ is.pending_update_network(x)
 At this time, a \code{pending_update_network} object is (subject to
 change) a \code{\link{network}} object with all edges removed and with a
 network attribute \code{".update"} containing a two or three column
-matrix with a (possibly valued) edge list.
+matrix with a (possibly valued) edge list. The third column name
+also indicates the edge attribute represented.
 
 If \code{update} uses \code{"newedgelist"}, it is copied directly; othewirse,
 \code{"newnwtails"}, \code{"newnwheads"}, and (optionally) \code{"newnwweights"}

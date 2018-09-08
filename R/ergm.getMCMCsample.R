@@ -206,9 +206,9 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
     
     statsmatrices[[i]] <- z$s
 
-    newnetworks[[i]] <- pending_update_network(nws[[i]],z)
+    newnetworks[[i]] <- pending_update_network(nws[[i]], z, response=response)
     if(update.nws){
-      newnetworks[[i]] <- as.network(newnetworks[[i]], response=response)
+      newnetworks[[i]] <- as.network(newnetworks[[i]])
     }
     final.interval <- c(final.interval, z$final.interval)
   }
