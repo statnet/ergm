@@ -100,7 +100,7 @@ opttest({
 	
 	s1 <-simulate(t1,1000)
 
-        fixed.dyads <- as.edgelist(!network.update(net1,free.dyads,matrix.type="edgelist"))
+        fixed.dyads <- as.edgelist(!update(net1,free.dyads,matrix.type="edgelist"))
 	fixed.dyads.state <- net1[fixed.dyads]
 	
 	stopifnot(all(sapply(s1,function(x) all.equal(x[fixed.dyads],fixed.dyads.state))))

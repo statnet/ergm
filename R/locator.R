@@ -1,7 +1,7 @@
 #' A simple dictionary to cache recent InitFunction lookups.
 #'
 #' @param name function name.
-#' @param env the nevironment name for the function; if `NULL`, look
+#' @param env the environment name for the function; if `NULL`, look
 #'   up in cache, otherwise insert or overwrite.
 #'
 #' @return A character string giving the name of the environment

@@ -559,33 +559,46 @@ ergm <- function(formula, response=NULL,
   
   nw <- ergm.getnetwork(formula)
   proposalclass <- "c"
-  
+
+  if(!is(constraints, "ergm_proposal")){
+    # Handle the observation process and other "automatic" constraints.
+    tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats)
+    nw <- tmp$nw
+    constraints.obs <- tmp$constraints.obs
+    constraints <- tmp$constraints
+  }else if(!is(obs.constraints, "ergm_proposal")){
   # Handle the observation process and other "automatic" constraints.
-  tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats)
-  nw <- tmp$nw
-  constraints.obs <- tmp$constraints.obs
-  constraints <- tmp$constraints
-
-  if (verbose) message("Initializing unconstrained Metropolis-Hastings proposal: ", appendLF=FALSE)
+    tmp <- .handle.auto.constraints(nw, ~., obs.constraints, target.stats)
+    nw <- tmp$nw
+    constraints.obs <- tmp$constraints.obs
+    constraints <- tmp$constraints
+  }
   
-  proposal <- ergm_proposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
+  if(!is(constraints, "ergm_proposal")){
+    if (verbose) message("Initializing unconstrained Metropolis-Hastings proposal: ", appendLF=FALSE)
+    
+    proposal <- ergm_proposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
+  }else proposal <- constraints
+  
   if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
-
+  
   if (verbose) message("Initializing model...")
   model <- ergm_model(formula, nw, response=response, extra.aux=NVL3(proposal$auxiliaries,list(.)), term.options=control$term.options)
   if (verbose) message("Model initialized.")
-    
-  if(!is.null(constraints.obs)){
-    if (verbose) message("Initializing constrained Metropolis-Hastings proposal: ", appendLF=FALSE)
-    proposal.obs <- ergm_proposal(constraints.obs, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
-    if (verbose) message(sQuote(paste0(proposal.obs$pkgname,":MH_",proposal.obs$name)), appendLF=FALSE)
-
-    if(!is.null(proposal.obs$auxiliaries)){
-      if(verbose) message(" (requests auxiliaries: updating model).")
-      model$obs.model <- c(model, ergm_model(~., nw, response=response, extra.aux=list(proposal.obs$auxiliaries), term.options=control$term.options))
-      if(verbose) message("Model reinitialized.")
-    }else if(verbose) message(".")
-  }else proposal.obs <- NULL
+  
+  if(!is(obs.constraints, "ergm_proposal")){
+    if(!is.null(constraints.obs)){
+      if (verbose) message("Initializing constrained Metropolis-Hastings proposal: ", appendLF=FALSE)
+      proposal.obs <- ergm_proposal(constraints.obs, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
+      if (verbose) message(sQuote(paste0(proposal.obs$pkgname,":MH_",proposal.obs$name)), appendLF=FALSE)
+      
+      if(!is.null(proposal.obs$auxiliaries)){
+        if(verbose) message(" (requests auxiliaries: updating model).")
+        model$obs.model <- c(model, ergm_model(~., nw, response=response, extra.aux=list(proposal.obs$auxiliaries), term.options=control$term.options))
+        if(verbose) message("Model reinitialized.")
+      }else if(verbose) message(".")
+    }else proposal.obs <- NULL
+  }else proposal.obs <- obs.constraints
   
   ## Construct approximate response network if target.stats are given.
   if(!is.null(target.stats)){
@@ -611,6 +624,7 @@ ergm <- function(formula, response=NULL,
                 reference=reference,
                 constraints=constraints,
                 control=san.control,
+                output="pending_update_network",
                 verbose=verbose)
         formula.no<-nonsimp_update.formula(formula.no,TARGET_STATS~., from.new="TARGET_STATS")
         nw.stats <- summary(formula.no,response=response, term.options=control$term.options)
@@ -638,7 +652,7 @@ ergm <- function(formula, response=NULL,
     # intelligently.
     target.stats <- .align.target.stats.offset(model, target.stats)   
 
-    nw <- TARGET_STATS
+    nw <- TARGET_STATS <- as.network(TARGET_STATS)
     formula<-nonsimp_update.formula(formula,TARGET_STATS~., from.new="TARGET_STATS")
   } else {
     if (network.edgecount(nw) == 0) warning("Network is empty and no target stats are specified.")

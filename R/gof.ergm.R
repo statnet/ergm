@@ -189,9 +189,7 @@ gof.formula <- function(object, ...,
   }
   
   nw <- as.network(lhs)
-  if(!is.network(nw)){
-    stop("A network object on the RHS of the formula argument must be given")
-  }
+
   if(is.null(control)) control <- control.gof.formula()
 
   check.control.class(c("gof.formula","gof.ergm"), "ERGM gof.formula")
@@ -224,12 +222,6 @@ gof.formula <- function(object, ...,
   }
   GOF <- as.formula(paste("~",paste(all.gof.vars,collapse="+")))
   
-  nw <- as.network(nw)
-  
-  if(!is.network(nw)){
-    stop("A network object on the RHS of the formula argument must be given")
-  }
-
   m <- ergm_model(object, nw, term.options=control$term.options)
   Clist <- ergm.Cprepare(nw, m)
 

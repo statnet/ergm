@@ -13,16 +13,20 @@ san(object, ...)
 
 \method{san}{formula}(object, response = NULL, reference = ~Bernoulli,
   constraints = ~., target.stats = NULL, nsim = 1, basis = NULL,
-  sequential = TRUE, control = control.san(), verbose = FALSE, ...)
+  sequential = TRUE, output = c("network", "edgelist",
+  "pending_update_network"), control = control.san(), verbose = FALSE,
+  ...)
 
 \method{san}{ergm_model}(object, response = NULL,
   reference = ~Bernoulli, constraints = ~., target.stats = NULL,
-  nsim = 1, basis = NULL, sequential = TRUE,
-  control = control.san(), verbose = FALSE, ...)
+  nsim = 1, basis = NULL, sequential = TRUE, output = c("network",
+  "edgelist", "pending_update_network"), control = control.san(),
+  verbose = FALSE, ...)
 
 \method{san}{ergm}(object, formula = object$formula,
   constraints = object$constraints, target.stats = object$target.stats,
-  nsim = 1, basis = NULL, sequential = TRUE,
+  nsim = 1, basis = NULL, sequential = TRUE, output = c("network",
+  "edgelist", "pending_update_network"),
   control = object$control$SAN.control, verbose = FALSE, ...)
 }
 \arguments{
@@ -63,6 +67,10 @@ chain.  If NULL, this is taken to be the network named in the formula.}
 \item{sequential}{Logical: If TRUE, the returned draws always use the prior
 draw as the starting network; if FALSE, they always use the original
 network.}
+
+\item{output}{Character, one of \code{"network"} (default),
+\code{"edgelist"}, or \code{"pending_update_network"}: determines the
+output format. Partial matching is performed.}
 
 \item{control}{A list of control parameters for algorithm tuning; see
 \code{\link{control.san}}.}
