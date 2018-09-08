@@ -638,7 +638,7 @@ ergm <- function(formula, response=NULL,
     # intelligently.
     target.stats <- .align.target.stats.offset(model, target.stats)   
 
-    TARGET_STATS <- as.network(TARGET_STATS)
+    nw <- TARGET_STATS <- as.network(TARGET_STATS)
     formula<-nonsimp_update.formula(formula,TARGET_STATS~., from.new="TARGET_STATS")
   } else {
     if (network.edgecount(nw) == 0) warning("Network is empty and no target stats are specified.")
