@@ -130,7 +130,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
      }
 
     if(is.null(control$coef)) {
-      if(reference==~Bernoulli){
+      if(reference==~Bernoulli && network.edgecount(nw)!=0){
         fit <- suppressWarnings(suppressMessages(try(ergm.mple(nw=nw, fd=fd, 
                          control=control, proposal=proposal,
                          m=model, verbose=max(verbose-1,0), ...))))
