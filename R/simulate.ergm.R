@@ -367,7 +367,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   names(curstats) <- param_names(m, canonical=TRUE)
 
   # prepare control object
-  control$MCMC.init.maxedges <- 1+max(control$MCMC.init.maxedges, network.edgecount(nw))
+  control$MCMC.init.maxedges <- 1+max(control$MCMC.init.maxedges, network.edgecount(as.network(nw,populate=FALSE)))
   
   # Explain how many iterations and steps will ensue if verbose==TRUE
   if (verbose) {

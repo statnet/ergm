@@ -559,32 +559,43 @@ ergm <- function(formula, response=NULL,
   
   nw <- ergm.getnetwork(formula)
   proposalclass <- "c"
-  
-  # Handle the observation process constraints.
-  tmp <- .handle.obs.constraints(nw, constraints, obs.constraints, target.stats)
-  nw <- tmp$nw
-  constraints.obs <- tmp$constraints.obs
 
-  if (verbose) message("Initializing unconstrained Metropolis-Hastings proposal: ", appendLF=FALSE)
+  if(!is(constraints, "ergm_proposal")){
+    # Handle the observation process constraints.
+    tmp <- .handle.obs.constraints(nw, constraints, obs.constraints, target.stats)
+    nw <- tmp$nw
+    constraints.obs <- tmp$constraints.obs
+  }else if(!is(obs.constraints, "ergm_proposal")){
+    tmp <- .handle.obs.constraints(nw, ~., obs.constraints, target.stats)
+    nw <- tmp$nw
+    constraints.obs <- tmp$constraints.obs
+  }
   
-  proposal <- ergm_proposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
+  if(!is(constraints, "ergm_proposal")){
+    if (verbose) message("Initializing unconstrained Metropolis-Hastings proposal: ", appendLF=FALSE)
+    
+    proposal <- ergm_proposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
+  }else proposal <- constraints
+  
   if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
-
+  
   if (verbose) message("Initializing model...")
   model <- ergm_model(formula, nw, response=response, extra.aux=NVL3(proposal$auxiliaries,list(.)), term.options=control$term.options)
   if (verbose) message("Model initialized.")
-    
-  if(!is.null(constraints.obs)){
-    if (verbose) message("Initializing constrained Metropolis-Hastings proposal: ", appendLF=FALSE)
-    proposal.obs <- ergm_proposal(constraints.obs, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
-    if (verbose) message(sQuote(paste0(proposal.obs$pkgname,":MH_",proposal.obs$name)), appendLF=FALSE)
-
-    if(!is.null(proposal.obs$auxiliaries)){
-      if(verbose) message(" (requests auxiliaries: updating model).")
-      model$obs.model <- c(model, ergm_model(~., nw, response=response, extra.aux=list(proposal.obs$auxiliaries), term.options=control$term.options))
-      if(verbose) message("Model reinitialized.")
-    }else if(verbose) message(".")
-  }else proposal.obs <- NULL
+  
+  if(!is(obs.constraints, "ergm_proposal")){
+    if(!is.null(constraints.obs)){
+      if (verbose) message("Initializing constrained Metropolis-Hastings proposal: ", appendLF=FALSE)
+      proposal.obs <- ergm_proposal(constraints.obs, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
+      if (verbose) message(sQuote(paste0(proposal.obs$pkgname,":MH_",proposal.obs$name)), appendLF=FALSE)
+      
+      if(!is.null(proposal.obs$auxiliaries)){
+        if(verbose) message(" (requests auxiliaries: updating model).")
+        model$obs.model <- c(model, ergm_model(~., nw, response=response, extra.aux=list(proposal.obs$auxiliaries), term.options=control$term.options))
+        if(verbose) message("Model reinitialized.")
+      }else if(verbose) message(".")
+    }else proposal.obs <- NULL
+  }else proposal.obs <- obs.constraints
   
   ## Construct approximate response network if target.stats are given.
   if(!is.null(target.stats)){

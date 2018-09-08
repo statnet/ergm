@@ -156,7 +156,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
 
     if(is.null(control$coef)) {
       if(reference==~Bernoulli && network.edgecount(nw)!=0){
-        fit <- try(suppressWarnings(suppressMessages(ergm(formula=object, response=response, reference=reference,
+        fit <- try(suppressWarnings(suppressMessages(ergm(formula=object$formula, response=response, reference=reference,
                         constraints=constraints,eval.loglik=FALSE,estimate="MPLE",control=control.ergm(drop=FALSE)))),silent=TRUE)
         if(inherits(fit, "try-error")){
           control$coef <- rep(0,nparam(model)) 
