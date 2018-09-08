@@ -125,14 +125,10 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
 
   if(!is.null(control$seed)) set.seed(as.integer(control$seed))
   nw <- basis
-  nw <- as.network(nw)
+  nw <- as.network(ensure_network(nw))
   if(is.null(target.stats)){
     stop("You need to specify target statistic via",
          " the 'target.stats' argument")
-  }
-  if(!is.network(nw)){
-    stop("A network object on the LHS of the formula ",
-         "must be given")
   }
 
   proposal <- if(inherits(constraints, "ergm_proposal")) constraints
