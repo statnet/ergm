@@ -183,7 +183,7 @@ myLibLoc <- function()
 #'   parameter values from which the parallel settings should be read.
 #' @param verbose logical, should detailed status info be printed to
 #'   console?
-#' @param stop_on_exit An [`evironment`], or `NULL`. If an
+#' @param stop_on_exit An [`environment`], or `NULL`. If an
 #'   `environment`, defaulting to that of the calling function, the
 #'   cluster will be stopped when the calling the frame in question
 #'   exits.

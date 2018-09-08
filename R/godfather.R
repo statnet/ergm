@@ -159,7 +159,7 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
   
   if(end.network){ 
     if(verbose) cat("Creating new network...\n")
-    newnetwork <- newnw.extract(nw,z, response=response)
+    newnetwork <- as.network(pending_update_network(nw,z), response=response)
     attr(newnetwork,"stats")<-stats
     newnetwork
   }else stats
