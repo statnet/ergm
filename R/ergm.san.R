@@ -101,8 +101,10 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
          " the 'target.stats' argument")
   }
 
-  # FIXME: figure out how to make the following work with pending_update_network.
-  nw <- as.network(ensure_network(nw))
+  nw <- as.network(ensure_network(nw), populate=FALSE)
+  # nw is now a network/pending_update_network hybrid class. As long
+  # as its edges are only accessed through methods that
+  # pending_update_network methods overload, it should be fine.
 
 # model <- ergm_model(formula, nw, drop=control$drop)
   model <- ergm_model(formula, nw, response=response, term.options=control$term.options)

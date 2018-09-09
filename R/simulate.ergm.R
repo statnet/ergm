@@ -242,8 +242,10 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   }
   
   # Do some error-checking on the nw object
-  # FIXME: Make the following work with pending_update_networks.
-  nw <- as.network(ensure_network(nw))
+  nw <- as.network(ensure_network(nw), populate=FALSE)
+  # nw is now a network/pending_update_network hybrid class. As long
+  # as its edges are only accessed through methods that
+  # pending_update_network methods overload, it should be fine.
   
   mon.m <- if(!is.null(monitor)) as.ergm_model(monitor, nw, response=response, term.options=control$term.options)
 
