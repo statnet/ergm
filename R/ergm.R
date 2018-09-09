@@ -570,7 +570,10 @@ ergm <- function(formula, response=NULL,
     init.candidates <- init.candidates[init.candidates!="MPLE"]
     if(verbose) message("At this time, MPLE cannot be used for curved families when target.stats are passed.")
   }
-  control$init.method <- match.arg(control$init.method, init.candidates)
+  control$init.method <- ERRVL(try(match.arg(control$init.method, init.candidates), silent=TRUE), {
+    message("Sepcified initial parameter method ", sQuote(control$init.method), " is not in the list of candidates. Use at your own risk.")
+    control$init.method
+  })
   if(verbose) message(paste0("Using initial method '",control$init.method,"'."))
   model.initial <- ergm_model(formula, nw, response=response, initialfit=control$init.method=="MPLE", term.options=control$term.options)
   
@@ -683,9 +686,9 @@ ergm <- function(formula, response=NULL,
   if(estimate=="MPLE"){
     if(!is.null(response)) stop("Maximum Pseudo-Likelihood (MPLE) estimation for valued ERGMs is not implemented at this time. You may want to pass fixed=TRUE parameter in curved terms to specify the curved parameters as fixed.")
     if(length(model$etamap$offsetmap)!=length(model.initial$etamap$offsetmap)) stop("Maximum Pseudo-Likelihood (MPLE) estimation for curved ERGMs is not implemented at this time. You may want to pass fixed=TRUE parameter in curved terms to specify the curved parameters as fixed.")
-    if(!is.dyad.independent(proposal$arguments$constraints,
-                            proposal.obs$arguments$constraints))
-      stop("Maximum Pseudo-Likelihood (MPLE) estimation for ERGMs with dyad-dependent constraints is only implemented for certain degree constraints at this time.")
+    ## if(!is.dyad.independent(proposal$arguments$constraints,
+    ##                         proposal.obs$arguments$constraints))
+    ##   stop("Maximum Pseudo-Likelihood (MPLE) estimation for ERGMs with dyad-dependent constraints is only implemented for certain degree constraints at this time.")
   }
   
   if (verbose) { message("Fitting initial model.") }
