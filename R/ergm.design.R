@@ -44,6 +44,6 @@
 ergm.design <- function(nw, model=NULL, verbose=FALSE){
   if(!is.null(model)) .Deprecated(msg="Argument model= to ergm.design() is no longer used and will be removed in a future release.")
   basecon <- ergm_conlist(~.attributes, nw)
-  misscon <- if(network.naedgecount(nw)) ergm_conlist(~.attributes+observed, nw)
+  misscon <- if(!is.pending_update_network(nw) && network.naedgecount(nw)) ergm_conlist(~.attributes+observed, nw)
   as.rlebdm(basecon, misscon, which="informative")
 }

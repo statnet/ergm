@@ -97,8 +97,10 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
          " the 'target.stats' argument")
   }
 
-  # FIXME: figure out how to make the following work with pending_update_network.
-  nw <- as.network(ensure_network(nw))
+  nw <- as.network(ensure_network(nw), populate=FALSE)
+  # nw is now a network/pending_update_network hybrid class. As long
+  # as its edges are only accessed through methods that
+  # pending_update_network methods overload, it should be fine.
 
   # Inherit constraints from nw if needed.
   tmp <- .handle.auto.constraints(nw, constraints, constraints, NULL)
@@ -128,7 +130,11 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
 
   if(!is.null(control$seed)) set.seed(as.integer(control$seed))
   nw <- basis
-  nw <- as.network(ensure_network(nw))
+  nw <- as.network(ensure_network(nw), populate=FALSE)
+  # nw is now a network/pending_update_network hybrid class. As long
+  # as its edges are only accessed through methods that
+  # pending_update_network methods overload, it should be fine.
+
   if(is.null(target.stats)){
     stop("You need to specify target statistic via",
          " the 'target.stats' argument")
