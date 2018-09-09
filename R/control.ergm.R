@@ -39,12 +39,17 @@
 #' method specified by \code{\link[=control.ergm]{control$init.method}}.
 #' 
 #' } Passing \code{control.ergm(init=coef(prev.fit))} can be used to ``resume''
-#' an uncoverged [ergm()] run.
-#' @param init.method A chatacter vector or \code{NULL}. The default method
-#' depends on the reference measure used. For the binary (\code{"Bernoulli"})
-#' ERGMs, it's maximum pseudo-likelihood estimation (MPLE). Other valid values
-#' include \code{"zeros"} for a \code{0} vector of appropriate length and
-#' \code{"CD"} for contrastive divergence.
+#' an uncoverged [ergm()] run, but see
+#' \code{\link{enformulate.curved}}.
+#' 
+#' @param init.method A chatacter vector or \code{NULL}. The default
+#'   method depends on the reference measure used. For the binary
+#'   (\code{"Bernoulli"}) ERGMs, with dyad-independent constraints,
+#'   it's maximum pseudo-likelihood estimation (MPLE). Other valid
+#'   values include \code{"zeros"} for a \code{0} vector of
+#'   appropriate length and \code{"CD"} for contrastive divergence. If
+#'   passed explicitly, this setting overrides the reference's
+#'   limitations.
 #' 
 #' Valid initial methods for a given reference are set by the `InitErgmReference.*` function.
 #' @param main.method One of "MCMLE" (default),"Robbins-Monro",

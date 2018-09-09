@@ -677,7 +677,10 @@ ergm <- function(formula, response=NULL,
     if(verbose) message("MPLE cannot be used for this constraint structure.")
   }
 
-  control$init.method <- match.arg(control$init.method, init.candidates)
+  control$init.method <- ERRVL(try(match.arg(control$init.method, init.candidates), silent=TRUE), {
+    message("Sepcified initial parameter method ", sQuote(control$init.method), " is not in the list of candidates. Use at your own risk.")
+    control$init.method
+  })
   if(verbose) message(paste0("Using initial method '",control$init.method,"'."))
 
   if(is.curved(model) ||
@@ -728,7 +731,7 @@ ergm <- function(formula, response=NULL,
     if(!is.null(response)) stop("Maximum Pseudo-Likelihood (MPLE) estimation for valued ERGM terms is not implemented at this time. You may want to use Contrastive Divergence by passing estimate='CD' instead.")
     if(!is.dyad.independent(proposal$arguments$constraints,
                             proposal.obs$arguments$constraints))
-      stop("Maximum Pseudo-Likelihood (MPLE) estimation for ERGMs with dyad-dependent constraints is only implemented for certain degree constraints at this time. You may want to use Contrastive Divergence by passing estimate='CD' instead.")
+      message("Maximum Pseudo-Likelihood (MPLE) estimation for ERGMs with dyad-dependent constraints is not implemented at this time. You may want to use Contrastive Divergence by passing estimate='CD' instead.")
   }
   
   if (verbose) { message("Fitting initial model.") }
