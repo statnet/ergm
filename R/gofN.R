@@ -4,6 +4,11 @@
     mean()
 }
 
+.update.list <- function(l, v){
+  l[names(v)]<-v
+  l
+}
+
 #' Linear model diagnostics for multinetwork linear models
 #'
 #' @param object an [`ergm`] object.
@@ -31,6 +36,31 @@
 #' to simulate from, which should divide the [control.gof.ergm()]'s
 #' `nsim` argument evenly.
 #'
+#' @return An object of class `gofN`: a named list containing a list
+#'   for every statistic in the specified `GOF` formula with the
+#'   following elements vectors of length equal to the number of
+#'   subnetworks:
+#'
+#' \item{observed}{For completely observed networks, their value of
+#' the statistic. For partially observed networks, the expected value
+#' of their imputations under the model.}
+#'
+#' \item{fitted}{Expected value of the statistic under the model.}
+#'
+#' \item{var}{Variance of the statistic under the model.}
+#'
+#' \item{var.obs}{Conditional variance under imputation statistic.}
+#' 
+#' In addition, the following [`attr`]-style attributes are included:
+#'
+#' \item{nw}{The observed multinetwork object.}
+#' 
+#' \item{subset}{A logical vector giving the subset of networks that were used.}
+#' 
+#' \item{obs.twostage}{Number of runs in the first stage, or `FALSE`.}
+#'
+#' \item{control}{Control parameters passed.}
+#'
 #' @export
 gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ..., obs.twostage=FALSE){
   if(obs.twostage && control$nsim %% obs.twostage !=0) stop("Number of imputation networks specified by obs.twostage= must divide the nsim control parameter evenly.")
@@ -46,7 +76,10 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ..., obs.
 
   message("Constructing simulation model(s).")
   sim_settings <- simulate(object, monitor=NULL, nsim=control$nsim, control=set.control.class("control.simulate.ergm",control), basis=nw, output="stats", response = object$response, ..., do.sim=FALSE)
-  if(!is.null(object$constrained.obs)) sim.obs_settings <- simulate(object, monitor=NULL, observational=TRUE, nsim=control$nsim, control=set.control.class("control.simulate.ergm",control), basis=nw, output="stats", response = object$response, ..., do.sim=FALSE)
+  
+  if(!is.null(object$constrained.obs)){
+    sim.obs_settings <- simulate(object, monitor=NULL, observational=TRUE, nsim=control$nsim, control=set.control.class("control.simulate.ergm",control), basis=nw, output="stats", response = object$response, ..., do.sim=FALSE)
+  }else obs.twostage <- FALSE # Ignore two-stage setting if no observational process.
 
   prev.remain <- NULL
   cl <- ergm.getCluster(control)
@@ -55,47 +88,53 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ..., obs.
     message("Constructing GOF model.")
     if(any(NVL(prev.remain,FALSE)!=remain))
       pernet.m <- ergm_model(~N(GOF, subset=remain), nw=nw, response = object$response, ...,
-                             term.options= modifyList(as.list(object$control$term.options), list(N.compact_stats=FALSE)))
+                             term.options= .update.list(as.list(object$control$term.options), list(N.compact_stats=FALSE)))
     prev.remain <- remain
     
     nstats <- nparam(pernet.m, canonical=TRUE)/sum(remain)
+
+    # FIXME: Simulations can be rerun only on the networks in the subset.
     
-    message("Simulating unconstrained sample.")
-    sim <- do.call(simulate, modifyList(sim_settings, list(monitor=pernet.m)))
-    sim <- sim[,ncol(sim)-sum(remain)*nstats+seq_len(sum(remain)*nstats),drop=FALSE]
+    # The two-stage sample, taken marginally, *is* an unconstrained
+    # sample.
+    if(!obs.twostage){
+      message("Simulating unconstrained sample.")
+      sim <- do.call(simulate, .update.list(sim_settings, list(monitor=pernet.m)))
+      sim <- sim[,ncol(sim)-sum(remain)*nstats+seq_len(sum(remain)*nstats),drop=FALSE]
+    }
 
     if(!is.null(object$constrained.obs)){
-      sim.obs2 <-
+      sim <-
         if(obs.twostage){
           message("Simulating imputed networks.", appendLF=FALSE)
-          sim.obs <- list()
-          sim.obs.net <- sim_settings$basis
+          sim.net <- sim_settings$basis
           genseries <- function(){
+            sim <- list()
             for(i in seq_len(ceiling(obs.twostage/nthreads))){
-              args <- modifyList(sim_settings,
+              args <- .update.list(sim_settings,
                                  list(
-                                   basis=sim.obs.net,
-                                   control=modifyList(sim_settings$control,
+                                   basis=sim.net,
+                                   control=.update.list(sim_settings$control,
                                                       list(parallel=0,MCMC.burnin=if(i==1)sim_settings$control$MCMC.burnin else sim_settings$control$MCMC.interval)),
                                    output="pending_update_network", nsim=1))
-              sim.obs.net <- do.call(simulate, args)
-              args <- modifyList(sim.obs_settings,
-                                 list(basis=sim.obs.net, monitor=pernet.m, nsim=control$nsim/obs.twostage,
-                                      control=modifyList(sim.obs_settings$control,
+              sim.net <- do.call(simulate, args)
+              args <- .update.list(sim.obs_settings,
+                                 list(basis=sim.net, monitor=pernet.m, nsim=control$nsim/obs.twostage,
+                                      control=.update.list(sim.obs_settings$control,
                                                          list(parallel=0))))
-              sim.obs[[i]] <- do.call(simulate, args)
-              sim.obs[[i]] <- sim.obs[[i]][,ncol(sim.obs[[i]])-sum(remain)*nstats+seq_len(sum(remain)*nstats),drop=FALSE]
+              sim[[i]] <- do.call(simulate, args)
+              sim[[i]] <- sim[[i]][,ncol(sim[[i]])-sum(remain)*nstats+seq_len(sum(remain)*nstats),drop=FALSE]
               message(".", appendLF=FALSE)
             }
-            sim.obs
+            sim
           }
-          sim.obs <- if(!is.null(cl)) unlist(clusterCall(cl, genseries),recursive=FALSE) else genseries()
+          sim <- if(!is.null(cl)) unlist(clusterCall(cl, genseries),recursive=FALSE) else genseries()
           message("")
-          do.call(rbind, sim.obs)
+          do.call(rbind, sim)
         }
-      # FIXME: Simulations can be rerun only on the networks in the subset.
+      # NOTE: It might be worth using a smaller sample size here, perhaps obs.twostage.
       message("Simulating constrained sample.")
-      sim.obs <- do.call(simulate, modifyList(sim.obs_settings, list(monitor=pernet.m)))
+      sim.obs <- do.call(simulate, .update.list(sim.obs_settings, list(monitor=pernet.m)))
       sim.obs <- sim.obs[,ncol(sim.obs)-sum(remain)*nstats+seq_len(sum(remain)*nstats),drop=FALSE]
     }else{
       sim.obs <- matrix(summary(pernet.m, object$network, response = object$response, ...), nrow(sim), ncol(sim), byrow=TRUE)
@@ -108,31 +147,41 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ..., obs.
     dimnames(statarray) <- list(Iterations=NULL, Statistic=cn, Network=NULL)
     statarray.obs <- array(c(sim.obs), c(control$nsim, nstats, sum(remain)))
     dimnames(statarray.obs) <- list(Iterations=NULL, Statistic=cn, Network=NULL)
-    if(obs.twostage){
-      statarray.obs2 <- array(c(sim.obs2), c(control$nsim, nstats, sum(remain)))
-      dimnames(statarray.obs2) <- list(Iterations=NULL, Statistic=cn, Network=NULL)
-    }else statarray.obs2 <- NULL
 
     if(is.null(stats)){
       stats <- statarray
       stats.obs <- statarray.obs
-      stats.obs2 <- statarray.obs2
     }else{
       stats[,,remain[subset]] <- statarray
       stats.obs[,,remain[subset]] <- statarray.obs
-      stats.obs2[,,remain[subset]] <- statarray.obs2
     }
 
     # Calculate variances for each network and statistic.
-    dv <- apply(statarray, 2:3, var) - NVL3(statarray.obs2, apply(., 2:3, .mean_var, obs.twostage), apply(statarray.obs, 2:3, var))
+    dv <- apply(statarray, 2:3, var) - if(obs.twostage) apply(statarray, 2:3, .mean_var, obs.twostage) else apply(statarray.obs, 2:3, var)
     # If any statistic for the network has negative variance estimate, rerun it.
     remain[remain] <- apply(dv<=0, 2, any)
     if(any(remain)) message(sum(remain), " networks (", paste(which(remain),collapse=", "), ") have bad simulations; rerunning.")
   }
-  o <- structure(list(nw=nw, subset=subset, stats=stats, stats.obs=stats.obs, stats.obs2=stats.obs2, obs.twostage=obs.twostage, control=control), class="gofN")
+
+  message("Summarising.")
+  o <- setNames(lapply(seq_along(cn), function(i){
+    s <- stats[,i,]
+    so <- stats.obs[,i,]
+    #' @importFrom tibble lst
+    l <-
+      lst(
+        observed = colMeans(so),
+        fitted = colMeans(s),
+        var = apply(s,2,var),
+        var.obs = if(obs.twostage) apply(s, 2, .mean_var, obs.twostage) else apply(so, 2, var),
+        pearson = (observed-fitted)/sqrt(var-var.obs)
+      )
+  }), cn)
+
+  structure(o, nw=nw, subset=subset, obs.twostage=obs.twostage, control=control, class="gofN")
 }
 
-#' @describeIn gofN A plotting method, making residuals and scale-location plots.
+#' @describeIn gofN A plotting method, making residual and scale-location plots.
 #' 
 #' @param against vector of values, network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against; if `NULL` (default), plots against fitted values.
 #' @param col,pch,cex vector of values (wrapped in [I()]), network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against.
@@ -145,7 +194,7 @@ plot.gofN <- function(x, against=NULL, which=1:2, col=1, pch=1, cex=1, ..., ask 
     on.exit(devAskNewPage(prev.ask))
   }
 
-  nattrs <- get_multinet_nattr_tibble(x$nw)[x$subset,]
+  nattrs <- get_multinet_nattr_tibble(attr(x,"nw"))[attr(x,"subset"),]
   
   againstname <- switch(class(against),
                         character = against,
@@ -167,36 +216,25 @@ plot.gofN <- function(x, against=NULL, which=1:2, col=1, pch=1, cex=1, ..., ask 
     assign(gpar, a)
   }
   
-  statarray <- x$stats
-  statarray.obs <- x$stats.obs
-  statarray.obs2 <- x$stats.obs2
-  control <- x$control
-  cn <- dimnames(statarray)[[2]]
-  for(i in seq_along(cn)){
-    s <- statarray[,i,]
-    so <- statarray.obs[,i,]
-    so2 <- statarray.obs2[,i,]
-
-    fitted <- colMeans(s)
-    svar <- apply(s,2,var)
-    sovar <- if(x$obs.twostage) apply(so2,2,.mean_var,x$obs.twostage) else apply(so,2,var)
-    resid <- (colMeans(so)-colMeans(s))/sqrt(svar-sovar)
-
+  for(name in names(x)){
+    summ <- x[[name]]
+    
     if(1L %in% which){
-      plot(NVL(againstval,fitted), resid, col=col, pch=pch, cex=cex,..., main = paste("Residuals vs. Fitted for", sQuote(cn[i])), xlab=againstname, ylab="Pearson residual",type="n")
-      panel.smooth(NVL(againstval,fitted), resid, col=col, pch=pch, cex=cex, ...)
+      plot(NVL(againstval,summ$fitted), summ$pearson, col=col, pch=pch, cex=cex,..., main = paste("Residuals vs. Fitted for", sQuote(name)), xlab=againstname, ylab="Pearson residual",type="n")
+      panel.smooth(NVL(againstval,summ$fitted), summ$pearson, col=col, pch=pch, cex=cex, ...)
       abline(h=0, lty=3, col="gray")
     }
     
     if(2L %in% which){
-      plot(NVL(againstval,fitted), sqrt(abs(resid)), col=col, pch=pch, cex=cex,..., main = paste("Scale-location plot for", sQuote(cn[i])), xlab=againstname, ylab=expression(sqrt("|Pearson residual|")), type="n")
-      panel.smooth(NVL(againstval,fitted), sqrt(abs(resid)), col=col, pch=pch, cex=cex, ...)
+      plot(NVL(againstval,summ$fitted), sqrt(abs(summ$pearson)), col=col, pch=pch, cex=cex,..., main = paste("Scale-location plot for", sQuote(name)), xlab=againstname, ylab=expression(sqrt("|Pearson residual|")), type="n")
+      panel.smooth(NVL(againstval,summ$fitted), sqrt(abs(summ$pearson)), col=col, pch=pch, cex=cex, ...)
       abline(h=0, lty=3, col="gray")
     }
 
     if(3L %in% which){
-      qqnorm(resid, col=col, pch=pch, cex=cex,..., main = paste("Normal Q-Q for", sQuote(cn[i])), xlab=againstname, ylab=expression(sqrt("|Pearson residual|")))
-      qqline(resid)
+      qqnorm(summ$pearson, col=col, pch=pch, cex=cex,..., main = paste("Normal Q-Q for", sQuote(name)), xlab=againstname, ylab=expression(sqrt("|Pearson residual|")))
+      qqline(summ$pearson)
     }
+    
   }
 }

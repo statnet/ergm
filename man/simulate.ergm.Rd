@@ -17,10 +17,11 @@
 
 \method{simulate}{ergm_model}(object, nsim = 1, seed = NULL, coef,
   response = NULL, reference = ~Bernoulli, constraints = ~.,
-  monitor = NULL, basis = NULL, statsonly = FALSE, esteq = FALSE,
-  output = c("network", "stats", "edgelist", "pending_update_network"),
-  simplify = TRUE, sequential = TRUE,
-  control = control.simulate.formula(), verbose = FALSE, ...)
+  observational = FALSE, monitor = NULL, basis = NULL,
+  statsonly = FALSE, esteq = FALSE, output = c("network", "stats",
+  "edgelist", "pending_update_network"), simplify = TRUE,
+  sequential = TRUE, control = control.simulate.formula(),
+  verbose = FALSE, ...)
 
 \method{simulate}{ergm}(object, nsim = 1, seed = NULL,
   coef = object$coef, response = object$response,

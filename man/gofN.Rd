@@ -48,11 +48,36 @@ to simulate from, which should divide the \code{\link[=control.gof.ergm]{control
 
 \item{col, pch, cex}{vector of values (wrapped in \code{\link[=I]{I()}}), network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against.}
 }
+\value{
+An object of class \code{gofN}: a named list containing a list
+for every term in the specified \code{GOF} formula with the following
+elements vectors of length equal to the number of subnetworks:
+
+\item{observed}{For completely observed networks, their value of
+the statistic. For partially observed networks, the expected value
+of their imputations under the model.}
+
+\item{fitted}{Expected value of the statistic under the model.}
+
+\item{var}{Variance of the statistic under the model.}
+
+\item{var.obs}{Conditional variance under imputation statistic.}
+
+In addition, the following \code{\link{attr}}-style attributes are included:
+
+\item{nw}{The observed multinetwork object.}
+
+\item{subset}{A logical vector giving the subset of networks that were used.}
+
+\item{obs.twostage}{Number of runs in the first stage, or \code{FALSE}.}
+
+\item{control}{Control parameters passed.}
+}
 \description{
 Linear model diagnostics for multinetwork linear models
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{plot}: A plotting method, making residuals and scale-location plots.
+\item \code{plot}: A plotting method, making residuals and scale-location plots. Returns (invisibly) their summaries.
 }}
 
