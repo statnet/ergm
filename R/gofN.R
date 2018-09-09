@@ -1,9 +1,7 @@
-.mean_var <- function(x, s){
-  ng <- length(x)/s
-  split(x, rep(1:ng,each=s)) %>%
-    map(var) %>%
-    reduce(`+`) %>%
-    `/`(.,ng)
+.mean_var <- function(x, ng){
+  split(x, (seq_along(x)-1L)%/%(length(x)/ng)) %>%
+    map_dbl(var) %>%
+    mean()
 }
 
 #' Linear model diagnostics for multinetwork linear models
