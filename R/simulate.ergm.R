@@ -254,8 +254,10 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   }
   
   # Do some error-checking on the nw object
-  # FIXME: Make the following work with pending_update_networks.
-  nw <- as.network(ensure_network(nw))
+  nw <- as.network(ensure_network(nw), populate=FALSE)
+  # nw is now a network/pending_update_network hybrid class. As long
+  # as its edges are only accessed through methods that
+  # pending_update_network methods overload, it should be fine.
   
   mon.m <- if(!is.null(monitor)) as.ergm_model(monitor, nw, response=response, term.options=control$term.options)
 
@@ -338,6 +340,11 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   
   # define nw as either the basis argument or (if NULL) the LHS of the formula
   nw <- basis
+  # Do some error-checking on the nw object
+  nw <- as.network(ensure_network(nw), populate=FALSE)
+  # nw is now a network/pending_update_network hybrid class. As long
+  # as its edges are only accessed through methods that
+  # pending_update_network methods overload, it should be fine.
 
   m <- c(object, monitor)
   
@@ -367,7 +374,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   names(curstats) <- param_names(m, canonical=TRUE)
 
   # prepare control object
-  control$MCMC.init.maxedges <- 1+max(control$MCMC.init.maxedges, network.edgecount(as.network(nw,populate=FALSE)))
+  control$MCMC.init.maxedges <- 1+max(control$MCMC.init.maxedges, network.edgecount(nw))
   
   # Explain how many iterations and steps will ensue if verbose==TRUE
   if (verbose) {

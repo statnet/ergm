@@ -80,6 +80,18 @@ as.edgelist.pending_update_network <- function(x,...){
   e
 }
 
+#' @rdname pending_update_network
+#' @export
+as.matrix.pending_update_network <- function(x,matrix.type=NULL,attrname=NULL,...){
+  matrix.type<-match.arg(matrix.type,c("adjacency","incidence","edgelist"))
+  if(matrix.type!="edgelist") stop("pending_update_network can only be converted to an edgelist at this time")
+
+  x <- as.network(x,populate=FALSE)
+
+  if(!is.null(attrname) && colnames(x%n%".update")[3]!=attrname) stop("Edge attribute ",sQuote(attrname)," is not stored in the pending_update_network object.")
+  x %n% ".update"
+}
+
 .extract_z_edgelist <- function(z, response=NULL){
   # if z has a newedgelist attached, use it
   if("newedgelist" %in% names(z)){
@@ -100,11 +112,46 @@ as.edgelist.pending_update_network <- function(x,...){
 #' @rdname pending_update_network
 #' @export
 as.network.pending_update_network <- function(x, ..., populate=TRUE){
-  class(x) <- "network"
-  if(!populate) return(x)
-  
+  if(!populate){
+    class(x) <- c("pending_update_network","network")
+    return(x)
+  }
+
+  class(x) <- c("network")
+
   z <- x%n%".update"
   delete.network.attribute(x, ".update")
 
   update(x,z,matrix.type="edgelist", attrname=if(ncol(z)==3) colnames(z)[3])
+}
+
+#' @describeIn pending_update_network Note that this method fails when
+#'   `na.omit=FALSE`, since missing edges are not stored.
+#' @param na.omit Whether missing edges should be counted. Note that
+#'   missing edge information is not stored.
+#' @export
+network.edgecount.pending_update_network <- function(x, na.omit=TRUE,...){
+  if(!na.omit) stop("pending_update_network cannot store missing edges.")
+  nrow(as.network(x,populate=FALSE)%n%".update")
+}
+
+#' @describeIn pending_update_network Note that this method fails with
+#'   its default argument, since missing edges are not stored.
+#' @export
+network.dyadcount.pending_update_network <- function(x, na.omit=TRUE,...){
+  if(na.omit) stop("pending_update_network cannot store missing edges.")
+  class(x) <- "network"
+  network.dyadcount(x)
+}
+
+#' @rdname pending_update_network
+#' @export
+network.size.pending_update_network <- function(x,...){
+  NextMethod()
+}
+
+#' @describeIn pending_update_network A stub that produces an error.
+#' @export
+network.naedgecount.pending_update_network <- function(x,...){
+  stop("pending_update_network cannot store missing edges.")
 }

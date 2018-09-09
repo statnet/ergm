@@ -4,7 +4,12 @@
 \alias{pending_update_network}
 \alias{is.pending_update_network}
 \alias{as.edgelist.pending_update_network}
+\alias{as.matrix.pending_update_network}
 \alias{as.network.pending_update_network}
+\alias{network.edgecount.pending_update_network}
+\alias{network.dyadcount.pending_update_network}
+\alias{network.size.pending_update_network}
+\alias{network.naedgecount.pending_update_network}
 \title{A (Relatively) Lightweight Read-Only Representation of Network Objects}
 \usage{
 pending_update_network(nw, update = NULL, response = if
@@ -14,7 +19,20 @@ is.pending_update_network(x)
 
 \method{as.edgelist}{pending_update_network}(x, ...)
 
+\method{as.matrix}{pending_update_network}(x, matrix.type = NULL,
+  attrname = NULL, ...)
+
 \method{as.network}{pending_update_network}(x, ..., populate = TRUE)
+
+\method{network.edgecount}{pending_update_network}(x, na.omit = TRUE,
+  ...)
+
+\method{network.dyadcount}{pending_update_network}(x, na.omit = TRUE,
+  ...)
+
+\method{network.size}{pending_update_network}(x, ...)
+
+\method{network.naedgecount}{pending_update_network}(x, ...)
 }
 \arguments{
 \item{nw}{a \code{\link{network}} object.}
@@ -25,6 +43,9 @@ is.pending_update_network(x)
 
 \item{response, attrname}{Name of edge attribute to get or set. If
 \code{NULL}, binary network is assumed.}
+
+\item{na.omit}{Whether missing edges should be counted. Note that
+missing edge information is not stored.}
 }
 \value{
 At this time, a \code{pending_update_network} object is (subject to
@@ -60,4 +81,15 @@ for attribute specified by \code{update}.}
 
 }
 }
+\section{Methods (by generic)}{
+\itemize{
+\item \code{network.edgecount}: Note that this method fails when
+\code{na.omit=FALSE}, since missing edges are not stored.
+
+\item \code{network.dyadcount}: Note that this method fails with
+its default argument, since missing edges are not stored.
+
+\item \code{network.naedgecount}: A stub that produces an error.
+}}
+
 \keyword{internal}
