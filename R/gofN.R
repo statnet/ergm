@@ -136,7 +136,7 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ..., obs.
 #' 
 #' @param against vector of values, network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against; if `NULL` (default), plots against fitted values.
 #' @param col,pch,cex vector of values (wrapped in [I()]), network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against.
-#' @param which which to plot (`1` for residuals plot, `2` for \eqn{\sqrt{|R_i|}} scale plot).
+#' @param which which to plot (`1` for residuals plot, `2` for \eqn{\sqrt{|R_i|}}{sqrt(|R_i|)} scale plot, and `3` for normal quantile-quantile plot).
 #' 
 #' @export
 plot.gofN <- function(x, against=NULL, which=1:2, col=1, pch=1, cex=1, ..., ask = dev.interactive()){
@@ -192,6 +192,11 @@ plot.gofN <- function(x, against=NULL, which=1:2, col=1, pch=1, cex=1, ..., ask 
       plot(NVL(againstval,fitted), sqrt(abs(resid)), col=col, pch=pch, cex=cex,..., main = paste("Scale-location plot for", sQuote(cn[i])), xlab=againstname, ylab=expression(sqrt("|Pearson residual|")), type="n")
       panel.smooth(NVL(againstval,fitted), sqrt(abs(resid)), col=col, pch=pch, cex=cex, ...)
       abline(h=0, lty=3, col="gray")
+    }
+
+    if(3L %in% which){
+      qqnorm(resid, col=col, pch=pch, cex=cex,..., main = paste("Normal Q-Q for", sQuote(cn[i])), xlab=againstname, ylab=expression(sqrt("|Pearson residual|")))
+      qqline(resid)
     }
   }
 }

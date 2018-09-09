@@ -44,7 +44,7 @@ to simulate from, which should divide the \code{\link[=control.gof.ergm]{control
 
 \item{against}{vector of values, network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against; if \code{NULL} (default), plots against fitted values.}
 
-\item{which}{which to plot (\code{1} for residuals plot, \code{2} for \eqn{\sqrt{|R_i|}} scale plot).}
+\item{which}{which to plot (\code{1} for residuals plot, \code{2} for \eqn{\sqrt{|R_i|}}{sqrt(|R_i|)} scale plot, and \code{3} for normal quantile-quantile plot).}
 
 \item{col, pch, cex}{vector of values (wrapped in \code{\link[=I]{I()}}), network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against.}
 }
