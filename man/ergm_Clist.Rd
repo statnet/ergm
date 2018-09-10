@@ -79,3 +79,4 @@ The \code{ergm.Cprepare} is a legacy function that constructs a combination of \
 \item \code{ergm_model}: Collates an \code{\link{ergm_model}} object.
 }}
 
+\keyword{internal}

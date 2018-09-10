@@ -81,3 +81,4 @@ serialization of the edgelist matrix.
 \item \code{rlebdm}: Method for \code{\link{rlebdm}} objects.
 }}
 
+\keyword{internal}

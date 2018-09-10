@@ -85,4 +85,5 @@ summary(m ~ edges, directed=FALSE) # Now it's correct
 
 \code{\link[=summary.ergm_model]{summary.ergm_model()}}
 }
+\keyword{internal}
 \keyword{models}

@@ -44,6 +44,7 @@
 #' @note The arguments `Class`, `Reference`, and `Constraints` can
 #'   have length greater than 1. If this is the case, the rows added
 #'   to the table are a *Cartesian product* of their elements.
+#' @keywords internal
 #' @export ergm_proposal_table
 ergm_proposal_table <- local({
   proposals <- data.frame(Class = character(0), Reference = character(0),
@@ -138,7 +139,7 @@ prune.ergm_conlist <- function(conlist){
 #' }
 #' }
 #' @seealso \code{\link{InitErgmProposal}}
-#' @keywords models
+#' @keywords models internal
 #' @export
 ergm_proposal<-function(object, ...) UseMethod("ergm_proposal")
 

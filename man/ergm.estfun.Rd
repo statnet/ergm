@@ -50,3 +50,4 @@ instead.
 \item \code{mcmc.list}: Method for  \code{\link{mcmc.list}} objects with \eqn{p} variables.
 }}
 
+\keyword{internal}

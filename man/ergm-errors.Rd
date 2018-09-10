@@ -33,3 +33,4 @@ end-users, but may be useful to developers.
 
 \code{\link[=message]{message()}}, \code{\link[=inform]{inform()}}
 }
+\keyword{internal}

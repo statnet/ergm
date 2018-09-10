@@ -52,10 +52,10 @@ ergm.checkbipartite(fname, nw.bipartiteflag, requirement,
 ergm.checkdirected(fname, nw.directedflag, requirement,
   extramessage = "")
 
-ergm.getMCMCsample(nw, model, proposal, eta0, control, verbose = FALSE,
+ergm.getMCMCsample(nw, model, MHproposal, eta0, control, verbose = FALSE,
   response = NULL, update.nws = TRUE, ...)
 
-ergm.mcmcslave(Clist, proposal, eta0, control, verbose, ...,
+ergm.mcmcslave(Clist, MHproposal, eta0, control, verbose, ...,
   prev.run = NULL, burnin = NULL, samplesize = NULL,
   interval = NULL, maxedges = NULL)
 

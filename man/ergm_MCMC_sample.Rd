@@ -14,7 +14,7 @@ ergm_MCMC_slave(Clist, proposal, eta, control, verbose, ...,
   interval = NULL, maxedges = NULL)
 }
 \arguments{
-\item{nw}{a \code{\link{network}} object representing the sampler state.}
+\item{nw}{a \code{\link{network}} (or \code{\link{pending_update_network}}) object representing the sampler state.}
 
 \item{model}{an \code{\link{ergm_model}} to be sampled from, as returned by
 \code{\link[=ergm_model]{ergm_model()}}.}
@@ -59,10 +59,7 @@ containing:
 \item{final.interval}{adaptively determined MCMC interval.}
 
 If \code{update.nws==FALSE}, rather than returning the updated networks,
-the function will remove all edges from the input networks, attach
-a network attribute \code{.update} with the new edge information, and
-change class name to prevent the resulting object from being
-accessed or modified by functions that do not understand it.
+the function will return a \code{\link{pending_update_network}}.
 
 \code{ergm_MCMC_slave} returns the MCMC sample as a list of
 the following: \item{s}{the matrix of statistics.}
@@ -90,9 +87,13 @@ the calling function must shift the statistics if required. The calling
 function must also attach column names to the statistics matrix if required.
 }
 \note{
-Unlike its predecessor \code{ergm.getMCMCsample},
-\code{ergm_MCMC_sample} does not return \code{statsmatrix} or \code{newnetwork}
+\code{ergm_MCMC_sample} and \code{ergm_MCMC_slave} replace
+\code{ergm.getMCMCsample} and \code{ergm.mcmcslave} respectively. They
+differ slightly in their argument names and in their return
+formats. For example, \code{ergm_MCMC_sample} expects \code{proposal}
+rather than \code{MHproposal} and \code{theta} or \code{eta} rather than \code{eta0};
+and it does not return \code{statsmatrix} or \code{newnetwork}
 elements. Rather, if parallel processing is not in effect,
-\code{stats} is an \code{\link{mcmc.list}} with one chain and
-\code{networks} is a list with one element.
+\code{stats} is an \code{\link{mcmc.list}} with one chain and \code{networks} is a
+list with one element.
 }

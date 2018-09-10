@@ -18,6 +18,7 @@
 #' @param object object to be collated.
 #' @param ... additional arguments for methods.
 #' @return A list of class `"ergm_Clist"` and possibly a subclass `"ORIGINAL.ergm_Clist"` containing some subset of the following elements: 
+#' @keywords internal
 #' @export
 ergm_Clist <- function(object, ...){
   UseMethod("ergm_Clist")
@@ -31,7 +32,7 @@ ergm_Clist <- function(object, ...){
 #' @param m a model object, as returned by \code{\link{ergm_model}}
 #' @param verbose logical, whether the design matrix should be printed;
 #' default=FALSE
-#' 
+#'
 #' @export ergm.Cprepare
 ergm.Cprepare <- function(nw, m, response=NULL){
   nw.Clist <- ergm_Clist(nw, response=response)
@@ -207,6 +208,7 @@ to_ergm_Cdouble.pending_update_network <- to_ergm_Cdouble.network
 #'   on the output edgelist if \code{x} is already an edgelist. (For
 #'   example, if the prototype is undirected, `to_ergm_Cdouble`
 #'   will ensure that \eqn{t < h}.)
+#' @keywords internal
 #' @export
 to_ergm_Cdouble.matrix <- function(x, prototype=NULL, ...){
   x <- if(!is.null(prototype)) as.edgelist(x, n=network.size(prototype), directed=is.directed(prototype),
@@ -271,6 +273,7 @@ mk.edge.to.pos.lasttoggle.f <- function(nw){
 #' Again, this API is subject to change without notice.
 #'
 #' @aliases lasttoggle last.toggle last-toggle
+#' @keywords internal
 #' @name lasttoggle
 NULL
 

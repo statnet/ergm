@@ -98,3 +98,4 @@ networks. \emph{Social Networks}, 29: 216--230.  }
 \seealso{
 \code{\link{ergm-terms}}
 }
+\keyword{internal}
