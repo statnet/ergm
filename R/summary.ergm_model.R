@@ -27,6 +27,7 @@ ergm.getglobalstats <- function(nw, m, response=NULL) {
 #' @template dotdotdot
 #' 
 #' @seealso [summary_formula()]
+#' @keywords internal
 #' @export
 summary.ergm_model <- function(object, nw=NULL, response=NULL,...){
   m <- object

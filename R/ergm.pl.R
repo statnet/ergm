@@ -32,6 +32,7 @@
 #'   log(1/(Clist$ndyads-1)) depending on 'Clist$nedges' \item
 #'   maxMPLEsamplesize: the 'maxMPLEsamplesize' inputted to
 #'   \code{ergm.pl} }
+#' @keywords internal
 #' @export
 ergm.pl<-function(nw, fd, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,

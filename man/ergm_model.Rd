@@ -112,3 +112,4 @@ This API is not to be considered fixed and may change between versions. However,
 \seealso{
 \code{\link[=summary.ergm_model]{summary.ergm_model()}}
 }
+\keyword{internal}

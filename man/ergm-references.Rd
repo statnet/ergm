@@ -15,15 +15,16 @@
 \alias{Bernoulli}
 \alias{Unif}
 \alias{DiscUnif}
-\alias{InitErgmReference.Bernoulli}
-\alias{InitErgmReference.DiscUnif}
-\alias{InitErgmReference.Unif}
-\alias{InitErgmReference.StdNormal}
-\alias{InitWtErgmProposal.DiscUnif}
-\alias{InitWtErgmProposal.DiscUnifNonObserved}
-\alias{InitWtErgmProposal.Unif}
-\alias{InitWtErgmProposal.UnifNonObserved}
-\alias{InitWtErgmProposal.StdNormal}
+\alias{StdNormal}
+%% \alias{InitErgmReference.Bernoulli}
+%% \alias{InitErgmReference.DiscUnif}
+%% \alias{InitErgmReference.Unif}
+%% \alias{InitErgmReference.StdNormal}
+%% \alias{InitWtErgmProposal.DiscUnif}
+%% \alias{InitWtErgmProposal.DiscUnifNonObserved}
+%% \alias{InitWtErgmProposal.Unif}
+%% \alias{InitWtErgmProposal.UnifNonObserved}
+%% \alias{InitWtErgmProposal.StdNormal}
 
 \docType{methods}
 

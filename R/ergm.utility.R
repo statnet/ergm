@@ -239,6 +239,7 @@ newnw.extract<-function(oldnw,z=NULL,output="network",response=NULL){
 #' @note does not check that networks are of the same size, etc
 #' @seealso \code{\link{set.vertex.attribute}},
 #' \code{\link{set.network.attribute}}
+#' @keywords internal
 #' @export nvattr.copy.network
 nvattr.copy.network <- function(to, from, ignore=c("bipartite","directed","hyper","loops","mnext","multiple","n")){
   for(a in list.vertex.attributes(from)){
@@ -284,6 +285,7 @@ nvattr.copy.network <- function(to, from, ignore=c("bipartite","directed","hyper
 #' test2$mel[[2]]  # 1 and 2 have traded places
 #' 
 #' 
+#' @keywords internal
 #' @export standardize.network
 standardize.network <- function(nw, preserve.eattr=TRUE){
   if(preserve.eattr){

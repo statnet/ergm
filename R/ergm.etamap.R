@@ -65,7 +65,7 @@
 #' \item{`etalength`}{ the length of the eta vector}
 #' }
 #' }
-#' @export ergm.etamap
+#' @keywords internal
 ergm.etamap <- function(model) {
   etamap <- list(canonical = NULL, offsetmap=NULL, offset=model$offset,
                  offsettheta=NULL, curved=list(), etalength=0)

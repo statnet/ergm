@@ -72,8 +72,10 @@ ergm.getMCMCsample <- function(nw, model, proposal, eta0, control,
 #' @note Unlike its predecessor `ergm.getMCMCsample`,
 #'   `ergm_MCMC_sample` does not return `statsmatrix` or `newnetwork`
 #'   elements. Rather, if parallel processing is not in effect,
-#'   `stats` is an [`mcmc.list`] with one chain and
-#'   `networks` is a list with one element.
+#'   `stats` is an [`mcmc.list`] with one chain and `networks` is a
+#'   list with one element. Note that some parameter names had also
+#'   been changed.
+#' @keywords internal
 #' @export ergm_MCMC_sample
 ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL, 
                              response=NULL, update.nws = TRUE, verbose=FALSE,..., eta=ergm.eta(theta, model$etamap)) {

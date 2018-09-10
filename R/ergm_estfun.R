@@ -19,6 +19,7 @@
 #'
 #' @return An object of the same class as `stats` containing
 #'   \eqn{q}-vectors of estimating function values.
+#' @keywords internal
 #' @export
 ergm.estfun <- function(stats, theta, model, ...){
   UseMethod("ergm.estfun")

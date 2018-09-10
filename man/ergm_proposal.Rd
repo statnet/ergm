@@ -88,4 +88,5 @@ giving the \R name of the proposal.
 \seealso{
 \code{\link{InitErgmProposal}}
 }
+\keyword{internal}
 \keyword{models}

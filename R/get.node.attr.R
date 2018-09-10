@@ -55,7 +55,7 @@
 #' 
 #' data(faux.mesa.high)
 #' get.node.attr(faux.mesa.high,'Grade')
-#' 
+#' @keywords internal
 #' @export get.node.attr
 get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {  
   ergm_get_vattr(attrname, nw, accept=if(numeric)"numeric"else"character")
@@ -217,6 +217,7 @@ NULL
 #' ergm_get_vattr(c("wealth","priorates"), flomarriage)
 #' ergm_get_vattr(~priorates>30, flomarriage)
 #' (a <- ergm_get_vattr(~cut(priorates,c(-Inf,0,20,40,60,Inf),label=FALSE)-1, flomarriage))
+#' @keywords internal
 #' @export
 ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2"), ...){
   bip <- match.arg(bip)

@@ -93,6 +93,8 @@ function must also attach column names to the statistics matrix if required.
 Unlike its predecessor \code{ergm.getMCMCsample},
 \code{ergm_MCMC_sample} does not return \code{statsmatrix} or \code{newnetwork}
 elements. Rather, if parallel processing is not in effect,
-\code{stats} is an \code{\link{mcmc.list}} with one chain and
-\code{networks} is a list with one element.
+\code{stats} is an \code{\link{mcmc.list}} with one chain and \code{networks} is a
+list with one element. Note that some parameter names had also
+been changed.
 }
+\keyword{internal}

@@ -46,6 +46,7 @@
 #' \item{etamap}{the theta -> eta mapping as a list returned from
 #' <ergm.etamap>}
 #' @seealso [summary.ergm_model()]
+#' @keywords internal
 #' @export
 ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, role="static",...,term.options=list()){
   if (!is(formula, "formula"))
