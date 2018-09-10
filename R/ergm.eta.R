@@ -52,6 +52,7 @@
 #' 
 #' \item Hunter, D. R. (2007). Curved exponential family models for social
 #' networks. \emph{Social Networks}, 29: 216--230.  }
+#' @keywords internal
 #' @export ergm.eta
 ergm.eta <- function(theta, etamap) {
   eta <- rep(0,etamap$etalength)

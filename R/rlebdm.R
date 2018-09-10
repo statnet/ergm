@@ -8,6 +8,7 @@
 #'
 #' @seealso [as.rlebdm.ergm_conlist()]
 #' @import statnet.common
+#' @keywords internal
 #' @export
 rlebdm <- function(x, n){
   if(is(x, "rlebdm")) return(x)
@@ -212,6 +213,7 @@ print.rlebdm <- function(x, compact=TRUE, ...){
 #'
 #' @seealso [ergm-constraints]
 #'
+#' @keywords internal
 #' @export
 as.rlebdm.ergm_conlist <- function(x, constraints.obs = NULL, which = c("free", "missing", "informative"), ...){
   # FIXME: Probably don't need all these recursive calls.

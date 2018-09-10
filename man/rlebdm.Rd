@@ -98,3 +98,4 @@ integer matrix giving the cells with \code{TRUE} values.
 \seealso{
 \code{\link[=as.rlebdm.ergm_conlist]{as.rlebdm.ergm_conlist()}}
 }
+\keyword{internal}

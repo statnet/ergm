@@ -148,3 +148,4 @@ ergm_attr_levels(1:2, a, flomarriage)
 ergm_attr_levels(I(1:2), a, flomarriage)
 }
 \keyword{datasets}
+\keyword{internal}

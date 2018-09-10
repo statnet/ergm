@@ -49,3 +49,4 @@ potentially relaxes restriction (for \code{-}).
 \seealso{
 \link{ergm-constraints}
 }
+\keyword{internal}

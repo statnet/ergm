@@ -4,25 +4,24 @@
 \alias{ergm.constraints}
 \alias{constraints.ergm}
 
-\alias{ConstraintImplications}
-\alias{InitErgmConstraint.bd}
-\alias{InitErgmConstraint.degreedist}
-\alias{InitErgmConstraint.degrees}
-\alias{InitErgmConstraint.dyadnoise}
-\alias{InitErgmConstraint.odegrees}
-\alias{InitErgmConstraint.idegrees}
-\alias{InitErgmConstraint.b1degrees}
-\alias{InitErgmConstraint.b2degrees}
-\alias{InitErgmConstraint.blockdiag}
-\alias{InitErgmConstraint.edges}
-\alias{InitErgmConstraint.hamming}
-\alias{InitErgmConstraint.idegreedist}
-\alias{InitErgmConstraint.nodedegrees}
-\alias{InitErgmConstraint.observed}
-\alias{InitErgmConstraint.odegreedist}
-\alias{InitErgmConstraint.fixedas}
-\alias{InitErgmConstraint.fixallbut}
-\alias{InitErgmConstraint.egocentric}
+\alias{bd}
+\alias{degreedist}
+\alias{degrees}
+\alias{dyadnoise}
+\alias{odegrees}
+\alias{idegrees}
+\alias{b1degrees}
+\alias{b2degrees}
+\alias{blockdiag}
+\alias{edges}
+\alias{hamming}
+\alias{idegreedist}
+\alias{nodedegrees}
+\alias{observed}
+\alias{odegreedist}
+\alias{fixedas}
+\alias{fixallbut}
+\alias{egocentric}
 
 \docType{methods}
 

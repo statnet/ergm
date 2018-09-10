@@ -126,3 +126,4 @@ Graph Models." \emph{Social Networks}, \emph{31}, pp. 52-62.
 \code{\link{ergmMPLE}},
 \code{\link{ergm}},\code{\link{control.ergm}}
 }
+\keyword{internal}

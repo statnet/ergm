@@ -26,3 +26,4 @@ used by end-users, but may be useful to developers.
 \seealso{
 \code{\link[=summary_formula]{summary_formula()}}
 }
+\keyword{internal}

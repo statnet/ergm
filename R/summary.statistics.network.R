@@ -89,7 +89,8 @@ summary.formula <- function(object, ...){
 #' m <- as.matrix(flomarriage)
 #' summary(m ~ edges)  # twice as large as it should be
 #' summary(m ~ edges, directed=FALSE) # Now it's correct
-#' 
+#'
+#' @keywords internal
 #' @export
 summary_formula <- function(object, ..., basis=NULL) {
   if(length(object)!=3 || object[[1]]!="~")

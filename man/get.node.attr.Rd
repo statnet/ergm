@@ -35,9 +35,9 @@ attribute data into an ergm term.
 
 data(faux.mesa.high)
 get.node.attr(faux.mesa.high,'Grade')
-
 }
 \seealso{
 \code{\link[network]{get.vertex.attribute}} for a version without
 the checking functionality
 }
+\keyword{internal}

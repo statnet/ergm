@@ -38,7 +38,7 @@
 \alias{InitErgmProposal.fixallbutTNT} 
 \alias{InitErgmProposal.fixedasTNT}
 
-
+\keyword{internal}
 \docType{methods}
 
 \title{Metropolis-Hastings Proposal Methods for ERGM MCMC}

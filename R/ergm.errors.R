@@ -13,6 +13,7 @@
 #' @importFrom rlang abort
 #' @seealso [stop()], [abort()]
 #' @name ergm-errors
+#' @keywords internal
 #' @export
 ergm_Init_abort <- function(..., default.loc=NULL){
   loc <- traceback.Initializers() %>% format.traceback()

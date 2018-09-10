@@ -32,3 +32,4 @@ does not check that networks are of the same size, etc
 \code{\link{set.vertex.attribute}},
 \code{\link{set.network.attribute}}
 }
+\keyword{internal}
