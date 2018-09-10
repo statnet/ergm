@@ -17,24 +17,7 @@
 #' @param subset argument for the [`N`][ergm-terms] term.
 #' @param \dots additional arguments to [simulate.ergm()] and
 #'   [summary.ergm_model()].
-#' @param control See [control.gof.ergm()].
-#' @param obs.twostage Either `FALSE` or an integer. If not `FALSE`,
-#'   the constrained sample variance is estimated by simulating
-#'   conditional on the observed networks. However, a more accurate
-#'   estimate can be obtained via a two-stage process: \enumerate{
-#' 
-#' \item Sample networks from the model without the observational
-#' constraint.
-#'
-#' \item Conditional on each of those networks, sample with the
-#' observational constraint, estimating the variance within each
-#' sample and then averaging over the first-stage sample.
-#'
-#' }
-#'
-#' Then, `obs.twostage` specifies the number of unconstrained networks
-#' to simulate from, which should divide the [control.gof.ergm()]'s
-#' `nsim` argument evenly.
+#' @param control See [control.gofN.ergm()].
 #'
 #' @return An object of class `gofN`: a named list containing a list
 #'   for every statistic in the specified `GOF` formula with the
@@ -57,13 +40,12 @@
 #' 
 #' \item{subset}{A logical vector giving the subset of networks that were used.}
 #' 
-#' \item{obs.twostage}{Number of runs in the first stage, or `FALSE`.}
-#'
 #' \item{control}{Control parameters passed.}
 #'
 #' @export
-gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ..., obs.twostage=FALSE){
-  if(obs.twostage && control$nsim %% obs.twostage !=0) stop("Number of imputation networks specified by obs.twostage= must divide the nsim control parameter evenly.")
+gofN <- function(object, GOF, subset=TRUE, control=control.gofN.ergm(), ...){
+  check.control.class(c("gofN.ergm"), "gofN")
+  if(control$obs.twostage && control$nsim %% control$obs.twostage !=0) stop("Number of imputation networks specified by obs.twostage control parameter must divide the nsim control parameter evenly.")
   
   nw <- object$network
   nnets <- length(unique(.peek_vattrv(nw, ".NetworkID")))
@@ -79,12 +61,13 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ..., obs.
   
   if(!is.null(object$constrained.obs)){
     sim.obs_settings <- simulate(object, monitor=NULL, observational=TRUE, nsim=control$nsim, control=set.control.class("control.simulate.ergm",control), basis=nw, output="stats", response = object$response, ..., do.sim=FALSE)
-  }else obs.twostage <- FALSE # Ignore two-stage setting if no observational process.
+  }else control$obs.twostage <- FALSE # Ignore two-stage setting if no observational process.
 
   prev.remain <- NULL
   cl <- ergm.getCluster(control)
   nthreads <- max(length(cl),1)
-  while(any(remain)){
+  for(attempt in seq_len(control$retry_bad_nets + 1)){
+    if(attempt!=1) message(sum(remain), " networks (", paste(which(remain),collapse=", "), ") have bad simulations; rerunning.")
     message("Constructing GOF model.")
     if(any(NVL(prev.remain,FALSE)!=remain))
       pernet.m <- ergm_model(~N(GOF, subset=remain), nw=nw, response = object$response, ...,
@@ -97,7 +80,7 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ..., obs.
     
     # The two-stage sample, taken marginally, *is* an unconstrained
     # sample.
-    if(!obs.twostage){
+    if(!control$obs.twostage){
       message("Simulating unconstrained sample.")
       sim <- do.call(simulate, .update.list(sim_settings, list(monitor=pernet.m)))
       sim <- sim[,ncol(sim)-sum(remain)*nstats+seq_len(sum(remain)*nstats),drop=FALSE]
@@ -105,12 +88,12 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ..., obs.
 
     if(!is.null(object$constrained.obs)){
       sim <-
-        if(obs.twostage){
+        if(control$obs.twostage){
           message("Simulating imputed networks.", appendLF=FALSE)
           sim.net <- sim_settings$basis
           genseries <- function(){
             sim <- list()
-            for(i in seq_len(ceiling(obs.twostage/nthreads))){
+            for(i in seq_len(ceiling(control$obs.twostage/nthreads))){
               args <- .update.list(sim_settings,
                                  list(
                                    basis=sim.net,
@@ -119,7 +102,7 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ..., obs.
                                    output="pending_update_network", nsim=1))
               sim.net <- do.call(simulate, args)
               args <- .update.list(sim.obs_settings,
-                                 list(basis=sim.net, monitor=pernet.m, nsim=control$nsim/obs.twostage,
+                                 list(basis=sim.net, monitor=pernet.m, nsim=control$nsim/control$obs.twostage,
                                       control=.update.list(sim.obs_settings$control,
                                                          list(parallel=0))))
               sim[[i]] <- do.call(simulate, args)
@@ -132,9 +115,10 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ..., obs.
           message("")
           do.call(rbind, sim)
         }
-      # NOTE: It might be worth using a smaller sample size here, perhaps obs.twostage.
       message("Simulating constrained sample.")
-      sim.obs <- do.call(simulate, .update.list(sim.obs_settings, list(monitor=pernet.m)))
+      sim.obs <- do.call(simulate, .update.list(sim.obs_settings,
+                                                list(nsim=if(control$obs.twostage) control$obs.twostage else control$nsim,
+                                                     monitor=pernet.m)))
       sim.obs <- sim.obs[,ncol(sim.obs)-sum(remain)*nstats+seq_len(sum(remain)*nstats),drop=FALSE]
     }else{
       sim.obs <- matrix(summary(pernet.m, object$network, response = object$response, ...), nrow(sim), ncol(sim), byrow=TRUE)
@@ -145,7 +129,7 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ..., obs.
     
     statarray <- array(c(sim), c(control$nsim, nstats, sum(remain)))
     dimnames(statarray) <- list(Iterations=NULL, Statistic=cn, Network=NULL)
-    statarray.obs <- array(c(sim.obs), c(control$nsim, nstats, sum(remain)))
+    statarray.obs <- array(c(sim.obs), c(if(control$obs.twostage) control$obs.twostage else control$nsim, nstats, sum(remain)))
     dimnames(statarray.obs) <- list(Iterations=NULL, Statistic=cn, Network=NULL)
 
     if(is.null(stats)){
@@ -157,11 +141,13 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ..., obs.
     }
 
     # Calculate variances for each network and statistic.
-    dv <- apply(statarray, 2:3, var) - if(obs.twostage) apply(statarray, 2:3, .mean_var, obs.twostage) else apply(statarray.obs, 2:3, var)
+    dv <- apply(statarray, 2:3, var) - if(control$obs.twostage) apply(statarray, 2:3, .mean_var, control$obs.twostage) else apply(statarray.obs, 2:3, var)
     # If any statistic for the network has negative variance estimate, rerun it.
     remain[remain] <- apply(dv<=0, 2, any)
-    if(any(remain)) message(sum(remain), " networks (", paste(which(remain),collapse=", "), ") have bad simulations; rerunning.")
+    if(!any(remain)) break;
   }
+  if(any(remain))
+    stop(sum(remain), " networks (", paste(which(remain),collapse=", "), ") have bad simulations after permitted number of retries. Rerun with higher nsim= control parameter.")
 
   message("Summarising.")
   o <- setNames(lapply(seq_along(cn), function(i){
@@ -173,12 +159,12 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gof.ergm(), ..., obs.
         observed = colMeans(so),
         fitted = colMeans(s),
         var = apply(s,2,var),
-        var.obs = if(obs.twostage) apply(s, 2, .mean_var, obs.twostage) else apply(so, 2, var),
+        var.obs = if(control$obs.twostage) apply(s, 2, .mean_var, control$obs.twostage) else apply(so, 2, var),
         pearson = (observed-fitted)/sqrt(var-var.obs)
       )
   }), cn)
 
-  structure(o, nw=nw, subset=subset, obs.twostage=obs.twostage, control=control, class="gofN")
+  structure(o, nw=nw, subset=subset, control=control, class="gofN")
 }
 
 #' @describeIn gofN A plotting method, making residual and scale-location plots.
@@ -238,3 +224,71 @@ plot.gofN <- function(x, against=NULL, which=1:2, col=1, pch=1, cex=1, ..., ask 
     
   }
 }
+
+#' Auxiliary for Controlling Multinetwork ERGM Linear Goodness-of-Fit Evaluation
+#'
+#' @inherit control.gof.ergm description
+#' @inheritParams control.gof.ergm
+#' @param obs.twostage Either `FALSE` or an integer. This parameter
+#'   only has an effect if the network has missing data or
+#'   observational process. For such networks, evaluating the Pearson
+#'   residual requires simulating the expected value of the
+#'   conditional variance under the observation process. If `FALSE`,
+#'   the simulation is performed conditional on the observed
+#'   network. However, a more accurate estimate can be obtained via a
+#'   two-stage process: \enumerate{
+#' 
+#' \item Sample networks from the model without the observational
+#' constraint.
+#'
+#' \item Conditional on each of those networks, sample with the
+#' observational constraint, estimating the variance within each
+#' sample and then averaging over the first-stage sample.
+#'
+#' }
+#'
+#' Then, `obs.twostage` specifies the number of unconstrained networks
+#' to simulate from, which should divide the [control.gofN.ergm()]'s
+#' `nsim` argument evenly.
+#' 
+#' @param retry_bad_nets This parameter only has an effect if the
+#'   network has missing data or observational process. It gives the
+#'   number of times to retry simulating networks for which the
+#'   estimated constrained variance is higher than unconstrained. Note
+#'   that setting it `>0` is likely to bias estimates: the simulation
+#'   should instead be rerun with a larger `nsim`.
+#' 
+#' @description `control.gofN.ergm` (or its alias, `control.gofN`) is
+#'   intended to be used with [gofN()] specifically and will "inherit"
+#'   as many control parameters from [`ergm`] fit as possible().
+#'  
+#' @export control.gofN.ergm
+control.gofN.ergm<-function(nsim=100,
+                            obs.twostage=nsim/2,
+                            retry_bad_nets=0,
+                       MCMC.burnin=NULL,
+                       MCMC.interval=NULL,
+                       MCMC.prop.weights=NULL,
+                       MCMC.prop.args=NULL,
+                       
+                       MCMC.init.maxedges=NULL,
+                       MCMC.packagenames=NULL,
+                       
+                       MCMC.runtime.traceplot=FALSE,
+                       network.output="network",
+                       
+                       seed=NULL,
+                       parallel=0,
+                       parallel.type=NULL,
+                       parallel.version.check=TRUE,
+                       parallel.inherit.MT=FALSE){
+  control<-list()
+  for(arg in names(formals(sys.function())))
+    control[arg]<-list(get(arg))
+
+  set.control.class("control.gofN.ergm")
+}
+
+#' @rdname control.gofN.ergm
+#' @export control.gofN
+control.gofN <- control.gofN.ergm

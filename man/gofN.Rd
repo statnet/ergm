@@ -5,8 +5,7 @@
 \alias{plot.gofN}
 \title{Linear model diagnostics for multinetwork linear models}
 \usage{
-gofN(object, GOF, subset = TRUE, control = control.gof.ergm(), ...,
-  obs.twostage = FALSE)
+gofN(object, GOF, subset = TRUE, control = control.gofN.ergm(), ...)
 
 \method{plot}{gofN}(x, against = NULL, which = 1:2, col = 1,
   pch = 1, cex = 1, ..., ask = dev.interactive())
@@ -19,28 +18,10 @@ statistics whose goodness of fit to test.}
 
 \item{subset}{argument for the \code{\link[=ergm-terms]{N}} term.}
 
-\item{control}{See \code{\link[=control.gof.ergm]{control.gof.ergm()}}.}
+\item{control}{See \code{\link[=control.gofN.ergm]{control.gofN.ergm()}}.}
 
 \item{\dots}{additional arguments to \code{\link[=simulate.ergm]{simulate.ergm()}} and
 \code{\link[=summary.ergm_model]{summary.ergm_model()}}.}
-
-\item{obs.twostage}{Either \code{FALSE} or an integer. If not \code{FALSE},
-the constrained sample variance is estimated by simulating
-conditional on the observed networks. However, a more accurate
-estimate can be obtained via a two-stage process: \enumerate{
-
-\item Sample networks from the model without the observational
-constraint.
-
-\item Conditional on each of those networks, sample with the
-observational constraint, estimating the variance within each
-sample and then averaging over the first-stage sample.
-
-}
-
-Then, \code{obs.twostage} specifies the number of unconstrained networks
-to simulate from, which should divide the \code{\link[=control.gof.ergm]{control.gof.ergm()}}'s
-\code{nsim} argument evenly.}
 
 \item{against}{vector of values, network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against; if \code{NULL} (default), plots against fitted values.}
 
@@ -50,8 +31,9 @@ to simulate from, which should divide the \code{\link[=control.gof.ergm]{control
 }
 \value{
 An object of class \code{gofN}: a named list containing a list
-for every term in the specified \code{GOF} formula with the following
-elements vectors of length equal to the number of subnetworks:
+for every statistic in the specified \code{GOF} formula with the
+following elements vectors of length equal to the number of
+subnetworks:
 
 \item{observed}{For completely observed networks, their value of
 the statistic. For partially observed networks, the expected value
@@ -69,8 +51,6 @@ In addition, the following \code{\link{attr}}-style attributes are included:
 
 \item{subset}{A logical vector giving the subset of networks that were used.}
 
-\item{obs.twostage}{Number of runs in the first stage, or \code{FALSE}.}
-
 \item{control}{Control parameters passed.}
 }
 \description{
@@ -78,6 +58,6 @@ Linear model diagnostics for multinetwork linear models
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{plot}: A plotting method, making residuals and scale-location plots. Returns (invisibly) their summaries.
+\item \code{plot}: A plotting method, making residual and scale-location plots.
 }}
 
