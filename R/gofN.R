@@ -197,13 +197,15 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gofN.ergm(), ...){
 #' @param which which to plot (`1` for residuals plot, `2` for \eqn{\sqrt{|R_i|}}{sqrt(|R_i|)} scale plot, and `3` for normal quantile-quantile plot).
 #' 
 #' @export
-plot.gofN <- function(x, against=NULL, which=1:2, col=1, pch=1, cex=1, ..., ask = dev.interactive()){
+plot.gofN <- function(x, against=NULL, which=1:2, col=1, pch=1, cex=1, ..., ask = length(which)>1 && dev.interactive(TRUE)){
   if(ask){
     prev.ask <- devAskNewPage(TRUE)
     on.exit(devAskNewPage(prev.ask))
   }
 
-  nattrs <- get_multinet_nattr_tibble(attr(x,"nw"))[attr(x,"subset"),]
+  if(any(sapply(list(against, col, pch, cex),
+                function(x) is.character(x) || is(x,"formula"))))
+    nattrs <- get_multinet_nattr_tibble(attr(x,"nw"))[attr(x,"subset"),]
   
   againstname <- switch(class(against),
                         character = against,

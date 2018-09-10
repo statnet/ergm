@@ -8,7 +8,8 @@
 gofN(object, GOF, subset = TRUE, control = control.gofN.ergm(), ...)
 
 \method{plot}{gofN}(x, against = NULL, which = 1:2, col = 1,
-  pch = 1, cex = 1, ..., ask = dev.interactive())
+  pch = 1, cex = 1, ..., ask = length(which) > 1 &&
+  dev.interactive(TRUE))
 }
 \arguments{
 \item{object}{an \code{\link{ergm}} object.}
