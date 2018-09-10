@@ -34,6 +34,8 @@
 #'
 #' \item{var.obs}{Conditional variance under imputation statistic.}
 #' 
+#' \item{pearson}{The Pearson residual computed from the above.}
+#' 
 #' In addition, the following [`attr`]-style attributes are included:
 #'
 #' \item{nw}{The observed multinetwork object.}
@@ -244,6 +246,10 @@ plot.gofN <- function(x, against=NULL, which=1:2, col=1, pch=1, cex=1, ..., ask 
     }
     
   }
+}
+
+summary.gofN <- function(object){
+  
 }
 
 #' Auxiliary for Controlling Multinetwork ERGM Linear Goodness-of-Fit Evaluation

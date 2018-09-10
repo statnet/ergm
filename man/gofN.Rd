@@ -45,6 +45,8 @@ of their imputations under the model.}
 
 \item{var.obs}{Conditional variance under imputation statistic.}
 
+\item{pearson}{The Pearson residual computed from the above.}
+
 In addition, the following \code{\link{attr}}-style attributes are included:
 
 \item{nw}{The observed multinetwork object.}
