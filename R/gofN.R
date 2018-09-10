@@ -42,6 +42,25 @@
 #' 
 #' \item{control}{Control parameters passed.}
 #'
+#' @examples
+#' data(samplk)
+#' monks <- Networks(samplk1, samplk2, samplk3,samplk1, samplk2, samplk3,samplk1, samplk2, samplk3)
+#' fit <- ergm(monks~N(~edges))
+#' fit.gof <- gofN(fit, GOF=~edges)
+#' plot(fit.gof)
+#'
+#' samplk1[1,]<-NA
+#' samplk2[,2]<-NA
+#' monks <- Networks(samplk1, samplk2, samplk3,samplk1, samplk2, samplk3,samplk1, samplk2, samplk3)
+#' fit <- ergm(monks~N(~edges))
+#' fit.gof <- gofN(fit, GOF=~edges)
+#' plot(fit.gof)
+#' 
+#' # Default is good enough in this case, but sometimes, we might want to set it higher. E.g.,
+#' \dontrun{
+#' fit.gof <- gofN(fit, GOF=~edges, control=control.gofN.ergm(nsim=400))
+#' }
+#' 
 #' @export
 gofN <- function(object, GOF, subset=TRUE, control=control.gofN.ergm(), ...){
   check.control.class(c("gofN.ergm"), "gofN")
@@ -76,7 +95,7 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gofN.ergm(), ...){
     
     nstats <- nparam(pernet.m, canonical=TRUE)/sum(remain)
 
-    # FIXME: Simulations can be rerun only on the networks in the subset.
+    # TODO: Simulations can be rerun only on the networks in the subset.
     
     # The two-stage sample, taken marginally, *is* an unconstrained
     # sample.
@@ -86,6 +105,8 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gofN.ergm(), ...){
       sim <- sim[,ncol(sim)-sum(remain)*nstats+seq_len(sum(remain)*nstats),drop=FALSE]
     }
 
+    # TODO: Make this adaptive: start with a small simulation,
+    # increase on fail; or perhaps use a pilot sample.
     if(!is.null(object$constrained.obs)){
       sim <-
         if(control$obs.twostage){

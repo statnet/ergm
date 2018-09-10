@@ -61,3 +61,23 @@ Linear model diagnostics for multinetwork linear models
 \item \code{plot}: A plotting method, making residual and scale-location plots.
 }}
 
+\examples{
+data(samplk)
+monks <- Networks(samplk1, samplk2, samplk3,samplk1, samplk2, samplk3,samplk1, samplk2, samplk3)
+fit <- ergm(monks~N(~edges))
+fit.gof <- gofN(fit, GOF=~edges)
+plot(fit.gof)
+
+samplk1[1,]<-NA
+samplk2[,2]<-NA
+monks <- Networks(samplk1, samplk2, samplk3,samplk1, samplk2, samplk3,samplk1, samplk2, samplk3)
+fit <- ergm(monks~N(~edges))
+fit.gof <- gofN(fit, GOF=~edges)
+plot(fit.gof)
+
+# Default is good enough in this case, but sometimes, we might want to set it higher. E.g.,
+\dontrun{
+fit.gof <- gofN(fit, GOF=~edges, control=control.gofN.ergm(nsim=400))
+}
+
+}
