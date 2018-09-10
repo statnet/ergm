@@ -39,7 +39,7 @@ ergm.getMCMCsample <- function(nw, model, proposal, eta0, control,
 #' the calling function must shift the statistics if required. The calling
 #' function must also attach column names to the statistics matrix if required.
 #' 
-#' @param nw a [`network`] object representing the sampler state.
+#' @param nw a [`network`] (or [`pending_update_network`]) object representing the sampler state.
 #' @param model an [`ergm_model`] to be sampled from, as returned by
 #'   [ergm_model()].
 #' @param proposal a list of the parameters needed for
@@ -64,19 +64,18 @@ ergm.getMCMCsample <- function(nw, model, proposal, eta0, control,
 #' \item{final.interval}{adaptively determined MCMC interval.}
 #'
 #' If `update.nws==FALSE`, rather than returning the updated networks,
-#' the function will remove all edges from the input networks, attach
-#' a network attribute `.update` with the new edge information, and
-#' change class name to prevent the resulting object from being
-#' accessed or modified by functions that do not understand it.
+#' the function will return a [`pending_update_network`].
 #'
-#' @note Unlike its predecessor `ergm.getMCMCsample`,
-#'   `ergm_MCMC_sample` does not return `statsmatrix` or `newnetwork`
+#' @note `ergm_MCMC_sample` and `ergm_MCMC_slave` replace
+#'   `ergm.getMCMCsample` and `ergm.mcmcslave` respectively. They
+#'   differ slightly in their argument names and in their return
+#'   formats. For example, `ergm_MCMC_sample` expects `proposal`
+#'   rather than `MHproposal` and `theta` or `eta` rather than `eta0`;
+#'   and it does not return `statsmatrix` or `newnetwork`
 #'   elements. Rather, if parallel processing is not in effect,
 #'   `stats` is an [`mcmc.list`] with one chain and `networks` is a
-#'   list with one element. Note that some parameter names had also
-#'   been changed.
-#' @keywords internal
-#' @export ergm_MCMC_sample
+#'   list with one element.
+#' @export
 ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL, 
                              response=NULL, update.nws = TRUE, verbose=FALSE,..., eta=ergm.eta(theta, model$etamap)) {
   nthreads <- max(
@@ -251,7 +250,7 @@ ergm.mcmcslave <- function(Clist,proposal,eta0,control,verbose,...,prev.run=NULL
 #'   Metropolis-Hastings proposal failing.}  \item{maxedges}{maximum
 #'   allowed edges at the time of return.}
 #' @useDynLib ergm
-#' @export ergm_MCMC_slave
+#' @export
 ergm_MCMC_slave <- function(Clist,proposal,eta,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL) {
   numnetworks <- 0
 
