@@ -44,7 +44,16 @@ locate.InitFunction <- function(name, prefix, errname=NULL, env = globalenv()){
   fname <- paste(prefix,name,sep=".")
 
   # Try the given environment...
-  if(exists(fname, mode='function', envir=env)) return(as.name(fname))
+  if(exists(fname, mode='function', envir=env)){
+    # Find the *actual* environment containing the function.
+    while(!exists(fname, mode='function', envir=env, inherit=FALSE)) env <- parent.env(env)
+    # If its name looks like a namespace, return accessor to the
+    # namespace. Otherwise, just return its name; we can't do any
+    # better.
+    envname <- environmentName(env)
+    if(! envname %in% c("", "R_GlobalEnv")) return(call(":::",as.name(envname),as.name(fname)))
+    else return(as.name(fname))
+  }
 
   # Try the cache...
   envname <- locator_cache(fname)
