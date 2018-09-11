@@ -18,6 +18,7 @@ r_github_packages:
 - statnet/network-private
 - statnet/ergm-private@dev
 - statnet/ergm.count-private@dev
+- statnet/ergm.multi-private@ergm.multi
 addons:
   apt:
     packages:

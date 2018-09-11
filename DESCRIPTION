@@ -1,5 +1,5 @@
 Package: ergm
-Version: 4.0-4409
+Version: 4.0-4412
 Date: 2018-09-11
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
@@ -24,7 +24,8 @@ Suggests:
     ergm.userterms,
     Rmpi,
     ergm.count,
-    testthat
+    testthat,
+    ergm.multi
 BugReports: https://github.com/statnet/ergm/issues
 Description: An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGMs). 'ergm' is a part of the Statnet suite of packages for network analysis.
 License: GPL-3 + file LICENSE
@@ -37,7 +38,6 @@ Collate:
     'InitErgm.bipartite.R'
     'InitErgmConstraint.R'
     'InitErgmProposal.R'
-    'InitErgmProposal.blockdiag.R'
     'InitErgmProposal.dyadnoise.R'
     'InitErgmReference.R'
     'ergm-deprecated.R'
@@ -50,15 +50,12 @@ Collate:
     'InitErgmTerm.extra.R'
     'InitErgmTerm.indices.R'
     'InitErgmTerm.interaction.R'
-    'InitErgmTerm.multilayer.R'
-    'InitErgmTerm.multinet.R'
     'InitErgmTerm.operator.R'
     'InitErgmTerm.spcache.R'
     'InitErgmTerm.test.R'
     'InitErgmTerm.transitiveties.R'
     'InitWtErgmProposal.R'
     'InitWtErgmTerm.R'
-    'InitWtErgmTerm.multinet.R'
     'InitWtErgmTerm.operator.R'
     'InitWtErgmTerm.test.R'
     'anova.ergm.R'
@@ -67,7 +64,6 @@ Collate:
     'as.network.numeric.R'
     'build_term_index.R'
     'check.ErgmTerm.R'
-    'combine.networks.R'
     'control.ergm.R'
     'control.ergm.bridge.R'
     'control.gof.R'
@@ -128,7 +124,6 @@ Collate:
     'get.node.attr.R'
     'godfather.R'
     'gof.ergm.R'
-    'gofN.R'
     'is.curved.R'
     'is.durational.R'
     'is.dyad.independent.R'
