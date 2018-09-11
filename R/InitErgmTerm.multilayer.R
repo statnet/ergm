@@ -11,13 +11,7 @@
   reprs <- sapply(seq_along(Llist), function(l){
     name <- names(Llist)[l]
     L <- Llist[[l]]
-    fmt <- function(x)
-      switch(class(x),
-             formula = .despace(deparse(if(length(x)==2) x[[2]] else x)),
-             character = x,
-             list = paste0('(',paste(sapply(x,fmt),collapse=","),')'),
-             as.character(x))
-    s <- fmt(L)
+    s <- toString(ergm_LayerLogic(L))
     if(NVL(name,"")!="") s <- paste0(name,"=",s)
     s
   })
@@ -313,7 +307,7 @@ InitErgmTerm..layer.net <- function(nw, arglist, response=NULL, ...){
   namemap <- seq_along(nwl)
   names(namemap) <- nwnames
   
-  ll <- pack.LayerLogic_formula_as_double(a$L, namemap)
+  ll <- to_ergm_Cdouble(ergm_LayerLogic(a$L, namemap))
   # Terms on this logical layer will induce dyadic independence if its
   # value depends on more than one other layer value.
   dependence <- length(.depends_on_layers(ll))>1
@@ -359,8 +353,44 @@ LL_POSTOPMAP <- list(
     )
 
 
-pack.LayerLogic_formula_as_double <- function(formula, namemap){
+#' Internal representation of Layer Logic
+#'
+#' @param formula A Layer Logic formula.
+#' @param namemap A character vector giving the names, of the layers
+#'   referenced, or `NULL`.
+#'
+#' @return A structure with nonce class
+#'   `c("ergm_LayerLogic",class(formula))`, comprising the input
+#'   `formula` and an attribute `namemap` containing the `namemap`.
+#' @keywords internal
+#' @export
+ergm_LayerLogic <- function(formula, namemap=NULL){
+  ## TODO: Check whether we should verify that this is a formula.
+  structure(formula, namemap=namemap, class=c("ergm_LayerLogic", class(formula)))
+}
 
+#' @describeIn ergm_LayerLogic A method to generate coefficient names
+#'   associated with the Layer Logic.
+#' @param x An `ergm_LayerLogic` object.
+#' @param ... Additional arguments, currently unused.
+#' @export
+toString.ergm_LayerLogic <- function(x, ...){
+  ## TODO: Check that the non-formula parts are needed.
+  fmt <- function(x)
+    switch(class(x[-1]),
+           formula = .despace(deparse(if(length(x)==2) x[[2]] else x)),
+           character = x,
+           list = paste0('(',paste(sapply(x,fmt),collapse=","),')'),
+           as.character(x))
+  fmt(x)
+}
+
+#' @describeIn ergm_LayerLogic A method to encode and serialize the
+#'   Layer Logic into a postfix program understood by the C code.
+#' @export
+to_ergm_Cdouble.ergm_LayerLogic <- function(x, ...){
+  formula <- x
+  namemap <- attr(x, "namemap")
     
   lidMap <- function(l){
     switch(class(l),
