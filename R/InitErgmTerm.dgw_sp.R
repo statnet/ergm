@@ -119,52 +119,6 @@
 #  These inputs are automatically supplied to the d_xxxy function by the 
 #  network_stats_wrapper function 
 
-.sp.handle_layers <- function(nw, a, type, has_base){
-  out <- list()
-
-  if(is(a$Ls.path,"formula")) a$Ls.path <- list(a$Ls.path)
-  L.path1 <- a$Ls.path[[1]]
-  L.path2 <- a$Ls.path[[2]]
-  L.base <- a$L.base
-
-  if(is.null(L.path1) && is.null(L.path2) && is.null(L.base)) return(out)
-
-  if(type=="RTP") stop("Layer-aware shared partner terms do not support reciprocated two-paths at this time.",call.=FALSE)
-
-  
-  NVL(L.path1) <- NVL(L.path2, L.base)
-  NVL(L.path2) <- NVL(L.path1, L.base)
-  if(has_base) NVL(L.base) <- NVL(L.path1, L.path2)
-  
-  nl <- max(.peek_vattrv(nw, ".LayerID"))
-
-  layer0 <-
-    if(has_base)
-      as.formula(call("~",call("|",call("|", L.path1[[2]], L.path2[[2]]),L.base[[2]])))
-    else
-      as.formula(call("~",call("|", L.path1[[2]], L.path2[[2]])))
-
-  out$auxiliaries <- .mk_.layer.net_auxform(layer0, nl)
-  aux1 <- .mk_.layer.net_auxform(L.path1, nl)
-  out$auxiliaries[[2]] <- call("+", out$auxiliaries[[2]], aux1[[2]])
-  aux2 <- .mk_.layer.net_auxform(L.path2, nl)
-  out$auxiliaries[[2]] <- call("+", out$auxiliaries[[2]], aux2[[2]])
-  if(has_base){
-    aux3 <- .mk_.layer.net_auxform(L.base, nl)
-    out$auxiliaries[[2]] <- call("+", out$auxiliaries[[2]], aux3[[2]])
-  }
-  
-  out$any_order <- if(type=="UTP" || (type%in%c("OSP","ISP") && !has_base)) TRUE else !a$L.in_order
-  out$coef.names_prefix <- paste0(.lspec_coef.names(list(pth=c(L.path1,if(L.path2!=L.path1)L.path2),bse=if(has_base) L.base,inord=a$L.in_order)),":")
-  out$name_suffix <- "_ML"
-  out$nw1 <- .split_constr_network(nw, ".LayerID", ".LayerName")[[1]] # Needed for emptynwstats.
-
-  out
-}
-
-
-
-
 ################################################################################
 #Term to count ESP statistics, where the shared partners may be any of
 #several distinct types.
@@ -210,10 +164,7 @@ InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
     typecode<-0
   }
 
-  linfo <- .sp.handle_layers(nw, a, type, TRUE)
-  
-  if(length(linfo)) list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,paste(conam,d,sep="")), auxiliaries=linfo$auxiliaries, inputs=c(linfo$any_order,typecode,d), minval=0)
-  else list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(if(!cache.sp) -1, typecode,d), minval=0, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
+  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(if(!cache.sp) -1, typecode,d), minval=0, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
 }
 
 
@@ -263,8 +214,6 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, ...) {
     basenam<-paste("gwesp",type,sep=".")
   }
   
-  linfo <- .sp.handle_layers(nw, a, type, TRUE)
-  
   if(!fixed){ # This is a curved exponential family model
     if(!is.null(a$decay)) warning("In term 'dgwesp': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
 
@@ -275,12 +224,9 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, ...) {
     params<-list(gwesp=NULL,gwesp.decay=decay)
     names(params)<-c(basenam,paste(basenam,"decay",sep="."))
 
-    if(length(linfo)) c(list(name=paste0(dname,linfo$name_suffix),
-                             coef.names=paste0(linfo$coef.names_prefix,if(is.directed(nw)) paste("esp.",type,"#",d,sep="") else paste("esp#",d,sep="")),auxiliaries=linfo$auxiliaries, 
-                             inputs=c(linfo$any_order,typecode,d), params=params), GWDECAY)
-    else c(list(name=dname,
-                coef.names=if(is.directed(nw)) paste("esp.",type,"#",d,sep="") else paste("esp#",d,sep=""), 
-                inputs=c(if(!cache.sp) -1, typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL), GWDECAY)
+    c(list(name=dname,
+           coef.names=if(is.directed(nw)) paste("esp.",type,"#",d,sep="") else paste("esp#",d,sep=""), 
+           inputs=c(if(!cache.sp) -1, typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL), GWDECAY)
   }else{
     if(is.null(a$decay)) stop("Term 'dgwesp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -291,8 +237,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, ...) {
     else
       coef.names <- paste("gwesp.fixed.",decay,sep="")
 
-    if(length(linfo)) list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,coef.names), inputs=c(linfo$any_order,decay,typecode,maxesp),auxiliaries=linfo$auxiliaries)
-    else list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, decay,typecode,maxesp), auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
+    list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, decay,typecode,maxesp), auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
   }
 }
 
@@ -341,9 +286,6 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
     typecode<-0
   }
 
-  linfo <- .sp.handle_layers(nw, a, type, FALSE)
-  nw <- linfo$nw1
-  
   if (any(d==0)) {
     emptynwstats <- rep(0, length(d))
     if(is.bipartite(nw)){
@@ -357,8 +299,7 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
     emptynwstats <- NULL
   }
   
-  if(length(linfo)) list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,paste0(conam,d)), auxiliaries=linfo$auxiliaries, inputs=c(linfo$any_order,typecode,d), minval=0, emptynwstats=emptynwstats)
-  else list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(if(!cache.sp) -1, typecode,d), minval=0, emptynwstats=emptynwstats, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
+  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(if(!cache.sp) -1, typecode,d), minval=0, emptynwstats=emptynwstats, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
 }
 
 
@@ -397,8 +338,6 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, ...) {
     basenam<-paste("gwdsp",type,sep=".")
   }
 
-  linfo <- .sp.handle_layers(nw, a, type, FALSE)
-  
   if(!fixed){ # This is a curved exponential family model
     if(!is.null(a$decay)) warning("In term 'dgwdsp': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
 
@@ -411,14 +350,10 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, ...) {
     params<-list(gwdsp=NULL,gwdsp.decay=decay)
     names(params)<-c(basenam,paste(basenam,"decay",sep="."))
     
-    if(length(linfo)) c(list(name=paste0(dname,linfo$name_suffix),
-                             coef.names=paste0(linfo$coef.names_prefix,if(is.directed(nw)) paste("dsp.",type,"#",d,sep="") else paste("dsp#",d,sep="")), 
-                             inputs=c(linfo$any_order,typecode,d), params=params,
-                             auxiliaries = linfo$auxiliaries), GWDECAY)
-    else c(list(name=dname,
-                coef.names=if(is.directed(nw)) paste("dsp.",type,"#",d,sep="") else paste("dsp#",d,sep=""), 
-                inputs=c(if(!cache.sp) -1, typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL),
-           GWDECAY)
+    c(list(name=dname,
+           coef.names=if(is.directed(nw)) paste("dsp.",type,"#",d,sep="") else paste("dsp#",d,sep=""), 
+           inputs=c(if(!cache.sp) -1, typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL),
+      GWDECAY)
   }else{
     if(is.null(a$decay)) stop("Term 'dgwdsp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -429,8 +364,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, ...) {
     else
       coef.names <- paste("gwdsp.fixed",decay,sep=".")
     
-    if(length(linfo)) list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,coef.names), inputs=c(linfo$any_order, decay,typecode,maxesp), auxiliaries=linfo$auxiliaries)
-    else list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, decay,typecode,maxesp), auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
+    list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, decay,typecode,maxesp), auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
   }
 }
 
@@ -477,9 +411,6 @@ InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
     typecode<-0
   }
 
-  linfo <- .sp.handle_layers(nw, a, type, TRUE)
-  nw <- linfo$nw1
-
   if (any(d==0)) {
     emptynwstats <- rep(0, length(d))
     if(is.bipartite(nw)){
@@ -492,8 +423,8 @@ InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   }else{
     emptynwstats <- NULL
   }
-  if(length(linfo)) list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,paste0(conam,d)), auxiliaries=linfo$auxiliaries, inputs=c(linfo$any_order,typecode,d), minval=0, emptynwstats=emptynwstats)
-  else list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(if(!cache.sp) -1, typecode,d), minval=0, emptynwstats=emptynwstats, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
+  
+  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(if(!cache.sp) -1, typecode,d), minval=0, emptynwstats=emptynwstats, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
 }
 
 
@@ -531,8 +462,6 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
     basenam<-paste("gwnsp",type,sep=".")
   }
   
-  linfo <- .sp.handle_layers(nw, a, type, TRUE)
-
   if(!fixed){ # This is a curved exponential family model
     if(!is.null(a$decay)) warning("In term 'dgwnsp': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
 
@@ -545,14 +474,10 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
     params<-list(gwnsp=NULL,gwnsp.decay=decay)
     names(params)<-c(basenam,paste(basenam,"decay",sep="."))
     
-    if(length(linfo)) c(list(name=paste0(dname,linfo$name_suffix),
-                             coef.names=paste0(linfo$coef.names_prefix,if(is.directed(nw)) paste("nsp.",type,"#",d,sep="") else paste("nsp#",d,sep="")), 
-                             inputs=c(linfo$any_order,typecode,d), params=params,
-                             auxiliaries = linfo$auxiliaries), GWDECAY)
-    else c(list(name=dname,
-                coef.names=if(is.directed(nw)) paste("nsp.",type,"#",d,sep="") else paste("nsp#",d,sep=""), 
-                
-                inputs=c(if(!cache.sp) -1, typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL),GWDECAY)
+    c(list(name=dname,
+           coef.names=if(is.directed(nw)) paste("nsp.",type,"#",d,sep="") else paste("nsp#",d,sep=""), 
+           
+           inputs=c(if(!cache.sp) -1, typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL),GWDECAY)
   }else{
     if(is.null(a$decay)) stop("Term 'dgwnsp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -563,7 +488,6 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
     else
       coef.names <- paste("gwnsp.fixed",decay,sep=".")
     
-    if(length(linfo)) list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,coef.names), inputs=c(linfo$any_order, decay,typecode,maxesp), auxiliaries=linfo$auxiliaries)
-    else list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, decay,typecode,maxesp), auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
+    list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, decay,typecode,maxesp), auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
   }
 }

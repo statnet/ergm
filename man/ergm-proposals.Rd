@@ -23,9 +23,6 @@
 \alias{InitErgmProposal.CondB2Degree}
 \alias{InitErgmProposal.CondInDegree}
 \alias{InitErgmProposal.CondOutDegree}
-\alias{InitErgmProposal.blockdiag}
-\alias{InitErgmProposal.blockdiagNonObserved}
-\alias{InitErgmProposal.blockdiagTNT}
 \alias{InitErgmProposal.CondDegreeMix}
 \alias{InitErgmProposal.fixedas}
 \alias{InitErgmProposal.fixallbut}
@@ -34,7 +31,6 @@
 \alias{InitErgmProposal.nobetweengroupties}
 
 \alias{NonObservedTNT}
-\alias{InitErgmProposal.blockdiagNonObservedTNT}
 \alias{InitErgmProposal.fixallbutTNT} 
 \alias{InitErgmProposal.fixedasTNT}
 
@@ -67,20 +63,6 @@
 
 
     \describe{
-
-         \item{InitErgmProposal.blockdiag}{MHp for \eqn{constraints= ~blockdiag}. Select a diagonal block according to the weight, then randomly select a dayd within the block for the toggle proposal.
-        }
-        \item{InitErgmProposal.blockdiagNonObserved}{MHp for \eqn{constraints= ~blockdiag+observed}. Similar to InitErgmProposal.blockdiag, but
-        applied only to missing dyads.
-        }
-        
-         \item{InitErgmProposal.blockdiagNonObservedTNT}{Similar to InitErgmProposal.blockdiagNonObserved, except that it selects ties and non-ties for proposed toggles (in the block by construction) with equal probability.  Like the unconstrained TNT proposal, this is useful for improving performance in sparse networks.
-        }
-        
-        
-        \item{InitErgmProposal.blockdiagTNT}{MHp for \eqn{constraints= ~blockdiag}. Similar to InitErgmProposal.blockdiag, except that it selects ties
-        and non-ties for proposed toggles (in the block by construction) with equal probability.  Like the unconstrained TNT proposal, this is useful for improving performance in sparse networks.
-        }
         
          \item{InitErgmProposal.CondB1Degree}{MHp for \eqn{constraints= ~b1degrees}. For bipartite networks, randomly select an edge {B1i, B2j} and an empty dyad with the same node B1i, {B1i, B2k}, and propose to toggle both {B1i, B2j} and {B1i, B2k}. This ensures that the degrees of individual nodes in mode 1 are preserved.
         }

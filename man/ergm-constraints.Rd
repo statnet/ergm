@@ -12,7 +12,6 @@
 \alias{idegrees}
 \alias{b1degrees}
 \alias{b2degrees}
-\alias{blockdiag}
 \alias{edges}
 \alias{hamming}
 \alias{idegreedist}
@@ -95,22 +94,6 @@
       Constrain maximum and minimum vertex degree. See
       \dQuote{Placing Bounds
         on Degrees} section for more information.
-    }
-    \item{\code{blockdiag(attrname)} (dyad-independent)}{
-      Force a block-diagonal structure (and its bipartite analogue) on
-      the network. Only dyads \eqn{(i,j)} for which
-      \code{attrname(i)==attrname(j)} can have edges.
-
-      Note that the current implementation requires that blocks be
-      contiguous for \dQuote{unipartite} graphs, and for bipartite
-      graphs, they must be contiguous within a partition and must have
-      the same ordering in both partitions. (They do not, however,
-      require that all blocks be represented in both partitions, but
-      those that overlap must have the same order.)
-
-      If multiple block-diagonal constraints are given, or if
-      \code{attrname} is a vector with multiple attribute names, blocks
-      will be constructed on \emph{all} attributes matching.
     }
     \item{\code{degrees} and \code{nodedegrees}}{
       Preserve the degree of each vertex of the given network: only networks
