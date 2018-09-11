@@ -34,5 +34,5 @@ test_that("Summary for the B() operator with nonzero criteria",{
 
 test_that("Summary for the B() operator with interval criteria",{
   summ <- summary(zach~B(~edges+triangles, ~ininterval(3,5,c(FALSE,FALSE))), response="contexts")
-  expect_equivalent(summ, summary(network_view(zach, ~ contexts>=3 & contexts<=5)~edges+triangles))
+  expect_equivalent(summ, summary(ergm.multi::network_view(zach, ~ contexts>=3 & contexts<=5)~edges+triangles))
 })
