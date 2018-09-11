@@ -33,7 +33,6 @@
 #### WARNING: The following functions also have a copy in tergm. Fixes
 #### should be applied to both (for now.)
 ## FIXME: There is almost certainly a better way to do this.
-## TODO: Document functions and export them, for use by tergm.
 .consensus.order <- function(x1, x2){
   o <- intersect(x1, x2)
   if(!all(x1[x1 %in% o] == x2[x2 %in% o])) stop("Current implementation of block-diagonal sampling requires the common blocks of egos and blocks of alters to have the same order. See help('ergm-constraints') for more information.")
@@ -85,7 +84,8 @@
 #'   identifies the block to which vertex \eqn{i} belongs. Blocks must
 #'   be continguous.
 #' 
-#' @return A list with the following elements:
+#' @return An object of nonce class `ergm_block_diag_samp_info` with
+#'   the following elements at this time:
 #' \describe{
 #'
 #' \item{`nblk`}{number of blocks}
@@ -105,13 +105,10 @@
 #'
 #' In addition, an attribute `"ndyads"` is attached, containing the
 #' total number of dyads in all blocks put together.
-#'
-#' `unlist(pack.BlockDiagSampInfo_as_num(nw, blkattr)` can be
-#' passed as input to an MH proposal function that knows how to parse
-#' it.
 #' 
+#' @keywords internal
 #' @export
-pack.BlockDiagSampInfo_as_num <- function(nw, a){
+ergm_block_diag_samp_info <- function(nw, a){
   bip <- nw %n% "bipartite"
   if(bip){
     ea <- a[seq_len(bip)]
@@ -142,12 +139,25 @@ pack.BlockDiagSampInfo_as_num <- function(nw, a){
     out <- list(nblk=length(w),  pos=b, cumwt=w)
     attr(out, "ndyads") <- sum(a$lengths*(a$lengths-1)/(if(is.directed(nw)) 1 else 2))
   }
-  return(out)
+  structure(out, class="ergm_block_diag_samp_info")
+}
+
+#' @describeIn ergm_block_diag_samp_info A method to serialise it into
+#'   a [`numeric`] vector.
+#' 
+#' @param ndyads where to prepend the number of togglable dyads to the
+#'   block information.
+#' @param x an `ergm_block_diag_samp_info` object.
+#' @param ... additional arguments, currently unused.
+#'
+#' @export
+to_ergm_Cdouble.ergm_block_diag_samp_info <- function(x, ndyads, ...){
+  c(if(ndyads) attr(x,"ndyads"), unlist(x))
 }
 
 InitErgmProposal.blockdiag <- function(arguments, nw){
-  BDI <- pack.BlockDiagSampInfo_as_num(nw, .get.blockdiag.attr(nw, arguments$constraints))
-  list(name = "blockdiag", inputs=unlist(BDI))
+  BDI <- ergm_block_diag_samp_info(nw, .get.blockdiag.attr(nw, arguments$constraints))
+  list(name = "blockdiag", inputs=to_ergm_Cdouble(BDI, ndyads=FALSE))
 }
 
 InitErgmProposal.blockdiagTNT <- function(arguments, nw){
@@ -156,9 +166,9 @@ InitErgmProposal.blockdiagTNT <- function(arguments, nw){
   
   if(any(a[el[,1]]!=a[el[,2]])) stop("Block-diagonal TNT sampler implementation does not support sampling networks with off-block-diagonal ties at this time.")
 
-  BDI <- pack.BlockDiagSampInfo_as_num(nw, a)
+  BDI <- ergm_block_diag_samp_info(nw, a)
   
-  list(name = "blockdiagTNT", inputs=c(attr(BDI,"ndyads"), unlist(BDI)))
+  list(name = "blockdiagTNT", inputs=to_ergm_Cdouble(BDI, ndyads=TRUE))
 }
 
 ## Helper function, since the following two have the same body except for the MH_ function.
