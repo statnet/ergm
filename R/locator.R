@@ -43,8 +43,11 @@ locate.InitFunction <- function(name, prefix, errname=NULL, env = globalenv()){
   
   # Try the given environment...
   if(!is.null(obj<-get0(fname, mode='function', envir=env))){
-    envname <- environmentName(environment(obj))
-    if(! NVL(envname,"") %in% c("", "R_GlobalEnv")) return(call(":::",as.name(envname),as.name(fname)))
+    env <- environment(obj)
+    envname <- environmentName(env)
+    # Check that environment name is not blank or globalenv(), and
+    # that the detected environment actually contains the object.
+    if(! NVL(envname,"") %in% c("", "R_GlobalEnv") && exists(fname, mode='function', envir=env, inherit=FALSE)) return(call(":::",as.name(envname),as.name(fname)))
     else return(as.name(fname))
   }
 
