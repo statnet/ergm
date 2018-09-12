@@ -96,7 +96,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats)
   nw <- tmp$nw
   constraints.obs <- tmp$constraints.obs
-  
+  constraints <- tmp$constraints
 
   ## Preinitialize proposals and set "observed" statistics:
   proposal <- ergm_proposal(constraints,arguments=control$MCMC.prop.args,
@@ -164,7 +164,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   }
   message(".")
     
-  Dtheta.Du<-to-from
+  Dtheta.Du<-(to-from)/control$nsteps
 
   esteq  <- rbind(sapply(seq_len(control$nsteps), function(i) ergm.etagradmult(path[i,],stats[i,]-stats.obs[i,],m$etamap)))
   nochg <- Dtheta.Du==0 | apply(esteq==0, 1, all)
