@@ -164,7 +164,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   }
   message(".")
     
-  Dtheta.Du<-to-from
+  Dtheta.Du<-(to-from)/control$nsteps
 
   esteq  <- rbind(sapply(seq_len(control$nsteps), function(i) ergm.etagradmult(path[i,],stats[i,]-stats.obs[i,],m$etamap)))
   nochg <- Dtheta.Du==0 | apply(esteq==0, 1, all)
