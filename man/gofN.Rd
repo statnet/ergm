@@ -78,6 +78,7 @@ data(samplk)
 monks <- Networks(samplk1, samplk2, samplk3,samplk1, samplk2, samplk3,samplk1, samplk2, samplk3)
 fit <- ergm(monks~N(~edges))
 fit.gof <- gofN(fit, GOF=~edges)
+summary(fit.gof)
 plot(fit.gof)
 
 samplk1[1,]<-NA
@@ -85,6 +86,7 @@ samplk2[,2]<-NA
 monks <- Networks(samplk1, samplk2, samplk3,samplk1, samplk2, samplk3,samplk1, samplk2, samplk3)
 fit <- ergm(monks~N(~edges))
 fit.gof <- gofN(fit, GOF=~edges)
+summary(fit.gof)
 plot(fit.gof)
 
 # Default is good enough in this case, but sometimes, we might want to set it higher. E.g.,
