@@ -15,8 +15,9 @@
 #' @param GOF a one-sided [`ergm`] formula specifying network
 #'   statistics whose goodness of fit to test.
 #' @param subset argument for the [`N`][ergm-terms] term.
-#' @param \dots additional arguments to [simulate.ergm()] and
-#'   [summary.ergm_model()].
+#' @param \dots additional arguments to functions ([simulate.ergm()]
+#'   and [summary.ergm_model()] for the constructor, [plot()],
+#'   [qqnorm()], and [qqline()] for the plotting method).
 #' @param control See [control.gofN.ergm()].
 #'
 #' @return An object of class `gofN`: a named list containing a list
@@ -193,12 +194,12 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gofN.ergm(), ...){
 }
 
 #' @describeIn gofN A plotting method, making residual and scale-location plots.
-#' 
+#'
+#' @param x a [`gofN`] object.
 #' @param against vector of values, network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against; if `NULL` (default), plots against fitted values.
 #' @param col,pch,cex vector of values (wrapped in [I()]), network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against.
 #' @param which which to plot (`1` for residuals plot, `2` for \eqn{\sqrt{|R_i|}}{sqrt(|R_i|)} scale plot, and `3` for normal quantile-quantile plot).
 #' @param ask whether the user should be prompted between the plots.
-#' @param ... additional arguments to plotting functions.
 #' 
 #' @export
 plot.gofN <- function(x, against=NULL, which=1:2, col=1, pch=1, cex=1, ..., ask = length(which)>1 && dev.interactive(TRUE)){
@@ -248,7 +249,7 @@ plot.gofN <- function(x, against=NULL, which=1:2, col=1, pch=1, cex=1, ..., ask 
 
     if(3L %in% which){
       qqnorm(summ$pearson, col=col, pch=pch, cex=cex,..., main = paste("Normal Q-Q for", sQuote(name)), xlab=againstname, ylab=expression(sqrt("|Pearson residual|")))
-      qqline(summ$pearson)
+      qqline(summ$pearson, ...)
     }
     
   }
@@ -259,11 +260,11 @@ plot.gofN <- function(x, against=NULL, which=1:2, col=1, pch=1, cex=1, ..., ask 
 summary.gofN <- function(object, ...){
   cns <- names(object)
 
-  list(`Observed/Imputed values` = fit.gof %>% map("observed") %>% as_tibble %>% summary,
-       `Fitted values` = fit.gof %>% map("fitted") %>% as_tibble %>% summary,
-       `Pearson residuals`  = fit.gof %>% map("pearson") %>% as_tibble %>% summary,
-       `Variance of Pearson residuals` = fit.gof %>% map("pearson") %>% map(var),
-       `Std. dev. of Pearson residuals` = fit.gof %>% map("pearson") %>% map(sd))
+  list(`Observed/Imputed values` = object %>% map("observed") %>% as_tibble %>% summary,
+       `Fitted values` = object %>% map("fitted") %>% as_tibble %>% summary,
+       `Pearson residuals`  = object %>% map("pearson") %>% as_tibble %>% summary,
+       `Variance of Pearson residuals` = object %>% map("pearson") %>% map(var),
+       `Std. dev. of Pearson residuals` = object %>% map("pearson") %>% map(sd))
 }
 
 #' Auxiliary for Controlling Multinetwork ERGM Linear Goodness-of-Fit Evaluation

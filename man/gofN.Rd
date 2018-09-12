@@ -24,8 +24,11 @@ statistics whose goodness of fit to test.}
 
 \item{control}{See \code{\link[=control.gofN.ergm]{control.gofN.ergm()}}.}
 
-\item{\dots}{additional arguments to \code{\link[=simulate.ergm]{simulate.ergm()}} and
-\code{\link[=summary.ergm_model]{summary.ergm_model()}}.}
+\item{\dots}{additional arguments to functions (\code{\link[=simulate.ergm]{simulate.ergm()}}
+and \code{\link[=summary.ergm_model]{summary.ergm_model()}} for the constructor, \code{\link[=plot]{plot()}},
+\code{\link[=qqnorm]{qqnorm()}}, and \code{\link[=qqline]{qqline()}} for the plotting method).}
+
+\item{x}{a \code{\link{gofN}} object.}
 
 \item{against}{vector of values, network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against; if \code{NULL} (default), plots against fitted values.}
 
@@ -34,8 +37,6 @@ statistics whose goodness of fit to test.}
 \item{col, pch, cex}{vector of values (wrapped in \code{\link[=I]{I()}}), network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against.}
 
 \item{ask}{whether the user should be prompted between the plots.}
-
-\item{...}{additional arguments to plotting functions.}
 }
 \value{
 An object of class \code{gofN}: a named list containing a list
