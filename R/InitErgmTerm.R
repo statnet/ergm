@@ -1472,9 +1472,8 @@ InitErgmTerm.gwb1degree<-function(nw, arglist,  ...) {
     if(!is.null(a$decay)) warning("In term 'gwb1degree': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
     ld<-length(d)
     if(ld==0){return(NULL)}
-    list(minval=0, maxval=network.size(nw), dependence=TRUE, name="b1degree", coef.names=paste("gwb1degree#",d,sep=""), inputs=c(d),
-      params=list(gwb1degree=NULL,gwb1degree.decay=decay),
-      GWDECAY, conflicts.constraints="b1degreedist")
+    c(list(minval=0, maxval=network.size(nw), dependence=TRUE, name="b1degree", coef.names=paste("gwb1degree#",d,sep=""), inputs=c(d),
+           conflicts.constraints="b1degreedist", params=list(gwb1degree=NULL,gwb1degree.decay=decay)), GWDECAY)
   } else {
     if(is.null(a$decay)) stop("Term 'gwb1degree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -1526,9 +1525,8 @@ InitErgmTerm.gwb2degree<-function(nw, arglist,  ...) {
     if(!is.null(a$decay)) warning("In term 'gwb2degree': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
     ld<-length(d)
     if(ld==0){return(NULL)}
-    list(minval=0, maxval=network.size(nw), dependence=TRUE, name="b2degree", coef.names=paste("gwb2degree#",d,sep=""), inputs=c(d),
-      params=list(gwb2degree=NULL,gwb2degree.decay=decay),
-      GWDECAY, conflicts.constraints="b2degreedist")
+    c(list(minval=0, maxval=network.size(nw), dependence=TRUE, name="b2degree", coef.names=paste("gwb2degree#",d,sep=""), inputs=c(d),
+           conflicts.constraints="b2degreedist", params=list(gwb2degree=NULL,gwb2degree.decay=decay)), GWDECAY)
   } else { 
     if(is.null(a$decay)) stop("Term 'gwb2degree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -1579,9 +1577,8 @@ InitErgmTerm.gwdegree<-function(nw, arglist, ...) {
     if(!is.null(a$decay)) warning("In term 'gwdegree': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
     ld<-length(d)
     if(ld==0){return(NULL)}
-    list(minval=0, maxval=network.size(nw), dependence=TRUE, name="degree", coef.names=paste("gwdegree#",d,sep=""), inputs=c(d),
-      params=list(gwdegree=NULL,gwdegree.decay=decay),
-      GWDECAY, conflicts.constraints="degreedist")
+    c(list(minval=0, maxval=network.size(nw), dependence=TRUE, name="degree", coef.names=paste("gwdegree#",d,sep=""), inputs=c(d),
+           conflicts.constraints="degreedist", params=list(gwdegree=NULL,gwdegree.decay=decay)), GWDECAY)
   } else {
     if(is.null(a$decay)) stop("Term 'gwdegree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -1713,9 +1710,8 @@ InitErgmTerm.gwidegree<-function(nw, arglist,  ...) {
     if(!is.null(a$decay)) warning("In term 'gwidegree': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
     ld<-length(d)
     if(ld==0){return(NULL)}
-    list(minval=0, maxval=network.size(nw), dependence=TRUE, name="idegree", coef.names=paste("gwidegree#",d,sep=""), inputs=c(d),
-      params=list(gwidegree=NULL,gwidegree.decay=decay),
-      GWDECAY, conflicts.constraints="idegreedist")
+    c(list(minval=0, maxval=network.size(nw), dependence=TRUE, name="idegree", coef.names=paste("gwidegree#",d,sep=""), inputs=c(d),
+           conflicts.constraints="idegreedist", params=list(gwidegree=NULL,gwidegree.decay=decay)), GWDECAY)
   } else { 
     if(is.null(a$decay)) stop("Term 'gwidegree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -1804,9 +1800,8 @@ InitErgmTerm.gwodegree<-function(nw, arglist,  ...) {
     if(!is.null(a$decay)) warning("In term 'gwodegree': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
     ld<-length(d)
     if(ld==0){return(NULL)}
-    list(minval=0, maxval=network.size(nw), dependence=TRUE, name="odegree", coef.names=paste("gwodegree#",d,sep=""), inputs=c(d),
-      params=list(gwodegree=NULL,gwodegree.decay=decay),
-      GWDECAY, conflicts.constraints="odegreedist")
+    c(list(minval=0, maxval=network.size(nw), dependence=TRUE, name="odegree", coef.names=paste("gwodegree#",d,sep=""), inputs=c(d),
+           conflicts.constraints="odegreedist", params=list(gwodegree=NULL,gwodegree.decay=decay)), GWDECAY)
   } else {
     if(is.null(a$decay)) stop("Term 'gwodegree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
