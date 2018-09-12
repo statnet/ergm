@@ -3,6 +3,7 @@
 \name{gofN}
 \alias{gofN}
 \alias{plot.gofN}
+\alias{summary.gofN}
 \title{Linear model diagnostics for multinetwork linear models}
 \usage{
 gofN(object, GOF, subset = TRUE, control = control.gofN.ergm(), ...)
@@ -10,6 +11,8 @@ gofN(object, GOF, subset = TRUE, control = control.gofN.ergm(), ...)
 \method{plot}{gofN}(x, against = NULL, which = 1:2, col = 1,
   pch = 1, cex = 1, ..., ask = length(which) > 1 &&
   dev.interactive(TRUE))
+
+\method{summary}{gofN}(object, ...)
 }
 \arguments{
 \item{object}{an \code{\link{ergm}} object.}
@@ -29,6 +32,10 @@ statistics whose goodness of fit to test.}
 \item{which}{which to plot (\code{1} for residuals plot, \code{2} for \eqn{\sqrt{|R_i|}}{sqrt(|R_i|)} scale plot, and \code{3} for normal quantile-quantile plot).}
 
 \item{col, pch, cex}{vector of values (wrapped in \code{\link[=I]{I()}}), network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against.}
+
+\item{ask}{whether the user should be prompted between the plots.}
+
+\item{...}{additional arguments to plotting functions.}
 }
 \value{
 An object of class \code{gofN}: a named list containing a list
@@ -62,6 +69,8 @@ Linear model diagnostics for multinetwork linear models
 \section{Methods (by generic)}{
 \itemize{
 \item \code{plot}: A plotting method, making residual and scale-location plots.
+
+\item \code{summary}: A simple summary function.
 }}
 
 \examples{
