@@ -137,6 +137,7 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gofN.ergm(), ...){
             }
             sim
           }
+          #' @importFrom parallel clusterCall
           sim <- if(!is.null(cl)) unlist(clusterCall(cl, genseries),recursive=FALSE) else genseries()
           message("")
           do.call(rbind, sim)
@@ -201,6 +202,9 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gofN.ergm(), ...){
 #' @param which which to plot (`1` for residuals plot, `2` for \eqn{\sqrt{|R_i|}}{sqrt(|R_i|)} scale plot, and `3` for normal quantile-quantile plot).
 #' @param ask whether the user should be prompted between the plots.
 #' 
+#' @importFrom grDevices dev.interactive devAskNewPage
+#' @importFrom graphics abline panel.smooth plot
+#' @importFrom methods is
 #' @export
 plot.gofN <- function(x, against=NULL, which=1:2, col=1, pch=1, cex=1, ..., ask = length(which)>1 && dev.interactive(TRUE)){
   if(ask){
