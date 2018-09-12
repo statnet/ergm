@@ -1269,7 +1269,7 @@ InitErgmTerm.diff <- function(nw, arglist, ...) {
   sign.action <- match.arg(tolower(a$sign.action), SIGN.ACTIONS)
   sign.code <- match(sign.action, SIGN.ACTIONS)
 
-  if(sign.action!="abs" && !is.directed(nw)) message("Note that behavior of term diff() on undirected networks may be unexpected. See help(\"ergm-terms\") for more information.")
+  if(sign.action!="abs" && !is.directed(nw) && !is.bipartite(nw)) message("Note that behavior of term diff() on unipartite, undirected networks may be unexpected. See help(\"ergm-terms\") for more information.")
   
   # 1 and 4 are sign codes that allow negative differences.
   if(sign.code %in% c(1, 4) &&  a$pow!=round(a$pow)) stop("In term diff(attrname, pow, sign=",a$sign,"), pow must be an integer.")
