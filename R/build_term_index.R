@@ -150,12 +150,12 @@
   cats<-unique(unlist(sapply(terms,'[[','categories')))
   if(is.null(categories)){
     categories<-cats
-  } else { 
-    # check that not requesting something that doesn't exist
-    if (any(!categories%in%cats)){
-      stop("requested column name does not appear in documentation category tags")
-    }
-  }
+  }##  else { 
+  ##   # check that not requesting something that doesn't exist
+  ##   if (any(!categories%in%cats)){
+  ##     stop("requested column name does not appear in documentation category tags")
+  ##   }
+  ## }
   
   # figure out which terms are members of each cat
   membership<-lapply(categories,function(cat){
