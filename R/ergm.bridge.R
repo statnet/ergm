@@ -96,7 +96,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats)
   nw <- tmp$nw
   constraints.obs <- tmp$constraints.obs
-  
+  constraints <- tmp$constraints
 
   ## Preinitialize proposals and set "observed" statistics:
   proposal <- ergm_proposal(constraints,arguments=control$MCMC.prop.args,
