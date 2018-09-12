@@ -4,6 +4,7 @@ InitWtErgmTerm..subnets <- function(...){
   # Rename the function to avoid the extra nesting level in the
   # diagnostic messages.
   f <- InitErgmTerm..subnets
+  #' @importFrom utils modifyList
   modifyList(f(...), list(name="_wtsubnets"))
 }
 

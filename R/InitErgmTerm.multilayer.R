@@ -115,6 +115,7 @@ network_view <- function(x, ..., .clear=FALSE, .sep="."){
   fes <- exprs[NVL(names(exprs),rep("",length(exprs)))==""]
   oes <- exprs[NVL(names(exprs),rep("",length(exprs)))!=""]
 
+  #' @importFrom rlang abort
   evl <- function(e, el, x){
     switch(class(e),
            `function` = e(.el=el, .nw=x),

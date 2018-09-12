@@ -339,6 +339,7 @@ symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), ...){
   
   METACOLS <- c(".tail", ".head", ".eid", "na",".eid.th","na.th",".eid.ht","na.ht")
   
+  #' @importFrom tibble as_tibble
   el <- as_tibble(x, attrnames=TRUE, na.rm=FALSE)
   elle <- merge(el, el, by.x = TH, by.y = HT, all=TRUE, suffixes = c(".th",".ht"), sort=FALSE)
 
