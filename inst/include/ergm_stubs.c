@@ -1,4 +1,34 @@
 #include "R_ext/Rdynload.h"
+#include "ergm_changestat_common.do_not_include_directly.h"
+double my_choose(double n, int r){
+static double (*fun)(double,int) = NULL;
+if(fun==NULL) fun = (double (*)(double,int)) R_FindSymbol("my_choose", "ergm", NULL);
+return fun(n,r);
+}
+#undef CHOOSE
+#undef EQUAL
+#undef XOR
+#undef XNOR
+#undef OUTVAL
+#undef INVAL
+#undef N_NODES
+#undef N_DYADS
+#undef OUT_DEG
+#undef IN_DEG
+#undef DIRECTED
+#undef N_EDGES
+#undef BIPARTITE
+#undef N_TAILS
+#undef N_HEADS
+#undef NEXT_INEDGE_NUM
+#undef NEXT_OUTEDGE_NUM
+#undef CHANGE_STAT
+#undef N_CHANGE_STATS
+#undef INPUT_PARAM
+#undef N_INPUT_PARAMS
+#undef ZERO_ALL_CHANGESTATS
+#undef INPUT_ATTRIB
+#include "R_ext/Rdynload.h"
 #include "ergm_dyad_hashmap.h"
 void PrintDyadMapUInt(StoreDyadMapUInt *h){
 static void (*fun)(StoreDyadMapUInt *) = NULL;
@@ -68,6 +98,7 @@ fun(h);
 #undef TH
 #undef THD
 #undef THU
+#undef ROT_INT
 #undef kh_vertexvertex_hash_func
 #undef kh_vertexvertex_hash_equal
 #include "R_ext/Rdynload.h"

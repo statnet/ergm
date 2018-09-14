@@ -93,7 +93,7 @@ void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges);
 /* static inline int WtElapsedTime (Vertex tail, Vertex head, WtNetwork *nwp); */
 void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp);
 
-#include "wtedgetree_inline.inc"
+#include "ergm_wtedgetree_inline.do_not_include_directly.h"
 
 /* Utility functions. */
 int WtFindithEdge (Vertex *tail, Vertex *head, double *weight, Edge i, WtNetwork *nwp);
