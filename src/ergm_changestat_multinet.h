@@ -2,7 +2,7 @@
 #define _ERGM_CHANGESTAT_MULTINET_H_
 
 #include "ergm_edgetree.h"
-#include "changestat_multinet_common.inc"
+#include "ergm_changestat_multinet_common.do_not_include_directly.h"
 
 /* network-aware macros eponymous to ergm_changestat.h */
 /* These routines need a way to specify which of the subnetworks is
