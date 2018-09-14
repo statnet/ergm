@@ -649,11 +649,8 @@ typedef const char *kh_cstr_t;
  */
 #define kh_set(name, h, k, v)					\
   {								\
-    khiter_t _kh_set_pos = kh_get(name, h, k);			\
     int _kh_set_ret;						\
-    if(_kh_set_pos==kh_end(h)){					\
-      _kh_set_pos = kh_put(name, h, k, &_kh_set_ret);		\
-    }								\
+    khiter_t _kh_set_pos = kh_put(name, h, k, &_kh_set_ret);	\
     kh_val(h, _kh_set_pos) = v;					\
   }
 
