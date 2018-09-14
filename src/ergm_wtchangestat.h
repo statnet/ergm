@@ -30,7 +30,7 @@ typedef struct WtModelTermstruct {
   void **aux_storage; /* optional space for persistent public (auxiliary) storage */
 } WtModelTerm;
 
-#include "changestat_common.inc"
+#include "ergm_changestat_common.do_not_include_directly.h"
 
 /* macros that tell whether a particular edge exists */
 #define WtIS_OUTEDGE(a,b) (WtEdgetreeSearch((a),(b),nwp->outedges)!=0?1:0)

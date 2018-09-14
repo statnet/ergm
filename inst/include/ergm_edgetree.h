@@ -135,7 +135,7 @@ void RelocateHalfedge(Edge from, Edge to, TreeNode *edges);
 /* static inline int ElapsedTime(Vertex tail, Vertex head, Network *nwp); */
 void TouchEdge(Vertex tail, Vertex head, Network *nwp);
 
-#include "edgetree_inline.inc"
+#include "ergm_edgetree_inline.do_not_include_directly.h"
 
 /* Utility functions. */
 int FindithEdge(Vertex *tail, Vertex *head, Edge i, Network *nwp);
