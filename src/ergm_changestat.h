@@ -31,7 +31,7 @@ typedef struct ModelTermstruct {
   void **aux_storage; /* optional space for persistent public (auxiliary) storage */
 } ModelTerm;
 
-#include "changestat_common.inc"
+#include "ergm_changestat_common.do_not_include_directly.h"
 
 /****************************************************
  Macros to make life easier when writing C code for change statistics:  */
