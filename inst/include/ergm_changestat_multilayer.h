@@ -2,7 +2,7 @@
 #define _ERGM_CHANGESTAT_MULTILAYER_H_
 
 #include "ergm_changestat.h"
-#include "changestat_multilayer_common.inc"
+#include "ergm_changestat_multilayer_common.do_not_include_directly.h"
 
 /* layer-aware macros eponymous to ergm_changestat.h */
 #define ML_IS_OUTEDGE(ll, a,b) (EdgetreeSearch((a),(b),(ll)->onwp->outedges)!=0?1:0)
