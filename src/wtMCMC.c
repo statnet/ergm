@@ -27,7 +27,7 @@ void WtMCMC_wrapper(int *dnumnets, int *nedges,
 		    int *dn, int *dflag, int *bipartite, 
 		    int *nterms, char **funnames,
 		    char **sonames, 
-		    char **MHproposaltype, char **MHproposalpackage,
+		    char **MHProposaltype, char **MHProposalpackage,
 		    double *inputs, double *theta0, int *samplesize, 
 		    double *sample, int *burnin, int *interval,  
 		    int *newnetworktails, 
@@ -41,7 +41,7 @@ void WtMCMC_wrapper(int *dnumnets, int *nedges,
   /* Edge n_networks; */
   WtNetwork *nwp;
   WtModel *m;
-  WtMHproposal MH;
+  WtMHProposal *MHp;
   
   n_nodes = (Vertex)*dn; 
   /* n_networks = (Edge)*dnumnets;  */
@@ -58,18 +58,18 @@ void WtMCMC_wrapper(int *dnumnets, int *nedges,
   nwp=WtNetworkInitialize(tails, heads, weights, nedges[0], 
 			    n_nodes, directed_flag, bip, 0, 0, NULL);
 
-  WtMH_init(&MH,
-	    *MHproposaltype, *MHproposalpackage,
+  MHp=WtMHProposalInitialize(
+	    *MHProposaltype, *MHProposalpackage,
 	    inputs,
 	    *fVerbose,
 	    nwp);
 
-  *status = WtMCMCSample(&MH,
+  *status = WtMCMCSample(MHp,
 			 theta0, sample, *samplesize,
 			 *burnin, *interval,
 			 *fVerbose, nmax, nwp, m);
 
-  WtMH_free(&MH);
+  WtMHProposalDestroy(MHp);
         
 /* Rprintf("Back! %d %d\n",nwp[0].nedges, nmax); */
 
@@ -93,7 +93,7 @@ void WtMCMC_wrapper(int *dnumnets, int *nedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-WtMCMCStatus WtMCMCSample(WtMHproposal *MHp,
+WtMCMCStatus WtMCMCSample(WtMHProposal *MHp,
 			  double *theta, double *networkstatistics, 
 			  int samplesize, int burnin, 
 			  int interval, int fVerbose, int nmax,
@@ -194,7 +194,7 @@ WtMCMCStatus WtMCMCSample(WtMHproposal *MHp,
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-WtMCMCStatus WtMetropolisHastings (WtMHproposal *MHp,
+WtMCMCStatus WtMetropolisHastings (WtMHProposal *MHp,
 				 double *theta, double *networkstatistics,
 				 int nsteps, int *staken,
 				 int fVerbose,
@@ -214,14 +214,14 @@ WtMCMCStatus WtMetropolisHastings (WtMHproposal *MHp,
 	error("Something very bad happened during proposal. Memory has not been deallocated, so restart R soon.");
 	
       case MH_IMPOSSIBLE:
-	Rprintf("MH Proposal function encountered a configuration from which no toggle(s) can be proposed.\n");
+	Rprintf("MH MHProposal function encountered a configuration from which no toggle(s) can be proposed.\n");
 	return WtMCMC_MH_FAILED;
 	
       case MH_UNSUCCESSFUL:
-	warning("MH Proposal function failed to find a valid proposal.");
+	warning("MH MHProposal function failed to find a valid proposal.");
 	unsuccessful++;
 	if(unsuccessful>taken*MH_QUIT_UNSUCCESSFUL){
-	  Rprintf("Too many MH Proposal function failures.\n");
+	  Rprintf("Too many MH MHProposal function failures.\n");
 	  return WtMCMC_MH_FAILED;
 	}
       case MH_CONSTRAINT:
@@ -230,7 +230,7 @@ WtMCMCStatus WtMetropolisHastings (WtMHproposal *MHp,
     }
     
     if(fVerbose>=5){
-      Rprintf("Proposal: ");
+      Rprintf("MHproposal: ");
       for(unsigned int i=0; i<MHp->ntoggles; i++)
 	Rprintf("  (%d, %d) -> %f  ", MHp->toggletail[i], MHp->togglehead[i], MHp->toggleweight[i]);
       Rprintf("\n");

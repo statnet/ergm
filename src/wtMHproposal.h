@@ -38,9 +38,9 @@
 #define XOR(a,b) (((a)==0) != ((b)==0))
 #define XNOR(a,b) (((a)==0) == ((b)==0))
 
-/*  Notes on WtMHproposal type:
+/*  Notes on WtMHProposal type:
    An Weighted MH proposal function must take two arguments:  a pointer to an 
-   Weighted MHproposal structure, which holds all the information regarding the
+   Weighted MHProposal structure, which holds all the information regarding the
    MH proposal; and a pointer to an array of WtNetwork structures, which 
    contain the network(s).  
    
@@ -53,8 +53,8 @@
 
 /* *** don't forget tail-> head */
 
-typedef struct WtMHproposalstruct {
-  void (*func)(struct WtMHproposalstruct*, WtNetwork*);
+typedef struct WtMHProposalstruct {
+  void (*func)(struct WtMHProposalstruct*, WtNetwork*);
   Edge ntoggles;
   Vertex *toggletail;
   Vertex *togglehead;
@@ -63,16 +63,16 @@ typedef struct WtMHproposalstruct {
   int status;
   WtNetwork **discord;
   double *inputs; /* may be used if needed, ignored if not. */
-} WtMHproposal;
+} WtMHProposal;
 
 
-void WtMH_init(WtMHproposal *MH, 
-	     char *MHproposaltype, char *MHproposalpackage, 
+WtMHProposal * WtMHProposalInitialize(
+	     char *MHProposaltype, char *MHProposalpackage, 
 	       double *inputs,
 	     int fVerbose,
 	     WtNetwork *nwp);
 
-void WtMH_free(WtMHproposal *MH);
+void WtMHProposalDestroy(WtMHProposal *MH);
 
 #endif 
 

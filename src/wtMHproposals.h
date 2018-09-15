@@ -1,4 +1,4 @@
-/*  File src/wtMHproposals.h in package ergm, part of the Statnet suite
+/*  File src/wtProposals.h in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -12,10 +12,10 @@
 
 #include "wtMHproposal.h"
 
-void MH_Unif(WtMHproposal *MHp, WtNetwork *nwp);
-void MH_UnifNonObserved(WtMHproposal *MHp, WtNetwork *nwp);
-void MH_DiscUnif(WtMHproposal *MHp, WtNetwork *nwp);
-void MH_DiscUnifNonObserved(WtMHproposal *MHp, WtNetwork *nwp);
+void MH_Unif(WtMHProposal *MHp, WtNetwork *nwp);
+void MH_UnifNonObserved(WtMHProposal *MHp, WtNetwork *nwp);
+void MH_DiscUnif(WtMHProposal *MHp, WtNetwork *nwp);
+void MH_DiscUnifNonObserved(WtMHProposal *MHp, WtNetwork *nwp);
 
 #endif 
 

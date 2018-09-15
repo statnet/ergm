@@ -27,7 +27,7 @@ void CD_wrapper(int *dnumnets, int *nedges,
 		  int *dn, int *dflag, int *bipartite, 
 		  int *nterms, char **funnames,
 		  char **sonames, 
-		  char **MHproposaltype, char **MHproposalpackage,
+		  char **MHProposaltype, char **MHProposalpackage,
 		double *inputs, double *theta0, int *samplesize, int *CDparams,
 		  double *sample,
 		  int *fVerbose, 
@@ -39,7 +39,7 @@ void CD_wrapper(int *dnumnets, int *nedges,
   /* Edge n_networks; */
   Network *nwp;
   Model *m;
-  MHproposal MH;
+  MHProposal *MHp;
   
   n_nodes = (Vertex)*dn; 
   /* n_networks = (Edge)*dnumnets;  */
@@ -55,25 +55,25 @@ void CD_wrapper(int *dnumnets, int *nedges,
   nwp=NetworkInitialize(tails, heads, nedges[0], 
                           n_nodes, directed_flag, bip, 0, 0, NULL);
   
-  MH_init(&MH,
-	  *MHproposaltype, *MHproposalpackage,
+  MHp=MHProposalInitialize(
+	  *MHProposaltype, *MHProposalpackage,
 	  inputs,
 	  *fVerbose,
 	  nwp, attribs, maxout, maxin, minout, minin,
 	  *condAllDegExact, *attriblength);
 
-  undotail = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
-  undohead = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
+  undotail = calloc(MHp->ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
+  undohead = calloc(MHp->ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
   double *extraworkspace = calloc(m->n_stats, sizeof(double));
 
-  *status = CDSample(&MH,
+  *status = CDSample(MHp,
 		     theta0, sample, *samplesize, CDparams, undotail, undohead,
 		     *fVerbose, nwp, m, extraworkspace);
   
   free(undotail);
   free(undohead);
   free(extraworkspace);
-  MH_free(&MH);
+  MHProposalDestroy(MHp);
 
   ModelDestroy(m);
   NetworkDestroy(nwp);
@@ -91,7 +91,7 @@ void CD_wrapper(int *dnumnets, int *nedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-MCMCStatus CDSample(MHproposal *MHp,
+MCMCStatus CDSample(MHProposal *MHp,
 		    double *theta, double *networkstatistics, 
 		    int samplesize, int *CDparams, Vertex *undotail, Vertex *undohead, int fVerbose,
 		    Network *nwp, Model *m, double *extraworkspace){
@@ -153,7 +153,7 @@ MCMCStatus CDSample(MHproposal *MHp,
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-MCMCStatus CDStep(MHproposal *MHp,
+MCMCStatus CDStep(MHProposal *MHp,
 		  double *theta, double *networkstatistics,
 		  int *CDparams, int *staken,
 		  Vertex *undotail, Vertex *undohead,
@@ -178,14 +178,14 @@ MCMCStatus CDStep(MHproposal *MHp,
 	  error("Something very bad happened during proposal. Memory has not been deallocated, so restart R soon.");
 	  
 	case MH_IMPOSSIBLE:
-	  Rprintf("MH Proposal function encountered a configuration from which no toggle(s) can be proposed.\n");
+	  Rprintf("MH MHProposal function encountered a configuration from which no toggle(s) can be proposed.\n");
 	  return MCMC_MH_FAILED;
 	  
 	case MH_UNSUCCESSFUL:
-	  warning("MH Proposal function failed to find a valid proposal.");
+	  warning("MH MHProposal function failed to find a valid proposal.");
 	  unsuccessful++;
 	  if(unsuccessful>*staken*MH_QUIT_UNSUCCESSFUL){
-	    Rprintf("Too many MH Proposal function failures.\n");
+	    Rprintf("Too many MH MHProposal function failures.\n");
 	    return MCMC_MH_FAILED;
 	  }
 	  continue;
@@ -197,7 +197,7 @@ MCMCStatus CDStep(MHproposal *MHp,
       }
       
       if(fVerbose>=5){
-	Rprintf("Proposal: ");
+	Rprintf("MHproposal: ");
 	for(unsigned int i=0; i<MHp->ntoggles; i++)
 	  Rprintf(" (%d, %d)", MHp->toggletail[i], MHp->togglehead[i]);
 	Rprintf("\n");

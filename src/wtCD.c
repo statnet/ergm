@@ -27,7 +27,7 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
 		    int *dn, int *dflag, int *bipartite, 
 		    int *nterms, char **funnames,
 		    char **sonames, 
-		    char **MHproposaltype, char **MHproposalpackage,
+		    char **MHProposaltype, char **MHProposalpackage,
 		  double *inputs, double *theta0, int *samplesize, int *CDparams,
 		  double *sample,
 		    int *fVerbose, 
@@ -38,7 +38,7 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
   /* Edge n_networks; */
   WtNetwork *nwp;
   WtModel *m;
-  WtMHproposal MH;
+  WtMHProposal *MHp;
   
   n_nodes = (Vertex)*dn; 
   /* n_networks = (Edge)*dnumnets;  */
@@ -54,18 +54,18 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
   nwp=WtNetworkInitialize(tails, heads, weights, nedges[0], 
 			    n_nodes, directed_flag, bip, 0, 0, NULL);
 
-  WtMH_init(&MH,
-	    *MHproposaltype, *MHproposalpackage,
+  MHp=WtMHProposalInitialize(
+	    *MHProposaltype, *MHProposalpackage,
 	    inputs,
 	    *fVerbose,
 	    nwp);
 
-  undotail = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
-  undohead = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
-  undoweight = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(double));
+  undotail = calloc(MHp->ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
+  undohead = calloc(MHp->ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
+  undoweight = calloc(MHp->ntoggles * CDparams[0] * CDparams[1], sizeof(double));
   double *extraworkspace = calloc(m->n_stats, sizeof(double));
 
-  *status = WtCDSample(&MH,
+  *status = WtCDSample(MHp,
 		       theta0, sample, *samplesize, CDparams, undotail, undohead, undoweight,
 		       *fVerbose, nwp, m, extraworkspace);
   
@@ -73,7 +73,7 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
   free(undohead);
   free(undoweight);
   free(extraworkspace);
-  WtMH_free(&MH);
+  WtMHProposalDestroy(MHp);
         
 /* Rprintf("Back! %d %d\n",nwp[0].nedges, nmax); */
   
@@ -93,7 +93,7 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-WtMCMCStatus WtCDSample(WtMHproposal *MHp,
+WtMCMCStatus WtCDSample(WtMHProposal *MHp,
 			  double *theta, double *networkstatistics, 
 			int samplesize, int *CDparams, Vertex *undotail, Vertex *undohead, double *undoweight, int fVerbose,
 			  WtNetwork *nwp, WtModel *m, double *extraworkspace){
@@ -153,7 +153,7 @@ WtMCMCStatus WtCDSample(WtMHproposal *MHp,
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-WtMCMCStatus WtCDStep (WtMHproposal *MHp,
+WtMCMCStatus WtCDStep (WtMHProposal *MHp,
 		       double *theta, double *networkstatistics,
 		       int *CDparams, int *staken, Vertex *undotail, Vertex *undohead, double *undoweight,
 		       int fVerbose,
@@ -177,14 +177,14 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 	  error("Something very bad happened during proposal. Memory has not been deallocated, so restart R soon.");
 	  
 	case MH_IMPOSSIBLE:
-	  Rprintf("MH Proposal function encountered a configuration from which no toggle(s) can be proposed.\n");
+	  Rprintf("MH MHProposal function encountered a configuration from which no toggle(s) can be proposed.\n");
 	  return WtMCMC_MH_FAILED;
 	  
 	case MH_UNSUCCESSFUL:
-	  warning("MH Proposal function failed to find a valid proposal.");
+	  warning("MH MHProposal function failed to find a valid proposal.");
 	  unsuccessful++;
 	  if(unsuccessful>*staken*MH_QUIT_UNSUCCESSFUL){
-	    Rprintf("Too many MH Proposal function failures.\n");
+	    Rprintf("Too many MH MHProposal function failures.\n");
 	    return WtMCMC_MH_FAILED;
 	  }
 	  continue;
@@ -196,7 +196,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
       }
       
       if(fVerbose>=5){
-	Rprintf("Proposal: ");
+	Rprintf("MHproposal: ");
 	for(unsigned int i=0; i<MHp->ntoggles; i++)
 	  Rprintf("  (%d, %d) -> %f  ", MHp->toggletail[i], MHp->togglehead[i], MHp->toggleweight[i]);
 	Rprintf("\n");

@@ -1,4 +1,4 @@
-/*  File src/MHproposals_degree.c in package ergm, part of the Statnet suite
+/*  File src/MHProposals_degree.c in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -19,7 +19,7 @@ void MH_CondDegreeTetrad
 
    Select two edges with no nodes in common, A1-A2 and B1-B2, s.t. A1-B2 and B1-A2 are not edges, and propose to replace the former two by the latter two.
  */
-void MH_CondDegreeTetrad(MHproposal *MHp, Network *nwp)  {  
+void MH_CondDegreeTetrad(MHProposal *MHp, Network *nwp)  {  
   Vertex A1, A2, B1, B2;
   
   if(MHp->ntoggles == 0) { /* Initialize */
@@ -70,7 +70,7 @@ void MH_CondDegreeTetrad(MHproposal *MHp, Network *nwp)  {
   }
 }
 
-//void MH_CondDegreeMix(MHproposal *MHp, Network *nwp)  {  
+//void MH_CondDegreeMix(MHProposal *MHp, Network *nwp)  {  
 //  
 //  if(MHp->ntoggles == 0) { /* Initialize CondDeg by */
 //    MHp->ntoggles=4;
@@ -90,7 +90,7 @@ void MH_CondDegreeTetradMixMore
 
    Select two edges with no nodes in common, A1-A2 and B1-B2, s.t. A1-B2 and B1-A2 are not edges, and propose to replace the former two by the latter two.
  */
-void MH_CondDegreeTetradMixMore(MHproposal *MHp, Network *nwp)  {  
+void MH_CondDegreeTetradMixMore(MHProposal *MHp, Network *nwp)  {  
   Vertex A1, A2, B1, B2;
   
   if(MHp->ntoggles == 0) { /* Initialize */
@@ -126,7 +126,7 @@ void MH_CondDegreeTetradMixLess
 
    Select two edges with no nodes in common, A1-A2 and B1-B2, s.t. A1-B2 and B1-A2 are not edges, and propose to replace the former two by the latter two.
  */
-void MH_CondDegreeTetradMixLess(MHproposal *MHp, Network *nwp)  {  
+void MH_CondDegreeTetradMixLess(MHProposal *MHp, Network *nwp)  {  
   Vertex A1, A2, B1, B2;
   
   if(MHp->ntoggles == 0) { /* Initialize */
@@ -159,7 +159,7 @@ Rprintf("L: A1 %f A2 %f B1 %f B2 %f\n",MHp->inputs[A1-1],MHp->inputs[A2-1],MHp->
   Mtail[3]=B1; Mhead[3]=A2;
 }
 
-void MH_CondDegreeMixChangeOrig(MHproposal *MHp, Network *nwp)  {  
+void MH_CondDegreeMixChangeOrig(MHProposal *MHp, Network *nwp)  {  
   Vertex A1, A2, B1, B2;
   int b;
   int bb, bbb=0;
@@ -210,7 +210,7 @@ void MH_CondDegreeMixChangeOrig(MHproposal *MHp, Network *nwp)  {
   }
 }
 
-void MH_CondDegreeMix(MHproposal *MHp, Network *nwp)  {  
+void MH_CondDegreeMix(MHProposal *MHp, Network *nwp)  {  
   Vertex A11, A12, B11, B12;
   Vertex A21, A22, B21, B22;
   int bad;
@@ -318,7 +318,7 @@ void MH_CondDegreeHexad
    Note that this must *never* be called for undirected networks.
 
  */
-void MH_CondDegreeHexad(MHproposal *MHp, Network *nwp)  {  
+void MH_CondDegreeHexad(MHProposal *MHp, Network *nwp)  {  
   Vertex A1, A2, B1, B2, C1, C2;
   
   if(MHp->ntoggles == 0) { /* Initialize */
@@ -344,7 +344,7 @@ void MH_CondDegreeHexad(MHproposal *MHp, Network *nwp)  {
   Mtail[5]=C1; Mhead[5]=A2;
 }
 
-void MH_CondDegree(MHproposal *MHp, Network *nwp)  {  
+void MH_CondDegree(MHProposal *MHp, Network *nwp)  {  
   
   if(MHp->ntoggles == 0) { /* Initialize CondDeg by */
       MHp->ntoggles= nwp->directed_flag ? 6 : 4;
@@ -360,7 +360,7 @@ void MH_CondDegree(MHproposal *MHp, Network *nwp)  {
   }
 }
 
-void MH_CondOutDegree(MHproposal *MHp, Network *nwp)  {  
+void MH_CondOutDegree(MHProposal *MHp, Network *nwp)  {  
   Vertex A1, A2, B2;
   
   if(MHp->ntoggles == 0) { /* Initialize */
@@ -379,7 +379,7 @@ void MH_CondOutDegree(MHproposal *MHp, Network *nwp)  {
   Mtail[1]=A1; Mhead[1]=B2;
 }
 
-void MH_CondInDegree(MHproposal *MHp, Network *nwp)  {  
+void MH_CondInDegree(MHProposal *MHp, Network *nwp)  {  
   Vertex A1, A2, B1;
   
   if(MHp->ntoggles == 0) { /* Initialize */
@@ -399,7 +399,7 @@ void MH_CondInDegree(MHproposal *MHp, Network *nwp)  {
 }
 
 
-void MH_CondB1Degree(MHproposal *MHp, Network *nwp)  {  
+void MH_CondB1Degree(MHProposal *MHp, Network *nwp)  {  
   Vertex A1, A2, B2;
   
   if(MHp->ntoggles == 0) { /* Initialize */
@@ -418,7 +418,7 @@ void MH_CondB1Degree(MHproposal *MHp, Network *nwp)  {
   Mtail[1]=A1; Mhead[1]=B2;
 }
 
-void MH_CondB2Degree(MHproposal *MHp, Network *nwp)  {  
+void MH_CondB2Degree(MHProposal *MHp, Network *nwp)  {  
   Vertex A1, A2, B1;
   
   if(MHp->ntoggles == 0) { /* Initialize */

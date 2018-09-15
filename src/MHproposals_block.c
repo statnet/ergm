@@ -1,4 +1,4 @@
-/*  File src/MHproposals_block.c in package ergm, part of the Statnet suite
+/*  File src/MHProposals_block.c in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -19,7 +19,7 @@
 
  Block-diagonal sampling
 *********************/
-void MH_blockdiag (MHproposal *MHp, Network *nwp)  {  
+void MH_blockdiag (MHProposal *MHp, Network *nwp)  {  
 
   /* *** don't forget tail-> head now */
 
@@ -58,7 +58,7 @@ void MH_blockdiag (MHproposal *MHp, Network *nwp)  {
 
  Block-diagonal sampling for bipartite graphs
 *********************/
-void MH_blockdiagB (MHproposal *MHp, Network *nwp)  {  
+void MH_blockdiagB (MHProposal *MHp, Network *nwp)  {  
 
   /* *** don't forget tail-> head now */
 
@@ -90,7 +90,7 @@ void MH_blockdiagB (MHproposal *MHp, Network *nwp)  {
 
    Block-diagonal TNT sampling
 ***********************/
-void MH_blockdiagTNT (MHproposal *MHp, Network *nwp) 
+void MH_blockdiagTNT (MHProposal *MHp, Network *nwp) 
 {
   /* *** don't forget tail-> head now */
   
@@ -151,7 +151,7 @@ void MH_blockdiagTNT (MHproposal *MHp, Network *nwp)
 
    Block-diagonal TNT sampling for bipartite graphs
 ***********************/
-void MH_blockdiagTNTB (MHproposal *MHp, Network *nwp) 
+void MH_blockdiagTNTB (MHProposal *MHp, Network *nwp) 
 {
   /* *** don't forget tail-> head now */
 

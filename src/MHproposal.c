@@ -1,4 +1,4 @@
-/*  File src/MHproposal.c in package ergm, part of the Statnet suite
+/*  File src/MHProposal.c in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -11,23 +11,24 @@
 
 
 /*********************
- void MH_init
+ void MHProposalInitialize
 
  A helper function to process the MH_* related initialization.
 *********************/
-void MH_init(MHproposal *MHp, 
-	     char *MHproposaltype, char *MHproposalpackage,
+MHProposal *MHProposalInitialize(
+	     char *MHProposaltype, char *MHProposalpackage,
 	     double *inputs,
 	     int fVerbose,
 	     Network *nwp,
 	     int *attribs, int *maxout, int *maxin, 
 	     int *minout, int *minin, int condAllDegExact, 
 	     int attriblength){
-
+  MHProposal *MHp = calloc(1, sizeof(MHProposal));
+  
   char *fn, *sn;
   int i;
-  for (i = 0; MHproposaltype[i] != ' ' && MHproposaltype[i] != 0; i++);
-  MHproposaltype[i] = 0;
+  for (i = 0; MHProposaltype[i] != ' ' && MHProposaltype[i] != 0; i++);
+  MHProposaltype[i] = 0;
   /* Extract the required string information from the relevant sources */
   if((fn=(char *)malloc(sizeof(char)*(i+4)))==NULL){
     error("Error in MCMCSample: Can't allocate %d bytes for fn. Memory has not been deallocated, so restart R sometime soon.\n",
@@ -37,20 +38,20 @@ void MH_init(MHproposal *MHp,
   fn[1]='H';
   fn[2]='_';
   for(int j=0;j<i;j++)
-    fn[j+3]=MHproposaltype[j];
+    fn[j+3]=MHProposaltype[j];
   fn[i+3]='\0';
-  /* fn is now the string 'MH_[name]', where [name] is MHproposaltype */
-  for (i = 0; MHproposalpackage[i] != ' ' && MHproposalpackage[i] != 0; i++);
-  MHproposalpackage[i] = 0;
+  /* fn is now the string 'MH_[name]', where [name] is MHProposaltype */
+  for (i = 0; MHProposalpackage[i] != ' ' && MHProposalpackage[i] != 0; i++);
+  MHProposalpackage[i] = 0;
   if((sn=(char *)malloc(sizeof(char)*(i+1)))==NULL){
     error("Error in ModelInitialize: Can't allocate %d bytes for sn. Memory has not been deallocated, so restart R sometime soon.\n",
 	  sizeof(char)*(i+1));
   }
-  sn=strncpy(sn,MHproposalpackage,i);
+  sn=strncpy(sn,MHProposalpackage,i);
   sn[i]='\0';
   
   /* Search for the MH proposal function pointer */
-  MHp->func=(void (*)(MHproposal*, Network*)) R_FindSymbol(fn,sn,NULL);
+  MHp->func=(void (*)(MHProposal*, Network*)) R_FindSymbol(fn,sn,NULL);
   if(MHp->func==NULL){
     error("Error in MH_* initialization: could not find function %s in "
 	  "namespace for package %s."
@@ -71,14 +72,16 @@ void MH_init(MHproposal *MHp,
   (*(MHp->func))(MHp, nwp); /* Call MH proposal function to initialize */
   MHp->toggletail = (Vertex *)malloc(MHp->ntoggles * sizeof(Vertex));
   MHp->togglehead = (Vertex *)malloc(MHp->ntoggles * sizeof(Vertex));
+
+  return MHp;
 }
 
 /*********************
- void MH_free
+ void MHProposalDestroy
 
- A helper function to free memory allocated by MH_init.
+ A helper function to free memory allocated by MHProposalInitialize.
 *********************/
-void MH_free(MHproposal *MHp){
+void MHProposalDestroy(MHProposal *MHp){
   if(MHp->bd)DegreeBoundDestroy(MHp->bd);
   if(MHp->discord){
     for(Network **nwp=MHp->discord; *nwp!=NULL; nwp++){
@@ -88,6 +91,8 @@ void MH_free(MHproposal *MHp){
   }
   free(MHp->toggletail);
   free(MHp->togglehead);
+
+  free(MHp);
 }
 
 /***********************
@@ -176,7 +181,7 @@ void DegreeBoundDestroy(DegreeBound *bd)
 /********************
  int CheckTogglesValid
 ********************/
-int CheckTogglesValid(MHproposal *MHp, Network *nwp) {
+int CheckTogglesValid(MHProposal *MHp, Network *nwp) {
   int fvalid;
   int i;
   DegreeBound *bd=MHp->bd;
@@ -302,7 +307,7 @@ int CheckTogglesValid(MHproposal *MHp, Network *nwp) {
   return fvalid;
 }
 
-int CheckConstrainedTogglesValid(MHproposal *MHp, Network *nwp)
+int CheckConstrainedTogglesValid(MHProposal *MHp, Network *nwp)
 {
   int fvalid = 1;
   int i;
