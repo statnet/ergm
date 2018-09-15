@@ -39,7 +39,7 @@ void WtMCMC_wrapper(int *dnumnets, int *nedges,
   int directed_flag;
   Vertex n_nodes, nmax, bip;
   /* Edge n_networks; */
-  WtNetwork nw[1];
+  WtNetwork *nwp;
   WtModel *m;
   WtMHproposal MH;
   
@@ -55,30 +55,30 @@ void WtMCMC_wrapper(int *dnumnets, int *nedges,
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the network */
-  nw[0]=WtNetworkInitialize(tails, heads, weights, nedges[0], 
+  nwp=WtNetworkInitialize(tails, heads, weights, nedges[0], 
 			    n_nodes, directed_flag, bip, 0, 0, NULL);
 
   WtMH_init(&MH,
 	    *MHproposaltype, *MHproposalpackage,
 	    inputs,
 	    *fVerbose,
-	    nw);
+	    nwp);
 
   *status = WtMCMCSample(&MH,
 			 theta0, sample, *samplesize,
 			 *burnin, *interval,
-			 *fVerbose, nmax, nw, m);
+			 *fVerbose, nmax, nwp, m);
 
   WtMH_free(&MH);
         
-/* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
+/* Rprintf("Back! %d %d\n",nwp[0].nedges, nmax); */
 
   /* record new generated network to pass back to R */
   if(*status == WtMCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
-    newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,newnetworkweights+1,nw,nmax-1);
+    newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,newnetworkweights+1,nwp,nmax-1);
   
   WtModelDestroy(m);
-  WtNetworkDestroy(nw);
+  WtNetworkDestroy(nwp);
   PutRNGstate();  /* Disable RNG before returning */
 }
 

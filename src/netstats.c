@@ -27,7 +27,7 @@ void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int 
   int directed_flag;
   Vertex n_nodes;
   Edge n_edges;
-  Network nw[2];
+  Network *nwp;
   Model *m;
   Vertex bip;
 
@@ -41,17 +41,17 @@ void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int 
   if(*lasttoggle == 0) lasttoggle = NULL;
 
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
-  nw[0]=NetworkInitialize(NULL, NULL, 0,
+  nwp=NetworkInitialize(NULL, NULL, 0,
                           n_nodes, directed_flag, bip, *timings?1:0, *timings?*time:0, *timings?lasttoggle:NULL);
 
   /* Compute the change statistics and copy them to stats for return
      to R.  Note that stats already has the statistics of an empty
      network, so d_??? statistics will add on to them, while s_???
      statistics will simply overwrite them. */
-  SummStats(n_edges, tails, heads, nw, m, stats);
+  SummStats(n_edges, tails, heads, nwp, m, stats);
   
   ModelDestroy(m);
-  NetworkDestroy(nw);
+  NetworkDestroy(nwp);
 }
 
 

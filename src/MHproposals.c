@@ -560,9 +560,10 @@ void MH_listTNT (MHproposal *MHp, Network *nwp)
 {
   static Vertex nnodes;
   static double comp=0.5, odds;
-  static Network discord;
   static Dyad ndyads;
 
+  Network *discord;
+  
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
     nnodes = nwp->nnodes;
@@ -570,25 +571,27 @@ void MH_listTNT (MHproposal *MHp, Network *nwp)
 
     ndyads = MHp->inputs[0]; // Note that ndyads here is the number of dyads in the list.
     MHp->discord = (Network**) calloc(2,sizeof(Network*)); // A space for the sentinel NULL pointer.
-    MHp->discord[0] = &discord;
+    MHp->discord[0] = discord = NetworkInitialize(NULL, NULL, 0, nnodes, nwp->directed_flag, nwp->bipartite, 0, 0, NULL);
     
     // Network containing edges that are present in the network AND are on the toggleable list.
-    discord = NetworkInitialize(NULL, NULL, 0, nnodes, nwp->directed_flag, nwp->bipartite, 0, 0, NULL);
+
    
     for(Edge i=0; i<ndyads; i++){
       Vertex tail=MHp->inputs[1+i], head=MHp->inputs[1+ndyads+i];
       if(EdgetreeSearch(tail, head,nwp->outedges)!=0)
-	ToggleEdge(tail,head, &discord);
+	ToggleEdge(tail,head, discord);
     }
 
     return;
   }
+
+  discord = MHp->discord[0];
   
-  Edge nedges=discord.nedges;
+  Edge nedges=discord->nedges;
   double logratio=0;
   BD_LOOP({
       if (unif_rand() < comp && nedges > 0) { /* Select a tie at random from the network of eligibles */
-	GetRandEdge(Mtail, Mhead, &discord);
+	GetRandEdge(Mtail, Mhead, discord);
 	/* Thanks to Robert Goudie for pointing out an error in the previous 
 	   version of this sampler when proposing to go from nedges==0 to nedges==1 
 	   or vice versa.  Note that this happens extremely rarely unless the 
@@ -601,7 +604,7 @@ void MH_listTNT (MHproposal *MHp, Network *nwp)
 	Mtail[0]=MHp->inputs[rane];
 	Mhead[0]=MHp->inputs[ndyads+rane];
 	
-	if(EdgetreeSearch(Mtail[0],Mhead[0],discord.outedges)!=0){
+	if(EdgetreeSearch(Mtail[0],Mhead[0],discord->outedges)!=0){
 	  logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
 				nedges / (odds*ndyads + nedges)));
 	}else{
@@ -631,7 +634,8 @@ void MH_RLETNT (MHproposal *MHp, Network *nwp)
 
   static Vertex nnodes;
   static double comp=0.5, odds;
-  static Network discord;
+
+  Network *discord;
 
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
@@ -642,30 +646,30 @@ void MH_RLETNT (MHproposal *MHp, Network *nwp)
     r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
 
     MHp->discord = (Network**) calloc(2,sizeof(Network*)); // A space for the sentinel NULL pointer.
-    MHp->discord[0] = &discord;
+    MHp->discord[0] = discord = NetworkInitialize(NULL, NULL, 0, nnodes, nwp->directed_flag, nwp->bipartite, 0, 0, NULL);
+;
     
     // Network containing edges that are present in the network AND are on the toggleable list.
-    discord = NetworkInitialize(NULL, NULL, 0, nnodes, nwp->directed_flag, nwp->bipartite, 0, 0, NULL);
 
     for(Vertex tail=1; tail<=nwp->nnodes; tail++){
       Vertex head;
       Edge e;
       STEP_THROUGH_OUTEDGES(tail, e, head){
 	if(GetRLEBDM1D(tail, head, &r)){
-	  ToggleEdge(tail,head, &discord);
+	  ToggleEdge(tail,head, discord);
 	}
       }
     }
 
-    if(discord.nedges==nwp->nedges){ // There are no ties in the initial network that are fixed.
-      NetworkDestroy(&discord);
+    if(discord->nedges==nwp->nedges){ // There are no ties in the initial network that are fixed.
+      NetworkDestroy(discord);
       free(MHp->discord);
       MHp->discord = NULL;
     }
     return;
   }
 
-  Network *nwp1 = MHp->discord? &discord : nwp;
+  Network *nwp1 = MHp->discord? MHp->discord[0] : nwp;
   Edge nedges= nwp1->nedges;
   double logratio=0;
   BD_LOOP({

@@ -46,7 +46,7 @@ void AllStatistics (
        double *covmat,
 		   int *weightsvector,
        int *maxNumDyadTypes) {
-  Network nw, *nwp;
+  Network *nwp;
 
   Vertex n_nodes = (Vertex) *dn; 
   int directed_flag = *dflag;
@@ -57,9 +57,8 @@ void AllStatistics (
 
   /* Step 1:  Initialize empty network and initialize model */
   GetRNGstate(); /* Necessary for R random number generator */
-  nw=NetworkInitialize(tails, heads, *dnedges,
+  nwp=NetworkInitialize(tails, heads, *dnedges,
 		       n_nodes, directed_flag, bip, 0, 0, NULL);
-  nwp = &nw;
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
   
   /* Step 2:  Build nodelist1 and nodelist2, which together give all of the

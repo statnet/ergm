@@ -23,36 +23,36 @@
 *******************/
 /* *** don't forget, tail -> head */
 
-WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
-			      Edge nedges, Vertex nnodes, int directed_flag, Vertex bipartite,
-			      int lasttoggle_flag, int time, int *lasttoggle) {
-  WtNetwork nw;
+WtNetwork *WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
+			       Edge nedges, Vertex nnodes, int directed_flag, Vertex bipartite,
+			       int lasttoggle_flag, int time, int *lasttoggle) {
+  WtNetwork *nwp = calloc(1, sizeof(WtNetwork));
 
-  nw.last_inedge = nw.last_outedge = (Edge)nnodes;
+  nwp->last_inedge = nwp->last_outedge = (Edge)nnodes;
   /* Calloc will zero the allocated memory for us, probably a lot
      faster. */
-  nw.outdegree = (Vertex *) calloc((nnodes+1),sizeof(Vertex));
-  nw.indegree  = (Vertex *) calloc((nnodes+1),sizeof(Vertex));
-  nw.maxedges = MAX(nedges,1)+nnodes+2; /* Maybe larger than needed? */
-  nw.inedges = (WtTreeNode *) calloc(nw.maxedges,sizeof(WtTreeNode));
-  nw.outedges = (WtTreeNode *) calloc(nw.maxedges,sizeof(WtTreeNode));
+  nwp->outdegree = (Vertex *) calloc((nnodes+1),sizeof(Vertex));
+  nwp->indegree  = (Vertex *) calloc((nnodes+1),sizeof(Vertex));
+  nwp->maxedges = MAX(nedges,1)+nnodes+2; /* Maybe larger than needed? */
+  nwp->inedges = (WtTreeNode *) calloc(nwp->maxedges,sizeof(WtTreeNode));
+  nwp->outedges = (WtTreeNode *) calloc(nwp->maxedges,sizeof(WtTreeNode));
 
   GetRNGstate();  /* R function enabling uniform RNG */
 
   if(lasttoggle_flag){
-    nw.duration_info.time=time;
+    nwp->duration_info.time=time;
     if(lasttoggle){
-      nw.duration_info.lasttoggle = (int *) calloc(DYADCOUNT(nnodes, bipartite, directed_flag), sizeof(int));
-      memcpy(nw.duration_info.lasttoggle, lasttoggle, DYADCOUNT(nnodes, bipartite, directed_flag) * sizeof(int));
-    } else nw.duration_info.lasttoggle = NULL;
+      nwp->duration_info.lasttoggle = (int *) calloc(DYADCOUNT(nnodes, bipartite, directed_flag), sizeof(int));
+      memcpy(nwp->duration_info.lasttoggle, lasttoggle, DYADCOUNT(nnodes, bipartite, directed_flag) * sizeof(int));
+    } else nwp->duration_info.lasttoggle = NULL;
   }
-  else nw.duration_info.lasttoggle = NULL;
+  else nwp->duration_info.lasttoggle = NULL;
 
   /*Configure a Network*/
-  nw.nnodes = nnodes;
-  nw.nedges = 0; /* Edges will be added one by one */
-  nw.directed_flag=directed_flag;
-  nw.bipartite=bipartite;
+  nwp->nnodes = nnodes;
+  nwp->nedges = 0; /* Edges will be added one by one */
+  nwp->directed_flag=directed_flag;
+  nwp->bipartite=bipartite;
 
   WtShuffleEdges(tails,heads,weights,nedges); /* shuffle to avoid worst-case performance */
 
@@ -60,12 +60,12 @@ WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
     Vertex tail=tails[i], head=heads[i];
     double w=weights[i];
     if (!directed_flag && tail > head) 
-      WtAddEdgeToTrees(head,tail,w,&nw); /* Undir edges always have tail < head */ 
+      WtAddEdgeToTrees(head,tail,w,nwp); /* Undir edges always have tail < head */ 
     else 
-      WtAddEdgeToTrees(tail,head,w,&nw);
+      WtAddEdgeToTrees(tail,head,w,nwp);
   }
   PutRNGstate();
-  return nw;
+  return nwp;
 }
 
 
@@ -74,7 +74,7 @@ WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
        in before heads */
 
 /*Takes vectors of doubles for edges; used only when constructing from inputparams. */
-WtNetwork WtNetworkInitializeD(double *tails, double *heads, double *weights, Edge nedges,
+WtNetwork *WtNetworkInitializeD(double *tails, double *heads, double *weights, Edge nedges,
            Vertex nnodes, int directed_flag, Vertex bipartite,
            int lasttoggle_flag, int time, int *lasttoggle) {
 
@@ -88,11 +88,11 @@ WtNetwork WtNetworkInitializeD(double *tails, double *heads, double *weights, Ed
     iheads[i]=heads[i];
   }
 
-  WtNetwork nw=WtNetworkInitialize(itails,iheads,weights,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag, time, lasttoggle);
+  WtNetwork *nwp=WtNetworkInitialize(itails,iheads,weights,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag, time, lasttoggle);
 
   free(itails);
   free(iheads);
-  return nw;
+  return nwp;
 }
 
 /*******************
@@ -107,12 +107,15 @@ void WtNetworkDestroy(WtNetwork *nwp) {
     free (nwp->duration_info.lasttoggle);
     nwp->duration_info.lasttoggle=NULL;
   }
+  free(nwp);
 }
 
 /******************
  Network WtNetworkCopy
 *****************/
-WtNetwork *WtNetworkCopy(WtNetwork *dest, WtNetwork *src){
+WtNetwork *WtNetworkCopy(WtNetwork *src){
+  WtNetwork *dest = calloc(1, sizeof(WtNetwork));
+
   Vertex nnodes = dest->nnodes = src->nnodes;
   dest->last_inedge = src->last_inedge;
   dest->last_outedge = src->last_outedge;

@@ -37,7 +37,7 @@ void CD_wrapper(int *dnumnets, int *nedges,
   int directed_flag;
   Vertex n_nodes, bip, *undotail, *undohead;
   /* Edge n_networks; */
-  Network nw[1];
+  Network *nwp;
   Model *m;
   MHproposal MH;
   
@@ -52,14 +52,14 @@ void CD_wrapper(int *dnumnets, int *nedges,
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the network */
-  nw[0]=NetworkInitialize(tails, heads, nedges[0], 
+  nwp=NetworkInitialize(tails, heads, nedges[0], 
                           n_nodes, directed_flag, bip, 0, 0, NULL);
   
   MH_init(&MH,
 	  *MHproposaltype, *MHproposalpackage,
 	  inputs,
 	  *fVerbose,
-	  nw, attribs, maxout, maxin, minout, minin,
+	  nwp, attribs, maxout, maxin, minout, minin,
 	  *condAllDegExact, *attriblength);
 
   undotail = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
@@ -68,7 +68,7 @@ void CD_wrapper(int *dnumnets, int *nedges,
 
   *status = CDSample(&MH,
 		     theta0, sample, *samplesize, CDparams, undotail, undohead,
-		     *fVerbose, nw, m, extraworkspace);
+		     *fVerbose, nwp, m, extraworkspace);
   
   free(undotail);
   free(undohead);
@@ -76,7 +76,7 @@ void CD_wrapper(int *dnumnets, int *nedges,
   MH_free(&MH);
 
   ModelDestroy(m);
-  NetworkDestroy(nw);
+  NetworkDestroy(nwp);
   PutRNGstate();  /* Disable RNG before returning */
 }
 

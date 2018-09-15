@@ -36,7 +36,7 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
   Vertex n_nodes, bip, *undotail, *undohead;
   double *undoweight;
   /* Edge n_networks; */
-  WtNetwork nw[1];
+  WtNetwork *nwp;
   WtModel *m;
   WtMHproposal MH;
   
@@ -51,14 +51,14 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the network */
-  nw[0]=WtNetworkInitialize(tails, heads, weights, nedges[0], 
+  nwp=WtNetworkInitialize(tails, heads, weights, nedges[0], 
 			    n_nodes, directed_flag, bip, 0, 0, NULL);
 
   WtMH_init(&MH,
 	    *MHproposaltype, *MHproposalpackage,
 	    inputs,
 	    *fVerbose,
-	    nw);
+	    nwp);
 
   undotail = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
   undohead = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
@@ -67,7 +67,7 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
 
   *status = WtCDSample(&MH,
 		       theta0, sample, *samplesize, CDparams, undotail, undohead, undoweight,
-		       *fVerbose, nw, m, extraworkspace);
+		       *fVerbose, nwp, m, extraworkspace);
   
   free(undotail);
   free(undohead);
@@ -75,10 +75,10 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
   free(extraworkspace);
   WtMH_free(&MH);
         
-/* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
+/* Rprintf("Back! %d %d\n",nwp[0].nedges, nmax); */
   
   WtModelDestroy(m);
-  WtNetworkDestroy(nw);
+  WtNetworkDestroy(nwp);
   PutRNGstate();  /* Disable RNG before returning */
 }
 

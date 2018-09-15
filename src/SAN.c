@@ -43,7 +43,7 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
 		   int *status){
   int directed_flag;
   Vertex n_nodes, nmax, bip;
-  Network nw[1];
+  Network *nwp;
   Model *m;
   MHproposal MH;
 
@@ -62,31 +62,31 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the network */
-  nw[0]=NetworkInitialize(tails, heads, nedges[0], 
+  nwp=NetworkInitialize(tails, heads, nedges[0], 
                           n_nodes, directed_flag, bip, 0, 0, NULL);
   
   MH_init(&MH,
 	  *MHproposaltype, *MHproposalpackage,
 	  inputs,
 	  *fVerbose,
-	  nw, attribs, maxout, maxin, minout, minin,
+	  nwp, attribs, maxout, maxin, minout, minin,
 	  *condAllDegExact, *attriblength);
 
   *status = SANSample (&MH,
 		       theta0, invcov, tau, sample, *samplesize,
 		       *burnin, *interval,
-		       *fVerbose, nmax, nw, m);
+		       *fVerbose, nmax, nwp, m);
   
   MH_free(&MH);
         
-/* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
+/* Rprintf("Back! %d %d\n",nwp[0].nedges, nmax); */
 
   /* record new generated network to pass back to R */
   if(*status == MCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
-    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,nw,nmax-1);
+    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,nwp,nmax-1);
   
   ModelDestroy(m);
-  NetworkDestroy(nw);
+  NetworkDestroy(nwp);
   PutRNGstate();  /* Disable RNG before returning */
 }
 
