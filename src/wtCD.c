@@ -59,19 +59,19 @@ void WtCD_wrapper(int *nedges,
 	    *fVerbose,
 	    nwp);
 
-  undotail = calloc(MHp->ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
-  undohead = calloc(MHp->ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
-  undoweight = calloc(MHp->ntoggles * CDparams[0] * CDparams[1], sizeof(double));
-  double *extraworkspace = calloc(m->n_stats, sizeof(double));
+  undotail = Calloc(MHp->ntoggles * CDparams[0] * CDparams[1], Vertex);
+  undohead = Calloc(MHp->ntoggles * CDparams[0] * CDparams[1], Vertex);
+  undoweight = Calloc(MHp->ntoggles * CDparams[0] * CDparams[1], double);
+  double *extraworkspace = Calloc(m->n_stats, double);
 
   *status = WtCDSample(MHp,
 		       theta0, sample, *samplesize, CDparams, undotail, undohead, undoweight,
 		       *fVerbose, nwp, m, extraworkspace);
   
-  free(undotail);
-  free(undohead);
-  free(undoweight);
-  free(extraworkspace);
+  Free(undotail);
+  Free(undohead);
+  Free(undoweight);
+  Free(extraworkspace);
   WtMHProposalDestroy(MHp);
         
 /* Rprintf("Back! %d %d\n",nwp[0].nedges, nmax); */

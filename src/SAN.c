@@ -223,8 +223,8 @@ MCMCStatus SANMetropolisHastings (MHProposal *MHp,
 			    Model *m) {
   unsigned int taken=0, unsuccessful=0;
   double *deltainvsig, *delta;
-  deltainvsig = (double *)malloc( m->n_stats * sizeof(double));
-  delta = (double *)malloc( m->n_stats * sizeof(double));
+  deltainvsig = (double *)Calloc(m->n_stats, double);
+  delta = (double *)Calloc(m->n_stats, double);
   
 /*  if (fVerbose)
     Rprintf("Now proposing %d MH steps... ", nsteps); */
@@ -319,8 +319,8 @@ MCMCStatus SANMetropolisHastings (MHProposal *MHp,
     }
   }
 
-  free(deltainvsig);
-  free(delta);
+  Free(deltainvsig);
+  Free(delta);
 
   *staken = taken;
   return MCMC_OK;

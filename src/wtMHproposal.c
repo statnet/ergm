@@ -20,17 +20,14 @@ WtMHProposal *WtMHProposalInitialize(
 	       double *inputs,
 	     int fVerbose,
 	     WtNetwork *nwp){
-  WtMHProposal *MHp = calloc(1, sizeof(WtMHProposal));
+  WtMHProposal *MHp = Calloc(1, WtMHProposal);
 
   char *fn, *sn;
   int i;
   for (i = 0; MHProposaltype[i] != ' ' && MHProposaltype[i] != 0; i++);
   MHProposaltype[i] = 0;
   /* Extract the required string information from the relevant sources */
-  if((fn=(char *)malloc(sizeof(char)*(i+4)))==NULL){
-    error("Error in MCMCSample: Can't allocate %d bytes for fn. Memory has not been deallocated, so restart R sometime soon.\n",
-	  sizeof(char)*(i+4));
-  }
+  fn = Calloc(i+4, char);
   fn[0]='M';
   fn[1]='H';
   fn[2]='_';
@@ -40,10 +37,7 @@ WtMHProposal *WtMHProposalInitialize(
   /* fn is now the string 'MH_[name]', where [name] is MHProposaltype */
   for (i = 0; MHProposalpackage[i] != ' ' && MHProposalpackage[i] != 0; i++);
   MHProposalpackage[i] = 0;
-  if((sn=(char *)malloc(sizeof(char)*(i+1)))==NULL){
-    error("Error in ModelInitialize: Can't allocate %d bytes for sn. Memory has not been deallocated, so restart R sometime soon.\n",
-	  sizeof(char)*(i+1));
-  }
+  sn = Calloc(i+1, char);
   sn=strncpy(sn,MHProposalpackage,i);
   sn[i]='\0';
   
@@ -60,14 +54,14 @@ WtMHProposal *WtMHProposalInitialize(
   MHp->discord=NULL;
 
   /*Clean up by freeing sn and fn*/
-  free(fn);
-  free(sn);
+  Free(fn);
+  Free(sn);
 
   MHp->ntoggles=0;
   (*(MHp->func))(MHp, nwp); /* Call MH proposal function to initialize */
-  MHp->toggletail = (Vertex *)malloc(MHp->ntoggles * sizeof(Vertex));
-  MHp->togglehead = (Vertex *)malloc(MHp->ntoggles * sizeof(Vertex));
-  MHp->toggleweight = (double *)malloc(MHp->ntoggles * sizeof(double));
+  MHp->toggletail = (Vertex *)Calloc(MHp->ntoggles, Vertex);
+  MHp->togglehead = (Vertex *)Calloc(MHp->ntoggles, Vertex);
+  MHp->toggleweight = (double *)Calloc(MHp->ntoggles, double);
 
   return MHp;
 }
@@ -82,12 +76,12 @@ void WtMHProposalDestroy(WtMHProposal *MHp){
     for(WtNetwork **nwp=MHp->discord; *nwp!=NULL; nwp++){
       WtNetworkDestroy(*nwp);
     }
-    free(MHp->discord);
+    Free(MHp->discord);
   }
-  free(MHp->toggletail);
-  free(MHp->togglehead);
-  free(MHp->toggleweight);
+  Free(MHp->toggletail);
+  Free(MHp->togglehead);
+  Free(MHp->toggleweight);
 
-  free(MHp);
+  Free(MHp);
 }
 

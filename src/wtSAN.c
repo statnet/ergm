@@ -215,8 +215,8 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
 			    WtModel *m) {
   unsigned int taken=0, unsuccessful=0;
   double *deltainvsig, *delta;
-  deltainvsig = (double *)malloc( m->n_stats * sizeof(double));
-  delta = (double *)malloc( m->n_stats * sizeof(double));
+  deltainvsig = (double *)Calloc(m->n_stats, double);
+  delta = (double *)Calloc(m->n_stats, double);
   
 /*  if (fVerbose)
     Rprintf("Now proposing %d WtMH steps... ", nsteps); */
@@ -315,8 +315,8 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
     }
   }
 
-  free(deltainvsig);
-  free(delta);
+  Free(deltainvsig);
+  Free(delta);
 
   *staken = taken;
   return WtMCMC_OK;

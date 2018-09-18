@@ -18,13 +18,13 @@ void WtModelDestroy(WtModel *m)
   int i;
 
   for(i=0; i < m->n_terms; i++){
-    free(m->dstatarray[i]);
-    free(m->termarray[i].statcache);
+    Free(m->dstatarray[i]);
+    Free(m->termarray[i].statcache);
   }
-  free(m->dstatarray);
-  free(m->termarray);
-  free(m->workspace); 
-  free(m);
+  Free(m->dstatarray);
+  Free(m->termarray);
+  Free(m->workspace); 
+  Free(m);
 }
 
 /*****************
@@ -41,10 +41,10 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
   WtModel *m;
   double *inputs=*inputsp;
   
-  m = (WtModel *) malloc(sizeof(WtModel));
+  m = (WtModel *) Calloc(1, WtModel);
   m->n_terms = n_terms;
-  m->termarray = (WtModelTerm *) malloc(sizeof(WtModelTerm) * n_terms);
-  m->dstatarray = (double **) malloc(sizeof(double *) * n_terms);
+  m->termarray = (WtModelTerm *) Calloc(n_terms, WtModelTerm);
+  m->dstatarray = (double **) Calloc(n_terms, double *);
   m->n_stats = 0;
   for (l=0; l < n_terms; l++) {
       thisterm = m->termarray + l;
@@ -62,10 +62,7 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       for (j = 0; sonames[j] != ' ' && sonames[j] != 0; j++);
       sonames[j] = 0;
       /* Extract the required string information from the relevant sources */
-      if((fn=(char *)malloc(sizeof(char)*(i+3)))==NULL){
-        error("Error in WtModelInitialize: Can't allocate %d bytes for fn. Memory has not been deallocated, so restart R sometime soon.\n",
-		sizeof(char)*(i+3));
-      }
+      fn = Calloc(i+3, char);
       fn[0]='d';
       fn[1]='_';
       for(k=0;k<i;k++)
@@ -73,10 +70,7 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       fn[i+2]='\0';
       /* fn is now the string 'd_[name]', where [name] is fname */
 /*      Rprintf("fn: %s\n",fn); */
-      if((sn=(char *)malloc(sizeof(char)*(j+1)))==NULL){
-        error("Error in WtModelInitialize: Can't allocate %d bytes for sn. Memory has not been deallocated, so restart R sometime soon.\n",
-		sizeof(char)*(j+1));
-      }
+      sn = Calloc(j+1, char);
       sn=strncpy(sn,sonames,j);
       sn[j]='\0';
       
@@ -101,8 +95,8 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
 	(void (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
 
       /*Clean up by freeing sn and fn*/
-      free(fn);
-      free(sn);
+      Free(fn);
+      Free(sn);
 
       /*  Now process the values in model$option[[optionnumber]]$inputs;
           See comments in InitErgm.r for details.    */
@@ -119,13 +113,13 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
 	}
       /*  Update the running total of statistics */
       m->n_stats += thisterm->nstats; 
-      m->dstatarray[l] = (double *) malloc(sizeof(double) * thisterm->nstats);
+      m->dstatarray[l] = (double *) Calloc(thisterm->nstats, double);
       thisterm->dstats = m->dstatarray[l];  /* This line is important for
                                                eventually freeing up malloc'ed
 					       memory, since thisterm->dstats
 					       can be modified but 
 					       m->dstatarray[l] cannot be.  */
-      thisterm->statcache = (double *) malloc(sizeof(double) * thisterm->nstats);
+      thisterm->statcache = (double *) Calloc(thisterm->nstats, double);
 
       thisterm->ninputparams = (int) *inputs++; /* Set # of inputs */
       /* thisterm->inputparams is a ptr to inputs */
@@ -143,7 +137,7 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       sonames += j;
     }
   
-  m->workspace = (double *) malloc(sizeof(double) * m->n_stats);
+  m->workspace = (double *) Calloc(m->n_stats, double);
   for(i=0; i < m->n_stats; i++)
     m->workspace[i] = 0.0;
 

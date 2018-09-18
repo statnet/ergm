@@ -570,7 +570,7 @@ void MH_listTNT (MHProposal *MHp, Network *nwp)
     odds = comp/(1.0-comp);
 
     ndyads = MHp->inputs[0]; // Note that ndyads here is the number of dyads in the list.
-    MHp->discord = (Network**) calloc(2,sizeof(Network*)); // A space for the sentinel NULL pointer.
+    MHp->discord = (Network**) Calloc(2, Network*); // A space for the sentinel NULL pointer.
     MHp->discord[0] = discord = NetworkInitialize(NULL, NULL, 0, nnodes, nwp->directed_flag, nwp->bipartite, 0, 0, NULL);
     
     // Network containing edges that are present in the network AND are on the toggleable list.
@@ -645,7 +645,7 @@ void MH_RLETNT (MHProposal *MHp, Network *nwp)
     double *inputs = MHp->inputs;
     r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
 
-    MHp->discord = (Network**) calloc(2,sizeof(Network*)); // A space for the sentinel NULL pointer.
+    MHp->discord = (Network**) Calloc(2, Network*); // A space for the sentinel NULL pointer.
     MHp->discord[0] = discord = NetworkInitialize(NULL, NULL, 0, nnodes, nwp->directed_flag, nwp->bipartite, 0, 0, NULL);
 ;
     
@@ -663,7 +663,7 @@ void MH_RLETNT (MHProposal *MHp, Network *nwp)
 
     if(discord->nedges==nwp->nedges){ // There are no ties in the initial network that are fixed.
       NetworkDestroy(discord);
-      free(MHp->discord);
+      Free(MHp->discord);
       MHp->discord = NULL;
     }
     return;
@@ -946,7 +946,7 @@ void MH_ReallocateWithReplacement (MHProposal *MHp, Network *nwp) {
   /* select a node at random */
   root = 1 + unif_rand() * nwp->nnodes;
 
-  edges = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
+  edges = (Vertex *) Calloc((nwp->nnodes+1), Vertex);
   for (i = 0; i <= nwp->nnodes; i++)
     edges[i] = NO_EDGE;
   
@@ -1002,7 +1002,7 @@ void MH_ReallocateWithReplacement (MHProposal *MHp, Network *nwp) {
 	}
       edgecount++;
     }
-  free(edges);
+  Free(edges);
 }
 
 /*********************
@@ -1052,8 +1052,8 @@ void MH_SwitchLabelTwoNodesToggles (MHProposal *MHp, Network *nwp) {
   /* *** don't forget tail-> head now */
   
   /* select a node at random */
-  edges1 = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
-  edges2 = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
+  edges1 = (Vertex *) Calloc((nwp->nnodes+1), Vertex);
+  edges2 = (Vertex *) Calloc((nwp->nnodes+1), Vertex);
   
   while(nedge1==0){
     tail1 = 1 + unif_rand() * nwp->nnodes;
@@ -1143,8 +1143,8 @@ void MH_SwitchLabelTwoNodesToggles (MHProposal *MHp, Network *nwp) {
     }
     if(tail2 != edges1[k]) ntoggles++;
   }
-  free(edges1);
-  free(edges2);
+  Free(edges1);
+  Free(edges2);
 }
 
 
@@ -1161,8 +1161,8 @@ void MH_ConstrainedCondDegDist (MHProposal *MHp, Network *nwp)  {
   /* *** don't forget tail-> head now */
   
   /* select a node at random */
-  outedges = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
-  inedges = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
+  outedges = (Vertex *) Calloc((nwp->nnodes+1), Vertex);
+  inedges = (Vertex *) Calloc((nwp->nnodes+1), Vertex);
   
   while(noutedge==0 && ninedge==0){
     tail = 1 + unif_rand() * nwp->nnodes;
@@ -1245,8 +1245,8 @@ void MH_ConstrainedCondDegDist (MHProposal *MHp, Network *nwp)  {
     Mtail[1] = Mhead[1] = 0;
   }
   
-  free(outedges);
-  free(inedges);
+  Free(outedges);
+  Free(inedges);
   
   /* Check undirected degrees */
 
@@ -1371,7 +1371,7 @@ void MH_ConstrainedReallocateWithReplacement (MHProposal *MHp,
   /* select a node at random */
   root = 1 + unif_rand() * nwp->nnodes;
 
-  edges = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
+  edges = (Vertex *) Calloc((nwp->nnodes+1), Vertex);
   for (i = 0; i <= nwp->nnodes; i++)
     edges[i] = NO_EDGE;
   
@@ -1428,7 +1428,7 @@ void MH_ConstrainedReallocateWithReplacement (MHProposal *MHp,
 	}
       edgecount++;
     }
-  free(edges);
+  Free(edges);
 }
 
 /*********************
@@ -1510,8 +1510,8 @@ void MH_ConstrainedCondDeg (MHProposal *MHp,
   Vertex e, tail2=0, head2, tail1, head1;
   
   /* select a node at random */
-  edges1 = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
-  edges2 = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
+  edges1 = (Vertex *) Calloc((nwp->nnodes+1), Vertex);
+  edges2 = (Vertex *) Calloc((nwp->nnodes+1), Vertex);
   
   while(nedge1==0){
     tail1 = 1 + unif_rand() * nwp->nnodes;
@@ -1588,8 +1588,8 @@ void MH_ConstrainedCondDeg (MHProposal *MHp,
   if (!fvalid || toomany==10){
     Mtail[0] = Mhead[0] = 0;
     Mtail[1] = Mhead[1] = 0;
-    free(edges1);
-    free(edges2);
+    Free(edges1);
+    Free(edges2);
       }
   if (tail2 > head2)
     {
@@ -1599,8 +1599,8 @@ void MH_ConstrainedCondDeg (MHProposal *MHp,
       Mtail[1] = tail2;
       Mhead[1] = head2;
     }
-  free(edges1);
-  free(edges2);
+  Free(edges1);
+  Free(edges2);
 }
 
 /*********************
@@ -1616,8 +1616,8 @@ void MH_ConstrainedSwitchLabelTwoNodesToggles (MHProposal *MHp,
   
   /* select a node at random */
 
-  edges1 = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
-  edges2 = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
+  edges1 = (Vertex *) Calloc((nwp->nnodes+1), Vertex);
+  edges2 = (Vertex *) Calloc((nwp->nnodes+1), Vertex);
 
   while(nedge1==0){
     tail1 = 1 + unif_rand() * nwp->nnodes;
@@ -1707,8 +1707,8 @@ void MH_ConstrainedSwitchLabelTwoNodesToggles (MHProposal *MHp,
     }
     if(tail2 != edges1[k]) ntoggles++;
   }
-  free(edges1);
-  free(edges2);
+  Free(edges1);
+  Free(edges2);
 }
 
 /*********************

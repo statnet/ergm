@@ -26,23 +26,23 @@
 WtNetwork *WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
 			       Edge nedges, Vertex nnodes, int directed_flag, Vertex bipartite,
 			       int lasttoggle_flag, int time, int *lasttoggle) {
-  WtNetwork *nwp = calloc(1, sizeof(WtNetwork));
+  WtNetwork *nwp = Calloc(1, WtNetwork);
 
   nwp->last_inedge = nwp->last_outedge = (Edge)nnodes;
   /* Calloc will zero the allocated memory for us, probably a lot
      faster. */
-  nwp->outdegree = (Vertex *) calloc((nnodes+1),sizeof(Vertex));
-  nwp->indegree  = (Vertex *) calloc((nnodes+1),sizeof(Vertex));
+  nwp->outdegree = (Vertex *) Calloc((nnodes+1), Vertex);
+  nwp->indegree  = (Vertex *) Calloc((nnodes+1), Vertex);
   nwp->maxedges = MAX(nedges,1)+nnodes+2; /* Maybe larger than needed? */
-  nwp->inedges = (WtTreeNode *) calloc(nwp->maxedges,sizeof(WtTreeNode));
-  nwp->outedges = (WtTreeNode *) calloc(nwp->maxedges,sizeof(WtTreeNode));
+  nwp->inedges = (WtTreeNode *) Calloc(nwp->maxedges, WtTreeNode);
+  nwp->outedges = (WtTreeNode *) Calloc(nwp->maxedges, WtTreeNode);
 
   GetRNGstate();  /* R function enabling uniform RNG */
 
   if(lasttoggle_flag){
     nwp->duration_info.time=time;
     if(lasttoggle){
-      nwp->duration_info.lasttoggle = (int *) calloc(DYADCOUNT(nnodes, bipartite, directed_flag), sizeof(int));
+      nwp->duration_info.lasttoggle = (int *) Calloc(DYADCOUNT(nnodes, bipartite, directed_flag), int);
       memcpy(nwp->duration_info.lasttoggle, lasttoggle, DYADCOUNT(nnodes, bipartite, directed_flag) * sizeof(int));
     } else nwp->duration_info.lasttoggle = NULL;
   }
@@ -80,8 +80,8 @@ WtNetwork *WtNetworkInitializeD(double *tails, double *heads, double *weights, E
 
   /* *** don't forget, tail -> head */
 
-  Vertex *itails=(Vertex*)malloc(sizeof(Vertex)*nedges);
-  Vertex *iheads=(Vertex*)malloc(sizeof(Vertex)*nedges);
+  Vertex *itails=(Vertex*)Calloc(nedges, Vertex);
+  Vertex *iheads=(Vertex*)Calloc(nedges, Vertex);
   
   for(Edge i=0; i<nedges; i++){
     itails[i]=tails[i];
@@ -90,8 +90,8 @@ WtNetwork *WtNetworkInitializeD(double *tails, double *heads, double *weights, E
 
   WtNetwork *nwp=WtNetworkInitialize(itails,iheads,weights,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag, time, lasttoggle);
 
-  free(itails);
-  free(iheads);
+  Free(itails);
+  Free(iheads);
   return nwp;
 }
 
@@ -107,29 +107,29 @@ void WtNetworkDestroy(WtNetwork *nwp) {
     free (nwp->duration_info.lasttoggle);
     nwp->duration_info.lasttoggle=NULL;
   }
-  free(nwp);
+  Free(nwp);
 }
 
 /******************
  Network WtNetworkCopy
 *****************/
 WtNetwork *WtNetworkCopy(WtNetwork *src){
-  WtNetwork *dest = calloc(1, sizeof(WtNetwork));
+  WtNetwork *dest = Calloc(1, WtNetwork);
 
   Vertex nnodes = dest->nnodes = src->nnodes;
   dest->last_inedge = src->last_inedge;
   dest->last_outedge = src->last_outedge;
 
-  dest->outdegree = (Vertex *) malloc((nnodes+1)*sizeof(Vertex));
+  dest->outdegree = (Vertex *) Calloc((nnodes+1), Vertex);
   memcpy(dest->outdegree, src->outdegree, (nnodes+1)*sizeof(Vertex));
-  dest->indegree = (Vertex *) malloc((nnodes+1)*sizeof(Vertex));
+  dest->indegree = (Vertex *) Calloc((nnodes+1), Vertex);
   memcpy(dest->indegree, src->indegree, (nnodes+1)*sizeof(Vertex));
 
   Vertex maxedges = dest->maxedges = src->maxedges;
 
-  dest->inedges = (WtTreeNode *) malloc(maxedges*sizeof(WtTreeNode));
+  dest->inedges = (WtTreeNode *) Calloc(maxedges, WtTreeNode);
   memcpy(dest->inedges, src->inedges, maxedges*sizeof(WtTreeNode));
-  dest->outedges = (WtTreeNode *) malloc(maxedges*sizeof(WtTreeNode));
+  dest->outedges = (WtTreeNode *) Calloc(maxedges, WtTreeNode);
   memcpy(dest->outedges, src->outedges, maxedges*sizeof(WtTreeNode));
 
   int directed_flag = dest->directed_flag = src->directed_flag;
@@ -137,7 +137,7 @@ WtNetwork *WtNetworkCopy(WtNetwork *src){
 
   if(src->duration_info.lasttoggle){
     dest->duration_info.time=src->duration_info.time;
-    dest->duration_info.lasttoggle = (int *) calloc(DYADCOUNT(nnodes, bipartite, directed_flag), sizeof(int));
+    dest->duration_info.lasttoggle = (int *) Calloc(DYADCOUNT(nnodes, bipartite, directed_flag), int);
     memcpy(dest->duration_info.lasttoggle, src->duration_info.lasttoggle,DYADCOUNT(nnodes, bipartite, directed_flag) * sizeof(int));
   }
   else dest->duration_info.lasttoggle = NULL;
@@ -534,12 +534,10 @@ void WtCheckEdgetreeFull (WtNetwork *nwp) {
   if(nwp->last_outedge==nwp->maxedges-2 || nwp->last_inedge==nwp->maxedges-2){
     // Only enlarge the non-root part of the array.
     Edge newmax = nwp->maxedges + (nwp->maxedges - nwp->nnodes - 1)*mult;
-    nwp->inedges = (WtTreeNode *) realloc(nwp->inedges, 
-					  sizeof(WtTreeNode) * newmax);
+    nwp->inedges = (WtTreeNode *) Realloc(nwp->inedges, newmax, WtTreeNode);
     memset(nwp->inedges+nwp->last_inedge+2,0,
 	   sizeof(WtTreeNode) * (newmax-nwp->maxedges));
-    nwp->outedges = (WtTreeNode *) realloc(nwp->outedges, 
-					   sizeof(WtTreeNode) * newmax);
+    nwp->outedges = (WtTreeNode *) Realloc(nwp->outedges, newmax, WtTreeNode);
     memset(nwp->outedges+nwp->last_outedge+2,0,
 	   sizeof(WtTreeNode) * (newmax-nwp->maxedges));
     nwp->maxedges = newmax;
