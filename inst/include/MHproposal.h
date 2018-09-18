@@ -7,8 +7,8 @@
  *
  *  Copyright 2003-2017 Statnet Commons
  */
-#ifndef MHproposal_H
-#define MHproposal_H
+#ifndef MHProposal_H
+#define MHProposal_H
 
 #include "edgetree.h"
 #include "R_ext/Rdynload.h"
@@ -55,9 +55,9 @@ void DegreeBoundDestroy(DegreeBound *bd);
 #define XOR(a,b) (((a)==0) != ((b)==0))
 #define XNOR(a,b) (((a)==0) == ((b)==0))
 
-/*  Notes on MHproposal type:
+/*  Notes on MHProposal type:
    An MH proposal function must take two arguments:  a pointer to an 
-   MHproposal structure, which holds all the information regarding the
+   MHProposal structure, which holds all the information regarding the
    MH proposal; and a pointer to an array of Network structures, which 
    contain the network(s).  
    
@@ -70,8 +70,8 @@ void DegreeBoundDestroy(DegreeBound *bd);
 
 /* *** don't forget tail-> head */
 
-typedef struct MHproposalstruct {
-  void (*func)(struct MHproposalstruct*, Network*);
+typedef struct MHProposalstruct {
+  void (*func)(struct MHProposalstruct*, Network*);
   Edge ntoggles;
   Vertex *toggletail;
   Vertex *togglehead;
@@ -80,11 +80,11 @@ typedef struct MHproposalstruct {
   DegreeBound *bd;
   Network **discord;
   double *inputs; /* may be used if needed, ignored if not. */
-} MHproposal;
+} MHProposal;
 
 
-void MH_init(MHproposal *MHp, 
-	     char *MHproposaltype, char *MHproposalpackage, 
+MHProposal *MHProposalInitialize(
+	     char *MHProposaltype, char *MHProposalpackage, 
 	     double *inputs,
 	     int fVerbose,
 	     Network *nwp, 
@@ -92,10 +92,10 @@ void MH_init(MHproposal *MHp,
 	     int *minout, int *minin, int condAllDegExact, 
 	     int attriblength);
 
-void MH_free(MHproposal *MHp);
+void MHProposalDestroy(MHProposal *MHp);
 
-int CheckTogglesValid(MHproposal *MHp, Network *nwp);
-int CheckConstrainedTogglesValid(MHproposal *MHp, Network *nwp);
+int CheckTogglesValid(MHProposal *MHp, Network *nwp);
+int CheckConstrainedTogglesValid(MHProposal *MHp, Network *nwp);
 
 #define BD_LOOP(proc) BD_COND_LOOP({proc}, TRUE, 1)
 

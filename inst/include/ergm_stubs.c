@@ -71,9 +71,9 @@ return fun(tail,head,el);
 #undef GetRandDyad
 #include "R_ext/Rdynload.h"
 #include "edgetree.h"
-Network NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle){
-static Network (*fun)(Vertex *,Vertex *,Edge,Vertex,int,Vertex,int,int,int *) = NULL;
-if(fun==NULL) fun = (Network (*)(Vertex *,Vertex *,Edge,Vertex,int,Vertex,int,int,int *)) R_FindSymbol("NetworkInitialize", "ergm", NULL);
+Network * NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle){
+static Network * (*fun)(Vertex *,Vertex *,Edge,Vertex,int,Vertex,int,int,int *) = NULL;
+if(fun==NULL) fun = (Network * (*)(Vertex *,Vertex *,Edge,Vertex,int,Vertex,int,int,int *)) R_FindSymbol("NetworkInitialize", "ergm", NULL);
 return fun(tails,heads,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag,time,lasttoggle);
 }
 void NetworkDestroy(Network *nwp){
@@ -81,15 +81,15 @@ static void (*fun)(Network *) = NULL;
 if(fun==NULL) fun = (void (*)(Network *)) R_FindSymbol("NetworkDestroy", "ergm", NULL);
 fun(nwp);
 }
-Network NetworkInitializeD(double *tails, double *heads, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle){
-static Network (*fun)(double *,double *,Edge,Vertex,int,Vertex,int,int,int *) = NULL;
-if(fun==NULL) fun = (Network (*)(double *,double *,Edge,Vertex,int,Vertex,int,int,int *)) R_FindSymbol("NetworkInitializeD", "ergm", NULL);
+Network * NetworkInitializeD(double *tails, double *heads, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle){
+static Network * (*fun)(double *,double *,Edge,Vertex,int,Vertex,int,int,int *) = NULL;
+if(fun==NULL) fun = (Network * (*)(double *,double *,Edge,Vertex,int,Vertex,int,int,int *)) R_FindSymbol("NetworkInitializeD", "ergm", NULL);
 return fun(tails,heads,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag,time,lasttoggle);
 }
-Network * NetworkCopy(Network *dest, Network *src){
-static Network * (*fun)(Network *,Network *) = NULL;
-if(fun==NULL) fun = (Network * (*)(Network *,Network *)) R_FindSymbol("NetworkCopy", "ergm", NULL);
-return fun(dest,src);
+Network * NetworkCopy(Network *src){
+static Network * (*fun)(Network *) = NULL;
+if(fun==NULL) fun = (Network * (*)(Network *)) R_FindSymbol("NetworkCopy", "ergm", NULL);
+return fun(src);
 }
 Edge EdgetreeSearch(Vertex a, Vertex b, TreeNode *edges){
 static Edge (*fun)(Vertex,Vertex,TreeNode *) = NULL;
@@ -231,29 +231,29 @@ return fun(tails,heads,nwp,nmax);
 #undef Dyad2H
 #include "R_ext/Rdynload.h"
 #include "MCMC.h"
-void MCMC_wrapper(int *dnumnets, int *dnedges,int *tails, int *heads,int *dn, int *dflag, int *bipartite,int *nterms, char **funnames,char **sonames,char **MHproposaltype, char **MHproposalpackage,double *inputs, double *theta0, int *samplesize,double *sample, int *burnin, int *interval,int *newnetworktails,int *newnetworkheads,int *fVerbose,int *attribs, int *maxout, int *maxin, int *minout,int *minin, int *condAllDegExact, int *attriblength,int *maxedges,int *status){
+void MCMC_wrapper(int *dnumnets, int *dnedges,int *tails, int *heads,int *dn, int *dflag, int *bipartite,int *nterms, char **funnames,char **sonames,char **MHProposaltype, char **MHProposalpackage,double *inputs, double *theta0, int *samplesize,double *sample, int *burnin, int *interval,int *newnetworktails,int *newnetworkheads,int *fVerbose,int *attribs, int *maxout, int *maxin, int *minout,int *minin, int *condAllDegExact, int *attriblength,int *maxedges,int *status){
 static void (*fun)(int *,int *,int *,int *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *) = NULL;
 if(fun==NULL) fun = (void (*)(int *,int *,int *,int *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *)) R_FindSymbol("MCMC_wrapper", "ergm", NULL);
-fun(dnumnets,dnedges,tails,heads,dn,dflag,bipartite,nterms,funnames,sonames,MHproposaltype,MHproposalpackage,inputs,theta0,samplesize,sample,burnin,interval,newnetworktails,newnetworkheads,fVerbose,attribs,maxout,maxin,minout,minin,condAllDegExact,attriblength,maxedges,status);
+fun(dnumnets,dnedges,tails,heads,dn,dflag,bipartite,nterms,funnames,sonames,MHProposaltype,MHProposalpackage,inputs,theta0,samplesize,sample,burnin,interval,newnetworktails,newnetworkheads,fVerbose,attribs,maxout,maxin,minout,minin,condAllDegExact,attriblength,maxedges,status);
 }
-MCMCStatus MCMCSample(MHproposal *MHp,double *theta, double *networkstatistics,int samplesize, int burnin,int interval, int fVerbose, int nmax,Network *nwp, Model *m){
-static MCMCStatus (*fun)(MHproposal *,double *,double *,int,int,int,int,int,Network *,Model *) = NULL;
-if(fun==NULL) fun = (MCMCStatus (*)(MHproposal *,double *,double *,int,int,int,int,int,Network *,Model *)) R_FindSymbol("MCMCSample", "ergm", NULL);
+MCMCStatus MCMCSample(MHProposal *MHp,double *theta, double *networkstatistics,int samplesize, int burnin,int interval, int fVerbose, int nmax,Network *nwp, Model *m){
+static MCMCStatus (*fun)(MHProposal *,double *,double *,int,int,int,int,int,Network *,Model *) = NULL;
+if(fun==NULL) fun = (MCMCStatus (*)(MHProposal *,double *,double *,int,int,int,int,int,Network *,Model *)) R_FindSymbol("MCMCSample", "ergm", NULL);
 return fun(MHp,theta,networkstatistics,samplesize,burnin,interval,fVerbose,nmax,nwp,m);
 }
-MCMCStatus MetropolisHastings(MHproposal *MHp,double *theta, double *statistics,int nsteps, int *staken,int fVerbose,Network *nwp, Model *m){
-static MCMCStatus (*fun)(MHproposal *,double *,double *,int,int *,int,Network *,Model *) = NULL;
-if(fun==NULL) fun = (MCMCStatus (*)(MHproposal *,double *,double *,int,int *,int,Network *,Model *)) R_FindSymbol("MetropolisHastings", "ergm", NULL);
+MCMCStatus MetropolisHastings(MHProposal *MHp,double *theta, double *statistics,int nsteps, int *staken,int fVerbose,Network *nwp, Model *m){
+static MCMCStatus (*fun)(MHProposal *,double *,double *,int,int *,int,Network *,Model *) = NULL;
+if(fun==NULL) fun = (MCMCStatus (*)(MHProposal *,double *,double *,int,int *,int,Network *,Model *)) R_FindSymbol("MetropolisHastings", "ergm", NULL);
 return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 }
-void MCMCPhase12(int *tails, int *heads, int *dnedges,int *dn, int *dflag, int *bipartite,int *nterms, char **funnames,char **sonames,char **MHproposaltype, char **MHproposalpackage,double *inputs,double *theta0, int *samplesize,double *gain, double *meanstats, int *phase1, int *nsub,double *sample, int *burnin, int *interval,int *newnetworktails,int *newnetworkheads,int *fVerbose,int *attribs, int *maxout, int *maxin, int *minout,int *minin, int *condAllDegExact, int *attriblength,int *maxedges,int *mtails, int *mheads, int *mdnedges){
+void MCMCPhase12(int *tails, int *heads, int *dnedges,int *dn, int *dflag, int *bipartite,int *nterms, char **funnames,char **sonames,char **MHProposaltype, char **MHProposalpackage,double *inputs,double *theta0, int *samplesize,double *gain, double *meanstats, int *phase1, int *nsub,double *sample, int *burnin, int *interval,int *newnetworktails,int *newnetworkheads,int *fVerbose,int *attribs, int *maxout, int *maxin, int *minout,int *minin, int *condAllDegExact, int *attriblength,int *maxedges,int *mtails, int *mheads, int *mdnedges){
 static void (*fun)(int *,int *,int *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,double *,int *,int *,double *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *) = NULL;
 if(fun==NULL) fun = (void (*)(int *,int *,int *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,double *,int *,int *,double *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *)) R_FindSymbol("MCMCPhase12", "ergm", NULL);
-fun(tails,heads,dnedges,dn,dflag,bipartite,nterms,funnames,sonames,MHproposaltype,MHproposalpackage,inputs,theta0,samplesize,gain,meanstats,phase1,nsub,sample,burnin,interval,newnetworktails,newnetworkheads,fVerbose,attribs,maxout,maxin,minout,minin,condAllDegExact,attriblength,maxedges,mtails,mheads,mdnedges);
+fun(tails,heads,dnedges,dn,dflag,bipartite,nterms,funnames,sonames,MHProposaltype,MHProposalpackage,inputs,theta0,samplesize,gain,meanstats,phase1,nsub,sample,burnin,interval,newnetworktails,newnetworkheads,fVerbose,attribs,maxout,maxin,minout,minin,condAllDegExact,attriblength,maxedges,mtails,mheads,mdnedges);
 }
-void MCMCSamplePhase12(MHproposal *MH,double *theta, double gain, double *meanstats,int nphase1, int nsubphases, double *networkstatistics,int samplesize, int burnin,int interval, int fVerbose,Network *nwp, Model *m){
-static void (*fun)(MHproposal *,double *,double,double *,int,int,double *,int,int,int,int,Network *,Model *) = NULL;
-if(fun==NULL) fun = (void (*)(MHproposal *,double *,double,double *,int,int,double *,int,int,int,int,Network *,Model *)) R_FindSymbol("MCMCSamplePhase12", "ergm", NULL);
+void MCMCSamplePhase12(MHProposal *MH,double *theta, double gain, double *meanstats,int nphase1, int nsubphases, double *networkstatistics,int samplesize, int burnin,int interval, int fVerbose,Network *nwp, Model *m){
+static void (*fun)(MHProposal *,double *,double,double *,int,int,double *,int,int,int,int,Network *,Model *) = NULL;
+if(fun==NULL) fun = (void (*)(MHProposal *,double *,double,double *,int,int,double *,int,int,int,int,Network *,Model *)) R_FindSymbol("MCMCSamplePhase12", "ergm", NULL);
 fun(MH,theta,gain,meanstats,nphase1,nsubphases,networkstatistics,samplesize,burnin,interval,fVerbose,nwp,m);
 }
 #undef MIN
@@ -331,24 +331,24 @@ static void (*fun)(DegreeBound *) = NULL;
 if(fun==NULL) fun = (void (*)(DegreeBound *)) R_FindSymbol("DegreeBoundDestroy", "ergm", NULL);
 fun(bd);
 }
-void MH_init(MHproposal *MHp,char *MHproposaltype, char *MHproposalpackage,double *inputs,int fVerbose,Network *nwp,int *attribs, int *maxout, int *maxin,int *minout, int *minin, int condAllDegExact,int attriblength){
-static void (*fun)(MHproposal *,char *,char *,double *,int,Network *,int *,int *,int *,int *,int *,int,int) = NULL;
-if(fun==NULL) fun = (void (*)(MHproposal *,char *,char *,double *,int,Network *,int *,int *,int *,int *,int *,int,int)) R_FindSymbol("MH_init", "ergm", NULL);
-fun(MHp,MHproposaltype,MHproposalpackage,inputs,fVerbose,nwp,attribs,maxout,maxin,minout,minin,condAllDegExact,attriblength);
+MHProposal * MHProposalInitialize(char *MHProposaltype, char *MHProposalpackage,double *inputs,int fVerbose,Network *nwp,int *attribs, int *maxout, int *maxin,int *minout, int *minin, int condAllDegExact,int attriblength){
+static MHProposal * (*fun)(char *,char *,double *,int,Network *,int *,int *,int *,int *,int *,int,int) = NULL;
+if(fun==NULL) fun = (MHProposal * (*)(char *,char *,double *,int,Network *,int *,int *,int *,int *,int *,int,int)) R_FindSymbol("MHProposalInitialize", "ergm", NULL);
+return fun(MHProposaltype,MHProposalpackage,inputs,fVerbose,nwp,attribs,maxout,maxin,minout,minin,condAllDegExact,attriblength);
 }
-void MH_free(MHproposal *MHp){
-static void (*fun)(MHproposal *) = NULL;
-if(fun==NULL) fun = (void (*)(MHproposal *)) R_FindSymbol("MH_free", "ergm", NULL);
+void MHProposalDestroy(MHProposal *MHp){
+static void (*fun)(MHProposal *) = NULL;
+if(fun==NULL) fun = (void (*)(MHProposal *)) R_FindSymbol("MHProposalDestroy", "ergm", NULL);
 fun(MHp);
 }
-int CheckTogglesValid(MHproposal *MHp, Network *nwp){
-static int (*fun)(MHproposal *,Network *) = NULL;
-if(fun==NULL) fun = (int (*)(MHproposal *,Network *)) R_FindSymbol("CheckTogglesValid", "ergm", NULL);
+int CheckTogglesValid(MHProposal *MHp, Network *nwp){
+static int (*fun)(MHProposal *,Network *) = NULL;
+if(fun==NULL) fun = (int (*)(MHProposal *,Network *)) R_FindSymbol("CheckTogglesValid", "ergm", NULL);
 return fun(MHp,nwp);
 }
-int CheckConstrainedTogglesValid(MHproposal *MHp, Network *nwp){
-static int (*fun)(MHproposal *,Network *) = NULL;
-if(fun==NULL) fun = (int (*)(MHproposal *,Network *)) R_FindSymbol("CheckConstrainedTogglesValid", "ergm", NULL);
+int CheckConstrainedTogglesValid(MHProposal *MHp, Network *nwp){
+static int (*fun)(MHProposal *,Network *) = NULL;
+if(fun==NULL) fun = (int (*)(MHProposal *,Network *)) R_FindSymbol("CheckConstrainedTogglesValid", "ergm", NULL);
 return fun(MHp,nwp);
 }
 #undef MIN
@@ -442,9 +442,9 @@ fun(ntoggles,toggletail,togglehead,nwp,m);
 #undef INPUT_ATTRIB
 #include "R_ext/Rdynload.h"
 #include "wtedgetree.h"
-WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle){
-static WtNetwork (*fun)(Vertex *,Vertex *,double *,Edge,Vertex,int,Vertex,int,int,int *) = NULL;
-if(fun==NULL) fun = (WtNetwork (*)(Vertex *,Vertex *,double *,Edge,Vertex,int,Vertex,int,int,int *)) R_FindSymbol("WtNetworkInitialize", "ergm", NULL);
+WtNetwork * WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle){
+static WtNetwork * (*fun)(Vertex *,Vertex *,double *,Edge,Vertex,int,Vertex,int,int,int *) = NULL;
+if(fun==NULL) fun = (WtNetwork * (*)(Vertex *,Vertex *,double *,Edge,Vertex,int,Vertex,int,int,int *)) R_FindSymbol("WtNetworkInitialize", "ergm", NULL);
 return fun(tails,heads,weights,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag,time,lasttoggle);
 }
 void WtNetworkDestroy(WtNetwork *nwp){
@@ -452,15 +452,15 @@ static void (*fun)(WtNetwork *) = NULL;
 if(fun==NULL) fun = (void (*)(WtNetwork *)) R_FindSymbol("WtNetworkDestroy", "ergm", NULL);
 fun(nwp);
 }
-WtNetwork WtNetworkInitializeD(double *tails, double *heads, double *weights, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle){
-static WtNetwork (*fun)(double *,double *,double *,Edge,Vertex,int,Vertex,int,int,int *) = NULL;
-if(fun==NULL) fun = (WtNetwork (*)(double *,double *,double *,Edge,Vertex,int,Vertex,int,int,int *)) R_FindSymbol("WtNetworkInitializeD", "ergm", NULL);
+WtNetwork * WtNetworkInitializeD(double *tails, double *heads, double *weights, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle){
+static WtNetwork * (*fun)(double *,double *,double *,Edge,Vertex,int,Vertex,int,int,int *) = NULL;
+if(fun==NULL) fun = (WtNetwork * (*)(double *,double *,double *,Edge,Vertex,int,Vertex,int,int,int *)) R_FindSymbol("WtNetworkInitializeD", "ergm", NULL);
 return fun(tails,heads,weights,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag,time,lasttoggle);
 }
-WtNetwork * WtNetworkCopy(WtNetwork *dest, WtNetwork *src){
-static WtNetwork * (*fun)(WtNetwork *,WtNetwork *) = NULL;
-if(fun==NULL) fun = (WtNetwork * (*)(WtNetwork *,WtNetwork *)) R_FindSymbol("WtNetworkCopy", "ergm", NULL);
-return fun(dest,src);
+WtNetwork * WtNetworkCopy(WtNetwork *src){
+static WtNetwork * (*fun)(WtNetwork *) = NULL;
+if(fun==NULL) fun = (WtNetwork * (*)(WtNetwork *)) R_FindSymbol("WtNetworkCopy", "ergm", NULL);
+return fun(src);
 }
 Edge WtEdgetreeSearch(Vertex a, Vertex b, WtTreeNode *edges){
 static Edge (*fun)(Vertex,Vertex,WtTreeNode *) = NULL;
@@ -608,19 +608,19 @@ return fun(tails,heads,weights,nwp,nmax);
 #undef GetRandDyad
 #include "R_ext/Rdynload.h"
 #include "wtMCMC.h"
-void WtMCMC_wrapper(int *dnumnets, int *nedges,int *tails, int *heads, double *weights,int *dn, int *dflag, int *bipartite,int *nterms, char **funnames,char **sonames,char **MHproposaltype, char **MHproposalpackage,double *inputs, double *theta0, int *samplesize,double *sample, int *burnin, int *interval,int *newnetworktails,int *newnetworkheads,double *newnetworkweights,int *fVerbose,int *maxedges,int *status){
+void WtMCMC_wrapper(int *dnumnets, int *nedges,int *tails, int *heads, double *weights,int *dn, int *dflag, int *bipartite,int *nterms, char **funnames,char **sonames,char **MHProposaltype, char **MHProposalpackage,double *inputs, double *theta0, int *samplesize,double *sample, int *burnin, int *interval,int *newnetworktails,int *newnetworkheads,double *newnetworkweights,int *fVerbose,int *maxedges,int *status){
 static void (*fun)(int *,int *,int *,int *,double *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,double *,int *,int *,int *) = NULL;
 if(fun==NULL) fun = (void (*)(int *,int *,int *,int *,double *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,double *,int *,int *,int *)) R_FindSymbol("WtMCMC_wrapper", "ergm", NULL);
-fun(dnumnets,nedges,tails,heads,weights,dn,dflag,bipartite,nterms,funnames,sonames,MHproposaltype,MHproposalpackage,inputs,theta0,samplesize,sample,burnin,interval,newnetworktails,newnetworkheads,newnetworkweights,fVerbose,maxedges,status);
+fun(dnumnets,nedges,tails,heads,weights,dn,dflag,bipartite,nterms,funnames,sonames,MHProposaltype,MHProposalpackage,inputs,theta0,samplesize,sample,burnin,interval,newnetworktails,newnetworkheads,newnetworkweights,fVerbose,maxedges,status);
 }
-WtMCMCStatus WtMCMCSample(WtMHproposal *MHp,double *theta, double *networkstatistics,int samplesize, int burnin,int interval, int fVerbose, int nmax,WtNetwork *nwp, WtModel *m){
-static WtMCMCStatus (*fun)(WtMHproposal *,double *,double *,int,int,int,int,int,WtNetwork *,WtModel *) = NULL;
-if(fun==NULL) fun = (WtMCMCStatus (*)(WtMHproposal *,double *,double *,int,int,int,int,int,WtNetwork *,WtModel *)) R_FindSymbol("WtMCMCSample", "ergm", NULL);
+WtMCMCStatus WtMCMCSample(WtMHProposal *MHp,double *theta, double *networkstatistics,int samplesize, int burnin,int interval, int fVerbose, int nmax,WtNetwork *nwp, WtModel *m){
+static WtMCMCStatus (*fun)(WtMHProposal *,double *,double *,int,int,int,int,int,WtNetwork *,WtModel *) = NULL;
+if(fun==NULL) fun = (WtMCMCStatus (*)(WtMHProposal *,double *,double *,int,int,int,int,int,WtNetwork *,WtModel *)) R_FindSymbol("WtMCMCSample", "ergm", NULL);
 return fun(MHp,theta,networkstatistics,samplesize,burnin,interval,fVerbose,nmax,nwp,m);
 }
-WtMCMCStatus WtMetropolisHastings(WtMHproposal *MHp,double *theta, double *statistics,int nsteps, int *staken,int fVerbose,WtNetwork *nwp, WtModel *m){
-static WtMCMCStatus (*fun)(WtMHproposal *,double *,double *,int,int *,int,WtNetwork *,WtModel *) = NULL;
-if(fun==NULL) fun = (WtMCMCStatus (*)(WtMHproposal *,double *,double *,int,int *,int,WtNetwork *,WtModel *)) R_FindSymbol("WtMetropolisHastings", "ergm", NULL);
+WtMCMCStatus WtMetropolisHastings(WtMHProposal *MHp,double *theta, double *statistics,int nsteps, int *staken,int fVerbose,WtNetwork *nwp, WtModel *m){
+static WtMCMCStatus (*fun)(WtMHProposal *,double *,double *,int,int *,int,WtNetwork *,WtModel *) = NULL;
+if(fun==NULL) fun = (WtMCMCStatus (*)(WtMHProposal *,double *,double *,int,int *,int,WtNetwork *,WtModel *)) R_FindSymbol("WtMetropolisHastings", "ergm", NULL);
 return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 }
 #undef MIN
@@ -703,14 +703,14 @@ return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 #undef XNOR
 #include "R_ext/Rdynload.h"
 #include "wtMHproposal.h"
-void WtMH_init(WtMHproposal *MH,char *MHproposaltype, char *MHproposalpackage,double *inputs,int fVerbose,WtNetwork *nwp){
-static void (*fun)(WtMHproposal *,char *,char *,double *,int,WtNetwork *) = NULL;
-if(fun==NULL) fun = (void (*)(WtMHproposal *,char *,char *,double *,int,WtNetwork *)) R_FindSymbol("WtMH_init", "ergm", NULL);
-fun(MH,MHproposaltype,MHproposalpackage,inputs,fVerbose,nwp);
+WtMHProposal * WtMHProposalInitialize(char *MHProposaltype, char *MHProposalpackage,double *inputs,int fVerbose,WtNetwork *nwp){
+static WtMHProposal * (*fun)(char *,char *,double *,int,WtNetwork *) = NULL;
+if(fun==NULL) fun = (WtMHProposal * (*)(char *,char *,double *,int,WtNetwork *)) R_FindSymbol("WtMHProposalInitialize", "ergm", NULL);
+return fun(MHProposaltype,MHProposalpackage,inputs,fVerbose,nwp);
 }
-void WtMH_free(WtMHproposal *MH){
-static void (*fun)(WtMHproposal *) = NULL;
-if(fun==NULL) fun = (void (*)(WtMHproposal *)) R_FindSymbol("WtMH_free", "ergm", NULL);
+void WtMHProposalDestroy(WtMHProposal *MH){
+static void (*fun)(WtMHProposal *) = NULL;
+if(fun==NULL) fun = (void (*)(WtMHProposal *)) R_FindSymbol("WtMHProposalDestroy", "ergm", NULL);
 fun(MH);
 }
 #undef MIN
