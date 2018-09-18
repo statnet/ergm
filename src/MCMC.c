@@ -22,7 +22,7 @@
 
  and don't forget that tail -> head
 *****************/
-void MCMC_wrapper(int *dnumnets, int *nedges,
+void MCMC_wrapper(int *nedges,
 		  int *tails, int *heads,
 		  int *dn, int *dflag, int *bipartite, 
 		  int *nterms, char **funnames,
@@ -45,7 +45,6 @@ void MCMC_wrapper(int *dnumnets, int *nedges,
   MHProposal *MHp;
   
   n_nodes = (Vertex)*dn; 
-  /* n_networks = (Edge)*dnumnets;  */
   nmax = (Edge)abs(*maxedges);
   bip = (Vertex)*bipartite; 
   

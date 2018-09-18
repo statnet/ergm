@@ -252,8 +252,6 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
 #' @useDynLib ergm
 #' @export
 ergm_MCMC_slave <- function(Clist,proposal,eta,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL) {
-  numnetworks <- 0
-
   if(is.null(prev.run)){ # Start from Clist
     nedges <- c(Clist$nedges,0,0)
     tails <- Clist$tails
@@ -277,7 +275,7 @@ ergm_MCMC_slave <- function(Clist,proposal,eta,control,verbose,...,prev.run=NULL
   repeat{
     if(is.null(Clist$weights)){
       z <- .C("MCMC_wrapper",
-              as.integer(numnetworks), as.integer(nedges),
+              as.integer(nedges),
               as.integer(tails), as.integer(heads),
               as.integer(Clist$n),
               as.integer(Clist$dir), as.integer(Clist$bipartite),
@@ -305,7 +303,7 @@ ergm_MCMC_slave <- function(Clist,proposal,eta,control,verbose,...,prev.run=NULL
                 newnwtails=z$newnwtails, newnwheads=z$newnwheads, status=z$status, maxedges=maxedges)
     }else{
       z <- .C("WtMCMC_wrapper",
-              as.integer(length(nedges)), as.integer(nedges),
+              as.integer(nedges),
               as.integer(tails), as.integer(heads), as.double(weights),
               as.integer(Clist$n),
               as.integer(Clist$dir), as.integer(Clist$bipartite),

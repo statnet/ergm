@@ -24,7 +24,7 @@
 
 /* *** don't forget tail-> head, so this function now accepts tails before heads */
 
-void SAN_wrapper ( int *dnumnets, int *nedges,
+void SAN_wrapper ( int *nedges,
 		   int *tails, int *heads,
                    int *dn, int *dflag, int *bipartite, 
                    int *nterms, char **funnames,

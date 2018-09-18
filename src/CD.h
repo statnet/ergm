@@ -14,7 +14,7 @@
 
 /* *** don't forget tail-> head, so this function accepts tails first, not heads  */
 
-void CD_wrapper(int *dnumnets, int *dnedges,
+void CD_wrapper(int *dnedges,
 		  int *tails, int *heads,
 		  int *dn, int *dflag, int *bipartite, 
 		  int *nterms, char **funnames,

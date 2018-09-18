@@ -21,7 +21,7 @@
 
  Wrapper for a call from R.
 *****************/
-void WtSAN_wrapper (int *dnumnets, int *nedges,
+void WtSAN_wrapper (int *nedges,
 		    int *tails, int *heads, double *weights, 
 		    int *dn, int *dflag, int *bipartite, 
 		    int *nterms, char **funnames,

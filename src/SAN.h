@@ -19,7 +19,7 @@
 /* *** don't forget tail -> head, so this function accepts tails first, not heads  */
 
 
-void SAN_wrapper (int *dnumnets, int *nedges,
+void SAN_wrapper (int *nedges,
 		  int *tails, int *heads,
 		  int *dn, int *dflag, int *bipartite, 
 		  int *nterms, char **funnames,

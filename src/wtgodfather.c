@@ -70,7 +70,6 @@ void WtGodfather_wrapper(int *n_edges, int *tails, int *heads, double *weights,
   WtNetwork *nwp;
   WtModel *m;
   
-  /* n_networks = (Edge)*dnumnets;  */
   nmax = (Edge)abs(*maxedges);
 
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);

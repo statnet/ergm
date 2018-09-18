@@ -165,7 +165,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
 
       if(is.null(Clist$weights)){
         z <- .C("SAN_wrapper",
-                as.integer(length(nedges)), as.integer(nedges),
+                as.integer(nedges),
                 as.integer(tails), as.integer(heads),
                 as.integer(Clist$n),
                 as.integer(Clist$dir), as.integer(Clist$bipartite),
@@ -194,7 +194,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
                 PACKAGE="ergm")
       }else{
         z <- .C("WtSAN_wrapper",
-                as.integer(length(nedges)), as.integer(nedges),
+                as.integer(nedges),
                 as.integer(tails), as.integer(heads), as.double(weights),
                 as.integer(Clist$n),
                 as.integer(Clist$dir), as.integer(Clist$bipartite),

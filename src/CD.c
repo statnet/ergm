@@ -22,7 +22,7 @@
 
  and don't forget that tail -> head
 *****************/
-void CD_wrapper(int *dnumnets, int *nedges,
+void CD_wrapper(int *nedges,
 		  int *tails, int *heads,
 		  int *dn, int *dflag, int *bipartite, 
 		  int *nterms, char **funnames,
@@ -42,7 +42,6 @@ void CD_wrapper(int *dnumnets, int *nedges,
   MHProposal *MHp;
   
   n_nodes = (Vertex)*dn; 
-  /* n_networks = (Edge)*dnumnets;  */
   bip = (Vertex)*bipartite; 
   
   GetRNGstate();  /* R function enabling uniform RNG */

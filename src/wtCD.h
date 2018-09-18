@@ -13,7 +13,7 @@
 #include "wtMCMC.h"
 
 /* *** don't forget tail-> head, so this function accepts tails first, not heads  */
-void WtCD_wrapper(int *dnumnets, int *nedges, 
+void WtCD_wrapper(int *nedges, 
 		    int *tails, int *heads, double *weights,
 		    int *dn, int *dflag, int *bipartite, 
 		    int *nterms, char **funnames,

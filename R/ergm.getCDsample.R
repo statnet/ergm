@@ -74,9 +74,6 @@ ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL,
 }
 
 ergm_CD_slave <- function(Clist,proposal,eta,control,verbose,..., samplesize=NULL) {
-
-  numnetworks <- 0
-
     nedges <- c(Clist$nedges,0,0)
     tails <- Clist$tails
     heads <- Clist$heads
@@ -89,7 +86,7 @@ ergm_CD_slave <- function(Clist,proposal,eta,control,verbose,..., samplesize=NUL
   
   if(is.null(Clist$weights)){
     z <- .C("CD_wrapper",
-            as.integer(numnetworks), as.integer(nedges),
+            as.integer(nedges),
             as.integer(tails), as.integer(heads),
             as.integer(Clist$n),
             as.integer(Clist$dir), as.integer(Clist$bipartite),
@@ -111,7 +108,7 @@ ergm_CD_slave <- function(Clist,proposal,eta,control,verbose,..., samplesize=NUL
     z<-list(s=matrix(z$s, ncol=Clist$nstats, byrow = TRUE), status=z$status)
   }else{
     z <- .C("WtCD_wrapper",
-            as.integer(length(nedges)), as.integer(nedges),
+            as.integer(nedges),
             as.integer(tails), as.integer(heads), as.double(weights),
             as.integer(Clist$n),
             as.integer(Clist$dir), as.integer(Clist$bipartite),

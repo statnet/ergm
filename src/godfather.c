@@ -74,7 +74,6 @@ void Godfather_wrapper(int *n_edges, int *tails, int *heads,
   Network *nwp;
   Model *m;
   
-  /* n_networks = (Edge)*dnumnets;  */
   nmax = (Edge)abs(*maxedges);
 
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
