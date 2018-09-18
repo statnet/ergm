@@ -101,8 +101,8 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
 	(void (*)(ModelTerm*, Network*)) R_FindSymbol(fn,sn,NULL);
 
       /*Clean up by freeing sn and fn*/
-      free((void *)fn);
-      free((void *)sn);
+      free(fn);
+      free(sn);
 
       /*  Now process the values in model$option[[optionnumber]]$inputs;
           See comments in InitErgm.r for details.    */

@@ -1781,7 +1781,7 @@ void edgewise_path_recurse(Network *nwp, Vertex dest, Vertex curnode,
     }
     /*Free the available node list*/
     if(newavail!=NULL)
-      free((void *)newavail);
+      free(newavail);
   }
 
   /*Check for interrupts (if recursion is taking way too long...)*/
@@ -1825,7 +1825,7 @@ void edgewise_cycle_census(Network *nwp, Vertex tail, Vertex head,
     if(rflag)
       edgewise_path_recurse(nwp,tail,availnodes[i],availnodes,n-2,1,countv,maxlen);
   }
-  free((void *)availnodes);  /*Free the available node list*/
+  free(availnodes);  /*Free the available node list*/
 }
 
 /********************  changestats:  D    ***********/

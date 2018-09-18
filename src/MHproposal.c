@@ -65,8 +65,8 @@ MHProposal *MHProposalInitialize(
   MHp->discord=NULL;
 
   /*Clean up by freeing sn and fn*/
-  free((void *)fn);
-  free((void *)sn);
+  free(fn);
+  free(sn);
 
   MHp->ntoggles=0;
   (*(MHp->func))(MHp, nwp); /* Call MH proposal function to initialize */
