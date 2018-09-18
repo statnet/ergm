@@ -231,10 +231,10 @@ return fun(tails,heads,nwp,nmax);
 #undef Dyad2H
 #include "R_ext/Rdynload.h"
 #include "MCMC.h"
-void MCMC_wrapper(int *dnumnets, int *dnedges,int *tails, int *heads,int *dn, int *dflag, int *bipartite,int *nterms, char **funnames,char **sonames,char **MHProposaltype, char **MHProposalpackage,double *inputs, double *theta0, int *samplesize,double *sample, int *burnin, int *interval,int *newnetworktails,int *newnetworkheads,int *fVerbose,int *attribs, int *maxout, int *maxin, int *minout,int *minin, int *condAllDegExact, int *attriblength,int *maxedges,int *status){
-static void (*fun)(int *,int *,int *,int *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *) = NULL;
-if(fun==NULL) fun = (void (*)(int *,int *,int *,int *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *)) R_FindSymbol("MCMC_wrapper", "ergm", NULL);
-fun(dnumnets,dnedges,tails,heads,dn,dflag,bipartite,nterms,funnames,sonames,MHProposaltype,MHProposalpackage,inputs,theta0,samplesize,sample,burnin,interval,newnetworktails,newnetworkheads,fVerbose,attribs,maxout,maxin,minout,minin,condAllDegExact,attriblength,maxedges,status);
+void MCMC_wrapper(int *dnedges,int *tails, int *heads,int *dn, int *dflag, int *bipartite,int *nterms, char **funnames,char **sonames,char **MHProposaltype, char **MHProposalpackage,double *inputs, double *theta0, int *samplesize,double *sample, int *burnin, int *interval,int *newnetworktails,int *newnetworkheads,int *fVerbose,int *attribs, int *maxout, int *maxin, int *minout,int *minin, int *condAllDegExact, int *attriblength,int *maxedges,int *status){
+static void (*fun)(int *,int *,int *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *) = NULL;
+if(fun==NULL) fun = (void (*)(int *,int *,int *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *)) R_FindSymbol("MCMC_wrapper", "ergm", NULL);
+fun(dnedges,tails,heads,dn,dflag,bipartite,nterms,funnames,sonames,MHProposaltype,MHProposalpackage,inputs,theta0,samplesize,sample,burnin,interval,newnetworktails,newnetworkheads,fVerbose,attribs,maxout,maxin,minout,minin,condAllDegExact,attriblength,maxedges,status);
 }
 MCMCStatus MCMCSample(MHProposal *MHp,double *theta, double *networkstatistics,int samplesize, int burnin,int interval, int fVerbose, int nmax,Network *nwp, Model *m){
 static MCMCStatus (*fun)(MHProposal *,double *,double *,int,int,int,int,int,Network *,Model *) = NULL;
@@ -608,10 +608,10 @@ return fun(tails,heads,weights,nwp,nmax);
 #undef GetRandDyad
 #include "R_ext/Rdynload.h"
 #include "wtMCMC.h"
-void WtMCMC_wrapper(int *dnumnets, int *nedges,int *tails, int *heads, double *weights,int *dn, int *dflag, int *bipartite,int *nterms, char **funnames,char **sonames,char **MHProposaltype, char **MHProposalpackage,double *inputs, double *theta0, int *samplesize,double *sample, int *burnin, int *interval,int *newnetworktails,int *newnetworkheads,double *newnetworkweights,int *fVerbose,int *maxedges,int *status){
-static void (*fun)(int *,int *,int *,int *,double *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,double *,int *,int *,int *) = NULL;
-if(fun==NULL) fun = (void (*)(int *,int *,int *,int *,double *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,double *,int *,int *,int *)) R_FindSymbol("WtMCMC_wrapper", "ergm", NULL);
-fun(dnumnets,nedges,tails,heads,weights,dn,dflag,bipartite,nterms,funnames,sonames,MHProposaltype,MHProposalpackage,inputs,theta0,samplesize,sample,burnin,interval,newnetworktails,newnetworkheads,newnetworkweights,fVerbose,maxedges,status);
+void WtMCMC_wrapper(int *nedges,int *tails, int *heads, double *weights,int *dn, int *dflag, int *bipartite,int *nterms, char **funnames,char **sonames,char **MHProposaltype, char **MHProposalpackage,double *inputs, double *theta0, int *samplesize,double *sample, int *burnin, int *interval,int *newnetworktails,int *newnetworkheads,double *newnetworkweights,int *fVerbose,int *maxedges,int *status){
+static void (*fun)(int *,int *,int *,double *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,double *,int *,int *,int *) = NULL;
+if(fun==NULL) fun = (void (*)(int *,int *,int *,double *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,double *,int *,int *,int *)) R_FindSymbol("WtMCMC_wrapper", "ergm", NULL);
+fun(nedges,tails,heads,weights,dn,dflag,bipartite,nterms,funnames,sonames,MHProposaltype,MHProposalpackage,inputs,theta0,samplesize,sample,burnin,interval,newnetworktails,newnetworkheads,newnetworkweights,fVerbose,maxedges,status);
 }
 WtMCMCStatus WtMCMCSample(WtMHProposal *MHp,double *theta, double *networkstatistics,int samplesize, int burnin,int interval, int fVerbose, int nmax,WtNetwork *nwp, WtModel *m){
 static WtMCMCStatus (*fun)(WtMHProposal *,double *,double *,int,int,int,int,int,WtNetwork *,WtModel *) = NULL;
