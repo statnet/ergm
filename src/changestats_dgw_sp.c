@@ -8,7 +8,7 @@
  *  Copyright 2003-2017 Statnet Commons
  */
 
-#include "changestats.dgw_sp.h"
+#include "changestats_dgw_sp.h"
 
 /**************************
  dsp Calculation functions
