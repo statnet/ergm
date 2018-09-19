@@ -34,7 +34,14 @@ static inline unsigned int kh_scramble_int(unsigned int a){
 KHASH_INIT(DyadMapUInt, struct TailHead, unsigned int, TRUE, kh_vertexvertex_hash_func, kh_vertexvertex_hash_equal)
 typedef khash_t(DyadMapUInt) StoreDyadMapUInt;
 
+/* Predefined khash type for dyad sets. This may or may not be faster than edgetree. */
+KHASH_INIT(DyadSet, struct TailHead, char, FALSE, kh_vertexvertex_hash_func, kh_vertexvertex_hash_equal)
+typedef khash_t(DyadSet) StoreDyadSet;
+
 /* Utility function declarations. */
 void PrintDyadMapUInt(StoreDyadMapUInt *h);
+
+/* Utility function declarations. */
+void PrintDyadSet(StoreDyadSet *h);
 
 #endif // _ERGM_DYAD_HASHMAP_H_

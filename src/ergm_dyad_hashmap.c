@@ -11,3 +11,14 @@ void PrintDyadMapUInt(StoreDyadMapUInt *h){
     }
   }
 }
+
+/* Print the contents of a khash set of dyads. Useful for debugging. */
+void PrintDyadSet(StoreDyadSet *h){
+  for(khiter_t i = kh_begin(h); i!=kh_end(h); ++i){
+    if(kh_exist(h, i)){
+      struct TailHead k = kh_key(h, i);
+      Rprintf("(%d,%d) ",k.tail,k.head);
+    }
+  }
+  Rprintf("\n");
+}
