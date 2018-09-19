@@ -30,10 +30,15 @@ return fun(n,r);
 #undef INPUT_ATTRIB
 #include "R_ext/Rdynload.h"
 #include "ergm_dyad_hashmap.h"
-void PrintDyadMapUInt(StoreDyadMapUInt *h){
-static void (*fun)(StoreDyadMapUInt *) = NULL;
-if(fun==NULL) fun = (void (*)(StoreDyadMapUInt *)) R_FindSymbol("PrintDyadMapUInt", "ergm", NULL);
+void PrintDyadSet(StoreDyadSet *h){
+static void (*fun)(StoreDyadSet *) = NULL;
+if(fun==NULL) fun = (void (*)(StoreDyadSet *)) R_FindSymbol("PrintDyadSet", "ergm", NULL);
 fun(h);
+}
+StoreDyadSet * NetworkToDyadSet(Network *nwp){
+static StoreDyadSet * (*fun)(Network *) = NULL;
+if(fun==NULL) fun = (StoreDyadSet * (*)(Network *)) R_FindSymbol("NetworkToDyadSet", "ergm", NULL);
+return fun(nwp);
 }
 #undef MIN
 #undef MAX
