@@ -56,7 +56,7 @@ InitErgmTerm..discord.net<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("x", "implementation"),
                       vartypes = c("network,matrix", "character"),
-                      defaultvalues = list(NULL, "Network"),
+                      defaultvalues = list(NULL, "DyadSet"),
                       required = c(TRUE, FALSE))
 
   impl <- match.arg(a$implementation, c("Network","DyadSet"))
@@ -71,7 +71,7 @@ InitErgmTerm..intersect.net<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("x", "assume_all_toggles_in_list", "implementation"),
                       vartypes = c("network,matrix", "logical", "character"),
-                      defaultvalues = list(NULL, FALSE, "Network"),
+                      defaultvalues = list(NULL, FALSE, "DyadSet"),
                       required = c(TRUE, FALSE, FALSE))
   
   impl <- match.arg(a$implementation, c("Network","DyadSet"))
@@ -86,7 +86,7 @@ InitErgmTerm..union.net<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("x", "implementation"),
                       vartypes = c("network,matrix", "character"),
-                      defaultvalues = list(NULL, "Network"),
+                      defaultvalues = list(NULL, "DyadSet"),
                       required = c(TRUE, FALSE))
 
   impl <- match.arg(a$implementation, c("Network","DyadSet"))
@@ -101,7 +101,7 @@ InitErgmTerm.discord.inter.union.net <- function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("x", "implementation"),
                       vartypes = c("network,matrix", "character"),
-                      defaultvalues = list(NULL, "Network"),
+                      defaultvalues = list(NULL, "DyadSet"),
                       required = c(TRUE, FALSE))
 
   impl <- match.arg(a$implementation, c("Network","DyadSet"))
