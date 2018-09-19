@@ -10,8 +10,8 @@
 #ifndef CHANGESTATS_EXPERIMENTAL_H
 #define CHANGESTATS_EXPERIMENTAL_H
 
-#include "edgetree.h"
-#include "changestat.h"
+#include "ergm_edgetree.h"
+#include "ergm_changestat.h"
 
 /****************************************************/
 /* changestat function prototypes, 

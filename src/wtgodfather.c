@@ -8,7 +8,7 @@
  *  Copyright 2008-2017 Statnet Commons
  */
 #include "wtMCMC.h"
-#include "wtchangestat.h"
+#include "ergm_wtchangestat.h"
 
 WtMCMCStatus WtGodfather(Edge n_changes, Vertex *tails, Vertex *heads, double *weights,
 	       WtNetwork *nwp, WtModel *m, double *stats){

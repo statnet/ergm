@@ -1,7 +1,7 @@
 #ifndef _ERGM_RLEBDM_H_
 #define _ERGM_RLEBDM_H_
 
-#include "edgetree.h"
+#include "ergm_edgetree.h"
 
 /* Serialization format for RLE-encoded Binary Dyad Matrix with only
    TRUE (1) values stored, with indices and lengths stored as Double

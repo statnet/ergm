@@ -10,10 +10,10 @@
 #ifndef WTSAN_H
 #define WTSAN_H
 
-#include "wtedgetree.h"
-#include "wtchangestat.h"
-#include "wtMHproposal.h"
-#include "wtmodel.h"
+#include "ergm_wtedgetree.h"
+#include "ergm_wtchangestat.h"
+#include "ergm_wtMHproposal.h"
+#include "ergm_wtmodel.h"
 #include "wtMCMC.h"
 
 void WtSAN_wrapper (int *nedges,

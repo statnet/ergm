@@ -10,7 +10,7 @@
 #ifndef MHProposals_Block_H
 #define MHProposals_Block_H
 
-#include "MHproposal.h"
+#include "ergm_MHproposal.h"
 
 void MH_blockdiag (MHProposal *MHp, Network *nwp);
 void MH_blockdiagTNT (MHProposal *MHp, Network *nwp);

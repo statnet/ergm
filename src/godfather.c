@@ -8,7 +8,7 @@
  *  Copyright 2008-2017 Statnet Commons
  */
 #include "MCMC.h"
-#include "changestat.h"
+#include "ergm_changestat.h"
 
 MCMCStatus Godfather(Edge n_changes, Vertex *tails, Vertex *heads, int *weights,
 	       Network *nwp, Model *m, double *stats){

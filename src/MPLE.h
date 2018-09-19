@@ -10,9 +10,9 @@
 #ifndef MPLE_H
 #define MPLE_H
 
-#include "edgetree.h"
-#include "changestat.h"
-#include "model.h"
+#include "ergm_edgetree.h"
+#include "ergm_changestat.h"
+#include "ergm_model.h"
 #include "ergm_rlebdm.h"
 
 void MPLE_wrapper(int *tails, int *heads, int *dnedges,

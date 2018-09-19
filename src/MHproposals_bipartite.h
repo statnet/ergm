@@ -10,10 +10,10 @@
 #ifndef MHProposals_bipartite_H
 #define MHProposals_bipartite_H
 
-#include "edgetree.h"
-#include "changestat.h"
-#include "model.h"
-#include "MHproposal.h"
+#include "ergm_edgetree.h"
+#include "ergm_changestat.h"
+#include "ergm_model.h"
+#include "ergm_MHproposal.h"
 
 void MH_BipartiteHammingConstantEdges (MHProposal *MHp, Network *nwp);
 void MH_BipartiteHammingTNT (MHProposal *MHp, Network *nwp);

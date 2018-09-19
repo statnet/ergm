@@ -7,13 +7,13 @@
  *
  *  Copyright 2003-2017 Statnet Commons
  */
-#ifndef WTMCMC_H
-#define WTMCMC_H
+#ifndef _ERGM_WTMCMC_H_
+#define _ERGM_WTMCMC_H_
 
-#include "wtedgetree.h"
-#include "wtchangestat.h"
-#include "wtMHproposal.h"
-#include "wtmodel.h"
+#include "ergm_wtedgetree.h"
+#include "ergm_wtchangestat.h"
+#include "ergm_wtMHproposal.h"
+#include "ergm_wtmodel.h"
 
 // TODO: This might be worth moving into a common "constants.h".
 typedef enum WtMCMCStatus_enum {

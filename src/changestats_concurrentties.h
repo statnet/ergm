@@ -7,8 +7,8 @@
  *
  *  Copyright 2003-2017 Statnet Commons
  */
-#include "edgetree.h"
-#include "changestat.h"
+#include "ergm_edgetree.h"
+#include "ergm_changestat.h"
 
 D_CHANGESTAT_FN(d_concurrent_ties);
 D_CHANGESTAT_FN(d_concurrent_ties_by_attr);

@@ -10,8 +10,8 @@
 #ifndef WTCHANGESTATS_H
 #define WTCHANGESTATS_H
 
-#include "wtedgetree.h"
-#include "wtchangestat.h"
+#include "ergm_wtedgetree.h"
+#include "ergm_wtchangestat.h"
 
 /********************  changestats:   A    ***********/
 WtD_CHANGESTAT_FN(d_atleast);

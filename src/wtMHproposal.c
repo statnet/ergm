@@ -7,7 +7,7 @@
  *
  *  Copyright 2003-2017 Statnet Commons
  */
-#include "wtMHproposal.h"
+#include "ergm_wtMHproposal.h"
 
 
 /*********************

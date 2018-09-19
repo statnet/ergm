@@ -8,7 +8,7 @@
  *  Copyright 2003-2017 Statnet Commons
  */
 #include <string.h>
-#include "model.h"
+#include "ergm_model.h"
 
 /*****************
   void ModelDestroy

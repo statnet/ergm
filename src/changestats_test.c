@@ -1,4 +1,4 @@
-#include "changestat.h"
+#include "ergm_changestat.h"
 
 /*****************
  changestat: d__edges_times

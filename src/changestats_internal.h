@@ -7,8 +7,8 @@
  *
  *  Copyright 2003-2017 Statnet Commons
  */
-#include "edgetree.h"
-#include "changestat.h"
+#include "ergm_edgetree.h"
+#include "ergm_changestat.h"
 
 /********************  changestats: internal ***********/
 D_CHANGESTAT_FN(d_b1degree_edgecov);

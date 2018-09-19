@@ -10,7 +10,7 @@
 #ifndef CHANGESTATS_HOMOPROPORTION
 #define CHANGESTATS_HOMOPROPORTION
 
-#include "changestat.h"
+#include "ergm_changestat.h"
 
 /********************  ratiostats:   H    ***********/                       
 D_CHANGESTAT_FN(d_homoproportion);

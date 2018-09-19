@@ -8,9 +8,9 @@
  *  Copyright 2003-2017 Statnet Commons
  */
 #include "MHproposals.h"
-#include "edgelist.h"
+#include "ergm_edgelist.h"
 #include "ergm_rlebdm.h"
-#include "changestat.h"
+#include "ergm_changestat.h"
 
 /* Shorthand. */
 #define Mtail (MHp->toggletail)

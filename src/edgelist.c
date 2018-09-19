@@ -7,7 +7,7 @@
  *
  *  Copyright 2003-2017 Statnet Commons
  */
-#include "edgelist.h"
+#include "ergm_edgelist.h"
 /*********************
  unsigned int dEdgeListSearch
 
