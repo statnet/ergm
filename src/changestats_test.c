@@ -72,8 +72,7 @@ C_CHANGESTAT_FN(c_isociomatrix){
 }
 
 I_CHANGESTAT_FN(i__discord_net){
-  ALLOC_AUX_STORAGE(1, Network, dnwp);
-  NetworkCopy(dnwp, nwp);
+  Network *dnwp = AUX_STORAGE = NetworkCopy(nwp);
   Edge nedges = INPUT_PARAM[1];
   for(Edge i=0; i<nedges; i++){
     Vertex tail=INPUT_PARAM[2+i], head=INPUT_PARAM[2+nedges+i];
@@ -82,20 +81,19 @@ I_CHANGESTAT_FN(i__discord_net){
 }
 
 U_CHANGESTAT_FN(u__discord_net){
-  GET_AUX_STORAGE(Network, dnwp);
+  Network *dnwp = AUX_STORAGE;
 
   ToggleEdge(tail, head, dnwp);
 }
 
 F_CHANGESTAT_FN(f__discord_net){
-  GET_AUX_STORAGE(Network, dnwp);
+  Network *dnwp = AUX_STORAGE;
 
   NetworkDestroy(dnwp);
 }
 
 I_CHANGESTAT_FN(i__intersect_net){
-  ALLOC_AUX_STORAGE(1, Network, dnwp);
-  *dnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
+  Network *dnwp = AUX_STORAGE = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
   Edge nedges = INPUT_PARAM[1];
   for(Edge i=0; i<nedges; i++){
     Vertex tail=INPUT_PARAM[2+i], head=INPUT_PARAM[2+nedges+i];
@@ -105,21 +103,20 @@ I_CHANGESTAT_FN(i__intersect_net){
 }
 
 U_CHANGESTAT_FN(u__intersect_net){
-  GET_AUX_STORAGE(Network, dnwp);
+  Network *dnwp = AUX_STORAGE;
 
   if(dEdgeListSearch(tail, head, INPUT_PARAM+1))
     ToggleEdge(tail, head, dnwp);
 }
 
 F_CHANGESTAT_FN(f__intersect_net){
-  GET_AUX_STORAGE(Network, dnwp);
+  Network *dnwp = AUX_STORAGE;
 
   NetworkDestroy(dnwp);
 }
 
 I_CHANGESTAT_FN(i__intersect_net_toggles_in_list){
-  ALLOC_AUX_STORAGE(1, Network, dnwp);
-  *dnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
+  Network *dnwp = AUX_STORAGE = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
   Edge nedges = INPUT_PARAM[1];
   for(Edge i=0; i<nedges; i++){
     Vertex tail=INPUT_PARAM[2+i], head=INPUT_PARAM[2+nedges+i];
@@ -129,20 +126,19 @@ I_CHANGESTAT_FN(i__intersect_net_toggles_in_list){
 }
 
 U_CHANGESTAT_FN(u__intersect_net_toggles_in_list){
-  GET_AUX_STORAGE(Network, dnwp);
+  Network *dnwp = AUX_STORAGE;
 
   ToggleEdge(tail, head, dnwp);
 }
 
 F_CHANGESTAT_FN(f__intersect_net_toggles_in_list){
-  GET_AUX_STORAGE(Network, dnwp);
+  Network *dnwp = AUX_STORAGE;
 
   NetworkDestroy(dnwp);
 }
 
 I_CHANGESTAT_FN(i__union_net){
-  ALLOC_AUX_STORAGE(1, Network, dnwp);
-  NetworkCopy(dnwp, nwp);
+  Network *dnwp = AUX_STORAGE = NetworkCopy(nwp);
   Edge nedges = INPUT_PARAM[1];
   for(Edge i=0; i<nedges; i++){
     Vertex tail=INPUT_PARAM[2+i], head=INPUT_PARAM[2+nedges+i];
@@ -152,14 +148,14 @@ I_CHANGESTAT_FN(i__union_net){
 }
 
 U_CHANGESTAT_FN(u__union_net){
-  GET_AUX_STORAGE(Network, dnwp);
+  Network *dnwp = AUX_STORAGE;
 
   if(dEdgeListSearch(tail, head, INPUT_PARAM+1)==0)
     ToggleEdge(tail, head, dnwp);
 }
 
 F_CHANGESTAT_FN(f__union_net){
-  GET_AUX_STORAGE(Network, dnwp);
+  Network *dnwp = AUX_STORAGE;
 
   NetworkDestroy(dnwp);
 }

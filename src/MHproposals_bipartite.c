@@ -1,4 +1,4 @@
-/*  File src/MHproposals_bipartite.c in package ergm, part of the Statnet suite
+/*  File src/MHProposals_bipartite.c in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -20,7 +20,7 @@
    MSH: The name Hamming is a hack for the Hamming proposals
         It is no different the MH_BipartiteConstantEdges
 ***********************/
-void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp) 
+void MH_BipartiteHammingConstantEdges (MHProposal *MHp, Network *nwp) 
 {
   /* *** don't forget, edges are (tail, head) now */
 
@@ -113,7 +113,7 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp)
    MSH: The name Hamming is a hack for the Hamming proposals
         It is no different the MH_BipartiteTNT
 ***********************/
-void MH_BipartiteHammingTNT (MHproposal *MHp, Network *nwp) 
+void MH_BipartiteHammingTNT (MHProposal *MHp, Network *nwp) 
 {
   /* *** don't forget, edges are (tail, head) now */  
   Vertex tail, head;
@@ -177,7 +177,7 @@ void MH_BipartiteHammingTNT (MHproposal *MHp, Network *nwp)
  deg(tail) stays the same while deg(head) and deg(A) swap
  with one another.
 *********************/
-void MH_BipartiteCondDegreeDist (MHproposal *MHp, Network *nwp) {  
+void MH_BipartiteCondDegreeDist (MHProposal *MHp, Network *nwp) {  
   int valid, count;
   Edge e;
   Vertex tail, head, A, tailin, tailout, headdeg, Adeg, minA, maxA, i, k;

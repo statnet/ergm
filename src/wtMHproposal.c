@@ -1,4 +1,4 @@
-/*  File src/wtMHproposal.c in package ergm, part of the Statnet suite
+/*  File src/wtProposal.c in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -11,16 +11,17 @@
 
 
 /*********************
- void WtMH_init
+ void WtMHProposalInitialize
 
  A helper function to process the MH_* related initialization.
 *********************/
-void WtMH_init(WtMHproposal *MHp, 
-	     char *MHproposaltype, char *MHproposalpackage, 
+WtMHProposal *WtMHProposalInitialize(
+	     char *MHProposaltype, char *MHProposalpackage, 
 	       double *inputs,
 	     int fVerbose,
 	     WtNetwork *nwp,
 	     void **aux_storage){
+  WtMHProposal *MHp = Calloc(1, WtMHProposal);
 
   char *fn, *sn;
   int i;
@@ -29,44 +30,44 @@ void WtMH_init(WtMHproposal *MHp,
   MHp->u_func=NULL;
   MHp->storage=NULL;
   
-  for (i = 0; MHproposaltype[i] != ' ' && MHproposaltype[i] != 0; i++);
-  MHproposaltype[i] = 0;
+  for (i = 0; MHProposaltype[i] != ' ' && MHProposaltype[i] != 0; i++);
+  MHProposaltype[i] = 0;
   /* Extract the required string information from the relevant sources */
-  fn=Calloc(i+4, char);
+  fn = Calloc(i+4, char);
   fn[0]='M';
   fn[1]='H';
   fn[2]='_';
   for(int j=0;j<i;j++)
-    fn[j+3]=MHproposaltype[j];
+    fn[j+3]=MHProposaltype[j];
   fn[i+3]='\0';
-  /* fn is now the string 'MH_[name]', where [name] is MHproposaltype */
-  for (i = 0; MHproposalpackage[i] != ' ' && MHproposalpackage[i] != 0; i++);
-  MHproposalpackage[i] = 0;
-  sn=Calloc(i+1, char);
-  sn=strncpy(sn,MHproposalpackage,i);
+  /* fn is now the string 'MH_[name]', where [name] is MHProposaltype */
+  for (i = 0; MHProposalpackage[i] != ' ' && MHProposalpackage[i] != 0; i++);
+  MHProposalpackage[i] = 0;
+  sn = Calloc(i+1, char);
+  sn=strncpy(sn,MHProposalpackage,i);
   sn[i]='\0';
   
   /* Search for the MH proposal function pointer */
   // Old-style name:
-  MHp->p_func=(void (*)(WtMHproposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+  MHp->p_func=(void (*)(WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
   if(MHp->p_func==NULL){
     // New-style name:
     fn[1] = 'p';
-    MHp->p_func=(void (*)(WtMHproposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+    MHp->p_func=(void (*)(WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
     if(MHp->p_func==NULL){    
       error("Error in the proposal initialization: could not find function %s in "
-	    "namespace for package %s."
-	    "Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
+	  "namespace for package %s."
+	  "Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
     }
   }
 
   // Optional functions
   fn[1] = 'i';
-  MHp->i_func=(void (*)(WtMHproposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+  MHp->i_func=(void (*)(WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
   fn[1] = 'u';
-  MHp->u_func=(void (*)(Vertex tail, Vertex head, double weight, WtMHproposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+  MHp->u_func=(void (*)(Vertex tail, Vertex head, double weight, WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
   fn[1] = 'f';
-  MHp->f_func=(void (*)(WtMHproposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+  MHp->f_func=(void (*)(WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
     
   MHp->inputs=inputs;
 
@@ -88,14 +89,16 @@ void WtMH_init(WtMHproposal *MHp,
   MHp->toggletail = (Vertex *)Calloc(MHp->ntoggles, Vertex);
   MHp->togglehead = (Vertex *)Calloc(MHp->ntoggles, Vertex);
   MHp->toggleweight = (double *)Calloc(MHp->ntoggles, double);
+
+  return MHp;
 }
 
 /*********************
- void WtMH_free
+ void WtMHProposalDestroy
 
- A helper function to free memory allocated by WtMH_init.
+ A helper function to free memory allocated by WtMHProposalInitialize.
 *********************/
-void WtMH_free(WtMHproposal *MHp, WtNetwork *nwp){
+void WtMHProposalDestroy(WtMHProposal *MHp, WtNetwork *nwp){
   if(MHp->f_func) (*(MHp->f_func))(MHp, nwp);
   if(MHp->storage){
     Free(MHp->storage);
@@ -105,5 +108,7 @@ void WtMH_free(WtMHproposal *MHp, WtNetwork *nwp){
   Free(MHp->toggletail);
   Free(MHp->togglehead);
   Free(MHp->toggleweight);
+
+  Free(MHp);
 }
 

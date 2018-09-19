@@ -3162,7 +3162,7 @@ C_CHANGESTAT_FN(c_hamming) {
   
   ZERO_ALL_CHANGESTATS(i);
   Edge wt_net_start= INPUT_PARAM[0]*2+2;
-  double defaultval = INPUT_PARAM[wt_net_start-1]; /* Hamming wt for non-edges in cov nw */
+  double defaultval = INPUT_PARAM[wt_net_start-1]; /* Hamming wt for non-edges in cov nwp */
   double *wt_net = INPUT_PARAM+wt_net_start;
 
   /* *** don't forget tail -> head */    

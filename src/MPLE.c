@@ -41,7 +41,7 @@ void MPLE_wrapper(int *tails, int *heads, int *dnedges,
 		  int *responsevec, double *covmat,
 		  int *weightsvector,
 		  int *maxDyads, int *maxDyadTypes){
-  Network nw[2];
+  Network *nwp;
   Vertex n_nodes = (Vertex) *dn; 
   Edge n_edges = (Edge) *dnedges;
   int directed_flag = *dflag;
@@ -52,16 +52,16 @@ void MPLE_wrapper(int *tails, int *heads, int *dnedges,
 
   GetRNGstate(); /* Necessary for R random number generator */
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
-  nw[0]=NetworkInitialize(tails, heads, n_edges,
+  nwp=NetworkInitialize(tails, heads, n_edges,
                           n_nodes, directed_flag, bip, 0, 0, NULL);
   
   /* Trigger initial storage update */
-  InitStats(nw, m);
+  InitStats(nwp, m);
 
-  MpleInit_hash_wl_RLE(responsevec, covmat, weightsvector, &wlm, *maxDyads, *maxDyadTypes, nw, m); 
+  MpleInit_hash_wl_RLE(responsevec, covmat, weightsvector, &wlm, *maxDyads, *maxDyadTypes, nwp, m); 
 
-  ModelDestroy(nw, m);
-  NetworkDestroy(nw);
+  ModelDestroy(nwp, m);
+  NetworkDestroy(nwp);
   PutRNGstate(); /* Must be called after GetRNGstate before returning to R */
 }
 

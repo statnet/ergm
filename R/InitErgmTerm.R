@@ -1869,7 +1869,7 @@ InitErgmTerm.hamming<-function (nw, arglist, ...) {
   }else if(is.null(a$x)){
     xm<-as.edgelist(nw)								# Arg to hamming does not exist; uses nw
   }else if(is.matrix(a$x) && ncol(a$x)!=2){
-    xm<-as.edgelist(network.update(network.copy(nw),a$x,matrix.type="adjacency"))
+    xm<-as.edgelist(update(nw,a$x,matrix.type="adjacency"))
   }else{
     xm<-as.matrix(a$x)													# Arg to hamming is anything else; attempts to coerce
   }

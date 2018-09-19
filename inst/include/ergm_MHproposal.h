@@ -1,4 +1,4 @@
-/*  File src/ergm_MHproposal.h in package ergm, part of the Statnet suite
+/*  File src/ergm_MHProposal.h in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -55,9 +55,9 @@ void DegreeBoundDestroy(DegreeBound *bd);
 #define XOR(a,b) (((a)==0) != ((b)==0))
 #define XNOR(a,b) (((a)==0) == ((b)==0))
 
-/*  Notes on MHproposal type:
+/*  Notes on MHProposal type:
    An MH proposal function must take two arguments:  a pointer to an 
-   MHproposal structure, which holds all the information regarding the
+   MHProposal structure, which holds all the information regarding the
    MH proposal; and a pointer to an array of Network structures, which 
    contain the network(s).  
    
@@ -70,11 +70,11 @@ void DegreeBoundDestroy(DegreeBound *bd);
 
 /* *** don't forget tail-> head */
 
-typedef struct MHproposalstruct {
-  void (*i_func)(struct MHproposalstruct*, Network*);
-  void (*p_func)(struct MHproposalstruct*, Network*);
-  void (*u_func)(Vertex tail, Vertex head, struct MHproposalstruct*, Network*);
-  void (*f_func)(struct MHproposalstruct*, Network*);
+typedef struct MHProposalstruct {
+  void (*i_func)(struct MHProposalstruct*, Network*);
+  void (*p_func)(struct MHProposalstruct*, Network*);
+  void (*u_func)(Vertex tail, Vertex head, struct MHProposalstruct*, Network*);
+  void (*f_func)(struct MHProposalstruct*, Network*);
   Edge ntoggles;
   Vertex *toggletail;
   Vertex *togglehead;
@@ -84,11 +84,11 @@ typedef struct MHproposalstruct {
   double *inputs; /* may be used if needed, ignored if not. */
   void *storage;
   void **aux_storage;
-} MHproposal;
+} MHProposal;
 
 
-void MH_init(MHproposal *MHp, 
-	     char *MHproposaltype, char *MHproposalpackage, 
+MHProposal *MHProposalInitialize(
+	     char *MHProposaltype, char *MHProposalpackage, 
 	     double *inputs,
 	     int fVerbose,
 	     Network *nwp, 
@@ -97,10 +97,10 @@ void MH_init(MHproposal *MHp,
 	     int attriblength,
 	     void **aux_storage);
 
-void MH_free(MHproposal *MHp, Network *nwp);
+void MHProposalDestroy(MHProposal *MHp, Network *nwp);
 
-int CheckTogglesValid(MHproposal *MHp, Network *nwp);
-int CheckConstrainedTogglesValid(MHproposal *MHp, Network *nwp);
+int CheckTogglesValid(MHProposal *MHp, Network *nwp);
+int CheckConstrainedTogglesValid(MHProposal *MHp, Network *nwp);
 
 #define BD_LOOP(proc) BD_COND_LOOP({proc}, TRUE, 1)
 
@@ -124,10 +124,10 @@ int CheckConstrainedTogglesValid(MHproposal *MHp, Network *nwp);
 #define Mtail (MHp->toggletail)
 #define Mhead (MHp->togglehead)
 
-#define MH_I_FN(a) void (a) (MHproposal *MHp, Network *nwp)
-#define MH_U_FN(a) void (a) (Vertex tail, Vertex head, MHproposal *MHp, Network *nwp)
-#define MH_P_FN(a) void (a) (MHproposal *MHp, Network *nwp)
-#define MH_F_FN(a) void (a) (MHproposal *MHp, Network *nwp)
+#define MH_I_FN(a) void (a) (MHProposal *MHp, Network *nwp)
+#define MH_U_FN(a) void (a) (Vertex tail, Vertex head, MHProposal *MHp, Network *nwp)
+#define MH_P_FN(a) void (a) (MHProposal *MHp, Network *nwp)
+#define MH_F_FN(a) void (a) (MHProposal *MHp, Network *nwp)
 
 #endif 
 

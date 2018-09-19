@@ -97,15 +97,15 @@ typedef struct Networkstruct {
    heads & tails, now list tails before heads */
 
 /* Initialization and destruction. */
-Network NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
-			  Vertex nnodes, int directed_flag, Vertex bipartite,
-			  int lasttoggle_flag, int time, int *lasttoggle);
-void NetworkDestroy(Network *nwp);
-Network NetworkInitializeD(double *tails, double *heads, Edge nedges,
+Network *NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
 			   Vertex nnodes, int directed_flag, Vertex bipartite,
 			   int lasttoggle_flag, int time, int *lasttoggle);
+void NetworkDestroy(Network *nwp);
+Network *NetworkInitializeD(double *tails, double *heads, Edge nedges,
+			    Vertex nnodes, int directed_flag, Vertex bipartite,
+			    int lasttoggle_flag, int time, int *lasttoggle);
 
-Network *NetworkCopy(Network *dest, Network *src);
+Network *NetworkCopy(Network *src);
 
 /* /\* Accessors. *\/ */
 /* static inline Edge EdgetreeSearch (Vertex a, Vertex b, TreeNode *edges); */
