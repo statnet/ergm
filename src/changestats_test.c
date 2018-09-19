@@ -7,7 +7,8 @@
  *
  *  Copyright 2003-2017 Statnet Commons
  */
-#include"changestats_test.h"
+#include "changestats_test.h"
+#include "ergm_dyad_hashmap.h"
 
 C_CHANGESTAT_FN(c_test_abs_edges_minus_5){
   GET_STORAGE(Edge, stored_edges_ptr);
@@ -71,7 +72,7 @@ C_CHANGESTAT_FN(c_isociomatrix){
     CHANGE_STAT[pos] += sm[tail][head]? -1 : +1;
 }
 
-I_CHANGESTAT_FN(i__discord_net){
+I_CHANGESTAT_FN(i__discord_net_Network){
   Network *dnwp = AUX_STORAGE = NetworkCopy(nwp);
   Edge nedges = INPUT_PARAM[1];
   for(Edge i=0; i<nedges; i++){
@@ -80,20 +81,20 @@ I_CHANGESTAT_FN(i__discord_net){
   }
 }
 
-U_CHANGESTAT_FN(u__discord_net){
+U_CHANGESTAT_FN(u__discord_net_Network){
   Network *dnwp = AUX_STORAGE;
 
   ToggleEdge(tail, head, dnwp);
 }
 
-F_CHANGESTAT_FN(f__discord_net){
+F_CHANGESTAT_FN(f__discord_net_Network){
   Network *dnwp = AUX_STORAGE;
 
   NetworkDestroy(dnwp);
   AUX_STORAGE = NULL;
 }
 
-I_CHANGESTAT_FN(i__intersect_net){
+I_CHANGESTAT_FN(i__intersect_net_Network){
   Network *dnwp = AUX_STORAGE = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
   Edge nedges = INPUT_PARAM[1];
   for(Edge i=0; i<nedges; i++){
@@ -103,21 +104,21 @@ I_CHANGESTAT_FN(i__intersect_net){
   }
 }
 
-U_CHANGESTAT_FN(u__intersect_net){
+U_CHANGESTAT_FN(u__intersect_net_Network){
   Network *dnwp = AUX_STORAGE;
 
   if(dEdgeListSearch(tail, head, INPUT_PARAM+1))
     ToggleEdge(tail, head, dnwp);
 }
 
-F_CHANGESTAT_FN(f__intersect_net){
+F_CHANGESTAT_FN(f__intersect_net_Network){
   Network *dnwp = AUX_STORAGE;
 
   NetworkDestroy(dnwp);
   AUX_STORAGE = NULL;
 }
 
-I_CHANGESTAT_FN(i__intersect_net_toggles_in_list){
+I_CHANGESTAT_FN(i__intersect_net_toggles_in_list_Network){
   Network *dnwp = AUX_STORAGE = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
   Edge nedges = INPUT_PARAM[1];
   for(Edge i=0; i<nedges; i++){
@@ -127,20 +128,20 @@ I_CHANGESTAT_FN(i__intersect_net_toggles_in_list){
   }
 }
 
-U_CHANGESTAT_FN(u__intersect_net_toggles_in_list){
+U_CHANGESTAT_FN(u__intersect_net_toggles_in_list_Network){
   Network *dnwp = AUX_STORAGE;
 
   ToggleEdge(tail, head, dnwp);
 }
 
-F_CHANGESTAT_FN(f__intersect_net_toggles_in_list){
+F_CHANGESTAT_FN(f__intersect_net_toggles_in_list_Network){
   Network *dnwp = AUX_STORAGE;
 
   NetworkDestroy(dnwp);
   AUX_STORAGE = NULL;
 }
 
-I_CHANGESTAT_FN(i__union_net){
+I_CHANGESTAT_FN(i__union_net_Network){
   Network *dnwp = AUX_STORAGE = NetworkCopy(nwp);
   Edge nedges = INPUT_PARAM[1];
   for(Edge i=0; i<nedges; i++){
@@ -150,21 +151,21 @@ I_CHANGESTAT_FN(i__union_net){
   }
 }
 
-U_CHANGESTAT_FN(u__union_net){
+U_CHANGESTAT_FN(u__union_net_Network){
   Network *dnwp = AUX_STORAGE;
 
   if(dEdgeListSearch(tail, head, INPUT_PARAM+1)==0)
     ToggleEdge(tail, head, dnwp);
 }
 
-F_CHANGESTAT_FN(f__union_net){
+F_CHANGESTAT_FN(f__union_net_Network){
   Network *dnwp = AUX_STORAGE;
 
   NetworkDestroy(dnwp);
   AUX_STORAGE = NULL;
 }
 
-C_CHANGESTAT_FN(c_disc_inter_union_net){
+C_CHANGESTAT_FN(c_disc_inter_union_net_Network){
   GET_AUX_STORAGE_NUM(Network, dnwp, 0);
   GET_AUX_STORAGE_NUM(Network, inwp, 1);
   GET_AUX_STORAGE_NUM(Network, unwp, 2);
@@ -179,6 +180,116 @@ C_CHANGESTAT_FN(c_disc_inter_union_net){
   CHANGE_STAT[3] = (dnwp->nedges+CHANGE_STAT[0])*(dnwp->nedges+CHANGE_STAT[0]) - dnwp->nedges*dnwp->nedges;
   CHANGE_STAT[4] = (inwp->nedges+CHANGE_STAT[1])*(inwp->nedges+CHANGE_STAT[1]) - inwp->nedges*inwp->nedges;
   CHANGE_STAT[5] = (unwp->nedges+CHANGE_STAT[2])*(unwp->nedges+CHANGE_STAT[2]) - unwp->nedges*unwp->nedges;
+}
+
+I_CHANGESTAT_FN(i__discord_net_DyadSet){
+  StoreDyadSet *dnwp = AUX_STORAGE = NetworkToDyadSet(nwp);
+  Edge nedges = INPUT_PARAM[1];
+  for(Edge i=0; i<nedges; i++){
+    Vertex tail=INPUT_PARAM[2+i], head=INPUT_PARAM[2+nedges+i];
+    DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+  }
+}
+
+U_CHANGESTAT_FN(u__discord_net_DyadSet){
+  StoreDyadSet *dnwp = AUX_STORAGE;
+
+  DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+}
+
+F_CHANGESTAT_FN(f__discord_net_DyadSet){
+  StoreDyadSet *dnwp = AUX_STORAGE;
+
+  kh_destroy(DyadSet, dnwp);
+  AUX_STORAGE = NULL;
+}
+
+I_CHANGESTAT_FN(i__intersect_net_DyadSet){
+  StoreDyadSet *dnwp = AUX_STORAGE = kh_init(DyadSet);
+  Edge nedges = INPUT_PARAM[1];
+  for(Edge i=0; i<nedges; i++){
+    Vertex tail=INPUT_PARAM[2+i], head=INPUT_PARAM[2+nedges+i];
+    if(IS_OUTEDGE(tail, head)!=0)
+      DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+  }
+}
+
+U_CHANGESTAT_FN(u__intersect_net_DyadSet){
+  StoreDyadSet *dnwp = AUX_STORAGE;
+
+  if(dEdgeListSearch(tail, head, INPUT_PARAM+1))
+    DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+}
+
+F_CHANGESTAT_FN(f__intersect_net_DyadSet){
+  StoreDyadSet *dnwp = AUX_STORAGE;
+
+  kh_destroy(DyadSet, dnwp);
+  AUX_STORAGE = NULL;
+}
+
+I_CHANGESTAT_FN(i__intersect_net_toggles_in_list_DyadSet){
+  StoreDyadSet *dnwp = AUX_STORAGE = kh_init(DyadSet);
+  Edge nedges = INPUT_PARAM[1];
+  for(Edge i=0; i<nedges; i++){
+    Vertex tail=INPUT_PARAM[2+i], head=INPUT_PARAM[2+nedges+i];
+    if(IS_OUTEDGE(tail, head)!=0)
+      DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+  }
+}
+
+U_CHANGESTAT_FN(u__intersect_net_toggles_in_list_DyadSet){
+  StoreDyadSet *dnwp = AUX_STORAGE;
+
+  DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+}
+
+F_CHANGESTAT_FN(f__intersect_net_toggles_in_list_DyadSet){
+  StoreDyadSet *dnwp = AUX_STORAGE;
+
+  kh_destroy(DyadSet, dnwp);
+  AUX_STORAGE = NULL;
+}
+
+I_CHANGESTAT_FN(i__union_net_DyadSet){
+  StoreDyadSet *dnwp = AUX_STORAGE = NetworkToDyadSet(nwp);
+  Edge nedges = INPUT_PARAM[1];
+  for(Edge i=0; i<nedges; i++){
+    Vertex tail=INPUT_PARAM[2+i], head=INPUT_PARAM[2+nedges+i];
+    if(IS_OUTEDGE(tail, head)==0)
+      DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+  }
+}
+
+U_CHANGESTAT_FN(u__union_net_DyadSet){
+  StoreDyadSet *dnwp = AUX_STORAGE;
+
+  if(dEdgeListSearch(tail, head, INPUT_PARAM+1)==0)
+    DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+}
+
+F_CHANGESTAT_FN(f__union_net_DyadSet){
+  StoreDyadSet *dnwp = AUX_STORAGE;
+
+  kh_destroy(DyadSet, dnwp);
+  AUX_STORAGE = NULL;
+}
+
+C_CHANGESTAT_FN(c_disc_inter_union_net_DyadSet){
+  GET_AUX_STORAGE_NUM(StoreDyadSet, dnwp, 0);
+  GET_AUX_STORAGE_NUM(StoreDyadSet, inwp, 1);
+  GET_AUX_STORAGE_NUM(StoreDyadSet, unwp, 2);
+
+  int nwedge = IS_OUTEDGE(tail, head)!=0;
+  int refedge = dEdgeListSearch(tail, head, INPUT_PARAM+3)!=0;
+  
+  CHANGE_STAT[0] = nwedge!=refedge ? -1 : +1;
+  CHANGE_STAT[1] = refedge ? (nwedge ? -1 : +1) : 0;
+  CHANGE_STAT[2] = !refedge ? (nwedge ? -1 : +1) : 0;
+
+  CHANGE_STAT[3] = (dnwp->size+CHANGE_STAT[0])*(dnwp->size+CHANGE_STAT[0]) - dnwp->size*dnwp->size;
+  CHANGE_STAT[4] = (inwp->size+CHANGE_STAT[1])*(inwp->size+CHANGE_STAT[1]) - inwp->size*inwp->size;
+  CHANGE_STAT[5] = (unwp->size+CHANGE_STAT[2])*(unwp->size+CHANGE_STAT[2]) - unwp->size*unwp->size;
 }
 
 /*****************

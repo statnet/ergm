@@ -54,12 +54,14 @@ InitErgmTerm.sociomatrix<-function(nw, arglist, ...) {
 
 InitErgmTerm..discord.net<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("x"),
-                      vartypes = c("network,matrix"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      varnames = c("x", "implementation"),
+                      vartypes = c("network,matrix", "character"),
+                      defaultvalues = list(NULL, "Network"),
+                      required = c(TRUE, FALSE))
+
+  impl <- match.arg(a$implementation, c("Network","DyadSet"))
   
-  list(name="_discord_net",
+  list(name=paste0("_discord_net_",impl),
        coef.names=c(),
        inputs=to_ergm_Cdouble(a$x, prototype=nw),
        dependence=FALSE)
@@ -67,12 +69,14 @@ InitErgmTerm..discord.net<-function(nw, arglist, ...) {
 
 InitErgmTerm..intersect.net<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("x", "assume_all_toggles_in_list"),
-                      vartypes = c("network,matrix", "logical"),
-                      defaultvalues = list(NULL, FALSE),
-                      required = c(TRUE, FALSE))
+                      varnames = c("x", "assume_all_toggles_in_list", "implementation"),
+                      vartypes = c("network,matrix", "logical", "character"),
+                      defaultvalues = list(NULL, FALSE, "Network"),
+                      required = c(TRUE, FALSE, FALSE))
   
-  list(name=if(a$assume_all_toggles_in_list) "_intersect_net_toggles_in_list" else "_intersect_net",
+  impl <- match.arg(a$implementation, c("Network","DyadSet"))
+
+  list(name=paste0(if(a$assume_all_toggles_in_list) "_intersect_net_toggles_in_list_" else "_intersect_net_", impl),
        coef.names=c(),
        inputs=to_ergm_Cdouble(a$x, prototype=nw),
        dependence=FALSE)
@@ -80,12 +84,14 @@ InitErgmTerm..intersect.net<-function(nw, arglist, ...) {
 
 InitErgmTerm..union.net<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("x"),
-                      vartypes = c("network,matrix"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      varnames = c("x", "implementation"),
+                      vartypes = c("network,matrix", "character"),
+                      defaultvalues = list(NULL, "Network"),
+                      required = c(TRUE, FALSE))
+
+  impl <- match.arg(a$implementation, c("Network","DyadSet"))
   
-  list(name="_union_net",
+  list(name=paste0("_union_net_",impl),
        coef.names=c(),
        inputs=to_ergm_Cdouble(a$x, prototype=nw),
        dependence=FALSE)
@@ -93,17 +99,18 @@ InitErgmTerm..union.net<-function(nw, arglist, ...) {
 
 InitErgmTerm.discord.inter.union.net <- function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("x"),
-                      vartypes = c("network"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      varnames = c("x", "implementation"),
+                      vartypes = c("network,matrix", "character"),
+                      defaultvalues = list(NULL, "Network"),
+                      required = c(TRUE, FALSE))
+
+  impl <- match.arg(a$implementation, c("Network","DyadSet"))
 
   nedges <- network.edgecount(a$x)
   
-  
-  list(name="disc_inter_union_net",
+  list(name=paste0("disc_inter_union_net_", impl),
        coef.names=c("Diun","dIun","diUn","Diun2","dIun2","diUn2"),
-       auxiliaries = ~ .discord.net(a$x) + .intersect.net(a$x) + .union.net(a$x),
+       auxiliaries = ~ .discord.net(a$x, implementation=impl) + .intersect.net(a$x, implementation=impl) + .union.net(a$x, implementation=impl),
        inputs=to_ergm_Cdouble(a$x, prototype=nw),
        emptynwstats=c(nedges, 0, nedges, nedges^2, 0, nedges^2),
        dependence=TRUE)

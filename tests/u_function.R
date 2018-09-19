@@ -30,13 +30,22 @@ data(florentine)
 floempty <- flomarriage
 floempty[,] <- 0
 
-sim <- simulate(flomarriage~edges,monitor=~discord.inter.union.net(floempty), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1), statsonly=TRUE)
+sim <- simulate(flomarriage~edges,monitor=~discord.inter.union.net(floempty, implementation="Network"), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1), statsonly=TRUE)
 stopifnot(all(sim[,2:4]^2-sim[,5:7]==0))
 
-sim <- simulate(flomarriage~edges,monitor=~discord.inter.union.net(flomarriage), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1), statsonly=TRUE)
+sim <- simulate(flomarriage~edges,monitor=~discord.inter.union.net(flomarriage, implementation="Network"), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1), statsonly=TRUE)
 stopifnot(all(sim[,2:4]^2-sim[,5:7]==0))
 
-sim <- simulate(flomarriage~edges,monitor=~discord.inter.union.net(flobusiness), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1), statsonly=TRUE)
+sim <- simulate(flomarriage~edges,monitor=~discord.inter.union.net(flobusiness, implementation="Network"), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1), statsonly=TRUE)
+stopifnot(all(sim[,2:4]^2-sim[,5:7]==0))
+
+sim <- simulate(flomarriage~edges,monitor=~discord.inter.union.net(floempty, implementation="DyadSet"), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1), statsonly=TRUE)
+stopifnot(all(sim[,2:4]^2-sim[,5:7]==0))
+
+sim <- simulate(flomarriage~edges,monitor=~discord.inter.union.net(flomarriage, implementation="DyadSet"), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1), statsonly=TRUE)
+stopifnot(all(sim[,2:4]^2-sim[,5:7]==0))
+
+sim <- simulate(flomarriage~edges,monitor=~discord.inter.union.net(flobusiness, implementation="DyadSet"), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1), statsonly=TRUE)
 stopifnot(all(sim[,2:4]^2-sim[,5:7]==0))
 
 # Multiple auxiliaries in one term: multiplicitous proposal
