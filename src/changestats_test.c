@@ -90,6 +90,7 @@ F_CHANGESTAT_FN(f__discord_net){
   Network *dnwp = AUX_STORAGE;
 
   NetworkDestroy(dnwp);
+  AUX_STORAGE = NULL;
 }
 
 I_CHANGESTAT_FN(i__intersect_net){
@@ -113,6 +114,7 @@ F_CHANGESTAT_FN(f__intersect_net){
   Network *dnwp = AUX_STORAGE;
 
   NetworkDestroy(dnwp);
+  AUX_STORAGE = NULL;
 }
 
 I_CHANGESTAT_FN(i__intersect_net_toggles_in_list){
@@ -135,6 +137,7 @@ F_CHANGESTAT_FN(f__intersect_net_toggles_in_list){
   Network *dnwp = AUX_STORAGE;
 
   NetworkDestroy(dnwp);
+  AUX_STORAGE = NULL;
 }
 
 I_CHANGESTAT_FN(i__union_net){
@@ -158,6 +161,7 @@ F_CHANGESTAT_FN(f__union_net){
   Network *dnwp = AUX_STORAGE;
 
   NetworkDestroy(dnwp);
+  AUX_STORAGE = NULL;
 }
 
 C_CHANGESTAT_FN(c_disc_inter_union_net){

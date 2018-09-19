@@ -603,8 +603,9 @@ MH_P_FN(Mp_listTNT){
 }
 
 MH_F_FN(Mf_listTNT){
-  GET_STORAGE(Network, intersect);
+  Network *intersect = STORAGE;
   NetworkDestroy(intersect);
+  STORAGE = NULL;
 }
 
 /********************
