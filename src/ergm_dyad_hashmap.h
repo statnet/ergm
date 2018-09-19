@@ -41,14 +41,16 @@ typedef khash_t(DyadSet) StoreDyadSet;
 
 // Toggle an element of a DyadSet.
 static inline bool DyadSetToggle(struct TailHead th, StoreDyadSet *h){
-  khiter_t i = kh_get(DyadSet, h, th);
-  if(i==kh_end(h)){
-    int ret;
-    i = kh_put(DyadSet, h, th, &ret);
-    return true;
-  }else{
+  int ret;
+  // Attempt insertion
+  khiter_t i = kh_put(DyadSet, h, th, &ret);
+  if(ret==0){
+    // Already present: delete
     kh_del(DyadSet, h, i);
     return false;
+  }else{
+    // Inserted by kh_put above
+    return true;
   }
 }
 
