@@ -1,4 +1,6 @@
-#include "R_ext/Rdynload.h"
+
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_changestat.h"
 double my_choose(double n, int r){
 static double (*fun)(double,int) = NULL;
@@ -53,7 +55,9 @@ return fun(n,r);
 #undef D_FROM_S
 #undef D_FROM_S_FN
 #undef INPUT_ATTRIB
-#include "R_ext/Rdynload.h"
+
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_edgelist.h"
 unsigned int dEdgeListSearch(Vertex tail, Vertex head, double *el){
 static unsigned int (*fun)(Vertex,Vertex,double *) = NULL;
@@ -69,7 +73,9 @@ return fun(tail,head,el);
 #undef MAX
 #undef DYADCOUNT
 #undef GetRandDyad
-#include "R_ext/Rdynload.h"
+
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_edgetree.h"
 Network * NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle){
 static Network * (*fun)(Vertex *,Vertex *,Edge,Vertex,int,Vertex,int,int,int *) = NULL;
@@ -220,7 +226,9 @@ return fun(tails,heads,nwp,nmax);
 #undef MAX
 #undef DYADCOUNT
 #undef GetRandDyad
-#include "R_ext/Rdynload.h"
+
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_MHproposal.h"
 DegreeBound* DegreeBoundInitialize(int *attribs, int *maxout, int *maxin,int *minout, int *minin, int condAllDegExact,int attriblength, Network *nwp){
 static DegreeBound* (*fun)(int *,int *,int *,int *,int *,int,int,Network *) = NULL;
@@ -271,7 +279,9 @@ return fun(MHp,nwp);
 #undef XNOR
 #undef BD_LOOP
 #undef BD_COND_LOOP
-#include "R_ext/Rdynload.h"
+
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_model.h"
 Model* ModelInitialize(char *fnames, char *sonames, double **inputs,int n_terms){
 static Model* (*fun)(char *,char *,double **,int) = NULL;
@@ -341,7 +351,9 @@ fun(ntoggles,toggletail,togglehead,nwp,m);
 #undef D_FROM_S
 #undef D_FROM_S_FN
 #undef INPUT_ATTRIB
-#include "R_ext/Rdynload.h"
+
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_rlebdm.h"
 #undef MIN
 #undef MAX
@@ -350,7 +362,9 @@ fun(ntoggles,toggletail,togglehead,nwp,m);
 #undef TH2Dyad
 #undef Dyad2T
 #undef Dyad2H
-#include "R_ext/Rdynload.h"
+
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_wtedgetree.h"
 WtNetwork * WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle){
 static WtNetwork * (*fun)(Vertex *,Vertex *,double *,Edge,Vertex,int,Vertex,int,int,int *) = NULL;
@@ -516,7 +530,9 @@ return fun(tails,heads,weights,nwp,nmax);
 #undef MAX
 #undef DYADCOUNT
 #undef GetRandDyad
-#include "R_ext/Rdynload.h"
+
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_wtMHproposal.h"
 WtMHProposal * WtMHProposalInitialize(char *MHProposaltype, char *MHProposalpackage,double *inputs,int fVerbose,WtNetwork *nwp){
 static WtMHProposal * (*fun)(char *,char *,double *,int,WtNetwork *) = NULL;
@@ -545,7 +561,9 @@ fun(MH);
 #undef MH_QUIT_UNSUCCESSFUL
 #undef XOR
 #undef XNOR
-#include "R_ext/Rdynload.h"
+
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_wtmodel.h"
 WtModel* WtModelInitialize(char *fnames, char *sonames, double **inputs,int n_terms){
 static WtModel* (*fun)(char *,char *,double **,int) = NULL;
@@ -627,7 +645,9 @@ fun(ntoggles,toggletail,togglehead,toggleweight,nwp,m);
 #undef D_FROM_S
 #undef WtD_FROM_S_FN
 #undef INPUT_ATTRIB
-#include "R_ext/Rdynload.h"
+
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "MCMC.h"
 void MCMC_wrapper(int *dnedges,int *tails, int *heads,int *dn, int *dflag, int *bipartite,int *nterms, char **funnames,char **sonames,char **MHProposaltype, char **MHProposalpackage,double *inputs, double *theta0, int *samplesize,double *sample, int *burnin, int *interval,int *newnetworktails,int *newnetworkheads,int *fVerbose,int *attribs, int *maxout, int *maxin, int *minout,int *minin, int *condAllDegExact, int *attriblength,int *maxedges,int *status){
 static void (*fun)(int *,int *,int *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *) = NULL;
@@ -717,7 +737,9 @@ fun(MH,theta,gain,meanstats,nphase1,nsubphases,networkstatistics,samplesize,burn
 #undef XNOR
 #undef BD_LOOP
 #undef BD_COND_LOOP
-#include "R_ext/Rdynload.h"
+
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "wtMCMC.h"
 void WtMCMC_wrapper(int *nedges,int *tails, int *heads, double *weights,int *dn, int *dflag, int *bipartite,int *nterms, char **funnames,char **sonames,char **MHProposaltype, char **MHProposalpackage,double *inputs, double *theta0, int *samplesize,double *sample, int *burnin, int *interval,int *newnetworktails,int *newnetworkheads,double *newnetworkweights,int *fVerbose,int *maxedges,int *status){
 static void (*fun)(int *,int *,int *,double *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,double *,int *,int *,int *) = NULL;
