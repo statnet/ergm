@@ -18,7 +18,7 @@
 
  Default MH algorithm
 *********************/
-void MH_randomtoggle (MHProposal *MHp, Network *nwp)  {  
+MH_P_FN(MH_randomtoggle){  
 
   /* *** don't forget tail-> head now */
 
@@ -43,7 +43,7 @@ MH_P_FN(MH_TNT)
 {
   /* *** don't forget tail-> head now */
   
-  Edge nedges=nwp->nedges;
+  Edge nedges=EDGECOUNT(nwp);
   static double comp=0.5;
   static double odds;
   static Dyad ndyads;
@@ -51,7 +51,7 @@ MH_P_FN(MH_TNT)
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
     odds = comp/(1.0-comp);
-    ndyads = DYADCOUNT(N_NODES, BIPARTITE, DIRECTED);
+    ndyads = DYADCOUNT(nwp);
     return;
   }
 
@@ -87,11 +87,11 @@ MH_P_FN(MH_TNT)
    because it does not correctly update network quantities like nedges
    after each of the 10 proposed toggles.
 ***********************/
-void MH_TNT10 (MHProposal *MHp, Network *nwp) 
+MH_P_FN(MH_TNT10)
 {
   /* *** don't forget tail-> head now */
   
-  Edge nedges=nwp->nedges;
+  Edge nedges=EDGECOUNT(nwp);
   static double comp=0.5;
   static double odds;
   static Dyad ndyads;
@@ -99,7 +99,7 @@ void MH_TNT10 (MHProposal *MHp, Network *nwp)
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=10;
     odds = comp/(1.0-comp);
-    ndyads = DYADCOUNT(N_NODES, BIPARTITE, DIRECTED);
+    ndyads = DYADCOUNT(nwp);
     return;
   }
   
@@ -136,7 +136,7 @@ void MH_TNT10 (MHProposal *MHp, Network *nwp)
  NOT recommended for such networks.  However, most network
  datasets are sparse, so this is not likely to be an issue.
 *********************/
-void MH_ConstantEdges (MHProposal *MHp, Network *nwp)  {  
+MH_P_FN(MH_ConstantEdges){  
   /* *** don't forget tail-> head now */
   
   if(MHp->ntoggles == 0) { /* Initialize */
@@ -158,7 +158,7 @@ void MH_ConstantEdges (MHProposal *MHp, Network *nwp)  {
  void MH_CondDegreeDist
  It used to be called  MH_CondDegDistSwapToggles
 *********************/
-void MH_CondDegreeDist (MHProposal *MHp, Network *nwp) {  
+MH_P_FN(MH_CondDegreeDist){  
   int noutedge=0, ninedge=0, k, fvalid;
   int k0, j0, j1, k1;
   int j0h, j1h;
@@ -290,7 +290,7 @@ void MH_CondDegreeDist (MHProposal *MHp, Network *nwp) {
 /*********************
  void MH_CondOutDegreeDist
 *********************/
-void MH_CondOutDegreeDist (MHProposal *MHp, Network *nwp) {  
+MH_P_FN(MH_CondOutDegreeDist){  
   int noutedge=0, k, fvalid=0;
   int k0, k1;
   int trynode;
@@ -355,7 +355,7 @@ void MH_CondOutDegreeDist (MHProposal *MHp, Network *nwp) {
 /*********************
  void MH_CondInDegreeDist
 *********************/
-void MH_CondInDegreeDist (MHProposal *MHp, Network *nwp) {  
+MH_P_FN(MH_CondInDegreeDist){  
   int ninedge=0, k, fvalid=0;
   int k0, k1;
   int trynode;
@@ -422,7 +422,7 @@ void MH_CondInDegreeDist (MHProposal *MHp, Network *nwp) {
 /*********************
  void MH_TwoRandomToggles
 *********************/
-void MH_TwoRandomToggles (MHProposal *MHp, Network *nwp) {  
+MH_P_FN(MH_TwoRandomToggles){  
   Vertex tail, head;
   int i;
 
@@ -449,7 +449,7 @@ void MH_TwoRandomToggles (MHProposal *MHp, Network *nwp) {
 /*********************
  void MH_RandomNode
 *********************/
-void MH_randomnode (MHProposal *MHp, Network *nwp) {
+MH_P_FN(MH_randomnode){
   
   Vertex root, alter;
   int j;
@@ -482,7 +482,7 @@ void MH_randomnode (MHProposal *MHp, Network *nwp) {
    void MH_randomtoggleList
    Propose ONLY edges on a static list
 ***********************/
-void MH_randomtoggleList (MHProposal *MHp, Network *nwp) 
+MH_P_FN(MH_randomtoggleList)
 {  
   static Edge nedges0;
 
@@ -572,7 +572,7 @@ MH_P_FN(Mp_listTNT){
 
   Network *intersect = STORAGE;
 
-  Edge nedges=intersect->nedges;
+  Edge nedges=EDGECOUNT(intersect);
   
   double logratio=0;
   BD_LOOP({
@@ -590,7 +590,7 @@ MH_P_FN(Mp_listTNT){
 	Mtail[0]=list[rane];
 	Mhead[0]=list[ndyads+rane];
 	
-	if(EdgetreeSearch(Mtail[0],Mhead[0],intersect->outedges)!=0){
+	if(IS_OUTEDGE(Mtail[0],Mhead[0],intersect)){
 	  logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
 				nedges / (odds*ndyads + nedges)));
 	}else{
@@ -636,9 +636,9 @@ MH_I_FN(Mi_RLETNT){
       }
     });
   
-  if(storage->intersect->nedges==nwp->nedges){ // There are no ties in the initial network that are fixed.
+  if(EDGECOUNT(storage->intersect)==EDGECOUNT(nwp)){ // There are no ties in the initial network that are fixed.
     NetworkDestroy(storage->intersect);
-    storage->intersect->nnodes = 0; // "Signal" that there is no discordance network.
+    storage->intersect = NULL; // "Signal" that there is no discordance network.
   }
 
   MHp->ntoggles=1;
@@ -649,8 +649,8 @@ MH_P_FN(Mp_RLETNT){
 
   const double comp=0.5, odds=comp/(1.0-comp);
 
-  Network *nwp1 = storage->intersect->nnodes ? storage->intersect : nwp;
-  Edge nedges= nwp1->nedges;
+  Network *nwp1 = storage->intersect ? storage->intersect : nwp;
+  Edge nedges= EDGECOUNT(nwp1);
   double logratio=0;
   BD_LOOP({
       if (unif_rand() < comp && nedges > 0) { /* Select a tie at random from the network of eligibles */
@@ -665,7 +665,7 @@ MH_P_FN(Mp_RLETNT){
       }else{ /* Select a dyad at random from the list */
 	GetRandRLEBDM1D_RS(Mtail, Mhead, &storage->r);
 	
-	if(EdgetreeSearch(Mtail[0],Mhead[0],nwp1->outedges)!=0){
+	if(IS_OUTEDGE(Mtail[0],Mhead[0],nwp1)){
 	  logratio = log((nedges==1 ? 1.0/(comp*storage->r.ndyads + (1.0-comp)) :
 				nedges / (odds*storage->r.ndyads + nedges)));
 	}else{
@@ -679,12 +679,12 @@ MH_P_FN(Mp_RLETNT){
 
 MH_U_FN(Mu_RLETNT){
   GET_STORAGE(StoreRLEBDM1DAndNet, storage);
-  if(storage->intersect->nnodes) ToggleEdge(tail, head, storage->intersect);
+  if(storage->intersect) ToggleEdge(tail, head, storage->intersect);
 }
 
 MH_F_FN(Mf_RLETNT){
   GET_STORAGE(StoreRLEBDM1DAndNet, storage);
-  if(storage->intersect->nnodes) NetworkDestroy(storage->intersect);
+  if(storage->intersect) NetworkDestroy(storage->intersect);
 }
 
 /* The ones below have not been tested */
@@ -692,7 +692,7 @@ MH_F_FN(Mf_RLETNT){
 /*********************
  void MH_ConstrainedCondOutDegDist
 *********************/
-void MH_ConstrainedCondOutDegDist (MHProposal *MHp, Network *nwp){  
+MH_P_FN(MH_ConstrainedCondOutDegDist){  
   int noutedge=0, k, fvalid=0;
   int k0, k1;
   Vertex e, alter, tail, head, head1;
@@ -747,7 +747,7 @@ void MH_ConstrainedCondOutDegDist (MHProposal *MHp, Network *nwp){
 }
 
 
-void MH_NodePairedTiesToggles (MHProposal *MHp, Network *nwp) {  
+MH_P_FN(MH_NodePairedTiesToggles){  
   /* chooses a node and toggles all ties and
 	 and toggles an equal number of matching nonties
 	 for that node */
@@ -817,7 +817,7 @@ void MH_NodePairedTiesToggles (MHProposal *MHp, Network *nwp) {
 /*********************
  void MH_OneRandomTnTNode
 *********************/
-void MH_OneRandomTnTNode (MHProposal *MHp, Network *nwp) {  
+MH_P_FN(MH_OneRandomTnTNode){  
   Vertex tail=0, head, e, head1;
   int noutedge=0, ninedge=0, k0=0, fvalid=0, k;
   /* int ndyad; */
@@ -835,7 +835,7 @@ void MH_OneRandomTnTNode (MHProposal *MHp, Network *nwp) {
   fvalid=0;
   while(fvalid==0){
     
-    if ( unif_rand() < 0.5 && nwp->nedges > 0) 
+    if ( unif_rand() < 0.5 && EDGECOUNT(nwp) > 0) 
       {
 	
 	/* select a tie */
@@ -926,7 +926,7 @@ void MH_OneRandomTnTNode (MHProposal *MHp, Network *nwp) {
 /*********************
  void MH_ReallocateWithReplacement
 *********************/
-void MH_ReallocateWithReplacement (MHProposal *MHp, Network *nwp) {  
+MH_P_FN(MH_ReallocateWithReplacement){  
   int i;
   Vertex root;
   Vertex* edges;
@@ -997,7 +997,7 @@ void MH_ReallocateWithReplacement (MHProposal *MHp, Network *nwp) {
 /*********************
  void MH_AllTogglesForOneNode
 *********************/
-void MH_AllTogglesForOneNode (MHProposal *MHp, Network *nwp) {
+MH_P_FN(MH_AllTogglesForOneNode){
   
   int i;
   int j;
@@ -1033,7 +1033,7 @@ void MH_AllTogglesForOneNode (MHProposal *MHp, Network *nwp) {
 /*********************
  void MH_SwitchLabelTwoNodesToggles
 *********************/
-void MH_SwitchLabelTwoNodesToggles (MHProposal *MHp, Network *nwp) {  
+MH_P_FN(MH_SwitchLabelTwoNodesToggles){  
   int nedge1=0, nedge2=0, k, ntoggles;
   Vertex *edges1, *edges2;
   Vertex e, tail2, head2, tail1, head1;
@@ -1140,7 +1140,7 @@ void MH_SwitchLabelTwoNodesToggles (MHProposal *MHp, Network *nwp) {
 /*********************
  void MH_ConstrainedCondDegDist
 *********************/
-void MH_ConstrainedCondDegDist (MHProposal *MHp, Network *nwp)  {  
+MH_P_FN(MH_ConstrainedCondDegDist){  
   int noutedge=0, ninedge=0, k, fvalid=0;
   int k0, j0, j1, k1;
   int j0h, j1h;
@@ -1322,10 +1322,10 @@ void MH_ConstrainedNodePairedTiesToggles (MHProposal *MHp,
       k=0;
       fvalid=1;
       while(fvalid==1 && k<nedge+j){
-	if(EdgetreeSearch( MIN(prop,Mtail[k]),
-			   MAX(prop,Mtail[k]), nwp->outedges) +
-	   EdgetreeSearch( MIN(prop,Mhead[k]),
-			   MAX(prop,Mhead[k]), nwp->outedges)==0
+	if(IS_OUTEDGE(MIN(prop,Mtail[k]),
+			   MAX(prop,Mtail[k])) +
+	   IS_OUTEDGE( MIN(prop,Mhead[k]),
+			   MAX(prop,Mhead[k]))==0
 	   ){++k;
 	}else{
 	  fvalid=0;}
@@ -1703,7 +1703,7 @@ void MH_ConstrainedSwitchLabelTwoNodesToggles (MHProposal *MHp,
 /*********************
  void MH_ConstantEdgesToggles
 *********************/
-void MH_ConstantEdgesToggles (MHProposal *MHp, Network *nwp)  {  
+MH_P_FN(MH_ConstantEdgesToggles){  
   int noutedge=0, ninedge=0, k, fvalid=0;
   int k0, k1;
   Vertex e, alter, tail, head, head1;
@@ -1785,7 +1785,7 @@ void MH_ConstantEdgesToggles (MHProposal *MHp, Network *nwp)  {
 /*********************
  void MH_CondDegSwitchToggles
 *********************/
-void MH_CondDegSwitchToggles (MHProposal *MHp, Network *nwp)  {  
+MH_P_FN(MH_CondDegSwitchToggles){  
   int noutedge, ninedge, i;
   int k, k0, toomany;
   Vertex e, tail, head;

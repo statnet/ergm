@@ -1526,7 +1526,7 @@ C_CHANGESTAT_FN(c_cycle) {
 
     /*Make the change, as needed*/
     /* I did not swap h/t in the comment below */
-    /*edgeflag = (EdgetreeSearch(tail, head, g.outedges) != 0);*/
+    /*edgeflag = IS_OUTEDGE(tail, head, g);*/
     if((!DIRECTED)&&(tail>head))
       emult = IS_OUTEDGE(head, tail) ? -1.0 : 1.0;
     else
@@ -3346,11 +3346,6 @@ C_CHANGESTAT_FN(c_idegree_w_homophily) {
     if (tailattr == headattr) { /* They match; otherwise don't bother */
       echange=IS_OUTEDGE(tail, head) ? -1 : +1;
       headdeg=0;
-/*      for(e = EdgetreeMinimum(nwp->outedges, head);
-      (tmp = nwp->outedges[e].value) != 0;
-      e = EdgetreeSuccessor(nwp->outedges, e)) {
-        headdeg += (nodeattr[tmp]==headattr);
-      } */
       STEP_THROUGH_INEDGES(head, e, tmp){
         headdeg += (nodeattr[tmp]==headattr);
       }
@@ -4246,11 +4241,6 @@ C_CHANGESTAT_FN(c_odegree_w_homophily) {
       STEP_THROUGH_OUTEDGES(tail, e, tmp){
         taildeg += (nodeattr[tmp]==tailattr);
       }
-/*      for(e = EdgetreeMinimum(nwp->inedges, tail); */
-/*      (tmp = nwp->inedges[e].value) != 0; */
-/*      e = EdgetreeSuccessor(nwp->inedges, e)) { */
-/*        taildeg += (nodeattr[tmp]==tailattr); */
-/*      } */
       for(j = 0; j < N_CHANGE_STATS; j++) {
         Vertex deg = INPUT_PARAM[j];
         CHANGE_STAT[j] += (taildeg + echange == deg) - (taildeg == deg);

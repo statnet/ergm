@@ -8,6 +8,10 @@
  *  Copyright 2003-2013 Statnet Commons
  */
 
+/* Utility functions for variadic macros. */
+#define _GET_OVERRIDE23(_1, _2, _3, NAME, ...) NAME
+#define _GET_OVERRIDE34(_1, _2, _3, _4, NAME, ...) NAME
+
 /* binomial coefficient function and macro: */
 double my_choose(double n, int r);
 #define CHOOSE(n,r) ((n)<(r) ? (0) : (my_choose((double)(n),(int)(r)))) 
@@ -29,11 +33,11 @@ double my_choose(double n, int r);
 #define INVAL(e) (nwp->inedges[(e)].value)
 
 #define N_NODES (nwp->nnodes) /* Total number of nodes in the network */
-#define N_DYADS (DYADCOUNT(nwp->nnodes,nwp->bipartite,nwp->directed_flag))
+#define N_DYADS (DYADCOUNT(nwp))
 #define OUT_DEG (nwp->outdegree) /* Vector of length N_NODES giving current outdegrees */
 #define IN_DEG (nwp->indegree) /* Vector of length N_NODES giving current indegrees */
 #define DIRECTED (nwp->directed_flag) /* 0 if network is undirected, 1 if directed */
-#define N_EDGES (nwp->nedges) /* Total number of edges in the network currently */
+#define N_EDGES (EDGECOUNT(nwp)) /* Total number of edges in the network currently */
 
 /* 0 if network is not bipartite, otherwise number of nodes of the first type (the first node of the second type has Vertex index BIPARTITE+1 */
 #define BIPARTITE (nwp->bipartite)

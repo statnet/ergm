@@ -12,32 +12,32 @@
 
 #include "ergm_MHproposal.h"
 
-void MH_randomtoggle (MHProposal *MHp, Network *nwp);
-void MH_TNT (MHProposal *MHp, Network *nwp);
-void MH_TNT10 (MHProposal *MHp, Network *nwp);
-void MH_ConstantEdges (MHProposal *MHp, Network *nwp);
-void MH_CondDegreeDist (MHProposal *MHp, Network *nwp);
-void MH_CondOutDegreeDist (MHProposal *MHp, Network *nwp);
-void MH_CondInDegreeDist (MHProposal *MHp, Network *nwp);
-void MH_RandomNode (MHProposal *MHp, Network *nwp);
-void MH_randomtoggleList (MHProposal *MHp, Network *nwp);
+MH_P_FN(MH_randomtoggle);
+MH_P_FN(MH_TNT);
+MH_P_FN(MH_TNT10);
+MH_P_FN(MH_ConstantEdges);
+MH_P_FN(MH_CondDegreeDist);
+MH_P_FN(MH_CondOutDegreeDist);
+MH_P_FN(MH_CondInDegreeDist);
+MH_P_FN(MH_RandomNode);
+MH_P_FN(MH_randomtoggleList);
 
-void MH_ConstrainedCondOutDegDist (MHProposal *MHp, Network *nwp);
-void MH_OneRandomTnTNode (MHProposal *MHp, Network *nwp);
-void MH_TwoRandomToggles (MHProposal *MHp, Network *nwp);
-void MH_NodePairedTiesToggles (MHProposal *MHp, Network *nwp);
-void MH_AllTogglesForOneNode (MHProposal *MHp, Network *nwp);
-void MH_ReallocateWithReplacement (MHProposal *MHp, Network *nwp);
-void MH_SwitchLabelTwoNodesToggles (MHProposal *MHp, Network *nwp);
-void MH_ConstantEdgesToggles (MHProposal *MHp, Network *nwp);
-void MH_OneConstrainedRandomToggle (MHProposal *MHp, Network *nwp);
-void MH_ConstrainedTwoRandomToggles (MHProposal *MHp, Network *nwp);
-void MH_ConstrainedNodePairedTiesToggles (MHProposal *MHp, Network *nwp);
-void MH_ConstrainedCondDegDist (MHProposal *MHp, Network *nwp);
-void MH_ConstrainedCondDegSwitchToggles (MHProposal *MHp, Network *nwp);
-void MH_ConstrainedAllTogglesForOneNode (MHProposal *MHp, Network *nwp);
-void MH_ConstrainedReallocateWithReplacement (MHProposal *MHp, Network *nwp);
-void MH_ConstrainedSwitchLabelTwoNodesToggles (MHProposal *MHp, Network *nwp);
+MH_P_FN(MH_ConstrainedCondOutDegDist);
+MH_P_FN(MH_OneRandomTnTNode);
+MH_P_FN(MH_TwoRandomToggles);
+MH_P_FN(MH_NodePairedTiesToggles);
+MH_P_FN(MH_AllTogglesForOneNode);
+MH_P_FN(MH_ReallocateWithReplacement);
+MH_P_FN(MH_SwitchLabelTwoNodesToggles);
+MH_P_FN(MH_ConstantEdgesToggles);
+MH_P_FN(MH_OneConstrainedRandomToggle);
+MH_P_FN(MH_ConstrainedTwoRandomToggles);
+MH_P_FN(MH_ConstrainedNodePairedTiesToggles);
+MH_P_FN(MH_ConstrainedCondDegDist);
+MH_P_FN(MH_ConstrainedCondDegSwitchToggles);
+MH_P_FN(MH_ConstrainedAllTogglesForOneNode);
+MH_P_FN(MH_ConstrainedReallocateWithReplacement);
+MH_P_FN(MH_ConstrainedSwitchLabelTwoNodesToggles);
 
 #endif 
 

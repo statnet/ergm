@@ -27,7 +27,7 @@
    TODO: Proposals could almost certainly be more efficient.
 
 ***********************/
-void MH_dyadnoiseTNT (MHProposal *MHp, Network *nwp) 
+MH_P_FN(MH_dyadnoiseTNT)
 {
   /* *** don't forget tail-> head now */
   static double comp=0.5;
@@ -89,7 +89,7 @@ void MH_dyadnoiseTNT (MHProposal *MHp, Network *nwp)
    TODO: Proposals could almost certainly be more efficient.
 
 ***********************/
-void MH_dyadnoisemTNT (MHProposal *MHp, Network *nwp) 
+MH_P_FN(MH_dyadnoisemTNT)
 {
   /* *** don't forget tail-> head now */  
   static double comp=0.5;
@@ -152,7 +152,7 @@ void MH_dyadnoisemTNT (MHProposal *MHp, Network *nwp)
    TODO: Proposals could almost certainly be more efficient.
 
 ***********************/
-void MH_dyadnoise (MHProposal *MHp, Network *nwp) 
+MH_P_FN(MH_dyadnoise)
 {
   /* *** don't forget tail-> head now */
   
@@ -189,7 +189,7 @@ void MH_dyadnoise (MHProposal *MHp, Network *nwp)
    TODO: Proposals could almost certainly be more efficient.
 
 ***********************/
-void MH_dyadnoisem (MHProposal *MHp, Network *nwp) 
+MH_P_FN(MH_dyadnoisem)
 {
   /* *** don't forget tail-> head now */
   

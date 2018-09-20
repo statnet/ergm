@@ -15,9 +15,9 @@
 #include "ergm_model.h"
 #include "ergm_MHproposal.h"
 
-void MH_BipartiteHammingConstantEdges (MHProposal *MHp, Network *nwp);
-void MH_BipartiteHammingTNT (MHProposal *MHp, Network *nwp);
-void MH_BipartiteCondDegreeDist (MHProposal *MHp, Network *nwp);
+MH_P_FN(MH_BipartiteHammingConstantEdges);
+MH_P_FN(MH_BipartiteHammingTNT);
+MH_P_FN(MH_BipartiteCondDegreeDist);
 
 #endif 
 
