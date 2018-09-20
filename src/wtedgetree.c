@@ -50,7 +50,7 @@ WtNetwork *WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
 
   /*Configure a Network*/
   nwp->nnodes = nnodes;
-  nwp->nedges = 0; /* Edges will be added one by one */
+  EDGECOUNT(nwp) = 0; /* Edges will be added one by one */
   nwp->directed_flag=directed_flag;
   nwp->bipartite=bipartite;
 
@@ -142,7 +142,7 @@ WtNetwork *WtNetworkCopy(WtNetwork *src){
   }
   else dest->duration_info.lasttoggle = NULL;
 
-  dest->nedges = src->nedges;
+  EDGECOUNT(dest) = EDGECOUNT(src);
 
   return dest;
 }
@@ -493,7 +493,7 @@ int WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
     WtAddHalfedgeToTree(head, tail, weight, nwp->inedges, &(nwp->last_inedge));
     ++nwp->outdegree[tail];
     ++nwp->indegree[head];
-    ++nwp->nedges;
+    ++EDGECOUNT(nwp);
     WtCheckEdgetreeFull(nwp); 
     return 1;
   }
@@ -565,7 +565,7 @@ int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp){
       WtDeleteHalfedgeFromTree(head, tail, nwp->inedges, &(nwp->last_inedge))) {
     --nwp->outdegree[tail];
     --nwp->indegree[head];
-    --nwp->nedges;
+    --EDGECOUNT(nwp);
     if(nwp->last_outedge < nwp->nnodes) nwp->last_outedge=nwp->nnodes;
     if(nwp->last_inedge < nwp->nnodes) nwp->last_inedge=nwp->nnodes;
     return 1;
@@ -715,7 +715,7 @@ Edge WtDesignMissing (Vertex a, Vertex b, WtNetwork *mnwp) {
   head, or weight is NULL, it is not updated, so it is possible to
   only obtain what is needed. Return 1 if successful, 0 otherwise.
   Note that i is numbered from 1, not 0.  Thus, the maximum possible
-  value of i is nwp->nedges.
+  value of i is EDGECOUNT(nwp).
 ******************/
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
@@ -727,7 +727,7 @@ int WtFindithEdge (Vertex *tail, Vertex *head, double *weight, Edge i, WtNetwork
   /* TODO: This could be speeded up by a factor of 3 or more by starting
      the search from the tail n rather than tail 1 if i > ndyads/2. */
 
-  if (i > nwp->nedges || i<=0)
+  if (i > EDGECOUNT(nwp) || i<=0)
     return 0;
   while (i > nwp->outdegree[taili]) {
     i -= nwp->outdegree[taili];
@@ -757,15 +757,15 @@ int WtFindithEdge (Vertex *tail, Vertex *head, double *weight, Edge i, WtNetwork
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
 int WtGetRandEdge(Vertex *tail, Vertex *head, double *weight, WtNetwork *nwp) {
-  if(nwp->nedges==0) return(0);
+  if(EDGECOUNT(nwp)==0) return(0);
   // FIXME: The constant maxEattempts needs to be tuned.
   const unsigned int maxEattempts=10;
-  unsigned int Eattempts = (nwp->maxedges-1)/nwp->nedges;
+  unsigned int Eattempts = (nwp->maxedges-1)/EDGECOUNT(nwp);
   Edge rane;
   
   if(Eattempts>maxEattempts){
     // If the outedges is too sparse, revert to the old algorithm.
-    rane=1 + unif_rand() * nwp->nedges;
+    rane=1 + unif_rand() * EDGECOUNT(nwp);
     WtFindithEdge(tail, head, weight, rane, nwp);
   }else{
     // Otherwise, find a TreeNode which has a head.
@@ -798,7 +798,7 @@ int WtGetRandEdge(Vertex *tail, Vertex *head, double *weight, WtNetwork *nwp) {
   update the values of tail and head appropriately.  Return
   1 if successful, 0 otherwise.  
   Note that i is numbered from 1, not 0.  Thus, the maximum possible
-  value of i is (ndyads - nwp->nedges).
+  value of i is (ndyads - EDGECOUNT(nwp)).
 ******************/
 
 /* This function is not yet written.  It's not clear whether it'll
@@ -808,10 +808,10 @@ int WtGetRandEdge(Vertex *tail, Vertex *head, double *weight, WtNetwork *nwp) {
 int WtFindithNonedge (Vertex *tail, Vertex *head, Dyad i, WtNetwork *nwp) {
   Vertex taili=1;
   Edge e;
-  Dyad ndyads = DYADCOUNT(nwp->nnodes, nwp->bipartite, nwp->directed_flag);
+  Dyad ndyads = DYADCOUNT(nwp);
   
   // If the index is too high or too low, exit immediately.
-  if (i > ndyads - nwp->nedges || i<=0)
+  if (i > ndyads - EDGECOUNT(nwp) || i<=0)
     return 0;
 
   /* TODO: This could be speeded up by a factor of 3 or more by starting
@@ -867,8 +867,8 @@ int WtFindithNonedge (Vertex *tail, Vertex *head, Dyad i, WtNetwork *nwp) {
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
 int WtGetRandNonedge(Vertex *tail, Vertex *head, WtNetwork *nwp) {
-  Dyad ndyads = DYADCOUNT(nwp->nnodes, nwp->bipartite, nwp->directed_flag);
-  if(ndyads-nwp->nedges==0) return(0);
+  Dyad ndyads = DYADCOUNT(nwp);
+  if(ndyads-EDGECOUNT(nwp)==0) return(0);
 
   /* There are two ways to get a random nonedge: 1) keep trying dyads
      at random until you find one that's not an edge or 2) generate i
@@ -883,11 +883,11 @@ int WtGetRandNonedge(Vertex *tail, Vertex *head, WtNetwork *nwp) {
 
   // FIXME: The constant maxEattempts needs to be tuned.
   const unsigned int maxEattempts=10;
-  unsigned int Eattempts = ndyads/(ndyads-nwp->nedges);
+  unsigned int Eattempts = ndyads/(ndyads-EDGECOUNT(nwp));
   
   if(Eattempts>maxEattempts){
     // If the network is too dense, use the deterministic-time method:
-    Dyad rane=1 + unif_rand() * (ndyads-nwp->nedges);
+    Dyad rane=1 + unif_rand() * (ndyads-EDGECOUNT(nwp));
     WtFindithNonedge(tail, head, rane, nwp);
   }else{
     do{

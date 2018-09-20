@@ -96,7 +96,7 @@ void MH_blockdiagTNT (MHProposal *MHp, Network *nwp)
   
   Vertex tail, head, blks=MHp->inputs[1];
   double *blkpos = MHp->inputs+2, *blkcwt = MHp->inputs+2+blks+1, logratio=0; 
-  Edge nedges=nwp->nedges;
+  Edge nedges=EDGECOUNT(nwp);
   static double comp=0.5;
   static double odds;
   static Dyad ndyads;
@@ -158,7 +158,7 @@ void MH_blockdiagTNTB (MHProposal *MHp, Network *nwp)
   static double *eblkpos, *ablkpos, *blkcwt; 
   static Vertex blks;
   double logratio=0; 
-  Edge nedges=nwp->nedges;
+  Edge nedges=EDGECOUNT(nwp);
   static double comp=0.5;
   static double odds;
   static Dyad ndyads;

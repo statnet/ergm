@@ -38,7 +38,7 @@ void MH_BipartiteHammingConstantEdges (MHProposal *MHp, Network *nwp)
     odds = comp/(1.0-comp);
     nnodes = nwp[0].nnodes;
     nb1 = nwp[0].bipartite;
-    ndyads = DYADCOUNT(nnodes, nb1, 0);
+    ndyads = DYADCOUNT(nwp);
     return;
   }
   
@@ -130,7 +130,7 @@ void MH_BipartiteHammingTNT (MHProposal *MHp, Network *nwp)
     odds = comp/(1.0-comp);
     nnodes = nwp[0].nnodes;
     nb1 = nwp[0].bipartite;
-    ndyads = DYADCOUNT(nnodes, nb1, 0);
+    ndyads = DYADCOUNT(nwp);
     return;
   }
   

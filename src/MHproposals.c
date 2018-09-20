@@ -46,7 +46,7 @@ void MH_TNT (MHProposal *MHp, Network *nwp)
 {
   /* *** don't forget tail-> head now */
   
-  Edge nedges=nwp->nedges;
+  Edge nedges=EDGECOUNT(nwp);
   static double comp=0.5;
   static double odds;
   static Dyad ndyads;
@@ -54,7 +54,7 @@ void MH_TNT (MHProposal *MHp, Network *nwp)
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
     odds = comp/(1.0-comp);
-    ndyads = DYADCOUNT(nwp->nnodes, nwp->bipartite, nwp->directed_flag);
+    ndyads = DYADCOUNT(nwp);
     return;
   }
 
@@ -94,7 +94,7 @@ void MH_TNT10 (MHProposal *MHp, Network *nwp)
 {
   /* *** don't forget tail-> head now */
   
-  Edge nedges=nwp->nedges;
+  Edge nedges=EDGECOUNT(nwp);
   static double comp=0.5;
   static double odds;
   static Dyad ndyads;
@@ -102,7 +102,7 @@ void MH_TNT10 (MHProposal *MHp, Network *nwp)
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=10;
     odds = comp/(1.0-comp);
-    ndyads = DYADCOUNT(nwp->nnodes, nwp->bipartite, nwp->directed_flag);
+    ndyads = DYADCOUNT(nwp);
     return;
   }
   
@@ -587,7 +587,7 @@ void MH_listTNT (MHProposal *MHp, Network *nwp)
 
   discord = MHp->discord[0];
   
-  Edge nedges=discord->nedges;
+  Edge nedges=EDGECOUNT(discord);
   double logratio=0;
   BD_LOOP({
       if (unif_rand() < comp && nedges > 0) { /* Select a tie at random from the network of eligibles */
@@ -661,7 +661,7 @@ void MH_RLETNT (MHProposal *MHp, Network *nwp)
       }
     }
 
-    if(discord->nedges==nwp->nedges){ // There are no ties in the initial network that are fixed.
+    if(EDGECOUNT(discord)==EDGECOUNT(nwp)){ // There are no ties in the initial network that are fixed.
       NetworkDestroy(discord);
       Free(MHp->discord);
       MHp->discord = NULL;
@@ -670,7 +670,7 @@ void MH_RLETNT (MHProposal *MHp, Network *nwp)
   }
 
   Network *nwp1 = MHp->discord? MHp->discord[0] : nwp;
-  Edge nedges= nwp1->nedges;
+  Edge nedges= EDGECOUNT(nwp1);
   double logratio=0;
   BD_LOOP({
       if (unif_rand() < comp && nedges > 0) { /* Select a tie at random from the network of eligibles */
@@ -846,7 +846,7 @@ void MH_OneRandomTnTNode (MHProposal *MHp, Network *nwp) {
   fvalid=0;
   while(fvalid==0){
     
-    if ( unif_rand() < 0.5 && nwp->nedges > 0) 
+    if ( unif_rand() < 0.5 && EDGECOUNT(nwp) > 0) 
       {
 	
 	/* select a tie */
