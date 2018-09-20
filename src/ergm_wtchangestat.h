@@ -33,15 +33,15 @@ typedef struct WtModelTermstruct {
 #include "ergm_changestat_common.do_not_include_directly.h"
 
 /* tell whether a particular edge exists */
-#define _WtIS_OUTEDGE2(a,b) (EdgetreeSearch((a),(b),nwp->outedges)!=0?1:0)
+#define _WtIS_OUTEDGE2(a,b) _WtIS_OUTEDGE3(a,b,nwp)
 #define _WtIS_OUTEDGE3(a,b,nwp) (EdgetreeSearch((a),(b),nwp->outedges)!=0?1:0)
 #define WtIS_OUTEDGE(...) _GET_OVERRIDE23(__VA_ARGS__, _WtIS_OUTEDGE3, _WtIS_OUTEDGE2)(__VA_ARGS__)
 
-#define _WtIS_INEDGE2(a,b) (EdgetreeSearch((a),(b),nwp->inedges)!=0?1:0)
+#define _WtIS_INEDGE2(a,b) _WtIS_INEDGE3(a,b,nwp)
 #define _WtIS_INEDGE3(a,b,nwp) (EdgetreeSearch((a),(b),nwp->inedges)!=0?1:0)
 #define WTIS_INEDGE(...) _GET_OVERRIDE23(__VA_ARGS__, _WtIS_INEDGE3, _WtIS_INEDGE2)(__VA_ARGS__)
 
-#define _WtIS_UNDIRECTED_EDGE2(a,b) (EdgetreeSearch(MIN((a),(b)),MAX((a),(b)),nwp->outedges)!=0?1:0)
+#define _WtIS_UNDIRECTED_EDGE2(a,b) _WtIS_UNDIRECTED_EDGE3(a,b,nwp)
 #define _WtIS_UNDIRECTED_EDGE3(a,b,nwp) (EdgetreeSearch(MIN((a),(b)),MAX((a),(b)),nwp->outedges)!=0?1:0)
 #define WtIS_UNDIRECTED_EDGE(...) _GET_OVERRIDE23(__VA_ARGS__, _WtIS_UNDIRECTED_EDGE3, _WtIS_UNDIRECTED_EDGE2)(__VA_ARGS__)
 
@@ -111,10 +111,10 @@ typedef struct WtModelTermstruct {
 #define WtEXEC_THROUGH_NET_EDGES_PRE(a,b,e,w,subroutine) {for(Vertex a=1; a <= N_NODES; a++){WtEXEC_THROUGH_FOUTEDGES_PRE(a, e, b, w, {subroutine});}}
 
 /* Get and set the weight of the (a,b) edge. */
-#define _WtGETWT2(a,b) (WtGetEdge(a,b,nwp))
+#define _WtGETWT2(a,b) _WtGETWT3(a,b,nwp)
 #define _WtGETWT3(a,b,nwp) (WtGetEdge(a,b,nwp))
 #define WtGETWT(...) _GET_OVERRIDE23(__VA_ARGS__, _WtGETWT3, _WtGETWT2)(__VA_ARGS__)
-#define _WtSETWT3(a,b,w) (WtSetEdge(a,b,w,nwp))
+#define _WtSETWT3(a,b,w) _WtSETWT4(a,b,w,nwp)
 #define _WtSETWT4(a,b,w,nwp) (WtSetEdge(a,b,w,nwp))
 #define WtSETWT(...) _GET_OVERRIDE34(__VA_ARGS__, _WtSETWT4, _WtSETWT3)(__VA_ARGS__)
 
