@@ -24,20 +24,10 @@ typedef struct ModelTermstruct {
   double *statcache; /* vector of the same length as dstats */
 } ModelTerm;
 
-
-/* binomial coefficient function and macro: */
-double my_choose(double n, int r);
-#define CHOOSE(n,r) ((n)<(r) ? (0) : (my_choose((double)(n),(int)(r)))) 
-
-/* Comparison macro for doubles: */
-#define EQUAL(a,b) (fabs((a)-(b))<0.0000001)
-
-/* Macros to test for logical inequality (XOR) and logical equality (XNOR). */
-#define XOR(a,b) (((a)==0) != ((b)==0))
-#define XNOR(a,b) (((a)==0) == ((b)==0))
-
 /****************************************************
  Macros to make life easier when writing C code for change statistics:  */
+
+#include "ergm_changestat_common.do_not_include_directly.h"
 
 /* return number of tail and head node in the directed node pair
    tail -> head of the selected toggle */
@@ -66,49 +56,14 @@ double my_choose(double n, int r);
 #define STEP_THROUGH_OUTEDGES(a,e,v) for((e)=MIN_OUTEDGE(a);((v)=OUTVAL(e))!=0;(e)=NEXT_OUTEDGE(e))
 #define STEP_THROUGH_INEDGES(a,e,v) for((e)=MIN_INEDGE(a);((v)=INVAL(e))!=0;(e)=NEXT_INEDGE(e))
 
-/* The OUTVAL and INVAL macros give the "other endnode" of edge e, depending
-   on whether it is an in-edge or an out-edge.  Presumably the first endnode
-   of the edge is already known in this context. */
-#define OUTVAL(e) (nwp->outedges[(e)].value)
-#define INVAL(e) (nwp->inedges[(e)].value)
-
 /* Change the status of the (a,b) edge:  Add it if it's absent, or 
    delete it if it's present. */
 #define TOGGLE(a,b) (ToggleEdge((a),(b),nwp));
 #define TOGGLE_DISCORD(a,b) (ToggleEdge((a),(b),nwp+1));
 
-#define N_NODES (nwp->nnodes) /* Total number of nodes in the network */
-#define N_DYADS (DYADCOUNT(nwp))
-#define OUT_DEG (nwp->outdegree) /* Vector of length N_NODES giving current outdegrees */
-#define IN_DEG (nwp->indegree) /* Vector of length N_NODES giving current indegrees */
-#define DIRECTED (nwp->directed_flag) /* 0 if network is undirected, 1 if directed */
-#define N_EDGES (EDGECOUNT(nwp)) /* Total number of edges in the network currently */
-
-/* 0 if network is not bipartite, otherwise number of first node of second type */
-#define BIPARTITE (nwp->bipartite)
-
-/* Used for internal purposes:  assigning the next in- and out-edge when
-   needed */
-#define NEXT_INEDGE_NUM (nwp->next_inedge)
-#define NEXT_OUTEDGE_NUM (nwp->next_outedge)
-
-/* Vector of change statistics to be modified by the function*/
-#define CHANGE_STAT (mtp->dstats)
-/* Number of change statistics required by the current term */
-#define N_CHANGE_STATS (mtp->nstats)
-
-/* Vector of values passed via "inputs" from R */
-#define INPUT_PARAM (mtp->inputparams)
-#define N_INPUT_PARAMS (mtp->ninputparams) /* Number of inputs passed */
-
-/* Set all changestats to zero at start of function */
-/* #define ZERO_ALL_CHANGESTATS(a) for((a)=0; (a)<N_CHANGE_STATS; (a)++) CHANGE_STAT[(a)]=0.0 */
-#define ZERO_ALL_CHANGESTATS(...) memset(CHANGE_STAT, 0, N_CHANGE_STATS*sizeof(double))
-
 /* Cycle through all toggles proposed for the current step, then
    make the current toggle in case of more than one proposed toggle, then
    undo all of the toggles to reset the original network state.  */
-
 
 /* *** don't forget tail-> head, so these functions now toggle (tails, heads), instead of (heads, tails) */
 
@@ -146,8 +101,5 @@ double my_choose(double n, int r);
 
 /* This macro constructs a function that wraps D_FROM_S. */
 #define D_FROM_S_FN(a) D_CHANGESTAT_FN(a) D_FROM_S
-
-/* Not often used */
-#define INPUT_ATTRIB (mtp->attrib)
 
 #endif

@@ -23,31 +23,18 @@ typedef struct WtModelTermstruct {
   double *statcache; /* vector of the same length as dstats */
 } WtModelTerm;
 
-
-/* binomial coefficient macro: */
-#define CHOOSE(n,r) ((n)<(r) ? (0) : (my_choose((double)(n),(int)(r)))) 
-
-/* Macros to test for logical inequality (XOR) and logical equality (XNOR). */
-#define XOR(a,b) (((a)==0) != ((b)==0))
-#define XNOR(a,b) (((a)==0) == ((b)==0))
+#include "ergm_changestat_common.do_not_include_directly.h"
 
 /* macros that tell whether a particular edge exists */
 #define IS_OUTEDGE(a,b) (WtEdgetreeSearch((a),(b),nwp->outedges)!=0?1:0)
 #define IS_INEDGE(a,b) (WtEdgetreeSearch((a),(b),nwp->inedges)!=0?1:0)
 #define IS_UNDIRECTED_EDGE(a,b) IS_OUTEDGE(MIN(a,b), MAX(a,b))
 
-/* The OUTVAL and INVAL macros give the "other endnode" of edge e, depending
-   on whether it is an in-edge or an out-edge.  Presumably the first endnode
-   of the edge is already known in this context. */
-#define OUTVAL(e) (nwp->outedges[(e)].value)
-#define INVAL(e) (nwp->inedges[(e)].value)
-
 /* The OUTWT and INWT macros give the weight of edge e, depending
    on whether it is an in-edge or an out-edge.  Presumably the first endnode
    of the edge is already known in this context. */
 #define OUTWT(e) (nwp->outedges[(e)].weight)
 #define INWT(e) (nwp->inedges[(e)].weight)
-
 
 /* Return the Edge number of the smallest-labelled neighbor of the node 
    labelled "a".  Or, return the Edge number of the next-largest neighbor 
@@ -88,39 +75,11 @@ typedef struct WtModelTermstruct {
 #define EXEC_THROUGH_FOUTEDGES(a,e,v,w,subroutine) STEP_THROUGH_OUTEDGES_DECL(a,e,v) {Vertex v=OUTVAL(e); double w=OUTWT(e); subroutine}
 #define EXEC_THROUGH_FINEDGES(a,e,v,w,subroutine) STEP_THROUGH_INEDGES_DECL(a,e,v) {Vertex v=INVAL(e); double w=INWT(e); subroutine}
 
-
 /* Get and set the weight of the (a,b) edge. */
 #define GETWT(a,b) (WtGetEdge(a,b,nwp))
 #define SETWT(a,b,w) (WtSetEdge(a,b,w,nwp))
 
-#define N_NODES (nwp->nnodes) /* Total number of nodes in the network */
-#define N_DYADS (DYADCOUNT(nwp))
-#define OUT_DEG (nwp->outdegree) /* Vector of length N_NODES giving current outdegrees */
-#define IN_DEG (nwp->indegree) /* Vector of length N_NODES giving current indegrees */
-#define DIRECTED (nwp->directed_flag) /* 0 if network is undirected, 1 if directed */
-#define N_EDGES (EDGECOUNT(nwp)) /* Total number of edges in the network currently */
-
-/* 0 if network is not bipartite, otherwise number of first node of second type */
-#define BIPARTITE (nwp->bipartite)
-
-/* Used for internal purposes:  assigning the next in- and out-edge when
-   needed */
-#define NEXT_INEDGE_NUM (nwp->next_inedge)
-#define NEXT_OUTEDGE_NUM (nwp->next_outedge)
-
-/* Vector of change statistics to be modified by the function*/
-#define CHANGE_STAT (mtp->dstats)
-/* Number of change statistics required by the current term */
-#define N_CHANGE_STATS (mtp->nstats)
-
-/* Vector of values passed via "inputs" from R */
-#define INPUT_PARAM (mtp->inputparams)
-#define N_INPUT_PARAMS (mtp->ninputparams) /* Number of inputs passed */
-
 #define TOGGLEIND toggleind_var
-
-/* macro to set all changestats to zero at start of function */
-#define ZERO_ALL_CHANGESTATS() memset(CHANGE_STAT, 0, sizeof(double)*N_CHANGE_STATS);
 
 /* Cycle through all toggles proposed for the current step, then
    make the current toggle in case of more than one proposed toggle, then
@@ -180,8 +139,5 @@ typedef struct WtModelTermstruct {
 
 /* This macro constructs a function that wraps D_FROM_S. */
 #define WtD_FROM_S_FN(a) WtD_CHANGESTAT_FN(a) D_FROM_S
-
-/* Not often used */
-#define INPUT_ATTRIB (mtp->attrib)
 
 #endif
