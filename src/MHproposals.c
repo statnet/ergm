@@ -638,7 +638,7 @@ MH_I_FN(Mi_RLETNT){
   
   if(EDGECOUNT(storage->intersect)==EDGECOUNT(nwp)){ // There are no ties in the initial network that are fixed.
     NetworkDestroy(storage->intersect);
-    storage->intersect->nnodes = 0; // "Signal" that there is no discordance network.
+    storage->intersect = NULL; // "Signal" that there is no discordance network.
   }
 
   MHp->ntoggles=1;
@@ -649,7 +649,7 @@ MH_P_FN(Mp_RLETNT){
 
   const double comp=0.5, odds=comp/(1.0-comp);
 
-  Network *nwp1 = storage->intersect->nnodes ? storage->intersect : nwp;
+  Network *nwp1 = storage->intersect ? storage->intersect : nwp;
   Edge nedges= EDGECOUNT(nwp1);
   double logratio=0;
   BD_LOOP({
@@ -679,12 +679,12 @@ MH_P_FN(Mp_RLETNT){
 
 MH_U_FN(Mu_RLETNT){
   GET_STORAGE(StoreRLEBDM1DAndNet, storage);
-  if(storage->intersect->nnodes) ToggleEdge(tail, head, storage->intersect);
+  if(storage->intersect) ToggleEdge(tail, head, storage->intersect);
 }
 
 MH_F_FN(Mf_RLETNT){
   GET_STORAGE(StoreRLEBDM1DAndNet, storage);
-  if(storage->intersect->nnodes) NetworkDestroy(storage->intersect);
+  if(storage->intersect) NetworkDestroy(storage->intersect);
 }
 
 /* The ones below have not been tested */
