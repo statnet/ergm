@@ -25,7 +25,7 @@ void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timi
   int directed_flag;
   Vertex n_nodes;
   Edge n_edges;
-  WtNetwork nw[2];
+  WtNetwork *nwp;
   WtModel *m;
   Vertex bip;
 
@@ -38,17 +38,17 @@ void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timi
   if(*lasttoggle == 0) lasttoggle = NULL;
 
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
-  nw[0]=WtNetworkInitialize(NULL, NULL, NULL, 0,
+  nwp=WtNetworkInitialize(NULL, NULL, NULL, 0,
 			    n_nodes, directed_flag, bip, *timings?1:0, *timings?*time:0, *timings?lasttoggle:NULL);
 
   /* Compute the change statistics and copy them to stats for return
      to R.  Note that stats already has the statistics of an empty
      network, so d_??? statistics will add on to them, while s_???
      statistics will simply overwrite them.*/
-  WtSummStats(n_edges, tails, heads, weights, nw, m,stats);
+  WtSummStats(n_edges, tails, heads, weights, nwp, m,stats);
   
-  WtModelDestroy(nw, m);
-  WtNetworkDestroy(nw);
+  WtModelDestroy(nwp, m);
+  WtNetworkDestroy(nwp);
 }
 
 

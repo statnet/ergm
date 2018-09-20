@@ -23,12 +23,12 @@
 
  and don't forget that tail -> head
 *****************/
-void WtCD_wrapper(int *dnumnets, int *nedges,
+void WtCD_wrapper(int *nedges,
 		    int *tails, int *heads, double *weights, 
 		    int *dn, int *dflag, int *bipartite, 
 		    int *nterms, char **funnames,
 		    char **sonames, 
-		    char **MHproposaltype, char **MHproposalpackage,
+		    char **MHProposaltype, char **MHProposalpackage,
 		  double *inputs, double *theta0, int *samplesize, int *CDparams,
 		  double *sample,
 		    int *fVerbose, 
@@ -37,12 +37,11 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
   Vertex n_nodes, bip, *undotail, *undohead;
   double *undoweight;
   /* Edge n_networks; */
-  WtNetwork nw[1];
+  WtNetwork *nwp;
   WtModel *m;
-  WtMHproposal MH;
+  WtMHProposal *MHp;
   
   n_nodes = (Vertex)*dn; 
-  /* n_networks = (Edge)*dnumnets;  */
   bip = (Vertex)*bipartite; 
   
   GetRNGstate();  /* R function enabling uniform RNG */
@@ -52,39 +51,39 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the network */
-  nw[0]=WtNetworkInitialize(tails, heads, weights, nedges[0], 
+  nwp=WtNetworkInitialize(tails, heads, weights, nedges[0], 
 			    n_nodes, directed_flag, bip, 0, 0, NULL);
 
   /* Trigger initial storage update */
-  WtInitStats(nw, m);
+  WtInitStats(nwp, m);
   
   /* Initialize the M-H proposal */
-  WtMH_init(&MH,
-	    *MHproposaltype, *MHproposalpackage,
+  MHp=WtMHProposalInitialize(
+	    *MHProposaltype, *MHProposalpackage,
 	    inputs,
 	    *fVerbose,
-	    nw,
+	    nwp,
 	    m->termarray->aux_storage);
 
-  undotail = Calloc(MH.ntoggles * CDparams[0] * CDparams[1], Vertex);
-  undohead = Calloc(MH.ntoggles * CDparams[0] * CDparams[1], Vertex);
-  undoweight = Calloc(MH.ntoggles * CDparams[0] * CDparams[1], double);
+  undotail = Calloc(MHp->ntoggles * CDparams[0] * CDparams[1], Vertex);
+  undohead = Calloc(MHp->ntoggles * CDparams[0] * CDparams[1], Vertex);
+  undoweight = Calloc(MHp->ntoggles * CDparams[0] * CDparams[1], double);
   double *extraworkspace = Calloc(m->n_stats, double);
 
-  *status = WtCDSample(&MH,
+  *status = WtCDSample(MHp,
 		       theta0, sample, *samplesize, CDparams, undotail, undohead, undoweight,
-		       *fVerbose, nw, m, extraworkspace);
+		       *fVerbose, nwp, m, extraworkspace);
   
   Free(undotail);
   Free(undohead);
   Free(undoweight);
   Free(extraworkspace);
-  WtMH_free(&MH, nw);
+  WtMHProposalDestroy(MHp, nwp);
         
-/* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
+/* Rprintf("Back! %d %d\n",nwp[0].nedges, nmax); */
   
-  WtModelDestroy(nw, m);
-  WtNetworkDestroy(nw);
+  WtModelDestroy(nwp, m);
+  WtNetworkDestroy(nwp);
   PutRNGstate();  /* Disable RNG before returning */
 }
 
@@ -99,7 +98,7 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-WtMCMCStatus WtCDSample(WtMHproposal *MHp,
+WtMCMCStatus WtCDSample(WtMHProposal *MHp,
 			  double *theta, double *networkstatistics, 
 			int samplesize, int *CDparams, Vertex *undotail, Vertex *undohead, double *undoweight, int fVerbose,
 			  WtNetwork *nwp, WtModel *m, double *extraworkspace){
@@ -159,7 +158,7 @@ WtMCMCStatus WtCDSample(WtMHproposal *MHp,
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-WtMCMCStatus WtCDStep (WtMHproposal *MHp,
+WtMCMCStatus WtCDStep (WtMHProposal *MHp,
 		       double *theta, double *networkstatistics,
 		       int *CDparams, int *staken, Vertex *undotail, Vertex *undohead, double *undoweight,
 		       int fVerbose,
@@ -183,14 +182,14 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 	  error("Something very bad happened during proposal. Memory has not been deallocated, so restart R soon.");
 	  
 	case MH_IMPOSSIBLE:
-	  Rprintf("MH Proposal function encountered a configuration from which no toggle(s) can be proposed.\n");
+	  Rprintf("MH MHProposal function encountered a configuration from which no toggle(s) can be proposed.\n");
 	  return WtMCMC_MH_FAILED;
 	  
 	case MH_UNSUCCESSFUL:
-	  warning("MH Proposal function failed to find a valid proposal.");
+	  warning("MH MHProposal function failed to find a valid proposal.");
 	  unsuccessful++;
 	  if(unsuccessful>*staken*MH_QUIT_UNSUCCESSFUL){
-	    Rprintf("Too many MH Proposal function failures.\n");
+	    Rprintf("Too many MH MHProposal function failures.\n");
 	    return WtMCMC_MH_FAILED;
 	  }
 	  continue;
@@ -202,7 +201,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
       }
       
       if(fVerbose>=5){
-	Rprintf("Proposal: ");
+	Rprintf("MHProposal: ");
 	for(unsigned int i=0; i<MHp->ntoggles; i++)
 	  Rprintf("  (%d, %d) -> %f  ", MHp->toggletail[i], MHp->togglehead[i], MHp->toggleweight[i]);
 	Rprintf("\n");

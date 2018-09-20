@@ -24,12 +24,12 @@
 
 /* *** don't forget tail-> head, so this function now accepts tails before heads */
 
-void SAN_wrapper ( int *dnumnets, int *nedges,
+void SAN_wrapper ( int *nedges,
 		   int *tails, int *heads,
                    int *dn, int *dflag, int *bipartite, 
                    int *nterms, char **funnames,
                    char **sonames, 
-                   char **MHproposaltype, char **MHproposalpackage,
+                   char **MHProposaltype, char **MHProposalpackage,
                    double *inputs, double *theta0, double *tau, 
 		   int *samplesize, 
                    double *sample, int *burnin, int *interval,  
@@ -43,9 +43,9 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
 		   int *status){
   int directed_flag;
   Vertex n_nodes, nmax, bip;
-  Network nw[1];
+  Network *nwp;
   Model *m;
-  MHproposal MH;
+  MHProposal *MHp;
 
 
   /* please don't forget:   tail -> head   */
@@ -62,36 +62,36 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the network */
-  nw[0]=NetworkInitialize(tails, heads, nedges[0], 
+  nwp=NetworkInitialize(tails, heads, nedges[0], 
                           n_nodes, directed_flag, bip, 0, 0, NULL);
   
   /* Trigger initial storage update */
-  InitStats(nw, m);
+  InitStats(nwp, m);
   
   /* Initialize the M-H proposal */
-  MH_init(&MH,
-	  *MHproposaltype, *MHproposalpackage,
+  MHp=MHProposalInitialize(
+	  *MHProposaltype, *MHProposalpackage,
 	  inputs,
 	  *fVerbose,
-	  nw, attribs, maxout, maxin, minout, minin,
+	  nwp, attribs, maxout, maxin, minout, minin,
 	  *condAllDegExact, *attriblength,
 	  m->termarray->aux_storage);
 
-  *status = SANSample (&MH,
+  *status = SANSample (MHp,
 		       theta0, invcov, tau, sample, *samplesize,
 		       *burnin, *interval,
-		       *fVerbose, nmax, nw, m);
+		       *fVerbose, nmax, nwp, m);
   
-  MH_free(&MH, nw);
+  MHProposalDestroy(MHp, nwp);
         
-/* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
+/* Rprintf("Back! %d %d\n",nwp[0].nedges, nmax); */
 
   /* record new generated network to pass back to R */
   if(*status == MCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
-    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,nw,nmax-1);
+    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,nwp,nmax-1);
   
-  ModelDestroy(nw, m);
-  NetworkDestroy(nw);
+  ModelDestroy(nwp, m);
+  NetworkDestroy(nwp);
   PutRNGstate();  /* Disable RNG before returning */
 }
 
@@ -106,7 +106,7 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-MCMCStatus SANSample (MHproposal *MHp,
+MCMCStatus SANSample (MHProposal *MHp,
   double *theta, double *invcov, double *tau, double *networkstatistics, 
   int samplesize, int burnin, 
   int interval, int fVerbose, int nmax,
@@ -219,7 +219,7 @@ MCMCStatus SANMetropolisHastings
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-MCMCStatus SANMetropolisHastings (MHproposal *MHp,
+MCMCStatus SANMetropolisHastings (MHProposal *MHp,
 			    double *theta, double *invcov, 
 			    double *tau, double *networkstatistics,
 			    int nsteps, int *staken,
@@ -243,14 +243,14 @@ MCMCStatus SANMetropolisHastings (MHproposal *MHp,
 	  error("Something very bad happened during proposal. Memory has not been deallocated, so restart R soon.");
 	  
 	case MH_IMPOSSIBLE:
-	  Rprintf("MH Proposal function encountered a configuration from which no toggle(s) can be proposed.\n");
+	  Rprintf("MH MHProposal function encountered a configuration from which no toggle(s) can be proposed.\n");
 	  return MCMC_MH_FAILED;
 	  
 	case MH_UNSUCCESSFUL:
-	  warning("MH Proposal function failed to find a valid proposal.");
+	  warning("MH MHProposal function failed to find a valid proposal.");
 	  unsuccessful++;
 	  if(unsuccessful>taken*MH_QUIT_UNSUCCESSFUL){
-	    Rprintf("Too many MH Proposal function failures.\n");
+	    Rprintf("Too many MH MHProposal function failures.\n");
 	    return MCMC_MH_FAILED;
 	  }
 	case MH_CONSTRAINT:
@@ -259,7 +259,7 @@ MCMCStatus SANMetropolisHastings (MHproposal *MHp,
     }
     
     if(fVerbose>=5){
-      Rprintf("Proposal: ");
+      Rprintf("MHProposal: ");
       for(unsigned int i=0; i<MHp->ntoggles; i++)
 	Rprintf(" (%d, %d)", MHp->toggletail[i], MHp->togglehead[i]);
       Rprintf("\n");

@@ -7,8 +7,8 @@
  *
  *  Copyright 2003-2017 Statnet Commons
  */
-#ifndef WTMCMC_H
-#define WTMCMC_H
+#ifndef _ERGM_WTMCMC_H_
+#define _ERGM_WTMCMC_H_
 
 #include "ergm_wtedgetree.h"
 #include "ergm_wtchangestat.h"
@@ -23,12 +23,12 @@ typedef enum WtMCMCStatus_enum {
 } WtMCMCStatus;
 
 /* *** don't forget tail-> head, so this function accepts tails first, not heads  */
-void WtMCMC_wrapper(int *dnumnets, int *nedges, 
+void WtMCMC_wrapper(int *nedges, 
 		    int *tails, int *heads, double *weights,
 		    int *dn, int *dflag, int *bipartite, 
 		    int *nterms, char **funnames,
 		    char **sonames, 
-		    char **MHproposaltype, char **MHproposalpackage,
+		    char **MHProposaltype, char **MHProposalpackage,
 		    double *inputs, double *theta0, int *samplesize, 
 		    double *sample, int *burnin, int *interval,  
 		    int *newnetworktails, 
@@ -37,12 +37,12 @@ void WtMCMC_wrapper(int *dnumnets, int *nedges,
 		    int *fVerbose, 
 		    int *maxedges,
 		    int *status);
-WtMCMCStatus WtMCMCSample(WtMHproposal *MHp,
+WtMCMCStatus WtMCMCSample(WtMHProposal *MHp,
 			   double *theta, double *networkstatistics, 
 			   int samplesize, int burnin, 
 			   int interval, int fVerbose, int nmax,
 			   WtNetwork *nwp, WtModel *m);
-WtMCMCStatus WtMetropolisHastings(WtMHproposal *MHp,
+WtMCMCStatus WtMetropolisHastings(WtMHProposal *MHp,
 				   double *theta, double *statistics, 
 				   int nsteps, int *staken,
 				   int fVerbose,

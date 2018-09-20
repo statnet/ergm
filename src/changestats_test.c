@@ -7,8 +7,9 @@
  *
  *  Copyright 2003-2017 Statnet Commons
  */
-#include"changestats_test.h"
-#include"ergm_changestats_auxnet.h"
+#include "changestats_test.h"
+#include "ergm_changestats_auxnet.h"
+#include "ergm_dyad_hashmap.h"
 
 C_CHANGESTAT_FN(c_test_abs_edges_minus_5){
   GET_STORAGE(Edge, stored_edges_ptr);
@@ -53,10 +54,10 @@ C_CHANGESTAT_FN(c_isociomatrix){
     CHANGE_STAT[pos] += sm[tail][head]? -1 : +1;
 }
 
-C_CHANGESTAT_FN(c_disc_inter_union_net){
-  GET_AUX_STORAGE_NUM(Network, dnwp, 0);
-  GET_AUX_STORAGE_NUM(Network, inwp, 1);
-  GET_AUX_STORAGE_NUM(Network, unwp, 2);
+C_CHANGESTAT_FN(c_disc_inter_union_net_Network){
+  GET_AUX_STORAGE_NUM(StoreNetAndRefEL, dstorage, 0);
+  GET_AUX_STORAGE_NUM(StoreNetAndRefEL, istorage, 1);
+  GET_AUX_STORAGE_NUM(StoreNetAndRefEL, ustorage, 2);
 
   int nwedge = IS_OUTEDGE(tail, head)!=0;
   int refedge = dEdgeListSearch(tail, head, INPUT_PARAM+3)!=0;
@@ -65,9 +66,26 @@ C_CHANGESTAT_FN(c_disc_inter_union_net){
   CHANGE_STAT[1] = refedge ? (nwedge ? -1 : +1) : 0;
   CHANGE_STAT[2] = !refedge ? (nwedge ? -1 : +1) : 0;
 
-  CHANGE_STAT[3] = (dnwp->nedges+CHANGE_STAT[0])*(dnwp->nedges+CHANGE_STAT[0]) - dnwp->nedges*dnwp->nedges;
-  CHANGE_STAT[4] = (inwp->nedges+CHANGE_STAT[1])*(inwp->nedges+CHANGE_STAT[1]) - inwp->nedges*inwp->nedges;
-  CHANGE_STAT[5] = (unwp->nedges+CHANGE_STAT[2])*(unwp->nedges+CHANGE_STAT[2]) - unwp->nedges*unwp->nedges;
+  CHANGE_STAT[3] = (dstorage->nwp->nedges+CHANGE_STAT[0])*(dstorage->nwp->nedges+CHANGE_STAT[0]) - dstorage->nwp->nedges*dstorage->nwp->nedges;
+  CHANGE_STAT[4] = (istorage->nwp->nedges+CHANGE_STAT[1])*(istorage->nwp->nedges+CHANGE_STAT[1]) - istorage->nwp->nedges*istorage->nwp->nedges;
+  CHANGE_STAT[5] = (ustorage->nwp->nedges+CHANGE_STAT[2])*(ustorage->nwp->nedges+CHANGE_STAT[2]) - ustorage->nwp->nedges*ustorage->nwp->nedges;
+}
+
+C_CHANGESTAT_FN(c_disc_inter_union_net_DyadSet){
+  GET_AUX_STORAGE_NUM(StoreDyadSetAndRefEL, dstorage, 0);
+  GET_AUX_STORAGE_NUM(StoreDyadSetAndRefEL, istorage, 1);
+  GET_AUX_STORAGE_NUM(StoreDyadSetAndRefEL, ustorage, 2);
+
+  int nwedge = IS_OUTEDGE(tail, head)!=0;
+  int refedge = dEdgeListSearch(tail, head, INPUT_PARAM+3)!=0;
+  
+  CHANGE_STAT[0] = nwedge!=refedge ? -1 : +1;
+  CHANGE_STAT[1] = refedge ? (nwedge ? -1 : +1) : 0;
+  CHANGE_STAT[2] = !refedge ? (nwedge ? -1 : +1) : 0;
+
+  CHANGE_STAT[3] = (dstorage->nwp->size+CHANGE_STAT[0])*(dstorage->nwp->size+CHANGE_STAT[0]) - dstorage->nwp->size*dstorage->nwp->size;
+  CHANGE_STAT[4] = (istorage->nwp->size+CHANGE_STAT[1])*(istorage->nwp->size+CHANGE_STAT[1]) - istorage->nwp->size*istorage->nwp->size;
+  CHANGE_STAT[5] = (ustorage->nwp->size+CHANGE_STAT[2])*(ustorage->nwp->size+CHANGE_STAT[2]) - ustorage->nwp->size*ustorage->nwp->size;
 }
 
 /*****************

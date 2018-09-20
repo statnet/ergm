@@ -1,4 +1,14 @@
+/*  File src/changestats_test.c in package ergm, part of the Statnet suite
+ *  of packages for network analysis, http://statnet.org .
+ *
+ *  This software is distributed under the GPL-3 license.  It is free,
+ *  open source, and has the attribution requirements (GPL Section 7) at
+ *  http://statnet.org/attribution
+ *
+ *  Copyright 2003-2017 Statnet Commons
+ */
 #include "ergm_changestats_auxnet.h"
+#include "ergm_dyad_hashmap.h"
 
 I_CHANGESTAT_FN(i__isociomatrix){
   ALLOC_AUX_SOCIOMATRIX(int, sm);
@@ -19,11 +29,10 @@ F_CHANGESTAT_FN(f__isociomatrix){
 }
 
 // sets aux network to y0 XOR y1
-I_CHANGESTAT_FN(i__discord_net){
+I_CHANGESTAT_FN(i__discord_net_Network){
   ALLOC_AUX_STORAGE(1, StoreNetAndRefEL, storage);
-  Network *dnwp = &(storage->nw);
+  Network *dnwp = storage->nwp = NetworkCopy(nwp);
   double *ref_el = storage->ref_el = INPUT_PARAM + 1;
-  NetworkCopy(dnwp, nwp);
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
@@ -32,28 +41,27 @@ I_CHANGESTAT_FN(i__discord_net){
   }
 }
 
-U_CHANGESTAT_FN(u__discord_net){
+U_CHANGESTAT_FN(u__discord_net_Network){
   GET_AUX_STORAGE(StoreNetAndRefEL, storage);
-  Network *dnwp = &(storage->nw);
-  
+  Network *dnwp = storage->nwp;
+
   ToggleEdge(tail, head, dnwp);
 }
 
-F_CHANGESTAT_FN(f__discord_net){
-  GET_AUX_STORAGE(Network, dnwp);
-  
+F_CHANGESTAT_FN(f__discord_net_Network){
+  GET_AUX_STORAGE(StoreNetAndRefEL, storage);
+  Network *dnwp = storage->nwp;
+
   NetworkDestroy(dnwp);
 }
 
 // Initialize empty aux network. Then loop through the edges of y0 (ref_el).
 // If the edge also exists in y1, then toggle it off in dnwp.
 // The storage dnwp should be initialized as y0&y1 at the end.
-I_CHANGESTAT_FN(i__intersect_net){
+I_CHANGESTAT_FN(i__intersect_net_Network){
   ALLOC_AUX_STORAGE(1, StoreNetAndRefEL, storage);
-  Network *dnwp = &(storage->nw);
+  Network *dnwp = storage->nwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
   double *ref_el = storage->ref_el = INPUT_PARAM + 1;
-  
-  *dnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
@@ -64,29 +72,27 @@ I_CHANGESTAT_FN(i__intersect_net){
   }
 }
 
-U_CHANGESTAT_FN(u__intersect_net){
+U_CHANGESTAT_FN(u__intersect_net_Network){
   GET_AUX_STORAGE(StoreNetAndRefEL, storage);
-  Network *dnwp = &(storage->nw);
+  Network *dnwp = storage->nwp;
   double *ref_el = storage->ref_el;
   // only toggle if the edge is in y0. otherwise changing y1 won't matter.
   if(dEdgeListSearch(tail, head, ref_el))
     ToggleEdge(tail, head, dnwp);
 }
 
-F_CHANGESTAT_FN(f__intersect_net){
+F_CHANGESTAT_FN(f__intersect_net_Network){
   GET_AUX_STORAGE(StoreNetAndRefEL, storage);
-  Network *dnwp = &(storage->nw);
-  
+  Network *dnwp = storage->nwp;
+
   NetworkDestroy(dnwp);
 }
 
-I_CHANGESTAT_FN(i__intersect_net_toggles_in_list){
+I_CHANGESTAT_FN(i__intersect_net_toggles_in_list_Network){
   //Rprintf("allocating intersect_net_tog\n");
   ALLOC_AUX_STORAGE(1, StoreNetAndRefEL, storage);
-  Network *dnwp = &(storage->nw);
+  Network *dnwp = storage->nwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
   double *ref_el = storage->ref_el = INPUT_PARAM + 1;
-  
-  *dnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
@@ -97,29 +103,27 @@ I_CHANGESTAT_FN(i__intersect_net_toggles_in_list){
   }
 }
 
-U_CHANGESTAT_FN(u__intersect_net_toggles_in_list){
+U_CHANGESTAT_FN(u__intersect_net_toggles_in_list_Network){
   GET_AUX_STORAGE(StoreNetAndRefEL, storage);
-  Network *dnwp = &(storage->nw);
-  
+  Network *dnwp = storage->nwp;
+
   ToggleEdge(tail, head, dnwp);
 }
 
-F_CHANGESTAT_FN(f__intersect_net_toggles_in_list){
+F_CHANGESTAT_FN(f__intersect_net_toggles_in_list_Network){
   GET_AUX_STORAGE(StoreNetAndRefEL, storage);
-  Network *dnwp = &(storage->nw);
-  
+  Network *dnwp = storage->nwp;
+
   NetworkDestroy(dnwp);
 }
 
 // Initialize aux network to y1. Then loop through the edges of y0 (ref_el).
 // If the edge does not exists in y1, then toggle it on in aux network.
 // The storage dnwp should be initialized as y0|y1 at the end.
-I_CHANGESTAT_FN(i__union_net){
+I_CHANGESTAT_FN(i__union_net_Network){
   ALLOC_AUX_STORAGE(1, StoreNetAndRefEL, storage);
-  Network *dnwp = &(storage->nw);
+  Network *dnwp = storage->nwp = NetworkCopy(nwp);
   double *ref_el = storage->ref_el = INPUT_PARAM + 1;
-  
-  NetworkCopy(dnwp, nwp);
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
@@ -130,24 +134,135 @@ I_CHANGESTAT_FN(i__union_net){
   }
 }
 
-U_CHANGESTAT_FN(u__union_net){
+U_CHANGESTAT_FN(u__union_net_Network){
   GET_AUX_STORAGE(StoreNetAndRefEL, storage);
-  Network *dnwp = &(storage->nw);
+  Network *dnwp = storage->nwp;
   double *ref_el = storage->ref_el;
   // If the edge is in y0, changing y1 won't matter.
   if(dEdgeListSearch(tail, head, ref_el)==0)
     ToggleEdge(tail, head, dnwp);
 }
 
-F_CHANGESTAT_FN(f__union_net){
+F_CHANGESTAT_FN(f__union_net_Network){
   GET_AUX_STORAGE(StoreNetAndRefEL, storage);
-  Network *dnwp = &(storage->nw);
-  
+  Network *dnwp = storage->nwp;
+
   NetworkDestroy(dnwp);
 }
 
-/* blockdiag_net:
+I_CHANGESTAT_FN(i__discord_net_DyadSet){
+  ALLOC_AUX_STORAGE(1, StoreDyadSetAndRefEL, storage);
+  StoreDyadSet *dnwp = storage->nwp = NetworkToDyadSet(nwp);
+  double *ref_el = storage->ref_el = INPUT_PARAM + 1;
+  
+  Edge nedges = *ref_el;
+  for(Edge i=0; i<nedges; i++){
+    Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i];
+    DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+  }
+}
 
+U_CHANGESTAT_FN(u__discord_net_DyadSet){
+  GET_AUX_STORAGE(StoreDyadSetAndRefEL, storage);
+  StoreDyadSet *dnwp = storage->nwp;
+
+  DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+}
+
+F_CHANGESTAT_FN(f__discord_net_DyadSet){
+  GET_AUX_STORAGE(StoreDyadSetAndRefEL, storage);
+  StoreDyadSet *dnwp = storage->nwp;
+
+  kh_destroy(DyadSet, dnwp);
+}
+
+I_CHANGESTAT_FN(i__intersect_net_DyadSet){
+  ALLOC_AUX_STORAGE(1, StoreDyadSetAndRefEL, storage);
+  StoreDyadSet *dnwp = storage->nwp = kh_init(DyadSet);
+  double *ref_el = storage->ref_el = INPUT_PARAM + 1;
+  
+  Edge nedges = *ref_el;
+  for(Edge i=0; i<nedges; i++){
+    Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i];
+    if(IS_OUTEDGE(tail, head)) {
+      DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+    }
+  }
+}
+
+U_CHANGESTAT_FN(u__intersect_net_DyadSet){
+  GET_AUX_STORAGE(StoreDyadSetAndRefEL, storage);
+  StoreDyadSet *dnwp = storage->nwp;
+  double *ref_el = storage->ref_el;
+  // only toggle if the edge is in y0. otherwise changing y1 won't matter.
+  if(dEdgeListSearch(tail, head, ref_el))
+    DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+}
+
+F_CHANGESTAT_FN(f__intersect_net_DyadSet){
+  GET_AUX_STORAGE(StoreDyadSetAndRefEL, storage);
+  StoreDyadSet *dnwp = storage->nwp;
+
+  kh_destroy(DyadSet, dnwp);
+}
+
+I_CHANGESTAT_FN(i__intersect_net_toggles_in_list_DyadSet){
+  ALLOC_AUX_STORAGE(1, StoreDyadSetAndRefEL, storage);
+  StoreDyadSet *dnwp = storage->nwp = kh_init(DyadSet);
+  double *ref_el = storage->ref_el = INPUT_PARAM + 1;
+  
+  Edge nedges = *ref_el;
+  for(Edge i=0; i<nedges; i++){
+    Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i];
+    if(IS_OUTEDGE(tail, head)!=0)
+      DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+  }
+}
+
+U_CHANGESTAT_FN(u__intersect_net_toggles_in_list_DyadSet){
+  GET_AUX_STORAGE(StoreDyadSetAndRefEL, storage);
+  StoreDyadSet *dnwp = storage->nwp;
+
+  DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+}
+
+F_CHANGESTAT_FN(f__intersect_net_toggles_in_list_DyadSet){
+  GET_AUX_STORAGE(StoreDyadSetAndRefEL, storage);
+  StoreDyadSet *dnwp = storage->nwp;
+
+  kh_destroy(DyadSet, dnwp);
+}
+
+I_CHANGESTAT_FN(i__union_net_DyadSet){
+  ALLOC_AUX_STORAGE(1, StoreDyadSetAndRefEL, storage);
+  StoreDyadSet *dnwp = storage->nwp = NetworkToDyadSet(nwp);
+  double *ref_el = storage->ref_el = INPUT_PARAM + 1;
+  
+  Edge nedges = *ref_el;
+  for(Edge i=0; i<nedges; i++){
+    Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i];
+    if(IS_OUTEDGE(tail, head)==0)
+      DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+  }
+}
+
+U_CHANGESTAT_FN(u__union_net_DyadSet){
+  GET_AUX_STORAGE(StoreDyadSetAndRefEL, storage);
+  StoreDyadSet *dnwp = storage->nwp;
+  double *ref_el = storage->ref_el;
+  // If the edge is in y0, changing y1 won't matter.
+  if(dEdgeListSearch(tail, head, ref_el)==0)
+    DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+}
+
+F_CHANGESTAT_FN(f__union_net_DyadSet){
+  GET_AUX_STORAGE(StoreDyadSetAndRefEL, storage);
+  StoreDyadSet *dnwp = storage->nwp;
+
+  kh_destroy(DyadSet, dnwp);
+}
+
+/* blockdiag_net:
    maintains a network that mirrors the main network but excludes ties
    not within specified blocks; also exports a numeric vector of block
    memberships
@@ -155,8 +270,8 @@ F_CHANGESTAT_FN(f__union_net){
 
 I_CHANGESTAT_FN(i__blockdiag_net){
   ALLOC_AUX_STORAGE(1, StoreNetAndBID, blkinfo);
-  blkinfo->nw = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
-  Network *bnwp = &(blkinfo->nw);
+  blkinfo->nwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
+  Network *bnwp = blkinfo->nwp;
   double *b = blkinfo->b = INPUT_PARAM;
 
   for(Vertex tail=1; tail <= N_TAILS; tail++){
@@ -171,7 +286,7 @@ I_CHANGESTAT_FN(i__blockdiag_net){
 
 U_CHANGESTAT_FN(u__blockdiag_net){
   GET_AUX_STORAGE(StoreNetAndBID, blkinfo);
-  Network *bnwp = &(blkinfo->nw);
+  Network *bnwp = blkinfo->nwp;
   double *b = blkinfo->b;
 
   if(b[tail]==b[head])
@@ -180,7 +295,7 @@ U_CHANGESTAT_FN(u__blockdiag_net){
 
 F_CHANGESTAT_FN(f__blockdiag_net){
   GET_AUX_STORAGE(StoreNetAndBID, blkinfo);
-  Network *bnwp = &(blkinfo->nw);
+  Network *bnwp = blkinfo->nwp;
   NetworkDestroy(bnwp);
 }
 
@@ -196,10 +311,9 @@ F_CHANGESTAT_FN(f__blockdiag_net){
 */
 I_CHANGESTAT_FN(i__undir_net){
   double *inputs = INPUT_PARAM;
-  ALLOC_AUX_STORAGE(1, Network, unwp); inputs++;
+  Network *unwp = AUX_STORAGE = NetworkInitialize(NULL, NULL, 0, N_NODES, FALSE, BIPARTITE, FALSE, 0, NULL); inputs++;
   unsigned int rule = *inputs;
    
-  *unwp = NetworkInitialize(NULL, NULL, 0, N_NODES, FALSE, BIPARTITE, FALSE, 0, NULL);
   EXEC_THROUGH_NET_EDGES_PRE(t, h, e, {
       unsigned int toadd;
       switch(rule){

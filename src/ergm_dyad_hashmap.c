@@ -1,4 +1,5 @@
 #include "ergm_dyad_hashmap.h"
+#include "ergm_changestat.h"
 
 /* Print the contents of a khash table  mapping dyads to unsigned
    integers. Useful for debugging. */
@@ -10,4 +11,26 @@ void PrintDyadMapUInt(StoreDyadMapUInt *h){
       Rprintf("(%d,%d)->%u\n",k.tail,k.head,v);
     }
   }
+}
+
+/* Print the contents of a khash set of dyads. Useful for debugging. */
+void PrintDyadSet(StoreDyadSet *h){
+  for(khiter_t i = kh_begin(h); i!=kh_end(h); ++i){
+    if(kh_exist(h, i)){
+      struct TailHead k = kh_key(h, i);
+      Rprintf("(%d,%d) ",k.tail,k.head);
+    }
+  }
+  Rprintf("\n");
+}
+
+/* Copy network to a khash set of dyads. */
+StoreDyadSet *NetworkToDyadSet(Network *nwp){
+  StoreDyadSet *h = kh_init(DyadSet);
+
+  EXEC_THROUGH_NET_EDGES(tail, head, e, {
+      int ret;
+      kh_put(DyadSet, h, TH(tail,head,DIRECTED), &ret);
+    });
+  return h;
 }

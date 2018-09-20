@@ -62,7 +62,7 @@ typedef struct WtModelstruct {
 #endif
 
 #define WtUPDATE_STORAGE_COND(tail, head, weight, nwp, m, MHp, cond){	\
-    if(MHp && ((WtMHproposal*)MHp)->u_func) ((WtMHproposal*)MHp)->u_func(tail, head, weight, MHp, nwp); \
+    if(MHp && ((WtMHProposal*)MHp)->u_func) ((WtMHProposal*)MHp)->u_func(tail, head, weight, MHp, nwp); \
     WtEXEC_THROUGH_TERMS(m, {						\
 	IFDEBUG_BACKUP_DSTATS;						\
 	if(mtp->u_func && (cond))					\

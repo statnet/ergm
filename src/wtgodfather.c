@@ -85,25 +85,24 @@ void WtGodfather_wrapper(int *n_edges, int *tails, int *heads, double *weights,
 			 int *status){
   Vertex nmax;
   /* Edge n_networks; */
-  WtNetwork nw[1];
+  WtNetwork *nwp;
   WtModel *m;
   
-  /* n_networks = (Edge)*dnumnets;  */
   nmax = (Edge)abs(*maxedges);
 
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the network */
-  nw[0]=WtNetworkInitialize(tails, heads, weights, n_edges[0], 
+  nwp=WtNetworkInitialize(tails, heads, weights, n_edges[0], 
 			    *n_nodes, *dflag, *bipartite, 0, 0, NULL);
   
   *status = WtGodfather(abs(*total_changes), changetails, changeheads, changeweights,
-			nw, m, changestats);
+			nwp, m, changestats);
   
   /* record new generated network to pass back to R */
   if(*status == WtMCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads && newnetworkweights)
-    newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,newnetworkweights+1,nw,nmax-1);
+    newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,newnetworkweights+1,nwp,nmax-1);
   
-  WtModelDestroy(nw,m);
-  WtNetworkDestroy(nw);
+  WtModelDestroy(nwp, m);
+  WtNetworkDestroy(nwp);
 }
