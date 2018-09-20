@@ -20,7 +20,7 @@
    MSH: The name Hamming is a hack for the Hamming proposals
         It is no different the MH_BipartiteConstantEdges
 ***********************/
-void MH_BipartiteHammingConstantEdges (MHProposal *MHp, Network *nwp) 
+MH_P_FN(MH_BipartiteHammingConstantEdges)
 {
   /* *** don't forget, edges are (tail, head) now */
 
@@ -113,7 +113,7 @@ void MH_BipartiteHammingConstantEdges (MHProposal *MHp, Network *nwp)
    MSH: The name Hamming is a hack for the Hamming proposals
         It is no different the MH_BipartiteTNT
 ***********************/
-void MH_BipartiteHammingTNT (MHProposal *MHp, Network *nwp) 
+MH_P_FN(MH_BipartiteHammingTNT)
 {
   /* *** don't forget, edges are (tail, head) now */  
   Vertex tail, head;
@@ -177,7 +177,7 @@ void MH_BipartiteHammingTNT (MHProposal *MHp, Network *nwp)
  deg(tail) stays the same while deg(head) and deg(A) swap
  with one another.
 *********************/
-void MH_BipartiteCondDegreeDist (MHProposal *MHp, Network *nwp) {  
+MH_P_FN(MH_BipartiteCondDegreeDist){  
   int valid, count;
   Edge e;
   Vertex tail, head, A, tailin, tailout, headdeg, Adeg, minA, maxA, i, k;

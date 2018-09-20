@@ -15,10 +15,10 @@
 #include "ergm_model.h"
 #include "ergm_MHproposal.h"
 
-void MH_dyadnoiseTNT (MHProposal *MHp, Network *nwp);
-void MH_dyadnoisemTNT (MHProposal *MHp, Network *nwp);
-void MH_dyadnoise (MHProposal *MHp, Network *nwp);
-void MH_dyadnoisem (MHProposal *MHp, Network *nwp);
+MH_P_FN(MH_dyadnoiseTNT);
+MH_P_FN(MH_dyadnoisemTNT);
+MH_P_FN(MH_dyadnoise);
+MH_P_FN(MH_dyadnoisem);
 
 #endif 
 

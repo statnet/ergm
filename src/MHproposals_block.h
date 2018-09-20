@@ -12,8 +12,8 @@
 
 #include "ergm_MHproposal.h"
 
-void MH_blockdiag (MHProposal *MHp, Network *nwp);
-void MH_blockdiagTNT (MHProposal *MHp, Network *nwp);
+MH_P_FN(MH_blockdiag);
+MH_P_FN(MH_blockdiagTNT);
 
 #endif 
 
