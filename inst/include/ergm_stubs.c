@@ -9,7 +9,12 @@ return fun(n,r);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef CHOOSE
 #undef EQUAL
@@ -71,7 +76,12 @@ return fun(tail,head,el);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 
 #include <stddef.h>
@@ -224,7 +234,12 @@ return fun(tails,heads,nwp,nmax);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 
 #include <stddef.h>
@@ -262,7 +277,12 @@ return fun(MHp,nwp);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef NO_EDGE
 #undef OLD_EDGE
@@ -305,7 +325,12 @@ fun(ntoggles,toggletail,togglehead,nwp,m);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef CHOOSE
 #undef EQUAL
@@ -357,7 +382,12 @@ fun(ntoggles,toggletail,togglehead,nwp,m);
 #include "ergm_rlebdm.h"
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef TH2Dyad
 #undef Dyad2T
@@ -528,7 +558,12 @@ return fun(tails,heads,weights,nwp,nmax);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 
 #include <stddef.h>
@@ -546,7 +581,12 @@ fun(MH);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef NO_EDGE
 #undef OLD_EDGE
@@ -582,7 +622,12 @@ fun(ntoggles,toggletail,togglehead,toggleweight,nwp,m);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef CHOOSE
 #undef XOR
@@ -676,7 +721,12 @@ fun(MH,theta,gain,meanstats,nphase1,nsubphases,networkstatistics,samplesize,burn
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef CHOOSE
 #undef EQUAL
@@ -758,7 +808,12 @@ return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
+#undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef CHOOSE
 #undef XOR
