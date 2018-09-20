@@ -1,4 +1,6 @@
-#include "R_ext/Rdynload.h"
+
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_changestat_common.do_not_include_directly.h"
 double my_choose(double n, int r){
 static double (*fun)(double,int) = NULL;
@@ -28,7 +30,9 @@ return fun(n,r);
 #undef N_INPUT_PARAMS
 #undef ZERO_ALL_CHANGESTATS
 #undef INPUT_ATTRIB
-#include "R_ext/Rdynload.h"
+
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_dyad_hashmap.h"
 void PrintDyadSet(StoreDyadSet *h){
 static void (*fun)(StoreDyadSet *) = NULL;
@@ -106,14 +110,18 @@ return fun(nwp);
 #undef ROT_INT
 #undef kh_vertexvertex_hash_func
 #undef kh_vertexvertex_hash_equal
-#include "R_ext/Rdynload.h"
+
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_edgelist.h"
 #undef MIN
 #undef MAX
 #undef DYADCOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
-#include "R_ext/Rdynload.h"
+
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_edgetree.h"
 Network * NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle){
 static Network * (*fun)(Vertex *,Vertex *,Edge,Vertex,int,Vertex,int,int,int *) = NULL;
@@ -245,7 +253,9 @@ return fun(tails,heads,nwp,nmax);
 #undef DYADCOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
-#include "R_ext/Rdynload.h"
+
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_MHproposal.h"
 DegreeBound* DegreeBoundInitialize(int *attribs, int *maxout, int *maxin,int *minout, int *minin, int condAllDegExact,int attriblength, Network *nwp){
 static DegreeBound* (*fun)(int *,int *,int *,int *,int *,int,int,Network *) = NULL;
@@ -304,7 +314,9 @@ return fun(MHp,nwp);
 #undef MH_U_FN
 #undef MH_P_FN
 #undef MH_F_FN
-#include "R_ext/Rdynload.h"
+
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_model.h"
 Model* ModelInitialize(char *fnames, char *sonames, double **inputs,int n_terms){
 static Model* (*fun)(char *,char *,double **,int) = NULL;
@@ -446,7 +458,9 @@ fun(nwp,m);
 #undef IFDEBUG_RESTORE_DSTATS
 #undef UPDATE_STORAGE_COND
 #undef UPDATE_STORAGE
-#include "R_ext/Rdynload.h"
+
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_rlebdm.h"
 #undef MIN
 #undef MAX
@@ -456,7 +470,9 @@ fun(nwp,m);
 #undef TH2Dyad
 #undef Dyad2T
 #undef Dyad2H
-#include "R_ext/Rdynload.h"
+
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_wtedgetree.h"
 WtNetwork * WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle){
 static WtNetwork * (*fun)(Vertex *,Vertex *,double *,Edge,Vertex,int,Vertex,int,int,int *) = NULL;
@@ -589,7 +605,9 @@ return fun(tails,heads,weights,nwp,nmax);
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef ENSURE_TH_ORDER
-#include "R_ext/Rdynload.h"
+
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_wtMHproposal.h"
 WtMHProposal * WtMHProposalInitialize(char *MHProposaltype, char *MHProposalpackage,double *inputs,int fVerbose,WtNetwork *nwp,void **aux_storage){
 static WtMHProposal * (*fun)(char *,char *,double *,int,WtNetwork *,void **) = NULL;
@@ -628,7 +646,9 @@ fun(MH,nwp);
 #undef WtMH_U_FN
 #undef WtMH_P_FN
 #undef WtMH_F_FN
-#include "R_ext/Rdynload.h"
+
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_wtmodel.h"
 WtModel* WtModelInitialize(char *fnames, char *sonames, double **inputs,int n_terms){
 static WtModel* (*fun)(char *,char *,double **,int) = NULL;
