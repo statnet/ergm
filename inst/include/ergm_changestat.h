@@ -31,10 +31,10 @@ typedef struct ModelTermstruct {
   void **aux_storage; /* optional space for persistent public (auxiliary) storage */
 } ModelTerm;
 
-#include "ergm_changestat_common.do_not_include_directly.h"
-
 /****************************************************
  Macros to make life easier when writing C code for change statistics:  */
+
+#include "ergm_changestat_common.do_not_include_directly.h"
 
 /* return number of tail and head node in the directed node pair
    tail -> head of the selected toggle */

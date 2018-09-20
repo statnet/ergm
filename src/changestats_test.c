@@ -66,9 +66,9 @@ C_CHANGESTAT_FN(c_disc_inter_union_net_Network){
   CHANGE_STAT[1] = refedge ? (nwedge ? -1 : +1) : 0;
   CHANGE_STAT[2] = !refedge ? (nwedge ? -1 : +1) : 0;
 
-  CHANGE_STAT[3] = (dstorage->nwp->nedges+CHANGE_STAT[0])*(dstorage->nwp->nedges+CHANGE_STAT[0]) - dstorage->nwp->nedges*dstorage->nwp->nedges;
-  CHANGE_STAT[4] = (istorage->nwp->nedges+CHANGE_STAT[1])*(istorage->nwp->nedges+CHANGE_STAT[1]) - istorage->nwp->nedges*istorage->nwp->nedges;
-  CHANGE_STAT[5] = (ustorage->nwp->nedges+CHANGE_STAT[2])*(ustorage->nwp->nedges+CHANGE_STAT[2]) - ustorage->nwp->nedges*ustorage->nwp->nedges;
+  CHANGE_STAT[3] = (EDGECOUNT(dstorage->nwp)+CHANGE_STAT[0])*(EDGECOUNT(dstorage->nwp)+CHANGE_STAT[0]) - EDGECOUNT(dstorage->nwp)*EDGECOUNT(dstorage->nwp);
+  CHANGE_STAT[4] = (EDGECOUNT(istorage->nwp)+CHANGE_STAT[1])*(EDGECOUNT(istorage->nwp)+CHANGE_STAT[1]) - EDGECOUNT(istorage->nwp)*EDGECOUNT(istorage->nwp);
+  CHANGE_STAT[5] = (EDGECOUNT(ustorage->nwp)+CHANGE_STAT[2])*(EDGECOUNT(ustorage->nwp)+CHANGE_STAT[2]) - EDGECOUNT(ustorage->nwp)*EDGECOUNT(ustorage->nwp);
 }
 
 C_CHANGESTAT_FN(c_disc_inter_union_net_DyadSet){

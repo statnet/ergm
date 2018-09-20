@@ -43,9 +43,16 @@ return fun(x);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
+#undef _GET_OVERRIDE23
+#undef _GET_OVERRIDE34
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
@@ -71,8 +78,14 @@ return fun(x);
 #undef INPUT_ATTRIB
 #undef TAIL
 #undef HEAD
+#undef _IS_OUTEDGE2
+#undef _IS_OUTEDGE3
 #undef IS_OUTEDGE
+#undef _IS_INEDGE2
+#undef _IS_INEDGE3
 #undef IS_INEDGE
+#undef _IS_UNDIRECTED_EDGE2
+#undef _IS_UNDIRECTED_EDGE3
 #undef IS_UNDIRECTED_EDGE
 #undef MIN_OUTEDGE
 #undef MIN_INEDGE
@@ -102,7 +115,11 @@ return fun(x);
 #undef EXEC_THROUGH_NET_EDGES_PRE
 #undef TOGGLE
 #undef TOGGLE_DISCORD
+#undef _GETWT2
+#undef _GETWT3
 #undef GETWT
+#undef _SETWT3
+#undef _SETWT4
 #undef SETWT
 #undef FOR_EACH_TOGGLE
 #undef IF_MORE_TO_COME
@@ -177,9 +194,14 @@ return fun(nwp);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 #undef kh_inline
 #undef klib_unused
 #undef __ac_isempty
@@ -247,9 +269,14 @@ return fun(nwp);
 #include "ergm_edgelist.h"
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
@@ -381,9 +408,14 @@ return fun(tails,heads,nwp,nmax);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
@@ -420,9 +452,14 @@ return fun(MHp,nwp);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 #undef NO_EDGE
 #undef OLD_EDGE
 #undef NEW_EDGE
@@ -481,9 +518,14 @@ fun(nwp,m);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 #undef _GET_OVERRIDE23
 #undef _GET_OVERRIDE34
 #undef CHOOSE
@@ -607,9 +649,14 @@ fun(nwp,m);
 #include "ergm_rlebdm.h"
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 #undef TH2Dyad
 #undef Dyad2T
 #undef Dyad2H
@@ -624,10 +671,16 @@ return fun(x);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef ENSURE_TH_ORDER
+#undef _GET_OVERRIDE23
+#undef _GET_OVERRIDE34
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
@@ -651,8 +704,14 @@ return fun(x);
 #undef N_INPUT_PARAMS
 #undef ZERO_ALL_CHANGESTATS
 #undef INPUT_ATTRIB
+#undef _WtIS_OUTEDGE2
+#undef _WtIS_OUTEDGE3
 #undef WtIS_OUTEDGE
-#undef WtIS_INEDGE
+#undef _WtIS_INEDGE2
+#undef _WtIS_INEDGE3
+#undef WTIS_INEDGE
+#undef _WtIS_UNDIRECTED_EDGE2
+#undef _WtIS_UNDIRECTED_EDGE3
 #undef WtIS_UNDIRECTED_EDGE
 #undef WtMIN_OUTEDGE
 #undef WtMIN_INEDGE
@@ -682,7 +741,11 @@ return fun(x);
 #undef WtEXEC_THROUGH_FINEDGES_PRE
 #undef WtEXEC_THROUGH_NET_EDGES
 #undef WtEXEC_THROUGH_NET_EDGES_PRE
+#undef _WtGETWT2
+#undef _WtGETWT3
 #undef WtGETWT
+#undef _WtSETWT3
+#undef _WtSETWT4
 #undef WtSETWT
 #undef WtFOR_EACH_TOGGLE
 #undef WtTAIL
@@ -933,7 +996,11 @@ return fun(tails,heads,weights,nwp,nmax);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef ENSURE_TH_ORDER
@@ -953,7 +1020,11 @@ fun(MH,nwp);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef ENSURE_TH_ORDER
@@ -1009,7 +1080,11 @@ fun(nwp,m);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef ENSURE_TH_ORDER

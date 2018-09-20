@@ -8,11 +8,11 @@
 #define MN_INVAL(sn, e) (sn->onwp->inedges[(e)].value)
 
 #define MN_N_NODES(sn) (sn->onwp->nnodes) /* Total number of nodes in the network */
-#define MN_N_DYADS(sn) (DYADCOUNT(sn->onwp->nnodes,sn->onwp->bipartite,sn->onwp->directed_flag))
+#define MN_N_DYADS(sn) (DYADCOUNT(sn->onwp))
 #define MN_OUT_DEG(sn) (sn->onwp->outdegree) /* Vector of length N_NODES giving current outdegrees */
 #define MN_IN_DEG(sn) (sn->onwp->indegree) /* Vector of length N_NODES giving current indegrees */
 #define MN_DIRECTED(sn) (sn->onwp->directed_flag) /* 0 if network is undirected, 1 if directed */
-#define MN_N_EDGES(sn) (sn->onwp->nedges) /* Total number of edges in the network currently */
+#define MN_N_EDGES(sn) (EDGECOUNT(sn->onwp)) /* Total number of edges in the network currently */
 
 /* 0 if network is not bipartite, otherwise number of nodes of the first type (the first node of the second type has Vertex index BIPARTITE+1 */
 #define MN_BIPARTITE(sn) (sn->onwp->bipartite)

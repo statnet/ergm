@@ -10,11 +10,7 @@
 #ifndef _ERGM_WTEDGETREE_H_
 #define _ERGM_WTEDGETREE_H_
 
-#include <math.h>
-#include <R.h>
-#include <Rinternals.h>
-#include <Rmath.h>
-#include "ergm_edgetree.h"
+#include "ergm_edgetree_common.do_not_include_directly.h"
 
 /* Ensure that tail < head for undriected networks. */
 #define ENSURE_TH_ORDER							\

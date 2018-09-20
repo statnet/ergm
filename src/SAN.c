@@ -137,7 +137,7 @@ MCMCStatus SANSample (MHProposal *MHp,
   if(SANMetropolisHastings(MHp, theta, invcov, tau, networkstatistics, burnin, &staken,
 			   fVerbose, nwp, m)!=MCMC_OK)
     return MCMC_MH_FAILED;
-  if(nmax!=0 && nwp->nedges >= nmax-1){
+  if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
     return MCMC_TOO_MANY_EDGES;
   }
   
@@ -163,7 +163,7 @@ MCMCStatus SANSample (MHProposal *MHp,
 		             interval, &staken,
 			       fVerbose, nwp, m)!=MCMC_OK)
 	return MCMC_MH_FAILED;
-      if(nmax!=0 && nwp->nedges >= nmax-1){
+      if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
 	return MCMC_TOO_MANY_EDGES;
       }
       tottaken += staken;

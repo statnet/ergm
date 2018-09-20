@@ -38,7 +38,7 @@ MH_P_FN(MH_BipartiteHammingConstantEdges)
     odds = comp/(1.0-comp);
     nnodes = nwp[0].nnodes;
     nb1 = nwp[0].bipartite;
-    ndyads = DYADCOUNT(nnodes, nb1, 0);
+    ndyads = DYADCOUNT(nwp);
     return;
   }
   
@@ -130,7 +130,7 @@ MH_P_FN(MH_BipartiteHammingTNT)
     odds = comp/(1.0-comp);
     nnodes = nwp[0].nnodes;
     nb1 = nwp[0].bipartite;
-    ndyads = DYADCOUNT(nnodes, nb1, 0);
+    ndyads = DYADCOUNT(nwp);
     return;
   }
   

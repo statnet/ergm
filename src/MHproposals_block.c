@@ -53,7 +53,7 @@ MH_P_FN(Mp_blockdiagTNT){
   const double comp=0.5, odds = comp/(1.0-comp);
   
   Dyad ndyads = MH_INPUTS[0];
-  Edge nedges=nwp->nedges;
+  Edge nedges=EDGECOUNT(nwp);
   
   double logratio=0; 
 
