@@ -108,11 +108,11 @@ if(inherits(try(get.MT_terms(), silent=TRUE),"try-error")){
   library(ergm)
   data(florentine)
   set.seed(0)
-  sim.ser <- simulate(flomarriage~edges+triangle, nsim=100, control=control.simulate(MCMC.burnin=1, MCMC.interval=1), statsonly=TRUE)
+  sim.ser <- simulate(flomarriage~edges+triangle, nsim=100, control=control.simulate(MCMC.burnin=1, MCMC.interval=1), output="stats")
   
   prev <- set.MT_terms(2)
   set.seed(0)
-  sim.par <- simulate(flomarriage~edges+triangle, nsim=100, control=control.simulate(MCMC.burnin=1, MCMC.interval=1), statsonly=TRUE)
+  sim.par <- simulate(flomarriage~edges+triangle, nsim=100, control=control.simulate(MCMC.burnin=1, MCMC.interval=1), output="stats")
   set.MT_terms(prev)
   
   stopifnot(all.equal(sim.ser,sim.par))
