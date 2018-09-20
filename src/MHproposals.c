@@ -590,7 +590,7 @@ MH_P_FN(Mp_listTNT){
 	Mtail[0]=list[rane];
 	Mhead[0]=list[ndyads+rane];
 	
-	if(EdgetreeSearch(Mtail[0],Mhead[0],intersect->outedges)!=0){
+	if(IS_OUTEDGE(Mtail[0],Mhead[0],intersect)){
 	  logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
 				nedges / (odds*ndyads + nedges)));
 	}else{
@@ -665,7 +665,7 @@ MH_P_FN(Mp_RLETNT){
       }else{ /* Select a dyad at random from the list */
 	GetRandRLEBDM1D_RS(Mtail, Mhead, &storage->r);
 	
-	if(EdgetreeSearch(Mtail[0],Mhead[0],nwp1->outedges)!=0){
+	if(IS_OUTEDGE(Mtail[0],Mhead[0],nwp1)){
 	  logratio = log((nedges==1 ? 1.0/(comp*storage->r.ndyads + (1.0-comp)) :
 				nedges / (odds*storage->r.ndyads + nedges)));
 	}else{
@@ -1322,10 +1322,10 @@ void MH_ConstrainedNodePairedTiesToggles (MHProposal *MHp,
       k=0;
       fvalid=1;
       while(fvalid==1 && k<nedge+j){
-	if(EdgetreeSearch( MIN(prop,Mtail[k]),
-			   MAX(prop,Mtail[k]), nwp->outedges) +
-	   EdgetreeSearch( MIN(prop,Mhead[k]),
-			   MAX(prop,Mhead[k]), nwp->outedges)==0
+	if(IS_OUTEDGE(MIN(prop,Mtail[k]),
+			   MAX(prop,Mtail[k])) +
+	   IS_OUTEDGE( MIN(prop,Mhead[k]),
+			   MAX(prop,Mhead[k]))==0
 	   ){++k;
 	}else{
 	  fvalid=0;}

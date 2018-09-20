@@ -1527,7 +1527,7 @@ C_CHANGESTAT_FN(c_cycle) {
 
     /*Make the change, as needed*/
     /* I did not swap h/t in the comment below */
-    /*edgeflag = (EdgetreeSearch(tail, head, g.outedges) != 0);*/
+    /*edgeflag = IS_OUTEDGE(tail, head, g);*/
     if((!DIRECTED)&&(tail>head))
       emult = IS_OUTEDGE(head, tail) ? -1.0 : 1.0;
     else
