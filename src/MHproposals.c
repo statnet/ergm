@@ -43,7 +43,7 @@ MH_P_FN(MH_TNT)
 {
   /* *** don't forget tail-> head now */
   
-  Edge nedges=nwp->nedges;
+  Edge nedges=EDGECOUNT(nwp);
   static double comp=0.5;
   static double odds;
   static Dyad ndyads;
@@ -51,7 +51,7 @@ MH_P_FN(MH_TNT)
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
     odds = comp/(1.0-comp);
-    ndyads = DYADCOUNT(N_NODES, BIPARTITE, DIRECTED);
+    ndyads = DYADCOUNT(nwp);
     return;
   }
 
@@ -91,7 +91,7 @@ MH_P_FN(MH_TNT10)
 {
   /* *** don't forget tail-> head now */
   
-  Edge nedges=nwp->nedges;
+  Edge nedges=EDGECOUNT(nwp);
   static double comp=0.5;
   static double odds;
   static Dyad ndyads;
@@ -99,7 +99,7 @@ MH_P_FN(MH_TNT10)
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=10;
     odds = comp/(1.0-comp);
-    ndyads = DYADCOUNT(N_NODES, BIPARTITE, DIRECTED);
+    ndyads = DYADCOUNT(nwp);
     return;
   }
   
@@ -572,7 +572,7 @@ MH_P_FN(Mp_listTNT){
 
   Network *intersect = STORAGE;
 
-  Edge nedges=intersect->nedges;
+  Edge nedges=EDGECOUNT(intersect);
   
   double logratio=0;
   BD_LOOP({
@@ -636,7 +636,7 @@ MH_I_FN(Mi_RLETNT){
       }
     });
   
-  if(storage->intersect->nedges==nwp->nedges){ // There are no ties in the initial network that are fixed.
+  if(EDGECOUNT(storage->intersect)==EDGECOUNT(nwp)){ // There are no ties in the initial network that are fixed.
     NetworkDestroy(storage->intersect);
     storage->intersect->nnodes = 0; // "Signal" that there is no discordance network.
   }
@@ -650,7 +650,7 @@ MH_P_FN(Mp_RLETNT){
   const double comp=0.5, odds=comp/(1.0-comp);
 
   Network *nwp1 = storage->intersect->nnodes ? storage->intersect : nwp;
-  Edge nedges= nwp1->nedges;
+  Edge nedges= EDGECOUNT(nwp1);
   double logratio=0;
   BD_LOOP({
       if (unif_rand() < comp && nedges > 0) { /* Select a tie at random from the network of eligibles */
@@ -835,7 +835,7 @@ MH_P_FN(MH_OneRandomTnTNode){
   fvalid=0;
   while(fvalid==0){
     
-    if ( unif_rand() < 0.5 && nwp->nedges > 0) 
+    if ( unif_rand() < 0.5 && EDGECOUNT(nwp) > 0) 
       {
 	
 	/* select a tie */

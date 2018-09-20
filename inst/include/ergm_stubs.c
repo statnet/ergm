@@ -48,9 +48,14 @@ return fun(nwp);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 #undef kh_inline
 #undef klib_unused
 #undef __ac_isempty
@@ -118,9 +123,14 @@ return fun(nwp);
 #include "ergm_edgelist.h"
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
@@ -252,9 +262,14 @@ return fun(tails,heads,nwp,nmax);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
@@ -291,9 +306,14 @@ return fun(MHp,nwp);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 #undef NO_EDGE
 #undef OLD_EDGE
 #undef NEW_EDGE
@@ -352,9 +372,14 @@ fun(nwp,m);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 #undef _GET_OVERRIDE23
 #undef _GET_OVERRIDE34
 #undef CHOOSE
@@ -478,9 +503,14 @@ fun(nwp,m);
 #include "ergm_rlebdm.h"
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 #undef TH2Dyad
 #undef Dyad2T
 #undef Dyad2H
@@ -615,7 +645,11 @@ return fun(tails,heads,weights,nwp,nmax);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef ENSURE_TH_ORDER
@@ -635,7 +669,11 @@ fun(MH,nwp);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef ENSURE_TH_ORDER
@@ -691,7 +729,11 @@ fun(nwp,m);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE3
+#undef _DYADCOUNT1
+#undef _DYADCOUNT3
 #undef DYADCOUNT
+#undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef ENSURE_TH_ORDER

@@ -65,9 +65,9 @@ C_CHANGESTAT_FN(c_disc_inter_union_net_Network){
   CHANGE_STAT[1] = refedge ? (nwedge ? -1 : +1) : 0;
   CHANGE_STAT[2] = !refedge ? (nwedge ? -1 : +1) : 0;
 
-  CHANGE_STAT[3] = (dnwp->nedges+CHANGE_STAT[0])*(dnwp->nedges+CHANGE_STAT[0]) - dnwp->nedges*dnwp->nedges;
-  CHANGE_STAT[4] = (inwp->nedges+CHANGE_STAT[1])*(inwp->nedges+CHANGE_STAT[1]) - inwp->nedges*inwp->nedges;
-  CHANGE_STAT[5] = (unwp->nedges+CHANGE_STAT[2])*(unwp->nedges+CHANGE_STAT[2]) - unwp->nedges*unwp->nedges;
+  CHANGE_STAT[3] = (EDGECOUNT(dnwp)+CHANGE_STAT[0])*(EDGECOUNT(dnwp)+CHANGE_STAT[0]) - EDGECOUNT(dnwp)*EDGECOUNT(dnwp);
+  CHANGE_STAT[4] = (EDGECOUNT(inwp)+CHANGE_STAT[1])*(EDGECOUNT(inwp)+CHANGE_STAT[1]) - EDGECOUNT(inwp)*EDGECOUNT(inwp);
+  CHANGE_STAT[5] = (EDGECOUNT(unwp)+CHANGE_STAT[2])*(EDGECOUNT(unwp)+CHANGE_STAT[2]) - EDGECOUNT(unwp)*EDGECOUNT(unwp);
 }
 
 C_CHANGESTAT_FN(c_disc_inter_union_net_DyadSet){
