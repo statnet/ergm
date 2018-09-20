@@ -9,7 +9,7 @@
  */
 /* Utilities to facilitate block-diagonal proposals. */
 
-/* # Standard format for block-diagonal information for MHproposals #
+/* # Standard format for block-diagonal information for MHProposals #
 
    Let double *x point to the start of the block information segment
    and let b be the number of blocks. Here, the slice notation x[a :

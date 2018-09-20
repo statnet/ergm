@@ -1,6 +1,7 @@
 #ifndef _ERGM_DYAD_HASHMAP_H_
 #define _ERGM_DYAD_HASHMAP_H_
 
+#include "stdbool.h"
 #include "ergm_edgetree.h"
 #include "ergm_khash.h"
 
@@ -31,10 +32,31 @@ static inline unsigned int kh_scramble_int(unsigned int a){
 #define kh_vertexvertex_hash_equal(a,b) (a.tail==b.tail && a.head==b.head)
 
 /* Predefined khash type for mapping dyads onto unsigned ints. */
-KHASH_INIT(DyadMapUInt, struct TailHead, unsigned int, TRUE, kh_vertexvertex_hash_func, kh_vertexvertex_hash_equal)
+KHASH_INIT(DyadMapUInt, struct TailHead, unsigned int, true, kh_vertexvertex_hash_func, kh_vertexvertex_hash_equal)
 typedef khash_t(DyadMapUInt) StoreDyadMapUInt;
+
+/* Predefined khash type for dyad sets. This may or may not be faster than edgetree. */
+KHASH_INIT(DyadSet, struct TailHead, char, false, kh_vertexvertex_hash_func, kh_vertexvertex_hash_equal)
+typedef khash_t(DyadSet) StoreDyadSet;
+
+// Toggle an element of a DyadSet.
+static inline bool DyadSetToggle(struct TailHead th, StoreDyadSet *h){
+  int ret;
+  // Attempt insertion
+  khiter_t i = kh_put(DyadSet, h, th, &ret);
+  if(ret==0){
+    // Already present: delete
+    kh_del(DyadSet, h, i);
+    return false;
+  }else{
+    // Inserted by kh_put above
+    return true;
+  }
+}
 
 /* Utility function declarations. */
 void PrintDyadMapUInt(StoreDyadMapUInt *h);
+void PrintDyadSet(StoreDyadSet *h);
+StoreDyadSet *NetworkToDyadSet(Network *nwp);
 
 #endif // _ERGM_DYAD_HASHMAP_H_

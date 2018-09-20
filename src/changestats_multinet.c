@@ -8,7 +8,7 @@ I_CHANGESTAT_FN(i__subnets){
   ALLOC_AUX_STORAGE(1, StoreSubnets, sn); inputs++;
   sn->ns = *(inputs++);
   sn->inwp = nwp;
-  sn->onwp = Calloc(sn->ns, Network);
+  sn->onwp = Calloc(sn->ns, Network *);
   sn->onwp--; // The -- is because Network IDs count from 1.
 
   /* Set up the layer information. */
@@ -31,19 +31,19 @@ I_CHANGESTAT_FN(i__subnets){
   }
   
   EXEC_THROUGH_NET_EDGES_PRE(t, h, e, {
-      ToggleEdge(MN_IO_TAIL(sn, t), MN_IO_HEAD(sn, h), sn->onwp + MN_SID_TAIL(sn, t));
+      ToggleEdge(MN_IO_TAIL(sn, t), MN_IO_HEAD(sn, h), sn->onwp[MN_SID_TAIL(sn, t)]);
     });
 }
 
 U_CHANGESTAT_FN(u__subnets){ 
   GET_AUX_STORAGE(StoreSubnets, sn);
-  ToggleEdge(MN_IO_TAIL(sn, tail), MN_IO_HEAD(sn, head),sn->onwp + MN_SID_TAIL(sn, tail));
+  ToggleEdge(MN_IO_TAIL(sn, tail), MN_IO_HEAD(sn, head),sn->onwp[MN_SID_TAIL(sn, tail)]);
 }
 
 F_CHANGESTAT_FN(f__subnets){
   GET_AUX_STORAGE(StoreSubnets, sn);
   for(unsigned int i=1; i<=sn->ns; i++)
-    NetworkDestroy(sn->onwp + i);
+    NetworkDestroy(sn->onwp[i]);
   sn->onwp++;
   Free(sn->onwp);
 }
@@ -78,7 +78,7 @@ I_CHANGESTAT_FN(i_MultiNet){
     wts += nwts; // OK to clobber it here.
     if(used){
       ms[i-1] = unpack_Model_as_double(&inputs);
-      InitStats(sn->onwp + i, ms[i-1]);
+      InitStats(sn->onwp[i], ms[i-1]);
     }else ms[i-1] = NULL;
   }
 }
@@ -94,7 +94,7 @@ C_CHANGESTAT_FN(c_MultiNet){
   Model *m = ms[i-1];
   if(m){ // NULL if network has weights 0.
     Vertex st = MN_IO_TAIL(sn, tail), sh = MN_IO_HEAD(sn, head);
-    ChangeStats(1, &st, &sh, sn->onwp + i, m);
+    ChangeStats(1, &st, &sh, sn->onwp[i], m);
 
     wts += (i-1)*nwts; // Position of that network's weight vector.
     for(unsigned int j=0; j<m->n_stats; j++)
@@ -111,7 +111,7 @@ U_CHANGESTAT_FN(u_MultiNet){
   Model *m = ms[i-1];
   if(m){ // NULL if network has weights 0.
     Vertex st = MN_IO_TAIL(sn, tail), sh = MN_IO_HEAD(sn, head);
-    UPDATE_STORAGE(st, sh, sn->onwp + i, m, NULL);
+    UPDATE_STORAGE(st, sh, sn->onwp[i], m, NULL);
   }
 }
 
@@ -120,7 +120,7 @@ F_CHANGESTAT_FN(f_MultiNet){
   GET_STORAGE(Model*, ms);
 
   for(unsigned int i=1; i<=sn->ns; i++){
-    if(ms[i-1]) ModelDestroy(sn->onwp + i, ms[i-1]);
+    if(ms[i-1]) ModelDestroy(sn->onwp[i], ms[i-1]);
   }
 }
 
@@ -137,7 +137,7 @@ I_CHANGESTAT_FN(i_MultiNets){
   for(unsigned int i=1; i<=sn->ns; i++){
     if(pos[i-1]!=pos[i]){
       ms[i-1] = unpack_Model_as_double(&inputs);
-      InitStats(sn->onwp + i, ms[i-1]);
+      InitStats(sn->onwp[i], ms[i-1]);
     }
   }
 }
@@ -151,7 +151,7 @@ C_CHANGESTAT_FN(c_MultiNets){
   Vertex st = MN_IO_TAIL(sn, tail), sh = MN_IO_HEAD(sn, head);
   if(pos[i-1]!=pos[i]){
     Model *m = ms[i-1];
-    ChangeStats(1, &st, &sh, sn->onwp + i, m);
+    ChangeStats(1, &st, &sh, sn->onwp[i], m);
     memcpy(CHANGE_STAT + (unsigned int)(pos[i-1]), m->workspace, m->n_stats*sizeof(double));
   }
 }
@@ -164,7 +164,7 @@ U_CHANGESTAT_FN(u_MultiNets){
   unsigned int i = MN_SID_TAIL(sn, tail);
   if(pos[i-1]!=pos[i]){
     Vertex st = MN_IO_TAIL(sn, tail), sh = MN_IO_HEAD(sn, head);
-    UPDATE_STORAGE(st, sh, sn->onwp + i, ms[i-1], NULL);
+    UPDATE_STORAGE(st, sh, sn->onwp[i], ms[i-1], NULL);
   }
 }
 
@@ -175,7 +175,7 @@ F_CHANGESTAT_FN(f_MultiNets){
 
   for(unsigned int i=1; i<=sn->ns; i++){
     if(pos[i-1]!=pos[i]){
-      ModelDestroy(sn->onwp + i, ms[i-1]);
+      ModelDestroy(sn->onwp[i], ms[i-1]);
     }
   }
 }

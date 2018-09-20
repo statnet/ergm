@@ -3,6 +3,6 @@
 
 #include "ergm_changestat_operator.h"
 
-typedef struct{Network nw; Model *m;} StoreNetAndModel;
+typedef struct{Network *nwp; Model *m;} StoreNetAndModel;
 
 #endif // CHANGESTATS_OPERATOR_H

@@ -1,4 +1,4 @@
-/*  File src/MHproposals_dyadnoise.c in package ergm, part of the Statnet suite
+/*  File src/MHProposals_dyadnoise.c in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -22,12 +22,12 @@
 
    Takes an "observed" network and a list of precomputed ratios, and
    tweaks the probability of the network by
-   p(nw[i,j])to(obs[i,j]). (Network is passed second.)
+   p(nwp[i,j])to(obs[i,j]). (Network is passed second.)
 
    TODO: Proposals could almost certainly be more efficient.
 
 ***********************/
-void MH_dyadnoiseTNT (MHproposal *MHp, Network *nwp) 
+void MH_dyadnoiseTNT (MHProposal *MHp, Network *nwp) 
 {
   /* *** don't forget tail-> head now */
   static double comp=0.5;
@@ -84,16 +84,16 @@ void MH_dyadnoiseTNT (MHproposal *MHp, Network *nwp)
 
    Takes an "observed" network and a list of precomputed ratio *matrices*, and
    tweaks the probability of the network by
-   p(nw[i,j])to(obs[i,j]). (Network is passed second.)
+   p(nwp[i,j])to(obs[i,j]). (Network is passed second.)
 
    TODO: Proposals could almost certainly be more efficient.
 
 ***********************/
-void MH_dyadnoisemTNT (MHproposal *MHp, Network *nwp) 
+void MH_dyadnoisemTNT (MHProposal *MHp, Network *nwp) 
 {
   /* *** don't forget tail-> head now */  
   static double comp=0.5;
-  static double odds, *o0s0, *o0s1, *o1s0, *o1s1, *onw;
+  static double odds, *o0s0, *o0s1, *o1s0, *o1s1, *onwp;
   static Edge ndyads;
   static Vertex ntails;
   
@@ -105,7 +105,7 @@ void MH_dyadnoisemTNT (MHproposal *MHp, Network *nwp)
     unsigned int matsize = BIPARTITE? (N_NODES-BIPARTITE)*BIPARTITE : N_NODES*N_NODES;
     o0s0 = MHp->inputs; o0s1 = MHp->inputs+matsize;
     o1s0 = MHp->inputs+matsize*2; o1s1 = MHp->inputs+matsize*3;
-    onw = MHp->inputs+matsize*4;
+    onwp = MHp->inputs+matsize*4;
     ntails = BIPARTITE? BIPARTITE:N_NODES;
     return;
   }
@@ -121,12 +121,12 @@ void MH_dyadnoisemTNT (MHproposal *MHp, Network *nwp)
 	MHp->logratio += log((N_EDGES==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
 			      N_EDGES / (odds*ndyads + N_EDGES)));
 
-	int obs = dEdgeListSearch(Mtail[0],Mhead[0],onw)!=0;	
+	int obs = dEdgeListSearch(Mtail[0],Mhead[0],onwp)!=0;	
 	MHp->logratio += (obs?o1s1:o0s1)[(Mtail[0]-1) + (Mhead[0]-1)*ntails]; // R matrix serialization is column-major.
       }else{ /* Select a dyad at random */
 	GetRandDyad(Mtail, Mhead, nwp);
 
-	int obs = dEdgeListSearch(Mtail[0],Mhead[0],onw)!=0;	
+	int obs = dEdgeListSearch(Mtail[0],Mhead[0],onwp)!=0;	
 
 	if(IS_OUTEDGE(Mtail[0],Mhead[0])!=0){
 	  MHp->logratio += log((N_EDGES==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
@@ -147,12 +147,12 @@ void MH_dyadnoisemTNT (MHproposal *MHp, Network *nwp)
 
    Takes an "observed" network and a list of precomputed ratios, and
    tweaks the probability of the network by
-   p(nw[i,j])to(obs[i,j]). (Network is passed second.)
+   p(nwp[i,j])to(obs[i,j]). (Network is passed second.)
 
    TODO: Proposals could almost certainly be more efficient.
 
 ***********************/
-void MH_dyadnoise (MHproposal *MHp, Network *nwp) 
+void MH_dyadnoise (MHProposal *MHp, Network *nwp) 
 {
   /* *** don't forget tail-> head now */
   
@@ -184,16 +184,16 @@ void MH_dyadnoise (MHproposal *MHp, Network *nwp)
 
    Takes an "observed" network and a list of precomputed ratio *matrices*, and
    tweaks the probability of the network by
-   p(nw[i,j])to(obs[i,j]). (Network is passed second.)
+   p(nwp[i,j])to(obs[i,j]). (Network is passed second.)
 
    TODO: Proposals could almost certainly be more efficient.
 
 ***********************/
-void MH_dyadnoisem (MHproposal *MHp, Network *nwp) 
+void MH_dyadnoisem (MHProposal *MHp, Network *nwp) 
 {
   /* *** don't forget tail-> head now */
   
-  static double *o0s0, *o0s1, *o1s0, *o1s1, *onw;
+  static double *o0s0, *o0s1, *o1s0, *o1s1, *onwp;
   static Vertex ntails;
   
   if(MHp->ntoggles == 0) { /* Initialize */
@@ -202,7 +202,7 @@ void MH_dyadnoisem (MHproposal *MHp, Network *nwp)
     unsigned int matsize = BIPARTITE? (N_NODES-BIPARTITE)*BIPARTITE : N_NODES*N_NODES;
     o0s0 = MHp->inputs; o0s1 = MHp->inputs+matsize;
     o1s0 = MHp->inputs+matsize*2; o1s1 = MHp->inputs+matsize*3;
-    onw = MHp->inputs+matsize*4;
+    onwp = MHp->inputs+matsize*4;
     ntails = BIPARTITE? BIPARTITE:N_NODES;
     return;
   }
@@ -210,7 +210,7 @@ void MH_dyadnoisem (MHproposal *MHp, Network *nwp)
   BD_LOOP({
       GetRandDyad(Mtail, Mhead, nwp);
 
-      int obs = dEdgeListSearch(Mtail[0],Mhead[0],onw)!=0;	
+      int obs = dEdgeListSearch(Mtail[0],Mhead[0],onwp)!=0;	
 
       if(IS_OUTEDGE(Mtail[0],Mhead[0])!=0){
 	MHp->logratio += (obs?o1s1:o0s1)[(Mtail[0]-1) + (Mhead[0]-1)*ntails]; // R matrix serialization is column-major.

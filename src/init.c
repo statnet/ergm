@@ -21,37 +21,41 @@
 
 /* .C calls */
 extern void AllStatistics(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void CD_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void CD_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void full_geodesic_distribution(void *, void *, void *, void *, void *, void *, void *, void *);
 extern void geodesic_matrix(void *, void *, void *, void *, void *, void *, void *);
-extern void MCMC_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void Godfather_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void MCMC_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void MCMCPhase12(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void MPLE_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void network_stats_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void node_geodesics(void *, void *, void *, void *, void *, void *, void *, void *);
 extern void pair_geodesic(void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void SAN_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void SAN_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void wt_network_stats_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void WtCD_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void WtMCMC_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void WtSAN_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void WtCD_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void WtGodfather_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void WtMCMC_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void WtSAN_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 
 static const R_CMethodDef CEntries[] = {
     {"AllStatistics",              (DL_FUNC) &AllStatistics,              13},
-    {"CD_wrapper",                 (DL_FUNC) &CD_wrapper,                 26},
+    {"CD_wrapper",                 (DL_FUNC) &CD_wrapper,                 25},
     {"full_geodesic_distribution", (DL_FUNC) &full_geodesic_distribution,  8},
     {"geodesic_matrix",            (DL_FUNC) &geodesic_matrix,             7},
-    {"MCMC_wrapper",               (DL_FUNC) &MCMC_wrapper,               30},
+    {"Godfather_wrapper",          (DL_FUNC) &Godfather_wrapper,          20},
+    {"MCMC_wrapper",               (DL_FUNC) &MCMC_wrapper,               29},
     {"MCMCPhase12",                (DL_FUNC) &MCMCPhase12,                35},
     {"MPLE_wrapper",               (DL_FUNC) &MPLE_wrapper,               16},
     {"network_stats_wrapper",      (DL_FUNC) &network_stats_wrapper,      14},
     {"node_geodesics",             (DL_FUNC) &node_geodesics,              8},
     {"pair_geodesic",              (DL_FUNC) &pair_geodesic,               9},
-    {"SAN_wrapper",                (DL_FUNC) &SAN_wrapper,                32},
+    {"SAN_wrapper",                (DL_FUNC) &SAN_wrapper,                31},
     {"wt_network_stats_wrapper",   (DL_FUNC) &wt_network_stats_wrapper,   15},
-    {"WtCD_wrapper",               (DL_FUNC) &WtCD_wrapper,               20},
-    {"WtMCMC_wrapper",             (DL_FUNC) &WtMCMC_wrapper,             25},
-    {"WtSAN_wrapper",              (DL_FUNC) &WtSAN_wrapper,              34},
+    {"WtCD_wrapper",               (DL_FUNC) &WtCD_wrapper,               19},
+    {"WtGodfather_wrapper",        (DL_FUNC) &WtGodfather_wrapper,        22},
+    {"WtMCMC_wrapper",             (DL_FUNC) &WtMCMC_wrapper,             24},
+    {"WtSAN_wrapper",              (DL_FUNC) &WtSAN_wrapper,              33},
     {NULL, NULL, 0}
 };
 

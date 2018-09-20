@@ -9,7 +9,7 @@
 #include "ergm_wtmodel.h"
 #include "ergm_storage.h"
 
-typedef struct{Network nw; Model *m;} StoreNetAndModel;
-typedef struct{Network nw; WtModel *m;} StoreNetAndWtModel;
+typedef struct{Network *nwp; Model *m;} StoreNetAndModel;
+typedef struct{Network *nwp; WtModel *m;} StoreNetAndWtModel;
 
 #endif // WTCHANGESTATS_OPERATOR_H

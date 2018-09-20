@@ -1,4 +1,4 @@
-/*  File src/MHproposals_bipartite.h in package ergm, part of the Statnet suite
+/*  File src/MHProposals_bipartite.h in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -7,17 +7,17 @@
  *
  *  Copyright 2003-2017 Statnet Commons
  */
-#ifndef MHproposals_bipartite_H
-#define MHproposals_bipartite_H
+#ifndef MHProposals_bipartite_H
+#define MHProposals_bipartite_H
 
 #include "ergm_edgetree.h"
 #include "ergm_changestat.h"
 #include "ergm_model.h"
 #include "ergm_MHproposal.h"
 
-void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp);
-void MH_BipartiteHammingTNT (MHproposal *MHp, Network *nwp);
-void MH_BipartiteCondDegreeDist (MHproposal *MHp, Network *nwp);
+void MH_BipartiteHammingConstantEdges (MHProposal *MHp, Network *nwp);
+void MH_BipartiteHammingTNT (MHProposal *MHp, Network *nwp);
+void MH_BipartiteCondDegreeDist (MHProposal *MHp, Network *nwp);
 
 #endif 
 

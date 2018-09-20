@@ -23,50 +23,49 @@
 *******************/
 /* *** don't forget, tail -> head */
 
-Network NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges, 
-			  Vertex nnodes, int directed_flag, Vertex bipartite,
-			  int lasttoggle_flag, int time, int *lasttoggle) {
+Network *NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges, 
+			   Vertex nnodes, int directed_flag, Vertex bipartite,
+			   int lasttoggle_flag, int time, int *lasttoggle) {
+  
+  Network *nwp = Calloc(1, Network);
 
-  Network nw;
-
-  nw.last_inedge = nw.last_outedge = (Edge)nnodes;
+  nwp->last_inedge = nwp->last_outedge = (Edge)nnodes;
   /* Calloc will zero the allocated memory for us, probably a lot
      faster. */
-  nw.outdegree = (Vertex *) Calloc((nnodes+1), Vertex);
-  nw.indegree  = (Vertex *) Calloc((nnodes+1), Vertex);
-  nw.maxedges = MAX(nedges,1)+nnodes+2; /* Maybe larger than needed? */
-  nw.inedges = (TreeNode *) Calloc(nw.maxedges, TreeNode);
-  nw.outedges = (TreeNode *) Calloc(nw.maxedges, TreeNode);
+  nwp->outdegree = (Vertex *) Calloc((nnodes+1), Vertex);
+  nwp->indegree  = (Vertex *) Calloc((nnodes+1), Vertex);
+  nwp->maxedges = MAX(nedges,1)+nnodes+2; /* Maybe larger than needed? */
+  nwp->inedges = (TreeNode *) Calloc(nwp->maxedges, TreeNode);
+  nwp->outedges = (TreeNode *) Calloc(nwp->maxedges, TreeNode);
 
   GetRNGstate();  /* R function enabling uniform RNG */
 
   if(lasttoggle_flag){
-    nw.duration_info.time=time;
+    nwp->duration_info.time=time;
     if(lasttoggle){
-        nw.duration_info.lasttoggle = (int *) Calloc(DYADCOUNT(nnodes, bipartite, directed_flag), int);
-        memcpy(nw.duration_info.lasttoggle, lasttoggle, DYADCOUNT(nnodes, bipartite, directed_flag) * sizeof(int));
-    } else nw.duration_info.lasttoggle = NULL;
+        nwp->duration_info.lasttoggle = (int *) Calloc(DYADCOUNT(nnodes, bipartite, directed_flag), int);
+        memcpy(nwp->duration_info.lasttoggle, lasttoggle, DYADCOUNT(nnodes, bipartite, directed_flag) * sizeof(int));
+    } else nwp->duration_info.lasttoggle = NULL;
   }
-  else nw.duration_info.lasttoggle = NULL;
+  else nwp->duration_info.lasttoggle = NULL;
 
   /*Configure a Network*/
-  nw.nnodes = nnodes;
-  nw.nedges = 0; /* Edges will be added one by one */
-  nw.directed_flag=directed_flag;
-  nw.bipartite=bipartite;
+  nwp->nnodes = nnodes;
+  nwp->nedges = 0; /* Edges will be added one by one */
+  nwp->directed_flag=directed_flag;
+  nwp->bipartite=bipartite;
 
   ShuffleEdges(tails,heads,nedges); /* shuffle to avoid worst-case performance */
 
   for(Edge i = 0; i < nedges; i++) {
     Vertex tail=tails[i], head=heads[i];
     if (!directed_flag && tail > head) 
-      AddEdgeToTrees(head,tail,&nw); /* Undir edges always have tail < head */ 
+      AddEdgeToTrees(head,tail,nwp); /* Undir edges always have tail < head */ 
     else 
-      AddEdgeToTrees(tail,head,&nw);
+      AddEdgeToTrees(tail,head,nwp);
   }
-
-  PutRNGstate();  
-  return nw;
+  PutRNGstate();
+  return nwp;
 }
 
 
@@ -75,7 +74,7 @@ Network NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
        in before heads */
 
 /*Takes vectors of doubles for edges; used only when constructing from inputparams. */
-Network NetworkInitializeD(double *tails, double *heads, Edge nedges,
+Network *NetworkInitializeD(double *tails, double *heads, Edge nedges,
 			  Vertex nnodes, int directed_flag, Vertex bipartite,
 			  int lasttoggle_flag, int time, int *lasttoggle) {
 
@@ -89,11 +88,11 @@ Network NetworkInitializeD(double *tails, double *heads, Edge nedges,
     iheads[i]=heads[i];
   }
 
-  Network nw=NetworkInitialize(itails,iheads,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag, time, lasttoggle);
+  Network *nwp=NetworkInitialize(itails,iheads,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag, time, lasttoggle);
 
   Free(itails);
   Free(iheads);
-  return nw;
+  return nwp;
 }
 
 /*******************
@@ -108,12 +107,15 @@ void NetworkDestroy(Network *nwp) {
     Free(nwp->duration_info.lasttoggle);
     nwp->duration_info.lasttoggle=NULL;
   }
+  Free(nwp);
 }
 
 /******************
  Network NetworkCopy
 *****************/
-Network *NetworkCopy(Network *dest, Network *src){
+Network *NetworkCopy(Network *src){
+  Network *dest = Calloc(1, Network);
+  
   Vertex nnodes = dest->nnodes = src->nnodes;
   dest->last_inedge = src->last_inedge;
   dest->last_outedge = src->last_outedge;
@@ -296,12 +298,10 @@ void CheckEdgetreeFull (Network *nwp) {
   if(nwp->last_outedge==nwp->maxedges-2 || nwp->last_inedge==nwp->maxedges-2){
     // Only enlarge the non-root part of the array.
     Edge newmax = nwp->maxedges + (nwp->maxedges - nwp->nnodes - 1)*mult;
-    nwp->inedges = (TreeNode *) Realloc(nwp->inedges, 
-					newmax, TreeNode);
+    nwp->inedges = (TreeNode *) Realloc(nwp->inedges, newmax, TreeNode);
     memset(nwp->inedges+nwp->last_inedge+2,0,
 	   sizeof(TreeNode) * (newmax-nwp->maxedges));
-    nwp->outedges = (TreeNode *) Realloc(nwp->outedges, 
-					 newmax, TreeNode);
+    nwp->outedges = (TreeNode *) Realloc(nwp->outedges, newmax, TreeNode);
     memset(nwp->outedges+nwp->last_outedge+2,0,
 	   sizeof(TreeNode) * (newmax-nwp->maxedges));
     nwp->maxedges = newmax;

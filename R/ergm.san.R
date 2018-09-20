@@ -206,7 +206,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
 
       if(is.null(Clist$weights)){
         z <- .C("SAN_wrapper",
-                as.integer(length(nedges)), as.integer(nedges),
+                as.integer(nedges),
                 as.integer(tails), as.integer(heads),
                 as.integer(Clist$n),
                 as.integer(Clist$dir), as.integer(Clist$bipartite),
@@ -235,7 +235,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
                 PACKAGE="ergm")
       }else{
         z <- .C("WtSAN_wrapper",
-                as.integer(length(nedges)), as.integer(nedges),
+                as.integer(nedges),
                 as.integer(tails), as.integer(heads), as.double(weights),
                 as.integer(Clist$n),
                 as.integer(Clist$dir), as.integer(Clist$bipartite),

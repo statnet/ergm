@@ -19,12 +19,12 @@
 /* *** don't forget tail -> head, so this function accepts tails first, not heads  */
 
 
-void SAN_wrapper (int *dnumnets, int *nedges,
+void SAN_wrapper (int *nedges,
 		  int *tails, int *heads,
 		  int *dn, int *dflag, int *bipartite, 
 		  int *nterms, char **funnames,
 		  char **sonames, 
-		  char **MHproposaltype, char **MHproposalpackage,
+		  char **MHProposaltype, char **MHProposalpackage,
 		  double *inputs, double *theta0, double *tau, int *samplesize, 
 		  double *sample, int *burnin, int *interval,  
 		  int *newnetworktails, 
@@ -36,12 +36,12 @@ void SAN_wrapper (int *dnumnets, int *nedges,
 		  int *maxedges,
 		  int *status);
 
-MCMCStatus SANSample (MHproposal *MHp,
+MCMCStatus SANSample (MHProposal *MHp,
 		double *theta, double *invcov, double *tau, double *networkstatistics, 
 		int samplesize, int burnin, 
 		int interval, int fVerbose, int nmax,
 		Network *nwp, Model *m);
-MCMCStatus SANMetropolisHastings (MHproposal *MHp,
+MCMCStatus SANMetropolisHastings (MHProposal *MHp,
 			 double *theta, double *invcov, double *tau, double *statistics, 
 			 int nsteps, int *staken,
 			 int fVerbose,

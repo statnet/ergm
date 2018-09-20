@@ -39,17 +39,18 @@ InitErgmTerm.sociomatrix<-function(nw, arglist, ...) {
 
 InitErgmTerm.discord.inter.union.net <- function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("x"),
-                      vartypes = c("network"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      varnames = c("x", "implementation"),
+                      vartypes = c("network,matrix", "character"),
+                      defaultvalues = list(NULL, "DyadSet"),
+                      required = c(TRUE, FALSE))
+
+  impl <- match.arg(a$implementation, c("Network","DyadSet"))
 
   nedges <- network.edgecount(a$x)
   
-  
-  list(name="disc_inter_union_net",
+  list(name=paste0("disc_inter_union_net_", impl),
        coef.names=c("Diun","dIun","diUn","Diun2","dIun2","diUn2"),
-       auxiliaries = ~ .discord.net(a$x) + .intersect.net(a$x) + .union.net(a$x),
+       auxiliaries = ~ .discord.net(a$x, implementation=impl) + .intersect.net(a$x, implementation=impl) + .union.net(a$x, implementation=impl),
        inputs=to_ergm_Cdouble(a$x, prototype=nw),
        emptynwstats=c(nedges, 0, nedges, nedges^2, 0, nedges^2),
        dependence=TRUE)

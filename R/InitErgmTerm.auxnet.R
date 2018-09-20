@@ -1,3 +1,12 @@
+#  File R/InitErgmTerm.test.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2017 Statnet Commons
+#######################################################################
 InitErgmTerm..sociomatrix<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("mode"),
@@ -15,12 +24,14 @@ InitErgmTerm..sociomatrix<-function(nw, arglist, ...) {
 
 InitErgmTerm..discord.net<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("x"),
-                      vartypes = c("network,matrix"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      varnames = c("x", "implementation"),
+                      vartypes = c("network,matrix", "character"),
+                      defaultvalues = list(NULL, "DyadSet"),
+                      required = c(TRUE, FALSE))
+
+  impl <- match.arg(a$implementation, c("Network","DyadSet"))
   
-  list(name="_discord_net",
+  list(name=paste0("_discord_net_",impl),
        coef.names=c(),
        inputs=to_ergm_Cdouble(a$x, prototype=nw),
        dependence=FALSE)
@@ -28,12 +39,14 @@ InitErgmTerm..discord.net<-function(nw, arglist, ...) {
 
 InitErgmTerm..intersect.net<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("x", "assume_all_toggles_in_list"),
-                      vartypes = c("network,matrix", "logical"),
-                      defaultvalues = list(NULL, FALSE),
-                      required = c(TRUE, FALSE))
+                      varnames = c("x", "assume_all_toggles_in_list", "implementation"),
+                      vartypes = c("network,matrix", "logical", "character"),
+                      defaultvalues = list(NULL, FALSE, "DyadSet"),
+                      required = c(TRUE, FALSE, FALSE))
   
-  list(name=if(a$assume_all_toggles_in_list) "_intersect_net_toggles_in_list" else "_intersect_net",
+  impl <- match.arg(a$implementation, c("Network","DyadSet"))
+
+  list(name=paste0(if(a$assume_all_toggles_in_list) "_intersect_net_toggles_in_list_" else "_intersect_net_", impl),
        coef.names=c(),
        inputs=to_ergm_Cdouble(a$x, prototype=nw),
        dependence=FALSE)
@@ -41,12 +54,14 @@ InitErgmTerm..intersect.net<-function(nw, arglist, ...) {
 
 InitErgmTerm..union.net<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("x"),
-                      vartypes = c("network,matrix"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      varnames = c("x", "implementation"),
+                      vartypes = c("network,matrix", "character"),
+                      defaultvalues = list(NULL, "DyadSet"),
+                      required = c(TRUE, FALSE))
+
+  impl <- match.arg(a$implementation, c("Network","DyadSet"))
   
-  list(name="_union_net",
+  list(name=paste0("_union_net_",impl),
        coef.names=c(),
        inputs=to_ergm_Cdouble(a$x, prototype=nw),
        dependence=FALSE)

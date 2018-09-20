@@ -8,7 +8,7 @@ WtI_CHANGESTAT_FN(i__wtsubnets){
   ALLOC_AUX_STORAGE(1, StoreWtSubnets, sn); inputs++;
   sn->ns = *(inputs++);
   sn->inwp = nwp;
-  sn->onwp = Calloc(sn->ns, WtNetwork);
+  sn->onwp = Calloc(sn->ns, WtNetwork *);
   sn->onwp--; // The -- is because WtNetwork IDs count from 1.
 
   /* Set up the layer information. */
@@ -31,19 +31,19 @@ WtI_CHANGESTAT_FN(i__wtsubnets){
   }
   
   EXEC_THROUGH_NET_EDGES_PRE(t, h, e, w, {
-      WtSetEdge(MN_IO_TAIL(sn, t), MN_IO_HEAD(sn, h), w, sn->onwp + MN_SID_TAIL(sn, t));
+      WtSetEdge(MN_IO_TAIL(sn, t), MN_IO_HEAD(sn, h), w, sn->onwp[MN_SID_TAIL(sn, t)]);
     });
 }
 
 WtU_CHANGESTAT_FN(u__wtsubnets){ 
   GET_AUX_STORAGE(StoreWtSubnets, sn);
-  WtSetEdge(MN_IO_TAIL(sn, tail), MN_IO_HEAD(sn, head), weight, sn->onwp + MN_SID_TAIL(sn, tail));
+  WtSetEdge(MN_IO_TAIL(sn, tail), MN_IO_HEAD(sn, head), weight, sn->onwp[MN_SID_TAIL(sn, tail)]);
 }
 
 WtF_CHANGESTAT_FN(f__wtsubnets){
   GET_AUX_STORAGE(StoreWtSubnets, sn);
   for(unsigned int i=1; i<=sn->ns; i++)
-    WtNetworkDestroy(sn->onwp + i);
+    WtNetworkDestroy(sn->onwp[i]);
   sn->onwp++;
   Free(sn->onwp);
 }
@@ -78,7 +78,7 @@ WtI_CHANGESTAT_FN(i_wtMultiNet){
     wts += nwts; // OK to clobber it here.
     if(used){
       ms[i-1] = unpack_WtModel_as_double(&inputs);
-      WtInitStats(sn->onwp + i, ms[i-1]);
+      WtInitStats(sn->onwp[i], ms[i-1]);
     }else ms[i-1] = NULL;
   }
 }
@@ -94,7 +94,7 @@ WtC_CHANGESTAT_FN(c_wtMultiNet){
   WtModel *m = ms[i-1];
   if(m){ // NULL if network has weights 0.
     Vertex st = MN_IO_TAIL(sn, tail), sh = MN_IO_HEAD(sn, head);
-    WtChangeStats(1, &st, &sh, &weight, sn->onwp + i, m);
+    WtChangeStats(1, &st, &sh, &weight, sn->onwp[i], m);
 
     wts += (i-1)*nwts; // Position of that network's weight vector.
     for(unsigned int j=0; j<m->n_stats; j++)
@@ -111,7 +111,7 @@ WtU_CHANGESTAT_FN(u_wtMultiNet){
   WtModel *m = ms[i-1];
   if(m){ // NULL if network has weights 0.
     Vertex st = MN_IO_TAIL(sn, tail), sh = MN_IO_HEAD(sn, head);
-    WtUPDATE_STORAGE(st, sh, weight, sn->onwp + i, m, NULL);
+    WtUPDATE_STORAGE(st, sh, weight, sn->onwp[i], m, NULL);
   }
 }
 
@@ -120,7 +120,7 @@ WtF_CHANGESTAT_FN(f_wtMultiNet){
   GET_STORAGE(WtModel*, ms);
 
   for(unsigned int i=1; i<=sn->ns; i++){
-    if(ms[i-1]) WtModelDestroy(sn->onwp + i, ms[i-1]);
+    if(ms[i-1]) WtModelDestroy(sn->onwp[i], ms[i-1]);
   }
 }
 
@@ -137,7 +137,7 @@ WtI_CHANGESTAT_FN(i_wtMultiNets){
   for(unsigned int i=1; i<=sn->ns; i++){
     if(pos[i-1]!=pos[i]){
       ms[i-1] = unpack_WtModel_as_double(&inputs);
-      WtInitStats(sn->onwp + i, ms[i-1]);
+      WtInitStats(sn->onwp[i], ms[i-1]);
     }
   }
 }
@@ -151,7 +151,7 @@ WtC_CHANGESTAT_FN(c_wtMultiNets){
   Vertex st = MN_IO_TAIL(sn, tail), sh = MN_IO_HEAD(sn, head);
   if(pos[i-1]!=pos[i]){
     WtModel *m = ms[i-1];
-    WtChangeStats(1, &st, &sh, &weight, sn->onwp + i, m);
+    WtChangeStats(1, &st, &sh, &weight, sn->onwp[i], m);
     memcpy(CHANGE_STAT + (unsigned int)(pos[i-1]), m->workspace, m->n_stats*sizeof(double));
   }
 }
@@ -164,7 +164,7 @@ WtU_CHANGESTAT_FN(u_wtMultiNets){
   unsigned int i = MN_SID_TAIL(sn, tail);
   if(pos[i-1]!=pos[i]){
     Vertex st = MN_IO_TAIL(sn, tail), sh = MN_IO_HEAD(sn, head);
-    WtUPDATE_STORAGE(st, sh, weight, sn->onwp + i, ms[i-1], NULL);
+    WtUPDATE_STORAGE(st, sh, weight, sn->onwp[i], ms[i-1], NULL);
   }
 }
 
@@ -175,7 +175,7 @@ WtF_CHANGESTAT_FN(f_wtMultiNets){
 
   for(unsigned int i=1; i<=sn->ns; i++){
     if(pos[i-1]!=pos[i]){
-      WtModelDestroy(sn->onwp + i, ms[i-1]);
+      WtModelDestroy(sn->onwp[i], ms[i-1]);
     }
   }
 }

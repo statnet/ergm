@@ -15,8 +15,8 @@ WtI_CHANGESTAT_FN(i_import_binary_term_sum){
 
   Model *m = store->m = unpack_Model_as_double(&inputs);
 
-  store->nw = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
-  Network *mynwp = &(store->nw);
+  store->nwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
+  Network *mynwp = store->nwp;
   
   InitStats(mynwp, m);
 }
@@ -24,7 +24,7 @@ WtI_CHANGESTAT_FN(i_import_binary_term_sum){
 WtC_CHANGESTAT_FN(c_import_binary_term_sum){
   GET_STORAGE(StoreNetAndModel, store);
   Model *m = store->m;
-  Network *mynwp = &(store->nw);
+  Network *mynwp = store->nwp;
   double oldweight = WtGETWT(tail,head);
     
   ChangeStats(1, &tail, &head, mynwp, m);
@@ -36,7 +36,7 @@ WtC_CHANGESTAT_FN(c_import_binary_term_sum){
 WtU_CHANGESTAT_FN(u_import_binary_term_sum){
   GET_STORAGE(StoreNetAndModel, store);
   Model *m = store->m;
-  Network *mynwp = &(store->nw);
+  Network *mynwp = store->nwp;
 
   UPDATE_STORAGE(tail, head, mynwp, m, NULL);
 }
@@ -44,7 +44,7 @@ WtU_CHANGESTAT_FN(u_import_binary_term_sum){
 WtF_CHANGESTAT_FN(f_import_binary_term_sum){
   GET_STORAGE(StoreNetAndModel, store);
   Model *m = store->m;
-  Network *mynwp = &(store->nw);
+  Network *mynwp = store->nwp;
 
   ModelDestroy(mynwp, m);
   NetworkDestroy(mynwp);
@@ -112,7 +112,7 @@ WtF_CHANGESTAT_FN(f_import_binary_term_nonzero){
 WtI_CHANGESTAT_FN(i_import_binary_term_form){
   double *inputs = INPUT_PARAM;
   GET_AUX_STORAGE(StoreNetAndWtModel, storage); inputs++;
-  Network *bnwp = &(storage->nw);
+  Network *bnwp = storage->nwp;
 
   GET_STORAGE(Model, m); // Only need the pointer, no allocation needed.
 
@@ -123,7 +123,7 @@ WtI_CHANGESTAT_FN(i_import_binary_term_form){
 
 WtC_CHANGESTAT_FN(c_import_binary_term_form){
   GET_AUX_STORAGE(StoreNetAndWtModel, storage);
-  Network *bnwp = &(storage->nw);
+  Network *bnwp = storage->nwp;
   GET_STORAGE(Model, m);
 
   WtChangeStats(1, &tail, &head, &weight, nwp, storage->m);
@@ -136,7 +136,7 @@ WtC_CHANGESTAT_FN(c_import_binary_term_form){
 
 WtU_CHANGESTAT_FN(u_import_binary_term_form){
   GET_AUX_STORAGE(StoreNetAndWtModel, storage);
-  Network *bnwp = &(storage->nw);
+  Network *bnwp = storage->nwp;
   GET_STORAGE(Model, m);
 
   WtChangeStats(1, &tail, &head, &weight, nwp, storage->m);
@@ -148,7 +148,7 @@ WtU_CHANGESTAT_FN(u_import_binary_term_form){
 
 WtF_CHANGESTAT_FN(f_import_binary_term_form){
   GET_AUX_STORAGE(StoreNetAndWtModel, storage);
-  Network *bnwp = &(storage->nw);
+  Network *bnwp = storage->nwp;
   GET_STORAGE(Model, m);
 
   ModelDestroy(bnwp, m);
@@ -163,9 +163,7 @@ WtF_CHANGESTAT_FN(f_import_binary_term_form){
 */
 
 WtI_CHANGESTAT_FN(i__binary_nonzero_net){
-  ALLOC_AUX_STORAGE(1, Network, bnwp);
-
-  *bnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
+  Network *bnwp = AUX_STORAGE = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
   WtEXEC_THROUGH_NET_EDGES_PRE(t, h, e, w, {
       if(w!=0) ToggleEdge(t, h, bnwp);
     });
@@ -183,6 +181,7 @@ WtU_CHANGESTAT_FN(u__binary_nonzero_net){
 WtF_CHANGESTAT_FN(f__binary_nonzero_net){
   GET_AUX_STORAGE(Network, bnwp);
   NetworkDestroy(bnwp);
+  AUX_STORAGE = NULL;
 }
 
 
@@ -200,12 +199,10 @@ WtI_CHANGESTAT_FN(i__binary_formula_net){
   double *inputs = INPUT_PARAM;
   ALLOC_AUX_STORAGE(1, StoreNetAndWtModel, storage); inputs++;
   WtModel *m = storage->m = unpack_WtModel_as_double(&inputs);
-  Network *bnwp = &(storage->nw);
+  Network *bnwp = storage->nwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
   double zero=0;
-  
   WtInitStats(nwp, m);
   
-  *bnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
   WtEXEC_THROUGH_NET_EDGES_PRE(t, h, e, w, {
       if(w!=0){
 	WtChangeStats(1, &t, &h, &zero, nwp, m);
@@ -221,7 +218,7 @@ WtI_CHANGESTAT_FN(i__binary_formula_net){
 WtU_CHANGESTAT_FN(u__binary_formula_net){
   GET_AUX_STORAGE(StoreNetAndWtModel, storage);
   WtModel *m = storage->m;
-  Network *bnwp = &(storage->nw);
+  Network *bnwp = storage->nwp;
 
   WtChangeStats(1, &tail, &head, &weight, nwp, m);
   switch((int) *(m->workspace)){
@@ -237,7 +234,7 @@ WtU_CHANGESTAT_FN(u__binary_formula_net){
 WtF_CHANGESTAT_FN(f__binary_formula_net){
   GET_AUX_STORAGE(StoreNetAndWtModel, storage);
   WtModel *m = storage->m;
-  Network *bnwp = &(storage->nw);
+  Network *bnwp = storage->nwp;
   WtModelDestroy(nwp, m);
   NetworkDestroy(bnwp);
   // WtDestroyStats() will deallocate the rest.

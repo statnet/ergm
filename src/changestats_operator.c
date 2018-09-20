@@ -80,10 +80,10 @@ I_CHANGESTAT_FN(i__summary_term){
   // Unpack the submodel.
   STORAGE = m = unpack_Model_as_double(&inputs);
   // Initialize empty network.
-  Network nw = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
+  Network *tmpnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
 
   // Initialize storage for submodel terms 
-  InitStats(&nw, m);
+  InitStats(tmpnwp, m);
 
   ALLOC_AUX_STORAGE(m->n_stats, double, stats);
   memcpy(stats, inputs, m->n_stats*sizeof(double));
@@ -93,15 +93,15 @@ I_CHANGESTAT_FN(i__summary_term){
     Vertex head;
     Edge e;
     STEP_THROUGH_OUTEDGES(tail, e, head) {
-      ChangeStats(1, &tail, &head, &nw, m);
+      ChangeStats(1, &tail, &head, tmpnwp, m);
       for(unsigned int k=0; k<m->n_stats; k++)
 	stats[k] += m->workspace[k];
-      UPDATE_STORAGE(tail, head, &nw, m, NULL);
-      ToggleEdge(tail, head, &nw);
+      UPDATE_STORAGE(tail, head, tmpnwp, m, NULL);
+      ToggleEdge(tail, head, tmpnwp);
     }
   }
   // Note that nw is now identitical to nwp.
-  NetworkDestroy(&nw);
+  NetworkDestroy(tmpnwp);
 }
 
 U_CHANGESTAT_FN(u__summary_term){
@@ -155,7 +155,7 @@ F_CHANGESTAT_FN(f_summary_test_term){
 I_CHANGESTAT_FN(i_filter_term_form){
   double *inputs = INPUT_PARAM;
   GET_AUX_STORAGE(StoreNetAndModel, storage); inputs++;
-  Network *bnwp = &(storage->nw);
+  Network *bnwp = storage->nwp;
 
   GET_STORAGE(Model, m); // Only need the pointer, no allocation needed.
 
@@ -166,7 +166,7 @@ I_CHANGESTAT_FN(i_filter_term_form){
 
 C_CHANGESTAT_FN(c_filter_term_form){
   GET_AUX_STORAGE(StoreNetAndModel, storage);
-  Network *bnwp = &(storage->nw);
+  Network *bnwp = storage->nwp;
   GET_STORAGE(Model, m);
 
   ChangeStats(1, &tail, &head, nwp, storage->m);
@@ -179,7 +179,7 @@ C_CHANGESTAT_FN(c_filter_term_form){
 
 U_CHANGESTAT_FN(u_filter_term_form){
   GET_AUX_STORAGE(StoreNetAndModel, storage);
-  Network *bnwp = &(storage->nw);
+  Network *bnwp = storage->nwp;
   GET_STORAGE(Model, m);
 
   ChangeStats(1, &tail, &head, nwp, storage->m);
@@ -191,7 +191,7 @@ U_CHANGESTAT_FN(u_filter_term_form){
 
 F_CHANGESTAT_FN(f_filter_term_form){
   GET_AUX_STORAGE(StoreNetAndModel, storage);
-  Network *bnwp = &(storage->nw);
+  Network *bnwp = storage->nwp;
   GET_STORAGE(Model, m);
 
   ModelDestroy(bnwp, m);
@@ -211,11 +211,9 @@ I_CHANGESTAT_FN(i__filter_formula_net){
   double *inputs = INPUT_PARAM;
   ALLOC_AUX_STORAGE(1, StoreNetAndModel, storage); inputs++;
   Model *m = storage->m = unpack_Model_as_double(&inputs);
-  Network *bnwp = &(storage->nw);
-  
+  Network *bnwp = storage->nwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
   InitStats(nwp, m);
-  
-  *bnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
+
   EXEC_THROUGH_NET_EDGES_PRE(t, h, e, {
 	ChangeStats(1, &t, &h, nwp, m);
 	// I.e., if toggling the dyad changes the statistic, add
@@ -228,7 +226,7 @@ I_CHANGESTAT_FN(i__filter_formula_net){
 U_CHANGESTAT_FN(u__filter_formula_net){
   GET_AUX_STORAGE(StoreNetAndModel, storage);
   Model *m = storage->m;
-  Network *bnwp = &(storage->nw);
+  Network *bnwp = storage->nwp;
 
   ChangeStats(1, &tail, &head, nwp, m);
   if(*(m->workspace)!=0){
@@ -242,7 +240,7 @@ U_CHANGESTAT_FN(u__filter_formula_net){
 F_CHANGESTAT_FN(f__filter_formula_net){
   GET_AUX_STORAGE(StoreNetAndModel, storage);
   Model *m = storage->m;
-  Network *bnwp = &(storage->nw);
+  Network *bnwp = storage->nwp;
   ModelDestroy(nwp, m);
   NetworkDestroy(bnwp);
   // DestroyStats() will deallocate the rest.

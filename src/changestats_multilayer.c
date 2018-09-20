@@ -40,8 +40,7 @@ I_CHANGESTAT_FN(i__layer_net){
     inputs += ll->nl;
   }else ll->symm = NULL;
 
-  ll->onwp = Calloc(1, Network);
-  ll->onwp[0] = NetworkInitialize(NULL, NULL, 0, lnnodes, DIRECTED, lbip, 0, 0, NULL);
+  ll->onwp = NetworkInitialize(NULL, NULL, 0, lnnodes, DIRECTED, lbip, 0, 0, NULL);
   
   /* Set up the layer logic. */
 
@@ -72,7 +71,6 @@ U_CHANGESTAT_FN(u__layer_net){
 F_CHANGESTAT_FN(f__layer_net){ 
   GET_AUX_STORAGE(StoreLayerLogic, ll);
   NetworkDestroy(ll->onwp);
-  Free(ll->onwp);
   Free(ll->stacks);
 }
 

@@ -1,4 +1,4 @@
-/*  File src/MHproposal.c in package ergm, part of the Statnet suite
+/*  File src/MHProposal.c in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -11,12 +11,12 @@
 
 
 /*********************
- void MH_init
+ void MHProposalInitialize
 
  A helper function to process the MH_* related initialization.
 *********************/
-void MH_init(MHproposal *MHp, 
-	     char *MHproposaltype, char *MHproposalpackage,
+MHProposal *MHProposalInitialize(
+	     char *MHProposaltype, char *MHProposalpackage,
 	     double *inputs,
 	     int fVerbose,
 	     Network *nwp,
@@ -24,7 +24,8 @@ void MH_init(MHproposal *MHp,
 	     int *minout, int *minin, int condAllDegExact, 
 	     int attriblength,
 	     void **aux_storage){
-
+  MHProposal *MHp = Calloc(1, MHProposal);
+  
   char *fn, *sn;
   int i;
 
@@ -32,44 +33,44 @@ void MH_init(MHproposal *MHp,
   MHp->u_func=NULL;
   MHp->storage=NULL;
   
-  for (i = 0; MHproposaltype[i] != ' ' && MHproposaltype[i] != 0; i++);
-  MHproposaltype[i] = 0;
+  for (i = 0; MHProposaltype[i] != ' ' && MHProposaltype[i] != 0; i++);
+  MHProposaltype[i] = 0;
   /* Extract the required string information from the relevant sources */
-  fn=Calloc(i+4, char);
+  fn = Calloc(i+4, char);
   fn[0]='M';
   fn[1]='H';
   fn[2]='_';
   for(int j=0;j<i;j++)
-    fn[j+3]=MHproposaltype[j];
+    fn[j+3]=MHProposaltype[j];
   fn[i+3]='\0';
-  /* fn is now the string 'MH_[name]', where [name] is MHproposaltype */
-  for (i = 0; MHproposalpackage[i] != ' ' && MHproposalpackage[i] != 0; i++);
-  MHproposalpackage[i] = 0;
-  sn=Calloc(i+1, char);
-  sn=strncpy(sn,MHproposalpackage,i);
+  /* fn is now the string 'MH_[name]', where [name] is MHProposaltype */
+  for (i = 0; MHProposalpackage[i] != ' ' && MHProposalpackage[i] != 0; i++);
+  MHProposalpackage[i] = 0;
+  sn = Calloc(i+1, char);
+  sn=strncpy(sn,MHProposalpackage,i);
   sn[i]='\0';
   
   /* Search for the MH proposal function pointer */
   // Old-style name:
-  MHp->p_func=(void (*)(MHproposal*, Network*)) R_FindSymbol(fn,sn,NULL);
+  MHp->p_func=(void (*)(MHProposal*, Network*)) R_FindSymbol(fn,sn,NULL);
   if(MHp->p_func==NULL){
     // New-style name:
     fn[1] = 'p';
-    MHp->p_func=(void (*)(MHproposal*, Network*)) R_FindSymbol(fn,sn,NULL);
+    MHp->p_func=(void (*)(MHProposal*, Network*)) R_FindSymbol(fn,sn,NULL);
     if(MHp->p_func==NULL){    
       error("Error in the proposal initialization: could not find function %s in "
-	    "namespace for package %s."
-	    "Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
+	  "namespace for package %s."
+	  "Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
     }
   }
 
   // Optional functions
   fn[1] = 'i';
-  MHp->i_func=(void (*)(MHproposal*, Network*)) R_FindSymbol(fn,sn,NULL);
+  MHp->i_func=(void (*)(MHProposal*, Network*)) R_FindSymbol(fn,sn,NULL);
   fn[1] = 'u';
-  MHp->u_func=(void (*)(Vertex tail, Vertex head, MHproposal*, Network*)) R_FindSymbol(fn,sn,NULL);
+  MHp->u_func=(void (*)(Vertex tail, Vertex head, MHProposal*, Network*)) R_FindSymbol(fn,sn,NULL);
   fn[1] = 'f';
-  MHp->f_func=(void (*)(MHproposal*, Network*)) R_FindSymbol(fn,sn,NULL);
+  MHp->f_func=(void (*)(MHProposal*, Network*)) R_FindSymbol(fn,sn,NULL);
     
   MHp->inputs=inputs;
 
@@ -93,14 +94,16 @@ void MH_init(MHproposal *MHp,
   
   MHp->toggletail = (Vertex *)Calloc(MHp->ntoggles, Vertex);
   MHp->togglehead = (Vertex *)Calloc(MHp->ntoggles, Vertex);
+
+  return MHp;
 }
 
 /*********************
- void MH_free
+ void MHProposalDestroy
 
- A helper function to free memory allocated by MH_init.
+ A helper function to free memory allocated by MHProposalInitialize.
 *********************/
-void MH_free(MHproposal *MHp, Network *nwp){
+void MHProposalDestroy(MHProposal *MHp, Network *nwp){
   if(MHp->bd)DegreeBoundDestroy(MHp->bd);
   if(MHp->f_func) (*(MHp->f_func))(MHp, nwp);
   if(MHp->storage){
@@ -110,6 +113,8 @@ void MH_free(MHproposal *MHp, Network *nwp){
   MHp->aux_storage=NULL;
   Free(MHp->toggletail);
   Free(MHp->togglehead);
+
+  Free(MHp);
 }
 
 /***********************
@@ -198,7 +203,7 @@ void DegreeBoundDestroy(DegreeBound *bd)
 /********************
  int CheckTogglesValid
 ********************/
-int CheckTogglesValid(MHproposal *MHp, Network *nwp) {
+int CheckTogglesValid(MHProposal *MHp, Network *nwp) {
   int fvalid;
   int i;
   DegreeBound *bd=MHp->bd;
@@ -324,7 +329,7 @@ int CheckTogglesValid(MHproposal *MHp, Network *nwp) {
   return fvalid;
 }
 
-int CheckConstrainedTogglesValid(MHproposal *MHp, Network *nwp)
+int CheckConstrainedTogglesValid(MHProposal *MHp, Network *nwp)
 {
   int fvalid = 1;
   int i;

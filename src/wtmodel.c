@@ -16,12 +16,12 @@
 void WtModelDestroy(WtNetwork *nwp, WtModel *m)
 {  
   WtDestroyStats(nwp, m);
-  
+
   for(unsigned int i=0; i < m->n_aux; i++)
     if(m->termarray[0].aux_storage[i]!=NULL){
       Free(m->termarray[0].aux_storage[i]);
       m->termarray[0].aux_storage[i] = NULL;
-    }
+  }
   
   if(m->termarray[0].aux_storage!=NULL){
     Free(m->termarray[0].aux_storage);
@@ -86,14 +86,14 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       for (j = 0; sonames[j] != ' ' && sonames[j] != 0; j++);
       sonames[j] = 0;
       /* Extract the required string information from the relevant sources */
-      fn=Calloc(i+3, char);
+      fn = Calloc(i+3, char);
       fn[1]='_';
       for(k=0;k<i;k++)
         fn[k+2]=fnames[k];
       fn[i+2]='\0';
       /* fn is now the string 'd_[name]', where [name] is fname */
 /*      Rprintf("fn: %s\n",fn); */
-      sn=Calloc(j+1, char);
+      sn = Calloc(j+1, char);
       sn=strncpy(sn,sonames,j);
       sn[j]='\0';
 

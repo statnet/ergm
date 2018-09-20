@@ -31,7 +31,7 @@
 
 typedef struct {
   unsigned int ns;
-  Network *inwp, *onwp;
+  Network *inwp, **onwp;
   double *sid;
   double *smap;
 } StoreSubnets;

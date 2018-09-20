@@ -1,4 +1,4 @@
-/*  File src/wtMHproposals.c in package ergm, part of the Statnet suite
+/*  File src/wtProposals.c in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -21,7 +21,7 @@
 
  Default MH algorithm for a standard-normal-reference ERGM
 *********************/
-void MH_StdNormal(WtMHproposal *MHp, WtNetwork *nwp)  {  
+void MH_StdNormal(WtMHProposal *MHp, WtNetwork *nwp)  {  
   double oldwt;
   
   if(MHp->ntoggles == 0) { // Initialize StdNormal 
@@ -46,7 +46,7 @@ void MH_StdNormal(WtMHproposal *MHp, WtNetwork *nwp)  {
 
  Default MH algorithm for continuous-uniform-reference ERGM
 *********************/
-void MH_Unif(WtMHproposal *MHp, WtNetwork *nwp)  {  
+void MH_Unif(WtMHProposal *MHp, WtNetwork *nwp)  {  
   double oldwt;
   static int a, b;
   
@@ -74,7 +74,7 @@ void MH_Unif(WtMHproposal *MHp, WtNetwork *nwp)  {
 
  Missing data MH algorithm for continuous-uniform-reference ERGM.
 *********************/
-void MH_UnifNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {  
+void MH_UnifNonObserved(WtMHProposal *MHp, WtNetwork *nwp)  {  
   static Edge nmissing;
   static int a, b;
   
@@ -115,7 +115,7 @@ void MH_UnifNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {
 
  Default MH algorithm for discrete-uniform-reference ERGM
 *********************/
-void MH_DiscUnif(WtMHproposal *MHp, WtNetwork *nwp)  {  
+void MH_DiscUnif(WtMHProposal *MHp, WtNetwork *nwp)  {  
   double oldwt;
   static int a, b;
   
@@ -143,7 +143,7 @@ void MH_DiscUnif(WtMHproposal *MHp, WtNetwork *nwp)  {
 
  Missing data MH algorithm for discrete-uniform-reference ERGM.
 *********************/
-void MH_DiscUnifNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {  
+void MH_DiscUnifNonObserved(WtMHProposal *MHp, WtNetwork *nwp)  {  
   static Edge nmissing;
   static int a, b;
   
@@ -183,7 +183,7 @@ void MH_DiscUnifNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {
 
  MH algorithm for discrete-uniform-reference ERGM, twice
 *********************/
-void MH_DiscUnif2(WtMHproposal *MHp, WtNetwork *nwp)  {  
+void MH_DiscUnif2(WtMHProposal *MHp, WtNetwork *nwp)  {  
   double oldwt;
   static int a, b;
   
@@ -219,7 +219,7 @@ void MH_DiscUnif2(WtMHproposal *MHp, WtNetwork *nwp)  {
    void MH_DistRLE
    Propose ONLY edges on an RLE-compressed list
 ***********************/
-void MH_DistRLE(WtMHproposal *MHp, WtNetwork *nwp) 
+void MH_DistRLE(WtMHProposal *MHp, WtNetwork *nwp) 
 {  
   static RLEBDM1D r;
   static double *inputs;
