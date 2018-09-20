@@ -8,6 +8,10 @@
  *  Copyright 2003-2013 Statnet Commons
  */
 
+/* Utility functions for variadic macros. */
+#define _GET_OVERRIDE23(_1, _2, _3, NAME, ...) NAME
+#define _GET_OVERRIDE34(_1, _2, _3, _4, NAME, ...) NAME
+
 /* binomial coefficient function and macro: */
 double my_choose(double n, int r);
 #define CHOOSE(n,r) ((n)<(r) ? (0) : (my_choose((double)(n),(int)(r)))) 

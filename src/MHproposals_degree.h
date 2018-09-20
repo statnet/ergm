@@ -11,16 +11,16 @@
 #define MHPROPOSALS_DEGREE_H
 #include "ergm_MHproposal.h"
 
-void MH_CondDegree (MHProposal *MHp, Network *nwp);
-void MH_CondDegreeTetrad (MHProposal *MHp, Network *nwp);
-void MH_CondDegreeHexad (MHProposal *MHp, Network *nwp);
-void MH_CondOutDegree(MHProposal *MHp, Network *nwp);
-void MH_CondInDegree(MHProposal *MHp, Network *nwp); 
-void MH_CondB1Degree(MHProposal *MHp, Network *nwp); 
-void MH_CondB2Degree(MHProposal *MHp, Network *nwp);  
-void MH_CondDegreeMix(MHProposal *MHp, Network *nwp);
-void MH_CondDegreeTetradMixMore(MHProposal *MHp, Network *nwp);
-void MH_CondDegreeTetradMixLess(MHProposal *MHp, Network *nwp);
-void MH_CondDegreeMixChangeOrig(MHProposal *MHp, Network *nwp);
+MH_P_FN(MH_CondDegree);
+MH_P_FN(MH_CondDegreeTetrad);
+MH_P_FN(MH_CondDegreeHexad);
+MH_P_FN(MH_CondOutDegree);
+MH_P_FN(MH_CondInDegree); 
+MH_P_FN(MH_CondB1Degree); 
+MH_P_FN(MH_CondB2Degree);  
+MH_P_FN(MH_CondDegreeMix);
+MH_P_FN(MH_CondDegreeTetradMixMore);
+MH_P_FN(MH_CondDegreeTetradMixLess);
+MH_P_FN(MH_CondDegreeMixChangeOrig);
 
 #endif

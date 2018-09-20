@@ -7,6 +7,8 @@ static double (*fun)(double,int) = NULL;
 if(fun==NULL) fun = (double (*)(double,int)) R_FindSymbol("my_choose", "ergm", NULL);
 return fun(n,r);
 }
+#undef _GET_OVERRIDE23
+#undef _GET_OVERRIDE34
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
@@ -482,6 +484,8 @@ fun(nwp,m);
 #undef DYADCOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef _GET_OVERRIDE23
+#undef _GET_OVERRIDE34
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
@@ -507,8 +511,14 @@ fun(nwp,m);
 #undef INPUT_ATTRIB
 #undef TAIL
 #undef HEAD
+#undef _IS_OUTEDGE2
+#undef _IS_OUTEDGE3
 #undef IS_OUTEDGE
+#undef _IS_INEDGE2
+#undef _IS_INEDGE3
 #undef IS_INEDGE
+#undef _IS_UNDIRECTED_EDGE2
+#undef _IS_UNDIRECTED_EDGE3
 #undef IS_UNDIRECTED_EDGE
 #undef MIN_OUTEDGE
 #undef MIN_INEDGE
@@ -538,7 +548,11 @@ fun(nwp,m);
 #undef EXEC_THROUGH_NET_EDGES_PRE
 #undef TOGGLE
 #undef TOGGLE_DISCORD
+#undef _GETWT2
+#undef _GETWT3
 #undef GETWT
+#undef _SETWT3
+#undef _SETWT4
 #undef SETWT
 #undef FOR_EACH_TOGGLE
 #undef IF_MORE_TO_COME
@@ -999,6 +1013,8 @@ fun(nwp,m);
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef ENSURE_TH_ORDER
+#undef _GET_OVERRIDE23
+#undef _GET_OVERRIDE34
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
@@ -1022,8 +1038,14 @@ fun(nwp,m);
 #undef N_INPUT_PARAMS
 #undef ZERO_ALL_CHANGESTATS
 #undef INPUT_ATTRIB
+#undef _WtIS_OUTEDGE2
+#undef _WtIS_OUTEDGE3
 #undef WtIS_OUTEDGE
-#undef WtIS_INEDGE
+#undef _WtIS_INEDGE2
+#undef _WtIS_INEDGE3
+#undef WTIS_INEDGE
+#undef _WtIS_UNDIRECTED_EDGE2
+#undef _WtIS_UNDIRECTED_EDGE3
 #undef WtIS_UNDIRECTED_EDGE
 #undef WtMIN_OUTEDGE
 #undef WtMIN_INEDGE
@@ -1053,7 +1075,11 @@ fun(nwp,m);
 #undef WtEXEC_THROUGH_FINEDGES_PRE
 #undef WtEXEC_THROUGH_NET_EDGES
 #undef WtEXEC_THROUGH_NET_EDGES_PRE
+#undef _WtGETWT2
+#undef _WtGETWT3
 #undef WtGETWT
+#undef _WtSETWT3
+#undef _WtSETWT4
 #undef WtSETWT
 #undef WtFOR_EACH_TOGGLE
 #undef WtTAIL
