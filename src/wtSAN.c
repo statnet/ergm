@@ -76,7 +76,7 @@ void WtSAN_wrapper (int *nedges,
   /* record new generated network to pass back to R */
   /* *** and don't forget edges are (tail, head) */
   if(*status == WtMCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
-    newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList(newnetworktails+1,newnetworkheads,newnetworkweights,nwp,nmax-1);
+    newnetworktails[0]=newnetworkheads[0]=newnetworkweights[0]=WtEdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,newnetworkweights+1,nwp,nmax-1);
 
   WtModelDestroy(m);
   WtNetworkDestroy(nwp);
