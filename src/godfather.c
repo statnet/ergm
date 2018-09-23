@@ -94,15 +94,15 @@ void Godfather_wrapper(int *n_edges, int *tails, int *heads,
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the network */
-  nwp=NetworkInitialize(tails, heads, n_edges[0], 
+  nwp=NetworkInitialize((Vertex*)tails, (Vertex*)heads, n_edges[0], 
                           *n_nodes, *dflag, *bipartite, 0, 0, NULL);
   
-  *status = Godfather(abs(*total_changes), changetails, changeheads, *total_changes<0? NULL : changeweights,
+  *status = Godfather(abs(*total_changes), (Vertex*)changetails, (Vertex*)changeheads, *total_changes<0? NULL : changeweights,
 		      nwp, m, changestats);
   
   /* record new generated network to pass back to R */
   if(*status == MCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
-    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,nwp,nmax-1);
+    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList((Vertex*)newnetworktails+1,(Vertex*)newnetworkheads+1,nwp,nmax-1);
   
   ModelDestroy(nwp, m);
   NetworkDestroy(nwp);
