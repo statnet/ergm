@@ -50,7 +50,7 @@ void WtCD_wrapper(int *nedges,
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the network */
-  nwp=WtNetworkInitialize(tails, heads, weights, nedges[0], 
+  nwp=WtNetworkInitialize((Vertex*)tails, (Vertex*)heads, weights, nedges[0], 
 			    n_nodes, directed_flag, bip, 0, 0, NULL);
 
   MHp=WtMHProposalInitialize(

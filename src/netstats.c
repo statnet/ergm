@@ -48,7 +48,7 @@ void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int 
      to R.  Note that stats already has the statistics of an empty
      network, so d_??? statistics will add on to them, while s_???
      statistics will simply overwrite them. */
-  SummStats(n_edges, tails, heads, nwp, m, stats);
+  SummStats(n_edges, (Vertex*)tails, (Vertex*)heads, nwp, m, stats);
   
   ModelDestroy(m);
   NetworkDestroy(nwp);

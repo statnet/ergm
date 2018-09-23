@@ -22,7 +22,7 @@ WtMCMCStatus WtGodfather(Edge n_changes, Vertex *tails, Vertex *heads, double *w
   for(Edge e=0; e<n_changes; e++){
     WtModelTerm *mtp = m->termarray;
     double *statspos=stats;
-    int tail = tails[e], head = heads[e];
+    Vertex tail = tails[e], head = heads[e];
     double weight = weights[e];
 
     if(tail==0){
@@ -75,15 +75,15 @@ void WtGodfather_wrapper(int *n_edges, int *tails, int *heads, double *weights,
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the network */
-  nwp=WtNetworkInitialize(tails, heads, weights, n_edges[0], 
+  nwp=WtNetworkInitialize((Vertex*)tails, (Vertex*)heads, weights, n_edges[0], 
 			    *n_nodes, *dflag, *bipartite, 0, 0, NULL);
   
-  *status = WtGodfather(abs(*total_changes), changetails, changeheads, changeweights,
+  *status = WtGodfather(abs(*total_changes), (Vertex*)changetails, (Vertex*)changeheads, changeweights,
 			nwp, m, changestats);
   
   /* record new generated network to pass back to R */
   if(*status == WtMCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads && newnetworkweights)
-    newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,newnetworkweights+1,nwp,nmax-1);
+    newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList((Vertex*)newnetworktails+1,(Vertex*)newnetworkheads+1,newnetworkweights+1,nwp,nmax-1);
   
   WtModelDestroy(m);
   WtNetworkDestroy(nwp);

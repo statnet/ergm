@@ -51,7 +51,7 @@ void CD_wrapper(int *nedges,
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the network */
-  nwp=NetworkInitialize(tails, heads, nedges[0], 
+  nwp=NetworkInitialize((Vertex*)tails, (Vertex*)heads, nedges[0], 
                           n_nodes, directed_flag, bip, 0, 0, NULL);
   
   MHp=MHProposalInitialize(

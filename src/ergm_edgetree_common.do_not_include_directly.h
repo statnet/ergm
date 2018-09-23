@@ -16,7 +16,7 @@
 #define EDGECOUNT(nwp) nwp->nedges
 
 /*typedef unsigned int Vertex; */
-typedef int Vertex;
+typedef unsigned int Vertex;
 typedef unsigned int Edge;
 typedef unsigned long int Dyad;
 

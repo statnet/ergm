@@ -48,7 +48,7 @@ void MPLE_wrapper(int *tails, int *heads, int *dnedges,
   RLEBDM1D wlm = unpack_RLEBDM1D(&tmp, n_nodes);
 
   GetRNGstate(); /* Necessary for R random number generator */
-  nwp=NetworkInitialize(tails, heads, n_edges,
+  nwp=NetworkInitialize((Vertex*)tails, (Vertex*)heads, n_edges,
                           n_nodes, directed_flag, bip, 0, 0, NULL);
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
   
