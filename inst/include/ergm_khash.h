@@ -237,15 +237,15 @@ static const double __ac_HASH_UPPER = 0.77;
 			last = i; \
 			while (!__ac_isempty(h->flags, i) && (__ac_isdel(h->flags, i) || !__hash_equal(h->keys[i], key))) { \
 				i = (i + (++step)) & mask; \
-				if (i == last) return h->n_buckets;						\
+				if (i == last) return kh_none;						\
 			}															\
-			return __ac_iseither(h->flags, i)? h->n_buckets : i;		\
-		} else return 0;												\
+			return __ac_iseither(h->flags, i)? kh_none : i;		\
+		} else return kh_none;												\
 	}																	\
 	SCOPE khval_t kh_getval_##name(const kh_##name##_t *h, khkey_t key, khval_t defval) \
 	{								\
 	  khiter_t pos = kh_get_##name(h, key);				\
-	  return pos==kh_end(h) ? defval : kh_value(h, pos);		\
+	  return pos==kh_none ? defval : kh_value(h, pos);		\
 	}								\
 	SCOPE int kh_resize_##name(kh_##name##_t *h, khint_t new_n_buckets) \
 	{ /* This function uses 0.25*n_buckets bytes of working space instead of [sizeof(key_t+val_t)+.25]*n_buckets. */ \
@@ -316,10 +316,10 @@ static const double __ac_HASH_UPPER = 0.77;
 		if (h->n_occupied >= h->upper_bound) { /* update the hash table */ \
 			if (h->n_buckets > (h->size<<1)) {							\
 				if (kh_resize_##name(h, h->n_buckets - 1) < 0) { /* clear "deleted" elements */ \
-					*ret = -1; return h->n_buckets;						\
+					*ret = -1; return kh_none;						\
 				}														\
 			} else if (kh_resize_##name(h, h->n_buckets + 1) < 0) { /* expand the hash table */ \
-				*ret = -1; return h->n_buckets;							\
+				*ret = -1; return kh_none;							\
 			}															\
 		} /* TODO: to implement automatically shrinking; resize() already support shrinking */ \
 		{																\
@@ -354,7 +354,7 @@ static const double __ac_HASH_UPPER = 0.77;
 	}																	\
 	SCOPE void kh_del_##name(kh_##name##_t *h, khint_t x)				\
 	{																	\
-		if (x != h->n_buckets && !__ac_iseither(h->flags, x)) {			\
+		if (x != h->n_buckets && x != kh_none && !__ac_iseither(h->flags, x)) {			\
 			__ac_set_isdel_true(h->flags, x);							\
 			--h->size;													\
 		}																\
@@ -484,7 +484,7 @@ static kh_inline khint_t __ac_Wang_hash(khint_t key)
   @param  name  Name of the hash table [symbol]
   @param  h     Pointer to the hash table [khash_t(name)*]
   @param  k     Key [type of keys]
-  @return       Iterator to the found element, or kh_end(h) if the element is absent [khint_t]
+  @return       Iterator to the found element, or kh_none if the element is absent [khint_t]
  */
 #define kh_get(name, h, k) kh_get_##name(h, k)
 
@@ -549,6 +549,12 @@ static kh_inline khint_t __ac_Wang_hash(khint_t key)
   @return       The end iterator [khint_t]
  */
 #define kh_end(h) ((h)->n_buckets)
+
+/*! @constant
+  @abstract     Get the "not found" iterator
+  @return       The maximum unsigned integer [khint_t]
+ */
+#define kh_none (~(khint_t)(0))
 
 /*! @function
   @abstract     Get the number of elements in the hash table
@@ -663,7 +669,7 @@ typedef const char *kh_cstr_t;
 #define kh_unset(name, h, k)					\
   {								\
     khiter_t _kh_unset_pos = kh_get(name, h, k);		\
-    if(_kh_unset_pos!=kh_end(h)){				\
+    if(_kh_unset_pos!=kh_none){				\
       kh_del(name, h, _kh_unset_pos);				\
     }								\
   }
