@@ -55,7 +55,7 @@ void WtSAN_wrapper (int *nedges,
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the network */
-  nwp=WtNetworkInitialize(tails, heads, weights, nedges[0],
+  nwp=WtNetworkInitialize((Vertex*)tails, (Vertex*)heads, weights, nedges[0],
 			    n_nodes, directed_flag, bip, 0, 0, NULL);
 
   /* Trigger initial storage update */
@@ -81,7 +81,7 @@ void WtSAN_wrapper (int *nedges,
   /* record new generated network to pass back to R */
   /* *** and don't forget edges are (tail, head) */
   if(*status == WtMCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
-    newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList(newnetworktails+1,newnetworkheads,newnetworkweights,nwp,nmax-1);
+    newnetworktails[0]=newnetworkheads[0]=newnetworkweights[0]=WtEdgeTree2EdgeList((Vertex*)newnetworktails+1,(Vertex*)newnetworkheads+1,newnetworkweights+1,nwp,nmax-1);
 
   WtModelDestroy(nwp, m);
   WtNetworkDestroy(nwp);

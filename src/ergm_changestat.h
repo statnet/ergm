@@ -44,15 +44,15 @@ typedef struct ModelTermstruct {
 /* tell whether a particular edge exists */
 #define _IS_OUTEDGE2(a,b) _IS_OUTEDGE3(a,b,nwp)
 #define _IS_OUTEDGE3(a,b,nwp) (EdgetreeSearch((a),(b),nwp->outedges)!=0?1:0)
-#define IS_OUTEDGE(...) _GET_OVERRIDE23(__VA_ARGS__, _IS_OUTEDGE3, _IS_OUTEDGE2)(__VA_ARGS__)
+#define IS_OUTEDGE(...) _GET_OVERRIDE23(__VA_ARGS__, _IS_OUTEDGE3, _IS_OUTEDGE2,)(__VA_ARGS__)
 
 #define _IS_INEDGE2(a,b) _IS_INEDGE3(a,b,nwp)
 #define _IS_INEDGE3(a,b,nwp) (EdgetreeSearch((a),(b),nwp->inedges)!=0?1:0)
-#define IS_INEDGE(...) _GET_OVERRIDE23(__VA_ARGS__, _IS_INEDGE3, _IS_INEDGE2)(__VA_ARGS__)
+#define IS_INEDGE(...) _GET_OVERRIDE23(__VA_ARGS__, _IS_INEDGE3, _IS_INEDGE2,)(__VA_ARGS__)
 
 #define _IS_UNDIRECTED_EDGE2(a,b) _IS_UNDIRECTED_EDGE3(a,b,nwp)
 #define _IS_UNDIRECTED_EDGE3(a,b,nwp) (EdgetreeSearch(MIN((a),(b)),MAX((a),(b)),nwp->outedges)!=0?1:0)
-#define IS_UNDIRECTED_EDGE(...) _GET_OVERRIDE23(__VA_ARGS__, _IS_UNDIRECTED_EDGE3, _IS_UNDIRECTED_EDGE2)(__VA_ARGS__)
+#define IS_UNDIRECTED_EDGE(...) _GET_OVERRIDE23(__VA_ARGS__, _IS_UNDIRECTED_EDGE3, _IS_UNDIRECTED_EDGE2,)(__VA_ARGS__)
 
 /* Return the Edge number of the smallest-labelled neighbor of the node 
    labelled "a".  Or, return the Edge number of the next-largest neighbor 
@@ -121,10 +121,10 @@ typedef struct ModelTermstruct {
 /* Get and set the value (0 or 1) of the (a,b) edge. */
 #define _GETWT2(a,b) _GETWT3(a,b,nwp)
 #define _GETWT3(a,b,nwp) (GetEdge(a,b,nwp))
-#define GETWT(...) _GET_OVERRIDE23(__VA_ARGS__, _GETWT3, _GETWT2)(__VA_ARGS__)
+#define GETWT(...) _GET_OVERRIDE23(__VA_ARGS__, _GETWT3, _GETWT2,)(__VA_ARGS__)
 #define _SETWT3(a,b,w) _SETWT4(a,b,w,nwp)
 #define _SETWT4(a,b,w,nwp) (SetEdge(a,b,w,nwp))
-#define SETWT(...) _GET_OVERRIDE43(__VA_ARGS__, _SETWT4, _SETWT3)(__VA_ARGS__)
+#define SETWT(...) _GET_OVERRIDE43(__VA_ARGS__, _SETWT4, _SETWT3,)(__VA_ARGS__)
 
 /* *** don't forget tail-> head, so these functions now toggle (tails, heads), instead of (heads, tails) */
 

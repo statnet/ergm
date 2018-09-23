@@ -10,16 +10,16 @@
 #include "MPLE.h"
 #include "ergm_changestat.h"
 
-void RecurseOffOn(int *nodelist1,int *nodelist2, int nodelistlength, 
-       int currentnodes, double *changeStats, double *cumulativeStats,
-       double *covmat, int *weightsvector,
-       int maxNumDyadTypes, Network *nwp, Model *m);
+void RecurseOffOn(Vertex *nodelist1,Vertex *nodelist2, Vertex nodelistlength, 
+       Vertex currentnodes, double *changeStats, double *cumulativeStats,
+       double *covmat, unsigned int *weightsvector,
+       unsigned int maxNumDyadTypes, Network *nwp, Model *m);
 
-unsigned int InsNetStatRow(double *newRow, double *matrix, int rowLength, 
-       int numRows, int *weights );
+unsigned int InsNetStatRow(double *newRow, double *matrix, unsigned int rowLength, 
+       unsigned int numRows, unsigned int *weights );
 
-unsigned int hashNetStatRow(double *newRow, int rowLength, 
-       int numRows);
+unsigned int hashNetStatRow(double *newRow, unsigned int rowLength, 
+       unsigned int numRows);
 
         
 /* *****************
@@ -49,15 +49,15 @@ void AllStatistics (
   Network *nwp;
 
   Vertex n_nodes = (Vertex) *dn; 
-  int directed_flag = *dflag;
-  int nodelistlength, rowmax, *nodelist1, *nodelist2;
+  unsigned int directed_flag = *dflag;
+  Vertex nodelistlength, rowmax, *nodelist1, *nodelist2;
   Vertex bip = (Vertex) *bipartite;
   Model *m;
 
   /* Step 1:  Initialize empty network and initialize model */
   GetRNGstate(); /* Necessary for R random number generator */
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
-  nwp=NetworkInitialize(tails, heads, *dnedges,
+  nwp=NetworkInitialize((Vertex*)tails, (Vertex*)heads, *dnedges,
 		       n_nodes, directed_flag, bip, 0, 0, NULL);
   /* Trigger initial storage update */
   InitStats(nwp, m);
@@ -71,8 +71,8 @@ void AllStatistics (
     nodelistlength = N_NODES * (N_NODES-1) / (DIRECTED? 1 : 2);
     rowmax = N_NODES;
   }
-  nodelist1 = (int *) R_alloc(nodelistlength, sizeof(int));
-  nodelist2 = (int *) R_alloc(nodelistlength, sizeof(int));
+  nodelist1 = (Vertex *) R_alloc(nodelistlength, sizeof(int));
+  nodelist2 = (Vertex *) R_alloc(nodelistlength, sizeof(int));
   int count = 0;
   for(int i=1; i < rowmax; i++) {
     for(int j = MAX(i,BIPARTITE)+1; j <= N_NODES; j++) {
@@ -103,7 +103,7 @@ void AllStatistics (
 
   /* Step 4:  Begin recursion */
   RecurseOffOn(nodelist1, nodelist2, nodelistlength, 0, changeStats, 
-           cumulativeStats, covmat, weightsvector, *maxNumDyadTypes, nwp, m);
+	       cumulativeStats, covmat, (unsigned int*) weightsvector, *maxNumDyadTypes, nwp, m);
 
   /* Step 5:  Deallocate memory and return */
   ModelDestroy(nwp, m);
@@ -112,15 +112,15 @@ void AllStatistics (
 }
 
 void RecurseOffOn(
-       int *nodelist1, 
-       int *nodelist2, 
-       int nodelistlength, 
-       int currentnodes, 
+       Vertex *nodelist1, 
+       Vertex *nodelist2, 
+       Vertex nodelistlength, 
+       Vertex currentnodes, 
        double *changeStats,
        double *cumulativeStats,
        double *covmat,
-       int *weightsvector,
-		   int maxNumDyadTypes, 
+       unsigned int *weightsvector,
+       unsigned int maxNumDyadTypes, 
        Network *nwp, 
        Model *m) {
   /* Loop through twice for each dyad: Once for edge and once for no edge */
@@ -142,9 +142,9 @@ void RecurseOffOn(
     EXEC_THROUGH_TERMS(m, {
 	if(mtp->c_func){
 	  ZERO_ALL_CHANGESTATS();
-	  (*(mtp->c_func))(nodelist1[currentnodes], nodelist2[currentnodes], mtp, nwp);
+	  (*(mtp->c_func))((Vertex)nodelist1[currentnodes], (Vertex)nodelist2[currentnodes], mtp, nwp);
 	}else if(mtp->d_func){
-	  (*(mtp->d_func))(1, nodelist1+currentnodes, nodelist2+currentnodes, mtp, nwp);
+	  (*(mtp->d_func))(1, (Vertex*)nodelist1+currentnodes, (Vertex*)nodelist2+currentnodes, mtp, nwp);
 	}
       });
     
@@ -160,9 +160,9 @@ void RecurseOffOn(
 unsigned int InsNetStatRow(
                      double *newRow, 
                      double *matrix, 
-                     int rowLength, 
-                     int numRows, 
-                     int *weights ){
+                     unsigned int rowLength, 
+                     unsigned int numRows, 
+                     unsigned int *weights ){
   unsigned int pos, round;
   unsigned int hash_pos = hashNetStatRow(newRow, rowLength, numRows);
   
@@ -188,7 +188,7 @@ Uses Jenkins One-at-a-Time hash.
 
 numRows should, ideally, be a power of 2, but it doesn't have to be.
 **************/
-unsigned int hashNetStatRow(double *newRow, int rowLength, int numRows) {
+unsigned int hashNetStatRow(double *newRow, unsigned int rowLength, unsigned int numRows) {
   /* Cast all pointers to unsigned char pointers, since data need to 
      be fed to the hash function one byte at a time. */
   unsigned char *cnewRow = (unsigned char *) newRow;

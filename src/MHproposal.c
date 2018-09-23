@@ -224,8 +224,6 @@ int CheckTogglesValid(MHProposal *MHp, Network *nwp) {
 
   /* if we're bounding degrees by attribute */
   if (bd->fBoundDegByAttr && fvalid) {
-    Edge e;
-    Vertex v;
     int k; 
     if (nwp->directed_flag) {
       /* for each tail and head pair */
@@ -332,8 +330,6 @@ int CheckConstrainedTogglesValid(MHProposal *MHp, Network *nwp)
   /* if we're bounding degrees by attribute */
   if (bd->fBoundDegByAttr && fvalid)
   {
-    Edge e;
-    Vertex v;
     int k;
     int *tailattr = (int *) Calloc(bd->attrcount, int);
     int *headattr = (int *) Calloc(bd->attrcount, int);
