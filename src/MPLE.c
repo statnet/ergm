@@ -52,7 +52,7 @@ void MPLE_wrapper(int *tails, int *heads, int *dnedges,
 
   GetRNGstate(); /* Necessary for R random number generator */
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
-  nwp=NetworkInitialize(tails, heads, n_edges,
+  nwp=NetworkInitialize((Vertex*)tails, (Vertex*)heads, n_edges,
                           n_nodes, directed_flag, bip, 0, 0, NULL);
   
   /* Trigger initial storage update */

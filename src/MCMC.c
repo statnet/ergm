@@ -56,7 +56,7 @@ void MCMC_wrapper(int *nedges,
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
   
   /* Form the network */
-  nwp=NetworkInitialize(tails, heads, nedges[0], 
+  nwp=NetworkInitialize((Vertex*)tails, (Vertex*)heads, nedges[0], 
                           n_nodes, directed_flag, bip, 0, 0, NULL);
 
   /* Trigger initial storage update */
@@ -82,7 +82,7 @@ void MCMC_wrapper(int *nedges,
 
   /* record new generated network to pass back to R */
   if(*status == MCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
-    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,nwp,nmax-1);
+    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList((Vertex*)newnetworktails+1,(Vertex*)newnetworkheads+1,nwp,nmax-1);
   
   ModelDestroy(nwp, m);
   NetworkDestroy(nwp);
@@ -334,7 +334,7 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the missing network */
-  nwp=NetworkInitialize(tails, heads, n_edges,
+  nwp=NetworkInitialize((Vertex*)tails, (Vertex*)heads, n_edges,
                           n_nodes, directed_flag, bip, 0, 0, NULL);
 
 
@@ -355,7 +355,7 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
   
   /* record new generated network to pass back to R */
   if(nmax>0 && newnetworktails && newnetworkheads)
-    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,nwp,nmax-1);
+    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList((Vertex*)newnetworktails+1,(Vertex*)newnetworkheads+1,nwp,nmax-1);
 
   ModelDestroy(nwp, m);
 

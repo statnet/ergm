@@ -45,7 +45,7 @@ void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timi
      to R.  Note that stats already has the statistics of an empty
      network, so d_??? statistics will add on to them, while s_???
      statistics will simply overwrite them.*/
-  WtSummStats(n_edges, tails, heads, weights, nwp, m,stats);
+  WtSummStats(n_edges, (Vertex*)tails, (Vertex*)heads, weights, nwp, m,stats);
   
   WtModelDestroy(nwp, m);
   WtNetworkDestroy(nwp);
