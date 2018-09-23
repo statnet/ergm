@@ -99,6 +99,7 @@ return fun(nwp);
 #undef kh_value
 #undef kh_begin
 #undef kh_end
+#undef kh_none
 #undef kh_size
 #undef kh_n_buckets
 #undef kh_foreach
