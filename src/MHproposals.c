@@ -106,7 +106,7 @@ void MH_TNT10 (MHProposal *MHp, Network *nwp)
     return;
   }
   
-  double logratio;
+  double logratio = 0;
   BD_LOOP({
       logratio = 0;
       for(unsigned int n = 0; n < 10; n++){
