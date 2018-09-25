@@ -74,6 +74,15 @@ WtMHProposal * WtMHProposalInitialize(
 
 void WtMHProposalDestroy(WtMHProposal *MH);
 
+/* Helper macros */
+#define MH_INPUTS MHp->inputs
+
+#define Mtail (MHp->toggletail)
+#define Mhead (MHp->togglehead)
+#define Mweight (MHp->toggleweight)
+
+#define WtMH_P_FN(a) void (a) (WtMHProposal *MHp, WtNetwork *nwp)
+
 #endif 
 
 

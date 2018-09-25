@@ -10,16 +10,12 @@
 #include "MHproposals.h"
 #include "ergm_edgelist.h"
 
-/* Shorthand. */
-#define Mtail (MHp->toggletail)
-#define Mhead (MHp->togglehead)
-
 /*********************
  void MH_blockdiag
 
  Block-diagonal sampling
 *********************/
-void MH_blockdiag (MHProposal *MHp, Network *nwp)  {  
+MH_P_FN(MH_blockdiag){  
 
   /* *** don't forget tail-> head now */
 
@@ -58,7 +54,7 @@ void MH_blockdiag (MHProposal *MHp, Network *nwp)  {
 
  Block-diagonal sampling for bipartite graphs
 *********************/
-void MH_blockdiagB (MHProposal *MHp, Network *nwp)  {  
+MH_P_FN(MH_blockdiagB){  
 
   /* *** don't forget tail-> head now */
 
@@ -90,7 +86,7 @@ void MH_blockdiagB (MHProposal *MHp, Network *nwp)  {
 
    Block-diagonal TNT sampling
 ***********************/
-void MH_blockdiagTNT (MHProposal *MHp, Network *nwp) 
+MH_P_FN(MH_blockdiagTNT)
 {
   /* *** don't forget tail-> head now */
   
@@ -151,7 +147,7 @@ void MH_blockdiagTNT (MHProposal *MHp, Network *nwp)
 
    Block-diagonal TNT sampling for bipartite graphs
 ***********************/
-void MH_blockdiagTNTB (MHProposal *MHp, Network *nwp) 
+MH_P_FN(MH_blockdiagTNTB)
 {
   /* *** don't forget tail-> head now */
 

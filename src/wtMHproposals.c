@@ -10,17 +10,12 @@
 #include "wtMHproposals.h"
 #include "ergm_rlebdm.h"
 
-/* Shorthand. */
-#define Mtail (MHp->toggletail)
-#define Mhead (MHp->togglehead)
-#define Mweight (MHp->toggleweight)
-
 /*********************
  void MH_StdNormal
 
  Default MH algorithm for a standard-normal-reference ERGM
 *********************/
-void MH_StdNormal(WtMHProposal *MHp, WtNetwork *nwp)  {  
+WtMH_P_FN(MH_StdNormal){  
   double oldwt;
   
   if(MHp->ntoggles == 0) { // Initialize StdNormal 
@@ -45,7 +40,7 @@ void MH_StdNormal(WtMHProposal *MHp, WtNetwork *nwp)  {
 
  Default MH algorithm for continuous-uniform-reference ERGM
 *********************/
-void MH_Unif(WtMHProposal *MHp, WtNetwork *nwp)  {  
+WtMH_P_FN(MH_Unif){  
   double oldwt;
   static int a, b;
   
@@ -73,7 +68,7 @@ void MH_Unif(WtMHProposal *MHp, WtNetwork *nwp)  {
 
  Missing data MH algorithm for continuous-uniform-reference ERGM.
 *********************/
-void MH_UnifNonObserved(WtMHProposal *MHp, WtNetwork *nwp)  {  
+WtMH_P_FN(MH_UnifNonObserved){  
   static Edge nmissing;
   static int a, b;
   
@@ -114,7 +109,7 @@ void MH_UnifNonObserved(WtMHProposal *MHp, WtNetwork *nwp)  {
 
  Default MH algorithm for discrete-uniform-reference ERGM
 *********************/
-void MH_DiscUnif(WtMHProposal *MHp, WtNetwork *nwp)  {  
+WtMH_P_FN(MH_DiscUnif){  
   double oldwt;
   static int a, b;
   
@@ -142,7 +137,7 @@ void MH_DiscUnif(WtMHProposal *MHp, WtNetwork *nwp)  {
 
  Missing data MH algorithm for discrete-uniform-reference ERGM.
 *********************/
-void MH_DiscUnifNonObserved(WtMHProposal *MHp, WtNetwork *nwp)  {  
+WtMH_P_FN(MH_DiscUnifNonObserved){  
   static Edge nmissing;
   static int a, b;
   
@@ -181,7 +176,7 @@ void MH_DiscUnifNonObserved(WtMHProposal *MHp, WtNetwork *nwp)  {
    void MH_DistRLE
    Propose ONLY edges on an RLE-compressed list
 ***********************/
-void MH_DistRLE(WtMHProposal *MHp, WtNetwork *nwp) 
+WtMH_P_FN(MH_DistRLE)
 {  
   static RLEBDM1D r;
   static double *inputs;
