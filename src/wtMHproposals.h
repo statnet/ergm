@@ -12,10 +12,10 @@
 
 #include "ergm_wtMHproposal.h"
 
-void MH_Unif(WtMHProposal *MHp, WtNetwork *nwp);
-void MH_UnifNonObserved(WtMHProposal *MHp, WtNetwork *nwp);
-void MH_DiscUnif(WtMHProposal *MHp, WtNetwork *nwp);
-void MH_DiscUnifNonObserved(WtMHProposal *MHp, WtNetwork *nwp);
+WtMH_P_FN(MH_Unif);
+WtMH_P_FN(MH_UnifNonObserved);
+WtMH_P_FN(MH_DiscUnif);
+WtMH_P_FN(MH_DiscUnifNonObserved);
 
 #endif 
 

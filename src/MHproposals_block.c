@@ -13,8 +13,6 @@
 #include "ergm_MHblockdiag.h"
 #include "ergm_MHstorage.h"
 
-/* Shorthand. */
-
 /*********************
  void MH_blockdiag
 
