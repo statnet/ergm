@@ -113,6 +113,14 @@ int CheckConstrainedTogglesValid(MHProposal *MHp, Network *nwp);
     MHp->togglehead[0]=MH_CONSTRAINT;                                   \
   }									
 
+/* Helper macros */
+#define MH_INPUTS MHp->inputs
+
+#define Mtail (MHp->toggletail)
+#define Mhead (MHp->togglehead)
+
+#define MH_P_FN(a) void (a) (MHProposal *MHp, Network *nwp)
+
 #endif 
 
 

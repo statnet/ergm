@@ -267,6 +267,10 @@ return fun(MHp,nwp);
 #undef XNOR
 #undef BD_LOOP
 #undef BD_COND_LOOP
+#undef MH_INPUTS
+#undef Mtail
+#undef Mhead
+#undef MH_P_FN
 
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
@@ -569,6 +573,11 @@ fun(MH);
 #undef MH_QUIT_UNSUCCESSFUL
 #undef XOR
 #undef XNOR
+#undef MH_INPUTS
+#undef Mtail
+#undef Mhead
+#undef Mweight
+#undef WtMH_P_FN
 
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
@@ -756,6 +765,10 @@ fun(MH,theta,gain,meanstats,nphase1,nsubphases,networkstatistics,samplesize,burn
 #undef XNOR
 #undef BD_LOOP
 #undef BD_COND_LOOP
+#undef MH_INPUTS
+#undef Mtail
+#undef Mhead
+#undef MH_P_FN
 
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
@@ -859,3 +872,8 @@ return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 #undef MH_QUIT_UNSUCCESSFUL
 #undef XOR
 #undef XNOR
+#undef MH_INPUTS
+#undef Mtail
+#undef Mhead
+#undef Mweight
+#undef WtMH_P_FN
