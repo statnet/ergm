@@ -17,8 +17,8 @@ D_CHANGESTAT_FN(d_indices) {
 
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
-    Vertex t = tails[i];
-    Vertex h = heads[i]; 
+    int t = tails[i];
+    int h = heads[i];
     int edgeflag = IS_OUTEDGE(t,h);
     CHANGE_STAT[0] += edgeflag ? -t : t;
     CHANGE_STAT[1] += edgeflag ? -h : h;
