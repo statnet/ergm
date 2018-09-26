@@ -3,25 +3,6 @@
 
 #include "ergm_dyad_hashmap.h"
 
-
-// Increment the value in the hashtable by inc.
-static inline void IncDyadMapUInt(struct TailHead th, int inc, StoreDyadMapUInt *spcache){
-  if(inc!=0){
-    khiter_t pos = kh_get(DyadMapUInt, spcache, th);
-    unsigned int val = pos==kh_none ? 0 : kh_value(spcache, pos);
-    val += inc;
-    if(val==0){
-      kh_del(DyadMapUInt, spcache, pos);
-    }else{
-      if(pos==kh_none){
-	int ret;
-	pos = kh_put(DyadMapUInt, spcache, th, &ret);
-      }
-      kh_val(spcache, pos) = val;
-    }
-  }
-}
-
 /* Construct and maintain a directed weighted network whose (i,j)
    value is the number of directed two-paths from i to j. */
 

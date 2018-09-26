@@ -124,7 +124,7 @@ typedef struct ModelTermstruct {
 #define GETWT(...) _GET_OVERRIDE23(__VA_ARGS__, _GETWT3, _GETWT2,)(__VA_ARGS__)
 #define _SETWT3(a,b,w) _SETWT4(a,b,w,nwp)
 #define _SETWT4(a,b,w,nwp) (SetEdge(a,b,w,nwp))
-#define SETWT(...) _GET_OVERRIDE43(__VA_ARGS__, _SETWT4, _SETWT3,)(__VA_ARGS__)
+#define SETWT(...) _GET_OVERRIDE34(__VA_ARGS__, _SETWT4, _SETWT3,)(__VA_ARGS__)
 
 /* *** don't forget tail-> head, so these functions now toggle (tails, heads), instead of (heads, tails) */
 

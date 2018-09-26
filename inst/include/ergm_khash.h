@@ -162,13 +162,49 @@ typedef unsigned long long khint64_t;
 typedef khint32_t khint_t;
 typedef khint_t khiter_t;
 
-#define __ac_isempty(flag, i) ((flag[i>>4]>>((i&0xfU)<<1))&2)
-#define __ac_isdel(flag, i) ((flag[i>>4]>>((i&0xfU)<<1))&1)
-#define __ac_iseither(flag, i) ((flag[i>>4]>>((i&0xfU)<<1))&3)
-#define __ac_set_isdel_false(flag, i) (flag[i>>4]&=~(1ul<<((i&0xfU)<<1)))
-#define __ac_set_isempty_false(flag, i) (flag[i>>4]&=~(2ul<<((i&0xfU)<<1)))
-#define __ac_set_isboth_false(flag, i) (flag[i>>4]&=~(3ul<<((i&0xfU)<<1)))
-#define __ac_set_isdel_true(flag, i) (flag[i>>4]|=1ul<<((i&0xfU)<<1))
+#define __ac_intpos(i) ((i)>>4)
+#define __ac_bitpos(i) (((i)&0xfU)<<1)
+#define __ac_store_intpos(flags, x) (x ## i = flags + __ac_intpos(x))
+#define __ac_store_bitpos(x) (x ## b = __ac_bitpos(x))
+
+#define __ac_isempty2(flag, i) (((*flag)>>(i))&2)
+#define __ac_isdel2(flag, i) (((*flag)>>(i))&1)
+#define __ac_iseither2(flag, i) (((*flag)>>(i))&3)
+#define __ac_set_isdel_false2(flag, i) ((*flag)&=~(1ul<<(i)))
+#define __ac_set_isempty_false2(flag, i) ((*flag)&=~(2ul<<(i)))
+#define __ac_set_isempty_true2(flag, i) ((*flag)|=2ul<<(i))
+#define __ac_set_isboth_false2(flag, i) ((*flag)&=~(3ul<<(i)))
+#define __ac_set_isdel_true2(flag, i) ((*flag)|=1ul<<(i))
+static kh_inline klib_unused bool __ac_set_isempty_if_isdel2(khint32_t *flag, khiter_t i){
+  if(__ac_isdel2(flag,i)){
+    __ac_set_isdel_false2(flag,i);
+    __ac_set_isempty_true2(flag,i);
+    return true;
+  }else{
+    return false;
+  }
+}
+
+#define __ac_isempty(flag, i) ((flag[(i)>>4]>>(((i)&0xfU)<<1))&2)
+#define __ac_isdel(flag, i) ((flag[(i)>>4]>>(((i)&0xfU)<<1))&1)
+#define __ac_iseither(flag, i) ((flag[(i)>>4]>>(((i)&0xfU)<<1))&3)
+#define __ac_set_isdel_false(flag, i) (flag[(i)>>4]&=~(1ul<<(((i)&0xfU)<<1)))
+#define __ac_set_isempty_false(flag, i) (flag[(i)>>4]&=~(2ul<<(((i)&0xfU)<<1)))
+#define __ac_set_isempty_true(flag, i) (flag[(i)>>4]|=2ul<<(((i)&0xfU)<<1))
+#define __ac_set_isboth_false(flag, i) (flag[(i)>>4]&=~(3ul<<(((i)&0xfU)<<1)))
+#define __ac_set_isdel_true(flag, i) (flag[(i)>>4]|=1ul<<(((i)&0xfU)<<1))
+static kh_inline klib_unused bool __ac_set_isempty_if_isdel(khint32_t *flag, khiter_t i){
+  khint32_t *f = flag + __ac_intpos(i);
+  unsigned int bp = __ac_bitpos(i);
+  if(__ac_isdel2(f,bp)){
+    __ac_set_isdel_false2(f,bp);
+    __ac_set_isempty_true2(f,bp);
+    return true;
+  }else{
+    return false;
+  }
+}
+
 
 #define __ac_fsize(m) ((m) < 16? 1 : (m)>>4)
 
@@ -193,7 +229,7 @@ static const double __ac_HASH_UPPER = 0.77;
 
 #define __KHASH_TYPE(name, khkey_t, khval_t) \
 	typedef struct kh_##name##_s { \
-		khint_t n_buckets, size, n_occupied, upper_bound; \
+	  khint_t n_buckets, size, n_occupied, upper_bound, mask;	\
 		khint32_t *flags; \
 		khkey_t *keys; \
 		khval_t *vals; \
@@ -201,6 +237,7 @@ static const double __ac_HASH_UPPER = 0.77;
 
 #define __KHASH_PROTOTYPES(name, khkey_t, khval_t)	 					\
 	extern kh_##name##_t *kh_init_##name(void);							\
+	extern kh_##name##_t *kh_copy_##name(kh_##name##_t *h);		\
 	extern void kh_destroy_##name(kh_##name##_t *h);					\
 	extern void kh_clear_##name(kh_##name##_t *h);						\
 	extern khint_t kh_get_##name(const kh_##name##_t *h, khkey_t key); 	\
@@ -213,6 +250,25 @@ static const double __ac_HASH_UPPER = 0.77;
 	SCOPE kh_##name##_t *kh_init_##name(void) {							\
 		return (kh_##name##_t*)kcalloc(1, sizeof(kh_##name##_t));		\
 	}																	\
+	SCOPE kh_##name##_t *kh_copy_##name(kh_##name##_t *h)		\
+	{								\
+	  kh_##name##_t *src = h;					\
+	    h = (kh_##name##_t*)kcalloc(1, sizeof(kh_##name##_t));	\
+	    *h = *src; /*  Shallow copy struct. */			\
+	  if(h->flags){							\
+	    h->flags = (khint32_t*)kmalloc(__ac_fsize(src->n_buckets) * sizeof(khint32_t)); \
+	    memcpy(h->flags, src->flags, __ac_fsize(src->n_buckets) * sizeof(khint32_t)); \
+	  }								\
+	  if(h->keys){							\
+	    h->keys = (khkey_t*)kmalloc(src->n_buckets * sizeof(khkey_t)); \
+	    memcpy(h->keys, src->keys, src->n_buckets * sizeof(khkey_t)); \
+	  }								\
+	  if(h->vals){							\
+	    h->vals = (khval_t*)kmalloc(src->n_buckets * sizeof(khval_t)); \
+	    memcpy(h->vals, src->vals, src->n_buckets * sizeof(khval_t)); \
+	  }								\
+	  return h;							\
+	}								\
 	SCOPE void kh_destroy_##name(kh_##name##_t *h)						\
 	{																	\
 		if (h) {														\
@@ -231,15 +287,15 @@ static const double __ac_HASH_UPPER = 0.77;
 	SCOPE khint_t kh_get_##name(const kh_##name##_t *h, khkey_t key) 	\
 	{																	\
 		if (h->n_buckets) {												\
-			khint_t k, i, last, mask, step = 0; \
-			mask = h->n_buckets - 1;									\
-			k = __hash_func(key); i = k & mask;							\
+			khint_t k, i, last, step = 0; \
+			khint32_t *ii=NULL, ib;				\
+			k = __hash_func(key); i = k & h->mask;							\
 			last = i; \
-			while (!__ac_isempty(h->flags, i) && (__ac_isdel(h->flags, i) || !__hash_equal(h->keys[i], key))) { \
-				i = (i + (++step)) & mask; \
+			while (!__ac_isempty2(__ac_store_intpos(h->flags, i), __ac_store_bitpos(i)) && (__ac_isdel2(ii, ib) || !__hash_equal(h->keys[i], key))) { \
+				i = (i + (++step)) & h->mask; \
 				if (i == last) return kh_none;						\
 			}															\
-			return __ac_iseither(h->flags, i)? kh_none : i;		\
+			return __ac_iseither2(ii, ib)? kh_none : i;	\
 		} else return kh_none;												\
 	}																	\
 	SCOPE khval_t kh_getval_##name(const kh_##name##_t *h, khkey_t key, khval_t defval) \
@@ -305,6 +361,7 @@ static const double __ac_HASH_UPPER = 0.77;
 			kfree(h->flags); /* free the working space */				\
 			h->flags = new_flags;										\
 			h->n_buckets = new_n_buckets;								\
+			h->mask = h->n_buckets - 1;			\
 			h->n_occupied = h->size;									\
 			h->upper_bound = (khint_t)(h->n_buckets * __ac_HASH_UPPER + 0.5); \
 		}																\
@@ -313,6 +370,7 @@ static const double __ac_HASH_UPPER = 0.77;
 	SCOPE khint_t kh_put_##name(kh_##name##_t *h, khkey_t key, int *ret) \
 	{																	\
 		khint_t x;														\
+		khint32_t *xi=NULL, xb=kh_none;	\
 		if (h->n_occupied >= h->upper_bound) { /* update the hash table */ \
 			if (h->n_buckets > (h->size<<1)) {							\
 				if (kh_resize_##name(h, h->n_buckets - 1) < 0) { /* clear "deleted" elements */ \
@@ -323,30 +381,31 @@ static const double __ac_HASH_UPPER = 0.77;
 			}															\
 		} /* TODO: to implement automatically shrinking; resize() already support shrinking */ \
 		{																\
-			khint_t k, i, site, last, mask = h->n_buckets - 1, step = 0; \
-			x = site = h->n_buckets; k = __hash_func(key); i = k & mask; \
-			if (__ac_isempty(h->flags, i)) x = i; /* for speed up */	\
+			khint_t k, i, site, last, step = 0; \
+			khint32_t *ii=NULL, ib=kh_none, *si=NULL, sb=kh_none;		\
+			x = site = h->n_buckets; k = __hash_func(key); i = k & h->mask; \
+			if (__ac_isempty2(__ac_store_intpos(h->flags, i), __ac_store_bitpos(i))) {x = i; xi=ii; xb=ib; } /* for speed up */ \
 			else {														\
 				last = i; \
-				while (!__ac_isempty(h->flags, i) && (__ac_isdel(h->flags, i) || !__hash_equal(h->keys[i], key))) { \
-					if (__ac_isdel(h->flags, i)) site = i;				\
-					i = (i + (++step)) & mask; \
+				while (!__ac_isempty2(__ac_store_intpos(h->flags, i), __ac_store_bitpos(i)) && (__ac_isdel2(ii, ib) || !__hash_equal(h->keys[i], key))) { \
+				  if (__ac_isdel2(ii, ib)){ site = i; si=ii; sb=ib; } \
+					i = (i + (++step)) & h->mask; \
 					if (i == last) { x = site; break; }					\
 				}														\
 				if (x == h->n_buckets) {								\
-					if (__ac_isempty(h->flags, i) && site != h->n_buckets) x = site; \
-					else x = i;											\
+				  if (__ac_isempty2(ii, ib) && site != h->n_buckets){ x = site; xi=si; xb=sb;} \
+				  else {x = i; xi=ii; xb=ib; }		\
 				}														\
 			}															\
 		}																\
-		if (__ac_isempty(h->flags, x)) { /* not present at all */		\
+		if (__ac_isempty2(xi, xb)) { /* not present at all */	\
 			h->keys[x] = key;											\
-			__ac_set_isboth_false(h->flags, x);							\
+			__ac_set_isboth_false2(xi, xb);			\
 			++h->size; ++h->n_occupied;									\
 			*ret = 1;													\
-		} else if (__ac_isdel(h->flags, x)) { /* deleted */				\
+		} else if (__ac_isdel2(xi, xb)) { /* deleted */		\
 			h->keys[x] = key;											\
-			__ac_set_isboth_false(h->flags, x);							\
+			__ac_set_isboth_false2(xi, xb);			\
 			++h->size;													\
 			*ret = 2;													\
 		} else *ret = 0; /* Don't touch h->keys[x] if present and not deleted */ \
@@ -354,8 +413,9 @@ static const double __ac_HASH_UPPER = 0.77;
 	}																	\
 	SCOPE void kh_del_##name(kh_##name##_t *h, khint_t x)				\
 	{																	\
-		if (x != h->n_buckets && x != kh_none && !__ac_iseither(h->flags, x)) {			\
-			__ac_set_isdel_true(h->flags, x);							\
+	  khint32_t *xi=NULL, xb;					\
+	  if (x != h->n_buckets && x != kh_none && !__ac_iseither2(__ac_store_intpos(h->flags, x), __ac_store_bitpos(x))) { \
+			__ac_set_isdel_true2(xi, xb);							\
 			--h->size;													\
 		}																\
 	}
@@ -444,6 +504,14 @@ static kh_inline khint_t __ac_Wang_hash(khint_t key)
  */
 #define kh_init(name) kh_init_##name()
 
+/*! @function
+  @abstract     Duplicate a hash table.
+  @param  name  Name of the hash table [symbol]
+  @param  h     Pointer to the hash table [khash_t(name)*]
+  @return       Pointer to a deep copy of the hash table [khash_t(name)*]
+ */
+#define kh_copy(name, h) kh_copy_##name(h)
+ 
 /*! @function
   @abstract     Destroy a hash table.
   @param  name  Name of the hash table [symbol]
@@ -585,6 +653,19 @@ static kh_inline khint_t __ac_Wang_hash(khint_t key)
 		code;												\
 	} }
 
+/*! @function
+  @abstract     Iterate over the keys in the hash table
+  @param  h     Pointer to the hash table [khash_t(name)*]
+  @param  kvar  Variable to which key will be assigned
+  @param  code  Block of code to execute
+ */
+#define kh_foreach_key(h, kvar, code) { khint_t __i;		\
+	for (__i = kh_begin(h); __i != kh_end(h); ++__i) {		\
+		if (!kh_exist(h,__i)) continue;						\
+		(kvar) = kh_key(h,__i);								\
+		code;												\
+	} }
+ 
 /*! @function
   @abstract     Iterate over the values in the hash table
   @param  h     Pointer to the hash table [khash_t(name)*]

@@ -6,7 +6,7 @@
 void PrintDyadMapUInt(StoreDyadMapUInt *h){
   for(khiter_t i = kh_begin(h); i!=kh_end(h); ++i){
     if(kh_exist(h, i)){
-      struct TailHead k = kh_key(h, i);
+      TailHead k = kh_key(h, i);
       unsigned int v = kh_val(h, i);
       Rprintf("(%d,%d)->%u\n",k.tail,k.head,v);
     }
@@ -17,7 +17,7 @@ void PrintDyadMapUInt(StoreDyadMapUInt *h){
 void PrintDyadSet(StoreDyadSet *h){
   for(khiter_t i = kh_begin(h); i!=kh_end(h); ++i){
     if(kh_exist(h, i)){
-      struct TailHead k = kh_key(h, i);
+      TailHead k = kh_key(h, i);
       Rprintf("(%d,%d) ",k.tail,k.head);
     }
   }
