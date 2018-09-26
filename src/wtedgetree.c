@@ -99,12 +99,12 @@ WtNetwork *WtNetworkInitializeD(double *tails, double *heads, double *weights, E
  void NetworkDestroy
 *******************/
 void WtNetworkDestroy(WtNetwork *nwp) {
-  free (nwp->indegree);
-  free (nwp->outdegree);
-  free (nwp->inedges);
-  free (nwp->outedges);
+  Free(nwp->indegree);
+  Free(nwp->outdegree);
+  Free(nwp->inedges);
+  Free(nwp->outedges);
   if(nwp->duration_info.lasttoggle){
-    free (nwp->duration_info.lasttoggle);
+    Free(nwp->duration_info.lasttoggle);
     nwp->duration_info.lasttoggle=NULL;
   }
   Free(nwp);
