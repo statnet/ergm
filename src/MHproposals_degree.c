@@ -10,10 +10,6 @@
 #include "MHproposals_degree.h"
 #include "ergm_changestat.h"
 
-/* Shorthand. */
-#define Mhead (MHp->togglehead)
-#define Mtail (MHp->toggletail)
-
 /* 
 void MH_CondDegreeTetrad
 
