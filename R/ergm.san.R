@@ -7,147 +7,161 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
-#=========================================================================
-# This file contains 4 functions for created "SAN-ed" networks & formulas
-#           <san>              <san.formula>
-#           <san.default>      <san.ergm>
-#=========================================================================
 
-
-
-
-####################################################################
-# Each of the <san.X> functions samples one or more networks via
-# <SAN_wrapper.C> according to the vector of mean stats given;
-# execution will halt
-#    - if X is neither an ergm object or a formula
-#    - if the formula does not correctly specify a network
-#    - no mean stats are given
-#
-# --PARAMETERS--
-#   object     : an ergm object of a formula for such
-#   nsim       : the number of sampled networks to return;
-#                default=1
-#   seed       : the number at which to start the random number
-#                generator; default=NULL
-#   init     : a vector of initial values for the theta coefficients;
-#                default=those returned by <ergm.mple>
-#   invcov     : the initial inverse covariance matrix used to
-#                calculate the Mahalanobis distance; default=that 
-#                from the mple fit if 'init'=NULL, else default=the
-#                identity matrix of size 'init'
-#   burnin     : the number of proposal to disregard before sampling
-#                begins; default=1e4
-#   interval   : the number of proposals between sampled statistics;
-#                default=1e4
-#   target.stats  : a vector of the mean statistics for each model
-#                coefficient; default=NULL (which will halt execution)
-#   basis      : optionally, a network can be provided in 'basis' and
-#                this replaces that given by 'object'; default=NULL
-#   sequential : whether subsequent sampling should start with the
-#                previously sampled network; the alternative is to
-#                always begin sampling from the original network;
-#                default=TRUE
-#   constraints: a one-sided formula giving one or more constraints on
-#                the support of the distribution of the networks being
-#                modeled; a list of availabe options is described in the
-#                <ergm> R documentation; default=~.
-#   control    : a control list for tuning the MHproposals and other
-#                elements of the fit; default=<control.san>()
-#   verbose    : whether this and the C program should be verbose;
-#                default=FALSE
-#   ...        : additional parameters that will passed onto <ergm.mple>
-#
-# --IGNORED--
-#   tau:  this is passed along to several C functions; its use in
-#         <SANMetropolisHastings.c> is commented out
-#
-# --RETURNED--
-#   outlist: either a single sampled network if 'nsim'=1, else a
-#            network.list object as list containing
-#              formula :  the formula given by 'object'
-#              networks:  the list of sampled networks
-#              stats   :  the summary statistics of the sampled networks
-#              coef    :  the initial theta coefficients used by
-#                         the sampling rountine, i.e. 'init'
-#            
-##############################################################################
-
+#' Use Simulated Annealing to attempt to match a network to a vector of mean
+#' statistics
+#' 
+#' This function attempts to find a network or networks whose statistics match
+#' those passed in via the \code{target.stats} vector.
+#' 
+#' 
+#' @param object Either a [`formula`] or an [`ergm`] object. The
+#'   [`formula`] should be of the form \code{y ~ <model terms>}, where
+#'   \code{y} is a network object or a matrix that can be coerced to a
+#'   [`network`] object.  For the details on the
+#'   possible \code{<model terms>}, see \code{\link{ergm-terms}}.  To
+#'   create a \code{\link[network]{network}} object in , use the
+#'   \code{network()} function, then add nodal attributes to it using
+#'   the \code{\%v\%} operator if necessary.
+#' @return A network or list of networks that hopefully have network
+#'   statistics close to the \code{target.stats} vector.
+#' @keywords models
+#' @aliases san.default
+#' @export
 san <- function(object, ...){
  UseMethod("san")
 }
 
+#' @noRd
+#' @export
 san.default <- function(object,...)
 {
   stop("Either a ergm object or a formula argument must be given")
 }
-
+#' @describeIn san Sufficient statistics are specified by a [`formula`].
+#' 
+#' @param response Name of the edge attribute whose value
+#' is to be modeled. Defaults to \code{NULL} for simple presence or absence.
+#' @param reference One-sided formula whose RHS gives the
+#' reference measure to be used. (Defaults to \code{~Bernoulli}.)
+#' @param formula (By default, the \code{formula} is taken from the \code{ergm}
+#' object.  If a different \code{formula} object is wanted, specify it here.
+#' @param constraints A one-sided formula specifying one or more constraints on
+#' the support of the distribution of the networks being simulated. See the
+#' documentation for a similar argument for \code{\link{ergm}} and see
+#' [list of implemented constraints][ergm-constraints] for more information. For
+#' \code{simulate.formula}, defaults to no constraints. For
+#' \code{simulate.ergm}, defaults to using the same constraints as those with
+#' which \code{object} was fitted.
+#' @param target.stats A vector of the same length as the number of terms
+#' implied by the formula, which is either \code{object} itself in the case of
+#' \code{san.formula} or \code{object$formula} in the case of \code{san.ergm}.
+#' @param nsim Number of desired networks.
+#' @param basis If not NULL, a \code{network} object used to start the Markov
+#' chain.  If NULL, this is taken to be the network named in the formula.
+#' @param sequential Logical: If TRUE, the returned draws always use the prior
+#' draw as the starting network; if FALSE, they always use the original
+#' network.
+#'
+#' @param output Character, one of `"network"` (default),
+#'   `"edgelist"`, or `"pending_update_network"`: determines the
+#'   output format. Partial matching is performed.
+#'
+#' @param control A list of control parameters for algorithm tuning; see
+#' \code{\link{control.san}}.
+#' @param verbose Logical or numeric giving the level of verbosity. Higher values produce more verbose output.
+#' @param \dots Further arguments passed to other functions.
+#' @export
 san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints=~., target.stats=NULL,
                         nsim=1, basis=NULL,
                         sequential=TRUE,
+                        output=c("network","edgelist","pending_update_network"),
                         control=control.san(),
                         verbose=FALSE, ...) {
-  check.control.class("san")
+  check.control.class("san", "san")
   control.toplevel(...,myname="san")
 
-  out.list <- list()
-  out.mat <- numeric(0)
+  output <- match.arg(output)
   formula <- object
 
-  if(!is.null(control$seed)) set.seed(as.integer(control$seed))
   if(!is.null(basis)) {
     nw <- basis
-    formula <- ergm.update.formula(formula, nw ~ ., from.new="nw")
-    object <- formula
   } else {
     nw <- ergm.getnetwork(formula)
   }
   if(inherits(nw,"network.list")){
     nw <- nw$networks[[1]]
   }
-  nw <- as.network(nw)
   if(is.null(target.stats)){
     stop("You need to specify target statistic via",
          " the 'target.stats' argument")
   }
-  if(!is.network(nw)){
-    stop("A network object on the LHS of the formula ",
-         "must be given")
+
+  nw <- as.network(ensure_network(nw), populate=FALSE)
+  # nw is now a network/pending_update_network hybrid class. As long
+  # as its edges are only accessed through methods that
+  # pending_update_network methods overload, it should be fine.
+
+# model <- ergm_model(formula, nw, drop=control$drop)
+  proposal<-ergm_proposal(constraints,arguments=control$SAN.prop.args,nw=nw,weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
+  model <- ergm_model(formula, nw, response=response, extra.aux=list(proposal$auxiliaries), term.options=control$term.options)
+
+  san(model, response=response, reference=reference, constraints=proposal, target.stats=target.stats, nsim=nsim, basis=nw, output=output, sequential=sequential, control=control, verbose=verbose, ...)
+}
+
+#' @describeIn san A lower-level function that expects a pre-initialized [`ergm_model`].
+#' @export
+san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constraints=~., target.stats=NULL,
+                           nsim=1, basis=NULL,
+                           sequential=TRUE,
+                           output=c("network","edgelist","pending_update_network"),
+                           control=control.san(),
+                           verbose=FALSE, ...) {
+  check.control.class("san", "san")
+  control.toplevel(...,myname="san")
+
+  model <- object
+
+  out.list <- list()
+  out.mat <- numeric(0)
+
+  if(!is.null(control$seed)) set.seed(as.integer(control$seed))
+  nw <- basis
+  nw <- as.network(ensure_network(nw), populate=FALSE)
+  # nw is now a network/pending_update_network hybrid class. As long
+  # as its edges are only accessed through methods that
+  # pending_update_network methods overload, it should be fine.
+
+  if(is.null(target.stats)){
+    stop("You need to specify target statistic via",
+         " the 'target.stats' argument")
   }
 
-# model <- ergm.getmodel(formula, nw, drop=control$drop)
-  model <- ergm.getmodel(formula, nw, response=response)
+  proposal <- if(inherits(constraints, "ergm_proposal")) constraints
+                else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
+                                   nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
+  
   Clist <- ergm.Cprepare(nw, model, response=response)
-  Clist.miss <- ergm.design(nw, model, verbose=verbose)
-  
-  verb <- match(verbose,
-                c("FALSE","TRUE", "very"), nomatch=1)-1
-  MHproposal<-MHproposal(constraints,arguments=control$SAN.prop.args,nw=nw,weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
-# if(is.null(control$coef)) {
-#   warning("No parameter values given, using the MPLE for the passed network.\n\t")
-# }
-# control$coef <- c(control$coef[1],rep(0,Clist$nstats-1))
-  
-  if (verb) {
-    cat(paste("Starting ",nsim," MCMC iteration", ifelse(nsim>1,"s",""),
+    
+  if (verbose) {
+    message(paste("Starting ",nsim," MCMC iteration", ifelse(nsim>1,"s",""),
         " of ", control$SAN.burnin+control$SAN.interval*(nsim-1), 
-        " steps", ifelse(nsim>1, " each", ""), ".\n", sep=""))
+        " steps", ifelse(nsim>1, " each", ""), ".", sep=""))
   }
 
   for(i in 1:nsim){
     Clist <- ergm.Cprepare(nw, model,response=response)
-#   Clist.miss <- ergm.design(nw, model, verbose=verbose)
     maxedges <- max(control$SAN.init.maxedges, Clist$nedges)
-    if (verb) {
-       cat(paste("#", i, " of ", nsim, ": ", sep=""))
+    if (verbose) {
+       message(paste("#", i, " of ", nsim, ": ", sep=""),appendLF=FALSE)
      }
 
     if(is.null(control$coef)) {
-      if(reference==~Bernoulli){
-        fit <- try(suppressWarnings(ergm(formula=object, response=response, reference=reference,
-                        constraints=constraints,eval.loglik=FALSE,estimate="MPLE",control=control.ergm(drop=FALSE))),silent=TRUE)
+      if(reference==~Bernoulli && network.edgecount(nw)!=0){
+        fit <- try(suppressWarnings(suppressMessages(ergm(formula=object$formula, response=response, reference=reference,
+                        constraints=constraints,eval.loglik=FALSE,estimate="MPLE",control=control.ergm(drop=FALSE)))),silent=TRUE)
         if(inherits(fit, "try-error")){
-          control$coef <- rep(0,coef.length.model(model)) 
+          control$coef <- rep(0,nparam(model)) 
           if(is.null(control$invcov)) control$invcov <- diag(length(control$coef))
         }else{
           control$coef <- coef(fit)
@@ -158,7 +172,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
           }
         }
       }else{
-        control$coef<-rep(0,coef.length.model(model))
+        control$coef<-rep(0,nparam(model))
         if(is.null(control$invcov)) control$invcov <- diag(length(control$coef))
       }
     }else{
@@ -171,7 +185,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
     
     eta0 <- ergm.eta(ifelse(is.na(control$coef), 0, control$coef), model$etamap)
     
-    netsumm<-ergm.getglobalstats(nw, model, response=response)
+    netsumm<-summary(model,nw,response=response)
     target.stats <- vector.namesmatch(target.stats, names(netsumm))
     
     stats <- matrix(netsumm-target.stats,
@@ -189,16 +203,16 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
 
       if(is.null(Clist$weights)){
         z <- .C("SAN_wrapper",
-                as.integer(length(nedges)), as.integer(nedges),
+                as.integer(nedges),
                 as.integer(tails), as.integer(heads),
                 as.integer(Clist$n),
                 as.integer(Clist$dir), as.integer(Clist$bipartite),
                 as.integer(Clist$nterms), 
                 as.character(Clist$fnamestring),
                 as.character(Clist$snamestring), 
-                as.character(MHproposal$name),
-                as.character(MHproposal$pkgname),
-                as.double(c(Clist$inputs,MHproposal$inputs)),
+                as.character(proposal$name),
+                as.character(proposal$pkgname),
+                as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)),
                 as.double(.deinf(eta0)),
                 as.double(.deinf(tau)),
                 as.integer(1), # "samplesize"
@@ -207,27 +221,27 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
                 newnwtails = integer(maxedges),
                 newnwheads = integer(maxedges), 
                 as.double(control$invcov),
-                as.integer(verb),
-                as.integer(MHproposal$arguments$constraints$bd$attribs), 
-                as.integer(MHproposal$arguments$constraints$bd$maxout), as.integer(MHproposal$arguments$constraints$bd$maxin),
-                as.integer(MHproposal$arguments$constraints$bd$minout), as.integer(MHproposal$arguments$constraints$bd$minin),
-                as.integer(MHproposal$arguments$constraints$bd$condAllDegExact),
-                as.integer(length(MHproposal$arguments$constraints$bd$attribs)), 
+                as.integer(verbose),
+                as.integer(proposal$arguments$constraints$bd$attribs), 
+                as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
+                as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
+                as.integer(proposal$arguments$constraints$bd$condAllDegExact),
+                as.integer(length(proposal$arguments$constraints$bd$attribs)), 
                 as.integer(maxedges),
                 status = integer(1),
                 PACKAGE="ergm")
       }else{
         z <- .C("WtSAN_wrapper",
-                as.integer(length(nedges)), as.integer(nedges),
+                as.integer(nedges),
                 as.integer(tails), as.integer(heads), as.double(weights),
                 as.integer(Clist$n),
                 as.integer(Clist$dir), as.integer(Clist$bipartite),
                 as.integer(Clist$nterms), 
                 as.character(Clist$fnamestring),
                 as.character(Clist$snamestring), 
-                as.character(MHproposal$name),
-                as.character(MHproposal$pkgname),
-                as.double(c(Clist$inputs,MHproposal$inputs)),
+                as.character(proposal$name),
+                as.character(proposal$pkgname),
+                as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)),
                 as.double(.deinf(eta0)),
                 as.double(.deinf(tau)),
                 as.integer(1), # "samplesize"
@@ -237,12 +251,12 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
                 newnwheads = integer(maxedges),
                 newnwweights = double(maxedges), 
                 as.double(control$invcov),
-                as.integer(verb),
-                as.integer(MHproposal$arguments$constraints$bd$attribs), 
-                as.integer(MHproposal$arguments$constraints$bd$maxout), as.integer(MHproposal$arguments$constraints$bd$maxin),
-                as.integer(MHproposal$arguments$constraints$bd$minout), as.integer(MHproposal$arguments$constraints$bd$minin),
-                as.integer(MHproposal$arguments$constraints$bd$condAllDegExact),
-                as.integer(length(MHproposal$arguments$constraints$bd$attribs)), 
+                as.integer(verbose),
+                as.integer(proposal$arguments$constraints$bd$attribs), 
+                as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
+                as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
+                as.integer(proposal$arguments$constraints$bd$condAllDegExact),
+                as.integer(length(proposal$arguments$constraints$bd$attribs)), 
                 as.integer(maxedges), 
                 status = integer(1),
                 PACKAGE="ergm")
@@ -256,10 +270,15 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
     #   Next update the network to be the final (possibly conditionally)
     #   simulated one
     #
-    out.list[[i]] <- newnw.extract(nw, z, output=control$network.output, response=response)
+    out.list[[i]] <- pending_update_network(nw,z,response=response)
+    out.list[[i]] <- switch(output,
+                            pending_update_network=out.list[[i]],
+                            network=as.network(out.list[[i]]),
+                            edgelist=as.edgelist(out.list[[i]])
+                            )
     out.mat <- rbind(out.mat,z$s[(Clist$nstats+1):(2*Clist$nstats)])
     if(sequential){
-      nw <-  as.network.uncompressed(out.list[[i]])
+      nw <-  out.list[[i]]
     }
   }
   if(nsim > 1){
@@ -272,11 +291,15 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   return(out.list)
 }
 
+#' @describeIn san Sufficient statistics and other settings are
+#'   inherited from the [`ergm`] fit unless overridden.
+#' @export
 san.ergm <- function(object, formula=object$formula, 
                      constraints=object$constraints, 
                      target.stats=object$target.stats,
                      nsim=1, basis=NULL,
                      sequential=TRUE, 
+                     output=c("network","edgelist","pending_update_network"),
                      control=object$control$SAN.control,
                      verbose=FALSE, ...) {
   if(is.null(control$coef)) control$coef <- coef(object)
@@ -285,6 +308,7 @@ san.ergm <- function(object, formula=object$formula,
               basis=basis,
               reference = object$reference,
               sequential=sequential,
+              output=output,
               constraints=constraints,
               control=control,
               verbose=verbose, ...)

@@ -7,60 +7,44 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
-###############################################################################
-# The <ergm.pl> function prepares many of the components needed by <ergm.mple>
-# for the regression rountines that are used to find the MPLE estimated ergm;
-# this is largely done through <MPLE_wrapper.C>.
-#
-# --PARAMETERS--
-#   Clist            : a list of parameters used for fitting and returned
-#                      by <ergm.Cprepare>
-#   Clist.miss       : the corresponding 'Clist' for the network of missing
-#                      edges returned by <ergm.design>
-#   m                : the model, as returned by <ergm.getmodel>
-#   theta.offset     : a logical vector specifying which of the model
-#                      coefficients are offset, i.e. fixed
-#   maxMPLEsamplesize: the sample size to use for endogenous sampling in the
-#                      pseudolikelihood computation; default=1e6
-#   control       : a list of MCMC related parameters; recognized variables
-#                      include:
-#         samplesize : the number of networks to sample, which will inform the size
-#                      of the returned 'xmat'
-#         Clist.miss : see 'Clist.miss' above; some of the code uses this Clist.miss,
-#                      some uses the one above, does this seem right?
-#   MHproposal       : an MHproposal object, as returned by <ergm.getMHproposal>
-#   verbose          : whether this and the C routines should be verbose (T or F);
-#                      default=FALSE
-#
-# --RETURNED--
-#   a list containing
-#     xmat     : the compressed and possibly sampled matrix of change
-#                statistics
-#     zy       : the corresponding vector of responses, i.e. tie values
-#     foffset  : ??
-#     wend     : the vector of weights for 'xmat' and 'zy'
-#     numobs   : the number of dyads 
-#     xmat.full: the 'xmat' before sampling; if no sampling is needed, this
-#                is NULL
-#     zy.full  : the 'zy' before  sampling; if no sampling is needed, this
-#                is NULL
-#     foffset.full     : ??
-#     theta.offset     : a numeric vector whose ith entry tells whether the
-#                        the ith curved coefficient?? was offset/fixed; -Inf
-#                        implies the coefficient was fixed, 0 otherwise; if
-#                        the model hasn't any curved terms, the first entry
-#                        of this vector is one of
-#                           log(Clist$nedges/(Clist$ndyads-Clist$nedges))
-#                           log(1/(Clist$ndyads-1))
-#                        depending on 'Clist$nedges'
-#     maxMPLEsamplesize: the 'maxMPLEsamplesize' inputted to <ergm.pl>
-#    
-###############################################################################
 
-ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
+#' @rdname ergm.mple
+#' @description \code{ergm.pl} is an even more internal workhorse
+#'   function that prepares many of the components needed by
+#'   \code{ergm.mple} for the regression rountines that are used to
+#'   find the MPLE estimated ergm. It should not be called directly by
+#'   the user.
+#' @param theta.offset a numeric vector used to specify the offset
+#'   (i.e., fixed) coefficients when `ignore.offset=FALSE`.
+#' @param ignore.offset If \code{FALSE} (the default), columns
+#'   corresponding to terms enclosed in \code{offset()} are not
+#'   returned with others but are instead processed by multiplying
+#'   them by their corresponding coefficients (which are fixed, by
+#'   virtue of being offsets) and the results stored in a separate
+#'   column.
+#' @return \code{ergm.pl} returns a list containing: \itemize{ \item
+#'   xmat : the compressed and possibly sampled matrix of change
+#'   statistics \item zy : the corresponding vector of responses,
+#'   i.e. tie values \item foffset : ?? \item wend : the vector of
+#'   weights for 'xmat' and 'zy' \item numobs : the number of dyads
+#'   \item xmat.full: the 'xmat' before sampling; if no sampling is
+#'   needed, this is NULL \item zy.full : the 'zy' before sampling; if
+#'   no sampling is needed, this is NULL \item foffset.full : ?? \item
+#'   theta.offset : a numeric vector whose ith entry tells whether the
+#'   the ith curved coefficient?? was offset/fixed; -Inf implies the
+#'   coefficient was fixed, 0 otherwise; if the model hasn't any
+#'   curved terms, the first entry of this vector is one of
+#'   log(Clist$nedges/(Clist$ndyads-Clist$nedges))
+#'   log(1/(Clist$ndyads-1)) depending on 'Clist$nedges' \item
+#'   maxMPLEsamplesize: the 'maxMPLEsamplesize' inputted to
+#'   \code{ergm.pl} }
+#' @keywords internal
+#' @export
+ergm.pl<-function(nw, fd, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
-                    control, MHproposal, ignore.offset=FALSE,
+                    control, ignore.offset=FALSE,
                     verbose=FALSE) {
+  Clist <- ergm.Cprepare(nw, m)
   bip <- Clist$bipartite
   n <- Clist$n
 
@@ -74,8 +58,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   z <- .C("MPLE_wrapper",
           as.integer(Clist$tails), as.integer(Clist$heads),
           as.integer(Clist$nedges),
-          as.integer(FALSE),
-          as.integer(c(Clist.miss$nedges,Clist.miss$tails,Clist.miss$heads)),
+          as.double(to_ergm_Cdouble(fd)),
           as.integer(n), 
           as.integer(Clist$dir),     as.integer(bip),
           as.integer(Clist$nterms), 
@@ -89,32 +72,31 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
           PACKAGE="ergm")
   uvals <- z$weightsvector!=0
   if (verbose) {
-    cat(paste("MPLE covariate matrix has", sum(uvals), "rows.\n"))
+    message(paste("MPLE covariate matrix has", sum(uvals), "rows."))
   }
   zy <- z$y[uvals]
   wend <- as.numeric(z$weightsvector[uvals])
+  informative.ties <- sum(wend[zy==1])
   xmat <- matrix(z$x, ncol=Clist$nstats, byrow=TRUE)[uvals,,drop=FALSE]
-  colnames(xmat) <- m$coef.names
+  colnames(xmat) <- param_names(m,canonical=TRUE)
   rm(z,uvals)
 
   # If we ran out of space, AND we have a sparse network, then, use
   # case-control MPLE.
-  if(sum(wend)<Clist$ndyads && mean(zy)<1/2){
-    if(verbose) cat("A sparse network with too many unique dyads encountered. Using case-control MPLE.\n")
+  if(sum(wend)<sum(fd) && mean(zy)<1/2){
+    if(verbose) message("A sparse network with too many unique dyads encountered. Using case-control MPLE.")
     # Strip out the rows associated with ties.
     wend <- wend[zy==0]
     xmat <- xmat[zy==0,,drop=FALSE]
     zy <- zy[zy==0]
 
-    ## Run a whitelist PL over all of the edges in the network.
-    # Generate a random permutation of edges, in case we run out of space here as well.
-    missing <- paste(Clist$tails,Clist$heads,sep=".") %in% paste(Clist.miss$tails,Clist.miss$heads,sep=".")
-    ordering <- sample.int(Clist$nedges-sum(missing))
+    el <- as.edgelist(cbind(Clist$tails, Clist$heads), n, directed=TRUE, bipartite=FALSE, loops=TRUE) # This will be filtered by fd anyway.
+    ## Run a whitelist PL over all of the toggleable edges in the network.
+    presentrle <- as.rlebdm(el) & fd
     z <- .C("MPLE_wrapper",
             as.integer(Clist$tails), as.integer(Clist$heads),
             as.integer(Clist$nedges),
-            as.integer(TRUE),
-            as.integer(c(Clist$nedges-sum(missing),Clist$tails[!missing][ordering],Clist$heads[!missing][ordering])),
+            as.numeric(to_ergm_Cdouble(presentrle)),
             as.integer(n), 
             as.integer(Clist$dir),     as.integer(bip),
             as.integer(Clist$nterms), 
@@ -130,15 +112,15 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     zy.e <- z$y[uvals]
     wend.e <- as.numeric(z$weightsvector[uvals])
     xmat.e <- matrix(z$x, ncol=Clist$nstats, byrow=TRUE)[uvals,,drop=FALSE]
-    colnames(xmat.e) <- m$coef.names
+    colnames(xmat.e) <- param_names(m,canonical=TRUE)
     rm(z,uvals)
 
     # Divvy up the sampling weight of the ties:
-    wend.e.total <- (Clist$nedges-sum(missing))
+    informative.ties <- wend.e.total <- sum(presentrle)
     wend.e <- wend.e / sum(wend.e) * wend.e.total
 
     # Divvy up the sampling weight of the nonties:
-    wend <- wend / sum(wend) * (Clist$ndyads-wend.e.total)
+    wend <- wend / sum(wend) * (sum(fd)-wend.e.total)
 
     zy <- c(zy,zy.e)
     wend <- c(wend, wend.e)
@@ -146,7 +128,6 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
 
     rm(zy.e, wend.e, xmat.e)
   }
-  
 
   #
   # Adjust for the offset
@@ -162,7 +143,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     
     # Remove offset covariate columns.
     xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE] 
-    colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
+    colnames(xmat) <- param_names(m,canonical=TRUE)[!m$etamap$offsettheta]
     # Now, iff a row's offset effect is infinite, then it carries no
     # further information whatsoever, so it should be dropped.
     xmat <- xmat[is.finite(foffset),,drop=FALSE]

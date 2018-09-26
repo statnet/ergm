@@ -5,9 +5,10 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  http://statnet.org/attribution
  *
- *  Copyright 2003-2013 Statnet Commons
+ *  Copyright 2003-2017 Statnet Commons
  */
 #include "wtnetstats.h"
+#include "ergm_omp.h"
 /*****************
  void network_stats_wrapper
 
@@ -24,7 +25,7 @@ void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timi
   int directed_flag;
   Vertex n_nodes;
   Edge n_edges;
-  WtNetwork nw[2];
+  WtNetwork *nwp;
   WtModel *m;
   Vertex bip;
 
@@ -37,17 +38,17 @@ void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timi
   if(*lasttoggle == 0) lasttoggle = NULL;
 
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
-  nw[0]=WtNetworkInitialize(NULL, NULL, NULL, 0,
+  nwp=WtNetworkInitialize(NULL, NULL, NULL, 0,
 			    n_nodes, directed_flag, bip, *timings?1:0, *timings?*time:0, *timings?lasttoggle:NULL);
 
   /* Compute the change statistics and copy them to stats for return
      to R.  Note that stats already has the statistics of an empty
      network, so d_??? statistics will add on to them, while s_???
      statistics will simply overwrite them.*/
-  WtSummStats(n_edges, tails, heads, weights, nw, m,stats);
+  WtSummStats(n_edges, (Vertex*)tails, (Vertex*)heads, weights, nwp, m,stats);
   
-  WtModelDestroy(m, nw);
-  WtNetworkDestroy(nw);
+  WtModelDestroy(nwp, m);
+  WtNetworkDestroy(nwp);
 }
 
 
@@ -66,22 +67,17 @@ WtNetwork *nwp, WtModel *m, double *stats){
   Edge ntoggles = n_edges; // So that we can use the macros
 
   /* Initialize storage for terms that don't have s_functions.  */
-  WtEXEC_THROUGH_TERMS({
-#ifdef DEBUG
-      double *dstats = mtp->dstats;
-      mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
-#endif
+  WtEXEC_THROUGH_TERMS_INREVERSE(m, {
+      IFDEBUG_BACKUP_DSTATS;
       if(mtp->s_func==NULL && mtp->i_func)
 	(*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
       else if(mtp->s_func==NULL && mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
 	(*(mtp->u_func))(0, 0, 0, mtp, nwp);  /* Call u_??? function */
-#ifdef DEBUG
-      mtp->dstats = dstats;
-#endif
+      IFDEBUG_RESTORE_DSTATS;
     });
     
   /* Calculate statistics for terms that don't have c_functions or s_functions.  */
-  WtEXEC_THROUGH_TERMS_INTO(stats, {
+  WtEXEC_THROUGH_TERMS_INTO(m, stats, {
       if(mtp->s_func==NULL && mtp->c_func==NULL && mtp->d_func){
 	(*(mtp->d_func))(ntoggles, tails, heads, weights,
 			 mtp, nwp);  /* Call d_??? function */
@@ -95,8 +91,10 @@ WtNetwork *nwp, WtModel *m, double *stats){
   FOR_EACH_TOGGLE{
     GETNEWTOGGLEINFO();
     
-    WtEXEC_THROUGH_TERMS_INTO(stats, {
+    ergm_PARALLEL_FOR_LIMIT(m->n_terms)
+    WtEXEC_THROUGH_TERMS_INTO(m, stats, {
 	if(mtp->s_func==NULL && mtp->c_func){
+	  ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
 			   mtp, nwp);  /* Call c_??? function */
 	  
@@ -107,13 +105,14 @@ WtNetwork *nwp, WtModel *m, double *stats){
       });
     
     /* Update storage and network */    
-    WtUPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, m, nwp, mtp->s_func==NULL && mtp->d_func==NULL);
+    WtUPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, nwp, m, NULL, mtp->s_func==NULL && mtp->d_func==NULL);
     SETWT(TAIL, HEAD, NEWWT);
   }
   
   /* Calculate statistics for terms have s_functions  */
-  WtEXEC_THROUGH_TERMS_INTO(stats, {
+  WtEXEC_THROUGH_TERMS_INTO(m, stats, {
       if(mtp->s_func){
+	ZERO_ALL_CHANGESTATS();
 	(*(mtp->s_func))(mtp, nwp);  /* Call d_??? function */
 	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
 	  dstats[k] = mtp->dstats[k]; // Overwrite, not accumulate.

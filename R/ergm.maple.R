@@ -14,7 +14,7 @@
 # --PARAMETERS--
 #   pl      : a list of pseudo likelihood components, as returned
 #             <ergm.pl>. 
-#   m       : the model, as returned by <ergm.getmodel>
+#   m       : the model, as returned by <ergm_model>
 #   init  : the vector of initial theta coefficients
 #   MPLEtype: the method for MPL estimation as "penalized", "glm"
 #             or "logitreg"; default="glm"
@@ -44,7 +44,7 @@ ergm.maple<-function(pl, m, init=NULL,
                     save.glm=TRUE,
                     theta1=NULL, verbose=FALSE, ...) {
   if(MPLEtype=="penalized"){
-   if(verbose) cat("Using penalized MPLE.\n")
+   if(verbose) message("Using penalized MPLE.")
    mplefit <- ergm.pen.glm(
                   pl$zy ~ pl$xmat -1 + offset(pl$foffset),
                   data=data.frame(pl$xmat), weights=pl$wend,
@@ -130,7 +130,7 @@ ergm.maple<-function(pl, m, init=NULL,
   real.cov <- mplefit.summary$cov.unscaled
   theta[!m$etamap$offsettheta] <- real.coef
 # theta[is.na(theta)] <- 0
-  names(theta) <- m$coef.names
+  names(theta) <- param_names(m,canonical=TRUE)
 
 #
 # Old end

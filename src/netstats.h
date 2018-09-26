@@ -5,14 +5,14 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  http://statnet.org/attribution
  *
- *  Copyright 2003-2013 Statnet Commons
+ *  Copyright 2003-2017 Statnet Commons
  */
 #ifndef NETSTATS_H
 #define NETSTATS_H
 
-#include "edgetree.h"
-#include "model.h"
-#include "MHproposal.h"
+#include "ergm_edgetree.h"
+#include "ergm_model.h"
+#include "ergm_MHproposal.h"
 
 /* *** don't forget tail -> head, so these functions accept tails first, not heads */
 

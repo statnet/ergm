@@ -58,14 +58,114 @@
 #
 ##########################################################################
 
+
+
+#' Conduct MCMC diagnostics on a model fit
+#' 
+#' This function prints diagnistic information and creates simple diagnostic
+#' plots for MCMC sampled statistics produced from a fit.
+#' 
+#' A pair of plots are produced for each statistic:a trace of the sampled
+#' output statistic values on the left and density estimate for each variable
+#' in the MCMC chain on the right.  Diagnostics printed to the console include
+#' correlations and convergence diagnostics.
+#'
+#' @aliases mcmc.diagnostics.default
+#' @param object A model fit object to be diagnosed.
+#' @param \dots Additional arguments, to be passed to plotting functions.
+#' @seealso \code{\link{ergm}}, \code{network} package, \code{coda} package,
+#' \code{\link{summary.ergm}}
+#' @references % Warnes, G.W. (2000).  Multi-Chain and Parallel Algorithms for
+#' Markov % Chain Monte Carlo. Dissertation, Department of Biostatistics, %
+#' University of Washington, % Raftery, A.E. and Lewis, S.M. (1992).  One long
+#' run with diagnostics: Implementation strategies for Markov chain Monte
+#' Carlo. Statistical Science, 7, 493-497.
+#' 
+#' Raftery, A.E. and Lewis, S.M. (1995).  The number of iterations, convergence
+#' diagnostics and generic Metropolis algorithms.  In Practical Markov Chain
+#' Monte Carlo (W.R. Gilks, D.J. Spiegelhalter and S. Richardson, eds.).
+#' London, U.K.: Chapman and Hall.
+#' 
+#' This function is based on the \code{coda} package It is based on the the R
+#' function \code{raftery.diag} in \code{coda}.  \code{raftery.diag}, in turn,
+#' is based on the FORTRAN program \code{gibbsit} written by Steven Lewis which
+#' is available from the Statlib archive.
+#' @keywords models
+#' @examples
+#' 
+#' \dontrun{
+#' #
+#' data(florentine)
+#' #
+#' # test the mcmc.diagnostics function
+#' #
+#' gest <- ergm(flomarriage ~ edges + kstar(2))
+#' summary(gest)
+#' 
+#' #
+#' # Plot the probabilities first
+#' #
+#' mcmc.diagnostics(gest)
+#' #
+#' # Use coda directly
+#' #
+#' library(coda)
+#' #
+#' plot(gest$sample, ask=FALSE)
+#' #
+#' # A full range of diagnostics is available 
+#' # using codamenu()
+#' #
+#' }
+#' 
+#' @export mcmc.diagnostics
 mcmc.diagnostics <- function(object, ...) {
   UseMethod("mcmc.diagnostics")
 }
 
+#' @noRd
+#' @export
 mcmc.diagnostics.default <- function(object, ...) {
   stop("An ergm object must be given as an argument ")
 }
 
+#' @describeIn mcmc.diagnostics
+#'
+#' @details For [ergm()] specifically, recent changes in the
+#'   estimation algorithm mean that these plots can no longer be used
+#'   to ensure that the mean statistics from the model match the
+#'   observed network statistics. For that functionality, please use
+#'   the GOF command: \code{gof(object, GOF=~model)}.
+#' 
+#'   In fact, an ergm output \code{object} contains the matrix of
+#'   statistics from the MCMC run as component \code{$sample}.  This
+#'   matrix is actually an object of class \code{mcmc} and can be used
+#'   directly in the \code{coda} package to assess MCMC
+#'   convergence. \emph{Hence all MCMC diagnostic methods available in
+#'   \code{coda} are available directly.} See the examples and
+#'   \url{http://www.mrc-bsu.cam.ac.uk/software/bugs/the-bugs-project-winbugs/coda-readme/}.
+#' 
+#'   More information can be found by looking at the documentation of
+#'   \code{\link{ergm}}.
+#' 
+#' @param center Logical: If TRUE, center the samples on the
+#'   observed statistics.
+#' @param esteq Logical: If TRUE, for statistics corresponding to
+#'   curved ERGM terms, summarize the curved statistics by their
+#'   estimating equation values (evaluated at the MLE of any curved
+#'   parameters) (i.e., \eqn{\eta'_{I}(\hat{\theta})\cdot g_{I}(y)}
+#'   for \eqn{I} being indices of the canonical parameters in
+#'   question), rather than the canonical (sufficient) vectors of the
+#'   curved statistics (\eqn{g_{I}(y)}).
+#' @param vars.per.page Number of rows (one variable per row) per
+#'   plotting page.  Ignored if \code{latticeExtra} package is not
+#'   installed.
+#' @return \code{\link{mcmc.diagnostics.ergm}} returns some degeneracy
+#' information, if it is included in the original object.  The function is
+#' mainly used for its side effect, which is to produce plots and summary
+#' output based on those plots.
+#' @import coda
+#' @export
 mcmc.diagnostics.ergm <- function(object,
                                   center=TRUE,
                                   esteq=TRUE,
@@ -83,8 +183,8 @@ mcmc.diagnostics.ergm <- function(object,
   # operations to assume mcmc.list. The reason [["sample"]] is being
   # used here rather than $sample is because there is an unlikely
   # possibility that $sample doesn't exist but $sample.obs does.
-  sm <- if(is.null(object[["sample"]])) NULL else as.mcmc.list(object[["sample"]])
-  sm.obs <- if(is.null(object[["sample.obs"]])) NULL else as.mcmc.list(object[["sample.obs"]])
+  sm <- NVL3(object[["sample"]], as.mcmc.list(.))
+  sm.obs <- NVL3(object[["sample.obs"]], as.mcmc.list(.))
 
   if(is.null(sm)) stop("MCMC was not run or MCMC sample was not stored.")
 
@@ -105,8 +205,8 @@ mcmc.diagnostics.ergm <- function(object,
 
   if(esteq){
     if (!is.null(object$coef) && !is.null(object$etamap)) {
-      sm <- do.call(mcmc.list, lapply(sm, function(x) .ergm.esteq(theta=object$coef, model=object$etamap, x)))
-      if(!is.null(sm.obs)) sm.obs <- do.call(mcmc.list, lapply(sm.obs, function(x) .ergm.esteq(theta=object$coef, model=object$etamap, x)))
+      sm <- ergm.estfun(sm, theta=coef(object), model=object$etamap)
+      if(!is.null(sm.obs)) sm.obs <- ergm.estfun(sm.obs, theta=coef(object), model=object$etamap)
     }
   }
 
@@ -188,7 +288,7 @@ mcmc.diagnostics.ergm <- function(object,
 
   cat("\nSample statistics burn-in diagnostic (Geweke):\n")
   sm.gw<-geweke.diag(sm)
-  sm.gws<-try(.geweke.diag.mv(sm))
+  sm.gws<-try(geweke.diag.mv(sm, split.mcmc.list=TRUE))
   if(!("try-error" %in% class(sm.gws))){
   for(i in seq_along(sm.gw)){
     cat("Chain", chain, "\n")
@@ -201,7 +301,7 @@ mcmc.diagnostics.ergm <- function(object,
   if(!is.null(sm.obs)){
     cat("Sample statistics burn-in diagnostic (Geweke):\n")
     sm.obs.gw<-geweke.diag(sm.obs)
-    sm.obs.gws<-try(.geweke.diag.mv(sm.obs))
+    sm.obs.gws<-try(geweke.diag.mv(sm.obs, split.mcmc.list=TRUE))
     if(!("try-error" %in% class(sm.obs.gws))){
     for(i in seq_along(sm.obs.gw)){
       cat("Chain", chain, "\n")
@@ -213,11 +313,10 @@ mcmc.diagnostics.ergm <- function(object,
    }
   }
   
-  if(requireNamespace('latticeExtra')){  
-    plot.mcmc.list.ergm(sm,main="Sample statistics",vars.per.page=vars.per.page,...)
-    if(!is.null(sm.obs)) plot.mcmc.list.ergm(sm.obs,main="Constrained sample statistics",vars.per.page=vars.per.page,...)
+  if(requireNamespace('latticeExtra', quietly=TRUE)){  
+    print(ergm_plot.mcmc.list(sm,main="Sample statistics",vars.per.page=vars.per.page,...))
+    if(!is.null(sm.obs)) print(ergm_plot.mcmc.list(sm.obs,main="Constrained sample statistics",vars.per.page=vars.per.page,...))
   }else{
-    message("Package latticeExtra is not installed. Falling back on coda's default MCMC diagnostic plots.")
     plot(sm,...)
     if(!is.null(sm.obs)) plot(sm.obs,...)
   }
@@ -228,14 +327,26 @@ mcmc.diagnostics.ergm <- function(object,
                  degeneracy.type=degeneracy.type))
 }
 
-plot.mcmc.list.ergm <- function(x, main=NULL, vars.per.page=3,...){
-  requireNamespace('lattice', quietly=TRUE, warn.conflicts=FALSE)
+#' Plot MCMC list using `lattice` package graphics
+#'
+#' @param x an [`mcmc.list`] object containing the mcmc diagnostic
+#'   samples.
+#' @param main character, main plot heading title.
+#' @param vars.per.page Number of rows (one variable per row) per
+#'   plotting page.  Ignored if \code{latticeExtra} package is not
+#'   installed.
+#' @param ... additional arguments, currently unused.
+#' @note This is not a method at this time.
+#'
+#' @export ergm_plot.mcmc.list
+ergm_plot.mcmc.list <- function(x, main=NULL, vars.per.page=3,...){
+  if(!requireNamespace('lattice', quietly=TRUE, warn.conflicts=FALSE) ||
+     !requireNamespace('latticeExtra', quietly=TRUE, warn.conflicts=FALSE))
+    stop("ergm_plot.mcmc.list() requires ",sQuote('lattice')," and ",sQuote('latticeExtra')," packages.",call.=FALSE)
   
   dp <- update(lattice::densityplot(x, panel=function(...){lattice::panel.densityplot(...);lattice::panel.abline(v=0)}),xlab=NULL,ylab=NULL)
   tp <- update(lattice::xyplot(x, panel=function(...){lattice::panel.xyplot(...);lattice::panel.loess(...);lattice::panel.abline(0,0)}),xlab=NULL,ylab=NULL)
-
-  #library(latticeExtra)
-
+  
   pages <- ceiling(nvar(x)/vars.per.page)
   # if the number of vars is less than vars.per.page, make adjustment
   if(nvar(x)<vars.per.page){
@@ -244,17 +355,13 @@ plot.mcmc.list.ergm <- function(x, main=NULL, vars.per.page=3,...){
   
   reordering <- c(rbind(seq_len(nvar(x)),nvar(x)+seq_len(nvar(x))))
   
-  print(update(c(tp,dp)[reordering],layout=c(2,vars.per.page),as.table=TRUE,main=main))
+  update(c(tp,dp)[reordering],layout=c(2,vars.per.page),as.table=TRUE,main=main)
 }
 
-
-# Some utility functions:
-colMeans.mcmc.list<-function(x,...) colMeans(as.matrix(x),...)
-
-sweep.mcmc.list<-function(x, STATS, FUN="-", check.margin=TRUE, ...){
-  for(chain in seq_along(x)){
-    x[[chain]] <- sweep(x[[chain]], 2, STATS, FUN, check.margin, ...)
-  }
-  x
+#' @rdname ergm-deprecated
+#' @description `plot.mcmc.list.ergm` is the obsolete name for [ergm_plot.mcmc.list()].
+#' @export plot.mcmc.list.ergm
+plot.mcmc.list.ergm <- function(...){
+  .Deprecated("ergm_plot.mcmc.list()")
+  ergm_plot.mcmc.list(...)
 }
-

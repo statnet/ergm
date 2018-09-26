@@ -11,11 +11,11 @@
 
 #################################################################################
 InitErgmTerm.transitiveties<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("attrname", "diff"),
-                      vartypes = c("character", "logical"),
-                      defaultvalues = list(NULL, FALSE),
-                      required = c(FALSE, FALSE))
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("attrname", "diff", "levels"),
+                      vartypes = c("character", "logical", "character,numeric,logical"),
+                      defaultvalues = list(NULL, FALSE, NULL),
+                      required = c(FALSE, FALSE, FALSE))
   if (a$diff) stop("diff=TRUE is not currently implemented in transitiveties")
   attrname <- a$attrname
   diff <- a$diff
@@ -44,11 +44,11 @@ InitErgmTerm.transitiveties<-function (nw, arglist, ...) {
 
 #################################################################################
 InitErgmTerm.cyclicalties<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("attrname", "diff"),
-                      vartypes = c("character", "logical"),
-                      defaultvalues = list(NULL, FALSE),
-                      required = c(FALSE, FALSE))
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("attrname", "diff", "levels"),
+                      vartypes = c("character", "logical", "character,numeric,logical"),
+                      defaultvalues = list(NULL, FALSE, NULL),
+                      required = c(FALSE, FALSE, FALSE))
   if (a$diff) stop("diff=TRUE is not currently implemented in cyclicalties")
   attrname <- a$attrname
   diff <- a$diff

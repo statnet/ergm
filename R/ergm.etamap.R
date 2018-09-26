@@ -13,7 +13,7 @@
 # the mapping is carried out by <ergm.eta>
 #
 # --PARAMETERS--
-#   model: a model object, as returned by <ergm.getmodel>
+#   model: a model object, as returned by <ergm_model>
 #
 # --RETURNED--
 #   etamap: the theta -> eta mapping given by a list of the following:
@@ -41,6 +41,31 @@
 #
 ###############################################################################
 
+#' @rdname ergm.eta
+#' @description The \code{ergm.etamap} function takes a model object
+#'   and creates a mapping from the model parameters, theta, to the
+#'   canonical (linear) eta parameters; the mapping is carried out by
+#'   \code{ergm.eta}.
+#' @param model model object, as returned by
+#'   \code{\link{ergm_model}}
+#' @return
+#' For \code{ergm.etamap}, a data structure describing the theta-to-eta mapping given by a list of the
+#' following:
+#' \item{canonical}{ a numeric vector whose ith entry specifies whether the ith component of theta is canonical (via non-negative integers) or curved (via zeroes)}
+#' \item{offsetmap}{ a logical vector whose i'th entry tells whether the ith coefficient of the canonical parameterization was "offset", i.e fixed}
+#' \item{offset}{ a logical vector whose ith entry tells whether the ith model term was offset/fixed}
+#' \item{offsettheta}{ a logical vector whose ith entry tells whether the ith curved theta coeffient was offset/fixed;}
+#' \item{curved}{ a list with one component per curved EF term in
+#' the model containing \describe{
+#' \item{`from`}{ the indices of the curved theta parameter that are to be mapped from}
+#' \item{`to`}{ the indices of the canonical eta parameters to be mapped to}
+#' \item{`map`}{ the map provided by <InitErgmTerm>}
+#' \item{`gradient`}{ the gradient function provided by \link{InitErgmTerm}}
+#' \item{`cov`}{ optional additional covariates to be passed to the map and the gradient functions }
+#' \item{`etalength`}{ the length of the eta vector}
+#' }
+#' }
+#' @keywords internal
 ergm.etamap <- function(model) {
   etamap <- list(canonical = NULL, offsetmap=NULL, offset=model$offset,
                  offsettheta=NULL, curved=list(), etalength=0)
@@ -67,10 +92,15 @@ ergm.etamap <- function(model) {
       }else{
        etamap$offsettheta <- c(etamap$offsettheta, rep(FALSE,j))
       }
+      
+      etamap$mintheta <- c(etamap$mintheta,
+                           rep(NVL(mti$minpar, -Inf), length.out=j))
+      etamap$maxtheta <- c(etamap$maxtheta,
+                           rep(NVL(mti$maxpar, +Inf), length.out=j))
     } else { # curved parameter
       k <- length(mti$params)
       etamap$canonical <- c(etamap$canonical, rep(0, k))
-      etamap$curved[[a]] <- list(from=from:(from+k-1),
+      etamap$curved[[a]] <- list(from=from+seq_len(k)-1,
                                  to=to:(to+j-1),
                                  map=mti$map, gradient=mti$gradient,
                                  cov=mti$eta.cov)  #Added by CTB 1/28/06
@@ -82,6 +112,11 @@ ergm.etamap <- function(model) {
       }else{
        etamap$offsettheta <- c(etamap$offsettheta, rep(FALSE,k))
       }
+      
+      etamap$mintheta <- c(etamap$mintheta,
+                           rep(NVL(mti$minpar, -Inf), length.out=k))
+      etamap$maxtheta <- c(etamap$maxtheta,
+                           rep(NVL(mti$maxpar, +Inf), length.out=k))
     }
   }
   etamap$etalength <- to-1

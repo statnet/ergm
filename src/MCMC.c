@@ -5,9 +5,10 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  http://statnet.org/attribution
  *
- *  Copyright 2003-2013 Statnet Commons
+ *  Copyright 2003-2017 Statnet Commons
  */
 #include "MCMC.h"
+#include "ergm_util.h"
 
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
@@ -22,11 +23,12 @@
 
  and don't forget that tail -> head
 *****************/
-void MCMC_wrapper(int *dnumnets, int *nedges,
+void MCMC_wrapper(int *nedges,
 		  int *tails, int *heads,
-		  int *dn, int *dflag, int *bipartite,
-		  int *nterms, char **funnames, char **sonames,
-		  char **MHproposaltype, char **MHproposalpackage,
+		  int *dn, int *dflag, int *bipartite, 
+		  int *nterms, char **funnames,
+		  char **sonames, 
+		  char **MHProposaltype, char **MHProposalpackage,
 		  double *inputs, double *theta0, int *samplesize, 
 		  double *sample, int *burnin, int *interval,  
 		  int *newnetworktails, 
@@ -39,12 +41,11 @@ void MCMC_wrapper(int *dnumnets, int *nedges,
   int directed_flag;
   Vertex n_nodes, nmax, bip;
   /* Edge n_networks; */
-  Network nw[1];
+  Network *nwp;
   Model *m;
-  MHproposal MH;
+  MHProposal *MHp;
   
   n_nodes = (Vertex)*dn; 
-  /* n_networks = (Edge)*dnumnets;  */
   nmax = (Edge)abs(*maxedges);
   bip = (Vertex)*bipartite; 
   
@@ -55,35 +56,36 @@ void MCMC_wrapper(int *dnumnets, int *nedges,
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
   
   /* Form the network */
-  nw[0]=NetworkInitialize(tails, heads, nedges[0], 
+  nwp=NetworkInitialize((Vertex*)tails, (Vertex*)heads, nedges[0], 
                           n_nodes, directed_flag, bip, 0, 0, NULL);
 
   /* Trigger initial storage update */
-  InitStats(nw, m);
+  InitStats(nwp, m);
 
   /* Initialize the M-H proposal */
-  MH_init(&MH,
-	  *MHproposaltype, *MHproposalpackage,
+  MHp=MHProposalInitialize(
+	  *MHProposaltype, *MHProposalpackage,
 	  inputs,
 	  *fVerbose,
-	  nw, attribs, maxout, maxin, minout, minin,
-	  *condAllDegExact, *attriblength);
+	  nwp, attribs, maxout, maxin, minout, minin,
+	  *condAllDegExact, *attriblength,
+	  m->termarray->aux_storage);
 
-  *status = MCMCSample(&MH,
+  *status = MCMCSample(MHp,
 		       theta0, sample, *samplesize,
 		       *burnin, *interval,
-		       *fVerbose, nmax, nw, m);
+		       *fVerbose, nmax, nwp, m);
   
-  MH_free(&MH);
+  MHProposalDestroy(MHp, nwp);
         
-/* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
+/* Rprintf("Back! %d %d\n",nwp[0].nedges, nmax); */
 
   /* record new generated network to pass back to R */
   if(*status == MCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
-    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,nw,nmax-1);
+    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList((Vertex*)newnetworktails+1,(Vertex*)newnetworkheads+1,nwp,nmax-1);
   
-  ModelDestroy(m, nw);
-  NetworkDestroy(nw);
+  ModelDestroy(nwp, m);
+  NetworkDestroy(nwp);
   PutRNGstate();  /* Disable RNG before returning */
 }
 
@@ -98,7 +100,7 @@ void MCMC_wrapper(int *dnumnets, int *nedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-MCMCStatus MCMCSample(MHproposal *MHp,
+MCMCStatus MCMCSample(MHProposal *MHp,
 		double *theta, double *networkstatistics, 
 		int samplesize, int burnin, 
 		int interval, int fVerbose, int nmax,
@@ -128,7 +130,7 @@ MCMCStatus MCMCSample(MHproposal *MHp,
   if(MetropolisHastings(MHp, theta, networkstatistics, burnin, &staken,
 			fVerbose, nwp, m)!=MCMC_OK)
     return MCMC_MH_FAILED;
-  if(nmax!=0 && nwp->nedges >= nmax-1){
+  if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
     return MCMC_TOO_MANY_EDGES;
   }
   
@@ -153,7 +155,7 @@ MCMCStatus MCMCSample(MHproposal *MHp,
       if(MetropolisHastings(MHp, theta, networkstatistics, interval, &staken,
 			    fVerbose, nwp, m)!=MCMC_OK)
 	return MCMC_MH_FAILED;
-      if(nmax!=0 && nwp->nedges >= nmax-1){
+      if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
 	return MCMC_TOO_MANY_EDGES;
       }
       tottaken += staken;
@@ -199,7 +201,7 @@ MCMCStatus MCMCSample(MHproposal *MHp,
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-MCMCStatus MetropolisHastings(MHproposal *MHp,
+MCMCStatus MetropolisHastings(MHProposal *MHp,
 			      double *theta, double *networkstatistics,
 			      int nsteps, int *staken,
 			      int fVerbose,
@@ -211,7 +213,7 @@ MCMCStatus MetropolisHastings(MHproposal *MHp,
     Rprintf("Now proposing %d MH steps... ", nsteps); */
   for(unsigned int step=0; step < nsteps; step++) {
     MHp->logratio = 0;
-    (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
+    (*(MHp->p_func))(MHp, nwp); /* Call MH function to propose toggles */
 
     if(MHp->toggletail[0]==MH_FAILED){
       switch(MHp->togglehead[0]){
@@ -219,14 +221,14 @@ MCMCStatus MetropolisHastings(MHproposal *MHp,
 	error("Something very bad happened during proposal. Memory has not been deallocated, so restart R soon.");
 	
       case MH_IMPOSSIBLE:
-	Rprintf("MH Proposal function encountered a configuration from which no toggle(s) can be proposed.\n");
+	Rprintf("MH MHProposal function encountered a configuration from which no toggle(s) can be proposed.\n");
 	return MCMC_MH_FAILED;
 	
       case MH_UNSUCCESSFUL:
-	warning("MH Proposal function failed to find a valid proposal.");
+	warning("MH MHProposal function failed to find a valid proposal.");
 	unsuccessful++;
 	if(unsuccessful>taken*MH_QUIT_UNSUCCESSFUL){
-	  Rprintf("Too many MH Proposal function failures.\n");
+	  Rprintf("Too many MH MHProposal function failures.\n");
 	  return MCMC_MH_FAILED;
 	}
       case MH_CONSTRAINT:
@@ -235,7 +237,7 @@ MCMCStatus MetropolisHastings(MHproposal *MHp,
     }
     
     if(fVerbose>=5){
-      Rprintf("Proposal: ");
+      Rprintf("MHProposal: ");
       for(unsigned int i=0; i<MHp->ntoggles; i++)
 	Rprintf(" (%d, %d)", MHp->toggletail[i], MHp->togglehead[i]);
       Rprintf("\n");
@@ -252,11 +254,9 @@ MCMCStatus MetropolisHastings(MHproposal *MHp,
       Rprintf(")\n");
     }
     
-    /* Calculate inner product */
-    double ip=0;
-    for (unsigned int i=0; i<m->n_stats; i++){
-      ip += theta[i] * m->workspace[i];
-    }
+    /* Calculate inner (dot) product */
+    double ip = dotprod(theta, m->workspace, m->n_stats);
+    
     /* The logic is to set cutoff = ip+logratio ,
        then let the MH probability equal min{exp(cutoff), 1.0}.
        But we'll do it in log space instead.  */
@@ -274,13 +274,7 @@ MCMCStatus MetropolisHastings(MHproposal *MHp,
 
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for(unsigned int i=0; i < MHp->ntoggles; i++){
-	UPDATE_STORAGE(MHp->toggletail[i], MHp->togglehead[i], m, nwp);
-		
-	if(MHp->discord)
-	  for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	    ToggleEdge(MHp->toggletail[i],  MHp->togglehead[i], *nwd);
-	  }
-
+	UPDATE_STORAGE(MHp->toggletail[i], MHp->togglehead[i], nwp, m, MHp);
 	ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
       }
       /* record network statistics for posterity */
@@ -305,7 +299,7 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
 		  int *dn, int *dflag, int *bipartite, 
 		  int *nterms, char **funnames,
 		  char **sonames, 
-		  char **MHproposaltype, char **MHproposalpackage,
+		  char **MHProposaltype, char **MHProposalpackage,
 		  double *inputs, 
 		  double *theta0, int *samplesize,
 		  double *gain, double *meanstats, int *phase1, int *nsub,
@@ -321,9 +315,9 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
   int nphase1, nsubphases;
   Vertex n_nodes, bip;
   Edge n_edges, nmax;
-  Network nw[2];
+  Network *nwp;
   Model *m;
-  MHproposal MH;
+  MHProposal *MHp;
   
   nphase1 = *phase1; 
   nsubphases = *nsub;
@@ -340,31 +334,32 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the missing network */
-  nw[0]=NetworkInitialize(tails, heads, n_edges,
+  nwp=NetworkInitialize((Vertex*)tails, (Vertex*)heads, n_edges,
                           n_nodes, directed_flag, bip, 0, 0, NULL);
 
 
-  MH_init(&MH,
-	  *MHproposaltype, *MHproposalpackage,
+  MHp=MHProposalInitialize(
+	  *MHProposaltype, *MHProposalpackage,
 	  inputs,
 	  *fVerbose,
-	  nw, attribs, maxout, maxin, minout, minin,
-	  *condAllDegExact, *attriblength);
+	  nwp, attribs, maxout, maxin, minout, minin,
+	  *condAllDegExact, *attriblength,
+	  m->termarray->aux_storage);
   
-  MCMCSamplePhase12 (&MH,
+  MCMCSamplePhase12 (MHp,
 		     theta0, *gain, meanstats, nphase1, nsubphases, sample, *samplesize,
 		     *burnin, *interval,
-		     (int)*fVerbose, nw, m);
+		     (int)*fVerbose, nwp, m);
 
-  MH_free(&MH);
+  MHProposalDestroy(MHp, nwp);
   
   /* record new generated network to pass back to R */
   if(nmax>0 && newnetworktails && newnetworkheads)
-    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,nw,nmax-1);
+    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList((Vertex*)newnetworktails+1,(Vertex*)newnetworkheads+1,nwp,nmax-1);
 
-  ModelDestroy(m, nw);
+  ModelDestroy(nwp, m);
 
-  NetworkDestroy(nw);
+  NetworkDestroy(nwp);
   PutRNGstate();  /* Disable RNG before returning */
 }
 
@@ -378,7 +373,7 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-void MCMCSamplePhase12(MHproposal *MHp,
+void MCMCSamplePhase12(MHProposal *MHp,
 		       double *theta, double gain, double *meanstats, int nphase1, int nsubphases, double *networkstatistics, 
 		       int samplesize, int burnin, 
 		       int interval, int fVerbose,
@@ -400,9 +395,9 @@ void MCMCSamplePhase12(MHproposal *MHp,
   all be zero
   *********************/
   double *ubar, *u2bar, *aDdiaginv;
-  ubar = (double *)malloc( m->n_stats * sizeof(double));
-  u2bar = (double *)malloc( m->n_stats * sizeof(double));
-  aDdiaginv = (double *)malloc( m->n_stats * sizeof(double));
+  ubar = (double *)Calloc(m->n_stats, double);
+  u2bar = (double *)Calloc(m->n_stats, double);
+  aDdiaginv = (double *)Calloc(m->n_stats, double);
   for (j=0; j < m->n_stats; j++){
     networkstatistics[j] = -meanstats[j];
     ubar[j] = 0.0;
@@ -540,7 +535,7 @@ void MCMCSamplePhase12(MHproposal *MHp,
     Rprintf("Phase 3: MCMC-Newton-Raphson\n");
   }
 
-  free(ubar);
-  free(u2bar);
+  Free(ubar);
+  Free(u2bar);
 }
 

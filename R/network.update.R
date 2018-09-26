@@ -35,12 +35,49 @@
 #
 ###############################################################################
 
-network.update<-function(nw, newmatrix, matrix.type=NULL, output="network", ignore.nattr=c("bipartite","directed","hyper","loops","mnext","multiple","n"), ignore.vattr=c()){
-  unw <- network.initialize(n=network.size(nw), directed = is.directed(nw), hyper = is.hyper(nw), loops = has.loops(nw),
-         multiple = is.multiplex(nw), bipartite = nw %n% "bipartite")
-  for(a in setdiff(list.network.attributes(nw),ignore.nattr)) unw <- set.network.attribute(unw, a, get.network.attribute(nw, a, unlist=FALSE))
-  for(a in setdiff(list.vertex.attributes(nw),ignore.vattr)) unw <- set.vertex.attribute(unw, a, get.vertex.attribute(nw, a, unlist=FALSE))
+#' Create an empty copy of a network object
+#' 
+#' Initializes an empty network with the same vertex and network
+#' attributes as the original network, but no edges.
+#'
+#' @param nw a [`network`] object
+#' @param ignore.nattr character vector of the names of network-level
+#'   attributes to ignore when updating network objects (defaults to
+#'   standard network properties)
+#' @param ignore.vattr character vector of the names of vertex-level
+#'   attributes to ignore when updating network objects
+#'
+#' @note This function operates directly on the internal represenation
+#'   of the network object. It may therefore be broken by a future
+#'   version of [`network`].
+empty_network <- function(nw, ignore.nattr=c("bipartite","directed","hyper","loops","mnext","multiple","n"), ignore.vattr=c()){
+  if(network.edgecount(nw)==0) return(nw)
 
+  nw$oel <- rep(list(numeric(0)), length(nw$oel))
+  nw$iel <- rep(list(numeric(0)), length(nw$iel))
+  nw$mel <- list()
+  nw$gal$mnext <- 1
+  
+  nw
+}
+
+#### A version of empty_network() that only relies on the public API.
+##
+## empty_network <- function(nw, ignore.nattr=c("bipartite","directed","hyper","loops","mnext","multiple","n"), ignore.vattr=c()){
+##   if(network.edgecount(nw)==0) return(nw)
+  
+##   unw <- network.initialize(n=network.size(nw), directed = is.directed(nw), hyper = is.hyper(nw), loops = has.loops(nw),
+##          multiple = is.multiplex(nw), bipartite = nw %n% "bipartite")
+##   for(a in setdiff(list.network.attributes(nw),ignore.nattr)) unw <- set.network.attribute(unw, a, get.network.attribute(nw, a, unlist=FALSE))
+##   for(a in setdiff(list.vertex.attributes(nw),ignore.vattr)) unw <- set.vertex.attribute(unw, a, get.vertex.attribute(nw, a, unlist=FALSE))
+##   unw
+## }
+
+#' @describeIn ergm-deprecated Use [update.network()] instead.
+#' @export network.update
+network.update<-function(nw, newmatrix, matrix.type=NULL, output="network", ignore.nattr=c("bipartite","directed","hyper","loops","mnext","multiple","n"), ignore.vattr=c()){
+  .Deprecate_once("update.network")
+  unw <- empty_network(nw, ignore.nattr=ignore.nattr, ignore.vattr=ignore.vattr)
 
   if(is.null(matrix.type)){
     warning("Don't leave matrix type to chance! Pass matrix.type to network.update!")
@@ -59,29 +96,92 @@ network.update<-function(nw, newmatrix, matrix.type=NULL, output="network", igno
 }
 
 
-###############################################################################
-# The <as.edgelist.compressed> function converts a network 'x' into the edgelist
-# 'out' described below; this is a copy of <as.edgelist.san>
-#
-# --PARAMETERS--
-#   x              : a network object, or a list of such
-#   attrname       : optionally, the name of an edge attribute to use for edge
-#                    values; default=NULL
-#   force.bipartite: whether ?? if 'x' is not already bipartite(T or F); default=FALSE; if TRUE,
-#                    this appears to merely create the 'input must be a network'
-#                    warning, before finishing up as if this were FALSE
-#
-# --RETURNED--
-#   out: x, as an edgelist with attributes for
-#       n                : the network size
-#       directed         : whether the network is directed (T or F)
-#       vnames           : the vertex names
-#       vertex.attributes: a list of the vertex attributes
-#       bipartite        : whether the network is bipartite (T or F)
-#
-###############################################################################
+#' Update the edges in a network based on a matrix
+#' 
+#' Replaces the edges in a [`network`] object with the edges corresponding
+#' to the sociomatrix or edge list specified by \code{new}.
+#' 
+#' 
+#' @param object a [`network`] object.
+#' 
+#' @param new Either an adjacency matrix (a matrix of values
+#'   indicating the presence and/or the value of a tie from i to j) or
+#'   an edge list (a two-column matrix listing origin and destination
+#'   node numbers for each edge, with an optional third column for the
+#'   value of the edge).
+#' 
+#' @param matrix.type One of `"adjacency"` or `"edgelist"` telling
+#'   which type of matrix \code{new} is.  Default is to use the
+#'   \code{\link[network]{which.matrix.type}} function.
+#' 
+#' @param attrname For a network with edge weights gives the name of
+#'   the edge attribute whose names to set.
+#' 
+#' @param ignore.nattr Character vector of the names of network-level
+#'   attributes to ignore when updating network objects (defaults to
+#'   standard network properties).
+#'
+#' @param \dots Additional arguments; currently unused.
+#' 
+#' @param ignore.vattr Character vector of the names of vertex-level
+#'   attributes to ignore when updating network objects.
+#' 
+#' @return A new [`network`] object with the edges specified by
+#'   \code{new} and network and vertex attributes copied from
+#'   the input network `object`. Input network is not modified.
+#' 
+#' @seealso [ergm()], [`network`]
+#' @keywords models
+#' @examples
+#' 
+#' #
+#' data(florentine)
+#' #
+#' # test the network.update function
+#' #
+#' # Create a Bernoulli network
+#' rand.net <- network(network.size(flomarriage))
+#' # store the sociomatrix 
+#' rand.mat <- rand.net[,]
+#' # Update the network
+#' update(flomarriage, rand.mat, matrix.type="adjacency")
+#' # Try this with an edgelist
+#' rand.mat <- as.matrix.network.edgelist(flomarriage)[1:5,]
+#' update(flomarriage, rand.mat, matrix.type="edgelist")
+#' 
+#' @export
+update.network <- function(object, new, matrix.type=NULL, attrname=NULL, ..., ignore.nattr=c("bipartite","directed","hyper","loops","mnext","multiple","n"), ignore.vattr=c()){
+  if(is.null(matrix.type)){
+    warning("Don't leave matrix type to chance! Pass matrix.type to update.network!")
+    matrix.type <- which.matrix.type(new)
+    if(nrow(new)==0){matrix.type <- "edgelist"}
+  }
 
+  if(! matrix.type%in%c("adjacency","edgelist")) stop("Only edge lists and adjacency matrices are supporeted at this time.")
+  
+  unw <- empty_network(object, ignore.nattr=ignore.nattr, ignore.vattr=ignore.vattr)
+
+  if(matrix.type=="adjacency"){
+    unw[,,names.eval=attrname,add.edges=TRUE] <- new
+  }else if(matrix.type=="edgelist" && !is.null(new) && nrow(new)>0){
+    if(!is.null(attrname)){
+      names.eval <- rep(list(attrname), nrow(new))
+      vals.eval <- {tmp <- new[,3]; mode(tmp) <- "list"; tmp}
+    }else{
+      names.eval <- vals.eval <- NULL
+    }
+    add.edges(unw,tail=new[,1],head=new[,2],names.eval=names.eval, vals.eval=vals.eval)
+  }
+  
+  unw
+}
+
+
+
+## FIXME: as.edgelist.compressed and as.network.uncompressed should be
+## deleted as soon as network.update() is defunct-ed.
 as.edgelist.compressed<-function(x, attrname=NULL, force.bipartite=FALSE, ...){
+  .Deprecated(msg="No longer used.")
   #In case of lists, process independently
   if(is.list(x) && !inherits(x,"network"))
     return(lapply(x,as.edgelist.compressed, attrname=attrname, force.bipartite=force.bipartite))
@@ -118,29 +218,9 @@ as.edgelist.compressed<-function(x, attrname=NULL, force.bipartite=FALSE, ...){
 }
 
 
-
-###############################################################################
-# The <as.network.uncompressed> function is basically the inverse of the above
-# <as.edgelist.compressed> function
-#
-# --PARAMETERS--
-#   x         : a compressed network or a network
-#   edge.check: whether computationally expensive checks of the legality
-#               of submitted edges should be performed (T or F); default=FALSE
-#
-# --IGNORED PARAMTERS--
-#   na.rm:  whether NA valuse should be removed for ??; default=FALSE
-#   ...  :  additional parameters for flexibility
-#
-# --RETURNED--
-#   x: the original network if it is already uncompressed or if 'x' is neither
-#      a compressed or uncompressed network
-#   g: the uncompressed version of x
-#
-###############################################################################
-
 as.network.uncompressed<-function(x, 
         na.rm=FALSE, edge.check=FALSE, ...){
+  .Deprecated(msg="No longer used.")
   #Initialize the network object
   if(inherits(x,"network")){return(x)}
   if(is.null(attr(x,"vnames"))){

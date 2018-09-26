@@ -1,4 +1,14 @@
+/*  File src/wtCD.c in package ergm, part of the Statnet suite
+ *  of packages for network analysis, http://statnet.org .
+ *
+ *  This software is distributed under the GPL-3 license.  It is free,
+ *  open source, and has the attribution requirements (GPL Section 7) at
+ *  http://statnet.org/attribution
+ *
+ *  Copyright 2003-2017 Statnet Commons
+ */
 #include "wtCD.h"
+#include "ergm_util.h"
 
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
@@ -13,12 +23,12 @@
 
  and don't forget that tail -> head
 *****************/
-void WtCD_wrapper(int *dnumnets, int *nedges,
+void WtCD_wrapper(int *nedges,
 		    int *tails, int *heads, double *weights, 
 		    int *dn, int *dflag, int *bipartite, 
 		    int *nterms, char **funnames,
 		    char **sonames, 
-		    char **MHproposaltype, char **MHproposalpackage,
+		    char **MHProposaltype, char **MHProposalpackage,
 		  double *inputs, double *theta0, int *samplesize, int *CDparams,
 		  double *sample,
 		    int *fVerbose, 
@@ -27,12 +37,11 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
   Vertex n_nodes, bip, *undotail, *undohead;
   double *undoweight;
   /* Edge n_networks; */
-  WtNetwork nw[1];
+  WtNetwork *nwp;
   WtModel *m;
-  WtMHproposal MH;
+  WtMHProposal *MHp;
   
   n_nodes = (Vertex)*dn; 
-  /* n_networks = (Edge)*dnumnets;  */
   bip = (Vertex)*bipartite; 
   
   GetRNGstate();  /* R function enabling uniform RNG */
@@ -42,38 +51,39 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the network */
-  nw[0]=WtNetworkInitialize(tails, heads, weights, nedges[0], 
+  nwp=WtNetworkInitialize((Vertex*)tails, (Vertex*)heads, weights, nedges[0], 
 			    n_nodes, directed_flag, bip, 0, 0, NULL);
 
   /* Trigger initial storage update */
-  WtInitStats(nw, m);
+  WtInitStats(nwp, m);
   
   /* Initialize the M-H proposal */
-  WtMH_init(&MH,
-	    *MHproposaltype, *MHproposalpackage,
+  MHp=WtMHProposalInitialize(
+	    *MHProposaltype, *MHProposalpackage,
 	    inputs,
 	    *fVerbose,
-	    nw);
+	    nwp,
+	    m->termarray->aux_storage);
 
-  undotail = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
-  undohead = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
-  undoweight = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(double));
-  double *extraworkspace = calloc(m->n_stats, sizeof(double));
+  undotail = Calloc(MHp->ntoggles * CDparams[0] * CDparams[1], Vertex);
+  undohead = Calloc(MHp->ntoggles * CDparams[0] * CDparams[1], Vertex);
+  undoweight = Calloc(MHp->ntoggles * CDparams[0] * CDparams[1], double);
+  double *extraworkspace = Calloc(m->n_stats, double);
 
-  *status = WtCDSample(&MH,
+  *status = WtCDSample(MHp,
 		       theta0, sample, *samplesize, CDparams, undotail, undohead, undoweight,
-		       *fVerbose, nw, m, extraworkspace);
+		       *fVerbose, nwp, m, extraworkspace);
   
-  free(undotail);
-  free(undohead);
-  free(undoweight);
-  free(extraworkspace);
-  WtMH_free(&MH);
+  Free(undotail);
+  Free(undohead);
+  Free(undoweight);
+  Free(extraworkspace);
+  WtMHProposalDestroy(MHp, nwp);
         
-/* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
+/* Rprintf("Back! %d %d\n",nwp[0].nedges, nmax); */
   
-  WtModelDestroy(m, nw);
-  WtNetworkDestroy(nw);
+  WtModelDestroy(nwp, m);
+  WtNetworkDestroy(nwp);
   PutRNGstate();  /* Disable RNG before returning */
 }
 
@@ -88,7 +98,7 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-WtMCMCStatus WtCDSample(WtMHproposal *MHp,
+WtMCMCStatus WtCDSample(WtMHProposal *MHp,
 			  double *theta, double *networkstatistics, 
 			int samplesize, int *CDparams, Vertex *undotail, Vertex *undohead, double *undoweight, int fVerbose,
 			  WtNetwork *nwp, WtModel *m, double *extraworkspace){
@@ -148,7 +158,7 @@ WtMCMCStatus WtCDSample(WtMHproposal *MHp,
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-WtMCMCStatus WtCDStep (WtMHproposal *MHp,
+WtMCMCStatus WtCDStep (WtMHProposal *MHp,
 		       double *theta, double *networkstatistics,
 		       int *CDparams, int *staken, Vertex *undotail, Vertex *undohead, double *undoweight,
 		       int fVerbose,
@@ -164,7 +174,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
     
     for(unsigned int mult=0; mult<CDparams[1]; mult++){
       MHp->logratio = 0;
-      (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
+      (*(MHp->p_func))(MHp, nwp); /* Call MH function to propose toggles */
 
       if(MHp->toggletail[0]==MH_FAILED){
 	switch(MHp->togglehead[0]){
@@ -172,26 +182,26 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 	  error("Something very bad happened during proposal. Memory has not been deallocated, so restart R soon.");
 	  
 	case MH_IMPOSSIBLE:
-	  Rprintf("MH Proposal function encountered a configuration from which no toggle(s) can be proposed.\n");
+	  Rprintf("MH MHProposal function encountered a configuration from which no toggle(s) can be proposed.\n");
 	  return WtMCMC_MH_FAILED;
 	  
 	case MH_UNSUCCESSFUL:
-	  warning("MH Proposal function failed to find a valid proposal.");
+	  warning("MH MHProposal function failed to find a valid proposal.");
 	  unsuccessful++;
 	  if(unsuccessful>*staken*MH_QUIT_UNSUCCESSFUL){
-	    Rprintf("Too many MH Proposal function failures.\n");
+	    Rprintf("Too many MH MHProposal function failures.\n");
 	    return WtMCMC_MH_FAILED;
 	  }
 	  continue;
 	  
 	case MH_CONSTRAINT:
-	  MHp->logratio = -INFINITY; // Force rejection of proposal.
-	  break; // Do not attempt any more proposals in this multiplicity chain.
+	  cumlr = MHp->logratio = -INFINITY; // Force rejection of proposal.
+	  goto REJECT;
 	}
       }
       
       if(fVerbose>=5){
-	Rprintf("Proposal: ");
+	Rprintf("MHProposal: ");
 	for(unsigned int i=0; i<MHp->ntoggles; i++)
 	  Rprintf("  (%d, %d) -> %f  ", MHp->toggletail[i], MHp->togglehead[i], MHp->toggleweight[i]);
 	Rprintf("\n");
@@ -224,14 +234,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 	  ntoggled++;
 	  mtoggled++;
 
-	  WtUPDATE_STORAGE(t, h, w, m, nwp);
-	  
-	  if(MHp->discord)
-	    for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	      // This could be speeded up by implementing an "incrementation" function.
-	      WtSetEdge(t, h, WtGetEdge(t, h, *nwd) + w - WtGetEdge(t, h, nwp), *nwd);
-	    }
-	  
+	  WtUPDATE_STORAGE(t, h, w, nwp, m, MHp);
 	  WtSetEdge(t, h, w, nwp);
 	}
       }
@@ -248,11 +251,9 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
       Rprintf(")\n");
     }
     
-    /* Calculate inner product */
-    double ip=0;
-    for (unsigned int i=0; i<m->n_stats; i++){
-      ip += theta[i] * extraworkspace[i];
-    }
+    /* Calculate inner (dot) product */
+    double ip = dotprod(theta, extraworkspace, m->n_stats);
+
     /* The logic is to set cutoff = ip+logratio ,
        then let the MH probability equal min{exp(cutoff), 1.0}.
        But we'll do it in log space instead.  */
@@ -280,14 +281,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 	  undoweight[ntoggled]=WtGetEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 	  ntoggled++;
 
-	  WtUPDATE_STORAGE(t, h, w, m, nwp);
-
-	  if(MHp->discord)
-	    for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	      // This could be speeded up by implementing an "incrementation" function.
-	      WtSetEdge(t, h, WtGetEdge(t, h, *nwd) + w - WtGetEdge(t, h, nwp), *nwd);
-	    }
-
+	  WtUPDATE_STORAGE(t, h, w, nwp, m, MHp);
 	  WtSetEdge(t, h, w, nwp);
 	}
       }
@@ -298,6 +292,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
       }
 
     }else{
+    REJECT:
       if(fVerbose>=5){
 	Rprintf("Rejected.\n");
       }
@@ -309,14 +304,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 
 	/* FIXME: This should be done in one call, but it's very easy
 	   to make a fencepost error here. */
-	WtUPDATE_STORAGE(t, h, w, m, nwp);
-      	
-	if(MHp->discord)
-	  for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	    // This could be speeded up by implementing an "incrementation" function.
-	    WtSetEdge(t, h, WtGetEdge(t, h, *nwd) + w - WtGetEdge(t, h, nwp), *nwd);
-	  }
-
+	WtUPDATE_STORAGE(t, h, w, nwp, m, MHp);
 	WtSetEdge(t, h, w, nwp);
       }
     }
@@ -329,14 +317,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 
     /* FIXME: This should be done in one call, but it's very easy
        to make a fencepost error here. */
-    WtUPDATE_STORAGE(t, h, w, m, nwp);
-    
-    if(MHp->discord)
-      for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	// This could be speeded up by implementing an "incrementation" function.
-	WtSetEdge(t, h, WtGetEdge(t, h, *nwd) + w - WtGetEdge(t, h, nwp), *nwd);
-      }
-    
+    WtUPDATE_STORAGE(t, h, w, nwp, m, MHp);
     WtSetEdge(t, h, w, nwp);
   }
   

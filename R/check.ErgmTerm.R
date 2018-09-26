@@ -48,15 +48,54 @@
 #        values are used when given, default values otherwise.
 #
 ######################################################################################
-
+#' Ensures an Ergm Term and its Arguments Meet Appropriate Conditions
+#'
+#' Helper functions for implementing \code{\link[=ergm]{ergm()}}
+#' terms, to check whether the term can be used with the specified
+#' network.  For information on ergm terms, see
+#' \link{ergm-terms}. \code{ergm.checkargs},
+#' \code{ergm.checkbipartite}, and \code{ergm.checkderected} are
+#' helper functions for an old API and are deprecated. Use
+#' \code{check.ErgmTerm}.
+#'
+#' The \code{check.ErgmTerm} function ensures for the
+#' \code{\link{InitErgmTerm}.X} function that the term X: \itemize{
+#' \item is applicable given the 'directed' and 'bipartite' attributes
+#' of the given network \item is not applied to a directed bipartite
+#' network \item has an appropiate number of arguments \item has
+#' correct argument types if arguments where provided \item has
+#' default values assigned if defaults are available } by halting
+#' execution if any of the first 3 criteria are not met.
+#'
+#' @param nw the network that term X is being checked against
+#' @param arglist the list of arguments for term X
+#' @param directed logical, whether term X requires a directed
+#'   network; default=NULL
+#' @param bipartite whether term X requires a bipartite network (T or
+#'   F); default=NULL
+#' @param nonnegative whether term X requires a network with only
+#'   nonnegative weights; default=FALSE
+#' @param varnames the vector of names of the possible arguments for
+#'   term X; default=NULL
+#' @param vartypes the vector of types of the possible arguments for
+#'   term X; default=NULL
+#' @param defaultvalues the list of default values for the possible
+#'   arguments of term X; default=list()
+#' @param required the logical vector of whether each possible
+#'   argument is required; default=NULL
+#' @template response
+#' @return A list of the values for each possible argument of term X;
+#'   user provided values are used when given, default values
+#'   otherwise.
+#'
+#' @import network
+#' @export check.ErgmTerm
 check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegative=FALSE,
                            varnames=NULL, vartypes=NULL,
                            defaultvalues=list(), required=NULL, response=NULL) {
-  fname <- get.InitErgm.fname() # From what InitErgm function was this called?
-  fname <- sub('.*[.]', '', fname) # truncate up to last '.'
+  stopifnot(all_identical(c(length(varnames), length(vartypes), length(defaultvalues), length(required))))
   message <- NULL
   if (!is.null(directed) && directed != (dnw<-is.directed(nw))) {
-    #directed != (dnw<-eval(expression(nw$gal$dir),parent.frame()))) {
     message <- paste("networks with directed==", dnw, sep="")
   }
   
@@ -81,7 +120,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
     message <- "networks with negative dyad weights"
   }
   if (!is.null(message)) {
-    stop(paste("The ERGM term",fname,"may not be used with",message))
+    ergm_Init_abort("Term may not be used with ",message,".")
   }
 
   sr=sum(required)
@@ -94,7 +133,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
       expected = "1 argument,"
     else
       expected = paste(sr,"arguments,")
-    stop(paste(fname,"model term expected", expected, "got", la), call.=FALSE)
+    ergm_Init_abort("Model term expected ", expected, " got ", la, '.')
   }
 # The correctness of what the user typed is checked, but it is assumed
 # that each InitErgmTerm function faithfully passes in what the user typed;
@@ -107,51 +146,28 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
       if (!is.null(names(arglist)) && (name <- names(arglist)[i]) != "") {
         m = pmatch(name, varnames)# try to match user-typed name if applicable
         if(is.na(m)) { # User typed an unrecognizable name
-          stop(paste(fname,"model term does not recognize",
-                     name, "argument"), call.=FALSE)
+          ergm_Init_abort("Model term does not recognize ", sQuote(name), " argument.")
         }
         # valid name match with mth variable if we got to here
-        if (all(sapply(strsplit(vartypes[m],",",fixed=TRUE)[[1]], function(vartype) !is(arglist[[i]], vartype)))) {
+        if (all(sapply(strsplit(vartypes[m],",",fixed=TRUE)[[1]], function(vartype) !is.null(arglist[[i]]) && !is(arglist[[i]], vartype)))) {
           # Wrong type
-          stop(paste(name, "argument to", fname, "model term is not of",
-                     "the expected", vartypes[m], "type"), call.=FALSE)
+          ergm_Init_abort(sQuote(name), " argument is not of the expected ", sQuote(vartypes[m]), " type.")
         }
         # correct type if we got to here
-        out[[m]]=arglist[[i]]
+        out[m] <- list(arglist[[i]])
       } else { # no user-typed name for this argument
         if (!is.null(m)) {
-          stop(paste("unnamed argument follows named argument in",
-                     fname,"model term"), call.=FALSE)
+          ergm_Init_abort("Unnamed argument follows named argument.")
         }
-        if (all(sapply(strsplit(vartypes[i],",",fixed=TRUE)[[1]], function(vartype) !is(arglist[[i]], vartype)))) {
+        if (all(sapply(strsplit(vartypes[i],",",fixed=TRUE)[[1]], function(vartype) !is.null(arglist[[i]]) && !is(arglist[[i]], vartype)))) {
           # Wrong type
-          stop(paste("argument number", i, "to", fname, "model term is not",
-                     "of the expected", vartypes[i], "type"), call.=FALSE)
+          ergm_Init_abort("Argument number ", i, " is not of the expected ", sQuote(vartypes[i]), " type.")
         }
         # correct type if we got to here
-        out[[i]]=arglist[[i]]
+        out[i] <- list(arglist[[i]])
       }
     }
   }
   #  c(.conflicts.OK=TRUE,out)
   out
-}
-
-
-# Search back in time through sys.calls() to find the name of the last
-# function whose name begins with "InitErgm"
-get.InitErgm.fname <- function() {
-  sc <- sys.calls()
-  i <- length(sc)
-  listofnames <- NULL
-  while (i>1) { 
-    i <- i-1
-    fname <- as.character(sc[[i]][1])
-    listofnames <- c(listofnames, fname)
-    if (substring(fname,1,8)=="InitErgm" || substring(fname,1,10)=="InitWtErgm") {
-      return(fname)
-    }
-  }
-  # Didn't find Init[Wt]Ergm... in the list of functions
-  return(NULL)
 }

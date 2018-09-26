@@ -5,13 +5,13 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2013 Statnet Commons
+#  Copyright 2003-2017 Statnet Commons
 #######################################################################
 library(statnet.common)
 opttest({
 library(ergm)
 temp.func <- function(nw,deg) {
-  fit <- ergm(nw~edges+degree(deg))
+  fit <- ergm(nw~edges+degree(deg), estimate="MPLE")
   return(fit)
 }
 mynet <- network.initialize(50,directed=F)

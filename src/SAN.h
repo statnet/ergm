@@ -5,26 +5,26 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  http://statnet.org/attribution
  *
- *  Copyright 2003-2013 Statnet Commons
+ *  Copyright 2003-2017 Statnet Commons
  */
 #ifndef SAN_H
 #define SAN_H
 
-#include "edgetree.h"
-#include "changestat.h"
-#include "MHproposal.h"
-#include "model.h"
+#include "ergm_edgetree.h"
+#include "ergm_changestat.h"
+#include "ergm_MHproposal.h"
+#include "ergm_model.h"
 #include "MCMC.h"
 
 /* *** don't forget tail -> head, so this function accepts tails first, not heads  */
 
 
-void SAN_wrapper (int *dnumnets, int *nedges,
+void SAN_wrapper (int *nedges,
 		  int *tails, int *heads,
 		  int *dn, int *dflag, int *bipartite, 
 		  int *nterms, char **funnames,
 		  char **sonames, 
-		  char **MHproposaltype, char **MHproposalpackage,
+		  char **MHProposaltype, char **MHProposalpackage,
 		  double *inputs, double *theta0, double *tau, int *samplesize, 
 		  double *sample, int *burnin, int *interval,  
 		  int *newnetworktails, 
@@ -36,12 +36,12 @@ void SAN_wrapper (int *dnumnets, int *nedges,
 		  int *maxedges,
 		  int *status);
 
-MCMCStatus SANSample (MHproposal *MHp,
+MCMCStatus SANSample (MHProposal *MHp,
 		double *theta, double *invcov, double *tau, double *networkstatistics, 
 		int samplesize, int burnin, 
 		int interval, int fVerbose, int nmax,
 		Network *nwp, Model *m);
-MCMCStatus SANMetropolisHastings (MHproposal *MHp,
+MCMCStatus SANMetropolisHastings (MHProposal *MHp,
 			 double *theta, double *invcov, double *tau, double *statistics, 
 			 int nsteps, int *staken,
 			 int fVerbose,

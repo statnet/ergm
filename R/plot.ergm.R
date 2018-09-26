@@ -21,51 +21,15 @@
 # 
 ###############################################################################
 
-"plot.ergm" <- function (x, ..., mle=FALSE, comp.mat = NULL,
-            label = NULL, label.col = "black",
-            xlab, ylab, main, label.cex = 0.8, edge.lwd = 1,
-            edge.col=1, al = 0.1,
-            contours=0, density=FALSE, only.subdens = FALSE, 
-            drawarrows=FALSE,
-            contour.color=1, plotnetwork=FALSE, pie = FALSE, piesize=0.07,
-            vertex.col=1,vertex.pch=19,vertex.cex=2,
-            mycol=c("black","red","green","blue","cyan",
-              "magenta","orange","yellow","purple"),
-            mypch=15:19,mycex=2:10)
+#' @rdname ergm-deprecated
+#' @description `plot.ergm`: deprecated alias for [mcmc.diagnostics()].
+#'
+#' @export
+plot.ergm <- function (x, ...)
 {
-  if(!missing(vertex.col) && length(vertex.col)==1 && is.character(vertex.col)){
-    trycol <- as.numeric(as.factor(unlist(get.vertex.attribute(x$network,vertex.col))))
-    if(!all(is.na(trycol))){
-      vertex.col <- mycol[trycol]
-    }
-  }
-  if((length(vertex.col)==1) && (vertex.col==1)) vertex.col <- mycol[x$class]
-
-  if(!missing(label) && length(label)==1 && is.character(label)){
-    trycol <- unlist(get.vertex.attribute(x$network,label))
-    if(!all(is.na(trycol))){
-      label <- trycol
-    }
-  }
-  
-  if(!missing(vertex.pch) && length(vertex.pch)==1 && is.character(vertex.pch)){
-    trycol <- as.numeric(as.factor(unlist(get.vertex.attribute(x$network,vertex.pch))))
-    if(!all(is.na(trycol))){
-      vertex.pch <- mypch[trycol]
-    }
-  }
-  
-  if(!missing(vertex.cex) && length(vertex.cex)==1 && is.character(vertex.cex)){
-    trycol <- as.numeric(as.factor(unlist(get.vertex.attribute(x$network,vertex.cex))))
-    if(!all(is.na(trycol))){
-      vertex.cex <- mycex[trycol]
-    }
-  }
-
-  newnetwork <- as.sociomatrix(x$newnetwork)
+  .Deprecated("mcmc.diagnostics(x,...)")
     if(is.null(x$sample))
-      cat("No plotting method available for non-latent models with MCMC sample\n")
+      stop("No plotting method is available for ERGM fits without an MCMC sample.")
     else
-      mcmc.diagnostics(x)
-  invisible(NULL)
+      mcmc.diagnostics(x,...)
 }

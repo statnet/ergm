@@ -1,3 +1,12 @@
+#  File R/InitErgmTerm.dgw_sp.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2017 Statnet Commons
+#######################################################################
 
 #  ------------------------------------------------------------------ 
 #   Description of the input and output parameters of the  
@@ -9,9 +18,9 @@
 #	  		nw: The network of interest
 #      arglist: The list of arguments passed to the term xxx
 #         ... : There may be other arguments passed by 
-#               ergm.getmodel, so each InitErgmTerm function 
+#               ergm_model, so each InitErgmTerm function 
 #               must include the ... argument
-#  These inputs are automatically supplied by ergm.getmodel.
+#  These inputs are automatically supplied by ergm_model.
 #
 #  OUTPUTS:
 #  Each InitErgmTerm function should return a list.  
@@ -110,8 +119,6 @@
 #  These inputs are automatically supplied to the d_xxxy function by the 
 #  network_stats_wrapper function 
 
-
-
 ################################################################################
 #Term to count ESP statistics, where the shared partners may be any of
 #several distinct types.
@@ -121,7 +128,7 @@
 #  UTP - Undirected two-path (undirected graphs only)
 #  OTP - Outgoing two-path (i->k->j)
 #  ITP - Incoming two-path (i<-k<-j)
-#  RTP - Recursive two-path (i<->k<->j)
+#  RTP - Reciprocated two-path (i<->k<->j)
 #  OSP - Outgoing shared partner (i->k<-j)
 #  ISP - Incoming shared partner (i<-k->j)
 #
@@ -130,7 +137,7 @@
 #routine is used (since it is safe for undirected graphs), irrespective of
 #the user's selection.  UTP cannot be chosen otherwise, since it won't work.
 #
-InitErgmTerm.desp<-function(nw, arglist, ...) {
+InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("d","type"),
                       vartypes = c("numeric","character"),
@@ -151,11 +158,13 @@ InitErgmTerm.desp<-function(nw, arglist, ...) {
     dname <- "desp"
   }else{
     message("Use the ergm term 'esp' for undirected networks.")
+    dname <- "desp"
     conam<-"esp"
     type<-"UTP"
     typecode<-0
   }
-  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0)
+
+  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(if(!cache.sp) -1, typecode,d), minval=0, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
 }
 
 
@@ -168,7 +177,7 @@ InitErgmTerm.desp<-function(nw, arglist, ...) {
 #  UTP - Undirected two-path (undirected graphs only)
 #  OTP - Outgoing two-path (i->k->j)
 #  ITP - Incoming two-path (i<-k<-j)
-#  RTP - Recursive two-path (i<->k<->j)
+#  RTP - Reciprocated two-path (i<->k<->j)
 #  OSP - Outgoing shared partner (i->k<-j)
 #  ISP - Incoming shared partner (i<-k->j)
 #
@@ -177,7 +186,7 @@ InitErgmTerm.desp<-function(nw, arglist, ...) {
 #always used (since it is directedness-safe), and the user's input is
 #overridden.  UTP cannot be chosen otherwise, since it won't work.
 #
-InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
+InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff","type", "alpha"),
                       vartypes = c("numeric","logical","numeric","character", "numeric"),
@@ -196,11 +205,15 @@ InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
     stop("Illegal type code for gwesp; valid types are:",paste(type.vec, collapse=","))
   dname<-"desp"
   if(!is.directed(nw)){  
-    stop("Use the gwesp term for undirected networks.")
+    message("Use the gwesp term for undirected networks.")
+    type <- "UTP"
+    typecode<-0
+    basenam<-paste("gwesp",sep=".")
   }else{
     typecode<-which(type==type.vec)
     basenam<-paste("gwesp",type,sep=".")
   }
+
   if(!fixed){ # This is a curved exponential family model
     if(!is.null(a$decay)) warning("In term 'dgwesp': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
 
@@ -208,20 +221,11 @@ InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
     d <- 1:maxesp
     ld<-length(d)
     if(ld==0){return(NULL)}
-    map <- function(x,n,...){
-      i <- 1:n
-      x[1]*exp(x[2])*(1-(1-exp(-x[2]))^i)
-    }
-    gradient <- function(x,n,...){
-      i <- 1:n
-      a <- 1-exp(-x[2])
-      exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
-    }
     params<-list(gwesp=NULL,gwesp.decay=decay)
     names(params)<-c(basenam,paste(basenam,"decay",sep="."))
-    list(name=dname,
+    c(list(name=dname,
          coef.names=if(is.directed(nw)) paste("esp.",type,"#",d,sep="") else paste("esp#",d,sep=""), 
-         inputs=c(typecode,d), params=params, map=map, gradient=gradient)
+         inputs=c(if(!cache.sp) -1, typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL), GWDECAY)
   }else{
     if(is.null(a$decay)) stop("Term 'dgwesp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -231,7 +235,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
       coef.names <- paste(paste("gwesp",type,"fixed.",sep="."),decay, sep="")
     else
       coef.names <- paste("gwesp.fixed.",decay,sep="")
-    list(name=dname, coef.names=coef.names, inputs=c(decay,typecode,maxesp))
+    list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, decay,typecode,maxesp), auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
   }
 }
 
@@ -245,7 +249,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
 #  UTP - Undirected two-path (undirected graphs only)
 #  OTP - Outgoing two-path (i->k->j)
 #  ITP - Incoming two-path (i<-k<-j)
-#  RTP - Recursive two-path (i<->k<->j)
+#  RTP - Reciprocated two-path (i<->k<->j)
 #  OSP - Outgoing shared partner (i->k<-j)
 #  ISP - Incoming shared partner (i<-k->j)
 #
@@ -254,7 +258,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
 #routine is used (since it is safe for undirected graphs), irrespective of
 #the user's selection.  UTP cannot be chosen otherwise, since it won't work.
 #
-InitErgmTerm.ddsp<-function(nw, arglist, ...) {
+InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("d","type"),
                       vartypes = c("numeric","character"),
@@ -268,24 +272,37 @@ InitErgmTerm.ddsp<-function(nw, arglist, ...) {
   type.vec<-c("OTP","ITP","RTP","OSP","ISP")
   if(!(type%in%type.vec))
     stop("Illegal type code for sp; valid types are:",paste(type.vec, collapse=","))
-  dname<-"dsp"
+  dname<-"ddsp"
   if(is.directed(nw)){
     conam <- paste("dsp",type,sep=".")
     typecode<-which(type==type.vec)
     dname <- "ddsp"
   }else{
     message("Use the ergm term 'dsp' for undirected networks.")
-    conam<-"dsp"
+    conam <- paste("dsp",sep=".")
     type<-"UTP"
     typecode<-0
   }
-  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0)
+  if (any(d==0)) {
+    emptynwstats <- rep(0, length(d))
+    if(is.bipartite(nw)){
+      nb1 <- get.network.attribute(nw, "bipartite")
+      nb2 <- network.size(nw) - nb1
+      emptynwstats[d==0] <- nb1*(nb1-1)/2 + nb2*(nb2-1)/2
+    }else{
+      emptynwstats[d==0] <- network.dyadcount(nw,FALSE)
+    }
+  }else{
+    emptynwstats <- NULL
+  }
+
+  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(if(!cache.sp) -1, typecode,d), minval=0, emptynwstats=emptynwstats, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
 }
 
 
 
 ################################################################################
-InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
+InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   # the following line was commented out in <InitErgm.gwdsp>:
   #    ergm.checkdirected("gwdsp", is.directed(nw), requirement=FALSE)
   # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
@@ -309,7 +326,10 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
   dname<-"ddsp"
   
   if(!is.directed(nw)){  
-    stop("Use the gwnsp term for undirected networks.")
+    message("Use the gwdsp term for undirected networks.")
+    type <- "UTP"
+    basenam<-"gwdsp"
+    typecode<-0
   }else{
     typecode<-which(type==type.vec)
     basenam<-paste("gwdsp",type,sep=".")
@@ -323,23 +343,14 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
     d <- 1:maxesp
     ld<-length(d)
     if(ld==0){return(NULL)}
-    map <- function(x,n,...){
-      i <- 1:n
-      x[1]*exp(x[2])*(1-(1-exp(-x[2]))^i)
-    }
-    gradient <- function(x,n,...){
-      i <- 1:n
-      a <- 1-exp(-x[2])
-      exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
-    }
     
     params<-list(gwdsp=NULL,gwdsp.decay=decay)
     names(params)<-c(basenam,paste(basenam,"decay",sep="."))
     
-    list(name=dname,
+    c(list(name=dname,
          coef.names=if(is.directed(nw)) paste("dsp.",type,"#",d,sep="") else paste("dsp#",d,sep=""), 
-         inputs=c(typecode,d), params=params,
-         map=map, gradient=gradient)
+         inputs=c(if(!cache.sp) -1, typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL),
+      GWDECAY)
   }else{
     if(is.null(a$decay)) stop("Term 'dgwdsp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -350,7 +361,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
     else
       coef.names <- paste("gwdsp.fixed",decay,sep=".")
     
-    list(name=dname, coef.names=coef.names, inputs=c(decay,typecode,maxesp))
+    list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, decay,typecode,maxesp), auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
   }
 }
 
@@ -363,7 +374,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
 #  UTP - Undirected two-path (undirected graphs only)
 #  OTP - Outgoing two-path (i->k->j)
 #  ITP - Incoming two-path (i<-k<-j)
-#  RTP - Recursive two-path (i<->k<->j)
+#  RTP - Reciprocated two-path (i<->k<->j)
 #  OSP - Outgoing shared partner (i->k<-j)
 #  ISP - Incoming shared partner (i<-k->j)
 #
@@ -372,7 +383,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
 #routine is used (since it is safe for undirected graphs), irrespective of
 #the user's selection.  UTP cannot be chosen otherwise, since it won't work.
 #
-InitErgmTerm.dnsp<-function(nw, arglist, ...) {
+InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("d","type"),
                       vartypes = c("numeric","character"),
@@ -386,23 +397,34 @@ InitErgmTerm.dnsp<-function(nw, arglist, ...) {
   type.vec<-c("OTP","ITP","RTP","OSP","ISP")
   if(!(type%in%type.vec))
     stop("Illegal type code for sp; valid types are:",paste(type.vec, collapse=","))
-  dname<-"nsp"
+  dname<-"dnsp"
   if(is.directed(nw)){
     conam <- paste("nsp",type,sep=".")
     typecode<-which(type==type.vec)
-    dname <- "dnsp"
   }else{
     message("Use the ergm term 'nsp' for undirected networks.")
     conam<-"nsp"
     type<-"UTP"
     typecode<-0
   }
-  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(typecode,d), minval=0)
+  if (any(d==0)) {
+    emptynwstats <- rep(0, length(d))
+    if(is.bipartite(nw)){
+      nb1 <- get.network.attribute(nw, "bipartite")
+      nb2 <- network.size(nw) - nb1
+      emptynwstats[d==0] <- nb1*(nb1-1)/2 + nb2*(nb2-1)/2
+    }else{
+      emptynwstats[d==0] <- network.dyadcount(nw,FALSE)
+    }
+  }else{
+    emptynwstats <- NULL
+  }
+  list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(if(!cache.sp) -1, typecode,d), minval=0, emptynwstats=emptynwstats, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
 }
 
 
 ################################################################################
-InitErgmTerm.dgwnsp<-function(nw, arglist, ...) {
+InitErgmTerm.dgwnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   # the following line was commented out in <InitErgm.gwnsp>:
   #    ergm.checkdirected("gwnsp", is.directed(nw), requirement=FALSE)
   # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
@@ -426,7 +448,10 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, ...) {
   dname<-"dnsp"
   
   if(!is.directed(nw)){  
-    stop("Use the gwnsp term for undirected networks.")
+    message("Use the gwnsp term for undirected networks.")
+    type <- "UTP"
+    basenam<-"gwdsp"
+    typecode<-0
   }else{
     typecode<-which(type==type.vec)
     basenam<-paste("gwnsp",type,sep=".")
@@ -440,24 +465,14 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, ...) {
     d <- 1:maxesp
     ld<-length(d)
     if(ld==0){return(NULL)}
-    map <- function(x,n,...){
-      i <- 1:n
-      x[1]*exp(x[2])*(1-(1-exp(-x[2]))^i)
-    }
-    gradient <- function(x,n,...){
-      i <- 1:n
-      a <- 1-exp(-x[2])
-      exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
-    }
     
     params<-list(gwnsp=NULL,gwnsp.decay=decay)
     names(params)<-c(basenam,paste(basenam,"decay",sep="."))
     
-    list(name=dname,
+    c(list(name=dname,
          coef.names=if(is.directed(nw)) paste("nsp.",type,"#",d,sep="") else paste("nsp#",d,sep=""), 
 
-         inputs=c(typecode,d), params=params,
-         map=map, gradient=gradient)
+         inputs=c(if(!cache.sp) -1, typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL),GWDECAY)
   }else{
     if(is.null(a$decay)) stop("Term 'dgwnsp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
@@ -468,6 +483,6 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, ...) {
     else
       coef.names <- paste("gwnsp.fixed",decay,sep=".")
     
-    list(name=dname, coef.names=coef.names, inputs=c(decay,typecode,maxesp))
+    list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, decay,typecode,maxesp), auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
   }
 }

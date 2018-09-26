@@ -5,9 +5,12 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  http://statnet.org/attribution
  *
- *  Copyright 2003-2013 Statnet Commons
+ *  Copyright 2003-2017 Statnet Commons
  */
 #include "changestats.h"
+
+#include "ergm_storage.h"
+#include "ergm_dyad_hashmap.h"
 
 /********************  changestats:  A    ***********/
 /*****************                       
@@ -308,24 +311,6 @@ C_CHANGESTAT_FN(c_b1degree_by_attr) {
         d = (Vertex)INPUT_PARAM[2*j];
         CHANGE_STAT[j] += (b1deg + echange == d) - (b1deg == d);
       }
-    }
-}
-
-/*****************
- changestat: d_b1factor
-*****************/
-C_CHANGESTAT_FN(c_b1factor) { 
-  double s, factorval;
-  Vertex b1;
-  int j;
-  
-  /* *** don't forget tail -> head */  
-  ZERO_ALL_CHANGESTATS(i);
-    b1 = tail;
-    s = IS_OUTEDGE(b1,head) ? -1.0 : 1.0;
-    for (j=0; j<(N_CHANGE_STATS); j++) {
-      factorval = (INPUT_PARAM[j]);
-      CHANGE_STAT[j] += ((INPUT_ATTRIB[b1-1] != factorval) ? 0.0 : s);
     }
 }
 
@@ -1542,7 +1527,7 @@ C_CHANGESTAT_FN(c_cycle) {
 
     /*Make the change, as needed*/
     /* I did not swap h/t in the comment below */
-    /*edgeflag = (EdgetreeSearch(tail, head, g.outedges) != 0);*/
+    /*edgeflag = IS_OUTEDGE(tail, head, g);*/
     if((!DIRECTED)&&(tail>head))
       emult = IS_OUTEDGE(head, tail) ? -1.0 : 1.0;
     else
@@ -1570,10 +1555,7 @@ void edgewise_path_recurse(Network *nwp, Vertex dest, Vertex curnode,
   /*If possible, keep searching for novel paths*/
   if((availcount>0)&&(curlen<maxlen-2)){
     if(availcount>1){    /*Remove the current node from the available list*/
-      if((newavail=(Vertex *)malloc(sizeof(Vertex)*(availcount-1)))==NULL){
-        Rprintf("Unable to allocate %d bytes for available node list in edgewise_path_recurse.  Trying to terminate recursion gracefully, but your path count is probably wrong.\n",sizeof(Vertex)*(availcount-1));
-        return;
-      }
+      newavail=Calloc(availcount-1, Vertex);
       j=0;
       for(i=0;i<availcount;i++)      /*Create the reduced list, fur passin'*/
         if(availnodes[i]!=curnode)
@@ -1592,7 +1574,7 @@ void edgewise_path_recurse(Network *nwp, Vertex dest, Vertex curnode,
     }
     /*Free the available node list*/
     if(newavail!=NULL)
-      free((void *)newavail);
+      Free(newavail);
   }
 
   /*Check for interrupts (if recursion is taking way too long...)*/
@@ -1622,10 +1604,7 @@ void edgewise_cycle_census(Network *nwp, Vertex tail, Vertex head,
     return;                 /*Failsafe for graphs of order 2*/
   
   /*Perform the recursive path count*/
-  if((availnodes=(Vertex *)malloc(sizeof(Vertex)*(n-2)))==NULL){
-    Rprintf("Unable to allocate %d bytes for available node list in edgewise_cycle_census.  Exiting.\n",sizeof(Vertex)*(n-2));
-    return;
-  }
+  availnodes=Calloc(n-2, Vertex);
   j=0;                             /*Initialize the list of available nodes*/
   for(i=1;i<=n;i++)
     if((i!=head)&&(i!=tail))
@@ -1636,7 +1615,7 @@ void edgewise_cycle_census(Network *nwp, Vertex tail, Vertex head,
     if(rflag)
       edgewise_path_recurse(nwp,tail,availnodes[i],availnodes,n-2,1,countv,maxlen);
   }
-  free((void *)availnodes);  /*Free the available node list*/
+  Free(availnodes);  /*Free the available node list*/
 }
 
 /********************  changestats:  D    ***********/
@@ -2015,6 +1994,7 @@ C_CHANGESTAT_FN(c_diff) {
  changestat: d_dsp
 *****************/
 C_CHANGESTAT_FN(c_dsp) { 
+  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
   Edge e, f;
   int j, echange;
   int L2tu, L2uh;
@@ -2027,17 +2007,20 @@ C_CHANGESTAT_FN(c_dsp) {
     /* step through outedges of head */
     STEP_THROUGH_OUTEDGES(head, e, u){
       if (u != tail){
-        L2tu=0;
-        /* step through outedges of u */
-        STEP_THROUGH_OUTEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
-        }
-        /* step through inedges of u */
-        STEP_THROUGH_INEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
-        }
+	if(spcache) L2tu = GETDMUI(tail,u,spcache);
+	else{
+	  L2tu=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j];
+          deg = (Vertex)INPUT_PARAM[j+1];
           CHANGE_STAT[j] += ((L2tu + echange == deg)
           - (L2tu == deg));
         }
@@ -2046,17 +2029,20 @@ C_CHANGESTAT_FN(c_dsp) {
     /* step through inedges of head */
     STEP_THROUGH_INEDGES(head, e, u){
       if (u != tail){
-        L2tu=0;
-        /* step through outedges of u */
-        STEP_THROUGH_OUTEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
-        }
-        /* step through inedges of u */
-        STEP_THROUGH_INEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
-        }
+	if(spcache) L2tu = GETDMUI(tail,u,spcache);
+	else{
+	  L2tu=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j];
+          deg = (Vertex)INPUT_PARAM[j+1];
           CHANGE_STAT[j] += ((L2tu + echange == deg)
           - (L2tu == deg));
         }
@@ -2065,17 +2051,20 @@ C_CHANGESTAT_FN(c_dsp) {
     /* step through outedges of tail */
     STEP_THROUGH_OUTEDGES(tail, e, u){
       if (u != head){
-        L2uh=0;
-        /* step through outedges of u */
-        STEP_THROUGH_OUTEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-        }
-        /* step through inedges of u */
-        STEP_THROUGH_INEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-        }
+	if(spcache) L2uh = GETDMUI(u,head,spcache);
+	else{
+	  L2uh=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	  }
+	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j];
+          deg = (Vertex)INPUT_PARAM[j+1];
           CHANGE_STAT[j] += ((L2uh + echange == deg)
           - (L2uh == deg));
         }
@@ -2084,17 +2073,20 @@ C_CHANGESTAT_FN(c_dsp) {
     /* step through inedges of tail */
     STEP_THROUGH_INEDGES(tail, e, u){
       if (u != head){
-        L2uh=0;
-        /* step through outedges of u */
-        STEP_THROUGH_OUTEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-        }
-        /* step through inedges of u */
-        STEP_THROUGH_INEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-        }
+	if(spcache) L2uh = GETDMUI(u,head,spcache);
+	else{
+	  L2uh=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	  }
+	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j];
+          deg = (Vertex)INPUT_PARAM[j+1];
           CHANGE_STAT[j] += ((L2uh + echange == deg)
           - (L2uh == deg));
         }
@@ -2242,9 +2234,10 @@ S_CHANGESTAT_FN(s_edges) {
 }
 
 /*****************
- changestat: d_esp
+ changestat: c_esp
 *****************/
 C_CHANGESTAT_FN(c_esp) { 
+  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
   Edge e, f;
   int j, echange;
   int L2th, L2tu, L2uh;
@@ -2253,26 +2246,31 @@ C_CHANGESTAT_FN(c_esp) {
   
   /* *** don't forget tail -> head */    
   ZERO_ALL_CHANGESTATS(i);
-    L2th=0;
+  if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;
     echange = IS_OUTEDGE(tail, head) ? -1:+1;
     /* step through outedges of head */
     STEP_THROUGH_OUTEDGES(head, e, u) {
       if (IS_UNDIRECTED_EDGE(u, tail)){
-        L2th++;
-        L2tu=0;
-        L2uh=0;
-        /* step through outedges of u */
-        STEP_THROUGH_OUTEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-          if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
-        }
-        /* step through inedges of u */
-        STEP_THROUGH_INEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-          if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
-        }
-        for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j];
+	if(spcache){
+	  L2tu = GETDMUI(tail,u,spcache);
+	  L2uh = GETDMUI(u,head,spcache);
+	}else{
+	  L2th++;
+	  L2tu=0;
+	  L2uh=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	}
+	for(j = 0; j < N_CHANGE_STATS; j++){
+          deg = (Vertex)INPUT_PARAM[j+1];
           CHANGE_STAT[j] += ((L2tu + echange == deg)
           - (L2tu == deg));
           CHANGE_STAT[j] += ((L2uh + echange == deg)
@@ -2283,21 +2281,26 @@ C_CHANGESTAT_FN(c_esp) {
     /* step through inedges of head */
     STEP_THROUGH_INEDGES(head, e, u){
       if (IS_UNDIRECTED_EDGE(u, tail)){
-        L2th++;
-        L2tu=0;
-        L2uh=0;
-        /* step through outedges of u */
-        STEP_THROUGH_OUTEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	if(spcache){
+	  L2tu = GETDMUI(tail,u,spcache);
+	  L2uh = GETDMUI(u,head,spcache);
+	}else{
+	  L2th++;
+	  L2tu=0;
+	  L2uh=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
           if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
-        }
-        /* step through inedges of u */
-        STEP_THROUGH_INEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-          if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
-        }
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j];
+          deg = (Vertex)INPUT_PARAM[j+1];
           CHANGE_STAT[j] += ((L2tu + echange == deg)
           - (L2tu == deg));
           CHANGE_STAT[j] += ((L2uh + echange == deg)
@@ -2306,7 +2309,7 @@ C_CHANGESTAT_FN(c_esp) {
       }
     }
     for(j = 0; j < N_CHANGE_STATS; j++){
-      deg = (Vertex)INPUT_PARAM[j];
+      deg = (Vertex)INPUT_PARAM[j+1];
 /*      CHANGE_STAT[j] += echange*((L2th == deg) - (0 == deg)); */
       CHANGE_STAT[j] += echange*(L2th == deg);
     }
@@ -2430,7 +2433,8 @@ C_CHANGESTAT_FN(c_gwdegree_by_attr) {
 /*****************
  changestat: d_gwdsp
 ****************/
-C_CHANGESTAT_FN(c_gwdsp) { 
+C_CHANGESTAT_FN(c_gwdsp) {
+  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
   Edge e, f;
   int echange, ochange;
   int L2tu, L2uh;
@@ -2439,7 +2443,7 @@ C_CHANGESTAT_FN(c_gwdsp) {
   
   /* *** don't forget tail -> head */    
   CHANGE_STAT[0] = 0.0;
-  alpha = INPUT_PARAM[0];
+  alpha = INPUT_PARAM[1];
   oneexpa = 1.0-exp(-alpha);
   
     cumchange=0.0;
@@ -2448,30 +2452,38 @@ C_CHANGESTAT_FN(c_gwdsp) {
     /* step through outedges of head */
     STEP_THROUGH_OUTEDGES(head, e, u){
       if (u != tail){
-        L2tu=ochange;
-        /* step through outedges of u */
-        STEP_THROUGH_OUTEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
-        }
-        /* step through inedges of u */
-        STEP_THROUGH_INEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
-        }
+	if(spcache) L2tu = GETDMUI(tail,u,spcache);
+	else{
+	  L2tu=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	}
+	L2tu+=ochange;
         cumchange += pow(oneexpa,(double)L2tu);
       }
     }
     /* step through inedges of head */
     STEP_THROUGH_INEDGES(head, e, u){
       if (u != tail){
-        L2tu=ochange;
-        /* step through outedges of u */
-        STEP_THROUGH_OUTEDGES(u, f, v){
+	if(spcache) L2tu = GETDMUI(tail,u,spcache);
+	else{
+	  L2tu=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
           if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
-        }
-        /* step through inedges of u */
-        STEP_THROUGH_INEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
-        }
+	  }
+	}
+	L2tu+=ochange;
         cumchange += pow(oneexpa,(double)L2tu);
       }
     }
@@ -2479,30 +2491,38 @@ C_CHANGESTAT_FN(c_gwdsp) {
     /* step through outedges of tail  */
     STEP_THROUGH_OUTEDGES(tail, e, u){
       if (u != head){
-        L2uh=ochange;
-        /* step through outedges of u */
-        STEP_THROUGH_OUTEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-        }
-        /* step through inedges of u */
-        STEP_THROUGH_INEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-        }
+	if(spcache) L2uh = GETDMUI(u,head,spcache);
+	else{
+	  L2uh=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	  }
+	}
+	L2uh+=ochange;
         cumchange += pow(oneexpa,(double)L2uh);
       }
     }
     /* step through inedges of tail */
     STEP_THROUGH_INEDGES(tail, e, u){
       if (u != head){
-        L2uh=ochange;
-        /* step through outedges of u */
-        STEP_THROUGH_OUTEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-        }
-        /* step through inedges of u */
-        STEP_THROUGH_INEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-        }
+	if(spcache) L2uh = GETDMUI(u,head,spcache);
+	else{
+	  L2uh=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	  }
+	}
+	L2uh+=ochange;
         cumchange += pow(oneexpa,(double)L2uh);
       }
     }
@@ -2571,6 +2591,7 @@ C_CHANGESTAT_FN(c_gwb2degree_by_attr) {
  changestat: d_gwesp
 *****************/
 C_CHANGESTAT_FN(c_gwesp) { 
+  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
   Edge e, f;
   int  echange, ochange;
   int L2th, L2tu, L2uh;
@@ -2578,30 +2599,37 @@ C_CHANGESTAT_FN(c_gwesp) {
   double alpha, oneexpa, cumchange;
   
   CHANGE_STAT[0] = 0.0;
-  alpha = INPUT_PARAM[0];
+  alpha = INPUT_PARAM[1];
   oneexpa = 1.0-exp(-alpha);
   
   /* *** don't forget tail -> head */    
     cumchange=0.0;
-    L2th=0;
+  if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;
     ochange = IS_OUTEDGE(tail, head) ? -1 : 0;
     echange = 2*ochange + 1;
     /* step through outedges of head  */
     STEP_THROUGH_OUTEDGES(head, e, u){
       if (IS_UNDIRECTED_EDGE(u, tail)){
-	L2th++;
-	L2tu=ochange;
-	L2uh=ochange;
-	/* step through outedges of u */
-	STEP_THROUGH_OUTEDGES(u, f, v){
-	  if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-	  if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	if(spcache){
+	  L2tu = GETDMUI(tail,u,spcache);
+	  L2uh = GETDMUI(u,head,spcache);
+	}else{
+	  L2th++;
+	  L2tu=0;
+	  L2uh=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
 	}
-	/* step through inedges of u */
-	STEP_THROUGH_INEDGES(u, f, v){
-	  if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-	  if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
-	}
+	L2tu+=ochange;
+	L2uh+=ochange;
 	cumchange += pow(oneexpa,(double)L2tu) +
 	  pow(oneexpa,(double)L2uh) ;
       }
@@ -2610,19 +2638,26 @@ C_CHANGESTAT_FN(c_gwesp) {
     
     STEP_THROUGH_INEDGES(head, e, u){
       if (IS_UNDIRECTED_EDGE(u, tail)){
-	L2th++;
-	L2tu=ochange;
-	L2uh=ochange;
-	/* step through outedges of u */
-	STEP_THROUGH_OUTEDGES(u, f, v){
-	  if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-	  if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	if(spcache){
+	  L2tu = GETDMUI(tail,u,spcache);
+	  L2uh = GETDMUI(u,head,spcache);
+	}else{
+	  L2th++;
+	  L2tu=0;
+	  L2uh=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
 	}
-	/* step through inedges of u */
-	STEP_THROUGH_INEDGES(u, f, v){
-	  if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-	  if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
-	}
+	L2tu+=ochange;
+	L2uh+=ochange;
 	cumchange += pow(oneexpa,(double)L2tu) +
 	  pow(oneexpa,(double)L2uh) ;
       }
@@ -2684,6 +2719,7 @@ C_CHANGESTAT_FN(c_gwidegree_by_attr) {
  changestat: d_gwnsp
 *****************/
 C_CHANGESTAT_FN(c_gwnsp) { 
+  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
   Edge e, f;
   int  echange, ochange;
   int L2th, L2tu, L2uh;
@@ -2692,40 +2728,47 @@ C_CHANGESTAT_FN(c_gwnsp) {
   
   CHANGE_STAT[0] = 0.0;
 
-  alpha = INPUT_PARAM[0];
+  alpha = INPUT_PARAM[1];
   oneexpa = 1.0-exp(-alpha);
   
-  /* *** don't forget tail -> head */    
     cumchange=0.0;
     ochange = IS_OUTEDGE(tail, head) ? -1 : 0;
     echange = 2*ochange + 1;
     /* step through outedges of head */
     STEP_THROUGH_OUTEDGES(head, e, u){
       if (u != tail){
-        L2tu=ochange;
-        /* step through outedges of u */
-        STEP_THROUGH_OUTEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
-        }
-        /* step through inedges of u */
-        STEP_THROUGH_INEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
-        }
+	if(spcache) L2tu = GETDMUI(tail,u,spcache);
+	else{
+	  L2tu=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	}
+	L2tu+=ochange;
         cumchange += pow(oneexpa,(double)L2tu);
       }
     }
     /* step through inedges of head */
     STEP_THROUGH_INEDGES(head, e, u){
       if (u != tail){
-        L2tu=ochange;
-        /* step through outedges of u */
-        STEP_THROUGH_OUTEDGES(u, f, v){
+	if(spcache) L2tu = GETDMUI(tail,u,spcache);
+	else{
+	  L2tu=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
           if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
-        }
-        /* step through inedges of u */
-        STEP_THROUGH_INEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
-        }
+	  }
+	}
+	L2tu+=ochange;
         cumchange += pow(oneexpa,(double)L2tu);
       }
     }
@@ -2733,60 +2776,74 @@ C_CHANGESTAT_FN(c_gwnsp) {
     /* step through outedges of tail  */
     STEP_THROUGH_OUTEDGES(tail, e, u){
       if (u != head){
-        L2uh=ochange;
-        /* step through outedges of u */
-        STEP_THROUGH_OUTEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-        }
-        /* step through inedges of u */
-        STEP_THROUGH_INEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-        }
+	if(spcache) L2uh = GETDMUI(u,head,spcache);
+	else{
+	  L2uh=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	  }
+	}
+	L2uh+=ochange;
         cumchange += pow(oneexpa,(double)L2uh);
       }
     }
     /* step through inedges of tail */
     STEP_THROUGH_INEDGES(tail, e, u){
       if (u != head){
-        L2uh=ochange;
-        /* step through outedges of u */
-        STEP_THROUGH_OUTEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-        }
-        /* step through inedges of u */
-        STEP_THROUGH_INEDGES(u, f, v){
-          if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-        }
+	if(spcache) L2uh = GETDMUI(u,head,spcache);
+	else{
+	  L2uh=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	  }
+	}
+	L2uh+=ochange;
         cumchange += pow(oneexpa,(double)L2uh);
       }
     }
     
     cumchange  = echange*cumchange;
     (CHANGE_STAT[0]) += cumchange;
-alpha = INPUT_PARAM[0];
-  oneexpa = 1.0-exp(-alpha);
-  
+
+
   /* *** don't forget tail -> head */    
     cumchange=0.0;
-    L2th=0;
+  if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;
     ochange = IS_OUTEDGE(tail, head) ? -1 : 0;
     echange = 2*ochange + 1;
     /* step through outedges of head  */
     STEP_THROUGH_OUTEDGES(head, e, u){
       if (IS_UNDIRECTED_EDGE(u, tail)){
-	L2th++;
-	L2tu=ochange;
-	L2uh=ochange;
-	/* step through outedges of u */
-	STEP_THROUGH_OUTEDGES(u, f, v){
-	  if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-	  if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	if(spcache){
+	  L2tu = GETDMUI(tail,u,spcache);
+	  L2uh = GETDMUI(u,head,spcache);
+	}else{
+	  L2th++;
+	  L2tu=0;
+	  L2uh=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
 	}
-	/* step through inedges of u */
-	STEP_THROUGH_INEDGES(u, f, v){
-	  if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-	  if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
-	}
+	L2tu+=ochange;
+	L2uh+=ochange;
 	cumchange += pow(oneexpa,(double)L2tu) +
 	  pow(oneexpa,(double)L2uh) ;
       }
@@ -2795,19 +2852,26 @@ alpha = INPUT_PARAM[0];
     
     STEP_THROUGH_INEDGES(head, e, u){
       if (IS_UNDIRECTED_EDGE(u, tail)){
-	L2th++;
-	L2tu=ochange;
-	L2uh=ochange;
-	/* step through outedges of u */
-	STEP_THROUGH_OUTEDGES(u, f, v){
-	  if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-	  if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	if(spcache){
+	  L2tu = GETDMUI(tail,u,spcache);
+	  L2uh = GETDMUI(u,head,spcache);
+	}else{
+	  L2th++;
+	  L2tu=0;
+	  L2uh=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
 	}
-	/* step through inedges of u */
-	STEP_THROUGH_INEDGES(u, f, v){
-	  if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
-	  if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
-	}
+	L2tu+=ochange;
+	L2uh+=ochange;
 	cumchange += pow(oneexpa,(double)L2tu) +
 	  pow(oneexpa,(double)L2uh) ;
       }
@@ -2869,13 +2933,14 @@ C_CHANGESTAT_FN(c_gwodegree_by_attr) {
  changestat: d_gwtdsp
 ****************/
 C_CHANGESTAT_FN(c_gwtdsp) {
+  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
   Edge e, f;
   int  echange, ochange, L2tu, L2uh;
   Vertex u, v;
   double alpha, oneexpa, cumchange;
   
   CHANGE_STAT[0] = 0.0;
-  alpha = INPUT_PARAM[0];
+  alpha = INPUT_PARAM[1];
   oneexpa = 1.0-exp(-alpha);
   
   /* *** don't forget tail -> head */    
@@ -2883,25 +2948,33 @@ C_CHANGESTAT_FN(c_gwtdsp) {
     ochange = -IS_OUTEDGE(tail,head);
     echange = 2*ochange + 1;
     /* step through outedges of head */
-    for(e = MIN_OUTEDGE(head); (u=OUTVAL(e))!=0; e=NEXT_OUTEDGE(e)) { 
+    STEP_THROUGH_OUTEDGES(head, e, u){ 
       if (u != tail){
-        L2tu=ochange; /* L2tu will be # shrd prtnrs of (tail,u) not incl. head */
-        /* step through inedges of u, incl. (head,u) itself */
-        for(f = MIN_INEDGE(u); (v=INVAL(f))!=0; f=NEXT_INEDGE(f)) {
-          if(IS_OUTEDGE(tail,v)) L2tu++;
-        }
-        cumchange += pow(oneexpa,(double)L2tu); /* sign corrected below */
+	if(spcache) L2tu = kh_getval(DyadMapUInt, spcache, THD(tail,u), 0);
+	else{
+	  L2tu=0;
+	  /* step through inedges of u, incl. (head,u) itself */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_OUTEDGE(tail,v)) L2tu++;
+	  }
+	}
+	L2tu+=ochange; /* L2tu will be # shrd prtnrs of (tail,u) not incl. head */
+	cumchange += pow(oneexpa,(double)L2tu); /* sign corrected below */
       }
     }
     /* step through inedges of tail */
-    for(e = MIN_INEDGE(tail); (u=INVAL(e))!=0; e=NEXT_INEDGE(e)) {
+    STEP_THROUGH_INEDGES(tail, e, u){
       if (u != head){
-        L2uh=ochange; /* L2uh will be # shrd prtnrs of (u,head) not incl. tail */
-        /* step through outedges of u , incl. (u,tail) itself */
-        for(f = MIN_OUTEDGE(u);(v=OUTVAL(f))!=0; f=NEXT_OUTEDGE(f)){
-          if(IS_OUTEDGE(v,head)) L2uh++;
-        }
-        cumchange += pow(oneexpa,(double)L2uh); /* sign corrected below */
+     	if(spcache) L2uh = kh_getval(DyadMapUInt, spcache, THD(u,head), 0);
+	else{
+	  L2uh=0;
+	  /* step through outedges of u , incl. (u,tail) itself */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_OUTEDGE(v,head)) L2uh++;
+	  }
+	}
+	L2uh+=ochange; /* L2uh will be # shrd prtnrs of (u,head) not incl. tail */
+	cumchange += pow(oneexpa,(double)L2uh); /* sign corrected below */
       }
     }
     CHANGE_STAT[0] += echange * cumchange;
@@ -2911,6 +2984,7 @@ C_CHANGESTAT_FN(c_gwtdsp) {
  changestat: d_gwtesp
 *****************/
 C_CHANGESTAT_FN(c_gwtesp) { 
+  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
   Edge e, f;
   int  echange, ochange;
   int L2th, L2tu, L2uh;
@@ -2918,37 +2992,46 @@ C_CHANGESTAT_FN(c_gwtesp) {
   double alpha, oneexpa, cumchange;
   
   CHANGE_STAT[0] = 0.0;
-  alpha = INPUT_PARAM[0];
+  alpha = INPUT_PARAM[1];
   oneexpa = 1.0-exp(-alpha);
   
   /* *** don't forget tail -> head */    
     cumchange=0.0;
-    L2th=0;
+    if(spcache) L2th = kh_getval(DyadMapUInt, spcache, THD(tail,head), 0); else L2th=0;
     ochange = IS_OUTEDGE(tail, head) ? -1 : 0;
     echange = 2*ochange + 1;
     /* step through outedges of head  */
     STEP_THROUGH_OUTEDGES(head, e, u){
       if (IS_OUTEDGE(tail, u)){
-	L2tu=ochange;
-	/* step through inedges of u */
-	STEP_THROUGH_INEDGES(u, f, v){
-	  if(IS_OUTEDGE(tail, v)) L2tu++;
+	if(spcache) L2tu = kh_getval(DyadMapUInt, spcache, THD(tail,u), 0);
+	else{
+	  L2tu=0;
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_OUTEDGE(tail, v)) L2tu++;
+	  }
 	}
+	L2tu+=ochange;
 	cumchange += pow(oneexpa,(double)L2tu);
       }
     }
     /* step through inedges of head */
     
     STEP_THROUGH_INEDGES(head, e, u){
-      if (IS_OUTEDGE(tail, u)){
+      if (!spcache && IS_OUTEDGE(tail, u)){
 	L2th++;
       }
       if (IS_OUTEDGE(u, tail)){
-	L2uh=ochange;
-	/* step through outedges of u */
-	STEP_THROUGH_OUTEDGES(u, f, v){
-	  if(IS_OUTEDGE(v, head)) L2uh++;
+	if(spcache){
+	  L2uh = kh_getval(DyadMapUInt, spcache, THD(u,head), 0);
+	}else{
+	  L2uh=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_OUTEDGE(v, head)) L2uh++;
+	  }
 	}
+	L2uh+=ochange;
 	cumchange += pow(oneexpa,(double)L2uh) ;
       }
     }
@@ -2966,6 +3049,7 @@ C_CHANGESTAT_FN(c_gwtesp) {
  changestat: d_gwtnsp
 *****************/
 C_CHANGESTAT_FN(c_gwtnsp) { 
+  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
   Edge e, f;
   int  echange, ochange;
   int L2th, L2tu, L2uh;
@@ -2974,7 +3058,7 @@ C_CHANGESTAT_FN(c_gwtnsp) {
   
   CHANGE_STAT[0] = 0.0;
 
-  alpha = INPUT_PARAM[0];
+  alpha = INPUT_PARAM[1];
   oneexpa = 1.0-exp(-alpha);
   
   /* *** don't forget tail -> head */    
@@ -2982,59 +3066,73 @@ C_CHANGESTAT_FN(c_gwtnsp) {
     ochange = -IS_OUTEDGE(tail,head);
     echange = 2*ochange + 1;
     /* step through outedges of head */
-    for(e = MIN_OUTEDGE(head); (u=OUTVAL(e))!=0; e=NEXT_OUTEDGE(e)) { 
+    STEP_THROUGH_OUTEDGES(head, e, u){ 
       if (u != tail){
-        L2tu=ochange; /* L2tu will be # shrd prtnrs of (tail,u) not incl. head */
-        /* step through inedges of u, incl. (head,u) itself */
-        for(f = MIN_INEDGE(u); (v=INVAL(f))!=0; f=NEXT_INEDGE(f)) {
-          if(IS_OUTEDGE(tail,v)) L2tu++;
-        }
-        cumchange += pow(oneexpa,(double)L2tu); /* sign corrected below */
+	if(spcache) L2tu = kh_getval(DyadMapUInt, spcache, THD(tail,u), 0);
+	else{
+	  L2tu=0;
+	  /* step through inedges of u, incl. (head,u) itself */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_OUTEDGE(tail,v)) L2tu++;
+	  }
+	}
+	L2tu+=ochange; /* L2tu will be # shrd prtnrs of (tail,u) not incl. head */
+	cumchange += pow(oneexpa,(double)L2tu); /* sign corrected below */
       }
     }
     /* step through inedges of tail */
-    for(e = MIN_INEDGE(tail); (u=INVAL(e))!=0; e=NEXT_INEDGE(e)) {
+    STEP_THROUGH_INEDGES(tail, e, u){
       if (u != head){
-        L2uh=ochange; /* L2uh will be # shrd prtnrs of (u,head) not incl. tail */
-        /* step through outedges of u , incl. (u,tail) itself */
-        for(f = MIN_OUTEDGE(u);(v=OUTVAL(f))!=0; f=NEXT_OUTEDGE(f)){
-          if(IS_OUTEDGE(v,head)) L2uh++;
-        }
-        cumchange += pow(oneexpa,(double)L2uh); /* sign corrected below */
+     	if(spcache) L2uh = kh_getval(DyadMapUInt, spcache, THD(u,head), 0);
+	else{
+	  L2uh=0;
+	  /* step through outedges of u , incl. (u,tail) itself */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_OUTEDGE(v,head)) L2uh++;
+	  }
+	}
+	L2uh+=ochange; /* L2uh will be # shrd prtnrs of (u,head) not incl. tail */
+	cumchange += pow(oneexpa,(double)L2uh); /* sign corrected below */
       }
     }
     CHANGE_STAT[0] += echange * cumchange;
-alpha = INPUT_PARAM[0];
-  oneexpa = 1.0-exp(-alpha);
-  
   /* *** don't forget tail -> head */    
     cumchange=0.0;
-    L2th=0;
+    if(spcache) L2th = kh_getval(DyadMapUInt, spcache, THD(tail,head), 0); else L2th=0;
     ochange = IS_OUTEDGE(tail, head) ? -1 : 0;
     echange = 2*ochange + 1;
     /* step through outedges of head  */
     STEP_THROUGH_OUTEDGES(head, e, u){
       if (IS_OUTEDGE(tail, u)){
-	L2tu=ochange;
-	/* step through inedges of u */
-	STEP_THROUGH_INEDGES(u, f, v){
-	  if(IS_OUTEDGE(tail, v)) L2tu++;
+	if(spcache) L2tu = kh_getval(DyadMapUInt, spcache, THD(tail,u), 0);
+	else{
+	  L2tu=0;
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_OUTEDGE(tail, v)) L2tu++;
+	  }
 	}
+	L2tu+=ochange;
 	cumchange += pow(oneexpa,(double)L2tu);
       }
     }
     /* step through inedges of head */
     
     STEP_THROUGH_INEDGES(head, e, u){
-      if (IS_OUTEDGE(tail, u)){
+      if (!spcache && IS_OUTEDGE(tail, u)){
 	L2th++;
       }
       if (IS_OUTEDGE(u, tail)){
-	L2uh=ochange;
-	/* step through outedges of u */
-	STEP_THROUGH_OUTEDGES(u, f, v){
-	  if(IS_OUTEDGE(v, head)) L2uh++;
+	if(spcache){
+	  L2uh = kh_getval(DyadMapUInt, spcache, THD(u,head), 0);
+	}else{
+	  L2uh=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_OUTEDGE(v, head)) L2uh++;
+	  }
 	}
+	L2uh+=ochange;
 	cumchange += pow(oneexpa,(double)L2uh) ;
       }
     }
@@ -3046,7 +3144,6 @@ alpha = INPUT_PARAM[0];
     }
     cumchange  = echange*cumchange;
     (CHANGE_STAT[0]) -= cumchange;
-
 }
 
 /********************  changestats:  H    ***********/
@@ -3065,7 +3162,7 @@ C_CHANGESTAT_FN(c_hamming) {
   
   ZERO_ALL_CHANGESTATS(i);
   Edge wt_net_start= INPUT_PARAM[0]*2+2;
-  double defaultval = INPUT_PARAM[wt_net_start-1]; /* Hamming wt for non-edges in cov nw */
+  double defaultval = INPUT_PARAM[wt_net_start-1]; /* Hamming wt for non-edges in cov nwp */
   double *wt_net = INPUT_PARAM+wt_net_start;
 
   /* *** don't forget tail -> head */    
@@ -3250,11 +3347,6 @@ C_CHANGESTAT_FN(c_idegree_w_homophily) {
     if (tailattr == headattr) { /* They match; otherwise don't bother */
       echange=IS_OUTEDGE(tail, head) ? -1 : +1;
       headdeg=0;
-/*      for(e = EdgetreeMinimum(nwp->outedges, head);
-      (tmp = nwp->outedges[e].value) != 0;
-      e = EdgetreeSuccessor(nwp->outedges, e)) {
-        headdeg += (nodeattr[tmp]==headattr);
-      } */
       STEP_THROUGH_INEDGES(head, e, tmp){
         headdeg += (nodeattr[tmp]==headattr);
       }
@@ -3558,10 +3650,9 @@ C_CHANGESTAT_FN(c_m2star) {
  changestat: d_meandeg
 *****************/
 C_CHANGESTAT_FN(c_meandeg) {
-
-  CHANGE_STAT[0] = 0.0;
-    CHANGE_STAT[0] += (IS_OUTEDGE(tail, head) ? -2.0 : 2.0);
-  CHANGE_STAT[0]/=(double)N_NODES;
+  // Effectively, change is 2/n if undirected and 1/n if directed.
+  if(DIRECTED) CHANGE_STAT[0] = (IS_OUTEDGE(tail, head) ? -1.0 : 1.0)/N_NODES;
+  else CHANGE_STAT[0] = (IS_OUTEDGE(tail, head) ? -2.0 : 2.0)/N_NODES;
 }
 
 /*****************
@@ -3589,6 +3680,29 @@ C_CHANGESTAT_FN(c_mix) {
         CHANGE_STAT[j] += edgeflag ? -1.0 : 1.0;
       }
 	  }
+}
+
+/*****************
+ changestat: d_mixmat
+ General mixing matrix (mm) implementation.
+*****************/
+C_CHANGESTAT_FN(c_mixmat){
+  unsigned int symm = ((int)INPUT_PARAM[0]) & 1;
+  unsigned int marg = ((int)INPUT_PARAM[0]) & 2;
+  double *tx = INPUT_PARAM;
+  double *hx = BIPARTITE? INPUT_PARAM : INPUT_PARAM + N_NODES;
+  double *cells = BIPARTITE? INPUT_PARAM + N_NODES + 1: INPUT_PARAM + N_NODES*2 + 1;
+  
+  unsigned int edgeflag = IS_OUTEDGE(tail, head);
+  unsigned int diag = tx[tail]==tx[head] && hx[tail]==hx[head];
+  for(unsigned int j=0; j<N_CHANGE_STATS; j++){
+    unsigned int thmatch = tx[tail]==cells[j*2] && hx[head]==cells[j*2+1];
+    unsigned int htmatch = tx[head]==cells[j*2] && hx[tail]==cells[j*2+1];
+    
+    int w = DIRECTED || BIPARTITE? thmatch :
+      (symm ? thmatch||htmatch : thmatch+htmatch)*(symm && marg && diag?2:1);
+    if(w) CHANGE_STAT[j] += edgeflag ? -w : w;
+  }
 }
 
 /*****************
@@ -3703,19 +3817,11 @@ C_CHANGESTAT_FN(c_nodecov) {
  changestat: d_nodefactor
 *****************/
 C_CHANGESTAT_FN(c_nodefactor) { 
-  double s, factorval;
-  int j, tailattr, headattr;
-  
-  /* *** don't forget tail -> head */    
-  ZERO_ALL_CHANGESTATS(i);
-    s = IS_OUTEDGE(tail, head) ? -1.0 : 1.0;
-    tailattr = INPUT_ATTRIB[tail-1];
-    headattr = INPUT_ATTRIB[head-1];
-    for (j=0; j < N_CHANGE_STATS; j++) {
-      factorval = INPUT_PARAM[j];
-      if (tailattr == factorval) CHANGE_STAT[j] += s;
-      if (headattr == factorval) CHANGE_STAT[j] += s;
-    }
+  double s = IS_OUTEDGE(tail, head) ? -1.0 : 1.0;
+  int tailpos = INPUT_ATTRIB[tail-1];
+  int headpos = INPUT_ATTRIB[head-1];
+  if (tailpos!=-1) CHANGE_STAT[tailpos] += s;
+  if (headpos!=-1) CHANGE_STAT[headpos] += s;
 }
 
 /*****************
@@ -3736,16 +3842,9 @@ C_CHANGESTAT_FN(c_nodeicov) {
  changestat: d_nodeifactor
 *****************/
 C_CHANGESTAT_FN(c_nodeifactor) { 
-  double s;
-  int j, headattr;
-  
-  /* *** don't forget tail -> head */    
-  ZERO_ALL_CHANGESTATS(i);
-    s = IS_OUTEDGE(tail, head) ? -1.0 : 1.0;
-    headattr = INPUT_ATTRIB[head-1];
-    for (j=0; j < N_CHANGE_STATS; j++) {
-      if (headattr == INPUT_PARAM[j]) CHANGE_STAT[j] += s;
-    }
+  double s = IS_OUTEDGE(tail, head) ? -1.0 : 1.0;
+  int headpos = INPUT_ATTRIB[head-1];
+  if (headpos!=-1) CHANGE_STAT[headpos] += s;
 }
 
 /*****************
@@ -3822,22 +3921,16 @@ C_CHANGESTAT_FN(c_nodeocov) {
  changestat: d_nodeofactor
 *****************/
 C_CHANGESTAT_FN(c_nodeofactor) { 
-  double s;
-  int j, tailattr;
-  
-  /* *** don't forget tail -> head */    
-  ZERO_ALL_CHANGESTATS(i);
-    s = IS_OUTEDGE(tail, head) ? -1.0 : 1.0;
-    tailattr = INPUT_ATTRIB[tail-1];
-    for (j=0; j < N_CHANGE_STATS; j++) {
-      if (tailattr == INPUT_PARAM[j]) CHANGE_STAT[j] += s;
-    }
+  double s = IS_OUTEDGE(tail, head) ? -1.0 : 1.0;
+  int tailpos = INPUT_ATTRIB[tail-1];
+  if (tailpos!=-1) CHANGE_STAT[tailpos] += s;
 }
 
 /*****************
  changestat: d_nsp
 *****************/
 C_CHANGESTAT_FN(c_nsp) { 
+  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
   Edge e, f;
   int j, echange;
   int L2th, L2tu, L2uh;
@@ -3846,90 +3939,121 @@ C_CHANGESTAT_FN(c_nsp) {
   
   /* *** don't forget tail -> head */    
   ZERO_ALL_CHANGESTATS(i);
-    echange = IS_OUTEDGE(tail, head) ? -1 : 1;
-    STEP_THROUGH_OUTEDGES(head, e, u) {
+    echange = IS_OUTEDGE(tail, head) ? -1:+1;
+    /* step through outedges of head */
+    STEP_THROUGH_OUTEDGES(head, e, u){
       if (u != tail){
-        L2tu=0;
-        STEP_THROUGH_OUTEDGES(u, f, v) {
-          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2tu++;
-        }
-        STEP_THROUGH_INEDGES(u, f, v) {
-          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2tu++;
-        }
+	if(spcache) L2tu = GETDMUI(tail,u,spcache);
+	else{
+	  L2tu=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j];
+          deg = (Vertex)INPUT_PARAM[j+1];
           CHANGE_STAT[j] += ((L2tu + echange == deg)
           - (L2tu == deg));
         }
       }
     }
-    STEP_THROUGH_INEDGES(head, e, u) {
+    /* step through inedges of head */
+    STEP_THROUGH_INEDGES(head, e, u){
       if (u != tail){
-        L2tu=0;
-        STEP_THROUGH_OUTEDGES(u, f, v) {
-          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2tu++;
-        }
-        STEP_THROUGH_INEDGES(u, f, v) {
-          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2tu++;
-        }
+	if(spcache) L2tu = GETDMUI(tail,u,spcache);
+	else{
+	  L2tu=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j];
+          deg = (Vertex)INPUT_PARAM[j+1];
           CHANGE_STAT[j] += ((L2tu + echange == deg)
           - (L2tu == deg));
         }
       }
     }
-    STEP_THROUGH_OUTEDGES(tail, e, u) {
+    /* step through outedges of tail */
+    STEP_THROUGH_OUTEDGES(tail, e, u){
       if (u != head){
-        L2uh=0;
-        STEP_THROUGH_OUTEDGES(u, f, v) {
-          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2uh++;
-        }
-        STEP_THROUGH_INEDGES(u, f, v) {
-          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2uh++;
-        }
+	if(spcache) L2uh = GETDMUI(u,head,spcache);
+	else{
+	  L2uh=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	  }
+	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j];
+          deg = (Vertex)INPUT_PARAM[j+1];
           CHANGE_STAT[j] += ((L2uh + echange == deg)
           - (L2uh == deg));
         }
       }
     }
-    STEP_THROUGH_INEDGES(tail, e, u) {
+    /* step through inedges of tail */
+    STEP_THROUGH_INEDGES(tail, e, u){
       if (u != head){
-        L2uh=0;
-        STEP_THROUGH_OUTEDGES(u, f, v) {
-          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2uh++;
-        }
-        STEP_THROUGH_INEDGES(u, f, v) {
-          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2uh++;
-        }
+	if(spcache) L2uh = GETDMUI(u,head,spcache);
+	else{
+	  L2uh=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	  }
+	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j];
+          deg = (Vertex)INPUT_PARAM[j+1];
           CHANGE_STAT[j] += ((L2uh + echange == deg)
           - (L2uh == deg));
         }
       }
-    }
+    }    
 
-  /* *** don't forget tail -> head */    
-    L2th=0;
-    echange = IS_OUTEDGE(tail, head) ? -1 : 1;
+  if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;
+    echange = IS_OUTEDGE(tail, head) ? -1:+1;
+    /* step through outedges of head */
     STEP_THROUGH_OUTEDGES(head, e, u) {
-      if (IS_OUTEDGE(MIN(u,tail), MAX(u,tail))){
-        L2th++;
-        L2tu=0;
-        L2uh=0;
-        STEP_THROUGH_OUTEDGES(u, f, v) {
-          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2uh++;
-          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2tu++;
-        }
-        STEP_THROUGH_INEDGES(u, f, v) {
-          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2uh++;
-          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2tu++;
-        }
-        for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j];
+      if (IS_UNDIRECTED_EDGE(u, tail)){
+	if(spcache){
+	  L2tu = GETDMUI(tail,u,spcache);
+	  L2uh = GETDMUI(u,head,spcache);
+	}else{
+	  L2th++;
+	  L2tu=0;
+	  L2uh=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	}
+	for(j = 0; j < N_CHANGE_STATS; j++){
+          deg = (Vertex)INPUT_PARAM[j+1];
           CHANGE_STAT[j] -= ((L2tu + echange == deg)
           - (L2tu == deg));
           CHANGE_STAT[j] -= ((L2uh + echange == deg)
@@ -3937,21 +4061,29 @@ C_CHANGESTAT_FN(c_nsp) {
         }
       }
     }
-    STEP_THROUGH_INEDGES(head, e, u) {
-      if (IS_OUTEDGE(MIN(u,tail), MAX(u,tail))){
-        L2th++;
-        L2tu=0;
-        L2uh=0;
-        STEP_THROUGH_OUTEDGES(u, f, v) {
-          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2uh++;
-          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2tu++;
-        }
-        STEP_THROUGH_INEDGES(u, f, v) {
-          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2uh++;
-          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2tu++;
-        }
+    /* step through inedges of head */
+    STEP_THROUGH_INEDGES(head, e, u){
+      if (IS_UNDIRECTED_EDGE(u, tail)){
+	if(spcache){
+	  L2tu = GETDMUI(tail,u,spcache);
+	  L2uh = GETDMUI(u,head,spcache);
+	}else{
+	  L2th++;
+	  L2tu=0;
+	  L2uh=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+          if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_UNDIRECTED_EDGE(v, head)) L2uh++;
+	    if(IS_UNDIRECTED_EDGE(v, tail)) L2tu++;
+	  }
+	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j];
+          deg = (Vertex)INPUT_PARAM[j+1];
           CHANGE_STAT[j] -= ((L2tu + echange == deg)
           - (L2tu == deg));
           CHANGE_STAT[j] -= ((L2uh + echange == deg)
@@ -3960,8 +4092,8 @@ C_CHANGESTAT_FN(c_nsp) {
       }
     }
     for(j = 0; j < N_CHANGE_STATS; j++){
-      deg = (Vertex)INPUT_PARAM[j];
-/*      CHANGE_STAT[j] += echange*((L2th == deg) - (0 == deg)); */
+      deg = (Vertex)INPUT_PARAM[j+1];
+/*      CHANGE_STAT[j] -= echange*((L2th == deg) - (0 == deg)); */
       CHANGE_STAT[j] -= echange*(L2th == deg);
     }
 }
@@ -4110,11 +4242,6 @@ C_CHANGESTAT_FN(c_odegree_w_homophily) {
       STEP_THROUGH_OUTEDGES(tail, e, tmp){
         taildeg += (nodeattr[tmp]==tailattr);
       }
-/*      for(e = EdgetreeMinimum(nwp->inedges, tail); */
-/*      (tmp = nwp->inedges[e].value) != 0; */
-/*      e = EdgetreeSuccessor(nwp->inedges, e)) { */
-/*        taildeg += (nodeattr[tmp]==tailattr); */
-/*      } */
       for(j = 0; j < N_CHANGE_STATS; j++) {
         Vertex deg = INPUT_PARAM[j];
         CHANGE_STAT[j] += (taildeg + echange == deg) - (taildeg == deg);
@@ -4290,7 +4417,7 @@ S_CHANGESTAT_FN(s_rdegcor) {
   Edge e;
   double mu, mu2, sigma2, cross;
   Vertex tailrank, headrank;
-  Vertex *ndeg=malloc(sizeof(Vertex)*(N_NODES+1));
+  Vertex *ndeg=Calloc(N_NODES+1, Vertex);
 
   for(Vertex tail=0; tail <= N_NODES; tail++) { ndeg[tail]=0; }
   for(Vertex tail=0; tail < N_NODES; tail++) {
@@ -4325,7 +4452,7 @@ for(Vertex tail=1; tail <= N_NODES; tail++) {
   mu = mu / (2.0*N_EDGES);
   sigma2 = mu2/(2.0*N_EDGES) -  mu*mu;
   CHANGE_STAT[0] = (cross / (2.0*N_EDGES) -  mu*mu) / sigma2;
-  free(ndeg);
+  Free(ndeg);
 }
 
 /*****************
@@ -4515,6 +4642,7 @@ C_CHANGESTAT_FN(c_sociality) {
  changestat: d_tdsp
 *****************/
 C_CHANGESTAT_FN(c_tdsp) {
+  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
   Edge e, f;
   int j, echange, L2tu, L2uh;
   Vertex deg, u, v;
@@ -4523,29 +4651,35 @@ C_CHANGESTAT_FN(c_tdsp) {
   ZERO_ALL_CHANGESTATS(i);
     echange = 1-2*IS_OUTEDGE(tail,head);
     /* step through outedges of head */
-    for(e = MIN_OUTEDGE(head); (u=OUTVAL(e))!=0; e=NEXT_OUTEDGE(e)) { 
+    STEP_THROUGH_OUTEDGES(head, e, u){ 
       if (u != tail){
-        L2tu=0; /* This will be # of shared partners of (tail,u) */
-        /* step through inedges of u, incl. (head,u) itself */
-        for(f = MIN_INEDGE(u); (v=INVAL(f))!=0; f=NEXT_INEDGE(f)) {
-          if(IS_OUTEDGE(tail,v)) L2tu++;
-        }
+	if(spcache) L2tu = kh_getval(DyadMapUInt, spcache, THD(tail,u), 0);
+	else{
+	  L2tu=0; /* This will be # of shared partners of (tail,u) */
+	  /* step through inedges of u, incl. (head,u) itself */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_OUTEDGE(tail,v)) L2tu++;
+	  }
+	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j];
+          deg = (Vertex)INPUT_PARAM[j+1];
           CHANGE_STAT[j] += ((L2tu + echange == deg) - (L2tu == deg));
         }
       }
     }
     /* step through inedges of tail */
-    for(e = MIN_INEDGE(tail); (u=INVAL(e))!=0; e=NEXT_INEDGE(e)) {
+    STEP_THROUGH_INEDGES(tail, e, u){
       if (u != head){
-        L2uh=0; /* This will be # of shared partners of (u,head) */
-        /* step through outedges of u , incl. (u,tail) itself */
-        for(f = MIN_OUTEDGE(u);(v=OUTVAL(f))!=0; f=NEXT_OUTEDGE(f)){
-          if(IS_OUTEDGE(v,head)) L2uh++;
-        }
+	if(spcache) L2uh = kh_getval(DyadMapUInt, spcache, THD(u,head), 0);
+	else{
+	  L2uh=0; /* This will be # of shared partners of (u,head) */
+	  /* step through outedges of u , incl. (u,tail) itself */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_OUTEDGE(v,head)) L2uh++;
+	  }
+	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j];
+          deg = (Vertex)INPUT_PARAM[j+1];
           CHANGE_STAT[j] += ((L2uh + echange == deg) - (L2uh == deg));
         }
       }
@@ -4559,6 +4693,7 @@ C_CHANGESTAT_FN(c_tdsp) {
  changestat: d_tesp
 *****************/
 C_CHANGESTAT_FN(c_tesp) { 
+  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
   Edge e, f;
   int j, echange;
   int L2th, L2tu, L2uh;
@@ -4567,41 +4702,49 @@ C_CHANGESTAT_FN(c_tesp) {
   
   /* *** don't forget tail -> head */    
   ZERO_ALL_CHANGESTATS(i);
-    L2th=0;
+    if(spcache) L2th = kh_getval(DyadMapUInt, spcache, THD(tail,head), 0); else L2th=0;
     echange = IS_OUTEDGE(tail, head) ? -1:+1;
     /* step through outedges of head */
     STEP_THROUGH_OUTEDGES(head, e, u) {
       if (IS_OUTEDGE(tail, u)){
-        L2tu=0;
-        /* step through inedges of u */
-        STEP_THROUGH_INEDGES(u, f, v){
-          if(IS_OUTEDGE(tail, v)) L2tu++;
-        }
+	if(spcache){
+	  L2tu = kh_getval(DyadMapUInt, spcache, THD(tail,u), 0);
+	}else{
+	  L2tu=0;
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_OUTEDGE(tail, v)) L2tu++;
+	  }
+	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j];
+          deg = (Vertex)INPUT_PARAM[j+1];
           CHANGE_STAT[j] += ((L2tu + echange == deg) - (L2tu == deg));
         }
       }
     }
     /* step through inedges of head */
     STEP_THROUGH_INEDGES(head, e, u){
-      if (IS_OUTEDGE(tail, u)){
+      if (!spcache && IS_OUTEDGE(tail, u)){
         L2th++;
       }
       if (IS_OUTEDGE(u, tail)){
-        L2uh=0;
-        /* step through outedges of u */
-        STEP_THROUGH_OUTEDGES(u, f, v){
-          if(IS_OUTEDGE(v, head)) L2uh++;
-        }
+	if(spcache){
+	  L2uh = kh_getval(DyadMapUInt, spcache, THD(u,head), 0);
+	}else{
+	  L2uh=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_OUTEDGE(v, head)) L2uh++;
+	  }
+	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j];
+          deg = (Vertex)INPUT_PARAM[j+1];
           CHANGE_STAT[j] += ((L2uh + echange == deg) - (L2uh == deg));
         }
       }
     }
     for(j = 0; j < N_CHANGE_STATS; j++){
-      deg = (Vertex)INPUT_PARAM[j];
+      deg = (Vertex)INPUT_PARAM[j+1];
       CHANGE_STAT[j] += echange*(L2th == deg);
     }
 }
@@ -4669,6 +4812,7 @@ C_CHANGESTAT_FN(c_threetrail) {
  changestat: d_tnsp
 *****************/
 C_CHANGESTAT_FN(c_tnsp) { 
+  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
   Edge e, f;
   int j, echange;
   int L2th, L2tu, L2uh;
@@ -4679,73 +4823,87 @@ C_CHANGESTAT_FN(c_tnsp) {
   ZERO_ALL_CHANGESTATS(i);
     echange = 1-2*IS_OUTEDGE(tail,head);
     /* step through outedges of head */
-    for(e = MIN_OUTEDGE(head); (u=OUTVAL(e))!=0; e=NEXT_OUTEDGE(e)) { 
+    STEP_THROUGH_OUTEDGES(head, e, u){ 
       if (u != tail){
-        L2tu=0; /* This will be # of shared partners of (tail,u) */
-        /* step through inedges of u, incl. (head,u) itself */
-        for(f = MIN_INEDGE(u); (v=INVAL(f))!=0; f=NEXT_INEDGE(f)) {
-          if(IS_OUTEDGE(tail,v)) L2tu++;
-        }
+	if(spcache) L2tu = kh_getval(DyadMapUInt, spcache, THD(tail,u), 0);
+	else{
+	  L2tu=0; /* This will be # of shared partners of (tail,u) */
+	  /* step through inedges of u, incl. (head,u) itself */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_OUTEDGE(tail,v)) L2tu++;
+	  }
+	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j];
+          deg = (Vertex)INPUT_PARAM[j+1];
           CHANGE_STAT[j] += ((L2tu + echange == deg) - (L2tu == deg));
         }
       }
     }
     /* step through inedges of tail */
-    for(e = MIN_INEDGE(tail); (u=INVAL(e))!=0; e=NEXT_INEDGE(e)) {
+    STEP_THROUGH_INEDGES(tail, e, u){
       if (u != head){
-        L2uh=0; /* This will be # of shared partners of (u,head) */
-        /* step through outedges of u , incl. (u,tail) itself */
-        for(f = MIN_OUTEDGE(u);(v=OUTVAL(f))!=0; f=NEXT_OUTEDGE(f)){
-          if(IS_OUTEDGE(v,head)) L2uh++;
-        }
+	if(spcache) L2uh = kh_getval(DyadMapUInt, spcache, THD(u,head), 0);
+	else{
+	  L2uh=0; /* This will be # of shared partners of (u,head) */
+	  /* step through outedges of u , incl. (u,tail) itself */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_OUTEDGE(v,head)) L2uh++;
+	  }
+	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j];
+          deg = (Vertex)INPUT_PARAM[j+1];
           CHANGE_STAT[j] += ((L2uh + echange == deg) - (L2uh == deg));
         }
       }
     }
-    
-  
-    /* *** don't forget tail -> head */    
-    L2th=0;
+
+
+    if(spcache) L2th = kh_getval(DyadMapUInt, spcache, THD(tail,head), 0); else L2th=0;
     echange = IS_OUTEDGE(tail, head) ? -1:+1;
     /* step through outedges of head */
     STEP_THROUGH_OUTEDGES(head, e, u) {
       if (IS_OUTEDGE(tail, u)){
-        L2tu=0;
-        /* step through inedges of u */
-        STEP_THROUGH_INEDGES(u, f, v){
-          if(IS_OUTEDGE(tail, v)) L2tu++;
-        }
+	if(spcache){
+	  L2tu = kh_getval(DyadMapUInt, spcache, THD(tail,u), 0);
+	}else{
+	  L2tu=0;
+	  /* step through inedges of u */
+	  STEP_THROUGH_INEDGES(u, f, v){
+	    if(IS_OUTEDGE(tail, v)) L2tu++;
+	  }
+	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j];
+          deg = (Vertex)INPUT_PARAM[j+1];
           CHANGE_STAT[j] -= ((L2tu + echange == deg) - (L2tu == deg));
         }
       }
     }
     /* step through inedges of head */
     STEP_THROUGH_INEDGES(head, e, u){
-      if (IS_OUTEDGE(tail, u)){
+      if (!spcache && IS_OUTEDGE(tail, u)){
         L2th++;
       }
       if (IS_OUTEDGE(u, tail)){
-        L2uh=0;
-        /* step through outedges of u */
-        STEP_THROUGH_OUTEDGES(u, f, v){
-          if(IS_OUTEDGE(v, head)) L2uh++;
-        }
+	if(spcache){
+	  L2uh = kh_getval(DyadMapUInt, spcache, THD(u,head), 0);
+	}else{
+	  L2uh=0;
+	  /* step through outedges of u */
+	  STEP_THROUGH_OUTEDGES(u, f, v){
+	    if(IS_OUTEDGE(v, head)) L2uh++;
+	  }
+	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j];
+          deg = (Vertex)INPUT_PARAM[j+1];
           CHANGE_STAT[j] -= ((L2uh + echange == deg) - (L2uh == deg));
         }
       }
     }
     for(j = 0; j < N_CHANGE_STATS; j++){
-      deg = (Vertex)INPUT_PARAM[j];
+      deg = (Vertex)INPUT_PARAM[j+1];
       CHANGE_STAT[j] -= echange*(L2th == deg);
     }
+
 }
 
 /*****************
@@ -4786,10 +4944,8 @@ C_CHANGESTAT_FN(c_transitive) {
 }
 
 C_CHANGESTAT_FN(c_transitiveties) { 
-  Edge e, f;
   int  echange, ochange;
   int L2th, L2tu, L2uh;
-  Vertex u, v;
   double cumchange;
   double tailattr;
   
@@ -4798,76 +4954,77 @@ C_CHANGESTAT_FN(c_transitiveties) {
   /* *** don't forget tail -> head */    
     cumchange=0.0;
     L2th=0;
-    ochange = IS_OUTEDGE(tail, head) ? -1 : 0;
+    ochange = GETWT(tail, head) ? -1 : 0;
     echange = 2*ochange + 1;
     if(N_INPUT_PARAMS>0){ /* match on attributes */
       tailattr = INPUT_ATTRIB[tail-1];
       if(tailattr == INPUT_ATTRIB[head-1]){
        /* step through outedges of head  */
-       STEP_THROUGH_OUTEDGES(head, e, u){
-         if (IS_OUTEDGE(tail, u) && (tailattr == INPUT_ATTRIB[u-1])){
+       EXEC_THROUGH_OUTEDGES(head,  e,  u, {
+         if (GETWT(tail, u) && (tailattr == INPUT_ATTRIB[u-1])){
 	   L2tu=ochange;
 	   /* step through inedges of u */
-	   STEP_THROUGH_INEDGES(u, f, v){
-	     if(IS_OUTEDGE(tail, v) && (tailattr == INPUT_ATTRIB[v-1])){
+	   EXEC_THROUGH_INEDGES(u,  f,  v, {
+	     if(GETWT(tail, v) && (tailattr == INPUT_ATTRIB[v-1])){
 	       L2tu++;
 	       if(L2tu>0) {break;}
 	     }
-	   }
+	     });
 	   cumchange += (L2tu==0);
          }
-       }
+       });
        /* step through inedges of head */
        
-       STEP_THROUGH_INEDGES(head, e, u){
-         if (IS_OUTEDGE(tail, u) && (tailattr == INPUT_ATTRIB[u-1])){
+       EXEC_THROUGH_INEDGES(head,  e,  u, {
+         if (GETWT(tail, u) && (tailattr == INPUT_ATTRIB[u-1])){
 	   L2th++;
          }
-         if (IS_OUTEDGE(u, tail) && (tailattr == INPUT_ATTRIB[u-1])){
+         if (GETWT(u, tail) && (tailattr == INPUT_ATTRIB[u-1])){
 	   L2uh=ochange;
 	   /* step through outedges of u */
-	   STEP_THROUGH_OUTEDGES(u, f, v){
-	     if(IS_OUTEDGE(v, head) && (tailattr == INPUT_ATTRIB[v-1])){
+	   EXEC_THROUGH_OUTEDGES(u,  f,  v, {
+	     if(GETWT(v, head) && (tailattr == INPUT_ATTRIB[v-1])){
 	       L2uh++;
 	       if(L2uh>0) {break;}
 	     }
-	   }
+	   });
 	   cumchange += (L2uh==0) ;
          }
-       }}
+       });
+      }
       }else{ /* no attributes */
     /* step through outedges of head  */
-    STEP_THROUGH_OUTEDGES(head, e, u){
-      if (IS_OUTEDGE(tail, u)){
+    EXEC_THROUGH_OUTEDGES(head,  e,  u, {
+      if (GETWT(tail, u)){
 	L2tu=ochange;
 	/* step through inedges of u */
-	STEP_THROUGH_INEDGES(u, f, v){
-	  if(IS_OUTEDGE(tail, v)){
+	EXEC_THROUGH_INEDGES(u,  f,  v, {
+	  if(GETWT(tail, v)){
 	    L2tu++;
 	    if(L2tu>0) {break;}
 	  }
-	}
+	});
 	cumchange += (L2tu==0);
       }
-    }
+    });
     /* step through inedges of head */
     
-    STEP_THROUGH_INEDGES(head, e, u){
-      if (IS_OUTEDGE(tail, u)){
+    EXEC_THROUGH_INEDGES(head,  e,  u, {
+      if (GETWT(tail, u)){
 	L2th++;
       }
-      if (IS_OUTEDGE(u, tail)){
+      if (GETWT(u, tail)){
 	L2uh=ochange;
 	/* step through outedges of u */
-	STEP_THROUGH_OUTEDGES(u, f, v){
-	  if(IS_OUTEDGE(v, head)){
+	EXEC_THROUGH_OUTEDGES(u,  f,  v, {
+	  if(GETWT(v, head)){
 	    L2uh++;
 	    if(L2uh>0) {break;}
 	  }
-	}
+	});
 	cumchange += (L2uh==0) ;
       }
-    }
+    });
     }
     
     cumchange += (L2th>0) ;
@@ -4875,54 +5032,10 @@ C_CHANGESTAT_FN(c_transitiveties) {
     cumchange  = echange*cumchange;
     (CHANGE_STAT[0]) += cumchange;
 }
-///*****************
-// globalstat: s_transitiveties
-//*****************/
-//S_CHANGESTAT_FN(s_transitiveties) { 
-//  Edge e1, e2;
-//  Vertex change, node3;
-//  double tailattr;
-//  int hnottrans;
-//  
-//  /* *** don't forget tail -> head */    
-//  change=0;
-//  if(N_INPUT_PARAMS > 0){ /* match on attributes */
-//    for (tail=1; tail <= N_NODES; tail++) { 
-//      tailattr = INPUT_ATTRIB[tail-1];
-//      STEP_THROUGH_OUTEDGES(tail, e1, head) {
-//        if(tailattr == INPUT_ATTRIB[head-1]) {
-//          hnottrans=1;
-//          STEP_THROUGH_INEDGES(head, e2, node3) { 
-//            if(hnottrans && IS_INEDGE(node3, tail) && (tailattr == INPUT_ATTRIB[node3-1])){ /* tail -> head base forms transitive */
-//              hnottrans=0;
-//              change++;
-//            }
-//          }
-//        }
-//      }
-//    }
-//  }else{
-//    /* *** don't forget tail -> head */    
-//    for (tail=1; tail <= N_NODES; tail++) { 
-//      STEP_THROUGH_OUTEDGES(tail, e1, head) {
-//        hnottrans=1;
-//        STEP_THROUGH_INEDGES(head, e2, node3) { 
-//          if(hnottrans && IS_INEDGE(node3, tail)){ /* tail -> head base forms transitive */
-//            hnottrans=0;
-//            change++;
-//          }
-//        }
-//      }
-//    }
-//  }
-//  CHANGE_STAT[0] = change;
-//}
 
 C_CHANGESTAT_FN(c_cyclicalties) { 
-  Edge e, f;
   int  echange, ochange;
   int L2th, L2tu, L2uh;
-  Vertex u, v;
   double cumchange;
   double tailattr;
   
@@ -4931,76 +5044,77 @@ C_CHANGESTAT_FN(c_cyclicalties) {
   /* *** don't forget tail -> head */    
     cumchange=0.0;
     L2th=0;
-    ochange = IS_OUTEDGE(tail, head) ? -1 : 0;
+    ochange = GETWT(tail, head) ? -1 : 0;
     echange = 2*ochange + 1;
     if(N_INPUT_PARAMS>0){ /* match on attributes */
       tailattr = INPUT_ATTRIB[tail-1];
       if(tailattr == INPUT_ATTRIB[head-1]){
        /* step through outedges of head  */
-       STEP_THROUGH_OUTEDGES(head, e, u){
-         if (IS_INEDGE(tail, u) && (tailattr == INPUT_ATTRIB[u-1])){
+       EXEC_THROUGH_OUTEDGES(head,  e,  u, {
+         if (GETWT(u, tail) && (tailattr == INPUT_ATTRIB[u-1])){
 	   L2tu=ochange;
 	   /* step through inedges of u */
-	   STEP_THROUGH_INEDGES(u, f, v){
-	     if(IS_OUTEDGE(tail, v) && (tailattr == INPUT_ATTRIB[v-1])){
+	   EXEC_THROUGH_INEDGES(u,  f,  v, {
+	     if(GETWT(tail, v) && (tailattr == INPUT_ATTRIB[v-1])){
 	       L2tu++;
 	       if(L2tu>0) {break;}
 	     }
-	   }
+	   });
 	   cumchange += (L2tu==0);
          }
-       }
+       });
        /* step through inedges of head */
        
-       STEP_THROUGH_OUTEDGES(head, e, u){
-         if (IS_INEDGE(tail, u) && (tailattr == INPUT_ATTRIB[u-1])){
+       EXEC_THROUGH_OUTEDGES(head,  e,  u, {
+         if (GETWT(u, tail) && (tailattr == INPUT_ATTRIB[u-1])){
 	   L2th++;
          }
-         if (IS_OUTEDGE(u, tail) && (tailattr == INPUT_ATTRIB[u-1])){
+         if (GETWT(u, tail) && (tailattr == INPUT_ATTRIB[u-1])){
 	   L2uh=ochange;
 	   /* step through outedges of u */
-	   STEP_THROUGH_OUTEDGES(u, f, v){
-	     if(IS_OUTEDGE(v, head) && (tailattr == INPUT_ATTRIB[v-1])){
+	   EXEC_THROUGH_OUTEDGES(u,  f,  v, {
+	     if(GETWT(v, head) && (tailattr == INPUT_ATTRIB[v-1])){
 	       L2uh++;
 	       if(L2uh>0) {break;}
 	     }
-	   }
+	   });
 	   cumchange += (L2uh==0) ;
          }
-       }}
+       });
+      }
       }else{ /* no attributes */
     /* step through outedges of head  */
-    STEP_THROUGH_OUTEDGES(head, e, u){
-      if (IS_INEDGE(tail, u)){
+    EXEC_THROUGH_OUTEDGES(head,  e,  u, {
+      if (GETWT(u, tail)){
 	L2tu=ochange;
 	/* step through inedges of u */
-	STEP_THROUGH_INEDGES(u, f, v){
-	  if(IS_OUTEDGE(tail, v)){
+	EXEC_THROUGH_INEDGES(u,  f,  v, {
+	  if(GETWT(tail, v)){
 	    L2tu++;
 	    if(L2tu>0) {break;}
 	  }
-	}
+	});
 	cumchange += (L2tu==0);
       }
-    }
+    });
     /* step through outedges of head */
     
-    STEP_THROUGH_OUTEDGES(head, e, u){
-      if (IS_INEDGE(tail, u)){
+    EXEC_THROUGH_OUTEDGES(head,  e,  u, {
+      if (GETWT(u, tail)){
 	L2th++;
       }
-      if (IS_OUTEDGE(u, tail)){
+      if (GETWT(u, tail)){
 	L2uh=ochange;
 	/* step through outedges of u */
-	STEP_THROUGH_OUTEDGES(u, f, v){
-	  if(IS_OUTEDGE(v, head)){
+	EXEC_THROUGH_OUTEDGES(u,  f,  v, {
+	  if(GETWT(v, head)){
 	    L2uh++;
 	    if(L2uh>0) {break;}
 	  }
-	}
+	});
 	cumchange += (L2uh==0) ;
       }
-    }
+    });
     }
     
     cumchange += (L2th>0) ;
@@ -5014,269 +5128,269 @@ C_CHANGESTAT_FN(c_cyclicalties) {
 *****************/
 C_CHANGESTAT_FN(c_triadcensus) { 
   int j, edgeflag, a, b, c, d, e, edgecount, t300, 
-  t210, t120C, t120U, t120D, t201, t030C, t030T, t111U, 
-  t111D, t021C, t021U, t021D, t102, t012, t003;
+    t210, t120C, t120U, t120D, t201, t030C, t030T, t111U, 
+    t111D, t021C, t021U, t021D, t102, t012, t003;
   Vertex triadtype, node3;
-
+  
   /* *** don't forget tail -> head */    
   ZERO_ALL_CHANGESTATS(i);
   if (DIRECTED) {
     /* directed version */
-      edgeflag = IS_OUTEDGE(tail, head);
-      t300 = 0;
-      t210 = 0;
-      t120C = 0;  t120U = 0;   t120D = 0;  t201 = 0;
-      t030C = 0;  t030T = 0;   t111U = 0;  t111D = 0;
-      t021C = 0;  t021U = 0;   t021D = 0;  t102 = 0;
-      t012 = 0;
+    edgeflag = IS_OUTEDGE(tail, head);
+    t300 = 0;
+    t210 = 0;
+    t120C = 0;  t120U = 0;   t120D = 0;  t201 = 0;
+    t030C = 0;  t030T = 0;   t111U = 0;  t111D = 0;
+    t021C = 0;  t021U = 0;   t021D = 0;  t102 = 0;
+    t012 = 0;
+    
+    if ( (MIN_OUTEDGE(head) != 0) || 
+	 (MIN_INEDGE(head)  != 0) || 
+	 (MIN_OUTEDGE(tail) != 0) ||
+	 (MIN_INEDGE(tail)  != 0) ) {      
       
-      if ((EdgetreeMinimum(nwp->outedges, head) != 0) || 
-        (EdgetreeMinimum(nwp->inedges, head) != 0) || 
-        (EdgetreeMinimum(nwp->outedges, tail) != 0) ||
-        (EdgetreeMinimum(nwp->inedges, tail) != 0)) {      
-
-          /* ****** loop through node3 ****** */
-          for (node3=1; node3 <= N_NODES; node3++) { 
-            if (node3 != tail && node3 != head) {
-              a = (IS_OUTEDGE(head, tail)); 
-              b = (IS_OUTEDGE(head, node3));
-              c = (IS_OUTEDGE(node3, head));
-              d = (IS_OUTEDGE(node3, tail));
-              e = (IS_OUTEDGE(tail, node3));
-              edgecount = (a + b + c + d + e);
+      /* ****** loop through node3 ****** */
+      for (node3=1; node3 <= N_NODES; node3++) { 
+	if (node3 != tail && node3 != head) {
+	  a = (IS_OUTEDGE(head, tail)); 
+	  b = (IS_OUTEDGE(head, node3));
+	  c = (IS_OUTEDGE(node3, head));
+	  d = (IS_OUTEDGE(node3, tail));
+	  e = (IS_OUTEDGE(tail, node3));
+	  edgecount = (a + b + c + d + e);
               
-              switch(edgecount) {
-                case 0:   /* 012 */
-                ++t012;
+	  switch(edgecount) {
+	  case 0:   /* 012 */
+	    ++t012;
 
-                case 1: {  /* 021C, 021U, 021D, 102 */
-                  if ((b == 1) || (d == 1))
-                    ++t021C;
-                  if (c == 1)
-                    ++t021U;
-                  if (e == 1)
-                    ++t021D;
-                  if (a == 1)
-                    ++t102;
-                }
-                break;
+	  case 1: {  /* 021C, 021U, 021D, 102 */
+	    if ((b == 1) || (d == 1))
+	      ++t021C;
+	    if (c == 1)
+	      ++t021U;
+	    if (e == 1)
+	      ++t021D;
+	    if (a == 1)
+	      ++t102;
+	  }
+	    break;
                 
-                case 2: {  /* 030C, 030T, 111U, 111D */
-                  if ((b + d) == 2)       
-                    ++t030C;
-                  if (((b + e) == 2) || ((c + d) == 2) || ((c + e) == 2))
-                    ++t030T;
-                  if (((a + b) == 2) || ((a + e) == 2) || ((d + e) == 2))
-                    ++t111U;
-                  if (((a + c) == 2) || ((a + d) == 2) || ((b + c) == 2))
-                    ++t111D;
-                }
-                break;
+	  case 2: {  /* 030C, 030T, 111U, 111D */
+	    if ((b + d) == 2)       
+	      ++t030C;
+	    if (((b + e) == 2) || ((c + d) == 2) || ((c + e) == 2))
+	      ++t030T;
+	    if (((a + b) == 2) || ((a + e) == 2) || ((d + e) == 2))
+	      ++t111U;
+	    if (((a + c) == 2) || ((a + d) == 2) || ((b + c) == 2))
+	      ++t111D;
+	  }
+	    break;
             
-                case 3: {   /* 120C, 120U, 120D, 201 */
-                  if (a == 1) {
-                    if (((b + d) == 2) || ((c + e) == 2))
-                      ++t120C;
-                    if ((b + e) == 2)
-                      ++t120U;
-                    if ((c + d) == 2)
-                      ++t120D;
-                    if (((b + c) == 2) || ((d + e) == 2))
-                      ++t201;
-                  } else {
-                    if (b == 1) {
-                      if (((c + d) == 2) || ((d + e) == 2))
-                        ++t120C;
-                      if ((c + e) == 2)
-                        ++t120D;
-                    } else  {
-                      ++t120U;
-                    }
-                  } 
-                }
-                break;
+	  case 3: {   /* 120C, 120U, 120D, 201 */
+	    if (a == 1) {
+	      if (((b + d) == 2) || ((c + e) == 2))
+		++t120C;
+	      if ((b + e) == 2)
+		++t120U;
+	      if ((c + d) == 2)
+		++t120D;
+	      if (((b + c) == 2) || ((d + e) == 2))
+		++t201;
+	    } else {
+	      if (b == 1) {
+		if (((c + d) == 2) || ((d + e) == 2))
+		  ++t120C;
+		if ((c + e) == 2)
+		  ++t120D;
+	      } else  {
+		++t120U;
+	      }
+	    } 
+	  }
+	    break;
              
-                case 4:   /* 210 */
-                ++t210;
-                break;
+	  case 4:   /* 210 */
+	    ++t210;
+	    break;
              
-                case 5:   /* 300 */            
-                ++t300;
-                break;
-              }
+	  case 5:   /* 300 */            
+	    ++t300;
+	    break;
+	  }
 
-              switch(edgecount) {  
-                case 1:   /* 102, 021D, 021U, 021C */
-                --t012;
-                break;
+	  switch(edgecount) {  
+	  case 1:   /* 102, 021D, 021U, 021C */
+	    --t012;
+	    break;
 
-                case 2: {  /* 030C, 030T, 111U, 111D */ 
-                  if (((a + c) == 2) || ((a + e) == 2) || ((b + d) == 2) || 
-                    ((c + e) == 2)) 
-                  --t021C;
-                  if (((a + d) == 2) || ((b + e) == 2))
-                    --t021U;
-                  if (((a + b) == 2) || ((c + d) == 2))
-                    --t021D;
-                  if (((b + c) == 2) || ((d + e) == 2))
-                    --t102;
-                } 
-                break;
+	  case 2: {  /* 030C, 030T, 111U, 111D */ 
+	    if (((a + c) == 2) || ((a + e) == 2) || ((b + d) == 2) || 
+		((c + e) == 2)) 
+	      --t021C;
+	    if (((a + d) == 2) || ((b + e) == 2))
+	      --t021U;
+	    if (((a + b) == 2) || ((c + d) == 2))
+	      --t021D;
+	    if (((b + c) == 2) || ((d + e) == 2))
+	      --t102;
+	  } 
+	    break;
 
-                case 3: {  /* 201, 120D, 120U, 120C */
-                  if (a == 1) {
-                    if ((c + e) == 2)       
-                      --t030C;
-                    if (((c + d) == 2) || ((b + e) == 2) || ((b + d) == 2))
-                      --t030T;
-                    if ((b + c) == 2)
-                      --t111U;
-                    if ((d + e) == 2)
-                      --t111D;
-                  } else {
-                    if (b == 1) {
-                      if ((c + d) == 2)
-                        --t111U;
-                      if (((c + e) == 2) || ((d + e) == 2))
-                        --t111D;
-                    } else {
-                    --t111U;
-                    }
-                  }
-                }
-                break;
+	  case 3: {  /* 201, 120D, 120U, 120C */
+	    if (a == 1) {
+	      if ((c + e) == 2)       
+		--t030C;
+	      if (((c + d) == 2) || ((b + e) == 2) || ((b + d) == 2))
+		--t030T;
+	      if ((b + c) == 2)
+		--t111U;
+	      if ((d + e) == 2)
+		--t111D;
+	    } else {
+	      if (b == 1) {
+		if ((c + d) == 2)
+		  --t111U;
+		if (((c + e) == 2) || ((d + e) == 2))
+		  --t111D;
+	      } else {
+		--t111U;
+	      }
+	    }
+	  }
+	    break;
 
-                case 4: {  /* 210 */
-                  if (a == 1)
-                  {
-                    if (((b + c + e) == 3) || ((c + d + e) == 3))
-                      --t120C;
-                    if ((b + c + d) == 3)
-                      --t120U;
-                    if ((b + d + e) == 3)
-                      --t120D;
-                  } else {
-                    if ((b + c + d + e) == 4)
-                      --t201;
-                  } 
-                }
-                break;
+	  case 4: {  /* 210 */
+	    if (a == 1)
+	      {
+		if (((b + c + e) == 3) || ((c + d + e) == 3))
+		  --t120C;
+		if ((b + c + d) == 3)
+		  --t120U;
+		if ((b + d + e) == 3)
+		  --t120D;
+	      } else {
+	      if ((b + c + d + e) == 4)
+		--t201;
+	    } 
+	  }
+	    break;
 
-                case 5:   /* 300 */            
-                --t210;
-                break;
-              }
-            }
-          }    /* ******  move to next node3 ******** */
-        }
-        else 
-          t012 = t012 + (N_NODES - 2);  
+	  case 5:   /* 300 */            
+	    --t210;
+	    break;
+	  }
+	}
+      }    /* ******  move to next node3 ******** */
+    }else{
+      t012 = t012 + (N_NODES - 2);  
+    }
 
-        for(j = 0; j < N_CHANGE_STATS; j++) { 
-          triadtype = (Vertex)INPUT_PARAM[j]; 
+    for(j = 0; j < N_CHANGE_STATS; j++) { 
+      triadtype = (Vertex)INPUT_PARAM[j]; 
           
-          switch(triadtype) { /* SEARCH_ON_THIS_TO_TRACK_DOWN_TRIADCENSUS_CHANGE
-                                 to undo triadcensus change, change - to plus in 
-                                  next two lines: */
-            case 1:  t003 = -(t300+t210+t120C+t120U+t120D+t201+t030C+t030T);
-            t003 = t003-(t111U+t111D+t021C+t021U+t021D+t102+t012);
-            CHANGE_STAT[j] += edgeflag ? -(double)t003 : (double)t003;
-            break;
-            case 2:   CHANGE_STAT[j] += edgeflag ? -(double)t012 : (double)t012;
-            break;
-            case 3:   CHANGE_STAT[j] += edgeflag ? -(double)t102 : (double)t102;
-            break;
-            case 4:   CHANGE_STAT[j] += edgeflag ? -(double)t021D : (double)t021D;
-            break;
-            case 5:   CHANGE_STAT[j] += edgeflag ? -(double)t021U : (double)t021U;
-            break;
-            case 6:   CHANGE_STAT[j] += edgeflag ? -(double)t021C : (double)t021C;
-            break;
-            case 7:	  CHANGE_STAT[j] += edgeflag ? -(double)t111D : (double)t111D;
-            break;
-            case 8:	  CHANGE_STAT[j] += edgeflag ? -(double)t111U : (double)t111U;
-            break;
-            case 9:	  CHANGE_STAT[j] += edgeflag ? -(double)t030T : (double)t030T;
-            break;
-            case 10:   CHANGE_STAT[j] += edgeflag ? -(double)t030C : (double)t030C;
-            break;
-            case 11:  CHANGE_STAT[j] += edgeflag ? -(double)t201 : (double)t201;
-            break;
-            case 12:  CHANGE_STAT[j] += edgeflag ? -(double)t120D : (double)t120D;
-            break;
-            case 13:  CHANGE_STAT[j] += edgeflag ? -(double)t120U : (double)t120U;
-            break;
-            case 14:  CHANGE_STAT[j] += edgeflag ? -(double)t120C : (double)t120C;
-            break;
-            case 15:  CHANGE_STAT[j] += edgeflag ? -(double)t210 : (double)t210;
-            break;
-  	        case 16:  CHANGE_STAT[j] += edgeflag ? -(double)t300 : (double)t300;
-            break;
-          }
-        }
-} else {
+      switch(triadtype) { /* SEARCH_ON_THIS_TO_TRACK_DOWN_TRIADCENSUS_CHANGE
+			     to undo triadcensus change, change - to plus in 
+			     next two lines: */
+      case 1:   t003 = -(t300+t210+t120C+t120U+t120D+t201+t030C+t030T);
+	t003 = t003-(t111U+t111D+t021C+t021U+t021D+t102+t012);
+	CHANGE_STAT[j] += edgeflag ? -(double)t003 : (double)t003;
+	break;
+      case 2:   CHANGE_STAT[j] += edgeflag ? -(double)t012 : (double)t012;
+	break;
+      case 3:   CHANGE_STAT[j] += edgeflag ? -(double)t102 : (double)t102;
+	break;
+      case 4:   CHANGE_STAT[j] += edgeflag ? -(double)t021D : (double)t021D;
+	break;
+      case 5:   CHANGE_STAT[j] += edgeflag ? -(double)t021U : (double)t021U;
+	break;
+      case 6:   CHANGE_STAT[j] += edgeflag ? -(double)t021C : (double)t021C;
+	break;
+      case 7:   CHANGE_STAT[j] += edgeflag ? -(double)t111D : (double)t111D;
+	break;
+      case 8:   CHANGE_STAT[j] += edgeflag ? -(double)t111U : (double)t111U;
+	break;
+      case 9:   CHANGE_STAT[j] += edgeflag ? -(double)t030T : (double)t030T;
+	break;
+      case 10:  CHANGE_STAT[j] += edgeflag ? -(double)t030C : (double)t030C;
+	break;
+      case 11:  CHANGE_STAT[j] += edgeflag ? -(double)t201 : (double)t201;
+	break;
+      case 12:  CHANGE_STAT[j] += edgeflag ? -(double)t120D : (double)t120D;
+	break;
+      case 13:  CHANGE_STAT[j] += edgeflag ? -(double)t120U : (double)t120U;
+	break;
+      case 14:  CHANGE_STAT[j] += edgeflag ? -(double)t120C : (double)t120C;
+	break;
+      case 15:  CHANGE_STAT[j] += edgeflag ? -(double)t210 : (double)t210;
+	break;
+      case 16:  CHANGE_STAT[j] += edgeflag ? -(double)t300 : (double)t300;
+	break;
+      }
+    }
+  } else {
     /*  undirected */
 
     /* *** don't forget tail -> head */    
-        edgeflag = IS_OUTEDGE(tail, head);
-      t300 = 0; t201 = 0; t102 = 0; t012 = 0;
+    edgeflag = IS_OUTEDGE(tail, head);
+    t300 = 0; t201 = 0; t102 = 0; t012 = 0;
 
-      if ((EdgetreeMinimum(nwp->outedges, head) != 0) || 
-          (EdgetreeMinimum(nwp->inedges, head) != 0) || 
-          (EdgetreeMinimum(nwp->outedges, tail) != 0) ||
-          (EdgetreeMinimum(nwp->inedges, tail) != 0)) {      
+    if ( (MIN_OUTEDGE(head) != 0) || 
+	 (MIN_INEDGE(head)  != 0) || 
+	 (MIN_OUTEDGE(tail) != 0) ||
+	 (MIN_INEDGE(tail)  != 0) ) {      
 
-            /* ****** loop through node3 ****** */
-            for (node3=1; node3 <= N_NODES; node3++) { 
-              if (node3 != tail && node3 != head) {
-                a = (IS_UNDIRECTED_EDGE(node3, head));
-                b = (IS_UNDIRECTED_EDGE(node3, tail));
-                edgecount = (a + b);
+      /* ****** loop through node3 ****** */
+      for (node3=1; node3 <= N_NODES; node3++) { 
+	if (node3 != tail && node3 != head) {
+	  a = (IS_UNDIRECTED_EDGE(node3, head));
+	  b = (IS_UNDIRECTED_EDGE(node3, tail));
+	  edgecount = (a + b);
                 
-                switch(edgecount) {  
-                  case 0: {   /* 012 */
-                    ++t102;
-                    --t012;
-                  }
-                  break;
+	  switch(edgecount) {  
+	  case 0: {   /* 012 */
+	    ++t102;
+	    --t012;
+	  }
+	    break;
 
-                  case 1: {  /* 021C, 021U, 021D, 102 */
-                    ++t201;
-                    --t102;
-                  }
-                  break;
+	  case 1: {  /* 021C, 021U, 021D, 102 */
+	    ++t201;
+	    --t102;
+	  }
+	    break;
           
-                  case 2: {  /* 030C, 030T, 111U, 111D */
-                    ++t300;
-                    --t201;
-                  }
-                  break;
+	  case 2: {  /* 030C, 030T, 111U, 111D */
+	    ++t300;
+	    --t201;
+	  }
+	    break;
             
-                }
-              }
+	  }
+	}
 
-            }    /* ******  move to next node3 ******** */
-          } else { 
-            t102 = t102 + (N_NODES - 2);  
-          }
+      }    /* ******  move to next node3 ******** */
+    } else { 
+      t102 = t102 + (N_NODES - 2);  
+    }
           
-          for(j = 0; j < N_CHANGE_STATS; j++) {
-            triadtype = (Vertex)INPUT_PARAM[j]; 
+    for(j = 0; j < N_CHANGE_STATS; j++) {
+      triadtype = (Vertex)INPUT_PARAM[j]; 
             
-            switch(triadtype) { /* SEARCH_ON_THIS_TO_TRACK_DOWN_TRIADCENSUS_CHANGE
-                                  to undo triadcensus change, change - to plus in 
-                                  next line: */
-              case 1:  t003 = -(t102+t201+t300);
-              CHANGE_STAT[j] += edgeflag ? -(double)t003 : (double)t003;
-              break;
-              case 2:  CHANGE_STAT[j] += edgeflag ? -(double)t102 : (double)t102;
-              break;
-              case 3:  CHANGE_STAT[j] += edgeflag ? -(double)t201 : (double)t201;
-              break;
-              case 4:  CHANGE_STAT[j] += edgeflag ? -(double)t300 : (double)t300;
-              break;
-            }
-          }
+      switch(triadtype) { /* SEARCH_ON_THIS_TO_TRACK_DOWN_TRIADCENSUS_CHANGE
+			     to undo triadcensus change, change - to plus in 
+			     next line: */
+      case 1:  t003 = -(t102+t201+t300);
+	CHANGE_STAT[j] += edgeflag ? -(double)t003 : (double)t003;
+	break;
+      case 2:  CHANGE_STAT[j] += edgeflag ? -(double)t102 : (double)t102;
+	break;
+      case 3:  CHANGE_STAT[j] += edgeflag ? -(double)t201 : (double)t201;
+	break;
+      case 4:  CHANGE_STAT[j] += edgeflag ? -(double)t300 : (double)t300;
+	break;
+      }
+    }
   } 
 }
 

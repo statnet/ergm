@@ -5,7 +5,7 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  http://statnet.org/attribution
  *
- *  Copyright 2003-2013 Statnet Commons
+ *  Copyright 2003-2017 Statnet Commons
  */
 #include "wtchangestats.h"
 
@@ -93,7 +93,9 @@ WtC_CHANGESTAT_FN(c_absdiffcat_sum){
 *****************/
 WtC_CHANGESTAT_FN(c_atleast){
   ZERO_ALL_CHANGESTATS();
-      CHANGE_STAT[0] += (weight>=INPUT_ATTRIB[0]) - (GETWT(tail,head)>=INPUT_ATTRIB[0]);
+  double oldwt = GETWT(tail,head);
+  for(unsigned int i=0; i<N_CHANGE_STATS; i++)
+    CHANGE_STAT[i] += (weight>=INPUT_ATTRIB[i]) - (oldwt>=INPUT_ATTRIB[i]);
 }
 
 /*****************
@@ -101,7 +103,9 @@ WtC_CHANGESTAT_FN(c_atleast){
 *****************/
 WtC_CHANGESTAT_FN(c_atmost){
   ZERO_ALL_CHANGESTATS();
-      CHANGE_STAT[0] += (weight<=INPUT_ATTRIB[0]) - (GETWT(tail,head)<=INPUT_ATTRIB[0]);
+  double oldwt = GETWT(tail,head);
+  for(unsigned int i=0; i<N_CHANGE_STATS; i++)
+    CHANGE_STAT[i] += (weight<=INPUT_ATTRIB[i]) - (oldwt<=INPUT_ATTRIB[i]);
 }
 
 /********************  changestats:   B    ***********/
@@ -456,7 +460,9 @@ WtC_CHANGESTAT_FN(c_diff_sum) {
 *****************/
 WtC_CHANGESTAT_FN(c_greaterthan){
   ZERO_ALL_CHANGESTATS();
-      CHANGE_STAT[0] += (weight>INPUT_ATTRIB[0]) - (GETWT(tail,head)>INPUT_ATTRIB[0]);
+  double oldwt = GETWT(tail,head);
+  for(unsigned int i=0; i<N_CHANGE_STATS; i++)
+    CHANGE_STAT[i] += (weight>INPUT_ATTRIB[i]) - (oldwt>INPUT_ATTRIB[i]);
 }
 
 /********************  changestats:   I    ***********/
@@ -648,43 +654,176 @@ WtC_CHANGESTAT_FN(c_nodeocov_sum){
  stat: nodefactor (nonzero)
 *****************/
 WtC_CHANGESTAT_FN(c_nodefactor_nonzero){ 
-  double s, factorval;
-  int j, tailattr, headattr;
-  
-  
-  ZERO_ALL_CHANGESTATS();
-      s = (weight!=0) - (GETWT(tail,head)!=0);
-      tailattr = INPUT_ATTRIB[tail-1];
-      headattr = INPUT_ATTRIB[head-1];
-      for (j=0; j < N_CHANGE_STATS; j++){
-	factorval = INPUT_PARAM[j];
-	if (tailattr == factorval) CHANGE_STAT[j] += s;
-	if (headattr == factorval) CHANGE_STAT[j] += s;
-      }
+  double s = (weight!=0) - (GETWT(tail,head)!=0);
+  int tailpos = INPUT_ATTRIB[tail-1];
+  int headpos = INPUT_ATTRIB[head-1];
+  if (tailpos != -1) CHANGE_STAT[tailpos] += s;
+  if (headpos != -1) CHANGE_STAT[headpos] += s;
 }
 /*****************
  stat: nodefactor (sum)
 *****************/
 WtC_CHANGESTAT_FN(c_nodefactor_sum){ 
-  double s, factorval;
-  int j, tailattr, headattr;
-  
-  
-  ZERO_ALL_CHANGESTATS();
-    s = weight - GETWT(tail,head);
-    tailattr = INPUT_ATTRIB[tail-1];
-    headattr = INPUT_ATTRIB[head-1];
-    for (j=0; j < N_CHANGE_STATS; j++){
-      factorval = INPUT_PARAM[j];
-      if (tailattr == factorval) CHANGE_STAT[j] += s;
-      if (headattr == factorval) CHANGE_STAT[j] += s;
-    }
+  double s = weight - GETWT(tail,head);
+  int tailpos = INPUT_ATTRIB[tail-1];
+  int headpos = INPUT_ATTRIB[head-1];
+  if (tailpos != -1) CHANGE_STAT[tailpos] += s;
+  if (headpos != -1) CHANGE_STAT[headpos] += s;
 }
 
-
+/*****************
+ changestat: receiver (nonzero)
+*****************/
+WtC_CHANGESTAT_FN(c_receiver_nonzero){ 
+  double s = (weight!=0) - (GETWT(tail,head)!=0);
+  unsigned int j=0;
+  Vertex deg = (Vertex)INPUT_PARAM[j];
+  while((deg != head) && (j < (N_CHANGE_STATS-1))){
+    j++;
+    deg = (Vertex)INPUT_PARAM[j];
+  }
+  if(deg==head) CHANGE_STAT[j] += s;
+}
+/*****************
+ changestat: receiver (sum)
+*****************/
+WtC_CHANGESTAT_FN(c_receiver_sum){ 
+  double s = weight - GETWT(tail,head);
+  unsigned int j=0;
+  Vertex deg = (Vertex)INPUT_PARAM[j];
+  while((deg != head) && (j < (N_CHANGE_STATS-1))){
+    j++;
+    deg = (Vertex)INPUT_PARAM[j];
+  }
+  if(deg==head) CHANGE_STAT[j] += s;
+}
 
 /*****************
- stat: node i[n] covar[iance] 
+ changestat: sender (nonzero)
+*****************/
+WtC_CHANGESTAT_FN(c_sender_nonzero){ 
+  double s = (weight!=0) - (GETWT(tail,head)!=0);
+  unsigned int j=0;
+  Vertex deg = (Vertex)INPUT_PARAM[j];
+  while((deg != tail) && (j < (N_CHANGE_STATS-1))){
+    j++;
+    deg = (Vertex)INPUT_PARAM[j];
+  }
+  if(deg==tail) CHANGE_STAT[j] += s;
+}
+/*****************
+ changestat: sender (sum)
+*****************/
+WtC_CHANGESTAT_FN(c_sender_sum){ 
+  double s = weight - GETWT(tail,head);
+  unsigned int j=0;
+  Vertex deg = (Vertex)INPUT_PARAM[j];
+  while((deg != tail) && (j < (N_CHANGE_STATS-1))){
+    j++;
+    deg = (Vertex)INPUT_PARAM[j];
+  }
+  if(deg==tail) CHANGE_STAT[j] += s;
+}
+
+/*****************
+ changestat: sociality (nonzero)
+*****************/
+WtC_CHANGESTAT_FN(c_sociality_nonzero) { 
+  int ninputs, nstats;
+  
+  ninputs = (int)N_INPUT_PARAMS;
+  nstats  = (int)N_CHANGE_STATS;
+
+  if(ninputs>nstats+1){
+    /* match on attributes */
+    double s = (weight!=0) - (GETWT(tail,head)!=0);
+    double tailattr = INPUT_ATTRIB[tail-1+nstats+1]; // +1 for the "guard" value between vertex IDs and attribute vector
+    if(tailattr == INPUT_ATTRIB[head-1+nstats+1]){
+      unsigned int j=0;
+      Vertex deg = (Vertex)INPUT_PARAM[j];
+      while(deg != tail && j < nstats){
+	j++;
+	deg = (Vertex)INPUT_PARAM[j];
+      }
+      if(j < nstats) CHANGE_STAT[j] += s;
+      j=0;
+      deg = (Vertex)INPUT_PARAM[j];
+      while(deg != head && j < nstats){
+	j++;
+	deg = (Vertex)INPUT_PARAM[j];
+      }
+      if(j < nstats) CHANGE_STAT[j] += s;
+    }
+  }else{
+    /* *** don't forget tail -> head */    
+    double s = (weight!=0) - (GETWT(tail,head)!=0);
+    unsigned int j=0;
+    Vertex deg = (Vertex)INPUT_PARAM[j];
+    while(deg != tail && j < nstats){
+      j++;
+      deg = (Vertex)INPUT_PARAM[j];
+    }
+    if(j < nstats) CHANGE_STAT[j] += s;
+    j=0;
+    deg = (Vertex)INPUT_PARAM[j];
+    while(deg != head && j < nstats){
+      j++;
+      deg = (Vertex)INPUT_PARAM[j];
+    }
+    if(j < nstats) CHANGE_STAT[j] += s;
+  }
+}
+/*****************
+ changestat: sociality (sum)
+*****************/
+WtC_CHANGESTAT_FN(c_sociality_sum) { 
+  int ninputs, nstats;
+  
+  ninputs = (int)N_INPUT_PARAMS;
+  nstats  = (int)N_CHANGE_STATS;
+
+  if(ninputs>nstats+1){
+    /* match on attributes */
+    double s = weight - GETWT(tail,head);
+    double tailattr = INPUT_ATTRIB[tail-1+nstats+1]; // +1 for the "guard" value between vertex IDs and attribute vector
+    if(tailattr == INPUT_ATTRIB[head-1+nstats+1]){
+      unsigned int j=0;
+      Vertex deg = (Vertex)INPUT_PARAM[j];
+      while(deg != tail && j < nstats){
+	j++;
+	deg = (Vertex)INPUT_PARAM[j];
+      }
+      if(j < nstats) CHANGE_STAT[j] += s;
+      j=0;
+      deg = (Vertex)INPUT_PARAM[j];
+      while(deg != head && j < nstats){
+	j++;
+	deg = (Vertex)INPUT_PARAM[j];
+      }
+      if(j < nstats) CHANGE_STAT[j] += s;
+    }
+  }else{
+    /* *** don't forget tail -> head */    
+    double s = weight - GETWT(tail,head);
+    unsigned int j=0;
+    Vertex deg = (Vertex)INPUT_PARAM[j];
+    while(deg != tail && j < nstats){
+      j++;
+      deg = (Vertex)INPUT_PARAM[j];
+    }
+    if(j < nstats) CHANGE_STAT[j] += s;
+    j=0;
+    deg = (Vertex)INPUT_PARAM[j];
+    while(deg != head && j < nstats){
+      j++;
+      deg = (Vertex)INPUT_PARAM[j];
+    }
+    if(j < nstats) CHANGE_STAT[j] += s;
+  }
+}
+
+/*****************
+ stat: node i[n] covar 
 *****************/
 WtC_CHANGESTAT_FN(c_nodeicovar){
   unsigned int transcode = INPUT_ATTRIB[0], center = INPUT_ATTRIB[1];
@@ -728,31 +867,17 @@ WtU_CHANGESTAT_FN(u_nodeicovar){
  stat: nodeifactor (nonzero)
 *****************/
 WtC_CHANGESTAT_FN(c_nodeifactor_nonzero){ 
-  double s, factorval;
-  int j, headattr;
-  
-  ZERO_ALL_CHANGESTATS();
-      s = (weight!=0) - (GETWT(tail,head)!=0);
-      headattr = INPUT_ATTRIB[head-1];
-      for (j=0; j < N_CHANGE_STATS; j++){
-	factorval = INPUT_PARAM[j];
-	if (headattr == factorval) CHANGE_STAT[j] += s;
-      }
+  double s = (weight!=0) - (GETWT(tail,head)!=0);
+  int headpos = INPUT_ATTRIB[head-1];
+  if (headpos != -1) CHANGE_STAT[headpos] += s;
 }
 /*****************
  stat: nodeifactor (sum)
 *****************/
 WtC_CHANGESTAT_FN(c_nodeifactor_sum){ 
-  double s, factorval;
-  int j, headattr;
-  
-  ZERO_ALL_CHANGESTATS();
-    s = weight - GETWT(tail,head);
-    headattr = INPUT_ATTRIB[head-1];
-    for (j=0; j < N_CHANGE_STATS; j++){
-      factorval = INPUT_PARAM[j];
-      if (headattr == factorval) CHANGE_STAT[j] += s;
-    }
+  double s = weight - GETWT(tail,head);
+  int headpos = INPUT_ATTRIB[head-1];
+  if (headpos != -1) CHANGE_STAT[headpos] += s;
 }
 
 /*****************
@@ -894,33 +1019,17 @@ WtU_CHANGESTAT_FN(u_nodeocovar){
  stat: nodeofactor (nonzero)
 *****************/
 WtC_CHANGESTAT_FN(c_nodeofactor_nonzero){ 
-  double s, factorval;
-  int j, tailattr;
-  
-  
-  ZERO_ALL_CHANGESTATS();
-      s = (weight!=0) - (GETWT(tail,head)!=0);
-      tailattr = INPUT_ATTRIB[tail-1];
-      for (j=0; j < N_CHANGE_STATS; j++){
-	factorval = INPUT_PARAM[j];
-	if (tailattr == factorval) CHANGE_STAT[j] += s;
-      }
+  double s = (weight!=0) - (GETWT(tail,head)!=0);
+  int tailpos = INPUT_ATTRIB[tail-1];
+  if (tailpos != -1) CHANGE_STAT[tailpos] += s;
 }
 /*****************
  stat: nodeofactor (sum)
 *****************/
 WtC_CHANGESTAT_FN(c_nodeofactor_sum){ 
-  double s, factorval;
-  int j, tailattr;
-  
-  
-  ZERO_ALL_CHANGESTATS();
-    s = weight - GETWT(tail,head);
-    tailattr = INPUT_ATTRIB[tail-1];
-    for (j=0; j < N_CHANGE_STATS; j++){
-      factorval = INPUT_PARAM[j];
-      if (tailattr == factorval) CHANGE_STAT[j] += s;
-    }
+  double s = weight - GETWT(tail,head);
+  int tailpos = INPUT_ATTRIB[tail-1];
+  if (tailpos != -1) CHANGE_STAT[tailpos] += s;
 }
 
 /*****************
@@ -952,7 +1061,7 @@ WtC_CHANGESTAT_FN(c_nodesqrtcovar_centered){
 WtU_CHANGESTAT_FN(u_nodesqrtcovar_centered){
   double *ssq;
   if(!mtp->storage){
-    mtp->storage = malloc(sizeof(double));
+    mtp->storage = Calloc(1, double);
     ssq = (double *)mtp->storage;
     *ssq = 0;
     EXEC_THROUGH_NET_EDGES(i, e, j, yij, {
@@ -1018,7 +1127,9 @@ WtC_CHANGESTAT_FN(c_nonzero){
 *****************/
 WtC_CHANGESTAT_FN(c_smallerthan){
   ZERO_ALL_CHANGESTATS();
-      CHANGE_STAT[0] += (weight<INPUT_ATTRIB[0]) - (GETWT(tail,head)<INPUT_ATTRIB[0]);
+  double oldwt = GETWT(tail,head);
+  for(unsigned int i=0; i<N_CHANGE_STATS; i++)
+    CHANGE_STAT[i] += (weight<INPUT_ATTRIB[i]) - (oldwt<INPUT_ATTRIB[i]);
 }
 
 /*****************
@@ -1221,3 +1332,42 @@ WtS_CHANGESTAT_FN(s_transitiveweights_threshold){
   }
 }
 
+/*****************
+ changestat: d_mixmat
+ General mixing matrix (mm) implementation.
+*****************/
+WtC_CHANGESTAT_FN(c_mixmat_sum){
+  unsigned int symm = ((int)INPUT_PARAM[0]) & 1;
+  unsigned int marg = ((int)INPUT_PARAM[0]) & 2;
+  double *tx = INPUT_PARAM;
+  double *hx = BIPARTITE? INPUT_PARAM : INPUT_PARAM + N_NODES;
+  double *cells = BIPARTITE? INPUT_PARAM + N_NODES + 1: INPUT_PARAM + N_NODES*2 + 1;
+  
+  unsigned int diag = tx[tail]==tx[head] && hx[tail]==hx[head];
+  for(unsigned int j=0; j<N_CHANGE_STATS; j++){
+    unsigned int thmatch = tx[tail]==cells[j*2] && hx[head]==cells[j*2+1];
+    unsigned int htmatch = tx[head]==cells[j*2] && hx[tail]==cells[j*2+1];
+    
+    int w = DIRECTED || BIPARTITE? thmatch :
+      (symm ? thmatch||htmatch : thmatch+htmatch)*(symm && marg && diag?2:1);
+      if(w) CHANGE_STAT[j] += w*(weight-GETWT(tail,head));
+  }
+}
+
+WtC_CHANGESTAT_FN(c_mixmat_nonzero){
+  unsigned int symm = ((int)INPUT_PARAM[0]) & 1;
+  unsigned int marg = ((int)INPUT_PARAM[0]) & 2;
+  double *tx = INPUT_PARAM;
+  double *hx = BIPARTITE? INPUT_PARAM : INPUT_PARAM + N_NODES;
+  double *cells = BIPARTITE? INPUT_PARAM + N_NODES + 1: INPUT_PARAM + N_NODES*2 + 1;
+  
+  unsigned int diag = tx[tail]==tx[head] && hx[tail]==hx[head];
+  for(unsigned int j=0; j<N_CHANGE_STATS; j++){
+    unsigned int thmatch = tx[tail]==cells[j*2] && hx[head]==cells[j*2+1];
+    unsigned int htmatch = tx[head]==cells[j*2] && hx[tail]==cells[j*2+1];
+    
+    int w = DIRECTED || BIPARTITE? thmatch :
+      (symm ? thmatch||htmatch : thmatch+htmatch)*(symm && marg && diag?2:1);
+    if(w) CHANGE_STAT[j] += w*((weight!=0)-(GETWT(tail,head)!=0));
+  }
+}

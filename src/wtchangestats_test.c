@@ -1,3 +1,12 @@
+/*  File src/wtchangestats_test.c in package ergm, part of the Statnet suite
+ *  of packages for network analysis, http://statnet.org .
+ *
+ *  This software is distributed under the GPL-3 license.  It is free,
+ *  open source, and has the attribution requirements (GPL Section 7) at
+ *  http://statnet.org/attribution
+ *
+ *  Copyright 2003-2017 Statnet Commons
+ */
 #include "wtchangestats_test.h"
 
 WtC_CHANGESTAT_FN(c_test_abs_sum_minus_5){
@@ -18,7 +27,7 @@ WtI_CHANGESTAT_FN(i_test_abs_sum_minus_5){
 
 WtU_CHANGESTAT_FN(u_test_abs_sum_minus_5){
   GET_STORAGE(double, sum);
-  *sum = weight-GETWT(tail, head);
+  *sum += weight-GETWT(tail, head);
 }
 
 WtS_CHANGESTAT_FN(s_test_abs_sum_minus_5){
@@ -67,4 +76,26 @@ WtC_CHANGESTAT_FN(c_dsociomatrix){
   ZERO_ALL_CHANGESTATS();
       Dyad pos = tail-1 + (head-1)*N_NODES;
       CHANGE_STAT[pos] = weight - sm[tail][head];
+}
+
+
+WtI_CHANGESTAT_FN(i__sum){
+  ALLOC_AUX_STORAGE(1, double, sum);
+  *sum = 0;
+  EXEC_THROUGH_NET_EDGES(tail, e1, head, y, {
+      *sum+=y;
+      (void) head; (void) e1; // Prevent a compiler warning.
+    });
+}
+
+WtU_CHANGESTAT_FN(u__sum){
+  GET_AUX_STORAGE(double, sum);
+  *sum += weight-GETWT(tail, head);
+}
+
+WtC_CHANGESTAT_FN(c_test_abs_sum_minus_5_aux){
+  GET_AUX_STORAGE(double, stored_sum_ptr);
+  double sum = *stored_sum_ptr;
+    CHANGE_STAT[0] = -fabs(sum-5);
+    CHANGE_STAT[0] += fabs(sum-5 + weight - GETWT(tail,head));
 }

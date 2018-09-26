@@ -1,93 +1,120 @@
-/*  File src/MHproposal.c in package ergm, part of the Statnet suite
+/*  File src/MHProposal.c in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  http://statnet.org/attribution
  *
- *  Copyright 2003-2013 Statnet Commons
+ *  Copyright 2003-2017 Statnet Commons
  */
-#include "MHproposal.h"
-
+#include "ergm_MHproposal.h"
+#include "ergm_changestat.h"
 
 /*********************
- void MH_init
+ void MHProposalInitialize
 
  A helper function to process the MH_* related initialization.
 *********************/
-void MH_init(MHproposal *MHp, 
-	     char *MHproposaltype, char *MHproposalpackage,
+MHProposal *MHProposalInitialize(
+	     char *MHProposaltype, char *MHProposalpackage,
 	     double *inputs,
 	     int fVerbose,
 	     Network *nwp,
 	     int *attribs, int *maxout, int *maxin, 
 	     int *minout, int *minin, int condAllDegExact, 
-	     int attriblength){
-
+	     int attriblength,
+	     void **aux_storage){
+  MHProposal *MHp = Calloc(1, MHProposal);
+  
   char *fn, *sn;
   int i;
-  for (i = 0; MHproposaltype[i] != ' ' && MHproposaltype[i] != 0; i++);
-  MHproposaltype[i] = 0;
+
+  MHp->i_func=MHp->p_func=MHp->f_func=NULL;
+  MHp->u_func=NULL;
+  MHp->storage=NULL;
+  
+  for (i = 0; MHProposaltype[i] != ' ' && MHProposaltype[i] != 0; i++);
+  MHProposaltype[i] = 0;
   /* Extract the required string information from the relevant sources */
-  if((fn=(char *)malloc(sizeof(char)*(i+4)))==NULL){
-    error("Error in MCMCSample: Can't allocate %d bytes for fn. Memory has not been deallocated, so restart R sometime soon.\n",
-	  sizeof(char)*(i+4));
-  }
+  fn = Calloc(i+4, char);
   fn[0]='M';
   fn[1]='H';
   fn[2]='_';
   for(int j=0;j<i;j++)
-    fn[j+3]=MHproposaltype[j];
+    fn[j+3]=MHProposaltype[j];
   fn[i+3]='\0';
-  /* fn is now the string 'MH_[name]', where [name] is MHproposaltype */
-  for (i = 0; MHproposalpackage[i] != ' ' && MHproposalpackage[i] != 0; i++);
-  MHproposalpackage[i] = 0;
-  if((sn=(char *)malloc(sizeof(char)*(i+1)))==NULL){
-    error("Error in ModelInitialize: Can't allocate %d bytes for sn. Memory has not been deallocated, so restart R sometime soon.\n",
-	  sizeof(char)*(i+1));
-  }
-  sn=strncpy(sn,MHproposalpackage,i);
+  /* fn is now the string 'MH_[name]', where [name] is MHProposaltype */
+  for (i = 0; MHProposalpackage[i] != ' ' && MHProposalpackage[i] != 0; i++);
+  MHProposalpackage[i] = 0;
+  sn = Calloc(i+1, char);
+  sn=strncpy(sn,MHProposalpackage,i);
   sn[i]='\0';
   
   /* Search for the MH proposal function pointer */
-  MHp->func=(void (*)(MHproposal*, Network*)) R_FindSymbol(fn,sn,NULL);
-  if(MHp->func==NULL){
-    error("Error in MH_* initialization: could not find function %s in "
+  // Old-style name:
+  MHp->p_func=(void (*)(MHProposal*, Network*)) R_FindSymbol(fn,sn,NULL);
+  if(MHp->p_func==NULL){
+    // New-style name:
+    fn[1] = 'p';
+    MHp->p_func=(void (*)(MHProposal*, Network*)) R_FindSymbol(fn,sn,NULL);
+    if(MHp->p_func==NULL){    
+      error("Error in the proposal initialization: could not find function %s in "
 	  "namespace for package %s."
 	  "Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
+    }
   }
 
+  // Optional functions
+  fn[1] = 'i';
+  MHp->i_func=(void (*)(MHProposal*, Network*)) R_FindSymbol(fn,sn,NULL);
+  fn[1] = 'u';
+  MHp->u_func=(void (*)(Vertex tail, Vertex head, MHProposal*, Network*)) R_FindSymbol(fn,sn,NULL);
+  fn[1] = 'f';
+  MHp->f_func=(void (*)(MHProposal*, Network*)) R_FindSymbol(fn,sn,NULL);
+    
   MHp->inputs=inputs;
 
   MHp->bd=DegreeBoundInitialize(attribs, maxout, maxin, minout, minin,
 			       condAllDegExact, attriblength, nwp);
-  MHp->discord=NULL;
 
   /*Clean up by freeing sn and fn*/
-  free((void *)fn);
-  free((void *)sn);
+  Free(fn);
+  Free(sn);
+
+  MHp->aux_storage = aux_storage;
 
   MHp->ntoggles=0;
-  (*(MHp->func))(MHp, nwp); /* Call MH proposal function to initialize */
-  MHp->toggletail = (Vertex *)malloc(MHp->ntoggles * sizeof(Vertex));
-  MHp->togglehead = (Vertex *)malloc(MHp->ntoggles * sizeof(Vertex));
+  if(MHp->i_func){
+    // New-style initialization
+    (*(MHp->i_func))(MHp, nwp);
+  }else{
+    // Old-style initialization
+    (*(MHp->p_func))(MHp, nwp); /* Call MH proposal function to initialize */
+  }
+  
+  MHp->toggletail = (Vertex *)Calloc(MHp->ntoggles, Vertex);
+  MHp->togglehead = (Vertex *)Calloc(MHp->ntoggles, Vertex);
+
+  return MHp;
 }
 
 /*********************
- void MH_free
+ void MHProposalDestroy
 
- A helper function to free memory allocated by MH_init.
+ A helper function to free memory allocated by MHProposalInitialize.
 *********************/
-void MH_free(MHproposal *MHp){
+void MHProposalDestroy(MHProposal *MHp, Network *nwp){
   if(MHp->bd)DegreeBoundDestroy(MHp->bd);
-  if(MHp->discord){
-    for(Network **nwp=MHp->discord; *nwp!=NULL; nwp++){
-      NetworkDestroy(*nwp);
-    }
-    free(MHp->discord);
+  if(MHp->f_func) (*(MHp->f_func))(MHp, nwp);
+  if(MHp->storage){
+    Free(MHp->storage);
+    MHp->storage=NULL;
   }
-  free(MHp->toggletail);
-  free(MHp->togglehead);
+  MHp->aux_storage=NULL;
+  Free(MHp->toggletail);
+  Free(MHp->togglehead);
+
+  Free(MHp);
 }
 
 /***********************
@@ -107,15 +134,15 @@ DegreeBound* DegreeBoundInitialize(int *attribs, int *maxout, int *maxin,
   if(!condAllDegExact && !attriblength) return NULL;
   
 
-  bd = (DegreeBound *) malloc(sizeof(DegreeBound));
+  bd = (DegreeBound *) Calloc(1, DegreeBound);
 
   bd->fBoundDegByAttr = 0;
   bd->attrcount = condAllDegExact ? 1 : attriblength / nwp->nnodes;
-  bd->attribs = (int *) malloc(sizeof(int) * attriblength);
-  bd->maxout  = (int *) malloc(sizeof(int) * attriblength);
-  bd->maxin   = (int *) malloc(sizeof(int) * attriblength);
-  bd->minout  = (int *) malloc(sizeof(int) * attriblength);
-  bd->minin   = (int *) malloc(sizeof(int) * attriblength);
+  bd->attribs = (int *) Calloc(attriblength, int);
+  bd->maxout  = (int *) Calloc(attriblength, int);
+  bd->maxin   = (int *) Calloc(attriblength, int);
+  bd->minout  = (int *) Calloc(attriblength, int);
+  bd->minin   = (int *) Calloc(attriblength, int);
   
   /* bound by degree by attribute per node */
   if (bd->attrcount)
@@ -164,19 +191,19 @@ DegreeBound* DegreeBoundInitialize(int *attribs, int *maxout, int *maxin,
 ******************/
 void DegreeBoundDestroy(DegreeBound *bd)
 {  
-  free(bd->attribs); 
-  free(bd->maxout); 
-  free(bd->minout); 
-  free(bd->maxin); 
-  free(bd->minin); 
-  free(bd);
+  Free(bd->attribs); 
+  Free(bd->maxout); 
+  Free(bd->minout); 
+  Free(bd->maxin); 
+  Free(bd->minin); 
+  Free(bd);
 }
 
 
 /********************
  int CheckTogglesValid
 ********************/
-int CheckTogglesValid(MHproposal *MHp, Network *nwp) {
+int CheckTogglesValid(MHProposal *MHp, Network *nwp) {
   int fvalid;
   int i;
   DegreeBound *bd=MHp->bd;
@@ -184,8 +211,8 @@ int CheckTogglesValid(MHproposal *MHp, Network *nwp) {
   if(!bd) return 1;
 
   /* *** don't forget when getting attributes that tail-> head */
-  int *tailattr = (int *) malloc(sizeof(int) * bd->attrcount);
-  int *headattr = (int *) malloc(sizeof(int) * bd->attrcount);
+  int *tailattr = (int *) Calloc(bd->attrcount, int);
+  int *headattr = (int *) Calloc(bd->attrcount, int);
   
   fvalid = 1;
   
@@ -197,8 +224,6 @@ int CheckTogglesValid(MHproposal *MHp, Network *nwp) {
 
   /* if we're bounding degrees by attribute */
   if (bd->fBoundDegByAttr && fvalid) {
-    Edge e;
-    Vertex v;
     int k; 
     if (nwp->directed_flag) {
       /* for each tail and head pair */
@@ -210,23 +235,19 @@ int CheckTogglesValid(MHproposal *MHp, Network *nwp) {
         /* calculate tail outdegree totals for each attribute
         for each outedge of the tail 	      */
 	      
-        for(e = EdgetreeMinimum(nwp->outedges, MHp->toggletail[i]);
-        (v = nwp->outedges[e].value) != 0;
-        e = EdgetreeSuccessor(nwp->outedges, e)) {
-          for (k=0; k < bd->attrcount; k++)
-            if (bd->attribs[v-1 + k*nwp->nnodes]) tailattr[k]++;
-        }
-	      
+        EXEC_THROUGH_OUTEDGES(MHp->toggletail[i], e, v, {
+	    for (k=0; k < bd->attrcount; k++)
+	      if (bd->attribs[v-1 + k*nwp->nnodes]) tailattr[k]++;
+	  });
+	
         /* calculate head indegree totals for each attribute
         for each inedge of the head */
-	      
-        for(e = EdgetreeMinimum(nwp->inedges, MHp->togglehead[i]);
-        (v = nwp->inedges[e].value) != 0;
-        e = EdgetreeSuccessor(nwp->inedges, e)) {
-          for (k=0; k < bd->attrcount; k++)
-            if (bd->attribs[v-1 + k*nwp->nnodes]) headattr[k]++;
-        }
-
+	
+	EXEC_THROUGH_INEDGES(MHp->togglehead[i], e, v, {
+	    for (k=0; k < bd->attrcount; k++)
+	      if (bd->attribs[v-1 + k*nwp->nnodes]) headattr[k]++;
+	  });
+	
         /* for each attribute */
 
         for (k=0; k < bd->attrcount && fvalid; k++){
@@ -247,38 +268,30 @@ int CheckTogglesValid(MHproposal *MHp, Network *nwp) {
 	      /* calculate tail totals for each attribute
         for each outedge and inedge of the tail  */
 	      
-	      for(e = EdgetreeMinimum(nwp->outedges, MHp->toggletail[i]);
-        (v = nwp->outedges[e].value) != 0;
-        e = EdgetreeSuccessor(nwp->outedges, e)) {
-          for (k=0; k < bd->attrcount; k++)
-            if (bd->attribs[v-1 + k*nwp->nnodes])
-              tailattr[k]++;
-        }
-	      for(e = EdgetreeMinimum(nwp->inedges, MHp->toggletail[i]);
-        (v = nwp->inedges[e].value) != 0;
-        e = EdgetreeSuccessor(nwp->inedges, e)) {
-          for (k=0; k < bd->attrcount; k++)
-            if (bd->attribs[v-1 + k*nwp->nnodes])
-              tailattr[k]++;
-        }
+	EXEC_THROUGH_OUTEDGES(MHp->toggletail[i], e, v, {
+	    for (k=0; k < bd->attrcount; k++)
+	      if (bd->attribs[v-1 + k*nwp->nnodes])
+		tailattr[k]++;
+	  });
+	EXEC_THROUGH_INEDGES(MHp->toggletail[i], e, v, {
+	    for (k=0; k < bd->attrcount; k++)
+	      if (bd->attribs[v-1 + k*nwp->nnodes])
+		tailattr[k]++;
+	  });
 	      
 	      /* calculate head totals for each attribute
         for each outedge and inedge of the head */
 	      
-	      for(e = EdgetreeMinimum(nwp->outedges, MHp->togglehead[i]);
-        (v = nwp->outedges[e].value) != 0;
-        e = EdgetreeSuccessor(nwp->outedges, e)) {
-          for (k=0; k < bd->attrcount; k++)
-            if (bd->attribs[v-1 + k*nwp->nnodes])
-              headattr[k]++;
-        }
-	      for(e = EdgetreeMinimum(nwp->inedges, MHp->togglehead[i]);
-        (v = nwp->inedges[e].value) != 0;
-        e = EdgetreeSuccessor(nwp->inedges, e)) {
-          for (k=0; k < bd->attrcount; k++)
-            if (bd->attribs[v-1 + k*nwp->nnodes])
-              headattr[k]++;
-        }
+	EXEC_THROUGH_OUTEDGES(MHp->togglehead[i], e, v, {
+	    for (k=0; k < bd->attrcount; k++)
+	      if (bd->attribs[v-1 + k*nwp->nnodes])
+		headattr[k]++;
+	  });
+	EXEC_THROUGH_INEDGES(MHp->togglehead[i], e, v, {
+	    for (k=0; k < bd->attrcount; k++)
+	      if (bd->attribs[v-1 + k*nwp->nnodes])
+		headattr[k]++;
+	  });
 
 	      /* for each attribute
         check tails' and heads' outmax and outmin */
@@ -292,8 +305,8 @@ int CheckTogglesValid(MHproposal *MHp, Network *nwp) {
     }
   }
   
-  free(tailattr);
-  free(headattr);
+  Free(tailattr);
+  Free(headattr);
   
   /* Undo proposed toggles (of edges(tail, head)) */
   for (i=0; i<MHp->ntoggles; i++)
@@ -302,7 +315,7 @@ int CheckTogglesValid(MHproposal *MHp, Network *nwp) {
   return fvalid;
 }
 
-int CheckConstrainedTogglesValid(MHproposal *MHp, Network *nwp)
+int CheckConstrainedTogglesValid(MHProposal *MHp, Network *nwp)
 {
   int fvalid = 1;
   int i;
@@ -317,11 +330,9 @@ int CheckConstrainedTogglesValid(MHproposal *MHp, Network *nwp)
   /* if we're bounding degrees by attribute */
   if (bd->fBoundDegByAttr && fvalid)
   {
-    Edge e;
-    Vertex v;
     int k;
-    int *tailattr = (int *) malloc(sizeof(int) * bd->attrcount);
-    int *headattr = (int *) malloc(sizeof(int) * bd->attrcount);
+    int *tailattr = (int *) Calloc(bd->attrcount, int);
+    int *headattr = (int *) Calloc(bd->attrcount, int);
     
     if (nwp->directed_flag)
     {
@@ -333,26 +344,20 @@ int CheckConstrainedTogglesValid(MHproposal *MHp, Network *nwp)
 	      /* calculate tail outdegree totals for each attribute
         for each outedge of the tail 	      */
 	      
-	      for(e = EdgetreeMinimum(nwp->outedges, MHp->toggletail[i]);
-        (v = nwp->outedges[e].value) != 0;
-        e = EdgetreeSuccessor(nwp->outedges, e))
-        {
-          for (k=0; k < bd->attrcount; k++)
-            if (bd->attribs[v-1 + k*nwp->nnodes])
-              tailattr[k]++;
-        }
+	EXEC_THROUGH_OUTEDGES(MHp->toggletail[i], e, v, {
+	    for (k=0; k < bd->attrcount; k++)
+	      if (bd->attribs[v-1 + k*nwp->nnodes])
+		tailattr[k]++;
+	  });
 	      
 	      /* calculate head indegree totals for each attribute
         for each inedge of the head */
 	      
-	      for(e = EdgetreeMinimum(nwp->inedges, MHp->togglehead[i]);
-        (v = nwp->inedges[e].value) != 0;
-        e = EdgetreeSuccessor(nwp->inedges, e))
-        {
-          for (k=0; k < bd->attrcount; k++)
-            if (bd->attribs[v-1 + k*nwp->nnodes])
-              headattr[k]++;
-        }
+	EXEC_THROUGH_INEDGES(MHp->togglehead[i], e, v, {
+	    for (k=0; k < bd->attrcount; k++)
+	      if (bd->attribs[v-1 + k*nwp->nnodes])
+		headattr[k]++;
+	  });
 
 	      /* for each attribute */
 	      for (k=0; k < bd->attrcount && fvalid; k++){
@@ -375,42 +380,30 @@ int CheckConstrainedTogglesValid(MHproposal *MHp, Network *nwp)
 	      /* calculate tail totals for each attribute
         for each outedge and inedge of the tail  */
 	      
-	      for(e = EdgetreeMinimum(nwp->outedges, MHp->toggletail[i]);
-        (v = nwp->outedges[e].value) != 0;
-        e = EdgetreeSuccessor(nwp->outedges, e))
-        {
-          for (k=0; k < bd->attrcount; k++)
-            if (bd->attribs[v-1 + k*nwp->nnodes])
-              tailattr[k]++;
-        }
-	      for(e = EdgetreeMinimum(nwp->inedges, MHp->toggletail[i]);
-        (v = nwp->inedges[e].value) != 0;
-        e = EdgetreeSuccessor(nwp->inedges, e))
-        {
-          for (k=0; k < bd->attrcount; k++)
-            if (bd->attribs[v-1 + k*nwp->nnodes])
-              tailattr[k]++;
-        }
+	EXEC_THROUGH_OUTEDGES(MHp->toggletail[i], e, v, {
+	    for (k=0; k < bd->attrcount; k++)
+	      if (bd->attribs[v-1 + k*nwp->nnodes])
+		tailattr[k]++;
+	  });
+	EXEC_THROUGH_INEDGES(MHp->toggletail[i], e, v, {
+	    for (k=0; k < bd->attrcount; k++)
+	      if (bd->attribs[v-1 + k*nwp->nnodes])
+		tailattr[k]++;
+	  });
 	      
 	      /* calculate head totals for each attribute
         for each outedge and inedge of the head */
-	      for(e = EdgetreeMinimum(nwp->outedges, MHp->togglehead[i]);
-        (v = nwp->outedges[e].value) != 0;
-        e = EdgetreeSuccessor(nwp->outedges, e))
-        {
+	EXEC_THROUGH_OUTEDGES(MHp->togglehead[i], e, v, {
+	    for (k=0; k < bd->attrcount; k++)
+	      if (bd->attribs[v-1 + k*nwp->nnodes])
+		headattr[k]++;
+	  });
+	EXEC_THROUGH_INEDGES(MHp->togglehead[i], e, v, {
           for (k=0; k < bd->attrcount; k++)
             if (bd->attribs[v-1 + k*nwp->nnodes])
               headattr[k]++;
-        }
-	      for(e = EdgetreeMinimum(nwp->inedges, MHp->togglehead[i]);
-        (v = nwp->inedges[e].value) != 0;
-        e = EdgetreeSuccessor(nwp->inedges, e))
-        {
-          for (k=0; k < bd->attrcount; k++)
-            if (bd->attribs[v-1 + k*nwp->nnodes])
-              headattr[k]++;
-        }
-        
+	  });
+      
 	      /* for each attribute
         check tails' and heads' outmax and outmin */
 	      for (k=0; k < bd->attrcount && fvalid; k++)
@@ -420,8 +413,8 @@ int CheckConstrainedTogglesValid(MHproposal *MHp, Network *nwp)
         (headattr[k] < bd->minout[MHp->togglehead[i]-1+k*nwp->nnodes]) ;
 	    }
     }
-    free(tailattr);
-    free(headattr);
+    Free(tailattr);
+    Free(headattr);
   }
   /* Make proposed toggles (of edges (tail, head), not (head, tail) */
   for (i=0; i<MHp->ntoggles; i++)

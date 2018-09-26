@@ -5,14 +5,14 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  http://statnet.org/attribution
  *
- *  Copyright 2003-2013 Statnet Commons
+ *  Copyright 2003-2017 Statnet Commons
  */
 #ifndef WTCHANGESTATS_H
 #define WTCHANGESTATS_H
 
-#include "wtedgetree.h"
-#include "wtchangestat.h"
-#include "storage.h"
+#include "ergm_wtedgetree.h"
+#include "ergm_wtchangestat.h"
+#include "ergm_storage.h"
 
 /********************  Utility macros    ***********/
 

@@ -55,7 +55,7 @@
 
 ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
                           intercept = FALSE, start = rep(0, p),
-                          offset=NULL, m=NULL, maxit=200, ...)
+                          offset=NULL, m=NULL, maxit=200, verbose=FALSE, ...)
 {
   if(is.null(m)){
     etamap <- identity
@@ -66,39 +66,63 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
   }
   if(is.null(dim(x))) dim(x) <- c(length(x), 1)
   if(is.null(offset)) offset <- rep(0,length(y))
-  dn <- if(is.null(m)) dimnames(x)[[2]] else .coef.names.model(m, FALSE)
+  dn <- if(is.null(m)) dimnames(x)[[2]] else param_names(m, FALSE)
   if(!length(dn)) dn <- paste("Var", 1:ncol(x), sep="")
   p <- ncol(x) + intercept
   if(intercept) {x <- cbind(1, x); dn <- c("(Intercept)", dn)}
   if(is.factor(y)) y <- (unclass(y) != 1)
-  start[is.na(start)]<-0
+  start[is.na(start)]<-rnorm(sum(is.na(start)), 0, sqrt(.Machine$double.eps))
 
 
   loglikelihoodfn.trust <-
     if(is.null(m)){
       function(theta, X, y, w, offset, etamap, etagrad){
         eta <- as.vector(.multiply.with.inf(X,etamap(theta))+offset)
+        Xgradt <- X %*% t(etagrad(theta))
         p <- plogis(eta)
-        list(value = sum(w * ifelse(y, log(p), log1p(-p))),
-             gradient = as.vector(matrix(w *dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% X %*% t(etagrad(theta))),
-             hessian = -etagrad(theta) %*% crossprod(X*w*p*(1-p), X) %*% t(etagrad(theta)))
+        o <- list(value = sum(w * ifelse(y, log(p), log1p(-p))),
+             gradient = as.vector(matrix(w * dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% Xgradt),
+             hessian = -crossprod(Xgradt, w*p*(1-p)*Xgradt))
+        if(verbose){
+          message("theta:")
+          message_print(theta)
+          message("result:")
+          message_print(o)
+        }
+        o
       }
     }else{
       function(theta.no, X, y, w, offset, etamap, etagrad){
         theta <- start
         theta[!m$etamap$offsettheta] <- theta.no
         
-        eta <- as.vector(.multiply.with.inf(X,etamap(theta))+offset)
-        p <- plogis(eta)
-        list(
-          value = sum(w * ifelse(y, log(p), log1p(-p))),
-          gradient = as.vector((matrix(w *dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% X %*% t(etagrad(theta)))[,!m$etamap$offsettheta]),
-          hessian = -(etagrad(theta) %*% crossprod(X*w*p*(1-p), X) %*% t(etagrad(theta)))[!m$etamap$offsettheta,!m$etamap$offsettheta]
-        )
+        # Check for box constraint violation.
+        if(any(is.na(theta)) ||
+           any(theta[!m$etamap$offsettheta] < m$etamap$mintheta[!m$etamap$offsettheta]) ||
+           any(theta[!m$etamap$offsettheta] > m$etamap$maxtheta[!m$etamap$offsettheta])){
+          o <- list(value=-Inf)
+        }else{
+          eta <- as.vector(.multiply.with.inf(X,etamap(theta))+offset)
+          Xgradt <- X %*% t(etagrad(theta))
+          p <- plogis(eta)
+          o <- list(
+            value = sum(w * ifelse(y, log(p), log1p(-p))),
+            gradient = as.vector((matrix(w * dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% Xgradt)[,!m$etamap$offsettheta,drop=FALSE]),
+            hessian = -crossprod(Xgradt, w*p*(1-p)*Xgradt)[!m$etamap$offsettheta,!m$etamap$offsettheta,drop=FALSE]
+          )
+        }
+        if(verbose){
+          message("theta:")
+          message_print(theta)
+          message("result:")
+          message_print(o)
+        }
+        o
       }
     }
 
-  init <- if(!is.null(m)) start[!m$etamap$offsettheta] else start
+  init <- if(is.null(m)) start else .constrain_init(m, start)[!m$etamap$offsettheta]
+  
   fit <- trust(objfun=loglikelihoodfn.trust, parinit=init,
                rinit=1, 
                rmax=100, 
@@ -110,11 +134,8 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
   fit$iter <- fit$iterations
   asycov <- ginv(-fit$hessian)
   fit$cov.unscaled <- asycov
-# cat("\nCoefficients:\n"); print(fit$par)
-# # R: use fit$value and fit$convergence
-# cat("\nResidual Deviance:", format(fit$value), "\n")
   if(!fit$converged)
-      cat("Trust region algorithm did not converge.\n")
+      message("Trust region algorithm did not converge.")
   invisible(fit)
 }
 

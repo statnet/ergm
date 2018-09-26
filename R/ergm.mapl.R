@@ -26,7 +26,7 @@
 #                      edges     degreedist     idegreedist
 #                      observed  odegreedist
 #                  default="~ ."
-#   proposaltype:  presumably the MHproposal type, but this is only used
+#   proposaltype:  presumably the proposal type, but this is only used
 #                  in calls to <ergm.san>, which doesn't accept a
 #                  'proposaltype' argument
 #   target.stats   :  a vector of the mean value parameters;
@@ -56,26 +56,25 @@ ergm.mapl <- function(formula, init="MPLE",
                  control=control.ergm(MPLEtype="penalized"),
                  tau=1, invcov=NULL,
                  verbose=FALSE, ...) {
-  check.control.class("ergm")
+  check.control.class("ergm", "ergm.mapl")
   control.toplevel(...,myname="ergm")
 
-  if (verbose) cat("Evaluating network in model\n")
+  if (verbose) message("Evaluating network in model.")
 
   nw <- ergm.getnetwork(formula)
   
-  if (verbose) cat("Fitting initial model.\n")
+  if (verbose) message("Fitting initial model.")
 
   proposalclass <- "c"
     
   if(control$drop){
-   model.initial <- ergm.getmodel(formula, nw, initialfit=TRUE)
-#   obs.stats <- if(!is.null(target.stats)) target.stats else summary(formula,response=response)
-   obs.stats <- if(!is.null(target.stats)) target.stats else summary(formula)
+   model.initial <- ergm_model(formula, nw, initialfit=TRUE, term.options=control$term.options)
+   obs.stats <- NVL(target.stats, summary(formula))
    extremeval <- +(model.initial$maxval==obs.stats)-(model.initial$minval==obs.stats)
    model.initial$etamap$offsettheta[extremeval!=0] <- TRUE
   }else{
-#    model.initial <- ergm.getmodel(formula, nw, response=response, initialfit=TRUE)
-    model.initial <- ergm.getmodel(formula, nw)
+#    model.initial <- ergm_model(formula, nw, response=response, initialfit=TRUE)
+    model.initial <- ergm_model(formula, nw, term.options=control$term.options)
     extremeval <- rep(0, length=length(model.initial$etamap$offsettheta))
   }
 
@@ -85,15 +84,13 @@ ergm.mapl <- function(formula, init="MPLE",
             constraints=~., #constraints=constraints,
             proposaltype=proposaltype,
             tau=tau, invcov=invcov, burnin=10*burnin, verbose=verbose)
-    if(verbose){print(summary(formula, basis=nw)-target.stats)}
+    if(verbose){message_print(summary(formula, basis=nw)-target.stats)}
   }
   
-  Clist.initial <- ergm.Cprepare(nw, model.initial)
-  Clist.miss.initial <- ergm.design(nw, model.initial, verbose=verbose)
-  Clist.initial$target.stats=target.stats
+  fd.initial <- ergm.design(nw, verbose=verbose)
   initcopy <- init
   
-  pl <- ergm.pl(Clist=Clist.initial, Clist.miss=Clist.miss.initial,
+  pl <- ergm.pl(nw=nw, fd=fd.initial,
                 m=model.initial,theta.offset=ifelse(extremeval!=0,extremeval*Inf,NA),
                 verbose=verbose)
   initialfit <- ergm.maple(pl=pl, model.initial,
@@ -119,12 +116,10 @@ ergm.mapl <- function(formula, init="MPLE",
                proposaltype=proposaltype,
                tau=tau, invcov=invcov, burnin=burnin, 
                constraints=constraints, basis=sim)
-    if(verbose){print(summary(formula, basis=sim)-target.stats)}
-    if(verbose){print(sum(sim[,] != nw[,]))}
-    Clist.initial <- ergm.Cprepare(sim, model.initial)
-    Clist.miss.initial <- ergm.design(sim, model.initial, verbose=verbose)
-    Clist.initial$target.stats=target.stats
-    sim.pl <- ergm.pl(Clist=Clist.initial, Clist.miss=Clist.miss.initial,
+    if(verbose){message_print(summary(formula, basis=sim)-target.stats)}
+    if(verbose){message_print(sum(sim[,] != nw[,]))}
+    fd.initial <- ergm.design(sim, verbose=verbose)
+    sim.pl <- ergm.pl(nw=nw, fd=fd.initial,
                       m=model.initial,theta.offset=ifelse(extremeval!=0,extremeval*Inf,NA),
                       verbose=verbose)
     pl$zy <- c(pl$zy,sim.pl$zy)

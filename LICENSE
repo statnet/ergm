@@ -36,6 +36,11 @@ Martina Morris, University of Washington
 
 The 'statnet' development team
 
-Copyright 2003-2017
+Copyright 2003-2018
 
 
+Other contributors
+====================
+
+khash.h "library" is Copyright (c) 2008, 2009, 2011 by Attractive
+Chaos <attractor@live.co.uk>, incorporated under the MIT license.

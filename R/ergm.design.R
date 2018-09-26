@@ -13,11 +13,11 @@
 #
 # --PARAMETERS--
 #   nw     : the network
-#   model  : the model, as returned by <ergm.getmodel>
+#   model  : the model, as returned by <ergm_model>
 #   verbose: whether the design matrix should be printed (T or F); default=FALSE
 #
 # --RETURNED--
-#   Clist.miss
+#   fd
 #      if 'nw' has missing edges, see the return list, 'Clist', from the
 #                                 <ergm.Cprepare> function header
 #      if 'nw' hasn't any missing edges, the list will only contain NULL
@@ -35,19 +35,15 @@
 #      missing edges, and the remainder a column-major edgelist
 ################################################################################
 
-ergm.design <- function(nw, model, verbose=FALSE){
-  if(network.naedgecount(nw)==0){
-    Clist.miss <- list(tails=NULL, heads=NULL, nedges=0, dir=is.directed(nw))
-  }else{
-    Clist.miss <- ergm.Cprepare(is.na(nw), model)
-    if(verbose){
-      cat("Design matrix:\n")
-      print(summary(is.na(nw)))
-    }
-  }
-  Clist.miss
-}
-
-ergm.Cprepare.miss <- function(nw){
-  ergm.Cprepare.el(is.na(nw))
+#' @rdname ergm_Clist
+#' @description \code{ergm.design} obtain the set of informative dyads based on the network structure. Note that `model=` argument is not needed and will be removed in a future release.
+#' @param model an [`ergm_model`].
+#' @return \code{ergm.design} returns a \code{\link{rlebdm}} of
+#'   informative (non-missing, non fixed) dyads.
+#' @export ergm.design
+ergm.design <- function(nw, model=NULL, verbose=FALSE){
+  if(!is.null(model)) .Deprecated(msg="Argument model= to ergm.design() is no longer used and will be removed in a future release.")
+  basecon <- ergm_conlist(~.attributes, nw)
+  misscon <- if(!is.pending_update_network(nw) && network.naedgecount(nw)) ergm_conlist(~.attributes+observed, nw)
+  as.rlebdm(basecon, misscon, which="informative")
 }

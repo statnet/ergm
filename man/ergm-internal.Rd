@@ -1,12 +1,3 @@
-%  File man/ergm-internal.Rd in package ergm, part of the Statnet suite
-%  of packages for network analysis, http://statnet.org .
-%
-%  This software is distributed under the GPL-3 license.  It is free,
-%  open source, and has the attribution requirements (GPL Section 7) at
-%  http://statnet.org/attribution
-%
-%  Copyright 2003-2017 Statnet Commons
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{ergm-internal}
 \title{Internal ergm Objects}
 
@@ -71,7 +62,7 @@
 %\alias{midarrow}
 %\alias{model.matrix.pen.glm}
 
-%\alias{mk.conlist}
+\alias{ergm_conlist}
 %\alias{myLibLoc}
 %\alias{nologLik.message}
 \alias{summary.statsmatrix.ergm}
@@ -79,7 +70,7 @@
 
 %\alias{updatemodel.ErgmTerm}
 
-%\alias{prune.conlist}
+%\alias{prune.ergm_conlist}
 \alias{geweke.diag.ar}
 
 %\alias{mk.edge.to.pos.lasttoggle.f}

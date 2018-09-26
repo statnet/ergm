@@ -19,7 +19,7 @@
 # --PARAMETERS--
 #   init    : the initial theta values
 #   nw        : the network
-#   model     : the model, as returned by <ergm.getmodel>
+#   model     : the model, as returned by <ergm_model>
 #   Clist     : a list of several network and model parameters,
 #               as returned by <ergm.Cprepare>
 #   initialfit: an ergm object, as the initial fit
@@ -33,8 +33,8 @@
 #                  'interval'
 #               the use of these variables is explained in the
 #               <control.ergm> function header
-#   MHproposal: an MHproposal object for 'nw', as returned by
-#               <getMHproposal>
+#   proposal: an proposal object for 'nw', as returned by
+#               <getproposal>
 #   verbose   : whether the MCMC sampling should be verbose (T or F);
 #               default=FALSE
 #
@@ -45,21 +45,21 @@
 ###########################################################################      
 
 ergm.stocapprox <- function(init, nw, model, Clist,
-                            control, MHproposal,
+                            control, proposal,
                             verbose=FALSE){
     
   #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for init)
   n1 <- control$SA.phase1_n
   if(is.null(n1)) {n1 <- max(200,7 + 3 * model$etamap$etalength)} #default value
   eta0 <- ergm.eta(init, model$etamap)
-  cat("Stochastic approximation algorithm with theta_0 equal to:\n")
+  message("Stochastic approximation algorithm with theta_0 equal to:")
   print(init)
   control <- c(control, list(phase1=n1,
                   stats=model$nw.stats - NVL(model$target.stats,model$nw.stats),
                   target.stats=model$target.stats)
                  )
-# cat(paste("Phase 1: ",n1,"iterations"))
-# cat(paste(" (interval=",control$MCMC.interval,")\n",sep=""))
+# message(paste("Phase 1: ",n1,"iterations"))
+# message(paste(" (interval=",control$MCMC.interval,")",sep=""))
   nw.orig <- nw
   #phase 2:  Main phase
   a <- control$SA.initial_gain
@@ -84,48 +84,48 @@ ergm.stocapprox <- function(init, nw, model, Clist,
   for(i in 1:n_sub){
     control$MCMC.samplesize <- trunc(control$MCMC.samplesize*2.52)+1 # 2.52 is approx. 2^(4/3)
   }
-# cat(paste("Phase 2: a=",a,"Total Samplesize",control$MCMC.samplesize,"\n"))
+# message(paste("Phase 2: a=",a,"Total Samplesize",control$MCMC.samplesize,""))
 # aDdiaginv <- a * Ddiaginv
-  z <- ergm.phase12(nw, model, MHproposal, 
+  z <- ergm.phase12(nw, model, proposal, 
                     eta, control, verbose=TRUE)
   nw <- z$newnetwork
 # toggle.dyads(nw, head = z$changed[,2], tail = z$changed[,3])
 # control$maxchanges <- z$maxchanges
   theta <- z$eta
   names(theta) <- names(init)
-  cat(paste(" (eta[",seq(along=theta),"] = ",paste(theta),")\n",sep=""))
+  message(paste(" (eta[",seq(along=theta),"] = ",paste(theta),")",sep=""))
   
   #phase 3:  Estimate covariance matrix for final theta
   n3 <- control$SA.phase3_n
   if(is.null(n3)) {n3 <- 1000} #default
   control$MCMC.samplesize <- n3
-  cat(paste("Phase 3: ",n3,"iterations"))
-  cat(paste(" (interval=",control$MCMC.interval,")\n",sep=""))
-#cat(paste(" (samplesize=",control$MCMC.samplesize,")\n",sep=""))
-#cat(paste(" theta=",theta,")\n",sep=""))
+  message(paste("Phase 3: ",n3,"iterations"),appendLF=FALSE)
+  message(paste(" (interval=",control$MCMC.interval,")",sep=""))
+#message(paste(" (samplesize=",control$MCMC.samplesize,")",sep=""))
+#message(paste(" theta=",theta,")",sep=""))
   eta <- ergm.eta(theta, model$etamap)
-#cat(paste(" (samplesize=",control$MCMC.samplesize,")\n",sep=""))
-#cat(paste(" eta=",eta,")\n",sep=""))
+#message(paste(" (samplesize=",control$MCMC.samplesize,")",sep=""))
+#message(paste(" eta=",eta,")",sep=""))
 
   # Obtain MCMC sample
-  z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, control, verbose)
+  z <- ergm_MCMC_sample(nw, model, proposal, control, eta=eta0, verbose=max(verbose-1,0))
   
   # post-processing of sample statistics:  Shift each row,
   # attach column names
-  statshift <- summary.statistics.network(model$formula, basis=nw) - NVL(model$target.stats,model$nw.stats)
-  statsmatrix <- sweep(z$statsmatrix, 2, statshift, "+")
-  colnames(statsmatrix) <- model$coef.names
+  statshift <- summary(model, nw) - NVL(model$target.stats,model$nw.stats)
+  statsmatrix <- sweep(as.matrix(z$stats), 2, statshift, "+")
+  colnames(statsmatrix) <- param_names(model,canonical=TRUE)
   #v$sample <- statsmatrix
 # ubar <- apply(z$statsmatrix, 2, mean)
 # hessian <- (t(z$statsmatrix) %*% z$statsmatrix)/n3 - outer(ubar,ubar)
 # covar <- ginv(covar)
   
-  if(verbose){cat("Calling MCMLE Optimization...\n")}
-  if(verbose){cat("Using Newton-Raphson Step ...\n")}
+  if(verbose){message("Calling MCMLE Optimization...")}
+  if(verbose){message("Using Newton-Raphson Step ...")}
 
   ve<-ergm.estimate(init=theta, model=model,
-                   statsmatrix=statsmatrix,
-                   statsmatrix.obs=NULL,
+                   statsmatrices=mcmc.list(as.mcmc(statsmatrix)),
+                   statsmatrices.obs=NULL,
                    epsilon=control$epsilon, 
                    nr.maxit=control$MCMLE.NR.maxit, 
                    nr.reltol=control$MCMLE.NR.reltol,
@@ -144,7 +144,7 @@ ergm.stocapprox <- function(init, nw, model, Clist,
 # ve$mcmcloglik <- ve$mcmcloglik - network.dyadcount(nw)*log(2)
 
   # From ergm.estimate:
-  #    structure(list(coef=theta, sample=statsmatrix, 
+  #    structure(list(coef=theta, sample=mcmc.list(as.mcmc(statsmatrix)), 
                       # iterations=iteration, mcmcloglik=mcmcloglik,
                       # MCMCtheta=init, 
                       # loglikelihood=loglikelihood, gradient=gradient,

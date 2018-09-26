@@ -23,14 +23,14 @@
 #   formula       :  a formula of the form (nw ~ term(s)) 
 #   nw            :  a network object, presumably that of 'formula'
 #   target.stats     :  the mean statistics
-#   m             :  the model as returned by <ergm.getmodel>
+#   m             :  the model as returned by <ergm_model>
 #   MPLEtype      :  the method for MPL estimation as either "glm", "penalized",
 #                    or "logitreg"; this is ignored if ML estimation is used;
 #                    default="glm" 
 #   initial.loglik:  the initial log likelihood; default=NULL
 #   control    :  a list of parameters for tuning the MCMC sampling;
 #                    the only recognized component is 'samplesize'
-#   MHproposal    :  an MHproposal object as returned by <getMHproposal>
+#   proposal    :  an proposal object as returned by <getproposal>
 #   force.MPLE    :  whether MPL estimation should be forced instead of ML 
 #                    estimation (T or F); this is ignored if 'MLestimate'=FALSE
 #                    or "MPLE" is an entry into 'init'; default=FALSE
@@ -53,9 +53,8 @@ ergm.initialfit<-function(init, initial.is.final,
                           formula, nw,
                           m, response=NULL, reference=~Bernoulli, method = NULL,
                           MPLEtype="glm",
-                          control=NULL, MHproposal=NULL, MHproposal.obs=NULL,
+                          control=NULL, proposal=NULL, proposal.obs=NULL,
                           verbose=FALSE, ...) {
-
   # Respect init elements that are not offsets if it's only a starting value.
   if(!initial.is.final){ 
     m$etamap$offsettheta[!is.na(init)] <- TRUE
@@ -67,18 +66,17 @@ ergm.initialfit<-function(init, initial.is.final,
     # Also make sure that any initial values specified by the user are respected.
     fit <- switch(method,
                   MPLE = {
-                    Clist <- ergm.Cprepare(nw, m)
-                    Clist.miss <- ergm.Cprepare(NVL(get.miss.dyads(MHproposal$arguments$constraints, MHproposal.obs$arguments$constraints), is.na(nw)), m)
-                    control$Clist.miss<-Clist.miss
+                    nw <- single.impute.dyads(nw, response=response, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, output="pending", verbose=verbose)
+                    fd <- as.rlebdm(proposal$arguments$constraints, proposal.obs$arguments$constraints, which="informative")
                     
-                    ergm.mple(Clist, Clist.miss, m, MPLEtype=MPLEtype,
+                    ergm.mple(nw, fd, m, MPLEtype=MPLEtype,
                               init=init, 
-                              control=control, MHproposal=MHproposal,
+                              control=control,
                               verbose=verbose, ...)
                   },
-                  zeros = structure(list(coef=ifelse(is.na(init),0,init)),class="ergm"),
-                  CD = ergm.CD.fixed(ifelse(is.na(init),0,init),
-                      nw, m, control, MHproposal, MHproposal.obs, verbose,response=response,...),
+                  zeros = structure(list(coef=.constrain_init(m, ifelse(is.na(init),0,init))),class="ergm"),
+                  CD = ergm.CD.fixed(.constrain_init(m, ifelse(is.na(init),0,init)),
+                      nw, m, control, proposal, proposal.obs, verbose,response=response,...),
                   stop(paste("Invalid method specified for initial parameter calculation. Available methods are ",paste.and(formals()$method),".",sep=""))
                   )
   }else{
@@ -87,4 +85,14 @@ ergm.initialfit<-function(init, initial.is.final,
     fit <- structure(list(coef=init),class="ergm")
   }
   fit
+}
+
+.constrain_init <- function(m, init){
+  init.no <- init[!m$etamap$offsettheta]
+  maxtheta <- m$etamap$maxtheta[!m$etamap$offsettheta]
+  init.no <- pmin(init.no, maxtheta - .deinf(pmax(abs(maxtheta),1)*sqrt(.Machine$double.eps)))
+  mintheta <- m$etamap$mintheta[!m$etamap$offsettheta]
+  init.no <- pmax(init.no, mintheta + .deinf(pmax(abs(mintheta),1)*sqrt(.Machine$double.eps)))
+  init[!m$etamap$offsettheta] <- init.no
+  init
 }

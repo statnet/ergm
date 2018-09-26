@@ -1,39 +1,42 @@
-
 \documentclass{article}
 \usepackage{natbib} %for easy biblo
 \usepackage{hyperref} %for url links
-\usepackage{comment} 
-\usepackage{color} 
 \usepackage{geometry}
 \geometry{verbose,tmargin=3cm,bmargin=3cm,lmargin=3cm,rmargin=3cm}
 \usepackage{multirow}
+\newcommand{\myverb}[1]{\mbox{\texttt{#1}}}
 \setlength{\parskip}{\smallskipamount}
 
-%\VignetteIndexEntry{ergm Example}
+% \VignetteEngine{knitr::knitr}
+% \VignetteIndexEntry{ergm Example}
+
 
 \begin{document}
 
-\definecolor{Sinput}{rgb}{0.19,0.19,0.75}
-\definecolor{Soutput}{rgb}{0.2,0.3,0.2}
-\definecolor{Scode}{rgb}{0.75,0.19,0.19}
-\DefineVerbatimEnvironment{Sinput}{Verbatim}{formatcom = {\color{Sinput}}} 
-\DefineVerbatimEnvironment{Soutput}{Verbatim}{formatcom = {\color{Soutput}}}
-\DefineVerbatimEnvironment{Scode}{Verbatim}{formatcom = {\color{Scode}}} 
-\DefineVerbatimEnvironment{Scode}{Verbatim}{xleftmargin=2em}
-\fvset{listparameters={\setlength{\topsep}{0pt}}}
-\renewenvironment{Schunk}{\vspace{\topsep}}{\vspace{\topsep}}
 
-\SweaveOpts{concordance=TRUE}
-\SweaveOpts{width=6,height=6}
+<<include=FALSE>>=
+library(knitr)
+opts_chunk$set(
+concordance=TRUE,
+error=FALSE
+)
+@
 
-\setkeys{Gin}{width=0.7\textwidth} 
+
+<<include=FALSE>>=
+library(knitr)
+opts_chunk$set(
+width=6,fig.height=6
+)
+@
+
 
 <<foo,include=FALSE,echo=FALSE>>=
 
 foo <- packageDescription("ergm")
 @
 
-<<echo=false>>=
+<<echo=FALSE>>=
 options(width=75)
 @
 
@@ -48,7 +51,7 @@ options(width=75)
 \tableofcontents
 
 \section{Getting Started}
-This vignette is based on the \verb@ergm@ tutorial presented at INSNA Sunbelt - St. Pete Beach, Florida, Feb 2011.
+This vignette is based on the \myverb{ergm} tutorial presented at INSNA Sunbelt - St. Pete Beach, Florida, Feb 2011.
 
 Open an R session, and set your working directory to the location
 where you would like to save this work. You can do this with the pull-down
@@ -103,7 +106,7 @@ library(statnet)
 
 or 
 
-<<results=hide>>=
+<<results='hide'>>=
 library(ergm)
 library(sna)
 set.seed(1)
@@ -113,7 +116,7 @@ set.seed(1)
 The ergm package contains several network data sets that you can use
 for practice examples.
 
-<<fig=TRUE>>=
+<<>>=
 data(package='ergm') # tells us the datasets in our packages
 data(florentine) # loads flomarriage and flobusiness data
 flomarriage # Let's look at the flomarriage data
@@ -164,16 +167,16 @@ Corresponding probability is:
 which is what you would expect, since there are 20/120 ties.
 
 Let's add a term often thought to be a measure of
-\textquotedblleft{}clustering\textquotedblright{}: the number of completed
+``clustering'': the number of completed
 triangles. Note we're in stochastic simulation now
-\textendash{} your output will differ
+-- your output will differ
 
 <<>>=
 flomodel.02 <- ergm(flomarriage~edges+triangle) 
 summary(flomodel.02)
 @
 
-<<results=hide>>=
+<<results='hide'>>=
 coef1 = flomodel.02$coef[1]
 coef2 = flomodel.02$coef[2]
 logodds = coef1 + c(0,1,2) * coef2
@@ -207,7 +210,7 @@ class(flomodel.02) # this has the class ergm
 names(flomodel.02) # let's look straight at the ERGM obj.
 @
 
-<<fig=TRUE>>=
+<<>>=
 flomodel.02$coef 
 flomodel.02$formula 
 flomodel.02$mle.lik
@@ -303,14 +306,14 @@ not.
 
 \section{Model terms available for \textit{ergm} estimation and simulation }
 
-Model terms are the expressions (e.g. \textquotedblleft{}triangle\textquotedblright{})
+Model terms are the expressions (e.g. ``triangle'')
 used to represent predictors on the right-hand size of equations used
 in:
 \begin{itemize}
-\item calls to \verb@ergm@ (to estimate an ergm model)
-\item calls to \verb@simulate@ (to simulate networks from an ergm model
+\item calls to \myverb{ergm} (to estimate an ergm model)
+\item calls to \myverb{simulate} (to simulate networks from an ergm model
 fit)
-\item calls to \verb@summary@ (to obtain measurements of network statistics
+\item calls to \myverb{summary} (to obtain measurements of network statistics
 on a dataset)
 \end{itemize}
 
@@ -318,8 +321,9 @@ on a dataset)
 
 For a list of available terms that can be used to specify an ERGM,
 see Appendix B, or type:
-
-\verb@help('ergm-terms')@
+<<eval=FALSE,echo=TRUE>>=
+help('ergm-terms')
+@ 
 
 For a more complete discussion of these terms see the 'Specifications'
 paper in J Stat Software v. 24. (link is available online at \url{www.statnet.org})
@@ -327,13 +331,13 @@ paper in J Stat Software v. 24. (link is available online at \url{www.statnet.or
 
 \subsection{Coding new terms}
 
-We have recently released a new package (\verb@ergm.userterms@)
+We have recently released a new package (\myverb{ergm.userterms})
 and tutorial aimed at making it much easier than before to write one's
 own terms. The package is available on CRAN, and installing it will
 also download the tutorial (ergmuserterms.pdf). We teach a workshop
 at the Sunbelt meetings, and are also hoping for the tutorial to appear
 soon in the \textit{Journal of Statistical Software}. Note that writing
-up new \verb@ergm@ terms requires some knowledge of C and the ability
+up new \myverb{ergm} terms requires some knowledge of C and the ability
 to build R from source (although the latter is covered in the tutorial). 
 
 \section{Network simulation: the \textit{simulate} command and \textit{network.list}
@@ -344,9 +348,9 @@ specified. It defines a probability distribution across all networks
 of this size. If the model is a good fit to the observed data, then
 networks drawn from this distribution will be more likely to "resemble"
 the observed data. To see examples of networks drawn from this distribution
-we use the \verb@simulate@ command:
+we use the \myverb{simulate} command:
 
-<<fig=TRUE>>=
+<<>>=
 flomodel.03.sim <- simulate(flomodel.03,nsim=10)
 class(flomodel.03.sim) 
 summary(flomodel.03.sim)
@@ -358,30 +362,30 @@ plot(flomodel.03.sim[[1]], label= flomodel.03.sim[[1]] %v% "vertex.names")
 Voila. Of course, yours will look somewhat different.
 
 
-\section{Examining the quality of model fit \textendash{} \textit{GOF} }
+\section{Examining the quality of model fit -- \textit{GOF} }
 
-ERGMs are generative models \textendash{} that is, they represent
+ERGMs are generative models -- that is, they represent
 the process that governs tie formation at a local level. These local
 processes in turn aggregate up to produce characteristic global network
 properties, even though these global properties are not explicit terms
-in the model. One test of whether a model \textquotedbl{}fits the
-data\textquotedbl{} is therefore how well it reproduces these global
+in the model. One test of whether a model ``fits the
+data'' is therefore how well it reproduces these global
 properties. We do this by choosing a network statistic that is not
 in the model, and comparing the value of this statistic observed in
 the original network to the distribution of values we get in simulated
 networks from our model. 
 
 
-<<fig=TRUE>>=
+<<>>=
 flomodel.03.gof <- gof(flomodel.03~degree)
 
 flomodel.03.gof
 plot(flomodel.03.gof)
 @
 
-<<fig=TRUE>>=
+<<>>=
 mesamodel.02 <- ergm(mesa~edges)
-mesamodel.02.gof <- gof(mesamodel.02~distance,control=control.gof.formula(nsim=10))
+mesamodel.02.gof <- gof(mesamodel.02~distance,control=control.gof.ergm(nsim=10))
 plot(mesamodel.02.gof)
 
 @
@@ -393,7 +397,7 @@ Friendship networks, see Goodreau, Kitts \& Morris, \textit{Demography}
 
 \section{Diagnostics: troubleshooting and checking for model degeneracy}
 
-The computational algorithms in \verb@ergm@ use MCMC to estimate
+The computational algorithms in \myverb{ergm} use MCMC to estimate
 the likelihood function. Part of this process involves simulating
 a set of networks to approximate unknown components of the likelihood. 
 
@@ -446,13 +450,8 @@ plot(magnolia, vertex.cex=.5)
 @
 
 
-<<eval=FALSE>>=
+<<error=TRUE>>=
 fit <- ergm(magnolia~edges+triangle, control=control.ergm(seed=1))
-mcmc.diagnostics(fit, center=F)
-@
-<<echo=FALSE,eval=TRUE,results=verbatim,width=75>>= 
-try_out <- try(ergm(magnolia~edges+triangle, control=control.ergm(seed=1))) 
-cat(try_out) 
 @
 
 Very interesting. This model produced degenerate networks.
@@ -479,7 +478,7 @@ Kitts and Morris 2009)
 
 <<eval=FALSE>>=
 fit <- ergm(magnolia~edges+gwesp(0.5,fixed=T),
- control =  control.ergm(seed=1))
+ control =  control.ergm(seed=1, MCMLE.MCMC.precision=0.5))
 mcmc.diagnostics(fit)
 @
 
@@ -488,7 +487,7 @@ Still degenerate, but maybe getting closer?
 <<eval=FALSE>>=
 fit <- ergm(magnolia~edges+gwesp(0.5,fixed=T)+nodematch('Grade')+nodematch('Race')+
   nodematch('Sex'),
- control = control.ergm(seed=1),
+ control = control.ergm(seed=1, MCMLE.MCMC.precision=0.5),
  verbose=T)
 
 pdf('diagnostics1.pdf')	#Use the recording function if possible, otherwise send to pdf
@@ -497,27 +496,27 @@ dev.off()			#If you saved to pdf, look at the file
 
 fit <- ergm(magnolia~edges+gwesp(0.25,fixed=T)+nodematch('Grade')+nodematch('Race')+
 	nodematch('Sex'),
- control = control.ergm(seed=1))
+ control = control.ergm(seed=1, MCMLE.MCMC.precision=0.5))
 mcmc.diagnostics(fit)
 
 @
 
 One more try...
-<<results=hide>>=
+<<results='hide'>>=
 fit <- ergm(magnolia~edges+gwesp(0.25,fixed=T)+nodematch('Grade')+nodematch('Race')+
   nodematch('Sex'),
- control = control.ergm(seed=1,MCMC.samplesize=4096,MCMC.interval=8192),
+ control = control.ergm(seed=1, MCMLE.MCMC.precision=0.5),
  verbose=T)
 @
 
-<<fig1,fig=TRUE>>=
+<<fig1>>=
 mcmc.diagnostics(fit)
 @
 
 Success! Of course, in real life one might have a lot more trial and
 error.
 
-Changes in version 3.2 of the ergm estimation algorithm mean that the MCMC diagnostic plots can no longer be used to ensure that the mean statistics from the model match the observed network statistics. For that functionality, please use the GOF command: \verb@gof(fit, GOF=~model)@. The plots can still be used to assess MCMC mixing and convergence.
+Changes in version 3.2 of the ergm estimation algorithm mean that the MCMC diagnostic plots can no longer be used to ensure that the mean statistics from the model match the observed network statistics. For that functionality, please use the GOF command: \myverb{gof(fit, GOF=~model)}. The plots can still be used to assess MCMC mixing and convergence.
 
 
 \section{Working with egocentrically sampled network data}
@@ -595,12 +594,12 @@ Krivitsky, Handcock and Morris 2011). We are going to work with a
 population size 500 here, equal to the number of respondents.
 \item \textbf{Directedness}: Ego data are in one sense inherently directed
 (respondents nominate alters, alters are not observed), but the relationship
-may be either. In this case (\textquotedblleft{}seen more than once\textquotedblright{})
+may be either. In this case (``seen more than once'')
 it is undirected, so we will fit and simulate an undirected network.
 \item \textbf{Bipartite}: Ego data can be bipartite (if no alters are also
 respondents, or data are collected on 2-mode networks) or not (if
 respondents are also alters). But again, the relationship may be either.
-\textquotedblleft{}Seen\textquotedblright{} is undirected, and we
+``Seen'' is undirected, and we
 will fit and simulated and undirected network.
 \end{itemize}
 In sum, we will simulate a one-mode, undirected network of size 500,
@@ -611,7 +610,7 @@ are possible.
 
 To ensure consistency between the degree distribution (which is a
 tabulation of nodes) and the mixing matrix (which is a cross-tabulation
-of ties) in our simulated \textquotedblleft{}complete network,\textquotedblright{}
+of ties) in our simulated ``complete network,''
 it is important to recognize that in a complete network, the degree
 distribution should imply twice the number of ties observed in the
 mixing matrix, because every tie is being reported by both nodes in
@@ -620,14 +619,14 @@ in this simulation, then our observed mixing matrix data needs to
 be divided by 2.
 
 Start by initializing an empty network of the desired size and assign
-the \textquotedblleft{}sex\textquotedblright{} attribute to the nodes:
+the ``sex'' attribute to the nodes:
 
 <<>>=
 ego.net <- network.initialize(500, directed=F)
 ego.net %v% 'sex' <- c(rep(0,250),rep(1,250))
 @
 
-Set up the observed statistics (adjusted for this \textquotedblleft{}complete\textquotedblright{}
+Set up the observed statistics (adjusted for this ``complete''
 network) as we will use them to assess the accuracy of the simulation
 later:
 
@@ -636,7 +635,7 @@ ego.deg <- c(180, 245, 60, 15)  				# node distn
 ego.mixmat <- matrix(c(164,44,26,176)/2, nrow=2, byrow=T)	# adjusted tie distn
 @
 
-Then, pick the observed statistics you want to target \textendash{}
+Then, pick the observed statistics you want to target --
 we will start with a simple model here: the total number of ties (edges),
 and the number of sex-matched ties (homophily). These are both functions
 of the observed statistics:
@@ -653,8 +652,8 @@ ego.target.stats <- c(ego.edges, ego.sexmatch)
 ego.target.stats
 @
 
-Now, fit an ERGM to this \textquotedblleft{}network\textquotedblright{},
-with terms for the statistics you want to match, and the \textquotedblleft{}\texttt{target.stats}\textquotedblright{}
+Now, fit an ERGM to this ``network'',
+with terms for the statistics you want to match, and the ``\texttt{target.stats}''
 argument for \textbf{ergm} that specifies the target values for those
 statistics:
 
@@ -672,7 +671,7 @@ summary(ego.fit)
 Now that you have a fitted model, you can simulate a complete network
 from it, and look at the results:
 
-<<fig=TRUE>>=
+<<>>=
 ego.sim1 <- simulate(ego.fit)
 plot(ego.sim1, vertex.cex=.65, vertex.col="sex")
 @
@@ -706,7 +705,7 @@ More information can be obtained with
 summary(ego.sim100)
 @
 
-First, we\textquoteright{}ll look at how well the simulations reproduced
+First, we'll look at how well the simulations reproduced
 the target statistics that were included in the model (note, not the
 observed full distributions):
 
@@ -715,11 +714,11 @@ sim.stats <- attr(ego.sim100,"stats")
 rbind(colMeans(sim.stats), ego.target.stats)
 @
 
-These look pretty good \textendash{} the means of the simulated target
+These look pretty good -- the means of the simulated target
 stats are within 1\% of the observed. We can plot the 100 replicates
 to see check the variation for any problematic patterns:
 
-<<fig=TRUE>>=
+<<>>=
 matplot(1:nrow(sim.stats), sim.stats, 
   pch=c("e","m","0","+"), cex=.65, 
   main="100 simulations from ego.fit model", sub="(default settings)",
@@ -737,7 +736,7 @@ But, there is clear autocorrelation across the replicates, which suggests
 we might want to increase the MCMC interval to draw more independent
 realizations.
 
-<<fig=TRUE>>=
+<<>>=
 ego.sim100 <- simulate(ego.fit, nsim=100,
   control=control.simulate.ergm(MCMC.interval=10000))
 sim.stats <- attr(ego.sim100,"stats")
@@ -756,11 +755,11 @@ The variation (about +/- 10\%) represents the range of target statistics
 that are consistent with the fitted coefficients.
 
 If you wanted instead to constrain these statistics to equal a specified
-value, then you can use the \textquotedblleft{}constraints=\textquotedblright{}
-argument during the \verb@ergm@ fit instead. 
+value, then you can use the ``constraints=''
+argument during the \myverb{ergm} fit instead. 
 
 This is good for verifying that the simulation reproduces the target
-values we specified. So now let\textquoteright{}s see whether the
+values we specified. So now let's see whether the
 simulated complete networks also match statistics that were not set
 by the targets. We targeted edges and homophily. How well does this
 model reproduce the full degree distribution?
@@ -796,7 +795,7 @@ simulation averages and the observed statistics are quite large. We
 can see this more clearly by plotting the degree frequencies for the
 100 replicate networks we simulated:
 
-<<fig=TRUE>>=
+<<>>=
 matplot(1:nrow(sim.deg), sim.deg, pch=as.character(0:3), cex=.5,
    main="Comparing ego.sims to non-targeted degree frequencies",
    sub = "(only total edges targeted)",
@@ -805,7 +804,7 @@ abline(h=c(180, 245, 60, 15), col=c(1:4))
 @
 
 The simulations are producing systematically more isolates than expected
-(the \textquotedblleft{}0\textquotedblright{} points vs. the black
+(the ``0'' points vs. the black
 line), and systematically more degree 1 nodes. In fact, the two degree
 frequencies are essentially reversed in the simulation. 
 
@@ -848,7 +847,7 @@ rbind(colMeans(sim.deg),ego.deg)
 
 and finally, plotting the full degree frequencies
 
-<<fig=TRUE>>=
+<<>>=
 matplot(1:nrow(sim.deg), sim.deg, pch=as.character(0:3), cex=.5,
    main="Comparing ego.sims to non-targeted degree frequencies",
    sub = "(only 0, 2+ and total edges targeted)",
@@ -898,9 +897,9 @@ see \href{http://statnet.org/movies}{statnet.org/movies}.
 
 \begin{itemize}
 
-\item ERGMs for valued ties \textendash{} see the paper by Pavel Krivitsky (2012)
+\item ERGMs for valued ties -- see the paper by Pavel Krivitsky (2012)
 
-\item Analysis of bipartite networks \textendash{} \verb@network@ recognizes this as an attribute of the network and \verb@ergm@ provides specific model terms for such networks that begin with b1 or b2 \\
+\item Analysis of bipartite networks -- \myverb{network} recognizes this as an attribute of the network and \myverb{ergm} provides specific model terms for such networks that begin with b1 or b2 \\
 (try: \texttt{search.ergmTerms(categories=c('bipartite'))}).
 
 \end{itemize}
@@ -908,28 +907,28 @@ see \href{http://statnet.org/movies}{statnet.org/movies}.
 \subsection{In other packages from the statnet suite:}
 
 These are in stand-alone packages that can be downloaded either from CRAN, 
-or from the \verb@statnet@ website. Many have online training materials from our
+or from the \myverb{statnet} website. Many have online training materials from our
 workshops.  For more detailed information, 
-please visit the \verb@statnet@ webpage 
+please visit the \myverb{statnet} webpage 
 (\href{http://statnet.org}{http://statnet.org}).
 
 \subsubsection{Static (cross-sectional) network analysis packages}
 
 \begin{itemize}
 
-\item \href{https://cran.r-project.org/web/packages/sna/index.html}{\texttt{sna}} \textendash{} Traditional SNA methods and summaries.
+\item \href{https://cran.r-project.org/web/packages/sna/index.html}{\texttt{sna}} -- Traditional SNA methods and summaries.
 
 \item \href{https://cran.r-project.org/web/packages/latentnet/index.html}{\texttt{latentnet}}
-\textendash{} Latent space and latent cluster analysis.
+-- Latent space and latent cluster analysis.
 
 \item \href{https://cran.r-project.org/web/packages/netperm/index.html}{\texttt{netperm}} 
-\textendash{} Network permutation models.
+-- Network permutation models.
 
 \item \href{https://cran.r-project.org/web/packages/degreenet/index.html}{\texttt{degreenet}} 
-\textendash{} MLE estimation for degree distributions (negative binomial, Poisson, scale-free, etc.) 
+-- MLE estimation for degree distributions (negative binomial, Poisson, scale-free, etc.) 
 
 \item \href{https://cran.r-project.org/web/packages/networksis/index.html}{\texttt{networksis}}
-\textendash{} Simulation of bipartite networks with given degree distributions. 
+-- Simulation of bipartite networks with given degree distributions. 
 
 \end{itemize}
 
@@ -938,16 +937,16 @@ please visit the \verb@statnet@ webpage
 \begin{itemize}
 
 \item \href{https://cran.r-project.org/web/packages/tergm/index.html}{\texttt{tergm}}
-\textendash{} Temporal ERGMs (TERGMs): discrete-time dynamic network models for longitudinal network panel data, and other temporal extensions.
+-- Temporal ERGMs (TERGMs): discrete-time dynamic network models for longitudinal network panel data, and other temporal extensions.
 
 \item \href{https://cran.r-project.org/web/packages/relevent/index.html}{\texttt{relevent}}
-\textendash{} Relational event models: continuous-time dynamic network models for longitudinal network data.
+-- Relational event models: continuous-time dynamic network models for longitudinal network data.
 
 \item \href{https://cran.r-project.org/web/packages/networkDynamic/index.html}{\texttt{networkDynamic}}
-\textendash{} Dynamic network data storage and manipulation.
+-- Dynamic network data storage and manipulation.
 
 \item \href{https://cran.r-project.org/web/packages/ndtv/index.html}{\texttt{ndtv}}
-\textendash{} Network movie maker.
+-- Network movie maker.
 
 \end{itemize}
 
@@ -959,34 +958,34 @@ There is a growing number of R packages written by other folks that build on or 
 \begin{itemize}
 
 \item \href{https://cran.r-project.org/web/packages/EpiModel/index.html}{\texttt{EpiModel} package}
-\textendash{} Mathematical Modeling of Infectious Disease, includes functions for deterministic compartmental modeling, stochastic individual contact modeling, and stochatic network modeling
+-- Mathematical Modeling of Infectious Disease, includes functions for deterministic compartmental modeling, stochastic individual contact modeling, and stochatic network modeling
 
 \item \href{https://cran.r-project.org/web/packages/RDS/index.html}{\texttt{RDS} package}
-\textendash{} Estimation with data collected using Respondent-Driven Sampling.
+-- Estimation with data collected using Respondent-Driven Sampling.
 
-\item \href{https://cran.r-project.org/web/packages/Bergm/index.html}{\texttt{Bergm} package} \textendash{} Bayesian ERGM estimation 
+\item \href{https://cran.r-project.org/web/packages/Bergm/index.html}{\texttt{Bergm} package} -- Bayesian ERGM estimation 
 
-\item \href{https://cran.r-project.org/web/packages/hergm/index.html}{\texttt{hergm} package} \textendash{} Hierarchical Exponential-Family Random Graph Models with Local Dependence (for latent groups).
+\item \href{https://cran.r-project.org/web/packages/hergm/index.html}{\texttt{hergm} package} -- Hierarchical Exponential-Family Random Graph Models with Local Dependence (for latent groups).
 
 \item \href{https://cran.r-project.org/web/packages/lvm4net/index.html}{\texttt{lvm4net} package} 
-\textendash{} Latent variable models.
+-- Latent variable models.
 
 \item \href{https://cran.r-project.org/web/packages/VBLPC/index.html}{\texttt{VBLPCM} package}
-\textendash{} Variational Bayes Latent Position Cluster Models. 
+-- Variational Bayes Latent Position Cluster Models. 
 
 \item \href{https://cran.r-project.org/web/packages/xergm/index.html}{\texttt{xergm} package}
-\textendash{} Temporal exponential random graph models (TERGM) by bootstrapped pseudolikelihood, MCMC MLE and (temporal) network autocorrelation models.
+-- Temporal exponential random graph models (TERGM) by bootstrapped pseudolikelihood, MCMC MLE and (temporal) network autocorrelation models.
 
 \end{itemize}
 
 \subsection{Additional functionality in development:}
 \begin{itemize}
 
-\item \texttt{ergm.ego} package \textendash{} ERGM estimation and inference from egocentrically sampled data (expected May 2015)
+\item \texttt{ergm.ego} package -- ERGM estimation and inference from egocentrically sampled data (expected May 2015)
 
-\item \texttt{tsna} package \textendash{} Temporally extended (vertex and edge) SNA methods for dynamic longitudinal network data (expected May 2015)
+\item \texttt{tsna} package -- Temporally extended (vertex and edge) SNA methods for dynamic longitudinal network data (expected May 2015)
 
-\item \texttt{MLergm} package \textendash{} ERGM estimation and inference for multi-level data (for observed groups) (expected 2016)
+\item \texttt{MLergm} package -- ERGM estimation and inference for multi-level data (for observed groups) (expected 2016)
 
 \end{itemize}
 
@@ -1000,7 +999,7 @@ There is a growing number of R packages written by other folks that build on or 
   Martina Morris <\href{mailto:morrism@u.washington.edu}{morrism@u.washington.edu}>\\
   Pavel N. Krivitsky <\href{mailto:pavel@UOW.EDU.AU}{pavel@uow.edu.au}>
   
-\section*{Appendix A: Clarifying the terms \textendash{} ergm and network }
+\section*{Appendix A: Clarifying the terms -- ergm and network }
 
 You will see the terms ergm and network used in multiple contexts
 throughout the documentation. This is common in R, but often confusing
@@ -1011,7 +1010,7 @@ to newcomers. To clarify:
 \item \textbf{ERGM}: the acronym for an Exponential Random Graph Model;
 a statistical model for relational data that takes a generalized exponential
 family form. 
-\item \textbf{ergm package}: one of the packages within the \verb@statnet@
+\item \textbf{ergm package}: one of the packages within the \myverb{statnet}
   suite
 \item \textbf{ergm function}: a function within the ergm package; fits an
 ERGM to a network object, creating an ergm object in the process. 
@@ -1023,10 +1022,10 @@ ergm function, representing the results of an ERGM fit to a network.
 \begin{itemize}
 \item \textbf{network}: a set of actors and the relations among them. Used
 interchangeably with the term graph. 
-\item \textbf{network package}: one of the packages within the \verb@statnet@
+\item \textbf{network package}: one of the packages within the \myverb{statnet}
   suite; used to create, store, modify and plot the information found
 in network objects. 
-\item \textbf{network object}: a class of object in \verb@R@ used to represent
+\item \textbf{network object}: a class of object in \myverb{R} used to represent
 a network.
 \end{itemize}
 

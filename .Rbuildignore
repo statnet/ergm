@@ -1,0 +1,13 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+.RSession
+^.*/\.RData$
+^.*/\.Rhistory
+^.*/Rplots.pdf
+^.*/figure/
+.travis.yml
+appveyor.yml
+.*\.orig$
+.*\.rej$
+.gdb_history
+^revdep$

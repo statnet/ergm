@@ -8,9 +8,15 @@
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
 
+.delete_from_conform_rhs <- function(f, del){
+  ff <- filter_rhs.formula(f, `!=`, del)
+  if(length(ff)!=length(f)) ff[[length(ff)+1]] <- as.name('.')
+  ff
+}
+
 .handle.obs.constraints <- function(nw,
                                     constraints=~.,
-                                    obs.constraints=~observed,
+                                    obs.constraints=~-observed,
                                     target.stats=NULL) {
   
   # Observation process handling only needs to happen if the
@@ -20,22 +26,20 @@
     if(network.naedgecount(nw)){
       warning("Target statistics specified in a network with missing dyads. Missingness will be overridden.")
       nw[as.matrix(is.na(nw),matrix.type="edgelist")] <- 0
-    }else if(obs.constraints!=~observed){
+    }else if(obs.constraints!=~-observed){
       cat("Target statistics specified in a network with a nontrivial observation process. Observation process will be ignored.\n")
     }
     obs.constraints <- ~.
   }
-  # Get list of observation process constraints, dropping the . in ~. if needed.
-  obs.constraints <- term.list.formula(obs.constraints[[length(obs.constraints)]])
-  obs.constraints <- obs.constraints[obs.constraints!="."]
 
   # If no missing edges, remove the "observed" constraint.
   if(network.naedgecount(nw)==0){
-    obs.con.names <- sapply(obs.constraints, function(x) as.character(if(is.call(x)) x[[1]] else x))
-    obs.constraints[obs.con.names=="observed"] <- NULL
+    obs.constraints <- .delete_from_conform_rhs(obs.constraints, "observed")
   }
   
-  constraints.obs<-append.rhs.formula(constraints, obs.constraints, TRUE)
+  constraints.obs<-obs.constraints
+  constraints.obs[[length(constraints.obs)]] <- call('+', constraints.obs[[length(constraints.obs)]], constraints[[length(constraints)]])
+  constraints.obs <- .delete_from_conform_rhs(constraints.obs, ".")
   if(constraints==constraints.obs) constraints.obs<-NULL
 
   list(nw = nw, constraints.obs = constraints.obs)
@@ -43,8 +47,8 @@
 
 .align.target.stats.offset <- function(model, target.stats){
   om <- model$etamap$offsetmap
-  cno <- .coef.names.model(model, canonical=TRUE)
-  cn <- .coef.names.model(model, canonical=TRUE)[!om]
+  cno <- param_names(model, canonical=TRUE)
+  cn <- param_names(model, canonical=TRUE)[!om]
   target.stats <- na.omit(vector.namesmatch(target.stats, cn))
   tmp <- rep(NA, length(om))
   tmp[!om] <- target.stats

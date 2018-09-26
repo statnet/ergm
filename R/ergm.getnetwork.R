@@ -23,33 +23,41 @@
 #
 ###################################################################################
 
-ergm.getnetwork <- function (form, loopswarning=TRUE) {
-  if ((dc<-data.class(form)) != "formula")
-    stop (paste("Invalid formula of class ",dc))
-  trms<-terms(form)
-  if (trms[[1]]!="~")
-    stop ("Formula must be of the form 'network ~ model'.")
+#' Acquire and verify the network from the LHS of an `ergm` formula
+#' and verify that it is a valid network.
+#' 
+#' The function function ensures that the network in a given formula
+#' is valid; if so, the network is returned; if not, execution is
+#' halted with warnings.
+#'
+#' @param formula a two-sided formula whose LHS is a [`network`], an object that can be coerced to a [`network`], or an expression that evaluates to one.
+#' @param loopswarning whether warnings about loops should be printed
+#'   (`TRUE` or `FALSE`); defaults to `TRUE`.
+#' 
+#' @return A [`network`] object constructed by evaluating the LHS of
+#'   the model formula in the formula's environment.
+#' @export ergm.getnetwork
+ergm.getnetwork <- function (formula, loopswarning=TRUE){
+  nw <- eval_lhs.formula(formula)
+  nw <- ensure_network(nw)
 
-  nw.env<-environment(form)
-  if(!exists(x=paste(trms[[2]]),envir=nw.env)){
-    stop(paste("The network in the formula '",capture.output(print(form)),"' cannot be found.",sep=""))
-  }
-  nw <- try(
-          {
-            tmp <- eval(trms[[2]],envir=nw.env)
-            if(is.network(tmp)) tmp else as.network(tmp)
-          },
-          silent = TRUE)
-  if(inherits(nw,"try-error")){
-      stop("Invalid network. Is the left-hand-side of the formula correct?")
-  }
   if (loopswarning) {
     e <- as.edgelist(nw)
     if(any(e[,1]==e[,2])) {
       print("Warning:  This network contains loops")
-    } else if (has.loops(nw)) {
+    } else if (has.loops(as.network(nw,populate=FALSE))) {
       print("Warning:  This network is allowed to contain loops")
     }
+  }
+  nw
+}
+
+ensure_network <- function(nw){
+  if(!is.network(nw) && !is.pending_update_network(nw)){
+    nw <- ERRVL(
+      try(as.network(nw)),
+      abort("A network object on the LHS of the formula or as a basis argument must be given")
+    )
   }
   nw
 }

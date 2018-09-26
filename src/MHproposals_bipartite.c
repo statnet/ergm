@@ -1,18 +1,13 @@
-/*  File src/MHproposals_bipartite.c in package ergm, part of the Statnet suite
+/*  File src/MHProposals_bipartite.c in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  http://statnet.org/attribution
  *
- *  Copyright 2003-2013 Statnet Commons
+ *  Copyright 2003-2017 Statnet Commons
  */
 #include "MHproposals_bipartite.h" 
-
-/* Shorthand. */
-#define Mtail (MHp->toggletail)
-#define Mhead (MHp->togglehead)
-
 
 /********************
    void MH_BipartiteHammingConstantEdges
@@ -20,7 +15,7 @@
    MSH: The name Hamming is a hack for the Hamming proposals
         It is no different the MH_BipartiteConstantEdges
 ***********************/
-void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp) 
+MH_P_FN(MH_BipartiteHammingConstantEdges)
 {
   /* *** don't forget, edges are (tail, head) now */
 
@@ -38,7 +33,7 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp)
     odds = comp/(1.0-comp);
     nnodes = nwp[0].nnodes;
     nb1 = nwp[0].bipartite;
-    ndyads = DYADCOUNT(nnodes, nb1, 0);
+    ndyads = DYADCOUNT(nwp);
     return;
   }
   
@@ -113,7 +108,7 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp)
    MSH: The name Hamming is a hack for the Hamming proposals
         It is no different the MH_BipartiteTNT
 ***********************/
-void MH_BipartiteHammingTNT (MHproposal *MHp, Network *nwp) 
+MH_P_FN(MH_BipartiteHammingTNT)
 {
   /* *** don't forget, edges are (tail, head) now */  
   Vertex tail, head;
@@ -130,7 +125,7 @@ void MH_BipartiteHammingTNT (MHproposal *MHp, Network *nwp)
     odds = comp/(1.0-comp);
     nnodes = nwp[0].nnodes;
     nb1 = nwp[0].bipartite;
-    ndyads = DYADCOUNT(nnodes, nb1, 0);
+    ndyads = DYADCOUNT(nwp);
     return;
   }
   
@@ -177,7 +172,7 @@ void MH_BipartiteHammingTNT (MHproposal *MHp, Network *nwp)
  deg(tail) stays the same while deg(head) and deg(A) swap
  with one another.
 *********************/
-void MH_BipartiteCondDegreeDist (MHproposal *MHp, Network *nwp) {  
+MH_P_FN(MH_BipartiteCondDegreeDist){  
   int valid, count;
   Edge e;
   Vertex tail, head, A, tailin, tailout, headdeg, Adeg, minA, maxA, i, k;

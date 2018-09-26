@@ -1,26 +1,22 @@
-/*  File src/wtMHproposals.c in package ergm, part of the Statnet suite
+/*  File src/wtProposals.c in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  http://statnet.org/attribution
  *
- *  Copyright 2003-2013 Statnet Commons
+ *  Copyright 2003-2017 Statnet Commons
  */
 #include "wtMHproposals.h"
-#include "wtchangestat.h"
-
-/* Shorthand. */
-#define Mtail (MHp->toggletail)
-#define Mhead (MHp->togglehead)
-#define Mweight (MHp->toggleweight)
+#include "ergm_wtchangestat.h"
+#include "ergm_rlebdm.h"
 
 /*********************
  void MH_StdNormal
 
  Default MH algorithm for a standard-normal-reference ERGM
 *********************/
-void MH_StdNormal(WtMHproposal *MHp, WtNetwork *nwp)  {  
+WtMH_P_FN(MH_StdNormal){  
   double oldwt;
   
   if(MHp->ntoggles == 0) { // Initialize StdNormal 
@@ -45,7 +41,7 @@ void MH_StdNormal(WtMHproposal *MHp, WtNetwork *nwp)  {
 
  Default MH algorithm for continuous-uniform-reference ERGM
 *********************/
-void MH_Unif(WtMHproposal *MHp, WtNetwork *nwp)  {  
+WtMH_P_FN(MH_Unif){  
   double oldwt;
   static int a, b;
   
@@ -73,7 +69,7 @@ void MH_Unif(WtMHproposal *MHp, WtNetwork *nwp)  {
 
  Missing data MH algorithm for continuous-uniform-reference ERGM.
 *********************/
-void MH_UnifNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {  
+WtMH_P_FN(MH_UnifNonObserved){  
   static Edge nmissing;
   static int a, b;
   
@@ -114,7 +110,7 @@ void MH_UnifNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {
 
  Default MH algorithm for discrete-uniform-reference ERGM
 *********************/
-void MH_DiscUnif(WtMHproposal *MHp, WtNetwork *nwp)  {  
+WtMH_P_FN(MH_DiscUnif){  
   double oldwt;
   static int a, b;
   
@@ -142,7 +138,7 @@ void MH_DiscUnif(WtMHproposal *MHp, WtNetwork *nwp)  {
 
  Missing data MH algorithm for discrete-uniform-reference ERGM.
 *********************/
-void MH_DiscUnifNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {  
+WtMH_P_FN(MH_DiscUnifNonObserved){  
   static Edge nmissing;
   static int a, b;
   
@@ -176,3 +172,89 @@ void MH_DiscUnifNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {
 
   MHp->logratio += 0; // h(y) is uniform and the proposal is symmetric
 }
+
+/*********************
+ void MH_DiscUnifTwice
+
+ MH algorithm for discrete-uniform-reference ERGM, twice
+*********************/
+void MH_DiscUnif2(WtMHProposal *MHp, WtNetwork *nwp)  {  
+  double oldwt;
+  static int a, b;
+  
+  if(MHp->ntoggles == 0) { // Initialize DiscUnif 
+    MHp->ntoggles=2;
+    a = MHp->inputs[0];
+    b = MHp->inputs[1];
+    return;
+  }
+  
+  GetRandDyad(Mtail, Mhead, nwp);
+  
+  oldwt = GETWT(Mtail[0],Mhead[0]);
+
+  do{
+    Mweight[0] = floor(runif(a,b+1));
+  }while(Mweight[0]==oldwt);
+
+  do{
+    GetRandDyad(Mtail+1, Mhead+1, nwp);
+    
+    oldwt = GETWT(Mtail[1],Mhead[1]);
+    
+    do{
+      Mweight[1] = floor(runif(a,b+1));
+    }while(Mweight[1]==oldwt);
+  }while(Mtail[0]==Mtail[1] && Mhead[0]==Mhead[1]);
+  
+  MHp->logratio += 0; // h(y) is uniform and the proposal is symmetric
+}
+
+/********************
+   void MH_DistRLE
+   Propose ONLY edges on an RLE-compressed list
+***********************/
+WtMH_P_FN(MH_DistRLE)
+{  
+  static RLEBDM1D r;
+  static double *inputs;
+
+  if(MHp->ntoggles == 0) { /* Initialize */
+    MHp->ntoggles=1;
+    inputs = MHp->inputs;
+    r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
+    return;
+  }
+  
+  if(r.ndyads==0){ /* No dyads to toggle. */
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_IMPOSSIBLE;
+    return;
+  }
+
+  GetRandRLEBDM1D_RS(Mtail, Mhead, &r);
+  double oldwt = GETWT(Mtail[0],Mhead[0]);
+
+  do{
+    switch((unsigned int) *inputs){
+    case 0:
+      Mweight[0] = runif(inputs[1],inputs[2]);
+      break;
+    case 1:
+      Mweight[0] = floor(runif(inputs[1],inputs[2]+1));
+      break;
+    case 2:
+      Mweight[0] = rnorm(inputs[1],inputs[2]);
+      break;
+    case 3:
+      Mweight[0] = rpois(inputs[1]);
+      break;
+    case 4:
+      Mweight[0] = rbinom(inputs[1],inputs[2]);
+      break;
+    }
+  }while(Mweight[0]==oldwt);
+  
+  // MHp->logratio += 0; // h(y) is uniform and the proposal is symmetric
+}
+

@@ -1,3 +1,12 @@
+#  File tests/miss_tests.CD.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2017 Statnet Commons
+#######################################################################
 library(statnet.common)
 opttest({
 library(ergm)
@@ -81,12 +90,12 @@ y.miss <- simulate(y~edges, coef=logit(0.01))
 y[as.edgelist(y.miss)] <- NA
 
 cat("Network statistics:\n")
-print(summary(y~edges+gwesp(0.5)))
+print(summary(y~edges+gwesp()))
 truth<-correct.edges.theta(y)
 cat("Correct estimate =",truth,"\n")
 
 set.seed(654)
-cdfit<-ergm(y~edges+gwesp(0.5), estimate="CD", control=control.ergm(CD.nsteps=50, MCMC.samplesize=100))
+cdfit<-ergm(y~edges+gwesp(), estimate="CD", control=control.ergm(CD.nsteps=50, MCMC.samplesize=100))
 summary(cdfit)
 stopifnot(abs(coef(cdfit)[1]-truth)/sqrt(cdfit$covar[1])<2)
 }, "CD missing data")

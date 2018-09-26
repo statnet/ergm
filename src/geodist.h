@@ -5,12 +5,12 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  http://statnet.org/attribution
  *
- *  Copyright 2003-2013 Statnet Commons
+ *  Copyright 2003-2017 Statnet Commons
  */
 #ifndef GEODIST_H
 #define GEODIST_H
 
-#include "edgetree.h"
+#include "ergm_edgetree.h"
 
 void node_geodesics (int *edgelist, int *nnodes, int *nodelist,
                      int *nedges, int *nodecolor, int *dist, 

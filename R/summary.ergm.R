@@ -28,8 +28,6 @@
 #   ans: a "summary.ergm" object as a list containing the following
 #      formula         : object$formula
 #      randomeffects   : object$re
-#      digits          : the 'digits' inputted to <summary.ergm> or the default
-#                        value (despite the fact the digits will be 5)
 #      correlation     : the 'correlation' passed to <summary.ergm>
 #      degeneracy.value: object$degenarcy.value
 #      offset          : object$offset
@@ -43,7 +41,7 @@
 #                        estimates
 #      aic             : the AIC goodness of fit measure
 #      bic             : the BIC goodness of fit measure
-#      coefs           : the dataframe of parameter coefficients and their
+#      coefficients    : the dataframe of parameter coefficients and their
 #                        standard erros and p-values
 #      asycov          : the asymptotic covariance matrix
 #      asyse           : the asymptotic standard error matrix
@@ -52,11 +50,51 @@
 #
 ################################################################################
 
+
+
+#' Summarizing ERGM Model Fits
+#' 
+#' \code{\link[base]{summary}} method for [`ergm`] fits.
+#' 
+#' \code{\link{summary.ergm}} tries to be smart about formatting the
+#' coefficients, standard errors, etc.
+#' 
+#' @aliases print.summary.ergm
+#' @param object an object of class \code{"ergm"}, usually, a result
+#'   of a call to \code{\link{ergm}}.
+#' @param digits Significant digits for coefficients
+#' @param correlation logical; if \code{TRUE}, the correlation matrix
+#'   of the estimated parameters is returned and printed.
+#' @param covariance logical; if \code{TRUE}, the covariance matrix of
+#'   the estimated parameters is returned and printed.
+#' @param total.variation logical; if \code{TRUE}, the standard errors
+#'   reported in the \code{Std. Error} column are based on the sum of
+#'   the likelihood variation and the MCMC variation. If \code{FALSE}
+#'   only the likelihood varuation is used. The \eqn{p}-values are
+#'   based on this source of variation.
+#' @param \dots Arguments to \code{\link{logLik.ergm}}
+#' @return The function \code{\link{summary.ergm}} computes and
+#'   returns a list of summary statistics of the fitted
+#'   \code{\link{ergm}} model given in \code{object}.
+#' @seealso network, ergm, print.ergm.  The model fitting function
+#'   \code{\link{ergm}}, \code{\link{summary}}.
+#' 
+#' Function \code{\link{coef}} will extract the matrix of coefficients with
+#' standard errors, t-statistics and p-values.
+#' @keywords regression models
+#' @examples
+#' 
+#'  data(florentine)
+#' 
+#'  x <- ergm(flomarriage ~ density)
+#'  summary(x)
+#' 
+#' @export
 summary.ergm <- function (object, ..., 
-                          digits = max(3, getOption("digits") - 3),
                           correlation=FALSE, covariance=FALSE,
                           total.variation=TRUE)
 {
+  if("digits" %in% names(list(...))) warn("summary.ergm() no lnger takes a digits= argument.")
   control <- object$control
   pseudolikelihood <- object$estimate=="MPLE"
   independence <- is.dyad.independent(object)
@@ -70,11 +108,11 @@ summary.ergm <- function (object, ...,
   nodes<- network.size(object$network)
 
   ans <- list(formula=object$formula,
-              digits=digits, correlation=correlation,
+              correlation=correlation,
               degeneracy.value = object$degeneracy.value,
               offset = object$offset,
-              drop = if(is.null(object$drop)) rep(0,length(object$offset)) else object$drop,
-              estimable = if(is.null(object$estimable)) rep(TRUE,length(object$offset)) else object$estimable,
+              drop = NVL(object$drop, rep(0,length(object$offset))),
+              estimable = NVL(object$estimable, rep(TRUE,length(object$offset))),
               covariance=covariance,
               pseudolikelihood=pseudolikelihood,
               independence=independence,
@@ -82,40 +120,40 @@ summary.ergm <- function (object, ...,
               control=object$control)
   
   ans$samplesize <- switch(object$estimate,
-                           EGMME = if(!is.null(control$EGMME.main.method)) switch(control$EGMME.main.method,
+                           EGMME = NVL3(control$EGMME.main.method, switch(.,
                              `Gradient-Descent`=control$SA.phase3n,
-                             stop("Unknown estimation method. This is a bug.")),
+                             stop("Unknown estimation method. This is a bug."))),
                            MPLE = NA,
                            CD=,
-                           MLE = if(!is.null(control$main.method)) switch(control$main.method,
+                           MLE = NVL3(control$main.method, switch(.,
                              CD=control$MCMC.samplesize,
                              `Stochastic-Approximation`=,
                                MCMLE=control$MCMC.samplesize,
                              `Robbins-Monro`=control$RM.phase3n,
                              `Stepping`=control$Step.MCMC.samplesize,
-                             stop("Unknown estimation method. This is a bug.")),
+                             stop("Unknown estimation method. This is a bug."))),
                            stop("Unknown estimate type. This is a bug.")
                            )
                               
 
   ans$iterations <- switch(object$estimate,
-                           EGMME = if(!is.null(control$EGMME.main.method)) switch(control$EGMME.main.method,
+                           EGMME = NVL3(control$EGMME.main.method, switch(.,
                              `Gradient-Descent`=NA,
-                             stop("Unknown estimation method. This is a bug.")),
+                             stop("Unknown estimation method. This is a bug."))),
                            MPLE = NA,
                            CD=control$CD.maxit,
-                           MLE = if(!is.null(control$main.method)) switch(control$main.method,
+                           MLE = NVL3(control$main.method, switch(.,
                                `Stochastic-Approximation`=NA,
                              MCMLE=paste(object$iterations, "out of", control$MCMLE.maxit),
                              CD=control$CD.maxit,
                              `Robbins-Monro`=NA,
                              `Stepping`=NA,
-                             stop("Unknown estimation method. This is a bug.")),
+                             stop("Unknown estimation method. This is a bug."))),
                            stop("Unknown estimate type. This is a bug.")
                            )
   
   nodes<- network.size(object$network)
-  dyads<- network.dyadcount(object$network,FALSE)-network.edgecount(NVL(get.miss.dyads(object$constrained, object$constrained.obs),network.initialize(1)))
+  dyads<- sum(as.rlebdm(object$constrained, object$constrained.obs, which="informative"))
   df <- length(object$coef)
 
 
@@ -132,21 +170,18 @@ summary.ergm <- function (object, ...,
   }
 
   rdf <- dyads - df
-  tval <- object$coef / asyse
-  pval <- 2 * pt(q=abs(tval), df=rdf, lower.tail=FALSE)
+  zval <- object$coef / asyse
+  pval <- 2 * pnorm(q=abs(zval), lower.tail=FALSE)
   
   count <- 1
-  templist <- NULL
-  while (count <= length(names(object$coef)))
-    {
-     templist <- append(templist,c(object$coef[count],
-          asyse[count],est.pct[count],pval[count]))
-     count <- count+1
-    }
+  coefmat <- cbind(
+    `Estimate` = coef(object),
+    `Std. Error` = asyse,
+    `MCMC %` = est.pct,
+    `z value` = zval,
+    `Pr(>|z|)` = pval)
 
-  tempmatrix <- matrix(templist, ncol=4,byrow=TRUE)
-  colnames(tempmatrix) <- c("Estimate", "Std. Error", "MCMC %", "p-value")
-  rownames(tempmatrix) <- names(object$coef)
+  rownames(coefmat) <- param_names(object)
 
   devtext <- "Deviance:"
   if (object$estimate!="MPLE" || !independence || object$reference != as.formula(~Bernoulli)) {
@@ -167,17 +202,20 @@ summary.ergm <- function (object, ...,
   ans$null.lik.0 <- is.na(null.lik)
 
   if(!inherits(mle.lik,"try-error")){
-  
-    ans$devtable <- c("",apply(cbind(paste(format(c("    Null", "Residual"), width = 8), devtext), 
-                                     format(c(if(is.na(null.lik)) 0 else -2*null.lik, -2*mle.lik), digits = digits), " on",
-                                     format(c(dyads, rdf), digits = digits)," degrees of freedom\n"), 
-                               1, paste, collapse = " "),"\n")
-    
+
+    ans$devtable <- matrix(c(if(is.na(null.lik)) 0 else -2*null.lik, -2*mle.lik,
+                             c(dyads, rdf)), 2,2, dimnames=list(c("Null","Residual"),
+                                                                c("Resid. Dev", "Resid. Df")))
+    ans$devtext <- devtext
+        
     ans$aic <- AIC(mle.lik)
     ans$bic <- BIC(mle.lik)
+    ans$mle.lik <- ERRVL(mle.lik, NA)
+    ans$null.lik <- ERRVL(null.lik, NA)
   }else ans$objname<-deparse(substitute(object))
-  
-  ans$coefs <- as.data.frame(tempmatrix)
+
+  ans$coefs <- as.data.frame(coefmat)
+  ans$coefficients <- as.data.frame(coefmat)
   ans$asycov <- asycov
   ans$asyse <- asyse
   class(ans) <- "summary.ergm"

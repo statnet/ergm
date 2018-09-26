@@ -14,57 +14,35 @@
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
 
-\section{Changes in version 4.0.0}{
+%% \section{Changes in version X.Y.Z}{
 
-  \subsection{NEW FEATURES}{
-    \itemize{
-      \item{
-	Curved ERGMs are no longer \dQuote{second class citizens}. It is now
-	possible to obtain their MPLE, pass curved parameters via
-	\code{coef=} and \code{init=} arguments, etc.. 
-      }
+%%   \subsection{NEW FEATURES}{
+%%     \itemize{
+%%       \item{
+%%       }
+%%     }
+%%   }
 
-      \item{
-	A mechanism for specifying \dQuote{observational constraints}
-	has been added, allowing more complex observation processes than
-	just missing data to be estimated.
 
-	Currently, this can be used for estimating arbitrary ERGMs on
-	networks whose edges have been randomly flipped with known
-	probabilities (say, to preserve privacy). (See Karwa, Krivitsky,
-	and Slavcovic (2016).)
-      }
+%%   \subsection{BUG FIXES}{
+%%     \itemize{
+%%       \item{
+%%       }
+%%     }
+%%   }
 
-    }
-  }
-   
-  
-   \subsection{BUG FIXES}{
-     \itemize{
-       
-       \item{A large number of bugs in bridge sampling has been fixed.}
 
-       \item{Miscellaneous fixes to the documentation and robustifications.}
+%%   \subsection{OTHER USER-VISIBLE CHANGES}{
+%%     \itemize{
+%%       \item{
+%%       }
+%%     }
+%%   }
 
-     }
-   }
-
-  
-   \subsection{OTHER USER-VISIBLE CHANGES}{
-     \itemize{
-       \code{\link{enformulate.curved}} family of functions has been deprecated.
-     }    
-   }
-
-  \subsection{C-LEVEL FACILITIES}{
-    \itemize{
-      The user term API now allows the C implementation to store
-      information about the network between calls to the \code{d_*}
-      function, by implementing a \code{u_*} function that initializes
-      the storage space and is called to update the stored information
-      before every toggle.
-    }
-  }
+  %% \subsection{C-LEVEL FACILITIES}{
+  %%   \itemize{
+  %%   }
+  %% }
 
   % \subsection{UTILITIES}{
   %   \itemize{
@@ -84,11 +62,376 @@
   %   }
   % }
 
+%% }
+
+
+\section{Changes in version 4.0.0}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+	Curved ERGMs are no longer \dQuote{second class citizens}. It is now
+	possible to obtain their MPLE, pass curved parameters via
+	\code{coef=} and \code{init=} arguments, etc.. 
+      }
+
+      \item{
+	The term API now supports box constraints on parameters or
+	coefficients, which may be set via \code{minpar} and
+	\code{maxpar} elements in the \code{InitErgmTerm}'s return list.
+      }
+
+      \item{
+	A mechanism for specifying \dQuote{observational constraints}
+	has been added, allowing more complex observation processes than
+	just missing data to be estimated.
+
+	Currently, this can be used for estimating arbitrary ERGMs on
+	networks whose edges have been randomly flipped with known
+	probabilities (say, to preserve privacy). (See Karwa, Krivitsky,
+	and Slavcovic (2016).)
+
+      }
+
+    }
+  }
+   
+  
+   \subsection{BUG FIXES}{
+     \itemize{
+       
+       \item{A large number of bugs in bridge sampling has been fixed.}
+
+       \item{Miscellaneous fixes to the documentation and
+	 robustifications.}
+
+     }
+   }
+
+  
+   \subsection{OTHER USER-VISIBLE CHANGES}{
+     \itemize{
+       \item{
+	 \code{\link{enformulate.curved}} family of functions has been
+	 deprecated.
+       }
+     }    
+   }
+
+  \subsection{C-LEVEL FACILITIES}{
+    \itemize{
+      \item{
+	The user term API now allows the C implementation to store
+	information about the network between calls to the \code{d_*}
+	function, by implementing a \code{u_*} function that initializes
+	the storage space and is called to update the stored information
+	before every toggle.
+      }
+    }
+  }
+}
+
+\section{Changes in version 3.9.5}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+	\code{\link{ergm.godfather}} now takes an additional \code{changes.only=} argument, to return statistics relative to initial network.
+      }
+    }
+  }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+	The default method of \code{\link{ergm.stopCluster}} had not
+	been exported.
+      }
+      \item{
+	\code{\link{summary.ergm}} fixed for CD estimation.
+      }
+      \item{
+	Some spurious warnings fixed.
+      }
+    }
+  }
+
+
+  %% \subsection{OTHER USER-VISIBLE CHANGES}{
+  %%   \itemize{
+  %%     \item{
+  %%     }
+  %%   }
+  %% }
+
+  %% \subsection{C-LEVEL FACILITIES}{
+  %%   \itemize{
+  %%   }
+  %% }
+
+  %% \subsection{UTILITIES}{
+  %%   \itemize{
+  %%     \item Likewise, "UTILITIES" is probably unnecessary.
+  %%   }
+  %% }
+
+  %% \subsection{INSTALLATION}{
+  %%   \itemize{
+  %%     \item ... as is "INSTALLATION".
+  %%   }
+  %% }
+
+  %% \subsection{PACKAGE INSTALLATION}{
+  %%   \itemize{
+  %%     \item ditto.
+  %%   }
+  %% }
+
+}
+
+\section{Changes in version 3.9.4}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+	A new API allows arbitrary combinations of dyad-level sample
+	space constraints.
+      }
+      \item{
+	Most terms that take categorical nodal attributes now have a \code{levels=} argument, which can be used to control the set and the ordering of the attribute levels.
+      }
+      \item{
+	More informative error messages for term initialization.
+      }
+      \item{
+	\code{\link{ergm.godfather}} has been reimplemented in the
+	\code{ergm} package, along with its valued counterpart.
+      }
+      \item{
+	New terms have been added or improved:
+	\itemize{
+	  \item{
+	    \code{mm} for a more flexible specification
+	    for mixing matrix and marginal effects;
+	  }
+	  \item{
+	    valued versions of \code{sender}, \code{receiver},
+	    \code{sociality} terms;
+	  }
+	  \item{
+	    \code{ininterval} now allows interval openness to be
+	    specified as a character string.
+	  }
+	}
+      }
+      \item{A new \code{term.options} control parameter allows additional
+	arguments to be passed to term initializers.
+      }
+    }
+  }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+	A numerical instability in penalised pseudolikelihood
+	calculation identified by Kevin Reuning has been fixed.
+      }
+      \item{
+	An error in runtime traceplotting for models with offset terms
+	reported by Kevin Reuning has been fixed.
+      }
+      \item{
+	An error when trying to run the Robbins-Monro algorithm with parallel
+	processing enabled, reported by George G. Vega Yon has been fixed.
+      }
+      \item{
+	A bug in the \code{\link{meandeg}} term for directed
+	networks has been fixed.
+      }
+      \item{
+	Miscellaneous bugs in the \code{gof} family of functions have
+	been fixed.
+      }
+    }
+  }
+
+
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+	The coefficient names associated with terms enclosed in
+	\code{offset()} are now also enclosed in \code{offset()}.
+      }
+      \item{
+	\code{\link[=summary.ergm]{summary}} method for \code{ergm} now
+	uses uses \eqn{z}-tests rather than \eqn{t}-tests, since there
+	is no \dQuote{dispersion} parameter. In addition, it no longer
+	takes a \code{digits=} argument.
+      }
+      \item{
+	Handling of missing relations has been improved.
+      }
+      \item{
+	Estimation progress when \code{verbose=TRUE} is now a bit less
+	verbose; use \code{verbose=2} and up to get more information.
+      }
+      \item{
+	The default value of the \code{eval.loglik=} argument to \code{\link{ergm}} is now
+	controlled by \code{\link{options}} option \code{ergm.eval.loglik=}.
+      }
+      \item{
+	\code{\link{plot.network.ergm}} has been deprecated.
+      }
+      \item{
+	Some of the unofficial APIs have been changed for consistency
+	and ease of use:
+	\itemize{
+	  \item{
+	    A new set of helper functions has been added to
+	    improve handling of nodal attributes. See
+	    \link{node-attr-api} for details.
+	  }
+	  \item{
+	    \code{\link[=summary.ergm]{summary}} method for \code{ergm}
+	    now exports a \code{$coefficients} element (like
+	    \code{\link{summary.lm}}) and \code{$devtable} is a proper table.
+	  }
+	  \item{
+	    New generics \code{\link{nparam}} and
+	    \code{\link{param_names}} can be used to query the number
+	    and the names of the parameters in a model.
+	  }
+	  \item{
+	    \code{\link{ergm_model}} (replacing
+	    \code{ergm.getmodel}) is now a full-fledged S3 class,
+	    representing initialized \code{ergm} models. See its help for the
+	    major methods. In particular, \code{ergm.getglobalstats} has
+	    been repalced with \code{\link{summary.ergm_model}}.
+	  }
+	  \item{
+	    \code{\link{simulate.formula}} functions now take an
+	    \code{\link{ergm_model}} as an argument to \code{monitor=}.
+	  }
+	  \item{
+	    Constraint initializers have been renamed from
+	    \code{InitConstraint} to \code{InitErgmConstraint}. The
+	    constraint implications table has been replaced with
+	    \code{implies} and \code{impliedby} constraint lists.
+	  }
+	  \item{
+	    Proposal initializers have been renamed from
+	    \code{InitMHP} (and \code{InitWtMHP}) to
+	    \code{InitErgmProposal} (and
+	    \code{InitWtErgmProposal}). \code{ergm.MHP.table} has been renamed
+	    to \code{\link{ergm_proposal_table}}.
+	  }
+	  \item{
+	    Reference initializers have been renamed from
+	    \code{InitReference} to \code{InitErgmReference}. Return
+	    format has also been changed, replacing
+	    \code{ergm.init.methods}.
+	  }
+	  \item{
+	    \code{ergm.Clist.*} functions have been refined and
+	    specialized. In particular, those that specifically return
+	    numeric vectors (not lists of numeric vectors) for passing
+	    to C code are now methods of the
+	    \code{\link{to_ergm_Cdouble}} generic.
+	  }
+	  \item{
+	    \code{ergm.getMCMCsample} and \code{ergm.mcmcslave} have
+	    been renamed to \code{ergm_MCMC_sample} and
+	    \code{ergm_MCMC_slave} respectively, and the arguments of
+	    \code{ergm_MCMC_sample} have been made more user-friendly.
+	  }
+	}
+      }
+    }
+  }
+
+  %% \subsection{C-LEVEL FACILITIES}{
+  %%   \itemize{
+  %%   }
+  %% }
+
+  %% \subsection{UTILITIES}{
+  %%   \itemize{
+  %%     \item Likewise, "UTILITIES" is probably unnecessary.
+  %%   }
+  %% }
+
+  %% \subsection{INSTALLATION}{
+  %%   \itemize{
+  %%     \item ... as is "INSTALLATION".
+  %%   }
+  %% }
+
+  %% \subsection{PACKAGE INSTALLATION}{
+  %%   \itemize{
+  %%     \item ditto.
+  %%   }
+  %% }
+
 }
 
 
-\section{Changes in version 3.7.1}{
+\section{Changes in version 3.8.0}{
 
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+	Development of \code{ergm} and associated packages is now hosted
+	on GitHub.
+      }
+      \item{
+	Some terms, particularly \code{\link{dyadcov}} have been improved.
+      }
+    }
+  }
+   
+  
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+	Bug fixes to contrastive divergence code.
+      }
+      
+      \item{
+	\code{\link{ddsp}} and \code{\link{dnsp}} terms now work
+	correctly for 0 shared partners. (Thanks to Wouter Spekkink for
+	reporting this bug.)
+	}
+
+      \item{
+	Miscellaneous bug fixes, typo corrections, and robustifications.
+      }
+    }
+  }
+  
+  
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+	Terms \code{degreepopularity}, \code{idegreepopularity}, and
+	\code{odegreepopularity} have been renamed to \code{degree1.5},
+	\code{idegree1.5}, and \code{odegree1.5} respectively.
+      }
+      \item{
+	Progress reports for ERGM fits and simulations are now printed
+	using \code{\link{message}}, so they can be suppressed with
+	\code{\link{suppressMessages}}.
+      }
+      \item{
+	A number of functions deprecated in 2015 have been removed. See
+	\code{help('ergm-defunct')} for the list.
+      }
+    }    
+  }
+}
+
+\section{Changes in version 3.7.1}{
   \subsection{BUG FIXES}{
     \itemize{
       \item{
@@ -98,7 +441,6 @@
       }
     }
   }
-
 }
 
 

@@ -7,57 +7,75 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
-##########################################################################
-# The <ergm.Cprepare> function builds an object called Clist that contains
-# all the necessary ingredients to be passed to the C functions
-#
-# --PARAMETERS--
-#   nw:  a network object
-#   m :  a model object, as returned by <ergm.getmodel>
-#
-# --RETURNED--
-#   Clist:  a list of parameters used by several of the fitting routines
-#           containing
-#            n           :  the size of the network
-#            dir         :  whether the network is directed (T or F)
-#            bipartite   :  whether the network is bipartite (T or F)
-#            ndyads      :  the number of dyads in the network
-#            nedges      :  the number of edges in this network
-#            tails       :  the vector of tail nodes; tail nodes are
-#                               the 1st column of the implicit edgelist,
-#                               so either the lower-numbered nodes in an
-#                               undirected graph, or the out nodes of a
-#                               directed graph, or the b1 nodes of a bi-
-#                               partite graph
-#            heads           :  the vector of head nodes; head nodes are
-#                               the 2nd column of the implicit edgelist,
-#                               so either the higher-numbered nodes in an
-#                               undirected graph, or the in nodes of a
-#                               directed graph, or the b2 nodes of a bi-
-#                               partite graph
-#            nterms      :  the number of model terms
-#            nstats      :  the total number of change statistics
-#                           for all model terms
-#            inputs      :  the concatenated vector of 'input's from each
-#                           model term as returned by <InitErgmTerm.X> or
-#                           <InitErgm.X>
-#            fnamestring :  the concatenated string of model term names
-#            snamestring :  the concatenated string of package names that
-#                           contain the C function 'd_fname'; default="ergm"
-#                           for each fname in fnamestring
-#
-##########################################################################
 
-ergm.Cprepare <- function(nw, m, response=NULL)
-{
-  n <- network.size(nw)
-  dir <- is.directed(nw)
+
+#' Internal Functions to Prepare Data for ergm's C Interface
+#' 
+#' These are internal functions not intended to be called by end
+#' users. `ergm_Clist` collates the information in the given object
+#' into a form suitable for being passed to the C routines.
+#'
+#' @param object object to be collated.
+#' @param ... additional arguments for methods.
+#' @return A list of class `"ergm_Clist"` and possibly a subclass `"ORIGINAL.ergm_Clist"` containing some subset of the following elements: 
+#' @keywords internal
+#' @export
+ergm_Clist <- function(object, ...){
+  UseMethod("ergm_Clist")
+}
+
+#' @rdname ergm_Clist
+#' 
+#' @description The \code{ergm.Cprepare} is a legacy function that constructs a combination of `ergm_Clist`s from the given [`network`] and the given [`ergm_model`].
+#'
+#' @param nw a network or similar object
+#' @param m a model object, as returned by \code{\link{ergm_model}}
+#' @param verbose logical, whether the design matrix should be printed;
+#' default=FALSE
+#'
+#' @export ergm.Cprepare
+ergm.Cprepare <- function(nw, m, response=NULL){
+  nw.Clist <- ergm_Clist(nw, response=response)
+  m.Clist <- ergm_Clist(m)
+
+  c(nw.Clist, m.Clist)
+}
+
+
+#' @describeIn ergm_Clist
+#'
+#' Collates a [`network`] object.
+#'
+#' @template response
+#' 
+#' @return
+#' \item{n}{ the size of the network }
+#' \item{dir}{ whether the network is directed (T or F) }
+#' \item{bipartite}{ whether the network is bipartite (T or F) }
+#' \item{ndyads}{ the number of dyads in the network }
+#' \item{nedges}{ the number of edges in this network }
+#' \item{tails}{ the vector of tail nodes; tail nodes are the 1st
+#' column of the implicit edgelist, so either the lower-numbered nodes in an
+#' undirected graph, or the out nodes of a directed graph, or the b1 nodes of a
+#' bipartite graph }
+#' \item{heads}{ the vector of head nodes; head nodes are the
+#' 2nd column of the implicit edgelist, so either the higher-numbered nodes in
+#' an undirected graph, or the in nodes of a directed graph, or the b2 nodes of
+#' a bipartite graph }
+#' 
+#' @export
+ergm_Clist.network <- function(object, response=NULL, ...){
+  e <- na.omit(as.edgelist(object,attrname=response)) # Ensures that for undirected networks, tail<head.
+  class(object) <- "network"
+
+  n <- network.size(object)
+  dir <- is.directed(object)
   Clist<-list(n=n, dir=dir)
-  bip <- nw$gal$bipartite
+  bip <- object %n% "bipartite"
   if (is.null(bip)) bip <- 0
   Clist$bipartite <- bip
-  Clist$ndyads <- network.dyadcount(nw)
-  e<-as.edgelist(nw,attrname=response) # Ensures that for undirected networks, tail<head.
+  Clist$ndyads <- network.dyadcount(object)
+
   if(length(e)==0){
     Clist$nedges<-0
     Clist$tails<-NULL
@@ -78,11 +96,33 @@ ergm.Cprepare <- function(nw, m, response=NULL)
     if(!is.null(response)) Clist$weights<-e[,3]
   }
 
-  Clist$lasttoggle <- nw %n% "lasttoggle"
-  Clist$time <- nw %n% "time"
-  
-  mo<-m$terms 
-  
+  Clist$lasttoggle <- object %n% "lasttoggle"
+  Clist$time <- object %n% "time"
+
+  class(Clist) <- c("network.ergm_Clist", "ergm_Clist")
+  Clist
+}
+
+#' @noRd
+ergm_Clist.pending_update_network <- ergm_Clist.network
+
+#' @describeIn ergm_Clist
+#'
+#' Collates an [`ergm_model`] object.
+#'
+#' @return 
+#' \item{nterms}{ the number of model terms }
+#' \item{nstats}{ the total number of change statistics for all model terms }
+#' \item{inputs}{ the concatenated vector of 'input's from each model term as returned by
+#' `InitErgmTerm.X` or `InitErgm.X` }
+#' \item{fnamestring}{ the concatenated string of model term names }
+#' \item{snamestring}{ the concatenated string of package names that contain the C function 'd_fname'; default="ergm" for each fname in fnamestring }
+#' @export
+ergm_Clist.ergm_model <- function(object, ...){
+  mo<-object$terms 
+  Clist <- list()
+
+  Clist$nterms<-length(mo)
   Clist$nstats<-0
   Clist$fnamestring<-""
   Clist$snamestring<-""
@@ -106,7 +146,7 @@ ergm.Cprepare <- function(nw, m, response=NULL)
   }
 
   # Attach the auxiliaries
-  mo <- m$model.aux$terms
+  mo <- object$model.aux$terms
   anterms <- length(mo)
   Clist$nterms <- Clist$nterms + anterms 
   if (anterms>0) {
@@ -124,6 +164,8 @@ ergm.Cprepare <- function(nw, m, response=NULL)
       # Auxiliaries do not produce stats.
     }
   }
+
+  Clist$slots.extra.aux <- unlist(object$slots.extra.aux)
   
   while (substring(Clist$fnamestring, 1, 1)==" ")
     Clist$fnamestring <- substring(Clist$fnamestring, 2)
@@ -134,27 +176,49 @@ ergm.Cprepare <- function(nw, m, response=NULL)
   
   # We don't care about diagnostics for terms that are not being
   # estimated.
-  Clist$diagnosable <- ! m$etamap$offsetmap
-  names(Clist$diagnosable) <- m$coef.names
+  Clist$diagnosable <- ! object$etamap$offsetmap
+  names(Clist$diagnosable) <- object$coef.names
     
+  class(Clist) <- c("ergm_model.ergm_Clist", "ergm_Clist")
   Clist
 }
 
-
-## Construct and serialize a very simple static edgelist, with the
-## vertex having the lesser index the tail and sorted by tails, then
-## by heads.
-ergm.Cprepare.el<-function(x, attrname=NULL, prototype=NULL){
-  xm <- if(is.network(x)) as.edgelist(x, attrname=attrname)
-        else if(!is.null(prototype)) as.edgelist.matrix(x, n=network.size(prototype), directed=is.directed(prototype),
-                                                        bipartite=if(is.bipartite(prototype)) prototype%n%"bipartite" else 0,
-                                                        loops=has.loops(prototype))
-        else x[order(x[,1],x[,2]),,drop=FALSE]
-                                                        
-  c(nrow(xm),c(xm))
+#' @describeIn to_ergm_Cdouble
+#'
+#' Method for [`network`] objects.
+#'
+#' @param attrname name of an edge attribute.
+#' 
+#' @export
+to_ergm_Cdouble.network <- function(x, attrname=NULL, ...){
+  xm <- as.edgelist(x, attrname=attrname)
+  c(nrow(xm),c(na.omit(xm)))
 }
 
-# Note: this converter must be kept in sync with whatever edgetree.c does.
+#' @noRd
+to_ergm_Cdouble.pending_update_network <- to_ergm_Cdouble.network
+
+
+#' @describeIn to_ergm_Cdouble
+#'
+#' Method for [`matrix`] objects, assumed to be edgelists.
+#'
+#' @param prototype A network whose relevant attributes (size,
+#'   directedness, bipartitedness, and presence of loops) are imposed
+#'   on the output edgelist if \code{x} is already an edgelist. (For
+#'   example, if the prototype is undirected, `to_ergm_Cdouble`
+#'   will ensure that \eqn{t < h}.)
+#' @keywords internal
+#' @export
+to_ergm_Cdouble.matrix <- function(x, prototype=NULL, ...){
+  x <- if(!is.null(prototype)) as.edgelist(x, n=network.size(prototype), directed=is.directed(prototype),
+                                           bipartite=if(is.bipartite(prototype)) prototype%n%"bipartite" else 0,
+                                           loops=has.loops(prototype))
+       else x[order(x[,1],x[,2]),,drop=FALSE]
+  c(nrow(x),c(na.omit(x)))
+}
+
+
 mk.edge.to.pos.lasttoggle.f <- function(nw){
   if(is.bipartite(nw)){
     b <- if(is.bipartite(nw)) nw %n% "bipartite"
@@ -168,12 +232,66 @@ mk.edge.to.pos.lasttoggle.f <- function(nw){
   }
 }
 
+#' Storing last toggle information in a network
+#' 
+#' An informal extension to \code{\link{network}} objects allowing
+#' some limited temporal information to be stored.
+#' WARNING: THIS DOCUMENTATION IS PROVIDED AS A COURTESY, AND THE API
+#' DESCRIBED IS SUBJECT TO CHANGE WITHOUT NOTICE, DOWN TO COMPLETE
+#' REMOVAL. NOT ALL FUNCTIONS THAT COULD SUPPORT IT DO. USE AT YOUR
+#' OWN RISK.
+#' 
+#' While \code{\link[networkDynamic]{networkDynamic}} provides a flexible,
+#' consistent method for storing dynamic networks, the \code{C} routines of
+#' \code{\link[=ergm-package]{ergm}} and
+#' \code{\link[tergm:tergm-package]{tergm}} required a simpler and more
+#' lightweight representation.
+#' 
+#' This representation consisted of a single integer representing the
+#' time stamp and an integer vector of length to
+#' \code{\link{network.dyadcount}(nw)} --- the number of potential
+#' ties in the network, giving the last time point during which each
+#' of the dyads in the network had changed.
+#' 
+#' Though this is an API intended for internal use, some functions,
+#' like \code{\link[tergm]{stergm}} (for EGMME),
+#' \code{\link[tergm:simulate.stergm]{simulate}}, and
+#' \code{\link[=summary.formula]{summary}} can be passed networks with
+#' this information using the following \code{\link{network}} (i.e.,
+#' \code{\link{\%n\%}}) attributes: \describe{ \item{list("time")}{the
+#' time stamp associated with the network} \item{list("lasttoggle")}{a
+#' vector of length \code{\link{network.dyadcount}(nw)}, giving the
+#' last change time associated with each dyad. See the source code of
+#' \code{\link[=ergm-package]{ergm}} internal functions
+#' \code{to.matrix.lasttoggle}, \code{ergm.el.lasttoggle}, and
+#' \code{to.lasttoggle.matrix} for how they are serialized.} }
+#' 
+#' For technical reasons, the \code{\link[tergm:tergm-package]{tergm}}
+#' routines treat the \code{lasttoggle} time points as shifted by
+#' \eqn{-1}.
+#' 
+#' Again, this API is subject to change without notice.
+#'
+#' @aliases lasttoggle last.toggle last-toggle
+#' @keywords internal
+#' @name lasttoggle
+NULL
+
+#' @describeIn lasttoggle Returns a 3-column matrix whose first two
+#'   columns are tails and heads of extant edges and whose third
+#'   column are the creation times for those edges.
+#' @param nw the network, otpionally with a `"lasttoggle"` network
+#'   attribute.
+#' @export
 ergm.el.lasttoggle <- function(nw){
   edge.to.pos <- mk.edge.to.pos.lasttoggle.f(nw)
   el <- as.edgelist(nw)
   cbind(el,NVL((nw %n% "lasttoggle"),0)[apply(el,1,edge.to.pos)]) # change to 0 if null
 }
 
+#' @describeIn lasttoggle Returns a numeric sociomatrix whose values
+#'   are last toggle times for the corresponding dyads.
+#' @export
 to.matrix.lasttoggle <- function(nw){
   n <- network.size(nw)
   b <- if(is.bipartite(nw)) nw %n% "bipartite"
@@ -191,6 +309,13 @@ to.matrix.lasttoggle <- function(nw){
   m
 }
 
+#' @describeIn lasttoggle Serializes a matrix of last toggle times
+#'   into the form used by C code.
+#' @param m a sociomatrix of appropriate dimension (rectangular for
+#'   bipartite networks).
+#' @param directed,bipartite whether the matrix represents a directed
+#'   and/or a bipartite networks.
+#' @export
 to.lasttoggle.matrix <- function(m, directed=TRUE, bipartite=FALSE){
   if(bipartite) c(m)
   else if(directed) c(m[as.logical(1-diag(1,nrow=nrow(m)))])

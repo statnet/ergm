@@ -14,7 +14,7 @@
 #      <is.ergm>                <ergm.t.summary>
 #      <is.latent>
 #      <degreedist>             <is.latent.cluster>
-#      <degreedistfactor>       <newnw.extract>
+#      <newnw.extract>
 #      <espartnerdist>          <dspartnerdist>         
 #      <rspartnerdist>         
 #      <twopathdist>            <copy.named>
@@ -22,58 +22,12 @@
 #      <catchToList>
 #==============================================================      
 
-
-
-###############################################################################
-# The <ostar2deg> function ??
-#
-# --PARAMETERS--
-#   object  : an ergm object
-#   ninflast: whether ??
-#
-# --RETURNED--
-#   odeg: the vector of ??
-#
-###############################################################################
-
-ostar2deg <- function(object, ninflast=TRUE){
-.Deprecated(msg="ostar2deg will not be supported in future versions of ergm." )
- nnodes <- network.size(object$newnetwork)
- nodeg <- paste("odeg",1:(nnodes-1),sep="")
- nostar <- paste("ostar",1:(nnodes-1),sep="")
- if(ninflast){
-  ostar <- rep(-10000,nnodes-1)
- }else{
-  ostar <- rep(0,nnodes-1)
- }
- names(ostar) <- nostar
- mostar <- match(nostar,names(object$coef))
- for(i in 1:(nnodes-1)){
-  if(!is.na(mostar[i])){
-   ostar[i] <- object$coef[mostar[i]]
-  }
- }
- odeg <- rep(0,nnodes-1)
- names(odeg) <- nodeg
- for(j in 1:(nnodes-1)){
-  odeg[j] <- sum(choose(rep(j,j), 1:j)*ostar[nostar[1:j]])
- }
- odeg
-}
-
-
-
-is.invertible <- function(V, tol=1e-12)
-{
-  .Deprecated(msg="is.invertible will not be supported in future versions of ergm. use 'rcond' instead" )
-    ev <- eigen(V, symmetric = TRUE, only.values = TRUE)$values
-    all(ev/max(ev) > tol)
-}
-
-
+#' @rdname ergm
+#' @importFrom methods is
+#' @export
 is.ergm <- function(object)
 {
-    class(object)=="ergm"
+    is(object,"ergm")
 }
 
 ###############################################################################
@@ -94,11 +48,37 @@ is.ergm <- function(object)
 #                      distribution
 ###############################################################################
 
-degreedist <- function(g, print=TRUE)
+
+
+#' Computes and Returns the Degree Distribution Information for a Given Network
+#' 
+#' The \code{degreedist} generic computes and returns the degree distribution
+#' (number of vertices in the network with each degree value) for a given
+#' network.
+#' 
+#' @param object a \code{network} object or some other object for
+#'   which degree distribution is meaningful.
+#' @param \dots Additional arguments to functions.
+#' @return If directed, a matrix of the distributions of in and out
+#'   degrees; this is row bound and only contains degrees for which
+#'   one of the in or out distributions has a positive count.  If
+#'   bipartite, a list containing the degree distributions of b1 and
+#'   b2.  Otherwise, a vector of the positive values in the degree
+#'   distribution
+#' @examples
+#' 
+#' data(faux.mesa.high)
+#' degreedist(faux.mesa.high)
+#' 
+#' @export
+degreedist <- function(object, ...) UseMethod("degreedist")
+
+#' @describeIn degreedist Method for [`network`] objects.
+#' @param print logical, whether to print the degree distribution.
+#' @export
+degreedist.network <- function(object, print=TRUE, ...)
 {
- if(!is.network(g)){
-  stop("degreedist() requires a network object")
- }
+ g <- object
  if(is.directed(g)){                                      
    mesp <- paste("c(",paste(0:(network.size(g)-1),collapse=","),")",sep="")
    outdegrees <- summary(as.formula(paste('g ~ odegree(',mesp,')',sep="")))
@@ -136,123 +116,6 @@ degreedist <- function(g, print=TRUE)
   }
  }
  invisible(degrees)
-}
-
-degreedistfactor <- function(g,x) 
-	 	{ 
-  .Deprecated(msg = "This function will probably not be supported in future versions of ergm")
-	 	 if(!is.network(g)){ 
-	 	  stop("degreedist() requires a network object") 
-	 	 } 
-	 	 x <- get.vertex.attribute(g,x) 
-	 	 degrees <- as.edgelist(g) 
-	 	 if(length(degrees)>0){ 
-	 	  if(is.directed(g)){ 
-	 	   outdegrees <- table(degrees[,1],x[degrees[,2]]) 
-	 	#  outdegrees <- c(rep(0, network.size(g)-nrow(outdegrees)), outdegrees) 
-	 	   if(!is.null(outdegrees)){print(table(outdegrees[,1]))} 
-	 	   if(!is.null(outdegrees)){print(table(outdegrees[,2]))} 
-	 	   indegrees <- table(degrees[,2],x[degrees[,1]]) 
-	 	#  indegrees <- c(rep(0, network.size(g)-nrow(indegrees)), indegrees) 
-	 	   if(!is.null(indegrees)){print(table(indegrees[,1]))} 
-	 	   if(!is.null(indegrees)){print(table(indegrees[,2]))} 
-	 	   degrees <- list(indegrees=indegrees, outdegrees=outdegrees) 
-	 	#  degrees <- rbind(indegrees, outdegrees) 
-	 	  }else{ 
-	 	   degrees <- table(degrees,x[degrees]) 
-	 	   degrees <- c(rep(0, network.size(g)-nrow(degrees)), degrees) 
-	 	   if(!is.null(degrees)){print(table(degrees))} 
-	 	  } 
-	 	 } 
-	 	 invisible(degrees) 
-	 	} 
-
-
-
-
-espartnerdist <- function(g, print=TRUE)
-{
-  .Deprecated("espartnerdist function will not be supported in future versions of ergm.  use summary.formula with esp term instead")
- if(!is.network(g)){
-  stop("espartnerdist() requires a network object")
- }
- mesp <- paste("c(",paste(0:(network.size(g)-2),collapse=","),")",sep="")
- degrees <- summary(as.formula(paste('g ~ esp(',mesp,')',sep="")))
-#names(degrees) <- paste(0:(network.size(g)-2))
- if(print){
-  cat("ESP (edgewise shared partner) distribution:\n")
-  if(!is.null(degrees)){print(degrees[degrees>0])}
- }
- invisible(degrees)
-}
-
-
-
-
-
-dspartnerdist <- function(g, print=TRUE)
-{
-  .Deprecated("dspartnerdist function will not be supported in future versions of ergm.  use summary.formula with dsp term instead")
- if(!is.network(g)){
-  stop("dspartnerdist() requires a network object")
- }
- mesp <- paste("c(",paste(0:(network.size(g)-2),collapse=","),")",sep="")
- degrees <- summary(as.formula(paste('g ~ dsp(',mesp,')',sep="")))
-#names(degrees) <- paste(0:(network.size(g)-2))
- if(print){
-  cat("DSP (dyadwise shared partner) distribution:\n")
-  if(!is.null(degrees)){print(degrees[degrees>0])}
- }
- invisible(degrees)
-}
-
-
-
-twopathdist <- function(g, print=TRUE)
-{
-  .Deprecated("twopathdist function will not be supported in future versions of ergm")
- if(!is.network(g)){
-  stop("twopathdist() requires a network object")
- }
-# twopaths
- smatrix <- as.sociomatrix(g)
-#twopaths <- crossprod(smatrix)
- twopaths <- t(smatrix) %*% smatrix
-# (transitive) three-triangle (= triangle for directed)
-#twopaths[smatrix==0] <- 0
- degrees <- tabulate(twopaths[row(twopaths)<col(twopaths)]+1,
-                     nbins=network.size(g)-1)
- if(is.directed(g)){
-  degrees[1] <- sum(smatrix)-sum(degrees[-1])
- }else{
-  degrees[1] <- 0.5*sum(smatrix)-sum(degrees[-1])
- }
- names(degrees) <- paste(0:(network.size(g)-2))
- if(print){
-  cat("twopath distribution:\n")
-  if(!is.null(degrees)){print(degrees[degrees>0])}
- }
- invisible(degrees)
-}
-
-
-rspartnerdist <- function (g, print = TRUE) 
-{
-  .Deprecated("rspartnerdist function will not be supported in future versions of ergm.  use summary.formula with esp and dsp terms instead")
-    if (!is.network(g)) {
-        stop("rspartnerdist() requires a network object")
-    }
-    ds <- dspartnerdist(g,print=FALSE)
-    es <- espartnerdist(g,print=FALSE)
-    vec <- 0: (network.size(g) - 2)
-    upperlimit <- max(vec[ds>0]) + 1
-    rs <- es[1:upperlimit]/ds[1:upperlimit]
-
-    if (print) {
-        cat("ESP/DSP ratio distribution:\n")
-        print(rs)
-    }
-    invisible(rs)
 }
 
 
@@ -336,25 +199,21 @@ function(x, alternative = c("two.sided", "less", "greater"),
     return(rval)
 }
 
-# generate a network object from the edgelist output of the mcmc sample
-newnw.extract<-function(oldnw,z,output="network",response=NULL){
-  # if z has a newedgelist attached, use it
-  if("newedgelist" %in% names(z)){
-    newedgelist<-z$newedgelist[,1:2,drop=FALSE]
-    if(!is.null(response))
-       newnwweights<-z$newedgelist[,3]
-  }else{
-    # expect that z will have seperate lists of heads and tails
-    nedges<-z$newnwtails[1]
-    # *** don't forget - edgelists are cbind(tails, heads) now
-    newedgelist <-
-      if(nedges>0) cbind(z$newnwtails[2:(nedges+1)],z$newnwheads[2:(nedges+1)])
-      else matrix(0, ncol=2, nrow=0)
-    newnwweights <- z$newnwweights[2:(nedges+1)]
+#' @describeIn ergm-deprecated Use the [`pending_update_network`] "API".
+#' @export newnw.extract
+newnw.extract<-function(oldnw,z=NULL,output="network",response=NULL){
+  .Deprecate_once('pending_network_update "API"')
+  if(is(oldnw,"pending_update_network") && is.null(z)){
+    class(oldnw) <- "network"
+    z <- oldnw%n%".update"
+    delete.network.attribute(oldnw, ".update")
   }
+
+  newedgelist <- .extract_z_edgelist(z, response)
   
   newnw<-network.update(oldnw,newedgelist,matrix.type="edgelist",output=output)
   if(!is.null(response)){
+    newnwweights <- newedgelist[,3]
     # It's very important that the order of weights here is the same
     # as the one that network accepts.
     newnw<-set.edge.attribute(newnw,attrname=response,newnwweights,e=apply(newedgelist,1,function(e) get.edgeIDs(newnw,e[1],e[2])))
@@ -362,7 +221,26 @@ newnw.extract<-function(oldnw,z,output="network",response=NULL){
   newnw
 }
 
-# copy network and vertex attributes between two networks
+
+#' Copy network- and vertex-level attributes between two network objects
+#' 
+#' An internal ergm utility function to copy the network-level attributes and
+#' vertex-level attributes from one \code{\link{network}} object to another,
+#' ignoring some standard properties by default.
+#' 
+#' 
+#' @param to the \code{\link{network}} that attributes should be copied to
+#' @param from the \code{\link{network}} that attributes should be copied to
+#' @param ignore vector of charcter names of network attributes that should not
+#' be copied. Default is the standard list of network properties created by
+#' \code{\link{network.initialize}}
+#' @return returns the \code{to} network, with attributes copied from
+#' \code{from}
+#' @note does not check that networks are of the same size, etc
+#' @seealso \code{\link{set.vertex.attribute}},
+#' \code{\link{set.network.attribute}}
+#' @keywords internal
+#' @export nvattr.copy.network
 nvattr.copy.network <- function(to, from, ignore=c("bipartite","directed","hyper","loops","mnext","multiple","n")){
   for(a in list.vertex.attributes(from)){
     if(! a%in%ignore)
@@ -375,23 +253,52 @@ nvattr.copy.network <- function(to, from, ignore=c("bipartite","directed","hyper
   to
 }
 
-
-# Create a copy of a network of interest with certain guarantees about its internal representation:
-# * tails < heads
-# * no (tail,head) pair has more than one edge ID associated with it
+#' Copy a network object enforcing ergm-appropriate guarantees about its
+#' internal representation
+#' 
+#' Create a copy of a \code{\link{network}} of interest with certain guarantees
+#' about its internal representation: \itemize{ \item for every edge, the id of
+#' the 'tails' vertex is < id of the 'heads' vertex if the network is
+#' undirected \item no (tail,head) id pair has more than one edge ID associated
+#' with it (no multiplex edges) }
+#' 
+#' This function is needed because the \code{\link{network}} object can support
+#' added non-directed edges in arbitrary order, as well as multiplex edges and
+#' hypergraphs (even if the network is not marked as such), which are not
+#' supported in the underlying ergm processes. Uses \code{\link{as.edgelist}}
+#' internally to make the conversion.
+#' 
+#' @param nw a \code{\link{network}} object to be copied
+#' @param preserve.eattr logical; should the edge attributes be preserved
+#' during the copying process (presumably slower)
+#' @return returns an ergm-appropriate network object.
+#' @note This function may be time expensive.  Also, the transformation is
+#' performed by deleting edges in initial network and re-adding them.
+#' @keywords internal
+#' @examples
+#' 
+#' test<-network.initialize(5,directed=FALSE)
+#' test[2,1]<-1  #ergm wont like this
+#' test$mel[[1]] # peek at internal representation
+#' 
+#' test2<-standardize.network(test) # enforce!
+#' test2$mel[[2]]  # 1 and 2 have traded places
+#' 
+#' 
+#' @keywords internal
+#' @export standardize.network
 standardize.network <- function(nw, preserve.eattr=TRUE){
   if(preserve.eattr){
     el <- rbind(as.edgelist(nw),as.edgelist(is.na(nw)))
-    eids <- apply(el, 1, function(e) get.edgeIDs(nw, e[1], e[2], na.omit=FALSE))
-    if(is.list(eids)){ # I.e., apply() wasn't able to simplify.
-      bad.ei <- which(sapply(eids,length)>1)
-      for(ei in bad.ei){
-        dup.eids <- duplicated(nw$mel[eids[[ei]]])
-        if(sum(!dup.eids)!=1) stop("Edge (",el[ei,1],",",el[ei,2],") has multiple IDs with distinct attributes. Cannot repair.")
-        eids[[ei]] <- eids[[ei]][!dup.eids]
-      }
-      eids <- unlist(eids)
+    eids <- lapply(seq_len(nrow(el)), function(i) get.edgeIDs(nw, el[i,1], el[i,2], na.omit=FALSE))
+
+    bad.ei <- which(sapply(eids,length)>1)
+    for(ei in bad.ei){
+      dup.eids <- duplicated(nw$mel[eids[[ei]]])
+      if(sum(!dup.eids)!=1) stop("Edge (",el[ei,1],",",el[ei,2],") has multiple IDs with distinct attributes. Cannot repair.")
+      eids[[ei]] <- eids[[ei]][!dup.eids]
     }
+    eids <- unlist(eids)
     
     vals <- lapply(nw$mel,"[[","atl")[eids]
     names <- lapply(vals, names)
@@ -409,119 +316,98 @@ standardize.network <- function(nw, preserve.eattr=TRUE){
   nw
 }
 
-get.free.dyads <- function(constraints){
-  y <- NULL
-  for(con in constraints){
-    if(!is.null(con$free.dyads)){
-      y <- if(is.null(y)) standardize.network(con$free.dyads(),FALSE) else y & standardize.network(con$free.dyads(),FALSE)
-    }
-  }
-  y
-}
-
-get.miss.dyads <- function(constraints, constraints.obs){
-# Returns a network indicating the missing dyads in the network (
-# (respecting the constraints).
-  free.dyads <- get.free.dyads(constraints)
-  free.dyads.obs <- get.free.dyads(constraints.obs)
-  
-  if(is.null(free.dyads)){
-    if(is.null(free.dyads.obs)) NULL
-    else free.dyads.obs
-  }else{
-    if(is.null(free.dyads.obs)) standardize.network(!free.dyads,FALSE)
-    else standardize.network(!free.dyads,FALSE) | free.dyads.obs
-  }
-}
 
 .hash.el <- function(x){
   apply(x, 1, paste, collapse="\r")
 }
 
-invert.network <- function(nw){
-  .Deprecated(msg="invert.network has been deprecated, use '!.network' instead")
-  n <- network.size(nw)
-  m <- nw %n% "bipartite"
-
-  # Borrows from !.network:
-  el <- cbind(rep(1:n, each = n), rep(1:n, n))
-  if (!is.directed(nw)) 
-    el <- el[el[, 1] <= el[, 2], , drop=FALSE]
-  if (!has.loops(nw)) 
-    el <- el[el[, 1] != el[, 2], , drop=FALSE]
-
-  if(m) el <- el[(el[,1]<=m)!=(el[,2]<=m), , drop=FALSE]
-
-  # el now contains the set of possible dyads
-
-  el <- el[! .hash.el(el) %in% .hash.el(as.edgelist(nw)), , drop=FALSE]
-
-  network.update(nw, el, matrix.type="edgelist")
+single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints.obs=NULL, min_informative=NULL, default_density=NULL, output=c("network","pending_update_network"), verbose=FALSE){
+  output <- match.arg(output)
+  stopifnot(!is.null(constraints)||is.null(constraints.obs))
   
-}
-
-locate.InitFunction <- function(name, prefix, errname=NULL, env = parent.frame()){
-  if(is.call(name)) name <- name[[1]]
-  name <- as.character(name)
-  fname <- paste(prefix,name,sep=".")
-  
-  f <- try(get(fname, mode='function', envir=env), silent=TRUE)
-  if(inherits(f, "try-error")){
-    m <- getAnywhere(fname)
-    if(length(m$objs)){
-      ## Prioritise visible over not:
-      if(any(m$visible)){
-        m <- lapply(m[-1], "[", m$visible)
-      }
-      if(length(m$objs)>1) warning("Name ",fname," matched by multiple objects; using the first one on the list.")
-      f <- m$objs[[1]] 
-    }else{
-      if(!is.null(errname)) stop(errname,' ', sQuote(name), " initialization function ", sQuote(fname), " not found.") else f <- NULL
-    }
-  }
-  f
-}
-
-# Return the name of the package containing function f visible from
-# environment env.
-which.package.InitFunction <- function(f, env = parent.frame()){
-  f <- as.character(f)
-  # Find the first entity named f in the search path, and get its name
-  # attribute (if present).
-  found <- methods::findFunction(f, where=env)
-  if (length(found) > 0) {
-    loc <- attr(found[[1]], "name")
-    # If name attribute is not NULL and begins with "package:", return
-    # the package name. Otherwise, return NULL.
-    if(!is.null(loc) && grepl("^package:", loc)) sub("^package:", "", loc) else NULL
-  } else {
-    # can't find the function normally; the package might have been imported
-    # instead of attached
-    found <- get(f, envir=env)
-    environmentName(environment(found))
-  }
-  
-}
-
-single.impute.dyads <- function(nw, response=NULL){
+  if(!is.null(constraints)){
+    imputable <- as.rlebdm(constraints, constraints.obs, "missing")
+    nae <- NVL3(imputable, sum(.), 0)
+    if(nae) na.el <- as.edgelist(imputable) # FIXME: Avoid creating edgelists.
+  }else{
     nae <- network.naedgecount(nw)
-    if(nae==0) return(nw)
-    
-    na.el <- as.edgelist(is.na(nw))
+    if(nae) na.el <- as.edgelist(is.na(nw))
+  }
+  if(nae==0) return(nw)
 
+  if(verbose) message("Imputing ", nae, " dyads is required.")
+
+  el2s <- function(el) apply(el, 1, paste, collapse=",")
+  s2el <- function(s) matrix(as.integer(do.call(rbind,strsplit(s,","))),ncol=2)
+
+  min_informative <- NVL3(min_informative, if(is.function(.)) .(nw) else ., 0)
+  default_density <- if(is.function(default_density)) default_density(nw)
+
+  if(!is.null(constraints)){ # Constraints
+    informative <- as.rlebdm(constraints, constraints.obs, "informative")
+    nonzeros <- as.rlebdm(nw)
     if(is.null(response)){
-        d <- network.edgecount(nw,na.omit=TRUE)/network.dyadcount(nw,na.omit=TRUE)
-        nimpute <- round(d*nae)
-        nw[na.el] <- 0
-        nw[na.el[sample.int(nae,nimpute),,drop=FALSE]] <- 1
+      d <-
+        if(sum(informative)<min_informative){
+          message("Number of informative dyads is too low. Using default imputation density.")
+          default_density
+        }else sum(nonzeros & informative)/sum(informative)
+      nimpute <- round(d*nae)
     }else{
-        x <- as.edgelist(nw,attrname=response)[,3]
-        zeros <- network.dyadcount(nw,na.omit=TRUE)-length(x)
-        nw[na.el] <- 0
-        nw[na.el,names.eval=response,add.edges=TRUE] <- sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))
+      if(sum(informative)<min_informative){
+        message("Number of informative dyads is too low. Imputing valued relations is not possible.")
+        return(nw)
+      }
+      x <- as.edgelist(nw,attrname=response)
+      x.el <- x[,1:2,drop=FALSE]
+      x <- x.el[! el2s(x.el)%in%el2s(na.el),3]
+      zeros <- sum(informative) - length(x)
     }
+  }else{ # No Constraints
+    if(is.null(response)){
+      d <-
+        if(network.dyadcount(nw,na.omit=TRUE)<min_informative){
+          message("Number of informative dyads is too low. Using default imputation density.")
+          default_density
+        }else network.edgecount(nw,na.omit=TRUE)/network.dyadcount(nw,na.omit=TRUE)
+      nimpute <- round(d*nae)
+    }else{
+      if(network.dyadcount(nw,na.omit=TRUE)<min_informative){
+        message("Number of informative dyads is too low. Imputing valued relations is not possible.")
+        return(nw)
+      }
+      x <- as.edgelist(nw,attrname=response)[,3]
+      zeros <- network.dyadcount(nw,na.omit=TRUE)-length(x)
+    }
+  }
+  
+  if(is.null(response)){
+    if(verbose) message("Imputing ", nimpute, " edges at random.")
+    i.new <- sample.int(nae,nimpute)
+    if(output=="network"){
+      y.cur <- nw[na.el]
+      i.na <- which(is.na(y.cur))
+      i.cur <- which(y.cur!=0)
+      todel <- union(setdiff(i.cur, i.new), setdiff(i.na, i.new))
+      toadd <- union(setdiff(i.new, i.cur), intersect(i.na, i.new))
+      nw[na.el[c(todel,toadd),,drop=FALSE]] <- rep(0:1, c(length(todel),length(toadd)))
+    }else{ # pending_update_network
+      el <- s2el(union(setdiff(el2s(as.edgelist(nw)), el2s(na.el)), el2s(na.el[i.new,,drop=FALSE])))
+      nw <- pending_update_network(nw, list(newedgelist = el))
+    }
+  }else{
+    if(output=="network"){
+      nw[na.el,names.eval=response,add.edges=TRUE] <- sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))
+    }else{ # pending_update_network
+      el <- as.edgelist(nw, attrname=response)
+      el <- el[!el2s(el[,-3,drop=FALSE])%in%el2s(na.el),,drop=FALSE]
+      el <- rbind(el, cbind(na.el, sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))))
+      el <- el[el[,3]!=0,,drop=FALSE]
+      nw <- pending_update_network(nw, list(newedgelist = el), response=response)
+    }
+  }
 
-    nw
+  nw
 }
 
 # Given a vector, truncate all infinite (or, really, bigger in
@@ -553,3 +439,4 @@ single.impute.dyads <- function(nw, response=NULL){
 .multiply.with.inf <- function(A,V) {
   cbind(colSums(t(A)*c(V), na.rm=TRUE))
 }
+

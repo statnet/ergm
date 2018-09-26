@@ -1,3 +1,12 @@
+#  File R/ergm.pen.glm.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2017 Statnet Commons
+#######################################################################
 #===================================================================
 # This file contains the following 3 files for penalized glm fits
 #             <ergm.pen.glm>
@@ -5,6 +14,10 @@
 #             <model.matrix.pen.glm>
 #===================================================================
 
+.BernLogLik <- function(p, y, w=1){
+  stopifnot(all(y%in%c(0,1)))
+  sum(ifelse(y, log(p), log1p(-p))*w)
+}
 
 
 
@@ -80,7 +93,7 @@ ergm.pen.glm <- function(formula = attr(data, "formula"),
   }
   iter <- 0
   pi <- as.vector(1/(1 + exp( - x %*% beta)))
-  loglik <- sum((y * log(pi) + (1 - y) * log(1 - pi))*weights)
+  loglik <- .BernLogLik(pi, y, weights)
   XW2 <- sweep(x, 1, (weights*(pi * (1 - pi)))^0.5, "*")  #### X' (W ^ 1/2)
   Fisher <- crossprod(XW2)  #### X' W  X
   loglik <- loglik + 0.5 * determinant(Fisher)$modulus[1]
@@ -109,7 +122,7 @@ ergm.pen.glm <- function(formula = attr(data, "formula"),
    for(halfs in 1:maxhs) {
 ## Half-Steps
     pi <- as.vector(1/(1 + exp( - x %*% beta)))
-    loglik <- sum((y * log(pi) + (1 - y) * log(1 - pi))*weights)
+    loglik <- .BernLogLik(pi, y, weights)
     XW2 <- sweep(x, 1, (weights*(pi * (1 - pi)))^0.5, "*") #### X' (W ^ 1/2)
     Fisher <- crossprod(XW2) #### X' W  X
     loglik <- loglik + 0.5 * determinant(Fisher)$modulus[1]
@@ -177,7 +190,7 @@ logistftest <- function(formula = attr(data, "formula"),
   pi <- as.vector(1/(1 + exp( - x %*% beta)))
   if(missing(start)) {
 ################## coxphfplot braucht dies nicht! ###
-  loglik[2] <- sum((y * log(pi) + (1 - y) * log(1 - pi))*weights)
+  loglik[2] <- .BernLogLik(pi, y, weights)
   XW2 <- sweep(x, 1, (weights*(pi * (1 - pi)))^0.5, "*") #### X' (W ^ 1/2)
   Fisher <- crossprod(XW2)  #### X' W  X
 # loglik[2] <- loglik[2] + 0.5 * determinant(Fisher)$modulus[1]
@@ -201,7 +214,7 @@ logistftest <- function(formula = attr(data, "formula"),
     for(halfs in 1:maxhs) {
 ## 5 Half-Steps
       pi <- as.vector(1/(1 + exp( - x %*% beta)))
-      loglik[2] <- sum((y * log(pi) + (1 - y) * log(1 - pi))*weights)
+      loglik[2] <- .BernLogLik(pi, y, weights)
       XW2 <- sweep(x, 1, (weights*(pi * (1 - pi)))^0.5, "*")
       Fisher <- crossprod(XW2)  #### X' W  X
 #     loglik[2] <- loglik[2] + 0.5 * determinant(Fisher)$modulus[1]
@@ -231,7 +244,7 @@ logistftest <- function(formula = attr(data, "formula"),
   beta <- offset  ########################################
   iter <- 0
   pi <- as.vector(1/(1 + exp( - x %*% beta)))
-  loglik[2] <- sum((y * log(pi) + (1 - y) * log(1 - pi))*weights)
+  loglik[2] <- .BernLogLik(pi, y, weights)
   XW2 <- sweep(x, 1, (weights*(pi * (1 - pi)))^0.5, "*")  #### X' (W ^ 1/2)
   Fisher <- crossprod(XW2)  #### X' W  X
 # loglik[1] <- loglik[1] + 0.5 * determinant(Fisher)$modulus[1]
@@ -262,7 +275,7 @@ logistftest <- function(formula = attr(data, "formula"),
    for(halfs in 1:maxhs) {
 ## Half-Steps
     pi <- as.vector(1/(1 + exp( - x %*% beta)))
-    loglik[1] <- sum((y * log(pi) + (1 - y) * log(1 - pi))*weights)
+    loglik[1] <- .BernLogLik(pi, y, weights)
     XW2 <- sweep(x, 1, (weights*(pi * (1 - pi)))^0.5, "*")
     Fisher <- crossprod(XW2)  #### X' W  X
 #   loglik[1] <- loglik[1] + 0.5 * determinant(Fisher)$modulus[1]

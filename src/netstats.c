@@ -5,9 +5,10 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  http://statnet.org/attribution
  *
- *  Copyright 2003-2013 Statnet Commons
+ *  Copyright 2003-2017 Statnet Commons
  */
 #include "netstats.h"
+#include "ergm_omp.h"
 /*****************
  void network_stats_wrapper
 
@@ -27,7 +28,7 @@ void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int 
   int directed_flag;
   Vertex n_nodes;
   Edge n_edges;
-  Network nw[2];
+  Network *nwp;
   Model *m;
   Vertex bip;
 
@@ -40,17 +41,17 @@ void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int 
   if(*lasttoggle == 0) lasttoggle = NULL;
 
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
-  nw[0]=NetworkInitialize(NULL, NULL, 0,
+  nwp=NetworkInitialize(NULL, NULL, 0,
                           n_nodes, directed_flag, bip, *timings?1:0, *timings?*time:0, *timings?lasttoggle:NULL);
 
   /* Compute the change statistics and copy them to stats for return
      to R.  Note that stats already has the statistics of an empty
      network, so d_??? statistics will add on to them, while s_???
      statistics will simply overwrite them. */
-  SummStats(n_edges, tails, heads, nw, m, stats);
+  SummStats(n_edges, (Vertex*)tails, (Vertex*)heads, nwp, m, stats);
   
-  ModelDestroy(m, nw);
-  NetworkDestroy(nw);
+  ModelDestroy(nwp, m);
+  NetworkDestroy(nwp);
 }
 
 
@@ -72,22 +73,17 @@ Network *nwp, Model *m, double *stats){
   Edge ntoggles = n_edges; // So that we can use the macros
 
   /* Initialize storage for terms that don't have s_functions.  */
-  EXEC_THROUGH_TERMS({
-#ifdef DEBUG
-      double *dstats = mtp->dstats;
-      mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
-#endif
+  EXEC_THROUGH_TERMS_INREVERSE(m, {
+      IFDEBUG_BACKUP_DSTATS;
       if(mtp->s_func==NULL && mtp->i_func)
 	(*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
       else if(mtp->s_func==NULL && mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
 	(*(mtp->u_func))(0, 0, mtp, nwp);  /* Call u_??? function */
-#ifdef DEBUG
-      mtp->dstats = dstats;
-#endif
+      IFDEBUG_RESTORE_DSTATS;
     });
     
   /* Calculate statistics for terms that don't have c_functions or s_functions.  */
-  EXEC_THROUGH_TERMS_INTO(stats, {
+  EXEC_THROUGH_TERMS_INTO(m, stats, {
       if(mtp->s_func==NULL && mtp->c_func==NULL && mtp->d_func){
 	(*(mtp->d_func))(ntoggles, tails, heads,
 			 mtp, nwp);  /* Call d_??? function */
@@ -100,9 +96,11 @@ Network *nwp, Model *m, double *stats){
   /* Calculate statistics for terms that have c_functions but not s_functions.  */
   for(Edge e=0; e<n_edges; e++){
     Vertex t=TAIL(e), h=HEAD(e); 
-    
-    EXEC_THROUGH_TERMS_INTO(stats, {
+
+    ergm_PARALLEL_FOR_LIMIT(m->n_terms)        
+    EXEC_THROUGH_TERMS_INTO(m, stats, {
 	if(mtp->s_func==NULL && mtp->c_func){
+	  ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(t, h,
 			   mtp, nwp);  /* Call c_??? function */
 	  
@@ -113,13 +111,14 @@ Network *nwp, Model *m, double *stats){
       });
     
     /* Update storage and network */    
-    UPDATE_STORAGE_COND(t, h, m, nwp, mtp->s_func==NULL && mtp->d_func==NULL);
+    UPDATE_STORAGE_COND(t, h, nwp, m, NULL, mtp->s_func==NULL && mtp->d_func==NULL);
     TOGGLE(t, h);
   }
   
   /* Calculate statistics for terms have s_functions  */
-  EXEC_THROUGH_TERMS_INTO(stats, {
+  EXEC_THROUGH_TERMS_INTO(m, stats, {
       if(mtp->s_func){
+	ZERO_ALL_CHANGESTATS();
 	(*(mtp->s_func))(mtp, nwp);  /* Call d_??? function */
 	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
 	  dstats[k] = mtp->dstats[k]; // Overwrite, not accumulate.

@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2013 Statnet Commons
+#  Copyright 2003-2017 Statnet Commons
 #######################################################################
 library(statnet.common)
 opttest({
@@ -24,19 +24,19 @@ for(type in c("SOCK")){
   mcmc.diagnostics(gest)
 
   # FIXME: Set seeds and replace with actual values?
-  sim.STAT.SEQ <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), statsonly=TRUE, sequential=TRUE)
+  sim.STAT.SEQ <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), output="stats", sequential=TRUE)
   stopifnot(nrow(sim.STAT.SEQ)==5)
   print(sim.STAT.SEQ)
 
-  sim.STAT.seq <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), statsonly=TRUE, sequential=FALSE)
+  sim.STAT.seq <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), output="stats", sequential=FALSE)
   stopifnot(nrow(sim.STAT.seq)==5)
   print(sim.STAT.seq)
 
-  sim.stat.SEQ <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), statsonly=FALSE, sequential=TRUE)
+  sim.stat.SEQ <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), output="network", sequential=TRUE)
   stopifnot(length(sim.stat.SEQ)==5)
   print(sim.stat.SEQ)
 
-  sim.stat.seq <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), statsonly=FALSE, sequential=FALSE)
+  sim.stat.seq <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), output="network", sequential=FALSE)
   stopifnot(length(sim.stat.seq)==5)
   print(sim.stat.seq)
   
@@ -57,7 +57,7 @@ fauxmodel.01 <- ergm(flomarriage ~ edges + isolates + gwesp(0.2, fixed=T),
                                           MCMLE.maxit=100))
 proc.time() - t0
 
-sim.test <- simulate.formula(network(1000) ~ edges + 
+sim.test <- simulate(network(1000) ~ edges + 
                            gwesp(0.5, fixed = TRUE) + mutual + istar(2), 
                          coef = c(-5, 1.3, 1.5, -0.5), nsim = 4, 
                          control = control.simulate.formula(parallel = clus, 
@@ -83,26 +83,37 @@ opttest({
     mcmc.diagnostics(gest)
     
     # FIXME: Set seeds and replace with actual values?
-    sim.STAT.SEQ <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), statsonly=TRUE, sequential=TRUE)
+    sim.STAT.SEQ <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), output="stats", sequential=TRUE)
     stopifnot(nrow(sim.STAT.SEQ)==5)
     print(sim.STAT.SEQ)
     
-    sim.STAT.seq <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), statsonly=TRUE, sequential=FALSE)
+    sim.STAT.seq <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), output="stats", sequential=FALSE)
     stopifnot(nrow(sim.STAT.seq)==5)
     print(sim.STAT.seq)
     
-    sim.stat.SEQ <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), statsonly=FALSE, sequential=TRUE)
+    sim.stat.SEQ <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), output="network", sequential=TRUE)
     stopifnot(length(sim.stat.SEQ)==5)
     print(sim.stat.SEQ)
     
-    sim.stat.seq <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), statsonly=FALSE, sequential=FALSE)
+    sim.stat.seq <- simulate(gest, nsim=5, control=control.simulate.ergm(parallel=2, parallel.type=type), output="network", sequential=FALSE)
     stopifnot(length(sim.stat.seq)==5)
     print(sim.stat.seq)
-    
-    if(exists("cl")){
-      stopCluster(cl)
-      rm(cl)
-    }
   }
   
 }, "parallel_MPI", testvar="ENABLE_MPI_TESTS")
+
+if(inherits(try(get.MT_terms(), silent=TRUE),"try-error")){
+  message("Skipping OpenMP test. This package installation was built without OpenMP support.")
+}else{
+  library(ergm)
+  data(florentine)
+  set.seed(0)
+  sim.ser <- simulate(flomarriage~edges+triangle, nsim=100, control=control.simulate(MCMC.burnin=1, MCMC.interval=1), output="stats")
+  
+  prev <- set.MT_terms(2)
+  set.seed(0)
+  sim.par <- simulate(flomarriage~edges+triangle, nsim=100, control=control.simulate(MCMC.burnin=1, MCMC.interval=1), output="stats")
+  set.MT_terms(prev)
+  
+  stopifnot(all.equal(sim.ser,sim.par))
+}

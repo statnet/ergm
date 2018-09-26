@@ -5,7 +5,7 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  http://statnet.org/attribution
  *
- *  Copyright 2003-2013 Statnet Commons
+ *  Copyright 2003-2017 Statnet Commons
  */
 #include "wtSAN.h"
 
@@ -21,12 +21,12 @@
 
  Wrapper for a call from R.
 *****************/
-void WtSAN_wrapper (int *dnumnets, int *nedges,
+void WtSAN_wrapper (int *nedges,
 		    int *tails, int *heads, double *weights, 
 		    int *dn, int *dflag, int *bipartite, 
 		    int *nterms, char **funnames,
 		    char **sonames, 
-		    char **MHproposaltype, char **MHproposalpackage,
+		    char **MHProposaltype, char **MHProposalpackage,
 		    double *inputs, double *theta0, double *tau, 
 		    int *samplesize, 
 		    double *sample, int *burnin, int *interval,  
@@ -40,9 +40,9 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
   int directed_flag;
   Vertex n_nodes, nmax, bip;
   /* Edge n_networks; */
-  WtNetwork nw[1];
+  WtNetwork *nwp;
   WtModel *m;
-  WtMHproposal MH;
+  WtMHProposal *MHp;
   
   n_nodes = (Vertex)*dn; 
   nmax = (Edge)abs(*maxedges);
@@ -55,35 +55,36 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the network */
-  nw[0]=WtNetworkInitialize(tails, heads, weights, nedges[0],
+  nwp=WtNetworkInitialize((Vertex*)tails, (Vertex*)heads, weights, nedges[0],
 			    n_nodes, directed_flag, bip, 0, 0, NULL);
 
   /* Trigger initial storage update */
-  WtInitStats(nw, m);
+  WtInitStats(nwp, m);
   
   /* Initialize the M-H proposal */
-  WtMH_init(&MH,
-	    *MHproposaltype, *MHproposalpackage,
+  MHp=WtMHProposalInitialize(
+	    *MHProposaltype, *MHProposalpackage,
 	    inputs,
 	    *fVerbose,
-	    nw);
+	    nwp,
+	    m->termarray->aux_storage);
 
-  *status = WtSANSample (&MH,
+  *status = WtSANSample (MHp,
 			 theta0, invcov, tau, sample, *samplesize,
 			 *burnin, *interval,
-			 *fVerbose, nmax, nw, m);
+			 *fVerbose, nmax, nwp, m);
   
-  WtMH_free(&MH);
+  WtMHProposalDestroy(MHp, nwp);
 
-/* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
+/* Rprintf("Back! %d %d\n",nwp[0].nedges, nmax); */
 
   /* record new generated network to pass back to R */
   /* *** and don't forget edges are (tail, head) */
   if(*status == WtMCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
-    newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList(newnetworktails+1,newnetworkheads,newnetworkweights,nw,nmax-1);
+    newnetworktails[0]=newnetworkheads[0]=newnetworkweights[0]=WtEdgeTree2EdgeList((Vertex*)newnetworktails+1,(Vertex*)newnetworkheads+1,newnetworkweights+1,nwp,nmax-1);
 
-  WtModelDestroy(m, nw);
-  WtNetworkDestroy(nw);
+  WtModelDestroy(nwp, m);
+  WtNetworkDestroy(nwp);
   PutRNGstate();  /* Disable RNG before returning */
 }
 
@@ -98,7 +99,7 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-WtMCMCStatus WtSANSample (WtMHproposal *MHp,
+WtMCMCStatus WtSANSample (WtMHProposal *MHp,
   double *theta, double *invcov, double *tau, double *networkstatistics, 
   int samplesize, int burnin, 
   int interval, int fVerbose, int nmax,
@@ -129,7 +130,7 @@ WtMCMCStatus WtSANSample (WtMHproposal *MHp,
   if(WtSANMetropolisHastings(MHp, theta, invcov, tau, networkstatistics, burnin, &staken,
 			     fVerbose, nwp, m)!=WtMCMC_OK)
     return WtMCMC_MH_FAILED;
-  if(nmax!=0 && nwp->nedges >= nmax-1){
+  if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
     return WtMCMC_TOO_MANY_EDGES;
   }
   
@@ -154,7 +155,7 @@ WtMCMCStatus WtSANSample (WtMHproposal *MHp,
       if(WtSANMetropolisHastings (MHp, theta, invcov, tau, networkstatistics, 
 		             interval, &staken, fVerbose, nwp, m)!=WtMCMC_OK)
 	return WtMCMC_MH_FAILED;
-      if(nmax!=0 && nwp->nedges >= nmax-1){
+      if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
 	return WtMCMC_TOO_MANY_EDGES;
       }
       tottaken += staken;
@@ -210,7 +211,7 @@ MCMCStatus WtSANMetropolisHastings
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-WtMCMCStatus WtSANMetropolisHastings (WtMHproposal *MHp,
+WtMCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
 			    double *theta, double *invcov, 
 			    double *tau, double *networkstatistics,
 			    int nsteps, int *staken,
@@ -219,14 +220,14 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHproposal *MHp,
 			    WtModel *m) {
   unsigned int taken=0, unsuccessful=0;
   double *deltainvsig, *delta;
-  deltainvsig = (double *)malloc( m->n_stats * sizeof(double));
-  delta = (double *)malloc( m->n_stats * sizeof(double));
+  deltainvsig = (double *)Calloc(m->n_stats, double);
+  delta = (double *)Calloc(m->n_stats, double);
   
 /*  if (fVerbose)
     Rprintf("Now proposing %d WtMH steps... ", nsteps); */
   for(unsigned int step=0; step < nsteps; step++) {
     MHp->logratio = 0;
-    (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
+    (*(MHp->p_func))(MHp, nwp); /* Call MH function to propose toggles */
 
     if(MHp->toggletail[0]==MH_FAILED){
       switch(MHp->togglehead[0]){
@@ -234,14 +235,14 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHproposal *MHp,
 	error("Something very bad happened during proposal. Memory has not been deallocated, so restart R soon.");
 	
       case MH_IMPOSSIBLE:
-	Rprintf("MH Proposal function encountered a configuration from which no toggle(s) can be proposed.\n");
+	Rprintf("MH MHProposal function encountered a configuration from which no toggle(s) can be proposed.\n");
 	return WtMCMC_MH_FAILED;
 	
       case MH_UNSUCCESSFUL:
-	warning("MH Proposal function failed to find a valid proposal.");
+	warning("MH MHProposal function failed to find a valid proposal.");
 	unsuccessful++;
 	if(unsuccessful>taken*MH_QUIT_UNSUCCESSFUL){
-	  Rprintf("Too many MH Proposal function failures.\n");
+	  Rprintf("Too many MH MHProposal function failures.\n");
 	  return WtMCMC_MH_FAILED;
 	}
       case MH_CONSTRAINT:
@@ -250,7 +251,7 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHproposal *MHp,
     }
     
     if(fVerbose>=5){
-      Rprintf("Proposal: ");
+      Rprintf("MHProposal: ");
       for(unsigned int i=0; i<MHp->ntoggles; i++)
 	Rprintf(" (%d, %d)", MHp->toggletail[i], MHp->togglehead[i]);
       Rprintf("\n");
@@ -299,14 +300,7 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHproposal *MHp,
 	Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];
 	double w=MHp->toggleweight[i];
 
-	WtUPDATE_STORAGE(t, h, w, m, nwp);
-	
-	if(MHp->discord)
-	  for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	    // This could be speeded up by implementing an "incrementation" function.
-	    WtSetEdge(t, h, WtGetEdge(t,  h, *nwd) + w - WtGetEdge(t, h, nwp), *nwd);
-	  }
-
+	WtUPDATE_STORAGE(t, h, w, nwp, m, MHp);
 	WtSetEdge(t, h, w, nwp);
       }
       /* record network statistics for posterity */
@@ -321,8 +315,8 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHproposal *MHp,
     }
   }
 
-  free(deltainvsig);
-  free(delta);
+  Free(deltainvsig);
+  Free(delta);
 
   *staken = taken;
   return WtMCMC_OK;

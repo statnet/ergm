@@ -9,83 +9,169 @@
 #######################################################################
 #==========================================================================
 # This file contains the following 5 functions for computing summary stats
-#      <summary.statistics>           <summary.statistics.formula>
-#      <summary.formula>              <summary.statistics.ergm>
-#      <summary.statisitcs.default>   <summary.statistics.network>
+#      <summary_formula>           <summary_formula.formula>
+#      <summary.formula>              <summary_formula.ergm>
+#      <summary.statisitcs.default>   <summary_formula.network>
 #      <summary.statisitics.matrix>
 #==========================================================================
 
 
-
-
-#############################################################################
-# Each of the <summary.statistics.X> functions and <summary.formula> checks
-# that the implicit formula is correctly given as 'nw ~ term(s)' and returns
-# the global statistics of the network specified by the formula
-#
-# --PARAMETERS--
-#   object:  a formula, matrix, ergm, or network, as appropriate
-#   basis :  optionally, the network from the formula; if a network
-#            is passed to 'basis', it is assumed that 'object' is the
-#            formula
-#
-# --RETURNED--
-#   gs: the vector of global stats, as returned by <ergm.getglobalstats>
-#############################################################################
-
-summary.statistics <- function(object, ..., basis=NULL) {
-  UseMethod("summary.statistics")
+#' Calculation of network or graph statistics or other attributes
+#' specified on a formula
+#' 
+#' Most generally, this function computes those summaries of the
+#' object on the LHS of the formula that are specified by its RHS.  In
+#' particular, if given a network as its LHS and
+#' \code{\link{ergm-terms}} on its RHS, it computes the sufficient
+#' statistics associated with those terms.
+#' 
+#' 
+#' In practice, [summary.formula()] is a thin wrapper around the
+#' [summary_formula()] generic, which dispatches methods based on the
+#' class of the LHS of the formula.
+#'
+#' \code{summary.formula} for networks understands the
+#' \code{\link{lasttoggle}} "API".
+#'
+#' @aliases summary
+#' @param object A formula having as its LHS a
+#'   \code{\link[network]{network}} object or a matrix that can be
+#'   coerced to a \code{\link[network]{network}} object, a
+#'   [`network.list`], or other types to be summarized using a formula. (See
+#'   `methods('summary_formula') for the possible LHS types.
+#' @param \dots further arguments passed to or used by methods.
+#' @return A vector of statistics specified in RHS of the formula.
+#' @seealso [ergm()], [network()], [ergm-terms]
+#' @keywords models
+#' @examples
+#' 
+#' #
+#' # Lets look at the Florentine marriage data
+#' #
+#' data(florentine)
+#' #
+#' # test the summary_formula function
+#' #
+#' summary(flomarriage ~ edges + kstar(2))
+#' m <- as.matrix(flomarriage)
+#' summary(m ~ edges)  # twice as large as it should be
+#' summary(m ~ edges, directed=FALSE) # Now it's correct
+#'
+#' @export
+summary.formula <- function(object, ...){
+  summary_formula(object, ...)
 }
 
-
-summary.formula <- function(object, ...){
+#' Dispatching a summary function based on the class of the LHS of a
+#' formula.
+#' 
+#' The generic [summary_formula()] (note the underscore) expects a
+#' formula argument and will attempt to identify the class of the LHS
+#' of the formula and dispatch to the appropriate `summary_formula`
+#' method.
+#' 
+#' @param object A two-sided formula.
+#' @param basis Optional object of the same class as the LHS of the formula, substituted in place of the LHS.
+#' @param \dots further arguments passed to or used by methods.
+#' @return A vector of statistics measured on the network.
+#' @seealso [ergm()], [network()], [ergm-terms]
+#' @keywords models
+#' @examples
+#' 
+#' #
+#' # Lets look at the Florentine marriage data
+#' #
+#' data(florentine)
+#' #
+#' # test the summary_formula function
+#' #
+#' summary(flomarriage ~ edges + kstar(2))
+#' m <- as.matrix(flomarriage)
+#' summary(m ~ edges)  # twice as large as it should be
+#' summary(m ~ edges, directed=FALSE) # Now it's correct
+#'
+#' @keywords internal
+#' @export
+summary_formula <- function(object, ..., basis=NULL) {
   if(length(object)!=3 || object[[1]]!="~")
     stop ("Formula must be of form 'y ~ model'.")
   lhs <- eval(object[[2]], envir = environment(object))
-  UseMethod("summary.statistics",object=lhs)
+  UseMethod("summary_formula",object=lhs)
 }
 
 
 
-summary.statistics.formula <- function(object, ..., basis=NULL) {
-  summary.statistics.network(object, ..., basis=basis)
-}
+## #' @describeIn summary_formula an [ergm()] [`formula`] method.
+## #' @export
+## summary_formula.formula <- function(object, ..., basis=NULL) {
+##   UseMethod("summary_formula")
+## }
 
 
-
-summary.statistics.ergm <- function(object, ..., basis=NULL)
+#' @describeIn summary_formula an [`ergm`] fit method, extracting its model from the fit.
+#' @export
+summary_formula.ergm <- function(object, ..., basis=NULL)
 {
-  summary.statistics.network(object$formula, ..., basis=basis)
+  summary_formula.network(object$formula, ..., basis=basis)
 }
 
-summary.statistics.network.list <- function(object, response=NULL, ..., basis=NULL){
+#' @describeIn summary_formula a method for a [`network.list`] on the LHS of the formula.
+#' @param response Name of the edge attribute whose value is to be modeled.
+#' Defaults to \code{NULL} for simple presence or absence, modeled via binary
+#' ERGM terms. Passing anything but \code{NULL} uses valued ERGM terms.
+#' @export
+summary_formula.network.list <- function(object, response=NULL, ..., basis=NULL){
   if(!is.null(basis)){
     if(inherits(basis,'network.list'))
       object[[2]] <- basis
     else stop('basis, if specified, should be the same type as the LHS of the formula (network.list, in this case).')
   }
   nwl <- eval(object[[2]], envir=environment(object))
-  out<-lapply(nwl, function(nw) summary.statistics.network(object, response=response, ..., basis=nw))
+  out<-lapply(nwl, function(nw) summary_formula.network(object, response=response, ..., basis=nw))
   do.call(rbind,out)
 }
 
-summary.statistics.default <-
-summary.statistics.matrix <- 
-summary.statistics.network <- function(object, response=NULL,...,basis=NULL) {
+#' @describeIn summary_formula a method for a [`network`] on the LHS of the formula.
+#' @seealso [summary.ergm_model()]
+#' @export
+summary_formula.network <- function(object, response=NULL,...,basis=NULL) {
+  formula <- object
   if(is.network(basis)){
     nw <- basis
-    formula <- as.formula(object)
-    formula[[2]] <- as.name("basis") # This seems irrelevant; network name
-                                     # not needed by ergm.getmodel
   }else{
-    formula <- object
     nw <- ergm.getnetwork(formula)
   }
-  m <- ergm.getmodel(formula, nw, response=response, role="target",...)
-  gs <- ergm.getglobalstats(nw, m, response=response)
-  gs
+  m <- ergm_model(formula, nw, response=response, role="target",...)
+  summary(m, nw, response=response)
+}
+
+#' @describeIn summary_formula a method for the semi-internal [`pending_update_network`] on the LHS of the formula.
+#' @export
+summary_formula.pending_update_network <- function(object, response=NULL,...,basis=NULL) {
+  formula <- object
+  if(is(basis,"pending_update_network")){
+    nw <- basis
+  }else{
+    nw <- eval_lhs.formula(formula)
+  }
+  m <- ergm_model(formula, ensure_network(nw), response=response, role="target",...)
+  summary(m, nw, response=response)
 }
 
 
+#' @describeIn summary_formula a method for a [`matrix`] on the LHS of the formula.
+#' @export
+summary_formula.matrix <- summary_formula.network
+#' @describeIn summary_formula a fallback method.
+#' @export
+summary_formula.default <- summary_formula.network
 
 
+#' @rdname ergm-deprecated
+#' @description [summary.statistics()] is a deprecated name of [summary_formula()].
+#' @usage summary.statistics(...)
+#' @export summary.statistics
+summary.statistics <- function(...){
+  .Deprecated("summary_formula()")
+  summary_formula(...)
+}

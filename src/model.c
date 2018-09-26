@@ -5,37 +5,37 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  http://statnet.org/attribution
  *
- *  Copyright 2003-2013 Statnet Commons
+ *  Copyright 2003-2017 Statnet Commons
  */
 #include <string.h>
-#include "model.h"
-
+#include "ergm_model.h"
+#include "ergm_omp.h"
 /*****************
   void ModelDestroy
 ******************/
-void ModelDestroy(Model *m, Network *nwp)
+void ModelDestroy(Network *nwp, Model *m)
 {  
   DestroyStats(nwp, m);
-  
+
   for(unsigned int i=0; i < m->n_aux; i++)
     if(m->termarray[0].aux_storage[i]!=NULL){
-      free(m->termarray[0].aux_storage[i]);
+      Free(m->termarray[0].aux_storage[i]);
       m->termarray[0].aux_storage[i] = NULL;
-    }
-  
-  if(m->termarray[0].aux_storage!=NULL){
-    free(m->termarray[0].aux_storage);
   }
   
-  EXEC_THROUGH_TERMS({
+  if(m->termarray[0].aux_storage!=NULL){
+    Free(m->termarray[0].aux_storage);
+  }
+  
+  EXEC_THROUGH_TERMS(m, {
       if(mtp->aux_storage!=NULL)
 	mtp->aux_storage=NULL;
     });
   
-  free(m->dstatarray);
-  free(m->termarray);
-  free(m->workspace); 
-  free(m);
+  Free(m->dstatarray);
+  Free(m->termarray);
+  Free(m->workspace); 
+  Free(m);
 }
 
 /*****************
@@ -52,10 +52,10 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
   Model *m;
   double *inputs=*inputsp;
   
-  m = (Model *) malloc(sizeof(Model));
+  m = (Model *) Calloc(1, Model);
   m->n_terms = n_terms;
-  m->termarray = (ModelTerm *) malloc(sizeof(ModelTerm) * n_terms);
-  m->dstatarray = (double **) malloc(sizeof(double *) * n_terms);
+  m->termarray = (ModelTerm *) Calloc(n_terms, ModelTerm);
+  m->dstatarray = (double **) Calloc(n_terms, double *);
   m->n_stats = 0;
   m->n_aux = 0;
   for (l=0; l < n_terms; l++) {
@@ -86,20 +86,14 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
       for (j = 0; sonames[j] != ' ' && sonames[j] != 0; j++);
       sonames[j] = 0;
       /* Extract the required string information from the relevant sources */
-      if((fn=(char *)malloc(sizeof(char)*(i+3)))==NULL){
-        error("Error in ModelInitialize: Can't allocate %d bytes for fn. Memory has not been deallocated, so restart R sometime soon.\n",
-		sizeof(char)*(i+3));
-      }
+      fn = Calloc(i+3, char);
       fn[1]='_';
       for(k=0;k<i;k++)
         fn[k+2]=fnames[k];
       fn[i+2]='\0';
       /* fn is now the string 'd_[name]', where [name] is fname */
 /*      Rprintf("fn: %s\n",fn); */
-      if((sn=(char *)malloc(sizeof(char)*(j+1)))==NULL){
-        error("Error in ModelInitialize: Can't allocate %d bytes for sn. Memory has not been deallocated, so restart R sometime soon.\n",
-		sizeof(char)*(j+1));
-      }
+      sn = Calloc(j+1, char);
       sn=strncpy(sn,sonames,j);
       sn[j]='\0';
 
@@ -118,13 +112,13 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
       
       /*  Update the running total of statistics */
       m->n_stats += thisterm->nstats; 
-      m->dstatarray[l] = (double *) malloc(sizeof(double) * thisterm->nstats);
+      m->dstatarray[l] = (double *) Calloc(thisterm->nstats, double);
       thisterm->dstats = m->dstatarray[l];  /* This line is important for
-                                               eventually freeing up malloc'ed
+                                               eventually freeing up allocated
 					       memory, since thisterm->dstats
 					       can be modified but 
 					       m->dstatarray[l] cannot be.  */
-      thisterm->statcache = (double *) malloc(sizeof(double) * thisterm->nstats);
+      thisterm->statcache = (double *) Calloc(thisterm->nstats, double);
 
       thisterm->ninputparams = (int) *inputs++; /* Set # of inputs */
       /* thisterm->inputparams is a ptr to inputs */
@@ -197,8 +191,8 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
 
       
       /*Clean up by freeing sn and fn*/
-      free((void *)fn);
-      free((void *)sn);
+      Free(fn);
+      Free(sn);
 
       /*  The lines above set thisterm->inputparams to point to needed input
       parameters (or zero if none) and then increments the inputs pointer so
@@ -209,14 +203,19 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
       sonames += j;
     }
   
-  m->workspace = (double *) malloc(sizeof(double) * m->n_stats);
+  m->workspace = (double *) Calloc(m->n_stats, double);
   for(i=0; i < m->n_stats; i++)
     m->workspace[i] = 0.0;
 
+  unsigned int pos = 0;
+  FOR_EACH_TERM(m){
+    mtp->statspos = pos;
+    pos += mtp->nstats;
+  }
   
   /* Allocate auxiliary storage and put a pointer to it on every model term. */
   if(m->n_aux){
-    m->termarray[0].aux_storage = (void *) calloc(m->n_aux, sizeof(void *));
+    m->termarray[0].aux_storage = (void *) Calloc(m->n_aux, void *);
     for(l=1; l < n_terms; l++)
       m->termarray[l].aux_storage = m->termarray[0].aux_storage;
   }
@@ -235,7 +234,7 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
   memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */ 
 
   /* Make a pass through terms with d_functions. */
-  EXEC_THROUGH_TERMS_INTO(m->workspace, {
+  EXEC_THROUGH_TERMS_INTO(m, m->workspace, {
       mtp->dstats = dstats; /* Stuck the change statistic here.*/
       if(mtp->c_func==NULL && mtp->d_func)
 	(*(mtp->d_func))(ntoggles, tails, heads, 
@@ -248,7 +247,7 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
      toggle. */
   if(ntoggles!=1){
     unsigned int i = 0;
-    EXEC_THROUGH_TERMS({
+    EXEC_THROUGH_TERMS(m, {
 	mtp->dstats = m->dstatarray[i];
 	i++;
       });
@@ -257,11 +256,13 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
   /* Make a pass through terms with c_functions. */
   int toggle;
   FOR_EACH_TOGGLE(toggle){
-    EXEC_THROUGH_TERMS_INTO(m->workspace, {
+
+    ergm_PARALLEL_FOR_LIMIT(m->n_terms)    
+    EXEC_THROUGH_TERMS_INTO(m, m->workspace, {
 	if(mtp->c_func){
-	  (*(mtp->c_func))(*(tails+toggle), *(heads+toggle),
+	  if(ntoggles!=1) ZERO_ALL_CHANGESTATS();
+	  (*(mtp->c_func))(tails[toggle], heads[toggle],
 			   mtp, nwp);  /* Call d_??? function */
-	  
 	  if(ntoggles!=1){
 	    for(unsigned int k=0; k<N_CHANGE_STATS; k++){
 	      dstats[k] += mtp->dstats[k];
@@ -272,13 +273,13 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
 
     /* Execute storage updates */
     IF_MORE_TO_COME(toggle){
-      UPDATE_STORAGE_COND(tails[toggle],heads[toggle], m, nwp, mtp->d_func==NULL);
+      UPDATE_STORAGE_COND(tails[toggle],heads[toggle], nwp, m, NULL,  mtp->d_func==NULL);
       TOGGLE(tails[toggle],heads[toggle]);
     }
   }
   /* Undo previous storage updates and toggles */
   UNDO_PREVIOUS(toggle){
-    UPDATE_STORAGE_COND(tails[toggle],heads[toggle], m, nwp, mtp->d_func==NULL);
+    UPDATE_STORAGE_COND(tails[toggle],heads[toggle], nwp, m, NULL, mtp->d_func==NULL);
     TOGGLE(tails[toggle],heads[toggle]);
   }
 }
@@ -289,7 +290,7 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
 */
 void InitStats(Network *nwp, Model *m){
   // Iterate in reverse, so that auxliary terms get initialized first.  
-  EXEC_THROUGH_TERMS_INREVERSE({
+  EXEC_THROUGH_TERMS_INREVERSE(m, {
       double *dstats = mtp->dstats;
       mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
       if(mtp->i_func)
@@ -306,13 +307,13 @@ void InitStats(Network *nwp, Model *m){
 */
 void DestroyStats(Network *nwp, Model *m){
   unsigned int i=0;
-  EXEC_THROUGH_TERMS({
+  EXEC_THROUGH_TERMS(m, {
       if(mtp->f_func)
 	(*(mtp->f_func))(mtp, nwp);  /* Call f_??? function */
-      free(m->dstatarray[i]);
-      free(mtp->statcache);
+      Free(m->dstatarray[i]);
+      Free(mtp->statcache);
       if(mtp->storage){
-	free(mtp->storage);
+	Free(mtp->storage);
 	mtp->storage = NULL;
       }
       i++;

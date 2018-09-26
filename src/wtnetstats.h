@@ -5,14 +5,14 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  http://statnet.org/attribution
  *
- *  Copyright 2003-2013 Statnet Commons
+ *  Copyright 2003-2017 Statnet Commons
  */
 #ifndef WTNETSTATS_H
 #define WTNETSTATS_H
 
-#include "wtedgetree.h"
-#include "wtmodel.h"
-#include "wtMHproposal.h"
+#include "ergm_wtedgetree.h"
+#include "ergm_wtmodel.h"
+#include "ergm_wtMHproposal.h"
 
 void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timings, int *time, int *lasttoggle, int *dnedges,
 			   int *dn, int *dflag,  int *bipartite,

@@ -45,8 +45,13 @@
 #
 ######################################################################################
 
+#' @include ergm-deprecated.R
+#' @describeIn ergm-deprecated Use [check.ErgmTerm()] instead.
+#' 
+#' @export ergm.checkargs
 ergm.checkargs <- function(fname, arglist, varnames=NULL, vartypes=NULL,
                            defaultvalues=list(), required=NULL) {
+  .Deprecated("check.ErgmTerm")
   sr=sum(required)
   lv=length(varnames)
   la=length(arglist)
@@ -118,8 +123,12 @@ ergm.checkargs <- function(fname, arglist, varnames=NULL, vartypes=NULL,
 #
 #################################################################################
 
+#' @describeIn ergm-deprecated Use [check.ErgmTerm()] instead.
+#' 
+#' @export ergm.checkbipartite
 ergm.checkbipartite <- function(fname, nw.bipartiteflag, requirement,
                                extramessage="") {
+  .Deprecated("check.ErgmTerm")
   if (!nw.bipartiteflag && requirement)
     stop(paste(fname, "model term may not be used with an non-bipartite network.",
                extramessage), call.=FALSE)
@@ -148,8 +157,12 @@ ergm.checkbipartite <- function(fname, nw.bipartiteflag, requirement,
 #
 #################################################################################
 
+#' @describeIn ergm-deprecated Use [check.ErgmTerm()] instead.
+#' 
+#' @export ergm.checkdirected
 ergm.checkdirected <- function(fname, nw.directedflag, requirement,
                                extramessage="") {
+  .Deprecated("check.ErgmTerm")
   if (!nw.directedflag && requirement)
     stop(paste(fname, "model term may not be used with an undirected network.",
                extramessage), call.=FALSE)
@@ -188,7 +201,7 @@ ergm.checkdegeneracy <- function(statsmatrix, statsmatrix.obs=NULL, verbose=FALS
  if(all(novar)){
   if(verbose){
     warning("All the MCMC sample statistics are the same.\n", call.=FALSE)
-    print(apply(statsmatrix,2,ergm::summary.statsmatrix.ergm),scipen=6)
+    print(apply(statsmatrix,2,summary.statsmatrix.ergm),scipen=6)
   }
   degen <- TRUE
  }

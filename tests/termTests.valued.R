@@ -1,11 +1,11 @@
-#  File tests/termTests.flexible.R in package ergm, part of the Statnet suite
+#  File tests/termTests.valued.R in package ergm, part of the Statnet suite
 #  of packages for network analysis, http://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2013 Statnet Commons
+#  Copyright 2003-2017 Statnet Commons
 #######################################################################
 
 library(ergm)
@@ -130,13 +130,19 @@ for(base in c(0, seq_along(diffs))){
 
 # atleast
 for(v in dirvt) tst(sum(dirm >= v,na.rm=TRUE), dirnw ~ atleast(v))
+tst(sapply(dirvt, function(v) sum(dirm >= v,na.rm=TRUE)), dirnw ~ atleast(dirvt))
 for(v in undvt) tst(sum(undm >= v,na.rm=TRUE)/2, undnw ~ atleast(v))
+tst(sapply(undvt, function(v) sum(undm >= v,na.rm=TRUE)/2), undnw ~ atleast(undvt))
 for(v in bipvt) tst(sum(bipm >= v,na.rm=TRUE), bipnw ~ atleast(v))
+tst(sapply(bipvt, function(v) sum(bipm >= v,na.rm=TRUE)), bipnw ~ atleast(bipvt))
 
 # atmost
 for(v in dirvt) tst(sum(dirm <= v,na.rm=TRUE), dirnw ~ atmost(v))
+tst(sapply(dirvt, function(v) sum(dirm <= v,na.rm=TRUE)), dirnw ~ atmost(dirvt))
 for(v in undvt) tst(sum(undm <= v,na.rm=TRUE)/2, undnw ~ atmost(v))
+tst(sapply(undvt, function(v) sum(undm <= v,na.rm=TRUE)/2), undnw ~ atmost(undvt))
 for(v in bipvt) tst(sum(bipm <= v,na.rm=TRUE), bipnw ~ atmost(v))
+tst(sapply(bipvt, function(v) sum(bipm <= v,na.rm=TRUE)), bipnw ~ atmost(bipvt))
 
 # b1cov
 tst(sum(q1*bipm,na.rm=TRUE), bipnw ~ b1cov("q"))
@@ -201,8 +207,11 @@ for(dd in c("t-h", "h-t")){
 
 # greaterthan
 for(v in dirvt) tst(sum(dirm > v,na.rm=TRUE), dirnw ~ greaterthan(v))
+tst(sapply(dirvt, function(v) sum(dirm > v,na.rm=TRUE)), dirnw ~ greaterthan(dirvt))
 for(v in undvt) tst(sum(undm > v,na.rm=TRUE)/2, undnw ~ greaterthan(v))
+tst(sapply(undvt, function(v) sum(undm > v,na.rm=TRUE)/2), undnw ~ greaterthan(undvt))
 for(v in bipvt) tst(sum(bipm > v,na.rm=TRUE), bipnw ~ greaterthan(v))
+tst(sapply(bipvt, function(v) sum(bipm > v,na.rm=TRUE)), bipnw ~ greaterthan(bipvt))
 
 # equalto
 for(v in dirvt) tst(sum(dirm == v,na.rm=TRUE), dirnw ~ equalto(v))
@@ -217,31 +226,29 @@ for(tol in unique(c(runif(1,0,2), dirvt, undvt, bipvt))){
 }
 
 # ininterval
+charospec <- function(o1, o2) paste0(if(o1)'('else'[',if(o2)')'else']')
 for(o1 in c(FALSE, TRUE)){
   for(o2 in c(FALSE, TRUE)){
     for(lv in c(-Inf,dirvt, Inf))
-      for(uv in c(-Inf,dirvt, Inf))
-        tst(sum(
-        ((o1 & dirm>lv) | (!o1 & dirm>=lv)) &
-        ((o2 & dirm<uv) | (!o2 & dirm<=uv)),
-        na.rm=TRUE),
-        dirnw ~ ininterval(lv, uv, c(o1,o2)))
-
+      for(uv in c(-Inf,dirvt, Inf)){
+        truth <- sum(((o1 & dirm>lv) | (!o1 & dirm>=lv)) & ((o2 & dirm<uv) | (!o2 & dirm<=uv)), na.rm=TRUE)
+        tst(truth, dirnw ~ ininterval(lv, uv, c(o1,o2)))
+        tst(truth, dirnw ~ ininterval(lv, uv, charospec(o1,o2)))
+      }
+    
     for(lv in c(-Inf,undvt, Inf))
-      for(uv in c(-Inf,undvt, Inf))
-        tst(sum(
-        ((o1 & undm>lv) | (!o1 & undm>=lv)) &
-        ((o2 & undm<uv) | (!o2 & undm<=uv)),
-        na.rm=TRUE)/2,
-        undnw ~ ininterval(lv, uv, c(o1,o2)))
-
+      for(uv in c(-Inf,undvt, Inf)){
+        truth <- sum(((o1 & undm>lv) | (!o1 & undm>=lv)) & ((o2 & undm<uv) | (!o2 & undm<=uv)), na.rm=TRUE)/2
+        tst(truth, undnw ~ ininterval(lv, uv, c(o1,o2)))
+        tst(truth, undnw ~ ininterval(lv, uv, charospec(o1,o2)))
+      }
+    
     for(lv in c(-Inf,bipvt, Inf))
-      for(uv in c(-Inf,bipvt, Inf))
-        tst(sum(
-        ((o1 & bipm>lv) | (!o1 & bipm>=lv)) &
-        ((o2 & bipm<uv) | (!o2 & bipm<=uv)),
-        na.rm=TRUE),
-        bipnw ~ ininterval(lv, uv, c(o1,o2)))
+      for(uv in c(-Inf,bipvt, Inf)){
+        truth <- sum(((o1 & bipm>lv) | (!o1 & bipm>=lv)) & ((o2 & bipm<uv) | (!o2 & bipm<=uv)), na.rm=TRUE)
+        tst(truth, bipnw ~ ininterval(lv, uv, c(o1,o2)))
+        tst(truth, bipnw ~ ininterval(lv, uv, charospec(o1,o2)))
+      }
   }
 }
 
@@ -253,8 +260,11 @@ tst(sum(apply(sqrt(undpm)-mean(na.omit(c(sqrt(undpm)))), 1, function(r) (sum(na.
 
 # smallerthan
 for(v in dirvt) tst(sum(dirm < v,na.rm=TRUE), dirnw ~ smallerthan(v))
+tst(sapply(dirvt, function(v) sum(dirm < v,na.rm=TRUE)), dirnw ~ smallerthan(dirvt))
 for(v in undvt) tst(sum(undm < v,na.rm=TRUE)/2, undnw ~ smallerthan(v))
+tst(sapply(undvt, function(v) sum(undm < v,na.rm=TRUE)/2), undnw ~ smallerthan(undvt))
 for(v in bipvt) tst(sum(bipm < v,na.rm=TRUE), bipnw ~ smallerthan(v))
+tst(sapply(bipvt, function(v) sum(bipm < v,na.rm=TRUE)), bipnw ~ smallerthan(bipvt))
  
 # nodecov
 tst(sum(q*(dirm+t(dirm)),na.rm=TRUE), dirnw ~ nodecov("q"))
@@ -325,24 +335,36 @@ for(base in list(0, 1, 2, 1:2, 3)){
   tst(sapply(sort(unique(f))[keep], function(x) sum((f==x)*(dirm!=0),na.rm=TRUE)), dirnw ~ nodeofactor("f", base=base, form="nonzero"))
 }
 
+# TODO: nodeosqrtcovar
+
+# TODO: nodesqrtcovar
+
+# receiver
+for(base in list(0, 1, 2, 1:2, 3)){
+  i <- seq_len(network.size(dirnw))
+  keep <- if(all(base==0)) i else i[-base]
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*t(dirm),na.rm=TRUE)), dirnw ~ receiver(base=base))
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*t(dirm!=0),na.rm=TRUE)), dirnw ~ receiver(base=base, form="nonzero"))
+}
+
+# sender
+for(base in list(0, 1, 2, 1:2, 3)){
+  i <- seq_len(network.size(dirnw))
+  keep <- if(all(base==0)) i else i[-base]
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*dirm,na.rm=TRUE)), dirnw ~ sender(base=base))
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*(dirm!=0),na.rm=TRUE)), dirnw ~ sender(base=base, form="nonzero"))
+}
+
+# sociality
+for(base in list(0, 1, 2, 1:2, 3)){
+  i <- seq_len(network.size(dirnw))
+  keep <- if(all(base==0)) i else i[-base]
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*undm,na.rm=TRUE)), undnw ~ sociality(base=base))
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*(undm!=0),na.rm=TRUE)), undnw ~ sociality(base=base, form="nonzero"))
+}
+
+
 # sum
 tst(sum(dirm,na.rm=TRUE), dirnw ~ sum)
 tst(sum(undm,na.rm=TRUE)/2, undnw ~ sum)
 tst(sum(bipm,na.rm=TRUE), bipnw ~ sum)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

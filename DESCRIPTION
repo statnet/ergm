@@ -1,21 +1,152 @@
 Package: ergm
-Version: 4.0-14703.1-2017.03.25-12.02.11
-Date: 2017-03-25
-Title:  Fit, Simulate and Diagnose Exponential-Family Models for Networks
+Version: 4.0-4557
+Date: 2018-09-26
+Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
 	   person("Mark S.", "Handcock", role=c("aut"), email="handcock@stat.ucla.edu"),
            person("David R.", "Hunter", role=c("aut"), email="dhunter@stat.psu.edu"),
    	   person("Carter T.", "Butts", role=c("aut"), email="buttsc@uci.edu"),
            person("Steven M.", "Goodreau", role=c("aut"), email="goodreau@u.washington.edu"),
-           person("Pavel N.", "Krivitsky", role=c("aut","cre"), email="pavel@uow.edu.au"),
+           person("Pavel N.", "Krivitsky", role=c("aut","cre"), email="pavel@uow.edu.au", comment=c(ORCID="0000-0002-9101-3362")),
      	   person("Martina", "Morris", role=c("aut"), email="morrism@u.washington.edu"),
            person("Li","Wang",role=c("ctb"),email="lxwang@gmail.com"),
            person("Kirk","Li",role=c("ctb"),email="kirkli@uw.edu"),
 	   person("Skye", "Bender-deMoll", role=c("ctb"), email="skyebend@uw.edu"))
-Depends: statnet.common (>= 3.3), network (>= 1.13)
-Imports: robustbase (>= 0.9-10), coda (>= 0.18-1), trust, Matrix, lpSolve, parallel, methods, MASS
-Suggests: lattice, latticeExtra, sna, latentnet, rmarkdown, ergm.userterms, tergm, Rmpi, ergm.count
+Depends: network (>= 1.14)
+Imports: robustbase (>= 0.9-10), coda (>= 0.18-1), trust, Matrix, lpSolve, parallel, methods, MASS, statnet.common (>= 4.1.0), purrr (>= 0.2.4), rlang (>= 0.2.0), tibble (>= 1.4.2), dplyr (>= 0.7.4)
+Suggests: 
+    lattice,
+    latticeExtra,
+    sna,
+    latentnet,
+    rmarkdown,
+    knitr,
+    ergm.userterms,
+    Rmpi,
+    ergm.count,
+    testthat
+BugReports: https://github.com/statnet/ergm/issues
 Description: An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGMs). 'ergm' is a part of the Statnet suite of packages for network analysis.
 License: GPL-3 + file LICENSE
 URL: http://statnet.org
-VignetteBuilder: rmarkdown
+VignetteBuilder: rmarkdown, knitr
+RoxygenNote: 6.1.0
+Roxygen: list(markdown = TRUE)
+Encoding: UTF-8
+Collate: 
+    'InitErgm.bipartite.R'
+    'InitErgmConstraint.R'
+    'InitErgmProposal.R'
+    'InitErgmProposal.blockdiag.R'
+    'InitErgmProposal.dyadnoise.R'
+    'InitErgmReference.R'
+    'ergm-deprecated.R'
+    'InitErgmTerm.R'
+    'InitErgmTerm.auxnet.R'
+    'InitErgmTerm.bipartite.degree.R'
+    'InitErgmTerm.coincidence.R'
+    'InitErgmTerm.dgw_sp.R'
+    'InitErgmTerm.extra.R'
+    'InitErgmTerm.indices.R'
+    'InitErgmTerm.spcache.R'
+    'InitErgmTerm.test.R'
+    'InitErgmTerm.transitiveties.R'
+    'InitWtErgmProposal.R'
+    'InitWtErgmTerm.R'
+    'InitWtErgmTerm.test.R'
+    'anova.ergm.R'
+    'anova.ergmlist.R'
+    'approx.hotelling.diff.test.R'
+    'as.network.numeric.R'
+    'build_term_index.R'
+    'check.ErgmTerm.R'
+    'control.ergm.R'
+    'control.ergm.bridge.R'
+    'control.gof.R'
+    'control.logLik.ergm.R'
+    'control.san.R'
+    'control.simulate.R'
+    'data.R'
+    'ergm-defunct.R'
+    'ergm.CD.fixed.R'
+    'ergm.Cprepare.R'
+    'ergm.MCMCse.R'
+    'ergm.MCMCse.lognormal.R'
+    'ergm.MCMLE.R'
+    'ergm.R'
+    'ergm.allstats.R'
+    'ergm.auxstorage.R'
+    'ergm.bounddeg.R'
+    'ergm.bridge.R'
+    'ergm.check.R'
+    'ergm.coefficient.degeneracy.R'
+    'ergm.curved.statsmatrix.R'
+    'ergm.degeneracy.R'
+    'ergm.design.R'
+    'ergm.errors.R'
+    'ergm.estimate.R'
+    'ergm.eta.R'
+    'ergm.etagrad.R'
+    'ergm.etagradmult.R'
+    'ergm.etamap.R'
+    'ergm.geodistn.R'
+    'ergm.getCDsample.R'
+    'ergm.getMCMCsample.R'
+    'ergm.getnetwork.R'
+    'ergm.getterms.R'
+    'ergm.initialfit.R'
+    'ergm.llik.R'
+    'ergm.llik.obs.R'
+    'ergm.logitreg.R'
+    'ergm.mapl.R'
+    'ergm.maple.R'
+    'ergm.mple.R'
+    'ergm.pen.glm.R'
+    'ergm.phase12.R'
+    'ergm.pl.R'
+    'ergm.reviseinit.R'
+    'ergm.robmon.R'
+    'ergm.san.R'
+    'ergm.stepping.R'
+    'ergm.stocapprox.R'
+    'ergm.sufftoprob.R'
+    'ergm.utility.R'
+    'ergmMPLE.R'
+    'ergm_estfun.R'
+    'ergm_model.R'
+    'ergm_model.utils.R'
+    'ergm_proposal.R'
+    'formula.utils.R'
+    'get.node.attr.R'
+    'godfather.R'
+    'gof.ergm.R'
+    'is.curved.R'
+    'is.durational.R'
+    'is.dyad.independent.R'
+    'is.inCH.R'
+    'locator.R'
+    'logLik.ergm.R'
+    'mcmc.diagnostics.ergm.R'
+    'network.list.R'
+    'network.update.R'
+    'nparam.R'
+    'obs.constraints.R'
+    'parallel.utils.R'
+    'param_names.R'
+    'pending_update_network.R'
+    'plot.ergm.R'
+    'plot.network.ergm.R'
+    'print.ergm.R'
+    'print.network.list.R'
+    'print.summary.ergm.R'
+    'rank_test.ergm.R'
+    'rlebdm.R'
+    'simulate.ergm.R'
+    'summary.ergm.R'
+    'summary.ergm_model.R'
+    'summary.network.list.R'
+    'summary.statistics.network.R'
+    'to_ergm_Cdouble.R'
+    'vcov.ergm.R'
+    'wtd.median.R'
+    'zzz.R'

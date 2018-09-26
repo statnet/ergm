@@ -13,9 +13,9 @@
 # --PARAMETERS--
 #   theta           :  the vector of theta coefficients
 #   init          :  the vector of initial theta coefficients
-#   statsmatrix     :  the matrix of network statistics
-#   statsmatrix.obs :  the matrix of network statistics on the constrained network
-#   model           :  the model, as returned by <ergm.getmodel>
+#   statsmatrices     :  the matrix of network statistics
+#   statsmatrices.obs :  the matrix of network statistics on the constrained network
+#   model           :  the model, as returned by <ergm_model>
 #
 # --RETURNED--
 #   the variance of the MCMC sampling as a list containing:
@@ -24,7 +24,7 @@
 #
 ################################################################################
 
-ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
+ergm.MCMCse<-function(theta, init, statsmatrices, statsmatrices.obs,
                       model) {
   # Not sure why this is necessary, but:
   names(theta) <- names(init)
@@ -37,23 +37,29 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
   offsetmap <- model$etamap$offsetmap
   etaparam <- (eta-eta0)[!offsetmap]
 
-  # Center statmatrix (and statsmatrix.obs, if applicable)
-  av <- apply(statsmatrix, 2, mean)
-# av <- apply(statsmatrix,2,median)
-  xsim <- sweep(statsmatrix, 2, av, "-")
-  gsim <- .ergm.esteq(theta, model, xsim)
+  # Center statmatrix (and statsmatrices.obs, if applicable)
+  av <- colMeans.mcmc.list(statsmatrices)
+# av <- apply(statsmatrices,2,median)
+  xsims <- sweep.mcmc.list(statsmatrices, av, "-")
+  gsims <- ergm.estfun(xsims, theta=theta, model=model)
   xobs <- -av
-  if(!is.null(statsmatrix.obs)){
-   av.obs <- apply(statsmatrix.obs, 2, mean)
-#  av.obs <- apply(statsmatrix.obs, 2, median)
-   xsim.obs <- sweep(statsmatrix.obs, 2, av.obs,"-")
-   gsim.obs <- .ergm.esteq(theta, model, xsim.obs)
-   xsim.obs <- xsim.obs[,!offsetmap, drop=FALSE]
+  xsims <- xsims[,!offsetmap, drop=FALSE]
+  xsim <- as.matrix(xsims)
+  gsim <- as.matrix(gsims)
+
+  if(!is.null(statsmatrices.obs)){
+   av.obs <- colMeans.mcmc.list(statsmatrices.obs)
+#  av.obs <- apply(statsmatrices.obs, 2, median)
+   xsims.obs <- sweep.mcmc.list(statsmatrices.obs, av.obs,"-")
+   gsims.obs <- ergm.estfun(xsims.obs, theta=theta, model=model)
+   xsims.obs <- xsims.obs[,!offsetmap, drop=FALSE]
+   xsim.obs <- as.matrix(xsims.obs)
+   gsim.obs <- as.matrix(gsims.obs)
+
    xobs <- av.obs-av
   }
   xobs <- xobs[!offsetmap]
-  xsim <- xsim[,!offsetmap, drop=FALSE]
-
+  
   # Calculate prediction probabilities that had been used in the last MCMLE update.
   basepred <- xsim %*% etaparam
   prob <- max(basepred)
@@ -67,7 +73,7 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
 
   #  Calculate the auto-covariance of the MCMC suff. stats.
   #  and hence the MCMC s.e.
-  cov.zbar <- .ergm.mvar.spec0(gsim) * sum(prob^2)
+  cov.zbar <- spectrum0.mvar(gsims) * sum(prob^2)
   imp.factor <- sum(prob^2)*length(prob)
 
   # Identify canonical parameters corresponding to non-offset statistics that do not vary
@@ -76,7 +82,7 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
 
   #  Calculate the auto-covariance of the Conditional MCMC suff. stats.
   #  and hence the Conditional MCMC s.e.
-  if(!is.null(statsmatrix.obs)){
+  if(!is.null(statsmatrices.obs)){
     obspred <- xsim.obs %*% etaparam
     prob.obs <- exp(obspred - max(obspred))
     prob.obs <- prob.obs/sum(prob.obs)
@@ -84,7 +90,7 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
     htmp.obs <- sweep(sweep(gsim.obs, 2, E.obs, "-"), 1, sqrt(prob.obs), "*")
     H.obs <- crossprod(htmp.obs, htmp.obs)
 
-    cov.zbar.obs <- .ergm.mvar.spec0(gsim.obs) * sum(prob.obs^2)
+    cov.zbar.obs <- spectrum0.mvar(gsims.obs) * sum(prob.obs^2)
     imp.factor.obs <- sum(prob.obs^2)*length(prob.obs)
 
     novar <- novar & (diag(H.obs)<sqrt(.Machine$double.eps))
@@ -110,11 +116,11 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
 
   mc.cov <- matrix(NA,ncol=length(novar),nrow=length(novar))
 
-  if(sum(!novar)==0 || inherits(try(solve(H)),"try-error")){
+  if(sum(!novar)==0 || inherits(try(solve(H,tol=1e-20)),"try-error")){
     warning("Approximate Hessian matrix is singular. Standard errors due to MCMC approximation of the likelihood cannot be evaluated. This is likely due to insufficient MCMC sample size or highly correlated model terms.")
   }else{
-    mc.cov0 <- solve(H, cov.zbar)
-    mc.cov0 <- solve(H, t(mc.cov0))
+    mc.cov0 <- solve(H, cov.zbar, tol=1e-20)
+    mc.cov0 <- solve(H, t(mc.cov0), tol=1e-20)
     mc.cov[!novar,!novar] <- mc.cov0
   }
 

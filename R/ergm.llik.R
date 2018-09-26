@@ -30,7 +30,6 @@
 #   theta      : the vector of theta parameters; this is only used to solidify
 #                offset coefficients; the not-offset terms are given by 'init'
 #                of the 'etamap'
-#   xobs       : the vector of observed statistics 
 #   xsim       : the matrix of simulated statistics 
 #   probs      : the probability weight for each row of the stats matrix
 #   varweight  : the weight by which the variance of the base predictions will be 
@@ -38,7 +37,7 @@
 #                reflect what this parameter actually is; default=0.5, which is the 
 #                "true"  weight, in the sense that the lognormal approximation is
 #                given by
-#                           sum(xobs * x) - mb - 0.5*vb 
+#                           - mb - 0.5*vb 
 #   trustregion: the maximum value of the log-likelihood ratio that is trusted;
 #                default=20
 #   eta0       : the initial eta vector
@@ -62,26 +61,20 @@
 #        normally  distributed so that exp(eta * stats) is lognormal
 #####################################################################################
 
-llik.fun <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
+llik.fun.lognormal <- function(theta, xsim, xsim.obs=NULL,
                      varweight=0.5, trustregion=20, 
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
-  theta.offset <- etamap$init
-  theta.offset[!etamap$offsettheta] <- theta
   # Convert theta to eta
-  eta <- ergm.eta(theta.offset, etamap)
+  eta <- ergm.eta(theta, etamap)
 
   # Calculate approximation to l(eta) - l(eta0) using a lognormal approximation
   etaparam <- eta-eta0
-# MSH: Is this robust?
-  etaparam <- etaparam[!etamap$offsetmap]
-  xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
-  xobs <- xobs[!etamap$offsetmap]
-  #
+
   basepred <- xsim %*% etaparam
-  mb <- sum(basepred*probs)
-  vb <- sum(basepred*basepred*probs) - mb*mb
-  llr <- sum(xobs * etaparam) - mb - varweight*vb
+  mb <- lweighted.mean(basepred,lrowweights(xsim))
+  vb <- lweighted.var(basepred,lrowweights(xsim))
+  llr <- - mb - varweight*vb
   #
 
   # Simplistic error control;  -800 is effectively like -Inf:
@@ -96,146 +89,32 @@ llik.fun <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
   }
 }
 
-#llik.grad <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
-#                      varweight=0.5, trustregion=20, eta0, etamap){
-#  theta.offset <- etamap$init
-#  theta.offset[!etamap$offsettheta] <- theta
-#  eta <- ergm.eta(theta.offset, etamap)
-#  etaparam <- eta-eta0
-#  xsim[,etamap$offsetmap] <- 0
-#  basepred <- xsim %*% etaparam
-#  prob <- max(basepred)
-#  prob <- probs*exp(basepred - prob)
-#  prob <- prob/sum(prob)
-#  E <- apply(sweep(xsim, 1, prob, "*"), 2, sum)
-#  llg <- xobs - E
-#  llg[is.na(llg) | is.infinite(llg)] <- 0
-##
-## Penalize changes to trustregion
-##
-## llg <- llg - 2*(llg-trustregion)*(llg>trustregion)
-## 
-## The next lines are for the Hessian which optim does not use
-##
-## vtmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
-## V <- -t(vtmp) %*% vtmp
-## list(gradient=xobs-E,hessian=V)
-## print(ergm.etagradmult(theta.offset, llg, etamap))
-#  llg <- ergm.etagradmult(theta.offset, llg, etamap)
-#  llg[!etamap$offsettheta]
-#}
-
-
 
 #####################################################################################
 # --RETURNED--
-#   llg: the gradient of the not-offset eta parameters with ??
+#   llg: the gradient of the log-likelihood using "naive" (importance sampling) method
 #####################################################################################
 
-llik.grad <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
+llik.grad.IS <- function(theta, xsim,  xsim.obs=NULL,
                      varweight=0.5, trustregion=20, 
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
-  theta.offset <- etamap$init
-  theta.offset[!etamap$offsettheta] <- theta
-  eta <- ergm.eta(theta.offset, etamap)
-# etagrad <- ergm.etagrad(theta.offset, etamap)
+
+  # Obtain canonical parameters incl. offsets and difference from sampled-from
+  eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
-# MSH: Is this robust?
-  etaparam <- etaparam[!etamap$offsetmap]
-  xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
-  xobs <- xobs[!etamap$offsetmap]
-# etagrad <- etagrad[,!etamap$offsetmap,drop=FALSE]
-# etagrad <- etagrad[!etamap$offsettheta,,drop=FALSE]
-#
-  basepred <- xsim %*% etaparam
-  prob <- max(basepred)
-  prob <- probs*exp(basepred - prob)
-  prob <- prob/sum(prob)
-  E <- apply(sweep(xsim, 1, prob, "*"), 2, sum)
-  llg <- xobs - E
-  llg[is.na(llg) | is.infinite(llg)] <- 0
-#
-# Penalize changes to trustregion
-#
-# llg <- llg - 2*(llg-trustregion)*(llg>trustregion)
-# 
-# The next lines are for the Hessian which optim does not use
-#
-# vtmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
-# V <- -t(vtmp) %*% vtmp
-# list(gradient=xobs-E,hessian=V)
-# print(ergm.etagradmult(theta.offset, llg, etamap))
-  llg.offset <- rep(0,length(etamap$offsetmap))
-  llg.offset[!etamap$offsetmap] <- llg
-  llg <- ergm.etagradmult(theta.offset, llg.offset, etamap)
-# llg <- crossprod(llg, t(etagrad))
-# llg <- etagrad %*% llg
-# print(llg)
-  llg[!etamap$offsettheta]
+
+  # Calculate log-importance-weights
+  basepred <- xsim %*% etaparam + lrowweights(xsim)
+  
+  # Calculate the estimating function values sans offset
+  llg <- - lweighted.mean(xsim, basepred)
+  llg <- t(ergm.etagradmult(theta, llg, etamap))
+  
+  llg[is.na(llg)] <- 0 # Note: Before, infinite values would get zeroed as well. Let's see if this works.
+
+  llg
 }
-
-
-
-
-#####################################################################################
-# --RETURNED--
-#   He: the ?? Hessian matrix
-#####################################################################################
-
-llik.hessian <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
-                     varweight=0.5, trustregion=20, 
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
-  theta.offset <- etamap$init
-  theta.offset[!etamap$offsettheta] <- theta
-# xsim[,etamap$offsettheta] <- 0
-#
-#    eta transformation
-#
-  eta <- ergm.eta(theta.offset, etamap)
-# etagrad <- ergm.etagrad(theta.offset, etamap)
-  etaparam <- eta-eta0
-# MSH: Is this robust?
-  etaparam <- etaparam[!etamap$offsetmap]
-  xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
-  xobs <- xobs[!etamap$offsetmap]
-# etagrad <- etagrad[,!etamap$offsetmap,drop=FALSE]
-# etagrad <- etagrad[!etamap$offsettheta,,drop=FALSE]
-#
-# etaparam <- etaparam[!etamap$offsettheta]
-  basepred <- xsim %*% etaparam
-  prob <- max(basepred)
-  prob <- probs*exp(basepred - prob)
-  prob <- prob/sum(prob)
-  E <- apply(sweep(xsim, 1, prob, "*"), 2, sum)
-# 
-  htmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
-# htmp <- htmp %*% t(etagrad)
-# H <- - t(htmp) %*% htmp
-# htmp <- etagrad %*% t(htmp)
-# H <- - htmp %*% t(htmp)
-# htmp <- tcrossprod(etagrad, htmp)
-  htmp.offset <- matrix(0, ncol = length(etamap$offsetmap), nrow = nrow(htmp))
-# htmp.offset[,!etamap$offsetmap] <- htmp
-  htmp.offset[,!etamap$offsetmap] <- htmp
-  htmp.offset <- t(ergm.etagradmult(theta.offset, t(htmp.offset), etamap))
-# Notice the negative sign!
-  H <- -crossprod(htmp.offset, htmp.offset)
-# H <- -tcrossprod(htmp.offset, htmp.offset)
-# H <- -tcrossprod(htmp, htmp)
-# htmp <- tcrossprod(htmp, etagrad)
-# H <- crossprod(htmp, htmp)
-# H <- crossprod(t(etagrad),crossprod(H, t(etagrad)))
-# He <- matrix(NA, ncol = length(etamap$offsettheta), 
-#                  nrow = length(etamap$offsettheta))
-# He[!etamap$offsettheta, !etamap$offsettheta] <- H
-  He <- H[!etamap$offsettheta, !etamap$offsettheta, drop=FALSE]
-  dimnames(He) <- list(names(theta), names(theta))
-# H
-  He
-}
-
 
 
 
@@ -248,52 +127,26 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL
 #              w_i = normalized version of exp((eta-eta0)^t g_i) so that sum_i w_i=1
 #       this is equation (3.5) of Hunter & Handcock (2006)
 #####################################################################################
-
-llik.hessian.naive <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
-                     varweight=0.5, trustregion=20,
+llik.hessian.IS <- function(theta, xsim, xsim.obs=NULL,
+                     varweight=0.5, trustregion=20, 
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
-  xsim <- xsim[,!etamap$offsettheta, drop=FALSE]
-  theta.offset <- etamap$init
-  theta.offset[!etamap$offsettheta] <- theta
-  eta <- ergm.eta(theta.offset, etamap)
-  etagrad <- ergm.etagrad(theta, etamap)
-
-  # It does not matter if we subtract a constant from the (eta-eta0)^t g vector
-  # prior to exponentiation.  So subtract to make maximum value = 0 for 
-  # the sake of numberical stability:
+  # Obtain canonical parameters incl. offsets and difference from sampled-from
+  eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
-  etaparam <- etaparam[!etamap$offsettheta]
-  basepred <- xsim %*% etaparam
-  w <- probs * exp(basepred - max(basepred))
-  w <- w/sum(w)
-  wtxsim <- sweep(xsim, 1, w, "*")
-  swg <- colSums(wtxsim)
-  H <- outer(swg,swg) - t(wtxsim) %*% xsim 
-  
-  # One last step, for the case of a curved EF:  Front- and back-multiply by
-  # the gradient of eta(theta).
-  H <- - crossprod(etagrad, crossprod(H, etagrad))
-  He <- matrix(NA, ncol = length(theta), nrow = length(theta))
-  He[!etamap$offsettheta, !etamap$offsettheta] <- H
-  dimnames(He) <- list(names(theta), names(theta))
-  He
+
+  # Calculate log-importance-weights
+  basepred <- xsim %*% etaparam + lrowweights(xsim)
+
+  # Calculate the estimating function values sans offset
+  esim <- t(ergm.etagradmult(theta, t(xsim), etamap))
+
+  # Weighted variance-covariance matrix of estimating functions ~ -Hessian
+  H <- -lweighted.var(esim, basepred)
+
+  dimnames(H) <- list(names(theta), names(theta))
+  H
 }
-
-
-
-# DH:  This llik.exp function does not appear to be used anywhere.
-# MSH: Yep, just another idea based on exp. family theory
-# llik.exp <- function(theta, xobs, xsim, probs, 
-#                      varweight=0.5, eta0, etamap){
-#   eta <- ergm.eta(theta.offset, etamap)
-#   etaparam <- eta-eta0
-#   vb <- var(xsim)
-#   llr <- -sum(xobs * etaparam) + varweight*(t(etaparam) %*% vb %*% etaparam)
-#   if(is.infinite(llr) | is.na(llr)){llr <- -800}
-#   llr
-# }
-
 
 
 #####################################################################################
@@ -301,21 +154,15 @@ llik.hessian.naive <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
 #   llr: the log-likelihood ratio of l(eta) - l(eta0) using ?? (what sort of approach)
 #####################################################################################
 
-llik.fun.EF <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
+llik.fun.EF <- function(theta, xsim, xsim.obs=NULL,
                      varweight=0.5, trustregion=20,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
-  theta.offset <- etamap$init
-  theta.offset[!etamap$offsettheta] <- theta
-  eta <- ergm.eta(theta.offset, etamap)
+  eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
-# The next line is right!
-# aaa <- sum(xobs * etaparam) - log(sum(probs*exp(xsim %*% etaparam)))
-# These lines standardize:
   basepred <- xsim %*% etaparam
-#
   maxbase <- max(basepred)
-  llr <- sum(xobs * etaparam) - maxbase - log(sum(probs*exp(basepred-maxbase)))
+  llr <- - maxbase - log(sum(rowweights(xsim)*exp(basepred-maxbase)))
   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #
 # Penalize changes to trustregion
@@ -327,7 +174,7 @@ llik.fun.EF <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
   }
 #
 # cat(paste("max, log-lik",maxbase,llr,"\n"))
-# aaa <- sum(xobs * etaparam) - log(sum(probs*exp(xsim %*% etaparam)))
+# aaa <- - log(sum(exp(lprobs)*exp(xsim %*% etaparam)))
 # cat(paste("log-lik",llr,aaa,"\n"))
 # aaa
   llr
@@ -338,187 +185,59 @@ llik.fun.EF <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
 
 #####################################################################################
 # --RETURNED--
-#   llr: the log-likelihood ratio of l(eta) - l(eta0) using ?? (what sort of approach)
+#   llr: the "naive" log-likelihood ratio of l(eta) - l(eta0) using importance sampling (what sort of approach)
 #            "Simple convergence"
 #####################################################################################
 
-llik.fun2 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL, 
+llik.fun.IS <- function(theta, xsim, xsim.obs=NULL, 
                      varweight=0.5, trustregion=20,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
-  theta.offset <- etamap$init
-  theta.offset[!etamap$offsettheta] <- theta
-  eta <- ergm.eta(theta.offset, etamap)
+  # Obtain canonical parameters incl. offsets and difference from sampled-from
+  eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
 
-  etaparam <- etaparam[!etamap$offsetmap]
-  xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
-  xobs <- xobs[!etamap$offsetmap]
-
-  basepred <- xsim %*% etaparam
-  maxbase <- max(basepred)
-  llr <- sum(xobs * etaparam) - maxbase - log(sum(probs*exp(basepred-maxbase)))
-  llr
+  # Calculate log-importance-weights and the likelihood ratio
+  basepred <- xsim %*% etaparam + lrowweights(xsim)
+  llr <- - log_sum_exp(basepred)
+  # trustregion is the maximum value of llr that we actually trust.
+  # So if llr>trustregion, return a value less than trustregion instead.
+  if (is.numeric(trustregion) && llr>trustregion) {
+    return(2*trustregion - llr)
+  } else {
+    return(llr)
+  }
 }
-
-
-
-
-#####################################################################################
-# --RETURNED--
-#   the gradient of eta with ??
-#####################################################################################
-
-llik.grad2 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
-                     varweight=0.5, trustregion=20,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
-  theta.offset <- etamap$init
-  theta.offset[!etamap$offsettheta] <- theta
-  eta <- ergm.eta(theta.offset, etamap)
-  etaparam <- eta-eta0
-  basepred <- xsim %*% etaparam
-  prob <- max(basepred)
-  prob <- probs*exp(basepred - prob)
-  prob <- prob/sum(prob)
-  E <- sum(xsim*as.vector(prob))
-# 
-#    The next lines are for the Hessian which optim does not use
-# 
-#    vtmp <- (xsim-E)*sqrt(prob)
-#    V <- vtmp * vtmp
-#    list(gradient=xobs-E,hessian=V)
-  ergm.etagradmult(theta.offset, xobs-E, etamap)
-}
-
-llik.hessian2 <- llik.hessian
-
-
-
-
-
-#####################################################################################
-# --RETURNED--
-#   llr: the naive log-likelihood ratio, l(eta) - l(eta0), approximated by
-#        equation (5) of Hunter & Handcock (2010)
-#####################################################################################
-
-llik.fun3 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL, 
-                     varweight=0.5, trustregion=20,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){ # eqn (5)
-  theta.offset <- etamap$init
-  theta.offset[!etamap$offsettheta] <- theta
-  eta <- ergm.eta(theta.offset, etamap)
-  deta <- matrix(eta-eta0,ncol=1) #px1
-  basepred <- as.vector(xsim %*% deta) #nx1
-  maxbase <- max(basepred)
-  sum(xobs * deta) - maxbase - log(sum(probs*exp(basepred-maxbase)))
-}
-
-
-
-#####################################################################################
-# --RETURNED--
-#   the gradient of eta with ??  
-#####################################################################################
-
-llik.grad3 <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
-                     varweight=0.5, trustregion=20,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){ #eqn (11)
-  theta.offset <- etamap$init
-  theta.offset[!etamap$offsettheta] <- theta
-  eta <- ergm.eta(theta.offset, etamap)
-  deta <- matrix(eta-eta0,ncol=1)
-  basepred <- as.vector(xsim %*% deta)
-  maxbase <- max(basepred)
-  tmp <- probs * exp(basepred-maxbase)
-  w <- tmp/sum(tmp)
-  ergm.etagradmult (theta, xobs-apply(sweep(xsim,1,w,"*"),2,sum), etamap)
-}
-
-
-
-#####################################################################################
-# --RETURNED--
-#   He: the ?? Hessian matrix
-#####################################################################################
-
-llik.info3 <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
-                     varweight=0.5, trustregion=20,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){ #eqn (12)
-  eta <- ergm.eta(theta, etamap)
-  etagrad <- ergm.etagrad(theta,etamap)
-  deta <- matrix(eta-eta0,ncol=1)
-  basepred <- as.vector(xsim %*% deta)
-  maxbase <- max(basepred)
-  w <- probs * exp(basepred-maxbase) # not normalized; cov.wt will do that
-  t(etagrad) %*% cov.wt(xsim,w,center=FALSE)$cov %*% etagrad
-}
-
-
-#####################################################################################
-# --RETURNED--
-#   the MCMC variance, as approximated by equation (13) of Hunter & Handcock (2010)
-#   "sort of"
-#####################################################################################
-
-llik.mcmcvar3 <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
-                     varweight=0.5, trustregion=20,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){  #eqn (13) sort of
-  eta <- ergm.eta(theta, etamap)
-  deta <- matrix(eta-eta0,ncol=1)
-  basepred <- as.vector(xsim %*% deta)
-  maxbase <- max(basepred)
-  ebp <- exp(basepred-maxbase)
-  sum(probs^2) * (sum(probs*ebp^2)/sum(probs*ebp)^2 - 1) 
-# Assuming Z_i independent, eqn (13) becomes
-# \sum_i p_i^2 \left( \frac{\sum_i p_i U_i^2}{[\sum_i p_i U_i]^2} - 1 \right)
-}
-
-
-
 
 #####################################################################################
 # --RETURNED--
 #   llr: the log-likelihood ratio of l(eta) - l(eta0) using ?? (what sort of approach)
 #####################################################################################
 
-llik.fun.median <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
+llik.fun.median <- function(theta, xsim, xsim.obs=NULL,
                      varweight=0.5, trustregion=20,
                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
                      eta0, etamap){
-  theta.offset <- etamap$init
-  theta.offset[!etamap$offsettheta] <- theta
   # Convert theta to eta
-  eta <- ergm.eta(theta.offset, etamap)
+  eta <- ergm.eta(theta, etamap)
 
   # Calculate approximation to l(eta) - l(eta0) using a lognormal approximation
   # i.e., assuming that the network statistics are approximately normally 
   # distributed so that exp(eta * stats) is lognormal
   etaparam <- eta-eta0
-# MSH: Is this robust?
-  etaparam <- etaparam[!etamap$offsetmap]
-  xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
-  xobs <- xobs[!etamap$offsetmap]
-# The next line is right!
-# aaa <- sum(xobs * etaparam) - log(sum(probs*exp(xsim %*% etaparam)))
 # These lines standardize:
   basepred <- xsim %*% etaparam
 #
 # maxbase <- max(basepred)
-# llr <- sum(xobs * etaparam) - maxbase - log(sum(probs*exp(basepred-maxbase)))
+# llr <- - maxbase - log(sum(exp(lprobs)*exp(basepred-maxbase)))
 #
 # alternative based on log-normal approximation
-  mb <- wtd.median(basepred, weight=probs)
-  sdb <- 1.4826*wtd.median(abs(basepred-mb), weight=probs)
+  mb <- wtd.median(basepred, weight=rowweights(xsim))
+  sdb <- 1.4826*wtd.median(abs(basepred-mb), weight=rowweights(xsim))
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
-  llr <- sum(xobs * etaparam) - (mb + varweight*sdb*sdb)
+  llr <- - (mb + varweight*sdb*sdb)
   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #
 # Penalize changes to trustregion
@@ -530,34 +249,26 @@ llik.fun.median <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=N
   }
 #
 # cat(paste("max, log-lik",maxbase,llr,"\n"))
-# aaa <- sum(xobs * etaparam) - log(sum(probs*exp(xsim %*% etaparam)))
+# aaa <- - log(sum(exp(lprobs)*exp(xsim %*% etaparam)))
 # cat(paste("log-lik",llr,aaa,"\n"))
 # aaa
   llr
 }
 
-llik.fun.logtaylor <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL, 
+llik.fun.logtaylor <- function(theta, xsim, xsim.obs=NULL, 
 	 	                     varweight=0.5, trustregion=20,  
 	 	                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1, 
 	 	                     eta0, etamap){ 
-	 	  theta.offset <- etamap$init 
-	 	  theta.offset[!etamap$offsettheta] <- theta 
 	 	  # Convert theta to eta 
-	 	  eta <- ergm.eta(theta.offset, etamap) 
+	 	  eta <- ergm.eta(theta, etamap) 
  	 
  	  # Calculate approximation to l(eta) - l(eta0) using a lognormal approximation 
 	 	  etaparam <- eta-eta0 
-	 	# MSH: Is this robust? 
-	 	  etaparam <- etaparam[!etamap$offsetmap] 
-	 	  xsim <- xsim[,!etamap$offsetmap, drop=FALSE] 
-	 	  xobs <- xobs[!etamap$offsetmap] 
 	 	  # 
 	 	  if (dampening) { 
 	 	    #if theta_extended is (almost) outside convex hull don't trust theta 
-	 	    etad0 <- eta0[!etamap$offsetmap] 
-	 	    etad  <-  eta[!etamap$offsetmap] 
-	 	    eta_extended <- etad + etaparam*dampening.level 
-	 	    expon_extended <- xsim %*% (eta_extended - etad0) 
+	 	    eta_extended <- eta + etaparam*dampening.level 
+	 	    expon_extended <- xsim %*% (eta_extended - eta0) 
 	 	    wts <- exp(expon_extended) 
 	 	    ess <- ceiling(sum(wts)^2/sum(wts^2)) 
 	 	#   http://xianblog.wordpress.com/2010/09/24/effective-sample-size/ 
@@ -566,12 +277,12 @@ llik.fun.logtaylor <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
 	 	 
 	 	  basepred <- xsim %*% etaparam 
 	 	  ns <- length(basepred) 
-	 	  mb <- sum(basepred*probs) 
-	 	  vb <- sum(basepred*basepred*probs)-mb*mb 
-	 	  skew <- sqrt(ns*(ns-1))*sum(((basepred-mb)^3)*probs)/(vb^(3/2)*(ns-2)) 
+	 	  mb <- sum(basepred*rowweights(xsim)) 
+	 	  vb <- sum(basepred*basepred*rowweights(xsim))-mb*mb 
+	 	  skew <- sqrt(ns*(ns-1))*sum(((basepred-mb)^3)*rowweights(xsim))/(vb^(3/2)*(ns-2)) 
 	 	  if(!is.finite(skew) | is.na(skew)){skew <- 0} 
-	 	  part <- mb+vb/2 + sum(((basepred-mb)^3)*probs)/6 
-	 	  llr <- sum(xobs * etaparam) - part 
+	 	  part <- mb+vb/2 + sum(((basepred-mb)^3)*rowweights(xsim))/6 
+	 	  llr <- - part 
 	 	  # 
 	 	 
 	 	  # Simplistic error control;  -800 is effectively like -Inf: 

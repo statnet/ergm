@@ -7,104 +7,127 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
-#==============================================================================
-# This file contains the 2 following functions for getting an MCMC sample
-#      <ergm.getMCMCsample>
-#      <ergm.mcmcslave>
-#==============================================================================
 
-
-
-
-#########################################################################################
-# The <ergm.getMCMCsample> function samples networks using an MCMC algorithm via
-# <MCMC_wrapper.C>. Unlike its <ergm.getMCMCsample> counterpart, this function is
-# caple of running in multiple threads.  Note that the returned stats will be relative to
-# the original network, i.e., the calling function must shift the statistics if required. 
-# The calling function must also attach column names to the statistics matrix if required.
-#
-# --PARAMETERS--
-#   nw        :  a network object
-#   model     :  a model for the given 'nw' as returned by <ergm.getmodel>
-#   MHproposal:  a list of the parameters needed for Metropolis-Hastings proposals and
-#                the result of calling <MHproposal>
-#   eta0      :  the initial eta coefficients
-#   verbose   :  whether the C functions should be verbose; default=FALSE
-#   control:  list of MCMC tuning parameters; those recognized include
-#       parallel    : the number of threads in which to run the sampling
-#       packagenames: names of packages; this is only relevant if "ergm" is given
-#       samplesize  : the number of networks to be sampled
-#       interval    : the number of proposals to ignore between sampled networks
-#       burnin      : the number of proposals to initially ignore for the burn-in
-#                     period
-#
-# Note:  In reality, there should be many fewer arguments to this function,
-# since most info should be passed via Clist (this is, after all, what Clist
-# is for:  Holding all arguments required for the .C call).  In particular,
-# the elements of MHproposal, control, verbose should certainly
-# be part of Clist.  But this is a project for another day!
-#
-# --RETURNED--
-#   the sample as a list containing:
-#     statsmatrix:  the stats matrix for the sampled networks, RELATIVE TO THE ORIGINAL
-#                   NETWORK!
-#     newnetwork :  the edgelist of the final sampled network
-#     nedges     :  the number of edges in the 'newnetwork' ??
-#
-#########################################################################################
-
+#' @include ergm-deprecated.R
+#' @describeIn ergm-deprecated Use [ergm_MCMC_sample()] instead.
+#' @export ergm.getMCMCsample
 ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control, 
-                                        verbose, response=NULL, ...) {
+                               verbose=FALSE, response=NULL, update.nws = TRUE,...) {
+  .Deprecated("ergm_MCMC_sample")
+  out <- ergm_MCMC_sample(nw, model, MHproposal, eta=eta0, control=control, verbose=verbose, response=response, update.nws=update.nws, theta=list(...)$theta, ...)
+  
+  out$newnetworks<-out$networks
+  out$newnetwork<-out$newnetworks[[1]]
+  out$statsmatrices <- out$stats
+  out$stats <- NULL
+  out$statsmatrix <- do.call(rbind,out$statsmatrices)
+  colnames(out$statsmatrix) <- model$coef.names
+  out$statsmatrix[is.na(out$statsmatrix)] <- 0
+  out
+}
+
+#' Internal Function to Sample Networks and Network Statistics
+#' 
+#' This is an internal function, not normally called directly by the
+#' user. The \code{ergm_MCMC_sample} function samples networks and
+#' network statistics using an MCMC algorithm via \code{MCMC_wrapper}
+#' and is caple of running in multiple threads using
+#' `ergm_MCMC_slave`.
+#' 
+#' 
+#' Note that the returned stats will be relative to the original network, i.e.,
+#' the calling function must shift the statistics if required. The calling
+#' function must also attach column names to the statistics matrix if required.
+#' 
+#' @param nw a [`network`] (or [`pending_update_network`]) object representing the sampler state.
+#' @param model an [`ergm_model`] to be sampled from, as returned by
+#'   [ergm_model()].
+#' @param proposal a list of the parameters needed for
+#'   Metropolis-Hastings proposals and the result of calling
+#'   [ergm_proposal()].
+#' @param control list of MCMC tuning parameters; see
+#'   [control.ergm()].
+#' @param theta the (possibly curved) parameters of the model.
+#' @param eta the natural parameters of the model; by default constructed from `theta`.
+#' @param verbose verbosity level.
+#' @template response
+#' @param update.nws whether to actually update the network state or
+#'   to return an object "promising" to update the network.
+#' @param ... additional arugments.
+#'
+#' @return
+#' \code{ergm_MCMC_sample} returns a list
+#'   containing:
+#' \item{stats}{an [`mcmc.list`] with sampled statistics.}
+#' \item{networks}{a list of final sampled networks, one for each thread.}
+#' \item{status}{status code, propagated from `ergm.mcmcslave`.}
+#' \item{final.interval}{adaptively determined MCMC interval.}
+#'
+#' If `update.nws==FALSE`, rather than returning the updated networks,
+#' the function will return a [`pending_update_network`].
+#'
+#' @note `ergm_MCMC_sample` and `ergm_MCMC_slave` replace
+#'   `ergm.getMCMCsample` and `ergm.mcmcslave` respectively. They
+#'   differ slightly in their argument names and in their return
+#'   formats. For example, `ergm_MCMC_sample` expects `proposal`
+#'   rather than `MHproposal` and `theta` or `eta` rather than `eta0`;
+#'   and it does not return `statsmatrix` or `newnetwork`
+#'   elements. Rather, if parallel processing is not in effect,
+#'   `stats` is an [`mcmc.list`] with one chain and `networks` is a
+#'   list with one element.
+#' @export
+ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL, 
+                             response=NULL, update.nws = TRUE, verbose=FALSE,..., eta=ergm.eta(theta, model$etamap)) {
   nthreads <- max(
     if(inherits(control$parallel,"cluster")) nrow(summary(control$parallel))
     else control$parallel,
     1)
 
-  cl <- if(!is.numeric(control$parallel) || control$parallel!=0){
-    ergm.getCluster(control, verbose)
-  }else NULL
+  cl <- ergm.getCluster(control, verbose)
   
-  if(is.network(nw)) nw <- list(nw)
+  if(is.network(nw) || is.pending_update_network(nw)) nw <- list(nw)
   nws <- rep(nw, length.out=nthreads)
   
   Clists <- lapply(nws, ergm::ergm.Cprepare, model, response=response)
 
   control.parallel <- control
-  if(!is.null(control$MCMC.samplesize)) control.parallel$MCMC.samplesize <- ceiling(control$MCMC.samplesize / nthreads)
+  control.parallel$MCMC.samplesize <- NVL3(control$MCMC.samplesize, ceiling(. / nthreads))
 
   flush.console()
 
+  #' @importFrom parallel clusterMap
   doruns <- function(prev.runs=rep(list(NULL),nthreads), burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL){
-    if(!is.null(cl)) clusterMap(cl,ergm.mcmcslave,
-                                  Clist=Clists, prev.run=prev.runs, MoreArgs=list(MHproposal=MHproposal,eta0=eta0,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges))
-    else list(ergm.mcmcslave(Clist=Clists[[1]], prev.run=prev.runs[[1]],burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges,MHproposal=MHproposal,eta0=eta0,control=control.parallel,verbose=verbose,...))
+    if(!is.null(cl)) clusterMap(cl,ergm_MCMC_slave,
+                                  Clist=Clists, prev.run=prev.runs, MoreArgs=list(proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges))
+    else list(ergm_MCMC_slave(Clist=Clists[[1]], prev.run=prev.runs[[1]],burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges,proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...))
   }
   
   if(!is.null(control.parallel$MCMC.effectiveSize)){
-    if(verbose) cat("Beginning adaptive MCMC...\n")
+    if(verbose) message("Beginning adaptive MCMC...")
 
     howmuchmore <- function(target.ess, current.ss, current.ess, current.burnin){
       (target.ess-current.ess)*(current.ss-current.burnin)/current.ess
     }
     
     interval <- control.parallel$MCMC.interval
-    meS <- list(burnin=0,eS=control.parallel$MCMC.effectiveSize)
+    best.burnin <- list(burnin=0,pval=control.parallel$MCMC.effectiveSize.burnin.pval)
+    eS <- 0
     outl <- rep(list(NULL),nthreads)
     for(mcrun in seq_len(control.parallel$MCMC.effectiveSize.maxruns)){
       if(mcrun==1){
         samplesize <- control.parallel$MCMC.samplesize
-        if(verbose)
-          cat("First run: running each chain forward by",samplesize, "steps with interval", interval, ".\n")
+        if(verbose>1)
+          message("First run: running each chain forward by ",samplesize, " steps with interval ", interval, ".")
       }else{
-        if(meS$eS<1){
+        if(burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
           samplesize <- control.parallel$MCMC.samplesize
-          if(verbose)
-            cat("Insufficient ESS to determine the number of steps remaining: running forward by",samplesize, "steps with interval", interval, ".\n")
+          if(verbose>1)
+            message("Insufficient ESS or untrustworthy burn-in estimate to determine the number of steps remaining: running forward by ",samplesize, " steps with interval ", interval, ".")
         }else{
-          pred.ss <- howmuchmore(control.parallel$MCMC.effectiveSize, NVL(nrow(outl[[1]]$s),0), meS$eS, meS$burnin)
-          damp.ss <- pred.ss*(meS$eS/(control.parallel$MCMC.effectiveSize.damp+meS$eS))+control.parallel$MCMC.samplesize*(1-meS$eS/(control.parallel$MCMC.effectiveSize.damp+meS$eS))
+          pred.ss <- howmuchmore(control.parallel$MCMC.effectiveSize, NVL(nrow(outl[[1]]$s),0), eS, best.burnin$burnin)
+          damp.ss <- pred.ss*(eS/(control.parallel$MCMC.effectiveSize.damp+eS))+control.parallel$MCMC.samplesize*(1-eS/(control.parallel$MCMC.effectiveSize.damp+eS))
           samplesize <- round(damp.ss)
-          if(verbose) cat("Predicted additional sample size:",pred.ss, "dampened to",damp.ss, ", so running", samplesize, "steps forward.\n")
+          if(verbose>1) message("Predicted additional sample size: ",pred.ss, " dampened to ",damp.ss, ", so running ", samplesize, " steps forward.")
         }
       }
         
@@ -112,44 +135,55 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
                   burnin = interval, # I.e., skip that much before the first draw.
                   samplesize = samplesize,
                   interval = interval,
-                  maxedges = if(!is.null(outl[[1]])) max(sapply(outl,"[[","maxedges")) else NULL
+                  maxedges = if(!is.null(outl[[1]])) max(sapply(outl,"[[","maxedges"))
                   )
       
       # Stop if something went wrong.
       if(any(sapply(outl,"[[","status")!=0)) break
       
-      while(nrow(outl[[1]]$s)-meS$burnin>=(control.parallel$MCMC.samplesize)*2){
-        for(i in seq_along(outl)) outl[[i]]$s <- outl[[i]]$s[seq_len(floor(nrow(outl[[i]]$s)/2))*2,,drop=FALSE]
+      while(nrow(outl[[1]]$s)-best.burnin$burnin>=(control.parallel$MCMC.samplesize)*2){
+        for(i in seq_along(outl)) outl[[i]]$s <- outl[[i]]$s[seq_len(floor(nrow(outl[[i]]$s)/2))*2+nrow(outl[[i]]$s)%%2,,drop=FALSE]
         interval <- interval*2
-        if(verbose) cat("Increasing thinning to",interval,".\n")
+        if(verbose) message("Increasing thinning to ",interval,".")
       }
       
-      esteq <- lapply(outl, function(out)
-                      if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), out$s)
-                      else out$s[,Clists[[1]]$diagnosable,drop=FALSE]
-                      )
+      esteq <- lapply.mcmc.list(lapply(outl, function(out)
+                      NVL3(theta, ergm.estfun(out$s, ., model), out$s[,Clists[[1]]$diagnosable,drop=FALSE])
+                      ), mcmc, start=1, thin=interval)
       
-      meS <- .max.effectiveSize(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, ar.order=control$MCMC.effectiveSize.order)
-      if(verbose) cat("Maximum Harmonic mean ESS of",meS$eS,"attained with burn-in of", round(meS$b/nrow(outl[[1]]$s)*100,2),"%.\n")
-
       if(control.parallel$MCMC.runtime.traceplot){
-        for (i in seq_along(esteq)) colnames(esteq[[i]]) <- names(list(...)$theta)
-        plot(coda::as.mcmc.list(lapply(lapply(esteq, coda::mcmc), window, thin=max(1,floor(nrow(esteq)/1000))))
+        plot(window(esteq, thin=thin(esteq)*max(1,floor(niter(esteq)/1000)))
              ,ask=FALSE,smooth=TRUE,density=FALSE)
       }
 
-      if(meS$eS>=control.parallel$MCMC.effectiveSize){
-        if(verbose) cat("Target ESS achieved. Returning.\n")      
-        break
+      best.burnin <- .find_OK_burnin(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, min.pval=control$MCMC.effectiveSize.burnin.pval)
+      burnin.pval <- best.burnin$pval
+      if(burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
+        if(verbose>1) message("No adequate burn-in found. Best convergence p-value = ", burnin.pval)
+        next
+      }
+      postburnin.mcmc <- window(esteq, start=start(esteq)+best.burnin$burnin*thin(esteq))
+      
+      eS <- niter(postburnin.mcmc)*nchain(postburnin.mcmc)/attr(spectrum0.mvar(postburnin.mcmc),"infl")
+      
+      if(verbose) message("ESS of ",eS," attained with burn-in of ", round(best.burnin$burnin/niter(esteq)*100,2),"%; convergence p-value = ", burnin.pval, ".")
+
+      if(eS>=control.parallel$MCMC.effectiveSize){
+        if(burnin.pval > control$MCMC.effectiveSize.burnin.pval){
+          if(verbose) message("Target ESS achieved and is trustworthy. Returning.")
+          break
+        }else{
+          if(verbose>1) message("ESS and burn-in estimates are not trustworthy.")
+        }
       }
     }
-    
-    if(meS$eS<control.parallel$MCMC.effectiveSize)
+
+    if(eS<control.parallel$MCMC.effectiveSize)
       warning("Unable to reach target effective size in iterations alotted.")
 
     for(i in seq_along(outl)){
-      if(meS$burnin) outl[[i]]$s <- outl[[i]]$s[-seq_len(meS$burnin),,drop=FALSE]
-      outl[[i]]$s <- coda::mcmc(outl[[i]]$s, (meS$burnin+1)*interval, thin=interval)
+      if(best.burnin$burnin) outl[[i]]$s <- outl[[i]]$s[-seq_len(best.burnin$burnin),,drop=FALSE]
+      outl[[i]]$s <- coda::mcmc(outl[[i]]$s, (best.burnin$burnin+1)*interval, thin=interval)
       outl[[i]]$final.interval <- interval
     }
   }else{
@@ -159,12 +193,10 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
     }
     
     if(control.parallel$MCMC.runtime.traceplot){
-      esteq <- lapply(outl, function(out)
-        if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), out$s)
-        else out$s[,Clists[[1]]$diagnosable,drop=FALSE]
-      )
-      for (i in seq_along(esteq)) colnames(esteq[[i]]) <- names(list(...)$theta)
-      plot(coda::as.mcmc.list(lapply(lapply(esteq, coda::mcmc), window, thin=max(1,floor(nrow(esteq)/1000))))
+      esteq <- as.mcmc.list(lapply(lapply(outl, function(out)
+        NVL3(theta, ergm.estfun(out$s, ., model), out$s[,Clists[[1]]$diagnosable,drop=FALSE])
+      ), mcmc, start=control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval))
+      plot(window(esteq, thin=thin(esteq)*max(1,floor(niter(esteq)/1000)))
            ,ask=FALSE,smooth=TRUE,density=FALSE)
     }
   }
@@ -188,60 +220,52 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
       }
     
     statsmatrices[[i]] <- z$s
-    
-    newnetworks[[i]]<-newnw.extract(nws[[i]],z,
-                                    response=response,output=control.parallel$network.output)
+
+    newnetworks[[i]] <- pending_update_network(nws[[i]], z, response=response)
+    if(update.nws){
+      newnetworks[[i]] <- as.network(newnetworks[[i]])
+    }
     final.interval <- c(final.interval, z$final.interval)
   }
-  newnetwork<-newnetworks[[1]]
   
+  stats <- as.mcmc.list(statsmatrices)
+  if(verbose){message("Sample size = ",niter(stats)*nchain(stats)," by ",
+                  niter(stats),".")}
   
-  ergm.stopCluster(cl)
+  list(stats = stats, networks=newnetworks, status=0, final.interval=final.interval)
+}
 
-  statsmatrix <- do.call(rbind,statsmatrices)
-  colnames(statsmatrix) <- model$coef.names
-
-  if(verbose){cat("Sample size =",nrow(statsmatrix),"by",
-                  control.parallel$MCMC.samplesize,"\n")}
-  
-  statsmatrix[is.na(statsmatrix)] <- 0
-  list(statsmatrix=statsmatrix, statsmatrices=statsmatrices, newnetwork=newnetwork, newnetworks=newnetworks, status=0, final.interval=final.interval)
-
+#' @include ergm-deprecated.R
+#' @describeIn ergm-deprecated Use [ergm_MCMC_slave()] instead.
+#' @export ergm.mcmcslave
+ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL){
+  .Deprecated("ergm_MCMC_slave")
+  ergm_MCMC_slave(Clist,MHproposal,eta0,control,verbose,...,prev.run=prev.run, burnin=burnin, samplesize=samplesize, interval=interval, maxedges=maxedges)
 }
 
 
-
-###############################################################################
-# The <ergm.mcmcslave> function is that which the slaves will call to perform
-# a validation on the mcmc equal to their slave number. It also returns an
-# MCMC sample.
-#
-# --PARAMETERS--
-#   Clist     : the list of parameters returned by <ergm.Cprepare>
-#   MHproposal: the MHproposal list as returned by <getMHproposal>
-#   eta0      : the canonical eta parameters
-#   control: a list of parameters for controlling the MCMC algorithm;
-#               recognized components include:
-#       samplesize  : the number of networks to be sampled
-#       interval    : the number of proposals to ignore between sampled networks
-#       burnin      : the number of proposals to initially ignore for the burn-in
-#                     period
-#   verbose   : whether the C code should be verbose (T or F)
-#   ...       : optional arguments
-#
-# --RETURNED--
-#   the MCMC sample as a list of the following:
-#     s         : the statsmatrix
-#     newnwtails: the vector of tails for the new network- is this the final
-#                 network sampled? - is this the original nw if 'maxedges' is 0
-#     newnwheads: the vector of heads for the new network - same q's
-#
-###############################################################################
-
-ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL) {
-
-  numnetworks <- 0
-
+#' @rdname ergm_MCMC_sample
+#' @description The \code{ergm_MCMC_slave} function calls the actual C
+#'   routine and does minimal preprocessing.
+#'
+#' @param prev.run a summary of the state of the sampler allowing a
+#'   run to be resumed quickly by `ergm_MCMC_slave`.
+#' @param burnin,samplesize,interval,maxedges MCMC paramters that can
+#'   be used to temporarily override those in the `control` list.
+#' @param Clist the list of parameters returned by
+#'   \code{\link{ergm.Cprepare}}
+#' @return \code{ergm_MCMC_slave} returns the MCMC sample as a list of
+#'   the following: \item{s}{the matrix of statistics.}
+#'   \item{newnwtails}{the vector of tails for the new network.}
+#'   \item{newnwheads}{the vector of heads for the new network.}
+#'   \item{newnwweights}{the vector of weights for the new network (if
+#'   applicable)} \item{status}{success or failure code: `0` is
+#'   success, `1` for too many edges, and `2` for a
+#'   Metropolis-Hastings proposal failing.}  \item{maxedges}{maximum
+#'   allowed edges at the time of return.}
+#' @useDynLib ergm
+#' @export
+ergm_MCMC_slave <- function(Clist,proposal,eta,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL) {
   if(is.null(prev.run)){ # Start from Clist
     nedges <- c(Clist$nedges,0,0)
     tails <- Clist$tails
@@ -265,25 +289,25 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
   repeat{
     if(is.null(Clist$weights)){
       z <- .C("MCMC_wrapper",
-              as.integer(numnetworks), as.integer(nedges),
+              as.integer(nedges),
               as.integer(tails), as.integer(heads),
               as.integer(Clist$n),
               as.integer(Clist$dir), as.integer(Clist$bipartite),
               as.integer(Clist$nterms),
               as.character(Clist$fnamestring),
               as.character(Clist$snamestring),
-              as.character(MHproposal$name), as.character(MHproposal$pkgname),
-              as.double(c(Clist$inputs,MHproposal$inputs)), as.double(.deinf(eta0)),
+              as.character(proposal$name), as.character(proposal$pkgname),
+              as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)), as.double(.deinf(eta)),
               as.integer(samplesize),
               s = as.double(rep(stats, samplesize)),
               as.integer(burnin), 
               as.integer(interval),
               newnwtails = integer(maxedges),
               newnwheads = integer(maxedges),
-              as.integer(verbose), as.integer(MHproposal$arguments$constraints$bd$attribs),
-              as.integer(MHproposal$arguments$constraints$bd$maxout), as.integer(MHproposal$arguments$constraints$bd$maxin),
-              as.integer(MHproposal$arguments$constraints$bd$minout), as.integer(MHproposal$arguments$constraints$bd$minin),
-              as.integer(MHproposal$arguments$constraints$bd$condAllDegExact), as.integer(length(MHproposal$arguments$constraints$bd$attribs)),
+              as.integer(verbose), as.integer(proposal$arguments$constraints$bd$attribs),
+              as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
+              as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
+              as.integer(proposal$arguments$constraints$bd$condAllDegExact), as.integer(length(proposal$arguments$constraints$bd$attribs)),
               as.integer(maxedges),
               status = integer(1),
               PACKAGE="ergm")
@@ -293,15 +317,15 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
                 newnwtails=z$newnwtails, newnwheads=z$newnwheads, status=z$status, maxedges=maxedges)
     }else{
       z <- .C("WtMCMC_wrapper",
-              as.integer(length(nedges)), as.integer(nedges),
+              as.integer(nedges),
               as.integer(tails), as.integer(heads), as.double(weights),
               as.integer(Clist$n),
               as.integer(Clist$dir), as.integer(Clist$bipartite),
               as.integer(Clist$nterms),
               as.character(Clist$fnamestring),
               as.character(Clist$snamestring),
-              as.character(MHproposal$name), as.character(MHproposal$pkgname),
-              as.double(c(Clist$inputs,MHproposal$inputs)), as.double(.deinf(eta0)),
+              as.character(proposal$name), as.character(proposal$pkgname),
+              as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)), as.double(.deinf(eta)),
               as.integer(samplesize),
               s = as.double(rep(stats, samplesize)),
               as.integer(burnin), 
@@ -334,44 +358,19 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
 }
 
 
-.max.effectiveSize <- function(x, npts, base, ar.order=0){
-  if(!is.list(x)) x <- list(x)
-  es <- function(b){
-    if(b>0) x <- lapply(lapply(x, "[", -seq_len(b),,drop=FALSE),coda::mcmc)
-    effSizes <- if(ar.order) .fast.effectiveSize(as.matrix(coda::as.mcmc.list(x), ar.order=ar.order))
-                else effectiveSize(as.matrix(coda::as.mcmc.list(x)))
-    mean.fn <- function(x) x^(-1)
-    mean.ifn <- function(x) x^(-1)
-    mean.ifn(mean(mean.fn(effSizes)))
+.find_OK_burnin <- function(x, npts, base, min.pval=0.2){
+  geweke <- function(b){
+    if(b>0) x <- window(x, start=start(x) + b * thin(x))
+    suppressWarnings(geweke.diag.mv(x)$p.value)
   }
 
-  pts <- sort(round(base^seq_len(npts)*nrow(x[[1]])))
-  ess <- sapply(pts, es)
+  # TODO: Implement bisection algorithm here.
+  pts <- sort(round(base^seq_len(npts)*niter(x)))
+  pvals <- sapply(pts, geweke)
 
-  list(burnin=pts[which.max(ess)], eS=max(ess))
-}
-
-.fast.effectiveSize <- function(x, ar.order=1){
-  if (coda::is.mcmc.list(x)){
-    ess <- do.call(rbind, lapply(x, .fast.effectiveSize, ar.order=ar.order))
-    ans <- apply(ess, 2, base::sum)
-  } else {
-    x <- coda::as.mcmc(x)
-    x <- as.matrix(x)
-    spec <- .fast.spectrum0.ar(x, ar.order=ar.order)$spec
-    ans <- ifelse(spec == 0, 0, nrow(x) * apply(x, 2, stats::var)/spec)
-    }
-    return(ans)
-}
-.fast.spectrum0.ar <- function (x, ar.order=1){
-    x <- as.matrix(x)
-    v0 <- order <- numeric(ncol(x))
-    names(v0) <- names(order) <- colnames(x)
-    z <- 1:nrow(x)
-    for (i in 1:ncol(x)) {
-      ar.out <- ar(x[, i], aic = FALSE, order.max=ar.order)
-      v0[i] <- ar.out$var.pred/(1 - sum(ar.out$ar))^2
-      order[i] <- ar.out$order
-    }
-    return(list(spec = v0, order = order))
+  best <- suppressWarnings(min(which(pvals>min.pval)))
+  if(!is.finite(best))
+    best <- which.max(pvals)
+  
+  list(burnin=pts[best], pval=pvals[best])
 }

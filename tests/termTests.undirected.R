@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2013 Statnet Commons
+#  Copyright 2003-2017 Statnet Commons
 #######################################################################
 
 library(ergm)
@@ -83,6 +83,21 @@ if (!all(s.0==258)||round(e.0$coef+3.234,3)!=0 ||
 	print("Passed concurrentties term test")
 }
 
+# cyclicalties, directed
+num.tests=num.tests + 1
+s.0 <- summary(fmh~cyclicalties)
+e.0 <- ergm(fmh~cyclicalties, estimate="MPLE")
+s.a <- summary(fmh~cyclicalties("Race"))
+e.a <- ergm(fmh~cyclicalties("Race"), estimate="MPLE")
+if (s.0 != 120 || round(e.0$coef + 0.4868, 3) != 0 ||
+    s.a != 40 || round(e.a$coef + 0.4430, 3) != 0) {
+	print(list(s.0=s.0, e.0=e.0, s.a=s.a, e.a=e.a))
+	stop("Failed cyclicalties term test")
+} else {
+	num.passed.tests=num.passed.tests+1
+	print("Passed cyclicalties term test")
+}
+
 
 # degree, undirected
 num.tests=num.tests+1
@@ -151,16 +166,16 @@ if (!all(round(s.0 + c(0.09789041 ),3)==0) || round(e.0$coef - c(0.2282))!= 0) {
 
 
 
-# degreepopularity, undirected
+# degree1.5, undirected
 num.tests=num.tests + 1
-s.0 <- summary(fmh~degreepopularity)
-e.0 <- ergm(fmh~degreepopularity, estimate="MPLE")
+s.0 <- summary(fmh~degree1.5)
+e.0 <- ergm(fmh~degree1.5, estimate="MPLE")
 if (round(s.0-795.7458,3) != 0 || round(e.0$coef + 1.1398, 3) != 0) {
  print(list(s.0=s.0, e.0=e.0))
- stop("Failed degreepopularity term test")
+ stop("Failed degree1.5 term test")
 } else {
   num.passed.tests=num.passed.tests+1
-  print("Passed degreepopularity term test")
+  print("Passed degree1.5 term test")
 }
 
 
@@ -239,6 +254,21 @@ if (!all(head(s.0)==c(4,0,0,1,0,0)) ||
  print("Passed sociality term test")
 }
 
+
+# transitiveties, directed
+num.tests=num.tests + 1
+s.0 <- summary(fmh~transitiveties)
+e.0 <- ergm(fmh~transitiveties, estimate="MPLE")
+s.a <- summary(fmh~transitiveties("Race"))
+e.a <- ergm(fmh~transitiveties("Race"), estimate="MPLE")
+if (s.0 != 120 || round(e.0$coef + 0.4868, 3) != 0 ||
+    s.a != 40 || round(e.a$coef + 0.4430, 3) != 0) {
+	print(list(s.0=s.0, e.0=e.0, s.a=s.a, e.a=e.a))
+	stop("Failed transitiveties term test")
+} else {
+	num.passed.tests=num.passed.tests+1
+	print("Passed transitiveties term test")
+}
 
 # tripercent, undirected
 num.tests=num.tests+1

@@ -7,48 +7,39 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
-#==================================================================================
-# This file contains the following 2 functions for assessing degeneracy
-#            <ergm.degeneracy>
-#            <ergm.compute.degeneracy>
-#==================================================================================
 
-
-
-
-
-####################################################################################
-# The <ergm.degeneracy> function checks a given ergm object for degeneracy by
-# computing and returning the instability value of the model and the value
-# of the log-likelihood function at the maximized theta values
-#
-# --PARAMETERS--
-#   object   :  an ergm object
-#   control  :  the list of controls as returned by <control.ergm>;
-#               default=control.ergm()
-#   fast     :  whether the degeneracy check should be "fast", i.e to sample
-#               changeobs(?) when there are > 100, rather than use all changeobs;
-#               default=TRUE
-#   test.only:  whether to silence printing of the model instability calculation
-#               (T or F); this parameter is ignored if the instability > 1;
-#               default=FALSE
-#   verbose  :  whether to print a notification when 'object' is deemed degenerate
-#               (T or F); default=FALSE
-#
-#
-# --RETURNED--
-#   the original ergm object with 2 additional components:
-#     degeneracy.value:  the instability of the model
-#     degeneracy.type :  the vector returned by <ergm.compute.degeneracy>;
-#
-#######################################################################################
-
+#' Checks an ergm Object for Degeneracy
+#' 
+#' The \code{ergm.degeneracy} function checks a given ergm object for
+#' degeneracy by computing and returning the instability value of the model and
+#' the value of the log-likelihood function at the maximized theta values
+#' 
+#' 
+#' @param object an \code{\link{ergm}} object
+#' @param control the list of control parameters as returned by
+#' \code{control.ergm}; default=control.ergm()
+#' @param fast whether the degeneracy check should be "fast", i.e to sample
+#' changeobs(?) when there are > 100, rather than use all changeobs;
+#' default=TRUE
+#' @param test.only whether to silence printing of the model instability
+#' calculation (T or F); this parameter is ignored if the instability > 1;
+#' default=FALSE
+#' @param verbose whether to print a notification when 'object' is deemed
+#' degenerate (T or F); default=FALSE
+#' @return returns the original ergm object with 2 additional components:
+#' \item{degeneracy.value}{the instability of the model}
+#' \item{degeneracy.type}{a 2-element vector containing \describe{
+#' \item{`loglikelihood`}{the value of the log-likelihood function corresponding to 'theta'; if degenerate, this is a vector of Inf}
+#' \item{`theta`}{the vector of theta values found through maximixing the log- likelihood; if degenerate, this is 'guess' }
+#' }
+#' }
+#' @export ergm.degeneracy
 ergm.degeneracy <- function(object, 
                           control=object$control,
                           fast=TRUE,
                           test.only=FALSE,
                           verbose=FALSE) {
-  check.control.class(control, "ergm")
+  check.control.class("ergm", "ergm.degeneracy")
   
   if(!is.ergm(object)){
     stop("A ergm object argument must be given.")
@@ -82,7 +73,7 @@ ergm.degeneracy <- function(object,
     }else{
      wgts <- object$mplefit$glm$prior.weights
      if(nrow(changeobs) > 1000){
-      cat("This computation may take a while ...\n")
+      message("This computation may take a while ...")
      }
     }
     object$degeneracy.type <- try(
@@ -143,7 +134,7 @@ ergm.degeneracy <- function(object,
     }
   }
   if(verbose){
-    print(object$degeneracy.type)
+    message_print(object$degeneracy.type)
   }
   return(invisible(object))
 }
@@ -204,36 +195,35 @@ ergm.compute.degeneracy<-function(xobs, init, etamap, statsmatrix,
   xsim <- sweep(statsmatrix0, 2, av,"-")
   xsim.obs <- NULL
   probs.obs <- NULL
-# xobs0 <- summary(model$formula)
   xobs <- -xobs - av
 #
 # Set up the initial estimate
 #
-  if (verbose) cat("Converting init to eta0\n")
-  eta0 <- ergm.eta(init, etamap) #unsure about this
-  etamap$init <- init
+  if (verbose) message("Converting init to eta0")
+  etamap.no <- deoffset.etamap(etamap)
+  eta0 <- ergm.eta(init, etamap.no) #unsure about this
 #
 # Log-Likelihood and gradient functions
 #
   varweight <- 0.5
-  if (verbose) cat("Optimizing loglikelihood\n")
+  if (verbose) message("Optimizing loglikelihood")
   Lout <- try(optim(par=guess, 
-                    fn=llik.fun, #  gr=llik.grad,
+                    fn=llik.fun.lognormal,  gr=llik.grad.IS,
                     hessian=FALSE,
                     method="BFGS",
                     control=list(trace=trace,fnscale=-1,reltol=nr.reltol,
                                  maxit=nr.maxit),
-                    xobs=xobs,
-                    xsim=xsim, probs=probs,
-                    xsim.obs=xsim.obs, probs.obs=probs.obs,
+                    xobs=xobs[!etamap$offsetmap],
+                    xsim=xsim[,!etamap$offsetmap, drop=FALSE], probs=probs,
+                    xsim.obs=xsim.obs[,!etamap$offsetmap, drop=FALSE], probs.obs=probs.obs,
                     varweight=varweight, trustregion=trustregion,
-                    eta0=eta0, etamap=etamap),silent=TRUE)
-  if(verbose){cat("the change in the log-likelihood is", Lout$value,"\n")}
+                    eta0=eta0[!etamap$offsetmap], etamap=etamap.no),silent=TRUE)
+  if(verbose){message("the change in the log-likelihood is ", Lout$value,"")}
   if(inherits(Lout,"try-error") || Lout$value > 199 ||
     Lout$value < -790) {
     if(verbose){
-      cat("MLE could not be found. Degenerate!\n")
-      cat("Nelder-Mead Log-likelihood ratio is ", Lout$value,"\n")
+      message("MLE could not be found. Degenerate!")
+      message("Nelder-Mead Log-likelihood ratio is ", Lout$value,"")
     }
     return(c(Inf, guess))
   }

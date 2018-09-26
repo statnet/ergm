@@ -5,13 +5,13 @@
  *  open source, and has the attribution requirements (GPL Section 7) at
  *  http://statnet.org/attribution
  *
- *  Copyright 2003-2013 Statnet Commons
+ *  Copyright 2003-2017 Statnet Commons
  */
 #ifndef CHANGESTATS_H
 #define CHANGESTATS_H
 
-#include "edgetree.h"
-#include "changestat.h"
+#include "ergm_edgetree.h"
+#include "ergm_changestat.h"
 
 /********************  changestats:  A    ***********/
 C_CHANGESTAT_FN(c_absdiff);

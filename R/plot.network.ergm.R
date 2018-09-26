@@ -7,29 +7,13 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
-#########################################################################
-# The <plot.network.ergm> function produces a two-dimensional network
-# visualization based on <plot.network.default>; a variety of options are 
-# available to control vertex placement, display details, color, etc; the 
-# function is based on the plotting capabilities of the network package 
-# with additional pre-processing of arguments; some of the capabilites 
-# require the latentnet package; see <plot.network> in the network package
-# for details.
-#
-# --PARAMETERS--
-#   x: a network
-#    : (see the man page for descriptions of the other 52 input params)
-#
-# --RETURNED--
-#   the plot as an invisible list containing:
-#    x        : the x-coordinates used in the plot
-#    y        : the y-coordinates used in the plot
-#    latentfit: the latent fit as a list containing:
-#       Z.mle : ??
-#       beta  : ??
-#
-#########################################################################
 
+
+#' @rdname ergm-deprecated
+#' @description Use [latentnet::plot.ergmm()] instead.
+#' @importFrom grDevices colors rainbow dev.cur pictex dev.off dev.set
+#' @importFrom graphics par
+#' @export plot.network.ergm
 "plot.network.ergm"<-function(x,
     attrname=NULL,
     label=network.vertex.names(x),
@@ -84,6 +68,7 @@
                penalty.sigma=c(5,0.5), nsubsample=200),
     colornames="rainbow",
     verbose=FALSE, latent=FALSE, ...){
+  .Deprecated("latentnet::plot.ergmm()")
 #
    #Extract the network to be displayed
    if(is.hyper(x)){    #Is this a hypergraph?  If so, use two-mode form.
@@ -220,7 +205,7 @@
 #    edge.lwd <- matrix(edge.lwd,n,n)
 #  }
    if(!missing(edge.col) && length(edge.col)==1 && is.character(edge.col)){
-     trycol <- is.null(get.edge.attribute(x$mel,edge.col))
+     trycol <- is.null(get.edge.value(x,edge.col))
      if(!trycol){
        trycol <- as.sociomatrix(x, attrname=edge.col)
        ucols <- sort(unique(as.vector(trycol)))

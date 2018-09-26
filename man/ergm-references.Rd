@@ -1,12 +1,3 @@
-%  File man/ergm-references.Rd in package ergm, part of the Statnet suite
-%  of packages for network analysis, http://statnet.org .
-%
-%  This software is distributed under the GPL-3 license.  It is free,
-%  open source, and has the attribution requirements (GPL Section 7) at
-%  http://statnet.org/attribution
-%
-%  Copyright 2003-2017 Statnet Commons
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{ergm-references}
 \alias{ergm-references}
 \alias{references-ergm}
@@ -15,15 +6,16 @@
 \alias{Bernoulli}
 \alias{Unif}
 \alias{DiscUnif}
-\alias{InitReference.Bernoulli}
-\alias{InitReference.DiscUnif}
-\alias{InitReference.Unif}
-\alias{InitReference.StdNormal}
-\alias{InitWtMHP.DiscUnif}
-\alias{InitWtMHP.DiscUnifNonObserved}
-\alias{InitWtMHP.Unif}
-\alias{InitWtMHP.UnifNonObserved}
-\alias{InitWtMHP.StdNormal}
+\alias{StdNormal}
+%% \alias{InitErgmReference.Bernoulli}
+%% \alias{InitErgmReference.DiscUnif}
+%% \alias{InitErgmReference.Unif}
+%% \alias{InitErgmReference.StdNormal}
+%% \alias{InitWtErgmProposal.DiscUnif}
+%% \alias{InitWtErgmProposal.DiscUnifNonObserved}
+%% \alias{InitWtErgmProposal.Unif}
+%% \alias{InitWtErgmProposal.UnifNonObserved}
+%% \alias{InitWtErgmProposal.StdNormal}
 
 \docType{methods}
 
