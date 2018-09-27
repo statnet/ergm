@@ -53,6 +53,14 @@ C_CHANGESTAT_FN(c_isociomatrix){
     CHANGE_STAT[pos] += sm[tail][head]? -1 : +1;
 }
 
+C_CHANGESTAT_FN(c_discord_isociomatrix){
+  GET_AUX_STORAGE(int *, sm);
+  
+  ZERO_ALL_CHANGESTATS(i);
+    Dyad pos = tail-1 + (head-1)*N_NODES;
+    CHANGE_STAT[pos] += sm[tail][head]? -1 : +1;
+}
+
 C_CHANGESTAT_FN(c_disc_inter_union_net_Network){
   GET_AUX_STORAGE_NUM(Network, dnwp, 0);
   GET_AUX_STORAGE_NUM(Network, inwp, 1);

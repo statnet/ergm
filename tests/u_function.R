@@ -8,21 +8,24 @@
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
 library(ergm)
-nw <- network.initialize(4, dir=TRUE)
+n <- 4
+nw <- network.initialize(n, dir=TRUE)
 nw[1,2] <- 1
 nw[1,3] <- 1
 nw[3,2] <- 1
 
-# Private storage
+# Private storage, auxiliaries, and auxiliaries of auxiliaries
 
-s <- summary(nw~edges+test.abs.edges.minus.5+test.abs.edges.minus.5(FALSE)+sociomatrix)
+s <- summary(nw~edges+test.abs.edges.minus.5+test.abs.edges.minus.5(FALSE)+sociomatrix+discord.sociomatrix+discord.inter.union.net(nw, implementation="Network"))
 stopifnot(all(abs(s[1]-5)==s[2]) && all(abs(s[1]-5)==s[3]))
-stopifnot(all(s[-(1:3)]==c(as.matrix(nw))))
-sim <- simulate(nw~edges,monitor=~test.abs.edges.minus.5+test.abs.edges.minus.5(FALSE)+sociomatrix, coef=0, nsim=20, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1))
+stopifnot(all(s[3+seq_len(n^2)]==c(as.matrix(nw))))
+stopifnot(all(s[3+n^2+seq_len(n^2)]==0))
+sim <- simulate(nw~edges,monitor=~test.abs.edges.minus.5+test.abs.edges.minus.5(FALSE)+sociomatrix+discord.sociomatrix+discord.inter.union.net(nw, implementation="Network"), coef=0, nsim=20, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1))
 s <- attr(sim, "stats")
 stopifnot(all(abs(s[,1]-5)==s[,2]) && all(abs(s[,1]-5)==s[,3]))
 sim.dyads <- t(sapply(lapply(sim, as.matrix), c))
-stopifnot(all(sim.dyads==s[,-(1:3)]))
+stopifnot(all(sim.dyads==s[,3+seq_len(n^2)]))
+stopifnot(all(t(t(sim.dyads)!=c(as.matrix(nw)))==s[,3+n^2+seq_len(n^2)]))
 
 # Multiple auxiliaries in one term
 

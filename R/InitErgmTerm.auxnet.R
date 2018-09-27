@@ -22,6 +22,22 @@ InitErgmTerm..sociomatrix<-function(nw, arglist, ...) {
        coef.names=c(), dependence=FALSE)
 }
 
+InitErgmTerm..discord.sociomatrix<-function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("x", "mode"),
+                      vartypes = c("network", "character"),
+                      defaultvalues = list(nw, "integer"),
+                      required = c(FALSE, FALSE))
+
+  mode <- match.arg(a$mode, c("integer"))
+  name <- switch(mode,
+                 integer = "_discord_isociomatrix")
+  
+  list(name=name,
+       coef.names=c(), dependence=FALSE,
+       auxiliaries = ~ .discord.net(a$x, implementation="Network"))
+}
+
 InitErgmTerm..discord.net<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("x", "implementation"),

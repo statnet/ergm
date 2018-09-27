@@ -28,6 +28,26 @@ F_CHANGESTAT_FN(f__isociomatrix){
   FREE_AUX_SOCIOMATRIX;
 }
 
+I_CHANGESTAT_FN(i__discord_isociomatrix){
+  ALLOC_AUX_SOCIOMATRIX(int, sm);
+  GET_AUX_STORAGE_NUM(Network, anwp, 1);
+
+  nwp = anwp; // So that we can use the macros.
+  // Now, populate the sociomatrix.
+  EXEC_THROUGH_NET_EDGES(tail, head, e, {
+      sm[tail][head] = 1;
+    });
+}
+
+U_CHANGESTAT_FN(u__discord_isociomatrix){
+  GET_AUX_STORAGE(int*, sm);
+  sm[tail][head]  = 1 - sm[tail][head];
+}
+
+F_CHANGESTAT_FN(f__discord_isociomatrix){
+  FREE_AUX_SOCIOMATRIX;
+}
+
 I_CHANGESTAT_FN(i__discord_net_Network){
   Network *dnwp = AUX_STORAGE = NetworkCopy(nwp);
   Edge nedges = INPUT_PARAM[1];

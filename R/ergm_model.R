@@ -175,10 +175,9 @@ updatemodel.ErgmTerm <- function(model, outlist) {
     # reserve space in the input vector. Note that these go before
     # the parameters.
     aux.space <-
-      if(!is.null(outlist$auxiliaries)) # requests auxiliaries
-        length(list_rhs.formula(outlist$auxiliaries))
-      else if(length(outlist$coef.names)==0) 1 # is an auxiliary
-      else 0
+      NVL3(outlist$auxiliaries, length(list_rhs.formula(.)), 0) + # requests auxiliaries
+      (length(outlist$coef.names)==0) # is an auxiliary
+
     outlist$inputs <- c(ifelse(is.null(tmp), 0, tmp)+aux.space,
                         length(outlist$coef.names), 
                         length(outlist$inputs)+aux.space, rep(NA, aux.space), outlist$inputs)
@@ -210,7 +209,7 @@ c.ergm_model <- function(...){
       m$model.aux$terms[[i]]$inputs[4] <- NA
 
     # Remove redundant auxiliaries:
-    uniq.aux.outlists <- unique(c(o$model.aux$terms, m$model.aux$terms))
+    uniq.aux.outlists <- unique(c(o$model.aux$terms, m$model.aux$terms), fromLast=TRUE)
     
     # To which term in the new auxilary list does each of the current auxiliary pointers correspond? Note that they are numbered from 0.
     omap <- match(o$model.aux$terms, uniq.aux.outlists)-1
@@ -219,8 +218,6 @@ c.ergm_model <- function(...){
     # Now, give them indices again:
     for(i in seq_along(uniq.aux.outlists))
       uniq.aux.outlists[[i]]$inputs[[4]] <- i-1
-
-    o$model.aux["terms"] <- list(uniq.aux.outlists)
 
     # Remap client term pointers:
     for(i in seq_along(o$terms)){
@@ -238,9 +235,17 @@ c.ergm_model <- function(...){
       m$terms[[i]] <- trm
     }
     m$slots.extra.aux <- map(m$slots.extra.aux, ~mmap[.+1])
-    
+
+    o$model.aux["terms"] <- list(uniq.aux.outlists)
+    # Similarly for auxiliaries as clients.
+    for(i in seq_along(o$model.aux$terms)){
+      trm <- o$model.aux$terms[[i]]
+      if(is.null(trm$auxiliaries) || (naux <- length(list_rhs.formula(trm$auxiliaries)))==1) next
+      trm$inputs[4+seq_len(naux-1)] <- omap[trm$inputs[4+seq_len(naux-1)]+1]
+      o$model.aux$terms[[i]] <- trm
+    }
+
     for(name in c("coef.names",
-                  "inputs",
                   "minval",
                   "maxval",
                   "terms",
@@ -248,6 +253,7 @@ c.ergm_model <- function(...){
                   "term.skipped",
                   "slots.extra.aux"))
       o[[name]] <- c(o[[name]], m[[name]])
+    
     o$duration <- max(o$duration, m$duration)
     o$formula <- append_rhs.formula(o$formula, m$formula, keep.onesided=TRUE)
   }
