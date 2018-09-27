@@ -42,8 +42,13 @@ KHASH_INIT(DyadMapUInt, TailHead, unsigned int, true, kh_vertexvertex_hash_func,
 typedef khash_t(DyadMapUInt) StoreDyadMapUInt;
 
 /* Accessors, modifiers, and incrementors. */
-#define GETDMUI(tail, head, hashmap) (kh_getval(DyadMapUInt, hashmap, TH(tail,head, DIRECTED), 0))
-#define SETDMUI(tail, head, v, hashmap) {if(v==0) kh_unset(DyadMapUInt, hashmap, TH(tail,head, DIRECTED)); else kh_set(DyadMapUInt, hashmap, TH(tail,head, DIRECTED), v)}
+#define _GETDMUI3(tail, head, hashmap) (kh_getval(DyadMapUInt, hashmap, TH(tail,head, DIRECTED), 0))
+#define _GETDMUI4(tail, head, directed, hashmap) (kh_getval(DyadMapUInt, hashmap, TH(tail,head, directed), 0))
+#define GETDMUI(...) _GET_OVERRIDE4(__VA_ARGS__, _GETDMUI4, _GETDMUI3,)(__VA_ARGS__)
+#define SETDMUI4(tail, head, v, hashmap) {if(v==0) kh_unset(DyadMapUInt, hashmap, TH(tail,head, DIRECTED)); else kh_set(DyadMapUInt, hashmap, TH(tail,head, DIRECTED), v)}
+#define SETDMUI5(tail, head, directed, v, hashmap) {if(v==0) kh_unset(DyadMapUInt, hashmap, TH(tail,head, directed)); else kh_set(DyadMapUInt, hashmap, TH(tail,head, directed), v)}
+#define SETDMUI(...) _GET_OVERRIDE5(__VA_ARGS__, _SETDMUI5, _SETDMUI4,)(__VA_ARGS__)
+
 
 static inline void IncDyadMapUInt(TailHead th, int inc, StoreDyadMapUInt *spcache){
   if(inc!=0){

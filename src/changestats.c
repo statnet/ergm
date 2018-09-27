@@ -2950,7 +2950,7 @@ C_CHANGESTAT_FN(c_gwtdsp) {
     /* step through outedges of head */
     STEP_THROUGH_OUTEDGES(head, e, u){ 
       if (u != tail){
-	if(spcache) L2tu = kh_getval(DyadMapUInt, spcache, THD(tail,u), 0);
+	if(spcache) L2tu = GETDMUI(tail,u,spcache);
 	else{
 	  L2tu=0;
 	  /* step through inedges of u, incl. (head,u) itself */
@@ -2965,7 +2965,7 @@ C_CHANGESTAT_FN(c_gwtdsp) {
     /* step through inedges of tail */
     STEP_THROUGH_INEDGES(tail, e, u){
       if (u != head){
-     	if(spcache) L2uh = kh_getval(DyadMapUInt, spcache, THD(u,head), 0);
+     	if(spcache) L2uh = GETDMUI(u,head,spcache);
 	else{
 	  L2uh=0;
 	  /* step through outedges of u , incl. (u,tail) itself */
@@ -2997,13 +2997,13 @@ C_CHANGESTAT_FN(c_gwtesp) {
   
   /* *** don't forget tail -> head */    
     cumchange=0.0;
-    if(spcache) L2th = kh_getval(DyadMapUInt, spcache, THD(tail,head), 0); else L2th=0;
+    if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;
     ochange = IS_OUTEDGE(tail, head) ? -1 : 0;
     echange = 2*ochange + 1;
     /* step through outedges of head  */
     STEP_THROUGH_OUTEDGES(head, e, u){
       if (IS_OUTEDGE(tail, u)){
-	if(spcache) L2tu = kh_getval(DyadMapUInt, spcache, THD(tail,u), 0);
+	if(spcache) L2tu = GETDMUI(tail,u,spcache);
 	else{
 	  L2tu=0;
 	  /* step through inedges of u */
@@ -3023,7 +3023,7 @@ C_CHANGESTAT_FN(c_gwtesp) {
       }
       if (IS_OUTEDGE(u, tail)){
 	if(spcache){
-	  L2uh = kh_getval(DyadMapUInt, spcache, THD(u,head), 0);
+	  L2uh = GETDMUI(u,head,spcache);
 	}else{
 	  L2uh=0;
 	  /* step through outedges of u */
@@ -3068,7 +3068,7 @@ C_CHANGESTAT_FN(c_gwtnsp) {
     /* step through outedges of head */
     STEP_THROUGH_OUTEDGES(head, e, u){ 
       if (u != tail){
-	if(spcache) L2tu = kh_getval(DyadMapUInt, spcache, THD(tail,u), 0);
+	if(spcache) L2tu = GETDMUI(tail,u,spcache);
 	else{
 	  L2tu=0;
 	  /* step through inedges of u, incl. (head,u) itself */
@@ -3083,7 +3083,7 @@ C_CHANGESTAT_FN(c_gwtnsp) {
     /* step through inedges of tail */
     STEP_THROUGH_INEDGES(tail, e, u){
       if (u != head){
-     	if(spcache) L2uh = kh_getval(DyadMapUInt, spcache, THD(u,head), 0);
+     	if(spcache) L2uh = GETDMUI(u,head,spcache);
 	else{
 	  L2uh=0;
 	  /* step through outedges of u , incl. (u,tail) itself */
@@ -3098,13 +3098,13 @@ C_CHANGESTAT_FN(c_gwtnsp) {
     CHANGE_STAT[0] += echange * cumchange;
   /* *** don't forget tail -> head */    
     cumchange=0.0;
-    if(spcache) L2th = kh_getval(DyadMapUInt, spcache, THD(tail,head), 0); else L2th=0;
+    if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;
     ochange = IS_OUTEDGE(tail, head) ? -1 : 0;
     echange = 2*ochange + 1;
     /* step through outedges of head  */
     STEP_THROUGH_OUTEDGES(head, e, u){
       if (IS_OUTEDGE(tail, u)){
-	if(spcache) L2tu = kh_getval(DyadMapUInt, spcache, THD(tail,u), 0);
+	if(spcache) L2tu = GETDMUI(tail,u,spcache);
 	else{
 	  L2tu=0;
 	  /* step through inedges of u */
@@ -3124,7 +3124,7 @@ C_CHANGESTAT_FN(c_gwtnsp) {
       }
       if (IS_OUTEDGE(u, tail)){
 	if(spcache){
-	  L2uh = kh_getval(DyadMapUInt, spcache, THD(u,head), 0);
+	  L2uh = GETDMUI(u,head,spcache);
 	}else{
 	  L2uh=0;
 	  /* step through outedges of u */
@@ -4653,7 +4653,7 @@ C_CHANGESTAT_FN(c_tdsp) {
     /* step through outedges of head */
     STEP_THROUGH_OUTEDGES(head, e, u){ 
       if (u != tail){
-	if(spcache) L2tu = kh_getval(DyadMapUInt, spcache, THD(tail,u), 0);
+	if(spcache) L2tu = GETDMUI(tail,u,spcache);
 	else{
 	  L2tu=0; /* This will be # of shared partners of (tail,u) */
 	  /* step through inedges of u, incl. (head,u) itself */
@@ -4670,7 +4670,7 @@ C_CHANGESTAT_FN(c_tdsp) {
     /* step through inedges of tail */
     STEP_THROUGH_INEDGES(tail, e, u){
       if (u != head){
-	if(spcache) L2uh = kh_getval(DyadMapUInt, spcache, THD(u,head), 0);
+	if(spcache) L2uh = GETDMUI(u,head,spcache);
 	else{
 	  L2uh=0; /* This will be # of shared partners of (u,head) */
 	  /* step through outedges of u , incl. (u,tail) itself */
@@ -4702,13 +4702,13 @@ C_CHANGESTAT_FN(c_tesp) {
   
   /* *** don't forget tail -> head */    
   ZERO_ALL_CHANGESTATS(i);
-    if(spcache) L2th = kh_getval(DyadMapUInt, spcache, THD(tail,head), 0); else L2th=0;
+    if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;
     echange = IS_OUTEDGE(tail, head) ? -1:+1;
     /* step through outedges of head */
     STEP_THROUGH_OUTEDGES(head, e, u) {
       if (IS_OUTEDGE(tail, u)){
 	if(spcache){
-	  L2tu = kh_getval(DyadMapUInt, spcache, THD(tail,u), 0);
+	  L2tu = GETDMUI(tail,u,spcache);
 	}else{
 	  L2tu=0;
 	  /* step through inedges of u */
@@ -4729,7 +4729,7 @@ C_CHANGESTAT_FN(c_tesp) {
       }
       if (IS_OUTEDGE(u, tail)){
 	if(spcache){
-	  L2uh = kh_getval(DyadMapUInt, spcache, THD(u,head), 0);
+	  L2uh = GETDMUI(u,head,spcache);
 	}else{
 	  L2uh=0;
 	  /* step through outedges of u */
@@ -4825,7 +4825,7 @@ C_CHANGESTAT_FN(c_tnsp) {
     /* step through outedges of head */
     STEP_THROUGH_OUTEDGES(head, e, u){ 
       if (u != tail){
-	if(spcache) L2tu = kh_getval(DyadMapUInt, spcache, THD(tail,u), 0);
+	if(spcache) L2tu = GETDMUI(tail,u,spcache);
 	else{
 	  L2tu=0; /* This will be # of shared partners of (tail,u) */
 	  /* step through inedges of u, incl. (head,u) itself */
@@ -4842,7 +4842,7 @@ C_CHANGESTAT_FN(c_tnsp) {
     /* step through inedges of tail */
     STEP_THROUGH_INEDGES(tail, e, u){
       if (u != head){
-	if(spcache) L2uh = kh_getval(DyadMapUInt, spcache, THD(u,head), 0);
+	if(spcache) L2uh = GETDMUI(u,head,spcache);
 	else{
 	  L2uh=0; /* This will be # of shared partners of (u,head) */
 	  /* step through outedges of u , incl. (u,tail) itself */
@@ -4858,13 +4858,13 @@ C_CHANGESTAT_FN(c_tnsp) {
     }
 
 
-    if(spcache) L2th = kh_getval(DyadMapUInt, spcache, THD(tail,head), 0); else L2th=0;
+    if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;
     echange = IS_OUTEDGE(tail, head) ? -1:+1;
     /* step through outedges of head */
     STEP_THROUGH_OUTEDGES(head, e, u) {
       if (IS_OUTEDGE(tail, u)){
 	if(spcache){
-	  L2tu = kh_getval(DyadMapUInt, spcache, THD(tail,u), 0);
+	  L2tu = GETDMUI(tail,u,spcache);
 	}else{
 	  L2tu=0;
 	  /* step through inedges of u */
@@ -4885,7 +4885,7 @@ C_CHANGESTAT_FN(c_tnsp) {
       }
       if (IS_OUTEDGE(u, tail)){
 	if(spcache){
-	  L2uh = kh_getval(DyadMapUInt, spcache, THD(u,head), 0);
+	  L2uh = GETDMUI(u,head,spcache);
 	}else{
 	  L2uh=0;
 	  /* step through outedges of u */
