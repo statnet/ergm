@@ -44,37 +44,37 @@ static inline unsigned int ergm_LayerLogic2Path(Vertex tail1, Vertex head1, Vert
 }
 
 
-/*DSP calculation functions*/
-static inline void dspUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs);
-static inline void dspOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs);
-static inline void dspITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs);
-/* static inline void dspRTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs); */
-static inline void dspOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs);
-static inline void dspISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs);
+/* /\*DSP calculation functions*\/ */
+/* static inline void dspUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs); */
+/* static inline void dspOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs); */
+/* static inline void dspITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs); */
+/* /\* static inline void dspRTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs); *\/ */
+/* static inline void dspOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs); */
+/* static inline void dspISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs); */
 
 
-/*ESP calculation functions*/
-static inline void espUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs);
-static inline void espOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs);
-static inline void espITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs);
-/* static inline void espRTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs); */
-static inline void espOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs);
-static inline void espISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs);
+/* /\*ESP calculation functions*\/ */
+/* static inline void espUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs); */
+/* static inline void espOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs); */
+/* static inline void espITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs); */
+/* /\* static inline void espRTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs); *\/ */
+/* static inline void espOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs); */
+/* static inline void espISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs); */
 
-/*Changescore functions*/
-C_CHANGESTAT_FN(c_desp_ML);
-I_CHANGESTAT_FN(i_dgwesp_ML);
-C_CHANGESTAT_FN(c_dgwesp_ML);
+/* /\*Changescore functions*\/ */
+/* C_CHANGESTAT_FN(c_desp_ML); */
+/* I_CHANGESTAT_FN(i_dgwesp_ML); */
+/* C_CHANGESTAT_FN(c_dgwesp_ML); */
 
-/*Changescore functions*/
-C_CHANGESTAT_FN(c_ddsp_ML);
-I_CHANGESTAT_FN(i_dgwdsp_ML);
-C_CHANGESTAT_FN(c_dgwdsp_ML);
+/* /\*Changescore functions*\/ */
+/* C_CHANGESTAT_FN(c_ddsp_ML); */
+/* I_CHANGESTAT_FN(i_dgwdsp_ML); */
+/* C_CHANGESTAT_FN(c_dgwdsp_ML); */
 
-/*Changescore functions*/
-I_CHANGESTAT_FN(i_dnsp_ML);
-C_CHANGESTAT_FN(c_dnsp_ML);
-I_CHANGESTAT_FN(i_dgwnsp_ML);
-C_CHANGESTAT_FN(c_dgwnsp_ML);
+/* /\*Changescore functions*\/ */
+/* I_CHANGESTAT_FN(i_dnsp_ML); */
+/* C_CHANGESTAT_FN(c_dnsp_ML); */
+/* I_CHANGESTAT_FN(i_dgwnsp_ML); */
+/* C_CHANGESTAT_FN(c_dgwnsp_ML); */
 
 #endif // _CHANGESTATS_DGW_SP_ML_H_

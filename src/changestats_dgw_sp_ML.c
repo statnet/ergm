@@ -1,4 +1,5 @@
 #include "changestats_dgw_sp_ML.h"
+#include "ergm_dyad_hashmap.h"
 
 #define SETUP_calc_dsp							\
   Vertex deg;								\
@@ -58,7 +59,7 @@ L2hk - for each h<->k neq t: k<->t, count u such that k<->u<->t
 
 This function will only work properly with undirected graphs, and should only be called in that case.
 */
-static inline void dspUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs) { 
+static inline void dspUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreDyadMapUInt *spcache, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs) { 
   SETUP_calc_dsp;
   any_order = TRUE;
   
@@ -66,12 +67,15 @@ static inline void dspUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   /* step through edges of head */
   ML_EXEC_THROUGH_EDGES(ll0, h,e,u, {
       if (u!=t){
-	unsigned int L2tu=0;
-	/* step through edges of u */
-	ML_EXEC_THROUGH_EDGES(ll0, u,f,v, {
-	    /* Confirm that 2-path u - v - t satisfies layer conditions */
-	    INC_IF_TWOPATH(tu,t,v,v,u);
-	  });
+	unsigned int L2tu = 0;
+	if(spcache) L2tu = GETDMUI(tail,u,spcache);
+	else{
+	  /* step through edges of u */
+	  ML_EXEC_THROUGH_EDGES(ll0, u,f,v, {
+	      /* Confirm that 2-path u - v - t satisfies layer conditions */
+	      INC_IF_TWOPATH(tu,t,v,v,u);
+	    });
+	}
 	for(unsigned int j = 0; j < nd; j++){
 	  deg = (Vertex)dvec[j];
 	  UPDATE_CS_1(tu,t,h,h,u);
@@ -80,12 +84,15 @@ static inline void dspUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
     });
   ML_EXEC_THROUGH_EDGES(ll0, t,e,u, {
       if (u!=h){
-        unsigned int L2uh=0;
-        /* step through edges of u */
-        ML_EXEC_THROUGH_EDGES(ll0, u,f,v, {
-	    /* Confirm that 2-path u - v - h satisfies layer conditions */
-	    INC_IF_TWOPATH(uh,u,v,v,h);
-	  });
+        unsigned int L2uh = 0;
+	if(spcache) L2uh = GETDMUI(u,head,spcache);
+	else{
+	  /* step through edges of u */
+	  ML_EXEC_THROUGH_EDGES(ll0, u,f,v, {
+	      /* Confirm that 2-path u - v - h satisfies layer conditions */
+	      INC_IF_TWOPATH(uh,u,v,v,h);
+	    });
+	}
         for(unsigned int j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
           UPDATE_CS_2(uh,u,t,t,h);
@@ -102,18 +109,21 @@ Changescore for dsps based on outgoing two-paths, i.e. configurations for non-ed
 
 This function should only be used in the directed case
 */
-static inline void dspOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs) { 
+static inline void dspOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreDyadMapUInt *spcache, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs) { 
   SETUP_calc_dsp;
 
   CALC_with_dirs({
   /* step through outedges of head (i.e., k: t->k)*/
   ML_EXEC_THROUGH_OUTEDGES(ll0,h, e, k, {
       if(k!=t){ /*Only use contingent cases*/
-        unsigned int L2tk=0;
-        /* step through inedges of k, incl. (head,k) itself */
-        ML_EXEC_THROUGH_INEDGES(ll0,k, f, u, {
-	    INC_IF_TWOPATH(tk,t,u,u,k);
-        });
+        unsigned int L2tk = 0;
+	if(spcache) L2tk = GETDMUI(tail,k,spcache);
+	else{
+	  /* step through inedges of k, incl. (head,k) itself */
+	  ML_EXEC_THROUGH_INEDGES(ll0,k, f, u, {
+	      INC_IF_TWOPATH(tk,t,u,u,k);
+	    });
+	}
         /*Update the changestat for the t->k edge*/
         for(unsigned int j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
@@ -124,11 +134,14 @@ static inline void dspOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
     /* step through inedges of tail (i.e., k: k->t)*/
     ML_EXEC_THROUGH_INEDGES(ll0,t, e, k, {
       if (k!=h){ /*Only use contingent cases*/
-        unsigned int L2kh=0;
-        /* step through outedges of k , incl. (k,tail) itself */
-        ML_EXEC_THROUGH_OUTEDGES(ll0,k, f, u, {
-	    INC_IF_TWOPATH(kh,k,u,u,h);
-	  });
+        unsigned int L2kh = 0;
+	if(spcache) L2kh = GETDMUI(k,head,spcache);
+	else{
+	  /* step through outedges of k , incl. (k,tail) itself */
+	  ML_EXEC_THROUGH_OUTEDGES(ll0,k, f, u, {
+	      INC_IF_TWOPATH(kh,k,u,u,h);
+	    });
+	}
         /*Update the changestat for the k->t edge*/
         for(unsigned int j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
@@ -151,17 +164,20 @@ L2kt - for each k->i neq j: j->k, count u such that i->u->k
 
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-static inline void dspITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs) { 
+static inline void dspITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreDyadMapUInt *spcache, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs) { 
   SETUP_calc_dsp;
 
   CALC_with_dirs({
   /* step through outedges of head (i.e., k: h->k)*/
   ML_EXEC_THROUGH_OUTEDGES(ll0, h, e, k, {
       if((k!=t)){ /*Only use contingent cases*/
-        unsigned int L2kt=0;
-        ML_EXEC_THROUGH_INEDGES(ll0,k, f, u, {
-	    INC_IF_TWOPATH(kt,t,u,u,k);
-        });
+        unsigned int L2kt = 0;
+	if(spcache) L2kt = GETDMUI(tail,k,spcache); // spcache is an OTP cache.
+	else{
+	  ML_EXEC_THROUGH_INEDGES(ll0,k, f, u, {
+	      INC_IF_TWOPATH(kt,t,u,u,k);
+	    });
+	}
         /*Update the changestat for the h->k edge*/
         for(unsigned int j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
@@ -172,10 +188,13 @@ static inline void dspITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
     /* step through inedges of tail (i.e., k: k->t)*/
     ML_EXEC_THROUGH_INEDGES(ll0,t, e, k, {
       if((k!=h)){ /*Only use contingent cases*/
-        unsigned int L2hk=0;
-        ML_EXEC_THROUGH_OUTEDGES(ll0,k, f, u, {
-	    INC_IF_TWOPATH(hk,k,u,u,h);
-        });
+        unsigned int L2hk = 0;
+	if(spcache) L2hk = GETDMUI(k,head,spcache); // spcache is an OTP cache.
+	else{
+	  ML_EXEC_THROUGH_OUTEDGES(ll0,k, f, u, {
+	      INC_IF_TWOPATH(hk,k,u,u,h);
+	    });
+	}
         /*Update the changestat for the k->t edge*/
         for(unsigned int j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
@@ -197,19 +216,22 @@ L2kt - for each k->t neq h: k->h, count u such that t->u, k->u
 
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-static inline void dspOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs) { 
+static inline void dspOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreDyadMapUInt *spcache, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs) { 
   SETUP_calc_dsp;
   any_order = TRUE;
 
   CALC_with_dirs({
   ML_EXEC_THROUGH_INEDGES(ll0,h, e, k, {
       if(k!=t){
-        unsigned int L2tk=0;
-        ML_EXEC_THROUGH_OUTEDGES(ll0,k, f, u, {
-          if (u!=t)
-            /*Increment if there is an OSP  */
-	    INC_IF_TWOPATH(tk,t,u,k,u);
-        });
+        unsigned int L2tk = 0;
+	if(spcache) L2tk = GETDMUI(tail,k,spcache);
+	else{
+	  ML_EXEC_THROUGH_OUTEDGES(ll0,k, f, u, {
+	      if (u!=t)
+		/*Increment if there is an OSP  */
+		INC_IF_TWOPATH(tk,t,u,k,u);
+	    });
+	}
         /*Update the changestat for the t->k edge*/
         for(unsigned int j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
@@ -233,19 +255,22 @@ L2kh - for each k->h neq t: t->k, count u such that u->h, u->k
 
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-static inline void dspISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs) { 
+static inline void dspISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreDyadMapUInt *spcache, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs) { 
   SETUP_calc_dsp;
   any_order = TRUE;
 
   CALC_with_dirs({
   ML_EXEC_THROUGH_OUTEDGES(ll0,t, e, k, {
       if(k!=h){
-        unsigned int L2kh=0;
-        ML_EXEC_THROUGH_INEDGES(ll0,k, f, u, {
-	    if(u!=h)
-	      /*Increment if there is an ISP*/
-	      INC_IF_TWOPATH(kh,u,k,u,h);
-	  });
+        unsigned int L2kh = 0;
+	if(spcache) L2kh = GETDMUI(k,head,spcache);
+	else{
+	  ML_EXEC_THROUGH_INEDGES(ll0,k, f, u, {
+	      if(u!=h)
+		/*Increment if there is an ISP*/
+		INC_IF_TWOPATH(kh,u,k,u,h);
+	    });
+	}
         /*Update the changestat for the k->h edge*/
         for(unsigned int j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
@@ -271,7 +296,7 @@ static inline void dspISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 
 /* We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function. */
 /* *\/ */
-/* static inline void dspRTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs) {  */
+/* static inline void dspRTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreDyadMapUInt *spcache, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, unsigned int any_order, int nd, double *dvec, double *cs) {  */
 /*   Edge e, f; */
 /*   int j, echange, htedge; */
 /*   int L2th,L2tk,L2kt,L2hk,L2kh; /\*Two-path counts for various edges*\/ */
@@ -387,21 +412,22 @@ C_CHANGESTAT_FN(c_ddsp_ML) {
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll0, 0);
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll1, 1);
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll2, 2);
-  unsigned int any_order = (unsigned int) INPUT_PARAM[3];
+  StoreDyadMapUInt *spcache = (INPUT_PARAM[3]>=0) ? AUX_STORAGE_NUM(3) : NULL;
+  unsigned int any_order = (unsigned int) INPUT_PARAM[4];
   
   /*Set things up*/
-  unsigned int type=(int)INPUT_PARAM[4];     /*Get the ESP type code to be used*/
-  double *dvec=INPUT_PARAM+5;           /*Get the pointer to the ESP stats list*/
+  unsigned int type=(int)INPUT_PARAM[5];     /*Get the ESP type code to be used*/
+  double *dvec=INPUT_PARAM+6;           /*Get the pointer to the ESP stats list*/
   double *cs=CHANGE_STAT;               /*Grab the pointer to the CS vector*/
 
   /*Obtain the DSP changescores (by type)*/
   switch(type){
-  case ESPUTP: dspUTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs); break;
-  case ESPOTP: dspOTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs); break;
-  case ESPITP: dspITP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs); break;
-  /* case ESPRTP: dspRTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs); break; */
-  case ESPOSP: dspOSP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs); break;
-  case ESPISP: dspISP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs); break;
+  case ESPUTP: dspUTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs); break;
+  case ESPOTP: dspOTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs); break;
+  case ESPITP: dspITP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs); break;
+  /* case ESPRTP: dspRTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs); break; */
+  case ESPOSP: dspOSP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs); break;
+  case ESPISP: dspISP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs); break;
   }
   /*We're done!  (Changestats were written in by the calc routine.)*/  
 }
@@ -432,7 +458,8 @@ C_CHANGESTAT_FN(c_dgwdsp_ML) {
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll0, 0);
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll1, 1);
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll2, 2);
-  unsigned int any_order = (unsigned int) INPUT_PARAM[3];
+  StoreDyadMapUInt *spcache = (INPUT_PARAM[3]>=0) ? AUX_STORAGE_NUM(3) : NULL;
+  unsigned int any_order = (unsigned int) INPUT_PARAM[4];
   GET_STORAGE(double, storage);
   int type;
   Vertex i,maxesp;
@@ -440,10 +467,10 @@ C_CHANGESTAT_FN(c_dgwdsp_ML) {
   
   /*Set things up*/
   CHANGE_STAT[0] = 0.0;         /*Zero the changestat*/
-  alpha = INPUT_PARAM[4];       /*Get alpha*/
+  alpha = INPUT_PARAM[5];       /*Get alpha*/
   oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
-  type=(int)INPUT_PARAM[5];     /*Get the ESP type code to be used*/
-  maxesp=(int)INPUT_PARAM[6];   /*Get the max ESP cutoff to use*/
+  type=(int)INPUT_PARAM[6];     /*Get the ESP type code to be used*/
+  maxesp=(int)INPUT_PARAM[7];   /*Get the max ESP cutoff to use*/
   cs=storage;                   /*Grab memory for the ESP changescores*/
   dvec=storage+maxesp;          /*Grab memory for the ESP vals*/
   for(i=0;i<maxesp;i++)         /*Initialize the ESP vals*/
@@ -451,12 +478,12 @@ C_CHANGESTAT_FN(c_dgwdsp_ML) {
 
   /*Obtain the DSP changescores (by type)*/
   switch(type){
-    case ESPUTP: dspUTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,maxesp,dvec,cs); break;
-    case ESPOTP: dspOTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,maxesp,dvec,cs); break;
-    case ESPITP: dspITP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,maxesp,dvec,cs); break;
-    /* case ESPRTP: dspRTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,maxesp,dvec,cs); break; */
-    case ESPOSP: dspOSP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,maxesp,dvec,cs); break;
-    case ESPISP: dspISP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,maxesp,dvec,cs); break;
+    case ESPUTP: dspUTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,maxesp,dvec,cs); break;
+    case ESPOTP: dspOTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,maxesp,dvec,cs); break;
+    case ESPITP: dspITP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,maxesp,dvec,cs); break;
+    /* case ESPRTP: dspRTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,maxesp,dvec,cs); break; */
+    case ESPOSP: dspOSP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,maxesp,dvec,cs); break;
+    case ESPISP: dspISP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,maxesp,dvec,cs); break;
   }
   
   /*Compute the gwdsp changescore*/
@@ -485,23 +512,29 @@ L2hk - for each h<->k neq t: k<->t, count u such that k<->u<->t
 
 This function will only work properly with undirected graphs, and should only be called in that case.
 */
-static inline void espUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs) { 
+static inline void espUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreDyadMapUInt *spcache, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs) { 
   SETUP_calc_esp;
   any_order = TRUE;
   
   CALC_with_dirs({
-  unsigned int L2th=0;
+  unsigned int L2th = 0;
+  if(spcache) L2th = GETDMUI(tail,head,spcache);
   ML_EXEC_THROUGH_EDGES(ll0, h,e,u, {
       if (ML_IS_UNDIRECTED_EDGE(ll0,u,t) != 0){
-        if(l3c) INC_IF_TWOPATH(th,t,u,u,h);
-        unsigned int L2tu=0;
-        unsigned int L2uh=0;
+        if(!spcache && l3c) INC_IF_TWOPATH(th,t,u,u,h);
 	unsigned int Buh = ML_GETWT(ll3,u,h);
 	unsigned int Btu = ML_GETWT(ll3,t,u);
-        ML_EXEC_THROUGH_EDGES(ll0, u,f,v, {
-	    if(Buh) INC_IF_TWOPATH(uh,u,v,v,h);
-	    if(Btu) INC_IF_TWOPATH(tu,t,v,v,u);
-        });
+        unsigned int L2tu = 0;
+        unsigned int L2uh = 0;
+	if(spcache){
+	  L2tu = GETDMUI(tail,u,spcache);
+	  L2uh = GETDMUI(u,head,spcache);
+	}else{
+	  ML_EXEC_THROUGH_EDGES(ll0, u,f,v, {
+	      if(Buh) INC_IF_TWOPATH(uh,u,v,v,h);
+	      if(Btu) INC_IF_TWOPATH(tu,t,v,v,u);
+	    });
+	}
         for(unsigned int j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
 	  if(Buh) UPDATE_CS_2(uh,u,t,t,h);
@@ -528,16 +561,19 @@ L2kh - for each k->j neq i: k->i, count u such that k->u->j
 
 This function should only be used in the directed case, with espUTP being used in the undirected case.
 */
-static inline void espOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs) { 
+static inline void espOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreDyadMapUInt *spcache, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs) { 
   SETUP_calc_esp;
 
   CALC_with_dirs({
   if(l3c){
-    unsigned int L2th=0;
-    ML_EXEC_THROUGH_OUTEDGES(ll0,t,e,k, {
-	if(k!=h)
-	  INC_IF_TWOPATH(th,t,k,k,h);
-      });
+    unsigned int L2th = 0;
+    if(spcache) L2th = GETDMUI(tail,head,spcache);
+    else{
+      ML_EXEC_THROUGH_OUTEDGES(ll0,t,e,k, {
+	  if(k!=h)
+	    INC_IF_TWOPATH(th,t,k,k,h);
+	});
+    }
     for(unsigned int j = 0; j < nd; j++){
       deg = (Vertex)dvec[j];
       cs[j] += l3c*(L2th == deg);
@@ -545,12 +581,15 @@ static inline void espOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   }
   ML_EXEC_THROUGH_OUTEDGES(ll3,t,e,k, {
       if((k!=h)&&(ML_IS_OUTEDGE(ll0,h,k))){ /*Only use contingent cases*/
-        unsigned int L2tk=0;
-        ML_EXEC_THROUGH_INEDGES(ll0,k,f,u, {
-	    //Rprintf("\t\tTrying u==%d\n",u);
-	    if(u!=t) 
-	      INC_IF_TWOPATH(tk,t,u,u,k);
-	  });
+        unsigned int L2tk = 0;
+	if(spcache) L2tk = GETDMUI(tail,k,spcache);
+	else{
+	  ML_EXEC_THROUGH_INEDGES(ll0,k,f,u, {
+	      //Rprintf("\t\tTrying u==%d\n",u);
+	      if(u!=t) 
+		INC_IF_TWOPATH(tk,t,u,u,k);
+	    });
+	}
         for(unsigned int j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
           UPDATE_CS_1(tk,t,h,h,k);
@@ -560,11 +599,14 @@ static inline void espOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   /* step through inedges of h (i.e., k: k->h)*/
   ML_EXEC_THROUGH_INEDGES(ll3,h,e,k, {
       if((k!=t)&&(ML_IS_OUTEDGE(ll0,k,t))){ /*Only use contingent cases*/
-        unsigned int L2kh=0;
-        ML_EXEC_THROUGH_OUTEDGES(ll0,k,f,u, {
-	    if(u!=h) 
-	      INC_IF_TWOPATH(kh,k,u,u,h);
-	  });
+        unsigned int L2kh = 0;
+	if(spcache) L2kh = GETDMUI(k,head,spcache);
+	else{
+	  ML_EXEC_THROUGH_OUTEDGES(ll0,k,f,u, {
+	      if(u!=h) 
+		INC_IF_TWOPATH(kh,k,u,u,h);
+	    });
+	}
         for(unsigned int j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
           UPDATE_CS_2(kh,k,t,t,h);
@@ -585,16 +627,19 @@ L2kt - for each k->i neq j: j->k, count u such that i->u->k
 
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-static inline void espITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs) { 
+static inline void espITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreDyadMapUInt *spcache, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs) { 
    SETUP_calc_esp;
    
   CALC_with_dirs({
   if(l3c){
-    unsigned int L2th=0;
-    ML_EXEC_THROUGH_INEDGES(ll0,t,e,k, {
-	if(k!=h)
-	  INC_IF_TWOPATH(th,h,k,k,t);
-      });
+    unsigned int L2th = 0;
+    if(spcache) L2th = GETDMUI(head,tail,spcache); // spcache is an OTP cache.
+    else{
+      ML_EXEC_THROUGH_INEDGES(ll0,t,e,k, {
+	  if(k!=h)
+	    INC_IF_TWOPATH(th,h,k,k,t);
+	});
+    }
     for(unsigned int j = 0; j < nd; j++){
       deg = (Vertex)dvec[j];
       cs[j] += l3c*(L2th == deg);
@@ -605,13 +650,16 @@ static inline void espITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
       if((k!=t)&&(ML_IS_OUTEDGE(ll0,k,t))){ /*Only use contingent cases*/
         //Rprintf("\tk==%d, passed criteria\n",k);
         /*We have a h->k->t two-path, so add it to our count.*/
-        unsigned int L2hk=0;
+        unsigned int L2hk = 0;
+	if(spcache) L2hk = GETDMUI(k,head,spcache); // spcache is an OTP cache.
+	else{
         /*Now, count # u such that k->u->h (so that we know k's ESP value)*/
-        ML_EXEC_THROUGH_OUTEDGES(ll0,k,f,u, {
-          //Rprintf("\t\tTrying u==%d\n",u);
-          if(u!=h) 
-            INC_IF_TWOPATH(hk,k,u,u,h);
-        });
+	  ML_EXEC_THROUGH_OUTEDGES(ll0,k,f,u, {
+	      //Rprintf("\t\tTrying u==%d\n",u);
+	      if(u!=h) 
+		INC_IF_TWOPATH(hk,k,u,u,h);
+	    });
+	}
         /*Update the changestat for the h->k edge*/
         //Rprintf("\t2-path count was %d\n",L2hk);
         for(unsigned int j = 0; j < nd; j++){
@@ -623,12 +671,15 @@ static inline void espITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
     /* step through inedges of t (i.e., k: k->t)*/
     ML_EXEC_THROUGH_INEDGES(ll3,t,e,k, {
 	if((k!=h)&&(ML_IS_OUTEDGE(ll0,h,k))){ /*Only use contingent cases*/
-	  unsigned int L2kt=0;
-	  /*Now, count # u such that t->u->k (so that we know k's ESP value)*/
-	  ML_EXEC_THROUGH_INEDGES(ll0,k,f,u, {
-	      if(u!=t) 
-		INC_IF_TWOPATH(kt,t,u,u,k);
-        });
+	  unsigned int L2kt = 0;
+	  if(spcache) L2kt = GETDMUI(tail,k,spcache); // spcache is an OTP cache.
+	  else{
+	    /*Now, count # u such that t->u->k (so that we know k's ESP value)*/
+	    ML_EXEC_THROUGH_INEDGES(ll0,k,f,u, {
+		if(u!=t) 
+		  INC_IF_TWOPATH(kt,t,u,u,k);
+	      });
+	  }
         /*Update the changestat for the k->t edge*/
         //Rprintf("\t2-path count was %d\n",L2kt);
         for(unsigned int j = 0; j < nd; j++){
@@ -651,16 +702,19 @@ L2kt - for each k->t neq h: k->h, count u such that t->u, k->u
 
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-static inline void espOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs) { 
+static inline void espOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreDyadMapUInt *spcache, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs) { 
   SETUP_calc_esp;
   
   CALC_with_dirs({
   if(l3c){
-    unsigned int L2th=0;
-    ML_EXEC_THROUGH_OUTEDGES(ll0,t,e,k, {
-	if(k!=h)
-	  INC_IF_TWOPATH(th,t,k,h,k);
-      });
+    unsigned int L2th = 0;
+    if(spcache) L2th = GETDMUI(tail,head,spcache);
+    else{
+      ML_EXEC_THROUGH_OUTEDGES(ll0,t,e,k, {
+	  if(k!=h)
+	    INC_IF_TWOPATH(th,t,k,h,k);
+	});
+    }
     for(unsigned int j = 0; j < nd; j++){
       deg = (Vertex)dvec[j];
       cs[j] += l3c*(L2th == deg);
@@ -670,13 +724,16 @@ static inline void espOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   /* step through outedges of t (i.e., k: t->k, k->h, k!=h)*/
   ML_EXEC_THROUGH_OUTEDGES(ll3,t,e,k, {
       if(k!=h && ML_IS_OUTEDGE(ll0,k,h)){ /*Only consider stats that could change*/
-	unsigned int L2tk=0;
-	/*Now, count # u such that t->u,k->u (to get t->k's ESP value)*/
-	ML_EXEC_THROUGH_OUTEDGES(ll0,k,f,u, { 
-            if(u!=t)
-	      /*Increment if there is an OSP*/
-              INC_IF_TWOPATH(tk,t,u,k,u);
-          });
+	unsigned int L2tk = 0;
+	if(spcache) L2tk = GETDMUI(tail,k,spcache);
+	else{
+	  /*Now, count # u such that t->u,k->u (to get t->k's ESP value)*/
+	  ML_EXEC_THROUGH_OUTEDGES(ll0,k,f,u, { 
+	      if(u!=t)
+		/*Increment if there is an OSP*/
+		INC_IF_TWOPATH(tk,t,u,k,u);
+	    });
+	}
 	/*Update the changestat for the t->k edge*/
 	for(unsigned int j = 0; j < nd; j++){
 	  deg = (Vertex)dvec[j];
@@ -687,13 +744,16 @@ static inline void espOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   /* step through inedges of t (i.e., k: k->t, k->h, k!=h)*/
   ML_EXEC_THROUGH_INEDGES(ll3,t,e,k, {
       if(k!=h && ML_IS_OUTEDGE(ll0,k,h)){ /*Only stats that could change*/
-      unsigned int L2kt=0;
-        /*Now, count # u such that t->u,k->u (to get k->t's ESP value)*/
-        ML_EXEC_THROUGH_OUTEDGES(ll0,k,f,u, { 
-          if(u!=t)
-	    /*Increment if there is an OSP*/
-            INC_IF_TWOPATH(kt,t,u,k,u);
-	  });
+	unsigned int L2kt=0;
+	if(spcache) L2kt = GETDMUI(k,tail,spcache);
+	else{
+	  /*Now, count # u such that t->u,k->u (to get k->t's ESP value)*/
+	  ML_EXEC_THROUGH_OUTEDGES(ll0,k,f,u, { 
+	      if(u!=t)
+		/*Increment if there is an OSP*/
+		INC_IF_TWOPATH(kt,t,u,k,u);
+	    });
+	}
         /*Update the changestat for the k->t edge*/
         for(unsigned int j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
@@ -715,16 +775,19 @@ L2kh - for each k->h neq t: t->k, count u such that u->h, u->k
 
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
-static inline void espISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs) { 
+static inline void espISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreDyadMapUInt *spcache, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs) { 
    SETUP_calc_esp;
   
   CALC_with_dirs({
   if(l3c){
-    unsigned int L2th=0;
-    ML_EXEC_THROUGH_INEDGES(ll0,t,e,k, {
-	if(k!=h)
-	  INC_IF_TWOPATH(th,k,t,k,h);
-      });
+    unsigned int L2th = 0;
+    if(spcache) L2th = GETDMUI(tail,head,spcache);
+    else{
+      ML_EXEC_THROUGH_INEDGES(ll0,t,e,k, {
+	  if(k!=h)
+	    INC_IF_TWOPATH(th,k,t,k,h);
+	});
+    }
     for(unsigned int j = 0; j < nd; j++){
       deg = (Vertex)dvec[j];
       cs[j] += l3c*(L2th == deg);
@@ -734,13 +797,16 @@ static inline void espISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   /* step through inedges of h (i.e., k: k->h, t->k, k!=t)*/
   ML_EXEC_THROUGH_INEDGES(ll3,h,e,k, {
       if(k!=t && ML_IS_OUTEDGE(ll0,t,k)){
-	unsigned int L2kh=0;
-	/*Now, count # u such that u->h,u->k (to get h>k's ESP value)*/
-	ML_EXEC_THROUGH_INEDGES(ll0,k,f,u, { 
-            if(u!=h)
-	      /*Increment if there is an ISP*/
-              INC_IF_TWOPATH(kh,u,k,u,h);
-          });
+	unsigned int L2kh = 0;
+	if(spcache) L2kh = GETDMUI(k,head,spcache);
+	else{
+	  /*Now, count # u such that u->h,u->k (to get h>k's ESP value)*/
+	  ML_EXEC_THROUGH_INEDGES(ll0,k,f,u, { 
+	      if(u!=h)
+		/*Increment if there is an ISP*/
+		INC_IF_TWOPATH(kh,u,k,u,h);
+	    });
+	}
 	/*Update the changestat for the k->h edge*/
 	for(unsigned int j = 0; j < nd; j++){
 	  deg = (Vertex)dvec[j];
@@ -751,13 +817,16 @@ static inline void espISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
     /* step through outedges of h (i.e., k: h->k, t->k, k!=t)*/
   ML_EXEC_THROUGH_OUTEDGES(ll3,h,e,k, {
       if(k!=t && ML_IS_OUTEDGE(ll0,t,k)){ /*Only stats that could change*/
-      unsigned int L2hk=0;
-      /*Now, count # u such that u->h,u->k (to get k->h's ESP value)*/
-      ML_EXEC_THROUGH_INEDGES(ll0,k,f,u, { 
-          if(u!=h)
-	    /*Increment if there is an ISP*/
-            INC_IF_TWOPATH(hk,u,k,u,h);
-        });
+      unsigned int L2hk = 0;
+      if(spcache) L2hk = GETDMUI(head,k,spcache);
+      else{
+	/*Now, count # u such that u->h,u->k (to get k->h's ESP value)*/
+	ML_EXEC_THROUGH_INEDGES(ll0,k,f,u, { 
+	    if(u!=h)
+	      /*Increment if there is an ISP*/
+	      INC_IF_TWOPATH(hk,u,k,u,h);
+	  });
+      }
         /*Update the changestat for the h->k edge*/
         for(unsigned int j = 0; j < nd; j++){
           deg = (Vertex)dvec[j];
@@ -781,7 +850,7 @@ static inline void espISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 
 /* We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function. */
 /* *\/ */
-/* static inline void espRTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs) {  */
+/* static inline void espRTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, StoreDyadMapUInt *spcache, StoreLayerLogic *ll0, StoreLayerLogic *ll1, StoreLayerLogic *ll2, StoreLayerLogic *ll3, unsigned int any_order, int nd, double *dvec, double *cs) {  */
 /*   Edge e, f; */
 /*   int j, echange, htedge; */
 /*   int L2th,L2tk,L2kt,L2hk,L2kh; /\*Two-path counts for various edges*\/ */
@@ -899,25 +968,26 @@ C_CHANGESTAT_FN(c_desp_ML) {
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll1, 1);
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll2, 2);
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll3, 3);
-  unsigned int any_order = (unsigned int) INPUT_PARAM[4];
+  StoreDyadMapUInt *spcache = (INPUT_PARAM[4]>=0) ? AUX_STORAGE_NUM(4) : NULL;
+  unsigned int any_order = (unsigned int) INPUT_PARAM[5];
 
   int type;
   double *dvec,*cs;
   
   /*Set things up*/
   ZERO_ALL_CHANGESTATS(i);
-  type=(int)INPUT_PARAM[5];     /*Get the ESP type code to be used*/
-  dvec=INPUT_PARAM+6;           /*Get the pointer to the ESP stats list*/
+  type=(int)INPUT_PARAM[6];     /*Get the ESP type code to be used*/
+  dvec=INPUT_PARAM+7;           /*Get the pointer to the ESP stats list*/
   cs=CHANGE_STAT;               /*Grab the pointer to the CS vector*/
 
   /*Obtain the ESP changescores (by type)*/
   switch(type){
-    case ESPUTP: espUTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs); break;
-    case ESPOTP: espOTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs); break;
-    case ESPITP: espITP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs); break;
-    /* case ESPRTP: espRTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs); break; */
-    case ESPOSP: espOSP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs); break;
-    case ESPISP: espISP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs); break;
+    case ESPUTP: espUTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs); break;
+    case ESPOTP: espOTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs); break;
+    case ESPITP: espITP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs); break;
+    /* case ESPRTP: espRTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs); break; */
+    case ESPOSP: espOSP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs); break;
+    case ESPISP: espISP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs); break;
   }
   /*We're done!  (Changestats were written in by the calc routine.)*/  
 }
@@ -948,7 +1018,8 @@ C_CHANGESTAT_FN(c_dgwesp_ML) {
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll1, 1);
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll2, 2);
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll3, 3);
-  unsigned int any_order = (unsigned int) INPUT_PARAM[4];
+  StoreDyadMapUInt *spcache = (INPUT_PARAM[4]>=0) ? AUX_STORAGE_NUM(4) : NULL;
+  unsigned int any_order = (unsigned int) INPUT_PARAM[5];
   GET_STORAGE(double, storage);
   int type;
   Vertex i,maxesp;
@@ -956,10 +1027,10 @@ C_CHANGESTAT_FN(c_dgwesp_ML) {
   
   /*Set things up*/
   CHANGE_STAT[0] = 0.0;         /*Zero the changestat*/
-  alpha = INPUT_PARAM[5];       /*Get alpha*/
+  alpha = INPUT_PARAM[6];       /*Get alpha*/
   oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
-  type=(int)INPUT_PARAM[6];     /*Get the ESP type code to be used*/
-  maxesp=(int)INPUT_PARAM[7];   /*Get the max ESP cutoff to use*/
+  type=(int)INPUT_PARAM[7];     /*Get the ESP type code to be used*/
+  maxesp=(int)INPUT_PARAM[8];   /*Get the max ESP cutoff to use*/
   cs=storage;                   /*Grab memory for the ESP changescores*/
   dvec=storage+maxesp;          /*Grab memory for the ESP vals*/
   for(i=0;i<maxesp;i++)         /*Initialize the ESP vals*/
@@ -967,12 +1038,12 @@ C_CHANGESTAT_FN(c_dgwesp_ML) {
 
   /*Obtain the ESP changescores (by type)*/
   switch(type){
-    case ESPUTP: espUTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs); break;
-    case ESPOTP: espOTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs); break;
-    case ESPITP: espITP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs); break;
-    /* case ESPRTP: espRTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs); break; */
-    case ESPOSP: espOSP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs); break;
-    case ESPISP: espISP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs); break;
+    case ESPUTP: espUTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs); break;
+    case ESPOTP: espOTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs); break;
+    case ESPITP: espITP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs); break;
+    /* case ESPRTP: espRTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs); break; */
+    case ESPOSP: espOSP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs); break;
+    case ESPISP: espISP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs); break;
   }
   
   /*Compute the gwesp changescore*/
@@ -1016,42 +1087,43 @@ C_CHANGESTAT_FN(c_dnsp_ML) {
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll1, 1);
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll2, 2);
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll3, 3);
-  unsigned int any_order = (unsigned int) INPUT_PARAM[4];
+  StoreDyadMapUInt *spcache = (INPUT_PARAM[4]>=0) ? AUX_STORAGE_NUM(4) : NULL;
+  unsigned int any_order = (unsigned int) INPUT_PARAM[5];
   GET_STORAGE(double, storage);
   int i,type;
   double *dvec,*cs_esp, *cs_dsp;
   
   /*Set things up*/
-  type=(int)INPUT_PARAM[5];     /*Get the ESP type code to be used*/
-  dvec=INPUT_PARAM+6;           /*Get the pointer to the ESP stats list*/
+  type=(int)INPUT_PARAM[6];     /*Get the ESP type code to be used*/
+  dvec=INPUT_PARAM+7;           /*Get the pointer to the ESP stats list*/
   cs_esp=storage;               /*Grab memory for the DSP changescores*/
   cs_dsp=storage+N_CHANGE_STATS;/*Grab memory for the DSP changescores*/
 
   /*Obtain the ESP changescores (by type)*/
   switch(type){
   case ESPUTP: 
-    espUTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs_esp);
-    dspUTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs_dsp); 
+    espUTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs_esp);
+    dspUTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs_dsp); 
     break;
   case ESPOTP: 
-    espOTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs_esp);
-    dspOTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs_dsp); 
+    espOTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs_esp);
+    dspOTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs_dsp); 
     break;
   case ESPITP: 
-    espITP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs_esp);
-    dspITP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs_dsp); 
+    espITP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs_esp);
+    dspITP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs_dsp); 
     break;
   /* case ESPRTP:  */
-  /*   espRTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs_esp); */
-  /*   dspRTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs_dsp);  */
+  /*   espRTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs_esp); */
+  /*   dspRTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs_dsp);  */
   /*   break; */
   case ESPOSP: 
-    espOSP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs_esp);
-    dspOSP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs_dsp); 
+    espOSP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs_esp);
+    dspOSP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs_dsp); 
     break;
   case ESPISP: 
-    espISP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs_esp);
-    dspISP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs_dsp); 
+    espISP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,N_CHANGE_STATS,dvec,cs_esp);
+    dspISP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,N_CHANGE_STATS,dvec,cs_dsp); 
     break;
   }
   /*We're done!  (Changestats were written in by the calc routine.)*/  
@@ -1086,7 +1158,8 @@ C_CHANGESTAT_FN(c_dgwnsp_ML) {
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll1, 1);
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll2, 2);
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll3, 3);
-  unsigned int any_order = (unsigned int) INPUT_PARAM[4];
+  StoreDyadMapUInt *spcache = (INPUT_PARAM[4]>=0) ? AUX_STORAGE_NUM(4) : NULL;
+  unsigned int any_order = (unsigned int) INPUT_PARAM[5];
   GET_STORAGE(double, storage);
   int type;
   Vertex i,maxesp;
@@ -1094,10 +1167,10 @@ C_CHANGESTAT_FN(c_dgwnsp_ML) {
   
   /*Set things up*/
   CHANGE_STAT[0] = 0.0;         /*Zero the changestat*/
-  alpha = INPUT_PARAM[5];       /*Get alpha*/
+  alpha = INPUT_PARAM[6];       /*Get alpha*/
   oneexpa = 1.0-exp(-alpha);    /*Precompute (1-exp(-alpha))*/
-  type=(int)INPUT_PARAM[6];     /*Get the ESP type code to be used*/
-  maxesp=(int)INPUT_PARAM[7];   /*Get the max ESP cutoff to use*/
+  type=(int)INPUT_PARAM[7];     /*Get the ESP type code to be used*/
+  maxesp=(int)INPUT_PARAM[8];   /*Get the max ESP cutoff to use*/
   cs_esp=storage;     /*Grab memory for the ESP changescores*/
   dvec=storage+maxesp;   /*Grab memory for the ESP vals*/
   for(i=0;i<maxesp;i++)         /*Initialize the ESP vals*/
@@ -1108,28 +1181,28 @@ C_CHANGESTAT_FN(c_dgwnsp_ML) {
   /*Obtain the changescores (by type)*/
   switch(type){
     case ESPUTP: 
-      espUTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs_esp);
-      dspUTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,maxesp,dvec,cs_dsp); 
+      espUTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs_esp);
+      dspUTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,maxesp,dvec,cs_dsp); 
       break;
     case ESPOTP: 
-      espOTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs_esp);
-      dspOTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,maxesp,dvec,cs_dsp); 
+      espOTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs_esp);
+      dspOTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,maxesp,dvec,cs_dsp); 
       break;
     case ESPITP: 
-      espITP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs_esp);
-      dspITP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,maxesp,dvec,cs_dsp); 
+      espITP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs_esp);
+      dspITP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,maxesp,dvec,cs_dsp); 
       break;
     /* case ESPRTP:  */
-    /*   espRTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs_esp); */
-    /*   dspRTP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,maxesp,dvec,cs_dsp);  */
+    /*   espRTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs_esp); */
+    /*   dspRTP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,maxesp,dvec,cs_dsp);  */
     /*   break; */
     case ESPOSP: 
-      espOSP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs_esp);
-      dspOSP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,maxesp,dvec,cs_dsp); 
+      espOSP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs_esp);
+      dspOSP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,maxesp,dvec,cs_dsp); 
       break;
     case ESPISP: 
-      espISP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs_esp);
-      dspISP_ML_calc(tail,head,mtp,nwp,ll0,ll1,ll2,any_order,maxesp,dvec,cs_dsp); 
+      espISP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,ll3,any_order,maxesp,dvec,cs_esp);
+      dspISP_ML_calc(tail,head,mtp,nwp,spcache,ll0,ll1,ll2,any_order,maxesp,dvec,cs_dsp); 
       break;
   }
   

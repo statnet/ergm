@@ -119,7 +119,12 @@
 #  These inputs are automatically supplied to the d_xxxy function by the 
 #  network_stats_wrapper function 
 
-.sp.handle_layers <- function(nw, a, type, has_base){
+.spcache.auxL <- function(type, Ls.path, L.in_order){
+  type <- toupper(type)
+  as.formula(as.call(list(as.name('~'), as.call(list(as.name('.spcache.netL'),type=if(type=='ITP')'OTP' else type,Ls.path=Ls.path,L.in_order=L.in_order)))))
+}
+
+.sp.handle_layers <- function(nw, a, type, has_base, cache.sp=FALSE){
   out <- list()
 
   if(is(a$Ls.path,"formula")) a$Ls.path <- list(a$Ls.path)
@@ -152,6 +157,10 @@
   if(has_base){
     aux3 <- .mk_.layer.net_auxform(L.base, nl)
     out$auxiliaries[[2]] <- call("+", out$auxiliaries[[2]], aux3[[2]])
+  }
+  if(cache.sp){
+    aux4 <- .spcache.auxL(type, c(L.path1, L.path2), a$L.in_order)
+    out$auxiliaries[[2]] <- call("+", out$auxiliaries[[2]], aux4[[2]])
   }
   
   out$any_order <- if(type=="UTP" || (type%in%c("OSP","ISP") && !has_base)) TRUE else !a$L.in_order
@@ -210,7 +219,7 @@ InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
     typecode<-0
   }
 
-  linfo <- .sp.handle_layers(nw, a, type, TRUE)
+  linfo <- .sp.handle_layers(nw, a, type, TRUE, cache.sp)
   
   if(length(linfo)) list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,paste(conam,d,sep="")), auxiliaries=linfo$auxiliaries, inputs=c(linfo$any_order,typecode,d), minval=0)
   else list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(if(!cache.sp) -1, typecode,d), minval=0, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
@@ -263,7 +272,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, ...) {
     basenam<-paste("gwesp",type,sep=".")
   }
   
-  linfo <- .sp.handle_layers(nw, a, type, TRUE)
+  linfo <- .sp.handle_layers(nw, a, type, TRUE, cache.sp)
   
   if(!fixed){ # This is a curved exponential family model
     if(!is.null(a$decay)) warning("In term 'dgwesp': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
@@ -341,7 +350,7 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
     typecode<-0
   }
 
-  linfo <- .sp.handle_layers(nw, a, type, FALSE)
+  linfo <- .sp.handle_layers(nw, a, type, FALSE, cache.sp)
   nw <- linfo$nw1
   
   if (any(d==0)) {
@@ -397,7 +406,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, ...) {
     basenam<-paste("gwdsp",type,sep=".")
   }
 
-  linfo <- .sp.handle_layers(nw, a, type, FALSE)
+  linfo <- .sp.handle_layers(nw, a, type, FALSE, cache.sp)
   
   if(!fixed){ # This is a curved exponential family model
     if(!is.null(a$decay)) warning("In term 'dgwdsp': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
@@ -477,7 +486,7 @@ InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
     typecode<-0
   }
 
-  linfo <- .sp.handle_layers(nw, a, type, TRUE)
+  linfo <- .sp.handle_layers(nw, a, type, TRUE, cache.sp)
   nw <- linfo$nw1
 
   if (any(d==0)) {
@@ -531,7 +540,7 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
     basenam<-paste("gwnsp",type,sep=".")
   }
   
-  linfo <- .sp.handle_layers(nw, a, type, TRUE)
+  linfo <- .sp.handle_layers(nw, a, type, TRUE, cache.sp)
 
   if(!fixed){ # This is a curved exponential family model
     if(!is.null(a$decay)) warning("In term 'dgwnsp': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
