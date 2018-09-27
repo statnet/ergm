@@ -28,6 +28,26 @@ F_CHANGESTAT_FN(f__isociomatrix){
   FREE_AUX_SOCIOMATRIX;
 }
 
+I_CHANGESTAT_FN(i__discord_isociomatrix){
+  ALLOC_AUX_SOCIOMATRIX(int, sm);
+  GET_AUX_STORAGE_NUM(StoreNetAndRefEL, storage, 1);
+
+  nwp = storage->nwp; // So that we can use the macros.
+  // Now, populate the sociomatrix.
+  EXEC_THROUGH_NET_EDGES(tail, head, e, {
+      sm[tail][head] = 1;
+    });
+}
+
+U_CHANGESTAT_FN(u__discord_isociomatrix){
+  GET_AUX_STORAGE(int*, sm);
+  sm[tail][head]  = 1 - sm[tail][head];
+}
+
+F_CHANGESTAT_FN(f__discord_isociomatrix){
+  FREE_AUX_SOCIOMATRIX;
+}
+
 // sets aux network to y0 XOR y1
 I_CHANGESTAT_FN(i__discord_net_Network){
   ALLOC_AUX_STORAGE(1, StoreNetAndRefEL, storage);

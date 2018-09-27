@@ -37,6 +37,25 @@ InitErgmTerm.sociomatrix<-function(nw, arglist, ...) {
        auxiliaries = ~.sociomatrix(mode))
 }
 
+InitErgmTerm.discord.sociomatrix<-function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("x","mode"),
+                      vartypes = c("network","character"),
+                      defaultvalues = list(nw,"integer"),
+                      required = c(FALSE,FALSE))
+
+  mode <- match.arg(a$mode, c("integer"))
+  name <- switch(mode,
+                 integer = "discord_isociomatrix")
+  n <- network.size(nw)
+  tails <- rep(1:n,n)
+  heads <- rep(1:n,each=n)
+  list(name=name,
+       coef.names=paste(tails,heads,sep="."), dependence=FALSE,
+       auxiliaries = ~.discord.sociomatrix(a$x,mode),
+       emptynwstats=as.matrix(a$x,matrix.type="adjacency"))
+}
+
 InitErgmTerm.discord.inter.union.net <- function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("x", "implementation"),
