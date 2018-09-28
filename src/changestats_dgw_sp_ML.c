@@ -4,29 +4,12 @@
 #define SETUP_calc_dsp							\
   Vertex deg;								\
   memset(cs, 0, nd*sizeof(double));					\
-  Vertex t0 = ML_IO_TAIL(ll0, tail), h0 = ML_IO_HEAD(ll0, head);	\
-  int l1fc = ergm_LayerLogic2(t0, h0, tail, head, ll1, TRUE);		\
-  int l2fc = ergm_LayerLogic2(t0, h0, tail, head, ll2, TRUE);		\
-  int l1rc = DIRECTED ? ergm_LayerLogic2(h0, t0, tail, head, ll1, TRUE) : 0; \
-  int l2rc = DIRECTED ? ergm_LayerLogic2(h0, t0, tail, head, ll2, TRUE) : 0; \
-  int l3fc = 0, l3rc = 0;
+  SETUP_update_spcache;
 
 #define SETUP_calc_esp							\
   SETUP_calc_dsp;							\
   l3fc = ergm_LayerLogic2(t0, h0, tail, head, ll3, TRUE);		\
   l3rc = DIRECTED ? ergm_LayerLogic2(h0, t0, tail, head, ll3, TRUE) : 0;
-
-#define CALC_with_dirs(subroutine)					\
-  if(l1fc || l2fc || l3fc){						\
-    int l1c = l1fc, l2c = l2fc, l3c = l3fc;				\
-    Vertex t = t0, h = h0;						\
-    subroutine;								\
-  }									\
-  if(l1rc || l2rc || l3rc){						\
-    int l1c = l1rc, l2c = l2rc, l3c = l3rc;				\
-    Vertex t = h0, h = t0;						\
-    subroutine;								\
-  }
 
 #define INC_IF_TWOPATH(ij, t1, h1, t2, h2) if(ergm_LayerLogic2Path(t1,h1,t2,h2, ll1, ll2, any_order)) L2 ## ij ++;
 
@@ -85,7 +68,7 @@ static inline void dspUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   ML_EXEC_THROUGH_EDGES(ll0, t,e,u, {
       if (u!=h){
         unsigned int L2uh = 0;
-	if(spcache) L2uh = GETDMUI(u,head,spcache);
+	if(spcache) L2uh = GETDMUI(u,h,spcache);
 	else{
 	  /* step through edges of u */
 	  ML_EXEC_THROUGH_EDGES(ll0, u,f,v, {
@@ -117,9 +100,9 @@ static inline void dspOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   ML_EXEC_THROUGH_OUTEDGES(ll0,h, e, k, {
       if(k!=t){ /*Only use contingent cases*/
         unsigned int L2tk = 0;
-	if(spcache) L2tk = GETDMUI(tail,k,spcache);
+	if(spcache) L2tk = GETDMUI(t,k,spcache);
 	else{
-	  /* step through inedges of k, incl. (head,k) itself */
+	  /* step through inedges of k, incl. (h,k) itself */
 	  ML_EXEC_THROUGH_INEDGES(ll0,k, f, u, {
 	      INC_IF_TWOPATH(tk,t,u,u,k);
 	    });
@@ -135,7 +118,7 @@ static inline void dspOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
     ML_EXEC_THROUGH_INEDGES(ll0,t, e, k, {
       if (k!=h){ /*Only use contingent cases*/
         unsigned int L2kh = 0;
-	if(spcache) L2kh = GETDMUI(k,head,spcache);
+	if(spcache) L2kh = GETDMUI(k,h,spcache);
 	else{
 	  /* step through outedges of k , incl. (k,tail) itself */
 	  ML_EXEC_THROUGH_OUTEDGES(ll0,k, f, u, {
@@ -172,7 +155,7 @@ static inline void dspITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   ML_EXEC_THROUGH_OUTEDGES(ll0, h, e, k, {
       if((k!=t)){ /*Only use contingent cases*/
         unsigned int L2kt = 0;
-	if(spcache) L2kt = GETDMUI(tail,k,spcache); // spcache is an OTP cache.
+	if(spcache) L2kt = GETDMUI(t,k,spcache); // spcache is an OTP cache.
 	else{
 	  ML_EXEC_THROUGH_INEDGES(ll0,k, f, u, {
 	      INC_IF_TWOPATH(kt,t,u,u,k);
@@ -189,7 +172,7 @@ static inline void dspITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
     ML_EXEC_THROUGH_INEDGES(ll0,t, e, k, {
       if((k!=h)){ /*Only use contingent cases*/
         unsigned int L2hk = 0;
-	if(spcache) L2hk = GETDMUI(k,head,spcache); // spcache is an OTP cache.
+	if(spcache) L2hk = GETDMUI(k,h,spcache); // spcache is an OTP cache.
 	else{
 	  ML_EXEC_THROUGH_OUTEDGES(ll0,k, f, u, {
 	      INC_IF_TWOPATH(hk,k,u,u,h);
@@ -224,7 +207,7 @@ static inline void dspOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   ML_EXEC_THROUGH_INEDGES(ll0,h, e, k, {
       if(k!=t){
         unsigned int L2tk = 0;
-	if(spcache) L2tk = GETDMUI(tail,k,spcache);
+	if(spcache) L2tk = GETDMUI(t,k,spcache);
 	else{
 	  ML_EXEC_THROUGH_OUTEDGES(ll0,k, f, u, {
 	      if (u!=t)
@@ -263,7 +246,7 @@ static inline void dspISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   ML_EXEC_THROUGH_OUTEDGES(ll0,t, e, k, {
       if(k!=h){
         unsigned int L2kh = 0;
-	if(spcache) L2kh = GETDMUI(k,head,spcache);
+	if(spcache) L2kh = GETDMUI(k,h,spcache);
 	else{
 	  ML_EXEC_THROUGH_INEDGES(ll0,k, f, u, {
 	      if(u!=h)
@@ -518,7 +501,7 @@ static inline void espUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   
   CALC_with_dirs({
   unsigned int L2th = 0;
-  if(spcache) L2th = GETDMUI(tail,head,spcache);
+  if(spcache) L2th = GETDMUI(t,h,spcache);
   ML_EXEC_THROUGH_EDGES(ll0, h,e,u, {
       if (ML_IS_UNDIRECTED_EDGE(ll0,u,t) != 0){
         if(!spcache && l3c) INC_IF_TWOPATH(th,t,u,u,h);
@@ -527,8 +510,8 @@ static inline void espUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
         unsigned int L2tu = 0;
         unsigned int L2uh = 0;
 	if(spcache){
-	  L2tu = GETDMUI(tail,u,spcache);
-	  L2uh = GETDMUI(u,head,spcache);
+	  L2tu = GETDMUI(t,u,spcache);
+	  L2uh = GETDMUI(u,h,spcache);
 	}else{
 	  ML_EXEC_THROUGH_EDGES(ll0, u,f,v, {
 	      if(Buh) INC_IF_TWOPATH(uh,u,v,v,h);
@@ -567,7 +550,7 @@ static inline void espOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   CALC_with_dirs({
   if(l3c){
     unsigned int L2th = 0;
-    if(spcache) L2th = GETDMUI(tail,head,spcache);
+    if(spcache) L2th = GETDMUI(t,h,spcache);
     else{
       ML_EXEC_THROUGH_OUTEDGES(ll0,t,e,k, {
 	  if(k!=h)
@@ -582,7 +565,7 @@ static inline void espOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   ML_EXEC_THROUGH_OUTEDGES(ll3,t,e,k, {
       if((k!=h)&&(ML_IS_OUTEDGE(ll0,h,k))){ /*Only use contingent cases*/
         unsigned int L2tk = 0;
-	if(spcache) L2tk = GETDMUI(tail,k,spcache);
+	if(spcache) L2tk = GETDMUI(t,k,spcache);
 	else{
 	  ML_EXEC_THROUGH_INEDGES(ll0,k,f,u, {
 	      //Rprintf("\t\tTrying u==%d\n",u);
@@ -600,7 +583,7 @@ static inline void espOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   ML_EXEC_THROUGH_INEDGES(ll3,h,e,k, {
       if((k!=t)&&(ML_IS_OUTEDGE(ll0,k,t))){ /*Only use contingent cases*/
         unsigned int L2kh = 0;
-	if(spcache) L2kh = GETDMUI(k,head,spcache);
+	if(spcache) L2kh = GETDMUI(k,h,spcache);
 	else{
 	  ML_EXEC_THROUGH_OUTEDGES(ll0,k,f,u, {
 	      if(u!=h) 
@@ -633,7 +616,7 @@ static inline void espITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   CALC_with_dirs({
   if(l3c){
     unsigned int L2th = 0;
-    if(spcache) L2th = GETDMUI(head,tail,spcache); // spcache is an OTP cache.
+    if(spcache) L2th = GETDMUI(h,t,spcache); // spcache is an OTP cache.
     else{
       ML_EXEC_THROUGH_INEDGES(ll0,t,e,k, {
 	  if(k!=h)
@@ -651,7 +634,7 @@ static inline void espITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
         //Rprintf("\tk==%d, passed criteria\n",k);
         /*We have a h->k->t two-path, so add it to our count.*/
         unsigned int L2hk = 0;
-	if(spcache) L2hk = GETDMUI(k,head,spcache); // spcache is an OTP cache.
+	if(spcache) L2hk = GETDMUI(k,h,spcache); // spcache is an OTP cache.
 	else{
         /*Now, count # u such that k->u->h (so that we know k's ESP value)*/
 	  ML_EXEC_THROUGH_OUTEDGES(ll0,k,f,u, {
@@ -672,7 +655,7 @@ static inline void espITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
     ML_EXEC_THROUGH_INEDGES(ll3,t,e,k, {
 	if((k!=h)&&(ML_IS_OUTEDGE(ll0,h,k))){ /*Only use contingent cases*/
 	  unsigned int L2kt = 0;
-	  if(spcache) L2kt = GETDMUI(tail,k,spcache); // spcache is an OTP cache.
+	  if(spcache) L2kt = GETDMUI(t,k,spcache); // spcache is an OTP cache.
 	  else{
 	    /*Now, count # u such that t->u->k (so that we know k's ESP value)*/
 	    ML_EXEC_THROUGH_INEDGES(ll0,k,f,u, {
@@ -708,7 +691,7 @@ static inline void espOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   CALC_with_dirs({
   if(l3c){
     unsigned int L2th = 0;
-    if(spcache) L2th = GETDMUI(tail,head,spcache);
+    if(spcache) L2th = GETDMUI(t,h,spcache);
     else{
       ML_EXEC_THROUGH_OUTEDGES(ll0,t,e,k, {
 	  if(k!=h)
@@ -725,7 +708,7 @@ static inline void espOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   ML_EXEC_THROUGH_OUTEDGES(ll3,t,e,k, {
       if(k!=h && ML_IS_OUTEDGE(ll0,k,h)){ /*Only consider stats that could change*/
 	unsigned int L2tk = 0;
-	if(spcache) L2tk = GETDMUI(tail,k,spcache);
+	if(spcache) L2tk = GETDMUI(t,k,spcache);
 	else{
 	  /*Now, count # u such that t->u,k->u (to get t->k's ESP value)*/
 	  ML_EXEC_THROUGH_OUTEDGES(ll0,k,f,u, { 
@@ -745,7 +728,7 @@ static inline void espOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   ML_EXEC_THROUGH_INEDGES(ll3,t,e,k, {
       if(k!=h && ML_IS_OUTEDGE(ll0,k,h)){ /*Only stats that could change*/
 	unsigned int L2kt=0;
-	if(spcache) L2kt = GETDMUI(k,tail,spcache);
+	if(spcache) L2kt = GETDMUI(k,t,spcache);
 	else{
 	  /*Now, count # u such that t->u,k->u (to get k->t's ESP value)*/
 	  ML_EXEC_THROUGH_OUTEDGES(ll0,k,f,u, { 
@@ -781,7 +764,7 @@ static inline void espISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   CALC_with_dirs({
   if(l3c){
     unsigned int L2th = 0;
-    if(spcache) L2th = GETDMUI(tail,head,spcache);
+    if(spcache) L2th = GETDMUI(t,h,spcache);
     else{
       ML_EXEC_THROUGH_INEDGES(ll0,t,e,k, {
 	  if(k!=h)
@@ -798,7 +781,7 @@ static inline void espISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   ML_EXEC_THROUGH_INEDGES(ll3,h,e,k, {
       if(k!=t && ML_IS_OUTEDGE(ll0,t,k)){
 	unsigned int L2kh = 0;
-	if(spcache) L2kh = GETDMUI(k,head,spcache);
+	if(spcache) L2kh = GETDMUI(k,h,spcache);
 	else{
 	  /*Now, count # u such that u->h,u->k (to get h>k's ESP value)*/
 	  ML_EXEC_THROUGH_INEDGES(ll0,k,f,u, { 
@@ -818,7 +801,7 @@ static inline void espISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   ML_EXEC_THROUGH_OUTEDGES(ll3,h,e,k, {
       if(k!=t && ML_IS_OUTEDGE(ll0,t,k)){ /*Only stats that could change*/
       unsigned int L2hk = 0;
-      if(spcache) L2hk = GETDMUI(head,k,spcache);
+      if(spcache) L2hk = GETDMUI(h,k,spcache);
       else{
 	/*Now, count # u such that u->h,u->k (to get k->h's ESP value)*/
 	ML_EXEC_THROUGH_INEDGES(ll0,k,f,u, { 

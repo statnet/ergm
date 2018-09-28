@@ -29,22 +29,34 @@ U_CHANGESTAT_FN(u__otp_wtnet_ML){
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll2, 3);
   bool any_order=INPUT_PARAM[4];
 
-  int echange = (IS_OUTEDGE(tail, head) == 0) ? 1 : -1;
-  
-  {
-    // Update all t->h->k two-paths.
-    ML_EXEC_THROUGH_FOUTEDGES(ll0, head, e, k, {
-	if(tail!=k && ergm_LayerLogic2Path(tail,head,head,k, ll1, ll2, any_order))
-	  IncDyadMapUInt(THD(tail,k),echange,spcache);
-      });
-  }
-  {
-    // Update all k->t->h two-paths.
-    ML_EXEC_THROUGH_FINEDGES(ll0, tail, e, k, {
-	if(k!=head && ergm_LayerLogic2Path(k,tail,tail,head, ll1, ll2, any_order))
-	  IncDyadMapUInt(THD(k,head),echange,spcache);
-      });
-  }
+  SETUP_update_spcache;
+
+  CALC_with_dirs({
+      {
+	// Update all t->h->k two-paths.
+	ML_EXEC_THROUGH_FOUTEDGES(ll0, h, e, k, {
+	    if(k!=t){ /*Only use contingent cases*/
+	      IncDyadMapUInt(THD(t,k),
+			     ergm_c_LayerLogic2Path(t,h,h,k,
+						    ll1,ll2, any_order,
+						    l1c,l2c,0,0),
+			     spcache);
+	    }
+	  });
+      }
+      {
+	// Update all k->t->h two-paths.
+	ML_EXEC_THROUGH_FINEDGES(ll0, t, e, k, {
+	    if(h!=k){
+	      IncDyadMapUInt(THD(k,t),
+			     ergm_c_LayerLogic2Path(k,t,t,h,
+						    ll1,ll2, any_order,
+						    0,0,l1c,l2c),
+			     spcache);
+	    }
+	  });
+      }
+    });
 }
 
 F_CHANGESTAT_FN(f__otp_wtnet_ML){
@@ -80,12 +92,19 @@ U_CHANGESTAT_FN(u__osp_wtnet_ML){
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll2, 3);
   bool any_order=INPUT_PARAM[4];
 
-  int echange = (IS_OUTEDGE(tail, head) == 0) ? 1 : -1;
+  SETUP_update_spcache;
 
-  // Update all t->h<-k shared partners.
-  ML_EXEC_THROUGH_FINEDGES(ll0, head, e, k, {
-      if(tail!=k && ergm_LayerLogic2Path(tail,head,k,head, ll1, ll2, any_order))
-	IncDyadMapUInt(THU(tail,k),echange,spcache);
+  CALC_with_dirs({
+      // Update all t->h<-k shared partners.
+      ML_EXEC_THROUGH_FINEDGES(ll0, h, e, k, {
+	  if(k!=t){
+	    IncDyadMapUInt(THU(t,k),
+			   ergm_c_LayerLogic2Path(t,h,k,h,
+						  ll1,ll2, any_order,
+						  l1c,l2c,0,0),
+			   spcache);
+	  }
+	});
     });
 }
 
@@ -121,12 +140,19 @@ U_CHANGESTAT_FN(u__isp_wtnet_ML){
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll2, 3);
   bool any_order=INPUT_PARAM[4];
 
-  int echange = (IS_OUTEDGE(tail, head) == 0) ? 1 : -1;
+  SETUP_update_spcache;
 
-  // Update all h<-t->k shared partners.
-  ML_EXEC_THROUGH_FOUTEDGES(ll0, tail, e, k, {
-      if(head!=k && ergm_LayerLogic2Path(tail,head,tail,k, ll1, ll2, any_order))
-	IncDyadMapUInt(THU(head,k),echange,spcache);
+  CALC_with_dirs({
+      // Update all h<-t->k shared partners.
+      ML_EXEC_THROUGH_FOUTEDGES(ll0, t, e, k, {
+	  if(k!=h){
+	    IncDyadMapUInt(THU(k,h),
+			   ergm_c_LayerLogic2Path(t,h,t,k,
+						  ll1,ll2, any_order,
+						  l1c,l2c,0,0),
+			   spcache);
+	  }
+	});
     });
 }
 
@@ -166,20 +192,31 @@ U_CHANGESTAT_FN(u__utp_wtnet_ML){
   GET_AUX_STORAGE_NUM(StoreLayerLogic, ll2, 3);
   bool any_order=INPUT_PARAM[4];
 
-  int echange = (IS_OUTEDGE(tail, head) == 0) ? 1 : -1;
+  SETUP_update_spcache;
+
+  CALC_with_dirs({
+      // Update all t-h-k shared partners.
+      ML_EXEC_THROUGH_EDGES(ll0, h, e, k, {
+	  if(k!=t){
+	    IncDyadMapUInt(THU(t,k),
+			   ergm_c_LayerLogic2Path(t,h,h,k,
+						  ll1,ll2, any_order,
+						  l1c,l2c,0,0),
+			   spcache);
+	  }
+	});
 
   // Update all h-t-k shared partners.
-  ML_EXEC_THROUGH_EDGES(ll0, tail, e, k, {
-      if(head!=k && ergm_LayerLogic2Path(head,tail,tail,k, ll1, ll2, any_order))
-	IncDyadMapUInt(THU(head,k),echange,spcache);
+      ML_EXEC_THROUGH_EDGES(ll0, t, e, k, {
+	  if(k!=h){
+	    IncDyadMapUInt(THU(h,k),
+			   ergm_c_LayerLogic2Path(k,t,t,h,
+						  ll1,ll2, any_order,
+						  0,0,l1c,l2c),
+			   spcache);
+	  }
+	});
     });
-
-  // Update all t-h-k shared partners.
-  ML_EXEC_THROUGH_EDGES(ll0, head, e, k, {
-      if(tail!=k && ergm_LayerLogic2Path(tail,head,head,k, ll1, ll2, any_order))
-	IncDyadMapUInt(THU(tail,k),echange,spcache);
-    });
-
 }
 
 F_CHANGESTAT_FN(f__utp_wtnet_ML){
