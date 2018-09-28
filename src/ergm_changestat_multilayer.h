@@ -30,10 +30,10 @@
 #define ML_EXEC_THROUGH_EDGES_PRE(ll, a,e,v,subroutine) { {ML_STEP_THROUGH_OUTEDGES_PRE_DECL((ll), a,e,v) {subroutine}};  {ML_STEP_THROUGH_INEDGES_PRE_DECL((ll), a,e,v) {subroutine}}; }
 #define ML_EXEC_THROUGH_FOUTEDGES(ll, a,e,v,subroutine) ML_STEP_THROUGH_OUTEDGES_DECL((ll), a,e,v) {subroutine}
 #define ML_EXEC_THROUGH_FINEDGES(ll, a,e,v,subroutine) ML_STEP_THROUGH_INEDGES_DECL((ll), a,e,v) {subroutine}
-#define ML_EXEC_THROUGH_NET_EDGES(ll, a,b,e,subroutine) {for(Vertex a=1; a <= N_NODES; a++){ML_EXEC_THROUGH_FOUTEDGES((ll), a, e, b, {subroutine});}}
+#define ML_EXEC_THROUGH_NET_EDGES(ll, a,b,e,subroutine) {for(Vertex a=1; a <= (ll)->onwp->nnodes; a++){ML_EXEC_THROUGH_FOUTEDGES((ll), a, e, b, {subroutine});}}
 #define ML_EXEC_THROUGH_FOUTEDGES_PRE(ll, a,e,v,subroutine) ML_STEP_THROUGH_OUTEDGES_PRE_DECL((ll), a,e,v) {subroutine}
 #define ML_EXEC_THROUGH_FINEDGES_PRE(ll, a,e,v,subroutine) ML_STEP_THROUGH_INEDGES_PRE_DECL((ll), a,e,v) {subroutine}
-#define ML_EXEC_THROUGH_NET_EDGES_PRE(ll, a,b,e,subroutine) {for(Vertex a=1; a <= N_NODES; a++){ML_EXEC_THROUGH_FOUTEDGES_PRE((ll), a, e, b, {subroutine});}}
+#define ML_EXEC_THROUGH_NET_EDGES_PRE(ll, a,b,e,subroutine) {for(Vertex a=1; a <= (ll)->onwp->nnodes; a++){ML_EXEC_THROUGH_FOUTEDGES_PRE((ll), a, e, b, {subroutine});}}
 #define ML_TOGGLE(ll, a,b) (ToggleEdge((a),(b),(ll)->onwp))
 #define ML_TOGGLE_DISCORD(ll, a,b) (ToggleEdge((a),(b),(ll)->onwp+1))
 #define ML_GETWT(ll, a,b) (GetEdge(a,b,(ll)->onwp))
