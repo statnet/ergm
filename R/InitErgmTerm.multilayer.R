@@ -11,7 +11,7 @@
   reprs <- sapply(seq_along(Llist), function(l){
     name <- names(Llist)[l]
     L <- Llist[[l]]
-    s <- toString(ergm_LayerLogic(L))
+    s <- NVL3(L, toString(ergm_LayerLogic(.)), "")
     if(NVL(name,"")!="") s <- paste0(name,"=",s)
     s
   })
