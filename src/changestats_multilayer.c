@@ -415,9 +415,10 @@ C_CHANGESTAT_FN(c_twostarL) {
     change2_th = ergm_LayerLogic2(lt, lh, tail, head, ll2, TRUE),
     change2_ht = ergm_LayerLogic2(lh, lt, tail, head, ll2, TRUE);
 
-  
-  Vertex *od1 = ML_OUT_DEG(ll1), *od2 = ML_OUT_DEG(ll2),
-    *id1 = ML_IN_DEG(ll1), *id2 = ML_IN_DEG(ll2);
+
+  // Need int here since we need signed arithmetic.
+  int *od1 = (int*) ML_OUT_DEG(ll1), *od2 = (int*) ML_OUT_DEG(ll2),
+    *id1 = (int*) ML_IN_DEG(ll1), *id2 = (int*) ML_IN_DEG(ll2);
   
   switch(typeID){
   case 1: // out
