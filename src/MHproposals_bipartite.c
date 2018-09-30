@@ -9,11 +9,6 @@
  */
 #include "MHproposals_bipartite.h" 
 
-/* Shorthand. */
-#define Mtail (MHp->toggletail)
-#define Mhead (MHp->togglehead)
-
-
 /********************
    void MH_BipartiteHammingConstantEdges
    Chooses a pair of toggles - one a tie and one not. 

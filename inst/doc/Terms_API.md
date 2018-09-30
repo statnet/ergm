@@ -15,7 +15,7 @@ A *statistic* is a familiar `ergm` term like "`edges`" or "`nodefactor`": it add
 
 An *auxiliary* in an `ergm` term but not an ERGM term in the mathematical sense: it adds no statistics to the model and exists only to initialize and maintain public storage to be used by statistics. It may not be specified on an `ergm` formula by the end-user, but only requested by a statistic.
 
-At this time, an auxiliary cannot rely on another auxiliary's public storage. This may change in the future.
+An auxiliary can rely on another auxiliary's public storage. Note that circular dependencies are not checked.
 
 ## Code path
 
@@ -123,7 +123,7 @@ These functions overwrite `mtp->dstats` (often aliased as `CHANGE_STAT`) with th
 
 Every `ergm` term has private storage, found at `void *mtp->storage`, which allows it to store arbitrary information about the state of the network, as well as precalculated values of variables, preallocated memory it needs for its calculations, or any other use. It does so by specifying an updating function (and, optionally, an initialization and a finalization function). This updating function is called every time the network is about to change. The API for these functions is defined below.
 
-Public storage is found at `void **mtp->aux_storage`. Each auxiliary term gets assigned a slot (i.e., `void *nwp->mtp->aux_storage[i]`) to manage; its slot number is the first element of its input vector, and terms requesting it are told which slot to look in in a similar fashion.
+Public storage is found at `void **mtp->aux_storage`. Each auxiliary term gets assigned a slot (i.e., `void *nwp->mtp->aux_storage[i]`) to manage; its slot number is the first element of its input vector, and terms requesting it are told which slot to look in in a similar fashion. An auxiliary term that requests other auxiliaries will have its own slot as the first input and the slots of auxiliaries it requests as subsequent inputs.
 
 ## `R` side
 

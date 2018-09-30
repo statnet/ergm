@@ -8,24 +8,46 @@
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
 ergm.auxstorage <- function(model, nw, response=NULL,..., extra.aux=list(), term.options=list()){
-  # As formulas
-  aux.forms <- c(lapply(model$terms, "[[", "auxiliaries"), extra.aux)
 
-  # A nested list: outer list are the model terms requesting
-  # auxiliaries and the inner list is the outputs from InitErgmTerm
-  # calls of the auxiliaries.
-  aux.outlists <- lapply(aux.forms, function(aux.form){
-    if(is.null(aux.form)) list()
-    else{
-      formula.env <- environment(aux.form)
-      lapply(list_rhs.formula(aux.form), function(aux.term){
-        call.ErgmTerm(aux.term, formula.env, nw, response=response,term.options=term.options,...)
-      })
-    }
-  })
+  aux_list_list <- function(terms, extra=NULL) {
+    # As formulas
+    aux.forms <- c(lapply(terms, "[[", "auxiliaries"), extra)
+    
+    # A nested list: outer list are the model terms requesting
+    # auxiliaries and the inner list is the outputs from InitErgmTerm
+    # calls of the auxiliaries.
+    lapply(aux.forms, function(aux.form){
+      if(is.null(aux.form)) list()
+      else{
+        formula.env <- environment(aux.form)
+        lapply(list_rhs.formula(aux.form), function(aux.term){
+          call.ErgmTerm(aux.term, formula.env, nw, response=response,term.options=term.options,...)
+        })
+      }
+    })
+  }
+
+  aux.outlists <- aux_list_list(model$terms, extra.aux)
 
   # Remove duplicated auxiliaries.
-  uniq.aux.outlists <- unique(unlist(aux.outlists, recursive=FALSE))
+  uniq.aux.outlists <- unique(unlist(aux.outlists, recursive=FALSE), fromLast=TRUE)
+  prev <- NULL
+  aux.aux.outlists <- list()
+
+  # Until we reach a fixed point (which we should, unless there is a circular dependency.
+  #
+  # TODO: Check for circular dependencies.
+  while(!identical(uniq.aux.outlists,prev)){
+    prev <- uniq.aux.outlists
+    aux.aux.outlists <- aux_list_list(uniq.aux.outlists)
+    uniq.aux.outlists <- unique(c(uniq.aux.outlists, unlist(aux.aux.outlists, recursive=FALSE)), fromLast=TRUE)
+  }
+
+  # uniq.aux.outlists is now a list of unique initialized auxiliaries
+  # and auxiliaries' auxiliaries, such that depended-on auxiliaries
+  # are always after the dependent auxiliaries.
+  #
+  # aux.aux.outlists is now a nested list in the same form as aux.outlists, but for auxiliaries.
 
   # Initialize the auxiliary model.
   aux.model <- structure(list(formula=NULL, coef.names = NULL,
@@ -50,7 +72,17 @@ ergm.auxstorage <- function(model, nw, response=NULL,..., extra.aux=list(), term
         slots.extra.aux[[i-length(model$terms)]] <- aux.slots[[i]]-1
     }
   }
- 
+
+  # Which auxiliary is requiring which auxiliary slot? (+1)
+  aux.aux.slots <- lapply(aux.aux.outlists, match, uniq.aux.outlists)
+  
+  for(i in seq_along(aux.aux.outlists)){
+    if(length(aux.aux.outlists[[i]])){
+      # 4th input is auxiliary's own slot, so its auxiliaries get put into subsequent slots.
+      aux.model$terms[[i]]$inputs[4+seq_len(length(aux.aux.outlists[[i]]))] <- aux.aux.slots[[i]]-1
+    }
+  }
+  
   model$model.aux <- aux.model
   model$slots.extra.aux <- slots.extra.aux
   model
