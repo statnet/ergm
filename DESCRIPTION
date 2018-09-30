@@ -52,7 +52,6 @@ Collate:
     'InitErgmTerm.interaction.R'
     'InitErgmTerm.operator.R'
     'InitErgmTerm.spcache.R'
-    'InitErgmTerm.spcache.multilayer.R'
     'InitErgmTerm.test.R'
     'InitErgmTerm.transitiveties.R'
     'InitWtErgmProposal.R'

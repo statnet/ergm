@@ -383,17 +383,17 @@ static const double __ac_HASH_UPPER = 0.77;
 		{																\
 			khint_t k, i, site, last, step = 0; \
 			khint32_t *ii=NULL, ib=kh_none, *si=NULL, sb=kh_none;		\
-			x = site = h->n_buckets; k = __hash_func(key); i = k & h->mask; \
+			x = site = kh_none; k = __hash_func(key); i = k & h->mask; \
 			if (__ac_isempty2(__ac_store_intpos(h->flags, i), __ac_store_bitpos(i))) {x = i; xi=ii; xb=ib; } /* for speed up */ \
 			else {														\
 				last = i; \
 				while (!__ac_isempty2(__ac_store_intpos(h->flags, i), __ac_store_bitpos(i)) && (__ac_isdel2(ii, ib) || !__hash_equal(h->keys[i], key))) { \
-				  if (__ac_isdel2(ii, ib)){ site = i; si=ii; sb=ib; } \
+				  if (site == kh_none && __ac_isdel2(ii, ib)){ site = i; si=ii; sb=ib; } \
 					i = (i + (++step)) & h->mask; \
 					if (i == last) { x = site; break; }					\
 				}														\
-				if (x == h->n_buckets) {								\
-				  if (__ac_isempty2(ii, ib) && site != h->n_buckets){ x = site; xi=si; xb=sb;} \
+				if (x == kh_none) {								\
+				  if (__ac_isempty2(ii, ib) && site != kh_none){ x = site; xi=si; xb=sb;} \
 				  else {x = i; xi=ii; xb=ib; }		\
 				}														\
 			}															\
@@ -414,7 +414,7 @@ static const double __ac_HASH_UPPER = 0.77;
 	SCOPE void kh_del_##name(kh_##name##_t *h, khint_t x)				\
 	{																	\
 	  khint32_t *xi=NULL, xb;					\
-	  if (x != h->n_buckets && x != kh_none && !__ac_iseither2(__ac_store_intpos(h->flags, x), __ac_store_bitpos(x))) { \
+	  if (x < h->n_buckets && !__ac_iseither2(__ac_store_intpos(h->flags, x), __ac_store_bitpos(x))) { \
 			__ac_set_isdel_true2(xi, xb);							\
 			--h->size;													\
 		}																\
@@ -622,7 +622,7 @@ static kh_inline khint_t __ac_Wang_hash(khint_t key)
   @abstract     Get the "not found" iterator
   @return       The maximum unsigned integer [khint_t]
  */
-#define kh_none (~(khint_t)(0))
+#define kh_none (~((khint_t)0))
 
 /*! @function
   @abstract     Get the number of elements in the hash table
