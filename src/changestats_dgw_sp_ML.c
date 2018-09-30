@@ -51,7 +51,7 @@ static inline void dspUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
   ML_EXEC_THROUGH_EDGES(ll0, h,e,u, {
       if (u!=t){
 	unsigned int L2tu = 0;
-	if(spcache) L2tu = GETDMUI(tail,u,spcache);
+	if(spcache) L2tu = GETDMUI(t,u,spcache);
 	else{
 	  /* step through edges of u */
 	  ML_EXEC_THROUGH_EDGES(ll0, u,f,v, {
