@@ -7,8 +7,6 @@ static double (*fun)(double,int) = NULL;
 if(fun==NULL) fun = (double (*)(double,int)) R_FindSymbol("my_choose", "ergm", NULL);
 return fun(n,r);
 }
-#undef _GET_OVERRIDE23
-#undef _GET_OVERRIDE34
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
@@ -48,7 +46,12 @@ return fun(nwp);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE1
+#undef _GET_OVERRIDE2
 #undef _GET_OVERRIDE3
+#undef _GET_OVERRIDE4
+#undef _GET_OVERRIDE5
+#undef _GET_OVERRIDE6
 #undef _DYADCOUNT1
 #undef _DYADCOUNT3
 #undef DYADCOUNT
@@ -133,7 +136,11 @@ return fun(nwp);
 #undef ROT_INT
 #undef kh_vertexvertex_hash_func
 #undef kh_vertexvertex_hash_equal
+#undef _GETDMUI3
+#undef _GETDMUI4
 #undef GETDMUI
+#undef SETDMUI4
+#undef SETDMUI5
 #undef SETDMUI
 
 #include <stddef.h>
@@ -141,7 +148,12 @@ return fun(nwp);
 #include "ergm_edgelist.h"
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE1
+#undef _GET_OVERRIDE2
 #undef _GET_OVERRIDE3
+#undef _GET_OVERRIDE4
+#undef _GET_OVERRIDE5
+#undef _GET_OVERRIDE6
 #undef _DYADCOUNT1
 #undef _DYADCOUNT3
 #undef DYADCOUNT
@@ -280,7 +292,12 @@ return fun(tails,heads,nwp,nmax);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE1
+#undef _GET_OVERRIDE2
 #undef _GET_OVERRIDE3
+#undef _GET_OVERRIDE4
+#undef _GET_OVERRIDE5
+#undef _GET_OVERRIDE6
 #undef _DYADCOUNT1
 #undef _DYADCOUNT3
 #undef DYADCOUNT
@@ -324,7 +341,12 @@ return fun(MHp,nwp);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE1
+#undef _GET_OVERRIDE2
 #undef _GET_OVERRIDE3
+#undef _GET_OVERRIDE4
+#undef _GET_OVERRIDE5
+#undef _GET_OVERRIDE6
 #undef _DYADCOUNT1
 #undef _DYADCOUNT3
 #undef DYADCOUNT
@@ -390,7 +412,12 @@ fun(nwp,m);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE1
+#undef _GET_OVERRIDE2
 #undef _GET_OVERRIDE3
+#undef _GET_OVERRIDE4
+#undef _GET_OVERRIDE5
+#undef _GET_OVERRIDE6
 #undef _DYADCOUNT1
 #undef _DYADCOUNT3
 #undef DYADCOUNT
@@ -398,8 +425,6 @@ fun(nwp,m);
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef ENSURE_TH_ORDER
-#undef _GET_OVERRIDE23
-#undef _GET_OVERRIDE34
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
@@ -521,7 +546,12 @@ fun(nwp,m);
 #include "ergm_rlebdm.h"
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE1
+#undef _GET_OVERRIDE2
 #undef _GET_OVERRIDE3
+#undef _GET_OVERRIDE4
+#undef _GET_OVERRIDE5
+#undef _GET_OVERRIDE6
 #undef _DYADCOUNT1
 #undef _DYADCOUNT3
 #undef DYADCOUNT
@@ -663,7 +693,12 @@ return fun(tails,heads,weights,nwp,nmax);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE1
+#undef _GET_OVERRIDE2
 #undef _GET_OVERRIDE3
+#undef _GET_OVERRIDE4
+#undef _GET_OVERRIDE5
+#undef _GET_OVERRIDE6
 #undef _DYADCOUNT1
 #undef _DYADCOUNT3
 #undef DYADCOUNT
@@ -687,7 +722,12 @@ fun(MH,nwp);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE1
+#undef _GET_OVERRIDE2
 #undef _GET_OVERRIDE3
+#undef _GET_OVERRIDE4
+#undef _GET_OVERRIDE5
+#undef _GET_OVERRIDE6
 #undef _DYADCOUNT1
 #undef _DYADCOUNT3
 #undef DYADCOUNT
@@ -747,7 +787,12 @@ fun(nwp,m);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE1
+#undef _GET_OVERRIDE2
 #undef _GET_OVERRIDE3
+#undef _GET_OVERRIDE4
+#undef _GET_OVERRIDE5
+#undef _GET_OVERRIDE6
 #undef _DYADCOUNT1
 #undef _DYADCOUNT3
 #undef DYADCOUNT
@@ -755,8 +800,6 @@ fun(nwp,m);
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
 #undef ENSURE_TH_ORDER
-#undef _GET_OVERRIDE23
-#undef _GET_OVERRIDE34
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
