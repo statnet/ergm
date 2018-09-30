@@ -221,7 +221,7 @@ InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
 
   linfo <- .sp.handle_layers(nw, a, type, TRUE, cache.sp)
   
-  if(length(linfo)) list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,paste(conam,d,sep="")), auxiliaries=linfo$auxiliaries, inputs=c(linfo$any_order,typecode,d), minval=0)
+  if(length(linfo)) list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,paste(conam,d,sep="")), auxiliaries=linfo$auxiliaries, inputs=c(if(!cache.sp) -1, linfo$any_order,typecode,d), minval=0)
   else list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(if(!cache.sp) -1, typecode,d), minval=0, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
 }
 
@@ -286,7 +286,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, ...) {
 
     if(length(linfo)) c(list(name=paste0(dname,linfo$name_suffix),
                              coef.names=paste0(linfo$coef.names_prefix,if(is.directed(nw)) paste("esp.",type,"#",d,sep="") else paste("esp#",d,sep="")),auxiliaries=linfo$auxiliaries, 
-                             inputs=c(linfo$any_order,typecode,d), params=params), GWDECAY)
+                             inputs=c(if(!cache.sp) -1, linfo$any_order,typecode,d), params=params), GWDECAY)
     else c(list(name=dname,
                 coef.names=if(is.directed(nw)) paste("esp.",type,"#",d,sep="") else paste("esp#",d,sep=""), 
                 inputs=c(if(!cache.sp) -1, typecode,d), params=params, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL), GWDECAY)
@@ -300,7 +300,7 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, ...) {
     else
       coef.names <- paste("gwesp.fixed.",decay,sep="")
 
-    if(length(linfo)) list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,coef.names), inputs=c(linfo$any_order,decay,typecode,maxesp),auxiliaries=linfo$auxiliaries)
+    if(length(linfo)) list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,coef.names), inputs=c(if(!cache.sp) -1, linfo$any_order,decay,typecode,maxesp),auxiliaries=linfo$auxiliaries)
     else list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, decay,typecode,maxesp), auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
   }
 }
@@ -366,7 +366,7 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
     emptynwstats <- NULL
   }
   
-  if(length(linfo)) list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,paste0(conam,d)), auxiliaries=linfo$auxiliaries, inputs=c(linfo$any_order,typecode,d), minval=0, emptynwstats=emptynwstats)
+  if(length(linfo)) list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,paste0(conam,d)), auxiliaries=linfo$auxiliaries, inputs=c(if(!cache.sp) -1, linfo$any_order,typecode,d), minval=0, emptynwstats=emptynwstats)
   else list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(if(!cache.sp) -1, typecode,d), minval=0, emptynwstats=emptynwstats, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
 }
 
@@ -422,7 +422,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, ...) {
     
     if(length(linfo)) c(list(name=paste0(dname,linfo$name_suffix),
                              coef.names=paste0(linfo$coef.names_prefix,if(is.directed(nw)) paste("dsp.",type,"#",d,sep="") else paste("dsp#",d,sep="")), 
-                             inputs=c(linfo$any_order,typecode,d), params=params,
+                             inputs=c(if(!cache.sp) -1, linfo$any_order,typecode,d), params=params,
                              auxiliaries = linfo$auxiliaries), GWDECAY)
     else c(list(name=dname,
                 coef.names=if(is.directed(nw)) paste("dsp.",type,"#",d,sep="") else paste("dsp#",d,sep=""), 
@@ -438,7 +438,7 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, ...) {
     else
       coef.names <- paste("gwdsp.fixed",decay,sep=".")
     
-    if(length(linfo)) list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,coef.names), inputs=c(linfo$any_order, decay,typecode,maxesp), auxiliaries=linfo$auxiliaries)
+    if(length(linfo)) list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,coef.names), inputs=c(if(!cache.sp) -1, linfo$any_order, decay,typecode,maxesp), auxiliaries=linfo$auxiliaries)
     else list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, decay,typecode,maxesp), auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
   }
 }
@@ -501,7 +501,7 @@ InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   }else{
     emptynwstats <- NULL
   }
-  if(length(linfo)) list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,paste0(conam,d)), auxiliaries=linfo$auxiliaries, inputs=c(linfo$any_order,typecode,d), minval=0, emptynwstats=emptynwstats)
+  if(length(linfo)) list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,paste0(conam,d)), auxiliaries=linfo$auxiliaries, inputs=c(if(!cache.sp) -1, linfo$any_order,typecode,d), minval=0, emptynwstats=emptynwstats)
   else list(name=dname, coef.names=paste(conam,d,sep=""), inputs=c(if(!cache.sp) -1, typecode,d), minval=0, emptynwstats=emptynwstats, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
 }
 
@@ -556,7 +556,7 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
     
     if(length(linfo)) c(list(name=paste0(dname,linfo$name_suffix),
                              coef.names=paste0(linfo$coef.names_prefix,if(is.directed(nw)) paste("nsp.",type,"#",d,sep="") else paste("nsp#",d,sep="")), 
-                             inputs=c(linfo$any_order,typecode,d), params=params,
+                             inputs=c(if(!cache.sp) -1, linfo$any_order,typecode,d), params=params,
                              auxiliaries = linfo$auxiliaries), GWDECAY)
     else c(list(name=dname,
                 coef.names=if(is.directed(nw)) paste("nsp.",type,"#",d,sep="") else paste("nsp#",d,sep=""), 
@@ -572,7 +572,7 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
     else
       coef.names <- paste("gwnsp.fixed",decay,sep=".")
     
-    if(length(linfo)) list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,coef.names), inputs=c(linfo$any_order, decay,typecode,maxesp), auxiliaries=linfo$auxiliaries)
+    if(length(linfo)) list(name=paste0(dname,linfo$name_suffix), coef.names=paste0(linfo$coef.names_prefix,coef.names), inputs=c(if(!cache.sp) -1, linfo$any_order, decay,typecode,maxesp), auxiliaries=linfo$auxiliaries)
     else list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, decay,typecode,maxesp), auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
   }
 }
