@@ -376,9 +376,9 @@ ergm_LayerLogic <- function(formula, namemap=NULL){
 #' @param ... Additional arguments, currently unused.
 #' @export
 toString.ergm_LayerLogic <- function(x, ...){
-  ## TODO: Check that the non-formula parts are needed.
+  class(x) <- keep(class(x), `!=`, "ergm_LayerLogic")
   fmt <- function(x)
-    switch(class(x[-1]),
+    switch(class(x),
            formula = .despace(deparse(if(length(x)==2) x[[2]] else x)),
            character = x,
            list = paste0('(',paste(sapply(x,fmt),collapse=","),')'),
