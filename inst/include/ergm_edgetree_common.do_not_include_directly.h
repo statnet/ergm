@@ -8,7 +8,12 @@
 #define MIN(a,b) ((a)<(b) ? (a) : (b))
 #define MAX(a,b) ((a)<(b) ? (b) : (a))
 
+#define _GET_OVERRIDE1(_1, NAME, ...) NAME
+#define _GET_OVERRIDE2(_1, _2, NAME, ...) NAME
 #define _GET_OVERRIDE3(_1, _2, _3, NAME, ...) NAME
+#define _GET_OVERRIDE4(_1, _2, _3, _4, NAME, ...) NAME
+#define _GET_OVERRIDE5(_1, _2, _3, _4, _5, NAME, ...) NAME
+#define _GET_OVERRIDE6(_1, _2, _3, _4, _5, _6, NAME, ...) NAME
 
 #define _DYADCOUNT1(nwp) _DYADCOUNT3(nwp->nnodes, nwp->bipartite, nwp->directed_flag)
 #define _DYADCOUNT3(nnodes, bipartite, directed) ((bipartite)? (unsigned long)((nnodes)-(bipartite))*(unsigned long)(bipartite) : ((directed)? (unsigned long)(nnodes)*(unsigned long)((nnodes)-1) : (((unsigned long)(nnodes)*(unsigned long)((nnodes)-1))/2)))
