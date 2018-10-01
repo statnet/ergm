@@ -433,7 +433,7 @@ Only one type may be specified per esp term.  The default, OTP, retains the orig
 */
 
 I_CHANGESTAT_FN(i_dgwdsp_ML) {
-  ALLOC_STORAGE((int)INPUT_PARAM[6]*2, double, storage); // Index must be same as for maxesp below.
+  ALLOC_STORAGE((int)INPUT_PARAM[7]*2, double, storage); // Index must be same as for maxesp below.
   (void)storage; // Get rid of an unused warning.
 }
 
@@ -992,7 +992,7 @@ Note that d_gwesp is a meta-function for all geometrically weighted ESP stats; t
 Only one type may be specified per esp term.  The default, OTP, retains the original behavior of esp/gwesp.  In the case of undirected graphs, OTP should be used (the others assume a directed network memory structure, and are not safe in the undirected case).
 */
 I_CHANGESTAT_FN(i_dgwesp_ML) {
-  ALLOC_STORAGE((int)INPUT_PARAM[7]*2, double, storage); // Index must be same as for maxesp below.
+  ALLOC_STORAGE((int)INPUT_PARAM[8]*2, double, storage); // Index must be same as for maxesp below.
   (void)storage; // Get rid of an unused warning.
 }
 
@@ -1132,7 +1132,7 @@ Note that d_gwesp is a meta-function for all geometrically weighted ESP stats; t
 Only one type may be specified per esp term.  The default, OTP, retains the original behavior of esp/gwesp.  In the case of undirected graphs, OTP should be used (the others assume a directed network memory structure, and are not safe in the undirected case).
 */
 I_CHANGESTAT_FN(i_dgwnsp_ML) {
-  ALLOC_STORAGE((int)INPUT_PARAM[7]*3, double, storage); // Index must be same as for maxesp below.
+  ALLOC_STORAGE((int)INPUT_PARAM[8]*3, double, storage); // Index must be same as for maxesp below.
   (void)storage; // Get rid of an unused warning.
 }
 
