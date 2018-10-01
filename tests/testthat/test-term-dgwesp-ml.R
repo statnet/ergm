@@ -71,8 +71,6 @@ dnsp <- function(x, type, L.base, Ls.path1, Ls.path2=Ls.path1, ...){
 library(ergm)
 library(purrr)
 n <- 5
-nw1 <- nw2 <- nw3 <- network.initialize(n,dir=TRUE)
-lnw <- Layer(nw1,nw2,nw3)
 
 #### Some code useful for debugging.
 
@@ -120,6 +118,11 @@ ctrl <- control.simulate.formula(MCMC.burnin=1, MCMC.interval=1)
 for(cache.sp in c(FALSE,TRUE)){
   options(ergm.term=list(cache.sp=cache.sp))
   sptxt <- if(cache.sp) "with shared partner caching" else "without shared partner caching"
+
+
+### Directed.
+nw1 <- nw2 <- nw3 <- network.initialize(n,dir=TRUE)
+lnw <- Layer(nw1,nw2,nw3)
 
 test_that(paste("Multilayer dgw*sp statistics for homogeneously directed networks",sptxt), {
   sim <- suppressWarnings(simulate(lnw~
