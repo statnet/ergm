@@ -279,17 +279,11 @@ return fun(nwp);
 #undef KHASH_MAP_INIT_STR
 #undef kh_set
 #undef kh_unset
-#undef TH
-#undef THD
-#undef THU
+#undef THKey
 #undef ROT_INT
 #undef kh_vertexvertex_hash_func
 #undef kh_vertexvertex_hash_equal
-#undef _GETDMUI3
-#undef _GETDMUI4
 #undef GETDMUI
-#undef SETDMUI4
-#undef SETDMUI5
 #undef SETDMUI
 
 #include <stddef.h>

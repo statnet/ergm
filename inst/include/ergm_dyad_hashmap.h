@@ -16,10 +16,8 @@ typedef struct TailHead_s{
   Vertex tail, head;
 } TailHead;
 
-/* Helper macros to construct TailHeads; the undirected variant ensures that t < h. */
-#define TH(t,h,d) (d?THD(t,h):THU(t,h))
-#define THD(t,h) ((TailHead){.tail=(t),.head=(h)})
-#define THU(t,h) ((TailHead){.tail=MIN((t),(h)),.head=MAX((t),(h))})
+/* Helper macros to construct TailHeads with the correct ordering. */
+#define THKey(kh, t, h) ((t<h || kh->directed) ? (TailHead){.tail=(t),.head=(h)} : (TailHead){.tail=(h),.head=(t)})
 
 /* Hash and comparison functions designed for tail-head pairs. */
 // The of macro-ing this due to Bob Jenkins.
@@ -39,19 +37,16 @@ static inline unsigned int kh_scramble_int(unsigned int a){
 #define kh_vertexvertex_hash_equal(a,b) (a.tail==b.tail && a.head==b.head)
 
 /* Predefined khash type for mapping dyads onto unsigned ints. */
-KHASH_INIT(DyadMapUInt, TailHead, unsigned int, true, kh_vertexvertex_hash_func, kh_vertexvertex_hash_equal)
+KHASH_INIT(DyadMapUInt, TailHead, unsigned int, true, kh_vertexvertex_hash_func, kh_vertexvertex_hash_equal, bool directed;)
 typedef khash_t(DyadMapUInt) StoreDyadMapUInt;
 
 /* Accessors, modifiers, and incrementors. */
-#define _GETDMUI3(tail, head, hashmap) (kh_getval(DyadMapUInt, hashmap, TH(tail,head, DIRECTED), 0))
-#define _GETDMUI4(tail, head, directed, hashmap) (kh_getval(DyadMapUInt, hashmap, TH(tail,head, directed), 0))
-#define GETDMUI(...) _GET_OVERRIDE4(__VA_ARGS__, _GETDMUI4, _GETDMUI3,)(__VA_ARGS__)
-#define SETDMUI4(tail, head, v, hashmap) {if(v==0) kh_unset(DyadMapUInt, hashmap, TH(tail,head, DIRECTED)); else kh_set(DyadMapUInt, hashmap, TH(tail,head, DIRECTED), v)}
-#define SETDMUI5(tail, head, directed, v, hashmap) {if(v==0) kh_unset(DyadMapUInt, hashmap, TH(tail,head, directed)); else kh_set(DyadMapUInt, hashmap, TH(tail,head, directed), v)}
-#define SETDMUI(...) _GET_OVERRIDE5(__VA_ARGS__, _SETDMUI5, _SETDMUI4,)(__VA_ARGS__)
+#define GETDMUI(tail, head, hashmap)(kh_getval(DyadMapUInt, hashmap, THKey(hashmap,tail,head), 0))
+#define SETDMUI(tail, head, v, hashmap) {if(v==0) kh_unset(DyadMapUInt, hashmap, THKey(hashmap,tail,head)); else kh_set(DyadMapUInt, hashmap, THKey(hashmap,tail,head), v)}
 
 
-static inline void IncDyadMapUInt(TailHead th, int inc, StoreDyadMapUInt *spcache){
+static inline void IncDyadMapUInt(Vertex tail, Vertex head, int inc, StoreDyadMapUInt *spcache){
+  TailHead th = THKey(spcache, tail, head);
   if(inc!=0){
     khiter_t pos = kh_get(DyadMapUInt, spcache, th);
     unsigned int val = pos==kh_none ? 0 : kh_value(spcache, pos);
@@ -70,11 +65,12 @@ static inline void IncDyadMapUInt(TailHead th, int inc, StoreDyadMapUInt *spcach
 
 
 /* Predefined khash type for dyad sets. This may or may not be faster than edgetree. */
-KHASH_INIT(DyadSet, TailHead, char, false, kh_vertexvertex_hash_func, kh_vertexvertex_hash_equal)
+KHASH_INIT(DyadSet, TailHead, char, false, kh_vertexvertex_hash_func, kh_vertexvertex_hash_equal, bool directed;)
 typedef khash_t(DyadSet) StoreDyadSet;
 
 // Toggle an element of a DyadSet.
-static inline bool DyadSetToggle(TailHead th, StoreDyadSet *h){
+static inline bool DyadSetToggle(Vertex tail, Vertex head, StoreDyadSet *h){
+  TailHead th = THKey(h, tail, head);
   int ret;
   // Attempt insertion
   khiter_t i = kh_put(DyadSet, h, th, &ret);

@@ -216,7 +216,7 @@ static inline void dspOSP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     EXEC_THROUGH_INEDGES(head, e, k, {
       if(k!=tail){
         /*Do we have a t->k,h->k SP?  If so, add it to our count.*/
-        if(spcache) L2tk = GETDMUI(tail,k,FALSE,spcache);
+        if(spcache) L2tk = GETDMUI(tail,k,spcache);
 	else{
 	  L2tk=0;
 	  /*Now, count # u such that t->u,k->u (to get t->k's ESP value)*/
@@ -259,7 +259,7 @@ static inline void dspISP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     /* step through inedges of head (i.e., k: k->h, t->k, k!=t)*/
     EXEC_THROUGH_OUTEDGES(tail, e, k, {
       if(k!=head){
-        if(spcache) L2kh = GETDMUI(k,head,FALSE,spcache);
+        if(spcache) L2kh = GETDMUI(k,head,spcache);
 	else{
 	  L2kh=0;
 	  /*Now, count # u such that u->h,u->k (to get h>k's ESP value)*/
@@ -724,7 +724,7 @@ static inline void espOSP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
   Vertex deg;
   
   memset(cs, 0, nd*sizeof(double));
-  if(spcache) L2th = GETDMUI(tail,head,FALSE,spcache); else L2th=0;
+  if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;
     echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     /* step through outedges of tail (i.e., k: t->k, k->h, k!=h)*/
     EXEC_THROUGH_OUTEDGES(tail,e,k, {
@@ -734,7 +734,7 @@ static inline void espOSP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
 	  L2th+=IS_OUTEDGE(head,k);
 	
 	if(IS_OUTEDGE(k,head)){ /*Only consider stats that could change*/
-          if(spcache) L2tk = GETDMUI(tail,k,FALSE,spcache);
+          if(spcache) L2tk = GETDMUI(tail,k,spcache);
 	  else{
 	    L2tk=0;
 	    /*Now, count # u such that t->u,k->u (to get t->k's ESP value)*/
@@ -754,7 +754,7 @@ static inline void espOSP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     /* step through inedges of tail (i.e., k: k->t, k->h, k!=h)*/
     EXEC_THROUGH_INEDGES(tail,e,k, {
       if((k!=head)&&(IS_OUTEDGE(k,head))){ /*Only stats that could change*/
-        if(spcache) L2kt = GETDMUI(k,tail,FALSE,spcache);
+        if(spcache) L2kt = GETDMUI(k,tail,spcache);
 	else{
 	  L2kt=0;
 	  /*Now, count # u such that t->u,k->u (to get k->t's ESP value)*/
@@ -794,7 +794,7 @@ static inline void espISP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
   Vertex deg;
   
   memset(cs, 0, nd*sizeof(double));
-  if(spcache) L2th = GETDMUI(tail,head,FALSE,spcache); else L2th=0;
+  if(spcache) L2th = GETDMUI(tail,head,spcache); else L2th=0;
     echange = (IS_OUTEDGE(tail,head) == 0) ? 1 : -1;
     /* step through inedges of head (i.e., k: k->h, t->k, k!=t)*/
     EXEC_THROUGH_INEDGES(head,e,k, {
@@ -804,7 +804,7 @@ static inline void espISP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
 	  L2th+=IS_OUTEDGE(k,tail);
 	
 	if(IS_OUTEDGE(tail,k)){ /*Only consider stats that could change*/
-          if(spcache) L2kh = GETDMUI(k,head,FALSE,spcache);
+          if(spcache) L2kh = GETDMUI(k,head,spcache);
 	  else{
 	    L2kh=0;
 	    /*Now, count # u such that u->h,u->k (to get h>k's ESP value)*/
@@ -824,7 +824,7 @@ static inline void espISP_calc(Vertex tail, Vertex head, ModelTerm *mtp, Network
     /* step through outedges of head (i.e., k: h->k, t->k, k!=t)*/
     EXEC_THROUGH_OUTEDGES(head,e,k, {
       if((k!=tail)&&(IS_OUTEDGE(tail,k))){ /*Only stats that could change*/
-        if(spcache) L2hk = GETDMUI(head,k,FALSE,spcache);
+        if(spcache) L2hk = GETDMUI(head,k,spcache);
 	else{
 	  L2hk=0;
 	  /*Now, count # u such that u->h,u->k (to get k->h's ESP value)*/
