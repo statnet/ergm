@@ -146,14 +146,14 @@ I_CHANGESTAT_FN(i__discord_net_DyadSet){
   Edge nedges = INPUT_PARAM[1];
   for(Edge i=0; i<nedges; i++){
     Vertex tail=INPUT_PARAM[2+i], head=INPUT_PARAM[2+nedges+i];
-    DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+    DyadSetToggle(tail,head, dnwp);
   }
 }
 
 U_CHANGESTAT_FN(u__discord_net_DyadSet){
   StoreDyadSet *dnwp = AUX_STORAGE;
 
-  DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+  DyadSetToggle(tail,head, dnwp);
 }
 
 F_CHANGESTAT_FN(f__discord_net_DyadSet){
@@ -164,12 +164,12 @@ F_CHANGESTAT_FN(f__discord_net_DyadSet){
 }
 
 I_CHANGESTAT_FN(i__intersect_net_DyadSet){
-  StoreDyadSet *dnwp = AUX_STORAGE = kh_init(DyadSet);
+  StoreDyadSet *dnwp = AUX_STORAGE = kh_init(DyadSet); dnwp->directed=DIRECTED;
   Edge nedges = INPUT_PARAM[1];
   for(Edge i=0; i<nedges; i++){
     Vertex tail=INPUT_PARAM[2+i], head=INPUT_PARAM[2+nedges+i];
     if(IS_OUTEDGE(tail, head)!=0)
-      DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+      DyadSetToggle(tail,head, dnwp);
   }
 }
 
@@ -177,7 +177,7 @@ U_CHANGESTAT_FN(u__intersect_net_DyadSet){
   StoreDyadSet *dnwp = AUX_STORAGE;
 
   if(dEdgeListSearch(tail, head, INPUT_PARAM+1))
-    DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+    DyadSetToggle(tail,head, dnwp);
 }
 
 F_CHANGESTAT_FN(f__intersect_net_DyadSet){
@@ -188,19 +188,19 @@ F_CHANGESTAT_FN(f__intersect_net_DyadSet){
 }
 
 I_CHANGESTAT_FN(i__intersect_net_toggles_in_list_DyadSet){
-  StoreDyadSet *dnwp = AUX_STORAGE = kh_init(DyadSet);
+  StoreDyadSet *dnwp = AUX_STORAGE = kh_init(DyadSet); dnwp->directed=DIRECTED;
   Edge nedges = INPUT_PARAM[1];
   for(Edge i=0; i<nedges; i++){
     Vertex tail=INPUT_PARAM[2+i], head=INPUT_PARAM[2+nedges+i];
     if(IS_OUTEDGE(tail, head)!=0)
-      DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+      DyadSetToggle(tail,head, dnwp);
   }
 }
 
 U_CHANGESTAT_FN(u__intersect_net_toggles_in_list_DyadSet){
   StoreDyadSet *dnwp = AUX_STORAGE;
 
-  DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+  DyadSetToggle(tail,head, dnwp);
 }
 
 F_CHANGESTAT_FN(f__intersect_net_toggles_in_list_DyadSet){
@@ -216,7 +216,7 @@ I_CHANGESTAT_FN(i__union_net_DyadSet){
   for(Edge i=0; i<nedges; i++){
     Vertex tail=INPUT_PARAM[2+i], head=INPUT_PARAM[2+nedges+i];
     if(IS_OUTEDGE(tail, head)==0)
-      DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+      DyadSetToggle(tail,head, dnwp);
   }
 }
 
@@ -224,7 +224,7 @@ U_CHANGESTAT_FN(u__union_net_DyadSet){
   StoreDyadSet *dnwp = AUX_STORAGE;
 
   if(dEdgeListSearch(tail, head, INPUT_PARAM+1)==0)
-    DyadSetToggle(TH(tail,head,DIRECTED), dnwp);
+    DyadSetToggle(tail,head, dnwp);
 }
 
 F_CHANGESTAT_FN(f__union_net_DyadSet){

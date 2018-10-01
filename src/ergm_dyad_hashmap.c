@@ -27,10 +27,11 @@ void PrintDyadSet(StoreDyadSet *h){
 /* Copy network to a khash set of dyads. */
 StoreDyadSet *NetworkToDyadSet(Network *nwp){
   StoreDyadSet *h = kh_init(DyadSet);
+  h->directed = DIRECTED;
 
   EXEC_THROUGH_NET_EDGES(tail, head, e, {
       int ret;
-      kh_put(DyadSet, h, TH(tail,head,DIRECTED), &ret);
+      kh_put(DyadSet, h, THKey(h,tail,head), &ret);
     });
   return h;
 }

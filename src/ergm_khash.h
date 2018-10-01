@@ -227,12 +227,13 @@ static kh_inline klib_unused bool __ac_set_isempty_if_isdel(khint32_t *flag, khi
 
 static const double __ac_HASH_UPPER = 0.77;
 
-#define __KHASH_TYPE(name, khkey_t, khval_t) \
+#define __KHASH_TYPE(name, khkey_t, khval_t, __extra_data)	\
 	typedef struct kh_##name##_s { \
 	  khint_t n_buckets, size, n_occupied, upper_bound, mask;	\
 		khint32_t *flags; \
 		khkey_t *keys; \
 		khval_t *vals; \
+		__extra_data     \
 	} kh_##name##_t;
 
 #define __KHASH_PROTOTYPES(name, khkey_t, khval_t)	 					\
@@ -420,16 +421,16 @@ static const double __ac_HASH_UPPER = 0.77;
 		}																\
 	}
 
-#define KHASH_DECLARE(name, khkey_t, khval_t)		 					\
-	__KHASH_TYPE(name, khkey_t, khval_t) 								\
+#define KHASH_DECLARE(name, khkey_t, khval_t, __extra_data)				\
+  __KHASH_TYPE(name, khkey_t, khval_t, __extra_data)					\
 	__KHASH_PROTOTYPES(name, khkey_t, khval_t)
 
-#define KHASH_INIT2(name, SCOPE, khkey_t, khval_t, kh_is_map, __hash_func, __hash_equal) \
-	__KHASH_TYPE(name, khkey_t, khval_t) 								\
+#define KHASH_INIT2(name, SCOPE, khkey_t, khval_t, kh_is_map, __hash_func, __hash_equal, __extra_data) \
+  __KHASH_TYPE(name, khkey_t, khval_t, __extra_data)					\
 	__KHASH_IMPL(name, SCOPE, khkey_t, khval_t, kh_is_map, __hash_func, __hash_equal)
 
-#define KHASH_INIT(name, khkey_t, khval_t, kh_is_map, __hash_func, __hash_equal) \
-	KHASH_INIT2(name, static kh_inline klib_unused, khkey_t, khval_t, kh_is_map, __hash_func, __hash_equal)
+#define KHASH_INIT(name, khkey_t, khval_t, kh_is_map, __hash_func, __hash_equal, __extra_data) \
+  KHASH_INIT2(name, static kh_inline klib_unused, khkey_t, khval_t, kh_is_map, __hash_func, __hash_equal, __extra_data)
 
 /* --- BEGIN OF HASH FUNCTIONS --- */
 
@@ -686,7 +687,7 @@ static kh_inline khint_t __ac_Wang_hash(khint_t key)
   @param  name  Name of the hash table [symbol]
  */
 #define KHASH_SET_INIT_INT(name)										\
-	KHASH_INIT(name, khint32_t, char, 0, kh_int_hash_func, kh_int_hash_equal)
+  KHASH_INIT(name, khint32_t, char, 0, kh_int_hash_func, kh_int_hash_equal,)
 
 /*! @function
   @abstract     Instantiate a hash map containing integer keys
@@ -694,14 +695,14 @@ static kh_inline khint_t __ac_Wang_hash(khint_t key)
   @param  khval_t  Type of values [type]
  */
 #define KHASH_MAP_INIT_INT(name, khval_t)								\
-	KHASH_INIT(name, khint32_t, khval_t, 1, kh_int_hash_func, kh_int_hash_equal)
+  KHASH_INIT(name, khint32_t, khval_t, 1, kh_int_hash_func, kh_int_hash_equal,)
 
 /*! @function
   @abstract     Instantiate a hash map containing 64-bit integer keys
   @param  name  Name of the hash table [symbol]
  */
 #define KHASH_SET_INIT_INT64(name)										\
-	KHASH_INIT(name, khint64_t, char, 0, kh_int64_hash_func, kh_int64_hash_equal)
+  KHASH_INIT(name, khint64_t, char, 0, kh_int64_hash_func, kh_int64_hash_equal,)
 
 /*! @function
   @abstract     Instantiate a hash map containing 64-bit integer keys
@@ -709,7 +710,7 @@ static kh_inline khint_t __ac_Wang_hash(khint_t key)
   @param  khval_t  Type of values [type]
  */
 #define KHASH_MAP_INIT_INT64(name, khval_t)								\
-	KHASH_INIT(name, khint64_t, khval_t, 1, kh_int64_hash_func, kh_int64_hash_equal)
+  KHASH_INIT(name, khint64_t, khval_t, 1, kh_int64_hash_func, kh_int64_hash_equal,)
 
 typedef const char *kh_cstr_t;
 /*! @function
@@ -717,15 +718,15 @@ typedef const char *kh_cstr_t;
   @param  name  Name of the hash table [symbol]
  */
 #define KHASH_SET_INIT_STR(name)										\
-	KHASH_INIT(name, kh_cstr_t, char, 0, kh_str_hash_func, kh_str_hash_equal)
+  KHASH_INIT(name, kh_cstr_t, char, 0, kh_str_hash_func, kh_str_hash_equal,)
 
 /*! @function
   @abstract     Instantiate a hash map containing const char* keys
   @param  name  Name of the hash table [symbol]
   @param  khval_t  Type of values [type]
- */
+ */ 
 #define KHASH_MAP_INIT_STR(name, khval_t)								\
-	KHASH_INIT(name, kh_cstr_t, khval_t, 1, kh_str_hash_func, kh_str_hash_equal)
+  KHASH_INIT(name, kh_cstr_t, khval_t, 1, kh_str_hash_func, kh_str_hash_equal,)
 
 /*! @function
   @abstract     Insert a key-value pair into the hash table, overwriting if present.
