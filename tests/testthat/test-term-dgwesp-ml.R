@@ -68,6 +68,47 @@ dnsp <- function(x, type, L.base, Ls.path1, Ls.path2=Ls.path1, ...){
   tabulate(match(nsp, x),length(x))
 }
 
+GW <- function(decay, n){
+  i <- 1:n
+  exp(decay)*(1-(1-exp(-decay))^i)
+}
+
+dgwesp <- function(decay, n, type, L.base, Ls.path1, Ls.path2=Ls.path1, ...){
+  w <- GW(decay,n)
+  sp <- desp(1:n, type, L.base, Ls.path1, Ls.path2, ...)
+  sum(w*sp)
+}
+
+dgwdsp <- function(decay, n, type, Ls.path1, Ls.path2=Ls.path1, ...){
+  w <- GW(decay,n)
+  sp <- ddsp(1:n, type, Ls.path1, Ls.path2, ...)
+  sum(w*sp)
+}
+
+dgwnsp <- function(decay, n, type, L.base, Ls.path1, Ls.path2=Ls.path1, ...){
+  w <- GW(decay,n)
+  sp <- dnsp(1:n, type, L.base, Ls.path1, Ls.path2, ...)
+  sum(w*sp)
+}
+
+gwesp <- function(decay, n, L.base, Ls.path1, Ls.path2=Ls.path1, ...){
+  w <- GW(decay,n)
+  sp <- esp(1:n, L.base, Ls.path1, Ls.path2, ...)
+  sum(w*sp)
+}
+
+gwdsp <- function(decay, n, Ls.path1, Ls.path2=Ls.path1, ...){
+  w <- GW(decay,n)
+  sp <- dsp(1:n, Ls.path1, Ls.path2, ...)
+  sum(w*sp)
+}
+
+gwnsp <- function(decay, n, L.base, Ls.path1, Ls.path2=Ls.path1, ...){
+  w <- GW(decay,n)
+  sp <- nsp(1:n, L.base, Ls.path1, Ls.path2, ...)
+  sum(w*sp)
+}
+
 library(ergm)
 library(purrr)
 n <- 5
@@ -114,6 +155,7 @@ n <- 5
 ##                changes = testseq2,stats.start=TRUE)
 
 ctrl <- control.simulate.formula(MCMC.burnin=1, MCMC.interval=1)
+decay <- runif(1,0,1)
 
 for(cache.sp in c(FALSE,TRUE)){
   options(ergm.term=list(cache.sp=cache.sp))
@@ -209,7 +251,92 @@ test_that(paste("Multilayer dgw*sp statistics for homogeneously directed network
                     dnsp(0:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
                     dnsp(0:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
                     dnsp(0:n,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
-                    dnsp(0:n,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`3`))
+                    dnsp(0:n,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
+                    # Geometrically weighted
+                    # desp distinct layers
+                    dgwesp(decay,fixed=TRUE,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    dgwesp(decay,fixed=TRUE,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    dgwesp(decay,fixed=TRUE,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    dgwesp(decay,fixed=TRUE,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    dgwesp(decay,fixed=TRUE,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
+                    dgwesp(decay,fixed=TRUE,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
+                    # ddsp distinct layers
+                    dgwdsp(decay,fixed=TRUE,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    dgwdsp(decay,fixed=TRUE,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    dgwdsp(decay,fixed=TRUE,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    dgwdsp(decay,fixed=TRUE,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    dgwdsp(decay,fixed=TRUE,type="OSP",Ls.path=c(~`2`,~`3`))+
+                    dgwdsp(decay,fixed=TRUE,type="ISP",Ls.path=c(~`2`,~`3`))+
+                    # dnsp distinct layers
+                    dgwnsp(decay,fixed=TRUE,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    dgwnsp(decay,fixed=TRUE,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    dgwnsp(decay,fixed=TRUE,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    dgwnsp(decay,fixed=TRUE,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    dgwnsp(decay,fixed=TRUE,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
+                    dgwnsp(decay,fixed=TRUE,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`3`))## +
+                    ## # desp base and path distinct
+                    ## dgwesp(decay,fixed=TRUE,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwesp(decay,fixed=TRUE,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwesp(decay,fixed=TRUE,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwesp(decay,fixed=TRUE,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwesp(decay,fixed=TRUE,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
+                    ## dgwesp(decay,fixed=TRUE,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
+                    ## # ddsp base and path distinct
+                    ## dgwdsp(decay,fixed=TRUE,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="OSP",Ls.path=c(~`2`,~`2`))+
+                    ## dgwdsp(decay,fixed=TRUE,type="ISP",Ls.path=c(~`2`,~`2`))+
+                    ## # dnsp base and path distinct
+                    ## dgwnsp(decay,fixed=TRUE,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
+                    ## dgwnsp(decay,fixed=TRUE,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
+                    ## # desp base and path same
+                    ## dgwesp(decay,fixed=TRUE,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwesp(decay,fixed=TRUE,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwesp(decay,fixed=TRUE,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwesp(decay,fixed=TRUE,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwesp(decay,fixed=TRUE,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
+                    ## dgwesp(decay,fixed=TRUE,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
+                    ## # ddsp base and path same
+                    ## dgwdsp(decay,fixed=TRUE,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="OSP",Ls.path=c(~`2`,~`2`))+
+                    ## dgwdsp(decay,fixed=TRUE,type="ISP",Ls.path=c(~`2`,~`2`))+
+                    ## # dnsp base and path same
+                    ## dgwnsp(decay,fixed=TRUE,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
+                    ## dgwnsp(decay,fixed=TRUE,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
+                    ## # desp distinct base and one layer
+                    ## dgwesp(decay,fixed=TRUE,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    ## dgwesp(decay,fixed=TRUE,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    ## dgwesp(decay,fixed=TRUE,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    ## dgwesp(decay,fixed=TRUE,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    ## dgwesp(decay,fixed=TRUE,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
+                    ## dgwesp(decay,fixed=TRUE,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
+                    ## # ddsp distinct base and one layer
+                    ## dgwdsp(decay,fixed=TRUE,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="OSP",Ls.path=c(~`2`,~`3`))+
+                    ## dgwdsp(decay,fixed=TRUE,type="ISP",Ls.path=c(~`2`,~`3`))+
+                    ## # dnsp distinct base and one layer
+                    ## dgwnsp(decay,fixed=TRUE,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
+                    ## dgwnsp(decay,fixed=TRUE,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`3`))
                  ,
                   control=ctrl,
                   nsim=200))
@@ -306,8 +433,92 @@ test_that(paste("Multilayer dgw*sp statistics for homogeneously directed network
                       dnsp(0:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
                       dnsp(0:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
                       dnsp(0:n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
-                      dnsp(0:n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m3)
-
+                      dnsp(0:n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
+                      # Geometrically weighted
+                      # desp distinct layers
+                      dgwesp(decay,n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      dgwesp(decay,n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      dgwesp(decay,n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      dgwesp(decay,n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      dgwesp(decay,n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
+                      dgwesp(decay,n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
+                      # ddsp distinct layers
+                      dgwdsp(decay,n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      dgwdsp(decay,n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      dgwdsp(decay,n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      dgwdsp(decay,n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      dgwdsp(decay,n,OSP,Ls.path1=m2,Ls.path2=m3),
+                      dgwdsp(decay,n,ISP,Ls.path1=m2,Ls.path2=m3),
+                      # dnsp distinct layers
+                      dgwnsp(decay,n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      dgwnsp(decay,n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      dgwnsp(decay,n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      dgwnsp(decay,n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      dgwnsp(decay,n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
+                      dgwnsp(decay,n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m3)## ,
+                      ## # desp base and path distinct
+                      ## dgwesp(decay,n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwesp(decay,n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwesp(decay,n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwesp(decay,n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwesp(decay,n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
+                      ## dgwesp(decay,n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
+                      ## # ddsp base and path distinct
+                      ## dgwdsp(decay,n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwdsp(decay,n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwdsp(decay,n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwdsp(decay,n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwdsp(decay,n,OSP,Ls.path1=m2,Ls.path2=m2),
+                      ## dgwdsp(decay,n,ISP,Ls.path1=m2,Ls.path2=m2),
+                      ## # dnsp base and path distinct
+                      ## dgwnsp(decay,n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwnsp(decay,n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwnsp(decay,n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwnsp(decay,n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwnsp(decay,n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
+                      ## dgwnsp(decay,n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
+                      ## # desp base and path same
+                      ## dgwesp(decay,n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwesp(decay,n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwesp(decay,n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwesp(decay,n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwesp(decay,n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
+                      ## dgwesp(decay,n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
+                      ## # ddsp base and path same
+                      ## dgwdsp(decay,n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwdsp(decay,n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwdsp(decay,n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwdsp(decay,n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwdsp(decay,n,OSP,Ls.path1=m2,Ls.path2=m2),
+                      ## dgwdsp(decay,n,ISP,Ls.path1=m2,Ls.path2=m2),
+                      ## # dnsp base and path same
+                      ## dgwnsp(decay,n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwnsp(decay,n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwnsp(decay,n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwnsp(decay,n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwnsp(decay,n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
+                      ## dgwnsp(decay,n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
+                      ## # desp distinct base and one layer
+                      ## dgwesp(decay,n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      ## dgwesp(decay,n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      ## dgwesp(decay,n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      ## dgwesp(decay,n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      ## dgwesp(decay,n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
+                      ## dgwesp(decay,n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
+                      ## # ddsp distinct base and one layer
+                      ## dgwdsp(decay,n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      ## dgwdsp(decay,n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      ## dgwdsp(decay,n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      ## dgwdsp(decay,n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      ## dgwdsp(decay,n,OSP,Ls.path1=m2,Ls.path2=m3),
+                      ## dgwdsp(decay,n,ISP,Ls.path1=m2,Ls.path2=m3),
+                      ## # dnsp distinct base and one layer
+                      ## dgwnsp(decay,n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      ## dgwnsp(decay,n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      ## dgwnsp(decay,n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      ## dgwnsp(decay,n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      ## dgwnsp(decay,n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
+                      ## dgwnsp(decay,n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m3)
                     )
                   }) %>% t()
 
@@ -404,7 +615,92 @@ test_that(paste("Multilayer dgw*sp statistics for heterogeneously directed netwo
                     dnsp(0:n,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
                     dnsp(0:n,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
                     dnsp(0:n,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
-                    dnsp(0:n,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`3`))
+                    dnsp(0:n,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
+                    # Geometrically weighted
+                    # desp distinct layers
+                    dgwesp(decay,fixed=TRUE,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    dgwesp(decay,fixed=TRUE,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    dgwesp(decay,fixed=TRUE,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    dgwesp(decay,fixed=TRUE,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    dgwesp(decay,fixed=TRUE,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
+                    dgwesp(decay,fixed=TRUE,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
+                    # ddsp distinct layers
+                    dgwdsp(decay,fixed=TRUE,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    dgwdsp(decay,fixed=TRUE,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    dgwdsp(decay,fixed=TRUE,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    dgwdsp(decay,fixed=TRUE,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    dgwdsp(decay,fixed=TRUE,type="OSP",Ls.path=c(~`2`,~`3`))+
+                    dgwdsp(decay,fixed=TRUE,type="ISP",Ls.path=c(~`2`,~`3`))+
+                    # dnsp distinct layers
+                    dgwnsp(decay,fixed=TRUE,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    dgwnsp(decay,fixed=TRUE,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    dgwnsp(decay,fixed=TRUE,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    dgwnsp(decay,fixed=TRUE,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    dgwnsp(decay,fixed=TRUE,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`3`))+
+                    dgwnsp(decay,fixed=TRUE,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`3`))## +
+                    ## # desp base and path distinct
+                    ## dgwesp(decay,fixed=TRUE,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwesp(decay,fixed=TRUE,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwesp(decay,fixed=TRUE,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwesp(decay,fixed=TRUE,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwesp(decay,fixed=TRUE,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
+                    ## dgwesp(decay,fixed=TRUE,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
+                    ## # ddsp base and path distinct
+                    ## dgwdsp(decay,fixed=TRUE,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="OSP",Ls.path=c(~`2`,~`2`))+
+                    ## dgwdsp(decay,fixed=TRUE,type="ISP",Ls.path=c(~`2`,~`2`))+
+                    ## # dnsp base and path distinct
+                    ## dgwnsp(decay,fixed=TRUE,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="OTP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="ITP",L.base=~`1`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="OSP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
+                    ## dgwnsp(decay,fixed=TRUE,type="ISP",L.base=~`1`,Ls.path=c(~`2`,~`2`))+
+                    ## # desp base and path same
+                    ## dgwesp(decay,fixed=TRUE,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwesp(decay,fixed=TRUE,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwesp(decay,fixed=TRUE,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwesp(decay,fixed=TRUE,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwesp(decay,fixed=TRUE,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
+                    ## dgwesp(decay,fixed=TRUE,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
+                    ## # ddsp base and path same
+                    ## dgwdsp(decay,fixed=TRUE,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="OTP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="ITP",Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="OSP",Ls.path=c(~`2`,~`2`))+
+                    ## dgwdsp(decay,fixed=TRUE,type="ISP",Ls.path=c(~`2`,~`2`))+
+                    ## # dnsp base and path same
+                    ## dgwnsp(decay,fixed=TRUE,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=TRUE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`2`),L.in_order=FALSE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
+                    ## dgwnsp(decay,fixed=TRUE,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`2`))+
+                    ## # desp distinct base and one layer
+                    ## dgwesp(decay,fixed=TRUE,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    ## dgwesp(decay,fixed=TRUE,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    ## dgwesp(decay,fixed=TRUE,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    ## dgwesp(decay,fixed=TRUE,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    ## dgwesp(decay,fixed=TRUE,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
+                    ## dgwesp(decay,fixed=TRUE,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
+                    ## # ddsp distinct base and one layer
+                    ## dgwdsp(decay,fixed=TRUE,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="OTP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="ITP",Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    ## dgwdsp(decay,fixed=TRUE,type="OSP",Ls.path=c(~`2`,~`3`))+
+                    ## dgwdsp(decay,fixed=TRUE,type="ISP",Ls.path=c(~`2`,~`3`))+
+                    ## # dnsp distinct base and one layer
+                    ## dgwnsp(decay,fixed=TRUE,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=TRUE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="OTP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="ITP",L.base=~`2`,Ls.path=c(~`2`,~`3`),L.in_order=FALSE)+
+                    ## dgwnsp(decay,fixed=TRUE,type="OSP",L.base=~`2`,Ls.path=c(~`2`,~`3`))+
+                    ## dgwnsp(decay,fixed=TRUE,type="ISP",L.base=~`2`,Ls.path=c(~`2`,~`3`))
                  ,
                   control=ctrl,
                   nsim=200))
@@ -502,8 +798,92 @@ test_that(paste("Multilayer dgw*sp statistics for heterogeneously directed netwo
                       dnsp(0:n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
                       dnsp(0:n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
                       dnsp(0:n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
-                      dnsp(0:n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m3)
-
+                      dnsp(0:n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
+                      # Geometrically weighted
+                      # desp distinct layers
+                      dgwesp(decay,n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      dgwesp(decay,n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      dgwesp(decay,n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      dgwesp(decay,n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      dgwesp(decay,n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
+                      dgwesp(decay,n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
+                      # ddsp distinct layers
+                      dgwdsp(decay,n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      dgwdsp(decay,n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      dgwdsp(decay,n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      dgwdsp(decay,n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      dgwdsp(decay,n,OSP,Ls.path1=m2,Ls.path2=m3),
+                      dgwdsp(decay,n,ISP,Ls.path1=m2,Ls.path2=m3),
+                      # dnsp distinct layers
+                      dgwnsp(decay,n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      dgwnsp(decay,n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      dgwnsp(decay,n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      dgwnsp(decay,n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      dgwnsp(decay,n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m3),
+                      dgwnsp(decay,n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m3)## ,
+                      ## # desp base and path distinct
+                      ## dgwesp(decay,n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwesp(decay,n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwesp(decay,n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwesp(decay,n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwesp(decay,n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
+                      ## dgwesp(decay,n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
+                      ## # ddsp base and path distinct
+                      ## dgwdsp(decay,n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwdsp(decay,n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwdsp(decay,n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwdsp(decay,n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwdsp(decay,n,OSP,Ls.path1=m2,Ls.path2=m2),
+                      ## dgwdsp(decay,n,ISP,Ls.path1=m2,Ls.path2=m2),
+                      ## # dnsp base and path distinct
+                      ## dgwnsp(decay,n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwnsp(decay,n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwnsp(decay,n,OTP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwnsp(decay,n,ITP,L.base=m1,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwnsp(decay,n,OSP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
+                      ## dgwnsp(decay,n,ISP,L.base=m1,Ls.path1=m2,Ls.path2=m2),
+                      ## # desp base and path same
+                      ## dgwesp(decay,n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwesp(decay,n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwesp(decay,n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwesp(decay,n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwesp(decay,n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
+                      ## dgwesp(decay,n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
+                      ## # ddsp base and path same
+                      ## dgwdsp(decay,n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwdsp(decay,n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwdsp(decay,n,OTP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwdsp(decay,n,ITP,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwdsp(decay,n,OSP,Ls.path1=m2,Ls.path2=m2),
+                      ## dgwdsp(decay,n,ISP,Ls.path1=m2,Ls.path2=m2),
+                      ## # dnsp base and path same
+                      ## dgwnsp(decay,n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwnsp(decay,n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=TRUE),
+                      ## dgwnsp(decay,n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwnsp(decay,n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m2, in.order=FALSE),
+                      ## dgwnsp(decay,n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
+                      ## dgwnsp(decay,n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m2),
+                      ## # desp distinct base and one layer
+                      ## dgwesp(decay,n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      ## dgwesp(decay,n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      ## dgwesp(decay,n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      ## dgwesp(decay,n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      ## dgwesp(decay,n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
+                      ## dgwesp(decay,n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
+                      ## # ddsp distinct base and one layer
+                      ## dgwdsp(decay,n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      ## dgwdsp(decay,n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      ## dgwdsp(decay,n,OTP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      ## dgwdsp(decay,n,ITP,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      ## dgwdsp(decay,n,OSP,Ls.path1=m2,Ls.path2=m3),
+                      ## dgwdsp(decay,n,ISP,Ls.path1=m2,Ls.path2=m3),
+                      ## # dnsp distinct base and one layer
+                      ## dgwnsp(decay,n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      ## dgwnsp(decay,n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=TRUE),
+                      ## dgwnsp(decay,n,OTP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      ## dgwnsp(decay,n,ITP,L.base=m2,Ls.path1=m2,Ls.path2=m3, in.order=FALSE),
+                      ## dgwnsp(decay,n,OSP,L.base=m2,Ls.path1=m2,Ls.path2=m3),
+                      ## dgwnsp(decay,n,ISP,L.base=m2,Ls.path1=m2,Ls.path2=m3)
                     )
                   }) %>% t()
 
@@ -540,7 +920,32 @@ test_that(paste("Multilayer dgw*sp statistics for undirected networks",sptxt), {
                     # ddsp distinct base and one layer
                     ddsp(0:n,Ls.path=c(~`2`,~`3`))+
                     # dnsp distinct base and one layer
-                    dnsp(0:n,L.base=~`2`,Ls.path=c(~`2`,~`3`))
+                    dnsp(0:n,L.base=~`2`,Ls.path=c(~`2`,~`3`))+
+                    # Geometrically weighted
+                    # desp distinct layers
+                    dgwesp(decay,fixed=TRUE,L.base=~`1`,Ls.path=c(~`2`,~`3`))+
+                    # ddsp distinct layers
+                    dgwdsp(decay,fixed=TRUE,Ls.path=c(~`2`,~`3`))+
+                    # dnsp distinct layers
+                    dgwnsp(decay,fixed=TRUE,L.base=~`1`,Ls.path=c(~`2`,~`3`))## +
+                    ## # desp base and path distinct
+                    ## dgwesp(decay,fixed=TRUE,L.base=~`1`,Ls.path=c(~`2`,~`2`))+
+                    ## # ddsp base and path distinct
+                    ## dgwdsp(decay,fixed=TRUE,Ls.path=c(~`2`,~`2`))+
+                    ## # dnsp base and path distinct
+                    ## dgwnsp(decay,fixed=TRUE,L.base=~`1`,Ls.path=c(~`2`,~`2`))+
+                    ## # desp base and path same
+                    ## dgwesp(decay,fixed=TRUE,L.base=~`2`,Ls.path=c(~`2`,~`2`))+
+                    ## # ddsp base and path same
+                    ## dgwdsp(decay,fixed=TRUE,Ls.path=c(~`2`,~`2`))+
+                    ## # dnsp base and path same
+                    ## dgwnsp(decay,fixed=TRUE,L.base=~`2`,Ls.path=c(~`2`,~`2`))+
+                    ## # desp distinct base and one layer
+                    ## dgwesp(decay,fixed=TRUE,L.base=~`2`,Ls.path=c(~`2`,~`3`))+
+                    ## # ddsp distinct base and one layer
+                    ## dgwdsp(decay,fixed=TRUE,Ls.path=c(~`2`,~`3`))+
+                    ## # dnsp distinct base and one layer
+                    ## dgwnsp(decay,fixed=TRUE,L.base=~`2`,Ls.path=c(~`2`,~`3`))
                  ,
                   control=ctrl,
                   nsim=200))
@@ -577,7 +982,32 @@ test_that(paste("Multilayer dgw*sp statistics for undirected networks",sptxt), {
                       # dsp distinct base and one layer
                       dsp(0:n,Ls.path1=m2,Ls.path2=m3),
                       # nsp distinct base and one layer
-                      nsp(0:n,L.base=m2,Ls.path1=m2,Ls.path2=m3)
+                      nsp(0:n,L.base=m2,Ls.path1=m2,Ls.path2=m3),
+                      # Geometrically weighted
+                      # esp distinct layers
+                      gwesp(decay,n,L.base=m1,Ls.path1=m2,Ls.path2=m3),
+                      # dsp distinct layers
+                      gwdsp(decay,n,Ls.path1=m2,Ls.path2=m3),
+                      # nsp distinct layers
+                      gwnsp(decay,n,L.base=m1,Ls.path1=m2,Ls.path2=m3)## ,
+                      ## # esp base and path distinct
+                      ## gwesp(decay,n,L.base=m1,Ls.path1=m2,Ls.path2=m2),
+                      ## # dsp base and path distinct
+                      ## gwdsp(decay,n,Ls.path1=m2,Ls.path2=m2),
+                      ## # nsp base and path distinct
+                      ## gwnsp(decay,n,L.base=m1,Ls.path1=m2,Ls.path2=m2),
+                      ## # esp base and path same
+                      ## gwesp(decay,n,L.base=m2,Ls.path1=m2,Ls.path2=m2),
+                      ## # dsp base and path same
+                      ## gwdsp(decay,n,Ls.path1=m2,Ls.path2=m2),
+                      ## # nsp base and path same
+                      ## gwnsp(decay,n,L.base=m2,Ls.path1=m2,Ls.path2=m2),
+                      ## # esp distinct base and one layer
+                      ## gwesp(decay,n,L.base=m2,Ls.path1=m2,Ls.path2=m3),
+                      ## # dsp distinct base and one layer
+                      ## gwdsp(decay,n,Ls.path1=m2,Ls.path2=m3),
+                      ## # nsp distinct base and one layer
+                      ## gwnsp(decay,n,L.base=m2,Ls.path1=m2,Ls.path2=m3)
                     )
                   }) %>% t()
 
