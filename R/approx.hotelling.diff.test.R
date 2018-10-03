@@ -293,7 +293,7 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
     else as.mcmc.list(mcmc(xr))
   
   ord <- NVL(order.max, ceiling(10*log10(niter(xr))))
-  xr <- do.call(rbind, lapply(xr, function(z) rbind(cbind(z), matrix(NA, niter(z), nvar(z)))))
+  xr <- do.call(rbind, c(lapply(unclass(xr)[-nchain(xr)], function(z) rbind(cbind(z), matrix(NA, niter(z), nvar(z)))), unclass(xr)[nchain(xr)]))
   
   # Calculate the time-series variance of the mean on the PC scale.
   arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, na.action=na.pass, ...))
