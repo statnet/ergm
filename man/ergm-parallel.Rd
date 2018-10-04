@@ -9,16 +9,30 @@
 \alias{parallel-ergm}
 \alias{ergm.getCluster}
 \alias{ergm.stopCluster}
+\alias{nthreads}
+\alias{nthreads.cluster}
+\alias{nthreads.NULL}
+\alias{nthreads.control.list}
 \title{Parallel Processing in the \code{\link[=ergm-package]{ergm}} Package}
 \usage{
-ergm.getCluster(control, verbose = FALSE,
+ergm.getCluster(control = NULL, verbose = FALSE,
   stop_on_exit = parent.frame())
 
 ergm.stopCluster(..., verbose = FALSE)
+
+nthreads(clinfo = NULL, ...)
+
+\method{nthreads}{cluster}(clinfo = NULL, ...)
+
+\method{nthreads}{NULL}(clinfo = NULL, ...)
+
+\method{nthreads}{control.list}(clinfo = NULL, ...)
 }
 \arguments{
 \item{control}{a \code{\link{control.ergm}} (or similar) list of
-parameter values from which the parallel settings should be read.}
+parameter values from which the parallel settings should be read;
+can also be \code{\link{NULL}}, in which case an existing cluster is used
+if started, or no cluster otherwise.}
 
 \item{verbose}{logical, should detailed status info be printed to
 console?}
@@ -29,6 +43,8 @@ cluster will be stopped when the calling the frame in question
 exits.}
 
 \item{\dots}{not currently used}
+
+\item{clinfo}{a \code{\link{cluster}} or another object.}
 }
 \description{
 For estimation that require MCMC, \code{\link[=ergm-package]{ergm}}
@@ -50,6 +66,10 @@ same version of \code{ergm} is installed on each node.
 The \code{ergm.stopCluster} shuts down a
 cluster, but only if \code{ergm.getCluster} was responsible for
 starting it.
+
+\code{nthreads} is a simple generic to obtain the number of
+parallel processes represented by its argument, keeping in mind
+that having no cluster (e.g., \code{NULL}) represents one thread.
 }
 \details{
 Further details on the various cluster types are included below.
