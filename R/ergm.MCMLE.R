@@ -93,10 +93,8 @@ ergm.MCMLE <- function(init, nw, model,
   control$MCMC.base.samplesize <- control$MCMC.samplesize
   control$obs.MCMC.base.samplesize <- control$obs.MCMC.samplesize
 
-  nthreads <- max(
-    if(inherits(control$parallel,"cluster")) nrow(summary(control$parallel))
-    else control$parallel,
-    1)
+  # Start cluster if required (just in case we haven't already).
+  ergm.getCluster(control, max(verbose-1,0))
   
   # Store information about original network, which will be returned at end
   nw.orig <- nw
@@ -116,7 +114,7 @@ ergm.MCMLE <- function(init, nw, model,
     if(verbose) message("Density guard set to ",control$MCMC.max.maxedges," from an initial count of ",ec," edges.")
   }  
 
-  nws <- rep(list(nw),nthreads) # nws is now a list of networks.
+  nws <- rep(list(nw),nthreads()) # nws is now a list of networks.
 
   # statshift is the difference between the target.stats (if
   # specified) and the statistics of the networks in the LHS of the
@@ -126,7 +124,7 @@ ergm.MCMLE <- function(init, nw, model,
   # set statshifts to 0 where target.stats is NA (due to offset).
   statshift <- model$nw.stats - NVL(model$target.stats,model$nw.stats)
   statshift[is.na(statshift)] <- 0
-  statshifts <- rep(list(statshift), nthreads) # Each network needs its own statshift.
+  statshifts <- rep(list(statshift), nthreads()) # Each network needs its own statshift.
   
   # Initialize control.obs and other *.obs if there is observation structure
   
