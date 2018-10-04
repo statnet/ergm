@@ -180,7 +180,9 @@ myLibLoc <- function()
 #'   \code{\link{control.ergm}} settings. It will also check that the
 #'   same version of `ergm` is installed on each node.
 #' @param control a \code{\link{control.ergm}} (or similar) list of
-#'   parameter values from which the parallel settings should be read.
+#'   parameter values from which the parallel settings should be read;
+#'   can also be [`NULL`], in which case an existing cluster is used
+#'   if started, or no cluster otherwise.
 #' @param verbose logical, should detailed status info be printed to
 #'   console?
 #' @param stop_on_exit An [`environment`], or `NULL`. If an
@@ -189,7 +191,7 @@ myLibLoc <- function()
 #'   exits.
 #' 
 #' @export ergm.getCluster
-ergm.getCluster <- function(control, verbose=FALSE, stop_on_exit=parent.frame()){
+ergm.getCluster <- function(control=NULL, verbose=FALSE, stop_on_exit=parent.frame()){
   # If we don't want a cluster, just return NULL.
   if (is.numeric(control$parallel) && control$parallel==0) return(NULL)
 
@@ -202,6 +204,8 @@ ergm.getCluster <- function(control, verbose=FALSE, stop_on_exit=parent.frame())
   }else if(!is.null(ergm.cluster.started())){
     if(verbose) message("Reusing the running cluster.")
     return(ergm.cluster.started())
+  }else if(is.null(control)){
+    return(NULL)
   }else{
     if(verbose) message("Starting a new cluster.")
     if (!is.numeric(control$parallel))
@@ -355,4 +359,37 @@ set.MT_terms <- function(n){
 #' @export
 get.MT_terms <- function(){
   .Call("get_ergm_omp_terms", PACKAGE="ergm")
+}
+
+#' @rdname ergm-parallel
+#'
+#' @description `nthreads` is a simple generic to obtain the number of
+#'   parallel processes represented by its argument, keeping in mind
+#'   that having no cluster (e.g., `NULL`) represents one thread.
+#'
+#' @param clinfo a [`cluster`] or another object.
+#' @export
+nthreads <- function(clinfo=NULL, ...){
+  UseMethod("nthreads")
+}
+
+#' @rdname ergm-parallel
+#' @export
+nthreads.cluster <- function(clinfo=NULL, ...){
+  length(clinfo)
+}
+
+#' @rdname ergm-parallel
+#' @export
+nthreads.NULL <- function(clinfo=NULL, ...){
+  NVL3(ergm.cluster.started(), nthreads(.), 1)
+}
+
+#' @rdname ergm-parallel
+#' @method nthreads control.list
+#' @export
+nthreads.control.list <- function(clinfo=NULL, ...){
+  if(is.numeric(clinfo$parallel)) return(max(1, clinfo$parallel))
+  clinfo <- clinfo$parallel
+  NextMethod()
 }

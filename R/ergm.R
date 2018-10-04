@@ -825,7 +825,7 @@ ergm <- function(formula, response=NULL,
   
   # Otherwise, set up the main phase of estimation:
   
-  ergm.getCluster(control, verbose)
+  ergm.getCluster(control, max(verbose-1,0))
   
   # Revise the initial value, if necessary:
   init <- initialfit$coef
