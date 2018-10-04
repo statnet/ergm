@@ -51,6 +51,9 @@ ergm.robmon <- function(init, nw, model,
                         proposal,
                         verbose=FALSE, 
                         control=control.ergm() ){
+  # Start cluster if required (just in case we haven't already).
+  ergm.getCluster(control, max(verbose-1,0))
+
   #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for init)
   n1 <- control$SA.phase1_n
   if(is.null(n1)) {n1 <- 7 + 3 * model$etamap$etalength} #default value
@@ -101,12 +104,9 @@ ergm.robmon <- function(init, nw, model,
   oldthetas <- NULL 
   control$MCMC.samplesize <- 10 # With samplesize=1, interval is irrelevant and burnin is crucial.
   
-  nthreads <- NVL(control$parallel,0)
-  nthreads <- if(is(nthreads, "cluster")) length(nthreads)
-                
-  if(nthreads>0){
-   control$MCMC.samplesize <- control$MCMC.samplesize*nthreads
-  }
+
+  control$MCMC.samplesize <- control$MCMC.samplesize*nthreads()
+
   for(subphase in 1:n_sub) {
     thetamatrix <- NULL # Will hold matrix of all theta values for this subphase
     message(paste("Phase 2, subphase",subphase,": a=",a,",",n_iter,"iterations"), appendLF=FALSE)

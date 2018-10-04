@@ -70,11 +70,6 @@ ergm.CD.fixed <- function(init, nw, model,
   stats.obs.hist <- matrix(NA, 0, length(model$nw.stats))
   steplen.hist <- c()
   steplen <- control$CD.steplength
-
-  nthreads <- max(
-    if(inherits(control$parallel,"cluster")) nrow(summary(control$parallel))
-    else control$parallel,
-    1)
   
   # Store information about original network, which will be returned at end
   nw.orig <- network.copy(nw)
@@ -83,7 +78,10 @@ ergm.CD.fixed <- function(init, nw, model,
   nw <- single.impute.dyads(nw, response=response, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, verbose=verbose)
   model$nw.stats <- summary(model, nw, response=response)
 
-  nws <- rep(list(nw),nthreads) # nws is now a list of networks.
+  # Start cluster if required (just in case we haven't already).
+  ergm.getCluster(control, max(verbose-1,0))
+  
+  nws <- rep(list(nw),nthreads()) # nws is now a list of networks.
 
   # statshift is the difference between the target.stats (if
   # specified) and the statistics of the networks in the LHS of the
@@ -93,7 +91,7 @@ ergm.CD.fixed <- function(init, nw, model,
   # set statshifts to 0 where target.stats is NA (due to offset).
   statshift <- model$nw.stats - model$target.stats
   statshift[is.na(statshift)] <- 0
-  statshifts <- rep(list(statshift), nthreads) # Each network needs its own statshift.
+  statshifts <- rep(list(statshift), nthreads()) # Each network needs its own statshift.
 
   # Is there observational structure?
   obs <- ! is.null(proposal.obs)

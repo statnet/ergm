@@ -10,20 +10,16 @@
 
 ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL, 
                              response=NULL, verbose=FALSE,..., eta=ergm.eta(theta, model$etamap)) {
-  nthreads <- max(
-    if(inherits(control$parallel,"cluster")) nrow(summary(control$parallel))
-    else control$parallel,
-    1)
-
+  # Start cluster if required (just in case we haven't already).
   cl <- ergm.getCluster(control, verbose)
   
   if(is.network(nw) || is.pending_update_network(nw)) nw <- list(nw)
-  nws <- rep(nw, length.out=nthreads)
+  nws <- rep(nw, length.out=nthreads())
   
   Clists <- lapply(nws, ergm::ergm.Cprepare, model, response=response)
 
   control.parallel <- control
-  control.parallel$MCMC.samplesize <- NVL3(control$MCMC.samplesize, ceiling(. / nthreads))
+  control.parallel$MCMC.samplesize <- NVL3(control$MCMC.samplesize, ceiling(. / nthreads()))
 
   flush.console()
 
@@ -51,7 +47,7 @@ ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL,
   #
   statsmatrices <- list()
   newnetworks <- list()
-  for(i in (1:nthreads)){
+  for(i in (1:nthreads())){
     z <- outl[[i]]
     
     if(z$status == 1){ # MCMC_TOO_MANY_EDGES, exceeding even control.parallel$MCMC.max.maxedges
