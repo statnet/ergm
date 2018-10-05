@@ -834,18 +834,20 @@ plot.gof <- function(x, ...,
 
   if ('degree' == statname) {
 
+    ngs <- min(n-1, nrow(x$pval.deg))
+    
    if( min(x$pval.deg[,"MC p-value"]) <0) {
-    pval.max <- max((1:(n - 1))[x$pval.deg[1:(n - 1), "MC p-value"] < 1]) + 3
+    pval.max <- max((1:ngs)[x$pval.deg[1:ngs, "MC p-value"] < 1]) + 3
    }
    else {
-    pval.max <- max((1:(n - 1))[x$obs.deg[1:(n - 1)] > 0]) + 3
+    pval.max <- max((1:ngs)[x$obs.deg[1:ngs] > 0]) + 3
    }
 
    if (is.finite(pval.max) & pval.max < n) {
         deg <- c(1:pval.max)
     }
     else {
-        deg <- c(1:n)
+        deg <- c(1:(ngs+1))
     }
     if (plotlogodds) {
         odds <- x$psim.deg
@@ -898,19 +900,21 @@ plot.gof <- function(x, ...,
   ###odegree####
 
   if ('odegree' == statname) {
+    
+    ngs <- min(n-1, nrow(x$pval.odeg))
 
    if( min(x$pval.odeg[,"MC p-value"]) <0) {
-    pval.max <- max((1:(n - 1))[x$pval.odeg[1:(n - 1), "MC p-value"] < 1]) + 3
+    pval.max <- max((1:ngs)[x$pval.odeg[1:ngs, "MC p-value"] < 1]) + 3
    }
    else {
-    pval.max <- max((1:(n - 1))[x$obs.odeg[1:(n - 1)] > 0]) + 3
+    pval.max <- max((1:ngs)[x$obs.odeg[1:ngs] > 0]) + 3
    }
 
    if (is.finite(pval.max) & pval.max < n) {
         odeg <- c(1:pval.max)
     }
     else {
-        odeg <- c(1:n)
+        odeg <- c(1:(ngs+1))
     }
     if (plotlogodds) {
         odds <- x$psim.odeg
@@ -964,18 +968,20 @@ plot.gof <- function(x, ...,
 
   if ('idegree' == statname) {
 
+    ngs <- min(n-1, nrow(x$pval.ideg))
+
    if( min(x$pval.ideg[,"MC p-value"]) <0) {
-    pval.max <- max((1:(n - 1))[x$pval.ideg[1:(n - 1), "MC p-value"] < 1]) + 3
+    pval.max <- max((1:ngs)[x$pval.ideg[1:ngs, "MC p-value"] < 1]) + 3
    }
    else {
-    pval.max <- max((1:(n - 1))[x$obs.ideg[1:(n - 1)] > 0]) + 3
+    pval.max <- max((1:ngs)[x$obs.ideg[1:ngs] > 0]) + 3
    }
 
    if (is.finite(pval.max) & pval.max < n) {
         ideg <- c(1:pval.max)
     }
     else {
-        ideg <- c(1:n)
+        ideg <- c(1:(ngs+1))
     }
     if (plotlogodds) {
         odds <- x$psim.ideg
@@ -1029,7 +1035,9 @@ plot.gof <- function(x, ...,
 
   if ('espartners' == statname) {
 
-   pval.max <- max((1:(n - 1))[x$pval.espart[1:(n - 1), "MC p-value"] < 
+    ngs <- min(n-1, nrow(x$pval.espart))
+    
+   pval.max <- max((1:ngs)[x$pval.espart[1:ngs, "MC p-value"] < 
         1]) + 3
     if (is.finite(pval.max) & pval.max < n) {
         espart <- c(1:pval.max)
@@ -1089,13 +1097,15 @@ plot.gof <- function(x, ...,
   ###dspart####
 
   if ('dspartners' == statname) {
-   pval.max <- max((1:(n - 1))[x$pval.dspart[1:(n - 1), "MC p-value"] < 
+    ngs <- min(n-1, nrow(x$pval.dspart))
+
+    pval.max <- max((1:ngs)[x$pval.dspart[1:ngs, "MC p-value"] < 
         1]) + 3
     if (is.finite(pval.max) & pval.max < n) {
         dspart <- c(1:pval.max)
     }
     else {
-        dspart <- c(1:n)
+        dspart <- c(1:(ngs+1))
     }
     if (plotlogodds) {
         odds <- x$psim.dspart
@@ -1203,13 +1213,15 @@ plot.gof <- function(x, ...,
 
   if ('distance' == statname) {
 
-    pval.max <- max((1:(n - 1))[x$pval.dist[1:(n - 1), "MC p-value"] < 
+    ngs <- min(n-1, nrow(x$pval.dist))
+
+    pval.max <- max((1:ngs)[x$pval.dist[1:ngs, "MC p-value"] < 
         1]) + 3
     if (is.finite(pval.max) & pval.max < n) {
         dist <- c(1:pval.max, n)
     }
     else {
-        dist <- c(1:n)
+        dist <- c(1:(ngs+1))
     }
     pnames <- paste(dist)
     pnames[length(dist)] <- "NR"
