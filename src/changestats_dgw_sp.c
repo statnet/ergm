@@ -446,8 +446,8 @@ I_CHANGESTAT_FN(i_dgwdsp) {
   Vertex maxesp = (int)INPUT_PARAM[3];
   ALLOC_STORAGE(maxesp*2, double, storage);
   double *dvec=storage+maxesp;    /*Grab memory for the ESP vals*/
-  for(unsigned int i=1;i<=maxesp;i++)         /*Initialize the ESP vals*/
-    dvec[i]=i;
+  for(unsigned int i=0;i<maxesp;i++)         /*Initialize the ESP vals*/
+    dvec[i]=i+1;
 }
 
 C_CHANGESTAT_FN(c_dgwdsp) {
@@ -1014,8 +1014,8 @@ I_CHANGESTAT_FN(i_dgwesp) {
   Vertex maxesp = (int)INPUT_PARAM[3];
   ALLOC_STORAGE(maxesp*2, double, storage);
   double *dvec=storage+maxesp;    /*Grab memory for the ESP vals*/
-  for(unsigned int i=1;i<=maxesp;i++)         /*Initialize the ESP vals*/
-    dvec[i]=i;
+  for(unsigned int i=0;i<maxesp;i++)         /*Initialize the ESP vals*/
+    dvec[i]=i+1;
 }
 
 C_CHANGESTAT_FN(c_dgwesp) { 
@@ -1148,8 +1148,8 @@ I_CHANGESTAT_FN(i_dgwnsp) {
   Vertex maxesp = (int)INPUT_PARAM[3];
   ALLOC_STORAGE(maxesp*3, double, storage);
   double *dvec=storage+maxesp;    /*Grab memory for the ESP vals*/
-  for(unsigned int i=1;i<=maxesp;i++)         /*Initialize the ESP vals*/
-    dvec[i]=i;
+  for(unsigned int i=0;i<maxesp;i++)         /*Initialize the ESP vals*/
+    dvec[i]=i+1;
 }
 
 C_CHANGESTAT_FN(c_dgwnsp) { 
