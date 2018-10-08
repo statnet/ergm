@@ -190,10 +190,10 @@ logLikNull.ergm <- function(object, control=control.logLik.ergm(), ...){
 
   llk <-
     if(!is.null(object$response)){
-      message("Note: Null model likelihood calculation is not implemented for valued ERGMs at this time. ", NO_NULL_IMPLICATION)
+      message(paste(strwrap(paste("Note: Null model likelihood calculation is not implemented for valued ERGMs at this time. ", NO_NULL_IMPLICATION)), collapse="\n"))
       NA
     }else if(!is.dyad.independent(object$constrained, object$constrained.obs)){
-      message("Note: The constraint on the sample space is not dyad-independent. Null model likelihood is only implemented for dyad-independent constraints at this time. Number of observations is similarly poorly defined. ", NO_NULL_IMPLICATION)
+      message(paste(strwrap(paste("Note: The constraint on the sample space is not dyad-independent. Null model likelihood is only implemented for dyad-independent constraints at this time. Number of observations is similarly poorly defined. ", NO_NULL_IMPLICATION)), collapse="\n"))
       NA
     }else nobs * log(1/2)
   
