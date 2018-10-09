@@ -260,15 +260,33 @@ plot.gofN <- function(x, against=NULL, which=1:2, col=1, pch=1, cex=1, ..., ask 
 }
 
 #' @describeIn gofN A simple summary function.
+#' @param by a numeric or character vector, or a formula whose RHS gives an expression in terms of network attributes, used as a grouping variable for summarizing the values.
 #' @export
-summary.gofN <- function(object, ...){
+summary.gofN <- function(object, by=NULL, ...){
   cns <- names(object)
+  if(is.null(by)){
+    list(`Observed/Imputed values` = object %>% map("observed") %>% as_tibble %>% summary,
+         `Fitted values` = object %>% map("fitted") %>% as_tibble %>% summary,
+         `Pearson residuals`  = object %>% map("pearson") %>% as_tibble %>% summary,
+         `Variance of Pearson residuals` = object %>% map("pearson") %>% map(var),
+         `Std. dev. of Pearson residuals` = object %>% map("pearson") %>% map(sd))
+  }else{
+    if(is(by,"formula"))
+      nattrs <- get_multinet_nattr_tibble(attr(object,"nw"))[attr(object,"subset"),]
+    
+    byname <- switch(class(by),
+                     formula = despace(deparse(by[[length(by)]])),
+                     despace(deparse(substitute(by))))
+    byval <- switch(class(by),
+                    formula = eval(by[[length(by)]], envir = nattrs, enclos = environment(by)),
+                    by)
 
-  list(`Observed/Imputed values` = object %>% map("observed") %>% as_tibble %>% summary,
-       `Fitted values` = object %>% map("fitted") %>% as_tibble %>% summary,
-       `Pearson residuals`  = object %>% map("pearson") %>% as_tibble %>% summary,
-       `Variance of Pearson residuals` = object %>% map("pearson") %>% map(var),
-       `Std. dev. of Pearson residuals` = object %>% map("pearson") %>% map(sd))
+    list(`Observed/Imputed values` = object %>% map("observed") %>% as_tibble %>% split(byval) %>% map(summary),
+         `Fitted values` = object %>% map("fitted") %>% as_tibble %>% split(byval) %>% map(summary),
+         `Pearson residuals`  = object %>% map("pearson") %>% as_tibble %>% split(byval) %>% map(summary),
+         `Variance of Pearson residuals` = object %>% map("pearson") %>% as_tibble %>% split(byval) %>% map(var),
+         `Std. dev. of Pearson residuals` = object %>% map("pearson") %>% as_tibble %>% split(byval) %>% map(~apply(.,2,sd)))
+  }
 }
 
 #' Auxiliary for Controlling Multinetwork ERGM Linear Goodness-of-Fit Evaluation

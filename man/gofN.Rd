@@ -12,7 +12,7 @@ gofN(object, GOF, subset = TRUE, control = control.gofN.ergm(), ...)
   pch = 1, cex = 1, ..., ask = length(which) > 1 &&
   dev.interactive(TRUE))
 
-\method{summary}{gofN}(object, ...)
+\method{summary}{gofN}(object, by = NULL, ...)
 }
 \arguments{
 \item{object}{an \code{\link{ergm}} object.}
@@ -37,6 +37,8 @@ and \code{\link[=summary.ergm_model]{summary.ergm_model()}} for the constructor,
 \item{col, pch, cex}{vector of values (wrapped in \code{\link[=I]{I()}}), network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against.}
 
 \item{ask}{whether the user should be prompted between the plots.}
+
+\item{by}{a numeric or character vector, or a formula whose RHS gives an expression in terms of network attributes, used as a grouping variable for summarizing the values.}
 }
 \value{
 An object of class \code{gofN}: a named list containing a list
