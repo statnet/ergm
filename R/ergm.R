@@ -908,8 +908,7 @@ ergm <- function(formula, response=NULL,
   }
     
   if (MCMCflag) {
-    message("This model was fit using MCMC.  To examine model diagnostics ", 
-        "and check for degeneracy, use the mcmc.diagnostics() function.")
+    message(paste(strwrap("This model was fit using MCMC.  To examine model diagnostics and check for degeneracy, use the mcmc.diagnostics() function."),collapse="\n"))
   }
   
   mainfit

@@ -200,7 +200,7 @@ fix.curved.ergm <- function(object,...){
 fix.curved.formula <- function(object, theta, response=NULL, ...){
   recipes<-list()
   is.fixed.1<-function(a) is.null(a$fixed) || a$fixed==FALSE
-  recipes$gwdsp<-recipes$gwesp<-recipes$gwnsp<-
+  recipes$dgwdsp<-recipes$dgwesp<-recipes$dgwnsp<-recipes$gwdsp<-recipes$gwesp<-recipes$gwnsp<-
     list(filter=is.fixed.1, tocoef=1, toarg=list(decay=2), constant=list(fixed=TRUE))
   recipes$altkstar<-
     list(filter=is.fixed.1, tocoef=1, toarg=list(lambda=2), constant=list(fixed=TRUE))
@@ -276,7 +276,7 @@ enformulate.curved.ergm <- function(object,...){
 enformulate.curved.formula <- function(object, theta, response=NULL, ...){
   recipes<-list()
   is.fixed.1<-function(a) is.null(a$fixed) || a$fixed==FALSE
-  recipes$gwdsp<-recipes$gwesp<-recipes$gwnsp<-
+  recipes$dgwdsp<-recipes$dgwesp<-recipes$dgwnsp<-recipes$gwdsp<-recipes$gwesp<-recipes$gwnsp<-
     list(filter=is.fixed.1, tocoef=1, toarg=list(decay=2))
   recipes$altkstar<-
     list(filter=is.fixed.1, tocoef=1, toarg=list(lambda=2))
