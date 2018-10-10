@@ -180,3 +180,38 @@ F_CHANGESTAT_FN(f_MultiNets){
   }
 }
 
+// ByNetDStats
+
+I_CHANGESTAT_FN(i_ByNetDStats){
+  double *inputs = INPUT_PARAM; 
+  GET_AUX_STORAGE(StoreSubnets, sn); inputs++;
+  unsigned int ns = sn->ns;
+  inputs+=ns+1; // Skip over subsets.
+
+  Model *m = STORAGE = unpack_Model_as_double(&inputs);
+  InitStats(nwp, m);
+}
+
+C_CHANGESTAT_FN(c_ByNetDStats){
+  double *pos = INPUT_PARAM; // Starting positions of subnetworks' statistics.
+  GET_AUX_STORAGE(StoreSubnets, sn); pos++;
+  GET_STORAGE(Model, m);
+
+  unsigned int i = MN_SID_TAIL(sn, tail);
+  if(pos[i-1]!=pos[i]){
+    ChangeStats(1, &tail, &head, nwp, m);
+    memcpy(CHANGE_STAT + (unsigned int)pos[i], m->workspace, m->n_stats*sizeof(double));
+  }
+}
+
+U_CHANGESTAT_FN(u_ByNetDStats){
+  GET_STORAGE(Model, m);
+  UPDATE_STORAGE(tail, head, nwp, m, NULL);
+}
+
+F_CHANGESTAT_FN(f_ByNetDStats){
+  GET_STORAGE(Model, m);
+  ModelDestroy(nwp, m);
+  STORAGE = NULL;
+}
+

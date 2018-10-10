@@ -69,6 +69,7 @@ InitErgmTerm..subnets <- function(nw, arglist, response=NULL, ...){
 }
 
 get_multinet_nattr_tibble <- function(nw){
+  ## TODO: It should be possible to do this without splitting the network.
   nwl <- if(is.network(nw)) .split_constr_network(nw, ".NetworkID", ".NetworkName")
          else nw
   nn <- length(nwl)
@@ -267,4 +268,29 @@ InitErgmTerm.N <- function(nw, arglist, response=NULL, N.compact_stats=TRUE,...)
     gs <- unlist(lapply(ms, `[[`, "gs"))   
     list(name="MultiNets", coef.names = coef.names, inputs=inputs, dependence=!all(sapply(lapply(ms, `[[`, "model"), is.dyad.independent)), emptynwstats = gs, auxiliaries = auxiliaries, map = etamap, gradient = etagradient, params = params)
   }
+}
+
+InitErgmTerm.ByNetDStats <- function(nw, arglist, response=NULL,...){
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("formula", "subset"),
+                      vartypes = c("formula","formula,logical,numeric,expression,call"),
+                      defaultvalues = list(NULL,TRUE),
+                      required = c(TRUE,FALSE))
+
+  f <- a$formula
+  auxiliaries <- ~.subnets(".NetworkID")
+  nattrs <- get_multinet_nattr_tibble(nw)
+
+  lmi <- get_lminfo(nattrs, subset=a$subset)
+
+  subset <- lmi$subset
+  nn <- sum(subset)
+  rm(lmi)
+    
+  f <- nonsimp_update.formula(f, nw~.)
+  m <- ergm_model(f, nw, response=response,...)
+
+  coef.names <- paste0('N#',rep(seq_len(nn)[subset], each=nparam(m, canonical=TRUE)),':',param_names(m, canonical=TRUE))
+  inputs <- c(cumsum(c(-1,subset))*nparam(m, canonical=TRUE), to_ergm_Cdouble(m))
+  list(name="ByNetDStats", coef.names = coef.names, inputs=inputs, dependence=is.dyad.independent(m), auxiliaries=auxiliaries)
 }
