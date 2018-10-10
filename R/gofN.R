@@ -13,7 +13,8 @@
 #'
 #' @param object an [`ergm`] object.
 #' @param GOF a one-sided [`ergm`] formula specifying network
-#'   statistics whose goodness of fit to test.
+#'   statistics whose goodness of fit to test, or [`NULL`]; if `NULL`,
+#'   uses the original model.
 #' @param subset argument for the [`N`][ergm-terms] term.
 #' @param \dots additional arguments to functions ([simulate.ergm()]
 #'   and [summary.ergm_model()] for the constructor, [plot()],
@@ -48,16 +49,22 @@
 #' @examples
 #' data(samplk)
 #' monks <- Networks(samplk1, samplk2, samplk3,samplk1, samplk2, samplk3,samplk1, samplk2, samplk3)
-#' fit <- ergm(monks~N(~edges))
-#' fit.gof <- gofN(fit, GOF=~edges)
+#' fit <- ergm(monks~N(~edges+nodematch("group")))
+#' fit.gof <- gofN(fit) # GOF = original model
+#' summary(fit.gof)
+#' plot(fit.gof)
+#' fit.gof <- gofN(fit, GOF=~triangles)
 #' summary(fit.gof)
 #' plot(fit.gof)
 #'
 #' samplk1[1,]<-NA
 #' samplk2[,2]<-NA
 #' monks <- Networks(samplk1, samplk2, samplk3,samplk1, samplk2, samplk3,samplk1, samplk2, samplk3)
-#' fit <- ergm(monks~N(~edges))
-#' fit.gof <- gofN(fit, GOF=~edges)
+#' fit <- ergm(monks~N(~edges+nodematch("group")))
+#' fit.gof <- gofN(fit) # GOF = original model
+#' summary(fit.gof)
+#' plot(fit.gof)
+#' fit.gof <- gofN(fit, GOF=~triangles)
 #' summary(fit.gof)
 #' plot(fit.gof)
 #' 
@@ -67,7 +74,7 @@
 #' }
 #' 
 #' @export
-gofN <- function(object, GOF, subset=TRUE, control=control.gofN.ergm(), ...){
+gofN <- function(object, GOF=NULL, subset=TRUE, control=control.gofN.ergm(), ...){
   check.control.class(c("gofN.ergm"), "gofN")
   if(control$obs.twostage && control$nsim %% control$obs.twostage !=0) stop("Number of imputation networks specified by obs.twostage control parameter must divide the nsim control parameter evenly.")
   
@@ -93,9 +100,9 @@ gofN <- function(object, GOF, subset=TRUE, control=control.gofN.ergm(), ...){
   for(attempt in seq_len(control$retry_bad_nets + 1)){
     if(attempt!=1) message(sum(remain), " networks (", paste(which(remain),collapse=", "), ") have bad simulations; rerunning.")
     message("Constructing GOF model.")
+    NVL(GOF) <- if(length(object$formula)==3) object$formula[-2] else object$formula
     if(any(NVL(prev.remain,FALSE)!=remain))
-      pernet.m <- ergm_model(~N(GOF, subset=remain), nw=nw, response = object$response, ...,
-                             term.options= .update.list(as.list(object$control$term.options), list(N.compact_stats=FALSE)))
+      pernet.m <- ergm_model(~ByNetDStats(GOF, subset=remain), nw=nw, response = object$response, ...)
     prev.remain <- remain
     
     nstats <- nparam(pernet.m, canonical=TRUE)/sum(remain)

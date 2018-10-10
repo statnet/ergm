@@ -6,7 +6,8 @@
 \alias{summary.gofN}
 \title{Linear model diagnostics for multinetwork linear models}
 \usage{
-gofN(object, GOF, subset = TRUE, control = control.gofN.ergm(), ...)
+gofN(object, GOF = NULL, subset = TRUE,
+  control = control.gofN.ergm(), ...)
 
 \method{plot}{gofN}(x, against = NULL, which = 1:2, col = 1,
   pch = 1, cex = 1, ..., ask = length(which) > 1 &&
@@ -18,7 +19,8 @@ gofN(object, GOF, subset = TRUE, control = control.gofN.ergm(), ...)
 \item{object}{an \code{\link{ergm}} object.}
 
 \item{GOF}{a one-sided \code{\link{ergm}} formula specifying network
-statistics whose goodness of fit to test.}
+statistics whose goodness of fit to test, or \code{\link{NULL}}; if \code{NULL},
+uses the original model.}
 
 \item{subset}{argument for the \code{\link[=ergm-terms]{N}} term.}
 
@@ -79,16 +81,22 @@ Linear model diagnostics for multinetwork linear models
 \examples{
 data(samplk)
 monks <- Networks(samplk1, samplk2, samplk3,samplk1, samplk2, samplk3,samplk1, samplk2, samplk3)
-fit <- ergm(monks~N(~edges))
-fit.gof <- gofN(fit, GOF=~edges)
+fit <- ergm(monks~N(~edges+nodematch("group")))
+fit.gof <- gofN(fit) # GOF = original model
+summary(fit.gof)
+plot(fit.gof)
+fit.gof <- gofN(fit, GOF=~triangles)
 summary(fit.gof)
 plot(fit.gof)
 
 samplk1[1,]<-NA
 samplk2[,2]<-NA
 monks <- Networks(samplk1, samplk2, samplk3,samplk1, samplk2, samplk3,samplk1, samplk2, samplk3)
-fit <- ergm(monks~N(~edges))
-fit.gof <- gofN(fit, GOF=~edges)
+fit <- ergm(monks~N(~edges+nodematch("group")))
+fit.gof <- gofN(fit) # GOF = original model
+summary(fit.gof)
+plot(fit.gof)
+fit.gof <- gofN(fit, GOF=~triangles)
 summary(fit.gof)
 plot(fit.gof)
 
