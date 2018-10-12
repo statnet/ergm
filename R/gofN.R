@@ -175,27 +175,28 @@ gofN <- function(object, GOF=NULL, subset=TRUE, control=control.gofN.ergm(), ...
     }
 
     # Calculate variances for each network and statistic.
-    dv <- apply(statarray, 2:3, var) - if(control$obs.twostage) apply(statarray, 2:3, .mean_var, control$obs.twostage) else apply(statarray.obs, 2:3, var)
+    v <- apply(statarray, 2:3, var)
+    vo <- if(control$obs.twostage) apply(statarray, 2:3, .mean_var, control$obs.twostage) else apply(statarray.obs, 2:3, var)
     # If any statistic for the network has negative variance estimate, rerun it.
-    remain[remain] <- apply(dv<=0, 2, any)
+    remain[remain] <- apply(v>0 & v-vo<=0, 2, any)
     if(!any(remain)) break;
   }
   if(any(remain))
     stop(sum(remain), " networks (", paste(which(remain),collapse=", "), ") have bad simulations after permitted number of retries. Rerun with higher nsim= control parameter.")
 
-  message("Summarising.")
+  message("Summarizing.")
   o <- setNames(lapply(seq_along(cn), function(i){
     s <- stats[,i,]
     so <- stats.obs[,i,]
     #' @importFrom tibble lst
-    l <-
-      lst(
-        observed = colMeans(so),
-        fitted = colMeans(s),
-        var = apply(s,2,var),
-        var.obs = if(control$obs.twostage) apply(s, 2, .mean_var, control$obs.twostage) else apply(so, 2, var),
-        pearson = (observed-fitted)/sqrt(var-var.obs)
-      )
+    v <- apply(s,2,var)
+    l <- list()
+    l$var <- ifelse(v>0, v, NA)
+    l$var.obs <- ifelse(v>0, if(control$obs.twostage) apply(s, 2, .mean_var, control$obs.twostage) else apply(so, 2, var), NA)
+    l$observed <- ifelse(v>0, colMeans(so), NA)
+    l$fitted <- ifelse(v>0, colMeans(s), NA)
+    l$pearson <- ifelse(v>0, (l$observed-l$fitted)/sqrt(l$var-l$var.obs), NA)
+    l
   }), cn)
 
   structure(o, nw=nw, subset=subset, control=control, class="gofN")
@@ -275,8 +276,8 @@ summary.gofN <- function(object, by=NULL, ...){
     list(`Observed/Imputed values` = object %>% map("observed") %>% as_tibble %>% summary,
          `Fitted values` = object %>% map("fitted") %>% as_tibble %>% summary,
          `Pearson residuals`  = object %>% map("pearson") %>% as_tibble %>% summary,
-         `Variance of Pearson residuals` = object %>% map("pearson") %>% map(var),
-         `Std. dev. of Pearson residuals` = object %>% map("pearson") %>% map(sd))
+         `Variance of Pearson residuals` = object %>% map("pearson") %>% map(var,na.rm=TRUE),
+         `Std. dev. of Pearson residuals` = object %>% map("pearson") %>% map(sd,na.rm=TRUE))
   }else{
     if(is(by,"formula"))
       nattrs <- get_multinet_nattr_tibble(attr(object,"nw"))[attr(object,"subset"),]
@@ -291,8 +292,8 @@ summary.gofN <- function(object, by=NULL, ...){
     list(`Observed/Imputed values` = object %>% map("observed") %>% as_tibble %>% split(byval) %>% map(summary),
          `Fitted values` = object %>% map("fitted") %>% as_tibble %>% split(byval) %>% map(summary),
          `Pearson residuals`  = object %>% map("pearson") %>% as_tibble %>% split(byval) %>% map(summary),
-         `Variance of Pearson residuals` = object %>% map("pearson") %>% as_tibble %>% split(byval) %>% map(var),
-         `Std. dev. of Pearson residuals` = object %>% map("pearson") %>% as_tibble %>% split(byval) %>% map(~apply(.,2,sd)))
+         `Variance of Pearson residuals` = object %>% map("pearson") %>% as_tibble %>% split(byval) %>% map(var,na.rm=TRUE),
+         `Std. dev. of Pearson residuals` = object %>% map("pearson") %>% as_tibble %>% split(byval) %>% map(~apply(.,2,sd,na.rm=TRUE)))
   }
 }
 
