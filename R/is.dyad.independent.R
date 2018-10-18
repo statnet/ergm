@@ -78,7 +78,9 @@ is.dyad.independent.ergm_conlist <- function(object, object.obs=NULL, ...){
 #' @rdname is.dyad.independent
 #' @export
 is.dyad.independent.ergm<-function(object,...){
-  with(object,
-       is.dyad.independent(formula,object$response,network,...)
-       && is.dyad.independent(object$constrained, object$constrained.obs))
+  NVL(object$MPLE_is_MLE,
+      with(object,
+           is.dyad.independent(formula,object$response,network,...)
+           && is.dyad.independent(object$constrained, object$constrained.obs))
+      )
 }
