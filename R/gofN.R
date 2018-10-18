@@ -258,7 +258,7 @@ plot.gofN <- function(x, against=NULL, which=1:2, col=1, pch=1, cex=1, ..., ask 
     }
 
     if(3L %in% which){
-      qqnorm(summ$pearson, col=col, pch=pch, cex=cex,..., main = paste("Normal Q-Q for", sQuote(name)), xlab=againstname, ylab=expression(sqrt("|Pearson residual|")))
+      qqnorm(summ$pearson, col=col, pch=pch, cex=cex,..., main = paste("Normal Q-Q for", sQuote(name)))
       qqline(summ$pearson, ...)
     }
     
