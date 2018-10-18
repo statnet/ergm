@@ -797,7 +797,9 @@ ergm <- function(formula, response=NULL,
                                 ...)
   
   if (!MCMCflag){ # Just return initial (non-MLE) fit and exit.
+    message("Stopping at the initial estimate.")
     initialfit$offset <- model$etamap$offsettheta
+    initialfit$MPLE_is_MLE <- MPLE.is.MLE
     initialfit$drop <- if(control$drop) extremecheck$extremeval.theta
     initialfit$estimable <- constrcheck$estimable
     initialfit$network <- nw
@@ -875,6 +877,7 @@ ergm <- function(formula, response=NULL,
   } else {
     degeneracy <- list(degeneracy.value=NULL, degeneracy.type=NULL)
   }
+  mainfit$MPLE_is_MLE <- MPLE.is.MLE
   mainfit$degeneracy.value <- degeneracy$degeneracy.value
   mainfit$degeneracy.type <- degeneracy$degeneracy.type
   

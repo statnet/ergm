@@ -131,12 +131,20 @@
   }
 }
 
-\section{Changes in version 3.9.5}{
+\section{Changes in version 3.10.0}{
 
   \subsection{NEW FEATURES}{
     \itemize{
       \item{
 	\code{\link{ergm.godfather}} now takes an additional \code{changes.only=} argument, to return statistics relative to initial network.
+      }
+
+      \item{
+	\code{\link{fix.curved}} and \code{\link{enformulate.curved}} now handle the \code{\link[=dgwesp]{dgw*sp}} terms.
+      }
+
+      \item{
+	\code{\link{simulate.ergm}} and others now have an \code{output=} argument to provide finer control over the return format. It is to be preferred over the \code{statsonly=} argument.
       }
     }
   }
@@ -152,23 +160,53 @@
 	\code{\link{summary.ergm}} fixed for CD estimation.
       }
       \item{
+	\code{\link{diff}} term with \code{sign.action="abs"} no longer produces a warning on bipartite undirected networks. Thanks to Damien Georges for pointing out that this warning is unnecessary.
+      }
+      \item{
+	More robust searching for initialization functions.
+      }
+      \item{
 	Some spurious warnings fixed.
       }
     }
   }
 
 
-  %% \subsection{OTHER USER-VISIBLE CHANGES}{
-  %%   \itemize{
-  %%     \item{
-  %%     }
-  %%   }
-  %% }
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+	Parallel processing \dQuote{API} now handles cluster starting and stopping more intelligently. In particular, \code{ergm.getCluster} now automatically sets up the calling function to stop the cluster when the calling function terminantes.
+      }
 
-  %% \subsection{C-LEVEL FACILITIES}{
-  %%   \itemize{
-  %%   }
-  %% }
+      \item{
+	The vignette no longer tests egocentric code.
+      }
+
+      \item{
+	Failure to allocate memory in the C routines now produces sensible errors.
+      }
+
+      \item{
+	A semi-internal \code{\link{pending_udpate_network}} API can be used to carry around network information between \code{.C} calls without having to reconstruct the network.
+      }
+
+      \item{
+	\code{\link{control.ergm}}'s \code{init.method=} argument now overrides the candidate list when selecting initialization methods.
+      }
+
+      \item{
+	\code{\link{network.update}} is deprecated in favor of an \code{\link{update.network}} method.
+      }
+    }
+  }
+
+  \subsection{C-LEVEL FACILITIES}{
+    \itemize{
+      \item{Some changes to the Metropolis-Hastings proposal API.}
+      
+      \item{Network initialization functions now return a pointer, and destroying functions free it.}
+    }
+  }
 
   %% \subsection{UTILITIES}{
   %%   \itemize{
