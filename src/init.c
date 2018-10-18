@@ -16,6 +16,8 @@
    "R_useDynamicSymbols(dll, FALSE)" to "R_useDynamicSymbols(dll, TRUE)".
 */
 
+#include <R.h>
+#include <Rinternals.h>
 #include <stdlib.h> // for NULL
 #include <R_ext/Rdynload.h>
 
@@ -38,6 +40,11 @@ extern void WtGodfather_wrapper(void *, void *, void *, void *, void *, void *, 
 extern void WtMCMC_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void WtSAN_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 
+/* .Call calls */
+extern SEXP get_ergm_omp_terms();
+extern SEXP mean_var_wrapper(SEXP, SEXP);
+extern SEXP set_ergm_omp_terms(SEXP);
+
 static const R_CMethodDef CEntries[] = {
     {"AllStatistics",              (DL_FUNC) &AllStatistics,              13},
     {"CD_wrapper",                 (DL_FUNC) &CD_wrapper,                 25},
@@ -59,8 +66,15 @@ static const R_CMethodDef CEntries[] = {
     {NULL, NULL, 0}
 };
 
+static const R_CallMethodDef CallEntries[] = {
+    {"get_ergm_omp_terms", (DL_FUNC) &get_ergm_omp_terms, 0},
+    {"mean_var_wrapper",   (DL_FUNC) &mean_var_wrapper,   2},
+    {"set_ergm_omp_terms", (DL_FUNC) &set_ergm_omp_terms, 1},
+    {NULL, NULL, 0}
+};
+
 void R_init_ergm(DllInfo *dll)
 {
-    R_registerRoutines(dll, CEntries, NULL, NULL, NULL);
+    R_registerRoutines(dll, CEntries, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, TRUE);
 }

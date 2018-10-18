@@ -1,7 +1,5 @@
 .mean_var <- function(x, ng){
-  split(x, (seq_along(x)-1L)%/%(length(x)/ng)) %>%
-    map_dbl(var) %>%
-    mean()
+  .Call("mean_var_wrapper", x, length(x)/ng, PACKAGE="ergm")
 }
 
 .update.list <- function(l, v){
@@ -96,7 +94,6 @@ gofN <- function(object, GOF=NULL, subset=TRUE, control=control.gofN.ergm(), ...
 
   prev.remain <- NULL
   cl <- ergm.getCluster(control)
-  nthreads <- max(length(cl),1)
   for(attempt in seq_len(control$retry_bad_nets + 1)){
     if(attempt!=1) message(sum(remain), " networks (", paste(which(remain),collapse=", "), ") have bad simulations; rerunning.")
     message("Constructing GOF model.")
@@ -120,13 +117,14 @@ gofN <- function(object, GOF=NULL, subset=TRUE, control=control.gofN.ergm(), ...
     # TODO: Make this adaptive: start with a small simulation,
     # increase on fail; or perhaps use a pilot sample.
     if(!is.null(object$constrained.obs)){
+      nthreads <- nthreads() # Fix this, so as not to become confused inside a clusterCall().
       sim <-
         if(control$obs.twostage){
           message("Simulating imputed networks.", appendLF=FALSE)
           sim.net <- sim_settings$basis
           genseries <- function(){
             sim <- list()
-            for(i in seq_len(ceiling(control$obs.twostage/nthreads))){
+            for(i in seq_len(control$obs.twostage/nthreads)){
               args <- .update.list(sim_settings,
                                  list(
                                    basis=sim.net,
@@ -147,7 +145,7 @@ gofN <- function(object, GOF=NULL, subset=TRUE, control=control.gofN.ergm(), ...
           #' @importFrom parallel clusterCall
           sim <- if(!is.null(cl)) unlist(clusterCall(cl, genseries),recursive=FALSE) else genseries()
           message("")
-          do.call(rbind, sim)
+          do.call(rbind, sim)[seq_len(control$obs.twostage),,drop=FALSE]
         }
       message("Simulating constrained sample.")
       sim.obs <- do.call(simulate, .update.list(sim.obs_settings,
