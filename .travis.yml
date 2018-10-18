@@ -5,10 +5,13 @@ r:
 os:
 - linux
 - osx
+## - windows
 matrix:
   exclude:
   - r: devel
     os: osx
+##   - r: devel
+##     os: windows
 sudo: false
 cache: packages
 before_install:
