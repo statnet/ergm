@@ -38,8 +38,6 @@ Network *NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
   nwp->inedges = (TreeNode *) Calloc(nwp->maxedges, TreeNode);
   nwp->outedges = (TreeNode *) Calloc(nwp->maxedges, TreeNode);
 
-  GetRNGstate();  /* R function enabling uniform RNG */
-
   if(lasttoggle_flag){
     nwp->duration_info.time=time;
     if(lasttoggle){
@@ -64,7 +62,6 @@ Network *NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
     else 
       AddEdgeToTrees(tail,head,nwp);
   }
-  PutRNGstate();
   return nwp;
 }
 

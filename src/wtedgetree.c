@@ -37,8 +37,6 @@ WtNetwork *WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
   nwp->inedges = (WtTreeNode *) Calloc(nwp->maxedges, WtTreeNode);
   nwp->outedges = (WtTreeNode *) Calloc(nwp->maxedges, WtTreeNode);
 
-  GetRNGstate();  /* R function enabling uniform RNG */
-
   if(lasttoggle_flag){
     nwp->duration_info.time=time;
     if(lasttoggle){
@@ -64,7 +62,6 @@ WtNetwork *WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
     else 
       WtAddEdgeToTrees(tail,head,w,nwp);
   }
-  PutRNGstate();
   return nwp;
 }
 
