@@ -62,7 +62,7 @@ WtNetwork *nwp, WtModel *m, double *stats){
 
   GetRNGstate();  /* R function enabling uniform RNG */
   
-  WtShuffleEdges(tails,heads,weights,n_edges); /* Shuffle edgelist. */
+  WtDetShuffleEdges(tails,heads,weights,n_edges); /* Shuffle edgelist. */
   
   for (unsigned int termi=0; termi < m->n_terms; termi++)
     m->termarray[termi].dstats = m->workspace;

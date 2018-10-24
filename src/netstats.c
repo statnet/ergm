@@ -68,7 +68,7 @@ Network *nwp, Model *m, double *stats){
   
   GetRNGstate();  /* R function enabling uniform RNG */
   
-  ShuffleEdges(tails,heads,n_edges); /* Shuffle edgelist. */
+  DetShuffleEdges(tails,heads,n_edges); /* Shuffle edgelist. */
   
   for (unsigned int termi=0; termi < m->n_terms; termi++)
     m->termarray[termi].dstats = m->workspace;

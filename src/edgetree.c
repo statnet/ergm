@@ -55,7 +55,7 @@ Network *NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
   nwp->directed_flag=directed_flag;
   nwp->bipartite=bipartite;
 
-  ShuffleEdges(tails,heads,nedges); /* shuffle to avoid worst-case performance */
+  DetShuffleEdges(tails,heads,nedges); /* shuffle to avoid worst-case performance */
 
   for(Edge i = 0; i < nedges; i++) {
     Vertex tail=tails[i], head=heads[i];
@@ -834,10 +834,33 @@ Edge EdgeTree2EdgeList(Vertex *tails, Vertex *heads, Network *nwp, Edge nmax){
        in before heads */
 
 
+/****************
+ Edge ShuffleEdges
+
+ Randomly permute edges in an list.
+****************/
 void ShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges){
   /* *** don't forget,  tail -> head */
   for(Edge i = nedges; i > 0; i--) {
     Edge j = i * unif_rand();
+    Vertex tail = tails[j];
+    Vertex head = heads[j];
+    tails[j] = tails[i-1];
+    heads[j] = heads[i-1];
+    tails[i-1] = tail;
+    heads[i-1] = head;
+  }
+}
+
+/****************
+ Edge DetShuffleEdges
+
+ Deterministically scramble edges in an list.
+****************/
+void DetShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges){
+  /* *** don't forget,  tail -> head */
+  for(Edge i = nedges; i > 0; i--) {
+    Edge j = i/2;
     Vertex tail = tails[j];
     Vertex head = heads[j];
     tails[j] = tails[i-1];

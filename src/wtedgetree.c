@@ -54,7 +54,7 @@ WtNetwork *WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
   nwp->directed_flag=directed_flag;
   nwp->bipartite=bipartite;
 
-  WtShuffleEdges(tails,heads,weights,nedges); /* shuffle to avoid worst-case performance */
+  WtDetShuffleEdges(tails,heads,weights,nedges); /* shuffle to avoid worst-case performance */
 
   for(Edge i = 0; i < nedges; i++) {
     Vertex tail=tails[i], head=heads[i];
@@ -931,10 +931,36 @@ Edge WtEdgeTree2EdgeList(Vertex *tails, Vertex *heads, double *weights, WtNetwor
        in before heads */
 
 
+/****************
+ Edge WtShuffleEdges
+
+ Randomly permute edges in an list.
+****************/
 void WtShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges){
   /* *** don't forget,  tail -> head */
   for(Edge i = nedges; i > 0; i--) {
     Edge j = i * unif_rand();
+    Vertex tail = tails[j];
+    Vertex head = heads[j];
+    double w = weights[j];
+    tails[j] = tails[i-1];
+    heads[j] = heads[i-1];
+    weights[j] = weights[i-1];
+    tails[i-1] = tail;
+    heads[i-1] = head;
+    weights[i-1] = w;
+  }
+}
+
+/****************
+ Edge WtDetShuffleEdges
+
+ Deterministically scramble edges in an list.
+****************/
+void WtDetShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges){
+  /* *** don't forget,  tail -> head */
+  for(Edge i = nedges; i > 0; i--) {
+    Edge j = i/2;
     Vertex tail = tails[j];
     Vertex head = heads[j];
     double w = weights[j];
