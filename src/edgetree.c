@@ -499,7 +499,11 @@ int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
   /* First, determine which node to splice out; this is z.  If the current
      z has two children, then we'll actually splice out its successor. */
   if ((zptr=edges+z)->left != 0 && zptr->right != 0) {
-    if(unif_rand()<0.5)
+    /* Select which child to promote based on whether the left child's
+       position is divisible by 2: the position of a node in an edge
+       tree is effectively random, *unless* it's a root node. Using
+       the left child ensures that it is not a root node. */
+    if(zptr->left&1u)
       z=EdgetreeSuccessor(edges, z);  
     else
       z=EdgetreePredecessor(edges, z);  
