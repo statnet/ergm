@@ -37,8 +37,6 @@ WtNetwork *WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
   nwp->inedges = (WtTreeNode *) Calloc(nwp->maxedges, WtTreeNode);
   nwp->outedges = (WtTreeNode *) Calloc(nwp->maxedges, WtTreeNode);
 
-  GetRNGstate();  /* R function enabling uniform RNG */
-
   if(lasttoggle_flag){
     nwp->duration_info.time=time;
     if(lasttoggle){
@@ -54,7 +52,7 @@ WtNetwork *WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
   nwp->directed_flag=directed_flag;
   nwp->bipartite=bipartite;
 
-  WtShuffleEdges(tails,heads,weights,nedges); /* shuffle to avoid worst-case performance */
+  WtDetShuffleEdges(tails,heads,weights,nedges); /* shuffle to avoid worst-case performance */
 
   for(Edge i = 0; i < nedges; i++) {
     Vertex tail=tails[i], head=heads[i];
@@ -64,7 +62,6 @@ WtNetwork *WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
     else 
       WtAddEdgeToTrees(tail,head,w,nwp);
   }
-  PutRNGstate();
   return nwp;
 }
 
@@ -357,7 +354,11 @@ int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
   /* First, determine which node to splice out; this is z.  If the current
      z has two children, then we'll actually splice out its successor. */
   if ((zptr=edges+z)->left != 0 && zptr->right != 0) {
-    if(unif_rand()<0.5)
+    /* Select which child to promote based on whether the left child's
+       position is divisible by 2: the position of a node in an edge
+       tree is effectively random, *unless* it's a root node. Using
+       the left child ensures that it is not a root node. */
+    if(zptr->left&1u)
       z=WtEdgetreeSuccessor(edges, z);  
     else
       z=WtEdgetreePredecessor(edges, z);  
@@ -698,10 +699,36 @@ Edge WtEdgeTree2EdgeList(Vertex *tails, Vertex *heads, double *weights, WtNetwor
        in before heads */
 
 
+/****************
+ Edge WtShuffleEdges
+
+ Randomly permute edges in an list.
+****************/
 void WtShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges){
   /* *** don't forget,  tail -> head */
   for(Edge i = nedges; i > 0; i--) {
     Edge j = i * unif_rand();
+    Vertex tail = tails[j];
+    Vertex head = heads[j];
+    double w = weights[j];
+    tails[j] = tails[i-1];
+    heads[j] = heads[i-1];
+    weights[j] = weights[i-1];
+    tails[i-1] = tail;
+    heads[i-1] = head;
+    weights[i-1] = w;
+  }
+}
+
+/****************
+ Edge WtDetShuffleEdges
+
+ Deterministically scramble edges in an list.
+****************/
+void WtDetShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges){
+  /* *** don't forget,  tail -> head */
+  for(Edge i = nedges; i > 0; i--) {
+    Edge j = i/2;
     Vertex tail = tails[j];
     Vertex head = heads[j];
     double w = weights[j];
@@ -781,4 +808,3 @@ void WtSetEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork 
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed
        in before heads */
-
