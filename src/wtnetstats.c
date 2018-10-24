@@ -36,6 +36,7 @@ void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timi
   
   if(*lasttoggle == 0) lasttoggle = NULL;
 
+  GetRNGstate();  /* R function enabling uniform RNG */
 
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
   nwp=WtNetworkInitialize(NULL, NULL, NULL, 0,
@@ -49,6 +50,7 @@ void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timi
   
   WtModelDestroy(m);
   WtNetworkDestroy(nwp);
+  PutRNGstate();
 }
 
 
@@ -60,8 +62,6 @@ void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timi
 void WtSummStats(Edge n_edges, Vertex *tails, Vertex *heads, double *weights,
 WtNetwork *nwp, WtModel *m, double *stats){
 
-  GetRNGstate();  /* R function enabling uniform RNG */
-  
   WtDetShuffleEdges(tails,heads,weights,n_edges); /* Shuffle edgelist. */
   
   for (unsigned int termi=0; termi < m->n_terms; termi++)
@@ -93,6 +93,5 @@ WtNetwork *nwp, WtModel *m, double *stats){
         *statspos = mtp->dstats[i];
     }else statspos += mtp->nstats;
   }
-  PutRNGstate();
 }
 

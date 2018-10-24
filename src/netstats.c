@@ -37,8 +37,9 @@ void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int 
   directed_flag = *dflag;
   bip = (Vertex)*bipartite;
   
-
   if(*lasttoggle == 0) lasttoggle = NULL;
+
+  GetRNGstate();  /* R function enabling uniform RNG */
 
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
   nwp=NetworkInitialize(NULL, NULL, 0,
@@ -52,6 +53,7 @@ void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int 
   
   ModelDestroy(m);
   NetworkDestroy(nwp);
+  PutRNGstate();
 }
 
 
@@ -65,8 +67,6 @@ void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int 
 
 void SummStats(Edge n_edges, Vertex *tails, Vertex *heads,
 Network *nwp, Model *m, double *stats){
-  
-  GetRNGstate();  /* R function enabling uniform RNG */
   
   DetShuffleEdges(tails,heads,n_edges); /* Shuffle edgelist. */
   
@@ -100,7 +100,5 @@ Network *nwp, Model *m, double *stats){
         *statspos = mtp->dstats[i];
     }else statspos += mtp->nstats;
   }
-  
-  PutRNGstate();
 }
 
