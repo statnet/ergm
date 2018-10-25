@@ -15,16 +15,7 @@ WtMCMCStatus WtGodfather(Edge n_changes, Vertex *tails, Vertex *heads, double *w
 	       WtNetwork *nwp, WtModel *m, double *stats){
 
   stats+=m->n_stats;
-  
-  WtEXEC_THROUGH_TERMS_INREVERSE(m, {
-      IFDEBUG_BACKUP_DSTATS;
-      if(mtp->i_func)
-	(*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
-      else if(mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
-	(*(mtp->u_func))(0, 0, 0, mtp, nwp);  /* Call u_??? function */
-      IFDEBUG_RESTORE_DSTATS;
-    });
-  
+
   /* Doing this one change at a time saves a lot of changes... */
   for(Edge e=0; e<n_changes; e++){
     Vertex t = tails[e], h = heads[e];
@@ -97,6 +88,9 @@ void WtGodfather_wrapper(int *n_edges, int *tails, int *heads, double *weights,
   /* Form the network */
   nwp=WtNetworkInitialize((Vertex*)tails, (Vertex*)heads, weights, n_edges[0], 
 			    *n_nodes, *dflag, *bipartite, 0, 0, NULL);
+  
+  /* Trigger initial storage update */
+  WtInitStats(nwp, m);
   
   *status = WtGodfather(abs(*total_changes), (Vertex*)changetails, (Vertex*)changeheads, changeweights,
 			nwp, m, changestats);

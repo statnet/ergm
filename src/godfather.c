@@ -15,16 +15,7 @@ MCMCStatus Godfather(Edge n_changes, Vertex *tails, Vertex *heads, int *weights,
 	       Network *nwp, Model *m, double *stats){
 
   stats+=m->n_stats;
-  
-  EXEC_THROUGH_TERMS_INREVERSE(m, {
-      IFDEBUG_BACKUP_DSTATS;
-      if(mtp->i_func)
-	(*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
-      else if(mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
-	(*(mtp->u_func))(0, 0, mtp, nwp);  /* Call u_??? function */
-      IFDEBUG_RESTORE_DSTATS;
-    });
-  
+
   /* Doing this one change at a time saves a lot of changes... */
   for(Edge e=0; e<n_changes; e++){
     Vertex t=TAIL(e), h=HEAD(e); 
@@ -99,6 +90,9 @@ void Godfather_wrapper(int *n_edges, int *tails, int *heads,
   nwp=NetworkInitialize((Vertex*)tails, (Vertex*)heads, n_edges[0], 
                           *n_nodes, *dflag, *bipartite, 0, 0, NULL);
   
+  /* Trigger initial storage update */
+  InitStats(nwp, m);
+
   *status = Godfather(abs(*total_changes), (Vertex*)changetails, (Vertex*)changeheads, *total_changes<0? NULL : changeweights,
 		      nwp, m, changestats);
   
