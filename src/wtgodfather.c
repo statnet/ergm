@@ -90,6 +90,8 @@ void WtGodfather_wrapper(int *n_edges, int *tails, int *heads, double *weights,
   
   nmax = (Edge)abs(*maxedges);
 
+  GetRNGstate();  /* R function enabling uniform RNG */
+
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the network */
@@ -105,4 +107,5 @@ void WtGodfather_wrapper(int *n_edges, int *tails, int *heads, double *weights,
   
   WtModelDestroy(nwp, m);
   WtNetworkDestroy(nwp);
+  PutRNGstate();
 }

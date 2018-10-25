@@ -91,6 +91,8 @@ void Godfather_wrapper(int *n_edges, int *tails, int *heads,
   
   nmax = (Edge)abs(*maxedges);
 
+  GetRNGstate();  /* R function enabling uniform RNG */
+
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the network */
@@ -106,4 +108,5 @@ void Godfather_wrapper(int *n_edges, int *tails, int *heads,
   
   ModelDestroy(nwp, m);
   NetworkDestroy(nwp);
+  PutRNGstate();
 }
