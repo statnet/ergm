@@ -48,7 +48,7 @@ U_CHANGESTAT_FN(u__otp_wtnet_ML){
 	// Update all k->t->h two-paths.
 	ML_EXEC_THROUGH_FINEDGES(ll0, t, e, k, {
 	    if(h!=k){
-	      IncDyadMapUInt(k,t,
+	      IncDyadMapUInt(k,h,
 			     ergm_c_LayerLogic2Path(k,t,t,h,
 						    ll1,ll2, any_order,
 						    0,0,l1c,l2c),
