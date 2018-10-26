@@ -2,7 +2,6 @@
 #include "ergm_dyad_hashmap.h"
 
 #define SETUP_calc_dsp							\
-  Vertex deg;								\
   memset(cs, 0, nd*sizeof(double));					\
   SETUP_update_spcache;
 
@@ -13,19 +12,29 @@
 
 #define INC_IF_TWOPATH(ij, t1, h1, t2, h2) if(ergm_LayerLogic2Path(t1,h1,t2,h2, ll1, ll2, any_order)) L2 ## ij ++;
 
-#define UPDATE_CS_1(ij, t1, h1, t2, h2)					\
-  cs[j] += ((L2 ## ij							\
-	     + ergm_c_LayerLogic2Path(t1,h1,t2,h2,			\
+#define UPDATE_CS_1(ij, t1, h1, t2, h2, EXTRA)				\
+  {									\
+  int c2path = ergm_c_LayerLogic2Path(t1,h1,t2,h2,			\
 				      ll1,ll2, any_order,		\
-				      l1c,l2c,0,0) == deg)		\
-	    - (L2 ## ij == deg))
+				      l1c,l2c,0,0);			\
+  for(unsigned int j = 0; j < nd; j++){					\
+    Vertex deg = dvec[j];						\
+    cs[j] += ((L2 ## ij	+ c2path == deg)				\
+	      - (L2 ## ij == deg)) EXTRA;				\
+  }									\
+  }
 
-#define UPDATE_CS_2(ij, t1, h1, t2, h2)					\
-  cs[j] += ((L2 ## ij							\
-	     + ergm_c_LayerLogic2Path(t1,h1,t2,h2,			\
+#define UPDATE_CS_2(ij, t1, h1, t2, h2, EXTRA)				\
+  {									\
+  int c2path = ergm_c_LayerLogic2Path(t1,h1,t2,h2,			\
 				      ll1,ll2, any_order,		\
-				      0,0,l1c,l2c) == deg)		\
-	    - (L2 ## ij == deg))
+				      0,0,l1c,l2c);			\
+  for(unsigned int j = 0; j < nd; j++){					\
+    Vertex deg = dvec[j];						\
+    cs[j] += ((L2 ## ij + c2path == deg)				\
+	      - (L2 ## ij == deg)) EXTRA;				\
+  }									\
+  }
 
 
 /**************************
@@ -59,10 +68,7 @@ static inline void dspUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 	      INC_IF_TWOPATH(tu,t,v,v,u);
 	    });
 	}
-	for(unsigned int j = 0; j < nd; j++){
-	  deg = (Vertex)dvec[j];
-	  UPDATE_CS_1(tu,t,h,h,u);
-	}
+	UPDATE_CS_1(tu,t,h,h,u,);
       }
     });
   ML_EXEC_THROUGH_EDGES(ll0, t,e,u, {
@@ -76,10 +82,7 @@ static inline void dspUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 	      INC_IF_TWOPATH(uh,u,v,v,h);
 	    });
 	}
-        for(unsigned int j = 0; j < nd; j++){
-          deg = (Vertex)dvec[j];
-          UPDATE_CS_2(uh,u,t,t,h);
-        }
+	UPDATE_CS_2(uh,u,t,t,h,);
       }
     });
     });
@@ -108,10 +111,7 @@ static inline void dspOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 	    });
 	}
         /*Update the changestat for the t->k edge*/
-        for(unsigned int j = 0; j < nd; j++){
-          deg = (Vertex)dvec[j];
-          UPDATE_CS_1(tk,t,h,h,k);
-        }
+	UPDATE_CS_1(tk,t,h,h,k,);
       }
     });
     /* step through inedges of tail (i.e., k: k->t)*/
@@ -126,10 +126,7 @@ static inline void dspOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 	    });
 	}
         /*Update the changestat for the k->t edge*/
-        for(unsigned int j = 0; j < nd; j++){
-          deg = (Vertex)dvec[j];
-          UPDATE_CS_2(kh,k,t,t,h);
-        }
+	UPDATE_CS_2(kh,k,t,t,h,);
       }
     });
     });
@@ -162,10 +159,7 @@ static inline void dspITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 	    });
 	}
         /*Update the changestat for the h->k edge*/
-        for(unsigned int j = 0; j < nd; j++){
-          deg = (Vertex)dvec[j];
-	  UPDATE_CS_1(kt,t,h,h,k);
-        }
+	UPDATE_CS_1(kt,t,h,h,k,);
       }
     });
     /* step through inedges of tail (i.e., k: k->t)*/
@@ -179,10 +173,7 @@ static inline void dspITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 	    });
 	}
         /*Update the changestat for the k->t edge*/
-        for(unsigned int j = 0; j < nd; j++){
-          deg = (Vertex)dvec[j];
-	  UPDATE_CS_2(hk,k,t,t,h);
-        }
+	UPDATE_CS_2(hk,k,t,t,h,);
       }
     });
     });
@@ -216,12 +207,8 @@ static inline void dspOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 	    });
 	}
         /*Update the changestat for the t->k edge*/
-        for(unsigned int j = 0; j < nd; j++){
-          deg = (Vertex)dvec[j];
-          // twice (one for each direction of t<->k)
-	  UPDATE_CS_1(tk,t,h,k,h)*2;
-        }
-        
+	// twice (one for each direction of t<->k)
+	UPDATE_CS_1(tk,t,h,k,h,*2);
       }
     });
     });
@@ -255,12 +242,8 @@ static inline void dspISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 	    });
 	}
         /*Update the changestat for the k->h edge*/
-        for(unsigned int j = 0; j < nd; j++){
-          deg = (Vertex)dvec[j];
-          // twice (one for each direction of h<->k)
-	  UPDATE_CS_1(kh,t,h,t,k)*2;
-        }
-        
+	// twice (one for each direction of h<->k)
+	UPDATE_CS_1(kh,t,h,t,k,*2);
       }
     });
     });
@@ -304,7 +287,7 @@ static inline void dspISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 /*           }); */
 /*           /\*Update the changestat for the k->t edge*\/ */
 /*           for(unsigned int j = 0; j < nd; j++){ */
-/*             deg = (Vertex)dvec[j]; */
+/*             Vertex deg = dvec[j]; */
 /*             cs[j] += ((L2kt + echange == deg) - (L2kt == deg)); */
 /*           } */
 /*         } */
@@ -322,7 +305,7 @@ static inline void dspISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 /*           }); */
 /*           /\*Update the changestat for the t->k edge*\/ */
 /*           for(unsigned int j = 0; j < nd; j++){ */
-/*             deg = (Vertex)dvec[j]; */
+/*             Vertex deg = dvec[j]; */
 /*             cs[j] += ((L2tk + echange == deg) - (L2tk == deg)); */
 /*           } */
 /*         } */
@@ -340,7 +323,7 @@ static inline void dspISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 /*           }); */
 /*           /\*Update the changestat for the k->h edge*\/ */
 /*           for(unsigned int j = 0; j < nd; j++){ */
-/*             deg = (Vertex)dvec[j]; */
+/*             Vertex deg = dvec[j]; */
 /*             cs[j] += ((L2kh + echange == deg) - (L2kh == deg)); */
 /*           } */
 /*         } */
@@ -358,7 +341,7 @@ static inline void dspISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 /*           }); */
 /*           /\*Update the changestat for the h->k edge*\/ */
 /*           for(unsigned int j = 0; j < nd; j++){ */
-/*             deg = (Vertex)dvec[j]; */
+/*             Vertex deg = dvec[j]; */
 /*             cs[j] += ((L2hk + echange == deg) - (L2hk == deg)); */
 /*           } */
 /*         } */
@@ -366,7 +349,7 @@ static inline void dspISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 /*     }); */
 /*     /\*Finally, update the changestat for the t->h edge*\/ */
 /*     for(unsigned int j = 0; j < nd; j++){ */
-/*       deg = (Vertex)dvec[j]; */
+/*       Vertex deg = dvec[j]; */
 /*       cs[j] += echange*(L2th == deg); */
 /*     } */
 /* } */
@@ -519,16 +502,13 @@ static inline void espUTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 	      if(Btu) INC_IF_TWOPATH(tu,t,v,v,u);
 	    });
 	}
-        for(unsigned int j = 0; j < nd; j++){
-          deg = (Vertex)dvec[j];
-	  if(Buh) UPDATE_CS_2(uh,u,t,t,h);
-	  if(Btu) UPDATE_CS_1(tu,t,h,h,u);
-        }
+	if(Buh) UPDATE_CS_2(uh,u,t,t,h,);
+	if(Btu) UPDATE_CS_1(tu,t,h,h,u,);
       }
     });
   if(l3c)
     for(unsigned int j = 0; j < nd; j++){
-      deg = (Vertex)dvec[j];
+      Vertex deg = dvec[j];
       cs[j] += l3c*(L2th == deg);
     }
     });
@@ -559,7 +539,7 @@ static inline void espOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 	});
     }
     for(unsigned int j = 0; j < nd; j++){
-      deg = (Vertex)dvec[j];
+      Vertex deg = dvec[j];
       cs[j] += l3c*(L2th == deg);
     }
   }
@@ -574,10 +554,7 @@ static inline void espOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 		INC_IF_TWOPATH(tk,t,u,u,k);
 	    });
 	}
-        for(unsigned int j = 0; j < nd; j++){
-          deg = (Vertex)dvec[j];
-          UPDATE_CS_1(tk,t,h,h,k);
-        }
+	UPDATE_CS_1(tk,t,h,h,k,);
       }
     });
   /* step through inedges of h (i.e., k: k->h)*/
@@ -591,10 +568,7 @@ static inline void espOTP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 		INC_IF_TWOPATH(kh,k,u,u,h);
 	    });
 	}
-        for(unsigned int j = 0; j < nd; j++){
-          deg = (Vertex)dvec[j];
-          UPDATE_CS_2(kh,k,t,t,h);
-        }
+	UPDATE_CS_2(kh,k,t,t,h,);
       }
     });
     });
@@ -625,7 +599,7 @@ static inline void espITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 	});
     }
     for(unsigned int j = 0; j < nd; j++){
-      deg = (Vertex)dvec[j];
+      Vertex deg = dvec[j];
       cs[j] += l3c*(L2th == deg);
     }
   }
@@ -646,10 +620,7 @@ static inline void espITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 	}
         /*Update the changestat for the h->k edge*/
         //Rprintf("\t2-path count was %d\n",L2hk);
-        for(unsigned int j = 0; j < nd; j++){
-          deg = (Vertex)dvec[j];
-          UPDATE_CS_2(hk,k,t,t,h);
-        }
+	UPDATE_CS_2(hk,k,t,t,h,);
       }
     });
     /* step through inedges of t (i.e., k: k->t)*/
@@ -664,13 +635,10 @@ static inline void espITP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 		  INC_IF_TWOPATH(kt,t,u,u,k);
 	      });
 	  }
-        /*Update the changestat for the k->t edge*/
-        //Rprintf("\t2-path count was %d\n",L2kt);
-        for(unsigned int j = 0; j < nd; j++){
-          deg = (Vertex)dvec[j];
-          UPDATE_CS_1(kt,t,h,h,k);
-        }
-      }
+	  /*Update the changestat for the k->t edge*/
+	  //Rprintf("\t2-path count was %d\n",L2kt);
+          UPDATE_CS_1(kt,t,h,h,k,);
+	}
     });
     });
 }
@@ -700,7 +668,7 @@ static inline void espOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 	});
     }
     for(unsigned int j = 0; j < nd; j++){
-      deg = (Vertex)dvec[j];
+      Vertex deg = dvec[j];
       cs[j] += l3c*(L2th == deg);
     }
   }
@@ -719,10 +687,7 @@ static inline void espOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 	    });
 	}
 	/*Update the changestat for the t->k edge*/
-	for(unsigned int j = 0; j < nd; j++){
-	  deg = (Vertex)dvec[j];
-	  UPDATE_CS_1(tk,t,h,k,h);
-	}
+	UPDATE_CS_1(tk,t,h,k,h,);
       }
     });
   /* step through inedges of t (i.e., k: k->t, k->h, k!=h)*/
@@ -739,10 +704,7 @@ static inline void espOSP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 	    });
 	}
         /*Update the changestat for the k->t edge*/
-        for(unsigned int j = 0; j < nd; j++){
-          deg = (Vertex)dvec[j];
-          UPDATE_CS_1(kt,t,h,k,h);
-        }
+	UPDATE_CS_1(kt,t,h,k,h,);
       }
     });
     });
@@ -773,7 +735,7 @@ static inline void espISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 	});
     }
     for(unsigned int j = 0; j < nd; j++){
-      deg = (Vertex)dvec[j];
+      Vertex deg = dvec[j];
       cs[j] += l3c*(L2th == deg);
     }
   }
@@ -792,10 +754,7 @@ static inline void espISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 	    });
 	}
 	/*Update the changestat for the k->h edge*/
-	for(unsigned int j = 0; j < nd; j++){
-	  deg = (Vertex)dvec[j];
-	  UPDATE_CS_1(kh,t,h,t,k);
-	}
+	UPDATE_CS_1(kh,t,h,t,k,);
       }
     });
     /* step through outedges of h (i.e., k: h->k, t->k, k!=t)*/
@@ -811,11 +770,8 @@ static inline void espISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 	      INC_IF_TWOPATH(hk,u,k,u,h);
 	  });
       }
-        /*Update the changestat for the h->k edge*/
-        for(unsigned int j = 0; j < nd; j++){
-          deg = (Vertex)dvec[j];
-          UPDATE_CS_1(hk,t,h,t,k);
-        }
+      /*Update the changestat for the h->k edge*/
+      UPDATE_CS_1(hk,t,h,t,k,);
       }
     });
     });
@@ -860,7 +816,7 @@ static inline void espISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 /*           }); */
 /*           /\*Update the changestat for the k->t edge*\/ */
 /*           for(unsigned int j = 0; j < nd; j++){ */
-/*             deg = (Vertex)dvec[j]; */
+/*             Vertex deg = dvec[j]; */
 /*             cs[j] += ((L2kt + echange == deg) - (L2kt == deg)); */
 /*           } */
 /*         } */
@@ -878,7 +834,7 @@ static inline void espISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 /*           }); */
 /*           /\*Update the changestat for the t->k edge*\/ */
 /*           for(unsigned int j = 0; j < nd; j++){ */
-/*             deg = (Vertex)dvec[j]; */
+/*             Vertex deg = dvec[j]; */
 /*             cs[j] += ((L2tk + echange == deg) - (L2tk == deg)); */
 /*           } */
 /*         } */
@@ -896,7 +852,7 @@ static inline void espISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 /*           }); */
 /*           /\*Update the changestat for the k->h edge*\/ */
 /*           for(unsigned int j = 0; j < nd; j++){ */
-/*             deg = (Vertex)dvec[j]; */
+/*             Vertex deg = dvec[j]; */
 /*             cs[j] += ((L2kh + echange == deg) - (L2kh == deg)); */
 /*           } */
 /*         } */
@@ -914,7 +870,7 @@ static inline void espISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 /*           }); */
 /*           /\*Update the changestat for the h->k edge*\/ */
 /*           for(unsigned int j = 0; j < nd; j++){ */
-/*             deg = (Vertex)dvec[j]; */
+/*             Vertex deg = dvec[j]; */
 /*             cs[j] += ((L2hk + echange == deg) - (L2hk == deg)); */
 /*           } */
 /*         } */
@@ -922,7 +878,7 @@ static inline void espISP_ML_calc(Vertex tail, Vertex head, ModelTerm *mtp, Netw
 /*     }); */
 /*     /\*Finally, update the changestat for the t->h edge*\/ */
 /*     for(unsigned int j = 0; j < nd; j++){ */
-/*       deg = (Vertex)dvec[j]; */
+/*       Vertex deg = dvec[j]; */
 /*       cs[j] += echange*(L2th == deg); */
 /*     } */
 /* } */
