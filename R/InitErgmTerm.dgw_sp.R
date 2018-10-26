@@ -351,7 +351,7 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   }
 
   linfo <- .sp.handle_layers(nw, a, type, FALSE, cache.sp)
-  nw <- linfo$nw1
+  if(length(linfo)) nw <- linfo$nw1
   
   if (any(d==0)) {
     emptynwstats <- rep(0, length(d))
@@ -487,7 +487,7 @@ InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   }
 
   linfo <- .sp.handle_layers(nw, a, type, TRUE, cache.sp)
-  nw <- linfo$nw1
+  if(length(linfo)) nw <- linfo$nw1
 
   if (any(d==0)) {
     emptynwstats <- rep(0, length(d))
