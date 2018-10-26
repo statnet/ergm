@@ -118,6 +118,8 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, role="stat
 
 
 call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ..., term.options=list()){
+  term.options <- modifyList(term.options, list(...))
+
   termroot<-if(is.null(response)) "InitErgm" else "InitWtErgm"
   
   if(is.call(term)) { # This term has some arguments; save them.
@@ -128,7 +130,7 @@ call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ..., term
   termFun<-locate.InitFunction(term, paste0(termroot,"Term"), "ERGM term", env=env)
   termCall<-as.call(list(termFun, nw, args))
   
-  dotdotdot <- c(if(!is.null(response)) list(response=response), list(...), list(role=role), term.options)
+  dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), term.options)
   for(j in seq_along(dotdotdot)) {
     if(is.null(dotdotdot[[j]])) next
     termCall[[3+j]] <- dotdotdot[[j]]
