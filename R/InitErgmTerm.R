@@ -1476,7 +1476,7 @@ InitErgmTerm.gwb1degree<-function(nw, arglist,  ...) {
   # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
                       varnames = c("decay", "fixed", "attrname","cutoff", "levels", "Ls"),
                       vartypes = c("numeric", "logical", "character","numeric", "character,numeric,logical", "formula,list"),
-                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL, NULL),
+                      defaultvalues = list(NULL, FALSE, NULL, gw.cutoff, NULL, NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
   cutoff<-a$cutoff
@@ -1527,12 +1527,12 @@ InitErgmTerm.gwb1degree<-function(nw, arglist,  ...) {
 
 
 ################################################################################
-InitErgmTerm.gwb2degree<-function(nw, arglist,  ...) {
+InitErgmTerm.gwb2degree<-function(nw, arglist, gw.cutoff=30,  ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
   # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
                       varnames = c("decay", "fixed", "attrname","cutoff", "levels", "Ls"),
                       vartypes = c("numeric", "logical", "character", "numeric", "character,numeric,logical", "formula,list"),
-                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL, NULL),
+                      defaultvalues = list(NULL, FALSE, NULL, gw.cutoff, NULL, NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
   cutoff<-a$cutoff
@@ -1581,11 +1581,11 @@ InitErgmTerm.gwb2degree<-function(nw, arglist,  ...) {
 
 
 ################################################################################
-InitErgmTerm.gwdegree<-function(nw, arglist, ...) {
+InitErgmTerm.gwdegree<-function(nw, arglist, gw.cutoff=30, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
                       varnames = c("decay", "fixed", "attrname","cutoff", "levels", "Ls"),
                       vartypes = c("numeric", "logical", "character", "numeric", "character,numeric,logical", "formula,list"),
-                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL, NULL),
+                      defaultvalues = list(NULL, FALSE, NULL, gw.cutoff, NULL, NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   cutoff<-a$cutoff
@@ -1633,14 +1633,14 @@ InitErgmTerm.gwdegree<-function(nw, arglist, ...) {
 
 
 ################################################################################
-InitErgmTerm.gwdsp<-function(nw, arglist, cache.sp=TRUE, ...) {
+InitErgmTerm.gwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 # the following line was commented out in <InitErgm.gwdsp>:  
 #   ergm.checkdirected("gwdsp", is.directed(nw), requirement=FALSE)
 # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff","alpha"),
                       vartypes = c("numeric","logical","numeric","numeric"),
-                      defaultvalues = list(NULL, FALSE, 30, NULL),
+                      defaultvalues = list(NULL, FALSE, gw.cutoff, NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE))
   if(!is.null(a$alpha)){
     stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
@@ -1674,14 +1674,14 @@ InitErgmTerm.gwdsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 
 
 ################################################################################
-InitErgmTerm.gwesp<-function(nw, arglist, cache.sp=TRUE, ...) {
+InitErgmTerm.gwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 # the following line was commented out in <InitErgm.gwesp>:
 #   ergm.checkdirected("gwesp", is.directed(nw), requirement=FALSE)
 # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff", "alpha"),
                       vartypes = c("numeric","logical","numeric", "numeric"),
-                      defaultvalues = list(NULL, FALSE, 30, NULL),
+                      defaultvalues = list(NULL, FALSE, gw.cutoff, NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE))
   if(!is.null(a$alpha)){
     stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
@@ -1714,11 +1714,11 @@ InitErgmTerm.gwesp<-function(nw, arglist, cache.sp=TRUE, ...) {
 
 
 ################################################################################
-InitErgmTerm.gwidegree<-function(nw, arglist,  ...) {
+InitErgmTerm.gwidegree<-function(nw, arglist, gw.cutoff=30,  ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("decay", "fixed", "attrname","cutoff", "levels", "Ls"),
                       vartypes = c("numeric", "logical", "character","numeric", "character,numeric,logical", "formula,list"),
-                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL, NULL),
+                      defaultvalues = list(NULL, FALSE, NULL, gw.cutoff, NULL, NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   cutoff<-a$cutoff
@@ -1766,14 +1766,14 @@ InitErgmTerm.gwidegree<-function(nw, arglist,  ...) {
 
 
 ################################################################################
-InitErgmTerm.gwnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
+InitErgmTerm.gwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 # the following line was commented out in <InitErgm.gwnsp>:
 #    ergm.checkdirected("gwnsp", is.directed(nw), requirement=FALSE)
 # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff", "alpha"),
                       vartypes = c("numeric","logical","numeric", "numeric"),
-                      defaultvalues = list(NULL, FALSE, 30, NULL),
+                      defaultvalues = list(NULL, FALSE, gw.cutoff, NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE))
   if(!is.null(a$alpha)){
     stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
@@ -1805,11 +1805,11 @@ InitErgmTerm.gwnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
 
 
 ################################################################################
-InitErgmTerm.gwodegree<-function(nw, arglist,  ...) {
+InitErgmTerm.gwodegree<-function(nw, arglist, gw.cutoff=30, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("decay", "fixed", "attrname","cutoff", "levels", "Ls"),
                       vartypes = c("numeric", "logical", "character","numeric", "character,numeric,logical", "formula,list"),
-                      defaultvalues = list(NULL, FALSE, NULL, 30, NULL, NULL),
+                      defaultvalues = list(NULL, FALSE, NULL, gw.cutoff, NULL, NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   cutoff<-a$cutoff
