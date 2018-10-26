@@ -232,7 +232,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 
 ## This is a variant of Hummel et al. (2010)'s steplength algorithm
 ## also usable for missing data MLE.
-.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, steplength.prev=steplength.max, x2.num.max=100, steplength.maxit=25, verbose=FALSE){
+.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, steplength.prev=steplength.max, x2.num.max=100, steplength.maxit=25, control=NULL, verbose=FALSE){
   margin <- 1 + margin
   x1 <- rbind(x1); m1 <- rbind(colMeans(x1)); x1 <- unique(x1)
   if(is.null(x2)){
@@ -242,6 +242,8 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
     m2 <- rbind(colMeans(x2))
     x2 <- unique(x2)
   }
+
+  cl <- NVL3(control, ergm.getCluster(., verbose), NULL)
 
   ## Use PCA to rotate x1 into something numerically stable and drop
   ## unused dimensions, then apply the same affine transformation to
@@ -279,22 +281,35 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
                                           margin*gamma * m2crs  + (1-margin*gamma)*m1crs),
                                     x1crs, verbose=verbose)}
 
-  # Modify search to reflect the binary nature of the outcome and the
-  # prior belief about the gamma (centered on prior value with a s.d. of sd.p)
+  # A multisection search: like bisection search, but each iteration
+  # tests nthreads() values between low and high, narrowing down to
+  # one interval of 1/(nthreads()+1).
+
+  # The search reflects the binary nature of the outcome and the prior
+  # belief about the gamma (centered on prior value with a s.d. of
+  # sd.p)
   sd.p <- 0.3
+  pprior <- function(x) pnorm(x, mean = steplength.prev, sd = sd.p)
+  qprior <- function(q) qnorm(q, mean = steplength.prev, sd = sd.p)
+  # First time through, don't drop the "high":
+  mk.guesses <- function(low, high, first=FALSE){
+    p <- seq(from=pprior(low),to=pprior(high),length.out=nthreads()+2-first) # Create the sequence of probabilities.
+    p <- p[c(-1, -length(p))] # Strip the first and the last (low and high).
+    q <- qprior(p) # Map back to guesses.
+    if(first) q <- c(q, high) # Ensure that the last one is "high".
+    q
+  }
   low <- 0
-  g <- high <- steplength.max # We start at the maximum, because we need to first check that we've already arrived.
+  high <- steplength.max
+  g <- mk.guesses(low, high, first=TRUE)
   i <- 0
   while(i < steplength.maxit & abs(high-low)>0.001){
-   if(verbose>1) message(sprintf("iter=%d, est=%f, low=%f, high=%f:",i,g,low,high))
-   z=passed(g)
-   if(z){
-    low <- g
-    g <- qnorm( mean(pnorm(c(high,g), mean = steplength.prev, sd = sd.p)), mean = steplength.prev, sd = sd.p)
-   }else{
-    high <- g
-    g <- qnorm( mean(pnorm(c(low, g), mean = steplength.prev, sd = sd.p)), mean = steplength.prev, sd = sd.p)
-   }
+   if(verbose>1) message(sprintf("iter=%d, low=%f, high=%f, guesses=%s: ",i,low,high,deparse(g, 500L)), appendLF=FALSE)
+   z <- NVL3(cl, parallel::parSapply(., g, passed), passed(g))
+   if(verbose>1 && !is.null(cl)) message("lowest ", sum(z), " passed.")
+   low <- max(low, g[z]) # Highest guess that passed, or low if none passed.
+   high <- min(high, g[!z]) # Lowest guess that didn't pass, or high if all passed.
+   g <- mk.guesses(low, high)
    i <- i+1
 #  out <- c(i,g,low,high,z)
 #  names(out) <- c("iters","est","low","high","z")
