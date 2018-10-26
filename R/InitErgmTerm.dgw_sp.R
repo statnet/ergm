@@ -186,11 +186,11 @@ InitErgmTerm.desp<-function(nw, arglist, ...) {
 #always used (since it is directedness-safe), and the user's input is
 #overridden.  UTP cannot be chosen otherwise, since it won't work.
 #
-InitErgmTerm.dgwesp<-function(nw, arglist, initialfit=FALSE, ...) {
+InitErgmTerm.dgwesp<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff","type", "alpha"),
                       vartypes = c("numeric","logical","numeric","character", "numeric"),
-                      defaultvalues = list(0, FALSE, 30,"OTP", NULL),
+                      defaultvalues = list(0, FALSE, gw.cutoff,"OTP", NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
   if(!is.null(a$alpha)){
     stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
@@ -298,14 +298,14 @@ InitErgmTerm.ddsp<-function(nw, arglist, ...) {
 
 
 ################################################################################
-InitErgmTerm.dgwdsp<-function(nw, arglist, initialfit=FALSE, ...) {
+InitErgmTerm.dgwdsp<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ...) {
   # the following line was commented out in <InitErgm.gwdsp>:
   #    ergm.checkdirected("gwdsp", is.directed(nw), requirement=FALSE)
   # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff","type", "alpha"),
                       vartypes = c("numeric","logical","numeric","character", "numeric"),
-                      defaultvalues = list(0, FALSE, 30,"OTP", NULL),
+                      defaultvalues = list(0, FALSE, gw.cutoff,"OTP", NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
   if(!is.null(a$alpha)){
     stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
@@ -418,14 +418,14 @@ InitErgmTerm.dnsp<-function(nw, arglist, ...) {
 
 
 ################################################################################
-InitErgmTerm.dgwnsp<-function(nw, arglist, initialfit=FALSE, ...) {
+InitErgmTerm.dgwnsp<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ...) {
   # the following line was commented out in <InitErgm.gwnsp>:
   #    ergm.checkdirected("gwnsp", is.directed(nw), requirement=FALSE)
   # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("decay","fixed","cutoff","type", "alpha"),
                       vartypes = c("numeric","logical","numeric","character", "numeric"),
-                      defaultvalues = list(0, FALSE, 30,"OTP", NULL),
+                      defaultvalues = list(0, FALSE, gw.cutoff,"OTP", NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
   if(!is.null(a$alpha)){
     stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
