@@ -1471,7 +1471,7 @@ InitErgmTerm.esp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #=======================InitErgmTerm functions:  G============================#
 
 ################################################################################
-InitErgmTerm.gwb1degree<-function(nw, arglist,  ...) {
+InitErgmTerm.gwb1degree<-function(nw, arglist, gw.cutoff=30, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,                     
   # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
                       varnames = c("decay", "fixed", "attrname","cutoff", "levels", "Ls"),
