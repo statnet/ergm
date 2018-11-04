@@ -40,6 +40,8 @@ void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int 
   
   if(*lasttoggle == 0) lasttoggle = NULL;
 
+  GetRNGstate();  /* R function enabling uniform RNG */
+
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
   nwp=NetworkInitialize(NULL, NULL, 0,
                           n_nodes, directed_flag, bip, *timings?1:0, *timings?*time:0, *timings?lasttoggle:NULL);
@@ -52,6 +54,7 @@ void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int 
   
   ModelDestroy(nwp, m);
   NetworkDestroy(nwp);
+  PutRNGstate();
 }
 
 
@@ -66,9 +69,7 @@ void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int 
 void SummStats(Edge n_edges, Vertex *tails, Vertex *heads,
 Network *nwp, Model *m, double *stats){
   
-  GetRNGstate();  /* R function enabling uniform RNG */
-  
-  ShuffleEdges(tails,heads,n_edges); /* Shuffle edgelist. */
+  DetShuffleEdges(tails,heads,n_edges); /* Shuffle edgelist. */
   
   Edge ntoggles = n_edges; // So that we can use the macros
 
@@ -125,7 +126,5 @@ Network *nwp, Model *m, double *stats){
 	}
       }
     });
-
-  PutRNGstate();
 }
 

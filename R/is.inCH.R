@@ -115,19 +115,47 @@ is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly 
   ## NOTE: PCA code has been moved to .Hummel.steplength().
   ##
 
-  L = cbind(1, M)
-
+  timeout <- 1
   for(i in seq_len(nrow(p))){
-   q = c(1, p[i,]) 
-############################################
-   # USE lp FUNCTION FROM lpSolve PACKAGE:
-   #' @importFrom lpSolve lp
-   ans <- lp(objective.in = c(-q, q),
-             const.mat = rbind( c(q, -q), cbind(L, -L)),
-             const.dir = "<=",
-             const.rhs = c(1, rep(0, NROW(L))), 
-             ...
-             )
+    ############################################
+    # USE lp FUNCTION FROM lpSolve PACKAGE:
+    #' @importFrom lpSolve lp
+
+    ## This works around what appears to be a bug in lpsolve library
+    ## that causes the process the process to reproducibly hang on
+    ## some inputs. After a time limit, the call is terminated and
+    ## re-attempted after randomly shifting p and M (preserving
+    ## whether one is in the convex hull of the other).
+
+    ## TODO: Parametrize the timeout settings and/or figure out what's
+    ## wrong with lpSolve().
+
+    repeat{
+      ans <- forkTimeout({
+        L <- cbind(1, M)
+        q <- c(1, p[i,])
+        lp(objective.in = c(-q, q),
+           const.mat = rbind( c(q, -q), cbind(L, -L)),
+           const.dir = "<=",
+           const.rhs = c(1, rep(0, NROW(L))),
+           ...
+           )
+      }, timeout=timeout, unsupported="silent", onTimeout=list(objval=NA))
+
+      if(is.na(ans$objval)){
+        # Perturb p and M.
+        shift <- rnorm(1)
+        M <- M + shift
+        p <- p + shift
+        # Increase timeout, in case it's actually a difficult problem.
+        timeout <- timeout*2
+      }else{
+        # Reduce the timeout by a little bit.
+        timeout <- max(timeout/2^(1/5),1)
+        break
+      }
+    }
+
    if(ans$objval!=0){
     if(verbose>1) message(sprintf("is.inCH: iter= %d, outside hull.",i))
     return(FALSE)  #if the min is not zero, the point p[i,] is not in the CH of the points M

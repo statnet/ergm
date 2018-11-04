@@ -612,36 +612,21 @@ ergm <- function(formula, response=NULL,
     
     # no need to pass the offset term's init to SAN
     san.control <- control$SAN.control
-    san.control$coef <- san.control$coef[!model$etamap$offsettheta]
     
     if(verbose) message("Constructing an approximate response network.")
     ## If target.stats are given, overwrite the given network and formula
     ## with SAN-ed network and formula.
     if(control$SAN.maxit > 0){
-      for(srun in 1:control$SAN.maxit){
-        TARGET_STATS<-san(formula.no, target.stats=target.stats,
+      TARGET_STATS<-san(formula.no, target.stats=target.stats,
                 response=response,
                 reference=reference,
                 constraints=constraints,
                 control=san.control,
+                nsim=control$SAN.maxit,
+                only.last=TRUE,
                 output="pending_update_network",
                 verbose=verbose)
-        formula.no<-nonsimp_update.formula(formula.no,TARGET_STATS~., from.new="TARGET_STATS")
-        nw.stats <- summary(formula.no,response=response, term.options=control$term.options)
-        srun <- srun + 1
-        if(verbose){
-          message(paste("Finished SAN run",srun-1,""))
-        }
-        if(verbose){
-          message("SAN summary statistics:")
-          message_print(nw.stats)
-          message("Meanstats Goal:")
-          message_print(target.stats)
-          message("Difference: SAN target.stats - Goal target.stats =")
-          message_print(round(nw.stats-target.stats,0))
-        }
-        if(sum((nw.stats-target.stats)^2) <= 5) break
-      }
+      if(verbose) message("Finished SAN run.")
     }
     
     # From this point on, target.stats has NAs corresponding to the
@@ -743,7 +728,7 @@ ergm <- function(formula, response=NULL,
                                          proposal.obs$arguments$constraints))
   
   # If all other criteria for MPLE=MLE are met, _and_ SAN network matches target.stats directly, we can get away with MPLE.
-  if (!is.null(target.stats) && !isTRUE(all.equal(target.stats,nw.stats))) message("Unable to match target stats. Using MCMLE estimation.")
+  if (!is.null(target.stats) && !isTRUE(all.equal(target.stats[!is.na(target.stats)],nw.stats[!is.na(target.stats)]))) message("Unable to match target stats. Using MCMLE estimation.")
   MCMCflag <- (estimate=="MLE" && (!MPLE.is.MLE
                                    || (!is.null(target.stats) && !isTRUE(all.equal(target.stats,nw.stats)))
   )
@@ -797,7 +782,9 @@ ergm <- function(formula, response=NULL,
                                 ...)
   
   if (!MCMCflag){ # Just return initial (non-MLE) fit and exit.
+    message("Stopping at the initial estimate.")
     initialfit$offset <- model$etamap$offsettheta
+    initialfit$MPLE_is_MLE <- MPLE.is.MLE
     initialfit$drop <- if(control$drop) extremecheck$extremeval.theta
     initialfit$estimable <- constrcheck$estimable
     initialfit$network <- nw
@@ -875,6 +862,7 @@ ergm <- function(formula, response=NULL,
   } else {
     degeneracy <- list(degeneracy.value=NULL, degeneracy.type=NULL)
   }
+  mainfit$MPLE_is_MLE <- MPLE.is.MLE
   mainfit$degeneracy.value <- degeneracy$degeneracy.value
   mainfit$degeneracy.type <- degeneracy$degeneracy.type
   

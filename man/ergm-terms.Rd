@@ -1066,19 +1066,19 @@ of the degrees of all pairs of nodes in the network which are tied.
 
   }
     
-  \item{\code{dgwdsp(decay, fixed=FALSE, cutoff=30, type="OTP", Ls.path=NULL, L.in_order=FALSE)} (binary) (directed) (undirected)}{  \emph{Geometrically weighted dyadwise shared partner distribution:} This term adds one network statistic to the model equal to the geometrically weighted dyadwise shared partner distribution with decay parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for this parameter may be fixed (if \code{fixed=TRUE}), or it may be used instead as the starting value for the estimation of \code{decay} in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006).  Note that the GWDSP statistic is equal to the sum of GWNSP plus GWESP. For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying DSP terms to use in computing the statistics to reduce the computational burden.
+  \item{\code{dgwdsp(decay, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed) (undirected)}{  \emph{Geometrically weighted dyadwise shared partner distribution:} This term adds one network statistic to the model equal to the geometrically weighted dyadwise shared partner distribution with decay parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for this parameter may be fixed (if \code{fixed=TRUE}), or it may be used instead as the starting value for the estimation of \code{decay} in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006).  Note that the GWDSP statistic is equal to the sum of GWNSP plus GWESP. For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying DSP terms to use in computing the statistics to reduce the computational burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.)
 
    }
    
-   \item{\code{dgwesp(decay, fixed=FALSE, cutoff=30, type="OTP", L.base=NULL, Ls.path=NULL, L.in_order=FALSE)} (binary) (directed) (undirected)}{ \emph{Geometrically weighted edgewise shared partner distribution:} This term adds a statistic equal to the geometrically weighted \emph{edgewise} (not dyadwise) shared partner distribution with decay parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for this parameter may be fixed (if \code{fixed=TRUE}), or it may be used instead as the starting value for the estimation of \code{decay} in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006). For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying ESP terms to use in computing the statistics to reduce the computational burden.
+   \item{\code{dgwesp(decay, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed) (undirected)}{ \emph{Geometrically weighted edgewise shared partner distribution:} This term adds a statistic equal to the geometrically weighted \emph{edgewise} (not dyadwise) shared partner distribution with decay parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for this parameter may be fixed (if \code{fixed=TRUE}), or it may be used instead as the starting value for the estimation of \code{decay} in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006). For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying ESP terms to use in computing the statistics to reduce the computational burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.)
 
    }
   
-   \item{\code{dgwnsp(decay, fixed=FALSE, cutoff=30, type="OTP", L.base=NULL, Ls.path=NULL, L.in_order=FALSE)} (binary) (directed) (undirected)}{ \emph{Geometrically weighted non-edgewise shared partner distribution:} This term is just like gwesp and gwdsp except it adds a statistic equal to the geometrically weighted nonedgewise (that is, over dyads that do not have an edge) shared partner distribution with decay parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for this parameter may be fixed (if \code{fixed=TRUE}), or it may be used instead as the starting value for the estimation of \code{decay} in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006). For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying NSP terms to use in computing the statistics to reduce the computational burden.
+   \item{\code{dgwnsp(decay, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed) (undirected)}{ \emph{Geometrically weighted non-edgewise shared partner distribution:} This term is just like gwesp and gwdsp except it adds a statistic equal to the geometrically weighted nonedgewise (that is, over dyads that do not have an edge) shared partner distribution with decay parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for this parameter may be fixed (if \code{fixed=TRUE}), or it may be used instead as the starting value for the estimation of \code{decay} in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006). For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying NSP terms to use in computing the statistics to reduce the computational burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.)
 
    }
     
-   \item{\code{dnsp(d, type="OTP", L.base=NULL, Ls.path=NULL, L.in_order=FALSE)} (binary) (directed) (undirected)}{  \emph{Directed non-edgewise shared partners:} This term adds one network statistic to the model for each element in \code{d} where the \eqn{i}th such statistic equals the number of \emph{non-edges} in the network with exactly \code{d[i]} shared partners. This term can only be used with directed networks.  Multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to be counted (see \code{ddsp} for type codes).  By default, outgoing two-paths are employed.
+   \item{\code{dnsp(d, type="OTP")} (binary) (directed) (undirected)}{  \emph{Directed non-edgewise shared partners:} This term adds one network statistic to the model for each element in \code{d} where the \eqn{i}th such statistic equals the number of \emph{non-edges} in the network with exactly \code{d[i]} shared partners. This term can only be used with directed networks.  Multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to be counted (see \code{ddsp} for type codes).  By default, outgoing two-paths are employed.
 
    }
     
@@ -1175,7 +1175,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     The optional argument \code{cutoff}
     is only relevant if \code{fixed=FALSE}. In that case it only uses this 
     number of terms in computing the statistics to reduce the computational
-    burden. If \code{attrname} is specified then separate degree
+    burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.) If \code{attrname} is specified then separate degree
     statistics are calculated for nodes having each separate
     value of the attribute.
     This term can only be used with undirected bipartite
@@ -1199,7 +1199,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     The optional argument \code{cutoff}
     is only relevant if \code{fixed=FALSE}. In that case it only uses this 
     number of terms in computing the statistics to reduce the computational
-    burden. If \code{attrname} is specified then separate degree
+    burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.) If \code{attrname} is specified then separate degree
     statistics are calculated for nodes having each separate
     value of the attribute.
     This term can only be used with undirected bipartite
@@ -1220,7 +1220,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     The optional argument \code{cutoff}
     is only relevant if \code{fixed=FALSE}. In that case it only uses this 
     number of terms in computing the statistics to reduce the computational
-    burden.    This term can only be used with undirected networks.
+    burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.)    This term can only be used with undirected networks.
 
     If \code{attrname} is specified then separate degree
     statistics are calculated for nodes having each separate
@@ -1239,7 +1239,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     The optional argument \code{cutoff}
     is only relevant if \code{fixed=FALSE}. In that case it only uses this 
     number of terms in computing the statistics to reduce the computational
-    burden.}
+    burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.)}
     
     \item{\code{gwesp(decay, fixed=FALSE, cutoff=30)}  (binary)  (frequently-used)   (directed)  (undirected)  (curved)}{\emph{Geometrically weighted
     edgewise shared partner distribution:} 
@@ -1256,7 +1256,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     The optional argument \code{cutoff}
     is only relevant if \code{fixed=FALSE}. In that case it only uses this 
     number of terms in computing the statistics to reduce the computational
-    burden.}
+    burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.)}
  
     \item{\code{gwidegree(decay, fixed=FALSE, attrname=NULL, cutoff=30, levels=NULL)}  (binary)  (directed) (curved)}{\emph{Geometrically weighted
     in-degree distribution:} This term adds one network statistic to the model
@@ -1269,7 +1269,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     The optional argument \code{cutoff}
     is only relevant if \code{fixed=FALSE}. In that case it only uses this 
     number of terms in computing the statistics to reduce the computational
-    burden.
+    burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.)
 
     If \code{attrname} is specified then separate degree
     statistics are calculated for nodes having each separate
@@ -1293,7 +1293,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     The optional argument \code{cutoff}
     is only relevant if \code{fixed=FALSE}. In that case it only uses this 
     number of terms in computing the statistics to reduce the computational
-    burden.}
+    burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.)}
   
     \item{\code{gwodegree(decay, fixed=FALSE, attrname=NULL, cutoff=30, levels=NULL)}  (binary)  (directed) (curved)}{\emph{Geometrically weighted
     out-degree distribution:} This term adds one network statistic to the model
@@ -1306,7 +1306,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     The optional argument \code{cutoff}
     is only relevant if \code{fixed=FALSE}. In that case it only uses this 
     number of terms in computing the statistics to reduce the computational
-    burden.
+    burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.)
 
     If \code{attrname} is specified then separate degree
     statistics are calculated for nodes having each separate

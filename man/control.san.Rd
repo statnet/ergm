@@ -4,32 +4,34 @@
 \alias{control.san}
 \title{Auxiliary for Controlling SAN}
 \usage{
-control.san(coef = NULL, SAN.tau = 1, SAN.invcov = NULL,
-  SAN.burnin = 1e+05, SAN.interval = 10000,
-  SAN.init.maxedges = 20000, SAN.prop.weights = "default",
+control.san(SAN.tau = 1, SAN.invcov = NULL, SAN.nsteps = 2^14,
+  SAN.samplesize = 2^10, SAN.init.maxedges = 20000,
+  SAN.max.maxedges = 2^26, SAN.prop.weights = "default",
   SAN.prop.args = list(), SAN.packagenames = c(),
-  MPLE.max.dyad.types = 1e+06, MPLE.samplesize = 50000,
-  network.output = "network", term.options = list(), seed = NULL,
-  parallel = 0, parallel.type = NULL, parallel.version.check = TRUE,
+  term.options = list(), seed = NULL, parallel = 0,
+  parallel.type = NULL, parallel.version.check = TRUE,
   parallel.inherit.MT = FALSE)
 }
 \arguments{
-\item{coef}{Vector of model coefficients used for MCMC simulations, one for
-each model term.}
+\item{SAN.tau}{Tuning parameter, specifying the temperature of the
+process during the \emph{penultimate} iteration. (During the last
+iteration, the temperature is set to 0, resulting in a greedy
+search, and during the previous iterations, the temperature is
+set to \code{SAN.tau*(iterations left after this one)}.}
 
-\item{SAN.tau}{Currently unused.}
+\item{SAN.invcov}{Initial inverse covariance matrix used to
+calculate Mahalanobis distance in determining how far a proposed
+MCMC move is from the \code{target.stats} vector.  If \code{NULL},
+initially set to the identity matrix, then during subsequent runs
+estimated empirically.}
 
-\item{SAN.invcov}{Initial inverse covariance matrix used to calculate
-Mahalanobis distance in determining how far a proposed MCMC move is from the
-\code{target.stats} vector.  If NULL, taken to be the covariance matrix
-returned when fitting the MPLE if \code{coef==NULL}, or the identity matrix
-otherwise.}
+\item{SAN.nsteps}{Number of MCMC proposals for each simulated annealing run.}
 
-\item{SAN.burnin}{Number of MCMC proposals before any sampling is done.}
-
-\item{SAN.interval}{Number of proposals between sampled statistics.}
+\item{SAN.samplesize}{Number of realisations' statistics to obtain for tuning purposes.}
 
 \item{SAN.init.maxedges}{Maximum number of edges expected in network.}
+
+\item{SAN.max.maxedges}{Hard upper bound on the number of edges in the network.}
 
 \item{SAN.prop.weights}{Specifies the method to allocate probabilities of
 being proposed to dyads. Defaults to \code{"default"}, which picks a
@@ -43,18 +45,6 @@ arguments to proposal.}
 \item{SAN.packagenames}{Names of packages in which to look for change
 statistic functions in addition to those autodetected. This argument should
 not be needed outside of very strange setups.}
-
-\item{MPLE.max.dyad.types}{Maximum number of unique values of change
-statistic vectors, which are the predictors in a logistic regression used to
-calculate the MPLE.  This calculation uses a compression algorithm that
-allocates space based on \code{MPLE.max.dyad.types}}
-
-\item{MPLE.samplesize}{Not currently documented; used in
-conditional-on-degree version of MPLE.}
-
-\item{network.output}{R class with which to output networks. The options are
-"network" (default) and "edgelist.compressed" (which saves space but only
-supports networks without vertex attributes)}
 
 \item{term.options}{A list of additional arguments to be passed to term initializers. It can also be set globally via \code{option(ergm.term=list(...))}.}
 

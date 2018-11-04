@@ -38,8 +38,6 @@ Network *NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
   nwp->inedges = (TreeNode *) Calloc(nwp->maxedges, TreeNode);
   nwp->outedges = (TreeNode *) Calloc(nwp->maxedges, TreeNode);
 
-  GetRNGstate();  /* R function enabling uniform RNG */
-
   if(lasttoggle_flag){
     nwp->duration_info.time=time;
     if(lasttoggle){
@@ -55,7 +53,7 @@ Network *NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
   nwp->directed_flag=directed_flag;
   nwp->bipartite=bipartite;
 
-  ShuffleEdges(tails,heads,nedges); /* shuffle to avoid worst-case performance */
+  DetShuffleEdges(tails,heads,nedges); /* shuffle to avoid worst-case performance */
 
   for(Edge i = 0; i < nedges; i++) {
     Vertex tail=tails[i], head=heads[i];
@@ -64,7 +62,6 @@ Network *NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
     else 
       AddEdgeToTrees(tail,head,nwp);
   }
-  PutRNGstate();
   return nwp;
 }
 
@@ -353,7 +350,11 @@ int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
   /* First, determine which node to splice out; this is z.  If the current
      z has two children, then we'll actually splice out its successor. */
   if ((zptr=edges+z)->left != 0 && zptr->right != 0) {
-    if(unif_rand()<0.5)
+    /* Select which child to promote based on whether the left child's
+       position is divisible by 2: the position of a node in an edge
+       tree is effectively random, *unless* it's a root node. Using
+       the left child ensures that it is not a root node. */
+    if(zptr->left&1u)
       z=EdgetreeSuccessor(edges, z);  
     else
       z=EdgetreePredecessor(edges, z);  
@@ -683,10 +684,33 @@ Edge EdgeTree2EdgeList(Vertex *tails, Vertex *heads, Network *nwp, Edge nmax){
        in before heads */
 
 
+/****************
+ Edge ShuffleEdges
+
+ Randomly permute edges in an list.
+****************/
 void ShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges){
   /* *** don't forget,  tail -> head */
   for(Edge i = nedges; i > 0; i--) {
     Edge j = i * unif_rand();
+    Vertex tail = tails[j];
+    Vertex head = heads[j];
+    tails[j] = tails[i-1];
+    heads[j] = heads[i-1];
+    tails[i-1] = tail;
+    heads[i-1] = head;
+  }
+}
+
+/****************
+ Edge DetShuffleEdges
+
+ Deterministically scramble edges in an list.
+****************/
+void DetShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges){
+  /* *** don't forget,  tail -> head */
+  for(Edge i = nedges; i > 0; i--) {
+    Edge j = i/2;
     Vertex tail = tails[j];
     Vertex head = heads[j];
     tails[j] = tails[i-1];
@@ -743,5 +767,3 @@ void SetEdgeWithTimestamp (Vertex tail, Vertex head, unsigned int weight, Networ
 
   SetEdge(tail,head,weight,nwp);
 }
-
-
