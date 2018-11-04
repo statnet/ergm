@@ -13,20 +13,19 @@ san(object, ...)
 
 \method{san}{formula}(object, response = NULL, reference = ~Bernoulli,
   constraints = ~., target.stats = NULL, nsim = 1, basis = NULL,
-  sequential = TRUE, output = c("network", "edgelist",
-  "pending_update_network"), control = control.san(), verbose = FALSE,
-  ...)
+  output = c("network", "edgelist", "pending_update_network"),
+  only.last = TRUE, control = control.san(), verbose = FALSE, ...)
 
 \method{san}{ergm_model}(object, response = NULL,
   reference = ~Bernoulli, constraints = ~., target.stats = NULL,
-  nsim = 1, basis = NULL, sequential = TRUE, output = c("network",
-  "edgelist", "pending_update_network"), control = control.san(),
+  nsim = 1, basis = NULL, output = c("network", "edgelist",
+  "pending_update_network"), only.last = TRUE, control = control.san(),
   verbose = FALSE, ...)
 
 \method{san}{ergm}(object, formula = object$formula,
   constraints = object$constraints, target.stats = object$target.stats,
-  nsim = 1, basis = NULL, sequential = TRUE, output = c("network",
-  "edgelist", "pending_update_network"),
+  nsim = 1, basis = NULL, output = c("network", "edgelist",
+  "pending_update_network"), only.last = TRUE,
   control = object$control$SAN.control, verbose = FALSE, ...)
 }
 \arguments{
@@ -64,13 +63,12 @@ implied by the formula, which is either \code{object} itself in the case of
 \item{basis}{If not NULL, a \code{network} object used to start the Markov
 chain.  If NULL, this is taken to be the network named in the formula.}
 
-\item{sequential}{Logical: If TRUE, the returned draws always use the prior
-draw as the starting network; if FALSE, they always use the original
-network.}
-
 \item{output}{Character, one of \code{"network"} (default),
 \code{"edgelist"}, or \code{"pending_update_network"}: determines the
 output format. Partial matching is performed.}
+
+\item{only.last}{if \code{TRUE}, only return the last network generated;
+otherwise, return a \code{\link{network.list}} with \code{nsim} networks.}
 
 \item{control}{A list of control parameters for algorithm tuning; see
 \code{\link{control.san}}.}

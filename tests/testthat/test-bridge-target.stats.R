@@ -20,7 +20,7 @@ test_that("Log-likelihood with attainable target statistics",{
   ts <- 3
   llk.ergm <- as.vector(logLik(ergm(flomarriage~edges, target.stats=ts)))
   llk <- l(y,ts)
-  expect_equivalent(llk,llk.ergm)
+  expect_equivalent(llk,llk.ergm,tolerance=0.01)
 })
 
 test_that("Log-likelihood with unattainable target statistics",{
