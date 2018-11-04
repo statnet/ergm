@@ -18,13 +18,13 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MCMC.runtime.traceplot = FALSE, MCMC.init.maxedges = 20000,
   MCMC.max.maxedges = Inf, MCMC.addto.se = TRUE,
   MCMC.compress = FALSE, MCMC.packagenames = c(), SAN.maxit = 10,
-  SAN.burnin.times = 10, SAN.control = control.san(coef = init,
-  term.options = term.options, SAN.prop.weights = MCMC.prop.weights,
-  SAN.prop.args = MCMC.prop.args, SAN.init.maxedges = MCMC.init.maxedges,
-  SAN.burnin = MCMC.burnin * SAN.burnin.times, SAN.interval =
-  MCMC.interval, SAN.packagenames = MCMC.packagenames, MPLE.max.dyad.types
-  = MPLE.max.dyad.types, parallel = parallel, parallel.type =
-  parallel.type, parallel.version.check = parallel.version.check),
+  SAN.nsteps.times = 10, SAN.control = control.san(term.options =
+  term.options, SAN.prop.weights = MCMC.prop.weights, SAN.prop.args =
+  MCMC.prop.args, SAN.init.maxedges = MCMC.init.maxedges, SAN.max.maxedges
+  = MCMC.max.maxedges, SAN.nsteps = MCMC.burnin * SAN.nsteps.times,
+  SAN.samplesize = MCMC.samplesize, SAN.packagenames = MCMC.packagenames,
+  parallel = parallel, parallel.type = parallel.type,
+  parallel.version.check = parallel.version.check),
   MCMLE.termination = c("confidence", "Hummel", "Hotelling", "precision",
   "none"), MCMLE.maxit = 30, MCMLE.conv.min.pval = 0.5,
   MCMLE.confidence = 0.99, MCMLE.confidence.boost = 2,
@@ -265,7 +265,7 @@ not be needed outside of very strange setups.}
 \code{\link[=ergm]{ergm()}}, the maximum number of attempts to use \code{\link{san}}
 to obtain a network with statistics close to those specified.}
 
-\item{SAN.burnin.times}{Multiplier for \code{SAN.burnin} relative to
+\item{SAN.nsteps.times}{Multiplier for \code{SAN.nsteps} relative to
 \code{MCMC.burnin}. This lets one control the amount of SAN burn-in
 (arguably, the most important of SAN parameters) without overriding the
 other SAN.control defaults.}
