@@ -591,36 +591,21 @@ ergm <- function(formula, response=NULL,
     # no need to pass the offset term's init to SAN
     offset.terms <- model.initial$etamap$offsettheta
     san.control <- control$SAN.control
-    san.control$coef <- san.control$coef[!offset.terms]
     
     if(verbose) message("Constructing an approximate response network.")
     ## If target.stats are given, overwrite the given network and formula
     ## with SAN-ed network and formula.
     if(control$SAN.maxit > 0){
-      for(srun in 1:control$SAN.maxit){
-        TARGET_STATS<-san(formula.no, target.stats=target.stats,
+      TARGET_STATS<-san(formula.no, target.stats=target.stats,
                 response=response,
                 reference=reference,
                 constraints=constraints,
                 control=san.control,
+                nsim=control$SAN.maxit,
+                only.last=TRUE,
                 output="pending_update_network",
                 verbose=verbose)
-        formula.no<-nonsimp_update.formula(formula.no,TARGET_STATS~., from.new="TARGET_STATS")
-        nw.stats <- summary(formula.no,response=response, term.options=control$term.options)
-        srun <- srun + 1
-        if(verbose){
-          message(paste("Finished SAN run",srun-1,""))
-        }
-        if(verbose){
-          message("SAN summary statistics:")
-          message_print(nw.stats)
-          message("Meanstats Goal:")
-          message_print(target.stats)
-          message("Difference: SAN target.stats - Goal target.stats =")
-          message_print(round(nw.stats-target.stats,0))
-        }
-        if(sum((nw.stats-target.stats)^2) <= 5) break
-      }
+      if(verbose) message("Finished SAN run.")
     }
     nw <- TARGET_STATS <- as.network(TARGET_STATS)
     formula<-nonsimp_update.formula(formula,TARGET_STATS~., from.new="TARGET_STATS")

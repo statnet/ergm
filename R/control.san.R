@@ -17,17 +17,22 @@
 #' This function is only used within a call to the \code{\link{san}} function.
 #' See the \code{usage} section in \code{\link{san}} for details.
 #' 
-#' @param coef Vector of model coefficients used for MCMC simulations, one for
-#' each model term.
-#' @param SAN.tau Currently unused.
-#' @param SAN.invcov Initial inverse covariance matrix used to calculate
-#' Mahalanobis distance in determining how far a proposed MCMC move is from the
-#' \code{target.stats} vector.  If NULL, taken to be the covariance matrix
-#' returned when fitting the MPLE if \code{coef==NULL}, or the identity matrix
-#' otherwise.
-#' @param SAN.burnin Number of MCMC proposals before any sampling is done.
-#' @param SAN.interval Number of proposals between sampled statistics.
+#' @param SAN.tau Tuning parameter, specifying the temperature of the
+#'   process during the *penultimate* iteration. (During the last
+#'   iteration, the temperature is set to 0, resulting in a greedy
+#'   search, and during the previous iterations, the temperature is
+#'   set to `SAN.tau*(iterations left after this one)`.
+#' 
+#' @param SAN.invcov Initial inverse covariance matrix used to
+#'   calculate Mahalanobis distance in determining how far a proposed
+#'   MCMC move is from the \code{target.stats} vector.  If `NULL`,
+#'   initially set to the identity matrix, then during subsequent runs
+#'   estimated empirically.
+#' 
+#' @param SAN.nsteps Number of MCMC proposals for each simulated annealing run.
+#' @param SAN.samplesize Number of realisations' statistics to obtain for tuning purposes.
 #' @param SAN.init.maxedges Maximum number of edges expected in network.
+#' @param SAN.max.maxedges Hard upper bound on the number of edges in the network.
 #' @param SAN.prop.weights Specifies the method to allocate probabilities of
 #' being proposed to dyads. Defaults to \code{"default"}, which picks a
 #' reasonable default for the specified constraint.  Other possible values are
@@ -38,15 +43,6 @@
 #' @param SAN.packagenames Names of packages in which to look for change
 #' statistic functions in addition to those autodetected. This argument should
 #' not be needed outside of very strange setups.
-#' @param MPLE.max.dyad.types Maximum number of unique values of change
-#' statistic vectors, which are the predictors in a logistic regression used to
-#' calculate the MPLE.  This calculation uses a compression algorithm that
-#' allocates space based on \code{MPLE.max.dyad.types}
-#' @param MPLE.samplesize Not currently documented; used in
-#' conditional-on-degree version of MPLE.
-#' @param network.output R class with which to output networks. The options are
-#' "network" (default) and "edgelist.compressed" (which saves space but only
-#' supports networks without vertex attributes)
 #' @template term_options
 #' @template control_MCMC_parallel
 #' @template seed
@@ -54,23 +50,17 @@
 #' @seealso \code{\link{san}}
 #' @keywords models
 #' @export control.san
-control.san<-function(coef=NULL,
-
-                      SAN.tau=1,
+control.san<-function(SAN.tau=1,
                       SAN.invcov=NULL,
-                      SAN.burnin=100000,
-                      SAN.interval=10000,
+                      SAN.nsteps=2^14,
+                      SAN.samplesize=2^10,
                       SAN.init.maxedges=20000,
+                      SAN.max.maxedges=2^26,
                       
                       SAN.prop.weights="default",
                       SAN.prop.args=list(),
                       SAN.packagenames=c(),
                       
-                      MPLE.max.dyad.types=1e6,
-                      MPLE.samplesize=50000,
-
-                      network.output="network",
-
                       term.options=list(),
 
                       seed=NULL,

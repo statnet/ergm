@@ -59,13 +59,12 @@ san.default <- function(object,...)
 #' @param nsim Number of desired networks.
 #' @param basis If not NULL, a \code{network} object used to start the Markov
 #' chain.  If NULL, this is taken to be the network named in the formula.
-#' @param sequential Logical: If TRUE, the returned draws always use the prior
-#' draw as the starting network; if FALSE, they always use the original
-#' network.
 #'
 #' @param output Character, one of `"network"` (default),
 #'   `"edgelist"`, or `"pending_update_network"`: determines the
 #'   output format. Partial matching is performed.
+#' @param only.last if `TRUE`, only return the last network generated;
+#'   otherwise, return a [`network.list`] with `nsim` networks.
 #'
 #' @param control A list of control parameters for algorithm tuning; see
 #' \code{\link{control.san}}.
@@ -74,8 +73,8 @@ san.default <- function(object,...)
 #' @export
 san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints=~., target.stats=NULL,
                         nsim=1, basis=NULL,
-                        sequential=TRUE,
                         output=c("network","edgelist","pending_update_network"),
+                        only.last=TRUE,
                         control=control.san(),
                         verbose=FALSE, ...) {
   check.control.class("san", "san")
@@ -106,151 +105,75 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   # as its edges are only accessed through methods that
   # pending_update_network methods overload, it should be fine.
 
-# model <- ergm_model(formula, nw, drop=control$drop)
   model <- ergm_model(formula, nw, response=response, term.options=control$term.options)
   Clist <- ergm.Cprepare(nw, model, response=response)
-  fd <- ergm.design(nw, verbose=verbose)
   
   proposal<-ergm_proposal(constraints,arguments=control$SAN.prop.args,nw=nw,weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
 # if(is.null(control$coef)) {
 #   warning("No parameter values given, using the MPLE for the passed network.\n\t")
 # }
 # control$coef <- c(control$coef[1],rep(0,Clist$nstats-1))
+    
+  maxedges <- max(control$SAN.init.maxedges, Clist$nedges)
+  netsumm<-summary(model,nw,response=response)
+  target.stats <- vector.namesmatch(target.stats, names(netsumm))
+  stats <- netsumm-target.stats
+  control$invcov <- diag(1, nparam(model, canonical=TRUE))
   
-  if (verbose) {
-    message(paste("Starting ",nsim," MCMC iteration", ifelse(nsim>1,"s",""),
-        " of ", control$SAN.burnin+control$SAN.interval*(nsim-1), 
-        " steps", ifelse(nsim>1, " each", ""), ".", sep=""))
-  }
-
+  z <- NULL
   for(i in 1:nsim){
-    Clist <- ergm.Cprepare(nw, model,response=response)
-#   fd <- ergm.design(nw, verbose=verbose)
-    maxedges <- max(control$SAN.init.maxedges, Clist$nedges)
     if (verbose) {
-       message(paste("#", i, " of ", nsim, ": ", sep=""),appendLF=FALSE)
-     }
+      message(paste("#", i, " of ", nsim, ": ", sep=""),appendLF=FALSE)
+    }
+    
+    tau <- control$SAN.tau*(nsim-i)/nsim
+    
+    z <- ergm_SAN_slave(Clist, proposal, stats, tau, control, verbose,..., prev.run=z)
 
-    if(is.null(control$coef)) {
-      if(reference==~Bernoulli && network.edgecount(nw)!=0){
-        fit <- suppressWarnings(suppressMessages(try(ergm.mple(nw=nw, fd=fd, 
-                         control=control, proposal=proposal,
-                         m=model, verbose=max(verbose-1,0), ...))))
-        control$coef <- if(inherits(fit, "try-error")) rep(0,nparam(model,canonical=TRUE)) else fit$coef
-        if(is.null(control$invcov)) { control$invcov <- fit$covar }
-      }else{
-        control$coef<-rep(0,nparam(model,canonical=TRUE))
-        if(is.null(control$invcov)) control$invcov <- diag(length(control$coef))
-      }
+    if(z$status!=0) stop("Error in SAN.")
+    
+    outnw <- pending_update_network(nw,z,response=response)
+    nw <-  outnw
+    stats <- z$s[nrow(z$s),]
+    # TODO: Subtract off a smoothing of these values?
+    invcov <- ginv(cov(z$s))
+    invcov <- invcov / sum(diag(invcov)) * ncol(invcov) # Rescale for consistency.
+    control$invcov <- invcov
+    
+    if(verbose){
+      message("SAN summary statistics:")
+      message_print(target.stats+stats)
+      message("Meanstats Goal:")
+      message_print(target.stats)
+      message("Difference: SAN target.stats - Goal target.stats =")
+      message_print(stats)
+      message("Scaled Mahalanobis distance = ", mahalanobis(stats, 0, invcov, inverted=TRUE))
+    }
+    
+    if(!only.last){
+      out.list[[i]] <- switch(output,
+                              pending_update_network=outnw,
+                              network=as.network(outnw),
+                              edgelist=as.edgelist(outnw)
+                              )
+      out.mat <- z$s
     }else{
-      if(is.null(control$invcov)) { control$invcov <- diag(length(control$coef)) }
-    }
-    eta0 <- ifelse(is.na(control$coef), 0, control$coef)
-    
-    netsumm<-summary(model,nw,response=response)
-    target.stats <- vector.namesmatch(target.stats, names(netsumm))
-    
-    stats <- matrix(netsumm-target.stats,
-                    ncol=Clist$nstats,byrow=TRUE,nrow=nsim)
-    tau <- rep(control$SAN.tau,length=length(eta0))
-#
-#   Check for truncation of the returned edge list
-#
-    repeat{
-      nedges <- c(Clist$nedges,0)
-      tails <- Clist$tails
-      heads <- Clist$heads
-      weights <- Clist$weights
-      # *** don't forget to pass in tails before heads now.
-
-      if(is.null(Clist$weights)){
-        z <- .C("SAN_wrapper",
-                as.integer(nedges),
-                as.integer(tails), as.integer(heads),
-                as.integer(Clist$n),
-                as.integer(Clist$dir), as.integer(Clist$bipartite),
-                as.integer(Clist$nterms), 
-                as.character(Clist$fnamestring),
-                as.character(Clist$snamestring), 
-                as.character(proposal$name),
-                as.character(proposal$pkgname),
-                as.double(c(Clist$inputs,proposal$inputs)),
-                as.double(.deinf(eta0)),
-                as.double(.deinf(tau)),
-                as.integer(1), # "samplesize"
-                s = as.double(stats),
-                as.integer(if(i==1 | !sequential) control$SAN.burnin else control$SAN.interval), as.integer(control$SAN.interval), 
-                newnwtails = integer(maxedges),
-                newnwheads = integer(maxedges), 
-                as.double(control$invcov),
-                as.integer(verbose),
-                as.integer(proposal$arguments$constraints$bd$attribs), 
-                as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
-                as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
-                as.integer(proposal$arguments$constraints$bd$condAllDegExact),
-                as.integer(length(proposal$arguments$constraints$bd$attribs)), 
-                as.integer(maxedges),
-                status = integer(1),
-                PACKAGE="ergm")
-      }else{
-        z <- .C("WtSAN_wrapper",
-                as.integer(nedges),
-                as.integer(tails), as.integer(heads), as.double(weights),
-                as.integer(Clist$n),
-                as.integer(Clist$dir), as.integer(Clist$bipartite),
-                as.integer(Clist$nterms), 
-                as.character(Clist$fnamestring),
-                as.character(Clist$snamestring), 
-                as.character(proposal$name),
-                as.character(proposal$pkgname),
-                as.double(c(Clist$inputs,proposal$inputs)),
-                as.double(.deinf(eta0)),
-                as.double(.deinf(tau)),
-                as.integer(1), # "samplesize"
-                s = as.double(stats),
-                as.integer(if(i==1 | !sequential) control$SAN.burnin else control$SAN.interval), as.integer(control$SAN.interval), 
-                newnwtails = integer(maxedges),
-                newnwheads = integer(maxedges),
-                newnwweights = double(maxedges), 
-                as.double(control$invcov),
-                as.integer(verbose),
-                as.integer(proposal$arguments$constraints$bd$attribs), 
-                as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
-                as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
-                as.integer(proposal$arguments$constraints$bd$condAllDegExact),
-                as.integer(length(proposal$arguments$constraints$bd$attribs)), 
-                as.integer(maxedges), 
-                status = integer(1),
-                PACKAGE="ergm")
+      if(i<nsim && isTRUE(all.equal(stats, numeric(length(stats))))){
+        if(verbose) message("Target statistics matched exactly.")
+        break
       }
-
-      if(z$status==1) maxedges <- 5*maxedges
-      else if(z$status==0) break
-      else stop("Error in SAN C code.")
-    }
-    #
-    #   Next update the network to be the final (possibly conditionally)
-    #   simulated one
-    #
-    out.list[[i]] <- pending_update_network(nw,z,response=response)
-    out.list[[i]] <- switch(output,
-                            pending_update_network=out.list[[i]],
-                            network=as.network(out.list[[i]]),
-                            edgelist=as.edgelist(out.list[[i]])
-                            )
-    out.mat <- rbind(out.mat,z$s[(Clist$nstats+1):(2*Clist$nstats)])
-    if(sequential){
-      nw <-  out.list[[i]]
     }
   }
-  if(nsim > 1){
-    out.list <- list(formula = formula, networks = out.list, 
-                     stats = out.mat, coef=control$coef)
-    class(out.list) <- "network.list"
+  if(nsim > 1 && !only.last){
+    structure(out.list, formula = formula, networks = out.list, 
+              stats = out.mat, class="network.list")
   }else{
-    out.list <- out.list[[1]]
+    switch(output,
+           pending_update_network=outnw,
+           network=as.network(outnw),
+           edgelist=as.edgelist(outnw)
+           )    
   }
-  return(out.list)
 }
 
 #' @describeIn san Sufficient statistics and other settings are
@@ -260,19 +183,105 @@ san.ergm <- function(object, formula=object$formula,
                      constraints=object$constraints, 
                      target.stats=object$target.stats,
                      nsim=1, basis=NULL,
-                     sequential=TRUE, 
                      output=c("network","edgelist","pending_update_network"),
+                     only.last=TRUE,
                      control=object$control$SAN.control,
                      verbose=FALSE, ...) {
-  if(is.null(control$coef)) control$coef <- coef(object)
   san.formula(formula, nsim=nsim, 
               target.stats=target.stats,
               basis=basis,
               reference = object$reference,
-              sequential=sequential,
               output=output,
               constraints=constraints,
               control=control,
               verbose=verbose, ...)
 }
 
+ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run=NULL, nsteps=NULL, samplesize=NULL, maxedges=NULL) {
+  if(is.null(prev.run)){ # Start from Clist
+    nedges <- c(Clist$nedges,0,0)
+    tails <- Clist$tails
+    heads <- Clist$heads
+    weights <- Clist$weights
+  }else{ # Pick up where we left off
+    nedges <- prev.run$newnwtails[1]
+    tails <- prev.run$newnwtails[2:(nedges+1)]
+    heads <- prev.run$newnwheads[2:(nedges+1)]
+    weights <- prev.run$newnwweights[2:(nedges+1)]
+    nedges <- c(nedges,0,0)
+    stats <- prev.run$s[nrow(prev.run$s),]
+  }
+
+  if(is.null(nsteps)) nsteps <- control$SAN.nsteps
+  if(is.null(samplesize)) samplesize <- control$SAN.samplesize
+  if(is.null(maxedges)) maxedges <- control$SAN.init.maxedges
+
+  repeat{
+    if(is.null(Clist$weights)){
+      z <- .C("SAN_wrapper",
+              as.integer(nedges),
+              as.integer(tails), as.integer(heads),
+              as.integer(Clist$n),
+              as.integer(Clist$dir), as.integer(Clist$bipartite),
+              as.integer(Clist$nterms),
+              as.character(Clist$fnamestring),
+              as.character(Clist$snamestring),
+              as.character(proposal$name), as.character(proposal$pkgname),
+              as.double(c(Clist$inputs,proposal$inputs)), as.double(.deinf(tau)),
+              s = as.double(c(stats, numeric(length(stats)*(samplesize-1)))),
+              as.integer(samplesize),
+              as.integer(nsteps), 
+              newnwtails = integer(maxedges),
+              newnwheads = integer(maxedges),
+              as.double(control$invcov),
+              as.integer(verbose), as.integer(proposal$arguments$constraints$bd$attribs),
+              as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
+              as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
+              as.integer(proposal$arguments$constraints$bd$condAllDegExact), as.integer(length(proposal$arguments$constraints$bd$attribs)),
+              as.integer(maxedges),
+              status = integer(1),
+              PACKAGE="ergm")
+      
+        # save the results (note that if prev.run is NULL, c(NULL$s,z$s)==z$s.
+      z<-list(s=matrix(z$s, ncol=Clist$nstats, byrow = TRUE),
+                newnwtails=z$newnwtails, newnwheads=z$newnwheads, status=z$status, maxedges=maxedges)
+    }else{
+      z <- .C("WtSAN_wrapper",
+              as.integer(nedges),
+              as.integer(tails), as.integer(heads), as.double(weights),
+              as.integer(Clist$n),
+              as.integer(Clist$dir), as.integer(Clist$bipartite),
+              as.integer(Clist$nterms),
+              as.character(Clist$fnamestring),
+              as.character(Clist$snamestring),
+              as.character(proposal$name), as.character(proposal$pkgname),
+              as.double(c(Clist$inputs,proposal$inputs)), as.double(.deinf(tau)),
+              s = as.double(c(stats, numeric(length(stats)*(samplesize-1)))),
+              as.integer(samplesize),
+              as.integer(nsteps), 
+              newnwtails = integer(maxedges),
+              newnwheads = integer(maxedges),
+              newnwweights = double(maxedges),
+              as.double(control$invcov),
+              as.integer(verbose), 
+              as.integer(maxedges),
+              status = integer(1),
+              PACKAGE="ergm")
+      # save the results
+      z<-list(s=matrix(z$s, ncol=Clist$nstats, byrow = TRUE),
+              newnwtails=z$newnwtails, newnwheads=z$newnwheads, newnwweights=z$newnwweights, status=z$status, maxedges=maxedges)
+    }
+    
+    z$s <- rbind(prev.run$s,z$s)
+    
+    if(z$status!=1) return(z) # Handle everything except for MCMC_TOO_MANY_EDGES elsewhere.
+    
+    # The following is only executed (and the loop continued) if too many edges.
+    maxedges <- maxedges * 10
+    if(!is.null(control$SAN.max.maxedges)){
+      if(maxedges == control$SAN.max.maxedges*10) # True iff the previous maxedges exactly equaled control$SAN.max.maxedges and that was too small.
+        return(z) # This will kick the too many edges problem upstairs, so to speak.
+      maxedges <- min(maxedges, control$MCMC.max.maxedges)
+    }
+  }
+}

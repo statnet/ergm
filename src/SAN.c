@@ -30,9 +30,9 @@ void SAN_wrapper ( int *nedges,
                    int *nterms, char **funnames,
                    char **sonames, 
                    char **MHProposaltype, char **MHProposalpackage,
-                   double *inputs, double *theta0, double *tau, 
-		   int *samplesize, 
-                   double *sample, int *burnin, int *interval,  
+                   double *inputs, double *tau, 
+                   double *sample,
+		   int *samplesize, int *nsteps,
                    int *newnetworktails, 
                    int *newnetworkheads, 
                    double *invcov, 
@@ -73,8 +73,8 @@ void SAN_wrapper ( int *nedges,
 	  *condAllDegExact, *attriblength);
 
   *status = SANSample (MHp,
-		       theta0, invcov, tau, sample, *samplesize,
-		       *burnin, *interval,
+		       invcov, tau, sample, *samplesize,
+		       *nsteps,
 		       *fVerbose, nmax, nwp, m);
   
   MHProposalDestroy(MHp);
@@ -95,16 +95,16 @@ void SAN_wrapper ( int *nedges,
  MCMCStatus SANSample
 
  Using the parameters contained in the array theta, obtain the
- network statistics for a sample of size samplesize.  burnin is the
+ network statistics for a sample of size samplesize.  nsteps is the
  initial number of Markov chain steps before sampling anything
  and interval is the number of MC steps between successive 
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
 MCMCStatus SANSample (MHProposal *MHp,
-  double *theta, double *invcov, double *tau, double *networkstatistics, 
-  int samplesize, int burnin, 
-  int interval, int fVerbose, int nmax,
+  double *invcov, double *tau, double *networkstatistics, 
+  int samplesize, int nsteps, 
+  int fVerbose, int nmax,
   Network *nwp, Model *m) {
   int staken, tottaken, ptottaken;
     
@@ -123,23 +123,22 @@ MCMCStatus SANSample (MHProposal *MHp,
 /* } */
 /* Rprintf("\n"); */
 
+  unsigned int interval = nsteps / samplesize; // Integer division: rounds down.
+  unsigned int burnin = nsteps - (samplesize-1)*interval;
+  
   /*********************
-   Burn in step.  While we're at it, use burnin statistics to 
+   Burn in step.  While we're at it, use nsteps statistics to 
    prepare covariance matrix for Mahalanobis distance calculations 
    in subsequent calls to M-H
    *********************/
   /*  Catch more edges than we can return */
-  if(SANMetropolisHastings(MHp, theta, invcov, tau, networkstatistics, burnin, &staken,
+  if(SANMetropolisHastings(MHp, invcov, tau, networkstatistics, burnin, &staken,
 			   fVerbose, nwp, m)!=MCMC_OK)
     return MCMC_MH_FAILED;
   if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
     return MCMC_TOO_MANY_EDGES;
   }
-  
-  if (fVerbose){
-    Rprintf("Returned from SAN Metropolis-Hastings burnin\n");
-  }
-  
+
   if (samplesize>1){
     staken = 0;
     tottaken = 0;
@@ -148,13 +147,19 @@ MCMCStatus SANSample (MHProposal *MHp,
     /* Now sample networks */
     for (unsigned int i=1; i < samplesize; i++){
       /* Set current vector of stats equal to previous vector */
+      Rboolean found = TRUE;
       for (unsigned int j=0; j<m->n_stats; j++){
-        networkstatistics[j+m->n_stats] = networkstatistics[j];
+        if((networkstatistics[j+m->n_stats] = networkstatistics[j])!=0) found = FALSE;
       }
+      if(found){
+	if(fVerbose) Rprintf("Exact match found.\n");
+	break;
+      }
+
       networkstatistics += m->n_stats;
       /* This then adds the change statistics to these values */
       
-      if(SANMetropolisHastings(MHp, theta, invcov, tau, networkstatistics, 
+      if(SANMetropolisHastings(MHp, invcov, tau, networkstatistics, 
 		             interval, &staken,
 			       fVerbose, nwp, m)!=MCMC_OK)
 	return MCMC_MH_FAILED;
@@ -197,7 +202,7 @@ MCMCStatus SANSample (MHProposal *MHp,
   }else{
     if (fVerbose){
       Rprintf("SAN Metropolis-Hastings accepted %7.3f%% of %d proposed steps.\n",
-	      staken*100.0/(1.0*burnin), burnin); 
+	      staken*100.0/(1.0*nsteps), nsteps); 
     }
   }
   return MCMC_OK;
@@ -215,16 +220,15 @@ MCMCStatus SANMetropolisHastings
  essentially generates a sample of size one
 *********************/
 MCMCStatus SANMetropolisHastings (MHProposal *MHp,
-			    double *theta, double *invcov, 
+			    double *invcov, 
 			    double *tau, double *networkstatistics,
 			    int nsteps, int *staken,
 			    int fVerbose,
 			    Network *nwp,
 			    Model *m) {
   unsigned int taken=0, unsuccessful=0;
-  double *deltainvsig, *delta;
+  double *deltainvsig;
   deltainvsig = (double *)Calloc(m->n_stats, double);
-  delta = (double *)Calloc(m->n_stats, double);
   
 /*  if (fVerbose)
     Rprintf("Now proposing %d MH steps... ", nsteps); */
@@ -271,29 +275,21 @@ MCMCStatus SANMetropolisHastings (MHProposal *MHp,
       Rprintf(")\n");
     }
     
-    /* Calculate inner product */
-    double ip=0, dif=0;
+    /* Calculate the change in the (s-t) %*% W %*% (s-t) due to the proposal. */
+    double ip=0;
     for (unsigned int i=0; i<m->n_stats; i++){
-     delta[i]=0.0;
      deltainvsig[i]=0.0;
      for (unsigned int j=0; j<m->n_stats; j++){
-      delta[i]+=networkstatistics[j]*invcov[i+(m->n_stats)*j];
       deltainvsig[i]+=(m->workspace[j])*invcov[i+(m->n_stats)*j];
      }
      ip+=deltainvsig[i]*((m->workspace[i])+2.0*networkstatistics[i]);
-     dif+=delta[i]*networkstatistics[i];
     }
     if(fVerbose>=5){
       Rprintf("log acceptance probability: %f\n", ip);
     }
     
     /* if we accept the proposed network */
-    if (ip <= 0.0) { 
-//  if (ip <= 0.0 || (ip/dif) < 0.001) { 
-//  if (div > 0.0 && (ip < 0.0 || unif_rand() < 0.01)) { 
-// if (ip <= 0.0 || (ip/dif) < (nsteps-step)*0.001*tau[0]/(1.0*nsteps)) { 
-//  if (ip > exp(theta[0])*(m->n_stats)*unif_rand()/(1.0+exp(theta[0])) { 
-//  if (ip > tau[0]*(m->n_stats)*unif_rand()) { 
+    if (tau[0]==0? ip <= 0 : ip/tau[0] <= -log(unif_rand()) ) { 
       if(fVerbose>=5){
 	Rprintf("Accepted.\n");
       }
@@ -308,10 +304,14 @@ MCMCStatus SANMetropolisHastings (MHProposal *MHp,
 	  }
       }
       /* record network statistics for posterity */
+      Rboolean found = TRUE;
       for (unsigned int i = 0; i < m->n_stats; i++){
-	networkstatistics[i] += m->workspace[i];
+	if((networkstatistics[i] += m->workspace[i])!=0) found=FALSE;
       }
+      
       taken++;
+
+      if(found)	break;
     }else{
       if(fVerbose>=5){
 	Rprintf("Rejected.\n");
@@ -320,7 +320,6 @@ MCMCStatus SANMetropolisHastings (MHProposal *MHp,
   }
 
   Free(deltainvsig);
-  Free(delta);
 
   *staken = taken;
   return MCMC_OK;
