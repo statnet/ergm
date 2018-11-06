@@ -118,7 +118,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   netsumm<-summary(model,nw,response=response)
   target.stats <- vector.namesmatch(target.stats, names(netsumm))
   stats <- netsumm-target.stats
-  control$invcov <- diag(1, nparam(model, canonical=TRUE))
+  control$invcov <- diag(1/nparam(model, canonical=TRUE), nparam(model, canonical=TRUE))
   
   z <- NULL
   for(i in 1:nsim){
@@ -126,7 +126,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
       message(paste("#", i, " of ", nsim, ": ", sep=""),appendLF=FALSE)
     }
     
-    tau <- control$SAN.tau*(nsim-i)/nsim
+    tau <- control$SAN.tau*(1/i-1/nsim)/(1-1/nsim)
     
     z <- ergm_SAN_slave(Clist, proposal, stats, tau, control, verbose,..., prev.run=z)
 
@@ -137,7 +137,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
     stats <- z$s[nrow(z$s),]
     # TODO: Subtract off a smoothing of these values?
     invcov <- ginv(cov(z$s))
-    invcov <- invcov / sum(diag(invcov)) * ncol(invcov) # Rescale for consistency.
+    invcov <- invcov / sum(diag(invcov)) # Rescale for consistency.
     control$invcov <- invcov
     
     if(verbose){
