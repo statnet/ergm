@@ -358,7 +358,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   i <- 0
   while(i < steplength.maxit & abs(high-low)>0.001){
    if(verbose>1) message(sprintf("iter=%d, low=%f, high=%f, guesses=%s: ",i,low,high,deparse(g, 500L)), appendLF=FALSE)
-   z <- NVL3(cl, parallel::parSapply(., g, passed), passed(g))
+   z <- NVL3(cl, unlist(parallel::clusterApply(., g, passed)), passed(g))
    if(verbose>1 && !is.null(cl)) message("lowest ", sum(z), " passed.")
    low <- max(low, g[z]) # Highest guess that passed, or low if none passed.
    high <- min(high, g[!z]) # Lowest guess that didn't pass, or high if all passed.
