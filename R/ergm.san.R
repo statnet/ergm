@@ -147,6 +147,8 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
       message_print(target.stats)
       message("Difference: SAN target.stats - Goal target.stats =")
       message_print(stats)
+      message("New statistics scaling =")
+      message_print(diag(control$invcov))
       message("Scaled Mahalanobis distance = ", mahalanobis(stats, 0, invcov, inverted=TRUE))
     }
     
