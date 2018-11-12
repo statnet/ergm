@@ -355,7 +355,8 @@ ergm_plot.mcmc.list <- function(x, main=NULL, vars.per.page=3,...){
   
   reordering <- c(rbind(seq_len(nvar(x)),nvar(x)+seq_len(nvar(x))))
   
-  update(c(tp,dp)[reordering],layout=c(2,vars.per.page),as.table=TRUE,main=main)
+  tpdp <- suppressWarnings(c(tp,dp))
+  update(tpdp[reordering],layout=c(2,vars.per.page),as.table=TRUE,main=main)
 }
 
 #' @rdname ergm-deprecated
