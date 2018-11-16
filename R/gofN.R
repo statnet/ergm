@@ -200,6 +200,20 @@ gofN <- function(object, GOF=NULL, subset=TRUE, control=control.gofN.ergm(), ...
   structure(o, nw=nw, subset=subset, control=control, class="gofN")
 }
 
+#' @describeIn gofN Extract a subset of statistics for which goodness-of-fit had been computed.
+#' @param drop whether the indexing operator should drop attributes and return simply a list.
+#' @export
+`[.gofN` <- function(x, i, ..., drop = FALSE){
+  y <- NextMethod("[")
+
+  if(drop) y
+  else{
+    mostattributes(y) <- attributes(x)
+    names(y) <- names(x)[i]
+    y
+  }
+}
+
 #' @describeIn gofN A plotting method, making residual and scale-location plots.
 #'
 #' @param x a [`gofN`] object.

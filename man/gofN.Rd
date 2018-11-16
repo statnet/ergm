@@ -2,12 +2,15 @@
 % Please edit documentation in R/gofN.R
 \name{gofN}
 \alias{gofN}
+\alias{[.gofN}
 \alias{plot.gofN}
 \alias{summary.gofN}
 \title{Linear model diagnostics for multinetwork linear models}
 \usage{
 gofN(object, GOF = NULL, subset = TRUE,
   control = control.gofN.ergm(), ...)
+
+\method{[}{gofN}(x, i, ..., drop = FALSE)
 
 \method{plot}{gofN}(x, against = NULL, which = 1:2, col = 1,
   pch = 1, cex = 1, ..., ask = length(which) > 1 &&
@@ -31,6 +34,8 @@ and \code{\link[=summary.ergm_model]{summary.ergm_model()}} for the constructor,
 \code{\link[=qqnorm]{qqnorm()}}, and \code{\link[=qqline]{qqline()}} for the plotting method).}
 
 \item{x}{a \code{\link{gofN}} object.}
+
+\item{drop}{whether the indexing operator should drop attributes and return simply a list.}
 
 \item{against}{vector of values, network attribute, or a formula whose RHS gives an expression in terms of network attributes to plot against; if \code{NULL} (default), plots against fitted values.}
 
@@ -73,6 +78,8 @@ Linear model diagnostics for multinetwork linear models
 }
 \section{Methods (by generic)}{
 \itemize{
+\item \code{[}: Extract a subset of statistics for which goodness-of-fit had been computed.
+
 \item \code{plot}: A plotting method, making residual and scale-location plots.
 
 \item \code{summary}: A simple summary function.
