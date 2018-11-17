@@ -304,7 +304,7 @@ summary.gofN <- function(object, by=NULL, ...){
     list(`Observed/Imputed values` = object %>% map("observed") %>% as_tibble %>% split(byval) %>% map(summary),
          `Fitted values` = object %>% map("fitted") %>% as_tibble %>% split(byval) %>% map(summary),
          `Pearson residuals`  = object %>% map("pearson") %>% as_tibble %>% split(byval) %>% map(summary),
-         `Variance of Pearson residuals` = object %>% map("pearson") %>% as_tibble %>% split(byval) %>% map(var,na.rm=TRUE),
+         `Variance of Pearson residuals` = object %>% map("pearson") %>% as_tibble %>% split(byval) %>% map(~apply(.,2,var,na.rm=TRUE)),
          `Std. dev. of Pearson residuals` = object %>% map("pearson") %>% as_tibble %>% split(byval) %>% map(~apply(.,2,sd,na.rm=TRUE)))
   }
 }
