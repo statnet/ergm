@@ -375,7 +375,9 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
 #' @description The method for [`ergm`] objects inherits the model,
 #'   the coefficients, the response attribute, the reference, the
 #'   constraints, and most simulation parameters from the model fit,
-#'   unless overridden by passing them explicitly.
+#'   unless overridden by passing them explicitly. Unless overridden,
+#'   the simulation is initialized with a random draw from the fitted
+#'   model, saved by [ergm()].
 #' 
 #' @export
 simulate.ergm <- function(object, nsim=1, seed=NULL, 
@@ -384,7 +386,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           reference=object$reference,
                           constraints=object$constraints,
                           monitor=NULL,
-                          basis=NULL,
+                          basis=object$newnetwork,
                           statsonly=FALSE,
                           esteq=FALSE,
                           output=c("network","stats","edgelist","pending_update_network"),

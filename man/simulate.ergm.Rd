@@ -16,9 +16,9 @@
 \method{simulate}{ergm}(object, nsim = 1, seed = NULL,
   coef = object$coef, response = object$response,
   reference = object$reference, constraints = object$constraints,
-  monitor = NULL, basis = NULL, statsonly = FALSE, esteq = FALSE,
-  output = c("network", "stats", "edgelist", "pending_update_network"),
-  simplify = TRUE, sequential = TRUE,
+  monitor = NULL, basis = object$newnetwork, statsonly = FALSE,
+  esteq = FALSE, output = c("network", "stats", "edgelist",
+  "pending_update_network"), simplify = TRUE, sequential = TRUE,
   control = control.simulate.ergm(), verbose = FALSE, ...)
 }
 \arguments{
@@ -160,7 +160,9 @@ information on these models.
 The method for \code{\link{ergm}} objects inherits the model,
 the coefficients, the response attribute, the reference, the
 constraints, and most simulation parameters from the model fit,
-unless overridden by passing them explicitly.
+unless overridden by passing them explicitly. Unless overridden,
+the simulation is initialized with a random draw from the fitted
+model, saved by \code{\link[=ergm]{ergm()}}.
 }
 \details{
 A sample of networks is randomly drawn from the specified model.  The model
