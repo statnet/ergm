@@ -16,7 +16,7 @@
 \method{simulate}{ergm}(object, nsim = 1, seed = NULL,
   coef = object$coef, response = object$response,
   reference = object$reference, constraints = object$constraints,
-  monitor = NULL, statsonly = FALSE, esteq = FALSE,
+  monitor = NULL, basis = NULL, statsonly = FALSE, esteq = FALSE,
   output = c("network", "stats", "edgelist", "pending_update_network"),
   simplify = TRUE, sequential = TRUE,
   control = control.simulate.ergm(), verbose = FALSE, ...)
