@@ -819,7 +819,7 @@ plot.gof <- function(x, ...,
     ymax <- max(max(out,na.rm=TRUE),max(out.obs,na.rm=TRUE))
 
     boxplot(data.frame(out[, model]), xlab = "model statistics", 
-            ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
+            ylab = ylab, names = pnames[model], cex.axis = cex.axis, outline=FALSE,
             ylim=c(ymin,ymax), ...)
 
     points(seq(along = model), out.bds[1,model], pch = 1,cex=0.75)
