@@ -579,7 +579,8 @@ control.ergm<-function(drop=TRUE,
                        hessian="main.hessian",
                        prop.weights="MCMC.prop.weights",
                        prop.args="MCMC.prop.args",
-                       packagenames="MCMC.packagenames"
+                       packagenames="MCMC.packagenames",
+                       SAN.burnin.times="SAN.nsteps.times"
                        )
 
   match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method")
