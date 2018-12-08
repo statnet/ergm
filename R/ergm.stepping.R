@@ -346,7 +346,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   qprior <- function(q) qnorm(q, mean = steplength.prev, sd = sd.p)
   # First time through, don't drop the "high":
   mk.guesses <- function(low, high, first=FALSE){
-    p <- seq(from=pprior(low),to=pprior(high),length.out=nthreads()+2-first) # Create the sequence of probabilities.
+    p <- seq(from=pprior(low),to=pprior(high),length.out=nthreads(control)+2-first) # Create the sequence of probabilities.
     p <- p[c(-1, -length(p))] # Strip the first and the last (low and high).
     q <- qprior(p) # Map back to guesses.
     if(first) q <- c(q, high) # Ensure that the last one is "high".

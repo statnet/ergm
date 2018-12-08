@@ -129,17 +129,18 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
                          MCMC.packagenames=control$MCMC.packagenames,
                          parallel=control$parallel,
                          parallel.type=control$parallel.type,
-                         parallel.version.check=control$parallel.version.check), ...)
+                         parallel.version.check=control$parallel.version.check
+                                                        ), ...)
 
-    stats[i,]<-colMeans(simulate(m, coef=theta, response=response, reference=reference, constraints=proposal, basis=nw.state, output="stats", verbose=max(verbose-1,0),
+    stats[i,]<-colMeans(as.matrix(simulate(m, coef=theta, response=response, reference=reference, constraints=proposal, basis=nw.state, output="stats", verbose=max(verbose-1,0),
                               control=control.simulate.formula(MCMC.burnin=0,
                                                                MCMC.interval=control$MCMC.interval,
                                                                MCMC.packagenames=control$MCMC.packagenames,
                                                                parallel=control$parallel,
                                                                parallel.type=control$parallel.type,
-                                                               parallel.version.check=control$parallel.version.check,
-                                                               term.options=control$term.options),
-                              nsim=ceiling(control$MCMC.samplesize/control$nsteps), ...))
+                                                               parallel.version.check=control$parallel.version.check
+                                                               ),
+                              nsim=ceiling(control$MCMC.samplesize/control$nsteps), ...)))
     
     if(!is.null(constraints.obs)){
       nw.state.obs<-simulate(m.obs, coef=theta, nsim=1, response=response, reference=reference, constraints=proposal.obs, basis=nw, output="pending_update_network", verbose=max(verbose-1,0),
@@ -151,15 +152,14 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
                                parallel.type=control$parallel.type,
                                parallel.version.check=control$parallel.version.check), ...)
 
-      stats.obs[i,]<-colMeans(simulate(m.obs, coef=theta, response=response, reference=reference, constraints=proposal.obs, basis=nw.state.obs, output="stats", verbose=max(verbose-1,0),
+      stats.obs[i,]<-colMeans(as.matrix(simulate(m.obs, coef=theta, response=response, reference=reference, constraints=proposal.obs, basis=nw.state.obs, output="stats", verbose=max(verbose-1,0),
                                 control=control.simulate.formula(MCMC.burnin=0,
                                   MCMC.interval=control$obs.MCMC.interval,
                                   MCMC.packagenames=control$MCMC.packagenames,
                                   parallel=control$parallel,
                                   parallel.type=control$parallel.type,
-                                  parallel.version.check=control$parallel.version.check,
-                                  term.options=control$term.options),
-                                nsim=ceiling(control$obs.MCMC.samplesize/control$nsteps), ...))
+                                  parallel.version.check=control$parallel.version.check),
+                                nsim=ceiling(control$obs.MCMC.samplesize/control$nsteps), ...)))
     }
   }
   message(".")
