@@ -68,7 +68,8 @@ ergm.MCMCse.lognormal<-function(theta, init, statsmatrix, statsmatrix.obs,
   if(!is.null(statsmatrix.obs)){
     cov.zbar.obs <- spectrum0.mvar(gsim.obs) / nrow(gsim.obs)
 
-    novar <- novar & (diag(H.obs)<sqrt(.Machine$double.eps))
+    novar.obs <- diag(H.obs)<sqrt(.Machine$double.eps)
+    if(any(novar&!novar.obs)) warning("Non-varying statistics in the unconstrained sample vary in the constrained sample. This should not be happening.")
   }else{
     cov.zbar.obs <- cov.zbar
     cov.zbar.obs[,] <- 0
