@@ -88,7 +88,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
     if(assume.indep){
       vcovs <- vcovs.indep
     }else{
-      vcovs <- lapply(lapply(v, spectrum0.mvar), function(m) matrix(ifelse(is.na(c(m)), 0, c(m)),nrow(m),ncol(m)))
+      vcovs <- lapply(v, spectrum0.mvar)
     }
     ms <- lapply(v, base::colMeans)
     m <- colMeans(as.matrix(v))
@@ -255,7 +255,7 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   n <- nrow(x)
   p <- ncol(x)
   
-  v <- matrix(NA,p,p)
+  v <- matrix(0,p,p)
   novar <- abs(apply(x,2,stats::sd))<tol
   x <- x[,!novar,drop=FALSE]
 
