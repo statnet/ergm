@@ -115,7 +115,7 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
                          parallel.version.check=control$parallel.version.check
                                                         ), ...)
     nonsimp_update.formula(form,nw.state~., from.new="nw.state")
-    stats[i,]<-apply(as.matrix(simulate(form, coef=theta, response=response, constraints=constraints, output="stats", verbose=max(verbose-1,0),
+    stats[i,]<-colMeans(as.matrix(simulate(form, coef=theta, response=response, constraints=constraints, output="stats", verbose=max(verbose-1,0),
                               control=control.simulate.formula(MCMC.burnin=0,
                                                                MCMC.interval=control$MCMC.interval,
                                                                term.options=control$term.options,
@@ -126,7 +126,7 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
                                                                parallel.type=control$parallel.type,
                                                                parallel.version.check=control$parallel.version.check
                                                                ),
-                              nsim=ceiling(control$MCMC.samplesize/control$nsteps), ...)),2,mean)
+                              nsim=ceiling(control$MCMC.samplesize/control$nsteps), ...)))
     
     if(network.naedgecount(nw)){
       nw.state.obs<-simulate(form.obs, coef=theta, nsim=1, response=response, constraints=constraints.obs, output="pending_update_network", verbose=max(verbose-1,0),
@@ -140,14 +140,14 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
                                parallel.type=control$parallel.type,
                                parallel.version.check=control$parallel.version.check), ...)
       nonsimp_update.formula(form.obs,nw.state.obs~., from.new="nw.state.obs")
-      stats.obs[i,]<-apply(as.matrix(simulate(form.obs, coef=theta, response=response, constraints=constraints.obs, output="stats", verbose=max(verbose-1,0),
+      stats.obs[i,]<-colMeans(as.matrix(simulate(form.obs, coef=theta, response=response, constraints=constraints.obs, output="stats", verbose=max(verbose-1,0),
                                 control=control.simulate.formula(MCMC.burnin=0,
                                   MCMC.interval=control$obs.MCMC.interval,
                                   parallel=control$parallel,
                                   parallel.type=control$parallel.type,
                                   parallel.version.check=control$parallel.version.check,
                                   term.options=control$term.options),
-                                nsim=ceiling(control$obs.MCMC.samplesize/control$nsteps), ...)),2,mean)
+                                nsim=ceiling(control$obs.MCMC.samplesize/control$nsteps), ...)))
     }
   }
   message(".")
