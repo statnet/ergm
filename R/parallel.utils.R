@@ -282,5 +282,5 @@ nthreads.NULL <- function(clinfo=NULL, ...){
 nthreads.control.list <- function(clinfo=NULL, ...){
   if(is.numeric(clinfo$parallel)) return(max(1, clinfo$parallel))
   clinfo <- clinfo$parallel
-  NextMethod()
+  nthreads(clinfo, ...)
 }

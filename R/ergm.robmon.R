@@ -105,7 +105,7 @@ ergm.robmon <- function(init, nw, model,
   control$MCMC.samplesize <- 10 # With samplesize=1, interval is irrelevant and burnin is crucial.
   
 
-  control$MCMC.samplesize <- control$MCMC.samplesize*nthreads()
+  control$MCMC.samplesize <- control$MCMC.samplesize*nthreads(control)
 
   for(subphase in 1:n_sub) {
     thetamatrix <- NULL # Will hold matrix of all theta values for this subphase

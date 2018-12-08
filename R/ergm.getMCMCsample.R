@@ -82,17 +82,17 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
   cl <- ergm.getCluster(control, verbose)
   
   if(is.network(nw) || is.pending_update_network(nw)) nw <- list(nw)
-  nws <- rep(nw, length.out=nthreads())
+  nws <- rep(nw, length.out=nthreads(control))
   
   Clists <- lapply(nws, ergm::ergm.Cprepare, model, response=response)
 
   control.parallel <- control
-  control.parallel$MCMC.samplesize <- NVL3(control$MCMC.samplesize, ceiling(. / nthreads()))
+  control.parallel$MCMC.samplesize <- NVL3(control$MCMC.samplesize, ceiling(. / nthreads(control)))
 
   flush.console()
 
   #' @importFrom parallel clusterMap
-  doruns <- function(prev.runs=rep(list(NULL),nthreads()), burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL){
+  doruns <- function(prev.runs=rep(list(NULL),nthreads(control)), burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL){
     if(!is.null(cl)) clusterMap(cl,ergm_MCMC_slave,
                                   Clist=Clists, prev.run=prev.runs, MoreArgs=list(proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges))
     else list(ergm_MCMC_slave(Clist=Clists[[1]], prev.run=prev.runs[[1]],burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges,proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...))
@@ -107,7 +107,7 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
     
     interval <- control.parallel$MCMC.interval
     meS <- list(burnin=0,eS=control.parallel$MCMC.effectiveSize)
-    outl <- rep(list(NULL),nthreads())
+    outl <- rep(list(NULL),nthreads(control))
     for(mcrun in seq_len(control.parallel$MCMC.effectiveSize.maxruns)){
       if(mcrun==1){
         samplesize <- control.parallel$MCMC.samplesize
@@ -189,7 +189,7 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
   statsmatrices <- list()
   newnetworks <- list()
   final.interval <- c()
-  for(i in (1:nthreads())){
+  for(i in (1:nthreads(control))){
     z <- outl[[i]]
     
     if(z$status == 1){ # MCMC_TOO_MANY_EDGES, exceeding even control.parallel$MCMC.max.maxedges
