@@ -16,7 +16,7 @@ for(type in c("SOCK")){
   cat("\n\n======= Testing",type,"=======\n\n")
   
   gest <- ergm(flomarriage ~ edges + absdiff("wealth"),
-               eval.loglik=FALSE,
+               eval.loglik=TRUE,
                control=control.ergm(MCMC.burnin=1000, MCMC.interval=10, MCMLE.maxit=2, MCMC.samplesize=1000, force.main=TRUE,
                  parallel=2, parallel.type=type))
 
@@ -75,7 +75,7 @@ opttest({
     cat("\n\n======= Testing",type,"=======\n\n")
     
     gest <- ergm(flomarriage ~ edges + absdiff("wealth"),
-                 eval.loglik=FALSE,
+                 eval.loglik=TRUE,
                  control=control.ergm(MCMC.burnin=1000, MCMC.interval=10, MCMLE.maxit=2, MCMC.samplesize=1000, force.main=TRUE,
                                       parallel=2, parallel.type=type))
     

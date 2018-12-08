@@ -425,22 +425,22 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   }else{
     # Create objects to store output
     if (output!="stats") { 
-      nw.list <- rep(list(list()),nthreads())
+      nw.list <- rep(list(list()),nthreads(control))
     }
     stats <- rep(list(matrix(nrow=0, ncol=length(curstats), 
-                             dimnames = list(NULL, param_names(m,canonical=TRUE)))),nthreads())
+                             dimnames = list(NULL, param_names(m,canonical=TRUE)))),nthreads(control))
     
     # Call ergm.getMCMCsample once for each network desired.  This is much slower
     # than when sequential==TRUE and output=="stats", but here we have a 
     # more complicated situation:  Either we want a network for each
     # MCMC iteration (output="network") or we want to restart each chain
     # at the original network (sequential=FALSE).
-    curstats <- rep(list(curstats), nthreads())
+    curstats <- rep(list(curstats), nthreads(control))
     
-    for(i in 1:ceiling(nsim/nthreads())){
+    for(i in 1:ceiling(nsim/nthreads(control))){
 
       control.parallel <- modifyList(control,
-                                     list(MCMC.samplesize = nthreads(),
+                                     list(MCMC.samplesize = nthreads(control),
                                           MCMC.burnin = if(i==1 || sequential==FALSE) control$MCMC.burnin else control$MCMC.interval))
       z <- ergm_MCMC_sample(nw, m, proposal, control.parallel, theta=coef, verbose=max(verbose-1,0), response=response, update.nws=FALSE)
       
@@ -500,7 +500,10 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
 #' @description The method for [`ergm`] objects inherits the model,
 #'   the coefficients, the response attribute, the reference, the
 #'   constraints, and most simulation parameters from the model fit,
-#'   unless overridden by passing them explicitly.
+#'   unless overridden by passing them explicitly. Unless overridden,
+#'   the simulation is initialized with a random draw from the fitted
+#'   model, saved by [ergm()].
+#' 
 #' @export
 simulate.ergm <- function(object, nsim=1, seed=NULL, 
                           coef=object$coef,
@@ -509,6 +512,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           constraints=list(object$constraints, object$obs.constraints),
                           observational=FALSE,
                           monitor=NULL,
+                          basis=object$newnetwork,
                           statsonly=FALSE,
                           esteq=FALSE,
                           output=c("network","stats","edgelist","pending_update_network"),
@@ -547,6 +551,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                    esteq=esteq,
                    sequential=sequential, constraints=constraints, observational=observational,
                    monitor=monitor,
+                   basis=basis,
            output=output, simplify=simplify,
                    control=control, verbose=verbose, seed=seed, ...)
 }

@@ -27,10 +27,10 @@
   coef = object$coef, response = object$response,
   reference = object$reference, constraints = list(object$constraints,
   object$obs.constraints), observational = FALSE, monitor = NULL,
-  statsonly = FALSE, esteq = FALSE, output = c("network", "stats",
-  "edgelist", "pending_update_network"), simplify = TRUE,
-  sequential = TRUE, control = control.simulate.ergm(),
-  verbose = FALSE, ...)
+  basis = object$newnetwork, statsonly = FALSE, esteq = FALSE,
+  output = c("network", "stats", "edgelist", "pending_update_network"),
+  simplify = TRUE, sequential = TRUE,
+  control = control.simulate.ergm(), verbose = FALSE, ...)
 }
 \arguments{
 \item{object}{Either a \code{\link{formula}} or an
@@ -185,7 +185,9 @@ information on these models.
 The method for \code{\link{ergm}} objects inherits the model,
 the coefficients, the response attribute, the reference, the
 constraints, and most simulation parameters from the model fit,
-unless overridden by passing them explicitly.
+unless overridden by passing them explicitly. Unless overridden,
+the simulation is initialized with a random draw from the fitted
+model, saved by \code{\link[=ergm]{ergm()}}.
 }
 \details{
 A sample of networks is randomly drawn from the specified model.  The model
