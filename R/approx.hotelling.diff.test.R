@@ -75,6 +75,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
   if(!is.null(y) && !is.mcmc.list(y))
     y <- mcmc.list(mcmc(as.matrix(y)))
 
+  if(is.null(mu0)) mu0 <- rep(0,nvar(x))
   mu0 <- rep(mu0, length.out = nvar(x))
 
   tr <- function(x) sum(diag(as.matrix(x)))
