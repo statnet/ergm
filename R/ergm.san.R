@@ -158,7 +158,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
       message(paste("#", i, " of ", nsim, ": ", sep=""),appendLF=FALSE)
     }
     
-    tau <- control$SAN.tau*(1/i-1/nsim)/(1-1/nsim)
+    tau <- control$SAN.tau * (if(nsim>1) (1/i-1/nsim)/(1-1/nsim) else 0)
     
     z <- ergm_SAN_slave(Clist, proposal, stats, tau, control, verbose,..., prev.run=z)
 
