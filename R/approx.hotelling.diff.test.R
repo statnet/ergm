@@ -93,7 +93,6 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
     }else{
       vcov <- ERRVL(try(spectrum0.mvar(v), silent=TRUE),
                     stop("Unable to compute autocorrelation-adjusted standard errors."))
-      vcov[is.na(vcov)] <- 0
     }
     m <- colMeans(vm)
     n <- nrow(vm)
@@ -266,7 +265,7 @@ spectrum0.mvar <- function(x, order.max=NULL, aic=is.null(order.max), tol=.Machi
   n <- nrow(x)
   p <- ncol(x)
   
-  v <- matrix(NA,p,p)
+  v <- matrix(0,p,p)
   novar <- abs(apply(x,2,stats::sd))<tol
   x <- x[,!novar,drop=FALSE]
 

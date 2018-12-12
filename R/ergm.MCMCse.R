@@ -93,7 +93,8 @@ ergm.MCMCse<-function(theta, init, statsmatrices, statsmatrices.obs,
     cov.zbar.obs <- spectrum0.mvar(gsims.obs) * sum(prob.obs^2)
     imp.factor.obs <- sum(prob.obs^2)*length(prob.obs)
 
-    novar <- novar & (diag(H.obs)<sqrt(.Machine$double.eps))
+    novar.obs <- diag(H.obs)<sqrt(.Machine$double.eps)
+    if(any(novar&!novar.obs)) warning("Non-varying statistics in the unconstrained sample vary in the constrained sample. This should not be happening.")
   }else{
     cov.zbar.obs <- cov.zbar
     cov.zbar.obs[,] <- 0
