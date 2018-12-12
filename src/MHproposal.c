@@ -235,7 +235,7 @@ int CheckTogglesValid(MHProposal *MHp, Network *nwp) {
         /* calculate tail outdegree totals for each attribute
         for each outedge of the tail 	      */
 	      
-        EXEC_THROUGH_OUTEDGES(MHp->toggletail[i], e, v, {
+        EXEC_THROUGH_FOUTEDGES(MHp->toggletail[i], e, v, {
 	    for (k=0; k < bd->attrcount; k++)
 	      if (bd->attribs[v-1 + k*nwp->nnodes]) tailattr[k]++;
 	  });
@@ -243,7 +243,7 @@ int CheckTogglesValid(MHProposal *MHp, Network *nwp) {
         /* calculate head indegree totals for each attribute
         for each inedge of the head */
 	
-	EXEC_THROUGH_INEDGES(MHp->togglehead[i], e, v, {
+	EXEC_THROUGH_FINEDGES(MHp->togglehead[i], e, v, {
 	    for (k=0; k < bd->attrcount; k++)
 	      if (bd->attribs[v-1 + k*nwp->nnodes]) headattr[k]++;
 	  });
@@ -268,12 +268,7 @@ int CheckTogglesValid(MHProposal *MHp, Network *nwp) {
 	      /* calculate tail totals for each attribute
         for each outedge and inedge of the tail  */
 	      
-	EXEC_THROUGH_OUTEDGES(MHp->toggletail[i], e, v, {
-	    for (k=0; k < bd->attrcount; k++)
-	      if (bd->attribs[v-1 + k*nwp->nnodes])
-		tailattr[k]++;
-	  });
-	EXEC_THROUGH_INEDGES(MHp->toggletail[i], e, v, {
+	EXEC_THROUGH_EDGES(MHp->toggletail[i], e, v, {
 	    for (k=0; k < bd->attrcount; k++)
 	      if (bd->attribs[v-1 + k*nwp->nnodes])
 		tailattr[k]++;
@@ -282,12 +277,7 @@ int CheckTogglesValid(MHProposal *MHp, Network *nwp) {
 	      /* calculate head totals for each attribute
         for each outedge and inedge of the head */
 	      
-	EXEC_THROUGH_OUTEDGES(MHp->togglehead[i], e, v, {
-	    for (k=0; k < bd->attrcount; k++)
-	      if (bd->attribs[v-1 + k*nwp->nnodes])
-		headattr[k]++;
-	  });
-	EXEC_THROUGH_INEDGES(MHp->togglehead[i], e, v, {
+	EXEC_THROUGH_EDGES(MHp->togglehead[i], e, v, {
 	    for (k=0; k < bd->attrcount; k++)
 	      if (bd->attribs[v-1 + k*nwp->nnodes])
 		headattr[k]++;
@@ -344,7 +334,7 @@ int CheckConstrainedTogglesValid(MHProposal *MHp, Network *nwp)
 	      /* calculate tail outdegree totals for each attribute
         for each outedge of the tail 	      */
 	      
-	EXEC_THROUGH_OUTEDGES(MHp->toggletail[i], e, v, {
+	EXEC_THROUGH_FOUTEDGES(MHp->toggletail[i], e, v, {
 	    for (k=0; k < bd->attrcount; k++)
 	      if (bd->attribs[v-1 + k*nwp->nnodes])
 		tailattr[k]++;
@@ -353,7 +343,7 @@ int CheckConstrainedTogglesValid(MHProposal *MHp, Network *nwp)
 	      /* calculate head indegree totals for each attribute
         for each inedge of the head */
 	      
-	EXEC_THROUGH_INEDGES(MHp->togglehead[i], e, v, {
+	EXEC_THROUGH_FINEDGES(MHp->togglehead[i], e, v, {
 	    for (k=0; k < bd->attrcount; k++)
 	      if (bd->attribs[v-1 + k*nwp->nnodes])
 		headattr[k]++;
@@ -380,12 +370,7 @@ int CheckConstrainedTogglesValid(MHProposal *MHp, Network *nwp)
 	      /* calculate tail totals for each attribute
         for each outedge and inedge of the tail  */
 	      
-	EXEC_THROUGH_OUTEDGES(MHp->toggletail[i], e, v, {
-	    for (k=0; k < bd->attrcount; k++)
-	      if (bd->attribs[v-1 + k*nwp->nnodes])
-		tailattr[k]++;
-	  });
-	EXEC_THROUGH_INEDGES(MHp->toggletail[i], e, v, {
+	EXEC_THROUGH_EDGES(MHp->toggletail[i], e, v, {
 	    for (k=0; k < bd->attrcount; k++)
 	      if (bd->attribs[v-1 + k*nwp->nnodes])
 		tailattr[k]++;
@@ -393,15 +378,10 @@ int CheckConstrainedTogglesValid(MHProposal *MHp, Network *nwp)
 	      
 	      /* calculate head totals for each attribute
         for each outedge and inedge of the head */
-	EXEC_THROUGH_OUTEDGES(MHp->togglehead[i], e, v, {
+	EXEC_THROUGH_EDGES(MHp->togglehead[i], e, v, {
 	    for (k=0; k < bd->attrcount; k++)
 	      if (bd->attribs[v-1 + k*nwp->nnodes])
 		headattr[k]++;
-	  });
-	EXEC_THROUGH_INEDGES(MHp->togglehead[i], e, v, {
-          for (k=0; k < bd->attrcount; k++)
-            if (bd->attribs[v-1 + k*nwp->nnodes])
-              headattr[k]++;
 	  });
       
 	      /* for each attribute
