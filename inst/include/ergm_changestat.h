@@ -96,18 +96,18 @@ typedef struct ModelTermstruct {
    double v1;
    double v2;
    works.*/
-#define EXEC_THROUGH_OUTEDGES(a,e,v,subroutine) {if(DIRECTED){ STEP_THROUGH_OUTEDGES_DECL(a,e,v) {subroutine} } else { EXEC_THROUGH_EDGES(a,e,v,subroutine) }}
-#define EXEC_THROUGH_INEDGES(a,e,v,subroutine) {if(DIRECTED){ STEP_THROUGH_INEDGES_DECL(a,e,v) {subroutine} } else { EXEC_THROUGH_EDGES(a,e,v,subroutine) }}
-#define EXEC_THROUGH_EDGES(a,e,v,subroutine) { {STEP_THROUGH_OUTEDGES_DECL(a,e,v) {subroutine}};  {STEP_THROUGH_INEDGES_DECL(a,e,v) {subroutine}}; }
-#define EXEC_THROUGH_OUTEDGES_PRE(a,e,v,subroutine) {if(DIRECTED){ STEP_THROUGH_OUTEDGES_PRE_DECL(a,e,v) {subroutine} } else { EXEC_THROUGH_EDGES_PRE(a,e,v,subroutine) }}
-#define EXEC_THROUGH_INEDGES_PRE(a,e,v,subroutine) {if(DIRECTED){ STEP_THROUGH_INEDGES_PRE_DECL(a,e,v) {subroutine} } else { EXEC_THROUGH_EDGES_PRE(a,e,v,subroutine) }}
-#define EXEC_THROUGH_EDGES_PRE(a,e,v,subroutine) { {STEP_THROUGH_OUTEDGES_PRE_DECL(a,e,v) {subroutine}};  {STEP_THROUGH_INEDGES_PRE_DECL(a,e,v) {subroutine}}; }
+#define EXEC_THROUGH_OUTEDGES(a,e,v,subroutine) {if(DIRECTED){ EXEC_THROUGH_FOUTEDGES(a,e,v,subroutine) } else { EXEC_THROUGH_EDGES(a,e,v,subroutine) }}
+#define EXEC_THROUGH_INEDGES(a,e,v,subroutine) {if(DIRECTED){ EXEC_THROUGH_FINEDGES(a,e,v,subroutine) } else { EXEC_THROUGH_EDGES(a,e,v,subroutine) }}
+#define EXEC_THROUGH_EDGES(a,e,v,subroutine) { EXEC_THROUGH_FOUTEDGES(a,e,v,subroutine) EXEC_THROUGH_FINEDGES(a,e,v,subroutine) }
+#define EXEC_THROUGH_OUTEDGES_PRE(a,e,v,subroutine) {if(DIRECTED){ EXEC_THROUGH_FOUTEDGES_PRE(a,e,v,subroutine) } else { EXEC_THROUGH_EDGES_PRE(a,e,v,subroutine) }}
+#define EXEC_THROUGH_INEDGES_PRE(a,e,v,subroutine) {if(DIRECTED){ EXEC_THROUGH_FINEDGES_PRE(a,e,v,subroutine) } else { EXEC_THROUGH_EDGES_PRE(a,e,v,subroutine) }}
+#define EXEC_THROUGH_EDGES_PRE(a,e,v,subroutine) { EXEC_THROUGH_FOUTEDGES_PRE(a,e,v,subroutine) EXEC_THROUGH_FINEDGES_PRE(a,e,v,subroutine) }
 
 /* Non-adaptive versions of the above. (I.e. ForceOUT/INEDGES.) */
-#define EXEC_THROUGH_FOUTEDGES(a,e,v,subroutine) STEP_THROUGH_OUTEDGES_DECL(a,e,v) {subroutine}
-#define EXEC_THROUGH_FINEDGES(a,e,v,subroutine) STEP_THROUGH_INEDGES_DECL(a,e,v) {subroutine}
-#define EXEC_THROUGH_FOUTEDGES_PRE(a,e,v,subroutine) STEP_THROUGH_OUTEDGES_PRE_DECL(a,e,v) {subroutine}
-#define EXEC_THROUGH_FINEDGES_PRE(a,e,v,subroutine) STEP_THROUGH_INEDGES_PRE_DECL(a,e,v) {subroutine}
+#define EXEC_THROUGH_FOUTEDGES(a,e,v,subroutine) {STEP_THROUGH_OUTEDGES_DECL(a,e,v) {subroutine}}
+#define EXEC_THROUGH_FINEDGES(a,e,v,subroutine) {STEP_THROUGH_INEDGES_DECL(a,e,v) {subroutine}}
+#define EXEC_THROUGH_FOUTEDGES_PRE(a,e,v,subroutine) {STEP_THROUGH_OUTEDGES_PRE_DECL(a,e,v) {subroutine}}
+#define EXEC_THROUGH_FINEDGES_PRE(a,e,v,subroutine) {STEP_THROUGH_INEDGES_PRE_DECL(a,e,v) {subroutine}}
 
 /* Exectute through all edges (nonzero values) in the network. */
 #define EXEC_THROUGH_NET_EDGES(a,b,e,subroutine) {for(Vertex a=1; a <= N_NODES; a++){EXEC_THROUGH_FOUTEDGES(a, e, b, {subroutine});}}
