@@ -124,6 +124,7 @@ InitErgmConstraint.odegreedist<-function(lhs.nw, ...){
 InitErgmConstraint.bd<-function(lhs.nw, attribs=NULL, maxout=NA, maxin=NA, minout=NA, minin=NA, ...){
    if(nargs()>6)
      stop(paste("Bounded degrees constraint takes at most 5 arguments; ",nargs()-1," given.",sep=""), call.=FALSE)
+   if(length(list(...))) stop(paste0("Unrecognised argument(s) ", paste.and(names(list(...)), oq="'", cq="'"),"."),call.=FALSE) 
    list(attribs=attribs,maxout=maxout,maxin=maxin,minout=minout,minin=minin)
 }
 
