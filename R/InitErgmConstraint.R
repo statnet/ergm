@@ -37,11 +37,16 @@ InitErgmConstraint..attributes <- function(lhs.nw, ...){
   list(
     free_dyads = {
       n <- network.size(lhs.nw)
+      storage.mode(n) <- "integer"
       ## NB: Free dyad RLE matrix is stored in a column-major order for
       ## consistency with R.
       d <-
         if(has.loops(lhs.nw)) rep(rep(rle(TRUE),n,scale="run"),n,scale="run")
-        else do.call(c, lapply(seq_len(n), function(i) rep(rle(c(TRUE,FALSE,TRUE)), c(i-1, 1, n-i),scale="run")))
+        else{
+          v <- c(rep(c(FALSE, TRUE), n-1), FALSE)
+          r <- c(rep(c(1L, n), n-1), 1L)
+          rep(rle(v), r, scale="run")
+        }
       
       if(is.bipartite(lhs.nw)){
         n1 <- lhs.nw%n%"bipartite"
@@ -54,7 +59,11 @@ InitErgmConstraint..attributes <- function(lhs.nw, ...){
       
       if(!is.directed(lhs.nw)){
         d <- d &
-          do.call(c, lapply(seq_len(n), function(i) rep(rle(c(TRUE,FALSE)), c(i-1, n-i+1),scale="run")))
+          {
+            v <- rep(c(TRUE,FALSE), n)
+            r <- as.vector(rbind(seq_len(n), n-seq_len(n)))
+            rep(rle(v), r, scale="run")
+          }
       }
       
       rlebdm(compact.rle(d), n)
@@ -147,6 +156,7 @@ InitErgmConstraint.blockdiag<-function(lhs.nw, attrname=NULL, ...){
   list(attrname=attrname,
        free_dyads = {
          n <- network.size(lhs.nw)
+         storage.mode(n) <- "integer"
          a <- lhs.nw %v% attrname
          if(NVL(lhs.nw%n%"bipartite",0)){
            bip <- lhs.nw %n% "bipartite"
