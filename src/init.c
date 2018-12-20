@@ -42,7 +42,6 @@ extern void WtSAN_wrapper(void *, void *, void *, void *, void *, void *, void *
 
 /* .Call calls */
 extern SEXP get_ergm_omp_terms();
-extern SEXP mean_var_wrapper(SEXP, SEXP);
 extern SEXP set_ergm_omp_terms(SEXP);
 
 static const R_CMethodDef CEntries[] = {
@@ -68,7 +67,6 @@ static const R_CMethodDef CEntries[] = {
 
 static const R_CallMethodDef CallEntries[] = {
     {"get_ergm_omp_terms", (DL_FUNC) &get_ergm_omp_terms, 0},
-    {"mean_var_wrapper",   (DL_FUNC) &mean_var_wrapper,   2},
     {"set_ergm_omp_terms", (DL_FUNC) &set_ergm_omp_terms, 1},
     {NULL, NULL, 0}
 };
