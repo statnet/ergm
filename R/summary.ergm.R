@@ -97,7 +97,7 @@ summary.ergm <- function (object, ...,
   if("digits" %in% names(list(...))) warn("summary.ergm() no lnger takes a digits= argument.")
   control <- object$control
   pseudolikelihood <- object$estimate=="MPLE"
-  independence <- is.dyad.independent(object)
+  independence <- NVL(object$MPLE_is_MLE, is.dyad.independent(object))
   
   if(any(is.na(object$coef)) & !is.null(object$mplefit)){
      object$coef[is.na(object$coef)] <-
