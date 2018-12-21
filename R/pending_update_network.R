@@ -150,8 +150,8 @@ network.size.pending_update_network <- function(x,...){
   NextMethod()
 }
 
-#' @describeIn pending_update_network A stub that produces an error.
+#' @describeIn pending_update_network A stub that returns 0.
 #' @export
 network.naedgecount.pending_update_network <- function(x,...){
-  stop("pending_update_network cannot store missing edges.")
+  0
 }

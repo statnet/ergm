@@ -89,7 +89,7 @@ for attribute specified by \code{update}.}
 \item \code{network.dyadcount}: Note that this method fails with
 its default argument, since missing edges are not stored.
 
-\item \code{network.naedgecount}: A stub that produces an error.
+\item \code{network.naedgecount}: A stub that returns 0.
 }}
 
 \keyword{internal}
