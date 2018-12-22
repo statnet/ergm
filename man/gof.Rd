@@ -87,7 +87,7 @@ proportions.}
 }
 \value{
 \code{\link{gof}}, \code{\link{gof.ergm}}, and
-\code{\link{gof.formula}} return an object of class \code{gof}.  This
+\code{\link{gof.formula}} return an object of class \code{gof.ergm}, which inherits from class \code{gof}.  This
 is a list of the tables of statistics and \eqn{p}-values.  This is typically
 plotted using \code{\link{plot.gof}}.
 }
