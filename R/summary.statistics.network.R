@@ -95,7 +95,7 @@ summary.formula <- function(object, ...){
 summary_formula <- function(object, ..., basis=NULL) {
   if(length(object)!=3 || object[[1]]!="~")
     stop ("Formula must be of form 'y ~ model'.")
-  lhs <- eval(object[[2]], envir = environment(object))
+  lhs <- eval_lhs.formula(object)
   UseMethod("summary_formula",object=lhs)
 }
 
@@ -126,7 +126,7 @@ summary_formula.network.list <- function(object, response=NULL, ..., basis=NULL)
       object[[2]] <- basis
     else stop('basis, if specified, should be the same type as the LHS of the formula (network.list, in this case).')
   }
-  nwl <- eval(object[[2]], envir=environment(object))
+  nwl <- eval_lhs.formula(object)
   out<-lapply(nwl, function(nw) summary_formula.network(object, response=response, ..., basis=nw))
   do.call(rbind,out)
 }
