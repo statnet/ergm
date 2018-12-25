@@ -606,6 +606,8 @@ ergm <- function(formula, response=NULL,
                 output="pending_update_network",
                 verbose=verbose)
       if(verbose) message("Finished SAN run.")
+    }else{
+      TARGET_STATS <- nw
     }
     nw <- TARGET_STATS <- as.network(TARGET_STATS)
     formula<-nonsimp_update.formula(formula,TARGET_STATS~., from.new="TARGET_STATS")
