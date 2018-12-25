@@ -627,6 +627,8 @@ ergm <- function(formula, response=NULL,
                 output="pending_update_network",
                 verbose=verbose)
       if(verbose) message("Finished SAN run.")
+    }else{
+      TARGET_STATS <- nw
     }
     
     # From this point on, target.stats has NAs corresponding to the
