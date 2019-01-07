@@ -35,49 +35,11 @@
 #
 ###############################################################################
 
-#' Create an empty copy of a network object
-#' 
-#' Initializes an empty network with the same vertex and network
-#' attributes as the original network, but no edges.
-#'
-#' @param nw a [`network`] object
-#' @param ignore.nattr character vector of the names of network-level
-#'   attributes to ignore when updating network objects (defaults to
-#'   standard network properties)
-#' @param ignore.vattr character vector of the names of vertex-level
-#'   attributes to ignore when updating network objects
-#'
-#' @note This function operates directly on the internal represenation
-#'   of the network object. It may therefore be broken by a future
-#'   version of [`network`].
-empty_network <- function(nw, ignore.nattr=c("bipartite","directed","hyper","loops","mnext","multiple","n"), ignore.vattr=c()){
-  if(network.edgecount(nw)==0) return(nw)
-
-  nw$oel <- rep(list(numeric(0)), length(nw$oel))
-  nw$iel <- rep(list(numeric(0)), length(nw$iel))
-  nw$mel <- list()
-  nw$gal$mnext <- 1
-  
-  nw
-}
-
-#### A version of empty_network() that only relies on the public API.
-##
-## empty_network <- function(nw, ignore.nattr=c("bipartite","directed","hyper","loops","mnext","multiple","n"), ignore.vattr=c()){
-##   if(network.edgecount(nw)==0) return(nw)
-  
-##   unw <- network.initialize(n=network.size(nw), directed = is.directed(nw), hyper = is.hyper(nw), loops = has.loops(nw),
-##          multiple = is.multiplex(nw), bipartite = nw %n% "bipartite")
-##   for(a in setdiff(list.network.attributes(nw),ignore.nattr)) unw <- set.network.attribute(unw, a, get.network.attribute(nw, a, unlist=FALSE))
-##   for(a in setdiff(list.vertex.attributes(nw),ignore.vattr)) unw <- set.vertex.attribute(unw, a, get.vertex.attribute(nw, a, unlist=FALSE))
-##   unw
-## }
-
 #' @describeIn ergm-deprecated Use [update.network()] instead.
 #' @export network.update
 network.update<-function(nw, newmatrix, matrix.type=NULL, output="network", ignore.nattr=c("bipartite","directed","hyper","loops","mnext","multiple","n"), ignore.vattr=c()){
   .Deprecate_once("update.network")
-  unw <- empty_network(nw, ignore.nattr=ignore.nattr, ignore.vattr=ignore.vattr)
+  nw[,] <- FALSE
 
   if(is.null(matrix.type)){
     warning("Don't leave matrix type to chance! Pass matrix.type to network.update!")
@@ -86,13 +48,13 @@ network.update<-function(nw, newmatrix, matrix.type=NULL, output="network", igno
   }
   
   if(matrix.type=="adjacency" && all(newmatrix%in%c(0,1))){
-    unw[,] <- newmatrix
+    nw[,] <- newmatrix
   }else if(matrix.type=="edgelist" && !is.null(newmatrix) && nrow(newmatrix)>0){
-    add.edges(unw,tail=newmatrix[,1],head=newmatrix[,2])
+    add.edges(nw,tail=newmatrix[,1],head=newmatrix[,2])
   }
   if(!is.null(output) && output=="edgelist.compressed") 
-    {unw <- as.edgelist.compressed(unw)}
-  unw
+    {nw <- as.edgelist.compressed(nw)}
+  nw
 }
 
 
@@ -158,11 +120,12 @@ update.network <- function(object, new, matrix.type=NULL, attrname=NULL, ..., ig
   }
 
   if(! matrix.type%in%c("adjacency","edgelist")) stop("Only edge lists and adjacency matrices are supporeted at this time.")
-  
-  unw <- empty_network(object, ignore.nattr=ignore.nattr, ignore.vattr=ignore.vattr)
+
+  # Empty the network.
+  object[,] <- FALSE
 
   if(matrix.type=="adjacency"){
-    unw[,,names.eval=attrname,add.edges=TRUE] <- new
+    object[,,names.eval=attrname,add.edges=TRUE] <- new
   }else if(matrix.type=="edgelist" && !is.null(new) && nrow(new)>0){
     if(!is.null(attrname)){
       names.eval <- rep(list(attrname), nrow(new))
@@ -170,10 +133,10 @@ update.network <- function(object, new, matrix.type=NULL, attrname=NULL, ..., ig
     }else{
       names.eval <- vals.eval <- NULL
     }
-    add.edges(unw,tail=new[,1],head=new[,2],names.eval=names.eval, vals.eval=vals.eval)
+    add.edges(object,tail=new[,1],head=new[,2],names.eval=names.eval, vals.eval=vals.eval)
   }
   
-  unw
+  object
 }
 
 

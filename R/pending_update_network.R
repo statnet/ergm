@@ -53,7 +53,7 @@ pending_update_network <- function(nw, update=NULL, response=if(is.character(upd
   if(!is.null(response)&&ncol(el)==3) colnames(el)[3]<-response
 
   if(is(nw, "pending_update_network")) class(nw) <- "network"
-  nw <- empty_network(nw)
+  nw[,] <- FALSE
   nw%n%".update" <- el
   
   class(nw) <- "pending_update_network"
