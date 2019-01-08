@@ -304,7 +304,7 @@ ergm_get_vattr.formula <- function(object, nw, accept="character", bip=c("n","b1
   vlist <- c(a %>% map(~nw%v%.) %>% set_names(a),
              lst(`.`=nw, .nw=nw, ...))
 
-  e <- object[[length(object)]]
+  e <- ult(object)
   ERRVL(try({
     eval(e, envir=vlist, enclos=environment(object)) %>%
       .rightsize_vattr(nw, bip) %>%
@@ -374,7 +374,7 @@ ergm_attr_levels.function <- function(object, attr, nw, levels=sort(unique(attr)
 #' @export
 ergm_attr_levels.formula <- function(object, attr, nw, levels=sort(unique(attr)), ...){
   vlist <- lst(`.`=levels, .levels=levels, .attr=attr, .nw=nw, ...)
-  e <- object[[length(object)]]
+  e <- ult(object)
   object <- eval(e, envir=vlist, enclos=environment(object))  
   ergm_attr_levels(object, attr, nw, levels, ...)
 }

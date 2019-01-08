@@ -181,7 +181,7 @@ InitErgmTerm.F <- function(nw, arglist, response=NULL, ...){
   
   gs <- summary(m)
 
-  form.name <- deparse(form[[length(form)]])
+  form.name <- deparse(ult(form))
   name <- "filter_term_form"
   auxiliaries <- ~.filter.formula.net(form)
   

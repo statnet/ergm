@@ -21,7 +21,7 @@ InitWtErgmTerm.B <- function(nw, arglist, response=NULL, ...){
         else rep(0, nparam(m, canonical=TRUE))
 
   if(is(form, "formula")){
-    form.name <- deparse(form[[length(form)]])
+    form.name <- deparse(ult(form))
     name <- "import_binary_term_form"
     auxiliaries <- ~.binary.formula.net(form)
   }else{
