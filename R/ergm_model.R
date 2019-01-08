@@ -112,7 +112,7 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, role="stat
     # If SO package name not specified explicitly, autodetect.
     if(is.null(outlist$pkgname)) outlist$pkgname <- environmentName(environment(eval(termFun)))
     # If the term is an offset, rename the coefficient names and parameter names
-    if(model$offset[length(model$offset)]){
+    if(ult(model$offset)){
       outlist$coef.names <- paste0("offset(",outlist$coef.names,")")
       if(!is.null(outlist$params))
         names(outlist$params) <- paste0("offset(",outlist$params,")")
