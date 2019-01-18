@@ -499,8 +499,8 @@ control.ergm<-function(drop=TRUE,
                          SAN.init.maxedges=MCMC.init.maxedges,
                          SAN.max.maxedges=MCMC.max.maxedges,
                          
-                         SAN.nsteps=MCMC.burnin*SAN.nsteps.times,
-                         SAN.samplesize=MCMC.samplesize,
+                         SAN.nsteps=NVL(MCMC.burnin,16384)*SAN.nsteps.times,
+                         SAN.samplesize=NVL(MCMC.samplesize,1024),
                          SAN.packagenames=MCMC.packagenames,
 
                          parallel=parallel,
