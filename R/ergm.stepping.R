@@ -40,6 +40,8 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
                          control, proposal, proposal.obs, 
                          verbose=FALSE, ...){
 
+  control <- remap_algorithm_MCMC_control(control, "Step")
+
   #   preliminary, to set up structure. 
   nw.orig <- nw
   asyse=init-init
@@ -64,7 +66,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   while (!finished) { # Iterate until gamma==1
     iter=iter+1
     ## Generate an mcmc sample from the probability distribution determined by orig.mle
-    samples[[iter]]=simulate(formula, nsim=control$Step.MCMC.samplesize,
+    samples[[iter]]=simulate(formula, nsim=control$MCMC.samplesize,
                                      coef=eta[[iter]], output="stats",
                                      constraints=constraints, 
                                      control=set.control.class("control.simulate.formula",control), ...)

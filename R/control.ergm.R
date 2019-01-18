@@ -127,12 +127,21 @@
 #' 
 #' @param
 #'   MCMLE.effectiveSize,MCMLE.effectiveSize.interval_drop,MCMLE.burnin,MCMLE.interval,MCMLE.samplesize,MCMLE.samplesize.per_theta
-#'   Sets the corresponding `MCMC.*` when `main.method="MCMLE"` (the
+#'   Sets the corresponding `MCMC.*` parameters when `main.method="MCMLE"` (the
 #'   default). Used because defaults may be different for different
 #'   methods. `MCMLE.samplesize.per_theta` controls the MCMC sample
 #'   size (not target effective size) as a function of the number of
 #'   (curved) parameters in the model.
-#' 
+#'
+#' @param SA.burnin,SA.interval,SA.samplesize Sets the corresponding
+#'   `MCMC.*` parameters when `main.method="Stochastic-Approximation"`.
+#'
+#' @param RM.burnin,RM.interval,RM.samplesize Sets the corresponding
+#'   `MCMC.*` parameters when `main.method="Robbins-Monro"`.
+#'
+#' @param Step.burnin,Step.interval,Step.samplesize Sets the corresponding
+#'   `MCMC.*` parameters when `main.method="Stepping"`.
+#'
 #' @param MCMC.return.stats Logical: If TRUE, return the matrix of MCMC-sampled
 #' network statistics.  This matrix should have \code{MCMC.samplesize} rows.
 #' This matrix can be used directly by the \code{coda} package to assess MCMC
@@ -351,10 +360,6 @@
 #' functions, used in the stochastic approximation algorithm.
 #' @param RM.phase1n_base,RM.phase2n_base,RM.phase2sub,RM.init_gain,RM.phase3n
 #' The Robbins-Monro control parameters are not yet documented.
-#' @param Step.MCMC.samplesize MCMC sample size for the preliminary steps of
-#' the "Stepping" method of optimization.  This is usually chosen to be smaller
-#' than the final MCMC sample size (which equals \code{MCMC.samplesize}).  See
-#' Hummel et al. (2012) for details.
 #' @param Step.maxit Maximum number of iterations (steps) allowed by the
 #' "Stepping" method.
 #' @param Step.gridsize Integer \eqn{N} such that the "Stepping" style of
@@ -468,9 +473,9 @@ control.ergm<-function(drop=TRUE,
                        MPLE.maxit=10000,
                       
                        MCMC.prop.weights="default", MCMC.prop.args=list(),
-                       MCMC.interval=1024,
+                       MCMC.interval=NULL,
                        MCMC.burnin=MCMC.interval*16,
-                       MCMC.samplesize=1024,
+                       MCMC.samplesize=NULL,
                        MCMC.effectiveSize=NULL,
                        MCMC.effectiveSize.damp=10,
                        MCMC.effectiveSize.maxruns=16,
@@ -569,16 +574,24 @@ control.ergm<-function(drop=TRUE,
                        SA.niterations=NULL, 
                        SA.phase3_n=NULL,
                        SA.trustregion=0.5,
+                       SA.interval=1024,
+                       SA.burnin=SA.interval*16,
+                       SA.samplesize=1024,
 
                        RM.phase1n_base=7,
                        RM.phase2n_base=100,
                        RM.phase2sub=7,
                        RM.init_gain=0.5,
                        RM.phase3n=500,
+                       RM.interval=1024,
+                       RM.burnin=RM.interval*16,
+                       RM.samplesize=1024,
 
-                       Step.MCMC.samplesize=100,
                        Step.maxit=50,
                        Step.gridsize=100,
+                       Step.interval=1024,
+                       Step.burnin=Step.interval*16,
+                       Step.samplesize=1024,
 
                        CD.nsteps=8,
                        CD.multiplicity=1,
@@ -644,6 +657,7 @@ control.ergm<-function(drop=TRUE,
                        RobMon.phase2sub="RM.phase2sub",
                        RobMon.init_gain="RM.init_gain",
                        RobMon.phase3n="RM.phase3n",
+                       Step.MCMC.samplesize="Step.samplesize",
                        trustregion="MCMLE.trustregion",
                        stepMCMCsize="Step.MCMC.samplesize",
                        steppingmaxit="Step.maxit",
@@ -695,4 +709,14 @@ ADAPTIVE_MCMC_CONTROLS <- c("MCMC.effectiveSize", "MCMC.effectiveSize.damp", "MC
 PARALLEL_MCMC_CONTROLS <- c("parallel","parallel.type","parallel.version.check")
 MPLE_CONTROLS <- c("MPLE.max.dyad.types","MPLE.samplesize","MPLE.type","MPLE.maxit")
 
-                       
+remap_algorithm_MCMC_controls <- function(control, algorithm){
+  CTRLS <- c(STATIC_MCMC_CONTROLS, ADAPTIVE_MCMC_CONTROLS) %>% keep(startsWith,"MCMC.") %>% substr(6, 10000L)
+  for(obs in c("", "obs.")){
+    for(ctrl in CTRLS){
+      dest <- paste0(obs, "MCMC.", ctrl)
+      src <- paste0(obs, algorithm, ".", ctrl)
+      if(length(control[[dest]])==0 && length(control[[src]])!=0) control[[dest]] <- control[[src]]
+    }
+  }
+  control
+}

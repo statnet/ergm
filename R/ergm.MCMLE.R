@@ -78,14 +78,8 @@ ergm.MCMLE <- function(init, nw, model,
 
   if(is.null(control$MCMLE.samplesize)) control$MCMLE.samplesize <- control$MCMLE.samplesize.per_theta*nparam(model,canonical=FALSE, offset=FALSE)
   if(obs && is.null(control$obs.MCMLE.samplesize)) control$obs.MCMLE.samplesize <- control$obs.MCMLE.samplesize.per_theta*nparam(model,canonical=FALSE, offset=FALSE)
-  
-  MCMLE_to_MCMC <- c("effectiveSize", "burnin", "samplesize", "interval")
-  for(ctrl in MCMLE_to_MCMC){
-    name <- paste0("MCMLE.",ctrl)
-    if(!is.null(control[[name]])) control[[paste0("MCMC.",ctrl)]] <- control[[name]]
-    name <- paste0("obs.",name)
-    if(!is.null(control[[name]])) control[[paste0("obs.MCMC.",ctrl)]] <- control[[name]]
-  }
+
+  control <- remap_algorithm_MCMC_controls(control, "MCMLE")
    
   control$MCMC.base.effectiveSize <- control$MCMC.effectiveSize
   control$obs.MCMC.base.effectiveSize <- control$obs.MCMC.effectiveSize

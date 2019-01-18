@@ -10,8 +10,8 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MPLE.max.dyad.types = 1e+06, MPLE.samplesize = 50000,
   MPLE.type = c("glm", "penalized", "logitreg"), MPLE.maxit = 10000,
   MCMC.prop.weights = "default", MCMC.prop.args = list(),
-  MCMC.interval = 1024, MCMC.burnin = MCMC.interval * 16,
-  MCMC.samplesize = 1024, MCMC.effectiveSize = NULL,
+  MCMC.interval = NULL, MCMC.burnin = MCMC.interval * 16,
+  MCMC.samplesize = NULL, MCMC.effectiveSize = NULL,
   MCMC.effectiveSize.damp = 10, MCMC.effectiveSize.maxruns = 16,
   MCMC.effectiveSize.base = 1/2, MCMC.effectiveSize.points = 5,
   MCMC.effectiveSize.burnin.pval = 0.2, MCMC.return.stats = TRUE,
@@ -67,24 +67,27 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MCMLE.effectiveSize.interval_drop = 2,
   MCMLE.save_intermediates = NULL, SA.phase1_n = NULL,
   SA.initial_gain = NULL, SA.nsubphases = 4, SA.niterations = NULL,
-  SA.phase3_n = NULL, SA.trustregion = 0.5, RM.phase1n_base = 7,
-  RM.phase2n_base = 100, RM.phase2sub = 7, RM.init_gain = 0.5,
-  RM.phase3n = 500, Step.MCMC.samplesize = 100, Step.maxit = 50,
-  Step.gridsize = 100, CD.nsteps = 8, CD.multiplicity = 1,
-  CD.nsteps.obs = 128, CD.multiplicity.obs = 1, CD.maxit = 60,
-  CD.conv.min.pval = 0.5, CD.NR.maxit = 100,
-  CD.NR.reltol = sqrt(.Machine$double.eps), CD.metric = c("naive",
-  "lognormal", "logtaylor", "Median.Likelihood", "EF.Likelihood"),
-  CD.method = c("BFGS", "Nelder-Mead"), CD.trustregion = 20,
-  CD.dampening = FALSE, CD.dampening.min.ess = 20,
-  CD.dampening.level = 0.1, CD.steplength.margin = 0.5,
-  CD.steplength = 1, CD.adaptive.trustregion = 3,
-  CD.adaptive.epsilon = 0.01, CD.Hummel.esteq = TRUE,
-  CD.Hummel.miss.sample = 100, CD.Hummel.maxit = 25,
-  CD.steplength.min = 1e-04, loglik.control = control.logLik.ergm(),
-  term.options = NULL, seed = NULL, parallel = 0,
-  parallel.type = NULL, parallel.version.check = TRUE,
-  parallel.inherit.MT = FALSE, ...)
+  SA.phase3_n = NULL, SA.trustregion = 0.5, SA.interval = 1024,
+  SA.burnin = SA.interval * 16, SA.samplesize = 1024,
+  RM.phase1n_base = 7, RM.phase2n_base = 100, RM.phase2sub = 7,
+  RM.init_gain = 0.5, RM.phase3n = 500, RM.interval = 1024,
+  RM.burnin = RM.interval * 16, RM.samplesize = 1024,
+  Step.maxit = 50, Step.gridsize = 100, Step.interval = 1024,
+  Step.burnin = Step.interval * 16, Step.samplesize = 1024,
+  CD.nsteps = 8, CD.multiplicity = 1, CD.nsteps.obs = 128,
+  CD.multiplicity.obs = 1, CD.maxit = 60, CD.conv.min.pval = 0.5,
+  CD.NR.maxit = 100, CD.NR.reltol = sqrt(.Machine$double.eps),
+  CD.metric = c("naive", "lognormal", "logtaylor", "Median.Likelihood",
+  "EF.Likelihood"), CD.method = c("BFGS", "Nelder-Mead"),
+  CD.trustregion = 20, CD.dampening = FALSE,
+  CD.dampening.min.ess = 20, CD.dampening.level = 0.1,
+  CD.steplength.margin = 0.5, CD.steplength = 1,
+  CD.adaptive.trustregion = 3, CD.adaptive.epsilon = 0.01,
+  CD.Hummel.esteq = TRUE, CD.Hummel.miss.sample = 100,
+  CD.Hummel.maxit = 25, CD.steplength.min = 1e-04,
+  loglik.control = control.logLik.ergm(), term.options = NULL,
+  seed = NULL, parallel = 0, parallel.type = NULL,
+  parallel.version.check = TRUE, parallel.inherit.MT = FALSE, ...)
 }
 \arguments{
 \item{drop}{Logical: If TRUE, terms whose observed statistic values are at
@@ -422,7 +425,7 @@ whose number of edges is exceeds the observed network by more than
 \code{MCMLE.density.guard}, the optimization process will be stopped with an
 error.}
 
-\item{MCMLE.effectiveSize, MCMLE.effectiveSize.interval_drop, MCMLE.burnin, MCMLE.interval, MCMLE.samplesize, MCMLE.samplesize.per_theta}{Sets the corresponding \code{MCMC.*} when \code{main.method="MCMLE"} (the
+\item{MCMLE.effectiveSize, MCMLE.effectiveSize.interval_drop, MCMLE.burnin, MCMLE.interval, MCMLE.samplesize, MCMLE.samplesize.per_theta}{Sets the corresponding \code{MCMC.*} parameters when \code{main.method="MCMLE"} (the
 default). Used because defaults may be different for different
 methods. \code{MCMLE.samplesize.per_theta} controls the MCMC sample
 size (not target effective size) as a function of the number of
@@ -497,12 +500,13 @@ stochastic approximation algorithm.  See Snijders (2002) for details.}
 \item{SA.trustregion}{The trust region parameter for the likelihood
 functions, used in the stochastic approximation algorithm.}
 
+\item{SA.burnin, SA.interval, SA.samplesize}{Sets the corresponding
+\code{MCMC.*} parameters when \code{main.method="Stochastic-Approximation"}.}
+
 \item{RM.phase1n_base, RM.phase2n_base, RM.phase2sub, RM.init_gain, RM.phase3n}{The Robbins-Monro control parameters are not yet documented.}
 
-\item{Step.MCMC.samplesize}{MCMC sample size for the preliminary steps of
-the "Stepping" method of optimization.  This is usually chosen to be smaller
-than the final MCMC sample size (which equals \code{MCMC.samplesize}).  See
-Hummel et al. (2012) for details.}
+\item{RM.burnin, RM.interval, RM.samplesize}{Sets the corresponding
+\code{MCMC.*} parameters when \code{main.method="Robbins-Monro"}.}
 
 \item{Step.maxit}{Maximum number of iterations (steps) allowed by the
 "Stepping" method.}
@@ -510,6 +514,9 @@ Hummel et al. (2012) for details.}
 \item{Step.gridsize}{Integer \eqn{N} such that the "Stepping" style of
 optimization chooses a step length equal to the largest possible multiple of
 \eqn{1/N}.  See Hummel et al. (2012) for details.}
+
+\item{Step.burnin, Step.interval, Step.samplesize}{Sets the corresponding
+\code{MCMC.*} parameters when \code{main.method="Stepping"}.}
 
 \item{CD.nsteps, CD.multiplicity}{Main settings for contrastive divergence to
 obtain initial values for the estimation: respectively, the number of
