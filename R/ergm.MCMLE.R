@@ -296,8 +296,14 @@ ergm.MCMLE <- function(init, nw, model,
       estdiff <- NVL3(esteq.obs, colMeans(.), 0) - colMeans(esteq)
       pprec <- diag(sqrt(control$MCMLE.MCMC.precision), nrow=length(estdiff))
       Vm <- pprec%*%(cov(esteq) - NVL3(esteq.obs, cov(.), 0))%*%pprec
-      Vm <- as.matrix(nearPD(Vm, posd.tol=0)$mat) # Ensure tolerance hyperellipsoid is PSD. (If it's not PD, the ellipsoid is workable, if flat.)
+
+      # Ensure tolerance hyperellipsoid is PSD. (If it's not PD, the
+      # ellipsoid is workable, if flat.) Special handling is required
+      # if some statistic has a variance of exactly 0.
+      novar <- diag(Vm) == 0
+      Vm[!novar,!novar] <- as.matrix(nearPD(Vm[!novar,!novar], posd.tol=0)$mat)
       iVm <- ginv(Vm)
+      diag(Vm)[novar] <- sqrt(.Machine$double.xmax) # Virtually any nonzero difference in estimating functions will map to a very large number.
       d2 <- estdiff%*%iVm%*%estdiff
       if(d2<2) last.adequate <- TRUE
     }
