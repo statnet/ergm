@@ -40,7 +40,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
                          control, proposal, proposal.obs, 
                          verbose=FALSE, ...){
 
-  control <- remap_algorithm_MCMC_control(control, "Step")
+  control <- remap_algorithm_MCMC_controls(control, "Step")
 
   #   preliminary, to set up structure. 
   nw.orig <- nw

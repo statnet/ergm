@@ -48,7 +48,7 @@ ergm.stocapprox <- function(init, nw, model, Clist,
                             control, proposal,
                             verbose=FALSE){
 
-  control <- remap_algorithm_MCMC_control(control, "RM")
+  control <- remap_algorithm_MCMC_controls(control, "RM")
 
   #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for init)
   n1 <- control$SA.phase1_n
