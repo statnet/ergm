@@ -1,5 +1,5 @@
 Package: ergm
-Version: 4.0-4741
+Version: 4.0-4742
 Date: 2019-01-18
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
@@ -13,7 +13,7 @@ Authors@R: c(
            person("Kirk","Li",role=c("ctb"),email="kirkli@uw.edu"),
 	   person("Skye", "Bender-deMoll", role=c("ctb"), email="skyebend@uw.edu"))
 Depends: R (>= 3.5), network (>= 1.14)
-Imports: robustbase (>= 0.9-10), coda (>= 0.18-1), trust, Matrix, lpSolve, parallel, methods, MASS, statnet.common (>= 4.1.0), purrr (>= 0.2.4), rlang (>= 0.2.0), tibble (>= 1.4.2), dplyr (>= 0.7.4)
+Imports: robustbase (>= 0.9-10), coda (>= 0.18-1), trust, Matrix, lpSolve, parallel, methods, MASS, statnet.common (>= 4.3.0), purrr (>= 0.2.4), rlang (>= 0.2.0), tibble (>= 1.4.2), dplyr (>= 0.7.4)
 Suggests: 
     lattice,
     latticeExtra,
