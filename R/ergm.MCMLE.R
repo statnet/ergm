@@ -295,7 +295,7 @@ ergm.MCMLE <- function(init, nw, model,
       # ellipsoid is workable, if flat.) Special handling is required
       # if some statistic has a variance of exactly 0.
       novar <- diag(Vm) == 0
-      Vm[!novar,!novar] <- as.matrix(nearPD(Vm[!novar,!novar], posd.tol=0)$mat)
+      Vm[!novar,!novar] <- as.matrix(nearPD(Vm[!novar,!novar,drop=FALSE], posd.tol=0)$mat)
       iVm <- ginv(Vm)
       diag(Vm)[novar] <- sqrt(.Machine$double.xmax) # Virtually any nonzero difference in estimating functions will map to a very large number.
       d2 <- estdiff%*%iVm%*%estdiff
