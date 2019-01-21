@@ -136,7 +136,10 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
     nw <-  outnw
     stats <- z$s[nrow(z$s),]
     # TODO: Subtract off a smoothing of these values?
-    invcov <- ginv(cov(z$s))
+    # Use only a bit less than the second half of the sample statistics to compute the statistic weights:
+    invcov <- ginv(cov(window(z$s, start=floor(nrow(z$s)*5/8))))
+    # Ensure no statistic has weight 0:
+    diag(invcov)[abs(diag(invcov))<.Machine$double.eps] <- min(diag(invcov)[abs(diag(invcov))>=.Machine$double.eps])
     invcov <- invcov / sum(diag(invcov)) # Rescale for consistency.
     control$invcov <- invcov
     
