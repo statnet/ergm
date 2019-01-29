@@ -21,10 +21,10 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   SAN.nsteps.times = 10, SAN.control = control.san(term.options =
   term.options, SAN.prop.weights = MCMC.prop.weights, SAN.prop.args =
   MCMC.prop.args, SAN.init.maxedges = MCMC.init.maxedges, SAN.max.maxedges
-  = MCMC.max.maxedges, SAN.nsteps = MCMC.burnin * SAN.nsteps.times,
-  SAN.samplesize = MCMC.samplesize, SAN.packagenames = MCMC.packagenames,
-  parallel = parallel, parallel.type = parallel.type,
-  parallel.version.check = parallel.version.check),
+  = MCMC.max.maxedges, SAN.nsteps = EVL(MCMC.burnin, 16384) *
+  SAN.nsteps.times, SAN.samplesize = EVL(MCMC.samplesize, 1024),
+  SAN.packagenames = MCMC.packagenames, parallel = parallel, parallel.type
+  = parallel.type, parallel.version.check = parallel.version.check),
   MCMLE.termination = c("confidence", "Hummel", "Hotelling", "precision",
   "none"), MCMLE.maxit = 30, MCMLE.conv.min.pval = 0.5,
   MCMLE.confidence = 0.99, MCMLE.confidence.boost = 2,

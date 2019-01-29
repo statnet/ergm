@@ -94,6 +94,14 @@ summary.ergm <- function (object, ...,
                           correlation=FALSE, covariance=FALSE,
                           total.variation=TRUE)
 {
+  # Warn if the object was produced by an earlier version of ergm.
+  myver <- packageVersion("ergm")
+  objver <- NVL(object$ergm_version, as.package_version("3.9.4")) # 3.9.4 was the last version that didn't store the version information.
+  nextver <- as.package_version(paste(objver$major, objver$minor+1, sep="."))
+  if(objver < paste(myver$major, myver$minor, sep=".")){
+    warn(paste0("This object was fit with ", sQuote("ergm"), " version ", objver, " or earlier. Summarizing it with version ", nextver, " or later may return incorrect results or fail."))
+  }
+
   if("digits" %in% names(list(...))) warn("summary.ergm() no lnger takes a digits= argument.")
   control <- object$control
   pseudolikelihood <- object$estimate=="MPLE"

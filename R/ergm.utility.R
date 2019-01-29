@@ -253,41 +253,10 @@ nvattr.copy.network <- function(to, from, ignore=c("bipartite","directed","hyper
   to
 }
 
-#' Copy a network object enforcing ergm-appropriate guarantees about its
-#' internal representation
-#' 
-#' Create a copy of a \code{\link{network}} of interest with certain guarantees
-#' about its internal representation: \itemize{ \item for every edge, the id of
-#' the 'tails' vertex is < id of the 'heads' vertex if the network is
-#' undirected \item no (tail,head) id pair has more than one edge ID associated
-#' with it (no multiplex edges) }
-#' 
-#' This function is needed because the \code{\link{network}} object can support
-#' added non-directed edges in arbitrary order, as well as multiplex edges and
-#' hypergraphs (even if the network is not marked as such), which are not
-#' supported in the underlying ergm processes. Uses \code{\link{as.edgelist}}
-#' internally to make the conversion.
-#' 
-#' @param nw a \code{\link{network}} object to be copied
-#' @param preserve.eattr logical; should the edge attributes be preserved
-#' during the copying process (presumably slower)
-#' @return returns an ergm-appropriate network object.
-#' @note This function may be time expensive.  Also, the transformation is
-#' performed by deleting edges in initial network and re-adding them.
-#' @keywords internal
-#' @examples
-#' 
-#' test<-network.initialize(5,directed=FALSE)
-#' test[2,1]<-1  #ergm wont like this
-#' test$mel[[1]] # peek at internal representation
-#' 
-#' test2<-standardize.network(test) # enforce!
-#' test2$mel[[2]]  # 1 and 2 have traded places
-#' 
-#' 
-#' @keywords internal
+#' @rdname ergm-deprecated
 #' @export standardize.network
 standardize.network <- function(nw, preserve.eattr=TRUE){
+  .Deprecate_once(msg=paste0(sQuote("standardize.network"), " has been obviated by improvements to ", sQuote("network"), "."))
   if(preserve.eattr){
     el <- rbind(as.edgelist(nw),as.edgelist(is.na(nw)))
     eids <- lapply(seq_len(nrow(el)), function(i) get.edgeIDs(nw, el[i,1], el[i,2], na.omit=FALSE))
