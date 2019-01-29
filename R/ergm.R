@@ -718,6 +718,7 @@ ergm <- function(formula, response=NULL,
                           target.stats=model.initial$target.stats,
                           target.esteq=if(!is.null(model.initial$target.stats)) ergm.estfun(rbind(model.initial$target.stats), initialfit$coef, model.initial),
                           estimate=estimate,
+                          ergm_version=packageVersion("ergm"),
                           control=control
     ),
     class="ergm"))
@@ -744,6 +745,7 @@ ergm <- function(formula, response=NULL,
   if (!MCMCflag){ # Just return initial (non-MLE) fit and exit.
     message("Stopping at the initial estimate.")
     initialfit$MPLE_is_MLE <- MPLE.is.MLE
+    initialfit$ergm_version <- packageVersion("ergm")
     initialfit$offset <- model.initial$etamap$offsettheta
     initialfit$drop <- if(control$drop) extremecheck$extremeval.theta
     initialfit$estimable <- constrcheck$estimable
@@ -836,6 +838,7 @@ ergm <- function(formula, response=NULL,
   } else {
     degeneracy <- list(degeneracy.value=NULL, degeneracy.type=NULL)
   }
+  mainfit$ergm_version <- packageVersion("ergm")
   mainfit$MPLE_is_MLE <- MPLE.is.MLE
   mainfit$degeneracy.value <- degeneracy$degeneracy.value
   mainfit$degeneracy.type <- degeneracy$degeneracy.type
