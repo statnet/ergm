@@ -201,7 +201,7 @@
 #' gest <- ergm(flomarriage ~ edges + kstar(2))
 #' summary(gest)
 #' #
-#' # Draw from the fitted model (satatistics only), and observe the number
+#' # Draw from the fitted model (statistics only), and observe the number
 #' # of triangles as well.
 #' #
 #' g.sim <- simulate(gest, nsim=10, 
