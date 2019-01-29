@@ -709,7 +709,7 @@ equal to the number of (first mode) mutual partners of that pair.
   \item{\code{cyclicalties(attrname=NULL, levels=NULL)}   (binary)  (directed), \code{cyclicalties(threshold=0)}   (valued)  (directed)  (undirected)}{\emph{Cyclical ties:} 
     This term adds one statistic, equal to the number of ties 
     \eqn{i\rightarrow j}{i-->j} such that there exists a two-path from
-    \eqn{i} to \eqn{j}.  (Related to the \code{ttriple} term.)
+    \eqn{j} to \eqn{i}.  (Related to the \code{ttriple} term.)
     The binary version takes a nodal attribute \code{attrname}, and, if
     given, all three nodes
     involved (\eqn{i}, \eqn{j}, and the node on the two-path) must match
