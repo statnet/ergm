@@ -60,8 +60,8 @@
 #' @name control.simulate.ergm
 #' @keywords models
 #' @export control.simulate.formula.ergm
-control.simulate.formula.ergm<-function(MCMC.burnin=10000,
-                                        MCMC.interval=1000,
+control.simulate.formula.ergm<-function(MCMC.burnin=MCMC.interval*16,
+                                        MCMC.interval=1024,
                                         MCMC.prop.weights="default",
                                         MCMC.prop.args=list(),
                                         

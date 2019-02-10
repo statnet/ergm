@@ -7,8 +7,8 @@
 \alias{control.simulate.formula}
 \title{Auxiliary for Controlling ERGM Simulation}
 \usage{
-control.simulate.formula.ergm(MCMC.burnin = 10000,
-  MCMC.interval = 1000, MCMC.prop.weights = "default",
+control.simulate.formula.ergm(MCMC.burnin = MCMC.interval * 16,
+  MCMC.interval = 1024, MCMC.prop.weights = "default",
   MCMC.prop.args = list(), MCMC.effectiveSize = NULL,
   MCMC.effectiveSize.damp = 10, MCMC.effectiveSize.maxruns = 1000,
   MCMC.effectiveSize.base = 1/2, MCMC.effectiveSize.points = 5,
@@ -18,25 +18,27 @@ control.simulate.formula.ergm(MCMC.burnin = 10000,
   parallel.type = NULL, parallel.version.check = TRUE,
   parallel.inherit.MT = FALSE, ...)
 
-control.simulate(MCMC.burnin = 10000, MCMC.interval = 1000,
-  MCMC.prop.weights = "default", MCMC.prop.args = list(),
-  MCMC.effectiveSize = NULL, MCMC.effectiveSize.damp = 10,
-  MCMC.effectiveSize.maxruns = 1000, MCMC.effectiveSize.base = 1/2,
-  MCMC.effectiveSize.points = 5, MCMC.effectiveSize.burnin.pval = 0.2,
-  MCMC.init.maxedges = 20000, MCMC.packagenames = c(),
-  MCMC.runtime.traceplot = FALSE, network.output = "network",
-  term.options = NULL, parallel = 0, parallel.type = NULL,
-  parallel.version.check = TRUE, parallel.inherit.MT = FALSE, ...)
+control.simulate(MCMC.burnin = MCMC.interval * 16,
+  MCMC.interval = 1024, MCMC.prop.weights = "default",
+  MCMC.prop.args = list(), MCMC.effectiveSize = NULL,
+  MCMC.effectiveSize.damp = 10, MCMC.effectiveSize.maxruns = 1000,
+  MCMC.effectiveSize.base = 1/2, MCMC.effectiveSize.points = 5,
+  MCMC.effectiveSize.burnin.pval = 0.2, MCMC.init.maxedges = 20000,
+  MCMC.packagenames = c(), MCMC.runtime.traceplot = FALSE,
+  network.output = "network", term.options = NULL, parallel = 0,
+  parallel.type = NULL, parallel.version.check = TRUE,
+  parallel.inherit.MT = FALSE, ...)
 
-control.simulate.formula(MCMC.burnin = 10000, MCMC.interval = 1000,
-  MCMC.prop.weights = "default", MCMC.prop.args = list(),
-  MCMC.effectiveSize = NULL, MCMC.effectiveSize.damp = 10,
-  MCMC.effectiveSize.maxruns = 1000, MCMC.effectiveSize.base = 1/2,
-  MCMC.effectiveSize.points = 5, MCMC.effectiveSize.burnin.pval = 0.2,
-  MCMC.init.maxedges = 20000, MCMC.packagenames = c(),
-  MCMC.runtime.traceplot = FALSE, network.output = "network",
-  term.options = NULL, parallel = 0, parallel.type = NULL,
-  parallel.version.check = TRUE, parallel.inherit.MT = FALSE, ...)
+control.simulate.formula(MCMC.burnin = MCMC.interval * 16,
+  MCMC.interval = 1024, MCMC.prop.weights = "default",
+  MCMC.prop.args = list(), MCMC.effectiveSize = NULL,
+  MCMC.effectiveSize.damp = 10, MCMC.effectiveSize.maxruns = 1000,
+  MCMC.effectiveSize.base = 1/2, MCMC.effectiveSize.points = 5,
+  MCMC.effectiveSize.burnin.pval = 0.2, MCMC.init.maxedges = 20000,
+  MCMC.packagenames = c(), MCMC.runtime.traceplot = FALSE,
+  network.output = "network", term.options = NULL, parallel = 0,
+  parallel.type = NULL, parallel.version.check = TRUE,
+  parallel.inherit.MT = FALSE, ...)
 
 control.simulate.ergm(MCMC.burnin = NULL, MCMC.interval = NULL,
   MCMC.prop.weights = NULL, MCMC.prop.args = NULL,
