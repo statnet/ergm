@@ -474,7 +474,7 @@ control.ergm<-function(drop=TRUE,
                       
                        MCMC.prop.weights="default", MCMC.prop.args=list(),
                        MCMC.interval=NULL,
-                       MCMC.burnin=MCMC.interval*16,
+                       MCMC.burnin=EVL(MCMC.interval*16),
                        MCMC.samplesize=NULL,
                        MCMC.effectiveSize=NULL,
                        MCMC.effectiveSize.damp=10,
