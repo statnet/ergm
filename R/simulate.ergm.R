@@ -535,10 +535,11 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
 
   control.transfer <- STATIC_MCMC_CONTROLS
 
-  
+  # If both the passed control and the object's control are NULL (such as if MPLE was estimated), overwrite with simulate.formula()'s defaults.
+  formula.control <- control.simulate.formula()
   for(arg in control.transfer)
     if(is.null(control[[arg]]))
-      control[arg] <- list(object$control[[arg]])
+      control[arg] <- list(NVL(object$control[[arg]], formula.control[[arg]]))
 
   control <- set.control.class("control.simulate.formula")
   
