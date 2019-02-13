@@ -25,14 +25,24 @@ binary_dind_wrap <- function(name, nw, a, ..., cn=name){
   binary_wrap(get(paste0("InitErgmTerm.",name), mode="function"), nw, a, "form", list(...), namemap=~paste(.,form,sep="_"), cnmap=~sub(cn,paste(cn,form,sep="."), .))
 }
 
-InitWtErgmTerm.absdiff <- function(nw, arglist, ...) {
-  ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
-                      varnames = c("attrname","pow","form"),
-                      vartypes = c("character","numeric","character"),
-                      defaultvalues = list(NULL,1,"sum"),
-                      required = c(TRUE,FALSE,FALSE))
-  binary_dind_wrap("absdiff", nw, a, ...)
+InitWtErgmTerm.absdiff <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
+                        varnames = c("attrname","pow","form"),
+                        vartypes = c("character","numeric","character"),
+                        defaultvalues = list(NULL,1,"sum"),
+                        required = c(TRUE,FALSE,FALSE))
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
+                        varnames = c("attr","pow","form"),
+                        vartypes = c(ERGM_VATTR_SPEC,"numeric","character"),
+                        defaultvalues = list(NULL,1,"sum"),
+                        required = c(TRUE,FALSE,FALSE))
+  }
+
+  binary_dind_wrap("absdiff", nw, a, ..., version=version)
 }
 
 InitWtErgmTerm.absdiffcat <- function(nw, arglist, response, ...) {
