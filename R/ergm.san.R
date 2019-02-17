@@ -70,6 +70,64 @@ san.default <- function(object,...)
 #' \code{\link{control.san}}.
 #' @param verbose Logical or numeric giving the level of verbosity. Higher values produce more verbose output.
 #' @param \dots Further arguments passed to other functions.
+#' @examples
+#' # initialize x to a random undirected network with 100 nodes and a density of 0.1
+#' x <- network(100, density = 0.1, directed = F)
+#'  
+#' # try to find a network on 100 nodes with 600 edges, 300 triangles, and 2500 4-cycles, starting from the network x
+#' y <- san(x ~ edges + triangles + cycle(4), target.stats = c(600, 300, 2500))
+#' 
+#' summary(y ~ edges + triangles + cycle(4))
+#'    edges triangle   cycle4 
+#'      596      301     2502 
+#' # close, but we didn't quite get there after one iteration
+#' 
+#' # try chaining 5 iterations together, returning 5 networks as a network.list
+#' z <- san(x ~ edges + triangles + cycle(4), target.stats = c(600, 300, 2500), nsim = 5, only.last=F)
+#' 
+#' summary(z ~ edges + triangles + cycle(4))
+#'      edges triangle cycle4
+#' [1,]   597      301   2501
+#' [2,]   597      299   2500
+#' [3,]   599      299   2498
+#' [4,]   600      300   2500
+#' [5,]   600      300   2500
+#' # got there after 4 iterations
+#' 
+#' 
+#' # initialize x to a random directed network with 100 nodes
+#' x <- network(100)
+#' 
+#' # add vertex attributes
+#' x %v% 'give' <- runif(100, 0, 1)
+#' x %v% 'take' <- runif(100, 0, 1)
+#' 
+#' # try to find a set of 200 directed edges making the outward sum of 'give' and the inward sum of 'take' both equal to 125,
+#' # so in edges (i,j) the node i tends to have above average 'give' and j tends to have above average 'take'
+#' y <- san(x ~ edges + nodeocov('give') + nodeicov('take'), target.stats = c(200, 125, 125))
+#' 
+#' summary(y ~ edges + nodeocov('give') + nodeicov('take'))
+#'         edges nodeocov.give nodeicov.take 
+#'       200.000       124.183       124.529 
+#' # pretty close; we can't expect perfection on this one
+#' 
+#' 
+#' # initialize x to a random undirected network with 100 nodes
+#' x <- network(100, directed = F)
+#' 
+#' # add a vertex attribute
+#' x %v% 'popularity' <- runif(100, 0, 1)
+#' 
+#' # try to find a set of 200 edges making the total sum of popularity(i) and popularity(j) over all edges (i,j) equal to 250,
+#' # so nodes with higher popularity are more likely to be connected to other nodes
+#' y <- san(x ~ edges + nodecov('popularity'), target.stats = c(200, 250))
+#'  
+#' summary(y ~ edges + nodecov('popularity'))
+#'              edges nodecov.popularity 
+#'           200.0000           249.4979 
+#' 
+#' # creates a network with denser "core" spreading out to sparser "periphery"
+#' plot(y)
 #' @export
 san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints=~., target.stats=NULL,
                         nsim=1, basis=NULL,
