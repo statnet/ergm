@@ -214,9 +214,10 @@ network
   same mode as the covariate and returning a similarly structured data
   structure, transforming the covariate as needed.
 
-  For example, \code{nodecov("a", transform=function(x) x^2)}
-  will add a nodal covariate having the square of the value of the nodal attribute
-  \code{"a"}.
+  For example, in directed networks, \code{nodeicov(attrname, transform=function(x) x^2)}
+  will add a single network statistic to the model equaling the total
+  value of the square of the nodal attribute
+  \code{attrname(j)} for all edges \eqn{(i,j)} in the network.
 
   \code{transformname}, if given, will be added to the term's name to
   help identify it.
@@ -1327,17 +1328,19 @@ of the degrees of all pairs of nodes in the network which are tied.
     sub-graph of size three which is exactly one tie short of being complete.
     This term can only be used with directed networks.}
     
-    \item{\code{nodecov(attrname, transform, transformname)}  (binary)  (dyad-independent)  (frequently-used)   (directed)  (undirected) (quantitative nodal attribute)
-    , \code{nodecov(attrname, transform, transformname,
+    \item{\code{nodecov(attr)}  (binary)  (dyad-independent)  (frequently-used)   (directed)  (undirected) (quantitative nodal attribute)
+    , \code{nodecov(attr,
     form="sum")}  (valued)  (dyad-independent)  (directed)  (undirected) (quantitative nodal attribute)
     , a.k.a. \code{nodemain}  (binary)   (directed)  (undirected)}{\emph{Main effect of a covariate:} 
-    The \code{attrname} argument is a character string giving the name of a
-    numeric (not categorical) attribute in the network's vertex attribute list.
-    This term adds a single network statistic to the model equaling the sum of
-    \code{attrname(i)} and \code{attrname(j)} for all edges \eqn{(i,j)} in the
+    The \code{attr} argument specifies a quantitative attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). This term adds one network statistic to the model equaling the sum of
+    \code{attr(i)} and \code{attr(j)} for all edges \eqn{(i,j)} in the
     network. For categorical attributes, see \code{nodefactor}. Note that for
     directed networks, \code{nodecov} equals \code{nodeicov} plus
-    \code{nodeocov}.}
+    \code{nodeocov}, although \code{nodeicov} and \code{nodeocov} currently use a different interface.
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for this term. See the above section on versioning for invoking the old behavior.
+	}
 
     
     \item{\code{nodecovar}  (valued)  (directed)  (undirected) (quantitative nodal attribute)
