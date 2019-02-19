@@ -84,6 +84,39 @@ InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
     passthrough.curved.ergm_model(m, function(x) paste0('passthrough(',x,')')))
 }
 
+InitErgmTerm.Label <- function(nw, arglist, response=NULL, ...){
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("formula", "label", "pos"),
+                      vartypes = c("formula", "character,function", "character"),
+                      defaultvalues = list(NULL, NULL, "("),
+                      required = c(TRUE, TRUE, FALSE))
+
+  if(is.character(a$label)){
+    pos <- match.arg(a$pos, c("prepend","replace", "(" ,"append"))
+
+    renamer <- switch(pos,
+                      prepend=function(x) paste0(a$label,x),
+                      replace=function(x) a$label,
+                      `(`=function(x) paste0(a$label,"(",x,")"),
+                      append=function(x) paste0(x,a$label))
+  }else{
+    renamer <- a$label
+  }
+
+  f <- a$formula
+  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
+  else nw <- ergm.getnetwork(f)
+
+  m <- ergm_model(f, nw, response=response,...)
+  inputs <- to_ergm_Cdouble(m)
+
+  gs <- summary(m)
+
+  c(list(name="passthrough_term", coef.names = renamer(m$coef.names), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs),
+    passthrough.curved.ergm_model(m, renamer))
+}
+
+
 ## Creates a submodel that tracks the given formula.
 
 InitErgmTerm..submodel <- function(nw, arglist, response=NULL, ...){

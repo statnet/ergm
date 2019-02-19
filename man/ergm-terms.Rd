@@ -9,6 +9,7 @@
 \alias{F}
 \alias{N}
 \alias{NodematchFilter}
+\alias{Label}
 \alias{Offset}
 \alias{Sum}
 \alias{Undir}
@@ -350,7 +351,7 @@ network
 	    \itemize{
 	      \item{dyadic independence;}
 	      \item{dyadwise contribution of 0 for a 0-valued dyad.}
-	    }
+ 	    }
 	    Formally, this means that it is expressable as
 	    \deqn{g(y) = \sum_{i,j} f_{i,j}(y_{i,j}),}{sum[i,j]
 	      f[i,j](y[i,j]),} where for all \eqn{i}, \eqn{j}, and \eqn{y},
@@ -366,8 +367,7 @@ network
 	     \eqn{f_{i,j}(y_{i,j}) = 0}{f[i,j](y[i,j])=0}.
   }
 
-  \item{\code{Sum(formulas, label)} (binary) (operator),
-  \code{Sum(formulas, label)} (valued) (operator)}{\emph{A sum (or an arbitrary linear combination) of one or more formulas}:
+  \item{\code{Sum(formulas, label)} (binary) (operator), \code{Sum(formulas, label)} (valued) (operator)}{\emph{A sum (or an arbitrary linear combination) of one or more formulas}:
 
     \code{formulas} is a list of formulas whose corresponding RHS
     statistics will be summed elementwise.
@@ -406,6 +406,10 @@ network
 	network if the LHS network has tie \eqn{(\max(i,j),\min(i,j))}:
 	the lower triangle of the LHS network.}
     }
+  }
+
+  \item{\code{Label(formula, label, pos)} (binary) (operator), \code{Sum(formula, label, pos)} (valued) (operator)}{\emph{Modify terms' coefficient names}:
+    The \code{Label} operator evaluates \code{formula} without modification, but modifies its coefficient and/or parameter names based on \code{label} and \code{pos}. \code{label} is either a character vector specifying the label for the terms, or a function through which term names are mapped. If it is a character vector, the \code{pos} argument controls how it modifies the term naes: one of \code{"prepend"}, \code{"replace"}, \code{"append"}, or \code{"("}, with the latter wrapping the term names in parentheses like a function call with name specified by \code{label}.
   }
   
   \item{\code{NodematchFilter(formula, attrname)} (binary) (operator)}{\emph{Filtering on \code{\link{nodematch}}}:
