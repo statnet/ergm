@@ -26,6 +26,14 @@ test_that("Simulation for NodematchFilter() and F()", {
   expect_equivalent(out[,1:14],out[,29:42])
 })
 
+test_that("Undir() summary", {
+  m <- as.matrix(samplike)
+  expect_equivalent(
+    c(sum(m*t(m))/2, sum(m+t(m)>0)/2, sum(m[lower.tri(m)]), sum(m[upper.tri(m)])),
+    summary(samplike ~ Undir(~edges,"strong") + Undir(~edges,"weak") + Undir(~edges,"lower") + Undir(~edges,"upper"))
+  )
+})
+
 library(ergm.count)
 data(zach)
 test_that("Summary for the B() operator with nonzero criteria",{

@@ -384,5 +384,6 @@ U_CHANGESTAT_FN(u__undir_net){
 F_CHANGESTAT_FN(f__undir_net){
   GET_AUX_STORAGE(Network, unwp);
   NetworkDestroy(unwp);
+  AUX_STORAGE=NULL;
   // DestroyStats() will deallocate the rest.
 }
