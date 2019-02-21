@@ -19,7 +19,7 @@ ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL,
   Clists <- lapply(nws, ergm::ergm.Cprepare, model, response=response)
 
   control.parallel <- control
-  control.parallel$MCMC.samplesize <- NVL3(control$MCMC.samplesize, ceiling(. / nthreads(control)))
+  control.parallel$CD.samplesize <- NVL3(control$CD.samplesize, ceiling(. / nthreads(control)))
 
   flush.console()
 
@@ -72,7 +72,7 @@ ergm_CD_slave <- function(Clist,proposal,eta,control,verbose,..., samplesize=NUL
     weights <- Clist$weights
     stats <- rep(0, Clist$nstats)
   
-  if(is.null(samplesize)) samplesize <- control$MCMC.samplesize
+  if(is.null(samplesize)) samplesize <- control$CD.samplesize
   
   if(is.null(Clist$weights)){
     z <- .C("CD_wrapper",

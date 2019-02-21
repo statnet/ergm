@@ -72,6 +72,12 @@ ergm.CD.fixed <- function(init, nw, model,
   stats.obs.hist <- matrix(NA, 0, length(model$nw.stats))
   steplen.hist <- c()
   steplen <- control$CD.steplength
+
+  if(is.null(control$CD.samplesize)) control$CD.samplesize <- control$CD.samplesize.per_theta*nparam(model,canonical=FALSE, offset=FALSE)
+  if(obs && is.null(control$obs.CD.samplesize)) control$obs.CD.samplesize <- control$obs.CD.samplesize.per_theta*nparam(model,canonical=FALSE, offset=FALSE)
+
+  # Start cluster if required (just in case we haven't already).
+  ergm.getCluster(control, max(verbose-1,0))
   
   # Store information about original network, which will be returned at end
   nw.orig <- nw
@@ -79,9 +85,6 @@ ergm.CD.fixed <- function(init, nw, model,
   # Impute missing dyads.
   nw <- single.impute.dyads(nw, response=response, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, output="pending", verbose=verbose)
   model$nw.stats <- summary(model, nw, response=response)
-
-  # Start cluster if required (just in case we haven't already).
-  ergm.getCluster(control, max(verbose-1,0))
   
   nws <- rep(list(nw),nthreads(control)) # nws is now a list of networks.
 
@@ -94,23 +97,22 @@ ergm.CD.fixed <- function(init, nw, model,
   statshift <- model$nw.stats - NVL(model$target.stats,model$nw.stats)
   statshift[is.na(statshift)] <- 0
   statshifts <- rep(list(statshift), nthreads(control)) # Each network needs its own statshift.
-
   
   # Initialize control.obs and other *.obs if there is observation structure
-
+  
   if(obs){
     control.obs <- control
     control.obs$CD.nsteps<-control$CD.nsteps.obs
     control.obs$CD.multiplicity<-control$CD.multiplicity.obs
-    control.obs$MCMC.samplesize <- control$obs.MCMC.samplesize
-    control.obs$MCMC.interval <- control$obs.MCMC.interval
-    control.obs$MCMC.burnin <- control$obs.MCMC.burnin
+    control.obs$CD.samplesize <- control$obs.CD.samplesize
+    control.obs$CD.interval <- control$obs.CD.interval
+    control.obs$CD.burnin <- control$obs.CD.burnin
 
     nws.obs <- lapply(nws, identity)
     statshifts.obs <- statshifts
   }
   # mcmc.init will change at each iteration.  It is the value that is used
-  # to generate the MCMC samples.  init will never change.
+  # to generate the CD samples.  init will never change.
   mcmc.init <- init
   finished <- FALSE
 
@@ -124,7 +126,7 @@ ergm.CD.fixed <- function(init, nw, model,
       message("Iteration ",iteration," of at most ", control$CD.maxit,":")
     }
 
-    # Obtain MCMC sample
+    # Obtain CD sample
     z <- ergm_CD_sample(nws, model, proposal, control, verbose=verbose, response=response, theta=mcmc.init)
 
     # post-processing of sample statistics:  Shift each row by the

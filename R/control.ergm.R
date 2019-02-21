@@ -387,7 +387,7 @@
 #' value, as the network passed is not necessarily a good start for CD.
 #' Therefore, these settings are in effect if there are missing dyads in the
 #' observed network, using a higher default number of steps.
-#' @param CD.maxit,CD.conv.min.pval,CD.NR.maxit,CD.NR.reltol,
+#' @param CD.samplesize.per_theta,CD.maxit,CD.conv.min.pval,CD.NR.maxit,CD.NR.reltol,
 #' 
 #' Miscellaneous tuning parameters of the CD sampler and optimizer. These have
 #' the same meaning as their \code{MCMC.*} counterparts.
@@ -593,6 +593,7 @@ control.ergm<-function(drop=TRUE,
                        Step.burnin=Step.interval*16,
                        Step.samplesize=1024,
 
+                       CD.samplesize.per_theta=128,
                        CD.nsteps=8,
                        CD.multiplicity=1,
                        CD.nsteps.obs=128,
