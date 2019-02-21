@@ -154,18 +154,31 @@ GWDECAY <- list(
 
 
 ################################################################################
-InitErgmTerm.absdiff <- function(nw, arglist, ...) {
-  ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
-                      varnames = c("attrname","pow"),
-                      vartypes = c("character","numeric"),
-                      defaultvalues = list(NULL,1),
-                      required = c(TRUE,FALSE))
-  ### Process the arguments
-  nodecov <- get.node.attr(nw, a$attrname)
+InitErgmTerm.absdiff <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
+                        varnames = c("attrname","pow"),
+                        vartypes = c("character","numeric"),
+                        defaultvalues = list(NULL,1),
+                        required = c(TRUE,FALSE))
+    ### Process the arguments
+    nodecov <- get.node.attr(nw, a$attrname)
+    covname <- a$attrname
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
+                        varnames = c("attr","pow"),
+                        vartypes = c(ERGM_VATTR_SPEC,"numeric"),
+                        defaultvalues = list(NULL,1),
+                        required = c(TRUE,FALSE))
+    ### Process the arguments
+    nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric")
+    covname <- attr(nodecov, "name")
+  }
   ### Construct the list to return
   list(name="absdiff",                                     #name: required
-       coef.names = paste(paste("absdiff",if(a$pow!=1) a$pow else "",sep=""), a$attrname, sep="."), #coef.names: required
+       coef.names = paste(paste("absdiff",if(a$pow!=1) a$pow else "",sep=""), covname, sep="."), #coef.names: required
        inputs = c(a$pow,nodecov),  # We need to include the nodal covariate for this term
        dependence = FALSE # So we don't use MCMC if not necessary
        )

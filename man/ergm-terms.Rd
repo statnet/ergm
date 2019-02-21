@@ -282,6 +282,9 @@ network
   attribute levels.
 }
 
+\section{Term versioning}{
+  When a term's behavior has changed from prior version, it is often possible to invoke the old behavior by setting and/or passing a \code{version} term option, giving the verison (constructed by \code{\link{as.package_version}}) desired.
+}
 
 \section{Terms to represent network statistics included in the
   \code{\link[=ergm-package]{ergm}} package}{
@@ -430,13 +433,15 @@ network
       needed), a numeric vector of indices of parameters to be fixed, or
       the a character vector of parameter names.
     }
-    \item{\code{absdiff(attrname, pow=1)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (quantitative nodal attribute),
-    \code{absdiff(attrname, pow=1, form ="sum")}  (valued)  (dyad-independent) (directed)  (undirected) (quantitative nodal attribute)}{\emph{Absolute difference:}
-    The \code{attrname} argument is a character string giving the name
-    of a quantitative attribute in the network's vertex attribute
-    list. This term adds one network statistic to the model equaling the
-    sum of \code{abs(attrname[i]-attrname[j])^pow} for all edges (i,j)
-    in the network. }
+    \item{\code{absdiff(attr, pow=1)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (quantitative nodal attribute),
+    \code{absdiff(attr, pow=1, form ="sum")}  (valued)  (dyad-independent) (directed)  (undirected) (quantitative nodal attribute)}{\emph{Absolute difference:}
+    The \code{attr} argument specifies a quantitative attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). This term adds one network statistic to the model equaling the
+    sum of \code{abs(attr[i]-attr[j])^pow} for all edges (i,j)
+    in the network.
+
+    Note that \code{ergm} versions 3.9.4 and earlier used different arguments for this term. See the above section on versioning for invoking the old behavior.
+  }
     
     \item{\code{absdiffcat(attrname, base=NULL)}  (binary) (dyad-independent) (directed) (undirected) (categorical nodal attribute),
     \code{absdiffcat(attrname, base=NULL, form="sum")}  (valued)  (dyad-independent)   (directed)  (undirected) (categorical nodal attribute)}{\emph{Categorical absolute
