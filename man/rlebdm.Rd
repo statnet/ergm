@@ -95,6 +95,19 @@ whose other cells are set to \code{FALSE}.
 integer matrix giving the cells with \code{TRUE} values.
 }}
 
+\examples{
+# From a vector
+rlebdm(rep(rep(c(0,1),each=3),14)[seq_len(81)], 9)
+
+# From a constant
+rlebdm(1, 3)
+
+# Large matrix (overflowing .Machine$integer.max)
+big <- rlebdm(1, 50000)
+unclass(big) # Represented as two runs
+stopifnot(length(big)==50000^2)
+
+}
 \seealso{
 \code{\link[=as.rlebdm.ergm_conlist]{as.rlebdm.ergm_conlist()}}
 }
