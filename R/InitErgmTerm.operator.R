@@ -462,12 +462,12 @@ InitErgmTerm.Undir <- function(nw, arglist, response=NULL, ...){
   auxiliaries <- ~.undir.net(rule)
   
   c(list(name="undir",
-         coef.names = paste0('Undir(',m$coef.names,')'),
+         coef.names = paste0('Undir(',m$coef.names,',',rule,')'),
          inputs=c(which(RULES==rule),inputs),
          dependence=!is.dyad.independent(m) || rule%in%c("weak","strong"),
          emptynwstats = gs,
          auxiliaries=auxiliaries),
-    passthrough.curved.ergm_model(m, function(x) paste0('Undir(',x,')')))
+    passthrough.curved.ergm_model(m, function(x) paste0('Undir(',x,',',rule,')')))
 }
 
 InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
