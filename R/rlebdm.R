@@ -6,6 +6,18 @@
 #' @param x for [rlebdm()], an [rle()] object or a vector that is converted to one; it will be coerced to [logical()] before processing; for [as.rlebdm.matrix()], a matrix.
 #' @param n the dimensions of the square matrix represented.
 #'
+#' @examples
+#' # From a vector
+#' rlebdm(rep(rep(c(0,1),each=3),14)[seq_len(81)], 9)
+#'
+#' # From a constant
+#' rlebdm(1, 3)
+#'
+#' # Large matrix (overflowing .Machine$integer.max)
+#' big <- rlebdm(1, 50000)
+#' unclass(big) # Represented as two runs
+#' stopifnot(length(big)==50000^2)
+#'
 #' @seealso [as.rlebdm.ergm_conlist()]
 #' @import statnet.common
 #' @keywords internal
@@ -14,7 +26,7 @@ rlebdm <- function(x, n){
   if(is(x, "rlebdm")) return(x)
   o <- as.rle(x)
   o$values <- as.logical(o$values)
-  l <- n*n
+  l <- n^2 # 2 is numeric, so it upcasts n to numeric even if n is an integer.
   if(length(o)!=l){
     if(length(o)!=1) stop("Populating the matrix can only be done with a constant value at this time.")
     o <- rep(o, l, scale="run")
