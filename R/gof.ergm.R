@@ -138,12 +138,12 @@ gof.ergm <- function (object, ...,
 
   if(is.null(coef)) coef <- coef(object)
 
-  ## If a different constraint was specified, use it; otherwise, copy
-  ## from the ERGM.
-
-  for(arg in STATIC_MCMC_CONTROLS)
+  for(arg in setdiff(STATIC_MCMC_CONTROLS,"MCMC.interval"))
     if(is.null(control[[arg]]))
       control[arg] <- list(object$control[[arg]])
+
+  # Rescale the interval by the ratio between the estimation sample size and the GOF sample size so that the total number of MCMC iterations would be about the same.
+  NVL(control$MCMC.interval) <- max(ceiling(object$control$MCMC.interval*object$control$MCMC.samplesize/control$nsim),1)
 
   control <- set.control.class("control.gof.formula")
   
