@@ -138,9 +138,6 @@ gof.ergm <- function (object, ...,
 
   if(is.null(coef)) coef <- coef(object)
 
-  ## If a different constraint was specified, use it; otherwise, copy
-  ## from the ERGM.
-
   control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges","term.options")
   for(arg in control.transfer)
     if(is.null(control[[arg]]))
