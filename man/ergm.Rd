@@ -165,8 +165,9 @@ should be very close to zero.}
 Hessian of the approximated loglikelihood evaluated at the maximizer.}
 \item{failure}{Logical:  Did the MCMC estimation fail?}
 \item{network}{Original network}
-\item{newnetwork}{The final network at the end of the MCMC
-simulation}
+\item{newnetworks}{A list of the final networks at the end of the MCMC
+simulation, one for each thread.}
+\item{newnetwork}{The first (possibly only) element of \code{netwonetworks}.}
 \item{coef.init}{The initial value of \eqn{\theta}.}
 \item{est.cov}{The covariance matrix of the model statistics in the final MCMC sample.}
 \item{coef.hist, steplen.hist, stats.hist, stats.obs.hist}{
