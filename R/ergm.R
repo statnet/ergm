@@ -243,8 +243,9 @@
 #' Hessian of the approximated loglikelihood evaluated at the maximizer.}
 #' \item{failure}{Logical:  Did the MCMC estimation fail?}
 #' \item{network}{Original network}
-#' \item{newnetwork}{The final network at the end of the MCMC
-#' simulation}
+#' \item{newnetworks}{A list of the final networks at the end of the MCMC
+#' simulation, one for each thread.}
+#' \item{newnetwork}{The first (possibly only) element of \code{netwonetworks}.}
 #' \item{coef.init}{The initial value of \eqn{\theta}.}
 #' \item{est.cov}{The covariance matrix of the model statistics in the final MCMC sample.}
 #' \item{coef.hist, steplen.hist, stats.hist, stats.obs.hist}{
@@ -540,6 +541,11 @@ ergm <- function(formula, response=NULL,
   proposal.obs <- if(network.naedgecount(nw)==0) NULL else append_rhs.formula(constraints, list(as.name("observed")), TRUE)
 
   if (verbose) message("Initializing Metropolis-Hastings proposal(s):",appendLF=FALSE) 
+  
+  ## FIXME: a more general framework is needed?
+  if(!is.null(response) && reference==~Bernoulli){
+    warn(paste0("The default Bernoulli reference distribution operates in the binary (",sQuote("response=NULL"),") mode only. Did you specify the ",sQuote("reference")," argument?"))
+  }
   
   proposal <- ergm_proposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
   if (verbose) message(" ",proposal$pkgname,":MH_",proposal$name)
