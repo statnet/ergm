@@ -405,7 +405,7 @@ ergm_proposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NUL
   if(is.null(arguments)) arguments<-object$control$MCMC.prop.args
   if(is.null(weights)) weights<-object$control$MCMC.prop.weights
   if(is.null(nw)) nw<-object$network
-  if(is.null(reference)) response<-object$reference
+  if(is.null(reference)) reference<-object$reference
   if(is.null(response)) response<-object$response
   
   ergm_proposal(constraints,arguments=arguments,nw=nw,weights=weights,class=class,reference=reference,response=response)
