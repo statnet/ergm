@@ -136,7 +136,19 @@
   \subsection{NEW FEATURES}{
     \itemize{
       \item{
+	In all \code{gw*} terms, the \code{cutoff=} argument can now be controlled by a \code{gw.cutoff} term option.
+      }
+      
+      \item{
+	\code{simulate.ergm} now takes a basis= argument (defaulting to NULL) that it passes to simulate.formula().
+      }
+
+      \item{
 	\code{\link{ergm.godfather}} now takes an additional \code{changes.only=} argument, to return statistics relative to initial network.
+      }
+
+      \item{
+	\code{\link{san}}'s internals have been singificantly updated. In particular, SAN now performs true simulated annealing, and arguments are interpreted somewhat differently.
       }
 
       \item{
@@ -145,6 +157,14 @@
 
       \item{
 	\code{\link{simulate.ergm}} and others now have an \code{output=} argument to provide finer control over the return format. It is to be preferred over the \code{statsonly=} argument.
+      }
+
+      \item{
+	Term \code{\link{absdiff}} now uses the new \link[node-attr-api]{nodal attributes UI}.
+      }
+      
+      \item{
+	Hummel steplength search can now be run in paralle.
       }
     }
   }
@@ -168,12 +188,29 @@
       \item{
 	Some spurious warnings fixed.
       }
+      
+      \item{
+	\code{ergm} version is now stored in the fitted object; this should produce sensible warnings when, say, trying to compute a \code{\link{summary.ergm}} on a object produced by an earlier version.
+      }
+
+      \item{
+	Term and example documentation fixes. (Thanks to Christian Loehle.)
+      }
+
     }
   }
 
 
   \subsection{OTHER USER-VISIBLE CHANGES}{
     \itemize{
+      \item{
+	Low-level function \code{\link{ergm_SAN_slave}} has now been split out of \code{\link{san}} like \code{\link{ergm_MCMC_slave}}.
+      }
+      
+      \item{
+	\code{\link{gof.ergm}} now uses a longer \code{MCMC.interval} by default.
+      }
+
       \item{
 	Parallel processing \dQuote{API} now handles cluster starting and stopping more intelligently. In particular, \code{ergm.getCluster} now automatically sets up the calling function to stop the cluster when the calling function terminantes.
       }
@@ -197,6 +234,29 @@
       \item{
 	\code{\link{network.update}} is deprecated in favor of an \code{\link{update.network}} method.
       }
+
+      \item{
+	\code{\link{standardize.network}} has been deprecated, rendered obsolite by improvements to the \code{network} package method.
+      }
+
+      \item{
+	\code{\link{simulate.ergm}} now defaults to starting the simulation from the \code{$newnetwork} element of the fit object. Thanks to Saeid Ghafouri for raising the issue and Sam Jenness, Steven Goodreau, and Martina Morris for suggesting a solution.
+      }
+      
+      \item{
+	\code{\link{pending_update_network}} \dQuote{API} is more formalized now, including methods overriding those of \code{\link{network}}.
+      }
+      
+      \item{
+	\code{control$init.method} now overrides the candidate list when selecting initialization methods.
+      }
+
+      \item{
+	The main vignette no longer contains egocentric inference code. Refer to the \code{ergm.ego} package.
+      }
+      \item{
+	Improvements to \code{\link{plot.gof}} for large networks.
+      }
     }
   }
 
@@ -205,6 +265,14 @@
       \item{Some changes to the Metropolis-Hastings proposal API.}
       
       \item{Network initialization functions now return a pointer, and destroying functions free it.}
+      
+      \item{
+	Miscellaneous improvements to low-level C code. In particular, more of the code now runs deterministically.
+      }
+      
+      \item{
+	Improvements to encapsulation of \code{Network} structures.
+      }
     }
   }
 
