@@ -541,6 +541,11 @@ ergm <- function(formula, response=NULL,
 
   if (verbose) message("Initializing Metropolis-Hastings proposal(s):",appendLF=FALSE) 
   
+  ## FIXME: a more general framework is needed?
+  if(!is.null(response) && reference==~Bernoulli){
+    warn(paste0("The default Bernoulli reference distribution operates in the binary (",sQuote("response=NULL"),") mode only. Did you specify the ",sQuote("reference")," argument?"))
+  }
+  
   proposal <- ergm_proposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
   if (verbose) message(" ",proposal$pkgname,":MH_",proposal$name)
   
