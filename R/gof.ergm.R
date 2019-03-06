@@ -138,7 +138,7 @@ gof.ergm <- function (object, ...,
 
   if(is.null(coef)) coef <- coef(object)
 
-  for(arg in setdiff(STATIC_MCMC_CONTROLS,"MCMC.interval"))
+  for(arg in setdiff(c(SCALABLE_MCMC_CONTROLS,STATIC_MCMC_CONTROLS),"MCMC.interval"))
     if(is.null(control[[arg]]))
       control[arg] <- list(object$control[[arg]])
 

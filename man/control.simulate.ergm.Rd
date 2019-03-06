@@ -41,7 +41,7 @@ control.simulate.formula(MCMC.burnin = MCMC.interval * 16,
   parallel.inherit.MT = FALSE, ...)
 
 control.simulate.ergm(MCMC.burnin = NULL, MCMC.interval = NULL,
-  MCMC.prop.weights = NULL, MCMC.prop.args = NULL,
+  MCMC.scale = 1, MCMC.prop.weights = NULL, MCMC.prop.args = NULL,
   MCMC.effectiveSize = NULL, MCMC.effectiveSize.damp = 10,
   MCMC.effectiveSize.maxruns = 1000, MCMC.effectiveSize.base = 1/2,
   MCMC.effectiveSize.points = 5, MCMC.effectiveSize.burnin.pval = 0.2,
@@ -129,6 +129,14 @@ processes inherit the \code{\link[=set.MT_terms]{set.MT_terms()}} setting.}
 \item{\dots}{Additional arguments, passed to other functions This argument
 is helpful because it collects any control parameters that have been
 deprecated; a warning message is printed in case of deprecated arguments.}
+
+\item{MCMC.scale}{For \code{control.simulate.ergm()} inheriting
+\code{MCMC.burnin} and \code{MCMC.interval} from the \code{\link{ergm}} fit, the
+multiplier for the inherited values. This can be useful because
+MCMC parameters used in the fit are tuned to generate a specific
+effective sample size for the sufficient statistic in a large
+MCMC sample, so the inherited values might not generate
+independent realisations.}
 }
 \value{
 A list with arguments as components.

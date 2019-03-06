@@ -37,6 +37,14 @@
 #' typically is set to a fairly large number.
 #' @param MCMC.interval Number of proposals between sampled statistics.
 #'
+#' @param MCMC.scale For `control.simulate.ergm()` inheriting
+#'   `MCMC.burnin` and `MCMC.interval` from the [`ergm`] fit, the
+#'   multiplier for the inherited values. This can be useful because
+#'   MCMC parameters used in the fit are tuned to generate a specific
+#'   effective sample size for the sufficient statistic in a large
+#'   MCMC sample, so the inherited values might not generate
+#'   independent realisations.
+#'
 #' @template control_MCMC_effectiveSize
 #' 
 #' @param MCMC.init.maxedges Maximum number of edges expected in network.
@@ -127,6 +135,7 @@ control.simulate.formula<-control.simulate.formula.ergm
 #' @export control.simulate.ergm
 control.simulate.ergm<-function(MCMC.burnin=NULL,
                                 MCMC.interval=NULL,
+                                MCMC.scale=1,
                                 MCMC.prop.weights=NULL,
                                 MCMC.prop.args=NULL,
                                 
