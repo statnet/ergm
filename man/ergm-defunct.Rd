@@ -30,6 +30,16 @@
 \alias{ergm.checkargs}
 \alias{ergm.checkbipartite}
 \alias{ergm.checkdirected}
+\alias{summary.gof}
+\alias{ergm.getMCMCsample}
+\alias{ergm.MHP.table}
+\alias{MHproposal}
+\alias{MHproposal.character}
+\alias{MHproposal.ergm}
+\alias{MHproposal.formula}
+\alias{ergm.init.methods}
+\alias{ergm.ConstraintImplications}
+\alias{ergm.mcmcslave}
 \title{Functions that have been removed from this package}
 \usage{
 sociality(object, ...)
@@ -117,6 +127,29 @@ ergm.checkbipartite(fname, nw.bipartiteflag, requirement,
 
 ergm.checkdirected(fname, nw.directedflag, requirement,
   extramessage = "")
+
+\method{summary}{gof}(object, ...)
+
+ergm.getMCMCsample(nw, model, MHproposal, eta0, control, verbose = FALSE,
+  response = NULL, update.nws = TRUE, ...)
+
+ergm.MHP.table(...)
+
+MHproposal(...)
+
+MHproposal.character(...)
+
+MHproposal.ergm(...)
+
+MHproposal.formula(...)
+
+ergm.init.methods(...)
+
+ergm.ConstraintImplications(...)
+
+ergm.mcmcslave(Clist, MHproposal, eta0, control, verbose, ...,
+  prev.run = NULL, burnin = NULL, samplesize = NULL,
+  interval = NULL, maxedges = NULL)
 }
 \arguments{
 \item{x, minsize, center, cov, inverted, ..., object, statistics, formula, init, nsim, burnin, interval, constraints, prop.weights, prop.args, seed, drop, ninflast, V, tol, g, print, nw, radius, probs, n, cols, control, statistic, H}{Arguments to defunct functions.}

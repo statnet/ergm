@@ -184,3 +184,34 @@ ergm.checkbipartite <- function(fname, nw.bipartiteflag, requirement,
 #' @rdname ergm-defunct
 ergm.checkdirected <- function(fname, nw.directedflag, requirement,
                                extramessage="") .Defunct("check.ErgmTerm")
+
+#' @rdname ergm-defunct
+summary.gof <- function(object, ...) .Defunct("print.gof")
+
+#' @rdname ergm-defunct
+ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control, 
+                               verbose=FALSE, response=NULL, update.nws = TRUE,...) .Defunct("ergm_MCMC_sample")
+
+#' @rdname ergm-defunct
+ergm.MHP.table <- function(...) .Defunct("ergm_proposal_table()")
+
+#' @rdname ergm-defunct
+MHproposal <- function(...) .Defunct("ergm_proposal()")
+
+#' @rdname ergm-defunct
+MHproposal.character <- function(...) .Defunct("ergm_proposal()")
+
+#' @rdname ergm-defunct
+MHproposal.ergm <- function(...) .Defunct("ergm_proposal()")
+
+#' @rdname ergm-defunct
+MHproposal.formula <- function(...) .Defunct("ergm_proposal()")
+
+#' @rdname ergm-defunct
+ergm.init.methods <- function(...) .Defunct(msg="Function ergm.init.methods() has been deprecated in favor of specifying init_methods in InitErgmReference.*() functions, and has no effect.")
+
+#' @rdname ergm-defunct
+ergm.ConstraintImplications <- function(...) .Defunct(msg="Function ergm.ConstraintImplications() has been deprecated in favor of specifying the implications in the InitErgmConstraint.*() functions, and has no effect.")
+
+#' @rdname ergm-defunct
+ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL) .Defunct("ergm_MCMC_slave")
