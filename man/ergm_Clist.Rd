@@ -16,7 +16,7 @@ ergm.Cprepare(nw, m, response = NULL)
 
 \method{ergm_Clist}{ergm_model}(object, ...)
 
-ergm.design(nw, model = NULL, verbose = FALSE)
+ergm.design(nw, verbose = FALSE)
 }
 \arguments{
 \item{object}{object to be collated.}
@@ -30,8 +30,6 @@ ergm.design(nw, model = NULL, verbose = FALSE)
 \item{response}{Name of the edge attribute whose value is to be
 modeled in the valued ERGM framework. Defaults to \code{NULL} for
 simple presence or absence, modeled via a binary ERGM.}
-
-\item{model}{an \code{\link{ergm_model}}.}
 
 \item{verbose}{logical, whether the design matrix should be printed;
 default=FALSE}

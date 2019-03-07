@@ -676,18 +676,6 @@ print.gof <- function(x, ...){
   invisible()
 }
 
-
-
-
-#' @rdname ergm-deprecated
-#' @description [summary.gof()] is a deprecated alias for [print.gof()].
-#' @export
-summary.gof <- function(object, ...) {
-  .Deprecated("print.gof")
-  print.gof(object, ...) # Nothing better for now
-}
-
-
 ###################################################################
 # The <plot.gof> function plots the GOF diagnostics for each
 # term included in the build of the gof

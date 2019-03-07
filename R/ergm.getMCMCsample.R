@@ -8,24 +8,6 @@
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
 
-#' @include ergm-deprecated.R
-#' @describeIn ergm-deprecated Use [ergm_MCMC_sample()] instead.
-#' @export ergm.getMCMCsample
-ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control, 
-                               verbose=FALSE, response=NULL, update.nws = TRUE,...) {
-  .Deprecated("ergm_MCMC_sample")
-  out <- ergm_MCMC_sample(nw, model, MHproposal, eta=eta0, control=control, verbose=verbose, response=response, update.nws=update.nws, theta=list(...)$theta, ...)
-  
-  out$newnetworks<-out$networks
-  out$newnetwork<-out$newnetworks[[1]]
-  out$statsmatrices <- out$stats
-  out$stats <- NULL
-  out$statsmatrix <- do.call(rbind,out$statsmatrices)
-  colnames(out$statsmatrix) <- model$coef.names
-  out$statsmatrix[is.na(out$statsmatrix)] <- 0
-  out
-}
-
 #' Internal Function to Sample Networks and Network Statistics
 #' 
 #' This is an internal function, not normally called directly by the
@@ -216,15 +198,6 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
   
   list(stats = stats, networks=newnetworks, status=0, final.interval=final.interval)
 }
-
-#' @include ergm-deprecated.R
-#' @describeIn ergm-deprecated Use [ergm_MCMC_slave()] instead.
-#' @export ergm.mcmcslave
-ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL){
-  .Deprecated("ergm_MCMC_slave")
-  ergm_MCMC_slave(Clist,MHproposal,eta0,control,verbose,...,prev.run=prev.run, burnin=burnin, samplesize=samplesize, interval=interval, maxedges=maxedges)
-}
-
 
 #' @rdname ergm_MCMC_sample
 #' @description The \code{ergm_MCMC_slave} function calls the actual C

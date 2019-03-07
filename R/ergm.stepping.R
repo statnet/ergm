@@ -125,6 +125,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
     if(verbose){
       # Take a look at obsstats (in red dot) and the "new obsstats" (in green triangle):
       # par(mgp = c(2,.8,0), mar = .1+c(3,3,3,1)) ## How do I put more margin at the top?
+      #' @importFrom graphics par
       par(ask=TRUE)
       #' @importFrom graphics pairs
       pairs(rbind(samples[[iter]], obsstats, xi[[iter]], sampmeans[[iter]]), 
