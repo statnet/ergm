@@ -160,3 +160,6 @@ plot.network.ergm <- function(x,
     colornames="rainbow",
     verbose=FALSE, latent=FALSE, ...)
   .Defunct("latentnet::plot.ergmm()")
+
+#' @rdname ergm-defunct
+ergm.getterms<-function(formula) .Defunct("statnet.common::list_rhs.formula() and statnet.common::eval_lhs.formula()")

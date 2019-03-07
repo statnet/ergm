@@ -23,6 +23,7 @@
 \alias{degreedistfactor}
 \alias{robust.inverse}
 \alias{plot.network.ergm}
+\alias{ergm.getterms}
 \title{Functions that have been removed from this package}
 \usage{
 sociality(object, ...)
@@ -93,6 +94,8 @@ robust.inverse(H, tol = sqrt(.Machine$double.eps))
   latent.control = list(maxit = 500, trace = 0, dyadsample = 10000,
   penalty.sigma = c(5, 0.5), nsubsample = 200), colornames = "rainbow",
   verbose = FALSE, latent = FALSE, ...)
+
+ergm.getterms(formula)
 }
 \arguments{
 \item{x, minsize, center, cov, inverted, ..., object, statistics, formula, init, nsim, burnin, interval, constraints, prop.weights, prop.args, seed, drop, ninflast, V, tol, g, print, nw, radius, probs, n, cols, control, statistic, H}{Arguments to defunct functions.}
