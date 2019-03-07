@@ -358,11 +358,3 @@ ergm_plot.mcmc.list <- function(x, main=NULL, vars.per.page=3,...){
   tpdp <- suppressWarnings(c(tp,dp))
   update(tpdp[reordering],layout=c(2,vars.per.page),as.table=TRUE,main=main)
 }
-
-#' @rdname ergm-deprecated
-#' @description `plot.mcmc.list.ergm` is the obsolete name for [ergm_plot.mcmc.list()].
-#' @export plot.mcmc.list.ergm
-plot.mcmc.list.ergm <- function(...){
-  .Deprecated("ergm_plot.mcmc.list()")
-  ergm_plot.mcmc.list(...)
-}

@@ -163,3 +163,6 @@ plot.network.ergm <- function(x,
 
 #' @rdname ergm-defunct
 ergm.getterms<-function(formula) .Defunct("statnet.common::list_rhs.formula() and statnet.common::eval_lhs.formula()")
+
+#' @rdname ergm-defunct
+plot.mcmc.list.ergm <- function(...) .Defunct("ergm_plot.mcmc.list()")
