@@ -37,12 +37,10 @@
 
 #' @rdname ergm_Clist
 #' @description \code{ergm.design} obtain the set of informative dyads based on the network structure. Note that `model=` argument is not needed and will be removed in a future release.
-#' @param model an [`ergm_model`].
 #' @return \code{ergm.design} returns a \code{\link{rlebdm}} of
 #'   informative (non-missing, non fixed) dyads.
 #' @export ergm.design
-ergm.design <- function(nw, model=NULL, verbose=FALSE){
-  if(!is.null(model)) .Deprecated(msg="Argument model= to ergm.design() is no longer used and will be removed in a future release.")
+ergm.design <- function(nw, verbose=FALSE){
   basecon <- ergm_conlist(~.attributes, nw)
   misscon <- if(!is.pending_update_network(nw) && network.naedgecount(nw)) ergm_conlist(~.attributes+observed, nw)
   as.rlebdm(basecon, misscon, which="informative")
