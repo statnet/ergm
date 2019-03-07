@@ -2,7 +2,7 @@
 % Please edit documentation in R/ergm-deprecated.R, R/InitErgmTerm.R,
 %   R/ergm.check.R, R/ergm.getMCMCsample.R, R/ergm.utility.R, R/ergm_model.R,
 %   R/ergm_proposal.R, R/formula.utils.R, R/gof.ergm.R, R/network.update.R,
-%   R/plot.ergm.R, R/summary.ergm_model.R, R/summary.statistics.network.R
+%   R/summary.ergm_model.R, R/summary.statistics.network.R
 \name{ergm-deprecated}
 \alias{ergm-deprecated}
 \alias{InitErgmTerm.degreepopularity}
@@ -28,7 +28,6 @@
 \alias{offset.info.formula}
 \alias{summary.gof}
 \alias{network.update}
-\alias{plot.ergm}
 \alias{ergm.getglobalstats}
 \alias{summary.statistics}
 \title{Functions that will no longer be supported in future releases of the package}
@@ -87,8 +86,6 @@ network.update(nw, newmatrix, matrix.type = NULL, output = "network",
   ignore.nattr = c("bipartite", "directed", "hyper", "loops", "mnext",
   "multiple", "n"), ignore.vattr = c())
 
-\method{plot}{ergm}(x, ...)
-
 ergm.getglobalstats(nw, m, response = NULL)
 
 summary.statistics(...)
@@ -100,8 +97,6 @@ summary.statistics(...)
 Functions that have been superceed, were never documented, or will be removed from the package for other reasons
 
 \code{\link[=summary.gof]{summary.gof()}} is a deprecated alias for \code{\link[=print.gof]{print.gof()}}.
-
-\code{plot.ergm}: deprecated alias for \code{\link[=mcmc.diagnostics]{mcmc.diagnostics()}}.
 
 \code{\link[=summary.statistics]{summary.statistics()}} is a deprecated name of \code{\link[=summary_formula]{summary_formula()}}.
 }

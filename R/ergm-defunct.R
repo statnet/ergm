@@ -166,3 +166,6 @@ ergm.getterms<-function(formula) .Defunct("statnet.common::list_rhs.formula() an
 
 #' @rdname ergm-defunct
 plot.mcmc.list.ergm <- function(...) .Defunct("ergm_plot.mcmc.list()")
+
+#' @rdname ergm-defunct
+plot.ergm <- function (x, ...) .Defunct("mcmc.diagnostics(x,...)")
