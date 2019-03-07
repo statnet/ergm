@@ -165,13 +165,3 @@ summary_formula.matrix <- summary_formula.network
 #' @describeIn summary_formula a fallback method.
 #' @export
 summary_formula.default <- summary_formula.network
-
-
-#' @rdname ergm-deprecated
-#' @description [summary.statistics()] is a deprecated name of [summary_formula()].
-#' @usage summary.statistics(...)
-#' @export summary.statistics
-summary.statistics <- function(...){
-  .Deprecated("summary_formula()")
-  summary_formula(...)
-}

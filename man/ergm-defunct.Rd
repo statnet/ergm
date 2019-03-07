@@ -26,6 +26,7 @@
 \alias{ergm.getterms}
 \alias{plot.mcmc.list.ergm}
 \alias{plot.ergm}
+\alias{summary.statistics}
 \title{Functions that have been removed from this package}
 \usage{
 sociality(object, ...)
@@ -102,6 +103,8 @@ ergm.getterms(formula)
 \method{plot}{mcmc.list.ergm}(...)
 
 \method{plot}{ergm}(x, ...)
+
+\method{summary}{statistics}(...)
 }
 \arguments{
 \item{x, minsize, center, cov, inverted, ..., object, statistics, formula, init, nsim, burnin, interval, constraints, prop.weights, prop.args, seed, drop, ninflast, V, tol, g, print, nw, radius, probs, n, cols, control, statistic, H}{Arguments to defunct functions.}

@@ -169,3 +169,6 @@ plot.mcmc.list.ergm <- function(...) .Defunct("ergm_plot.mcmc.list()")
 
 #' @rdname ergm-defunct
 plot.ergm <- function (x, ...) .Defunct("mcmc.diagnostics(x,...)")
+
+#' @rdname ergm-defunct
+summary.statistics <- function(...) .Defunct("summary_formula()")

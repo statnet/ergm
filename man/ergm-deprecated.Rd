@@ -2,7 +2,7 @@
 % Please edit documentation in R/ergm-deprecated.R, R/InitErgmTerm.R,
 %   R/ergm.check.R, R/ergm.getMCMCsample.R, R/ergm.utility.R, R/ergm_model.R,
 %   R/ergm_proposal.R, R/formula.utils.R, R/gof.ergm.R, R/network.update.R,
-%   R/summary.ergm_model.R, R/summary.statistics.network.R
+%   R/summary.ergm_model.R
 \name{ergm-deprecated}
 \alias{ergm-deprecated}
 \alias{InitErgmTerm.degreepopularity}
@@ -29,7 +29,6 @@
 \alias{summary.gof}
 \alias{network.update}
 \alias{ergm.getglobalstats}
-\alias{summary.statistics}
 \title{Functions that will no longer be supported in future releases of the package}
 \usage{
 InitErgmTerm.degreepopularity(nw, arglist, ...)
@@ -87,8 +86,6 @@ network.update(nw, newmatrix, matrix.type = NULL, output = "network",
   "multiple", "n"), ignore.vattr = c())
 
 ergm.getglobalstats(nw, m, response = NULL)
-
-summary.statistics(...)
 }
 \arguments{
 \item{nw, arglist, ..., fname, varnames, vartypes, defaultvalues, required, nw.bipartiteflag, requirement, extramessage, nw.directedflag, m, response, formula, object, new, from.new, x, model, proposal, eta0, control, verbose, update.nws, Clist, prev.run, burnin, samplesize, interval, maxedges, attrname, label, coord, jitter, thresh, usearrows, mode, displayisolates, interactive, xlab, ylab, xlim, ylim, pad, label.pad, displaylabels, boxed.labels, label.pos, label.bg, vertex.sides, vertex.rot, arrowhead.cex, label.cex, loop.cex, vertex.cex, edge.col, label.col, vertex.col, label.border, vertex.border, edge.lty, label.lty, vertex.lty, edge.lwd, label.lwd, edge.len, edge.curve, edge.steps, loop.steps, object.scale, uselen, usecurve, suppress.axes, vertices.last, layout.par, cex.main, cex.sub, seed, latent.control, colornames, latent, preserve.eattr}{Arguments to deprecated functions.}
@@ -97,8 +94,6 @@ summary.statistics(...)
 Functions that have been superceed, were never documented, or will be removed from the package for other reasons
 
 \code{\link[=summary.gof]{summary.gof()}} is a deprecated alias for \code{\link[=print.gof]{print.gof()}}.
-
-\code{\link[=summary.statistics]{summary.statistics()}} is a deprecated name of \code{\link[=summary_formula]{summary_formula()}}.
 }
 \section{Functions}{
 \itemize{
