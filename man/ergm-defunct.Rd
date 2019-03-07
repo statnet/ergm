@@ -27,6 +27,9 @@
 \alias{plot.mcmc.list.ergm}
 \alias{plot.ergm}
 \alias{summary.statistics}
+\alias{ergm.checkargs}
+\alias{ergm.checkbipartite}
+\alias{ergm.checkdirected}
 \title{Functions that have been removed from this package}
 \usage{
 sociality(object, ...)
@@ -105,6 +108,15 @@ ergm.getterms(formula)
 \method{plot}{ergm}(x, ...)
 
 \method{summary}{statistics}(...)
+
+ergm.checkargs(fname, arglist, varnames = NULL, vartypes = NULL,
+  defaultvalues = list(), required = NULL)
+
+ergm.checkbipartite(fname, nw.bipartiteflag, requirement,
+  extramessage = "")
+
+ergm.checkdirected(fname, nw.directedflag, requirement,
+  extramessage = "")
 }
 \arguments{
 \item{x, minsize, center, cov, inverted, ..., object, statistics, formula, init, nsim, burnin, interval, constraints, prop.weights, prop.args, seed, drop, ninflast, V, tol, g, print, nw, radius, probs, n, cols, control, statistic, H}{Arguments to defunct functions.}

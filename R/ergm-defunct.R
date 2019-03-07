@@ -172,3 +172,15 @@ plot.ergm <- function (x, ...) .Defunct("mcmc.diagnostics(x,...)")
 
 #' @rdname ergm-defunct
 summary.statistics <- function(...) .Defunct("summary_formula()")
+
+#' @rdname ergm-defunct
+ergm.checkargs <- function(fname, arglist, varnames=NULL, vartypes=NULL,
+                           defaultvalues=list(), required=NULL) .Defunct("check.ErgmTerm")
+
+#' @rdname ergm-defunct
+ergm.checkbipartite <- function(fname, nw.bipartiteflag, requirement,
+                               extramessage="") .Defunct("check.ErgmTerm")
+
+#' @rdname ergm-defunct
+ergm.checkdirected <- function(fname, nw.directedflag, requirement,
+                               extramessage="") .Defunct("check.ErgmTerm")
