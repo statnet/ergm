@@ -20,15 +20,11 @@
                                      target.stats=NULL) {
 
   # We have constraint information.
-  if("constraints" %in% list.network.attributes(nw)){
-    constraints <- nonsimp_update.formula(nw %n% "constraints", constraints)
-  }
+  constraints <- NVL3(nw%ergmlhs%"constraints", nonsimp_update.formula(., constraints), constraints)
 
   if(!is.null(obs.constraints)){
     # We have observational process information.
-    if("obs.constraints" %in% list.network.attributes(nw)){
-      obs.constraints <- nonsimp_update.formula(nw %n% "obs.constraints", obs.constraints)
-    }
+    obs.constraints <- NVL3(nw%ergmlhs%"obs.constraints", nonsimp_update.formula(., obs.constraints), obs.constraints)
     
     # Observation process handling only needs to happen if the
     # sufficient statistics are not specified. If the sufficient
