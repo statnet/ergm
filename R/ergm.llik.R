@@ -550,7 +550,7 @@ llik.fun.logtaylor <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
 	 	    expon_extended <- xsim %*% (eta_extended - etad0) 
 	 	    wts <- exp(expon_extended) 
 	 	    ess <- ceiling(sum(wts)^2/sum(wts^2)) 
-	 	#   http://xianblog.wordpress.com/2010/09/24/effective-sample-size/ 
+	 	#   https://xianblog.wordpress.com/2010/09/24/effective-sample-size/ 
 	 	    if(!is.na(ess) && {ess<dampening.min.ess}){ return(-Inf) } #.005*length(wts)) 
 	 	  } 
 	 	 

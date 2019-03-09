@@ -1905,7 +1905,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     Network Dynamics. \emph{Social Networks}, 2010, 32(1),
     44-60. \doi{10.1016/j.socnet.2009.02.004}
 
-  \item Morris M, Handcock MS, and Hunter DR. Specification of Exponential-Family Random Graph Models: Terms and Computational Aspects. \emph{Journal of Statistical Software}, 2008, 24(4), 1-24. \url{http://www.jstatsoft.org/v24/i04}
+  \item Morris M, Handcock MS, and Hunter DR. Specification of Exponential-Family Random Graph Models: Terms and Computational Aspects. \emph{Journal of Statistical Software}, 2008, 24(4), 1-24. \url{https://www.jstatsoft.org/v24/i04}
     
     
   \item Snijders, T. A. B., P. E. Pattison, G. L. Robins, and

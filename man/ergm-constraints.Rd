@@ -324,7 +324,7 @@ in this case.
 Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).
  A \pkg{statnet} Tutorial.
  \emph{Journal of Statistical Software}, 24(8).
- \url{http://www.jstatsoft.org/v24/i08/}.
+ \url{https://www.jstatsoft.org/v24/i08/}.
 
 Hunter, D. R. and Handcock, M. S. (2006)
     \emph{Inference in curved exponential family models for networks},
@@ -334,7 +334,7 @@ Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
  \pkg{ergm}: A Package to Fit, Simulate and Diagnose
   Exponential-Family Models for Networks.
  \emph{Journal of Statistical Software}, 24(3).
- \url{http://www.jstatsoft.org/v24/i03/}.
+ \url{https://www.jstatsoft.org/v24/i03/}.
 
 Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
 Networks. \emph{Electronic Journal of Statistics}, 2012, 6,
@@ -344,7 +344,7 @@ Morris M, Handcock MS, Hunter DR (2008).
  Specification of Exponential-Family Random Graph Models:
   Terms and Computational Aspects.
  \emph{Journal of Statistical Software}, 24(4).
- \url{http://www.jstatsoft.org/v24/i04/}.
+ \url{https://www.jstatsoft.org/v24/i04/}.
   
 }
 

@@ -505,7 +505,7 @@ See the \code{usage} section in \code{\link[=ergm]{ergm()}} for details.
 \item Snijders, T.A.B. (2002), Markov Chain Monte
 Carlo Estimation of Exponential Random Graph Models.  Journal of Social
 Structure.  Available from
-\url{http://www.cmu.edu/joss/content/articles/volume3/Snijders.pdf}.
+\url{https://www.cmu.edu/joss/content/articles/volume3/Snijders.pdf}.
 \item Firth (1993), Bias Reduction in Maximum Likelihood Estimates.
 Biometrika, 80: 27-38.
 \item Hunter, D. R. and M. S. Handcock (2006), Inference in curved
@@ -516,7 +516,7 @@ Simulation-Based Algorithms for Fitting ERGMs, Journal of Computational and
 Graphical Statistics, 21: 920-939.
 \item Kristoffer Sahlin. Estimating convergence of Markov chain Monte Carlo
 simulations. Master's Thesis. Stockholm University, 2011.
-\url{http://www2.math.su.se/matstat/reports/master/2011/rep2/report.pdf}
+\url{https://www2.math.su.se/matstat/reports/master/2011/rep2/report.pdf}
 }
 
 }

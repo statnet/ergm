@@ -78,7 +78,7 @@ Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
 \pkg{ergm}: A Package to Fit, Simulate and Diagnose
 Exponential-Family Models for Networks.
 \emph{Journal of Statistical Software}, 24(3).
-\url{http://www.jstatsoft.org/v24/i03/}.
+\url{https://www.jstatsoft.org/v24/i03/}.
   
 Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued Networks. \emph{Electronic Journal of Statistics}, 2012, 6, 1100-1128. \doi{10.1214/12-EJS696}
 }

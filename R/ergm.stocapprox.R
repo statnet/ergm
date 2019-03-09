@@ -12,7 +12,7 @@
 # likelihood estimation that can be used. This one is based on Snijders
 # (2002), J of Social Structure and Snijders and van Duijn (2002) from
 # A Festscrift for Ove Frank.  Both papers are available from Tom Snijders'
-# web page:         http://stat.gamma.rug.nl/snijders/publ.htm
+# web page:         https://stat.gamma.rug.nl/snijders/publ.htm
 # The other MLE styles are found in functions <ergm.robmon>, <ergm.stepping>
 # and <ergm.mainfitloop>
 #

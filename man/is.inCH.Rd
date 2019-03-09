@@ -55,7 +55,7 @@ This function is used in the "stepping" algorithm of Hummel et al (2012).
 }
 \references{
 \itemize{ \item
-\url{http://www.cs.mcgill.ca/~fukuda/soft/polyfaq/node22.html}
+\url{https://www.cs.mcgill.ca/~fukuda/soft/polyfaq/node22.html}
 
 \item Hummel, R. M., Hunter, D. R., and Handcock, M. S. (2012), Improving
 Simulation-Based Algorithms for Fitting ERGMs, Journal of Computational and

@@ -378,7 +378,7 @@
 #' * Snijders, T.A.B. (2002), Markov Chain Monte
 #' Carlo Estimation of Exponential Random Graph Models.  Journal of Social
 #' Structure.  Available from
-#' \url{http://www.cmu.edu/joss/content/articles/volume3/Snijders.pdf}.
+#' \url{https://www.cmu.edu/joss/content/articles/volume3/Snijders.pdf}.
 #' 
 #' 
 #' * Firth (1993), Bias Reduction in Maximum Likelihood Estimates.
@@ -397,7 +397,7 @@
 #' 
 #' * Kristoffer Sahlin. Estimating convergence of Markov chain Monte Carlo
 #' simulations. Master's Thesis. Stockholm University, 2011.
-#' \url{http://www2.math.su.se/matstat/reports/master/2011/rep2/report.pdf}
+#' \url{https://www2.math.su.se/matstat/reports/master/2011/rep2/report.pdf}
 #' 
 #' }
 #' @keywords models

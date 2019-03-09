@@ -68,7 +68,7 @@ NULL
 #' Native American, and Other (non-Hisp.)
 #' @section Licenses and Citation: If the source of the data set does not
 #' specified otherwise, this data set is protected by the Creative Commons
-#' License \url{http://creativecommons.org/licenses/by-nc-nd/2.5/}.
+#' License \url{https://creativecommons.org/licenses/by-nc-nd/2.5/}.
 #' 
 #' When publishing results obtained using this data set, the original authors
 #' (Resnick et al, 1997) should be cited. In addition this package should be
@@ -94,7 +94,7 @@ NULL
 #' The school in question (a single school with 7th through 12th grades) was
 #' selected from the Add Health "structure files."  Documentation on these
 #' files can be found here:
-#' \url{http://www.cpc.unc.edu/projects/addhealth/codebooks/wave1/structur.zip}.
+#' \url{https://www.cpc.unc.edu/projects/addhealth/codebooks/wave1/structur.zip}.
 #' 
 #' The stucture file contains directed out-ties representing each instance of a
 #' student who named another student as a friend.  Students could nominate up
@@ -144,7 +144,7 @@ NULL
 #' Native American, and Other (non-Hisp.)
 #' @section Licenses and Citation: If the source of the data set does not
 #' specified otherwise, this data set is protected by the Creative Commons
-#' License \url{http://creativecommons.org/licenses/by-nc-nd/2.5/}.
+#' License \url{https://creativecommons.org/licenses/by-nc-nd/2.5/}.
 #' 
 #' When publishing results obtained using this data set, the original authors
 #' (Resnick et al, 1997) should be cited. In addition this package should be
@@ -170,7 +170,7 @@ NULL
 #' The school in question (a single school with 7th through 12th grades) was
 #' selected from the Add Health "structure files."  Documentation on these
 #' files can be found here:
-#' \url{http://www.cpc.unc.edu/projects/addhealth/codebooks/wave1/structur.zip}.
+#' \url{https://www.cpc.unc.edu/projects/addhealth/codebooks/wave1/structur.zip}.
 #' 
 #' The stucture file contains directed out-ties representing each instance of a
 #' student who named another student as a friend.  Students could nominate up
@@ -221,7 +221,7 @@ NULL
 #' Native American, and Other (non-Hisp.)
 #' @section Licenses and Citation: If the source of the data set does not
 #' specified otherwise, this data set is protected by the Creative Commons
-#' License \url{http://creativecommons.org/licenses/by-nc-nd/2.5/}.
+#' License \url{https://creativecommons.org/licenses/by-nc-nd/2.5/}.
 #' 
 #' When publishing results obtained using this data set, the original authors
 #' (Resnick et al, 1997) should be cited. In addition this package should be
@@ -293,7 +293,7 @@ NULL
 #' Native American, and Other (non-Hisp.)
 #' @section Licenses and Citation: If the source of the data set does not
 #' specified otherwise, this data set is protected by the Creative Commons
-#' License \url{http://creativecommons.org/licenses/by-nc-nd/2.5/}.
+#' License \url{https://creativecommons.org/licenses/by-nc-nd/2.5/}.
 #' 
 #' When publishing results obtained using this data set, the original authors
 #' (Resnick et al, 1997) should be cited. In addition this package should be
@@ -575,7 +575,7 @@ NULL
 #' experimental and case study of relationships,} Unpublished Ph.D.
 #' dissertation, Department of Sociology, Cornell University.
 #' 
-#' \url{http://vlado.fmf.uni-lj.si/pub/networks/data/esna/sampson.htm}
+#' \url{https://vlado.fmf.uni-lj.si/pub/networks/data/esna/sampson.htm}
 #' @keywords datasets
 NULL
 
@@ -672,6 +672,6 @@ NULL
 #' experimental and case study of relationships,} Unpublished Ph.D.
 #' dissertation, Department of Sociology, Cornell University.
 #' 
-#' \url{http://vlado.fmf.uni-lj.si/pub/networks/data/esna/sampson.htm}
+#' \url{https://vlado.fmf.uni-lj.si/pub/networks/data/esna/sampson.htm}
 #' @keywords datasets
 NULL
