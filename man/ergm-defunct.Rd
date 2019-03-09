@@ -2,25 +2,6 @@
 % Please edit documentation in R/ergm-defunct.R
 \name{ergm-defunct}
 \alias{ergm-defunct}
-\alias{delete.isolates}
-\alias{largest.components}
-\alias{central.network}
-\alias{ergm.mahalanobis}
-\alias{sociality.default}
-\alias{sociality.network}
-\alias{sociality.formula}
-\alias{sociality.ergm}
-\alias{ostar2deg}
-\alias{is.invertible}
-\alias{espartnerdist}
-\alias{dspartnerdist}
-\alias{twopathdist}
-\alias{rspartnerdist}
-\alias{invert.network}
-\alias{drawpie}
-\alias{mvmodel}
-\alias{mvmodel.ergm}
-\alias{degreedistfactor}
 \alias{robust.inverse}
 \alias{plot.network.ergm}
 \alias{ergm.getterms}
@@ -43,51 +24,6 @@
 \title{Functions that have been removed from this package}
 \usage{
 sociality(object, ...)
-
-delete.isolates(x)
-
-largest.components(x, minsize = 4)
-
-central.network(x)
-
-ergm.mahalanobis(x, center, cov, inverted = FALSE, ...)
-
-\method{sociality}{default}(object, ...)
-
-\method{sociality}{network}(object, ..., statistics = NULL)
-
-\method{sociality}{formula}(formula, ..., init, nsim = 100,
-  burnin = 100, interval = 100, constraints = ~.,
-  prop.weights = "default", prop.args = list(), seed = NULL,
-  drop = FALSE, statistics = NULL)
-
-\method{sociality}{ergm}(object, ..., nsim = 100, burnin = 100,
-  interval = 100, constraints = NULL, prop.weights = "default",
-  prop.args = list(), seed = NULL, drop = FALSE, statistics = NULL)
-
-ostar2deg(object, ninflast = TRUE)
-
-is.invertible(V, tol = 1e-12)
-
-espartnerdist(g, print = TRUE)
-
-dspartnerdist(g, print = TRUE)
-
-twopathdist(g, print = TRUE)
-
-rspartnerdist(g, print = TRUE)
-
-invert.network(nw)
-
-drawpie(center, radius, probs, n = 50, cols = 1:length(probs), ...)
-
-mvmodel(object, ...)
-
-\method{mvmodel}{ergm}(object, ..., nsim = 100, burnin = 10000,
-  interval = 1000, constraints = NULL, seed = NULL,
-  control = control.simulate.ergm(), statistic = NULL)
-
-degreedistfactor(g, x)
 
 robust.inverse(H, tol = sqrt(.Machine$double.eps))
 
