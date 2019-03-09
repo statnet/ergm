@@ -393,7 +393,7 @@ Butts CT (2008).
 \url{https://www.jstatsoft.org/v24/i02/}.
 
 Butts C (2015).
-\pkg{network}: The Statnet Project (https://www.statnet.org). R package version 1.12.0, \url{https://cran.r-project.org/package=network}.
+\pkg{network}: The Statnet Project (https://statnet.org). R package version 1.12.0, \url{https://cran.r-project.org/package=network}.
 
 Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).
 A \pkg{statnet} Tutorial.

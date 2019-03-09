@@ -112,7 +112,7 @@ Butts CT (2008).
  \emph{Journal of Statistical Software}, 24(2).
  \url{https://www.jstatsoft.org/v24/i02/}.
 
-Butts C (2015). \pkg{network}: Classes for Relational Data. The Statnet Project (\url{https://www.statnet.org}). R package version 1.12.0, \url{https://cran.r-project.org/package=network}.
+Butts C (2015). \pkg{network}: Classes for Relational Data. The Statnet Project (\url{https://statnet.org}). R package version 1.12.0, \url{https://cran.r-project.org/package=network}.
 
 Frank, O., and Strauss, D.(1986). Markov graphs. Journal of the American
 Statistical Association, 81, 832-842. 
