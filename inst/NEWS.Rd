@@ -191,6 +191,10 @@
       \item{
 	Improvements to \code{\link{plot.gof}} for large networks.
       }
+      \item{
+	A number of previously deprecated functions are now defunct; a
+	number of previously defunct functions have been removed.
+      }
     }
   }
 
