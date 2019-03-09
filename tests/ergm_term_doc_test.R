@@ -1,11 +1,11 @@
 #  File tests/ergm_term_doc_test.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, http://statnet.org .
+#  of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  http://statnet.org/attribution
+#  https://statnet.org/attribution
 #
-#  Copyright 2003-2017 Statnet Commons
+#  Copyright 2003-2019 Statnet Commons
 #######################################################################
 # tests to veryify the structure of the ergm-terms documentation
 # this executes functions similar to what would be run when building the ergm=term=crossRef.Rmd file

@@ -1,11 +1,11 @@
 %  File man/ergm-terms.Rd in package ergm, part of the Statnet suite
-%  of packages for network analysis, http://statnet.org .
+%  of packages for network analysis, https://statnet.org .
 %
 %  This software is distributed under the GPL-3 license.  It is free,
 %  open source, and has the attribution requirements (GPL Section 7) at
-%  http://statnet.org/attribution
+%  https://statnet.org/attribution
 %
-%  Copyright 2003-2017 Statnet Commons
+%  Copyright 2003-2019 Statnet Commons
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{ergm-terms}
 \alias{ergm-terms}
@@ -1905,7 +1905,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     Network Dynamics. \emph{Social Networks}, 2010, 32(1),
     44-60. \doi{10.1016/j.socnet.2009.02.004}
 
-  \item Morris M, Handcock MS, and Hunter DR. Specification of Exponential-Family Random Graph Models: Terms and Computational Aspects. \emph{Journal of Statistical Software}, 2008, 24(4), 1-24. \url{http://www.jstatsoft.org/v24/i04}
+  \item Morris M, Handcock MS, and Hunter DR. Specification of Exponential-Family Random Graph Models: Terms and Computational Aspects. \emph{Journal of Statistical Software}, 2008, 24(4), 1-24. \url{https://www.jstatsoft.org/v24/i04}
     
     
   \item Snijders, T. A. B., P. E. Pattison, G. L. Robins, and

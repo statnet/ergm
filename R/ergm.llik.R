@@ -1,11 +1,11 @@
 #  File R/ergm.llik.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, http://statnet.org .
+#  of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  http://statnet.org/attribution
+#  https://statnet.org/attribution
 #
-#  Copyright 2003-2017 Statnet Commons
+#  Copyright 2003-2019 Statnet Commons
 #######################################################################
 #=================================================================================
 # This file contains the following 14 functions for computing log likelihoods,
@@ -550,7 +550,7 @@ llik.fun.logtaylor <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
 	 	    expon_extended <- xsim %*% (eta_extended - etad0) 
 	 	    wts <- exp(expon_extended) 
 	 	    ess <- ceiling(sum(wts)^2/sum(wts^2)) 
-	 	#   http://xianblog.wordpress.com/2010/09/24/effective-sample-size/ 
+	 	#   https://xianblog.wordpress.com/2010/09/24/effective-sample-size/ 
 	 	    if(!is.na(ess) && {ess<dampening.min.ess}){ return(-Inf) } #.005*length(wts)) 
 	 	  } 
 	 	 
