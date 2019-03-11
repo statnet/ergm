@@ -54,10 +54,11 @@ ergm.stocapprox <- function(init, nw, model, Clist,
   eta0 <- ergm.eta(init, model$etamap)
   message("Stochastic approximation algorithm with theta_0 equal to:")
   print(init)
-  control <- c(control, list(phase1=n1,
-                  stats=summary(model, nw)-model$target.stats,
-                  target.stats=model$target.stats)
-                 )
+  control <- within(control, {
+    phase1 <- n1
+    stats <- summary(model, nw)-model$target.stats
+    target.stats <- model$target.stats
+  })
 # message(paste("Phase 1: ",n1,"iterations"))
 # message(paste(" (interval=",control$MCMC.interval,")",sep=""))
   nw.orig <- nw
