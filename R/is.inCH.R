@@ -1,11 +1,11 @@
 #  File R/is.inCH.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, http://statnet.org .
+#  of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  http://statnet.org/attribution
+#  https://statnet.org/attribution
 #
-#  Copyright 2003-2017 Statnet Commons
+#  Copyright 2003-2019 Statnet Commons
 #######################################################################
 ###############################################################################
 # The <is.inCH> function determines whether a vector p is in the convex hull
@@ -88,7 +88,7 @@
 #' @return Logical, telling whether \code{p} is (or all rows of \code{p} are)
 #' in the closed convex hull of the points in \code{M}.
 #' @references \itemize{ \item
-#' \url{http://www.cs.mcgill.ca/~fukuda/soft/polyfaq/node22.html}
+#' \url{https://www.cs.mcgill.ca/~fukuda/soft/polyfaq/node22.html}
 #' 
 #' \item Hummel, R. M., Hunter, D. R., and Handcock, M. S. (2012), Improving
 #' Simulation-Based Algorithms for Fitting ERGMs, Journal of Computational and

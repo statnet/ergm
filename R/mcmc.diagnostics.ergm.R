@@ -1,11 +1,11 @@
 #  File R/mcmc.diagnostics.ergm.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, http://statnet.org .
+#  of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  http://statnet.org/attribution
+#  https://statnet.org/attribution
 #
-#  Copyright 2003-2017 Statnet Commons
+#  Copyright 2003-2019 Statnet Commons
 #######################################################################
 #=================================================================================
 # This file contains the following 10 diagnostic tools and their helper functions
@@ -143,7 +143,7 @@ mcmc.diagnostics.default <- function(object, ...) {
 #'   directly in the \code{coda} package to assess MCMC
 #'   convergence. \emph{Hence all MCMC diagnostic methods available in
 #'   \code{coda} are available directly.} See the examples and
-#'   \url{http://www.mrc-bsu.cam.ac.uk/software/bugs/the-bugs-project-winbugs/coda-readme/}.
+#'   \url{https://www.mrc-bsu.cam.ac.uk/software/bugs/the-bugs-project-winbugs/coda-readme/}.
 #' 
 #'   More information can be found by looking at the documentation of
 #'   \code{\link{ergm}}.

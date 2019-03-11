@@ -116,7 +116,7 @@ starting points for the MCMC algorithm.
 Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris and
 Martina (2008).  "ergm: A Package to Fit, Simulate and Diagnose
 Exponential-Family Models for Networks." \emph{Journal of Statistical Software},
-\emph{24}(3), pp. 1-29. \url{http://www.jstatsoft.org/article/view/v024i03}
+\emph{24}(3), pp. 1-29. \url{https://www.jstatsoft.org/article/view/v024i03}
 
 van Duijn MAJ, Gile K, Handcock MS (2009).  "Comparison of Maximum Pseudo
 Likelihood and Maximum Likelihood Estimation of Exponential Family Random

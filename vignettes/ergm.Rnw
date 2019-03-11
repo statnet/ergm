@@ -527,7 +527,7 @@ In many empirical contexts, it is not feasible to collect a network census or ev
 
 Long regarded as the poor country cousin in the network data family, egocentric data contain a remarkable amount of information. With the right statistical methods, such data can be used to explore the properties of the complete networks in which they are embedded. The basic idea here is to combine what is observed, with assumptions, to define a class of models that describe the distribution of networks that are centered on the observed properties. The variation in these networks quantifies some of the uncertainty introduced by the assumptions.
 
-The egocentric estimation/simulation framework extends to temporal ERGMs (“TERGMs”) as well, with the minimal addition of an estimate of partnership duration. This makes it possible to simulate complete dynamic networks from a single cross-sectional egocentrically sampled network. For an example of what you can do with this, check out the network movie we developed to explore the impact of dynamic network structure on HIV transmission, see http://statnet.org/movies .
+The egocentric estimation/simulation framework extends to temporal ERGMs (“TERGMs”) as well, with the minimal addition of an estimate of partnership duration. This makes it possible to simulate complete dynamic networks from a single cross-sectional egocentrically sampled network. For an example of what you can do with this, check out the network movie we developed to explore the impact of dynamic network structure on HIV transmission, see https://statnet.org/movies .
 
 While the ergm package has had this capability for many years (and old ERGM worshops had a section on this), there is now a specific package that makes this much easier: `ergm.ego`. The new package includes accurate statistical inference (so you can get standard errors for model coefficients), and many utilities that simplify the task of reading in the data, conducting exploratory analyses, and specifying model options.
 
@@ -553,7 +553,7 @@ These are in stand-alone packages that can be downloaded either from CRAN,
 or from the \myverb{statnet} website. Many have online training materials from our
 workshops.  For more detailed information, 
 please visit the \myverb{statnet} webpage 
-(\href{http://statnet.org}{http://statnet.org}).
+(\href{https://statnet.org}{https://statnet.org}).
 
 \subsubsection{Static (cross-sectional) network analysis packages}
 
@@ -688,7 +688,7 @@ Handcock, M. S., D. R. Hunter, C. T. Butts, S. M. Goodreau and M. Morris (2008).
 \bibitem[Hunter et al.(2008b)]{ergm}
 Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b). 
 \newblock ergm: A Package to Fit, Simulate and Diagnose Exponential-Family Models for Networks. 
-\newblock \emph{Journal of Statistical Software}, 24(3). \url{http://www.jstatsoft.org/v24/i03/}. 
+\newblock \emph{Journal of Statistical Software}, 24(3). \url{https://www.jstatsoft.org/v24/i03/}. 
 
 \bibitem[Krivitsky, P.N.(2009)]{pavelthesis}
 Krivitsky, P.N.(2009). 

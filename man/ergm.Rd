@@ -408,7 +408,7 @@ Bender-deMoll S, Morris M, Moody J (2008).
 Prototype Packages for Managing and Animating Longitudinal
 Network Data: \pkg{dynamicnetwork} and \pkg{rSoNIA}.
 \emph{Journal of Statistical Software}, 24(7).
-\url{http://www.jstatsoft.org/v24/i07/}.
+\url{https://www.jstatsoft.org/v24/i07/}.
 
 Butts CT (2007).
 \pkg{sna}: Tools for Social Network Analysis.
@@ -417,15 +417,15 @@ R package version 2.3-2. \url{https://cran.r-project.org/package=sna}.
 Butts CT (2008).
 \pkg{network}: A Package for Managing Relational Data in \R.
 \emph{Journal of Statistical Software}, 24(2).
-\url{http://www.jstatsoft.org/v24/i02/}.
+\url{https://www.jstatsoft.org/v24/i02/}.
 
 Butts C (2015).
-\pkg{network}: The Statnet Project (http://www.statnet.org). R package version 1.12.0, \url{https://cran.r-project.org/package=network}.
+\pkg{network}: The Statnet Project (https://statnet.org). R package version 1.12.0, \url{https://cran.r-project.org/package=network}.
 
 Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).
 A \pkg{statnet} Tutorial.
 \emph{Journal of Statistical Software}, 24(8).
-\url{http://www.jstatsoft.org/v24/i08/}.
+\url{https://www.jstatsoft.org/v24/i08/}.
 
 Goodreau SM, Kitts J, Morris M (2008b).
 Birds of a Feather, or Friend of a Friend? Using Exponential
@@ -467,7 +467,7 @@ Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
 \pkg{ergm}: A Package to Fit, Simulate and Diagnose
 Exponential-Family Models for Networks.
 \emph{Journal of Statistical Software}, 24(3).
-\url{http://www.jstatsoft.org/v24/i03/}.
+\url{https://www.jstatsoft.org/v24/i03/}.
 
 Karwa V, Krivitsky PN, and Slavkovi'{c} AB (2017). Sharing Social Network
 Data: Differentially Private Estimation of Exponential-Family Random
@@ -482,13 +482,13 @@ Morris M, Handcock MS, Hunter DR (2008).
 Specification of Exponential-Family Random Graph Models:
 Terms and Computational Aspects.
 \emph{Journal of Statistical Software}, 24(4).
-\url{http://www.jstatsoft.org/v24/i04/}.
+\url{https://www.jstatsoft.org/v24/i04/}.
 
 Snijders, T.A.B. (2002),
 Markov Chain Monte Carlo Estimation of Exponential Random Graph Models.
 Journal of Social Structure.
 Available from
-\url{http://www.cmu.edu/joss/content/articles/volume3/Snijders.pdf}.
+\url{https://www.cmu.edu/joss/content/articles/volume3/Snijders.pdf}.
 }
 \seealso{
 network, \%v\%, \%n\%, \code{\link{ergm-terms}}, \code{\link{ergmMPLE}},

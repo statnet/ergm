@@ -1,11 +1,11 @@
 #  File R/InitErgmTerm.indices.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, http://statnet.org .
+#  of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  http://statnet.org/attribution
+#  https://statnet.org/attribution
 #
-#  Copyright 2003-2017 Statnet Commons
+#  Copyright 2003-2019 Statnet Commons
 #######################################################################
 # This term is not meaningful for modelling, but it has the property
 # that its change score for dyad (i,j) is always (i,j). It is used by

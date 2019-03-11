@@ -1,3 +1,12 @@
+%  File man/ergm-package.Rd in package ergm, part of the Statnet suite
+%  of packages for network analysis, https://statnet.org .
+%
+%  This software is distributed under the GPL-3 license.  It is free,
+%  open source, and has the attribution requirements (GPL Section 7) at
+%  https://statnet.org/attribution
+%
+%  Copyright 2003-2019 Statnet Commons
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{ergm-package}
 \alias{ergm-package}
 \docType{package}
@@ -78,7 +87,7 @@ Bender-deMoll S, Morris M, Moody J (2008).
  Prototype Packages for Managing and Animating Longitudinal
   Network Data: \pkg{dynamicnetwork} and \pkg{rSoNIA}.
  \emph{Journal of Statistical Software}, 24(7).
- \url{http://www.jstatsoft.org/v24/i07/}.
+ \url{https://www.jstatsoft.org/v24/i07/}.
 
 Besag, J., 1974, Spatial interaction and the statistical analysis
 of lattice systems (with discussion), Journal of the Royal Statistical
@@ -92,7 +101,7 @@ Boer P, Huisman M, Snijders T, Zeggelink E (2003).
 % commented because server is down so paper can't be found
 %Butts CT (2006).
 % \pkg{netperm}: Permutation Models for Relational Data.
-% Version 0.2, \url{http://erzuli.ss.uci.edu/R.stuff}.
+% Version 0.2, \url{https://erzuli.ss.uci.edu/R.stuff}.
 
 Butts CT (2007).
  \pkg{sna}: Tools for Social Network Analysis.
@@ -101,9 +110,9 @@ Butts CT (2007).
 Butts CT (2008).
  \pkg{network}: A Package for Managing Relational Data in \R.
  \emph{Journal of Statistical Software}, 24(2).
- \url{http://www.jstatsoft.org/v24/i02/}.
+ \url{https://www.jstatsoft.org/v24/i02/}.
 
-Butts C (2015). \pkg{network}: Classes for Relational Data. The Statnet Project (\url{http://www.statnet.org}). R package version 1.12.0, \url{https://cran.r-project.org/package=network}.
+Butts C (2015). \pkg{network}: Classes for Relational Data. The Statnet Project (\url{https://statnet.org}). R package version 1.12.0, \url{https://cran.r-project.org/package=network}.
 
 Frank, O., and Strauss, D.(1986). Markov graphs. Journal of the American
 Statistical Association, 81, 832-842. 
@@ -111,7 +120,7 @@ Statistical Association, 81, 832-842.
 Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).
  A \pkg{statnet} Tutorial.
  \emph{Journal of Statistical Software}, 24(8).
- \url{http://www.jstatsoft.org/v24/i08/}.
+ \url{https://www.jstatsoft.org/v24/i08/}.
 
 Goodreau SM, Kitts J, Morris M (2008b).
  Birds of a Feather, or Friend of a Friend? Using Exponential
@@ -153,13 +162,13 @@ Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
  \pkg{ergm}: A Package to Fit, Simulate and Diagnose
   Exponential-Family Models for Networks.
  \emph{Journal of Statistical Software}, 24(3).
- \url{http://www.jstatsoft.org/v24/i03/}.
+ \url{https://www.jstatsoft.org/v24/i03/}.
 
 Krivitsky PN, Handcock MS (2007).
  \pkg{latentnet}: Latent position and cluster models for
   statistical networks.
  Seattle, WA.
- Version 2, \url{http://statnet.org}.
+ Version 2, \url{https://statnet.org}.
 
 Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
 Networks. \emph{Electronic Journal of Statistics}, 2012, 6,
@@ -170,7 +179,7 @@ Morris M, Handcock MS, Hunter DR (2008).
  Specification of Exponential-Family Random Graph Models:
   Terms and Computational Aspects.
  \emph{Journal of Statistical Software}, 24(4).
- \url{http://www.jstatsoft.org/v24/i04/}.
+ \url{https://www.jstatsoft.org/v24/i04/}.
 
 Strauss, D., and Ikeda, M.(1990). Pseudolikelihood estimation for social
 networks \emph{Journal of the American Statistical Association}, 85, 204-212. 

@@ -1,18 +1,18 @@
 #  File R/ergm.robmon.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, http://statnet.org .
+#  of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  http://statnet.org/attribution
+#  https://statnet.org/attribution
 #
-#  Copyright 2003-2017 Statnet Commons
+#  Copyright 2003-2019 Statnet Commons
 #######################################################################
 ############################################################################
 # The <ergm.robmon> function provides one of the styles of maximum
 # likelihood estimation that can be used. This one is based on Snijders
 # (2002), J of Social Structure  and Snijders and van Duijn (2002) from
 # A Festscrift for Ove Frank.  Both papers are available from Tom Snijders'
-# web page:           http://stat.gamma.rug.nl/snijders/publ.htm
+# web page:           https://stat.gamma.rug.nl/snijders/publ.htm
 # (The other MLE styles are found in functions <ergm.stocapprox>,
 # <ergm.stepping> and <ergm.mainfitloop>
 #

@@ -1,11 +1,11 @@
 #  File R/ergm.mple.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, http://statnet.org .
+#  of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
 #  open source, and has the attribution requirements (GPL Section 7) at
-#  http://statnet.org/attribution
+#  https://statnet.org/attribution
 #
-#  Copyright 2003-2017 Statnet Commons
+#  Copyright 2003-2019 Statnet Commons
 #######################################################################
 
 #' Find a maximizer to the psuedolikelihood function
@@ -67,7 +67,7 @@
 #' @references Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris and
 #' Martina (2008).  "ergm: A Package to Fit, Simulate and Diagnose
 #' Exponential-Family Models for Networks." _Journal of Statistical Software_,
-#' *24*(3), pp. 1-29. \url{http://www.jstatsoft.org/article/view/v024i03}
+#' *24*(3), pp. 1-29. \url{https://www.jstatsoft.org/article/view/v024i03}
 #' 
 #' van Duijn MAJ, Gile K, Handcock MS (2009).  "Comparison of Maximum Pseudo
 #' Likelihood and Maximum Likelihood Estimation of Exponential Family Random

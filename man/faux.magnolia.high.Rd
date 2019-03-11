@@ -53,7 +53,7 @@ which it is based are large and located in the southern US.
 \section{Licenses and Citation}{
  If the source of the data set does not
 specified otherwise, this data set is protected by the Creative Commons
-License \url{http://creativecommons.org/licenses/by-nc-nd/2.5/}.
+License \url{https://creativecommons.org/licenses/by-nc-nd/2.5/}.
 
 When publishing results obtained using this data set, the original authors
 (Resnick et al, 1997) should be cited. In addition this package should be

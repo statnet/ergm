@@ -23,7 +23,7 @@ one school community from the AddHealth Study, Wave I (Resnick et al.,
 The school in question (a single school with 7th through 12th grades) was
 selected from the Add Health "structure files."  Documentation on these
 files can be found here:
-\url{http://www.cpc.unc.edu/projects/addhealth/codebooks/wave1/structur.zip}.
+\url{https://www.cpc.unc.edu/projects/addhealth/codebooks/wave1/structur.zip}.
 
 The stucture file contains directed out-ties representing each instance of a
 student who named another student as a friend.  Students could nominate up
@@ -58,7 +58,7 @@ network.  The network is named faux.dixon.high.
 \section{Licenses and Citation}{
  If the source of the data set does not
 specified otherwise, this data set is protected by the Creative Commons
-License \url{http://creativecommons.org/licenses/by-nc-nd/2.5/}.
+License \url{https://creativecommons.org/licenses/by-nc-nd/2.5/}.
 
 When publishing results obtained using this data set, the original authors
 (Resnick et al, 1997) should be cited. In addition this package should be
