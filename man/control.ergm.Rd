@@ -74,21 +74,21 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   RM.burnin = RM.interval * 16, RM.samplesize = 1024,
   Step.maxit = 50, Step.gridsize = 100, Step.interval = 1024,
   Step.burnin = Step.interval * 16, Step.samplesize = 1024,
-  CD.samplesize.per_theta = 128, CD.nsteps = 8, CD.multiplicity = 1,
-  CD.nsteps.obs = 128, CD.multiplicity.obs = 1, CD.maxit = 60,
-  CD.conv.min.pval = 0.5, CD.NR.maxit = 100,
-  CD.NR.reltol = sqrt(.Machine$double.eps), CD.metric = c("naive",
-  "lognormal", "logtaylor", "Median.Likelihood", "EF.Likelihood"),
-  CD.method = c("BFGS", "Nelder-Mead"), CD.trustregion = 20,
-  CD.dampening = FALSE, CD.dampening.min.ess = 20,
-  CD.dampening.level = 0.1, CD.steplength.margin = 0.5,
-  CD.steplength = 1, CD.adaptive.trustregion = 3,
-  CD.adaptive.epsilon = 0.01, CD.Hummel.esteq = TRUE,
-  CD.Hummel.miss.sample = 100, CD.Hummel.maxit = 25,
-  CD.steplength.min = 1e-04, loglik.control = control.logLik.ergm(),
-  term.options = NULL, seed = NULL, parallel = 0,
-  parallel.type = NULL, parallel.version.check = TRUE,
-  parallel.inherit.MT = FALSE, ...)
+  CD.samplesize.per_theta = 128, obs.CD.samplesize.per_theta = 128,
+  CD.nsteps = 8, CD.multiplicity = 1, CD.nsteps.obs = 128,
+  CD.multiplicity.obs = 1, CD.maxit = 60, CD.conv.min.pval = 0.5,
+  CD.NR.maxit = 100, CD.NR.reltol = sqrt(.Machine$double.eps),
+  CD.metric = c("naive", "lognormal", "logtaylor", "Median.Likelihood",
+  "EF.Likelihood"), CD.method = c("BFGS", "Nelder-Mead"),
+  CD.trustregion = 20, CD.dampening = FALSE,
+  CD.dampening.min.ess = 20, CD.dampening.level = 0.1,
+  CD.steplength.margin = 0.5, CD.steplength = 1,
+  CD.adaptive.trustregion = 3, CD.adaptive.epsilon = 0.01,
+  CD.Hummel.esteq = TRUE, CD.Hummel.miss.sample = 100,
+  CD.Hummel.maxit = 25, CD.steplength.min = 1e-04,
+  loglik.control = control.logLik.ergm(), term.options = NULL,
+  seed = NULL, parallel = 0, parallel.type = NULL,
+  parallel.version.check = TRUE, parallel.inherit.MT = FALSE, ...)
 }
 \arguments{
 \item{drop}{Logical: If TRUE, terms whose observed statistic values are at
@@ -519,7 +519,7 @@ optimization chooses a step length equal to the largest possible multiple of
 \item{Step.burnin, Step.interval, Step.samplesize}{Sets the corresponding
 \code{MCMC.*} parameters when \code{main.method="Stepping"}.}
 
-\item{CD.samplesize.per_theta, CD.maxit, CD.conv.min.pval, CD.NR.maxit, CD.NR.reltol, }{Miscellaneous tuning parameters of the CD sampler and optimizer. These have
+\item{CD.samplesize.per_theta, obs.CD.samplesize.per_theta, CD.maxit, CD.conv.min.pval, CD.NR.maxit, CD.NR.reltol, }{Miscellaneous tuning parameters of the CD sampler and optimizer. These have
 the same meaning as their \code{MCMC.*} counterparts.
 
 Note that only the Hotelling's stopping criterion is implemented for CD.}
