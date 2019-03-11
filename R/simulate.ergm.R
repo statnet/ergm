@@ -261,7 +261,9 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   # nw is now a network/pending_update_network hybrid class. As long
   # as its edges are only accessed through methods that
   # pending_update_network methods overload, it should be fine.
-  
+
+  NVL(response) <- nw %ergmlhs% "response"
+
   mon.m <- if(!is.null(monitor)) as.ergm_model(monitor, nw, response=response, term.options=control$term.options)
 
   if(!is.list(constraints)) constraints <- list(constraints)
@@ -362,6 +364,9 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   # nw is now a network/pending_update_network hybrid class. As long
   # as its edges are only accessed through methods that
   # pending_update_network methods overload, it should be fine.
+
+  NVL(response) <- nw %ergmlhs% "response"
+
 
   m <- c(object, monitor)
   

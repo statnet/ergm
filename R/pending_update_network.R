@@ -54,6 +54,8 @@
 pending_update_network <- function(nw, update=NULL, response=if(is.character(update)) update){
   if(!is.network(nw) && !is.pending_update_network(nw)) stop("nw must be a network or a pending_update_network object.")
 
+  NVL(response) <- nw %ergmlhs% "response"
+
   el <-
     # Note that the following will get the edgelist from a pending_update_network as well.
     if(is.null(update)||is.character(update)) as.edgelist(nw, attrname=response)

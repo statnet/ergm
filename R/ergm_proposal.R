@@ -172,6 +172,8 @@ ergm_proposal.ergm_proposal<-function(object,...) return(object)
 #'   measure to be used. (Defaults to \code{~Bernoulli}.)
 #' @export
 ergm_proposal.character <- function(object, arguments, nw, ..., response=NULL, reference=reference){
+  NVL(response) <- nw %ergmlhs% "response"
+
   name<-object
 
   arguments$reference <- reference
@@ -290,7 +292,7 @@ ergm_conlist <- function(object, nw){
 #' [list of implemented constraints][ergm-constraints] for more information.
 #' @export
 ergm_proposal.formula <- function(object, arguments, nw, weights="default", class="c", reference=~Bernoulli, response=NULL, ...) {
-  reference <- reference
+  NVL(response) <- nw %ergmlhs% "response"
 
   # TODO: Remove this around the end of 2018.
   f <- try(
@@ -400,6 +402,7 @@ ergm_proposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NUL
   if(is.null(nw)) nw<-object$network
   if(is.null(reference)) reference<-object$reference
   if(is.null(response)) response<-object$response
-  
+  NVL(response) <- nw %ergmlhs% "response"
+
   ergm_proposal(constraints,arguments=arguments,nw=nw,weights=weights,class=class,reference=reference,response=response)
 }

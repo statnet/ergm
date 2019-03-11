@@ -40,10 +40,11 @@ test_that("valued triadic effects in undirected networks", {
 
   # Undirected
   y <- network.initialize(20, dir=FALSE)
+  y %ergmlhs% "response" <- "w"
   
   # Check the s_ statistics
   
-  y <- simulate(y~sum,coef=0,reference=~DiscUnif(0,4),response="w",control=control.simulate(MCMC.burnin=1000),nsim=1)
+  y <- simulate(y~sum,coef=0,reference=~DiscUnif(0,4),control=control.simulate(MCMC.burnin=1000),nsim=1)
   
   y.summ <- summary.call(y)
   

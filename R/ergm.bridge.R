@@ -19,11 +19,13 @@ ergm.bridge.preproc<-function(object, basis, response, ...){
   }
 
   nw <- ensure_network(nw)
+
+  NVL(response) <- nw %ergmlhs% "response"
   
   # New formula (no longer use 'object'):
   form <- nonsimp_update.formula(object, nw ~ ., from.new="nw")
   
-  list(nw=nw, form=form)
+  list(nw=nw, form=form, response=response)
 }
 
 
@@ -87,16 +89,12 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
   
   ## Here, we need to get the model object to get the likelihood and gradient functions.
-  tmp<-ergm.bridge.preproc(object,basis,response)
-  nw<-tmp$nw; form<-tmp$form; rm(tmp)
+  list2env(ergm.bridge.preproc(object,basis,response), environment())
 
   ## Generate the path.
   path<-t(rbind(sapply(seq(from=0+1/2/(control$nsteps+1),to=1-1/2/(control$nsteps+1),length.out=control$nsteps),function(u) cbind(to*u + from*(1-u)))))
 
-  tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats)
-  nw <- tmp$nw
-  constraints.obs <- tmp$constraints.obs
-  constraints <- tmp$constraints
+  list2env(.handle.auto.constraints(nw, constraints, obs.constraints, target.stats), environment())
 
   ## Preinitialize proposals and set "observed" statistics:
   proposal <- ergm_proposal(constraints,arguments=control$MCMC.prop.args,
@@ -222,22 +220,18 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   check.control.class("ergm.bridge", "ergm.bridge.dindstart.llk")
   control.toplevel(...,myname="ergm.bridge")
 
-  if(!is.null(response)) stop("Only binary ERGMs are supported at this time.")
-
   ## Here, we need to get the model object to get the list of
   ## dyad-independent terms.
-  tmp<-ergm.bridge.preproc(object,basis,response)
-  nw<-tmp$nw; form<-tmp$form; rm(tmp)
+  list2env(ergm.bridge.preproc(object,basis,response), environment())
+
+  if(!is.null(response)) stop("Only binary ERGMs are supported at this time.")
 
   m<-ergm_model(object, nw, response=response, term.options=control$term.options)
   
   q.pos.full <- c(0,cumsum(nparam(m, canonical=FALSE, byterm=TRUE)))
   p.pos.full <- c(0,cumsum(nparam(m, canonical=TRUE, byterm=TRUE)))
   
-  tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats)
-  nw <- tmp$nw
-  constraints.obs <- tmp$constraints.obs
-  constraints <- tmp$constraints
+  list2env(.handle.auto.constraints(nw, constraints, obs.constraints, target.stats), environment())
  
   if(!is.dyad.independent(ergm_conlist(constraints,nw), ergm_conlist(constraints.obs,nw))) stop("Bridge sampling with dyad-independent start does not work with dyad-dependent constraints.")
 

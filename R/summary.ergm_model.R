@@ -61,7 +61,7 @@ summary.ergm_model <- function(object, nw=NULL, response=NULL,...){
   Clist <- ergm.Cprepare(nw, m, response=response)
   
   # *** don't forget, tails are passes in first now, notheads  
-  gs <- if(is.null(response))
+  gs <- if(is.null(Clist$weights))
          .C("network_stats_wrapper",
             as.integer(Clist$tails), as.integer(Clist$heads), as.integer(!is.null(Clist$time)), as.integer(Clist$time), as.integer(NVL(Clist$lasttoggle,0)),
             as.integer(Clist$nedges),

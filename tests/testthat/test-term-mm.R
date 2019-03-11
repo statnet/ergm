@@ -122,7 +122,8 @@ test_that("Undirected valued mm() sum summary", {
 })
 
 test_that("Undirected valued mm() nonzero summary", {
-  s.a <- summary(fmh ~ mm("Grade", form="nonzero"), response="GradeMet")
+  fmh %ergmlhs% "response" <- "GradeMet"
+  s.a <- summary(fmh ~ mm("Grade", form="nonzero"))
   expect_equivalent(s.a,
                     c(75, 0, 33, 0, 2, 22, 1, 4, 7, 8, 1, 2, 6, 1, 17,
                       1, 1, 4, 5,  5, 6))

@@ -79,6 +79,7 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
   if(!is.list(changes)) changes <- list(changes)
 
   nw <- ergm.getnetwork(formula)
+  NVL(response) <- nw %ergmlhs% "response"
 
   ncols <- sapply(changes, ncol)
   if(!all_identical(ncols) || ncols[1]<2 || ncols[1]>3 || (!is.null(response)&&ncols[1]==2)) abort("Invalid format for list of changes. See help('ergm.godfather').")
@@ -104,7 +105,7 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
   
   if(verbose) message_print("Applying changes...\n")
   repeat{
-    if(is.null(response)){
+    if(is.null(Clist$weights)){
       z <- .C("Godfather_wrapper",
               as.integer(Clist$nedges), as.integer(Clist$tails), as.integer(Clist$heads),
               as.integer(Clist$n),

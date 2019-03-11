@@ -65,6 +65,7 @@ ergm.Cprepare <- function(nw, m, response=NULL){
 #' 
 #' @export
 ergm_Clist.network <- function(object, response=NULL, ...){
+  NVL(response) <- NVL(object %ergmlhs% "response")
   e <- na.omit(as.edgelist(object,attrname=response)) # Ensures that for undirected networks, tail<head.
   class(object) <- "network"
 

@@ -293,6 +293,8 @@ standardize.network <- function(nw, preserve.eattr=TRUE){
 single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints.obs=NULL, min_informative=NULL, default_density=NULL, output=c("network","pending_update_network"), verbose=FALSE){
   output <- match.arg(output)
   stopifnot(!is.null(constraints)||is.null(constraints.obs))
+
+  NVL(response) <- nw %ergmlhs% "response"
   
   if(!is.null(constraints)){
     imputable <- as.rlebdm(constraints, constraints.obs, "missing")

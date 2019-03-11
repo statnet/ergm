@@ -59,6 +59,8 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, role="stat
   nw <- ensure_network(nw)
   nw <- as.network(nw, populate=FALSE) # In case it's a pending_update_network.
 
+  NVL(response) <- NVL(nw %ergmlhs% "response")
+
   #' @importFrom utils modifyList
   term.options <- modifyList(as.list(getOption("ergm.term")), as.list(term.options))
   
@@ -120,6 +122,8 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, role="stat
 call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ..., term.options=list()){
   term.options <- modifyList(term.options, list(...))
 
+  NVL(response) <- nw %ergmlhs% "response"
+  
   termroot<-if(is.null(response)) "InitErgm" else "InitWtErgm"
   
   if(is.call(term)) { # This term has some arguments; save them.

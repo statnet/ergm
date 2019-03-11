@@ -559,6 +559,8 @@ ergm <- function(formula, response=NULL,
   if (verbose) message("Evaluating network in model.")
   
   nw <- ergm.getnetwork(formula)
+  NVL(response) <- nw %ergmlhs% "response"
+
   proposalclass <- "c"
 
   if(!is(constraints, "ergm_proposal")){

@@ -73,17 +73,18 @@ nw <- network.initialize(4, dir=TRUE)
 nw[1,2,names.eval="v",add.edges=TRUE] <- 1
 nw[1,3,names.eval="v",add.edges=TRUE] <- 1
 nw[3,2,names.eval="v",add.edges=TRUE] <- 1
-s <- summary(nw~sum+test.abs.sum.minus.5+test.abs.sum.minus.5(FALSE)+test.abs.sum.minus.5(FALSE,TRUE)+sociomatrix, response="v")
+nw %ergmlhs% "response" <- "v"
+s <- summary(nw~sum+test.abs.sum.minus.5+test.abs.sum.minus.5(FALSE)+test.abs.sum.minus.5(FALSE,TRUE)+sociomatrix)
 stopifnot(all(abs(s[1]-5)==s[2]) && all(abs(s[1]-5)==s[3]) && all(abs(s[1]-5)==s[4]))
 stopifnot(all(s[-(1:4)]==c(as.matrix(nw, attrname="v"))))
-sim <- simulate(nw~sum,monitor=~test.abs.sum.minus.5+test.abs.sum.minus.5(FALSE)+test.abs.sum.minus.5(FALSE,TRUE)+sociomatrix, response="v", reference=~Poisson, coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1))
+sim <- simulate(nw~sum,monitor=~test.abs.sum.minus.5+test.abs.sum.minus.5(FALSE)+test.abs.sum.minus.5(FALSE,TRUE)+sociomatrix, reference=~Poisson, coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1))
 s <- attr(sim, "stats")
 stopifnot(all(abs(s[,1]-5)==s[,2]) && all(abs(s[,1]-5)==s[,3]) && all(abs(s[,1]-5)==s[,4]))
 sim.dyads <- t(sapply(lapply(sim, as.matrix, attrname="v"), c))
 stopifnot(all(sim.dyads==s[,-(1:4)]))
 
 # Multiplicitous proposal
-sim <- simulate(nw~sum,monitor=~test.abs.sum.minus.5+test.abs.sum.minus.5(FALSE)+test.abs.sum.minus.5(FALSE,TRUE)+sociomatrix, response="v", reference=~DiscUnif(-1,2), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1,MCMC.prop.weights="random2"))
+sim <- simulate(nw~sum,monitor=~test.abs.sum.minus.5+test.abs.sum.minus.5(FALSE)+test.abs.sum.minus.5(FALSE,TRUE)+sociomatrix, reference=~DiscUnif(-1,2), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1,MCMC.prop.weights="random2"))
 s <- attr(sim, "stats")
 stopifnot(all(abs(s[,1]-5)==s[,2]) && all(abs(s[,1]-5)==s[,3]) && all(abs(s[,1]-5)==s[,4]))
 sim.dyads <- t(sapply(lapply(sim, as.matrix, attrname="v"), c))
