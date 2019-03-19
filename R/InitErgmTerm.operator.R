@@ -461,9 +461,9 @@ InitErgmTerm.Undir <- function(nw, arglist, response=NULL, ...){
 
   auxiliaries <- ~.undir.net(rule)
   
-  c(list(name="undir",
+  c(list(name="OnAuxnet",
          coef.names = paste0('Undir(',m$coef.names,',',rule,')'),
-         inputs=c(which(RULES==rule),inputs),
+         inputs=c(inputs),
          dependence=!is.dyad.independent(m) || rule%in%c("weak","strong"),
          emptynwstats = gs,
          auxiliaries=auxiliaries),

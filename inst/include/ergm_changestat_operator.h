@@ -6,4 +6,9 @@
 
 Model *unpack_Model_as_double(double **x);
 
+I_CHANGESTAT_FN(i_OnAuxnet);
+C_CHANGESTAT_FN(c_OnAuxnet);
+U_CHANGESTAT_FN(u_OnAuxnet);
+F_CHANGESTAT_FN(f_OnAuxnet);
+
 #endif
