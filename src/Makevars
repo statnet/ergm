@@ -1,0 +1,2 @@
+## Avoid code duplication between src/ and inst/include .
+PKG_CPPFLAGS= -I../inst/include
