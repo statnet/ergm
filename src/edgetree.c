@@ -144,94 +144,6 @@ Network *NetworkCopy(Network *src){
   return dest;
 }
 
-/*****************
- Edge EdgetreeSearch
-
- Check to see if there's a TreeNode with value b 
- in the tree rooted at edges[a].  Return i such that 
- edges[i] is that TreeNode, or 0 if none.
-*****************/
-Edge EdgetreeSearch (Vertex a, Vertex b, TreeNode *edges) {
-  TreeNode *es;
-  Edge e = a;
-  Vertex v;
-
-  es = edges + e;
-  v = es->value;
-  while(e != 0 && b != v)  {
-      e = (b<v)?  es->left : es->right;
-      es = edges + e;
-      v = es->value;
-    }
-  return e;
-}
-
-/*****************
- Edge EdgetreeSuccessor
-
- Return the index of the TreeNode with the smallest value
- greater than edges[x].value in the same edge tree, or 0
- if none.  This is used by (for instance)
- the DeleteHalfedgeFromTree function.
-*****************/
-Edge EdgetreeSuccessor (TreeNode *edges, Edge x) {
-  TreeNode *ptr;
-  Edge y;
-
-  if ((y=(ptr=edges+x)->right) != 0) 
-    return EdgetreeMinimum (edges, y);
-  while ((y=ptr->parent)!=0 && x==(ptr=edges+y)->right) 
-    x=y;
-  return y; 
-}   
-
-/*****************
- Edge EdgetreePredecessor
-
- Return the index of the TreeNode with the smallest value
- greater than edges[x].value in the same edge tree, or 0
- if none.  This is used by (for instance)
- the DeleteHalfedgeFromTree function.
-*****************/
-Edge EdgetreePredecessor (TreeNode *edges, Edge x) {
-  TreeNode *ptr;
-  Edge y;
-
-  if ((y=(ptr=edges+x)->left) != 0) 
-    return EdgetreeMaximum (edges, y);
-  while ((y=ptr->parent)!=0 && x==(ptr=edges+y)->left) 
-    x=y;
-  return y; 
-}   
-
-/*****************
- Edge EdgetreeMinimum
-
- Return the index of the TreeNode with the
- smallest value in the subtree rooted at x
-*****************/
-Edge EdgetreeMinimum (TreeNode *edges, Edge x) {
-  Edge y;
-
-  while ((y=(edges+x)->left) != 0)
-    x=y;
-  return x;
-}
-
-/*****************
- Edge EdgetreeMaximum
-
- Return the index of the TreeNode with the
- greatest value in the subtree rooted at x
-*****************/
-Edge EdgetreeMaximum (TreeNode *edges, Edge x) {
-  Edge y;
-
-  while ((y=(edges+x)->right) != 0)
-    x=y;
-  return x;
-}
-
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed
        in before heads */
@@ -250,12 +162,7 @@ Edge EdgetreeMaximum (TreeNode *edges, Edge x) {
 int ToggleEdge (Vertex tail, Vertex head, Network *nwp) 
 {
   /* don't forget tails < heads now for undirected networks */
-  if (!(nwp->directed_flag) && tail > head) {
-    Vertex temp;
-    temp = tail; /*  Make sure tail<head always for undirected edges */
-    tail = head;
-    head = temp;
-  }
+  ENSURE_TH_ORDER;
   if (AddEdgeToTrees(tail,head,nwp))
     return 1;
   else 
@@ -267,7 +174,6 @@ int ToggleEdge (Vertex tail, Vertex head, Network *nwp)
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed
        in before heads */
-
 
 /*****************
  Edge ToggleEdgeWithTimestamp
@@ -283,12 +189,7 @@ int ToggleEdgeWithTimestamp(Vertex tail, Vertex head, Network *nwp){
   Edge k;
 
   /* don't forget, tails < heads in undirected networks now  */
-  if (!(nwp->directed_flag) && tail > head) {
-    Vertex temp;
-    temp = tail; /*  Make sure tail<head always for undirected edges */
-    tail = head;
-    head = temp;
-  }
+  ENSURE_TH_ORDER;
   
   if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
     if(nwp->bipartite){
@@ -307,54 +208,6 @@ int ToggleEdgeWithTimestamp(Vertex tail, Vertex head, Network *nwp){
   else 
     return 1 - DeleteEdgeFromTrees(tail,head,nwp);
 }
-
-/* *** don't forget, edges are now given by tails -> heads, and as
-       such, the function definitions now require tails to be passed
-       in before heads */
-
-
-
-/*****************
- long int ElapsedTime
-
- Return time since given (tail,head) was last toggled using
- ToggleEdgeWithTimestamp function
-*****************/
-
-/* *** don't forget tail->head, so this function now accepts tail before head */
-
-int ElapsedTime(Vertex tail, Vertex head, Network *nwp){
-  Edge k;
-  /* don't forget, tails < heads now in undirected networks */
-  if (!(nwp->directed_flag) && tail > head) {
-    Vertex temp;
-    temp = tail; /*  Make sure tail<head always for undirected edges */
-    tail = head;
-    head = temp;
-  }
-
-  if(nwp->duration_info.lasttoggle){ /* Return 0 if no duration info. */
-    if(nwp->bipartite){
-      k = (head-nwp->bipartite-1)*(nwp->bipartite) + tail - 1;
-    }else{
-      if (nwp->directed_flag) 
-	k = (head-1)*(nwp->nnodes-1) + tail - ((tail>head) ? 1:0) - 1; 
-      else
-	k = (head-1)*(head-2)/2 + tail - 1;    
-    }
-    return nwp->duration_info.time - nwp->duration_info.lasttoggle[k];
-  }
-  else return 0; 
-  /* Should maybe return an error code of some sort, since 0 elapsed time
-     is valid output. Need to think about it. */
-}
-
-
-
-/* *** don't forget, edges are now given by tails -> heads, and as
-       such, the function definitions now require tails to be passed
-       in before heads */
-
 
 /*****************
  void TouchEdge
@@ -379,7 +232,6 @@ void TouchEdge(Vertex tail, Vertex head, Network *nwp){
     nwp->duration_info.lasttoggle[k] = nwp->duration_info.time;
   }
 }
-
 
 
 /* *** don't forget, edges are now given by tails -> heads, and as
@@ -457,7 +309,6 @@ void CheckEdgetreeFull (Network *nwp) {
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed
        in before heads */
-
 
 /*****************
  int DeleteEdgeFromTrees
@@ -705,9 +556,7 @@ int GetRandEdge(Vertex *tail, Vertex *head, Network *nwp) {
   value of i is (ndyads - EDGECOUNT(nwp)).
 ******************/
 
-/* This function is not yet written.  It's not clear whether it'll
-   be needed. */      
-  /* *** but if it is needed, don't forget,  tail -> head */
+  /* *** don't forget,  tail -> head */
 
 int FindithNonedge (Vertex *tail, Vertex *head, Dyad i, Network *nwp) {
   Vertex taili=1;
@@ -869,4 +718,52 @@ void DetShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges){
     tails[i-1] = tail;
     heads[i-1] = head;
   }
+}
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
+/*****************
+ int SetEdge
+
+ Set an edge value: set it to its new weight. Create if it
+does not exist, destroy by setting to 0. 
+*****************/
+void SetEdge (Vertex tail, Vertex head, unsigned int weight, Network *nwp) 
+{
+  ENSURE_TH_ORDER;
+
+  if(weight==0){
+    DeleteEdgeFromTrees(tail,head,nwp);
+  }else{
+    AddEdgeToTrees(tail,head,nwp);
+  }
+}
+
+/*****************
+ Edge SetEdgeWithTimestamp
+
+ Same as SetEdge, but this time with the additional
+ step of updating the matrix of 'lasttoggle' times
+ *****************/
+void SetEdgeWithTimestamp (Vertex tail, Vertex head, unsigned int weight, Network *nwp) 
+{
+  Edge k;
+
+  ENSURE_TH_ORDER;
+  
+  if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
+    if(nwp->bipartite){
+      k = (head-nwp->bipartite-1)*(nwp->bipartite) + tail - 1;
+    }else{
+      if (nwp->directed_flag) 
+	k = (head-1)*(nwp->nnodes-1) + tail - ((tail>head) ? 1:0) - 1; 
+      else
+	k = (head-1)*(head-2)/2 + tail - 1;    
+    }
+    nwp->duration_info.lasttoggle[k] = nwp->duration_info.time;
+  }
+
+  SetEdge(tail,head,weight,nwp);
 }

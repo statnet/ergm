@@ -104,7 +104,10 @@ chain progresses.}
 If \code{output=="stats"} an \code{\link{mcmc}} object containing the
 simulated network statistics. If \code{control$parallel>0}, an
 \code{\link{mcmc.list}} object. If \code{simplify=TRUE} (the default), these
-would then be "stacked" and converted to a standard \code{\link{matrix}}.
+would then be "stacked" and converted to a standard \code{\link{matrix}}. A
+logical vector indicating whether or not the term had come from
+the \code{monitor=} formula is stored in \code{\link[=attr]{attr()}}-style attribute
+\code{"monitored"}.
 
 Otherwise, a representation of the simulated network is returned,
 in the form specified by \code{output}. In addition to a network
