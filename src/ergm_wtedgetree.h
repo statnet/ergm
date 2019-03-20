@@ -12,6 +12,15 @@
 
 #include "ergm_edgetree_common.do_not_include_directly.h"
 
+/* Ensure that tail < head for undriected networks. */
+#define ENSURE_TH_ORDER							\
+  if(!(nwp->directed_flag) && tail>head){				\
+    Vertex temp;							\
+    temp = tail;							\
+    tail = head;							\
+    head = temp;							\
+  }
+
 /* WtTreeNode is just like TreeNode but with an extra field for a
    weight, or value, that might be associated with the node */
 typedef struct WtTreeNodestruct {
@@ -22,28 +31,6 @@ typedef struct WtTreeNodestruct {
   double weight;
 } WtTreeNode;
 
-
-
-
-
-/* Network is a structure containing all essential elements
-   of a given network; it is a slightly rewritten version of the old Gptr,
-   with some changes of awkard things, deletion of unnecessary things, and
-   a new name more reflective of what it does!
-
-   Some of the fields in a Network structure are:
-   inedges and outedges are arrays of TreeNode that are used to 
-     store all of the incoming and outgoing edges, respectively. 
-   directed_flag is 1 or 0, depending on whether or not the 
-     network is directed. 
-   last_inedge and last_outedge are continually updated to give
-     the highest index of an edge object being used.  
-   outdegree[] and indegree[] are continually updated to give
-     the appropriate degree values for each vertex.  These should
-     point to Vertex-vectors of length nnodes+1.  
-   value:  optional value(s) associated with this network 
-   Dur_Inf:  See typedef for Dur_Infstruct above
-*/
 /* WtNetwork is a structure just like Network except it is for a network with 
    weighted (valued) edges.  */
 typedef struct WtNetworkstruct {
@@ -73,19 +60,18 @@ WtNetwork *WtNetworkInitializeD(double *tails, double *heads, double *weights, E
 
 WtNetwork *WtNetworkCopy(WtNetwork *src);
 
-/* Accessors. */
-Edge WtEdgetreeSearch (Vertex a, Vertex b, WtTreeNode *edges);
-double WtGetEdge (Vertex tail, Vertex head, WtNetwork *nwp);
-Edge WtEdgetreeSuccessor (WtTreeNode *edges, Edge x);
-Edge WtEdgetreePredecessor (WtTreeNode *edges, Edge x);
-Edge WtEdgetreeMinimum (WtTreeNode *edges, Edge x);
-Edge WtEdgetreeMaximum (WtTreeNode *edges, Edge x);
+/* /\* Accessors. *\/ */
+/* static inline Edge WtEdgetreeSearch (Vertex a, Vertex b, WtTreeNode *edges); */
+/* static inline double WtGetEdge (Vertex tail, Vertex head, WtNetwork *nwp); */
+/* static inline Edge WtEdgetreeSuccessor (WtTreeNode *edges, Edge x); */
+/* static inline Edge WtEdgetreePredecessor (WtTreeNode *edges, Edge x); */
+/* static inline Edge WtEdgetreeMinimum (WtTreeNode *edges, Edge x); */
+/* static inline Edge WtEdgetreeMaximum (WtTreeNode *edges, Edge x); */
 
 /* Modifiers. */
 
 /* *** don't forget,  tails -> heads, so all the functions below using
    heads & tails, now list tails before heads */
-
 
 void WtSetEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
 void WtSetEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
@@ -99,9 +85,11 @@ int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
 		     Edge *last_edge);
 void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges);
 
-/* Duration functions. */
-int WtElapsedTime (Vertex tail, Vertex head, WtNetwork *nwp);
+/* /\* Duration functions. *\/ */
+/* static inline int WtElapsedTime (Vertex tail, Vertex head, WtNetwork *nwp); */
 void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp);
+
+#include "ergm_wtedgetree_inline.do_not_include_directly.h"
 
 /* Utility functions. */
 int WtFindithEdge (Vertex *tail, Vertex *head, double *weight, Edge i, WtNetwork *nwp);

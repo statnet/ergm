@@ -144,93 +144,6 @@ WtNetwork *WtNetworkCopy(WtNetwork *src){
   return dest;
 }
 
-/*****************
- Edge WtEdgetreeSearch
-
- Check to see if there's a WtTreeNode with value b 
- in the tree rooted at edges[a].  Return i such that 
- edges[i] is that WtTreeNode, or 0 if none.
-*****************/
-Edge WtEdgetreeSearch (Vertex a, Vertex b, WtTreeNode *edges) {
-  WtTreeNode *es;
-  Edge e = a;
-  Vertex v;
-
-  es = edges + e;
-  v = es->value;
-  while(e != 0 && b != v)  {
-      e = (b<v)?  es->left : es->right;
-      es = edges + e;
-      v = es->value;
-    }
-  return e;
-}
-
-/*****************
- Edge EdgetreeSuccessor
-
- Return the index of the WtTreeNode with the smallest value
- greater than edges[x].value in the same edge tree, or 0
- if none.  This is used by (for instance)
- the DeleteHalfedgeFromTree function.
-*****************/
-Edge WtEdgetreeSuccessor (WtTreeNode *edges, Edge x) {
-  WtTreeNode *ptr;
-  Edge y;
-
-  if ((y=(ptr=edges+x)->right) != 0) 
-    return WtEdgetreeMinimum (edges, y);
-  while ((y=ptr->parent)!=0 && x==(ptr=edges+y)->right) 
-    x=y;
-  return y; 
-}   
-
-/*****************
- Edge WtEdgetreePredecessor
-
- Return the index of the WtTreeNode with the smallest value
- greater than edges[x].value in the same edge tree, or 0
- if none.  This is used by (for instance)
- the WtDeleteHalfedgeFromTree function.
-*****************/
-Edge WtEdgetreePredecessor (WtTreeNode *edges, Edge x) {
-  WtTreeNode *ptr;
-  Edge y;
-
-  if ((y=(ptr=edges+x)->left) != 0) 
-    return WtEdgetreeMaximum (edges, y);
-  while ((y=ptr->parent)!=0 && x==(ptr=edges+y)->left) 
-    x=y;
-  return y; 
-}   
-
-/*****************
- Edge WtEdgetreeMinimum
-
- Return the index of the WtTreeNode with the
- smallest value in the subtree rooted at x
-*****************/
-Edge WtEdgetreeMinimum (WtTreeNode *edges, Edge x) {
-  Edge y;
-
-  while ((y=(edges+x)->left) != 0)
-    x=y;
-  return x;
-}
-
-/*****************
- Edge WtEdgetreeMaximum
-
- Return the index of the WtTreeNode with the
- greatest value in the subtree rooted at x
-*****************/
-Edge WtEdgetreeMaximum (WtTreeNode *edges, Edge x) {
-  Edge y;
-
-  while ((y=(edges+x)->right) != 0)
-    x=y;
-  return x;
-}
 
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed
@@ -250,12 +163,7 @@ Edge WtEdgetreeMaximum (WtTreeNode *edges, Edge x) {
 int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp) 
 {
   /* don't forget tails < heads now for undirected networks */
-  if (!(nwp->directed_flag) && tail > head) {
-    Vertex temp;
-    temp = tail; /*  Make sure tail<head always for undirected edges */
-    tail = head;
-    head = temp;
-  }
+  ENSURE_TH_ORDER;
   if (WtAddEdgeToTrees(tail,head,weight,nwp))
     return 1;
   else 
@@ -267,7 +175,6 @@ int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp)
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed
        in before heads */
-
 
 /*****************
  Edge ToggleEdgeWithTimestamp
@@ -284,12 +191,7 @@ int WtToggleEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwor
   Edge k;
 
   /* don't forget, tails < heads in undirected networks now  */
-  if (!(nwp->directed_flag) && tail > head) {
-    Vertex temp;
-    temp = tail; /*  Make sure tail<head always for undirected edges */
-    tail = head;
-    head = temp;
-  }
+  ENSURE_TH_ORDER;
   
   if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
     if(nwp->bipartite){
@@ -308,139 +210,6 @@ int WtToggleEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwor
   else 
     return 1 - WtDeleteEdgeFromTrees(tail,head,nwp);
 }
-
-/* *** don't forget, edges are now given by tails -> heads, and as
-       such, the function definitions now require tails to be passed
-       in before heads */
-
-/*****************
- int WtSetEdge
-
- Set an weighted edge value: set it to its new weight. Create if it
-does not exist, destroy by setting to 0. 
-*****************/
-void WtSetEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp) 
-{
-  if (!(nwp->directed_flag) && tail > head) {
-    Vertex temp;
-    temp = tail; /*  Make sure tail<head always for undirected edges */
-    tail = head;
-    head = temp;
-  }
-
-  if(weight==0){
-    // If the function is to set the edge value to 0, just delete it.
-    WtDeleteEdgeFromTrees(tail,head,nwp);
-  }else{
-    // Find the out-edge
-    Edge oe=WtEdgetreeSearch(tail,head,nwp->outedges);
-    if(oe){
-      // If it exists AND already has the target weight, do nothing.
-      if(nwp->outedges[oe].weight==weight) return;
-      else{
-	// Find the corresponding in-edge.
-	Edge ie=WtEdgetreeSearch(head,tail,nwp->inedges);
-	nwp->inedges[ie].weight=nwp->outedges[oe].weight=weight;
-      }
-    }else{
-      // Otherwise, create a new edge with that weight.
-      WtAddEdgeToTrees(tail,head,weight,nwp);
-    }
-  }
-}
-
-/*****************
- int WtGetEdge
-
-Get weighted edge value. Return 0 if edge does not exist.
-*****************/
-double WtGetEdge (Vertex tail, Vertex head, WtNetwork *nwp) 
-{
-  if (!(nwp->directed_flag) && tail > head) {
-    Vertex temp;
-    temp = tail; /*  Make sure tail<head always for undirected edges */
-    tail = head;
-    head = temp;
-  }
-
-  Edge oe=WtEdgetreeSearch(tail,head,nwp->outedges);
-  if(oe) return nwp->outedges[oe].weight;
-  else return 0;
-}
-
-/*****************
- Edge WtSetEdgeWithTimestamp
-
- Same as WtSetEdge, but this time with the additional
- step of updating the matrix of 'lasttoggle' times
- *****************/
-void WtSetEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork *nwp) 
-{
-  Edge k;
-
-  if (!(nwp->directed_flag) && tail > head) {
-    Vertex temp;
-    temp = tail; /*  Make sure tail<head always for undirected edges */
-    tail = head;
-    head = temp;
-  }
-  
-  if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
-    if(nwp->bipartite){
-      k = (head-nwp->bipartite-1)*(nwp->bipartite) + tail - 1;
-    }else{
-      if (nwp->directed_flag) 
-	k = (head-1)*(nwp->nnodes-1) + tail - ((tail>head) ? 1:0) - 1; 
-      else
-	k = (head-1)*(head-2)/2 + tail - 1;    
-    }
-    nwp->duration_info.lasttoggle[k] = nwp->duration_info.time;
-  }
-
-  WtSetEdge(tail,head,weight,nwp);
-}
-
-/*****************
- long int ElapsedTime
-
- Return time since given (tail,head) was last toggled using
- ToggleEdgeWithTimestamp function
-*****************/
-
-/* *** don't forget tail->head, so this function now accepts tail before head */
-
-int WtElapsedTime (Vertex tail, Vertex head, WtNetwork *nwp){
-  Edge k;
-  /* don't forget, tails < heads now in undirected networks */
-  if (!(nwp->directed_flag) && tail > head) {
-    Vertex temp;
-    temp = tail; /*  Make sure tail<head always for undirected edges */
-    tail = head;
-    head = temp;
-  }
-
-  if(nwp->duration_info.lasttoggle){ /* Return 0 if no duration info. */
-    if(nwp->bipartite){
-      k = (head-nwp->bipartite-1)*(nwp->bipartite) + tail - 1;
-    }else{
-      if (nwp->directed_flag) 
-	k = (head-1)*(nwp->nnodes-1) + tail - ((tail>head) ? 1:0) - 1; 
-      else
-	k = (head-1)*(head-2)/2 + tail - 1;    
-    }
-    return nwp->duration_info.time - nwp->duration_info.lasttoggle[k];
-  }
-  else return 0; 
-  /* Should maybe return an error code of some sort, since 0 elapsed time
-     is valid output. Need to think about it. */
-}
-
-
-
-/* *** don't forget, edges are now given by tails -> heads, and as
-       such, the function definitions now require tails to be passed
-       in before heads */
-
 
 /*****************
  void TouchEdge
@@ -465,7 +234,6 @@ void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp){
     nwp->duration_info.lasttoggle[k] = nwp->duration_info.time;
   }
 }
-
 
 
 /* *** don't forget, edges are now given by tails -> heads, and as
@@ -545,7 +313,6 @@ void WtCheckEdgetreeFull (WtNetwork *nwp) {
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed
        in before heads */
-
 
 /*****************
  int WtDeleteEdgeFromTrees
@@ -973,3 +740,71 @@ void WtDetShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedge
     weights[i-1] = w;
   }
 }
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
+/*****************
+ int WtSetEdge
+
+ Set an weighted edge value: set it to its new weight. Create if it
+does not exist, destroy by setting to 0. 
+*****************/
+void WtSetEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp) 
+{
+  ENSURE_TH_ORDER;
+
+  if(weight==0){
+    // If the function is to set the edge value to 0, just delete it.
+    WtDeleteEdgeFromTrees(tail,head,nwp);
+  }else{
+    // Find the out-edge
+    Edge oe=WtEdgetreeSearch(tail,head,nwp->outedges);
+    if(oe){
+      // If it exists AND already has the target weight, do nothing.
+      if(nwp->outedges[oe].weight==weight) return;
+      else{
+	// Find the corresponding in-edge.
+	Edge ie=WtEdgetreeSearch(head,tail,nwp->inedges);
+	nwp->inedges[ie].weight=nwp->outedges[oe].weight=weight;
+      }
+    }else{
+      // Otherwise, create a new edge with that weight.
+      WtAddEdgeToTrees(tail,head,weight,nwp);
+    }
+  }
+}
+
+/*****************
+ Edge WtSetEdgeWithTimestamp
+
+ Same as WtSetEdge, but this time with the additional
+ step of updating the matrix of 'lasttoggle' times
+ *****************/
+void WtSetEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork *nwp) 
+{
+  Edge k;
+
+  ENSURE_TH_ORDER;
+  
+  if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
+    if(nwp->bipartite){
+      k = (head-nwp->bipartite-1)*(nwp->bipartite) + tail - 1;
+    }else{
+      if (nwp->directed_flag) 
+	k = (head-1)*(nwp->nnodes-1) + tail - ((tail>head) ? 1:0) - 1; 
+      else
+	k = (head-1)*(head-2)/2 + tail - 1;    
+    }
+    nwp->duration_info.lasttoggle[k] = nwp->duration_info.time;
+  }
+
+  WtSetEdge(tail,head,weight,nwp);
+}
+
+
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
