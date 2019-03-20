@@ -105,7 +105,10 @@
 #' @return If \code{output=="stats"} an [`mcmc`] object containing the
 #'   simulated network statistics. If \code{control$parallel>0}, an
 #'   [`mcmc.list`] object. If `simplify=TRUE` (the default), these
-#'   would then be "stacked" and converted to a standard [`matrix`].
+#'   would then be "stacked" and converted to a standard [`matrix`]. A
+#'   logical vector indicating whether or not the term had come from
+#'   the `monitor=` formula is stored in [attr()]-style attribute
+#'   `"monitored"`.
 #'
 #' Otherwise, a representation of the simulated network is returned,
 #' in the form specified by `output`. In addition to a network
@@ -346,6 +349,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   stats <- as.mcmc.list(lapply(stats, mcmc, start=control$MCMC.burnin+1, thin=control$MCMC.interval))
   if(simplify)
     stats <- as.matrix(stats)[seq_len(nsim),,drop=FALSE]
+
+  attr(stats, "monitored") <- rep(c(FALSE,TRUE), c(nparam(m,canonical=!esteq) - NVL3(mon.m, nparam(.,canonical=!esteq), 0), NVL3(mon.m, nparam(.,canonical=!esteq), 0)))
 
   if(output=="stats")
     return(stats)
