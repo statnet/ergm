@@ -1,12 +1,3 @@
-/*  File inst/include/ergm_stubs.c in package ergm, part of the Statnet suite
- *  of packages for network analysis, https://statnet.org .
- *
- *  This software is distributed under the GPL-3 license.  It is free,
- *  open source, and has the attribution requirements (GPL Section 7) at
- *  https://statnet.org/attribution
- *
- *  Copyright 2003-2019 Statnet Commons
- */
 
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
@@ -53,13 +44,19 @@ return fun(tail,head,el);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE1
+#undef _GET_OVERRIDE2
 #undef _GET_OVERRIDE3
+#undef _GET_OVERRIDE4
+#undef _GET_OVERRIDE5
+#undef _GET_OVERRIDE6
 #undef _DYADCOUNT1
 #undef _DYADCOUNT3
 #undef DYADCOUNT
 #undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
@@ -84,30 +81,15 @@ static Network * (*fun)(Network *) = NULL;
 if(fun==NULL) fun = (Network * (*)(Network *)) R_FindSymbol("NetworkCopy", "ergm", NULL);
 return fun(src);
 }
-Edge EdgetreeSearch(Vertex a, Vertex b, TreeNode *edges){
-static Edge (*fun)(Vertex,Vertex,TreeNode *) = NULL;
-if(fun==NULL) fun = (Edge (*)(Vertex,Vertex,TreeNode *)) R_FindSymbol("EdgetreeSearch", "ergm", NULL);
-return fun(a,b,edges);
+void SetEdge(Vertex tail, Vertex head, unsigned int weight, Network *nwp){
+static void (*fun)(Vertex,Vertex,unsigned int,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,unsigned int,Network *)) R_FindSymbol("SetEdge", "ergm", NULL);
+fun(tail,head,weight,nwp);
 }
-Edge EdgetreeSuccessor(TreeNode *edges, Edge x){
-static Edge (*fun)(TreeNode *,Edge) = NULL;
-if(fun==NULL) fun = (Edge (*)(TreeNode *,Edge)) R_FindSymbol("EdgetreeSuccessor", "ergm", NULL);
-return fun(edges,x);
-}
-Edge EdgetreePredecessor(TreeNode *edges, Edge x){
-static Edge (*fun)(TreeNode *,Edge) = NULL;
-if(fun==NULL) fun = (Edge (*)(TreeNode *,Edge)) R_FindSymbol("EdgetreePredecessor", "ergm", NULL);
-return fun(edges,x);
-}
-Edge EdgetreeMinimum(TreeNode *edges, Edge x){
-static Edge (*fun)(TreeNode *,Edge) = NULL;
-if(fun==NULL) fun = (Edge (*)(TreeNode *,Edge)) R_FindSymbol("EdgetreeMinimum", "ergm", NULL);
-return fun(edges,x);
-}
-Edge EdgetreeMaximum(TreeNode *edges, Edge x){
-static Edge (*fun)(TreeNode *,Edge) = NULL;
-if(fun==NULL) fun = (Edge (*)(TreeNode *,Edge)) R_FindSymbol("EdgetreeMaximum", "ergm", NULL);
-return fun(edges,x);
+void SetEdgeWithTimestamp(Vertex tail, Vertex head, unsigned int weight, Network *nwp){
+static void (*fun)(Vertex,Vertex,unsigned int,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,unsigned int,Network *)) R_FindSymbol("SetEdgeWithTimestamp", "ergm", NULL);
+fun(tail,head,weight,nwp);
 }
 int ToggleEdge(Vertex tail, Vertex head, Network *nwp){
 static int (*fun)(Vertex,Vertex,Network *) = NULL;
@@ -148,11 +130,6 @@ void RelocateHalfedge(Edge from, Edge to, TreeNode *edges){
 static void (*fun)(Edge,Edge,TreeNode *) = NULL;
 if(fun==NULL) fun = (void (*)(Edge,Edge,TreeNode *)) R_FindSymbol("RelocateHalfedge", "ergm", NULL);
 fun(from,to,edges);
-}
-int ElapsedTime(Vertex tail, Vertex head, Network *nwp){
-static int (*fun)(Vertex,Vertex,Network *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,Network *)) R_FindSymbol("ElapsedTime", "ergm", NULL);
-return fun(tail,head,nwp);
 }
 void TouchEdge(Vertex tail, Vertex head, Network *nwp){
 static void (*fun)(Vertex,Vertex,Network *) = NULL;
@@ -199,6 +176,11 @@ static void (*fun)(Vertex *,Vertex *,Edge) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex *,Vertex *,Edge)) R_FindSymbol("ShuffleEdges", "ergm", NULL);
 fun(tails,heads,nedges);
 }
+void DetShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges){
+static void (*fun)(Vertex *,Vertex *,Edge) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex *,Vertex *,Edge)) R_FindSymbol("DetShuffleEdges", "ergm", NULL);
+fun(tails,heads,nedges);
+}
 Edge DesignMissing(Vertex a, Vertex b, Network *mnwp){
 static Edge (*fun)(Vertex,Vertex,Network *) = NULL;
 if(fun==NULL) fun = (Edge (*)(Vertex,Vertex,Network *)) R_FindSymbol("DesignMissing", "ergm", NULL);
@@ -211,13 +193,19 @@ return fun(tails,heads,nwp,nmax);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE1
+#undef _GET_OVERRIDE2
 #undef _GET_OVERRIDE3
+#undef _GET_OVERRIDE4
+#undef _GET_OVERRIDE5
+#undef _GET_OVERRIDE6
 #undef _DYADCOUNT1
 #undef _DYADCOUNT3
 #undef DYADCOUNT
 #undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
@@ -254,13 +242,19 @@ return fun(MHp,nwp);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE1
+#undef _GET_OVERRIDE2
 #undef _GET_OVERRIDE3
+#undef _GET_OVERRIDE4
+#undef _GET_OVERRIDE5
+#undef _GET_OVERRIDE6
 #undef _DYADCOUNT1
 #undef _DYADCOUNT3
 #undef DYADCOUNT
 #undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 #undef NO_EDGE
 #undef OLD_EDGE
 #undef NEW_EDGE
@@ -306,13 +300,19 @@ fun(ntoggles,toggletail,togglehead,nwp,m);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE1
+#undef _GET_OVERRIDE2
 #undef _GET_OVERRIDE3
+#undef _GET_OVERRIDE4
+#undef _GET_OVERRIDE5
+#undef _GET_OVERRIDE6
 #undef _DYADCOUNT1
 #undef _DYADCOUNT3
 #undef DYADCOUNT
 #undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
@@ -363,13 +363,19 @@ fun(ntoggles,toggletail,togglehead,nwp,m);
 #include "ergm_rlebdm.h"
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE1
+#undef _GET_OVERRIDE2
 #undef _GET_OVERRIDE3
+#undef _GET_OVERRIDE4
+#undef _GET_OVERRIDE5
+#undef _GET_OVERRIDE6
 #undef _DYADCOUNT1
 #undef _DYADCOUNT3
 #undef DYADCOUNT
 #undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 #undef TH2Dyad
 #undef Dyad2T
 #undef Dyad2H
@@ -396,36 +402,6 @@ WtNetwork * WtNetworkCopy(WtNetwork *src){
 static WtNetwork * (*fun)(WtNetwork *) = NULL;
 if(fun==NULL) fun = (WtNetwork * (*)(WtNetwork *)) R_FindSymbol("WtNetworkCopy", "ergm", NULL);
 return fun(src);
-}
-Edge WtEdgetreeSearch(Vertex a, Vertex b, WtTreeNode *edges){
-static Edge (*fun)(Vertex,Vertex,WtTreeNode *) = NULL;
-if(fun==NULL) fun = (Edge (*)(Vertex,Vertex,WtTreeNode *)) R_FindSymbol("WtEdgetreeSearch", "ergm", NULL);
-return fun(a,b,edges);
-}
-double WtGetEdge(Vertex tail, Vertex head, WtNetwork *nwp){
-static double (*fun)(Vertex,Vertex,WtNetwork *) = NULL;
-if(fun==NULL) fun = (double (*)(Vertex,Vertex,WtNetwork *)) R_FindSymbol("WtGetEdge", "ergm", NULL);
-return fun(tail,head,nwp);
-}
-Edge WtEdgetreeSuccessor(WtTreeNode *edges, Edge x){
-static Edge (*fun)(WtTreeNode *,Edge) = NULL;
-if(fun==NULL) fun = (Edge (*)(WtTreeNode *,Edge)) R_FindSymbol("WtEdgetreeSuccessor", "ergm", NULL);
-return fun(edges,x);
-}
-Edge WtEdgetreePredecessor(WtTreeNode *edges, Edge x){
-static Edge (*fun)(WtTreeNode *,Edge) = NULL;
-if(fun==NULL) fun = (Edge (*)(WtTreeNode *,Edge)) R_FindSymbol("WtEdgetreePredecessor", "ergm", NULL);
-return fun(edges,x);
-}
-Edge WtEdgetreeMinimum(WtTreeNode *edges, Edge x){
-static Edge (*fun)(WtTreeNode *,Edge) = NULL;
-if(fun==NULL) fun = (Edge (*)(WtTreeNode *,Edge)) R_FindSymbol("WtEdgetreeMinimum", "ergm", NULL);
-return fun(edges,x);
-}
-Edge WtEdgetreeMaximum(WtTreeNode *edges, Edge x){
-static Edge (*fun)(WtTreeNode *,Edge) = NULL;
-if(fun==NULL) fun = (Edge (*)(WtTreeNode *,Edge)) R_FindSymbol("WtEdgetreeMaximum", "ergm", NULL);
-return fun(edges,x);
 }
 void WtSetEdge(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
 static void (*fun)(Vertex,Vertex,double,WtNetwork *) = NULL;
@@ -477,11 +453,6 @@ static void (*fun)(Edge,Edge,WtTreeNode *) = NULL;
 if(fun==NULL) fun = (void (*)(Edge,Edge,WtTreeNode *)) R_FindSymbol("WtRelocateHalfedge", "ergm", NULL);
 fun(from,to,edges);
 }
-int WtElapsedTime(Vertex tail, Vertex head, WtNetwork *nwp){
-static int (*fun)(Vertex,Vertex,WtNetwork *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,WtNetwork *)) R_FindSymbol("WtElapsedTime", "ergm", NULL);
-return fun(tail,head,nwp);
-}
 void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp){
 static void (*fun)(Vertex,Vertex,WtNetwork *) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex,Vertex,WtNetwork *)) R_FindSymbol("WtTouchEdge", "ergm", NULL);
@@ -527,6 +498,11 @@ static void (*fun)(Vertex *,Vertex *,double *,Edge) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex *,Vertex *,double *,Edge)) R_FindSymbol("WtShuffleEdges", "ergm", NULL);
 fun(tails,heads,weights,nedges);
 }
+void WtDetShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges){
+static void (*fun)(Vertex *,Vertex *,double *,Edge) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex *,Vertex *,double *,Edge)) R_FindSymbol("WtDetShuffleEdges", "ergm", NULL);
+fun(tails,heads,weights,nedges);
+}
 Edge WtDesignMissing(Vertex a, Vertex b, WtNetwork *mnwp){
 static Edge (*fun)(Vertex,Vertex,WtNetwork *) = NULL;
 if(fun==NULL) fun = (Edge (*)(Vertex,Vertex,WtNetwork *)) R_FindSymbol("WtDesignMissing", "ergm", NULL);
@@ -539,13 +515,19 @@ return fun(tails,heads,weights,nwp,nmax);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE1
+#undef _GET_OVERRIDE2
 #undef _GET_OVERRIDE3
+#undef _GET_OVERRIDE4
+#undef _GET_OVERRIDE5
+#undef _GET_OVERRIDE6
 #undef _DYADCOUNT1
 #undef _DYADCOUNT3
 #undef DYADCOUNT
 #undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
@@ -562,13 +544,19 @@ fun(MH);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE1
+#undef _GET_OVERRIDE2
 #undef _GET_OVERRIDE3
+#undef _GET_OVERRIDE4
+#undef _GET_OVERRIDE5
+#undef _GET_OVERRIDE6
 #undef _DYADCOUNT1
 #undef _DYADCOUNT3
 #undef DYADCOUNT
 #undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 #undef NO_EDGE
 #undef OLD_EDGE
 #undef NEW_EDGE
@@ -608,13 +596,19 @@ fun(ntoggles,toggletail,togglehead,toggleweight,nwp,m);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE1
+#undef _GET_OVERRIDE2
 #undef _GET_OVERRIDE3
+#undef _GET_OVERRIDE4
+#undef _GET_OVERRIDE5
+#undef _GET_OVERRIDE6
 #undef _DYADCOUNT1
 #undef _DYADCOUNT3
 #undef DYADCOUNT
 #undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
@@ -708,13 +702,19 @@ fun(MH,theta,gain,meanstats,nphase1,nsubphases,networkstatistics,samplesize,burn
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE1
+#undef _GET_OVERRIDE2
 #undef _GET_OVERRIDE3
+#undef _GET_OVERRIDE4
+#undef _GET_OVERRIDE5
+#undef _GET_OVERRIDE6
 #undef _DYADCOUNT1
 #undef _DYADCOUNT3
 #undef DYADCOUNT
 #undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
@@ -799,13 +799,19 @@ return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 }
 #undef MIN
 #undef MAX
+#undef _GET_OVERRIDE1
+#undef _GET_OVERRIDE2
 #undef _GET_OVERRIDE3
+#undef _GET_OVERRIDE4
+#undef _GET_OVERRIDE5
+#undef _GET_OVERRIDE6
 #undef _DYADCOUNT1
 #undef _DYADCOUNT3
 #undef DYADCOUNT
 #undef EDGECOUNT
 #undef ENSURE_TH_ORDER
 #undef GetRandDyad
+#undef ENSURE_TH_ORDER
 #undef CHOOSE
 #undef EQUAL
 #undef XOR
