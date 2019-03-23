@@ -114,10 +114,6 @@
 #'   and did not want to reinitialize the model and the proposal ever
 #'   time.
 #' 
-#' @return If \code{statsonly==TRUE} a matrix containing the simulated network
-#' statistics. If \code{control$parallel>0}, the statistics from each Markov
-#' chain are stacked.
-#' 
 #' @return If \code{output=="stats"} an [`mcmc`] object containing the
 #'   simulated network statistics. If \code{control$parallel>0}, an
 #'   [`mcmc.list`] object. If `simplify=TRUE` (the default), these
@@ -279,7 +275,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   # auxiliary requests could be passed to ergm_model().
   proposal <- if(inherits(constraints, "ergm_proposal")) constraints
                 else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
-                                nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
+                                   nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
   
   # Prepare inputs to ergm.getMCMCsample
   m <- ergm_model(object, nw, response=response, role="static", extra.aux=list(proposal$auxiliaries),term.options=control$term.options)

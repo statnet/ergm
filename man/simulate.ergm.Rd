@@ -122,10 +122,6 @@ time.}
 constraints.}
 }
 \value{
-If \code{statsonly==TRUE} a matrix containing the simulated network
-statistics. If \code{control$parallel>0}, the statistics from each Markov
-chain are stacked.
-
 If \code{output=="stats"} an \code{\link{mcmc}} object containing the
 simulated network statistics. If \code{control$parallel>0}, an
 \code{\link{mcmc.list}} object. If \code{simplify=TRUE} (the default), these
