@@ -81,12 +81,8 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   control.toplevel(...,myname="san")
 
   output <- match.arg(output)
-
-  out.list <- list()
-  out.mat <- numeric(0)
   formula <- object
 
-  if(!is.null(control$seed)) set.seed(as.integer(control$seed))
   if(!is.null(basis)) {
     nw <- basis
   } else {
@@ -105,15 +101,51 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   # as its edges are only accessed through methods that
   # pending_update_network methods overload, it should be fine.
 
-  model <- ergm_model(formula, nw, response=response, term.options=control$term.options)
-  Clist <- ergm.Cprepare(nw, model, response=response)
-  
   proposal<-ergm_proposal(constraints,arguments=control$SAN.prop.args,nw=nw,weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
-# if(is.null(control$coef)) {
-#   warning("No parameter values given, using the MPLE for the passed network.\n\t")
-# }
-# control$coef <- c(control$coef[1],rep(0,Clist$nstats-1))
+  model <- ergm_model(formula, nw, response=response, term.options=control$term.options)
     
+  san(model, response=response, reference=reference, constraints=proposal, target.stats=target.stats, nsim=nsim, basis=nw, output=output, only.last=only.last, control=control, verbose=verbose, ...)
+}
+
+#' @describeIn san A lower-level function that expects a pre-initialized [`ergm_model`].
+#' @export
+san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constraints=~., target.stats=NULL,
+                           nsim=1, basis=NULL,
+                           output=c("network","edgelist","pending_update_network"),
+                           only.last=TRUE,
+                           control=control.san(),
+                           verbose=FALSE, ...) {
+  check.control.class("san", "san")
+  control.toplevel(...,myname="san")
+
+  model <- object
+
+  out.list <- list()
+  out.mat <- numeric(0)
+
+  if(!is.null(control$seed)) set.seed(as.integer(control$seed))
+  nw <- basis
+  nw <- as.network(ensure_network(nw), populate=FALSE)
+  # nw is now a network/pending_update_network hybrid class. As long
+  # as its edges are only accessed through methods that
+  # pending_update_network methods overload, it should be fine.
+
+  if(is.null(target.stats)){
+    stop("You need to specify target statistic via",
+         " the 'target.stats' argument")
+  }
+
+  proposal <- if(inherits(constraints, "ergm_proposal")) constraints
+              else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
+                                 nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
+  
+  Clist <- ergm.Cprepare(nw, model, response=response)
+    
+  if (verbose) {
+    message(paste("Starting ",nsim," MCMC iteration", ifelse(nsim>1,"s",""),
+        " of ", control$SAN.burnin+control$SAN.interval*(nsim-1), 
+        " steps", ifelse(nsim>1, " each", ""), ".", sep=""))
+  }
   maxedges <- max(control$SAN.init.maxedges, Clist$nedges)
   netsumm<-summary(model,nw,response=response)
   target.stats <- vector.namesmatch(target.stats, names(netsumm))

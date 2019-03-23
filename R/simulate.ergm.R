@@ -58,13 +58,15 @@
 #' reference measure (\eqn{h(y)}) to be used. (Defaults to \code{~Bernoulli}.)
 #' See help for [ERGM reference measures][ergm-references] implemented in
 #' the \code{\link[=ergm-package]{ergm}} package.
-#' @param constraints A one-sided formula specifying one or more constraints on
-#' the support of the distribution of the networks being simulated. See the
-#' documentation for a similar argument for \code{\link{ergm}} and see
-#' [list of implemented constraints][ergm-constraints] for more information. For
-#' \code{simulate.formula}, defaults to no constraints. For
-#' \code{simulate.ergm}, defaults to using the same constraints as those with
-#' which \code{object} was fitted.
+#'
+#' @param constraints A one-sided formula specifying one or more
+#'   constraints on the support of the distribution of the networks
+#'   being simulated. See the documentation for a similar argument for
+#'   \code{\link{ergm}} and see [list of implemented
+#'   constraints][ergm-constraints] for more information. For
+#'   \code{simulate.formula}, defaults to no constraints. For
+#'   \code{simulate.ergm}, defaults to using the same constraints as
+#'   those with which \code{object} was fitted.
 #' 
 #' @param monitor A one-sided formula specifying one or more terms
 #'   whose value is to be monitored. These terms are appeneded to the
@@ -101,6 +103,13 @@
 #' @param verbose Logical: If TRUE, extra information is printed as the Markov
 #' chain progresses.
 #' @param \dots Further arguments passed to or used by methods.
+#' 
+#' @param do.sim Logical: If `FALSE`, do not proceed to the simulation
+#'   but rather return a list of arguments that would have been passed
+#'   to [simulate.ergm_model()]. This can be useful if, for example,
+#'   one wants to run several simulations with varying coefficients
+#'   and did not want to reinitialize the model and the proposal ever
+#'   time.
 #' 
 #' @return If \code{output=="stats"} an [`mcmc`] object containing the
 #'   simulated network statistics. If \code{control$parallel>0}, an
@@ -217,7 +226,7 @@
 #' @export
 simulate.formula <- function(object, nsim=1, seed=NULL,
                                coef, response=NULL, reference=~Bernoulli,
-                               constraints=~.,
+                             constraints=~.,
                                monitor=NULL,
                                basis=NULL,
                                statsonly=FALSE,
@@ -226,7 +235,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
                              simplify=TRUE,
                              sequential=TRUE,
                                control=control.simulate.formula(),
-                             verbose=FALSE, ...) {
+                             verbose=FALSE, ..., do.sim=TRUE) {
   #' @importFrom statnet.common check.control.class
   check.control.class("simulate.formula", myname="ERGM simulate.formula")
   control.toplevel(...)
@@ -236,8 +245,6 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     output <- if(statsonly) "stats" else "network"
   }
   output <- match.arg(output)
-  
-  if(!is.null(seed)) {set.seed(as.integer(seed))}
   
   # define nw as either the basis argument or (if NULL) the LHS of the formula
   if (is.null(nw <- basis)) {
@@ -252,8 +259,100 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   
   mon.m <- if(!is.null(monitor)) as.ergm_model(monitor, nw, response=response, term.options=control$term.options)
 
+  # Construct the proposal; this needs to be done here so that the
+  # auxiliary requests could be passed to ergm_model().
+  proposal <- if(inherits(constraints, "ergm_proposal")) constraints
+                else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
+                                   nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
+  
   # Prepare inputs to ergm.getMCMCsample
-  m <- c(ergm_model(object, nw, response=response, role="static", term.options=control$term.options), mon.m)
+  m <- ergm_model(object, nw, response=response, role="static", term.options=control$term.options)
+
+  if(do.sim){
+    out <- simulate(m, nsim=nsim, seed=seed,
+                    coef=coef, response=response, reference=reference,
+                    constraints=proposal,
+                    monitor=mon.m,
+                    basis=nw,
+                    statsonly=statsonly,
+                    esteq=esteq,
+                    output=output,
+                    simplify=simplify,
+                    sequential=sequential,
+                    control=control,
+                    verbose=verbose, ...)
+    
+    if(statsonly || nsim==1) # Then out is either a matrix or a single
+                           # network. Return it.
+      return(out)
+  
+    # If we get this far, statsonly==FALSE and nsim > 1, so out is a
+    # network.list. Therefore, set the simulation and monitor formulas,
+    # which simulate.ergm_model() doesn't know.
+    attributes(out) <- c(attributes(out),
+                         list(formula=object, monitor=monitor))
+    out
+  }else{
+    list(object=m, nsim=nsim, seed=seed,
+         coef=coef, response=response, reference=reference,
+         constraints=proposal,
+         monitor=mon.m,
+         basis=nw,
+         statsonly=statsonly,
+         esteq=esteq,
+         output=output,
+         simplify=simplify,
+         sequential=sequential,
+         control=control,
+         verbose=verbose, ...)
+  }
+}
+
+#' @rdname simulate.ergm
+#'
+#' @note [simulate.ergm_model()] is a lower-level interface, providing
+#'   a [simulate()] method for [`ergm_model`] class. The `basis`
+#'   argument is required; `monitor`, if passed, must be an
+#'   [`ergm_model`] as well; and `constraints` can be an
+#'   [`ergm_proposal`] object instead.
+#' @export
+simulate.ergm_model <- function(object, nsim=1, seed=NULL,
+                                coef, response=NULL, reference=~Bernoulli,
+                                constraints=~.,
+                                monitor=NULL,
+                                basis=NULL,
+                                statsonly=FALSE,
+                                esteq=FALSE,
+                                output=c("network","stats","edgelist","pending_update_network"),
+                                simplify=TRUE,
+                                sequential=TRUE,
+                                control=control.simulate.formula(),
+                                verbose=FALSE, ...){
+
+  check.control.class(c("simulate.formula", "simulate.ergm_model"), myname="simulate.ergm_model")
+  control.toplevel(..., myname="simulate.formula")
+  
+  if(!is.null(monitor) && !is(monitor, "ergm_model")) stop("ergm_model method for simulate() requires monitor= argument of class ergm_model or NULL.")
+  if(is.null(basis)) stop("ergm_model method for simulate() requires the basis= argument for the initial state of the simulation.")
+ 
+  # Backwards-compatibility code:
+  if("theta0" %in% names(list(...))){
+    warning("Passing the parameter vector as theta0= is deprecated. Use coef= instead.")
+    coef<-list(...)$theta0
+  }
+  
+  if(!is.null(seed)) {set.seed(as.integer(seed))}
+  
+  # define nw as either the basis argument or (if NULL) the LHS of the formula
+  nw <- basis
+  # Do some error-checking on the nw object
+  nw <- as.network(ensure_network(nw), populate=FALSE)
+  # nw is now a network/pending_update_network hybrid class. As long
+  # as its edges are only accessed through methods that
+  # pending_update_network methods overload, it should be fine.
+
+  m <- c(object, monitor)
+  
   # Just in case the user did not give a coef value, set it to zero.
   # (probably we could just return an error in this case!)
   if(missing(coef)) {
@@ -261,12 +360,13 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     warning("No parameter values given, using Bernouli network.")
   }
 
-  coef <- c(coef, rep(0, nparam(mon.m)))
+  coef <- c(coef, rep(0, nparam(monitor)))
   
-  if(nparam(m)!=length(coef)) stop("coef has ", length(coef) - nparam(mon.m), " elements, while the model requires ",nparam(m) - nparam(mon.m)," parameters.")
+  if(nparam(m)!=length(coef)) stop("coef has ", length(coef) - nparam(monitor), " elements, while the model requires ",nparam(m) - nparam(monitor)," parameters.")
 
-  proposal <- ergm_proposal(constraints,arguments=control$MCMC.prop.args,
-                           nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
+  proposal <- if(inherits(constraints, "ergm_proposal")) constraints
+              else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
+                                 nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
 
   if (any(is.nan(coef) | is.na(coef)))
     stop("Illegal value of coef passed to simulate.formula")
@@ -350,7 +450,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   if(simplify)
     stats <- as.matrix(stats)[seq_len(nsim),,drop=FALSE]
 
-  attr(stats, "monitored") <- rep(c(FALSE,TRUE), c(nparam(m,canonical=!esteq) - NVL3(mon.m, nparam(.,canonical=!esteq), 0), NVL3(mon.m, nparam(.,canonical=!esteq), 0)))
+  attr(stats, "monitored") <- rep(c(FALSE,TRUE), c(nparam(m,canonical=!esteq) - NVL3(monitor, nparam(.,canonical=!esteq), 0), NVL3(monitor, nparam(.,canonical=!esteq), 0)))
 
   if(output=="stats")
     return(stats)
@@ -416,8 +516,8 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
   simulate(object$formula, nsim=nsim, coef=coef, response=response, reference=reference,
                    esteq=esteq,
                    sequential=sequential, constraints=constraints,
-           monitor=monitor,
-           basis=basis,
+                   monitor=monitor,
+                   basis=basis,
            output=output, simplify=simplify,
                    control=control, verbose=verbose, seed=seed, ...)
 }
