@@ -68,7 +68,7 @@
 #'   \code{simulate.ergm}, defaults to using the same constraints as
 #'   those with which \code{object} was fitted.
 #'
-#' @param observed Inherit observational constraints rather than model
+#' @param observational Inherit observational constraints rather than model
 #'   constraints.
 #' 
 #' @param monitor A one-sided formula specifying one or more terms

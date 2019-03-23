@@ -70,6 +70,9 @@ being simulated. See the documentation for a similar argument for
 \code{simulate.ergm}, defaults to using the same constraints as
 those with which \code{object} was fitted.}
 
+\item{observational}{Inherit observational constraints rather than model
+constraints.}
+
 \item{monitor}{A one-sided formula specifying one or more terms
 whose value is to be monitored. These terms are appeneded to the
 model, along with a coefficient of 0, so their statistics are
@@ -117,9 +120,6 @@ to \code{\link[=simulate.ergm_model]{simulate.ergm_model()}}. This can be useful
 one wants to run several simulations with varying coefficients
 and did not want to reinitialize the model and the proposal ever
 time.}
-
-\item{observed}{Inherit observational constraints rather than model
-constraints.}
 }
 \value{
 If \code{output=="stats"} an \code{\link{mcmc}} object containing the
