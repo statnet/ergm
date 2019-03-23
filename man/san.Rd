@@ -4,6 +4,7 @@
 \alias{san}
 \alias{san.default}
 \alias{san.formula}
+\alias{san.ergm_model}
 \alias{san.ergm}
 \title{Use Simulated Annealing to attempt to match a network to a vector of mean
 statistics}
@@ -14,6 +15,12 @@ san(object, ...)
   constraints = ~., target.stats = NULL, nsim = 1, basis = NULL,
   output = c("network", "edgelist", "pending_update_network"),
   only.last = TRUE, control = control.san(), verbose = FALSE, ...)
+
+\method{san}{ergm_model}(object, response = NULL,
+  reference = ~Bernoulli, constraints = ~., target.stats = NULL,
+  nsim = 1, basis = NULL, output = c("network", "edgelist",
+  "pending_update_network"), only.last = TRUE, control = control.san(),
+  verbose = FALSE, ...)
 
 \method{san}{ergm}(object, formula = object$formula,
   constraints = object$constraints, target.stats = object$target.stats,
@@ -82,6 +89,8 @@ those passed in via the \code{target.stats} vector.
 \section{Methods (by class)}{
 \itemize{
 \item \code{formula}: Sufficient statistics are specified by a \code{\link{formula}}.
+
+\item \code{ergm_model}: A lower-level function that expects a pre-initialized \code{\link{ergm_model}}.
 
 \item \code{ergm}: Sufficient statistics and other settings are
 inherited from the \code{\link{ergm}} fit unless overridden.
