@@ -4,9 +4,18 @@
 \alias{simulate.ergm}
 \alias{simulate.formula}
 \alias{simulate.formula.ergm}
+\alias{simulate.ergm_model}
 \title{Draw from the distribution of an Exponential Family Random Graph Model}
 \usage{
 \method{simulate}{formula}(object, nsim = 1, seed = NULL, coef,
+  response = NULL, reference = ~Bernoulli, constraints = ~.,
+  monitor = NULL, basis = NULL, statsonly = FALSE, esteq = FALSE,
+  output = c("network", "stats", "edgelist", "pending_update_network"),
+  simplify = TRUE, sequential = TRUE,
+  control = control.simulate.formula(), verbose = FALSE, ...,
+  do.sim = TRUE)
+
+\method{simulate}{ergm_model}(object, nsim = 1, seed = NULL, coef,
   response = NULL, reference = ~Bernoulli, constraints = ~.,
   monitor = NULL, basis = NULL, statsonly = FALSE, esteq = FALSE,
   output = c("network", "stats", "edgelist", "pending_update_network"),
@@ -51,13 +60,13 @@ reference measure (\eqn{h(y)}) to be used. (Defaults to \code{~Bernoulli}.)
 See help for \link[=ergm-references]{ERGM reference measures} implemented in
 the \code{\link[=ergm-package]{ergm}} package.}
 
-\item{constraints}{A one-sided formula specifying one or more constraints on
-the support of the distribution of the networks being simulated. See the
-documentation for a similar argument for \code{\link{ergm}} and see
-\link[=ergm-constraints]{list of implemented constraints} for more information. For
+\item{constraints}{A one-sided formula specifying one or more
+constraints on the support of the distribution of the networks
+being simulated. See the documentation for a similar argument for
+\code{\link{ergm}} and see \link[=ergm-constraints]{list of implemented constraints} for more information. For
 \code{simulate.formula}, defaults to no constraints. For
-\code{simulate.ergm}, defaults to using the same constraints as those with
-which \code{object} was fitted.}
+\code{simulate.ergm}, defaults to using the same constraints as
+those with which \code{object} was fitted.}
 
 \item{monitor}{A one-sided formula specifying one or more terms
 whose value is to be monitored. These terms are appeneded to the
@@ -99,6 +108,13 @@ Constructed using \code{\link{control.simulate.ergm}} or
 chain progresses.}
 
 \item{\dots}{Further arguments passed to or used by methods.}
+
+\item{do.sim}{Logical: If \code{FALSE}, do not proceed to the simulation
+but rather return a list of arguments that would have been passed
+to \code{\link[=simulate.ergm_model]{simulate.ergm_model()}}. This can be useful if, for example,
+one wants to run several simulations with varying coefficients
+and did not want to reinitialize the model and the proposal ever
+time.}
 }
 \value{
 If \code{output=="stats"} an \code{\link{mcmc}} object containing the
@@ -183,6 +199,13 @@ after the first.
 
 More information can be found by looking at the documentation of
 \code{\link{ergm}}.
+}
+\note{
+\code{\link[=simulate.ergm_model]{simulate.ergm_model()}} is a lower-level interface, providing
+a \code{\link[=simulate]{simulate()}} method for \code{\link{ergm_model}} class. The \code{basis}
+argument is required; \code{monitor}, if passed, must be an
+\code{\link{ergm_model}} as well; and \code{constraints} can be an
+\code{\link{ergm_proposal}} object instead.
 }
 \examples{
 \dontshow{
