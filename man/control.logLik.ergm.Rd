@@ -8,7 +8,7 @@ control.logLik.ergm(nsteps = 20, MCMC.burnin = NULL,
   MCMC.interval = NULL, MCMC.samplesize = NULL,
   obs.MCMC.samplesize = MCMC.samplesize,
   obs.MCMC.interval = MCMC.interval, obs.MCMC.burnin = MCMC.burnin,
-  MCMC.prop.weights = NULL, MCMC.prop.args = NULL, warn.dyads = TRUE,
+  MCMC.prop.weights = NULL, MCMC.prop.args = NULL, warn.dyads = NULL,
   MCMC.init.maxedges = NULL, MCMC.packagenames = NULL,
   term.options = NULL, seed = NULL, parallel = NULL,
   parallel.type = NULL, parallel.version.check = TRUE)
@@ -46,7 +46,7 @@ a low edge density, as is typical of many realistic social networks.}
 arguments to proposal.}
 
 \item{warn.dyads}{Whether or not a warning should be issued when sample
-space constraints render the observed number of dyads ill-defined.}
+space constraints render the observed number of dyads ill-defined. Now defunct: use \code{options(ergm.logLik.warn_dyads=...)} instead.}
 
 \item{MCMC.init.maxedges}{Maximum number of edges expected in network.}
 
