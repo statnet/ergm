@@ -42,7 +42,7 @@
 #' @param MCMC.prop.args An alternative, direct way of specifying additional
 #' arguments to proposal.
 #' @param warn.dyads Whether or not a warning should be issued when sample
-#' space constraints render the observed number of dyads ill-defined.
+#' space constraints render the observed number of dyads ill-defined. Now defunct: use `options(ergm.logLik.warn_dyads=...)` instead.
 #' @param MCMC.init.maxedges Maximum number of edges expected in network.
 #' @template term_options
 #' @template control_MCMC_parallel
@@ -63,7 +63,7 @@ control.logLik.ergm<-function(nsteps=20,
                               MCMC.prop.weights=NULL,
                               MCMC.prop.args=NULL,
 
-                              warn.dyads=TRUE,
+                              warn.dyads=NULL,
 
                               MCMC.init.maxedges=NULL,
                               MCMC.packagenames=NULL,
@@ -74,6 +74,9 @@ control.logLik.ergm<-function(nsteps=20,
                               parallel.type=NULL,
                               parallel.version.check=TRUE
 ){
+
+  # TODO: Remove after 3.10 release.
+  if(!is.null(warn.dyads)) .Deprecate_once(msg=paste("Option", sQuote("warn.dyads="), "is no longer used. Use", sQuote("options(ergm.logLik.warn_dyads=...)"), "instead."))
 
   control<-list()
   formal.args<-formals(sys.function())
