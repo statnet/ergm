@@ -419,10 +419,10 @@ InitWtErgmTerm.nodemix<-function (nw, arglist, ...) {
 
 InitWtErgmTerm.nodecov<-InitWtErgmTerm.nodemain<-function (nw, arglist, response, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                     varnames = c("attrname","transform","transformname","form"),
-                     vartypes = c("character","function","character","character"),
-                     defaultvalues = list(NULL,identity,"","sum"),
-                     required = c(TRUE,FALSE,FALSE,FALSE))
+                     varnames = c("attr","form"),
+                     vartypes = c(ERGM_VATTR_SPEC,"character"),
+                     defaultvalues = list(NULL,"sum"),
+                     required = c(TRUE,FALSE))
   binary_dind_wrap("nodecov", nw, a, ...)
 }
 
