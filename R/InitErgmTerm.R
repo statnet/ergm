@@ -2505,17 +2505,29 @@ InitErgmTerm.nearsimmelian<-function (nw, arglist, ...) {
 
 
 ################################################################################
-InitErgmTerm.nodecov<-InitErgmTerm.nodemain<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("attrname","transform","transformname"),
-                      vartypes = c("character","function","character"),
-                      defaultvalues = list(NULL,function(x)x,""),
-                      required = c(TRUE,FALSE,FALSE))
-  attrname<-a$attrname
-  f<-a$transform
-  f.name<-a$transformname
-  coef.names <- paste(paste("nodecov",f.name,sep=""),attrname,sep=".")
-  nodecov <- f(get.node.attr(nw, attrname, "nodecov", numeric=TRUE))
+InitErgmTerm.nodecov<-InitErgmTerm.nodemain<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    a <- check.ErgmTerm(nw, arglist,
+                        varnames = c("attrname","transform","transformname"),
+                        vartypes = c("character","function","character"),
+                        defaultvalues = list(NULL,function(x)x,""),
+                        required = c(TRUE,FALSE,FALSE))
+    attrname<-a$attrname
+    f<-a$transform
+    f.name<-a$transformname
+    coef.names <- paste(paste("nodecov",f.name,sep=""),attrname,sep=".")
+    nodecov <- f(get.node.attr(nw, attrname, "nodecov", numeric=TRUE))
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
+                        varnames = c("attr"),
+                        vartypes = c(ERGM_VATTR_SPEC),
+                        defaultvalues = list(NULL),
+                        required = c(TRUE))
+    ### Process the arguments
+    nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric")
+    coef.names <- attr(nodecov, "name")
+  }
   list(name="nodecov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
 
