@@ -2512,7 +2512,7 @@ InitErgmTerm.nodecov<-InitErgmTerm.nodemain<-function (nw, arglist, ..., version
                         required = c(TRUE))
     ### Process the arguments
     nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric")
-    coef.names <- attr(nodecov, "name")
+    coef.names <- paste("nodecov",attr(nodecov, "name"),sep=".")
   }
   list(name="nodecov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
