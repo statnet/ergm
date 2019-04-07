@@ -31,7 +31,7 @@ void SAN_wrapper ( int *nedges,
                    char **sonames, 
                    char **MHProposaltype, char **MHProposalpackage,
                    double *inputs, double *tau, 
-                   double *sample,
+                   double *sample, double *prop_sample,
 		   int *samplesize, int *nsteps,
                    int *newnetworktails, 
                    int *newnetworkheads, 
@@ -73,7 +73,7 @@ void SAN_wrapper ( int *nedges,
 	  *condAllDegExact, *attriblength);
 
   *status = SANSample (MHp,
-		       invcov, tau, sample, *samplesize,
+		       invcov, tau, sample, prop_sample, *samplesize,
 		       *nsteps,
 		       *fVerbose, nmax, nwp, m);
   
@@ -102,7 +102,7 @@ void SAN_wrapper ( int *nedges,
  the networkstatistics array. 
 *********************/
 MCMCStatus SANSample (MHProposal *MHp,
-  double *invcov, double *tau, double *networkstatistics, 
+  double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
   int samplesize, int nsteps, 
   int fVerbose, int nmax,
   Network *nwp, Model *m) {
@@ -132,7 +132,7 @@ MCMCStatus SANSample (MHProposal *MHp,
    in subsequent calls to M-H
    *********************/
   /*  Catch more edges than we can return */
-  if(SANMetropolisHastings(MHp, invcov, tau, networkstatistics, burnin, &staken,
+  if(SANMetropolisHastings(MHp, invcov, tau, networkstatistics, prop_networkstatistics, burnin, &staken,
 			   fVerbose, nwp, m)!=MCMC_OK)
     return MCMC_MH_FAILED;
   if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
@@ -157,9 +157,10 @@ MCMCStatus SANSample (MHProposal *MHp,
       }
 
       networkstatistics += m->n_stats;
+      prop_networkstatistics += m->n_stats;
       /* This then adds the change statistics to these values */
       
-      if(SANMetropolisHastings(MHp, invcov, tau, networkstatistics, 
+      if(SANMetropolisHastings(MHp, invcov, tau, networkstatistics, prop_networkstatistics,
 		             interval, &staken,
 			       fVerbose, nwp, m)!=MCMC_OK)
 	return MCMC_MH_FAILED;
@@ -221,7 +222,7 @@ MCMCStatus SANMetropolisHastings
 *********************/
 MCMCStatus SANMetropolisHastings (MHProposal *MHp,
 			    double *invcov, 
-			    double *tau, double *networkstatistics,
+				  double *tau, double *networkstatistics, double *prop_networkstatistics,
 			    int nsteps, int *staken,
 			    int fVerbose,
 			    Network *nwp,
@@ -267,6 +268,11 @@ MCMCStatus SANMetropolisHastings (MHProposal *MHp,
     /* Calculate change statistics,
        remembering that tail -> head */
     ChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m);
+
+    /* Always store the proposal for self-tuning. */
+    for (unsigned int i = 0; i < m->n_stats; i++){
+      prop_networkstatistics[i] += m->workspace[i];
+    }
 
     if(fVerbose>=5){
       Rprintf("Changes: (");

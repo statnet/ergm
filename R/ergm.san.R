@@ -167,9 +167,10 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
     outnw <- pending_update_network(nw,z,response=response)
     nw <-  outnw
     stats <- z$s[nrow(z$s),]
-    # TODO: Subtract off a smoothing of these values?
-    # Use only a bit less than the second half of the sample statistics to compute the statistic weights:
-    invcov <- ginv(cov(window(z$s, start=floor(nrow(z$s)*5/8))))
+    # Use *proposal* distribution of statistics for weights.
+    invcov <- ginv(cov(z$s.prop))
+    # On resuming, don't accumulate proposal record.
+    z$s.prop <- NULL
     # Ensure no statistic has weight 0:
     diag(invcov)[abs(diag(invcov))<.Machine$double.eps] <- min(diag(invcov)[abs(diag(invcov))>=.Machine$double.eps],1)
     invcov <- invcov / sum(diag(invcov)) # Rescale for consistency.
@@ -194,6 +195,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
                               edgelist=as.edgelist(outnw)
                               )
       out.mat <- z$s
+      attr(out.mat, "W") <- invcov
     }else{
       if(i<nsim && isTRUE(all.equal(stats, numeric(length(stats))))){
         if(verbose) message("Target statistics matched exactly.")
@@ -265,7 +267,7 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
               as.character(Clist$snamestring),
               as.character(proposal$name), as.character(proposal$pkgname),
               as.double(c(Clist$inputs,proposal$inputs)), as.double(.deinf(tau)),
-              s = as.double(c(stats, numeric(length(stats)*(samplesize-1)))),
+              s = as.double(c(stats, numeric(length(stats)*(samplesize-1)))), s.prop = double(length(stats)*samplesize),
               as.integer(samplesize),
               as.integer(nsteps), 
               newnwtails = integer(maxedges),
@@ -280,7 +282,7 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
               PACKAGE="ergm")
       
         # save the results (note that if prev.run is NULL, c(NULL$s,z$s)==z$s.
-      z<-list(s=matrix(z$s, ncol=Clist$nstats, byrow = TRUE),
+      z<-list(s=matrix(z$s, ncol=Clist$nstats, byrow = TRUE), s.prop=matrix(z$s.prop, ncol=Clist$nstats, byrow = TRUE),
                 newnwtails=z$newnwtails, newnwheads=z$newnwheads, status=z$status, maxedges=maxedges)
     }else{
       z <- .C("WtSAN_wrapper",
@@ -293,7 +295,7 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
               as.character(Clist$snamestring),
               as.character(proposal$name), as.character(proposal$pkgname),
               as.double(c(Clist$inputs,proposal$inputs)), as.double(.deinf(tau)),
-              s = as.double(c(stats, numeric(length(stats)*(samplesize-1)))),
+              s = as.double(c(stats, numeric(length(stats)*(samplesize-1)))), s.prop = double(length(stats)*samplesize),
               as.integer(samplesize),
               as.integer(nsteps), 
               newnwtails = integer(maxedges),
@@ -305,11 +307,13 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
               status = integer(1),
               PACKAGE="ergm")
       # save the results
-      z<-list(s=matrix(z$s, ncol=Clist$nstats, byrow = TRUE),
+      z<-list(s=matrix(z$s, ncol=Clist$nstats, byrow = TRUE), s.prop=matrix(z$s.prop, ncol=Clist$nstats, byrow = TRUE),
               newnwtails=z$newnwtails, newnwheads=z$newnwheads, newnwweights=z$newnwweights, status=z$status, maxedges=maxedges)
     }
+
     
     z$s <- rbind(prev.run$s,z$s)
+    z$s.prop <- rbind(prev.run$s.prop,z$s.prop)
     
     if(z$status!=1) return(z) # Handle everything except for MCMC_TOO_MANY_EDGES elsewhere.
     

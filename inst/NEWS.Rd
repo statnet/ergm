@@ -82,7 +82,14 @@
       }
 
       \item{
-	\code{\link{san}}'s internals have been singificantly updated. In particular, SAN now performs true simulated annealing, and arguments are interpreted somewhat differently.
+	\code{\link{san}}'s internals have been singificantly updated. In particular,
+	\itemize{
+
+	  \item{SAN now performs true simulated annealing, and arguments are interpreted somewhat differently.}
+
+	  \item{SAN's weighting of the statistics is now determined adaptively, in approximate proportion to the standard deviation of proposal distribution of these statistics.}
+
+	}
       }
 
       \item{
