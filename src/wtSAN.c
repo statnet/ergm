@@ -28,7 +28,7 @@ void WtSAN_wrapper (int *nedges,
 		    char **sonames, 
 		    char **MHProposaltype, char **MHProposalpackage,
 		    double *inputs, double *tau, 
-		    double *sample,
+		    double *sample, double *prop_sample,
 		    int *samplesize, int *nsteps,
 		    int *newnetworktails, 
 		    int *newnetworkheads, 
@@ -64,7 +64,7 @@ void WtSAN_wrapper (int *nedges,
 	    nwp);
 
   *status = WtSANSample (MHp,
-			 invcov, tau, sample, *samplesize,
+			 invcov, tau, sample, prop_sample, *samplesize,
 			 *nsteps,
 			 *fVerbose, nmax, nwp, m);
   
@@ -94,7 +94,7 @@ void WtSAN_wrapper (int *nedges,
  the networkstatistics array. 
 *********************/
 WtMCMCStatus WtSANSample (WtMHProposal *MHp,
-  double *invcov, double *tau, double *networkstatistics, 
+  double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
   int samplesize, int nsteps, 
   int fVerbose, int nmax,
   WtNetwork *nwp, WtModel *m) {
@@ -124,7 +124,7 @@ WtMCMCStatus WtSANSample (WtMHProposal *MHp,
    in subsequent calls to M-H
    *********************/
   /*  Catch more edges than we can return */
-  if(WtSANMetropolisHastings(MHp, invcov, tau, networkstatistics, burnin, &staken,
+  if(WtSANMetropolisHastings(MHp, invcov, tau, networkstatistics, prop_networkstatistics, burnin, &staken,
 			     fVerbose, nwp, m)!=WtMCMC_OK)
     return WtMCMC_MH_FAILED;
   if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
@@ -149,9 +149,10 @@ WtMCMCStatus WtSANSample (WtMHProposal *MHp,
       }
 
       networkstatistics += m->n_stats;
+      prop_networkstatistics += m->n_stats;
       /* This then adds the change statistics to these values */
       
-      if(WtSANMetropolisHastings (MHp, invcov, tau, networkstatistics, 
+      if(WtSANMetropolisHastings (MHp, invcov, tau, networkstatistics, prop_networkstatistics,
 		             interval, &staken, fVerbose, nwp, m)!=WtMCMC_OK)
 	return WtMCMC_MH_FAILED;
       if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
@@ -212,7 +213,7 @@ MCMCStatus WtSANMetropolisHastings
 *********************/
 WtMCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
 			    double *invcov, 
-			    double *tau, double *networkstatistics,
+				  double *tau, double *networkstatistics, double *prop_networkstatistics,
 			    int nsteps, int *staken,
 			    int fVerbose,
 			    WtNetwork *nwp,
@@ -259,6 +260,11 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
      remembering that tail -> head */
     WtChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, MHp->toggleweight, nwp, m);
 
+    /* Always store the proposal for self-tuning. */
+    for (unsigned int i = 0; i < m->n_stats; i++){
+      prop_networkstatistics[i] += m->workspace[i];
+    }
+
     if(fVerbose>=5){
       Rprintf("Changes: (");
       for(unsigned int i=0; i<m->n_stats; i++)
@@ -266,7 +272,7 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
       Rprintf(")\n");
     }
     
-    /* Calculate inner product */
+    /* Calculate the change in the (s-t) %*% W %*% (s-t) due to the proposal. */
     double ip=0;
     for (unsigned int i=0; i<m->n_stats; i++){
      deltainvsig[i]=0.0;

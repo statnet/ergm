@@ -23,7 +23,7 @@ void WtSAN_wrapper (int *nedges,
 		    char **sonames, 
 		    char **MHProposaltype, char **MHProposalpackage,
 		    double *inputs, double *tau,
-		    double *sample,
+		    double *sample, double *prop_sample,
 		    int *samplesize, int *nsteps,  
 		    int *newnetworktails, 
 		    int *newnetworkheads, 
@@ -34,12 +34,12 @@ void WtSAN_wrapper (int *nedges,
 		    int *status);
 
 WtMCMCStatus WtSANSample (WtMHProposal *MHp,
-		double *invcov, double *tau, double *networkstatistics, 
+		double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
 		int samplesize, int nsteps, 
 	        int fVerbose, int nmax,
 		WtNetwork *nwp, WtModel *m);
 WtMCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
-			 double *invcov, double *tau, double *statistics, 
+			 double *invcov, double *tau, double *statistics, double *prop_statistics,
 			 int nsteps, int *staken,
 			 int fVerbose,
 			 WtNetwork *nwp, WtModel *m);
