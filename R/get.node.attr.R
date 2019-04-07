@@ -288,7 +288,8 @@ ergm_get_vattr.character <- function(object, nw, accept="character", bip=c("n","
 #' @export
 ergm_get_vattr.function <- function(object, nw, accept="character", bip=c("n","b1","b2"), ...){
   ERRVL(try(object(nw, ...) %>%
-            .rightsize_vattr(nw, bip),
+            .rightsize_vattr(nw, bip) %>%
+            set_attrs(name=strtrim(despace(paste(deparse(body(object)),collapse="\n")),80)),
             silent=TRUE),
         ergm_Init_abort(.)) %>%
     .check_acceptable(accept=accept)
