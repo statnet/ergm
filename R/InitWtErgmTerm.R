@@ -417,13 +417,21 @@ InitWtErgmTerm.nodemix<-function (nw, arglist, ...) {
   binary_dind_wrap("nodemix", nw, a, ...)
 }
 
-InitWtErgmTerm.nodecov<-InitWtErgmTerm.nodemain<-function (nw, arglist, response, ...) {
-  a <- check.ErgmTerm(nw, arglist,
-                     varnames = c("attr","form"),
-                     vartypes = c(ERGM_VATTR_SPEC,"character"),
-                     defaultvalues = list(NULL,"sum"),
-                     required = c(TRUE,FALSE))
-  binary_dind_wrap("nodecov", nw, a, ...)
+InitWtErgmTerm.nodecov<-InitWtErgmTerm.nodemain<-function (nw, arglist, response, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    a <- check.ErgmTerm(nw, arglist,
+                        varnames = c("attrname","transform","transformname","form"),
+                        vartypes = c("character","function","character","character"),
+                        defaultvalues = list(NULL,function(x)x,"","sum"),
+                        required = c(TRUE,FALSE,FALSE,FALSE))
+  }else{
+    a <- check.ErgmTerm(nw, arglist,
+                        varnames = c("attr","form"),
+                        vartypes = c(ERGM_VATTR_SPEC,"character"),
+                        defaultvalues = list(NULL,"sum"),
+                        required = c(TRUE,FALSE))
+  }
+  binary_dind_wrap("nodecov", nw, a, ..., version=version)
 }
 
 InitWtErgmTerm.nodeicov<-function (nw, arglist, response, ...) {
