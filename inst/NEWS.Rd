@@ -72,9 +72,13 @@
       \item{
 	In all \code{gw*} terms, the \code{cutoff=} argument can now be controlled by a \code{gw.cutoff} term option.
       }
-      
+
       \item{
-	\code{simulate.ergm} now takes a basis= argument (defaulting to NULL) that it passes to simulate.formula().
+	\code[=nobs.ergm]{nobs} method has now been implemented for \code{\link{ergm}} objects.
+      }
+
+      \item{
+	\code{\link{simulate.ergm}} now takes a \code{basis=} argument (defaulting to NULL) that it passes to simulate.formula().
       }
 
       \item{
@@ -101,7 +105,7 @@
       }
 
       \item{
-	Term \code{\link{absdiff}} now uses the new \link[node-attr-api]{nodal attributes UI}.
+	Terms \code{\link{absdiff}} and \code{\link{nodecov}} now uses the new \link[node-attr-api]{nodal attributes UI}.
       }
       
       \item{
@@ -147,6 +151,10 @@
       \item{
 	Low-level function \code{\link{ergm_SAN_slave}} has now been split out of \code{\link{san}} like \code{\link{ergm_MCMC_slave}}.
       }
+
+      \item{
+	Lower-level \code{\link{simulate.ergm_model}} and \code{\link{san.ergm_model}} have been split out of \code{\link{simulate.formula}} and \code{\link{san.formula}}.
+      }
       
       \item{
 	\code{\link{gof.ergm}} now uses a longer \code{MCMC.interval} by default.
@@ -183,7 +191,11 @@
       \item{
 	\code{\link{simulate.ergm}} now defaults to starting the simulation from the \code{$newnetwork} element of the fit object. Thanks to Saeid Ghafouri for raising the issue and Sam Jenness, Steven Goodreau, and Martina Morris for suggesting a solution.
       }
-      
+
+      \item{
+	\code{simulate} methods now attach an \code{attr(,"monitored")} to the returned statistics, indicating which statistics were generated from the \code{monitor=} argument.
+      }
+
       \item{
 	\code{\link{pending_update_network}} \dQuote{API} is more formalized now, including methods overriding those of \code{\link{network}}.
       }
@@ -198,6 +210,11 @@
       \item{
 	Improvements to \code{\link{plot.gof}} for large networks.
       }
+
+      \item{
+	\code{logLik.ergm(warn.dyads=)} control parameter has been replaced by \code{options(ergm.logLik.warn_dyads=)} option.
+      }
+
       \item{
 	A number of previously deprecated functions are now defunct; a
 	number of previously defunct functions have been removed.
