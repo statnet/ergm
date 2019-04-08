@@ -198,7 +198,7 @@ nobs.ergm <- function(object, ...){
   # can handle dyad-independent ones fine, now.
   
   if(!is.dyad.independent(object$constrained, object$constrained.obs)
-     && getOption(ergm.loglik.warn_dyads)){
+     && getOption("ergm.loglik.warn_dyads")){
     warning("The number of observed dyads in this network is ill-defined due to complex constraints on the sample space. Disable this warning with ",sQuote("options(ergm.logLik.warn_dyads=FALSE)"),".")
   }
   
