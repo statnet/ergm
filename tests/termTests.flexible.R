@@ -440,9 +440,9 @@ if (round(s.0 - 4.8889, 3) != 0 ||
 num.tests=num.tests+1
 s.a <- summary(samplike~nodecov("YearsServed"))
 e.a <- ergm(fmh~nodecov("Grade"), estimate="MPLE")
-s.at <- summary(samplike~nodecov("YearsServed", function(x)x^2))
-e.at <- ergm(fmh~nodecov("Grade", function(x)x^2), estimate="MPLE")
-s.att <- summary(samplike~nodecov("YearsServed", function(x)x^2, "squared"))
+s.at <- summary(samplike~nodecov(~YearsServed^2))
+e.at <- ergm(fmh~nodecov(~(.%v%"Grade")^2), estimate="MPLE")
+s.att <- summary(samplike~nodecov(function(x)(x%v%"YearsServed")^2))
 if (s.a != 906 || round(e.a$coef + .271, 3) != 0 ||
     s.at != 5036 || round(e.at$coef + .03199, 3) != 0) {
  print(list(s.a=s.a, e.a=e.a, s.at=s.at, e.at=e.at))

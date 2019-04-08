@@ -266,6 +266,12 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
     m1crs <- sweep(sweep(m1, 2, x1m, "-")%*%Q, 2, x1crsd, "/")
     if(!is.null(x2)) x2crs <- sweep(sweep(x2, 2, x1m, "-")%*%Q, 2, x1crsd, "/")
     m2crs <- sweep(sweep(m2, 2, x1m, "-")%*%Q, 2, x1crsd, "/")
+  }else{
+    if(is.null(x2)){
+      if(isTRUE(all.equal(m1,m2,check.attributes=FALSE))) return(1) else return(0)
+    }else{
+      if(apply(x2, 1, all.equal, m1, check.attributes=FALSE) %>% map_lgl(isTRUE) %>% all) return(1) else return(0)
+    }
   }
   
   if(!is.null(x2) && nrow(x2crs) > x2.num.max){
