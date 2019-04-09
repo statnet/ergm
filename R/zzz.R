@@ -20,7 +20,7 @@
   # . is used as a placeholder by stantet.common::NVL3().
   utils::globalVariables(".")
   options(ergm.eval.loglik=TRUE)
-  options(ergm.logLik.warn_dyads=TRUE)
+  options(ergm.loglik.warn_dyads=TRUE)
 
   .RegisterProposals()
 }
