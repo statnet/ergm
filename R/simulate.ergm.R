@@ -248,8 +248,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     .Deprecate_once(msg=paste0("Use of ",sQuote("statsonly=")," argument has been deprecated. Use ",sQuote("output='stats'")," instead."))
     output <- if(statsonly) "stats" else "network"
   }
-  output <- match.arg(output)
-  
+
   # define nw as either the basis argument or (if NULL) the LHS of the formula
   if (is.null(nw <- basis)) {
     nw <- ergm.getnetwork(object)    
@@ -286,7 +285,6 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
                     constraints=proposal,
                     monitor=mon.m,
                     basis=nw,
-                    statsonly=statsonly,
                     esteq=esteq,
                     output=output,
                     simplify=simplify,
@@ -310,7 +308,6 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
          constraints=proposal,
          monitor=mon.m,
          basis=nw,
-         statsonly=statsonly,
          esteq=esteq,
          output=output,
          simplify=simplify,
@@ -334,7 +331,6 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                                 observational=FALSE,
                                 monitor=NULL,
                                 basis=NULL,
-                                statsonly=FALSE,
                                 esteq=FALSE,
                                 output=c("network","stats","edgelist","pending_update_network"),
                                 simplify=TRUE,
@@ -347,7 +343,9 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   
   if(!is.null(monitor) && !is(monitor, "ergm_model")) stop("ergm_model method for simulate() requires monitor= argument of class ergm_model or NULL.")
   if(is.null(basis)) stop("ergm_model method for simulate() requires the basis= argument for the initial state of the simulation.")
- 
+
+  output <- match.arg(output)
+
   # Backwards-compatibility code:
   if("theta0" %in% names(list(...))){
     warning("Passing the parameter vector as theta0= is deprecated. Use coef= instead.")

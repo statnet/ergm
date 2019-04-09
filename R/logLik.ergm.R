@@ -192,7 +192,7 @@ nobs.ergm <- function(object, ...){
   
   if(!is.dyad.independent(object$constrained, object$constrained.obs)
      && getOption("ergm.loglik.warn_dyads")){
-    warning("The number of observed dyads in this network is ill-defined due to complex constraints on the sample space. Disable this warning with ",sQuote("options(ergm.logLik.warn_dyads=FALSE)"),".")
+    warning("The number of observed dyads in this network is ill-defined due to complex constraints on the sample space. Disable this warning with ",sQuote("options(ergm.loglik.warn_dyads=FALSE)"),".")
   }
   
   NVL3(NVL(object$null.lik, object$mle.lik),

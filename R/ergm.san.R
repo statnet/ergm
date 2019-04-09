@@ -80,7 +80,6 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   check.control.class("san", "san")
   control.toplevel(...,myname="san")
 
-  output <- match.arg(output)
   formula <- object
 
   if(!is.null(basis)) {
@@ -122,6 +121,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
   check.control.class("san", "san")
   control.toplevel(...,myname="san")
 
+  output <- match.arg(output)
   model <- object
 
   out.list <- list()
