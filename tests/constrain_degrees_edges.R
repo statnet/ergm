@@ -7,7 +7,15 @@
 #
 #  Copyright 2003-2019 Statnet Commons
 #######################################################################
+
+# Also, while we are at it, test the options setting in .onLoad().
+options(ergm.eval.loglik=FALSE) # .onLoad() should not clobber this.
+
 library(ergm)
+
+# Check that options are either set to default or preserved.
+stopifnot(getOption("ergm.eval.loglik")==FALSE)
+stopifnot(getOption("ergm.loglik.warn_dyads")==TRUE)
 
 nsim <- 100
 n <- 50
