@@ -56,7 +56,7 @@ san.default <- function(object,...)
 #' @param target.stats A vector of the same length as the number of terms
 #' implied by the formula, which is either \code{object} itself in the case of
 #' \code{san.formula} or \code{object$formula} in the case of \code{san.ergm}.
-#' @param nsim Number of desired networks.
+#' @param nsim Number of networks to generate. Deprecated: just use [replicate()].
 #' @param basis If not NULL, a \code{network} object used to start the Markov
 #' chain.  If NULL, this is taken to be the network named in the formula.
 #'
@@ -72,7 +72,7 @@ san.default <- function(object,...)
 #' @param \dots Further arguments passed to other functions.
 #' @export
 san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints=~., target.stats=NULL,
-                        nsim=1, basis=NULL,
+                        nsim=NULL, basis=NULL,
                         output=c("network","edgelist","pending_update_network"),
                         only.last=TRUE,
                         control=control.san(),
@@ -109,7 +109,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
 #' @describeIn san A lower-level function that expects a pre-initialized [`ergm_model`].
 #' @export
 san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constraints=~., target.stats=NULL,
-                           nsim=1, basis=NULL,
+                           nsim=NULL, basis=NULL,
                            output=c("network","edgelist","pending_update_network"),
                            only.last=TRUE,
                            control=control.san(),
@@ -123,6 +123,22 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
   out.list <- list()
   out.mat <- numeric(0)
 
+  if(!is.null(nsim)){
+    .Dep_once(msg = "nsim= argument for the san() functions has been deprecated. Just use replicate().")
+    if(nsim>1 && !is.null(control$seed)) warn("Setting the random seed with nsim>1 will produce a list of identical networks.")
+    if(nsim>1){
+      return(structure(replicate(nsim,
+                                 san(object, response=response, reference=reference, constraints=constraints, target.stats=target.stats,
+                                     basis=basis,
+                                     output=output,
+                                     only.last=only.last,
+                                     control=control,
+                                     verbose=verbose, ...)),
+                       class="network.list"))
+    }
+  }
+
+  
   if(!is.null(control$seed)) set.seed(as.integer(control$seed))
   nw <- basis
   nw <- as.network(ensure_network(nw), populate=FALSE)
@@ -140,27 +156,34 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
                                  nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
   
   Clist <- ergm.Cprepare(nw, model, response=response)
-    
+  
   if (verbose) {
-    message(paste("Starting ",nsim," MCMC iteration", ifelse(nsim>1,"s",""),
-        " of ", control$SAN.burnin+control$SAN.interval*(nsim-1), 
-        " steps", ifelse(nsim>1, " each", ""), ".", sep=""))
+    message(paste("Starting ",control$SAN.maxit," MCMC iteration", ifelse(control$SAN.maxit>1,"s",""),
+        " of ", control$SAN.nsteps,
+        " steps", ifelse(control$SAN.maxit>1, " each", ""), ".", sep=""))
   }
   maxedges <- max(control$SAN.init.maxedges, Clist$nedges)
   netsumm<-summary(model,nw,response=response)
   target.stats <- vector.namesmatch(target.stats, names(netsumm))
   stats <- netsumm-target.stats
   control$invcov <- diag(1/nparam(model, canonical=TRUE), nparam(model, canonical=TRUE))
-  
+
+  nstepss <-
+    (if(is.function(control$SAN.nsteps.alloc)) control$SAN.nsteps.alloc(control$SAN.maxit) else control$SAN.nsteps.alloc) %>%
+    rep(length.out=control$SAN.maxit) %>%
+    (function(x) x/sum(x) * control$SAN.nsteps) %>%
+    round()
+
   z <- NULL
-  for(i in 1:nsim){
+  for(i in 1:control$SAN.maxit){
     if (verbose) {
-      message(paste("#", i, " of ", nsim, ": ", sep=""),appendLF=FALSE)
+      message(paste("#", i, " of ", control$SAN.maxit, ": ", sep=""),appendLF=FALSE)
     }
     
-    tau <- control$SAN.tau * (if(nsim>1) (1/i-1/nsim)/(1-1/nsim) else 0)
+    tau <- control$SAN.tau * (if(control$SAN.maxit>1) (1/i-1/control$SAN.maxit)/(1-1/control$SAN.maxit) else 0)
+    nsteps <- nstepss[i]
     
-    z <- ergm_SAN_slave(Clist, proposal, stats, tau, control, verbose,..., prev.run=z)
+    z <- ergm_SAN_slave(Clist, proposal, stats, tau, control, verbose,..., prev.run=z, nsteps=nsteps)
 
     if(z$status!=0) stop("Error in SAN.")
     
@@ -168,7 +191,10 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
     nw <-  outnw
     stats <- z$s[nrow(z$s),]
     # Use *proposal* distribution of statistics for weights.
-    invcov <- ginv(cov(z$s.prop))
+    invcov <-
+      if(control$SAN.invcov.diag) ginv(diag(diag(cov(z$s.prop)), ncol(z$s.prop)), tol=.Machine$double.eps)
+      else ginv(cov(z$s.prop), tol=.Machine$double.eps)
+
     # On resuming, don't accumulate proposal record.
     z$s.prop <- NULL
     # Ensure no statistic has weight 0:
@@ -197,13 +223,13 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
       out.mat <- z$s
       attr(out.mat, "W") <- invcov
     }else{
-      if(i<nsim && isTRUE(all.equal(stats, numeric(length(stats))))){
+      if(i<control$SAN.maxit && isTRUE(all.equal(stats, numeric(length(stats))))){
         if(verbose) message("Target statistics matched exactly.")
         break
       }
     }
   }
-  if(nsim > 1 && !only.last){
+  if(control$SAN.maxit > 1 && !only.last){
     structure(out.list, formula = formula, networks = out.list, 
               stats = out.mat, class="network.list")
   }else{
@@ -221,7 +247,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
 san.ergm <- function(object, formula=object$formula, 
                      constraints=object$constraints, 
                      target.stats=object$target.stats,
-                     nsim=1, basis=NULL,
+                     nsim=NULL, basis=NULL,
                      output=c("network","edgelist","pending_update_network"),
                      only.last=TRUE,
                      control=object$control$SAN.control,

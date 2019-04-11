@@ -12,19 +12,19 @@ statistics}
 san(object, ...)
 
 \method{san}{formula}(object, response = NULL, reference = ~Bernoulli,
-  constraints = ~., target.stats = NULL, nsim = 1, basis = NULL,
+  constraints = ~., target.stats = NULL, nsim = NULL, basis = NULL,
   output = c("network", "edgelist", "pending_update_network"),
   only.last = TRUE, control = control.san(), verbose = FALSE, ...)
 
 \method{san}{ergm_model}(object, response = NULL,
   reference = ~Bernoulli, constraints = ~., target.stats = NULL,
-  nsim = 1, basis = NULL, output = c("network", "edgelist",
+  nsim = NULL, basis = NULL, output = c("network", "edgelist",
   "pending_update_network"), only.last = TRUE, control = control.san(),
   verbose = FALSE, ...)
 
 \method{san}{ergm}(object, formula = object$formula,
   constraints = object$constraints, target.stats = object$target.stats,
-  nsim = 1, basis = NULL, output = c("network", "edgelist",
+  nsim = NULL, basis = NULL, output = c("network", "edgelist",
   "pending_update_network"), only.last = TRUE,
   control = object$control$SAN.control, verbose = FALSE, ...)
 }
@@ -58,7 +58,7 @@ which \code{object} was fitted.}
 implied by the formula, which is either \code{object} itself in the case of
 \code{san.formula} or \code{object$formula} in the case of \code{san.ergm}.}
 
-\item{nsim}{Number of desired networks.}
+\item{nsim}{Number of networks to generate. Deprecated: just use \code{\link[=replicate]{replicate()}}.}
 
 \item{basis}{If not NULL, a \code{network} object used to start the Markov
 chain.  If NULL, this is taken to be the network named in the formula.}

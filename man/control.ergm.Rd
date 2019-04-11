@@ -17,13 +17,14 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MCMC.return.stats = TRUE, MCMC.runtime.traceplot = FALSE,
   MCMC.init.maxedges = 20000, MCMC.max.maxedges = Inf,
   MCMC.addto.se = TRUE, MCMC.compress = FALSE,
-  MCMC.packagenames = c(), SAN.maxit = 10, SAN.nsteps.times = 10,
-  SAN.control = control.san(term.options = term.options, SAN.prop.weights
-  = MCMC.prop.weights, SAN.prop.args = MCMC.prop.args, SAN.init.maxedges =
-  MCMC.init.maxedges, SAN.max.maxedges = MCMC.max.maxedges, SAN.nsteps =
-  MCMC.burnin * SAN.nsteps.times, SAN.samplesize = MCMC.samplesize,
-  SAN.packagenames = MCMC.packagenames, parallel = parallel, parallel.type
-  = parallel.type, parallel.version.check = parallel.version.check),
+  MCMC.packagenames = c(), SAN.maxit = 4, SAN.nsteps.times = 8,
+  SAN.control = control.san(term.options = term.options, SAN.maxit =
+  SAN.maxit, SAN.prop.weights = MCMC.prop.weights, SAN.prop.args =
+  MCMC.prop.args, SAN.init.maxedges = MCMC.init.maxedges, SAN.max.maxedges
+  = MCMC.max.maxedges, SAN.nsteps = MCMC.burnin * SAN.nsteps.times,
+  SAN.samplesize = MCMC.samplesize, SAN.packagenames = MCMC.packagenames,
+  parallel = parallel, parallel.type = parallel.type,
+  parallel.version.check = parallel.version.check),
   MCMLE.termination = c("Hummel", "Hotelling", "precision", "none"),
   MCMLE.maxit = 20, MCMLE.conv.min.pval = 0.5, MCMLE.NR.maxit = 100,
   MCMLE.NR.reltol = sqrt(.Machine$double.eps),
