@@ -316,16 +316,17 @@ network
     This term can only be
     used with undirected bipartite networks. }
 
-  \item{\code{b1cov(attrname, transform, transformname)}  (binary) (undirected) (bipartite) (dyad-independent) (quantitative nodalattribute) (frequently-used),
-    \code{b1cov(attrname, transform, transformname, form="sum")}  (valued)  (undirected) (bipartite) (dyad-independent) (quantitative nodal attribute) (frequently-used)
+  \item{\code{b1cov(attr)}  (binary) (undirected) (bipartite) (dyad-independent) (quantitative nodalattribute) (frequently-used),
+    \code{b1cov(attr, form="sum")}  (valued)  (undirected) (bipartite) (dyad-independent) (quantitative nodal attribute) (frequently-used)
     }{\emph{Main effect of a covariate for
-    the first mode in a bipartite (aka two-mode) network:} 
-    The \code{attrname} argument is a character string giving the name of a
-    numeric (not categorical) attribute in the network's vertex attribute list.
-    This term adds a single network statistic to the model equaling the total
-    value of \code{attrname(i)} for all edges \eqn{(i,j)} in the network. This
+    the first mode in a bipartite (aka two-mode) network:}
+    The \code{attr} argument specifies a quantitative attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  This term adds a single network statistic to the model equaling the total
+    value of \code{attr(i)} for all edges \eqn{(i,j)} in the network. This
     term may only be used with bipartite networks. For categorical attributes,
-    see \code{b1factor}.}
+    see \code{b1factor}.
+
+    Note that \code{ergm} versions 3.9.4 and earlier used different arguments for this term. See the above section on versioning for invoking the old behavior.}
   
   \item{\code{b1degrange(from, to=+Inf, by=NULL, homophily=FALSE, levels=NULL)}  (binary)  (bipartite)  (undirected) 
   }{\emph{Degree range for the first mode in a bipartite
@@ -498,16 +499,17 @@ network
     Without the optional argument, this statistic is equivalent to \code{b2mindegree(2)}.
     This term can only be used with undirected bipartite networks. }
 
-  \item{\code{b2cov(attrname, transform, transformname)}  (binary) (undirected) (bipartite) (dyad-independent) (quantitative nodal attribute) (frequently-used),
-    \code{b2cov(attrname, transform, transformname, form="sum")}  (valued) (undirected) (bipartite) (dyad-independent) (quantitative nodal attribute) (frequently-used)
+  \item{\code{b2cov(attr)}  (binary) (undirected) (bipartite) (dyad-independent) (quantitative nodal attribute) (frequently-used),
+    \code{b2cov(attr, form="sum")}  (valued) (undirected) (bipartite) (dyad-independent) (quantitative nodal attribute) (frequently-used)
     }{\emph{Main effect of a covariate for
     the second mode in a bipartite (aka two-mode) network:} 
-    The \code{attrname} argument is a character string giving the name of a
-    numeric (not categorical) attribute in the network's vertex attribute list.
-    This term adds a single network statistic to the model equaling the total
-    value of \code{attrname(j)} for all edges \eqn{(i,j)} in the network. This
+    The \code{attr} argument specifies a quantitative attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  This term adds a single network statistic to the model equaling the total
+    value of \code{attr(j)} for all edges \eqn{(i,j)} in the network. This
     term may only be used with bipartite networks. For categorical attributes,
-    see \code{b2factor}.}
+    see \code{b2factor}.
+
+    Note that \code{ergm} versions 3.9.4 and earlier used different arguments for this term. See the above section on versioning for invoking the old behavior.}
   
     \item{\code{b2degrange(from, to=+Inf, by=NULL, homophily=FALSE, levels=NULL)}  (binary)  (bipartite)  (undirected)
     }{\emph{Degree range for the second mode in a bipartite
@@ -1373,16 +1375,17 @@ of the degrees of all pairs of nodes in the network which are tied.
     base=2:3)}. For an analogous term for quantitative vertex
     attributes, see \code{nodecov}. }
     
-    \item{\code{nodeicov(attrname, transform, transformname)}  (binary)  (directed) (quantitative nodal attribute) (frequently-used)
-    , \code{nodeicov(attrname, transform, transformname, form="sum")}  (valued)  (directed) (quantitative nodal attribute)
+	\item{\code{nodeicov(attr)}  (binary)  (directed) (quantitative nodal attribute) (frequently-used)
+    , \code{nodeicov(attr, form="sum")}  (valued)  (directed) (quantitative nodal attribute)
     }{\emph{Main effect of a covariate for
     in-edges:} 
-    The \code{attrname} argument is a character string giving the name of a
-    numeric (not categorical) attribute in the network's vertex attribute list.
-    This term adds a single network statistic to the model equaling the total
-    value of \code{attrname(j)} for all edges \eqn{(i,j)} in the network. This
+    The \code{attr} argument specifies a quantitative attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  This term adds a single network statistic to the model equaling the total
+    value of \code{attr(j)} for all edges \eqn{(i,j)} in the network. This
     term may only be used with directed networks. For categorical attributes,
-    see \code{nodeifactor}.}
+    see \code{nodeifactor}.
+
+    Note that \code{ergm} versions 3.9.4 and earlier used different arguments for this term. See the above section on versioning for invoking the old behavior.}
 
       \item{\code{nodeicovar}  (valued)  (directed) (quantitative nodal attribute)
       }{\emph{Uncentered covariance of in-dyad values
@@ -1476,17 +1479,18 @@ of the degrees of all pairs of nodes in the network which are tied.
     should be included. By default (i.e., with \code{base=NULL} or
     \code{base=0}), all pairings are included.}
     
-    \item{\code{nodeocov(attrname, transform, transformname)}  (binary)  (directed) (dyad-independent)(quantitative nodal attribute)
-    , \code{nodeocov(attrname, transform, transformname, form="sum")}  (valued)  (directed) (dyad-independent)
+	\item{\code{nodeocov(attr)}  (binary)  (directed) (dyad-independent)(quantitative nodal attribute)
+    , \code{nodeocov(attr, form="sum")}  (valued)  (directed) (dyad-independent)
 	(quantitative nodal attribute)
     }{\emph{Main effect of a covariate for
     out-edges:} 
-    The \code{attrname} argument is a character string giving the name of a
-    numeric (not categorical) attribute in the network's vertex attribute list.
-    This term adds a single network statistic to the model equaling the total
-    value of \code{attrname(i)} for all edges \eqn{(i,j)} in the network. This
+    The \code{attr} argument specifies a quantitative attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  This term adds a single network statistic to the model equaling the total
+    value of \code{attr(i)} for all edges \eqn{(i,j)} in the network. This
     term may only be used with directed networks. For categorical attributes,
-    see \code{nodeofactor}.}
+    see \code{nodeofactor}.
+
+    Note that \code{ergm} versions 3.9.4 and earlier used different arguments for this term. See the above section on versioning for invoking the old behavior.}
 
     \item{\code{nodeocovar}  (valued)  (directed) (quantitative nodal attribute)
     }{\emph{Uncentered covariance of out-dyad values

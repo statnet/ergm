@@ -413,18 +413,32 @@ InitErgmTerm.b1degrange<-function(nw, arglist, ...) {
 }
 
 ################################################################################
-InitErgmTerm.b1cov<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE, 
-                      varnames = c("attrname","transform","transformname"),
-                      vartypes = c("character","function","character"),
-                      defaultvalues = list(NULL,function(x)x,""),
-                      required = c(TRUE,FALSE,FALSE))
-  attrname<-a$attrname
-  f<-a$transform
-  f.name<-a$transformname
-  coef.names <- paste(paste("b1cov",f.name,sep=""),attrname,sep=".")
-  nb1 <- get.network.attribute(nw, "bipartite")
-  nodecov <- f(get.node.attr(nw, attrname, "b1cov", numeric=TRUE)[1:nb1])
+InitErgmTerm.b1cov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE, 
+                        varnames = c("attrname","transform","transformname"),
+                        vartypes = c("character","function","character"),
+                        defaultvalues = list(NULL,function(x)x,""),
+                        required = c(TRUE,FALSE,FALSE))
+    ### Process the arguments
+    attrname<-a$attrname
+    f<-a$transform
+    f.name<-a$transformname
+    coef.names <- paste(paste("b1cov",f.name,sep=""),attrname,sep=".")
+    nb1 <- get.network.attribute(nw, "bipartite")
+    nodecov <- f(get.node.attr(nw, attrname, "b1cov", numeric=TRUE)[1:nb1])
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE, 
+                        varnames = c("attr"),
+                        vartypes = c(ERGM_VATTR_SPEC),
+                        defaultvalues = list(NULL),
+                        required = c(TRUE))
+    ### Process the arguments
+    nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", bip = "b1")
+    coef.names <- paste("b1cov",attr(nodecov, "name"),sep=".")
+  }	
   # C implementation is identical
   list(name="nodeocov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
@@ -645,21 +659,34 @@ InitErgmTerm.b2concurrent<-function(nw, arglist, ...) {
 }
 
 ################################################################################
-InitErgmTerm.b2cov<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                      varnames = c("attrname","transform","transformname"),
-                      vartypes = c("character","function","character"),
-                      defaultvalues = list(NULL,function(x)x,""),
-                      required = c(TRUE,FALSE,FALSE))
-  attrname<-a$attrname
-  f<-a$transform
-  f.name<-a$transformname
-  coef.names <- paste(paste("b2cov",f.name,sep=""),attrname,sep=".")
-  nb1 <- get.network.attribute(nw, "bipartite")
-  nodecov <- f(get.node.attr(nw, attrname, "b2cov", numeric=TRUE)[(nb1+1):network.size(nw)])
+InitErgmTerm.b2cov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                        varnames = c("attrname","transform","transformname"),
+                        vartypes = c("character","function","character"),
+                        defaultvalues = list(NULL,function(x)x,""),
+                        required = c(TRUE,FALSE,FALSE))
+    ### Process the arguments
+    attrname<-a$attrname
+    f<-a$transform
+    f.name<-a$transformname
+    coef.names <- paste(paste("b2cov",f.name,sep=""),attrname,sep=".")
+    nb1 <- get.network.attribute(nw, "bipartite")
+    nodecov <- f(get.node.attr(nw, attrname, "b2cov", numeric=TRUE)[(nb1+1):network.size(nw)])
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                        varnames = c("attr"),
+                        vartypes = c(ERGM_VATTR_SPEC),
+                        defaultvalues = list(NULL),
+                        required = c(TRUE))
+    ### Process the arguments
+    nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", bip = "b2")
+    coef.names <- paste("b2cov",attr(nodecov, "name"),sep=".")
+  }
   list(name="b2cov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
-
 
 ################################################################################
 InitErgmTerm.b2degrange<-function(nw, arglist, ...) {
@@ -2556,17 +2583,31 @@ InitErgmTerm.nodefactor<-function (nw, arglist, ...) {
 }  
 
 ################################################################################
-InitErgmTerm.nodeicov<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("attrname","transform","transformname"),
-                      vartypes = c("character","function","character"),
-                      defaultvalues = list(NULL,function(x)x,""),
-                      required = c(TRUE,FALSE,FALSE))
-  attrname<-a$attrname
-  f<-a$transform
-  f.name<-a$transformname
-  coef.names <- paste(paste("nodeicov",f.name,sep=""),attrname,sep=".")
-  nodecov <- f(get.node.attr(nw, attrname, "nodeicov", numeric=TRUE))
+InitErgmTerm.nodeicov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=TRUE,
+                        varnames = c("attrname","transform","transformname"),
+                        vartypes = c("character","function","character"),
+                        defaultvalues = list(NULL,function(x)x,""),
+                        required = c(TRUE,FALSE,FALSE))
+    ### Process the arguments
+    attrname<-a$attrname
+    f<-a$transform
+    f.name<-a$transformname
+    coef.names <- paste(paste("nodeicov",f.name,sep=""),attrname,sep=".")
+    nodecov <- f(get.node.attr(nw, attrname, "nodeicov", numeric=TRUE))
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=TRUE,
+                        varnames = c("attr"),
+                        vartypes = c(ERGM_VATTR_SPEC),
+                        defaultvalues = list(NULL),
+                        required = c(TRUE))
+    ### Process the arguments
+    nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric")
+    coef.names <- paste("nodeicov",attr(nodecov, "name"),sep=".")
+  }
   list(name="nodeicov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
 
@@ -2727,17 +2768,31 @@ InitErgmTerm.nodemix<-function (nw, arglist, ...) {
 }
 
 ################################################################################
-InitErgmTerm.nodeocov<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
-                      varnames = c("attrname","transform","transformname"),
-                      vartypes = c("character","function","character"),
-                      defaultvalues = list(NULL,function(x)x,""),
-                      required = c(TRUE,FALSE,FALSE))
-  attrname<-a$attrname
-  f<-a$transform
-  f.name<-a$transformname
-  coef.names <- paste(paste("nodeocov",f.name,sep=""),attrname,sep=".")
-  nodecov <- f(get.node.attr(nw, attrname, "nodeocov", numeric=TRUE))
+InitErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
+                        varnames = c("attrname","transform","transformname"),
+                        vartypes = c("character","function","character"),
+                        defaultvalues = list(NULL,function(x)x,""),
+                        required = c(TRUE,FALSE,FALSE))
+    ### Process the arguments
+    attrname<-a$attrname
+    f<-a$transform
+    f.name<-a$transformname
+    coef.names <- paste(paste("nodeocov",f.name,sep=""),attrname,sep=".")
+    nodecov <- f(get.node.attr(nw, attrname, "nodeocov", numeric=TRUE))
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
+                        varnames = c("attr"),
+                        vartypes = c(ERGM_VATTR_SPEC),
+                        defaultvalues = list(NULL),
+                        required = c(TRUE))
+    ### Process the arguments
+    nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric")
+    coef.names <- paste("nodeocov",attr(nodecov, "name"),sep=".")
+  }
   list(name="nodeocov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
 
