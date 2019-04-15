@@ -630,7 +630,6 @@ ergm <- function(formula, response=NULL,
                 reference=reference,
                 constraints=constraints,
                 control=san.control,
-                nsim=control$SAN.maxit,
                 only.last=TRUE,
                 output="pending_update_network",
                 verbose=verbose)

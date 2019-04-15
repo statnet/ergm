@@ -111,8 +111,8 @@ if (!all(s.d==c(30,8,2)) ||
 num.tests=num.tests+1
 s.a <- summary(bipnw~b1factor("Letter"))
 e.a <- ergm(bipnw~b1factor("Letter"), estimate="MPLE")
-s.ab <- summary(bipnw~b1factor("Letter", base=3))
-e.ab <- ergm(bipnw~b1factor("Letter", base=2), estimate="MPLE")
+s.ab <- summary(bipnw~b1factor("Letter", levels=-3))
+e.ab <- ergm(bipnw~b1factor("Letter", levels=-2), estimate="MPLE")
 if (!all(s.a==c(21,19)) ||
     !all(round(e.a$coef+c(3.797, 3.899),3)==0) ||
     !all(s.ab==c(20,21)) ||
@@ -301,8 +301,8 @@ if (!all(s.d==c(26,20,11)) ||
 num.tests=num.tests+1
 s.a <- summary(bipnw~b2factor("Letter"))
 e.a <- ergm(bipnw~b2factor("Letter"), estimate="MPLE")
-s.ab <- summary(bipnw~b2factor("Letter", base=3))
-e.ab <- ergm(bipnw~b2factor("Letter", base=2), estimate="MPLE")
+s.ab <- summary(bipnw~b2factor("Letter", levels=-3))
+e.ab <- ergm(bipnw~b2factor("Letter", levels=-2), estimate="MPLE")
 if (!all(s.a==c(19,16)) ||
     !all(round(e.a$coef+c(3.944, 4.119),3)==0) ||
     !all(s.ab==c(25,19)) ||
@@ -411,8 +411,8 @@ s.d <- summary(bipnw~gwb1degree())
 e.d <- ergm(bipnw~gwb1degree(.4, fixed=TRUE), estimate="MPLE")
 s.df <- summary(bipnw~gwb1degree(.3, fixed=TRUE))
 e.df <- ergm(bipnw~gwb1degree(.2, fixed=TRUE), estimate="MPLE")
-s.da <- summary(bipnw~gwb1degree(.1, fixed=TRUE, attrname="Letter"))
-e.da <- ergm(bipnw~gwb1degree(.1, attrname="Letter", fixed=TRUE), estimate="MPLE")
+s.da <- summary(bipnw~gwb1degree(.1, fixed=TRUE, attr="Letter"))
+e.da <- ergm(bipnw~gwb1degree(.1, attr="Letter", fixed=TRUE), estimate="MPLE")
 s.dfa <- summary(bipnw~gwb1degree(.1, TRUE, "Letter"))
 e.dfa <- ergm(bipnw~gwb1degree(.1, TRUE, "Letter"), estimate="MPLE")
 if (round(e.d$coef + 6.979, 3) != 0 ||
@@ -435,8 +435,8 @@ s.d <- summary(bipnw~gwb2degree())
 e.d <- ergm(bipnw~gwb2degree(.4, fixed=TRUE), estimate="MPLE")
 s.df <- summary(bipnw~gwb2degree(.3, fixed=TRUE))
 e.df <- ergm(bipnw~gwb2degree(.2, fixed=TRUE), estimate="MPLE")
-s.da <- summary(bipnw~gwb2degree(.1, fixed=TRUE, attrname="Letter"))
-e.da <- ergm(bipnw~gwb2degree(.1, attrname="Letter", fixed=TRUE), estimate="MPLE")
+s.da <- summary(bipnw~gwb2degree(.1, fixed=TRUE, attr="Letter"))
+e.da <- ergm(bipnw~gwb2degree(.1, attr="Letter", fixed=TRUE), estimate="MPLE")
 s.dfa <- summary(bipnw~gwb2degree(.1, TRUE, "Letter"))
 e.dfa <- ergm(bipnw~gwb2degree(.1, TRUE, "Letter"), estimate="MPLE")
 if (!all(summary(bipnw~gwb2degree())==summary(bipnw~b2degree(1:30))) ||

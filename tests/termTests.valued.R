@@ -172,8 +172,8 @@ tst(sum(q1*(bipm!=0),na.rm=TRUE), bipnw ~ b1cov("q", form="nonzero"))
 # b1factor
 for(base in list(0, 1, 2, 1:2, 3)){
   keep <- if(all(base==0)) 1:3 else (1:3)[-base]
-  tst(sapply(sort(unique(f1))[keep], function(x) sum((f1==x)*bipm,na.rm=TRUE)), bipnw ~ b1factor("f", base=base))
-  tst(sapply(sort(unique(f1))[keep], function(x) sum((f1==x)*(bipm!=0),na.rm=TRUE)), bipnw ~ b1factor("f", base=base, form="nonzero"))
+  tst(sapply(sort(unique(f1))[keep], function(x) sum((f1==x)*bipm,na.rm=TRUE)), bipnw ~ b1factor("f", levels=keep))
+  tst(sapply(sort(unique(f1))[keep], function(x) sum((f1==x)*(bipm!=0),na.rm=TRUE)), bipnw ~ b1factor("f", levels=keep, form="nonzero"))
 }
 
 # b2cov
@@ -183,8 +183,8 @@ tst(sum(q2*t(bipm!=0),na.rm=TRUE), bipnw ~ b2cov("q", form="nonzero"))
 # b2factor
 for(base in list(0, 1, 2, 1:2, 3)){
   keep <- if(all(base==0)) 1:3 else (1:3)[-base]
-  tst(sapply(sort(unique(f2))[keep], function(x) sum((f2==x)*t(bipm),na.rm=TRUE)), bipnw ~ b2factor("f", base=base))
-  tst(sapply(sort(unique(f2))[keep], function(x) sum((f2==x)*t(bipm!=0),na.rm=TRUE)), bipnw ~ b2factor("f", base=base, form="nonzero"))
+  tst(sapply(sort(unique(f2))[keep], function(x) sum((f2==x)*t(bipm),na.rm=TRUE)), bipnw ~ b2factor("f", levels=keep))
+  tst(sapply(sort(unique(f2))[keep], function(x) sum((f2==x)*t(bipm!=0),na.rm=TRUE)), bipnw ~ b2factor("f", levels=keep, form="nonzero"))
 }
 
 # edgecov

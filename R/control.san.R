@@ -16,6 +16,8 @@
 #' 
 #' This function is only used within a call to the \code{\link{san}} function.
 #' See the \code{usage} section in \code{\link{san}} for details.
+#'
+#' @param SAN.maxit Number of temperature levels to use.
 #' 
 #' @param SAN.tau Tuning parameter, specifying the temperature of the
 #'   process during the *penultimate* iteration. (During the last
@@ -28,8 +30,15 @@
 #'   MCMC move is from the \code{target.stats} vector.  If `NULL`,
 #'   initially set to the identity matrix, then during subsequent runs
 #'   estimated empirically.
-#' 
-#' @param SAN.nsteps Number of MCMC proposals for each simulated annealing run.
+#'
+#' @param SAN.invcov.diag Whether to only use the diagonal of the
+#'   covariance matrix. It seems to work better in practice.
+#'
+#' @param SAN.nsteps.alloc Either a numeric vector or a function of
+#'   the number of runs giving a sequence of relative lengths of
+#'   simulated annealing runs.
+#'
+#' @param SAN.nsteps Number of MCMC proposals for all the annealing runs combined.
 #' @param SAN.samplesize Number of realisations' statistics to obtain for tuning purposes.
 #' @param SAN.init.maxedges Maximum number of edges expected in network.
 #' @param SAN.max.maxedges Hard upper bound on the number of edges in the network.
@@ -50,10 +59,13 @@
 #' @seealso \code{\link{san}}
 #' @keywords models
 #' @export control.san
-control.san<-function(SAN.tau=1,
+control.san<-function(SAN.maxit=4,
+                      SAN.tau=1,
                       SAN.invcov=NULL,
-                      SAN.nsteps=2^14,
-                      SAN.samplesize=2^10,
+                      SAN.invcov.diag=FALSE,
+                      SAN.nsteps.alloc=function(nsim) 2^seq_len(nsim),
+                      SAN.nsteps=2^19,
+                      SAN.samplesize=2^12,
                       SAN.init.maxedges=20000,
                       SAN.max.maxedges=2^26,
                       

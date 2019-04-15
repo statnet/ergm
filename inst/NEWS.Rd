@@ -171,11 +171,11 @@
       }
 
       \item{
-	Terms \code{\link{absdiff}} and \code{\link{nodecov}} now uses the new \link[node-attr-api]{nodal attributes UI}.
+	A number of terms (see terms help) now use the new \link[node-attr-api]{nodal attributes UI}.
       }
       
       \item{
-	Hummel steplength search can now be run in paralle.
+	Hummel steplength search can now be run in parallel.
       }
     }
   }
@@ -278,7 +278,7 @@
       }
 
       \item{
-	\code{logLik.ergm(warn.dyads=)} control parameter has been replaced by \code{options(ergm.logLik.warn_dyads=)} option.
+	\code{logLik.ergm(warn.dyads=)} control parameter has been replaced by \code{options(ergm.loglik.warn_dyads=)} option.
       }
 
       \item{
