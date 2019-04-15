@@ -309,8 +309,8 @@ network
     network statistic to the model, equal to the number of nodes in the first
     mode of the network with degree 2 or higher. The first mode of a bipartite
     network object is sometimes known as the "actor" mode. The optional argument
-    \code{by} is a character string giving the name of an attribute in the
-    network's vertex attribute list;
+    \code{by} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details);
     it functions just like the \code{by} argument of the \code{b1degree} term.
     Without the optional argument, this statistic is equivalent to \code{b1mindegree(2)}.
     This term can only be
@@ -342,8 +342,8 @@ network
     \code{from[i]} but strictly less than \code{to[i]}, i.e. with
     edge count
     in semiopen interval \code{[from,to)}. The optional argument
-    \code{by} is a character string giving the name of an attribute in the
-    network's vertex attribute list. 
+    \code{by} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). 
     If this is specified and \code{homophily} is \code{TRUE},
     then degrees are calculated using the subnetwork consisting of only
     edges whose endpoints have the same value of the \code{by} attribute.
@@ -364,35 +364,38 @@ network
     each element in \code{d}; the \eqn{i}th such statistic equals the number of
     nodes of degree \code{d[i]} in the first mode of a bipartite network, i.e.
     with exactly \code{d[i]} edges. The first mode of a bipartite network object
-    is sometimes known as the "actor" mode. The optional argument \code{by} is
-    a character string giving the name of an attribute in the network's vertex
-    attribute list. If this is specified 
+    is sometimes known as the "actor" mode. The optional argument \code{by} specifies
+	a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). If this is specified 
     then each node's degree is tabulated only with other nodes having the same
     value of the \code{by} attribute.
     This term can only be used with undirected bipartite networks.}
     
-  \item{\code{b1factor(attrname, base=1, levels=NULL)}  (binary)  (bipartite) (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute),
-    \code{b1factor(attrname, base=1, levels=NULL, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute)
+  \item{\code{b1factor(attr, levels=-1)}  (binary)  (bipartite) (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute),
+    \code{b1factor(attr, levels=-1, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute)
     }{\emph{Factor attribute effect for
     the first mode in a bipartite (aka two-mode) network:} 
-    The \code{attrname} argument is a character string giving the name of a
-    categorical attribute in the network's vertex attribute list. This term adds
+    The \code{attr} argument specifies a categorical vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). This term adds
     multiple network statistics to the model, one for each of (a subset of) the
-    unique values of the \code{attrname} attribute. Each of these statistics
+    unique values of the \code{attr} attribute. Each of these statistics
     gives the number of times a node with that attribute in the first mode of
     the network appears in an edge. The first mode of a bipartite network object
     is sometimes known as the "actor" mode. To include all attribute values is
     usually not a good idea, because the sum of all such statistics equals the
     number of edges and hence a linear dependency would arise in any model also
-    including \code{edges}. Thus, the \code{base} argument tells which value(s)
-    (numbered in order according to the \code{sort} function) should be omitted.
-    The default value, \code{base=1}, means that the smallest (i.e., first in
-    sorted order) attribute value is omitted. For example, if the \dQuote{fruit}
-    factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
+    including \code{edges}.	 Thus, the \code{levels} argument tells which value(s)
+	to include or exclude (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  Positive integer indices include (and negative integer indices exclude)
+	the corresponding values, numbered in order according to the \code{sort} function.
+    The default value, \code{levels=-1}, means that the smallest (i.e., first in
+    sorted order) attribute value is omitted.  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
     \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
-    for \dQuote{pear}, then set \dQuote{banana} and \dQuote{orange} to the base
-    (remember to sort the values first) by using \code{nodefactor("fruit",
-    base=2:3)}. This term can only be used with undirected bipartite networks.}
+    for \dQuote{pear}, use any of \code{nodefactor("fruit", levels=-(2:3))}, \code{nodefactor("fruit", levels=c(1,4))}, and
+	\code{nodefactor("fruit", levels=c("apple", "pear"))}.  This term can only be used with undirected bipartite networks.
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
+	this term. See the above section on versioning for invoking the old behavior.}
     
     \item{\code{b1mindegree(d)}  (binary)  (bipartite)  (undirected)}{\emph{Minimum degree for the first mode in a
     bipartite (aka two-mode) network:} The \code{d} argument is a vector of
@@ -428,7 +431,7 @@ network
    	statistic where \code{byb2attr} set to \code{NULL}. This term can only be used with 
    	undirected bipartite networks.}
     
-    \item{\code{b1star(k, attrname=NULL, levels=NULL)}  (binary) (bipartite)  (undirected) (categorical nodal attribute)
+    \item{\code{b1star(k, attr=NULL, levels=NULL)}  (binary) (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{k-Stars for the first mode in a
     bipartite (aka two-mode) network: } The \code{k} argument is a vector of
     distinct integers. This term adds one network statistic to the model for
@@ -438,8 +441,8 @@ network
     the "actor" mode. A \eqn{k}-star is defined to be a center node \eqn{N} and
     a set of \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}} such that the
     ties \eqn{\{N, O_i\}} exist for \eqn{i=1, \dots, k}. The optional argument
-    \code{attrname} is a character string giving the name of an attribute in the
-    network's vertex attribute list. If this is specified then the count is over
+    \code{attr} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). If this is specified then the count is over
     the number of \eqn{k}-stars (with center node in the first mode) where all
     nodes have the same value of the attribute. This term can only be used for
     undirected bipartite networks. Note that \code{b1star(1)} is equal to
@@ -493,8 +496,8 @@ network
     network statistic to the model, equal to the number of nodes in the second
     mode of the network with degree 2 or higher. The second mode of a bipartite
     network object is sometimes known as the "event" mode. The optional argument
-    \code{by} is a character string giving the name of an attribute in the
-    network's vertex attribute list;
+    \code{by} specifies	a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details);
     it functions just like the \code{by} argument of the \code{b2degree} term.
     Without the optional argument, this statistic is equivalent to \code{b2mindegree(2)}.
     This term can only be used with undirected bipartite networks. }
@@ -525,8 +528,9 @@ network
     \code{from[i]} but strictly less than \code{to[i]}, i.e. with
     edge count
     in semiopen interval \code{[from,to)}. The optional argument
-    \code{by} is a character string giving the name of an attribute in the
-    network's vertex attribute list. 
+    \code{by} specifies
+	a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). 
     If this is specified and \code{homophily} is \code{TRUE},
     then degrees are calculated using the subnetwork consisting of only
     edges whose endpoints have the same value of the \code{by} attribute.
@@ -548,35 +552,39 @@ network
     nodes of degree \code{d[i]} in the second mode of a bipartite network, i.e.
     with exactly \code{d[i]} edges. The second mode of a bipartite network
     object is sometimes known as the "event" mode. The optional term
-    \code{by} is a character string giving the name of an attribute in the
-    network's vertex attribute list. If this is specified 
+    \code{by} specifies
+	a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). If this is specified 
     then each node's degree is tabulated only with other nodes having the same
     value of the \code{by} attribute.
     This term can only be used with undirected bipartite networks.}
     
-  \item{\code{b2factor(attrname, base=1, levels=NULL)}  (binary)  (bipartite) (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used),
-    \code{b2factor(attrname, base=1, levels=NULL, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used)
+  \item{\code{b2factor(attr, levels=-1)}  (binary)  (bipartite) (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used),
+    \code{b2factor(attr, levels=-1, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used)
     }{\emph{Factor attribute effect for
     the second mode in a bipartite (aka two-mode) network :} 
-    The \code{attrname} argument is a character string giving the name of a
-    categorical attribute in the network's vertex attribute list. This term adds
+    The \code{attr} argument specifies
+	a categorical vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). This term adds
     multiple network statistics to the model, one for each of (a subset of) the
-    unique values of the \code{attrname} attribute. Each of these statistics
+    unique values of the \code{attr} attribute. Each of these statistics
     gives the number of times a node with that attribute in the second mode of
     the network appears in an edge. The second mode of a bipartite network
     object is sometimes known as the "event" mode. To include all attribute
     values is usually not a good idea, because the sum of all such statistics
     equals the number of edges and hence a linear dependency would arise in any
-    model also including \code{edges}. Thus, the \code{base} argument tells
-    which value(s) (numbered in order according to the \code{sort} function)
-    should be omitted. The default value, \code{base=1}, means that the smallest
-    (i.e., first in sorted order) attribute value is omitted. For example, if
-    the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple},
-    \dQuote{banana}, and \dQuote{pear}, then to add just two terms, one for
-    \dQuote{apple} and one for \dQuote{pear}, then set \dQuote{banana} and
-    \dQuote{orange} to the base (remember to sort the values first) by using
-    \code{nodefactor("fruit", base=2:3)}. This term can only be used with
-    undirected bipartite networks.}
+    model also including \code{edges}.  Thus, the \code{levels} argument tells which value(s)
+	to include or exclude (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  Positive integer indices include (and negative integer indices exclude)
+	the corresponding values, numbered in order according to the \code{sort} function.
+    The default value, \code{levels=-1}, means that the smallest (i.e., first in
+    sorted order) attribute value is omitted.  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
+    \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
+    for \dQuote{pear}, use any of \code{nodefactor("fruit", levels=-(2:3))}, \code{nodefactor("fruit", levels=c(1,4))}, and
+	\code{nodefactor("fruit", levels=c("apple", "pear"))}.  This term can only be used with undirected bipartite networks.
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
+	this term. See the above section on versioning for invoking the old behavior.}
     
     \item{\code{b2mindegree(d)}  (binary) (bipartite)  (undirected)
     }{\emph{Minimum degree for the second mode in a
@@ -613,7 +621,7 @@ network
    	statistic where \code{byb1attr} set to \code{NULL}. This term can only be used with 
    	undirected bipartite networks.}
 
-    \item{\code{b2star(k, attrname=NULL, levels=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
+    \item{\code{b2star(k, attr=NULL, levels=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{k-Stars for the second mode in a
     bipartite (aka two-mode) network: } The \code{k} argument is a vector of
     distinct integers. This term adds one network statistic to the model for
@@ -623,8 +631,9 @@ network
     the "event" mode. A \eqn{k}-star is defined to be a center node \eqn{N} and
     a set of \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}} such that the
     ties \eqn{\{N, O_i\}} exist for \eqn{i=1, \dots, k}. The optional argument
-    \code{attrname} is a character string giving the name of an attribute in the
-    network's vertex attribute list. If this is specified then the count is over
+    \code{attr} specifies
+	a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). If this is specified then the count is over
     the number of \eqn{k}-stars (with center node in the second mode) where all
     nodes have the same value of the attribute. This term can only be used for
     undirected bipartite networks. Note that \code{b2star(1)} is equal to
@@ -952,7 +961,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     }
   
   
-    \item{\code{gwb1degree(decay, fixed=FALSE, attrname=NULL, cutoff=30, levels=NULL)}  (binary)  (bipartite)  (undirected) (curved)}{\emph{Geometrically weighted
+    \item{\code{gwb1degree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)}  (binary)  (bipartite)  (undirected) (curved)}{\emph{Geometrically weighted
     degree distribution for the first mode in a bipartite (aka two-mode)
     network:} 
     This term adds one network statistic to the model equal to the weighted
@@ -968,13 +977,14 @@ of the degrees of all pairs of nodes in the network which are tied.
     The optional argument \code{cutoff}
     is only relevant if \code{fixed=FALSE}. In that case it only uses this 
     number of terms in computing the statistics to reduce the computational
-    burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.) If \code{attrname} is specified then separate degree
+    burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.) If \code{attr} is specified (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details) then separate degree
     statistics are calculated for nodes having each separate
     value of the attribute.
     This term can only be used with undirected bipartite
     networks.}
     
-    \item{\code{gwb2degree(decay, fixed=FALSE, attrname=NULL, cutoff=30, levels=NULL)}  (binary)  (bipartite)  (undirected) (curved)}{\emph{Geometrically weighted
+    \item{\code{gwb2degree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)}  (binary)  (bipartite)  (undirected) (curved)}{\emph{Geometrically weighted
     degree distribution for the second mode in a bipartite (aka two-mode)
     network:} 
     This term adds one network statistic to the model equal to the weighted
@@ -990,7 +1000,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     The optional argument \code{cutoff}
     is only relevant if \code{fixed=FALSE}. In that case it only uses this 
     number of terms in computing the statistics to reduce the computational
-    burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.) If \code{attrname} is specified then separate degree
+    burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.) If \code{attr} is specified (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details) then separate degree
     statistics are calculated for nodes having each separate
     value of the attribute.
     This term can only be used with undirected bipartite
