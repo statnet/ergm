@@ -434,10 +434,11 @@ control.ergm<-function(drop=TRUE,
                        MCMC.compress=FALSE,
                        MCMC.packagenames=c(),
 
-                       SAN.maxit=10,
-                       SAN.nsteps.times=10,
+                       SAN.maxit=4,
+                       SAN.nsteps.times=8,
                        SAN.control=control.san(
                          term.options=term.options,
+                         SAN.maxit=SAN.maxit,
                          SAN.prop.weights=MCMC.prop.weights,
                          SAN.prop.args=MCMC.prop.args,
                          SAN.init.maxedges=MCMC.init.maxedges,

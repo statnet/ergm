@@ -302,23 +302,38 @@ InitErgmTerm.asymmetric <- function(nw, arglist, ...) {
 
 #=======================InitErgmTerm functions:  B============================#
 
-
 ################################################################################
-InitErgmTerm.b1concurrent<-function(nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                      varnames = c("by", "levels"),
-                      vartypes = c("character", "character,numeric,logical"),
-                      defaultvalues = list(NULL, NULL),
-                      required = c(FALSE, FALSE))
+InitErgmTerm.b1concurrent<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                        varnames = c("by", "levels"),
+                        vartypes = c("character", "character,numeric,logical"),
+                        defaultvalues = list(NULL, NULL),
+                        required = c(FALSE, FALSE))
+	levels <- if(!is.null(a$levels)) I(a$levels) else NULL
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                        varnames = c("by", "levels"),
+                        vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, NULL),
+                        required = c(FALSE, FALSE))
+    levels <- a$levels    
+  }
+
+  ### Process the arguments
+  nb1 <- get.network.attribute(nw, "bipartite") 
   byarg <- a$by
-  nb1 <- get.network.attribute(nw, "bipartite")       
   if(!is.null(byarg)) {
-    nodecov <- get.node.attr(nw, byarg, "b1concurrent")[seq_len(nb1)]
-    u <- NVL(a$levels, sort(unique(nodecov)))
+    nodecov <- ergm_get_vattr(byarg, nw, bip = "b1")
+    attrname <- attr(nodecov, "name")
+    u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
+	
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     if (length(u)==1)
-      stop ("Attribute given to b1concurrent() has only one value", call.=FALSE)
+      ergm_Init_abort ("Attribute given to b1concurrent() has only one value")
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     ui <- seq(along=u)
@@ -327,7 +342,7 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, ...) {
     if(length(u)==0) {return(NULL)}
     # See comment in d_b1concurrent_by_attr function
     name <- "b1concurrent_by_attr"
-    coef.names<-paste("b1concurrent",".", byarg, u, sep="")
+    coef.names<-paste("b1concurrent",".", attrname, u, sep="")
     inputs <- c(ui, nodecov)
   }else{
     name <- "b1concurrent"
@@ -338,30 +353,45 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, ...) {
 }
 
 ################################################################################
-InitErgmTerm.b1degrange<-function(nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, bipartite=TRUE,
-                      varnames = c("from", "to", "by", "homophily", "levels"),
-                      vartypes = c("numeric", "numeric", "character", "logical", "character,numeric,logical"),
-                      defaultvalues = list(NULL, Inf, NULL, FALSE, NULL),
-                      required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+InitErgmTerm.b1degrange<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, bipartite=TRUE,
+                        varnames = c("from", "to", "by", "homophily", "levels"),
+                        vartypes = c("numeric", "numeric", "character", "logical", "character,numeric,logical"),
+                        defaultvalues = list(NULL, Inf, NULL, FALSE, NULL),
+                        required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+	levels <- if(!is.null(a$levels)) I(a$levels) else NULL						
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, bipartite=TRUE,
+                        varnames = c("from", "to", "by", "homophily", "levels"),
+                        vartypes = c("numeric", "numeric", ERGM_VATTR_SPEC, "logical", ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, Inf, NULL, FALSE, NULL),
+                        required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+    levels <- a$levels  
+  }
+
+  ### Process the arguments
   from<-a$from; to<-a$to; byarg <- a$by; homophily <- a$homophily
   to <- ifelse(to==Inf, network.size(nw)+1, to)
 
   if(length(to)==1 && length(from)>1) to <- rep(to, length(from))
   else if(length(from)==1 && length(to)>1) from <- rep(from, length(to))
-  else if(length(from)!=length(to)) stop("The arguments of term odegrange must have arguments either of the same length, or one of them must have length 1.")
-  else if(any(from>=to)) stop("Term odegrange must have from<to.")
+  else if(length(from)!=length(to)) ergm_Init_abort("The arguments of term odegrange must have arguments either of the same length, or one of them must have length 1.")
+  else if(any(from>=to)) ergm_Init_abort("Term odegrange must have from<to.")
 
   nb1 <- get.network.attribute(nw, "bipartite")
   emptynwstats<-NULL
   if(!is.null(byarg)) {
-    nodecov <- get.node.attr(nw, byarg, "b1degrange")
+    nodecov <- ergm_get_vattr(byarg, nw)
+    attrname <- attr(nodecov, "name")
     if(!homophily) nodecov <- nodecov[seq_len(nb1)]
-    u <- NVL(a$levels, sort(unique(nodecov)))
+    u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     if (length(u)==1)
-         stop ("Attribute given to b1degrange() has only one value", call.=FALSE)
+         ergm_Init_abort ("Attribute given to b1degrange() has only one value")
   }
   if(!is.null(byarg) && !homophily) {
     # Combine b1degrange and u into 3xk matrix, where k=length(from)*length(u)
@@ -390,8 +420,8 @@ InitErgmTerm.b1degrange<-function(nw, arglist, ...) {
     if(length(from)==0){return(NULL)}
     # See comment in d_b1degrange_w_homophily function
     coef.names <- ifelse(to>=network.size(nw)+1,
-                         paste("b1deg",from,"+", ".homophily.",byarg,sep=""),
-                         paste("b1deg",from,"to",to, ".homophily.",byarg,sep=""))
+                         paste("b1deg",from,"+", ".homophily.",attrname,sep=""),
+                         paste("b1deg",from,"to",to, ".homophily.",attrname,sep=""))
     name <- "b1degrange_w_homophily"
     inputs <- c(rbind(from,to), nodecov)
   } else {
@@ -399,8 +429,8 @@ InitErgmTerm.b1degrange<-function(nw, arglist, ...) {
     #  No covariates here, so "ParamsBeforeCov" unnecessary
     # See comment in d_b1degrange_by_attr function
     coef.names <- ifelse(du[2,]>=network.size(nw)+1,
-                         paste("b1deg",du[1,],"+.", byarg, u[du[3,]],sep=""),
-                         paste("b1deg",du[1,],"to",du[2,],".",byarg, u[du[3,]],sep=""))
+                         paste("b1deg",du[1,],"+.", attrname, u[du[3,]],sep=""),
+                         paste("b1deg",du[1,],"to",du[2,],".",attrname, u[du[3,]],sep=""))
     name <- "b1degrange_by_attr"
     inputs <- c(as.vector(du), nodecov)
   }
@@ -413,36 +443,65 @@ InitErgmTerm.b1degrange<-function(nw, arglist, ...) {
 }
 
 ################################################################################
-InitErgmTerm.b1cov<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE, 
-                      varnames = c("attrname","transform","transformname"),
-                      vartypes = c("character","function","character"),
-                      defaultvalues = list(NULL,function(x)x,""),
-                      required = c(TRUE,FALSE,FALSE))
-  attrname<-a$attrname
-  f<-a$transform
-  f.name<-a$transformname
-  coef.names <- paste(paste("b1cov",f.name,sep=""),attrname,sep=".")
-  nb1 <- get.network.attribute(nw, "bipartite")
-  nodecov <- f(get.node.attr(nw, attrname, "b1cov", numeric=TRUE)[1:nb1])
+InitErgmTerm.b1cov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE, 
+                        varnames = c("attrname","transform","transformname"),
+                        vartypes = c("character","function","character"),
+                        defaultvalues = list(NULL,function(x)x,""),
+                        required = c(TRUE,FALSE,FALSE))
+    ### Process the arguments
+    attrname<-a$attrname
+    f<-a$transform
+    f.name<-a$transformname
+    coef.names <- paste(paste("b1cov",f.name,sep=""),attrname,sep=".")
+    nb1 <- get.network.attribute(nw, "bipartite")
+    nodecov <- f(get.node.attr(nw, attrname, "b1cov", numeric=TRUE)[1:nb1])
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE, 
+                        varnames = c("attr"),
+                        vartypes = c(ERGM_VATTR_SPEC),
+                        defaultvalues = list(NULL),
+                        required = c(TRUE))
+    ### Process the arguments
+    nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", bip = "b1")
+    coef.names <- paste("b1cov",attr(nodecov, "name"),sep=".")
+  }	
   # C implementation is identical
   list(name="nodeocov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
 
 
 ################################################################################
-InitErgmTerm.b1degree <- function(nw, arglist, ...) {
-  ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("d", "by", "levels"),
-                       vartypes = c("numeric", "character", "character,numeric,logical"),
-                       defaultvalues = list(NULL, NULL, NULL),
-                       required = c(TRUE, FALSE, FALSE))
+InitErgmTerm.b1degree <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
+                         varnames = c("d", "by", "levels"),
+                         vartypes = c("numeric", "character", "character,numeric,logical"),
+                         defaultvalues = list(NULL, NULL, NULL),
+                         required = c(TRUE, FALSE, FALSE))
+	levels <- if(!is.null(a$levels)) I(a$levels) else NULL
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
+                         varnames = c("d", "by", "levels"),
+                         vartypes = c("numeric", ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
+                         defaultvalues = list(NULL, NULL, NULL),
+                         required = c(TRUE, FALSE, FALSE))
+    levels <- a$levels    
+  }
+  
+  byarg <- a$by
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
-  if (!is.null(a$by)) {  # CASE 1:  a$by GIVEN
-    nodecov <- get.node.attr(nw, a$by)[seq_len(nb1)]
-    u <- NVL(a$levels, sort(unique(nodecov)))
+  if (!is.null(byarg)) {  # CASE 1:  a$by GIVEN
+    nodecov <- ergm_get_vattr(byarg, nw, bip = "b1")
+    attrname <- attr(nodecov, "name")
+    u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
+
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     # Combine degree and u into 2xk matrix, where k=length(a$d)*length(u)
@@ -456,7 +515,7 @@ InitErgmTerm.b1degree <- function(nw, arglist, ...) {
       emptynwstats[du[1,]==0] <- tmp
     }
     name <- "b1degree_by_attr"
-    coef.names <- paste("b1deg", du[1,], ".", a$by, u[du[2,]], sep="")
+    coef.names <- paste("b1deg", du[1,], ".", attrname, u[du[2,]], sep="")
     inputs <- c(as.vector(du), nodecov)
   } else { # CASE 2:  a$by NOT GIVEN
     name <- "b1degree"
@@ -473,24 +532,39 @@ InitErgmTerm.b1degree <- function(nw, arglist, ...) {
 
 
 ################################################################################
-InitErgmTerm.b1factor<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                      varnames = c("attrname", "base", "levels"),
-                      vartypes = c("character", "numeric", "character,numeric,logical"),
-                      defaultvalues = list(NULL, 1, NULL),
-                      required = c(TRUE, FALSE, FALSE))
-  attrname<-a$attrname
-  base <- a$base
-  nb1 <- get.network.attribute(nw, "bipartite")
-  nodecov <- get.node.attr(nw, attrname, "b1factor")[1:nb1]
-   
-  u <- NVL(a$levels, sort(unique(nodecov)))
+InitErgmTerm.b1factor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                        varnames = c("attrname", "base", "levels"),
+                        vartypes = c("character", "numeric", "character,numeric,logical"),
+                        defaultvalues = list(NULL, 1, NULL),
+                        required = c(TRUE, FALSE, FALSE))
+	attr <- a$attrname
+	levels <- if(!is.null(a$levels)) I(a$levels) else NULL
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                        varnames = c("attr", "levels"),
+                        vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, -1),
+                        required = c(TRUE, FALSE))
+	attr <- a$attr						
+    levels <- a$levels	
+  }
+
+  ### Process the arguments  
+  nodecov <- ergm_get_vattr(attr, nw, bip = "b1")
+  attrname <- attr(nodecov, "name")
+  u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
+
   if (any(NVL(a$base,0)!=0)) {
     u <- u[-a$base]
-    if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
-      return()
-    }
   }
+
+  if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
+    return()
+  } 
   #   Recode to numeric
   nodepos <- match(nodecov,u,nomatch=0)-1
 
@@ -502,22 +576,37 @@ InitErgmTerm.b1factor<-function (nw, arglist, ...) {
 
 
 ################################################################################
-InitErgmTerm.b1star <- function(nw, arglist, ...) {
-  ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("k", "attrname", "levels"),
-                       vartypes = c("numeric", "character", "character,numeric,logical"),
-                       defaultvalues = list(NULL, NULL, NULL),
-                       required = c(TRUE, FALSE, FALSE))
+InitErgmTerm.b1star <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
+                         varnames = c("k", "attrname", "levels"),
+                         vartypes = c("numeric", "character", "character,numeric,logical"),
+                         defaultvalues = list(NULL, NULL, NULL),
+                         required = c(TRUE, FALSE, FALSE))
+	attr <- a$attrname
+    levels <- if(!is.null(a$levels)) I(a$levels) else NULL
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
+                         varnames = c("k", "attr", "levels"),
+                         vartypes = c("numeric", ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
+                         defaultvalues = list(NULL, NULL, NULL),
+                         required = c(TRUE, FALSE, FALSE))  
+	attr <- a$attr
+    levels <- a$levels  
+  }
   ### Process the arguments
-  if (!is.null(a$attrname)) {
-    nodecov <- get.node.attr(nw, a$attrname)
-    u <- NVL(a$levels, sort(unique(nodecov)))
+  if (!is.null(attr)) {
+    nodecov <- ergm_get_vattr(attr, nw)
+    attrname <- attr(nodecov, "name")
+    u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
+
     if(any(is.na(nodecov))){u<-c(u,NA)}
     # Recode to numeric
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     name <- "ostar"
-    coef.names <- paste("b1star", a$k, ".", a$attrname, sep="")
+    coef.names <- paste("b1star", a$k, ".", attrname, sep="")
     inputs <- c(a$k, nodecov)
     attr(inputs, "ParamsBeforeCov") <- length(a$k)
   } 
@@ -546,7 +635,7 @@ InitErgmTerm.b1starmix <- function(nw, arglist, ...) {
   # Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
   if (length(a$k) > 1) 
-    { stop("Only a single scalar k may be used with each b1starmix term") }
+    { ergm_Init_abort("Only a single scalar k may be used with each b1starmix term") }
   b1namescov <- sort(unique(nodecov[1:nb1]))
   b2namescov <- sort(unique(nodecov[(1+nb1):network.size(nw)]))
   b1nodecov <- match(nodecov[1:nb1],b1namescov)
@@ -611,21 +700,38 @@ InitErgmTerm.b1twostar <- function(nw, arglist, ...) {
 }
 
 ################################################################################
-InitErgmTerm.b2concurrent<-function(nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                      varnames = c("by", "levels"),
-                      vartypes = c("character", "character,numeric,logical"),
-                      defaultvalues = list(NULL, NULL),
-                      required = c(FALSE, FALSE))
-  byarg <- a$by
+InitErgmTerm.b2concurrent<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                        varnames = c("by", "levels"),
+                        vartypes = c("character", "character,numeric,logical"),
+                        defaultvalues = list(NULL, NULL),
+                        required = c(FALSE, FALSE))
+	levels <- if(!is.null(a$levels)) I(a$levels) else NULL
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                        varnames = c("by", "levels"),
+                        vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, NULL),
+                        required = c(FALSE, FALSE))
+    levels <- a$levels    
+  }
+
+  ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
+  byarg <- a$by
+
   if(!is.null(byarg)) {
-    nodecov <- get.node.attr(nw, byarg, "b2concurrent")[-seq_len(nb1)]
-    u <- NVL(a$levels, sort(unique(nodecov)))
+    nodecov <- ergm_get_vattr(byarg, nw, bip = "b2")
+    attrname <- attr(nodecov, "name")
+    u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
+	
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     if (length(u)==1)
-      stop ("Attribute given to b2concurrent() has only one value", call.=FALSE)
+      ergm_Init_abort ("Attribute given to b2concurrent() has only one value")
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     ui <- seq(along=u)
@@ -633,7 +739,7 @@ InitErgmTerm.b2concurrent<-function(nw, arglist, ...) {
   if(!is.null(byarg)) {
     if(length(u)==0) {return(NULL)}
     # See comment in d_b2concurrent_by_attr function
-    coef.names <- paste("b2concurrent",".", byarg,u, sep="")
+    coef.names <- paste("b2concurrent",".", attrname,u, sep="")
     name <- "b2concurrent_by_attr"
     inputs <- c(ui, nodecov)
   }else{
@@ -645,47 +751,76 @@ InitErgmTerm.b2concurrent<-function(nw, arglist, ...) {
 }
 
 ################################################################################
-InitErgmTerm.b2cov<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                      varnames = c("attrname","transform","transformname"),
-                      vartypes = c("character","function","character"),
-                      defaultvalues = list(NULL,function(x)x,""),
-                      required = c(TRUE,FALSE,FALSE))
-  attrname<-a$attrname
-  f<-a$transform
-  f.name<-a$transformname
-  coef.names <- paste(paste("b2cov",f.name,sep=""),attrname,sep=".")
-  nb1 <- get.network.attribute(nw, "bipartite")
-  nodecov <- f(get.node.attr(nw, attrname, "b2cov", numeric=TRUE)[(nb1+1):network.size(nw)])
+InitErgmTerm.b2cov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                        varnames = c("attrname","transform","transformname"),
+                        vartypes = c("character","function","character"),
+                        defaultvalues = list(NULL,function(x)x,""),
+                        required = c(TRUE,FALSE,FALSE))
+    ### Process the arguments
+    attrname<-a$attrname
+    f<-a$transform
+    f.name<-a$transformname
+    coef.names <- paste(paste("b2cov",f.name,sep=""),attrname,sep=".")
+    nb1 <- get.network.attribute(nw, "bipartite")
+    nodecov <- f(get.node.attr(nw, attrname, "b2cov", numeric=TRUE)[(nb1+1):network.size(nw)])
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                        varnames = c("attr"),
+                        vartypes = c(ERGM_VATTR_SPEC),
+                        defaultvalues = list(NULL),
+                        required = c(TRUE))
+    ### Process the arguments
+    nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", bip = "b2")
+    coef.names <- paste("b2cov",attr(nodecov, "name"),sep=".")
+  }
   list(name="b2cov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
 
 
 ################################################################################
-InitErgmTerm.b2degrange<-function(nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, bipartite=TRUE,
-                      varnames = c("from", "to", "by", "homophily", "levels"),
-                      vartypes = c("numeric", "numeric", "character", "logical", "character,numeric,logical"),
-                      defaultvalues = list(NULL, Inf, NULL, FALSE, NULL),
-                      required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+InitErgmTerm.b2degrange<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, bipartite=TRUE,
+                        varnames = c("from", "to", "by", "homophily", "levels"),
+                        vartypes = c("numeric", "numeric", "character", "logical", "character,numeric,logical"),
+                        defaultvalues = list(NULL, Inf, NULL, FALSE, NULL),
+                        required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+	levels <- if(!is.null(a$levels)) I(a$levels) else NULL						
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, bipartite=TRUE,
+                        varnames = c("from", "to", "by", "homophily", "levels"),
+                        vartypes = c("numeric", "numeric", ERGM_VATTR_SPEC, "logical", ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, Inf, NULL, FALSE, NULL),
+                        required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+    levels <- a$levels  
+  }
+
+  ### Process the arguments  
   from<-a$from; to<-a$to; byarg <- a$by; homophily <- a$homophily
   to <- ifelse(to==Inf, network.size(nw)+1, to)
 
   if(length(to)==1 && length(from)>1) to <- rep(to, length(from))
   else if(length(from)==1 && length(to)>1) from <- rep(from, length(to))
-  else if(length(from)!=length(to)) stop("The arguments of term odegrange must have arguments either of the same length, or one of them must have length 1.")
-  else if(any(from>=to)) stop("Term odegrange must have from<to.")
+  else if(length(from)!=length(to)) ergm_Init_abort("The arguments of term odegrange must have arguments either of the same length, or one of them must have length 1.")
+  else if(any(from>=to)) ergm_Init_abort("Term odegrange must have from<to.")
 
   nb1 <- get.network.attribute(nw, "bipartite")
   emptynwstats<-NULL
   if(!is.null(byarg)) {
-    nodecov <- get.node.attr(nw, byarg, "b2degrange")
+    nodecov <- ergm_get_vattr(byarg, nw)
+    attrname <- attr(nodecov, "name")
     if(!homophily) nodecov <- nodecov[-seq_len(nb1)]
-    u <- NVL(a$levels, sort(unique(nodecov)))
+    u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     if (length(u)==1)
-         stop ("Attribute given to b2degrange() has only one value", call.=FALSE)
+         ergm_Init_abort ("Attribute given to b2degrange() has only one value")
   }
   if(!is.null(byarg) && !homophily) {
     # Combine b2degrange and u into 3xk matrix, where k=length(from)*length(u)
@@ -714,8 +849,8 @@ InitErgmTerm.b2degrange<-function(nw, arglist, ...) {
     if(length(from)==0){return(NULL)}
     # See comment in d_b2degrange_w_homophily function
     coef.names <- ifelse(to>=network.size(nw)+1,
-                         paste("b2deg",from,"+", ".homophily.",byarg,sep=""),
-                         paste("b2deg",from,"to",to, ".homophily.",byarg,sep=""))
+                         paste("b2deg",from,"+", ".homophily.",attrname,sep=""),
+                         paste("b2deg",from,"to",to, ".homophily.",attrname,sep=""))
     name <- "b2degrange_w_homophily"
     inputs <- c(rbind(from,to), nodecov)
   } else {
@@ -723,8 +858,8 @@ InitErgmTerm.b2degrange<-function(nw, arglist, ...) {
     #  No covariates here, so "ParamsBeforeCov" unnecessary
     # See comment in d_b2degrange_by_attr function
     coef.names <- ifelse(du[2,]>=network.size(nw)+1,
-                         paste("b2deg",du[1,],"+.", byarg, u[du[3,]],sep=""),
-                         paste("b2deg",du[1,],"to",du[2,],".",byarg, u[du[3,]],sep=""))
+                         paste("b2deg",du[1,],"+.", attrname, u[du[3,]],sep=""),
+                         paste("b2deg",du[1,],"to",du[2,],".",attrname, u[du[3,]],sep=""))
     name <- "b2degrange_by_attr"
     inputs <- c(as.vector(du), nodecov)
   }
@@ -737,20 +872,36 @@ InitErgmTerm.b2degrange<-function(nw, arglist, ...) {
 }
 
 
+
 ################################################################################
-InitErgmTerm.b2degree <- function(nw, arglist, ...) {
-  ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("d", "by", "levels"),
-                       vartypes = c("numeric", "character", "character,numeric,logical"),
-                       defaultvalues = list(NULL, NULL, NULL),
-                       required = c(TRUE, FALSE, FALSE))
+InitErgmTerm.b2degree <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
+                         varnames = c("d", "by", "levels"),
+                         vartypes = c("numeric", "character", "character,numeric,logical"),
+                         defaultvalues = list(NULL, NULL, NULL),
+                         required = c(TRUE, FALSE, FALSE))
+	levels <- if(!is.null(a$levels)) I(a$levels) else NULL
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
+                         varnames = c("d", "by", "levels"),
+                         vartypes = c("numeric", ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
+                         defaultvalues = list(NULL, NULL, NULL),
+                         required = c(TRUE, FALSE, FALSE))
+    levels <- a$levels    
+  }
+  
+  byarg <- a$by
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
   n <- network.size(nw)
-  if (!is.null(a$by)) {  # CASE 1:  a$by GIVEN
-    nodecov <- get.node.attr(nw, a$by)[-seq_len(nb1)]
-    u <- NVL(a$levels, sort(unique(nodecov)))
+  if (!is.null(byarg)) {  # CASE 1:  a$by GIVEN
+    nodecov <- ergm_get_vattr(byarg, nw, bip = "b2")
+    attrname <- attr(nodecov, "name")
+    u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
+
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     # Combine degree and u into 2xk matrix, where k=length(a$d)*length(u)
@@ -764,7 +915,7 @@ InitErgmTerm.b2degree <- function(nw, arglist, ...) {
       emptynwstats[du[1,]==0] <- tmp
     }
     name <- "b2degree_by_attr"
-    coef.names <- paste("b2deg", du[1,], ".", a$by, u[du[2,]], sep="")
+    coef.names <- paste("b2deg", du[1,], ".", attrname, u[du[2,]], sep="")
     inputs <- c(as.vector(du), nodecov)
   } else { # CASE 2:  a$by NOT GIVEN
     name <- "b2degree"
@@ -780,29 +931,45 @@ InitErgmTerm.b2degree <- function(nw, arglist, ...) {
 }
 
 ################################################################################
-InitErgmTerm.b2factor<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                      varnames = c("attrname", "base", "levels"),
-                      vartypes = c("character", "numeric", "character,numeric,logical"),
-                      defaultvalues = list(NULL, 1, NULL),
-                      required = c(TRUE, FALSE, FALSE))
-  attrname<-a$attrname
-  base <- a$base
-  nb1 <- get.network.attribute(nw, "bipartite")
-  nodecov <- get.node.attr(nw, attrname, "b2factor")[(nb1+1):network.size(nw)]
+InitErgmTerm.b2factor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                        varnames = c("attrname", "base", "levels"),
+                        vartypes = c("character", "numeric", "character,numeric,logical"),
+                        defaultvalues = list(NULL, 1, NULL),
+                        required = c(TRUE, FALSE, FALSE))
+	attr <- a$attrname
+	levels <- if(!is.null(a$levels)) I(a$levels) else NULL
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                        varnames = c("attr", "levels"),
+                        vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, -1),
+                        required = c(TRUE, FALSE))
+	attr <- a$attr						
+    levels <- a$levels	
+  }
+
+  ### Process the arguments
+  base <- a$base  
+  nodecov <- ergm_get_vattr(attr, nw, bip = "b2")
+  attrname <- attr(nodecov, "name")
   
   if(all(is.na(nodecov)))
-	  stop("Argument to b2factor() does not exist", call.=FALSE)
+	  ergm_Init_abort("Argument to b2factor() does not exist")
   
-  u<-NVL(a$levels, sort(unique(nodecov)))
+  if(length(unique(nodecov)) == 1) # this counts NA as a value, if present, since we aren't sorting
+      ergm_Init_abort ("Argument to b2factor() has only one value")
+  
+  u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
+
   if(any(is.na(nodecov))){u<-c(u,NA)}
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
   ui <- seq(along=u)
   lu <- length(ui)
-  if (lu==1){
-    stop ("Argument to b2factor() has only one value", call.=FALSE)
-  }
-  if(base[1]==0){
+  if(is.null(base) || base[1]==0){
     coef.names <- paste("b2factor", attrname, paste(u), sep=".")
     inputs <- c(ui, nodecov)
     attr(inputs, "ParamsBeforeCov") <- lu
@@ -816,23 +983,40 @@ InitErgmTerm.b2factor<-function (nw, arglist, ...) {
 
 
 
+
+
 ################################################################################
-InitErgmTerm.b2star <- function(nw, arglist, ...) {
-  ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("k", "attrname", "levels"),
-                       vartypes = c("numeric", "character", "character,numeric,logical"),
-                       defaultvalues = list(NULL, NULL, NULL),
-                       required = c(TRUE, FALSE, FALSE))
+InitErgmTerm.b2star <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
+                         varnames = c("k", "attrname", "levels"),
+                         vartypes = c("numeric", "character", "character,numeric,logical"),
+                         defaultvalues = list(NULL, NULL, NULL),
+                         required = c(TRUE, FALSE, FALSE))
+	attr <- a$attrname
+    levels <- if(!is.null(a$levels)) I(a$levels) else NULL
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
+                         varnames = c("k", "attr", "levels"),
+                         vartypes = c("numeric", ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
+                         defaultvalues = list(NULL, NULL, NULL),
+                         required = c(TRUE, FALSE, FALSE))  
+	attr <- a$attr
+    levels <- a$levels  
+  }
   ### Process the arguments
-  if (!is.null(a$attrname)) {
-    nodecov <- get.node.attr(nw, a$attrname)
-    u <- NVL(a$levels, sort(unique(nodecov)))
+  if (!is.null(attr)) {
+    nodecov <- ergm_get_vattr(attr, nw)
+    attrname <- attr(nodecov, "name")
+    u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
+	
     if(any(is.na(nodecov))){u<-c(u,NA)}
     # Recode to numeric
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     name <- "istar"
-    coef.names <- paste("b2star", a$k, ".", a$attrname, sep="")
+    coef.names <- paste("b2star", a$k, ".", attrname, sep="")
     inputs <- c(a$k, nodecov)
     attr(inputs, "ParamsBeforeCov") <- length(a$k)
   } 
@@ -861,7 +1045,7 @@ InitErgmTerm.b2starmix <- function(nw, arglist, ...) {
   # Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
   if (length(a$k) > 1) 
-    { stop("Only a single scalar k may be used with each b2starmix term") }
+    { ergm_Init_abort("Only a single scalar k may be used with each b2starmix term") }
   b1namescov <- sort(unique(nodecov[1:nb1]))
   b2namescov <- sort(unique(nodecov[(1+nb1):network.size(nw)]))
   b1nodecov <- match(nodecov[1:nb1],b1namescov)
@@ -1460,14 +1644,30 @@ InitErgmTerm.esp<-function(nw, arglist, ...) {
 #=======================InitErgmTerm functions:  G============================#
 
 ################################################################################
-InitErgmTerm.gwb1degree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-  # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
-                      varnames = c("decay", "fixed", "attrname","cutoff", "levels"),
-                      vartypes = c("numeric", "logical", "character","numeric", "character,numeric,logical"),
-                      defaultvalues = list(0, TRUE, NULL, gw.cutoff, NULL),
-                      required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
-  decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
+InitErgmTerm.gwb1degree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+    # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
+                        varnames = c("decay", "fixed", "attrname","cutoff", "levels"),
+                        vartypes = c("numeric", "logical", "character","numeric", "character,numeric,logical"),
+                        defaultvalues = list(0, TRUE, NULL, gw.cutoff, NULL),
+                        required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+	attr <- a$attrname
+	levels <- if(!is.null(a$levels)) I(a$levels) else NULL						
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+    # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
+                        varnames = c("decay", "fixed", "attr","cutoff", "levels"),
+                        vartypes = c("numeric", "logical", ERGM_VATTR_SPEC,"numeric", ERGM_LEVELS_SPEC),
+                        defaultvalues = list(0, TRUE, NULL, gw.cutoff, NULL),
+                        required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+	attr <- a$attr
+    levels <- a$levels
+  }
+  ### Process the arguments
+  decay<-a$decay; fixed<-a$fixed
   cutoff<-a$cutoff
   nb1 <- get.network.attribute(nw,"bipartite")
 # d <- 1:(network.size(nw) - nb1)
@@ -1476,8 +1676,8 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, .
   d <- 1:maxesp
   if (!initialfit && !fixed) { # This is a curved exp fam
 #    if (!is.null(attrname)) {
-      stop("The gwb1degree term is not yet able to handle a ",
-           "non-fixed decay term.", call.=FALSE) # with an attribute.")
+      ergm_Init_abort("The gwb1degree term is not yet able to handle a ",
+           "non-fixed decay term.") # with an attribute.")
 #    }
     ld<-length(d)
     if(ld==0){return(NULL)}
@@ -1485,13 +1685,14 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, .
          inputs=c(d), params=list(gwb1degree=NULL,gwb1degree.decay=decay),
          conflicts.constraints="b1degreedist"), GWDECAY)
   } else {
-    if(!is.null(attrname)) {
-      nodecov <- get.node.attr(nw, attrname, "gwb1degree")
-      u <- NVL(a$levels, sort(unique(nodecov)))
+    if(!is.null(attr)) {
+      nodecov <- ergm_get_vattr(attr, nw)
+      attrname <- attr(nodecov, "name")
+      u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
       if(any(is.na(nodecov))){u<-c(u,NA)}
       nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
       if (length(u)==1)
-        stop ("Attribute given to gwb1degree() has only one value", call.=FALSE)
+        ergm_Init_abort ("Attribute given to gwb1degree() has only one value")
       # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
       lu <- length(u)
       du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
@@ -1511,16 +1712,32 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, .
 }
 
 
-
 ################################################################################
-InitErgmTerm.gwb2degree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-  # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
-                      varnames = c("decay", "fixed", "attrname","cutoff", "levels"),
-                      vartypes = c("numeric", "logical", "character", "numeric", "character,numeric,logical"),
-                      defaultvalues = list(0, TRUE, NULL, gw.cutoff, NULL),
-                      required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
-  decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
+InitErgmTerm.gwb2degree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+    # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
+                        varnames = c("decay", "fixed", "attrname","cutoff", "levels"),
+                        vartypes = c("numeric", "logical", "character","numeric", "character,numeric,logical"),
+                        defaultvalues = list(0, TRUE, NULL, gw.cutoff, NULL),
+                        required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+	attr <- a$attrname
+	levels <- if(!is.null(a$levels)) I(a$levels) else NULL						
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+    # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
+                        varnames = c("decay", "fixed", "attr","cutoff", "levels"),
+                        vartypes = c("numeric", "logical", ERGM_VATTR_SPEC,"numeric", ERGM_LEVELS_SPEC),
+                        defaultvalues = list(0, TRUE, NULL, gw.cutoff, NULL),
+                        required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+	attr <- a$attr
+    levels <- a$levels
+  }
+  
+  ### Process the arguments  
+  decay<-a$decay; fixed<-a$fixed
   cutoff<-a$cutoff
   nb1 <- get.network.attribute(nw,"bipartite")
 # d <- 1:nb1
@@ -1528,8 +1745,8 @@ InitErgmTerm.gwb2degree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, .
   d <- 1:maxesp
   if (!initialfit && !fixed) { # This is a curved exp fam
 #    if (!is.null(attrname)) {
-      stop("The gwb2degree term is not yet able to handle a ",
-           "non-fixed decay term.", call.=FALSE) # with an attribute.")
+      ergm_Init_abort("The gwb2degree term is not yet able to handle a ",
+           "non-fixed decay term.") # with an attribute.")
 #    }
     ld<-length(d)
     if(ld==0){return(NULL)}
@@ -1537,13 +1754,14 @@ InitErgmTerm.gwb2degree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, .
          inputs=c(d), params=list(gwb2degree=NULL,gwb2degree.decay=decay),
          conflicts.constraints="b2degreedist"), GWDECAY)
   } else { 
-    if(!is.null(attrname)) {
-      nodecov <- get.node.attr(nw, attrname, "gwb2degree")
-      u <- NVL(a$levels, sort(unique(nodecov)))
+    if(!is.null(attr)) {
+      nodecov <- ergm_get_vattr(attr, nw)
+      attrname <- attr(nodecov, "name")
+      u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
       if(any(is.na(nodecov))){u<-c(u,NA)}
       nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
       if (length(u)==1)
-        stop ("Attribute given to gwb2degree() has only one value", call.=FALSE)
+        ergm_Init_abort ("Attribute given to gwb2degree() has only one value")
       # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
       lu <- length(u)
       du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
@@ -2514,6 +2732,10 @@ InitErgmTerm.nodecov<-InitErgmTerm.nodemain<-function (nw, arglist, ..., version
     nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric")
     coef.names <- paste("nodecov",attr(nodecov, "name"),sep=".")
   }
+  if(any(is.na(nodecov)))
+  {
+	stop("NAs detected!")
+  }
   list(name="nodecov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
 
@@ -2556,17 +2778,31 @@ InitErgmTerm.nodefactor<-function (nw, arglist, ...) {
 }  
 
 ################################################################################
-InitErgmTerm.nodeicov<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("attrname","transform","transformname"),
-                      vartypes = c("character","function","character"),
-                      defaultvalues = list(NULL,function(x)x,""),
-                      required = c(TRUE,FALSE,FALSE))
-  attrname<-a$attrname
-  f<-a$transform
-  f.name<-a$transformname
-  coef.names <- paste(paste("nodeicov",f.name,sep=""),attrname,sep=".")
-  nodecov <- f(get.node.attr(nw, attrname, "nodeicov", numeric=TRUE))
+InitErgmTerm.nodeicov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=TRUE,
+                        varnames = c("attrname","transform","transformname"),
+                        vartypes = c("character","function","character"),
+                        defaultvalues = list(NULL,function(x)x,""),
+                        required = c(TRUE,FALSE,FALSE))
+    ### Process the arguments
+    attrname<-a$attrname
+    f<-a$transform
+    f.name<-a$transformname
+    coef.names <- paste(paste("nodeicov",f.name,sep=""),attrname,sep=".")
+    nodecov <- f(get.node.attr(nw, attrname, "nodeicov", numeric=TRUE))
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=TRUE,
+                        varnames = c("attr"),
+                        vartypes = c(ERGM_VATTR_SPEC),
+                        defaultvalues = list(NULL),
+                        required = c(TRUE))
+    ### Process the arguments
+    nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric")
+    coef.names <- paste("nodeicov",attr(nodecov, "name"),sep=".")
+  }
   list(name="nodeicov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
 
@@ -2727,17 +2963,31 @@ InitErgmTerm.nodemix<-function (nw, arglist, ...) {
 }
 
 ################################################################################
-InitErgmTerm.nodeocov<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
-                      varnames = c("attrname","transform","transformname"),
-                      vartypes = c("character","function","character"),
-                      defaultvalues = list(NULL,function(x)x,""),
-                      required = c(TRUE,FALSE,FALSE))
-  attrname<-a$attrname
-  f<-a$transform
-  f.name<-a$transformname
-  coef.names <- paste(paste("nodeocov",f.name,sep=""),attrname,sep=".")
-  nodecov <- f(get.node.attr(nw, attrname, "nodeocov", numeric=TRUE))
+InitErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
+                        varnames = c("attrname","transform","transformname"),
+                        vartypes = c("character","function","character"),
+                        defaultvalues = list(NULL,function(x)x,""),
+                        required = c(TRUE,FALSE,FALSE))
+    ### Process the arguments
+    attrname<-a$attrname
+    f<-a$transform
+    f.name<-a$transformname
+    coef.names <- paste(paste("nodeocov",f.name,sep=""),attrname,sep=".")
+    nodecov <- f(get.node.attr(nw, attrname, "nodeocov", numeric=TRUE))
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
+                        varnames = c("attr"),
+                        vartypes = c(ERGM_VATTR_SPEC),
+                        defaultvalues = list(NULL),
+                        required = c(TRUE))
+    ### Process the arguments
+    nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric")
+    coef.names <- paste("nodeocov",attr(nodecov, "name"),sep=".")
+  }
   list(name="nodeocov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
 
