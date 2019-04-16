@@ -171,8 +171,8 @@ s.d <- summary(fmh~gwdegree(.3))
 e.d <- ergm(fmh~gwdegree(.4, fixed=TRUE), estimate="MPLE")
 s.df <- summary(fmh~gwdegree(.3, fixed=TRUE))
 e.df <- ergm(fmh~gwdegree(.2, fixed=TRUE), estimate="MPLE")
-s.dfa <- summary(fmh~gwdegree(.1, fixed=TRUE, attrname="Grade"))
-e.dfa <- ergm(fmh~gwdegree(.1, fixed=TRUE, attrname="Grade"), estimate="MPLE")
+s.dfa <- summary(fmh~gwdegree(.1, fixed=TRUE, attr="Grade"))
+e.dfa <- ergm(fmh~gwdegree(.1, fixed=TRUE, attr="Grade"), estimate="MPLE")
 if (!all(head(s.d)==c(51,30,28,18,10,2)) ||
     round(e.d$coef + 13.59067, 3) != 0 ||
     round(s.df - 178.4312, 3) != 0 ||
