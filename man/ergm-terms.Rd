@@ -674,8 +674,8 @@ equal to the number of (first mode) mutual partners of that pair.
     }{\emph{Concurrent node count:} 
     This term adds one network statistic to the model, equal to the number of
     nodes in the network with degree 2 or higher. The optional argument
-    \code{by} is a character string giving the name of an attribute in the
-    network's vertex attribute list;
+    \code{by} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details);
     it functions just like the \code{by} argument of the \code{degree} term.
     This term can only be used with undirected
     networks. }
@@ -771,8 +771,8 @@ Note that Robins et al. (2009) define closely related statistics to several of t
     greater than or equal to 
     \code{from[i]} but strictly less than \code{to[i]}, i.e. with edges
     in semiopen interval \code{[from,to)}. The optional argument
-    \code{by} is a character string giving the name of an attribute in the
-    network's vertex attribute list. 
+    \code{by} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). 
     If this is specified and \code{homophily} is \code{TRUE},
     then degrees are calculated using the subnetwork consisting of only
     edges whose endpoints have the same value of the \code{by} attribute.
@@ -792,8 +792,8 @@ Note that Robins et al. (2009) define closely related statistics to several of t
     network statistic to the model for each element in \code{d}; the \eqn{i}th
     such statistic equals the number of nodes in the network of degree
     \code{d[i]}, i.e. with exactly \code{d[i]} edges. The optional argument
-    \code{by} is a character string giving the name of an attribute in the
-    network's vertex attribute list. 
+    \code{by} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). 
     If this is specified and \code{homophily} is \code{TRUE},
     then degrees are calculated using the subnetwork consisting of only
     edges whose endpoints have the same value of the \code{by} attribute.
@@ -1007,7 +1007,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     This term can only be used with undirected bipartite
     networks.}
     
-    \item{\code{gwdegree(decay, fixed=FALSE, attrname=NULL, cutoff=30, levels=NULL)}  (binary)  (undirected)  (curved) (frequently-used)
+    \item{\code{gwdegree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)}  (binary)  (undirected)  (curved) (frequently-used)
     }{\emph{Geometrically weighted
     degree distribution:} 
     This term adds one network statistic to the model equal to the weighted
@@ -1020,7 +1020,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     The optional argument \code{cutoff}
     is only relevant if \code{fixed=FALSE}. In that case it only uses this 
     number of terms in computing the statistics to reduce the computational
-    burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.)  If \code{attrname} is specified then separate degree
+    burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.)  If \code{attr} is specified (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details) then separate degree
     statistics are calculated for nodes having each separate
     value of the attribute.  This term can only be used with undirected networks.}
 
@@ -1056,7 +1057,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     number of terms in computing the statistics to reduce the computational
     burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.)}
  
-    \item{\code{gwidegree(decay, fixed=FALSE, attrname=NULL, cutoff=30, levels=NULL)}  (binary)  (directed) (curved)}{\emph{Geometrically weighted
+    \item{\code{gwidegree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)}  (binary)  (directed) (curved)}{\emph{Geometrically weighted
     in-degree distribution:} This term adds one network statistic to the model
     equal to the weighted in-degree distribution with decay parameter
     \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for
@@ -1067,7 +1068,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     The optional argument \code{cutoff}
     is only relevant if \code{fixed=FALSE}. In that case it only uses this 
     number of terms in computing the statistics to reduce the computational
-    burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.) If \code{attrname} is specified then separate degree
+    burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.) If \code{attr} is specified (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details) then separate degree
     statistics are calculated for nodes having each separate
     value of the attribute.}
 
@@ -1090,7 +1092,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     number of terms in computing the statistics to reduce the computational
     burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.)}
   
-    \item{\code{gwodegree(decay, fixed=FALSE, attrname=NULL, cutoff=30, levels=NULL)}  (binary)  (directed) (curved)}{\emph{Geometrically weighted
+    \item{\code{gwodegree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)}  (binary)  (directed) (curved)}{\emph{Geometrically weighted
     out-degree distribution:} This term adds one network statistic to the model
     equal to the weighted out-degree distribution with decay parameter
     \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for
@@ -1101,7 +1103,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     The optional argument \code{cutoff}
     is only relevant if \code{fixed=FALSE}. In that case it only uses this 
     number of terms in computing the statistics to reduce the computational
-    burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.) If \code{attrname} is specified then separate degree
+    burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.) If \code{attr} is specified (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details) then separate degree
     statistics are calculated for nodes having each separate
     value of the attribute.}
     
@@ -1145,8 +1148,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     \code{from[i]} but strictly less than \code{to[i]}, i.e. with
     in-edge count
     in semiopen interval \code{[from,to)}. The optional argument
-    \code{by} is a character string giving the name of an attribute in the
-    network's vertex attribute list. 
+    \code{by} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). 
     If this is specified and \code{homophily} is \code{TRUE},
     then degrees are calculated using the subnetwork consisting of only
     edges whose endpoints have the same value of the \code{by} attribute.
@@ -1167,8 +1170,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     the model for each element in \code{d}; the \eqn{i}th such statistic equals
     the number of nodes in the network of in-degree \code{d[i]}, i.e. the number
     of nodes with exactly \code{d[i]} in-edges. The optional term
-    \code{by} is a character string giving the name of an attribute in the
-    network's vertex attribute list. 
+    \code{by} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). 
     If this is specified and \code{homophily} is \code{TRUE},
     then degrees are calculated using the subnetwork consisting of only
     edges whose endpoints have the same value of the \code{by} attribute.
@@ -1219,7 +1222,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     directed network, an isolate is any node with both in-degree and out-degree
     equal to zero.}
     
-    \item{\code{istar(k, attrname=NULL, levels=NULL)}  (binary)  (directed) (categorical nodal attribute)
+    \item{\code{istar(k, attr=NULL, levels=NULL)}  (binary)  (directed) (categorical nodal attribute)
     }{\emph{In-stars: } The \code{k} argument is a
     vector of distinct integers. This term adds one network statistic to the
     model for each element in \code{k}. The \eqn{i}th such statistic counts the
@@ -1227,14 +1230,14 @@ of the degrees of all pairs of nodes in the network which are tied.
     \eqn{k}-instar is defined to be a node \eqn{N} and a set of \eqn{k}
     different nodes \eqn{\{O_1, \dots, O_k\}} such that the ties
     \eqn{(O_j{\rightarrow}N)}{(O_j, N)} exist for \eqn{j=1, \dots, k}. The
-    optional argument \code{attrname} is a character string giving the name of
-    an attribute in the network's vertex attribute list. If this is specified
+    optional argument \code{attr} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). If this is specified
     then the count is over the number of \eqn{k}-instars where all nodes have
     the same value of the attribute. This term can only be used for directed
     networks; for undirected networks see \code{kstar}. Note that
     \code{istar(1)} is equal to both \code{ostar(1)} and \code{edges}. }
     
-    \item{\code{kstar(k, attrname=NULL, levels=NULL)}  (binary)  (undirected) (categorical nodal attribute)
+    \item{\code{kstar(k, attr=NULL, levels=NULL)}  (binary)  (undirected) (categorical nodal attribute)
     }{\emph{k-Stars: } 
     The \code{k} argument is a vector of distinct integers. This term adds one
     network statistic to the model for each element in \code{k}. The \eqn{i}th
@@ -1242,8 +1245,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     network, where a \eqn{k}-star is defined to be a node \eqn{N} and a set of
     \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}} such that the ties
     \eqn{\{N, O_i\}} exist for \eqn{i=1, \dots, k}. The optional argument
-    \code{attrname} is a character string giving the name of an attribute in the
-    network's vertex attribute list. If this is specified then the count is over
+    \code{attr} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). If this is specified then the count is over
     the number of \eqn{k}-stars where all nodes have the same value of the
     attribute. This term can only be used for undirected networks; for directed
     networks, see \code{istar}, \code{ostar}, \code{twopath} and \code{m2star}.
@@ -1586,8 +1589,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     \code{from[i]} but strictly less than \code{to[i]}, i.e. with
     out-edge count
     in semiopen interval \code{[from,to)}. The optional argument
-    \code{by} is a character string giving the name of an attribute in the
-    network's vertex attribute list. 
+    \code{by} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). 
     If this is specified and \code{homophily} is \code{TRUE},
     then degrees are calculated using the subnetwork consisting of only
     edges whose endpoints have the same value of the \code{by} attribute.
@@ -1607,8 +1610,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     the model for each element in \code{d}; the \eqn{i}th such statistic equals
     the number of nodes in the network of out-degree \code{d[i]}, i.e. the
     number of nodes with exactly \code{d[i]} out-edges. The optional argument
-    \code{by} is a character string giving the name of an attribute in the
-    network's vertex attribute list. 
+    \code{by} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). 
     If this is specified and \code{homophily} is \code{TRUE},
     then degrees are calculated using the subnetwork consisting of only
     edges whose endpoints have the same value of the \code{by} attribute.
@@ -1635,7 +1638,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     three times the number of triangles in the network. It is currently
     only implemented for undirected networks. }
   
-    \item{\code{ostar(k, attrname=NULL, levels=NULL)}  (binary)  (directed) (categorical nodal attribute)
+    \item{\code{ostar(k, attr=NULL, levels=NULL)}  (binary)  (directed) (categorical nodal attribute)
     }{\emph{k-Outstars:} The \code{k} argument is
     a vector of distinct integers. This term adds one network statistic to the
     model for each element in \code{k}. The \eqn{i}th such statistic counts the
@@ -1643,8 +1646,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     \eqn{k}-outstar is defined to be a node \eqn{N} and a set of \eqn{k}
     different nodes \eqn{\{O_1, \dots, O_k\}} such that the ties
     \eqn{(N{\rightarrow}O_j)}{(N,O_j)} exist for \eqn{j=1, \dots, k}. The
-    optional argument \code{attrname} is a character string giving the name of
-    an attribute in the network's vertex attribute list. If this is specified
+    optional argument \code{attr} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). If this is specified
     then the count is the number of \eqn{k}-outstars where all nodes have the
     same value of the attribute. This term can only be used with directed
     networks; for undirected networks see \code{kstar}. Note that
