@@ -140,7 +140,7 @@
       }
 
       \item{
-	\code{\link{[=nobs.ergm]{nobs}} method has now been implemented for \code{\link{ergm}} objects.
+	\code{\link[=nobs.ergm]{nobs}} method has now been implemented for \code{\link{ergm}} objects.
       }
 
       \item{
