@@ -2,8 +2,8 @@
 context("test-ergm-san.R")
 
 test_that("SAN moves from a sparser network to a denser one with desired triadic attributes", {
-	x <- network(100, density = 0.05, directed = F)
-	y <- structure(replicate(5, san(x ~ edges + triangles, target.stats = c(600, 300), only.last = F)), class = "network.list")
+	x <- network(100, density = 0.05, directed = FALSE)
+	y <- structure(replicate(5, san(x ~ edges + triangles, target.stats = c(600, 300), only.last = FALSE)), class = "network.list")
 	z <- summary(y ~ edges + triangles)
 
 	mean_edges <- mean(z[,"edges"])
@@ -17,7 +17,7 @@ test_that("SAN moves from a sparser network to a denser one with desired triadic
 test_that("SAN correctly adjusts inward and outward sums while maintaining edge count", {
 	x <- network(100, numedges = 100)
 	x %v% 'prop' <- runif(100, 0, 2)
-	y <- structure(replicate(5, san(x ~ edges + nodeicov('prop') + nodeocov('prop'), target.stats = c(100, 75, 125), only.last = F)), class = "network.list")
+	y <- structure(replicate(5, san(x ~ edges + nodeicov('prop') + nodeocov('prop'), target.stats = c(100, 75, 125), only.last = FALSE)), class = "network.list")
 	z <- summary(y ~ edges + nodeicov('prop') + nodeocov('prop'))
 
 	mean_edges <- mean(z[,"edges"])
