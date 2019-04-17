@@ -85,8 +85,8 @@ if (s.a-79 != 0 || round(e.a$coef + 4.354,3) != 0 ||
 num.tests=num.tests+1
 s.a <- summary(fmh ~ absdiffcat("Grade"))
 e.a <- ergm(fmh ~ absdiffcat("Grade"))
-s.ab <- summary(fmh ~ absdiffcat("Grade", base=4:5))
-e.ab <- ergm(fmh ~ absdiffcat("Grade", base=4:5))
+s.ab <- summary(fmh ~ absdiffcat("Grade", levels=-(4:5)))
+e.ab <- ergm(fmh ~ absdiffcat("Grade", levels=-(4:5)))
 if (!all(s.a==c(15,15,7,2,1)) ||
     !all(round(e.a$coef+c(6.005,5.788,6.063,6.891,6.611),3)==0) ||
     !all(s.ab==c(15,15,7)) ||

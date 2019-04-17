@@ -100,14 +100,14 @@ diffs <- sort(unique(c(abs(outer(q,q,"-")))))
 diffs <- diffs[diffs!=0]
 for(base in c(0, seq_along(diffs))){
   keep <- if(all(base==0)) seq_along(diffs) else seq_along(diffs)[-base]
-  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*dirm,na.rm=TRUE)), summary(dirnw ~ absdiffcat("q",base=base), response="w"))
-  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*(dirm!=0),na.rm=TRUE)), summary(dirnw ~ absdiffcat("q",base=base, form="nonzero"), response="w"))
+  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*dirm,na.rm=TRUE)), summary(dirnw ~ absdiffcat("q",levels=keep), response="w"))
+  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*(dirm!=0),na.rm=TRUE)), summary(dirnw ~ absdiffcat("q",levels=keep, form="nonzero"), response="w"))
   
-  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*undm,na.rm=TRUE))/2, summary(undnw ~ absdiffcat("q",base=base), response="w"))
-  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*(undm!=0),na.rm=TRUE))/2, summary(undnw ~ absdiffcat("q",base=base, form="nonzero"), response="w"))
+  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*undm,na.rm=TRUE))/2, summary(undnw ~ absdiffcat("q",levels=keep), response="w"))
+  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*(undm!=0),na.rm=TRUE))/2, summary(undnw ~ absdiffcat("q",levels=keep, form="nonzero"), response="w"))
   
-  tst(sapply(diffs[keep], function(x) sum((abs(outer(q1,q2,"-"))==x)*bipm,na.rm=TRUE)), summary(bipnw ~ absdiffcat("q", base=base), response="w"))
-  tst(sapply(diffs[keep], function(x) sum((abs(outer(q1,q2,"-"))==x)*(bipm!=0),na.rm=TRUE)), summary(bipnw ~ absdiffcat("q", base=base, form="nonzero"), response="w"))
+  tst(sapply(diffs[keep], function(x) sum((abs(outer(q1,q2,"-"))==x)*bipm,na.rm=TRUE)), summary(bipnw ~ absdiffcat("q", levels=keep), response="w"))
+  tst(sapply(diffs[keep], function(x) sum((abs(outer(q1,q2,"-"))==x)*(bipm!=0),na.rm=TRUE)), summary(bipnw ~ absdiffcat("q", levels=keep, form="nonzero"), response="w"))
 }
 
 # atleast
