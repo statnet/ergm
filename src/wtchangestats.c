@@ -114,16 +114,22 @@ WtC_CHANGESTAT_FN(c_atmost){
  stat: b2cov (nonzero)
 *****************/
 WtC_CHANGESTAT_FN(c_b2cov_nonzero){ 
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
   ZERO_ALL_CHANGESTATS();
-      CHANGE_STAT[0] += INPUT_ATTRIB[head-BIPARTITE-1]*((weight!=0)-(GETWT(tail,head)!=0));
+  double oldwt = GETWT(tail,head);
+  for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift)
+    CHANGE_STAT[j] += INPUT_ATTRIB[head-BIPARTITE+o-1]*((weight!=0)-(oldwt!=0));
 }
 
 /*****************
  stat: b2cov (sum)
 *****************/
 WtC_CHANGESTAT_FN(c_b2cov_sum){ 
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
   ZERO_ALL_CHANGESTATS();
-      CHANGE_STAT[0] += INPUT_ATTRIB[head-BIPARTITE-1]*(weight-GETWT(tail,head));
+  double oldwt = GETWT(tail,head);
+  for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift)
+    CHANGE_STAT[j] += INPUT_ATTRIB[head-BIPARTITE+o-1]*(weight-oldwt);
 }
 
 /*****************
@@ -562,8 +568,11 @@ WtC_CHANGESTAT_FN(c_mutual_wt_nabsdiff){
  stat: nodecov (nonzero)
 *****************/
 WtC_CHANGESTAT_FN(c_nodecov_nonzero){ 
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
   ZERO_ALL_CHANGESTATS();
-      CHANGE_STAT[0] += (INPUT_ATTRIB[tail-1] + INPUT_ATTRIB[head-1])*((weight!=0)-(GETWT(tail,head)!=0));
+  double oldwt = GETWT(tail,head);
+  for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift)
+    CHANGE_STAT[j] += (INPUT_ATTRIB[tail+o-1] + INPUT_ATTRIB[head+o-1])*((weight!=0)-(oldwt!=0));
 }
 
 /*****************
@@ -614,40 +623,55 @@ WtU_CHANGESTAT_FN(u_nodecovar){
  stat: nodecov (sum)
 *****************/
 WtC_CHANGESTAT_FN(c_nodecov_sum){ 
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
   ZERO_ALL_CHANGESTATS();
-      CHANGE_STAT[0] += (INPUT_ATTRIB[tail-1] + INPUT_ATTRIB[head-1])*(weight-GETWT(tail,head));
+  double oldwt = GETWT(tail,head);
+  for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift)
+    CHANGE_STAT[j] += (INPUT_ATTRIB[tail+o-1] + INPUT_ATTRIB[head+o-1])*(weight-oldwt);
 }
 
 /*****************
  stat: nodeicov (nonzero)
 *****************/
 WtC_CHANGESTAT_FN(c_nodeicov_nonzero){ 
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
   ZERO_ALL_CHANGESTATS();
-      CHANGE_STAT[0] += INPUT_ATTRIB[head-1]*((weight!=0)-(GETWT(tail,head)!=0));
+  double oldwt = GETWT(tail,head);
+  for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift)
+    CHANGE_STAT[j] += INPUT_ATTRIB[head+o-1]*((weight!=0)-(oldwt!=0));
 }
 
 /*****************
  stat: nodeicov (sum)
 *****************/
 WtC_CHANGESTAT_FN(c_nodeicov_sum){ 
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
   ZERO_ALL_CHANGESTATS();
-      CHANGE_STAT[0] += INPUT_ATTRIB[head-1]*(weight-GETWT(tail,head));
+  double oldwt = GETWT(tail,head);
+  for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift)
+    CHANGE_STAT[j] += INPUT_ATTRIB[head+o-1]*(weight-oldwt);
 }
 
 /*****************
  stat: nodeocov (nonzero)
 *****************/
 WtC_CHANGESTAT_FN(c_nodeocov_nonzero){ 
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
   ZERO_ALL_CHANGESTATS();
-      CHANGE_STAT[0] += INPUT_ATTRIB[tail-1]*((weight!=0)-(GETWT(tail,head)!=0));
+  double oldwt = GETWT(tail,head);
+  for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift)
+    CHANGE_STAT[j] += INPUT_ATTRIB[tail+o-1]*((weight!=0)-(oldwt!=0));
 }
 
 /*****************
  stat: nodeocov (sum)
 *****************/
 WtC_CHANGESTAT_FN(c_nodeocov_sum){ 
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
   ZERO_ALL_CHANGESTATS();
-      CHANGE_STAT[0] += INPUT_ATTRIB[tail-1]*(weight-GETWT(tail,head));
+  double oldwt = GETWT(tail,head);
+  for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift)
+    CHANGE_STAT[j] += INPUT_ATTRIB[tail+o-1]*(weight-oldwt);
 }
 
 /*****************

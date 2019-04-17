@@ -58,9 +58,11 @@ if (s.0 != 12 || round(e.0$coef + 3.961, 3) != 0 ||
 num.tests=num.tests+1
 s.a <- summary(bipnw~b1cov("Cost"))
 e.a <- ergm(bipnw~b1cov("Cost"), estimate="MPLE")
+s.at <- summary(bipnw~b1cov(~poly(Cost,2,raw=TRUE)))
 if (!all(s.a==c(121)) ||
-    !all(round(e.a$coef+c(2.212),3)==0)) {
- print(list(s.a=s.a, e.a=e.a))
+    !all(round(e.a$coef+c(2.212),3)==0) ||
+    !all(s.at==c(121,283))) {
+ print(list(s.a=s.a, e.a=e.a, s.at=s.at))
  stop("Failed b1cov term test")
 } else {
   num.passed.tests=num.passed.tests+1
@@ -238,9 +240,11 @@ if (s.0 != 20 || round(e.0$coef + 3.497, 3) != 0 ||
 num.tests=num.tests+1
 s.a <- summary(bipnw~b2cov("Cost"))
 e.a <- ergm(bipnw~b2cov("Cost"), estimate="MPLE")
+s.at <- summary(bipnw~b2cov(~poly(Cost,2,raw=TRUE)))
 if (!all(s.a==c(129)) ||
-    !all(round(e.a$coef+c(2.191),3)==0)) {
- print(list(s.a=s.a, e.a=e.a))
+    !all(round(e.a$coef+c(2.191),3)==0) ||
+    !all(s.at==c(129,317))) {
+ print(list(s.a=s.a, e.a=e.a, s.at=s.at))
  stop("Failed b2cov term test")
 } else {
   num.passed.tests=num.passed.tests+1

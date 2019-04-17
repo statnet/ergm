@@ -8,31 +8,33 @@
 \alias{attrs}
 \title{Specifying nodal attributes and their levels}
 \description{
-This document describes the ways in which to specify
-nodal attribute or functions and which levels for categorical
-factors to include. For the helper functions to facilitate this,
-see \code{\link{node-attr-api}}.
+This document describes the ways to specify nodal
+attributes or functions of nodal attributes and which levels for
+categorical factors to include. For the helper functions to
+facilitate this, see \code{\link{node-attr-api}}.
 }
 \details{
-Term nodal attribute arguments, typically called \code{attrs}, \code{attrname}, \code{by},
-\code{on}, etc. are interpreted as follows: \describe{
+Term nodal attribute arguments, typically called \code{attr}, \code{attrs}, \code{by}, or
+\code{on} are interpreted as follows: \describe{
 
-\item{a single character string}{Extract the vertex attribute with
+\item{a character string}{Extract the vertex attribute with
 this name.}
 
 \item{a character vector of length > 1}{Extract the vertex
-attributes and paste them together, separated by dots.}
+attributes and paste them together, separated by dots if the term
+expects categorical attributes and (typically) combine into a
+covariate matrix if it expects quantitative attributes.}
 
 \item{a function}{The function is called on the LHS network,
-expected to return a vector of appropriate length. (Shorter vectors
-will be recycled as needed.)}
+expected to return a vector or matrix of appropriate
+dimension. (Shorter vectors and matrix columns will be recycled as needed.)}
 
 \item{a formula}{The expression on the RHS of the formula is
 evaluated in an environment of the vertex attributes of the
-network, expected to return a vector of appropriate
-length. (Shorter vectors will be recycled as needed.) Within this
-expression, the network itself accessible as either \code{.} or
-\code{.nw}. For example,
+network, expected to return a vector or matrix of appropriate
+dimension. (Shorter vectors and matrix columns will be recycled as
+needed.) Within this expression, the network itself accessible as
+either \code{.} or \code{.nw}. For example,
 \code{nodecov(~abs(Grade-mean(Grade))/network.size(.))} would return the
 absolute difference of each actor's "Grade" attribute from its
 network-wide mean, divided by the network size.}

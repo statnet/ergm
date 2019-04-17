@@ -598,15 +598,17 @@ C_CHANGESTAT_FN(c_b2concurrent_by_attr) {
  changestat: d_b2cov
 *****************/
 C_CHANGESTAT_FN(c_b2cov) { 
-  double sum;
   int edgeflag;
-  
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
+
   /* *** don't forget tail -> head */    
   Vertex nb1 = BIPARTITE;
-  CHANGE_STAT[0] = 0.0;
+  ZERO_ALL_CHANGESTATS(i);
       edgeflag=IS_OUTEDGE(tail, head);
-      sum = INPUT_ATTRIB[head-nb1-1];
-      CHANGE_STAT[0] += edgeflag ? -sum : sum;
+      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
+	double sum = INPUT_ATTRIB[head-nb1+o-1];
+	CHANGE_STAT[j] += edgeflag ? -sum : sum;
+    }
 }
 
 
@@ -3802,14 +3804,16 @@ C_CHANGESTAT_FN(c_nearsimmelian) {
  changestat: d_nodecov
 *****************/
 C_CHANGESTAT_FN(c_nodecov) { 
-  double sum;
   int edgeflag;
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
 
   /* *** don't forget tail -> head */    
-  CHANGE_STAT[0] = 0.0;
+  ZERO_ALL_CHANGESTATS(i);
       edgeflag=IS_OUTEDGE(tail, head);
-      sum = INPUT_ATTRIB[tail-1] + INPUT_ATTRIB[head-1];
-      CHANGE_STAT[0] += edgeflag ? -sum : sum;
+      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
+	double sum = INPUT_ATTRIB[tail+o-1] + INPUT_ATTRIB[head+o-1];
+	CHANGE_STAT[j] += edgeflag ? -sum : sum;
+    }
 }
 
 /*****************
@@ -3827,14 +3831,16 @@ C_CHANGESTAT_FN(c_nodefactor) {
  changestat: d_nodeicov
 *****************/
 C_CHANGESTAT_FN(c_nodeicov) { 
-  double sum;
   int edgeflag;
-  
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
+
   /* *** don't forget tail -> head */    
-  CHANGE_STAT[0] = 0.0;
+  ZERO_ALL_CHANGESTATS(i);
       edgeflag=IS_OUTEDGE(tail, head);
-      sum = INPUT_ATTRIB[head-1];
-      CHANGE_STAT[0] += edgeflag ? -sum : sum;
+      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
+	double sum = INPUT_ATTRIB[head+o-1];
+	CHANGE_STAT[j] += edgeflag ? -sum : sum;
+      }
 }
 
 /*****************
@@ -3906,14 +3912,16 @@ C_CHANGESTAT_FN(c_nodemix) {
  changestat: d_nodeocov
 *****************/
 C_CHANGESTAT_FN(c_nodeocov) { 
-  double sum;
   int edgeflag;
-  
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
+
   /* *** don't forget tail -> head */    
-  CHANGE_STAT[0] = 0.0;
+  ZERO_ALL_CHANGESTATS(i);
       edgeflag=IS_OUTEDGE(tail, head);
-      sum = INPUT_ATTRIB[tail-1];
-      CHANGE_STAT[0] += edgeflag ? -sum : sum;
+      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
+	double sum = INPUT_ATTRIB[tail+o-1];
+	CHANGE_STAT[j] += edgeflag ? -sum : sum;
+      }
 }
 
 /*****************

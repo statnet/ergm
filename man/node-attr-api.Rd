@@ -3,6 +3,7 @@
 \docType{data}
 \name{node-attr-api}
 \alias{node-attr-api}
+\alias{ERGM_GET_VATTR_MULTIPLE_TYPES}
 \alias{ergm_get_vattr}
 \alias{ergm_get_vattr.character}
 \alias{ergm_get_vattr.function}
@@ -18,19 +19,24 @@
 \alias{ERGM_VATTR_SPEC}
 \alias{ERGM_LEVELS_SPEC}
 \title{Helper functions for specifying nodal attribute levels}
-\format{An object of class \code{character} of length 1.}
+\format{An object of class \code{character} of length 3.}
 \usage{
+ERGM_GET_VATTR_MULTIPLE_TYPES
+
 ergm_get_vattr(object, nw, accept = "character", bip = c("n", "b1",
-  "b2"), ...)
+  "b2"), multiple = if (accept == "character") "paste" else "stop", ...)
 
 \method{ergm_get_vattr}{character}(object, nw, accept = "character",
-  bip = c("n", "b1", "b2"), ...)
+  bip = c("n", "b1", "b2"), multiple = if (accept == "character")
+  "paste" else "stop", ...)
 
 \method{ergm_get_vattr}{function}(object, nw, accept = "character",
-  bip = c("n", "b1", "b2"), ...)
+  bip = c("n", "b1", "b2"), multiple = if (accept == "character")
+  "paste" else "stop", ...)
 
 \method{ergm_get_vattr}{formula}(object, nw, accept = "character",
-  bip = c("n", "b1", "b2"), ...)
+  bip = c("n", "b1", "b2"), multiple = if (accept == "character")
+  "paste" else "stop", ...)
 
 ergm_attr_levels(object, attr, nw, levels = sort(unique(attr)), ...)
 
@@ -72,6 +78,9 @@ the output. See the Details section for the specification.}
 vector returned or the length permited: \code{"n"} for full network,
 \code{"b1"} for first mode of a bipartite network, and \code{"b2"} for the
 second.}
+
+\item{multiple}{Handling of multiple attributes or matrix or data
+frame output. See the Details section for the specification.}
 
 \item{...}{Additional argument to the functions of network or to
 the formula's environment.}
@@ -133,6 +142,16 @@ beconverted to character).}
 \item{\code{"nonnegative"}}{Accept a nonnegative number or logical.}
 
 \item{\code{"positive"}}{Accept a strictly positive number or logical.}
+}
+
+\describe{
+
+\item{\code{"paste"}}{Paste together with dot as the separator.}
+
+\item{\code{"stop"}}{Fail with an error message.}
+
+\item{\code{"matrix"}}{Construct and/or return a matrix whose rows correspond to vertices.}
+
 }
 }
 \examples{
