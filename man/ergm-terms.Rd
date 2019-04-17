@@ -283,14 +283,15 @@ network
     and thus the model is a CEF model. This term can only be used with
     undirected networks.}
     
-    \item{\code{asymmetric(attrname=NULL, diff=FALSE, keep=NULL)}  (binary)  (directed)  (dyad-independent) (triad-related)}{\emph{Asymmetric
+    \item{\code{asymmetric(attr=NULL, diff=FALSE, levels=NULL)}  (binary)  (directed)  (dyad-independent) (triad-related)}{\emph{Asymmetric
     dyads:} This term adds one network statistic to the model equal to the
     number of pairs of actors for which exactly one of
     \eqn{(i{\rightarrow}j)}{(i,j)} or \eqn{(j{\rightarrow}i)}{(j,i)} exists.
-    This term can only be used with directed networks. If the optional
-    \code{attrname} argument is used, only asymmetric pairs that match on the
-    named vertex attribute are counted. The optional modifiers \code{diff} and
-    \code{keep} are used in the same way as for the \code{nodematch} term; refer
+    This term can only be used with directed networks. The optional argument
+    \code{attr} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  If \code{attr} is specified, only asymmetric pairs that match on the
+    vertex attribute \code{attr} are counted. The optional modifiers \code{diff} and
+    \code{levels} are used in the same way as for the \code{nodematch} term; refer
     to this term for details and an example.}
 
   \item{\code{atleast(threshold=0)}  (valued)  (directed)  (undirected) (dyad-independent)}{\emph{Number of dyads with values
@@ -391,8 +392,8 @@ network
     The default value, \code{levels=-1}, means that the smallest (i.e., first in
     sorted order) attribute value is omitted.  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
     \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
-    for \dQuote{pear}, use any of \code{nodefactor("fruit", levels=-(2:3))}, \code{nodefactor("fruit", levels=c(1,4))}, and
-	\code{nodefactor("fruit", levels=c("apple", "pear"))}.  This term can only be used with undirected bipartite networks.
+    for \dQuote{pear}, use any of \code{b1factor("fruit", levels=-(2:3))}, \code{b1factor("fruit", levels=c(1,4))}, and
+	\code{b1factor("fruit", levels=c("apple", "pear"))}.  This term can only be used with undirected bipartite networks.
 	
 	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
 	this term. See the above section on versioning for invoking the old behavior.}
@@ -580,8 +581,8 @@ network
     The default value, \code{levels=-1}, means that the smallest (i.e., first in
     sorted order) attribute value is omitted.  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
     \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
-    for \dQuote{pear}, use any of \code{nodefactor("fruit", levels=-(2:3))}, \code{nodefactor("fruit", levels=c(1,4))}, and
-	\code{nodefactor("fruit", levels=c("apple", "pear"))}.  This term can only be used with undirected bipartite networks.
+    for \dQuote{pear}, use any of \code{b2factor("fruit", levels=-(2:3))}, \code{b2factor("fruit", levels=c(1,4))}, and
+	\code{b2factor("fruit", levels=c("apple", "pear"))}.  This term can only be used with undirected bipartite networks.
 	
 	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
 	this term. See the above section on versioning for invoking the old behavior.}
@@ -832,15 +833,14 @@ of the degrees of all pairs of nodes in the network which are tied.
     \code{density} equals \code{edges} or \code{istar(1)} or \code{ostar(1)}
     divided by \eqn{n(n-1)}. }
 
-    \item{\code{diff(attrname, pow=1, dir="t-h", sign.action="identity")} (binary) (dyad-independent) (frequently-used) (directed) (undirected) (quantitative nodal attribute), \code{diff(attrname, pow=1, dir="t-h", sign.action="identity", form ="sum")} (valued) (dyad-independent) (directed) (undirected) (bipartite) (quantitative nodal attribute)}{\emph{Difference:}
-      The \code{attrname} argument is a
-    character string giving the name of a quantitative attribute in the
-    network's vertex attribute list. For values of \code{pow} other than
+    \item{\code{diff(attr, pow=1, dir="t-h", sign.action="identity")} (binary) (dyad-independent) (frequently-used) (directed) (undirected) (quantitative nodal attribute), \code{diff(attr, pow=1, dir="t-h", sign.action="identity", form ="sum")} (valued) (dyad-independent) (directed) (undirected) (bipartite) (quantitative nodal attribute)}{\emph{Difference:}
+    The \code{attr} argument specifies a quantitative vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). For values of \code{pow} other than
     \code{0}, this term adds one network statistic to the model,
     equaling the sum, over directed edges \eqn{(i,j)}, of
-    \code{sign.action(attrname[i]-attrname[j])^pow} if \code{dir} is
+    \code{sign.action(attr[i]-attr[j])^pow} if \code{dir} is
     \code{"t-h"} (the default), \code{"tail-head"}, or \code{"b1-b2"}
-    and of \code{sign.action(attrname[j]-attrname[i])^pow} if
+    and of \code{sign.action(attr[j]-attr[i])^pow} if
     \code{"h-t"}, \code{"head-tail"}, or \code{"b2-b1"}. That is, the
     argument \code{dir} determines which vertex's attribute is
     subtracted from which, with tail being the origin of a directed edge
@@ -852,7 +852,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     is no difference, and \code{-1} if the difference is negative. Note
     that this function is applied \emph{after} the
     \code{sign.action}. The comparison is exact, so when using
-    calculated values of \code{attrname}, ensure that values that you
+    calculated values of \code{attr}, ensure that values that you
     want to be considered equal are, in fact, equal.
 
     The following \code{sign.actions} are possible:
@@ -1358,35 +1358,30 @@ of the degrees of all pairs of nodes in the network which are tied.
       viewed as a valued analog of the \code{\link[=ergm-terms]{kstar(2)}}
       statistic.
     }
-  
-    
-    \item{\code{nodefactor(attrname, base=1, levels=NULL)}  (binary)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute) (frequently-used) 
+  	
+    \item{\code{nodefactor(attr, levels=-1)}  (binary)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute) (frequently-used) 
     ,
-    \code{nodefactor(attrname, base=1, levels=NULL, form="sum")}  (dyad-independent)  (valued)  (directed)  (undirected) (categorical nodal attribute)
+    \code{nodefactor(attr, levels=-1, form="sum")}  (dyad-independent)  (valued)  (directed)  (undirected) (categorical nodal attribute)
     }{\emph{Factor attribute
-    effect:} The \code{attrname} argument is a character vector giving
-    one or more names of categorical attributes in the network's vertex
-    attribute list. This term adds multiple network statistics to the
+    effect:} The \code{attr} argument specifies one or more categorical attributes (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). This term adds multiple network statistics to the
     model, one for each of (a subset of) the unique values of the
-    \code{attrname} attribute (or each combination of the attributes
+    \code{attr} attribute (or each combination of the attributes
     given). Each of these statistics gives the number of times a node
     with that attribute or those attributes appears in an edge in the
     network. In particular, for edges whose endpoints both have the same
     attribute values, this value is counted twice. To include all
     attribute values is usually not a good idea -- though this may be 
-    accomplished if desired by setting \code{base=0} -- because the sum
+    accomplished if desired by setting \code{levels=TRUE} -- because the sum
     of all such statistics equals twice the number of edges and hence a 
     linear dependency would arise in any model also including
-    \code{edges}. Thus, the \code{base} argument tells which value(s) 
-    (numbered in order according to the \code{sort} function) should be
-    omitted. The default value, \code{base=1}, means that the smallest 
-    (i.e., first in sorted order) attribute value is omitted. For
-    example, if the \dQuote{fruit} factor has levels \dQuote{orange},
-    \dQuote{apple}, \dQuote{banana}, and \dQuote{pear}, then to add just
-    two terms, one for \dQuote{apple} and one for \dQuote{pear}, then
-    set \dQuote{banana} and \dQuote{orange} to the base (remember to
-    sort the values first) by using \code{nodefactor("fruit",
-    base=2:3)}. For an analogous term for quantitative vertex
+    \code{edges}. Thus, the \code{levels} argument tells which value(s) 
+    should be included or excluded (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  The default value, \code{levels=-1}, means that the smallest 
+    (i.e., first in sorted order) attribute value is omitted.  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
+    \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
+    for \dQuote{pear}, use any of \code{nodefactor("fruit", levels=-(2:3))}, \code{nodefactor("fruit", levels=c(1,4))}, and
+	\code{nodefactor("fruit", levels=c("apple", "pear"))}.  For an analogous term for quantitative vertex
     attributes, see \code{nodecov}. }
     
 	\item{\code{nodeicov(attr)}  (binary)  (directed) (quantitative nodal attribute) (frequently-used)
@@ -1410,32 +1405,28 @@ of the degrees of all pairs of nodes in the network which are tied.
     }
 
   
-    \item{\code{nodeifactor(attrname, base=1, levels=NULL)}  (binary)  (dyad-independent)  (directed) (categorical nodal attribute) (frequently-used)
+    \item{\code{nodeifactor(attr, levels=-1)}  (binary)  (dyad-independent)  (directed) (categorical nodal attribute) (frequently-used)
     ,
-    \code{nodeifactor(attrname, base=1, levels=NULL, form="sum")}  (valued)  (dyad-independent)  (directed) (categorical nodal attribute)
+    \code{nodeifactor(attr, levels=-1, form="sum")}  (valued)  (dyad-independent)  (directed) (categorical nodal attribute)
     }{\emph{Factor attribute
-    effect for in-edges:} The \code{attrname} argument is a character
-    vector giving one or more names of a categorical attribute in the
-    network's vertex attribute list. This term adds multiple network
+    effect for in-edges:} The \code{attr} argument specifies one or more categorical attributes (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). This term adds multiple network
     statistics to the model, one for each of (a subset of) the unique
-    values of the \code{attrname} attribute (or each combination of the
+    values of the \code{attr} attribute (or each combination of the
     attributes given). Each of these statistics gives the number of
     times a node with that attribute or those attributes appears as the
     terminal node of a directed tie. To include all attribute values is
     usually not a good idea -- though this may be accomplished if desired
-    by setting \code{base=0} --
+    by setting \code{levels=TRUE} --
     because the sum of all such statistics
     equals the number of edges and hence a linear dependency would arise
-    in any model also including \code{edges}. Thus, the \code{base}
-    argument tells which value(s) (numbered in order according to the
-    \code{sort} function) should be omitted. The default value,
-    \code{base=1}, means that the smallest (i.e., first in sorted order)
-    attribute value is omitted. For example, if the \dQuote{fruit}
-    factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana},
-    and \dQuote{pear}, then to add just two terms, one for
-    \dQuote{apple} and one for \dQuote{pear}, then set \dQuote{banana}
-    and \dQuote{orange} to the base (remember to sort the values first)
-    by using \code{nodefactor("fruit", base=2:3)}. For an analogous term
+    in any model also including \code{edges}. Thus, the \code{levels} argument tells which value(s) 
+    should be included or excluded (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  The default value, \code{levels=-1}, means that the smallest 
+    (i.e., first in sorted order) attribute value is omitted.  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
+    \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
+    for \dQuote{pear}, use any of \code{nodeifactor("fruit", levels=-(2:3))}, \code{nodeifactor("fruit", levels=c(1,4))}, and
+	\code{nodeifactor("fruit", levels=c("apple", "pear"))}. For an analogous term
     for quantitative vertex attributes, see \code{nodeicov}. }
 
       \item{\code{nodeisqrtcovar}  (valued)  (directed)  (non-negative) (quantitative nodal attribute)
@@ -1447,30 +1438,28 @@ of the degrees of all pairs of nodes in the network which are tied.
     }
 
   
-    \item{\code{nodematch(attrname, diff=FALSE, keep=NULL, levels=NULL)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (categorical nodal attribute)
-    , \code{nodematch(attrname, diff=FALSE, keep=NULL, levels=NULL, form="sum")}  (valued)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute)
+    \item{\code{nodematch(attr, diff=FALSE, levels=NULL)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (categorical nodal attribute)
+    , \code{nodematch(attr, diff=FALSE, levels=NULL, form="sum")}  (valued)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute)
      a.k.a. \code{match}  (binary)  (directed)  (dyad-independent)  (undirected) (categorical nodal attribute)
      }{\emph{Uniform homophily and differential homophily:}
-    The \code{attrname} argument is a character vector giving one or
-    more names of attributes in the network's vertex attribute
-    list. When \code{diff=FALSE}, this term adds one network statistic
+    The \code{attr} argument specifies one or more attributes (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  When \code{diff=FALSE}, this term adds one network statistic
     to the model, which counts the number of edges \eqn{(i,j)} for which
-    \code{attrname(i)==attrname(j)}. This is also called ''uniform homophily,'' because each group is assumed to have the same propensity for within-group ties.  When multiple attribute names are given, the
+    \code{attr(i)==attr(j)}. This is also called ''uniform homophily,'' because each group is assumed to have the same propensity for within-group ties.  When multiple attribute names are given, the
     statistic counts only ties for which all of the attributes
     match. When \code{diff=TRUE}, \eqn{p} network statistics are added
     to the model, where \eqn{p} is the number of unique values of the
-    \code{attrname} attribute. The \eqn{k}th such statistic counts the
-    number of edges \eqn{(i,j)} for which \code{attrname(i) ==
-    attrname(j) == value(k)}, where \code{value(k)} is the \eqn{k}th
-    smallest unique value of the attrname attribute. This is also called ''differential homophily,'' because each group is allowed to have a unique propensity for within-group ties.  Note that a statistical test of uniform vs. differential homophily should be conducted using the ANOVA function.
+    \code{attr} attribute. The \eqn{k}th such statistic counts the
+    number of edges \eqn{(i,j)} for which \code{attr(i) ==
+    attr(j) == value(k)}, where \code{value(k)} is the \eqn{k}th
+    smallest unique value of the \code{attr} attribute. This is also called ''differential homophily,'' because each group is allowed to have a unique propensity for within-group ties.  Note that a statistical test of uniform vs. differential homophily should be conducted using the ANOVA function.
     
-    If set to non-NULL,
-    the optional \code{keep} argument should be a vector of integers
-    giving the values of \code{k} that should be considered for matches;
+    If set to non-NULL, the optional \code{levels} argument specifies values of \code{k} that should be considered for matches (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details);
     other values are ignored (this works for both \code{diff=FALSE} and
     \code{diff=TRUE}). For instance, to add two statistics, counting the
     matches for just the 2nd and 4th categories, use \code{nodematch}
-    with \code{diff=TRUE} and \code{keep=c(2,4)}.}
+    with \code{diff=TRUE} and \code{levels=c(2,4)}.}
    
     \item{\code{nodemix(attrname, base=NULL, levels=NULL)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (categorical nodal attribute)
     ,
@@ -1515,31 +1504,27 @@ of the degrees of all pairs of nodes in the network which are tied.
     }
 
   
-    \item{\code{nodeofactor(attrname, base=1, levels=NULL)}  (binary)  (dyad-independent)  (directed) (categorical nodal attribute)
+    \item{\code{nodeofactor(attr, levels=-1)}  (binary)  (dyad-independent)  (directed) (categorical nodal attribute)
     ,
-    \code{nodeofactor(attrname, base=1, levels=NULL, form="sum")}  (valued)  (dyad-independent)  (categorical nodal attribute) (directed)}{\emph{Factor attribute
-    effect for out-edges:} The \code{attrname} argument is a character
-    string giving one or more names of categorical attributes in the
-    network's vertex attribute list. This term adds multiple network
+    \code{nodeofactor(attr, levels=-1, form="sum")}  (valued)  (dyad-independent)  (categorical nodal attribute) (directed)}{\emph{Factor attribute
+    effect for out-edges:} The \code{attr} argument specifies one or more categorical attributes (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). This term adds multiple network
     statistics to the model, one for each of (a subset of) the unique
-    values of the \code{attrname} attribute (or each combination of the
+    values of the \code{attr} attribute (or each combination of the
     attributes given). Each of these statistics gives the number of
     times a node with that attribute or those attributes appears as the
     node of origin of a directed tie. To include all attribute values is
     usually not a good idea -- though this may be accomplished if desired
-    by setting \code{base=0} --
+    by setting \code{levels=TRUE} --
     because the sum of all such statistics
     equals the number of edges and hence a linear dependency would arise
-    in any model also including \code{edges}. Thus, the \code{base}
-    argument tells which value(s) (numbered in order according to the
-    \code{sort} function) should be omitted. The default value,
-    \code{base=1}, means that the smallest (i.e., first in sorted order)
-    attribute value is omitted. For example, if the \dQuote{fruit}
-    factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana},
-    and \dQuote{pear}, then to add just two terms, one for
-    \dQuote{apple} and one for \dQuote{pear}, then set \dQuote{banana}
-    and \dQuote{orange} to the base (remember to sort the values first)
-    by using \code{nodefactor("fruit", base=2:3)}. For an analogous term
+    in any model also including \code{edges}. Thus, the \code{levels} argument tells which value(s) 
+    should be included or excluded (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  The default value, \code{levels=-1}, means that the smallest 
+    (i.e., first in sorted order) attribute value is omitted.  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
+    \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
+    for \dQuote{pear}, use any of \code{nodeofactor("fruit", levels=-(2:3))}, \code{nodeofactor("fruit", levels=c(1,4))}, and
+	\code{nodeofactor("fruit", levels=c("apple", "pear"))}. For an analogous term
     for quantitative vertex attributes, see \code{nodeocov}. }
 
       \item{\code{nodeosqrtcovar}  (valued)  (directed)  (non-negative)
@@ -1653,9 +1638,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     networks; for undirected networks see \code{kstar}. Note that
     \code{ostar(1)} is equal to both \code{istar(1)} and \code{edges}. }
     
-  \item{\code{receiver(base=1)}  (binary)  (directed)  (dyad-independent)
+  \item{\code{receiver(levels=-1)}  (binary)  (directed)  (dyad-independent)
     ,
-  \code{receiver(base=1, form="sum")}  (valued)  (directed)  (dyad-independent)}{\emph{Receiver effect:} 
+  \code{receiver(levels=-1, form="sum")}  (valued)  (directed)  (dyad-independent)}{\emph{Receiver effect:} 
     This term adds one network statistic for each node equal to the number of
     in-ties for that node. This measures the popularity of the node. The term
     for the first node is omitted by default because of linear dependence that
@@ -1663,16 +1648,15 @@ of the degrees of all pairs of nodes in the network which are tied.
     can be computed as the negative of the sum of the coefficients of all the
     other actors. That is, the average coefficient is zero, following the
     Holland-Leinhardt parametrization of the $p_1$ model (Holland and Leinhardt,
-    1981). The \code{base} argument allows the user to determine which nodes'
-    statistics should be omitted. The \code{base} argument can also be a vector
-    of negative indices, to specify which should be added instead of deleted,
-    and \code{base=0} specifies that all statistics should be included. This
+    1981). The \code{level} argument allows the user to determine which nodes'
+    statistics should be included or excluded (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  This
     term can only be used with directed networks. For undirected networks, see
     \code{sociality}.}
     
-  \item{\code{sender(base=1)}  (binary)  (directed)  (dyad-independent)
+  \item{\code{sender(levels=-1)}  (binary)  (directed)  (dyad-independent)
     ,
-  \code{sender(base=1, form="sum")}  (valued)  (directed)  (dyad-independent)}{\emph{Sender effect:} 
+  \code{sender(levels=-1, form="sum")}  (valued)  (directed)  (dyad-independent)}{\emph{Sender effect:} 
     This term adds one network statistic for each node equal to the number of
     out-ties for that node. This measures the activity of the node. The term for
     the first node is omitted by default because of linear dependence that
@@ -1680,10 +1664,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     can be computed as the negative of the sum of the coefficients of all the
     other actors. That is, the average coefficient is zero, following the
     Holland-Leinhardt parametrization of the $p_1$ model (Holland and Leinhardt,
-    1981). The \code{base} argument allows the user to determine which nodes'
-    statistics should be omitted. The \code{base} argument can also be a vector
-    of negative indices, to specify which should be added instead of deleted,
-    and \code{base=0} specifies that all statistics should be included. This
+    1981). The \code{level} argument allows the user to determine which nodes'
+    statistics should be included or excluded (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). This
     term can only be used with directed networks. For undirected networks, see
     \code{sociality}.}
 
@@ -1701,31 +1684,29 @@ of the degrees of all pairs of nodes in the network which are tied.
     is a measure of the clustering of Simmelians (given the number of
     Simmelians). This term can only be used with directed networks.}
 
-  \item{\code{smalldiff(attrname, cutoff)}  (binary)  (dyad-independent)  (directed)  (undirected) (quantitative nodal attribute)
+  \item{\code{smalldiff(attr, cutoff)}  (binary)  (dyad-independent)  (directed)  (undirected) (quantitative nodal attribute)
   }{\emph{Number of
     ties between actors with similar (but not necessarily identical)
-    attribute values:} The \code{attrname} argument is a character
-    string giving the name of a quantitative attribute in the network's
-    vertex attribute list. This term adds one statistic, having as its
+    attribute values:} The \code{attr} argument specifies a quantitative vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). This term adds one statistic, having as its
     value the number of edges in the network for which the incident
-    actors' attribute values differ less than \code{cotoff}; that is,
+    actors' attribute values differ less than \code{cutoff}; that is,
     number of edges between \code{i} to \code{j} such that
-    \code{abs(attrname[i]-attrname[j])<cutoff}.}
+    \code{abs(attr[i]-attr[j])<cutoff}.}
      
-  \item{\code{sociality(attrname=NULL, base=1, levels=NULL)}  (binary) (undirected) (dyad-independent) (categorical nodal attribute)
+  \item{\code{sociality(attr=NULL, nodelevels=-1, levels=NULL)}  (binary) (undirected) (dyad-independent) (categorical nodal attribute)
     ,
-    \code{sociality(attrname=NULL, base=1, levels=NULL, form="sum")}  (valued) (undirected) (dyad-independent) (categorical nodal attribute)
+    \code{sociality(attr=NULL, nodelevels=-1, levels=NULL, form="sum")}  (valued) (undirected) (dyad-independent) (categorical nodal attribute)
     }{\emph{Undirected degree:} 
     This term adds one network statistic for each node equal to the number of
-    ties of that node. The optional \code{attrname} argument is a character
-    string giving the name of an attribute in the network's vertex attribute
-    list that takes categorical values. If provided, this term only counts ties
+    ties of that node. The optional \code{attr} argument specifies a categorical vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). If provided, this term only counts ties
     between nodes with the same value of the attribute (an actor-specific
-    version of the \code{nodematch} term). This term can only be used with
+    version of the \code{nodematch} term), restricted to be one of the values specified by \code{levels} if \code{levels} is not \code{NULL}.  This term can only be used with
     undirected networks.  For directed networks, see \code{sender} and
-    \code{receiver}. By default, \code{base=1} means that the statistic for the
+    \code{receiver}. By default, \code{nodelevels=-1} means that the statistic for the
     first node will be omitted, but this argument may be changed to control
-    which statistics are included just as for the \code{sender} and
+    which statistics are included just as for the \code{levels} argument of \code{sender} and
     \code{receiver} terms.}
 
 
@@ -1735,7 +1716,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     }
       
   
-    \item{\code{threetrail(keep=1:4)} (binary)  (directed)  (undirected)
+    \item{\code{threetrail(levels=1:4)} (binary)  (directed)  (undirected)
     (triad-related), 
     }{\emph{ Three-trails:}
     a.k.a. \code{threepath}.
@@ -1745,7 +1726,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     Note that a 3-trail need not
     include four distinct nodes; in particular, a triangle counts as three
     3-trails.  For a directed network, this term adds four statistics 
-    (or some subset of these four specified by the \code{keep} argument),
+    (or some subset of these four specified by the \code{levels} argument),
     one for each of the four distinct types of directed three-paths.  If the 
     nodes of the path are written from left to right such that the middle edge
     points to the right (R), then the four types are RRR, RRL, LRR, and LRL.
@@ -1807,7 +1788,7 @@ of the degrees of all pairs of nodes in the network which are tied.
       }
 
     
-    \item{\code{triadcensus(d)}  (binary)  (triad-related)  (directed)  (undirected)}{\emph{Triad census:} 
+    \item{\code{triadcensus(levels)}  (binary)  (triad-related)  (directed)  (undirected)}{\emph{Triad census:} 
     For a directed network, this term adds one network statistic for each of
     an arbitrary subset of the 16 possible types of triads categorized by
     Davis and Leinhardt (1972) as \code{003, 012, 102, 021D, 021U, 021C, 111D,
@@ -1817,16 +1798,15 @@ of the degrees of all pairs of nodes in the network which are tied.
     three-node sets. By default, the category \code{003}, which is the category
     of completely empty three-node sets, is dropped. This is considered category
     zero, and the others are numbered 1 through 15 in the order given above. By
-    specifying a numeric vector of integers from 0 to 15 as the \code{d}
-    argument, the user may specify a set of terms to add other than the default
+    using the \code{levels} argument (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details), the user may specify a set of terms to add other than the default
     value of \code{1:15}. Each statistic is the count of the corresponding triad
     type in the network. For details on the 16 types, see \code{?triad.classify}
     in the \code{{sna}} package, on which this code is based. For an undirected
     network, the triad census is over the four types defined by the number of
     ties (i.e., 0, 1, 2, and 3), and the default is to add \code{1:3}, which is
     to say that the 0 is dropped; however, this too may be controlled by
-    changing the \code{d} argument to a numeric vector giving a subset of
-    \eqn{\{0, 1, 2, 3\}}.}
+    changing the \code{levels} argument.}
     
     \item{\code{triangle(attrname=NULL, levels=NULL)}  (binary)  (frequently-used)  (triad-related)  (directed)  (undirected) (categorical nodal attribute)
     }{\emph{Triangles:}
