@@ -20,4 +20,4 @@ addons:
   apt:
     packages:
       - r-cran-rmpi
-warnings_are_errors: true
+warnings_are_errors: false
