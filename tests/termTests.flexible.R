@@ -458,8 +458,8 @@ if (s.a != 906 || round(e.a$coef + .271, 3) != 0 ||
 num.tests=num.tests+1
 s.a <- summary(fmh~nodefactor("Grade"))
 e.a <- ergm(samplike~nodefactor("group"), estimate="MPLE")
-s.ab <- summary(fmh~nodefactor("Sex", base=4:5))
-e.ab <- ergm(samplike~nodefactor("Trinity", base=0), estimate="MPLE")
+s.ab <- summary(fmh~nodefactor("Sex", levels=-(4:5)))
+e.ab <- ergm(samplike~nodefactor("Trinity", levels=TRUE), estimate="MPLE")
 if (!all(s.a==c(75, 65, 36, 49, 28)) ||
     !all(round(e.a$coef+c(.9480, .3273),3)==0) ||
     !all(s.ab==c(235,171)) ||
@@ -479,8 +479,8 @@ s.a <- summary(fmh~nodematch("Race"))
 e.a <- ergm(samplike~nodematch("Trinity"), estimate="MPLE")
 s.ad <- summary(samplike~nodematch("group", diff=TRUE))
 e.ad <- ergm(fmh~nodematch("Sex", diff=TRUE), estimate="MPLE")
-s.ak <- summary(fmh~nodematch("Grade", keep=3:4))
-e.ak <- ergm(samplike~nodematch("group", keep=2), estimate="MPLE")
+s.ak <- summary(fmh~nodematch("Grade", levels=3:4))
+e.ak <- ergm(samplike~nodematch("group", levels=2), estimate="MPLE")
 s.adk <- summary(samplike~nodematch("Trinity", TRUE, 1:2))
 e.adk <- ergm(fmh~nodematch("Race", TRUE, 2), estimate="MPLE")
 if (s.a != 103 || round(e.a$coef + 1.45725,3)!=0  ||
@@ -565,8 +565,8 @@ print(list(s.ac.d=s.ac.d, s.ac.u=s.ac.u, s.ac.b=s.ac.b,
 num.tests=num.tests+1
 s.0 <- summary(samplike~threetrail)
 e.0 <- ergm(fmh~threetrail, estimate="MPLE")
-s.k <- summary(samplike~threetrail(keep=2))
-e.k <- ergm(samplike~threetrail(keep=1:2), estimate="MPLE")
+s.k <- summary(samplike~threetrail(levels=2))
+e.k <- ergm(samplike~threetrail(levels=1:2), estimate="MPLE")
 if (!all(s.0==c(2103, 2326, 1749, 1897)) ||
     round(e.0$coef + .2842, 3) != 0 ||
     s.k!=2326 ||
