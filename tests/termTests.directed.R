@@ -30,10 +30,10 @@ s.a <- summary(samplike~asymmetric("group"))
 e.a <- ergm(samplike~asymmetric("group"), estimate="MPLE")
 s.ad <- summary(samplike~asymmetric("group", diff=TRUE))
 e.ad <- ergm(samplike~asymmetric("group", diff=TRUE), estimate="MPLE")
-s.ak <- summary(samplike~asymmetric("group", keep=3))
-e.ak <- ergm(samplike~asymmetric("group", keep=3), estimate="MPLE")
-s.adk <- summary(samplike~asymmetric("group", diff=TRUE, keep=1:2))
-e.adk <- ergm(samplike~asymmetric("group", diff=TRUE, keep=c(1,3)), estimate="MPLE")
+s.ak <- summary(samplike~asymmetric("group", levels=3))
+e.ak <- ergm(samplike~asymmetric("group", levels=3), estimate="MPLE")
+s.adk <- summary(samplike~asymmetric("group", diff=TRUE, levels=1:2))
+e.adk <- ergm(samplike~asymmetric("group", diff=TRUE, levels=c(1,3)), estimate="MPLE")
 if (s.0 != 32 || round(e.0$coef+1.33,3)!=0 ||
     s.a != 17 || round(e.a$coef+.6008,3)!=0  ||
     !all(s.ad==c(7,2,8)) ||
@@ -324,8 +324,8 @@ if (s.a != 439 || round(e.a$coef + .1739, 3) != 0 ||
 num.tests=num.tests + 1
 s.a <- summary(samplike~nodeifactor("group"))
 e.a <- ergm(samplike~nodeifactor("group"), estimate="MPLE")
-s.ab <- summary(samplike~nodeifactor("Trinity", base=0))
-e.ab <- ergm(samplike~nodeifactor("Trinity", base=2:3), estimate="MPLE")
+s.ab <- summary(samplike~nodeifactor("Trinity", levels=TRUE))
+e.ab <- ergm(samplike~nodeifactor("Trinity", levels=-(2:3)), estimate="MPLE")
 if (!all(s.a==c(13,46)) ||
     !all(round(e.a$coef+c(1.4424, .4618),3)==0) ||
     !all(s.ab==c(28, 29, 31)) ||
@@ -359,8 +359,8 @@ if (s.a != 467 || round(e.a$coef + .1581, 3) != 0 ||
 num.tests=num.tests + 1
 s.a <- summary(samplike~nodeofactor("group"))
 e.a <- ergm(samplike~nodeofactor("group"), estimate="MPLE")
-s.ab <- summary(samplike~nodeofactor("Trinity", base=0))
-e.ab <- ergm(samplike~nodeofactor("Trinity", base=2:3), estimate="MPLE")
+s.ab <- summary(samplike~nodeofactor("Trinity", levels=TRUE))
+e.ab <- ergm(samplike~nodeofactor("Trinity", levels=-(2:3)), estimate="MPLE")
 if (!all(s.a==c(18,36)) ||
     !all(round(e.a$coef+c(1.0217, .8353),3)==0) ||
     !all(s.ab==c(31,30,27)) ||
@@ -447,8 +447,8 @@ if (!all(s.0==c(12, 5, 0, 0)) || round(e.0$coef + c(0.619, -1.030, Inf, Inf))!= 
 num.tests=num.tests + 1
 s.0 <- summary(samplike~receiver)
 e.0 <- ergm(samplike~receiver, estimate="MPLE")
-s.b <- summary(samplike~receiver(base=2:16))
-e.b <- ergm(samplike~receiver(base=3:18), estimate="MPLE")
+s.b <- summary(samplike~receiver(levels=-(2:16)))
+e.b <- ergm(samplike~receiver(levels=-(3:18)), estimate="MPLE")
 if (!all(s.0==c(8, 4, 2, 5, 3, 5, 7, 11, 10, 6, 3, 6, 3, 5, 3, 2, 3)) ||
     !all(round(e.0$coef-c(-0.1178,-1.1787,-2.0149,-0.8755,-1.5404,-0.8755,
                           -0.3567, 0.6061, 0.3567,-0.6061,-1.5404,-0.6061,
@@ -468,8 +468,8 @@ if (!all(s.0==c(8, 4, 2, 5, 3, 5, 7, 11, 10, 6, 3, 6, 3, 5, 3, 2, 3)) ||
 num.tests=num.tests + 1
 s.0 <- summary(samplike~sender)
 e.0 <- ergm(samplike~sender, estimate="MPLE")
-s.b <- summary(samplike~sender(base=2:16))
-e.b <- ergm(samplike~sender(base=3:18), estimate="MPLE")
+s.b <- summary(samplike~sender(levels=-(2:16)))
+e.b <- ergm(samplike~sender(levels=-(3:18)), estimate="MPLE")
 if (!all(s.0==c(5, 4, 4, 4, 5, 6, 4, 6, 5, 5, 6, 5, 5, 3, 5, 4, 6)) ||
     !all(round(e.0$coef+c(0.8755,1.1787,1.1787,1.1787,0.8755,0.6061,1.1787,
                           0.6061,0.8755,0.8755,0.6061,0.8755,0.8755,1.5404,
