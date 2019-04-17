@@ -478,8 +478,9 @@ InitErgmTerm.b1cov<-function (nw, arglist, ..., version=packageVersion("ergm")) 
                         defaultvalues = list(NULL),
                         required = c(TRUE))
     ### Process the arguments
-    nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", bip = "b1")
+    nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", bip = "b1", multiple="matrix")
     coef.names <- paste("b1cov",attr(nodecov, "name"),sep=".")
+    if(is.matrix(nodecov)) coef.names <- paste(coef.names, NVL(colnames(nodecov), seq_len(ncol(nodecov))), sep=".")
   }	
   # C implementation is identical
   list(name="nodeocov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
@@ -786,8 +787,9 @@ InitErgmTerm.b2cov<-function (nw, arglist, ..., version=packageVersion("ergm")) 
                         defaultvalues = list(NULL),
                         required = c(TRUE))
     ### Process the arguments
-    nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", bip = "b2")
+    nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", bip = "b2", multiple="matrix")
     coef.names <- paste("b2cov",attr(nodecov, "name"),sep=".")
+    if(is.matrix(nodecov)) coef.names <- paste(coef.names, NVL(colnames(nodecov), seq_len(ncol(nodecov))), sep=".")
   }
   list(name="b2cov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
@@ -2881,8 +2883,9 @@ InitErgmTerm.nodecov<-InitErgmTerm.nodemain<-function (nw, arglist, ..., version
                         defaultvalues = list(NULL),
                         required = c(TRUE))
     ### Process the arguments
-    nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric")
+    nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", multiple="matrix")
     coef.names <- paste("nodecov",attr(nodecov, "name"),sep=".")
+    if(is.matrix(nodecov)) coef.names <- paste(coef.names, NVL(colnames(nodecov), seq_len(ncol(nodecov))), sep=".")
   }
   if(any(is.na(nodecov)))
   {
@@ -2959,8 +2962,9 @@ InitErgmTerm.nodeicov<-function (nw, arglist, ..., version=packageVersion("ergm"
                         defaultvalues = list(NULL),
                         required = c(TRUE))
     ### Process the arguments
-    nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric")
+    nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", multiple="matrix")
     coef.names <- paste("nodeicov",attr(nodecov, "name"),sep=".")
+    if(is.matrix(nodecov)) coef.names <- paste(coef.names, NVL(colnames(nodecov), seq_len(ncol(nodecov))), sep=".")
   }
   list(name="nodeicov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
@@ -3162,8 +3166,9 @@ InitErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("ergm"
                         defaultvalues = list(NULL),
                         required = c(TRUE))
     ### Process the arguments
-    nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric")
+    nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", multiple="matrix")
     coef.names <- paste("nodeocov",attr(nodecov, "name"),sep=".")
+    if(is.matrix(nodecov)) coef.names <- paste(coef.names, NVL(colnames(nodecov), seq_len(ncol(nodecov))), sep=".")
   }
   list(name="nodeocov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }

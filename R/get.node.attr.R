@@ -64,32 +64,34 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' @name node-attr
 #' @title Specifying nodal attributes and their levels
 #'
-#' @description This document describes the ways in which to specify
-#'   nodal attribute or functions and which levels for categorical
-#'   factors to include. For the helper functions to facilitate this,
-#'   see [`node-attr-api`].
+#' @description This document describes the ways to specify nodal
+#'   attributes or functions of nodal attributes and which levels for
+#'   categorical factors to include. For the helper functions to
+#'   facilitate this, see [`node-attr-api`].
 #'
 #' @details
 #' 
-#' Term nodal attribute arguments, typically called `attrs`, `attrname`, `by`,
-#' `on`, etc. are interpreted as follows: \describe{
+#' Term nodal attribute arguments, typically called `attr`, `attrs`, `by`, or
+#' `on` are interpreted as follows: \describe{
 #' 
-#' \item{a single character string}{Extract the vertex attribute with
+#' \item{a character string}{Extract the vertex attribute with
 #' this name.}
 #' 
 #' \item{a character vector of length > 1}{Extract the vertex
-#' attributes and paste them together, separated by dots.}
+#' attributes and paste them together, separated by dots if the term
+#' expects categorical attributes and (typically) combine into a
+#' covariate matrix if it expects quantitative attributes.}
 #' 
 #' \item{a function}{The function is called on the LHS network,
-#' expected to return a vector of appropriate length. (Shorter vectors
-#' will be recycled as needed.)}
+#' expected to return a vector or matrix of appropriate
+#' dimension. (Shorter vectors and matrix columns will be recycled as needed.)}
 #' 
 #' \item{a formula}{The expression on the RHS of the formula is
 #' evaluated in an environment of the vertex attributes of the
-#' network, expected to return a vector of appropriate
-#' length. (Shorter vectors will be recycled as needed.) Within this
-#' expression, the network itself accessible as either `.` or
-#' `.nw`. For example,
+#' network, expected to return a vector or matrix of appropriate
+#' dimension. (Shorter vectors and matrix columns will be recycled as
+#' needed.) Within this expression, the network itself accessible as
+#' either `.` or `.nw`. For example,
 #' `nodecov(~abs(Grade-mean(Grade))/network.size(.))` would return the
 #' absolute difference of each actor's "Grade" attribute from its
 #' network-wide mean, divided by the network size.}
@@ -260,8 +262,8 @@ ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2"),
   if(!is.bipartite(nw) || bip=="n") rep_len_warn(a, network.size(nw))
   else if(NVL(nrow(a), length(a))==network.size(nw)) # Input vector is n-long, need to trim.
     switch(bip,
-           b1 = a[seq_len(nw%n%"bipartite")],
-           b2 = a[-seq_len(nw%n%"bipartite")])
+           b1 = if(is.null(nrow(a))) a[seq_len(nw%n%"bipartite")] else a[seq_len(nw%n%"bipartite"),,drop=FALSE],
+           b2 = if(is.null(nrow(a))) a[-seq_len(nw%n%"bipartite")] else a[-seq_len(nw%n%"bipartite"),,drop=FALSE])
   else # Othewise, recycle until the right length.
     rep_len_warn(a, switch(bip,
                            b1=nw%n%"bipartite",

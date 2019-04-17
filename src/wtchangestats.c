@@ -116,8 +116,10 @@ WtD_CHANGESTAT_FN(d_atmost){
  stat: b2cov (nonzero)
 *****************/
 WtD_CHANGESTAT_FN(d_b2cov_nonzero){ 
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
   EXEC_THROUGH_TOGGLES({
-      CHANGE_STAT[0] += INPUT_ATTRIB[HEAD-BIPARTITE-1]*((NEWWT!=0)-(OLDWT!=0));
+      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift)
+      CHANGE_STAT[j] += INPUT_ATTRIB[HEAD-BIPARTITE+o-1]*((NEWWT!=0)-(OLDWT!=0));
   });
 }
 
@@ -125,9 +127,11 @@ WtD_CHANGESTAT_FN(d_b2cov_nonzero){
  stat: b2cov (sum)
 *****************/
 WtD_CHANGESTAT_FN(d_b2cov_sum){ 
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
   EXEC_THROUGH_TOGGLES({
-      CHANGE_STAT[0] += INPUT_ATTRIB[HEAD-BIPARTITE-1]*(NEWWT-OLDWT);
-  });
+      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift)
+	CHANGE_STAT[j] += INPUT_ATTRIB[HEAD-BIPARTITE+o-1]*(NEWWT-OLDWT);
+    });
 }
 
 /*****************
@@ -590,8 +594,10 @@ WtD_CHANGESTAT_FN(d_mutual_wt_nabsdiff){
  stat: nodecov (nonzero)
 *****************/
 WtD_CHANGESTAT_FN(d_nodecov_nonzero){ 
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
   EXEC_THROUGH_TOGGLES({
-      CHANGE_STAT[0] += (INPUT_ATTRIB[TAIL-1] + INPUT_ATTRIB[HEAD-1])*((NEWWT!=0)-(OLDWT!=0));
+      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift)
+	CHANGE_STAT[j] += (INPUT_ATTRIB[TAIL+o-1] + INPUT_ATTRIB[HEAD+o-1])*((NEWWT!=0)-(OLDWT!=0));
   });
 }
 
@@ -618,8 +624,10 @@ WtD_CHANGESTAT_FN(d_nodecovar){
  stat: nodecov (sum)
 *****************/
 WtD_CHANGESTAT_FN(d_nodecov_sum){ 
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
   EXEC_THROUGH_TOGGLES({
-      CHANGE_STAT[0] += (INPUT_ATTRIB[TAIL-1] + INPUT_ATTRIB[HEAD-1])*(NEWWT-OLDWT);
+      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift)
+	CHANGE_STAT[j] += (INPUT_ATTRIB[TAIL+o-1] + INPUT_ATTRIB[HEAD+o-1])*(NEWWT-OLDWT);
   });
 }
 
@@ -627,8 +635,10 @@ WtD_CHANGESTAT_FN(d_nodecov_sum){
  stat: nodeicov (nonzero)
 *****************/
 WtD_CHANGESTAT_FN(d_nodeicov_nonzero){ 
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
   EXEC_THROUGH_TOGGLES({
-      CHANGE_STAT[0] += INPUT_ATTRIB[HEAD-1]*((NEWWT!=0)-(OLDWT!=0));
+      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift)
+	CHANGE_STAT[j] += INPUT_ATTRIB[HEAD+o-1]*((NEWWT!=0)-(OLDWT!=0));
   });
 }
 
@@ -636,8 +646,10 @@ WtD_CHANGESTAT_FN(d_nodeicov_nonzero){
  stat: nodeicov (sum)
 *****************/
 WtD_CHANGESTAT_FN(d_nodeicov_sum){ 
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
   EXEC_THROUGH_TOGGLES({
-      CHANGE_STAT[0] += INPUT_ATTRIB[HEAD-1]*(NEWWT-OLDWT);
+      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift)
+	CHANGE_STAT[j] += INPUT_ATTRIB[HEAD+o-1]*(NEWWT-OLDWT);
   });
 }
 
@@ -645,8 +657,10 @@ WtD_CHANGESTAT_FN(d_nodeicov_sum){
  stat: nodeocov (nonzero)
 *****************/
 WtD_CHANGESTAT_FN(d_nodeocov_nonzero){ 
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
   EXEC_THROUGH_TOGGLES({
-      CHANGE_STAT[0] += INPUT_ATTRIB[TAIL-1]*((NEWWT!=0)-(OLDWT!=0));
+      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift)
+	CHANGE_STAT[j] += INPUT_ATTRIB[TAIL+o-1]*((NEWWT!=0)-(OLDWT!=0));
   });
 }
 
@@ -654,8 +668,10 @@ WtD_CHANGESTAT_FN(d_nodeocov_nonzero){
  stat: nodeocov (sum)
 *****************/
 WtD_CHANGESTAT_FN(d_nodeocov_sum){ 
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
   EXEC_THROUGH_TOGGLES({
-      CHANGE_STAT[0] += INPUT_ATTRIB[TAIL-1]*(NEWWT-OLDWT);
+      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift)
+	CHANGE_STAT[j] += INPUT_ATTRIB[TAIL+o-1]*(NEWWT-OLDWT);
   });
 }
 

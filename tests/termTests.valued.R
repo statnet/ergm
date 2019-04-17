@@ -122,7 +122,9 @@ for(v in bipvt) tst(sum(bipm <= v,na.rm=TRUE), summary(bipnw ~ atmost(v), respon
 
 # b1cov
 tst(sum(q1*bipm,na.rm=TRUE), summary(bipnw ~ b1cov("q"), response="w"))
+tst(c(sum(q1*bipm,na.rm=TRUE),sum(q1^2*bipm,na.rm=TRUE)), summary(bipnw ~ b1cov(~poly(q,2,raw=TRUE)), response="w"))
 tst(sum(q1*(bipm!=0),na.rm=TRUE), summary(bipnw ~ b1cov("q", form="nonzero"), response="w"))
+tst(c(sum(q1*(bipm!=0),na.rm=TRUE),sum(q1^2*(bipm!=0),na.rm=TRUE)), summary(bipnw ~ b1cov(~poly(q,2,raw=TRUE), form="nonzero"), response="w"))
 
 # b1factor
 for(base in list(0, 1, 2, 1:2, 3)){
@@ -133,7 +135,9 @@ for(base in list(0, 1, 2, 1:2, 3)){
 
 # b2cov
 tst(sum(q2*t(bipm),na.rm=TRUE), summary(bipnw ~ b2cov("q"), response="w"))
+tst(c(sum(q2*t(bipm),na.rm=TRUE),sum(q2^2*t(bipm),na.rm=TRUE)), summary(bipnw ~ b2cov(~poly(q,2,raw=TRUE)), response="w"))
 tst(sum(q2*t(bipm!=0),na.rm=TRUE), summary(bipnw ~ b2cov("q", form="nonzero"), response="w"))
+tst(c(sum(q2*t(bipm!=0),na.rm=TRUE),sum(q2^2*t(bipm!=0),na.rm=TRUE)), summary(bipnw ~ b2cov(~poly(q,2,raw=TRUE), form="nonzero"), response="w"))
 
 # b2factor
 for(base in list(0, 1, 2, 1:2, 3)){
@@ -234,13 +238,19 @@ for(v in bipvt) tst(sum(bipm < v,na.rm=TRUE), summary(bipnw ~ smallerthan(v), re
  
 # nodecov
 tst(sum(q*(dirm+t(dirm)),na.rm=TRUE), summary(dirnw ~ nodecov("q"), response="w"))
+tst(c(sum(q*(dirm+t(dirm)),na.rm=TRUE),sum(q^2*(dirm+t(dirm)),na.rm=TRUE)), summary(dirnw ~ nodecov(~poly(q,2,raw=TRUE)), response="w"))
 tst(sum(q*((dirm!=0)+t(dirm!=0)),na.rm=TRUE), summary(dirnw ~ nodecov("q", form="nonzero"), response="w"))
+tst(c(sum(q*((dirm!=0)+t(dirm!=0)),na.rm=TRUE),sum(q^2*((dirm!=0)+t(dirm!=0)),na.rm=TRUE)), summary(dirnw ~ nodecov(~poly(q,2,raw=TRUE), form="nonzero"), response="w"))
 
 tst(sum(q*undm,na.rm=TRUE), summary(undnw ~ nodecov("q"), response="w"))
+tst(c(sum(q*undm,na.rm=TRUE),sum(q^2*undm,na.rm=TRUE)), summary(undnw ~ nodecov(~poly(q,2,raw=TRUE)), response="w"))
 tst(sum(q*(undm!=0),na.rm=TRUE), summary(undnw ~ nodecov("q", form="nonzero"), response="w"))
+tst(c(sum(q*(undm!=0),na.rm=TRUE),sum(q^2*(undm!=0),na.rm=TRUE)), summary(undnw ~ nodecov(~poly(q,2,raw=TRUE), form="nonzero"), response="w"))
 
 tst(sum(q1*bipm+t(q2*t(bipm)),na.rm=TRUE), summary(bipnw ~ nodecov("q"), response="w"))
+tst(c(sum(q1*bipm+t(q2*t(bipm)),na.rm=TRUE),sum(q1^2*bipm+t(q2^2*t(bipm)),na.rm=TRUE)), summary(bipnw ~ nodecov(~poly(q,2,raw=TRUE)), response="w"))
 tst(sum(q1*(bipm!=0)+t(q2*t(bipm!=0)),na.rm=TRUE), summary(bipnw ~ nodecov("q", form="nonzero"), response="w"))
+tst(c(sum(q1*(bipm!=0)+t(q2*t(bipm!=0)),na.rm=TRUE),sum(q1^2*(bipm!=0)+t(q2^2*t(bipm!=0)),na.rm=TRUE)), summary(bipnw ~ nodecov(~poly(q,2,raw=TRUE), form="nonzero"), response="w"))
 
 # nodefactor
 for(base in list(0, 1, 2, 1:2, 3)){
@@ -257,7 +267,9 @@ for(base in list(0, 1, 2, 1:2, 3)){
 
 # nodeicov
 tst(sum(q*t(dirm),na.rm=TRUE), summary(dirnw ~ nodeicov("q"), response="w"))
+tst(c(sum(q*t(dirm),na.rm=TRUE),sum(q^2*t(dirm),na.rm=TRUE)), summary(dirnw ~ nodeicov(~poly(q,2,raw=TRUE)), response="w"))
 tst(sum(q*t(dirm!=0),na.rm=TRUE), summary(dirnw ~ nodeicov("q", form="nonzero"), response="w"))
+tst(c(sum(q*t(dirm!=0),na.rm=TRUE),sum(q^2*t(dirm!=0),na.rm=TRUE)), summary(dirnw ~ nodeicov(~poly(q,2,raw=TRUE), form="nonzero"), response="w"))
 
 # TODO: nodeicovar
 
@@ -283,7 +295,9 @@ for(keep in list(1, 1:2, 1:3)){
 
 # nodeocov
 tst(sum(q*dirm,na.rm=TRUE), summary(dirnw ~ nodeocov("q"), response="w"))
+tst(c(sum(q*dirm,na.rm=TRUE),sum(q^2*dirm,na.rm=TRUE)), summary(dirnw ~ nodeocov(~poly(q,2,raw=TRUE)), response="w"))
 tst(sum(q*(dirm!=0),na.rm=TRUE), summary(dirnw ~ nodeocov("q", form="nonzero"), response="w"))
+tst(c(sum(q*(dirm!=0),na.rm=TRUE),sum(q^2*(dirm!=0),na.rm=TRUE)), summary(dirnw ~ nodeocov(~poly(q,2,raw=TRUE), form="nonzero"), response="w"))
 
 # TODO: nodeocovar
 

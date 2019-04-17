@@ -675,18 +675,20 @@ D_CHANGESTAT_FN(d_b2concurrent_by_attr) {
  changestat: d_b2cov
 *****************/
 D_CHANGESTAT_FN(d_b2cov) { 
-  double sum;
   Vertex tail, head;
   int i, edgeflag;
-  
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
+
   /* *** don't forget tail -> head */    
   Vertex nb1 = BIPARTITE;
-  CHANGE_STAT[0] = 0.0;
+  ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) 
     {
       edgeflag=IS_OUTEDGE(tail = TAIL(i), head = HEAD(i));
-      sum = INPUT_ATTRIB[head-nb1-1];
-      CHANGE_STAT[0] += edgeflag ? -sum : sum;
+      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
+	double sum = INPUT_ATTRIB[head-nb1+o-1];
+	CHANGE_STAT[j] += edgeflag ? -sum : sum;
+      }
       TOGGLE_IF_MORE_TO_COME(i);
     }
   UNDO_PREVIOUS_TOGGLES(i);
@@ -4209,17 +4211,19 @@ D_CHANGESTAT_FN(d_nearsimmelian) {
  changestat: d_nodecov
 *****************/
 D_CHANGESTAT_FN(d_nodecov) { 
-  double sum;
   Vertex tail, head;
   int i, edgeflag;
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
 
   /* *** don't forget tail -> head */    
-  CHANGE_STAT[0] = 0.0;
+  ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) 
     {
       edgeflag=IS_OUTEDGE(tail = TAIL(i), head = HEAD(i));
-      sum = INPUT_ATTRIB[tail-1] + INPUT_ATTRIB[head-1];
-      CHANGE_STAT[0] += edgeflag ? -sum : sum;
+      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
+	double sum = INPUT_ATTRIB[tail+o-1] + INPUT_ATTRIB[head+o-1];
+	CHANGE_STAT[j] += edgeflag ? -sum : sum;
+      }
       TOGGLE_IF_MORE_TO_COME(i);
     }
   UNDO_PREVIOUS_TOGGLES(i);
@@ -4252,17 +4256,19 @@ D_CHANGESTAT_FN(d_nodefactor) {
  changestat: d_nodeicov
 *****************/
 D_CHANGESTAT_FN(d_nodeicov) { 
-  double sum;
   Vertex tail, head;
   int i, edgeflag;
-  
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
+
   /* *** don't forget tail -> head */    
-  CHANGE_STAT[0] = 0.0;
+  ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) 
     {
       edgeflag=IS_OUTEDGE(tail = TAIL(i), head = HEAD(i));
-      sum = INPUT_ATTRIB[head-1];
-      CHANGE_STAT[0] += edgeflag ? -sum : sum;
+      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
+	double sum = INPUT_ATTRIB[head+o-1];
+	CHANGE_STAT[j] += edgeflag ? -sum : sum;
+      }
       TOGGLE_IF_MORE_TO_COME(i);
     }
   UNDO_PREVIOUS_TOGGLES(i);
@@ -4361,17 +4367,19 @@ D_CHANGESTAT_FN(d_nodemix) {
  changestat: d_nodeocov
 *****************/
 D_CHANGESTAT_FN(d_nodeocov) { 
-  double sum;
   Vertex tail, head;
   int i, edgeflag;
-  
+  unsigned int oshift = N_INPUT_PARAMS / N_CHANGE_STATS;
+
   /* *** don't forget tail -> head */    
-  CHANGE_STAT[0] = 0.0;
+  ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) 
     {
       edgeflag=IS_OUTEDGE(tail = TAIL(i), head = HEAD(i));
-      sum = INPUT_ATTRIB[tail-1];
-      CHANGE_STAT[0] += edgeflag ? -sum : sum;
+      for(unsigned int j=0, o=0; j<N_CHANGE_STATS; j++, o+=oshift){
+	double sum = INPUT_ATTRIB[tail+o-1];
+	CHANGE_STAT[j] += edgeflag ? -sum : sum;
+      }
       TOGGLE_IF_MORE_TO_COME(i);
     }
   UNDO_PREVIOUS_TOGGLES(i);

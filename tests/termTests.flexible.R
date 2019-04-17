@@ -443,9 +443,11 @@ e.a <- ergm(fmh~nodecov("Grade"), estimate="MPLE")
 s.at <- summary(samplike~nodecov(~YearsServed^2))
 e.at <- ergm(fmh~nodecov(~(.%v%"Grade")^2), estimate="MPLE")
 s.att <- summary(samplike~nodecov(function(x)(x%v%"YearsServed")^2))
+s.attt <- summary(samplike~nodecov(~poly(YearsServed,2,raw=TRUE)))
 if (s.a != 906 || round(e.a$coef + .271, 3) != 0 ||
-    s.at != 5036 || round(e.at$coef + .03199, 3) != 0) {
- print(list(s.a=s.a, e.a=e.a, s.at=s.at, e.at=e.at))
+    s.at != 5036 || round(e.at$coef + .03199, 3) != 0 ||
+    s.att != 5036 || any(s.attt != c(906,5036))) {
+ print(list(s.a=s.a, e.a=e.a, s.at=s.at, e.at=e.at, s.att=s.att, s.attt=s.attt))
  stop("Failed nodecov term test")
 } else {
   num.passed.tests=num.passed.tests+1

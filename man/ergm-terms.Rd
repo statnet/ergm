@@ -321,8 +321,8 @@ network
     \code{b1cov(attr, form="sum")}  (valued)  (undirected) (bipartite) (dyad-independent) (quantitative nodal attribute) (frequently-used)
     }{\emph{Main effect of a covariate for
     the first mode in a bipartite (aka two-mode) network:}
-    The \code{attr} argument specifies a quantitative attribute (see \link[=node-attr]{Specifying Vertex
-    Attributes and Levels} for details).  This term adds a single network statistic to the model equaling the total
+    The \code{attr} argument specifies one or more quantitative attributes (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  This term adds a single network statistic for each quantitative attribute or matrix column to the model equaling the total
     value of \code{attr(i)} for all edges \eqn{(i,j)} in the network. This
     term may only be used with bipartite networks. For categorical attributes,
     see \code{b1factor}.
@@ -507,8 +507,8 @@ network
     \code{b2cov(attr, form="sum")}  (valued) (undirected) (bipartite) (dyad-independent) (quantitative nodal attribute) (frequently-used)
     }{\emph{Main effect of a covariate for
     the second mode in a bipartite (aka two-mode) network:} 
-    The \code{attr} argument specifies a quantitative attribute (see \link[=node-attr]{Specifying Vertex
-    Attributes and Levels} for details).  This term adds a single network statistic to the model equaling the total
+    The \code{attr} argument specifies one or more quantitative attributes (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  This term adds a single network statistic for each quantitative attribute or matrix column to the model equaling the total
     value of \code{attr(j)} for all edges \eqn{(i,j)} in the network. This
     term may only be used with bipartite networks. For categorical attributes,
     see \code{b2factor}.
@@ -1339,9 +1339,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     This term can only be used with directed networks.}
     
     \item{\code{nodecov(attr)}  (binary)  (dyad-independent)  (frequently-used)   (directed)  (undirected) (quantitative nodal attribute), \code{nodecov(attr, form="sum")}  (valued)  (dyad-independent)  (directed)  (undirected) (quantitative nodal attribute), a.k.a. \code{nodemain}  (binary)   (directed)  (undirected)}{\emph{Main effect of a covariate:} 
-    The \code{attr} argument specifies a quantitative attribute (see \link[=node-attr]{Specifying Vertex
+    The \code{attr} argument specifies one or more quantitative attributes (see \link[=node-attr]{Specifying Vertex
     Attributes and Levels} for details).
-    This term adds a single network statistic to the model equaling the sum of
+    This term adds a single network statistic for each quantitative attribute or matrix column to the model equaling the sum of
     \code{attr(i)} and \code{attr(j)} for all edges \eqn{(i,j)} in the
     network. For categorical attributes, see \code{nodefactor}. Note that for
     directed networks, \code{nodecov} equals \code{nodeicov} plus
@@ -1388,8 +1388,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     , \code{nodeicov(attr, form="sum")}  (valued)  (directed) (quantitative nodal attribute)
     }{\emph{Main effect of a covariate for
     in-edges:} 
-    The \code{attr} argument specifies a quantitative attribute (see \link[=node-attr]{Specifying Vertex
-    Attributes and Levels} for details).  This term adds a single network statistic to the model equaling the total
+    The \code{attr} argument specifies one or more quantitative attributes (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  This term adds a single network statistic for each quantitative attribute or matrix column to the model equaling the total
     value of \code{attr(j)} for all edges \eqn{(i,j)} in the network. This
     term may only be used with directed networks. For categorical attributes,
     see \code{nodeifactor}.
@@ -1487,8 +1487,8 @@ of the degrees of all pairs of nodes in the network which are tied.
 	(quantitative nodal attribute)
     }{\emph{Main effect of a covariate for
     out-edges:} 
-    The \code{attr} argument specifies a quantitative attribute (see \link[=node-attr]{Specifying Vertex
-    Attributes and Levels} for details).  This term adds a single network statistic to the model equaling the total
+    The \code{attr} argument specifies one or more quantitative attributes (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  This term adds a single network statistic for each quantitative attribute or matrix column to the model equaling the total
     value of \code{attr(i)} for all edges \eqn{(i,j)} in the network. This
     term may only be used with directed networks. For categorical attributes,
     see \code{nodeofactor}.
