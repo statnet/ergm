@@ -290,12 +290,12 @@ mcmc.diagnostics.ergm <- function(object,
   sm.gw<-geweke.diag(sm)
   sm.gws<-try(geweke.diag.mv(sm, split.mcmc.list=TRUE))
   if(!("try-error" %in% class(sm.gws))){
-  for(i in seq_along(sm.gw)){
+  for(chain in seq_along(sm.gw)){
     cat("Chain", chain, "\n")
-    print(sm.gw[[i]])
+    print(sm.gw[[chain]])
     cat("Individual P-values (lower = worse):\n")
-    print(2*pnorm(abs(sm.gw[[i]]$z),lower.tail=FALSE))
-    cat("Joint P-value (lower = worse): ", sm.gws[[i]]$p.value,".\n")
+    print(2*pnorm(abs(sm.gw[[chain]]$z),lower.tail=FALSE))
+    cat("Joint P-value (lower = worse): ", sm.gws[[chain]]$p.value,".\n")
   }
   }
   if(!is.null(sm.obs)){
@@ -303,12 +303,12 @@ mcmc.diagnostics.ergm <- function(object,
     sm.obs.gw<-geweke.diag(sm.obs)
     sm.obs.gws<-try(geweke.diag.mv(sm.obs, split.mcmc.list=TRUE))
     if(!("try-error" %in% class(sm.obs.gws))){
-    for(i in seq_along(sm.obs.gw)){
+    for(chain in seq_along(sm.obs.gw)){
       cat("Chain", chain, "\n")
-      print(sm.obs.gw[[i]])
+      print(sm.obs.gw[[chain]])
       cat("P-values (lower = worse):\n")
-      print(2*pnorm(abs(sm.obs.gw[[i]]$z),lower.tail=FALSE))
-      cat("Joint P-value (lower = worse): ", sm.gws[[i]]$p.value,".\n")
+      print(2*pnorm(abs(sm.obs.gw[[chain]]$z),lower.tail=FALSE))
+      cat("Joint P-value (lower = worse): ", sm.gws[[chain]]$p.value,".\n")
     }
    }
   }
