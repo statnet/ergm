@@ -72,7 +72,7 @@ san.default <- function(object,...)
 #' @param \dots Further arguments passed to other functions.
 #' @examples
 #' # initialize x to a random undirected network with 100 nodes and a density of 0.1
-#' x <- network(100, density = 0.1, directed = F)
+#' x <- network(100, density = 0.1, directed = FALSE)
 #'  
 #' # try to find a network on 100 nodes with 600 edges, 300 triangles, and 2500 4-cycles, starting from the network x
 #' y <- san(x ~ edges + triangles + cycle(4), target.stats = c(600, 300, 2500))
@@ -100,7 +100,7 @@ san.default <- function(object,...)
 #' 
 #' 
 #' # initialize x to a random undirected network with 100 nodes
-#' x <- network(100, directed = F)
+#' x <- network(100, directed = FALSE)
 #' 
 #' # add a vertex attribute
 #' x %v% 'popularity' <- runif(100, 0, 1)
