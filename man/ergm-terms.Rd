@@ -952,7 +952,7 @@ equal to the number of (first mode) mutual partners of that pair.
 	to induce a multimodal distribution of networks.
   }
   
-    \item{\code{ddsp(d, type="OTP", Ls.path=NULL, L.in_order=FALSE)} (binary) (directed) (undirected)}{  \emph{Directed dyadwise shared partners:} This term adds one network statistic to the model for each element in \code{d} where the \eqn{i}th such statistic equals the number of \emph{dyads} in the network with exactly \code{d[i]} shared partners. This term can only be used with directed networks.  Multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to be counted (see below for type codes).  By default, outgoing two-paths are employed.
+    \item{\code{ddsp(d, type="OTP")} (binary) (directed) (undirected)}{  \emph{Directed dyadwise shared partners:} This term adds one network statistic to the model for each element in \code{d} where the \eqn{i}th such statistic equals the number of \emph{dyads} in the network with exactly \code{d[i]} shared partners. This term can only be used with directed networks.  Multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to be counted (see below for type codes).  By default, outgoing two-paths are employed.
     
     While there is only one shared partner configuration in the undirected case, nine distinct configurations are possible for directed graphs.  Currently, edgewise shared partner terms may be defined with respect to five of these configurations; they are defined here as follows (using terminology from Butts (2008) and the \code{relevent} package):
 
@@ -1086,7 +1086,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     lower-indexed vertex to the higher-indexed vertex.
   }
   
-  \item{\code{desp(d, type="OTP", L.base=NULL, Ls.path=NULL, L.in_order=FALSE)} (binary) (directed) (undirected)}{  \emph{Directed edgewise shared partners:} This term adds one network statistic to the model for each element in \code{d} where the \eqn{i}th such statistic equals the number of \emph{edges} in the network with exactly \code{d[i]} shared partners. This term can only be used with directed networks.  Multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to be counted (see \code{ddsp} for type codes).  By default, outgoing two-paths are employed.
+  \item{\code{desp(d, type="OTP")} (binary) (directed) (undirected)}{  \emph{Directed edgewise shared partners:} This term adds one network statistic to the model for each element in \code{d} where the \eqn{i}th such statistic equals the number of \emph{edges} in the network with exactly \code{d[i]} shared partners. This term can only be used with directed networks.  Multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to be counted (see \code{ddsp} for type codes).  By default, outgoing two-paths are employed.
 
   }
     
