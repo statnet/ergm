@@ -246,24 +246,25 @@ network
     Note that \code{ergm} versions 3.9.4 and earlier used different arguments for this term. See the above section on versioning for invoking the old behavior.
   }
     
-    \item{\code{absdiffcat(attrname, base=NULL)}  (binary) (dyad-independent) (directed) (undirected) (categorical nodal attribute),
-    \code{absdiffcat(attrname, base=NULL, form="sum")}  (valued)  (dyad-independent)   (directed)  (undirected) (categorical nodal attribute)}{\emph{Categorical absolute
+    \item{\code{absdiffcat(attr, levels=NULL)}  (binary) (dyad-independent) (directed) (undirected) (categorical nodal attribute),
+    \code{absdiffcat(attr, levels=NULL, form="sum")}  (valued)  (dyad-independent)   (directed)  (undirected) (categorical nodal attribute)}{\emph{Categorical absolute
     difference:} 
-    The \code{attrname} argument is a character string giving the name of a
-    quantitative attribute in the network's vertex attribute list. This term
+    The \code{attr} argument specifies a quantitative attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). This term
     adds one statistic for every possible nonzero distinct value of
-    \code{abs(attrname[i]-attrname[j])} in the network; the value of each such
+    \code{abs(attr[i]-attr[j])} in the network; the value of each such
     statistic is the number of edges in the network with the corresponding
-    absolute difference. The optional \code{base} argument is a vector
-    indicating which nonzero differences, in order from smallest to largest,
-    should be omitted from the model (i.e., treated like the zero-difference
-    category). The \code{base} argument, if used, should contain indices, not
-    differences themselves. For instance, if the possible values of
-    \code{abs(attrname[i]-attrname[j])} are 0, 0.5, 3, 3.5, and 10, then to omit
-    0.5 and 10 one should set \code{base=c(1, 4)}. Note that this term should
+    absolute difference. The optional \code{levels} argument specifies which 
+	nonzero differences to include in or exclude from the model (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  For instance, if the possible values of
+    \code{abs(attr[i]-attr[j])} are 0, 0.5, 3, 3.5, and 10, then to omit
+    0.5 and 10 one could set \code{levels=2:3} (we wish to retain the second and third nonzero difference,
+	when differences are sorted in increasing order). Note that this term should
     generally be used only when the quantitative attribute has a limited number
     of possible values; an example is the \code{"Grade"} attribute of the
-    \code{\link{faux.mesa.high}} or \code{\link{faux.magnolia.high}} datasets.}
+    \code{\link{faux.mesa.high}} or \code{\link{faux.magnolia.high}} datasets.
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for this term. See the above section on versioning for invoking the old behavior.}
     
     \item{\code{altkstar(lambda, fixed=FALSE)}  (binary) (undirected) (curved) (categorical nodal attribute)
     }{\emph{Alternating k-star:} 
@@ -292,7 +293,10 @@ network
     Attributes and Levels} for details).  If \code{attr} is specified, only asymmetric pairs that match on the
     vertex attribute \code{attr} are counted. The optional modifiers \code{diff} and
     \code{levels} are used in the same way as for the \code{nodematch} term; refer
-    to this term for details and an example.}
+    to this term for details and an example.
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
+	this term. See the above section on versioning for invoking the old behavior.}
 
   \item{\code{atleast(threshold=0)}  (valued)  (directed)  (undirected) (dyad-independent)}{\emph{Number of dyads with values
       greater than or equal to a threshold} Adds one statistic
@@ -692,19 +696,20 @@ equal to the number of (first mode) mutual partners of that pair.
     networks. }
 
     
-    \item{\code{ctriple(attrname=NULL, levels=NULL)}  (binary)  (directed)  (triad-related) (categorical nodal attribute)
+    \item{\code{ctriple(attr=NULL, diff=FALSE, levels=NULL)}  (binary)  (directed)  (triad-related) (categorical nodal attribute)
     , 
     a.k.a. \code{ctriad}  (binary)  (directed)  (triad-related) (categorical nodal attribute)
-    }{\emph{Cyclic triples:} This term adds one
+    }{\emph{Cyclic triples:} By default, this term adds one
     statistic to the model, equal to the number of cyclic triples in the
     network, defined as a set of edges of the form \eqn{\{(i{\rightarrow}j), (j{\rightarrow}k), (k{\rightarrow}i)\}}{\{(i,j), (j,k), (k,i)\}}. Note that
     for all directed networks, \code{triangle} is equal to
     \code{ttriple+ctriple}, so at most two of these three terms can be in a
-    model. The optional argument \code{attrname} is a character string giving
-    the name of an attribute in the network's vertex attribute list. If this is
-    specified then the count is over the number of cyclic triples where all
-    three nodes have the same value of the attribute. This term can only be used
-    with directed networks.}
+    model. The optional argument \code{attr} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  If \code{attr} is
+    specified and \code{diff} is \code{FALSE}, then the statistic is the number of cyclic triples where all
+    three nodes have the same value of the attribute.  If \code{attr} is specified and \code{diff} is \code{TRUE}, then one statistic is added to the model for each value of \code{attr} (or each
+	value of \code{attr} specified by \code{levels} if that argument is passed), equal to the number of cyclic triples where all
+    three nodes have that value of the attribute.  This term can only be used with directed networks.}
     
     \item{\code{cycle(k)}  (binary)  (directed)  (undirected)}{\emph{Cycles:} 
     The \code{k} argument is a vector of distinct integers. This term adds one
@@ -1301,7 +1306,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     calculating the column/receiver/b2 margins.
   }
   
-    \item{\code{mutual(same=NULL, diff=FALSE, by=NULL, keep=NULL)} (binary)  (directed)  (frequently-used), \code{mutual(form="min",threshold=0)}  (valued)  (directed)
+    \item{\code{mutual(same=NULL, by=NULL, diff=FALSE, levels=NULL)} (binary)  (directed)  (frequently-used), \code{mutual(form="min",threshold=0)}  (valued)  (directed)
      }{\emph{Mutuality:} 
     In binary ERGMs, equal to the number of
     pairs of actors \eqn{i} and \eqn{j} for which \eqn{(i{\rightarrow}j)}{(i,j)}
@@ -1317,19 +1322,20 @@ of the degrees of all pairs of nodes in the network which are tied.
 
     This term can only be used
     with directed networks. The binary version also has the following capabilities: if the optional \code{same} argument is passed
-    the name of a vertex attribute,
+    (see \link[=node-attr]{Specifying Vertex Attributes and Levels} for details),
     only mutual pairs that match on the attribute are counted;
     separate counts for each unique matching value can be obtained by using
-    \code{diff=TRUE} with \code{same}; and if \code{by} is passed the name of a vertex attribute,
+    \code{diff=TRUE} with \code{same}; and if \code{by} is passed (again, see \link[=node-attr]{Specifying Vertex Attributes and Levels}),
     then each node is counted separately for each mutual pair in which it 
     occurs and the counts are tabulated by unique values of the attribute.
     This means that the sum of the mutual statistics when \code{by} is used
     will equal twice the standard mutual statistic.  Only one of \code{same}
     or \code{by} may be used, and only the former is affected by \code{diff};
     if both \code{same} and \code{by} are passed, \code{by} is ignored.
-    Finally, if \code{keep} is passed a numerical vector, this vector of integers
-    tells which statistics should be kept whenever the \code{mutual} term would
-    ordinarily result in multiple statistics.
+    Finally, if \code{levels} is passed, this tells which statistics should be kept whenever the \code{mutual} term would
+    ordinarily result in multiple statistics (see \link[=node-attr]{Specifying Vertex Attributes and Levels}).
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for this term. See the above section on versioning for invoking the old behavior.
   }
     
     \item{\code{nearsimmelian}  (binary)  (directed)  (triad-related)}{\emph{Near simmelian triads:} 
@@ -1382,7 +1388,10 @@ of the degrees of all pairs of nodes in the network which are tied.
     \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
     for \dQuote{pear}, use any of \code{nodefactor("fruit", levels=-(2:3))}, \code{nodefactor("fruit", levels=c(1,4))}, and
 	\code{nodefactor("fruit", levels=c("apple", "pear"))}.  For an analogous term for quantitative vertex
-    attributes, see \code{nodecov}. }
+    attributes, see \code{nodecov}.
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
+	this term. See the above section on versioning for invoking the old behavior.}
     
 	\item{\code{nodeicov(attr)}  (binary)  (directed) (quantitative nodal attribute) (frequently-used)
     , \code{nodeicov(attr, form="sum")}  (valued)  (directed) (quantitative nodal attribute)
@@ -1427,7 +1436,10 @@ of the degrees of all pairs of nodes in the network which are tied.
     \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
     for \dQuote{pear}, use any of \code{nodeifactor("fruit", levels=-(2:3))}, \code{nodeifactor("fruit", levels=c(1,4))}, and
 	\code{nodeifactor("fruit", levels=c("apple", "pear"))}. For an analogous term
-    for quantitative vertex attributes, see \code{nodeicov}. }
+    for quantitative vertex attributes, see \code{nodeicov}.
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
+	this term. See the above section on versioning for invoking the old behavior.}
 
       \item{\code{nodeisqrtcovar}  (valued)  (directed)  (non-negative) (quantitative nodal attribute)
       }{\emph{Uncentered covariance of square roots of in-dyad values
@@ -1459,7 +1471,10 @@ of the degrees of all pairs of nodes in the network which are tied.
     other values are ignored (this works for both \code{diff=FALSE} and
     \code{diff=TRUE}). For instance, to add two statistics, counting the
     matches for just the 2nd and 4th categories, use \code{nodematch}
-    with \code{diff=TRUE} and \code{levels=c(2,4)}.}
+    with \code{diff=TRUE} and \code{levels=c(2,4)}.
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
+	this term. See the above section on versioning for invoking the old behavior.}
    
     \item{\code{nodemix(attrname, base=NULL, levels=NULL)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (categorical nodal attribute)
     ,
@@ -1525,7 +1540,10 @@ of the degrees of all pairs of nodes in the network which are tied.
     \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
     for \dQuote{pear}, use any of \code{nodeofactor("fruit", levels=-(2:3))}, \code{nodeofactor("fruit", levels=c(1,4))}, and
 	\code{nodeofactor("fruit", levels=c("apple", "pear"))}. For an analogous term
-    for quantitative vertex attributes, see \code{nodeocov}. }
+    for quantitative vertex attributes, see \code{nodeocov}. 
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
+	this term. See the above section on versioning for invoking the old behavior.}
 
       \item{\code{nodeosqrtcovar}  (valued)  (directed)  (non-negative)
 	  (quantitative nodal attribute)
@@ -1652,7 +1670,10 @@ of the degrees of all pairs of nodes in the network which are tied.
     statistics should be included or excluded (see \link[=node-attr]{Specifying Vertex
     Attributes and Levels} for details).  This
     term can only be used with directed networks. For undirected networks, see
-    \code{sociality}.}
+    \code{sociality}.
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
+	this term. See the above section on versioning for invoking the old behavior.}
     
   \item{\code{sender(levels=-1)}  (binary)  (directed)  (dyad-independent)
     ,
@@ -1668,7 +1689,10 @@ of the degrees of all pairs of nodes in the network which are tied.
     statistics should be included or excluded (see \link[=node-attr]{Specifying Vertex
     Attributes and Levels} for details). This
     term can only be used with directed networks. For undirected networks, see
-    \code{sociality}.}
+    \code{sociality}.
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
+	this term. See the above section on versioning for invoking the old behavior.}
 
     \item{\code{simmelian}  (binary)  (directed)  (triad-related)}{\emph{Simmelian triads:} This term adds one
     statistic to the model equal to the number of Simmelian triads, as defined
@@ -1707,7 +1731,10 @@ of the degrees of all pairs of nodes in the network which are tied.
     \code{receiver}. By default, \code{nodelevels=-1} means that the statistic for the
     first node will be omitted, but this argument may be changed to control
     which statistics are included just as for the \code{levels} argument of \code{sender} and
-    \code{receiver} terms.}
+    \code{receiver} terms.
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
+	this term. See the above section on versioning for invoking the old behavior.}
 
 
     \item{\code{sum(pow=1)}  (valued)  (directed)  (undirected)}{\emph{Sum of dyad values (optionally taken
@@ -1747,6 +1774,9 @@ of the degrees of all pairs of nodes in the network which are tied.
 
     This term used to be (inaccurately) called \code{threepath}. That
     name has been deprecated and may be removed in a future version.
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
+	this term. See the above section on versioning for invoking the old behavior.
     }
 
     \item{\code{transitive}  (binary)  (directed)  (triad-related)}{\emph{Transitive triads:} 
@@ -1808,9 +1838,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     to say that the 0 is dropped; however, this too may be controlled by
     changing the \code{levels} argument.}
     
-    \item{\code{triangle(attrname=NULL, levels=NULL)}  (binary)  (frequently-used)  (triad-related)  (directed)  (undirected) (categorical nodal attribute)
+    \item{\code{triangle(attr=NULL, diff=FALSE, levels=NULL)}  (binary)  (frequently-used)  (triad-related)  (directed)  (undirected) (categorical nodal attribute)
     }{\emph{Triangles:}
-    This term adds one statistic to the model equal to the number of triangles
+    By default, this term adds one statistic to the model equal to the number of triangles
     in the network. For an undirected network, a triangle is defined to be any
     set \eqn{\{(i,j), (j,k), (k,i)\}} of three edges. For a directed network, a
     triangle is defined as any set of three edges \eqn{(i{\rightarrow}j)}{(i,j)}
@@ -1819,35 +1849,45 @@ of the degrees of all pairs of nodes in the network which are tied.
     triple'' and the latter is called a ``cyclic triple'', so in the case of a
     directed network, \code{triangle} equals \code{ttriple} plus \code{ctriple}
     --- thus at most two of these three terms can be in a model. The optional
-    argument \code{attrname} restricts the count to those triples of nodes with
-    equal values of the vertex attribute specified by \code{attrname}. }
+    argument \code{attr} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  If \code{attr} is specified and \code{diff} is \code{FALSE},	
+	then the count is restricted to those triples of nodes with
+    equal values of the vertex attribute specified by \code{attr}. If \code{attr} is specified and \code{diff} is \code{TRUE},
+	then one statistic is added for each value of \code{attr} (or each value specified by \code{levels} if that argument is passed),
+	equal to the number of triangles where all three nodes have that value of the attribute. }
     
-    \item{\code{tripercent(attrname=NULL, levels=NULL)}  (binary)  (undirected)  (triad-related) (categorical nodal attribute)
+    \item{\code{tripercent(attr=NULL, diff=FALSE, levels=NULL)}  (binary)  (undirected)  (triad-related) (categorical nodal attribute)
     }{\emph{Triangle percentage:} 
-    This term adds one statistic to the model equal to 100 times the ratio of
+    By default, this term adds one statistic to the model equal to 100 times the ratio of
     the number of triangles in the network to the sum of the number of triangles
     and the number of 2-stars not in triangles (the latter is considered a
     potential but incomplete triangle).  In case the denominator equals zero,
     the statistic is defined to be zero. For the definition of triangle, see
-    \code{triangle}. The optional argument \code{attrname} restricts the counts
-    (both numerator and denominator) to those triples of nodes with equal values
-    of the vertex attribute specified by \code{attrname}. This is often called
+    \code{triangle}. The optional argument \code{attr} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  If \code{attr} is specified and \code{diff} is \code{FALSE}, the counts 
+    (both numerator and denominator) are restricted to those triples of nodes with equal values
+    of the vertex attribute specified by \code{attr}.  If \code{attr} is specified and \code{diff} is \code{TRUE}, then one statistic is added 
+	for each value of \code{attr} (or each value specified by \code{levels} if that argument is passed), where the counts 
+    (both numerator and denominator) are restricted to those triples of nodes with that value
+    of the vertex attribute specified by \code{attr}.  This is often called
     the mean correlation coefficient. This term can only be
     used with undirected networks; for directed networks, it is difficult to
     define the numerator and denominator in a consistent and meaningful way.}
     
-    \item{\code{ttriple(attrname=NULL, levels=NULL)}  (binary)  (directed)  (triad-related) (categorical nodal attribute)
+    \item{\code{ttriple(attr=NULL, diff=FALSE, levels=NULL)}  (binary)  (directed)  (triad-related) (categorical nodal attribute)
     , a.k.a. \code{ttriad}  (binary)  (directed)  (triad-related) (categorical nodal attribute)
     }{\emph{Transitive triples:} 
-    This term adds one statistic to the model, equal to the number of transitive
+    By default, this term adds one statistic to the model, equal to the number of transitive
     triples in the network, defined as a set of edges \eqn{\{(i{\rightarrow}j),
     (j{\rightarrow}k), (i{\rightarrow}k)\}}{\{(i,j), (j,k), (i,k)\}}. Note that
     \code{triangle} equals \code{ttriple+ctriple} for a directed network, so at
     most two of the three terms can be in a model. The optional argument
-    \code{attrname} is a character string giving the name of an attribute in the
-    network's vertex attribute list. If this is specified then the count is over
+    \code{attr} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  If \code{attr} is specified and \code{diff} is \code{FALSE}, then the count is over
     the number of transitive triples where all three nodes have the same value
-    of the attribute. This term can only be used with directed networks.}
+    of the attribute.  If \code{attr} is specified and \code{diff} is \code{TRUE}, then one statistic is added for each value of \code{attr}
+	(or each value of \code{attr} specified by \code{levels} if that argument is passed), equal to the number of transitive triples where all three nodes 
+	have that value of \code{attr}.  This term can only be used with directed networks.}
     
     \item{\code{twopath}  (binary)  (directed)  (undirected)}{\emph{2-Paths:} 
     This term adds one statistic to the model, equal to the number of 2-paths in
