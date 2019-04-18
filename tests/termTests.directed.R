@@ -269,10 +269,10 @@ s.b <- summary(samplike~mutual(by="Trinity"))
 e.b <- ergm(samplike~mutual(by="Trinity"), estimate="MPLE")
 s.sd <- summary(samplike~mutual(same="group", diff=TRUE))
 e.sd <- ergm(samplike~mutual(same="group", diff=TRUE), estimate="MPLE")
-s.sk <- summary(samplike~mutual(same="group", keep=2))
-e.sk <- ergm(samplike~mutual(same="group", keep=1), estimate="MPLE")
-s.bk <- summary(samplike~mutual(by="Trinity", keep=2))
-e.bk <- ergm(samplike~mutual(by="Trinity", keep=2:3), estimate="MPLE")
+s.sk <- summary(samplike~mutual(same="group", levels=2))
+e.sk <- ergm(samplike~mutual(same="group", levels=1), estimate="MPLE")
+s.bk <- summary(samplike~mutual(by="Trinity", levels=2))
+e.bk <- ergm(samplike~mutual(by="Trinity", levels=2:3), estimate="MPLE")
 if (s.0 != 28 || round(e.0$coef - .5596, 3) != 0 ||
     s.s != 23 || round(e.s$coef - .9954, 3) != 0 ||
     !all(s.b==c(17,18,21)) ||
