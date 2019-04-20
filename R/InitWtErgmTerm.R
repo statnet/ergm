@@ -526,14 +526,23 @@ InitWtErgmTerm.nodematch<-InitWtErgmTerm.match<-function (nw, arglist, ..., vers
   binary_dind_wrap("nodematch", nw, a, ..., version=version)
 }
 
-InitWtErgmTerm.nodemix<-function (nw, arglist, ...) {
-  ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("attrname", "base", "b1levels", "b2levels", "form"),
-                      vartypes = c("character", "numeric", "character,numeric,logical", "character,numeric,logical", "character"),
-                      defaultvalues = list(NULL, NULL, NULL, NULL, "sum"),
-                      required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
-  binary_dind_wrap("nodemix", nw, a, ...)
+InitWtErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist,
+                        varnames = c("attrname", "base", "b1levels", "b2levels", "form"),
+                        vartypes = c("character", "numeric", "character,numeric,logical", "character,numeric,logical", "character"),
+                        defaultvalues = list(NULL, NULL, NULL, NULL, "sum"),
+                        required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist,
+                        varnames = c("attr", "levels", "levels2", "b1levels", "b2levels", "form"),
+                        vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, "character"),
+                        defaultvalues = list(NULL, NULL, NULL, NULL, NULL, "sum"),
+                        required = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE))  
+  }
+  binary_dind_wrap("nodemix", nw, a, ..., version=version)
 }
 
 InitWtErgmTerm.nodecov<-InitWtErgmTerm.nodemain<-function (nw, arglist, response, ..., version=packageVersion("ergm")) {
