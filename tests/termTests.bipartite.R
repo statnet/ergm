@@ -197,10 +197,10 @@ s.a <- summary(bipnw2~b1twostar("Letter"))
 e.a <- ergm(bipnw2~b1twostar("Letter"), estimate="MPLE")
 s.aa <- summary(bipnw2~b1twostar("Letter", "Color"))
 e.aa <- ergm(bipnw2~b1twostar("Letter", "Color"), estimate="MPLE")
-s.ab <- summary(bipnw2~b1twostar("Letter", base=2:4))
-e.ab <- ergm(bipnw2~b1twostar("Letter", base=c(1,3,5)), estimate="MPLE")
-s.aab <- summary(bipnw2~b1twostar("Letter", "Color", base=2:4))
-e.aab <- ergm(bipnw2~b1twostar("Letter", "Color", base=c(1,3,5)), estimate="MPLE")
+s.ab <- summary(bipnw2~b1twostar("Letter", levels2=-(2:4)))
+e.ab <- ergm(bipnw2~b1twostar("Letter", levels2=-c(1,3,5)), estimate="MPLE")
+s.aab <- summary(bipnw2~b1twostar("Letter", "Color", levels2=-(2:4)))
+e.aab <- ergm(bipnw2~b1twostar("Letter", "Color", levels2=-c(1,3,5)), estimate="MPLE")
 if (!all(s.a==c(9,4,15,17,7,4)) ||
     !all(round(e.a$coef+c(4.523, 5.22, 4.773, 4.593, 4.881, 5.446),3)==0) ||
     !all(s.aa==c(13,2,13,15,5,8)) ||
@@ -373,10 +373,10 @@ s.a <- summary(bipnw2~b2twostar("Letter"))
 e.a <- ergm(bipnw2~b2twostar("Letter"), estimate="MPLE")
 s.aa <- summary(bipnw2~b2twostar("Letter", "Color"))
 e.aa <- ergm(bipnw2~b2twostar("Letter", "Color"), estimate="MPLE")
-s.ab <- summary(bipnw2~b2twostar("Letter", base=2:4))
-e.ab <- ergm(bipnw2~b2twostar("Letter", base=c(1,3,5)), estimate="MPLE")
-s.aab <- summary(bipnw2~b2twostar("Letter", "Color", base=2:4))
-e.aab <- ergm(bipnw2~b2twostar("Letter", "Color", base=c(1,3,5)), estimate="MPLE")
+s.ab <- summary(bipnw2~b2twostar("Letter", levels2=-(2:4)))
+e.ab <- ergm(bipnw2~b2twostar("Letter", levels2=-c(1,3,5)), estimate="MPLE")
+s.aab <- summary(bipnw2~b2twostar("Letter", "Color", levels2=-(2:4)))
+e.aab <- ergm(bipnw2~b2twostar("Letter", "Color", levels2=-c(1,3,5)), estimate="MPLE")
 if (!all(s.a==c(6,3,16,16,8,6)) ||
     !all(round(e.a$coef+c(5, 5.754, 4.603, 4.780, 4.462, 5.055),3)==0) ||
     !all(s.aa==c(8, 1, 17, 15, 4, 10)) ||
