@@ -139,14 +139,14 @@ diffs <- sort(unique(c(abs(outer(q,q,"-")))))
 diffs <- diffs[diffs!=0]
 for(base in c(0, seq_along(diffs))){
   keep <- if(all(base==0)) seq_along(diffs) else seq_along(diffs)[-base]
-  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*dirm,na.rm=TRUE)), dirnw ~ absdiffcat("q",base=base))
-  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*(dirm!=0),na.rm=TRUE)), dirnw ~ absdiffcat("q",base=base, form="nonzero"))
+  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*dirm,na.rm=TRUE)), dirnw ~ absdiffcat("q",levels=keep))
+  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*(dirm!=0),na.rm=TRUE)), dirnw ~ absdiffcat("q",levels=keep, form="nonzero"))
   
-  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*undm,na.rm=TRUE))/2, undnw ~ absdiffcat("q",base=base))
-  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*(undm!=0),na.rm=TRUE))/2, undnw ~ absdiffcat("q",base=base, form="nonzero"))
+  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*undm,na.rm=TRUE))/2, undnw ~ absdiffcat("q",levels=keep))
+  tst(sapply(diffs[keep], function(x) sum((abs(outer(q,q,"-"))==x)*(undm!=0),na.rm=TRUE))/2, undnw ~ absdiffcat("q",levels=keep, form="nonzero"))
   
-  tst(sapply(diffs[keep], function(x) sum((abs(outer(q1,q2,"-"))==x)*bipm,na.rm=TRUE)), bipnw ~ absdiffcat("q", base=base))
-  tst(sapply(diffs[keep], function(x) sum((abs(outer(q1,q2,"-"))==x)*(bipm!=0),na.rm=TRUE)), bipnw ~ absdiffcat("q", base=base, form="nonzero"))
+  tst(sapply(diffs[keep], function(x) sum((abs(outer(q1,q2,"-"))==x)*bipm,na.rm=TRUE)), bipnw ~ absdiffcat("q", levels=keep))
+  tst(sapply(diffs[keep], function(x) sum((abs(outer(q1,q2,"-"))==x)*(bipm!=0),na.rm=TRUE)), bipnw ~ absdiffcat("q", levels=keep, form="nonzero"))
 }
 
 # atleast

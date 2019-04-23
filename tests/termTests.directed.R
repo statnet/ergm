@@ -166,8 +166,8 @@ el[46,1] <- 3
 s.a <- summary(samplike~hammingmix("group"))
 s.ax <- summary(samplike~hammingmix("group", x=el))
 e.ax <- ergm(samplike~hammingmix("group", x=el), estimate="MPLE")
-s.axb <- summary(samplike~hammingmix("group", el, 2:6))
-e.axb <- ergm(samplike~hammingmix("group", el, c(1,2,5,6,8,9)), estimate="MPLE")
+s.axb <- summary(samplike~hammingmix("group", el, levels2=-(2:6)))
+e.axb <- ergm(samplike~hammingmix("group", el, levels2=-c(1,2,5,6,8,9)), estimate="MPLE")
 if (!all(s.a == 0) ||
     !all(s.ax==c(36, 0, 8, 4, 18, 2, 16, 12, 50)) ||
     !all(round(e.ax$coef[2:4]+c(1.0986, .2876, 2.5649),3)==0) ||
@@ -269,10 +269,10 @@ s.b <- summary(samplike~mutual(by="Trinity"))
 e.b <- ergm(samplike~mutual(by="Trinity"), estimate="MPLE")
 s.sd <- summary(samplike~mutual(same="group", diff=TRUE))
 e.sd <- ergm(samplike~mutual(same="group", diff=TRUE), estimate="MPLE")
-s.sk <- summary(samplike~mutual(same="group", keep=2))
-e.sk <- ergm(samplike~mutual(same="group", keep=1), estimate="MPLE")
-s.bk <- summary(samplike~mutual(by="Trinity", keep=2))
-e.bk <- ergm(samplike~mutual(by="Trinity", keep=2:3), estimate="MPLE")
+s.sk <- summary(samplike~mutual(same="group", levels=2))
+e.sk <- ergm(samplike~mutual(same="group", levels=1), estimate="MPLE")
+s.bk <- summary(samplike~mutual(by="Trinity", levels=2))
+e.bk <- ergm(samplike~mutual(by="Trinity", levels=2:3), estimate="MPLE")
 if (s.0 != 28 || round(e.0$coef - .5596, 3) != 0 ||
     s.s != 23 || round(e.s$coef - .9954, 3) != 0 ||
     !all(s.b==c(17,18,21)) ||

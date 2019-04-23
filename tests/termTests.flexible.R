@@ -85,8 +85,8 @@ if (s.a-79 != 0 || round(e.a$coef + 4.354,3) != 0 ||
 num.tests=num.tests+1
 s.a <- summary(fmh ~ absdiffcat("Grade"))
 e.a <- ergm(fmh ~ absdiffcat("Grade"))
-s.ab <- summary(fmh ~ absdiffcat("Grade", base=4:5))
-e.ab <- ergm(fmh ~ absdiffcat("Grade", base=4:5))
+s.ab <- summary(fmh ~ absdiffcat("Grade", levels=-(4:5)))
+e.ab <- ergm(fmh ~ absdiffcat("Grade", levels=-(4:5)))
 if (!all(s.a==c(15,15,7,2,1)) ||
     !all(round(e.a$coef+c(6.005,5.788,6.063,6.891,6.611),3)==0) ||
     !all(s.ab==c(15,15,7)) ||
@@ -516,10 +516,10 @@ if (s.a != 103 || round(e.a$coef + 1.45725,3)!=0  ||
 num.tests=num.tests+1
 s.a <- summary(fmh ~ nodemix("Grade"))
 e.a <- ergm(samplike ~ nodemix("group"), estimate="MPLE")
-s.ab <- summary(bipnw ~ nodemix("Letter"), base=0)
-e.ab <- ergm(bipnw ~ nodemix("Letter", base=2:6))
-s.ab2 <- summary(fmh ~ nodemix("Race", base=1))
-e.ab2 <- ergm(samplike ~ nodemix("Trinity", base=3:9))                
+s.ab <- summary(bipnw ~ nodemix("Letter"), levels2=T)
+e.ab <- ergm(bipnw ~ nodemix("Letter", levels2=-(2:6)))
+s.ab2 <- summary(fmh ~ nodemix("Race", levels2=-1))
+e.ab2 <- ergm(samplike ~ nodemix("Trinity", levels2=-(3:9)))                
 if (!all(s.a == c(75, 0, 33, 0, 2, 23, 1, 4, 7, 9, 1,
                   2, 6, 1, 17, 1, 1, 4, 5, 5, 6)) ||
     !all(round(e.a$coef - c(0.1910552, -3.2958369, -2.1747517, -2.5649494,
