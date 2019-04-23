@@ -166,8 +166,8 @@ el[46,1] <- 3
 s.a <- summary(samplike~hammingmix("group"))
 s.ax <- summary(samplike~hammingmix("group", x=el))
 e.ax <- ergm(samplike~hammingmix("group", x=el), estimate="MPLE")
-s.axb <- summary(samplike~hammingmix("group", el, 2:6))
-e.axb <- ergm(samplike~hammingmix("group", el, c(1,2,5,6,8,9)), estimate="MPLE")
+s.axb <- summary(samplike~hammingmix("group", el, levels2=-(2:6)))
+e.axb <- ergm(samplike~hammingmix("group", el, levels2=-c(1,2,5,6,8,9)), estimate="MPLE")
 if (!all(s.a == 0) ||
     !all(s.ax==c(36, 0, 8, 4, 18, 2, 16, 12, 50)) ||
     !all(round(e.ax$coef[2:4]+c(1.0986, .2876, 2.5649),3)==0) ||

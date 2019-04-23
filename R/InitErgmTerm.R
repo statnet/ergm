@@ -210,7 +210,7 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ..., version=packageVersion("er
   nodecov[napositions] <- NAsubstitute
   if(any(napositions)){u<-c(u,NA)}
   
-  u <- ergm_attr_levels(a$levels, u, nw, levels = u)
+  u <- ergm_attr_levels(a$levels, nodecov, nw, levels = u)
   
   if(any(NVL(a$base,0)!=0)) u <- u[-(a$base)]
   if (length(u)==0)
@@ -695,33 +695,70 @@ InitErgmTerm.b1starmix <- function(nw, arglist, ...) {
 }
 
 ################################################################################
-InitErgmTerm.b1twostar <- function(nw, arglist, ...) {
-  ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("b1attrname", "b2attrname", "base", "b1levels", "b2levels"),
-                       vartypes = c("character", "character", "numeric", "character,numeric,logical", "character,numeric,logical"),
-                       defaultvalues = list(NULL, NULL, NULL, NULL, NULL),
-                       required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+InitErgmTerm.b1twostar <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
+                         varnames = c("b1attrname", "b2attrname", "base", "b1levels", "b2levels"),
+                         vartypes = c("character", "character", "numeric", "character,numeric,logical", "character,numeric,logical"),
+                         defaultvalues = list(NULL, NULL, NULL, NULL, NULL),
+                         required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+	b1attrarg <- a$b1attrname
+	b2attrarg <- a$b2attrname
+	b1levels <- if(!is.null(a$b1levels)) I(a$b1levels) else NULL
+	b2levels <- if(!is.null(a$b2levels)) I(a$b2levels) else NULL
+	levels2 <- if(any(a$base != 0)) -a$base else NULL
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
+                         varnames = c("b1attr", "b2attr", "b1levels", "b2levels", "levels2"),
+                         vartypes = c(ERGM_VATTR_SPEC, ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC),
+                         defaultvalues = list(NULL, NULL, NULL, NULL, NULL),
+                         required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+	b1attrarg <- a$b1attr
+	b2attrarg <- a$b2attr
+	b1levels <- a$b1levels
+	b2levels <- a$b2levels
+	levels2 <- a$levels2
+  }
+  
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
   n <- network.size(nw)
-  b1nodecov <- get.node.attr(nw, a$b1attrname)[1:nb1]
-  b1u<-NVL(a$b1levels, sort(unique(b1nodecov)))
+  
+  b1nodecov <- ergm_get_vattr(b1attrarg, nw, bip = "b1")
+  b1attrname <- attr(b1nodecov, "name")
+  b1u <- ergm_attr_levels(b1levels, b1nodecov, nw, sort(unique(b1nodecov)))
   if(any(is.na(b1nodecov))){ b1u<-c(b1u,NA) }
-  if(is.null(a$b2attrname)) { a$b2attrname <- a$b1attrname }
-  b2nodecov <- get.node.attr(nw, a$b2attrname)[(1+nb1):n]
-  b2u<-NVL(a$b2levels, sort(unique(b2nodecov)))
-  if(any(is.na(b2nodecov))){b2u<-c(b2u,NA)}
+  
+  if(is.null(b2attrarg)) { b2attrarg <- b1attrarg }
+  b2nodecov <- ergm_get_vattr(b2attrarg, nw, bip = "b2")
+  b2attrname <- attr(b2nodecov, "name")  
+  b2u <- ergm_attr_levels(b2levels, b2nodecov, nw, sort(unique(b2nodecov)))
+  if(any(is.na(b2nodecov))){ b2u<-c(b2u,NA) }
+
+  nr <- length(b1u)
+  nc <- length(b2u)
+  
+  levels2.grid <- expand.grid(row = b1u, col = b2u, col2 = b2u, stringsAsFactors=FALSE)
+  indices2.grid <- expand.grid(row = 1:nr, col = 1:nc, col2 = 1:nc)
+  
+  levels2.list <- transpose(levels2.grid[indices2.grid$col <= indices2.grid$col2,])
+  indices2.grid <- indices2.grid[indices2.grid$col <= indices2.grid$col2,]
+  
+  levels2.sel <- ergm_attr_levels(levels2, list(row = b1nodecov, col = b2nodecov, col2 = b2nodecov), nw, levels2.list)
+  
+  rows2keep <- match(levels2.sel,levels2.list, NA)
+  rows2keep <- rows2keep[!is.na(rows2keep)]
+  
+  u <- indices2.grid[rows2keep,]
+  
   # Recode to numeric
   b1nodecov <- match(b1nodecov,b1u,nomatch=length(b1u)+1)
   b2nodecov <- match(b2nodecov,b2u,nomatch=length(b2u)+1)
-  nr <- length(b1u)
-  nc <- length(b2u)
-  u <- cbind(rep(1:nr, nc*nc), rep(rep(1:nc, each=nr), nc), rep(1:nc, each=nc*nr))
-  u <- u[u[,2] <= u[,3],]  
-  if (any(NVL(a$base,0)!=0)) { u <- u[-a$base,] }
-  coef.names <- paste("b1twostar", a$b1attrname, b1u[u[,1]],  a$b2attrname,
-                      apply(matrix(b2u[u[,2:3]],ncol=2), 1, paste, collapse="."),
+  
+  coef.names <- paste("b1twostar", b1attrname, b1u[u[,1]],  b2attrname,
+                      apply(matrix(b2u[cbind(u[,2], u[,3])],ncol=2), 1, paste, collapse="."),
                       sep=".")
   list(name = "b1twostar", coef.names = coef.names, #name and coef.names: required
        inputs = c(b1nodecov, b2nodecov, u[,1], u[,2], u[,3]), minval = 0)
@@ -1106,33 +1143,70 @@ InitErgmTerm.b2starmix <- function(nw, arglist, ...) {
 }
 
 ################################################################################
-InitErgmTerm.b2twostar <- function(nw, arglist, ...) {
-  ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("b1attrname", "b2attrname", "base", "b1levels", "b2levels"),
-                       vartypes = c("character", "character", "numeric", "character,numeric,logical", "character,numeric,logical"),
-                       defaultvalues = list(NULL, NULL, NULL, NULL, NULL),
-                       required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+InitErgmTerm.b2twostar <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
+                         varnames = c("b1attrname", "b2attrname", "base", "b1levels", "b2levels"),
+                         vartypes = c("character", "character", "numeric", "character,numeric,logical", "character,numeric,logical"),
+                         defaultvalues = list(NULL, NULL, NULL, NULL, NULL),
+                         required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+	b1attrarg <- a$b1attrname
+	b2attrarg <- a$b2attrname
+	b1levels <- if(!is.null(a$b1levels)) I(a$b1levels) else NULL
+	b2levels <- if(!is.null(a$b2levels)) I(a$b2levels) else NULL
+	levels2 <- if(any(a$base != 0)) -a$base else NULL
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
+                         varnames = c("b1attr", "b2attr", "b1levels", "b2levels", "levels2"),
+                         vartypes = c(ERGM_VATTR_SPEC, ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC),
+                         defaultvalues = list(NULL, NULL, NULL, NULL, NULL),
+                         required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+	b1attrarg <- a$b1attr
+	b2attrarg <- a$b2attr
+	b1levels <- a$b1levels
+	b2levels <- a$b2levels
+	levels2 <- a$levels2
+  }
+  
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
   n <- network.size(nw)
-  b1nodecov <- get.node.attr(nw, a$b1attrname)[1:nb1]
-  b1u<-NVL(a$b1levels, sort(unique(b1nodecov)))
+  
+  b1nodecov <- ergm_get_vattr(b1attrarg, nw, bip = "b1")
+  b1attrname <- attr(b1nodecov, "name")
+  b1u <- ergm_attr_levels(b1levels, b1nodecov, nw, sort(unique(b1nodecov)))
   if(any(is.na(b1nodecov))){ b1u<-c(b1u,NA) }
-  if(is.null(a$b2attrname)) { a$b2attrname <- a$b1attrname }
-  b2nodecov <- get.node.attr(nw, a$b2attrname)[(1+nb1):n]
-  b2u<-NVL(a$b2levels, sort(unique(b2nodecov)))
-  if(any(is.na(b2nodecov))){b2u<-c(b2u,NA)}
+  
+  if(is.null(b2attrarg)) { b2attrarg <- b1attrarg }
+  b2nodecov <- ergm_get_vattr(b2attrarg, nw, bip = "b2")
+  b2attrname <- attr(b2nodecov, "name")  
+  b2u <- ergm_attr_levels(b2levels, b2nodecov, nw, sort(unique(b2nodecov)))
+  if(any(is.na(b2nodecov))){ b2u<-c(b2u,NA) }
+
+  nr <- length(b1u)
+  nc <- length(b2u)
+  
+  levels2.grid <- expand.grid(row = b2u, col = b1u, col2 = b1u, stringsAsFactors=FALSE)
+  indices2.grid <- expand.grid(row = 1:nc, col = 1:nr, col2 = 1:nr)
+  
+  levels2.list <- transpose(levels2.grid[indices2.grid$col <= indices2.grid$col2,])
+  indices2.grid <- indices2.grid[indices2.grid$col <= indices2.grid$col2,]
+  
+  levels2.sel <- ergm_attr_levels(levels2, list(row = b2nodecov, col = b1nodecov, col2 = b1nodecov), nw, levels2.list)
+  
+  rows2keep <- match(levels2.sel,levels2.list, NA)
+  rows2keep <- rows2keep[!is.na(rows2keep)]
+  
+  u <- indices2.grid[rows2keep,]
+  
   # Recode to numeric
   b1nodecov <- match(b1nodecov,b1u,nomatch=length(b1u)+1)
   b2nodecov <- match(b2nodecov,b2u,nomatch=length(b2u)+1)
-  nr <- length(b1u)
-  nc <- length(b2u)
-  u <- cbind(rep(1:nc, nr*nr), rep(rep(1:nr, each=nc), nr), rep(1:nr, each=nc*nr))
-  u <- u[u[,2] <= u[,3],]  
-  if (any(NVL(a$base,0)!=0)) { u <- u[-a$base,] }
-  coef.names <- paste("b2twostar", a$b2attrname, b2u[u[,1]],  a$b1attrname,
-                      apply(matrix(b1u[u[,2:3]],ncol=2), 1, paste, collapse="."),
+  
+  coef.names <- paste("b2twostar", b2attrname, b2u[u[,1]],  b1attrname,
+                      apply(matrix(b1u[cbind(u[,2], u[,3])],ncol=2), 1, paste, collapse="."),
                       sep=".")
   list(name = "b2twostar", coef.names = coef.names, #name and coef.names: required
        inputs = c(b1nodecov, b2nodecov, u[,1], u[,2], u[,3]), minval=0)
@@ -2285,19 +2359,35 @@ InitErgmTerm.hamming<-function (nw, arglist, ...) {
 }
 
 ################################################################################
-InitErgmTerm.hammingmix<-function (nw, arglist, ...) {
-  # There is no reason hammingmix should be directed-only, but for now
-  # the undirected version does not seem to work properly, so:
-  a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("attrname","x","base","contrast"),
-                      vartypes = c("character","matrix,network","numeric","logical"),
-                      defaultvalues = list(NULL,nw,0,FALSE),
-                      required = c(TRUE,FALSE,FALSE,FALSE))
-  attrname<-a$attrname
+InitErgmTerm.hammingmix<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    # There is no reason hammingmix should be directed-only, but for now
+    # the undirected version does not seem to work properly, so:
+    a <- check.ErgmTerm(nw, arglist, directed=TRUE,
+                        varnames = c("attrname","x","base","contrast"),
+                        vartypes = c("character","matrix,network","numeric","logical"),
+                        defaultvalues = list(NULL,nw,0,FALSE),
+                        required = c(TRUE,FALSE,FALSE,FALSE))
+	attrarg <- a$attrname
+	levels <- NULL
+	levels2 <- if(any(a$base != 0)) -a$base else NULL
+  }else{
+    # There is no reason hammingmix should be directed-only, but for now
+    # the undirected version does not seem to work properly, so:
+    a <- check.ErgmTerm(nw, arglist, directed=TRUE,
+                        varnames = c("attr","x","levels", "levels2","contrast"),
+                        vartypes = c(ERGM_VATTR_SPEC,"matrix,network",ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC,"logical"),
+                        defaultvalues = list(NULL,nw,NULL, NULL,FALSE),
+                        required = c(TRUE,FALSE,FALSE, FALSE,FALSE))
+	attrarg <- a$attr
+	levels <- a$levels
+	levels2 <- a$levels2
+  }
+
   x<-a$x
-  base<-a$base
+
   if (a$contrast) {
-    ergm_Init_abort("The 'contrast' argument of the hammingmix term is deprecated.  Use 'base' instead")
+    ergm_Init_abort("The 'contrast' argument of the hammingmix term is deprecated.  Use 'levels2' instead")
   }
   if(is.network(x)){
     xm<-as.edgelist(x)
@@ -2312,40 +2402,52 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ...) {
   if (is.null(xm) || ncol(xm)!=2){
     ergm_Init_abort("hammingmix() requires an edgelist")
   }
-    nodecov <- get.node.attr(nw, attrname, "hammingmix")
-    mixmat <- mixingmatrix(nw,attrname)$mat
-    u <- cbind(as.vector(row(mixmat)), 
-               as.vector(col(mixmat)))
-#   if(!is.directed(nw)){
-#    u <- u[row(mixmat) >= col(mixmat)]
-#   }
-    if(any(is.na(nodecov))){u<-rbind(u,NA)}
-#
-#   Recode to numeric if necessary
-#
-    namescov <- sort(unique(nodecov))
-    nodecov <- match(nodecov,namescov)
-    if (length(nodecov)==1)
-        ergm_Init_abort ("Argument to hammingmix() has only one value")
 
-  if (any(NVL(base,0)!=0)) {
-    u <- u[-base,]
-  }
+  nodecov <- ergm_get_vattr(attrarg, nw)
+  attrname <- attr(nodecov, "name")
+
+  if(length(unique(nodecov)) == 1)
+      ergm_Init_abort ("Argument to hammingmix() has only one value")
+
+  u <- ergm_attr_levels(levels, nodecov, nw, sort(unique(nodecov)))
+  namescov <- u
+  
+  nr <- length(u)
+  nc <- length(u)
+
+  levels2.list <- transpose(expand.grid(row = u, col = u, stringsAsFactors=FALSE))
+  indices2.grid <- expand.grid(row = 1:nr, col = 1:nc)
+	
+  levels2.sel <- ergm_attr_levels(levels2, list(row = nodecov, col = nodecov), nw, levels2.list)
+  
+  rows2keep <- match(levels2.sel,levels2.list, NA)
+  rows2keep <- rows2keep[!is.na(rows2keep)]
+  
+  u <- indices2.grid[rows2keep,]
+
+  nodecov.indices <- match(nodecov, namescov, nomatch=length(namescov) + 1)
+
   coef.names <- paste("hammingmix",attrname,
-                      apply(matrix(namescov[u],ncol=2),1,paste,collapse="."), 
+                      apply(matrix(namescov[as.matrix(u)],ncol=2),1,paste,collapse="."), 
                       sep=".")
   #  Number of input parameters before covariates equals twice the number
   #  of used matrix cells, namely 2*length(uui),
-  inputs=c(to_ergm_Cdouble(xm, prototype=nw), u[,1], u[,2],nodecov)
+  inputs=c(to_ergm_Cdouble(xm, prototype=nw), u[,1], u[,2], nodecov.indices)
   attr(inputs, "ParamsBeforeCov") <- nrow(u)
   # The emptynwstats code below does not work right for
   # undirected networks, mostly since hammingmix doesn't work 
   # in this case anyway.
-  nw %v% "_tmp_nodecov" <- nodecov
-  emptynwstats <- summary(nw ~ nodemix("_tmp_nodecov", base))
+  nw %v% "_tmp_nodecov" <- as.vector(nodecov)
+  if(version <= as.package_version("3.9.4")){
+    emptynwstats <- summary(nw ~ nodemix("_tmp_nodecov", base=a$base))
+  }else{
+    emptynwstats <- summary(nw ~ nodemix("_tmp_nodecov", levels=levels, levels2=levels2))  
+  }
   list(name="hammingmix", coef.names=coef.names, inputs=inputs, 
        emptynwstats=emptynwstats, dependence=FALSE)
 }
+
+
 
 
 
@@ -3122,71 +3224,111 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, ..., version=
 }
 
 ################################################################################
-InitErgmTerm.nodemix<-function (nw, arglist, ...) {
-  ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("attrname", "base", "b1levels", "b2levels"),
-                      vartypes = c("character", "numeric", "character,numeric,logical", "character,numeric,logical"),
-                      defaultvalues = list(NULL, NULL, NULL, NULL),
-                      required = c(TRUE, FALSE, FALSE, FALSE))
+InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist,
+                        varnames = c("attrname", "base", "b1levels", "b2levels"),
+                        vartypes = c("character", "numeric", "character,numeric,logical", "character,numeric,logical"),
+                        defaultvalues = list(NULL, NULL, NULL, NULL),
+                        required = c(TRUE, FALSE, FALSE, FALSE))
+	attrarg <- a$attrname
+	b1levels <- if(!is.null(a$b1levels)) I(a$b1levels) else NULL
+	b2levels <- if(!is.null(a$b2levels)) I(a$b2levels) else NULL
+	levels <- NULL
+	levels2 <- if(any(a$base != 0)) -a$base else NULL
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist,
+                        varnames = c("attr", "levels", "levels2", "b1levels", "b2levels"),
+                        vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, NULL, NULL, NULL, NULL),
+                        required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+	attrarg <- a$attr
+	b1levels <- a$b1levels
+	b2levels <- a$b2levels
+	levels <- a$levels
+	levels2 <- a$levels2	
+  }
   ### Process the arguments
   if (is.bipartite(nw) && is.directed(nw)) {
     ergm_Init_abort("Directed bipartite networks are not currently possible")
   }
-  nodecov <-
-    if(length(a$attrname)==1)
-      get.node.attr(nw, a$attrname)
-    else{
-      do.call(paste,c(sapply(a$attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
-    }
-    
+
+  nodecov <- ergm_get_vattr(attrarg, nw)
+  attrname <- attr(nodecov, "name")
+  
   if (is.bipartite(nw)) {
     #  So undirected network storage but directed mixing
-    nb1 <- get.network.attribute(nw, "bipartite")       
-    #  Recode nodecov to numeric (but retain original sorted names in "namescov")
-    b1namescov <- NVL(a$b1levels, sort(unique(nodecov[1:nb1])))
-    b2namescov <- NVL(a$b2levels, sort(unique(nodecov[(1+nb1):network.size(nw)])))
-    namescov <- c(b1namescov, b2namescov)
-    b1nodecov <- match(nodecov[1:nb1],b1namescov,nomatch=length(b1namescov)+1)
-    b2nodecov <- match(nodecov[(1+nb1):network.size(nw)],b2namescov,nomatch=length(b2namescov)+1)
+	
+	b1nodecov <- ergm_get_vattr(attrarg, nw, bip = "b1")
+	b2nodecov <- ergm_get_vattr(attrarg, nw, bip = "b2")
+	
+    b1namescov <- ergm_attr_levels(b1levels, b1nodecov, nw, sort(unique(b1nodecov)))
+    b2namescov <- ergm_attr_levels(b2levels, b2nodecov, nw, sort(unique(b2nodecov)))
+	
     nr <- length(b1namescov)
     nc <- length(b2namescov)
+	
+    levels2.list <- transpose(expand.grid(row = b1namescov, col = b2namescov, stringsAsFactors=FALSE))
+    indices2.grid <- expand.grid(row = 1:nr, col = nr + 1:nc)
+   
+    levels2.sel <- ergm_attr_levels(levels2, list(row = b1nodecov, col = b2nodecov), nw, levels2.list)
+  
+    rows2keep <- match(levels2.sel,levels2.list, NA)
+    rows2keep <- rows2keep[!is.na(rows2keep)]
+  
+    u <- indices2.grid[rows2keep,]
+  
+    # Recode to numeric
+    b1nodecov <- match(b1nodecov,b1namescov,nomatch=length(b1namescov)+1)
+    b2nodecov <- match(b2nodecov,b2namescov,nomatch=length(b2namescov)+1)
+  
+    namescov <- c(b1namescov, b2namescov)
+	
     nodecov <- c(b1nodecov, b2nodecov + nr)
-    u <- cbind(rep(1:nr,nc), nr + rep(1:nc, each=nr))
-    if(any(is.na(nodecov))){u<-rbind(u,NA)}    
-    if (any(NVL(a$base,0)!=0)) {
-      u <- u[-a$base,]
-    }
-    name <- "mix"
-    cn <- paste("mix", paste(a$attrname,collapse="."), apply(matrix(namescov[u],ncol=2),
+    
+	name <- "mix"
+    cn <- paste("mix", paste(attrname,collapse="."), apply(matrix(namescov[as.matrix(u)],ncol=2),
                                        1,paste,collapse="."), sep=".")
     inputs <- c(u[,1], u[,2], nodecov)
     attr(inputs, "ParamsBeforeCov") <- NROW(u)
   } else {# So one mode, but could be directed or undirected
-    u <- NVL(a$levels, sort(unique(nodecov)))
+    u <- ergm_attr_levels(levels, nodecov, nw, sort(unique(nodecov)))
+	namescov <- u
+	
     if(any(is.na(nodecov))){u<-c(u,NA)}
-    #   Recode to numeric if necessary
-    nodecov <- match(nodecov,u,nomatch=length(u)+1)
-    ui <- seq(along=u)
-    ucount<-sapply(ui,function(x){sum(nodecov==x,na.rm=TRUE)}) #Count cases
-    uui <- matrix(1:length(ui)^2,length(ui),length(ui))  #Create int tables
-    urm <- t(sapply(ui,rep,length(ui)))   #This is the reverse of what you'd
-    ucm <- sapply(ui,rep,length(ui))      #expect for r/c, but it's correct
-    uun <- outer(u,u,paste,sep=".")
+	
+    
+    nr <- length(u)
+    nc <- length(u)
+
+    levels2.list <- transpose(expand.grid(row = u, col = u, stringsAsFactors=FALSE))
+    indices2.grid <- expand.grid(row = 1:nr, col = 1:nc)
+    uun <- as.vector(outer(u,u,paste,sep="."))
+	
     if (!is.directed(nw)) {
-      uui <- uui[upper.tri(uui,diag=TRUE)]
-      urm <- urm[upper.tri(urm,diag=TRUE)]  
-      ucm <- ucm[upper.tri(ucm,diag=TRUE)]
-      uun <- uun[upper.tri(uun,diag=TRUE)]
-    }
-    if (any(NVL(a$base,0)!=0)) {
-      urm <- as.vector(urm)[-a$base]
-      ucm <- as.vector(ucm)[-a$base]
-      uun <- as.vector(uun)[-a$base]
-    }
+		rowleqcol <- indices2.grid$row <= indices2.grid$col
+		levels2.list <- levels2.list[rowleqcol]
+		indices2.grid <- indices2.grid[rowleqcol,]
+		uun <- uun[rowleqcol]
+    }	
+   
+    levels2.sel <- ergm_attr_levels(levels2, list(row = nodecov, col = nodecov), nw, levels2.list)
+  
+    rows2keep <- match(levels2.sel,levels2.list, NA)
+    rows2keep <- rows2keep[!is.na(rows2keep)]
+  
+    u <- indices2.grid[rows2keep,]
+	uun <- uun[rows2keep]
+
+
+	nodecov <- match(nodecov,namescov,nomatch=length(namescov)+1)
+	
+	
     name <- "nodemix"
-    cn <- paste("mix", paste(a$attrname,collapse="."), uun, sep=".")
-    inputs <- c(urm, ucm, nodecov)
+    cn <- paste("mix", paste(attrname,collapse="."), uun, sep=".")
+    inputs <- c(u[,1], u[,2], nodecov)
     #attr(inputs, "ParamsBeforeCov") <- 2*length(uui)
     attr(inputs, "ParamsBeforeCov") <- 2*length(uun)
   }

@@ -479,21 +479,24 @@ network
     vector of indices then the corresponding terms (in the order they would be
     created when \code{base=NULL}) are left out.}
 
-    \item{\code{b1twostar(b1attrname, b2attrname, base=NULL, b1levels=NULL, b2levels=NULL)}  (binary) (bipartite)  (undirected) (categorical nodal attribute)
+    \item{\code{b1twostar(b1attr, b2attr, b1levels=NULL, b2levels=NULL, levels2=NULL)}  (binary) (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{ Two-star
     census for central nodes centered on the first mode of a bipartite network:}
-    This term takes two nodal attribute names, one for b1 nodes (actors in some
+    This term takes two nodal attributes (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details), one for b1 nodes (actors in some
     contexts) and one for b2 nodes (events in some contexts). Only
-    \code{b1attrname} is required; if \code{b2attrname} is not passed, it is
-    assumed to be the same as \code{b1attrname}. Assuming that there are
-    \eqn{n_1} values of \code{b1attrname} among the b1 nodes and \eqn{n_2}
-    values of \code{b2attrname} among the b2 nodes, then the total number of
+    \code{b1attr} is required; if \code{b2attr} is not passed, it is
+    assumed to be the same as \code{b1attr}. Assuming that there are
+    \eqn{n_1} values of \code{b1attr} among the b1 nodes and \eqn{n_2}
+    values of \code{b2attr} among the b2 nodes, then the total number of
     distinct categories of two stars according to these two attributes is
-    \eqn{n_1(n_2)(n_2+1)/2}. This model term creates a distinct statistic
-    counting each of these categories. The \code{base} term may be used to leave
-    some of these categories out; when passed as a vector of integer indices (in
-    the order the statistics would be created when \code{base=NULL}), the
-    corresponding terms will be left out.}
+    \eqn{n_1(n_2)(n_2+1)/2}.  By default, this model term creates a distinct statistic
+    counting each of these categories.  The \code{b1levels}, \code{b2levels}, and \code{levels2} arguments
+	may be used to leave some of these categories out (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
+	this term. See the above section on versioning for invoking the old behavior.}
     
     \item{\code{b2concurrent(by=NULL)}  (binary)  (bipartite)  (undirected) (frequently-used)
     }{\emph{Concurrent node count for the
@@ -650,11 +653,14 @@ network
     This term is exactly the same as \code{b1starmix} except that the roles of
     b1 and b2 are reversed.}
     
-    \item{\code{b2twostar(b1attrname, b2attrname, base=NULL, b1levels=NULL, b2levels=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
+    \item{\code{b2twostar(b1attr, b2attr, b1levels=NULL, b2levels=NULL, levels2=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{ Two-star
     census for central nodes centered on the second mode of a bipartite
     network:} This term is exactly the same as \code{b1twostar} except that the
-    roles of b1 and b2 are reversed.}    
+    roles of b1 and b2 are reversed.
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
+	this term. See the above section on versioning for invoking the old behavior.}    
 
     \item{\code{balance}  (binary)  (triad-related)  (directed)  (undirected)}{\emph{Balanced triads:} 
     This term adds one network statistic to the model equal to the number of
@@ -1128,18 +1134,20 @@ of the degrees of all pairs of nodes in the network which are tied.
     a network; if the latter, the optional argument \code{attrname} provides the
     name of the edge attribute to use for weight values.}
     
-    \item{\code{hammingmix(attrname, x, base=0)}  (binary)  (directed)  (dyad-independent)}{\emph{Hamming 
+    \item{\code{hammingmix(attr, x, levels=NULL, levels2=NULL)}  (binary)  (directed)  (dyad-independent)}{\emph{Hamming 
     distance within mixing:} 
-    This term adds one statistic to the model for every possible pairing of  
-    attribute values of the network for the vertex attribute named \code{attrname}. 
-    Each such statistic is the Hamming distance (i.e., the number of differences) 
+    By default, this term adds one statistic to the model for every possible pairing of  
+    attribute values of the network for the vertex attribute specified by \code{attr} (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels}).  Each such statistic is the Hamming distance (i.e., the number of differences) 
     between the appropriate subset of dyads in
-    the network and the corresponding subset in \code{x}. The ordering of the
-    attribute values is alphabetical. 
-    The option \code{base} gives the index of
-    statistics to be omitted from the tabulation. For example \code{base=2} will
+    the network and the corresponding subset in \code{x}.  The ordering of the
+    attribute values is alphabetical by default, but this may be overridden using the \code{levels} arguments.
+    The optional arguments \code{levels} and \code{levels2} allow the user to control what pairings are included (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels}), and the order in which they appear.  For example \code{levels2=-2} will
     omit the second statistic, making it the de facto reference category.
-    This term can only be used with directed networks.}
+    This term can only be used with directed networks.
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for this term. See the above section on versioning for invoking the old behavior.}
 
   \item{\code{idegrange(from, to=+Inf, by=NULL, homophily=FALSE, levels=NULL)}  (binary)  (directed) (categorical nodal attribute)
   }{\emph{In-degree range:} 
@@ -1476,26 +1484,25 @@ of the degrees of all pairs of nodes in the network which are tied.
 	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
 	this term. See the above section on versioning for invoking the old behavior.}
    
-    \item{\code{nodemix(attrname, base=NULL, levels=NULL)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (categorical nodal attribute)
+    \item{\code{nodemix(attr, levels=NULL, levels2=NULL, b1levels=NULL, b2levels=NULL)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (categorical nodal attribute)
     ,
-    \code{nodemix(attrname, base=NULL, levels=NULL, form="sum")}  (valued)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute)
+    \code{nodemix(attr, levels=NULL, levels2=NULL, b1levels=NULL, b2levels=NULL, form="sum")}  (valued)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute)
     }{\emph{Nodal attribute
-    mixing:} The \code{attrname} argument is a character vector giving
-    the names of categorical attributes in the network's vertex
-    attribute list. By default, this term adds one network statistic to
+    mixing:} The \code{attr} argument specifies one or more categorical vertex attributes
+	(see \link[=node-attr]{Specifying Vertex Attributes and Levels} for details). By default, this term adds one network statistic to
     the model for each possible pairing of attribute values. The
     statistic equals the number of edges in the network in which the
-    nodes have that pairing of values. (When multiple names are given, a
+    nodes have that pairing of values. (When multiple attributes are specified, a
     statistic is added for each combination of attribute values for
-    those names.) In other words, this term produces one statistic for
-    every entry in the mixing matrix for the attribute(s). The ordering of
+    those attributes.) In other words, this term produces one statistic for
+    every entry in the mixing matrix for the attribute(s). By default, the ordering of
     the attribute values is alphabetical (for nominal categories) or
-    numerical (for ordered categories). The optional \code{base}
-    argument is a vector of integers corresponding to the pairings that
-    should not be included. If \code{base} contains only negative
-    integers, then these integers correspond to the only pairings that
-    should be included. By default (i.e., with \code{base=NULL} or
-    \code{base=0}), all pairings are included.}
+    numerical (for ordered categories), but this can be overridden using the \code{levels} arguments.   The optional arguments \code{levels}, \code{levels2},
+	\code{b1levels}, and \code{b2levels} control what statistics are included in the model, and the order in which they appear.
+	\code{levels2} applies to all networks; \code{levels} applies to unipartite networks; \code{b1levels} and \code{b2levels} apply to
+	bipartite networks (see \link[=node-attr]{Specifying Vertex Attributes and Levels}).
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for this term. See the above section on versioning for invoking the old behavior.}
     
 	\item{\code{nodeocov(attr)}  (binary)  (directed) (dyad-independent)(quantitative nodal attribute)
     , \code{nodeocov(attr, form="sum")}  (valued)  (directed) (dyad-independent)
