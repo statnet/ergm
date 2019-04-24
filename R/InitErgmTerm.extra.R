@@ -11,20 +11,31 @@
 #NOTE: a number of undocumented terms have been removed from this file
 # the terms still exist on the experimental_terms svn branch
 
-InitErgmTerm.concurrentties<-function(nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE,bipartite=NULL,
-                      varnames = c("by", "levels"),
-                      vartypes = c("character", "character,numeric,logical"),
-                      defaultvalues = list(NULL, NULL),
-                      required = c(FALSE, FALSE))
+InitErgmTerm.concurrentties<-function(nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE,bipartite=NULL,
+                        varnames = c("by", "levels"),
+                        vartypes = c("character", "character,numeric,logical"),
+                        defaultvalues = list(NULL, NULL),
+                        required = c(FALSE, FALSE))
+    levels <- if(!is.null(a$levels)) I(a$levels) else NULL
+  }else{
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE,bipartite=NULL,
+                        varnames = c("by", "levels"),
+                        vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, NULL),
+                        required = c(FALSE, FALSE))
+    levels <- a$levels
+  }
   byarg <- a$by
   if(!is.null(byarg)) {
-    nodecov <- get.node.attr(nw, byarg, "concurrentties")
-    u <- NVL(a$levels, sort(unique(nodecov)))
+    nodecov <- ergm_get_vattr(byarg, nw)
+	attrname <- attr(nodecov, "name")
+    u <- ergm_attr_levels(levels, nodecov, nw, sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     if (length(u)==1)
-      stop ("Attribute given to concurrentties() has only one value", call.=FALSE)
+      ergm_Init_abort ("Attribute given to concurrentties() has only one value")
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     ui <- seq(along=u)
@@ -33,7 +44,7 @@ InitErgmTerm.concurrentties<-function(nw, arglist, ...) {
   if(!is.null(byarg)) {
     if(length(u)==0) {return(NULL)}
     #  See comment in d_concurrent_by_attr function
-    coef.names <- paste("concurrentties",".", byarg, u, sep="")
+    coef.names <- paste("concurrentties",".", attrname, u, sep="")
     name <- "concurrent_ties_by_attr"
     inputs <- c(ui, nodecov)
   }else{
