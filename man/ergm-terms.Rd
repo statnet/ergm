@@ -676,16 +676,20 @@ network
     network, the balanced triads are those with an even number of ties (i.e., 0
     and 2).}
     
-    \item{\code{coincidence(d=NULL,active=0)}  (binary)  (bipartite)  (undirected) 
+    \item{\code{coincidence(levels=NULL,active=0)}  (binary)  (bipartite)  (undirected) 
     }{\emph{Coincident node count for the
     second mode in a bipartite (aka two-mode) network:} By default this term adds one
     network statistic to the model for each pair of nodes of mode two. It is
 equal to the number of (first mode) mutual partners of that pair.
     The first mode of a bipartite
     network object is sometimes known as the "actor" mode and the seconds as the "event" mode. So this is the number of actors going to both events in the pair. The optional argument
-    \code{d} is a two-column matrix of (row-wise) pairs indices where the first row is less than the second row. The second optional argument, \code{active}, selects pairs for which the observed count is at least \code{active}.
-    This term can only be
-    used with undirected bipartite networks. }
+    \code{levels} specifies which pairs of nodes in mode two to include (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). The second optional argument, \code{active}, selects pairs for which the observed count is at least \code{active}.  If both \code{levels} and \code{active} are
+	specified, then \code{active} is ignored.  (Thus, indices passed as \code{levels} should correspond to indices when \code{levels} = NULL and \code{active} = 0.) This term can only be
+    used with undirected bipartite networks.
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
+	this term. See the above section on versioning for invoking the old behavior.}
     
     \item{\code{concurrent(by=NULL, levels=NULL)}  (binary) (undirected) (categorical nodal attribute)
     }{\emph{Concurrent node count:} 
