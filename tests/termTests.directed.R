@@ -28,11 +28,11 @@ s.0 <- summary(samplike~asymmetric)
 e.0 <- ergm(samplike~asymmetric, estimate="MPLE")
 s.a <- summary(samplike~asymmetric("group"))
 e.a <- ergm(samplike~asymmetric("group"), estimate="MPLE")
-s.ad <- summary(samplike~asymmetric("group", diff=TRUE))
-e.ad <- ergm(samplike~asymmetric("group", diff=TRUE), estimate="MPLE")
+s.ad <- summary(samplike~asymmetric(function(x) x %v% "group", diff=TRUE))
+e.ad <- ergm(samplike~asymmetric(~group, diff=TRUE), estimate="MPLE")
 s.ak <- summary(samplike~asymmetric("group", levels=3))
-e.ak <- ergm(samplike~asymmetric("group", levels=3), estimate="MPLE")
-s.adk <- summary(samplike~asymmetric("group", diff=TRUE, levels=1:2))
+e.ak <- ergm(samplike~asymmetric(function(x) x %v% "group", levels=3), estimate="MPLE")
+s.adk <- summary(samplike~asymmetric(~group, diff=TRUE, levels=1:2))
 e.adk <- ergm(samplike~asymmetric("group", diff=TRUE, levels=c(1,3)), estimate="MPLE")
 if (s.0 != 32 || round(e.0$coef+1.33,3)!=0 ||
     s.a != 17 || round(e.a$coef+.6008,3)!=0  ||
@@ -56,10 +56,10 @@ if (s.0 != 32 || round(e.0$coef+1.33,3)!=0 ||
 num.tests=num.tests + 1
 s.0 <- summary(samplike~ctriple)
 e.0 <- ergm(samplike~ctriad, estimate="MPLE")
-s.a <- summary(samplike~ctriple("group"))
+s.a <- summary(samplike~ctriple(function(x) x %v% "group"))
 e.a <- ergm(samplike~ctriple("group"), estimate="MPLE")
-s.ad <- summary(samplike~ctriad("group", diff=TRUE))
-e.ad <- ergm(samplike~ctriple("group", diff=TRUE), estimate="MPLE")
+s.ad <- summary(samplike~ctriad(~group, diff=TRUE))
+e.ad <- ergm(samplike~ctriple(function(x) x %v% "group", diff=TRUE), estimate="MPLE")
 if (s.0 != 39 || round(e.0$coef + .3522, 3) != 0 ||
     s.a != 34 || round(e.a$coef - .1217, 3) != 0 ||
     !all(s.ad==c(8,4,22)) ||
@@ -77,8 +77,8 @@ if (s.0 != 39 || round(e.0$coef + .3522, 3) != 0 ||
 num.tests=num.tests+1
 s.0 <- summary(samplike~cyclicalties)
 e.0 <- ergm(samplike~cyclicalties, estimate="MPLE")
-s.b <- summary(samplike~cyclicalties(attrname="group"))
-e.b <- ergm(samplike~cyclicalties(attrname="group"), estimate="MPLE")
+s.b <- summary(samplike~cyclicalties(attr=function(x) x %v% "group"))
+e.b <- ergm(samplike~cyclicalties(attr="group"), estimate="MPLE")
 if (s.0 != 62 || round(e.0$coef + 0.4154, 3) != 0 ||
 		!all(s.b==55) ||
 		!all(round(e.b$coef - 0.2289 , 3) == 0)) {
@@ -96,7 +96,7 @@ num.tests=num.tests + 1
 s.0 <- summary(samplike~idegrange(5:8))
 e.0 <- ergm(samplike~idegrange(5:8), estimate="MPLE")
 s.h <- summary(samplike~idegrange(5:8, by="group", homophily=TRUE))
-e.h <- ergm(samplike~idegrange(5:8, by="group", homophily=TRUE), estimate="MPLE")
+e.h <- ergm(samplike~idegrange(5:8, by=~group, homophily=TRUE), estimate="MPLE")
 if (!all(s.0==c(9, 6, 4, 3)) || round(e.0$coef + c(-0.1431, 1.0986, 1.1451, 0.2231 ))!= 0 ||!all(s.h==c(5, 3, 0, 0)) || round(e.h$coef + c(-0.5108, -2.1972 , Inf, Inf ))!= 0) {
 	print(list(s.0=s.0, e.0=e.0, s.h=s.h, e.h=e.h))
 	stop("Failed idegrange term test")
@@ -116,7 +116,7 @@ e.d <- ergm(samplike~gwidegree(.4, fixed=TRUE), estimate="MPLE")
 s.df <- summary(samplike~gwidegree(.3, fixed=TRUE))
 e.df <- ergm(samplike~gwidegree(.2, fixed=TRUE), estimate="MPLE")
 s.dfa <- summary(samplike~gwidegree(.1, TRUE, "group"))
-e.dfa <- ergm(samplike~gwidegree(.5, TRUE, "group"), estimate="MPLE")
+e.dfa <- ergm(samplike~gwidegree(.5, TRUE, function(x) x %v% "group"), estimate="MPLE")
 if (!all(head(s.d)==c(0,3,5,1,3,2)) ||
     round(e.d$coef + 5.783202, 3) != 0 ||
     round(s.df - 23.89614, 3) != 0 ||
@@ -137,7 +137,7 @@ s.d <- summary(samplike~gwodegree())
 e.d <- ergm(samplike~gwodegree(.4, fixed=TRUE), estimate="MPLE")
 s.df <- summary(samplike~gwodegree(.3, fixed=TRUE))
 e.df <- ergm(samplike~gwodegree(.2, fixed=TRUE), estimate="MPLE")
-s.dfa <- summary(samplike~gwodegree(.1, TRUE, "group"))
+s.dfa <- summary(samplike~gwodegree(.1, TRUE, ~group))
 e.dfa <- ergm(samplike~gwodegree(.5, TRUE, "group"), estimate="MPLE")
 if (!all(head(s.d)==c(0,0,1,5,7,5)) ||
     round(e.d$coef + 1.990492, 3) != 0 ||
@@ -164,9 +164,9 @@ el <- cbind(nodes, nodes2)
 el[46,1] <- 3
 # if x is not specified, summaries should be 0
 s.a <- summary(samplike~hammingmix("group"))
-s.ax <- summary(samplike~hammingmix("group", x=el))
-e.ax <- ergm(samplike~hammingmix("group", x=el), estimate="MPLE")
-s.axb <- summary(samplike~hammingmix("group", el, levels2=-(2:6)))
+s.ax <- summary(samplike~hammingmix(function(x) x %v% "group", x=el))
+e.ax <- ergm(samplike~hammingmix(~group, x=el), estimate="MPLE")
+s.axb <- summary(samplike~hammingmix(function(x) x %v% "group", el, levels2=-(2:6)))
 e.axb <- ergm(samplike~hammingmix("group", el, levels2=-c(1,2,5,6,8,9)), estimate="MPLE")
 if (!all(s.a == 0) ||
     !all(s.ax==c(36, 0, 8, 4, 18, 2, 16, 12, 50)) ||
@@ -186,9 +186,9 @@ num.tests=num.tests + 1
 s.d <- summary(samplike~idegree(2:3))
 e.d <- ergm(samplike~idegree(2), estimate="MPLE")
 s.db <- summary(samplike~idegree(1:3, "group"))
-e.db <- ergm(samplike~idegree(3, "group"), estimate="MPLE")
+e.db <- ergm(samplike~idegree(3, function(x) x %v% "group"), estimate="MPLE")
 s.dbh <- summary(samplike~idegree(4:5, "group", TRUE))
-e.dbh <- ergm(samplike~idegree(2, "group", TRUE), estimate="MPLE")
+e.dbh <- ergm(samplike~idegree(2, ~group, TRUE), estimate="MPLE")
 if (!all(s.d==c(3,5)) || round(e.d$coef - 1.223775, 3) != 0 ||
     !all(s.db==c(0,2,1,0,1,2,0,0,2)) ||
     !all(round(e.db$coef-c(-0.6931472, 0.8183103, 17.4324836),3)==0) ||
@@ -232,7 +232,7 @@ if (round(s.0-214.6543,3) != 0 || round(e.0$coef + .2387, 3) != 0) {
 num.tests=num.tests + 1
 s.k <- summary(samplike~istar(1:3))
 e.k <- ergm(samplike~istar(c(2,4)), estimate="MPLE")
-s.ka <- summary(samplike~istar(2, "group"))
+s.ka <- summary(samplike~istar(2, function(x) x %v% "group"))
 e.ka <- ergm(samplike~istar(2, "group"), estimate="MPLE")
 if (!all(s.k == c(88,233,455)) ||
     round(e.k$coef - c(-.28615, .02477), 3) != 0 ||
@@ -263,14 +263,14 @@ if (s.0 != 378 || round(e.0$coef + .1028, 3) != 0) {
 num.tests=num.tests + 1
 s.0 <- summary(samplike~mutual)
 e.0 <- ergm(samplike~mutual, estimate="MPLE")
-s.s <- summary(samplike~mutual(same="group"))
+s.s <- summary(samplike~mutual(same=function(x) x %v% "group"))
 e.s <- ergm(samplike~mutual(same="group"), estimate="MPLE")
-s.b <- summary(samplike~mutual(by="Trinity"))
+s.b <- summary(samplike~mutual(by=~Trinity))
 e.b <- ergm(samplike~mutual(by="Trinity"), estimate="MPLE")
 s.sd <- summary(samplike~mutual(same="group", diff=TRUE))
-e.sd <- ergm(samplike~mutual(same="group", diff=TRUE), estimate="MPLE")
+e.sd <- ergm(samplike~mutual(same=function(x) x %v% "group", diff=TRUE), estimate="MPLE")
 s.sk <- summary(samplike~mutual(same="group", levels=2))
-e.sk <- ergm(samplike~mutual(same="group", levels=1), estimate="MPLE")
+e.sk <- ergm(samplike~mutual(same=~group, levels=1), estimate="MPLE")
 s.bk <- summary(samplike~mutual(by="Trinity", levels=2))
 e.bk <- ergm(samplike~mutual(by="Trinity", levels=2:3), estimate="MPLE")
 if (s.0 != 28 || round(e.0$coef - .5596, 3) != 0 ||
@@ -307,7 +307,7 @@ if (s.0 != 18 || round(e.0$coef + .4366483, 3) != 0) {
 #nodeicov, directed
 num.tests=num.tests + 1
 s.a <- summary(samplike~nodeicov("YearsServed"))
-e.a <- ergm(samplike~nodeicov("YearsServed"), estimate="MPLE")
+e.a <- ergm(samplike~nodeicov(function(x) x %v% "YearsServed"), estimate="MPLE")
 s.at <- summary(samplike~nodeicov(~YearsServed^2))
 e.at <- ergm(samplike~nodeicov(~(.%v%"YearsServed")^2), estimate="MPLE")
 s.att <- summary(samplike~nodeicov(~poly(YearsServed,2,raw=TRUE)))
@@ -325,8 +325,8 @@ if (s.a != 439 || round(e.a$coef + .1739, 3) != 0 ||
 #nodeifactor, directed
 num.tests=num.tests + 1
 s.a <- summary(samplike~nodeifactor("group"))
-e.a <- ergm(samplike~nodeifactor("group"), estimate="MPLE")
-s.ab <- summary(samplike~nodeifactor("Trinity", levels=TRUE))
+e.a <- ergm(samplike~nodeifactor(~group), estimate="MPLE")
+s.ab <- summary(samplike~nodeifactor(function(x) x %v% "Trinity", levels=TRUE))
 e.ab <- ergm(samplike~nodeifactor("Trinity", levels=-(2:3)), estimate="MPLE")
 if (!all(s.a==c(13,46)) ||
     !all(round(e.a$coef+c(1.4424, .4618),3)==0) ||
@@ -344,7 +344,7 @@ if (!all(s.a==c(13,46)) ||
 #nodeocov, directed
 num.tests=num.tests + 1
 s.a <- summary(samplike~nodeocov("YearsServed"))
-e.a <- ergm(samplike~nodeocov("YearsServed"), estimate="MPLE")
+e.a <- ergm(samplike~nodeocov(function(x) x %v% "YearsServed"), estimate="MPLE")
 s.at <- summary(samplike~nodeocov(~YearsServed^2))
 e.at <- ergm(samplike~nodeocov(~(.%v%"YearsServed")^2), estimate="MPLE")
 s.att <- summary(samplike~nodeocov(~poly(YearsServed,2,raw=TRUE)))
@@ -362,9 +362,9 @@ if (s.a != 467 || round(e.a$coef + .1581, 3) != 0 ||
 #nodeofactor, directed
 num.tests=num.tests + 1
 s.a <- summary(samplike~nodeofactor("group"))
-e.a <- ergm(samplike~nodeofactor("group"), estimate="MPLE")
+e.a <- ergm(samplike~nodeofactor(~group), estimate="MPLE")
 s.ab <- summary(samplike~nodeofactor("Trinity", levels=TRUE))
-e.ab <- ergm(samplike~nodeofactor("Trinity", levels=-(2:3)), estimate="MPLE")
+e.ab <- ergm(samplike~nodeofactor(function(x) x %v% "Trinity", levels=-(2:3)), estimate="MPLE")
 if (!all(s.a==c(18,36)) ||
     !all(round(e.a$coef+c(1.0217, .8353),3)==0) ||
     !all(s.ab==c(31,30,27)) ||
@@ -381,9 +381,9 @@ if (!all(s.a==c(18,36)) ||
 num.tests=num.tests + 1
 s.d <- summary(samplike~odegree(2:3))
 e.d <- ergm(samplike~odegree(3), estimate="MPLE")
-s.db <- summary(samplike~odegree(1:3, "group"))
+s.db <- summary(samplike~odegree(1:3, function(x) x %v% "group"))
 e.db <- ergm(samplike~odegree(4, "group"), estimate="MPLE")
-s.dbh <- summary(samplike~odegree(4:5, "group", TRUE))
+s.dbh <- summary(samplike~odegree(4:5, ~group, TRUE))
 e.dbh <- ergm(samplike~odegree(2, "group", TRUE), estimate="MPLE")
 if (!all(s.d==c(0,1)) || round(e.d$coef + .1625189, 3) != 0 ||
     !all(s.db==c(0,0,0,0,0,1,0,0,0)) ||
@@ -404,7 +404,7 @@ num.tests=num.tests + 1
 s.k <- summary(samplike~ostar(1:3))
 e.k <- ergm(samplike~ostar(c(2,4)), estimate="MPLE")
 s.ka <- summary(samplike~ostar(2, "group"))
-e.ka <- ergm(samplike~ostar(2, "group"), estimate="MPLE")
+e.ka <- ergm(samplike~ostar(2, function(x) x %v% "group"), estimate="MPLE")
 if (!all(s.k == c(88,178, 191)) ||
     round(e.k$coef - c(.1224, -.1986), 3) != 0 ||
     s.ka != 88 || round(e.ka$coef - .1466, 3) != 0) {
@@ -435,7 +435,7 @@ if (round(s.0-196.9432,3) != 0 || round(e.0$coef + 0.2909, 3) != 0) {
 num.tests=num.tests + 1
 s.0 <- summary(samplike~odegrange(5:8))
 e.0 <- ergm(samplike~odegrange(5:8), estimate="MPLE")
-s.h <- summary(samplike~odegrange(5:8, by="group", homophily=TRUE))
+s.h <- summary(samplike~odegrange(5:8, by=function(x) x %v% "group", homophily=TRUE))
 e.h <- ergm(samplike~odegrange(5:8, by="group", homophily=TRUE), estimate="MPLE")
 if (!all(s.0==c(12, 5, 0, 0)) || round(e.0$coef + c(0.619, -1.030, Inf, Inf))!= 0 ||!all(s.h==c(3, 0, 0, 0)) || round(e.h$coef + c(-0.2231, Inf , Inf, Inf ))!= 0) {
 	print(list(s.0=s.0, e.0=e.0, s.h=s.h, e.h=e.h))
@@ -550,9 +550,9 @@ num.tests=num.tests + 1
 s.0 <- summary(samplike~ttriple)
 e.0 <- ergm(samplike~ttriad, estimate="MPLE")
 s.a <- summary(samplike~ttriple("group"))
-e.a <- ergm(samplike~ttriple("group"), estimate="MPLE")
+e.a <- ergm(samplike~ttriple(~group), estimate="MPLE")
 s.ad <- summary(samplike~ttriad("group", diff=TRUE))
-e.ad <- ergm(samplike~ttriple("group", diff=TRUE), estimate="MPLE")
+e.ad <- ergm(samplike~ttriple(function(x) x %v% "group", diff=TRUE), estimate="MPLE")
 if (s.0 != 154 || round(e.0$coef + .07745, 3) != 0 ||
     s.a != 121 || round(e.a$coef - .09518, 3) != 0 ||
     !all(s.ad==c(26,14,81)) ||

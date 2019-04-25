@@ -93,91 +93,91 @@ InitErgmConstraint..attributes <- function(lhs.nw, ...){
 
 InitErgmConstraint.edges<-function(lhs.nw, ...){
    if(length(list(...)))
-     stop(paste("Edge count constraint does not take arguments at this time."), call.=FALSE)
+     ergm_Init_abort(paste("Edge count constraint does not take arguments at this time."))
    list(dependence = TRUE, implies = "edges")
 }
 
 InitErgmConstraint.degrees<-InitErgmConstraint.nodedegrees<-function(lhs.nw, ...){
    if(length(list(...)))
-     stop(paste("Vertex degrees constraint does not take arguments at this time."), call.=FALSE)
+     ergm_Init_abort(paste("Vertex degrees constraint does not take arguments at this time."))
    list(dependence = TRUE, constrain = "degrees", implies = c("degrees", "edges", "idegrees", "odegrees", "idegreedist", "odegreedist", "degreedist", "bd"))
 }
 
 InitErgmConstraint.odegrees<-function(lhs.nw, ...){
    if(length(list(...)))
-     stop(paste("Vertex odegrees constraint does not take arguments at this time."), call.=FALSE)
-   if(!is.directed(lhs.nw)) stop("Vertex odegrees constraint is only meaningful for directed networks.", call.=FALSE)
+     ergm_Init_abort(paste("Vertex odegrees constraint does not take arguments at this time."))
+   if(!is.directed(lhs.nw)) ergm_Init_abort("Vertex odegrees constraint is only meaningful for directed networks.")
    list(dependence = TRUE, implies = c("odegrees", "edges", "odegreedist"))
 }
 
 InitErgmConstraint.idegrees<-function(lhs.nw, ...){
    if(length(list(...)))
-     stop(paste("Vertex idegrees constraint does not take arguments at this time."), call.=FALSE)
-   if(!is.directed(lhs.nw)) stop("Vertex idegrees constraint is only meaningful for directed networks.", call.=FALSE)
+     ergm_Init_abort(paste("Vertex idegrees constraint does not take arguments at this time."))
+   if(!is.directed(lhs.nw)) ergm_Init_abort("Vertex idegrees constraint is only meaningful for directed networks.")
    list(dependence = TRUE, implies = c("idegrees", "edges", "idegreedist"))
 }
 
 InitErgmConstraint.b1degrees<-function(lhs.nw, ...){
    if(length(list(...)))
-     stop(paste("B1 vertex degrees constraint does not take arguments at this time."), call.=FALSE)
-   if(!is.bipartite(lhs.nw)) stop("B1 vertex degrees constraint is only meaningful for bipartite networks.", call.=FALSE)
+     ergm_Init_abort(paste("B1 vertex degrees constraint does not take arguments at this time."))
+   if(!is.bipartite(lhs.nw)) ergm_Init_abort("B1 vertex degrees constraint is only meaningful for bipartite networks.")
    list(dependence = TRUE, implies = c("b1degrees", "edges"))
 }
 
 InitErgmConstraint.b2degrees<-function(lhs.nw, ...){
    if(length(list(...)))
-     stop(paste("B2 vertex degrees constraint does not take arguments at this time."), call.=FALSE)
-   if(!is.bipartite(lhs.nw)) stop("B2 vertex degrees constraint is only meaningful for bipartite networks.", call.=FALSE)
+     ergm_Init_abort(paste("B2 vertex degrees constraint does not take arguments at this time."))
+   if(!is.bipartite(lhs.nw)) ergm_Init_abort("B2 vertex degrees constraint is only meaningful for bipartite networks.")
    list(dependence = TRUE, implies = c("b2degrees", "edges"))
 }
 
 InitErgmConstraint.degreedist<-function(lhs.nw, ...){
    if(length(list(...)))
-     stop(paste("Degree distribution constraint does not take arguments at this time."), call.=FALSE)
+     ergm_Init_abort(paste("Degree distribution constraint does not take arguments at this time."))
    list(dependence = TRUE, implies = c("degreedist", "edges", "idegreedist", "odegreedist"))
 }
 
 InitErgmConstraint.idegreedist<-function(lhs.nw, ...){
    if(length(list(...)))
-     stop(paste("InDegree distribution constraint does not take arguments at this time."), call.=FALSE)
+     ergm_Init_abort(paste("InDegree distribution constraint does not take arguments at this time."))
    list(dependence = TRUE, implies = c("idegreedist", "edges"))
 }
 
 InitErgmConstraint.odegreedist<-function(lhs.nw, ...){
    if(length(list(...)))
-     stop(paste("OutDegree distribution constraint does not take arguments at this time."), call.=FALSE)
+     ergm_Init_abort(paste("OutDegree distribution constraint does not take arguments at this time."))
    list(dependence = TRUE, implies = c("odegreedist", "edges"))
 }
 
 InitErgmConstraint.bd<-function(lhs.nw, attribs=NULL, maxout=NA, maxin=NA, minout=NA, minin=NA, ...){
    if(nargs()>6)
-     stop(paste("Bounded degrees constraint takes at most 5 arguments; ",nargs()-1," given.",sep=""), call.=FALSE)
-   if(length(list(...))) stop(paste0("Unrecognised argument(s) ", paste.and(names(list(...)), oq="'", cq="'"),"."),call.=FALSE) 
+     ergm_Init_abort(paste("Bounded degrees constraint takes at most 5 arguments; ",nargs()-1," given.",sep=""))
+   if(length(list(...))) ergm_Init_abort(paste0("Unrecognised argument(s) ", paste.and(names(list(...)), oq="'", cq="'"),".")) 
    list(attribs=attribs,maxout=maxout,maxin=maxin,minout=minout,minin=minin)
 }
 
 InitErgmConstraint.hamming<-function(lhs.nw, ...){
    if(length(list(...)))
-     stop(paste("Hamming distance constraint does not take arguments at this time."), call.=FALSE)
+     ergm_Init_abort(paste("Hamming distance constraint does not take arguments at this time."))
    list(dependence = TRUE)
 }
 
 InitErgmConstraint.observed <- function(lhs.nw, ...){
   if(length(list(...)))
-    stop(paste("Toggle non-observed constraint does not take arguments at this time."), call.=FALSE)
+    ergm_Init_abort(paste("Toggle non-observed constraint does not take arguments at this time."))
   list(free_dyads = as.rlebdm(as.edgelist(is.na(lhs.nw))),
        dependence = FALSE, implies = c("observed"))
 }
 
 InitErgmConstraint.fixedas<-function(lhs.nw, present=NULL, absent=NULL,...){
   if(is.null(present) & is.null(absent))
-    stop(paste("fixedas constraint takes at least one argument, either present or absent or both."), call.=FALSE)
+    ergm_Init_abort(paste("fixedas constraint takes at least one argument, either present or absent or both."))
   if(!is.null(present)){
     if(is.network(present)){
       present <- as.edgelist(present)
     }
     if(!is.matrix(present)){
-      stop("Argument 'present' in fixedas constraint should be either a network or edgelist")
+      ergm_Init_abort("Argument 'present' in fixedas constraint should be either a network or edgelist")
     }
   }
   if(!is.null(absent)){
@@ -185,7 +185,7 @@ InitErgmConstraint.fixedas<-function(lhs.nw, present=NULL, absent=NULL,...){
       absent <- as.edgelist(absent)
     }
     if(!is.matrix(absent)){
-      stop("Argument 'absent' in fixedas constraint should be either a network or edgelist")
+      ergm_Init_abort("Argument 'absent' in fixedas constraint should be either a network or edgelist")
     }
   }
   list(
@@ -197,7 +197,7 @@ InitErgmConstraint.fixedas<-function(lhs.nw, present=NULL, absent=NULL,...){
                            bipartite=lhs.nw%n%"bipartite",
                            loops=lhs.nw%n%"loops")
       if(any(duplicated(fixed))){
-        stop("Dyads cannot be fixed at both present and absent")
+        ergm_Init_abort("Dyads cannot be fixed at both present and absent")
       }
 
       !as.rlebdm(fixed)
@@ -208,7 +208,7 @@ InitErgmConstraint.fixedas<-function(lhs.nw, present=NULL, absent=NULL,...){
 
 InitErgmConstraint.fixallbut<-function(lhs.nw, free.dyads=NULL,...){
   if(is.null(free.dyads))
-    stop(paste("fixallbut constraint takes one required argument free.dyads and one optional argument fixed.state"), call.=FALSE)
+    ergm_Init_abort(paste("fixallbut constraint takes one required argument free.dyads and one optional argument fixed.state"))
   
   
   if(is.network(free.dyads)){
@@ -216,7 +216,7 @@ InitErgmConstraint.fixallbut<-function(lhs.nw, free.dyads=NULL,...){
   }
   
   if(!is.matrix(free.dyads)){
-    stop("Argument 'free.dyads' in fixallbut constraint should be either a network or edgelist")
+    ergm_Init_abort("Argument 'free.dyads' in fixallbut constraint should be either a network or edgelist")
   }
   
 #	
