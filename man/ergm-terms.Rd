@@ -410,31 +410,34 @@ network
     The first mode of a bipartite network object is sometimes known as the "actor" mode.
     This term can only be used with undirected bipartite networks.}
     
-    \item{\code{b1nodematch(attrname, diff=FALSE, keep=NULL, by=NULL, alpha=1, beta=1, 
+    \item{\code{b1nodematch(attr, diff=FALSE, levels=NULL, alpha=1, beta=1, 
     byb2attr=NULL)}  (binary)  (bipartite)  (undirected) (dyad-independent) (categorical nodal attribute) (frequently-used)
     }{\emph{Nodal attribute-based homophily effect for
     the first mode in a bipartite (aka two-mode) network:}  This term is introduced
     in Bomiriya et al (2014).
-    The \code{attrname} argument is a character string giving the name of a
-    categorical attribute in the network's vertex attribute list. Out of the two arguments
+    The \code{attr} argument specifies a categorical vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). Out of the two arguments
     (discount parameters) \code{alpha} and \code{beta}, both which takes values from [0,1], 
     only one should be set at a time. If none is set to a value other than 1, this term will 
     simply be a homophily based two-star statistic. This term adds one statistic to the model 
     unless \code{diff} is set to \code{TRUE}, in which case the term adds multiple network 
-    statistics to the model, one for each of (a subset of) the unique values of the \code{attrname} 
-    attribute. To include only the attribute values you wish, use the \code{keep} argument. 
+    statistics to the model, one for each of (a subset of) the unique values of the \code{attr} 
+    attribute. To include only the attribute values you wish, use the \code{levels} argument. 
     If an \code{alpha} discount parameter is used, each of these statistics gives the sum of 
     the number of common second-mode nodes raised to the power \code{alpha} for each pair of 
     first-mode nodes with that attribute. If a \code{beta} discount parameter is used, each 
     of these statistics gives half the sum of the number of two-paths with two first-mode nodes 
     with that attribute as the two ends of the two path raised to the power \code{beta} for each 
-    edge in the network. The \code{byb2attr} argument is a character string giving the name of a
-   	second mode categorical attribute in the network's attribute list. Setting this argument
+    edge in the network. The \code{byb2attr} argument specifies a
+   	second mode categorical attribute. Setting this argument
    	will separate the orginal statistics based on the values of the set second mode attribute---
    	i.e. for example, if \code{diff} is \code{FALSE}, then the sum of all the statistics for 
    	each level of this second-mode attribute will be equal to the original \code{b1nodematch}
    	statistic where \code{byb2attr} set to \code{NULL}. This term can only be used with 
-   	undirected bipartite networks.}
+   	undirected bipartite networks.
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
+	this term. See the above section on versioning for invoking the old behavior.}
     
     \item{\code{b1star(k, attr=NULL, levels=NULL)}  (binary) (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{k-Stars for the first mode in a
@@ -603,31 +606,34 @@ network
     The second mode of a bipartite network object is sometimes known as the "event" mode.
     This term can only be used with undirected bipartite networks.}
     
-    \item{\code{b2nodematch(attrname, diff=FALSE, keep=NULL, by=NULL, alpha=1, beta=1, 
+    \item{\code{b2nodematch(attr, diff=FALSE, levels=NULL, alpha=1, beta=1, 
     byb1attr=NULL)}  (binary)  (bipartite)  (undirected) (dyad-independent) (categorical nodal attribute) (frequently-used)
     }{\emph{Nodal attribute-based homophily effect for
     the second mode in a bipartite (aka two-mode) network:} This term is introduced
     in Bomiriya et al (2014).
-    The \code{attrname} argument is a character string giving the name of a
-    categorical attribute in the network's vertex attribute list. Out of the two arguments
+    The \code{attr} argument specifies a categorical vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details).  Out of the two arguments
     (discount parameters) \code{alpha} and \code{beta}, both which takes values from [0,1], 
     only one should be set at a time. If none is set to a value other than 1, this term will 
     simply be a homophily based two-star statistic. This term adds one statistic to the model 
     unless \code{diff} is set to \code{TRUE}, in which case the term adds multiple network 
-    statistics to the model, one for each of (a subset of) the unique values of the \code{attrname} 
-    attribute. To include only the attribute values you wish, use the \code{keep} argument. 
+    statistics to the model, one for each of (a subset of) the unique values of the \code{attr} 
+    attribute. To include only the attribute values you wish, use the \code{levels} argument. 
     If an \code{alpha} discount parameter is used, each of these statistics gives the sum of 
     the number of common first-mode nodes raised to the power \code{alpha} for each pair of 
     second-mode nodes with that attribute. If a \code{beta} discount parameter is used, each 
     of these statistics gives half the sum of the number of two-paths with two second-mode nodes 
     with that attribute as the two ends of the two path raised to the power \code{beta} for each 
-    edge in the network. The \code{byb1attr} argument is a character string giving the name of a
-   	first mode categorical attribute in the network's attribute list. Setting this argument
+    edge in the network. The \code{byb1attr} argument specifies a
+   	first mode categorical attribute. Setting this argument
    	will separate the orginal statistics based on the values of the set first mode attribute---
    	i.e. for example, if \code{diff} is \code{FALSE}, then the sum of all the statistics for 
    	each level of this first-mode attribute will be equal to the original \code{b2nodematch}
    	statistic where \code{byb1attr} set to \code{NULL}. This term can only be used with 
-   	undirected bipartite networks.}
+   	undirected bipartite networks.
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
+	this term. See the above section on versioning for invoking the old behavior.}
 
     \item{\code{b2star(k, attr=NULL, levels=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{k-Stars for the second mode in a
@@ -670,16 +676,20 @@ network
     network, the balanced triads are those with an even number of ties (i.e., 0
     and 2).}
     
-    \item{\code{coincidence(d=NULL,active=0)}  (binary)  (bipartite)  (undirected) 
+    \item{\code{coincidence(levels=NULL,active=0)}  (binary)  (bipartite)  (undirected) 
     }{\emph{Coincident node count for the
     second mode in a bipartite (aka two-mode) network:} By default this term adds one
     network statistic to the model for each pair of nodes of mode two. It is
 equal to the number of (first mode) mutual partners of that pair.
     The first mode of a bipartite
     network object is sometimes known as the "actor" mode and the seconds as the "event" mode. So this is the number of actors going to both events in the pair. The optional argument
-    \code{d} is a two-column matrix of (row-wise) pairs indices where the first row is less than the second row. The second optional argument, \code{active}, selects pairs for which the observed count is at least \code{active}.
-    This term can only be
-    used with undirected bipartite networks. }
+    \code{levels} specifies which pairs of nodes in mode two to include (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details). The second optional argument, \code{active}, selects pairs for which the observed count is at least \code{active}.  If both \code{levels} and \code{active} are
+	specified, then \code{active} is ignored.  (Thus, indices passed as \code{levels} should correspond to indices when \code{levels} = NULL and \code{active} = 0.) This term can only be
+    used with undirected bipartite networks.
+	
+	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
+	this term. See the above section on versioning for invoking the old behavior.}
     
     \item{\code{concurrent(by=NULL, levels=NULL)}  (binary) (undirected) (categorical nodal attribute)
     }{\emph{Concurrent node count:} 
@@ -695,8 +705,8 @@ equal to the number of (first mode) mutual partners of that pair.
     }{\emph{Concurrent tie count:} 
     This term adds one network statistic to the model, equal to the number of
     ties incident on each actor beyond the first. The optional argument
-    \code{by} is a character string giving the name of an attribute in the
-    network's vertex attribute list;
+    \code{by} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels} for details);
     it functions just like the \code{by} argument of the \code{degree} term.
     This term can only be used with undirected
     networks. }
@@ -729,11 +739,11 @@ equal to the number of (first mode) mutual partners of that pair.
     equivalent to \code{triangle}, and there is no undirected cycle term of
     length 2.}
 
-  \item{\code{cyclicalties(attrname=NULL, levels=NULL)}   (binary)  (directed), \code{cyclicalties(threshold=0)}   (valued)  (directed)  (undirected)}{\emph{Cyclical ties:} 
+  \item{\code{cyclicalties(attr=NULL, levels=NULL)}   (binary)  (directed), \code{cyclicalties(threshold=0)}   (valued)  (directed)  (undirected)}{\emph{Cyclical ties:} 
     This term adds one statistic, equal to the number of ties 
     \eqn{i\rightarrow j}{i-->j} such that there exists a two-path from
     \eqn{j} to \eqn{i}.  (Related to the \code{ttriple} term.)
-    The binary version takes a nodal attribute \code{attrname}, and, if
+    The binary version takes a nodal attribute \code{attr}, and, if
     given, all three nodes
     involved (\eqn{i}, \eqn{j}, and the node on the two-path) must match
     on this attribute in order for \eqn{i\rightarrow j}{i-->j} to be counted.
@@ -1795,12 +1805,12 @@ of the degrees of all pairs of nodes in the network which are tied.
     Note the distinction from the \code{ttriple} term. This term can only be
     used with directed networks.}
     
-    \item{\code{transitiveties(attrname=NULL, levels=NULL)}   (binary)  (directed) (triad-related) (categorical nodal attribute)
+    \item{\code{transitiveties(attr=NULL, levels=NULL)}   (binary)  (directed) (triad-related) (categorical nodal attribute)
     , \code{transitiveties(threshold=0)}   (valued)  (directed)  (undirected) (triad-related)}{\emph{Transitive ties:} 
     This term adds one statistic, equal to the number of ties 
     \eqn{i\rightarrow j}{i-->j} such that there exists a two-path from
     \eqn{i} to \eqn{j}.  (Related to the \code{ttriple} term.)
-    The binary version takes a nodal attribute \code{attrname}, and, if
+    The binary version takes a nodal attribute \code{attr}, and, if
     given, all three nodes
     involved (\eqn{i}, \eqn{j}, and the node on the two-path) must match
     on this attribute in order for \eqn{i\rightarrow j}{i-->j} to be counted.

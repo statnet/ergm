@@ -36,7 +36,7 @@
 ## TODO: Document functions and export them, for use by tergm.
 .consensus.order <- function(x1, x2){
   o <- intersect(x1, x2)
-  if(!all(x1[x1 %in% o] == x2[x2 %in% o])) stop("Current implementation of block-diagonal sampling requires the common blocks of egos and blocks of alters to have the same order. See help('ergm-constraionts') for more information.")
+  if(!all(x1[x1 %in% o] == x2[x2 %in% o])) ergm_Init_abort("Current implementation of block-diagonal sampling requires the common blocks of egos and blocks of alters to have the same order. See help('ergm-constraionts') for more information.")
   o1 <- c(0, which(x1 %in% o),length(x1)+1)
   o2 <- c(0, which(x2 %in% o),length(x2)+1)
   n <- length(o1) - 1
@@ -74,7 +74,7 @@
   
   ## rle() returns contigous runs of values.
   # If we have more runs than unique values, the blocks must not be all contiguous.
-  if(length(rle(ea)$lengths)!=length(unique(rle(ea)$values)) || length(rle(aa)$lengths)!=length(unique(rle(aa)$values))) stop("Current implementation of block-diagonal sampling requires that the blocks of the egos and the alters be contiguous. See help('ergm-constraionts') for more information.")
+  if(length(rle(ea)$lengths)!=length(unique(rle(ea)$values)) || length(rle(aa)$lengths)!=length(unique(rle(aa)$values))) ergm_Init_abort("Current implementation of block-diagonal sampling requires that the blocks of the egos and the alters be contiguous. See help('ergm-constraionts') for more information.")
 
   tmp <- .double.rle(ea, aa)
 
@@ -93,7 +93,7 @@ InitErgmProposal.blockdiag <- function(arguments, nw){
   # rle() returns contigous runs of values.
   a <- rle(nw %v% arguments$constraints$blockdiag$attrname)
   # If we have more runs than unique values, the blocks must not be all contiguous.
-  if(length(a$lengths)!=length(unique(a$values))) stop("Current implementation of block-diagonal sampling requires that the blocks be contiguous.")
+  if(length(a$lengths)!=length(unique(a$values))) ergm_Init_abort("Current implementation of block-diagonal sampling requires that the blocks be contiguous.")
   b <- cumsum(c(0,a$lengths)) # upper bounds of blocks
   w <- cumsum(a$lengths*(a$lengths-1)) # cumulative block weights ~ # dyads in the block
   w <- w/max(w)
@@ -116,13 +116,13 @@ InitErgmProposal.blockdiagTNT <- function(arguments, nw){
   el <- as.edgelist(nw)
   a <- nw %v% arguments$constraints$blockdiag$attrname
   
-  if(any(a[el[,1]]!=a[el[,2]])) stop("Block-diagonal TNT sampler implementation does not support sampling networks with off-block-diagonal ties at this time.")
+  if(any(a[el[,1]]!=a[el[,2]])) ergm_Init_abort("Block-diagonal TNT sampler implementation does not support sampling networks with off-block-diagonal ties at this time.")
 
   
   # rle() returns contigous runs of values.
   a <- rle(a)
   # If we have more runs than unique values, the blocks must not be all contiguous.
-  if(length(a$lengths)!=length(unique(a$values))) stop("Current implementation of block-diagonal sampling requires that the blocks be contiguous.")
+  if(length(a$lengths)!=length(unique(a$values))) ergm_Init_abort("Current implementation of block-diagonal sampling requires that the blocks be contiguous.")
 
   nd <- sum(a$lengths*(a$lengths-1)/(if(is.directed(nw)) 1 else 2))
   b <- cumsum(c(0,a$lengths)) # upper bounds of blocks

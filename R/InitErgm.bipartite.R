@@ -19,30 +19,36 @@
 
 
 #########################################################
-InitErgmTerm.b1nodematch	<-	function (nw, arglist, ...) {
-  ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm(nw, arglist, directed = FALSE, bipartite = TRUE,
-              varnames 		= c("attrname", "diff", "keep", "beta", "alpha", "byb2attr"), 				
-              vartypes 		= c("character", "logical", "numeric", "numeric", "numeric", "character"), 	 
-              defaultvalues = list(NULL, FALSE, NULL, 1, 1, NULL), 										 
-              required 		= c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE)) 								
+InitErgmTerm.b1nodematch	<-	function (nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed = FALSE, bipartite = TRUE,
+                varnames 		= c("attrname", "diff", "keep", "beta", "alpha", "byb2attr"), 				
+                vartypes 		= c("character", "logical", "numeric", "numeric", "numeric", "character"), 	 
+                defaultvalues = list(NULL, FALSE, NULL, 1, 1, NULL), 										 
+                required 		= c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE))
+	attrarg <- a$attrname
+	levels <- a$keep
+  }else{
+    a <- check.ErgmTerm(nw, arglist, directed = FALSE, bipartite = TRUE,
+                varnames 		= c("attr", "diff", "levels", "beta", "alpha", "byb2attr"), 				
+                vartypes 		= c(ERGM_VATTR_SPEC, "logical", ERGM_LEVELS_SPEC, "numeric", "numeric", ERGM_VATTR_SPEC), 	 
+                defaultvalues = list(NULL, FALSE, NULL, 1, 1, NULL), 										 
+                required 		= c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE)) 								
+    attrarg <- a$attr
+    levels <- a$levels
+  }
   ### Process the arguments
   if (!is.numeric(a$beta) || a$beta>1 || a$beta<0)
-    stop("beta argument to b1nodematch must be between 0 and 1 inclusive.")
+    ergm_Init_abort("beta argument to b1nodematch must be between 0 and 1 inclusive.")
   if (!is.numeric(a$alpha) || a$alpha>1 || a$alpha<0)
-    stop("alpha argument to b1nodematch must be between 0 and 1 inclusive.")
+    ergm_Init_abort("alpha argument to b1nodematch must be between 0 and 1 inclusive.")
   
-  nodecov <-
-    if(length(a$attrname) == 1)
-      get.node.attr(nw, a$attrname)				
-    else{
-      do.call(paste, c(sapply(a$attrname, function(oneattr) get.node.attr(nw,oneattr), simplify = FALSE), sep = "."))			}
+  nodecov <- ergm_get_vattr(attrarg, nw)
+  attrname <- attr(nodecov, "name")
   
   b1.len	<-	get.network.attribute(nw, "bipartite")# gives # of b1 nodes
-  u 		<- sort(unique(nodecov[1:b1.len]))		  # gives unique attrnames of b1
-  if (!is.null(a$keep)) {
-    u 		<- u[a$keep]
-  }
+  u 		<-  ergm_attr_levels(levels, nodecov[1:b1.len], nw, sort(unique(nodecov[1:b1.len])))		  # gives unique attrnames of b1
   
   #   Recode to numeric
   nodecov   <- match(nodecov, u, nomatch = length(u)+1)
@@ -53,13 +59,8 @@ InitErgmTerm.b1nodematch	<-	function (nw, arglist, ...) {
   
   
    if (!is.null(a$byb2attr)) {										  			
-  	b2nodecov 	<-										# get byb2attr vals
-    	if(length(a$byb2attr) == 1)										  		
-      		get.node.attr(nw, a$byb2attr)												    
-    	else{															  		
-      		do.call(paste, c(sapply(a$byb2attr, function(oneattr) get.node.attr(nw,oneattr), simplify = FALSE), sep = "."))
-  		}
-  	v 	 		<- sort(unique(b2nodecov[-(1:b1.len)]))	# unique byb2attrnames of b2 
+  	b2nodecov 	<-	ergm_get_vattr(a$byb2attr, nw)
+  	v 	 		<-  sort(unique(b2nodecov[-(1:b1.len)]))	# unique byb2attrnames of b2 
   	b2attrsize	<-	length(v)	# to get the levels of the byb2attr				
   																		    	
   	#   Recode to numeric														
@@ -68,7 +69,7 @@ InitErgmTerm.b1nodematch	<-	function (nw, arglist, ...) {
   	b2dontmatch 				<- b2nodecov == (length(v)+1)					
   	b2nodecov[b2dontmatch] 		<- length(v) + (1:sum(b2dontmatch))				
   	vi							<- seq(along = v)         						
-  	if (length(vi) < 2) {stop("byb2attr should have at least two levels")}		
+  	if (length(vi) < 2) {ergm_Init_abort("byb2attr should have at least two levels")}		
   	
   }	else {b2attrsize <- 0}	# to indicate that an b2attr does not exist	
   
@@ -76,20 +77,20 @@ InitErgmTerm.b1nodematch	<-	function (nw, arglist, ...) {
   ### Construct the list to return
   if (a$diff) {
   	if(!is.null(a$byb2attr)) {																	
-    	coef.names 		<- unlist(lapply(paste("b1nodematch", paste(a$attrname, collapse="."), u, sep = "."), function(x){paste(x, v, sep = ".")}))																										   	
+    	coef.names 		<- unlist(lapply(paste("b1nodematch", paste(attrname, collapse="."), u, sep = "."), function(x){paste(x, v, sep = ".")}))																										   	
     	inputs 			<- c(b2attrsize, a$beta, a$alpha, ui, nodecov, vi, b2nodecov)    	
     }else{																						
-    	coef.names 		<- paste("b1nodematch", paste(a$attrname,collapse="."), u, sep=".")		
+    	coef.names 		<- paste("b1nodematch", paste(attrname,collapse="."), u, sep=".")		
     	inputs 			<- c(b2attrsize, a$beta, a$alpha, ui, nodecov)				
     }																							
    	 	
   } else {
   	
   	if(!is.null(a$byb2attr)) {																	
-    	coef.names 		<- paste("b1nodematch", paste(a$attrname,collapse="."), v, sep=".")		
+    	coef.names 		<- paste("b1nodematch", paste(attrname,collapse="."), v, sep=".")		
     	inputs 			<- c(b2attrsize, a$beta, a$alpha, nodecov, vi, b2nodecov)
     }else{																						
-    	coef.names 		<- paste("b1nodematch", paste(a$attrname,collapse="."), sep=".")		
+    	coef.names 		<- paste("b1nodematch", paste(attrname,collapse="."), sep=".")		
    		inputs 			<- c(b2attrsize, a$beta, a$alpha, nodecov)												
     }																							
  																					
@@ -103,31 +104,37 @@ InitErgmTerm.b1nodematch	<-	function (nw, arglist, ...) {
 
 
 ##########################################################
-InitErgmTerm.b2nodematch	<-	function (nw, arglist, ...) {
-  ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-          		varnames = c("attrname", "diff", "keep", "beta", "alpha", "byb1attr"),# RPB - 10/03/2012 - added the new arg "byb1attr"
-                vartypes = c("character", "logical", "numeric", "numeric", "numeric", "character"),
-                defaultvalues 	= list(NULL, FALSE, NULL, 1, 1, NULL),
-                required		= c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE))
+InitErgmTerm.b2nodematch	<-	function (nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                  varnames = c("attrname", "diff", "keep", "beta", "alpha", "byb1attr"),# RPB - 10/03/2012 - added the new arg "byb1attr"
+                  vartypes = c("character", "logical", "numeric", "numeric", "numeric", "character"),
+                  defaultvalues 	= list(NULL, FALSE, NULL, 1, 1, NULL),
+                  required		= c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE))
+	attrarg <- a$attrname
+	levels <- a$keep				  
+  }else{
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                  varnames = c("attr", "diff", "levels", "beta", "alpha", "byb1attr"),# RPB - 10/03/2012 - added the new arg "byb1attr"
+                  vartypes = c(ERGM_VATTR_SPEC, "logical", ERGM_LEVELS_SPEC, "numeric", "numeric", ERGM_VATTR_SPEC),
+                  defaultvalues 	= list(NULL, FALSE, NULL, 1, 1, NULL),
+                  required		= c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE))
+    attrarg <- a$attr
+    levels <- a$levels  
+  }
    ### Process the arguments
   if (!is.numeric(a$beta) || a$beta>1 || a$beta<0)
-    stop("beta argument to b2nodematch must be between 0 and 1 inclusive.")
+    ergm_Init_abort("beta argument to b2nodematch must be between 0 and 1 inclusive.")
   if (!is.numeric(a$alpha) || a$alpha>1 || a$alpha<0)
-    stop("alpha argument to b2nodematch must be between 0 and 1 inclusive.")
+    ergm_Init_abort("alpha argument to b2nodematch must be between 0 and 1 inclusive.")
   
-  nodecov <-
-    if(length(a$attrname) == 1)
-      get.node.attr(nw, a$attrname)			
-    else{
-      do.call(paste,c(sapply(a$attrname, function(oneattr) get.node.attr(nw,oneattr), simplify = FALSE), sep="."))													
-    }
- 
+  nodecov <- ergm_get_vattr(attrarg, nw)
+  attrname <- attr(nodecov, "name")
+  
   b1.len 	<-	get.network.attribute(nw, "bipartite")# gives # of b1 nodes
-  u 	 	<- sort(unique(nodecov[-(1:b1.len)]))	  # gives unique attrnames of b2's
-  if (!is.null(a$keep)) {
-    u 		<- u[a$keep]
-  }
+  u 	 	<-  ergm_attr_levels(levels, nodecov[-(1:b1.len)], nw, sort(unique(nodecov[-(1:b1.len)])))	  # gives unique attrnames of b2's
    																  # gives unique byb1attrnames of b1's
   #   Recode to numeric
   nodecov 				<- match(nodecov, u, nomatch = length(u)+1)
@@ -138,13 +145,9 @@ InitErgmTerm.b2nodematch	<-	function (nw, arglist, ...) {
   
   if (!is.null(a$byb1attr)) {										# gives unique byb1attrnames of b1's
   	
-  	b1nodecov 	<-													# get byb1attr vals
-    	if(length(a$byb1attr) == 1)										  	
-      		get.node.attr(nw, a$byb1attr)											    
-    	else{															  	
-      		do.call(paste, c(sapply(a$byb1attr, function(oneattr) get.node.attr(nw,oneattr), simplify = FALSE), sep = "."))
-  		}	
-  	v 	 		<- sort(unique(b1nodecov[1:b1.len]))# gives unique byb1attrnames of b1's
+  	b1nodecov 	<-	ergm_get_vattr(a$byb1attr, nw)												# get byb1attr vals
+
+  	v 	 		<-  sort(unique(b1nodecov[1:b1.len]))# gives unique byb1attrnames of b1's
   	b1attrsize	<-	length(v)	# to get the levels of the byb1attr			
   	
   	#   Recode to numeric														
@@ -154,7 +157,7 @@ InitErgmTerm.b2nodematch	<-	function (nw, arglist, ...) {
   	b1nodecov[b1dontmatch] 		<- length(v) + (1:sum(b1dontmatch))				
   	vi							<- seq(along = v)         						
   	
-  	if (length(vi) < 2){stop("byb1attr should have at least two levels")}		
+  	if (length(vi) < 2){ergm_Init_abort("byb1attr should have at least two levels")}		
   
   } else {b1attrsize <- 0}	# to indicate that an b1attr does not exist 	
    
@@ -167,10 +170,10 @@ InitErgmTerm.b2nodematch	<-	function (nw, arglist, ...) {
   ### Construct the list to return
   if (a$diff) {
   	if(!is.null(a$byb1attr)) {																	
-    	coef.names 		<- unlist(lapply(paste("b2nodematch", paste(a$attrname, collapse="."), u, sep = "."), function(x){paste(x, v, sep = ".")}))																		
+    	coef.names 		<- unlist(lapply(paste("b2nodematch", paste(attrname, collapse="."), u, sep = "."), function(x){paste(x, v, sep = ".")}))																		
     	inputs 			<- c(b1attrsize, a$beta, a$alpha, ui, nodecov, vi, b1nodecov)
     }else{																						
-    	coef.names 		<- paste("b2nodematch", paste(a$attrname,collapse="."), u, sep=".")		
+    	coef.names 		<- paste("b2nodematch", paste(attrname,collapse="."), u, sep=".")		
     	inputs 			<- c(b1attrsize, a$beta, a$alpha, ui, nodecov)				
     }																							
    	
@@ -178,10 +181,10 @@ InitErgmTerm.b2nodematch	<-	function (nw, arglist, ...) {
   } else {
   	
   	if(!is.null(a$byb1attr)) {																	
-    	coef.names 		<- paste("b2nodematch", paste(a$attrname,collapse="."), v, sep=".")		
+    	coef.names 		<- paste("b2nodematch", paste(attrname,collapse="."), v, sep=".")		
     	inputs 			<- c(b1attrsize, a$beta, a$alpha, nodecov, vi, b1nodecov)	
     }else{																						
-    	coef.names 		<- paste("b2nodematch", paste(a$attrname,collapse="."), sep=".")		
+    	coef.names 		<- paste("b2nodematch", paste(attrname,collapse="."), sep=".")		
     	inputs 			<- c(b1attrsize, a$beta, a$alpha, nodecov)					
     }																							
     																						
