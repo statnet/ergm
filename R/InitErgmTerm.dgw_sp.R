@@ -452,7 +452,7 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   dname<-"dnsp"
   
   if(!is.directed(nw)){  
-    ergm_Init_abort("Use the gwnsp term for undirected networks.")
+    ergm_Init_inform("Use the gwnsp term for undirected networks.")
     type <- "UTP"
     basenam<-"gwdsp"
     typecode<-0
