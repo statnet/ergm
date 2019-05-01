@@ -26,17 +26,17 @@ InitErgmTerm.b1nodematch	<-	function (nw, arglist, ..., version=packageVersion("
                 varnames 		= c("attrname", "diff", "keep", "beta", "alpha", "byb2attr"), 				
                 vartypes 		= c("character", "logical", "numeric", "numeric", "numeric", "character"), 	 
                 defaultvalues = list(NULL, FALSE, NULL, 1, 1, NULL), 										 
-                required 		= c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE))
+                required 		= c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE),
+				dep.inform = list(FALSE, FALSE, "levels", FALSE, FALSE, FALSE))
 	attrarg <- a$attrname
-	levels <- a$keep
   }else{
     a <- check.ErgmTerm(nw, arglist, directed = FALSE, bipartite = TRUE,
-                varnames 		= c("attr", "diff", "levels", "beta", "alpha", "byb2attr"), 				
-                vartypes 		= c(ERGM_VATTR_SPEC, "logical", ERGM_LEVELS_SPEC, "numeric", "numeric", ERGM_VATTR_SPEC), 	 
-                defaultvalues = list(NULL, FALSE, NULL, 1, 1, NULL), 										 
-                required 		= c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE)) 								
+                varnames 		= c("attr", "diff", "keep", "beta", "alpha", "byb2attr", "levels"), 				
+                vartypes 		= c(ERGM_VATTR_SPEC, "logical", "numeric", "numeric", "numeric", ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC), 	 
+                defaultvalues = list(NULL, FALSE, NULL, 1, 1, NULL, NULL), 										 
+                required 		= c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE),
+				dep.inform = list(FALSE, FALSE, "levels", FALSE, FALSE, FALSE, FALSE)) 								
     attrarg <- a$attr
-    levels <- a$levels
   }
   ### Process the arguments
   if (!is.numeric(a$beta) || a$beta>1 || a$beta<0)
@@ -48,7 +48,8 @@ InitErgmTerm.b1nodematch	<-	function (nw, arglist, ..., version=packageVersion("
   attrname <- attr(nodecov, "name")
   
   b1.len	<-	get.network.attribute(nw, "bipartite")# gives # of b1 nodes
-  u 		<-  ergm_attr_levels(levels, nodecov[1:b1.len], nw, sort(unique(nodecov[1:b1.len])))		  # gives unique attrnames of b1
+  u 		<-  ergm_attr_levels(a$levels, nodecov[1:b1.len], nw, sort(unique(nodecov[1:b1.len])))		  # gives unique attrnames of b1
+  if(!is.null(a$keep)) u <- u[a$keep]
   
   #   Recode to numeric
   nodecov   <- match(nodecov, u, nomatch = length(u)+1)
@@ -111,18 +112,18 @@ InitErgmTerm.b2nodematch	<-	function (nw, arglist, ..., version=packageVersion("
                   varnames = c("attrname", "diff", "keep", "beta", "alpha", "byb1attr"),# RPB - 10/03/2012 - added the new arg "byb1attr"
                   vartypes = c("character", "logical", "numeric", "numeric", "numeric", "character"),
                   defaultvalues 	= list(NULL, FALSE, NULL, 1, 1, NULL),
-                  required		= c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE))
-	attrarg <- a$attrname
-	levels <- a$keep				  
+                  required		= c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE),
+				  dep.inform = list(FALSE, FALSE, "levels", FALSE, FALSE, FALSE))
+	attrarg <- a$attrname  
   }else{
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                  varnames = c("attr", "diff", "levels", "beta", "alpha", "byb1attr"),# RPB - 10/03/2012 - added the new arg "byb1attr"
-                  vartypes = c(ERGM_VATTR_SPEC, "logical", ERGM_LEVELS_SPEC, "numeric", "numeric", ERGM_VATTR_SPEC),
-                  defaultvalues 	= list(NULL, FALSE, NULL, 1, 1, NULL),
-                  required		= c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE))
+                  varnames = c("attr", "diff", "keep", "beta", "alpha", "byb1attr", "levels"),# RPB - 10/03/2012 - added the new arg "byb1attr"
+                  vartypes = c(ERGM_VATTR_SPEC, "logical", "numeric", "numeric", "numeric", ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
+                  defaultvalues 	= list(NULL, FALSE, NULL, 1, 1, NULL, NULL),
+                  required		= c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE),
+				  dep.inform = list(FALSE, FALSE, "levels", FALSE, FALSE, FALSE, FALSE))
     attrarg <- a$attr
-    levels <- a$levels  
   }
    ### Process the arguments
   if (!is.numeric(a$beta) || a$beta>1 || a$beta<0)
@@ -134,8 +135,10 @@ InitErgmTerm.b2nodematch	<-	function (nw, arglist, ..., version=packageVersion("
   attrname <- attr(nodecov, "name")
   
   b1.len 	<-	get.network.attribute(nw, "bipartite")# gives # of b1 nodes
-  u 	 	<-  ergm_attr_levels(levels, nodecov[-(1:b1.len)], nw, sort(unique(nodecov[-(1:b1.len)])))	  # gives unique attrnames of b2's
+  u 	 	<-  ergm_attr_levels(a$levels, nodecov[-(1:b1.len)], nw, sort(unique(nodecov[-(1:b1.len)])))	  # gives unique attrnames of b2's
    																  # gives unique byb1attrnames of b1's
+  if(!is.null(a$keep)) u <- u[a$keep]
+																  
   #   Recode to numeric
   nodecov 				<- match(nodecov, u, nomatch = length(u)+1)
   # All of the "nomatch" should be given unique IDs so they never match:

@@ -189,14 +189,16 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ..., version=packageVersion("er
                         varnames = c("attrname","base"),
                         vartypes = c("character","numeric"),
                         defaultvalues = list(NULL,NULL),
-                        required = c(TRUE,FALSE))
+                        required = c(TRUE,FALSE),
+						dep.inform = list(FALSE, "levels"))
 	attrarg <- a$attrname
   }else{
     a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
-                        varnames = c("attr","levels"),
-                        vartypes = c(ERGM_VATTR_SPEC,ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL,NULL),
-                        required = c(TRUE,FALSE))
+                        varnames = c("attr","base","levels"),
+                        vartypes = c(ERGM_VATTR_SPEC,"numeric",ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL,NULL,NULL),
+                        required = c(TRUE,FALSE,FALSE),
+						dep.inform = list(FALSE, "levels", FALSE))
     attrarg <- a$attr
   }
   ### Process the arguments
@@ -281,24 +283,24 @@ InitErgmTerm.asymmetric <- function(nw, arglist, ..., version=packageVersion("er
                         varnames = c("attrname", "diff", "keep"),
                         vartypes = c("character", "logical", "numeric"),
                         defaultvalues = list(NULL, FALSE, NULL),
-                        required = c(FALSE, FALSE, FALSE))
+                        required = c(FALSE, FALSE, FALSE),
+						dep.inform = list(FALSE, FALSE, "levels"))
 	attrarg <- a$attrname
-	levels <- a$keep
   }else{
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
-                        varnames = c("attr", "diff", "levels"),
-                        vartypes = c(ERGM_VATTR_SPEC, "logical", ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, FALSE, NULL),
-                        required = c(FALSE, FALSE, FALSE))
+                        varnames = c("attr", "diff", "keep", "levels"),
+                        vartypes = c(ERGM_VATTR_SPEC, "logical", "numeric", ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, FALSE, NULL, NULL),
+                        required = c(FALSE, FALSE, FALSE, FALSE),
+						dep.inform = list(FALSE, FALSE, "levels", FALSE))
 	attrarg <- a$attr
-    levels <- a$levels
   }
   ### Process the arguments
   if (!is.null(attrarg)) {
     nodecov <- ergm_get_vattr(attrarg, nw)
 	attrname <- attr(nodecov, "name")
-    u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-	
+    u <- ergm_attr_levels(a$levels, nodecov, nw, levels = sort(unique(nodecov)))
+	if(!is.null(a$keep)) u <- u[a$keep]
     #   Recode to numeric
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     # All of the "nomatch" should be given unique IDs so they never match:
@@ -567,16 +569,18 @@ InitErgmTerm.b1factor<-function (nw, arglist, ..., version=packageVersion("ergm"
                         varnames = c("attrname", "base", "levels"),
                         vartypes = c("character", "numeric", "character,numeric,logical"),
                         defaultvalues = list(NULL, 1, NULL),
-                        required = c(TRUE, FALSE, FALSE))
+                        required = c(TRUE, FALSE, FALSE),
+						dep.inform = list(FALSE, "levels", FALSE))
 	attrarg <- a$attrname
 	levels <- if(!is.null(a$levels)) I(a$levels) else NULL
   }else{
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                        varnames = c("attr", "levels"),
-                        vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, -1),
-                        required = c(TRUE, FALSE))
+                        varnames = c("attr", "base", "levels"),
+                        vartypes = c(ERGM_VATTR_SPEC, "numeric", ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, 1, NULL),
+                        required = c(TRUE, FALSE, FALSE),
+						dep.inform = list(FALSE, "levels", FALSE))
 	attrarg <- a$attr						
     levels <- a$levels	
   }
@@ -702,24 +706,24 @@ InitErgmTerm.b1twostar <- function(nw, arglist, ..., version=packageVersion("erg
                          varnames = c("b1attrname", "b2attrname", "base", "b1levels", "b2levels"),
                          vartypes = c("character", "character", "numeric", "character,numeric,logical", "character,numeric,logical"),
                          defaultvalues = list(NULL, NULL, NULL, NULL, NULL),
-                         required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+                         required = c(TRUE, FALSE, FALSE, FALSE, FALSE),
+						 dep.inform = list(FALSE, FALSE, "levels2", FALSE, FALSE))
 	b1attrarg <- a$b1attrname
 	b2attrarg <- a$b2attrname
 	b1levels <- if(!is.null(a$b1levels)) I(a$b1levels) else NULL
 	b2levels <- if(!is.null(a$b2levels)) I(a$b2levels) else NULL
-	levels2 <- if(any(a$base != 0)) -a$base else NULL
   }else{
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                         varnames = c("b1attr", "b2attr", "b1levels", "b2levels", "levels2"),
-                         vartypes = c(ERGM_VATTR_SPEC, ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC),
-                         defaultvalues = list(NULL, NULL, NULL, NULL, NULL),
-                         required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+                         varnames = c("b1attr", "b2attr", "base", "b1levels", "b2levels", "levels2"),
+                         vartypes = c(ERGM_VATTR_SPEC, ERGM_VATTR_SPEC, "numeric", ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC),
+                         defaultvalues = list(NULL, NULL, NULL, NULL, NULL, NULL),
+                         required = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE),
+						 dep.inform = list(FALSE, FALSE, "levels2", FALSE, FALSE, FALSE))
 	b1attrarg <- a$b1attr
 	b2attrarg <- a$b2attr
 	b1levels <- a$b1levels
 	b2levels <- a$b2levels
-	levels2 <- a$levels2
   }
   
   ### Process the arguments
@@ -746,7 +750,8 @@ InitErgmTerm.b1twostar <- function(nw, arglist, ..., version=packageVersion("erg
   levels2.list <- transpose(levels2.grid[indices2.grid$col <= indices2.grid$col2,])
   indices2.grid <- indices2.grid[indices2.grid$col <= indices2.grid$col2,]
   
-  levels2.sel <- ergm_attr_levels(levels2, list(row = b1nodecov, col = b2nodecov, col2 = b2nodecov), nw, levels2.list)
+  levels2.sel <- ergm_attr_levels(a$levels2, list(row = b1nodecov, col = b2nodecov, col2 = b2nodecov), nw, levels2.list)
+  if(any(a$base != 0)) levels2.sel <- levels2.sel[-(a$base)]
   
   rows2keep <- match(levels2.sel,levels2.list, NA)
   rows2keep <- rows2keep[!is.na(rows2keep)]
@@ -1004,16 +1009,18 @@ InitErgmTerm.b2factor<-function (nw, arglist, ..., version=packageVersion("ergm"
                         varnames = c("attrname", "base", "levels"),
                         vartypes = c("character", "numeric", "character,numeric,logical"),
                         defaultvalues = list(NULL, 1, NULL),
-                        required = c(TRUE, FALSE, FALSE))
+                        required = c(TRUE, FALSE, FALSE),
+						dep.inform = list(FALSE, "levels", FALSE))
 	attrarg <- a$attrname
 	levels <- if(!is.null(a$levels)) I(a$levels) else NULL
   }else{
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                        varnames = c("attr", "levels"),
-                        vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, -1),
-                        required = c(TRUE, FALSE))
+                        varnames = c("attr", "base", "levels"),
+                        vartypes = c(ERGM_VATTR_SPEC, "numeric", ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, 1, NULL),
+                        required = c(TRUE, FALSE, FALSE),
+						dep.inform = list(FALSE, "levels", FALSE))
 	attrarg <- a$attr						
     levels <- a$levels	
   }
@@ -1150,24 +1157,24 @@ InitErgmTerm.b2twostar <- function(nw, arglist, ..., version=packageVersion("erg
                          varnames = c("b1attrname", "b2attrname", "base", "b1levels", "b2levels"),
                          vartypes = c("character", "character", "numeric", "character,numeric,logical", "character,numeric,logical"),
                          defaultvalues = list(NULL, NULL, NULL, NULL, NULL),
-                         required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+                         required = c(TRUE, FALSE, FALSE, FALSE, FALSE),
+						dep.inform = list(FALSE, FALSE, "levels2", FALSE, FALSE))
 	b1attrarg <- a$b1attrname
 	b2attrarg <- a$b2attrname
 	b1levels <- if(!is.null(a$b1levels)) I(a$b1levels) else NULL
 	b2levels <- if(!is.null(a$b2levels)) I(a$b2levels) else NULL
-	levels2 <- if(any(a$base != 0)) -a$base else NULL
   }else{
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                         varnames = c("b1attr", "b2attr", "b1levels", "b2levels", "levels2"),
-                         vartypes = c(ERGM_VATTR_SPEC, ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC),
-                         defaultvalues = list(NULL, NULL, NULL, NULL, NULL),
-                         required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+                         varnames = c("b1attr", "b2attr", "base", "b1levels", "b2levels", "levels2"),
+                         vartypes = c(ERGM_VATTR_SPEC, ERGM_VATTR_SPEC, "numeric", ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC),
+                         defaultvalues = list(NULL, NULL, NULL, NULL, NULL, NULL),
+                         required = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE),
+						dep.inform = list(FALSE, FALSE, "levels2", FALSE, FALSE, FALSE))
 	b1attrarg <- a$b1attr
 	b2attrarg <- a$b2attr
 	b1levels <- a$b1levels
 	b2levels <- a$b2levels
-	levels2 <- a$levels2
   }
   
   ### Process the arguments
@@ -1194,7 +1201,8 @@ InitErgmTerm.b2twostar <- function(nw, arglist, ..., version=packageVersion("erg
   levels2.list <- transpose(levels2.grid[indices2.grid$col <= indices2.grid$col2,])
   indices2.grid <- indices2.grid[indices2.grid$col <= indices2.grid$col2,]
   
-  levels2.sel <- ergm_attr_levels(levels2, list(row = b2nodecov, col = b1nodecov, col2 = b1nodecov), nw, levels2.list)
+  levels2.sel <- ergm_attr_levels(a$levels2, list(row = b2nodecov, col = b1nodecov, col2 = b1nodecov), nw, levels2.list)
+  if(any(a$base != 0)) levels2.sel <- levels2.sel[-(a$base)]
   
   rows2keep <- match(levels2.sel,levels2.list, NA)
   rows2keep <- rows2keep[!is.na(rows2keep)]
@@ -1396,7 +1404,7 @@ InitErgmTerm.cycle <- function(nw, arglist, ...) {
 InitErgmTerm.degcor<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE) 
 
-  deg=summary(nw ~ sociality(nodelevels=TRUE))
+  deg=summary(nw ~ sociality(base=NULL, nodelevels=TRUE))
   el=as.edgelist(nw)
   deg1<-deg[el[,1]]
   deg2<-deg[el[,2]]
@@ -2366,22 +2374,20 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ..., version=packageVersion("erg
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                         varnames = c("attrname","x","base","contrast"),
                         vartypes = c("character","matrix,network","numeric","logical"),
-                        defaultvalues = list(NULL,nw,0,FALSE),
-                        required = c(TRUE,FALSE,FALSE,FALSE))
+                        defaultvalues = list(NULL,nw,NULL,FALSE),
+                        required = c(TRUE,FALSE,FALSE,FALSE),
+						dep.inform = list(FALSE, FALSE, "levels2", FALSE))
 	attrarg <- a$attrname
-	levels <- NULL
-	levels2 <- if(any(a$base != 0)) -a$base else NULL
   }else{
     # There is no reason hammingmix should be directed-only, but for now
     # the undirected version does not seem to work properly, so:
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                        varnames = c("attr","x","levels", "levels2","contrast"),
-                        vartypes = c(ERGM_VATTR_SPEC,"matrix,network",ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC,"logical"),
-                        defaultvalues = list(NULL,nw,NULL, NULL,FALSE),
-                        required = c(TRUE,FALSE,FALSE, FALSE,FALSE))
+                        varnames = c("attr", "x", "base", "levels", "levels2","contrast"),
+                        vartypes = c(ERGM_VATTR_SPEC, "matrix,network", "numeric", ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC,"logical"),
+                        defaultvalues = list(NULL,nw,NULL,NULL,NULL,FALSE),
+                        required = c(TRUE,FALSE,FALSE,FALSE,FALSE,FALSE),
+						dep.inform = list(FALSE, FALSE, "levels2", FALSE, FALSE, FALSE))
 	attrarg <- a$attr
-	levels <- a$levels
-	levels2 <- a$levels2
   }
 
   x<-a$x
@@ -2409,7 +2415,7 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ..., version=packageVersion("erg
   if(length(unique(nodecov)) == 1)
       ergm_Init_abort ("Argument to hammingmix() has only one value")
 
-  u <- ergm_attr_levels(levels, nodecov, nw, sort(unique(nodecov)))
+  u <- ergm_attr_levels(a$levels, nodecov, nw, sort(unique(nodecov)))
   namescov <- u
   
   nr <- length(u)
@@ -2418,7 +2424,8 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ..., version=packageVersion("erg
   levels2.list <- transpose(expand.grid(row = u, col = u, stringsAsFactors=FALSE))
   indices2.grid <- expand.grid(row = 1:nr, col = 1:nc)
 	
-  levels2.sel <- ergm_attr_levels(levels2, list(row = nodecov, col = nodecov), nw, levels2.list)
+  levels2.sel <- ergm_attr_levels(a$levels2, list(row = nodecov, col = nodecov), nw, levels2.list)
+  if(any(a$base != 0)) levels2.sel <- levels2.sel[-(a$base)]
   
   rows2keep <- match(levels2.sel,levels2.list, NA)
   rows2keep <- rows2keep[!is.na(rows2keep)]
@@ -2441,7 +2448,7 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ..., version=packageVersion("erg
   if(version <= as.package_version("3.9.4")){
     emptynwstats <- summary(nw ~ nodemix("_tmp_nodecov", base=a$base))
   }else{
-    emptynwstats <- summary(nw ~ nodemix("_tmp_nodecov", levels=levels, levels2=levels2))  
+    emptynwstats <- summary(nw ~ nodemix("_tmp_nodecov", base=a$base, levels=a$levels, levels2=a$levels2))  
   }
   list(name="hammingmix", coef.names=coef.names, inputs=inputs, 
        emptynwstats=emptynwstats, dependence=FALSE)
@@ -2939,15 +2946,15 @@ InitErgmTerm.mutual<-function (nw, arglist, ..., version=packageVersion("ergm"))
                         varnames = c("same", "by", "diff", "keep"),
                         vartypes = c("character", "character", "logical", "numeric"),
                         defaultvalues = list(NULL, NULL, FALSE, NULL),
-                        required = c(FALSE, FALSE, FALSE, FALSE))
-	levels <- a$keep
+                        required = c(FALSE, FALSE, FALSE, FALSE),
+						dep.inform = list(FALSE, FALSE, FALSE, "levels"))
   }else{
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
-                        varnames = c("same", "by", "diff", "levels"),
-                        vartypes = c(ERGM_VATTR_SPEC, ERGM_VATTR_SPEC, "logical", ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, NULL, FALSE, NULL),
-                        required = c(FALSE, FALSE, FALSE, FALSE))
-    levels <- a$levels
+                        varnames = c("same", "by", "diff", "keep", "levels"),
+                        vartypes = c(ERGM_VATTR_SPEC, ERGM_VATTR_SPEC, "logical", "numeric", ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, NULL, FALSE, NULL, NULL),
+                        required = c(FALSE, FALSE, FALSE, FALSE, FALSE),
+						dep.inform = list(FALSE, FALSE, FALSE, "levels", FALSE))
   }
   
   
@@ -2963,8 +2970,9 @@ InitErgmTerm.mutual<-function (nw, arglist, ..., version=packageVersion("ergm"))
 	
     nodecov <- ergm_get_vattr(attrarg, nw)
 	attrname <- attr(nodecov, "name")
-    u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-
+    u <- ergm_attr_levels(a$levels, nodecov, nw, levels = sort(unique(nodecov)))
+	if(!is.null(a$keep)) u <- u[a$keep]
+	
     #   Recode to numeric
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     # All of the "nomatch" should be given unique IDs so they never match:
@@ -3060,15 +3068,17 @@ InitErgmTerm.nodefactor<-function (nw, arglist, ..., version=packageVersion("erg
                         varnames = c("attrname", "base", "levels"),
                         vartypes = c("character", "numeric", "character,numeric,logical"),
                         defaultvalues = list(NULL, 1, NULL),
-                        required = c(TRUE, FALSE, FALSE))
+                        required = c(TRUE, FALSE, FALSE),
+						dep.inform = list(FALSE, "levels", FALSE))
 	attrarg <- a$attrname
 	levels <- if(!is.null(a$levels)) I(a$levels) else NULL
   }else{
     a <- check.ErgmTerm(nw, arglist,
-                        varnames = c("attr", "levels"),
-                        vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, -1),
-                        required = c(TRUE, FALSE))
+                        varnames = c("attr", "base", "levels"),
+                        vartypes = c(ERGM_VATTR_SPEC, "numeric", ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, 1, NULL),
+                        required = c(TRUE, FALSE, FALSE),
+						dep.inform = list(FALSE, "levels", FALSE))
 	attrarg <- a$attr						
     levels <- a$levels	
   }
@@ -3135,15 +3145,17 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, ..., version=packageVersion("er
                         varnames = c("attrname", "base", "levels"),
                         vartypes = c("character", "numeric", "character,numeric,logical"),
                         defaultvalues = list(NULL, 1, NULL),
-                        required = c(TRUE, FALSE, FALSE))
+                        required = c(TRUE, FALSE, FALSE),
+						dep.inform = list(FALSE, "levels", FALSE))
 	attrarg <- a$attrname
 	levels <- if(!is.null(a$levels)) I(a$levels) else NULL
   }else{
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
-                        varnames = c("attr", "levels"),
-                        vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, -1),
-                        required = c(TRUE, FALSE))
+                        varnames = c("attr", "base", "levels"),
+                        vartypes = c(ERGM_VATTR_SPEC, "numeric", ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, 1, NULL),
+                        required = c(TRUE, FALSE, FALSE),
+						dep.inform = list(FALSE, "levels", FALSE))
 	attrarg <- a$attr						
     levels <- a$levels	
   }
@@ -3179,15 +3191,17 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, ..., version=
                         varnames = c("attrname", "diff", "keep", "levels"),
                         vartypes = c("character", "logical", "numeric", "character,numeric,logical"),
                         defaultvalues = list(NULL, FALSE, NULL, NULL),
-                        required = c(TRUE, FALSE, FALSE, FALSE))
+                        required = c(TRUE, FALSE, FALSE, FALSE),
+						dep.inform = list(FALSE, FALSE, "levels", FALSE))
 	attrarg <- a$attrname
 	levels <- if(!is.null(a$levels)) I(a$levels) else NULL
   }else{
     a <- check.ErgmTerm(nw, arglist, 
-                        varnames = c("attr", "diff", "levels"),
-                        vartypes = c(ERGM_VATTR_SPEC, "logical", ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, FALSE, NULL),
-                        required = c(TRUE, FALSE, FALSE))
+                        varnames = c("attr", "diff", "keep", "levels"),
+                        vartypes = c(ERGM_VATTR_SPEC, "logical", "numeric", ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, FALSE, NULL, NULL),
+                        required = c(TRUE, FALSE, FALSE, FALSE),
+						dep.inform = list(FALSE, FALSE, "levels", FALSE))
     attrarg <- a$attr
     levels <- a$levels  
   }
@@ -3196,10 +3210,7 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, ..., version=
   nodecov <- ergm_get_vattr(attrarg, nw)
   attrname <- attr(nodecov, "name")
   u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-
-  if (!is.null(a$keep)) {
-    u <- u[a$keep]
-  }
+  if(!is.null(a$keep)) u <- u[a$keep]
   
   #   Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -3231,24 +3242,22 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
                         varnames = c("attrname", "base", "b1levels", "b2levels"),
                         vartypes = c("character", "numeric", "character,numeric,logical", "character,numeric,logical"),
                         defaultvalues = list(NULL, NULL, NULL, NULL),
-                        required = c(TRUE, FALSE, FALSE, FALSE))
+                        required = c(TRUE, FALSE, FALSE, FALSE),
+						dep.inform = list(FALSE, "levels2", FALSE, FALSE))
 	attrarg <- a$attrname
 	b1levels <- if(!is.null(a$b1levels)) I(a$b1levels) else NULL
 	b2levels <- if(!is.null(a$b2levels)) I(a$b2levels) else NULL
-	levels <- NULL
-	levels2 <- if(any(a$base != 0)) -a$base else NULL
   }else{
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist,
-                        varnames = c("attr", "levels", "levels2", "b1levels", "b2levels"),
-                        vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, NULL, NULL, NULL, NULL),
-                        required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+                        varnames = c("attr", "base", "b1levels", "b2levels", "levels", "levels2"),
+                        vartypes = c(ERGM_VATTR_SPEC, "numeric", ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, NULL, NULL, NULL, NULL, NULL),
+                        required = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE),
+						dep.inform = list(FALSE, "levels2", FALSE, FALSE, FALSE, FALSE))
 	attrarg <- a$attr
 	b1levels <- a$b1levels
 	b2levels <- a$b2levels
-	levels <- a$levels
-	levels2 <- a$levels2	
   }
   ### Process the arguments
   if (is.bipartite(nw) && is.directed(nw)) {
@@ -3273,8 +3282,9 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
     levels2.list <- transpose(expand.grid(row = b1namescov, col = b2namescov, stringsAsFactors=FALSE))
     indices2.grid <- expand.grid(row = 1:nr, col = nr + 1:nc)
    
-    levels2.sel <- ergm_attr_levels(levels2, list(row = b1nodecov, col = b2nodecov), nw, levels2.list)
-  
+    levels2.sel <- ergm_attr_levels(a$levels2, list(row = b1nodecov, col = b2nodecov), nw, levels2.list)
+    if(any(a$base != 0)) levels2.sel <- levels2.sel[-(a$base)]
+	
     rows2keep <- match(levels2.sel,levels2.list, NA)
     rows2keep <- rows2keep[!is.na(rows2keep)]
   
@@ -3294,7 +3304,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
     inputs <- c(u[,1], u[,2], nodecov)
     attr(inputs, "ParamsBeforeCov") <- NROW(u)
   } else {# So one mode, but could be directed or undirected
-    u <- ergm_attr_levels(levels, nodecov, nw, sort(unique(nodecov)))
+    u <- ergm_attr_levels(a$levels, nodecov, nw, sort(unique(nodecov)))
 	namescov <- u
 	
     if(any(is.na(nodecov))){u<-c(u,NA)}
@@ -3314,8 +3324,9 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
 		uun <- uun[rowleqcol]
     }	
    
-    levels2.sel <- ergm_attr_levels(levels2, list(row = nodecov, col = nodecov), nw, levels2.list)
-  
+    levels2.sel <- ergm_attr_levels(a$levels2, list(row = nodecov, col = nodecov), nw, levels2.list)
+    if(any(a$base != 0)) levels2.sel <- levels2.sel[-(a$base)]
+	
     rows2keep <- match(levels2.sel,levels2.list, NA)
     rows2keep <- rows2keep[!is.na(rows2keep)]
   
@@ -3379,15 +3390,17 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, ..., version=packageVersion("er
                         varnames = c("attrname", "base", "levels"),
                         vartypes = c("character", "numeric", "character,numeric,logical"),
                         defaultvalues = list(NULL, 1, NULL),
-                        required = c(TRUE, FALSE, FALSE))
+                        required = c(TRUE, FALSE, FALSE),
+						dep.inform = list(FALSE, "levels", FALSE))
 	attrarg <- a$attrname
 	levels <- if(!is.null(a$levels)) I(a$levels) else NULL
   }else{
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
-                        varnames = c("attr", "levels"),
-                        vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, -1),
-                        required = c(TRUE, FALSE))
+                        varnames = c("attr", "base", "levels"),
+                        vartypes = c(ERGM_VATTR_SPEC, "numeric", ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, 1, NULL),
+                        required = c(TRUE, FALSE, FALSE),
+						dep.inform = list(FALSE, "levels", FALSE))
 	attrarg <- a$attr						
     levels <- a$levels	
   }
@@ -3712,18 +3725,19 @@ InitErgmTerm.receiver<-function(nw, arglist, ..., version=packageVersion("ergm")
                         varnames = c("base"),
                         vartypes = c("numeric"),
                         defaultvalues = list(1),
-                        required = c(FALSE))
-	levels <- if(any(a$base != 0)) -a$base else NULL						
+                        required = c(FALSE),
+						dep.inform = list("levels"))
   }else{
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                        varnames = c("levels"),
-                        vartypes = c(ERGM_LEVELS_SPEC),
-                        defaultvalues = list(-1),
-                        required = c(FALSE))
-    levels <- a$levels
+                        varnames = c("base", "levels"),
+                        vartypes = c("numeric", ERGM_LEVELS_SPEC),
+                        defaultvalues = list(1, NULL),
+                        required = c(FALSE, FALSE),
+						dep.inform = list("levels", FALSE))
   }
-  d <- ergm_attr_levels(levels, 1:network.size(nw), nw, 1:network.size(nw))
-
+  d <- ergm_attr_levels(a$levels, 1:network.size(nw), nw, 1:network.size(nw))
+  if(any(a$base != 0)) d <- d[-(a$base)]
+  
   ld<-length(d)
   if(ld==0){return(NULL)}
   list(name="receiver", coef.names=paste("receiver",d,sep=""),
@@ -3740,17 +3754,18 @@ InitErgmTerm.sender<-function(nw, arglist, ..., version=packageVersion("ergm")) 
                         varnames = c("base"),
                         vartypes = c("numeric"),
                         defaultvalues = list(1),
-                        required = c(FALSE))
-	levels <- if(any(a$base != 0)) -a$base else NULL						
+                        required = c(FALSE),
+						dep.inform = list("levels"))
   }else{
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                        varnames = c("levels"),
-                        vartypes = c(ERGM_LEVELS_SPEC),
-                        defaultvalues = list(-1),
-                        required = c(FALSE))
-    levels <- a$levels
+                        varnames = c("base", "levels"),
+                        vartypes = c("numeric", ERGM_LEVELS_SPEC),
+                        defaultvalues = list(1, NULL),
+                        required = c(FALSE, FALSE),
+						dep.inform = list("levels", FALSE))
   }
-  d <- ergm_attr_levels(levels, 1:network.size(nw), nw, 1:network.size(nw))
+  d <- ergm_attr_levels(a$levels, 1:network.size(nw), nw, 1:network.size(nw))
+  if(any(a$base != 0)) d <- d[-(a$base)]
   
   ld<-length(d)
   if(ld==0){return(NULL)}
@@ -3823,20 +3838,23 @@ InitErgmTerm.sociality<-function(nw, arglist, ..., version=packageVersion("ergm"
                         varnames = c("attrname", "base", "levels"),
                         vartypes = c("character", "numeric", "character,numeric,logical"),
                         defaultvalues = list(NULL, 1, NULL),
-                        required = c(FALSE, FALSE, FALSE))
-	nodelevels <- if(any(a$base != 0)) -a$base else NULL
+                        required = c(FALSE, FALSE, FALSE),
+						dep.inform = list(FALSE, "nodelevels", FALSE))
     attrarg <- a$attrname	
+	levels <- if(!is.null(a$levels)) I(a$levels) else NULL		
   }else{
     a <- check.ErgmTerm(nw, arglist, directed=FALSE,
-                        varnames = c("attr", "nodelevels", "levels"),
-                        vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, -1, NULL),
-                        required = c(FALSE, FALSE, FALSE))  
-    nodelevels <- a$nodelevels
+                        varnames = c("attr", "base", "levels", "nodelevels"),
+                        vartypes = c(ERGM_VATTR_SPEC, "numeric", ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, 1, NULL, NULL),
+                        required = c(FALSE, FALSE, FALSE, FALSE),
+						dep.inform = list(FALSE, "nodelevels", FALSE, FALSE))  
 	attrarg <- a$attr
+	levels <- a$levels
   }
   
-  d <- ergm_attr_levels(nodelevels, 1:network.size(nw), nw, 1:network.size(nw))
+  d <- ergm_attr_levels(a$nodelevels, 1:network.size(nw), nw, 1:network.size(nw))
+  if(any(a$base != 0)) d <- d[-(a$base)]
   
   if(!is.null(attrarg)) {
     nodecov <- ergm_get_vattr(attrarg, nw)
@@ -3873,19 +3891,20 @@ InitErgmTerm.threepath <- function(nw, arglist, ..., version=packageVersion("erg
     a <- check.ErgmTerm (nw, arglist, 
                          varnames = c("keep"),
                          vartypes = c("numeric"),
-                         defaultvalues = list(1:4),
-                         required = c(FALSE))
-	levels <- a$keep					 
+                         defaultvalues = list(NULL),
+                         required = c(FALSE),
+						dep.inform = list("levels"))
   }else{
     a <- check.ErgmTerm (nw, arglist, 
-                         varnames = c("levels"),
-                         vartypes = c(ERGM_LEVELS_SPEC),
-                         defaultvalues = list(1:4),
-                         required = c(FALSE))
-    levels <- a$levels
+                         varnames = c("keep", "levels"),
+                         vartypes = c("numeric", ERGM_LEVELS_SPEC),
+                         defaultvalues = list(NULL, NULL),
+                         required = c(FALSE, FALSE),
+						dep.inform = list("levels", FALSE))
   }  
   vals = c("RRR","RRL","LRR","LRL")
-  types <- ergm_attr_levels(levels, vals, nw, levels = vals)
+  types <- ergm_attr_levels(a$levels, vals, nw, levels = vals)
+  if(!is.null(a$keep)) types <- types[a$keep]
   indices = match(types, vals)  
   if (is.directed(nw)) {
     return(list(name = "threetrail", 
@@ -3904,19 +3923,20 @@ InitErgmTerm.threetrail <- function(nw, arglist, ..., version=packageVersion("er
     a <- check.ErgmTerm (nw, arglist, 
                          varnames = c("keep"),
                          vartypes = c("numeric"),
-                         defaultvalues = list(1:4),
-                         required = c(FALSE))
-	levels <- a$keep					 
+                         defaultvalues = list(NULL),
+                         required = c(FALSE),
+						 dep.inform = list("levels"))
   }else{
     a <- check.ErgmTerm (nw, arglist, 
-                         varnames = c("levels"),
-                         vartypes = c(ERGM_LEVELS_SPEC),
-                         defaultvalues = list(1:4),
-                         required = c(FALSE))
-    levels <- a$levels
+                         varnames = c("keep", "levels"),
+                         vartypes = c("numeric", ERGM_LEVELS_SPEC),
+                         defaultvalues = list(NULL, NULL),
+                         required = c(FALSE, FALSE),
+						 dep.inform = list("levels", FALSE))
   }  
   vals = c("RRR","RRL","LRR","LRL")
-  types <- ergm_attr_levels(levels, vals, nw, levels = vals)
+  types <- ergm_attr_levels(a$levels, vals, nw, levels = vals)
+  if(!is.null(a$keep)) types <- types[a$keep]
   indices = match(types, vals)
   if (is.directed(nw)) {
     return(list(name = "threetrail", 
