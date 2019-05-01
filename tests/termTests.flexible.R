@@ -86,7 +86,7 @@ num.tests=num.tests+1
 s.a <- summary(fmh ~ absdiffcat("Grade"))
 e.a <- ergm(fmh ~ absdiffcat("Grade"))
 s.ab <- summary(fmh ~ absdiffcat(function(x) x %v% "Grade", levels=-(4:5)))
-e.ab <- ergm(fmh ~ absdiffcat(~Grade, levels=-(4:5)))
+e.ab <- ergm(fmh ~ absdiffcat(~Grade, base=(4:5)))
 if (!all(s.a==c(15,15,7,2,1)) ||
     !all(round(e.a$coef+c(6.005,5.788,6.063,6.891,6.611),3)==0) ||
     !all(s.ab==c(15,15,7)) ||
@@ -460,8 +460,8 @@ if (s.a != 906 || round(e.a$coef + .271, 3) != 0 ||
 num.tests=num.tests+1
 s.a <- summary(fmh~nodefactor("Grade"))
 e.a <- ergm(samplike~nodefactor(~group), estimate="MPLE")
-s.ab <- summary(fmh~nodefactor(function(x) x %v% "Sex", levels=-(4:5)))
-e.ab <- ergm(samplike~nodefactor("Trinity", levels=TRUE), estimate="MPLE")
+s.ab <- summary(fmh~nodefactor(function(x) x %v% "Sex", base=(4:5)))
+e.ab <- ergm(samplike~nodefactor("Trinity", base=NULL, levels=TRUE), estimate="MPLE")
 if (!all(s.a==c(75, 65, 36, 49, 28)) ||
     !all(round(e.a$coef+c(.9480, .3273),3)==0) ||
     !all(s.ab==c(235,171)) ||
@@ -506,8 +506,8 @@ s.a <- summary(fmh ~ nodemix("Grade"))
 e.a <- ergm(samplike ~ nodemix(function(x) x %v% "group"), estimate="MPLE")
 s.ab <- summary(bipnw ~ nodemix("Letter"), levels2=T)
 e.ab <- ergm(bipnw ~ nodemix(function(x) x %v% "Letter", levels2=-(2:6)))
-s.ab2 <- summary(fmh ~ nodemix("Race", levels2=-1))
-e.ab2 <- ergm(samplike ~ nodemix(~Trinity, levels2=-(3:9)))                
+s.ab2 <- summary(fmh ~ nodemix("Race", base=1))
+e.ab2 <- ergm(samplike ~ nodemix(~Trinity, base=(3:9)))                
 if (!all(s.a == c(75, 0, 33, 0, 2, 23, 1, 4, 7, 9, 1,
                   2, 6, 1, 17, 1, 1, 4, 5, 5, 6)) ||
     !all(round(e.a$coef - c(0.1910552, -3.2958369, -2.1747517, -2.5649494,
@@ -568,7 +568,7 @@ num.tests=num.tests+1
 s.0 <- summary(samplike~threetrail)
 e.0 <- ergm(fmh~threetrail, estimate="MPLE")
 s.k <- summary(samplike~threetrail(levels=2))
-e.k <- ergm(samplike~threetrail(levels=1:2), estimate="MPLE")
+e.k <- ergm(samplike~threetrail(keep=1:2), estimate="MPLE")
 if (!all(s.0==c(2103, 2326, 1749, 1897)) ||
     round(e.0$coef + .2842, 3) != 0 ||
     s.k!=2326 ||

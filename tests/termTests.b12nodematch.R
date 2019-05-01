@@ -35,12 +35,12 @@ if (
 
 if (
  summary(mynw~b1nodematch(~names, diff=TRUE, levels=1, beta=1))!=12 || #Should be 12
- summary(mynw~b1nodematch(function(x) x %v% "names", diff=TRUE, levels=1, beta=0))!=9 )  #Should be 9
+ summary(mynw~b1nodematch(function(x) x %v% "names", diff=TRUE, keep=1, beta=0))!=9 )  #Should be 9
  stop("b1nodematch error C")
 
 if (
  summary(mynw~b2nodematch("names", diff=TRUE, levels=2, beta=1))!=5 || #Should be 5
- summary(mynw~b2nodematch(function(x) x %v% "names", diff=TRUE, levels=2, beta=0))!=5 )  #Should be 5
+ summary(mynw~b2nodematch(function(x) x %v% "names", diff=TRUE, keep=2, beta=0))!=5 )  #Should be 5
  stop("b1nodematch error D")
 
 if (!all(summary(mynw~b1nodematch("names", diff=TRUE, alpha=0))==c(10,0)))

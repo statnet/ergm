@@ -224,9 +224,9 @@ if (!all(s.0 == 473) ||
 num.tests=num.tests + 1
 s.0 <- summary(fmh~sociality)
 s.a <- summary(fmh~sociality("Race"))
-s.b <- summary(fmh~sociality(nodelevels=-(2:203)))
-s.ab <- summary(fmh~sociality(function(x) x %v% "Race", nodelevels=-(3:200)))
-e.ab <- ergm(fmh~sociality(~Race, nodelevels=-(3:205)), estimate="MPLE")
+s.b <- summary(fmh~sociality(base = NULL, nodelevels=-(2:203)))
+s.ab <- summary(fmh~sociality(function(x) x %v% "Race", base=NULL, nodelevels=-(3:200)))
+e.ab <- ergm(fmh~sociality(~Race, base=(3:205)), estimate="MPLE")
 if (!all(head(s.0)==c(4,0,0,1,0,0)) ||
     !all(s.a[45:50]==c(0,8,0,0,0,3)) ||
     !all(s.b==c(13,3,1)) ||
