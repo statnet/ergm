@@ -207,7 +207,7 @@ ergm.stopCluster <- function(..., verbose=FALSE){
 }
 
 #' @rdname ergm-parallel
-#' @description The \code{ergm.restartCluster} restarts a cluster,
+#' @description The \code{ergm.restartCluster} restarts and returns a cluster,
 #'   but only if `ergm.getCluster` was responsible for starting it.
 #'
 #' @param \dots not currently used
@@ -216,8 +216,8 @@ ergm.restartCluster <- function(control=NULL, verbose=FALSE){
   if(!is.null(ergm.cluster.started())){
     if(verbose) message("Restarting the running cluster:")
     ergm.stopCluster(verbose=verbose)
-    ergm.getCluster(control, verbose=verbose, stop_on_exit=FALSE) # stop_on_exit is already set by the initial cluster construction.
   }else if(verbose>1) message("No cluster to restart.")
+  ergm.getCluster(control, verbose=verbose, stop_on_exit=FALSE) # stop_on_exit is already set by the initial cluster construction.
 }
 
 
