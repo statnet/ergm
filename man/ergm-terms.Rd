@@ -246,25 +246,24 @@ network
     Note that \code{ergm} versions 3.9.4 and earlier used different arguments for this term. See the above section on versioning for invoking the old behavior.
   }
     
-    \item{\code{absdiffcat(attr, levels=NULL)}  (binary) (dyad-independent) (directed) (undirected) (categorical nodal attribute),
-    \code{absdiffcat(attr, levels=NULL, form="sum")}  (valued)  (dyad-independent)   (directed)  (undirected) (categorical nodal attribute)}{\emph{Categorical absolute
+    \item{\code{absdiffcat(attr, base=NULL, levels=NULL)}  (binary) (dyad-independent) (directed) (undirected) (categorical nodal attribute),
+    \code{absdiffcat(attr, base=NULL, levels=NULL, form="sum")}  (valued)  (dyad-independent)   (directed)  (undirected) (categorical nodal attribute)}{\emph{Categorical absolute
     difference:} 
     The \code{attr} argument specifies a quantitative attribute (see \link[=node-attr]{Specifying Vertex
     Attributes and Levels} for details). This term
     adds one statistic for every possible nonzero distinct value of
     \code{abs(attr[i]-attr[j])} in the network; the value of each such
     statistic is the number of edges in the network with the corresponding
-    absolute difference. The optional \code{levels} argument specifies which 
+    absolute difference. The optional arguments \code{base} and \code{levels} specify which 
 	nonzero differences to include in or exclude from the model (see \link[=node-attr]{Specifying Vertex
-    Attributes and Levels} for details).  For instance, if the possible values of
+    Attributes and Levels} for details).  The \code{levels} argument is preferred to the \code{base} argument.  (If both \code{base} and \code{levels} are non-NULL, then \code{levels} is
+    applied first, and \code{base} is applied to the result of applying \code{levels}.)  For instance, if the possible values of
     \code{abs(attr[i]-attr[j])} are 0, 0.5, 3, 3.5, and 10, then to omit
     0.5 and 10 one could set \code{levels=2:3} (we wish to retain the second and third nonzero difference,
 	when differences are sorted in increasing order). Note that this term should
     generally be used only when the quantitative attribute has a limited number
     of possible values; an example is the \code{"Grade"} attribute of the
-    \code{\link{faux.mesa.high}} or \code{\link{faux.magnolia.high}} datasets.
-	
-	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for this term. See the above section on versioning for invoking the old behavior.}
+    \code{\link{faux.mesa.high}} or \code{\link{faux.magnolia.high}} datasets.}
     
     \item{\code{altkstar(lambda, fixed=FALSE)}  (binary) (undirected) (curved) (categorical nodal attribute)
     }{\emph{Alternating k-star:} 
@@ -284,19 +283,18 @@ network
     and thus the model is a CEF model. This term can only be used with
     undirected networks.}
     
-    \item{\code{asymmetric(attr=NULL, diff=FALSE, levels=NULL)}  (binary)  (directed)  (dyad-independent) (triad-related)}{\emph{Asymmetric
+    \item{\code{asymmetric(attr=NULL, diff=FALSE, keep=NULL, levels=NULL)}  (binary)  (directed)  (dyad-independent) (triad-related)}{\emph{Asymmetric
     dyads:} This term adds one network statistic to the model equal to the
     number of pairs of actors for which exactly one of
     \eqn{(i{\rightarrow}j)}{(i,j)} or \eqn{(j{\rightarrow}i)}{(j,i)} exists.
     This term can only be used with directed networks. The optional argument
     \code{attr} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
     Attributes and Levels} for details).  If \code{attr} is specified, only asymmetric pairs that match on the
-    vertex attribute \code{attr} are counted. The optional modifiers \code{diff} and
+    vertex attribute \code{attr} are counted. The optional modifiers \code{diff}, \code{keep}, and
     \code{levels} are used in the same way as for the \code{nodematch} term; refer
-    to this term for details and an example.
-	
-	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
-	this term. See the above section on versioning for invoking the old behavior.}
+    to this term for details and an example.  The argument \code{levels} is preferred to \code{keep}, which is
+	less flexible than \code{levels}.  (If both \code{keep} and \code{levels} are specified, then \code{levels} is
+    applied first, and \code{keep} is applied to the result of applying \code{levels}.)}
 
   \item{\code{atleast(threshold=0)}  (valued)  (directed)  (undirected) (dyad-independent)}{\emph{Number of dyads with values
       greater than or equal to a threshold} Adds one statistic
@@ -376,8 +374,8 @@ network
     value of the \code{by} attribute.
     This term can only be used with undirected bipartite networks.}
     
-  \item{\code{b1factor(attr, levels=-1)}  (binary)  (bipartite) (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute),
-    \code{b1factor(attr, levels=-1, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute)
+  \item{\code{b1factor(attr, base=1, levels=NULL)}  (binary)  (bipartite) (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute),
+    \code{b1factor(attr, base=1, levels=NULL, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute)
     }{\emph{Factor attribute effect for
     the first mode in a bipartite (aka two-mode) network:} 
     The \code{attr} argument specifies a categorical vertex attribute (see \link[=node-attr]{Specifying Vertex
@@ -389,18 +387,17 @@ network
     is sometimes known as the "actor" mode. To include all attribute values is
     usually not a good idea, because the sum of all such statistics equals the
     number of edges and hence a linear dependency would arise in any model also
-    including \code{edges}.	 Thus, the \code{levels} argument tells which value(s)
+    including \code{edges}.	 Thus, the \code{base} and \code{levels} arguments tell which value(s)
 	to include or exclude (see \link[=node-attr]{Specifying Vertex
-    Attributes and Levels} for details).  Positive integer indices include (and negative integer indices exclude)
-	the corresponding values, numbered in order according to the \code{sort} function.
-    The default value, \code{levels=-1}, means that the smallest (i.e., first in
-    sorted order) attribute value is omitted.  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
+    Attributes and Levels} for details).  The default value, \code{base=1}, means that the smallest (i.e., first in
+    sorted order) attribute value is omitted.  The argument \code{levels} is preferred to \code{base}, although \code{base}
+	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
+	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are non-NULL, then \code{levels} is
+    applied first, and \code{base} is applied to the result of applying \code{levels}.)
+	For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
     \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
-    for \dQuote{pear}, use any of \code{b1factor("fruit", levels=-(2:3))}, \code{b1factor("fruit", levels=c(1,4))}, and
-	\code{b1factor("fruit", levels=c("apple", "pear"))}.  This term can only be used with undirected bipartite networks.
-	
-	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
-	this term. See the above section on versioning for invoking the old behavior.}
+    for \dQuote{pear}, use any of \code{b1factor("fruit", base=NULL, levels=-(2:3))}, \code{b1factor("fruit", base=NULL, levels=c(1,4))}, and
+	\code{b1factor("fruit", base=NULL, levels=c("apple", "pear"))}.  This term can only be used with undirected bipartite networks.}
     
     \item{\code{b1mindegree(d)}  (binary)  (bipartite)  (undirected)}{\emph{Minimum degree for the first mode in a
     bipartite (aka two-mode) network:} The \code{d} argument is a vector of
@@ -410,8 +407,8 @@ network
     The first mode of a bipartite network object is sometimes known as the "actor" mode.
     This term can only be used with undirected bipartite networks.}
     
-    \item{\code{b1nodematch(attr, diff=FALSE, levels=NULL, alpha=1, beta=1, 
-    byb2attr=NULL)}  (binary)  (bipartite)  (undirected) (dyad-independent) (categorical nodal attribute) (frequently-used)
+    \item{\code{b1nodematch(attr, diff=FALSE, keep=NULL, alpha=1, beta=1, 
+    byb2attr=NULL, levels=NULL)}  (binary)  (bipartite)  (undirected) (dyad-independent) (categorical nodal attribute) (frequently-used)
     }{\emph{Nodal attribute-based homophily effect for
     the first mode in a bipartite (aka two-mode) network:}  This term is introduced
     in Bomiriya et al (2014).
@@ -422,8 +419,11 @@ network
     simply be a homophily based two-star statistic. This term adds one statistic to the model 
     unless \code{diff} is set to \code{TRUE}, in which case the term adds multiple network 
     statistics to the model, one for each of (a subset of) the unique values of the \code{attr} 
-    attribute. To include only the attribute values you wish, use the \code{levels} argument. 
-    If an \code{alpha} discount parameter is used, each of these statistics gives the sum of 
+    attribute. To include only the attribute values you wish, use the \code{keep} and/or \code{levels} arguments. 
+    The argument \code{levels} is preferred to \code{keep}, which is
+	less flexible than \code{levels}.  (If both \code{keep} and \code{levels} are specified, then \code{levels} is
+    applied first, and \code{keep} is applied to the result of applying \code{levels}.)  If an \code{alpha}
+	discount parameter is used, each of these statistics gives the sum of 
     the number of common second-mode nodes raised to the power \code{alpha} for each pair of 
     first-mode nodes with that attribute. If a \code{beta} discount parameter is used, each 
     of these statistics gives half the sum of the number of two-paths with two first-mode nodes 
@@ -434,10 +434,7 @@ network
    	i.e. for example, if \code{diff} is \code{FALSE}, then the sum of all the statistics for 
    	each level of this second-mode attribute will be equal to the original \code{b1nodematch}
    	statistic where \code{byb2attr} set to \code{NULL}. This term can only be used with 
-   	undirected bipartite networks.
-	
-	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
-	this term. See the above section on versioning for invoking the old behavior.}
+   	undirected bipartite networks.}
     
     \item{\code{b1star(k, attr=NULL, levels=NULL)}  (binary) (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{k-Stars for the first mode in a
@@ -482,7 +479,7 @@ network
     vector of indices then the corresponding terms (in the order they would be
     created when \code{base=NULL}) are left out.}
 
-    \item{\code{b1twostar(b1attr, b2attr, b1levels=NULL, b2levels=NULL, levels2=NULL)}  (binary) (bipartite)  (undirected) (categorical nodal attribute)
+    \item{\code{b1twostar(b1attr, b2attr, base=NULL, b1levels=NULL, b2levels=NULL, levels2=NULL)}  (binary) (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{ Two-star
     census for central nodes centered on the first mode of a bipartite network:}
     This term takes two nodal attributes (see \link[=node-attr]{Specifying Vertex
@@ -494,12 +491,10 @@ network
     values of \code{b2attr} among the b2 nodes, then the total number of
     distinct categories of two stars according to these two attributes is
     \eqn{n_1(n_2)(n_2+1)/2}.  By default, this model term creates a distinct statistic
-    counting each of these categories.  The \code{b1levels}, \code{b2levels}, and \code{levels2} arguments
+    counting each of these categories.  The \code{b1levels}, \code{b2levels}, \code{base}, and \code{levels2} arguments
 	may be used to leave some of these categories out (see \link[=node-attr]{Specifying Vertex
-    Attributes and Levels} for details).  
-	
-	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
-	this term. See the above section on versioning for invoking the old behavior.}
+    Attributes and Levels} for details).  The \code{levels2} argument is preferred to the \code{base} argument.  (If both \code{base} and \code{levels2} are non-NULL, then \code{levels2} is
+    applied first, and \code{base} is applied to the result of applying \code{levels2}.)}
     
     \item{\code{b2concurrent(by=NULL)}  (binary)  (bipartite)  (undirected) (frequently-used)
     }{\emph{Concurrent node count for the
@@ -570,8 +565,8 @@ network
     value of the \code{by} attribute.
     This term can only be used with undirected bipartite networks.}
     
-  \item{\code{b2factor(attr, levels=-1)}  (binary)  (bipartite) (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used),
-    \code{b2factor(attr, levels=-1, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used)
+  \item{\code{b2factor(attr, base=1, levels=NULL)}  (binary)  (bipartite) (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used),
+    \code{b2factor(attr, base=1, levels=NULL, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used)
     }{\emph{Factor attribute effect for
     the second mode in a bipartite (aka two-mode) network :} 
     The \code{attr} argument specifies
@@ -584,18 +579,16 @@ network
     object is sometimes known as the "event" mode. To include all attribute
     values is usually not a good idea, because the sum of all such statistics
     equals the number of edges and hence a linear dependency would arise in any
-    model also including \code{edges}.  Thus, the \code{levels} argument tells which value(s)
+    model also including \code{edges}.  Thus, the \code{base} and \code{levels} arguments tell which value(s)
 	to include or exclude (see \link[=node-attr]{Specifying Vertex
-    Attributes and Levels} for details).  Positive integer indices include (and negative integer indices exclude)
-	the corresponding values, numbered in order according to the \code{sort} function.
-    The default value, \code{levels=-1}, means that the smallest (i.e., first in
-    sorted order) attribute value is omitted.  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
+    Attributes and Levels} for details).  The default value, \code{base=1}, means that the smallest (i.e., first in
+    sorted order) attribute value is omitted.  The argument \code{levels} is preferred to \code{base}, although \code{base}
+	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
+	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are non-NULL, then \code{levels} is
+    applied first, and \code{base} is applied to the result of applying \code{levels}.)  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
     \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
-    for \dQuote{pear}, use any of \code{b2factor("fruit", levels=-(2:3))}, \code{b2factor("fruit", levels=c(1,4))}, and
-	\code{b2factor("fruit", levels=c("apple", "pear"))}.  This term can only be used with undirected bipartite networks.
-	
-	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
-	this term. See the above section on versioning for invoking the old behavior.}
+    for \dQuote{pear}, use any of \code{b2factor("fruit", base=NULL, levels=-(2:3))}, \code{b2factor("fruit", base=NULL, levels=c(1,4))}, and
+	\code{b2factor("fruit", base=NULL, levels=c("apple", "pear"))}.  This term can only be used with undirected bipartite networks.}
     
     \item{\code{b2mindegree(d)}  (binary) (bipartite)  (undirected)
     }{\emph{Minimum degree for the second mode in a
@@ -606,8 +599,8 @@ network
     The second mode of a bipartite network object is sometimes known as the "event" mode.
     This term can only be used with undirected bipartite networks.}
     
-    \item{\code{b2nodematch(attr, diff=FALSE, levels=NULL, alpha=1, beta=1, 
-    byb1attr=NULL)}  (binary)  (bipartite)  (undirected) (dyad-independent) (categorical nodal attribute) (frequently-used)
+    \item{\code{b2nodematch(attr, diff=FALSE, keep=NULL, alpha=1, beta=1, 
+    byb1attr=NULL, levels=NULL)}  (binary)  (bipartite)  (undirected) (dyad-independent) (categorical nodal attribute) (frequently-used)
     }{\emph{Nodal attribute-based homophily effect for
     the second mode in a bipartite (aka two-mode) network:} This term is introduced
     in Bomiriya et al (2014).
@@ -618,8 +611,11 @@ network
     simply be a homophily based two-star statistic. This term adds one statistic to the model 
     unless \code{diff} is set to \code{TRUE}, in which case the term adds multiple network 
     statistics to the model, one for each of (a subset of) the unique values of the \code{attr} 
-    attribute. To include only the attribute values you wish, use the \code{levels} argument. 
-    If an \code{alpha} discount parameter is used, each of these statistics gives the sum of 
+    attribute. To include only the attribute values you wish, use the \code{keep} and/or \code{levels} 
+	arguments.  The argument \code{levels} is preferred to \code{keep}, which is less flexible than
+	\code{levels}.  (If both \code{keep} and \code{levels} are specified, then \code{levels} is
+    applied first, and \code{keep} is applied to the result of applying \code{levels}.)  If an \code{alpha}
+	discount parameter is used, each of these statistics gives the sum of 
     the number of common first-mode nodes raised to the power \code{alpha} for each pair of 
     second-mode nodes with that attribute. If a \code{beta} discount parameter is used, each 
     of these statistics gives half the sum of the number of two-paths with two second-mode nodes 
@@ -630,10 +626,7 @@ network
    	i.e. for example, if \code{diff} is \code{FALSE}, then the sum of all the statistics for 
    	each level of this first-mode attribute will be equal to the original \code{b2nodematch}
    	statistic where \code{byb1attr} set to \code{NULL}. This term can only be used with 
-   	undirected bipartite networks.
-	
-	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
-	this term. See the above section on versioning for invoking the old behavior.}
+   	undirected bipartite networks.}
 
     \item{\code{b2star(k, attr=NULL, levels=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{k-Stars for the second mode in a
@@ -659,14 +652,11 @@ network
     This term is exactly the same as \code{b1starmix} except that the roles of
     b1 and b2 are reversed.}
     
-    \item{\code{b2twostar(b1attr, b2attr, b1levels=NULL, b2levels=NULL, levels2=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
+    \item{\code{b2twostar(b1attr, b2attr, base=NULL, b1levels=NULL, b2levels=NULL, levels2=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{ Two-star
     census for central nodes centered on the second mode of a bipartite
     network:} This term is exactly the same as \code{b1twostar} except that the
-    roles of b1 and b2 are reversed.
-	
-	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
-	this term. See the above section on versioning for invoking the old behavior.}    
+    roles of b1 and b2 are reversed.}    
 
     \item{\code{balance}  (binary)  (triad-related)  (directed)  (undirected)}{\emph{Balanced triads:} 
     This term adds one network statistic to the model equal to the number of
@@ -1144,7 +1134,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     a network; if the latter, the optional argument \code{attrname} provides the
     name of the edge attribute to use for weight values.}
     
-    \item{\code{hammingmix(attr, x, levels=NULL, levels2=NULL)}  (binary)  (directed)  (dyad-independent)}{\emph{Hamming 
+    \item{\code{hammingmix(attr, x, base=NULL, levels=NULL, levels2=NULL)}  (binary)  (directed)  (dyad-independent)}{\emph{Hamming 
     distance within mixing:} 
     By default, this term adds one statistic to the model for every possible pairing of  
     attribute values of the network for the vertex attribute specified by \code{attr} (see \link[=node-attr]{Specifying Vertex
@@ -1152,12 +1142,11 @@ of the degrees of all pairs of nodes in the network which are tied.
     between the appropriate subset of dyads in
     the network and the corresponding subset in \code{x}.  The ordering of the
     attribute values is alphabetical by default, but this may be overridden using the \code{levels} arguments.
-    The optional arguments \code{levels} and \code{levels2} allow the user to control what pairings are included (see \link[=node-attr]{Specifying Vertex
-    Attributes and Levels}), and the order in which they appear.  For example \code{levels2=-2} will
+    The optional arguments \code{base}, \code{levels}, and \code{levels2} allow the user to control what pairings are included (see \link[=node-attr]{Specifying Vertex
+    Attributes and Levels}), and the order in which they appear.  The \code{levels2} argument is preferred to the \code{base} argument.  (If both \code{base} and \code{levels2} are non-NULL, then \code{levels2} is
+    applied first, and \code{base} is applied to the result of applying \code{levels2}.)  For example \code{levels2=-2} will
     omit the second statistic, making it the de facto reference category.
-    This term can only be used with directed networks.
-	
-	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for this term. See the above section on versioning for invoking the old behavior.}
+    This term can only be used with directed networks.}
 
   \item{\code{idegrange(from, to=+Inf, by=NULL, homophily=FALSE, levels=NULL)}  (binary)  (directed) (categorical nodal attribute)
   }{\emph{In-degree range:} 
@@ -1324,7 +1313,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     calculating the column/receiver/b2 margins.
   }
   
-    \item{\code{mutual(same=NULL, by=NULL, diff=FALSE, levels=NULL)} (binary)  (directed)  (frequently-used), \code{mutual(form="min",threshold=0)}  (valued)  (directed)
+    \item{\code{mutual(same=NULL, by=NULL, diff=FALSE, keep=NULL, levels=NULL)} (binary)  (directed)  (frequently-used), \code{mutual(form="min",threshold=0)}  (valued)  (directed)
      }{\emph{Mutuality:} 
     In binary ERGMs, equal to the number of
     pairs of actors \eqn{i} and \eqn{j} for which \eqn{(i{\rightarrow}j)}{(i,j)}
@@ -1350,10 +1339,11 @@ of the degrees of all pairs of nodes in the network which are tied.
     will equal twice the standard mutual statistic.  Only one of \code{same}
     or \code{by} may be used, and only the former is affected by \code{diff};
     if both \code{same} and \code{by} are passed, \code{by} is ignored.
-    Finally, if \code{levels} is passed, this tells which statistics should be kept whenever the \code{mutual} term would
-    ordinarily result in multiple statistics (see \link[=node-attr]{Specifying Vertex Attributes and Levels}).
-	
-	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for this term. See the above section on versioning for invoking the old behavior.
+    Finally, if \code{levels} and/or \code{keep} are passed, this tells which statistics should be kept
+	whenever the \code{mutual} term would ordinarily result in multiple statistics (see \link[=node-attr]{Specifying Vertex Attributes and Levels}).
+    The argument \code{levels} is preferred to \code{keep}, which is
+	less flexible than \code{levels}. (If both \code{keep} and \code{levels} are specified, then \code{levels} is
+    applied first, and \code{keep} is applied to the result of applying \code{levels}.)
   }
     
     \item{\code{nearsimmelian}  (binary)  (directed)  (triad-related)}{\emph{Near simmelian triads:} 
@@ -1383,9 +1373,9 @@ of the degrees of all pairs of nodes in the network which are tied.
       statistic.
     }
   	
-    \item{\code{nodefactor(attr, levels=-1)}  (binary)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute) (frequently-used) 
+    \item{\code{nodefactor(attr, base=1, levels=NULL)}  (binary)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute) (frequently-used) 
     ,
-    \code{nodefactor(attr, levels=-1, form="sum")}  (dyad-independent)  (valued)  (directed)  (undirected) (categorical nodal attribute)
+    \code{nodefactor(attr, base=1, levels=NULL, form="sum")}  (dyad-independent)  (valued)  (directed)  (undirected) (categorical nodal attribute)
     }{\emph{Factor attribute
     effect:} The \code{attr} argument specifies one or more categorical attributes (see \link[=node-attr]{Specifying Vertex
     Attributes and Levels} for details). This term adds multiple network statistics to the
@@ -1399,17 +1389,17 @@ of the degrees of all pairs of nodes in the network which are tied.
     accomplished if desired by setting \code{levels=TRUE} -- because the sum
     of all such statistics equals twice the number of edges and hence a 
     linear dependency would arise in any model also including
-    \code{edges}. Thus, the \code{levels} argument tells which value(s) 
+    \code{edges}. Thus, the \code{base} and \code{levels} arguments tell which value(s) 
     should be included or excluded (see \link[=node-attr]{Specifying Vertex
-    Attributes and Levels} for details).  The default value, \code{levels=-1}, means that the smallest 
-    (i.e., first in sorted order) attribute value is omitted.  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
+    Attributes and Levels} for details).  The default value, \code{base=1}, means that the smallest 
+    (i.e., first in sorted order) attribute value is omitted.  The argument \code{levels} is preferred to \code{base}, although \code{base}
+	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
+	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are non-NULL, then \code{levels} is
+    applied first, and \code{base} is applied to the result of applying \code{levels}.)  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
     \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
-    for \dQuote{pear}, use any of \code{nodefactor("fruit", levels=-(2:3))}, \code{nodefactor("fruit", levels=c(1,4))}, and
-	\code{nodefactor("fruit", levels=c("apple", "pear"))}.  For an analogous term for quantitative vertex
-    attributes, see \code{nodecov}.
-	
-	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
-	this term. See the above section on versioning for invoking the old behavior.}
+    for \dQuote{pear}, use any of \code{nodefactor("fruit", base=NULL, levels=-(2:3))}, \code{nodefactor("fruit", base=NULL, levels=c(1,4))}, and
+	\code{nodefactor("fruit", base=NULL, levels=c("apple", "pear"))}.  For an analogous term for quantitative vertex
+    attributes, see \code{nodecov}.}
     
 	\item{\code{nodeicov(attr)}  (binary)  (directed) (quantitative nodal attribute) (frequently-used)
     , \code{nodeicov(attr, form="sum")}  (valued)  (directed) (quantitative nodal attribute)
@@ -1432,9 +1422,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     }
 
   
-    \item{\code{nodeifactor(attr, levels=-1)}  (binary)  (dyad-independent)  (directed) (categorical nodal attribute) (frequently-used)
+    \item{\code{nodeifactor(attr, base=1, levels=NULL)}  (binary)  (dyad-independent)  (directed) (categorical nodal attribute) (frequently-used)
     ,
-    \code{nodeifactor(attr, levels=-1, form="sum")}  (valued)  (dyad-independent)  (directed) (categorical nodal attribute)
+    \code{nodeifactor(attr, base=1, levels=NULL, form="sum")}  (valued)  (dyad-independent)  (directed) (categorical nodal attribute)
     }{\emph{Factor attribute
     effect for in-edges:} The \code{attr} argument specifies one or more categorical attributes (see \link[=node-attr]{Specifying Vertex
     Attributes and Levels} for details). This term adds multiple network
@@ -1447,17 +1437,17 @@ of the degrees of all pairs of nodes in the network which are tied.
     by setting \code{levels=TRUE} --
     because the sum of all such statistics
     equals the number of edges and hence a linear dependency would arise
-    in any model also including \code{edges}. Thus, the \code{levels} argument tells which value(s) 
+    in any model also including \code{edges}. Thus, the \code{base} and \code{levels} arguments tell which value(s) 
     should be included or excluded (see \link[=node-attr]{Specifying Vertex
-    Attributes and Levels} for details).  The default value, \code{levels=-1}, means that the smallest 
-    (i.e., first in sorted order) attribute value is omitted.  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
+    Attributes and Levels} for details).  The default value, \code{base=1}, means that the smallest 
+    (i.e., first in sorted order) attribute value is omitted.  The argument \code{levels} is preferred to \code{base}, although \code{base}
+	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
+	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are non-NULL, then \code{levels} is
+    applied first, and \code{base} is applied to the result of applying \code{levels}.)  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
     \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
-    for \dQuote{pear}, use any of \code{nodeifactor("fruit", levels=-(2:3))}, \code{nodeifactor("fruit", levels=c(1,4))}, and
-	\code{nodeifactor("fruit", levels=c("apple", "pear"))}. For an analogous term
-    for quantitative vertex attributes, see \code{nodeicov}.
-	
-	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
-	this term. See the above section on versioning for invoking the old behavior.}
+    for \dQuote{pear}, use any of \code{nodeifactor("fruit", base=NULL, levels=-(2:3))}, \code{nodeifactor("fruit", base=NULL, levels=c(1,4))}, and
+	\code{nodeifactor("fruit", base=NULL, levels=c("apple", "pear"))}. For an analogous term
+    for quantitative vertex attributes, see \code{nodeicov}.}
 
       \item{\code{nodeisqrtcovar}  (valued)  (directed)  (non-negative) (quantitative nodal attribute)
       }{\emph{Uncentered covariance of square roots of in-dyad values
@@ -1468,8 +1458,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     }
 
   
-    \item{\code{nodematch(attr, diff=FALSE, levels=NULL)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (categorical nodal attribute)
-    , \code{nodematch(attr, diff=FALSE, levels=NULL, form="sum")}  (valued)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute)
+    \item{\code{nodematch(attr, diff=FALSE, keep=NULL, levels=NULL)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (categorical nodal attribute)
+    , \code{nodematch(attr, diff=FALSE, keep=NULL, levels=NULL, form="sum")}  (valued)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute)
      a.k.a. \code{match}  (binary)  (directed)  (dyad-independent)  (undirected) (categorical nodal attribute)
      }{\emph{Uniform homophily and differential homophily:}
     The \code{attr} argument specifies one or more attributes (see \link[=node-attr]{Specifying Vertex
@@ -1484,19 +1474,18 @@ of the degrees of all pairs of nodes in the network which are tied.
     attr(j) == value(k)}, where \code{value(k)} is the \eqn{k}th
     smallest unique value of the \code{attr} attribute. This is also called ''differential homophily,'' because each group is allowed to have a unique propensity for within-group ties.  Note that a statistical test of uniform vs. differential homophily should be conducted using the ANOVA function.
     
-    If set to non-NULL, the optional \code{levels} argument specifies values of \code{k} that should be considered for matches (see \link[=node-attr]{Specifying Vertex
+    If set to non-NULL, the optional arguments \code{keep} and \code{levels} specify values of \code{k} that should be considered for matches (see \link[=node-attr]{Specifying Vertex
     Attributes and Levels} for details);
     other values are ignored (this works for both \code{diff=FALSE} and
-    \code{diff=TRUE}). For instance, to add two statistics, counting the
+    \code{diff=TRUE}).    The argument \code{levels} is preferred to \code{keep}, which is
+	less flexible than \code{levels}.  (If both \code{keep} and \code{levels} are specified, then \code{levels} is
+    applied first, and \code{keep} is applied to the result of applying \code{levels}.)  For instance, to add two statistics, counting the
     matches for just the 2nd and 4th categories, use \code{nodematch}
-    with \code{diff=TRUE} and \code{levels=c(2,4)}.
-	
-	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
-	this term. See the above section on versioning for invoking the old behavior.}
+    with \code{diff=TRUE} and \code{levels=c(2,4)}.}
    
-    \item{\code{nodemix(attr, levels=NULL, levels2=NULL, b1levels=NULL, b2levels=NULL)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (categorical nodal attribute)
+    \item{\code{nodemix(attr, base=NULL, b1levels=NULL, b2levels=NULL, levels=NULL, levels2=NULL)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (categorical nodal attribute)
     ,
-    \code{nodemix(attr, levels=NULL, levels2=NULL, b1levels=NULL, b2levels=NULL, form="sum")}  (valued)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute)
+    \code{nodemix(attr, base=NULL, b1levels=NULL, b2levels=NULL, levels=NULL, levels2=NULL, form="sum")}  (valued)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute)
     }{\emph{Nodal attribute
     mixing:} The \code{attr} argument specifies one or more categorical vertex attributes
 	(see \link[=node-attr]{Specifying Vertex Attributes and Levels} for details). By default, this term adds one network statistic to
@@ -1507,12 +1496,11 @@ of the degrees of all pairs of nodes in the network which are tied.
     those attributes.) In other words, this term produces one statistic for
     every entry in the mixing matrix for the attribute(s). By default, the ordering of
     the attribute values is alphabetical (for nominal categories) or
-    numerical (for ordered categories), but this can be overridden using the \code{levels} arguments.   The optional arguments \code{levels}, \code{levels2},
+    numerical (for ordered categories), but this can be overridden using the \code{levels} arguments.   The optional arguments \code{base}, \code{levels}, \code{levels2},
 	\code{b1levels}, and \code{b2levels} control what statistics are included in the model, and the order in which they appear.
-	\code{levels2} applies to all networks; \code{levels} applies to unipartite networks; \code{b1levels} and \code{b2levels} apply to
-	bipartite networks (see \link[=node-attr]{Specifying Vertex Attributes and Levels}).
-	
-	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for this term. See the above section on versioning for invoking the old behavior.}
+	\code{base} and \code{levels2} apply to all networks; \code{levels} applies to unipartite networks; \code{b1levels} and \code{b2levels} apply to
+	bipartite networks (see \link[=node-attr]{Specifying Vertex Attributes and Levels}).  The argument \code{levels2} is preferred to \code{base}.  (If both \code{base} and \code{levels2} are non-NULL, then \code{levels2} is
+    applied first, and \code{base} is applied to the result of applying \code{levels2}.)}
     
 	\item{\code{nodeocov(attr)}  (binary)  (directed) (dyad-independent)(quantitative nodal attribute)
     , \code{nodeocov(attr, form="sum")}  (valued)  (directed) (dyad-independent)
@@ -1536,9 +1524,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     }
 
   
-    \item{\code{nodeofactor(attr, levels=-1)}  (binary)  (dyad-independent)  (directed) (categorical nodal attribute)
+    \item{\code{nodeofactor(attr, base=1, levels=NULL)}  (binary)  (dyad-independent)  (directed) (categorical nodal attribute)
     ,
-    \code{nodeofactor(attr, levels=-1, form="sum")}  (valued)  (dyad-independent)  (categorical nodal attribute) (directed)}{\emph{Factor attribute
+    \code{nodeofactor(attr, base=1, levels=NULL, form="sum")}  (valued)  (dyad-independent)  (categorical nodal attribute) (directed)}{\emph{Factor attribute
     effect for out-edges:} The \code{attr} argument specifies one or more categorical attributes (see \link[=node-attr]{Specifying Vertex
     Attributes and Levels} for details). This term adds multiple network
     statistics to the model, one for each of (a subset of) the unique
@@ -1550,17 +1538,17 @@ of the degrees of all pairs of nodes in the network which are tied.
     by setting \code{levels=TRUE} --
     because the sum of all such statistics
     equals the number of edges and hence a linear dependency would arise
-    in any model also including \code{edges}. Thus, the \code{levels} argument tells which value(s) 
+    in any model also including \code{edges}. Thus, the \code{base} and \code{levels} argument tells which value(s) 
     should be included or excluded (see \link[=node-attr]{Specifying Vertex
-    Attributes and Levels} for details).  The default value, \code{levels=-1}, means that the smallest 
-    (i.e., first in sorted order) attribute value is omitted.  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
+    Attributes and Levels} for details).  The default value, \code{base=1}, means that the smallest 
+    (i.e., first in sorted order) attribute value is omitted.  The argument \code{levels} is preferred to \code{base}, although \code{base}
+	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
+	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are non-NULL, then \code{levels} is
+    applied first, and \code{base} is applied to the result of applying \code{levels}.)  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
     \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
-    for \dQuote{pear}, use any of \code{nodeofactor("fruit", levels=-(2:3))}, \code{nodeofactor("fruit", levels=c(1,4))}, and
-	\code{nodeofactor("fruit", levels=c("apple", "pear"))}. For an analogous term
-    for quantitative vertex attributes, see \code{nodeocov}. 
-	
-	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
-	this term. See the above section on versioning for invoking the old behavior.}
+    for \dQuote{pear}, use any of \code{nodeofactor("fruit", base=NULL, levels=-(2:3))}, \code{nodeofactor("fruit", base=NULL, levels=c(1,4))}, and
+	\code{nodeofactor("fruit", base=NULL, levels=c("apple", "pear"))}. For an analogous term
+    for quantitative vertex attributes, see \code{nodeocov}.}
 
       \item{\code{nodeosqrtcovar}  (valued)  (directed)  (non-negative)
 	  (quantitative nodal attribute)
@@ -1673,9 +1661,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     networks; for undirected networks see \code{kstar}. Note that
     \code{ostar(1)} is equal to both \code{istar(1)} and \code{edges}. }
     
-  \item{\code{receiver(levels=-1)}  (binary)  (directed)  (dyad-independent)
+  \item{\code{receiver(base=1, levels=NULL)}  (binary)  (directed)  (dyad-independent)
     ,
-  \code{receiver(levels=-1, form="sum")}  (valued)  (directed)  (dyad-independent)}{\emph{Receiver effect:} 
+  \code{receiver(base=1, levels=NULL, form="sum")}  (valued)  (directed)  (dyad-independent)}{\emph{Receiver effect:} 
     This term adds one network statistic for each node equal to the number of
     in-ties for that node. This measures the popularity of the node. The term
     for the first node is omitted by default because of linear dependence that
@@ -1683,18 +1671,18 @@ of the degrees of all pairs of nodes in the network which are tied.
     can be computed as the negative of the sum of the coefficients of all the
     other actors. That is, the average coefficient is zero, following the
     Holland-Leinhardt parametrization of the $p_1$ model (Holland and Leinhardt,
-    1981). The \code{level} argument allows the user to determine which nodes'
+    1981). The \code{base} and \code{levels} arguments allow the user to determine which nodes'
     statistics should be included or excluded (see \link[=node-attr]{Specifying Vertex
-    Attributes and Levels} for details).  This
+    Attributes and Levels} for details).  The argument \code{levels} is preferred to \code{base}, although \code{base}
+	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
+	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are non-NULL, then \code{levels} is
+    applied first, and \code{base} is applied to the result of applying \code{levels}.)  This
     term can only be used with directed networks. For undirected networks, see
-    \code{sociality}.
-	
-	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
-	this term. See the above section on versioning for invoking the old behavior.}
+    \code{sociality}.}
     
-  \item{\code{sender(levels=-1)}  (binary)  (directed)  (dyad-independent)
+  \item{\code{sender(base=1, levels=NULL)}  (binary)  (directed)  (dyad-independent)
     ,
-  \code{sender(levels=-1, form="sum")}  (valued)  (directed)  (dyad-independent)}{\emph{Sender effect:} 
+  \code{sender(base=1, levels=NULL, form="sum")}  (valued)  (directed)  (dyad-independent)}{\emph{Sender effect:} 
     This term adds one network statistic for each node equal to the number of
     out-ties for that node. This measures the activity of the node. The term for
     the first node is omitted by default because of linear dependence that
@@ -1702,14 +1690,14 @@ of the degrees of all pairs of nodes in the network which are tied.
     can be computed as the negative of the sum of the coefficients of all the
     other actors. That is, the average coefficient is zero, following the
     Holland-Leinhardt parametrization of the $p_1$ model (Holland and Leinhardt,
-    1981). The \code{level} argument allows the user to determine which nodes'
+    1981). The \code{base} and \code{levels} arguments allow the user to determine which nodes'
     statistics should be included or excluded (see \link[=node-attr]{Specifying Vertex
-    Attributes and Levels} for details). This
+    Attributes and Levels} for details). The argument \code{levels} is preferred to \code{base}, although \code{base}
+	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
+	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are non-NULL, then \code{levels} is
+    applied first, and \code{base} is applied to the result of applying \code{levels}.)  This
     term can only be used with directed networks. For undirected networks, see
-    \code{sociality}.
-	
-	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
-	this term. See the above section on versioning for invoking the old behavior.}
+    \code{sociality}.}
 
     \item{\code{simmelian}  (binary)  (directed)  (triad-related)}{\emph{Simmelian triads:} This term adds one
     statistic to the model equal to the number of Simmelian triads, as defined
@@ -1735,9 +1723,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     number of edges between \code{i} to \code{j} such that
     \code{abs(attr[i]-attr[j])<cutoff}.}
      
-  \item{\code{sociality(attr=NULL, nodelevels=-1, levels=NULL)}  (binary) (undirected) (dyad-independent) (categorical nodal attribute)
+  \item{\code{sociality(attr=NULL, base=1, levels=NULL, nodelevels=NULL)}  (binary) (undirected) (dyad-independent) (categorical nodal attribute)
     ,
-    \code{sociality(attr=NULL, nodelevels=-1, levels=NULL, form="sum")}  (valued) (undirected) (dyad-independent) (categorical nodal attribute)
+    \code{sociality(attr=NULL, base=1, levels=NULL, nodelevels=NULL, form="sum")}  (valued) (undirected) (dyad-independent) (categorical nodal attribute)
     }{\emph{Undirected degree:} 
     This term adds one network statistic for each node equal to the number of
     ties of that node. The optional \code{attr} argument specifies a categorical vertex attribute (see \link[=node-attr]{Specifying Vertex
@@ -1745,13 +1733,13 @@ of the degrees of all pairs of nodes in the network which are tied.
     between nodes with the same value of the attribute (an actor-specific
     version of the \code{nodematch} term), restricted to be one of the values specified by \code{levels} if \code{levels} is not \code{NULL}.  This term can only be used with
     undirected networks.  For directed networks, see \code{sender} and
-    \code{receiver}. By default, \code{nodelevels=-1} means that the statistic for the
+    \code{receiver}. By default, \code{base=1} means that the statistic for the
     first node will be omitted, but this argument may be changed to control
     which statistics are included just as for the \code{levels} argument of \code{sender} and
-    \code{receiver} terms.
-	
-	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
-	this term. See the above section on versioning for invoking the old behavior.}
+    \code{receiver} terms.  The argument \code{nodelevels} is preferred to \code{base}, although \code{base}
+	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
+	(by setting \code{base=NULL} for example) when using \code{nodelevels}.  (If both \code{base} and \code{nodelevels} are non-NULL, then \code{nodelevels} is
+    applied first, and \code{base} is applied to the result of applying \code{nodelevels}.)}
 
 
     \item{\code{sum(pow=1)}  (valued)  (directed)  (undirected)}{\emph{Sum of dyad values (optionally taken
@@ -1760,7 +1748,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     }
       
   
-    \item{\code{threetrail(levels=1:4)} (binary)  (directed)  (undirected)
+    \item{\code{threetrail(keep=NULL, levels=NULL)} (binary)  (directed)  (undirected)
     (triad-related), 
     }{\emph{ Three-trails:}
     a.k.a. \code{threepath}.
@@ -1770,8 +1758,10 @@ of the degrees of all pairs of nodes in the network which are tied.
     Note that a 3-trail need not
     include four distinct nodes; in particular, a triangle counts as three
     3-trails.  For a directed network, this term adds four statistics 
-    (or some subset of these four specified by the \code{levels} argument),
-    one for each of the four distinct types of directed three-paths.  If the 
+    (or some subset of these four specified by the \code{keep} and/or \code{levels} arguments),
+    one for each of the four distinct types of directed three-paths.  The argument \code{levels} is preferred to \code{keep}, which is
+	less flexible than \code{levels}.  (If both \code{keep} and \code{levels} are specified, then \code{levels} is
+    applied first, and \code{keep} is applied to the result of applying \code{levels}.)  If the 
     nodes of the path are written from left to right such that the middle edge
     points to the right (R), then the four types are RRR, RRL, LRR, and LRL.
     That is, an RRR 3-trail is of the form 
@@ -1791,9 +1781,6 @@ of the degrees of all pairs of nodes in the network which are tied.
 
     This term used to be (inaccurately) called \code{threepath}. That
     name has been deprecated and may be removed in a future version.
-	
-	Note that \code{ergm} versions 3.9.4 and earlier used different arguments for
-	this term. See the above section on versioning for invoking the old behavior.
     }
 
     \item{\code{transitive}  (binary)  (directed)  (triad-related)}{\emph{Transitive triads:} 

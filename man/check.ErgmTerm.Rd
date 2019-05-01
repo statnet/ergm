@@ -6,7 +6,9 @@
 \usage{
 check.ErgmTerm(nw, arglist, directed = NULL, bipartite = NULL,
   nonnegative = FALSE, varnames = NULL, vartypes = NULL,
-  defaultvalues = list(), required = NULL, response = NULL)
+  defaultvalues = list(), required = NULL, response = NULL,
+  dep.inform = as.list(rep(FALSE, length(required))),
+  dep.warn = as.list(rep(FALSE, length(required))))
 }
 \arguments{
 \item{nw}{the network that term X is being checked against}
@@ -37,6 +39,18 @@ argument is required; default=NULL}
 \item{response}{Name of the edge attribute whose value is to be
 modeled in the valued ERGM framework. Defaults to \code{NULL} for
 simple presence or absence, modeled via a binary ERGM.}
+
+\item{dep.inform}{list of length equal to the number of arguments the
+term can take; \code{dep.inform[[i]]} should be FALSE is argument i is
+not deprecated with a message, and \code{dep.inform[[i]]} should name an alternative
+argument if argument i is deprecated and an informational message
+is desired; default=as.list(rep(FALSE, length(required)))}
+
+\item{dep.warn}{list of length equal to the number of arguments the
+term can take; \code{dep.warn[[i]]} should be FALSE is argument i is
+not deprecated with a warning, and \code{dep.warn[[i]]} should name an alternative
+argument if argument i is deprecated and a warning is desired;
+default=as.list(rep(FALSE, length(required)))}
 }
 \value{
 A list of the values for each possible argument of term X;
