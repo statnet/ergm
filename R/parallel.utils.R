@@ -116,7 +116,7 @@ NULL
 #'   if started, or no cluster otherwise.
 #' @param verbose logical, should detailed status info be printed to
 #'   console?
-#' @param stop_on_exit An [`environment`], or `NULL`. If an
+#' @param stop_on_exit An [`environment`], `FALSE`, or `NULL`. If an
 #'   `environment`, defaulting to that of the calling function, the
 #'   cluster will be stopped when the calling the frame in question
 #'   exits.
@@ -147,33 +147,11 @@ ergm.getCluster <- function(control=NULL, verbose=FALSE, stop_on_exit=parent.fra
     
     #   Start Cluster
     #' @importFrom parallel makeCluster
-    cl <- switch(type,
-                 # The rpvm package is apparently not being maintained.
-                 PVM={              
-                   #                capture.output(require(rpvm, quietly=TRUE, warn.conflicts = FALSE))
-                   #                PVM.running <- try(.PVM.config(), silent=TRUE)
-                   #                if(inherits(PVM.running,"try-error")){
-                   #                  hostfile <- paste(Sys.getenv("HOME"),"/.xpvm_hosts",sep="")
-                   #                  .PVM.start.pvmd(hostfile)
-                   #                  message("PVM not running. Attempting to start.")
-                   #                }
-                   makeCluster(control$parallel,type="PVM")
-                 },
-                 MPI={
-                   # Remember that we are responsible for it.
-                   makeCluster(control$parallel,type="MPI")
-                 },
-                 SOCK={
-                   makeCluster(control$parallel,type="PSOCK")
-                 },
-                 PSOCK={
-                   makeCluster(control$parallel,type="PSOCK")
-                 }
-                 )
+    cl <- makeCluster(control$parallel, type=type)
     ergm.cluster.started(cl)
 
     # Based on https://yihui.name/en/2017/12/on-exit-parent/ .
-    if(!is.null(stop_on_exit)) do.call(on.exit, list(substitute(ergm.stopCluster(verbose=verbose)), add=TRUE),envir=stop_on_exit)
+    if(NVL(stop_on_exit,FALSE)) do.call(on.exit, list(substitute(ergm.stopCluster(verbose=verbose)), add=TRUE),envir=stop_on_exit)
   }
   # Set RNG up.
   #' @importFrom parallel clusterSetRNGStream
@@ -227,6 +205,21 @@ ergm.stopCluster <- function(..., verbose=FALSE){
     ergm.cluster.started(NULL)
   }else if(verbose>1) message("No cluster to stop.")
 }
+
+#' @rdname ergm-parallel
+#' @description The \code{ergm.restartCluster} restarts a cluster,
+#'   but only if `ergm.getCluster` was responsible for starting it.
+#'
+#' @param \dots not currently used
+#' @export ergm.restartCluster
+ergm.restartCluster <- function(control=NULL, verbose=FALSE){
+  if(!is.null(ergm.cluster.started())){
+    if(verbose) message("Restarting the running cluster:")
+    ergm.stopCluster(verbose=verbose)
+    ergm.getCluster(control, verbose=verbose, stop_on_exit=FALSE) # stop_on_exit is already set by the initial cluster construction.
+  }else if(verbose>1) message("No cluster to restart.")
+}
+
 
 ergm.sample.tomcmc<-function(sample, params){
   if (inherits(params$parallel,"cluster")) 
