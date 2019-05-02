@@ -94,16 +94,12 @@
 #'   arguments of term X; default=list()
 #' @param required the logical vector of whether each possible
 #'   argument is required; default=NULL
-#' @param dep.inform list of length equal to the number of arguments the
-#'   term can take; \code{dep.inform[[i]]} should be FALSE is argument i is
-#'   not deprecated with a message, and \code{dep.inform[[i]]} should name an alternative
-#'   argument if argument i is deprecated and an informational message
-#'   is desired; default=as.list(rep(FALSE, length(required)))
-#' @param dep.warn list of length equal to the number of arguments the
-#'   term can take; \code{dep.warn[[i]]} should be FALSE is argument i is
-#'   not deprecated with a warning, and \code{dep.warn[[i]]} should name an alternative
-#'   argument if argument i is deprecated and a warning is desired;
-#'   default=as.list(rep(FALSE, length(required)))
+#' @param dep.inform,dep.warn a list of length equal to the number of
+#'   arguments the term can take; if the corresponding element of the
+#'   list is not `FALSE`, a [message()] or a [warning()] respectively
+#'   will be issued if the user tries to pass it; if the element is a
+#'   character string, it will be used as a suggestion for
+#'   replacement.
 #' @template response
 #' @return A list of the values for each possible argument of term X;
 #'   user provided values are used when given, default values
@@ -180,17 +176,21 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
         # correct type if we got to here
         out[m] <- list(arglist[[i]])
 		
-		still.required[m] <- FALSE
-		argument.counts[m] <- argument.counts[m] + 1
-		
-		if(dep.inform[[m]] != FALSE)
-		{
-		  ergm_Init_inform("Argument \"", varnames[m], "\" has been superseded by \"", dep.inform[[m]], "\", and it is recommended to use the latter.  Note that its interpretation may be different.")
-		}
-		if(dep.warn[[m]] != FALSE)
-		{
-		  ergm_Init_warn("Argument \"", varnames[m], "\" has been deprecated and may be removed in a future version.  Use \"", dep.warn[[m]], "\" instead.  Note that its interpretation may be different.")
-		}
+        still.required[m] <- FALSE
+        argument.counts[m] <- argument.counts[m] + 1
+
+        if(dep.inform[[m]] != FALSE) {
+          if(is.character(dep.inform[[m]]))
+            ergm_Init_inform("Argument \"", varnames[m], "\" has been superseded by \"", dep.inform[[m]], "\", and it is recommended to use the latter.  Note that its interpretation may be different.")
+          else
+            ergm_Init_inform("Argument \"", varnames[m], "\" has been deprecated and may be removed in a future version.")
+        }
+        if(dep.warn[[m]] != FALSE) {
+          if(is.character(dep.inform[[m]]))
+            ergm_Init_warn("Argument \"", varnames[m], "\" has been deprecated and may be removed in a future version.  Use \"", dep.warn[[m]], "\" instead.  Note that its interpretation may be different.")
+          else
+            ergm_Init_warn("Argument \"", varnames[m], "\" has been deprecated and may be removed in a future version.")
+        }
       } else { # no user-typed name for this argument
         if (!is.null(m)) {
           ergm_Init_abort("Unnamed argument follows named argument.")

@@ -40,17 +40,12 @@ argument is required; default=NULL}
 modeled in the valued ERGM framework. Defaults to \code{NULL} for
 simple presence or absence, modeled via a binary ERGM.}
 
-\item{dep.inform}{list of length equal to the number of arguments the
-term can take; \code{dep.inform[[i]]} should be FALSE is argument i is
-not deprecated with a message, and \code{dep.inform[[i]]} should name an alternative
-argument if argument i is deprecated and an informational message
-is desired; default=as.list(rep(FALSE, length(required)))}
-
-\item{dep.warn}{list of length equal to the number of arguments the
-term can take; \code{dep.warn[[i]]} should be FALSE is argument i is
-not deprecated with a warning, and \code{dep.warn[[i]]} should name an alternative
-argument if argument i is deprecated and a warning is desired;
-default=as.list(rep(FALSE, length(required)))}
+\item{dep.inform, dep.warn}{a list of length equal to the number of
+arguments the term can take; if the corresponding element of the
+list is not \code{FALSE}, a \code{\link[=message]{message()}} or a \code{\link[=warning]{warning()}} respectively
+will be issued if the user tries to pass it; if the element is a
+character string, it will be used as a suggestion for
+replacement.}
 }
 \value{
 A list of the values for each possible argument of term X;
