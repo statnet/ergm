@@ -40,7 +40,7 @@ if started, or no cluster otherwise.}
 \item{verbose}{logical, should detailed status info be printed to
 console?}
 
-\item{stop_on_exit}{An \code{\link{environment}}, \code{FALSE}, or \code{NULL}. If an
+\item{stop_on_exit}{An \code{\link{environment}} or \code{NULL}. If an
 \code{environment}, defaulting to that of the calling function, the
 cluster will be stopped when the calling the frame in question
 exits.}
@@ -72,7 +72,7 @@ The \code{ergm.stopCluster} shuts down a
 cluster, but only if \code{ergm.getCluster} was responsible for
 starting it.
 
-The \code{ergm.restartCluster} restarts a cluster,
+The \code{ergm.restartCluster} restarts and returns a cluster,
 but only if \code{ergm.getCluster} was responsible for starting it.
 
 \code{nthreads} is a simple generic to obtain the number of
