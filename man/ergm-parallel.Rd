@@ -8,6 +8,7 @@
 \alias{parallel-ergm}
 \alias{ergm.getCluster}
 \alias{ergm.stopCluster}
+\alias{ergm.restartCluster}
 \alias{set.MT_terms}
 \alias{get.MT_terms}
 \alias{nthreads}
@@ -20,6 +21,8 @@ ergm.getCluster(control = NULL, verbose = FALSE,
   stop_on_exit = parent.frame())
 
 ergm.stopCluster(..., verbose = FALSE)
+
+ergm.restartCluster(control = NULL, verbose = FALSE)
 
 set.MT_terms(n)
 
@@ -42,7 +45,7 @@ if started, or no cluster otherwise.}
 \item{verbose}{logical, should detailed status info be printed to
 console?}
 
-\item{stop_on_exit}{An \code{\link{environment}}, or \code{NULL}. If an
+\item{stop_on_exit}{An \code{\link{environment}} or \code{NULL}. If an
 \code{environment}, defaulting to that of the calling function, the
 cluster will be stopped when the calling the frame in question
 exits.}
@@ -54,6 +57,8 @@ starting value) disables multithreading, and \eqn{-1} or
 \code{NA} sets it to the number of CPUs detected.}
 
 \item{clinfo}{a \code{\link{cluster}} or another object.}
+
+\item{\dots}{not currently used}
 }
 \value{
 \code{\link[=set.MT_terms]{set.MT_terms()}} returns the previous setting, invisibly.
@@ -74,6 +79,9 @@ same version of \code{ergm} is installed on each node.
 The \code{ergm.stopCluster} shuts down a
 cluster, but only if \code{ergm.getCluster} was responsible for
 starting it.
+
+The \code{ergm.restartCluster} restarts and returns a cluster,
+but only if \code{ergm.getCluster} was responsible for starting it.
 
 \code{nthreads} is a simple generic to obtain the number of
 parallel processes represented by its argument, keeping in mind

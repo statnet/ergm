@@ -141,6 +141,8 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
   out = defaultvalues
   names(out)=varnames
   m=NULL
+  still.required <- required
+  argument.counts <- rep(0, length(required))
   if (la>0) {
     for(i in 1:la) { # check each arglist entry
       if (!is.null(names(arglist)) && (name <- names(arglist)[i]) != "") {
@@ -155,6 +157,9 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
         }
         # correct type if we got to here
         out[m] <- list(arglist[[i]])
+		
+		still.required[m] <- FALSE
+		argument.counts[m] <- argument.counts[m] + 1
       } else { # no user-typed name for this argument
         if (!is.null(m)) {
           ergm_Init_abort("Unnamed argument follows named argument.")
@@ -165,9 +170,19 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
         }
         # correct type if we got to here
         out[i] <- list(arglist[[i]])
+		
+		still.required[i] <- FALSE
+		argument.counts[i] <- argument.counts[i] + 1
       }
     }
   }
   #  c(.conflicts.OK=TRUE,out)
+  
+  if(any(still.required))
+    ergm_Init_abort("argument \"", varnames[which(still.required)[1]], "\" is missing, with no default.")
+
+  if(any(argument.counts > 1))
+    ergm_Init_abort("formal argument \"", varnames[which(argument.counts > 1)[1]], "\" matched by multiple actual arguments.")
+	
   out
 }
