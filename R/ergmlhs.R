@@ -49,7 +49,7 @@
 #' @describeIn ergmlhs `convert_ergmlhs` converts old-style settings to new-style settings.
 #' @export
 convert_ergmlhs <- function(lhs){
-  for(attr in c("response","constraints","constraints.obs")){
+  for(attr in c("response","constraints","obs.constraints")){
     NVL(lhs%ergmlhs%attr) <- lhs %n% attr
     lhs %n% attr <- NULL
   }
