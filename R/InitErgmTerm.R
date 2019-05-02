@@ -3791,7 +3791,8 @@ InitErgmTerm.sociality<-function(nw, arglist, ..., version=packageVersion("ergm"
                         vartypes = c("character", "numeric", "character,numeric,logical"),
                         defaultvalues = list(NULL, 1, NULL),
                         required = c(FALSE, FALSE, FALSE),
-						dep.inform = list(FALSE, "nodelevels", FALSE))
+                        dep.inform = list(FALSE, "nodelevels", FALSE),
+                        dep.warn = list(TRUE, FALSE, TRUE))
     attrarg <- a$attrname	
 	levels <- if(!is.null(a$levels)) I(a$levels) else NULL		
   }else{
@@ -3800,7 +3801,8 @@ InitErgmTerm.sociality<-function(nw, arglist, ..., version=packageVersion("ergm"
                         vartypes = c(ERGM_VATTR_SPEC, "numeric", ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC),
                         defaultvalues = list(NULL, 1, NULL, NULL),
                         required = c(FALSE, FALSE, FALSE, FALSE),
-						dep.inform = list(FALSE, "nodelevels", FALSE, FALSE))  
+                        dep.inform = list(FALSE, "nodelevels", FALSE, FALSE),
+                        dep.warn = list(TRUE, FALSE, TRUE, FALSE))
 	attrarg <- a$attr
 	levels <- a$levels
   }
