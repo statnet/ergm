@@ -361,8 +361,6 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, ..., version=packageVersion("er
 	
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
-    if (length(u)==1)
-      ergm_Init_abort ("Attribute given to b1concurrent() has only one value")
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     ui <- seq(along=u)
@@ -419,8 +417,6 @@ InitErgmTerm.b1degrange<-function(nw, arglist, ..., version=packageVersion("ergm
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
-    if (length(u)==1)
-         ergm_Init_abort ("Attribute given to b1degrange() has only one value")
   }
   if(!is.null(byarg) && !homophily) {
     # Combine b1degrange and u into 3xk matrix, where k=length(from)*length(u)
@@ -800,8 +796,6 @@ InitErgmTerm.b2concurrent<-function(nw, arglist, ..., version=packageVersion("er
 	
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
-    if (length(u)==1)
-      ergm_Init_abort ("Attribute given to b2concurrent() has only one value")
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     ui <- seq(along=u)
@@ -890,8 +884,6 @@ InitErgmTerm.b2degrange<-function(nw, arglist, ..., version=packageVersion("ergm
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
-    if (length(u)==1)
-         ergm_Init_abort ("Attribute given to b2degrange() has only one value")
   }
   if(!is.null(byarg) && !homophily) {
     # Combine b2degrange and u into 3xk matrix, where k=length(from)*length(u)
@@ -1032,9 +1024,6 @@ InitErgmTerm.b2factor<-function (nw, arglist, ..., version=packageVersion("ergm"
   
   if(all(is.na(nodecov)))
 	  ergm_Init_abort("Argument to b2factor() does not exist")
-  
-  if(length(unique(nodecov)) == 1) # this counts NA as a value, if present, since we aren't sorting
-      ergm_Init_abort ("Argument to b2factor() has only one value")
   
   u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
 
@@ -1253,8 +1242,6 @@ InitErgmTerm.balance<-function (nw, arglist, ..., version=packageVersion("ergm")
    nodecov <- match(nodecov,u,nomatch=length(u)+1)
    ui <- seq(along=u)
 
-   if (length(u)==1)
-         ergm_Init_abort ("Attribute given to balance() has only one value")
    if (!diff) {
      #     No parameters before covariates here, so no need for "ParamsBeforeCov"
      coef.names <- paste("balance",attrname,sep=".")
@@ -1304,8 +1291,6 @@ InitErgmTerm.concurrent<-function(nw, arglist, ..., version=packageVersion("ergm
 
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
-    if (length(u)==1)
-      ergm_Init_abort ("Attribute given to concurrent() has only one value")
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     ui <- seq(along=u)
@@ -1355,8 +1340,6 @@ InitErgmTerm.ctriple<-InitErgmTerm.ctriad<-function (nw, arglist, ..., version=p
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
-    if (length(u)==1)
-      ergm_Init_abort ("Attribute given to ctriple() has only one value")
     if (!diff) {
       coef.names <- paste("ctriple",attrname,sep=".")
       inputs <- c(nodecov)
@@ -1461,8 +1444,6 @@ InitErgmTerm.degrange<-function(nw, arglist, ..., version=packageVersion("ergm")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
-    if (length(u)==1)
-         ergm_Init_abort ("Attribute given to degrange() has only one value")
   }
   if(!is.null(byarg) && !homophily) {
     # Combine degrange and u into 3xk matrix, where k=length(from)*length(u)
@@ -1540,8 +1521,6 @@ InitErgmTerm.degree<-function(nw, arglist, ..., version=packageVersion("ergm")) 
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
-    if (length(u)==1)
-         ergm_Init_abort ("Attribute given to degree() has only one value")
   }
   if(!is.null(byarg) && !homophily) {
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
@@ -1879,8 +1858,6 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, .
       u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
       if(any(is.na(nodecov))){u<-c(u,NA)}
       nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
-      if (length(u)==1)
-        ergm_Init_abort ("Attribute given to gwb1degree() has only one value")
       # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
       lu <- length(u)
       du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
@@ -1948,8 +1925,6 @@ InitErgmTerm.gwb2degree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, .
       u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
       if(any(is.na(nodecov))){u<-c(u,NA)}
       nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
-      if (length(u)==1)
-        ergm_Init_abort ("Attribute given to gwb2degree() has only one value")
       # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
       lu <- length(u)
       du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
@@ -2012,8 +1987,6 @@ InitErgmTerm.gwdegree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ...
       u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
       if(any(is.na(nodecov))){u<-c(u,NA)}
       nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
-      if (length(u)==1)
-        ergm_Init_abort ("Attribute given to gwdegree() has only one value")
       # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
       lu <- length(u)
       du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
@@ -2153,8 +2126,6 @@ InitErgmTerm.gwidegree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ..
       u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
       if(any(is.na(nodecov))){u<-c(u,NA)}
       nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
-      if (length(u)==1)
-        ergm_Init_abort ("Attribute given to gwidegree() has only one value")
       # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
       lu <- length(u)
       du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
@@ -2254,8 +2225,6 @@ InitErgmTerm.gwodegree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ..
       u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
       if(any(is.na(nodecov))){u<-c(u,NA)}
       nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
-      if (length(u)==1)
-        ergm_Init_abort ("Attribute given to gwodegree() has only one value")
       # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
       lu <- length(u)
       du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
@@ -2412,9 +2381,6 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ..., version=packageVersion("erg
   nodecov <- ergm_get_vattr(attrarg, nw)
   attrname <- attr(nodecov, "name")
 
-  if(length(unique(nodecov)) == 1)
-      ergm_Init_abort ("Argument to hammingmix() has only one value")
-
   u <- ergm_attr_levels(a$levels, nodecov, nw, sort(unique(nodecov)))
   namescov <- u
   
@@ -2493,8 +2459,6 @@ InitErgmTerm.idegrange<-function(nw, arglist, ..., version=packageVersion("ergm"
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
-    if (length(u)==1)
-         ergm_Init_abort ("Attribute given to idegrange() has only one value")
   }
   if(!is.null(byarg) && !homophily) {
     # Combine idegrange and u into 3xk matrix, where k=length(from)*length(u)
@@ -2570,8 +2534,6 @@ InitErgmTerm.idegree<-function(nw, arglist, ..., version=packageVersion("ergm"))
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
-    if (length(u)==1)
-         ergm_Init_abort ("Attribute given to idegree() has only one value")
   }
   if(!is.null(byarg) && !homophily) {
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
@@ -2702,8 +2664,6 @@ InitErgmTerm.istar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
     if(any(is.na(nodecov))){u<-c(u,NA)}
 #     Recode to numeric if necessary
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
-    if (length(u)==1)
-      ergm_Init_abort ("Attribute given to istar() has only one value")
   }else{
   }
   lk<-length(k)
@@ -2752,8 +2712,6 @@ InitErgmTerm.kstar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
     if(any(is.na(nodecov))){u<-c(u,NA)}
 #    Recode to numeric if necessary
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
-    if (length(u)==1)
-      ergm_Init_abort ("Attribute given to kstar() has only one value")
   }
   lk<-length(k)
   if(lk==0){return(NULL)}
@@ -3501,8 +3459,6 @@ InitErgmTerm.odegrange<-function(nw, arglist, ..., version=packageVersion("ergm"
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
-    if (length(u)==1)
-         ergm_Init_abort ("Attribute given to odegrange() has only one value")
   }
   if(!is.null(byarg) && !homophily) {
     # Combine odegrange and u into 3xk matrix, where k=length(from)*length(u)
@@ -3578,8 +3534,6 @@ InitErgmTerm.odegree<-function(nw, arglist, ..., version=packageVersion("ergm"))
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
-    if (length(u)==1)
-         ergm_Init_abort ("Attribute given to odegree() has only one value")
   }
   if(!is.null(byarg) && !homophily) {
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
@@ -3690,8 +3644,6 @@ InitErgmTerm.ostar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
     if(any(is.na(nodecov))){u<-c(u,NA)}
     # Recode to numeric
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
-    if (length(u)==1)
-      ergm_Init_abort ("Attribute given to ostar() has only one value")
   }
   lk<-length(k)
   if(lk==0){return(NULL)}
@@ -3863,8 +3815,6 @@ InitErgmTerm.sociality<-function(nw, arglist, ..., version=packageVersion("ergm"
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
-    if (length(u)==1)
-      ergm_Init_abort ("Attribute given to sociality() has only one value")
   }
   ld<-length(d)
   if(ld==0){return(NULL)}
@@ -4049,8 +3999,6 @@ InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, ..., versi
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
-    if (length(u)==1)
-      ergm_Init_abort ("Attribute given to triangle() has only one value")
     if (!diff) {
       coef.names <- paste("triangle",attrname,sep=".")
       inputs <- c(nodecov)
@@ -4095,8 +4043,6 @@ InitErgmTerm.tripercent<-function (nw, arglist, ..., version=packageVersion("erg
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
-    if (length(u)==1)
-      ergm_Init_abort ("Attribute given to tripercent() has only one value")
     if (!diff) {
       coef.names <- paste("tripercent",attrname,sep=".")
       inputs <- c(1, nodecov)
@@ -4141,8 +4087,6 @@ InitErgmTerm.ttriple<-InitErgmTerm.ttriad<-function (nw, arglist, ..., version=p
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
-    if (length(u)==1)
-      ergm_Init_abort ("Attribute given to ttriple() has only one value")
     if (!diff) {
       coef.names <- paste("ttriple",attrname,sep=".")
       inputs <- c(nodecov)
