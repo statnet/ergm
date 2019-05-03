@@ -27,7 +27,7 @@ if(!is.null(out)){
 
 set.seed(1)
 
-out <- tryCatch(ergm(flomarriage~offset(edges)+edges+gwdegree(fix=FALSE)+degree(0)+offset(degree(1)),target.stats=summary(flomarriage~edges+gwdegree(fix=FALSE)+degree(0)),
+out <- tryCatch(ergm(flomarriage~offset(edges)+edges+gwdegree(0, fix=FALSE)+degree(0)+offset(degree(1)),target.stats=summary(flomarriage~edges+gwdegree(0, fix=FALSE)+degree(0)),
               offset.coef=c(0,-0.25)),
          error=function(e) stop('error in target + offset test', e), 
          warning=warnf)

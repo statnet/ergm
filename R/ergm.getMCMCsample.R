@@ -61,7 +61,7 @@
 ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL, 
                              response=NULL, update.nws = TRUE, verbose=FALSE,..., eta=ergm.eta(theta, model$etamap)) {
   # Start cluster if required (just in case we haven't already).
-  cl <- ergm.getCluster(control, verbose)
+  ergm.getCluster(control, verbose)
   
   if(is.network(nw) || is.pending_update_network(nw)) nw <- list(nw)
   nws <- rep(nw, length.out=nthreads(control))
@@ -75,8 +75,8 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
 
   #' @importFrom parallel clusterMap
   doruns <- function(prev.runs=rep(list(NULL),nthreads(control)), burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL){
-    if(!is.null(cl)) clusterMap(cl,ergm_MCMC_slave,
-                                  Clist=Clists, prev.run=prev.runs, MoreArgs=list(proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges))
+    if(!is.null(ergm.getCluster(control))) .persistEvalq({clusterMap(ergm.getCluster(control),ergm_MCMC_slave,
+                                  Clist=Clists, prev.run=prev.runs, MoreArgs=list(proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges))}, retries=getOption("ergm.cluster.retries"), before_retry={ergm.restartCluster(control,verbose)})
     else list(ergm_MCMC_slave(Clist=Clists[[1]], prev.run=prev.runs[[1]],burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges,proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...))
   }
   

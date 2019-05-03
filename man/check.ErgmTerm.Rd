@@ -6,7 +6,9 @@
 \usage{
 check.ErgmTerm(nw, arglist, directed = NULL, bipartite = NULL,
   nonnegative = FALSE, varnames = NULL, vartypes = NULL,
-  defaultvalues = list(), required = NULL, response = NULL)
+  defaultvalues = list(), required = NULL, response = NULL,
+  dep.inform = as.list(rep(FALSE, length(required))),
+  dep.warn = as.list(rep(FALSE, length(required))))
 }
 \arguments{
 \item{nw}{the network that term X is being checked against}
@@ -37,6 +39,13 @@ argument is required; default=NULL}
 \item{response}{Name of the edge attribute whose value is to be
 modeled in the valued ERGM framework. Defaults to \code{NULL} for
 simple presence or absence, modeled via a binary ERGM.}
+
+\item{dep.inform, dep.warn}{a list of length equal to the number of
+arguments the term can take; if the corresponding element of the
+list is not \code{FALSE}, a \code{\link[=message]{message()}} or a \code{\link[=warning]{warning()}} respectively
+will be issued if the user tries to pass it; if the element is a
+character string, it will be used as a suggestion for
+replacement.}
 }
 \value{
 A list of the values for each possible argument of term X;
