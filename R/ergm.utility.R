@@ -438,7 +438,7 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
 #' e <- quote(if((x<-x+1)<3) stop("x < 3") else x)
 #' persistEval(e, before_retry = quote(cat("Will try incrementing...\n")))
 #' @noRd
-persistEval <- function(expr, retries=NVL(getOption("eval.retries"), 5), before_retry,
+.persistEval <- function(expr, retries=NVL(getOption("eval.retries"), 5), before_retry,
                         envir = parent.frame(),
                         enclos = if (is.list(envir) ||
                                      is.pairlist(envir)) parent.frame() else baseenv(), verbose=FALSE){
@@ -455,7 +455,7 @@ persistEval <- function(expr, retries=NVL(getOption("eval.retries"), 5), before_
 
 ## #' @rdname persistEval
 #' @noRd
-persistEvalq <- function(expr, retries=NVL(getOption("eval.retries"), 5), before_retry,
+.persistEvalq <- function(expr, retries=NVL(getOption("eval.retries"), 5), before_retry,
                          envir = parent.frame(),
                          enclos = if (is.list(envir) ||
                                       is.pairlist(envir)) parent.frame() else baseenv(), verbose=FALSE){
@@ -464,5 +464,5 @@ persistEvalq <- function(expr, retries=NVL(getOption("eval.retries"), 5), before
   envir <- force(envir)
   enclos <- force(enclos)
 
-  persistEval(expr=expr, retries=retries, before_retry=before_retry, envir=envir, enclos=enclos, verbose=verbose)
+  .persistEval(expr=expr, retries=retries, before_retry=before_retry, envir=envir, enclos=enclos, verbose=verbose)
 }

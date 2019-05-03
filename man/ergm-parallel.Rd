@@ -48,8 +48,6 @@ exits.}
 \item{\dots}{not currently used}
 
 \item{clinfo}{a \code{\link{cluster}} or another object.}
-
-\item{\dots}{not currently used}
 }
 \description{
 For estimation that require MCMC, \code{\link[=ergm-package]{ergm}}
