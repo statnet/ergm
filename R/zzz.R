@@ -23,7 +23,8 @@
 
   # Set default options, but don't clobber if already set.
   OPTIONS <- list(ergm.eval.loglik=TRUE,
-                  ergm.loglik.warn_dyads=TRUE)
+                  ergm.loglik.warn_dyads=TRUE,
+                  ergm.cluster.retries=5)
   current <- names(options())
   for(opt in names(OPTIONS)){
     if(! opt%in%current){

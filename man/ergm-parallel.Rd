@@ -57,8 +57,6 @@ starting value) disables multithreading, and \eqn{-1} or
 \code{NA} sets it to the number of CPUs detected.}
 
 \item{clinfo}{a \code{\link{cluster}} or another object.}
-
-\item{\dots}{not currently used}
 }
 \value{
 \code{\link[=set.MT_terms]{set.MT_terms()}} returns the previous setting, invisibly.

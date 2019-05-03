@@ -320,7 +320,6 @@ ergm.stopCluster <- function(..., verbose=FALSE){
 #' @description The \code{ergm.restartCluster} restarts and returns a cluster,
 #'   but only if `ergm.getCluster` was responsible for starting it.
 #'
-#' @param \dots not currently used
 #' @export ergm.restartCluster
 ergm.restartCluster <- function(control=NULL, verbose=FALSE){
   if(!is.null(ergm.cluster.started())){
