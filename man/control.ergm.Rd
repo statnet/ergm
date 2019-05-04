@@ -7,25 +7,25 @@
 control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   main.method = c("MCMLE", "Robbins-Monro", "Stochastic-Approximation",
   "Stepping"), force.main = FALSE, main.hessian = TRUE,
-  MPLE.max.dyad.types = 1e+06, MPLE.samplesize = 50000,
-  MPLE.type = c("glm", "penalized", "logitreg"), MPLE.maxit = 10000,
-  MCMC.prop.weights = "default", MCMC.prop.args = list(),
-  MCMC.interval = NULL, MCMC.burnin = EVL(MCMC.interval * 16),
-  MCMC.samplesize = NULL, MCMC.effectiveSize = NULL,
-  MCMC.effectiveSize.damp = 10, MCMC.effectiveSize.maxruns = 16,
-  MCMC.effectiveSize.base = 1/2, MCMC.effectiveSize.points = 5,
-  MCMC.effectiveSize.burnin.pval = 0.2, MCMC.return.stats = TRUE,
-  MCMC.runtime.traceplot = FALSE, MCMC.init.maxedges = 20000,
-  MCMC.max.maxedges = Inf, MCMC.addto.se = TRUE,
-  MCMC.compress = FALSE, MCMC.packagenames = c(), SAN.maxit = 4,
-  SAN.nsteps.times = 8, SAN.control = control.san(term.options =
-  term.options, SAN.maxit = SAN.maxit, SAN.prop.weights =
-  MCMC.prop.weights, SAN.prop.args = MCMC.prop.args, SAN.init.maxedges =
-  MCMC.init.maxedges, SAN.max.maxedges = MCMC.max.maxedges, SAN.nsteps =
-  EVL(MCMC.burnin, 16384) * SAN.nsteps.times, SAN.samplesize =
-  EVL(MCMC.samplesize, 1024), SAN.packagenames = MCMC.packagenames,
-  parallel = parallel, parallel.type = parallel.type,
-  parallel.version.check = parallel.version.check),
+  checkpoint = NULL, resume = NULL, MPLE.max.dyad.types = 1e+06,
+  MPLE.samplesize = 50000, MPLE.type = c("glm", "penalized",
+  "logitreg"), MPLE.maxit = 10000, MCMC.prop.weights = "default",
+  MCMC.prop.args = list(), MCMC.interval = NULL,
+  MCMC.burnin = EVL(MCMC.interval * 16), MCMC.samplesize = NULL,
+  MCMC.effectiveSize = NULL, MCMC.effectiveSize.damp = 10,
+  MCMC.effectiveSize.maxruns = 16, MCMC.effectiveSize.base = 1/2,
+  MCMC.effectiveSize.points = 5, MCMC.effectiveSize.burnin.pval = 0.2,
+  MCMC.return.stats = TRUE, MCMC.runtime.traceplot = FALSE,
+  MCMC.init.maxedges = 20000, MCMC.max.maxedges = Inf,
+  MCMC.addto.se = TRUE, MCMC.compress = FALSE,
+  MCMC.packagenames = c(), SAN.maxit = 4, SAN.nsteps.times = 8,
+  SAN.control = control.san(term.options = term.options, SAN.maxit =
+  SAN.maxit, SAN.prop.weights = MCMC.prop.weights, SAN.prop.args =
+  MCMC.prop.args, SAN.init.maxedges = MCMC.init.maxedges, SAN.max.maxedges
+  = MCMC.max.maxedges, SAN.nsteps = EVL(MCMC.burnin, 16384) *
+  SAN.nsteps.times, SAN.samplesize = EVL(MCMC.samplesize, 1024),
+  SAN.packagenames = MCMC.packagenames, parallel = parallel, parallel.type
+  = parallel.type, parallel.version.check = parallel.version.check),
   MCMLE.termination = c("confidence", "Hummel", "Hotelling", "precision",
   "none"), MCMLE.maxit = 30, MCMLE.conv.min.pval = 0.5,
   MCMLE.confidence = 0.99, MCMLE.confidence.boost = 2,
@@ -154,6 +154,20 @@ estimation.}
 
 \item{main.hessian}{Logical: If TRUE, then an approximate Hessian matrix is
 used in the MCMC-based estimation method.}
+
+\item{checkpoint}{At the start of every iteration, save the state
+of the optimizer in a way that will allow it to be resumed. The
+name is passed through \code{\link[=sprintf]{sprintf()}} with iteration number as the
+second argument. (For example, \code{checkpoint="step_\%03d.RData"}
+will save to \code{step_001.RData}, \code{step_002.RData}, etc.)}
+
+\item{resume}{If given a file name of an \code{RData} file produced by
+\code{checkpoint}, the optimizer will attempt to resume after
+restoring the state. Control parameters from the saved state will
+be reused, except for those whose value passed via
+\code{control.ergm()} had change from the saved run. Note that if the
+network, the model, or some critical settings differ between
+runs, the results may be undefined.}
 
 \item{MPLE.max.dyad.types}{Maximum number of unique values of change
 statistic vectors, which are the predictors in a logistic regression used to
@@ -476,8 +490,9 @@ stuck below this minimum value.}
 
 \item{MCMLE.save_intermediates}{Every iteration, after MCMC
 sampling, save the MCMC sample and some miscellaneous information
-to a file with this name. The name is passed through \code{\link[=sprintf]{sprintf()}}
-with iteration number as the second argument. (So, for example,
+to a file with this name. This is mainly useful for diagnostics
+and debugging. The name is passed through \code{\link[=sprintf]{sprintf()}} with
+iteration number as the second argument. (For example,
 \code{MCMLE.save_intermediates="step_\%03d.RData"} will save to
 \code{step_001.RData}, \code{step_002.RData}, etc.)}
 

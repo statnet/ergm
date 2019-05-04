@@ -115,6 +115,8 @@ is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly 
   ## NOTE: PCA code has been moved to .Hummel.steplength().
   ##
 
+  if(getRversion()>="3.6.0" && .Platform$OS.type=="unix") message("NOTE: Messages ",sQuote("Error in mcexit(0L)"), " may appear; please disregard them.")
+
   timeout <- 1
   for(i in seq_len(nrow(p))){
     ############################################
