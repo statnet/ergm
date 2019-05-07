@@ -457,8 +457,7 @@ network
     statistic is the number of edges in the network with the corresponding
     absolute difference. The optional arguments \code{base} and \code{levels} specify which 
 	nonzero differences to include in or exclude from the model (see \link[=node-attr]{Specifying Vertex
-    Attributes and Levels} for details).  The \code{levels} argument is preferred to the \code{base} argument.  (If both \code{base} and \code{levels} are non-NULL, then \code{levels} is
-    applied first, and \code{base} is applied to the result of applying \code{levels}.)  For instance, if the possible values of
+    Attributes and Levels} for details).  The \code{levels} argument is preferred to the \code{base} argument.  (If both \code{base} and \code{levels} are supplied, then \code{levels} overrides \code{base}.)  For instance, if the possible values of
     \code{abs(attr[i]-attr[j])} are 0, 0.5, 3, 3.5, and 10, then to omit
     0.5 and 10 one could set \code{levels=2:3} (we wish to retain the second and third nonzero difference,
 	when differences are sorted in increasing order). Note that this term should
@@ -494,8 +493,7 @@ network
     vertex attribute \code{attr} are counted. The optional modifiers \code{diff}, \code{keep}, and
     \code{levels} are used in the same way as for the \code{nodematch} term; refer
     to this term for details and an example.  The argument \code{levels} is preferred to \code{keep}, which is
-	less flexible than \code{levels}.  (If both \code{keep} and \code{levels} are specified, then \code{levels} is
-    applied first, and \code{keep} is applied to the result of applying \code{levels}.)}
+	less flexible than \code{levels}.  (If both \code{keep} and \code{levels} are supplied, then \code{levels} overrides \code{keep}.)}
 
   \item{\code{atleast(threshold=0)}  (valued)  (directed)  (undirected) (dyad-independent)}{\emph{Number of dyads with values
       greater than or equal to a threshold} Adds the number of
@@ -598,8 +596,7 @@ network
     Attributes and Levels} for details).  The default value, \code{base=1}, means that the smallest (i.e., first in
     sorted order) attribute value is omitted.  The argument \code{levels} is preferred to \code{base}, although \code{base}
 	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
-	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are non-NULL, then \code{levels} is
-    applied first, and \code{base} is applied to the result of applying \code{levels}.)
+	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are supplied, then \code{levels} overrides \code{base}.)
 	For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
     \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
     for \dQuote{pear}, use any of \code{b1factor("fruit", base=NULL, levels=-(2:3))}, \code{b1factor("fruit", base=NULL, levels=c(1,4))}, and
@@ -627,8 +624,7 @@ network
     statistics to the model, one for each of (a subset of) the unique values of the \code{attr} 
     attribute. To include only the attribute values you wish, use the \code{keep} and/or \code{levels} arguments. 
     The argument \code{levels} is preferred to \code{keep}, which is
-	less flexible than \code{levels}.  (If both \code{keep} and \code{levels} are specified, then \code{levels} is
-    applied first, and \code{keep} is applied to the result of applying \code{levels}.)  If an \code{alpha}
+	less flexible than \code{levels}.  (If both \code{keep} and \code{levels} are supplied, then \code{levels} overrides \code{keep}.)  If an \code{alpha}
 	discount parameter is used, each of these statistics gives the sum of 
     the number of common second-mode nodes raised to the power \code{alpha} for each pair of 
     first-mode nodes with that attribute. If a \code{beta} discount parameter is used, each 
@@ -699,8 +695,7 @@ network
     \eqn{n_1(n_2)(n_2+1)/2}.  By default, this model term creates a distinct statistic
     counting each of these categories.  The \code{b1levels}, \code{b2levels}, \code{base}, and \code{levels2} arguments
 	may be used to leave some of these categories out (see \link[=node-attr]{Specifying Vertex
-    Attributes and Levels} for details).  The \code{levels2} argument is preferred to the \code{base} argument.  (If both \code{base} and \code{levels2} are non-NULL, then \code{levels2} is
-    applied first, and \code{base} is applied to the result of applying \code{levels2}.)}
+    Attributes and Levels} for details).  The \code{levels2} argument is preferred to the \code{base} argument.  (If both \code{base} and \code{levels2} are supplied, then \code{levels2} overrides \code{base}.)}
     
     \item{\code{b2concurrent(by=NULL)}  (binary)  (bipartite)  (undirected) (frequently-used)
     }{\emph{Concurrent node count for the
@@ -791,8 +786,7 @@ network
     Attributes and Levels} for details).  The default value, \code{base=1}, means that the smallest (i.e., first in
     sorted order) attribute value is omitted.  The argument \code{levels} is preferred to \code{base}, although \code{base}
 	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
-	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are non-NULL, then \code{levels} is
-    applied first, and \code{base} is applied to the result of applying \code{levels}.)  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
+	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are supplied, then \code{levels} overrides \code{base}.)  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
     \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
     for \dQuote{pear}, use any of \code{b2factor("fruit", base=NULL, levels=-(2:3))}, \code{b2factor("fruit", base=NULL, levels=c(1,4))}, and
 	\code{b2factor("fruit", base=NULL, levels=c("apple", "pear"))}.  This term can only be used with undirected bipartite networks.}
@@ -820,8 +814,7 @@ network
     statistics to the model, one for each of (a subset of) the unique values of the \code{attr} 
     attribute. To include only the attribute values you wish, use the \code{keep} and/or \code{levels} 
 	arguments.  The argument \code{levels} is preferred to \code{keep}, which is less flexible than
-	\code{levels}.  (If both \code{keep} and \code{levels} are specified, then \code{levels} is
-    applied first, and \code{keep} is applied to the result of applying \code{levels}.)  If an \code{alpha}
+	\code{levels}.  (If both \code{keep} and \code{levels} are supplied, then \code{levels} overrides \code{keep}.)  If an \code{alpha}
 	discount parameter is used, each of these statistics gives the sum of 
     the number of common first-mode nodes raised to the power \code{alpha} for each pair of 
     second-mode nodes with that attribute. If a \code{beta} discount parameter is used, each 
@@ -1369,8 +1362,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     the network and the corresponding subset in \code{x}.  The ordering of the
     attribute values is alphabetical by default, but this may be overridden using the \code{levels} arguments.
     The optional arguments \code{base}, \code{levels}, and \code{levels2} allow the user to control what pairings are included (see \link[=node-attr]{Specifying Vertex
-    Attributes and Levels}), and the order in which they appear.  The \code{levels2} argument is preferred to the \code{base} argument.  (If both \code{base} and \code{levels2} are non-NULL, then \code{levels2} is
-    applied first, and \code{base} is applied to the result of applying \code{levels2}.)  For example \code{levels2=-2} will
+    Attributes and Levels}), and the order in which they appear.  The \code{levels2} argument is preferred to the \code{base} argument.  (If both \code{base} and \code{levels2} are supplied, then \code{levels2} overrides \code{base}.)  For example \code{levels2=-2} will
     omit the second statistic, making it the de facto reference category.
     This term can only be used with directed networks.}
 
@@ -1572,8 +1564,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     Finally, if \code{levels} and/or \code{keep} are passed, this tells which statistics should be kept
 	whenever the \code{mutual} term would ordinarily result in multiple statistics (see \link[=node-attr]{Specifying Vertex Attributes and Levels}).
     The argument \code{levels} is preferred to \code{keep}, which is
-	less flexible than \code{levels}. (If both \code{keep} and \code{levels} are specified, then \code{levels} is
-    applied first, and \code{keep} is applied to the result of applying \code{levels}.)
+	less flexible than \code{levels}. (If both \code{keep} and \code{levels} are supplied, then \code{levels} overrides \code{keep}.)
   }
     
     \item{\code{nearsimmelian}  (binary)  (directed)  (triad-related)}{\emph{Near simmelian triads:} 
@@ -1643,8 +1634,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     Attributes and Levels} for details).  The default value, \code{base=1}, means that the smallest 
     (i.e., first in sorted order) attribute value is omitted.  The argument \code{levels} is preferred to \code{base}, although \code{base}
 	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
-	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are non-NULL, then \code{levels} is
-    applied first, and \code{base} is applied to the result of applying \code{levels}.)  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
+	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are supplied, then \code{levels} overrides \code{base}.)  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
     \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
     for \dQuote{pear}, use any of \code{nodefactor("fruit", base=NULL, levels=-(2:3))}, \code{nodefactor("fruit", base=NULL, levels=c(1,4))}, and
 	\code{nodefactor("fruit", base=NULL, levels=c("apple", "pear"))}.  For an analogous term for quantitative vertex
@@ -1701,8 +1691,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     Attributes and Levels} for details).  The default value, \code{base=1}, means that the smallest 
     (i.e., first in sorted order) attribute value is omitted.  The argument \code{levels} is preferred to \code{base}, although \code{base}
 	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
-	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are non-NULL, then \code{levels} is
-    applied first, and \code{base} is applied to the result of applying \code{levels}.)  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
+	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are supplied, then \code{levels} overrides \code{base}.)  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
     \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
     for \dQuote{pear}, use any of \code{nodeifactor("fruit", base=NULL, levels=-(2:3))}, \code{nodeifactor("fruit", base=NULL, levels=c(1,4))}, and
 	\code{nodeifactor("fruit", base=NULL, levels=c("apple", "pear"))}. For an analogous term
@@ -1735,8 +1724,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     Attributes and Levels} for details);
     other values are ignored (this works for both \code{diff=FALSE} and
     \code{diff=TRUE}).    The argument \code{levels} is preferred to \code{keep}, which is
-	less flexible than \code{levels}.  (If both \code{keep} and \code{levels} are specified, then \code{levels} is
-    applied first, and \code{keep} is applied to the result of applying \code{levels}.)  For instance, to add two statistics, counting the
+	less flexible than \code{levels}.  (If both \code{keep} and \code{levels} are supplied, then \code{levels} overrides \code{keep}.)  For instance, to add two statistics, counting the
     matches for just the 2nd and 4th categories, use \code{nodematch}
     with \code{diff=TRUE} and \code{levels=c(2,4)}.}
    
@@ -1756,8 +1744,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     numerical (for ordered categories), but this can be overridden using the \code{levels} arguments.   The optional arguments \code{base}, \code{levels}, \code{levels2},
 	\code{b1levels}, and \code{b2levels} control what statistics are included in the model, and the order in which they appear.
 	\code{base} and \code{levels2} apply to all networks; \code{levels} applies to unipartite networks; \code{b1levels} and \code{b2levels} apply to
-	bipartite networks (see \link[=node-attr]{Specifying Vertex Attributes and Levels}).  The argument \code{levels2} is preferred to \code{base}.  (If both \code{base} and \code{levels2} are non-NULL, then \code{levels2} is
-    applied first, and \code{base} is applied to the result of applying \code{levels2}.)}
+	bipartite networks (see \link[=node-attr]{Specifying Vertex Attributes and Levels}).  The argument \code{levels2} is preferred to \code{base}.  (If both \code{base} and \code{levels2} are supplied, then \code{levels2} overrides \code{base}.)}
     
 	\item{\code{nodeocov(attr)}  (binary)  (directed) (dyad-independent)(quantitative nodal attribute)
     , \code{nodeocov(attr, form="sum")}  (valued)  (directed) (dyad-independent)
@@ -1809,8 +1796,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     Attributes and Levels} for details).  The default value, \code{base=1}, means that the smallest 
     (i.e., first in sorted order) attribute value is omitted.  The argument \code{levels} is preferred to \code{base}, although \code{base}
 	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
-	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are non-NULL, then \code{levels} is
-    applied first, and \code{base} is applied to the result of applying \code{levels}.)  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
+	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are supplied, then \code{levels} overrides \code{base}.)  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
     \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
     for \dQuote{pear}, use any of \code{nodeofactor("fruit", base=NULL, levels=-(2:3))}, \code{nodeofactor("fruit", base=NULL, levels=c(1,4))}, and
 	\code{nodeofactor("fruit", base=NULL, levels=c("apple", "pear"))}. For an analogous term
@@ -1928,8 +1914,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     statistics should be included or excluded (see \link[=node-attr]{Specifying Vertex
     Attributes and Levels} for details).  The argument \code{levels} is preferred to \code{base}, although \code{base}
 	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
-	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are non-NULL, then \code{levels} is
-    applied first, and \code{base} is applied to the result of applying \code{levels}.)  This
+	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are supplied, then \code{levels} overrides \code{base}.)  This
     term can only be used with directed networks. For undirected networks, see
     \code{sociality}.}
     
@@ -1947,8 +1932,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     statistics should be included or excluded (see \link[=node-attr]{Specifying Vertex
     Attributes and Levels} for details). The argument \code{levels} is preferred to \code{base}, although \code{base}
 	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
-	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are non-NULL, then \code{levels} is
-    applied first, and \code{base} is applied to the result of applying \code{levels}.)  This
+	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are supplied, then \code{levels} overrides \code{base}.)  This
     term can only be used with directed networks. For undirected networks, see
     \code{sociality}.}
 
@@ -1991,8 +1975,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     which statistics are included just as for the \code{levels} argument of \code{sender} and
     \code{receiver} terms.  The argument \code{nodelevels} is preferred to \code{base}, although \code{base}
 	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
-	(by setting \code{base=NULL} for example) when using \code{nodelevels}.  (If both \code{base} and \code{nodelevels} are non-NULL, then \code{nodelevels} is
-    applied first, and \code{base} is applied to the result of applying \code{nodelevels}.)}
+	(by setting \code{base=NULL} for example) when using \code{nodelevels}.  (If both \code{base} and \code{nodelevels} are supplied, then \code{nodelevels} overrides \code{base}.)}
 
 
     \item{\code{sum(pow=1)}  (valued)  (directed)  (undirected)}{\emph{Sum of dyad values (optionally taken
@@ -2013,8 +1996,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     3-trails.  For a directed network, this term adds four statistics 
     (or some subset of these four specified by the \code{keep} and/or \code{levels} arguments),
     one for each of the four distinct types of directed three-paths.  The argument \code{levels} is preferred to \code{keep}, which is
-	less flexible than \code{levels}.  (If both \code{keep} and \code{levels} are specified, then \code{levels} is
-    applied first, and \code{keep} is applied to the result of applying \code{levels}.)  If the 
+	less flexible than \code{levels}.  (If both \code{keep} and \code{levels} are supplied, then \code{levels} overrides \code{keep}.)  If the 
     nodes of the path are written from left to right such that the middle edge
     points to the right (R), then the four types are RRR, RRL, LRR, and LRL.
     That is, an RRR 3-trail is of the form 

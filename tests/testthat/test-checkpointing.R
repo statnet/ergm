@@ -7,7 +7,7 @@
 #
 #  Copyright 2003-2019 Statnet Commons
 #######################################################################
-context("test-mcmle-checkpoint.R")
+context("test-checkpointing.R")
 
 data(florentine)
 set.seed(0)
