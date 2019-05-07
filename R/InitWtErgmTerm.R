@@ -21,6 +21,7 @@ binary_wrap <- function(InitFun, nw, a, valued_args, ddd, namemap = identity, cn
 }
 
 binary_dind_wrap <- function(name, nw, a, ..., cn=name){
+  a <- a[!attr(a,"missing")] # Remove missing arguments before propagating.
   form<-match.arg(a$form,c("sum","nonzero"))
   binary_wrap(get(paste0("InitErgmTerm.",name), mode="function"), nw, a, "form", list(...), namemap=~paste(.,form,sep="_"), cnmap=~sub(cn,paste(cn,form,sep="."), .))
 }

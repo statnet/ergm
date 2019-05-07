@@ -103,7 +103,9 @@
 #' @template response
 #' @return A list of the values for each possible argument of term X;
 #'   user provided values are used when given, default values
-#'   otherwise.
+#'   otherwise. The list also has an `attr(,"missing")` attribute
+#'   containing a named logical vector indicating whether a particular
+#'   argument had been set to its default.
 #'
 #' @import network
 #' @export check.ErgmTerm
@@ -157,7 +159,9 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
 # that each InitErgmTerm function faithfully passes in what the user typed;
 # thus, the correctness of input from the InitErgmTerm function isn't checked.
   out = defaultvalues
-  names(out)=varnames
+  missing <- !logical(length(out))
+  names(out) <- names(missing) <- varnames
+
   m=NULL
   still.required <- required
   argument.counts <- rep(0, length(required))
@@ -175,6 +179,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
         }
         # correct type if we got to here
         out[m] <- list(arglist[[i]])
+        missing[m] <- FALSE
 		
         still.required[m] <- FALSE
         argument.counts[m] <- argument.counts[m] + 1
@@ -201,6 +206,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
         }
         # correct type if we got to here
         out[i] <- list(arglist[[i]])
+        missing[i] <- FALSE
 		
 		still.required[i] <- FALSE
 		argument.counts[i] <- argument.counts[i] + 1
@@ -216,6 +222,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
       }
     }
   }
+  attr(out, "missing") <- missing
   #  c(.conflicts.OK=TRUE,out)
   
   if(any(still.required))

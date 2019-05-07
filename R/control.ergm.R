@@ -277,10 +277,25 @@
 #' @param MCMLE.Hummel.maxit Maximum number of iterations in searching for the
 #' best step length.
 #' 
+#' @param checkpoint At the start of every iteration, save the state
+#'   of the optimizer in a way that will allow it to be resumed. The
+#'   name is passed through [sprintf()] with iteration number as the
+#'   second argument. (For example, `checkpoint="step_%03d.RData"`
+#'   will save to `step_001.RData`, `step_002.RData`, etc.)
+#'
+#' @param resume If given a file name of an `RData` file produced by
+#'   `checkpoint`, the optimizer will attempt to resume after
+#'   restoring the state. Control parameters from the saved state will
+#'   be reused, except for those whose value passed via
+#'   `control.ergm()` had change from the saved run. Note that if the
+#'   network, the model, or some critical settings differ between
+#'   runs, the results may be undefined.
+#'
 #' @param MCMLE.save_intermediates Every iteration, after MCMC
 #'   sampling, save the MCMC sample and some miscellaneous information
-#'   to a file with this name. The name is passed through [sprintf()]
-#'   with iteration number as the second argument. (So, for example,
+#'   to a file with this name. This is mainly useful for diagnostics
+#'   and debugging. The name is passed through [sprintf()] with
+#'   iteration number as the second argument. (For example,
 #'   `MCMLE.save_intermediates="step_%03d.RData"` will save to
 #'   `step_001.RData`, `step_002.RData`, etc.)
 #'
@@ -411,6 +426,9 @@ control.ergm<-function(drop=TRUE,
                                "Stochastic-Approximation","Stepping"),
                        force.main=FALSE,
                        main.hessian=TRUE,
+
+                       checkpoint=NULL,
+                       resume=NULL,
 
                        MPLE.max.dyad.types=1e+6, 
                        MPLE.samplesize=50000,                       
@@ -606,7 +624,9 @@ control.ergm<-function(drop=TRUE,
 
   if((MCMLE.steplength!=1 || is.null(MCMLE.steplength.margin)) && MCMLE.termination %in% c("Hummel", "precision"))
     stop("Hummel and precision-based termination require non-null MCMLE.steplength.margin and MCMLE.steplength = 1.")
-  
+
+  if(!is.null(control$checkpoint) && control$main.method!="MCMLE") stop("Only MCMLE supports checkpointing and resuming at this time.")
+
   set.control.class("control.ergm")
 }
 

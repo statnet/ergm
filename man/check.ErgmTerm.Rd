@@ -50,7 +50,9 @@ replacement.}
 \value{
 A list of the values for each possible argument of term X;
 user provided values are used when given, default values
-otherwise.
+otherwise. The list also has an \code{attr(,"missing")} attribute
+containing a named logical vector indicating whether a particular
+argument had been set to its default.
 }
 \description{
 Helper functions for implementing \code{\link[=ergm]{ergm()}}
