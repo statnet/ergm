@@ -214,7 +214,7 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ..., version=packageVersion("er
   
   u <- ergm_attr_levels(a$levels, nodecov, nw, levels = u)
   
-  if(any(NVL(a$base,0)!=0)) u <- u[-(a$base)]
+  if(attr(a,"missing")["levels"] && any(NVL(a$base,0)!=0)) u <- u[-a$base]
   if (length(u)==0)
     ergm_Init_abort ("Argument to absdiffcat() has too few distinct differences")
   u2 <- u[!is.na(u)]
@@ -298,9 +298,9 @@ InitErgmTerm.asymmetric <- function(nw, arglist, ..., version=packageVersion("er
   ### Process the arguments
   if (!is.null(attrarg)) {
     nodecov <- ergm_get_vattr(attrarg, nw)
-	attrname <- attr(nodecov, "name")
+    attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(a$levels, nodecov, nw, levels = sort(unique(nodecov)))
-	if(!is.null(a$keep)) u <- u[a$keep]
+    if(attr(a,"missing")["levels"] && !is.null(a$keep)) u <- u[a$keep]
     #   Recode to numeric
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     # All of the "nomatch" should be given unique IDs so they never match:
@@ -586,7 +586,7 @@ InitErgmTerm.b1factor<-function (nw, arglist, ..., version=packageVersion("ergm"
   attrname <- attr(nodecov, "name")
   u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
 
-  if (any(NVL(a$base,0)!=0)) {
+  if (attr(a,"missing")["levels"] && any(NVL(a$base,0)!=0)) {
     u <- u[-a$base]
   }
 
@@ -747,7 +747,7 @@ InitErgmTerm.b1twostar <- function(nw, arglist, ..., version=packageVersion("erg
   indices2.grid <- indices2.grid[indices2.grid$col <= indices2.grid$col2,]
   
   levels2.sel <- ergm_attr_levels(a$levels2, list(row = b1nodecov, col = b2nodecov, col2 = b2nodecov), nw, levels2.list)
-  if(any(a$base != 0)) levels2.sel <- levels2.sel[-(a$base)]
+  if(attr(a,"missing")["levels2"] && any(a$base != 0)) levels2.sel <- levels2.sel[-a$base]
   
   rows2keep <- match(levels2.sel,levels2.list, NA)
   rows2keep <- rows2keep[!is.na(rows2keep)]
@@ -1031,7 +1031,7 @@ InitErgmTerm.b2factor<-function (nw, arglist, ..., version=packageVersion("ergm"
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
   ui <- seq(along=u)
   lu <- length(ui)
-  if(is.null(base) || base[1]==0){
+  if(!attr(a,"missing")["levels"] || is.null(base) || base[1]==0){
     coef.names <- paste("b2factor", attrname, paste(u), sep=".")
     inputs <- c(ui, nodecov)
     attr(inputs, "ParamsBeforeCov") <- lu
@@ -1191,7 +1191,7 @@ InitErgmTerm.b2twostar <- function(nw, arglist, ..., version=packageVersion("erg
   indices2.grid <- indices2.grid[indices2.grid$col <= indices2.grid$col2,]
   
   levels2.sel <- ergm_attr_levels(a$levels2, list(row = b2nodecov, col = b1nodecov, col2 = b1nodecov), nw, levels2.list)
-  if(any(a$base != 0)) levels2.sel <- levels2.sel[-(a$base)]
+  if(attr(a,"missing")["levels2"] && any(NVL(a$base,0)!=0)) levels2.sel <- levels2.sel[-a$base]
   
   rows2keep <- match(levels2.sel,levels2.list, NA)
   rows2keep <- rows2keep[!is.na(rows2keep)]
@@ -2391,7 +2391,7 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ..., version=packageVersion("erg
   indices2.grid <- expand.grid(row = 1:nr, col = 1:nc)
 	
   levels2.sel <- ergm_attr_levels(a$levels2, list(row = nodecov, col = nodecov), nw, levels2.list)
-  if(any(a$base != 0)) levels2.sel <- levels2.sel[-(a$base)]
+  if(attr(a,"missing")["levels2"] && any(NVL(a$base,0)!=0)) levels2.sel <- levels2.sel[-a$base]
   
   rows2keep <- match(levels2.sel,levels2.list, NA)
   rows2keep <- rows2keep[!is.na(rows2keep)]
@@ -2414,7 +2414,10 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ..., version=packageVersion("erg
   if(version <= as.package_version("3.9.4")){
     emptynwstats <- summary(nw ~ nodemix("_tmp_nodecov", base=a$base))
   }else{
-    emptynwstats <- summary(nw ~ nodemix("_tmp_nodecov", base=a$base, levels=a$levels, levels2=a$levels2))  
+    nodemix.call <- c(list(as.name("nodemix"),"_tmp_nodecov"), list(base=a$base, levels=a$levels, levels2=a$levels2)[!attr(a,"missing")[c("base","levels","levels2")]])
+    nodemix.call <- as.call(nodemix.call)
+    nodemix.form <- as.formula(call("~", nw, nodemix.call))
+    emptynwstats <- summary(nodemix.form)
   }
   list(name="hammingmix", coef.names=coef.names, inputs=inputs, 
        emptynwstats=emptynwstats, dependence=FALSE)
@@ -2929,7 +2932,7 @@ InitErgmTerm.mutual<-function (nw, arglist, ..., version=packageVersion("ergm"))
     nodecov <- ergm_get_vattr(attrarg, nw)
 	attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(a$levels, nodecov, nw, levels = sort(unique(nodecov)))
-	if(!is.null(a$keep)) u <- u[a$keep]
+	if(attr(a,"missing")["levels"] && !is.null(a$keep)) u <- u[a$keep]
 	
     #   Recode to numeric
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -3045,7 +3048,7 @@ InitErgmTerm.nodefactor<-function (nw, arglist, ..., version=packageVersion("erg
   attrname <- attr(nodecov, "name")
   u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
 
-  if (any(NVL(a$base,0)!=0)) {
+  if (attr(a,"missing")["levels"] && any(NVL(a$base,0)!=0)) {
     u <- u[-a$base]
   }
 
@@ -3122,7 +3125,7 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, ..., version=packageVersion("er
   attrname <- attr(nodecov, "name")
   u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
 
-  if (any(NVL(a$base,0)!=0)) {
+  if (attr(a,"missing")["levels"] && any(NVL(a$base,0)!=0)) {
     u <- u[-a$base]
   }
 
@@ -3168,7 +3171,7 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, ..., version=
   nodecov <- ergm_get_vattr(attrarg, nw)
   attrname <- attr(nodecov, "name")
   u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-  if(!is.null(a$keep)) u <- u[a$keep]
+  if(attr(a,"missing")["levels"] && !is.null(a$keep)) u <- u[a$keep]
   
   #   Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -3241,7 +3244,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
     indices2.grid <- expand.grid(row = 1:nr, col = nr + 1:nc)
    
     levels2.sel <- ergm_attr_levels(a$levels2, list(row = b1nodecov, col = b2nodecov), nw, levels2.list)
-    if(any(a$base != 0)) levels2.sel <- levels2.sel[-(a$base)]
+    if(attr(a,"missing")["levels2"] && any(NVL(a$base,0)!=0)) levels2.sel <- levels2.sel[-a$base]
 	
     rows2keep <- match(levels2.sel,levels2.list, NA)
     rows2keep <- rows2keep[!is.na(rows2keep)]
@@ -3283,7 +3286,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
     }	
    
     levels2.sel <- ergm_attr_levels(a$levels2, list(row = nodecov, col = nodecov), nw, levels2.list)
-    if(any(a$base != 0)) levels2.sel <- levels2.sel[-(a$base)]
+    if(attr(a,"missing")["levels2"] && any(NVL(a$base,0)!=0)) levels2.sel <- levels2.sel[-a$base]
 	
     rows2keep <- match(levels2.sel,levels2.list, NA)
     rows2keep <- rows2keep[!is.na(rows2keep)]
@@ -3367,7 +3370,7 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, ..., version=packageVersion("er
   attrname <- attr(nodecov, "name")
   u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
 
-  if (any(NVL(a$base,0)!=0)) {
+  if (attr(a,"missing")["levels"] && any(NVL(a$base,0)!=0)) {
     u <- u[-a$base]
   }
 
@@ -3688,7 +3691,7 @@ InitErgmTerm.receiver<-function(nw, arglist, ..., version=packageVersion("ergm")
 						dep.inform = list("levels", FALSE))
   }
   d <- ergm_attr_levels(a$levels, 1:network.size(nw), nw, 1:network.size(nw))
-  if(any(a$base != 0)) d <- d[-(a$base)]
+  if(attr(a,"missing")["levels"] && any(NVL(a$base,0)!=0)) d <- d[-a$base]
   
   ld<-length(d)
   if(ld==0){return(NULL)}
@@ -3717,7 +3720,7 @@ InitErgmTerm.sender<-function(nw, arglist, ..., version=packageVersion("ergm")) 
 						dep.inform = list("levels", FALSE))
   }
   d <- ergm_attr_levels(a$levels, 1:network.size(nw), nw, 1:network.size(nw))
-  if(any(a$base != 0)) d <- d[-(a$base)]
+  if(attr(a,"missing")["levels"] && any(NVL(a$base,0)!=0)) d <- d[-a$base]
   
   ld<-length(d)
   if(ld==0){return(NULL)}
@@ -3808,7 +3811,7 @@ InitErgmTerm.sociality<-function(nw, arglist, ..., version=packageVersion("ergm"
   }
   
   d <- ergm_attr_levels(a$nodelevels, 1:network.size(nw), nw, 1:network.size(nw))
-  if(any(a$base != 0)) d <- d[-(a$base)]
+  if(attr(a,"missing")["levels"] && any(NVL(a$base,0)!=0)) d <- d[-a$base]
   
   if(!is.null(attrarg)) {
     nodecov <- ergm_get_vattr(attrarg, nw)
@@ -3856,7 +3859,7 @@ InitErgmTerm.threepath <- function(nw, arglist, ..., version=packageVersion("erg
   }  
   vals = c("RRR","RRL","LRR","LRL")
   types <- ergm_attr_levels(a$levels, vals, nw, levels = vals)
-  if(!is.null(a$keep)) types <- types[a$keep]
+  if(attr(a,"missing")["levels"] && !is.null(a$keep)) types <- types[a$keep]
   indices = match(types, vals)  
   if (is.directed(nw)) {
     return(list(name = "threetrail", 
@@ -3888,7 +3891,7 @@ InitErgmTerm.threetrail <- function(nw, arglist, ..., version=packageVersion("er
   }  
   vals = c("RRR","RRL","LRR","LRL")
   types <- ergm_attr_levels(a$levels, vals, nw, levels = vals)
-  if(!is.null(a$keep)) types <- types[a$keep]
+  if(attr(a,"missing")["levels"] && !is.null(a$keep)) types <- types[a$keep]
   indices = match(types, vals)
   if (is.directed(nw)) {
     return(list(name = "threetrail", 
