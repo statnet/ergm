@@ -27,6 +27,7 @@
 \alias{b1factor}
 \alias{b1mindegree}
 \alias{b1nodematch}
+\alias{b1sociality}
 \alias{b1star}
 \alias{b1starmix}
 \alias{b1twostar}
@@ -37,6 +38,7 @@
 \alias{b2factor}
 \alias{b2mindegree}
 \alias{b2nodematch}
+\alias{b2sociality}
 \alias{b2star}
 \alias{b2starmix}
 \alias{b2twostar}
@@ -389,8 +391,7 @@ network
 	to include or exclude (see \link[=node-attr]{Specifying Vertex
     Attributes and Levels} for details).  The default value, \code{base=1}, means that the smallest (i.e., first in
     sorted order) attribute value is omitted.  The argument \code{levels} is preferred to \code{base}, although \code{base}
-	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
-	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are supplied, then \code{levels} overrides \code{base}.)
+	carries a default value of 1 for backwards compatibility.  (If both \code{base} and \code{levels} are supplied, then \code{levels} overrides \code{base}.)
 	For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
     \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
     for \dQuote{pear}, use any of \code{b1factor("fruit", base=NULL, levels=-(2:3))}, \code{b1factor("fruit", base=NULL, levels=c(1,4))}, and
@@ -431,6 +432,19 @@ network
    	each level of this second-mode attribute will be equal to the original \code{b1nodematch}
    	statistic where \code{byb2attr} set to \code{NULL}. This term can only be used with 
    	undirected bipartite networks.}
+    
+    \item{\code{b1sociality(base=1, nodes=NULL)}  (binary) (bipartite) (undirected) (dyad-independent)
+    ,
+    \code{b1sociality(base=1, nodes=NULL, form="sum")}  (valued) (bipartite) (undirected) (dyad-independent)
+    }{\emph{Degree:} 
+    This term adds one network statistic for each node in the first bipartition, equal to the number of
+    ties of that node.  By default, \code{base=1} means that the statistic for the
+    first node will be omitted, but this argument may be changed to control
+    which statistics are included just as for the \code{nodes} argument of \code{sender} and
+    \code{receiver} terms.  The argument \code{nodes} is preferred to \code{base}; if both \code{base} and \code{nodes} are supplied, then \code{nodes} overrides \code{base}.  
+    This term can only be used with
+    bipartite networks.  For directed networks, see \code{sender} and
+    \code{receiver}.  For unipartite networks, see \code{sociality}.}    
     
     \item{\code{b1star(k, attr=NULL, levels=NULL)}  (binary) (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{k-Stars for the first mode in a
@@ -578,8 +592,7 @@ network
 	to include or exclude (see \link[=node-attr]{Specifying Vertex
     Attributes and Levels} for details).  The default value, \code{base=1}, means that the smallest (i.e., first in
     sorted order) attribute value is omitted.  The argument \code{levels} is preferred to \code{base}, although \code{base}
-	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
-	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are supplied, then \code{levels} overrides \code{base}.)  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
+	carries a default value of 1 for backwards compatibility.  (If both \code{base} and \code{levels} are supplied, then \code{levels} overrides \code{base}.)  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
     \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
     for \dQuote{pear}, use any of \code{b2factor("fruit", base=NULL, levels=-(2:3))}, \code{b2factor("fruit", base=NULL, levels=c(1,4))}, and
 	\code{b2factor("fruit", base=NULL, levels=c("apple", "pear"))}.  This term can only be used with undirected bipartite networks.}
@@ -620,6 +633,19 @@ network
    	each level of this first-mode attribute will be equal to the original \code{b2nodematch}
    	statistic where \code{byb1attr} set to \code{NULL}. This term can only be used with 
    	undirected bipartite networks.}
+
+    \item{\code{b2sociality(base=1, nodes=NULL)}  (binary) (bipartite) (undirected) (dyad-independent)
+    ,
+    \code{b2sociality(base=1, nodes=NULL, form="sum")}  (valued) (bipartite) (undirected) (dyad-independent)
+    }{\emph{Degree:} 
+    This term adds one network statistic for each node in the second bipartition, equal to the number of
+    ties of that node.  By default, \code{base=1} means that the statistic for the
+    first node (in the second bipartition) will be omitted, but this argument may be changed to control
+    which statistics are included just as for the \code{nodes} argument of \code{sender} and
+    \code{receiver} terms.  The argument \code{nodes} is preferred to \code{base}; if both \code{base} and \code{nodes} are supplied, then \code{nodes} overrides \code{base}.  
+    This term can only be used with
+    bipartite networks.  For directed networks, see \code{sender} and
+    \code{receiver}.  For unipartite networks, see \code{sociality}.}
 
     \item{\code{b2star(k, attr=NULL, levels=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{k-Stars for the second mode in a
@@ -1384,8 +1410,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     should be included or excluded (see \link[=node-attr]{Specifying Vertex
     Attributes and Levels} for details).  The default value, \code{base=1}, means that the smallest 
     (i.e., first in sorted order) attribute value is omitted.  The argument \code{levels} is preferred to \code{base}, although \code{base}
-	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
-	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are supplied, then \code{levels} overrides \code{base}.)  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
+	carries a default value of 1 for backwards compatibility.  (If both \code{base} and \code{levels} are supplied, then \code{levels} overrides \code{base}.)  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
     \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
     for \dQuote{pear}, use any of \code{nodefactor("fruit", base=NULL, levels=-(2:3))}, \code{nodefactor("fruit", base=NULL, levels=c(1,4))}, and
 	\code{nodefactor("fruit", base=NULL, levels=c("apple", "pear"))}.  For an analogous term for quantitative vertex
@@ -1431,8 +1456,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     should be included or excluded (see \link[=node-attr]{Specifying Vertex
     Attributes and Levels} for details).  The default value, \code{base=1}, means that the smallest 
     (i.e., first in sorted order) attribute value is omitted.  The argument \code{levels} is preferred to \code{base}, although \code{base}
-	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
-	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are supplied, then \code{levels} overrides \code{base}.)  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
+	carries a default value of 1 for backwards compatibility.  (If both \code{base} and \code{levels} are supplied, then \code{levels} overrides \code{base}.)  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
     \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
     for \dQuote{pear}, use any of \code{nodeifactor("fruit", base=NULL, levels=-(2:3))}, \code{nodeifactor("fruit", base=NULL, levels=c(1,4))}, and
 	\code{nodeifactor("fruit", base=NULL, levels=c("apple", "pear"))}. For an analogous term
@@ -1529,8 +1553,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     should be included or excluded (see \link[=node-attr]{Specifying Vertex
     Attributes and Levels} for details).  The default value, \code{base=1}, means that the smallest 
     (i.e., first in sorted order) attribute value is omitted.  The argument \code{levels} is preferred to \code{base}, although \code{base}
-	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
-	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are supplied, then \code{levels} overrides \code{base}.)  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
+	carries a default value of 1 for backwards compatibility.  (If both \code{base} and \code{levels} are supplied, then \code{levels} overrides \code{base}.)  For example, if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
     \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
     for \dQuote{pear}, use any of \code{nodeofactor("fruit", base=NULL, levels=-(2:3))}, \code{nodeofactor("fruit", base=NULL, levels=c(1,4))}, and
 	\code{nodeofactor("fruit", base=NULL, levels=c("apple", "pear"))}. For an analogous term
@@ -1647,9 +1670,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     networks; for undirected networks see \code{kstar}. Note that
     \code{ostar(1)} is equal to both \code{istar(1)} and \code{edges}. }
     
-  \item{\code{receiver(base=1, levels=NULL)}  (binary)  (directed)  (dyad-independent)
+  \item{\code{receiver(base=1, nodes=NULL)}  (binary)  (directed)  (dyad-independent)
     ,
-  \code{receiver(base=1, levels=NULL, form="sum")}  (valued)  (directed)  (dyad-independent)}{\emph{Receiver effect:} 
+  \code{receiver(base=1, nodes=NULL, form="sum")}  (valued)  (directed)  (dyad-independent)}{\emph{Receiver effect:} 
     This term adds one network statistic for each node equal to the number of
     in-ties for that node. This measures the popularity of the node. The term
     for the first node is omitted by default because of linear dependence that
@@ -1657,17 +1680,16 @@ of the degrees of all pairs of nodes in the network which are tied.
     can be computed as the negative of the sum of the coefficients of all the
     other actors. That is, the average coefficient is zero, following the
     Holland-Leinhardt parametrization of the $p_1$ model (Holland and Leinhardt,
-    1981). The \code{base} and \code{levels} arguments allow the user to determine which nodes'
+    1981). The \code{base} and \code{nodes} arguments allow the user to determine which nodes'
     statistics should be included or excluded (see \link[=node-attr]{Specifying Vertex
-    Attributes and Levels} for details).  The argument \code{levels} is preferred to \code{base}, although \code{base}
-	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
-	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are supplied, then \code{levels} overrides \code{base}.)  This
+    Attributes and Levels} for details).  The argument \code{nodes} is preferred to \code{base}, although \code{base}
+	carries a default value of 1 for backwards compatibility.  (If both \code{base} and \code{nodes} are supplied, then \code{nodes} overrides \code{base}.)  This
     term can only be used with directed networks. For undirected networks, see
     \code{sociality}.}
     
-  \item{\code{sender(base=1, levels=NULL)}  (binary)  (directed)  (dyad-independent)
+  \item{\code{sender(base=1, nodes=NULL)}  (binary)  (directed)  (dyad-independent)
     ,
-  \code{sender(base=1, levels=NULL, form="sum")}  (valued)  (directed)  (dyad-independent)}{\emph{Sender effect:} 
+  \code{sender(base=1, nodes=NULL, form="sum")}  (valued)  (directed)  (dyad-independent)}{\emph{Sender effect:} 
     This term adds one network statistic for each node equal to the number of
     out-ties for that node. This measures the activity of the node. The term for
     the first node is omitted by default because of linear dependence that
@@ -1675,11 +1697,10 @@ of the degrees of all pairs of nodes in the network which are tied.
     can be computed as the negative of the sum of the coefficients of all the
     other actors. That is, the average coefficient is zero, following the
     Holland-Leinhardt parametrization of the $p_1$ model (Holland and Leinhardt,
-    1981). The \code{base} and \code{levels} arguments allow the user to determine which nodes'
+    1981). The \code{base} and \code{nodes} arguments allow the user to determine which nodes'
     statistics should be included or excluded (see \link[=node-attr]{Specifying Vertex
-    Attributes and Levels} for details). The argument \code{levels} is preferred to \code{base}, although \code{base}
-	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
-	(by setting \code{base=NULL} for example) when using \code{levels}.  (If both \code{base} and \code{levels} are supplied, then \code{levels} overrides \code{base}.)  This
+    Attributes and Levels} for details). The argument \code{nodes} is preferred to \code{base}, although \code{base}
+	carries a default value of 1 for backwards compatibility.  (If both \code{base} and \code{nodes} are supplied, then \code{nodes} overrides \code{base}.)  This
     term can only be used with directed networks. For undirected networks, see
     \code{sociality}.}
 
@@ -1707,9 +1728,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     number of edges between \code{i} to \code{j} such that
     \code{abs(attr[i]-attr[j])<cutoff}.}
      
-  \item{\code{sociality(attr=NULL, base=1, levels=NULL, nodelevels=NULL)}  (binary) (undirected) (dyad-independent) (categorical nodal attribute)
+  \item{\code{sociality(attr=NULL, base=1, levels=NULL, nodes=NULL)}  (binary) (undirected) (dyad-independent) (categorical nodal attribute)
     ,
-    \code{sociality(attr=NULL, base=1, levels=NULL, nodelevels=NULL, form="sum")}  (valued) (undirected) (dyad-independent) (categorical nodal attribute)
+    \code{sociality(attr=NULL, base=1, levels=NULL, nodes=NULL, form="sum")}  (valued) (undirected) (dyad-independent) (categorical nodal attribute)
     }{\emph{Undirected degree:} 
     This term adds one network statistic for each node equal to the number of
     ties of that node. The optional \code{attr} argument specifies a categorical vertex attribute (see \link[=node-attr]{Specifying Vertex
@@ -1719,10 +1740,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     undirected networks.  For directed networks, see \code{sender} and
     \code{receiver}. By default, \code{base=1} means that the statistic for the
     first node will be omitted, but this argument may be changed to control
-    which statistics are included just as for the \code{levels} argument of \code{sender} and
-    \code{receiver} terms.  The argument \code{nodelevels} is preferred to \code{base}, although \code{base}
-	carries a default value of 1 for backwards compatibility.  The default behavior of \code{base} may need to be over-ridden
-	(by setting \code{base=NULL} for example) when using \code{nodelevels}.  (If both \code{base} and \code{nodelevels} are supplied, then \code{nodelevels} overrides \code{base}.)}
+    which statistics are included just as for the \code{nodes} argument of \code{sender} and
+    \code{receiver} terms.  The argument \code{nodes} is preferred to \code{base}, although \code{base}
+	carries a default value of 1 for backwards compatibility.  (If both \code{base} and \code{nodes} are supplied, then \code{nodes} overrides \code{base}.)}
 
 
     \item{\code{sum(pow=1)}  (valued)  (directed)  (undirected)}{\emph{Sum of dyad values (optionally taken
