@@ -50,7 +50,11 @@ based on this source of variation.}
 \value{
 The function \code{\link{summary.ergm}} computes and
 returns a list of summary statistics of the fitted
-\code{\link{ergm}} model given in \code{object}.
+\code{\link{ergm}} model given in \code{object}. Note that for
+backwards compatibility, it returns two coefficient tables:
+\code{$coefs} which does not contain the z-statistics and
+\code{$coefficeints} which does (and is therefore more similar to
+those returned by \code{\link[=summary.lm]{summary.lm()}}).
 }
 \description{
 \code{\link[base]{summary}} method for \code{\link{ergm}} fits.
