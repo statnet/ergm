@@ -99,7 +99,9 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' }
 #'
 #' For categorical attributes, to select which levels are of interest
-#' and their ordering, use the argument `levels`.  It is interpreted
+#' and their ordering, use the argument `levels`.  Selection of nodes (from
+#' the appropriate vector of nodal indices) is likewise handled as the
+#' selection of levels, using the argument `nodes`.  These arguments are interpreted
 #' as follows: \describe{
 #'
 #' \item{an expression wrapped in [I()]}{Use the given list of levels
@@ -126,7 +128,7 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' 
 #' }
 #' 
-#' Note that `levels` often has a default that is sensible for the
+#' Note that `levels` or `nodes` often has a default that is sensible for the
 #' term in question.
 #' 
 #' @aliases attrname on by attrs
