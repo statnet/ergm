@@ -621,7 +621,7 @@ InitErgmTerm.b1sociality<-function(nw, arglist, ...) {
   coef.names <- paste("b1sociality",d,sep="")
   inputs <- c(d,0) # Input requires a "guard" value.
 
-  list(name="sociality", coef.names=coef.names, inputs=inputs, minval=0, maxval=network.size(nw)-1, conflicts.constraints="degrees", dependence=FALSE)
+  list(name="sociality", coef.names=coef.names, inputs=inputs, minval=0, maxval=network.size(nw)-1, conflicts.constraints="b1degrees", dependence=FALSE)
 }
 
 ################################################################################
@@ -1085,7 +1085,7 @@ InitErgmTerm.b2sociality<-function(nw, arglist, ...) {
   coef.names <- paste("b2sociality",d,sep="")
   inputs <- c(d,0) # Input requires a "guard" value.
   
-  list(name="sociality", coef.names=coef.names, inputs=inputs, minval=0, maxval=network.size(nw)-1, conflicts.constraints="degrees", dependence=FALSE)
+  list(name="sociality", coef.names=coef.names, inputs=inputs, minval=0, maxval=network.size(nw)-1, conflicts.constraints="b2degrees", dependence=FALSE)
 }
 
 
