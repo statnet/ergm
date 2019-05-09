@@ -220,9 +220,28 @@ network
 }
 
 \section{Nodal attribute levels}{
-  Terms taking a categorical nodal covariate also take \code{levels}
-  argument. This can be used to control the set and the ordering of
+  Terms taking a categorical nodal covariate also take the \code{levels}
+  argument.  (There are analogous \code{b1levels} and \code{b2levels} arguments
+  for some terms that apply to bipartite networks, and the \code{levels2} argument 
+  for mixing terms.)  The \code{levels} argument can be used to control the set and the ordering of 
   attribute levels.
+  
+  Terms that allow the selection of nodes do so
+  with the \code{nodes} argument, which is interpreted in the same way
+  as the \code{levels} argument, where the categories are the relevant 
+  nodal indices themselves.  Both \code{levels} and \code{nodes} use the new level selection
+  UI (see \link[=node-attr]{Specifying Vertex Attributes and Levels} for details).
+  
+  Some terms taking \code{levels} or \code{nodes} also take the legacy arguments
+  \code{base} and \code{keep} for backwards compatibility.  Use of \code{base} and 
+  \code{keep} is discouraged; use \code{levels} or \code{nodes} instead.  If both a
+  \code{levels} or \code{nodes} argument and the corresponding \code{base} or \code{keep}
+  argument are specified, the \code{levels} or \code{nodes} argument overrides the \code{base}
+  or \code{keep} argument.  This behavior is new in version 3.10; in older versions, terms
+  taking both \code{levels} and \code{base} or \code{keep} applied \code{levels} first and then
+  applied \code{base} or \code{keep}.  In version 3.10, \code{levels} or \code{nodes} always
+  overrides the corresponding \code{base} or \code{keep} argument, even if old term behavior
+  is invoked (as described in the next section).
 }
 
 \section{Term versioning}{
