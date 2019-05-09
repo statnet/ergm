@@ -49,7 +49,7 @@ InitErgmTerm.b1nodematch	<-	function (nw, arglist, ..., version=packageVersion("
   
   b1.len	<-	get.network.attribute(nw, "bipartite")# gives # of b1 nodes
   u 		<-  ergm_attr_levels(a$levels, nodecov[1:b1.len], nw, sort(unique(nodecov[1:b1.len])))		  # gives unique attrnames of b1
-  if(!is.null(a$keep)) u <- u[a$keep]
+  if((!hasName(attr(a,"missing"), "levels") || attr(a,"missing")["levels"]) && !is.null(a$keep)) u <- u[a$keep]
   
   #   Recode to numeric
   nodecov   <- match(nodecov, u, nomatch = length(u)+1)
@@ -137,7 +137,7 @@ InitErgmTerm.b2nodematch	<-	function (nw, arglist, ..., version=packageVersion("
   b1.len 	<-	get.network.attribute(nw, "bipartite")# gives # of b1 nodes
   u 	 	<-  ergm_attr_levels(a$levels, nodecov[-(1:b1.len)], nw, sort(unique(nodecov[-(1:b1.len)])))	  # gives unique attrnames of b2's
    																  # gives unique byb1attrnames of b1's
-  if(!is.null(a$keep)) u <- u[a$keep]
+  if((!hasName(attr(a,"missing"), "levels") || attr(a,"missing")["levels"]) && !is.null(a$keep)) u <- u[a$keep]
 																  
   #   Recode to numeric
   nodecov 				<- match(nodecov, u, nomatch = length(u)+1)

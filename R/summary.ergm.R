@@ -75,7 +75,11 @@
 #' @param \dots Arguments to \code{\link{logLik.ergm}}
 #' @return The function \code{\link{summary.ergm}} computes and
 #'   returns a list of summary statistics of the fitted
-#'   \code{\link{ergm}} model given in \code{object}.
+#'   \code{\link{ergm}} model given in \code{object}. Note that for
+#'   backwards compatibility, it returns two coefficient tables:
+#'   `$coefs` which does not contain the z-statistics and
+#'   `$coefficeints` which does (and is therefore more similar to
+#'   those returned by [summary.lm()]).
 #' @seealso network, ergm, print.ergm.  The model fitting function
 #'   \code{\link{ergm}}, \code{\link{summary}}.
 #' 
@@ -222,7 +226,7 @@ summary.ergm <- function (object, ...,
     ans$null.lik <- ERRVL(null.lik, NA)
   }else ans$objname<-deparse(substitute(object))
 
-  ans$coefs <- as.data.frame(coefmat)
+  ans$coefs <- as.data.frame(coefmat)[,-3] # For backwards compatibility.
   ans$coefficients <- as.data.frame(coefmat)
   ans$asycov <- asycov
   ans$asyse <- asyse

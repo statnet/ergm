@@ -42,7 +42,9 @@ network-wide mean, divided by the network size.}
 }
 
 For categorical attributes, to select which levels are of interest
-and their ordering, use the argument \code{levels}.  It is interpreted
+and their ordering, use the argument \code{levels}.  Selection of nodes (from
+the appropriate vector of nodal indices) is likewise handled as the
+selection of levels, using the argument \code{nodes}.  These arguments are interpreted
 as follows: \describe{
 
 \item{an expression wrapped in \code{\link[=I]{I()}}}{Use the given list of levels
@@ -69,7 +71,7 @@ accessible as \code{.nw}, the list of unique values of the attribute as
 
 }
 
-Note that \code{levels} often has a default that is sensible for the
+Note that \code{levels} or \code{nodes} often has a default that is sensible for the
 term in question.
 }
 \examples{
