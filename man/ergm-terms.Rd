@@ -241,7 +241,8 @@ network
   taking both \code{levels} and \code{base} or \code{keep} applied \code{levels} first and then
   applied \code{base} or \code{keep}.  In version 3.10, \code{levels} or \code{nodes} always
   overrides the corresponding \code{base} or \code{keep} argument, even if old term behavior
-  is invoked (as described in the next section).
+  is invoked (as described in the next section).  Note that \code{base=0} is equivalent to setting
+  the corresponding \code{levels} argument to either \code{NULL} or \code{TRUE}.
 }
 
 \section{Term versioning}{
