@@ -107,11 +107,15 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' \item{an expression wrapped in [I()]}{Use the given list of levels
 #' as is.}
 #' 
-#' \item{a numeric or logical vector}{Used for indexing of the default
-#' set of levels (typically, unique values of the attribute) in
+#' \item{a numeric or logical vector}{Used for indexing of a list of
+#' all possible levels (typically, unique values of the attribute) in
 #' default older (typically lexicographic), i.e.,
-#' `sort(unique(attr))[levels]`. Negative values exclude. To specify
-#' numeric or logical levels literally, wrap in [I()].}
+#' `sort(unique(attr))[levels]`. In particular, `levels=TRUE` will
+#' retain all levels. Negative values exclude. To specify numeric or
+#' logical levels literally, wrap in [I()].}
+#'
+#'\item{[`NULL`]}{Retain all possible levels; usually equivalent to
+#' passing `TRUE`.}
 #'
 #' \item{a character vector}{Use as is.}
 #' 
@@ -135,6 +139,12 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' @examples
 #'
 #' data(faux.mesa.high)
+#' 
+#' # Activity by grade with a baseline grade excluded:
+#' summary(faux.mesa.high~nodefactor(~Grade))
+#' # Retain all levels:
+#' summary(faux.mesa.high~nodefactor(~Grade, levels=TRUE)) # or levels=NULL
+#' 
 #' # Mixing between lower and upper grades:
 #' summary(faux.mesa.high~mm(~Grade>=10))
 #' # Mixing between grades 7 and 8 only:

@@ -50,11 +50,15 @@ as follows: \describe{
 \item{an expression wrapped in \code{\link[=I]{I()}}}{Use the given list of levels
 as is.}
 
-\item{a numeric or logical vector}{Used for indexing of the default
-set of levels (typically, unique values of the attribute) in
+\item{a numeric or logical vector}{Used for indexing of a list of
+all possible levels (typically, unique values of the attribute) in
 default older (typically lexicographic), i.e.,
-\code{sort(unique(attr))[levels]}. Negative values exclude. To specify
-numeric or logical levels literally, wrap in \code{\link[=I]{I()}}.}
+\code{sort(unique(attr))[levels]}. In particular, \code{levels=TRUE} will
+retain all levels. Negative values exclude. To specify numeric or
+logical levels literally, wrap in \code{\link[=I]{I()}}.}
+
+\item{\code{\link{NULL}}}{Retain all possible levels; usually equivalent to
+passing \code{TRUE}.}
 
 \item{a character vector}{Use as is.}
 
@@ -77,6 +81,12 @@ term in question.
 \examples{
 
 data(faux.mesa.high)
+
+# Activity by grade with a baseline grade excluded:
+summary(faux.mesa.high~nodefactor(~Grade))
+# Retain all levels:
+summary(faux.mesa.high~nodefactor(~Grade, levels=TRUE)) # or levels=NULL
+
 # Mixing between lower and upper grades:
 summary(faux.mesa.high~mm(~Grade>=10))
 # Mixing between grades 7 and 8 only:
