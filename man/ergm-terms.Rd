@@ -233,16 +233,16 @@ network
   UI (see \link[=node-attr]{Specifying Vertex Attributes and Levels} for details).
   
   Some terms taking \code{levels} or \code{nodes} also take the legacy arguments
-  \code{base} and \code{keep} for backwards compatibility.  Use of \code{base} and 
+  \code{base} or \code{keep} for backwards compatibility.  Use of \code{base} or 
   \code{keep} is discouraged; use \code{levels} or \code{nodes} instead.  If both a
   \code{levels} or \code{nodes} argument and the corresponding \code{base} or \code{keep}
-  argument are specified, the \code{levels} or \code{nodes} argument overrides the \code{base}
+  argument are specified, then the \code{levels} or \code{nodes} argument overrides the \code{base}
   or \code{keep} argument.  This behavior is new in version 3.10; in older versions, terms
-  taking both \code{levels} and \code{base} or \code{keep} applied \code{levels} first and then
-  applied \code{base} or \code{keep}.  In version 3.10, \code{levels} or \code{nodes} always
+  taking both \code{levels} and either \code{base} or \code{keep} applied the \code{levels} argument first and then
+  applied the \code{base} or \code{keep} argument.  In version 3.10, \code{levels} or \code{nodes} always
   overrides the corresponding \code{base} or \code{keep} argument, even if old term behavior
-  is invoked (as described in the next section).  Note that \code{base=0} is equivalent to setting
-  the corresponding \code{levels} argument to either \code{NULL} or \code{TRUE}.
+  is invoked (as described in the next section).  Note that setting \code{base=0} is equivalent to setting
+  the corresponding \code{levels} or \code{nodes} argument to either \code{NULL} or \code{TRUE}.
 }
 
 \section{Term versioning}{
@@ -1426,7 +1426,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     network. In particular, for edges whose endpoints both have the same
     attribute values, this value is counted twice. To include all
     attribute values is usually not a good idea -- though this may be 
-    accomplished if desired by setting \code{levels=TRUE} -- because the sum
+    accomplished if desired by setting \code{levels=NULL} -- because the sum
     of all such statistics equals twice the number of edges and hence a 
     linear dependency would arise in any model also including
     \code{edges}. Thus, the \code{base} and \code{levels} arguments tell which value(s) 
@@ -1472,7 +1472,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     times a node with that attribute or those attributes appears as the
     terminal node of a directed tie. To include all attribute values is
     usually not a good idea -- though this may be accomplished if desired
-    by setting \code{levels=TRUE} --
+    by setting \code{levels=NULL} --
     because the sum of all such statistics
     equals the number of edges and hence a linear dependency would arise
     in any model also including \code{edges}. Thus, the \code{base} and \code{levels} arguments tell which value(s) 
@@ -1569,7 +1569,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     times a node with that attribute or those attributes appears as the
     node of origin of a directed tie. To include all attribute values is
     usually not a good idea -- though this may be accomplished if desired
-    by setting \code{levels=TRUE} --
+    by setting \code{levels=NULL} --
     because the sum of all such statistics
     equals the number of edges and hence a linear dependency would arise
     in any model also including \code{edges}. Thus, the \code{base} and \code{levels} argument tells which value(s) 
