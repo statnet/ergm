@@ -314,6 +314,7 @@ ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2"),
 #' @importFrom rlang set_attrs set_names
 #' @export
 ergm_get_vattr.character <- function(object, nw, accept="character", bip=c("n","b1","b2"), multiple=if(accept=="character") "paste" else "stop", ...){
+  bip <- match.arg(bip)
   multiple <- match.arg(multiple, ERGM_GET_VATTR_MULTIPLE_TYPES)
 
   missing_attr <- setdiff(object, list.vertex.attributes(nw))
@@ -330,6 +331,7 @@ ergm_get_vattr.character <- function(object, nw, accept="character", bip=c("n","
 #' @rdname node-attr-api
 #' @export
 ergm_get_vattr.function <- function(object, nw, accept="character", bip=c("n","b1","b2"), multiple=if(accept=="character") "paste" else "stop", ...){
+  bip <- match.arg(bip)
   multiple <- match.arg(multiple, ERGM_GET_VATTR_MULTIPLE_TYPES)
 
   ERRVL(try(object(nw, ...) %>%
@@ -346,6 +348,7 @@ ergm_get_vattr.function <- function(object, nw, accept="character", bip=c("n","b
 #' @importFrom tibble lst
 #' @export
 ergm_get_vattr.formula <- function(object, nw, accept="character", bip=c("n","b1","b2"), multiple=if(accept=="character") "paste" else "stop", ...){
+  bip <- match.arg(bip)
   multiple <- match.arg(multiple, ERGM_GET_VATTR_MULTIPLE_TYPES)
 
   a <- list.vertex.attributes(nw)
