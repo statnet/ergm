@@ -20,7 +20,7 @@ bibentry("Manual", author = structure(list(list(given = "Mark S.",
         email = "morrism@u.washington.edu", comment = NULL)), class = "person"), 
     title = paste("ergm", ": ", "Fit, Simulate and Diagnose Exponential-Family Models for Networks", 
         sep = ""), organization = paste("The Statnet Project (\\url{", 
-        "https://statnet.org", "})", sep = ""), year = substr("2019-05-07", 
+        "https://statnet.org", "})", sep = ""), year = substr("2019-05-12", 
         1, 4), note = paste("R package version ", "3.10.0", sep = ""), 
     url = paste("https://CRAN.R-project.org/package=", "ergm", 
         sep = ""))
