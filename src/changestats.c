@@ -841,24 +841,20 @@ D_CHANGESTAT_FN(d_b2degree_by_attr) {
  changestat: d_b2factor
 *****************/
 D_CHANGESTAT_FN(d_b2factor) { 
-  double s, factorval;
-  Vertex nb1, b2;
-  int i, j;
+  double s;
+  Vertex head;
+  int i;
   
-
   /* *** don't forget tail -> head */    
-  nb1 = BIPARTITE;
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
-    b2 = HEAD(i);
-    s = IS_OUTEDGE(TAIL(i), b2) ? -1.0 : 1.0;
-    for (j=0; j<(N_CHANGE_STATS); j++) {
-      factorval = (INPUT_PARAM[j]);
-      CHANGE_STAT[j] += ((INPUT_ATTRIB[b2-nb1-1] != factorval) ? 0.0 : s);
-    }
-    TOGGLE_IF_MORE_TO_COME(i); /* Needed in case of multiple toggles */
+    head = HEAD(i);
+    s = IS_OUTEDGE(TAIL(i), head) ? -1.0 : 1.0;
+    int headpos = INPUT_ATTRIB[head-1-BIPARTITE];
+    if (headpos!=-1) CHANGE_STAT[headpos] += s;
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-  UNDO_PREVIOUS_TOGGLES(i); /* Needed on exit in case of multiple toggles */
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
