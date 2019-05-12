@@ -186,8 +186,8 @@
   The function \code{\link{ergm}} is used to fit exponential
   random graph models, in which
   the probability of a given network, \eqn{y}, on a set of nodes is
-  \eqn{h(y) \exp\{\eta(\theta) \cdot
-    g(y)\}/c(\theta)}, where
+  \deqn{h(y) \exp\{\eta(\theta) \cdot
+    g(y)\}/c(\theta)}{h(y) exp\{eta(theta).g(y)\} / c(theta),}, where
   \eqn{h(y)} is the reference measure (for valued network models),
   \eqn{g(y)} is a vector of network statistics for \eqn{y},
   \eqn{\eta(\theta)} is a natural parameter vector of the same
@@ -270,7 +270,7 @@
   argument, where the categories are the relevant nodal indices
   themselves.  Both \code{levels} and \code{nodes} use the new level
   selection UI. (See \link[=node-attr]{Specifying Vertex Attributes and
-  Levels} for details.)
+    Levels} for details.)
 
   \subsection{Legacy arguments}
 
@@ -521,8 +521,8 @@
       distinct \code{k[i]}-stars whose center node is in the first mode of the
       network. The first mode of a bipartite network object is sometimes known as
       the "actor" mode. A \eqn{k}-star is defined to be a center node \eqn{N} and
-      a set of \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}} such that the
-      ties \eqn{\{N, O_i\}} exist for \eqn{i=1, \dots, k}. The optional argument
+      a set of \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}}{\{O[1], ..., O[k]\}} such that the
+      ties \eqn{\{N, O_i\}}{\{N, O[i]\}} exist for \eqn{i=1, \dots, k}. The optional argument
       \code{attr} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
 	Attributes and Levels} for details). If this is specified then the count is over
       the number of \eqn{k}-stars (with center node in the first mode) where all
@@ -730,8 +730,8 @@
       distinct \code{k[i]}-stars whose center node is in the second mode of the
       network. The second mode of a bipartite network object is sometimes known as
       the "event" mode. A \eqn{k}-star is defined to be a center node \eqn{N} and
-      a set of \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}} such that the
-      ties \eqn{\{N, O_i\}} exist for \eqn{i=1, \dots, k}. The optional argument
+      a set of \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}}{\{O[1], ..., O[k]\}} such that the
+      ties \eqn{\{N, O_i\}}{\{N, O[i]\}} exist for \eqn{i=1, \dots, k}. The optional argument
       \code{attr} specifies
       a vertex attribute (see \link[=node-attr]{Specifying Vertex
 	Attributes and Levels} for details). If this is specified then the count is over
@@ -1328,7 +1328,7 @@
       model for each element in \code{k}. The \eqn{i}th such statistic counts the
       number of distinct \code{k[i]}-instars in the network, where a
       \eqn{k}-instar is defined to be a node \eqn{N} and a set of \eqn{k}
-      different nodes \eqn{\{O_1, \dots, O_k\}} such that the ties
+      different nodes \eqn{\{O_1, \dots, O_k\}}{\{O[1], ..., O[k]\}} such that the ties
       \eqn{(O_j{\rightarrow}N)}{(O_j, N)} exist for \eqn{j=1, \dots, k}. The
       optional argument \code{attr} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
 	Attributes and Levels} for details). If this is specified
@@ -1343,7 +1343,7 @@
       network statistic to the model for each element in \code{k}. The \eqn{i}th
       such statistic counts the number of distinct \code{k[i]}-stars in the
       network, where a \eqn{k}-star is defined to be a node \eqn{N} and a set of
-      \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}} such that the ties
+      \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}}{\{O[1], ..., O[k]\}} such that the ties
       \eqn{\{N, O_i\}} exist for \eqn{i=1, \dots, k}. The optional argument
       \code{attr} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
 	Attributes and Levels} for details). If this is specified then the count is over
@@ -1701,7 +1701,7 @@
       model for each element in \code{k}. The \eqn{i}th such statistic counts the
       number of distinct \code{k[i]}-outstars in the network, where a
       \eqn{k}-outstar is defined to be a node \eqn{N} and a set of \eqn{k}
-      different nodes \eqn{\{O_1, \dots, O_k\}} such that the ties
+      different nodes \eqn{\{O_1, \dots, O_k\}}{\{O[1], ..., O[k]\}} such that the ties
       \eqn{(N{\rightarrow}O_j)}{(N,O_j)} exist for \eqn{j=1, \dots, k}. The
       optional argument \code{attr} specifies a vertex attribute (see \link[=node-attr]{Specifying Vertex
 	Attributes and Levels} for details). If this is specified
