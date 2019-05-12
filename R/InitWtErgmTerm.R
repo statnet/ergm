@@ -384,15 +384,15 @@ InitWtErgmTerm.nodefactor<-function (nw, arglist, response, ..., version=package
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
-                        varnames = c("attrname", "base","form", "levels"),
-                        vartypes = c("character", "numeric","character", "character,numeric,logical"),
-                        defaultvalues = list(NULL, 1,"sum", NULL),
+                        varnames = c("attrname", "base", "levels","form"),
+                        vartypes = c("character", "numeric", "character,numeric,logical","character"),
+                        defaultvalues = list(NULL, 1, NULL,"sum"),
                         required = c(TRUE, FALSE, FALSE,FALSE))
   }else{
     a <- check.ErgmTerm(nw, arglist,
-                        varnames = c("attr","base","form", "levels"),
-                        vartypes = c(ERGM_VATTR_SPEC,"numeric","character", ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL,1,"sum", NULL),
+                        varnames = c("attr","base", "levels","form"),
+                        vartypes = c(ERGM_VATTR_SPEC,"numeric", ERGM_LEVELS_SPEC,"character"),
+                        defaultvalues = list(NULL,1, NULL,"sum"),
                         required = c(TRUE, FALSE,FALSE,FALSE))
   }
 
