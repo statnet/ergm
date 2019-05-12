@@ -74,7 +74,8 @@ san.default <- function(object,...)
 #' # initialize x to a random undirected network with 100 nodes and a density of 0.1
 #' x <- network(100, density = 0.1, directed = FALSE)
 #'  
-#' # try to find a network on 100 nodes with 600 edges, 300 triangles, and 2500 4-cycles, starting from the network x
+#' # try to find a network on 100 nodes with 600 edges, 300 triangles,
+#' # and 2500 4-cycles, starting from the network x
 #' y <- san(x ~ edges + triangles + cycle(4), target.stats = c(600, 300, 2500))
 #' 
 #' # check results
@@ -87,8 +88,10 @@ san.default <- function(object,...)
 #' x %v% 'give' <- runif(100, 0, 1)
 #' x %v% 'take' <- runif(100, 0, 1)
 #' 
-#' # try to find a set of 200 directed edges making the outward sum of 'give' and the inward sum of 'take' both equal to 125,
-#' # so in edges (i,j) the node i tends to have above average 'give' and j tends to have above average 'take'
+#' # try to find a set of 200 directed edges making the outward sum of
+#' # 'give' and the inward sum of 'take' both equal to 125, so in
+#' # edges (i,j) the node i tends to have above average 'give' and j
+#' # tends to have above average 'take'
 #' y <- san(x ~ edges + nodeocov('give') + nodeicov('take'), target.stats = c(200, 125, 125))
 #' 
 #' # check results
@@ -101,14 +104,17 @@ san.default <- function(object,...)
 #' # add a vertex attribute
 #' x %v% 'popularity' <- runif(100, 0, 1)
 #' 
-#' # try to find a set of 200 edges making the total sum of popularity(i) and popularity(j) over all edges (i,j) equal to 250,
-#' # so nodes with higher popularity are more likely to be connected to other nodes
+#' # try to find a set of 200 edges making the total sum of
+#' # popularity(i) and popularity(j) over all edges (i,j) equal to
+#' # 250, so nodes with higher popularity are more likely to be
+#' # connected to other nodes
 #' y <- san(x ~ edges + nodecov('popularity'), target.stats = c(200, 250))
 #'  
 #' # check results
 #' summary(y ~ edges + nodecov('popularity'))
 #' 
-#' # creates a network with denser "core" spreading out to sparser "periphery"
+#' # creates a network with denser "core" spreading out to sparser
+#' # "periphery"
 #' plot(y)
 #' @export
 san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints=~., target.stats=NULL,
