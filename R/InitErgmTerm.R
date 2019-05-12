@@ -145,7 +145,11 @@ GWDECAY <- list(
 )
 
 
-
+# LEVELS_BASE1 is a placeholder for whatever the value of levels= or
+# nodes= should be when base==1. For now, it's NULL to prevent the two
+# arguments from interfering. Eventually, when base= is removed, it
+# will need to be set to -1 either here or by search-and-replace.
+LEVELS_BASE1 <- NULL
 
 #=======================InitErgmTerm functions:  A============================#
 
@@ -576,7 +580,7 @@ InitErgmTerm.b1factor<-function (nw, arglist, ..., version=packageVersion("ergm"
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
                         varnames = c("attr", "base", "levels"),
                         vartypes = c(ERGM_VATTR_SPEC, "numeric", ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, 1, NULL),
+                        defaultvalues = list(NULL, 1, LEVELS_BASE1),
                         required = c(TRUE, FALSE, FALSE),
                         dep.inform = list(FALSE, "levels", FALSE))
     attrarg <- a$attr                        
@@ -1030,7 +1034,7 @@ InitErgmTerm.b2factor<-function (nw, arglist, ..., version=packageVersion("ergm"
     a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
                         varnames = c("attr", "base", "levels"),
                         vartypes = c(ERGM_VATTR_SPEC, "numeric", ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, 1, NULL),
+                        defaultvalues = list(NULL, 1, LEVELS_BASE1),
                         required = c(TRUE, FALSE, FALSE),
                         dep.inform = list(FALSE, "levels", FALSE))
     attrarg <- a$attr                        
@@ -3069,7 +3073,7 @@ InitErgmTerm.nodefactor<-function (nw, arglist, ..., version=packageVersion("erg
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attr", "base", "levels"),
                         vartypes = c(ERGM_VATTR_SPEC, "numeric", ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, 1, NULL),
+                        defaultvalues = list(NULL, 1, LEVELS_BASE1),
                         required = c(TRUE, FALSE, FALSE),
                         dep.inform = list(FALSE, "levels", FALSE))
     attrarg <- a$attr                        
@@ -3146,7 +3150,7 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, ..., version=packageVersion("er
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
                         varnames = c("attr", "base", "levels"),
                         vartypes = c(ERGM_VATTR_SPEC, "numeric", ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, 1, NULL),
+                        defaultvalues = list(NULL, 1, LEVELS_BASE1),
                         required = c(TRUE, FALSE, FALSE),
                         dep.inform = list(FALSE, "levels", FALSE))
     attrarg <- a$attr                        
@@ -3391,7 +3395,7 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, ..., version=packageVersion("er
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
                         varnames = c("attr", "base", "levels"),
                         vartypes = c(ERGM_VATTR_SPEC, "numeric", ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, 1, NULL),
+                        defaultvalues = list(NULL, 1, LEVELS_BASE1),
                         required = c(TRUE, FALSE, FALSE),
                         dep.inform = list(FALSE, "levels", FALSE))
     attrarg <- a$attr                        
@@ -3718,7 +3722,7 @@ InitErgmTerm.receiver<-function(nw, arglist, ..., version=packageVersion("ergm")
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                         varnames = c("base", "nodes"),
                         vartypes = c("numeric", ERGM_LEVELS_SPEC),
-                        defaultvalues = list(1, NULL),
+                        defaultvalues = list(1, LEVELS_BASE1),
                         required = c(FALSE, FALSE),
                         dep.inform = list("nodes", FALSE))
   }
@@ -3747,7 +3751,7 @@ InitErgmTerm.sender<-function(nw, arglist, ..., version=packageVersion("ergm")) 
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                         varnames = c("base", "nodes"),
                         vartypes = c("numeric", ERGM_LEVELS_SPEC),
-                        defaultvalues = list(1, NULL),
+                        defaultvalues = list(1, LEVELS_BASE1),
                         required = c(FALSE, FALSE),
                         dep.inform = list("nodes", FALSE))
   }
@@ -3834,7 +3838,7 @@ InitErgmTerm.sociality<-function(nw, arglist, ..., version=packageVersion("ergm"
     a <- check.ErgmTerm(nw, arglist, directed=FALSE,
                         varnames = c("attr", "base", "levels", "nodes"),
                         vartypes = c(ERGM_VATTR_SPEC, "numeric", ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, 1, NULL, NULL),
+                        defaultvalues = list(NULL, 1, NULL, LEVELS_BASE1),
                         required = c(FALSE, FALSE, FALSE, FALSE),
                         dep.inform = list(FALSE, "nodes", FALSE, FALSE),
                         dep.warn = list(TRUE, FALSE, TRUE, FALSE))
