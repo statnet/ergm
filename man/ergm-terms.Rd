@@ -335,22 +335,28 @@
   selection UI. (See \link[=node-attr]{Specifying Vertex Attributes and
     Levels} for details.)
 
-  \subsection{Legacy arguments}
+  \subsection{Legacy arguments}{
 
-  The \code{levels} UI is intended to provide a consistent and flexible
-  mechanisms for specifying node levels. This role was previously
-  fulfilled by the \code{base} argument, which specified which levels to
-  exclude and the \code{keep} arguments, which specified which levels to
-  include. These arguments are deprecated and may be removed in a future
-  version. If \code{levels} or \code{nodes} argument is given, then
-  \code{base} and \code{keep} arguments are ignored.
+    The \code{levels} UI is intended to provide a consistent and
+    flexible mechanisms for specifying node levels. This role was
+    previously fulfilled by the \code{base} argument, which specified
+    which levels to exclude and the \code{keep} arguments, which
+    specified which levels to include. These arguments are deprecated
+    and may be removed in a future version. If \code{levels} or
+    \code{nodes} argument is given, then \code{base} and \code{keep}
+    arguments are ignored.
 
-  Note that this exact behavior is new in version 3.10, and it differs
-  slightly from older versions: previously if both \code{levels} and
-  \code{base}/\code{keep} were given, \code{levels} argument was applied
-  first and then applied the \code{base}/\code{keep} argument. Since
-  version 3.10, \code{base}/\code{keep} would be ignored, even if old
-  term behavior is invoked (as described in the next section).}
+    Note that this exact behavior is new in version 3.10, and it differs
+    slightly from older versions: previously if both \code{levels} and
+    \code{base}/\code{keep} were given, \code{levels} argument was
+    applied first and then applied the \code{base}/\code{keep}
+    argument. Since version 3.10, \code{base}/\code{keep} would be
+    ignored, even if old term behavior is invoked (as described in the
+    next section).
+
+  }
+
+}
 
 \section{Term versioning}{
   When a term's behavior has changed from prior version, it is often possible to invoke the old behavior by setting and/or passing a \code{version} term option, giving the verison (constructed by \code{\link{as.package_version}}) desired.
