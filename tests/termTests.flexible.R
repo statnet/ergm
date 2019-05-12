@@ -504,7 +504,7 @@ if (s.a != 103 || round(e.a$coef + 1.45725,3)!=0  ||
 num.tests=num.tests+1
 s.a <- summary(fmh ~ nodemix("Grade"))
 e.a <- ergm(samplike ~ nodemix(function(x) x %v% "group"), estimate="MPLE")
-s.ab <- summary(bipnw ~ nodemix("Letter"), levels2=T)
+s.ab <- summary(bipnw ~ nodemix("Letter", levels2=TRUE))
 e.ab <- ergm(bipnw ~ nodemix(function(x) x %v% "Letter", levels2=-(2:6)))
 s.ab2 <- summary(fmh ~ nodemix("Race", base=1))
 e.ab2 <- ergm(samplike ~ nodemix(~Trinity, base=(3:9)))                
