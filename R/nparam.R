@@ -52,6 +52,7 @@ nparam.ergm_model <- function(object, canonical=FALSE, offset=NA, byterm=FALSE, 
         else length(term$coef.names)
       })
     }
+  out <- unlist(out)
   if(byterm) out else sum(out)
 }
 

@@ -15,7 +15,7 @@ InitErgmTerm.transitiveties<-function (nw, arglist, ..., version=packageVersion(
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attrname", "diff", "levels"),
                         vartypes = c("character", "logical", "character,numeric,logical"),
-                        defaultvalues = list(NULL, FALSE, NULL),
+                        defaultvalues = list(NULL, FALSE, TRUE),
                         required = c(FALSE, FALSE, FALSE))
 	attrarg <- a$attrname
 	levels <- if(!is.null(a$levels)) I(a$levels) else NULL
@@ -61,7 +61,7 @@ InitErgmTerm.cyclicalties<-function (nw, arglist, ..., version=packageVersion("e
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attrname", "diff", "levels"),
                         vartypes = c("character", "logical", "character,numeric,logical"),
-                        defaultvalues = list(NULL, FALSE, NULL),
+                        defaultvalues = list(NULL, FALSE, TRUE),
                         required = c(FALSE, FALSE, FALSE))
 	attrarg <- a$attrname
 	levels <- if(!is.null(a$levels)) I(a$levels) else NULL						
@@ -69,7 +69,7 @@ InitErgmTerm.cyclicalties<-function (nw, arglist, ..., version=packageVersion("e
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attr", "diff", "levels"),
                         vartypes = c(ERGM_VATTR_SPEC, "logical", ERGM_LEVELS_SPEC),
-                        defaultvalues = list(NULL, FALSE, NULL),
+                        defaultvalues = list(NULL, FALSE, TRUE),
                         required = c(FALSE, FALSE, FALSE))
 	attrarg <- a$attr
 	levels <- a$levels  

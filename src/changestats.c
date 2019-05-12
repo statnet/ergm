@@ -738,20 +738,13 @@ C_CHANGESTAT_FN(c_b2degree_by_attr) {
  changestat: d_b2factor
 *****************/
 C_CHANGESTAT_FN(c_b2factor) { 
-  double s, factorval;
-  Vertex nb1, b2;
-  int j;
+  double s;
   
-
   /* *** don't forget tail -> head */    
-  nb1 = BIPARTITE;
   ZERO_ALL_CHANGESTATS(i);
-    b2 = head;
-    s = IS_OUTEDGE(tail, b2) ? -1.0 : 1.0;
-    for (j=0; j<(N_CHANGE_STATS); j++) {
-      factorval = (INPUT_PARAM[j]);
-      CHANGE_STAT[j] += ((INPUT_ATTRIB[b2-nb1-1] != factorval) ? 0.0 : s);
-    }
+    s = IS_OUTEDGE(tail, head) ? -1.0 : 1.0;
+    int headpos = INPUT_ATTRIB[head-1-BIPARTITE];
+    if (headpos!=-1) CHANGE_STAT[headpos] += s;
 }
 
 /*****************

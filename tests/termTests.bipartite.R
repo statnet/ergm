@@ -142,6 +142,18 @@ if (!all(s.d==c(42,12,4)) ||
 	print("Passed b1mindegree term test")
 }
 
+#b1sociality, bipartite, undirected
+num.tests=num.tests+1
+s.d <- summary(bipnw~b1sociality(nodes=94:96))
+e.d <- ergm(bipnw~b1sociality(nodes=94:96), estimate="MPLE")
+if (!all(s.d == c(4,4,2)) ||
+    !all(round(e.d$coef + c(1.833, 1.833, 2.603),3) == 0)) {
+ print(list(s.d=s.d, e.d=e.d))
+ stop("Failed b1sociality term test")
+} else {
+  num.passed.tests=num.passed.tests+1
+  print("Passed b1sociality term test")
+}
 
 
 #b1star, bipartite, undirected
@@ -319,6 +331,18 @@ if (!all(s.a==c(19,16)) ||
 }
 
 
+#b2sociality, bipartite, undirected
+num.tests=num.tests+1
+s.d <- summary(bipnw~b2sociality(nodes=2:6))
+e.d <- ergm(bipnw~b2sociality(nodes=2:6), estimate="MPLE")
+if (!all(s.d == c(2, 3, 2, 3, 1)) ||
+    !all(round(e.d$coef + c(3.892, 3.476, 3.892, 3.476, 4.595),3) == 0)) {
+ print(list(s.d=s.d, e.d=e.d))
+ stop("Failed b2sociality term test")
+} else {
+  num.passed.tests=num.passed.tests+1
+  print("Passed b2sociality term test")
+}
 
 #b2star, bipartite, undirected
 num.tests=num.tests+1

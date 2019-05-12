@@ -99,17 +99,23 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' }
 #'
 #' For categorical attributes, to select which levels are of interest
-#' and their ordering, use the argument `levels`.  It is interpreted
+#' and their ordering, use the argument `levels`.  Selection of nodes (from
+#' the appropriate vector of nodal indices) is likewise handled as the
+#' selection of levels, using the argument `nodes`.  These arguments are interpreted
 #' as follows: \describe{
 #'
 #' \item{an expression wrapped in [I()]}{Use the given list of levels
 #' as is.}
 #' 
-#' \item{a numeric or logical vector}{Used for indexing of the default
-#' set of levels (typically, unique values of the attribute) in
+#' \item{a numeric or logical vector}{Used for indexing of a list of
+#' all possible levels (typically, unique values of the attribute) in
 #' default older (typically lexicographic), i.e.,
-#' `sort(unique(attr))[levels]`. Negative values exclude. To specify
-#' numeric or logical levels literally, wrap in [I()].}
+#' `sort(unique(attr))[levels]`. In particular, `levels=TRUE` will
+#' retain all levels. Negative values exclude. To specify numeric or
+#' logical levels literally, wrap in [I()].}
+#'
+#'\item{[`NULL`]}{Retain all possible levels; usually equivalent to
+#' passing `TRUE`.}
 #'
 #' \item{a character vector}{Use as is.}
 #' 
@@ -126,13 +132,19 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' 
 #' }
 #' 
-#' Note that `levels` often has a default that is sensible for the
+#' Note that `levels` or `nodes` often has a default that is sensible for the
 #' term in question.
 #' 
 #' @aliases attrname on by attrs
 #' @examples
 #'
 #' data(faux.mesa.high)
+#' 
+#' # Activity by grade with a baseline grade excluded:
+#' summary(faux.mesa.high~nodefactor(~Grade))
+#' # Retain all levels:
+#' summary(faux.mesa.high~nodefactor(~Grade, levels=TRUE)) # or levels=NULL
+#' 
 #' # Mixing between lower and upper grades:
 #' summary(faux.mesa.high~mm(~Grade>=10))
 #' # Mixing between grades 7 and 8 only:

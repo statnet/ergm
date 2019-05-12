@@ -177,6 +177,14 @@ for(base in list(0, 1, 2, 1:2, 3)){
   tst(sapply(sort(unique(f1))[keep], function(x) sum((f1==x)*(bipm!=0),na.rm=TRUE)), bipnw ~ b1factor(~f, base=base, form="nonzero"))
 }
 
+# b1sociality
+for(base in list(0, 1, 2, 1:2, 3)){
+  keep <- if(all(base==0)) 1:3 else (1:3)[-base]
+  tst(apply(bipm, 1, sum)[keep], bipnw ~ b1sociality(nodes=keep))
+  tst(apply(bipm!=0, 1, sum)[keep], bipnw ~ b1sociality(nodes=keep, form="nonzero"))
+}
+
+
 # b2cov
 tst(sum(q2*t(bipm),na.rm=TRUE), bipnw ~ b2cov("q"))
 tst(c(sum(q2*t(bipm),na.rm=TRUE),sum(q2^2*t(bipm),na.rm=TRUE)), bipnw ~ b2cov(~poly(q,2,raw=TRUE)))
@@ -188,6 +196,13 @@ for(base in list(0, 1, 2, 1:2, 3)){
   keep <- if(all(base==0)) 1:3 else (1:3)[-base]
   tst(sapply(sort(unique(f2))[keep], function(x) sum((f2==x)*t(bipm),na.rm=TRUE)), bipnw ~ b2factor("f", base=NULL, levels=keep))
   tst(sapply(sort(unique(f2))[keep], function(x) sum((f2==x)*t(bipm!=0),na.rm=TRUE)), bipnw ~ b2factor(~f, base=base, form="nonzero"))
+}
+
+# b2sociality
+for(base in list(0, 1, 2, 1:2, 3)){
+  keep <- if(all(base==0)) 1:3 else (1:3)[-base]
+  tst(apply(bipm, 2, sum)[keep], bipnw ~ b2sociality(nodes=keep))
+  tst(apply(bipm!=0, 2, sum)[keep], bipnw ~ b2sociality(nodes=keep, form="nonzero"))
 }
 
 # edgecov
@@ -383,24 +398,24 @@ for(base in list(0, 1, 2, 1:2, 3)){
 for(base in list(0, 1, 2, 1:2, 3)){
   i <- seq_len(network.size(dirnw))
   keep <- if(all(base==0)) i else i[-base]
-  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*t(dirm),na.rm=TRUE)), dirnw ~ receiver(base=NULL, levels=keep))
-  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*t(dirm!=0),na.rm=TRUE)), dirnw ~ receiver(base=base, form="nonzero"))
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*t(dirm),na.rm=TRUE)), dirnw ~ receiver(nodes=keep))
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*t(dirm!=0),na.rm=TRUE)), dirnw ~ receiver(nodes=keep, form="nonzero"))
 }
 
 # sender
 for(base in list(0, 1, 2, 1:2, 3)){
   i <- seq_len(network.size(dirnw))
   keep <- if(all(base==0)) i else i[-base]
-  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*dirm,na.rm=TRUE)), dirnw ~ sender(base=NULL, levels=keep))
-  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*(dirm!=0),na.rm=TRUE)), dirnw ~ sender(base=base, form="nonzero"))
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*dirm,na.rm=TRUE)), dirnw ~ sender(nodes=keep))
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*(dirm!=0),na.rm=TRUE)), dirnw ~ sender(nodes=keep, form="nonzero"))
 }
 
 # sociality
 for(base in list(0, 1, 2, 1:2, 3)){
   i <- seq_len(network.size(dirnw))
   keep <- if(all(base==0)) i else i[-base]
-  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*undm,na.rm=TRUE)), undnw ~ sociality(base=NULL, nodelevels=keep))
-  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*(undm!=0),na.rm=TRUE)), undnw ~ sociality(base=base, form="nonzero"))
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*undm,na.rm=TRUE)), undnw ~ sociality(nodes=keep))
+  tst(sapply(sort(unique(i))[keep], function(x) sum((i==x)*(undm!=0),na.rm=TRUE)), undnw ~ sociality(nodes=keep, form="nonzero"))
 }
 
 

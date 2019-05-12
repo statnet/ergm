@@ -135,35 +135,24 @@ WtC_CHANGESTAT_FN(c_b2cov_sum){
 /*****************
  stat: b2factor (nonzero)
 *****************/
-WtC_CHANGESTAT_FN(c_b2factor_nonzero){ 
-  double s, factorval;
-  int j, headattr;
-  
+WtC_CHANGESTAT_FN(c_b2factor_nonzero){
   ZERO_ALL_CHANGESTATS();
-      s = (weight!=0) - (GETWT(tail,head)!=0);
-      headattr = INPUT_ATTRIB[head-BIPARTITE-1];
-      for (j=0; j < N_CHANGE_STATS; j++){
-	factorval = INPUT_PARAM[j];
-	if (headattr == factorval) CHANGE_STAT[j] += s;
-      }
+  double oldwt = GETWT(tail,head);
+  double s = (weight!=0) - (oldwt!=0);
+  int headpos = INPUT_ATTRIB[head-1-BIPARTITE];
+  if(headpos != -1) CHANGE_STAT[headpos] += s;
 }
 
 /*****************
  stat: b2factor (sum)
 *****************/
-WtC_CHANGESTAT_FN(c_b2factor_sum){ 
-  double s, factorval;
-  int j, headattr;
-  
+WtC_CHANGESTAT_FN(c_b2factor_sum){
   ZERO_ALL_CHANGESTATS();
-    s = weight - GETWT(tail,head);
-    headattr = INPUT_ATTRIB[head-BIPARTITE-1];
-    for (j=0; j < N_CHANGE_STATS; j++){
-      factorval = INPUT_PARAM[j];
-      if (headattr == factorval) CHANGE_STAT[j] += s;
-    }
+  double oldwt = GETWT(tail,head);
+  double s = weight - oldwt;
+  int headpos = INPUT_ATTRIB[head-1-BIPARTITE];
+  if(headpos != -1) CHANGE_STAT[headpos] += s;
 }
-
 
 /********************  changestats:   C    ***********/
 

@@ -451,8 +451,8 @@ if (!all(s.0==c(12, 5, 0, 0)) || round(e.0$coef + c(0.619, -1.030, Inf, Inf))!= 
 num.tests=num.tests + 1
 s.0 <- summary(samplike~receiver)
 e.0 <- ergm(samplike~receiver, estimate="MPLE")
-s.b <- summary(samplike~receiver(base=NULL, levels=-(2:16)))
-e.b <- ergm(samplike~receiver(base=(3:18)), estimate="MPLE")
+s.b <- summary(samplike~receiver(nodes=-(2:16)))
+e.b <- ergm(samplike~receiver(nodes=-(3:18)), estimate="MPLE")
 if (!all(s.0==c(8, 4, 2, 5, 3, 5, 7, 11, 10, 6, 3, 6, 3, 5, 3, 2, 3)) ||
     !all(round(e.0$coef-c(-0.1178,-1.1787,-2.0149,-0.8755,-1.5404,-0.8755,
                           -0.3567, 0.6061, 0.3567,-0.6061,-1.5404,-0.6061,
@@ -472,8 +472,8 @@ if (!all(s.0==c(8, 4, 2, 5, 3, 5, 7, 11, 10, 6, 3, 6, 3, 5, 3, 2, 3)) ||
 num.tests=num.tests + 1
 s.0 <- summary(samplike~sender)
 e.0 <- ergm(samplike~sender, estimate="MPLE")
-s.b <- summary(samplike~sender(base=NULL, levels=-(2:16)))
-e.b <- ergm(samplike~sender(base=(3:18)), estimate="MPLE")
+s.b <- summary(samplike~sender(nodes=-(2:16)))
+e.b <- ergm(samplike~sender(nodes=-(3:18)), estimate="MPLE")
 if (!all(s.0==c(5, 4, 4, 4, 5, 6, 4, 6, 5, 5, 6, 5, 5, 3, 5, 4, 6)) ||
     !all(round(e.0$coef+c(0.8755,1.1787,1.1787,1.1787,0.8755,0.6061,1.1787,
                           0.6061,0.8755,0.8755,0.6061,0.8755,0.8755,1.5404,
