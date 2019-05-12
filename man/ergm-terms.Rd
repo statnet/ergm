@@ -163,7 +163,7 @@
 
 \newcommand{\LevelsAll}{By default, all levels are included.}
 
-\newcommand{\LevelsNotFirst}{To include all attribute values is usually not a good idea, because the sum of all such statistics equals the number of edges and hence a linear dependency would arise in any model also including \code{edges}. The default, \code{levels=-1}, is therefore to omit the first (in lexicographic order) attribute level.}
+\newcommand{\LevelsNotFirst}{To include all attribute values is usually not a good idea, because the sum of all such statistics equals the number of edges and hence a linear dependency would arise in any model also including \code{edges}. The default, \code{levels=-1}, is therefore to omit the first (in lexicographic order) attribute level. To include all levels, pass either \code{levels=TRUE} (i.e., keep all levels) or \code{levels=NULL} (i.e., do not filter levels).}
 
 % Deprecation of base= and keep= arguments
 
@@ -265,27 +265,29 @@
   for mixing terms.)  The \code{levels} argument can be used to control the set and the ordering of
   attribute levels.
 
-  Terms that allow the selection of nodes do so
-  with the \code{nodes} argument, which is interpreted in the same way
-  as the \code{levels} argument, where the categories are the relevant
-  nodal indices themselves.  Both \code{levels} and \code{nodes} use the new level selection
-  UI (see \link[=node-attr]{Specifying Vertex Attributes and Levels} for details).
+  Terms that allow the selection of nodes do so with the \code{nodes}
+  argument, which is interpreted in the same way as the \code{levels}
+  argument, where the categories are the relevant nodal indices
+  themselves.  Both \code{levels} and \code{nodes} use the new level
+  selection UI. (See \link[=node-attr]{Specifying Vertex Attributes and
+  Levels} for details.)
 
-  Some terms taking \code{levels} or \code{nodes} also take the legacy arguments
-  \code{base} and \code{keep} for backwards compatibility.  Use of thse
-  legacy arguments is discouraged, and they may be removed in a future version. If both a
-  \code{levels} or \code{nodes} argument and the corresponding \code{base} or \code{keep}
-  argument are specified, the \code{levels} or \code{nodes} argument overrides the \code{base}
-  or \code{keep} argument.
+  \subsection{Legacy arguments}
 
-  This behavior is new in version 3.10; in older versions, terms
-  taking both \code{levels} and \code{base} or \code{keep} applied \code{levels} first and then
-  applied \code{base} or \code{keep}.  In version 3.10, \code{levels} or \code{nodes} always
-  overrides the corresponding \code{base} or \code{keep} argument, even if old term behavior
-  is invoked (as described in the next section).  Note that \code{base=0} is equivalent to setting
-  the corresponding \code{levels} argument to either \code{TRUE} (keep
-  all levels) or, equivalently, \code{NULL} (no filtering).
-}
+  The \code{levels} UI is intended to provide a consistent and flexible
+  mechanisms for specifying node levels. This role was previously
+  fulfilled by the \code{base} argument, which specified which levels to
+  exclude and the \code{keep} arguments, which specified which levels to
+  include. These arguments are deprecated and may be removed in a future
+  version. If \code{levels} or \code{nodes} argument is given, then
+  \code{base} and \code{keep} arguments are ignored.
+
+  Note that this exact behavior is new in version 3.10, and it differs
+  slightly from older versions: previously if both \code{levels} and
+  \code{base}/\code{keep} were given, \code{levels} argument was applied
+  first and then applied the \code{base}/\code{keep} argument. Since
+  version 3.10, \code{base}/\code{keep} would be ignored, even if old
+  term behavior is invoked (as described in the next section).}
 
 \section{Term versioning}{
   When a term's behavior has changed from prior version, it is often possible to invoke the old behavior by setting and/or passing a \code{version} term option, giving the verison (constructed by \code{\link{as.package_version}}) desired.
@@ -1507,8 +1509,7 @@
 
       \BaseDep
 
-      For an analogous term
-      for quantitative vertex attributes, see \code{nodeicov}.}
+      For an analogous term for quantitative vertex attributes, see \code{nodeicov}.}
 
     \item{\code{nodeisqrtcovar}  (valued)  (directed)  (non-negative) (quantitative nodal attribute)
     }{\emph{Uncentered covariance of square roots of in-dyad values
