@@ -195,24 +195,13 @@
   normalizing constant for the distribution.
 
   The network statistics \eqn{g(y)} are entered as terms in the
-  function call to \code{\link{ergm}}.  This page describes 
+  function call to \code{\link{ergm}}.  This page describes
   the possible terms (and hence network statistics)
-  included in \code{\link[=ergm-package]{ergm}} package.   
-  
-  A cross-referenced html version of the term documentation is
-  available via \code{vignette('ergm-term-crossRef')} and terms 
+  included in \code{\link[=ergm-package]{ergm}} package.
+
+  A cross-referenced HTML version of the term documentation is
+  available via \code{vignette('ergm-term-crossRef')} and terms
   can also be searched via \code{\link{search.ergmTerms}}.
-
-\section{Custom ergm-terms}{
-
-  Users and other packages may build custom terms, and package
-  \code{\link[ergm.userterms:ergm.userterms-package]{ergm.userterms}}
-  provides tools for implementing them.
-
-  The current recommendation for any package implementing additional
-  terms is to create a help file with a name or 
-  alias \code{ergm-terms}, so that \code{help("ergm-terms")} will 
-  list ERGM terms available from all loaded packages.
 }
 
 \section{Specifying models}{
@@ -226,9 +215,9 @@
   object, and \code{<term 1>}, \code{<term 2>}, etc, are each terms chosen
   from the list given below.
   To create a network object in \R, use the \code{\link[network]{network}} function,
-  then add nodal attributes to it using the \code{\%v\%} operator if necessary.}
+  then add nodal attributes to it using the \code{\%v\%} operator if necessary.
 
-\section{Binary and valued ERGM terms}{
+\subsection{Binary and valued ERGM terms}{
 
   \code{\link[=ergm-package]{ergm}} functions such as \code{\link{ergm}}
   and \code{\link[=simulate.formula]{simulate}} (for ERGMs) may operate
@@ -255,7 +244,7 @@
   considered a nontie.)
 }
 
-\section{Nodal attribute levels and indices}{
+\subsection{Nodal attribute levels and indices}{
 
   Terms taking a categorical nodal covariate also take the \code{levels}
   argument.  (There are analogous \code{b1levels} and \code{b2levels} arguments
@@ -266,8 +255,8 @@
   Terms that allow the selection of nodes do so with the \code{nodes}
   argument, which is interpreted in the same way as the \code{levels}
   argument, where the categories are the relevant nodal indices
-  themselves.  
-  
+  themselves.
+
   Both \code{levels} and \code{nodes} use the new level
   selection UI. (See \link[=node-attr]{Specifying Vertex Attributes and
     Levels} for details.)
@@ -275,14 +264,14 @@
   \subsection{Legacy arguments}{
 
     The legacy \code{base} and \code{keep} arguments are
-    deprecated as of version 3.10, and replaced by the 
-    \code{levels} UI. The \code{levels} 
-    argument provides consistent and flexible mechanisms for 
-    specifying which attribute levels to exclude (previously 
-    handled by \code{base}) and include (previously 
+    deprecated as of version 3.10, and replaced by the
+    \code{levels} UI. The \code{levels}
+    argument provides consistent and flexible mechanisms for
+    specifying which attribute levels to exclude (previously
+    handled by \code{base}) and include (previously
     handled by \code{keep}).  If \code{levels} or
     \code{nodes} argument is given, then \code{base} and \code{keep}
-    arguments are ignored. The legacy arguments 
+    arguments are ignored. The legacy arguments
     will most likely be removed in a future version.
 
     Note that this exact behavior is new in version 3.10, and it differs
@@ -297,17 +286,30 @@
 
 }
 
-\section{Term versioning}{
+\subsection{Term versioning}{
 
   When a term's behavior has changed from prior version, it is often possible to invoke the old behavior by setting and/or passing a \code{version} term option, giving the verison (constructed by \code{\link{as.package_version}}) desired.
 }
 
-\section{\bold{Terms included in the
-  \code{\link[=ergm-package]{ergm}} package}{
-  
-  As noted above, a cross-referenced html version of the 
+\subsection{Custom \code{ergm} terms}{
+
+  Users and other packages may build custom terms, and package
+  \code{\link[ergm.userterms:ergm.userterms-package]{ergm.userterms}}
+  provides tools for implementing them.
+
+  The current recommendation for any package implementing additional
+  terms is to create a help file with a name or
+  alias \code{ergm-terms}, so that \code{help("ergm-terms")} will
+  list ERGM terms available from all loaded packages.
+}
+
+}
+
+\section{Terms included in the \code{\link[=ergm-package]{ergm}} package}{
+
+  As noted above, a cross-referenced HTML version of the
   term documentation is
-  available via \code{vignette('ergm-term-crossRef')} and terms 
+  available via \code{vignette('ergm-term-crossRef')} and terms
   can also be searched via \code{\link{search.ergmTerms}}.
   \describe{
     %%%%%%%%%%%%%%%%%%%%%%555
