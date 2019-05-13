@@ -159,7 +159,7 @@
 
 % levels= arguments
 
-\newcommand{\LevelsExplain}{The optional \code{levels} argument controls which levels of the attirbute should be included and which should be excluded. (See \link[=node-attr]{Specifying Vertex Attributes and Levels} for details.) For example, if the \dQuote{fruit} attribute has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and \dQuote{pear}, then to include just two levels, one for \dQuote{apple} and one for \dQuote{pear}, use any of \code{#1("fruit", levels=-(2:3))}, \code{#1("fruit", levels=c(1,4))}, and \code{#1("fruit", levels=c("apple", "pear"))}.}
+\newcommand{\LevelsExplain}{The optional \code{levels} argument controls which levels of the attribute should be included and which should be excluded. (See \link[=node-attr]{Specifying Vertex Attributes and Levels} for details.) For example, if the \dQuote{fruit} attribute has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and \dQuote{pear}, then to include just two levels, one for \dQuote{apple} and one for \dQuote{pear}, use any of \code{#1("fruit", levels=-(2:3))}, \code{#1("fruit", levels=c(1,4))}, and \code{#1("fruit", levels=c("apple", "pear"))}.}
 
 \newcommand{\LevelsAll}{By default, all levels are included.}
 
@@ -187,7 +187,7 @@
   random graph models, in which
   the probability of a given network, \eqn{y}, on a set of nodes is
   \deqn{h(y) \exp\{\eta(\theta) \cdot
-    g(y)\}/c(\theta)}{h(y) exp\{eta(theta).g(y)\} / c(theta),}, where
+    g(y)\}/c(\theta)}{h(y) exp\{eta(theta).g(y)\} / c(theta),} where
   \eqn{h(y)} is the reference measure (for valued network models),
   \eqn{g(y)} is a vector of network statistics for \eqn{y},
   \eqn{\eta(\theta)} is a natural parameter vector of the same
@@ -195,21 +195,28 @@
   normalizing constant for the distribution.
 
   The network statistics \eqn{g(y)} are entered as terms in the
-  function call to \code{\link{ergm}}.
+  function call to \code{\link{ergm}}.  This page describes 
+  the possible terms (and hence network statistics)
+  included in \code{\link[=ergm-package]{ergm}} package.   
+  
+  A cross-referenced html version of the term documentation is
+  available via \code{vignette('ergm-term-crossRef')} and terms 
+  can also be searched via \code{\link{search.ergmTerms}}.
 
-  This page describes the possible terms (and hence network statistics)
-  included in \code{\link[=ergm-package]{ergm}} package. Other packages
-  may add their own terms, and package
-  \code{\link[ergm.userterms:ergm.userterms-package]{ergm.userterms}} provides tools
-  for implementing them.
+\section{Custom ergm-terms}{
+
+  Users and other packages may build custom terms, and package
+  \code{\link[ergm.userterms:ergm.userterms-package]{ergm.userterms}}
+  provides tools for implementing them.
 
   The current recommendation for any package implementing additional
-  terms is to create a help file with a name or alias \code{ergm-terms},
-  so that \code{help("ergm-terms")} will list ERGM terms available from
-  all loaded packages.
+  terms is to create a help file with a name or 
+  alias \code{ergm-terms}, so that \code{help("ergm-terms")} will 
+  list ERGM terms available from all loaded packages.
 }
 
 \section{Specifying models}{
+
   Terms to \code{\link{ergm}} are specified by a formula to represent the network and
   network statistics. This is done via a \code{formula}, that is,
   an \R formula object, of the form
@@ -249,6 +256,7 @@
 }
 
 \section{Covariate transformations}{
+
   Some terms taking nodal or dyadic covariates take optional
   \code{transform} and \code{transformname} arguments. \code{transform}
   should be a function with one argument, taking a data structure of the
@@ -258,7 +266,8 @@
   This is largely obviated by the new language for specifying vertex attributes and levels. See \link[=node-attr]{Specifying Vertex Attributes and Levels} for details.
 }
 
-\section{Nodal attribute levels}{
+\section{Nodal attribute levels and indices}{
+
   Terms taking a categorical nodal covariate also take the \code{levels}
   argument.  (There are analogous \code{b1levels} and \code{b2levels} arguments
   for some terms that apply to bipartite networks, and the \code{levels2} argument
@@ -268,20 +277,24 @@
   Terms that allow the selection of nodes do so with the \code{nodes}
   argument, which is interpreted in the same way as the \code{levels}
   argument, where the categories are the relevant nodal indices
-  themselves.  Both \code{levels} and \code{nodes} use the new level
+  themselves.  
+  
+  Both \code{levels} and \code{nodes} use the new level
   selection UI. (See \link[=node-attr]{Specifying Vertex Attributes and
     Levels} for details.)
 
   \subsection{Legacy arguments}{
 
-    The \code{levels} UI is intended to provide a consistent and
-    flexible mechanisms for specifying node levels. This role was
-    previously fulfilled by the \code{base} argument, which specified
-    which levels to exclude and the \code{keep} arguments, which
-    specified which levels to include. These arguments are deprecated
-    and may be removed in a future version. If \code{levels} or
+    The legacy \code{base} and \code{keep} arguments are
+    deprecated as of version 3.10, and replaced by the 
+    \code{levels} UI. The \code{levels} 
+    argument provides consistent and flexible mechanisms for 
+    specifying which attribute levels to exclude (previously 
+    handled by \code{base}) and include (previously 
+    handled by \code{keep}).  If \code{levels} or
     \code{nodes} argument is given, then \code{base} and \code{keep}
-    arguments are ignored.
+    arguments are ignored. The legacy arguments 
+    will most likely be removed in a future version.
 
     Note that this exact behavior is new in version 3.10, and it differs
     slightly from older versions: previously if both \code{levels} and
@@ -296,12 +309,17 @@
 }
 
 \section{Term versioning}{
+
   When a term's behavior has changed from prior version, it is often possible to invoke the old behavior by setting and/or passing a \code{version} term option, giving the verison (constructed by \code{\link{as.package_version}}) desired.
 }
 
-\section{Terms to represent network statistics included in the
+\section{\bold{Terms included in the
   \code{\link[=ergm-package]{ergm}} package}{
-  A cross-referenced html version of the term documentation is is available via \code{vignette('ergm-term-crossRef')} and terms can also be searched via \code{\link{search.ergmTerms}}.
+  
+  As noted above, a cross-referenced html version of the 
+  term documentation is
+  available via \code{vignette('ergm-term-crossRef')} and terms 
+  can also be searched via \code{\link{search.ergmTerms}}.
   \describe{
     %%%%%%%%%%%%%%%%%%%%%%555
     % This section below is specially formatted so that it can be parsed to build additional
