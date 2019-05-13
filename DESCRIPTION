@@ -1,6 +1,6 @@
 Package: ergm
-Version: 3.10.0-4974
-Date: 2019-05-13
+Version: 3.10.0-4978
+Date: 2019-05-14
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
 	   person("Mark S.", "Handcock", role=c("aut"), email="handcock@stat.ucla.edu"),

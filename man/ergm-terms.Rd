@@ -255,17 +255,6 @@
   considered a nontie.)
 }
 
-\section{Covariate transformations}{
-
-  Some terms taking nodal or dyadic covariates take optional
-  \code{transform} and \code{transformname} arguments. \code{transform}
-  should be a function with one argument, taking a data structure of the
-  same mode as the covariate and returning a similarly structured data
-  structure, transforming the covariate as needed.
-
-  This is largely obviated by the new language for specifying vertex attributes and levels. See \link[=node-attr]{Specifying Vertex Attributes and Levels} for details.
-}
-
 \section{Nodal attribute levels and indices}{
 
   Terms taking a categorical nodal covariate also take the \code{levels}
