@@ -326,7 +326,7 @@ if (s.a != 439 || round(e.a$coef + .1739, 3) != 0 ||
 num.tests=num.tests + 1
 s.a <- summary(samplike~nodeifactor("group"))
 e.a <- ergm(samplike~nodeifactor(~group), estimate="MPLE")
-s.ab <- summary(samplike~nodeifactor(function(x) x %v% "Trinity", base=NULL, levels=TRUE))
+s.ab <- summary(samplike~nodeifactor(function(x) x %v% "Trinity", levels=TRUE))
 e.ab <- ergm(samplike~nodeifactor("Trinity", base=(2:3)), estimate="MPLE")
 if (!all(s.a==c(13,46)) ||
     !all(round(e.a$coef+c(1.4424, .4618),3)==0) ||
@@ -363,7 +363,7 @@ if (s.a != 467 || round(e.a$coef + .1581, 3) != 0 ||
 num.tests=num.tests + 1
 s.a <- summary(samplike~nodeofactor("group"))
 e.a <- ergm(samplike~nodeofactor(~group), estimate="MPLE")
-s.ab <- summary(samplike~nodeofactor("Trinity", base=NULL, levels=TRUE))
+s.ab <- summary(samplike~nodeofactor("Trinity", levels=TRUE))
 e.ab <- ergm(samplike~nodeofactor(function(x) x %v% "Trinity", base=(2:3)), estimate="MPLE")
 if (!all(s.a==c(18,36)) ||
     !all(round(e.a$coef+c(1.0217, .8353),3)==0) ||

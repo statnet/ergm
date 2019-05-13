@@ -461,7 +461,7 @@ num.tests=num.tests+1
 s.a <- summary(fmh~nodefactor("Grade"))
 e.a <- ergm(samplike~nodefactor(~group), estimate="MPLE")
 s.ab <- summary(fmh~nodefactor(function(x) x %v% "Sex", base=(4:5)))
-e.ab <- ergm(samplike~nodefactor("Trinity", base=NULL, levels=TRUE), estimate="MPLE")
+e.ab <- ergm(samplike~nodefactor("Trinity", levels=TRUE), estimate="MPLE")
 if (!all(s.a==c(75, 65, 36, 49, 28)) ||
     !all(round(e.a$coef+c(.9480, .3273),3)==0) ||
     !all(s.ab==c(235,171)) ||
