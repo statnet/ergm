@@ -113,7 +113,7 @@ if (!all(s.d==c(30,8,2)) ||
 num.tests=num.tests+1
 s.a <- summary(bipnw~b1factor("Letter"))
 e.a <- ergm(bipnw~b1factor(function(x) x %v% "Letter"), estimate="MPLE")
-s.ab <- summary(bipnw~b1factor(~Letter, base=NULL, levels=-3))
+s.ab <- summary(bipnw~b1factor(~Letter, levels=-3))
 e.ab <- ergm(bipnw~b1factor("Letter", base=2), estimate="MPLE")
 if (!all(s.a==c(21,19)) ||
     !all(round(e.a$coef+c(3.797, 3.899),3)==0) ||
@@ -317,7 +317,7 @@ if (!all(s.d==c(26,20,11)) ||
 num.tests=num.tests+1
 s.a <- summary(bipnw~b2factor("Letter"))
 e.a <- ergm(bipnw~b2factor(function(x) x %v% "Letter"), estimate="MPLE")
-s.ab <- summary(bipnw~b2factor(~Letter, base=NULL, levels=-3))
+s.ab <- summary(bipnw~b2factor(~Letter, levels=-3))
 e.ab <- ergm(bipnw~b2factor("Letter", base=2), estimate="MPLE")
 if (!all(s.a==c(19,16)) ||
     !all(round(e.a$coef+c(3.944, 4.119),3)==0) ||
