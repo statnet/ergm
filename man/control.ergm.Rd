@@ -17,15 +17,15 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MCMC.effectiveSize.points = 5, MCMC.effectiveSize.burnin.pval = 0.2,
   MCMC.return.stats = TRUE, MCMC.runtime.traceplot = FALSE,
   MCMC.init.maxedges = 20000, MCMC.max.maxedges = Inf,
-  MCMC.addto.se = TRUE, MCMC.compress = FALSE,
-  MCMC.packagenames = c(), SAN.maxit = 4, SAN.nsteps.times = 8,
-  SAN.control = control.san(term.options = term.options, SAN.maxit =
-  SAN.maxit, SAN.prop.weights = MCMC.prop.weights, SAN.prop.args =
-  MCMC.prop.args, SAN.init.maxedges = MCMC.init.maxedges, SAN.max.maxedges
-  = MCMC.max.maxedges, SAN.nsteps = EVL(MCMC.burnin, 16384) *
-  SAN.nsteps.times, SAN.samplesize = EVL(MCMC.samplesize, 1024),
-  SAN.packagenames = MCMC.packagenames, parallel = parallel, parallel.type
-  = parallel.type, parallel.version.check = parallel.version.check),
+  MCMC.addto.se = TRUE, MCMC.packagenames = c(), SAN.maxit = 4,
+  SAN.nsteps.times = 8, SAN.control = control.san(term.options =
+  term.options, SAN.maxit = SAN.maxit, SAN.prop.weights =
+  MCMC.prop.weights, SAN.prop.args = MCMC.prop.args, SAN.init.maxedges =
+  MCMC.init.maxedges, SAN.max.maxedges = MCMC.max.maxedges, SAN.nsteps =
+  EVL(MCMC.burnin, 16384) * SAN.nsteps.times, SAN.samplesize =
+  EVL(MCMC.samplesize, 1024), SAN.packagenames = MCMC.packagenames,
+  parallel = parallel, parallel.type = parallel.type,
+  parallel.version.check = parallel.version.check),
   MCMLE.termination = c("confidence", "Hummel", "Hotelling", "precision",
   "none"), MCMLE.maxit = 30, MCMLE.conv.min.pval = 0.5,
   MCMLE.confidence = 0.99, MCMLE.confidence.boost = 2,
@@ -271,10 +271,6 @@ which point the process will stop with an error.}
 
 \item{MCMC.addto.se}{Whether to add the standard errors induced by the MCMC
 algorithm to the estimates' standard errors.}
-
-\item{MCMC.compress}{Logical: If TRUE, the matrix of sample statistics
-returned is compressed to the set of unique statistics with a column of
-frequencies post-pended.}
 
 \item{MCMC.packagenames}{Names of packages in which to look for change
 statistic functions in addition to those autodetected. This argument should

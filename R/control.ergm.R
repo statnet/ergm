@@ -157,9 +157,6 @@
 #'   which point the process will stop with an error.
 #' @param MCMC.addto.se Whether to add the standard errors induced by the MCMC
 #' algorithm to the estimates' standard errors.
-#' @param MCMC.compress Logical: If TRUE, the matrix of sample statistics
-#' returned is compressed to the set of unique statistics with a column of
-#' frequencies post-pended.
 #' @param SAN.maxit When \code{target.stats} argument is passed to
 #' [ergm()], the maximum number of attempts to use \code{\link{san}}
 #' to obtain a network with statistics close to those specified.
@@ -505,7 +502,6 @@ control.ergm<-function(drop=TRUE,
                        MCMC.init.maxedges=20000,
                        MCMC.max.maxedges=Inf,
                        MCMC.addto.se=TRUE,
-                       MCMC.compress=FALSE,
                        MCMC.packagenames=c(),
 
                        SAN.maxit=4,
@@ -661,7 +657,6 @@ control.ergm<-function(drop=TRUE,
                        obs.MCMCsamplesize="MCMLE.obs.samplesize",
                        obs.interval="obs.MCMC.interval",
                        obs.burnin="obs.MCMC.burnin",
-                       compress="MCMC.compress",
                        metric="MCMLE.metric",
                        force.mcmc="force.main",
                        adaptive.trustregion="MCMLE.adaptive.trustregion",

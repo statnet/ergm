@@ -137,7 +137,7 @@ ergm.stocapprox <- function(init, nw, model, Clist,
                    method=control$MCMLE.method,
                    metric=control$MCMLE.metric,
                    trustregion=control$SA.trustregion,
-                   compress=control$MCMC.compress, verbose=verbose)
+                   verbose=verbose)
 #
 # Important: Keep R-M (pre-NR) theta
 # ve$coef <- theta

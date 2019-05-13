@@ -229,7 +229,7 @@ ergm.CD.fixed <- function(init, nw, model,
                          dampening.min.ess=control$CD.dampening.min.ess,
                          dampening.level=control$CD.dampening.level,
                          steplen=adaptive.steplength,
-                         compress=control$MCMC.compress, verbose=verbose,
+                         verbose=verbose,
                          estimateonly=TRUE)
       }
       if(v$loglikelihood < control$CD.trustregion-0.001){
@@ -276,7 +276,7 @@ ergm.CD.fixed <- function(init, nw, model,
                        dampening.level=control$CD.dampening.level,
                        metric=control$CD.metric,
                        steplen=steplen,
-                       compress=control$MCMC.compress, verbose=verbose,
+                       verbose=verbose,
                        estimateonly=!finished)
       if(v$loglikelihood < control$CD.trustregion-0.001){
         current.scipen <- options()$scipen

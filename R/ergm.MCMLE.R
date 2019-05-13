@@ -381,7 +381,7 @@ ergm.MCMLE <- function(init, nw, model,
                          dampening.min.ess=control$MCMLE.dampening.min.ess,
                          dampening.level=control$MCMLE.dampening.level,
                          steplen=adaptive.steplength,
-                         compress=control$MCMC.compress, verbose=verbose,
+                         verbose=verbose,
                          estimateonly=TRUE)
       }
       if(v$loglikelihood < control$MCMLE.trustregion-0.001){
@@ -452,7 +452,7 @@ ergm.MCMLE <- function(init, nw, model,
                        dampening.level=control$MCMLE.dampening.level,
                        metric=control$MCMLE.metric,
                        steplen=steplen, steplen.point.exp=control$MCMLE.steplength.point.exp,
-                       compress=control$MCMC.compress, verbose=verbose,
+                       verbose=verbose,
                        estimateonly=!calc.MCSE)
       if(v$loglikelihood < control$MCMLE.trustregion-0.001){
         current.scipen <- options()$scipen

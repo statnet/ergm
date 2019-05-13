@@ -175,7 +175,7 @@ message(paste("theta new:",theta,""))
                    hessianflag=control$main.hessian,
                    method=control$MCMLE.method,
                    metric=control$MCMLE.metric,
-                   compress=control$MCMC.compress, verbose=verbose)
+                   verbose=verbose)
 
   ve$sample <- ergm.sample.tomcmc(ve$sample, control)
 # The next is the right one to uncomment

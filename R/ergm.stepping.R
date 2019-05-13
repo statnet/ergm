@@ -154,7 +154,6 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
                      # nr.reltol=control$MCMLE.NR.reltol,
                      #calc.mcmc.se=control$MCMC.addto.se, hessianflag=control$main.hessian,
                      # trustregion=control$MCMLE.trustregion, method=control$MCMLE.method, 
-                     #compress=control$MCMC.compress, 
                      ...)
     eta[[iter+1]]<-v$coef
   }
@@ -179,7 +178,6 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
                     nr.reltol=control$MCMLE.NR.reltol,
                    calc.mcmc.se=control$MCMC.addto.se, hessianflag=control$main.hessian,
                     trustregion=control$MCMLE.trustregion, method=control$MCMLE.method, 
-                   compress=control$MCMC.compress, 
                    ...)
   eta[[iter+1]] <- v$coef
   
