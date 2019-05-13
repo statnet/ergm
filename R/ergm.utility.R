@@ -432,7 +432,7 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
 #'
 #' @examples
 #' x <- 0
-#' persistEvalq({if((x<-x+1)<3) stop("x < 3") else x}, before_retry = {cat("Will try incrementing...\n")})
+#' persistEvalQ({if((x<-x+1)<3) stop("x < 3") else x}, before_retry = {cat("Will try incrementing...\n")})
 #'
 #' x <- 0
 #' e <- quote(if((x<-x+1)<3) stop("x < 3") else x)
@@ -455,7 +455,7 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
 
 ## #' @rdname persistEval
 #' @noRd
-.persistEvalq <- function(expr, retries=NVL(getOption("eval.retries"), 5), before_retry,
+.persistEvalQ <- function(expr, retries=NVL(getOption("eval.retries"), 5), before_retry,
                          envir = parent.frame(),
                          enclos = if (is.list(envir) ||
                                       is.pairlist(envir)) parent.frame() else baseenv(), verbose=FALSE){
