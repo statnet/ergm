@@ -1,4 +1,4 @@
-#  File tests/testthat/test-ergm-san.r in package ergm, part of the Statnet suite
+#  File tests/testthat/test-ergm-san.R in package ergm, part of the Statnet suite
 #  of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
