@@ -10,22 +10,34 @@ Authors@R: c(
            person("Pavel N.", "Krivitsky", role=c("aut","cre"), email="pavel@uow.edu.au", comment=c(ORCID="0000-0002-9101-3362")),
      	   person("Martina", "Morris", role=c("aut"), email="morrism@u.washington.edu"),
            person("Li","Wang",role=c("ctb"),email="lxwang@gmail.com"),
-           person("Kirk","Li",role=c("ctb"),email="kirkli@uw.edu"),
-	   person("Skye", "Bender-deMoll", role=c("ctb"), email="skyebend@uw.edu"),
+           person("Kirk","Li",role=c("ctb"),email="kirkli@u.washington.edu"),
+	   person("Skye", "Bender-deMoll", role=c("ctb"), email="skyebend@u.washington.edu"),
 	   person("Chad", "Klumb", role=c("ctb"), email="cklumb@gmail.com"))
-Depends: network (>= 1.14)
-Imports: robustbase (>= 0.9-10), coda (>= 0.18-1), trust, Matrix, lpSolve, parallel, methods, MASS, statnet.common (>= 4.1.0), purrr (>= 0.2.4), rlang (>= 0.2.0), tibble (>= 1.4.2), dplyr (>= 0.7.4)
-Suggests: 
-    lattice,
-    latticeExtra,
-    sna,
-    latentnet,
-    rmarkdown,
-    knitr,
-    ergm.userterms,
-    tergm,
-    Rmpi,
-    testthat
+Depends:
+    network (>= 1.15)
+Imports:
+    robustbase (>= 0.93.5),
+    coda (>= 0.19.2),
+    trust (>= 0.1.7),
+    Matrix (>= 1.2.17),
+    lpSolve (>= 5.6.13),
+    parallel (>= 3.6.0),
+    methods (>= 3.6.0),
+    MASS (>= 7.3.51.4),
+    statnet.common (>= 4.2.0),
+    purrr (>= 0.3.2),
+    rlang (>= 0.3.4),
+    tibble (>= 2.1.1),
+    dplyr (>= 0.8.0.1)
+Suggests:
+    lattice (>= 0.20.38),
+    latticeExtra (>= 0.6.28),
+    sna (>= 2.4),
+    latentnet (>= 2.9.0),
+    rmarkdown (>= 1.12),
+    knitr (>= 1.22),
+    Rmpi (>= 0.6.9),
+    testthat (>= 2.1.1)
 BugReports: https://github.com/statnet/ergm/issues
 Description: An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGMs). 'ergm' is a part of the Statnet suite of packages for network analysis.
 License: GPL-3 + file LICENSE
