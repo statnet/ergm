@@ -183,9 +183,16 @@
       }
 
       \item{
+	Terms \code{\link{b1sociality}} and \code{\link{b2sociality}} have been added.
+      }
+
+      \item{
 	MCMLE estimation method can now checkpoint and resume optimization. See \code{\link{control.ergm}}'s \code{MCMLE.checkpoint=} and \code{MCMLE.resume=} arguments.
       }
 
+      \item{
+	A variety of documentation expansions, cleanup, and other improvements.
+      }
     }
   }
 
@@ -214,7 +221,7 @@
       }
 
       \item{
-	Term and example documentation fixes. (Thanks to Christian Loehle.)
+	Term and example documentation fixes. (Thanks to Christian Loehle and others.)
       }
 
     }
@@ -303,6 +310,10 @@
 
       \item{
 	Most parallel calls are now a little bit more fault-tolerant, retrying on error.
+      }
+
+      \item{
+	Chad Klumb has been added as a contributor to the package.
       }
 
     }
