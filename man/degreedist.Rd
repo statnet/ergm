@@ -26,9 +26,11 @@ b2.  Otherwise, a vector of the positive values in the degree
 distribution
 }
 \description{
-The \code{degreedist} generic computes and returns the degree distribution
-(number of vertices in the network with each degree value) for a given
-network.
+The \code{degreedist} generic computes and returns the degree
+distribution (number of vertices in the network with each degree
+value) for a given network. This help page documents the
+function. For help about \link[=degreedist-constraint]{the ERGM sample space constraint with that name}, try
+\code{help("degreedist-constraint")}.
 }
 \section{Methods (by class)}{
 \itemize{
