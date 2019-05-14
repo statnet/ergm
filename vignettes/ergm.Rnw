@@ -331,12 +331,11 @@ paper in J Stat Software v. 24. (link is available online at \url{www.statnet.or
 
 \subsection{Coding new terms}
 
-We have recently released a new package (\myverb{ergm.userterms})
-and tutorial aimed at making it much easier than before to write one's
-own terms. The package is available on CRAN, and installing it will
+The package (\myverb{ergm.userterms})
+and tutorial are  aimed at making it much easier than before to write one's
+own terms. This package is available on CRAN, and installing it will
 also download the tutorial (ergmuserterms.pdf). We teach a workshop
-at the Sunbelt meetings, and are also hoping for the tutorial to appear
-soon in the \textit{Journal of Statistical Software}. Note that writing
+at the Sunbelt meetings. Note that writing
 up new \myverb{ergm} terms requires some knowledge of C and the ability
 to build R from source (although the latter is covered in the tutorial). 
 
