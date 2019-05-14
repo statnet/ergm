@@ -14,15 +14,15 @@
 \alias{constraints.ergm}
 
 \alias{bd}
-\alias{degreedist}
+\alias{degreedist-constraint}
 \alias{degrees}
 \alias{dyadnoise}
 \alias{odegrees}
 \alias{idegrees}
 \alias{b1degrees}
 \alias{b2degrees}
-\alias{edges}
-\alias{hamming}
+\alias{edges-constraint}
+\alias{hamming-constraint}
 \alias{idegreedist}
 \alias{nodedegrees}
 \alias{observed}

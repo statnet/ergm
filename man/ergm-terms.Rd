@@ -76,7 +76,7 @@
 \alias{dsp}
 \alias{dyadcov}
 \alias{edgecov}
-\alias{edges}
+\alias{edges-term}
 \alias{esp}
 \alias{equalto}
 \alias{greaterthan}
@@ -88,7 +88,7 @@
 \alias{gwidegree}
 \alias{gwnsp}
 \alias{gwodegree}
-\alias{hamming}
+\alias{hamming-term}
 \alias{hammingmix}
 \alias{idegrange}
 \alias{idegree}

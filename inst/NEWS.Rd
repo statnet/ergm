@@ -131,7 +131,7 @@
   }
 }
 
-\section{Changes in version 3.10.0}{
+\section{Changes in version 3.10.1}{
 
   \subsection{NEW FEATURES}{
     \itemize{
@@ -221,7 +221,11 @@
       }
 
       \item{
-	Term and example documentation fixes. (Thanks to Christian Loehle and others.)
+	Disambiguation help pages have been added for concepts (such as \code{edges} and \code{hamming}) that have multiple roles (such as as an ERGM term and as an ERGM sample space constraint), removing duplication of aliases.
+      }
+      
+      \item{
+	Miscellaneous term and example documentation fixes. (Thanks to Christian Loehle and others.)
       }
 
     }
