@@ -272,7 +272,6 @@
     \code{nodecov("a"):nodecov("b")} produces
     \deqn{\sum_{i,j} (a_{i}+a_{j}) (b_{i}+b_{j}) y_{i,j}.}{sum[i,j] (a[i]+a[j])*(b[i]+b[j])*y[i,j].}
   }
-}
 
 \subsection{Binary and valued ERGM terms}{
 
