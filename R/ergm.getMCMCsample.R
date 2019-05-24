@@ -75,8 +75,8 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
 
   #' @importFrom parallel clusterMap
   doruns <- function(prev.runs=rep(list(NULL),nthreads(control)), burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL){
-    if(!is.null(ergm.getCluster(control))) .persistEvalQ({clusterMap(ergm.getCluster(control),ergm_MCMC_slave,
-                                  Clist=Clists, prev.run=prev.runs, MoreArgs=list(proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges))}, retries=getOption("ergm.cluster.retries"), before_retry={ergm.restartCluster(control,verbose)})
+    if(!is.null(ergm.getCluster(control))) persistEvalQ({clusterMap(ergm.getCluster(control),ergm_MCMC_slave,
+                                  Clist=Clists, prev.run=prev.runs, MoreArgs=list(proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)})
     else list(ergm_MCMC_slave(Clist=Clists[[1]], prev.run=prev.runs[[1]],burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges,proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...))
   }
   

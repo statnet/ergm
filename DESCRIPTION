@@ -24,7 +24,7 @@ Imports:
     parallel (>= 3.5),
     methods (>= 3.5),
     MASS (>= 7.3.51.4),
-    statnet.common (>= 4.2.0),
+    statnet.common (>= 4.3.0),
     purrr (>= 0.3.2),
     rlang (>= 0.3.4),
     tibble (>= 2.1.1),
