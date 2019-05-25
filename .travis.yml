@@ -20,8 +20,8 @@ r_github_packages:
 - statnet/statnet.common
 - statnet/network
 - statnet/ergm
-- statnet/ergm.count
-- statnet/tergm
+# - statnet/ergm.count
+# - statnet/tergm
 addons:
   apt:
     packages:
