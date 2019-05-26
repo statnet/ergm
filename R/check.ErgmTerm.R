@@ -111,7 +111,16 @@
 #' @export check.ErgmTerm
 check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegative=FALSE,
                            varnames=NULL, vartypes=NULL,
-                           defaultvalues=list(), required=NULL, response=NULL, dep.inform=as.list(rep(FALSE, length(required))), dep.warn=as.list(rep(FALSE, length(required)))) {
+                           defaultvalues=list(), required=NULL, response=NULL, dep.inform=rep(FALSE, length(required)), dep.warn=rep(FALSE, length(required))){
+  # Ensure that all inputs are of the correct type.
+  arglist <- as.list(arglist)
+  varnames <- as.character(varnames)
+  vartypes <- as.character(vartypes)
+  defaultvalues <- as.list(defaultvalues)
+  required <- as.logical(required)
+  dep.inform <- as.list(dep.inform)
+  dep.warn <- as.list(dep.warn)
+
   stopifnot(all_identical(c(length(varnames), length(vartypes), length(defaultvalues), length(required), length(dep.inform), length(dep.warn))))
   message <- NULL
   if (!is.null(directed) && directed != (dnw<-is.directed(nw))) {
