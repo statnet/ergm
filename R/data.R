@@ -76,7 +76,7 @@ NULL
 #' 
 #' Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau, and
 #' Martina Morris. 2003 \emph{statnet: Software tools for the Statistical
-#' Modeling of Network Data} \cr \url{statnet.org}.
+#' Modeling of Network Data} \cr \url{https://statnet.org}.
 #' @seealso \code{\link[network]{network}},
 #' \code{\link[network]{plot.network}}, \code{\link{ergm}},
 #' \code{\link{faux.desert.high}}, \code{\link{faux.mesa.high}},
@@ -152,7 +152,7 @@ NULL
 #' 
 #' Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau, and
 #' Martina Morris. 2003 \emph{statnet: Software tools for the Statistical
-#' Modeling of Network Data} \cr \url{statnet.org}.
+#' Modeling of Network Data} \cr \url{https://statnet.org}.
 #' @seealso \code{\link[network]{network}},
 #' \code{\link[network]{plot.network}}, \code{\link{ergm}},
 #' \code{\link{faux.desert.high}}, \code{\link{faux.mesa.high}},
@@ -229,7 +229,7 @@ NULL
 #' 
 #' Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau, and
 #' Martina Morris. 2003 \emph{statnet: Software tools for the Statistical
-#' Modeling of Network Data} \cr \url{statnet.org}.
+#' Modeling of Network Data} \cr \url{https://statnet.org}.
 #' @seealso \code{\link[network]{network}},
 #' \code{\link[network]{plot.network}}, \code{\link{ergm}},
 #' \code{\link{faux.mesa.high}}
@@ -301,7 +301,7 @@ NULL
 #' 
 #' Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau, and
 #' Martina Morris. 2003 \emph{statnet: Software tools for the Statistical
-#' Modeling of Network Data} \cr \url{statnet.org}.
+#' Modeling of Network Data} \cr \url{https://statnet.org}.
 #' @seealso \code{\link[network]{network}},
 #' \code{\link[network]{plot.network}}, \code{\link{ergm}},
 #' \code{\link{faux.magnolia.high}}
