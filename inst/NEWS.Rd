@@ -65,7 +65,7 @@
 %% }
 
 
-\section{Changes in version 3.10.2}{
+\section{Changes in version 3.10.3}{
 
   \subsection{OTHER USER-VISIBLE CHANGES}{
     \itemize{
