@@ -7,58 +7,10 @@
 #
 #  Copyright 2003-2019 Statnet Commons
 #######################################################################
-#====================================================================================
-# This file contains the following 6 files that help check the validity of ergm terms
-#       <check.ErgmTerm>               <get.InitErgm.fname>
-#       <assignvariables>              <zerowarnings>
-#       <check.ErgmTerm.summarystats>  <extremewarnings>
-#====================================================================================
 
+ergm_Init_inform_once <- once(ergm_Init_inform)
+ergm_Init_warn_once <- once(ergm_Init_warn)
 
-
-
-######################################################################################
-# The <check.ErgmTerm> function ensures for the <InitErgmTerm.X> function that the
-# term X:
-#   1) is applicable given the 'directed' and 'bipartite' attributes of the given
-#      network
-#   1.5) is not applied to a directed bipartite network
-#   2) has an appropiate number of arguments
-#   3) has correct argument types if arguments where provided
-#   4) has default values assigned if defaults are available
-# by halting execution if any of the first 3 criteria are not met
-#
-# --PARAMETERS--
-#  nw           : the network that term X is being checked against  
-#  arglist      : the list of arguments for term X
-#  directed     : whether term X requires a directed network (T or F); default=NULL
-#  bipartite    : whether term X requires a bipartite network (T or F); default=NULL
-#  nonnegative  : whether term X requires a network with only nonnegative weights; default=FALSE
-#  varnames     : the vector of names of the possible arguments for term X;
-#                 default=NULL 
-#  vartypes     : the vector of types of the possible arguments for term X;
-#                 default=NULL 
-#  defaultvalues: the list of default values for the possible arguments of term X;
-#                 default=list()
-#  required     : the logical vector of whether each possible argument is required;
-#                 default=NULL
-#  dep.inform   : list of length equal to the number of arguments the
-#                 term can take; dep.inform[[i]] should be FALSE is argument i is
-#                 not deprecated with a message, and dep.inform[[i]] should name an alternative
-#                 argument if argument i is deprecated and an informational message
-#                 is desired; default=as.list(rep(FALSE, length(required)))
-#  dep.warn     : list of length equal to the number of arguments the
-#                 term can take; dep.warn[[i]] should be FALSE is argument i is
-#                 not deprecated with a warning, and dep.warn[[i]] should name an alternative
-#                 argument if argument i is deprecated and a warning is desired;
-#                 default=as.list(rep(FALSE, length(required)))
-#
-#
-# --RETURNED--
-#   out: a list of the values for each possible argument of term X; user provided 
-#        values are used when given, default values otherwise.
-#
-######################################################################################
 #' Ensures an Ergm Term and its Arguments Meet Appropriate Conditions
 #'
 #' Helper functions for implementing \code{\link[=ergm]{ergm()}}
@@ -111,7 +63,16 @@
 #' @export check.ErgmTerm
 check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegative=FALSE,
                            varnames=NULL, vartypes=NULL,
-                           defaultvalues=list(), required=NULL, response=NULL, dep.inform=as.list(rep(FALSE, length(required))), dep.warn=as.list(rep(FALSE, length(required)))) {
+                           defaultvalues=list(), required=NULL, response=NULL, dep.inform=rep(FALSE, length(required)), dep.warn=rep(FALSE, length(required))){
+  # Ensure that all inputs are of the correct type.
+  arglist <- as.list(arglist)
+  varnames <- as.character(varnames)
+  vartypes <- as.character(vartypes)
+  defaultvalues <- as.list(defaultvalues)
+  required <- as.logical(required)
+  dep.inform <- as.list(dep.inform)
+  dep.warn <- as.list(dep.warn)
+
   stopifnot(all_identical(c(length(varnames), length(vartypes), length(defaultvalues), length(required), length(dep.inform), length(dep.warn))))
   message <- NULL
   if (!is.null(directed) && directed != (dnw<-is.directed(nw))) {
@@ -186,15 +147,15 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
 
         if(dep.inform[[m]] != FALSE) {
           if(is.character(dep.inform[[m]]))
-            ergm_Init_inform("Argument \"", varnames[m], "\" has been superseded by \"", dep.inform[[m]], "\", and it is recommended to use the latter.  Note that its interpretation may be different.")
+            ergm_Init_inform_once("Argument ", sQuote(varnames[m]), " has been superseded by ", sQuote(dep.inform[[m]]), ", and it is recommended to use the latter.  Note that its interpretation may be different.")
           else
-            ergm_Init_inform("Argument \"", varnames[m], "\" has been deprecated and may be removed in a future version.")
+            ergm_Init_inform_once("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.")
         }
         if(dep.warn[[m]] != FALSE) {
           if(is.character(dep.inform[[m]]))
-            ergm_Init_warn("Argument \"", varnames[m], "\" has been deprecated and may be removed in a future version.  Use \"", dep.warn[[m]], "\" instead.  Note that its interpretation may be different.")
+            ergm_Init_warn_once("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.  Use ", sQuote(dep.warn[[m]]), " instead.  Note that its interpretation may be different.")
           else
-            ergm_Init_warn("Argument \"", varnames[m], "\" has been deprecated and may be removed in a future version.")
+            ergm_Init_warn_once("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.")
         }
       } else { # no user-typed name for this argument
         if (!is.null(m)) {
@@ -207,18 +168,16 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
         # correct type if we got to here
         out[i] <- list(arglist[[i]])
         missing[i] <- FALSE
-		
-		still.required[i] <- FALSE
-		argument.counts[i] <- argument.counts[i] + 1
-		
-		if(dep.inform[[i]] != FALSE)
-		{
-		  ergm_Init_inform("Argument \"", varnames[i], "\" has been superseded by \"", dep.inform[[i]], "\", and it is recommended to use the latter.  Note that its interpretation may be different.")		  
-		}
-		if(dep.warn[[i]] != FALSE)
-		{
-		  ergm_Init_warn("Argument \"", varnames[i], "\" has been deprecated and may be removed in a future version.  Use \"", dep.warn[[i]], "\" instead.  Note that its interpretation may be different.")
-		}
+
+        still.required[i] <- FALSE
+        argument.counts[i] <- argument.counts[i] + 1
+
+        if(dep.inform[[i]] != FALSE)
+          ergm_Init_inform_once("Argument ", sQuote(varnames[i]), " has been superseded by ", sQuote(dep.inform[[i]]), ", and it is recommended to use the latter.  Note that its interpretation may be different.")
+
+        if(dep.warn[[i]] != FALSE)
+          ergm_Init_warn_once("Argument ", sQuote(varnames[i]), " has been deprecated and may be removed in a future version.  Use ", sQuote(dep.warn[[i]]), " instead.  Note that its interpretation may be different.")
+
       }
     }
   }
@@ -226,10 +185,10 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
   #  c(.conflicts.OK=TRUE,out)
   
   if(any(still.required))
-    ergm_Init_abort("argument \"", varnames[which(still.required)[1]], "\" is missing, with no default.")
+    ergm_Init_abort("argument ", sQuote(varnames[which(still.required)[1]]), " is missing, with no default.")
 
   if(any(argument.counts > 1))
-    ergm_Init_abort("formal argument \"", varnames[which(argument.counts > 1)[1]], "\" matched by multiple actual arguments.")
+    ergm_Init_abort("formal argument ", sQuote(varnames[which(argument.counts > 1)[1]]), "\" matched by multiple actual arguments.")
 	
   out
 }

@@ -65,6 +65,29 @@
 %% }
 
 
+\section{Changes in version 3.10.2}{
+
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+	Deprecated term argument warnings are now only printed once per session.
+      }
+      \item{
+	\code{mcparallel} antiwarnings are now printed less frequently.
+      }
+    }
+  }
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+	\code{ergm} version 3.10.1 inadvertently depended on \R 3.6. The dependence has been reverted to 3.5.
+      }
+    }
+  }
+
+}
+
 \section{Changes in version 3.10.1}{
 
   \subsection{NEW FEATURES}{
