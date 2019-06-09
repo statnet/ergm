@@ -2496,18 +2496,16 @@ D_CHANGESTAT_FN(d_edgecov) {
 /*****************
  changestat: d_edges
 *****************/
-D_CHANGESTAT_FN(d_edges) {
+D_CHANGESTAT_FN(d_edges){
   int edgeflag, i;
-  Vertex tail, head;
-  
+
   /* *** don't forget tail -> head */    
-  CHANGE_STAT[0] = 0.0;
-  for (i=0; i < ntoggles; i++)
-    {
-      edgeflag = IS_OUTEDGE(tail = TAIL(i), head = HEAD(i));
-      CHANGE_STAT[0] += edgeflag ? - 1 : 1;
-      TOGGLE_IF_MORE_TO_COME(i);
-    }
+  ZERO_ALL_CHANGESTATS();
+  FOR_EACH_TOGGLE(i){
+    edgeflag = IS_OUTEDGE(TAIL(i), HEAD(i));
+    CHANGE_STAT[0] += edgeflag ? - 1 : 1;
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
   UNDO_PREVIOUS_TOGGLES(i);
 }
 
