@@ -62,7 +62,7 @@ cited as:
 
 Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau, and
 Martina Morris. 2003 \emph{statnet: Software tools for the Statistical
-Modeling of Network Data} \cr \url{statnet.org}.
+Modeling of Network Data} \cr \url{https://statnet.org}.
 }
 
 \references{
