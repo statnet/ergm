@@ -97,6 +97,7 @@ inherited from the \code{\link{ergm}} fit unless overridden.
 }}
 
 \examples{
+\donttest{
 # initialize x to a random undirected network with 50 nodes and a density of 0.1
 x <- network(50, density = 0.05, directed = FALSE)
  
@@ -142,5 +143,6 @@ summary(y ~ edges + nodecov('popularity'))
 # creates a network with denser "core" spreading out to sparser
 # "periphery"
 plot(y)
+}
 }
 \keyword{models}
