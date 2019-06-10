@@ -37,7 +37,11 @@ Suggests:
     rmarkdown (>= 1.12),
     knitr (>= 1.22),
     Rmpi (>= 0.6.9),
-    testthat (>= 2.1.1)
+    testthat (>= 2.1.1),
+    tergm,
+    ergm.count,
+    ergm.userterms,
+    networkDynamic
 BugReports: https://github.com/statnet/ergm/issues
 Description: An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGMs). 'ergm' is a part of the Statnet suite of packages for network analysis.
 License: GPL-3 + file LICENSE
