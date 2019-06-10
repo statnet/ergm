@@ -131,7 +131,7 @@
   }
 }
 
-\section{Changes in version 3.10.3}{
+\section{Changes in version 3.10.4}{
 
   \subsection{OTHER USER-VISIBLE CHANGES}{
     \itemize{

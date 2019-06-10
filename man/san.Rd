@@ -97,44 +97,45 @@ inherited from the \code{\link{ergm}} fit unless overridden.
 }}
 
 \examples{
-# initialize x to a random undirected network with 100 nodes and a density of 0.1
-x <- network(100, density = 0.1, directed = FALSE)
+\donttest{
+# initialize x to a random undirected network with 50 nodes and a density of 0.1
+x <- network(50, density = 0.05, directed = FALSE)
  
-# try to find a network on 100 nodes with 600 edges, 300 triangles,
-# and 2500 4-cycles, starting from the network x
-y <- san(x ~ edges + triangles + cycle(4), target.stats = c(600, 300, 2500))
+# try to find a network on 50 nodes with 300 edges, 150 triangles,
+# and 1250 4-cycles, starting from the network x
+y <- san(x ~ edges + triangles + cycle(4), target.stats = c(300, 150, 1250))
 
 # check results
 summary(y ~ edges + triangles + cycle(4))
 
-# initialize x to a random directed network with 100 nodes
-x <- network(100)
+# initialize x to a random directed network with 50 nodes
+x <- network(50)
 
 # add vertex attributes
-x \%v\% 'give' <- runif(100, 0, 1)
-x \%v\% 'take' <- runif(100, 0, 1)
+x \%v\% 'give' <- runif(50, 0, 1)
+x \%v\% 'take' <- runif(50, 0, 1)
 
-# try to find a set of 200 directed edges making the outward sum of
-# 'give' and the inward sum of 'take' both equal to 125, so in
+# try to find a set of 100 directed edges making the outward sum of
+# 'give' and the inward sum of 'take' both equal to 62.5, so in
 # edges (i,j) the node i tends to have above average 'give' and j
 # tends to have above average 'take'
-y <- san(x ~ edges + nodeocov('give') + nodeicov('take'), target.stats = c(200, 125, 125))
+y <- san(x ~ edges + nodeocov('give') + nodeicov('take'), target.stats = c(100, 62.5, 62.5))
 
 # check results
 summary(y ~ edges + nodeocov('give') + nodeicov('take'))
 
 
-# initialize x to a random undirected network with 100 nodes
-x <- network(100, directed = FALSE)
+# initialize x to a random undirected network with 50 nodes
+x <- network(50, directed = FALSE)
 
 # add a vertex attribute
-x \%v\% 'popularity' <- runif(100, 0, 1)
+x \%v\% 'popularity' <- runif(50, 0, 1)
 
-# try to find a set of 200 edges making the total sum of
+# try to find a set of 100 edges making the total sum of
 # popularity(i) and popularity(j) over all edges (i,j) equal to
-# 250, so nodes with higher popularity are more likely to be
+# 125, so nodes with higher popularity are more likely to be
 # connected to other nodes
-y <- san(x ~ edges + nodecov('popularity'), target.stats = c(200, 250))
+y <- san(x ~ edges + nodecov('popularity'), target.stats = c(100, 125))
  
 # check results
 summary(y ~ edges + nodecov('popularity'))
@@ -142,5 +143,6 @@ summary(y ~ edges + nodecov('popularity'))
 # creates a network with denser "core" spreading out to sparser
 # "periphery"
 plot(y)
+}
 }
 \keyword{models}
