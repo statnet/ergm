@@ -10,23 +10,25 @@
 
 context("test-ergm-san.R")
 
+n <- 50
+
 test_that("SAN moves from a sparser network to a denser one with desired triadic attributes", {
-	x <- network(100, density = 0.05, directed = FALSE)
-	y <- san(x ~ edges + triangles, target.stats = c(600, 300))
+	x <- network(n, density = 0.05/100*n, directed = FALSE)
+	y <- san(x ~ edges + triangles, target.stats = c(n*6, n*3))
 	z <- summary(y ~ edges + triangles)
 
-	expect_true(z["edges"] > 580 && z["edges"] < 620)
-	expect_true(z["triangle"] > 290 && z["triangle"] < 310)
+	expect_true(z["edges"] > n*5.8 && z["edges"] < n*6.2)
+	expect_true(z["triangle"] > n*2.9 && z["triangle"] < n*3.1)
 })
 
 
 test_that("SAN correctly adjusts inward and outward sums while maintaining edge count", {
-	x <- network(100, numedges = 100)
-	x %v% 'prop' <- runif(100, 0, 2)
-	y <- san(x ~ edges + nodeicov('prop') + nodeocov('prop'), target.stats = c(100, 75, 125))
+	x <- network(n, numedges = n)
+	x %v% 'prop' <- runif(n, 0, 2)
+	y <- san(x ~ edges + nodeicov('prop') + nodeocov('prop'), target.stats = c(n, n*.75, n*1.25))
 	z <- summary(y ~ edges + nodeicov('prop') + nodeocov('prop'))
 
-	expect_true(z["edges"] > 95 && z["edges"] < 105)
-	expect_true(z["nodeicov.prop"] > 70 && z["nodeicov.prop"] < 80)
-	expect_true(z["nodeocov.prop"] > 120 && z["nodeocov.prop"] < 130)
+	expect_true(z["edges"] > n*.95 && z["edges"] < n*1.05)
+	expect_true(z["nodeicov.prop"] > n*.7 && z["nodeicov.prop"] < n*.8)
+	expect_true(z["nodeocov.prop"] > n*1.2 && z["nodeocov.prop"] < n*1.3)
 })
