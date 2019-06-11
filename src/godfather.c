@@ -18,15 +18,16 @@ MCMCStatus Godfather(Edge n_changes, Vertex *tails, Vertex *heads, int *weights,
 
   /* Doing this one change at a time saves a lot of changes... */
   for(Edge e=0; e<n_changes; e++){
-    Vertex t=TAIL(e), h=HEAD(e); 
+    Vertex t=TAIL(e), h=HEAD(e);
 
     if(t==0){
       stats+=m->n_stats;
       continue;
     }
     
+    Rboolean edgeflag = IS_OUTEDGE(t,h);
     if(weights){
-      if(IS_OUTEDGE(t,h)==weights[e])
+      if(edgeflag==weights[e])
 	continue;
     }
 
@@ -34,7 +35,7 @@ MCMCStatus Godfather(Edge n_changes, Vertex *tails, Vertex *heads, int *weights,
 	if(mtp->c_func){
 	  ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(t, h,
-			   mtp, nwp);  /* Call c_??? function */
+			   mtp, nwp, edgeflag);  /* Call c_??? function */
 	}else if(mtp->d_func){
 	  (*(mtp->d_func))(1, &t, &h,
 			   mtp, nwp);  /* Call d_??? function */
@@ -46,7 +47,7 @@ MCMCStatus Godfather(Edge n_changes, Vertex *tails, Vertex *heads, int *weights,
 
 
     /* Update storage and network */    
-    UPDATE_STORAGE(t, h, nwp, m, NULL);
+    UPDATE_STORAGE(t, h, nwp, m, NULL, edgeflag);
     TOGGLE(t,h);
   } 
 

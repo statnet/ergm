@@ -232,7 +232,8 @@ MCMCStatus CDStep(MHProposal *MHp,
 	  ntoggled++;
 	  mtoggled++;
 
-	  UPDATE_STORAGE(MHp->toggletail[i], MHp->togglehead[i], nwp, m, MHp);
+	  Rboolean edgeflag = IS_OUTEDGE(MHp->toggletail[i], MHp->togglehead[i]);
+	  UPDATE_STORAGE(MHp->toggletail[i], MHp->togglehead[i], nwp, m, MHp, edgeflag);
 	  ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 	}
       }
@@ -276,7 +277,8 @@ MCMCStatus CDStep(MHProposal *MHp,
 	  undohead[ntoggled]=MHp->togglehead[i];
 	  ntoggled++;
 
-	  UPDATE_STORAGE(MHp->toggletail[i],  MHp->togglehead[i], nwp, m, MHp);
+	  Rboolean edgeflag = IS_OUTEDGE(MHp->toggletail[i], MHp->togglehead[i]);
+	  UPDATE_STORAGE(MHp->toggletail[i],  MHp->togglehead[i], nwp, m, MHp, edgeflag);
 	  ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 	}
       }
@@ -298,7 +300,8 @@ MCMCStatus CDStep(MHProposal *MHp,
 
 	/* FIXME: This should be done in one call, but it's very easy
 	   to make a fencepost error here. */
-	UPDATE_STORAGE(t, h, nwp, m, MHp);
+	Rboolean edgeflag = IS_OUTEDGE(t, h);
+	UPDATE_STORAGE(t, h, nwp, m, MHp, edgeflag);
 	ToggleEdge(t, h, nwp);
       }
     }
@@ -310,7 +313,8 @@ MCMCStatus CDStep(MHProposal *MHp,
 
     /* FIXME: This should be done in one call, but it's very easy
        to make a fencepost error here. */
-    UPDATE_STORAGE(t, h, nwp, m, MHp);
+    Rboolean edgeflag = IS_OUTEDGE(t, h);
+    UPDATE_STORAGE(t, h, nwp, m, MHp, edgeflag);
     ToggleEdge(t, h, nwp);
   }
   

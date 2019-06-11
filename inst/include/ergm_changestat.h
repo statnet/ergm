@@ -14,10 +14,10 @@
 #include "ergm_edgelist.h"
 
 typedef struct ModelTermstruct {
-  void (*c_func)(Vertex, Vertex, struct ModelTermstruct*, Network*);
+  void (*c_func)(Vertex, Vertex, struct ModelTermstruct*, Network*, Rboolean);
   void (*d_func)(Edge, Vertex*, Vertex*, struct ModelTermstruct*, Network*);
   void (*i_func)(struct ModelTermstruct*, Network*);
-  void (*u_func)(Vertex, Vertex, struct ModelTermstruct*, Network*);
+  void (*u_func)(Vertex, Vertex, struct ModelTermstruct*, Network*, Rboolean);
   void (*f_func)(struct ModelTermstruct*, Network*);
   void (*s_func)(struct ModelTermstruct*, Network*);
   double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
@@ -144,10 +144,10 @@ typedef struct ModelTermstruct {
 #define CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp)
 
 /* NB:  CHANGESTAT_FN is now deprecated (replaced by D_CHANGESTAT_FN) */
-#define C_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp)
+#define C_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgeflag)
 #define D_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp)
 #define I_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
-#define U_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp)
+#define U_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgeflag)
 #define F_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
 #define S_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
 

@@ -62,18 +62,18 @@ typedef struct Modelstruct {
 #define IFDEBUG_RESTORE_DSTATS
 #endif
 
-#define UPDATE_STORAGE_COND(tail, head, nwp, m, MHp, cond){		\
-    if(MHp && ((MHProposal*)MHp)->u_func) ((MHProposal*)MHp)->u_func(tail, head, MHp, nwp); \
+#define UPDATE_STORAGE_COND(tail, head, nwp, m, MHp, edgeflag, cond){	\
+    if(MHp && ((MHProposal*)MHp)->u_func) ((MHProposal*)MHp)->u_func(tail, head, MHp, nwp, edgeflag); \
     EXEC_THROUGH_TERMS(m, {						\
 	IFDEBUG_BACKUP_DSTATS;						\
 	if(mtp->u_func && (cond))					\
-	  (*(mtp->u_func))(tail, head, mtp, nwp);  /* Call u_??? function */ \
+	  (*(mtp->u_func))(tail, head, mtp, nwp, edgeflag);  /* Call u_??? function */ \
 	IFDEBUG_RESTORE_DSTATS;						\
       });								\
   }
 
-#define UPDATE_STORAGE(tail, head, nwp, m, MHp){			\
-    UPDATE_STORAGE_COND(tail, head, nwp, m, MHp, TRUE);			\
+#define UPDATE_STORAGE(tail, head, nwp, m, MHp, edgeflag){		\
+    UPDATE_STORAGE_COND(tail, head, nwp, m, MHp, edgeflag, TRUE);	\
   }
 
 Model* ModelInitialize (char *fnames, char *sonames, double **inputs,
