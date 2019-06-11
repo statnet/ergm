@@ -16,7 +16,6 @@ C_CHANGESTAT_FN(c_concurrent_ties) {
   int echange;
   Vertex taildeg, headdeg;
 
-  CHANGE_STAT[0] = 0.0;  
     echange = IS_OUTEDGE(tail, head) ? -1 : 1;
     taildeg = OUT_DEG[tail];
     headdeg = IN_DEG[head];
@@ -46,7 +45,6 @@ C_CHANGESTAT_FN(c_concurrent_ties_by_attr) {
   int j, echange, tailattr, headattr;
   Vertex taildeg, headdeg;
 
-  ZERO_ALL_CHANGESTATS(i);
     echange = IS_OUTEDGE(tail, head) ? -1 : 1;
     taildeg = OUT_DEG[tail];
     headdeg = IN_DEG[head];

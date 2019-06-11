@@ -73,7 +73,6 @@ WtF_CHANGESTAT_FN(f__dsociomatrix){
 WtC_CHANGESTAT_FN(c_dsociomatrix){
   GET_AUX_STORAGE(double *, sm);
   
-  ZERO_ALL_CHANGESTATS();
       Dyad pos = tail-1 + (head-1)*N_NODES;
       CHANGE_STAT[pos] = weight - sm[tail][head];
 }

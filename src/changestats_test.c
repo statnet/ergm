@@ -49,7 +49,6 @@ U_CHANGESTAT_FN(u_test_abs_edges_minus_5_no_s){u_test_abs_edges_minus_5(tail, he
 C_CHANGESTAT_FN(c_isociomatrix){
   GET_AUX_STORAGE(int *, sm);
   
-  ZERO_ALL_CHANGESTATS(i);
     Dyad pos = tail-1 + (head-1)*N_NODES;
     CHANGE_STAT[pos] += sm[tail][head]? -1 : +1;
 }
@@ -57,7 +56,6 @@ C_CHANGESTAT_FN(c_isociomatrix){
 C_CHANGESTAT_FN(c_discord_isociomatrix){
   GET_AUX_STORAGE(int *, sm);
   
-  ZERO_ALL_CHANGESTATS(i);
     Dyad pos = tail-1 + (head-1)*N_NODES;
     CHANGE_STAT[pos] += sm[tail][head]? -1 : +1;
 }
