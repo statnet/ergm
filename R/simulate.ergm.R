@@ -464,7 +464,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
       attributes(nw.list) <- list(formula=object, monitor=monitor,
                                 stats=stats, coef=coef,
                                 control=control,
-                                constraints=constraints, reference=reference,
+                                constraints=attr(constraints$arguments$constraints,"formula"), reference=reference,
                                 monitor=monitor, response=response)
     
     class(nw.list) <- "network.list"
@@ -519,5 +519,3 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
            output=output, simplify=simplify,
                    control=control, verbose=verbose, seed=seed, ...)
 }
-
-
