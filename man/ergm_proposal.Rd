@@ -59,12 +59,13 @@ Returns an ergm_proposal object: a list with class \code{ergm_proposal}
 containing the following named elements:
 \item{ name}{the C name of the proposal}
 \item{inputs}{inputs to be passed to C}
-\item{package}{shared library name where the proposal
+\item{pkgname}{shared library name where the proposal
 can be found (usually \code{"ergm"})}
+\item{reference}{the reference distribution}
 \item{arguments}{list of arguments passed to
 the \code{InitErgmProposal} function; in particular,
 \describe{
-\item{\code{constraints}}{list of constraints}
+\item{\code{constraints}}{list of constraints, with an optional attribute \code{"formula"}, specifying the formula from which they had been generated}
 }
 }
 }

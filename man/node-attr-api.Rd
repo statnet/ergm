@@ -92,10 +92,11 @@ specifying the attribute vector.}
 list of unique attributes.}
 }
 \value{
-\code{ergm_get_vattr} returns a vector of length equal to the number of nodes giving the
-selected attribute function. It may also have an attribute
-\code{"name"}, which controls the suggested name of the attribute
-combination.
+\code{ergm_get_vattr} returns a vector of length equal to the
+number of nodes giving the selected attribute function or, if
+\code{multiple="matrix"}, a matrix whose number of row equals the
+number of nodes. Either may also have an attribute \code{"name"}, which
+controls the suggested name of the attribute combination.
 
 \code{ergm_attr_levels} returns a vector of levels to use and their order.
 }
@@ -144,7 +145,9 @@ beconverted to character).}
 \item{\code{"positive"}}{Accept a strictly positive number or logical.}
 }
 
-\describe{
+Given that, the \code{multiple} argument controls how passing multiple
+attributes or functions that result in vectors of appropriate
+dimension are handled: \describe{
 
 \item{\code{"paste"}}{Paste together with dot as the separator.}
 
@@ -158,7 +161,9 @@ beconverted to character).}
 data(florentine)
 ergm_get_vattr("priorates", flomarriage)
 ergm_get_vattr(~priorates, flomarriage)
+ergm_get_vattr(~cbind(priorates, priorates^2), flomarriage, multiple="matrix")
 ergm_get_vattr(c("wealth","priorates"), flomarriage)
+ergm_get_vattr(c("wealth","priorates"), flomarriage, multiple="matrix")
 ergm_get_vattr(~priorates>30, flomarriage)
 (a <- ergm_get_vattr(~cut(priorates,c(-Inf,0,20,40,60,Inf),label=FALSE)-1, flomarriage))
 ergm_attr_levels(NULL, a, flomarriage)
