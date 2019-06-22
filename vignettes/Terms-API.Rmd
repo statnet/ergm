@@ -1,5 +1,17 @@
-% API for `ergm` Terms
-% Pavel N. Krivitsky
+---
+title: "API for `ergm` Terms"
+author: Pavel N. Krivitsky
+output: 
+  html_document:
+    toc: true
+    mathjax: null
+---
+
+<!-- 
+%\VignetteEngine{knitr::knitr} 
+%\VignetteIndexEntry{API for ergm Terms}
+-->
+<!-- to render out this file for preview when not using RStudio:  rmarkdown::render('vignettes/Terms-API.Rmd') -->
 
 # Summary
 
