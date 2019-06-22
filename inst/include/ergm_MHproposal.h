@@ -73,7 +73,7 @@ void DegreeBoundDestroy(DegreeBound *bd);
 typedef struct MHProposalstruct {
   void (*i_func)(struct MHProposalstruct*, Network*);
   void (*p_func)(struct MHProposalstruct*, Network*);
-  void (*u_func)(Vertex tail, Vertex head, struct MHProposalstruct*, Network*);
+  void (*u_func)(Vertex tail, Vertex head, struct MHProposalstruct*, Network*, Rboolean);
   void (*f_func)(struct MHProposalstruct*, Network*);
   Edge ntoggles;
   Vertex *toggletail;
@@ -125,7 +125,7 @@ int CheckConstrainedTogglesValid(MHProposal *MHp, Network *nwp);
 #define Mhead (MHp->togglehead)
 
 #define MH_I_FN(a) void (a) (MHProposal *MHp, Network *nwp)
-#define MH_U_FN(a) void (a) (Vertex tail, Vertex head, MHProposal *MHp, Network *nwp)
+#define MH_U_FN(a) void (a) (Vertex tail, Vertex head, MHProposal *MHp, Network *nwp, Rboolean edgeflag)
 #define MH_P_FN(a) void (a) (MHProposal *MHp, Network *nwp)
 #define MH_F_FN(a) void (a) (MHProposal *MHp, Network *nwp)
 

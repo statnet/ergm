@@ -301,8 +301,7 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
 	Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];
 	double w=MHp->toggleweight[i];
 
-	WtUPDATE_STORAGE(t, h, w, nwp, m, MHp);
-	WtSetEdge(t, h, w, nwp);
+	WtGET_EDGE_UPDATE_STORAGE_SET(t, h, w, nwp, m, MHp);
       }
       /* record network statistics for posterity */
       Rboolean found = TRUE;

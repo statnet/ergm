@@ -32,7 +32,7 @@ U_CHANGESTAT_FN(u_NodematchFilter){
   double *b = blkinfo->b;
 
   if(b[tail]==b[head])
-    UPDATE_STORAGE(tail, head, bnwp, m, NULL);
+    UPDATE_STORAGE(tail, head, bnwp, m, NULL, edgeflag);
 }
 
 F_CHANGESTAT_FN(f_NodematchFilter){

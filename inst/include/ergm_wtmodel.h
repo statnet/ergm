@@ -23,6 +23,7 @@ typedef struct WtModelstruct {
                            for WtModelTerm definition */
   int n_terms;
   int n_stats;
+  unsigned int n_u; /* Number of terms with updaters. */
   double *workspace; /* temporary workspace of size */
   double **dstatarray; /* array of size n_terms; the ith element in this
 			  array is a pointer to an array of size
@@ -42,7 +43,7 @@ typedef struct WtModelstruct {
 #define WtEXEC_THROUGH_TERMS_INREVERSE(m, subroutine)			\
   WtFOR_EACH_TERM_INREVERSE(m){						\
     subroutine;								\
-  }  
+  }
 
 #define WtEXEC_THROUGH_TERMS_INTO(m, output, subroutine)		\
   WtFOR_EACH_TERM(m){							\
@@ -61,18 +62,36 @@ typedef struct WtModelstruct {
 #define IFDEBUG_RESTORE_DSTATS
 #endif
 
-#define WtUPDATE_STORAGE_COND(tail, head, weight, nwp, m, MHp, cond){	\
-    if(MHp && ((WtMHProposal*)MHp)->u_func) ((WtMHProposal*)MHp)->u_func(tail, head, weight, MHp, nwp); \
-    WtEXEC_THROUGH_TERMS(m, {						\
+#define WtUPDATE_STORAGE_COND(tail, head, weight, nwp, m, MHp, edgeweight, cond){ \
+    if((MHp) && ((WtMHProposal*)(MHp))->u_func) ((WtMHProposal*)(MHp))->u_func((tail), (head), (weight), (MHp), (nwp)); \
+    WtEXEC_THROUGH_TERMS((m), {						\
 	IFDEBUG_BACKUP_DSTATS;						\
 	if(mtp->u_func && (cond))					\
-	  (*(mtp->u_func))(tail, head, weight, mtp, nwp);  /* Call u_??? function */ \
+	  (*(mtp->u_func))((tail), (head), (weight), mtp, (nwp), edgeweight);  /* Call u_??? function */ \
 	IFDEBUG_RESTORE_DSTATS;						\
       });								\
   }
 
-#define WtUPDATE_STORAGE(tail, head, weight, nwp, m, MHp){		\
-    WtUPDATE_STORAGE_COND(tail, head, weight, nwp, m, MHp, TRUE);	\
+#define WtUPDATE_STORAGE(tail, head, weight, nwp, m, MHp, edgeweight){	\
+    WtUPDATE_STORAGE_COND((tail), (head), (weight), (nwp), (m), (MHp), (edgeweight), TRUE); \
+  }
+
+
+#define WtGET_EDGE_UPDATE_STORAGE(tail, head, weight, nwp, m, MHp){	\
+    if((m)->n_u || ((MHp) && ((WtMHProposal*)(MHp))->u_func)){		\
+      Rboolean edgeweight = GETWT((tail), (head), (nwp));		\
+      WtUPDATE_STORAGE((tail), (head), (weight), (nwp), (m), (MHp), (edgeweight)); \
+    }									\
+  }
+
+#define WtUPDATE_STORAGE_SET(tail, head, weight, nwp, m, MHp, edgeweight){ \
+    if((m)->n_u || ((MHp) && ((WtMHProposal*)(MHp))->u_func)) WtUPDATE_STORAGE((tail), (head), (weight), (nwp), (m), (MHp), (edgeweight)); \
+    WtSetEdge((tail), (head), (weight), (nwp));				\
+  }
+
+#define WtGET_EDGE_UPDATE_STORAGE_SET(tail, head, weight, nwp, m, MHp){ \
+    WtGET_EDGE_UPDATE_STORAGE((tail), (head), (weight), (nwp), (m), (MHp)); \
+    WtSetEdge((tail), (head), (weight), (nwp));				\
   }
 
 WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputs,

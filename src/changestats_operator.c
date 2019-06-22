@@ -23,7 +23,7 @@ D_CHANGESTAT_FN(d_passthrough_term){
 U_CHANGESTAT_FN(u_passthrough_term){
   GET_STORAGE(Model, m);
 
-  UPDATE_STORAGE(tail, head, nwp, m, NULL);
+  UPDATE_STORAGE(tail, head, nwp, m, NULL, edgeflag);
 }
 
 F_CHANGESTAT_FN(f_passthrough_term){
@@ -48,7 +48,7 @@ I_CHANGESTAT_FN(i__submodel_term){
 U_CHANGESTAT_FN(u__submodel_term){
   GET_AUX_STORAGE(Model, m);
 
-  UPDATE_STORAGE(tail, head, nwp, m, NULL);
+  UPDATE_STORAGE(tail, head, nwp, m, NULL, edgeflag);
 }
 
 F_CHANGESTAT_FN(f__submodel_term){
@@ -96,8 +96,7 @@ I_CHANGESTAT_FN(i__summary_term){
       ChangeStats(1, &tail, &head, tmpnwp, m);
       for(unsigned int k=0; k<m->n_stats; k++)
 	stats[k] += m->workspace[k];
-      UPDATE_STORAGE(tail, head, tmpnwp, m, NULL);
-      ToggleEdge(tail, head, tmpnwp);
+      UPDATE_STORAGE_TOGGLE(tail, head, tmpnwp, m, NULL, 0);
     }
   }
   // Note that nw is now identitical to nwp.
@@ -112,7 +111,7 @@ U_CHANGESTAT_FN(u__summary_term){
   for(unsigned int k=0; k<m->n_stats; k++)
     stats[k] += m->workspace[k];
 
-  UPDATE_STORAGE(tail, head, nwp, m, NULL);
+  UPDATE_STORAGE(tail, head, nwp, m, NULL, edgeflag);
 }
 
 F_CHANGESTAT_FN(f__summary_term){
@@ -185,7 +184,7 @@ U_CHANGESTAT_FN(u_filter_term_form){
   ChangeStats(1, &tail, &head, nwp, storage->m);
   
   if(*(storage->m->workspace)!=0){ // If the binary view changes...
-    UPDATE_STORAGE(tail, head, bnwp, m, NULL);
+    UPDATE_STORAGE(tail, head, bnwp, m, NULL, edgeflag);
   }
 }
 
@@ -234,7 +233,7 @@ U_CHANGESTAT_FN(u__filter_formula_net){
     else AddEdgeToTrees(tail,head,bnwp);
   }
 
-  UPDATE_STORAGE(tail, head, nwp, m, NULL);
+  UPDATE_STORAGE(tail, head, nwp, m, NULL, edgeflag);
 }
 
 F_CHANGESTAT_FN(f__filter_formula_net){
@@ -309,7 +308,7 @@ U_CHANGESTAT_FN(u_undir){
     totoggle = FALSE;
   }
 
-  if(totoggle) UPDATE_STORAGE(MIN(tail,head), MAX(tail,head), unwp, m, NULL);
+  if(totoggle) GET_EDGE_UPDATE_STORAGE(MIN(tail,head), MAX(tail,head), unwp, m, NULL);
 }
 
 F_CHANGESTAT_FN(f_undir){
@@ -367,7 +366,7 @@ U_CHANGESTAT_FN(u_Sum){
 
   for(unsigned int i=0; i<nms; i++){
     Model *m = ms[i];
-    UPDATE_STORAGE(tail, head, nwp, m, NULL);
+    UPDATE_STORAGE(tail, head, nwp, m, NULL, edgeflag);
   }
 }
 

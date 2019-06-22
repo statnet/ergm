@@ -1,5 +1,17 @@
-% API for `ergm` Terms
-% Pavel N. Krivitsky
+---
+title: "API for `ergm` Terms"
+author: Pavel N. Krivitsky
+output: 
+  html_document:
+    toc: true
+    mathjax: null
+---
+
+<!-- 
+%\VignetteEngine{knitr::knitr} 
+%\VignetteIndexEntry{API for ergm Terms}
+-->
+<!-- to render out this file for preview when not using RStudio:  rmarkdown::render('vignettes/Terms-API.Rmd') -->
 
 # Summary
 
@@ -22,17 +34,18 @@ An auxiliary can rely on another auxiliary's public storage. Note that circular 
 For the purposes of this overview, the following information is relevant, and is elaborated formally later:
 
 * Each term has a a pointer `void *mtp->storage` to private storage
-* The term has a pointer to an array of pointers to public storage `void **mtp->aux_storage`. (The pointer is to the same location for all terms of a model.)
+* Each term has a pointer to an array of pointers to public storage `void **mtp->aux_storage`. (The pointer is to the same location for all terms of a model.)
 * Each term has some subset of five functions on the C side: initializers (`i_`), updaters (`u_`), change stats (`c_`), difference stats (`d_`), and finalizers (`f_`). 
 * An `InitErgmTerm.` function's output list can have an additional element, `auxiliaries`, a one-sided formula.
 
 1. The user passes a formula to the procedure (`ergm`, `summary`, etc.); this formula may only have statistics.
-1. `ergm.getmodel()` is called.
+1. `ergm_model()` is called.
     1. It iterates through the formula terms, calling `InitErgmTerm.<NAME>()` functions in turn, adding their output to the model term list. Some terms include `auxiliaries` formulas in their list.
     1. `update.ErgmTerm()` when it finds that a term has requested auxiliaries, reserves one space for each auxiliary term requested in the requesting term's input vector and shifts `ParamsBeforeCov` accordingly.
     1. It calls `ergm.auxstorage()` with the complete model.
         1. It iterates through initialized model terms, looking at their `auxiliaries` element for a one-sided formula listing their requested auxiliaries.
         1. It iterates through the auxiliary formulas, calling term initialization on them.
+		1. It iterates through the `auxiliaries` elements of auxiliary terms and initialises those, etc..
         1. It constructs a list of unique initialized auxilariy terms (that is, when two or more terms had requested an identical auxiliary).
         1. It stores the initialized unique auxiliary terms in `model$model.aux` and the index (in the unique list) of the auxiliary requested by each statistic in the reserved space in the input vector of the requesting statistic.
 1. `ergm.Cprepare()` is called.
@@ -44,7 +57,7 @@ For the purposes of this overview, the following information is relevant, and is
 1. `ModelInitialize()` counts up the number of auxiliaries and allocates an array of `void *`s, one for each auxiliary. The `mtp->aux_storage` pointer for each term is set to point to that (one) array.
 1. `NetworkInitialize()` initializes the network.
 1. `InitStats()` is called, calling the initializer (`i_` function) of each term or, if not found, an updater (`u_` function) with invalid input (i.e., toggle $(0,0)$) is called in case the term developer prefers a one-function implementation.
-    * The terms are initialized in reverse order, so auxiliaries are initialized before the statistics are, and statistics can count on their auxiliaries being initialized by the time they are initialized.
+    * The terms are initialized in reverse order, so auxiliaries are initialized before the statistics are, and statistics and auxiliaries can count on their auxiliaries being initialized by the time they are initialized.
 1. For each iteration, a proposal is made.
     1. `ChangeStats()` is called.
         1. It calls the `d_` functions, for those terms for which they are initialized.
@@ -54,7 +67,7 @@ For the purposes of this overview, the following information is relevant, and is
 		    1. It calls the `u_` functions with the toggle (if more to come).
 		    1. It makes the toggle provisionally (if more to come).
 	    1. It undoes the provisional toggles.
-    1. If the proposal is accepted, `u_` function is called and network is updated for each toggle.
+    1. If the proposal is accepted, `u_` function is called, and network is updated for each toggle.
 1. `DestroyStats()` is called, iterating through the terms.
     1. Finalizer (`f_`) function is called, if defined.
 	1. If `mtp->storage` is not `NULL`, it is freed.
@@ -81,28 +94,42 @@ Unchanged.
 
 `d_` functions are the original difference statistics. `c_` functions are new, while `s_` functions have been around for a long time, but never formally documented.
 
-Change statistic: `void c_<NAME>(Vertex tail, Vertex head, Model *mtp, Network *nwp)`
+Change statistic (binary): `void c_<NAME>(Vertex tail, Vertex head, Model *mtp, Network *nwp, Rboolean edgeflag)`
 
-Difference statistic: `void d_<NAME>(Vertex *tails, Vertex *heads, Model *mtp, Network *nwp)`
+Change statistic (valued): `void c_<NAME>(Vertex tail, Vertex head, double weight, WtModel *mtp, WtNetwork *nwp, double edgeweight)`
 
-Summary statistic: `void s_<NAME>(Model *mtp, Network *nwp)`
+Difference statistic (binary): `void d_<NAME>(Vertex *tails, Vertex *heads, Model *mtp, Network *nwp)`
+
+Difference statistic (valued): `void d_<NAME>(Vertex *tails, Vertex *heads, double *weights, WtModel *mtp, WtNetwork *nwp)`
+
+Summary statistic (binary): `void s_<NAME>(Model *mtp, Network *nwp)`
+
+Summary statistic (valued): `void s_<NAME>(WtModel *mtp, WtNetwork *nwp)`
 
 #### Expect
 ##### Parameters
 
-`Edge ntgoggles`: Number of edges to be toggled.
+`Edge ntgoggles`: Number of edges to be toggled or updated.
 
-`Vertex tail`: Tail of (1) dyad to be toggled.
+`Vertex tail`: Tail of (1) dyad to be toggled or updated.
 
-`Vertex *tails`: An array of tails of the dyads to be toggled.
+`Vertex *tails`: An array of tails of the dyads to be toggled or updated.
 
-`Vertex head`: Head of (1) dyad to be toggled.
+`Vertex head`: Head of (1) dyad to be toggled or updated.
 
-`Vertex *heads`: An array of heads of the dyads to be toggled.
+`Vertex *heads`: An array of heads of the dyads to be toggled or updated.
+
+`double weight`: New weight for (1) dyad.
+
+`double *weights`: An array of new weights for the dyads to be toggled or updated.
 
 `Model *mtp`: A pointer to a `Model` of interest.
 
 `Network *nwp`: A pointer to the `Network` of interest before any toggles are applied.
+
+`Rboolean edgeflag`: An indicator of whether edge `(tail,head)` is in the network `nwp` pre-toggle.
+
+`double edgeweight`: The weight of dyad `(tail,head)` in the network `nwp` pre-update.
 
 ##### Storage
 
@@ -137,7 +164,9 @@ To request an auxiliary, a term's `InitErgmTerm` call's output list must include
 
 This function is optional for using storage: if it's not provided, the model code will call the `u_` function with an invalid toggle first, signaling for it to initialize.
 
-`void i_<NAME>(Model *mtp, Network *nwp)`
+Binary: `void i_<NAME>(Model *mtp, Network *nwp)`
+
+Valued: `void i_<NAME>(WtModel *mtp, WtNetwork *nwp)`
 
 #### Expects
 
@@ -165,15 +194,17 @@ An auxiliary can also use its private storage as needed.
 
 ### `u_` functions: Updater
 
-`void u_<NAME>(Vertex tail, Vertex head, Model *mtp, Network *nwp)`
+Binary: `void u_<NAME>(Vertex tail, Vertex head, Model *mtp, Network *nwp, Rboolean edgeflag)`
+
+Valued: `void u_<NAME>(Vertex tail, Vertex head, double weight, Model *mtp, Network *nwp, double edgeweight)`
 
 #### Expects
 
-Initialized network. If no `i_` function was provided, to be called with a $(0,0)$ toggle as a signal to initialize; otherwise, initialized storage. Any statistic can rely on auxiliaries being initialized before it.
+Initialized network. If no `i_` function was provided, to be called with a $(0,0)$ toggle as a signal to initialize; otherwise, initialized storage. Any statistic or auxiliary can rely on its auxiliaries having been initialized before it.
 
 #### Side-effects
 
-If called with an invalid toggle and uninitialized storage, initialize.
+If called with an a toggle `(0,0)` and uninitialized storage, initialize. This will never be done if an `i_` function is defined for the term.
 
 Update the state of its storage (`mtp->storage` and/or `mtp->aux_storage[(int)INPUT_PARAM[0]]`) to match what the state of `*nwp` would be after the given dyad had been toggled.
 
@@ -181,7 +212,9 @@ Update the state of its storage (`mtp->storage` and/or `mtp->aux_storage[(int)IN
 
 This function is optional for using storage: if it's not provided, the model code will free any pointers to `mtp->aux_storage` and `mtp->storage` that are not `NULL`.
 
-`void f_<NAME>(Model *mtp, Network *nwp)`
+Binary: `void f_<NAME>(Model *mtp, Network *nwp)`
+
+Valued: `void f_<NAME>(WtModel *mtp, WtNetwork *nwp)`
 
 #### Expects:
 

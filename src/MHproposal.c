@@ -68,7 +68,7 @@ MHProposal *MHProposalInitialize(
   fn[1] = 'i';
   MHp->i_func=(void (*)(MHProposal*, Network*)) R_FindSymbol(fn,sn,NULL);
   fn[1] = 'u';
-  MHp->u_func=(void (*)(Vertex tail, Vertex head, MHProposal*, Network*)) R_FindSymbol(fn,sn,NULL);
+  MHp->u_func=(void (*)(Vertex tail, Vertex head, MHProposal*, Network*, Rboolean)) R_FindSymbol(fn,sn,NULL);
   fn[1] = 'f';
   MHp->f_func=(void (*)(MHProposal*, Network*)) R_FindSymbol(fn,sn,NULL);
     

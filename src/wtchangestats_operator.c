@@ -25,12 +25,11 @@ WtC_CHANGESTAT_FN(c_import_binary_term_sum){
   GET_STORAGE(StoreNetAndModel, store);
   Model *m = store->m;
   Network *mynwp = store->nwp;
-  double oldweight = WtGETWT(tail,head);
     
   ChangeStats(1, &tail, &head, mynwp, m);
 
   for(unsigned int i=0; i<N_CHANGE_STATS; i++)
-    CHANGE_STAT[i] = m->workspace[i]*(weight-oldweight);
+    CHANGE_STAT[i] = m->workspace[i]*(weight-edgeweight);
 }
 
 WtU_CHANGESTAT_FN(u_import_binary_term_sum){
@@ -38,7 +37,7 @@ WtU_CHANGESTAT_FN(u_import_binary_term_sum){
   Model *m = store->m;
   Network *mynwp = store->nwp;
 
-  UPDATE_STORAGE(tail, head, mynwp, m, NULL);
+  GET_EDGE_UPDATE_STORAGE(tail, head, mynwp, m, NULL);
 }
 
 WtF_CHANGESTAT_FN(f_import_binary_term_sum){
@@ -72,9 +71,8 @@ WtC_CHANGESTAT_FN(c_import_binary_term_nonzero){
   GET_AUX_STORAGE(Network, bnwp);
   GET_STORAGE(Model, m);
   
-  double oldweight = WtGETWT(tail,head);
 
-  if((weight!=0)!=(oldweight!=0)){ // If going from 0 to nonzero or vice versa...
+  if((weight!=0)!=(edgeweight!=0)){ // If going from 0 to nonzero or vice versa...
     ChangeStats(1, &tail, &head, bnwp, m);
   }
   
@@ -85,10 +83,9 @@ WtU_CHANGESTAT_FN(u_import_binary_term_nonzero){
   GET_AUX_STORAGE(Network, bnwp);
   GET_STORAGE(Model, m);
   
-  double oldweight = WtGETWT(tail,head);
 
-  if((weight!=0)!=(oldweight!=0)){ // If going from 0 to nonzero or vice versa...
-    UPDATE_STORAGE(tail, head, bnwp, m, NULL);
+  if((weight!=0)!=(edgeweight!=0)){ // If going from 0 to nonzero or vice versa...
+    GET_EDGE_UPDATE_STORAGE(tail, head, bnwp, m, NULL);
   }
 }
 
@@ -142,7 +139,7 @@ WtU_CHANGESTAT_FN(u_import_binary_term_form){
   WtChangeStats(1, &tail, &head, &weight, nwp, storage->m);
   
   if(*(storage->m->workspace)!=0){ // If the binary view changes...
-    UPDATE_STORAGE(tail, head, bnwp, m, NULL);
+    GET_EDGE_UPDATE_STORAGE(tail, head, bnwp, m, NULL);
   }
 }
 
@@ -171,9 +168,8 @@ WtI_CHANGESTAT_FN(i__binary_nonzero_net){
 
 WtU_CHANGESTAT_FN(u__binary_nonzero_net){
   GET_AUX_STORAGE(Network, bnwp);
-  double oldweight = WtGETWT(tail,head);
 
-  if((weight!=0)!=(oldweight!=0)){ // If going from 0 to nonzero or vice versa...
+  if((weight!=0)!=(edgeweight!=0)){ // If going from 0 to nonzero or vice versa...
     ToggleEdge(tail, head, bnwp);
   }
 }
@@ -228,7 +224,7 @@ WtU_CHANGESTAT_FN(u__binary_formula_net){
   default: error("Binary test term may have a dyadwise contribution of either 0 or 1. Memory has not been deallocated, so restart R soon."); 
   }
 
-  WtUPDATE_STORAGE(tail, head, weight, nwp, m, NULL);
+  WtUPDATE_STORAGE(tail, head, weight, nwp, m, NULL, edgeweight);
 }
 
 WtF_CHANGESTAT_FN(f__binary_formula_net){
@@ -288,7 +284,7 @@ WtU_CHANGESTAT_FN(u_wtSum){
 
   for(unsigned int i=0; i<nms; i++){
     WtModel *m = ms[i];
-    WtUPDATE_STORAGE(tail, head, weight, nwp, m, NULL);
+    WtUPDATE_STORAGE(tail, head, weight, nwp, m, NULL, edgeweight);
   }
 }
 

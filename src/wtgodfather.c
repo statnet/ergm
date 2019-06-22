@@ -19,21 +19,21 @@ WtMCMCStatus WtGodfather(Edge n_changes, Vertex *tails, Vertex *heads, double *w
   /* Doing this one change at a time saves a lot of changes... */
   for(Edge e=0; e<n_changes; e++){
     Vertex t = tails[e], h = heads[e];
-    double w = weights[e];
+    double w = weights[e], edgeweight;
 
     if(t==0){
       stats+=m->n_stats;
       continue;
     }
     
-    if(GETWT(t,h)==w)
+    if((edgeweight=GETWT(t,h))==w)
       continue;
 
     WtEXEC_THROUGH_TERMS_INTO(m, stats, {
 	if(mtp->c_func){
 	  ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(t, h, w,
-			   mtp, nwp);  /* Call c_??? function */
+			   mtp, nwp, edgeweight);  /* Call c_??? function */
 	}else if(mtp->d_func){
 	  (*(mtp->d_func))(1, &t, &h, &w,
 			   mtp, nwp);  /* Call d_??? function */
@@ -45,8 +45,7 @@ WtMCMCStatus WtGodfather(Edge n_changes, Vertex *tails, Vertex *heads, double *w
 
 
     /* Update storage and network */    
-    WtUPDATE_STORAGE(t, h, w, nwp, m, NULL);
-    SETWT(t,h,w);
+    WtUPDATE_STORAGE_SET(t, h, w, nwp, m, NULL, edgeweight);
   }
 
   return WtMCMC_OK;

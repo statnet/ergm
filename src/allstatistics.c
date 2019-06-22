@@ -139,21 +139,20 @@ void RecurseOffOn(
 
     /* Calculate the change statistic(s) associated with toggling the 
        dyad represented by nodelist1[currentnodes], nodelist2[currentnodes] */
+    Rboolean edgeflag = IS_OUTEDGE((Vertex)nodelist1[currentnodes], (Vertex)nodelist2[currentnodes]);
     EXEC_THROUGH_TERMS(m, {
 	if(mtp->c_func){
 	  ZERO_ALL_CHANGESTATS();
-	  (*(mtp->c_func))((Vertex)nodelist1[currentnodes], (Vertex)nodelist2[currentnodes], mtp, nwp);
+	  (*(mtp->c_func))((Vertex)nodelist1[currentnodes], (Vertex)nodelist2[currentnodes], mtp, nwp, edgeflag);
 	}else if(mtp->d_func){
 	  (*(mtp->d_func))(1, (Vertex*)nodelist1+currentnodes, (Vertex*)nodelist2+currentnodes, mtp, nwp);
 	}
       });
-    
-    /* Inform u_* functions that the network is about to change. */
-    UPDATE_STORAGE(nodelist1[currentnodes], nodelist2[currentnodes], nwp, m, NULL);
-    
+
     for (int j=0; j < m->n_stats; j++) cumulativeStats[j] += changeStats[j];
     /* Now toggle the dyad so it's ready for the next pass */
-    ToggleEdge(nodelist1[currentnodes], nodelist2[currentnodes], nwp);
+    /* Inform u_* functions that the network is about to change. */
+    UPDATE_STORAGE_TOGGLE(nodelist1[currentnodes], nodelist2[currentnodes], nwp, m, NULL, edgeflag);
   }
 }
 
