@@ -123,12 +123,13 @@ prune.ergm_conlist <- function(conlist){
 #' containing the following named elements:
 #' \item{ name}{the C name of the proposal}
 #' \item{inputs}{inputs to be passed to C}
-#' \item{package}{shared library name where the proposal
+#' \item{pkgname}{shared library name where the proposal
 #' can be found (usually `"ergm"`)}
+#' \item{reference}{the reference distribution}
 #' \item{arguments}{list of arguments passed to
 #' the `InitErgmProposal` function; in particular,
 #' \describe{
-#' \item{`constraints`}{list of constraints}
+#' \item{`constraints`}{list of constraints, with an optional attribute `"formula"`, specifying the formula from which they had been generated}
 #' }
 #' }
 #' @seealso \code{\link{InitErgmProposal}}
@@ -276,6 +277,7 @@ ergm_conlist <- function(object, nw){
   
   conlist <- prune.ergm_conlist(conlist)
   
+  attr(conlist, "formula") <- object
   class(conlist) <- "ergm_conlist"
   conlist
 }
@@ -309,12 +311,13 @@ ergm_proposal.formula <- function(object, arguments, nw, weights="default", clas
   }else{
     ref.call <- list(f, lhs.nw=nw)
   }
-  reference <- eval(as.call(ref.call),environment(reference))
+  ref <- eval(as.call(ref.call),environment(reference))
+  attr(ref, "formula") <- reference
 
   # TODO: Remove this around the end of 2018.
-  if(is.null(reference$init_methods)){
+  if(is.null(ref$init_methods)){
     .Deprecated(msg="Initial methods are now specified in the InitErgmReference.* function. Defaulting to 'CD' and 'zeros'.")
-    reference$init_methods <- c("CD", "zeros")
+    ref$init_methods <- c("CD", "zeros")
   }
 
   if(length(object)==3){
@@ -344,19 +347,19 @@ ergm_proposal.formula <- function(object, arguments, nw, weights="default", clas
 
     qualifying.specific <-
       if(all(sapply(conlist, `[[`, "sign")==+1)){ # If all constraints are conjunctive...
-        with(ergm_proposal_table(),ergm_proposal_table()[Class==class & Constraints==constraints.specific & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
+        with(ergm_proposal_table(),ergm_proposal_table()[Class==class & Constraints==constraints.specific & Reference==ref$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
       }
 
     # Try the general dyad-independent constraint combination.
     constraints.general <- tolower(unlist(ifelse(sapply(conlist,`[[`,"dependence"),lapply(conlist, `[[`, "constrain"), ".dyads")))
     constraints.general <- paste(sort(unique(constraints.general)),collapse="+")
-    qualifying.general <- with(ergm_proposal_table(),ergm_proposal_table()[Class==class & Constraints==constraints.general & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
+    qualifying.general <- with(ergm_proposal_table(),ergm_proposal_table()[Class==class & Constraints==constraints.general & Reference==ref$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
 
     qualifying <- rbind(qualifying.general, qualifying.specific)
     
     if(nrow(qualifying)<1){
-      commonalities<-(ergm_proposal_table()$Class==class)+(ergm_proposal_table()$Weights==weights)+(ergm_proposal_table()$Reference==reference)+(ergm_proposal_table()$Constraints==constraints.specific)
-      stop("The combination of class (",class,"), model constraints (",constraints.specific,"), reference measure (",reference,"), proposal weighting (",weights,"), and conjunctions and disjunctions is not implemented. ", "Check your arguments for typos. ", if(any(commonalities>=3)) paste("Nearest matching proposals: (",paste(apply(ergm_proposal_table()[commonalities==3,-5],1,paste, sep="), (",collapse=", "),collapse="), ("),")",sep="",".") else "")
+      commonalities<-(ergm_proposal_table()$Class==class)+(ergm_proposal_table()$Weights==weights)+(ergm_proposal_table()$Reference==ref)+(ergm_proposal_table()$Constraints==constraints.specific)
+      stop("The combination of class (",class,"), model constraints (",constraints.specific,"), reference measure (",deparse(ult(reference)),"), proposal weighting (",weights,"), and conjunctions and disjunctions is not implemented. ", "Check your arguments for typos. ", if(any(commonalities>=3)) paste("Nearest matching proposals: (",paste(apply(ergm_proposal_table()[commonalities==3,-5],1,paste, sep="), (",collapse=", "),collapse="), ("),")",sep="",".") else "")
     }
     
     if(nrow(qualifying)==1){
@@ -368,7 +371,7 @@ ergm_proposal.formula <- function(object, arguments, nw, weights="default", clas
   
   arguments$constraints<-conlist
   ## Hand it off to the class character method.
-  ergm_proposal.character(name, arguments, nw, response=response, reference=reference)
+  ergm_proposal.character(name, arguments, nw, response=response, reference=ref)
 }
 
 

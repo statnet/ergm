@@ -210,7 +210,9 @@ NULL
 #' \item{`"positive"`}{Accept a strictly positive number or logical.}
 #' }
 #'
-#' \describe{
+#' Given that, the `multiple` argument controls how passing multiple
+#' attributes or functions that result in vectors of appropriate
+#' dimension are handled: \describe{
 #' 
 #' \item{`"paste"`}{Paste together with dot as the separator.}
 #' 
@@ -235,16 +237,19 @@ ERGM_GET_VATTR_MULTIPLE_TYPES <- c("paste", "matrix", "stop")
 #'   `vartype="function,formula,character"` (using the
 #'   `ERGM_VATTR_SPEC` constant).
 #' 
-#' @return `ergm_get_vattr` returns a vector of length equal to the number of nodes giving the
-#'   selected attribute function. It may also have an attribute
-#'   `"name"`, which controls the suggested name of the attribute
-#'   combination.
+#' @return `ergm_get_vattr` returns a vector of length equal to the
+#'   number of nodes giving the selected attribute function or, if
+#'   `multiple="matrix"`, a matrix whose number of row equals the
+#'   number of nodes. Either may also have an attribute `"name"`, which
+#'   controls the suggested name of the attribute combination.
 #'
 #' @examples
 #' data(florentine)
 #' ergm_get_vattr("priorates", flomarriage)
 #' ergm_get_vattr(~priorates, flomarriage)
+#' ergm_get_vattr(~cbind(priorates, priorates^2), flomarriage, multiple="matrix")
 #' ergm_get_vattr(c("wealth","priorates"), flomarriage)
+#' ergm_get_vattr(c("wealth","priorates"), flomarriage, multiple="matrix")
 #' ergm_get_vattr(~priorates>30, flomarriage)
 #' (a <- ergm_get_vattr(~cut(priorates,c(-Inf,0,20,40,60,Inf),label=FALSE)-1, flomarriage))
 #' @keywords internal
