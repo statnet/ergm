@@ -57,8 +57,7 @@ void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timi
 
 /****************
  void SummStats Computes summary statistics for a network. Must be
- passed an empty network (and a possible discordance network) and 
- passed an empty network
+ passed an empty network and passed an empty network
 *****************/
 void WtSummStats(Edge n_edges, Vertex *tails, Vertex *heads, double *weights,
 WtNetwork *nwp, WtModel *m, double *stats){

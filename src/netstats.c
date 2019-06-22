@@ -60,8 +60,7 @@ void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int 
 
 /****************
  void SummStats Computes summary statistics for a network. Must be
- passed an empty network (and a possible discordance network) and 
- passed an empty network
+ passed an empty network and passed an empty network
 *****************/
 
 /* *** don't forget tail-> head, so this fucntion now accepts tails before heads */

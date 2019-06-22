@@ -116,9 +116,7 @@ typedef struct ModelTermstruct {
 /* Change the status of the (a,b) edge:  Add it if it's absent, or 
    delete it if it's present. */
 #define TOGGLE(a,b) (ToggleEdge((a),(b),nwp));
-#define TOGGLE_DISCORD(a,b) (ToggleEdge((a),(b),nwp+1));
 #define TOGGLE_KNOWN(a,b,ef) (ToggleKnownEdge((a),(b),nwp,(ef)));
-
 
 /* Get and set the value (0 or 1) of the (a,b) edge. */
 #define _GETWT2(a,b) _GETWT3(a,b,nwp)
@@ -133,10 +131,8 @@ typedef struct ModelTermstruct {
 #define FOR_EACH_TOGGLE(a) for((a)=0; (a)<ntoggles; (a)++)
 #define IF_MORE_TO_COME(a) if((a)+1<ntoggles)
 #define TOGGLE_IF_MORE_TO_COME(a) IF_MORE_TO_COME(a){TOGGLE(tails[(a)],heads[(a)])}
-#define TOGGLE_DISCORD_IF_MORE_TO_COME(a) IF_MORE_TO_COME(a){TOGGLE_DISCORD(tails[(a)],heads[(a)])}
 #define UNDO_PREVIOUS(a) (a)--; while(--(a)>=0)
 #define UNDO_PREVIOUS_TOGGLES(a)  UNDO_PREVIOUS(a){TOGGLE(tails[(a)],heads[(a)])}
-#define UNDO_PREVIOUS_DISCORD_TOGGLES(a) UNDO_PREVIOUS(a){TOGGLE(tails[(a)],heads[(a)]); TOGGLE_DISCORD(tails[(a)],heads[(a)])}
 
 /****************************************************/
 /* changestat function prototypes */
