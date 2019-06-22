@@ -81,7 +81,7 @@ Unchanged.
 
 `d_` functions are the original difference statistics. `c_` functions are new, while `s_` functions have been around for a long time, but never formally documented.
 
-Change statistic: `void c_<NAME>(Vertex tail, Vertex head, Model *mtp, Network *nwp)`
+Change statistic: `void c_<NAME>(Vertex tail, Vertex head, Model *mtp, Network *nwp, Rboolean edgeflag)`
 
 Difference statistic: `void d_<NAME>(Vertex *tails, Vertex *heads, Model *mtp, Network *nwp)`
 
@@ -103,6 +103,8 @@ Summary statistic: `void s_<NAME>(Model *mtp, Network *nwp)`
 `Model *mtp`: A pointer to a `Model` of interest.
 
 `Network *nwp`: A pointer to the `Network` of interest before any toggles are applied.
+
+`Rboolean *edgeflag`: An indicator of whether edge `(tail,head)` is in the network `nwp` pre-toggle.
 
 ##### Storage
 
@@ -165,7 +167,7 @@ An auxiliary can also use its private storage as needed.
 
 ### `u_` functions: Updater
 
-`void u_<NAME>(Vertex tail, Vertex head, Model *mtp, Network *nwp)`
+`void u_<NAME>(Vertex tail, Vertex head, Model *mtp, Network *nwp, Rboolean edgeflag)`
 
 #### Expects
 
