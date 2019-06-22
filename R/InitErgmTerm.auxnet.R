@@ -117,3 +117,56 @@ InitErgmTerm..undir.net <- function(nw, arglist, response=NULL, ...){
        dependence=rule%in%c("weak","strong")) # Just discarding half the network does not induce dependence.
 }
 
+InitErgmTerm..subgraph.net <- function(nw, arglist, response=NULL, ...){
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("attrs", "auxnw"),
+                      vartypes = c(ERGM_VATTR_SPEC, "formula"),
+                      defaultvalues = list(NULL, NULL),
+                      required = c(TRUE, FALSE))
+  # If LHS is itself an auxiliary.
+  if(!is.null(a$auxnw))
+  
+  spec <- a$attrs
+  if(!is(spec, "formula")) spec <- call("~",spec) # Embed into formula.
+  if(length(spec)==2) spec <- call("~", spec[[2]], spec[[2]]) # Duplicate if one-sided.
+
+  environment(spec) <- environment(a$attrs)
+
+  # Obtain subformulas for tail and head.
+  tailspec <- spec[-3]
+  headspec <- spec[-2]
+
+  # Obtain the boolean indicators or numeric indices. If the network
+  # is bipartite in the first place, expect bipartite indices.
+  bip <- nw %n% "bipartite"
+
+  tailsel <- ergm_get_vattr(tailspec, nw, accept="numeric", bip=if(bip) "b1" else "n")
+  tailname <- attr(tailsel, "name")
+  
+  headsel <- ergm_get_vattr(headspec, nw, accept="numeric", bip=if(bip) "b2" else "n")
+  headname <- attr(headsel, "name")
+
+  # Convert to numeric selectors.
+  if(is.logical(tailsel)) tailsel <- sort(which(tailsel))
+  if(is.logical(headsel)) headsel <- sort(which(headsel))
+
+  # TODO: Check if 1-node graphs cause crashes.
+  if(length(tailset)==0 || length(headset)==0) stop("Empty subgraph selected.")
+
+  # If bipartite, remap to the whole network's indexes.
+  if(bip) headsel <- headsel + bip
+  
+  if(bip){
+    if(ult(tailsel)>bip || headset[1]<=bip)
+      stop("Invalid vertex subsets selected for a bipartite graph.")
+  }else{
+    if(!identical(tailset,headset)){ # Rectangular selection: output bipartite.
+      if(!(ult(tailset)<headset[1] || ult(headset)<tailset[1]))) stop("Vertex subsets constructing a bipartite subgraph must have disjoint ranges.")
+
+      type <- "bipartite"
+    }
+    
+  }
+  
+  list(name="_blockdiag_net", coef.names = c(), inputs=nodecov, dependence=FALSE)
+}
