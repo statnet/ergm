@@ -38,8 +38,7 @@ WtU_CHANGESTAT_FN(u_import_binary_term_sum){
   Model *m = store->m;
   Network *mynwp = store->nwp;
 
-  Rboolean edgeflag = IS_OUTEDGE(tail, head, mynwp);
-  UPDATE_STORAGE(tail, head, mynwp, m, NULL, edgeflag);
+  GET_EDGE_UPDATE_STORAGE(tail, head, mynwp, m, NULL);
 }
 
 WtF_CHANGESTAT_FN(f_import_binary_term_sum){
@@ -89,8 +88,7 @@ WtU_CHANGESTAT_FN(u_import_binary_term_nonzero){
   double oldweight = WtGETWT(tail,head);
 
   if((weight!=0)!=(oldweight!=0)){ // If going from 0 to nonzero or vice versa...
-    Rboolean edgeflag = IS_OUTEDGE(tail, head, bnwp);
-    UPDATE_STORAGE(tail, head, bnwp, m, NULL, edgeflag);
+    GET_EDGE_UPDATE_STORAGE(tail, head, bnwp, m, NULL);
   }
 }
 
@@ -144,8 +142,7 @@ WtU_CHANGESTAT_FN(u_import_binary_term_form){
   WtChangeStats(1, &tail, &head, &weight, nwp, storage->m);
   
   if(*(storage->m->workspace)!=0){ // If the binary view changes...
-    Rboolean edgeflag = IS_OUTEDGE(tail, head, bnwp);
-    UPDATE_STORAGE(tail, head, bnwp, m, NULL, edgeflag);
+    GET_EDGE_UPDATE_STORAGE(tail, head, bnwp, m, NULL);
   }
 }
 

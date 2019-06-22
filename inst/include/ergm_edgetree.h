@@ -100,6 +100,7 @@ Network *NetworkCopy(Network *src);
 void SetEdge (Vertex tail, Vertex head, unsigned int weight, Network *nwp);
 void SetEdgeWithTimestamp (Vertex tail, Vertex head, unsigned int weight, Network *nwp);
 int ToggleEdge (Vertex tail, Vertex head, Network *nwp);
+int ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgeflag);
 int ToggleEdgeWithTimestamp (Vertex tail, Vertex head, Network *nwp);
 int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp);
 void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge);

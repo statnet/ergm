@@ -114,7 +114,7 @@ Network *nwp, Model *m, double *stats){
     
     /* Update storage and network */    
     UPDATE_STORAGE_COND(t, h, nwp, m, NULL, edgeflag, mtp->s_func==NULL && mtp->d_func==NULL);
-    TOGGLE(t, h);
+    TOGGLE_KNOWN(t, h, edgeflag);
   }
   
   /* Calculate statistics for terms have s_functions  */

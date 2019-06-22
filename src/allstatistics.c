@@ -148,13 +148,11 @@ void RecurseOffOn(
 	  (*(mtp->d_func))(1, (Vertex*)nodelist1+currentnodes, (Vertex*)nodelist2+currentnodes, mtp, nwp);
 	}
       });
-    
-    /* Inform u_* functions that the network is about to change. */
-    UPDATE_STORAGE(nodelist1[currentnodes], nodelist2[currentnodes], nwp, m, NULL, edgeflag);
-    
+
     for (int j=0; j < m->n_stats; j++) cumulativeStats[j] += changeStats[j];
     /* Now toggle the dyad so it's ready for the next pass */
-    ToggleEdge(nodelist1[currentnodes], nodelist2[currentnodes], nwp);
+    /* Inform u_* functions that the network is about to change. */
+    UPDATE_STORAGE_TOGGLE(nodelist1[currentnodes], nodelist2[currentnodes], nwp, m, NULL, edgeflag);
   }
 }
 

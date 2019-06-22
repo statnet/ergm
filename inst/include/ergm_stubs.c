@@ -1,12 +1,3 @@
-/*  File inst/include/ergm_stubs.c in package ergm, part of the Statnet suite
- *  of packages for network analysis, https://statnet.org .
- *
- *  This software is distributed under the GPL-3 license.  It is free,
- *  open source, and has the attribution requirements (GPL Section 7) at
- *  https://statnet.org/attribution
- *
- *  Copyright 2003-2019 Statnet Commons
- */
 
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
@@ -125,6 +116,7 @@ return fun(x);
 #undef EXEC_THROUGH_NET_EDGES_PRE
 #undef TOGGLE
 #undef TOGGLE_DISCORD
+#undef TOGGLE_KNOWN
 #undef _GETWT2
 #undef _GETWT3
 #undef GETWT
@@ -178,6 +170,9 @@ return fun(x);
 #undef IFDEBUG_RESTORE_DSTATS
 #undef UPDATE_STORAGE_COND
 #undef UPDATE_STORAGE
+#undef GET_EDGE_UPDATE_STORAGE
+#undef UPDATE_STORAGE_TOGGLE
+#undef GET_EDGE_UPDATE_STORAGE_TOGGLE
 #undef STORAGE
 #undef ALLOC_STORAGE
 #undef GET_STORAGE
@@ -351,6 +346,11 @@ int ToggleEdge(Vertex tail, Vertex head, Network *nwp){
 static int (*fun)(Vertex,Vertex,Network *) = NULL;
 if(fun==NULL) fun = (int (*)(Vertex,Vertex,Network *)) R_FindSymbol("ToggleEdge", "ergm", NULL);
 return fun(tail,head,nwp);
+}
+int ToggleKnownEdge(Vertex tail, Vertex head, Network *nwp, Rboolean edgeflag){
+static int (*fun)(Vertex,Vertex,Network *,Rboolean) = NULL;
+if(fun==NULL) fun = (int (*)(Vertex,Vertex,Network *,Rboolean)) R_FindSymbol("ToggleKnownEdge", "ergm", NULL);
+return fun(tail,head,nwp,edgeflag);
 }
 int ToggleEdgeWithTimestamp(Vertex tail, Vertex head, Network *nwp){
 static int (*fun)(Vertex,Vertex,Network *) = NULL;
@@ -644,6 +644,7 @@ fun(nwp,m);
 #undef EXEC_THROUGH_NET_EDGES_PRE
 #undef TOGGLE
 #undef TOGGLE_DISCORD
+#undef TOGGLE_KNOWN
 #undef _GETWT2
 #undef _GETWT3
 #undef GETWT
@@ -697,6 +698,9 @@ fun(nwp,m);
 #undef IFDEBUG_RESTORE_DSTATS
 #undef UPDATE_STORAGE_COND
 #undef UPDATE_STORAGE
+#undef GET_EDGE_UPDATE_STORAGE
+#undef UPDATE_STORAGE_TOGGLE
+#undef GET_EDGE_UPDATE_STORAGE_TOGGLE
 
 #include <stddef.h>
 #include <R_ext/Rdynload.h>

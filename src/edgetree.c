@@ -170,6 +170,26 @@ int ToggleEdge (Vertex tail, Vertex head, Network *nwp)
 }
 
 
+/*****************
+ Edge ToggleKnownEdge
+
+ Toggle an edge whose status is known:  Set it to the opposite of its current
+ value.  Return 1 if edge added, 0 if deleted.
+*****************/
+
+/* *** don't forget tail->head, so this function now accepts tail before head */
+
+int ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgeflag) 
+{
+  if (edgeflag){
+    DeleteEdgeFromTrees(tail,head,nwp);
+    return 0;
+  }else{
+    AddEdgeToTrees(tail,head,nwp);
+    return 1;
+  }
+}
+
 
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed

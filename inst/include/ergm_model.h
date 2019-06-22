@@ -23,6 +23,7 @@ typedef struct Modelstruct {
                            for ModelTerm definition */
   int n_terms;
   int n_stats;
+  unsigned int n_u; /* Number of terms with updaters. */
   double *workspace; /* temporary workspace of size */
   double **dstatarray; /* array of size n_terms; the ith element in this
 			  array is a pointer to an array of size
@@ -75,6 +76,25 @@ typedef struct Modelstruct {
 #define UPDATE_STORAGE(tail, head, nwp, m, MHp, edgeflag){		\
     UPDATE_STORAGE_COND(tail, head, nwp, m, MHp, edgeflag, TRUE);	\
   }
+
+
+#define GET_EDGE_UPDATE_STORAGE(tail, head, nwp, m, MHp){		\
+    if(m->n_u){								\
+      Rboolean edgeflag = IS_OUTEDGE(tail,head,nwp);			\
+      UPDATE_STORAGE((tail), (head), (nwp), (m), (MHp), (edgeflag));	\
+    }									\
+  }
+
+#define UPDATE_STORAGE_TOGGLE(tail, head, nwp, m, MHp, edgeflag){	\
+    if(m->n_u) UPDATE_STORAGE(tail,  head, nwp, m, MHp, edgeflag);	\
+    ToggleKnownEdge(tail, head, nwp, edgeflag);				\
+  }
+
+#define GET_EDGE_UPDATE_STORAGE_TOGGLE(tail, head, nwp, m, MHp){	\
+    Rboolean edgeflag = IS_OUTEDGE(tail,head,nwp);			\
+    UPDATE_STORAGE_TOGGLE(tail, head, nwp, m, MHp, edgeflag);		\
+  }
+
 
 Model* ModelInitialize (char *fnames, char *sonames, double **inputs,
 			int n_terms);

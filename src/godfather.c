@@ -47,8 +47,7 @@ MCMCStatus Godfather(Edge n_changes, Vertex *tails, Vertex *heads, int *weights,
 
 
     /* Update storage and network */    
-    UPDATE_STORAGE(t, h, nwp, m, NULL, edgeflag);
-    TOGGLE(t,h);
+    UPDATE_STORAGE_TOGGLE(t, h, nwp, m, NULL, edgeflag);
   } 
 
   return MCMC_OK;

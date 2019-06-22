@@ -96,8 +96,7 @@ I_CHANGESTAT_FN(i__summary_term){
       ChangeStats(1, &tail, &head, tmpnwp, m);
       for(unsigned int k=0; k<m->n_stats; k++)
 	stats[k] += m->workspace[k];
-      UPDATE_STORAGE(tail, head, tmpnwp, m, NULL, 1);
-      ToggleEdge(tail, head, tmpnwp);
+      UPDATE_STORAGE_TOGGLE(tail, head, tmpnwp, m, NULL, 0);
     }
   }
   // Note that nw is now identitical to nwp.
@@ -309,7 +308,7 @@ U_CHANGESTAT_FN(u_undir){
     totoggle = FALSE;
   }
 
-  if(totoggle) UPDATE_STORAGE(MIN(tail,head), MAX(tail,head), unwp, m, NULL, IS_UNDIRECTED_EDGE(tail,head,unwp));
+  if(totoggle) GET_EDGE_UPDATE_STORAGE(MIN(tail,head), MAX(tail,head), unwp, m, NULL);
 }
 
 F_CHANGESTAT_FN(f_undir){

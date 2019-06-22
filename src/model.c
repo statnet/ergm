@@ -58,6 +58,7 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
   m->dstatarray = (double **) Calloc(n_terms, double *);
   m->n_stats = 0;
   m->n_aux = 0;
+  m->n_u = 0;
   for (l=0; l < n_terms; l++) {
       thisterm = m->termarray + l;
       
@@ -167,8 +168,8 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
       /* Optional functions to store persistent information about the
 	 network state between calls to d_ functions. */
       fn[0]='u';
-      thisterm->u_func = 
-	(void (*)(Vertex, Vertex, ModelTerm*, Network*, Rboolean)) R_FindSymbol(fn,sn,NULL);
+      if((thisterm->u_func = 
+	  (void (*)(Vertex, Vertex, ModelTerm*, Network*, Rboolean)) R_FindSymbol(fn,sn,NULL))!=NULL) m->n_u++;
 
       /* If it's an auxiliary, then it needs a u_function, or
 	 it's not doing anything. */
@@ -275,14 +276,14 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
     /* Execute storage updates */
     IF_MORE_TO_COME(toggle){
       UPDATE_STORAGE_COND(tails[toggle],heads[toggle], nwp, m, NULL, edgeflag, mtp->d_func==NULL);
-      TOGGLE(tails[toggle],heads[toggle]);
+      TOGGLE_KNOWN(tails[toggle],heads[toggle], edgeflag);
     }
   }
   /* Undo previous storage updates and toggles */
   UNDO_PREVIOUS(toggle){
     Rboolean edgeflag = IS_OUTEDGE(tails[toggle], heads[toggle]);
     UPDATE_STORAGE_COND(tails[toggle],heads[toggle], nwp, m, NULL, edgeflag, mtp->d_func==NULL);
-    TOGGLE(tails[toggle],heads[toggle]);
+    TOGGLE_KNOWN(tails[toggle],heads[toggle],edgeflag);
   }
 }
       

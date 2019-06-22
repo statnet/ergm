@@ -117,6 +117,8 @@ typedef struct ModelTermstruct {
    delete it if it's present. */
 #define TOGGLE(a,b) (ToggleEdge((a),(b),nwp));
 #define TOGGLE_DISCORD(a,b) (ToggleEdge((a),(b),nwp+1));
+#define TOGGLE_KNOWN(a,b,ef) (ToggleKnownEdge((a),(b),nwp,(ef)));
+
 
 /* Get and set the value (0 or 1) of the (a,b) edge. */
 #define _GETWT2(a,b) _GETWT3(a,b,nwp)
