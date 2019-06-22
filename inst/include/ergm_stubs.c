@@ -1,12 +1,3 @@
-/*  File inst/include/ergm_stubs.c in package ergm, part of the Statnet suite
- *  of packages for network analysis, https://statnet.org .
- *
- *  This software is distributed under the GPL-3 license.  It is free,
- *  open source, and has the attribution requirements (GPL Section 7) at
- *  https://statnet.org/attribution
- *
- *  Copyright 2003-2019 Statnet Commons
- */
 
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
@@ -124,7 +115,6 @@ return fun(x);
 #undef EXEC_THROUGH_NET_EDGES
 #undef EXEC_THROUGH_NET_EDGES_PRE
 #undef TOGGLE
-#undef TOGGLE_DISCORD
 #undef _GETWT2
 #undef _GETWT3
 #undef GETWT
@@ -134,10 +124,8 @@ return fun(x);
 #undef FOR_EACH_TOGGLE
 #undef IF_MORE_TO_COME
 #undef TOGGLE_IF_MORE_TO_COME
-#undef TOGGLE_DISCORD_IF_MORE_TO_COME
 #undef UNDO_PREVIOUS
 #undef UNDO_PREVIOUS_TOGGLES
-#undef UNDO_PREVIOUS_DISCORD_TOGGLES
 #undef CHANGESTAT_FN
 #undef C_CHANGESTAT_FN
 #undef D_CHANGESTAT_FN
@@ -643,7 +631,6 @@ fun(nwp,m);
 #undef EXEC_THROUGH_NET_EDGES
 #undef EXEC_THROUGH_NET_EDGES_PRE
 #undef TOGGLE
-#undef TOGGLE_DISCORD
 #undef _GETWT2
 #undef _GETWT3
 #undef GETWT
@@ -653,10 +640,8 @@ fun(nwp,m);
 #undef FOR_EACH_TOGGLE
 #undef IF_MORE_TO_COME
 #undef TOGGLE_IF_MORE_TO_COME
-#undef TOGGLE_DISCORD_IF_MORE_TO_COME
 #undef UNDO_PREVIOUS
 #undef UNDO_PREVIOUS_TOGGLES
-#undef UNDO_PREVIOUS_DISCORD_TOGGLES
 #undef CHANGESTAT_FN
 #undef C_CHANGESTAT_FN
 #undef D_CHANGESTAT_FN
