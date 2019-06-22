@@ -63,35 +63,35 @@ typedef struct WtModelstruct {
 #endif
 
 #define WtUPDATE_STORAGE_COND(tail, head, weight, nwp, m, MHp, edgeweight, cond){ \
-    if(MHp && ((WtMHProposal*)MHp)->u_func) ((WtMHProposal*)MHp)->u_func(tail, head, weight, MHp, nwp); \
-    WtEXEC_THROUGH_TERMS(m, {						\
+    if((MHp) && ((WtMHProposal*)(MHp))->u_func) ((WtMHProposal*)(MHp))->u_func((tail), (head), (weight), (MHp), (nwp)); \
+    WtEXEC_THROUGH_TERMS((m), {						\
 	IFDEBUG_BACKUP_DSTATS;						\
 	if(mtp->u_func && (cond))					\
-	  (*(mtp->u_func))(tail, head, weight, mtp, nwp, edgeweight);  /* Call u_??? function */ \
+	  (*(mtp->u_func))((tail), (head), (weight), mtp, (nwp), edgeweight);  /* Call u_??? function */ \
 	IFDEBUG_RESTORE_DSTATS;						\
       });								\
   }
 
 #define WtUPDATE_STORAGE(tail, head, weight, nwp, m, MHp, edgeweight){	\
-    WtUPDATE_STORAGE_COND(tail, head, weight, nwp, m, MHp, edgeweight, TRUE); \
+    WtUPDATE_STORAGE_COND((tail), (head), (weight), (nwp), (m), (MHp), (edgeweight), TRUE); \
   }
 
 
 #define WtGET_EDGE_UPDATE_STORAGE(tail, head, weight, nwp, m, MHp){	\
-    if(m->n_u){								\
-      Rboolean edgeweight = GETWT(tail, head, nwp);			\
-      WtUPDATE_STORAGE(tail, head, weight, nwp, m, MHp, edgeweight);	\
+    if((m)->n_u){							\
+      Rboolean edgeweight = GETWT((tail), (head), (nwp));		\
+      WtUPDATE_STORAGE((tail), (head), (weight), (nwp), (m), (MHp), (edgeweight)); \
     }									\
   }
 
 #define WtUPDATE_STORAGE_SET(tail, head, weight, nwp, m, MHp, edgeweight){ \
-    if(m->n_u) WtUPDATE_STORAGE(tail, head, weight, nwp, m, MHp, edgeweight); \
-    WtSetEdge(tail, head, weight, nwp);					\
+    if((m)->n_u) WtUPDATE_STORAGE((tail), (head), (weight), (nwp), (m), (MHp), (edgeweight)); \
+    WtSetEdge((tail), (head), (weight), (nwp));				\
   }
 
 #define WtGET_EDGE_UPDATE_STORAGE_SET(tail, head, weight, nwp, m, MHp){ \
-    WtGET_EDGE_UPDATE_STORAGE(tail, head, weight, nwp, m, MHp);		\
-    WtSetEdge(tail, head, weight, nwp);					\
+    WtGET_EDGE_UPDATE_STORAGE((tail), (head), (weight), (nwp), (m), (MHp)); \
+    WtSetEdge((tail), (head), (weight), (nwp));				\
   }
 
 WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputs,

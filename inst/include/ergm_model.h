@@ -64,34 +64,34 @@ typedef struct Modelstruct {
 #endif
 
 #define UPDATE_STORAGE_COND(tail, head, nwp, m, MHp, edgeflag, cond){	\
-    if(MHp && ((MHProposal*)MHp)->u_func) ((MHProposal*)MHp)->u_func(tail, head, MHp, nwp, edgeflag); \
-    EXEC_THROUGH_TERMS(m, {						\
+    if((MHp) && ((MHProposal*)(MHp))->u_func) ((MHProposal*)(MHp))->u_func((tail), (head), (MHp), (nwp), (edgeflag)); \
+    EXEC_THROUGH_TERMS((m), {						\
 	IFDEBUG_BACKUP_DSTATS;						\
 	if(mtp->u_func && (cond))					\
-	  (*(mtp->u_func))(tail, head, mtp, nwp, edgeflag);  /* Call u_??? function */ \
+	  (*(mtp->u_func))((tail), (head), mtp, (nwp), (edgeflag));  /* Call u_??? function */ \
 	IFDEBUG_RESTORE_DSTATS;						\
       });								\
   }
 
 #define UPDATE_STORAGE(tail, head, nwp, m, MHp, edgeflag){		\
-    UPDATE_STORAGE_COND(tail, head, nwp, m, MHp, edgeflag, TRUE);	\
+    UPDATE_STORAGE_COND((tail), (head), (nwp), (m), (MHp), (edgeflag), TRUE); \
   }
 
 #define GET_EDGE_UPDATE_STORAGE(tail, head, nwp, m, MHp){		\
-    if(m->n_u){								\
-      Rboolean edgeflag = IS_OUTEDGE(tail,head,nwp);			\
-      UPDATE_STORAGE(tail, head, nwp, m, MHp, edgeflag);		\
+    if((m)->n_u){							\
+      Rboolean edgeflag = IS_OUTEDGE((tail), (head), (nwp));		\
+      UPDATE_STORAGE((tail), (head), (nwp), (m), (MHp), (edgeflag));	\
     }									\
   }
 
 #define UPDATE_STORAGE_TOGGLE(tail, head, nwp, m, MHp, edgeflag){	\
-    if(m->n_u) UPDATE_STORAGE(tail,  head, nwp, m, MHp, edgeflag);	\
-    ToggleKnownEdge(tail, head, nwp, edgeflag);				\
+    if((m)->n_u) UPDATE_STORAGE((tail), (head), (nwp), (m), (MHp), (edgeflag));	\
+    ToggleKnownEdge((tail), (head), (nwp), (edgeflag));			\
   }
 
 #define GET_EDGE_UPDATE_STORAGE_TOGGLE(tail, head, nwp, m, MHp){	\
-    Rboolean edgeflag = IS_OUTEDGE(tail,head,nwp);			\
-    UPDATE_STORAGE_TOGGLE(tail, head, nwp, m, MHp, edgeflag);		\
+    Rboolean edgeflag = IS_OUTEDGE((tail), (head), (nwp));		\
+    UPDATE_STORAGE_TOGGLE((tail), (head), (nwp), (m), (MHp), (edgeflag)); \
   }
 
 
