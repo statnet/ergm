@@ -78,14 +78,14 @@ typedef struct Modelstruct {
   }
 
 #define GET_EDGE_UPDATE_STORAGE(tail, head, nwp, m, MHp){		\
-    if((m)->n_u){							\
+    if((m)->n_u || ((MHp) && ((MHProposal*)(MHp))->u_func)){		\
       Rboolean edgeflag = IS_OUTEDGE((tail), (head), (nwp));		\
       UPDATE_STORAGE((tail), (head), (nwp), (m), (MHp), (edgeflag));	\
     }									\
   }
 
 #define UPDATE_STORAGE_TOGGLE(tail, head, nwp, m, MHp, edgeflag){	\
-    if((m)->n_u) UPDATE_STORAGE((tail), (head), (nwp), (m), (MHp), (edgeflag));	\
+    if((m)->n_u || ((MHp) && ((MHProposal*)(MHp))->u_func)) UPDATE_STORAGE((tail), (head), (nwp), (m), (MHp), (edgeflag)); \
     ToggleKnownEdge((tail), (head), (nwp), (edgeflag));			\
   }
 

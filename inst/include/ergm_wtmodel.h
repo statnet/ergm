@@ -78,14 +78,14 @@ typedef struct WtModelstruct {
 
 
 #define WtGET_EDGE_UPDATE_STORAGE(tail, head, weight, nwp, m, MHp){	\
-    if((m)->n_u){							\
+    if((m)->n_u || ((MHp) && ((WtMHProposal*)(MHp))->u_func)){		\
       Rboolean edgeweight = GETWT((tail), (head), (nwp));		\
       WtUPDATE_STORAGE((tail), (head), (weight), (nwp), (m), (MHp), (edgeweight)); \
     }									\
   }
 
 #define WtUPDATE_STORAGE_SET(tail, head, weight, nwp, m, MHp, edgeweight){ \
-    if((m)->n_u) WtUPDATE_STORAGE((tail), (head), (weight), (nwp), (m), (MHp), (edgeweight)); \
+    if((m)->n_u || ((MHp) && ((WtMHProposal*)(MHp))->u_func)) WtUPDATE_STORAGE((tail), (head), (weight), (nwp), (m), (MHp), (edgeweight)); \
     WtSetEdge((tail), (head), (weight), (nwp));				\
   }
 
