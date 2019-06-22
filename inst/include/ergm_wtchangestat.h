@@ -13,10 +13,10 @@
 #include "ergm_wtedgetree.h"
 
 typedef struct WtModelTermstruct {
-  void (*c_func)(Vertex, Vertex, double, struct WtModelTermstruct*, WtNetwork*);
+  void (*c_func)(Vertex, Vertex, double, struct WtModelTermstruct*, WtNetwork*, double);
   void (*d_func)(Edge, Vertex*, Vertex*, double*, struct WtModelTermstruct*, WtNetwork*);
   void (*i_func)(struct WtModelTermstruct*, WtNetwork*);
-  void (*u_func)(Vertex, Vertex, double, struct WtModelTermstruct*, WtNetwork*);
+  void (*u_func)(Vertex, Vertex, double, struct WtModelTermstruct*, WtNetwork*, double);
   void (*f_func)(struct WtModelTermstruct*, WtNetwork*);
   void (*s_func)(struct WtModelTermstruct*, WtNetwork*);
   double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
@@ -160,10 +160,10 @@ typedef struct WtModelTermstruct {
 /****************************************************/
 /* changestat function prototypes, 
    plus a few supporting function prototypes */
-#define WtC_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtModelTerm *mtp, WtNetwork *nwp)
+#define WtC_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtModelTerm *mtp, WtNetwork *nwp, double edgeweight)
 #define WtD_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, double *weights, WtModelTerm *mtp, WtNetwork *nwp)
 #define WtI_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
-#define WtU_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtModelTerm *mtp, WtNetwork *nwp)
+#define WtU_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtModelTerm *mtp, WtNetwork *nwp, double edgeweight)
 #define WtF_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
 #define WtS_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
 

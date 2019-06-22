@@ -73,7 +73,7 @@ WtNetwork *nwp, WtModel *m, double *stats){
       if(mtp->s_func==NULL && mtp->i_func)
 	(*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
       else if(mtp->s_func==NULL && mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
-	(*(mtp->u_func))(0, 0, 0, mtp, nwp);  /* Call u_??? function */
+	(*(mtp->u_func))(0, 0, 0, mtp, nwp, 0);  /* Call u_??? function */
       IFDEBUG_RESTORE_DSTATS;
     });
     
@@ -90,14 +90,14 @@ WtNetwork *nwp, WtModel *m, double *stats){
 
   /* Calculate statistics for terms that have c_functions but not s_functions.  */
   FOR_EACH_TOGGLE{
-    GETNEWTOGGLEINFO();
+    GETTOGGLEINFO();
     
     ergm_PARALLEL_FOR_LIMIT(m->n_terms)
     WtEXEC_THROUGH_TERMS_INTO(m, stats, {
 	if(mtp->s_func==NULL && mtp->c_func){
 	  ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
-			   mtp, nwp);  /* Call c_??? function */
+			   mtp, nwp, OLDWT);  /* Call c_??? function */
 	  
 	  for(unsigned int k=0; k<N_CHANGE_STATS; k++){
 	    dstats[k] += mtp->dstats[k];
@@ -106,7 +106,7 @@ WtNetwork *nwp, WtModel *m, double *stats){
       });
     
     /* Update storage and network */    
-    WtUPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, nwp, m, NULL, mtp->s_func==NULL && mtp->d_func==NULL);
+    WtUPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, nwp, m, NULL, OLDWT, mtp->s_func==NULL && mtp->d_func==NULL);
     SETWT(TAIL, HEAD, NEWWT);
   }
   

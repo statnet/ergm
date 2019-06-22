@@ -234,8 +234,7 @@ WtMCMCStatus WtCDStep (WtMHProposal *MHp,
 	  ntoggled++;
 	  mtoggled++;
 
-	  WtUPDATE_STORAGE(t, h, w, nwp, m, MHp);
-	  WtSetEdge(t, h, w, nwp);
+	  WtUPDATE_STORAGE_SET(t, h, w, nwp, m, MHp, undoweight[ntoggled]);
 	}
       }
 
@@ -281,8 +280,7 @@ WtMCMCStatus WtCDStep (WtMHProposal *MHp,
 	  undoweight[ntoggled]=WtGetEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 	  ntoggled++;
 
-	  WtUPDATE_STORAGE(t, h, w, nwp, m, MHp);
-	  WtSetEdge(t, h, w, nwp);
+	  WtUPDATE_STORAGE_SET(t, h, w, nwp, m, MHp, undoweight[ntoggled]);
 	}
       }
 
@@ -304,8 +302,7 @@ WtMCMCStatus WtCDStep (WtMHProposal *MHp,
 
 	/* FIXME: This should be done in one call, but it's very easy
 	   to make a fencepost error here. */
-	WtUPDATE_STORAGE(t, h, w, nwp, m, MHp);
-	WtSetEdge(t, h, w, nwp);
+	WtGET_EDGE_UPDATE_STORAGE_SET(t, h, w, nwp, m, MHp);
       }
     }
   } // step
@@ -317,8 +314,7 @@ WtMCMCStatus WtCDStep (WtMHProposal *MHp,
 
     /* FIXME: This should be done in one call, but it's very easy
        to make a fencepost error here. */
-    WtUPDATE_STORAGE(t, h, w, nwp, m, MHp);
-    WtSetEdge(t, h, w, nwp);
+    WtGET_EDGE_UPDATE_STORAGE_SET(t, h, w, nwp, m, MHp);
   }
   
   return WtMCMC_OK;

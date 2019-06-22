@@ -77,11 +77,10 @@ typedef struct Modelstruct {
     UPDATE_STORAGE_COND(tail, head, nwp, m, MHp, edgeflag, TRUE);	\
   }
 
-
 #define GET_EDGE_UPDATE_STORAGE(tail, head, nwp, m, MHp){		\
     if(m->n_u){								\
       Rboolean edgeflag = IS_OUTEDGE(tail,head,nwp);			\
-      UPDATE_STORAGE((tail), (head), (nwp), (m), (MHp), (edgeflag));	\
+      UPDATE_STORAGE(tail, head, nwp, m, MHp, edgeflag);		\
     }									\
   }
 
