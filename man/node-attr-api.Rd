@@ -24,18 +24,19 @@
 ERGM_GET_VATTR_MULTIPLE_TYPES
 
 ergm_get_vattr(object, nw, accept = "character", bip = c("n", "b1",
-  "b2"), multiple = if (accept == "character") "paste" else "stop", ...)
+  "b2", "a"), multiple = if (accept == "character") "paste" else "stop",
+  ...)
 
 \method{ergm_get_vattr}{character}(object, nw, accept = "character",
-  bip = c("n", "b1", "b2"), multiple = if (accept == "character")
+  bip = c("n", "b1", "b2", "a"), multiple = if (accept == "character")
   "paste" else "stop", ...)
 
 \method{ergm_get_vattr}{function}(object, nw, accept = "character",
-  bip = c("n", "b1", "b2"), multiple = if (accept == "character")
+  bip = c("n", "b1", "b2", "a"), multiple = if (accept == "character")
   "paste" else "stop", ...)
 
 \method{ergm_get_vattr}{formula}(object, nw, accept = "character",
-  bip = c("n", "b1", "b2"), multiple = if (accept == "character")
+  bip = c("n", "b1", "b2", "a"), multiple = if (accept == "character")
   "paste" else "stop", ...)
 
 ergm_attr_levels(object, attr, nw, levels = sort(unique(attr)), ...)
@@ -76,8 +77,8 @@ the output. See the Details section for the specification.}
 
 \item{bip}{Bipartedness mode: affects either length of attribute
 vector returned or the length permited: \code{"n"} for full network,
-\code{"b1"} for first mode of a bipartite network, and \code{"b2"} for the
-second.}
+\code{"b1"} for first mode of a bipartite network, \code{"b2"} for the
+second, and \code{"a"} for not adjusting.}
 
 \item{multiple}{Handling of multiple attributes or matrix or data
 frame output. See the Details section for the specification.}
