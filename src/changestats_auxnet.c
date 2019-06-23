@@ -387,3 +387,53 @@ F_CHANGESTAT_FN(f__undir_net){
   AUX_STORAGE=NULL;
   // DestroyStats() will deallocate the rest.
 }
+
+/* _subgraph_net
+
+   Maintain an induced subgraph with specified vertex subset (two
+   subsets, if bipartite).
+
+*/
+I_CHANGESTAT_FN(i__subgraph_net){
+  double *inputs = INPUT_PARAM;
+  ALLOC_AUX_STORAGE(1, StoreSubgraph, storage); inputs++;
+  unsigned int type = *(inputs++);
+  switch(type){
+  case 1: // directed
+    storage->nwp = NetworkInitialize(NULL, NULL, 0, *inputs, TRUE, FALSE, FALSE, 0, NULL);
+    inputs++;
+    storage->tmap = storage->hmap = inputs - 1;
+    break;
+  case 2: // undirected
+    storage->nwp = NetworkInitialize(NULL, NULL, 0, *inputs, FALSE, FALSE, FALSE, 0, NULL);
+    inputs++;
+    storage->tmap = storage->hmap = inputs - 1;
+    break;
+  case 3: // bipartite undirected
+    storage->nwp = NetworkInitialize(NULL, NULL, 0, inputs[0]+inputs[1], FALSE, inputs[0], FALSE, 0, NULL);
+    inputs+=2;
+    storage->tmap = inputs - 1;
+    storage->hmap = inputs + nwp->nnodes - 1;
+    break;
+  default: // never reached, but avoids a warning
+    break;
+  }
+  EXEC_THROUGH_NET_EDGES_PRE(t, h, e, {
+      Vertex st = storage->tmap[t];
+      Vertex sh = storage->hmap[h];
+      if(st!=0 && sh!=0) AddEdgeToTrees(st, sh, storage->nwp);
+    });
+}
+
+U_CHANGESTAT_FN(u__subgraph_net){
+  GET_AUX_STORAGE(StoreSubgraph, storage);
+  Vertex st = storage->tmap[tail];
+  Vertex sh = storage->hmap[head];
+  if(st!=0 && sh!=0) ToggleKnownEdge(st, sh, storage->nwp, edgeflag);
+}
+
+F_CHANGESTAT_FN(f__subgraph_net){
+  GET_AUX_STORAGE(StoreSubgraph, storage);
+  NetworkDestroy(storage->nwp);
+  // DestroyStats() will deallocate the rest.
+}

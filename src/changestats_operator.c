@@ -1,5 +1,6 @@
 #include "ergm_changestat_operator.h"
 #include "changestats_operator.h"
+#include "ergm_changestats_auxnet.h"
 
 /* passthrough(formula) */
 
@@ -378,4 +379,42 @@ F_CHANGESTAT_FN(f_Sum){
   for(unsigned int i=0; i<nms; i++){
     ModelDestroy(nwp, ms[i]);
   }
+}
+
+/* subgraph */
+I_CHANGESTAT_FN(i_subgraph){
+  double *inputs = INPUT_ATTRIB;
+
+  GET_AUX_STORAGE(StoreSubgraph, storage);
+  Model *m = STORAGE = unpack_Model_as_double(&inputs);
+  InitStats(storage->nwp, m);
+}
+
+C_CHANGESTAT_FN(c_subgraph){
+  GET_STORAGE(Model, m);
+  GET_AUX_STORAGE(StoreSubgraph, storage);
+
+  Vertex st = storage->tmap[tail];
+  Vertex sh = storage->hmap[head];
+  if(st!=0 && sh!=0){
+    ChangeStats(1, &st, &sh, storage->nwp, m);
+    memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
+  }
+}
+
+U_CHANGESTAT_FN(u_subgraph){
+  GET_STORAGE(Model, m);
+  GET_AUX_STORAGE(StoreSubgraph, storage);
+
+  Vertex st = storage->tmap[tail];
+  Vertex sh = storage->hmap[head];
+  if(st!=0 && sh!=0)
+    UPDATE_STORAGE(st, sh, storage->nwp, m, NULL, edgeflag);
+}
+
+F_CHANGESTAT_FN(f_subgraph){
+  GET_STORAGE(Model, m);
+  GET_AUX_STORAGE(StoreSubgraph, storage);
+  ModelDestroy(storage->nwp, m);
+  STORAGE = NULL;
 }

@@ -18,6 +18,7 @@
 typedef struct{Network *nwp; double *ref_el;} StoreNetAndRefEL;
 typedef struct{StoreDyadSet *nwp; double *ref_el;} StoreDyadSetAndRefEL;
 typedef struct{Network *nwp; double *b;} StoreNetAndBID;
+typedef struct{Network *nwp; double *tmap, *hmap;} StoreSubgraph;
 
 I_CHANGESTAT_FN(i__isociomatrix);
 U_CHANGESTAT_FN(u__isociomatrix);
