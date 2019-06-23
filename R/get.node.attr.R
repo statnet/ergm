@@ -175,8 +175,8 @@ NULL
 #'   list of unique attributes.
 #' @param bip Bipartedness mode: affects either length of attribute
 #'   vector returned or the length permited: `"n"` for full network,
-#'   `"b1"` for first mode of a bipartite network, and `"b2"` for the
-#'   second.
+#'   `"b1"` for first mode of a bipartite network, `"b2"` for the
+#'   second, and `"a"` for not adjusting.
 #' @param multiple Handling of multiple attributes or matrix or data
 #'   frame output. See the Details section for the specification.
 #' @param accept A character vector listing permitted data types for
@@ -254,7 +254,7 @@ ERGM_GET_VATTR_MULTIPLE_TYPES <- c("paste", "matrix", "stop")
 #' (a <- ergm_get_vattr(~cut(priorates,c(-Inf,0,20,40,60,Inf),label=FALSE)-1, flomarriage))
 #' @keywords internal
 #' @export
-ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2"), multiple=if(accept=="character") "paste" else "stop", ...){
+ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2","a"), multiple=if(accept=="character") "paste" else "stop", ...){
   bip <- match.arg(bip)
   multiple <- match.arg(multiple, ERGM_GET_VATTR_MULTIPLE_TYPES)
   UseMethod("ergm_get_vattr")
@@ -272,6 +272,7 @@ ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2"),
 }
 
 .rightsize_vattr <- function(a, nw, bip){
+  if(bip=="a") return(a)
   rep_len_warn <- function(x, length.out){
     if(length.out%%NVL(nrow(x), length(x))) ergm_Init_warn("Network size or bipartite group size is not a multiple of the length of vertex attributes.")
     if(is.null(nrow(x))) rep_len(x, length.out) else apply(x, 2, rep_len, length.out)
@@ -318,7 +319,7 @@ ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2"),
 #' @importFrom purrr "%>%" "map" "pmap_chr"
 #' @importFrom rlang set_attrs set_names
 #' @export
-ergm_get_vattr.character <- function(object, nw, accept="character", bip=c("n","b1","b2"), multiple=if(accept=="character") "paste" else "stop", ...){
+ergm_get_vattr.character <- function(object, nw, accept="character", bip=c("n","b1","b2","a"), multiple=if(accept=="character") "paste" else "stop", ...){
   bip <- match.arg(bip)
   multiple <- match.arg(multiple, ERGM_GET_VATTR_MULTIPLE_TYPES)
 
@@ -335,7 +336,7 @@ ergm_get_vattr.character <- function(object, nw, accept="character", bip=c("n","
 
 #' @rdname node-attr-api
 #' @export
-ergm_get_vattr.function <- function(object, nw, accept="character", bip=c("n","b1","b2"), multiple=if(accept=="character") "paste" else "stop", ...){
+ergm_get_vattr.function <- function(object, nw, accept="character", bip=c("n","b1","b2","a"), multiple=if(accept=="character") "paste" else "stop", ...){
   bip <- match.arg(bip)
   multiple <- match.arg(multiple, ERGM_GET_VATTR_MULTIPLE_TYPES)
 
@@ -352,7 +353,7 @@ ergm_get_vattr.function <- function(object, nw, accept="character", bip=c("n","b
 #' @importFrom purrr "%>%" map set_names when
 #' @importFrom tibble lst
 #' @export
-ergm_get_vattr.formula <- function(object, nw, accept="character", bip=c("n","b1","b2"), multiple=if(accept=="character") "paste" else "stop", ...){
+ergm_get_vattr.formula <- function(object, nw, accept="character", bip=c("n","b1","b2","a"), multiple=if(accept=="character") "paste" else "stop", ...){
   bip <- match.arg(bip)
   multiple <- match.arg(multiple, ERGM_GET_VATTR_MULTIPLE_TYPES)
 
