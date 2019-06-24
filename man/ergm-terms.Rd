@@ -20,6 +20,7 @@
 \alias{NodematchFilter}
 \alias{Label}
 \alias{Offset}
+\alias{S}
 \alias{Sum}
 \alias{Undir}
 \alias{absdiff}
@@ -451,6 +452,15 @@
       \code{formula} will be evaluated on a network constructed by
       taking \eqn{y} and removing any edges for which
       \eqn{f_{i,j}(y_{i,j}) = 0}{f[i,j](y[i,j])=0}.
+    }
+
+    \item{\code{S(formula, attrs)} (binary) (operator)}{\emph{Evaluation on an induced subgraph}:
+
+      \code{attrs} is a two-sided formula whose LHS gives the attribute or attribute function (see \link[=node-attr]{Specifying Vertex Attributes and Levels}) for which tails and heads will be used to construct the induced subgraph. A one-sided formula (e.g., \code{~A}) is symmetrized (e.g., \code{A~A}).
+
+      It should evaluate either to a logical vector equal in length to the number of tails (for LHS) and tails (for RHS) indicating which nodes are to be used to induce the subgraph or a numeric vector giving their indices.
+
+      When the two sets are identical, the induced subgraph retains the directedness of the original graph. If they are disjoint, an undirected bipartite graph is induced.
     }
 
     \item{\code{Sum(formulas, label)} (binary) (operator), \code{Sum(formulas, label)} (valued) (operator)}{\emph{A sum (or an arbitrary linear combination) of one or more formulas}:
