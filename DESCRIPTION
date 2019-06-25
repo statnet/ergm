@@ -127,7 +127,6 @@ Collate:
     'ergm.pen.glm.R'
     'ergm.phase12.R'
     'ergm.pl.R'
-    'ergm.reviseinit.R'
     'ergm.robmon.R'
     'ergm.san.R'
     'ergm.stepping.R'
