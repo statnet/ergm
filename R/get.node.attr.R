@@ -95,6 +95,10 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' `nodecov(~abs(Grade-mean(Grade))/network.size(.))` would return the
 #' absolute difference of each actor's "Grade" attribute from its
 #' network-wide mean, divided by the network size.}
+#'
+#' \item{an `AsIs` object created by `I()`}{Use as is, checking only
+#' for correct length and type, with optional attribute `"name"`
+#' indicating the predictor's name.}
 #' 
 #' }
 #'
@@ -156,6 +160,10 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #'         levels2=~sapply(.levels,
 #'                         function(l)
 #'                           l[[1]]%in%c(7,8) && l[[2]]%in%c(7,8))))
+#' 
+#' # Activity by grade with a random covariate. Note that setting an attribute "name" gives it a name:
+#' randomcov <- structure(I(rbinom(network.size(faux.mesa.high),1,0.5)), name="random")
+#' summary(faux.mesa.high~nodefactor(I(randomcov)))
 NULL
 
 #' @name node-attr-api
@@ -316,8 +324,22 @@ ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2","
 }
 
 #' @rdname node-attr-api
+#' @importFrom purrr "%>%" map pmap_chr map_chr discard
+#' @importFrom rlang set_names
+#' @export
+ergm_get_vattr.AsIs <- function(object, nw, accept="character", bip=c("n","b1","b2","a"), multiple=if(accept=="character") "paste" else "stop", ...){
+  bip <- match.arg(bip)
+  multiple <- match.arg(multiple, ERGM_GET_VATTR_MULTIPLE_TYPES)
+
+  object %>% .handle_multiple(multiple=multiple) %>%
+    .rightsize_vattr(nw, bip) %>% structure(name=attr(object,"name")) %>%
+    structure(class = class(object) %>% discard(~(.=="AsIs")) %>%
+    map_chr(identity)) %>% .check_acceptable(accept=accept, xspec=object)
+}
+
+#' @rdname node-attr-api
 #' @importFrom purrr "%>%" "map" "pmap_chr"
-#' @importFrom rlang set_attrs set_names
+#' @importFrom rlang set_names
 #' @export
 ergm_get_vattr.character <- function(object, nw, accept="character", bip=c("n","b1","b2","a"), multiple=if(accept=="character") "paste" else "stop", ...){
   bip <- match.arg(bip)
@@ -329,7 +351,7 @@ ergm_get_vattr.character <- function(object, nw, accept="character", bip=c("n","
   }
 
   object %>% map(~nw%v%.) %>% set_names(object) %>% .handle_multiple(multiple=multiple) %>%
-    .rightsize_vattr(nw, bip) %>% set_attrs(name=paste(object, collapse=".")) %>%
+    .rightsize_vattr(nw, bip) %>% structure(name=paste(object, collapse=".")) %>%
     .check_acceptable(accept=accept, xspec=object)
 }
 
@@ -342,7 +364,7 @@ ergm_get_vattr.function <- function(object, nw, accept="character", bip=c("n","b
 
   ERRVL(try(object(nw, ...) %>%
             .rightsize_vattr(nw, bip) %>% .handle_multiple(multiple=multiple) %>%
-            set_attrs(name=strtrim(despace(paste(deparse(body(object)),collapse="\n")),80)),
+            structure(name=strtrim(despace(paste(deparse(body(object)),collapse="\n")),80)),
             silent=TRUE),
         ergm_Init_abort(.)) %>%
     .check_acceptable(accept=accept)
@@ -365,7 +387,7 @@ ergm_get_vattr.formula <- function(object, nw, accept="character", bip=c("n","b1
   ERRVL(try({
     eval(e, envir=vlist, enclos=environment(object)) %>%
       .rightsize_vattr(nw, bip) %>% .handle_multiple(multiple=multiple) %>%
-      set_attrs(name=if(length(object)>2) eval_lhs.formula(object) else despace(paste(deparse(e),collapse="\n")))
+      structure(name=if(length(object)>2) eval_lhs.formula(object) else despace(paste(deparse(e),collapse="\n")))
   }, silent=TRUE),
   ergm_Init_abort(.)) %>%
     .check_acceptable(accept=accept, xspec=object)
@@ -438,7 +460,7 @@ ergm_attr_levels.formula <- function(object, attr, nw, levels=sort(unique(attr))
 
 #' @rdname node-attr-api
 #' @export
-ERGM_VATTR_SPEC <- "function,formula,character"
+ERGM_VATTR_SPEC <- "function,formula,character,AsIs"
 
 #' @rdname node-attr-api
 #' @export
