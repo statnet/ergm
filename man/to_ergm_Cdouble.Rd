@@ -35,7 +35,7 @@ The \code{\link{rlebdm}} method returns a vector with the following:
 \item number of nonzero dyads,
 \item number of runs of nonzeros,
 \item starting positions of the runs, and
-\item cumulative lenght of the runs, prepended by 0.
+\item cumulative lengths of the runs, prepended with 0.
 }
 }
 \description{
