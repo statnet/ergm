@@ -5,6 +5,7 @@
 \alias{node-attr-api}
 \alias{ERGM_GET_VATTR_MULTIPLE_TYPES}
 \alias{ergm_get_vattr}
+\alias{ergm_get_vattr.AsIs}
 \alias{ergm_get_vattr.character}
 \alias{ergm_get_vattr.function}
 \alias{ergm_get_vattr.formula}
@@ -26,6 +27,10 @@ ERGM_GET_VATTR_MULTIPLE_TYPES
 ergm_get_vattr(object, nw, accept = "character", bip = c("n", "b1",
   "b2", "a"), multiple = if (accept == "character") "paste" else "stop",
   ...)
+
+\method{ergm_get_vattr}{AsIs}(object, nw, accept = "character",
+  bip = c("n", "b1", "b2", "a"), multiple = if (accept == "character")
+  "paste" else "stop", ...)
 
 \method{ergm_get_vattr}{character}(object, nw, accept = "character",
   bip = c("n", "b1", "b2", "a"), multiple = if (accept == "character")

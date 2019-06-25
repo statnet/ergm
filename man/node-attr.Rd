@@ -39,6 +39,10 @@ either \code{.} or \code{.nw}. For example,
 absolute difference of each actor's "Grade" attribute from its
 network-wide mean, divided by the network size.}
 
+\item{an \code{AsIs} object created by \code{I()}}{Use as is, checking only
+for correct length and type, with optional attribute \code{"name"}
+indicating the predictor's name.}
+
 }
 
 For categorical attributes, to select which levels are of interest
@@ -98,4 +102,8 @@ summary(faux.mesa.high~mm("Grade",
         levels2=~sapply(.levels,
                         function(l)
                           l[[1]]\%in\%c(7,8) && l[[2]]\%in\%c(7,8))))
+
+# Activity by grade with a random covariate. Note that setting an attribute "name" gives it a name:
+randomcov <- structure(I(rbinom(network.size(faux.mesa.high),1,0.5)), name="random")
+summary(faux.mesa.high~nodefactor(I(randomcov)))
 }
