@@ -2142,7 +2142,6 @@ C_CHANGESTAT_FN(c_edgecov) {
  changestat: c_edges
 *****************/
 C_CHANGESTAT_FN(c_edges) {
-  /* *** don't forget tail -> head */    
   CHANGE_STAT[0] = edgeflag ? - 1 : 1;
 }
 
@@ -4044,7 +4043,7 @@ C_CHANGESTAT_FN(c_odegree) {
     
     for(j=0; j < N_CHANGE_STATS; j++) {
       Vertex deg = INPUT_PARAM[j];
-      CHANGE_STAT[j] += (taild + echange == deg) - (taild == deg);
+      CHANGE_STAT[j] = (taild + echange == deg) - (taild == deg);
     }
 }
 

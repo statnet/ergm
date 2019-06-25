@@ -11,6 +11,12 @@
 #include "ergm_changestats_auxnet.h"
 #include "ergm_dyad_hashmap.h"
 
+I_CHANGESTAT_FN(i_test_abs_edges_minus_5){
+  ALLOC_STORAGE(1, Edge, edges);
+
+  *edges = N_EDGES; // Pretend this takes a long time.
+}
+
 C_CHANGESTAT_FN(c_test_abs_edges_minus_5){
   GET_STORAGE(Edge, stored_edges_ptr);
   long int edges = *stored_edges_ptr;
@@ -18,18 +24,13 @@ C_CHANGESTAT_FN(c_test_abs_edges_minus_5){
   CHANGE_STAT[0] += labs(edges-5 + (edgeflag?-1:1));
 }
 
-I_CHANGESTAT_FN(i_test_abs_edges_minus_5){
-  ALLOC_STORAGE(1, Edge, edges);
-
-  *edges = N_EDGES; // Pretend this takes a long time.
+U_CHANGESTAT_FN(u_test_abs_edges_minus_5){
+  GET_STORAGE(Edge, edges);
+  *edges += edgeflag ? - 1 : 1;
 }
 
 // Finalizer is not needed.
 
-U_CHANGESTAT_FN(u_test_abs_edges_minus_5){
-  GET_STORAGE(Edge, edges);
-  *edges += IS_OUTEDGE(tail, head) ? - 1 : 1;
-}
 
 S_CHANGESTAT_FN(s_test_abs_edges_minus_5){
   GET_STORAGE(Edge, edges);
