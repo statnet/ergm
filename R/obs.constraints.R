@@ -30,12 +30,8 @@
     # sufficient statistics are not specified. If the sufficient
     # statistics are specified, the nw's dyad states are irrelevant.
     if(!is.null(target.stats)){
-      if(network.naedgecount(nw)){
-        warning("Target statistics specified in a network with missing dyads. Missingness will be overridden.")
-        nw[as.matrix(is.na(nw),matrix.type="edgelist")] <- 0
-      }else if(obs.constraints!=~.-observed){
-        cat("Target statistics specified in a network with a nontrivial observation process. Observation process will be ignored.\n")
-      }
+      message("Target statistics specified in a network with missing dyads and/or a nontrivial observation process. Since (by sufficiency) target statistics provide all the information needed to fit the model, missingness and observation process will not affect estimation.")
+      if(network.naedgecount(nw)) nw[as.matrix(is.na(nw),matrix.type="edgelist")] <- 0
       obs.constraints <- ~.
     }
 
