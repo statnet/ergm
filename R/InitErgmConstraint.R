@@ -253,15 +253,15 @@ InitErgmConstraint.dyadnoise<-function(lhs.nw, p01, p10, ...){
   list(p01=p01, p10=p10)
 }
 
-InitErgmConstraint.egocentric <- function(lhs.nw, attrname=NULL, direction = c("both", "out", "in")){
+InitErgmConstraint.egocentric <- function(lhs.nw, attr=NULL, direction = c("both", "out", "in")){
   direction <- match.arg(direction)
   if(!is.directed(lhs.nw) && direction!="both"){
     stop("Directed egocentric constraint cannot be used for an undirected network.")
   }
   n <- network.size(lhs.nw)
   a <- ( # Are that node's dyads toggleable?
-    if(is.null(attrname)) get.vertex.attribute(lhs.nw, "na")
-    else !get.vertex.attribute(lhs.nw, attrname)
+    if(is.null(attr)) get.vertex.attribute(lhs.nw, "na")
+    else !as.vector(ergm_get_vattr(attr, lhs.nw, accept="logical"))
   )
 
   list(
