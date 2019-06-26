@@ -348,7 +348,7 @@ as.edgelist.rlebdm <- function(x, prototype=NULL, ...){
 #' * number of nonzero dyads,
 #' * number of runs of nonzeros,
 #' * starting positions of the runs, and
-#' * cumulative lenght of the runs, prepended by 0.
+#' * cumulative lengths of the runs, prepended with 0.
 to_ergm_Cdouble.rlebdm <- function(x, ...){
   cumlen <- cumsum(as.numeric(x$lengths[x$values==TRUE]))
   nruns <- length(cumlen)
