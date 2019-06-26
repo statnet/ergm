@@ -1,21 +1,83 @@
 #' ERGM-based conditional tie probabilities
+#' 
+#' Calculate predicted **conditional** tie probabilities for all dyads in a
+#' network based on an ERGM model. Currently there are two methods implemented:
+#' - [predict.formula()] requires an ERGM model formula with an existing network
+#' object on the left hand side, and a vector of corresponding parameter values.
+#' - [predict.ergm()] requires only a fitted model object
 #'
-#' This function calculates **conditional** tie probabilities for all dyads in a
-#' given network based on an ERGM model.
-#'
-#' @param object fitted ERGM model object
-#' @param net network object
+#' @param object a formula or a fitted ERGM model object
+#' @param theta numeric vector of ERGM model parameter values
+#' @param output character, type of object returned. Defaults to `"data.frame"`.
+#'   See section Value below.
 #' @param ... other arguments passed to/from other methods
+#' 
+#' @details
 #'
 #' @return 
-#' N x N matrix of conditional tie probabilities, where N is the number of nodes
-#' in `net`.
+#' Type of object returned depends on the argument `output`. If
+#' `output="data.frame"` the function will return a data frame with columns:
+#' - `tail`,`head` -- indices of nodes identifying a dyad
+#' - `p` -- predicted conditional tie probability
+#' If `output="matrix"` the function will return an "adjacency matrix" with the
+#' predicted conditional tie probabilities.
 #' 
 #' @method predict ergm
+#' @method predict formula
 #'
 #' @export
 
-predict.ergm <- function(object, net, ...) {
+predict_formula <- function(object, theta, output=c("data.frame", "matrix"), ...) {
+  stopifnot(is.numeric(theta))
+  output <- match.arg(output)
+  predmat <- ergmMPLE(
+    update(object, . ~ . + indices),
+    output = "matrix"
+  )$predictor
+  stopifnot(length(theta) == (ncol(predmat)-2))
+  p <- 1 / (1 + exp(predmat[,seq(1, length(theta))] %*% theta))
+  switch(
+    output,
+    data.frame = data.frame(predmat[,c("tail", "head")], p),
+    matrix = .NotYetImplemented()
+  )
+}
+
+
+predict_ergm <- function(object, ...) {
+  predict_formula(
+    object = object$formula,
+    theta = ergm.eta(object$coef, object$etamap),
+    ...
+  )
+}
+
+
+
+if(FALSE) {
+  logit <- function(p) log(p/(1-p))
+  expit <- function(x) 1 / (1 + exp(-x))
+  r1 <- predict_ergm(fit, flomarriage)
+  
+  data("flo")
+  fit <- ergm(flomarriage ~ edges + gwesp(0.25, fixed = TRUE))
+  # term: indicies
+  z <- ergmMPLE( 
+    update(fit$formula, . ~ . + indices), 
+    output="matrix"
+  )
+  str(z)
+  coef(fit)
+  v <- ergm.eta(fit$coef, fit$etamap)
+  z$predictor[,1:2] %*% v -> m
+  
+  p <- predict_formula(flomarriage ~ edges + gwesp(0.25, fixed = TRUE), c(-1, 0.5))
+  
+}
+
+
+# Old brute force method. Slow but works. Kept for now for testing purposes.
+brutal_predict_ergm <- function(object, net, ...) {
   # Argument checking
   stopifnot(inherits(object, "ergm"))
   stopifnot(inherits(net, "network"))
@@ -33,7 +95,7 @@ predict.ergm <- function(object, net, ...) {
     form <- fixed$formula
   } else {
     coeff <- coef(object)
-    form <- object$formula
+    form <- fit$formula
   }
   n <-  network.size(net)
   # Substitute network object in formula's environment
