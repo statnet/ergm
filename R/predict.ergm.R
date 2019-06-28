@@ -11,8 +11,6 @@
 #' @param output character, type of object returned. Defaults to `"data.frame"`.
 #'   See section Value below.
 #' @param ... other arguments passed to/from other methods
-#' 
-#' @details
 #'
 #' @return 
 #' Type of object returned depends on the argument `output`. If
@@ -22,12 +20,11 @@
 #' If `output="matrix"` the function will return an "adjacency matrix" with the
 #' predicted conditional tie probabilities.
 #' 
-#' @method predict ergm
 #' @method predict formula
 #'
 #' @export
 
-predict_formula <- function(object, theta, output=c("data.frame", "matrix"), ...) {
+predict.formula <- function(object, theta, output=c("data.frame", "matrix"), ...) {
   stopifnot(is.numeric(theta))
   output <- match.arg(output)
   predmat <- ergmMPLE(
@@ -43,8 +40,10 @@ predict_formula <- function(object, theta, output=c("data.frame", "matrix"), ...
   )
 }
 
-
-predict_ergm <- function(object, ...) {
+#' @rdname predict.formula
+#' @method predict ergm
+#' @export
+predict.ergm <- function(object, ...) {
   predict_formula(
     object = object$formula,
     theta = ergm.eta(object$coef, object$etamap),
