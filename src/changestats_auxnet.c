@@ -421,6 +421,10 @@ I_CHANGESTAT_FN(i__subgraph_net){
   EXEC_THROUGH_NET_EDGES_PRE(t, h, e, {
       Vertex st = storage->tmap[t];
       Vertex sh = storage->hmap[h];
+      if(!DIRECTED && (st==0 || sh==0)){
+	st = storage->tmap[h];
+	sh = storage->hmap[t];
+      }
       if(st!=0 && sh!=0) AddEdgeToTrees(st, sh, storage->nwp);
     });
 }
@@ -429,6 +433,10 @@ U_CHANGESTAT_FN(u__subgraph_net){
   GET_AUX_STORAGE(StoreSubgraph, storage);
   Vertex st = storage->tmap[tail];
   Vertex sh = storage->hmap[head];
+  if(!DIRECTED && (st==0 || sh==0)){
+    st = storage->tmap[head];
+    sh = storage->hmap[tail];
+  }
   if(st!=0 && sh!=0) ToggleKnownEdge(st, sh, storage->nwp, edgeflag);
 }
 

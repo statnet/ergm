@@ -550,7 +550,7 @@ InitErgmTerm.S <- function(nw, arglist, response=NULL, ...){
 
   # Convert to numeric selectors.
   if(is.logical(tailsel) && (if(bip) length(tailsel)==bip else length(tailsel)==network.size(nw))) tailsel <- sort(which(tailsel))
-  if(is.logical(headsel) && (if(bip) length(tailsel)==bip else length(tailsel)==network.size(nw)-bip)) headsel <- sort(which(headsel))
+  if(is.logical(headsel) && (if(bip) length(headsel)==network.size(nw)-bip else length(headsel)==network.size(nw))) headsel <- sort(which(headsel))
 
   # TODO: Check if 1-node graphs cause crashes.
   if(length(tailsel)==0 || length(headsel)==0) stop("Empty subgraph selected.")
@@ -573,13 +573,14 @@ InitErgmTerm.S <- function(nw, arglist, response=NULL, ...){
   ### Construct an empty network with the correct structure.
   f <- a$formula
   if(length(f)==3) nw <- ergm.getnetwork(f)
-  nw <- get.inducedSubgraph(nw, tailsel, if(type=="bipartite") headsel)
-  nw[,] <- 0
-  nw %n% "directed" <- FALSE # Need to do this because nw is a "directed bipartite" network. I hope it doesn't break anything.
+  snw <- nw
+  snw[,] <- 0
+  snw <- get.inducedSubgraph(snw, tailsel, if(type=="bipartite") headsel)
+  if(NVL(snw%n%"bipartite", FALSE)) snw %n% "directed" <- FALSE # Need to do this because snw is a "directed bipartite" network. I hope it doesn't break anything.
 
-  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
+  if(length(f)==2) f <- nonsimp_update.formula(f, snw~.)
 
-  m <- ergm_model(f, nw,...)
+  m <- ergm_model(f, snw,...)
   inputs <- to_ergm_Cdouble(m)
 
   gs <- summary(m)

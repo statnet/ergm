@@ -396,6 +396,10 @@ C_CHANGESTAT_FN(c_subgraph){
 
   Vertex st = storage->tmap[tail];
   Vertex sh = storage->hmap[head];
+  if(!DIRECTED && (st==0 || sh==0)){
+    st = storage->tmap[head];
+    sh = storage->hmap[tail];
+  }
   if(st!=0 && sh!=0){
     ChangeStats(1, &st, &sh, storage->nwp, m);
     memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
@@ -408,6 +412,10 @@ U_CHANGESTAT_FN(u_subgraph){
 
   Vertex st = storage->tmap[tail];
   Vertex sh = storage->hmap[head];
+  if(!DIRECTED && (st==0 || sh==0)){
+    st = storage->tmap[head];
+    sh = storage->hmap[tail];
+  }
   if(st!=0 && sh!=0)
     UPDATE_STORAGE(st, sh, storage->nwp, m, NULL, edgeflag);
 }
