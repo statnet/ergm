@@ -110,7 +110,7 @@ print.summary.ergm <- function (x,
       cat(paste("AIC:", format(x$aic, digits = digits), "  ", 
                 "BIC:", format(x$bic, digits = digits), "  ",
                 "(Smaller is better.)", "\n", sep=" "))
-    } else cat(nologLik.message(x$objname))
+    } else message(NO_LOGLIK_MESSAGE)
   }
 
   if(print.drop){

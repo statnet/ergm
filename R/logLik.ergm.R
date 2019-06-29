@@ -98,7 +98,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
   
   out<-with(object,
             {
-              if(!eval.loglik) stop(nologLik.message(deparse(substitute(object))))
+              if(!eval.loglik) stop(NO_LOGLIK_MESSAGE)
               
               ## If dyad-independent or MPLE, just go from the deviance.
               if(object$estimate=="MPLE"
@@ -141,9 +141,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
   } else llk
 }
 
-nologLik.message<-function(objname){
-  paste("Log-likelihood was not estimated for this fit.\nTo get deviances, AIC, and/or BIC from fit `",objname,"` run \n  > ",objname,"<-logLik(",objname,", add=TRUE)\nto add it to the object or rerun this function with eval.loglik=TRUE.\n",sep="")
-}
+NO_LOGLIK_MESSAGE <- paste0("Log-likelihood was not estimated for this fit. To get deviances, AIC, and/or BIC, use ",sQuote("*fit* <-logLik(*fit*, add=TRUE)")," to add it to the object or rerun this function with eval.loglik=TRUE.")
 
 #' Calculate the null model likelihood
 #'

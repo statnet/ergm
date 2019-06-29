@@ -92,7 +92,7 @@ anova.ergm <- function (object, ..., eval.loglik=FALSE)
   
   logl <- try(logLik(object,eval.loglik=eval.loglik), silent=TRUE)
   if(inherits(logl,"try-error"))
-    stop(nologLik.message(deparse(substitute(object))))
+    stop(NO_LOGLIK_MESSAGE)
 
   nodes<- network.size(object$newnetwork)
   n<- nobs(logl)
