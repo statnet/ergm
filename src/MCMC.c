@@ -71,11 +71,13 @@ void MCMC_wrapper(int *nedges,
 	  *condAllDegExact, *attriblength,
 	  m->termarray->aux_storage);
 
-  *status = MCMCSample(MHp,
-		       theta0, sample, *samplesize,
-		       *burnin, *interval,
-		       *fVerbose, nmax, nwp, m);
-  
+  if(MHp)
+    *status = MCMCSample(MHp,
+			 theta0, sample, *samplesize,
+			 *burnin, *interval,
+			 *fVerbose, nmax, nwp, m);
+  else *status = MCMC_MH_FAILED;
+
   MHProposalDestroy(MHp, nwp);
         
 /* Rprintf("Back! %d %d\n",nwp[0].nedges, nmax); */
@@ -344,11 +346,13 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
 	  nwp, attribs, maxout, maxin, minout, minin,
 	  *condAllDegExact, *attriblength,
 	  m->termarray->aux_storage);
-  
-  MCMCSamplePhase12 (MHp,
-		     theta0, *gain, meanstats, nphase1, nsubphases, sample, *samplesize,
-		     *burnin, *interval,
-		     (int)*fVerbose, nwp, m);
+
+  if(MHp)
+    MCMCSamplePhase12(MHp,
+		      theta0, *gain, meanstats, nphase1, nsubphases, sample, *samplesize,
+		      *burnin, *interval,
+		      (int)*fVerbose, nwp, m);
+  else error("MH Proposal failed.");
 
   MHProposalDestroy(MHp, nwp);
   

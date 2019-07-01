@@ -68,11 +68,13 @@ void WtSAN_wrapper (int *nedges,
 	    nwp,
 	    m->termarray->aux_storage);
 
-  *status = WtSANSample (MHp,
-			 invcov, tau, sample, prop_sample, *samplesize,
-			 *nsteps,
-			 *fVerbose, nmax, nwp, m);
-  
+  if(MHp)
+    *status = WtSANSample(MHp,
+			  invcov, tau, sample, prop_sample, *samplesize,
+			  *nsteps,
+			  *fVerbose, nmax, nwp, m);
+  else *status = WtMCMC_MH_FAILED;
+
   WtMHProposalDestroy(MHp, nwp);
 
 /* Rprintf("Back! %d %d\n",nwp[0].nedges, nmax); */
