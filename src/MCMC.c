@@ -346,11 +346,13 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
 	  *fVerbose,
 	  nwp, attribs, maxout, maxin, minout, minin,
 	  *condAllDegExact, *attriblength);
-  
-  MCMCSamplePhase12 (MHp,
-		     theta0, *gain, meanstats, nphase1, nsubphases, sample, *samplesize,
-		     *burnin, *interval,
-		     (int)*fVerbose, nwp, m);
+
+  if(MHp)
+    MCMCSamplePhase12(MHp,
+		      theta0, *gain, meanstats, nphase1, nsubphases, sample, *samplesize,
+		      *burnin, *interval,
+		      (int)*fVerbose, nwp, m);
+  else error("MH Proposal failed.");
 
   MHProposalDestroy(MHp);
   

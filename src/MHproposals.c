@@ -139,7 +139,8 @@ MH_P_FN(MH_ConstantEdges){
   /* *** don't forget tail-> head now */
   
   if(MHp->ntoggles == 0) { /* Initialize */
-    MHp->ntoggles=2;    
+    if(nwp->nedges==0 || nwp->nedges==DYADCOUNT(nwp)) MHp->ntoggles=MH_FAILED; /* Empty or full network. */
+    else MHp->ntoggles=2;
     return;
   }
   /* Note:  This proposal cannot be used for full or empty observed graphs.
@@ -488,17 +489,12 @@ MH_P_FN(MH_randomtoggleList)
   static Edge nedges0;
 
   if(MHp->ntoggles == 0) { /* Initialize */
-    MHp->ntoggles=1;
     nedges0 = MHp->inputs[0];
+    if(nedges0==0) MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
+    else MHp->ntoggles=1;
     return;
   }
   
-  if(nedges0==0){ /* Attempting dissolution on a complete graph. */
-    Mtail[0]=MH_FAILED;
-    Mhead[0]=MH_IMPOSSIBLE;
-    return;
-  }
-
   BD_LOOP({
       /* Select a dyad at random that is in the reference graph. (We
 	 have a convenient sampling frame.) */
@@ -522,12 +518,8 @@ MH_P_FN(MH_RLE)
     MHp->ntoggles=1;
     double *inputs = MHp->inputs;
     r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
-    return;
-  }
-  
-  if(r.ndyads==0){ /* No dyads to toggle. */
-    Mtail[0]=MH_FAILED;
-    Mhead[0]=MH_IMPOSSIBLE;
+    if(r.ndyads==0) MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
+    else MHp->ntoggles=1;
     return;
   }
 
@@ -561,11 +553,12 @@ MH_P_FN(MH_listTNT)
   Network *discord;
   
   if(MHp->ntoggles == 0) { /* Initialize */
-    MHp->ntoggles=1;
     nnodes = nwp->nnodes;
     odds = comp/(1.0-comp);
 
     ndyads = MHp->inputs[0]; // Note that ndyads here is the number of dyads in the list.
+    if(ndyads==0) MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
+    else MHp->ntoggles=1;
     MHp->discord = (Network**) Calloc(2, Network*); // A space for the sentinel NULL pointer.
     MHp->discord[0] = discord = NetworkInitialize(NULL, NULL, 0, nnodes, nwp->directed_flag, nwp->bipartite, 0, 0, NULL);
     
@@ -634,12 +627,13 @@ MH_P_FN(MH_RLETNT)
   Network *discord;
 
   if(MHp->ntoggles == 0) { /* Initialize */
-    MHp->ntoggles=1;
     nnodes = nwp->nnodes;
     odds = comp/(1.0-comp);
 
     double *inputs = MHp->inputs;
     r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
+    if(r.ndyads==0) MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
+    else MHp->ntoggles=1;
 
     MHp->discord = (Network**) Calloc(2, Network*); // A space for the sentinel NULL pointer.
     MHp->discord[0] = discord = NetworkInitialize(NULL, NULL, 0, nnodes, nwp->directed_flag, nwp->bipartite, 0, 0, NULL);
