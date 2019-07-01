@@ -63,10 +63,12 @@ void WtMCMC_wrapper(int *nedges,
 	    *fVerbose,
 	    nwp);
 
-  *status = WtMCMCSample(MHp,
-			 theta0, sample, *samplesize,
-			 *burnin, *interval,
-			 *fVerbose, nmax, nwp, m);
+  if(MHp)
+    *status = WtMCMCSample(MHp,
+			   theta0, sample, *samplesize,
+			   *burnin, *interval,
+			   *fVerbose, nmax, nwp, m);
+  else *status = WtMCMC_MH_FAILED;
 
   WtMHProposalDestroy(MHp);
         

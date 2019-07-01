@@ -65,11 +65,13 @@ void MCMC_wrapper(int *nedges,
 	  nwp, attribs, maxout, maxin, minout, minin,
 	  *condAllDegExact, *attriblength);
 
-  *status = MCMCSample(MHp,
-		       theta0, sample, *samplesize,
-		       *burnin, *interval,
-		       *fVerbose, nmax, nwp, m);
-  
+  if(MHp)
+    *status = MCMCSample(MHp,
+			 theta0, sample, *samplesize,
+			 *burnin, *interval,
+			 *fVerbose, nmax, nwp, m);
+  else *status = MCMC_MH_FAILED;
+
   MHProposalDestroy(MHp);
         
 /* Rprintf("Back! %d %d\n",nwp[0].nedges, nmax); */

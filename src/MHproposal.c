@@ -64,6 +64,12 @@ MHProposal *MHProposalInitialize(
 
   MHp->ntoggles=0;
   (*(MHp->func))(MHp, nwp); /* Call MH proposal function to initialize */
+  if(MHp->ntoggles==MH_FAILED){
+    REprintf("MH proposal function's initial configuration is one from which no toggle(s) can be proposed.\n");
+    MHp->toggletail = MHp->togglehead = NULL; // To be safe.
+    MHProposalDestroy(MHp);
+    return NULL;
+  }
   MHp->toggletail = (Vertex *)Calloc(MHp->ntoggles, Vertex);
   MHp->togglehead = (Vertex *)Calloc(MHp->ntoggles, Vertex);
 
@@ -76,6 +82,7 @@ MHProposal *MHProposalInitialize(
  A helper function to free memory allocated by MHProposalInitialize.
 *********************/
 void MHProposalDestroy(MHProposal *MHp){
+  if(!MHp) return;
   if(MHp->bd)DegreeBoundDestroy(MHp->bd);
   if(MHp->discord){
     for(Network **nwp=MHp->discord; *nwp!=NULL; nwp++){

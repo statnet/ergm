@@ -72,11 +72,13 @@ void SAN_wrapper ( int *nedges,
 	  nwp, attribs, maxout, maxin, minout, minin,
 	  *condAllDegExact, *attriblength);
 
-  *status = SANSample (MHp,
-		       invcov, tau, sample, prop_sample, *samplesize,
-		       *nsteps,
-		       *fVerbose, nmax, nwp, m);
-  
+  if(MHp)
+    *status = SANSample(MHp,
+			invcov, tau, sample, prop_sample, *samplesize,
+			*nsteps,
+			*fVerbose, nmax, nwp, m);
+  else *status = MCMC_MH_FAILED;
+
   MHProposalDestroy(MHp);
         
 /* Rprintf("Back! %d %d\n",nwp[0].nedges, nmax); */

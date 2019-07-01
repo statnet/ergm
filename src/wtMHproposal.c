@@ -59,6 +59,13 @@ WtMHProposal *WtMHProposalInitialize(
 
   MHp->ntoggles=0;
   (*(MHp->func))(MHp, nwp); /* Call MH proposal function to initialize */
+  if(MHp->ntoggles==MH_FAILED){
+    REprintf("MH proposal function's initial configuration is one from which no toggle(s) can be proposed.\n");
+    MHp->toggletail = MHp->togglehead = NULL; // To be safe.
+    MHp->toggleweight = NULL;
+    WtMHProposalDestroy(MHp);
+    return NULL;
+  }
   MHp->toggletail = (Vertex *)Calloc(MHp->ntoggles, Vertex);
   MHp->togglehead = (Vertex *)Calloc(MHp->ntoggles, Vertex);
   MHp->toggleweight = (double *)Calloc(MHp->ntoggles, double);
@@ -72,6 +79,7 @@ WtMHProposal *WtMHProposalInitialize(
  A helper function to free memory allocated by WtMHProposalInitialize.
 *********************/
 void WtMHProposalDestroy(WtMHProposal *MHp){
+  if(!MHp) return;
   if(MHp->discord){
     for(WtNetwork **nwp=MHp->discord; *nwp!=NULL; nwp++){
       WtNetworkDestroy(*nwp);

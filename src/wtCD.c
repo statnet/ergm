@@ -64,10 +64,12 @@ void WtCD_wrapper(int *nedges,
   undoweight = Calloc(MHp->ntoggles * CDparams[0] * CDparams[1], double);
   double *extraworkspace = Calloc(m->n_stats, double);
 
-  *status = WtCDSample(MHp,
-		       theta0, sample, *samplesize, CDparams, undotail, undohead, undoweight,
-		       *fVerbose, nwp, m, extraworkspace);
-  
+  if(MHp)
+    *status = WtCDSample(MHp,
+			 theta0, sample, *samplesize, CDparams, undotail, undohead, undoweight,
+			 *fVerbose, nwp, m, extraworkspace);
+  else *status = WtMCMC_MH_FAILED;
+
   Free(undotail);
   Free(undohead);
   Free(undoweight);
