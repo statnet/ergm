@@ -388,6 +388,24 @@ if (FALSE && !all.equal(as.vector(c(s.0, s.x, s.xc, s.xd, s.xca, s.xcd)),
 }
 
 
+# isolatededges, any type
+num.tests=num.tests+1
+s.0 <- summary(samplike~isolatededges)
+e.0 <- ergm(samplike~isolatededges, estimate="MPLE")
+s.1 <- summary(fmh~isolatededges)
+e.1 <- ergm(fmh~isolatededges, estimate="MPLE")
+s.2 <- summary(bipnw2~isolatededges)
+e.2 <- ergm(bipnw2~isolatededges, estimate="MPLE")
+
+if (s.0 != 0 || s.1 != 4 || s.2 != 25 || !is.infinite(e.0$coef) || round(e.1$coef - 0.01034, 3) != 0 || round(e.2$coef + 0.1611, 3) != 0) {
+ print(list(s.0=s.0, e.0=e.0, s.1=s.1, e.1=e.1, s.2=s.2, e.2=e.2))
+ stop("Failed isolatededges term test")
+} else {
+  num.passed.tests=num.passed.tests+1
+  print("Passed isolatededges term test")
+}
+
+
                      
 # isolates, either
 num.tests=num.tests+1
