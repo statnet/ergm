@@ -88,6 +88,7 @@
 \alias{idegreepopularity}
 \alias{ininterval}
 \alias{intransitive}
+\alias{isolatededges}
 \alias{isolates}
 \alias{istar}
 \alias{kstar}
