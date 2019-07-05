@@ -1330,6 +1330,12 @@
       \code{\link[sna]{sna}} package. Note the distinction from the \code{ctriple}
       term. \Directed}
 
+    \item{\code{isolatededges}  (binary)  (directed)  (undirected) (bipartite)
+    }{\emph{Isolated edges:} This term adds one statistic to the
+      model equal to the number of isolated edges in the network, i.e., the number
+      of edges each of whose endpoints has degree 1 (degree for directed networks 
+      being the sum of in-degree and out-degree).}      
+      
     \item{\code{isolates}  (binary)  (directed)  (undirected) (frequently-used)
     }{\emph{Isolates:} This term adds one statistic to the
       model equal to the number of isolates in the network. For an undirected
