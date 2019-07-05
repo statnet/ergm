@@ -3750,6 +3750,106 @@ D_CHANGESTAT_FN(d_intransitive) {
 }
 
 /*****************
+changestat: d_isolatededges
+*****************/
+D_CHANGESTAT_FN(d_isolatededges) { 
+  int i, edgeflag;
+  Vertex tail, head, neighbor, taild, headd=0, *id, *od;
+  Edge e;
+  
+  id=IN_DEG;
+  od=OUT_DEG;
+
+  /* *** don't forget tail -> head */    
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    // is there an edge tail -> head?
+    edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+    
+    taild = od[tail] + id[tail];
+    headd = od[head] + id[head];
+    
+    // we are removing an edge
+    if(edgeflag) {
+        
+      // we are removing an isolated edge        
+      if(taild == 1 && headd == 1)
+        CHANGE_STAT[0] -= 1;
+          
+      // in directed case, if tail <-> head with each of total degree 2 
+      // and we delete one of the edges, we introduce an isolated edge
+      if(taild == 2 && headd == 2 && IS_INEDGE(tail, head))
+        CHANGE_STAT[0] += 1;
+          
+      // if tail has degree 2 and has a degree one node other than head as a neighbor,
+      // then we are making a non-isolated edge into an isolated edge by removing
+      // the edge tail -> head
+      if(taild == 2) { 
+        STEP_THROUGH_OUTEDGES(tail, e, neighbor) {
+          if(od[neighbor] + id[neighbor] == 1 && neighbor != head)
+            CHANGE_STAT[0] += 1;
+        }
+        STEP_THROUGH_INEDGES(tail, e, neighbor) {
+          if(od[neighbor] + id[neighbor] == 1 && neighbor != head)
+            CHANGE_STAT[0] += 1;
+        }          
+      }
+        
+      // ditto head
+      if(headd == 2) { 
+        STEP_THROUGH_OUTEDGES(head, e, neighbor) {
+          if(od[neighbor] + id[neighbor] == 1 && neighbor != tail)
+            CHANGE_STAT[0] += 1;
+        }
+        STEP_THROUGH_INEDGES(head, e, neighbor) {
+          if(od[neighbor] + id[neighbor] == 1 && neighbor != tail)
+            CHANGE_STAT[0] += 1;
+        }        
+      }
+    } else { // we are adding an edge
+    
+      // we are adding an isolated edge
+      if(taild == 0 && headd == 0)
+        CHANGE_STAT[0] += 1;
+      
+      if(taild == 1 && headd == 1 && IS_INEDGE(tail, head))
+        CHANGE_STAT[0] -= 1;
+      
+      // if tail has degree 1 and its neighbor is monogamous, we 
+      // are making an isolated edge into a non-isolated edge;
+      // to avoid double counting, the case where head is this neighbor
+      // is handled separately above
+      if(taild == 1) { 
+        STEP_THROUGH_OUTEDGES(tail, e, neighbor) {
+          if(od[neighbor] + id[neighbor] == 1 && neighbor != head)
+            CHANGE_STAT[0] -= 1;
+        }
+        STEP_THROUGH_INEDGES(tail, e, neighbor) {
+          if(od[neighbor] + id[neighbor] == 1 && neighbor != head)
+            CHANGE_STAT[0] -= 1;
+        }
+      }
+      
+      // ditto head
+      if(headd == 1) { 
+        STEP_THROUGH_OUTEDGES(head, e, neighbor) {
+          if(od[neighbor] + id[neighbor] == 1 && neighbor != tail)
+            CHANGE_STAT[0] -= 1;
+        }
+        STEP_THROUGH_INEDGES(head, e, neighbor) {
+          if(od[neighbor] + id[neighbor] == 1 && neighbor != tail)
+            CHANGE_STAT[0] -= 1;
+        }
+      }
+    }
+    
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+/*****************
  changestat: d_isolates
 *****************/
 D_CHANGESTAT_FN(d_isolates) { 
