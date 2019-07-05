@@ -2655,8 +2655,22 @@ InitErgmTerm.intransitive<-function (nw, arglist, ...) {
   list(name="intransitive", coef.names="intransitive", minval = 0)
 }
 
-
-
+################################################################################
+InitErgmTerm.isolatededges <- function(nw, arglist, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
+                     varnames = NULL,
+                     vartypes = NULL,
+                     defaultvalues = list(),
+                     required = NULL)
+  ### Construct the list to return
+  list(name="isolatededges",                               #name: required
+       coef.names = "isolatededges",                       #coef.names: required
+       emptynwstats = 0,                                   #When nw is empty, isolatededges=0
+       minval = 0,
+       maxval = if(is.bipartite(nw)) min(nw%n%"bipartite", network.size(nw) - nw%n%"bipartite") else floor(network.size(nw)/2)
+       )                                                               
+}
 
 ################################################################################
 InitErgmTerm.isolates <- function(nw, arglist, ...) {
