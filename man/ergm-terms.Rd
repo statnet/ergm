@@ -88,6 +88,7 @@
 \alias{idegreepopularity}
 \alias{ininterval}
 \alias{intransitive}
+\alias{isolatededges}
 \alias{isolates}
 \alias{istar}
 \alias{kstar}
@@ -1330,6 +1331,12 @@
       \code{\link[sna]{sna}} package. Note the distinction from the \code{ctriple}
       term. \Directed}
 
+    \item{\code{isolatededges}  (binary)  (undirected) (bipartite)
+    }{\emph{Isolated edges:} This term adds one statistic to the
+      model equal to the number of isolated edges in the network, i.e., the number
+      of edges each of whose endpoints has degree 1.  This term can only be used
+      with undirected networks.}      
+      
     \item{\code{isolates}  (binary)  (directed)  (undirected) (frequently-used)
     }{\emph{Isolates:} This term adds one statistic to the
       model equal to the number of isolates in the network. For an undirected
