@@ -28,8 +28,7 @@ Imports:
     statnet.common (>= 4.3.0),
     purrr (>= 0.3.2),
     rlang (>= 0.3.4),
-    tibble (>= 2.1.1),
-    dplyr (>= 0.8.0.1)
+    tibble (>= 2.1.1)
 Suggests:
     lattice (>= 0.20.38),
     latticeExtra (>= 0.6.28),
