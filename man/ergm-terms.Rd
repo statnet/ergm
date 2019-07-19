@@ -24,6 +24,7 @@
 \alias{b1cov}
 \alias{b1degrange}
 \alias{b1degree}
+\alias{b1dsp}
 \alias{b1factor}
 \alias{b1mindegree}
 \alias{b1nodematch}
@@ -35,6 +36,7 @@
 \alias{b2cov}
 \alias{b2degrange}
 \alias{b2degree}
+\alias{b2dsp}
 \alias{b2factor}
 \alias{b2mindegree}
 \alias{b2nodematch}
@@ -75,6 +77,8 @@
 \alias{gwb1degree}
 \alias{gwb2degree}
 \alias{gwdegree}
+\alias{gwb1dsp}
+\alias{gwb2dsp}
 \alias{gwdsp}
 \alias{gwesp}
 \alias{gwidegree}
@@ -457,6 +461,10 @@
 
       \Bipartite}
 
+    \item{\code{b1dsp(d)}  (binary)  (bipartite) (undirected)}{\emph{Dyadwise shared partners for dyads in the first bipartition:}
+      This term can only be used with bipartite networks.  It functions like the \code{dsp} term, but only considers dyads in the first bipartition when
+      counting shared partners.  (Those shared partners, of course, must be members of the second bipartition.)}
+
     \item{\code{b1factor(attr, base=1, levels=-1)}  (binary)  (bipartite) (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute),
       \code{b1factor(attr, base=1, levels=-1, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute)
     }{\emph{Factor attribute effect for
@@ -660,6 +668,10 @@
       value of the \code{by} attribute.
 
       \Bipartite}
+
+    \item{\code{b2dsp(d)}  (binary)  (bipartite) (undirected)}{\emph{Dyadwise shared partners for dyads in the second bipartition:}
+      This term can only be used with bipartite networks.  It functions like the \code{dsp} term, but only considers dyads in the second bipartition when
+      counting shared partners.  (Those shared partners, of course, must be members of the first bipartition.)}
 
     \item{\code{b2factor(attr, base=1, levels=-1)}  (binary)  (bipartite) (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used),
       \code{b2factor(attr, base=1, levels=-1, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used)
@@ -1140,6 +1152,18 @@
 	Attributes and Levels} for details) then separate degree
       statistics are calculated for nodes having each separate
       value of the attribute.  This term can only be used with undirected networks.}
+
+    \item{\code{gwb1dsp(decay=0, fixed=FALSE, cutoff=30)}  (binary)  (bipartite) (undirected) (curved)}{\emph{Geometrically weighted
+	dyadwise shared partner distribution for dyads in the first bipartition:}
+      This term can only be used with bipartite networks.  It functions like the \code{gwdsp} term, but only considers dyads in the first bipartition when
+      counting shared partners.  (Those shared partners, of course, must be members of the second bipartition.)
+    }
+
+    \item{\code{gwb2dsp(decay=0, fixed=FALSE, cutoff=30)}  (binary)  (bipartite) (undirected) (curved)}{\emph{Geometrically weighted
+	dyadwise shared partner distribution for dyads in the second bipartition:}
+      This term can only be used with bipartite networks.  It functions like the \code{gwdsp} term, but only considers dyads in the second bipartition when
+      counting shared partners.  (Those shared partners, of course, must be members of the first bipartition.)
+    }
 
     \item{\code{gwdsp(decay=0, fixed=FALSE, cutoff=30)}  (binary)  (directed)  (undirected)  (curved)}{\emph{Geometrically weighted
 	dyadwise shared partner distribution:}
