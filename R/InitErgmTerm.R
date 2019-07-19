@@ -564,6 +564,32 @@ InitErgmTerm.b1degree <- function(nw, arglist, ..., version=packageVersion("ergm
 
 
 ################################################################################
+InitErgmTerm.b1dsp<-function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                      varnames = c("d"),
+                      vartypes = c("numeric"),
+                      defaultvalues = list(NULL),
+                      required = c(TRUE))
+  d <- a$d
+  
+  if(length(d) == 0)
+    return(NULL)
+
+  emptynwstats <- rep(0, length(d))
+  nb1 <- get.network.attribute(nw, "bipartite")
+  
+  typecode <- 4 # OSP type
+  
+  # in an empty network, the number of b1 dyads with zero shared
+  # partners is just the number of b1 dyads, which is nb1*(nb1-1)/2
+  emptynwstats[d==0] <- nb1*(nb1-1)/2 
+  
+  list(name="ddspbwrap", coef.names=paste("b1dsp",d,sep=""), inputs=c(typecode, d), 
+       emptynwstats=emptynwstats, minval = 0, maxval = nb1*(nb1-1)/2, dependence = TRUE)
+}
+
+
+################################################################################
 InitErgmTerm.b1factor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
@@ -1015,6 +1041,31 @@ InitErgmTerm.b2degree <- function(nw, arglist, ..., version=packageVersion("ergm
   }
   list(name=name, coef.names=coef.names, #name and coef.names: required
        inputs = inputs, emptynwstats=emptynwstats, minval=0, maxval=network.size(nw)-nb1)
+}
+
+################################################################################
+InitErgmTerm.b2dsp<-function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                      varnames = c("d"),
+                      vartypes = c("numeric"),
+                      defaultvalues = list(NULL),
+                      required = c(TRUE))
+  d <- a$d
+  
+  if(length(d) == 0)
+    return(NULL)
+
+  emptynwstats <- rep(0, length(d))
+  nb2 <- network.size(nw) - get.network.attribute(nw, "bipartite")
+  
+  typecode <- 5 # ISP type
+  
+  # in an empty network, the number of b2 dyads with zero shared
+  # partners is just the number of b2 dyads, which is nb2*(nb2-1)/2
+  emptynwstats[d==0] <- nb2*(nb2-1)/2 
+  
+  list(name="ddspbwrap", coef.names=paste("b2dsp",d,sep=""), inputs=c(typecode, d), 
+       emptynwstats=emptynwstats, minval = 0, maxval = nb2*(nb2-1)/2, dependence = TRUE)
 }
 
 ################################################################################
@@ -1914,6 +1965,46 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, .
 
 
 ################################################################################
+InitErgmTerm.gwb1dsp<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                      varnames = c("decay","fixed","cutoff"),
+                      vartypes = c("numeric","logical","numeric"),
+                      defaultvalues = list(0, FALSE, gw.cutoff),
+                      required = c(FALSE, FALSE, FALSE))
+  decay<-a$decay
+  fixed<-a$fixed
+  cutoff<-a$cutoff
+  decay=decay[1] # Not sure why anyone would enter a vector here, but...
+  
+  typecode <- 4 # OSP type
+  
+  basenam <- "gwb1dsp"
+  
+  maxdsp <- min(cutoff, network.size(nw) - nw %n% "bipartite")
+
+  if(!initialfit && !fixed){ # This is a curved exponential family model
+    d <- 1:maxdsp
+
+    if(length(d) == 0)
+      return(NULL)
+    
+    # first name must match `basenam`
+    params<-list(gwb1dsp=NULL,gwb1dsp.decay=decay)
+    
+    c(list(name="ddspbwrap", coef.names=paste("b1dsp#",d,sep=""), 
+         inputs=c(typecode,d), params=params), GWDECAY)
+  }else{
+    if (initialfit && !fixed)  # First pass to get MPLE coefficient
+      coef.names <- basenam
+    else { # fixed == TRUE
+      coef.names <- paste("gwb1dsp.fixed",decay,sep=".")
+    }
+    
+    list(name="dgwdspbwrap", coef.names=coef.names, inputs=c(decay,typecode,maxdsp))
+  }
+}
+
+################################################################################
 InitErgmTerm.gwb2degree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
@@ -1979,7 +2070,45 @@ InitErgmTerm.gwb2degree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, .
   }
 }
 
+################################################################################
+InitErgmTerm.gwb2dsp<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                      varnames = c("decay","fixed","cutoff"),
+                      vartypes = c("numeric","logical","numeric"),
+                      defaultvalues = list(0, FALSE, gw.cutoff),
+                      required = c(FALSE, FALSE, FALSE))
+  decay<-a$decay
+  fixed<-a$fixed
+  cutoff<-a$cutoff
+  decay=decay[1] # Not sure why anyone would enter a vector here, but...
+  
+  typecode <- 5 # ISP type
+  
+  basenam <- "gwb2dsp"
+  
+  maxdsp <- min(cutoff, nw %n% "bipartite")
 
+  if(!initialfit && !fixed){ # This is a curved exponential family model
+    d <- 1:maxdsp
+
+    if(length(d) == 0)
+      return(NULL)
+    
+    # first name must match `basenam`
+    params<-list(gwb2dsp=NULL,gwb2dsp.decay=decay)
+    
+    c(list(name="ddspbwrap", coef.names=paste("b2dsp#",d,sep=""), 
+         inputs=c(typecode,d), params=params), GWDECAY)
+  }else{
+    if (initialfit && !fixed)  # First pass to get MPLE coefficient
+      coef.names <- basenam
+    else { # fixed == TRUE
+      coef.names <- paste("gwb2dsp.fixed",decay,sep=".")
+    }
+    
+    list(name="dgwdspbwrap", coef.names=coef.names, inputs=c(decay,typecode,maxdsp))
+  }
+}
 
 ################################################################################
 InitErgmTerm.gwdegree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ..., version=packageVersion("ergm")) {
@@ -2039,7 +2168,6 @@ InitErgmTerm.gwdegree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ...
     list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, conflicts.constraints="degreedist")
   }
 }
-
 
 
 ################################################################################
