@@ -75,10 +75,10 @@
 \alias{equalto}
 \alias{greaterthan}
 \alias{gwb1degree}
-\alias{gwb2degree}
-\alias{gwdegree}
 \alias{gwb1dsp}
+\alias{gwb2degree}
 \alias{gwb2dsp}
+\alias{gwdegree}
 \alias{gwdsp}
 \alias{gwesp}
 \alias{gwidegree}
@@ -462,8 +462,11 @@
       \Bipartite}
 
     \item{\code{b1dsp(d)}  (binary)  (bipartite) (undirected)}{\emph{Dyadwise shared partners for dyads in the first bipartition:}
-      This term can only be used with bipartite networks.  It functions like the \code{dsp} term, but only considers dyads in the first bipartition when
-      counting shared partners.  (Those shared partners, of course, must be members of the second bipartition.)}
+      The \code{d} argument is a vector of distinct integers. This term adds one
+      network statistic to the model for each element in \code{d}; the \eqn{i}th
+      such statistic equals the number of dyads in the first bipartition with exactly
+      \code{d[i]} shared partners.  (Those shared partners, of course, must be members 
+      of the second bipartition.)  This term can only be used with bipartite networks.}
 
     \item{\code{b1factor(attr, base=1, levels=-1)}  (binary)  (bipartite) (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute),
       \code{b1factor(attr, base=1, levels=-1, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute)
@@ -670,8 +673,11 @@
       \Bipartite}
 
     \item{\code{b2dsp(d)}  (binary)  (bipartite) (undirected)}{\emph{Dyadwise shared partners for dyads in the second bipartition:}
-      This term can only be used with bipartite networks.  It functions like the \code{dsp} term, but only considers dyads in the second bipartition when
-      counting shared partners.  (Those shared partners, of course, must be members of the first bipartition.)}
+      The \code{d} argument is a vector of distinct integers. This term adds one
+      network statistic to the model for each element in \code{d}; the \eqn{i}th
+      such statistic equals the number of dyads in the second bipartition with exactly
+      \code{d[i]} shared partners.  (Those shared partners, of course, must be members 
+      of the first bipartition.)  This term can only be used with bipartite networks.}
 
     \item{\code{b2factor(attr, base=1, levels=-1)}  (binary)  (bipartite) (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used),
       \code{b2factor(attr, base=1, levels=-1, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used)
@@ -1112,6 +1118,19 @@
       This term can only be used with undirected bipartite
       networks.}
 
+    \item{\code{gwb1dsp(decay=0, fixed=FALSE, cutoff=30)}  (binary)  (bipartite) (undirected) (curved)}{\emph{Geometrically weighted
+	dyadwise shared partner distribution for dyads in the first bipartition:}
+      This term adds one network statistic to the model equal to the geometrically
+      weighted dyadwise shared partner distribution for dyads in the first bipartition,
+      with decay parameter \code{decay} parameter, which should be non-negative. The value supplied for
+      this parameter may be fixed (if \code{fixed=TRUE}),
+      or it may be used instead as the starting value for the estimation of \code{decay}
+      in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006).
+      This term can only be used with bipartite networks.
+
+      \GWCutoff{b1dsp}}
+      
+      
     \item{\code{gwb2degree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)}  (binary)  (bipartite)  (undirected) (curved)}{\emph{Geometrically weighted
 	degree distribution for the second mode in a bipartite (aka two-mode)
 	network:}
@@ -1135,6 +1154,20 @@
       This term can only be used with undirected bipartite
       networks.}
 
+
+    \item{\code{gwb2dsp(decay=0, fixed=FALSE, cutoff=30)}  (binary)  (bipartite) (undirected) (curved)}{\emph{Geometrically weighted
+	dyadwise shared partner distribution for dyads in the second bipartition:}
+      This term adds one network statistic to the model equal to the geometrically
+      weighted dyadwise shared partner distribution for dyads in the second bipartition,
+      with decay parameter \code{decay} parameter, which should be non-negative. The value supplied for
+      this parameter may be fixed (if \code{fixed=TRUE}),
+      or it may be used instead as the starting value for the estimation of \code{decay}
+      in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006).
+      This term can only be used with bipartite networks.
+
+      \GWCutoff{b2dsp}}
+      
+      
     \item{\code{gwdegree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)}  (binary)  (undirected)  (curved) (frequently-used)
     }{\emph{Geometrically weighted
 	degree distribution:}
@@ -1153,17 +1186,6 @@
       statistics are calculated for nodes having each separate
       value of the attribute.  This term can only be used with undirected networks.}
 
-    \item{\code{gwb1dsp(decay=0, fixed=FALSE, cutoff=30)}  (binary)  (bipartite) (undirected) (curved)}{\emph{Geometrically weighted
-	dyadwise shared partner distribution for dyads in the first bipartition:}
-      This term can only be used with bipartite networks.  It functions like the \code{gwdsp} term, but only considers dyads in the first bipartition when
-      counting shared partners.  (Those shared partners, of course, must be members of the second bipartition.)
-    }
-
-    \item{\code{gwb2dsp(decay=0, fixed=FALSE, cutoff=30)}  (binary)  (bipartite) (undirected) (curved)}{\emph{Geometrically weighted
-	dyadwise shared partner distribution for dyads in the second bipartition:}
-      This term can only be used with bipartite networks.  It functions like the \code{gwdsp} term, but only considers dyads in the second bipartition when
-      counting shared partners.  (Those shared partners, of course, must be members of the first bipartition.)
-    }
 
     \item{\code{gwdsp(decay=0, fixed=FALSE, cutoff=30)}  (binary)  (directed)  (undirected)  (curved)}{\emph{Geometrically weighted
 	dyadwise shared partner distribution:}
