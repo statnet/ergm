@@ -39,12 +39,10 @@ D_CHANGESTAT_FN(d_absdiff) {
  changestat: d_absdiffcat
 *****************/
 D_CHANGESTAT_FN(d_absdiffcat) { 
-  double change, absdiff, NAsubstitute, tailval, headval;
-  Vertex tail, head, ninputs;
+  double change, absdiff, tailval, headval;
+  Vertex tail, head;
   int i, j;
   
-  ninputs = N_INPUT_PARAMS - N_NODES;
-  NAsubstitute = INPUT_PARAM[ninputs-1];
   ZERO_ALL_CHANGESTATS(i);
 
   /* *** don't forget tail -> head */
@@ -52,9 +50,8 @@ D_CHANGESTAT_FN(d_absdiffcat) {
     change = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1.0 : 1.0;
     tailval = INPUT_ATTRIB[tail-1];
     headval = INPUT_ATTRIB[head-1];
-    if (tailval == NAsubstitute ||  headval == NAsubstitute) absdiff = NAsubstitute;
-    else absdiff = fabs(tailval - headval);
-	  if (absdiff>0) {
+    absdiff = fabs(tailval - headval);
+    if (absdiff>0) {
       for (j=0; j<N_CHANGE_STATS; j++) {
         CHANGE_STAT[j] += (absdiff==INPUT_PARAM[j]) ? change : 0.0;
       }

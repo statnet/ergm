@@ -45,50 +45,40 @@ WtD_CHANGESTAT_FN(d_absdiff_sum){
  stat: absdiffcat(_nonzero)
 *****************/
 WtD_CHANGESTAT_FN(d_absdiffcat_nonzero){ 
-  double change, absdiff, NAsubstitute, tailval, headval;
-  Vertex ninputs;
+  double change, absdiff, tailval, headval;
   int j;
   
-  ninputs = N_INPUT_PARAMS - N_NODES;
-  NAsubstitute = INPUT_PARAM[ninputs-1];
-  
   EXEC_THROUGH_TOGGLES({
-      change = (NEWWT!=0)-(OLDWT!=0);
-      tailval = INPUT_ATTRIB[TAIL-1];
-      headval = INPUT_ATTRIB[HEAD-1];
-      if (tailval == NAsubstitute ||  headval == NAsubstitute) absdiff = NAsubstitute;
-      else absdiff = fabs(tailval - headval);
-      if (absdiff>0){
-	for (j=0; j<N_CHANGE_STATS; j++){
-	  CHANGE_STAT[j] += (absdiff==INPUT_PARAM[j]) ? change : 0.0;
-	}
-      }
-    });
+    change = (NEWWT!=0)-(OLDWT!=0);
+    tailval = INPUT_ATTRIB[TAIL-1];
+    headval = INPUT_ATTRIB[HEAD-1];
+    absdiff = fabs(tailval - headval);
+    if (absdiff>0){
+      for (j=0; j<N_CHANGE_STATS; j++){
+	    CHANGE_STAT[j] += (absdiff==INPUT_PARAM[j]) ? change : 0.0;
+	  }
+    }
+  });
 }
 
 /*****************
  stat: absdiffcat(_sum)
 *****************/
 WtD_CHANGESTAT_FN(d_absdiffcat_sum){ 
-  double change, absdiff, NAsubstitute, tailval, headval;
-  Vertex ninputs;
+  double change, absdiff, tailval, headval;
   int j;
-  
-  ninputs = N_INPUT_PARAMS - N_NODES;
-  NAsubstitute = INPUT_PARAM[ninputs-1];
-  
+    
   EXEC_THROUGH_TOGGLES({
-      change = NEWWT-OLDWT;
-      tailval = INPUT_ATTRIB[TAIL-1];
-      headval = INPUT_ATTRIB[HEAD-1];
-      if (tailval == NAsubstitute ||  headval == NAsubstitute) absdiff = NAsubstitute;
-      else absdiff = fabs(tailval - headval);
-      if (absdiff>0){
-	for (j=0; j<N_CHANGE_STATS; j++){
-	  CHANGE_STAT[j] += (absdiff==INPUT_PARAM[j]) ? change : 0.0;
-	}
-      }
-    });
+    change = NEWWT-OLDWT;
+    tailval = INPUT_ATTRIB[TAIL-1];
+    headval = INPUT_ATTRIB[HEAD-1];
+    absdiff = fabs(tailval - headval);
+    if (absdiff>0){
+	  for (j=0; j<N_CHANGE_STATS; j++){
+	    CHANGE_STAT[j] += (absdiff==INPUT_PARAM[j]) ? change : 0.0;
+	  }
+    }
+  });
 }
 
 
