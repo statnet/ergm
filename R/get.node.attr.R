@@ -320,6 +320,7 @@ ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2","
                 positive = x>0)
 
   if(!OK) ergm_Init_abort("Attribute ", NVL3(xspec, paste0(sQuote(paste(deparse(.),collapse="\n")), " ")), "is not ", ACCNAME[[accept]], " vector as required.")
+  if(any(is.na(x))) ergm_Init_abort("Attribute ", NVL3(xspec, paste0(sQuote(paste(deparse(.),collapse="\n")), " ")), "has missing data, which is not currently supported by ergm.")
   x
 }
 

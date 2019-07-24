@@ -213,27 +213,22 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ..., version=packageVersion("er
 
   u <- sort(unique(as.vector(abs(outer(nodecov,nodecov,"-")))),na.last=NA)
   u <- u[u>0]
-  NAsubstitute <- 2*(1+max(abs(c(nodecov,u)),na.rm=TRUE)) # Arbitrary unused (and nonzero) value
-  napositions <- is.na(nodecov)
-  nodecov[napositions] <- NAsubstitute
-  if(any(napositions)){u<-c(u,NA)}
   
   u <- ergm_attr_levels(a$levels, nodecov, nw, levels = u)
   
   if((!hasName(attr(a,"missing"), "levels") || attr(a,"missing")["levels"]) && any(NVL(a$base,0)!=0)) u <- u[-a$base]
   if (length(u)==0)
     ergm_Init_abort ("Argument to absdiffcat() has too few distinct differences")
-  u2 <- u[!is.na(u)]
+
   ### Construct the list to return
-  inputs <- c(u2, NAsubstitute, nodecov)
-  attr(inputs, "ParamsBeforeCov") <- length(u2)+1 # See comment at top of file
+  inputs <- c(u, nodecov)
+  attr(inputs, "ParamsBeforeCov") <- length(u) # See comment at top of file
   list(name="absdiffcat",                                  #name: required
        coef.names = paste("absdiff", attrname, u, sep="."), #coef.names: required
        inputs = inputs,
        dependence = FALSE # So we don't use MCMC if not necessary
        )
 }
-
 
 
 
@@ -365,7 +360,6 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, ..., version=packageVersion("er
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
     
-    if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
@@ -421,7 +415,7 @@ InitErgmTerm.b1degrange<-function(nw, arglist, ..., version=packageVersion("ergm
     attrname <- attr(nodecov, "name")
     if(!homophily) nodecov <- nodecov[seq_len(nb1)]
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
+
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
   }
   if(!is.null(byarg) && !homophily) {
@@ -534,7 +528,6 @@ InitErgmTerm.b1degree <- function(nw, arglist, ..., version=packageVersion("ergm
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
 
-    if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     # Combine degree and u into 2xk matrix, where k=length(a$d)*length(u)
     lu <- length(u)
@@ -680,7 +673,6 @@ InitErgmTerm.b1star <- function(nw, arglist, ..., version=packageVersion("ergm")
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
 
-    if(any(is.na(nodecov))){u<-c(u,NA)}
     # Recode to numeric
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     name <- "ostar"
@@ -709,7 +701,6 @@ InitErgmTerm.b1starmix <- function(nw, arglist, ...) {
   nb1 <- get.network.attribute(nw, "bipartite")
   nodecov <- get.node.attr(nw, a$attrname)
   u <- NVL(a$levels, sort(unique(nodecov)))
-  if(any(is.na(nodecov))){u<-c(u,NA)}
   # Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
   if (length(a$k) > 1) 
@@ -779,13 +770,11 @@ InitErgmTerm.b1twostar <- function(nw, arglist, ..., version=packageVersion("erg
   b1nodecov <- ergm_get_vattr(b1attrarg, nw, bip = "b1")
   b1attrname <- attr(b1nodecov, "name")
   b1u <- ergm_attr_levels(b1levels, b1nodecov, nw, sort(unique(b1nodecov)))
-  if(any(is.na(b1nodecov))){ b1u<-c(b1u,NA) }
   
   if(is.null(b2attrarg)) { b2attrarg <- b1attrarg }
   b2nodecov <- ergm_get_vattr(b2attrarg, nw, bip = "b2")
   b2attrname <- attr(b2nodecov, "name")  
   b2u <- ergm_attr_levels(b2levels, b2nodecov, nw, sort(unique(b2nodecov)))
-  if(any(is.na(b2nodecov))){ b2u<-c(b2u,NA) }
 
   nr <- length(b1u)
   nc <- length(b2u)
@@ -844,7 +833,6 @@ InitErgmTerm.b2concurrent<-function(nw, arglist, ..., version=packageVersion("er
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
     
-    if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
@@ -932,7 +920,6 @@ InitErgmTerm.b2degrange<-function(nw, arglist, ..., version=packageVersion("ergm
     attrname <- attr(nodecov, "name")
     if(!homophily) nodecov <- nodecov[-seq_len(nb1)]
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
   }
   if(!is.null(byarg) && !homophily) {
@@ -1015,7 +1002,6 @@ InitErgmTerm.b2degree <- function(nw, arglist, ..., version=packageVersion("ergm
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
 
-    if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     # Combine degree and u into 2xk matrix, where k=length(a$d)*length(u)
     lu <- length(u)
@@ -1161,7 +1147,6 @@ InitErgmTerm.b2star <- function(nw, arglist, ..., version=packageVersion("ergm")
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
     
-    if(any(is.na(nodecov))){u<-c(u,NA)}
     # Recode to numeric
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     name <- "istar"
@@ -1190,7 +1175,7 @@ InitErgmTerm.b2starmix <- function(nw, arglist, ...) {
   nb1 <- get.network.attribute(nw, "bipartite")
   nodecov <- get.node.attr(nw, a$attrname)
   u <- NVL(a$levels, sort(unique(nodecov)))
-  if(any(is.na(nodecov))){u<-c(u,NA)}
+
   # Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
   if (length(a$k) > 1) 
@@ -1260,13 +1245,11 @@ InitErgmTerm.b2twostar <- function(nw, arglist, ..., version=packageVersion("erg
   b1nodecov <- ergm_get_vattr(b1attrarg, nw, bip = "b1")
   b1attrname <- attr(b1nodecov, "name")
   b1u <- ergm_attr_levels(b1levels, b1nodecov, nw, sort(unique(b1nodecov)))
-  if(any(is.na(b1nodecov))){ b1u<-c(b1u,NA) }
   
   if(is.null(b2attrarg)) { b2attrarg <- b1attrarg }
   b2nodecov <- ergm_get_vattr(b2attrarg, nw, bip = "b2")
   b2attrname <- attr(b2nodecov, "name")  
   b2u <- ergm_attr_levels(b2levels, b2nodecov, nw, sort(unique(b2nodecov)))
-  if(any(is.na(b2nodecov))){ b2u<-c(b2u,NA) }
 
   nr <- length(b1u)
   nc <- length(b2u)
@@ -1330,7 +1313,6 @@ InitErgmTerm.concurrent<-function(nw, arglist, ..., version=packageVersion("ergm
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
 
-    if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
@@ -1378,7 +1360,6 @@ InitErgmTerm.ctriple<-InitErgmTerm.ctriad<-function (nw, arglist, ..., version=p
     nodecov <- ergm_get_vattr(attrarg, nw)
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
     if (!diff) {
@@ -1483,7 +1464,6 @@ InitErgmTerm.degrange<-function(nw, arglist, ..., version=packageVersion("ergm")
     nodecov <- ergm_get_vattr(byarg, nw)
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
   }
   if(!is.null(byarg) && !homophily) {
@@ -1560,7 +1540,6 @@ InitErgmTerm.degree<-function(nw, arglist, ..., version=packageVersion("ergm")) 
     nodecov <- ergm_get_vattr(byarg, nw)
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
   }
   if(!is.null(byarg) && !homophily) {
@@ -1897,7 +1876,6 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, .
       nodecov <- ergm_get_vattr(attrarg, nw)
       attrname <- attr(nodecov, "name")
       u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-      if(any(is.na(nodecov))){u<-c(u,NA)}
       nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
       # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
       lu <- length(u)
@@ -2004,7 +1982,6 @@ InitErgmTerm.gwb2degree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, .
       nodecov <- ergm_get_vattr(attrarg, nw)
       attrname <- attr(nodecov, "name")
       u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-      if(any(is.na(nodecov))){u<-c(u,NA)}
       nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
       # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
       lu <- length(u)
@@ -2104,7 +2081,6 @@ InitErgmTerm.gwdegree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ...
       nodecov <- ergm_get_vattr(attrarg, nw)
       attrname <- attr(nodecov, "name")
       u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-      if(any(is.na(nodecov))){u<-c(u,NA)}
       nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
       # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
       lu <- length(u)
@@ -2242,7 +2218,6 @@ InitErgmTerm.gwidegree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ..
       nodecov <- ergm_get_vattr(attrarg, nw)
       attrname <- attr(nodecov, "name")
       u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-      if(any(is.na(nodecov))){u<-c(u,NA)}
       nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
       # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
       lu <- length(u)
@@ -2341,7 +2316,6 @@ InitErgmTerm.gwodegree<-function(nw, arglist, initialfit=FALSE, gw.cutoff=30, ..
       nodecov <- ergm_get_vattr(attrarg, nw)
       attrname <- attr(nodecov, "name")
       u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-      if(any(is.na(nodecov))){u<-c(u,NA)}
       nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
       # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
       lu <- length(u)
@@ -2578,7 +2552,6 @@ InitErgmTerm.idegrange<-function(nw, arglist, ..., version=packageVersion("ergm"
     nodecov <- ergm_get_vattr(byarg, nw)
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
   }
   if(!is.null(byarg) && !homophily) {
@@ -2653,7 +2626,6 @@ InitErgmTerm.idegree<-function(nw, arglist, ..., version=packageVersion("ergm"))
     nodecov <- ergm_get_vattr(byarg, nw)
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
   }
   if(!is.null(byarg) && !homophily) {
@@ -2797,7 +2769,6 @@ InitErgmTerm.istar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
     nodecov <- ergm_get_vattr(attrarg, nw)
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
 #     Recode to numeric if necessary
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
   }else{
@@ -2845,7 +2816,6 @@ InitErgmTerm.kstar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
     nodecov <- ergm_get_vattr(attrarg, nw)
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
 #    Recode to numeric if necessary
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
   }
@@ -3146,10 +3116,6 @@ InitErgmTerm.nodecov<-InitErgmTerm.nodemain<-function (nw, arglist, ..., version
     coef.names <- paste("nodecov",attr(nodecov, "name"),sep=".")
     if(is.matrix(nodecov)) coef.names <- paste(coef.names, NVL(colnames(nodecov), seq_len(ncol(nodecov))), sep=".")
   }
-  if(any(is.na(nodecov)))
-  {
-    ergm_Init_abort("NAs detected!")
-  }
   list(name="nodecov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
 
@@ -3399,10 +3365,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
     attr(inputs, "ParamsBeforeCov") <- NROW(u)
   } else {# So one mode, but could be directed or undirected
     u <- ergm_attr_levels(a$levels, nodecov, nw, sort(unique(nodecov)))
-    namescov <- u
-    
-    if(any(is.na(nodecov))){u<-c(u,NA)}
-    
+    namescov <- u 
     
     nr <- length(u)
     nc <- length(u)
@@ -3593,7 +3556,6 @@ InitErgmTerm.odegrange<-function(nw, arglist, ..., version=packageVersion("ergm"
     nodecov <- ergm_get_vattr(byarg, nw)
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
   }
   if(!is.null(byarg) && !homophily) {
@@ -3668,7 +3630,6 @@ InitErgmTerm.odegree<-function(nw, arglist, ..., version=packageVersion("ergm"))
     nodecov <- ergm_get_vattr(byarg, nw)
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
   }
   if(!is.null(byarg) && !homophily) {
@@ -3777,7 +3738,6 @@ InitErgmTerm.ostar<-function(nw, arglist, ..., version=packageVersion("ergm")) {
     nodecov <- ergm_get_vattr(attrarg, nw)
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
     # Recode to numeric
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
   }
@@ -3950,7 +3910,6 @@ InitErgmTerm.sociality<-function(nw, arglist, ..., version=packageVersion("ergm"
     nodecov <- ergm_get_vattr(attrarg, nw)
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
   }
@@ -4132,7 +4091,6 @@ InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, ..., versi
     nodecov <- ergm_get_vattr(attrarg, nw)
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
     if (!diff) {
@@ -4176,7 +4134,6 @@ InitErgmTerm.tripercent<-function (nw, arglist, ..., version=packageVersion("erg
     nodecov <- ergm_get_vattr(attrarg, nw)
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
     if (!diff) {
@@ -4220,7 +4177,6 @@ InitErgmTerm.ttriple<-InitErgmTerm.ttriad<-function (nw, arglist, ..., version=p
     nodecov <- ergm_get_vattr(attrarg, nw)
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
     if (!diff) {
