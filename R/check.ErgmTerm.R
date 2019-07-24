@@ -152,7 +152,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
             ergm_Init_inform_once("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.")
         }
         if(dep.warn[[m]] != FALSE) {
-          if(is.character(dep.inform[[m]]))
+          if(is.character(dep.warn[[m]]))
             ergm_Init_warn_once("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.  Use ", sQuote(dep.warn[[m]]), " instead.  Note that its interpretation may be different.")
           else
             ergm_Init_warn_once("Argument ", sQuote(varnames[m]), " has been deprecated and may be removed in a future version.")
@@ -172,12 +172,18 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
         still.required[i] <- FALSE
         argument.counts[i] <- argument.counts[i] + 1
 
-        if(dep.inform[[i]] != FALSE)
-          ergm_Init_inform_once("Argument ", sQuote(varnames[i]), " has been superseded by ", sQuote(dep.inform[[i]]), ", and it is recommended to use the latter.  Note that its interpretation may be different.")
-
-        if(dep.warn[[i]] != FALSE)
-          ergm_Init_warn_once("Argument ", sQuote(varnames[i]), " has been deprecated and may be removed in a future version.  Use ", sQuote(dep.warn[[i]]), " instead.  Note that its interpretation may be different.")
-
+        if(dep.inform[[i]] != FALSE) {
+          if(is.character(dep.inform[[i]]))
+            ergm_Init_inform_once("Argument ", sQuote(varnames[i]), " has been superseded by ", sQuote(dep.inform[[i]]), ", and it is recommended to use the latter.  Note that its interpretation may be different.")
+          else
+            ergm_Init_inform_once("Argument ", sQuote(varnames[i]), " has been deprecated and may be removed in a future version.")
+        }
+        if(dep.warn[[i]] != FALSE) {
+          if(is.character(dep.warn[[i]]))
+            ergm_Init_warn_once("Argument ", sQuote(varnames[i]), " has been deprecated and may be removed in a future version.  Use ", sQuote(dep.warn[[i]]), " instead.  Note that its interpretation may be different.")
+          else
+            ergm_Init_warn_once("Argument ", sQuote(varnames[i]), " has been deprecated and may be removed in a future version.")
+        }
       }
     }
   }
