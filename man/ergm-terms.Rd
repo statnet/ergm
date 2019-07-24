@@ -791,8 +791,8 @@
       triads in the network that are balanced. The balanced triads are those of
       type \code{102} or \code{300} in the categorization of Davis and Leinhardt (1972). For details on the 16 possible triad types, see
       \code{?triad.classify} in the \code{{sna}} package. For an undirected
-      network, the balanced triads are those with an even number of ties (i.e., 0
-      and 2).}
+      network, the balanced triads are those with an odd number of ties (i.e., 1
+      and 3).}
 
     \item{\code{coincidence(levels=NULL,active=0)}  (binary)  (bipartite)  (undirected)
     }{\emph{Coincident node count for the
@@ -1129,8 +1129,7 @@
       This term can only be used with bipartite networks.
 
       \GWCutoff{b1dsp}}
-      
-      
+
     \item{\code{gwb2degree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)}  (binary)  (bipartite)  (undirected) (curved)}{\emph{Geometrically weighted
 	degree distribution for the second mode in a bipartite (aka two-mode)
 	network:}
@@ -1154,7 +1153,6 @@
       This term can only be used with undirected bipartite
       networks.}
 
-
     \item{\code{gwb2dsp(decay=0, fixed=FALSE, cutoff=30)}  (binary)  (bipartite) (undirected) (curved)}{\emph{Geometrically weighted
 	dyadwise shared partner distribution for dyads in the second bipartition:}
       This term adds one network statistic to the model equal to the geometrically
@@ -1166,8 +1164,7 @@
       This term can only be used with bipartite networks.
 
       \GWCutoff{b2dsp}}
-      
-      
+
     \item{\code{gwdegree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)}  (binary)  (undirected)  (curved) (frequently-used)
     }{\emph{Geometrically weighted
 	degree distribution:}
@@ -1185,7 +1182,6 @@
 	Attributes and Levels} for details) then separate degree
       statistics are calculated for nodes having each separate
       value of the attribute.  This term can only be used with undirected networks.}
-
 
     \item{\code{gwdsp(decay=0, fixed=FALSE, cutoff=30)}  (binary)  (directed)  (undirected)  (curved)}{\emph{Geometrically weighted
 	dyadwise shared partner distribution:}
