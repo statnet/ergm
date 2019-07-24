@@ -557,31 +557,27 @@
       undirected bipartite networks. Note that \code{b1star(1)} is equal to
       \code{b2star(1)} and to \code{edges}.}
 
-    \item{\code{b1starmix(k, attrname, base=NULL, diff=TRUE, levels=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
+    \item{\code{b1starmix(k, attr, base=NULL, diff=TRUE)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{ Mixing
 	matrix for k-stars centered on the first mode of a bipartite network:} Only
       a single value of \eqn{k} is allowed. This term counts all k-stars in which
       the b2 nodes (called events in some contexts) are homophilous in the sense
-      that they all share the same value of \code{attrname}. However, the b1 node
+      that they all share the same value of \code{attr}. However, the b1 node
       (in some contexts, the actor) at the center of the k-star does NOT have to
       have the same value as the b2 nodes; indeed, the values taken by the b1
       nodes may be completely distinct from those of the b2 nodes, which allows
       for the use of this term in cases where there are two separate nodal
       attributes, one for the b1 nodes and another for the b2 nodes (in this case,
       however, these two attributes should be combined to form a single nodal
-      attribute called \code{attrname}. A different statistic is created for each
-      value of \code{attrname} seen in a b1 node, even if no k-stars are observed
+      attribute, \code{attr}). A different statistic is created for each
+      value of \code{attr} seen in a b1 node, even if no k-stars are observed
       with this value. Whether a different statistic is created for each value
       seen in a b2 node depends on the value of the \code{diff} argument: When
       \code{diff=TRUE}, the default, a different statistic is created for each
       value and thus the behavior of this term is reminiscent of the
       \code{nodemix} term, from which it takes its name; when \code{diff=FALSE},
       all homophilous k-stars are counted together, though these k-stars are still
-      categorized according to the value of the central b1 node.
-
-      \LevelsExplain{b1starmix}  By default, all levels are included.
-
-      \BaseDep}
+      categorized according to the value of the central b1 node.}
 
     \item{\code{b1twostar(b1attr, b2attr, base=NULL, b1levels=NULL, b2levels=NULL, levels2=NULL)}  (binary) (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{ Two-star
@@ -774,7 +770,7 @@
       undirected bipartite networks. Note that \code{b2star(1)} is equal to
       \code{b1star(1)} and to \code{edges}.}
 
-    \item{\code{b2starmix(k, attrname, base=NULL, diff=TRUE, levels=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
+    \item{\code{b2starmix(k, attr, base=NULL, diff=TRUE)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{ Mixing
 	matrix for k-stars centered on the second mode of a bipartite network:}
       This term is exactly the same as \code{b1starmix} except that the roles of

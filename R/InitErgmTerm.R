@@ -690,17 +690,29 @@ InitErgmTerm.b1star <- function(nw, arglist, ..., version=packageVersion("ergm")
 }
 
 ################################################################################
-InitErgmTerm.b1starmix <- function(nw, arglist, ...) {
-  ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("k", "attrname", "base", "diff", "levels"),
-                       vartypes = c("numeric", "character", "numeric", "logical", "character,numeric,logical"),
-                       defaultvalues = list(NULL, NULL, NULL, TRUE, NULL),
-                       required = c(TRUE, TRUE, FALSE, FALSE, FALSE))
+InitErgmTerm.b1starmix <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
+                         varnames = c("k", "attrname", "base", "diff"),
+                         vartypes = c("numeric", "character", "numeric", "logical"),
+                         defaultvalues = list(NULL, NULL, NULL, TRUE),
+                         required = c(TRUE, TRUE, FALSE, FALSE))
+    attrarg <- a$attrname
+  } else {
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
+                         varnames = c("k", "attr", "base", "diff"),
+                         vartypes = c("numeric", ERGM_VATTR_SPEC, "numeric", "logical"),
+                         defaultvalues = list(NULL, NULL, NULL, TRUE),
+                         required = c(TRUE, TRUE, FALSE, FALSE))
+    attrarg <- a$attr
+  }
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
-  nodecov <- get.node.attr(nw, a$attrname)
-  u <- NVL(a$levels, sort(unique(nodecov)))
+  nodecov <- ergm_get_vattr(attrarg, nw)
+  attrname <- attr(nodecov, "name")
+  u <- sort(unique(nodecov))
   # Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
   if (length(a$k) > 1) 
@@ -717,7 +729,7 @@ InitErgmTerm.b1starmix <- function(nw, arglist, ...) {
     u <- cbind(rep(1:nr,nc), nr + rep(1:nc, each=nr))
     if (any(NVL(a$base,0)!=0)) { u <- u[-a$base,] }
     name <- "b1starmix"
-    coef.names <- paste("b1starmix", a$k, a$attrname,
+    coef.names <- paste("b1starmix", a$k, attrname,
                         apply(matrix(namescov[u],ncol=2), 1,paste,collapse="."), 
                         sep=".")
     inputs <- c(a$k, nodecov, u[,1], u[,2])
@@ -727,7 +739,7 @@ InitErgmTerm.b1starmix <- function(nw, arglist, ...) {
     u <- 1:nr
     if (any(NVL(a$base,0)!=0)) { u <- u[-a$base] }
     name <- "b1starmixhomophily"
-    coef.names <- paste("b1starmix", a$k, a$attrname, namescov[u], sep=".")
+    coef.names <- paste("b1starmix", a$k, attrname, namescov[u], sep=".")
     inputs <- c(a$k, nodecov, u)
     attr(inputs, "ParamsBeforeCov") <- length(a$k) # should be 1
   }
@@ -1164,18 +1176,29 @@ InitErgmTerm.b2star <- function(nw, arglist, ..., version=packageVersion("ergm")
 }
 
 ################################################################################
-InitErgmTerm.b2starmix <- function(nw, arglist, ...) {
-  ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("k", "attrname", "base", "diff", "levels"),
-                       vartypes = c("numeric", "character", "numeric", "logical", "character,numeric,logical"),
-                       defaultvalues = list(NULL, NULL, NULL, TRUE, NULL),
-                       required = c(TRUE, TRUE, FALSE, FALSE, FALSE))
+InitErgmTerm.b2starmix <- function(nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
+                         varnames = c("k", "attrname", "base", "diff"),
+                         vartypes = c("numeric", "character", "numeric", "logical"),
+                         defaultvalues = list(NULL, NULL, NULL, TRUE),
+                         required = c(TRUE, TRUE, FALSE, FALSE))
+    attrarg <- a$attrname
+  } else {
+    ### Check the network and arguments to make sure they are appropriate.
+    a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
+                         varnames = c("k", "attr", "base", "diff"),
+                         vartypes = c("numeric", ERGM_VATTR_SPEC, "numeric", "logical"),
+                         defaultvalues = list(NULL, NULL, NULL, TRUE),
+                         required = c(TRUE, TRUE, FALSE, FALSE))
+    attrarg <- a$attr
+  }
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
-  nodecov <- get.node.attr(nw, a$attrname)
-  u <- NVL(a$levels, sort(unique(nodecov)))
-
+  nodecov <- ergm_get_vattr(attrarg, nw)
+  attrname <- attr(nodecov, "name")
+  u <- sort(unique(nodecov))
   # Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
   if (length(a$k) > 1) 
@@ -1192,7 +1215,7 @@ InitErgmTerm.b2starmix <- function(nw, arglist, ...) {
     u <- cbind(rep(1:nr,nc), nr + rep(1:nc, each=nr))
     if (any(NVL(a$base,0)!=0)) { u <- u[-a$base,] }
     name <- "b2starmix"
-    coef.names <- paste("b2starmix", a$k, a$attrname,
+    coef.names <- paste("b2starmix", a$k, attrname,
                         apply(matrix(namescov[u[,2:1]],ncol=2), 1,paste,collapse="."), 
                         sep=".")
     inputs <- c(a$k, nodecov, u[,1], u[,2])
@@ -1202,7 +1225,7 @@ InitErgmTerm.b2starmix <- function(nw, arglist, ...) {
     u <- nr+(1:nc)
     if (any(NVL(a$base,0)!=0)) { u <- u[-a$base] }
     name <- "b2starmixhomophily"
-    coef.names <- paste("b2starmix", a$k, a$attrname, namescov[u], sep=".")
+    coef.names <- paste("b2starmix", a$k, attrname, namescov[u], sep=".")
     inputs <- c(a$k, nodecov, u)
     attr(inputs, "ParamsBeforeCov") <- length(a$k) # should be 1
   }
