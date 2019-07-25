@@ -105,6 +105,10 @@ model used for that call is the one fit.
 For \code{GOF = ~model}, the model's observed sufficient statistics are
 plotted as quantiles of the simulated sample. In a good fit, the observed
 statistics should be near the sample median (0.5).
+
+By default, the sample consists of 100 simulated networks, but this sample
+size (and many other settings) can be changed using the \code{control}
+argument described above.
 }
 \section{Methods (by class)}{
 \itemize{
