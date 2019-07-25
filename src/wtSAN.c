@@ -184,14 +184,8 @@ WtMCMCStatus WtSANSample (WtMHProposal *MHp,
     when the chain doesn't accept many of the proposed steps.
     *********************/
     if (fVerbose){
-	  if (samplesize > 0 && interval > LONG_MAX / samplesize) {
-		// overflow
-		Rprintf("SAN Metropolis-Hastings accepted %7.3f%% of %d proposed steps.\n",
-	      tottaken*100.0/(1.0*interval*samplesize), interval, samplesize); 
-	  } else {
-	    Rprintf("SAN Metropolis-Hastings accepted %7.3f%% of %d proposed steps.\n",
-	      tottaken*100.0/(1.0*interval*samplesize), interval*samplesize); 
-	  }
+	  Rprintf("SAN Metropolis-Hastings accepted %7.3f%% of %lld proposed steps.\n",
+	    tottaken*100.0/(1.0*interval*samplesize), (long long) interval*samplesize); 
     }
   }else{
     if (fVerbose){

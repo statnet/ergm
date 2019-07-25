@@ -136,8 +136,8 @@ WtMCMCStatus WtCDSample(WtMHProposal *MHp,
   }
 
   if (fVerbose){
-    Rprintf("Sampler accepted %7.3f%% of %d proposed steps.\n",
-	    staken*100.0/(1.0*sattempted*CDparams[0]), sattempted*CDparams[0]); 
+    Rprintf("Sampler accepted %7.3f%% of %lld proposed steps.\n",
+	    staken*100.0/(1.0*sattempted*CDparams[0]), (long long) sattempted*CDparams[0]); 
   }
   
   return WtMCMC_OK;
