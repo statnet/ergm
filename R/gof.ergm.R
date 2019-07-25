@@ -24,6 +24,10 @@
 #' plotted as quantiles of the simulated sample. In a good fit, the observed
 #' statistics should be near the sample median (0.5).
 #'
+#' By default, the sample consists of 100 simulated networks, but this sample
+#' size (and many other settings) can be changed using the \code{control} 
+#' argument described above.
+#'
 #' @aliases gof.default
 #' @param object Either a formula or an \code{\link{ergm}} object.
 #' See documentation for \code{\link{ergm}}.
