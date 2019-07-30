@@ -1202,3 +1202,30 @@ C_CHANGESTAT_FN(c_dgwnsp) {
 
 
 
+/*****************
+ changestat: c_ddspbwrap
+*****************/
+
+C_CHANGESTAT_FN(c_ddspbwrap) {
+  c_ddsp(tail, head, mtp, nwp, edgeflag);
+  
+  // correct for double counting of directed vs. undirected dyads
+  for(int ind = 0; ind < N_CHANGE_STATS; ind++) CHANGE_STAT[ind] /= 2.0;
+}
+
+
+/*****************
+ changestat: c_dgwdspbwrap
+*****************/
+
+I_CHANGESTAT_FN(i_dgwdspbwrap) {
+  i_dgwdsp(mtp, nwp);
+}
+
+C_CHANGESTAT_FN(c_dgwdspbwrap) {
+  c_dgwdsp(tail, head, mtp, nwp, edgeflag);
+  
+  // correct for double counting of directed vs. undirected dyads
+  CHANGE_STAT[0] /= 2.0;
+}
+

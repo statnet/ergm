@@ -157,7 +157,7 @@ InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
     typecode<-which(type==type.vec)
     dname <- "desp"
   }else{
-    message("Use the ergm term 'esp' for undirected networks.")
+    ergm_Init_inform("Use the ergm term 'esp' for undirected networks.")
     dname <- "desp"
     conam<-"esp"
     type<-"UTP"
@@ -280,7 +280,7 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
     typecode<-which(type==type.vec)
   }else{
     ergm_Init_inform("Use the ergm term 'dsp' for undirected networks.")
-    conam <- paste("dsp",sep=".")
+    conam<-"dsp"
     type<-"UTP"
     typecode<-0
   }
@@ -404,7 +404,7 @@ InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
     conam <- paste("nsp",type,sep=".")
     typecode<-which(type==type.vec)
   }else{
-    message("Use the ergm term 'nsp' for undirected networks.")
+    ergm_Init_inform("Use the ergm term 'nsp' for undirected networks.")
     conam<-"nsp"
     type<-"UTP"
     typecode<-0

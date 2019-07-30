@@ -400,6 +400,22 @@ if (FALSE && !all.equal(as.vector(c(s.0, s.x, s.xc, s.xd, s.xca, s.xcd)),
 }
 
 
+# isolatededges, undirected
+num.tests=num.tests+1
+s.0 <- summary(fmh~isolatededges)
+e.0 <- ergm(fmh~isolatededges, estimate="MPLE")
+s.1 <- summary(bipnw2~isolatededges)
+e.1 <- ergm(bipnw2~isolatededges, estimate="MPLE")
+
+if (s.0 != 4 || s.1 != 25 || round(e.0$coef - 0.01034, 3) != 0 || round(e.1$coef + 0.1611, 3) != 0) {
+ print(list(s.0=s.0, e.0=e.0, s.1=s.1, e.1=e.1))
+ stop("Failed isolatededges term test")
+} else {
+  num.passed.tests=num.passed.tests+1
+  print("Passed isolatededges term test")
+}
+
+
                      
 # isolates, either
 num.tests=num.tests+1

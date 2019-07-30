@@ -35,7 +35,7 @@ InitErgmTerm.transitiveties<-function (nw, arglist, ..., version=packageVersion(
     nodecov <- ergm_get_vattr(attrarg, nw)
 	attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
+
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
     if (length(u)==1)
@@ -81,7 +81,7 @@ InitErgmTerm.cyclicalties<-function (nw, arglist, ..., version=packageVersion("e
     nodecov <- ergm_get_vattr(attrarg, nw)
 	attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
+
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
     if (length(u)==1)

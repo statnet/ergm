@@ -32,7 +32,7 @@ InitErgmTerm.concurrentties<-function(nw, arglist, ..., version=packageVersion("
     nodecov <- ergm_get_vattr(byarg, nw)
 	attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, sort(unique(nodecov)))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
+
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
     if (length(u)==1)
       ergm_Init_abort ("Attribute given to concurrentties() has only one value")

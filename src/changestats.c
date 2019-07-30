@@ -32,20 +32,15 @@ C_CHANGESTAT_FN(c_absdiff) {
  changestat: d_absdiffcat
 *****************/
 C_CHANGESTAT_FN(c_absdiffcat) { 
-  double change, absdiff, NAsubstitute, tailval, headval;
-  Vertex ninputs;
+  double change, absdiff, tailval, headval;
   int j;
-  
-  ninputs = N_INPUT_PARAMS - N_NODES;
-  NAsubstitute = INPUT_PARAM[ninputs-1];
 
   /* *** don't forget tail -> head */
     change = edgeflag ? -1.0 : 1.0;
     tailval = INPUT_ATTRIB[tail-1];
     headval = INPUT_ATTRIB[head-1];
-    if (tailval == NAsubstitute ||  headval == NAsubstitute) absdiff = NAsubstitute;
-    else absdiff = fabs(tailval - headval);
-	  if (absdiff>0) {
+    absdiff = fabs(tailval - headval);
+    if (absdiff>0) {
       for (j=0; j<N_CHANGE_STATS; j++) {
         CHANGE_STAT[j] += (absdiff==INPUT_PARAM[j]) ? change : 0.0;
       }
@@ -3300,6 +3295,100 @@ C_CHANGESTAT_FN(c_intransitive) {
     }    
     CHANGE_STAT[0] += edgeflag ? -change : change;
 /*  Rprintf("tail %d head %d edgeflag %d change %f\n",tail,head, change); */
+}
+
+/*****************
+changestat: d_isolatededges
+*****************/
+D_CHANGESTAT_FN(d_isolatededges) { 
+  int i, edgeflag;
+  Vertex tail, head, neighbor, taild, headd, *id, *od;
+  Edge e;
+  
+  id=IN_DEG;
+  od=OUT_DEG;
+
+  /* *** don't forget tail -> head */    
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    // is there an edge tail -> head?
+    edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+    
+    taild = od[tail] + id[tail];
+    headd = od[head] + id[head];
+    
+    if(edgeflag) { // we are removing an edge
+        
+      // if head and tail both have degree one, then
+      // we are removing an isolated edge        
+      if(taild == 1 && headd == 1)
+        CHANGE_STAT[0] -= 1;
+          
+      // if tail has degree 2 and has a degree one node other than head as a neighbor,
+      // then we are making a non-isolated edge into an isolated edge by removing
+      // the edge tail -> head
+      if(taild == 2) { 
+        STEP_THROUGH_OUTEDGES(tail, e, neighbor) {
+          if(od[neighbor] + id[neighbor] == 1 && neighbor != head)
+            CHANGE_STAT[0] += 1;
+        }
+        STEP_THROUGH_INEDGES(tail, e, neighbor) {
+          if(od[neighbor] + id[neighbor] == 1 && neighbor != head)
+            CHANGE_STAT[0] += 1;
+        }          
+      }
+        
+      // ditto head
+      if(headd == 2) { 
+        STEP_THROUGH_OUTEDGES(head, e, neighbor) {
+          if(od[neighbor] + id[neighbor] == 1 && neighbor != tail)
+            CHANGE_STAT[0] += 1;
+        }
+        STEP_THROUGH_INEDGES(head, e, neighbor) {
+          if(od[neighbor] + id[neighbor] == 1 && neighbor != tail)
+            CHANGE_STAT[0] += 1;
+        }        
+      }
+    } else { // we are adding an edge
+    
+      // if head and tail both have degree zero, then
+      // we are adding an isolated edge
+      if(taild == 0 && headd == 0)
+        CHANGE_STAT[0] += 1;
+      
+      // if tail has degree 1 and so does its neighbor, then we 
+      // are making an isolated edge into a non-isolated edge;
+      // note that for undirected graphs, this neighbor cannot
+      // be head, as the current toggle is to turn on the edge
+      // tail -> head
+      if(taild == 1) { 
+        STEP_THROUGH_OUTEDGES(tail, e, neighbor) {
+          if(od[neighbor] + id[neighbor] == 1)
+            CHANGE_STAT[0] -= 1;
+        }
+        STEP_THROUGH_INEDGES(tail, e, neighbor) {
+          if(od[neighbor] + id[neighbor] == 1)
+            CHANGE_STAT[0] -= 1;
+        }
+      }
+      
+      // ditto head
+      if(headd == 1) { 
+        STEP_THROUGH_OUTEDGES(head, e, neighbor) {
+          if(od[neighbor] + id[neighbor] == 1)
+            CHANGE_STAT[0] -= 1;
+        }
+        STEP_THROUGH_INEDGES(head, e, neighbor) {
+          if(od[neighbor] + id[neighbor] == 1)
+            CHANGE_STAT[0] -= 1;
+        }
+      }
+    }
+    
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************

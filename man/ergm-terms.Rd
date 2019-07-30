@@ -33,6 +33,7 @@
 \alias{b1cov}
 \alias{b1degrange}
 \alias{b1degree}
+\alias{b1dsp}
 \alias{b1factor}
 \alias{b1mindegree}
 \alias{b1nodematch}
@@ -44,6 +45,7 @@
 \alias{b2cov}
 \alias{b2degrange}
 \alias{b2degree}
+\alias{b2dsp}
 \alias{b2factor}
 \alias{b2mindegree}
 \alias{b2nodematch}
@@ -82,7 +84,9 @@
 \alias{equalto}
 \alias{greaterthan}
 \alias{gwb1degree}
+\alias{gwb1dsp}
 \alias{gwb2degree}
+\alias{gwb2dsp}
 \alias{gwdegree}
 \alias{gwdsp}
 \alias{gwesp}
@@ -97,6 +101,7 @@
 \alias{idegreepopularity}
 \alias{ininterval}
 \alias{intransitive}
+\alias{isolatededges}
 \alias{isolates}
 \alias{istar}
 \alias{kstar}
@@ -188,7 +193,7 @@
 
 % Shared partner types
 
-\newcommand{\SPTypes}{While there is only one shared partner configuration in the undirected case, nine distinct configurations are possible for directed graphs, selected using the \code{type} argument. Currently, terms may be defined with respect to five of these configurations; they are defined here as follows (using terminology from Butts (2008) and the \code{relevent} package): \describe{ \item{Outgoing Two-path (\code{"OTP"})}{vertex \eqn{k} is an OTP shared partner of ordered pair \eqn{(i,j)} iff \eqn{i \to k \to j}{i->k->j}. Also known as "transitive shared partner".}  \item{Incoming Two-path (\code{"ITP"})}{vertex \eqn{k} is an ITP shared partner of ordered pair \eqn{(i,j)} iff \eqn{j \to k \to i}{j->k->i}. Also known as "cyclical shared partner"} \item{Outgoing Shared Partner (\code{"OSP"})}{vertex \eqn{k} is an OSP shared partner of ordered pair \eqn{(i,j)} iff \eqn{i \to k, j \to k}{i->k, j->k}.}  \item{Incoming Shared Partner (\code{"ISP"})}{vertex \eqn{k} is an ISP shared partner of ordered pair \eqn{(i,j)} iff \eqn{k \to i, k \to j}{k->i, k->j}.}} By default, outgoing two-paths (\code{"OTP"}) are calculated. Note that Robins et al. (2009) define closely related statistics to several of the above, using slightly different terminology.}
+\newcommand{\SPTypes}{While there is only one shared partner configuration in the undirected case, nine distinct configurations are possible for directed graphs, selected using the \code{type} argument. Currently, terms may be defined with respect to five of these configurations; they are defined here as follows (using terminology from Butts (2008) and the \code{relevent} package): \describe{ \item{Outgoing Two-path (\code{"OTP"})}{vertex \eqn{k} is an OTP shared partner of ordered pair \eqn{(i,j)} iff \eqn{i \to k \to j}{i->k->j}. Also known as "transitive shared partner".}  \item{Incoming Two-path (\code{"ITP"})}{vertex \eqn{k} is an ITP shared partner of ordered pair \eqn{(i,j)} iff \eqn{j \to k \to i}{j->k->i}. Also known as "cyclical shared partner"} \item{Reciprocated Two-path (\code{"RTP"})}{vertex \eqn{k} is an RTP shared partner of ordered pair \eqn{(i,j)} iff \eqn{i \leftrightarrow k \leftrightarrow j}{i<->k<->j}.} \item{Outgoing Shared Partner (\code{"OSP"})}{vertex \eqn{k} is an OSP shared partner of ordered pair \eqn{(i,j)} iff \eqn{i \to k, j \to k}{i->k, j->k}.}  \item{Incoming Shared Partner (\code{"ISP"})}{vertex \eqn{k} is an ISP shared partner of ordered pair \eqn{(i,j)} iff \eqn{k \to i, k \to j}{k->i, k->j}.}} By default, outgoing two-paths (\code{"OTP"}) are calculated. Note that Robins et al. (2009) define closely related statistics to several of the above, using slightly different terminology.}
 
 \newcommand{\GWCutoff}{The optional argument \code{cutoff} sets the number of underlying #1 terms to use in computing the statistics when \code{fixed=FALSE}, in order to reduce the computational burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.)}
 
@@ -669,6 +674,13 @@
 
       \Bipartite}
 
+    \item{\code{b1dsp(d)}  (binary)  (bipartite) (undirected)}{\emph{Dyadwise shared partners for dyads in the first bipartition:}
+      The \code{d} argument is a vector of distinct integers. This term adds one
+      network statistic to the model for each element in \code{d}; the \eqn{i}th
+      such statistic equals the number of dyads in the first bipartition with exactly
+      \code{d[i]} shared partners.  (Those shared partners, of course, must be members 
+      of the second bipartition.)  This term can only be used with bipartite networks.}
+
     \item{\code{b1factor(attr, base=1, levels=-1)}  (binary)  (bipartite) (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute),
       \code{b1factor(attr, base=1, levels=-1, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute)
     }{\emph{Factor attribute effect for
@@ -758,31 +770,27 @@
       undirected bipartite networks. Note that \code{b1star(1)} is equal to
       \code{b2star(1)} and to \code{edges}.}
 
-    \item{\code{b1starmix(k, attrname, base=NULL, diff=TRUE, levels=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
+    \item{\code{b1starmix(k, attr, base=NULL, diff=TRUE)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{ Mixing
 	matrix for k-stars centered on the first mode of a bipartite network:} Only
       a single value of \eqn{k} is allowed. This term counts all k-stars in which
       the b2 nodes (called events in some contexts) are homophilous in the sense
-      that they all share the same value of \code{attrname}. However, the b1 node
+      that they all share the same value of \code{attr}. However, the b1 node
       (in some contexts, the actor) at the center of the k-star does NOT have to
       have the same value as the b2 nodes; indeed, the values taken by the b1
       nodes may be completely distinct from those of the b2 nodes, which allows
       for the use of this term in cases where there are two separate nodal
       attributes, one for the b1 nodes and another for the b2 nodes (in this case,
       however, these two attributes should be combined to form a single nodal
-      attribute called \code{attrname}. A different statistic is created for each
-      value of \code{attrname} seen in a b1 node, even if no k-stars are observed
+      attribute, \code{attr}). A different statistic is created for each
+      value of \code{attr} seen in a b1 node, even if no k-stars are observed
       with this value. Whether a different statistic is created for each value
       seen in a b2 node depends on the value of the \code{diff} argument: When
       \code{diff=TRUE}, the default, a different statistic is created for each
       value and thus the behavior of this term is reminiscent of the
       \code{nodemix} term, from which it takes its name; when \code{diff=FALSE},
       all homophilous k-stars are counted together, though these k-stars are still
-      categorized according to the value of the central b1 node.
-
-      \LevelsExplain{b1starmix}  By default, all levels are included.
-
-      \BaseDep}
+      categorized according to the value of the central b1 node.}
 
     \item{\code{b1twostar(b1attr, b2attr, base=NULL, b1levels=NULL, b2levels=NULL, levels2=NULL)}  (binary) (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{ Two-star
@@ -872,6 +880,13 @@
       value of the \code{by} attribute.
 
       \Bipartite}
+
+    \item{\code{b2dsp(d)}  (binary)  (bipartite) (undirected)}{\emph{Dyadwise shared partners for dyads in the second bipartition:}
+      The \code{d} argument is a vector of distinct integers. This term adds one
+      network statistic to the model for each element in \code{d}; the \eqn{i}th
+      such statistic equals the number of dyads in the second bipartition with exactly
+      \code{d[i]} shared partners.  (Those shared partners, of course, must be members 
+      of the first bipartition.)  This term can only be used with bipartite networks.}
 
     \item{\code{b2factor(attr, base=1, levels=-1)}  (binary)  (bipartite) (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used),
       \code{b2factor(attr, base=1, levels=-1, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used)
@@ -968,7 +983,7 @@
       undirected bipartite networks. Note that \code{b2star(1)} is equal to
       \code{b1star(1)} and to \code{edges}.}
 
-    \item{\code{b2starmix(k, attrname, base=NULL, diff=TRUE, levels=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
+    \item{\code{b2starmix(k, attr, base=NULL, diff=TRUE)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{ Mixing
 	matrix for k-stars centered on the second mode of a bipartite network:}
       This term is exactly the same as \code{b1starmix} except that the roles of
@@ -985,8 +1000,8 @@
       triads in the network that are balanced. The balanced triads are those of
       type \code{102} or \code{300} in the categorization of Davis and Leinhardt (1972). For details on the 16 possible triad types, see
       \code{?triad.classify} in the \code{{sna}} package. For an undirected
-      network, the balanced triads are those with an even number of ties (i.e., 0
-      and 2).}
+      network, the balanced triads are those with an odd number of ties (i.e., 1
+      and 3).}
 
     \item{\code{coincidence(levels=NULL,active=0)}  (binary)  (bipartite)  (undirected)
     }{\emph{Coincident node count for the
@@ -1315,6 +1330,18 @@
       This term can only be used with undirected bipartite
       networks.}
 
+    \item{\code{gwb1dsp(decay=0, fixed=FALSE, cutoff=30)}  (binary)  (bipartite) (undirected) (curved)}{\emph{Geometrically weighted
+	dyadwise shared partner distribution for dyads in the first bipartition:}
+      This term adds one network statistic to the model equal to the geometrically
+      weighted dyadwise shared partner distribution for dyads in the first bipartition,
+      with decay parameter \code{decay} parameter, which should be non-negative. The value supplied for
+      this parameter may be fixed (if \code{fixed=TRUE}),
+      or it may be used instead as the starting value for the estimation of \code{decay}
+      in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006).
+      This term can only be used with bipartite networks.
+
+      \GWCutoff{b1dsp}}
+
     \item{\code{gwb2degree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)}  (binary)  (bipartite)  (undirected) (curved)}{\emph{Geometrically weighted
 	degree distribution for the second mode in a bipartite (aka two-mode)
 	network:}
@@ -1337,6 +1364,18 @@
       value of the attribute.
       This term can only be used with undirected bipartite
       networks.}
+
+    \item{\code{gwb2dsp(decay=0, fixed=FALSE, cutoff=30)}  (binary)  (bipartite) (undirected) (curved)}{\emph{Geometrically weighted
+	dyadwise shared partner distribution for dyads in the second bipartition:}
+      This term adds one network statistic to the model equal to the geometrically
+      weighted dyadwise shared partner distribution for dyads in the second bipartition,
+      with decay parameter \code{decay} parameter, which should be non-negative. The value supplied for
+      this parameter may be fixed (if \code{fixed=TRUE}),
+      or it may be used instead as the starting value for the estimation of \code{decay}
+      in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006).
+      This term can only be used with bipartite networks.
+
+      \GWCutoff{b2dsp}}
 
     \item{\code{gwdegree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)}  (binary)  (undirected)  (curved) (frequently-used)
     }{\emph{Geometrically weighted
@@ -1556,6 +1595,12 @@
       \code{\link[sna]{sna}} package. Note the distinction from the \code{ctriple}
       term. This term can only be used with directed networks.}
 
+    \item{\code{isolatededges}  (binary)  (undirected) (bipartite)
+    }{\emph{Isolated edges:} This term adds one statistic to the
+      model equal to the number of isolated edges in the network, i.e., the number
+      of edges each of whose endpoints has degree 1.  This term can only be used
+      with undirected networks.}      
+      
     \item{\code{isolates}  (binary)  (directed)  (undirected) (frequently-used)
     }{\emph{Isolates:} This term adds one statistic to the
       model equal to the number of isolates in the network. For an undirected

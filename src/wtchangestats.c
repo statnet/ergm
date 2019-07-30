@@ -41,18 +41,13 @@ WtC_CHANGESTAT_FN(c_absdiff_sum){
  stat: absdiffcat(_nonzero)
 *****************/
 WtC_CHANGESTAT_FN(c_absdiffcat_nonzero){ 
-  double change, absdiff, NAsubstitute, tailval, headval;
-  Vertex ninputs;
+  double change, absdiff, tailval, headval;
   int j;
-  
-  ninputs = N_INPUT_PARAMS - N_NODES;
-  NAsubstitute = INPUT_PARAM[ninputs-1];
   
       change = (weight!=0)-(edgeweight!=0);
       tailval = INPUT_ATTRIB[tail-1];
       headval = INPUT_ATTRIB[head-1];
-      if (tailval == NAsubstitute ||  headval == NAsubstitute) absdiff = NAsubstitute;
-      else absdiff = fabs(tailval - headval);
+      absdiff = fabs(tailval - headval);
       if (absdiff>0){
 	for (j=0; j<N_CHANGE_STATS; j++){
 	  CHANGE_STAT[j] += (absdiff==INPUT_PARAM[j]) ? change : 0.0;
@@ -64,18 +59,13 @@ WtC_CHANGESTAT_FN(c_absdiffcat_nonzero){
  stat: absdiffcat(_sum)
 *****************/
 WtC_CHANGESTAT_FN(c_absdiffcat_sum){ 
-  double change, absdiff, NAsubstitute, tailval, headval;
-  Vertex ninputs;
+  double change, absdiff, tailval, headval;
   int j;
-  
-  ninputs = N_INPUT_PARAMS - N_NODES;
-  NAsubstitute = INPUT_PARAM[ninputs-1];
   
       change = weight-edgeweight;
       tailval = INPUT_ATTRIB[tail-1];
       headval = INPUT_ATTRIB[head-1];
-      if (tailval == NAsubstitute ||  headval == NAsubstitute) absdiff = NAsubstitute;
-      else absdiff = fabs(tailval - headval);
+      absdiff = fabs(tailval - headval);
       if (absdiff>0){
 	for (j=0; j<N_CHANGE_STATS; j++){
 	  CHANGE_STAT[j] += (absdiff==INPUT_PARAM[j]) ? change : 0.0;
