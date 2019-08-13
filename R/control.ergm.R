@@ -261,12 +261,12 @@
 #' error.
 #' @param MCMLE.last.boost For the Hummel termination criterion, increase the
 #' MCMC sample size of the last iteration by this factor.
-#' @param MCMLE.Hummel.esteq For curved ERGMs, should the estimating function
+#' @param MCMLE.steplength.esteq For curved ERGMs, should the estimating function
 #' values be used to compute the Hummel step length? This allows the Hummel
 #' stepping algorithm converge when some sufficient statistics are at 0.
 #' @param MCMLE.steplength.min Stops MCMLE estimation when the step length gets
 #' stuck below this minimum value.
-#' @param MCMLE.Hummel.miss.sample In fitting the missing data MLE, the rules
+#' @param MCMLE.steplength.miss.sample In fitting the missing data MLE, the rules
 #' for step length become more complicated. In short, it is necessary for
 #' \emph{all} points in the constrained sample to be in the convex hull of the
 #' unconstrained (though they may be on the border); and it is necessary for
@@ -274,7 +274,7 @@
 #' of points against whether they are in the convex hull, so to speed up the
 #' procedure, a sample is taken of the points most likely to be outside it.
 #' This parameter specifies the sample size.
-#' @param MCMLE.Hummel.maxit Maximum number of iterations in searching for the
+#' @param MCMLE.steplength.maxit Maximum number of iterations in searching for the
 #' best step length.
 #' 
 #' @param checkpoint At the start of every iteration, save the state
@@ -366,13 +366,13 @@
 #' the same meaning as their \code{MCMC.*} counterparts.
 #' 
 #' Note that only the Hotelling's stopping criterion is implemented for CD.
-#' @param CD.adaptive.epsilon,CD.Hummel.esteq,CD.Hummel.miss.sample,
+#' @param CD.adaptive.epsilon,CD.steplength.esteq,CD.steplength.miss.sample,
 #' 
 #' Miscellaneous tuning parameters of the CD sampler and optimizer. These have
 #' the same meaning as their \code{MCMC.*} counterparts.
 #' 
 #' Note that only the Hotelling's stopping criterion is implemented for CD.
-#' @param CD.Hummel.maxit,CD.steplength.min Miscellaneous tuning parameters of
+#' @param CD.steplength.maxit,CD.steplength.min Miscellaneous tuning parameters of
 #' the CD sampler and optimizer. These have the same meaning as their
 #' \code{MCMC.*} counterparts.
 #' 
@@ -502,9 +502,9 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.density.guard=exp(3),
                        MCMLE.effectiveSize=NULL,
                        MCMLE.last.boost=4,
-                       MCMLE.Hummel.esteq=TRUE, 
-                       MCMLE.Hummel.miss.sample=100,
-                       MCMLE.Hummel.maxit=25, 
+                       MCMLE.steplength.esteq=TRUE, 
+                       MCMLE.steplength.miss.sample=100,
+                       MCMLE.steplength.maxit=25, 
                        MCMLE.steplength.min=0.0001,
                        MCMLE.effectiveSize.interval_drop=2,
                        MCMLE.save_intermediates=NULL,
@@ -545,9 +545,9 @@ control.ergm<-function(drop=TRUE,
                        CD.steplength=1,
                        CD.adaptive.trustregion=3,
                        CD.adaptive.epsilon=0.01,
-                       CD.Hummel.esteq=TRUE, 
-                       CD.Hummel.miss.sample=100,
-                       CD.Hummel.maxit=25, 
+                       CD.steplength.esteq=TRUE, 
+                       CD.steplength.miss.sample=100,
+                       CD.steplength.maxit=25, 
                        CD.steplength.min=0.0001,
                        
                        loglik.control=control.logLik.ergm(),
@@ -561,7 +561,14 @@ control.ergm<-function(drop=TRUE,
                        
                        ...
                        ){
-  old.controls <- list(nr.maxit="MCMLE.NR.maxit",
+  old.controls <- list(CD.Hummel.esteq="CD.steplength.esteq",
+                       CD.Hummel.miss.sample="CD.steplength.miss.sample",
+                       CD.Hummel.maxit="CD.steplength.maxit",
+                       MCMLE.Hummel.esteq="MCMLE.steplength.esteq",
+                       MCMLE.Hummel.miss.sample="MCMLE.steplength.miss.sample",
+                       MCMLE.Hummel.maxit="MCMLE.steplength.maxit",
+
+                       nr.maxit="MCMLE.NR.maxit",
                        nr.reltol="MCMLE.NR.reltol",
                        maxNumDyadTypes="MPLE.max.dyad.types",
                        maxedges="MCMC.init.maxedges",

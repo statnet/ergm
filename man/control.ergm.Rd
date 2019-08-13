@@ -45,8 +45,8 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MCMLE.adaptive.trustregion = 3, MCMLE.sequential = TRUE,
   MCMLE.density.guard.min = 10000, MCMLE.density.guard = exp(3),
   MCMLE.effectiveSize = NULL, MCMLE.last.boost = 4,
-  MCMLE.Hummel.esteq = TRUE, MCMLE.Hummel.miss.sample = 100,
-  MCMLE.Hummel.maxit = 25, MCMLE.steplength.min = 1e-04,
+  MCMLE.steplength.esteq = TRUE, MCMLE.steplength.miss.sample = 100,
+  MCMLE.steplength.maxit = 25, MCMLE.steplength.min = 1e-04,
   MCMLE.effectiveSize.interval_drop = 2,
   MCMLE.save_intermediates = NULL, SA.phase1_n = NULL,
   SA.initial_gain = NULL, SA.nsubphases = 4, SA.niterations = NULL,
@@ -62,8 +62,8 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   CD.dampening = FALSE, CD.dampening.min.ess = 20,
   CD.dampening.level = 0.1, CD.steplength.margin = 0.5,
   CD.steplength = 1, CD.adaptive.trustregion = 3,
-  CD.adaptive.epsilon = 0.01, CD.Hummel.esteq = TRUE,
-  CD.Hummel.miss.sample = 100, CD.Hummel.maxit = 25,
+  CD.adaptive.epsilon = 0.01, CD.steplength.esteq = TRUE,
+  CD.steplength.miss.sample = 100, CD.steplength.maxit = 25,
   CD.steplength.min = 1e-04, loglik.control = control.logLik.ergm(),
   term.options = NULL, seed = NULL, parallel = 0,
   parallel.type = NULL, parallel.version.check = TRUE, ...)
@@ -370,11 +370,11 @@ experimental status until we verify the coverage of the standard errors.}
 \item{MCMLE.last.boost}{For the Hummel termination criterion, increase the
 MCMC sample size of the last iteration by this factor.}
 
-\item{MCMLE.Hummel.esteq}{For curved ERGMs, should the estimating function
+\item{MCMLE.steplength.esteq}{For curved ERGMs, should the estimating function
 values be used to compute the Hummel step length? This allows the Hummel
 stepping algorithm converge when some sufficient statistics are at 0.}
 
-\item{MCMLE.Hummel.miss.sample}{In fitting the missing data MLE, the rules
+\item{MCMLE.steplength.miss.sample}{In fitting the missing data MLE, the rules
 for step length become more complicated. In short, it is necessary for
 \emph{all} points in the constrained sample to be in the convex hull of the
 unconstrained (though they may be on the border); and it is necessary for
@@ -383,7 +383,7 @@ of points against whether they are in the convex hull, so to speed up the
 procedure, a sample is taken of the points most likely to be outside it.
 This parameter specifies the sample size.}
 
-\item{MCMLE.Hummel.maxit}{Maximum number of iterations in searching for the
+\item{MCMLE.steplength.maxit}{Maximum number of iterations in searching for the
 best step length.}
 
 \item{MCMLE.steplength.min}{Stops MCMLE estimation when the step length gets
@@ -471,12 +471,12 @@ the same meaning as their \code{MCMC.*} counterparts.
 
 Note that only the Hotelling's stopping criterion is implemented for CD.}
 
-\item{CD.adaptive.epsilon, CD.Hummel.esteq, CD.Hummel.miss.sample, }{Miscellaneous tuning parameters of the CD sampler and optimizer. These have
+\item{CD.adaptive.epsilon, CD.steplength.esteq, CD.steplength.miss.sample, }{Miscellaneous tuning parameters of the CD sampler and optimizer. These have
 the same meaning as their \code{MCMC.*} counterparts.
 
 Note that only the Hotelling's stopping criterion is implemented for CD.}
 
-\item{CD.Hummel.maxit, CD.steplength.min}{Miscellaneous tuning parameters of
+\item{CD.steplength.maxit, CD.steplength.min}{Miscellaneous tuning parameters of
 the CD sampler and optimizer. These have the same meaning as their
 \code{MCMC.*} counterparts.
 

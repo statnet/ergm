@@ -351,10 +351,10 @@ ergm.MCMLE <- function(init, nw, model,
       steplen <-
         if(!is.null(control$MCMLE.steplength.margin))
           .Hummel.steplength(
-            if(control$MCMLE.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
-            if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
+            if(control$MCMLE.steplength.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
+            if(control$MCMLE.steplength.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
             control$MCMLE.steplength.margin, control$MCMLE.steplength,steplength.prev=steplen,verbose=verbose,
-            x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit, control=control
+            x2.num.max=control$MCMLE.steplength.miss.sample, steplength.maxit=control$MCMLE.steplength.maxit, control=control
           )
         else control$MCMLE.steplength
       
