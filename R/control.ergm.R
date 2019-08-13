@@ -300,6 +300,14 @@
 #' serve as the maximum step length considered. However, setting it to anything
 #' other than 1 will preclude using Hummel or precision as termination
 #' criteria.
+#'
+#' @param MCMLE.steplength.parallel Whether parallel multisection
+#'   search (as opposed to a bisection search) for the Hummel step
+#'   length should be used if running in multiple threads. Possible
+#'   values (partially matched) are `"always"`, `"never"`, and
+#'   (default) `"observational"` (i.e., when missing data MLE is
+#'   used).
+#'
 #' @param MCMLE.adaptive.trustregion Maximum increase the algorithm will allow
 #' for the approximated loglikelihood at a given iteration when
 #' \code{MCMLE.steplength="adaptive"}.
@@ -317,12 +325,12 @@
 #' error.
 #' @param MCMLE.last.boost For the Hummel termination criterion, increase the
 #' MCMC sample size of the last iteration by this factor.
-#' @param MCMLE.Hummel.esteq For curved ERGMs, should the estimating function
+#' @param MCMLE.steplength.esteq For curved ERGMs, should the estimating function
 #' values be used to compute the Hummel step length? This allows the Hummel
 #' stepping algorithm converge when some sufficient statistics are at 0.
 #' @param MCMLE.steplength.min Stops MCMLE estimation when the step length gets
 #' stuck below this minimum value.
-#' @param MCMLE.Hummel.miss.sample In fitting the missing data MLE, the rules
+#' @param MCMLE.steplength.miss.sample In fitting the missing data MLE, the rules
 #' for step length become more complicated. In short, it is necessary for
 #' \emph{all} points in the constrained sample to be in the convex hull of the
 #' unconstrained (though they may be on the border); and it is necessary for
@@ -330,7 +338,7 @@
 #' of points against whether they are in the convex hull, so to speed up the
 #' procedure, a sample is taken of the points most likely to be outside it.
 #' This parameter specifies the sample size.
-#' @param MCMLE.Hummel.maxit Maximum number of iterations in searching for the
+#' @param MCMLE.steplength.maxit Maximum number of iterations in searching for the
 #' best step length.
 #' 
 #' @param checkpoint At the start of every iteration, save the state
@@ -399,36 +407,15 @@
 #' value, as the network passed is not necessarily a good start for CD.
 #' Therefore, these settings are in effect if there are missing dyads in the
 #' observed network, using a higher default number of steps.
-#' @param CD.samplesize.per_theta,obs.CD.samplesize.per_theta,CD.maxit,CD.conv.min.pval,CD.NR.maxit,CD.NR.reltol,
 #' 
-#' Miscellaneous tuning parameters of the CD sampler and optimizer. These have
-#' the same meaning as their \code{MCMC.*} counterparts.
+#' @param CD.samplesize.per_theta,obs.CD.samplesize.per_theta,CD.maxit,CD.conv.min.pval,CD.NR.maxit,CD.NR.reltol,CD.metric,CD.method,CD.trustregion,CD.dampening,CD.dampening.min.ess,CD.dampening.level,CD.steplength.margin,CD.steplength,CD.steplength.parallel,CD.adaptive.trustregion,CD.adaptive.epsilon,CD.steplength.esteq,CD.steplength.miss.sample,CD.steplength.maxit,CD.steplength.min
+#'   Miscellaneous tuning parameters of the CD sampler and
+#'   optimizer. These have the same meaning as their `MCMLE.*` and
+#'   `MCMC.*` counterparts.
 #' 
-#' Note that only the Hotelling's stopping criterion is implemented for CD.
-#' @param CD.metric,CD.method,CD.trustregion,CD.dampening,CD.dampening.min.ess,
+#'   Note that only the Hotelling's stopping criterion is implemented
+#'   for CD.
 #' 
-#' Miscellaneous tuning parameters of the CD sampler and optimizer. These have
-#' the same meaning as their \code{MCMC.*} counterparts.
-#' 
-#' Note that only the Hotelling's stopping criterion is implemented for CD.
-#' @param
-#' CD.dampening.level,CD.steplength.margin,CD.steplength,CD.adaptive.trustregion,
-#' 
-#' Miscellaneous tuning parameters of the CD sampler and optimizer. These have
-#' the same meaning as their \code{MCMC.*} counterparts.
-#' 
-#' Note that only the Hotelling's stopping criterion is implemented for CD.
-#' @param CD.adaptive.epsilon,CD.Hummel.esteq,CD.Hummel.miss.sample,
-#' 
-#' Miscellaneous tuning parameters of the CD sampler and optimizer. These have
-#' the same meaning as their \code{MCMC.*} counterparts.
-#' 
-#' Note that only the Hotelling's stopping criterion is implemented for CD.
-#' @param CD.Hummel.maxit,CD.steplength.min Miscellaneous tuning parameters of
-#' the CD sampler and optimizer. These have the same meaning as their
-#' \code{MCMC.*} counterparts.
-#' 
-#' Note that only the Hotelling's stopping criterion is implemented for CD.
 #' @param loglik.control See \code{\link{control.ergm.bridge}}
 #' @template term_options
 #' @template control_MCMC_parallel
@@ -561,6 +548,7 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.steplength.point.exp=1,
                        MCMLE.steplength.prefilter=FALSE,
                        MCMLE.steplength=NVL2(MCMLE.steplength.margin, 1, 0.5),
+                       MCMLE.steplength.parallel=c("observational","always","never"),
                        MCMLE.adaptive.trustregion=3,
                        MCMLE.sequential=TRUE,
                        MCMLE.density.guard.min=10000,
@@ -577,9 +565,9 @@ control.ergm<-function(drop=TRUE,
                        obs.MCMLE.burnin=round(MCMLE.burnin*obs.MCMC.burnin.mul),
                        
                        MCMLE.last.boost=4,
-                       MCMLE.Hummel.esteq=TRUE, 
-                       MCMLE.Hummel.miss.sample=100,
-                       MCMLE.Hummel.maxit=if(MCMLE.steplength.margin<0) 5 else 25,
+                       MCMLE.steplength.esteq=TRUE, 
+                       MCMLE.steplength.miss.sample=100,
+                       MCMLE.steplength.maxit=if(MCMLE.steplength.margin<0) 5 else 25, 
                        MCMLE.steplength.min=0.0001,
                        MCMLE.effectiveSize.interval_drop=2,
                        MCMLE.save_intermediates=NULL,
@@ -630,10 +618,11 @@ control.ergm<-function(drop=TRUE,
                        CD.steplength=1,
                        CD.adaptive.trustregion=3,
                        CD.adaptive.epsilon=0.01,
-                       CD.Hummel.esteq=TRUE, 
-                       CD.Hummel.miss.sample=100,
-                       CD.Hummel.maxit=25, 
+                       CD.steplength.esteq=TRUE, 
+                       CD.steplength.miss.sample=100,
+                       CD.steplength.maxit=25, 
                        CD.steplength.min=0.0001,
+                       CD.steplength.parallel=c("observational","always","never"),
                        
                        loglik.control=control.logLik.ergm(),
 
@@ -647,7 +636,14 @@ control.ergm<-function(drop=TRUE,
                        
                        ...
                        ){
-  old.controls <- list(nr.maxit="MCMLE.NR.maxit",
+  old.controls <- list(CD.Hummel.esteq="CD.steplength.esteq",
+                       CD.Hummel.miss.sample="CD.steplength.miss.sample",
+                       CD.Hummel.maxit="CD.steplength.maxit",
+                       MCMLE.Hummel.esteq="MCMLE.steplength.esteq",
+                       MCMLE.Hummel.miss.sample="MCMLE.steplength.miss.sample",
+                       MCMLE.Hummel.maxit="MCMLE.steplength.maxit",
+
+                       nr.maxit="MCMLE.NR.maxit",
                        nr.reltol="MCMLE.NR.reltol",
                        maxNumDyadTypes="MPLE.max.dyad.types",
                        maxedges="MCMC.init.maxedges",
@@ -688,7 +684,7 @@ control.ergm<-function(drop=TRUE,
                        SAN.burnin.times="SAN.nsteps.times"
                        )
 
-  match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method")
+  match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method","MCMLE.steplength.parallel","CD.steplength.parallel")
   
   control<-list()
   formal.args<-formals(sys.function())

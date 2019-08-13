@@ -52,6 +52,7 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MCMLE.dampening.level = 0.1, MCMLE.steplength.margin = 0.05,
   MCMLE.steplength.point.exp = 1, MCMLE.steplength.prefilter = FALSE,
   MCMLE.steplength = NVL2(MCMLE.steplength.margin, 1, 0.5),
+  MCMLE.steplength.parallel = c("observational", "always", "never"),
   MCMLE.adaptive.trustregion = 3, MCMLE.sequential = TRUE,
   MCMLE.density.guard.min = 10000, MCMLE.density.guard = exp(3),
   MCMLE.effectiveSize = 64,
@@ -62,8 +63,8 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   obs.MCMC.samplesize.mul), obs.MCMLE.samplesize = NULL,
   obs.MCMLE.interval = round(MCMLE.interval * obs.MCMC.interval.mul),
   obs.MCMLE.burnin = round(MCMLE.burnin * obs.MCMC.burnin.mul),
-  MCMLE.last.boost = 4, MCMLE.Hummel.esteq = TRUE,
-  MCMLE.Hummel.miss.sample = 100, MCMLE.Hummel.maxit = if
+  MCMLE.last.boost = 4, MCMLE.steplength.esteq = TRUE,
+  MCMLE.steplength.miss.sample = 100, MCMLE.steplength.maxit = if
   (MCMLE.steplength.margin < 0) 5 else 25, MCMLE.steplength.min = 1e-04,
   MCMLE.effectiveSize.interval_drop = 2,
   MCMLE.save_intermediates = NULL, SA.phase1_n = NULL,
@@ -85,8 +86,9 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   CD.dampening.min.ess = 20, CD.dampening.level = 0.1,
   CD.steplength.margin = 0.5, CD.steplength = 1,
   CD.adaptive.trustregion = 3, CD.adaptive.epsilon = 0.01,
-  CD.Hummel.esteq = TRUE, CD.Hummel.miss.sample = 100,
-  CD.Hummel.maxit = 25, CD.steplength.min = 1e-04,
+  CD.steplength.esteq = TRUE, CD.steplength.miss.sample = 100,
+  CD.steplength.maxit = 25, CD.steplength.min = 1e-04,
+  CD.steplength.parallel = c("observational", "always", "never"),
   loglik.control = control.logLik.ergm(), term.options = NULL,
   seed = NULL, parallel = 0, parallel.type = NULL,
   parallel.version.check = TRUE, parallel.inherit.MT = FALSE, ...)
@@ -419,6 +421,13 @@ serve as the maximum step length considered. However, setting it to anything
 other than 1 will preclude using Hummel or precision as termination
 criteria.}
 
+\item{MCMLE.steplength.parallel}{Whether parallel multisection
+search (as opposed to a bisection search) for the Hummel step
+length should be used if running in multiple threads. Possible
+values (partially matched) are \code{"always"}, \code{"never"}, and
+(default) \code{"observational"} (i.e., when missing data MLE is
+used).}
+
 \item{MCMLE.adaptive.trustregion}{Maximum increase the algorithm will allow
 for the approximated loglikelihood at a given iteration when
 \code{MCMLE.steplength="adaptive"}.}
@@ -465,11 +474,11 @@ corresponding \code{obs} parameters are set to them multiplied by
 \item{MCMLE.last.boost}{For the Hummel termination criterion, increase the
 MCMC sample size of the last iteration by this factor.}
 
-\item{MCMLE.Hummel.esteq}{For curved ERGMs, should the estimating function
+\item{MCMLE.steplength.esteq}{For curved ERGMs, should the estimating function
 values be used to compute the Hummel step length? This allows the Hummel
 stepping algorithm converge when some sufficient statistics are at 0.}
 
-\item{MCMLE.Hummel.miss.sample}{In fitting the missing data MLE, the rules
+\item{MCMLE.steplength.miss.sample}{In fitting the missing data MLE, the rules
 for step length become more complicated. In short, it is necessary for
 \emph{all} points in the constrained sample to be in the convex hull of the
 unconstrained (though they may be on the border); and it is necessary for
@@ -478,7 +487,7 @@ of points against whether they are in the convex hull, so to speed up the
 procedure, a sample is taken of the points most likely to be outside it.
 This parameter specifies the sample size.}
 
-\item{MCMLE.Hummel.maxit}{Maximum number of iterations in searching for the
+\item{MCMLE.steplength.maxit}{Maximum number of iterations in searching for the
 best step length.}
 
 \item{MCMLE.steplength.min}{Stops MCMLE estimation when the step length gets
@@ -531,10 +540,12 @@ optimization chooses a step length equal to the largest possible multiple of
 \item{Step.burnin, Step.interval, Step.samplesize}{Sets the corresponding
 \code{MCMC.*} parameters when \code{main.method="Stepping"}.}
 
-\item{CD.samplesize.per_theta, obs.CD.samplesize.per_theta, CD.maxit, CD.conv.min.pval, CD.NR.maxit, CD.NR.reltol, }{Miscellaneous tuning parameters of the CD sampler and optimizer. These have
-the same meaning as their \code{MCMC.*} counterparts.
+\item{CD.samplesize.per_theta, obs.CD.samplesize.per_theta, CD.maxit, CD.conv.min.pval, CD.NR.maxit, CD.NR.reltol, CD.metric, CD.method, CD.trustregion, CD.dampening, CD.dampening.min.ess, CD.dampening.level, CD.steplength.margin, CD.steplength, CD.steplength.parallel, CD.adaptive.trustregion, CD.adaptive.epsilon, CD.steplength.esteq, CD.steplength.miss.sample, CD.steplength.maxit, CD.steplength.min}{Miscellaneous tuning parameters of the CD sampler and
+optimizer. These have the same meaning as their \code{MCMLE.*} and
+\code{MCMC.*} counterparts.
 
-Note that only the Hotelling's stopping criterion is implemented for CD.}
+Note that only the Hotelling's stopping criterion is implemented
+for CD.}
 
 \item{CD.nsteps, CD.multiplicity}{Main settings for contrastive divergence to
 obtain initial values for the estimation: respectively, the number of
@@ -559,27 +570,6 @@ stable, if not great, starting values.}
 value, as the network passed is not necessarily a good start for CD.
 Therefore, these settings are in effect if there are missing dyads in the
 observed network, using a higher default number of steps.}
-
-\item{CD.metric, CD.method, CD.trustregion, CD.dampening, CD.dampening.min.ess, }{Miscellaneous tuning parameters of the CD sampler and optimizer. These have
-the same meaning as their \code{MCMC.*} counterparts.
-
-Note that only the Hotelling's stopping criterion is implemented for CD.}
-
-\item{CD.dampening.level, CD.steplength.margin, CD.steplength, CD.adaptive.trustregion, }{Miscellaneous tuning parameters of the CD sampler and optimizer. These have
-the same meaning as their \code{MCMC.*} counterparts.
-
-Note that only the Hotelling's stopping criterion is implemented for CD.}
-
-\item{CD.adaptive.epsilon, CD.Hummel.esteq, CD.Hummel.miss.sample, }{Miscellaneous tuning parameters of the CD sampler and optimizer. These have
-the same meaning as their \code{MCMC.*} counterparts.
-
-Note that only the Hotelling's stopping criterion is implemented for CD.}
-
-\item{CD.Hummel.maxit, CD.steplength.min}{Miscellaneous tuning parameters of
-the CD sampler and optimizer. These have the same meaning as their
-\code{MCMC.*} counterparts.
-
-Note that only the Hotelling's stopping criterion is implemented for CD.}
 
 \item{loglik.control}{See \code{\link{control.ergm.bridge}}}
 
