@@ -254,7 +254,8 @@ ergm.CD.fixed <- function(init, nw, model,
             if(control$CD.steplength.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
             if(control$CD.steplength.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
             control$CD.steplength.margin, control$CD.steplength, steplength.prev=steplen, verbose=verbose,
-            x2.num.max=control$CD.steplength.miss.sample, steplength.maxit=control$CD.steplength.maxit, control=control)
+            x2.num.max=control$CD.steplength.miss.sample, steplength.maxit=control$CD.steplength.maxit,
+            parallel=control$CD.steplength.parallel, control=control)
         else control$CD.steplength
       
       statsmean <- apply(statsmatrix.0,2,base::mean)

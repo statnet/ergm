@@ -42,6 +42,7 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MCMLE.dampening = FALSE, MCMLE.dampening.min.ess = 20,
   MCMLE.dampening.level = 0.1, MCMLE.steplength.margin = 0.05,
   MCMLE.steplength = NVL2(MCMLE.steplength.margin, 1, 0.5),
+  MCMLE.steplength.parallel = c("observational", "always", "never"),
   MCMLE.adaptive.trustregion = 3, MCMLE.sequential = TRUE,
   MCMLE.density.guard.min = 10000, MCMLE.density.guard = exp(3),
   MCMLE.effectiveSize = NULL, MCMLE.last.boost = 4,
@@ -64,9 +65,11 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   CD.steplength = 1, CD.adaptive.trustregion = 3,
   CD.adaptive.epsilon = 0.01, CD.steplength.esteq = TRUE,
   CD.steplength.miss.sample = 100, CD.steplength.maxit = 25,
-  CD.steplength.min = 1e-04, loglik.control = control.logLik.ergm(),
-  term.options = NULL, seed = NULL, parallel = 0,
-  parallel.type = NULL, parallel.version.check = TRUE, ...)
+  CD.steplength.min = 1e-04,
+  CD.steplength.parallel = c("observational", "always", "never"),
+  loglik.control = control.logLik.ergm(), term.options = NULL,
+  seed = NULL, parallel = 0, parallel.type = NULL,
+  parallel.version.check = TRUE, ...)
 }
 \arguments{
 \item{drop}{Logical: If TRUE, terms whose observed statistic values are at
@@ -344,6 +347,13 @@ serve as the maximum step length considered. However, setting it to anything
 other than 1 will preclude using Hummel or precision as termination
 criteria.}
 
+\item{MCMLE.steplength.parallel}{Whether parallel multisection
+search (as opposed to a bisection search) for the Hummel step
+length should be used if running in multiple threads. Possible
+values (partially matched) are \code{"always"}, \code{"never"}, and
+(default) \code{"observational"} (i.e., when missing data MLE is
+used).}
+
 \item{MCMLE.adaptive.trustregion}{Maximum increase the algorithm will allow
 for the approximated loglikelihood at a given iteration when
 \code{MCMLE.steplength="adaptive"}.}
@@ -456,31 +466,12 @@ value, as the network passed is not necessarily a good start for CD.
 Therefore, these settings are in effect if there are missing dyads in the
 observed network, using a higher default number of steps.}
 
-\item{CD.maxit, CD.conv.min.pval, CD.NR.maxit, CD.NR.reltol, }{Miscellaneous tuning parameters of the CD sampler and optimizer. These have
-the same meaning as their \code{MCMC.*} counterparts.
-
-Note that only the Hotelling's stopping criterion is implemented for CD.}
-
-\item{CD.metric, CD.method, CD.trustregion, CD.dampening, CD.dampening.min.ess, }{Miscellaneous tuning parameters of the CD sampler and optimizer. These have
-the same meaning as their \code{MCMC.*} counterparts.
-
-Note that only the Hotelling's stopping criterion is implemented for CD.}
-
-\item{CD.dampening.level, CD.steplength.margin, CD.steplength, CD.adaptive.trustregion, }{Miscellaneous tuning parameters of the CD sampler and optimizer. These have
-the same meaning as their \code{MCMC.*} counterparts.
-
-Note that only the Hotelling's stopping criterion is implemented for CD.}
-
-\item{CD.adaptive.epsilon, CD.steplength.esteq, CD.steplength.miss.sample, }{Miscellaneous tuning parameters of the CD sampler and optimizer. These have
-the same meaning as their \code{MCMC.*} counterparts.
-
-Note that only the Hotelling's stopping criterion is implemented for CD.}
-
-\item{CD.steplength.maxit, CD.steplength.min}{Miscellaneous tuning parameters of
-the CD sampler and optimizer. These have the same meaning as their
+\item{CD.maxit, CD.conv.min.pval, CD.NR.maxit, CD.NR.reltol, CD.metric, CD.method, CD.trustregion, CD.dampening, CD.dampening.min.ess, CD.dampening.level, CD.steplength.margin, CD.steplength, CD.steplength.parallel, CD.adaptive.trustregion, CD.adaptive.epsilon, CD.steplength.esteq, CD.steplength.miss.sample, CD.steplength.maxit, CD.steplength.min}{Miscellaneous tuning parameters of the CD sampler and
+optimizer. These have the same meaning as their \code{MCMLE.*} and
 \code{MCMC.*} counterparts.
 
-Note that only the Hotelling's stopping criterion is implemented for CD.}
+Note that only the Hotelling's stopping criterion is implemented
+for CD.}
 
 \item{loglik.control}{See \code{\link{control.ergm.bridge}}}
 
