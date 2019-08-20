@@ -400,10 +400,10 @@ ergm.MCMLE <- function(init, nw, model,
 
       if(!is.null(control$MCMLE.steplength.margin)){
         steplen <- .Hummel.steplength(
-          if(control$MCMLE.Hummel.esteq) esteq else statsmatrix[,!model$etamap$offsetmap,drop=FALSE], 
-          if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.obs[,!model$etamap$offsetmap,drop=FALSE],
+          if(control$MCMLE.steplength.esteq) esteq else statsmatrix[,!model$etamap$offsetmap,drop=FALSE],
+          if(control$MCMLE.steplength.esteq) esteq.obs else statsmatrix.obs[,!model$etamap$offsetmap,drop=FALSE],
           control$MCMLE.steplength.margin, control$MCMLE.steplength,point.gamma.exp=control$MCMLE.steplength.point.exp,steplength.prev=steplen,x1.prefilter=control$MCMLE.steplength.prefilter,x2.prefilter=control$MCMLE.steplength.prefilter,verbose=verbose,
-          x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit, control=control
+          x2.num.max=control$MCMLE.steplength.miss.sample, steplength.maxit=control$MCMLE.steplength.maxit, control=control
         )
 
         # If the step length margin is negative and signals convergence,
@@ -412,7 +412,7 @@ ergm.MCMLE <- function(init, nw, model,
         steplen0 <-
           if(control$MCMLE.termination%in%c("precision","Hummel") && control$MCMLE.steplength.margin<0 && control$MCMLE.steplength==steplen)
           .Hummel.steplength(
-              if(control$MCMLE.steplength.esteq) esteq else statsmatrix[,!model$etamap$offsetmap,drop=FALSE], 
+              if(control$MCMLE.steplength.esteq) esteq else statsmatrix[,!model$etamap$offsetmap,drop=FALSE],
               if(control$MCMLE.steplength.esteq) esteq.obs else statsmatrix.obs[,!model$etamap$offsetmap,drop=FALSE],
               0, control$MCMLE.steplength,steplength.prev=steplen,point.gamma.exp=control$MCMLE.steplength.point.exp,x1.prefilter=control$MCMLE.steplength.prefilter,x2.prefilter=control$MCMLE.steplength.prefilter,verbose=verbose,
             x2.num.max=control$MCMLE.steplength.miss.sample, steplength.maxit=control$MCMLE.steplength.maxit,
