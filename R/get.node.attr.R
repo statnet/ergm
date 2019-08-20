@@ -339,7 +339,7 @@ ergm_get_vattr.AsIs <- function(object, nw, accept="character", bip=c("n","b1","
 }
 
 #' @rdname node-attr-api
-#' @importFrom purrr "%>%" "map" "pmap_chr"
+#' @importFrom purrr "%>%" map pmap_chr
 #' @importFrom rlang set_names
 #' @export
 ergm_get_vattr.character <- function(object, nw, accept="character", bip=c("n","b1","b2","a"), multiple=if(accept=="character") "paste" else "stop", ...){

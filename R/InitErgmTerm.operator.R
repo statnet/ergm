@@ -87,7 +87,7 @@ InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
 InitErgmTerm.Label <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "label", "pos"),
-                      vartypes = c("formula", "character,function", "character"),
+                      vartypes = c("formula", "character,function,formula", "character"),
                       defaultvalues = list(NULL, NULL, "("),
                       required = c(TRUE, TRUE, FALSE))
 
@@ -100,7 +100,8 @@ InitErgmTerm.Label <- function(nw, arglist, response=NULL, ...){
                       `(`=function(x) paste0(a$label,"(",x,")"),
                       append=function(x) paste0(x,a$label))
   }else{
-    renamer <- a$label
+    #' @importFrom purrr as_mapper
+    renamer <- as_mapper(a$label)
   }
 
   f <- a$formula

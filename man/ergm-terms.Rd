@@ -509,8 +509,8 @@
       }
     }
 
-    \item{\code{Label(formula, label, pos)} (binary) (operator), \code{Sum(formula, label, pos)} (valued) (operator)}{\emph{Modify terms' coefficient names}:
-      The \code{Label} operator evaluates \code{formula} without modification, but modifies its coefficient and/or parameter names based on \code{label} and \code{pos}. \code{label} is either a character vector specifying the label for the terms, or a function through which term names are mapped. If it is a character vector, the \code{pos} argument controls how it modifies the term naes: one of \code{"prepend"}, \code{"replace"}, \code{"append"}, or \code{"("}, with the latter wrapping the term names in parentheses like a function call with name specified by \code{label}.
+    \item{\code{Label(formula, label, pos)} (binary) (operator), \code{Label(formula, label, pos)} (valued) (operator)}{\emph{Modify terms' coefficient names}:
+      The \code{Label} operator evaluates \code{formula} without modification, but modifies its coefficient and/or parameter names based on \code{label} and \code{pos}. \code{label} is either a character vector specifying the label for the terms or a function through which term names are mapped (or a \code{\link[rlang]{as_mapper}}-style formula). If it is a character vector, the \code{pos} argument controls how it modifies the term naes: one of \code{"prepend"}, \code{"replace"}, \code{"append"}, or \code{"("}, with the latter wrapping the term names in parentheses like a function call with name specified by \code{label}.
     }
 
     \item{\code{NodematchFilter(formula, attrname)} (binary) (operator)}{\emph{Filtering on \code{\link{nodematch}}}:

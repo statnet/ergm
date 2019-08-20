@@ -1,3 +1,9 @@
+InitWtErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
+  out <- InitErgmTerm.passthrough(nw, arglist, response=response, ...)
+  out$name <- "wtpassthrough_term"
+  out
+}
+
 InitWtErgmTerm.B <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "form"),

@@ -1,5 +1,38 @@
 #include "wtchangestats_operator.h"
 
+/* passthrough(formula) */
+
+WtI_CHANGESTAT_FN(i_wtpassthrough_term){
+  double *inputs = INPUT_PARAM;
+  // No need to allocate it: we are only storing a pointer to a model.
+
+  STORAGE = unpack_WtModel_as_double(&inputs);
+
+  WtInitStats(nwp, STORAGE);
+}
+
+WtD_CHANGESTAT_FN(d_wtpassthrough_term){
+  GET_STORAGE(WtModel, m);
+
+  WtChangeStats(ntoggles, tails, heads, weights, nwp, m);
+
+  memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
+}
+
+WtU_CHANGESTAT_FN(u_wtpassthrough_term){
+  GET_STORAGE(WtModel, m);
+
+  WtUPDATE_STORAGE(tail, head, weight, nwp, m, NULL, edgeweight);
+}
+
+WtF_CHANGESTAT_FN(f_wtpassthrough_term){
+  GET_STORAGE(WtModel, m);
+
+  WtModelDestroy(nwp, m);
+
+  STORAGE = NULL;
+}
+
 /* import_binary_term_sum 
 
    A term to wrap dyad-independent binary ergm terms by taking their
