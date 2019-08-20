@@ -65,7 +65,7 @@ can be found (usually \code{"ergm"})}
 \item{arguments}{list of arguments passed to
 the \code{InitErgmProposal} function; in particular,
 \describe{
-\item{\code{constraints}}{list of constraints, with an optional attribute \code{"formula"}, specifying the formula from which they had been generated}
+\item{\code{constraints}}{list of constraints}
 }
 }
 }

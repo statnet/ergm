@@ -64,7 +64,7 @@
 #
 ##############################################################################
 
-ergm.pen.glm <- function(formula = attr(data, "formula"), 
+ergm.pen.glm <- function(formula,
   data = sys.parent(), alpha = 0.05, 
   maxit = 25, maxhs = 5, epsilon = 0.0001, maxstep = 10, 
   start=NULL,
@@ -164,7 +164,7 @@ ergm.pen.glm <- function(formula = attr(data, "formula"),
 #
 ###############################################################################
 
-logistftest <- function(formula = attr(data, "formula"),
+logistftest <- function(formula,
   data = sys.parent(), test, values, maxit = 25, maxhs = 5, 
   epsilon = 0.0001, maxstep = 10, start, weights=NULL)
 {

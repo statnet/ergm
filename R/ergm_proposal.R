@@ -129,7 +129,7 @@ prune.ergm_conlist <- function(conlist){
 #' \item{arguments}{list of arguments passed to
 #' the `InitErgmProposal` function; in particular,
 #' \describe{
-#' \item{`constraints`}{list of constraints, with an optional attribute `"formula"`, specifying the formula from which they had been generated}
+#' \item{`constraints`}{list of constraints}
 #' }
 #' }
 #' @seealso \code{\link{InitErgmProposal}}
@@ -275,7 +275,6 @@ ergm_conlist <- function(object, nw){
   
   conlist <- prune.ergm_conlist(conlist)
   
-  attr(conlist, "formula") <- object
   class(conlist) <- "ergm_conlist"
   conlist
 }
@@ -292,23 +291,27 @@ ergm_conlist <- function(object, nw){
 #' [list of implemented constraints][ergm-constraints] for more information.
 #' @export
 ergm_proposal.formula <- function(object, arguments, nw, weights="default", class="c", reference=~Bernoulli, response=NULL, ...) {
-  # TODO: Remove this around the end of 2018.
-  f <- try(
-    locate.InitFunction(reference[[2]], "InitReference", "Reference distribution"),
-    silent=TRUE
-  )
-  if(!is(f, "try-error")){
-    .Deprecated(msg="InitReference convention has been replaced by InitErgmReference.")
-  }else f <- locate.InitFunction(reference[[2]], "InitErgmReference", "Reference distribution") 
-  
-  if(is.call(reference[[2]])){
-    ref.call <- list(f, lhs.nw=nw)
-    ref.call <- c(ref.call,as.list(reference[[2]])[-1])
-  }else{
-    ref.call <- list(f, lhs.nw=nw)
-  }
-  ref <- eval(as.call(ref.call),environment(reference))
-  attr(ref, "formula") <- reference
+  if(is(reference, "formula")){
+    # TODO: Remove this around the end of 2018.
+    f <- try(
+      locate.InitFunction(reference[[2]], "InitReference", "Reference distribution"),
+      silent=TRUE
+    )
+    if(!is(f, "try-error")){
+      .Deprecated(msg="InitReference convention has been replaced by InitErgmReference.")
+    }else f <- locate.InitFunction(reference[[2]], "InitErgmReference", "Reference distribution")
+
+    if(is.call(reference[[2]])){
+      ref.call <- list(f, lhs.nw=nw)
+      ref.call <- c(ref.call,as.list(reference[[2]])[-1])
+    }else{
+      ref.call <- list(f, lhs.nw=nw)
+    }
+    ref <- eval(as.call(ref.call),environment(reference))
+    class(ref) <- "ergm_reference"
+  }else if(is(reference, "ergm_reference")){
+    ref <- reference
+  }else stop("Invalid reference= argument.")
 
   # TODO: Remove this around the end of 2018.
   if(is.null(ref$init_methods)){
