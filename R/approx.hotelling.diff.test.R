@@ -44,6 +44,9 @@
 #' @param var.equal for a 2-sample test, perform the pooled test:
 #'   assume population variance-covariance matrices of the two
 #'   variables are equal.
+#' @param ... additional arguments, passed on to [spectrum0.mvar()],
+#'   etc.; in particular, `order.max=` can be used to limit the order
+#'   of the AR model used to estimate the effective sample size.
 #'
 #' @return An object of class `htest` with the following information:
 #' \item{statistic}{The \eqn{T^2} statistic.}
@@ -67,7 +70,7 @@
 #' McGraw-Hill.
 #'
 #' @export approx.hotelling.diff.test
-approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.equal=FALSE){
+approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.equal=FALSE, ...){
   if(!is.mcmc.list(x))
     x <- mcmc.list(mcmc(as.matrix(x)))
   if(!is.null(y) && !is.mcmc.list(y))
@@ -81,14 +84,12 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
   vars <- list(x=list(v=x))
   if(!is.null(y)) vars$y <- list(v=y)
 
-  v <- NULL # Prevent a spurious R CMD check warning.
-  mywithin <- function(data, ...) within(data, ...) # This is a workaround suggsted by Duncan Murdoch: calling lapply(X, within, {CODE}) would leave CODE unable to see any objects in f.
-  vars <- lapply(vars, mywithin, {
+  vars <- lapply(if(is.null(y)) list(x=x) else list(x=x,y=y), function(v, ...){
     vcovs.indep <- lapply(v, cov)
     if(assume.indep){
       vcovs <- vcovs.indep
     }else{
-      vcovs <- lapply(v, spectrum0.mvar)
+      vcovs <- lapply(v, spectrum0.mvar, ...)
     }
     ms <- lapply(v, base::colMeans)
     m <- colMeans(as.matrix(v))
@@ -108,8 +109,9 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
     neff <- n / infl
     
     vcov.m <- vcov/n # Here, vcov already incorporates the inflation due to autocorrelation.
-  })
-  rm(mywithin, v)
+
+    list(v=v, vcovs.indep=vcovs.indep, vcovs=vcovs, ms=ms, m=m, ns=ns, n=n, vcov.indep=vcov.indep, vcov=vcov, infl=infl, neff=neff, vcov.m=vcov.m)
+  }, ...)
   
   x <- vars$x
   y <- vars$y
@@ -199,6 +201,11 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
 #'   the end of the sample to compare.
 #' @param split.mcmc.list when given an `mcmc.list`, whether to test
 #'   each chain individually.
+#' @param ... additional arguments, passed on to
+#'   [approx.hotelling.diff.test()], which passes them to
+#'   [spectrum0.mvar()], etc.; in particular, `order.max=` can be used
+#'   to limit the order of the AR model used to estimate the effective
+#'   sample size.
 #' @note If [approx.hotelling.diff.test()] returns an error, then
 #'   assume that burn-in is insufficient.
 #' @return An object of class `htest`, inheriting from that returned
@@ -207,14 +214,14 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
 #'
 #' @seealso [coda::geweke.diag()], [approx.hotelling.diff.test()]
 #' @export
-geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE){
+geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE, ...){
   # The following function's bookkeeping parts (e.g., handling of
   # mcmc.list and calculation of windows starts and ends) are loosely
   # based on parts of geweke.diag() from the coda R package.
   
   if(is.mcmc.list(x)){
     if(split.mcmc.list){
-      return(lapply(x, geweke.diag.mv, frac1, frac2))
+      return(lapply(x, geweke.diag.mv, frac1, frac2, ...))
     }
   }else{
     x <- as.mcmc(x)
@@ -224,7 +231,7 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE)
   x1 <- window(x, start=start(x), end=start(x) + frac1*x.len)
   x2 <- window(x, start=end(x) - frac2*x.len, end=end(x))
 
-  test <- approx.hotelling.diff.test(x1,x2,var.equal=TRUE) # When converged, the chain should have the same variance throughout.
+  test <- approx.hotelling.diff.test(x1,x2,var.equal=TRUE, ...) # When converged, the chain should have the same variance throughout.
   if(is.na(test$p.value)) test$p.value <- 0 # Interpret too-small a sample size as insufficient burn-in.
 
   test$method <- paste("Multivariate extension to Geweke's burn-in convergence diagnostic")

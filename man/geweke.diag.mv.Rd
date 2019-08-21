@@ -4,7 +4,8 @@
 \alias{geweke.diag.mv}
 \title{Multivariate version of \code{coda}'s \code{\link[coda:geweke.diag]{coda::geweke.diag()}}.}
 \usage{
-geweke.diag.mv(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE)
+geweke.diag.mv(x, frac1 = 0.1, frac2 = 0.5, split.mcmc.list = FALSE,
+  ...)
 }
 \arguments{
 \item{x}{an \code{\link{mcmc}}, \code{\link{mcmc.list}}, or just a matrix with
@@ -15,6 +16,12 @@ the end of the sample to compare.}
 
 \item{split.mcmc.list}{when given an \code{mcmc.list}, whether to test
 each chain individually.}
+
+\item{...}{additional arguments, passed on to
+\code{\link[=approx.hotelling.diff.test]{approx.hotelling.diff.test()}}, which passes them to
+\code{\link[=spectrum0.mvar]{spectrum0.mvar()}}, etc.; in particular, \code{order.max=} can be used
+to limit the order of the AR model used to estimate the effective
+sample size.}
 }
 \value{
 An object of class \code{htest}, inheriting from that returned

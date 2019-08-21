@@ -5,7 +5,7 @@
 \title{Approximate Hotelling T^2-Test for One Sample Means}
 \usage{
 approx.hotelling.diff.test(x, y = NULL, mu0 = 0,
-  assume.indep = FALSE, var.equal = FALSE)
+  assume.indep = FALSE, var.equal = FALSE, ...)
 }
 \arguments{
 \item{x}{a numeric matrix of data values with cases in rows and
@@ -25,6 +25,10 @@ test without attempting to account for autocorrelation.}
 \item{var.equal}{for a 2-sample test, perform the pooled test:
 assume population variance-covariance matrices of the two
 variables are equal.}
+
+\item{...}{additional arguments, passed on to \code{\link[=spectrum0.mvar]{spectrum0.mvar()}},
+etc.; in particular, \code{order.max=} can be used to limit the order
+of the AR model used to estimate the effective sample size.}
 }
 \value{
 An object of class \code{htest} with the following information:
