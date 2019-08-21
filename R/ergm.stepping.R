@@ -50,7 +50,6 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   theta.original=init
   
   ## Prepare the output structure:
-  formula <- model$formula  # formula for this model
   obsstats <- summary(model, nw)  # Observed statistics
   init <- init  # beginning parameter value
   samples <- list()  # matrices of sampled network statistics
@@ -66,7 +65,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   while (!finished) { # Iterate until gamma==1
     iter=iter+1
     ## Generate an mcmc sample from the probability distribution determined by orig.mle
-    samples[[iter]]=simulate(formula, nsim=control$MCMC.samplesize,
+    samples[[iter]]=simulate(model, nsim=control$MCMC.samplesize, basis=nw,
                                      coef=eta[[iter]], output="stats",
                                      constraints=constraints, 
                                      control=set.control.class("control.simulate.formula",control), ...)
@@ -160,7 +159,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   message("Now ending with one large sample for MLE. ")
   flush.console()
   iter <- iter+1
-  finalsample <- simulate(formula, nsim=control$MCMC.samplesize,
+  finalsample <- simulate(model, nsim=control$MCMC.samplesize, basis=nw,
                                   coef=eta[[iter]], output="stats", 
                                   constraints=constraints, 
                                   control=set.control.class("control.simulate.formula",control), ...)

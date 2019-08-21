@@ -36,8 +36,6 @@
 #' @param object An `ergm_model` object.
 #' @return `ergm_model` returns an  `ergm_model` object as a list
 #' containing:
-#' \item{ formula}{the formula inputted to
-#' \code{\link{ergm_model}}}
 #' \item{coef.names}{a vector of coefficient names}
 #' \item{offset}{a logical vector of whether each term was "offset", i.e.
 #' fixed}
@@ -69,7 +67,7 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, role="stat
   
   formula.env<-environment(formula)
   
-  model <- structure(list(formula=formula, coef.names = NULL,
+  model <- structure(list(coef.names = NULL,
                       offset = NULL,
                       terms = NULL, networkstats.0 = NULL, etamap = NULL),
                  class = "ergm_model")
@@ -276,7 +274,6 @@ c.ergm_model <- function(...){
       o[[name]] <- c(o[[name]], m[[name]])
     
     o$duration <- max(o$duration, m$duration)
-    o$formula <- append_rhs.formula(o$formula, m$formula, keep.onesided=TRUE)
   }
 
   o$etamap <- ergm.etamap(o)

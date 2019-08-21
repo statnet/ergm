@@ -300,7 +300,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     # network.list. Therefore, set the simulation and monitor formulas,
     # which simulate.ergm_model() doesn't know.
     attributes(out) <- c(attributes(out),
-                         list(formula=object, monitor=monitor))
+                         list(formula=object, monitor=monitor, constraints=constraints, reference=reference))
     out
   }else{
     list(object=m, nsim=nsim, seed=seed,
@@ -487,11 +487,9 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   if(length(nw.list)==1&&simplify){
     nw.list <- nw.list[[1]] # Just one network.
   }else{
-      attributes(nw.list) <- list(formula=object, monitor=monitor,
-                                stats=stats, coef=coef,
-                                control=control,
-                                constraints=attr(constraints$arguments$constraints,"formula"), reference=reference,
-                                monitor=monitor, response=response)
+      attributes(nw.list) <- list(stats=stats, coef=coef,
+                                  control=control,
+                                  response=response)
     
     class(nw.list) <- "network.list"
   }
