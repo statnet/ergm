@@ -179,14 +179,7 @@ ergm_proposal.character <- function(object, arguments, nw, ..., response=NULL, r
 
   arguments$reference <- reference
 
-  # TODO: Remove this around the end of 2018.
-  f <- try(
-    locate.InitFunction(name, NVL2(response, "InitWtMHP", "InitMHP"), "Metropolis-Hastings proposal"),
-    silent=TRUE
-  )
-  if(!is(f, "try-error")){
-    .Deprecated(msg="InitWtMHP and InitMHP convention has been replaced by InitWtErgm and InitErgm, respectively.")
-  }else f <- locate.InitFunction(name, NVL2(response, "InitWtErgmProposal", "InitErgmProposal"), "Metropolis-Hastings proposal")
+  f <- locate.InitFunction(name, NVL2(response, "InitWtErgmProposal", "InitErgmProposal"), "Metropolis-Hastings proposal")
 
   proposal <- NVL3(response,
                    eval(as.call(list(f, arguments, nw, .))),
@@ -247,14 +240,7 @@ ergm_conlist <- function(object, nw){
     ## There may be other constraints in the formula, however.
     if(constraint==".") next
 
-    # TODO: Remove this around the end of 2018.
-    f <- try(
-      f <- locate.InitFunction(constraint, "InitConstraint", "Sample space constraint"),
-      silent=TRUE
-    )
-    if(!is(f, "try-error")){
-      .Deprecated(msg="InitConstraint convention has been replaced by InitErgmConstraint.")
-    }else f <- locate.InitFunction(constraint, "InitErgmConstraint", "Sample space constraint")
+    f <- locate.InitFunction(constraint, "InitErgmConstraint", "Sample space constraint")
     
     if(is.call(constraint)){
       conname <- as.character(constraint[[1]])
@@ -295,14 +281,7 @@ ergm_conlist <- function(object, nw){
 ergm_proposal.formula <- function(object, arguments, nw, weights="default", class="c", reference=~Bernoulli, response=NULL, ...) {
   NVL(response) <- nw %ergmlhs% "response"
   if(is(reference, "formula")){
-    # TODO: Remove this around the end of 2018.
-    f <- try(
-      locate.InitFunction(reference[[2]], "InitReference", "Reference distribution"),
-      silent=TRUE
-    )
-    if(!is(f, "try-error")){
-      .Deprecated(msg="InitReference convention has been replaced by InitErgmReference.")
-    }else f <- locate.InitFunction(reference[[2]], "InitErgmReference", "Reference distribution")
+    f <- locate.InitFunction(reference[[2]], "InitErgmReference", "Reference distribution")
 
     if(is.call(reference[[2]])){
       ref.call <- list(f, lhs.nw=nw)
@@ -315,12 +294,6 @@ ergm_proposal.formula <- function(object, arguments, nw, weights="default", clas
   }else if(is(reference, "ergm_reference")){
     ref <- reference
   }else stop("Invalid reference= argument.")
-
-  # TODO: Remove this around the end of 2018.
-  if(is.null(ref$init_methods)){
-    .Deprecated(msg="Initial methods are now specified in the InitErgmReference.* function. Defaulting to 'CD' and 'zeros'.")
-    ref$init_methods <- c("CD", "zeros")
-  }
 
   if(length(object)==3){
     lhs <- object[[2]]

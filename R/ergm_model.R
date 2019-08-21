@@ -146,13 +146,6 @@ call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ..., term
   out
 }
 
-#' @describeIn ergm-deprecated Use `ergm_model` instead.
-#' @export ergm.getmodel
-ergm.getmodel <- function(object, ...){
-  .Deprecated("ergm_model")
-  ergm_model(object, ...)
-}
-
 #######################################################################
 # The <updatemodel.ErgmTerm> function updates an existing model object
 # to include an initialized ergm term, X;
