@@ -12,7 +12,8 @@ control.simulate.formula.ergm(MCMC.burnin = MCMC.interval * 16,
   MCMC.prop.args = list(), MCMC.effectiveSize = NULL,
   MCMC.effectiveSize.damp = 10, MCMC.effectiveSize.maxruns = 1000,
   MCMC.effectiveSize.base = 1/2, MCMC.effectiveSize.points = 5,
-  MCMC.effectiveSize.burnin.pval = 0.2, MCMC.init.maxedges = 20000,
+  MCMC.effectiveSize.burnin.pval = 0.2,
+  MCMC.effectiveSize.order.max = NULL, MCMC.init.maxedges = 20000,
   MCMC.packagenames = c(), MCMC.runtime.traceplot = FALSE,
   network.output = "network", term.options = NULL, parallel = 0,
   parallel.type = NULL, parallel.version.check = TRUE,
@@ -23,7 +24,8 @@ control.simulate(MCMC.burnin = MCMC.interval * 16,
   MCMC.prop.args = list(), MCMC.effectiveSize = NULL,
   MCMC.effectiveSize.damp = 10, MCMC.effectiveSize.maxruns = 1000,
   MCMC.effectiveSize.base = 1/2, MCMC.effectiveSize.points = 5,
-  MCMC.effectiveSize.burnin.pval = 0.2, MCMC.init.maxedges = 20000,
+  MCMC.effectiveSize.burnin.pval = 0.2,
+  MCMC.effectiveSize.order.max = NULL, MCMC.init.maxedges = 20000,
   MCMC.packagenames = c(), MCMC.runtime.traceplot = FALSE,
   network.output = "network", term.options = NULL, parallel = 0,
   parallel.type = NULL, parallel.version.check = TRUE,
@@ -34,7 +36,8 @@ control.simulate.formula(MCMC.burnin = MCMC.interval * 16,
   MCMC.prop.args = list(), MCMC.effectiveSize = NULL,
   MCMC.effectiveSize.damp = 10, MCMC.effectiveSize.maxruns = 1000,
   MCMC.effectiveSize.base = 1/2, MCMC.effectiveSize.points = 5,
-  MCMC.effectiveSize.burnin.pval = 0.2, MCMC.init.maxedges = 20000,
+  MCMC.effectiveSize.burnin.pval = 0.2,
+  MCMC.effectiveSize.order.max = NULL, MCMC.init.maxedges = 20000,
   MCMC.packagenames = c(), MCMC.runtime.traceplot = FALSE,
   network.output = "network", term.options = NULL, parallel = 0,
   parallel.type = NULL, parallel.version.check = TRUE,
@@ -45,10 +48,11 @@ control.simulate.ergm(MCMC.burnin = NULL, MCMC.interval = NULL,
   MCMC.effectiveSize = NULL, MCMC.effectiveSize.damp = 10,
   MCMC.effectiveSize.maxruns = 1000, MCMC.effectiveSize.base = 1/2,
   MCMC.effectiveSize.points = 5, MCMC.effectiveSize.burnin.pval = 0.2,
-  MCMC.init.maxedges = NULL, MCMC.packagenames = NULL,
-  MCMC.runtime.traceplot = FALSE, network.output = "network",
-  term.options = NULL, parallel = 0, parallel.type = NULL,
-  parallel.version.check = TRUE, parallel.inherit.MT = FALSE, ...)
+  MCMC.effectiveSize.order.max = NULL, MCMC.init.maxedges = NULL,
+  MCMC.packagenames = NULL, MCMC.runtime.traceplot = FALSE,
+  network.output = "network", term.options = NULL, parallel = 0,
+  parallel.type = NULL, parallel.version.check = TRUE,
+  parallel.inherit.MT = FALSE, ...)
 }
 \arguments{
 \item{MCMC.burnin}{Number of proposals before any MCMC sampling is done. It
@@ -72,7 +76,7 @@ a low edge density, as is typical of many realistic social networks.}
 \item{MCMC.prop.args}{An alternative, direct way of specifying additional
 arguments to proposal.}
 
-\item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.burnin.pval}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
+\item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.burnin.pval, MCMC.effectiveSize.order.max}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
 determine the burn-in and the MCMC length needed to get the
 specified effective size; 50 is a reasonable value. In the
 adaptive MCMC mode, MCMC is run forward repeatedly
@@ -94,7 +98,10 @@ baseline \code{MCMC.samplesize} by the weighting factor
 \code{MCMC.effectiveSize.damp} (higher = less damping). Lastly, if
 after an MCMC run, the number of samples equals or exceeds
 \code{2*MCMC.samplesize}, the chain will be thinned by 2 until it
-falls below that, while doubling \code{MCMC.interval}.}
+falls below that, while doubling
+\code{MCMC.interval}. \code{MCMC.effectiveSize.order.max} can be used to
+set the order of the AR model used to estimate the effective
+sample size and the variance for the Geweke diagnostic.}
 
 \item{MCMC.init.maxedges}{Maximum number of edges expected in network.}
 

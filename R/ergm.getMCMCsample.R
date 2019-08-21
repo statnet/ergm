@@ -134,7 +134,7 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
              ,ask=FALSE,smooth=TRUE,density=FALSE)
       }
 
-      best.burnin <- .find_OK_burnin(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, min.pval=control$MCMC.effectiveSize.burnin.pval)
+      best.burnin <- .find_OK_burnin(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, min.pval=control$MCMC.effectiveSize.burnin.pval, order.max=control$MCMC.effectiveSize.order.max)
       burnin.pval <- best.burnin$pval
       if(burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
         if(verbose>1) message("No adequate burn-in found. Best convergence p-value = ", burnin.pval)
@@ -142,7 +142,7 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
       }
       postburnin.mcmc <- window(esteq, start=start(esteq)+best.burnin$burnin*thin(esteq))
       
-      eS <- niter(postburnin.mcmc)*nchain(postburnin.mcmc)/attr(spectrum0.mvar(postburnin.mcmc),"infl")
+      eS <- niter(postburnin.mcmc)*nchain(postburnin.mcmc)/attr(spectrum0.mvar(postburnin.mcmc, order.max=control$MCMC.effectiveSize.order.max),"infl")
       
       if(verbose) message("ESS of ",eS," attained with burn-in of ", round(best.burnin$burnin/niter(esteq)*100,2),"%; convergence p-value = ", burnin.pval, ".")
 
@@ -327,10 +327,10 @@ ergm_MCMC_slave <- function(Clist,proposal,eta,control,verbose,...,prev.run=NULL
 }
 
 
-.find_OK_burnin <- function(x, npts, base, min.pval=0.2){
+.find_OK_burnin <- function(x, npts, base, min.pval=0.2, ...){
   geweke <- function(b){
     if(b>0) x <- window(x, start=start(x) + b * thin(x))
-    suppressWarnings(geweke.diag.mv(x)$p.value)
+    suppressWarnings(geweke.diag.mv(x, ...)$p.value)
   }
 
   # TODO: Implement bisection algorithm here.

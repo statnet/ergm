@@ -15,17 +15,17 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   MCMC.effectiveSize = NULL, MCMC.effectiveSize.damp = 10,
   MCMC.effectiveSize.maxruns = 16, MCMC.effectiveSize.base = 1/2,
   MCMC.effectiveSize.points = 5, MCMC.effectiveSize.burnin.pval = 0.2,
-  MCMC.return.stats = TRUE, MCMC.runtime.traceplot = FALSE,
-  MCMC.init.maxedges = 20000, MCMC.max.maxedges = Inf,
-  MCMC.addto.se = TRUE, MCMC.packagenames = c(), SAN.maxit = 4,
-  SAN.nsteps.times = 8, SAN.control = control.san(term.options =
-  term.options, SAN.maxit = SAN.maxit, SAN.prop.weights =
-  MCMC.prop.weights, SAN.prop.args = MCMC.prop.args, SAN.init.maxedges =
-  MCMC.init.maxedges, SAN.max.maxedges = MCMC.max.maxedges, SAN.nsteps =
-  EVL(MCMC.burnin, 16384) * SAN.nsteps.times, SAN.samplesize =
-  EVL(MCMC.samplesize, 1024), SAN.packagenames = MCMC.packagenames,
-  parallel = parallel, parallel.type = parallel.type,
-  parallel.version.check = parallel.version.check),
+  MCMC.effectiveSize.order.max = NULL, MCMC.return.stats = TRUE,
+  MCMC.runtime.traceplot = FALSE, MCMC.init.maxedges = 20000,
+  MCMC.max.maxedges = Inf, MCMC.addto.se = TRUE,
+  MCMC.packagenames = c(), SAN.maxit = 4, SAN.nsteps.times = 8,
+  SAN.control = control.san(term.options = term.options, SAN.maxit =
+  SAN.maxit, SAN.prop.weights = MCMC.prop.weights, SAN.prop.args =
+  MCMC.prop.args, SAN.init.maxedges = MCMC.init.maxedges, SAN.max.maxedges
+  = MCMC.max.maxedges, SAN.nsteps = EVL(MCMC.burnin, 16384) *
+  SAN.nsteps.times, SAN.samplesize = EVL(MCMC.samplesize, 1024),
+  SAN.packagenames = MCMC.packagenames, parallel = parallel, parallel.type
+  = parallel.type, parallel.version.check = parallel.version.check),
   MCMLE.termination = c("confidence", "Hummel", "Hotelling", "precision",
   "none"), MCMLE.maxit = 30, MCMLE.conv.min.pval = 0.5,
   MCMLE.confidence = 0.99, MCMLE.confidence.boost = 2,
@@ -231,7 +231,7 @@ Metropolis-Hastings algorithm.  Increasing sample size may increase the
 precision in the estimates by reducing MCMC error, at the expense of time.
 Set it higher for larger networks, or when using parallel functionality.}
 
-\item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.burnin.pval}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
+\item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.burnin.pval, MCMC.effectiveSize.order.max}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
 determine the burn-in and the MCMC length needed to get the
 specified effective size; 50 is a reasonable value. In the
 adaptive MCMC mode, MCMC is run forward repeatedly
@@ -253,7 +253,10 @@ baseline \code{MCMC.samplesize} by the weighting factor
 \code{MCMC.effectiveSize.damp} (higher = less damping). Lastly, if
 after an MCMC run, the number of samples equals or exceeds
 \code{2*MCMC.samplesize}, the chain will be thinned by 2 until it
-falls below that, while doubling \code{MCMC.interval}.}
+falls below that, while doubling
+\code{MCMC.interval}. \code{MCMC.effectiveSize.order.max} can be used to
+set the order of the AR model used to estimate the effective
+sample size and the variance for the Geweke diagnostic.}
 
 \item{MCMC.return.stats}{Logical: If TRUE, return the matrix of MCMC-sampled
 network statistics.  This matrix should have \code{MCMC.samplesize} rows.
