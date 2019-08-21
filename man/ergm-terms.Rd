@@ -1186,10 +1186,12 @@
       \code{decay} parameter, which should be non-negative. The value supplied for
       this parameter may be fixed (if \code{fixed=TRUE}),
       or it may be used instead as the starting value for the estimation of \code{decay}
-      in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006). For
-      directed networks the count is over homogeneous shared partners only (i.e.,
-      only partners on a directed two-path connecting the nodes in the
-      dyad).
+      in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006).
+      For directed networks, only outgoing two-path ("OTP") shared partners
+      are counted.  In other words, for a (directed) dyad \code{(i,j)} in a
+      directed graph, the number of shared partners counted by \code{gwdsp} 
+      is the number of nodes \code{k} that have edges \code{i -> k -> j}.  
+      (These may also be called homogeneous shared partners.)
 
       \GWCutoff{DSP}
     }
@@ -1203,10 +1205,11 @@
       this parameter may be fixed (if \code{fixed=TRUE}),
       or it may be used instead as the starting value for the estimation of \code{decay}
       in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006). This term can be used with directed and
-      undirected networks. For directed networks the geometric weighting is over
-      homogeneous shared partners only (i.e., only partners on a directed two-path
-      connecting the nodes in the edge and in the same direction).
-      The optional argument \code{cutoff}
+      undirected networks.  For directed networks, only outgoing two-path ("OTP") 
+      shared partners are counted.  In other words, for an edge \code{i -> j} in 
+      a directed graph, the number of shared partners counted by \code{gwesp} is 
+      the number of nodes \code{k} that have edges \code{i -> k -> j}.  (These 
+      may also be called homogeneous shared partners.)
 
       \GWCutoff{ESP}
     }
@@ -1237,10 +1240,12 @@
       exponential-family model (see Hunter and Handcock, 2006).  The
       default is \code{FALSE}, which means the scale parameter is not
       fixed and thus the model is a CEF model. This term can be used with
-      directed and undirected networks. For directed networks the
-      geometric weighting is over homogeneous shared partners only (i.e.,
-      only partners on a directed two-path connecting the nodes in the
-      non-edge and in the same direction).
+      directed and undirected networks.  For directed networks, only outgoing
+      two-path ("OTP") shared partners are counted.  In other words, for a 
+      (directed) non-edge \code{(i,j)} in a directed graph, the number of 
+      shared partners counted by \code{gwnsp} is the number of nodes \code{k}
+      that have edges \code{i -> k -> j}.  (These may also be called homogeneous 
+      shared partners.)
 
       \GWCutoff{NSP}
     }
