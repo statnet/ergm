@@ -36,7 +36,8 @@ void WtSAN_wrapper (int *nedges,
 		    double *invcov, 
 		    int *fVerbose, 
 		    int *maxedges,
-		    int *status){
+		    int *status,
+            double *offsets){
   int directed_flag;
   Vertex n_nodes, nmax, bip;
   WtNetwork *nwp;
@@ -67,7 +68,7 @@ void WtSAN_wrapper (int *nedges,
     *status = WtSANSample(MHp,
 			  invcov, tau, sample, prop_sample, *samplesize,
 			  *nsteps,
-			  *fVerbose, nmax, nwp, m);
+			  *fVerbose, nmax, nwp, m, offsets);
   else *status = WtMCMC_MH_FAILED;
 
   WtMHProposalDestroy(MHp);
@@ -99,7 +100,8 @@ WtMCMCStatus WtSANSample (WtMHProposal *MHp,
   double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
   int samplesize, int nsteps, 
   int fVerbose, int nmax,
-  WtNetwork *nwp, WtModel *m) {
+  WtNetwork *nwp, WtModel *m,
+  double *offsets) {
   int staken, tottaken, ptottaken;
     
   /*********************
@@ -127,7 +129,7 @@ WtMCMCStatus WtSANSample (WtMHProposal *MHp,
    *********************/
   /*  Catch more edges than we can return */
   if(WtSANMetropolisHastings(MHp, invcov, tau, networkstatistics, prop_networkstatistics, burnin, &staken,
-			     fVerbose, nwp, m)!=WtMCMC_OK)
+			     fVerbose, nwp, m, offsets)!=WtMCMC_OK)
     return WtMCMC_MH_FAILED;
   if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
     return WtMCMC_TOO_MANY_EDGES;
@@ -155,7 +157,7 @@ WtMCMCStatus WtSANSample (WtMHProposal *MHp,
       /* This then adds the change statistics to these values */
       
       if(WtSANMetropolisHastings (MHp, invcov, tau, networkstatistics, prop_networkstatistics,
-		             interval, &staken, fVerbose, nwp, m)!=WtMCMC_OK)
+		             interval, &staken, fVerbose, nwp, m, offsets)!=WtMCMC_OK)
 	return WtMCMC_MH_FAILED;
       if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
 	return WtMCMC_TOO_MANY_EDGES;
@@ -213,7 +215,8 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
 			    int nsteps, int *staken,
 			    int fVerbose,
 			    WtNetwork *nwp,
-			    WtModel *m) {
+			    WtModel *m,
+                double *offsets) {
   unsigned int taken=0, unsuccessful=0;
   double *deltainvsig;
   deltainvsig = (double *)Calloc(m->n_stats, double);
@@ -277,12 +280,18 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
      }
      ip+=deltainvsig[i]*((m->workspace[i])+2.0*networkstatistics[i]);
     }
+    
+    double offsetcontrib = 0;
+    for(int i = 0; i < m->n_stats; i++){
+        offsetcontrib += (m->workspace[i])*offsets[i];
+    }
+    
     if(fVerbose>=5){
-      Rprintf("log acceptance probability: %f\n", ip);
+      Rprintf("log acceptance probability: %f\n", ip - offsetcontrib);
     }
     
     /* if we accept the proposed network */
-    if (tau[0]==0? ip <= 0 : ip/tau[0] <= -log(unif_rand()) ) { 
+    if (tau[0]==0? ip - offsetcontrib <= 0 : ip/tau[0] - offsetcontrib <= -log(unif_rand()) ) { 
       if(fVerbose>=5){
 	Rprintf("Accepted.\n");
       }

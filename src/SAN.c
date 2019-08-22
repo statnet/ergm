@@ -40,7 +40,8 @@ void SAN_wrapper ( int *nedges,
                    int *attribs, int *maxout, int *maxin, int *minout,
                    int *minin, int *condAllDegExact, int *attriblength, 
                    int *maxedges,
-		   int *status){
+		   int *status,
+           double *offsets){
   int directed_flag;
   Vertex n_nodes, nmax, bip;
   Network *nwp;
@@ -76,7 +77,7 @@ void SAN_wrapper ( int *nedges,
     *status = SANSample(MHp,
 			invcov, tau, sample, prop_sample, *samplesize,
 			*nsteps,
-			*fVerbose, nmax, nwp, m);
+			*fVerbose, nmax, nwp, m, offsets);
   else *status = MCMC_MH_FAILED;
 
   MHProposalDestroy(MHp);
@@ -107,7 +108,8 @@ MCMCStatus SANSample (MHProposal *MHp,
   double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
   int samplesize, int nsteps, 
   int fVerbose, int nmax,
-  Network *nwp, Model *m) {
+  Network *nwp, Model *m,
+  double *offsets) {
   int staken, tottaken, ptottaken;
     
   /*********************
@@ -135,7 +137,7 @@ MCMCStatus SANSample (MHProposal *MHp,
    *********************/
   /*  Catch more edges than we can return */
   if(SANMetropolisHastings(MHp, invcov, tau, networkstatistics, prop_networkstatistics, burnin, &staken,
-			   fVerbose, nwp, m)!=MCMC_OK)
+			   fVerbose, nwp, m, offsets)!=MCMC_OK)
     return MCMC_MH_FAILED;
   if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
     return MCMC_TOO_MANY_EDGES;
@@ -164,7 +166,7 @@ MCMCStatus SANSample (MHProposal *MHp,
       
       if(SANMetropolisHastings(MHp, invcov, tau, networkstatistics, prop_networkstatistics,
 		             interval, &staken,
-			       fVerbose, nwp, m)!=MCMC_OK)
+			       fVerbose, nwp, m, offsets)!=MCMC_OK)
 	return MCMC_MH_FAILED;
       if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
 	return MCMC_TOO_MANY_EDGES;
@@ -222,7 +224,8 @@ MCMCStatus SANMetropolisHastings (MHProposal *MHp,
 			    int nsteps, int *staken,
 			    int fVerbose,
 			    Network *nwp,
-			    Model *m) {
+			    Model *m,
+                double *offsets) {
   unsigned int taken=0, unsuccessful=0;
   double *deltainvsig;
   deltainvsig = (double *)Calloc(m->n_stats, double);
@@ -286,12 +289,18 @@ MCMCStatus SANMetropolisHastings (MHProposal *MHp,
      }
      ip+=deltainvsig[i]*((m->workspace[i])+2.0*networkstatistics[i]);
     }
+    
+    double offsetcontrib = 0;
+    for(int i = 0; i < m->n_stats; i++){
+        offsetcontrib += (m->workspace[i])*offsets[i];
+    }
+    
     if(fVerbose>=5){
-      Rprintf("log acceptance probability: %f\n", ip);
+      Rprintf("log acceptance probability: %f\n", ip - offsetcontrib);
     }
     
     /* if we accept the proposed network */
-    if (tau[0]==0? ip <= 0 : ip/tau[0] <= -log(unif_rand()) ) { 
+    if (tau[0]==0? ip - offsetcontrib <= 0 : ip/tau[0] - offsetcontrib <= -log(unif_rand()) ) { 
       if(fVerbose>=5){
 	Rprintf("Accepted.\n");
       }
