@@ -186,6 +186,8 @@
 
 \newcommand{\GWCutoff}{The optional argument \code{cutoff} sets the number of underlying #1 terms to use in computing the statistics when \code{fixed=FALSE}, in order to reduce the computational burden.  Its default value can also be controlled by the \code{gw.cutoff} term option control parameter. (See \code{\link{control.ergm}}.)}
 
+\newcommand{\SPtoDSP}{For directed networks, only outgoing two-path ("OTP") shared partners are counted.  In other words, for a #2 in a directed graph, the number of shared partners counted by \code{#1} is the number of nodes \code{k} that have edges \code{i -> k -> j}.  (These may also be called homogeneous shared partners.)  To count other types of shared partners instead, see \code{#3}.}
+
 \title{Terms used in Exponential Family Random Graph Models}
 \description{
   The function \code{\link{ergm}} is used to fit exponential
@@ -1024,10 +1026,10 @@
       The \code{d} argument is a vector of distinct integers. This term adds one
       network statistic to the model for each element in \code{d}; the \eqn{i}th
       such statistic equals the number of dyads in the network with exactly
-      \code{d[i]} shared partners. This term can be used with directed and
-      undirected networks. For directed networks the count is over homogeneous
-      shared partners only (i.e., only partners on a directed two-path connecting
-      the nodes in the dyad).}
+      \code{d[i]} shared partners.  This term can be used with directed and
+      undirected networks.
+      
+      \SPtoDSP{dsp}{(directed) dyad \code{(i,j)}}{ddsp}}
 
     \item{\code{dyadcov(x, attrname=NULL)}  (binary)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute)
     }{\emph{Dyadic covariate:} The \code{x}
@@ -1076,9 +1078,9 @@
       statistic to the model for each element in \code{d} where the \eqn{i}th such
       statistic equals the number of \emph{edges} (rather than dyads) in the
       network with exactly \code{d[i]} shared partners. This term can be used with
-      directed and undirected networks. For directed networks the count is over
-      homogeneous shared partners only (i.e., only partners on a directed two-path
-      connecting the nodes in the edge and in the same direction).}
+      directed and undirected networks.
+      
+      \SPtoDSP{esp}{(directed) edge \code{i -> j}}{desp}}
 
     \item{\code{equalto(value=0, tolerance=0)}  (valued)  (directed)  (undirected) (dyad-independent)}{\emph{Number of dyads with
 	values equal to a specific value (within tolerance):}
@@ -1187,11 +1189,10 @@
       this parameter may be fixed (if \code{fixed=TRUE}),
       or it may be used instead as the starting value for the estimation of \code{decay}
       in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006).
-      For directed networks, only outgoing two-path ("OTP") shared partners
-      are counted.  In other words, for a (directed) dyad \code{(i,j)} in a
-      directed graph, the number of shared partners counted by \code{gwdsp} 
-      is the number of nodes \code{k} that have edges \code{i -> k -> j}.  
-      (These may also be called homogeneous shared partners.)
+      This term can be used with directed and
+      undirected networks.
+      
+      \SPtoDSP{gwdsp}{(directed) dyad \code{(i,j)}}{dgwdsp}
 
       \GWCutoff{DSP}
     }
@@ -1205,11 +1206,9 @@
       this parameter may be fixed (if \code{fixed=TRUE}),
       or it may be used instead as the starting value for the estimation of \code{decay}
       in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006). This term can be used with directed and
-      undirected networks.  For directed networks, only outgoing two-path ("OTP") 
-      shared partners are counted.  In other words, for an edge \code{i -> j} in 
-      a directed graph, the number of shared partners counted by \code{gwesp} is 
-      the number of nodes \code{k} that have edges \code{i -> k -> j}.  (These 
-      may also be called homogeneous shared partners.)
+      undirected networks.
+      
+      \SPtoDSP{gwesp}{(directed) edge \code{i -> j}}{dgwesp}
 
       \GWCutoff{ESP}
     }
@@ -1240,12 +1239,10 @@
       exponential-family model (see Hunter and Handcock, 2006).  The
       default is \code{FALSE}, which means the scale parameter is not
       fixed and thus the model is a CEF model. This term can be used with
-      directed and undirected networks.  For directed networks, only outgoing
-      two-path ("OTP") shared partners are counted.  In other words, for a 
-      (directed) non-edge \code{(i,j)} in a directed graph, the number of 
-      shared partners counted by \code{gwnsp} is the number of nodes \code{k}
-      that have edges \code{i -> k -> j}.  (These may also be called homogeneous 
-      shared partners.)
+      directed and undirected networks.
+      
+      \SPtoDSP{gwnsp}{(directed) non-edge \code{(i,j)}}{dgwnsp}
+
 
       \GWCutoff{NSP}
     }
@@ -1694,10 +1691,9 @@
       where the \eqn{i}th such statistic equals the number of
       \emph{non-edges} (that is, dyads that do not have an edge) in the network
       with exactly \code{d[i]} shared partners. This term can be used with
-      directed and undirected networks. For directed networks the count is
-      over homogeneous shared partners only (i.e., only partners on a
-      directed two-path connecting the nodes in the non-edge and in the same
-      direction).}
+      directed and undirected networks. 
+      
+      \SPtoDSP{nsp}{(directed) non-edge \code{(i,j)}}{dnsp}}
 
     \item{\code{odegrange(from, to=+Inf, by=NULL, homophily=FALSE, levels=NULL)} (binary)  (directed) (categorical nodal attribute)
     }{\emph{Out-degree range:}
