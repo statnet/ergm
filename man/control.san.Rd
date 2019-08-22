@@ -9,8 +9,9 @@ control.san(SAN.maxit = 4, SAN.tau = 1, SAN.invcov = NULL,
   2^seq_len(nsim), SAN.nsteps = 2^19, SAN.samplesize = 2^12,
   SAN.init.maxedges = 20000, SAN.max.maxedges = 2^26,
   SAN.prop.weights = "default", SAN.prop.args = list(),
-  SAN.packagenames = c(), term.options = list(), seed = NULL,
-  parallel = 0, parallel.type = NULL, parallel.version.check = TRUE)
+  SAN.packagenames = c(), SAN.ignore.finite.offsets = TRUE,
+  term.options = list(), seed = NULL, parallel = 0,
+  parallel.type = NULL, parallel.version.check = TRUE)
 }
 \arguments{
 \item{SAN.maxit}{Number of temperature levels to use.}
@@ -54,6 +55,8 @@ arguments to proposal.}
 \item{SAN.packagenames}{Names of packages in which to look for change
 statistic functions in addition to those autodetected. This argument should
 not be needed outside of very strange setups.}
+
+\item{SAN.ignore.finite.offsets}{Whether SAN should ignore (treat as 0) finite offsets.}
 
 \item{term.options}{A list of additional arguments to be passed to term initializers. It can also be set globally via \code{option(ergm.term=list(...))}.}
 
