@@ -14,19 +14,21 @@ san(object, ...)
 \method{san}{formula}(object, response = NULL, reference = ~Bernoulli,
   constraints = ~., target.stats = NULL, nsim = NULL, basis = NULL,
   output = c("network", "edgelist", "pending_update_network"),
-  only.last = TRUE, control = control.san(), verbose = FALSE, ...)
+  only.last = TRUE, control = control.san(), verbose = FALSE,
+  offset.coef = NULL, ...)
 
 \method{san}{ergm_model}(object, response = NULL,
   reference = ~Bernoulli, constraints = ~., target.stats = NULL,
   nsim = NULL, basis = NULL, output = c("network", "edgelist",
   "pending_update_network"), only.last = TRUE, control = control.san(),
-  verbose = FALSE, ...)
+  verbose = FALSE, offset.coef = NULL, ...)
 
 \method{san}{ergm}(object, formula = object$formula,
   constraints = object$constraints, target.stats = object$target.stats,
   nsim = NULL, basis = NULL, output = c("network", "edgelist",
   "pending_update_network"), only.last = TRUE,
-  control = object$control$SAN.control, verbose = FALSE, ...)
+  control = object$control$SAN.control, verbose = FALSE,
+  offset.coef = NULL, ...)
 }
 \arguments{
 \item{object}{Either a \code{\link{formula}} or an \code{\link{ergm}} object. The
@@ -54,7 +56,7 @@ documentation for a similar argument for \code{\link{ergm}} and see
 \code{simulate.ergm}, defaults to using the same constraints as those with
 which \code{object} was fitted.}
 
-\item{target.stats}{A vector of the same length as the number of terms
+\item{target.stats}{A vector of the same length as the number of non-offset statistics
 implied by the formula, which is either \code{object} itself in the case of
 \code{san.formula} or \code{object$formula} in the case of \code{san.ergm}.}
 
@@ -74,6 +76,8 @@ otherwise, return a \code{\link{network.list}} with \code{nsim} networks.}
 \code{\link{control.san}}.}
 
 \item{verbose}{Logical or numeric giving the level of verbosity. Higher values produce more verbose output.}
+
+\item{offset.coef}{A vector of coefficients for the offset statistics.}
 
 \item{formula}{(By default, the \code{formula} is taken from the \code{ergm}
 object.  If a different \code{formula} object is wanted, specify it here.}
