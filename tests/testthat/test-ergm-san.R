@@ -32,3 +32,29 @@ test_that("SAN correctly adjusts inward and outward sums while maintaining edge 
 	expect_true(z["nodeicov.prop"] > n*.7 && z["nodeicov.prop"] < n*.8)
 	expect_true(z["nodeocov.prop"] > n*1.2 && z["nodeocov.prop"] < n*1.3)
 })
+
+test_that("SAN matches target stats while respecting infinite offsets", {
+    x <- network(n, directed=FALSE,density=0)
+    x %v% "sex" <- sample(c("M","F"),n,rep=TRUE)
+    y <- san(x ~ edges + offset(nodematch("sex")), target.stats=c(6*n), offset.coef=c(-Inf))
+    z <- summary(y ~ edges + offset(nodematch("sex")))
+    expect_true(z["edges"] > 5.9*n && z["edges"] < 6.1*n)
+    expect_true(z["offset(nodematch.sex)"] == 0)
+})
+
+test_that("SAN matches target stats while respecting infinite dyad-dependent offsets", {
+    x <- network(n, directed=FALSE,density=0)
+    y <- san(x ~ edges + offset(concurrent), target.stats=c(floor(n/2)), offset.coef=c(-Inf))
+    z <- summary(y ~ edges + offset(concurrent))
+    expect_true(z["edges"] >= 0.95*floor(n/2))
+    expect_true(z["offset(concurrent)"] == 0)
+})
+
+test_that("weighted SAN matches target stats while respecting infinite offsets", {
+    x <- network(n, directed=FALSE, numedges=0)
+    x %v% "sex" <- rep(c("M","F"),length.out=n)
+    y <- san(x ~ sum + offset(nodematch("sex")), reference=~Unif(0,n/5),target.stats=c(n^3/160),response="ea",offset.coef=c(-Inf))
+    z <- summary(y ~ sum + offset(nodematch("sex")), response="ea")
+    expect_true(z["sum"] > .98*n^3/160 && z["sum"] < 1.02*n^3/160)
+    expect_true(z["offset(nodematch.sum.sex)"] == 0)
+})
