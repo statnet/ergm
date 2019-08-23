@@ -69,7 +69,9 @@ san.default <- function(object,...)
 #' @param control A list of control parameters for algorithm tuning; see
 #' \code{\link{control.san}}.
 #' @param verbose Logical or numeric giving the level of verbosity. Higher values produce more verbose output.
-#' @param offset.coef A vector of coefficients for the offset statistics.
+#' @param offset.coef A vector of coefficients for the offset statistics.  For \code{san.formula}, these must be
+#' passed in as an argument.  For \code{san.ergm}, they can be passed in as an argument, but will default to the
+#' offsets in the \code{ergm} object.
 #' @param \dots Further arguments passed to other functions.
 #' @examples
 #' \donttest{
@@ -208,8 +210,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
               else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
                                  nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
 
-  #' @importFrom purrr map2
-  offset.indicators <- unlist(map2(model$terms, model$offset, function(.x,.y) rep(.y, length(.x$coef.names))))
+  offset.indicators <- model$etamap$offsetmap
   
   offsetindices <- which(offset.indicators)
   statindices <- which(!offset.indicators)
@@ -217,6 +218,10 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
   if(control$SAN.ignore.finite.offsets) offsets[is.finite(offsets)] <- 0
   
   noffset <- sum(offset.indicators)
+  
+  if(noffset != length(offsets)) {
+    stop("Length of ", sQuote("offset.coef"), " in SAN is ", length(offset.coef), ", while the number of offset statistics in the model is ", noffset, ".")
+  }    
   
   Clist <- ergm.Cprepare(nw, model, response=response)
   
@@ -315,7 +320,7 @@ san.ergm <- function(object, formula=object$formula,
                      only.last=TRUE,
                      control=object$control$SAN.control,
                      verbose=FALSE, 
-                     offset.coef=NULL,
+                     offset.coef=object$coef[object$offset],
                      ...) {
   san.formula(formula, nsim=nsim, 
               target.stats=target.stats,
