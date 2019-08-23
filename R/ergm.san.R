@@ -53,7 +53,7 @@ san.default <- function(object,...)
 #' \code{simulate.formula}, defaults to no constraints. For
 #' \code{simulate.ergm}, defaults to using the same constraints as those with
 #' which \code{object} was fitted.
-#' @param target.stats A vector of the same length as the number of terms
+#' @param target.stats A vector of the same length as the number of non-offset statistics
 #' implied by the formula, which is either \code{object} itself in the case of
 #' \code{san.formula} or \code{object$formula} in the case of \code{san.ergm}.
 #' @param nsim Number of networks to generate. Deprecated: just use [replicate()].
@@ -69,6 +69,7 @@ san.default <- function(object,...)
 #' @param control A list of control parameters for algorithm tuning; see
 #' \code{\link{control.san}}.
 #' @param verbose Logical or numeric giving the level of verbosity. Higher values produce more verbose output.
+#' @param offset.coef A vector of coefficients for the offset statistics.
 #' @param \dots Further arguments passed to other functions.
 #' @examples
 #' \donttest{
@@ -124,7 +125,9 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
                         output=c("network","edgelist","pending_update_network"),
                         only.last=TRUE,
                         control=control.san(),
-                        verbose=FALSE, ...) {
+                        verbose=FALSE, 
+                        offset.coef=NULL,
+                        ...) {
   check.control.class("san", "san")
   control.toplevel(...,myname="san")
 
@@ -151,7 +154,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   proposal<-ergm_proposal(constraints,arguments=control$SAN.prop.args,nw=nw,weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
   model <- ergm_model(formula, nw, response=response, term.options=control$term.options)
     
-  san(model, response=response, reference=reference, constraints=proposal, target.stats=target.stats, nsim=nsim, basis=nw, output=output, only.last=only.last, control=control, verbose=verbose, ...)
+  san(model, response=response, reference=reference, constraints=proposal, target.stats=target.stats, nsim=nsim, basis=nw, output=output, only.last=only.last, control=control, verbose=verbose, offset.coef=offset.coef, ...)
 }
 
 #' @describeIn san A lower-level function that expects a pre-initialized [`ergm_model`].
@@ -161,7 +164,9 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
                            output=c("network","edgelist","pending_update_network"),
                            only.last=TRUE,
                            control=control.san(),
-                           verbose=FALSE, ...) {
+                           verbose=FALSE, 
+                           offset.coef=NULL,
+                           ...) {
   check.control.class("san", "san")
   control.toplevel(...,myname="san")
 
@@ -202,6 +207,16 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
   proposal <- if(inherits(constraints, "ergm_proposal")) constraints
               else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
                                  nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
+
+  #' @importFrom purrr map2
+  offset.indicators <- unlist(map2(model$terms, model$offset, function(.x,.y) rep(.y, length(.x$coef.names))))
+  
+  offsetindices <- which(offset.indicators)
+  statindices <- which(!offset.indicators)
+  offsets <- offset.coef
+  if(control$SAN.ignore.finite.offsets) offsets[is.finite(offsets)] <- 0
+  
+  noffset <- sum(offset.indicators)
   
   Clist <- ergm.Cprepare(nw, model, response=response)
   
@@ -211,10 +226,10 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
         " steps", ifelse(control$SAN.maxit>1, " each", ""), ".", sep=""))
   }
   maxedges <- max(control$SAN.init.maxedges, Clist$nedges)
-  netsumm<-summary(model,nw,response=response)
+  netsumm<-summary(model,nw,response=response)[!offset.indicators]
   target.stats <- vector.namesmatch(target.stats, names(netsumm))
   stats <- netsumm-target.stats
-  control$invcov <- diag(1/nparam(model, canonical=TRUE), nparam(model, canonical=TRUE))
+  control$invcov <- diag(1/(nparam(model, canonical=TRUE) - noffset), nparam(model, canonical=TRUE) - noffset)
 
   nstepss <-
     (if(is.function(control$SAN.nsteps.alloc)) control$SAN.nsteps.alloc(control$SAN.maxit) else control$SAN.nsteps.alloc) %>%
@@ -231,7 +246,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
     tau <- control$SAN.tau * (if(control$SAN.maxit>1) (1/i-1/control$SAN.maxit)/(1-1/control$SAN.maxit) else 0)
     nsteps <- nstepss[i]
     
-    z <- ergm_SAN_slave(Clist, proposal, stats, tau, control, verbose,..., prev.run=z, nsteps=nsteps)
+    z <- ergm_SAN_slave(Clist, proposal, stats, tau, control, verbose,..., prev.run=z, nsteps=nsteps, statindices=statindices, offsetindices=offsetindices, offsets=offsets)
 
     if(z$status!=0) stop("Error in SAN.")
     
@@ -299,7 +314,9 @@ san.ergm <- function(object, formula=object$formula,
                      output=c("network","edgelist","pending_update_network"),
                      only.last=TRUE,
                      control=object$control$SAN.control,
-                     verbose=FALSE, ...) {
+                     verbose=FALSE, 
+                     offset.coef=NULL,
+                     ...) {
   san.formula(formula, nsim=nsim, 
               target.stats=target.stats,
               basis=basis,
@@ -307,10 +324,11 @@ san.ergm <- function(object, formula=object$formula,
               output=output,
               constraints=constraints,
               control=control,
-              verbose=verbose, ...)
+              verbose=verbose, 
+              offset.coef=offset.coef, ...)
 }
 
-ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run=NULL, nsteps=NULL, samplesize=NULL, maxedges=NULL) {
+ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run=NULL, nsteps=NULL, samplesize=NULL, maxedges=NULL, statindices=NULL, offsetindices=NULL, offsets=NULL) {
   if(is.null(prev.run)){ # Start from Clist
     nedges <- c(Clist$nedges,0,0)
     tails <- Clist$tails
@@ -353,10 +371,15 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
               as.integer(proposal$arguments$constraints$bd$condAllDegExact), as.integer(length(proposal$arguments$constraints$bd$attribs)),
               as.integer(maxedges),
               status = integer(1),
+              nstats=as.integer(length(statindices)),
+              statindices=as.integer(statindices - 1),
+              noffsets=as.integer(length(offsetindices)),
+              offsetindices=as.integer(offsetindices - 1),
+              offsets=as.double(.deinf(offsets)),
               PACKAGE="ergm")
       
         # save the results (note that if prev.run is NULL, c(NULL$s,z$s)==z$s.
-      z<-list(s=matrix(z$s, ncol=Clist$nstats, byrow = TRUE), s.prop=matrix(z$s.prop, ncol=Clist$nstats, byrow = TRUE),
+      z<-list(s=matrix(z$s, ncol=length(statindices), byrow = TRUE), s.prop=matrix(z$s.prop, ncol=length(statindices), byrow = TRUE),
                 newnwtails=z$newnwtails, newnwheads=z$newnwheads, status=z$status, maxedges=maxedges)
     }else{
       z <- .C("WtSAN_wrapper",
@@ -379,9 +402,14 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
               as.integer(verbose), 
               as.integer(maxedges),
               status = integer(1),
+              nstats=as.integer(length(statindices)),
+              statindices=as.integer(statindices - 1),
+              noffsets=as.integer(length(offsetindices)),
+              offsetindices=as.integer(offsetindices - 1),
+              offsets=as.double(.deinf(offsets)),              
               PACKAGE="ergm")
       # save the results
-      z<-list(s=matrix(z$s, ncol=Clist$nstats, byrow = TRUE), s.prop=matrix(z$s.prop, ncol=Clist$nstats, byrow = TRUE),
+      z<-list(s=matrix(z$s, ncol=length(statindices), byrow = TRUE), s.prop=matrix(z$s.prop, ncol=length(statindices), byrow = TRUE),
               newnwtails=z$newnwtails, newnwheads=z$newnwheads, newnwweights=z$newnwweights, status=z$status, maxedges=maxedges)
     }
 
