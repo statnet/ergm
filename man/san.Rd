@@ -28,7 +28,7 @@ san(object, ...)
   nsim = NULL, basis = NULL, output = c("network", "edgelist",
   "pending_update_network"), only.last = TRUE,
   control = object$control$SAN.control, verbose = FALSE,
-  offset.coef = NULL, ...)
+  offset.coef = object$coef[object$offset], ...)
 }
 \arguments{
 \item{object}{Either a \code{\link{formula}} or an \code{\link{ergm}} object. The
@@ -77,7 +77,9 @@ otherwise, return a \code{\link{network.list}} with \code{nsim} networks.}
 
 \item{verbose}{Logical or numeric giving the level of verbosity. Higher values produce more verbose output.}
 
-\item{offset.coef}{A vector of coefficients for the offset statistics.}
+\item{offset.coef}{A vector of coefficients for the offset statistics.  For \code{san.formula}, these must be
+passed in as an argument.  For \code{san.ergm}, they can be passed in as an argument, but will default to the
+offsets in the \code{ergm} object.}
 
 \item{formula}{(By default, the \code{formula} is taken from the \code{ergm}
 object.  If a different \code{formula} object is wanted, specify it here.}
