@@ -35,16 +35,31 @@ void SAN_wrapper (int *nedges,
 		  int *attribs, int *maxout, int *maxin, int *minout,
 		  int *minin, int *condAllDegExact, int *attriblength, 
 		  int *maxedges,
-		  int *status);
+		  int *status,
+          int *nstats,
+          int *statindices,
+          int *noffsets,
+          int *offsetindices,
+          double *offsets);
 
 MCMCStatus SANSample (MHProposal *MHp,
 		double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
 		int samplesize, int nsteps, 
 		int fVerbose, int nmax,
-		Network *nwp, Model *m);
+		Network *nwp, Model *m,
+        int nstats,
+        int *statindices,
+        int noffsets,
+        int *offsetindices,
+        double *offsets);
 MCMCStatus SANMetropolisHastings (MHProposal *MHp,
 			 double *invcov, double *tau, double *statistics, double *prop_statistics,
 			 int nsteps, int *staken,
 			 int fVerbose,
-			 Network *nwp, Model *m);
+			 Network *nwp, Model *m,
+             int nstats,
+             int *statindices,
+             int noffsets,
+             int *offsetindices,
+             double *offsets);
 #endif
