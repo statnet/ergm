@@ -251,6 +251,10 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
     tau <- control$SAN.tau * (if(control$SAN.maxit>1) (1/i-1/control$SAN.maxit)/(1-1/control$SAN.maxit) else 0)
     nsteps <- nstepss[i]
     
+    # if we have (essentially) zero temperature, need to zero out the finite offsets for the C code to work properly,
+    # even if control$SAN.ignore.finite.offsets is FALSE
+    if(abs(tau) < .Machine$double.eps) offsets[is.finite(offsets)] <- 0
+    
     z <- ergm_SAN_slave(Clist, proposal, stats, tau, control, verbose,..., prev.run=z, nsteps=nsteps, statindices=statindices, offsetindices=offsetindices, offsets=offsets)
 
     if(z$status!=0) stop("Error in SAN.")
