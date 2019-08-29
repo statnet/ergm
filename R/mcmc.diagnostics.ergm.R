@@ -61,10 +61,10 @@
 
 
 #' Conduct MCMC diagnostics on a model fit
-#' 
+#'
 #' This function prints diagnistic information and creates simple diagnostic
 #' plots for MCMC sampled statistics produced from a fit.
-#' 
+#'
 #' A pair of plots are produced for each statistic:a trace of the sampled
 #' output statistic values on the left and density estimate for each variable
 #' in the MCMC chain on the right.  Diagnostics printed to the console include
@@ -80,19 +80,19 @@
 #' University of Washington, % Raftery, A.E. and Lewis, S.M. (1992).  One long
 #' run with diagnostics: Implementation strategies for Markov chain Monte
 #' Carlo. Statistical Science, 7, 493-497.
-#' 
+#'
 #' Raftery, A.E. and Lewis, S.M. (1995).  The number of iterations, convergence
 #' diagnostics and generic Metropolis algorithms.  In Practical Markov Chain
 #' Monte Carlo (W.R. Gilks, D.J. Spiegelhalter and S. Richardson, eds.).
 #' London, U.K.: Chapman and Hall.
-#' 
+#'
 #' This function is based on the \code{coda} package It is based on the the R
 #' function \code{raftery.diag} in \code{coda}.  \code{raftery.diag}, in turn,
 #' is based on the FORTRAN program \code{gibbsit} written by Steven Lewis which
 #' is available from the Statlib archive.
 #' @keywords models
 #' @examples
-#' 
+#'
 #' \dontrun{
 #' #
 #' data(florentine)
@@ -101,7 +101,7 @@
 #' #
 #' gest <- ergm(flomarriage ~ edges + kstar(2))
 #' summary(gest)
-#' 
+#'
 #' #
 #' # Plot the probabilities first
 #' #
@@ -113,11 +113,11 @@
 #' #
 #' plot(gest$sample, ask=FALSE)
 #' #
-#' # A full range of diagnostics is available 
+#' # A full range of diagnostics is available
 #' # using codamenu()
 #' #
 #' }
-#' 
+#'
 #' @export mcmc.diagnostics
 mcmc.diagnostics <- function(object, ...) {
   UseMethod("mcmc.diagnostics")
@@ -136,7 +136,7 @@ mcmc.diagnostics.default <- function(object, ...) {
 #'   to ensure that the mean statistics from the model match the
 #'   observed network statistics. For that functionality, please use
 #'   the GOF command: \code{gof(object, GOF=~model)}.
-#' 
+#'
 #'   In fact, an ergm output \code{object} contains the matrix of
 #'   statistics from the MCMC run as component \code{$sample}.  This
 #'   matrix is actually an object of class \code{mcmc} and can be used
@@ -144,12 +144,12 @@ mcmc.diagnostics.default <- function(object, ...) {
 #'   convergence. \emph{Hence all MCMC diagnostic methods available in
 #'   \code{coda} are available directly.} See the examples and
 #'   \url{https://www.mrc-bsu.cam.ac.uk/software/bugs/the-bugs-project-winbugs/coda-readme/}.
-#' 
+#'
 #'   More information can be found by looking at the documentation of
 #'   \code{\link{ergm}}.
-#' 
-#' @param center Logical: If TRUE, center the samples on the
-#'   observed statistics.
+#'
+#' @param center Logical: If TRUE, center the samples on the observed
+#'   statistics.
 #' @param esteq Logical: If TRUE, for statistics corresponding to
 #'   curved ERGM terms, summarize the curved statistics by their
 #'   estimating equation values (evaluated at the MLE of any curved
@@ -160,23 +160,51 @@ mcmc.diagnostics.default <- function(object, ...) {
 #' @param vars.per.page Number of rows (one variable per row) per
 #'   plotting page.  Ignored if \code{latticeExtra} package is not
 #'   installed.
-#' @return \code{\link{mcmc.diagnostics.ergm}} returns some degeneracy
-#' information, if it is included in the original object.  The function is
-#' mainly used for its side effect, which is to produce plots and summary
-#' output based on those plots.
+#' @param which A character vector specifying which diagnostics to
+#'   plot and/or print. Defaults to all of the below if meaningful:
+#'   \describe{
+#'
+#' \item{`"plots"`}{Traceplots and density plots of sample values for all statistic or estimating function elements.}
+#'
+#' \item{`"texts"`}{Shorthand for the following text diagnostics.}
+#'
+#' \item{`"summary"`}{Summary of network statistic or estimating function elements as produced by [coda::summary.mcmc.list()].}
+#'
+#' \item{`"autocorrelation"`}{Autocorrelation of each of the network statistic or estimating function elements.}
+#'
+#' \item{`"crosscorrelation"`}{Cross-correlations between each pair of the network statistic or estimating function elements.}
+#'
+#' \item{`"burnin"`}{Burn-in diagnostics, in particular, the Geweke test.}
+#'
+#' \item{`"degeneracy"`}{Degeneracy diagnostic, possibly not functional.}
+#'
+#' } Partial matching is supported. (E.g., `which=c("auto","cross")`
+#' will print autocorrelation and cross-correlations.)
+#'
+#' @return \code{\link{mcmc.diagnostics.ergm}} returns invisibly some
+#'   degeneracy information, if it is included in the original object.
+#'   The function is mainly used for its side effect, which is to
+#'   produce plots and summary output based on those plots.
 #' @import coda
 #' @export
 mcmc.diagnostics.ergm <- function(object,
                                   center=TRUE,
                                   esteq=TRUE,
-                                  vars.per.page=3,...) {
-#
-  if(!is.null(object$degeneracy.value) && !is.na(object$degeneracy.value)){
-   degeneracy.value <- object$degeneracy.value
-   degeneracy.type <- object$degeneracy.type
-  }else{
-   degeneracy.value <- NULL
-   degeneracy.type <- NULL
+                                  vars.per.page=3,
+                                  which=c("plots", "texts", "summary", "autocorrelation", "crosscorrelation", "burnin", "degeneracy"), ...) {
+
+  which <- match.arg(which, several.ok=TRUE)
+  if("texts" %in% which) which <- c(which, "summary", "autocorrelation", "crosscorrelation", "burnin", "degeneracy")
+
+  # Degeneracy diagnostic. TODO: Does it even work anymore?
+  if("degeneracy" %in% which){
+    if(!is.null(object$degeneracy.value) && !is.na(object$degeneracy.value)){
+      degeneracy.value <- object$degeneracy.value
+      degeneracy.type <- object$degeneracy.type
+    }else{
+      degeneracy.value <- NULL
+      degeneracy.type <- NULL
+    }
   }
 
   # Coerce sample objects to mcmc.list. This allows all subsequent
@@ -210,72 +238,75 @@ mcmc.diagnostics.ergm <- function(object,
     }
   }
 
-  cat("Sample statistics summary:\n")
-  print(summary(sm))
-  if(!is.null(sm.obs)){
-    cat("Constrained sample statistics summary:\n")
-    print(summary(sm.obs))
-  }
-  
-  # only show if we are using Hotelling termination criterion
-  if (identical(object$control$MCMLE.termination, "Hotelling")) {
-    # This can probably be improved.
-    if(is.null(sm.obs)){
-      cat("\nAre sample statistics significantly different from observed?\n")
-      ds <- colMeans.mcmc.list(sm) - if(!center) object$target.stats else 0
-      sds <- apply(as.matrix(sm),2,sd)
-      ns <- effectiveSize(sm)
-      
-      cv <-  cov(as.matrix(sm))
-      
-      z <- ds/sds*sqrt(ns)
-      
-    }else{
-      cat("\nAre unconstrained sample statistics significantly different from constrained?\n")
-      ds <- colMeans.mcmc.list(sm) - if(!center) colMeans.mcmc.list(sm.obs) else 0
-      sds <- apply(as.matrix(sm),2,sd)
-      sds.obs <- apply(as.matrix(sm.obs),2,sd)
-      ns <- effectiveSize(sm)
-      # It's OK constrained sample doesn't vary. (E.g, the extreme case
-      # --- completely observed network --- is just one configuration of
-      # statistics.)
-      # Thus, the effective sample size for nonvarying is set to 1.
-      ns.obs <- pmax(effectiveSize(sm.obs),1)
-      
-      cv <-  cov(as.matrix(sm))
-      cv.obs <-  cov(as.matrix(sm.obs))
-      
-      z <- ds/sqrt(sds^2/ns+sds.obs^2/ns.obs)
+  if("summary" %in% which){
+    cat("Sample statistics summary:\n")
+    print(summary(sm))
+    if(!is.null(sm.obs)){
+      cat("Constrained sample statistics summary:\n")
+      print(summary(sm.obs))
     }
-    p.z <- pnorm(abs(z),lower.tail=FALSE)*2
-    
-    overall.test <- approx.hotelling.diff.test(sm,sm.obs,if(is.null(sm.obs) && !center) object$target.stats else NULL)
-    
-    m <- rbind(c(ds,NA),c(z,overall.test$statistic),c(p.z,overall.test$p.value))
-    rownames(m) <- c("diff.","test stat.","P-val.")
-    colnames(m) <- c(varnames(sm),"Overall (Chi^2)")
-    print(m)
-  }
-  # End simulated vs. observed test.
-  
-  cat("\nSample statistics cross-correlations:\n")
-  print(crosscorr(sm))
-  if(!is.null(sm.obs)){
-    cat("Constrained sample statistics cross-correlations:\n")
-    print(crosscorr(sm.obs))
+
+    # only show if we are using Hotelling termination criterion
+    if (identical(object$control$MCMLE.termination, "Hotelling")) {
+      # This can probably be improved.
+      if(is.null(sm.obs)){
+        cat("\nAre sample statistics significantly different from observed?\n")
+        ds <- colMeans.mcmc.list(sm) - if(!center) object$target.stats else 0
+        sds <- apply(as.matrix(sm),2,sd)
+        ns <- effectiveSize(sm)
+
+        cv <-  cov(as.matrix(sm))
+
+        z <- ds/sds*sqrt(ns)
+
+      }else{
+        cat("\nAre unconstrained sample statistics significantly different from constrained?\n")
+        ds <- colMeans.mcmc.list(sm) - if(!center) colMeans.mcmc.list(sm.obs) else 0
+        sds <- apply(as.matrix(sm),2,sd)
+        sds.obs <- apply(as.matrix(sm.obs),2,sd)
+        ns <- effectiveSize(sm)
+        # It's OK constrained sample doesn't vary. (E.g, the extreme case
+        # --- completely observed network --- is just one configuration of
+        # statistics.)
+        # Thus, the effective sample size for nonvarying is set to 1.
+        ns.obs <- pmax(effectiveSize(sm.obs),1)
+
+        cv <-  cov(as.matrix(sm))
+        cv.obs <-  cov(as.matrix(sm.obs))
+
+        z <- ds/sqrt(sds^2/ns+sds.obs^2/ns.obs)
+      }
+      p.z <- pnorm(abs(z),lower.tail=FALSE)*2
+
+      overall.test <- approx.hotelling.diff.test(sm,sm.obs,if(is.null(sm.obs) && !center) object$target.stats else NULL)
+
+      m <- rbind(c(ds,NA),c(z,overall.test$statistic),c(p.z,overall.test$p.value))
+      rownames(m) <- c("diff.","test stat.","P-val.")
+      colnames(m) <- c(varnames(sm),"Overall (Chi^2)")
+      print(m)
+    }
+    # End simulated vs. observed test.
   }
 
-  cat("\nSample statistics auto-correlation:\n")
-  for(chain in seq_along(sm)){
-    ac<-autocorr(sm[[chain]],0:5)
-    ac<-sapply(seq_len(ncol(sm[[chain]])),
-               function(i) ac[,i,i])
-    colnames(ac)<-varnames(sm)
-    cat("Chain", chain, "\n")
-    print(ac)
-  }
-  if(!is.null(sm.obs)){
-    cat("Constrained sample statistics auto-correlation:\n")
+  if("crosscorrelation" %in% which){
+    cat("\nSample statistics cross-correlations:\n")
+    print(crosscorr(sm))
+    if(!is.null(sm.obs)){
+      cat("Constrained sample statistics cross-correlations:\n")
+      print(crosscorr(sm.obs))
+    }
+
+    cat("\nSample statistics auto-correlation:\n")
+    for(chain in seq_along(sm)){
+      ac<-autocorr(sm[[chain]],0:5)
+      ac<-sapply(seq_len(ncol(sm[[chain]])),
+                 function(i) ac[,i,i])
+      colnames(ac)<-varnames(sm)
+      cat("Chain", chain, "\n")
+      print(ac)
+    }
+    if(!is.null(sm.obs)){
+      cat("Constrained sample statistics auto-correlation:\n")
       for(chain in seq_along(sm.obs)){
         ac<-autocorr(sm.obs[[chain]],0:5)
         ac<-sapply(seq_len(ncol(sm.obs[[chain]])),
@@ -284,47 +315,53 @@ mcmc.diagnostics.ergm <- function(object,
         cat("Chain", chain, "\n")
         print(ac)
       }
+    }
   }
 
-  cat("\nSample statistics burn-in diagnostic (Geweke):\n")
-  sm.gw<-geweke.diag(sm)
-  sm.gws<-try(geweke.diag.mv(sm, split.mcmc.list=TRUE))
-  if(!("try-error" %in% class(sm.gws))){
-  for(chain in seq_along(sm.gw)){
-    cat("Chain", chain, "\n")
-    print(sm.gw[[chain]])
-    cat("Individual P-values (lower = worse):\n")
-    print(2*pnorm(abs(sm.gw[[chain]]$z),lower.tail=FALSE))
-    cat("Joint P-value (lower = worse): ", sm.gws[[chain]]$p.value,".\n")
-  }
-  }
-  if(!is.null(sm.obs)){
-    cat("Sample statistics burn-in diagnostic (Geweke):\n")
-    sm.obs.gw<-geweke.diag(sm.obs)
-    sm.obs.gws<-try(geweke.diag.mv(sm.obs, split.mcmc.list=TRUE))
-    if(!("try-error" %in% class(sm.obs.gws))){
-    for(chain in seq_along(sm.obs.gw)){
-      cat("Chain", chain, "\n")
-      print(sm.obs.gw[[chain]])
-      cat("P-values (lower = worse):\n")
-      print(2*pnorm(abs(sm.obs.gw[[chain]]$z),lower.tail=FALSE))
-      cat("Joint P-value (lower = worse): ", sm.gws[[chain]]$p.value,".\n")
+  if("burnin" %in% which){
+    cat("\nSample statistics burn-in diagnostic (Geweke):\n")
+    sm.gw<-geweke.diag(sm)
+    sm.gws<-try(geweke.diag.mv(sm, split.mcmc.list=TRUE))
+    if(!("try-error" %in% class(sm.gws))){
+      for(chain in seq_along(sm.gw)){
+        cat("Chain", chain, "\n")
+        print(sm.gw[[chain]])
+        cat("Individual P-values (lower = worse):\n")
+        print(2*pnorm(abs(sm.gw[[chain]]$z),lower.tail=FALSE))
+        cat("Joint P-value (lower = worse): ", sm.gws[[chain]]$p.value,".\n")
+      }
     }
-   }
+    if(!is.null(sm.obs)){
+      cat("Sample statistics burn-in diagnostic (Geweke):\n")
+      sm.obs.gw<-geweke.diag(sm.obs)
+      sm.obs.gws<-try(geweke.diag.mv(sm.obs, split.mcmc.list=TRUE))
+      if(!("try-error" %in% class(sm.obs.gws))){
+        for(chain in seq_along(sm.obs.gw)){
+          cat("Chain", chain, "\n")
+          print(sm.obs.gw[[chain]])
+          cat("P-values (lower = worse):\n")
+          print(2*pnorm(abs(sm.obs.gw[[chain]]$z),lower.tail=FALSE))
+          cat("Joint P-value (lower = worse): ", sm.gws[[chain]]$p.value,".\n")
+        }
+      }
+    }
   }
-  
-  if(requireNamespace('latticeExtra', quietly=TRUE)){  
-    print(ergm_plot.mcmc.list(sm,main="Sample statistics",vars.per.page=vars.per.page,...))
-    if(!is.null(sm.obs)) print(ergm_plot.mcmc.list(sm.obs,main="Constrained sample statistics",vars.per.page=vars.per.page,...))
-  }else{
-    plot(sm,...)
-    if(!is.null(sm.obs)) plot(sm.obs,...)
+
+  if("plots" %in% which){
+    if(requireNamespace('latticeExtra', quietly=TRUE)){
+      print(ergm_plot.mcmc.list(sm,main="Sample statistics",vars.per.page=vars.per.page,...))
+      if(!is.null(sm.obs)) print(ergm_plot.mcmc.list(sm.obs,main="Constrained sample statistics",vars.per.page=vars.per.page,...))
+    }else{
+      plot(sm,...)
+      if(!is.null(sm.obs)) plot(sm.obs,...)
+    }
   }
-  
+
   cat("\nMCMC diagnostics shown here are from the last round of simulation, prior to computation of final parameter estimates. Because the final estimates are refinements of those used for this simulation run, these diagnostics may understate model performance. To directly assess the performance of the final model on in-model statistics, please use the GOF command: gof(ergmFitObject, GOF=~model).\n")
 
-  invisible(list(degeneracy.value=degeneracy.value,
-                 degeneracy.type=degeneracy.type))
+  if("degeneracy" %in% which)
+    invisible(list(degeneracy.value=degeneracy.value,
+                   degeneracy.type=degeneracy.type))
 }
 
 #' Plot MCMC list using `lattice` package graphics
@@ -343,18 +380,18 @@ ergm_plot.mcmc.list <- function(x, main=NULL, vars.per.page=3,...){
   if(!requireNamespace('lattice', quietly=TRUE, warn.conflicts=FALSE) ||
      !requireNamespace('latticeExtra', quietly=TRUE, warn.conflicts=FALSE))
     stop("ergm_plot.mcmc.list() requires ",sQuote('lattice')," and ",sQuote('latticeExtra')," packages.",call.=FALSE)
-  
+
   dp <- update(lattice::densityplot(x, panel=function(...){lattice::panel.densityplot(...);lattice::panel.abline(v=0)}),xlab=NULL,ylab=NULL)
   tp <- update(lattice::xyplot(x, panel=function(...){lattice::panel.xyplot(...);lattice::panel.loess(...);lattice::panel.abline(0,0)}),xlab=NULL,ylab=NULL)
-  
+
   pages <- ceiling(nvar(x)/vars.per.page)
   # if the number of vars is less than vars.per.page, make adjustment
   if(nvar(x)<vars.per.page){
     vars.per.page<-nvar(x)
   }
-  
+
   reordering <- c(rbind(seq_len(nvar(x)),nvar(x)+seq_len(nvar(x))))
-  
+
   tpdp <- suppressWarnings(c(tp,dp))
   update(tpdp[reordering],layout=c(2,vars.per.page),as.table=TRUE,main=main)
 }
