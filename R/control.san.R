@@ -52,6 +52,7 @@
 #' @param SAN.packagenames Names of packages in which to look for change
 #' statistic functions in addition to those autodetected. This argument should
 #' not be needed outside of very strange setups.
+#' @param SAN.ignore.finite.offsets Whether SAN should ignore (treat as 0) finite offsets.
 #' @template term_options
 #' @template control_MCMC_parallel
 #' @template seed
@@ -72,6 +73,8 @@ control.san<-function(SAN.maxit=4,
                       SAN.prop.weights="default",
                       SAN.prop.args=list(),
                       SAN.packagenames=c(),
+                      
+                      SAN.ignore.finite.offsets=TRUE,
                       
                       term.options=list(),
 

@@ -625,14 +625,15 @@ ergm <- function(formula, response=NULL,
     ## If target.stats are given, overwrite the given network and formula
     ## with SAN-ed network and formula.
     if(control$SAN.maxit > 0){
-      TARGET_STATS<-san(formula.no, target.stats=target.stats,
+      TARGET_STATS<-san(formula, target.stats=target.stats,
                 response=response,
                 reference=reference,
                 constraints=constraints,
                 control=san.control,
                 only.last=TRUE,
                 output="pending_update_network",
-                verbose=verbose)
+                verbose=verbose,
+                offset.coef=offset.coef)
       if(verbose) message("Finished SAN run.")
     }else{
       TARGET_STATS <- nw
