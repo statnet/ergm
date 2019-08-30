@@ -1,5 +1,6 @@
 #include "ergm_dyad_hashmap.h"
 #include "ergm_changestat.h"
+#include "ergm_dyad_hashmap_utils.h"
 
 /* Print the contents of a khash table  mapping dyads to unsigned
    integers. Useful for debugging. */

@@ -1,8 +1,9 @@
 #ifndef _ERGM_DYAD_HASHMAP_H_
 #define _ERGM_DYAD_HASHMAP_H_
 
+#include <R.h>
 #include "stdbool.h"
-#include "ergm_edgetree.h"
+#include "ergm_edgetree_types.h"
 
 /* Specify allocators. */
 #define kcalloc(N,Z) R_chk_calloc(N,Z)
@@ -44,7 +45,6 @@ typedef khash_t(DyadMapUInt) StoreDyadMapUInt;
 #define GETDMUI(tail, head, hashmap)(kh_getval(DyadMapUInt, hashmap, THKey(hashmap,tail,head), 0))
 #define SETDMUI(tail, head, v, hashmap) {if(v==0) kh_unset(DyadMapUInt, hashmap, THKey(hashmap,tail,head)); else kh_set(DyadMapUInt, hashmap, THKey(hashmap,tail,head), v)}
 
-
 static inline void IncDyadMapUInt(Vertex tail, Vertex head, int inc, StoreDyadMapUInt *spcache){
   TailHead th = THKey(spcache, tail, head);
   if(inc!=0){
@@ -63,6 +63,13 @@ static inline void IncDyadMapUInt(Vertex tail, Vertex head, int inc, StoreDyadMa
   }
 }
 
+/* Predefined khash type for mapping dyads onto signed ints. */
+KHASH_INIT(DyadMapInt, TailHead, int, true, kh_vertexvertex_hash_func, kh_vertexvertex_hash_equal, bool directed;)
+typedef khash_t(DyadMapInt) StoreDyadMapInt;
+
+/* Accessors, modifiers, and incrementors. */
+#define GETDMI(tail, head, hashmap)(kh_getval(DyadMapInt, hashmap, THKey(hashmap,tail,head), 0))
+#define SETDMI(tail, head, v, hashmap) {if(v==0) kh_unset(DyadMapInt, hashmap, THKey(hashmap,tail,head)); else kh_set(DyadMapInt, hashmap, THKey(hashmap,tail,head), v)}
 
 /* Predefined khash type for dyad sets. This may or may not be faster than edgetree. */
 KHASH_INIT(DyadSet, TailHead, char, false, kh_vertexvertex_hash_func, kh_vertexvertex_hash_equal, bool directed;)
@@ -83,10 +90,5 @@ static inline bool DyadSetToggle(Vertex tail, Vertex head, StoreDyadSet *h){
     return true;
   }
 }
-
-/* Utility function declarations. */
-void PrintDyadMapUInt(StoreDyadMapUInt *h);
-void PrintDyadSet(StoreDyadSet *h);
-StoreDyadSet *NetworkToDyadSet(Network *nwp);
 
 #endif // _ERGM_DYAD_HASHMAP_H_

@@ -7,12 +7,12 @@
  *
  *  Copyright 2003-2019 Statnet Commons
  */
-#ifndef _ERGM_EDGETREE_COMMON_H_
-#define  _ERGM_EDGETREE_COMMON_H_
 #include <math.h>
 #include <R.h>
 #include <Rinternals.h>
 #include <Rmath.h>
+#include "ergm_edgetree_types.h"
+#include "ergm_dyad_hashmap.h"
 
 #define MIN(a,b) ((a)<(b) ? (a) : (b))
 #define MAX(a,b) ((a)<(b) ? (b) : (a))
@@ -28,11 +28,6 @@
 #define _DYADCOUNT3(nnodes, bipartite, directed) ((bipartite)? (unsigned long)((nnodes)-(bipartite))*(unsigned long)(bipartite) : ((directed)? (unsigned long)(nnodes)*(unsigned long)((nnodes)-1) : (((unsigned long)(nnodes)*(unsigned long)((nnodes)-1))/2)))
 #define DYADCOUNT(...) _GET_OVERRIDE3(__VA_ARGS__, _DYADCOUNT3, , _DYADCOUNT1,)(__VA_ARGS__)
 #define EDGECOUNT(nwp) nwp->nedges
-
-/*typedef unsigned int Vertex; */
-typedef unsigned int Vertex;
-typedef unsigned int Edge;
-typedef unsigned long int Dyad;
 
 /* Ensure that tail < head for undriected networks. */
 #define ENSURE_TH_ORDER							\
@@ -60,12 +55,26 @@ typedef unsigned long int Dyad;
     }									\
   }
 
+/* Ensure that tail < head for undriected networks. */
+#define ENSURE_TH_ORDER							\
+  if(!(nwp->directed_flag) && tail>head){				\
+    Vertex temp;							\
+    temp = tail;							\
+    tail = head;							\
+    head = temp;							\
+  }
+
+/* Struct definitions do only need to happen once. */
+
+#ifndef _ERGM_EDGETREE_COMMON_H_
+#define _ERGM_EDGETREE_COMMON_H_
+
 /* Dur_Inf is a structure containing information about durations of
 edges in a network structure.
 */ 
 typedef struct Dur_Infstruct {
   int time;
-  int *lasttoggle;
+  StoreDyadMapInt *lasttoggle;
 } Dur_Inf;
 
 #endif // _ERGM_EDGETREE_COMMON_H_

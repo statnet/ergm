@@ -12,15 +12,6 @@
 
 #include "ergm_edgetree_common.do_not_include_directly.h"
 
-/* Ensure that tail < head for undriected networks. */
-#define ENSURE_TH_ORDER							\
-  if(!(nwp->directed_flag) && tail>head){				\
-    Vertex temp;							\
-    temp = tail;							\
-    tail = head;							\
-    head = temp;							\
-  }
-
 /*  TreeNode is a binary tree structure, which is how the edgelists 
     are stored.  The root of the tree for vertex i will be inedges[i]
     or outedges[i].  inedges[0] and outedges[0] are unused, since the

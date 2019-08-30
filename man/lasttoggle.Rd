@@ -4,27 +4,7 @@
 \alias{lasttoggle}
 \alias{last.toggle}
 \alias{last-toggle}
-\alias{ergm.el.lasttoggle}
-\alias{to.matrix.lasttoggle}
-\alias{to.lasttoggle.matrix}
 \title{Storing last toggle information in a network}
-\usage{
-ergm.el.lasttoggle(nw)
-
-to.matrix.lasttoggle(nw)
-
-to.lasttoggle.matrix(m, directed = TRUE, bipartite = FALSE)
-}
-\arguments{
-\item{nw}{the network, otpionally with a \code{"lasttoggle"} network
-attribute.}
-
-\item{m}{a sociomatrix of appropriate dimension (rectangular for
-bipartite networks).}
-
-\item{directed, bipartite}{whether the matrix represents a directed
-and/or a bipartite networks.}
-}
 \description{
 An informal extension to \code{\link{network}} objects allowing
 some limited temporal information to be stored.
@@ -51,13 +31,16 @@ like \code{\link[tergm]{stergm}} (for EGMME),
 \code{\link[tergm:simulate.stergm]{simulate}}, and
 \code{\link[=summary.formula]{summary}} can be passed networks with
 this information using the following \code{\link{network}} (i.e.,
-\code{\link{\%n\%}}) attributes: \describe{ \item{list("time")}{the
-time stamp associated with the network} \item{list("lasttoggle")}{a
-vector of length \code{\link{network.dyadcount}(nw)}, giving the
-last change time associated with each dyad. See the source code of
-\code{\link[=ergm-package]{ergm}} internal functions
-\code{to.matrix.lasttoggle}, \code{ergm.el.lasttoggle}, and
-\code{to.lasttoggle.matrix} for how they are serialized.} }
+\code{\link{\%n\%}}) attributes:
+\describe{
+
+\item{\code{"time"}}{the
+time stamp associated with the network}
+
+\item{\code{"lasttoggle"}}{an integer vector analogous to the one returned by \code{\link[=to_ergm_Cdouble.network]{to_ergm_Cdouble.network()}} with an attribute: number of elements, a list of tails, a list of heads, and time the edge was added for each edge in the network.}
+}
+
+On the C side, it is represented by a hash table.
 
 For technical reasons, the \code{\link[tergm:tergm-package]{tergm}}
 routines treat the \code{lasttoggle} time points as shifted by
@@ -65,17 +48,4 @@ routines treat the \code{lasttoggle} time points as shifted by
 
 Again, this API is subject to change without notice.
 }
-\section{Functions}{
-\itemize{
-\item \code{ergm.el.lasttoggle}: Returns a 3-column matrix whose first two
-columns are tails and heads of extant edges and whose third
-column are the creation times for those edges.
-
-\item \code{to.matrix.lasttoggle}: Returns a numeric sociomatrix whose values
-are last toggle times for the corresponding dyads.
-
-\item \code{to.lasttoggle.matrix}: Serializes a matrix of last toggle times
-into the form used by C code.
-}}
-
 \keyword{internal}

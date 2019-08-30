@@ -219,20 +219,6 @@ to_ergm_Cdouble.matrix <- function(x, prototype=NULL, ...){
   c(nrow(x),c(na.omit(x)))
 }
 
-
-mk.edge.to.pos.lasttoggle.f <- function(nw){
-  if(is.bipartite(nw)){
-    b <- if(is.bipartite(nw)) nw %n% "bipartite"
-    function(e) (e[2] - b - 1)*b + e[1]
-  }else{
-    n <- network.size(nw)
-    if(is.directed(nw))
-      function(e) (e[2] - 1)*(n - 1) + e[1] - (e[1] > e[2])
-    else
-      function(e) (e[2] - 1)*(e[2] - 2)/2 + e[1]
-  }
-}
-
 #' Storing last toggle information in a network
 #' 
 #' An informal extension to \code{\link{network}} objects allowing
@@ -259,13 +245,16 @@ mk.edge.to.pos.lasttoggle.f <- function(nw){
 #' \code{\link[tergm:simulate.stergm]{simulate}}, and
 #' \code{\link[=summary.formula]{summary}} can be passed networks with
 #' this information using the following \code{\link{network}} (i.e.,
-#' \code{\link{\%n\%}}) attributes: \describe{ \item{list("time")}{the
-#' time stamp associated with the network} \item{list("lasttoggle")}{a
-#' vector of length \code{\link{network.dyadcount}(nw)}, giving the
-#' last change time associated with each dyad. See the source code of
-#' \code{\link[=ergm-package]{ergm}} internal functions
-#' \code{to.matrix.lasttoggle}, \code{ergm.el.lasttoggle}, and
-#' \code{to.lasttoggle.matrix} for how they are serialized.} }
+#' \code{\link{\%n\%}}) attributes:
+#' \describe{
+#'
+#' \item{`"time"`}{the
+#' time stamp associated with the network}
+#'
+#' \item{`"lasttoggle"`}{an integer vector analogous to the one returned by [to_ergm_Cdouble.network()] with an attribute: number of elements, a list of tails, a list of heads, and time the edge was added for each edge in the network.}
+#' }
+#'
+#' On the C side, it is represented by a hash table.
 #' 
 #' For technical reasons, the \code{\link[tergm:tergm-package]{tergm}}
 #' routines treat the \code{lasttoggle} time points as shifted by
@@ -277,48 +266,3 @@ mk.edge.to.pos.lasttoggle.f <- function(nw){
 #' @keywords internal
 #' @name lasttoggle
 NULL
-
-#' @describeIn lasttoggle Returns a 3-column matrix whose first two
-#'   columns are tails and heads of extant edges and whose third
-#'   column are the creation times for those edges.
-#' @param nw the network, otpionally with a `"lasttoggle"` network
-#'   attribute.
-#' @export
-ergm.el.lasttoggle <- function(nw){
-  edge.to.pos <- mk.edge.to.pos.lasttoggle.f(nw)
-  el <- as.edgelist(nw)
-  cbind(el,NVL((nw %n% "lasttoggle"),0)[apply(el,1,edge.to.pos)]) # change to 0 if null
-}
-
-#' @describeIn lasttoggle Returns a numeric sociomatrix whose values
-#'   are last toggle times for the corresponding dyads.
-#' @export
-to.matrix.lasttoggle <- function(nw){
-  n <- network.size(nw)
-  b <- if(is.bipartite(nw)) nw %n% "bipartite"
-  
-  if(is.bipartite(nw)) m <- matrix(nw %n% "lasttoggle", b, n-b, byrow=FALSE)
-  else{
-    m <- matrix(0,n,n)
-    if(is.directed(nw))
-      m[as.logical(1-diag(1,nrow=n))] <- nw %n% "lasttoggle"
-    else{      
-      m[upper.tri(m)] <- nw %n% "lasttoggle"
-      m <- m + t(m)
-    }
-  }
-  m
-}
-
-#' @describeIn lasttoggle Serializes a matrix of last toggle times
-#'   into the form used by C code.
-#' @param m a sociomatrix of appropriate dimension (rectangular for
-#'   bipartite networks).
-#' @param directed,bipartite whether the matrix represents a directed
-#'   and/or a bipartite networks.
-#' @export
-to.lasttoggle.matrix <- function(m, directed=TRUE, bipartite=FALSE){
-  if(bipartite) c(m)
-  else if(directed) c(m[as.logical(1-diag(1,nrow=nrow(m)))])
-  else c(m[upper.tri(m)])
-}
