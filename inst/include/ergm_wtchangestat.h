@@ -184,6 +184,9 @@ typedef struct WtModelTermstruct {
 /* This macro constructs a function that wraps D_FROM_S. */
 #define WtD_FROM_S_FN(a) WtD_CHANGESTAT_FN(a) WtD_FROM_S
 
+#ifdef STUBFILE
+#define STRICT_Wt_HEADERS
+#endif
 
 /* If STRICT_Wt_HEADERS is not set, give the terms more generic names. */
 #ifndef STRICT_Wt_HEADERS

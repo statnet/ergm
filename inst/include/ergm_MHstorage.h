@@ -21,6 +21,10 @@
 #define MH_AUX_STORAGE_NUM(ind) (/* (stored_type *) */ MHp->aux_storage[(unsigned int) MH_INPUTS[ind]])
 #define MH_GET_AUX_STORAGE_NUM(stored_type, store_into, ind) stored_type *store_into = MH_AUX_STORAGE_NUM(ind);
 
+#ifdef STUBFILE
+#define STRICT_MH_HEADERS
+#endif
+
 #ifndef STRICT_MH_HEADERS
 
 #define STORAGE MH_STORAGE
