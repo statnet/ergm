@@ -1,4 +1,5 @@
 #include "ergm_changestat_operator.h"
+#include "ergm_changestat_auxnet.h"
 #include "ergm_util.h"
 
 Model *unpack_Model_as_double(double **x){

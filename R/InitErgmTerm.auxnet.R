@@ -128,17 +128,17 @@ InitErgmTerm..subgraph.net <- function(nw, arglist, response=NULL, ...){
   headsel <- a$headsel
 
   type <-
-    if(!identical(tailsel, headsel)) "bipartite"
-    else if(is.directed(nw)) "directed" else "undirected"
+    if(!identical(tailsel, headsel)) "bip"
+    else if(is.directed(nw)) "dir" else "undir"
 
   tailmap <- numeric(network.size(nw))
   tailmap[tailsel] <- seq_along(tailsel)
-  if(type=="bipartite"){
+  if(type=="bip"){
     headmap <- numeric(network.size(nw))
     headmap[headsel] <- length(tailsel) + seq_along(headsel)
   }else headmap <- numeric(0)
 
-  TYPES <- c("directed","undirected","bipartite")
+  TYPES <- c("dir", "undir", "bip")
 
-  list(name="_subgraph_net", coef.names = c(), inputs=c(match(type, TYPES), length(tailsel), if(type=="bipartite") length(headsel), tailmap, headmap), dependence=FALSE)
+  list(name=paste0("_subgraph_net"), coef.names = c(), inputs=c(match(type, TYPES), length(tailsel), if(type=="bip") length(headsel), tailmap, headmap), dependence=FALSE)
 }

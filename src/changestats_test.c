@@ -61,9 +61,9 @@ C_CHANGESTAT_FN(c_discord_isociomatrix){
 }
 
 C_CHANGESTAT_FN(c_disc_inter_union_net_Network){
-  GET_AUX_STORAGE_NUM(StoreNetAndRefEL, dstorage, 0);
-  GET_AUX_STORAGE_NUM(StoreNetAndRefEL, istorage, 1);
-  GET_AUX_STORAGE_NUM(StoreNetAndRefEL, ustorage, 2);
+  GET_AUX_STORAGE_NUM(StoreAuxnet, dauxnet, 0);
+  GET_AUX_STORAGE_NUM(StoreAuxnet, iauxnet, 1);
+  GET_AUX_STORAGE_NUM(StoreAuxnet, uauxnet, 2);
 
   int nwedge = IS_OUTEDGE(tail, head)!=0;
   int refedge = dEdgeListSearch(tail, head, INPUT_PARAM+3)!=0;
@@ -72,9 +72,11 @@ C_CHANGESTAT_FN(c_disc_inter_union_net_Network){
   CHANGE_STAT[1] = refedge ? (nwedge ? -1 : +1) : 0;
   CHANGE_STAT[2] = !refedge ? (nwedge ? -1 : +1) : 0;
 
-  CHANGE_STAT[3] = (EDGECOUNT(dstorage->nwp)+CHANGE_STAT[0])*(EDGECOUNT(dstorage->nwp)+CHANGE_STAT[0]) - EDGECOUNT(dstorage->nwp)*EDGECOUNT(dstorage->nwp);
-  CHANGE_STAT[4] = (EDGECOUNT(istorage->nwp)+CHANGE_STAT[1])*(EDGECOUNT(istorage->nwp)+CHANGE_STAT[1]) - EDGECOUNT(istorage->nwp)*EDGECOUNT(istorage->nwp);
-  CHANGE_STAT[5] = (EDGECOUNT(ustorage->nwp)+CHANGE_STAT[2])*(EDGECOUNT(ustorage->nwp)+CHANGE_STAT[2]) - EDGECOUNT(ustorage->nwp)*EDGECOUNT(ustorage->nwp);
+  //TODO: Implement test using MAP_TOGGLE.
+
+  CHANGE_STAT[3] = (EDGECOUNT(dauxnet->onwp)+CHANGE_STAT[0])*(EDGECOUNT(dauxnet->onwp)+CHANGE_STAT[0]) - EDGECOUNT(dauxnet->onwp)*EDGECOUNT(dauxnet->onwp);
+  CHANGE_STAT[4] = (EDGECOUNT(iauxnet->onwp)+CHANGE_STAT[1])*(EDGECOUNT(iauxnet->onwp)+CHANGE_STAT[1]) - EDGECOUNT(iauxnet->onwp)*EDGECOUNT(iauxnet->onwp);
+  CHANGE_STAT[5] = (EDGECOUNT(uauxnet->onwp)+CHANGE_STAT[2])*(EDGECOUNT(uauxnet->onwp)+CHANGE_STAT[2]) - EDGECOUNT(uauxnet->onwp)*EDGECOUNT(uauxnet->onwp);
 }
 
 C_CHANGESTAT_FN(c_disc_inter_union_net_DyadSet){

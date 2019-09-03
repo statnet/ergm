@@ -1,6 +1,5 @@
 #include "ergm_changestat_operator.h"
-#include "changestats_operator.h"
-#include "ergm_changestats_auxnet.h"
+#include "ergm_changestat_auxnet.h"
 
 /* passthrough(formula) */
 
@@ -144,182 +143,6 @@ F_CHANGESTAT_FN(f_summary_test_term){
   /* Rprintf(" ]\n"); */
 }
 
-/* filter_term_form 
-
-   A term to wrap abitrary binary ergm terms by constructing a binary
-   network that mirrors the LHS network in that it has an edge iff the term
-   in the second formula contributes +1 due to that dyad.
-
-*/
-
-I_CHANGESTAT_FN(i_filter_term_form){
-  double *inputs = INPUT_PARAM;
-  GET_AUX_STORAGE(StoreNetAndModel, storage); inputs++;
-  Network *bnwp = storage->nwp;
-
-  GET_STORAGE(Model, m); // Only need the pointer, no allocation needed.
-
-  STORAGE = m = unpack_Model_as_double(&inputs);
-
-  InitStats(bnwp, m);
-}
-
-C_CHANGESTAT_FN(c_filter_term_form){
-  GET_AUX_STORAGE(StoreNetAndModel, storage);
-  Network *bnwp = storage->nwp;
-  GET_STORAGE(Model, m);
-
-  ChangeStats(1, &tail, &head, nwp, storage->m);
-  
-  if(*(storage->m->workspace)!=0){ // If the binary view changes...
-    ChangeStats(1, &tail, &head, bnwp, m);
-    memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
-  } // Otherwise, leave the change stats at 0.
-}
-
-U_CHANGESTAT_FN(u_filter_term_form){
-  GET_AUX_STORAGE(StoreNetAndModel, storage);
-  Network *bnwp = storage->nwp;
-  GET_STORAGE(Model, m);
-
-  ChangeStats(1, &tail, &head, nwp, storage->m);
-  
-  if(*(storage->m->workspace)!=0){ // If the binary view changes...
-    UPDATE_STORAGE(tail, head, bnwp, m, NULL, edgeflag);
-  }
-}
-
-F_CHANGESTAT_FN(f_filter_term_form){
-  GET_AUX_STORAGE(StoreNetAndModel, storage);
-  Network *bnwp = storage->nwp;
-  GET_STORAGE(Model, m);
-
-  ModelDestroy(bnwp, m);
-  STORAGE = NULL;
-}
-
-/* _filter_formula_net 
-
-   Maintain a binary network that has an edge wherever the
-   contribution of the a given term (edges, nodematch, etc.) whose
-   dyadwise value is either 0 or 1 is 1.
-
-*/
-
-
-I_CHANGESTAT_FN(i__filter_formula_net){
-  double *inputs = INPUT_PARAM;
-  ALLOC_AUX_STORAGE(1, StoreNetAndModel, storage); inputs++;
-  Model *m = storage->m = unpack_Model_as_double(&inputs);
-  Network *bnwp = storage->nwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
-  InitStats(nwp, m);
-
-  EXEC_THROUGH_NET_EDGES_PRE(t, h, e, {
-	ChangeStats(1, &t, &h, nwp, m);
-	// I.e., if toggling the dyad changes the statistic, add
-	// edge to the filter network.
-	if(*(m->workspace)!=0) 
-	  AddEdgeToTrees(t, h, bnwp);
-    });
-}
-
-U_CHANGESTAT_FN(u__filter_formula_net){
-  GET_AUX_STORAGE(StoreNetAndModel, storage);
-  Model *m = storage->m;
-  Network *bnwp = storage->nwp;
-
-  ChangeStats(1, &tail, &head, nwp, m);
-  if(*(m->workspace)!=0){
-    if(IS_OUTEDGE(tail, head)) DeleteEdgeFromTrees(tail,head,bnwp);
-    else AddEdgeToTrees(tail,head,bnwp);
-  }
-
-  UPDATE_STORAGE(tail, head, nwp, m, NULL, edgeflag);
-}
-
-F_CHANGESTAT_FN(f__filter_formula_net){
-  GET_AUX_STORAGE(StoreNetAndModel, storage);
-  Model *m = storage->m;
-  Network *bnwp = storage->nwp;
-  ModelDestroy(nwp, m);
-  NetworkDestroy(bnwp);
-  // DestroyStats() will deallocate the rest.
-}
-
-/* undir */
-I_CHANGESTAT_FN(i_undir){
-  double *inputs = INPUT_ATTRIB+1;
-    
-  GET_AUX_STORAGE(Network, unwp);
-  Model *m = STORAGE = unpack_Model_as_double(&inputs);
-  InitStats(unwp, m);
-}
-
-C_CHANGESTAT_FN(c_undir){
-  GET_STORAGE(Model, m);
-  GET_AUX_STORAGE(Network, unwp);
-  unsigned int rule = *INPUT_ATTRIB;
-
-  unsigned int totoggle;
-  switch(rule){
-  case 1: // weak
-    totoggle = !IS_OUTEDGE(head,tail);
-    break;
-  case 2: // strong
-    totoggle = IS_OUTEDGE(head,tail);
-    break;
-  case 3: // upper
-    totoggle = tail<=head;
-    break;
-  case 4: // lower
-    totoggle = tail>=head;
-    break;
-  default: // never reached, but avoids a warning
-    totoggle = FALSE;
-  }
-
-  if(totoggle){
-    if(tail <= head) ChangeStats(1, &tail, &head, unwp, m);
-    else ChangeStats(1, &head, &tail, unwp, m);
-
-    memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
-  }
-}
-
-U_CHANGESTAT_FN(u_undir){
-  GET_STORAGE(Model, m);
-  GET_AUX_STORAGE(Network, unwp);
-  unsigned int rule = *INPUT_ATTRIB;
-
-  unsigned int totoggle;
-  switch(rule){
-  case 1: // weak
-    totoggle = !IS_OUTEDGE(head,tail);
-    break;
-  case 2: // strong
-    totoggle = IS_OUTEDGE(head,tail);
-    break;
-  case 3: // upper
-    totoggle = tail<=head;
-    break;
-  case 4: // lower
-    totoggle = tail>=head;
-    break;
-  default: // never reached, but avoids a warning
-    totoggle = FALSE;
-  }
-
-  if(totoggle) GET_EDGE_UPDATE_STORAGE(MIN(tail,head), MAX(tail,head), unwp, m, NULL);
-}
-
-F_CHANGESTAT_FN(f_undir){
-  GET_STORAGE(Model, m);
-  GET_AUX_STORAGE(Network, unwp);
-  ModelDestroy(unwp, m);
-  STORAGE = NULL;
-}
-
-
 // Sum: Take a weighted sum of the models' statistics.
 
 I_CHANGESTAT_FN(i_Sum){
@@ -381,48 +204,12 @@ F_CHANGESTAT_FN(f_Sum){
   }
 }
 
-/* subgraph */
-I_CHANGESTAT_FN(i_subgraph){
-  double *inputs = INPUT_ATTRIB;
+#include "ergm_changestats_auxnet.h"
 
-  GET_AUX_STORAGE(StoreSubgraph, storage);
-  Model *m = STORAGE = unpack_Model_as_double(&inputs);
-  InitStats(storage->nwp, m);
-}
-
-C_CHANGESTAT_FN(c_subgraph){
-  GET_STORAGE(Model, m);
-  GET_AUX_STORAGE(StoreSubgraph, storage);
-
-  Vertex st = storage->tmap[tail];
-  Vertex sh = storage->hmap[head];
-  if(!DIRECTED && (st==0 || sh==0)){
-    st = storage->tmap[head];
-    sh = storage->hmap[tail];
-  }
-  if(st!=0 && sh!=0){
-    ChangeStats(1, &st, &sh, storage->nwp, m);
-    memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
-  }
-}
-
-U_CHANGESTAT_FN(u_subgraph){
-  GET_STORAGE(Model, m);
-  GET_AUX_STORAGE(StoreSubgraph, storage);
-
-  Vertex st = storage->tmap[tail];
-  Vertex sh = storage->hmap[head];
-  if(!DIRECTED && (st==0 || sh==0)){
-    st = storage->tmap[head];
-    sh = storage->hmap[tail];
-  }
-  if(st!=0 && sh!=0)
-    UPDATE_STORAGE(st, sh, storage->nwp, m, NULL, edgeflag);
-}
-
-F_CHANGESTAT_FN(f_subgraph){
-  GET_STORAGE(Model, m);
-  GET_AUX_STORAGE(StoreSubgraph, storage);
-  ModelDestroy(storage->nwp, m);
-  STORAGE = NULL;
-}
+ON_AUXNET(_discord_net_Network)
+ON_AUXNET(_intersect_net_Network)
+ON_AUXNET(_union_net_Network)
+ON_AUXNET(_blockdiag_net)
+ON_AUXNET(_undir_net)
+ON_AUXNET(_filter_formula_net)
+ON_AUXNET(_subgraph_net)

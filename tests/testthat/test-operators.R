@@ -45,6 +45,17 @@ test_that("S() summary directed->bipartite", {
   )
 })
 
+test_that("S() summary undirected->bipartite", {
+  m <- as.matrix(flomarriage)
+  b1 <- sample.int(network.size(flomarriage), 5)
+  b2 <- sample(setdiff(seq_len(network.size(flomarriage)), b1), 4)
+
+  expect_equivalent(
+    c(sum(m[b1,b2])),
+    summary(flomarriage ~ S(~edges,I(b1)~I(b2)))
+  )
+})
+
 test_that("S() summary directed->directed", {
   m <- as.matrix(samplike)
   i <- sample.int(network.size(samplike), 5)

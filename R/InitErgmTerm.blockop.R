@@ -5,7 +5,7 @@ InitErgmTerm.NodematchFilter <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "attrname"),
                       vartypes = c("formula", "character"),
-                      defaultvalues = list(NULL, 1),
+                      defaultvalues = list(NULL, NULL),
                       required = c(TRUE, TRUE))
   f <- a$formula
   if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
@@ -16,7 +16,7 @@ InitErgmTerm.NodematchFilter <- function(nw, arglist, response=NULL, ...){
 
   gs <- summary(m)
 
-  c(list(name="NodematchFilter", coef.names = paste0('NodematchFilter(',m$coef.names,a$attrname,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries=~.blockdiag.net(a$attrname)),
+  c(list(name="on_blockdiag_net", coef.names = paste0('NodematchFilter(',m$coef.names,a$attrname,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries=~.blockdiag.net(a$attrname)),
     passthrough.curved.ergm_model(m, function(x) paste0('NodematchFilter(',x,a$attrname,')')))
 }
 
