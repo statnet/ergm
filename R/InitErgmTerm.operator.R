@@ -218,7 +218,7 @@ InitErgmTerm.F <- function(nw, arglist, response=NULL, ...){
   form.name <- deparse(ult(form))
   auxiliaries <- ~.filter.formula.net(form)
   
-  c(list(name="OnAuxnet",
+  c(list(name="on_filter_formula_net",
          coef.names = paste0(form.name,'(',m$coef.names,')'),
          inputs=inputs,
          dependence=!is.dyad.independent(m),
@@ -461,7 +461,7 @@ InitErgmTerm.Undir <- function(nw, arglist, response=NULL, ...){
 
   auxiliaries <- ~.undir.net(rule)
   
-  c(list(name="OnAuxnet",
+  c(list(name="on_undir_net",
          coef.names = paste0('Undir(',m$coef.names,',',rule,')'),
          inputs=c(inputs),
          dependence=!is.dyad.independent(m) || rule%in%c("weak","strong"),
@@ -589,7 +589,7 @@ InitErgmTerm.S <- function(nw, arglist, response=NULL, ...){
 
   selname <- if(tailname==headname) tailname else paste0(tailname,',',headname)
 
-  c(list(name="OnAuxnet",
+  c(list(name="on_subgraph_net",
          coef.names = paste0('S(',selname,'):',m$coef.names),
          inputs=c(inputs),
          dependence=!is.dyad.independent(m),

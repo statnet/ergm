@@ -13,6 +13,7 @@
 #include "ergm_edgetree.h"
 #include "ergm_changestat.h"
 #include "ergm_storage.h"
+#include "ergm_changestat_operator.h"
 
 /* Brief API description:
 
@@ -24,12 +25,12 @@
 
    * A pointer to the ModelTerm of the auxiliary that manages onwp.
 
-   * A pointer to a function that calculates the consequences of a
-     particular toggle.
-
-   The map_toggle() function takes toggle tail, head, a StoreAuxnet,
-   and a pointer to a vector of tails and heads, and should heave as
-   follows:
+   In addition, a pair of static inline functions constructed by
+   MAP_TOGGLE_FN() and by MAP_TOGGLE_MAXTOGGLES_FN() should be
+   provided in a header file, with their names being map_toggle_NAME
+   and map_toggle_maxtoggles_NAME that compute consequences of a
+   toggle and the maximum number of toggles produced by one input
+   toggle as follows:
 
    * If tail == 0, set return the maximum number of toggles in the
      output network that a single toggle in the input network could
@@ -40,36 +41,64 @@
      and heads of those toggles in the respective arguments.
 
    It is generally recommended to call it via the MAP_TOGGLE macro or
-   MAP_TOGGLE_1 if the maximum number of induced toggles is known a
-   priori to be 1.
+   MAP_TOGGLE_1_THEN if the maximum number of induced toggles is known
+   a priori to be 1.
 */
 
-#define MAP_TOGGLE_ARGS (Vertex tail, Vertex head, Rboolean edgeflag, struct StoreAuxnet_s *auxnet, Vertex *tails, Vertex *heads)
-#define MAP_TOGGLE_FN(a) static unsigned int (a) MAP_TOGGLE_ARGS
+#define MAP_TOGGLE_FN(a) static inline unsigned int (a) (Vertex tail, Vertex head, Rboolean edgeflag, struct StoreAuxnet_s *auxnet, Vertex *tails, Vertex *heads)
+#define MAP_TOGGLE_MAXTOGGLES_FN(a) static inline unsigned int (a) (struct StoreAuxnet_s *auxnet)
 
 typedef struct StoreAuxnet_s{Network *inwp, *onwp;
   ModelTerm *mtp;
-  unsigned int (*map_toggle) MAP_TOGGLE_ARGS;
 } StoreAuxnet;
 
-#define MAP_TOGGLE(tail, head, edgeflag, auxnet, tails, heads) auxnet->map_toggle(tail, head, edgeflag, auxnet, tails, heads)
+#define MAP_TOGGLE(name, tail, head, edgeflag, auxnet, tails, heads) map_toggle_ ## name(tail, head, edgeflag, auxnet, tails, heads)
 
-#define MAP_TOGGLE_THEN(tail, head, edgeflag, auxnet, tails, heads) if(auxnet->map_toggle(tail, head, edgeflag, auxnet, tails, heads))
+#define MAP_TOGGLE_THEN(name, tail, head, edgeflag, auxnet, tails, heads) if(MAP_TOGGLE(name, tail, head, edgeflag, auxnet, tails, heads))
 
-#define MAP_TOGGLE_1_THEN(tail, head, edgeflag, auxnet, tails, heads) \
+#define MAP_TOGGLE_1_THEN(name, tail, head, edgeflag, auxnet, tails, heads) \
   Vertex tails[1], heads[1];                                          \
-  MAP_TOGGLE_THEN(tail, head, edgeflag, auxnet, tails, heads)
+  MAP_TOGGLE_THEN(name, tail, head, edgeflag, auxnet, tails, heads)
 
-#define I_AUXNET(init_onwp, init_map_toggle)			\
+#define I_AUXNET(init_onwp)                                     \
   ALLOC_AUX_STORAGE(1, StoreAuxnet, auxnet);			\
   auxnet->onwp = init_onwp;					\
   auxnet->inwp = nwp;						\
-  auxnet->map_toggle = init_map_toggle;				\
   auxnet->mtp = mtp;
 
 #define MAP_TOGGLE_PROPAGATE *tails = tail; *heads = head; return 1;
 #define MAP_TOGGLE_PROPAGATE_IF(cond) if(cond){*tails = tail; *heads = head; return 1;}else{return 0;}
 
-#define MAP_TOGGLE_MAXTOGGLES(maxtoggles) if(tail==0){return maxtoggles;}
+#define ON_AUXNET(name)                                                 \
+  I_CHANGESTAT_FN(i_on ## name){                                        \
+    GET_AUX_STORAGE(StoreAuxnet, auxnet);                               \
+    double *inputs = INPUT_PARAM + 1;                                   \
+    Model *m = STORAGE = unpack_Model_as_double(&inputs);               \
+    InitStats(auxnet->onwp, m);                                         \
+  }                                                                     \
+                                                                        \
+  C_CHANGESTAT_FN(c_on ## name){                                        \
+    GET_STORAGE(Model, m);                                              \
+    GET_AUX_STORAGE(StoreAuxnet, auxnet);                               \
+                                                                        \
+    MAP_TOGGLE_1_THEN(name, tail, head, edgeflag, auxnet, tails, heads){ \
+      ChangeStats(1, tails, heads, auxnet->onwp, m);                    \
+      memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double)); \
+    }                                                                   \
+  }                                                                     \
+                                                                        \
+  U_CHANGESTAT_FN(u_on ## name){                                        \
+    GET_STORAGE(Model, m);                                              \
+    GET_AUX_STORAGE(StoreAuxnet, auxnet);                               \
+                                                                        \
+    MAP_TOGGLE_1_THEN(name, tail, head, edgeflag, auxnet, tails, heads) UPDATE_STORAGE(*tails, *heads, auxnet->onwp, m, NULL, edgeflag); \
+  }                                                                     \
+                                                                        \
+  F_CHANGESTAT_FN(f_on ## name){                                        \
+    GET_STORAGE(Model, m);                                              \
+    GET_AUX_STORAGE(StoreAuxnet, auxnet);                               \
+    ModelDestroy(auxnet->onwp, m);                                      \
+    STORAGE = NULL;                                                     \
+  }
 
 #endif // _ERGM_CHANGESTAT_AUXNET_H_

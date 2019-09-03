@@ -138,5 +138,7 @@ InitErgmTerm..subgraph.net <- function(nw, arglist, response=NULL, ...){
     headmap[headsel] <- length(tailsel) + seq_along(headsel)
   }else headmap <- numeric(0)
 
-  list(name=paste0("_subgraph_",type,"_net"), coef.names = c(), inputs=c(length(tailsel), if(type=="bip") length(headsel), tailmap, headmap), dependence=FALSE)
+  TYPES <- c("dir", "undir", "bip")
+
+  list(name=paste0("_subgraph_net"), coef.names = c(), inputs=c(match(type, TYPES), length(tailsel), if(type=="bip") length(headsel), tailmap, headmap), dependence=FALSE)
 }

@@ -16,7 +16,7 @@ InitErgmTerm.NodematchFilter <- function(nw, arglist, response=NULL, ...){
 
   gs <- summary(m)
 
-  c(list(name="OnAuxnet", coef.names = paste0('NodematchFilter(',m$coef.names,a$attrname,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries=~.blockdiag.net(a$attrname)),
+  c(list(name="on_blockdiag_net", coef.names = paste0('NodematchFilter(',m$coef.names,a$attrname,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries=~.blockdiag.net(a$attrname)),
     passthrough.curved.ergm_model(m, function(x) paste0('NodematchFilter(',x,a$attrname,')')))
 }
 

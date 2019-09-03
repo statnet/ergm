@@ -203,3 +203,13 @@ F_CHANGESTAT_FN(f_Sum){
     ModelDestroy(nwp, ms[i]);
   }
 }
+
+#include "ergm_changestats_auxnet.h"
+
+ON_AUXNET(_discord_net_Network)
+ON_AUXNET(_intersect_net_Network)
+ON_AUXNET(_union_net_Network)
+ON_AUXNET(_blockdiag_net)
+ON_AUXNET(_undir_net)
+ON_AUXNET(_filter_formula_net)
+ON_AUXNET(_subgraph_net)
