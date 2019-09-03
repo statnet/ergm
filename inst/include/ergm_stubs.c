@@ -22,6 +22,11 @@ return fun(x);
 #define STUBFILE
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
+#include "ergm_changestats_auxnet.h"
+
+#define STUBFILE
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_dyad_hashmap.h"
 
 #define STUBFILE
