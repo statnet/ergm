@@ -71,6 +71,7 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       thisterm->i_func = NULL;
       thisterm->u_func = NULL;
       thisterm->f_func = NULL;
+      thisterm->x_func = NULL;
       
       /* First, obtain the term name and library: fnames points to a
       single character string, consisting of the names of the selected
@@ -180,7 +181,8 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
   
 
       /* Optional-optional functions to initialize and finalize the
-	 term's storage. */
+	 term's storage, and the "eXtension" function to allow an
+	 arbitrary "signal" to be sent to a statistic. */
       
       fn[0]='i';
       thisterm->i_func = 
@@ -189,6 +191,10 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       fn[0]='f';
       thisterm->f_func = 
 	(void (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+
+      fn[0]='x';
+      thisterm->x_func =
+	(void (*)(unsigned int type, void *data, WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
 
       
       /*Clean up by freeing sn and fn*/

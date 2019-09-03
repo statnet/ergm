@@ -35,7 +35,7 @@ For the purposes of this overview, the following information is relevant, and is
 
 * Each term has a a pointer `void *mtp->storage` to private storage
 * Each term has a pointer to an array of pointers to public storage `void **mtp->aux_storage`. (The pointer is to the same location for all terms of a model.)
-* Each term has some subset of five functions on the C side: initializers (`i_`), updaters (`u_`), change stats (`c_`), difference stats (`d_`), and finalizers (`f_`). 
+* Each term has some subset of five functions on the C side: initializers (`i_`), updaters (`u_`), change stats (`c_`), difference stats (`d_`), finalizers (`f_`), and "eXtended" functions (`x_`).
 * An `InitErgmTerm.` function's output list can have an additional element, `auxiliaries`, a one-sided formula.
 
 1. The user passes a formula to the procedure (`ergm`, `summary`, etc.); this formula may only have statistics.
@@ -82,15 +82,15 @@ For the purposes of this overview, the following information is relevant, and is
 
 `void **mtp->aux_storage`: An array of pointers to public storage, referring to the same memory location for all terms in the model.
 
-# Evaluation API
+## Evaluation API
 
-## `R` side
+### `R` side
 
 Unchanged.
 
-## `C` side
+### `C` side
 
-### `c_`, `d_`, and `s_` functions
+#### `c_`, `d_`, and `s_` functions
 
 `d_` functions are the original difference statistics. `c_` functions are new, while `s_` functions have been around for a long time, but never formally documented.
 
@@ -106,8 +106,8 @@ Summary statistic (binary): `void s_<NAME>(Model *mtp, Network *nwp)`
 
 Summary statistic (valued): `void s_<NAME>(WtModel *mtp, WtNetwork *nwp)`
 
-#### Expect
-##### Parameters
+##### Expects
+###### Parameters
 
 `Edge ntgoggles`: Number of edges to be toggled or updated.
 
@@ -131,36 +131,36 @@ Summary statistic (valued): `void s_<NAME>(WtModel *mtp, WtNetwork *nwp)`
 
 `double edgeweight`: The weight of dyad `(tail,head)` in the network `nwp` pre-update.
 
-##### Storage
+###### Storage
 
 All functions except for `s_` expect any storage they need to be initialized and up to date (consistent with `nwp`). In particular, if their statistic requested $k$ auxiliary terms, the first $k$ elements of its `mtp->inputparam` (`INPUT_PARAM`) vector will be the indexes of `mtp->aux_storage` where they can find the respective objects, with the rest of their inputs shifted over.
 
-#### Macros
+##### Macros
 
 It is worth noting that macros defined for `d_` functions that refer to a specific toggle, such as `TAIL`, `HEAD`, etc. might not be usable in a `c_` function, but it's made up for by `c_` function's reduced need for bookkeeping: `tail`, `head`, etc. can be used directly.
 
-#### Side-effects
+##### Side-effects
 
 These functions overwrite `mtp->dstats` (often aliased as `CHANGE_STAT`) with the following:
 
 * `c_` and `d_` functions: change of the value of the statistic they implement relative to `nwp` due to the toggles.
 * `s_` the value of the statistic it implements.
 
-# Storage API
+## Storage API
 
 Every `ergm` term has private storage, found at `void *mtp->storage`, which allows it to store arbitrary information about the state of the network, as well as precalculated values of variables, preallocated memory it needs for its calculations, or any other use. It does so by specifying an updating function (and, optionally, an initialization and a finalization function). This updating function is called every time the network is about to change. The API for these functions is defined below.
 
 Public storage is found at `void **mtp->aux_storage`. Each auxiliary term gets assigned a slot (i.e., `void *nwp->mtp->aux_storage[i]`) to manage; its slot number is the first element of its input vector, and terms requesting it are told which slot to look in in a similar fashion. An auxiliary term that requests other auxiliaries will have its own slot as the first input and the slots of auxiliaries it requests as subsequent inputs.
 
-## `R` side
+### `R` side
 
 A statistic that only references its private storage *or* is an auxiliary itself does not need to do anything special on the `R` side.
 
 To request an auxiliary, a term's `InitErgmTerm` call's output list must include an `auxiliaries` element containing a one-sided `ergm`-style formula listing the auxiliary terms it wishes to use separated by the `+` operator.
 
-## `C` side: Modifying Storage
+### `C` side: Modifying Storage
 
-### `i_` functions: Initializer/Constructor
+#### `i_` functions: Initializer/Constructor
 
 This function is optional for using storage: if it's not provided, the model code will call the `u_` function with an invalid toggle first, signaling for it to initialize.
 
@@ -168,47 +168,47 @@ Binary: `void i_<NAME>(Model *mtp, Network *nwp)`
 
 Valued: `void i_<NAME>(WtModel *mtp, WtNetwork *nwp)`
 
-#### Expects
+##### Expects
 
 In general, `i_` function expects to be called after `ModelInitialize()` and `NetworkInitialize()`, before any `c_` or `d_` functions. That is, the network must be populated with the ties of its initial state and have `mtp->aux_storage` vector allocated.
 
-##### Private storage
+###### Private storage
 
 Network populated with initial ties and initialized model.
 
-##### Public storage
+###### Public storage
 
 The first element of `mtp->inputparams` (a.k.a. `INPUT_PARAM`) is the index of the element of `mtp->aux_storage` to be managed by this auxiliary. That is `mtp->aux_storage[(int)INPUT_PARAM[0]]` is a `void *` to point to the data to be public.
 
 The other data passed from the `InitErgmTerm.` are shifted over to make room for it.
 
-#### Side-effects
-##### Private storage
+##### Side-effects
+###### Private storage
 Allocates memory for the information to be stored and overwrites `mtp->storage` with a pointer to it, then updates the stored information to be consistent with `*nwp`.
 
-###### Public storage
+####### Public storage
 
 Allocates memory for the information to be stored and overwrites `mtp->aux_storage[(int)INPUT_PARAM[0]]` with a pointer to it, then updates the stored information to be consistent with `*nwp`.
 
 An auxiliary can also use its private storage as needed.
 
-### `u_` functions: Updater
+#### `u_` functions: Updater
 
 Binary: `void u_<NAME>(Vertex tail, Vertex head, Model *mtp, Network *nwp, Rboolean edgeflag)`
 
 Valued: `void u_<NAME>(Vertex tail, Vertex head, double weight, Model *mtp, Network *nwp, double edgeweight)`
 
-#### Expects
+##### Expects
 
 Initialized network. If no `i_` function was provided, to be called with a $(0,0)$ toggle as a signal to initialize; otherwise, initialized storage. Any statistic or auxiliary can rely on its auxiliaries having been initialized before it.
 
-#### Side-effects
+##### Side-effects
 
 If called with an a toggle `(0,0)` and uninitialized storage, initialize. This will never be done if an `i_` function is defined for the term.
 
 Update the state of its storage (`mtp->storage` and/or `mtp->aux_storage[(int)INPUT_PARAM[0]]`) to match what the state of `*nwp` would be after the given dyad had been toggled.
 
-### `f_` functions: Finalizer/Destructor
+#### `f_` functions: Finalizer/Destructor
 
 This function is optional for using storage: if it's not provided, the model code will free any pointers to `mtp->aux_storage` and `mtp->storage` that are not `NULL`.
 
@@ -216,25 +216,44 @@ Binary: `void f_<NAME>(Model *mtp, Network *nwp)`
 
 Valued: `void f_<NAME>(WtModel *mtp, WtNetwork *nwp)`
 
-#### Expects:
+##### Expects
 
 Network and a model.
 
-#### Side-effects
+##### Side-effects
 
 Deallocates its storage (`mtp->storage` and/or `mtp->aux_storage[(int)INPUT_PARAM[0]]`) and sets its pointers to `NULL`.
 
-## `C` side: Accessing Storage
+### `C` side: Accessing Storage
 
-### Private storage
+#### Private storage
 
 `c_`, `d_`, and `s_` functions can read from, but not write to, their private storage. `c_` and `d_` functions can rely on initialization having been called before.
 
-### Public storage
+#### Public storage
 
 Auxilaries must not implement `c_`, `d_`, and `s_` functions.
 
 Terms requesting one or more auxiliaries will be passed the indices of the element of `mtp->aux_storage` by inserting them at the start of `mtp->inputparams` (a.k.a. `INPUT_PARAM`). That is `mtp->aux_storage[(int)INPUT_PARAM[0]]` is a `void *` to point to the data public by the first auxiliary term on the `auxiliaries` formula, `mtp->aux_storage[(int)INPUT_PARAM[1]]` is the second, etc..
+
+
+## `x_` functions: eXtensions
+
+This interface is intended to be used by packages extending `ergm` to send arbitrary signals to statistics and auxiliaries. For example, for temporal ERGMs, it may be used to signal to the statistic that the clock is about to advance. It is the responsibility of the extension writer to ensure that everything behaves sensibly.
+
+Binary: `void x_<NAME>(unsigned int type, void *data, Model *mtp, Network *nwp)`
+
+Valued: `void x_<NAME>(unsigned int type, void *data, double weight, Model *mtp, Network *nwp)`
+
+##### Expects
+###### Parameters
+`type`: a magic constant identifying the type of signal being sent. Based on it, the function can ignore the signal, or determine how to interpret `data`.
+
+`data`: arbitrary data to be sent to the function; it is up to the extension writer to determine how it is formatted and interpreted.
+
+##### Side-effects
+
+There are no restrictions on side-effects. It is up to the extension writer to ensure that everything works.
 
 # Macros
 

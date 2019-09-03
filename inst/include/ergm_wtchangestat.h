@@ -19,6 +19,7 @@ typedef struct WtModelTermstruct {
   void (*u_func)(Vertex, Vertex, double, struct WtModelTermstruct*, WtNetwork*, double);
   void (*f_func)(struct WtModelTermstruct*, WtNetwork*);
   void (*s_func)(struct WtModelTermstruct*, WtNetwork*);
+  void (*x_func)(unsigned int type, void *data, struct WtModelTermstruct*, WtNetwork*);
   double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
   int nstats;   /* Number of change statistics to be returned */
   unsigned int statspos; /* Position of this term's stats in the workspace vector. */ 
@@ -166,6 +167,7 @@ typedef struct WtModelTermstruct {
 #define WtU_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtModelTerm *mtp, WtNetwork *nwp, double edgeweight)
 #define WtF_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
 #define WtS_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
+#define WtX_CHANGESTAT_FN(a) void (a) (unsigned int type, void *data, WtModelTerm *mtp, WtNetwork *nwp)
 
 /* This macro wraps two calls to an s_??? function with toggles
    between them. */
