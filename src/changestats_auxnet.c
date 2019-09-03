@@ -159,7 +159,7 @@ I_CHANGESTAT_FN(i__blockdiag_net){
     Edge e;
     STEP_THROUGH_OUTEDGES(tail, e, head) {
       if(b[tail]==b[head])
-	ToggleEdge(tail, head, auxnet->onwp);
+	ToggleKnownEdge(tail, head, auxnet->onwp, FALSE);
     }
   }
 }
@@ -169,7 +169,7 @@ U_CHANGESTAT_FN(u__blockdiag_net){
   double *b = INPUT_PARAM;
 
   if(b[tail]==b[head])
-    ToggleEdge(tail, head, auxnet->onwp);
+    ToggleKnownEdge(tail, head, auxnet->onwp, edgeflag);
 }
 
 F_CHANGESTAT_FN(f__blockdiag_net){
