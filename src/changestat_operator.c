@@ -25,9 +25,8 @@ C_CHANGESTAT_FN(c_OnAuxnet){
   GET_STORAGE(Model, m);
   GET_AUX_STORAGE(StoreAuxnet, auxnet);
 
-  MAP_TOGGLE_1(tail, head, auxnet, ntoggles, tails, heads);
 
-  if(ntoggles){
+  MAP_TOGGLE_1_THEN(tail, head, edgeflag, auxnet, tails, heads){
     ChangeStats(1, tails, heads, auxnet->onwp, m);
     memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
   }
@@ -37,8 +36,7 @@ U_CHANGESTAT_FN(u_OnAuxnet){
   GET_STORAGE(Model, m);
   GET_AUX_STORAGE(StoreAuxnet, auxnet);
 
-  MAP_TOGGLE_1(tail, head, auxnet, ntoggles, tails, heads);
-  if(ntoggles) UPDATE_STORAGE(*tails, *heads, auxnet->onwp, m, NULL, edgeflag);
+  MAP_TOGGLE_1_THEN(tail, head, edgeflag, auxnet, tails, heads) UPDATE_STORAGE(*tails, *heads, auxnet->onwp, m, NULL, edgeflag);
 }
 
 F_CHANGESTAT_FN(f_OnAuxnet){

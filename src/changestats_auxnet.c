@@ -215,11 +215,11 @@ MAP_TOGGLE_FN(map_toggle__undir_net){
   Network *nwp = auxnet->inwp;
   _undir_net_totoggle;  
   if(totoggle){
-    *ntoggles = 1;
     *tails = MIN(tail,head);
     *heads = MAX(tail,head);
+    return 1;
   }else{
-    *ntoggles = 0;
+    return 0;
   }
 }
 
@@ -325,11 +325,11 @@ MAP_TOGGLE_FN(map_toggle__subgraph_dir_net){
   Vertex st = thmap[0][tail];
   Vertex sh = thmap[1][head];
   if(st!=0 && sh!=0){
-    *ntoggles = 1;
     *tails = st;
     *heads = sh;
+    return 1;
   }else{
-    *ntoggles = 0;
+    return 0;
   }
 }
 
@@ -375,11 +375,11 @@ MAP_TOGGLE_FN(map_toggle__subgraph_undir_net){
     sh = thmap[1][tail];
   }
   if(st!=0 && sh!=0){
-    *ntoggles = 1;
     *tails = st;
     *heads = sh;
+    return 1;
   }else{
-    *ntoggles = 0;
+    return 0;
   }
 }
 
@@ -434,11 +434,11 @@ MAP_TOGGLE_FN(map_toggle__subgraph_bip_net){
     sh = thmap[1][tail];
   }
   if(st!=0 && sh!=0){
-    *ntoggles = 1;
     *tails = st;
     *heads = sh;
+    return 1;
   }else{
-    *ntoggles = 0;
+    return 0;
   }
 }
 
