@@ -27,15 +27,15 @@
    * A pointer to a function that calculates the consequences of a
      particular toggle.
 
-   The map_toggle() function takes toggle tail, head, a StoreAuxnet, a
-   pointer to an unsigned int, and a pointer to a vector of tails and
-   heads, and should heave as follows:
+   The map_toggle() function takes toggle tail, head, a StoreAuxnet,
+   and a pointer to a vector of tails and heads, and should heave as
+   follows:
 
-   * If tail == 0, set *ntoggles to the maximum number of toggles in
-     the output network that a single toggle in the input network
-     could induce.
+   * If tail == 0, set return the maximum number of toggles in the
+     output network that a single toggle in the input network could
+     induce.
 
-   * Otherwise, set *ntoggles to the number of induced toggles for the
+   * Otherwise, return the number of induced toggles for the
      (tail,head) toggles (and 0 if none occurred), and put the tails
      and heads of those toggles in the respective arguments.
 
@@ -44,20 +44,21 @@
    priori to be 1.
 */
 
-#define MAP_TOGGLE_ARGS (Vertex tail, Vertex head, struct StoreAuxnet_s *auxnet, unsigned int *ntoggles, Vertex *tails, Vertex *heads)
-#define MAP_TOGGLE_FN(a) static void (a) MAP_TOGGLE_ARGS
+#define MAP_TOGGLE_ARGS (Vertex tail, Vertex head, Rboolean edgeflag, struct StoreAuxnet_s *auxnet, Vertex *tails, Vertex *heads)
+#define MAP_TOGGLE_FN(a) static unsigned int (a) MAP_TOGGLE_ARGS
 
 typedef struct StoreAuxnet_s{Network *inwp, *onwp;
   ModelTerm *mtp;
-  void (*map_toggle) MAP_TOGGLE_ARGS;
+  unsigned int (*map_toggle) MAP_TOGGLE_ARGS;
 } StoreAuxnet;
 
-#define MAP_TOGGLE(tail, head, auxnet, ntoggles, tails, heads) auxnet->map_toggle(tail, head, auxnet, &ntoggles, tails, heads)
+#define MAP_TOGGLE(tail, head, edgeflag, auxnet, tails, heads) auxnet->map_toggle(tail, head, edgeflag, auxnet, tails, heads)
 
-#define MAP_TOGGLE_1(tail, head, auxnet, ntoggles, tails, heads)	\
-  unsigned int ntoggles;						\
-  Vertex tails[1], heads[1];						\
-  MAP_TOGGLE(tail, head, auxnet, ntoggles, tails, heads);
+#define MAP_TOGGLE_THEN(tail, head, edgeflag, auxnet, tails, heads) if(auxnet->map_toggle(tail, head, edgeflag, auxnet, tails, heads))
+
+#define MAP_TOGGLE_1_THEN(tail, head, edgeflag, auxnet, tails, heads) \
+  Vertex tails[1], heads[1];                                          \
+  MAP_TOGGLE_THEN(tail, head, edgeflag, auxnet, tails, heads)
 
 #define I_AUXNET(init_onwp, init_map_toggle)			\
   ALLOC_AUX_STORAGE(1, StoreAuxnet, auxnet);			\
@@ -66,11 +67,9 @@ typedef struct StoreAuxnet_s{Network *inwp, *onwp;
   auxnet->map_toggle = init_map_toggle;				\
   auxnet->mtp = mtp;
 
-#define MAP_TOGGLE_PROPAGATE *ntoggles = 1; *tails = tail; *heads = head; return;
-#define MAP_TOGGLE_PROPAGATE_IF(cond) if(cond){*ntoggles = 1; *tails = tail; *heads = head;}else{*ntoggles = 0;}; return;
+#define MAP_TOGGLE_PROPAGATE *tails = tail; *heads = head; return 1;
+#define MAP_TOGGLE_PROPAGATE_IF(cond) if(cond){*tails = tail; *heads = head; return 1;}else{return 0;}
 
-#define MAP_TOGGLE_MAXTOGGLES(maxtoggles) if(tail==0){*ntoggles = maxtoggles;return;}
-
-
+#define MAP_TOGGLE_MAXTOGGLES(maxtoggles) if(tail==0){return maxtoggles;}
 
 #endif // _ERGM_CHANGESTAT_AUXNET_H_
