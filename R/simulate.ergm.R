@@ -68,7 +68,7 @@
 #'   \code{simulate.ergm}, defaults to using the same constraints as
 #'   those with which \code{object} was fitted.
 #'
-#' @param observed Inherit observational constraints rather than model
+#' @param observational Inherit observational constraints rather than model
 #'   constraints.
 #' 
 #' @param monitor A one-sided formula specifying one or more terms
@@ -113,10 +113,6 @@
 #'   one wants to run several simulations with varying coefficients
 #'   and did not want to reinitialize the model and the proposal ever
 #'   time.
-#' 
-#' @return If \code{statsonly==TRUE} a matrix containing the simulated network
-#' statistics. If \code{control$parallel>0}, the statistics from each Markov
-#' chain are stacked.
 #' 
 #' @return If \code{output=="stats"} an [`mcmc`] object containing the
 #'   simulated network statistics. If \code{control$parallel>0}, an
@@ -252,8 +248,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     .Deprecate_once(msg=paste0("Use of ",sQuote("statsonly=")," argument has been deprecated. Use ",sQuote("output='stats'")," instead."))
     output <- if(statsonly) "stats" else "network"
   }
-  output <- match.arg(output)
-  
+
   # define nw as either the basis argument or (if NULL) the LHS of the formula
   if (is.null(nw <- basis)) {
     nw <- ergm.getnetwork(object)    
@@ -279,7 +274,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   # auxiliary requests could be passed to ergm_model().
   proposal <- if(inherits(constraints, "ergm_proposal")) constraints
                 else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
-                                nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
+                                   nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
   
   # Prepare inputs to ergm.getMCMCsample
   m <- ergm_model(object, nw, response=response, role="static", extra.aux=list(proposal$auxiliaries),term.options=control$term.options)
@@ -290,7 +285,6 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
                     constraints=proposal,
                     monitor=mon.m,
                     basis=nw,
-                    statsonly=statsonly,
                     esteq=esteq,
                     output=output,
                     simplify=simplify,
@@ -306,7 +300,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     # network.list. Therefore, set the simulation and monitor formulas,
     # which simulate.ergm_model() doesn't know.
     attributes(out) <- c(attributes(out),
-                         list(formula=object, monitor=monitor))
+                         list(formula=object, monitor=monitor, constraints=constraints, reference=reference))
     out
   }else{
     list(object=m, nsim=nsim, seed=seed,
@@ -314,7 +308,6 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
          constraints=proposal,
          monitor=mon.m,
          basis=nw,
-         statsonly=statsonly,
          esteq=esteq,
          output=output,
          simplify=simplify,
@@ -338,7 +331,6 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                                 observational=FALSE,
                                 monitor=NULL,
                                 basis=NULL,
-                                statsonly=FALSE,
                                 esteq=FALSE,
                                 output=c("network","stats","edgelist","pending_update_network"),
                                 simplify=TRUE,
@@ -351,7 +343,9 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   
   if(!is.null(monitor) && !is(monitor, "ergm_model")) stop("ergm_model method for simulate() requires monitor= argument of class ergm_model or NULL.")
   if(is.null(basis)) stop("ergm_model method for simulate() requires the basis= argument for the initial state of the simulation.")
- 
+
+  output <- match.arg(output)
+
   # Backwards-compatibility code:
   if("theta0" %in% names(list(...))){
     warning("Passing the parameter vector as theta0= is deprecated. Use coef= instead.")
@@ -493,11 +487,9 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   if(length(nw.list)==1&&simplify){
     nw.list <- nw.list[[1]] # Just one network.
   }else{
-      attributes(nw.list) <- list(formula=object, monitor=monitor,
-                                stats=stats, coef=coef,
-                                control=control,
-                                constraints=constraints, reference=reference,
-                                monitor=monitor, response=response)
+      attributes(nw.list) <- list(stats=stats, coef=coef,
+                                  control=control,
+                                  response=response)
     
     class(nw.list) <- "network.list"
   }
@@ -568,5 +560,3 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
            output=output, simplify=simplify,
                    control=control, verbose=verbose, seed=seed, ...)
 }
-
-

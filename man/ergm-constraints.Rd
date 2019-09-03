@@ -14,15 +14,15 @@
 \alias{constraints.ergm}
 
 \alias{bd}
-\alias{degreedist}
+\alias{degreedist-constraint}
 \alias{degrees}
 \alias{dyadnoise}
 \alias{odegrees}
 \alias{idegrees}
 \alias{b1degrees}
 \alias{b2degrees}
-\alias{edges}
-\alias{hamming}
+\alias{edges-constraint}
+\alias{hamming-constraint}
 \alias{idegreedist}
 \alias{nodedegrees}
 \alias{observed}
@@ -160,13 +160,8 @@
       convert to the corresponding edgelist.
     }
 
-    \item{\code{egocentric(attrname = NULL, direction = c("both","out","in"))} (dyad-independent)}{
-      Preserve values of dyads incident on vertices with attribute
-      \code{attrname} being \code{TRUE} or if \code{attrname} is
-      \code{NULL}, the vertex attribute \code{"na"} being `FALSE`. For
-      directed networks, \code{direction=="out"} only preserves the
-      out-dyads of those actors, and \code{direction=="in"} preserves
-      their in-dyads.
+    \item{\code{egocentric(attr = NULL, direction = c("both","out","in"))} (dyad-independent)}{
+      Preserve values of dyads incident on vertices with attribute \code{attr} (see \link[=node-attr]{Specifying Vertex Attributes and Levels} for details) being \code{TRUE} or if \code{attrname} is \code{NULL}, the vertex attribute \code{"na"} being `FALSE`. For directed networks, \code{direction=="out"} only preserves the out-dyads of those actors, and \code{direction=="in"} preserves their in-dyads.
     }
 
   Not all combinations of the above are supported.

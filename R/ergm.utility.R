@@ -52,9 +52,12 @@ is.ergm <- function(object)
 
 #' Computes and Returns the Degree Distribution Information for a Given Network
 #' 
-#' The \code{degreedist} generic computes and returns the degree distribution
-#' (number of vertices in the network with each degree value) for a given
-#' network.
+#' The \code{degreedist} generic computes and returns the degree
+#' distribution (number of vertices in the network with each degree
+#' value) for a given network. This help page documents the
+#' function. For help about [the ERGM sample space constraint with
+#' that name][degreedist-constraint], try
+#' `help("degreedist-constraint")`.
 #' 
 #' @param object a \code{network} object or some other object for
 #'   which degree distribution is meaningful.
@@ -410,4 +413,3 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
 .multiply.with.inf <- function(A,V) {
   cbind(colSums(t(A)*c(V), na.rm=TRUE))
 }
-

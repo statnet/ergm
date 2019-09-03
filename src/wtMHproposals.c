@@ -74,18 +74,14 @@ WtMH_P_FN(MH_UnifNonObserved){
   static int a, b;
   
   if(MHp->ntoggles == 0) { // Initialize Unif 
-    MHp->ntoggles=1;
     a = MHp->inputs[0];
     b = MHp->inputs[1];
     nmissing = MHp->inputs[2];
+    if(nmissing==0) MHp->ntoggles = MH_FAILED; /* No missing values. */
+    else MHp->ntoggles=1;
     return;
   }
 
-  if(nmissing==0){
-    *Mtail = MH_FAILED;
-    *Mhead = MH_IMPOSSIBLE;
-    return;
-  }
 
 
   // Note that missing edgelist is indexed from 0 but the first
@@ -147,15 +143,10 @@ WtMH_P_FN(MH_DiscUnifNonObserved){
     a = MHp->inputs[0];
     b = MHp->inputs[1];
     nmissing = MHp->inputs[2];
+    if(nmissing==0) MHp->ntoggles = MH_FAILED; /* No missing values. */
+    else MHp->ntoggles=1;
     return;
   }
-
-  if(nmissing==0){
-    *Mtail = MH_FAILED;
-    *Mhead = MH_IMPOSSIBLE;
-    return;
-  }
-
 
   // Note that missing edgelist is indexed from 0 but the first
   // element of MHp->inputs is the number of missing edges.
@@ -223,12 +214,8 @@ WtMH_P_FN(MH_DistRLE)
     MHp->ntoggles=1;
     inputs = MHp->inputs;
     r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
-    return;
-  }
-  
-  if(r.ndyads==0){ /* No dyads to toggle. */
-    Mtail[0]=MH_FAILED;
-    Mhead[0]=MH_IMPOSSIBLE;
+    if(r.ndyads==0) MHp->ntoggles = MH_FAILED; /* No missing values. */
+    else MHp->ntoggles=1;
     return;
   }
 

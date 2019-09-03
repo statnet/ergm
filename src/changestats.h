@@ -105,6 +105,7 @@ C_CHANGESTAT_FN(c_idegree_by_attr);
 C_CHANGESTAT_FN(c_idegree_w_homophily);
 C_CHANGESTAT_FN(c_idegreepopularity);
 C_CHANGESTAT_FN(c_intransitive);
+D_CHANGESTAT_FN(d_isolatededges);
 C_CHANGESTAT_FN(c_isolates);
 S_CHANGESTAT_FN(s_isolates);
 C_CHANGESTAT_FN(c_istar);

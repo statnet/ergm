@@ -140,7 +140,8 @@ MH_P_FN(MH_ConstantEdges){
   /* *** don't forget tail-> head now */
   
   if(MHp->ntoggles == 0) { /* Initialize */
-    MHp->ntoggles=2;    
+    if(nwp->nedges==0 || nwp->nedges==DYADCOUNT(nwp)) MHp->ntoggles=MH_FAILED; /* Empty or full network. */
+    else MHp->ntoggles=2;
     return;
   }
   /* Note:  This proposal cannot be used for full or empty observed graphs.
@@ -487,17 +488,12 @@ MH_P_FN(MH_randomtoggleList)
   static Edge nedges0;
 
   if(MHp->ntoggles == 0) { /* Initialize */
-    MHp->ntoggles=1;
     nedges0 = MH_INPUTS[0];
+    if(nedges0==0) MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
+    else MHp->ntoggles=1;
     return;
   }
   
-  if(nedges0==0){ /* Attempting dissolution on a complete graph. */
-    Mtail[0]=MH_FAILED;
-    Mhead[0]=MH_IMPOSSIBLE;
-    return;
-  }
-
   BD_LOOP({
       /* Select a dyad at random that is in the reference graph. (We
 	 have a convenient sampling frame.) */
@@ -516,16 +512,12 @@ MH_I_FN(Mi_RLE){
   ALLOC_STORAGE(1, RLEBDM1D, r);
   double *inputs = MHp->inputs;
   *r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
-  MHp->ntoggles=1;
+  if(r->ndyads==0) MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
+  else MHp->ntoggles=1;
 }
 
 MH_P_FN(Mp_RLE){
   GET_STORAGE(RLEBDM1D, r);
-  if(r->ndyads==0){ /* No dyads to toggle. */
-    Mtail[0]=MH_FAILED;
-    Mhead[0]=MH_IMPOSSIBLE;
-    return;
-  }
 
   BD_LOOP({
       /* Select a dyad at random that is in the reference graph. (We
@@ -549,6 +541,10 @@ MH_P_FN(Mp_RLE){
 ***********************/
 MH_I_FN(Mi_listTNT){
   Dyad ndyads = MH_INPUTS[0]; // Note that ndyads here is the number of dyads in the list.
+  if(ndyads==0){
+    MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
+    return;
+  }else MHp->ntoggles=1;
   double *list = MH_INPUTS+1;
   Network *intersect = STORAGE = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
   for(Edge i=0; i<ndyads; i++){
@@ -556,8 +552,6 @@ MH_I_FN(Mi_listTNT){
     if(IS_OUTEDGE(tail, head)!=0)
       ToggleEdge(tail, head, intersect);
   }
-  
-  MHp->ntoggles=1;
 }
 
 MH_U_FN(Mu_listTNT){
@@ -629,6 +623,10 @@ MH_I_FN(Mi_RLETNT){
   ALLOC_STORAGE(1, StoreRLEBDM1DAndNet, storage);
   double *inputs = MHp->inputs;
   storage->r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
+  if(storage->r.ndyads==0){
+    MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
+    return;
+  }else MHp->ntoggles=1;
   storage->intersect = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
   EXEC_THROUGH_NET_EDGES_PRE(t, h, e, {
       if(GetRLEBDM1D(t, h, &storage->r)){
@@ -640,8 +638,6 @@ MH_I_FN(Mi_RLETNT){
     NetworkDestroy(storage->intersect);
     storage->intersect = NULL; // "Signal" that there is no discordance network.
   }
-
-  MHp->ntoggles=1;
 }
 
 MH_P_FN(Mp_RLETNT){

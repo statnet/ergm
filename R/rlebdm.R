@@ -271,6 +271,26 @@ as.rlebdm.ergm_conlist <- function(x, constraints.obs = NULL, which = c("free", 
          )
 }
 
+
+#' Extract dyad-level ERGM constraint information from an [`ergm`] fit
+#' into an [`rlebdm`] object
+#'
+#' This is a thin wrapper around [as.rlebdm.ergm_conlist()].
+#'
+#' @param x an [`ergm`] fit.
+#'
+#' @param ... additional arguments passed on to
+#'   [as.rlebdm.ergm_conlist()]; note, in particular, the `which=`
+#'   argument.
+#'
+#' @seealso [as.rlebdm.ergm_conlist()]
+#'
+#' @keywords internal
+#' @export
+as.rlebdm.ergm <- function(x, ...){
+  as.rlebdm(x$constrained, x$constrained.obs, ...)
+}
+
 #' @describeIn rlebdm
 #'
 #' Convert an [`rlebdm`] object to an [`edgelist`]: a two-column
@@ -328,7 +348,7 @@ as.edgelist.rlebdm <- function(x, prototype=NULL, ...){
 #' * number of nonzero dyads,
 #' * number of runs of nonzeros,
 #' * starting positions of the runs, and
-#' * cumulative lenght of the runs, prepended by 0.
+#' * cumulative lengths of the runs, prepended with 0.
 to_ergm_Cdouble.rlebdm <- function(x, ...){
   cumlen <- cumsum(as.numeric(x$lengths[x$values==TRUE]))
   nruns <- length(cumlen)

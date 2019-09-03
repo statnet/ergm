@@ -8,12 +8,6 @@
 #  Copyright 2003-2019 Statnet Commons
 #######################################################################
 
-#' @describeIn ergm-deprecated Use [summary.ergm_model()] instead.
-#' @export ergm.getglobalstats
-ergm.getglobalstats <- function(nw, m, response=NULL) {
-  .Deprecated("summary.ergm_model")
-  summary(m, nw, response=response)
-}
 #' Evaluate network summary statistics from an initialized ergm model
 #' 
 #' Returns a vector of the model's statistics for a given network or
@@ -39,6 +33,8 @@ summary.ergm_model <- function(object, nw=NULL, response=NULL,...){
   # Read the comments at the top of InitErgm.R or InitErgmTerm.R for 
   # an explanation of the $emptynwstats mechanism
   gs <- numeric(nparam(m,canonical=TRUE))
+  if(length(gs)==0) return(gs) # Escape if the model has 0 statistics.
+  
   i <- 1
   for (j in 1:length(m$terms)) {
     tmp <- m$terms[[j]]

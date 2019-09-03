@@ -13,7 +13,7 @@ WtC_CHANGESTAT_FN(c_test_abs_sum_minus_5){
   GET_STORAGE(double, stored_sum_ptr);
   double sum = *stored_sum_ptr;
     CHANGE_STAT[0] = -fabs(sum-5);
-    CHANGE_STAT[0] += fabs(sum-5 + weight - GETWT(tail,head));
+    CHANGE_STAT[0] += fabs(sum-5 + weight - edgeweight);
 }
 
 WtI_CHANGESTAT_FN(i_test_abs_sum_minus_5){
@@ -27,7 +27,7 @@ WtI_CHANGESTAT_FN(i_test_abs_sum_minus_5){
 
 WtU_CHANGESTAT_FN(u_test_abs_sum_minus_5){
   GET_STORAGE(double, sum);
-  *sum += weight-GETWT(tail, head);
+  *sum += weight-edgeweight;
 }
 
 WtS_CHANGESTAT_FN(s_test_abs_sum_minus_5){
@@ -45,9 +45,9 @@ WtS_CHANGESTAT_FN(s_test_abs_sum_minus_5){
   }
 }
 
-WtC_CHANGESTAT_FN(c_test_abs_sum_minus_5_no_s){c_test_abs_sum_minus_5(tail, head, weight, mtp, nwp);}
+WtC_CHANGESTAT_FN(c_test_abs_sum_minus_5_no_s){c_test_abs_sum_minus_5(tail, head, weight, mtp, nwp, edgeweight);}
 WtI_CHANGESTAT_FN(i_test_abs_sum_minus_5_no_s){i_test_abs_sum_minus_5(mtp, nwp);}
-WtU_CHANGESTAT_FN(u_test_abs_sum_minus_5_no_s){u_test_abs_sum_minus_5(tail, head, weight, mtp, nwp);}
+WtU_CHANGESTAT_FN(u_test_abs_sum_minus_5_no_s){u_test_abs_sum_minus_5(tail, head, weight, mtp, nwp, edgeweight);}
 
 
 
@@ -73,7 +73,6 @@ WtF_CHANGESTAT_FN(f__dsociomatrix){
 WtC_CHANGESTAT_FN(c_dsociomatrix){
   GET_AUX_STORAGE(double *, sm);
   
-  ZERO_ALL_CHANGESTATS();
       Dyad pos = tail-1 + (head-1)*N_NODES;
       CHANGE_STAT[pos] = weight - sm[tail][head];
 }
@@ -90,12 +89,12 @@ WtI_CHANGESTAT_FN(i__sum){
 
 WtU_CHANGESTAT_FN(u__sum){
   GET_AUX_STORAGE(double, sum);
-  *sum += weight-GETWT(tail, head);
+  *sum += weight-edgeweight;
 }
 
 WtC_CHANGESTAT_FN(c_test_abs_sum_minus_5_aux){
   GET_AUX_STORAGE(double, stored_sum_ptr);
   double sum = *stored_sum_ptr;
     CHANGE_STAT[0] = -fabs(sum-5);
-    CHANGE_STAT[0] += fabs(sum-5 + weight - GETWT(tail,head));
+    CHANGE_STAT[0] += fabs(sum-5 + weight - edgeweight);
 }

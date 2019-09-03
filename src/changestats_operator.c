@@ -23,7 +23,7 @@ D_CHANGESTAT_FN(d_passthrough_term){
 U_CHANGESTAT_FN(u_passthrough_term){
   GET_STORAGE(Model, m);
 
-  UPDATE_STORAGE(tail, head, nwp, m, NULL);
+  UPDATE_STORAGE(tail, head, nwp, m, NULL, edgeflag);
 }
 
 F_CHANGESTAT_FN(f_passthrough_term){
@@ -48,7 +48,7 @@ I_CHANGESTAT_FN(i__submodel_term){
 U_CHANGESTAT_FN(u__submodel_term){
   GET_AUX_STORAGE(Model, m);
 
-  UPDATE_STORAGE(tail, head, nwp, m, NULL);
+  UPDATE_STORAGE(tail, head, nwp, m, NULL, edgeflag);
 }
 
 F_CHANGESTAT_FN(f__submodel_term){
@@ -96,8 +96,7 @@ I_CHANGESTAT_FN(i__summary_term){
       ChangeStats(1, &tail, &head, tmpnwp, m);
       for(unsigned int k=0; k<m->n_stats; k++)
 	stats[k] += m->workspace[k];
-      UPDATE_STORAGE(tail, head, tmpnwp, m, NULL);
-      ToggleEdge(tail, head, tmpnwp);
+      UPDATE_STORAGE_TOGGLE(tail, head, tmpnwp, m, NULL, 0);
     }
   }
   // Note that nw is now identitical to nwp.
@@ -112,7 +111,7 @@ U_CHANGESTAT_FN(u__summary_term){
   for(unsigned int k=0; k<m->n_stats; k++)
     stats[k] += m->workspace[k];
 
-  UPDATE_STORAGE(tail, head, nwp, m, NULL);
+  UPDATE_STORAGE(tail, head, nwp, m, NULL, edgeflag);
 }
 
 F_CHANGESTAT_FN(f__summary_term){
@@ -142,53 +141,6 @@ F_CHANGESTAT_FN(f_summary_test_term){
   for(unsigned int i=0; i<INPUT_PARAM[1]; i++) Rprintf(" %f", stats[i]);
   Rprintf(" \n");
   /* Rprintf(" ]\n"); */
-}
-
-/* filter_term_form 
-
-   A term to wrap abitrary binary ergm terms by constructing a binary
-   network that mirrors the LHS network in that it has an edge iff the term
-   in the second formula contributes +1 due to that dyad.
-
-*/
-
-I_CHANGESTAT_FN(i_filter_term_form){
-  double *inputs = INPUT_PARAM;
-  GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  GET_STORAGE(Model, m); // Only need the pointer, no allocation needed.
-
-  STORAGE = m = unpack_Model_as_double(&inputs);
-
-  InitStats(auxnet->onwp, m);
-}
-
-C_CHANGESTAT_FN(c_filter_term_form){
-  GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  GET_STORAGE(Model, m);
-
-  MAP_TOGGLE_1(tail, head, auxnet, ntoggles, tails, heads);
-  if(ntoggles){ // If the binary view changes...
-    ChangeStats(1, tails, heads, auxnet->onwp, m);
-    memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
-  } // Otherwise, leave the change stats at 0.
-}
-
-U_CHANGESTAT_FN(u_filter_term_form){
-  GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  GET_STORAGE(Model, m);
-
-  MAP_TOGGLE_1(tail, head, auxnet, ntoggles, tails, heads);
-  if(ntoggles){ // If the binary view changes...
-    UPDATE_STORAGE(*tails, *heads, auxnet->onwp, m, NULL);
-  }
-}
-
-F_CHANGESTAT_FN(f_filter_term_form){
-  GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  GET_STORAGE(Model, m);
-
-  ModelDestroy(auxnet->onwp, m);
-  STORAGE = NULL;
 }
 
 // Sum: Take a weighted sum of the models' statistics.
@@ -238,7 +190,7 @@ U_CHANGESTAT_FN(u_Sum){
 
   for(unsigned int i=0; i<nms; i++){
     Model *m = ms[i];
-    UPDATE_STORAGE(tail, head, nwp, m, NULL);
+    UPDATE_STORAGE(tail, head, nwp, m, NULL, edgeflag);
   }
 }
 

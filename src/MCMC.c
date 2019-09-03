@@ -71,11 +71,13 @@ void MCMC_wrapper(int *nedges,
 	  *condAllDegExact, *attriblength,
 	  m->termarray->aux_storage);
 
-  *status = MCMCSample(MHp,
-		       theta0, sample, *samplesize,
-		       *burnin, *interval,
-		       *fVerbose, nmax, nwp, m);
-  
+  if(MHp)
+    *status = MCMCSample(MHp,
+			 theta0, sample, *samplesize,
+			 *burnin, *interval,
+			 *fVerbose, nmax, nwp, m);
+  else *status = MCMC_MH_FAILED;
+
   MHProposalDestroy(MHp, nwp);
         
 /* Rprintf("Back! %d %d\n",nwp[0].nedges, nmax); */
@@ -172,14 +174,8 @@ MCMCStatus MCMCSample(MHProposal *MHp,
     when the chain doesn't accept many of the proposed steps.
     *********************/
     if (fVerbose){
-	  if (samplesize > 0 && interval > LONG_MAX / samplesize) {
-		// overflow
-		Rprintf("Sampler accepted %7.3f%% of %d proposed steps.\n",
-	      tottaken*100.0/(1.0*interval*samplesize), interval, samplesize); 
-	  } else {
-	    Rprintf("Sampler accepted %7.3f%% of %d proposed steps.\n",
-	      tottaken*100.0/(1.0*interval*samplesize), interval*samplesize); 
-	  }
+      Rprintf("Sampler accepted %7.3f%% of %lld proposed steps.\n",
+	    tottaken*100.0/(1.0*interval*samplesize), (long long) interval*samplesize); 
     }
   }else{
     if (fVerbose){
@@ -274,8 +270,7 @@ MCMCStatus MetropolisHastings(MHProposal *MHp,
 
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for(unsigned int i=0; i < MHp->ntoggles; i++){
-	UPDATE_STORAGE(MHp->toggletail[i], MHp->togglehead[i], nwp, m, MHp);
-	ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
+	GET_EDGE_UPDATE_STORAGE_TOGGLE(MHp->toggletail[i], MHp->togglehead[i], nwp, m, MHp);
       }
       /* record network statistics for posterity */
       for (unsigned int i = 0; i < m->n_stats; i++){
@@ -345,11 +340,13 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
 	  nwp, attribs, maxout, maxin, minout, minin,
 	  *condAllDegExact, *attriblength,
 	  m->termarray->aux_storage);
-  
-  MCMCSamplePhase12 (MHp,
-		     theta0, *gain, meanstats, nphase1, nsubphases, sample, *samplesize,
-		     *burnin, *interval,
-		     (int)*fVerbose, nwp, m);
+
+  if(MHp)
+    MCMCSamplePhase12(MHp,
+		      theta0, *gain, meanstats, nphase1, nsubphases, sample, *samplesize,
+		      *burnin, *interval,
+		      (int)*fVerbose, nwp, m);
+  else error("MH Proposal failed.");
 
   MHProposalDestroy(MHp, nwp);
   

@@ -1,4 +1,4 @@
-/*  File src/ergm_edgetree.h in package ergm, part of the Statnet suite
+/*  File inst/include/ergm_edgetree.h in package ergm, part of the Statnet suite
  *  of packages for network analysis, https://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -100,6 +100,7 @@ Network *NetworkCopy(Network *src);
 void SetEdge (Vertex tail, Vertex head, unsigned int weight, Network *nwp);
 void SetEdgeWithTimestamp (Vertex tail, Vertex head, unsigned int weight, Network *nwp);
 int ToggleEdge (Vertex tail, Vertex head, Network *nwp);
+int ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgeflag);
 int ToggleEdgeWithTimestamp (Vertex tail, Vertex head, Network *nwp);
 int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp);
 void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge);

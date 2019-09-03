@@ -18,10 +18,9 @@
 \method{simulate}{ergm_model}(object, nsim = 1, seed = NULL, coef,
   response = NULL, reference = ~Bernoulli, constraints = ~.,
   observational = FALSE, monitor = NULL, basis = NULL,
-  statsonly = FALSE, esteq = FALSE, output = c("network", "stats",
-  "edgelist", "pending_update_network"), simplify = TRUE,
-  sequential = TRUE, control = control.simulate.formula(),
-  verbose = FALSE, ...)
+  esteq = FALSE, output = c("network", "stats", "edgelist",
+  "pending_update_network"), simplify = TRUE, sequential = TRUE,
+  control = control.simulate.formula(), verbose = FALSE, ...)
 
 \method{simulate}{ergm}(object, nsim = 1, seed = NULL,
   coef = object$coef, response = object$response,
@@ -70,6 +69,9 @@ being simulated. See the documentation for a similar argument for
 \code{simulate.ergm}, defaults to using the same constraints as
 those with which \code{object} was fitted.}
 
+\item{observational}{Inherit observational constraints rather than model
+constraints.}
+
 \item{monitor}{A one-sided formula specifying one or more terms
 whose value is to be monitored. These terms are appeneded to the
 model, along with a coefficient of 0, so their statistics are
@@ -117,15 +119,8 @@ to \code{\link[=simulate.ergm_model]{simulate.ergm_model()}}. This can be useful
 one wants to run several simulations with varying coefficients
 and did not want to reinitialize the model and the proposal ever
 time.}
-
-\item{observed}{Inherit observational constraints rather than model
-constraints.}
 }
 \value{
-If \code{statsonly==TRUE} a matrix containing the simulated network
-statistics. If \code{control$parallel>0}, the statistics from each Markov
-chain are stacked.
-
 If \code{output=="stats"} an \code{\link{mcmc}} object containing the
 simulated network statistics. If \code{control$parallel>0}, an
 \code{\link{mcmc.list}} object. If \code{simplify=TRUE} (the default), these

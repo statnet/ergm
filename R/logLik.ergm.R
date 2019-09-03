@@ -93,8 +93,9 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
   # "object" has an element control.
   loglik.control<-control
   
-  out<-with(object,{
-    if(!eval.loglik) stop(nologLik.message(deparse(substitute(object))))
+  out<-with(object,
+            {
+              if(!eval.loglik) stop(NO_LOGLIK_MESSAGE)
               
     ## If dyad-independent or MPLE, just go from the deviance.
     if(estimate=="MPLE"
@@ -121,21 +122,8 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
   if(!inherits(llk,"logLik")){
     class(llk)<-"logLik"
     attr(llk,"df")<-length(coef(object))
-    attr(llk,"nobs")<- if(is.null(object$null.lik)){ # If we can steal the number of observations from the null model...
-      # FIXME: We need a more general framework for handling
-      # constrained and partially observed network "degrees of
-      # freedom". PROGRESS: We can handle dyad-independent ones fine,
-      # now.
-      
-      if(!is.dyad.independent(object$constrained, object$constrained.obs)
-         && loglik.control$warn.dyads){
-        warning("The number of observed dyads in this network is ill-defined due to complex constraints on the sample space.")
-      }
-      
-      sum(as.rlebdm(object$constrained, object$constrained.obs, which="informative"))
-    }else attr(object$null.lik,"nobs")
+    attr(llk,"nobs")<- nobs(object, ...)
   }
-
 
   if(!is.null(object$null.lik) && !is.na(object$null.lik)){ # If Null likelihood is defined, shift the MLE likelihood.
     llk[] <- c(llk + object$null.lik) # The brackets are important to preserve attr()s on llk, and the c() is important to strip the ones from the sum.
@@ -147,9 +135,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
   } else llk
 }
 
-nologLik.message<-function(objname){
-  paste("Log-likelihood was not estimated for this fit.\nTo get deviances, AIC, and/or BIC from fit `",objname,"` run \n  > ",objname,"<-logLik(",objname,", add=TRUE)\nto add it to the object or rerun this function with eval.loglik=TRUE.\n",sep="")
-}
+NO_LOGLIK_MESSAGE <- paste0("Log-likelihood was not estimated for this fit. To get deviances, AIC, and/or BIC, use ",sQuote("*fit* <-logLik(*fit*, add=TRUE)")," to add it to the object or rerun this function with eval.loglik=TRUE.")
 
 #' Calculate the null model likelihood
 #'
@@ -176,10 +162,8 @@ logLikNull.ergm <- function(object, control=control.logLik.ergm(), ...){
 
   control.toplevel(..., myname="logLik.ergm")
   if(!is.null(object$null.lik)) return(object$null.lik)
-
-  nobs <- NVL3(object$mle.lik,
-               attr(.,"nobs"),
-               sum(as.rlebdm(object$constrained, object$constrained.obs, which="informative")))
+  
+  nobs <- nobs(object,...)
 
   llk <-
     if(!is.null(object$response)){
@@ -198,5 +182,21 @@ logLikNull.ergm <- function(object, control=control.logLik.ergm(), ...){
   llk
 }
 
-NO_NULL_IMPLICATION <- "This means that all likelihood-based inference (LRT, Analysis of Deviance, AIC, BIC, etc.) is only valid between models with the same reference distribution and constraints."
+#' @describeIn ergm Return the number of informative dyads of a model fit.
+#' @export 
+nobs.ergm <- function(object, ...){
+  # FIXME: We need a more general framework for handling constrained
+  # and partially observed network "degrees of freedom". PROGRESS: We
+  # can handle dyad-independent ones fine, now.
   
+  if(!is.dyad.independent(object$constrained, object$constrained.obs)
+     && getOption("ergm.loglik.warn_dyads")){
+    warning("The number of observed dyads in this network is ill-defined due to complex constraints on the sample space. Disable this warning with ",sQuote("options(ergm.loglik.warn_dyads=FALSE)"),".")
+  }
+  
+  NVL3(NVL(object$null.lik, object$mle.lik),
+       attr(.,"nobs"),
+       sum(as.rlebdm(object, which="informative")))
+}
+
+NO_NULL_IMPLICATION <- "This means that all likelihood-based inference (LRT, Analysis of Deviance, AIC, BIC, etc.) is only valid between models with the same reference distribution and constraints."

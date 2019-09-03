@@ -8,49 +8,61 @@
 \alias{attrs}
 \title{Specifying nodal attributes and their levels}
 \description{
-This document describes the ways in which to specify
-nodal attribute or functions and which levels for categorical
-factors to include. For the helper functions to facilitate this,
-see \code{\link{node-attr-api}}.
+This document describes the ways to specify nodal
+attributes or functions of nodal attributes and which levels for
+categorical factors to include. For the helper functions to
+facilitate this, see \code{\link{node-attr-api}}.
 }
 \details{
-Term nodal attribute arguments, typically called \code{attrs}, \code{attrname}, \code{by},
-\code{on}, etc. are interpreted as follows: \describe{
+Term nodal attribute arguments, typically called \code{attr}, \code{attrs}, \code{by}, or
+\code{on} are interpreted as follows: \describe{
 
-\item{a single character string}{Extract the vertex attribute with
+\item{a character string}{Extract the vertex attribute with
 this name.}
 
 \item{a character vector of length > 1}{Extract the vertex
-attributes and paste them together, separated by dots.}
+attributes and paste them together, separated by dots if the term
+expects categorical attributes and (typically) combine into a
+covariate matrix if it expects quantitative attributes.}
 
 \item{a function}{The function is called on the LHS network,
-expected to return a vector of appropriate length. (Shorter vectors
-will be recycled as needed.)}
+expected to return a vector or matrix of appropriate
+dimension. (Shorter vectors and matrix columns will be recycled as needed.)}
 
 \item{a formula}{The expression on the RHS of the formula is
 evaluated in an environment of the vertex attributes of the
-network, expected to return a vector of appropriate
-length. (Shorter vectors will be recycled as needed.) Within this
-expression, the network itself accessible as either \code{.} or
-\code{.nw}. For example,
+network, expected to return a vector or matrix of appropriate
+dimension. (Shorter vectors and matrix columns will be recycled as
+needed.) Within this expression, the network itself accessible as
+either \code{.} or \code{.nw}. For example,
 \code{nodecov(~abs(Grade-mean(Grade))/network.size(.))} would return the
 absolute difference of each actor's "Grade" attribute from its
 network-wide mean, divided by the network size.}
 
+\item{an \code{AsIs} object created by \code{I()}}{Use as is, checking only
+for correct length and type, with optional attribute \code{"name"}
+indicating the predictor's name.}
+
 }
 
 For categorical attributes, to select which levels are of interest
-and their ordering, use the argument \code{levels}.  It is interpreted
+and their ordering, use the argument \code{levels}.  Selection of nodes (from
+the appropriate vector of nodal indices) is likewise handled as the
+selection of levels, using the argument \code{nodes}.  These arguments are interpreted
 as follows: \describe{
 
 \item{an expression wrapped in \code{\link[=I]{I()}}}{Use the given list of levels
 as is.}
 
-\item{a numeric or logical vector}{Used for indexing of the default
-set of levels (typically, unique values of the attribute) in
+\item{a numeric or logical vector}{Used for indexing of a list of
+all possible levels (typically, unique values of the attribute) in
 default older (typically lexicographic), i.e.,
-\code{sort(unique(attr))[levels]}. Negative values exclude. To specify
-numeric or logical levels literally, wrap in \code{\link[=I]{I()}}.}
+\code{sort(unique(attr))[levels]}. In particular, \code{levels=TRUE} will
+retain all levels. Negative values exclude. To specify numeric or
+logical levels literally, wrap in \code{\link[=I]{I()}}.}
+
+\item{\code{\link{NULL}}}{Retain all possible levels; usually equivalent to
+passing \code{TRUE}.}
 
 \item{a character vector}{Use as is.}
 
@@ -67,12 +79,18 @@ accessible as \code{.nw}, the list of unique values of the attribute as
 
 }
 
-Note that \code{levels} often has a default that is sensible for the
+Note that \code{levels} or \code{nodes} often has a default that is sensible for the
 term in question.
 }
 \examples{
 
 data(faux.mesa.high)
+
+# Activity by grade with a baseline grade excluded:
+summary(faux.mesa.high~nodefactor(~Grade))
+# Retain all levels:
+summary(faux.mesa.high~nodefactor(~Grade, levels=TRUE)) # or levels=NULL
+
 # Mixing between lower and upper grades:
 summary(faux.mesa.high~mm(~Grade>=10))
 # Mixing between grades 7 and 8 only:
@@ -84,4 +102,8 @@ summary(faux.mesa.high~mm("Grade",
         levels2=~sapply(.levels,
                         function(l)
                           l[[1]]\%in\%c(7,8) && l[[2]]\%in\%c(7,8))))
+
+# Activity by grade with a random covariate. Note that setting an attribute "name" gives it a name:
+randomcov <- structure(I(rbinom(network.size(faux.mesa.high),1,0.5)), name="random")
+summary(faux.mesa.high~nodefactor(I(randomcov)))
 }

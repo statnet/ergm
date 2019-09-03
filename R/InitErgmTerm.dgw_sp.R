@@ -139,10 +139,10 @@
 #
 InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("d","type","L.base","Ls.path","L.in_order"),
-                      vartypes = c("numeric","character","formula","formula,list","logical"),
-                      defaultvalues = list(NULL,"OTP",NULL,NULL,FALSE),
-                      required = c(TRUE, FALSE,FALSE,FALSE,FALSE))
+                      varnames = c("d","type"),
+                      vartypes = c("numeric","character"),
+                      defaultvalues = list(NULL,"OTP"),
+                      required = c(TRUE, FALSE))
   d<-a$d
   ld<-length(d)
   if(ld==0){return(NULL)}
@@ -150,14 +150,14 @@ InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
   type<-toupper(a$type[1])
   type.vec<-c("OTP","ITP","RTP","OSP","ISP")
   if(!(type%in%type.vec))
-    stop("Illegal type code for esp; valid types are:",paste(type.vec, collapse=","))
+    ergm_Init_abort("Illegal type code for esp; valid types are:",paste(type.vec, collapse=","))
   dname<-"esp"
   if(is.directed(nw)){
     conam <- paste("esp",type,sep=".")
     typecode<-which(type==type.vec)
     dname <- "desp"
   }else{
-    message("Use the ergm term 'esp' for undirected networks.")
+    ergm_Init_inform("Use the ergm term 'esp' for undirected networks.")
     dname <- "desp"
     conam<-"esp"
     type<-"UTP"
@@ -188,12 +188,12 @@ InitErgmTerm.desp<-function(nw, arglist, cache.sp=TRUE, ...) {
 #
 InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("decay","fixed","cutoff","type", "alpha","L.base","Ls.path","L.in_order"),
-                      vartypes = c("numeric","logical","numeric","character", "numeric","formula","formula,list","logical"),
-                      defaultvalues = list(NULL, FALSE, gw.cutoff,"OTP", NULL,NULL,NULL,FALSE),
-                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE,FALSE,FALSE,FALSE))
+                      varnames = c("decay","fixed","cutoff","type", "alpha"),
+                      vartypes = c("numeric","logical","numeric","character", "numeric"),
+                      defaultvalues = list(NULL, FALSE, gw.cutoff,"OTP", NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
   if(!is.null(a$alpha)){
-    stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
+    ergm_Init_abort("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".")
   }
   
   decay<-a$decay;fixed<-a$fixed
@@ -202,10 +202,10 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   type<-toupper(a$type[1])
   type.vec<-c("OTP","ITP","RTP","OSP","ISP")
   if(!(type%in%type.vec))
-    stop("Illegal type code for gwesp; valid types are:",paste(type.vec, collapse=","))
+    ergm_Init_abort("Illegal type code for gwesp; valid types are:",paste(type.vec, collapse=","))
   dname<-"desp"
   if(!is.directed(nw)){  
-    message("Use the gwesp term for undirected networks.")
+    ergm_Init_inform("Use the gwesp term for undirected networks.")
     type <- "UTP"
     typecode<-0
     basenam<-paste("gwesp",sep=".")
@@ -262,10 +262,10 @@ InitErgmTerm.dgwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #
 InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("d","type","Ls.path","L.in_order"),
-                      vartypes = c("numeric","character","formula,list","logical"),
-                      defaultvalues = list(NULL,"OTP",NULL,FALSE),
-                      required = c(TRUE, FALSE,FALSE,FALSE))
+                      varnames = c("d","type"),
+                      vartypes = c("numeric","character"),
+                      defaultvalues = list(NULL,"OTP"),
+                      required = c(TRUE, FALSE))
   d<-a$d
   ld<-length(d)
   if(ld==0){return(NULL)}
@@ -273,15 +273,14 @@ InitErgmTerm.ddsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   type<-toupper(a$type[1])
   type.vec<-c("OTP","ITP","RTP","OSP","ISP")
   if(!(type%in%type.vec))
-    stop("Illegal type code for sp; valid types are:",paste(type.vec, collapse=","))
+    ergm_Init_abort("Illegal type code for sp; valid types are:",paste(type.vec, collapse=","))
   dname<-"ddsp"
   if(is.directed(nw)){
     conam <- paste("dsp",type,sep=".")
     typecode<-which(type==type.vec)
-    dname <- "ddsp"
   }else{
-    message("Use the ergm term 'dsp' for undirected networks.")
-    conam <- paste("dsp",sep=".")
+    ergm_Init_inform("Use the ergm term 'dsp' for undirected networks.")
+    conam<-"dsp"
     type<-"UTP"
     typecode<-0
   }
@@ -310,12 +309,12 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   #    ergm.checkdirected("gwdsp", is.directed(nw), requirement=FALSE)
   # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("decay","fixed","cutoff","type", "alpha","Ls.path","L.in_order"),
-                      vartypes = c("numeric","logical","numeric","character", "numeric","formula,list","logical"),
-                      defaultvalues = list(NULL, FALSE, gw.cutoff,"OTP", NULL,NULL,FALSE),
-                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE,FALSE,FALSE))
+                      varnames = c("decay","fixed","cutoff","type", "alpha"),
+                      vartypes = c("numeric","logical","numeric","character", "numeric"),
+                      defaultvalues = list(NULL, FALSE, gw.cutoff,"OTP", NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
   if(!is.null(a$alpha)){
-    stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
+    ergm_Init_abort("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".")
   }
   
   decay<-a$decay;fixed<-a$fixed
@@ -325,11 +324,11 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   type<-toupper(a$type[1])
   type.vec<-c("OTP","ITP","RTP","OSP","ISP")
   if(!(type%in%type.vec))
-    stop("Illegal type code; valid types are:",paste(type.vec, collapse=","))
+    ergm_Init_abort("Illegal type code; valid types are:",paste(type.vec, collapse=","))
   dname<-"ddsp"
   
   if(!is.directed(nw)){  
-    message("Use the gwdsp term for undirected networks.")
+    ergm_Init_inform("Use the gwdsp term for undirected networks.")
     type <- "UTP"
     basenam<-"gwdsp"
     typecode<-0
@@ -388,10 +387,10 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
 #
 InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("d","type","L.base","Ls.path","L.in_order"),
-                      vartypes = c("numeric","character","formula","formula,list","logical"),
-                      defaultvalues = list(NULL,"OTP",NULL,NULL,FALSE),
-                      required = c(TRUE, FALSE,FALSE,FALSE,FALSE))
+                      varnames = c("d","type"),
+                      vartypes = c("numeric","character"),
+                      defaultvalues = list(NULL,"OTP"),
+                      required = c(TRUE, FALSE))
   d<-a$d
   ld<-length(d)
   if(ld==0){return(NULL)}
@@ -399,13 +398,13 @@ InitErgmTerm.dnsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   type<-toupper(a$type[1])
   type.vec<-c("OTP","ITP","RTP","OSP","ISP")
   if(!(type%in%type.vec))
-    stop("Illegal type code for sp; valid types are:",paste(type.vec, collapse=","))
+    ergm_Init_abort("Illegal type code for sp; valid types are:",paste(type.vec, collapse=","))
   dname<-"dnsp"
   if(is.directed(nw)){
     conam <- paste("nsp",type,sep=".")
     typecode<-which(type==type.vec)
   }else{
-    message("Use the ergm term 'nsp' for undirected networks.")
+    ergm_Init_inform("Use the ergm term 'nsp' for undirected networks.")
     conam<-"nsp"
     type<-"UTP"
     typecode<-0
@@ -434,12 +433,12 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   #    ergm.checkdirected("gwnsp", is.directed(nw), requirement=FALSE)
   # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("decay","fixed","cutoff","type", "alpha","L.base","Ls.path","L.in_order"),
-                      vartypes = c("numeric","logical","numeric","character", "numeric","formula","formula,list","logical"),
-                      defaultvalues = list(NULL, FALSE, gw.cutoff,"OTP", NULL,NULL,NULL,FALSE),
-                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE,FALSE,FALSE,FALSE))
+                      varnames = c("decay","fixed","cutoff","type", "alpha"),
+                      vartypes = c("numeric","logical","numeric","character", "numeric"),
+                      defaultvalues = list(NULL, FALSE, gw.cutoff,"OTP", NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
   if(!is.null(a$alpha)){
-    stop("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".", call.=FALSE)
+    ergm_Init_abort("For consistency with gw*degree terms, in all gw*sp and dgw*sp terms the argument ", sQuote("alpha"), " has been renamed to " ,sQuote("decay"), ".")
   }
   
   decay<-a$decay;fixed<-a$fixed
@@ -449,11 +448,11 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
   type<-toupper(a$type[1])
   type.vec<-c("OTP","ITP","RTP","OSP","ISP")
   if(!(type%in%type.vec))
-    stop("Illegal type code; valid types are:",paste(type.vec, collapse=","))
+    ergm_Init_abort("Illegal type code; valid types are:",paste(type.vec, collapse=","))
   dname<-"dnsp"
   
   if(!is.directed(nw)){  
-    message("Use the gwnsp term for undirected networks.")
+    ergm_Init_inform("Use the gwnsp term for undirected networks.")
     type <- "UTP"
     basenam<-"gwdsp"
     typecode<-0

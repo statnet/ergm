@@ -117,3 +117,26 @@ InitErgmTerm..undir.net <- function(nw, arglist, response=NULL, ...){
        dependence=rule%in%c("weak","strong")) # Just discarding half the network does not induce dependence.
 }
 
+InitErgmTerm..subgraph.net <- function(nw, arglist, response=NULL, ...){
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("tailsel", "headsel"),
+                      vartypes = c("numeric", "numeric"),
+                      defaultvalues = list(NULL, NULL),
+                      required = c(TRUE, FALSE))
+
+  tailsel <- a$tailsel
+  headsel <- a$headsel
+
+  type <-
+    if(!identical(tailsel, headsel)) "bip"
+    else if(is.directed(nw)) "dir" else "undir"
+
+  tailmap <- numeric(network.size(nw))
+  tailmap[tailsel] <- seq_along(tailsel)
+  if(type=="bip"){
+    headmap <- numeric(network.size(nw))
+    headmap[headsel] <- length(tailsel) + seq_along(headsel)
+  }else headmap <- numeric(0)
+
+  list(name=paste0("_subgraph_",type,"_net"), coef.names = c(), inputs=c(length(tailsel), if(type=="bip") length(headsel), tailmap, headmap), dependence=FALSE)
+}

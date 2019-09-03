@@ -33,12 +33,12 @@ extern void MPLE_wrapper(void *, void *, void *, void *, void *, void *, void *,
 extern void network_stats_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void node_geodesics(void *, void *, void *, void *, void *, void *, void *, void *);
 extern void pair_geodesic(void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void SAN_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void SAN_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void wt_network_stats_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void WtCD_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void WtGodfather_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void WtMCMC_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void WtSAN_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void WtSAN_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 
 /* .Call calls */
 extern SEXP get_ergm_omp_terms();
@@ -56,12 +56,12 @@ static const R_CMethodDef CEntries[] = {
     {"network_stats_wrapper",      (DL_FUNC) &network_stats_wrapper,      14},
     {"node_geodesics",             (DL_FUNC) &node_geodesics,              8},
     {"pair_geodesic",              (DL_FUNC) &pair_geodesic,               9},
-    {"SAN_wrapper",                (DL_FUNC) &SAN_wrapper,                29},
+    {"SAN_wrapper",                (DL_FUNC) &SAN_wrapper,                35},
     {"wt_network_stats_wrapper",   (DL_FUNC) &wt_network_stats_wrapper,   15},
     {"WtCD_wrapper",               (DL_FUNC) &WtCD_wrapper,               19},
     {"WtGodfather_wrapper",        (DL_FUNC) &WtGodfather_wrapper,        22},
     {"WtMCMC_wrapper",             (DL_FUNC) &WtMCMC_wrapper,             24},
-    {"WtSAN_wrapper",              (DL_FUNC) &WtSAN_wrapper,              24},
+    {"WtSAN_wrapper",              (DL_FUNC) &WtSAN_wrapper,              30},
     {NULL, NULL, 0}
 };
 

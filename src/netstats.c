@@ -60,8 +60,7 @@ void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int 
 
 /****************
  void SummStats Computes summary statistics for a network. Must be
- passed an empty network (and a possible discordance network) and 
- passed an empty network
+ passed an empty network and passed an empty network
 *****************/
 
 /* *** don't forget tail-> head, so this fucntion now accepts tails before heads */
@@ -79,7 +78,7 @@ Network *nwp, Model *m, double *stats){
       if(mtp->s_func==NULL && mtp->i_func)
 	(*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
       else if(mtp->s_func==NULL && mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
-	(*(mtp->u_func))(0, 0, mtp, nwp);  /* Call u_??? function */
+	(*(mtp->u_func))(0, 0, mtp, nwp, 0);  /* Call u_??? function */
       IFDEBUG_RESTORE_DSTATS;
     });
     
@@ -96,14 +95,15 @@ Network *nwp, Model *m, double *stats){
 
   /* Calculate statistics for terms that have c_functions but not s_functions.  */
   for(Edge e=0; e<n_edges; e++){
-    Vertex t=TAIL(e), h=HEAD(e); 
+    Vertex t=TAIL(e), h=HEAD(e);
+    Rboolean edgeflag = IS_OUTEDGE(t,h);
 
     ergm_PARALLEL_FOR_LIMIT(m->n_terms)        
     EXEC_THROUGH_TERMS_INTO(m, stats, {
 	if(mtp->s_func==NULL && mtp->c_func){
 	  ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(t, h,
-			   mtp, nwp);  /* Call c_??? function */
+			   mtp, nwp, edgeflag);  /* Call c_??? function */
 	  
 	  for(unsigned int k=0; k<N_CHANGE_STATS; k++){
 	    dstats[k] += mtp->dstats[k];
@@ -112,8 +112,8 @@ Network *nwp, Model *m, double *stats){
       });
     
     /* Update storage and network */    
-    UPDATE_STORAGE_COND(t, h, nwp, m, NULL, mtp->s_func==NULL && mtp->d_func==NULL);
-    TOGGLE(t, h);
+    UPDATE_STORAGE_COND(t, h, nwp, m, NULL, edgeflag, mtp->s_func==NULL && mtp->d_func==NULL);
+    TOGGLE_KNOWN(t, h, edgeflag);
   }
   
   /* Calculate statistics for terms have s_functions  */

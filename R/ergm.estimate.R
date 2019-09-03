@@ -28,8 +28,6 @@
 #                     default="lognormal"
 #   method          : the method to be used by the <optim> routine;
 #                     default="Nelder-Mead"
-#   compress        : whether the matrix of statistics should be compressed
-#                     via <ergm.sufftoprob>; default=FALSE
 #   calc.mcmc.se    : whether to calculate the standard errors induced by the
 #                     MCMC algorithm; default=TRUE
 #   hessainflag     : whether the Hessian matrix of the likelihood function
@@ -61,7 +59,7 @@
 ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
                         epsilon=1e-10, nr.maxit=1000, nr.reltol=sqrt(.Machine$double.eps),
                         metric="lognormal",
-                        method="Nelder-Mead", compress=FALSE,
+                        method="Nelder-Mead",
                         calc.mcmc.se=TRUE, hessianflag=TRUE,
                         verbose=FALSE, trace=6*verbose,
                         trustregion=20, 

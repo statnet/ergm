@@ -1,4 +1,4 @@
-/*  File src/ergm_changestat.h in package ergm, part of the Statnet suite
+/*  File inst/include/ergm_changestat.h in package ergm, part of the Statnet suite
  *  of packages for network analysis, https://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -14,10 +14,10 @@
 #include "ergm_edgelist.h"
 
 typedef struct ModelTermstruct {
-  void (*c_func)(Vertex, Vertex, struct ModelTermstruct*, Network*);
+  void (*c_func)(Vertex, Vertex, struct ModelTermstruct*, Network*, Rboolean);
   void (*d_func)(Edge, Vertex*, Vertex*, struct ModelTermstruct*, Network*);
   void (*i_func)(struct ModelTermstruct*, Network*);
-  void (*u_func)(Vertex, Vertex, struct ModelTermstruct*, Network*);
+  void (*u_func)(Vertex, Vertex, struct ModelTermstruct*, Network*, Rboolean);
   void (*f_func)(struct ModelTermstruct*, Network*);
   void (*s_func)(struct ModelTermstruct*, Network*);
   double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
@@ -116,7 +116,7 @@ typedef struct ModelTermstruct {
 /* Change the status of the (a,b) edge:  Add it if it's absent, or 
    delete it if it's present. */
 #define TOGGLE(a,b) (ToggleEdge((a),(b),nwp));
-#define TOGGLE_DISCORD(a,b) (ToggleEdge((a),(b),nwp+1));
+#define TOGGLE_KNOWN(a,b,ef) (ToggleKnownEdge((a),(b),nwp,(ef)));
 
 /* Get and set the value (0 or 1) of the (a,b) edge. */
 #define _GETWT2(a,b) _GETWT3(a,b,nwp)
@@ -131,10 +131,8 @@ typedef struct ModelTermstruct {
 #define FOR_EACH_TOGGLE(a) for((a)=0; (a)<ntoggles; (a)++)
 #define IF_MORE_TO_COME(a) if((a)+1<ntoggles)
 #define TOGGLE_IF_MORE_TO_COME(a) IF_MORE_TO_COME(a){TOGGLE(tails[(a)],heads[(a)])}
-#define TOGGLE_DISCORD_IF_MORE_TO_COME(a) IF_MORE_TO_COME(a){TOGGLE_DISCORD(tails[(a)],heads[(a)])}
 #define UNDO_PREVIOUS(a) (a)--; while(--(a)>=0)
 #define UNDO_PREVIOUS_TOGGLES(a)  UNDO_PREVIOUS(a){TOGGLE(tails[(a)],heads[(a)])}
-#define UNDO_PREVIOUS_DISCORD_TOGGLES(a) UNDO_PREVIOUS(a){TOGGLE(tails[(a)],heads[(a)]); TOGGLE_DISCORD(tails[(a)],heads[(a)])}
 
 /****************************************************/
 /* changestat function prototypes */
@@ -144,10 +142,10 @@ typedef struct ModelTermstruct {
 #define CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp)
 
 /* NB:  CHANGESTAT_FN is now deprecated (replaced by D_CHANGESTAT_FN) */
-#define C_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp)
+#define C_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgeflag)
 #define D_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp)
 #define I_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
-#define U_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp)
+#define U_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgeflag)
 #define F_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
 #define S_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
 

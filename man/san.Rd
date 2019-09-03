@@ -12,21 +12,23 @@ statistics}
 san(object, ...)
 
 \method{san}{formula}(object, response = NULL, reference = ~Bernoulli,
-  constraints = ~., target.stats = NULL, nsim = 1, basis = NULL,
+  constraints = ~., target.stats = NULL, nsim = NULL, basis = NULL,
   output = c("network", "edgelist", "pending_update_network"),
-  only.last = TRUE, control = control.san(), verbose = FALSE, ...)
+  only.last = TRUE, control = control.san(), verbose = FALSE,
+  offset.coef = NULL, ...)
 
 \method{san}{ergm_model}(object, response = NULL,
   reference = ~Bernoulli, constraints = ~., target.stats = NULL,
-  nsim = 1, basis = NULL, output = c("network", "edgelist",
+  nsim = NULL, basis = NULL, output = c("network", "edgelist",
   "pending_update_network"), only.last = TRUE, control = control.san(),
-  verbose = FALSE, ...)
+  verbose = FALSE, offset.coef = NULL, ...)
 
 \method{san}{ergm}(object, formula = object$formula,
   constraints = object$constraints, target.stats = object$target.stats,
-  nsim = 1, basis = NULL, output = c("network", "edgelist",
+  nsim = NULL, basis = NULL, output = c("network", "edgelist",
   "pending_update_network"), only.last = TRUE,
-  control = object$control$SAN.control, verbose = FALSE, ...)
+  control = object$control$SAN.control, verbose = FALSE,
+  offset.coef = object$coef[object$offset], ...)
 }
 \arguments{
 \item{object}{Either a \code{\link{formula}} or an \code{\link{ergm}} object. The
@@ -54,11 +56,11 @@ documentation for a similar argument for \code{\link{ergm}} and see
 \code{simulate.ergm}, defaults to using the same constraints as those with
 which \code{object} was fitted.}
 
-\item{target.stats}{A vector of the same length as the number of terms
+\item{target.stats}{A vector of the same length as the number of non-offset statistics
 implied by the formula, which is either \code{object} itself in the case of
 \code{san.formula} or \code{object$formula} in the case of \code{san.ergm}.}
 
-\item{nsim}{Number of desired networks.}
+\item{nsim}{Number of networks to generate. Deprecated: just use \code{\link[=replicate]{replicate()}}.}
 
 \item{basis}{If not NULL, a \code{network} object used to start the Markov
 chain.  If NULL, this is taken to be the network named in the formula.}
@@ -74,6 +76,10 @@ otherwise, return a \code{\link{network.list}} with \code{nsim} networks.}
 \code{\link{control.san}}.}
 
 \item{verbose}{Logical or numeric giving the level of verbosity. Higher values produce more verbose output.}
+
+\item{offset.coef}{A vector of coefficients for the offset statistics.  For \code{san.formula}, these must be
+passed in as an argument.  For \code{san.ergm}, they can be passed in as an argument, but will default to the
+offsets in the \code{ergm} object.}
 
 \item{formula}{(By default, the \code{formula} is taken from the \code{ergm}
 object.  If a different \code{formula} object is wanted, specify it here.}
@@ -96,4 +102,53 @@ those passed in via the \code{target.stats} vector.
 inherited from the \code{\link{ergm}} fit unless overridden.
 }}
 
+\examples{
+\donttest{
+# initialize x to a random undirected network with 50 nodes and a density of 0.1
+x <- network(50, density = 0.05, directed = FALSE)
+ 
+# try to find a network on 50 nodes with 300 edges, 150 triangles,
+# and 1250 4-cycles, starting from the network x
+y <- san(x ~ edges + triangles + cycle(4), target.stats = c(300, 150, 1250))
+
+# check results
+summary(y ~ edges + triangles + cycle(4))
+
+# initialize x to a random directed network with 50 nodes
+x <- network(50)
+
+# add vertex attributes
+x \%v\% 'give' <- runif(50, 0, 1)
+x \%v\% 'take' <- runif(50, 0, 1)
+
+# try to find a set of 100 directed edges making the outward sum of
+# 'give' and the inward sum of 'take' both equal to 62.5, so in
+# edges (i,j) the node i tends to have above average 'give' and j
+# tends to have above average 'take'
+y <- san(x ~ edges + nodeocov('give') + nodeicov('take'), target.stats = c(100, 62.5, 62.5))
+
+# check results
+summary(y ~ edges + nodeocov('give') + nodeicov('take'))
+
+
+# initialize x to a random undirected network with 50 nodes
+x <- network(50, directed = FALSE)
+
+# add a vertex attribute
+x \%v\% 'popularity' <- runif(50, 0, 1)
+
+# try to find a set of 100 edges making the total sum of
+# popularity(i) and popularity(j) over all edges (i,j) equal to
+# 125, so nodes with higher popularity are more likely to be
+# connected to other nodes
+y <- san(x ~ edges + nodecov('popularity'), target.stats = c(100, 125))
+ 
+# check results
+summary(y ~ edges + nodecov('popularity'))
+
+# creates a network with denser "core" spreading out to sparser
+# "periphery"
+plot(y)
+}
+}
 \keyword{models}

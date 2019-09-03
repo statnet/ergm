@@ -10,23 +10,36 @@
 # This new InitErgmTerm function still needs to be tested:
 
 #################################################################################
-InitErgmTerm.transitiveties<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("attrname", "diff", "levels"),
-                      vartypes = c("character", "logical", "character,numeric,logical"),
-                      defaultvalues = list(NULL, FALSE, NULL),
-                      required = c(FALSE, FALSE, FALSE))
-  if (a$diff) stop("diff=TRUE is not currently implemented in transitiveties")
-  attrname <- a$attrname
+InitErgmTerm.transitiveties<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    a <- check.ErgmTerm(nw, arglist,
+                        varnames = c("attrname", "diff", "levels"),
+                        vartypes = c("character", "logical", "character,numeric,logical"),
+                        defaultvalues = list(NULL, FALSE, TRUE),
+                        required = c(FALSE, FALSE, FALSE))
+	attrarg <- a$attrname
+	levels <- if(!is.null(a$levels)) I(a$levels) else NULL
+  }else{
+    a <- check.ErgmTerm(nw, arglist,
+                        varnames = c("attr", "diff", "levels"),
+                        vartypes = c(ERGM_VATTR_SPEC, "logical", ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, FALSE, NULL),
+                        required = c(FALSE, FALSE, FALSE))  
+	attrarg <- a$attr
+	levels <- a$levels
+  }
+  if (a$diff) ergm_Init_abort("diff=TRUE is not currently implemented in transitiveties")
+
   diff <- a$diff
-  if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "transitiveties")
-    u<-sort(unique(nodecov))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
+  if(!is.null(attrarg)) {
+    nodecov <- ergm_get_vattr(attrarg, nw)
+	attrname <- attr(nodecov, "name")
+    u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
+
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
     if (length(u)==1)
-      warning ("Attribute given to transitiveties() has only one value", call.=FALSE)
+      ergm_Init_warn ("Attribute given to transitiveties() has only one value")
     if (!diff) {
       coef.names <- paste("transitiveties",attrname,sep=".")
       inputs <- c(nodecov)
@@ -43,23 +56,36 @@ InitErgmTerm.transitiveties<-function (nw, arglist, ...) {
 }
 
 #################################################################################
-InitErgmTerm.cyclicalties<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("attrname", "diff", "levels"),
-                      vartypes = c("character", "logical", "character,numeric,logical"),
-                      defaultvalues = list(NULL, FALSE, NULL),
-                      required = c(FALSE, FALSE, FALSE))
-  if (a$diff) stop("diff=TRUE is not currently implemented in cyclicalties")
-  attrname <- a$attrname
+InitErgmTerm.cyclicalties<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.9.4")){
+    a <- check.ErgmTerm(nw, arglist,
+                        varnames = c("attrname", "diff", "levels"),
+                        vartypes = c("character", "logical", "character,numeric,logical"),
+                        defaultvalues = list(NULL, FALSE, TRUE),
+                        required = c(FALSE, FALSE, FALSE))
+	attrarg <- a$attrname
+	levels <- if(!is.null(a$levels)) I(a$levels) else NULL						
+  }else{
+    a <- check.ErgmTerm(nw, arglist,
+                        varnames = c("attr", "diff", "levels"),
+                        vartypes = c(ERGM_VATTR_SPEC, "logical", ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, FALSE, TRUE),
+                        required = c(FALSE, FALSE, FALSE))
+	attrarg <- a$attr
+	levels <- a$levels  
+  }
+  if (a$diff) ergm_Init_abort("diff=TRUE is not currently implemented in cyclicalties")
+
   diff <- a$diff
-  if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "cyclicalties")
-    u<-sort(unique(nodecov))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
+  if(!is.null(attrarg)) {
+    nodecov <- ergm_get_vattr(attrarg, nw)
+	attrname <- attr(nodecov, "name")
+    u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
+
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
     if (length(u)==1)
-      warning ("Attribute given to cyclicalties() has only one value", call.=FALSE)
+      ergm_Init_warn ("Attribute given to cyclicalties() has only one value")
     if (!diff) {
       coef.names <- paste("cyclicalties",attrname,sep=".")
       inputs <- c(nodecov)

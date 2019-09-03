@@ -1,4 +1,4 @@
-#  File tests/termTests.b12factor.R in package ergm, part of the Statnet suite
+#  File tests/testthat/test-term-b12factor.R in package ergm, part of the Statnet suite
 #  of packages for network analysis, https://statnet.org .
 #
 #  This software is distributed under the GPL-3 license.  It is free,
@@ -7,19 +7,18 @@
 #
 #  Copyright 2003-2019 Statnet Commons
 #######################################################################
-library(ergm)
-
-
+context("test-term-b12factor.R")
 
 bipnet<-network.initialize(4,bipartite=2,directed=FALSE)
 add.edges(bipnet,tail=c(1),head=c(4))
 # set an attribute on the the vertices of the second mode
 set.vertex.attribute(bipnet,'felines',c('cat','tiger'),v=3:4)
 
-tryCatch(summary(bipnet~b1factor('felines')),error=function(e)cat("expected error message \n"))
+test_that("NA check works for b1factor", {
+  expect_error(summary(bipnet~b1factor('felines')), "Attribute .\"felines\". has missing data, which is not currently supported by ergm.")
+})
 
-
-if(summary(bipnet~b2factor('felines')) !=1)
-	stop("b2factor error A")
-
-
+test_that("Correct statistics for b2factor()", {
+  o <- summary(bipnet~b2factor('felines'))
+  expect_equivalent(o, 1)
+})

@@ -67,8 +67,8 @@ num.tests=0
 # absdiff, no required type, independent
 num.tests=num.tests+1
 s.a <- summary(fmh ~ absdiff("Grade"))
-e.a <- ergm(fmh ~ absdiff("Grade"))
-s.ap <- summary(fmh ~ absdiff("Grade", pow=2))
+e.a <- ergm(fmh ~ absdiff(function(x) x %v% "Grade"))
+s.ap <- summary(fmh ~ absdiff(~Grade, pow=2))
 e.ap <- ergm(fmh ~ absdiff("Grade", pow=2))
 
 if (s.a-79 != 0 || round(e.a$coef + 4.354,3) != 0 ||
@@ -85,8 +85,8 @@ if (s.a-79 != 0 || round(e.a$coef + 4.354,3) != 0 ||
 num.tests=num.tests+1
 s.a <- summary(fmh ~ absdiffcat("Grade"))
 e.a <- ergm(fmh ~ absdiffcat("Grade"))
-s.ab <- summary(fmh ~ absdiffcat("Grade", base=4:5))
-e.ab <- ergm(fmh ~ absdiffcat("Grade", base=4:5))
+s.ab <- summary(fmh ~ absdiffcat(function(x) x %v% "Grade", levels=-(4:5)))
+e.ab <- ergm(fmh ~ absdiffcat(~Grade, base=(4:5)))
 if (!all(s.a==c(15,15,7,2,1)) ||
     !all(round(e.a$coef+c(6.005,5.788,6.063,6.891,6.611),3)==0) ||
     !all(s.ab==c(15,15,7)) ||
@@ -148,16 +148,16 @@ num.tests=num.tests+1
 sthd <- outer(samplike%v%"YearsServed",samplike%v%"YearsServed","-") # YS[t]-YS[h]
 sm <- as.matrix(samplike)
 s.a <- summary(samplike ~ diff("YearsServed"))
-e.a <- ergm(samplike ~ diff("YearsServed"))
+e.a <- ergm(samplike ~ diff(~YearsServed))
 s.ad <- summary(samplike ~ diff("YearsServed", dir="h-t"))
-e.ad <- ergm(samplike ~ diff("YearsServed", dir="h-t"))
-s.ads2 <- summary(samplike ~ diff("YearsServed", sign.action="abs"))
+e.ad <- ergm(samplike ~ diff(function(x) x %v% "YearsServed", dir="h-t"))
+s.ads2 <- summary(samplike ~ diff(~YearsServed, sign.action="abs"))
 e.ads2 <- ergm(samplike ~ diff("YearsServed", sign.action="abs"))
-s.ads3 <- summary(samplike ~ diff("YearsServed", sign.action="pos"))
+s.ads3 <- summary(samplike ~ diff(~YearsServed, sign.action="pos"))
 e.ads3 <- ergm(samplike ~ diff("YearsServed", sign.action="pos"))
-s.ads4 <- summary(samplike ~ diff("YearsServed", sign.action="neg"))
+s.ads4 <- summary(samplike ~ diff(function(x) x %v% "YearsServed", sign.action="neg"))
 e.ads4 <- ergm(samplike ~ diff("YearsServed", sign.action="neg"))
-s.ap <- summary(samplike ~ diff("YearsServed", pow=3))
+s.ap <- summary(samplike ~ diff(function(x) x %v% "YearsServed", pow=3))
 e.ap <- ergm(samplike ~ diff("YearsServed", pow=3))
 
 if (s.a!=sum(sthd*sm) || round(coef(e.a),3)!=0.063 ||
@@ -400,6 +400,22 @@ if (FALSE && !all.equal(as.vector(c(s.0, s.x, s.xc, s.xd, s.xca, s.xcd)),
 }
 
 
+# isolatededges, undirected
+num.tests=num.tests+1
+s.0 <- summary(fmh~isolatededges)
+e.0 <- ergm(fmh~isolatededges, estimate="MPLE")
+s.1 <- summary(bipnw2~isolatededges)
+e.1 <- ergm(bipnw2~isolatededges, estimate="MPLE")
+
+if (s.0 != 4 || s.1 != 25 || round(e.0$coef - 0.01034, 3) != 0 || round(e.1$coef + 0.1611, 3) != 0) {
+ print(list(s.0=s.0, e.0=e.0, s.1=s.1, e.1=e.1))
+ stop("Failed isolatededges term test")
+} else {
+  num.passed.tests=num.passed.tests+1
+  print("Passed isolatededges term test")
+}
+
+
                      
 # isolates, either
 num.tests=num.tests+1
@@ -452,12 +468,14 @@ if (round(s.0 - 4.8889, 3) != 0 ||
 num.tests=num.tests+1
 s.a <- summary(samplike~nodecov("YearsServed"))
 e.a <- ergm(fmh~nodecov("Grade"), estimate="MPLE")
-s.at <- summary(samplike~nodecov("YearsServed", function(x)x^2))
-e.at <- ergm(fmh~nodecov("Grade", function(x)x^2), estimate="MPLE")
-s.att <- summary(samplike~nodecov("YearsServed", function(x)x^2, "squared"))
+s.at <- summary(samplike~nodecov(~YearsServed^2))
+e.at <- ergm(fmh~nodecov(~(.%v%"Grade")^2), estimate="MPLE")
+s.att <- summary(samplike~nodecov(function(x)(x%v%"YearsServed")^2))
+s.attt <- summary(samplike~nodecov(~poly(YearsServed,2,raw=TRUE)))
 if (s.a != 906 || round(e.a$coef + .271, 3) != 0 ||
-    s.at != 5036 || round(e.at$coef + .03199, 3) != 0) {
- print(list(s.a=s.a, e.a=e.a, s.at=s.at, e.at=e.at))
+    s.at != 5036 || round(e.at$coef + .03199, 3) != 0 ||
+    s.att != 5036 || any(s.attt != c(906,5036))) {
+ print(list(s.a=s.a, e.a=e.a, s.at=s.at, e.at=e.at, s.att=s.att, s.attt=s.attt))
  stop("Failed nodecov term test")
 } else {
   num.passed.tests=num.passed.tests+1
@@ -469,9 +487,9 @@ if (s.a != 906 || round(e.a$coef + .271, 3) != 0 ||
 #nodefactor, either
 num.tests=num.tests+1
 s.a <- summary(fmh~nodefactor("Grade"))
-e.a <- ergm(samplike~nodefactor("group"), estimate="MPLE")
-s.ab <- summary(fmh~nodefactor("Sex", base=4:5))
-e.ab <- ergm(samplike~nodefactor("Trinity", base=0), estimate="MPLE")
+e.a <- ergm(samplike~nodefactor(~group), estimate="MPLE")
+s.ab <- summary(fmh~nodefactor(function(x) x %v% "Sex", base=(4:5)))
+e.ab <- ergm(samplike~nodefactor("Trinity", levels=TRUE), estimate="MPLE")
 if (!all(s.a==c(75, 65, 36, 49, 28)) ||
     !all(round(e.a$coef+c(.9480, .3273),3)==0) ||
     !all(s.ab==c(235,171)) ||
@@ -489,11 +507,11 @@ if (!all(s.a==c(75, 65, 36, 49, 28)) ||
 num.tests=num.tests+1
 s.a <- summary(fmh~nodematch("Race"))
 e.a <- ergm(samplike~nodematch("Trinity"), estimate="MPLE")
-s.ad <- summary(samplike~nodematch("group", diff=TRUE))
+s.ad <- summary(samplike~nodematch(function(x) x %v% "group", diff=TRUE))
 e.ad <- ergm(fmh~nodematch("Sex", diff=TRUE), estimate="MPLE")
-s.ak <- summary(fmh~nodematch("Grade", keep=3:4))
-e.ak <- ergm(samplike~nodematch("group", keep=2), estimate="MPLE")
-s.adk <- summary(samplike~nodematch("Trinity", TRUE, 1:2))
+s.ak <- summary(fmh~nodematch(~Grade, levels=3:4))
+e.ak <- ergm(samplike~nodematch(function(x) x %v% "group", levels=2), estimate="MPLE")
+s.adk <- summary(samplike~nodematch(~Trinity, TRUE, 1:2))
 e.adk <- ergm(fmh~nodematch("Race", TRUE, 2), estimate="MPLE")
 if (s.a != 103 || round(e.a$coef + 1.45725,3)!=0  ||
     !all(s.ad==c(23,10,30)) ||
@@ -513,11 +531,11 @@ if (s.a != 103 || round(e.a$coef + 1.45725,3)!=0  ||
 # nodemix, any
 num.tests=num.tests+1
 s.a <- summary(fmh ~ nodemix("Grade"))
-e.a <- ergm(samplike ~ nodemix("group"), estimate="MPLE")
-s.ab <- summary(bipnw ~ nodemix("Letter"), base=0)
-e.ab <- ergm(bipnw ~ nodemix("Letter", base=2:6))
+e.a <- ergm(samplike ~ nodemix(function(x) x %v% "group"), estimate="MPLE")
+s.ab <- summary(bipnw ~ nodemix("Letter", levels2=TRUE))
+e.ab <- ergm(bipnw ~ nodemix(function(x) x %v% "Letter", levels2=-(2:6)))
 s.ab2 <- summary(fmh ~ nodemix("Race", base=1))
-e.ab2 <- ergm(samplike ~ nodemix("Trinity", base=3:9))                
+e.ab2 <- ergm(samplike ~ nodemix(~Trinity, base=(3:9)))                
 if (!all(s.a == c(75, 0, 33, 0, 2, 23, 1, 4, 7, 9, 1,
                   2, 6, 1, 17, 1, 1, 4, 5, 5, 6)) ||
     !all(round(e.a$coef - c(0.1910552, -3.2958369, -2.1747517, -2.5649494,
@@ -540,9 +558,9 @@ num.tests=num.tests+1
 s.ac.d <- summary(samplike~smalldiff("YearsServed", 3))
 s.ac.u <- summary(fmh~smalldiff("Grade", 2))
 s.ac.b <- summary(bipnw~smalldiff("Cost", 1))                
-e.ac.d <- ergm(samplike~smalldiff("YearsServed", 3), estimate="MPLE")
-e.ac.u <- ergm(fmh~smalldiff("Grade", 2), estimate="MPLE")
-e.ac.b <- ergm(bipnw~smalldiff("Cost", 1), estimate="MPLE")                
+e.ac.d <- ergm(samplike~smalldiff(~YearsServed, 3), estimate="MPLE")
+e.ac.u <- ergm(fmh~smalldiff(~Grade, 2), estimate="MPLE")
+e.ac.b <- ergm(bipnw~smalldiff(function(x) x %v% "Cost", 1), estimate="MPLE")                
 if (s.ac.d != 78 || s.ac.u != 193 || s.ac.b != 48 ||
     round(e.ac.d$coef + .86903, 3) != 0 ||
     round(e.ac.u$coef + 4.3525, 3) != 0 ||
@@ -561,7 +579,7 @@ print(list(s.ac.d=s.ac.d, s.ac.u=s.ac.u, s.ac.b=s.ac.b,
 num.tests=num.tests+1
 s.0 <- summary(samplike~threetrail)
 e.0 <- ergm(fmh~threetrail, estimate="MPLE")
-s.k <- summary(samplike~threetrail(keep=2))
+s.k <- summary(samplike~threetrail(levels=2))
 e.k <- ergm(samplike~threetrail(keep=1:2), estimate="MPLE")
 if (!all(s.0==c(2103, 2326, 1749, 1897)) ||
     round(e.0$coef + .2842, 3) != 0 ||
@@ -580,9 +598,9 @@ if (!all(s.0==c(2103, 2326, 1749, 1897)) ||
 num.tests=num.tests+1
 s.0 <- summary(fmh~triangles)
 e.0 <- ergm(samplike~triangles, estimate="MPLE")
-s.a <- summary(fmh~triangles("Race"))
+s.a <- summary(fmh~triangles(function(x) x %v% "Race"))
 e.a <- ergm(samplike~triangle("group"), estimate="MPLE")                
-s.ad <- summary(samplike~triangles("Trinity", diff=TRUE))
+s.ad <- summary(samplike~triangles(~Trinity, diff=TRUE))
 e.ad <- ergm(fmh~triangle("Sex", diff=TRUE), estimate="MPLE")   
 if (s.0 != 62 || round(e.0$coef + .06997, 3) != 0 ||
     s.a != 18 || round(e.a$coef - .06354, 3) != 0 ||

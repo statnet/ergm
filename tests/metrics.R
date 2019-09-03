@@ -9,7 +9,7 @@
 #######################################################################
 library(ergm)
 theta0err<- 1 # Perturbation in the initial values
-tolerance<-5 # Result must be within 5*MCMCSE. of truth.
+tolerance<-5 # Result must be within 5*MCMCSE of truth.
 
 n<-20 # Number of nodes
 
@@ -40,23 +40,20 @@ correct.edges.theta<-function(y){
 
 run.metric.test<-function(y){
   truth<-correct.edges.theta(y)
-  cat("Correct estimate =",truth,"\n")
+  message("Correct estimate =",truth)
 
   for(metric in metrics){
-    mcmcfit<-ergm(y~edges, control=control.ergm(force.main=TRUE, init=truth+theta0err, MCMLE.metric=metric),eval.loglik=FALSE, verbose=TRUE)
+    mcmcfit<-ergm(y~edges, control=control.ergm(force.main=TRUE, init=truth+theta0err, MCMLE.metric=metric),eval.loglik=FALSE, verbose=FALSE)
     mcmcOK<-abs(truth-coef(mcmcfit))/sqrt(diag(vcov(mcmcfit, source="estimation"))) 
-    cat("MCMCMLE(",metric,") estimate =", coef(mcmcfit), if(mcmcOK<tolerance) "OK" else mcmcOK,"\n")
-    if(mcmcOK>=tolerance) return(FALSE)
+    if(mcmcOK>=tolerance) stop("MCMCMLE(",metric,") estimate = ", coef(mcmcfit), "; z = ", mcmcOK)
+    else message("MCMCMLE(",metric,") estimate = ", coef(mcmcfit), if(mcmcOK<tolerance) " OK")
   }
-  TRUE
 }
 
 
 for(m in ms){
   cat("\n\n",m*100,"% missing\n")
-  for(metric in metrics){
-    set.seed(123)
-    y<-mk.missnet(n, d, m, TRUE, FALSE)
-    stopifnot(run.metric.test(y))
-  }
+  set.seed(123)
+  y<-mk.missnet(n, d, m, TRUE, FALSE)
+  run.metric.test(y)
 }

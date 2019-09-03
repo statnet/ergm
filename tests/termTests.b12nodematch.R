@@ -24,35 +24,35 @@
 plot(mynw, label=paste(mynw %v% "names",1:28,sep=""), vertex.col=rep(2:3,c(15,13))) 
 
 if (
- summary(mynw~b1nodematch("names", beta=1))!=12 || #Should be 12
- summary(mynw~b1nodematch("names", beta=0))!=9 )  #Should be 9
+ summary(mynw~b1nodematch(~names, beta=1))!=12 || #Should be 12
+ summary(mynw~b1nodematch(function(x) x %v% "names", beta=0))!=9 )  #Should be 9
  stop("b1nodematch error A")
 
 if (
  summary(mynw~b2nodematch("names", beta=1))!=7 ||  #Should be 7
- summary(mynw~b2nodematch("names", beta=0))!=7 )  #Should be 7
+ summary(mynw~b2nodematch(function(x) x %v% "names", beta=0))!=7 )  #Should be 7
  stop("b2nodematch error B")
 
 if (
- summary(mynw~b1nodematch("names", diff=TRUE, keep=1, beta=1))!=12 || #Should be 12
- summary(mynw~b1nodematch("names", diff=TRUE, keep=1, beta=0))!=9 )  #Should be 9
+ summary(mynw~b1nodematch(~names, diff=TRUE, levels=1, beta=1))!=12 || #Should be 12
+ summary(mynw~b1nodematch(function(x) x %v% "names", diff=TRUE, keep=1, beta=0))!=9 )  #Should be 9
  stop("b1nodematch error C")
 
 if (
- summary(mynw~b2nodematch("names", diff=TRUE, keep=2, beta=1))!=5 || #Should be 5
- summary(mynw~b2nodematch("names", diff=TRUE, keep=2, beta=0))!=5 )  #Should be 5
+ summary(mynw~b2nodematch("names", diff=TRUE, levels=2, beta=1))!=5 || #Should be 5
+ summary(mynw~b2nodematch(function(x) x %v% "names", diff=TRUE, keep=2, beta=0))!=5 )  #Should be 5
  stop("b1nodematch error D")
 
 if (!all(summary(mynw~b1nodematch("names", diff=TRUE, alpha=0))==c(10,0)))
  stop("b1nodematch error E")
 
-if (!all(summary(mynw~b1nodematch("names", diff=FALSE, alpha=0))==10))
+if (!all(summary(mynw~b1nodematch(function(x) x %v% "names", diff=FALSE, alpha=0))==10))
  stop("b1nodematch error F")
 
-if (!all(summary(mynw~b2nodematch("names", diff=TRUE, alpha=0))==c(2,4)))
+if (!all(summary(mynw~b2nodematch(~names, diff=TRUE, alpha=0))==c(2,4)))
  stop("b1nodematch error G")
 
-if (!all(summary(mynw~b2nodematch("names", diff=FALSE, alpha=0))==6))
+if (!all(summary(mynw~b2nodematch(function(x) x %v% "names", diff=FALSE, alpha=0))==6))
  stop("b1nodematch error H")
 
 

@@ -50,7 +50,6 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   theta.original=init
   
   ## Prepare the output structure:
-  formula <- model$formula  # formula for this model
   obsstats <- summary(model, nw)  # Observed statistics
   init <- init  # beginning parameter value
   samples <- list()  # matrices of sampled network statistics
@@ -66,7 +65,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   while (!finished) { # Iterate until gamma==1
     iter=iter+1
     ## Generate an mcmc sample from the probability distribution determined by orig.mle
-    samples[[iter]]=simulate(formula, nsim=control$MCMC.samplesize,
+    samples[[iter]]=simulate(model, nsim=control$MCMC.samplesize, basis=nw,
                                      coef=eta[[iter]], output="stats",
                                      constraints=constraints, 
                                      control=set.control.class("control.simulate.formula",control), ...)
@@ -154,14 +153,13 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
                      # nr.reltol=control$MCMLE.NR.reltol,
                      #calc.mcmc.se=control$MCMC.addto.se, hessianflag=control$main.hessian,
                      # trustregion=control$MCMLE.trustregion, method=control$MCMLE.method, 
-                     #compress=control$MCMC.compress, 
                      ...)
     eta[[iter+1]]<-v$coef
   }
   message("Now ending with one large sample for MLE. ")
   flush.console()
   iter <- iter+1
-  finalsample <- simulate(formula, nsim=control$MCMC.samplesize,
+  finalsample <- simulate(model, nsim=control$MCMC.samplesize, basis=nw,
                                   coef=eta[[iter]], output="stats", 
                                   constraints=constraints, 
                                   control=set.control.class("control.simulate.formula",control), ...)
@@ -179,7 +177,6 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
                     nr.reltol=control$MCMLE.NR.reltol,
                    calc.mcmc.se=control$MCMC.addto.se, hessianflag=control$main.hessian,
                     trustregion=control$MCMLE.trustregion, method=control$MCMLE.method, 
-                   compress=control$MCMC.compress, 
                    ...)
   eta[[iter+1]] <- v$coef
   
@@ -252,15 +249,18 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 
 ## This is a variant of Hummel et al. (2010)'s steplength algorithm
 ## also usable for missing data MLE.
-.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, x1.prefilter=FALSE, x2.prefilter=FALSE, steplength.prev=steplength.max, point.gamma.exp=1, x2.num.max=100, steplength.maxit=25, control=NULL, verbose=FALSE){
+.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, x1.prefilter=FALSE, x2.prefilter=FALSE, steplength.prev=steplength.max, point.gamma.exp=1, x2.num.max=100, steplength.maxit=25, parallel=c("observational","always","never"), control=NULL, verbose=FALSE){
+  parallel <- match.arg(parallel)
   margin <- 1 + margin
   point.margin <- min(1, margin)
   x1 <- rbind(x1); m1 <- rbind(colMeans(x1)); ; n1 <- nrow(x1)
   if(is.null(x2)){
     m2 <- rbind(rep(0,ncol(x1)))
+    parallel <- parallel == "always"
   }else{                                      
     x2 <- rbind(x2)
     m2 <- rbind(colMeans(x2))
+    parallel <- parallel != "never"
   }
   n2 <- nrow(x2)
 
@@ -275,7 +275,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 
   if(verbose>1) message("Eliminating repeated points: ", sum(d1),"/",length(d1), " from target set, ", sum(d2),"/",length(d2)," from test set.")
 
-  cl <- NVL3(control, ergm.getCluster(., verbose), NULL)
+  if(parallel && !is.null(control)) ergm.getCluster(control, verbose)
 
   ## Use PCA to rotate x1 into something numerically stable and drop
   ## unused dimensions, then apply the same affine transformation to
@@ -297,6 +297,12 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
     m1crs <- sweep(sweep(m1, 2, x1m, "-")%*%Q, 2, x1crsd, "/")
     if(!is.null(x2)) x2crs <- sweep(sweep(x2, 2, x1m, "-")%*%Q, 2, x1crsd, "/")
     m2crs <- sweep(sweep(m2, 2, x1m, "-")%*%Q, 2, x1crsd, "/")
+  }else{
+    if(is.null(x2)){
+      if(isTRUE(all.equal(m1,m2,check.attributes=FALSE))) return(1) else return(0)
+    }else{
+      if(apply(x2, 1, all.equal, m1, check.attributes=FALSE) %>% map_lgl(isTRUE) %>% all) return(1) else return(0)
+    }
   }
 
   if(x1.prefilter){
@@ -349,7 +355,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   qprior <- function(q) qnorm(q, mean = steplength.prev, sd = sd.p)
   # First time through, don't drop the "high":
   mk.guesses <- function(low, high, first=FALSE){
-    p <- seq(from=pprior(low),to=pprior(high),length.out=nthreads(control)+2-first) # Create the sequence of probabilities.
+    p <- seq(from=pprior(low),to=pprior(high),length.out=(if(parallel)nthreads(control) else 1)+2-first) # Create the sequence of probabilities.
     p <- p[c(-1, -length(p))] # Strip the first and the last (low and high).
     q <- qprior(p) # Map back to guesses.
     if(first) q <- c(q, high) # Ensure that the last one is "high".
@@ -361,8 +367,8 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   i <- 0
   while(i < steplength.maxit & abs(high-low)>0.001){
    if(verbose>1) message(sprintf("iter=%d, low=%f, high=%f, guesses=%s: ",i,low,high,deparse(g, 500L)), appendLF=FALSE)
-   z <- NVL3(cl, unlist(parallel::clusterApply(., g, passed)), passed(g))
-   if(verbose>1 && !is.null(cl)) message("lowest ", sum(z), " passed.")
+   z <- NVL3(if(parallel) ergm.getCluster(control), persistEvalQ({unlist(parallel::clusterApply(ergm.getCluster(control), g, passed))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)}), passed(g))
+   if(verbose>1 && parallel && !is.null(ergm.getCluster(control))) message("lowest ", sum(z), " passed.")
    low <- max(low, g[z]) # Highest guess that passed, or low if none passed.
    high <- min(high, g[!z]) # Lowest guess that didn't pass, or high if all passed.
    g <- mk.guesses(low, high)

@@ -12,14 +12,25 @@
   sm <- statnetStartupMessage("ergm", c("statnet","ergm.count","tergm"), TRUE)
   if(!is.null(sm)){
     packageStartupMessage(sm)
-    packageStartupMessage(paste(c(strwrap(paste("NOTE: Versions before 3.6.1 had a bug in the implementation of the bd() constriant which distorted the sampled distribution somewhat. In addition, Sampson's Monks datasets had mislabeled vertices. See the NEWS and the documentation for more details.",sep="")),""),collapse="\n"))
+    packageStartupMessage(paste(c(strwrap(paste("NOTE: Versions before 3.6.1 had a bug in the implementation of the bd() constraint which distorted the sampled distribution somewhat. In addition, Sampson's Monks datasets had mislabeled vertices. See the NEWS and the documentation for more details.",sep="")),""),collapse="\n"))
+    packageStartupMessage(paste(c(strwrap(paste("NOTE: Some common term arguments pertaining to vertex attribute and level selection have changed in 3.10.0. See terms help for more details. Use ",sQuote("options(ergm.term=list(version=\"3.9.4\"))")," to use old behavior.",sep="")),""),collapse="\n"))
   }
 }
 
 .onLoad <- function(lib, pkg){
   # . is used as a placeholder by stantet.common::NVL3().
   utils::globalVariables(".")
-  options(ergm.eval.loglik=TRUE)
+
+  # Set default options, but don't clobber if already set.
+  OPTIONS <- list(ergm.eval.loglik=TRUE,
+                  ergm.loglik.warn_dyads=TRUE,
+                  ergm.cluster.retries=5)
+  current <- names(options())
+  for(opt in names(OPTIONS)){
+    if(! opt%in%current){
+      do.call(options, OPTIONS[opt])
+    }
+  }
 
   .RegisterProposals()
 }

@@ -1,3 +1,9 @@
+InitWtErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
+  out <- InitErgmTerm.passthrough(nw, arglist, response=response, ...)
+  out$name <- "wtpassthrough_term"
+  out
+}
+
 InitWtErgmTerm.B <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "form"),
@@ -11,7 +17,9 @@ InitWtErgmTerm.B <- function(nw, arglist, response=NULL, ...){
   if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
   else nw <- ergm.getnetwork(f)
 
-  m <- ergm_model(f, nw,...)
+  nwb <- nw
+  nwb %ergmlhs% "response" <- NULL
+  m <- ergm_model(f, nwb,...)
 
   if(!is.dyad.independent(m) && form=="sum") stop("Only dyad-independent binary terms can be imported with form 'sum'.")
   

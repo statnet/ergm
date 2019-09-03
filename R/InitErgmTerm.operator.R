@@ -87,7 +87,7 @@ InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
 InitErgmTerm.Label <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "label", "pos"),
-                      vartypes = c("formula", "character,function", "character"),
+                      vartypes = c("formula", "character,function,formula", "character"),
                       defaultvalues = list(NULL, NULL, "("),
                       required = c(TRUE, TRUE, FALSE))
 
@@ -100,7 +100,8 @@ InitErgmTerm.Label <- function(nw, arglist, response=NULL, ...){
                       `(`=function(x) paste0(a$label,"(",x,")"),
                       append=function(x) paste0(x,a$label))
   }else{
-    renamer <- a$label
+    #' @importFrom purrr as_mapper
+    renamer <- as_mapper(a$label)
   }
 
   f <- a$formula
@@ -215,10 +216,9 @@ InitErgmTerm.F <- function(nw, arglist, response=NULL, ...){
   gs <- summary(m)
 
   form.name <- deparse(ult(form))
-  name <- "filter_term_form"
   auxiliaries <- ~.filter.formula.net(form)
   
-  c(list(name=name,
+  c(list(name="OnAuxnet",
          coef.names = paste0(form.name,'(',m$coef.names,')'),
          inputs=inputs,
          dependence=!is.dyad.independent(m),
@@ -517,4 +517,83 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
     c()
   
   list(name="Sum", coef.names = coef.names, inputs=inputs, dependence=!all(ms %>% map("model") %>% map_lgl(is.dyad.independent)), emptynwstats = gs)
+}
+
+InitErgmTerm.S <- function(nw, arglist, response=NULL, ...){
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("formula", "attrs"),
+                      vartypes = c("formula", ERGM_VATTR_SPEC),
+                      defaultvalues = list(NULL, NULL),
+                      required = c(TRUE, TRUE))
+
+  ### Obtain tail and head selectors.
+  spec <- a$attrs
+  if(!is(spec, "formula")) spec <- call("~",spec) # Embed into formula.
+  if(length(spec)==2) spec <- call("~", spec[[2]], spec[[2]]) # Duplicate if one-sided.
+
+  class(spec) <- "formula"
+  environment(spec) <- environment(a$attrs)
+
+  # Obtain subformulas for tail and head.
+  tailspec <- spec[-3]
+  headspec <- spec[-2]
+
+  # Obtain the boolean indicators or numeric indices. If the network
+  # is bipartite in the first place, expect bipartite indices.
+  bip <- NVL(nw %n% "bipartite", 0)
+
+  tailsel <- ergm_get_vattr(tailspec, nw, accept="numeric", bip="a")
+  tailname <- attr(tailsel, "name")
+
+  headsel <- ergm_get_vattr(headspec, nw, accept="numeric", bip="a")
+  headname <- attr(headsel, "name")
+
+  # Convert to numeric selectors.
+  if(is.logical(tailsel) && (if(bip) length(tailsel)==bip else length(tailsel)==network.size(nw))) tailsel <- sort(which(tailsel))
+  if(is.logical(headsel) && (if(bip) length(headsel)==network.size(nw)-bip else length(headsel)==network.size(nw))) headsel <- sort(which(headsel))
+
+  # TODO: Check if 1-node graphs cause crashes.
+  if(length(tailsel)==0 || length(headsel)==0) stop("Empty subgraph selected.")
+
+  # If bipartite, remap to the whole network's indexes.
+  if(bip) headsel <- headsel + bip
+
+  type <- if(is.directed(nw)) "directed" else "undirected"
+  if(bip){
+    if(max(tailsel)>bip || min(headsel)<=bip)
+      stop("Invalid vertex subsets selected for a bipartite graph.")
+    type <- "bipartite"
+  }else{
+    if(!identical(tailsel,headsel)){ # Rectangular selection: output bipartite.
+      if(length(intersect(tailsel,headsel))) stop("Vertex subsets constructing a bipartite subgraph must have disjoint ranges.")
+      type <- "bipartite"
+    }
+  }
+
+  ### Construct an empty network with the correct structure.
+  f <- a$formula
+  if(length(f)==3) nw <- ergm.getnetwork(f)
+  snw <- nw
+  snw[,] <- 0
+  snw <- get.inducedSubgraph(snw, tailsel, if(type=="bipartite") headsel)
+  if(NVL(snw%n%"bipartite", FALSE)) snw %n% "directed" <- FALSE # Need to do this because snw is a "directed bipartite" network. I hope it doesn't break anything.
+
+  if(length(f)==2) f <- nonsimp_update.formula(f, snw~.)
+
+  m <- ergm_model(f, snw,...)
+  inputs <- to_ergm_Cdouble(m)
+
+  gs <- summary(m)
+
+  auxiliaries <- ~.subgraph.net(tailsel, headsel)
+
+  selname <- if(tailname==headname) tailname else paste0(tailname,',',headname)
+
+  c(list(name="OnAuxnet",
+         coef.names = paste0('S(',selname,'):',m$coef.names),
+         inputs=c(inputs),
+         dependence=!is.dyad.independent(m),
+         emptynwstats = gs,
+         auxiliaries=auxiliaries),
+    passthrough.curved.ergm_model(m, function(x) paste0('S(',selname,'):',m$coef.names)))
 }

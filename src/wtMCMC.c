@@ -68,10 +68,12 @@ void WtMCMC_wrapper(int *nedges,
 	    nwp,
 	    m->termarray->aux_storage);
 
-  *status = WtMCMCSample(MHp,
-			 theta0, sample, *samplesize,
-			 *burnin, *interval,
-			 *fVerbose, nmax, nwp, m);
+  if(MHp)
+    *status = WtMCMCSample(MHp,
+			   theta0, sample, *samplesize,
+			   *burnin, *interval,
+			   *fVerbose, nmax, nwp, m);
+  else *status = WtMCMC_MH_FAILED;
 
   WtMHProposalDestroy(MHp, nwp);
         
@@ -169,14 +171,8 @@ WtMCMCStatus WtMCMCSample(WtMHProposal *MHp,
     when the chain doesn't accept many of the proposed steps.
     *********************/
     if (fVerbose){
-	  if (samplesize > 0 && interval > LONG_MAX / samplesize) {
-		// overflow
-		Rprintf("Sampler accepted %7.3f%% of %d proposed steps.\n",
-	      tottaken*100.0/(1.0*interval*samplesize), interval, samplesize); 
-	  } else {
-	    Rprintf("Sampler accepted %7.3f%% of %d proposed steps.\n",
-	      tottaken*100.0/(1.0*interval*samplesize), interval*samplesize); 
-	  }
+      Rprintf("Sampler accepted %7.3f%% of %lld proposed steps.\n",
+	    tottaken*100.0/(1.0*interval*samplesize), (long long) interval*samplesize); 
     }
   }else{
     if (fVerbose){
@@ -274,8 +270,7 @@ WtMCMCStatus WtMetropolisHastings (WtMHProposal *MHp,
 	Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];
 	double w=MHp->toggleweight[i];
 
-	WtUPDATE_STORAGE(t, h, w, nwp, m, MHp);
-	WtSetEdge(t, h, w, nwp);
+	WtGET_EDGE_UPDATE_STORAGE_SET(t, h, w, nwp, m, MHp);
       }
       /* record network statistics for posterity */
       for (unsigned int i = 0; i < m->n_stats; i++){

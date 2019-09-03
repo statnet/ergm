@@ -87,6 +87,8 @@ ergm.MCMLE <- function(init, nw, model,
   control$MCMC.base.samplesize <- control$MCMC.samplesize
   control$obs.MCMC.base.samplesize <- control$obs.MCMC.samplesize
 
+  control0 <- control
+
   # Start cluster if required (just in case we haven't already).
   ergm.getCluster(control, max(verbose-1,0))
   
@@ -94,7 +96,16 @@ ergm.MCMLE <- function(init, nw, model,
   nw.orig <- nw
 
   # Impute missing dyads.
+  #
+  # Note: We do not need to update nw.stats, because if we are in a
+  # situation where we are imputing dyads, the optimization is in the
+  # observational mode, and since both the constrained and the
+  # unconstrained samplers start from the same place, the initial
+  # statshifts will be 0. target.stats and missing dyads are mutually
+  # exclusive, so model$target.stats will be set equal to
+  # model$nw.stats, causing this to happen.
   nw <- single.impute.dyads(nw, response=response, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, output="pending", verbose=verbose)
+
   ec <- if(is(nw, "network")) network.edgecount(nw, FALSE)
         else nrow(as.edgelist(nw))
   model$nw.stats <- summary(model, nw, response=response)
@@ -130,6 +141,7 @@ ergm.MCMLE <- function(init, nw, model,
     control.obs$MCMC.effectiveSize <- control$obs.MCMC.effectiveSize
     control.obs$MCMC.interval <- control$obs.MCMC.interval
     control.obs$MCMC.burnin <- control$obs.MCMC.burnin
+    control0.obs <- control.obs
 
     nws.obs <- lapply(nws, identity)
     statshifts.obs <- statshifts
@@ -165,6 +177,45 @@ ergm.MCMLE <- function(init, nw, model,
   mcmc.init <- init
   calc.MCSE <- FALSE
   last.adequate <- FALSE
+
+  # STATE_VARIABLES = variables collectively containing the state of the optimizer that would allow it to resume, excluding control lists.
+  # CONTROL_VARIABLES = control lists
+  # INTERMEDIATE_VARIABLES = variables of interest in debugging and diagnostics.
+  #
+  # Both lists need to be kept up to date with the implementation.
+  STATE_VARIABLES <- c("nws", "nws.obs", "mcmc.init", "statshifts", "statshifts.obs", "calc.MCSE", "last.adequate", "coef.hist", "stats.hist", "stats.obs.hist", "steplen.hist", "steplen","setdiff.prev","d2.not.improved")
+  CONTROL_VARIABLES <- c("control", "control.obs", "control0", "control0.obs")
+  INTERMEDIATE_VARIABLES <- c("nws", "nws.obs", "statsmatrices", "statsmatrices.obs", "statshifts", "statshifts.obs", "coef.hist", "stats.hist", "stats.obs.hist", "steplen.hist")
+
+  if(!is.null(control$resume)){
+    message("Resuming from state saved in ", sQuote(control$resume),".")
+    state <- new.env()
+    load(control$resume,envir=state)
+
+    # Merge control lists intelligently:
+    .merge_controls <- function(saved.ctrl, saved.ctrl0, ctrl0){
+      ctrl <- saved.ctrl
+      for(name in union(names(ctrl), names(ctrl0))){
+        if(!identical(ctrl[[name]],ctrl0[[name]])){ # Settings differ.
+          if(!identical(ctrl0[[name]], saved.ctrl0[[name]])){
+            if(verbose) message("Passed-in control setting ", sQuote(name), " changed from original run: overriding saved state.")
+            ctrl[[name]] <- ctrl0[[name]]
+          }else if(verbose) message("Passed-in control setting ", sQuote(name), " unchanged from original run: using saved state.")
+        }
+      }
+      ctrl
+    }
+
+    control <- .merge_controls(state$control, state$control0, control0)
+    if(obs) control.obs <- .merge_controls(state$control.obs, state$control0.obs, control0.obs)
+
+    # Copy the rest
+    for(name in intersect(ls(state), STATE_VARIABLES)) assign(name, state[[name]])
+
+    # Clean up
+    rm(state)
+  }
+
   
   for(iteration in 1:control$MCMLE.maxit){
     if(verbose){
@@ -173,6 +224,10 @@ ergm.MCMLE <- function(init, nw, model,
       message_print(mcmc.init)
     }else{
       message("Iteration ",iteration," of at most ", control$MCMLE.maxit,":")
+    }
+
+    if(!is.null(control$checkpoint)){
+      save(list=intersect(ls(), c(STATE_VARIABLES, CONTROL_VARIABLES)), file=sprintf(control$checkpoint, iteration))
     }
 
     # Obtain MCMC sample
@@ -235,8 +290,7 @@ ergm.MCMLE <- function(init, nw, model,
     }
 
     if(!is.null(control$MCMLE.save_intermediates)){
-      if(obs) save(nws, nws.obs, statsmatrices, statsmatrices.obs, statshifts, statshifts.obs, coef.hist, stats.hist, stats.obs.hist, steplen.hist, file=sprintf(control$MCMLE.save_intermediates, iteration))
-      else save(nws, statsmatrices, statshifts, coef.hist, stats.hist, steplen.hist, file=sprintf(control$MCMLE.save_intermediates, iteration))
+      save(list=intersect(ls(), INTERMEDIATE_VARIABLES), file=sprintf(control$MCMLE.save_intermediates, iteration))
     }
 
     # Compute the sample estimating equations and the convergence p-value. 
@@ -327,7 +381,7 @@ ergm.MCMLE <- function(init, nw, model,
                          dampening.min.ess=control$MCMLE.dampening.min.ess,
                          dampening.level=control$MCMLE.dampening.level,
                          steplen=adaptive.steplength,
-                         compress=control$MCMC.compress, verbose=verbose,
+                         verbose=verbose,
                          estimateonly=TRUE)
       }
       if(v$loglikelihood < control$MCMLE.trustregion-0.001){
@@ -346,10 +400,10 @@ ergm.MCMLE <- function(init, nw, model,
 
       if(!is.null(control$MCMLE.steplength.margin)){
         steplen <- .Hummel.steplength(
-          if(control$MCMLE.Hummel.esteq) esteq else statsmatrix[,!model$etamap$offsetmap,drop=FALSE], 
-          if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.obs[,!model$etamap$offsetmap,drop=FALSE],
+          if(control$MCMLE.steplength.esteq) esteq else statsmatrix[,!model$etamap$offsetmap,drop=FALSE],
+          if(control$MCMLE.steplength.esteq) esteq.obs else statsmatrix.obs[,!model$etamap$offsetmap,drop=FALSE],
           control$MCMLE.steplength.margin, control$MCMLE.steplength,point.gamma.exp=control$MCMLE.steplength.point.exp,steplength.prev=steplen,x1.prefilter=control$MCMLE.steplength.prefilter,x2.prefilter=control$MCMLE.steplength.prefilter,verbose=verbose,
-          x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit, control=control
+          x2.num.max=control$MCMLE.steplength.miss.sample, steplength.maxit=control$MCMLE.steplength.maxit, control=control
         )
 
         # If the step length margin is negative and signals convergence,
@@ -358,10 +412,11 @@ ergm.MCMLE <- function(init, nw, model,
         steplen0 <-
           if(control$MCMLE.termination%in%c("precision","Hummel") && control$MCMLE.steplength.margin<0 && control$MCMLE.steplength==steplen)
           .Hummel.steplength(
-              if(control$MCMLE.Hummel.esteq) esteq else statsmatrix[,!model$etamap$offsetmap,drop=FALSE], 
-              if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.obs[,!model$etamap$offsetmap,drop=FALSE],
+              if(control$MCMLE.steplength.esteq) esteq else statsmatrix[,!model$etamap$offsetmap,drop=FALSE],
+              if(control$MCMLE.steplength.esteq) esteq.obs else statsmatrix.obs[,!model$etamap$offsetmap,drop=FALSE],
               0, control$MCMLE.steplength,steplength.prev=steplen,point.gamma.exp=control$MCMLE.steplength.point.exp,x1.prefilter=control$MCMLE.steplength.prefilter,x2.prefilter=control$MCMLE.steplength.prefilter,verbose=verbose,
-            x2.num.max=control$MCMLE.Hummel.miss.sample, steplength.maxit=control$MCMLE.Hummel.maxit, control=control
+            x2.num.max=control$MCMLE.steplength.miss.sample, steplength.maxit=control$MCMLE.steplength.maxit,
+            parallel=control$MCMLE.steplength.parallel, control=control
           )
           else steplen
         
@@ -398,7 +453,7 @@ ergm.MCMLE <- function(init, nw, model,
                        dampening.level=control$MCMLE.dampening.level,
                        metric=control$MCMLE.metric,
                        steplen=steplen, steplen.point.exp=control$MCMLE.steplength.point.exp,
-                       compress=control$MCMC.compress, verbose=verbose,
+                       verbose=verbose,
                        estimateonly=!calc.MCSE)
       if(v$loglikelihood < control$MCMLE.trustregion-0.001){
         current.scipen <- options()$scipen

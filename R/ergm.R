@@ -362,7 +362,7 @@
 #' \pkg{networksis}: Simulate bipartite graphs with fixed
 #' marginals through sequential importance sampling.
 #' Statnet Project, Seattle, WA.
-#' Version 1. \url{statnet.org}.
+#' Version 1. \url{https://statnet.org}.
 #' 
 #' Bender-deMoll S, Morris M, Moody J (2008).
 #' Prototype Packages for Managing and Animating Longitudinal
@@ -398,13 +398,13 @@
 #' Working Paper \#39, 
 #' Center for Statistics and the Social Sciences,
 #' University of Washington.
-#' \url{www.csss.washington.edu/Papers/wp39.pdf}
+#' \url{https://www.csss.washington.edu/Papers/wp39.pdf}
 #' 
 #' Handcock MS (2003b).
 #' \pkg{degreenet}: Models for Skewed Count Distributions Relevant
 #' to Networks.
 #' Statnet Project, Seattle, WA.
-#' Version 1.0, \url{statnet.org}.
+#' Version 1.0, \url{https://statnet.org}.
 #' 
 #' Handcock MS and Gile KJ (2010). Modeling Social Networks from Sampled Data. \emph{Annals of Applied Statistics}, 4(1), 5-25. \doi{10.1214/08-AOAS221}
 #' 
@@ -412,13 +412,13 @@
 #' \pkg{ergm}: A Package to Fit, Simulate and Diagnose
 #' Exponential-Family Models for Networks.
 #' Statnet Project, Seattle, WA.
-#' Version 2, \url{statnet.org}.
+#' Version 2, \url{https://statnet.org}.
 #' 
 #' Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003b).
 #' \pkg{statnet}: Software Tools for the Statistical Modeling of
 #' Network Data.
 #' Statnet Project, Seattle, WA.
-#' Version 2, \url{statnet.org}.
+#' Version 2, \url{https://statnet.org}.
 #' 
 #' Hunter, D. R. and Handcock, M. S. (2006)
 #' \emph{Inference in curved exponential family models for networks},
@@ -625,15 +625,15 @@ ergm <- function(formula, response=NULL,
     ## If target.stats are given, overwrite the given network and formula
     ## with SAN-ed network and formula.
     if(control$SAN.maxit > 0){
-      TARGET_STATS<-san(formula.no, target.stats=target.stats,
+      TARGET_STATS<-san(formula, target.stats=target.stats,
                 response=response,
                 reference=reference,
                 constraints=constraints,
                 control=san.control,
-                nsim=control$SAN.maxit,
                 only.last=TRUE,
                 output="pending_update_network",
-                verbose=verbose)
+                verbose=verbose,
+                offset.coef=offset.coef)
       if(verbose) message("Finished SAN run.")
     }else{
       TARGET_STATS <- nw

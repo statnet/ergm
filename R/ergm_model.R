@@ -36,8 +36,6 @@
 #' @param object An `ergm_model` object.
 #' @return `ergm_model` returns an  `ergm_model` object as a list
 #' containing:
-#' \item{ formula}{the formula inputted to
-#' \code{\link{ergm_model}}}
 #' \item{coef.names}{a vector of coefficient names}
 #' \item{offset}{a logical vector of whether each term was "offset", i.e.
 #' fixed}
@@ -69,7 +67,7 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, role="stat
   
   formula.env<-environment(formula)
   
-  model <- structure(list(formula=formula, coef.names = NULL,
+  model <- structure(list(coef.names = NULL,
                       offset = NULL,
                       terms = NULL, networkstats.0 = NULL, etamap = NULL),
                  class = "ergm_model")
@@ -148,13 +146,6 @@ call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ..., term
   out
 }
 
-#' @describeIn ergm-deprecated Use `ergm_model` instead.
-#' @export ergm.getmodel
-ergm.getmodel <- function(object, ...){
-  .Deprecated("ergm_model")
-  ergm_model(object, ...)
-}
-
 #######################################################################
 # The <updatemodel.ErgmTerm> function updates an existing model object
 # to include an initialized ergm term, X;
@@ -205,51 +196,66 @@ updatemodel.ErgmTerm <- function(model, outlist) {
 c.ergm_model <- function(...){
   l <- list(...)
   o <- l[[1]]
+
+  # Generally useful:
+  naux <- function(trm) NVL3(trm$auxiliaries, length(list_rhs.formula(.)), 0L)
+
   for(m in l[-1]){
     if(is.null(m)) next
 
-    # Reset auxiliaries' pointers to own slot to NA:
+    # Sort auxiliaries into sinks (that don't depend on any others) and non-sinks:
+    ## TODO: Implement an iterative or graph algorithm that checks *all* auxiliaries for redundancy.
+    pos <- 0
+    onaux <- o$model.aux$terms %>% map_int(naux)
+    omap <- integer(length(o$model.aux$terms))
     for(i in seq_along(o$model.aux$terms))
-      o$model.aux$terms[[i]]$inputs[4] <- NA
-    for(i in seq_along(m$model.aux$terms))
-      m$model.aux$terms[[i]]$inputs[4] <- NA
+      if(!onaux[i]){ # sink
+        omap[i] <- o$model.aux$terms[[i]]$inputs[4] <- NA
+      }else{ # non-sink
+        omap[i] <- o$model.aux$terms[[i]]$inputs[4] <- pos
+        pos <- pos+1
+      }
 
-    # Remove redundant auxiliaries:
-    uniq.aux.outlists <- unique(c(o$model.aux$terms, m$model.aux$terms), fromLast=TRUE)
+    mnaux <- m$model.aux$terms %>% map_int(naux)
+    mmap <- integer(length(m$model.aux$terms))
+    for(i in seq_along(m$model.aux$terms))
+      if(!mnaux[i]){ # sink
+        mmap[i] <- m$model.aux$terms[[i]]$inputs[4] <- NA
+      }else{ # non-sink
+        mmap[i] <- m$model.aux$terms[[i]]$inputs[4] <- pos
+        pos <- pos+1
+      }
+
+    # Remove redundant auxiliaries, but only among sinks:
+    sinks <- unique(c(o$model.aux$terms[!onaux], m$model.aux$terms[!mnaux]), fromLast=TRUE)
     
-    # To which term in the new auxilary list does each of the current auxiliary pointers correspond? Note that they are numbered from 0.
-    omap <- match(o$model.aux$terms, uniq.aux.outlists)-1
-    mmap <- match(m$model.aux$terms, uniq.aux.outlists)-1
+    # To which term in the new auxilary list does each of the current auxiliary pointers to sinks correspond? Note that they are numbered from 0.
+    omap[!onaux] <- match(o$model.aux$terms[!onaux], sinks) + pos - 1
+    mmap[!mnaux] <- match(m$model.aux$terms[!mnaux], sinks) + pos - 1
     
     # Now, give them indices again:
-    for(i in seq_along(uniq.aux.outlists))
-      uniq.aux.outlists[[i]]$inputs[[4]] <- i-1
+    for(i in seq_along(sinks))
+      sinks[[i]]$inputs[[4]] <- pos + i - 1
 
     # Remap client term pointers:
-    for(i in seq_along(o$terms)){
-      trm <- o$terms[[i]]
-      if(is.null(trm$auxiliaries) || (naux <- length(list_rhs.formula(trm$auxiliaries)))==0) next
-      trm$inputs[3+seq_len(naux)] <- omap[trm$inputs[3+seq_len(naux)]+1]
-      o$terms[[i]] <- trm
-    }
+    for(i in seq_along(o$terms))
+      if((tnaux <- naux(o$terms[[i]]))!=0L)
+        o$terms[[i]]$inputs[3+seq_len(tnaux)] <- omap[o$terms[[i]]$inputs[3+seq_len(tnaux)]+1]
     o$slots.extra.aux <-  map(o$slots.extra.aux, ~omap[.+1])
     
-    for(i in seq_along(m$terms)){
-      trm <- m$terms[[i]]
-      if(is.null(trm$auxiliaries) || (naux <- length(list_rhs.formula(trm$auxiliaries)))==0) next
-      trm$inputs[3+seq_len(naux)] <- mmap[trm$inputs[3+seq_len(naux)]+1]
-      m$terms[[i]] <- trm
-    }
+    for(i in seq_along(m$terms))
+      if((tnaux <- naux(m$terms[[i]]))!=0L)
+        m$terms[[i]]$inputs[3+seq_len(tnaux)] <- mmap[m$terms[[i]]$inputs[3+seq_len(tnaux)]+1]
     m$slots.extra.aux <- map(m$slots.extra.aux, ~mmap[.+1])
 
-    o$model.aux["terms"] <- list(uniq.aux.outlists)
     # Similarly for auxiliaries as clients.
-    for(i in seq_along(o$model.aux$terms)){
-      trm <- o$model.aux$terms[[i]]
-      if(is.null(trm$auxiliaries) || (naux <- length(list_rhs.formula(trm$auxiliaries)))==1) next
-      trm$inputs[4+seq_len(naux-1)] <- omap[trm$inputs[4+seq_len(naux-1)]+1]
-      o$model.aux$terms[[i]] <- trm
-    }
+    for(i in seq_along(o$model.aux$terms)[onaux!=0L])
+      o$model.aux$terms[[i]]$inputs[4+seq_len(onaux[i])] <- omap[o$model.aux$terms[[i]]$inputs[4+seq_len(onaux[i])]+1]
+    for(i in seq_along(m$model.aux$terms)[mnaux!=0L])
+      m$model.aux$terms[[i]]$inputs[4+seq_len(mnaux[i])] <- mmap[m$model.aux$terms[[i]]$inputs[4+seq_len(mnaux[i])]+1]
+
+    # New auxiliary list is o-nonsinks, m-nonsinks, and sinks.
+    o$model.aux["terms"] <- list(c(o$model.aux$terms[onaux!=0L], m$model.aux$terms[mnaux!=0L], sinks))
 
     for(name in c("coef.names",
                   "minval",
@@ -261,7 +267,6 @@ c.ergm_model <- function(...){
       o[[name]] <- c(o[[name]], m[[name]])
     
     o$duration <- max(o$duration, m$duration)
-    o$formula <- append_rhs.formula(o$formula, m$formula, keep.onesided=TRUE)
   }
 
   o$etamap <- ergm.etamap(o)

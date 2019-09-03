@@ -38,7 +38,7 @@ U_CHANGESTAT_FN(u_OnAuxnet){
   GET_AUX_STORAGE(StoreAuxnet, auxnet);
 
   MAP_TOGGLE_1(tail, head, auxnet, ntoggles, tails, heads);
-  if(ntoggles) UPDATE_STORAGE(*tails, *heads, auxnet->onwp, m, NULL);
+  if(ntoggles) UPDATE_STORAGE(*tails, *heads, auxnet->onwp, m, NULL, edgeflag);
 }
 
 F_CHANGESTAT_FN(f_OnAuxnet){

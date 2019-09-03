@@ -70,10 +70,12 @@ void WtCD_wrapper(int *nedges,
   undoweight = Calloc(MHp->ntoggles * CDparams[0] * CDparams[1], double);
   double *extraworkspace = Calloc(m->n_stats, double);
 
-  *status = WtCDSample(MHp,
-		       theta0, sample, *samplesize, CDparams, undotail, undohead, undoweight,
-		       *fVerbose, nwp, m, extraworkspace);
-  
+  if(MHp)
+    *status = WtCDSample(MHp,
+			 theta0, sample, *samplesize, CDparams, undotail, undohead, undoweight,
+			 *fVerbose, nwp, m, extraworkspace);
+  else *status = WtMCMC_MH_FAILED;
+
   Free(undotail);
   Free(undohead);
   Free(undoweight);
@@ -140,8 +142,8 @@ WtMCMCStatus WtCDSample(WtMHProposal *MHp,
   }
 
   if (fVerbose){
-    Rprintf("Sampler accepted %7.3f%% of %d proposed steps.\n",
-	    staken*100.0/(1.0*sattempted*CDparams[0]), sattempted*CDparams[0]); 
+    Rprintf("Sampler accepted %7.3f%% of %lld proposed steps.\n",
+	    staken*100.0/(1.0*sattempted*CDparams[0]), (long long) sattempted*CDparams[0]); 
   }
   
   return WtMCMC_OK;
@@ -234,8 +236,7 @@ WtMCMCStatus WtCDStep (WtMHProposal *MHp,
 	  ntoggled++;
 	  mtoggled++;
 
-	  WtUPDATE_STORAGE(t, h, w, nwp, m, MHp);
-	  WtSetEdge(t, h, w, nwp);
+	  WtUPDATE_STORAGE_SET(t, h, w, nwp, m, MHp, undoweight[ntoggled]);
 	}
       }
 
@@ -281,8 +282,7 @@ WtMCMCStatus WtCDStep (WtMHProposal *MHp,
 	  undoweight[ntoggled]=WtGetEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 	  ntoggled++;
 
-	  WtUPDATE_STORAGE(t, h, w, nwp, m, MHp);
-	  WtSetEdge(t, h, w, nwp);
+	  WtUPDATE_STORAGE_SET(t, h, w, nwp, m, MHp, undoweight[ntoggled]);
 	}
       }
 
@@ -304,8 +304,7 @@ WtMCMCStatus WtCDStep (WtMHProposal *MHp,
 
 	/* FIXME: This should be done in one call, but it's very easy
 	   to make a fencepost error here. */
-	WtUPDATE_STORAGE(t, h, w, nwp, m, MHp);
-	WtSetEdge(t, h, w, nwp);
+	WtGET_EDGE_UPDATE_STORAGE_SET(t, h, w, nwp, m, MHp);
       }
     }
   } // step
@@ -317,8 +316,7 @@ WtMCMCStatus WtCDStep (WtMHProposal *MHp,
 
     /* FIXME: This should be done in one call, but it's very easy
        to make a fencepost error here. */
-    WtUPDATE_STORAGE(t, h, w, nwp, m, MHp);
-    WtSetEdge(t, h, w, nwp);
+    WtGET_EDGE_UPDATE_STORAGE_SET(t, h, w, nwp, m, MHp);
   }
   
   return WtMCMC_OK;

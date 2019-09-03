@@ -71,10 +71,12 @@ void CD_wrapper(int *nedges,
   undohead = Calloc(MHp->ntoggles * CDparams[0] * CDparams[1], Vertex);
   double *extraworkspace = Calloc(m->n_stats, double);
 
-  *status = CDSample(MHp,
-		     theta0, sample, *samplesize, CDparams, undotail, undohead,
-		     *fVerbose, nwp, m, extraworkspace);
-  
+  if(MHp)
+    *status = CDSample(MHp,
+		       theta0, sample, *samplesize, CDparams, undotail, undohead,
+		       *fVerbose, nwp, m, extraworkspace);
+  else *status = MCMC_MH_FAILED;
+
   Free(undotail);
   Free(undohead);
   Free(extraworkspace);
@@ -140,8 +142,8 @@ MCMCStatus CDSample(MHProposal *MHp,
   }
 
   if (fVerbose){
-    Rprintf("Sampler accepted %7.3f%% of %d proposed steps.\n",
-	    staken*100.0/(1.0*sattempted*CDparams[0]), sattempted*CDparams[0]); 
+    Rprintf("Sampler accepted %7.3f%% of %lld proposed steps.\n",
+	    staken*100.0/(1.0*sattempted*CDparams[0]), (long long) sattempted*CDparams[0]); 
   }
   
   return MCMC_OK;
@@ -232,8 +234,7 @@ MCMCStatus CDStep(MHProposal *MHp,
 	  ntoggled++;
 	  mtoggled++;
 
-	  UPDATE_STORAGE(MHp->toggletail[i], MHp->togglehead[i], nwp, m, MHp);
-	  ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
+	  GET_EDGE_UPDATE_STORAGE_TOGGLE(MHp->toggletail[i], MHp->togglehead[i], nwp, m, MHp);
 	}
       }
 
@@ -276,8 +277,7 @@ MCMCStatus CDStep(MHProposal *MHp,
 	  undohead[ntoggled]=MHp->togglehead[i];
 	  ntoggled++;
 
-	  UPDATE_STORAGE(MHp->toggletail[i],  MHp->togglehead[i], nwp, m, MHp);
-	  ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
+	  GET_EDGE_UPDATE_STORAGE_TOGGLE(MHp->toggletail[i],  MHp->togglehead[i], nwp, m, MHp)
 	}
       }
 
@@ -298,8 +298,7 @@ MCMCStatus CDStep(MHProposal *MHp,
 
 	/* FIXME: This should be done in one call, but it's very easy
 	   to make a fencepost error here. */
-	UPDATE_STORAGE(t, h, nwp, m, MHp);
-	ToggleEdge(t, h, nwp);
+	GET_EDGE_UPDATE_STORAGE_TOGGLE(t, h, nwp, m, MHp);
       }
     }
   } // step
@@ -310,8 +309,7 @@ MCMCStatus CDStep(MHProposal *MHp,
 
     /* FIXME: This should be done in one call, but it's very easy
        to make a fencepost error here. */
-    UPDATE_STORAGE(t, h, nwp, m, MHp);
-    ToggleEdge(t, h, nwp);
+    GET_EDGE_UPDATE_STORAGE_TOGGLE(t, h, nwp, m, MHp);
   }
   
   return MCMC_OK;

@@ -26,7 +26,6 @@ C_CHANGESTAT_FN(c_coincidence) {
   nb  = 2*nb2-1;
 
   /* *** don't forget act -> film1 */    
-  ZERO_ALL_CHANGESTATS(i);
     echange = IS_OUTEDGE(act=tail, film1=head) ? -1 : 1;
     b1 = film1-nb1;
     STEP_THROUGH_OUTEDGES(act, e, film2) {

@@ -9,15 +9,16 @@
 mcmc.diagnostics(object, ...)
 
 \method{mcmc.diagnostics}{ergm}(object, center = TRUE, esteq = TRUE,
-  vars.per.page = 3, ...)
+  vars.per.page = 3, which = c("plots", "texts", "summary",
+  "autocorrelation", "crosscorrelation", "burnin", "degeneracy"), ...)
 }
 \arguments{
 \item{object}{A model fit object to be diagnosed.}
 
 \item{\dots}{Additional arguments, to be passed to plotting functions.}
 
-\item{center}{Logical: If TRUE, center the samples on the
-observed statistics.}
+\item{center}{Logical: If TRUE, center the samples on the observed
+statistics.}
 
 \item{esteq}{Logical: If TRUE, for statistics corresponding to
 curved ERGM terms, summarize the curved statistics by their
@@ -30,12 +31,33 @@ curved statistics (\eqn{g_{I}(y)}).}
 \item{vars.per.page}{Number of rows (one variable per row) per
 plotting page.  Ignored if \code{latticeExtra} package is not
 installed.}
+
+\item{which}{A character vector specifying which diagnostics to
+plot and/or print. Defaults to all of the below if meaningful:
+\describe{
+
+\item{\code{"plots"}}{Traceplots and density plots of sample values for all statistic or estimating function elements.}
+
+\item{\code{"texts"}}{Shorthand for the following text diagnostics.}
+
+\item{\code{"summary"}}{Summary of network statistic or estimating function elements as produced by \code{\link[coda:summary.mcmc.list]{coda::summary.mcmc.list()}}.}
+
+\item{\code{"autocorrelation"}}{Autocorrelation of each of the network statistic or estimating function elements.}
+
+\item{\code{"crosscorrelation"}}{Cross-correlations between each pair of the network statistic or estimating function elements.}
+
+\item{\code{"burnin"}}{Burn-in diagnostics, in particular, the Geweke test.}
+
+\item{\code{"degeneracy"}}{Degeneracy diagnostic, possibly not functional.}
+
+} Partial matching is supported. (E.g., \code{which=c("auto","cross")}
+will print autocorrelation and cross-correlations.)}
 }
 \value{
-\code{\link{mcmc.diagnostics.ergm}} returns some degeneracy
-information, if it is included in the original object.  The function is
-mainly used for its side effect, which is to produce plots and summary
-output based on those plots.
+\code{\link{mcmc.diagnostics.ergm}} returns invisibly some
+degeneracy information, if it is included in the original object.
+The function is mainly used for its side effect, which is to
+produce plots and summary output based on those plots.
 }
 \description{
 This function prints diagnistic information and creates simple diagnostic
@@ -91,7 +113,7 @@ library(coda)
 #
 plot(gest$sample, ask=FALSE)
 #
-# A full range of diagnostics is available 
+# A full range of diagnostics is available
 # using codamenu()
 #
 }

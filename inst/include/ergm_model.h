@@ -1,4 +1,4 @@
-/*  File src/ergm_model.h in package ergm, part of the Statnet suite
+/*  File inst/include/ergm_model.h in package ergm, part of the Statnet suite
  *  of packages for network analysis, https://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -23,6 +23,7 @@ typedef struct Modelstruct {
                            for ModelTerm definition */
   int n_terms;
   int n_stats;
+  unsigned int n_u; /* Number of terms with updaters. */
   double *workspace; /* temporary workspace of size */
   double **dstatarray; /* array of size n_terms; the ith element in this
 			  array is a pointer to an array of size
@@ -62,19 +63,37 @@ typedef struct Modelstruct {
 #define IFDEBUG_RESTORE_DSTATS
 #endif
 
-#define UPDATE_STORAGE_COND(tail, head, nwp, m, MHp, cond){		\
-    if(MHp && ((MHProposal*)MHp)->u_func) ((MHProposal*)MHp)->u_func(tail, head, MHp, nwp); \
-    EXEC_THROUGH_TERMS(m, {						\
+#define UPDATE_STORAGE_COND(tail, head, nwp, m, MHp, edgeflag, cond){	\
+    if((MHp) && ((MHProposal*)(MHp))->u_func) ((MHProposal*)(MHp))->u_func((tail), (head), (MHp), (nwp), (edgeflag)); \
+    EXEC_THROUGH_TERMS((m), {						\
 	IFDEBUG_BACKUP_DSTATS;						\
 	if(mtp->u_func && (cond))					\
-	  (*(mtp->u_func))(tail, head, mtp, nwp);  /* Call u_??? function */ \
+	  (*(mtp->u_func))((tail), (head), mtp, (nwp), (edgeflag));  /* Call u_??? function */ \
 	IFDEBUG_RESTORE_DSTATS;						\
       });								\
   }
 
-#define UPDATE_STORAGE(tail, head, nwp, m, MHp){			\
-    UPDATE_STORAGE_COND(tail, head, nwp, m, MHp, TRUE);			\
+#define UPDATE_STORAGE(tail, head, nwp, m, MHp, edgeflag){		\
+    UPDATE_STORAGE_COND((tail), (head), (nwp), (m), (MHp), (edgeflag), TRUE); \
   }
+
+#define GET_EDGE_UPDATE_STORAGE(tail, head, nwp, m, MHp){		\
+    if((m)->n_u || ((MHp) && ((MHProposal*)(MHp))->u_func)){		\
+      Rboolean edgeflag = IS_OUTEDGE((tail), (head), (nwp));		\
+      UPDATE_STORAGE((tail), (head), (nwp), (m), (MHp), (edgeflag));	\
+    }									\
+  }
+
+#define UPDATE_STORAGE_TOGGLE(tail, head, nwp, m, MHp, edgeflag){	\
+    if((m)->n_u || ((MHp) && ((MHProposal*)(MHp))->u_func)) UPDATE_STORAGE((tail), (head), (nwp), (m), (MHp), (edgeflag)); \
+    ToggleKnownEdge((tail), (head), (nwp), (edgeflag));			\
+  }
+
+#define GET_EDGE_UPDATE_STORAGE_TOGGLE(tail, head, nwp, m, MHp){	\
+    Rboolean edgeflag = IS_OUTEDGE((tail), (head), (nwp));		\
+    UPDATE_STORAGE_TOGGLE((tail), (head), (nwp), (m), (MHp), (edgeflag)); \
+  }
+
 
 Model* ModelInitialize (char *fnames, char *sonames, double **inputs,
 			int n_terms);

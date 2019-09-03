@@ -34,7 +34,7 @@ set.seed(10)
 
 out <- withWarnings({ergm(flomarriage~offset(edges)+edges+gwdegree(fix=FALSE)+degree(0)+offset(degree(1)),target.stats=summary(flomarriage~edges+gwdegree(fix=FALSE)+degree(0)), offset.coef=c(0,-0.25), control=control.ergm(MCMLE.termination="none",MCMLE.maxit=3))})
 
-if(length(out$warnings)!=1) stop("Unexpected number of warnings.")
+if(length(out$warnings)>1) stop("Unexpected number of warnings.")
 summary(out$value)
 mcmc.diagnostics(out$value)
 

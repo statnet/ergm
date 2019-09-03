@@ -4,15 +4,19 @@
 \alias{control.san}
 \title{Auxiliary for Controlling SAN}
 \usage{
-control.san(SAN.tau = 1, SAN.invcov = NULL, SAN.nsteps = 2^14,
-  SAN.samplesize = 2^10, SAN.init.maxedges = 20000,
-  SAN.max.maxedges = 2^26, SAN.prop.weights = "default",
-  SAN.prop.args = list(), SAN.packagenames = c(),
+control.san(SAN.maxit = 4, SAN.tau = 1, SAN.invcov = NULL,
+  SAN.invcov.diag = FALSE, SAN.nsteps.alloc = function(nsim)
+  2^seq_len(nsim), SAN.nsteps = 2^19, SAN.samplesize = 2^12,
+  SAN.init.maxedges = 20000, SAN.max.maxedges = 2^26,
+  SAN.prop.weights = "default", SAN.prop.args = list(),
+  SAN.packagenames = c(), SAN.ignore.finite.offsets = TRUE,
   term.options = list(), seed = NULL, parallel = 0,
   parallel.type = NULL, parallel.version.check = TRUE,
   parallel.inherit.MT = FALSE)
 }
 \arguments{
+\item{SAN.maxit}{Number of temperature levels to use.}
+
 \item{SAN.tau}{Tuning parameter, specifying the temperature of the
 process during the \emph{penultimate} iteration. (During the last
 iteration, the temperature is set to 0, resulting in a greedy
@@ -25,7 +29,14 @@ MCMC move is from the \code{target.stats} vector.  If \code{NULL},
 initially set to the identity matrix, then during subsequent runs
 estimated empirically.}
 
-\item{SAN.nsteps}{Number of MCMC proposals for each simulated annealing run.}
+\item{SAN.invcov.diag}{Whether to only use the diagonal of the
+covariance matrix. It seems to work better in practice.}
+
+\item{SAN.nsteps.alloc}{Either a numeric vector or a function of
+the number of runs giving a sequence of relative lengths of
+simulated annealing runs.}
+
+\item{SAN.nsteps}{Number of MCMC proposals for all the annealing runs combined.}
 
 \item{SAN.samplesize}{Number of realisations' statistics to obtain for tuning purposes.}
 
@@ -45,6 +56,8 @@ arguments to proposal.}
 \item{SAN.packagenames}{Names of packages in which to look for change
 statistic functions in addition to those autodetected. This argument should
 not be needed outside of very strange setups.}
+
+\item{SAN.ignore.finite.offsets}{Whether SAN should ignore (treat as 0) finite offsets.}
 
 \item{term.options}{A list of additional arguments to be passed to term initializers. It can also be set globally via \code{option(ergm.term=list(...))}.}
 

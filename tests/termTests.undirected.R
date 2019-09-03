@@ -55,7 +55,7 @@ if (!all(s.0[1:10]==c(51,30,28,18,10,2,4,1,2,1)) ||
 num.tests=num.tests+1
 s.0 <- summary(fmh~concurrent)
 e.0 <- ergm(fmh~concurrent, estimate="MPLE")
-s.b <- summary(fmh~concurrent(by="Grade"))
+s.b <- summary(fmh~concurrent(by=function(x) x %v% "Grade"))
 e.b <- ergm(fmh~concurrent(by="Sex"), estimate="MPLE")
 if (s.0 != 97 || round(e.0$coef + 4.871, 3) != 0 ||
     !all(s.b==c(35,15,18,8,13,8)) ||
@@ -72,7 +72,7 @@ num.tests=num.tests+1
 s.0 <- summary(fmh~concurrentties)
 e.0 <- ergm(fmh~concurrentties, estimate="MPLE")
 s.b <- summary(fmh~concurrentties(by="Grade"))
-e.b <- ergm(fmh~concurrentties(by="Sex"), estimate="MPLE")
+e.b <- ergm(fmh~concurrentties(by=~Sex), estimate="MPLE")
 if (!all(s.0==258)||round(e.0$coef+3.234,3)!=0 ||
     !all(s.b==c(103,51,36,19,31,18))||
     !all(round(e.b$coef+c(3.078,3.429),3)==0))  {
@@ -103,10 +103,10 @@ if (s.0 != 120 || round(e.0$coef + 0.4868, 3) != 0 ||
 num.tests=num.tests+1
 s.d <- summary(fmh~degree(2:3))
 e.d <- ergm(fmh~degree(0), estimate="MPLE")
-s.db <- summary(fmh~degree(1:3, "Grade"))
+s.db <- summary(fmh~degree(1:3, function(x) x %v% "Grade"))
 e.db <- ergm(fmh~degree(4, "Sex"), estimate="MPLE")
 s.dbh <- summary(fmh~degree(4:5, by="Sex", homophily=TRUE))
-e.dbh <- ergm(fmh~degree(2, by="Grade", homophily=TRUE), estimate="MPLE")
+e.dbh <- ergm(fmh~degree(2, by=~Grade, homophily=TRUE), estimate="MPLE")
 if (!all(s.d==c(30,28)) || round(e.d$coef - 5.11, 3) != 0 ||
     !all(s.db==c(15,9,9,9,4,2,11,5,9,9,4,2,5,5,4,2,3,2)) ||
     !all(round(e.db$coef+c(.345, .6005),3)==0) ||
@@ -125,7 +125,7 @@ num.tests=num.tests + 1
 s.0 <- summary(fmh~degrange(1:3))
 e.0 <- ergm(fmh~degrange(1:3), estimate="MPLE")
 s.h <- summary(fmh~degrange(1:3, by="Sex", homophily=TRUE))
-e.h <- ergm(fmh~degrange(1:3, by="Sex", homophily=TRUE), estimate="MPLE")
+e.h <- ergm(fmh~degrange(1:3, by=~Sex, homophily=TRUE), estimate="MPLE")
 if (!all(s.0==c(148, 97, 67)) || round(e.0$coef + c(4.349, 4.067, 3.178  ))!= 0 ||!all(s.h==c(122, 65, 36)) || round(e.h$coef + c(3.389, 3.032, 2.368 ))!= 0) {
 	print(list(s.0=s.0, e.0=e.0, s.h=s.h, e.h=e.h))
 	stop("Failed degrange term test")
@@ -186,8 +186,8 @@ s.d <- summary(fmh~gwdegree())
 e.d <- ergm(fmh~gwdegree(.4, fixed=TRUE), estimate="MPLE")
 s.df <- summary(fmh~gwdegree(.3, fixed=TRUE))
 e.df <- ergm(fmh~gwdegree(.2, fixed=TRUE), estimate="MPLE")
-s.dfa <- summary(fmh~gwdegree(.1, fixed=TRUE, attrname="Grade"))
-e.dfa <- ergm(fmh~gwdegree(.1, fixed=TRUE, attrname="Grade"), estimate="MPLE")
+s.dfa <- summary(fmh~gwdegree(.1, fixed=TRUE, attr=function(x) x %v% "Grade"))
+e.dfa <- ergm(fmh~gwdegree(.1, fixed=TRUE, attr=~Grade), estimate="MPLE")
 if (!all(head(s.d)==c(51,30,28,18,10,2)) ||
     round(e.d$coef + 13.59067, 3) != 0 ||
     round(s.df - 178.4312, 3) != 0 ||
@@ -239,9 +239,9 @@ if (!all(s.0 == 473) ||
 num.tests=num.tests + 1
 s.0 <- summary(fmh~sociality)
 s.a <- summary(fmh~sociality("Race"))
-s.b <- summary(fmh~sociality(base=2:203))
-s.ab <- summary(fmh~sociality("Race", base=3:200))
-e.ab <- ergm(fmh~sociality("Race", base=3:205), estimate="MPLE")
+s.b <- summary(fmh~sociality(nodes=-(2:203)))
+s.ab <- summary(fmh~sociality(function(x) x %v% "Race", nodes=-(3:200)))
+e.ab <- ergm(fmh~sociality(~Race, nodes=-(3:205)), estimate="MPLE")
 if (!all(head(s.0)==c(4,0,0,1,0,0)) ||
     !all(s.a[45:50]==c(0,8,0,0,0,3)) ||
     !all(s.b==c(13,3,1)) ||
@@ -275,7 +275,7 @@ num.tests=num.tests+1
 s.0 <- summary(unnw~tripercent)
 e.0 <- ergm(unnw~tripercent, estimate="MPLE")
 s.a <- summary(unnw~tripercent("Pet"))
-e.a <- ergm(unnw~tripercent("Pet"), estimate="MPLE")                
+e.a <- ergm(unnw~tripercent(~Pet), estimate="MPLE")                
 if (round(s.0 - 29.19463,3)!=0 || round(e.0$coef - 0.4492 , 3) != 0 ||
 	round(s.a - 29.09091,3)!=0 || round(e.a$coef - 0.2501 , 3) != 0 
     ) { 

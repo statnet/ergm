@@ -54,4 +54,8 @@ C_CHANGESTAT_FN(c_dnsp);
 I_CHANGESTAT_FN(i_dgwnsp);
 C_CHANGESTAT_FN(c_dgwnsp);
 
+/*Changescore functions*/
+C_CHANGESTAT_FN(c_ddspbwrap);
+C_CHANGESTAT_FN(c_dgwdspbwrap);
+
 #endif // _CHANGESTATS_DGW_SP_H_
