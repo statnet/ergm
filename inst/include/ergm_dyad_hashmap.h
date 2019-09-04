@@ -43,6 +43,9 @@ typedef khash_t(DyadMapUInt) StoreDyadMapUInt;
 /* Accessors, modifiers, and incrementors. */
 #define GETDMUI(tail, head, hashmap)(kh_getval(DyadMapUInt, hashmap, THKey(hashmap,tail,head), 0))
 #define SETDMUI(tail, head, v, hashmap) {if(v==0) kh_unset(DyadMapUInt, hashmap, THKey(hashmap,tail,head)); else kh_set(DyadMapUInt, hashmap, THKey(hashmap,tail,head), v)}
+#define HASDMUI(tail, head, hashmap)(kh_get(DyadMapUInt, hashmap, THKey(hashmap,tail,head))!=kh_none)
+#define DELDMUI(tail, head, hashmap)(kh_unset(DyadMapUInt, hashmap, THKey(hashmap,tail,head)))
+#define SETDMUI0(tail, head, v, hashmap) {kh_set(DyadMapUInt, hashmap, THKey(hashmap,tail,head), v)}
 
 static inline void IncDyadMapUInt(Vertex tail, Vertex head, int inc, StoreDyadMapUInt *spcache){
   TailHead th = THKey(spcache, tail, head);
@@ -69,6 +72,9 @@ typedef khash_t(DyadMapInt) StoreDyadMapInt;
 /* Accessors, modifiers, and incrementors. */
 #define GETDMI(tail, head, hashmap)(kh_getval(DyadMapInt, hashmap, THKey(hashmap,tail,head), 0))
 #define SETDMI(tail, head, v, hashmap) {if(v==0) kh_unset(DyadMapInt, hashmap, THKey(hashmap,tail,head)); else kh_set(DyadMapInt, hashmap, THKey(hashmap,tail,head), v)}
+#define HASDMI(tail, head, hashmap)(kh_get(DyadMapInt, hashmap, THKey(hashmap,tail,head))!=kh_none)
+#define DELDMI(tail, head, hashmap)(kh_unset(DyadMapInt, hashmap, THKey(hashmap,tail,head)))
+#define SETDMI0(tail, head, v, hashmap) {kh_set(DyadMapInt, hashmap, THKey(hashmap,tail,head), v)}
 
 /* Predefined khash type for dyad sets. This may or may not be faster than edgetree. */
 KHASH_INIT(DyadSet, TailHead, char, FALSE, kh_vertexvertex_hash_func, kh_vertexvertex_hash_equal, Rboolean directed;)
