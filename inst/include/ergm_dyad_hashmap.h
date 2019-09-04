@@ -2,7 +2,6 @@
 #define _ERGM_DYAD_HASHMAP_H_
 
 #include <R.h>
-#include "stdbool.h"
 #include "ergm_edgetree_types.h"
 
 /* Specify allocators. */
@@ -38,7 +37,7 @@ static inline unsigned int kh_scramble_int(unsigned int a){
 #define kh_vertexvertex_hash_equal(a,b) (a.tail==b.tail && a.head==b.head)
 
 /* Predefined khash type for mapping dyads onto unsigned ints. */
-KHASH_INIT(DyadMapUInt, TailHead, unsigned int, true, kh_vertexvertex_hash_func, kh_vertexvertex_hash_equal, bool directed;)
+KHASH_INIT(DyadMapUInt, TailHead, unsigned int, TRUE, kh_vertexvertex_hash_func, kh_vertexvertex_hash_equal, Rboolean directed;)
 typedef khash_t(DyadMapUInt) StoreDyadMapUInt;
 
 /* Accessors, modifiers, and incrementors. */
@@ -64,7 +63,7 @@ static inline void IncDyadMapUInt(Vertex tail, Vertex head, int inc, StoreDyadMa
 }
 
 /* Predefined khash type for mapping dyads onto signed ints. */
-KHASH_INIT(DyadMapInt, TailHead, int, true, kh_vertexvertex_hash_func, kh_vertexvertex_hash_equal, bool directed;)
+KHASH_INIT(DyadMapInt, TailHead, int, TRUE, kh_vertexvertex_hash_func, kh_vertexvertex_hash_equal, Rboolean directed;)
 typedef khash_t(DyadMapInt) StoreDyadMapInt;
 
 /* Accessors, modifiers, and incrementors. */
@@ -72,11 +71,11 @@ typedef khash_t(DyadMapInt) StoreDyadMapInt;
 #define SETDMI(tail, head, v, hashmap) {if(v==0) kh_unset(DyadMapInt, hashmap, THKey(hashmap,tail,head)); else kh_set(DyadMapInt, hashmap, THKey(hashmap,tail,head), v)}
 
 /* Predefined khash type for dyad sets. This may or may not be faster than edgetree. */
-KHASH_INIT(DyadSet, TailHead, char, false, kh_vertexvertex_hash_func, kh_vertexvertex_hash_equal, bool directed;)
+KHASH_INIT(DyadSet, TailHead, char, FALSE, kh_vertexvertex_hash_func, kh_vertexvertex_hash_equal, Rboolean directed;)
 typedef khash_t(DyadSet) StoreDyadSet;
 
 // Toggle an element of a DyadSet.
-static inline bool DyadSetToggle(Vertex tail, Vertex head, StoreDyadSet *h){
+static inline Rboolean DyadSetToggle(Vertex tail, Vertex head, StoreDyadSet *h){
   TailHead th = THKey(h, tail, head);
   int ret;
   // Attempt insertion
@@ -84,10 +83,10 @@ static inline bool DyadSetToggle(Vertex tail, Vertex head, StoreDyadSet *h){
   if(ret==0){
     // Already present: delete
     kh_del(DyadSet, h, i);
-    return false;
+    return FALSE;
   }else{
     // Inserted by kh_put above
-    return true;
+    return TRUE;
   }
 }
 

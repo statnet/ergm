@@ -9,6 +9,7 @@
  */
 #include "ergm_changestats_auxnet.h"
 #include "ergm_dyad_hashmap.h"
+#include "ergm_dyad_hashmap_utils.h"
 
 I_CHANGESTAT_FN(i__isociomatrix){
   ALLOC_AUX_SOCIOMATRIX(int, sm);
