@@ -57,7 +57,7 @@ typedef struct Networkstruct {
   Vertex *indegree;
   Vertex *outdegree;
   double *value;  
-  Dur_Inf duration_info;
+  Dur_Inf *duration_info;
   Edge maxedges;
 } Network;
 

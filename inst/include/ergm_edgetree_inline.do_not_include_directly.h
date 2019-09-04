@@ -139,8 +139,8 @@ static inline Edge EdgetreePredecessor (TreeNode *edges, Edge x) {
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
 static inline int ElapsedTime(Vertex tail, Vertex head, Network *nwp){
-  if(nwp->duration_info.lasttoggle){ /* Return 0 if no duration info. */
-    return nwp->duration_info.time - kh_getval(DyadMapInt, nwp->duration_info.lasttoggle, THKey(nwp->duration_info.lasttoggle,tail,head), nwp->duration_info.time);
+  if(nwp->duration_info){ /* Return 0 if no duration info. */
+    return nwp->duration_info->time - kh_getval(DyadMapInt, nwp->duration_info->lasttoggle, THKey(nwp->duration_info->lasttoggle,tail,head), nwp->duration_info->time);
   } else return 0; 
   /* Should maybe return an error code of some sort, since 0 elapsed time
      is valid output. Need to think about it. */

@@ -38,17 +38,15 @@ WtNetwork *WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
   nwp->outedges = (WtTreeNode *) Calloc(nwp->maxedges, WtTreeNode);
 
   if(lasttoggle_flag){
-    nwp->duration_info.time=time;
-    if(lasttoggle){
-      nwp->duration_info.lasttoggle = kh_init(DyadMapInt); nwp->duration_info.lasttoggle->directed=directed_flag;
-      for(Edge i = 0; i < lasttoggle[0]; i++){
-        Vertex tail=lasttoggle[i], head=lasttoggle[i+lasttoggle[0]];
-        /* Note: we can't use helper macros here, since those treat 0 as deletion. */
-        kh_set(DyadMapInt,nwp->duration_info.lasttoggle,THKey(nwp->duration_info.lasttoggle,tail,head), lasttoggle[i+lasttoggle[0]+lasttoggle[0]]);
-      }
-    } else nwp->duration_info.lasttoggle = NULL;
-  }
-  else nwp->duration_info.lasttoggle = NULL;
+    nwp->duration_info = Calloc(1, Dur_Inf);
+    nwp->duration_info->time=time;
+    nwp->duration_info->lasttoggle = kh_init(DyadMapInt); nwp->duration_info->lasttoggle->directed=directed_flag;
+    for(Edge i = 0; i < lasttoggle[0]; i++){
+      Vertex tail=lasttoggle[i], head=lasttoggle[i+lasttoggle[0]];
+      /* Note: we can't use helper macros here, since those treat 0 as deletion. */
+      kh_set(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head), lasttoggle[i+lasttoggle[0]+lasttoggle[0]]);
+    }
+  }else nwp->duration_info = NULL;
 
   /*Configure a Network*/
   nwp->nnodes = nnodes;
@@ -104,9 +102,9 @@ void WtNetworkDestroy(WtNetwork *nwp) {
   Free(nwp->outdegree);
   Free(nwp->inedges);
   Free(nwp->outedges);
-  if(nwp->duration_info.lasttoggle){
-    kh_destroy(DyadMapInt, nwp->duration_info.lasttoggle);
-    nwp->duration_info.lasttoggle=NULL;
+  if(nwp->duration_info){
+    kh_destroy(DyadMapInt, nwp->duration_info->lasttoggle);
+    Free(nwp->duration_info);
   }
   Free(nwp);
 }
@@ -136,11 +134,11 @@ WtNetwork *WtNetworkCopy(WtNetwork *src){
   dest->directed_flag = src->directed_flag;
   dest->bipartite = src->bipartite;
 
-  if(src->duration_info.lasttoggle){
-    dest->duration_info.time=src->duration_info.time;
-    dest->duration_info.lasttoggle = kh_copy(DyadMapInt,src->duration_info.lasttoggle);
-  }
-  else dest->duration_info.lasttoggle = NULL;
+  if(src->duration_info){
+    dest->duration_info = Calloc(1, Dur_Inf);
+    dest->duration_info->time=src->duration_info->time;
+    dest->duration_info->lasttoggle = kh_copy(DyadMapInt,src->duration_info->lasttoggle);
+  }else dest->duration_info = NULL;
 
   EDGECOUNT(dest) = EDGECOUNT(src);
 
@@ -193,10 +191,10 @@ int WtToggleEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwor
   ENSURE_TH_ORDER;
   
   if (WtAddEdgeToTrees(tail,head,weight,nwp)){
-    kh_set(DyadMapInt,nwp->duration_info.lasttoggle,THKey(nwp->duration_info.lasttoggle,tail,head), nwp->duration_info.time);
+    kh_set(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head), nwp->duration_info->time);
     return 1;
   }else{ 
-    kh_unset(DyadMapInt,nwp->duration_info.lasttoggle,THKey(nwp->duration_info.lasttoggle,tail,head));
+    kh_unset(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head));
     return 1 - WtDeleteEdgeFromTrees(tail,head,nwp);
   }
 }
@@ -211,12 +209,12 @@ int WtToggleEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwor
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
 void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp){
-  if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
+  if(nwp->duration_info){ /* Skip timestamps if no duration info. */
     ENSURE_TH_ORDER
     if(WtEdgetreeSearch(tail, head, nwp->outedges)){
-      kh_set(DyadMapInt,nwp->duration_info.lasttoggle,THKey(nwp->duration_info.lasttoggle,tail,head), nwp->duration_info.time);
+      kh_set(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head), nwp->duration_info->time);
     }else{
-      kh_unset(DyadMapInt,nwp->duration_info.lasttoggle,THKey(nwp->duration_info.lasttoggle,tail,head));
+      kh_unset(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head));
     }
   }
 }
@@ -771,9 +769,9 @@ void WtSetEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork 
 {
   // Should the timestamp be updated if the edge is extant?
   if(weight){
-    kh_set(DyadMapInt,nwp->duration_info.lasttoggle,THKey(nwp->duration_info.lasttoggle,tail,head), nwp->duration_info.time);
+    kh_set(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head), nwp->duration_info->time);
   }else{
-    kh_unset(DyadMapInt,nwp->duration_info.lasttoggle,THKey(nwp->duration_info.lasttoggle,tail,head));
+    kh_unset(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head));
   }
 
   WtSetEdge(tail,head,weight,nwp);
