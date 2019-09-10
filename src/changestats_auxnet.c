@@ -244,8 +244,10 @@ I_CHANGESTAT_FN(i__subgraph_net){
   ALLOC_STORAGE(2, double*, thmap);
   double *inputs = INPUT_PARAM+1;
   unsigned int type = *(inputs++);
-  Vertex n, bip;
-  Rboolean dir;
+  /* These will be overwritten in the following switch statement. */
+  Vertex n=0, bip=0;
+  Rboolean dir=FALSE;
+
   switch(type){
   case 1:
     bip = 0;
@@ -266,6 +268,7 @@ I_CHANGESTAT_FN(i__subgraph_net){
     thmap[1] = inputs + nwp->nnodes - 1;
     break;
   default:
+    error("Error in i__subgraph_net(): unrecognised output network type.");
     break;
   }
 
