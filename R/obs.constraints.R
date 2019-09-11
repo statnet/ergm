@@ -43,7 +43,7 @@
     constraints.obs<-obs.constraints
     ult(constraints.obs) <- call('+', ult(constraints.obs), ult(constraints))
     constraints.obs <- .delete_from_conform_rhs(constraints.obs, ".")
-    if(constraints==constraints.obs) constraints.obs<-NULL
+    if(ult(constraints)==ult(constraints.obs)) constraints.obs<-NULL
     
   }else constraints.obs<-NULL
   
