@@ -71,7 +71,7 @@
 #' must be greater than \code{network.dyadcount(.)} of the response network, or
 #' not all elements of the array that ought to be filled in will be.
 #' 
-#' @param formula An ERGM formula. See \code{\link{ergm}}.
+#' @param formula,constraints An ERGM formula and a constraint formula. See \code{\link{ergm}}.
 #' @param fitmodel Deprecated. Use \code{output="fit"} instead.
 #' @param output Character, partially matched. See Value.
 #' @param as.initialfit Logical. Specifies whether terms are initialized with
@@ -145,7 +145,7 @@
 #' # The term is treated as curved: individual esp# terms are returned:
 #' colnames(ergmMPLE(formula2, as.initialfit=FALSE)$predictor)
 #' @export ergmMPLE
-ergmMPLE <- function(formula, fitmodel=FALSE, output=c("matrix", "array", "fit"), as.initialfit = TRUE, control=control.ergm(),
+ergmMPLE <- function(formula, constraints=~., fitmodel=FALSE, output=c("matrix", "array", "fit"), as.initialfit = TRUE, control=control.ergm(),
                      verbose=FALSE, ...){
   if(!missing(fitmodel)){
       warning("Argument fitmodel= to ergmMPLE() has been deprecated and will be removed in a future version. Use output=\"fit\" instead.")
@@ -155,14 +155,17 @@ ergmMPLE <- function(formula, fitmodel=FALSE, output=c("matrix", "array", "fit")
   control.toplevel(...,myname="ergm")
   output <- match.arg(output)
   if (output=="fit") {
-    return(ergm(formula, estimate="MPLE", control=control, verbose=verbose, ...))
+    return(ergm(formula, estimate="MPLE", control=control, verbose=verbose, constraints=constraints, ...))
   }
 
   if(output == "array") formula <- nonsimp_update.formula(formula, .~indices+.)
   
   nw <- ergm.getnetwork(formula)
   model <- ergm_model(formula, nw, initialfit=as.initialfit, term.options=control$term.options)
-  fd <- ergm.design(nw, verbose=verbose)
+  basecon <- ergm_conlist(constraints, nw)
+  misscon <- if(network.naedgecount(nw)) ergm_conlist(~observed, nw)
+  fd <- as.rlebdm(basecon, misscon, which="informative")
+
   pl <- ergm.pl(nw, fd, model, verbose=verbose, control=control,...)
 
   switch(output,
