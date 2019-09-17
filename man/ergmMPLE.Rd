@@ -4,12 +4,12 @@
 \alias{ergmMPLE}
 \title{ERGM Predictors and response for logistic regression calculation of MPLE}
 \usage{
-ergmMPLE(formula, fitmodel = FALSE, output = c("matrix", "array",
-  "fit"), as.initialfit = TRUE, control = control.ergm(),
-  verbose = FALSE, ...)
+ergmMPLE(formula, constraints = ~., fitmodel = FALSE,
+  output = c("matrix", "array", "fit"), as.initialfit = TRUE,
+  control = control.ergm(), verbose = FALSE, ...)
 }
 \arguments{
-\item{formula}{An ERGM formula. See \code{\link{ergm}}.}
+\item{formula, constraints}{An ERGM formula and a constraint formula. See \code{\link{ergm}}.}
 
 \item{fitmodel}{Deprecated. Use \code{output="fit"} instead.}
 
