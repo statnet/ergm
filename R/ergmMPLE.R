@@ -177,7 +177,7 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmod
   control.toplevel(...,myname="ergm")
   output <- match.arg(output)
   if (output=="fit") {
-    return(ergm(formula, estimate="MPLE", control=control, verbose=verbose, ...))
+    return(ergm(formula, estimate="MPLE", control=control, verbose=verbose, constraints=constraints, ...))
   }
 
   if(output %in% c("array", "dyadlist")) formula <- nonsimp_update.formula(formula, .~indices+.)

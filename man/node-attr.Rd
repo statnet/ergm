@@ -6,6 +6,7 @@
 \alias{on}
 \alias{by}
 \alias{attrs}
+\alias{LARGEST}
 \title{Specifying nodal attributes and their levels}
 \description{
 This document describes the ways to specify nodal
@@ -58,8 +59,11 @@ as is.}
 all possible levels (typically, unique values of the attribute) in
 default older (typically lexicographic), i.e.,
 \code{sort(unique(attr))[levels]}. In particular, \code{levels=TRUE} will
-retain all levels. Negative values exclude. To specify numeric or
-logical levels literally, wrap in \code{\link[=I]{I()}}.}
+retain all levels. Negative values exclude. Another special value
+is \code{LARGEST}, which will refer to the most frequent category, so,
+say, to set such a category as the baseline, pass
+\code{levels=-LARGEST}. To specify numeric or logical levels literally,
+wrap in \code{\link[=I]{I()}}.}
 
 \item{\code{\link{NULL}}}{Retain all possible levels; usually equivalent to
 passing \code{TRUE}.}
@@ -90,6 +94,8 @@ data(faux.mesa.high)
 summary(faux.mesa.high~nodefactor(~Grade))
 # Retain all levels:
 summary(faux.mesa.high~nodefactor(~Grade, levels=TRUE)) # or levels=NULL
+# Use the largest grade as baseline (also Grade 7):
+summary(faux.mesa.high~nodefactor(~Grade, levels=-LARGEST))
 
 # Mixing between lower and upper grades:
 summary(faux.mesa.high~mm(~Grade>=10))
