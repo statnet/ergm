@@ -19,6 +19,7 @@
 \alias{ergm_attr_levels.formula}
 \alias{ERGM_VATTR_SPEC}
 \alias{ERGM_LEVELS_SPEC}
+\alias{LARGEST}
 \title{Helper functions for specifying nodal attribute levels}
 \format{An object of class \code{character} of length 3.}
 \usage{
@@ -70,6 +71,8 @@ ergm_attr_levels(object, attr, nw, levels = sort(unique(attr)), ...)
 ERGM_VATTR_SPEC
 
 ERGM_LEVELS_SPEC
+
+LARGEST(l, a)
 }
 \arguments{
 \item{object}{An argument specifying the nodal attribute to select
@@ -96,6 +99,9 @@ specifying the attribute vector.}
 
 \item{levels}{Starting set of levels to use; defaults to the sorted
 list of unique attributes.}
+
+\item{l, a}{arguments to \code{LARGEST}, which is actually a function
+that gets processed as a function level spec does.}
 }
 \value{
 \code{ergm_get_vattr} returns a vector of length equal to the

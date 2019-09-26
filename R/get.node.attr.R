@@ -115,8 +115,11 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' all possible levels (typically, unique values of the attribute) in
 #' default older (typically lexicographic), i.e.,
 #' `sort(unique(attr))[levels]`. In particular, `levels=TRUE` will
-#' retain all levels. Negative values exclude. To specify numeric or
-#' logical levels literally, wrap in [I()].}
+#' retain all levels. Negative values exclude. Another special value
+#' is `LARGEST`, which will refer to the most frequent category, so,
+#' say, to set such a category as the baseline, pass
+#' `levels=-LARGEST`. To specify numeric or logical levels literally,
+#' wrap in [I()].}
 #'
 #'\item{[`NULL`]}{Retain all possible levels; usually equivalent to
 #' passing `TRUE`.}
@@ -139,7 +142,7 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' Note that `levels` or `nodes` often has a default that is sensible for the
 #' term in question.
 #' 
-#' @aliases attrname on by attrs
+#' @aliases attrname on by attrs LARGEST
 #' @examples
 #'
 #' data(faux.mesa.high)
@@ -148,6 +151,8 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' summary(faux.mesa.high~nodefactor(~Grade))
 #' # Retain all levels:
 #' summary(faux.mesa.high~nodefactor(~Grade, levels=TRUE)) # or levels=NULL
+#' # Use the largest grade as baseline (also Grade 7):
+#' summary(faux.mesa.high~nodefactor(~Grade, levels=-LARGEST))
 #' 
 #' # Mixing between lower and upper grades:
 #' summary(faux.mesa.high~mm(~Grade>=10))
@@ -189,6 +194,8 @@ NULL
 #'   frame output. See the Details section for the specification.
 #' @param accept A character vector listing permitted data types for
 #'   the output. See the Details section for the specification.
+#' @param l,a arguments to `LARGEST`, which is actually a function
+#'   that gets processed as a function level spec does.
 #' @param ... Additional argument to the functions of network or to
 #'   the formula's environment.
 #'
@@ -466,3 +473,24 @@ ERGM_VATTR_SPEC <- "function,formula,character,AsIs"
 #' @rdname node-attr-api
 #' @export
 ERGM_LEVELS_SPEC <- "function,formula,character,numeric,logical,AsIs,NULL"
+
+#' @rdname node-attr-api
+#' @export
+LARGEST <- structure(function(l, a){
+  which.max(tabulate(match(a, l)))
+}, class = c("ergm_levels_spec_function", "function"))
+
+#' @noRd
+#' @export
+`-.ergm_levels_spec_function` <- function(e1, e2){
+  if(!missing(e2)) stop("Addition and subtraction of ERGM level specifications is not supported at this time.")
+
+  structure(
+    function(levels, attr, nw, ...)
+      - if('...' %in% names(formals(e1))) e1(levels, attr, nw, ...)
+        else switch(length(formals(e1)),
+                    e1(levels),
+                    e1(levels, attr),
+                    e1(levels, attr, nw)),
+    class = c("ergm_levels_spec_function", "function"))
+}
