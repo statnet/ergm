@@ -7,6 +7,7 @@
 \alias{by}
 \alias{attrs}
 \alias{LARGEST}
+\alias{SMALLEST}
 \title{Specifying nodal attributes and their levels}
 \description{
 This document describes the ways to specify nodal
@@ -62,8 +63,10 @@ default older (typically lexicographic), i.e.,
 retain all levels. Negative values exclude. Another special value
 is \code{LARGEST}, which will refer to the most frequent category, so,
 say, to set such a category as the baseline, pass
-\code{levels=-LARGEST}. To specify numeric or logical levels literally,
-wrap in \code{\link[=I]{I()}}.}
+\code{levels=-LARGEST}. In addition, \code{LARGEST(n)} will refer to the \code{n}
+largest categories. \code{SMALLEST} works analogously. Not that if there
+are ties in frequencies, they will be broken arbitrarily. To
+specify numeric or logical levels literally, wrap in \code{\link[=I]{I()}}.}
 
 \item{\code{\link{NULL}}}{Retain all possible levels; usually equivalent to
 passing \code{TRUE}.}

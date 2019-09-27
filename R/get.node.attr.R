@@ -118,8 +118,10 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' retain all levels. Negative values exclude. Another special value
 #' is `LARGEST`, which will refer to the most frequent category, so,
 #' say, to set such a category as the baseline, pass
-#' `levels=-LARGEST`. To specify numeric or logical levels literally,
-#' wrap in [I()].}
+#' `levels=-LARGEST`. In addition, `LARGEST(n)` will refer to the `n`
+#' largest categories. `SMALLEST` works analogously. Not that if there
+#' are ties in frequencies, they will be broken arbitrarily. To
+#' specify numeric or logical levels literally, wrap in [I()].}
 #'
 #'\item{[`NULL`]}{Retain all possible levels; usually equivalent to
 #' passing `TRUE`.}
@@ -142,7 +144,7 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' Note that `levels` or `nodes` often has a default that is sensible for the
 #' term in question.
 #' 
-#' @aliases attrname on by attrs LARGEST
+#' @aliases attrname on by attrs LARGEST SMALLEST
 #' @examples
 #'
 #' data(faux.mesa.high)
@@ -477,7 +479,25 @@ ERGM_LEVELS_SPEC <- "function,formula,character,numeric,logical,AsIs,NULL"
 #' @rdname node-attr-api
 #' @export
 LARGEST <- structure(function(l, a){
-  which.max(tabulate(match(a, l)))
+  if(!missing(a)) which.max(tabulate(match(a, l))) # passed as levels=LARGEST
+  else{ # passed as levels=LARGEST(n): return a function
+    n <- l
+    structure(function(l, a){
+      which(order(tabulate(match(a,l)), decreasing=TRUE)<=n)
+    }, class = c("ergm_levels_spec_function", "function"))
+  }
+}, class = c("ergm_levels_spec_function", "function"))
+
+#' @rdname node-attr-api
+#' @export
+SMALLEST <- structure(function(l, a){
+  if(!missing(a)) which.min(tabulate(match(a, l))) # passed as levels=SMALLEST
+  else{ # passed as levels=SMALLEST(n): return a function
+    n <- l
+    structure(function(l, a){
+      which(order(tabulate(match(a,l)), decreasing=FALSE)<=n)
+    }, class = c("ergm_levels_spec_function", "function"))
+  }
 }, class = c("ergm_levels_spec_function", "function"))
 
 #' @noRd
