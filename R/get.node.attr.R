@@ -128,7 +128,7 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' is `LARGEST`, which will refer to the most frequent category, so,
 #' say, to set such a category as the baseline, pass
 #' `levels=-LARGEST`. In addition, `LARGEST(n)` will refer to the `n`
-#' largest categories. `SMALLEST` works analogously. Not that if there
+#' largest categories. `SMALLEST` works analogously. Note that if there
 #' are ties in frequencies, they will be broken arbitrarily. To
 #' specify numeric or logical levels literally, wrap in [I()].}
 #'
