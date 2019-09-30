@@ -82,9 +82,10 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' expects categorical attributes and (typically) combine into a
 #' covariate matrix if it expects quantitative attributes.}
 #' 
-#' \item{a function}{The function is called on the LHS network,
-#' expected to return a vector or matrix of appropriate
-#' dimension. (Shorter vectors and matrix columns will be recycled as needed.)}
+#' \item{a function}{The function is called on the LHS network and
+#' additional arguments to [ergm_get_vattr()], expected to return a
+#' vector or matrix of appropriate dimension. (Shorter vectors and
+#' matrix columns will be recycled as needed.)}
 #' 
 #' \item{a formula}{The expression on the RHS of the formula is
 #' evaluated in an environment of the vertex attributes of the
@@ -102,6 +103,14 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' 
 #' }
 #'
+#' Any of these arguments may also be wrapped in or piped through
+#' `COLLAPSE_SMALLEST(attr, n, into)` or, `attr %>%
+#' COLLAPSE_SMALLEST(n, into)`, a convenience function that will
+#' transform the attribute by collapsing the smallest `n` categories
+#' into one, naming it `into`. Note that `into` must be of the same
+#' type (numeric, character, etc.) as the vertex attribute in
+#' question.
+#'
 #' For categorical attributes, to select which levels are of interest
 #' and their ordering, use the argument `levels`.  Selection of nodes (from
 #' the appropriate vector of nodal indices) is likewise handled as the
@@ -118,8 +127,10 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' retain all levels. Negative values exclude. Another special value
 #' is `LARGEST`, which will refer to the most frequent category, so,
 #' say, to set such a category as the baseline, pass
-#' `levels=-LARGEST`. To specify numeric or logical levels literally,
-#' wrap in [I()].}
+#' `levels=-LARGEST`. In addition, `LARGEST(n)` will refer to the `n`
+#' largest categories. `SMALLEST` works analogously. Note that if there
+#' are ties in frequencies, they will be broken arbitrarily. To
+#' specify numeric or logical levels literally, wrap in [I()].}
 #'
 #'\item{[`NULL`]}{Retain all possible levels; usually equivalent to
 #' passing `TRUE`.}
@@ -142,8 +153,9 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' Note that `levels` or `nodes` often has a default that is sensible for the
 #' term in question.
 #' 
-#' @aliases attrname on by attrs LARGEST
+#' @aliases attrname on by attrs LARGEST SMALLEST COLLAPSE_SMALLEST
 #' @examples
+#' library(magrittr) # for %>%
 #'
 #' data(faux.mesa.high)
 #' 
@@ -153,6 +165,11 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' summary(faux.mesa.high~nodefactor(~Grade, levels=TRUE)) # or levels=NULL
 #' # Use the largest grade as baseline (also Grade 7):
 #' summary(faux.mesa.high~nodefactor(~Grade, levels=-LARGEST))
+#' # Activity by grade with no baseline smallest two grades (11 and
+#' # 12) collapsed into a new category, labelled 0:
+#' table(faux.mesa.high %v% "Grade")
+#' summary(faux.mesa.high~nodefactor((~Grade) %>% COLLAPSE_SMALLEST(2, 0),
+#'                                   levels=TRUE))
 #' 
 #' # Mixing between lower and upper grades:
 #' summary(faux.mesa.high~mm(~Grade>=10))
@@ -276,31 +293,37 @@ ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2","
 }
 
 .handle_multiple <- function(a, multiple){
+  name <- attr(a, "name")
   if(!is.list(a)) a <- list(a)
   a <- do.call(cbind, a)
-  if(ncol(a)>1)
-    switch(multiple,
-           paste =  apply(a, 1, paste, collapse="."),
-           matrix = a,
-           stop = ergm_Init_abort("This term does not accept multiple vertex attributes or matrix vertex attribute functions."))
-  else c(a)
+  structure(
+    if(ncol(a)>1)
+      switch(multiple,
+             paste =  apply(a, 1, paste, collapse="."),
+             matrix = a,
+             stop = ergm_Init_abort("This term does not accept multiple vertex attributes or matrix vertex attribute functions."))
+    else c(a),
+    name = name)
 }
 
 .rightsize_vattr <- function(a, nw, bip){
+  name <- attr(a, "name")
   if(bip=="a") return(a)
   rep_len_warn <- function(x, length.out){
     if(length.out%%NVL(nrow(x), length(x))) ergm_Init_warn("Network size or bipartite group size is not a multiple of the length of vertex attributes.")
     if(is.null(nrow(x))) rep_len(x, length.out) else apply(x, 2, rep_len, length.out)
   }
-  if(!is.bipartite(nw) || bip=="n") rep_len_warn(a, network.size(nw))
-  else if(NVL(nrow(a), length(a))==network.size(nw)) # Input vector is n-long, need to trim.
-    switch(bip,
-           b1 = if(is.null(nrow(a))) a[seq_len(nw%n%"bipartite")] else a[seq_len(nw%n%"bipartite"),,drop=FALSE],
-           b2 = if(is.null(nrow(a))) a[-seq_len(nw%n%"bipartite")] else a[-seq_len(nw%n%"bipartite"),,drop=FALSE])
-  else # Othewise, recycle until the right length.
-    rep_len_warn(a, switch(bip,
-                           b1=nw%n%"bipartite",
-                           b2=network.size(nw)-nw%n%"bipartite"))
+  structure(
+    if(!is.bipartite(nw) || bip=="n") rep_len_warn(a, network.size(nw))
+    else if(NVL(nrow(a), length(a))==network.size(nw)) # Input vector is n-long, need to trim.
+      switch(bip,
+             b1 = if(is.null(nrow(a))) a[seq_len(nw%n%"bipartite")] else a[seq_len(nw%n%"bipartite"),,drop=FALSE],
+             b2 = if(is.null(nrow(a))) a[-seq_len(nw%n%"bipartite")] else a[-seq_len(nw%n%"bipartite"),,drop=FALSE])
+    else # Othewise, recycle until the right length.
+      rep_len_warn(a, switch(bip,
+                             b1=nw%n%"bipartite",
+                             b2=network.size(nw)-nw%n%"bipartite")),
+    name = name)
 }
 
 .check_acceptable <- function(x, accept=c("character", "numeric", "logical", "integer", "natural", "0natural", "nonnegative"), xspec=NULL){
@@ -370,9 +393,15 @@ ergm_get_vattr.function <- function(object, nw, accept="character", bip=c("n","b
   bip <- match.arg(bip)
   multiple <- match.arg(multiple, ERGM_GET_VATTR_MULTIPLE_TYPES)
 
-  ERRVL(try(object(nw, ...) %>%
+  args <- list()
+  for(aname in c("accept", "bip", "multiple"))
+    if('...' %in% names(formals(object)) || aname %in% names(formals(object)))
+      args[[aname]] <- get(aname)
+  args <- c(list(nw), list(...), args)
+
+  ERRVL(try(do.call(object, args) %>%
             .rightsize_vattr(nw, bip) %>% .handle_multiple(multiple=multiple) %>%
-            structure(name=strtrim(despace(paste(deparse(body(object)),collapse="\n")),80)),
+            structure(., name=NVL(attr(.,"name"), strtrim(despace(paste(deparse(body(object)),collapse="\n")),80))),
             silent=TRUE),
         ergm_Init_abort(.)) %>%
     .check_acceptable(accept=accept)
@@ -477,7 +506,25 @@ ERGM_LEVELS_SPEC <- "function,formula,character,numeric,logical,AsIs,NULL"
 #' @rdname node-attr-api
 #' @export
 LARGEST <- structure(function(l, a){
-  which.max(tabulate(match(a, l)))
+  if(!missing(a)) which.max(tabulate(match(a, l))) # passed as levels=LARGEST
+  else{ # passed as levels=LARGEST(n): return a function
+    n <- l
+    structure(function(l, a){
+      which(order(tabulate(match(a,l)), decreasing=TRUE)<=n)
+    }, class = c("ergm_levels_spec_function", "function"))
+  }
+}, class = c("ergm_levels_spec_function", "function"))
+
+#' @rdname node-attr-api
+#' @export
+SMALLEST <- structure(function(l, a){
+  if(!missing(a)) which.min(tabulate(match(a, l))) # passed as levels=SMALLEST
+  else{ # passed as levels=SMALLEST(n): return a function
+    n <- l
+    structure(function(l, a){
+      which(order(tabulate(match(a,l)), decreasing=FALSE)<=n)
+    }, class = c("ergm_levels_spec_function", "function"))
+  }
 }, class = c("ergm_levels_spec_function", "function"))
 
 #' @noRd
@@ -493,4 +540,19 @@ LARGEST <- structure(function(l, a){
                     e1(levels, attr),
                     e1(levels, attr, nw)),
     class = c("ergm_levels_spec_function", "function"))
+}
+
+
+#' @rdname node-attr-api
+#' @export
+COLLAPSE_SMALLEST <- function(object, n, into){
+  attr <- object
+  function(...){
+    vattr <- ergm_get_vattr(attr, ...)
+    lvls <- unique(vattr)
+    vattr.codes <- match(vattr,lvls)
+    smallest <- which(order(tabulate(vattr.codes), decreasing=FALSE)<=n)
+    vattr[vattr.codes %in% smallest] <- into
+    vattr
+  }
 }
