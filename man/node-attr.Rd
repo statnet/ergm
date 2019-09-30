@@ -8,6 +8,7 @@
 \alias{attrs}
 \alias{LARGEST}
 \alias{SMALLEST}
+\alias{COLLAPSE_SMALLEST}
 \title{Specifying nodal attributes and their levels}
 \description{
 This document describes the ways to specify nodal
@@ -27,9 +28,10 @@ attributes and paste them together, separated by dots if the term
 expects categorical attributes and (typically) combine into a
 covariate matrix if it expects quantitative attributes.}
 
-\item{a function}{The function is called on the LHS network,
-expected to return a vector or matrix of appropriate
-dimension. (Shorter vectors and matrix columns will be recycled as needed.)}
+\item{a function}{The function is called on the LHS network and
+additional arguments to \code{\link[=ergm_get_vattr]{ergm_get_vattr()}}, expected to return a
+vector or matrix of appropriate dimension. (Shorter vectors and
+matrix columns will be recycled as needed.)}
 
 \item{a formula}{The expression on the RHS of the formula is
 evaluated in an environment of the vertex attributes of the
@@ -46,6 +48,13 @@ for correct length and type, with optional attribute \code{"name"}
 indicating the predictor's name.}
 
 }
+
+Any of these arguments may also be wrapped in or piped through
+\code{COLLAPSE_SMALLEST(attr, n, into)} or, \code{attr \%>\% COLLAPSE_SMALLEST(n, into)}, a convenience function that will
+transform the attribute by collapsing the smallest \code{n} categories
+into one, naming it \code{into}. Note that \code{into} must be of the same
+type (numeric, character, etc.) as the vertex attribute in
+question.
 
 For categorical attributes, to select which levels are of interest
 and their ordering, use the argument \code{levels}.  Selection of nodes (from
@@ -90,6 +99,7 @@ Note that \code{levels} or \code{nodes} often has a default that is sensible for
 term in question.
 }
 \examples{
+library(magrittr) # for \%>\%
 
 data(faux.mesa.high)
 
@@ -99,6 +109,11 @@ summary(faux.mesa.high~nodefactor(~Grade))
 summary(faux.mesa.high~nodefactor(~Grade, levels=TRUE)) # or levels=NULL
 # Use the largest grade as baseline (also Grade 7):
 summary(faux.mesa.high~nodefactor(~Grade, levels=-LARGEST))
+# Activity by grade with no baseline smallest two grades (11 and
+# 12) collapsed into a new category, labelled 0:
+table(faux.mesa.high \%v\% "Grade")
+summary(faux.mesa.high~nodefactor((~Grade) \%>\% COLLAPSE_SMALLEST(2, 0),
+                                  levels=TRUE))
 
 # Mixing between lower and upper grades:
 summary(faux.mesa.high~mm(~Grade>=10))

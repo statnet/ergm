@@ -21,6 +21,7 @@
 \alias{ERGM_LEVELS_SPEC}
 \alias{LARGEST}
 \alias{SMALLEST}
+\alias{COLLAPSE_SMALLEST}
 \title{Helper functions for specifying nodal attribute levels}
 \format{An object of class \code{character} of length 3.}
 \usage{
@@ -76,6 +77,8 @@ ERGM_LEVELS_SPEC
 LARGEST(l, a)
 
 SMALLEST(l, a)
+
+COLLAPSE_SMALLEST(object, n, into)
 }
 \arguments{
 \item{object}{An argument specifying the nodal attribute to select
