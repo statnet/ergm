@@ -154,7 +154,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   # pending_update_network methods overload, it should be fine.
 
   # Inherit constraints from nw if needed.
-  tmp <- .handle.auto.constraints(nw, constraints, constraints, NULL)
+  tmp <- .handle.auto.constraints(nw, constraints, NULL, NULL)
   nw <- tmp$nw; constraints <- tmp$constraints
 
   proposal<-ergm_proposal(constraints,arguments=control$SAN.prop.args,nw=nw,weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
