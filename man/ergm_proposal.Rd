@@ -43,7 +43,7 @@ simple presence or absence, modeled via a binary ERGM.}
 measure to be used. (Defaults to \code{~Bernoulli}.)}
 
 \item{weights}{Specifies the method used to allocate probabilities of being
-proposed to dyads; options are "TNT", "TNT10", "random", "nonobserved" and
+proposed to dyads; options are "TNT", "StratTNT", "TNT10", "random", "nonobserved" and
 "default"; default="default"}
 
 \item{class}{The class of the proposal; choices include "c", "f", and "d"

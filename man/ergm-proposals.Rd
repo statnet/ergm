@@ -16,6 +16,7 @@
 \alias{InitErgmProposal.CondOutDegreeDist}
 \alias{InitErgmProposal.ConstantEdges}
 \alias{InitErgmProposal.TNT}
+\alias{InitErgmProposal.StratTNT}
 \alias{InitErgmProposal.randomtoggle}
 \alias{InitErgmProposal.randomtoggleNonObserved}
 \alias{InitErgmProposal.NonObservedTNT}
@@ -55,6 +56,36 @@
         	by edge status: those having ties and those having no ties (hence T/NT).  
         	This is useful for improving performance in sparse networks,
         	because it gives at least 50\% chance of proposing a toggle of an existing edge.
+        }
+
+        \item{InitErgmProposal.StratTNT}{Stratifies the population of dyads by mixing type
+            on a given vertex attribute \code{attr}; within each mixing type, dyads are 
+            stratified by edge status as in \code{TNT}.
+            
+            Specifically, the user must pass a vertex attribute \code{attr} as an argument, 
+            and may optionally pass a matrix of weights \code{pmat} (the default for 
+            \code{pmat} gives equal weight to each mixing type).  See 
+            \link[=node-attr]{Specifying Vertex Attributes and Levels} for details on 
+            specifying vertex attributes.  The matrix \code{pmat}, if specified, must have
+            the same dimensions as a mixing matrix for the network and attribute under 
+            consideration, and the correspondence between rows and columns of \code{pmat}
+            and values of \code{attr} is the same as for a mixing matrix.
+            
+            The interpretation is that \code{pmat[i,j]/sum(pmat)} is the probability of 
+            proposing a toggle for mixing type \code{(i,j)}.  (For undirected, unipartite
+            networks, \code{pmat} is first symmetrized, and then entries below the diagonal 
+            are set to zero.  Only entries on or above the diagonal of the symmetrized 
+            \code{pmat} are considered when making proposals.  This accounts for the 
+            convention that mixing is undirected in an undirected, unipartite network: 
+            a tail of type \code{i} and a head of type \code{j} has the same mixing type 
+            as a tail of type \code{j} and a head of type \code{i}.) For a given proposal,
+            once the mixing type is chosen, an edge or dyad of that mixing type is 
+            chosen at random and proposed to be toggled, as in \code{TNT}.
+            
+            Both arguments \code{attr} and \code{pmat} must be named in order to be recognized
+            by \code{StratTNT}.  While some mixing types may be assigned zero proposal 
+            probability, this will not be recognized as a constraint
+            by all components of \code{ergm}, and should be used with caution.
         }
              
 }
