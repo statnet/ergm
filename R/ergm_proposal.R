@@ -218,7 +218,7 @@ ergm_proposal.character <- function(object, arguments, nw, ..., response=NULL, r
 #   nw         :  a network object
 #   constraints:  the constraints as a one sided formula '~ term(s)'
 #   weights    :  specifies the method used to allocate probabilities of being proposed
-#                 to dyads; options are "TNT", "TNT10", "random", "nonobserved" and
+#                 to dyads; options are "TNT", "StratTNT", "TNT10", "random", "nonobserved" and
 #                 "default"; default="default"
 #   class      :  the class of the proposal; choices include "c", "f", and "d"
 #                 default="c"
@@ -269,7 +269,7 @@ ergm_conlist <- function(object, nw){
 
 #' @describeIn ergm_proposal `object` argument is an ERGM constraint formula.
 #' @param weights Specifies the method used to allocate probabilities of being
-#' proposed to dyads; options are "TNT", "TNT10", "random", "nonobserved" and
+#' proposed to dyads; options are "TNT", "StratTNT", "TNT10", "random", "nonobserved" and
 #' "default"; default="default"
 #' @param class The class of the proposal; choices include "c", "f", and "d"
 #' default="c".
@@ -365,7 +365,7 @@ ergm_proposal.formula <- function(object, arguments, nw, weights="default", clas
 #                  bd: a list of parameters used to bound degree via <ergm.bounddeg>
 #   nw         :  a network object; default=object.network
 #   weights    :  the proposal weights component of <control.ergm> as either
-#                 "TNT", "random", "TNT10", or "default"; default="default"
+#                 "TNT", "StratTNT", "random", "TNT10", or "default"; default="default"
 #                 (these options don't agree with the prop.weights of <control.ergm>)
 #   class      :  "c", otherwise execution will halt
 #
