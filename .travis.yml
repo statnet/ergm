@@ -20,6 +20,7 @@ r_github_packages:
 - statnet/statnet.common-private
 - statnet/network-private
 - statnet/ergm-private@dev
+- statnet/tergm-private@dev
 - statnet/ergm.count-private@dev
 - statnet/ergm.multi-private@dev
 addons:
