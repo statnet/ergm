@@ -90,3 +90,9 @@ InitWtErgmTerm.Sum <- function(...){
   term$name <- "wtSum"
   term
 }
+
+InitWtErgmTerm.Label <- function(nw, arglist, response=NULL, ...){
+  out <- InitErgmTerm.Label(nw, arglist, response=response, ...)
+  out$name <- "wtpassthrough_term"
+  out
+}
