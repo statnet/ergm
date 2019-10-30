@@ -4,16 +4,31 @@
 \alias{simulate.ergm}
 \alias{simulate.formula}
 \alias{simulate.formula.ergm}
+\alias{simulate_formula}
+\alias{simulate_formula.network}
+\alias{simulate_formula.pending_update_network}
 \alias{simulate.ergm_model}
 \title{Draw from the distribution of an Exponential Family Random Graph Model}
 \usage{
-\method{simulate}{formula}(object, nsim = 1, seed = NULL, coef,
+\method{simulate}{formula}(object, ...)
+
+simulate_formula(object, ..., basis = NULL)
+
+\method{simulate_formula}{network}(object, nsim = 1, seed = NULL, coef,
   response = NULL, reference = ~Bernoulli, constraints = ~.,
-  monitor = NULL, basis = NULL, statsonly = FALSE, esteq = FALSE,
+  monitor = NULL, statsonly = FALSE, esteq = FALSE,
   output = c("network", "stats", "edgelist", "pending_update_network"),
   simplify = TRUE, sequential = TRUE,
   control = control.simulate.formula(), verbose = FALSE, ...,
-  do.sim = TRUE)
+  basis = NULL, do.sim = TRUE)
+
+\method{simulate_formula}{pending_update_network}(object, nsim = 1,
+  seed = NULL, coef, response = NULL, reference = ~Bernoulli,
+  constraints = ~., monitor = NULL, statsonly = FALSE,
+  esteq = FALSE, output = c("network", "stats", "edgelist",
+  "pending_update_network"), simplify = TRUE, sequential = TRUE,
+  control = control.simulate.formula(), verbose = FALSE, ...,
+  basis = NULL, do.sim = TRUE)
 
 \method{simulate}{ergm_model}(object, nsim = 1, seed = NULL, coef,
   response = NULL, reference = ~Bernoulli, constraints = ~.,
@@ -39,6 +54,17 @@ details on the possible \code{<model terms>}, see \code{\link{ergm-terms}}.
 To create a \code{\link[network]{network}} object in , use the
 \code{network()} function, then add nodal attributes to it using the
 \code{\%v\%} operator if necessary.}
+
+\item{\dots}{Further arguments passed to or used by methods.}
+
+\item{basis}{An optional network data object to start the
+Markov chain.  If omitted, the default is the left-hand-side of the
+\code{formula}.  If neither a left-hand-side nor a \code{basis} is present,
+an error results because the characteristics of the network (e.g., size and
+directedness) must be specified.  The \code{ergm} package provides support
+for \code{basis} arguments of class \code{\link[network]{network}} and
+of class \code{\link[ergm]{pending_update_network}}; other packages may
+extend support to other classes.}
 
 \item{nsim}{Number of networks to be randomly drawn from the given
 distribution on the set of all networks, returned by the Metropolis-Hastings
@@ -73,12 +99,6 @@ whose value is to be monitored. These terms are appeneded to the
 model, along with a coefficient of 0, so their statistics are
 returned. An \code{\link{ergm_model}} objectcan be passed as well.}
 
-\item{basis}{An optional \code{\link[network]{network}} object to start the
-Markov chain.  If omitted, the default is the left-hand-side of the
-\code{formula}.  If neither a left-hand-side nor a \code{basis} is present,
-an error results because the characteristics of the network (e.g., size and
-directedness) must be specified.}
-
 \item{statsonly}{Logical: If TRUE, return only the network statistics, not
 the network(s) themselves. Deprecated in favor of \code{output=}.}
 
@@ -106,8 +126,6 @@ Constructed using \code{\link{control.simulate.ergm}} or
 
 \item{verbose}{Logical: If TRUE, extra information is printed as the Markov
 chain progresses.}
-
-\item{\dots}{Further arguments passed to or used by methods.}
 
 \item{do.sim}{Logical: If \code{FALSE}, do not proceed to the simulation
 but rather return a list of arguments that would have been passed
