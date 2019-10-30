@@ -13,7 +13,6 @@
 #           <simulate.formula.ergm>
 #========================================================================
 
-
 #' Draw from the distribution of an Exponential Family Random Graph Model
 #' 
 #' \code{\link[stats]{simulate}} is used to draw from exponential
@@ -73,11 +72,15 @@
 #'   model, along with a coefficient of 0, so their statistics are
 #'   returned. An [`ergm_model`] objectcan be passed as well.
 #'
-#' @param basis An optional \code{\link[network]{network}} object to start the
+#' @param basis An optional network data object to start the
 #' Markov chain.  If omitted, the default is the left-hand-side of the
 #' \code{formula}.  If neither a left-hand-side nor a \code{basis} is present,
 #' an error results because the characteristics of the network (e.g., size and
-#' directedness) must be specified.
+#' directedness) must be specified.  The \code{ergm} package provides support
+#' for \code{basis} arguments of class \code{\link[network]{network}} and 
+#' of class \code{\link[ergm]{pending_update_network}}; other packages may
+#' extend support to other classes.
+#' 
 #' @param statsonly Logical: If TRUE, return only the network statistics, not
 #' the network(s) themselves. Deprecated in favor of `output=`.
 #' @param esteq Logical: If TRUE, compute the sample estimating equations of an
@@ -224,21 +227,41 @@
 #' @importFrom stats simulate
 #' @aliases simulate.formula.ergm
 #' @export
-simulate.formula <- function(object, nsim=1, seed=NULL,
+simulate.formula <- function(object, ...) {
+  simulate_formula(object, ...)
+}
+
+#' @rdname simulate.ergm
+#'
+#' @export
+simulate_formula <- function(object, ..., basis=NULL) {
+  # dispatch based on basis if present
+  if(!is.null(basis)) UseMethod("simulate_formula", object=basis)
+  
+  # otherwise dispatch based on LHS of formula
+  if(length(object)!=3 || object[[1]]!="~")
+    stop ("Formula must be of form ", sQuote("y ~ model"), ".  The left hand side may be missing only when the argument ", sQuote("basis"), " is provided instead.")
+  lhs <- eval_lhs.formula(object)
+  UseMethod("simulate_formula",object=lhs)
+}
+
+#' @rdname simulate.ergm
+#'
+#' @export
+simulate_formula.network <- function(object, nsim=1, seed=NULL,
                                coef, response=NULL, reference=~Bernoulli,
                              constraints=~.,
                                monitor=NULL,
-                               basis=NULL,
                                statsonly=FALSE,
                              esteq=FALSE,
                              output=c("network","stats","edgelist","pending_update_network"),
                              simplify=TRUE,
                              sequential=TRUE,
                                control=control.simulate.formula(),
-                             verbose=FALSE, ..., do.sim=TRUE) {
+                             verbose=FALSE, ..., basis=NULL, do.sim=TRUE) {
   #' @importFrom statnet.common check.control.class
   check.control.class("simulate.formula", myname="ERGM simulate.formula")
-  control.toplevel(...)
+  control.toplevel(..., myname="simulate.formula")
 
   if(!missing(statsonly)){
     .Deprecate_once(msg=paste0("Use of ",sQuote("statsonly=")," argument has been deprecated. Use ",sQuote("output='stats'")," instead."))
@@ -304,6 +327,11 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
          verbose=verbose, ...)
   }
 }
+
+#' @rdname simulate.ergm
+#'
+#' @export
+simulate_formula.pending_update_network <- simulate_formula.network
 
 #' @rdname simulate.ergm
 #'
