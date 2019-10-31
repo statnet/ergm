@@ -9,13 +9,16 @@
 #######################################################################
 
 ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL, 
-                             response=NULL, verbose=FALSE,..., eta=ergm.eta(theta, model$etamap)) {
+                             response=NULL, verbose=FALSE,..., eta=ergm.eta(theta, model$etamap), stats0=NULL) {
   # Start cluster if required (just in case we haven't already).
   ergm.getCluster(control, verbose)
   
   if(is.network(nw) || is.pending_update_network(nw)) nw <- list(nw)
   nws <- rep(nw, length.out=nthreads(control))
-  
+  NVL(stats0) <- numeric(length(eta))
+  if(is.numeric(stats0)) stats0 <- list(stats0)
+  stats0 <- rep(stats0, length.out=length(nws))
+
   Clists <- lapply(nws, ergm::ergm.Cprepare, model, response=response)
 
   control.parallel <- control
@@ -25,8 +28,8 @@ ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL,
 
   doruns <- function(samplesize=NULL){
     if(!is.null(ergm.getCluster(control))) persistEvalQ({clusterMap(ergm.getCluster(control), ergm_CD_slave,
-                                  Clist=Clists, MoreArgs=list(proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...,samplesize=samplesize))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)})
-    else list(ergm_CD_slave(Clist=Clists[[1]], samplesize=samplesize,proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...))
+                                  Clist=Clists, stats0=stats0, MoreArgs=list(proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...,samplesize=samplesize))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)})
+    else list(ergm_CD_slave(Clist=Clists[[1]], stats0=stats0[[1]], samplesize=samplesize,proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...))
   }
   
   outl <- doruns()
@@ -65,12 +68,12 @@ ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL,
   list(stats = stats, networks=newnetworks, status=0)
 }
 
-ergm_CD_slave <- function(Clist,proposal,eta,control,verbose,..., samplesize=NULL) {
+ergm_CD_slave <- function(Clist,proposal,eta,control,verbose,..., samplesize=NULL, stats0=numeric(Clist$nstats)) {
     nedges <- c(Clist$nedges,0,0)
     tails <- Clist$tails
     heads <- Clist$heads
     weights <- Clist$weights
-    stats <- rep(0, Clist$nstats)
+    stats <- stats0
   
   if(is.null(samplesize)) samplesize <- control$CD.samplesize
   

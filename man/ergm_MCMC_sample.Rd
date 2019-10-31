@@ -7,11 +7,11 @@
 \usage{
 ergm_MCMC_sample(nw, model, proposal, control, theta = NULL,
   response = NULL, update.nws = TRUE, verbose = FALSE, ...,
-  eta = ergm.eta(theta, model$etamap))
+  eta = ergm.eta(theta, model$etamap), stats0 = NULL)
 
 ergm_MCMC_slave(Clist, proposal, eta, control, verbose, ...,
   prev.run = NULL, burnin = NULL, samplesize = NULL,
-  interval = NULL, maxedges = NULL)
+  interval = NULL, maxedges = NULL, stats0 = numeric(Clist$nstats))
 }
 \arguments{
 \item{nw}{a \code{\link{network}} (or \code{\link{pending_update_network}}) object representing the sampler state.}
@@ -40,6 +40,13 @@ to return an object "promising" to update the network.}
 \item{...}{additional arugments.}
 
 \item{eta}{the natural parameters of the model; by default constructed from \code{theta}.}
+
+\item{stats0}{either a numeric vector of the same length as \code{eta}
+containing the statistics corresponding to the initial network;
+or a list thereof of the same length as that of \code{nw} if it is a
+list of networks (for parallel sampling). Defaults to a vector of
+0s. Note that if passed to \code{ergm_MCMC_slave}, it is overridden if
+\code{prev.run} is passed as well.}
 
 \item{Clist}{the list of parameters returned by
 \code{\link{ergm.Cprepare}}}
@@ -82,9 +89,8 @@ The \code{ergm_MCMC_slave} function calls the actual C
 routine and does minimal preprocessing.
 }
 \details{
-Note that the returned stats will be relative to the original network, i.e.,
-the calling function must shift the statistics if required. The calling
-function must also attach column names to the statistics matrix if required.
+Note that unless \code{stats0} is passed, the returned stats will be relative to the original network, i.e.,
+the calling function must shift the statistics if required.
 }
 \note{
 \code{ergm_MCMC_sample} and \code{ergm_MCMC_slave} replace

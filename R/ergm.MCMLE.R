@@ -232,18 +232,15 @@ ergm.MCMLE <- function(init, nw, model,
 
     # Obtain MCMC sample
     if(verbose) message("Starting unconstrained MCMC...")
-    z <- ergm_MCMC_sample(nws, model, proposal, control, theta=mcmc.init, response=response, update.nws=FALSE, verbose=max(verbose-1,0))
-        
+    z <- ergm_MCMC_sample(nws, model, proposal, control, theta=mcmc.init, response=response, update.nws=FALSE, verbose=max(verbose-1,0), stats0=statshifts)
+
     if(z$status==1) stop("Number of edges in a simulated network exceeds that in the observed by a factor of more than ",floor(control$MCMLE.density.guard),". This is a strong indicator of model degeneracy or a very poor starting parameter configuration. If you are reasonably certain that neither of these is the case, increase the MCMLE.density.guard control.ergm() parameter.")
         
-    # post-processing of sample statistics:  Shift each row by the
-    # vector model$nw.stats - model$target.stats, store returned nw
     # The statistics in statsmatrix should all be relative to either the
     # observed statistics or, if given, the alternative target.stats
     # (i.e., the estimation goal is to use the statsmatrix to find 
-    # parameters that will give a mean vector of zero)
-    statsmatrices <- as.mcmc.list(mapply(sweep, z$stats, statshifts, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE))
-    varnames(statsmatrices) <- param_names(model,canonical=TRUE)
+    # parameters that will give a mean vector of zero).
+    statsmatrices <- z$stats
     nws.returned <- z$networks
     statsmatrix <- as.matrix(statsmatrices)
     
@@ -258,12 +255,11 @@ ergm.MCMLE <- function(init, nw, model,
     ##  Does the same, if observation process:
     if(obs){
       if(verbose) message("Starting constrained MCMC...")
-      z.obs <- ergm_MCMC_sample(nws.obs, NVL(model$obs.model,model), proposal.obs, control.obs, theta=mcmc.init, response=response, update.nws=FALSE, verbose=max(verbose-1,0))
+      z.obs <- ergm_MCMC_sample(nws.obs, NVL(model$obs.model,model), proposal.obs, control.obs, theta=mcmc.init, response=response, update.nws=FALSE, verbose=max(verbose-1,0),stats0=statshifts.obs)
       
       if(z.obs$status==1) stop("Number of edges in the simulated network exceeds that observed by a large factor (",control$MCMC.max.maxedges,"). This is a strong indication of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
 
-      statsmatrices.obs <- as.mcmc.list(mapply(sweep, z.obs$stats, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE))
-      varnames(statsmatrices.obs) <- param_names(model,canonical=TRUE)
+      statsmatrices.obs <- z.obs$stats
       nws.obs.returned <- z.obs$networks
       statsmatrix.obs <- as.matrix(statsmatrices.obs)
       

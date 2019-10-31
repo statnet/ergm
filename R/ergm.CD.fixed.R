@@ -127,16 +127,13 @@ ergm.CD.fixed <- function(init, nw, model,
     }
 
     # Obtain CD sample
-    z <- ergm_CD_sample(nws, model, proposal, control, verbose=verbose, response=response, theta=mcmc.init)
+    z <- ergm_CD_sample(nws, model, proposal, control, verbose=verbose, response=response, theta=mcmc.init, stats0=statshifts)
 
-    # post-processing of sample statistics:  Shift each row by the
-    # vector model$nw.stats - model$target.stats, store returned nw
     # The statistics in statsmatrix should all be relative to either the
     # observed statistics or, if given, the alternative target.stats
     # (i.e., the estimation goal is to use the statsmatrix to find 
-    # parameters that will give a mean vector of zero)
-    statsmatrices <- as.mcmc.list(mapply(sweep, z$stats, statshifts, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE))
-    varnames(statsmatrices) <- param_names(model,canonical=TRUE)
+    # parameters that will give a mean vector of zero).
+    statsmatrices <- z$stats
     statsmatrix <- as.matrix(statsmatrices)
     
     if(verbose){
@@ -149,10 +146,9 @@ ergm.CD.fixed <- function(init, nw, model,
     
     ##  Does the same, if observation process:
     if(obs){
-      z.obs <- ergm_CD_sample(nws.obs, NVL(model$obs.model,model), proposal.obs, control.obs, theta=mcmc.init, response=response, verbose=max(verbose-1,0))
+      z.obs <- ergm_CD_sample(nws.obs, NVL(model$obs.model,model), proposal.obs, control.obs, theta=mcmc.init, response=response, verbose=max(verbose-1,0), stats0=statshifts.obs)
 
-      statsmatrices.obs <- as.mcmc.list(mapply(sweep, z.obs$stats, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE))
-      varnames(statsmatrices.obs) <- param_names(model,canonical=TRUE)
+      statsmatrices.obs <- z.obs$stats
       statsmatrix.obs <- as.matrix(statsmatrices.obs)
       
       if(verbose){

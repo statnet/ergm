@@ -17,9 +17,8 @@
 #' `ergm_MCMC_slave`.
 #' 
 #' 
-#' Note that the returned stats will be relative to the original network, i.e.,
-#' the calling function must shift the statistics if required. The calling
-#' function must also attach column names to the statistics matrix if required.
+#' Note that unless `stats0` is passed, the returned stats will be relative to the original network, i.e.,
+#' the calling function must shift the statistics if required.
 #' 
 #' @param nw a [`network`] (or [`pending_update_network`]) object representing the sampler state.
 #' @param model an [`ergm_model`] to be sampled from, as returned by
@@ -31,6 +30,12 @@
 #'   [control.ergm()].
 #' @param theta the (possibly curved) parameters of the model.
 #' @param eta the natural parameters of the model; by default constructed from `theta`.
+#' @param stats0 either a numeric vector of the same length as `eta`
+#'   containing the statistics corresponding to the initial network;
+#'   or a list thereof of the same length as that of `nw` if it is a
+#'   list of networks (for parallel sampling). Defaults to a vector of
+#'   0s. Note that if passed to `ergm_MCMC_slave`, it is overridden if
+#'   `prev.run` is passed as well.
 #' @param verbose verbosity level.
 #' @template response
 #' @param update.nws whether to actually update the network state or
@@ -59,13 +64,16 @@
 #'   list with one element.
 #' @export
 ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL, 
-                             response=NULL, update.nws = TRUE, verbose=FALSE,..., eta=ergm.eta(theta, model$etamap)) {
+                             response=NULL, update.nws = TRUE, verbose=FALSE,..., eta=ergm.eta(theta, model$etamap), stats0=NULL) {
   # Start cluster if required (just in case we haven't already).
   ergm.getCluster(control, verbose)
   
   if(is.network(nw) || is.pending_update_network(nw)) nw <- list(nw)
   nws <- rep(nw, length.out=nthreads(control))
-  
+  NVL(stats0) <- numeric(length(eta))
+  if(is.numeric(stats0)) stats0 <- list(stats0)
+  stats0 <- rep(stats0, length.out=length(nws))
+
   Clists <- lapply(nws, ergm::ergm.Cprepare, model, response=response)
 
   control.parallel <- control
@@ -76,8 +84,8 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
   #' @importFrom parallel clusterMap
   doruns <- function(prev.runs=rep(list(NULL),nthreads(control)), burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL){
     if(!is.null(ergm.getCluster(control))) persistEvalQ({clusterMap(ergm.getCluster(control),ergm_MCMC_slave,
-                                  Clist=Clists, prev.run=prev.runs, MoreArgs=list(proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)})
-    else list(ergm_MCMC_slave(Clist=Clists[[1]], prev.run=prev.runs[[1]],burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges,proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...))
+                                  Clist=Clists, prev.run=prev.runs, stats0=stats0, MoreArgs=list(proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)})
+    else list(ergm_MCMC_slave(Clist=Clists[[1]], prev.run=prev.runs[[1]], stats0=stats0[[1]], burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges,proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...))
   }
   
   if(!is.null(control.parallel$MCMC.effectiveSize)){
@@ -234,13 +242,13 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
 #'   allowed edges at the time of return.}
 #' @useDynLib ergm
 #' @export
-ergm_MCMC_slave <- function(Clist,proposal,eta,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL) {
+ergm_MCMC_slave <- function(Clist,proposal,eta,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL, stats0=numeric(Clist$nstats)) {
   if(is.null(prev.run)){ # Start from Clist
     nedges <- c(Clist$nedges,0,0)
     tails <- Clist$tails
     heads <- Clist$heads
     weights <- Clist$weights
-    stats <- rep(0, Clist$nstats)
+    stats <- stats0
   }else{ # Pick up where we left off
     nedges <- prev.run$newnwtails[1]
     tails <- prev.run$newnwtails[2:(nedges+1)]
