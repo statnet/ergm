@@ -10,7 +10,7 @@ LHS/basis network.}
 \usage{
 lhs \%ergmlhs\% setting
 
-\%ergmlhs\%(lhs, setting) <- value
+lhs %ergmlhs% setting <- value
 
 convert_ergmlhs(lhs)
 }

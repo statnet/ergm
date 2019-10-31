@@ -37,6 +37,9 @@
 }
 
 #' @rdname ergmlhs
+#'
+#' @usage lhs %ergmlhs% setting <- value
+#'
 #' @param value value with which to overwrite the setting.
 #' @export
 `%ergmlhs%<-` <- function(lhs, setting, value){
