@@ -1,34 +1,84 @@
-context("Test predict.formula()")
+context("Test predict.formula() and predict.ergm()")
 
 library(ergm)
 library(magrittr)
 
-test_that("works on a small digraph",{
+test_that("works for edges model on small digraph", {
   net <- network.initialize(3, directed=TRUE)
   net[1,2] <- 1
   expect_silent(
-    r <- predict(net ~ edges, -1.609)
+    r.f <- predict(net ~ edges, log(1/5)) # predict.formula()
   )
-})
-
-
-
-
-context("Test predict.ergm()")
-
-test_that("works on a small digraph",{
-  net <- network.initialize(3, directed=TRUE)
-  net[1,2] <- 1
   fit <- ergm(net ~ edges)
   expect_silent(
-    r <- predict(fit)
+    r.e <- predict(fit) # predict.ergm()
   )
+  expect_true( all.equal(unique(r.f$p), 1/6) )
+  expect_identical(
+    names(r.f),
+    c("tail", "head", "p")
+  )
+  expect_identical(
+    names(r.e),
+    c("tail", "head", "p")
+  )
+  expect_true( all.equal(unique(r.e$p), 1/6) )
 })
 
 
-# TODO --------------------------------------------------------------------
+
+test_that("works for edges model on small graph", {
+  net <- network.initialize(3, directed=FALSE)
+  net[1,2] <- 1
+  expect_silent(
+    r.f <- predict(net ~ edges, log(1/2)) # predict.formula()
+  )
+  fit <- ergm(net ~ edges)
+  expect_silent(
+    r.e <- predict(fit) # predict.ergm()
+  )
+  expect_identical(
+    names(r.f),
+    c("tail", "head", "p")
+  )
+  expect_identical(
+    names(r.e),
+    c("tail", "head", "p")
+  )
+  expect_true( all.equal(unique(r.f$p), 1/3) )
+  expect_true( all.equal(unique(r.f$p), 1/3) )
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Scrapbook ---------------------------------------------------------------
+
+# Some ideas for tests not [yet] implemented.
 
 if(FALSE) {
+  
+  logit <- function(p, ...) log(p / (1-p), ...)
+  expit <- function(lgit, ...) 1 / (1 + exp(-lgit))
+  
+  
   # OTPs --------------------------------------------------------------------
   
   net <-
@@ -88,4 +138,13 @@ if(FALSE) {
   
   summary(netw ~ edges + nodematch("female") + gwesp(decay=0.2, fixed=TRUE) )
   p <- cond_probs(fit, netw)  
+  
+
+  # Subsets -----------------------------------------------------------------
+  
+  net <- network.initialize(3, directed=TRUE)
+  net[1,2] <- 1
+  r <- predict(net ~ edges, -1.609, constraints= ~ fixallbut(net))
+  theta <- -1.609
+  predmat <- ergmMPLE(net ~ edges + indices, constraints = ~ fixallbut(net))$predictor
 }
