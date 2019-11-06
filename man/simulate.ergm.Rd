@@ -10,7 +10,7 @@
 \alias{simulate.ergm_model}
 \title{Draw from the distribution of an Exponential Family Random Graph Model}
 \usage{
-\method{simulate}{formula}(object, ...)
+\method{simulate}{formula}(object, nsim = 1, seed = NULL, ...)
 
 simulate_formula(object, ..., basis = eval_lhs.formula(object))
 
@@ -55,6 +55,13 @@ To create a \code{\link[network]{network}} object in , use the
 \code{network()} function, then add nodal attributes to it using the
 \code{\%v\%} operator if necessary.}
 
+\item{nsim}{Number of networks to be randomly drawn from the given
+distribution on the set of all networks, returned by the Metropolis-Hastings
+algorithm.}
+
+\item{seed}{Seed value (integer) for the random number generator.  See
+\code{\link[base]{set.seed}}.}
+
 \item{\dots}{Further arguments passed to or used by methods.}
 
 \item{basis}{An optional network data object to start the
@@ -65,13 +72,6 @@ directedness) must be specified.  The \code{ergm} package provides support
 for \code{basis} arguments of class \code{\link[network]{network}} and
 of class \code{\link[ergm]{pending_update_network}}; other packages may
 extend support to other classes.}
-
-\item{nsim}{Number of networks to be randomly drawn from the given
-distribution on the set of all networks, returned by the Metropolis-Hastings
-algorithm.}
-
-\item{seed}{Seed value (integer) for the random number generator.  See
-\code{\link[base]{set.seed}}.}
 
 \item{coef}{Vector of parameter values for the model from which the sample
 is to be drawn.  If \code{object} is of class \code{ergm}, the default value
