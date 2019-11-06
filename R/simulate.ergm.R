@@ -234,21 +234,14 @@ simulate.formula <- function(object, ...) {
 #' @rdname simulate.ergm
 #'
 #' @export
-simulate_formula <- function(object, ..., basis=NULL) {
-  # dispatch based on basis if present
-  if(!is.null(basis)) UseMethod("simulate_formula", object=basis)
-  
-  # otherwise dispatch based on LHS of formula
-  if(length(object)!=3 || object[[1]]!="~")
-    stop ("Formula must be of form ", sQuote("y ~ model"), ".  The left hand side may be missing only when the argument ", sQuote("basis"), " is provided instead.")
-  lhs <- eval_lhs.formula(object)
-  UseMethod("simulate_formula",object=lhs)
+simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
+  UseMethod("simulate_formula", object=basis)  
 }
 
 #' @rdname simulate.ergm
 #'
-#' @export
-simulate_formula.network <- function(object, nsim=1, seed=NULL,
+#' @S3method simulate_formula network .simulate_formula.network
+.simulate_formula.network <- function(object, nsim=1, seed=NULL,
                                coef, response=NULL, reference=~Bernoulli,
                              constraints=~.,
                                monitor=NULL,
@@ -258,7 +251,7 @@ simulate_formula.network <- function(object, nsim=1, seed=NULL,
                              simplify=TRUE,
                              sequential=TRUE,
                                control=control.simulate.formula(),
-                             verbose=FALSE, ..., basis=NULL, do.sim=TRUE) {
+                             verbose=FALSE, ..., basis=eval_lhs.formula(object), do.sim=TRUE) {
   #' @importFrom statnet.common check.control.class
   check.control.class("simulate.formula", myname="ERGM simulate.formula")
   control.toplevel(..., myname="simulate.formula")
@@ -268,10 +261,7 @@ simulate_formula.network <- function(object, nsim=1, seed=NULL,
     output <- if(statsonly) "stats" else "network"
   }
 
-  # define nw as either the basis argument or (if NULL) the LHS of the formula
-  if (is.null(nw <- basis)) {
-    nw <- ergm.getnetwork(object)    
-  }
+  nw <- basis
   
   # Do some error-checking on the nw object
   nw <- as.network(ensure_network(nw), populate=FALSE)
@@ -331,7 +321,7 @@ simulate_formula.network <- function(object, nsim=1, seed=NULL,
 #' @rdname simulate.ergm
 #'
 #' @export
-simulate_formula.pending_update_network <- simulate_formula.network
+simulate_formula.pending_update_network <- .simulate_formula.network
 
 #' @rdname simulate.ergm
 #'
