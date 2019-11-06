@@ -29,13 +29,14 @@ predict.formula <- function(object, theta, output=c("data.frame", "matrix"), ...
   output <- match.arg(output)
   predmat <- ergmMPLE(
     update(object, . ~ . + indices),
-    output = "matrix"
+    output = "matrix",
+    ...
   )$predictor
   stopifnot(length(theta) == (ncol(predmat)-2))
-  p <- 1 / (1 + exp(predmat[,seq(1, length(theta))] %*% theta))
+  p <- 1 / (1 + exp(predmat[,seq(1, length(theta)), drop=FALSE] %*% theta))
   switch(
     output,
-    data.frame = data.frame(predmat[,c("tail", "head")], p),
+    data.frame = data.frame(predmat[,c("tail", "head"), drop=FALSE], p),
     matrix = .NotYetImplemented()
   )
 }
@@ -44,7 +45,7 @@ predict.formula <- function(object, theta, output=c("data.frame", "matrix"), ...
 #' @method predict ergm
 #' @export
 predict.ergm <- function(object, ...) {
-  predict_formula(
+  predict.formula(
     object = object$formula,
     theta = ergm.eta(object$coef, object$etamap),
     ...
