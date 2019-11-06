@@ -18,24 +18,48 @@
 \item{output}{character, type of object returned. Defaults to \code{"data.frame"}.
 See section Value below.}
 
-\item{...}{other arguments passed to/from other methods}
+\item{...}{other arguments passed to/from other methods. For \code{\link[=ergm.formula]{ergm.formula()}}
+the arguments are passed to \code{\link[=ergmMPLE]{ergmMPLE()}}}
 }
 \value{
 Type of object returned depends on the argument \code{output}. If
 \code{output="data.frame"} the function will return a data frame with columns:
 \itemize{
-\item \code{tail},\code{head} -- indices of nodes identifying a dyad
+\item \code{tail}, \code{head} -- indices of nodes identifying a dyad
 \item \code{p} -- predicted conditional tie probability
+}
+
 If \code{output="matrix"} the function will return an "adjacency matrix" with the
 predicted conditional tie probabilities.
 }
-}
 \description{
-Calculate predicted \strong{conditional} tie probabilities for all dyads in a
-network based on an ERGM model. Currently there are two methods implemented:
+Calculate model-predicted \strong{conditional} tie probabilities for dyads given
+the rest of the graph. Currently there are two methods implemented:
 \itemize{
-\item \code{\link[=predict.formula]{predict.formula()}} requires an ERGM model formula with an existing network
-object on the left hand side, and a vector of corresponding parameter values.
-\item \code{\link[=predict.ergm]{predict.ergm()}} requires only a fitted model object
+\item Method for formula objects requires (1) an ERGM model formula with an existing
+network object on the left hand side and terms on the right hand side, and
+(2) and a vector of corresponding parameter values.
+\item Method for \code{ergm} objects, as returned by \code{\link[=ergm]{ergm()}}, takes both the formula
+and parameter values from the fitted model object.
 }
+
+Both methods can limit calculations to specific set of dyads of interest.
+}
+\examples{
+# A three-node directed network with one tie
+net <- network.initialize(3, directed=TRUE)
+
+# In homogeneous Bernoulli model with odds of a tie are 1/5 all ties are
+# equally likely
+predict(net ~ edges, log(1/5))
+
+# Let's add a tie so that `net` has 1 tie out of possible 6 (so odds of 1/5)
+net[1,2] <- 1
+
+# Fit the model
+fit <- ergm(net ~ edges)
+
+# The p's should be identical
+predict(fit)
+
 }
