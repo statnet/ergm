@@ -77,6 +77,22 @@ if(FALSE) {
   
   logit <- function(p, ...) log(p / (1-p), ...)
   expit <- function(lgit, ...) 1 / (1 + exp(-lgit))
+
+  r1 <- predict_ergm(fit, flomarriage)
+  
+  data("flo")
+  fit <- ergm(flomarriage ~ edges + gwesp(0.25, fixed = TRUE))
+  # term: indicies
+  z <- ergmMPLE( 
+    update(fit$formula, . ~ . + indices), 
+    output="matrix"
+  )
+  str(z)
+  coef(fit)
+  v <- ergm.eta(fit$coef, fit$etamap)
+  z$predictor[,1:2] %*% v -> m
+  
+  p <- predict_formula(flomarriage ~ edges + gwesp(0.25, fixed = TRUE), c(-1, 0.5))
   
   
   # OTPs --------------------------------------------------------------------

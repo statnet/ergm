@@ -46,10 +46,10 @@ and parameter values from the fitted model object.
 Both methods can limit calculations to specific set of dyads of interest.
 }
 \examples{
-# A three-node directed network with one tie
+# A three-node empty directed network
 net <- network.initialize(3, directed=TRUE)
 
-# In homogeneous Bernoulli model with odds of a tie are 1/5 all ties are
+# In homogeneous Bernoulli model with odds of a tie of 1/5 all ties are
 # equally likely
 predict(net ~ edges, log(1/5))
 
