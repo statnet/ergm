@@ -5,22 +5,22 @@
 \alias{simulate.formula}
 \alias{simulate.formula.ergm}
 \alias{simulate_formula}
-\alias{simulate_formula.network}
+\alias{.simulate_formula.network}
 \alias{simulate_formula.pending_update_network}
 \alias{simulate.ergm_model}
 \title{Draw from the distribution of an Exponential Family Random Graph Model}
 \usage{
 \method{simulate}{formula}(object, ...)
 
-simulate_formula(object, ..., basis = NULL)
+simulate_formula(object, ..., basis = eval_lhs.formula(object))
 
-\method{simulate_formula}{network}(object, nsim = 1, seed = NULL, coef,
+.simulate_formula.network(object, nsim = 1, seed = NULL, coef,
   response = NULL, reference = ~Bernoulli, constraints = ~.,
   monitor = NULL, statsonly = FALSE, esteq = FALSE,
   output = c("network", "stats", "edgelist", "pending_update_network"),
   simplify = TRUE, sequential = TRUE,
   control = control.simulate.formula(), verbose = FALSE, ...,
-  basis = NULL, do.sim = TRUE)
+  basis = eval_lhs.formula(object), do.sim = TRUE)
 
 \method{simulate_formula}{pending_update_network}(object, nsim = 1,
   seed = NULL, coef, response = NULL, reference = ~Bernoulli,
@@ -28,7 +28,7 @@ simulate_formula(object, ..., basis = NULL)
   esteq = FALSE, output = c("network", "stats", "edgelist",
   "pending_update_network"), simplify = TRUE, sequential = TRUE,
   control = control.simulate.formula(), verbose = FALSE, ...,
-  basis = NULL, do.sim = TRUE)
+  basis = eval_lhs.formula(object), do.sim = TRUE)
 
 \method{simulate}{ergm_model}(object, nsim = 1, seed = NULL, coef,
   response = NULL, reference = ~Bernoulli, constraints = ~.,
