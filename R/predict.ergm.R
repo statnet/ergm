@@ -59,7 +59,7 @@ predict.formula <- function(object, theta, output=c("data.frame", "matrix"), ...
     ...
   )$predictor
   stopifnot(length(theta) == (ncol(predmat)-2))
-  p <- 1 / (1 + exp(predmat[,seq(1, length(theta)), drop=FALSE] %*% theta))
+  p <- 1 / (1 + exp( - predmat[,seq(1, length(theta)), drop=FALSE] %*% theta))
   switch(
     output,
     data.frame = data.frame(predmat[,c("tail", "head"), drop=FALSE], p),
