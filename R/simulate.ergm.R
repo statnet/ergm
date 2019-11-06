@@ -240,7 +240,8 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
 
 #' @rdname simulate.ergm
 #'
-#' @S3method simulate_formula network .simulate_formula.network
+#' @rawNamespace S3method(simulate_formula,network,.simulate_formula.network)
+#' @method simulate_formula network
 .simulate_formula.network <- function(object, nsim=1, seed=NULL,
                                coef, response=NULL, reference=~Bernoulli,
                              constraints=~.,

@@ -14,7 +14,7 @@
 
 simulate_formula(object, ..., basis = eval_lhs.formula(object))
 
-.simulate_formula.network(object, nsim = 1, seed = NULL, coef,
+\method{simulate_formula}{network}(object, nsim = 1, seed = NULL, coef,
   response = NULL, reference = ~Bernoulli, constraints = ~.,
   monitor = NULL, statsonly = FALSE, esteq = FALSE,
   output = c("network", "stats", "edgelist", "pending_update_network"),
