@@ -42,7 +42,7 @@ Network *NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
     nwp->duration_info = Calloc(1, Dur_Inf);
     nwp->duration_info->time=time;
     nwp->duration_info->lasttoggle = kh_init(DyadMapInt); nwp->duration_info->lasttoggle->directed=directed_flag;
-    for(Edge i = 0; i < lasttoggle[0]; i++){
+    for(Edge i = 1; i <= lasttoggle[0]; i++){
       Vertex tail=lasttoggle[i], head=lasttoggle[i+lasttoggle[0]];
       /* Note: we can't use helper macros here, since those treat 0 as deletion. */
       kh_set(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head), lasttoggle[i+lasttoggle[0]+lasttoggle[0]]);
