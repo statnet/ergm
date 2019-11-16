@@ -8,9 +8,15 @@
 \usage{
 mcmc.diagnostics(object, ...)
 
-\method{mcmc.diagnostics}{ergm}(object, center = TRUE, esteq = TRUE,
-  vars.per.page = 3, which = c("plots", "texts", "summary",
-  "autocorrelation", "crosscorrelation", "burnin", "degeneracy"), ...)
+\method{mcmc.diagnostics}{ergm}(
+  object,
+  center = TRUE,
+  esteq = TRUE,
+  vars.per.page = 3,
+  which = c("plots", "texts", "summary", "autocorrelation", "crosscorrelation",
+    "burnin", "degeneracy"),
+  ...
+)
 }
 \arguments{
 \item{object}{A model fit object to be diagnosed.}
@@ -120,12 +126,6 @@ plot(gest$sample, ask=FALSE)
 
 }
 \references{
-% Warnes, G.W. (2000).  Multi-Chain and Parallel Algorithms for
-Markov % Chain Monte Carlo. Dissertation, Department of Biostatistics, %
-University of Washington, % Raftery, A.E. and Lewis, S.M. (1992).  One long
-run with diagnostics: Implementation strategies for Markov chain Monte
-Carlo. Statistical Science, 7, 493-497.
-
 Raftery, A.E. and Lewis, S.M. (1995).  The number of iterations, convergence
 diagnostics and generic Metropolis algorithms.  In Practical Markov Chain
 Monte Carlo (W.R. Gilks, D.J. Spiegelhalter and S. Richardson, eds.).

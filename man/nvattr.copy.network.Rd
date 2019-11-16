@@ -4,8 +4,11 @@
 \alias{nvattr.copy.network}
 \title{Copy network- and vertex-level attributes between two network objects}
 \usage{
-nvattr.copy.network(to, from, ignore = c("bipartite", "directed",
-  "hyper", "loops", "mnext", "multiple", "n"))
+nvattr.copy.network(
+  to,
+  from,
+  ignore = c("bipartite", "directed", "hyper", "loops", "mnext", "multiple", "n")
+)
 }
 \arguments{
 \item{to}{the \code{\link{network}} that attributes should be copied to}

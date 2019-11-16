@@ -32,7 +32,7 @@
 is.dyad.independent<-function(object,...) UseMethod("is.dyad.independent")
 
 #' @rdname is.dyad.independent
-#' @description The method for `NULL` always returns `FALSE` by
+#' @description The method for `NULL` always returns `TRUE` by
 #'   convention.
 #' @export
 is.dyad.independent.NULL <- function(object, ...) TRUE # By convention.

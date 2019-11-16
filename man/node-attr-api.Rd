@@ -27,48 +27,66 @@
 \usage{
 ERGM_GET_VATTR_MULTIPLE_TYPES
 
-ergm_get_vattr(object, nw, accept = "character", bip = c("n", "b1",
-  "b2", "a"), multiple = if (accept == "character") "paste" else "stop",
-  ...)
+ergm_get_vattr(
+  object,
+  nw,
+  accept = "character",
+  bip = c("n", "b1", "b2", "a"),
+  multiple = if (accept == "character") "paste" else "stop",
+  ...
+)
 
-\method{ergm_get_vattr}{AsIs}(object, nw, accept = "character",
-  bip = c("n", "b1", "b2", "a"), multiple = if (accept == "character")
-  "paste" else "stop", ...)
+\method{ergm_get_vattr}{AsIs}(
+  object,
+  nw,
+  accept = "character",
+  bip = c("n", "b1", "b2", "a"),
+  multiple = if (accept == "character") "paste" else "stop",
+  ...
+)
 
-\method{ergm_get_vattr}{character}(object, nw, accept = "character",
-  bip = c("n", "b1", "b2", "a"), multiple = if (accept == "character")
-  "paste" else "stop", ...)
+\method{ergm_get_vattr}{character}(
+  object,
+  nw,
+  accept = "character",
+  bip = c("n", "b1", "b2", "a"),
+  multiple = if (accept == "character") "paste" else "stop",
+  ...
+)
 
-\method{ergm_get_vattr}{function}(object, nw, accept = "character",
-  bip = c("n", "b1", "b2", "a"), multiple = if (accept == "character")
-  "paste" else "stop", ...)
+\method{ergm_get_vattr}{`function`}(
+  object,
+  nw,
+  accept = "character",
+  bip = c("n", "b1", "b2", "a"),
+  multiple = if (accept == "character") "paste" else "stop",
+  ...
+)
 
-\method{ergm_get_vattr}{formula}(object, nw, accept = "character",
-  bip = c("n", "b1", "b2", "a"), multiple = if (accept == "character")
-  "paste" else "stop", ...)
+\method{ergm_get_vattr}{formula}(
+  object,
+  nw,
+  accept = "character",
+  bip = c("n", "b1", "b2", "a"),
+  multiple = if (accept == "character") "paste" else "stop",
+  ...
+)
 
 ergm_attr_levels(object, attr, nw, levels = sort(unique(attr)), ...)
 
-\method{ergm_attr_levels}{numeric}(object, attr, nw,
-  levels = sort(unique(attr)), ...)
+\method{ergm_attr_levels}{numeric}(object, attr, nw, levels = sort(unique(attr)), ...)
 
-\method{ergm_attr_levels}{logical}(object, attr, nw,
-  levels = sort(unique(attr)), ...)
+\method{ergm_attr_levels}{logical}(object, attr, nw, levels = sort(unique(attr)), ...)
 
-\method{ergm_attr_levels}{AsIs}(object, attr, nw,
-  levels = sort(unique(attr)), ...)
+\method{ergm_attr_levels}{AsIs}(object, attr, nw, levels = sort(unique(attr)), ...)
 
-\method{ergm_attr_levels}{character}(object, attr, nw,
-  levels = sort(unique(attr)), ...)
+\method{ergm_attr_levels}{character}(object, attr, nw, levels = sort(unique(attr)), ...)
 
-\method{ergm_attr_levels}{NULL}(object, attr, nw,
-  levels = sort(unique(attr)), ...)
+\method{ergm_attr_levels}{`NULL`}(object, attr, nw, levels = sort(unique(attr)), ...)
 
-\method{ergm_attr_levels}{function}(object, attr, nw,
-  levels = sort(unique(attr)), ...)
+\method{ergm_attr_levels}{`function`}(object, attr, nw, levels = sort(unique(attr)), ...)
 
-\method{ergm_attr_levels}{formula}(object, attr, nw,
-  levels = sort(unique(attr)), ...)
+\method{ergm_attr_levels}{formula}(object, attr, nw, levels = sort(unique(attr)), ...)
 
 ERGM_VATTR_SPEC
 

@@ -12,23 +12,23 @@
 \alias{network.naedgecount.pending_update_network}
 \title{A (Relatively) Lightweight Read-Only Representation of Network Objects}
 \usage{
-pending_update_network(nw, update = NULL, response = if
-  (is.character(update)) update)
+pending_update_network(
+  nw,
+  update = NULL,
+  response = if (is.character(update)) update
+)
 
 is.pending_update_network(x)
 
 \method{as.edgelist}{pending_update_network}(x, ...)
 
-\method{as.matrix}{pending_update_network}(x, matrix.type = NULL,
-  attrname = NULL, ...)
+\method{as.matrix}{pending_update_network}(x, matrix.type = NULL, attrname = NULL, ...)
 
 \method{as.network}{pending_update_network}(x, ..., populate = TRUE)
 
-\method{network.edgecount}{pending_update_network}(x, na.omit = TRUE,
-  ...)
+\method{network.edgecount}{pending_update_network}(x, na.omit = TRUE, ...)
 
-\method{network.dyadcount}{pending_update_network}(x, na.omit = TRUE,
-  ...)
+\method{network.dyadcount}{pending_update_network}(x, na.omit = TRUE, ...)
 
 \method{network.size}{pending_update_network}(x, ...)
 
@@ -77,7 +77,7 @@ depending on its mode: \describe{
 \item{\code{character}}{Use \code{nw}'s own edgelist, and don't set weights
 for attribute specified by \code{update}.}
 
-\item{\code{a list}}{Use the elements of the list, dropping others.}
+\item{\verb{a list}}{Use the elements of the list, dropping others.}
 
 }
 }

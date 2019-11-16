@@ -6,6 +6,7 @@
 \alias{simulate.formula.ergm}
 \alias{simulate_formula}
 \alias{.simulate_formula.network}
+\alias{simulate_formula.network}
 \alias{simulate_formula.pending_update_network}
 \alias{simulate.ergm_model}
 \title{Draw from the distribution of an Exponential Family Random Graph Model}
@@ -14,38 +15,90 @@
 
 simulate_formula(object, ..., basis = eval_lhs.formula(object))
 
-\method{simulate_formula}{network}(object, nsim = 1, seed = NULL, coef,
-  response = NULL, reference = ~Bernoulli, constraints = ~.,
-  observational = FALSE, monitor = NULL, statsonly = FALSE,
-  esteq = FALSE, output = c("network", "stats", "edgelist",
-  "pending_update_network"), simplify = TRUE, sequential = TRUE,
-  control = control.simulate.formula(), verbose = FALSE, ...,
-  basis = eval_lhs.formula(object), do.sim = TRUE)
-
-\method{simulate_formula}{pending_update_network}(object, nsim = 1,
-  seed = NULL, coef, response = NULL, reference = ~Bernoulli,
-  constraints = ~., observational = FALSE, monitor = NULL,
-  statsonly = FALSE, esteq = FALSE, output = c("network", "stats",
-  "edgelist", "pending_update_network"), simplify = TRUE,
-  sequential = TRUE, control = control.simulate.formula(),
-  verbose = FALSE, ..., basis = eval_lhs.formula(object),
-  do.sim = TRUE)
-
-\method{simulate}{ergm_model}(object, nsim = 1, seed = NULL, coef,
-  response = NULL, reference = ~Bernoulli, constraints = ~.,
-  observational = FALSE, monitor = NULL, basis = NULL,
-  esteq = FALSE, output = c("network", "stats", "edgelist",
-  "pending_update_network"), simplify = TRUE, sequential = TRUE,
-  control = control.simulate.formula(), verbose = FALSE, ...)
-
-\method{simulate}{ergm}(object, nsim = 1, seed = NULL,
-  coef = object$coef, response = object$response,
-  reference = object$reference, constraints = list(object$constraints,
-  object$obs.constraints), observational = FALSE, monitor = NULL,
-  basis = object$newnetwork, statsonly = FALSE, esteq = FALSE,
+\method{simulate_formula}{network}(
+  object,
+  nsim = 1,
+  seed = NULL,
+  coef,
+  response = NULL,
+  reference = ~Bernoulli,
+  constraints = ~.,
+  observational = FALSE,
+  monitor = NULL,
+  statsonly = FALSE,
+  esteq = FALSE,
   output = c("network", "stats", "edgelist", "pending_update_network"),
-  simplify = TRUE, sequential = TRUE,
-  control = control.simulate.ergm(), verbose = FALSE, ...)
+  simplify = TRUE,
+  sequential = TRUE,
+  control = control.simulate.formula(),
+  verbose = FALSE,
+  ...,
+  basis = eval_lhs.formula(object),
+  do.sim = TRUE
+)
+
+\method{simulate_formula}{pending_update_network}(
+  object,
+  nsim = 1,
+  seed = NULL,
+  coef,
+  response = NULL,
+  reference = ~Bernoulli,
+  constraints = ~.,
+  observational = FALSE,
+  monitor = NULL,
+  statsonly = FALSE,
+  esteq = FALSE,
+  output = c("network", "stats", "edgelist", "pending_update_network"),
+  simplify = TRUE,
+  sequential = TRUE,
+  control = control.simulate.formula(),
+  verbose = FALSE,
+  ...,
+  basis = eval_lhs.formula(object),
+  do.sim = TRUE
+)
+
+\method{simulate}{ergm_model}(
+  object,
+  nsim = 1,
+  seed = NULL,
+  coef,
+  response = NULL,
+  reference = ~Bernoulli,
+  constraints = ~.,
+  observational = FALSE,
+  monitor = NULL,
+  basis = NULL,
+  esteq = FALSE,
+  output = c("network", "stats", "edgelist", "pending_update_network"),
+  simplify = TRUE,
+  sequential = TRUE,
+  control = control.simulate.formula(),
+  verbose = FALSE,
+  ...
+)
+
+\method{simulate}{ergm}(
+  object,
+  nsim = 1,
+  seed = NULL,
+  coef = object$coef,
+  response = object$response,
+  reference = object$reference,
+  constraints = list(object$constraints, object$obs.constraints),
+  observational = FALSE,
+  monitor = NULL,
+  basis = object$newnetwork,
+  statsonly = FALSE,
+  esteq = FALSE,
+  output = c("network", "stats", "edgelist", "pending_update_network"),
+  simplify = TRUE,
+  sequential = TRUE,
+  control = control.simulate.ergm(),
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{object}{Either a \code{\link{formula}} or an
@@ -105,7 +158,7 @@ model, along with a coefficient of 0, so their statistics are
 returned. An \code{\link{ergm_model}} objectcan be passed as well.}
 
 \item{statsonly}{Logical: If TRUE, return only the network statistics, not
-the network(s) themselves. Deprecated in favor of \code{output=}.}
+the network(s) themselves. Deprecated in favor of \verb{output=}.}
 
 \item{esteq}{Logical: If TRUE, compute the sample estimating equations of an
 ERGM: if the model is non-curved, all non-offset statistics are returned
@@ -145,7 +198,7 @@ simulated network statistics. If \code{control$parallel>0}, an
 \code{\link{mcmc.list}} object. If \code{simplify=TRUE} (the default), these
 would then be "stacked" and converted to a standard \code{\link{matrix}}. A
 logical vector indicating whether or not the term had come from
-the \code{monitor=} formula is stored in \code{\link[=attr]{attr()}}-style attribute
+the \verb{monitor=} formula is stored in \code{\link[=attr]{attr()}}-style attribute
 \code{"monitored"}.
 
 Otherwise, a representation of the simulated network is returned,

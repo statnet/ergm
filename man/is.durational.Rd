@@ -9,12 +9,11 @@
 \usage{
 is.durational(object, ...)
 
-\method{is.durational}{NULL}(object, ...)
+\method{is.durational}{`NULL`}(object, ...)
 
 \method{is.durational}{character}(object, ...)
 
-\method{is.durational}{formula}(object, response = NULL, basis = NULL,
-  ...)
+\method{is.durational}{formula}(object, response = NULL, basis = NULL, ...)
 }
 \arguments{
 \item{object}{An \code{\link{ergm}} object or an ERGM formula, or some

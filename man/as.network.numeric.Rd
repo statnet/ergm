@@ -4,10 +4,21 @@
 \alias{as.network.numeric}
 \title{Create a Simple Random network of a Given Size}
 \usage{
-\method{as.network}{numeric}(x, directed = TRUE, hyper = FALSE,
-  loops = FALSE, multiple = FALSE, bipartite = FALSE,
-  ignore.eval = TRUE, names.eval = NULL, edge.check = FALSE,
-  density = NULL, init = NULL, numedges = NULL, ...)
+\method{as.network}{numeric}(
+  x,
+  directed = TRUE,
+  hyper = FALSE,
+  loops = FALSE,
+  multiple = FALSE,
+  bipartite = FALSE,
+  ignore.eval = TRUE,
+  names.eval = NULL,
+  edge.check = FALSE,
+  density = NULL,
+  init = NULL,
+  numedges = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{count; the number of nodes in the network. If

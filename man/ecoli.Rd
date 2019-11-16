@@ -40,8 +40,8 @@ Research}, 29(1): 72-74.
 Shen-Orr et al (2002), Network Motifs in the Transcriptional Regulation
 Network of Escerichia Coli, \emph{Nature Genetics}, 31(1): 64-68.
 
-%Saul and Filkov (2007)
+\%Saul and Filkov (2007)
 
-%Hummel et al (2010)
+\%Hummel et al (2010)
 }
 \keyword{datasets}

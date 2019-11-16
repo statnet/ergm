@@ -68,7 +68,7 @@ into a form suitable for being passed to the C routines.
 
 The \code{ergm.Cprepare} is a legacy function that constructs a combination of \code{ergm_Clist}s from the given \code{\link{network}} and the given \code{\link{ergm_model}}.
 
-\code{ergm.design} obtain the set of informative dyads based on the network structure. Note that \code{model=} argument is not needed and will be removed in a future release.
+\code{ergm.design} obtain the set of informative dyads based on the network structure. Note that \verb{model=} argument is not needed and will be removed in a future release.
 }
 \section{Methods (by class)}{
 \itemize{

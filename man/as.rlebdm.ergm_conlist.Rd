@@ -4,8 +4,12 @@
 \alias{as.rlebdm.ergm_conlist}
 \title{Extract dyad-level ERGM constraint information into an \code{\link{rlebdm}} object}
 \usage{
-\method{as.rlebdm}{ergm_conlist}(x, constraints.obs = NULL,
-  which = c("free", "missing", "informative"), ...)
+\method{as.rlebdm}{ergm_conlist}(
+  x,
+  constraints.obs = NULL,
+  which = c("free", "missing", "informative"),
+  ...
+)
 }
 \arguments{
 \item{x}{an \code{\link{ergm_conlist}} object: a list of initialised
@@ -43,8 +47,8 @@ is a placeholder for a matrix of \code{TRUE}, whereas for
 \code{which=="missing"} it is a placeholder for a matrix of \code{FALSE}.
 
 Each element in the constraint list has a sign, which
-determins whether the constraint further restricts (for \code{+}) or
-potentially relaxes restriction (for \code{-}).
+determins whether the constraint further restricts (for \verb{+}) or
+potentially relaxes restriction (for \verb{-}).
 }
 \seealso{
 \link{ergm-constraints}

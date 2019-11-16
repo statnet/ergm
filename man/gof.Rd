@@ -12,18 +12,38 @@ Model}
 \usage{
 gof(object, ...)
 
-\method{gof}{ergm}(object, ..., coef = NULL, GOF = NULL,
-  constraints = NULL, control = control.gof.ergm(), verbose = FALSE)
+\method{gof}{ergm}(
+  object,
+  ...,
+  coef = NULL,
+  GOF = NULL,
+  constraints = NULL,
+  control = control.gof.ergm(),
+  verbose = FALSE
+)
 
-\method{gof}{formula}(object, ..., coef = NULL, GOF = NULL,
-  constraints = ~., control = NULL, unconditional = TRUE,
-  verbose = FALSE)
+\method{gof}{formula}(
+  object,
+  ...,
+  coef = NULL,
+  GOF = NULL,
+  constraints = ~.,
+  control = NULL,
+  unconditional = TRUE,
+  verbose = FALSE
+)
 
 \method{print}{gof}(x, ...)
 
-\method{plot}{gof}(x, ..., cex.axis = 0.7, plotlogodds = FALSE,
-  main = "Goodness-of-fit diagnostics", normalize.reachability = FALSE,
-  verbose = FALSE)
+\method{plot}{gof}(
+  x,
+  ...,
+  cex.axis = 0.7,
+  plotlogodds = FALSE,
+  main = "Goodness-of-fit diagnostics",
+  normalize.reachability = FALSE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{object}{Either a formula or an \code{\link{ergm}} object.

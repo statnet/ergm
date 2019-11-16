@@ -4,8 +4,14 @@
 \alias{get.vertex.attributes}
 \title{Get multiple vertex attributes at once and paste them together.}
 \usage{
-get.vertex.attributes(x, attrnames, na.omit = FALSE, null.na = TRUE,
-  unlist = TRUE, sep = NULL)
+get.vertex.attributes(
+  x,
+  attrnames,
+  na.omit = FALSE,
+  null.na = TRUE,
+  unlist = TRUE,
+  sep = NULL
+)
 }
 \arguments{
 \item{x, na.omit, null.na, unlist}{see \code{\link[network:get.vertex.attribute]{network::get.vertex.attribute()}}.}

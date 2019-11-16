@@ -4,9 +4,14 @@
 \alias{logLik.ergm}
 \title{A \code{\link{logLik}} method for \code{\link{ergm}} fits.}
 \usage{
-\method{logLik}{ergm}(object, add = FALSE, force.reeval = FALSE,
-  eval.loglik = add || force.reeval, control = control.logLik.ergm(),
-  ...)
+\method{logLik}{ergm}(
+  object,
+  add = FALSE,
+  force.reeval = FALSE,
+  eval.loglik = add || force.reeval,
+  control = control.logLik.ergm(),
+  ...
+)
 }
 \arguments{
 \item{object}{An \code{\link[=ergm.object]{ergm}} fit, returned by

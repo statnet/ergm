@@ -4,34 +4,56 @@
 \alias{control.ergm}
 \title{Auxiliary for Controlling ERGM Fitting}
 \usage{
-control.ergm(drop = TRUE, init = NULL, init.method = NULL,
-  main.method = c("MCMLE", "Robbins-Monro", "Stochastic-Approximation",
-  "Stepping"), force.main = FALSE, main.hessian = TRUE,
-  checkpoint = NULL, resume = NULL, MPLE.max.dyad.types = 1e+06,
-  MPLE.samplesize = 50000, MPLE.type = c("glm", "penalized",
-  "logitreg"), MPLE.maxit = 10000, MCMC.prop.weights = "default",
-  MCMC.prop.args = list(), MCMC.interval = NULL,
-  MCMC.burnin = EVL(MCMC.interval * 16), MCMC.samplesize = NULL,
-  MCMC.effectiveSize = NULL, MCMC.effectiveSize.damp = 10,
-  MCMC.effectiveSize.maxruns = 16, MCMC.effectiveSize.base = 1/2,
-  MCMC.effectiveSize.points = 5, MCMC.effectiveSize.burnin.pval = 0.2,
-  MCMC.effectiveSize.order.max = NULL, MCMC.return.stats = TRUE,
-  MCMC.runtime.traceplot = FALSE, MCMC.init.maxedges = 20000,
-  MCMC.max.maxedges = Inf, MCMC.addto.se = TRUE,
-  MCMC.packagenames = c(), SAN.maxit = 4, SAN.nsteps.times = 8,
-  SAN.control = control.san(term.options = term.options, SAN.maxit =
-  SAN.maxit, SAN.prop.weights = MCMC.prop.weights, SAN.prop.args =
-  MCMC.prop.args, SAN.init.maxedges = MCMC.init.maxedges, SAN.max.maxedges
-  = MCMC.max.maxedges, SAN.nsteps = EVL(MCMC.burnin, 16384) *
-  SAN.nsteps.times, SAN.samplesize = EVL(MCMC.samplesize, 1024),
-  SAN.packagenames = MCMC.packagenames, parallel = parallel, parallel.type
-  = parallel.type, parallel.version.check = parallel.version.check),
-  MCMLE.termination = c("confidence", "Hummel", "Hotelling", "precision",
-  "none"), MCMLE.maxit = 30, MCMLE.conv.min.pval = 0.5,
-  MCMLE.confidence = 0.99, MCMLE.confidence.boost = 2,
-  MCMLE.confidence.boost.threshold = 1, MCMLE.confidence.boost.lag = 4,
-  MCMLE.NR.maxit = 100, MCMLE.NR.reltol = sqrt(.Machine$double.eps),
-  obs.MCMC.mul = 1/4, obs.MCMC.samplesize.mul = sqrt(obs.MCMC.mul),
+control.ergm(
+  drop = TRUE,
+  init = NULL,
+  init.method = NULL,
+  main.method = c("MCMLE", "Robbins-Monro", "Stochastic-Approximation", "Stepping"),
+  force.main = FALSE,
+  main.hessian = TRUE,
+  checkpoint = NULL,
+  resume = NULL,
+  MPLE.max.dyad.types = 1e+06,
+  MPLE.samplesize = 50000,
+  MPLE.type = c("glm", "penalized", "logitreg"),
+  MPLE.maxit = 10000,
+  MCMC.prop.weights = "default",
+  MCMC.prop.args = list(),
+  MCMC.interval = NULL,
+  MCMC.burnin = EVL(MCMC.interval * 16),
+  MCMC.samplesize = NULL,
+  MCMC.effectiveSize = NULL,
+  MCMC.effectiveSize.damp = 10,
+  MCMC.effectiveSize.maxruns = 16,
+  MCMC.effectiveSize.base = 1/2,
+  MCMC.effectiveSize.points = 5,
+  MCMC.effectiveSize.burnin.pval = 0.2,
+  MCMC.effectiveSize.order.max = NULL,
+  MCMC.return.stats = TRUE,
+  MCMC.runtime.traceplot = FALSE,
+  MCMC.init.maxedges = 20000,
+  MCMC.max.maxedges = Inf,
+  MCMC.addto.se = TRUE,
+  MCMC.packagenames = c(),
+  SAN.maxit = 4,
+  SAN.nsteps.times = 8,
+  SAN.control = control.san(term.options = term.options, SAN.maxit = SAN.maxit,
+    SAN.prop.weights = MCMC.prop.weights, SAN.prop.args = MCMC.prop.args,
+    SAN.init.maxedges = MCMC.init.maxedges, SAN.max.maxedges = MCMC.max.maxedges,
+    SAN.nsteps = EVL(MCMC.burnin, 16384) * SAN.nsteps.times, SAN.samplesize =
+    EVL(MCMC.samplesize, 1024), SAN.packagenames = MCMC.packagenames, parallel = parallel,
+    parallel.type = parallel.type, parallel.version.check = parallel.version.check),
+  MCMLE.termination = c("confidence", "Hummel", "Hotelling", "precision", "none"),
+  MCMLE.maxit = 30,
+  MCMLE.conv.min.pval = 0.5,
+  MCMLE.confidence = 0.99,
+  MCMLE.confidence.boost = 2,
+  MCMLE.confidence.boost.threshold = 1,
+  MCMLE.confidence.boost.lag = 4,
+  MCMLE.NR.maxit = 100,
+  MCMLE.NR.reltol = sqrt(.Machine$double.eps),
+  obs.MCMC.mul = 1/4,
+  obs.MCMC.samplesize.mul = sqrt(obs.MCMC.mul),
   obs.MCMC.samplesize = round(MCMC.samplesize * obs.MCMC.samplesize.mul),
   obs.MCMC.effectiveSize = NVL3(MCMC.effectiveSize, . * obs.MCMC.mul),
   obs.MCMC.interval.mul = sqrt(obs.MCMC.mul),
@@ -42,56 +64,102 @@ control.ergm(drop = TRUE, init = NULL, init.method = NULL,
   obs.MCMC.prop.args = MCMC.prop.args,
   obs.MCMC.impute.min_informative = function(nw) network.size(nw)/4,
   obs.MCMC.impute.default_density = function(nw) 2/network.size(nw),
-  MCMLE.min.depfac = 2, MCMLE.sampsize.boost.pow = 0.5,
-  MCMLE.check.degeneracy = FALSE, MCMLE.MCMC.precision = if
-  (startsWith("confidence", MCMLE.termination[1])) 0.1 else 0.005,
-  MCMLE.MCMC.max.ESS.frac = 0.1, MCMLE.metric = c("lognormal",
-  "logtaylor", "Median.Likelihood", "EF.Likelihood", "naive"),
-  MCMLE.method = c("BFGS", "Nelder-Mead"), MCMLE.trustregion = 20,
-  MCMLE.dampening = FALSE, MCMLE.dampening.min.ess = 20,
-  MCMLE.dampening.level = 0.1, MCMLE.steplength.margin = 0.05,
-  MCMLE.steplength.point.exp = 1, MCMLE.steplength.prefilter = FALSE,
+  MCMLE.min.depfac = 2,
+  MCMLE.sampsize.boost.pow = 0.5,
+  MCMLE.check.degeneracy = FALSE,
+  MCMLE.MCMC.precision = if (startsWith("confidence", MCMLE.termination[1])) 0.1 else
+    0.005,
+  MCMLE.MCMC.max.ESS.frac = 0.1,
+  MCMLE.metric = c("lognormal", "logtaylor", "Median.Likelihood", "EF.Likelihood",
+    "naive"),
+  MCMLE.method = c("BFGS", "Nelder-Mead"),
+  MCMLE.trustregion = 20,
+  MCMLE.dampening = FALSE,
+  MCMLE.dampening.min.ess = 20,
+  MCMLE.dampening.level = 0.1,
+  MCMLE.steplength.margin = 0.05,
+  MCMLE.steplength.point.exp = 1,
+  MCMLE.steplength.prefilter = FALSE,
   MCMLE.steplength = NVL2(MCMLE.steplength.margin, 1, 0.5),
   MCMLE.steplength.parallel = c("observational", "always", "never"),
-  MCMLE.adaptive.trustregion = 3, MCMLE.sequential = TRUE,
-  MCMLE.density.guard.min = 10000, MCMLE.density.guard = exp(3),
+  MCMLE.adaptive.trustregion = 3,
+  MCMLE.sequential = TRUE,
+  MCMLE.density.guard.min = 10000,
+  MCMLE.density.guard = exp(3),
   MCMLE.effectiveSize = 64,
   obs.MCMLE.effectiveSize = NVL3(MCMLE.effectiveSize, . * obs.MCMC.mul),
-  MCMLE.interval = 32, MCMLE.burnin = MCMLE.interval * 16,
-  MCMLE.samplesize.per_theta = 128, MCMLE.samplesize = NULL,
+  MCMLE.interval = 32,
+  MCMLE.burnin = MCMLE.interval * 16,
+  MCMLE.samplesize.per_theta = 128,
+  MCMLE.samplesize = NULL,
   obs.MCMLE.samplesize.per_theta = round(MCMLE.samplesize.per_theta *
-  obs.MCMC.samplesize.mul), obs.MCMLE.samplesize = NULL,
+    obs.MCMC.samplesize.mul),
+  obs.MCMLE.samplesize = NULL,
   obs.MCMLE.interval = round(MCMLE.interval * obs.MCMC.interval.mul),
   obs.MCMLE.burnin = round(MCMLE.burnin * obs.MCMC.burnin.mul),
-  MCMLE.last.boost = 4, MCMLE.steplength.esteq = TRUE,
-  MCMLE.steplength.miss.sample = 100, MCMLE.steplength.maxit = if
-  (MCMLE.steplength.margin < 0) 5 else 25, MCMLE.steplength.min = 1e-04,
+  MCMLE.last.boost = 4,
+  MCMLE.steplength.esteq = TRUE,
+  MCMLE.steplength.miss.sample = 100,
+  MCMLE.steplength.maxit = if (MCMLE.steplength.margin < 0) 5 else 25,
+  MCMLE.steplength.min = 1e-04,
   MCMLE.effectiveSize.interval_drop = 2,
-  MCMLE.save_intermediates = NULL, SA.phase1_n = NULL,
-  SA.initial_gain = NULL, SA.nsubphases = 4, SA.niterations = NULL,
-  SA.phase3_n = NULL, SA.trustregion = 0.5, SA.interval = 1024,
-  SA.burnin = SA.interval * 16, SA.samplesize = 1024,
-  RM.phase1n_base = 7, RM.phase2n_base = 100, RM.phase2sub = 7,
-  RM.init_gain = 0.5, RM.phase3n = 500, RM.interval = 1024,
-  RM.burnin = RM.interval * 16, RM.samplesize = 1024,
-  Step.maxit = 50, Step.gridsize = 100, Step.interval = 1024,
-  Step.burnin = Step.interval * 16, Step.samplesize = 1024,
-  CD.samplesize.per_theta = 128, obs.CD.samplesize.per_theta = 128,
-  CD.nsteps = 8, CD.multiplicity = 1, CD.nsteps.obs = 128,
-  CD.multiplicity.obs = 1, CD.maxit = 60, CD.conv.min.pval = 0.5,
-  CD.NR.maxit = 100, CD.NR.reltol = sqrt(.Machine$double.eps),
-  CD.metric = c("naive", "lognormal", "logtaylor", "Median.Likelihood",
-  "EF.Likelihood"), CD.method = c("BFGS", "Nelder-Mead"),
-  CD.trustregion = 20, CD.dampening = FALSE,
-  CD.dampening.min.ess = 20, CD.dampening.level = 0.1,
-  CD.steplength.margin = 0.5, CD.steplength = 1,
-  CD.adaptive.trustregion = 3, CD.adaptive.epsilon = 0.01,
-  CD.steplength.esteq = TRUE, CD.steplength.miss.sample = 100,
-  CD.steplength.maxit = 25, CD.steplength.min = 1e-04,
+  MCMLE.save_intermediates = NULL,
+  SA.phase1_n = NULL,
+  SA.initial_gain = NULL,
+  SA.nsubphases = 4,
+  SA.niterations = NULL,
+  SA.phase3_n = NULL,
+  SA.trustregion = 0.5,
+  SA.interval = 1024,
+  SA.burnin = SA.interval * 16,
+  SA.samplesize = 1024,
+  RM.phase1n_base = 7,
+  RM.phase2n_base = 100,
+  RM.phase2sub = 7,
+  RM.init_gain = 0.5,
+  RM.phase3n = 500,
+  RM.interval = 1024,
+  RM.burnin = RM.interval * 16,
+  RM.samplesize = 1024,
+  Step.maxit = 50,
+  Step.gridsize = 100,
+  Step.interval = 1024,
+  Step.burnin = Step.interval * 16,
+  Step.samplesize = 1024,
+  CD.samplesize.per_theta = 128,
+  obs.CD.samplesize.per_theta = 128,
+  CD.nsteps = 8,
+  CD.multiplicity = 1,
+  CD.nsteps.obs = 128,
+  CD.multiplicity.obs = 1,
+  CD.maxit = 60,
+  CD.conv.min.pval = 0.5,
+  CD.NR.maxit = 100,
+  CD.NR.reltol = sqrt(.Machine$double.eps),
+  CD.metric = c("naive", "lognormal", "logtaylor", "Median.Likelihood", "EF.Likelihood"),
+  CD.method = c("BFGS", "Nelder-Mead"),
+  CD.trustregion = 20,
+  CD.dampening = FALSE,
+  CD.dampening.min.ess = 20,
+  CD.dampening.level = 0.1,
+  CD.steplength.margin = 0.5,
+  CD.steplength = 1,
+  CD.adaptive.trustregion = 3,
+  CD.adaptive.epsilon = 0.01,
+  CD.steplength.esteq = TRUE,
+  CD.steplength.miss.sample = 100,
+  CD.steplength.maxit = 25,
+  CD.steplength.min = 1e-04,
   CD.steplength.parallel = c("observational", "always", "never"),
-  loglik.control = control.logLik.ergm(), term.options = NULL,
-  seed = NULL, parallel = 0, parallel.type = NULL,
-  parallel.version.check = TRUE, parallel.inherit.MT = FALSE, ...)
+  loglik.control = control.logLik.ergm(),
+  term.options = NULL,
+  seed = NULL,
+  parallel = 0,
+  parallel.type = NULL,
+  parallel.version.check = TRUE,
+  parallel.inherit.MT = FALSE,
+  ...
+)
 }
 \arguments{
 \item{drop}{Logical: If TRUE, terms whose observed statistic values are at
@@ -132,7 +200,7 @@ appropriate length and \code{"CD"} for contrastive divergence. If
 passed explicitly, this setting overrides the reference's
 limitations.
 
-Valid initial methods for a given reference are set by the \code{InitErgmReference.*} function.}
+Valid initial methods for a given reference are set by the \verb{InitErgmReference.*} function.}
 
 \item{main.method}{One of "MCMLE" (default),"Robbins-Monro",
 "Stochastic-Approximation", or "Stepping".  Chooses the estimation method
@@ -449,7 +517,7 @@ whose number of edges is exceeds the observed network by more than
 \code{MCMLE.density.guard}, the optimization process will be stopped with an
 error.}
 
-\item{MCMLE.effectiveSize, MCMLE.effectiveSize.interval_drop, MCMLE.burnin, MCMLE.interval, MCMLE.samplesize, MCMLE.samplesize.per_theta}{Sets the corresponding \code{MCMC.*} parameters when \code{main.method="MCMLE"} (the
+\item{MCMLE.effectiveSize, MCMLE.effectiveSize.interval_drop, MCMLE.burnin, MCMLE.interval, MCMLE.samplesize, MCMLE.samplesize.per_theta}{Sets the corresponding \verb{MCMC.*} parameters when \code{main.method="MCMLE"} (the
 default). Used because defaults may be different for different
 methods. \code{MCMLE.samplesize.per_theta} controls the MCMC sample
 size (not target effective size) as a function of the number of
@@ -457,7 +525,7 @@ size (not target effective size) as a function of the number of
 
 \item{obs.MCMLE.effectiveSize, obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.mul, obs.MCMC.samplesize.mul, obs.MCMC.burnin.mul, obs.MCMC.interval.mul, obs.MCMC.effectiveSize, obs.MCMLE.burnin, obs.MCMLE.interval, obs.MCMLE.samplesize, obs.MCMLE.samplesize.per_theta}{Sample size, burnin, and interval parameters for the MCMC
 sampling used when unobserved data are present in the estimation
-routine. By default, they are controlled by the \code{*.mul}
+routine. By default, they are controlled by the \verb{*.mul}
 parameters, as fractions of the corresponding settings for the
 unconstrained (standard) MCMC.
 
@@ -526,12 +594,12 @@ stochastic approximation algorithm.  See Snijders (2002) for details.}
 functions, used in the stochastic approximation algorithm.}
 
 \item{SA.burnin, SA.interval, SA.samplesize}{Sets the corresponding
-\code{MCMC.*} parameters when \code{main.method="Stochastic-Approximation"}.}
+\verb{MCMC.*} parameters when \code{main.method="Stochastic-Approximation"}.}
 
 \item{RM.phase1n_base, RM.phase2n_base, RM.phase2sub, RM.init_gain, RM.phase3n}{The Robbins-Monro control parameters are not yet documented.}
 
 \item{RM.burnin, RM.interval, RM.samplesize}{Sets the corresponding
-\code{MCMC.*} parameters when \code{main.method="Robbins-Monro"}.}
+\verb{MCMC.*} parameters when \code{main.method="Robbins-Monro"}.}
 
 \item{Step.maxit}{Maximum number of iterations (steps) allowed by the
 "Stepping" method.}
@@ -541,11 +609,11 @@ optimization chooses a step length equal to the largest possible multiple of
 \eqn{1/N}.  See Hummel et al. (2012) for details.}
 
 \item{Step.burnin, Step.interval, Step.samplesize}{Sets the corresponding
-\code{MCMC.*} parameters when \code{main.method="Stepping"}.}
+\verb{MCMC.*} parameters when \code{main.method="Stepping"}.}
 
 \item{CD.samplesize.per_theta, obs.CD.samplesize.per_theta, CD.maxit, CD.conv.min.pval, CD.NR.maxit, CD.NR.reltol, CD.metric, CD.method, CD.trustregion, CD.dampening, CD.dampening.min.ess, CD.dampening.level, CD.steplength.margin, CD.steplength, CD.steplength.parallel, CD.adaptive.trustregion, CD.adaptive.epsilon, CD.steplength.esteq, CD.steplength.miss.sample, CD.steplength.maxit, CD.steplength.min}{Miscellaneous tuning parameters of the CD sampler and
-optimizer. These have the same meaning as their \code{MCMLE.*} and
-\code{MCMC.*} counterparts.
+optimizer. These have the same meaning as their \verb{MCMLE.*} and
+\verb{MCMC.*} counterparts.
 
 Note that only the Hotelling's stopping criterion is implemented
 for CD.}

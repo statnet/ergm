@@ -4,8 +4,14 @@
 \alias{approx.hotelling.diff.test}
 \title{Approximate Hotelling T^2-Test for One or Two Population Means}
 \usage{
-approx.hotelling.diff.test(x, y = NULL, mu0 = 0,
-  assume.indep = FALSE, var.equal = FALSE, ...)
+approx.hotelling.diff.test(
+  x,
+  y = NULL,
+  mu0 = 0,
+  assume.indep = FALSE,
+  var.equal = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{a numeric matrix of data values with cases in rows and
@@ -27,7 +33,7 @@ assume population variance-covariance matrices of the two
 variables are equal.}
 
 \item{...}{additional arguments, passed on to \code{\link[=spectrum0.mvar]{spectrum0.mvar()}},
-etc.; in particular, \code{order.max=} can be used to limit the order
+etc.; in particular, \verb{order.max=} can be used to limit the order
 of the AR model used to estimate the effective sample size.}
 }
 \value{

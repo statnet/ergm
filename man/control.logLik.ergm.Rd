@@ -4,15 +4,26 @@
 \alias{control.logLik.ergm}
 \title{Auxiliary for Controlling logLik.ergm}
 \usage{
-control.logLik.ergm(nsteps = 20, MCMC.burnin = NULL,
-  MCMC.interval = NULL, MCMC.samplesize = NULL,
+control.logLik.ergm(
+  nsteps = 20,
+  MCMC.burnin = NULL,
+  MCMC.interval = NULL,
+  MCMC.samplesize = NULL,
   obs.MCMC.samplesize = MCMC.samplesize,
-  obs.MCMC.interval = MCMC.interval, obs.MCMC.burnin = MCMC.burnin,
-  MCMC.prop.weights = NULL, MCMC.prop.args = NULL, warn.dyads = NULL,
-  MCMC.init.maxedges = NULL, MCMC.packagenames = NULL,
-  term.options = NULL, seed = NULL, parallel = NULL,
-  parallel.type = NULL, parallel.version.check = TRUE,
-  parallel.inherit.MT = FALSE)
+  obs.MCMC.interval = MCMC.interval,
+  obs.MCMC.burnin = MCMC.burnin,
+  MCMC.prop.weights = NULL,
+  MCMC.prop.args = NULL,
+  warn.dyads = NULL,
+  MCMC.init.maxedges = NULL,
+  MCMC.packagenames = NULL,
+  term.options = NULL,
+  seed = NULL,
+  parallel = NULL,
+  parallel.type = NULL,
+  parallel.version.check = TRUE,
+  parallel.inherit.MT = FALSE
+)
 }
 \arguments{
 \item{nsteps}{Number of geometric bridges to use.}

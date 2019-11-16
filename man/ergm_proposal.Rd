@@ -11,16 +11,37 @@
 \usage{
 ergm_proposal(object, ...)
 
-\method{ergm_proposal}{character}(object, arguments, nw, ...,
-  response = NULL, reference = reference)
+\method{ergm_proposal}{character}(
+  object,
+  arguments,
+  nw,
+  ...,
+  response = NULL,
+  reference = reference
+)
 
-\method{ergm_proposal}{formula}(object, arguments, nw,
-  weights = "default", class = "c", reference = ~Bernoulli,
-  response = NULL, ...)
+\method{ergm_proposal}{formula}(
+  object,
+  arguments,
+  nw,
+  weights = "default",
+  class = "c",
+  reference = ~Bernoulli,
+  response = NULL,
+  ...
+)
 
-\method{ergm_proposal}{ergm}(object, ..., constraints = NULL,
-  arguments = NULL, nw = NULL, weights = NULL, class = "c",
-  reference = NULL, response = NULL)
+\method{ergm_proposal}{ergm}(
+  object,
+  ...,
+  constraints = NULL,
+  arguments = NULL,
+  nw = NULL,
+  weights = NULL,
+  class = "c",
+  reference = NULL,
+  response = NULL
+)
 }
 \arguments{
 \item{object}{Either a character, a \code{\link{formula}} or an
@@ -71,7 +92,7 @@ the \code{InitErgmProposal} function; in particular,
 }
 \description{
 S3 Functions that initialize the Metropolis-Hastings Proposal (ergm_proposal)
-object using the \code{InitErgmProposal.*} function that corresponds to the name given in
+object using the \verb{InitErgmProposal.*} function that corresponds to the name given in
 'object'.  These functions are not generally called directly by the user.
 See \link{ergm-proposals} for general explanation and lists of available
 Metropolis-Hastings proposal types.

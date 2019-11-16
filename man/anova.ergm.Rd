@@ -7,8 +7,7 @@
 \usage{
 \method{anova}{ergm}(object, ..., eval.loglik = FALSE)
 
-\method{anova}{ergmlist}(object, ..., eval.loglik = FALSE, scale = 0,
-  test = "F")
+\method{anova}{ergmlist}(object, ..., eval.loglik = FALSE, scale = 0, test = "F")
 }
 \arguments{
 \item{object, ...}{objects of class \code{\link{ergm}}, usually, a result of a

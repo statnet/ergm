@@ -4,15 +4,27 @@
 \alias{control.san}
 \title{Auxiliary for Controlling SAN}
 \usage{
-control.san(SAN.maxit = 4, SAN.tau = 1, SAN.invcov = NULL,
-  SAN.invcov.diag = FALSE, SAN.nsteps.alloc = function(nsim)
-  2^seq_len(nsim), SAN.nsteps = 2^19, SAN.samplesize = 2^12,
-  SAN.init.maxedges = 20000, SAN.max.maxedges = 2^26,
-  SAN.prop.weights = "default", SAN.prop.args = list(),
-  SAN.packagenames = c(), SAN.ignore.finite.offsets = TRUE,
-  term.options = list(), seed = NULL, parallel = 0,
-  parallel.type = NULL, parallel.version.check = TRUE,
-  parallel.inherit.MT = FALSE)
+control.san(
+  SAN.maxit = 4,
+  SAN.tau = 1,
+  SAN.invcov = NULL,
+  SAN.invcov.diag = FALSE,
+  SAN.nsteps.alloc = function(nsim) 2^seq_len(nsim),
+  SAN.nsteps = 2^19,
+  SAN.samplesize = 2^12,
+  SAN.init.maxedges = 20000,
+  SAN.max.maxedges = 2^26,
+  SAN.prop.weights = "default",
+  SAN.prop.args = list(),
+  SAN.packagenames = c(),
+  SAN.ignore.finite.offsets = TRUE,
+  term.options = list(),
+  seed = NULL,
+  parallel = 0,
+  parallel.type = NULL,
+  parallel.version.check = TRUE,
+  parallel.inherit.MT = FALSE
+)
 }
 \arguments{
 \item{SAN.maxit}{Number of temperature levels to use.}
@@ -21,7 +33,7 @@ control.san(SAN.maxit = 4, SAN.tau = 1, SAN.invcov = NULL,
 process during the \emph{penultimate} iteration. (During the last
 iteration, the temperature is set to 0, resulting in a greedy
 search, and during the previous iterations, the temperature is
-set to \code{SAN.tau*(iterations left after this one)}.}
+set to \verb{SAN.tau*(iterations left after this one)}.}
 
 \item{SAN.invcov}{Initial inverse covariance matrix used to
 calculate Mahalanobis distance in determining how far a proposed

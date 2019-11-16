@@ -23,7 +23,7 @@ call.}
 \item{value}{value with which to overwrite the setting.}
 }
 \description{
-\code{\%ergmlhs\%} extracts the setting, while assigning to
+\verb{\%ergmlhs\%} extracts the setting, while assigning to
 it sets or updates it.
 }
 \details{
@@ -32,11 +32,11 @@ network attribute attached to the LHS network. Currently
 understood settings include: \describe{
 
 \item{\code{constraints}}{Structural constraints of the network:
-inherited by the \code{constraints=} argument of \code{\link[=ergm]{ergm()}},
+inherited by the \verb{constraints=} argument of \code{\link[=ergm]{ergm()}},
 \code{\link[=simulate.formula]{simulate.formula()}}, etc..}
 
 \item{\code{obs.constraints}}{Structural constraints of the
-observation process: inherited by the \code{obs.constraints=} argument
+observation process: inherited by the \verb{obs.constraints=} argument
 of \code{\link[=ergm]{ergm()}}, \code{\link[=simulate.formula]{simulate.formula()}}, etc..}
 
 }

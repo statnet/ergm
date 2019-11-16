@@ -4,11 +4,20 @@
 \alias{check.ErgmTerm}
 \title{Ensures an Ergm Term and its Arguments Meet Appropriate Conditions}
 \usage{
-check.ErgmTerm(nw, arglist, directed = NULL, bipartite = NULL,
-  nonnegative = FALSE, varnames = NULL, vartypes = NULL,
-  defaultvalues = list(), required = NULL, response = NULL,
-  dep.inform = rep(FALSE, length(required)), dep.warn = rep(FALSE,
-  length(required)))
+check.ErgmTerm(
+  nw,
+  arglist,
+  directed = NULL,
+  bipartite = NULL,
+  nonnegative = FALSE,
+  varnames = NULL,
+  vartypes = NULL,
+  defaultvalues = list(),
+  required = NULL,
+  response = NULL,
+  dep.inform = rep(FALSE, length(required)),
+  dep.warn = rep(FALSE, length(required))
+)
 }
 \arguments{
 \item{nw}{the network that term X is being checked against}

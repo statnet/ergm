@@ -4,8 +4,13 @@
 \alias{spectrum0.mvar}
 \title{Multivariate version of \code{coda}'s \code{\link[=spectrum0.ar]{spectrum0.ar()}}.}
 \usage{
-spectrum0.mvar(x, order.max = NULL, aic = is.null(order.max),
-  tol = .Machine$double.eps^0.5, ...)
+spectrum0.mvar(
+  x,
+  order.max = NULL,
+  aic = is.null(order.max),
+  tol = .Machine$double.eps^0.5,
+  ...
+)
 }
 \arguments{
 \item{x}{a matrix with observations in rows and variables in

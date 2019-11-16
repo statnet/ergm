@@ -12,11 +12,20 @@
 \alias{vcov.ergm}
 \title{Exponential-Family Random Graph Models}
 \usage{
-ergm(formula, response = NULL, reference = ~Bernoulli,
-  constraints = ~., obs.constraints = ~. - observed,
-  offset.coef = NULL, target.stats = NULL,
-  eval.loglik = getOption("ergm.eval.loglik"), estimate = c("MLE",
-  "MPLE", "CD"), control = control.ergm(), verbose = FALSE, ...)
+ergm(
+  formula,
+  response = NULL,
+  reference = ~Bernoulli,
+  constraints = ~.,
+  obs.constraints = ~. - observed,
+  offset.coef = NULL,
+  target.stats = NULL,
+  eval.loglik = getOption("ergm.eval.loglik"),
+  estimate = c("MLE", "MPLE", "CD"),
+  control = control.ergm(),
+  verbose = FALSE,
+  ...
+)
 
 is.ergm(object)
 
@@ -28,8 +37,7 @@ is.ergm(object)
 
 \method{coefficients}{ergm}(object, ...)
 
-\method{vcov}{ergm}(object, sources = c("all", "model", "estimation"),
-  ...)
+\method{vcov}{ergm}(object, sources = c("all", "model", "estimation"), ...)
 }
 \arguments{
 \item{formula}{{An \R \code{\link{formula}} object, of the form
@@ -244,12 +252,6 @@ on the MCMC random sample.}
 \item{degeneracy.value}{Score calculated to assess the degree of
 degeneracy in the model. Only shows when MCMLE.check.degeneracy is TRUE in \code{control.ergm}. }
 \item{degeneracy.type}{Supporting output for \code{degeneracy.value}. Only shows when MCMLE.check.degeneracy is TRUE in \code{control.ergm}. Mainly for internal use.}
-
-See the method \code{\link{print.ergm}} for details on how
-an \code{\link{ergm}} object is printed.  Note that the
-method \code{\link{summary.ergm}} returns a summary of the
-relevant parts of the \code{\link{ergm}} object in concise summary
-format.
 }
 \description{
 \code{\link{ergm}} is used to fit exponential-family random graph
@@ -439,7 +441,7 @@ Random Graph Models to Investigate Adolescent Social Networks.
 
 Handcock, M. S. (2003)
 \emph{Assessing Degeneracy in Statistical Models of Social Networks},
-Working Paper #39,
+Working Paper \#39,
 Center for Statistics and the Social Sciences,
 University of Washington.
 \url{https://www.csss.washington.edu/Papers/wp39.pdf}
@@ -474,7 +476,7 @@ Exponential-Family Models for Networks.
 \emph{Journal of Statistical Software}, 24(3).
 \url{https://www.jstatsoft.org/v24/i03/}.
 
-Karwa V, Krivitsky PN, and Slavkovi'{c} AB (2017). Sharing Social Network
+Karwa V, Krivitsky PN, and Slavkovi\'{c} AB (2017). Sharing Social Network
 Data: Differentially Private Estimation of Exponential-Family Random
 Graph Models. \emph{Journal of the Royal Statistical Society, Series
 C}, 66(3):481--500. \doi{10.1111/rssc.12185}
@@ -496,7 +498,7 @@ Available from
 \url{https://www.cmu.edu/joss/content/articles/volume3/Snijders.pdf}.
 }
 \seealso{
-network, \%v\%, \%n\%, \code{\link{ergm-terms}}, \code{\link{ergmMPLE}},
-\code{\link{summary.ergm}}, \code{\link{print.ergm}}
+\code{\link{network}}, \code{\link{\%v\%}}, \code{\link{\%n\%}}, \link{ergm-terms}, \code{\link{ergmMPLE}},
+\code{\link[=summary.ergm]{summary.ergm()}}
 }
 \keyword{models}

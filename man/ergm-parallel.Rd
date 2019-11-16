@@ -17,8 +17,7 @@
 \alias{nthreads.control.list}
 \title{Parallel Processing in the \code{ergm} Package}
 \usage{
-ergm.getCluster(control = NULL, verbose = FALSE,
-  stop_on_exit = parent.frame())
+ergm.getCluster(control = NULL, verbose = FALSE, stop_on_exit = parent.frame())
 
 ergm.stopCluster(..., verbose = FALSE)
 
@@ -32,7 +31,7 @@ nthreads(clinfo = NULL, ...)
 
 \method{nthreads}{cluster}(clinfo = NULL, ...)
 
-\method{nthreads}{NULL}(clinfo = NULL, ...)
+\method{nthreads}{`NULL`}(clinfo = NULL, ...)
 
 \method{nthreads}{control.list}(clinfo = NULL, ...)
 }
@@ -119,7 +118,7 @@ whether it is worthwhile.}}
 Generally, the two approaches should not be used at the same time
 without caution. In particular, by default, cluster slave nodes
 will not \dQuote{inherit} the multithreading setting; but
-\code{parallel.inherit.MT=} control parameter can override that. Their
+\verb{parallel.inherit.MT=} control parameter can override that. Their
 relative advantages and disadvantages are as follows:
 \itemize{
 \item Multithreading terms cannot take advantage of clusters but only

@@ -5,13 +5,34 @@
 \alias{ergm_MCMC_slave}
 \title{Internal Function to Sample Networks and Network Statistics}
 \usage{
-ergm_MCMC_sample(nw, model, proposal, control, theta = NULL,
-  response = NULL, update.nws = TRUE, verbose = FALSE, ...,
-  eta = ergm.eta(theta, model$etamap), stats0 = NULL)
+ergm_MCMC_sample(
+  nw,
+  model,
+  proposal,
+  control,
+  theta = NULL,
+  response = NULL,
+  update.nws = TRUE,
+  verbose = FALSE,
+  ...,
+  eta = ergm.eta(theta, model$etamap),
+  stats0 = NULL
+)
 
-ergm_MCMC_slave(Clist, proposal, eta, control, verbose, ...,
-  prev.run = NULL, burnin = NULL, samplesize = NULL,
-  interval = NULL, maxedges = NULL, stats0 = numeric(Clist$nstats))
+ergm_MCMC_slave(
+  Clist,
+  proposal,
+  eta,
+  control,
+  verbose,
+  ...,
+  prev.run = NULL,
+  burnin = NULL,
+  samplesize = NULL,
+  interval = NULL,
+  maxedges = NULL,
+  stats0 = numeric(Clist$nstats)
+)
 }
 \arguments{
 \item{nw}{a \code{\link{network}} (or \code{\link{pending_update_network}}) object representing the sampler state.}

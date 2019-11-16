@@ -5,16 +5,32 @@
 \alias{summary.ergm}
 \title{Summarizing ERGM Model Fits}
 \usage{
-\method{print}{summary.ergm}(x, digits = max(3, getOption("digits") - 3),
-  correlation = FALSE, covariance = FALSE,
-  signif.stars = getOption("show.signif.stars"), eps.Pvalue = 1e-04,
-  print.header = TRUE, print.formula = TRUE, print.fitinfo = TRUE,
-  print.coefmat = TRUE, print.message = TRUE, print.deviances = TRUE,
-  print.drop = TRUE, print.offset = TRUE, print.degeneracy = TRUE,
-  ...)
+\method{print}{summary.ergm}(
+  x,
+  digits = max(3, getOption("digits") - 3),
+  correlation = FALSE,
+  covariance = FALSE,
+  signif.stars = getOption("show.signif.stars"),
+  eps.Pvalue = 1e-04,
+  print.header = TRUE,
+  print.formula = TRUE,
+  print.fitinfo = TRUE,
+  print.coefmat = TRUE,
+  print.message = TRUE,
+  print.deviances = TRUE,
+  print.drop = TRUE,
+  print.offset = TRUE,
+  print.degeneracy = TRUE,
+  ...
+)
 
-\method{summary}{ergm}(object, ..., correlation = FALSE,
-  covariance = FALSE, total.variation = TRUE)
+\method{summary}{ergm}(
+  object,
+  ...,
+  correlation = FALSE,
+  covariance = FALSE,
+  total.variation = TRUE
+)
 }
 \arguments{
 \item{x}{object of class \code{summary.ergm} returned by
@@ -52,8 +68,8 @@ The function \code{\link{summary.ergm}} computes and
 returns a list of summary statistics of the fitted
 \code{\link{ergm}} model given in \code{object}. Note that for
 backwards compatibility, it returns two coefficient tables:
-\code{$coefs} which does not contain the z-statistics and
-\code{$coefficeints} which does (and is therefore more similar to
+\verb{$coefs} which does not contain the z-statistics and
+\verb{$coefficeints} which does (and is therefore more similar to
 those returned by \code{\link[=summary.lm]{summary.lm()}}).
 }
 \description{

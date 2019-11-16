@@ -59,8 +59,8 @@
 #' the model containing \describe{
 #' \item{`from`}{ the indices of the curved theta parameter that are to be mapped from}
 #' \item{`to`}{ the indices of the canonical eta parameters to be mapped to}
-#' \item{`map`}{ the map provided by <InitErgmTerm>}
-#' \item{`gradient`}{ the gradient function provided by \link{InitErgmTerm}}
+#' \item{`map`}{ the map provided by [`InitErgmTerm`]}
+#' \item{`gradient`}{ the gradient function provided by [`InitErgmTerm`]}
 #' \item{`cov`}{ optional additional covariates to be passed to the map and the gradient functions }
 #' \item{`etalength`}{ the length of the eta vector}
 #' }

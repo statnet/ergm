@@ -11,7 +11,7 @@ into an \code{\link{rlebdm}} object}
 \item{x}{an \code{\link{ergm}} fit.}
 
 \item{...}{additional arguments passed on to
-\code{\link[=as.rlebdm.ergm_conlist]{as.rlebdm.ergm_conlist()}}; note, in particular, the \code{which=}
+\code{\link[=as.rlebdm.ergm_conlist]{as.rlebdm.ergm_conlist()}}; note, in particular, the \verb{which=}
 argument.}
 }
 \description{

@@ -11,24 +11,52 @@ statistics}
 \usage{
 san(object, ...)
 
-\method{san}{formula}(object, response = NULL, reference = ~Bernoulli,
-  constraints = ~., target.stats = NULL, nsim = NULL, basis = NULL,
+\method{san}{formula}(
+  object,
+  response = NULL,
+  reference = ~Bernoulli,
+  constraints = ~.,
+  target.stats = NULL,
+  nsim = NULL,
+  basis = NULL,
   output = c("network", "edgelist", "pending_update_network"),
-  only.last = TRUE, control = control.san(), verbose = FALSE,
-  offset.coef = NULL, ...)
+  only.last = TRUE,
+  control = control.san(),
+  verbose = FALSE,
+  offset.coef = NULL,
+  ...
+)
 
-\method{san}{ergm_model}(object, response = NULL,
-  reference = ~Bernoulli, constraints = ~., target.stats = NULL,
-  nsim = NULL, basis = NULL, output = c("network", "edgelist",
-  "pending_update_network"), only.last = TRUE, control = control.san(),
-  verbose = FALSE, offset.coef = NULL, ...)
+\method{san}{ergm_model}(
+  object,
+  response = NULL,
+  reference = ~Bernoulli,
+  constraints = ~.,
+  target.stats = NULL,
+  nsim = NULL,
+  basis = NULL,
+  output = c("network", "edgelist", "pending_update_network"),
+  only.last = TRUE,
+  control = control.san(),
+  verbose = FALSE,
+  offset.coef = NULL,
+  ...
+)
 
-\method{san}{ergm}(object, formula = object$formula,
-  constraints = object$constraints, target.stats = object$target.stats,
-  nsim = NULL, basis = NULL, output = c("network", "edgelist",
-  "pending_update_network"), only.last = TRUE,
-  control = object$control$SAN.control, verbose = FALSE,
-  offset.coef = object$coef[object$offset], ...)
+\method{san}{ergm}(
+  object,
+  formula = object$formula,
+  constraints = object$constraints,
+  target.stats = object$target.stats,
+  nsim = NULL,
+  basis = NULL,
+  output = c("network", "edgelist", "pending_update_network"),
+  only.last = TRUE,
+  control = object$control$SAN.control,
+  verbose = FALSE,
+  offset.coef = object$coef[object$offset],
+  ...
+)
 }
 \arguments{
 \item{object}{Either a \code{\link{formula}} or an \code{\link{ergm}} object. The

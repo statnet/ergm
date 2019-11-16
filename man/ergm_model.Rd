@@ -14,8 +14,16 @@
 \alias{param_names.ergm_model}
 \title{Internal representation of an \code{ergm} network model}
 \usage{
-ergm_model(formula, nw = NULL, response = NULL, silent = FALSE,
-  role = "static", ..., term.options = list(), extra.aux = list())
+ergm_model(
+  formula,
+  nw = NULL,
+  response = NULL,
+  silent = FALSE,
+  role = "static",
+  ...,
+  term.options = list(),
+  extra.aux = list()
+)
 
 \method{c}{ergm_model}(...)
 
@@ -31,8 +39,7 @@ as.ergm_model(x, ...)
 
 \method{is.dyad.independent}{ergm_model}(object, ...)
 
-\method{nparam}{ergm_model}(object, canonical = FALSE, offset = NA,
-  byterm = FALSE, ...)
+\method{nparam}{ergm_model}(object, canonical = FALSE, offset = NA, byterm = FALSE, ...)
 
 \method{param_names}{ergm_model}(object, canonical = FALSE, ...)
 }
