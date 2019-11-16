@@ -12,8 +12,13 @@ network.list(object, ...)
 
 \method{print}{network.list}(x, stats.print = FALSE, ...)
 
-\method{summary}{network.list}(object, stats.print = TRUE,
-  net.print = FALSE, net.summary = FALSE, ...)
+\method{summary}{network.list}(
+  object,
+  stats.print = TRUE,
+  net.print = FALSE,
+  net.summary = FALSE,
+  ...
+)
 }
 \arguments{
 \item{object, x}{a \code{list} of networks or a \code{network.list} object.}

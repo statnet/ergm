@@ -290,13 +290,7 @@
 #' \item{degeneracy.value}{Score calculated to assess the degree of 
 #' degeneracy in the model. Only shows when MCMLE.check.degeneracy is TRUE in \code{control.ergm}. }
 #' \item{degeneracy.type}{Supporting output for \code{degeneracy.value}. Only shows when MCMLE.check.degeneracy is TRUE in \code{control.ergm}. Mainly for internal use.}
-#' 
-#' See the method \code{\link{print.ergm}} for details on how
-#' an \code{\link{ergm}} object is printed.  Note that the
-#' method \code{\link{summary.ergm}} returns a summary of the
-#' relevant parts of the \code{\link{ergm}} object in concise summary
-#' format.
-#' 
+#'
 #' @section Notes on model specification:
 #' Although each of the statistics in a given model is a summary
 #' statistic for the entire network, it is rarely necessary to
@@ -418,8 +412,8 @@
 #' Available from 
 #' \url{https://www.cmu.edu/joss/content/articles/volume3/Snijders.pdf}.
 #' 
-#' @seealso network, \%v\%, \%n\%, \code{\link{ergm-terms}}, \code{\link{ergmMPLE}},
-#' \code{\link{summary.ergm}}, \code{\link{print.ergm}}
+#' @seealso [`network`], [`%v%`], [`%n%`], [ergm-terms], [`ergmMPLE`],
+#' [summary.ergm()]
 #' 
 #' @examples
 #' \donttest{
@@ -445,7 +439,7 @@
 #' # create a vector indicating the wealth of each family (in thousands of lira) 
 #' # and add it as a covariate to the network object
 #' #
-#' flomarriage %v% "wealth" <- c(10,36,27,146,55,44,20,8,42,103,48,49,10,48,32,3)
+#' flomarriage \%v\% "wealth" <- c(10,36,27,146,55,44,20,8,42,103,48,49,10,48,32,3)
 #' flomarriage
 #' #
 #' # create a plot of the social network
@@ -454,7 +448,7 @@
 #' #
 #' # now make the vertex size proportional to their wealth
 #' #
-#' plot(flomarriage, vertex.cex=flomarriage %v% "wealth" / 20, main="Marriage Ties")
+#' plot(flomarriage, vertex.cex=flomarriage \%v\% "wealth" / 20, main="Marriage Ties")
 #' #
 #' # Use 'data(package = "ergm")' to list the data sets in a
 #' #
@@ -479,7 +473,7 @@
 #' # import synthetic network that looks like a molecule
 #' data(molecule)
 #' # Add a attribute to it to mimic the atomic type
-#' molecule %v% "atomic type" <- c(1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3)
+#' molecule \%v\% "atomic type" <- c(1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3)
 #' #
 #' # create a plot of the social network
 #' # colored by atomic type

@@ -9,7 +9,7 @@
 \usage{
 is.curved(object, ...)
 
-\method{is.curved}{NULL}(object, ...)
+\method{is.curved}{`NULL`}(object, ...)
 
 \method{is.curved}{formula}(object, response = NULL, basis = NULL, ...)
 

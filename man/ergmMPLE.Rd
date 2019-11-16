@@ -4,9 +4,16 @@
 \alias{ergmMPLE}
 \title{ERGM Predictors and response for logistic regression calculation of MPLE}
 \usage{
-ergmMPLE(formula, constraints = ~., fitmodel = FALSE,
-  output = c("matrix", "array", "fit"), as.initialfit = TRUE,
-  control = control.ergm(), verbose = FALSE, ...)
+ergmMPLE(
+  formula,
+  constraints = ~.,
+  fitmodel = FALSE,
+  output = c("matrix", "array", "fit"),
+  as.initialfit = TRUE,
+  control = control.ergm(),
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{formula, constraints}{An ERGM formula and a constraint formula. See \code{\link{ergm}}.}

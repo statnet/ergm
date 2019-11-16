@@ -7,33 +7,69 @@
 \alias{control.simulate.formula}
 \title{Auxiliary for Controlling ERGM Simulation}
 \usage{
-control.simulate.formula.ergm(MCMC.burnin = 10000,
-  MCMC.interval = 1000, MCMC.prop.weights = "default",
-  MCMC.prop.args = list(), MCMC.init.maxedges = 20000,
-  MCMC.packagenames = c(), MCMC.runtime.traceplot = FALSE,
-  network.output = "network", term.options = NULL, parallel = 0,
-  parallel.type = NULL, parallel.version.check = TRUE, ...)
+control.simulate.formula.ergm(
+  MCMC.burnin = 10000,
+  MCMC.interval = 1000,
+  MCMC.prop.weights = "default",
+  MCMC.prop.args = list(),
+  MCMC.init.maxedges = 20000,
+  MCMC.packagenames = c(),
+  MCMC.runtime.traceplot = FALSE,
+  network.output = "network",
+  term.options = NULL,
+  parallel = 0,
+  parallel.type = NULL,
+  parallel.version.check = TRUE,
+  ...
+)
 
-control.simulate(MCMC.burnin = 10000, MCMC.interval = 1000,
-  MCMC.prop.weights = "default", MCMC.prop.args = list(),
-  MCMC.init.maxedges = 20000, MCMC.packagenames = c(),
-  MCMC.runtime.traceplot = FALSE, network.output = "network",
-  term.options = NULL, parallel = 0, parallel.type = NULL,
-  parallel.version.check = TRUE, ...)
+control.simulate(
+  MCMC.burnin = 10000,
+  MCMC.interval = 1000,
+  MCMC.prop.weights = "default",
+  MCMC.prop.args = list(),
+  MCMC.init.maxedges = 20000,
+  MCMC.packagenames = c(),
+  MCMC.runtime.traceplot = FALSE,
+  network.output = "network",
+  term.options = NULL,
+  parallel = 0,
+  parallel.type = NULL,
+  parallel.version.check = TRUE,
+  ...
+)
 
-control.simulate.formula(MCMC.burnin = 10000, MCMC.interval = 1000,
-  MCMC.prop.weights = "default", MCMC.prop.args = list(),
-  MCMC.init.maxedges = 20000, MCMC.packagenames = c(),
-  MCMC.runtime.traceplot = FALSE, network.output = "network",
-  term.options = NULL, parallel = 0, parallel.type = NULL,
-  parallel.version.check = TRUE, ...)
+control.simulate.formula(
+  MCMC.burnin = 10000,
+  MCMC.interval = 1000,
+  MCMC.prop.weights = "default",
+  MCMC.prop.args = list(),
+  MCMC.init.maxedges = 20000,
+  MCMC.packagenames = c(),
+  MCMC.runtime.traceplot = FALSE,
+  network.output = "network",
+  term.options = NULL,
+  parallel = 0,
+  parallel.type = NULL,
+  parallel.version.check = TRUE,
+  ...
+)
 
-control.simulate.ergm(MCMC.burnin = NULL, MCMC.interval = NULL,
-  MCMC.prop.weights = NULL, MCMC.prop.args = NULL,
-  MCMC.init.maxedges = NULL, MCMC.packagenames = NULL,
-  MCMC.runtime.traceplot = FALSE, network.output = "network",
-  term.options = NULL, parallel = 0, parallel.type = NULL,
-  parallel.version.check = TRUE, ...)
+control.simulate.ergm(
+  MCMC.burnin = NULL,
+  MCMC.interval = NULL,
+  MCMC.prop.weights = NULL,
+  MCMC.prop.args = NULL,
+  MCMC.init.maxedges = NULL,
+  MCMC.packagenames = NULL,
+  MCMC.runtime.traceplot = FALSE,
+  network.output = "network",
+  term.options = NULL,
+  parallel = 0,
+  parallel.type = NULL,
+  parallel.version.check = TRUE,
+  ...
+)
 }
 \arguments{
 \item{MCMC.burnin}{Number of proposals before any MCMC sampling is done. It

@@ -4,8 +4,7 @@
 \alias{ergm_proposal_table}
 \title{Table mapping reference,constraints, etc. to ERGM Metropolis-Hastings proposals}
 \usage{
-ergm_proposal_table(Class, Reference, Constraints, Priority, Weights,
-  Proposal)
+ergm_proposal_table(Class, Reference, Constraints, Priority, Weights, Proposal)
 }
 \arguments{
 \item{Class}{default to "c"}

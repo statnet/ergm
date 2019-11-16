@@ -6,16 +6,41 @@
 \alias{ergm.bridge.dindstart.llk}
 \title{Bridge sampling to evaluate ERGM log-likelihoods and log-likelihood ratios}
 \usage{
-ergm.bridge.llr(object, response = NULL, constraints = ~., from, to,
-  basis = NULL, verbose = FALSE, ..., llronly = FALSE,
-  control = control.ergm.bridge())
+ergm.bridge.llr(
+  object,
+  response = NULL,
+  constraints = ~.,
+  from,
+  to,
+  basis = NULL,
+  verbose = FALSE,
+  ...,
+  llronly = FALSE,
+  control = control.ergm.bridge()
+)
 
-ergm.bridge.0.llk(object, response = response, constraints = ~., coef,
-  ..., llkonly = TRUE, control = control.ergm.bridge())
+ergm.bridge.0.llk(
+  object,
+  response = response,
+  constraints = ~.,
+  coef,
+  ...,
+  llkonly = TRUE,
+  control = control.ergm.bridge()
+)
 
-ergm.bridge.dindstart.llk(object, response = NULL, constraints = ~.,
-  coef, dind = NULL, coef.dind = NULL, basis = NULL, ...,
-  llkonly = TRUE, control = control.ergm.bridge())
+ergm.bridge.dindstart.llk(
+  object,
+  response = NULL,
+  constraints = ~.,
+  coef,
+  dind = NULL,
+  coef.dind = NULL,
+  basis = NULL,
+  ...,
+  llkonly = TRUE,
+  control = control.ergm.bridge()
+)
 }
 \arguments{
 \item{object}{A model formula. See \code{\link{ergm}} for details.}
@@ -98,7 +123,7 @@ configuration with \eqn{\theta=0} is defined as having log-likelihood of
 dyad-independent ERGM as a starting point for bridge sampling to
 estimate the log-likelihood for a given dyad-dependent model and
 parameter configuration.  Note that it only handles binary ERGMs
-(\code{response=NULL}) and with constraints (\code{constraints=}) that that
+(\code{response=NULL}) and with constraints (\verb{constraints=}) that that
 do not induce dyadic dependence.
 }
 \references{

@@ -4,8 +4,13 @@
 \alias{ergm.allstats}
 \title{Calculate all possible vectors of statistics on a network for an ERGM}
 \usage{
-ergm.allstats(formula, zeroobs = TRUE, force = FALSE,
-  maxNumChangeStatVectors = 2^16, ...)
+ergm.allstats(
+  formula,
+  zeroobs = TRUE,
+  force = FALSE,
+  maxNumChangeStatVectors = 2^16,
+  ...
+)
 }
 \arguments{
 \item{formula}{an \code{\link{formula}} object of the form \code{y ~ <model

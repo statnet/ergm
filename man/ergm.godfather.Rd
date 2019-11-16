@@ -4,9 +4,16 @@
 \alias{ergm.godfather}
 \title{A function to apply a given series of changes to a network.}
 \usage{
-ergm.godfather(formula, changes = NULL, response = NULL,
-  end.network = FALSE, stats.start = FALSE, changes.only = FALSE,
-  verbose = FALSE, control = control.ergm.godfather())
+ergm.godfather(
+  formula,
+  changes = NULL,
+  response = NULL,
+  end.network = FALSE,
+  stats.start = FALSE,
+  changes.only = FALSE,
+  verbose = FALSE,
+  control = control.ergm.godfather()
+)
 }
 \arguments{
 \item{formula}{An \code{\link{ergm}}-style formula, with a

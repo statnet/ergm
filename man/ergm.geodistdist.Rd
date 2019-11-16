@@ -26,7 +26,7 @@ calculated}
 \value{
 a vector \code{ans} with length equal to the size of the network
 where \itemize{
-\item \code{ans[i], i=1, ..., n-1} is the number of pairs of
+\item \verb{ans[i], i=1, ..., n-1} is the number of pairs of
 geodesic length \code{i}
 \item \code{ans[n]} is the number of pairs of geodesic length
 infinity.  }

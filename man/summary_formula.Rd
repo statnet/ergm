@@ -15,20 +15,15 @@ summary_formula(object, ..., basis = NULL)
 
 \method{summary_formula}{ergm}(object, ..., basis = NULL)
 
-\method{summary_formula}{network.list}(object, response = NULL, ...,
-  basis = NULL)
+\method{summary_formula}{network.list}(object, response = NULL, ..., basis = NULL)
 
-\method{summary_formula}{network}(object, response = NULL, ...,
-  basis = NULL)
+\method{summary_formula}{network}(object, response = NULL, ..., basis = NULL)
 
-\method{summary_formula}{pending_update_network}(object, response = NULL,
-  ..., basis = NULL)
+\method{summary_formula}{pending_update_network}(object, response = NULL, ..., basis = NULL)
 
-\method{summary_formula}{matrix}(object, response = NULL, ...,
-  basis = NULL)
+\method{summary_formula}{matrix}(object, response = NULL, ..., basis = NULL)
 
-\method{summary_formula}{default}(object, response = NULL, ...,
-  basis = NULL)
+\method{summary_formula}{default}(object, response = NULL, ..., basis = NULL)
 }
 \arguments{
 \item{object}{A two-sided formula.}

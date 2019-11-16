@@ -4,9 +4,15 @@
 \alias{update.network}
 \title{Update the edges in a network based on a matrix}
 \usage{
-\method{update}{network}(object, new, matrix.type = NULL,
-  attrname = NULL, ..., ignore.nattr = c("bipartite", "directed",
-  "hyper", "loops", "mnext", "multiple", "n"), ignore.vattr = c())
+\method{update}{network}(
+  object,
+  new,
+  matrix.type = NULL,
+  attrname = NULL,
+  ...,
+  ignore.nattr = c("bipartite", "directed", "hyper", "loops", "mnext", "multiple", "n"),
+  ignore.vattr = c()
+)
 }
 \arguments{
 \item{object}{a \code{\link{network}} object.}

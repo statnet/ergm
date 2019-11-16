@@ -4,14 +4,24 @@
 \alias{control.ergm.bridge}
 \title{Auxiliary for Controlling ergm.bridge}
 \usage{
-control.ergm.bridge(nsteps = 20, MCMC.burnin = 10000,
-  MCMC.interval = 100, MCMC.samplesize = 10000,
+control.ergm.bridge(
+  nsteps = 20,
+  MCMC.burnin = 10000,
+  MCMC.interval = 100,
+  MCMC.samplesize = 10000,
   obs.MCMC.samplesize = MCMC.samplesize,
-  obs.MCMC.interval = MCMC.interval, obs.MCMC.burnin = MCMC.burnin,
-  MCMC.prop.weights = "default", MCMC.prop.args = list(),
-  MCMC.init.maxedges = 20000, MCMC.packagenames = c(),
-  term.options = list(), seed = NULL, parallel = 0,
-  parallel.type = NULL, parallel.version.check = TRUE)
+  obs.MCMC.interval = MCMC.interval,
+  obs.MCMC.burnin = MCMC.burnin,
+  MCMC.prop.weights = "default",
+  MCMC.prop.args = list(),
+  MCMC.init.maxedges = 20000,
+  MCMC.packagenames = c(),
+  term.options = list(),
+  seed = NULL,
+  parallel = 0,
+  parallel.type = NULL,
+  parallel.version.check = TRUE
+)
 }
 \arguments{
 \item{nsteps}{Number of geometric bridges to use.}

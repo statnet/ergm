@@ -16,8 +16,7 @@
 \alias{nthreads.control.list}
 \title{Parallel Processing in the \code{\link[=ergm-package]{ergm}} Package}
 \usage{
-ergm.getCluster(control = NULL, verbose = FALSE,
-  stop_on_exit = parent.frame())
+ergm.getCluster(control = NULL, verbose = FALSE, stop_on_exit = parent.frame())
 
 ergm.stopCluster(..., verbose = FALSE)
 
@@ -27,7 +26,7 @@ nthreads(clinfo = NULL, ...)
 
 \method{nthreads}{cluster}(clinfo = NULL, ...)
 
-\method{nthreads}{NULL}(clinfo = NULL, ...)
+\method{nthreads}{`NULL`}(clinfo = NULL, ...)
 
 \method{nthreads}{control.list}(clinfo = NULL, ...)
 }

@@ -4,8 +4,13 @@
 \alias{ergm.degeneracy}
 \title{Checks an ergm Object for Degeneracy}
 \usage{
-ergm.degeneracy(object, control = object$control, fast = TRUE,
-  test.only = FALSE, verbose = FALSE)
+ergm.degeneracy(
+  object,
+  control = object$control,
+  fast = TRUE,
+  test.only = FALSE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{object}{an \code{\link{ergm}} object}

@@ -10,13 +10,11 @@
 \usage{
 is.dyad.independent(object, ...)
 
-\method{is.dyad.independent}{NULL}(object, ...)
+\method{is.dyad.independent}{`NULL`}(object, ...)
 
-\method{is.dyad.independent}{formula}(object, response = NULL,
-  basis = NULL, ...)
+\method{is.dyad.independent}{formula}(object, response = NULL, basis = NULL, ...)
 
-\method{is.dyad.independent}{ergm_conlist}(object, object.obs = NULL,
-  ...)
+\method{is.dyad.independent}{ergm_conlist}(object, object.obs = NULL, ...)
 
 \method{is.dyad.independent}{ergm}(object, ...)
 }
@@ -41,7 +39,7 @@ dyad-independent; \code{FALSE} otherwise.
 These functions test whether an ERGM fit, a formula, or some other
 object represents a dyad-independent model.
 
-The method for \code{NULL} always returns \code{FALSE} by
+The method for \code{NULL} always returns \code{TRUE} by
 convention.
 }
 \details{
