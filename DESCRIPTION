@@ -41,7 +41,7 @@ Suggests:
     ergm.multi,
     magrittr,
     tergm,
-    ergm.count,
+    ergm.count (>= 4.0),
     ergm.userterms,
     networkDynamic
 SystemRequirements: OpenMPI
