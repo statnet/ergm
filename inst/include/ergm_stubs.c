@@ -138,6 +138,11 @@ static void (*fun)(Vertex,Vertex,Network *) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex,Vertex,Network *)) R_FindSymbol("TouchEdge", "ergm", NULL);
 fun(tail,head,nwp);
 }
+void ExpireTimestamps(unsigned int edges, unsigned int nonedges, Network *nwp){
+static void (*fun)(unsigned int,unsigned int,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(unsigned int,unsigned int,Network *)) R_FindSymbol("ExpireTimestamps", "ergm", NULL);
+fun(edges,nonedges,nwp);
+}
 int FindithEdge(Vertex *tail, Vertex *head, Edge i, Network *nwp){
 static int (*fun)(Vertex *,Vertex *,Edge,Network *) = NULL;
 if(fun==NULL) fun = (int (*)(Vertex *,Vertex *,Edge,Network *)) R_FindSymbol("FindithEdge", "ergm", NULL);
@@ -357,6 +362,11 @@ void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp){
 static void (*fun)(Vertex,Vertex,WtNetwork *) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex,Vertex,WtNetwork *)) R_FindSymbol("WtTouchEdge", "ergm", NULL);
 fun(tail,head,nwp);
+}
+void WtExpireTimestamps(unsigned int edges, unsigned int nonedges, WtNetwork *nwp){
+static void (*fun)(unsigned int,unsigned int,WtNetwork *) = NULL;
+if(fun==NULL) fun = (void (*)(unsigned int,unsigned int,WtNetwork *)) R_FindSymbol("WtExpireTimestamps", "ergm", NULL);
+fun(edges,nonedges,nwp);
 }
 int WtFindithEdge(Vertex *tail, Vertex *head, double *weight, Edge i, WtNetwork *nwp){
 static int (*fun)(Vertex *,Vertex *,double *,Edge,WtNetwork *) = NULL;
