@@ -104,6 +104,7 @@ void RelocateHalfedge(Edge from, Edge to, TreeNode *edges);
 /* /\* Duration functions. *\/ */
 /* static inline int ElapsedTime(Vertex tail, Vertex head, Network *nwp); */
 void TouchEdge(Vertex tail, Vertex head, Network *nwp);
+void ExpireTimestamps(unsigned int edges, unsigned int nonedges, Network *nwp);
 
 #include "ergm_edgetree_inline.do_not_include_directly.h"
 

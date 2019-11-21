@@ -234,12 +234,6 @@ to_ergm_Cdouble.matrix <- function(x, prototype=NULL, ...){
 #' \code{\link[tergm:tergm-package]{tergm}} required a simpler and more
 #' lightweight representation.
 #' 
-#' This representation consisted of a single integer representing the
-#' time stamp and an integer vector of length to
-#' \code{\link{network.dyadcount}(nw)} --- the number of potential
-#' ties in the network, giving the last time point during which each
-#' of the dyads in the network had changed.
-#' 
 #' Though this is an API intended for internal use, some functions,
 #' like \code{\link[tergm]{stergm}} (for EGMME),
 #' \code{\link[tergm:simulate.stergm]{simulate}}, and
@@ -251,14 +245,10 @@ to_ergm_Cdouble.matrix <- function(x, prototype=NULL, ...){
 #' \item{`"time"`}{the
 #' time stamp associated with the network}
 #'
-#' \item{`"lasttoggle"`}{an integer vector analogous to the one returned by [to_ergm_Cdouble.network()] with an attribute: number of elements, a list of tails, a list of heads, and time the edge was added for each edge in the network.}
+#' \item{`"lasttoggle"`}{an integer vector analogous to the one returned by [to_ergm_Cdouble.network()] with an attribute: number of elements, a list of tails, a list of heads, and time the edge was last toggled.}
 #' }
 #'
 #' On the C side, it is represented by a hash table.
-#' 
-#' For technical reasons, the \code{\link[tergm:tergm-package]{tergm}}
-#' routines treat the \code{lasttoggle} time points as shifted by
-#' \eqn{-1}.
 #' 
 #' Again, this API is subject to change without notice.
 #'

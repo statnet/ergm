@@ -79,6 +79,7 @@ void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges);
 /* /\* Duration functions. *\/ */
 /* static inline int WtElapsedTime (Vertex tail, Vertex head, WtNetwork *nwp); */
 void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp);
+void WtExpireTimestamps(unsigned int edges, unsigned int nonedges, WtNetwork *nwp);
 
 #include "ergm_wtedgetree_inline.do_not_include_directly.h"
 

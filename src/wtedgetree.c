@@ -189,12 +189,11 @@ int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp)
 int WtToggleEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork *nwp) 
 {
   ENSURE_TH_ORDER;
-  
+
+  kh_set(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head), nwp->duration_info->time);
   if (WtAddEdgeToTrees(tail,head,weight,nwp)){
-    kh_set(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head), nwp->duration_info->time);
     return 1;
   }else{ 
-    kh_unset(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head));
     return 1 - WtDeleteEdgeFromTrees(tail,head,nwp);
   }
 }
@@ -767,12 +766,39 @@ void WtSetEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp)
  *****************/
 void WtSetEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork *nwp) 
 {
-  // Should the timestamp be updated if the edge is extant?
-  if(weight){
-    kh_set(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head), nwp->duration_info->time);
-  }else{
-    kh_unset(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head));
-  }
-
+  kh_set(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head), nwp->duration_info->time);
   WtSetEdge(tail,head,weight,nwp);
+}
+
+/*****************
+ void WtExpireTimestamps
+
+ Walks through the lasttoggle structure, expiring edges and non-edges
+ from the lasttoggle structure that had been toggled more than the
+ specified number of steps ago.
+ *****************/
+void WtExpireTimestamps(unsigned int edges, unsigned int nonedges, WtNetwork *nwp)
+{
+  if(edges==nonedges){ // Same horizon for edges and non-edges means that we don't need to check if an edge exists.
+    int lt;
+    kh_foreach_value(nwp->duration_info->lasttoggle, lt, {
+        /* Note: This bit is implementation-dependent, relying on the
+           fact that __i is the iterator variable. If we ever change to
+           a backend different from khash, we would need to implement
+           this differently. */
+        if(nwp->duration_info->time - lt > edges)
+          kh_del(DyadMapInt, nwp->duration_info->lasttoggle, __i);
+      });
+  }else{
+    TailHead dyad;
+    int lt;
+    kh_foreach(nwp->duration_info->lasttoggle, dyad, lt, {
+        /* Note: This bit is implementation-dependent, relying on the
+           fact that __i is the iterator variable. If we ever change to
+           a backend different from khash, we would need to implement
+           this differently. */
+        if(nwp->duration_info->time - lt > (WtEdgetreeSearch(dyad.tail,dyad.head,nwp->outedges) ? edges : nonedges))
+          kh_del(DyadMapInt, nwp->duration_info->lasttoggle, __i);
+      });
+  }
 }
