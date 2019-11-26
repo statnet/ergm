@@ -80,7 +80,7 @@ predict.formula <- function(object, theta,
   # Matrix to data.frame
   .matrix_to_df <- function(m, name=".value") {
     d <- as.data.frame(as.table(m), stringsAsFactors=FALSE)
-    names(d)[3] <- name
+    names(d) <- c("tail", "head", name)
     d
   }
   
