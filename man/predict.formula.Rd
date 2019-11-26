@@ -37,7 +37,7 @@ See section Value below.}
 
 \item{...}{other arguments passed to/from other methods. For \code{\link[=ergm.formula]{ergm.formula()}} if
 \code{conditional=TRUE} arguments are passed to \code{\link[=ergmMPLE]{ergmMPLE()}}. If \code{conditional=FALSE} arguments
-are passed to \verb{[simulate_formula()]}.}
+are passed to \code{\link[=simulate_formula]{simulate_formula()}}.}
 }
 \value{
 Type of object returned depends on the argument \code{output}. If

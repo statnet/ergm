@@ -28,7 +28,7 @@
 #'   See section Value below.
 #' @param ... other arguments passed to/from other methods. For [ergm.formula()] if
 #'   `conditional=TRUE` arguments are passed to [ergmMPLE()]. If `conditional=FALSE` arguments
-#'   are passed to `[simulate_formula()]`.
+#'   are passed to [simulate_formula()].
 #'
 #' @return 
 #' Type of object returned depends on the argument `output`. If
