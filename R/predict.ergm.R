@@ -14,6 +14,9 @@
 #'
 #' @param object a formula or a fitted ERGM model object
 #' @param theta numeric vector of ERGM model parameter values
+#' @param type character element, one of `"response"` (default) or `"link"`
+#'   whether the returned predictions are on the probability scale or on the
+#'   scale of linear predictor. This is similar to [predict.glm()].
 #' @param output character, type of object returned. Defaults to `"data.frame"`.
 #'   See section Value below.
 #' @param ... other arguments passed to/from other methods. For [ergm.formula()]
@@ -50,16 +53,23 @@
 #' predict(fit)
 #' 
 
-predict.formula <- function(object, theta, output=c("data.frame", "matrix"), ...) {
+predict.formula <- function(object, theta, type=c("response", "link"),
+                            output=c("data.frame", "matrix"), ...) {
   stopifnot(is.numeric(theta))
   output <- match.arg(output)
+  type <- match.arg(type)
+  
   predmat <- ergmMPLE(
     update(object, . ~ . + indices),
     output = "matrix",
     ...
   )$predictor
   stopifnot(length(theta) == (ncol(predmat)-2))
-  p <- 1 / (1 + exp( - predmat[,seq(1, length(theta)), drop=FALSE] %*% theta))
+  p <- switch(
+    type,
+    link = predmat[,seq(1, length(theta)), drop=FALSE] %*% theta,
+    response = 1 / (1 + exp( - predmat[,seq(1, length(theta)), drop=FALSE] %*% theta))
+  )
   switch(
     output,
     data.frame = data.frame(predmat[,c("tail", "head"), drop=FALSE], p),
