@@ -158,35 +158,44 @@ if(FALSE) {
     net ~ edges + dgwesp(decay=0.5, fixed=TRUE, type="OTP"),
     control = control.ergm(MCMLE.maxit = 2)
   )
+  summary(fit)
+  
+  simulate(fit, nsim=1)
+
+  predict(fit)
+  predict(fit, conditional=FALSE, nsim=10)
   
   predict(
     net ~ edges + dgwesp(decay=0.5, fixed=TRUE, type="OTP"),
-    net,
-    c(0.4, 1)
+    theta = c(-191, 66)
   )
-  
-  predict(fit, net)
-  ff <- fix.curved(fit)
-  coef(fit)
-  summary(ff$formula)
-  
+
+  simulate_formula(
+    net ~ edges + dgwesp(decay=0.5, fixed=TRUE, type="OTP"),
+    coef = c(-191, 66)
+  )
+
   # Sampson data ------------------------------------------------------------
   
   # Curved ERGM
   
   data(sampson)
   gest <- ergm(
-    samplike ~ edges + gwesp(decay=0.5, fixed=FALSE),
-    control=control.ergm(MCMLE.maxit=1)
+    samplike ~ edges + gwesp(decay=0.5, fixed=TRUE)
   )
   coef(gest)
-  summary(samplike ~ edges + gwesp(decay=0.5, fixed=FALSE))
-  enf <- enformulate.curved(gest)
-  ff <- fix.curved(gest)
-  summary(enf$formula)
-  summary(ff$formula)
+  summary(samplike ~ edges + gwesp(decay=0.5, fixed=TRUE))
+
+  predict(gest)
+  predict(gest, conditional=FALSE, output="matrix")
   
-  predict(gest, samplike)
+  # predict on net different than the one the model was fit to --------------
+  
+  predict(
+    net ~ edges + gwesp(decay=0.5, fixed=TRUE),
+    theta = coef(gest)
+  )  
+  
   
   # IBE121 - play --------------------------------------------------------
   
@@ -205,7 +214,8 @@ if(FALSE) {
   
   summary(netw ~ edges + nodematch("female") + gwesp(decay=0.2, fixed=TRUE) )
   p <- cond_probs(fit, netw)  
-  
+
+
 
   # Subsets -----------------------------------------------------------------
   
@@ -214,4 +224,22 @@ if(FALSE) {
   r <- predict(net ~ edges, -1.609, constraints= ~ fixallbut(net))
   theta <- -1.609
   predmat <- ergmMPLE(net ~ edges + indices, constraints = ~ fixallbut(net))$predictor
+  
+  
+  
+  data(sampson)
+  gest2 <- ergm(
+    samplike ~ edges + nodematch("group")
+  )
+  summary(gest2)
+  g <- gof(gest2)
+  plot(g)
+  
+  # Probs for all dyads
+  predict(gest2)
+  
+  # Probs for dyads in `net`
+
+  
 }
+

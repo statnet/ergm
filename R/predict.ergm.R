@@ -93,7 +93,7 @@ predict.formula <- function(object, theta,
       switch(
         output,
         data.frame = .matrix_to_df(predm, name="p"),
-        matrix == predm
+        matrix = predm
       )
     )
   }
