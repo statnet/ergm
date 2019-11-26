@@ -53,11 +53,19 @@
 #' predict(fit)
 #' 
 
-predict.formula <- function(object, theta, type=c("response", "link"),
+predict.formula <- function(object, theta,
+                            type=c("response", "link"),
                             output=c("data.frame", "matrix"), ...) {
   stopifnot(is.numeric(theta))
   output <- match.arg(output)
   type <- match.arg(type)
+  
+  # Transform extended ergmMPLE() output to matrix with 0s on the diagonal
+  .df_to_matrix <- function(d) {
+    res <- tapply(predmat[,"p"], list(predmat[,"tail"], predmat[,"head"]), identity)
+    diag(res) <- 0
+    res
+  }
   
   predmat <- ergmMPLE(
     update(object, . ~ . + indices),
@@ -65,17 +73,21 @@ predict.formula <- function(object, theta, type=c("response", "link"),
     ...
   )$predictor
   stopifnot(length(theta) == (ncol(predmat)-2))
-  p <- switch(
+  # Compute conditional Ps and cbind to ergmMPLE() output
+  predmat <- cbind(predmat, p=drop(switch(
     type,
     link = predmat[,seq(1, length(theta)), drop=FALSE] %*% theta,
     response = 1 / (1 + exp( - predmat[,seq(1, length(theta)), drop=FALSE] %*% theta))
-  )
+  ) ) )
+  # Format output
   switch(
     output,
-    data.frame = data.frame(predmat[,c("tail", "head"), drop=FALSE], p),
-    matrix = .NotYetImplemented()
+    data.frame = as.data.frame(predmat[,c("tail", "head", "p")]),
+    matrix = .df_to_matrix(predmat)
   )
 }
+
+
 
 #' @rdname predict.formula
 #' @method predict ergm

@@ -38,6 +38,15 @@ test_that("works for edges model on small digraph", {
   expect_true( all.equal(unique(r.e$p), 1/6) )
 })
 
+test_that("predict.formula(output='matrix') works correctly", {
+  net <- network.initialize(3, directed=TRUE)
+  net[1,2] <- 1
+  expect_silent(
+    p.prob <- predict(net ~ edges, theta = log(1/5), type="response", output="matrix")
+  )
+  
+})
+
 
 
 test_that("works for edges model on small graph", {
