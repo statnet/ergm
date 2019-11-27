@@ -3,10 +3,17 @@
 \name{predict.formula}
 \alias{predict.formula}
 \alias{predict.ergm}
-\title{ERGM-based conditional tie probabilities}
+\title{ERGM-based tie probabilities}
 \usage{
-\method{predict}{formula}(object, theta, output = c("data.frame",
-  "matrix"), ...)
+\method{predict}{formula}(
+  object,
+  theta,
+  conditional = TRUE,
+  type = c("response", "link"),
+  nsim = 100,
+  output = c("data.frame", "matrix"),
+  ...
+)
 
 \method{predict}{ergm}(object, ...)
 }
@@ -15,11 +22,22 @@
 
 \item{theta}{numeric vector of ERGM model parameter values}
 
+\item{conditional}{logical whether to compute conditional or unconditional
+predicted probabilities}
+
+\item{type}{character element, one of \code{"response"} (default) or \code{"link"} -
+whether the returned predictions are on the probability scale or on the
+scale of linear predictor. This is similar to \code{type} argument of \code{\link[=predict.glm]{predict.glm()}}.}
+
+\item{nsim}{integer, number of simulated networks used for computing
+unconditional probabilities. Defaults to 100.}
+
 \item{output}{character, type of object returned. Defaults to \code{"data.frame"}.
 See section Value below.}
 
-\item{...}{other arguments passed to/from other methods. For \code{\link[=ergm.formula]{ergm.formula()}}
-the arguments are passed to \code{\link[=ergmMPLE]{ergmMPLE()}}}
+\item{...}{other arguments passed to/from other methods. For \code{\link[=ergm.formula]{ergm.formula()}} if
+\code{conditional=TRUE} arguments are passed to \code{\link[=ergmMPLE]{ergmMPLE()}}. If \code{conditional=FALSE} arguments
+are passed to \verb{[simulate_formula()]}.}
 }
 \value{
 Type of object returned depends on the argument \code{output}. If
@@ -30,15 +48,18 @@ Type of object returned depends on the argument \code{output}. If
 }
 
 If \code{output="matrix"} the function will return an "adjacency matrix" with the
-predicted conditional tie probabilities.
+predicted probabilities. Diagonal values are 0s.
 }
 \description{
-Calculate model-predicted \strong{conditional} tie probabilities for dyads given
-the rest of the graph. Currently there are two methods implemented:
+Calculate model-predicted \strong{conditional} and \strong{unconditional} tie
+probabilities for dyads in the given network. Conditional probabilities of a
+dyad given the state of all the remaining dyads in the graph are computed
+exactly. Unconditional probabilities are computed through simulating networks
+using the given model. Currently there are two methods implemented:
 \itemize{
 \item Method for formula objects requires (1) an ERGM model formula with an existing
-network object on the left hand side and terms on the right hand side, and
-(2) and a vector of corresponding parameter values.
+network object on the left hand side and model terms on the right hand side, and
+(2) a vector of corresponding parameter values.
 \item Method for \code{ergm} objects, as returned by \code{\link[=ergm]{ergm()}}, takes both the formula
 and parameter values from the fitted model object.
 }
