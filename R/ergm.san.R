@@ -89,8 +89,8 @@ san.default <- function(object,...)
 #' x <- network(50)
 #' 
 #' # add vertex attributes
-#' x \%v\% 'give' <- runif(50, 0, 1)
-#' x \%v\% 'take' <- runif(50, 0, 1)
+#' x %v% 'give' <- runif(50, 0, 1)
+#' x %v% 'take' <- runif(50, 0, 1)
 #' 
 #' # try to find a set of 100 directed edges making the outward sum of
 #' # 'give' and the inward sum of 'take' both equal to 62.5, so in
@@ -106,7 +106,7 @@ san.default <- function(object,...)
 #' x <- network(50, directed = FALSE)
 #' 
 #' # add a vertex attribute
-#' x \%v\% 'popularity' <- runif(50, 0, 1)
+#' x %v% 'popularity' <- runif(50, 0, 1)
 #' 
 #' # try to find a set of 100 edges making the total sum of
 #' # popularity(i) and popularity(j) over all edges (i,j) equal to

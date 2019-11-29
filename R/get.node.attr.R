@@ -167,8 +167,8 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' summary(faux.mesa.high~nodefactor(~Grade, levels=-LARGEST))
 #' # Activity by grade with no baseline smallest two grades (11 and
 #' # 12) collapsed into a new category, labelled 0:
-#' table(faux.mesa.high \%v\% "Grade")
-#' summary(faux.mesa.high~nodefactor((~Grade) \%>\% COLLAPSE_SMALLEST(2, 0),
+#' table(faux.mesa.high %v% "Grade")
+#' summary(faux.mesa.high~nodefactor((~Grade) %>% COLLAPSE_SMALLEST(2, 0),
 #'                                   levels=TRUE))
 #' 
 #' # Mixing between lower and upper grades:
@@ -181,7 +181,7 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' summary(faux.mesa.high~mm("Grade",
 #'         levels2=~sapply(.levels,
 #'                         function(l)
-#'                           l[[1]]\%in\%c(7,8) && l[[2]]\%in\%c(7,8))))
+#'                           l[[1]]%in%c(7,8) && l[[2]]%in%c(7,8))))
 #' 
 #' # Activity by grade with a random covariate. Note that setting an attribute "name" gives it a name:
 #' randomcov <- structure(I(rbinom(network.size(faux.mesa.high),1,0.5)), name="random")
