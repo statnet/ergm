@@ -52,6 +52,20 @@ typedef struct Modelstruct {
     subroutine;								\
   }
 
+#define SIGNAL_TERMS(m, type, data)             \
+  EXEC_THROUGH_TERMS(m, {                               \
+      if(mtp->x_func)                                   \
+        (*(mtp->x_func))(type, data, mtp, nwp);         \
+    });
+
+#define SIGNAL_TERMS_INTO(m, output, type, data)        \
+  EXEC_THROUGH_TERMS_INTO(m, output, {                  \
+      if(mtp->x_func){                                  \
+        mtp->dstats = dstats;                           \
+        (*(mtp->x_func))(type, data, mtp, nwp);         \
+      }                                                 \
+    });
+
  /* If DEBUG is set, back up mtp->dstats and set it to NULL in order
     to trigger a segfault if u_func tries to write to change
     statistics; then restore it. Otherwise, don't bother. */
