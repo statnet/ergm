@@ -9,11 +9,13 @@
  */
 #include "MPLE.h"
 #include "ergm_changestat.h"
+#include "ergm_util.h"
+#include "ergm_state.h"
 
-void RecurseOffOn(Vertex *nodelist1,Vertex *nodelist2, Vertex nodelistlength, 
+void RecurseOffOn(ErgmState *s, Vertex *nodelist1,Vertex *nodelist2, Vertex nodelistlength, 
        Vertex currentnodes, double *changeStats, double *cumulativeStats,
        double *covmat, unsigned int *weightsvector,
-       unsigned int maxNumDyadTypes, Network *nwp, Model *m);
+       unsigned int maxNumDyadTypes);
 
 unsigned int InsNetStatRow(double *newRow, double *matrix, unsigned int rowLength, 
        unsigned int numRows, unsigned int *weights );
@@ -32,47 +34,51 @@ unsigned int hashNetStatRow(double *newRow, unsigned int rowLength,
  possible network is visited.
  *****************/
 
-void AllStatistics (
-       int *tails, 
-       int *heads,
-       int *dnedges,
-		   int *dn, /* Number of nodes */
-       int *dflag, /* directed flag */
-       int *bipartite,
-       int *nterms, 
-		   char **funnames, 
-       char **sonames, 
-       double *inputs,  
-       double *covmat,
-		   int *weightsvector,
-       int *maxNumDyadTypes) {
-  Network *nwp;
-
-  Vertex n_nodes = (Vertex) *dn; 
-  unsigned int directed_flag = *dflag;
-  Vertex nodelistlength, rowmax, *nodelist1, *nodelist2;
-  Vertex bip = (Vertex) *bipartite;
-  Model *m;
+SEXP AllStatistics(// Network settings
+                  SEXP dn, SEXP dflag, SEXP bipartite,
+                  // Model settings
+                  SEXP nterms, SEXP funnames,
+                  SEXP sonames,
+                  // Numeric inputs
+                  SEXP inputs,
+                  // Network state
+                  SEXP nedges,
+                  SEXP tails, SEXP heads,
+                  // Allstats settings
+                  SEXP maxNumDyadTypes){
 
   /* Step 1:  Initialize empty network and initialize model */
   GetRNGstate(); /* Necessary for R random number generator */
-  m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
-  nwp=NetworkInitialize((Vertex*)tails, (Vertex*)heads, *dnedges,
-		       n_nodes, directed_flag, bip, 0, 0, NULL);
-  /* Trigger initial storage update */
-  InitStats(nwp, m);
+  // Ensure correct data types
+  TOINTSXP(tails);
+  TOINTSXP(heads);
+  TOREALSXP(inputs);
+  ErgmState *s = ErgmStateInit(// Network settings
+                               asInteger(dn), asInteger(dflag), asInteger(bipartite),
+                               // Model settings
+                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames),
+                               // Proposal settings
+                               NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0,
+                               // Numeric inputs
+                               REAL(inputs),
+                               // Network state
+                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads));
+  UNPROTECT(3);
   
+  Network *nwp = s->nwp;
+  Model *m = s->m;
+
   /* Step 2:  Build nodelist1 and nodelist2, which together give all of the
   dyads in the network. */
+  Dyad nodelistlength = DYADCOUNT(nwp);
+  Vertex rowmax;
   if (BIPARTITE > 0) { /* Assuming undirected in the bipartite case */
-    nodelistlength = BIPARTITE * (N_NODES-BIPARTITE);
     rowmax = BIPARTITE + 1;
   } else {
-    nodelistlength = N_NODES * (N_NODES-1) / (DIRECTED? 1 : 2);
     rowmax = N_NODES;
   }
-  nodelist1 = (Vertex *) R_alloc(nodelistlength, sizeof(int));
-  nodelist2 = (Vertex *) R_alloc(nodelistlength, sizeof(int));
+  Vertex *nodelist1 = (Vertex *) R_alloc(nodelistlength, sizeof(int));
+  Vertex *nodelist2 = (Vertex *) R_alloc(nodelistlength, sizeof(int));
   int count = 0;
   for(int i=1; i < rowmax; i++) {
     for(int j = MAX(i,BIPARTITE)+1; j <= N_NODES; j++) {
@@ -101,17 +107,24 @@ void AllStatistics (
     totalStats, m->n_stats);
   }
 
+  SEXP stats = PROTECT(allocVector(REALSXP, asInteger(maxNumDyadTypes)*m->n_stats));
+  SEXP weights = PROTECT(allocVector(INTSXP, asInteger(maxNumDyadTypes)));
+  SEXP outl = PROTECT(allocVector(VECSXP, 2));
+  SET_VECTOR_ELT(outl, 0, stats);
+  SET_VECTOR_ELT(outl, 1, weights);
+
   /* Step 4:  Begin recursion */
-  RecurseOffOn(nodelist1, nodelist2, nodelistlength, 0, changeStats, 
-	       cumulativeStats, covmat, (unsigned int*) weightsvector, *maxNumDyadTypes, nwp, m);
+  RecurseOffOn(s, nodelist1, nodelist2, nodelistlength, 0, changeStats, 
+	       cumulativeStats, REAL(stats), (unsigned int*) INTEGER(weights), asInteger(maxNumDyadTypes));
 
   /* Step 5:  Deallocate memory and return */
-  ModelDestroy(nwp, m);
-  NetworkDestroy(nwp);
+  ErgmStateDestroy(s);
+  UNPROTECT(2);
   PutRNGstate(); /* Must be called after GetRNGstate before returning to R */
+  return outl;
 }
 
-void RecurseOffOn(
+void RecurseOffOn(ErgmState *s,
        Vertex *nodelist1, 
        Vertex *nodelist2, 
        Vertex nodelistlength, 
@@ -120,15 +133,17 @@ void RecurseOffOn(
        double *cumulativeStats,
        double *covmat,
        unsigned int *weightsvector,
-       unsigned int maxNumDyadTypes, 
-       Network *nwp, 
-       Model *m) {
+       unsigned int maxNumDyadTypes) {
+
+  Network *nwp = s->nwp;
+  Model *m = s->m;
+
   /* Loop through twice for each dyad: Once for edge and once for no edge */
   for (int i=0; i<2; i++) {
     /* Recurse if currentnodes+1 is not yet nodelistlength */
     if (currentnodes+1 < nodelistlength) {
-      RecurseOffOn(nodelist1, nodelist2, nodelistlength, currentnodes+1, changeStats, 
-              cumulativeStats, covmat, weightsvector, maxNumDyadTypes, nwp, m);
+      RecurseOffOn(s, nodelist1, nodelist2, nodelistlength, currentnodes+1, changeStats, 
+              cumulativeStats, covmat, weightsvector, maxNumDyadTypes);
     } else { /* Add newRow of statistics to hash table */
       //Rprintf("Here's network number %d with changestat %f\n",counter++, changeStats[0]);
       //NetworkEdgeList(nwp);

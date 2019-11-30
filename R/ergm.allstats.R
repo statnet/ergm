@@ -130,24 +130,27 @@ ergm.allstats <- function(formula, zeroobs = TRUE, force = FALSE,
   }
   
   # Calculate the statistics relative to the current network using recursive C code
-  z <- .C("AllStatistics",
-          as.integer(Clist$tails),
-          as.integer(Clist$heads),
-          as.integer(Clist$nedges),
-          as.integer(Clist$n),
-          as.integer(Clist$dir),
-          as.integer(Clist$bipartite),
-          as.integer(Clist$nterms),
-          as.character(Clist$fnamestring),
-          as.character(Clist$snamestring),
-          as.double(Clist$inputs),
-          statmat = double(Clist$nstats * maxNumChangeStatVectors),
-          weights = integer(maxNumChangeStatVectors),
-          as.integer(maxNumChangeStatVectors),
+  z <- .Call("AllStatistics",
+             # Network settings
+             as.integer(Clist$n),
+             as.integer(Clist$dir),
+             as.integer(Clist$bipartite),
+             # Model settings
+             as.integer(Clist$nterms),
+             as.character(Clist$fnamestring),
+             as.character(Clist$snamestring),
+             # Numeric inputs
+             as.double(Clist$inputs),
+             # Network state
+             as.integer(Clist$nedges),
+             as.integer(Clist$tails),
+             as.integer(Clist$heads),
+             # Allstats settings
+             as.integer(maxNumChangeStatVectors),
           PACKAGE="ergm")
-  nz <- z$weights > 0
-  weights <- z$weights[nz]
-  statmat <- matrix(z$statmat, ncol=Clist$nstats, byrow=TRUE)[nz, , drop=FALSE]
+  nz <- z[[2]] > 0
+  weights <- z[[2]][nz]
+  statmat <- matrix(z[[1]], ncol=Clist$nstats, byrow=TRUE)[nz, , drop=FALSE]
 
   # Add in observed statistics if they're not supposed to be zero  
   if (!zeroobs) {
