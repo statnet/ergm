@@ -317,8 +317,8 @@ ergm_MCMC_slave <- function(Clist,proposal,eta,control,verbose,...,prev.run=NULL
 
   # save the results (note that if prev.run is NULL, c(NULL$s,z$s)==z$s.
   z<-list(s=matrix(z[[2]], ncol=Clist$nstats, byrow = TRUE),
-          newnwtails=z[[4]], newnwheads=z[[5]], newnwweights=if(length(z)>=6) z[[6]],
-          status=z[[1]], !is.null(Clist$weights))
+          newnwtails=z[[3]], newnwheads=z[[4]], newnwweights=if(length(z)>=5) z[[5]],
+          status=z[[1]])
 
   z$s <- rbind(prev.run$s,z$s)
   colnames(z$s) <- names(Clist$diagnosable)
