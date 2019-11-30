@@ -16,10 +16,6 @@
  should have (k,j) with k>j.
 *****************/
 
-#define TOINTSXP(x) x = PROTECT(coerceVector(x, INTSXP))
-#define TOREALSXP(x) x = PROTECT(coerceVector(x, REALSXP))
-#define FIRSTCHAR(x) CHAR(STRING_ELT(x, 0))
-
 /*****************
  void WtMCMC_wrapper
 
@@ -72,9 +68,9 @@ SEXP WtMCMC_wrapper(// Network settings
   TOREALSXP(eta);
   SEXP status;
   if(MHp) status = PROTECT(ScalarInteger(WtMCMCSample(s,
-                                              REAL(eta), REAL(sample), asInteger(samplesize),
-                                              asInteger(burnin), asInteger(interval),
-                                                      asInteger(verbose), asInteger(maxedges))));
+                                                      REAL(eta), REAL(sample), asInteger(samplesize),
+                                                      asInteger(burnin), asInteger(interval), asInteger(maxedges),
+                                                      asInteger(verbose))));
   else status = PROTECT(ScalarInteger(WtMCMC_MH_FAILED));
 
   SEXP outl = PROTECT(allocVector(VECSXP, 5));
@@ -102,7 +98,7 @@ SEXP WtMCMC_wrapper(// Network settings
 
   ErgmWtStateDestroy(s);  
   PutRNGstate();  /* Disable RNG before returning */
-  UNPROTECT(5);
+  UNPROTECT(4);
   return outl;
 }
 
@@ -110,7 +106,7 @@ SEXP WtMCMC_wrapper(// Network settings
 /*********************
  void WtMCMCSample
 
- Using the parameters contained in the array theta, obtain the
+ Using the parameters contained in the array eta, obtain the
  network statistics for a sample of size samplesize.  burnin is the
  initial number of Markov chain steps before sampling anything
  and interval is the number of MC steps between successive 
@@ -118,9 +114,9 @@ SEXP WtMCMC_wrapper(// Network settings
  the networkstatistics array. 
 *********************/
 WtMCMCStatus WtMCMCSample(ErgmWtState *s,
-			  double *theta, double *networkstatistics, 
+			  double *eta, double *networkstatistics, 
 			  int samplesize, int burnin, 
-			  int interval, int fVerbose, int nmax) {
+			  int interval, int nmax, int verbose) {
   WtNetwork *nwp = s->nwp;
   WtModel *m = s->m;
 
@@ -146,15 +142,15 @@ WtMCMCStatus WtMCMCSample(ErgmWtState *s,
    Burn in step.
    *********************/
 /*  Catch more edges than we can return */
-  if(WtMetropolisHastings(s, theta, networkstatistics, burnin, &staken,
-			fVerbose)!=WtMCMC_OK)
+  if(WtMetropolisHastings(s, eta, networkstatistics, burnin, &staken,
+			verbose)!=WtMCMC_OK)
     return WtMCMC_MH_FAILED;
   if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
     ErgmWtStateDestroy(s);  
     error("Number of edges %u exceeds the upper limit set by the user (%u). This can be a sign of degeneracy, but if not, it can be controlled via MCMC.max.maxedges= and/or MCMLE.density.guard= control parameters.", EDGECOUNT(nwp), nmax);
   }
   
-/*   if (fVerbose){ 
+/*   if (verbose){ 
        Rprintf(".");
      } */
   
@@ -172,8 +168,8 @@ WtMCMCStatus WtMCMCSample(ErgmWtState *s,
       /* This then adds the change statistics to these values */
       
       /* Catch massive number of edges caused by degeneracy */
-      if(WtMetropolisHastings(s, theta, networkstatistics, interval, &staken,
-			    fVerbose)!=WtMCMC_OK)
+      if(WtMetropolisHastings(s, eta, networkstatistics, interval, &staken,
+			    verbose)!=WtMCMC_OK)
 	return WtMCMC_MH_FAILED;
       if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
 	return WtMCMC_TOO_MANY_EDGES;
@@ -191,12 +187,12 @@ WtMCMCStatus WtMCMCSample(ErgmWtState *s,
     Below is an extremely crude device for letting the user know
     when the chain doesn't accept many of the proposed steps.
     *********************/
-    if (fVerbose){
+    if (verbose){
       Rprintf("Sampler accepted %7.3f%% of %lld proposed steps.\n",
 	    tottaken*100.0/(1.0*interval*samplesize), (long long) interval*samplesize); 
     }
   }else{
-    if (fVerbose){
+    if (verbose){
       Rprintf("Sampler accepted %7.3f%% of %d proposed steps.\n",
       staken*100.0/(1.0*burnin), burnin); 
     }
@@ -207,7 +203,7 @@ WtMCMCStatus WtMCMCSample(ErgmWtState *s,
 /*********************
  void MetropolisHastings
 
- In this function, theta is a m->n_stats-vector just as in WtMCMCSample,
+ In this function, eta is a m->n_stats-vector just as in WtMCMCSample,
  but now networkstatistics is merely another m->n_stats-vector because
  this function merely iterates nsteps times through the Markov
  chain, keeping track of the cumulative change statistics along
@@ -216,16 +212,16 @@ WtMCMCStatus WtMCMCSample(ErgmWtState *s,
  essentially generates a sample of size one
 *********************/
 WtMCMCStatus WtMetropolisHastings (ErgmWtState *s,
-				 double *theta, double *networkstatistics,
+				 double *eta, double *networkstatistics,
 				 int nsteps, int *staken,
-				 int fVerbose) {
+				 int verbose) {
   
   WtNetwork *nwp = s->nwp;
   WtModel *m = s->m;
   WtMHProposal *MHp = s->MHp;
 
   unsigned int taken=0, unsuccessful=0;
-/*  if (fVerbose)
+/*  if (verbose)
     Rprintf("Now proposing %d MH steps... ", nsteps); */
   for(unsigned int step=0; step < nsteps; step++) {
     MHp->logratio = 0;
@@ -252,7 +248,7 @@ WtMCMCStatus WtMetropolisHastings (ErgmWtState *s,
       }
     }
     
-    if(fVerbose>=5){
+    if(verbose>=5){
       Rprintf("MHProposal: ");
       for(unsigned int i=0; i<MHp->ntoggles; i++)
 	Rprintf("  (%d, %d) -> %f  ", MHp->toggletail[i], MHp->togglehead[i], MHp->toggleweight[i]);
@@ -263,7 +259,7 @@ WtMCMCStatus WtMetropolisHastings (ErgmWtState *s,
        remembering that tail -> head */
     WtChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, MHp->toggleweight, nwp, m);
 
-    if(fVerbose>=5){
+    if(verbose>=5){
       Rprintf("Changes: (");
       for(unsigned int i=0; i<m->n_stats; i++)
 	Rprintf(" %f ", m->workspace[i]);
@@ -271,20 +267,20 @@ WtMCMCStatus WtMetropolisHastings (ErgmWtState *s,
     }
     
     /* Calculate inner (dot) product */
-    double ip = dotprod(theta, m->workspace, m->n_stats);
+    double ip = dotprod(eta, m->workspace, m->n_stats);
 
     /* The logic is to set cutoff = ip+logratio ,
        then let the MH probability equal min{exp(cutoff), 1.0}.
        But we'll do it in log space instead.  */
     double cutoff = ip + MHp->logratio;
 
-    if(fVerbose>=5){
+    if(verbose>=5){
       Rprintf("log acceptance probability: %f + %f = %f\n", ip, MHp->logratio, cutoff);
     }
     
     /* if we accept the proposed network */
     if (cutoff >= 0.0 || logf(unif_rand()) < cutoff) { 
-      if(fVerbose>=5){
+      if(verbose>=5){
 	Rprintf("Accepted.\n");
       }
 
@@ -301,7 +297,7 @@ WtMCMCStatus WtMetropolisHastings (ErgmWtState *s,
       }
       taken++;
     }else{
-      if(fVerbose>=5){
+      if(verbose>=5){
 	Rprintf("Rejected.\n");
       }
     }

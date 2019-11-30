@@ -15,10 +15,6 @@
  should have (k,j) with k>j.
 *****************/
 
-#define TOINTSXP(x) x = PROTECT(coerceVector(x, INTSXP))
-#define TOREALSXP(x) x = PROTECT(coerceVector(x, REALSXP))
-#define FIRSTCHAR(x) CHAR(STRING_ELT(x, 0))
-
 /*****************
  void MCMC_wrapper
 
@@ -44,7 +40,7 @@ SEXP MCMC_wrapper(// Network settings
                   SEXP eta, SEXP samplesize, 
                   SEXP burnin, SEXP interval,  
                   SEXP maxedges,
-                  SEXP verbose){  
+                  SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
   // Ensure correct data types
   TOINTSXP(tails);
@@ -77,8 +73,8 @@ SEXP MCMC_wrapper(// Network settings
   SEXP status;
   if(MHp) status = PROTECT(ScalarInteger(MCMCSample(s,
                                                     REAL(eta), REAL(sample), asInteger(samplesize),
-                                                    asInteger(burnin), asInteger(interval),
-                                                    asInteger(verbose), asInteger(maxedges))));
+                                                    asInteger(burnin), asInteger(interval), asInteger(maxedges),
+                                                    asInteger(verbose))));
   else status = PROTECT(ScalarInteger(MCMC_MH_FAILED));
 
   SEXP outl = PROTECT(allocVector(VECSXP, 4));
@@ -103,7 +99,7 @@ SEXP MCMC_wrapper(// Network settings
 
   ErgmStateDestroy(s);  
   PutRNGstate();  /* Disable RNG before returning */
-  UNPROTECT(5);
+  UNPROTECT(4);
   return outl;
 }
 
@@ -111,7 +107,7 @@ SEXP MCMC_wrapper(// Network settings
 /*********************
  MCMCStatus MCMCSample
 
- Using the parameters contained in the array theta, obtain the
+ Using the parameters contained in the array eta, obtain the
  network statistics for a sample of size samplesize.  burnin is the
  initial number of Markov chain steps before sampling anything
  and interval is the number of MC steps between successive 
@@ -119,12 +115,11 @@ SEXP MCMC_wrapper(// Network settings
  the networkstatistics array. 
 *********************/
 MCMCStatus MCMCSample(ErgmState *s,
-                      double *theta, double *networkstatistics, 
+                      double *eta, double *networkstatistics, 
                       int samplesize, int burnin, 
-                      int interval, int fVerbose, int nmax){
+                      int interval, int nmax, int verbose){
   Network *nwp = s->nwp;
   Model *m = s->m;
-  // MHProposal *MHp = s->MHp;
 
   int staken, tottaken;
   int i, j;
@@ -148,15 +143,15 @@ MCMCStatus MCMCSample(ErgmState *s,
    Burn in step.
    *********************/
 /*  Catch more edges than we can return */
-  if(MetropolisHastings(s, theta, networkstatistics, burnin, &staken,
-			fVerbose)!=MCMC_OK)
+  if(MetropolisHastings(s, eta, networkstatistics, burnin, &staken,
+			verbose)!=MCMC_OK)
     return MCMC_MH_FAILED;
   if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
     ErgmStateDestroy(s);  
     error("Number of edges %u exceeds the upper limit set by the user (%u). This can be a sign of degeneracy, but if not, it can be controlled via MCMC.max.maxedges= and/or MCMLE.density.guard= control parameters.", EDGECOUNT(nwp), nmax);
   }
   
-/*   if (fVerbose){ 
+/*   if (verbose){ 
        Rprintf(".");
      } */
   
@@ -174,8 +169,8 @@ MCMCStatus MCMCSample(ErgmState *s,
       /* This then adds the change statistics to these values */
       
       /* Catch massive number of edges caused by degeneracy */
-      if(MetropolisHastings(s, theta, networkstatistics, interval, &staken,
-			    fVerbose)!=MCMC_OK)
+      if(MetropolisHastings(s, eta, networkstatistics, interval, &staken,
+			    verbose)!=MCMC_OK)
 	return MCMC_MH_FAILED;
       if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
 	return MCMC_TOO_MANY_EDGES;
@@ -193,23 +188,24 @@ MCMCStatus MCMCSample(ErgmState *s,
     Below is an extremely crude device for letting the user know
     when the chain doesn't accept many of the proposed steps.
     *********************/
-    if (fVerbose){
+    if (verbose){
       Rprintf("Sampler accepted %7.3f%% of %lld proposed steps.\n",
 	    tottaken*100.0/(1.0*interval*samplesize), (long long) interval*samplesize); 
     }
   }else{
-    if (fVerbose){
+    if (verbose){
       Rprintf("Sampler accepted %7.3f%% of %d proposed steps.\n",
       staken*100.0/(1.0*burnin), burnin); 
     }
   }
+
   return MCMC_OK;
 }
 
 /*********************
  void MetropolisHastings
 
- In this function, theta is a m->n_stats-vector just as in MCMCSample,
+ In this function, eta is a m->n_stats-vector just as in MCMCSample,
  but now networkstatistics is merely another m->n_stats-vector because
  this function merely iterates nsteps times through the Markov
  chain, keeping track of the cumulative change statistics along
@@ -218,16 +214,16 @@ MCMCStatus MCMCSample(ErgmState *s,
  essentially generates a sample of size one
 *********************/
 MCMCStatus MetropolisHastings(ErgmState *s,
-			      double *theta, double *networkstatistics,
+			      double *eta, double *networkstatistics,
 			      int nsteps, int *staken,
-			      int fVerbose) {
+			      int verbose) {
 
   Network *nwp = s->nwp;
   Model *m = s->m;
   MHProposal *MHp = s->MHp;
 
   unsigned int taken=0, unsuccessful=0;
-/*  if (fVerbose)
+/*  if (verbose)
     Rprintf("Now proposing %d MH steps... ", nsteps); */
   for(unsigned int step=0; step < nsteps; step++) {
     MHp->logratio = 0;
@@ -254,7 +250,7 @@ MCMCStatus MetropolisHastings(ErgmState *s,
       }
     }
     
-    if(fVerbose>=5){
+    if(verbose>=5){
       Rprintf("MHProposal: ");
       for(unsigned int i=0; i<MHp->ntoggles; i++)
 	Rprintf(" (%d, %d)", MHp->toggletail[i], MHp->togglehead[i]);
@@ -265,7 +261,7 @@ MCMCStatus MetropolisHastings(ErgmState *s,
        remembering that tail -> head */
     ChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m);
 
-    if(fVerbose>=5){
+    if(verbose>=5){
       Rprintf("Changes: (");
       for(unsigned int i=0; i<m->n_stats; i++)
 	Rprintf(" %f ", m->workspace[i]);
@@ -273,20 +269,20 @@ MCMCStatus MetropolisHastings(ErgmState *s,
     }
     
     /* Calculate inner (dot) product */
-    double ip = dotprod(theta, m->workspace, m->n_stats);
+    double ip = dotprod(eta, m->workspace, m->n_stats);
 
     /* The logic is to set cutoff = ip+logratio ,
        then let the MH probability equal min{exp(cutoff), 1.0}.
        But we'll do it in log space instead.  */
     double cutoff = ip + MHp->logratio;
 
-    if(fVerbose>=5){
+    if(verbose>=5){
       Rprintf("log acceptance probability: %f + %f = %f\n", ip, MHp->logratio, cutoff);
     }
     
     /* if we accept the proposed network */
     if (cutoff >= 0.0 || logf(unif_rand()) < cutoff) { 
-      if(fVerbose>=5){
+      if(verbose>=5){
 	Rprintf("Accepted.\n");
       }
 
@@ -300,7 +296,7 @@ MCMCStatus MetropolisHastings(ErgmState *s,
       }
       taken++;
     }else{
-      if(fVerbose>=5){
+      if(verbose>=5){
 	Rprintf("Rejected.\n");
       }
     }
@@ -318,12 +314,12 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
 		  char **sonames, 
 		  char **MHProposaltype, char **MHProposalpackage,
 		  double *inputs, 
-		  double *theta0, int *samplesize,
+		  double *eta0, int *samplesize,
 		  double *gain, double *meanstats, int *phase1, int *nsub,
 		  double *sample, int *burnin, int *interval,  
 		  int *newnetworktails, 
 		  int *newnetworkheads, 
-		  int *fVerbose, 
+		  int *verbose, 
 		  int *attribs, int *maxout, int *maxin, int *minout,
 		  int *minin, int *condAllDegExact, int *attriblength, 
 		  int *maxedges,
@@ -361,9 +357,9 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
 
   if(MHp)
     MCMCSamplePhase12(s,
-		      theta0, *gain, meanstats, nphase1, nsubphases, sample, *samplesize,
+		      eta0, *gain, meanstats, nphase1, nsubphases, sample, *samplesize,
 		      *burnin, *interval,
-		      (int)*fVerbose);
+		      (int)*verbose);
   else error("MH Proposal failed.");
 
   /* record new generated network to pass back to R */
@@ -377,7 +373,7 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
 /*********************
  void MCMCSamplePhase12
 
- Using the parameters contained in the array theta, obtain the
+ Using the parameters contained in the array eta, obtain the
  network statistics for a sample of size samplesize.  burnin is the
  initial number of Markov chain steps before sampling anything
  and interval is the number of MC steps between successive 
@@ -385,9 +381,9 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
  the networkstatistics array. 
 *********************/
 void MCMCSamplePhase12(ErgmState *s,
-		       double *theta, double gain, double *meanstats, int nphase1, int nsubphases, double *networkstatistics, 
+		       double *eta, double gain, double *meanstats, int nphase1, int nsubphases, double *networkstatistics, 
 		       int samplesize, int burnin, 
-		       int interval, int fVerbose){
+		       int interval, int verbose){
   Model *m = s->m;
 
   int staken, tottaken, ptottaken;
@@ -395,7 +391,7 @@ void MCMCSamplePhase12(ErgmState *s,
   
 /*Rprintf("nsubphases %d\n", nsubphases); */
 
-  /*if (fVerbose)
+  /*if (verbose)
     Rprintf("The number of statistics is %i and the total samplesize is %d\n",
     m->n_stats,samplesize);*/
 
@@ -425,15 +421,15 @@ void MCMCSamplePhase12(ErgmState *s,
   
     staken = 0;
     Rprintf("Starting burnin of %d steps\n", burnin);
-    MetropolisHastings(s, theta,
+    MetropolisHastings(s, eta,
                        networkstatistics, burnin, &staken,
-                       fVerbose);
+                       verbose);
     Rprintf("Phase 1: %d steps (interval = %d)\n", nphase1,interval);
     /* Now sample networks */
     for (i=0; i <= nphase1; i++){
-      MetropolisHastings(s, theta,
+      MetropolisHastings(s, eta,
                          networkstatistics, interval, &staken,
-                         fVerbose);
+                         verbose);
       if(i > 0){
        for (j=0; j<m->n_stats; j++){
         ubar[j]  += networkstatistics[j];
@@ -443,7 +439,7 @@ void MCMCSamplePhase12(ErgmState *s,
        }
       }
     }
-    if (fVerbose){
+    if (verbose){
       Rprintf("Returned from Phase 1\n");
       Rprintf("\n gain times inverse variances:\n");
     }
@@ -454,43 +450,43 @@ void MCMCSamplePhase12(ErgmState *s,
       }else{
 	aDdiaginv[j]=0.00001;
       }
-      if (fVerbose){ Rprintf(" %f", aDdiaginv[j]);}
+      if (verbose){ Rprintf(" %f", aDdiaginv[j]);}
     }
-    if (fVerbose){ Rprintf("\n"); }
+    if (verbose){ Rprintf("\n"); }
   
     staken = 0;
     tottaken = 0;
     ptottaken = 0;
     
-    if (fVerbose){
+    if (verbose){
       Rprintf("Phase 2: (samplesize = %d)\n", samplesize);
     }
     /* Now sample networks */
     for (i=1; i < samplesize; i++){
       
-      MetropolisHastings(s, theta,
+      MetropolisHastings(s, eta,
                          networkstatistics, interval, &staken,
-                         fVerbose);
-    /* Update theta0 */
+                         verbose);
+    /* Update eta0 */
 /*Rprintf("initial:\n"); */
       for (j=0; j<m->n_stats; j++){
-        theta[j] -= aDdiaginv[j] * networkstatistics[j];
+        eta[j] -= aDdiaginv[j] * networkstatistics[j];
       }
 /*Rprintf("\n"); */
-/*    if (fVerbose){ Rprintf("nsubphases %d i %d\n", nsubphases, i); } */
+/*    if (verbose){ Rprintf("nsubphases %d i %d\n", nsubphases, i); } */
       if (i==(nsubphases)){
 	nsubphases = trunc(nsubphases*2.52) + 1;
-        if (fVerbose){
+        if (verbose){
 	 iter++;
 	 Rprintf("End of iteration %d; Updating the number of sub-phases to be %d\n",iter,nsubphases);
 	}
         for (j=0; j<m->n_stats; j++){
           aDdiaginv[j] /= 2.0;
-          if (fVerbose){Rprintf("theta_%d = %f; change statistic[%d] = %f\n",
-		                 j+1, theta[j], j+1, networkstatistics[j]);}
-/*        if (fVerbose){ Rprintf(" %f statsmean %f",  theta[j],(networkstatistics[j]-meanstats[j])); } */
+          if (verbose){Rprintf("eta_%d = %f; change statistic[%d] = %f\n",
+		                 j+1, eta[j], j+1, networkstatistics[j]);}
+/*        if (verbose){ Rprintf(" %f statsmean %f",  eta[j],(networkstatistics[j]-meanstats[j])); } */
         }
-        if (fVerbose){ Rprintf("\n"); }
+        if (verbose){ Rprintf("\n"); }
       }
       /* Set current vector of stats equal to previous vector */
       for (j=0; j<m->n_stats; j++){
@@ -498,7 +494,7 @@ void MCMCSamplePhase12(ErgmState *s,
         networkstatistics[j+m->n_stats] = networkstatistics[j];
       }
       networkstatistics += m->n_stats;
-/*      if (fVerbose){ Rprintf("step %d from %d:\n",i, samplesize);} */
+/*      if (verbose){ Rprintf("step %d from %d:\n",i, samplesize);} */
       /* This then adds the change statistics to these values */
       tottaken += staken;
 #ifdef Win32
@@ -507,7 +503,7 @@ void MCMCSamplePhase12(ErgmState *s,
     	R_ProcessEvents();
       }
 #endif
-      if (fVerbose){
+      if (verbose){
         if( ((3*i) % samplesize)==0 && samplesize > 500){
         Rprintf("Sampled %d from Metropolis-Hastings\n", i);}
       }
@@ -523,12 +519,12 @@ void MCMCSamplePhase12(ErgmState *s,
     Below is an extremely crude device for letting the user know
     when the chain doesn't accept many of the proposed steps.
     *********************/
-/*    if (fVerbose){ */
+/*    if (verbose){ */
 /*      Rprintf("Metropolis-Hastings accepted %7.3f%% of %d steps.\n", */
 /*	      tottaken*100.0/(1.0*interval*samplesize), interval*samplesize);  */
 /*    } */
 /*  }else{ */
-/*    if (fVerbose){ */
+/*    if (verbose){ */
 /*      Rprintf("Metropolis-Hastings accepted %7.3f%% of %d steps.\n", */
 /*	      staken*100.0/(1.0*burnin), burnin);  */
 /*    } */
@@ -540,7 +536,7 @@ void MCMCSamplePhase12(ErgmState *s,
 /*   } */
 /*  Rprintf("\n"); */
 /*  } */
-  if (fVerbose){
+  if (verbose){
     Rprintf("Phase 3: MCMC-Newton-Raphson\n");
   }
 

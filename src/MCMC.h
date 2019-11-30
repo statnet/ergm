@@ -26,34 +26,34 @@ typedef enum MCMCStatus_enum {
 /* *** don't forget tail-> head, so this function accepts tails first, not heads  */
 
 MCMCStatus MCMCSample(ErgmState *s,
-		      double *theta, double *networkstatistics, 
+		      double *eta, double *networkstatistics, 
 		      int samplesize, int burnin, 
-		      int interval, int fVerbose, int nmax);
+		      int interval, int nmax, int verbose);
 MCMCStatus MetropolisHastings(ErgmState *s,
-			      double *theta, double *statistics, 
+			      double *eta, double *statistics, 
 			      int nsteps, int *staken,
-			      int fVerbose);
+			      int verbose);
 void MCMCPhase12 (int *tails, int *heads, int *dnedges,
 		  int *dn, int *dflag, int *bipartite, 
 		  int *nterms, char **funnames,
 		  char **sonames, 
 		  char **MHProposaltype, char **MHProposalpackage,
 		  double *inputs, 
-		  double *theta0, int *samplesize,
+		  double *eta0, int *samplesize,
 		  double *gain, double *meanstats, int *phase1, int *nsub,
 		  double *sample, int *burnin, int *interval,  
 		  int *newnetworktails, 
 		  int *newnetworkheads, 
-		  int *fVerbose, 
+		  int *verbose, 
 		  int *attribs, int *maxout, int *maxin, int *minout,
 		  int *minin, int *condAllDegExact, int *attriblength, 
 		  int *maxedges,
 		  int *mtails, int *mheads, int *mdnedges);
 
 void MCMCSamplePhase12 (ErgmState *s,
-  double *theta, double gain, double *meanstats,
+  double *eta, double gain, double *meanstats,
   int nphase1, int nsubphases, double *networkstatistics, 
   int samplesize, int burnin, 
-  int interval, int fVerbose);
+  int interval, int verbose);
 
 #endif

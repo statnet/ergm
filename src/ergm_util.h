@@ -19,6 +19,10 @@ static inline double dotprod(double *x, double *y, unsigned int n){
   return out;
 }
 
+#define TOINTSXP(x) x = PROTECT(coerceVector(x, INTSXP))
+#define TOREALSXP(x) x = PROTECT(coerceVector(x, REALSXP))
+#define FIRSTCHAR(x) CHAR(STRING_ELT(x, 0))
+
 #endif 
 
 

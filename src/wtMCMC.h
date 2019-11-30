@@ -25,12 +25,12 @@ typedef enum WtMCMCStatus_enum {
 
 /* *** don't forget tail-> head, so this function accepts tails first, not heads  */
 WtMCMCStatus WtMCMCSample(ErgmWtState *s,
-			   double *theta, double *networkstatistics, 
+			   double *eta, double *networkstatistics, 
 			   int samplesize, int burnin, 
-			   int interval, int fVerbose, int nmax);
+			   int interval, int nmax, int verbose);
 WtMCMCStatus WtMetropolisHastings(ErgmWtState *s,
-				   double *theta, double *statistics, 
+				   double *eta, double *statistics, 
 				   int nsteps, int *staken,
-				   int fVerbose);
+				   int verbose);
 
 #endif

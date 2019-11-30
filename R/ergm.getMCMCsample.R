@@ -261,59 +261,59 @@ ergm_MCMC_slave <- function(Clist,proposal,eta,control,verbose,...,prev.run=NULL
   if(is.null(interval)) interval <- control$MCMC.interval
 
   z <-
-      if(is.null(Clist$weights)){
-        .Call("MCMC_wrapper",
-              # Network settings
-              as.integer(Clist$n),
-              as.integer(Clist$dir), as.integer(Clist$bipartite),
-              # Model settings
-              as.integer(Clist$nterms),
-              as.character(Clist$fnamestring),
-              as.character(Clist$snamestring),
-              # Proposal settings
-              as.character(proposal$name), as.character(proposal$pkgname),
-              as.integer(proposal$arguments$constraints$bd$attribs),
-              as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
-              as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
-              as.integer(proposal$arguments$constraints$bd$condAllDegExact), as.integer(length(proposal$arguments$constraints$bd$attribs)),
-              # Numeric vector inputs
-              as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)),
-              # Network state
-              as.integer(nedges),
-              as.integer(tails), as.integer(heads),
-              # MCMC settings
-              as.double(.deinf(eta)),
-              as.integer(samplesize),
-              as.integer(burnin), 
-              as.integer(interval),
-              as.integer(control$MCMC.maxedges),
-              as.integer(verbose),
-              PACKAGE="ergm")
-      }else{
-        .Call("WtMCMC_wrapper",
-              # Network settings
-              as.integer(Clist$n),
-              as.integer(Clist$dir), as.integer(Clist$bipartite),
-              # Model settings
-              as.integer(Clist$nterms),
-              as.character(Clist$fnamestring),
-              as.character(Clist$snamestring),
-              # Proposal settings
-              as.character(proposal$name), as.character(proposal$pkgname),
-              # Numeric inputs
-              as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)),
-              # Network state
-              as.integer(nedges),
-              as.integer(tails), as.integer(heads), as.double(weights),
-              # MCMC settings
-              as.double(.deinf(eta)),
-              as.integer(samplesize),
-              as.integer(burnin), 
-              as.integer(interval),
-              as.integer(control$MCMC.maxedges),
-              as.integer(verbose),
-              PACKAGE="ergm")
-      }
+    if(is.null(Clist$weights)){
+      .Call("MCMC_wrapper",
+            # Network settings
+            as.integer(Clist$n),
+            as.integer(Clist$dir), as.integer(Clist$bipartite),
+            # Model settings
+            as.integer(Clist$nterms),
+            as.character(Clist$fnamestring),
+            as.character(Clist$snamestring),
+            # Proposal settings
+            as.character(proposal$name), as.character(proposal$pkgname),
+            as.integer(proposal$arguments$constraints$bd$attribs),
+            as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
+            as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
+            as.integer(proposal$arguments$constraints$bd$condAllDegExact), as.integer(length(proposal$arguments$constraints$bd$attribs)),
+            # Numeric vector inputs
+            as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)),
+            # Network state
+            as.integer(nedges),
+            as.integer(tails), as.integer(heads),
+            # MCMC settings
+            as.double(.deinf(eta)),
+            as.integer(samplesize),
+            as.integer(burnin), 
+            as.integer(interval),
+            as.integer(control$MCMC.maxedges),
+            as.integer(verbose),
+            PACKAGE="ergm")
+    }else{
+      .Call("WtMCMC_wrapper",
+            # Network settings
+            as.integer(Clist$n),
+            as.integer(Clist$dir), as.integer(Clist$bipartite),
+            # Model settings
+            as.integer(Clist$nterms),
+            as.character(Clist$fnamestring),
+            as.character(Clist$snamestring),
+            # Proposal settings
+            as.character(proposal$name), as.character(proposal$pkgname),
+            # Numeric inputs
+            as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)),
+            # Network state
+            as.integer(nedges),
+            as.integer(tails), as.integer(heads), as.double(weights),
+            # MCMC settings
+            as.double(.deinf(eta)),
+            as.integer(samplesize),
+            as.integer(burnin), 
+            as.integer(interval),
+            as.integer(control$MCMC.maxedges),
+            as.integer(verbose),
+            PACKAGE="ergm")
+    }
 
   # save the results (note that if prev.run is NULL, c(NULL$s,z$s)==z$s.
   z<-list(s=matrix(z[[2]], ncol=Clist$nstats, byrow = TRUE),
