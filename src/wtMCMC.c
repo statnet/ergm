@@ -61,7 +61,7 @@ SEXP WtMCMC_wrapper(// Network settings
                                REAL(inputs),
                                // Network state
                                asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads), REAL(weights));
-  UNPROTECT(5);
+  UNPROTECT(4);
 
   WtNetwork *nwp = s->nwp;
   WtModel *m = s->m;

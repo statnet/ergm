@@ -65,7 +65,7 @@ SEXP MCMC_wrapper(// Network settings
                                REAL(inputs),
                                // Network state
                                asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads));
-  UNPROTECT(9);
+  UNPROTECT(8);
 
   Network *nwp = s->nwp;
   Model *m = s->m;
