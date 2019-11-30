@@ -23,84 +23,96 @@
 
  and don't forget that tail -> head
 *****************/
-void CD_wrapper(int *nedges,
-		  int *tails, int *heads,
-		  int *dn, int *dflag, int *bipartite, 
-		  int *nterms, char **funnames,
-		  char **sonames, 
-		  char **MHProposaltype, char **MHProposalpackage,
-		double *inputs, double *theta0, int *samplesize, int *CDparams,
-		  double *sample,
-		  int *fVerbose, 
-		  int *attribs, int *maxout, int *maxin, int *minout,
-		  int *minin, int *condAllDegExact, int *attriblength, 
-		  int *status){
-  int directed_flag;
-  Vertex n_nodes, bip, *undotail, *undohead;
-  /* Edge n_networks; */
-  Network *nwp;
-  Model *m;
-  MHProposal *MHp;
-  
-  n_nodes = (Vertex)*dn; 
-  bip = (Vertex)*bipartite; 
-  
+SEXP CD_wrapper(// Network settings
+                SEXP dn, SEXP dflag, SEXP bipartite,
+                // Model settings
+                SEXP nterms, SEXP funnames,
+                SEXP sonames,
+                // Proposal settings
+                SEXP MHProposaltype, SEXP MHProposalpackage,
+                SEXP attribs, SEXP maxout, SEXP maxin, SEXP minout,
+                SEXP minin, SEXP condAllDegExact, SEXP attriblength,
+                // Numeric inputs
+                SEXP inputs,
+                // Network state
+                SEXP nedges,
+                SEXP tails, SEXP heads,
+                // MCMC settings
+                SEXP eta, SEXP samplesize, 
+                SEXP CDparams,
+                SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  
-  directed_flag = *dflag;
+  // Ensure correct data types
+  TOINTSXP(tails);
+  TOINTSXP(heads);
+  TOREALSXP(inputs);
+  TOINTSXP(attribs);
+  TOINTSXP(maxout);
+  TOINTSXP(maxin);
+  TOINTSXP(minout);
+  TOINTSXP(minin);
+  TOINTSXP(CDparams);
 
-  m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
+  ErgmState *s = ErgmStateInit(// Network settings
+                               asInteger(dn), asInteger(dflag), asInteger(bipartite),
+                               // Model settings
+                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames),
+                               // Proposal settings
+                               FIRSTCHAR(MHProposaltype), FIRSTCHAR(MHProposalpackage), INTEGER(attribs), INTEGER(maxout), INTEGER(maxin), INTEGER(minout), INTEGER(minin), asInteger(condAllDegExact), asInteger(attriblength),
+                               // Numeric inputs
+                               REAL(inputs),
+                               // Network state
+                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads));
+  UNPROTECT(9);
 
-  /* Form the network */
-  nwp=NetworkInitialize((Vertex*)tails, (Vertex*)heads, nedges[0], 
-                          n_nodes, directed_flag, bip, 0, 0, NULL);
-  
-  /* Trigger initial storage update */
-  InitStats(nwp, m);
-  
-  /* Initialize the M-H proposal */
-  MHp=MHProposalInitialize(
-	  *MHProposaltype, *MHProposalpackage,
-	  inputs,
-	  nwp, attribs, maxout, maxin, minout, minin,
-	  *condAllDegExact, *attriblength,
-	  m->termarray->aux_storage);
+  Model *m = s->m;
+  MHProposal *MHp = s->MHp;
 
-  undotail = Calloc(MHp->ntoggles * CDparams[0] * CDparams[1], Vertex);
-  undohead = Calloc(MHp->ntoggles * CDparams[0] * CDparams[1], Vertex);
+  Vertex *undotail = Calloc(MHp->ntoggles * INTEGER(CDparams)[0] * INTEGER(CDparams)[1], Vertex);
+  Vertex *undohead = Calloc(MHp->ntoggles * INTEGER(CDparams)[0] * INTEGER(CDparams)[1], Vertex);
   double *extraworkspace = Calloc(m->n_stats, double);
 
-  if(MHp)
-    *status = CDSample(MHp,
-		       theta0, sample, *samplesize, CDparams, undotail, undohead,
-		       *fVerbose, nwp, m, extraworkspace);
-  else *status = MCMC_MH_FAILED;
+  SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*m->n_stats));
+  
+  TOREALSXP(eta);
+  SEXP status;
+  if(MHp) status = PROTECT(ScalarInteger(CDSample(s,
+                                                  REAL(eta), REAL(sample), asInteger(samplesize), INTEGER(CDparams), undotail, undohead, extraworkspace,
+                                                  asInteger(verbose))));
+  else status = PROTECT(ScalarInteger(MCMC_MH_FAILED));
+
+  SEXP outl = PROTECT(allocVector(VECSXP, 2));
+  SET_VECTOR_ELT(outl, 0, status);
+  SET_VECTOR_ELT(outl, 1, sample);
 
   Free(undotail);
   Free(undohead);
   Free(extraworkspace);
-  MHProposalDestroy(MHp, nwp);
 
-  ModelDestroy(nwp, m);
-  NetworkDestroy(nwp);
+  ErgmStateDestroy(s);  
   PutRNGstate();  /* Disable RNG before returning */
+  UNPROTECT(2);
+  return outl;
 }
 
 
 /*********************
  MCMCStatus CDSample
 
- Using the parameters contained in the array theta, obtain the
+ Using the parameters contained in the array eta, obtain the
  network statistics for a sample of size samplesize.  burnin is the
  initial number of Markov chain steps before sampling anything
  and interval is the number of MC steps between successive 
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-MCMCStatus CDSample(MHProposal *MHp,
-		    double *theta, double *networkstatistics, 
-		    int samplesize, int *CDparams, Vertex *undotail, Vertex *undohead, int fVerbose,
-		    Network *nwp, Model *m, double *extraworkspace){
+MCMCStatus CDSample(ErgmState *s,
+		    double *eta, double *networkstatistics, 
+		    int samplesize, int *CDparams,
+                    Vertex *undotail, Vertex *undohead, double *extraworkspace, int verbose){
+  Model *m = s->m;
+
+  int staken=0;
     
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
@@ -117,14 +129,12 @@ MCMCStatus CDSample(MHProposal *MHp,
 /* } */
 /* Rprintf("\n"); */
 
-  int staken=0;
-  
   /* Now sample networks */
   unsigned int i=0, sattempted=0;
   while(i<samplesize){
     
-    if(CDStep(MHp, theta, networkstatistics, CDparams, &staken, undotail, undohead,
-	      fVerbose, nwp, m, extraworkspace)!=MCMC_OK)
+    if(CDStep(s, eta, networkstatistics, CDparams, &staken, undotail, undohead, extraworkspace,
+	      verbose)!=MCMC_OK)
       return MCMC_MH_FAILED;
     
 #ifdef Win32
@@ -140,18 +150,18 @@ MCMCStatus CDSample(MHProposal *MHp,
     sattempted++;
   }
 
-  if (fVerbose){
+  if (verbose){
     Rprintf("Sampler accepted %7.3f%% of %lld proposed steps.\n",
 	    staken*100.0/(1.0*sattempted*CDparams[0]), (long long) sattempted*CDparams[0]); 
   }
-  
+
   return MCMC_OK;
 }
 
 /*********************
  void MetropolisHastings
 
- In this function, theta is a m->n_stats-vector just as in CDSample,
+ In this function, eta is a m->n_stats-vector just as in CDSample,
  but now networkstatistics is merely another m->n_stats-vector because
  this function merely iterates nsteps=CDparams[0] times through the Markov
  chain, keeping track of the cumulative change statistics along
@@ -159,13 +169,15 @@ MCMCStatus CDSample(MHProposal *MHp,
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-MCMCStatus CDStep(MHProposal *MHp,
-		  double *theta, double *networkstatistics,
+MCMCStatus CDStep(ErgmState *s,
+		  double *eta, double *networkstatistics,
 		  int *CDparams, int *staken,
-		  Vertex *undotail, Vertex *undohead,
-		  int fVerbose,
-		  Network *nwp,
-		  Model *m, double* extraworkspace) {
+		  Vertex *undotail, Vertex *undohead, double* extraworkspace,
+		  int verbose){
+
+  Network *nwp = s->nwp;
+  Model *m = s->m;
+  MHProposal *MHp = s->MHp;
 
   unsigned int unsuccessful=0, ntoggled=0;
 
@@ -202,7 +214,7 @@ MCMCStatus CDStep(MHProposal *MHp,
 	}
       }
       
-      if(fVerbose>=5){
+      if(verbose>=5){
 	Rprintf("MHProposal: ");
 	for(unsigned int i=0; i<MHp->ntoggles; i++)
 	  Rprintf(" (%d, %d)", MHp->toggletail[i], MHp->togglehead[i]);
@@ -217,7 +229,7 @@ MCMCStatus CDStep(MHProposal *MHp,
       for(unsigned int i=0; i<m->n_stats; i++)
 	extraworkspace[i] += m->workspace[i];
       
-      if(fVerbose>=5){
+      if(verbose>=5){
 	Rprintf("Changes: (");
 	for(unsigned int i=0; i<m->n_stats; i++){
 	  Rprintf(" %f ", m->workspace[i]);
@@ -242,7 +254,7 @@ MCMCStatus CDStep(MHProposal *MHp,
     } // mult
 
     
-    if(fVerbose>=5){
+    if(verbose>=5){
       Rprintf("Cumulative changes: (");
       for(unsigned int i=0; i<m->n_stats; i++)
 	Rprintf(" %f ", extraworkspace[i]);
@@ -250,20 +262,20 @@ MCMCStatus CDStep(MHProposal *MHp,
     }
     
     /* Calculate inner (dot) product */
-    double ip = dotprod(theta, extraworkspace, m->n_stats);
+    double ip = dotprod(eta, extraworkspace, m->n_stats);
 
     /* The logic is to set cutoff = ip+logratio ,
        then let the MH probability equal min{exp(cutoff), 1.0}.
        But we'll do it in log space instead.  */
     double cutoff = ip + cumlr;
 
-    if(fVerbose>=5){
+    if(verbose>=5){
       Rprintf("log acceptance probability: %f + %f = %f\n", ip, cumlr, cutoff);
     }
     
     /* if we accept the proposed network */
     if (cutoff >= 0.0 || logf(unif_rand()) < cutoff) { 
-      if(fVerbose>=5){
+      if(verbose>=5){
 	Rprintf("Accepted.\n");
       }
       (*staken)++; 
@@ -287,7 +299,7 @@ MCMCStatus CDStep(MHProposal *MHp,
 
     }else{
     REJECT:
-      if(fVerbose>=5){
+      if(verbose>=5){
 	Rprintf("Rejected.\n");
       }
       // Undo the provisional toggles (the last mtoggled ones)

@@ -13,25 +13,31 @@
 #include "wtMCMC.h"
 
 /* *** don't forget tail-> head, so this function accepts tails first, not heads  */
-void WtCD_wrapper(int *nedges, 
-		    int *tails, int *heads, double *weights,
-		    int *dn, int *dflag, int *bipartite, 
-		    int *nterms, char **funnames,
-		    char **sonames, 
-		    char **MHProposaltype, char **MHProposalpackage,
-		    double *inputs, double *theta0, int *samplesize, int *CDparams,
-		    double *sample,
-		    int *fVerbose, 
-		    int *status);
-WtMCMCStatus WtCDSample(WtMHProposal *MHp,
-			double *theta, double *networkstatistics, 
-			int samplesize, int *CDparams, Vertex *undotail, Vertex *undohead, double *undoweight,
-			int fVerbose,
-			WtNetwork *nwp, WtModel *m, double *extraworkspace);
-WtMCMCStatus WtCDStep(WtMHProposal *MHp,
-		      double *theta, double *statistics, 
-		      int *CDparams, int *staken, Vertex *undotail, Vertex *undohead, double *undoweight,
-		      int fVerbose,
-		      WtNetwork *nwp, WtModel *m, double *extraworkspace);
+SEXP WtCD_wrapper(// Network settings
+                  SEXP dn, SEXP dflag, SEXP bipartite,
+                  // Model settings
+                  SEXP nterms, SEXP funnames,
+                  SEXP sonames,
+                  // Proposal settings
+                  SEXP MHProposaltype, SEXP MHProposalpackage,
+                  // Numeric inputs
+                  SEXP inputs,
+                  // Network state
+                  SEXP nedges,
+                  SEXP tails, SEXP heads, SEXP weights,
+                  // MCMC settings
+                  SEXP eta, SEXP samplesize, 
+                  SEXP CDparams,
+                  SEXP verbose);
+WtMCMCStatus WtCDSample(ErgmWtState *s,
+                        double *eta, double *networkstatistics, 
+			int samplesize, int *CDparams,
+                        Vertex *undotail, Vertex *undohead, double *undoweight, double *extraworkspace,
+                        int verbose);
+WtMCMCStatus WtCDStep(ErgmWtState *s,
+                      double *eta, double *networkstatistics,
+                      int *CDparams, int *staken,
+                      Vertex *undotail, Vertex *undohead, double *undoweight, double *extraworkspace,
+                      int verbose);
 
 #endif

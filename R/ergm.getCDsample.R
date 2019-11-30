@@ -69,7 +69,7 @@ ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL,
 }
 
 ergm_CD_slave <- function(Clist,proposal,eta,control,verbose,..., samplesize=NULL, stats0=numeric(Clist$nstats)) {
-    nedges <- c(Clist$nedges,0,0)
+    nedges <- Clist$nedges
     tails <- Clist$tails
     heads <- Clist$heads
     weights <- Clist$weights
@@ -77,48 +77,57 @@ ergm_CD_slave <- function(Clist,proposal,eta,control,verbose,..., samplesize=NUL
   
   if(is.null(samplesize)) samplesize <- control$CD.samplesize
   
-  if(is.null(Clist$weights)){
-    z <- .C("CD_wrapper",
-            as.integer(nedges),
-            as.integer(tails), as.integer(heads),
+  z <-
+    if(is.null(Clist$weights)){
+      .Call("CD_wrapper",
+            # Network settings
             as.integer(Clist$n),
             as.integer(Clist$dir), as.integer(Clist$bipartite),
+            # Model settings
             as.integer(Clist$nterms),
             as.character(Clist$fnamestring),
             as.character(Clist$snamestring),
+            # Proposal settings
             as.character(proposal$name), as.character(proposal$pkgname),
-            as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)), as.double(.deinf(eta)),
-            as.integer(samplesize), as.integer(c(control$CD.nsteps,control$CD.multiplicity)),
-            s = as.double(rep(stats, samplesize)),
-            as.integer(verbose), as.integer(proposal$arguments$constraints$bd$attribs),
+            as.integer(proposal$arguments$constraints$bd$attribs),
             as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
             as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
             as.integer(proposal$arguments$constraints$bd$condAllDegExact), as.integer(length(proposal$arguments$constraints$bd$attribs)),
-            status = integer(1),
-            PACKAGE="ergm")
-    
-    # save the results
-    z<-list(s=matrix(z$s, ncol=Clist$nstats, byrow = TRUE), status=z$status)
-  }else{
-    z <- .C("WtCD_wrapper",
+            # Numeric vector inputs
+            as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)),
+            # Network state
             as.integer(nedges),
-            as.integer(tails), as.integer(heads), as.double(weights),
+            as.integer(tails), as.integer(heads),
+            # MCMC settings
+            as.double(.deinf(eta)),
+            as.integer(samplesize),
+            as.integer(c(control$CD.nsteps,control$CD.multiplicity)),
+            as.integer(verbose),
+            PACKAGE="ergm")
+    }else{
+      .Call("WtCD_wrapper",
+            # Network settings
             as.integer(Clist$n),
             as.integer(Clist$dir), as.integer(Clist$bipartite),
+            # Model settings
             as.integer(Clist$nterms),
             as.character(Clist$fnamestring),
             as.character(Clist$snamestring),
+            # Proposal settings
             as.character(proposal$name), as.character(proposal$pkgname),
-            as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)), as.double(.deinf(eta)),
-            as.integer(samplesize), as.integer(c(control$CD.nsteps,control$CD.multiplicity)),
-            s = as.double(rep(stats, samplesize)),
+            # Numeric inputs
+            as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)),
+            # Network state
+            as.integer(nedges),
+            as.integer(tails), as.integer(heads), as.double(weights),
+            # MCMC settings
+            as.double(.deinf(eta)),
+            as.integer(samplesize),
+            as.integer(c(control$CD.nsteps,control$CD.multiplicity)),
             as.integer(verbose), 
-            status = integer(1),
             PACKAGE="ergm")
+    }
     # save the results
-    z<-list(s=matrix(z$s, ncol=Clist$nstats, byrow = TRUE), status=z$status)
-  }
-  
-  z
-    
+  z<-list(s=matrix(z[[2]], ncol=Clist$nstats, byrow = TRUE),
+          status=z[[1]])
 }
