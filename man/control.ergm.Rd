@@ -31,18 +31,17 @@ control.ergm(
   MCMC.effectiveSize.order.max = NULL,
   MCMC.return.stats = TRUE,
   MCMC.runtime.traceplot = FALSE,
-  MCMC.init.maxedges = 20000,
-  MCMC.max.maxedges = Inf,
+  MCMC.maxedges = Inf,
   MCMC.addto.se = TRUE,
   MCMC.packagenames = c(),
   SAN.maxit = 4,
   SAN.nsteps.times = 8,
   SAN.control = control.san(term.options = term.options, SAN.maxit = SAN.maxit,
     SAN.prop.weights = MCMC.prop.weights, SAN.prop.args = MCMC.prop.args,
-    SAN.init.maxedges = MCMC.init.maxedges, SAN.max.maxedges = MCMC.max.maxedges,
-    SAN.nsteps = EVL(MCMC.burnin, 16384) * SAN.nsteps.times, SAN.samplesize =
-    EVL(MCMC.samplesize, 1024), SAN.packagenames = MCMC.packagenames, parallel = parallel,
-    parallel.type = parallel.type, parallel.version.check = parallel.version.check),
+    SAN.init.maxedges = 20000, SAN.max.maxedges = MCMC.maxedges, SAN.nsteps =
+    EVL(MCMC.burnin, 16384) * SAN.nsteps.times, SAN.samplesize = EVL(MCMC.samplesize,
+    1024), SAN.packagenames = MCMC.packagenames, parallel = parallel, parallel.type =
+    parallel.type, parallel.version.check = parallel.version.check),
   MCMLE.termination = c("confidence", "Hummel", "Hotelling", "precision", "none"),
   MCMLE.maxit = 30,
   MCMLE.conv.min.pval = 0.5,
@@ -334,13 +333,8 @@ convergence.}
 \item{MCMC.runtime.traceplot}{Logical: If TRUE, plot traceplots of the MCMC
 sample after every MCMC MLE iteration.}
 
-\item{MCMC.init.maxedges, MCMC.max.maxedges}{These parameters
-control how much space is allocated for storing edgelists for
-return at the end of MCMC sampling. Allocating more than needed
-wastes memory, so \code{MCMC.init.maxedges} is the initial amount
-allocated, but it will be incremented by a factor of 10 if
-exceeded during the simulation, up to \code{MCMC.max.maxedges}, at
-which point the process will stop with an error.}
+\item{MCMC.maxedges}{These parameters
+control the maximum number of edges that may occur during the MCMC sampling.}
 
 \item{MCMC.addto.se}{Whether to add the standard errors induced by the MCMC
 algorithm to the estimates' standard errors.}

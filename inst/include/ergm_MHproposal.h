@@ -88,9 +88,8 @@ typedef struct MHProposalstruct {
 
 
 MHProposal *MHProposalInitialize(
-	     char *MHProposaltype, char *MHProposalpackage, 
+	     const char *MHProposaltype, const char *MHProposalpackage,
 	     double *inputs,
-	     int fVerbose,
 	     Network *nwp, 
 	     int *attribs, int *maxout, int *maxin, 
 	     int *minout, int *minin, int condAllDegExact, 

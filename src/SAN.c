@@ -77,7 +77,6 @@ void SAN_wrapper ( int *nedges,
   MHp=MHProposalInitialize(
 	  *MHProposaltype, *MHProposalpackage,
 	  inputs,
-	  *fVerbose,
 	  nwp, attribs, maxout, maxin, minout, minin,
 	  *condAllDegExact, *attriblength,
 	  m->termarray->aux_storage);

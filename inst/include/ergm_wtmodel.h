@@ -108,7 +108,7 @@ typedef struct WtModelstruct {
     WtSetEdge((tail), (head), (weight), (nwp));				\
   }
 
-WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputs,
+WtModel* WtModelInitialize (const char *fnames, const char *sonames, double **inputs,
 			int n_terms);
 
 void WtModelDestroy(WtNetwork *nwp, WtModel *m);

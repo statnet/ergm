@@ -30,7 +30,6 @@ ergm_MCMC_slave(
   burnin = NULL,
   samplesize = NULL,
   interval = NULL,
-  maxedges = NULL,
   stats0 = numeric(Clist$nstats)
 )
 }
@@ -75,7 +74,7 @@ list of networks (for parallel sampling). Defaults to a vector of
 \item{prev.run}{a summary of the state of the sampler allowing a
 run to be resumed quickly by \code{ergm_MCMC_slave}.}
 
-\item{burnin, samplesize, interval, maxedges}{MCMC paramters that can
+\item{burnin, samplesize, interval}{MCMC paramters that can
 be used to temporarily override those in the \code{control} list.}
 }
 \value{
@@ -96,8 +95,7 @@ the following: \item{s}{the matrix of statistics.}
 \item{newnwweights}{the vector of weights for the new network (if
 applicable)} \item{status}{success or failure code: \code{0} is
 success, \code{1} for too many edges, and \code{2} for a
-Metropolis-Hastings proposal failing.}  \item{maxedges}{maximum
-allowed edges at the time of return.}
+Metropolis-Hastings proposal failing.}
 }
 \description{
 This is an internal function, not normally called directly by the

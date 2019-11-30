@@ -82,10 +82,10 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
   flush.console()
 
   #' @importFrom parallel clusterMap
-  doruns <- function(prev.runs=rep(list(NULL),nthreads(control)), burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL){
+  doruns <- function(prev.runs=rep(list(NULL),nthreads(control)), burnin=NULL, samplesize=NULL, interval=NULL){
     if(!is.null(ergm.getCluster(control))) persistEvalQ({clusterMap(ergm.getCluster(control),ergm_MCMC_slave,
-                                  Clist=Clists, prev.run=prev.runs, stats0=stats0, MoreArgs=list(proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)})
-    else list(ergm_MCMC_slave(Clist=Clists[[1]], prev.run=prev.runs[[1]], stats0=stats0[[1]], burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges,proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...))
+                                  Clist=Clists, prev.run=prev.runs, stats0=stats0, MoreArgs=list(proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)})
+    else list(ergm_MCMC_slave(Clist=Clists[[1]], prev.run=prev.runs[[1]], stats0=stats0[[1]], burnin=burnin,samplesize=samplesize,interval=interval,proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...))
   }
   
   if(!is.null(control.parallel$MCMC.effectiveSize)){
@@ -120,8 +120,7 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
       outl<-doruns(prev.runs=outl,
                   burnin = interval, # I.e., skip that much before the first draw.
                   samplesize = samplesize,
-                  interval = interval,
-                  maxedges = if(!is.null(outl[[1]])) max(sapply(outl,"[[","maxedges"))
+                  interval = interval
                   )
       
       # Stop if something went wrong.
@@ -196,7 +195,7 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
   for(i in (1:nthreads(control))){
     z <- outl[[i]]
     
-    if(z$status == 1){ # MCMC_TOO_MANY_EDGES, exceeding even control.parallel$MCMC.max.maxedges
+    if(z$status == 1){ # MCMC_TOO_MANY_EDGES, exceeding even control.parallel$MCMC.maxedges
       return(list(status=z$status))
     }
     
@@ -227,7 +226,7 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
 #'
 #' @param prev.run a summary of the state of the sampler allowing a
 #'   run to be resumed quickly by `ergm_MCMC_slave`.
-#' @param burnin,samplesize,interval,maxedges MCMC paramters that can
+#' @param burnin,samplesize,interval MCMC paramters that can
 #'   be used to temporarily override those in the `control` list.
 #' @param Clist the list of parameters returned by
 #'   \code{\link{ergm.Cprepare}}
@@ -238,13 +237,12 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
 #'   \item{newnwweights}{the vector of weights for the new network (if
 #'   applicable)} \item{status}{success or failure code: `0` is
 #'   success, `1` for too many edges, and `2` for a
-#'   Metropolis-Hastings proposal failing.}  \item{maxedges}{maximum
-#'   allowed edges at the time of return.}
+#'   Metropolis-Hastings proposal failing.}
 #' @useDynLib ergm
 #' @export
-ergm_MCMC_slave <- function(Clist,proposal,eta,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL, stats0=numeric(Clist$nstats)) {
+ergm_MCMC_slave <- function(Clist,proposal,eta,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, stats0=numeric(Clist$nstats)) {
   if(is.null(prev.run)){ # Start from Clist
-    nedges <- c(Clist$nedges,0,0)
+    nedges <- Clist$nedges
     tails <- Clist$tails
     heads <- Clist$heads
     weights <- Clist$weights
@@ -257,81 +255,75 @@ ergm_MCMC_slave <- function(Clist,proposal,eta,control,verbose,...,prev.run=NULL
     nedges <- c(nedges,0,0)
     stats <- prev.run$s[nrow(prev.run$s),]
   }
-  
+
   if(is.null(burnin)) burnin <- control$MCMC.burnin
   if(is.null(samplesize)) samplesize <- control$MCMC.samplesize
   if(is.null(interval)) interval <- control$MCMC.interval
-  if(is.null(maxedges)) maxedges <- control$MCMC.init.maxedges
-  
-  repeat{
-    if(is.null(Clist$weights)){
-      z <- .C("MCMC_wrapper",
-              as.integer(nedges),
-              as.integer(tails), as.integer(heads),
+
+  z <-
+      if(is.null(Clist$weights)){
+        .Call("MCMC_wrapper",
+              # Network settings
               as.integer(Clist$n),
               as.integer(Clist$dir), as.integer(Clist$bipartite),
+              # Model settings
               as.integer(Clist$nterms),
               as.character(Clist$fnamestring),
               as.character(Clist$snamestring),
+              # Proposal settings
               as.character(proposal$name), as.character(proposal$pkgname),
-              as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)), as.double(.deinf(eta)),
-              as.integer(samplesize),
-              s = as.double(rep(stats, samplesize)),
-              as.integer(burnin), 
-              as.integer(interval),
-              newnwtails = integer(maxedges),
-              newnwheads = integer(maxedges),
-              as.integer(verbose), as.integer(proposal$arguments$constraints$bd$attribs),
+              as.integer(proposal$arguments$constraints$bd$attribs),
               as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
               as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
               as.integer(proposal$arguments$constraints$bd$condAllDegExact), as.integer(length(proposal$arguments$constraints$bd$attribs)),
-              as.integer(maxedges),
-              status = integer(1),
-              PACKAGE="ergm")
-      
-        # save the results (note that if prev.run is NULL, c(NULL$s,z$s)==z$s.
-      z<-list(s=matrix(z$s, ncol=Clist$nstats, byrow = TRUE),
-                newnwtails=z$newnwtails, newnwheads=z$newnwheads, status=z$status, maxedges=maxedges)
-    }else{
-      z <- .C("WtMCMC_wrapper",
+              # Numeric vector inputs
+              as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)),
+              # Network state
               as.integer(nedges),
-              as.integer(tails), as.integer(heads), as.double(weights),
+              as.integer(tails), as.integer(heads),
+              # MCMC settings
+              as.double(.deinf(eta)),
+              as.integer(samplesize),
+              as.integer(burnin), 
+              as.integer(interval),
+              as.integer(control$MCMC.maxedges),
+              as.integer(verbose),
+              PACKAGE="ergm")
+      }else{
+        .Call("WtMCMC_wrapper",
+              # Network settings
               as.integer(Clist$n),
               as.integer(Clist$dir), as.integer(Clist$bipartite),
+              # Model settings
               as.integer(Clist$nterms),
               as.character(Clist$fnamestring),
               as.character(Clist$snamestring),
+              # Proposal settings
               as.character(proposal$name), as.character(proposal$pkgname),
-              as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)), as.double(.deinf(eta)),
+              # Numeric inputs
+              as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)),
+              # Network state
+              as.integer(nedges),
+              as.integer(tails), as.integer(heads), as.double(weights),
+              # MCMC settings
+              as.double(.deinf(eta)),
               as.integer(samplesize),
-              s = as.double(rep(stats, samplesize)),
               as.integer(burnin), 
               as.integer(interval),
-              newnwtails = integer(maxedges),
-              newnwheads = integer(maxedges),
-              newnwweights = double(maxedges),
-              as.integer(verbose), 
-              as.integer(maxedges),
-              status = integer(1),
+              as.integer(control$MCMC.maxedges),
+              as.integer(verbose),
               PACKAGE="ergm")
-      # save the results
-      z<-list(s=matrix(z$s, ncol=Clist$nstats, byrow = TRUE),
-              newnwtails=z$newnwtails, newnwheads=z$newnwheads, newnwweights=z$newnwweights, status=z$status, maxedges=maxedges)
-    }
-    
-    z$s <- rbind(prev.run$s,z$s)
-    colnames(z$s) <- names(Clist$diagnosable)
-    
-    if(z$status!=1) return(z) # Handle everything except for MCMC_TOO_MANY_EDGES elsewhere.
-    
-    # The following is only executed (and the loop continued) if too many edges.
-    maxedges <- maxedges * 10
-    if(!is.null(control$MCMC.max.maxedges)){
-      if(maxedges == control$MCMC.max.maxedges*10) # True iff the previous maxedges exactly equaled control$MCMC.max.maxedges and that was too small.
-        return(z) # This will kick the too many edges problem upstairs, so to speak.
-      maxedges <- min(maxedges, control$MCMC.max.maxedges)
-    }
-  }
+      }
+
+  # save the results (note that if prev.run is NULL, c(NULL$s,z$s)==z$s.
+  z<-list(s=matrix(z[[2]], ncol=Clist$nstats, byrow = TRUE),
+          newnwtails=z[[4]], newnwheads=z[[5]], newnwweights=if(length(z)>=6) z[[6]],
+          status=z[[1]], !is.null(Clist$weights))
+
+  z$s <- rbind(prev.run$s,z$s)
+  colnames(z$s) <- names(Clist$diagnosable)
+  
+  z
 }
 
 

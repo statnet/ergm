@@ -9,11 +9,16 @@
  */
 #include "wtMCMC.h"
 #include "ergm_util.h"
+#include "ergm_wtstate.h"
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
  as (j,k) rather than (k,j).  In other words, only directed networks
  should have (k,j) with k>j.
 *****************/
+
+#define TOINTSXP(x) x = PROTECT(coerceVector(x, INTSXP))
+#define TOREALSXP(x) x = PROTECT(coerceVector(x, REALSXP))
+#define FIRSTCHAR(x) CHAR(STRING_ELT(x, 0))
 
 /*****************
  void WtMCMC_wrapper
@@ -22,70 +27,83 @@
 
  and don't forget that tail -> head
 *****************/
-void WtMCMC_wrapper(int *nedges,
-		    int *tails, int *heads, double *weights, 
-		    int *dn, int *dflag, int *bipartite, 
-		    int *nterms, char **funnames,
-		    char **sonames, 
-		    char **MHProposaltype, char **MHProposalpackage,
-		    double *inputs, double *theta0, int *samplesize, 
-		    double *sample, int *burnin, int *interval,  
-		    int *newnetworktails, 
-		    int *newnetworkheads, 
-		    double *newnetworkweights,
-		    int *fVerbose, 
-		    int *maxedges,
-		    int *status){
-  int directed_flag;
-  Vertex n_nodes, nmax, bip;
-  /* Edge n_networks; */
-  WtNetwork *nwp;
-  WtModel *m;
-  WtMHProposal *MHp;
-  
-  n_nodes = (Vertex)*dn; 
-  nmax = (Edge)abs(*maxedges); 
-  bip = (Vertex)*bipartite; 
-  
+SEXP WtMCMC_wrapper(// Network settings
+                  SEXP dn, SEXP dflag, SEXP bipartite,
+                  // Model settings
+                  SEXP nterms, SEXP funnames,
+                  SEXP sonames,
+                  // Proposal settings
+                  SEXP MHProposaltype, SEXP MHProposalpackage,
+                  // Numeric inputs
+                  SEXP inputs,
+                  // Network state
+                  SEXP nedges,
+                  SEXP tails, SEXP heads,
+                  SEXP weights,
+                  // MCMC settings
+                  SEXP eta, SEXP samplesize, 
+                  SEXP burnin, SEXP interval,  
+                  SEXP maxedges,
+                  SEXP verbose){  
   GetRNGstate();  /* R function enabling uniform RNG */
+  // Ensure correct data types
+  TOINTSXP(tails);
+  TOINTSXP(heads);
+  TOREALSXP(weights);
+  TOREALSXP(inputs);
+  ErgmWtState *s = ErgmWtStateInit(// Network settings
+                               asInteger(dn), asInteger(dflag), asInteger(bipartite),
+                               // Model settings
+                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames),
+                               // Proposal settings
+                               FIRSTCHAR(MHProposaltype), FIRSTCHAR(MHProposalpackage),
+                               // Numeric inputs
+                               REAL(inputs),
+                               // Network state
+                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads), REAL(weights));
+  UNPROTECT(5);
+
+  WtNetwork *nwp = s->nwp;
+  WtModel *m = s->m;
+  WtMHProposal *MHp = s->MHp;
+
+  SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*m->n_stats));
   
-  directed_flag = *dflag;
+  TOREALSXP(eta);
+  SEXP status;
+  if(MHp) status = PROTECT(ScalarInteger(WtMCMCSample(s,
+                                              REAL(eta), REAL(sample), asInteger(samplesize),
+                                              asInteger(burnin), asInteger(interval),
+                                                      asInteger(verbose), asInteger(maxedges))));
+  else status = PROTECT(ScalarInteger(WtMCMC_MH_FAILED));
 
-  m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
-
-  /* Form the network */
-  nwp=WtNetworkInitialize((Vertex*)tails, (Vertex*)heads, weights, nedges[0], 
-			    n_nodes, directed_flag, bip, 0, 0, NULL);
-
-  /* Trigger initial storage update */
-  WtInitStats(nwp, m);
+  SEXP outl = PROTECT(allocVector(VECSXP, 5));
+  SET_VECTOR_ELT(outl, 0, status);
+  SET_VECTOR_ELT(outl, 1, sample);
   
-  /* Initialize the M-H proposal */
-  MHp=WtMHProposalInitialize(
-	    *MHProposaltype, *MHProposalpackage,
-	    inputs,
-	    *fVerbose,
-	    nwp,
-	    m->termarray->aux_storage);
-
-  if(MHp)
-    *status = WtMCMCSample(MHp,
-			   theta0, sample, *samplesize,
-			   *burnin, *interval,
-			   *fVerbose, nmax, nwp, m);
-  else *status = WtMCMC_MH_FAILED;
-
-  WtMHProposalDestroy(MHp, nwp);
-        
-/* Rprintf("Back! %d %d\n",nwp[0].nedges, nmax); */
-
   /* record new generated network to pass back to R */
-  if(*status == WtMCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
-    newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList((Vertex*)newnetworktails+1,(Vertex*)newnetworkheads+1,newnetworkweights+1,nwp,nmax-1);
-  
-  WtModelDestroy(nwp, m);
-  WtNetworkDestroy(nwp);
+  if(asInteger(status) == WtMCMC_OK && asInteger(maxedges)>0){
+    SEXP newnetworktails, newnetworkheads, newnetworkweights;
+    newnetworktails = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
+    newnetworkheads = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
+    newnetworkweights = PROTECT(allocVector(REALSXP, EDGECOUNT(nwp)+1));
+
+    INTEGER(newnetworktails)[0]=INTEGER(newnetworkheads)[0]=INTEGER(newnetworkweights)[0]=
+      WtEdgeTree2EdgeList((Vertex*)INTEGER(newnetworktails)+1,
+			  (Vertex*)INTEGER(newnetworkheads)+1,
+			  REAL(newnetworkweights)+1,
+			  nwp,asInteger(maxedges)-1);
+
+    SET_VECTOR_ELT(outl, 2, newnetworktails);
+    SET_VECTOR_ELT(outl, 3, newnetworkheads);
+    SET_VECTOR_ELT(outl, 4, newnetworkweights);
+    UNPROTECT(3);
+  }
+
+  ErgmWtStateDestroy(s);  
   PutRNGstate();  /* Disable RNG before returning */
+  UNPROTECT(5);
+  return outl;
 }
 
 
@@ -99,11 +117,13 @@ void WtMCMC_wrapper(int *nedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-WtMCMCStatus WtMCMCSample(WtMHProposal *MHp,
+WtMCMCStatus WtMCMCSample(ErgmWtState *s,
 			  double *theta, double *networkstatistics, 
 			  int samplesize, int burnin, 
-			  int interval, int fVerbose, int nmax,
-			  WtNetwork *nwp, WtModel *m) {
+			  int interval, int fVerbose, int nmax) {
+  WtNetwork *nwp = s->nwp;
+  WtModel *m = s->m;
+
   int staken, tottaken;
   int i, j;
     
@@ -126,11 +146,12 @@ WtMCMCStatus WtMCMCSample(WtMHProposal *MHp,
    Burn in step.
    *********************/
 /*  Catch more edges than we can return */
-  if(WtMetropolisHastings(MHp, theta, networkstatistics, burnin, &staken,
-			fVerbose, nwp, m)!=WtMCMC_OK)
+  if(WtMetropolisHastings(s, theta, networkstatistics, burnin, &staken,
+			fVerbose)!=WtMCMC_OK)
     return WtMCMC_MH_FAILED;
   if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
-    return WtMCMC_TOO_MANY_EDGES;
+    ErgmWtStateDestroy(s);  
+    error("Number of edges %u exceeds the upper limit set by the user (%u). This can be a sign of degeneracy, but if not, it can be controlled via MCMC.max.maxedges= and/or MCMLE.density.guard= control parameters.", EDGECOUNT(nwp), nmax);
   }
   
 /*   if (fVerbose){ 
@@ -151,8 +172,8 @@ WtMCMCStatus WtMCMCSample(WtMHProposal *MHp,
       /* This then adds the change statistics to these values */
       
       /* Catch massive number of edges caused by degeneracy */
-      if(WtMetropolisHastings(MHp, theta, networkstatistics, interval, &staken,
-			    fVerbose, nwp, m)!=WtMCMC_OK)
+      if(WtMetropolisHastings(s, theta, networkstatistics, interval, &staken,
+			    fVerbose)!=WtMCMC_OK)
 	return WtMCMC_MH_FAILED;
       if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
 	return WtMCMC_TOO_MANY_EDGES;
@@ -194,13 +215,15 @@ WtMCMCStatus WtMCMCSample(WtMHProposal *MHp,
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-WtMCMCStatus WtMetropolisHastings (WtMHProposal *MHp,
+WtMCMCStatus WtMetropolisHastings (ErgmWtState *s,
 				 double *theta, double *networkstatistics,
 				 int nsteps, int *staken,
-				 int fVerbose,
-				 WtNetwork *nwp,
-				 WtModel *m) {
+				 int fVerbose) {
   
+  WtNetwork *nwp = s->nwp;
+  WtModel *m = s->m;
+  WtMHProposal *MHp = s->MHp;
+
   unsigned int taken=0, unsuccessful=0;
 /*  if (fVerbose)
     Rprintf("Now proposing %d MH steps... ", nsteps); */

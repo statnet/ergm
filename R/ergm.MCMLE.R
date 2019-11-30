@@ -112,11 +112,10 @@ ergm.MCMLE <- function(init, nw, model,
   
   if(control$MCMLE.density.guard>1){
     # Calculate the density guard threshold.
-    control$MCMC.max.maxedges <- round(min(control$MCMC.max.maxedges,
-                                           max(control$MCMLE.density.guard*ec,
-                                               control$MCMLE.density.guard.min)))
-    control$MCMC.init.maxedges <- round(min(control$MCMC.max.maxedges, control$MCMC.init.maxedges))
-    if(verbose) message("Density guard set to ",control$MCMC.max.maxedges," from an initial count of ",ec," edges.")
+    control$MCMC.maxedges <- round(min(control$MCMC.max.maxedges,
+                                       max(control$MCMLE.density.guard*ec,
+                                           control$MCMLE.density.guard.min)))
+    if(verbose) message("Density guard set to ",control$MCMC.maxedges," from an initial count of ",ec," edges.")
   }  
 
   nws <- rep(list(nw),nthreads(control)) # nws is now a list of networks.
@@ -257,7 +256,7 @@ ergm.MCMLE <- function(init, nw, model,
       if(verbose) message("Starting constrained MCMC...")
       z.obs <- ergm_MCMC_sample(nws.obs, NVL(model$obs.model,model), proposal.obs, control.obs, theta=mcmc.init, response=response, update.nws=FALSE, verbose=max(verbose-1,0),stats0=statshifts.obs)
       
-      if(z.obs$status==1) stop("Number of edges in the simulated network exceeds that observed by a large factor (",control$MCMC.max.maxedges,"). This is a strong indication of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
+      ## if(z.obs$status==1) stop("Number of edges in the simulated network exceeds that observed by a large factor (",control$MCMC.max.maxedges,"). This is a strong indication of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
 
       statsmatrices.obs <- z.obs$stats
       nws.obs.returned <- z.obs$networks

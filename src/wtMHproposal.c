@@ -16,9 +16,8 @@
  A helper function to process the MH_* related initialization.
 *********************/
 WtMHProposal *WtMHProposalInitialize(
-	     char *MHProposaltype, char *MHProposalpackage, 
+	     const char *MHProposaltype, const char *MHProposalpackage, 
 	       double *inputs,
-	     int fVerbose,
 	     WtNetwork *nwp,
 	     void **aux_storage){
   WtMHProposal *MHp = Calloc(1, WtMHProposal);
@@ -31,7 +30,6 @@ WtMHProposal *WtMHProposalInitialize(
   MHp->storage=NULL;
   
   for (i = 0; MHProposaltype[i] != ' ' && MHProposaltype[i] != 0; i++);
-  MHProposaltype[i] = 0;
   /* Extract the required string information from the relevant sources */
   fn = Calloc(i+4, char);
   fn[0]='M';
@@ -42,9 +40,8 @@ WtMHProposal *WtMHProposalInitialize(
   fn[i+3]='\0';
   /* fn is now the string 'MH_[name]', where [name] is MHProposaltype */
   for (i = 0; MHProposalpackage[i] != ' ' && MHProposalpackage[i] != 0; i++);
-  MHProposalpackage[i] = 0;
   sn = Calloc(i+1, char);
-  sn=strncpy(sn,MHProposalpackage,i);
+  sn=memcpy(sn,MHProposalpackage,i);
   sn[i]='\0';
   
   /* Search for the MH proposal function pointer */

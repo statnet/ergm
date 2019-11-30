@@ -109,7 +109,7 @@ typedef struct Modelstruct {
   }
 
 
-Model* ModelInitialize (char *fnames, char *sonames, double **inputs,
+Model* ModelInitialize (const char *fnames, const char *sonames, double **inputs,
 			int n_terms);
 
 void ModelDestroy(Network *nwp, Model *m);

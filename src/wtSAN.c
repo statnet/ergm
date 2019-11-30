@@ -69,7 +69,6 @@ void WtSAN_wrapper (int *nedges,
   MHp=WtMHProposalInitialize(
 	    *MHProposaltype, *MHProposalpackage,
 	    inputs,
-	    *fVerbose,
 	    nwp,
 	    m->termarray->aux_storage);
 

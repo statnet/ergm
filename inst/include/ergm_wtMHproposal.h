@@ -71,9 +71,8 @@ typedef struct WtMHProposalstruct {
 
 
 WtMHProposal * WtMHProposalInitialize(
-	     char *MHProposaltype, char *MHProposalpackage, 
+	     const char *MHProposaltype, const char *MHProposalpackage,
 	       double *inputs,
-	     int fVerbose,
 	       WtNetwork *nwp,
 	       void **aux_storage);
 

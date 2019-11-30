@@ -44,7 +44,7 @@ void ModelDestroy(Network *nwp, Model *m)
  Allocate and initialize the ModelTerm structures, each of which contains
  all necessary information about how to compute one term in the model.
 *****************/
-Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
+Model* ModelInitialize (const char *fnames, const char *sonames, double **inputsp,
 			int n_terms) {
   int i, j, k, l, offset;
   ModelTerm *thisterm;
@@ -83,10 +83,8 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
       the respective functions.*/
       for (; *fnames == ' ' || *fnames == 0; fnames++);
       for (i = 0; fnames[i] != ' ' && fnames[i] != 0; i++);
-      fnames[i] = 0;
       for (; *sonames == ' ' || *sonames == 0; sonames++);
       for (j = 0; sonames[j] != ' ' && sonames[j] != 0; j++);
-      sonames[j] = 0;
       /* Extract the required string information from the relevant sources */
       fn = Calloc(i+3, char);
       fn[1]='_';
@@ -96,7 +94,7 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
       /* fn is now the string 'd_[name]', where [name] is fname */
 /*      Rprintf("fn: %s\n",fn); */
       sn = Calloc(j+1, char);
-      sn=strncpy(sn,sonames,j);
+      sn=memcpy(sn,sonames,j);
       sn[j]='\0';
 
 

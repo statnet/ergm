@@ -14,6 +14,7 @@
 #include "ergm_changestat.h"
 #include "ergm_MHproposal.h"
 #include "ergm_model.h"
+#include "ergm_state.h"
 
 // TODO: This might be worth moving into a common "constants.h".
 typedef enum MCMCStatus_enum {
@@ -24,31 +25,14 @@ typedef enum MCMCStatus_enum {
 
 /* *** don't forget tail-> head, so this function accepts tails first, not heads  */
 
-void MCMC_wrapper(int *dnedges,
-		  int *tails, int *heads,
-		  int *dn, int *dflag, int *bipartite, 
-		  int *nterms, char **funnames,
-		  char **sonames, 
-		  char **MHProposaltype, char **MHProposalpackage,
-		  double *inputs, double *theta0, int *samplesize, 
-		  double *sample, int *burnin, int *interval,  
-		  int *newnetworktails, 
-		  int *newnetworkheads, 
-		  int *fVerbose, 
-		  int *attribs, int *maxout, int *maxin, int *minout,
-		  int *minin, int *condAllDegExact, int *attriblength, 
-		  int *maxedges,
-		  int *status);
-MCMCStatus MCMCSample(MHProposal *MHp,
+MCMCStatus MCMCSample(ErgmState *s,
 		      double *theta, double *networkstatistics, 
 		      int samplesize, int burnin, 
-		      int interval, int fVerbose, int nmax,
-		      Network *nwp, Model *m);
-MCMCStatus MetropolisHastings(MHProposal *MHp,
+		      int interval, int fVerbose, int nmax);
+MCMCStatus MetropolisHastings(ErgmState *s,
 			      double *theta, double *statistics, 
 			      int nsteps, int *staken,
-			      int fVerbose,
-			      Network *nwp, Model *m);
+			      int fVerbose);
 void MCMCPhase12 (int *tails, int *heads, int *dnedges,
 		  int *dn, int *dflag, int *bipartite, 
 		  int *nterms, char **funnames,
@@ -66,11 +50,10 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
 		  int *maxedges,
 		  int *mtails, int *mheads, int *mdnedges);
 
-void MCMCSamplePhase12 (MHProposal *MH,
+void MCMCSamplePhase12 (ErgmState *s,
   double *theta, double gain, double *meanstats,
   int nphase1, int nsubphases, double *networkstatistics, 
   int samplesize, int burnin, 
-  int interval, int fVerbose,
-  Network *nwp, Model *m);
+  int interval, int fVerbose);
 
 #endif

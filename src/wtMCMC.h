@@ -14,6 +14,7 @@
 #include "ergm_wtchangestat.h"
 #include "ergm_wtMHproposal.h"
 #include "ergm_wtmodel.h"
+#include "ergm_wtstate.h"
 
 // TODO: This might be worth moving into a common "constants.h".
 typedef enum WtMCMCStatus_enum {
@@ -23,29 +24,13 @@ typedef enum WtMCMCStatus_enum {
 } WtMCMCStatus;
 
 /* *** don't forget tail-> head, so this function accepts tails first, not heads  */
-void WtMCMC_wrapper(int *nedges, 
-		    int *tails, int *heads, double *weights,
-		    int *dn, int *dflag, int *bipartite, 
-		    int *nterms, char **funnames,
-		    char **sonames, 
-		    char **MHProposaltype, char **MHProposalpackage,
-		    double *inputs, double *theta0, int *samplesize, 
-		    double *sample, int *burnin, int *interval,  
-		    int *newnetworktails, 
-		    int *newnetworkheads, 
-		    double *newnetworkweights,
-		    int *fVerbose, 
-		    int *maxedges,
-		    int *status);
-WtMCMCStatus WtMCMCSample(WtMHProposal *MHp,
+WtMCMCStatus WtMCMCSample(ErgmWtState *s,
 			   double *theta, double *networkstatistics, 
 			   int samplesize, int burnin, 
-			   int interval, int fVerbose, int nmax,
-			   WtNetwork *nwp, WtModel *m);
-WtMCMCStatus WtMetropolisHastings(WtMHProposal *MHp,
+			   int interval, int fVerbose, int nmax);
+WtMCMCStatus WtMetropolisHastings(ErgmWtState *s,
 				   double *theta, double *statistics, 
 				   int nsteps, int *staken,
-				   int fVerbose,
-				   WtNetwork *nwp, WtModel *m);
+				   int fVerbose);
 
 #endif
