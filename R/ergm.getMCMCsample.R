@@ -286,7 +286,7 @@ ergm_MCMC_slave <- function(Clist,proposal,eta,control,verbose,...,prev.run=NULL
             as.integer(samplesize),
             as.integer(burnin), 
             as.integer(interval),
-            as.integer(control$MCMC.maxedges),
+            as.integer(.deinf(NVL(control$MCMC.maxedges,Inf),.Machine$integer.max)),
             as.integer(verbose),
             PACKAGE="ergm")
     }else{
@@ -310,7 +310,7 @@ ergm_MCMC_slave <- function(Clist,proposal,eta,control,verbose,...,prev.run=NULL
             as.integer(samplesize),
             as.integer(burnin), 
             as.integer(interval),
-            as.integer(control$MCMC.maxedges),
+            as.integer(.deinf(NVL(control$MCMC.maxedges,Inf),.Machine$integer.max)),
             as.integer(verbose),
             PACKAGE="ergm")
     }
@@ -322,7 +322,7 @@ ergm_MCMC_slave <- function(Clist,proposal,eta,control,verbose,...,prev.run=NULL
 
   z$s <- rbind(prev.run$s,z$s)
   colnames(z$s) <- names(Clist$diagnosable)
-  
+
   z
 }
 

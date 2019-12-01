@@ -47,7 +47,7 @@
 #'
 #' @template control_MCMC_effectiveSize
 #' 
-#' @param MCMC.init.maxedges Maximum number of edges expected in network.
+#' @param MCMC.maxedges The maximum number of edges that may occur during the MCMC sampling.
 #' @param MCMC.runtime.traceplot Logical: If TRUE, plot traceplots of the MCMC
 #' sample after every MCMC MLE iteration.
 #' @param network.output R class with which to output networks. The options are
@@ -81,7 +81,7 @@ control.simulate.formula.ergm<-function(MCMC.burnin=MCMC.interval*16,
                                         MCMC.effectiveSize.burnin.pval=0.2,
                                         MCMC.effectiveSize.order.max=NULL,
                                         
-                                        MCMC.init.maxedges=20000,
+                                        MCMC.maxedges=Inf,
                                         MCMC.packagenames=c(),
                                         
                                         MCMC.runtime.traceplot=FALSE,  
@@ -148,7 +148,7 @@ control.simulate.ergm<-function(MCMC.burnin=NULL,
                                 MCMC.effectiveSize.burnin.pval=0.2,
                                 MCMC.effectiveSize.order.max=NULL,
                                 
-                                MCMC.init.maxedges=NULL,
+                                MCMC.maxedges=Inf,
                                 MCMC.packagenames=NULL,
                                 
                                 MCMC.runtime.traceplot=FALSE,

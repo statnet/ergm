@@ -19,7 +19,7 @@ control.simulate.formula.ergm(
   MCMC.effectiveSize.points = 5,
   MCMC.effectiveSize.burnin.pval = 0.2,
   MCMC.effectiveSize.order.max = NULL,
-  MCMC.init.maxedges = 20000,
+  MCMC.maxedges = Inf,
   MCMC.packagenames = c(),
   MCMC.runtime.traceplot = FALSE,
   network.output = "network",
@@ -43,7 +43,7 @@ control.simulate(
   MCMC.effectiveSize.points = 5,
   MCMC.effectiveSize.burnin.pval = 0.2,
   MCMC.effectiveSize.order.max = NULL,
-  MCMC.init.maxedges = 20000,
+  MCMC.maxedges = Inf,
   MCMC.packagenames = c(),
   MCMC.runtime.traceplot = FALSE,
   network.output = "network",
@@ -67,7 +67,7 @@ control.simulate.formula(
   MCMC.effectiveSize.points = 5,
   MCMC.effectiveSize.burnin.pval = 0.2,
   MCMC.effectiveSize.order.max = NULL,
-  MCMC.init.maxedges = 20000,
+  MCMC.maxedges = Inf,
   MCMC.packagenames = c(),
   MCMC.runtime.traceplot = FALSE,
   network.output = "network",
@@ -92,7 +92,7 @@ control.simulate.ergm(
   MCMC.effectiveSize.points = 5,
   MCMC.effectiveSize.burnin.pval = 0.2,
   MCMC.effectiveSize.order.max = NULL,
-  MCMC.init.maxedges = NULL,
+  MCMC.maxedges = Inf,
   MCMC.packagenames = NULL,
   MCMC.runtime.traceplot = FALSE,
   network.output = "network",
@@ -153,7 +153,7 @@ falls below that, while doubling
 set the order of the AR model used to estimate the effective
 sample size and the variance for the Geweke diagnostic.}
 
-\item{MCMC.init.maxedges}{Maximum number of edges expected in network.}
+\item{MCMC.maxedges}{The maximum number of edges that may occur during the MCMC sampling.}
 
 \item{MCMC.packagenames}{Names of packages in which to look for change
 statistic functions in addition to those autodetected. This argument should
