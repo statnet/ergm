@@ -45,7 +45,6 @@ SEXP WtCD_wrapper(// Network settings
   TOINTSXP(heads);
   TOREALSXP(weights);
   TOREALSXP(inputs);
-  TOINTSXP(CDparams);
 
   ErgmWtState *s = ErgmWtStateInit(// Network settings
                                  asInteger(dn), asInteger(dflag), asInteger(bipartite),
@@ -57,7 +56,7 @@ SEXP WtCD_wrapper(// Network settings
                                  REAL(inputs),
                                  // Network state
                                  asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads), REAL(weights));
-  UNPROTECT(5);
+  UNPROTECT(4);
 
   WtModel *m = s->m;
   WtMHProposal *MHp = s->MHp;
@@ -68,7 +67,8 @@ SEXP WtCD_wrapper(// Network settings
   double *extraworkspace = Calloc(m->n_stats, double);
 
   SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*m->n_stats));
-  
+
+  TOINTSXP(CDparams);
   TOREALSXP(eta);
   SEXP status;
   if(MHp) status = PROTECT(ScalarInteger(WtCDSample(s,
@@ -87,7 +87,7 @@ SEXP WtCD_wrapper(// Network settings
 
   ErgmWtStateDestroy(s);  
   PutRNGstate();  /* Disable RNG before returning */
-  UNPROTECT(2);
+  UNPROTECT(5);
   return outl;
 }
 

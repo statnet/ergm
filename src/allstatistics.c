@@ -119,8 +119,8 @@ SEXP AllStatistics(// Network settings
 
   /* Step 5:  Deallocate memory and return */
   ErgmStateDestroy(s);
-  UNPROTECT(2);
   PutRNGstate(); /* Must be called after GetRNGstate before returning to R */
+  UNPROTECT(3);
   return outl;
 }
 

@@ -51,7 +51,6 @@ SEXP CD_wrapper(// Network settings
   TOINTSXP(maxin);
   TOINTSXP(minout);
   TOINTSXP(minin);
-  TOINTSXP(CDparams);
 
   ErgmState *s = ErgmStateInit(// Network settings
                                asInteger(dn), asInteger(dflag), asInteger(bipartite),
@@ -63,7 +62,7 @@ SEXP CD_wrapper(// Network settings
                                REAL(inputs),
                                // Network state
                                asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads));
-  UNPROTECT(9);
+  UNPROTECT(8);
 
   Model *m = s->m;
   MHProposal *MHp = s->MHp;
@@ -73,7 +72,8 @@ SEXP CD_wrapper(// Network settings
   double *extraworkspace = Calloc(m->n_stats, double);
 
   SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*m->n_stats));
-  
+
+  TOINTSXP(CDparams);
   TOREALSXP(eta);
   SEXP status;
   if(MHp) status = PROTECT(ScalarInteger(CDSample(s,
@@ -91,7 +91,7 @@ SEXP CD_wrapper(// Network settings
 
   ErgmStateDestroy(s);  
   PutRNGstate();  /* Disable RNG before returning */
-  UNPROTECT(2);
+  UNPROTECT(5);
   return outl;
 }
 
