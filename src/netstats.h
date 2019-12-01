@@ -13,13 +13,9 @@
 #include "ergm_edgetree.h"
 #include "ergm_model.h"
 #include "ergm_MHproposal.h"
+#include "ergm_state.h"
 
 /* *** don't forget tail -> head, so these functions accept tails first, not heads */
 
-void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int *lasttoggle, int *dnedges, 
-			   int *dn, int *dflag,  int *bipartite,
-			   int *nterms, char **funnames,
-			   char **sonames, double *inputs,  double *stats);
-void SummStats(Edge n_edges, Vertex *tails, Vertex *heads,
-	       Network *nwp, Model *m, double *stats);
+void SummStats(ErgmState *s, Edge n_edges, Vertex *tails, Vertex *heads, double *stats);
 #endif

@@ -6,6 +6,11 @@
 #include "ergm_MHproposal.h"
 #include "ergm_model.h"
 
+#define NO_MODEL 0, NULL, NULL
+#define NO_MHPROPOSAL  NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0
+#define NO_LASTTOGGLE FALSE, 0, NULL
+#define NO_NWSTATE 0, NULL, NULL
+
 typedef struct{
   Network *nwp;
   Model *m;
@@ -24,7 +29,8 @@ ErgmState *ErgmStateInit(// Network settings
                          double *inputs,
                          // Network state
                          Edge n_edges,
-                         Vertex *tails, Vertex *heads);
+                         Vertex *tails, Vertex *heads,
+                         Rboolean timings, int time, int *lasttoggle);
 void ErgmStateDestroy(ErgmState *s);
 
 #endif

@@ -43,15 +43,16 @@ SEXP WtMCMC_wrapper(// Network settings
                   SEXP verbose){  
   GetRNGstate();  /* R function enabling uniform RNG */
   ErgmWtState *s = ErgmWtStateInit(// Network settings
-                               asInteger(dn), asInteger(dflag), asInteger(bipartite),
-                               // Model settings
-                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames),
-                               // Proposal settings
-                               FIRSTCHAR(MHProposaltype), FIRSTCHAR(MHProposalpackage),
-                               // Numeric inputs
-                               REAL(inputs),
-                               // Network state
-                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads), REAL(weights));
+                                   asInteger(dn), asInteger(dflag), asInteger(bipartite),
+                                   // Model settings
+                                   asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames),
+                                   // Proposal settings
+                                   FIRSTCHAR(MHProposaltype), FIRSTCHAR(MHProposalpackage),
+                                   // Numeric inputs
+                                   REAL(inputs),
+                                   // Network state
+                                   asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads), REAL(weights),
+                                   NO_LASTTOGGLE);
 
   WtNetwork *nwp = s->nwp;
   WtModel *m = s->m;

@@ -47,8 +47,6 @@ SEXP MPLE_wrapper(// Network settings
                   SEXP tails, SEXP heads,
                   // MPLE settings
                   SEXP wl,
-		  /* int *responsevec, double *covmat, */
-		  /* int *weightsvector, */
 		  SEXP maxNumDyads, SEXP maxNumDyadTypes){
   GetRNGstate(); /* Necessary for R random number generator */
   
@@ -64,7 +62,8 @@ SEXP MPLE_wrapper(// Network settings
                                // Numeric inputs
                                REAL(inputs),
                                // Network state
-                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads));
+                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads),
+                               NO_LASTTOGGLE);
 
   Model *m = s->m;
 

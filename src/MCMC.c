@@ -51,7 +51,8 @@ SEXP MCMC_wrapper(// Network settings
                                // Numeric inputs
                                REAL(inputs),
                                // Network state
-                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads));
+                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads),
+                               NO_LASTTOGGLE);
 
   Network *nwp = s->nwp;
   Model *m = s->m;
@@ -337,7 +338,8 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
                                // Numeric inputs
                                inputs,
                                // Network state
-                               n_edges, (Vertex*) tails, (Vertex*) heads);
+                               n_edges, (Vertex*) tails, (Vertex*) heads,
+                               NO_LASTTOGGLE);
 
   Network *nwp = s->nwp;
   MHProposal *MHp = s->MHp;

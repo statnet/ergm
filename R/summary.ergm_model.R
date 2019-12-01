@@ -58,29 +58,46 @@ summary.ergm_model <- function(object, nw=NULL, response=NULL,...){
   
   # *** don't forget, tails are passes in first now, notheads  
   gs <- if(is.null(Clist$weights))
-         .C("network_stats_wrapper",
-            as.integer(Clist$tails), as.integer(Clist$heads), as.integer(!is.null(Clist$time)), as.integer(Clist$time), as.integer(NVL(Clist$lasttoggle,0)),
-            as.integer(Clist$nedges),
-            as.integer(Clist$n),
-            as.integer(Clist$dir), as.integer(Clist$bipartite), 
-            as.integer(Clist$nterms), 
-            as.character(Clist$fnamestring), as.character(Clist$snamestring), 
-            as.double(Clist$inputs),
-            gs = as.double(gs),
-            PACKAGE="ergm"
-            )$gs
-         else
-         .C("wt_network_stats_wrapper",
-            as.integer(Clist$tails), as.integer(Clist$heads), as.double(Clist$weights), as.integer(!is.null(Clist$time)), as.integer(Clist$time), as.integer(NVL(Clist$lasttoggle,0)),
-            as.integer(Clist$nedges),
-            as.integer(Clist$n),
-            as.integer(Clist$dir), as.integer(Clist$bipartite), 
-            as.integer(Clist$nterms), 
-            as.character(Clist$fnamestring), as.character(Clist$snamestring), 
-            as.double(Clist$inputs),
-            gs = as.double(gs),
-            PACKAGE="ergm"
-            )$gs
+          .Call("network_stats_wrapper",
+                # Network settings
+                as.integer(Clist$n),
+                as.integer(Clist$dir),
+                as.integer(Clist$bipartite),
+                # Model settings
+                as.integer(Clist$nterms),
+                as.character(Clist$fnamestring),
+                as.character(Clist$snamestring),
+                # Numeric inputs
+                as.double(Clist$inputs),
+                # Network state
+                as.integer(Clist$nedges),
+                as.integer(Clist$tails),
+                as.integer(Clist$heads),
+                as.integer(Clist$time),
+                as.integer(NVL(Clist$lasttoggle,0)),
+                as.double(gs),
+                PACKAGE="ergm")
+        else
+          .Call("wt_network_stats_wrapper",
+                # Network settings
+                as.integer(Clist$n),
+                as.integer(Clist$dir),
+                as.integer(Clist$bipartite),
+                # Model settings
+                as.integer(Clist$nterms),
+                as.character(Clist$fnamestring),
+                as.character(Clist$snamestring),
+                # Numeric inputs
+                as.double(Clist$inputs),
+                # Network state
+                as.integer(Clist$nedges),
+                as.integer(Clist$tails),
+                as.integer(Clist$heads),
+                as.double(Clist$weights),
+                as.integer(Clist$time),
+                as.integer(NVL(Clist$lasttoggle,0)),
+                as.double(gs),
+                PACKAGE="ergm")
   names(gs) <- param_names(m,canonical=TRUE)
 
   gs

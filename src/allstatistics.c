@@ -58,8 +58,9 @@ SEXP AllStatistics(// Network settings
                                // Numeric inputs
                                REAL(inputs),
                                // Network state
-                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads));
-  
+                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads),
+                               NO_LASTTOGGLE);
+
   Network *nwp = s->nwp;
   Model *m = s->m;
 

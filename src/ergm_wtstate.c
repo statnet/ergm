@@ -10,14 +10,15 @@ ErgmWtState *ErgmWtStateInit(// Network settings
 			     double *inputs,
                              // Network state
                              Edge n_edges,
-			     Vertex *tails, Vertex *heads, double *weights){
+			     Vertex *tails, Vertex *heads, double *weights,
+                             Rboolean timings, int time, int *lasttoggle){
   ErgmWtState *s = Calloc(1, ErgmWtState);
   
   s->m=WtModelInitialize(funnames, sonames, &inputs, nterms);
   
   /* Form the network */
   s->nwp=WtNetworkInitialize(tails, heads, weights, n_edges, 
-                             n_nodes, directed_flag, bip, 0, 0, NULL);
+                             n_nodes, directed_flag, bip, timings, time, lasttoggle);
 
   /* Trigger initial storage update */
   WtInitStats(s->nwp, s->m);

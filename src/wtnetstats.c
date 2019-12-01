@@ -9,6 +9,7 @@
  */
 #include "wtnetstats.h"
 #include "ergm_omp.h"
+#include "ergm_util.h"
 /*****************
  void network_stats_wrapper
 
@@ -17,41 +18,51 @@
  has true global values equal to zero for all statistics, then this
  change gives the true global values for the observed graph.
 *****************/
-void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timings, int *time, int *lasttoggle, int *dnedges,
-			   int *dn, int *dflag,  int *bipartite,
-			   int *nterms, char **funnames,
-			   char **sonames, double *inputs,  double *stats)
-{
-  int directed_flag;
-  Vertex n_nodes;
-  Edge n_edges;
-  WtNetwork *nwp;
-  WtModel *m;
-  Vertex bip;
 
-/*	     Rprintf("prestart with setup\n"); */
-  n_nodes = (Vertex)*dn; 
-  n_edges = (Edge)*dnedges;     
-  directed_flag = *dflag;
-  bip = (Vertex)*bipartite;
-  
-  if(*lasttoggle == 0) lasttoggle = NULL;
-
+SEXP wt_network_stats_wrapper(// Network settings
+                              SEXP dn, SEXP dflag, SEXP bipartite,
+                              // Model settings
+                              SEXP nterms, SEXP funnames,
+                              SEXP sonames,
+                              // Numeric inputs
+                              SEXP inputs,
+                              // Network state
+                              SEXP nedges,
+                              SEXP tails, SEXP heads, SEXP weights,
+                              SEXP time, SEXP lasttoggle,
+                              // Summary settings
+                              SEXP emptynwstats){
   GetRNGstate();  /* R function enabling uniform RNG */
+  Rboolean timings = length(time)>0;
 
-  m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
-  nwp=WtNetworkInitialize(NULL, NULL, NULL, 0,
-			    n_nodes, directed_flag, bip, *timings?1:0, *timings?*time:0, *timings?lasttoggle:NULL);
+  ErgmWtState *s = ErgmWtStateInit(// Network settings
+                                 asInteger(dn), asInteger(dflag), asInteger(bipartite),
+                                 // Model settings
+                                 asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames),
+                                 // Proposal settings
+                                 NO_WTMHPROPOSAL,
+                                 // Numeric inputs
+                                 REAL(inputs),
+                                 // Network state
+                                 NO_WTNWSTATE,
+                                 timings, asInteger(time), INTEGER(lasttoggle));
+
+  WtModel *m = s->m;
+
+  SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats));
+
+  if(length(emptynwstats)>0) memcpy(REAL(stats), REAL(emptynwstats), m->n_stats*sizeof(double));
+  else memset(REAL(stats), 0, m->n_stats*sizeof(double));
 
   /* Compute the change statistics and copy them to stats for return
      to R.  Note that stats already has the statistics of an empty
      network, so d_??? statistics will add on to them, while s_???
      statistics will simply overwrite them.*/
-  WtSummStats(n_edges, (Vertex*)tails, (Vertex*)heads, weights, nwp, m,stats);
+  WtSummStats(s, asInteger(nedges), (Vertex*)INTEGER(tails), (Vertex*)INTEGER(heads), REAL(weights), REAL(stats));
   
-  WtModelDestroy(nwp, m);
-  WtNetworkDestroy(nwp);
   PutRNGstate();
+  UNPROTECT(1);
+  return stats;
 }
 
 
@@ -59,8 +70,9 @@ void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timi
  void SummStats Computes summary statistics for a network. Must be
  passed an empty network and passed an empty network
 *****************/
-void WtSummStats(Edge n_edges, Vertex *tails, Vertex *heads, double *weights,
-WtNetwork *nwp, WtModel *m, double *stats){
+void WtSummStats(ErgmWtState *s, Edge n_edges, Vertex *tails, Vertex *heads, double *weights, double *stats){
+  WtNetwork *nwp = s->nwp;
+  WtModel *m = s->m;
 
   WtDetShuffleEdges(tails,heads,weights,n_edges); /* Shuffle edgelist. */
   

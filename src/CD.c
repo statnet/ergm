@@ -51,7 +51,8 @@ SEXP CD_wrapper(// Network settings
                                // Numeric inputs
                                REAL(inputs),
                                // Network state
-                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads));
+                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads),
+                               NO_LASTTOGGLE);
 
   Model *m = s->m;
   MHProposal *MHp = s->MHp;

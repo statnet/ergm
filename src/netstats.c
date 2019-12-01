@@ -9,6 +9,7 @@
  */
 #include "netstats.h"
 #include "ergm_omp.h"
+#include "ergm_util.h"
 /*****************
  void network_stats_wrapper
 
@@ -18,43 +19,50 @@
  change gives the true global values for the observed graph.
 *****************/
 
-/* *** don't forget tail-> head, so this fucntion now accepts tails before heads */
-
-void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int *lasttoggle, int *dnedges, 
-			   int *dn, int *dflag,  int *bipartite,
-			   int *nterms, char **funnames,
-			   char **sonames, double *inputs,  double *stats)
-{
-  int directed_flag;
-  Vertex n_nodes;
-  Edge n_edges;
-  Network *nwp;
-  Model *m;
-  Vertex bip;
-
-/*	     Rprintf("prestart with setup\n"); */
-  n_nodes = (Vertex)*dn; 
-  n_edges = (Edge)*dnedges;     
-  directed_flag = *dflag;
-  bip = (Vertex)*bipartite;
-  
-  if(*lasttoggle == 0) lasttoggle = NULL;
-
+SEXP network_stats_wrapper(// Network settings
+                           SEXP dn, SEXP dflag, SEXP bipartite,
+                           // Model settings
+                           SEXP nterms, SEXP funnames,
+                           SEXP sonames,
+                           // Numeric inputs
+                           SEXP inputs,
+                           // Network state
+                           SEXP nedges,
+                           SEXP tails, SEXP heads,
+                           SEXP time, SEXP lasttoggle,
+                           // Summary settings
+                           SEXP emptynwstats){
   GetRNGstate();  /* R function enabling uniform RNG */
+  Rboolean timings = length(time)>0;
 
-  m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
-  nwp=NetworkInitialize(NULL, NULL, 0,
-                          n_nodes, directed_flag, bip, *timings?1:0, *timings?*time:0, *timings?lasttoggle:NULL);
+  ErgmState *s = ErgmStateInit(// Network settings
+                               asInteger(dn), asInteger(dflag), asInteger(bipartite),
+                               // Model settings
+                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames),
+                               // Proposal settings
+                               NO_MHPROPOSAL,
+                               // Numeric inputs
+                               REAL(inputs),
+                               // Network state
+                               NO_NWSTATE,
+                               timings, asInteger(time), INTEGER(lasttoggle));
+
+  Model *m = s->m;
+
+  SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats));
+
+  if(length(emptynwstats)>0) memcpy(REAL(stats), REAL(emptynwstats), m->n_stats*sizeof(double));
+  else memset(REAL(stats), 0, m->n_stats*sizeof(double));
 
   /* Compute the change statistics and copy them to stats for return
      to R.  Note that stats already has the statistics of an empty
      network, so d_??? statistics will add on to them, while s_???
      statistics will simply overwrite them. */
-  SummStats(n_edges, (Vertex*)tails, (Vertex*)heads, nwp, m, stats);
+  SummStats(s, asInteger(nedges), (Vertex*)INTEGER(tails), (Vertex*)INTEGER(heads), REAL(stats));
   
-  ModelDestroy(nwp, m);
-  NetworkDestroy(nwp);
   PutRNGstate();
+  UNPROTECT(1);
+  return stats;
 }
 
 
@@ -63,11 +71,10 @@ void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int 
  passed an empty network and passed an empty network
 *****************/
 
-/* *** don't forget tail-> head, so this fucntion now accepts tails before heads */
+void SummStats(ErgmState *s, Edge n_edges, Vertex *tails, Vertex *heads, double *stats){
+  Network *nwp = s->nwp;
+  Model *m = s->m;
 
-void SummStats(Edge n_edges, Vertex *tails, Vertex *heads,
-Network *nwp, Model *m, double *stats){
-  
   DetShuffleEdges(tails,heads,n_edges); /* Shuffle edgelist. */
   
   Edge ntoggles = n_edges; // So that we can use the macros

@@ -12,7 +12,8 @@ ErgmState *ErgmStateInit(// Network settings
                          double *inputs,
                          // Network state
                          Edge n_edges,
-                         Vertex *tails, Vertex *heads){
+                         Vertex *tails, Vertex *heads,
+                         Rboolean timings, int time, int *lasttoggle){
 
   ErgmState *s = Calloc(1, ErgmState);
 
@@ -20,7 +21,7 @@ ErgmState *ErgmStateInit(// Network settings
   
   /* Form the network */
   s->nwp=NetworkInitialize(tails, heads, n_edges, 
-                               n_nodes, directed_flag, bip, 0, 0, NULL);
+                               n_nodes, directed_flag, bip, timings, time, lasttoggle);
 
   /* Trigger initial storage update */
   InitStats(s->nwp, s->m);
