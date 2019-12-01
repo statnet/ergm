@@ -77,7 +77,7 @@ SEXP WtMCMC_wrapper(// Network settings
     SEXP newnetworkheads = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
     SEXP newnetworkweights = PROTECT(allocVector(REALSXP, EDGECOUNT(nwp)+1));
 
-    INTEGER(newnetworktails)[0]=INTEGER(newnetworkheads)[0]=INTEGER(newnetworkweights)[0]=
+    INTEGER(newnetworktails)[0]=INTEGER(newnetworkheads)[0]=REAL(newnetworkweights)[0]=
       WtEdgeTree2EdgeList((Vertex*)INTEGER(newnetworktails)+1,
 			  (Vertex*)INTEGER(newnetworkheads)+1,
 			  REAL(newnetworkweights)+1,
