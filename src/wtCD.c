@@ -67,6 +67,7 @@ SEXP WtCD_wrapper(// Network settings
   double *extraworkspace = Calloc(m->n_stats, double);
 
   SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*m->n_stats));
+  memset(REAL(sample), 0, asInteger(samplesize)*m->n_stats*sizeof(double));
 
   TOINTSXP(CDparams);
   TOREALSXP(eta);

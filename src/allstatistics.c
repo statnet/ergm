@@ -108,7 +108,9 @@ SEXP AllStatistics(// Network settings
   }
 
   SEXP stats = PROTECT(allocVector(REALSXP, asInteger(maxNumDyadTypes)*m->n_stats));
+  memset(REAL(stats), 0, asInteger(maxNumDyadTypes)*m->n_stats*sizeof(double));
   SEXP weights = PROTECT(allocVector(INTSXP, asInteger(maxNumDyadTypes)));
+  memset(INTEGER(weights), 0, asInteger(maxNumDyadTypes)*sizeof(int));
   SEXP outl = PROTECT(allocVector(VECSXP, 2));
   SET_VECTOR_ELT(outl, 0, stats);
   SET_VECTOR_ELT(outl, 1, weights);

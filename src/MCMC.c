@@ -68,7 +68,8 @@ SEXP MCMC_wrapper(// Network settings
   MHProposal *MHp = s->MHp;
 
   SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*m->n_stats));
-  
+  memset(REAL(sample), 0, asInteger(samplesize)*m->n_stats*sizeof(double));
+
   TOREALSXP(eta);
   SEXP status;
   if(MHp) status = PROTECT(ScalarInteger(MCMCSample(s,
@@ -83,9 +84,8 @@ SEXP MCMC_wrapper(// Network settings
   
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK && asInteger(maxedges)>0){
-    SEXP newnetworktails, newnetworkheads;
-    newnetworktails = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
-    newnetworkheads = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
+    SEXP newnetworktails = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
+    SEXP newnetworkheads = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
 
     INTEGER(newnetworktails)[0]=INTEGER(newnetworkheads)[0]=
       EdgeTree2EdgeList((Vertex*)INTEGER(newnetworktails)+1,
@@ -122,7 +122,7 @@ MCMCStatus MCMCSample(ErgmState *s,
   Model *m = s->m;
 
   int staken, tottaken;
-  int i, j;
+  int i;
     
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
@@ -162,9 +162,7 @@ MCMCStatus MCMCSample(ErgmState *s,
     /* Now sample networks */
     for (i=1; i < samplesize; i++){
       /* Set current vector of stats equal to previous vector */
-      for (j=0; j<m->n_stats; j++){
-        networkstatistics[j+m->n_stats] = networkstatistics[j];
-      }
+      memcpy(networkstatistics+m->n_stats, networkstatistics, m->n_stats*sizeof(double));
       networkstatistics += m->n_stats;
       /* This then adds the change statistics to these values */
       

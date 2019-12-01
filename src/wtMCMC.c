@@ -64,7 +64,8 @@ SEXP WtMCMC_wrapper(// Network settings
   WtMHProposal *MHp = s->MHp;
 
   SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*m->n_stats));
-  
+  memset(REAL(sample), 0, asInteger(samplesize)*m->n_stats*sizeof(double));
+
   TOREALSXP(eta);
   SEXP status;
   if(MHp) status = PROTECT(ScalarInteger(WtMCMCSample(s,
@@ -79,10 +80,9 @@ SEXP WtMCMC_wrapper(// Network settings
   
   /* record new generated network to pass back to R */
   if(asInteger(status) == WtMCMC_OK && asInteger(maxedges)>0){
-    SEXP newnetworktails, newnetworkheads, newnetworkweights;
-    newnetworktails = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
-    newnetworkheads = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
-    newnetworkweights = PROTECT(allocVector(REALSXP, EDGECOUNT(nwp)+1));
+    SEXP newnetworktails = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
+    SEXP newnetworkheads = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
+    SEXP newnetworkweights = PROTECT(allocVector(REALSXP, EDGECOUNT(nwp)+1));
 
     INTEGER(newnetworktails)[0]=INTEGER(newnetworkheads)[0]=INTEGER(newnetworkweights)[0]=
       WtEdgeTree2EdgeList((Vertex*)INTEGER(newnetworktails)+1,
@@ -121,7 +121,7 @@ WtMCMCStatus WtMCMCSample(ErgmWtState *s,
   WtModel *m = s->m;
 
   int staken, tottaken;
-  int i, j;
+  int i;
     
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
@@ -161,9 +161,7 @@ WtMCMCStatus WtMCMCSample(ErgmWtState *s,
     /* Now sample networks */
     for (i=1; i < samplesize; i++){
       /* Set current vector of stats equal to previous vector */
-      for (j=0; j<m->n_stats; j++){
-        networkstatistics[j+m->n_stats] = networkstatistics[j];
-      }
+      memcpy(networkstatistics+m->n_stats, networkstatistics, m->n_stats*sizeof(double));
       networkstatistics += m->n_stats;
       /* This then adds the change statistics to these values */
       
