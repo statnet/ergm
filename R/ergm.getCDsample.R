@@ -128,6 +128,6 @@ ergm_CD_slave <- function(Clist,proposal,eta,control,verbose,..., samplesize=NUL
             PACKAGE="ergm")
     }
     # save the results
-  z<-list(s=matrix(z[[2]], ncol=Clist$nstats, byrow = TRUE),
+  z<-list(s=matrix(z[[2]]+stats, ncol=Clist$nstats, byrow = TRUE),
           status=z[[1]])
 }
