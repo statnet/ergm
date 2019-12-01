@@ -16,50 +16,23 @@
 #include "ergm_model.h"
 #include "MCMC.h"
 
-/* *** don't forget tail -> head, so this function accepts tails first, not heads  */
-
-
-void SAN_wrapper (int *nedges,
-		  int *tails, int *heads,
-		  int *dn, int *dflag, int *bipartite, 
-		  int *nterms, char **funnames,
-		  char **sonames, 
-		  char **MHProposaltype, char **MHProposalpackage,
-		  double *inputs, double *tau, 
-		  double *sample, double *prop_sample,
-		  int *samplesize, int *nsteps,  
-		  int *newnetworktails, 
-		  int *newnetworkheads, 
-		  double *invcov,
-		  int *fVerbose, 
-		  int *attribs, int *maxout, int *maxin, int *minout,
-		  int *minin, int *condAllDegExact, int *attriblength, 
-		  int *maxedges,
-		  int *status,
-          int *nstats,
-          int *statindices,
-          int *noffsets,
-          int *offsetindices,
-          double *offsets);
-
-MCMCStatus SANSample (MHProposal *MHp,
-		double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
-		int samplesize, int nsteps, 
-		int fVerbose, int nmax,
-		Network *nwp, Model *m,
-        int nstats,
-        int *statindices,
-        int noffsets,
-        int *offsetindices,
-        double *offsets);
-MCMCStatus SANMetropolisHastings (MHProposal *MHp,
-			 double *invcov, double *tau, double *statistics, double *prop_statistics,
-			 int nsteps, int *staken,
-			 int fVerbose,
-			 Network *nwp, Model *m,
-             int nstats,
-             int *statindices,
-             int noffsets,
-             int *offsetindices,
-             double *offsets);
+MCMCStatus SANSample(ErgmState *s,
+                     double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
+                     int samplesize, int nsteps, 
+                     int nmax,
+                     int nstats,
+                     int *statindices,
+                     int noffsets,
+                     int *offsetindices,
+                     double *offsets,
+                     int verbose);
+MCMCStatus SANMetropolisHastings(ErgmState *s,
+                                 double *invcov, double *tau, double *statistics, double *prop_statistics,
+                                 int nsteps, int *staken,
+                                 int nstats,
+                                 int *statindices,
+                                 int noffsets,
+                                 int *offsetindices,
+                                 double *offsets,
+                                 int verbose);
 #endif

@@ -387,9 +387,10 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
 # Given a vector, truncate all infinite (or, really, bigger in
 # magnitude than replace=) values with replace= with the appropriate
 # sign. Leave NAs and NANs alone.
-.deinf <- function(x, replace=1/.Machine$double.eps) ifelse(is.nan(x) | abs(x)<replace, x, sign(x)*replace)
-
-
+.deinf <- function(x, replace=1/.Machine$double.eps){
+  if(tolower(replace) %in% c("maxint","intmax")) replace <- .Machine$integer.max
+  ifelse(is.nan(x) | abs(x)<replace, x, sign(x)*replace)
+}
 
 # executes expression, returns the result in a list with any warnings and errors
 .catchToList <- function(expr) {

@@ -8,7 +8,7 @@
  *  Copyright 2003-2019 Statnet Commons
  */
 #include "wtSAN.h"
-
+#include "ergm_util.h"
 
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
@@ -21,77 +21,89 @@
 
  Wrapper for a call from R.
 *****************/
-void WtSAN_wrapper (int *nedges,
-		    int *tails, int *heads, double *weights, 
-		    int *dn, int *dflag, int *bipartite, 
-		    int *nterms, char **funnames,
-		    char **sonames, 
-		    char **MHProposaltype, char **MHProposalpackage,
-		    double *inputs, double *tau, 
-		    double *sample, double *prop_sample,
-		    int *samplesize, int *nsteps,
-		    int *newnetworktails, 
-		    int *newnetworkheads, 
-		    double *newnetworkweights,
-		    double *invcov, 
-		    int *fVerbose, 
-		    int *maxedges,
-		    int *status,
-            int *nstats,
-            int *statindices,
-            int *noffsets,
-            int *offsetindices,
-            double *offsets){
-  int directed_flag;
-  Vertex n_nodes, nmax, bip;
-  WtNetwork *nwp;
-  WtModel *m;
-  WtMHProposal *MHp;
-  
-  n_nodes = (Vertex)*dn; 
-  nmax = (Edge)abs(*maxedges);
-  bip = (Vertex)*bipartite; 
-  
+
+SEXP WtSAN_wrapper(// Network settings
+                   SEXP dn, SEXP dflag, SEXP bipartite,
+                   // Model settings
+                   SEXP nterms, SEXP funnames,
+                   SEXP sonames,
+                   // Proposal settings
+                   SEXP MHProposaltype, SEXP MHProposalpackage,
+                   // Numeric inputs
+                   SEXP inputs,
+                   // Network state
+                   SEXP nedges,
+                   SEXP tails, SEXP heads, SEXP weights,
+                   // MCMC settings
+                   SEXP tau, SEXP stats,
+                   SEXP samplesize, SEXP nsteps,
+                   SEXP invcov,
+                   SEXP maxedges,
+                   SEXP nstats,
+                   SEXP statindices,
+                   SEXP noffsets,
+                   SEXP offsetindices,
+                   SEXP offsets,
+                   SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
   
-  directed_flag = *dflag;
+  ErgmWtState *s = ErgmWtStateInit(// Network settings
+                                 asInteger(dn), asInteger(dflag), asInteger(bipartite),
+                                 // Model settings
+                                 asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames),
+                                 // Proposal settings
+                                 FIRSTCHAR(MHProposaltype), FIRSTCHAR(MHProposalpackage),
+                                 // Numeric inputs
+                                 REAL(inputs),
+                                 // Network state
+                                 asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads), REAL(weights),
+                                 NO_LASTTOGGLE);
 
-  m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
+  WtNetwork *nwp = s->nwp;
+  WtMHProposal *MHp = s->MHp;
 
-  /* Form the network */
-  nwp=WtNetworkInitialize((Vertex*)tails, (Vertex*)heads, weights, nedges[0],
-			    n_nodes, directed_flag, bip, 0, 0, NULL);
+  SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*asInteger(nstats)));
+  memcpy(REAL(sample), REAL(stats), asInteger(nstats)*sizeof(double));
+  SEXP prop_sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*asInteger(nstats)));
+  memset(REAL(prop_sample), 0, asInteger(samplesize)*asInteger(nstats)*sizeof(double));
 
-  /* Trigger initial storage update */
-  WtInitStats(nwp, m);
-  
-  /* Initialize the M-H proposal */
-  MHp=WtMHProposalInitialize(
-	    *MHProposaltype, *MHProposalpackage,
-	    inputs,
-	    nwp,
-	    m->termarray->aux_storage);
+  SEXP status;
+  if(MHp) status = PROTECT(ScalarInteger(WtSANSample(s,
+                                                     REAL(invcov), REAL(tau), REAL(sample), REAL(prop_sample), asInteger(samplesize),
+                                                     asInteger(nsteps),
+                                                     asInteger(maxedges),
+                                                     asInteger(nstats), INTEGER(statindices), asInteger(noffsets), INTEGER(offsetindices), REAL(offsets),
+                                                     asInteger(verbose))));
+  else status = PROTECT(ScalarInteger(WtMCMC_MH_FAILED));
 
-  if(MHp)
-    *status = WtSANSample(MHp,
-			  invcov, tau, sample, prop_sample, *samplesize,
-			  *nsteps,
-			  *fVerbose, nmax, nwp, m,
-              *nstats, statindices, *noffsets, offsetindices, offsets);
-  else *status = WtMCMC_MH_FAILED;
-
-  WtMHProposalDestroy(MHp, nwp);
-
-/* Rprintf("Back! %d %d\n",nwp[0].nedges, nmax); */
+  const char *outn[] = {"status", "s", "s.prop", "newnwtails", "newnwheads", "newnwweights", ""};
+  SEXP outl = PROTECT(mkNamed(VECSXP, outn));
+  SET_VECTOR_ELT(outl, 0, status);
+  SET_VECTOR_ELT(outl, 1, sample);
+  SET_VECTOR_ELT(outl, 2, prop_sample);
 
   /* record new generated network to pass back to R */
-  /* *** and don't forget edges are (tail, head) */
-  if(*status == WtMCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
-    newnetworktails[0]=newnetworkheads[0]=newnetworkweights[0]=WtEdgeTree2EdgeList((Vertex*)newnetworktails+1,(Vertex*)newnetworkheads+1,newnetworkweights+1,nwp,nmax-1);
+  if(asInteger(status) == WtMCMC_OK && asInteger(maxedges)>0){
+    SEXP newnetworktails = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
+    SEXP newnetworkheads = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
+    SEXP newnetworkweights = PROTECT(allocVector(REALSXP, EDGECOUNT(nwp)+1));
 
-  WtModelDestroy(nwp, m);
-  WtNetworkDestroy(nwp);
+    INTEGER(newnetworktails)[0]=INTEGER(newnetworkheads)[0]=REAL(newnetworkweights)[0]=
+      WtEdgeTree2EdgeList((Vertex*)INTEGER(newnetworktails)+1,
+                          (Vertex*)INTEGER(newnetworkheads)+1,
+                          REAL(newnetworkweights)+1,
+                          nwp,asInteger(maxedges)-1);
+
+    SET_VECTOR_ELT(outl, 3, newnetworktails);
+    SET_VECTOR_ELT(outl, 4, newnetworkheads);
+    SET_VECTOR_ELT(outl, 5, newnetworkweights);
+    UNPROTECT(3);
+  }
+
+  ErgmWtStateDestroy(s);
   PutRNGstate();  /* Disable RNG before returning */
+  UNPROTECT(4);
+  return outl;
 }
 
 
@@ -105,16 +117,18 @@ void WtSAN_wrapper (int *nedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-WtMCMCStatus WtSANSample (WtMHProposal *MHp,
-  double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
-  int samplesize, int nsteps, 
-  int fVerbose, int nmax,
-  WtNetwork *nwp, WtModel *m,
-  int nstats,
-  int *statindices,
-  int noffsets,
-  int *offsetindices,
-  double *offsets) {
+WtMCMCStatus WtSANSample(ErgmWtState *s,
+                         double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
+                         int samplesize, int nsteps, 
+                         int nmax,
+                         int nstats,
+                         int *statindices,
+                         int noffsets,
+                         int *offsetindices,
+                         double *offsets,
+                         int verbose){
+  WtNetwork *nwp = s->nwp;
+
   int staken, tottaken, ptottaken;
     
   /*********************
@@ -141,8 +155,9 @@ WtMCMCStatus WtSANSample (WtMHProposal *MHp,
    in subsequent calls to M-H
    *********************/
   /*  Catch more edges than we can return */
-  if(WtSANMetropolisHastings(MHp, invcov, tau, networkstatistics, prop_networkstatistics, burnin, &staken,
-			     fVerbose, nwp, m, nstats, statindices, noffsets, offsetindices, offsets)!=WtMCMC_OK)
+  if(WtSANMetropolisHastings(s, invcov, tau, networkstatistics, prop_networkstatistics, burnin, &staken,
+			     nstats, statindices, noffsets, offsetindices, offsets,
+                             verbose)!=WtMCMC_OK)
     return WtMCMC_MH_FAILED;
   if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
     return WtMCMC_TOO_MANY_EDGES;
@@ -161,7 +176,7 @@ WtMCMCStatus WtSANSample (WtMHProposal *MHp,
         if((networkstatistics[j+nstats] = networkstatistics[j])!=0) found = FALSE;
       }
       if(found){
-	if(fVerbose) Rprintf("Exact match found.\n");
+	if(verbose) Rprintf("Exact match found.\n");
 	break;
       }
 
@@ -169,14 +184,15 @@ WtMCMCStatus WtSANSample (WtMHProposal *MHp,
       prop_networkstatistics += nstats;
       /* This then adds the change statistics to these values */
       
-      if(WtSANMetropolisHastings (MHp, invcov, tau, networkstatistics, prop_networkstatistics,
-		             interval, &staken, fVerbose, nwp, m, nstats, statindices, noffsets, offsetindices, offsets)!=WtMCMC_OK)
+      if(WtSANMetropolisHastings(s, invcov, tau, networkstatistics, prop_networkstatistics,
+                                 interval, &staken, nstats, statindices, noffsets, offsetindices, offsets,
+                                 verbose)!=WtMCMC_OK)
 	return WtMCMC_MH_FAILED;
       if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
 	return WtMCMC_TOO_MANY_EDGES;
       }
       tottaken += staken;
-      if (fVerbose){
+      if (verbose){
         if( ((3*i) % samplesize)==0 && samplesize > 500){
         Rprintf("Sampled %d from SAN Metropolis-Hastings\n", i);}
       }
@@ -198,12 +214,12 @@ WtMCMCStatus WtSANSample (WtMHProposal *MHp,
     Below is an extremely crude device for letting the user know
     when the chain doesn't accept many of the proposed steps.
     *********************/
-    if (fVerbose){
+    if (verbose){
 	  Rprintf("SAN Metropolis-Hastings accepted %7.3f%% of %lld proposed steps.\n",
 	    tottaken*100.0/(1.0*interval*samplesize), (long long) interval*samplesize); 
     }
   }else{
-    if (fVerbose){
+    if (verbose){
       Rprintf("SAN Metropolis-Hastings accepted %7.3f%% of %d proposed steps.\n",
 	      staken*100.0/(1.0*nsteps), nsteps); 
     }
@@ -222,23 +238,25 @@ MCMCStatus WtSANMetropolisHastings
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-WtMCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
-			    double *invcov, 
-				  double *tau, double *networkstatistics, double *prop_networkstatistics,
-			    int nsteps, int *staken,
-			    int fVerbose,
-			    WtNetwork *nwp,
-			    WtModel *m,
-                int nstats,
-                int *statindices,
-                int noffsets,
-                int *offsetindices,
-                double *offsets) {
+WtMCMCStatus WtSANMetropolisHastings(ErgmWtState *s,
+                                     double *invcov, 
+                                     double *tau, double *networkstatistics, double *prop_networkstatistics,
+                                     int nsteps, int *staken,
+                                     int nstats,
+                                     int *statindices,
+                                     int noffsets,
+                                     int *offsetindices,
+                                     double *offsets,
+                                     int verbose){
+  WtNetwork *nwp = s->nwp;
+  WtModel *m = s->m;
+  WtMHProposal *MHp = s->MHp;
+
   unsigned int taken=0, unsuccessful=0;
   double *deltainvsig;
   deltainvsig = (double *)Calloc(nstats, double);
   
-/*  if (fVerbose)
+/*  if (verbose)
     Rprintf("Now proposing %d WtMH steps... ", nsteps); */
   for(unsigned int step=0; step < nsteps; step++) {
     MHp->logratio = 0;
@@ -265,7 +283,7 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
       }
     }
     
-    if(fVerbose>=5){
+    if(verbose>=5){
       Rprintf("MHProposal: ");
       for(unsigned int i=0; i<MHp->ntoggles; i++)
 	Rprintf(" (%d, %d)", MHp->toggletail[i], MHp->togglehead[i]);
@@ -281,7 +299,7 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
       prop_networkstatistics[i] += m->workspace[statindices[i]];
     }
 
-    if(fVerbose>=5){
+    if(verbose>=5){
       Rprintf("Changes: (");
       for(unsigned int i=0; i<nstats; i++)
 	Rprintf(" %f ", m->workspace[statindices[i]]);
@@ -303,16 +321,16 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
         offsetcontrib += (m->workspace[offsetindices[i]])*offsets[i];
     }
     
-    if(fVerbose>=5){
+    if(verbose>=5){
       Rprintf("log acceptance probability: %f\n", ip - offsetcontrib);
     }
     
     /* if we accept the proposed network */
     if (tau[0]==0? ip - offsetcontrib <= 0 : ip/tau[0] - offsetcontrib <= -log(unif_rand()) ) { 
-      if(fVerbose>=5){
+      if(verbose>=5){
 	Rprintf("Accepted.\n");
       }
-      
+
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for(unsigned int i=0; i < MHp->ntoggles; i++){
 	Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];
@@ -330,7 +348,7 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
 
       if(found)	break;
     }else{
-      if(fVerbose>=5){
+      if(verbose>=5){
 	Rprintf("Rejected.\n");
       }
     }

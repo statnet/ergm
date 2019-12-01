@@ -28,9 +28,7 @@ extern void Godfather_wrapper(void *, void *, void *, void *, void *, void *, vo
 extern void MCMCPhase12(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void node_geodesics(void *, void *, void *, void *, void *, void *, void *, void *);
 extern void pair_geodesic(void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void SAN_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void WtGodfather_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void WtSAN_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 
 /* .Call calls */
 extern SEXP AllStatistics(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
@@ -39,10 +37,12 @@ extern SEXP get_ergm_omp_terms();
 extern SEXP MCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP MPLE_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP network_stats_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP SAN_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP set_ergm_omp_terms(SEXP);
 extern SEXP wt_network_stats_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtCD_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtMCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP WtSAN_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
 static const R_CMethodDef CEntries[] = {
     {"full_geodesic_distribution", (DL_FUNC) &full_geodesic_distribution,  8},
@@ -51,9 +51,7 @@ static const R_CMethodDef CEntries[] = {
     {"MCMCPhase12",                (DL_FUNC) &MCMCPhase12,                35},
     {"node_geodesics",             (DL_FUNC) &node_geodesics,              8},
     {"pair_geodesic",              (DL_FUNC) &pair_geodesic,               9},
-    {"SAN_wrapper",                (DL_FUNC) &SAN_wrapper,                35},
     {"WtGodfather_wrapper",        (DL_FUNC) &WtGodfather_wrapper,        22},
-    {"WtSAN_wrapper",              (DL_FUNC) &WtSAN_wrapper,              30},
     {NULL, NULL, 0}
 };
 
@@ -64,10 +62,12 @@ static const R_CallMethodDef CallEntries[] = {
     {"MCMC_wrapper",             (DL_FUNC) &MCMC_wrapper,             25},
     {"MPLE_wrapper",             (DL_FUNC) &MPLE_wrapper,             13},
     {"network_stats_wrapper",    (DL_FUNC) &network_stats_wrapper,    13},
+    {"SAN_wrapper",              (DL_FUNC) &SAN_wrapper,              31},
     {"set_ergm_omp_terms",       (DL_FUNC) &set_ergm_omp_terms,        1},
     {"wt_network_stats_wrapper", (DL_FUNC) &wt_network_stats_wrapper, 14},
     {"WtCD_wrapper",             (DL_FUNC) &WtCD_wrapper,             17},
     {"WtMCMC_wrapper",           (DL_FUNC) &WtMCMC_wrapper,           19},
+    {"WtSAN_wrapper",            (DL_FUNC) &WtSAN_wrapper,            25},
     {NULL, NULL, 0}
 };
 

@@ -234,7 +234,6 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
         " of ", control$SAN.nsteps,
         " steps", ifelse(control$SAN.maxit>1, " each", ""), ".", sep=""))
   }
-  maxedges <- max(control$SAN.init.maxedges, Clist$nedges)
   netsumm<-summary(model,nw,response=response)[!offset.indicators]
   target.stats <- vector.namesmatch(target.stats, names(netsumm))
   stats <- netsumm-target.stats
@@ -341,9 +340,9 @@ san.ergm <- function(object, formula=object$formula,
               offset.coef=offset.coef, ...)
 }
 
-ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run=NULL, nsteps=NULL, samplesize=NULL, maxedges=NULL, statindices=NULL, offsetindices=NULL, offsets=NULL) {
+ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run=NULL, nsteps=NULL, samplesize=NULL, statindices=NULL, offsetindices=NULL, offsets=NULL) {
   if(is.null(prev.run)){ # Start from Clist
-    nedges <- c(Clist$nedges,0,0)
+    nedges <- Clist$nedges
     tails <- Clist$tails
     heads <- Clist$heads
     weights <- Clist$weights
@@ -352,92 +351,82 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
     tails <- prev.run$newnwtails[2:(nedges+1)]
     heads <- prev.run$newnwheads[2:(nedges+1)]
     weights <- prev.run$newnwweights[2:(nedges+1)]
-    nedges <- c(nedges,0,0)
     stats <- prev.run$s[nrow(prev.run$s),]
   }
 
   if(is.null(nsteps)) nsteps <- control$SAN.nsteps
   if(is.null(samplesize)) samplesize <- control$SAN.samplesize
-  if(is.null(maxedges)) maxedges <- control$SAN.init.maxedges
 
-  repeat{
+  z <-
     if(is.null(Clist$weights)){
-      z <- .C("SAN_wrapper",
-              as.integer(nedges),
-              as.integer(tails), as.integer(heads),
-              as.integer(Clist$n),
-              as.integer(Clist$dir), as.integer(Clist$bipartite),
-              as.integer(Clist$nterms),
-              as.character(Clist$fnamestring),
-              as.character(Clist$snamestring),
-              as.character(proposal$name), as.character(proposal$pkgname),
-              as.double(c(Clist$inputs,proposal$inputs)), as.double(.deinf(tau)),
-              s = as.double(c(stats, numeric(length(stats)*(samplesize-1)))), s.prop = double(length(stats)*samplesize),
-              as.integer(samplesize),
-              as.integer(nsteps), 
-              newnwtails = integer(maxedges),
-              newnwheads = integer(maxedges),
-              as.double(control$invcov),
-              as.integer(verbose), as.integer(proposal$arguments$constraints$bd$attribs),
-              as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
-              as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
-              as.integer(proposal$arguments$constraints$bd$condAllDegExact), as.integer(length(proposal$arguments$constraints$bd$attribs)),
-              as.integer(maxedges),
-              status = integer(1),
-              nstats=as.integer(length(statindices)),
-              statindices=as.integer(statindices - 1),
-              noffsets=as.integer(length(offsetindices)),
-              offsetindices=as.integer(offsetindices - 1),
-              offsets=as.double(.deinf(offsets)),
-              PACKAGE="ergm")
-      
-        # save the results (note that if prev.run is NULL, c(NULL$s,z$s)==z$s.
-      z<-list(s=matrix(z$s, ncol=length(statindices), byrow = TRUE), s.prop=matrix(z$s.prop, ncol=length(statindices), byrow = TRUE),
-                newnwtails=z$newnwtails, newnwheads=z$newnwheads, status=z$status, maxedges=maxedges)
+      .Call("SAN_wrapper",
+            # Network settings
+            as.integer(Clist$n),
+            as.integer(Clist$dir), as.integer(Clist$bipartite),
+            # Model settings
+            as.integer(Clist$nterms),
+            as.character(Clist$fnamestring),
+            as.character(Clist$snamestring),
+            # Proposal settings
+            as.character(proposal$name), as.character(proposal$pkgname),
+            as.integer(proposal$arguments$constraints$bd$attribs),
+            as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
+            as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
+            as.integer(proposal$arguments$constraints$bd$condAllDegExact), as.integer(length(proposal$arguments$constraints$bd$attribs)),
+            # Numeric vector inputs
+            as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)),
+            # Network state
+            as.integer(nedges),
+            as.integer(tails), as.integer(heads),
+            # SAN settings
+            as.double(.deinf(tau)), as.double(stats),
+            as.integer(samplesize),
+            as.integer(nsteps),
+            as.double(control$invcov),
+            as.integer(.deinf(NVL(control$SAN.maxedges,Inf),"maxint")),
+            nstats=as.integer(length(statindices)),
+            statindices=as.integer(statindices - 1),
+            noffsets=as.integer(length(offsetindices)),
+            offsetindices=as.integer(offsetindices - 1),
+            offsets=as.double(.deinf(offsets)),
+            as.integer(verbose),
+            PACKAGE="ergm")
     }else{
-      z <- .C("WtSAN_wrapper",
-              as.integer(nedges),
-              as.integer(tails), as.integer(heads), as.double(weights),
-              as.integer(Clist$n),
-              as.integer(Clist$dir), as.integer(Clist$bipartite),
-              as.integer(Clist$nterms),
-              as.character(Clist$fnamestring),
-              as.character(Clist$snamestring),
-              as.character(proposal$name), as.character(proposal$pkgname),
-              as.double(c(Clist$inputs,proposal$inputs)), as.double(.deinf(tau)),
-              s = as.double(c(stats, numeric(length(stats)*(samplesize-1)))), s.prop = double(length(stats)*samplesize),
-              as.integer(samplesize),
-              as.integer(nsteps), 
-              newnwtails = integer(maxedges),
-              newnwheads = integer(maxedges),
-              newnwweights = double(maxedges),
-              as.double(control$invcov),
-              as.integer(verbose), 
-              as.integer(maxedges),
-              status = integer(1),
-              nstats=as.integer(length(statindices)),
-              statindices=as.integer(statindices - 1),
-              noffsets=as.integer(length(offsetindices)),
-              offsetindices=as.integer(offsetindices - 1),
-              offsets=as.double(.deinf(offsets)),              
-              PACKAGE="ergm")
-      # save the results
-      z<-list(s=matrix(z$s, ncol=length(statindices), byrow = TRUE), s.prop=matrix(z$s.prop, ncol=length(statindices), byrow = TRUE),
-              newnwtails=z$newnwtails, newnwheads=z$newnwheads, newnwweights=z$newnwweights, status=z$status, maxedges=maxedges)
+      .Call("WtSAN_wrapper",
+            # Network settings
+            as.integer(Clist$n),
+            as.integer(Clist$dir), as.integer(Clist$bipartite),
+            # Model settings
+            as.integer(Clist$nterms),
+            as.character(Clist$fnamestring),
+            as.character(Clist$snamestring),
+            # Proposal settings
+            as.character(proposal$name), as.character(proposal$pkgname),
+            # Numeric inputs
+            as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)),
+            # Network state
+            as.integer(nedges),
+            as.integer(tails), as.integer(heads), as.double(weights),
+            # MCMC settings
+            as.double(.deinf(tau)), as.double(stats),
+            as.integer(samplesize),
+            as.integer(nsteps),
+            as.double(control$invcov),
+            as.integer(.deinf(NVL(control$SAN.maxedges,Inf),"maxint")),
+            nstats=as.integer(length(statindices)),
+            statindices=as.integer(statindices - 1),
+            noffsets=as.integer(length(offsetindices)),
+            offsetindices=as.integer(offsetindices - 1),
+            offsets=as.double(.deinf(offsets)),
+            as.integer(verbose),
+            PACKAGE="ergm")
     }
+  # save the results
+  z<-list(s=matrix(z$s, ncol=length(statindices), byrow = TRUE), s.prop=matrix(z$s.prop, ncol=length(statindices), byrow = TRUE),
+          newnwtails=z$newnwtails, newnwheads=z$newnwheads, newnwweights=z$newnwweights, status=z$status)
 
-    
-    z$s <- rbind(prev.run$s,z$s)
-    z$s.prop <- rbind(prev.run$s.prop,z$s.prop)
-    
-    if(z$status!=1) return(z) # Handle everything except for MCMC_TOO_MANY_EDGES elsewhere.
-    
-    # The following is only executed (and the loop continued) if too many edges.
-    maxedges <- maxedges * 10
-    if(!is.null(control$SAN.max.maxedges)){
-      if(maxedges == control$SAN.max.maxedges*10) # True iff the previous maxedges exactly equaled control$SAN.max.maxedges and that was too small.
-        return(z) # This will kick the too many edges problem upstairs, so to speak.
-      maxedges <- min(maxedges, control$MCMC.max.maxedges)
-    }
-  }
+  z$s <- rbind(prev.run$s,z$s)
+  z$s.prop <- rbind(prev.run$s.prop,z$s.prop)
+
+  z
 }

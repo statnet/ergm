@@ -12,8 +12,7 @@ control.san(
   SAN.nsteps.alloc = function(nsim) 2^seq_len(nsim),
   SAN.nsteps = 2^19,
   SAN.samplesize = 2^12,
-  SAN.init.maxedges = 20000,
-  SAN.max.maxedges = 2^26,
+  SAN.maxedges = Inf,
   SAN.prop.weights = "default",
   SAN.prop.args = list(),
   SAN.packagenames = c(),
@@ -52,9 +51,7 @@ simulated annealing runs.}
 
 \item{SAN.samplesize}{Number of realisations' statistics to obtain for tuning purposes.}
 
-\item{SAN.init.maxedges}{Maximum number of edges expected in network.}
-
-\item{SAN.max.maxedges}{Hard upper bound on the number of edges in the network.}
+\item{SAN.maxedges}{The maximum number of edges that may occur during the SAN sampling.}
 
 \item{SAN.prop.weights}{Specifies the method to allocate probabilities of
 being proposed to dyads. Defaults to \code{"default"}, which picks a

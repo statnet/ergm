@@ -252,7 +252,6 @@ ergm_MCMC_slave <- function(Clist,proposal,eta,control,verbose,...,prev.run=NULL
     tails <- prev.run$newnwtails[2:(nedges+1)]
     heads <- prev.run$newnwheads[2:(nedges+1)]
     weights <- prev.run$newnwweights[2:(nedges+1)]
-    nedges <- c(nedges,0,0)
     stats <- prev.run$s[nrow(prev.run$s),]
   }
 
@@ -286,7 +285,7 @@ ergm_MCMC_slave <- function(Clist,proposal,eta,control,verbose,...,prev.run=NULL
             as.integer(samplesize),
             as.integer(burnin), 
             as.integer(interval),
-            as.integer(.deinf(NVL(control$MCMC.maxedges,Inf),.Machine$integer.max)),
+            as.integer(.deinf(NVL(control$MCMC.maxedges,Inf),"maxint")),
             as.integer(verbose),
             PACKAGE="ergm")
     }else{
@@ -310,7 +309,7 @@ ergm_MCMC_slave <- function(Clist,proposal,eta,control,verbose,...,prev.run=NULL
             as.integer(samplesize),
             as.integer(burnin), 
             as.integer(interval),
-            as.integer(.deinf(NVL(control$MCMC.maxedges,Inf),.Machine$integer.max)),
+            as.integer(.deinf(NVL(control$MCMC.maxedges,Inf),"maxint")),
             as.integer(verbose),
             PACKAGE="ergm")
     }

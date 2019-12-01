@@ -8,7 +8,7 @@
  *  Copyright 2003-2019 Statnet Commons
  */
 #include "SAN.h"
-
+#include "ergm_util.h"
 
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
@@ -22,84 +22,87 @@
  Wrapper for a call from R.
 *****************/
 
-/* *** don't forget tail-> head, so this function now accepts tails before heads */
-
-void SAN_wrapper ( int *nedges,
-		   int *tails, int *heads,
-                   int *dn, int *dflag, int *bipartite, 
-                   int *nterms, char **funnames,
-                   char **sonames, 
-                   char **MHProposaltype, char **MHProposalpackage,
-                   double *inputs, double *tau, 
-                   double *sample, double *prop_sample,
-		   int *samplesize, int *nsteps,
-                   int *newnetworktails, 
-                   int *newnetworkheads, 
-                   double *invcov, 
-                   int *fVerbose, 
-                   int *attribs, int *maxout, int *maxin, int *minout,
-                   int *minin, int *condAllDegExact, int *attriblength, 
-                   int *maxedges,
-		   int *status,
-           int *nstats,
-           int *statindices,
-           int *noffsets,
-           int *offsetindices,
-           double *offsets){
-  int directed_flag;
-  Vertex n_nodes, nmax, bip;
-  Network *nwp;
-  Model *m;
-  MHProposal *MHp;
-
-
-  /* please don't forget:   tail -> head   */
-
-  
-  n_nodes = (Vertex)*dn; 
-  nmax = (Edge)abs(*maxedges);
-  bip = (Vertex)*bipartite; 
-  
+SEXP SAN_wrapper(// Network settings
+                 SEXP dn, SEXP dflag, SEXP bipartite,
+                 // Model settings
+                 SEXP nterms, SEXP funnames,
+                 SEXP sonames,
+                 // Proposal settings
+                 SEXP MHProposaltype, SEXP MHProposalpackage,
+                 SEXP attribs, SEXP maxout, SEXP maxin, SEXP minout,
+                 SEXP minin, SEXP condAllDegExact, SEXP attriblength,
+                 // Numeric inputs
+                 SEXP inputs,
+                 // Network state
+                 SEXP nedges,
+                 SEXP tails, SEXP heads,
+                 // MCMC settings
+                 SEXP tau, SEXP stats,
+                 SEXP samplesize, SEXP nsteps,
+                 SEXP invcov,
+                 SEXP maxedges,
+                 SEXP nstats,
+                 SEXP statindices,
+                 SEXP noffsets,
+                 SEXP offsetindices,
+                 SEXP offsets,
+                 SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
   
-  directed_flag = *dflag;
+  ErgmState *s = ErgmStateInit(// Network settings
+                               asInteger(dn), asInteger(dflag), asInteger(bipartite),
+                               // Model settings
+                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames),
+                               // Proposal settings
+                               FIRSTCHAR(MHProposaltype), FIRSTCHAR(MHProposalpackage), INTEGER(attribs), INTEGER(maxout), INTEGER(maxin), INTEGER(minout), INTEGER(minin), asInteger(condAllDegExact), asInteger(attriblength),
+                               // Numeric inputs
+                               REAL(inputs),
+                               // Network state
+                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads),
+                               NO_LASTTOGGLE);
 
-  m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
+  Network *nwp = s->nwp;
+  MHProposal *MHp = s->MHp;
 
-  /* Form the network */
-  nwp=NetworkInitialize((Vertex*)tails, (Vertex*)heads, nedges[0], 
-                          n_nodes, directed_flag, bip, 0, 0, NULL);
-  
-  /* Trigger initial storage update */
-  InitStats(nwp, m);
-  
-  /* Initialize the M-H proposal */
-  MHp=MHProposalInitialize(
-	  *MHProposaltype, *MHProposalpackage,
-	  inputs,
-	  nwp, attribs, maxout, maxin, minout, minin,
-	  *condAllDegExact, *attriblength,
-	  m->termarray->aux_storage);
+  SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*asInteger(nstats)));
+  memcpy(REAL(sample), REAL(stats), asInteger(nstats)*sizeof(double));
+  SEXP prop_sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*asInteger(nstats)));
+  memset(REAL(prop_sample), 0, asInteger(samplesize)*asInteger(nstats)*sizeof(double));
 
-  if(MHp)
-    *status = SANSample(MHp,
-			invcov, tau, sample, prop_sample, *samplesize,
-			*nsteps,
-			*fVerbose, nmax, nwp, m,
-            *nstats, statindices, *noffsets, offsetindices, offsets);
-  else *status = MCMC_MH_FAILED;
+  SEXP status;
+  if(MHp) status = PROTECT(ScalarInteger(SANSample(s,
+                                                   REAL(invcov), REAL(tau), REAL(sample), REAL(prop_sample), asInteger(samplesize),
+                                                   asInteger(nsteps),
+                                                   asInteger(maxedges),
+                                                   asInteger(nstats), INTEGER(statindices), asInteger(noffsets), INTEGER(offsetindices), REAL(offsets),
+                                                   asInteger(verbose))));
+  else status = PROTECT(ScalarInteger(MCMC_MH_FAILED));
 
-  MHProposalDestroy(MHp, nwp);
-        
-/* Rprintf("Back! %d %d\n",nwp[0].nedges, nmax); */
+  const char *outn[] = {"status", "s", "s.prop", "newnwtails", "newnwheads", ""};
+  SEXP outl = PROTECT(mkNamed(VECSXP, outn));
+  SET_VECTOR_ELT(outl, 0, status);
+  SET_VECTOR_ELT(outl, 1, sample);
+  SET_VECTOR_ELT(outl, 2, prop_sample);
 
   /* record new generated network to pass back to R */
-  if(*status == MCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
-    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList((Vertex*)newnetworktails+1,(Vertex*)newnetworkheads+1,nwp,nmax-1);
-  
-  ModelDestroy(nwp, m);
-  NetworkDestroy(nwp);
+  if(asInteger(status) == MCMC_OK && asInteger(maxedges)>0){
+    SEXP newnetworktails = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
+    SEXP newnetworkheads = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
+
+    INTEGER(newnetworktails)[0]=INTEGER(newnetworkheads)[0]=
+      EdgeTree2EdgeList((Vertex*)INTEGER(newnetworktails)+1,
+			(Vertex*)INTEGER(newnetworkheads)+1,
+			nwp,asInteger(maxedges)-1);
+
+    SET_VECTOR_ELT(outl, 3, newnetworktails);
+    SET_VECTOR_ELT(outl, 4, newnetworkheads);
+    UNPROTECT(2);
+  }
+
+  ErgmStateDestroy(s);
   PutRNGstate();  /* Disable RNG before returning */
+  UNPROTECT(4);
+  return outl;
 }
 
 
@@ -113,16 +116,18 @@ void SAN_wrapper ( int *nedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-MCMCStatus SANSample (MHProposal *MHp,
-  double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
-  int samplesize, int nsteps, 
-  int fVerbose, int nmax,
-  Network *nwp, Model *m,
-  int nstats,
-  int *statindices,
-  int noffsets,
-  int *offsetindices,
-  double *offsets) {
+MCMCStatus SANSample(ErgmState *s,
+                     double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
+                     int samplesize, int nsteps,
+                     int nmax,
+                     int nstats,
+                     int *statindices,
+                     int noffsets,
+                     int *offsetindices,
+                     double *offsets,
+                     int verbose){
+  Network *nwp = s->nwp;
+
   int staken, tottaken, ptottaken;
     
   /*********************
@@ -149,8 +154,9 @@ MCMCStatus SANSample (MHProposal *MHp,
    in subsequent calls to M-H
    *********************/
   /*  Catch more edges than we can return */
-  if(SANMetropolisHastings(MHp, invcov, tau, networkstatistics, prop_networkstatistics, burnin, &staken,
-			   fVerbose, nwp, m, nstats, statindices, noffsets, offsetindices, offsets)!=MCMC_OK)
+  if(SANMetropolisHastings(s, invcov, tau, networkstatistics, prop_networkstatistics, burnin, &staken,
+                           nstats, statindices, noffsets, offsetindices, offsets,
+			   verbose)!=MCMC_OK)
     return MCMC_MH_FAILED;
   if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
     return MCMC_TOO_MANY_EDGES;
@@ -169,7 +175,7 @@ MCMCStatus SANSample (MHProposal *MHp,
         if((networkstatistics[j+nstats] = networkstatistics[j])!=0) found = FALSE;
       }
       if(found){
-	if(fVerbose) Rprintf("Exact match found.\n");
+	if(verbose) Rprintf("Exact match found.\n");
 	break;
       }
 
@@ -177,15 +183,16 @@ MCMCStatus SANSample (MHProposal *MHp,
       prop_networkstatistics += nstats;
       /* This then adds the change statistics to these values */
       
-      if(SANMetropolisHastings(MHp, invcov, tau, networkstatistics, prop_networkstatistics,
-		             interval, &staken,
-			       fVerbose, nwp, m, nstats, statindices, noffsets, offsetindices, offsets)!=MCMC_OK)
+      if(SANMetropolisHastings(s, invcov, tau, networkstatistics, prop_networkstatistics,
+                               interval, &staken,
+                               nstats, statindices, noffsets, offsetindices, offsets,
+			       verbose)!=MCMC_OK)
 	return MCMC_MH_FAILED;
       if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
 	return MCMC_TOO_MANY_EDGES;
       }
       tottaken += staken;
-      if (fVerbose){
+      if (verbose){
         if( ((3*i) % samplesize)==0 && samplesize > 500){
         Rprintf("Sampled %d from SAN Metropolis-Hastings\n", i);}
       }
@@ -207,12 +214,12 @@ MCMCStatus SANSample (MHProposal *MHp,
     Below is an extremely crude device for letting the user know
     when the chain doesn't accept many of the proposed steps.
     *********************/
-    if (fVerbose){
+    if (verbose){
       Rprintf("SAN Metropolis-Hastings accepted %7.3f%% of %lld proposed steps.\n",
 	    tottaken*100.0/(1.0*interval*samplesize), (long long) interval*samplesize); 
     }
   }else{
-    if (fVerbose){
+    if (verbose){
       Rprintf("SAN Metropolis-Hastings accepted %7.3f%% of %d proposed steps.\n",
 	      staken*100.0/(1.0*nsteps), nsteps); 
     }
@@ -231,23 +238,25 @@ MCMCStatus SANMetropolisHastings
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-MCMCStatus SANMetropolisHastings (MHProposal *MHp,
-			    double *invcov, 
-				  double *tau, double *networkstatistics, double *prop_networkstatistics,
-			    int nsteps, int *staken,
-			    int fVerbose,
-			    Network *nwp,
-			    Model *m,
-                int nstats,
-                int *statindices,
-                int noffsets,
-                int *offsetindices,
-                double *offsets) {
+MCMCStatus SANMetropolisHastings(ErgmState *s,
+                                 double *invcov, 
+                                 double *tau, double *networkstatistics, double *prop_networkstatistics,
+                                 int nsteps, int *staken,
+                                 int nstats,
+                                 int *statindices,
+                                 int noffsets,
+                                 int *offsetindices,
+                                 double *offsets,
+                                 int verbose){
+  Network *nwp = s->nwp;
+  Model *m = s->m;
+  MHProposal *MHp = s->MHp;
+
   unsigned int taken=0, unsuccessful=0;
   double *deltainvsig;
   deltainvsig = (double *)Calloc(nstats, double);
   
-/*  if (fVerbose)
+/*  if (verbose)
     Rprintf("Now proposing %d MH steps... ", nsteps); */
   for(unsigned int step=0; step < nsteps; step++) {
     MHp->logratio = 0;
@@ -274,7 +283,7 @@ MCMCStatus SANMetropolisHastings (MHProposal *MHp,
       }
     }
     
-    if(fVerbose>=5){
+    if(verbose>=5){
       Rprintf("MHProposal: ");
       for(unsigned int i=0; i<MHp->ntoggles; i++)
 	Rprintf(" (%d, %d)", MHp->toggletail[i], MHp->togglehead[i]);
@@ -290,7 +299,7 @@ MCMCStatus SANMetropolisHastings (MHProposal *MHp,
       prop_networkstatistics[i] += m->workspace[statindices[i]];
     }
 
-    if(fVerbose>=5){
+    if(verbose>=5){
       Rprintf("Changes: (");
       for(unsigned int i=0; i<nstats; i++)
 	Rprintf(" %f ", m->workspace[statindices[i]]);
@@ -312,13 +321,13 @@ MCMCStatus SANMetropolisHastings (MHProposal *MHp,
         offsetcontrib += (m->workspace[offsetindices[i]])*offsets[i];
     }
     
-    if(fVerbose>=5){
+    if(verbose>=5){
       Rprintf("log acceptance probability: %f\n", ip - offsetcontrib);
     }
     
     /* if we accept the proposed network */
     if (tau[0]==0? ip - offsetcontrib <= 0 : ip/tau[0] - offsetcontrib <= -log(unif_rand()) ) { 
-      if(fVerbose>=5){
+      if(verbose>=5){
 	Rprintf("Accepted.\n");
       }
 
@@ -336,7 +345,7 @@ MCMCStatus SANMetropolisHastings (MHProposal *MHp,
 
       if(found)	break;
     }else{
-      if(fVerbose>=5){
+      if(verbose>=5){
 	Rprintf("Rejected.\n");
       }
     }

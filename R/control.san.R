@@ -40,8 +40,7 @@
 #'
 #' @param SAN.nsteps Number of MCMC proposals for all the annealing runs combined.
 #' @param SAN.samplesize Number of realisations' statistics to obtain for tuning purposes.
-#' @param SAN.init.maxedges Maximum number of edges expected in network.
-#' @param SAN.max.maxedges Hard upper bound on the number of edges in the network.
+#' @param SAN.maxedges The maximum number of edges that may occur during the SAN sampling.
 #' @param SAN.prop.weights Specifies the method to allocate probabilities of
 #' being proposed to dyads. Defaults to \code{"default"}, which picks a
 #' reasonable default for the specified constraint.  Other possible values are
@@ -67,8 +66,7 @@ control.san<-function(SAN.maxit=4,
                       SAN.nsteps.alloc=function(nsim) 2^seq_len(nsim),
                       SAN.nsteps=2^19,
                       SAN.samplesize=2^12,
-                      SAN.init.maxedges=20000,
-                      SAN.max.maxedges=2^26,
+                      SAN.maxedges=Inf,
                       
                       SAN.prop.weights="default",
                       SAN.prop.args=list(),
