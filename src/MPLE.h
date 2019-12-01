@@ -14,15 +14,9 @@
 #include "ergm_changestat.h"
 #include "ergm_model.h"
 #include "ergm_rlebdm.h"
+#include "ergm_state.h"
 
-void MPLE_wrapper(int *tails, int *heads, int *dnedges,
-		  double *wl,
-		  int *dn, int *dflag, int *bipartite, int *nterms, 
-		  char **funnames, char **sonames, double *inputs,  
-		  int *responsevec, double *covmat,
-		  int *weightsvector,
-		  int *maxDyads, int *maxDyadTypes);
-void MpleInit_hash_wl_RLE(int *responsevec, double *covmat, int *weightsvector,
-			  RLEBDM1D *wl, 
-			  Edge maxDyads, Edge maxDyadTypes, Network *nwp, Model *m);
+void MpleInit_hash_wl_RLE(ErgmState *s, int *responsevec, double *covmat, int *weightsvector,
+			  RLEBDM1D *wl,
+			  Edge maxNumDyads, Edge maxNumDyadTypes);
 #endif

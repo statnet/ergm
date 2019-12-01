@@ -49,10 +49,6 @@ SEXP AllStatistics(// Network settings
 
   /* Step 1:  Initialize empty network and initialize model */
   GetRNGstate(); /* Necessary for R random number generator */
-  // Ensure correct data types
-  TOINTSXP(tails);
-  TOINTSXP(heads);
-  TOREALSXP(inputs);
   ErgmState *s = ErgmStateInit(// Network settings
                                asInteger(dn), asInteger(dflag), asInteger(bipartite),
                                // Model settings
@@ -63,7 +59,6 @@ SEXP AllStatistics(// Network settings
                                REAL(inputs),
                                // Network state
                                asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads));
-  UNPROTECT(3);
   
   Network *nwp = s->nwp;
   Model *m = s->m;

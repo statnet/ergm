@@ -26,7 +26,6 @@ extern void full_geodesic_distribution(void *, void *, void *, void *, void *, v
 extern void geodesic_matrix(void *, void *, void *, void *, void *, void *, void *);
 extern void Godfather_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void MCMCPhase12(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void MPLE_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void network_stats_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void node_geodesics(void *, void *, void *, void *, void *, void *, void *, void *);
 extern void pair_geodesic(void *, void *, void *, void *, void *, void *, void *, void *, void *);
@@ -40,6 +39,7 @@ extern SEXP AllStatistics(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, 
 extern SEXP CD_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP get_ergm_omp_terms();
 extern SEXP MCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP MPLE_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP set_ergm_omp_terms(SEXP);
 extern SEXP WtCD_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtMCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
@@ -49,7 +49,6 @@ static const R_CMethodDef CEntries[] = {
     {"geodesic_matrix",            (DL_FUNC) &geodesic_matrix,             7},
     {"Godfather_wrapper",          (DL_FUNC) &Godfather_wrapper,          20},
     {"MCMCPhase12",                (DL_FUNC) &MCMCPhase12,                35},
-    {"MPLE_wrapper",               (DL_FUNC) &MPLE_wrapper,               16},
     {"network_stats_wrapper",      (DL_FUNC) &network_stats_wrapper,      14},
     {"node_geodesics",             (DL_FUNC) &node_geodesics,              8},
     {"pair_geodesic",              (DL_FUNC) &pair_geodesic,               9},
@@ -65,6 +64,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"CD_wrapper",         (DL_FUNC) &CD_wrapper,         23},
     {"get_ergm_omp_terms", (DL_FUNC) &get_ergm_omp_terms,  0},
     {"MCMC_wrapper",       (DL_FUNC) &MCMC_wrapper,       25},
+    {"MPLE_wrapper",       (DL_FUNC) &MPLE_wrapper,       13},
     {"set_ergm_omp_terms", (DL_FUNC) &set_ergm_omp_terms,  1},
     {"WtCD_wrapper",       (DL_FUNC) &WtCD_wrapper,       17},
     {"WtMCMC_wrapper",     (DL_FUNC) &WtMCMC_wrapper,     19},

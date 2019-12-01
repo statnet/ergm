@@ -42,11 +42,6 @@ SEXP WtMCMC_wrapper(// Network settings
                   SEXP maxedges,
                   SEXP verbose){  
   GetRNGstate();  /* R function enabling uniform RNG */
-  // Ensure correct data types
-  TOINTSXP(tails);
-  TOINTSXP(heads);
-  TOREALSXP(weights);
-  TOREALSXP(inputs);
   ErgmWtState *s = ErgmWtStateInit(// Network settings
                                asInteger(dn), asInteger(dflag), asInteger(bipartite),
                                // Model settings
@@ -57,7 +52,6 @@ SEXP WtMCMC_wrapper(// Network settings
                                REAL(inputs),
                                // Network state
                                asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads), REAL(weights));
-  UNPROTECT(4);
 
   WtNetwork *nwp = s->nwp;
   WtModel *m = s->m;
@@ -66,7 +60,6 @@ SEXP WtMCMC_wrapper(// Network settings
   SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*m->n_stats));
   memset(REAL(sample), 0, asInteger(samplesize)*m->n_stats*sizeof(double));
 
-  TOREALSXP(eta);
   SEXP status;
   if(MHp) status = PROTECT(ScalarInteger(WtMCMCSample(s,
                                                       REAL(eta), REAL(sample), asInteger(samplesize),
@@ -98,7 +91,7 @@ SEXP WtMCMC_wrapper(// Network settings
 
   ErgmWtStateDestroy(s);  
   PutRNGstate();  /* Disable RNG before returning */
-  UNPROTECT(4);
+  UNPROTECT(3);
   return outl;
 }
 

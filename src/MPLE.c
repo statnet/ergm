@@ -10,6 +10,7 @@
 #include "MPLE.h"
 #include "ergm_changestat.h"
 #include "ergm_rlebdm.h"
+#include "ergm_util.h"
 
 /* *****************
  void MPLE_wrapper
@@ -26,7 +27,7 @@
    statistics.  Note that two sets of statistics are considered
    unique in this context if the corresponding response values
    (i.e., dyad values, edge or no edge) are unequal.
-   The value maxDyadTypes is the largest allowable number of
+   The value maxNumDyadTypes is the largest allowable number of
    unique sets of change statistics.
  Re-rewritten by Pavel Krivitsky to make compression fast. ;)
  *****************/
@@ -34,35 +35,58 @@
 /* *** don't forget tail -> head, and so this function accepts
    tails before heads now */
 
-void MPLE_wrapper(int *tails, int *heads, int *dnedges,
-		  double *wl,
-		  int *dn, int *dflag, int *bipartite, int *nterms, 
-		  char **funnames, char **sonames, double *inputs,  
-		  int *responsevec, double *covmat,
-		  int *weightsvector,
-		  int *maxDyads, int *maxDyadTypes){
-  Network *nwp;
-  Vertex n_nodes = (Vertex) *dn; 
-  Edge n_edges = (Edge) *dnedges;
-  int directed_flag = *dflag;
-  Vertex bip = (Vertex) *bipartite;
-  Model *m;
-  double *tmp = wl;
-  RLEBDM1D wlm = unpack_RLEBDM1D(&tmp, n_nodes);
-
+SEXP MPLE_wrapper(// Network settings
+                  SEXP dn, SEXP dflag, SEXP bipartite,
+                  // Model settings
+                  SEXP nterms, SEXP funnames,
+                  SEXP sonames,
+                  // Numeric inputs
+                  SEXP inputs,
+                  // Network state
+                  SEXP nedges,
+                  SEXP tails, SEXP heads,
+                  // MPLE settings
+                  SEXP wl,
+		  /* int *responsevec, double *covmat, */
+		  /* int *weightsvector, */
+		  SEXP maxNumDyads, SEXP maxNumDyadTypes){
   GetRNGstate(); /* Necessary for R random number generator */
-  m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
-  nwp=NetworkInitialize((Vertex*)tails, (Vertex*)heads, n_edges,
-                          n_nodes, directed_flag, bip, 0, 0, NULL);
   
-  /* Trigger initial storage update */
-  InitStats(nwp, m);
+  double *tmp = REAL(wl);
+  RLEBDM1D wlm = unpack_RLEBDM1D(&tmp, asInteger(dn));
 
-  MpleInit_hash_wl_RLE(responsevec, covmat, weightsvector, &wlm, *maxDyads, *maxDyadTypes, nwp, m); 
+  ErgmState *s = ErgmStateInit(// Network settings
+                               asInteger(dn), asInteger(dflag), asInteger(bipartite),
+                               // Model settings
+                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames),
+                               // Proposal settings
+                               NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0,
+                               // Numeric inputs
+                               REAL(inputs),
+                               // Network state
+                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads));
 
-  ModelDestroy(nwp, m);
-  NetworkDestroy(nwp);
+  Model *m = s->m;
+
+  SEXP responsevec = PROTECT(allocVector(INTSXP, asInteger(maxNumDyadTypes)));
+  memset(INTEGER(responsevec), 0, asInteger(maxNumDyadTypes)*sizeof(int));
+  SEXP covmat = PROTECT(allocVector(REALSXP, asInteger(maxNumDyadTypes)*m->n_stats));
+  memset(REAL(covmat), 0, asInteger(maxNumDyadTypes)*m->n_stats*sizeof(double));
+  SEXP weightsvector = PROTECT(allocVector(INTSXP, asInteger(maxNumDyadTypes)));
+  memset(INTEGER(weightsvector), 0, asInteger(maxNumDyadTypes)*sizeof(int));
+
+  const char *outn[] = {"y", "x", "weightsvector", ""};
+  SEXP outl = PROTECT(mkNamed(VECSXP, outn));
+  SET_VECTOR_ELT(outl, 0, responsevec);
+  SET_VECTOR_ELT(outl, 1, covmat);
+  SET_VECTOR_ELT(outl, 2, weightsvector);
+
+  MpleInit_hash_wl_RLE(s, INTEGER(responsevec), REAL(covmat), INTEGER(weightsvector), &wlm, asInteger(maxNumDyads), asInteger(maxNumDyadTypes));
+
+  ErgmStateDestroy(s);
   PutRNGstate(); /* Must be called after GetRNGstate before returning to R */
+  UNPROTECT(4);
+  return outl;
 }
 
 /*************
@@ -71,8 +95,8 @@ Uses Jenkins One-at-a-Time hash.
 
 numRows should, ideally, be a power of 2, but doesn't have to be.
 **************/
-/*R_INLINE*/ unsigned int hashCovMatRow(double *newRow, unsigned int rowLength, unsigned int numRows,
-				    int response){
+static inline unsigned int hashCovMatRow(double *newRow, unsigned int rowLength, unsigned int numRows,
+                                         int response){
   /* Cast all pointers to unsigned char pointers, since data need to 
      be fed to the hash function one byte at a time. */
   unsigned char *cnewRow = (unsigned char *) newRow,
@@ -123,10 +147,11 @@ unsigned long int gcd(unsigned long int a, unsigned long int b){
   else return gcd(b, a%b);
 }
 
-void MpleInit_hash_wl_RLE(int *responsevec, double *covmat, int *weightsvector,
+void MpleInit_hash_wl_RLE(ErgmState *s, int *responsevec, double *covmat, int *weightsvector,
 			  RLEBDM1D *wl, 
-			  Edge maxDyads, Edge maxDyadTypes, Network *nwp, Model *m){
-  /* Note:  This function uses macros found in changestat.h */
+			  Edge maxNumDyads, Edge maxNumDyadTypes){
+  Network *nwp = s->nwp;
+  Model *m = s->m;
 
   // Number of free dyads.
   Dyad dc = wl->ndyads;
@@ -141,7 +166,7 @@ void MpleInit_hash_wl_RLE(int *responsevec, double *covmat, int *weightsvector,
     Dyad d = TH2Dyad(nwp->nnodes, t,h);
     RLERun r=0;
     
-    for(Dyad i = 0; i < MIN(maxDyads,dc); i++, d=NextRLEBDM1D(d, step, wl, &r)){
+    for(Dyad i = 0; i < MIN(maxNumDyads,dc); i++, d=NextRLEBDM1D(d, step, wl, &r)){
       Dyad2TH(&t, &h, d, N_NODES);
       
       int response = IS_OUTEDGE(t,h);
@@ -155,7 +180,7 @@ void MpleInit_hash_wl_RLE(int *responsevec, double *covmat, int *weightsvector,
 	 number of entries should match the number of times through the 
 	 inner loop (i.e., the number of dyads in the network) */          
       if(!insCovMatRow(m->workspace, covmat, m->n_stats,
-		       maxDyadTypes, response, 
+		       maxNumDyadTypes, response, 
 		       responsevec, weightsvector)) {
 	warning("Too many unique dyads. MPLE is approximate, and MPLE standard errors are suspect.");
 	break;

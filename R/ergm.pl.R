@@ -55,21 +55,26 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
   # May have to think harder about what maxNumDyadTypes should be if we 
   # implement a hash-table approach to compression.
   # *** don't forget, pass in tails first now, not heads
-  z <- .C("MPLE_wrapper",
-          as.integer(Clist$tails), as.integer(Clist$heads),
-          as.integer(Clist$nedges),
-          as.double(to_ergm_Cdouble(fd)),
-          as.integer(n), 
-          as.integer(Clist$dir),     as.integer(bip),
-          as.integer(Clist$nterms), 
-          as.character(Clist$fnamestring), as.character(Clist$snamestring),
-          as.double(Clist$inputs),
-          y = integer(maxNumDyadTypes),
-          x = double(maxNumDyadTypes*Clist$nstats),
-          weightsvector = integer(maxNumDyadTypes),
-          as.integer(.Machine$integer.max), # maxDyads
-          as.integer(maxNumDyadTypes),
-          PACKAGE="ergm")
+  z <- .Call("MPLE_wrapper",
+             # Network settings
+             as.integer(Clist$n),
+             as.integer(Clist$dir),
+             as.integer(Clist$bipartite),
+             # Model settings
+             as.integer(Clist$nterms),
+             as.character(Clist$fnamestring),
+             as.character(Clist$snamestring),
+             # Numeric inputs
+             as.double(Clist$inputs),
+             # Network state
+             as.integer(Clist$nedges),
+             as.integer(Clist$tails),
+             as.integer(Clist$heads),
+             # MPLE settings
+             as.double(to_ergm_Cdouble(fd)),
+             as.integer(.Machine$integer.max), # maxDyads
+             as.integer(maxNumDyadTypes),
+             PACKAGE="ergm")
   uvals <- z$weightsvector!=0
   if (verbose) {
     message(paste("MPLE covariate matrix has", sum(uvals), "rows."))
@@ -93,21 +98,26 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
     el <- as.edgelist(cbind(Clist$tails, Clist$heads), n, directed=TRUE, bipartite=FALSE, loops=TRUE) # This will be filtered by fd anyway.
     ## Run a whitelist PL over all of the toggleable edges in the network.
     presentrle <- as.rlebdm(el) & fd
-    z <- .C("MPLE_wrapper",
-            as.integer(Clist$tails), as.integer(Clist$heads),
-            as.integer(Clist$nedges),
-            as.numeric(to_ergm_Cdouble(presentrle)),
-            as.integer(n), 
-            as.integer(Clist$dir),     as.integer(bip),
-            as.integer(Clist$nterms), 
-            as.character(Clist$fnamestring), as.character(Clist$snamestring),
-            as.double(Clist$inputs),
-            y = integer(maxNumDyadTypes),
-            x = double(maxNumDyadTypes*Clist$nstats),
-            weightsvector = integer(maxNumDyadTypes),
-            as.integer(.Machine$integer.max), # maxDyads
-            as.integer(maxNumDyadTypes),
-            PACKAGE="ergm")
+  z <- .Call("MPLE_wrapper",
+             # Network settings
+             as.integer(Clist$n),
+             as.integer(Clist$dir),
+             as.integer(Clist$bipartite),
+             # Model settings
+             as.integer(Clist$nterms),
+             as.character(Clist$fnamestring),
+             as.character(Clist$snamestring),
+             # Numeric inputs
+             as.double(Clist$inputs),
+             # Network state
+             as.integer(Clist$nedges),
+             as.integer(Clist$tails),
+             as.integer(Clist$heads),
+             # MPLE settings
+             as.double(to_ergm_Cdouble(presentrle)),
+             as.integer(.Machine$integer.max), # maxDyads
+             as.integer(maxNumDyadTypes),
+             PACKAGE="ergm")
     uvals <- z$weightsvector!=0
     zy.e <- z$y[uvals]
     wend.e <- as.numeric(z$weightsvector[uvals])
