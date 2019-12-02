@@ -104,24 +104,14 @@ SEXP Godfather_wrapper(// Network settings
   SEXP status = PROTECT(ScalarInteger(Godfather(s, length(changetails), (Vertex*)INTEGER(changetails), (Vertex*)INTEGER(changeheads),
                                                 length(changeweights)==0? NULL : INTEGER(changeweights), REAL(stats))));
 
-  const char *outn[] = {"status", "s", "newnwtails", "newnwheads", ""};
+  const char *outn[] = {"status", "s", NWSTATE_NAMES, ""};
   SEXP outl = PROTECT(mkNamed(VECSXP, outn));
   SET_VECTOR_ELT(outl, 0, status);
   SET_VECTOR_ELT(outl, 1, stats);
 
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK && asInteger(end_network)){
-    SEXP newnetworktails = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
-    SEXP newnetworkheads = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
-
-    INTEGER(newnetworktails)[0]=INTEGER(newnetworkheads)[0]=
-      EdgeTree2EdgeList((Vertex*)INTEGER(newnetworktails)+1,
-			(Vertex*)INTEGER(newnetworkheads)+1,
-			nwp,nwp->nedges);
-
-    SET_VECTOR_ELT(outl, 2, newnetworktails);
-    SET_VECTOR_ELT(outl, 3, newnetworkheads);
-    UNPROTECT(2);
+    NWSTATE_SAVE_INTO_RLIST(nwp, outl, 2);
   }
 
   ErgmStateDestroy(s);

@@ -74,20 +74,7 @@ SEXP WtMCMC_wrapper(// Network settings
   
   /* record new generated network to pass back to R */
   if(asInteger(status) == WtMCMC_OK && asInteger(maxedges)>0){
-    SEXP newnetworktails = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
-    SEXP newnetworkheads = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
-    SEXP newnetworkweights = PROTECT(allocVector(REALSXP, EDGECOUNT(nwp)+1));
-
-    INTEGER(newnetworktails)[0]=INTEGER(newnetworkheads)[0]=REAL(newnetworkweights)[0]=
-      WtEdgeTree2EdgeList((Vertex*)INTEGER(newnetworktails)+1,
-			  (Vertex*)INTEGER(newnetworkheads)+1,
-			  REAL(newnetworkweights)+1,
-			  nwp,asInteger(maxedges)-1);
-
-    SET_VECTOR_ELT(outl, 2, newnetworktails);
-    SET_VECTOR_ELT(outl, 3, newnetworkheads);
-    SET_VECTOR_ELT(outl, 4, newnetworkweights);
-    UNPROTECT(3);
+    WTNWSTATE_SAVE_INTO_RLIST(nwp, outl, 2);
   }
 
   ErgmWtStateDestroy(s);  

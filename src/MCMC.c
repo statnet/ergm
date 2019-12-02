@@ -74,17 +74,7 @@ SEXP MCMC_wrapper(// Network settings
   
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK && asInteger(maxedges)>0){
-    SEXP newnetworktails = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
-    SEXP newnetworkheads = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
-
-    INTEGER(newnetworktails)[0]=INTEGER(newnetworkheads)[0]=
-      EdgeTree2EdgeList((Vertex*)INTEGER(newnetworktails)+1,
-			(Vertex*)INTEGER(newnetworkheads)+1,
-			nwp,asInteger(maxedges)-1);
-
-    SET_VECTOR_ELT(outl, 2, newnetworktails);
-    SET_VECTOR_ELT(outl, 3, newnetworkheads);
-    UNPROTECT(2);
+    NWSTATE_SAVE_INTO_RLIST(nwp, outl, 2);
   }
 
   ErgmStateDestroy(s);  

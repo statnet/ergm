@@ -23,6 +23,37 @@ static inline double dotprod(double *x, double *y, unsigned int n){
 #define TOREALSXP(x) x = PROTECT(coerceVector(x, REALSXP))
 #define FIRSTCHAR(x) CHAR(STRING_ELT(x, 0))
 
+#define NWSTATE_NAMES "newnwtails", "newnwheads"
+#define NWSTATE_SAVE_INTO_RLIST(nwp, outl, pos)                         \
+  {                                                                     \
+    SEXP newnetworktails = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1)); \
+    SEXP newnetworkheads = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1)); \
+    INTEGER(newnetworktails)[0]=INTEGER(newnetworkheads)[0]=            \
+      EdgeTree2EdgeList((Vertex*)INTEGER(newnetworktails)+1,            \
+                        (Vertex*)INTEGER(newnetworkheads)+1,            \
+                        (nwp),(nwp)->nedges);                           \
+    SET_VECTOR_ELT((outl), (pos), newnetworktails);                     \
+    SET_VECTOR_ELT((outl), (pos)+1, newnetworkheads);                   \
+    UNPROTECT(2);                                                       \
+  }
+
+#define WTNWSTATE_NAMES "newnwtails", "newnwheads", "newnwweights"
+#define WTNWSTATE_SAVE_INTO_RLIST(nwp, outl, pos)                       \
+  {                                                                     \
+  SEXP newnetworktails = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1)); \
+  SEXP newnetworkheads = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1)); \
+  SEXP newnetworkweights = PROTECT(allocVector(REALSXP, EDGECOUNT(nwp)+1)); \
+  INTEGER(newnetworktails)[0]=INTEGER(newnetworkheads)[0]=REAL(newnetworkweights)[0]= \
+    WtEdgeTree2EdgeList((Vertex*)INTEGER(newnetworktails)+1,            \
+                        (Vertex*)INTEGER(newnetworkheads)+1,            \
+                        REAL(newnetworkweights)+1,                      \
+                        (nwp),(nwp)->nedges);                           \
+  SET_VECTOR_ELT((outl), (pos), newnetworktails);                       \
+  SET_VECTOR_ELT((outl), (pos)+1, newnetworkheads);                     \
+  SET_VECTOR_ELT((outl), (pos)+2, newnetworkweights);                   \
+  UNPROTECT(3);                                                         \
+  }
+
 #endif 
 
 

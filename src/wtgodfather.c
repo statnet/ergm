@@ -100,27 +100,14 @@ SEXP WtGodfather_wrapper(// Network settings
 
   SEXP status = PROTECT(ScalarInteger(WtGodfather(s, length(changetails), (Vertex*)INTEGER(changetails), (Vertex*)INTEGER(changeheads), REAL(changeweights), REAL(stats))));
 
-  const char *outn[] = {"status", "s", "newnwtails", "newnwheads", "newnwweights", ""};
+  const char *outn[] = {"status", "s", WTNWSTATE_NAMES, ""};
   SEXP outl = PROTECT(mkNamed(VECSXP, outn));
   SET_VECTOR_ELT(outl, 0, status);
   SET_VECTOR_ELT(outl, 1, stats);
 
   /* record new generated network to pass back to R */
   if(asInteger(status) == WtMCMC_OK && asInteger(end_network)){
-    SEXP newnetworktails = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
-    SEXP newnetworkheads = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
-    SEXP newnetworkweights = PROTECT(allocVector(REALSXP, EDGECOUNT(nwp)+1));
-
-    INTEGER(newnetworktails)[0]=INTEGER(newnetworkheads)[0]=REAL(newnetworkweights)[0]=
-      WtEdgeTree2EdgeList((Vertex*)INTEGER(newnetworktails)+1,
-                          (Vertex*)INTEGER(newnetworkheads)+1,
-                          REAL(newnetworkweights)+1,
-                          nwp,nwp->nedges);
-
-    SET_VECTOR_ELT(outl, 2, newnetworktails);
-    SET_VECTOR_ELT(outl, 3, newnetworkheads);
-    SET_VECTOR_ELT(outl, 4, newnetworkweights);
-    UNPROTECT(3);
+    WTNWSTATE_SAVE_INTO_RLIST(nwp, outl, 2);
   }
 
   ErgmWtStateDestroy(s);

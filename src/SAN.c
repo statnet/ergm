@@ -78,7 +78,7 @@ SEXP SAN_wrapper(// Network settings
                                                    asInteger(verbose))));
   else status = PROTECT(ScalarInteger(MCMC_MH_FAILED));
 
-  const char *outn[] = {"status", "s", "s.prop", "newnwtails", "newnwheads", ""};
+  const char *outn[] = {"status", "s", "s.prop", NWSTATE_NAMES, ""};
   SEXP outl = PROTECT(mkNamed(VECSXP, outn));
   SET_VECTOR_ELT(outl, 0, status);
   SET_VECTOR_ELT(outl, 1, sample);
@@ -86,17 +86,7 @@ SEXP SAN_wrapper(// Network settings
 
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK && asInteger(maxedges)>0){
-    SEXP newnetworktails = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
-    SEXP newnetworkheads = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
-
-    INTEGER(newnetworktails)[0]=INTEGER(newnetworkheads)[0]=
-      EdgeTree2EdgeList((Vertex*)INTEGER(newnetworktails)+1,
-			(Vertex*)INTEGER(newnetworkheads)+1,
-			nwp,asInteger(maxedges)-1);
-
-    SET_VECTOR_ELT(outl, 3, newnetworktails);
-    SET_VECTOR_ELT(outl, 4, newnetworkheads);
-    UNPROTECT(2);
+    NWSTATE_SAVE_INTO_RLIST(nwp, outl, 3);
   }
 
   ErgmStateDestroy(s);
