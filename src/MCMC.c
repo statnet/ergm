@@ -287,67 +287,70 @@ MCMCStatus MetropolisHastings(ErgmState *s,
 
 /* *** don't forget tail -> head */
 
-void MCMCPhase12 (int *tails, int *heads, int *dnedges, 
-		  int *dn, int *dflag, int *bipartite, 
-		  int *nterms, char **funnames,
-		  char **sonames, 
-		  char **MHProposaltype, char **MHProposalpackage,
-		  double *inputs, 
-		  double *eta0, int *samplesize,
-		  double *gain, double *meanstats, int *phase1, int *nsub,
-		  double *sample, int *burnin, int *interval,  
-		  int *newnetworktails, 
-		  int *newnetworkheads, 
-		  int *verbose, 
-		  int *attribs, int *maxout, int *maxin, int *minout,
-		  int *minin, int *condAllDegExact, int *attriblength, 
-		  int *maxedges,
-		  int *mtails, int *mheads, int *mdnedges)  {
-  int directed_flag;
-  int nphase1, nsubphases;
-  Vertex n_nodes, bip;
-  Edge n_edges, nmax;
-  
-  nphase1 = *phase1; 
-  nsubphases = *nsub;
-
-  n_nodes = (Vertex)*dn; 
-  n_edges = (Edge)*dnedges; 
-  nmax = (Edge)*maxedges; 
-  bip = (Vertex)*bipartite; 
-  
+SEXP MCMCPhase12 (// Network settings
+                  SEXP dn, SEXP dflag, SEXP bipartite,
+                  // Model settings
+                  SEXP nterms, SEXP funnames,
+                  SEXP sonames,
+                  // Proposal settings
+                  SEXP MHProposaltype, SEXP MHProposalpackage,
+                  SEXP attribs, SEXP maxout, SEXP maxin, SEXP minout,
+                  SEXP minin, SEXP condAllDegExact, SEXP attriblength,
+                  // Numeric inputs
+                  SEXP inputs,
+                  // Network state
+                  SEXP nedges,
+                  SEXP tails, SEXP heads,
+                  // Phase12 settings
+                  SEXP eta0, SEXP meanstats,
+                  SEXP samplesize, SEXP burnin, SEXP interval,
+                  SEXP gain, SEXP phase1, SEXP nsub,
+                  SEXP maxedges,
+                  SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  
-  directed_flag = *dflag;
-
   ErgmState *s = ErgmStateInit(// Network settings
-                               n_nodes, directed_flag, bip,
+                               asInteger(dn), asInteger(dflag), asInteger(bipartite),
                                // Model settings
-                               *nterms, *funnames, *sonames,
+                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames),
                                // Proposal settings
-                               *MHProposaltype, *MHProposalpackage, attribs, maxout, maxin, minout, minin, *condAllDegExact, *attriblength,
+                               FIRSTCHAR(MHProposaltype), FIRSTCHAR(MHProposalpackage), INTEGER(attribs), INTEGER(maxout), INTEGER(maxin), INTEGER(minout), INTEGER(minin), asInteger(condAllDegExact), asInteger(attriblength),
                                // Numeric inputs
-                               inputs,
+                               REAL(inputs),
                                // Network state
-                               n_edges, (Vertex*) tails, (Vertex*) heads,
+                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads),
                                NO_LASTTOGGLE);
 
   Network *nwp = s->nwp;
+  Model *m = s->m;
   MHProposal *MHp = s->MHp;
 
-  if(MHp)
-    MCMCSamplePhase12(s,
-		      eta0, *gain, meanstats, nphase1, nsubphases, sample, *samplesize,
-		      *burnin, *interval,
-		      (int)*verbose);
-  else error("MH Proposal failed.");
+  SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*m->n_stats));
+  memset(REAL(sample), 0, asInteger(samplesize)*m->n_stats*sizeof(double));
+  SEXP eta = PROTECT(allocVector(REALSXP, m->n_stats));
+  memcpy(REAL(eta), REAL(eta0), m->n_stats*sizeof(double));
+
+  SEXP status;
+  if(MHp) status = PROTECT(ScalarInteger(MCMCSamplePhase12(s,
+                                                           REAL(eta), asReal(gain), REAL(meanstats), asInteger(phase1), asInteger(nsub), REAL(sample), asInteger(samplesize),
+                                                           asInteger(burnin), asInteger(interval),
+                                                           asInteger(verbose))));
+  else status = PROTECT(ScalarInteger(MCMC_MH_FAILED));
+
+  const char *outn[] = {"status", "s", "eta", NWSTATE_NAMES, ""};
+  SEXP outl = PROTECT(mkNamed(VECSXP, outn));
+  SET_VECTOR_ELT(outl, 0, status);
+  SET_VECTOR_ELT(outl, 1, sample);
+  SET_VECTOR_ELT(outl, 2, eta);
 
   /* record new generated network to pass back to R */
-  if(nmax>0 && newnetworktails && newnetworkheads)
-    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList((Vertex*)newnetworktails+1,(Vertex*)newnetworkheads+1,nwp,nmax-1);
+  if(asInteger(status) == MCMC_OK && asInteger(maxedges)>0){
+    NWSTATE_SAVE_INTO_RLIST(nwp, outl, 3);
+  }
 
   ErgmStateDestroy(s);
   PutRNGstate();  /* Disable RNG before returning */
+  UNPROTECT(4);
+  return outl;
 }
 
 /*********************
@@ -360,10 +363,10 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-void MCMCSamplePhase12(ErgmState *s,
-		       double *eta, double gain, double *meanstats, int nphase1, int nsubphases, double *networkstatistics, 
-		       int samplesize, int burnin, 
-		       int interval, int verbose){
+MCMCStatus MCMCSamplePhase12(ErgmState *s,
+                             double *eta, double gain, double *meanstats, int nphase1, int nsubphases, double *networkstatistics,
+                             int samplesize, int burnin,
+                             int interval, int verbose){
   Model *m = s->m;
 
   int staken, tottaken, ptottaken;
@@ -401,15 +404,17 @@ void MCMCSamplePhase12(ErgmState *s,
   
     staken = 0;
     Rprintf("Starting burnin of %d steps\n", burnin);
-    MetropolisHastings(s, eta,
-                       networkstatistics, burnin, &staken,
-                       verbose);
+    MCMCStatus status = MetropolisHastings(s, eta,
+                                           networkstatistics, burnin, &staken,
+                                           verbose);
+    if(status!=MCMC_OK) return status;
     Rprintf("Phase 1: %d steps (interval = %d)\n", nphase1,interval);
     /* Now sample networks */
     for (i=0; i <= nphase1; i++){
-      MetropolisHastings(s, eta,
-                         networkstatistics, interval, &staken,
-                         verbose);
+      MCMCStatus status = MetropolisHastings(s, eta,
+                                             networkstatistics, interval, &staken,
+                                             verbose);
+      if(status!=MCMC_OK) return status;
       if(i > 0){
        for (j=0; j<m->n_stats; j++){
         ubar[j]  += networkstatistics[j];
@@ -444,9 +449,11 @@ void MCMCSamplePhase12(ErgmState *s,
     /* Now sample networks */
     for (i=1; i < samplesize; i++){
       
-      MetropolisHastings(s, eta,
-                         networkstatistics, interval, &staken,
-                         verbose);
+      MCMCStatus status = MetropolisHastings(s, eta,
+                                             networkstatistics, interval, &staken,
+                                             verbose);
+      if(status!=MCMC_OK) return status;
+
     /* Update eta0 */
 /*Rprintf("initial:\n"); */
       for (j=0; j<m->n_stats; j++){
@@ -522,5 +529,7 @@ void MCMCSamplePhase12(ErgmState *s,
 
   Free(ubar);
   Free(u2bar);
+
+  return MCMC_OK;
 }
 

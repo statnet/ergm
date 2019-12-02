@@ -24,34 +24,31 @@
 /* .C calls */
 extern void full_geodesic_distribution(void *, void *, void *, void *, void *, void *, void *, void *);
 extern void geodesic_matrix(void *, void *, void *, void *, void *, void *, void *);
-extern void Godfather_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void MCMCPhase12(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void node_geodesics(void *, void *, void *, void *, void *, void *, void *, void *);
 extern void pair_geodesic(void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void WtGodfather_wrapper(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 
 /* .Call calls */
 extern SEXP AllStatistics(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP CD_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP get_ergm_omp_terms();
+extern SEXP Godfather_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP MCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP MCMCPhase12(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP MPLE_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP network_stats_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP SAN_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP set_ergm_omp_terms(SEXP);
 extern SEXP wt_network_stats_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtCD_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP WtGodfather_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtMCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtSAN_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
 static const R_CMethodDef CEntries[] = {
-    {"full_geodesic_distribution", (DL_FUNC) &full_geodesic_distribution,  8},
-    {"geodesic_matrix",            (DL_FUNC) &geodesic_matrix,             7},
-    {"Godfather_wrapper",          (DL_FUNC) &Godfather_wrapper,          20},
-    {"MCMCPhase12",                (DL_FUNC) &MCMCPhase12,                35},
-    {"node_geodesics",             (DL_FUNC) &node_geodesics,              8},
-    {"pair_geodesic",              (DL_FUNC) &pair_geodesic,               9},
-    {"WtGodfather_wrapper",        (DL_FUNC) &WtGodfather_wrapper,        22},
+    {"full_geodesic_distribution", (DL_FUNC) &full_geodesic_distribution, 8},
+    {"geodesic_matrix",            (DL_FUNC) &geodesic_matrix,            7},
+    {"node_geodesics",             (DL_FUNC) &node_geodesics,             8},
+    {"pair_geodesic",              (DL_FUNC) &pair_geodesic,              9},
     {NULL, NULL, 0}
 };
 
@@ -59,13 +56,16 @@ static const R_CallMethodDef CallEntries[] = {
     {"AllStatistics",            (DL_FUNC) &AllStatistics,            11},
     {"CD_wrapper",               (DL_FUNC) &CD_wrapper,               23},
     {"get_ergm_omp_terms",       (DL_FUNC) &get_ergm_omp_terms,        0},
+    {"Godfather_wrapper",        (DL_FUNC) &Godfather_wrapper,        16},
     {"MCMC_wrapper",             (DL_FUNC) &MCMC_wrapper,             25},
+    {"MCMCPhase12",              (DL_FUNC) &MCMCPhase12,              29},
     {"MPLE_wrapper",             (DL_FUNC) &MPLE_wrapper,             13},
     {"network_stats_wrapper",    (DL_FUNC) &network_stats_wrapper,    13},
     {"SAN_wrapper",              (DL_FUNC) &SAN_wrapper,              31},
     {"set_ergm_omp_terms",       (DL_FUNC) &set_ergm_omp_terms,        1},
     {"wt_network_stats_wrapper", (DL_FUNC) &wt_network_stats_wrapper, 14},
     {"WtCD_wrapper",             (DL_FUNC) &WtCD_wrapper,             17},
+    {"WtGodfather_wrapper",      (DL_FUNC) &WtGodfather_wrapper,      17},
     {"WtMCMC_wrapper",           (DL_FUNC) &WtMCMC_wrapper,           19},
     {"WtSAN_wrapper",            (DL_FUNC) &WtSAN_wrapper,            25},
     {NULL, NULL, 0}

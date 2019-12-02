@@ -55,47 +55,37 @@ ergm.phase12 <- function(g, model,
 #   }
 # }
   Clist <- ergm.Cprepare(g, model)
-  maxedges <- max(control$MCMC.init.maxedges, Clist$nedges)/5
-  control$MCMC.init.maxedges <- control$MCMC.init.maxedges/5
-  z <- list(newnwtails=maxedges+1)
-  while(z$newnwtails[1] >= maxedges){
-    maxedges <- 5*maxedges
-    control$MCMC.init.maxedges <- 5*control$MCMC.init.maxedges
-    if(verbose){message(paste("MCMC workspace is ",maxedges,"."))}
-    # *** don't forget, pass in tails first now, not heads
-    z <- .C("MCMCPhase12",
-            as.integer(Clist$tails), as.integer(Clist$heads), 
-            as.integer(Clist$nedges), 
-            as.integer(Clist$n),
-            as.integer(Clist$dir), as.integer(Clist$bipartite),
-            as.integer(Clist$nterms), 
-            as.character(Clist$fnamestring),
-            as.character(Clist$snamestring),
-            as.character(proposal$name), as.character(proposal$pkgname),
-            as.double(Clist$inputs),
-            eta=as.double(.deinf(eta0)),
-            as.integer(control$MCMC.samplesize),
-            as.double(control$gain), as.double(control$stats),
-            as.integer(control$phase1),
-            as.integer(control$nsub),
-            s = double(control$MCMC.samplesize * Clist$nstats),
-            as.integer(control$MCMC.burnin), as.integer(control$MCMC.interval),
-            newnwtails = integer(maxedges),
-            newnwheads = integer(maxedges),
-            as.integer(verbose), 
-            as.integer(proposal$arguments$constraints$bd$attribs), 
-            as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
-            as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
-            as.integer(proposal$arguments$constraints$bd$condAllDegExact), as.integer(length(proposal$arguments$constraints$bd$attribs)), 
-            as.integer(maxedges),
-            as.integer(0.0), as.integer(0.0), 
-            as.integer(0),
-            PACKAGE="ergm") 
-  }
+  z <- .Call("MCMCPhase12",
+             # Network settings
+             as.integer(Clist$n),
+             as.integer(Clist$dir), as.integer(Clist$bipartite),
+             # Model settings
+             as.integer(Clist$nterms),
+             as.character(Clist$fnamestring),
+             as.character(Clist$snamestring),
+             # Proposal settings
+             as.character(proposal$name), as.character(proposal$pkgname),
+             as.integer(proposal$arguments$constraints$bd$attribs),
+             as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
+             as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
+             as.integer(proposal$arguments$constraints$bd$condAllDegExact), as.integer(length(proposal$arguments$constraints$bd$attribs)),
+             # Numeric vector inputs
+             as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)),
+             # Network state
+             as.integer(nedges),
+             as.integer(tails), as.integer(heads),
+             # Phase12 settings
+             as.double(.deinf(eta)), as.double(control$stats),
+             as.integer(samplesize), as.integer(burnin), as.integer(interval),
+             as.double(control$gain), as.integer(control$phase1), as.integer(control$nsub),
+             as.integer(.deinf(NVL(control$MCMC.maxedges,Inf),"maxint")),
+             as.integer(verbose),
+             PACKAGE="ergm")
+
   statsmatrix <- matrix(z$s, nrow=control$MCMC.samplesize,
                         ncol=Clist$nstats,
                         byrow = TRUE)
-   eta <- z$eta
+  eta <- z$eta
   names(eta) <- names(eta0)
 
   newnetwork<-as.network(pending_update_network(g,z))
