@@ -79,7 +79,7 @@ void WtSAN_wrapper (int *nedges,
 			  *nsteps,
 			  *fVerbose, nmax, nwp, m,
               *nstats, statindices, *noffsets, offsetindices, offsets);
-  else *status = WtMCMC_MH_FAILED;
+  else *status = MCMC_MH_FAILED;
 
   WtMHProposalDestroy(MHp, nwp);
 
@@ -87,7 +87,7 @@ void WtSAN_wrapper (int *nedges,
 
   /* record new generated network to pass back to R */
   /* *** and don't forget edges are (tail, head) */
-  if(*status == WtMCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
+  if(*status == MCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
     newnetworktails[0]=newnetworkheads[0]=newnetworkweights[0]=WtEdgeTree2EdgeList((Vertex*)newnetworktails+1,(Vertex*)newnetworkheads+1,newnetworkweights+1,nwp,nmax-1);
 
   WtModelDestroy(nwp, m);
@@ -106,7 +106,7 @@ void WtSAN_wrapper (int *nedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-WtMCMCStatus WtSANSample (WtMHProposal *MHp,
+MCMCStatus WtSANSample (WtMHProposal *MHp,
   double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
   int samplesize, int nsteps, 
   int fVerbose, int nmax,
@@ -143,10 +143,10 @@ WtMCMCStatus WtSANSample (WtMHProposal *MHp,
    *********************/
   /*  Catch more edges than we can return */
   if(WtSANMetropolisHastings(MHp, invcov, tau, networkstatistics, prop_networkstatistics, burnin, &staken,
-			     fVerbose, nwp, m, nstats, statindices, noffsets, offsetindices, offsets)!=WtMCMC_OK)
-    return WtMCMC_MH_FAILED;
+			     fVerbose, nwp, m, nstats, statindices, noffsets, offsetindices, offsets)!=MCMC_OK)
+    return MCMC_MH_FAILED;
   if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
-    return WtMCMC_TOO_MANY_EDGES;
+    return MCMC_TOO_MANY_EDGES;
   }
 
   if (samplesize>1){
@@ -171,10 +171,10 @@ WtMCMCStatus WtSANSample (WtMHProposal *MHp,
       /* This then adds the change statistics to these values */
       
       if(WtSANMetropolisHastings (MHp, invcov, tau, networkstatistics, prop_networkstatistics,
-		             interval, &staken, fVerbose, nwp, m, nstats, statindices, noffsets, offsetindices, offsets)!=WtMCMC_OK)
-	return WtMCMC_MH_FAILED;
+		             interval, &staken, fVerbose, nwp, m, nstats, statindices, noffsets, offsetindices, offsets)!=MCMC_OK)
+	return MCMC_MH_FAILED;
       if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
-	return WtMCMC_TOO_MANY_EDGES;
+	return MCMC_TOO_MANY_EDGES;
       }
       tottaken += staken;
       if (fVerbose){
@@ -209,7 +209,7 @@ WtMCMCStatus WtSANSample (WtMHProposal *MHp,
 	      staken*100.0/(1.0*nsteps), nsteps); 
     }
   }
-  return WtMCMC_OK;
+  return MCMC_OK;
 }
 
 /*********************
@@ -223,7 +223,7 @@ MCMCStatus WtSANMetropolisHastings
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-WtMCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
+MCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
 			    double *invcov, 
 				  double *tau, double *networkstatistics, double *prop_networkstatistics,
 			    int nsteps, int *staken,
@@ -252,14 +252,14 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
 	
       case MH_IMPOSSIBLE:
 	Rprintf("MH MHProposal function encountered a configuration from which no toggle(s) can be proposed.\n");
-	return WtMCMC_MH_FAILED;
+	return MCMC_MH_FAILED;
 	
       case MH_UNSUCCESSFUL:
 	warning("MH MHProposal function failed to find a valid proposal.");
 	unsuccessful++;
 	if(unsuccessful>taken*MH_QUIT_UNSUCCESSFUL){
 	  Rprintf("Too many MH MHProposal function failures.\n");
-	  return WtMCMC_MH_FAILED;
+	  return MCMC_MH_FAILED;
 	}
       case MH_CONSTRAINT:
 	continue;
@@ -340,5 +340,5 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
   Free(deltainvsig);
 
   *staken = taken;
-  return WtMCMC_OK;
+  return MCMC_OK;
 }

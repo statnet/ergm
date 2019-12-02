@@ -74,7 +74,7 @@ void WtCD_wrapper(int *nedges,
     *status = WtCDSample(MHp,
 			 theta0, sample, *samplesize, CDparams, undotail, undohead, undoweight,
 			 *fVerbose, nwp, m, extraworkspace);
-  else *status = WtMCMC_MH_FAILED;
+  else *status = MCMC_MH_FAILED;
 
   Free(undotail);
   Free(undohead);
@@ -100,7 +100,7 @@ void WtCD_wrapper(int *nedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-WtMCMCStatus WtCDSample(WtMHProposal *MHp,
+MCMCStatus WtCDSample(WtMHProposal *MHp,
 			  double *theta, double *networkstatistics, 
 			int samplesize, int *CDparams, Vertex *undotail, Vertex *undohead, double *undoweight, int fVerbose,
 			  WtNetwork *nwp, WtModel *m, double *extraworkspace){
@@ -126,8 +126,8 @@ WtMCMCStatus WtCDSample(WtMHProposal *MHp,
   while(i<samplesize){
     
     if(WtCDStep(MHp, theta, networkstatistics, CDparams, &staken, undotail, undohead, undoweight,
-		fVerbose, nwp, m, extraworkspace)!=WtMCMC_OK)
-      return WtMCMC_MH_FAILED;
+		fVerbose, nwp, m, extraworkspace)!=MCMC_OK)
+      return MCMC_MH_FAILED;
     
 #ifdef Win32
     if( ((100*i) % samplesize)==0 && samplesize > 500){
@@ -146,7 +146,7 @@ WtMCMCStatus WtCDSample(WtMHProposal *MHp,
 	    staken*100.0/(1.0*sattempted*CDparams[0]), (long long) sattempted*CDparams[0]); 
   }
   
-  return WtMCMC_OK;
+  return MCMC_OK;
 }
 
 /*********************
@@ -160,7 +160,7 @@ WtMCMCStatus WtCDSample(WtMHProposal *MHp,
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-WtMCMCStatus WtCDStep (WtMHProposal *MHp,
+MCMCStatus WtCDStep (WtMHProposal *MHp,
 		       double *theta, double *networkstatistics,
 		       int *CDparams, int *staken, Vertex *undotail, Vertex *undohead, double *undoweight,
 		       int fVerbose,
@@ -185,14 +185,14 @@ WtMCMCStatus WtCDStep (WtMHProposal *MHp,
 	  
 	case MH_IMPOSSIBLE:
 	  Rprintf("MH MHProposal function encountered a configuration from which no toggle(s) can be proposed.\n");
-	  return WtMCMC_MH_FAILED;
+	  return MCMC_MH_FAILED;
 	  
 	case MH_UNSUCCESSFUL:
 	  warning("MH MHProposal function failed to find a valid proposal.");
 	  unsuccessful++;
 	  if(unsuccessful>*staken*MH_QUIT_UNSUCCESSFUL){
 	    Rprintf("Too many MH MHProposal function failures.\n");
-	    return WtMCMC_MH_FAILED;
+	    return MCMC_MH_FAILED;
 	  }
 	  continue;
 	  
@@ -319,6 +319,6 @@ WtMCMCStatus WtCDStep (WtMHProposal *MHp,
     WtGET_EDGE_UPDATE_STORAGE_SET(t, h, w, nwp, m, MHp);
   }
   
-  return WtMCMC_OK;
+  return MCMC_OK;
 }
 
