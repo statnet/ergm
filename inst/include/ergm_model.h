@@ -125,9 +125,5 @@ int GetIndexForAttrValue(int value);
 
 void ChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, Network *nwp, Model *m);
 
-void InitStats(Network *nwp, Model *m);
-
-void DestroyStats(Network *nwp, Model *m);
-
 #endif
 

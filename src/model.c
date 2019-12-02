@@ -10,6 +10,47 @@
 #include <string.h>
 #include "ergm_model.h"
 #include "ergm_omp.h"
+
+/*
+  InitStats
+  A helper's helper function to initialize storage for functions that use it.
+*/
+static inline void InitStats(Network *nwp, Model *m){
+  // Iterate in reverse, so that auxliary terms get initialized first.
+  EXEC_THROUGH_TERMS_INREVERSE(m, {
+      if(!m->noinit_s || !mtp->s_func){ // Skip if noinit_s is set and s_func is present.
+        double *dstats = mtp->dstats;
+        mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
+        if(mtp->i_func)
+          (*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
+        else if(mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
+          (*(mtp->u_func))(0, 0, mtp, nwp, 0);  /* Call u_??? function */
+        mtp->dstats = dstats;
+      }
+    });
+}
+
+/*
+  DestroyStats
+  A helper's helper function to finalize storage for functions that use it.
+*/
+static inline void DestroyStats(Network *nwp, Model *m){
+  unsigned int i=0;
+  EXEC_THROUGH_TERMS(m, {
+      if(!m->noinit_s || !mtp->s_func){ // Skip if noinit_s is set and s_func is present.
+        if(mtp->f_func)
+          (*(mtp->f_func))(mtp, nwp);  /* Call f_??? function */
+      }
+      Free(m->dstatarray[i]);
+      Free(mtp->statcache);
+      if(mtp->storage){
+        Free(mtp->storage);
+        mtp->storage = NULL;
+      }
+      i++;
+    });
+}
+
 /*****************
   void ModelDestroy
 ******************/
@@ -295,44 +336,3 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
     TOGGLE_KNOWN(tails[toggle],heads[toggle],edgeflag);
   }
 }
-      
-/*
-  InitStats
-  A helper's helper function to initialize storage for functions that use it.
-*/
-void InitStats(Network *nwp, Model *m){
-  // Iterate in reverse, so that auxliary terms get initialized first.  
-  EXEC_THROUGH_TERMS_INREVERSE(m, {
-      if(!m->noinit_s || !mtp->s_func){ // Skip if noinit_s is set and s_func is present.
-        double *dstats = mtp->dstats;
-        mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
-        if(mtp->i_func)
-          (*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
-        else if(mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
-          (*(mtp->u_func))(0, 0, mtp, nwp, 0);  /* Call u_??? function */
-        mtp->dstats = dstats;
-      }
-    });
-}
-
-/*
-  DestroyStats
-  A helper's helper function to finalize storage for functions that use it.
-*/
-void DestroyStats(Network *nwp, Model *m){
-  unsigned int i=0;
-  EXEC_THROUGH_TERMS(m, {
-      if(!m->noinit_s || !mtp->s_func){ // Skip if noinit_s is set and s_func is present.
-        if(mtp->f_func)
-          (*(mtp->f_func))(mtp, nwp);  /* Call f_??? function */
-      }
-      Free(m->dstatarray[i]);
-      Free(mtp->statcache);
-      if(mtp->storage){
-        Free(mtp->storage);
-        mtp->storage = NULL;
-      }
-      i++;
-    });
-}
-

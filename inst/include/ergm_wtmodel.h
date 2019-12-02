@@ -120,9 +120,5 @@ void WtModelDestroy(WtNetwork *nwp, WtModel *m);
 
 void WtChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, double *toggleweight, WtNetwork *nwp, WtModel *m);
 
-void WtInitStats(WtNetwork *nwp, WtModel *m);
-
-void WtDestroyStats(WtNetwork *nwp, WtModel *m);
-
 #endif
 
