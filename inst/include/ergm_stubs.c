@@ -213,10 +213,10 @@ static void (*fun)(DegreeBound *) = NULL;
 if(fun==NULL) fun = (void (*)(DegreeBound *)) R_FindSymbol("DegreeBoundDestroy", "ergm", NULL);
 fun(bd);
 }
-MHProposal * MHProposalInitialize(char *MHProposaltype, char *MHProposalpackage,double *inputs,int fVerbose,Network *nwp,int *attribs, int *maxout, int *maxin,int *minout, int *minin, int condAllDegExact,int attriblength,void **aux_storage){
-static MHProposal * (*fun)(char *,char *,double *,int,Network *,int *,int *,int *,int *,int *,int,int,void **) = NULL;
-if(fun==NULL) fun = (MHProposal * (*)(char *,char *,double *,int,Network *,int *,int *,int *,int *,int *,int,int,void **)) R_FindSymbol("MHProposalInitialize", "ergm", NULL);
-return fun(MHProposaltype,MHProposalpackage,inputs,fVerbose,nwp,attribs,maxout,maxin,minout,minin,condAllDegExact,attriblength,aux_storage);
+MHProposal * MHProposalInitialize(const char *MHProposaltype, const char *MHProposalpackage,double *inputs,Network *nwp,int *attribs, int *maxout, int *maxin,int *minout, int *minin, int condAllDegExact,int attriblength,void **aux_storage){
+static MHProposal * (*fun)(const char *,const char *,double *,Network *,int *,int *,int *,int *,int *,int,int,void **) = NULL;
+if(fun==NULL) fun = (MHProposal * (*)(const char *,const char *,double *,Network *,int *,int *,int *,int *,int *,int,int,void **)) R_FindSymbol("MHProposalInitialize", "ergm", NULL);
+return fun(MHProposaltype,MHProposalpackage,inputs,nwp,attribs,maxout,maxin,minout,minin,condAllDegExact,attriblength,aux_storage);
 }
 void MHProposalDestroy(MHProposal *MHp, Network *nwp){
 static void (*fun)(MHProposal *,Network *) = NULL;
@@ -238,9 +238,9 @@ return fun(MHp,nwp);
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_model.h"
-Model* ModelInitialize(char *fnames, char *sonames, double **inputs,int n_terms){
-static Model* (*fun)(char *,char *,double **,int) = NULL;
-if(fun==NULL) fun = (Model* (*)(char *,char *,double **,int)) R_FindSymbol("ModelInitialize", "ergm", NULL);
+Model* ModelInitialize(const char *fnames, const char *sonames, double **inputs,int n_terms){
+static Model* (*fun)(const char *,const char *,double **,int) = NULL;
+if(fun==NULL) fun = (Model* (*)(const char *,const char *,double **,int)) R_FindSymbol("ModelInitialize", "ergm", NULL);
 return fun(fnames,sonames,inputs,n_terms);
 }
 void ModelDestroy(Network *nwp, Model *m){
@@ -428,10 +428,10 @@ return fun(tails,heads,weights,nwp,nmax);
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_wtMHproposal.h"
-WtMHProposal * WtMHProposalInitialize(char *MHProposaltype, char *MHProposalpackage,double *inputs,int fVerbose,WtNetwork *nwp,void **aux_storage){
-static WtMHProposal * (*fun)(char *,char *,double *,int,WtNetwork *,void **) = NULL;
-if(fun==NULL) fun = (WtMHProposal * (*)(char *,char *,double *,int,WtNetwork *,void **)) R_FindSymbol("WtMHProposalInitialize", "ergm", NULL);
-return fun(MHProposaltype,MHProposalpackage,inputs,fVerbose,nwp,aux_storage);
+WtMHProposal * WtMHProposalInitialize(const char *MHProposaltype, const char *MHProposalpackage,double *inputs,WtNetwork *nwp,void **aux_storage){
+static WtMHProposal * (*fun)(const char *,const char *,double *,WtNetwork *,void **) = NULL;
+if(fun==NULL) fun = (WtMHProposal * (*)(const char *,const char *,double *,WtNetwork *,void **)) R_FindSymbol("WtMHProposalInitialize", "ergm", NULL);
+return fun(MHProposaltype,MHProposalpackage,inputs,nwp,aux_storage);
 }
 void WtMHProposalDestroy(WtMHProposal *MH, WtNetwork *nwp){
 static void (*fun)(WtMHProposal *,WtNetwork *) = NULL;
@@ -443,9 +443,9 @@ fun(MH,nwp);
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_wtmodel.h"
-WtModel* WtModelInitialize(char *fnames, char *sonames, double **inputs,int n_terms){
-static WtModel* (*fun)(char *,char *,double **,int) = NULL;
-if(fun==NULL) fun = (WtModel* (*)(char *,char *,double **,int)) R_FindSymbol("WtModelInitialize", "ergm", NULL);
+WtModel* WtModelInitialize(const char *fnames, const char *sonames, double **inputs,int n_terms){
+static WtModel* (*fun)(const char *,const char *,double **,int) = NULL;
+if(fun==NULL) fun = (WtModel* (*)(const char *,const char *,double **,int)) R_FindSymbol("WtModelInitialize", "ergm", NULL);
 return fun(fnames,sonames,inputs,n_terms);
 }
 void WtModelDestroy(WtNetwork *nwp, WtModel *m){
