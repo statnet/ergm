@@ -6,7 +6,7 @@
 #include "ergm_wtMHproposal.h"
 #include "ergm_wtmodel.h"
 
-#define NO_WTMODEL 0, NULL, NULL
+#define NO_WTMODEL 0, NULL, NULL, FALSE
 #define NO_WTMHPROPOSAL  NULL, NULL
 #define NO_LASTTOGGLE FALSE, 0, NULL
 #define NO_WTNWSTATE 0, NULL, NULL, NULL
@@ -20,7 +20,7 @@ typedef struct{
 ErgmWtState *ErgmWtStateInit(// Network settings
 			     Vertex n_nodes, Rboolean directed_flag, Vertex bip,
                              // Model settings
-			     int nterms, const char *funnames, const char *sonames,
+			     int nterms, const char *funnames, const char *sonames, Rboolean noinit_s,
                              // Proposal settings
 			     const char *MHProposaltype, const char *MHProposalpackage,
 			     double *inputs,

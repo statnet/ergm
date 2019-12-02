@@ -3,7 +3,7 @@
 ErgmWtState *ErgmWtStateInit(// Network settings
 			     Vertex n_nodes, Rboolean directed_flag, Vertex bip,
                              // Model settings
-			     int nterms, const char *funnames, const char *sonames,
+			     int nterms, const char *funnames, const char *sonames, Rboolean noinit_s,
                              // Proposal settings
 			     const char *MHProposaltype, const char *MHProposalpackage,
                              // Numeric inputs
@@ -14,14 +14,12 @@ ErgmWtState *ErgmWtStateInit(// Network settings
                              Rboolean timings, int time, int *lasttoggle){
   ErgmWtState *s = Calloc(1, ErgmWtState);
   
-  s->m=WtModelInitialize(funnames, sonames, &inputs, nterms);
-  
   /* Form the network */
   s->nwp=WtNetworkInitialize(tails, heads, weights, n_edges, 
                              n_nodes, directed_flag, bip, timings, time, lasttoggle);
 
-  /* Trigger initial storage update */
-  WtInitStats(s->nwp, s->m);
+  /* Initialize the model */
+  s->m=WtModelInitialize(funnames, sonames, &inputs, nterms, s->nwp, noinit_s);
 
   /* Initialize the M-H proposal */
   s->MHp=NULL;

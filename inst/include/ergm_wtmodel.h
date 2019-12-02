@@ -29,6 +29,7 @@ typedef struct WtModelstruct {
 			  array is a pointer to an array of size
 			  termarray[i].nstats                    */
   unsigned int n_aux;
+  Rboolean noinit_s;
 } WtModel;
 
 #define WtFOR_EACH_TERM(m) for(WtModelTerm *mtp = (m)->termarray; mtp < (m)->termarray + (m)->n_terms; mtp++)
@@ -109,7 +110,7 @@ typedef struct WtModelstruct {
   }
 
 WtModel* WtModelInitialize (const char *fnames, const char *sonames, double **inputs,
-			int n_terms);
+			int n_terms, WtNetwork *nwp, Rboolean noinit_s);
 
 void WtModelDestroy(WtNetwork *nwp, WtModel *m);
 

@@ -38,7 +38,7 @@ SEXP wt_network_stats_wrapper(// Network settings
   ErgmWtState *s = ErgmWtStateInit(// Network settings
                                  asInteger(dn), asInteger(dflag), asInteger(bipartite),
                                  // Model settings
-                                 asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames),
+                                 asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames), TRUE,
                                  // Proposal settings
                                  NO_WTMHPROPOSAL,
                                  // Numeric inputs
@@ -78,16 +78,6 @@ void WtSummStats(ErgmWtState *s, Edge n_edges, Vertex *tails, Vertex *heads, dou
   
   Edge ntoggles = n_edges; // So that we can use the macros
 
-  /* Initialize storage for terms that don't have s_functions.  */
-  WtEXEC_THROUGH_TERMS_INREVERSE(m, {
-      IFDEBUG_BACKUP_DSTATS;
-      if(mtp->s_func==NULL && mtp->i_func)
-	(*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
-      else if(mtp->s_func==NULL && mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
-	(*(mtp->u_func))(0, 0, 0, mtp, nwp, 0);  /* Call u_??? function */
-      IFDEBUG_RESTORE_DSTATS;
-    });
-    
   /* Calculate statistics for terms that don't have c_functions or s_functions.  */
   WtEXEC_THROUGH_TERMS_INTO(m, stats, {
       if(mtp->s_func==NULL && mtp->c_func==NULL && mtp->d_func){

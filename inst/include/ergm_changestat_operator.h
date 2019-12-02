@@ -4,6 +4,6 @@
 #include "ergm_model.h"
 #include "ergm_storage.h"
 
-Model *unpack_Model_as_double(double **x);
+Model *unpack_Model_as_double(double **x, Network *nwp);
 
 #endif

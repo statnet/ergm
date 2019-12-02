@@ -2,11 +2,11 @@
 #include "ergm_changestat_auxnet.h"
 #include "ergm_util.h"
 
-Model *unpack_Model_as_double(double **x){
+Model *unpack_Model_as_double(double **x, Network *nwp){
   int n_terms = *((*x)++);
   char *fnames = (char *) unpack_str_as_double(x);
   char *snames = (char *) unpack_str_as_double(x);
-  Model *m = ModelInitialize(fnames, snames, x, n_terms);
+  Model *m = ModelInitialize(fnames, snames, x, n_terms, nwp, FALSE);
   Free(fnames);
   Free(snames);
   return m;  

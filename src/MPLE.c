@@ -56,7 +56,7 @@ SEXP MPLE_wrapper(// Network settings
   ErgmState *s = ErgmStateInit(// Network settings
                                asInteger(dn), asInteger(dflag), asInteger(bipartite),
                                // Model settings
-                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames),
+                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames), FALSE,
                                // Proposal settings
                                NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0,
                                // Numeric inputs

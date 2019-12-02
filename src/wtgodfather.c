@@ -84,7 +84,7 @@ SEXP WtGodfather_wrapper(// Network settings
   ErgmWtState *s = ErgmWtStateInit(// Network settings
                                asInteger(dn), asInteger(dflag), asInteger(bipartite),
                                // Model settings
-                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames),
+                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames), FALSE,
                                // Proposal settings
                                NO_WTMHPROPOSAL,
                                // Numeric inputs

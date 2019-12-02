@@ -45,7 +45,7 @@ void ModelDestroy(Network *nwp, Model *m)
  all necessary information about how to compute one term in the model.
 *****************/
 Model* ModelInitialize (const char *fnames, const char *sonames, double **inputsp,
-			int n_terms) {
+			int n_terms, Network *nwp, Rboolean noinit_s) {
   int i, j, k, l, offset;
   ModelTerm *thisterm;
   char *fn,*sn;
@@ -59,6 +59,7 @@ Model* ModelInitialize (const char *fnames, const char *sonames, double **inputs
   m->n_stats = 0;
   m->n_aux = 0;
   m->n_u = 0;
+  m->noinit_s = noinit_s;
   for (l=0; l < n_terms; l++) {
       thisterm = m->termarray + l;
       
@@ -226,6 +227,10 @@ Model* ModelInitialize (const char *fnames, const char *sonames, double **inputs
   }
   
   *inputsp = inputs;
+
+  /* Trigger initial storage update */
+  InitStats(nwp, m);
+
   return m;
 }
 
@@ -298,13 +303,15 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
 void InitStats(Network *nwp, Model *m){
   // Iterate in reverse, so that auxliary terms get initialized first.  
   EXEC_THROUGH_TERMS_INREVERSE(m, {
-      double *dstats = mtp->dstats;
-      mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
-      if(mtp->i_func)
-	(*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
-      else if(mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
-	(*(mtp->u_func))(0, 0, mtp, nwp, 0);  /* Call u_??? function */
-      mtp->dstats = dstats;
+      if(!m->noinit_s || !mtp->s_func){ // Skip if noinit_s is set and s_func is present.
+        double *dstats = mtp->dstats;
+        mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
+        if(mtp->i_func)
+          (*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
+        else if(mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
+          (*(mtp->u_func))(0, 0, mtp, nwp, 0);  /* Call u_??? function */
+        mtp->dstats = dstats;
+      }
     });
 }
 
@@ -315,13 +322,15 @@ void InitStats(Network *nwp, Model *m){
 void DestroyStats(Network *nwp, Model *m){
   unsigned int i=0;
   EXEC_THROUGH_TERMS(m, {
-      if(mtp->f_func)
-	(*(mtp->f_func))(mtp, nwp);  /* Call f_??? function */
+      if(!m->noinit_s || !mtp->s_func){ // Skip if noinit_s is set and s_func is present.
+        if(mtp->f_func)
+          (*(mtp->f_func))(mtp, nwp);  /* Call f_??? function */
+      }
       Free(m->dstatarray[i]);
       Free(mtp->statcache);
       if(mtp->storage){
-	Free(mtp->storage);
-	mtp->storage = NULL;
+        Free(mtp->storage);
+        mtp->storage = NULL;
       }
       i++;
     });

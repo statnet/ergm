@@ -73,8 +73,7 @@ typedef struct StoreAuxnet_s{Network *inwp, *onwp;
   I_CHANGESTAT_FN(i_on ## name){                                        \
     GET_AUX_STORAGE(StoreAuxnet, auxnet);                               \
     double *inputs = INPUT_PARAM + 1;                                   \
-    Model *m = STORAGE = unpack_Model_as_double(&inputs);               \
-    InitStats(auxnet->onwp, m);                                         \
+    STORAGE = unpack_Model_as_double(&inputs, auxnet->onwp);            \
   }                                                                     \
                                                                         \
   C_CHANGESTAT_FN(c_on ## name){                                        \

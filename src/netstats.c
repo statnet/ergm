@@ -38,7 +38,7 @@ SEXP network_stats_wrapper(// Network settings
   ErgmState *s = ErgmStateInit(// Network settings
                                asInteger(dn), asInteger(dflag), asInteger(bipartite),
                                // Model settings
-                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames),
+                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames), TRUE,
                                // Proposal settings
                                NO_MHPROPOSAL,
                                // Numeric inputs
@@ -70,7 +70,6 @@ SEXP network_stats_wrapper(// Network settings
  void SummStats Computes summary statistics for a network. Must be
  passed an empty network and passed an empty network
 *****************/
-
 void SummStats(ErgmState *s, Edge n_edges, Vertex *tails, Vertex *heads, double *stats){
   Network *nwp = s->nwp;
   Model *m = s->m;
@@ -79,16 +78,6 @@ void SummStats(ErgmState *s, Edge n_edges, Vertex *tails, Vertex *heads, double 
   
   Edge ntoggles = n_edges; // So that we can use the macros
 
-  /* Initialize storage for terms that don't have s_functions.  */
-  EXEC_THROUGH_TERMS_INREVERSE(m, {
-      IFDEBUG_BACKUP_DSTATS;
-      if(mtp->s_func==NULL && mtp->i_func)
-	(*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
-      else if(mtp->s_func==NULL && mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
-	(*(mtp->u_func))(0, 0, mtp, nwp, 0);  /* Call u_??? function */
-      IFDEBUG_RESTORE_DSTATS;
-    });
-    
   /* Calculate statistics for terms that don't have c_functions or s_functions.  */
   EXEC_THROUGH_TERMS_INTO(m, stats, {
       if(mtp->s_func==NULL && mtp->c_func==NULL && mtp->d_func){

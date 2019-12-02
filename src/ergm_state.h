@@ -6,7 +6,7 @@
 #include "ergm_MHproposal.h"
 #include "ergm_model.h"
 
-#define NO_MODEL 0, NULL, NULL
+#define NO_MODEL 0, NULL, NULL, FALSE
 #define NO_MHPROPOSAL  NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0
 #define NO_LASTTOGGLE FALSE, 0, NULL
 #define NO_NWSTATE 0, NULL, NULL
@@ -20,7 +20,7 @@ typedef struct{
 ErgmState *ErgmStateInit(// Network settings
                          Vertex n_nodes, Rboolean directed_flag, Vertex bip,
                          // Model settings
-                         int nterms, const char *funnames, const char *sonames,
+                         int nterms, const char *funnames, const char *sonames, Rboolean noinit_s,
                          // Proposal settings
                          const char *MHProposaltype, const char *MHProposalpackage,
                          int *attribs, int *maxout, int *maxin, int *minout,

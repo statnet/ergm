@@ -197,9 +197,7 @@ I_CHANGESTAT_FN(i__filter_formula_net){
   GET_STORAGE(Model, m);
 
   double *inputs = INPUT_PARAM+1;
-  STORAGE = m = unpack_Model_as_double(&inputs);
-
-  InitStats(nwp, m);
+  STORAGE = m = unpack_Model_as_double(&inputs, nwp);
 
   EXEC_THROUGH_NET_EDGES_PRE(t, h, e, {
       ChangeStats(1, &t, &h, nwp, m);

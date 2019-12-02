@@ -45,7 +45,7 @@ SEXP CD_wrapper(// Network settings
   ErgmState *s = ErgmStateInit(// Network settings
                                asInteger(dn), asInteger(dflag), asInteger(bipartite),
                                // Model settings
-                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames),
+                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames), FALSE,
                                // Proposal settings
                                FIRSTCHAR(MHProposaltype), FIRSTCHAR(MHProposalpackage), INTEGER(attribs), INTEGER(maxout), INTEGER(maxin), INTEGER(minout), INTEGER(minin), asInteger(condAllDegExact), asInteger(attriblength),
                                // Numeric inputs

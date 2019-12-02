@@ -29,6 +29,7 @@ typedef struct Modelstruct {
 			  array is a pointer to an array of size
 			  termarray[i].nstats                    */
   unsigned int n_aux;
+  Rboolean noinit_s;
 } Model;
 
 #define FOR_EACH_TERM(m) for(ModelTerm *mtp = (m)->termarray; mtp < (m)->termarray + (m)->n_terms; mtp++)
@@ -110,7 +111,7 @@ typedef struct Modelstruct {
 
 
 Model* ModelInitialize (const char *fnames, const char *sonames, double **inputs,
-			int n_terms);
+			int n_terms, Network *nwp, Rboolean noinit_s);
 
 void ModelDestroy(Network *nwp, Model *m);
 
