@@ -36,13 +36,13 @@ extern SEXP MCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, S
 extern SEXP MCMCPhase12(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP MPLE_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP network_stats_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP SAN_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP SAN_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP set_ergm_omp_terms(SEXP);
 extern SEXP wt_network_stats_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtCD_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtGodfather_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtMCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP WtSAN_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP WtSAN_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
 static const R_CMethodDef CEntries[] = {
     {"full_geodesic_distribution", (DL_FUNC) &full_geodesic_distribution, 8},
@@ -61,13 +61,13 @@ static const R_CallMethodDef CallEntries[] = {
     {"MCMCPhase12",              (DL_FUNC) &MCMCPhase12,              29},
     {"MPLE_wrapper",             (DL_FUNC) &MPLE_wrapper,             13},
     {"network_stats_wrapper",    (DL_FUNC) &network_stats_wrapper,    13},
-    {"SAN_wrapper",              (DL_FUNC) &SAN_wrapper,              31},
+    {"SAN_wrapper",              (DL_FUNC) &SAN_wrapper,              28},
     {"set_ergm_omp_terms",       (DL_FUNC) &set_ergm_omp_terms,        1},
     {"wt_network_stats_wrapper", (DL_FUNC) &wt_network_stats_wrapper, 14},
     {"WtCD_wrapper",             (DL_FUNC) &WtCD_wrapper,             17},
     {"WtGodfather_wrapper",      (DL_FUNC) &WtGodfather_wrapper,      17},
     {"WtMCMC_wrapper",           (DL_FUNC) &WtMCMC_wrapper,           19},
-    {"WtSAN_wrapper",            (DL_FUNC) &WtSAN_wrapper,            25},
+    {"WtSAN_wrapper",            (DL_FUNC) &WtSAN_wrapper,            22},
     {NULL, NULL, 0}
 };
 

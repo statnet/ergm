@@ -40,14 +40,13 @@ SEXP SAN_wrapper(// Network settings
                  SEXP tau, SEXP stats,
                  SEXP samplesize, SEXP nsteps,
                  SEXP invcov,
-                 SEXP maxedges,
-                 SEXP nstats,
                  SEXP statindices,
-                 SEXP noffsets,
                  SEXP offsetindices,
                  SEXP offsets,
                  SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
+  unsigned int nstats = length(statindices), noffsets = length(offsetindices);
+
   
   ErgmState *s = ErgmStateInit(// Network settings
                                asInteger(dn), asInteger(dflag), asInteger(bipartite),
@@ -64,17 +63,16 @@ SEXP SAN_wrapper(// Network settings
   Network *nwp = s->nwp;
   MHProposal *MHp = s->MHp;
 
-  SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*asInteger(nstats)));
-  memcpy(REAL(sample), REAL(stats), asInteger(nstats)*sizeof(double));
-  SEXP prop_sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*asInteger(nstats)));
-  memset(REAL(prop_sample), 0, asInteger(samplesize)*asInteger(nstats)*sizeof(double));
+  SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*nstats));
+  memcpy(REAL(sample), REAL(stats), nstats*sizeof(double));
+  SEXP prop_sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*nstats));
+  memset(REAL(prop_sample), 0, asInteger(samplesize)*nstats*sizeof(double));
 
   SEXP status;
   if(MHp) status = PROTECT(ScalarInteger(SANSample(s,
                                                    REAL(invcov), REAL(tau), REAL(sample), REAL(prop_sample), asInteger(samplesize),
                                                    asInteger(nsteps),
-                                                   asInteger(maxedges),
-                                                   asInteger(nstats), INTEGER(statindices), asInteger(noffsets), INTEGER(offsetindices), REAL(offsets),
+                                                   nstats, INTEGER(statindices), noffsets, INTEGER(offsetindices), REAL(offsets),
                                                    asInteger(verbose))));
   else status = PROTECT(ScalarInteger(MCMC_MH_FAILED));
 
@@ -85,7 +83,7 @@ SEXP SAN_wrapper(// Network settings
   SET_VECTOR_ELT(outl, 2, prop_sample);
 
   /* record new generated network to pass back to R */
-  if(asInteger(status) == MCMC_OK && asInteger(maxedges)>0){
+  if(asInteger(status) == MCMC_OK){
     NWSTATE_SAVE_INTO_RLIST(nwp, outl, 3);
   }
 
@@ -109,15 +107,12 @@ SEXP SAN_wrapper(// Network settings
 MCMCStatus SANSample(ErgmState *s,
                      double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
                      int samplesize, int nsteps,
-                     int nmax,
                      int nstats,
                      int *statindices,
                      int noffsets,
                      int *offsetindices,
                      double *offsets,
                      int verbose){
-  Network *nwp = s->nwp;
-
   int staken, tottaken, ptottaken;
     
   /*********************
@@ -148,9 +143,6 @@ MCMCStatus SANSample(ErgmState *s,
                            nstats, statindices, noffsets, offsetindices, offsets,
 			   verbose)!=MCMC_OK)
     return MCMC_MH_FAILED;
-  if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
-    return MCMC_TOO_MANY_EDGES;
-  }
 
   if (samplesize>1){
     staken = 0;
@@ -178,9 +170,6 @@ MCMCStatus SANSample(ErgmState *s,
                                nstats, statindices, noffsets, offsetindices, offsets,
 			       verbose)!=MCMC_OK)
 	return MCMC_MH_FAILED;
-      if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
-	return MCMC_TOO_MANY_EDGES;
-      }
       tottaken += staken;
       if (verbose){
         if( ((3*i) % samplesize)==0 && samplesize > 500){

@@ -18,8 +18,7 @@
 
 MCMCStatus SANSample(ErgmState *s,
                      double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
-                     int samplesize, int nsteps, 
-                     int nmax,
+                     int samplesize, int nsteps,
                      int nstats,
                      int *statindices,
                      int noffsets,

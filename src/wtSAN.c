@@ -38,14 +38,12 @@ SEXP WtSAN_wrapper(// Network settings
                    SEXP tau, SEXP stats,
                    SEXP samplesize, SEXP nsteps,
                    SEXP invcov,
-                   SEXP maxedges,
-                   SEXP nstats,
                    SEXP statindices,
-                   SEXP noffsets,
                    SEXP offsetindices,
                    SEXP offsets,
                    SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
+  unsigned int nstats = length(statindices), noffsets = length(offsetindices);
   
   ErgmWtState *s = ErgmWtStateInit(// Network settings
                                  asInteger(dn), asInteger(dflag), asInteger(bipartite),
@@ -62,17 +60,16 @@ SEXP WtSAN_wrapper(// Network settings
   WtNetwork *nwp = s->nwp;
   WtMHProposal *MHp = s->MHp;
 
-  SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*asInteger(nstats)));
-  memcpy(REAL(sample), REAL(stats), asInteger(nstats)*sizeof(double));
-  SEXP prop_sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*asInteger(nstats)));
-  memset(REAL(prop_sample), 0, asInteger(samplesize)*asInteger(nstats)*sizeof(double));
+  SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*nstats));
+  memcpy(REAL(sample), REAL(stats), nstats*sizeof(double));
+  SEXP prop_sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*nstats));
+  memset(REAL(prop_sample), 0, asInteger(samplesize)*nstats*sizeof(double));
 
   SEXP status;
   if(MHp) status = PROTECT(ScalarInteger(WtSANSample(s,
                                                      REAL(invcov), REAL(tau), REAL(sample), REAL(prop_sample), asInteger(samplesize),
                                                      asInteger(nsteps),
-                                                     asInteger(maxedges),
-                                                     asInteger(nstats), INTEGER(statindices), asInteger(noffsets), INTEGER(offsetindices), REAL(offsets),
+                                                     nstats, INTEGER(statindices), noffsets, INTEGER(offsetindices), REAL(offsets),
                                                      asInteger(verbose))));
   else status = PROTECT(ScalarInteger(MCMC_MH_FAILED));
 
@@ -83,7 +80,7 @@ SEXP WtSAN_wrapper(// Network settings
   SET_VECTOR_ELT(outl, 2, prop_sample);
 
   /* record new generated network to pass back to R */
-  if(asInteger(status) == MCMC_OK && asInteger(maxedges)>0){
+  if(asInteger(status) == MCMC_OK){
     WTNWSTATE_SAVE_INTO_RLIST(nwp, outl, 3);
   }
 
@@ -105,17 +102,14 @@ SEXP WtSAN_wrapper(// Network settings
  the networkstatistics array. 
 *********************/
 MCMCStatus WtSANSample(ErgmWtState *s,
-  double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
-  int samplesize, int nsteps, 
-                         int nmax,
-  int nstats,
-  int *statindices,
-  int noffsets,
-  int *offsetindices,
-                         double *offsets,
-                         int verbose){
-  WtNetwork *nwp = s->nwp;
-
+                       double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
+                       int samplesize, int nsteps,
+                       int nstats,
+                       int *statindices,
+                       int noffsets,
+                       int *offsetindices,
+                       double *offsets,
+                       int verbose){
   int staken, tottaken, ptottaken;
     
   /*********************
@@ -146,9 +140,6 @@ MCMCStatus WtSANSample(ErgmWtState *s,
 			     nstats, statindices, noffsets, offsetindices, offsets,
                              verbose)!=MCMC_OK)
     return MCMC_MH_FAILED;
-  if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
-    return MCMC_TOO_MANY_EDGES;
-  }
 
   if (samplesize>1){
     staken = 0;
@@ -175,9 +166,6 @@ MCMCStatus WtSANSample(ErgmWtState *s,
                                  interval, &staken, nstats, statindices, noffsets, offsetindices, offsets,
                                  verbose)!=MCMC_OK)
 	return MCMC_MH_FAILED;
-      if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
-	return MCMC_TOO_MANY_EDGES;
-      }
       tottaken += staken;
       if (verbose){
         if( ((3*i) % samplesize)==0 && samplesize > 500){
@@ -226,15 +214,15 @@ MCMCStatus WtSANMetropolisHastings
  essentially generates a sample of size one
 *********************/
 MCMCStatus WtSANMetropolisHastings(ErgmWtState *s,
-			    double *invcov, 
-				  double *tau, double *networkstatistics, double *prop_networkstatistics,
-			    int nsteps, int *staken,
-                int nstats,
-                int *statindices,
-                int noffsets,
-                int *offsetindices,
-                                     double *offsets,
-                                     int verbose){
+                                   double *invcov,
+                                   double *tau, double *networkstatistics, double *prop_networkstatistics,
+                                   int nsteps, int *staken,
+                                   int nstats,
+                                   int *statindices,
+                                   int noffsets,
+                                   int *offsetindices,
+                                   double *offsets,
+                                   int verbose){
   WtNetwork *nwp = s->nwp;
   WtModel *m = s->m;
   WtMHProposal *MHp = s->MHp;

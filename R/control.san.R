@@ -40,7 +40,6 @@
 #'
 #' @param SAN.nsteps Number of MCMC proposals for all the annealing runs combined.
 #' @param SAN.samplesize Number of realisations' statistics to obtain for tuning purposes.
-#' @param SAN.maxedges The maximum number of edges that may occur during the SAN sampling.
 #' @param SAN.prop.weights Specifies the method to allocate probabilities of
 #' being proposed to dyads. Defaults to \code{"default"}, which picks a
 #' reasonable default for the specified constraint.  Other possible values are
@@ -66,7 +65,6 @@ control.san<-function(SAN.maxit=4,
                       SAN.nsteps.alloc=function(nsim) 2^seq_len(nsim),
                       SAN.nsteps=2^19,
                       SAN.samplesize=2^12,
-                      SAN.maxedges=Inf,
                       
                       SAN.prop.weights="default",
                       SAN.prop.args=list(),

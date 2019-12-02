@@ -17,22 +17,21 @@
 #include "wtMCMC.h"
 
 MCMCStatus WtSANSample(ErgmWtState *s,
-		double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
-		int samplesize, int nsteps, 
-                         int nmax,
-        int nstats,
-        int *statindices,
-        int noffsets,
-        int *offsetindices,
-                         double *offsets,
-                         int verbose);
+                       double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
+                       int samplesize, int nsteps,
+                       int nstats,
+                       int *statindices,
+                       int noffsets,
+                       int *offsetindices,
+                       double *offsets,
+                       int verbose);
 MCMCStatus WtSANMetropolisHastings(ErgmWtState *s,
-			 double *invcov, double *tau, double *statistics, double *prop_statistics,
-			 int nsteps, int *staken,
-             int nstats,
-             int *statindices,
-             int noffsets,
-             int *offsetindices,
-                                     double *offsets,
-                                     int verbose);
+                                   double *invcov, double *tau, double *statistics, double *prop_statistics,
+                                   int nsteps, int *staken,
+                                   int nstats,
+                                   int *statindices,
+                                   int noffsets,
+                                   int *offsetindices,
+                                   double *offsets,
+                                   int verbose);
 #endif

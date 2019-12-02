@@ -492,7 +492,6 @@ control.ergm<-function(drop=TRUE,
                          SAN.maxit=SAN.maxit,
                          SAN.prop.weights=MCMC.prop.weights,
                          SAN.prop.args=MCMC.prop.args,
-                         SAN.maxedges=MCMC.maxedges,
                          
                          SAN.nsteps=EVL(MCMC.burnin,16384)*SAN.nsteps.times,
                          SAN.samplesize=EVL(MCMC.samplesize,1024),
