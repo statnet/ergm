@@ -12,26 +12,6 @@
 
 #include "MCMC.h"
 
-/* *** don't forget tail-> head, so this function accepts tails first, not heads  */
-
-SEXP CD_wrapper(// Network settings
-                SEXP dn, SEXP dflag, SEXP bipartite,
-                // Model settings
-                SEXP nterms, SEXP funnames,
-                SEXP sonames,
-                // Proposal settings
-                SEXP MHProposaltype, SEXP MHProposalpackage,
-                SEXP attribs, SEXP maxout, SEXP maxin, SEXP minout,
-                SEXP minin, SEXP condAllDegExact, SEXP attriblength,
-                // Numeric inputs
-                SEXP inputs,
-                // Network state
-                SEXP nedges,
-                SEXP tails, SEXP heads,
-                // MCMC settings
-                SEXP eta, SEXP samplesize, 
-                SEXP CDparams,
-                SEXP verbose);
 MCMCStatus CDSample(ErgmState *s,
 		    double *eta, double *networkstatistics, 
 		    int samplesize, int *CDparams,

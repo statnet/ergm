@@ -13,7 +13,7 @@
 #include "ergm_wtstate.h"
 #include "ergm_util.h"
 
-WtMCMCStatus WtGodfather(ErgmWtState *s, Edge n_changes, Vertex *tails, Vertex *heads, double *weights, double *stats){
+MCMCStatus WtGodfather(ErgmWtState *s, Edge n_changes, Vertex *tails, Vertex *heads, double *weights, double *stats){
   WtNetwork *nwp = s->nwp;
   WtModel *m = s->m;
 
@@ -51,7 +51,7 @@ WtMCMCStatus WtGodfather(ErgmWtState *s, Edge n_changes, Vertex *tails, Vertex *
     WtUPDATE_STORAGE_SET(t, h, w, nwp, m, NULL, edgeweight);
   }
 
-  return WtMCMC_OK;
+  return MCMC_OK;
 }
 
 /*****************
@@ -106,10 +106,10 @@ SEXP WtGodfather_wrapper(// Network settings
   SET_VECTOR_ELT(outl, 1, stats);
 
   /* record new generated network to pass back to R */
-  if(asInteger(status) == WtMCMC_OK && asInteger(end_network)){
+  if(asInteger(status) == MCMC_OK && asInteger(end_network)){
     WTNWSTATE_SAVE_INTO_RLIST(nwp, outl, 2);
   }
-
+  
   ErgmWtStateDestroy(s);
   PutRNGstate();  /* Disable RNG before returning */
   UNPROTECT(3);

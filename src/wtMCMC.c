@@ -66,14 +66,14 @@ SEXP WtMCMC_wrapper(// Network settings
                                                       REAL(eta), REAL(sample), asInteger(samplesize),
                                                       asInteger(burnin), asInteger(interval), asInteger(maxedges),
                                                       asInteger(verbose))));
-  else status = PROTECT(ScalarInteger(WtMCMC_MH_FAILED));
+  else status = PROTECT(ScalarInteger(MCMC_MH_FAILED));
 
   SEXP outl = PROTECT(allocVector(VECSXP, 5));
   SET_VECTOR_ELT(outl, 0, status);
   SET_VECTOR_ELT(outl, 1, sample);
   
   /* record new generated network to pass back to R */
-  if(asInteger(status) == WtMCMC_OK && asInteger(maxedges)>0){
+  if(asInteger(status) == MCMC_OK && asInteger(maxedges)>0){
     WTNWSTATE_SAVE_INTO_RLIST(nwp, outl, 2);
   }
 
@@ -94,7 +94,7 @@ SEXP WtMCMC_wrapper(// Network settings
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-WtMCMCStatus WtMCMCSample(ErgmWtState *s,
+MCMCStatus WtMCMCSample(ErgmWtState *s,
 			  double *eta, double *networkstatistics, 
 			  int samplesize, int burnin, 
 			  int interval, int nmax, int verbose) {
@@ -124,8 +124,8 @@ WtMCMCStatus WtMCMCSample(ErgmWtState *s,
    *********************/
 /*  Catch more edges than we can return */
   if(WtMetropolisHastings(s, eta, networkstatistics, burnin, &staken,
-			verbose)!=WtMCMC_OK)
-    return WtMCMC_MH_FAILED;
+			verbose)!=MCMC_OK)
+    return MCMC_MH_FAILED;
   if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
     ErgmWtStateDestroy(s);  
     error("Number of edges %u exceeds the upper limit set by the user (%u). This can be a sign of degeneracy, but if not, it can be controlled via MCMC.max.maxedges= and/or MCMLE.density.guard= control parameters.", EDGECOUNT(nwp), nmax);
@@ -148,10 +148,10 @@ WtMCMCStatus WtMCMCSample(ErgmWtState *s,
       
       /* Catch massive number of edges caused by degeneracy */
       if(WtMetropolisHastings(s, eta, networkstatistics, interval, &staken,
-			    verbose)!=WtMCMC_OK)
-	return WtMCMC_MH_FAILED;
+			    verbose)!=MCMC_OK)
+	return MCMC_MH_FAILED;
       if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
-	return WtMCMC_TOO_MANY_EDGES;
+	return MCMC_TOO_MANY_EDGES;
       }
       tottaken += staken;
 
@@ -176,7 +176,7 @@ WtMCMCStatus WtMCMCSample(ErgmWtState *s,
       staken*100.0/(1.0*burnin), burnin); 
     }
   }
-  return WtMCMC_OK;
+  return MCMC_OK;
 }
 
 /*********************
@@ -190,7 +190,7 @@ WtMCMCStatus WtMCMCSample(ErgmWtState *s,
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-WtMCMCStatus WtMetropolisHastings (ErgmWtState *s,
+MCMCStatus WtMetropolisHastings (ErgmWtState *s,
 				 double *eta, double *networkstatistics,
 				 int nsteps, int *staken,
 				 int verbose) {
@@ -213,14 +213,14 @@ WtMCMCStatus WtMetropolisHastings (ErgmWtState *s,
 	
       case MH_IMPOSSIBLE:
 	Rprintf("MH MHProposal function encountered a configuration from which no toggle(s) can be proposed.\n");
-	return WtMCMC_MH_FAILED;
+	return MCMC_MH_FAILED;
 	
       case MH_UNSUCCESSFUL:
 	warning("MH MHProposal function failed to find a valid proposal.");
 	unsuccessful++;
 	if(unsuccessful>taken*MH_QUIT_UNSUCCESSFUL){
 	  Rprintf("Too many MH MHProposal function failures.\n");
-	  return WtMCMC_MH_FAILED;
+	  return MCMC_MH_FAILED;
 	}
       case MH_CONSTRAINT:
 	continue;
@@ -283,6 +283,6 @@ WtMCMCStatus WtMetropolisHastings (ErgmWtState *s,
   }
   
   *staken = taken;
-  return WtMCMC_OK;
+  return MCMC_OK;
 }
 

@@ -67,7 +67,7 @@ SEXP WtCD_wrapper(// Network settings
   if(MHp) status = PROTECT(ScalarInteger(WtCDSample(s,
                                                     REAL(eta), REAL(sample), asInteger(samplesize), INTEGER(CDparams), undotail, undohead, undoweight, extraworkspace,
                                                     asInteger(verbose))));
-  else status = PROTECT(ScalarInteger(WtMCMC_MH_FAILED));
+  else status = PROTECT(ScalarInteger(MCMC_MH_FAILED));
 
   SEXP outl = PROTECT(allocVector(VECSXP, 2));
   SET_VECTOR_ELT(outl, 0, status);
@@ -95,7 +95,7 @@ SEXP WtCD_wrapper(// Network settings
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-WtMCMCStatus WtCDSample(ErgmWtState *s,
+MCMCStatus WtCDSample(ErgmWtState *s,
                         double *eta, double *networkstatistics, 
 			int samplesize, int *CDparams,
                         Vertex *undotail, Vertex *undohead, double *undoweight, double *extraworkspace,
@@ -124,8 +124,8 @@ WtMCMCStatus WtCDSample(ErgmWtState *s,
   while(i<samplesize){
     
     if(WtCDStep(s, eta, networkstatistics, CDparams, &staken, undotail, undohead, undoweight, extraworkspace,
-		verbose)!=WtMCMC_OK)
-      return WtMCMC_MH_FAILED;
+		verbose)!=MCMC_OK)
+      return MCMC_MH_FAILED;
     
 #ifdef Win32
     if( ((100*i) % samplesize)==0 && samplesize > 500){
@@ -144,8 +144,8 @@ WtMCMCStatus WtCDSample(ErgmWtState *s,
     Rprintf("Sampler accepted %7.3f%% of %lld proposed steps.\n",
 	    staken*100.0/(1.0*sattempted*CDparams[0]), (long long) sattempted*CDparams[0]); 
   }
-
-  return WtMCMC_OK;
+  
+  return MCMC_OK;
 }
 
 /*********************
@@ -159,7 +159,7 @@ WtMCMCStatus WtCDSample(ErgmWtState *s,
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-WtMCMCStatus WtCDStep(ErgmWtState *s,
+MCMCStatus WtCDStep(ErgmWtState *s,
                       double *eta, double *networkstatistics,
                       int *CDparams, int *staken,
                       Vertex *undotail, Vertex *undohead, double *undoweight, double *extraworkspace,
@@ -168,7 +168,7 @@ WtMCMCStatus WtCDStep(ErgmWtState *s,
   WtNetwork *nwp = s->nwp;
   WtModel *m = s->m;
   WtMHProposal *MHp = s->MHp;
-
+  
   unsigned int unsuccessful=0, ntoggled=0;
 
   for(unsigned int step=0; step<CDparams[0]; step++){
@@ -187,14 +187,14 @@ WtMCMCStatus WtCDStep(ErgmWtState *s,
 	  
 	case MH_IMPOSSIBLE:
 	  Rprintf("MH MHProposal function encountered a configuration from which no toggle(s) can be proposed.\n");
-	  return WtMCMC_MH_FAILED;
+	  return MCMC_MH_FAILED;
 	  
 	case MH_UNSUCCESSFUL:
 	  warning("MH MHProposal function failed to find a valid proposal.");
 	  unsuccessful++;
 	  if(unsuccessful>*staken*MH_QUIT_UNSUCCESSFUL){
 	    Rprintf("Too many MH MHProposal function failures.\n");
-	    return WtMCMC_MH_FAILED;
+	    return MCMC_MH_FAILED;
 	  }
 	  continue;
 	  
@@ -321,6 +321,6 @@ WtMCMCStatus WtCDStep(ErgmWtState *s,
     WtGET_EDGE_UPDATE_STORAGE_SET(t, h, w, nwp, m, MHp);
   }
   
-  return WtMCMC_OK;
+  return MCMC_OK;
 }
 
