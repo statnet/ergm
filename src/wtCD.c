@@ -69,7 +69,8 @@ SEXP WtCD_wrapper(// Network settings
                                                     asInteger(verbose))));
   else status = PROTECT(ScalarInteger(MCMC_MH_FAILED));
 
-  SEXP outl = PROTECT(allocVector(VECSXP, 2));
+  const char *outn[] = {"status", "s", ""};
+  SEXP outl = PROTECT(mkNamed(VECSXP, outn));
   SET_VECTOR_ELT(outl, 0, status);
   SET_VECTOR_ELT(outl, 1, sample);
 

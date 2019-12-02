@@ -69,16 +69,16 @@ ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL,
 }
 
 ergm_CD_slave <- function(Clist,proposal,eta,control,verbose,..., samplesize=NULL, stats0=numeric(Clist$nstats)) {
-    nedges <- Clist$nedges
-    tails <- Clist$tails
-    heads <- Clist$heads
-    weights <- Clist$weights
-    stats <- stats0
+  nedges <- Clist$nedges
+  tails <- Clist$tails
+  heads <- Clist$heads
+  weights <- Clist$weights
+  stats <- stats0
   
   if(is.null(samplesize)) samplesize <- control$CD.samplesize
   
   z <-
-    if(is.null(Clist$weights)){
+    if(is.null(Clist$weights))
       .Call("CD_wrapper",
             # Network settings
             as.integer(Clist$n),
@@ -104,7 +104,7 @@ ergm_CD_slave <- function(Clist,proposal,eta,control,verbose,..., samplesize=NUL
             as.integer(c(control$CD.nsteps,control$CD.multiplicity)),
             as.integer(verbose),
             PACKAGE="ergm")
-    }else{
+    else
       .Call("WtCD_wrapper",
             # Network settings
             as.integer(Clist$n),
@@ -126,8 +126,8 @@ ergm_CD_slave <- function(Clist,proposal,eta,control,verbose,..., samplesize=NUL
             as.integer(c(control$CD.nsteps,control$CD.multiplicity)),
             as.integer(verbose), 
             PACKAGE="ergm")
-    }
-    # save the results
-  z<-list(s=matrix(z[[2]]+stats, ncol=Clist$nstats, byrow = TRUE),
-          status=z[[1]])
+
+  z$s <- matrix(z$s+stats, ncol=Clist$nstats, byrow = TRUE)
+
+  z
 }
