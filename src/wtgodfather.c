@@ -10,9 +10,12 @@
 #include "wtMCMC.h"
 #include "ergm_wtmodel.h"
 #include "ergm_wtchangestat.h"
+#include "ergm_wtstate.h"
+#include "ergm_util.h"
 
-WtMCMCStatus WtGodfather(Edge n_changes, Vertex *tails, Vertex *heads, double *weights,
-	       WtNetwork *nwp, WtModel *m, double *stats){
+WtMCMCStatus WtGodfather(ErgmWtState *s, Edge n_changes, Vertex *tails, Vertex *heads, double *weights, double *stats){
+  WtNetwork *nwp = s->nwp;
+  WtModel *m = s->m;
 
   stats+=m->n_stats;
 
@@ -62,43 +65,66 @@ WtMCMCStatus WtGodfather(Edge n_changes, Vertex *tails, Vertex *heads, double *w
  find the changestats that result from starting from an empty network
  and then adding all of the edges to make up an observed network of interest.
 *****************/
-void WtGodfather_wrapper(int *n_edges, int *tails, int *heads, double *weights,
-			 int *n_nodes, int *dflag, int *bipartite, 
-			 int *nterms, char **funnames, char **sonames, double *inputs,
-			 int *total_changes, int *changetails, int *changeheads, double *changeweights,
-			 double *changestats, 
-			 int *maxedges,
-			 int *newnetworktails, 
-			 int *newnetworkheads, 
-			 double *newnetworkweights, 
-			 int *fVerbose, 
-			 int *status){
-  Vertex nmax;
-  /* Edge n_networks; */
-  WtNetwork *nwp;
-  WtModel *m;
-  
-  nmax = (Edge)abs(*maxedges);
-
+SEXP WtGodfather_wrapper(// Network settings
+                         SEXP dn, SEXP dflag, SEXP bipartite,
+                         // Model settings
+                         SEXP nterms, SEXP funnames,
+                         SEXP sonames,
+                         // Numeric inputs
+                         SEXP inputs,
+                         // Network state
+                         SEXP nedges,
+                         SEXP tails, SEXP heads, SEXP weights,
+                         // Godfather settings
+                         SEXP nsteps,
+                         SEXP changetails, SEXP changeheads, SEXP changeweights,
+                         SEXP end_network,
+                         SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
+  ErgmWtState *s = ErgmWtStateInit(// Network settings
+                               asInteger(dn), asInteger(dflag), asInteger(bipartite),
+                               // Model settings
+                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames),
+                               // Proposal settings
+                               NO_WTMHPROPOSAL,
+                               // Numeric inputs
+                               REAL(inputs),
+                               // Network state
+                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads), REAL(weights),
+                               NO_LASTTOGGLE);
+  WtNetwork *nwp = s->nwp;
+  WtModel *m = s->m;
 
-  m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
+  SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats*(1+asInteger(nsteps))));
+  memset(REAL(stats), 0, m->n_stats*(1+asInteger(nsteps))*sizeof(double));
 
-  /* Form the network */
-  nwp=WtNetworkInitialize((Vertex*)tails, (Vertex*)heads, weights, n_edges[0], 
-			    *n_nodes, *dflag, *bipartite, 0, 0, NULL);
-  
-  /* Trigger initial storage update */
-  WtInitStats(nwp, m);
-  
-  *status = WtGodfather(abs(*total_changes), (Vertex*)changetails, (Vertex*)changeheads, changeweights,
-			nwp, m, changestats);
-  
+  SEXP status = PROTECT(ScalarInteger(WtGodfather(s, length(changetails), (Vertex*)INTEGER(changetails), (Vertex*)INTEGER(changeheads), REAL(changeweights), REAL(stats))));
+
+  const char *outn[] = {"status", "s", "newnwtails", "newnwheads", "newnwweights", ""};
+  SEXP outl = PROTECT(mkNamed(VECSXP, outn));
+  SET_VECTOR_ELT(outl, 0, status);
+  SET_VECTOR_ELT(outl, 1, stats);
+
   /* record new generated network to pass back to R */
-  if(*status == WtMCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads && newnetworkweights)
-    newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList((Vertex*)newnetworktails+1,(Vertex*)newnetworkheads+1,newnetworkweights+1,nwp,nmax-1);
-  
-  WtModelDestroy(nwp, m);
-  WtNetworkDestroy(nwp);
-  PutRNGstate();
+  if(asInteger(status) == WtMCMC_OK && asInteger(end_network)){
+    SEXP newnetworktails = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
+    SEXP newnetworkheads = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
+    SEXP newnetworkweights = PROTECT(allocVector(REALSXP, EDGECOUNT(nwp)+1));
+
+    INTEGER(newnetworktails)[0]=INTEGER(newnetworkheads)[0]=REAL(newnetworkweights)[0]=
+      WtEdgeTree2EdgeList((Vertex*)INTEGER(newnetworktails)+1,
+                          (Vertex*)INTEGER(newnetworkheads)+1,
+                          REAL(newnetworkweights)+1,
+                          nwp,nwp->nedges);
+
+    SET_VECTOR_ELT(outl, 2, newnetworktails);
+    SET_VECTOR_ELT(outl, 3, newnetworkheads);
+    SET_VECTOR_ELT(outl, 4, newnetworkweights);
+    UNPROTECT(3);
+  }
+
+  ErgmWtStateDestroy(s);
+  PutRNGstate();  /* Disable RNG before returning */
+  UNPROTECT(3);
+  return outl;
 }

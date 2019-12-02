@@ -95,60 +95,57 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
 
   changem <- changes %>% map(rbind, 0) %>% do.call(rbind, .) # 0s are sentinels indicating next iteration.
   
-  if(end.network){
-    p <- 1-summary(nw~density)
-    newedges.m <- p*nrow(changem)
-    newedges.sd <- sqrt(p*(1-p)*nrow(changem))
-    maxedges <- Clist$nedges + newedges.m + newedges.sd*control$GF.init.maxedges.mul
-  }
-
-  
   if(verbose) message_print("Applying changes...\n")
-  repeat{
-    if(is.null(Clist$weights)){
-      z <- .C("Godfather_wrapper",
-              as.integer(Clist$nedges), as.integer(Clist$tails), as.integer(Clist$heads),
-              as.integer(Clist$n),
-              as.integer(Clist$dir), as.integer(Clist$bipartite),
-              as.integer(Clist$nterms), 
-              as.character(Clist$fnamestring),
-              as.character(Clist$snamestring),
-              as.double(Clist$inputs),
-              as.integer(nrow(changem) * if(ncol(changem)==3) +1 else -1), as.integer(changem[,1]),
-              as.integer(changem[,2]), if(ncol(changem)==3) as.integer(changem[,3]) else integer(0),
-              s = double((1+length(changes)) * Clist$nstats),
-              if(end.network) as.integer(maxedges) else as.integer(0),
-              newnwtails = if(end.network) integer(maxedges+1) else integer(0),
-              newnwheads = if(end.network) integer(maxedges+1) else integer(0),
-              as.integer(verbose),
-              status = integer(1), # 0 = OK, TOO_MANY_EDGES = 1
-              PACKAGE="ergm")
-    }else{
-      z <- .C("WtGodfather_wrapper",
-              as.integer(Clist$nedges), as.integer(Clist$tails), as.integer(Clist$heads), as.double(Clist$weights),
-              as.integer(Clist$n),
-              as.integer(Clist$dir), as.integer(Clist$bipartite),
-              as.integer(Clist$nterms), 
-              as.character(Clist$fnamestring),
-              as.character(Clist$snamestring),
-              as.double(Clist$inputs),
-              as.integer(nrow(changem)), as.integer(changem[,1]), as.integer(changem[,2]), as.double(changem[,3]),
-              s = double((1+length(changes)) * Clist$nstats),
-              if(end.network) as.integer(maxedges) else as.integer(0),
-              newnwtails = if(end.network) integer(maxedges+1) else integer(0),
-              newnwheads = if(end.network) integer(maxedges+1) else integer(0),
-              newnwweights = if(end.network) double(maxedges+1) else double(0),
-              as.integer(verbose),
-              status = integer(1), # 0 = OK, TOO_MANY_EDGES = 1
-              PACKAGE="ergm")
-    }
-
-    if(z$status==0) break;
-    if(z$status==1){
-      maxedges <- 5*maxedges
-      if(verbose>0) message("Too many edges encountered in the simulation. Increasing capacity to ", maxedges, ".")
-    }
-  }
+  z <-
+    if(is.null(Clist$weights))
+      .Call("Godfather_wrapper",
+            # Network settings
+            as.integer(Clist$n),
+            as.integer(Clist$dir),
+            as.integer(Clist$bipartite),
+            # Model settings
+            as.integer(Clist$nterms),
+            as.character(Clist$fnamestring),
+            as.character(Clist$snamestring),
+            # Numeric inputs
+            as.double(Clist$inputs),
+            # Network state
+            as.integer(Clist$nedges),
+            as.integer(Clist$tails),
+            as.integer(Clist$heads),
+            # Godfather settings
+            as.integer(length(changes)),
+            as.integer(changem[,1]),
+            as.integer(changem[,2]),
+            if(ncol(changem)==3) as.integer(changem[,3]) else integer(0),
+            as.logical(end.network),
+            as.integer(verbose),
+            PACKAGE="ergm")
+    else
+      .Call("WtGodfather_wrapper",
+            # Network settings
+            as.integer(Clist$n),
+            as.integer(Clist$dir),
+            as.integer(Clist$bipartite),
+            # Model settings
+            as.integer(Clist$nterms),
+            as.character(Clist$fnamestring),
+            as.character(Clist$snamestring),
+            # Numeric inputs
+            as.double(Clist$inputs),
+            # Network state
+            as.integer(Clist$nedges),
+            as.integer(Clist$tails),
+            as.integer(Clist$heads),
+            as.double(Clist$weights),
+            # Godfather settings
+            as.integer(length(changes)),
+            as.integer(changem[,1]),
+            as.integer(changem[,2]),
+            as.double(changem[,3]),
+            as.logical(end.network),
+            as.integer(verbose),
+            PACKAGE="ergm")
 
   stats <- matrix(z$s, ncol=Clist$nstats, byrow=TRUE)
   stats <- t(t(apply(stats,2,cumsum)) + m$obs)
@@ -189,15 +186,10 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
 #'
 #' Returns a list of its arguments.
 #'
-#' @param GF.init.maxedges.mul How much space
-#'   is allocated for the edgelist of the final network. It is used
-#'   adaptively, so should not be greater than \code{10}.
 #' @template term_options
 #' 
 #' @export control.ergm.godfather
-control.ergm.godfather<-function(GF.init.maxedges.mul=5,
-                                 term.options=NULL
-              ){
+control.ergm.godfather<-function(term.options=NULL){
     control<-list()
     for(arg in names(formals(sys.function())))
       control[arg]<-list(get(arg))

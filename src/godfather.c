@@ -10,9 +10,12 @@
 #include "MCMC.h"
 #include "ergm_model.h"
 #include "ergm_changestat.h"
+#include "ergm_state.h"
+#include "ergm_util.h"
 
-MCMCStatus Godfather(Edge n_changes, Vertex *tails, Vertex *heads, int *weights,
-	       Network *nwp, Model *m, double *stats){
+MCMCStatus Godfather(ErgmState *s, Edge n_changes, Vertex *tails, Vertex *heads, int *weights, double *stats){
+  Network *nwp = s->nwp;
+  Model *m = s->m;
 
   stats+=m->n_stats;
 
@@ -65,42 +68,64 @@ MCMCStatus Godfather(Edge n_changes, Vertex *tails, Vertex *heads, int *weights,
  find the changestats that result from starting from an empty network
  and then adding all of the edges to make up an observed network of interest.
 *****************/
-void Godfather_wrapper(int *n_edges, int *tails, int *heads,
-		       int *n_nodes, int *dflag, int *bipartite, 
-		       int *nterms, char **funnames, char **sonames, double *inputs,
-		       int *total_changes, int *changetails, int *changeheads, int *changeweights,
-		       double *changestats, 
-		       int *maxedges,
-		       int *newnetworktails, 
-		       int *newnetworkheads, 
-		       int *fVerbose, 
-		       int *status){
-  Vertex nmax;
-  /* Edge n_networks; */
-  Network *nwp;
-  Model *m;
-  
-  nmax = (Edge)abs(*maxedges);
-
+SEXP Godfather_wrapper(// Network settings
+                       SEXP dn, SEXP dflag, SEXP bipartite,
+                       // Model settings
+                       SEXP nterms, SEXP funnames,
+                       SEXP sonames,
+                       // Numeric inputs
+                       SEXP inputs,
+                       // Network state
+                       SEXP nedges,
+                       SEXP tails, SEXP heads,
+                       // Godfather settings
+                       SEXP nsteps,
+                       SEXP changetails, SEXP changeheads, SEXP changeweights,
+                       SEXP end_network,
+		       SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
+  ErgmState *s = ErgmStateInit(// Network settings
+                               asInteger(dn), asInteger(dflag), asInteger(bipartite),
+                               // Model settings
+                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames),
+                               // Proposal settings
+                               NO_MHPROPOSAL,
+                               // Numeric inputs
+                               REAL(inputs),
+                               // Network state
+                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads),
+                               NO_LASTTOGGLE);
+  Network *nwp = s->nwp;
+  Model *m = s->m;
 
-  m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
+  SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats*(1+asInteger(nsteps))));
+  memset(REAL(stats), 0, m->n_stats*(1+asInteger(nsteps))*sizeof(double));
 
-  /* Form the network */
-  nwp=NetworkInitialize((Vertex*)tails, (Vertex*)heads, n_edges[0], 
-                          *n_nodes, *dflag, *bipartite, 0, 0, NULL);
-  
-  /* Trigger initial storage update */
-  InitStats(nwp, m);
+  SEXP status = PROTECT(ScalarInteger(Godfather(s, length(changetails), (Vertex*)INTEGER(changetails), (Vertex*)INTEGER(changeheads),
+                                                length(changeweights)==0? NULL : INTEGER(changeweights), REAL(stats))));
 
-  *status = Godfather(abs(*total_changes), (Vertex*)changetails, (Vertex*)changeheads, *total_changes<0? NULL : changeweights,
-		      nwp, m, changestats);
-  
+  const char *outn[] = {"status", "s", "newnwtails", "newnwheads", ""};
+  SEXP outl = PROTECT(mkNamed(VECSXP, outn));
+  SET_VECTOR_ELT(outl, 0, status);
+  SET_VECTOR_ELT(outl, 1, stats);
+
   /* record new generated network to pass back to R */
-  if(*status == MCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
-    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList((Vertex*)newnetworktails+1,(Vertex*)newnetworkheads+1,nwp,nmax-1);
-  
-  ModelDestroy(nwp, m);
-  NetworkDestroy(nwp);
-  PutRNGstate();
+  if(asInteger(status) == MCMC_OK && asInteger(end_network)){
+    SEXP newnetworktails = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
+    SEXP newnetworkheads = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)+1));
+
+    INTEGER(newnetworktails)[0]=INTEGER(newnetworkheads)[0]=
+      EdgeTree2EdgeList((Vertex*)INTEGER(newnetworktails)+1,
+			(Vertex*)INTEGER(newnetworkheads)+1,
+			nwp,nwp->nedges);
+
+    SET_VECTOR_ELT(outl, 2, newnetworktails);
+    SET_VECTOR_ELT(outl, 3, newnetworkheads);
+    UNPROTECT(2);
+  }
+
+  ErgmStateDestroy(s);
+  PutRNGstate();  /* Disable RNG before returning */
+  UNPROTECT(3);
+  return outl;
 }
