@@ -10,7 +10,7 @@
 #include "wtMCMC.h"
 #include "ergm_wtchangestat.h"
 
-WtMCMCStatus WtGodfather(Edge n_changes, Vertex *tails, Vertex *heads, double *weights,
+MCMCStatus WtGodfather(Edge n_changes, Vertex *tails, Vertex *heads, double *weights,
 	       WtNetwork *nwp, WtModel *m, double *stats){
 
   stats+=m->n_stats;
@@ -40,7 +40,7 @@ WtMCMCStatus WtGodfather(Edge n_changes, Vertex *tails, Vertex *heads, double *w
     SETWT(tail,head,weight);
   }
 
-  return WtMCMC_OK;
+  return MCMC_OK;
 }
 
 /*****************
@@ -84,7 +84,7 @@ void WtGodfather_wrapper(int *n_edges, int *tails, int *heads, double *weights,
 			nwp, m, changestats);
   
   /* record new generated network to pass back to R */
-  if(*status == WtMCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads && newnetworkweights)
+  if(*status == MCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads && newnetworkweights)
     newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList((Vertex*)newnetworktails+1,(Vertex*)newnetworkheads+1,newnetworkweights+1,nwp,nmax-1);
   
   WtModelDestroy(m);
