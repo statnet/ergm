@@ -13,7 +13,7 @@
 #include "ergm_wtstate.h"
 #include "ergm_util.h"
 
-MCMCStatus WtGodfather(ErgmWtState *s, Edge n_changes, Vertex *tails, Vertex *heads, double *weights, double *stats){
+MCMCStatus WtGodfather(WtErgmState *s, Edge n_changes, Vertex *tails, Vertex *heads, double *weights, double *stats){
   WtNetwork *nwp = s->nwp;
   WtModel *m = s->m;
 
@@ -81,7 +81,7 @@ SEXP WtGodfather_wrapper(// Network settings
                          SEXP end_network,
                          SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmWtState *s = ErgmWtStateInit(// Network settings
+  WtErgmState *s = WtErgmStateInit(// Network settings
                                asInteger(dn), asInteger(dflag), asInteger(bipartite),
                                // Model settings
                                asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames), FALSE,
@@ -110,7 +110,7 @@ SEXP WtGodfather_wrapper(// Network settings
     WTNWSTATE_SAVE_INTO_RLIST(nwp, outl, 2);
   }
   
-  ErgmWtStateDestroy(s);
+  WtErgmStateDestroy(s);
   PutRNGstate();  /* Disable RNG before returning */
   UNPROTECT(3);
   return outl;

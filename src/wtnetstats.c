@@ -35,7 +35,7 @@ SEXP wt_network_stats_wrapper(// Network settings
   GetRNGstate();  /* R function enabling uniform RNG */
   Rboolean timings = length(time)>0;
 
-  ErgmWtState *s = ErgmWtStateInit(// Network settings
+  WtErgmState *s = WtErgmStateInit(// Network settings
                                  asInteger(dn), asInteger(dflag), asInteger(bipartite),
                                  // Model settings
                                  asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames), TRUE,
@@ -70,7 +70,7 @@ SEXP wt_network_stats_wrapper(// Network settings
  void SummStats Computes summary statistics for a network. Must be
  passed an empty network and passed an empty network
 *****************/
-void WtSummStats(ErgmWtState *s, Edge n_edges, Vertex *tails, Vertex *heads, double *weights, double *stats){
+void WtSummStats(WtErgmState *s, Edge n_edges, Vertex *tails, Vertex *heads, double *weights, double *stats){
   WtNetwork *nwp = s->nwp;
   WtModel *m = s->m;
 

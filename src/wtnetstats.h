@@ -15,5 +15,5 @@
 #include "ergm_wtMHproposal.h"
 #include "ergm_wtstate.h"
 
-void WtSummStats(ErgmWtState *s, Edge n_edges, Vertex *tails, Vertex *heads, double *weights, double *stats);
+void WtSummStats(WtErgmState *s, Edge n_edges, Vertex *tails, Vertex *heads, double *weights, double *stats);
 #endif

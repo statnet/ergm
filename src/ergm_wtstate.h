@@ -15,9 +15,9 @@ typedef struct{
   WtNetwork *nwp;
   WtModel *m;
   WtMHProposal *MHp;
-} ErgmWtState;
+} WtErgmState;
 
-ErgmWtState *ErgmWtStateInit(// Network settings
+WtErgmState *WtErgmStateInit(// Network settings
 			     Vertex n_nodes, Rboolean directed_flag, Vertex bip,
                              // Model settings
 			     int nterms, const char *funnames, const char *sonames, Rboolean noinit_s,
@@ -28,6 +28,6 @@ ErgmWtState *ErgmWtStateInit(// Network settings
                              Edge n_edges,
 			     Vertex *tails, Vertex *heads, double *weights,
                              Rboolean timings, int time, int *lasttoggle);
-void ErgmWtStateDestroy(ErgmWtState *s);
+void WtErgmStateDestroy(WtErgmState *s);
 
 #endif

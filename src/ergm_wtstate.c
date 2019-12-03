@@ -1,6 +1,6 @@
 #include "ergm_wtstate.h"
 
-ErgmWtState *ErgmWtStateInit(// Network settings
+WtErgmState *WtErgmStateInit(// Network settings
 			     Vertex n_nodes, Rboolean directed_flag, Vertex bip,
                              // Model settings
 			     int nterms, const char *funnames, const char *sonames, Rboolean noinit_s,
@@ -12,7 +12,7 @@ ErgmWtState *ErgmWtStateInit(// Network settings
                              Edge n_edges,
 			     Vertex *tails, Vertex *heads, double *weights,
                              Rboolean timings, int time, int *lasttoggle){
-  ErgmWtState *s = Calloc(1, ErgmWtState);
+  WtErgmState *s = Calloc(1, WtErgmState);
   
   /* Form the network */
   s->nwp=WtNetworkInitialize(tails, heads, weights, n_edges, 
@@ -32,7 +32,7 @@ ErgmWtState *ErgmWtStateInit(// Network settings
   return s;
 }
 
-void ErgmWtStateDestroy(ErgmWtState *s){
+void WtErgmStateDestroy(WtErgmState *s){
   if(s->MHp) WtMHProposalDestroy(s->MHp, s->nwp);
   if(s->m) WtModelDestroy(s->nwp, s->m);
   if(s->nwp) WtNetworkDestroy(s->nwp);

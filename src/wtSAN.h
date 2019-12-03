@@ -16,7 +16,7 @@
 #include "ergm_wtmodel.h"
 #include "wtMCMC.h"
 
-MCMCStatus WtSANSample(ErgmWtState *s,
+MCMCStatus WtSANSample(WtErgmState *s,
                        double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
                        int samplesize, int nsteps,
                        int nstats,
@@ -25,7 +25,7 @@ MCMCStatus WtSANSample(ErgmWtState *s,
                        int *offsetindices,
                        double *offsets,
                        int verbose);
-MCMCStatus WtSANMetropolisHastings(ErgmWtState *s,
+MCMCStatus WtSANMetropolisHastings(WtErgmState *s,
                                    double *invcov, double *tau, double *statistics, double *prop_statistics,
                                    int nsteps, int *staken,
                                    int nstats,

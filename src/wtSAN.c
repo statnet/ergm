@@ -45,7 +45,7 @@ SEXP WtSAN_wrapper(// Network settings
   GetRNGstate();  /* R function enabling uniform RNG */
   unsigned int nstats = length(statindices), noffsets = length(offsetindices);
   
-  ErgmWtState *s = ErgmWtStateInit(// Network settings
+  WtErgmState *s = WtErgmStateInit(// Network settings
                                  asInteger(dn), asInteger(dflag), asInteger(bipartite),
                                  // Model settings
                                  asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames), FALSE,
@@ -85,7 +85,7 @@ SEXP WtSAN_wrapper(// Network settings
     WTNWSTATE_SAVE_INTO_RLIST(nwp, outl, 3);
   }
 
-  ErgmWtStateDestroy(s);
+  WtErgmStateDestroy(s);
   PutRNGstate();  /* Disable RNG before returning */
   UNPROTECT(4);
   return outl;
@@ -102,7 +102,7 @@ SEXP WtSAN_wrapper(// Network settings
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-MCMCStatus WtSANSample(ErgmWtState *s,
+MCMCStatus WtSANSample(WtErgmState *s,
                        double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
                        int samplesize, int nsteps,
                        int nstats,
@@ -214,7 +214,7 @@ MCMCStatus WtSANMetropolisHastings
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-MCMCStatus WtSANMetropolisHastings(ErgmWtState *s,
+MCMCStatus WtSANMetropolisHastings(WtErgmState *s,
                                    double *invcov,
                                    double *tau, double *networkstatistics, double *prop_networkstatistics,
                                    int nsteps, int *staken,

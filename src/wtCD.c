@@ -40,7 +40,7 @@ SEXP WtCD_wrapper(// Network settings
                   SEXP CDparams,
                   SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmWtState *s = ErgmWtStateInit(// Network settings
+  WtErgmState *s = WtErgmStateInit(// Network settings
                                    asInteger(dn), asInteger(dflag), asInteger(bipartite),
                                    // Model settings
                                    asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames), FALSE,
@@ -79,7 +79,7 @@ SEXP WtCD_wrapper(// Network settings
   Free(undoweight);
   Free(extraworkspace);
 
-  ErgmWtStateDestroy(s);  
+  WtErgmStateDestroy(s);  
   PutRNGstate();  /* Disable RNG before returning */
   UNPROTECT(3);
   return outl;
@@ -96,7 +96,7 @@ SEXP WtCD_wrapper(// Network settings
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-MCMCStatus WtCDSample(ErgmWtState *s,
+MCMCStatus WtCDSample(WtErgmState *s,
                         double *eta, double *networkstatistics, 
 			int samplesize, int *CDparams,
                         Vertex *undotail, Vertex *undohead, double *undoweight, double *extraworkspace,
@@ -160,7 +160,7 @@ MCMCStatus WtCDSample(ErgmWtState *s,
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-MCMCStatus WtCDStep(ErgmWtState *s,
+MCMCStatus WtCDStep(WtErgmState *s,
                       double *eta, double *networkstatistics,
                       int *CDparams, int *staken,
                       Vertex *undotail, Vertex *undohead, double *undoweight, double *extraworkspace,

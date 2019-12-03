@@ -12,12 +12,12 @@
 
 #include "wtMCMC.h"
 
-MCMCStatus WtCDSample(ErgmWtState *s,
+MCMCStatus WtCDSample(WtErgmState *s,
                         double *eta, double *networkstatistics, 
 			int samplesize, int *CDparams,
                         Vertex *undotail, Vertex *undohead, double *undoweight, double *extraworkspace,
                         int verbose);
-MCMCStatus WtCDStep(ErgmWtState *s,
+MCMCStatus WtCDStep(WtErgmState *s,
                       double *eta, double *networkstatistics,
                       int *CDparams, int *staken,
                       Vertex *undotail, Vertex *undohead, double *undoweight, double *extraworkspace,

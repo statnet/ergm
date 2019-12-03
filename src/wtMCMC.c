@@ -42,7 +42,7 @@ SEXP WtMCMC_wrapper(// Network settings
                   SEXP maxedges,
                   SEXP verbose){  
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmWtState *s = ErgmWtStateInit(// Network settings
+  WtErgmState *s = WtErgmStateInit(// Network settings
                                    asInteger(dn), asInteger(dflag), asInteger(bipartite),
                                    // Model settings
                                    asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames), FALSE,
@@ -78,7 +78,7 @@ SEXP WtMCMC_wrapper(// Network settings
     WTNWSTATE_SAVE_INTO_RLIST(nwp, outl, 2);
   }
 
-  ErgmWtStateDestroy(s);  
+  WtErgmStateDestroy(s);  
   PutRNGstate();  /* Disable RNG before returning */
   UNPROTECT(3);
   return outl;
@@ -95,7 +95,7 @@ SEXP WtMCMC_wrapper(// Network settings
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-MCMCStatus WtMCMCSample(ErgmWtState *s,
+MCMCStatus WtMCMCSample(WtErgmState *s,
 			  double *eta, double *networkstatistics, 
 			  int samplesize, int burnin, 
 			  int interval, int nmax, int verbose) {
@@ -128,7 +128,7 @@ MCMCStatus WtMCMCSample(ErgmWtState *s,
 			verbose)!=MCMC_OK)
     return MCMC_MH_FAILED;
   if(nmax!=0 && EDGECOUNT(nwp) >= nmax-1){
-    ErgmWtStateDestroy(s);  
+    WtErgmStateDestroy(s);  
     error("Number of edges %u exceeds the upper limit set by the user (%u). This can be a sign of degeneracy, but if not, it can be controlled via MCMC.max.maxedges= and/or MCMLE.density.guard= control parameters.", EDGECOUNT(nwp), nmax);
   }
   
@@ -191,7 +191,7 @@ MCMCStatus WtMCMCSample(ErgmWtState *s,
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-MCMCStatus WtMetropolisHastings (ErgmWtState *s,
+MCMCStatus WtMetropolisHastings (WtErgmState *s,
 				 double *eta, double *networkstatistics,
 				 int nsteps, int *staken,
 				 int verbose) {

@@ -17,11 +17,11 @@
 #include "ergm_wtmodel.h"
 #include "ergm_wtstate.h"
 
-MCMCStatus WtMCMCSample(ErgmWtState *s,
+MCMCStatus WtMCMCSample(WtErgmState *s,
 			   double *eta, double *networkstatistics, 
 			   int samplesize, int burnin, 
 			   int interval, int nmax, int verbose);
-MCMCStatus WtMetropolisHastings(ErgmWtState *s,
+MCMCStatus WtMetropolisHastings(WtErgmState *s,
 				   double *eta, double *statistics, 
 				   int nsteps, int *staken,
 				   int verbose);
