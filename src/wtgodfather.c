@@ -65,33 +65,22 @@ MCMCStatus WtGodfather(WtErgmState *s, Edge n_changes, Vertex *tails, Vertex *he
  find the changestats that result from starting from an empty network
  and then adding all of the edges to make up an observed network of interest.
 *****************/
-SEXP WtGodfather_wrapper(// Network settings
-                         SEXP dn, SEXP dflag, SEXP bipartite,
-                         // Model settings
-                         SEXP nterms, SEXP funnames,
-                         SEXP sonames,
-                         // Numeric inputs
-                         SEXP inputs,
-                         // Network state
-                         SEXP nedges,
-                         SEXP tails, SEXP heads, SEXP weights,
+SEXP WtGodfather_wrapper(ARGS_WTNWSETTINGS,
+                         ARGS_WTMODEL,
+                         ARGS_WTINPUTS,
+                         ARGS_WTNWSTATE,
                          // Godfather settings
                          SEXP nsteps,
                          SEXP changetails, SEXP changeheads, SEXP changeweights,
                          SEXP end_network,
                          SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  WtErgmState *s = WtErgmStateInit(// Network settings
-                               asInteger(dn), asInteger(dflag), asInteger(bipartite),
-                               // Model settings
-                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames), FALSE,
-                               // Proposal settings
-                               NO_WTMHPROPOSAL,
-                               // Numeric inputs
-                               REAL(inputs),
-                               // Network state
-                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads), REAL(weights),
-                               NO_LASTTOGGLE);
+  WtErgmState *s = WtErgmStateInit(YES_WTNWSETTINGS,
+                                   YES_WTMODEL,
+                                   NO_WTMHPROPOSAL,
+                                   YES_WTINPUTS,
+                                   YES_WTNWSTATE,
+                                   NO_WTLASTTOGGLE);
   WtNetwork *nwp = s->nwp;
   WtModel *m = s->m;
 

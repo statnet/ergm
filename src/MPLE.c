@@ -35,37 +35,26 @@
 /* *** don't forget tail -> head, and so this function accepts
    tails before heads now */
 
-SEXP MPLE_wrapper(// Network settings
-                  SEXP dn, SEXP dflag, SEXP bipartite,
-                  // Model settings
-                  SEXP nterms, SEXP funnames,
-                  SEXP sonames,
-                  // Numeric inputs
-                  SEXP inputs,
-                  // Network state
-                  SEXP nedges,
-                  SEXP tails, SEXP heads,
+SEXP MPLE_wrapper(ARGS_NWSETTINGS,
+                  ARGS_MODEL,
+                  ARGS_INPUTS,
+                  ARGS_NWSTATE,
                   // MPLE settings
                   SEXP wl,
 		  SEXP maxNumDyads, SEXP maxNumDyadTypes){
   GetRNGstate(); /* Necessary for R random number generator */
-  
-  double *tmp = REAL(wl);
-  RLEBDM1D wlm = unpack_RLEBDM1D(&tmp, asInteger(dn));
-
-  ErgmState *s = ErgmStateInit(// Network settings
-                               asInteger(dn), asInteger(dflag), asInteger(bipartite),
-                               // Model settings
-                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames), FALSE,
-                               // Proposal settings
-                               NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0,
-                               // Numeric inputs
-                               REAL(inputs),
-                               // Network state
-                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads),
+  ErgmState *s = ErgmStateInit(YES_NWSETTINGS,
+                               YES_MODEL,
+                               NO_MHPROPOSAL,
+                               YES_INPUTS,
+                               YES_NWSTATE,
                                NO_LASTTOGGLE);
 
+  Network *nwp = s->nwp;
   Model *m = s->m;
+
+  double *tmp = REAL(wl);
+  RLEBDM1D wlm = unpack_RLEBDM1D(&tmp, nwp->nnodes);
 
   SEXP responsevec = PROTECT(allocVector(INTSXP, asInteger(maxNumDyadTypes)));
   memset(INTEGER(responsevec), 0, asInteger(maxNumDyadTypes)*sizeof(int));

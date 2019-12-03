@@ -68,32 +68,21 @@ MCMCStatus Godfather(ErgmState *s, Edge n_changes, Vertex *tails, Vertex *heads,
  find the changestats that result from starting from an empty network
  and then adding all of the edges to make up an observed network of interest.
 *****************/
-SEXP Godfather_wrapper(// Network settings
-                       SEXP dn, SEXP dflag, SEXP bipartite,
-                       // Model settings
-                       SEXP nterms, SEXP funnames,
-                       SEXP sonames,
-                       // Numeric inputs
-                       SEXP inputs,
-                       // Network state
-                       SEXP nedges,
-                       SEXP tails, SEXP heads,
+SEXP Godfather_wrapper(ARGS_NWSETTINGS,
+                       ARGS_MODEL,
+                       ARGS_INPUTS,
+                       ARGS_NWSTATE,
                        // Godfather settings
                        SEXP nsteps,
                        SEXP changetails, SEXP changeheads, SEXP changeweights,
                        SEXP end_network,
-		       SEXP verbose){
+                       SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmState *s = ErgmStateInit(// Network settings
-                               asInteger(dn), asInteger(dflag), asInteger(bipartite),
-                               // Model settings
-                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames), FALSE,
-                               // Proposal settings
+  ErgmState *s = ErgmStateInit(YES_NWSETTINGS,
+                               YES_MODEL,
                                NO_MHPROPOSAL,
-                               // Numeric inputs
-                               REAL(inputs),
-                               // Network state
-                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads),
+                               YES_INPUTS,
+                               YES_NWSTATE,
                                NO_LASTTOGGLE);
   Network *nwp = s->nwp;
   Model *m = s->m;

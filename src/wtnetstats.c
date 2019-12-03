@@ -19,33 +19,20 @@
  change gives the true global values for the observed graph.
 *****************/
 
-SEXP wt_network_stats_wrapper(// Network settings
-                              SEXP dn, SEXP dflag, SEXP bipartite,
-                              // Model settings
-                              SEXP nterms, SEXP funnames,
-                              SEXP sonames,
-                              // Numeric inputs
-                              SEXP inputs,
-                              // Network state
-                              SEXP nedges,
-                              SEXP tails, SEXP heads, SEXP weights,
-                              SEXP time, SEXP lasttoggle,
+SEXP wt_network_stats_wrapper(ARGS_WTNWSETTINGS,
+                              ARGS_WTMODEL,
+                              ARGS_WTINPUTS,
+                              ARGS_WTNWSTATE,
+                              ARGS_WTLASTTOGGLE,
                               // Summary settings
                               SEXP emptynwstats){
   GetRNGstate();  /* R function enabling uniform RNG */
-  Rboolean timings = length(time)>0;
-
-  WtErgmState *s = WtErgmStateInit(// Network settings
-                                 asInteger(dn), asInteger(dflag), asInteger(bipartite),
-                                 // Model settings
-                                 asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames), TRUE,
-                                 // Proposal settings
-                                 NO_WTMHPROPOSAL,
-                                 // Numeric inputs
-                                 REAL(inputs),
-                                 // Network state
-                                 NO_WTNWSTATE,
-                                 timings, asInteger(time), INTEGER(lasttoggle));
+  WtErgmState *s = WtErgmStateInit(YES_WTNWSETTINGS,
+                                   YES_WTMODEL_NOINIT_S,
+                                   NO_WTMHPROPOSAL,
+                                   YES_WTINPUTS,
+                                   NO_WTNWSTATE,
+                                   YES_WTLASTTOGGLE);
 
   WtModel *m = s->m;
 

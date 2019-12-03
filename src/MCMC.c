@@ -22,36 +22,22 @@
 
  and don't forget that tail -> head
 *****************/
-SEXP MCMC_wrapper(// Network settings
-                  SEXP dn, SEXP dflag, SEXP bipartite,
-                  // Model settings
-                  SEXP nterms, SEXP funnames,
-                  SEXP sonames,
-                  // Proposal settings
-                  SEXP MHProposaltype, SEXP MHProposalpackage,
-                  SEXP attribs, SEXP maxout, SEXP maxin, SEXP minout,
-                  SEXP minin, SEXP condAllDegExact, SEXP attriblength,
-                  // Numeric inputs
-                  SEXP inputs,
-                  // Network state
-                  SEXP nedges,
-                  SEXP tails, SEXP heads,
+SEXP MCMC_wrapper(ARGS_NWSETTINGS,
+                  ARGS_MODEL,
+                  ARGS_MHPROPOSAL,
+                  ARGS_INPUTS,
+                  ARGS_NWSTATE,
                   // MCMC settings
                   SEXP eta, SEXP samplesize, 
                   SEXP burnin, SEXP interval,  
                   SEXP maxedges,
                   SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmState *s = ErgmStateInit(// Network settings
-                               asInteger(dn), asInteger(dflag), asInteger(bipartite),
-                               // Model settings
-                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames), FALSE,
-                               // Proposal settings
-                               FIRSTCHAR(MHProposaltype), FIRSTCHAR(MHProposalpackage), INTEGER(attribs), INTEGER(maxout), INTEGER(maxin), INTEGER(minout), INTEGER(minin), asInteger(condAllDegExact), asInteger(attriblength),
-                               // Numeric inputs
-                               REAL(inputs),
-                               // Network state
-                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads),
+  ErgmState *s = ErgmStateInit(YES_NWSETTINGS,
+                               YES_MODEL,
+                               YES_MHPROPOSAL,
+                               YES_INPUTS,
+                               YES_NWSTATE,
                                NO_LASTTOGGLE);
 
   Network *nwp = s->nwp;
@@ -287,20 +273,11 @@ MCMCStatus MetropolisHastings(ErgmState *s,
 
 /* *** don't forget tail -> head */
 
-SEXP MCMCPhase12 (// Network settings
-                  SEXP dn, SEXP dflag, SEXP bipartite,
-                  // Model settings
-                  SEXP nterms, SEXP funnames,
-                  SEXP sonames,
-                  // Proposal settings
-                  SEXP MHProposaltype, SEXP MHProposalpackage,
-                  SEXP attribs, SEXP maxout, SEXP maxin, SEXP minout,
-                  SEXP minin, SEXP condAllDegExact, SEXP attriblength,
-                  // Numeric inputs
-                  SEXP inputs,
-                  // Network state
-                  SEXP nedges,
-                  SEXP tails, SEXP heads,
+SEXP MCMCPhase12 (ARGS_NWSETTINGS,
+                  ARGS_MODEL,
+                  ARGS_MHPROPOSAL,
+                  ARGS_INPUTS,
+                  ARGS_NWSTATE,
                   // Phase12 settings
                   SEXP eta0, SEXP meanstats,
                   SEXP samplesize, SEXP burnin, SEXP interval,
@@ -308,16 +285,11 @@ SEXP MCMCPhase12 (// Network settings
                   SEXP maxedges,
                   SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmState *s = ErgmStateInit(// Network settings
-                               asInteger(dn), asInteger(dflag), asInteger(bipartite),
-                               // Model settings
-                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames), FALSE,
-                               // Proposal settings
-                               FIRSTCHAR(MHProposaltype), FIRSTCHAR(MHProposalpackage), INTEGER(attribs), INTEGER(maxout), INTEGER(maxin), INTEGER(minout), INTEGER(minin), asInteger(condAllDegExact), asInteger(attriblength),
-                               // Numeric inputs
-                               REAL(inputs),
-                               // Network state
-                               asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads),
+  ErgmState *s = ErgmStateInit(YES_NWSETTINGS,
+                               YES_MODEL,
+                               YES_MHPROPOSAL,
+                               YES_INPUTS,
+                               YES_NWSTATE,
                                NO_LASTTOGGLE);
 
   Network *nwp = s->nwp;

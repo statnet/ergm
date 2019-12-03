@@ -23,36 +23,23 @@
 
  and don't forget that tail -> head
 *****************/
-SEXP WtMCMC_wrapper(// Network settings
-                  SEXP dn, SEXP dflag, SEXP bipartite,
-                  // Model settings
-                  SEXP nterms, SEXP funnames,
-                  SEXP sonames,
-                  // Proposal settings
-                  SEXP MHProposaltype, SEXP MHProposalpackage,
-                  // Numeric inputs
-                  SEXP inputs,
-                  // Network state
-                  SEXP nedges,
-                  SEXP tails, SEXP heads,
-                  SEXP weights,
-                  // MCMC settings
-                  SEXP eta, SEXP samplesize, 
-                  SEXP burnin, SEXP interval,  
-                  SEXP maxedges,
-                  SEXP verbose){  
+SEXP WtMCMC_wrapper(ARGS_WTNWSETTINGS,
+                    ARGS_WTMODEL,
+                    ARGS_WTMHPROPOSAL,
+                    ARGS_WTINPUTS,
+                    ARGS_WTNWSTATE,
+                    // MCMC settings
+                    SEXP eta, SEXP samplesize,
+                    SEXP burnin, SEXP interval,
+                    SEXP maxedges,
+                    SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  WtErgmState *s = WtErgmStateInit(// Network settings
-                                   asInteger(dn), asInteger(dflag), asInteger(bipartite),
-                                   // Model settings
-                                   asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames), FALSE,
-                                   // Proposal settings
-                                   FIRSTCHAR(MHProposaltype), FIRSTCHAR(MHProposalpackage),
-                                   // Numeric inputs
-                                   REAL(inputs),
-                                   // Network state
-                                   asInteger(nedges), (Vertex*) INTEGER(tails), (Vertex*) INTEGER(heads), REAL(weights),
-                                   NO_LASTTOGGLE);
+  WtErgmState *s = WtErgmStateInit(YES_WTNWSETTINGS,
+                                   YES_WTMODEL,
+                                   YES_WTMHPROPOSAL,
+                                   YES_WTINPUTS,
+                                   YES_WTNWSTATE,
+                                   NO_WTLASTTOGGLE);
 
   WtNetwork *nwp = s->nwp;
   WtModel *m = s->m;

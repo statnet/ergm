@@ -19,33 +19,20 @@
  change gives the true global values for the observed graph.
 *****************/
 
-SEXP network_stats_wrapper(// Network settings
-                           SEXP dn, SEXP dflag, SEXP bipartite,
-                           // Model settings
-                           SEXP nterms, SEXP funnames,
-                           SEXP sonames,
-                           // Numeric inputs
-                           SEXP inputs,
-                           // Network state
-                           SEXP nedges,
-                           SEXP tails, SEXP heads,
-                           SEXP time, SEXP lasttoggle,
+SEXP network_stats_wrapper(ARGS_NWSETTINGS,
+                           ARGS_MODEL,
+                           ARGS_INPUTS,
+                           ARGS_NWSTATE,
+                           ARGS_LASTTOGGLE,
                            // Summary settings
                            SEXP emptynwstats){
   GetRNGstate();  /* R function enabling uniform RNG */
-  Rboolean timings = length(time)>0;
-
-  ErgmState *s = ErgmStateInit(// Network settings
-                               asInteger(dn), asInteger(dflag), asInteger(bipartite),
-                               // Model settings
-                               asInteger(nterms), FIRSTCHAR(funnames), FIRSTCHAR(sonames), TRUE,
-                               // Proposal settings
+  ErgmState *s = ErgmStateInit(YES_NWSETTINGS,
+                               YES_MODEL_NOINIT_S,
                                NO_MHPROPOSAL,
-                               // Numeric inputs
-                               REAL(inputs),
-                               // Network state
+                               YES_INPUTS,
                                NO_NWSTATE,
-                               timings, asInteger(time), INTEGER(lasttoggle));
+                               YES_LASTTOGGLE);
 
   Model *m = s->m;
 
