@@ -61,6 +61,7 @@ SEXP WtSAN_wrapper(// Network settings
   WtMHProposal *MHp = s->MHp;
 
   SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*nstats));
+  memset(REAL(sample), 0, asInteger(samplesize)*nstats*sizeof(double));
   memcpy(REAL(sample), REAL(stats), nstats*sizeof(double));
   SEXP prop_sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*nstats));
   memset(REAL(prop_sample), 0, asInteger(samplesize)*nstats*sizeof(double));
