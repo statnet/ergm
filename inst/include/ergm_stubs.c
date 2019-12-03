@@ -13,10 +13,10 @@ return fun(n,r);
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_changestat_operator.h"
-Model * unpack_Model_as_double(double **x){
-static Model * (*fun)(double **) = NULL;
-if(fun==NULL) fun = (Model * (*)(double **)) R_FindSymbol("unpack_Model_as_double", "ergm", NULL);
-return fun(x);
+Model * unpack_Model_as_double(double **x, Network *nwp){
+static Model * (*fun)(double **,Network *) = NULL;
+if(fun==NULL) fun = (Model * (*)(double **,Network *)) R_FindSymbol("unpack_Model_as_double", "ergm", NULL);
+return fun(x,nwp);
 }
 
 #define STUBFILE
@@ -238,10 +238,10 @@ return fun(MHp,nwp);
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_model.h"
-Model* ModelInitialize(const char *fnames, const char *sonames, double **inputs,int n_terms){
-static Model* (*fun)(const char *,const char *,double **,int) = NULL;
-if(fun==NULL) fun = (Model* (*)(const char *,const char *,double **,int)) R_FindSymbol("ModelInitialize", "ergm", NULL);
-return fun(fnames,sonames,inputs,n_terms);
+Model* ModelInitialize(const char *fnames, const char *sonames, double **inputs,int n_terms, Network *nwp, Rboolean noinit_s){
+static Model* (*fun)(const char *,const char *,double **,int,Network *,Rboolean) = NULL;
+if(fun==NULL) fun = (Model* (*)(const char *,const char *,double **,int,Network *,Rboolean)) R_FindSymbol("ModelInitialize", "ergm", NULL);
+return fun(fnames,sonames,inputs,n_terms,nwp,noinit_s);
 }
 void ModelDestroy(Network *nwp, Model *m){
 static void (*fun)(Network *,Model *) = NULL;
@@ -258,16 +258,6 @@ static void (*fun)(unsigned int,Vertex *,Vertex *,Network *,Model *) = NULL;
 if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,Network *,Model *)) R_FindSymbol("ChangeStats", "ergm", NULL);
 fun(ntoggles,toggletail,togglehead,nwp,m);
 }
-void InitStats(Network *nwp, Model *m){
-static void (*fun)(Network *,Model *) = NULL;
-if(fun==NULL) fun = (void (*)(Network *,Model *)) R_FindSymbol("InitStats", "ergm", NULL);
-fun(nwp,m);
-}
-void DestroyStats(Network *nwp, Model *m){
-static void (*fun)(Network *,Model *) = NULL;
-if(fun==NULL) fun = (void (*)(Network *,Model *)) R_FindSymbol("DestroyStats", "ergm", NULL);
-fun(nwp,m);
-}
 
 #define STUBFILE
 #include <stddef.h>
@@ -278,10 +268,10 @@ fun(nwp,m);
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_wtchangestat_operator.h"
-WtModel * unpack_WtModel_as_double(double **x){
-static WtModel * (*fun)(double **) = NULL;
-if(fun==NULL) fun = (WtModel * (*)(double **)) R_FindSymbol("unpack_WtModel_as_double", "ergm", NULL);
-return fun(x);
+WtModel * unpack_WtModel_as_double(double **x, WtNetwork *nwp){
+static WtModel * (*fun)(double **,WtNetwork *) = NULL;
+if(fun==NULL) fun = (WtModel * (*)(double **,WtNetwork *)) R_FindSymbol("unpack_WtModel_as_double", "ergm", NULL);
+return fun(x,nwp);
 }
 
 #define STUBFILE
@@ -443,10 +433,10 @@ fun(MH,nwp);
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_wtmodel.h"
-WtModel* WtModelInitialize(const char *fnames, const char *sonames, double **inputs,int n_terms){
-static WtModel* (*fun)(const char *,const char *,double **,int) = NULL;
-if(fun==NULL) fun = (WtModel* (*)(const char *,const char *,double **,int)) R_FindSymbol("WtModelInitialize", "ergm", NULL);
-return fun(fnames,sonames,inputs,n_terms);
+WtModel* WtModelInitialize(const char *fnames, const char *sonames, double **inputs,int n_terms, WtNetwork *nwp, Rboolean noinit_s){
+static WtModel* (*fun)(const char *,const char *,double **,int,WtNetwork *,Rboolean) = NULL;
+if(fun==NULL) fun = (WtModel* (*)(const char *,const char *,double **,int,WtNetwork *,Rboolean)) R_FindSymbol("WtModelInitialize", "ergm", NULL);
+return fun(fnames,sonames,inputs,n_terms,nwp,noinit_s);
 }
 void WtModelDestroy(WtNetwork *nwp, WtModel *m){
 static void (*fun)(WtNetwork *,WtModel *) = NULL;
@@ -457,14 +447,4 @@ void WtChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead
 static void (*fun)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *) = NULL;
 if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *)) R_FindSymbol("WtChangeStats", "ergm", NULL);
 fun(ntoggles,toggletail,togglehead,toggleweight,nwp,m);
-}
-void WtInitStats(WtNetwork *nwp, WtModel *m){
-static void (*fun)(WtNetwork *,WtModel *) = NULL;
-if(fun==NULL) fun = (void (*)(WtNetwork *,WtModel *)) R_FindSymbol("WtInitStats", "ergm", NULL);
-fun(nwp,m);
-}
-void WtDestroyStats(WtNetwork *nwp, WtModel *m){
-static void (*fun)(WtNetwork *,WtModel *) = NULL;
-if(fun==NULL) fun = (void (*)(WtNetwork *,WtModel *)) R_FindSymbol("WtDestroyStats", "ergm", NULL);
-fun(nwp,m);
 }
