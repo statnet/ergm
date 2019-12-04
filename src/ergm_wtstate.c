@@ -5,9 +5,7 @@ WtErgmState *WtErgmStateInit(// Network settings
                              // Model settings
 			     SEXP mR, Rboolean noinit_s,
                              // Proposal settings
-			     const char *MHProposaltype, const char *MHProposalpackage,
-                             // Numeric inputs
-			     double *inputs,
+			     SEXP pR,
                              // Network state
                              Edge n_edges,
 			     Vertex *tails, Vertex *heads, double *weights,
@@ -20,16 +18,13 @@ WtErgmState *WtErgmStateInit(// Network settings
 
   /* Initialize the model */
   s->m=NULL;
-  if(mR)
+  if(s->nwp && mR) // Model also requires network.
     s->m = WtModelInitialize(mR, s->nwp, noinit_s);
 
   /* Initialize the M-H proposal */
   s->MHp=NULL;
-  if(MHProposaltype)
-    s->MHp = WtMHProposalInitialize(MHProposaltype, MHProposalpackage,
-                                    inputs,
-                                    s->nwp,
-                                    s->m->termarray->aux_storage);
+  if(s->m && pR) // Proposal also requires model's auxiliaries.
+    s->MHp = WtMHProposalInitialize(pR, s->nwp, s->m->termarray->aux_storage);
   
   return s;
 }

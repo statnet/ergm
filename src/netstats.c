@@ -21,7 +21,6 @@
 
 SEXP network_stats_wrapper(ARGS_NWSETTINGS,
                            ARGS_MODEL,
-                           ARGS_INPUTS,
                            ARGS_NWSTATE,
                            ARGS_LASTTOGGLE,
                            // Summary settings
@@ -30,7 +29,6 @@ SEXP network_stats_wrapper(ARGS_NWSETTINGS,
   ErgmState *s = ErgmStateInit(YES_NWSETTINGS,
                                YES_MODEL_NOINIT_S,
                                NO_MHPROPOSAL,
-                               YES_INPUTS,
                                NO_NWSTATE,
                                YES_LASTTOGGLE);
 

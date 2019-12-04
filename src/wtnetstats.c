@@ -21,7 +21,6 @@
 
 SEXP wt_network_stats_wrapper(ARGS_WTNWSETTINGS,
                               ARGS_WTMODEL,
-                              ARGS_WTINPUTS,
                               ARGS_WTNWSTATE,
                               ARGS_WTLASTTOGGLE,
                               // Summary settings
@@ -30,7 +29,6 @@ SEXP wt_network_stats_wrapper(ARGS_WTNWSETTINGS,
   WtErgmState *s = WtErgmStateInit(YES_WTNWSETTINGS,
                                    YES_WTMODEL_NOINIT_S,
                                    NO_WTMHPROPOSAL,
-                                   YES_WTINPUTS,
                                    NO_WTNWSTATE,
                                    YES_WTLASTTOGGLE);
 

@@ -37,7 +37,6 @@
 
 SEXP MPLE_wrapper(ARGS_NWSETTINGS,
                   ARGS_MODEL,
-                  ARGS_INPUTS,
                   ARGS_NWSTATE,
                   // MPLE settings
                   SEXP wl,
@@ -46,7 +45,6 @@ SEXP MPLE_wrapper(ARGS_NWSETTINGS,
   ErgmState *s = ErgmStateInit(YES_NWSETTINGS,
                                YES_MODEL,
                                NO_MHPROPOSAL,
-                               YES_INPUTS,
                                YES_NWSTATE,
                                NO_LASTTOGGLE);
 

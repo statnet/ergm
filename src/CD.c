@@ -26,7 +26,6 @@
 SEXP CD_wrapper(ARGS_NWSETTINGS,
                 ARGS_MODEL,
                 ARGS_MHPROPOSAL,
-                ARGS_INPUTS,
                 ARGS_NWSTATE,
                 // MCMC settings
                 SEXP eta, SEXP samplesize, 
@@ -36,7 +35,6 @@ SEXP CD_wrapper(ARGS_NWSETTINGS,
   ErgmState *s = ErgmStateInit(YES_NWSETTINGS,
                                YES_MODEL,
                                YES_MHPROPOSAL,
-                               YES_INPUTS,
                                YES_NWSTATE,
                                NO_LASTTOGGLE);
 

@@ -292,7 +292,8 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
                                    nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
   
   # Prepare inputs to ergm.getMCMCsample
-  m <- ergm_model(object, nw, response=response, role="static", extra.aux=list(proposal$auxiliaries),term.options=control$term.options)
+  m <- ergm_model(object, nw, response=response, role="static", extra.aux=list(proposal=proposal$auxiliaries),term.options=control$term.options)
+  proposal$aux.slots <- m$slots.extra.aux$proposal
 
   if(do.sim){
     out <- simulate(m, nsim=nsim, seed=seed,
@@ -409,8 +410,8 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                               nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
               }
 
-  if(length(proposal$auxiliaries) && !length(m$slots.extra.aux))
-    stop("The proposal appears to be requesting auxiliaries, but the initialized model does not export any extra auxiliaries.")
+  if(length(proposal$auxiliaries) && !length(m$slots.extra.aux$proposal))
+    stop("The proposal appears to be requesting auxiliaries, but the initialized model does not export any proposal auxiliaries.")
   
   if (any(is.nan(coef) | is.na(coef)))
     stop("Illegal value of coef passed to simulate.formula")

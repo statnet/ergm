@@ -36,7 +36,6 @@ unsigned int hashNetStatRow(double *newRow, unsigned int rowLength,
 
 SEXP AllStatistics(ARGS_NWSETTINGS,
                    ARGS_MODEL,
-                   ARGS_INPUTS,
                    ARGS_NWSTATE,
                   // Allstats settings
                   SEXP maxNumDyadTypes){
@@ -46,7 +45,6 @@ SEXP AllStatistics(ARGS_NWSETTINGS,
   ErgmState *s = ErgmStateInit(YES_NWSETTINGS,
                                YES_MODEL,
                                NO_MHPROPOSAL,
-                               YES_INPUTS,
                                YES_NWSTATE,
                                NO_LASTTOGGLE);
 

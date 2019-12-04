@@ -71,6 +71,7 @@ void DegreeBoundDestroy(DegreeBound *bd);
 /* *** don't forget tail-> head */
 
 typedef struct MHProposalstruct {
+  SEXP R;
   void (*i_func)(struct MHProposalstruct*, Network*);
   void (*p_func)(struct MHProposalstruct*, Network*);
   void (*u_func)(Vertex tail, Vertex head, struct MHProposalstruct*, Network*, Rboolean);
@@ -84,17 +85,11 @@ typedef struct MHProposalstruct {
   double *inputs; /* may be used if needed, ignored if not. */
   void *storage;
   void **aux_storage;
+  unsigned int *aux_slots;
 } MHProposal;
 
 
-MHProposal *MHProposalInitialize(
-	     const char *MHProposaltype, const char *MHProposalpackage,
-	     double *inputs,
-	     Network *nwp, 
-	     int *attribs, int *maxout, int *maxin, 
-	     int *minout, int *minin, int condAllDegExact, 
-	     int attriblength,
-	     void **aux_storage);
+MHProposal *MHProposalInitialize(SEXP pR, Network *nwp, void **aux_storage);
 
 void MHProposalDestroy(MHProposal *MHp, Network *nwp);
 

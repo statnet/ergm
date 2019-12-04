@@ -137,8 +137,6 @@ ergm.allstats <- function(formula, zeroobs = TRUE, force = FALSE,
              as.integer(Clist$bipartite),
              # Model settings
              Clist$m,
-             # Numeric inputs
-             as.double(Clist$inputs),
              # Network state
              as.integer(Clist$nedges),
              as.integer(Clist$tails),

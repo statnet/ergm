@@ -67,7 +67,6 @@ MCMCStatus WtGodfather(WtErgmState *s, Edge n_changes, Vertex *tails, Vertex *he
 *****************/
 SEXP WtGodfather_wrapper(ARGS_WTNWSETTINGS,
                          ARGS_WTMODEL,
-                         ARGS_WTINPUTS,
                          ARGS_WTNWSTATE,
                          // Godfather settings
                          SEXP nsteps,
@@ -78,7 +77,6 @@ SEXP WtGodfather_wrapper(ARGS_WTNWSETTINGS,
   WtErgmState *s = WtErgmStateInit(YES_WTNWSETTINGS,
                                    YES_WTMODEL,
                                    NO_WTMHPROPOSAL,
-                                   YES_WTINPUTS,
                                    YES_WTNWSTATE,
                                    NO_WTLASTTOGGLE);
   WtNetwork *nwp = s->nwp;

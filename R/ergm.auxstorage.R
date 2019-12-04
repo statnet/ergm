@@ -50,25 +50,26 @@ ergm.auxstorage <- function(model, nw, response=NULL,..., extra.aux=list(), term
   # aux.aux.outlists is now a nested list in the same form as aux.outlists, but for auxiliaries.
 
   # Append the auxiliary terms to the model.
-  nstatterms <- length(model$terms)
+  n.stat.terms <- length(model$terms)
   for(i in seq_along(uniq.aux.outlists)){
     aux.outlist <- uniq.aux.outlists[[i]]
     model <- updatemodel.ErgmTerm(model, aux.outlist)
-    model$terms[[nstatterms+i]]$inputs[4] <- i-1 # The storage slot belonging to this auxiliary.
+    model$terms[[n.stat.terms+i]]$inputs[4L] <- i-1L # The storage slot belonging to this auxiliary.
   }
 
   # Which term is requiring which auxiliary slot? (+1)
   aux.slots <- lapply(aux.outlists, match, uniq.aux.outlists)
-  slots.extra.aux <- list()
+  slots.extra.aux <- rep(list(integer(0)), length(extra.aux))
   
   for(i in seq_along(aux.outlists)){
     if(length(aux.outlists[[i]])){
-      if(i<=length(model$terms)) # If it's a model term.
-        model$terms[[i]]$inputs[3+seq_len(length(aux.outlists[[i]]))] <- aux.slots[[i]]-1
+      if(i<=n.stat.terms) # If it's a model term.
+        model$terms[[i]]$inputs[3L+seq_len(length(aux.outlists[[i]]))] <- aux.slots[[i]]-1L
       else # If it's some other entity requesting auxiliaries.
-        slots.extra.aux[[i-length(model$terms)]] <- aux.slots[[i]]-1
+        slots.extra.aux[[i-n.stat.terms]] <- aux.slots[[i]]-1L
     }
   }
+  names(slots.extra.aux) <- names(extra.aux)
 
   # Which auxiliary is requiring which auxiliary slot? (+1)
   aux.aux.slots <- lapply(aux.aux.outlists, match, uniq.aux.outlists)
@@ -76,7 +77,7 @@ ergm.auxstorage <- function(model, nw, response=NULL,..., extra.aux=list(), term
   for(i in seq_along(aux.aux.outlists)){
     if(length(aux.aux.outlists[[i]])){
       # 4th input is auxiliary's own slot, so its auxiliaries get put into subsequent slots.
-      model$terms[[nstatterms+i]]$inputs[4+seq_len(length(aux.aux.outlists[[i]]))] <- aux.aux.slots[[i]]-1
+      model$terms[[n.stat.terms+i]]$inputs[4L+seq_len(length(aux.aux.outlists[[i]]))] <- aux.aux.slots[[i]]-1L
     }
   }
 

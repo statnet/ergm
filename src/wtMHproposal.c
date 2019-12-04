@@ -8,41 +8,29 @@
  *  Copyright 2003-2019 Statnet Commons
  */
 #include "ergm_wtMHproposal.h"
-
+#include "ergm_util.h"
 
 /*********************
  void WtMHProposalInitialize
 
  A helper function to process the MH_* related initialization.
 *********************/
-WtMHProposal *WtMHProposalInitialize(
-	     const char *MHProposaltype, const char *MHProposalpackage, 
-	       double *inputs,
-	     WtNetwork *nwp,
-	     void **aux_storage){
+WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage){
   WtMHProposal *MHp = Calloc(1, WtMHProposal);
-
-  char *fn, *sn;
-  int i;
+  MHp->R = pR;
 
   MHp->i_func=MHp->p_func=MHp->f_func=NULL;
   MHp->u_func=NULL;
   MHp->storage=NULL;
   
-  for (i = 0; MHProposaltype[i] != ' ' && MHProposaltype[i] != 0; i++);
   /* Extract the required string information from the relevant sources */
-  fn = Calloc(i+4, char);
+  const char *fname = FIRSTCHAR(getListElement(pR, "name")),
+    *sn = FIRSTCHAR(getListElement(pR, "pkgname"));
+  char *fn = Calloc(strlen(fname)+4, char);
   fn[0]='M';
   fn[1]='H';
   fn[2]='_';
-  for(int j=0;j<i;j++)
-    fn[j+3]=MHProposaltype[j];
-  fn[i+3]='\0';
-  /* fn is now the string 'MH_[name]', where [name] is MHProposaltype */
-  for (i = 0; MHProposalpackage[i] != ' ' && MHProposalpackage[i] != 0; i++);
-  sn = Calloc(i+1, char);
-  sn=memcpy(sn,MHProposalpackage,i);
-  sn[i]='\0';
+  strcpy(fn+3, fname);
   
   /* Search for the MH proposal function pointer */
   // Old-style name:
@@ -66,14 +54,17 @@ WtMHProposal *WtMHProposalInitialize(
   fn[1] = 'f';
   MHp->f_func=(void (*)(WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
     
-  MHp->inputs=inputs;
+  MHp->inputs=REAL(getListElement(pR, "inputs"));
 
   /*Clean up by freeing sn and fn*/
   Free(fn);
-  Free(sn);
 
   MHp->aux_storage = aux_storage;
-
+  SEXP aux_slotsR = getListElement(pR,"aux.slots");
+  if(length(aux_slotsR)){
+    MHp->aux_slots = (unsigned int *) INTEGER(aux_slotsR);
+  }else MHp->aux_slots = NULL;
+  
   MHp->ntoggles=0;
   if(MHp->i_func){
     // New-style initialization

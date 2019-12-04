@@ -585,7 +585,8 @@ ergm <- function(formula, response=NULL,
   if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
   
   if (verbose) message("Initializing model...")
-  model <- ergm_model(formula, nw, response=response, extra.aux=NVL3(proposal$auxiliaries,list(.)), term.options=control$term.options)
+  model <- ergm_model(formula, nw, response=response, extra.aux=NVL3(proposal$auxiliaries,list(proposal=.)), term.options=control$term.options)
+  proposal$aux.slots <- model$slots.extra.aux$proposal
   if (verbose) message("Model initialized.")
   
   if(!is(obs.constraints, "ergm_proposal")){
@@ -596,7 +597,8 @@ ergm <- function(formula, response=NULL,
       
       if(!is.null(proposal.obs$auxiliaries)){
         if(verbose) message(" (requests auxiliaries: updating model).")
-        model$obs.model <- c(model, ergm_model(~., nw, response=response, extra.aux=list(proposal.obs$auxiliaries), term.options=control$term.options))
+        model$obs.model <- c(model, ergm_model(~., nw, response=response, extra.aux=list(proposal=proposal.obs$auxiliaries), term.options=control$term.options))
+        proposal.obs$slots.extra.aux <- model.obs$slots.extra.aux$proposal
         if(verbose) message("Model reinitialized.")
       }else if(verbose) message(".")
     }else proposal.obs <- NULL

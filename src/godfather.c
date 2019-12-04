@@ -70,7 +70,6 @@ MCMCStatus Godfather(ErgmState *s, Edge n_changes, Vertex *tails, Vertex *heads,
 *****************/
 SEXP Godfather_wrapper(ARGS_NWSETTINGS,
                        ARGS_MODEL,
-                       ARGS_INPUTS,
                        ARGS_NWSTATE,
                        // Godfather settings
                        SEXP nsteps,
@@ -81,7 +80,6 @@ SEXP Godfather_wrapper(ARGS_NWSETTINGS,
   ErgmState *s = ErgmStateInit(YES_NWSETTINGS,
                                YES_MODEL,
                                NO_MHPROPOSAL,
-                               YES_INPUTS,
                                YES_NWSTATE,
                                NO_LASTTOGGLE);
   Network *nwp = s->nwp;

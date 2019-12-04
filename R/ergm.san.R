@@ -158,8 +158,9 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   nw <- tmp$nw; constraints <- tmp$constraints
 
   proposal<-ergm_proposal(constraints,arguments=control$SAN.prop.args,nw=nw,weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
-  model <- ergm_model(formula, nw, response=response, extra.aux=list(proposal$auxiliaries), term.options=control$term.options)
-    
+  model <- ergm_model(formula, nw, response=response, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
+  proposal$aux.slots <- model$slots.extra.aux$proposal
+
   san(model, response=response, reference=reference, constraints=proposal, target.stats=target.stats, nsim=nsim, basis=nw, output=output, only.last=only.last, control=control, verbose=verbose, offset.coef=offset.coef, ...)
 }
 
@@ -366,13 +367,7 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
             # Model settings
             Clist$m,
             # Proposal settings
-            as.character(proposal$name), as.character(proposal$pkgname),
-            as.integer(proposal$arguments$constraints$bd$attribs),
-            as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
-            as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
-            as.integer(proposal$arguments$constraints$bd$condAllDegExact), as.integer(length(proposal$arguments$constraints$bd$attribs)),
-            # Numeric vector inputs
-            as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)),
+            proposal,
             # Network state
             as.integer(nedges),
             as.integer(tails), as.integer(heads),
@@ -394,9 +389,7 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
             # Model settings
             Clist$m,
             # Proposal settings
-            as.character(proposal$name), as.character(proposal$pkgname),
-            # Numeric inputs
-            as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)),
+            proposal,
             # Network state
             as.integer(nedges),
             as.integer(tails), as.integer(heads), as.double(weights),

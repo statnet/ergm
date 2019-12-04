@@ -25,7 +25,6 @@
 SEXP WtSAN_wrapper(ARGS_WTNWSETTINGS,
                     ARGS_WTMODEL,
                     ARGS_WTMHPROPOSAL,
-                    ARGS_WTINPUTS,
                     ARGS_WTNWSTATE,
                    // MCMC settings
                    SEXP tau, SEXP stats,
@@ -41,7 +40,6 @@ SEXP WtSAN_wrapper(ARGS_WTNWSETTINGS,
   WtErgmState *s = WtErgmStateInit(YES_WTNWSETTINGS,
                                    YES_WTMODEL,
                                    YES_WTMHPROPOSAL,
-                                   YES_WTINPUTS,
                                    YES_WTNWSTATE,
                                    NO_WTLASTTOGGLE);
 

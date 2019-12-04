@@ -54,6 +54,7 @@
 /* *** don't forget tail-> head */
 
 typedef struct WtMHProposalstruct {
+  SEXP R;
   void (*i_func)(struct WtMHProposalstruct*, WtNetwork*);
   void (*p_func)(struct WtMHProposalstruct*, WtNetwork*);
   void (*u_func)(Vertex tail, Vertex head, double weight, struct WtMHProposalstruct*, WtNetwork*);
@@ -67,14 +68,10 @@ typedef struct WtMHProposalstruct {
   double *inputs; /* may be used if needed, ignored if not. */
   void *storage;
   void **aux_storage;
+  unsigned int *aux_slots;
 } WtMHProposal;
 
-
-WtMHProposal * WtMHProposalInitialize(
-	     const char *MHProposaltype, const char *MHProposalpackage,
-	       double *inputs,
-	       WtNetwork *nwp,
-	       void **aux_storage);
+WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage);
 
 void WtMHProposalDestroy(WtMHProposal *MH, WtNetwork *nwp);
 

@@ -99,12 +99,14 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   ## Preinitialize proposals and set "observed" statistics:
   proposal <- ergm_proposal(constraints,arguments=control$MCMC.prop.args,
                            nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
-  m<-ergm_model(object, nw, response=response, extra.aux=list(proposal$auxiliaries), term.options=control$term.options)
+  m<-ergm_model(object, nw, response=response, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
+  proposal$aux.slots <- m$slots.extra.aux$proposal
 
   if(!is.null(constraints.obs)){
     proposal.obs <- ergm_proposal(constraints.obs,arguments=control$obs.MCMC.prop.args,
                                  nw=nw, weights=control$obs.MCMC.prop.weights, class="c",reference=reference,response=response)
-    m.obs<-ergm_model(object, nw, response=response, extra.aux=list(proposal.obs$auxiliaries), term.options=control$term.options)
+    m.obs<-ergm_model(object, nw, response=response, extra.aux=list(proposal=proposal.obs$auxiliaries), term.options=control$term.options)
+    proposal.obs$aux.slots <- m.obs$slots.extra.aux$proposal
 
     stats.obs <- matrix(NA,control$nsteps,m$etamap$etalength)
   }else

@@ -5,11 +5,7 @@ ErgmState *ErgmStateInit(// Network settings
                          // Model settings
                          SEXP mR, Rboolean noinit_s,
                          // Proposal settings
-                         const char *MHProposaltype, const char *MHProposalpackage,
-                         int *attribs, int *maxout, int *maxin, int *minout,
-                         int *minin, int condAllDegExact, int attriblength,
-                         // Numeric inputs
-                         double *inputs,
+                         SEXP pR,
                          // Network state
                          Edge n_edges,
                          Vertex *tails, Vertex *heads,
@@ -23,17 +19,13 @@ ErgmState *ErgmStateInit(// Network settings
 
   /* Initialize the model */
   s->m=NULL;
-  if(mR)
+  if(s->nwp && mR) // Model also requires network.
     s->m = ModelInitialize(mR, s->nwp, noinit_s);
 
   /* Initialize the M-H proposal */
   s->MHp=NULL;
-  if(MHProposaltype)
-    s->MHp = MHProposalInitialize(MHProposaltype, MHProposalpackage,
-			       inputs,
-			       s->nwp, attribs, maxout, maxin, minout, minin,
-			       condAllDegExact, attriblength,
-			       s->m->termarray->aux_storage);
+  if(s->m && pR) // Proposal also requires model's auxiliaries.
+    s->MHp = MHProposalInitialize(pR, s->nwp, s->m->termarray->aux_storage);
 
   return s;
 }

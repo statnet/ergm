@@ -114,10 +114,6 @@ ergm_Clist.pending_update_network <- ergm_Clist.network
 #' @return 
 #' \item{nterms}{ the number of model terms }
 #' \item{nstats}{ the total number of change statistics for all model terms }
-#' \item{inputs}{ the concatenated vector of 'input's from each model term as returned by
-#' `InitErgmTerm.X` or `InitErgm.X` }
-#' \item{fnamestring}{ the concatenated string of model term names }
-#' \item{snamestring}{ the concatenated string of package names that contain the C function 'd_fname'; default="ergm" for each fname in fnamestring }
 #' @export
 ergm_Clist.ergm_model <- function(object, ...){
   mo<-object$terms 
@@ -125,7 +121,6 @@ ergm_Clist.ergm_model <- function(object, ...){
 
   Clist$nterms<-length(mo)
   Clist$nstats<-nparam(object,canonical=TRUE)
-  Clist$slots.extra.aux <- unlist(object$slots.extra.aux)
   
   # We don't care about diagnostics for terms that are not being
   # estimated.

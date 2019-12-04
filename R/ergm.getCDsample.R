@@ -86,13 +86,7 @@ ergm_CD_slave <- function(Clist,proposal,eta,control,verbose,..., samplesize=NUL
             # Model settings
             Clist$m,
             # Proposal settings
-            as.character(proposal$name), as.character(proposal$pkgname),
-            as.integer(proposal$arguments$constraints$bd$attribs),
-            as.integer(proposal$arguments$constraints$bd$maxout), as.integer(proposal$arguments$constraints$bd$maxin),
-            as.integer(proposal$arguments$constraints$bd$minout), as.integer(proposal$arguments$constraints$bd$minin),
-            as.integer(proposal$arguments$constraints$bd$condAllDegExact), as.integer(length(proposal$arguments$constraints$bd$attribs)),
-            # Numeric vector inputs
-            as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)),
+            proposal,
             # Network state
             as.integer(nedges),
             as.integer(tails), as.integer(heads),
@@ -110,9 +104,7 @@ ergm_CD_slave <- function(Clist,proposal,eta,control,verbose,..., samplesize=NUL
             # Model settings
             Clist$m,
             # Proposal settings
-            as.character(proposal$name), as.character(proposal$pkgname),
-            # Numeric inputs
-            as.double(c(Clist$inputs,Clist$slots.extra.aux,proposal$inputs)),
+            proposal,
             # Network state
             as.integer(nedges),
             as.integer(tails), as.integer(heads), as.double(weights),

@@ -105,8 +105,6 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
             as.integer(Clist$bipartite),
             # Model settings
             Clist$m,
-            # Numeric inputs
-            as.double(Clist$inputs),
             # Network state
             as.integer(Clist$nedges),
             as.integer(Clist$tails),
@@ -127,8 +125,6 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
             as.integer(Clist$bipartite),
             # Model settings
             Clist$m,
-            # Numeric inputs
-            as.double(Clist$inputs),
             # Network state
             as.integer(Clist$nedges),
             as.integer(Clist$tails),
