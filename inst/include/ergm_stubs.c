@@ -12,16 +12,6 @@ return fun(n,r);
 #define STUBFILE
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
-#include "ergm_changestat_operator.h"
-Model * unpack_Model_as_double(double **x, Network *nwp){
-static Model * (*fun)(double **,Network *) = NULL;
-if(fun==NULL) fun = (Model * (*)(double **,Network *)) R_FindSymbol("unpack_Model_as_double", "ergm", NULL);
-return fun(x,nwp);
-}
-
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
 #include "ergm_changestats_auxnet.h"
 
 #define STUBFILE
@@ -238,10 +228,10 @@ return fun(MHp,nwp);
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_model.h"
-Model* ModelInitialize(const char *fnames, const char *sonames, double **inputs,int n_terms, Network *nwp, Rboolean noinit_s){
-static Model* (*fun)(const char *,const char *,double **,int,Network *,Rboolean) = NULL;
-if(fun==NULL) fun = (Model* (*)(const char *,const char *,double **,int,Network *,Rboolean)) R_FindSymbol("ModelInitialize", "ergm", NULL);
-return fun(fnames,sonames,inputs,n_terms,nwp,noinit_s);
+Model* ModelInitialize(SEXP mR, Network *nwp, Rboolean noinit_s){
+static Model* (*fun)(SEXP,Network *,Rboolean) = NULL;
+if(fun==NULL) fun = (Model* (*)(SEXP,Network *,Rboolean)) R_FindSymbol("ModelInitialize", "ergm", NULL);
+return fun(mR,nwp,noinit_s);
 }
 void ModelDestroy(Network *nwp, Model *m){
 static void (*fun)(Network *,Model *) = NULL;
@@ -268,25 +258,15 @@ fun(ntoggles,toggletail,togglehead,nwp,m);
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_state.h"
-ErgmState * ErgmStateInit(Vertex n_nodes, Rboolean directed_flag, Vertex bip,int nterms, const char *funnames, const char *sonames, Rboolean noinit_s,const char *MHProposaltype, const char *MHProposalpackage,int *attribs, int *maxout, int *maxin, int *minout,int *minin, int condAllDegExact, int attriblength,double *inputs,Edge n_edges,Vertex *tails, Vertex *heads,Rboolean timings, int time, int *lasttoggle){
-static ErgmState * (*fun)(Vertex,Rboolean,Vertex,int,const char *,const char *,Rboolean,const char *,const char *,int *,int *,int *,int *,int *,int,int,double *,Edge,Vertex *,Vertex *,Rboolean,int,int *) = NULL;
-if(fun==NULL) fun = (ErgmState * (*)(Vertex,Rboolean,Vertex,int,const char *,const char *,Rboolean,const char *,const char *,int *,int *,int *,int *,int *,int,int,double *,Edge,Vertex *,Vertex *,Rboolean,int,int *)) R_FindSymbol("ErgmStateInit", "ergm", NULL);
-return fun(n_nodes,directed_flag,bip,nterms,funnames,sonames,noinit_s,MHProposaltype,MHProposalpackage,attribs,maxout,maxin,minout,minin,condAllDegExact,attriblength,inputs,n_edges,tails,heads,timings,time,lasttoggle);
+ErgmState * ErgmStateInit(Vertex n_nodes, Rboolean directed_flag, Vertex bip,SEXP mR, Rboolean noinit_s,const char *MHProposaltype, const char *MHProposalpackage,int *attribs, int *maxout, int *maxin, int *minout,int *minin, int condAllDegExact, int attriblength,double *inputs,Edge n_edges,Vertex *tails, Vertex *heads,Rboolean timings, int time, int *lasttoggle){
+static ErgmState * (*fun)(Vertex,Rboolean,Vertex,SEXP,Rboolean,const char *,const char *,int *,int *,int *,int *,int *,int,int,double *,Edge,Vertex *,Vertex *,Rboolean,int,int *) = NULL;
+if(fun==NULL) fun = (ErgmState * (*)(Vertex,Rboolean,Vertex,SEXP,Rboolean,const char *,const char *,int *,int *,int *,int *,int *,int,int,double *,Edge,Vertex *,Vertex *,Rboolean,int,int *)) R_FindSymbol("ErgmStateInit", "ergm", NULL);
+return fun(n_nodes,directed_flag,bip,mR,noinit_s,MHProposaltype,MHProposalpackage,attribs,maxout,maxin,minout,minin,condAllDegExact,attriblength,inputs,n_edges,tails,heads,timings,time,lasttoggle);
 }
 void ErgmStateDestroy(ErgmState *s){
 static void (*fun)(ErgmState *) = NULL;
 if(fun==NULL) fun = (void (*)(ErgmState *)) R_FindSymbol("ErgmStateDestroy", "ergm", NULL);
 fun(s);
-}
-
-#define STUBFILE
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
-#include "ergm_wtchangestat_operator.h"
-WtModel * unpack_WtModel_as_double(double **x, WtNetwork *nwp){
-static WtModel * (*fun)(double **,WtNetwork *) = NULL;
-if(fun==NULL) fun = (WtModel * (*)(double **,WtNetwork *)) R_FindSymbol("unpack_WtModel_as_double", "ergm", NULL);
-return fun(x,nwp);
 }
 
 #define STUBFILE
@@ -448,10 +428,10 @@ fun(MH,nwp);
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_wtmodel.h"
-WtModel* WtModelInitialize(const char *fnames, const char *sonames, double **inputs,int n_terms, WtNetwork *nwp, Rboolean noinit_s){
-static WtModel* (*fun)(const char *,const char *,double **,int,WtNetwork *,Rboolean) = NULL;
-if(fun==NULL) fun = (WtModel* (*)(const char *,const char *,double **,int,WtNetwork *,Rboolean)) R_FindSymbol("WtModelInitialize", "ergm", NULL);
-return fun(fnames,sonames,inputs,n_terms,nwp,noinit_s);
+WtModel* WtModelInitialize(SEXP mR, WtNetwork *nwp, Rboolean noinit_s){
+static WtModel* (*fun)(SEXP,WtNetwork *,Rboolean) = NULL;
+if(fun==NULL) fun = (WtModel* (*)(SEXP,WtNetwork *,Rboolean)) R_FindSymbol("WtModelInitialize", "ergm", NULL);
+return fun(mR,nwp,noinit_s);
 }
 void WtModelDestroy(WtNetwork *nwp, WtModel *m){
 static void (*fun)(WtNetwork *,WtModel *) = NULL;
@@ -468,10 +448,10 @@ fun(ntoggles,toggletail,togglehead,toggleweight,nwp,m);
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_wtstate.h"
-WtErgmState * WtErgmStateInit(Vertex n_nodes, Rboolean directed_flag, Vertex bip,int nterms, const char *funnames, const char *sonames, Rboolean noinit_s,const char *MHProposaltype, const char *MHProposalpackage,double *inputs,Edge n_edges,Vertex *tails, Vertex *heads, double *weights,Rboolean timings, int time, int *lasttoggle){
-static WtErgmState * (*fun)(Vertex,Rboolean,Vertex,int,const char *,const char *,Rboolean,const char *,const char *,double *,Edge,Vertex *,Vertex *,double *,Rboolean,int,int *) = NULL;
-if(fun==NULL) fun = (WtErgmState * (*)(Vertex,Rboolean,Vertex,int,const char *,const char *,Rboolean,const char *,const char *,double *,Edge,Vertex *,Vertex *,double *,Rboolean,int,int *)) R_FindSymbol("WtErgmStateInit", "ergm", NULL);
-return fun(n_nodes,directed_flag,bip,nterms,funnames,sonames,noinit_s,MHProposaltype,MHProposalpackage,inputs,n_edges,tails,heads,weights,timings,time,lasttoggle);
+WtErgmState * WtErgmStateInit(Vertex n_nodes, Rboolean directed_flag, Vertex bip,SEXP mR, Rboolean noinit_s,const char *MHProposaltype, const char *MHProposalpackage,double *inputs,Edge n_edges,Vertex *tails, Vertex *heads, double *weights,Rboolean timings, int time, int *lasttoggle){
+static WtErgmState * (*fun)(Vertex,Rboolean,Vertex,SEXP,Rboolean,const char *,const char *,double *,Edge,Vertex *,Vertex *,double *,Rboolean,int,int *) = NULL;
+if(fun==NULL) fun = (WtErgmState * (*)(Vertex,Rboolean,Vertex,SEXP,Rboolean,const char *,const char *,double *,Edge,Vertex *,Vertex *,double *,Rboolean,int,int *)) R_FindSymbol("WtErgmStateInit", "ergm", NULL);
+return fun(n_nodes,directed_flag,bip,mR,noinit_s,MHProposaltype,MHProposalpackage,inputs,n_edges,tails,heads,weights,timings,time,lasttoggle);
 }
 void WtErgmStateDestroy(WtErgmState *s){
 static void (*fun)(WtErgmState *) = NULL;

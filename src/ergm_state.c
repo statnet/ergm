@@ -3,7 +3,7 @@
 ErgmState *ErgmStateInit(// Network settings
                          Vertex n_nodes, Rboolean directed_flag, Vertex bip,
                          // Model settings
-                         int nterms, const char *funnames, const char *sonames, Rboolean noinit_s,
+                         SEXP mR, Rboolean noinit_s,
                          // Proposal settings
                          const char *MHProposaltype, const char *MHProposalpackage,
                          int *attribs, int *maxout, int *maxin, int *minout,
@@ -22,7 +22,9 @@ ErgmState *ErgmStateInit(// Network settings
                            n_nodes, directed_flag, bip, timings, time, lasttoggle);
 
   /* Initialize the model */
-  s->m=ModelInitialize(funnames, sonames, &inputs, nterms, s->nwp, noinit_s);
+  s->m=NULL;
+  if(mR)
+    s->m = ModelInitialize(mR, s->nwp, noinit_s);
 
   /* Initialize the M-H proposal */
   s->MHp=NULL;

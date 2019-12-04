@@ -3,10 +3,8 @@
 /* passthrough(formula) */
 
 WtI_CHANGESTAT_FN(i_wtpassthrough_term){
-  double *inputs = INPUT_PARAM;
   // No need to allocate it: we are only storing a pointer to a model.
-
-  STORAGE = unpack_WtModel_as_double(&inputs, nwp);
+  STORAGE = WtModelInitialize(getListElement(mtp->R, "submodel"), nwp, FALSE);
 }
 
 WtD_CHANGESTAT_FN(d_wtpassthrough_term){
@@ -41,12 +39,11 @@ WtF_CHANGESTAT_FN(f_wtpassthrough_term){
 */
 
 WtI_CHANGESTAT_FN(i_import_binary_term_sum){
-  double *inputs = INPUT_PARAM;
   ALLOC_STORAGE(1, StoreNetAndModel, store);
 
   store->nwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
   Network *mynwp = store->nwp;
-  store->m = unpack_Model_as_double(&inputs, mynwp);
+  store->m = ModelInitialize(getListElement(mtp->R, "submodel"),  mynwp, FALSE);
 }
 
 WtC_CHANGESTAT_FN(c_import_binary_term_sum){
@@ -90,7 +87,7 @@ WtI_CHANGESTAT_FN(i_import_binary_term_nonzero){
   GET_AUX_STORAGE(Network, bnwp); inputs++;
   GET_STORAGE(Model, m); // Only need the pointer, no allocation needed.
 
-  STORAGE = m = unpack_Model_as_double(&inputs, bnwp);
+  STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"),  bnwp, FALSE);
 }
 
 WtC_CHANGESTAT_FN(c_import_binary_term_nonzero){
@@ -139,7 +136,7 @@ WtI_CHANGESTAT_FN(i_import_binary_term_form){
 
   GET_STORAGE(Model, m); // Only need the pointer, no allocation needed.
 
-  STORAGE = m = unpack_Model_as_double(&inputs, bnwp);
+  STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"),  bnwp, FALSE);
 }
 
 WtC_CHANGESTAT_FN(c_import_binary_term_form){
@@ -218,7 +215,7 @@ WtF_CHANGESTAT_FN(f__binary_nonzero_net){
 WtI_CHANGESTAT_FN(i__binary_formula_net){
   double *inputs = INPUT_PARAM;
   ALLOC_AUX_STORAGE(1, StoreNetAndWtModel, storage); inputs++;
-  WtModel *m = storage->m = unpack_WtModel_as_double(&inputs, nwp);
+  WtModel *m = storage->m = WtModelInitialize(getListElement(mtp->R, "submodel"), nwp, FALSE);
   Network *bnwp = storage->nwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
   double zero=0;
 
@@ -278,8 +275,9 @@ WtI_CHANGESTAT_FN(i_wtSum){
   
   ALLOC_STORAGE(nms, WtModel*, ms);
 
-  for(unsigned int i=0; i<nms; i++){
-    ms[i] = unpack_WtModel_as_double(&inputs, nwp);
+ SEXP submodels = getListElement(mtp->R, "submodels");
+   for(unsigned int i=0; i<nms; i++){
+     ms[i] = WtModelInitialize(VECTOR_ELT(submodels, i), nwp, FALSE);
   }
 }
 

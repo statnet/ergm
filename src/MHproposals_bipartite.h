@@ -13,6 +13,7 @@
 #include "ergm_edgetree.h"
 #include "ergm_changestat.h"
 #include "ergm_model.h"
+#include "ergm_storage.h"
 #include "ergm_MHproposal.h"
 
 MH_P_FN(MH_BipartiteHammingConstantEdges);

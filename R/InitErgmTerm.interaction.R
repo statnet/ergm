@@ -25,11 +25,11 @@
   cn1 <- unlist(lapply(m$terms[seq_len(n1)], "[[", "coef.names"))
   cn2 <- unlist(lapply(m$terms[n1+seq_len(n2)], "[[", "coef.names"))
 
-  inputs <- c(length(cn1), length(cn2), to_ergm_Cdouble(m))
+  inputs <- c(length(cn1), length(cn2))
   
   cn <- outer(cn1,cn2,paste,sep=":")
   
-  list(name="interact", coef.names = cn, inputs=inputs, dependence=!is.dyad.independent(m))
+  list(name="interact", coef.names = cn, inputs=inputs, submodel=m, dependence=!is.dyad.independent(m))
 }
 
 ## This will always be passed with two arguments in arglist, which
@@ -58,9 +58,9 @@
   cn1 <- unlist(lapply(m$terms[seq_len(n1)], "[[", "coef.names"))
   cn2 <- unlist(lapply(m$terms[n1+seq_len(n2)], "[[", "coef.names"))
 
-  inputs <- c(length(cn1), length(cn2), to_ergm_Cdouble(m))
+  inputs <- c(length(cn1), length(cn2))
 
   cn <- c(cn1,cn2,outer(cn1,cn2,paste,sep=":"))
   
-  list(name="main_interact", coef.names = cn, inputs=inputs, dependence=!is.dyad.independent(m))
+  list(name="main_interact", coef.names = cn, inputs=inputs, submodel=m, dependence=!is.dyad.independent(m))
 }

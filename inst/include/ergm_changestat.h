@@ -30,6 +30,7 @@ typedef struct ModelTermstruct {
   double *statcache; /* vector of the same length as dstats */
   void *storage; /* optional space for persistent storage */
   void **aux_storage; /* optional space for persistent public (auxiliary) storage */
+  SEXP R; /* R term object. */
 } ModelTerm;
 
 /****************************************************

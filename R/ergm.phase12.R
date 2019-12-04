@@ -60,9 +60,7 @@ ergm.phase12 <- function(g, model,
              as.integer(Clist$n),
              as.integer(Clist$dir), as.integer(Clist$bipartite),
              # Model settings
-             as.integer(Clist$nterms),
-             as.character(Clist$fnamestring),
-             as.character(Clist$snamestring),
+             Clist$m,
              # Proposal settings
              as.character(proposal$name), as.character(proposal$pkgname),
              as.integer(proposal$arguments$constraints$bd$attribs),

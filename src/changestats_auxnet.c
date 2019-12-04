@@ -11,7 +11,6 @@
 #include "ergm_changestats_auxnet.h"
 #include "ergm_dyad_hashmap.h"
 #include "ergm_dyad_hashmap_utils.h"
-#include "ergm_changestat_operator.h"
 
 // sets aux network to y0 XOR y1
 I_CHANGESTAT_FN(i__discord_net_Network){
@@ -196,8 +195,7 @@ I_CHANGESTAT_FN(i__filter_formula_net){
   I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL));
   GET_STORAGE(Model, m);
 
-  double *inputs = INPUT_PARAM+1;
-  STORAGE = m = unpack_Model_as_double(&inputs, nwp);
+  STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"),  nwp, FALSE);
 
   EXEC_THROUGH_NET_EDGES_PRE(t, h, e, {
       ChangeStats(1, &t, &h, nwp, m);

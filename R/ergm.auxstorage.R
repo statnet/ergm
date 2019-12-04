@@ -49,15 +49,12 @@ ergm.auxstorage <- function(model, nw, response=NULL,..., extra.aux=list(), term
   #
   # aux.aux.outlists is now a nested list in the same form as aux.outlists, but for auxiliaries.
 
-  # Initialize the auxiliary model.
-  aux.model <- structure(list(formula=NULL, coef.names = NULL,
-                          offset = NULL,
-                          terms = NULL, networkstats.0 = NULL, etamap = NULL),
-                         class = "ergm_model")
+  # Append the auxiliary terms to the model.
+  nstatterms <- length(model$terms)
   for(i in seq_along(uniq.aux.outlists)){
     aux.outlist <- uniq.aux.outlists[[i]]
-    aux.model <- updatemodel.ErgmTerm(aux.model, aux.outlist)
-    aux.model$terms[[i]]$inputs[4] <- i-1 # The storage slot belonging to this auxiliary.
+    model <- updatemodel.ErgmTerm(model, aux.outlist)
+    model$terms[[nstatterms+i]]$inputs[4] <- i-1 # The storage slot belonging to this auxiliary.
   }
 
   # Which term is requiring which auxiliary slot? (+1)
@@ -79,11 +76,10 @@ ergm.auxstorage <- function(model, nw, response=NULL,..., extra.aux=list(), term
   for(i in seq_along(aux.aux.outlists)){
     if(length(aux.aux.outlists[[i]])){
       # 4th input is auxiliary's own slot, so its auxiliaries get put into subsequent slots.
-      aux.model$terms[[i]]$inputs[4+seq_len(length(aux.aux.outlists[[i]]))] <- aux.aux.slots[[i]]-1
+      model$terms[[nstatterms+i]]$inputs[4+seq_len(length(aux.aux.outlists[[i]]))] <- aux.aux.slots[[i]]-1
     }
   }
-  
-  model$model.aux <- aux.model
+
   model$slots.extra.aux <- slots.extra.aux
   model
 }

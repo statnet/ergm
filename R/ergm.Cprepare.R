@@ -124,62 +124,16 @@ ergm_Clist.ergm_model <- function(object, ...){
   Clist <- list()
 
   Clist$nterms<-length(mo)
-  Clist$nstats<-0
-  Clist$fnamestring<-""
-  Clist$snamestring<-""
-  Clist$inputs<-numeric(0)
-  
-  Clist$nterms<-length(mo)
-  if (Clist$nterms>0) {
-    for(i in 1:Clist$nterms) {
-      term_i <- mo[[i]]
-      Clist$fnamestring <- paste(Clist$fnamestring, term_i$name)
-      # This lets "pkgname" play the same role as "soname":
-      Clist$snamestring <- paste(Clist$snamestring, 
-                                 if (!is.null(term_i$soname)) {
-                                   term_i$soname
-                                 } else if (!is.null(term_i$pkgname)) {
-                                   term_i$pkgname
-                                 } else stop("ERGM term specifying C function `", term_i$name,"' is missing C library or package name.") )
-      Clist$inputs <- c(Clist$inputs, term_i$inputs)
-      Clist$nstats <- Clist$nstats + term_i$inputs[2]
-    }
-  }
-
-  # Attach the auxiliaries
-  mo <- object$model.aux$terms
-  anterms <- length(mo)
-  Clist$nterms <- Clist$nterms + anterms 
-  if (anterms>0) {
-    for(i in 1:anterms) {
-      term_i <- mo[[i]]
-      Clist$fnamestring <- paste(Clist$fnamestring, term_i$name)
-      # This lets "pkgname" play the same role as "soname":
-      Clist$snamestring <- paste(Clist$snamestring, 
-                                 if (!is.null(term_i$soname)) {
-                                   term_i$soname
-                                 } else if (!is.null(term_i$pkgname)) {
-                                   term_i$pkgname
-                                 } else stop("ERGM term specifying C function `", term_i$name,"' is missing C library or package name.") )
-      Clist$inputs <- c(Clist$inputs, term_i$inputs)
-      # Auxiliaries do not produce stats.
-    }
-  }
-
+  Clist$nstats<-nparam(object,canonical=TRUE)
   Clist$slots.extra.aux <- unlist(object$slots.extra.aux)
-  
-  while (substring(Clist$fnamestring, 1, 1)==" ")
-    Clist$fnamestring <- substring(Clist$fnamestring, 2)
-  while (substring(Clist$snamestring, 1, 1)==" ")
-    Clist$snamestring <- substring(Clist$snamestring, 2)
-
-  
   
   # We don't care about diagnostics for terms that are not being
   # estimated.
   Clist$diagnosable <- ! object$etamap$offsetmap
   names(Clist$diagnosable) <- object$coef.names
-    
+
+  Clist$m <- object
+
   class(Clist) <- c("ergm_model.ergm_Clist", "ergm_Clist")
   Clist
 }

@@ -13,7 +13,7 @@
 #include "ergm_edgetree.h"
 #include "ergm_changestat.h"
 #include "ergm_storage.h"
-#include "ergm_changestat_operator.h"
+#include "ergm_model.h"
 
 /* Brief API description:
 
@@ -72,8 +72,7 @@ typedef struct StoreAuxnet_s{Network *inwp, *onwp;
 #define ON_AUXNET(name)                                                 \
   I_CHANGESTAT_FN(i_on ## name){                                        \
     GET_AUX_STORAGE(StoreAuxnet, auxnet);                               \
-    double *inputs = INPUT_PARAM + 1;                                   \
-    STORAGE = unpack_Model_as_double(&inputs, auxnet->onwp);            \
+    STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"),  auxnet->onwp, FALSE); \
   }                                                                     \
                                                                         \
   C_CHANGESTAT_FN(c_on ## name){                                        \

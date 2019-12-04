@@ -9,6 +9,7 @@
  */
 #ifndef _ERGM_MODEL_H_
 #define _ERGM_MODEL_H_
+#include "ergm_util.h"
 
 #include "ergm_edgetree.h"
 #include "ergm_changestat.h"
@@ -19,6 +20,7 @@
    total numbers of terms, parameters, and statistics along with a pointer
    to an array of ModelTerm structures.  */
 typedef struct Modelstruct {
+  SEXP R; /* Pointer to the R ergm_model object. */
   ModelTerm *termarray; /* array of size n_terms; see changestat.h
                            for ModelTerm definition */
   int n_terms;
@@ -110,8 +112,7 @@ typedef struct Modelstruct {
   }
 
 
-Model* ModelInitialize (const char *fnames, const char *sonames, double **inputs,
-			int n_terms, Network *nwp, Rboolean noinit_s);
+Model* ModelInitialize(SEXP mR, Network *nwp, Rboolean noinit_s);
 
 void ModelDestroy(Network *nwp, Model *m);
 

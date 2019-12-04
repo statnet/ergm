@@ -1,34 +1,3 @@
-#' @describeIn to_ergm_Cdouble
-#'
-#' @return 
-#' The `character` method takes a character vector of length 1 and returns a numerical vector encoding it. It concatenates the following:
-#' * the number of characters in the input string and
-#' * the characters in the input string encoded using ASCII encoding.
-#' 
-#' This is intended to be decoded by `unpack_str_as_double()` C routines.
-#'
-#' @export
-to_ergm_Cdouble.character <- function(x, ...) c(nchar(x), strtoi(charToRaw(x), 16L))
-
-#' @describeIn to_ergm_Cdouble
-#'
-#' @return
-#' The `ergm_model` method returns a numeric vector concatenating the following:
-#' * number of terms in the model;
-#' * length of and encoded string of term names;
-#' * length of and encoded string of library names; and
-#' * vector of intputs to the model.
-#' 
-#' This is intended to be decoded by `unpack_*Model_as_double()` C routines.
-#'
-#' @export
-to_ergm_Cdouble.ergm_model <- function(x, ...){
-  x <- ergm_Clist(x)
-  fnames <- to_ergm_Cdouble(x$fnamestring)
-  snames <- to_ergm_Cdouble(x$snamestring)
-  c(x$nterms, fnames, snames, x$inputs)
-}
-
 #' Wrap a submodel's curved specification (if present) for output from an `InitErgmTerm` or `InitWtErgmTerm`.
 #'
 #' Given a `ergm` model and (optionally) a function with which to wrap
@@ -76,11 +45,10 @@ InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
   else nw <- ergm.getnetwork(f)
 
   m <- ergm_model(f, nw, response=response,...)
-  inputs <- to_ergm_Cdouble(m)
   
   gs <- summary(m)
   
-  c(list(name="passthrough_term", coef.names = paste0('passthrough(',m$coef.names,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs),
+  c(list(name="passthrough_term", coef.names = paste0('passthrough(',m$coef.names,')'), submodel=m, dependence=!is.dyad.independent(m), emptynwstats = gs),
     passthrough.curved.ergm_model(m, function(x) paste0('passthrough(',x,')')))
 }
 
@@ -109,11 +77,10 @@ InitErgmTerm.Label <- function(nw, arglist, response=NULL, ...){
   else nw <- ergm.getnetwork(f)
 
   m <- ergm_model(f, nw, response=response,...)
-  inputs <- to_ergm_Cdouble(m)
 
   gs <- summary(m)
 
-  c(list(name="passthrough_term", coef.names = renamer(m$coef.names), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs),
+  c(list(name="passthrough_term", coef.names = renamer(m$coef.names), submodel=m, dependence=!is.dyad.independent(m), emptynwstats = gs),
     passthrough.curved.ergm_model(m, renamer))
 }
 
@@ -131,11 +98,10 @@ InitErgmTerm..submodel <- function(nw, arglist, response=NULL, ...){
   else nw <- ergm.getnetwork(f)
 
   m <- ergm_model(f, nw, response=response,...)
-  inputs <- to_ergm_Cdouble(m)
 
   gs <- summary(m)
 
-  list(name="_submodel_term", coef.names = c(), inputs=inputs, dependence=!is.dyad.independent(m))
+  list(name="_submodel_term", coef.names = c(), submodel=m, dependence=!is.dyad.independent(m))
 }
 
 ## Tests .submodel().
@@ -151,7 +117,6 @@ InitErgmTerm.submodel.test <- function(nw, arglist, response=NULL, ...){
   else nw <- ergm.getnetwork(f)
 
   m <- ergm_model(f, nw, response=response,...)
-  inputs <- to_ergm_Cdouble(m)
 
   gs <- summary(m)
   
@@ -173,11 +138,10 @@ InitErgmTerm..summary <- function(nw, arglist, response=NULL, ...){
   else nw <- ergm.getnetwork(f)
 
   m <- ergm_model(f, nw, response=response,...)
-  inputs <- to_ergm_Cdouble(m)
 
   gs <- summary(m)
 
-  list(name="_summary_term", coef.names = c(), inputs=c(inputs,gs), dependence=!is.dyad.independent(m))
+  list(name="_summary_term", coef.names = c(), inputs=c(gs), submodel=m, dependence=!is.dyad.independent(m))
 }
 
 
@@ -211,7 +175,6 @@ InitErgmTerm.F <- function(nw, arglist, response=NULL, ...){
   else nw <- ergm.getnetwork(f)
 
   m <- ergm_model(f, nw,...)
-  inputs <- to_ergm_Cdouble(m)
   
   gs <- summary(m)
 
@@ -220,7 +183,7 @@ InitErgmTerm.F <- function(nw, arglist, response=NULL, ...){
   
   c(list(name="on_filter_formula_net",
          coef.names = paste0(form.name,'(',m$coef.names,')'),
-         inputs=inputs,
+         submodel = m,
          dependence=!is.dyad.independent(m),
          emptynwstats = gs,
          auxiliaries=auxiliaries),
@@ -242,12 +205,11 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, response=NULL, ...){
   m <- ergm_model(f, nw, response=response,...)
 
   if(!is.dyad.independent(m) || nparam(m)!=1) stop("The filter test formula must be dyad-independent and have exactly one statistc.")
-  inputs <- to_ergm_Cdouble(m)
 
   gs <- summary(m)
   if(gs!=0) stop("At this time, the filter test term must have the property that its dyadwise components are 0 for 0-valued relations. This limitation may be removed in the future.")
   
-  list(name="_filter_formula_net", inputs=c(inputs), depenence=FALSE)
+  list(name="_filter_formula_net", submodel=m, depenence=FALSE)
 }
 
 InitErgmTerm.Offset <- function(nw, arglist, response=NULL, ...){
@@ -278,15 +240,13 @@ InitErgmTerm.Offset <- function(nw, arglist, response=NULL, ...){
 
   coef0 <- .constrain_init(m, rep(0, nparams))
   coef0[selection] <- offset.coef
-    
-  inputs <- to_ergm_Cdouble(m)
-  
+
   gs <- summary(m)
   
   params <- rep(list(NULL), sum(!selection))
   names(params) <- parnames[!selection]
   
-  list(name="passthrough_term", coef.names = coefnames, inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs,
+  list(name="passthrough_term", coef.names = coefnames, submodel=m, dependence=!is.dyad.independent(m), emptynwstats = gs,
        params=params,
        map = function(x, n, ...){
          coef0[!selection] <- x
@@ -455,7 +415,6 @@ InitErgmTerm.Undir <- function(nw, arglist, response=NULL, ...){
   if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
 
   m <- ergm_model(f, nw,...)
-  inputs <- to_ergm_Cdouble(m)
   
   gs <- summary(m)
 
@@ -463,7 +422,7 @@ InitErgmTerm.Undir <- function(nw, arglist, response=NULL, ...){
   
   c(list(name="on_undir_net",
          coef.names = paste0('Undir(',m$coef.names,',',rule,')'),
-         inputs=c(inputs),
+         submodel = m,
          dependence=!is.dyad.independent(m) || rule%in%c("weak","strong"),
          emptynwstats = gs,
          auxiliaries=auxiliaries),
@@ -485,7 +444,6 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
     m <- ergm_model(f, nw, response=response,...)
     if(is.curved(m)) ergm_Init_inform("Model ", sQuote(deparse(f,500)), " appears to be curved. Its canonical parameters will be used.")
     list(model = m,
-         inputs = to_ergm_Cdouble(m),
          gs = summary(m))
   })
 
@@ -505,7 +463,7 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
   nparam <- nparams[1]
 
   inputs <- unlist(wl%>%map(t))
-  inputs <- c(nf, length(inputs), inputs, ms %>% map("inputs") %>% unlist())
+  inputs <- c(nf, length(inputs), inputs)
 
   label <- if(length(a$label)==1) paste0(a$label,seq_len(nparam)) else a$label
   coef.names <- paste0('Sum:',label)
@@ -516,7 +474,7 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
     reduce(`+`) %>%
     c()
   
-  list(name="Sum", coef.names = coef.names, inputs=inputs, dependence=!all(ms %>% map("model") %>% map_lgl(is.dyad.independent)), emptynwstats = gs)
+  list(name="Sum", coef.names = coef.names, inputs=inputs, submodels = map(ms, "model"), dependence=!all(ms %>% map("model") %>% map_lgl(is.dyad.independent)), emptynwstats = gs)
 }
 
 InitErgmTerm.S <- function(nw, arglist, response=NULL, ...){
@@ -581,7 +539,6 @@ InitErgmTerm.S <- function(nw, arglist, response=NULL, ...){
   if(length(f)==2) f <- nonsimp_update.formula(f, snw~.)
 
   m <- ergm_model(f, snw,...)
-  inputs <- to_ergm_Cdouble(m)
 
   gs <- summary(m)
 
@@ -591,7 +548,7 @@ InitErgmTerm.S <- function(nw, arglist, response=NULL, ...){
 
   c(list(name="on_subgraph_net",
          coef.names = paste0('S(',selname,'):',m$coef.names),
-         inputs=c(inputs),
+         submodel = m,
          dependence=!is.dyad.independent(m),
          emptynwstats = gs,
          auxiliaries=auxiliaries),

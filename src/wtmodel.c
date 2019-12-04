@@ -85,25 +85,22 @@ void WtModelDestroy(WtNetwork *nwp, WtModel *m)
  Allocate and initialize the WtModelTerm structures, each of which contains
  all necessary information about how to compute one term in the model.
 *****************/
-WtModel* WtModelInitialize (const char *fnames, const char *sonames, double **inputsp,
-                            int n_terms, WtNetwork *nwp, Rboolean noinit_s) {
-  int i, j, k, l, offset;
-  WtModelTerm *thisterm;
-  char *fn,*sn;
-  WtModel *m;
-  double *inputs=*inputsp;
+WtModel* WtModelInitialize (SEXP mR, WtNetwork *nwp, Rboolean noinit_s) {
+  SEXP terms = getListElement(mR, "terms");
   
-  m = (WtModel *) Calloc(1, WtModel);
-  m->n_terms = n_terms;
+  WtModel *m = (WtModel *) Calloc(1, WtModel);
+  unsigned int n_terms = m->n_terms = length(terms);
   m->termarray = (WtModelTerm *) Calloc(n_terms, WtModelTerm);
   m->dstatarray = (double **) Calloc(n_terms, double *);
   m->n_stats = 0;
   m->n_aux = 0;
   m->n_u = 0;
   m->noinit_s = noinit_s;
-  for (l=0; l < n_terms; l++) {
-      thisterm = m->termarray + l;
-      
+  m->R = mR;
+  for (unsigned int l=0; l < m->n_terms; l++) {
+    WtModelTerm *thisterm = m->termarray + l;
+    thisterm->R = VECTOR_ELT(terms, l);
+
       /* Initialize storage and term functions to NULL. */
       thisterm->storage = NULL;
       thisterm->aux_storage = NULL;
@@ -123,29 +120,22 @@ WtModel* WtModelInitialize (const char *fnames, const char *sonames, double **in
       statistics.  Similarly, sonames points to a character string
       containing the names of the shared object files associated with
       the respective functions.*/
-      for (; *fnames == ' ' || *fnames == 0; fnames++);
-      for (i = 0; fnames[i] != ' ' && fnames[i] != 0; i++);
-      for (; *sonames == ' ' || *sonames == 0; sonames++);
-      for (j = 0; sonames[j] != ' ' && sonames[j] != 0; j++);
+      const char *fname = FIRSTCHAR(getListElement(thisterm->R, "name")),
+        *sn = FIRSTCHAR(getListElement(thisterm->R, "pkgname"));
       /* Extract the required string information from the relevant sources */
-      fn = Calloc(i+3, char);
+      char *fn = Calloc(strlen(fname)+3, char);
       fn[1]='_';
-      for(k=0;k<i;k++)
-        fn[k+2]=fnames[k];
-      fn[i+2]='\0';
-      /* fn is now the string 'd_[name]', where [name] is fname */
-/*      Rprintf("fn: %s\n",fn); */
-      sn = Calloc(j+1, char);
-      sn=memcpy(sn,sonames,j);
-      sn[j]='\0';
-
+      strcpy(fn+2, fname);
+      /* fn is now the string ' _[name]', where [name] is fname */
 
       /*  Second, process the values in
           model$option[[optionnumber]]$inputs; See comments in
           InitErgm.r for details. This needs to be done before change
           statistica are found, to determine whether a term is
           auxiliary.  */
-      offset = (int) *inputs++;  /* Set offset for attr vector */
+      double *inputs=REAL(getListElement(thisterm->R, "inputs"));
+
+      unsigned int offset = (unsigned int) *inputs++;  /* Set offset for attr vector */
       /*      Rprintf("offsets: %f %f %f %f %f\n",inputs[0],inputs[1],inputs[2], */
       /*		         inputs[3],inputs[4],inputs[5]); */
       thisterm->nstats = (int) *inputs++; /* If >0, # of statistics returned. If ==0 an auxiliary statistic. */
@@ -237,22 +227,16 @@ WtModel* WtModelInitialize (const char *fnames, const char *sonames, double **in
 	(void (*)(unsigned int type, void *data, WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
 
       
-      /*Clean up by freeing sn and fn*/
+      /*Clean up by freeing fn*/
       Free(fn);
-      Free(sn);
 
       /*  The lines above set thisterm->inputparams to point to needed input
       parameters (or zero if none) and then increments the inputs pointer so
       that it points to the inputs for the next model option for the next pass
       through the loop. */
-
-      fnames += i;
-      sonames += j;
-    }
+  }
   
   m->workspace = (double *) Calloc(m->n_stats, double);
-  for(i=0; i < m->n_stats; i++)
-    m->workspace[i] = 0.0;
 
   unsigned int pos = 0;
   WtFOR_EACH_TERM(m){
@@ -263,11 +247,9 @@ WtModel* WtModelInitialize (const char *fnames, const char *sonames, double **in
   /* Allocate auxiliary storage and put a pointer to it on every model term. */
   if(m->n_aux){
     m->termarray[0].aux_storage = (void *) Calloc(m->n_aux, void *);
-    for(l=1; l < n_terms; l++)
+    for(unsigned int l=1; l < n_terms; l++)
       m->termarray[l].aux_storage = m->termarray[0].aux_storage;
   }
-  
-  *inputsp = inputs;
 
   /* Trigger initial storage update */
   WtInitStats(nwp, m);

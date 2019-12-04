@@ -12,11 +12,10 @@ InitErgmTerm.NodematchFilter <- function(nw, arglist, response=NULL, ...){
   else nw <- ergm.getnetwork(f)
 
   m <- ergm_model(f, nw, response=response,...)
-  inputs <- to_ergm_Cdouble(m)
 
   gs <- summary(m)
 
-  c(list(name="on_blockdiag_net", coef.names = paste0('NodematchFilter(',m$coef.names,a$attrname,')'), inputs=inputs, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries=~.blockdiag.net(a$attrname)),
+  c(list(name="on_blockdiag_net", coef.names = paste0('NodematchFilter(',m$coef.names,a$attrname,')'), submodel=m, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries=~.blockdiag.net(a$attrname)),
     passthrough.curved.ergm_model(m, function(x) paste0('NodematchFilter(',x,a$attrname,')')))
 }
 

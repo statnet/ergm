@@ -61,9 +61,7 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
              as.integer(Clist$dir),
              as.integer(Clist$bipartite),
              # Model settings
-             as.integer(Clist$nterms),
-             as.character(Clist$fnamestring),
-             as.character(Clist$snamestring),
+             Clist$m,
              # Numeric inputs
              as.double(Clist$inputs),
              # Network state
@@ -104,9 +102,7 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
              as.integer(Clist$dir),
              as.integer(Clist$bipartite),
              # Model settings
-             as.integer(Clist$nterms),
-             as.character(Clist$fnamestring),
-             as.character(Clist$snamestring),
+             Clist$m,
              # Numeric inputs
              as.double(Clist$inputs),
              # Network state

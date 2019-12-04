@@ -9,7 +9,8 @@
  */
 #ifndef _ERGM_UTIL_H_
 #define _ERGM_UTIL_H_
-unsigned char *unpack_str_as_double(double **x);
+#include<Rinternals.h>
+#include<string.h>
 
 static inline double dotprod(double *x, double *y, unsigned int n){
   double out = 0;
@@ -72,6 +73,3 @@ static inline SEXP getListElement(SEXP list, const char *str){
   }
 
 #endif 
-
-
-

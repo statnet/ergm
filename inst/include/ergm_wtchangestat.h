@@ -29,7 +29,11 @@ typedef struct WtModelTermstruct {
   double *statcache; /* vector of the same length as dstats */
   void *storage; /* optional space for persistent storage */
   void **aux_storage; /* optional space for persistent public (auxiliary) storage */
+  SEXP R; /* R term object. */
 } WtModelTerm;
+
+/****************************************************
+ Macros to make life easier when writing C code for change statistics:  */
 
 #include "ergm_changestat_common.do_not_include_directly.h"
 

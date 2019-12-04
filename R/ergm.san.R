@@ -364,9 +364,7 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
             as.integer(Clist$n),
             as.integer(Clist$dir), as.integer(Clist$bipartite),
             # Model settings
-            as.integer(Clist$nterms),
-            as.character(Clist$fnamestring),
-            as.character(Clist$snamestring),
+            Clist$m,
             # Proposal settings
             as.character(proposal$name), as.character(proposal$pkgname),
             as.integer(proposal$arguments$constraints$bd$attribs),
@@ -394,9 +392,7 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
             as.integer(Clist$n),
             as.integer(Clist$dir), as.integer(Clist$bipartite),
             # Model settings
-            as.integer(Clist$nterms),
-            as.character(Clist$fnamestring),
-            as.character(Clist$snamestring),
+            Clist$m,
             # Proposal settings
             as.character(proposal$name), as.character(proposal$pkgname),
             # Numeric inputs

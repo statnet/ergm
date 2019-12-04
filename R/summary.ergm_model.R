@@ -64,9 +64,7 @@ summary.ergm_model <- function(object, nw=NULL, response=NULL,...){
                 as.integer(Clist$dir),
                 as.integer(Clist$bipartite),
                 # Model settings
-                as.integer(Clist$nterms),
-                as.character(Clist$fnamestring),
-                as.character(Clist$snamestring),
+                Clist$m,
                 # Numeric inputs
                 as.double(Clist$inputs),
                 # Network state
@@ -84,9 +82,7 @@ summary.ergm_model <- function(object, nw=NULL, response=NULL,...){
                 as.integer(Clist$dir),
                 as.integer(Clist$bipartite),
                 # Model settings
-                as.integer(Clist$nterms),
-                as.character(Clist$fnamestring),
-                as.character(Clist$snamestring),
+                Clist$m,
                 # Numeric inputs
                 as.double(Clist$inputs),
                 # Network state

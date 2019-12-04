@@ -9,6 +9,7 @@
  */
 #ifndef _ERGM_WTMODEL_H_
 #define _ERGM_WTMODEL_H_
+#include "ergm_util.h"
 
 #include "ergm_wtedgetree.h"
 #include "ergm_wtchangestat.h"
@@ -19,6 +20,7 @@
    total numbers of terms, parameters, and statistics along with a pointer
    to an array of WtModelTerm structures.  */
 typedef struct WtModelstruct {
+  SEXP R; /* Pointer to the R ergm_model object. */
   WtModelTerm *termarray; /* array of size n_terms; see changestat.h
                            for WtModelTerm definition */
   int n_terms;
@@ -109,8 +111,7 @@ typedef struct WtModelstruct {
     WtSetEdge((tail), (head), (weight), (nwp));				\
   }
 
-WtModel* WtModelInitialize (const char *fnames, const char *sonames, double **inputs,
-			int n_terms, WtNetwork *nwp, Rboolean noinit_s);
+WtModel* WtModelInitialize(SEXP mR, WtNetwork *nwp, Rboolean noinit_s);
 
 void WtModelDestroy(WtNetwork *nwp, WtModel *m);
 
