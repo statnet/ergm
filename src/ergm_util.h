@@ -19,6 +19,23 @@ static inline double dotprod(double *x, double *y, unsigned int n){
   return out;
 }
 
+/*
+  This function is based on
+  https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Handling-lists
+
+  I'm putting it here pending its terms of use being clarified in https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17664 .
+*/
+static inline SEXP getListElement(SEXP list, const char *str){
+  SEXP elmt = R_NilValue, names = getAttrib(list, R_NamesSymbol);
+
+  for (int i = 0; i < length(list); i++)
+    if(strcmp(CHAR(STRING_ELT(names, i)), str) == 0) {
+      elmt = VECTOR_ELT(list, i);
+      break;
+    }
+  return elmt;
+}
+
 #define TOINTSXP(x) x = PROTECT(coerceVector(x, INTSXP))
 #define TOREALSXP(x) x = PROTECT(coerceVector(x, REALSXP))
 #define FIRSTCHAR(x) CHAR(STRING_ELT(x, 0))
