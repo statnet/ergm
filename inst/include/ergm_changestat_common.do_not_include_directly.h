@@ -64,5 +64,6 @@ double my_choose(double n, int r);
 #define ZERO_ALL_CHANGESTATS(...) memset(CHANGE_STAT, 0, N_CHANGE_STATS*sizeof(double))
 
 /* Not often used */
-#define INPUT_ATTRIB (mtp->attrib)
-
+#define DINPUT_ATTRIB (mtp->attrib)
+#define INPUT_ATTRIB DINPUT_ATTRIB
+#define IINPUT_ATTRIB (mtp->iattrib)
