@@ -3193,7 +3193,7 @@ InitErgmTerm.nodefactor<-function (nw, arglist, ..., version=packageVersion("erg
   inputs <- nodepos
   list(name="nodefactor",                                        #required
        coef.names = paste("nodefactor", paste(attrname,collapse="."), u, sep="."), #required
-       inputs = inputs,
+       iinputs = inputs,
        dependence = FALSE, # So we don't use MCMC if not necessary
        minval = 0
        )

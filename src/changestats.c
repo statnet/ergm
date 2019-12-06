@@ -3772,8 +3772,8 @@ C_CHANGESTAT_FN(c_nodecov) {
 *****************/
 C_CHANGESTAT_FN(c_nodefactor) { 
   double s = edgeflag ? -1.0 : 1.0;
-  int tailpos = INPUT_ATTRIB[tail-1];
-  int headpos = INPUT_ATTRIB[head-1];
+  int tailpos = IINPUT_ATTRIB[tail-1];
+  int headpos = IINPUT_ATTRIB[head-1];
   if (tailpos!=-1) CHANGE_STAT[tailpos] += s;
   if (headpos!=-1) CHANGE_STAT[headpos] += s;
 }
