@@ -22,7 +22,7 @@ test_that("Simulation for NodematchFilter() and F()", {
                     NodematchFilter(~edges+odegree(0:5)+idegree(0:5)+triangle,"group")+
                     F(~edges+odegree(0:5)+idegree(0:5)+triangle,~nodematch("group")), statsonly=TRUE, nsim=20, control=control.simulate.formula(MCMC.burnin=0, MCMC.interval=1), coef=numeric(42))
 
-  expect_equivalent(out[,1:14], out[,15:28])
+  expect_equivalent(out[,1:14],out[,15:28])
   expect_equivalent(out[,1:14],out[,29:42])
 })
 

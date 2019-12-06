@@ -70,7 +70,7 @@ MAP_TOGGLE_MAXTOGGLES_FN(map_toggle_maxtoggles__blockdiag_net){
 
 MAP_TOGGLE_FN(map_toggle__blockdiag_net){
   ModelTerm *mtp = auxnet->mtp;
-  double *b = INPUT_PARAM;
+  double *b = INPUT_PARAM-1; // tail and head are indexed from 1.
   MAP_TOGGLE_PROPAGATE_IF(b[tail]==b[head]);
 }
 

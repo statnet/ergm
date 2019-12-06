@@ -124,7 +124,7 @@ F_CHANGESTAT_FN(f__union_net_Network){
 
 I_CHANGESTAT_FN(i__blockdiag_net){
   I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL));
-  double *b = INPUT_PARAM;
+  double *b = INPUT_PARAM-1; // tail and head are indexed from 1.
 
   for(Vertex tail=1; tail <= N_TAILS; tail++){
     Vertex head;
@@ -138,7 +138,7 @@ I_CHANGESTAT_FN(i__blockdiag_net){
 
 U_CHANGESTAT_FN(u__blockdiag_net){
   GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  double *b = INPUT_PARAM;
+  double *b = INPUT_PARAM-1; // tail and head are indexed from 1.
 
   if(b[tail]==b[head])
     ToggleKnownEdge(tail, head, auxnet->onwp, edgeflag);
