@@ -32,7 +32,8 @@
 /** Public (auxiliary) storage **/
 
 // Pointer to an auxiliary term's assigned storage slot or to the storage slot of a statistic's first requested auxiliary.
-#define AUX_STORAGE (mtp->aux_storage[(unsigned int) INPUT_PARAM[0]])
+#define AUX_STORAGE (mtp->aux_storage[mtp->aux_slots[0]])
+#define N_AUX (mtp->n_aux)
 
 // Should be used by auxiliary terms' initialization or updating function only.
 // 1. Declares a stored_type *store_into.
@@ -44,7 +45,7 @@
 // 2. Assigns pointer to its assigned auxiliary storage slot (or, for a statistic, its first requested auxiliary) to store_into.
 #define GET_AUX_STORAGE(stored_type, store_into) stored_type *store_into = AUX_STORAGE;
 // Pointer to the storage slot of a statistic's ind'th requested auxiliary.
-#define AUX_STORAGE_NUM(ind) (mtp->aux_storage[(unsigned int) INPUT_PARAM[ind]])
+#define AUX_STORAGE_NUM(ind) (mtp->aux_storage[mtp->aux_slots[ind]])
 // 1. Declares a stored_type *store_into.
 // 2. Assigns pointer to its ind'th requested auxiliary to store_into.
 #define GET_AUX_STORAGE_NUM(stored_type, store_into, ind) stored_type *store_into = AUX_STORAGE_NUM(ind);

@@ -165,19 +165,20 @@ call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ..., term
 
 updatemodel.ErgmTerm <- function(model, outlist) { 
   if (!is.null(outlist)) { # Allow for no change if outlist==NULL
-    model$coef.names <- c(model$coef.names, outlist$coef.names)
-    termnumber <- 1+length(model$terms)
-    tmp <- attr(outlist$inputs, "ParamsBeforeCov")
-    # If the term requests auxiliaries or is an auxiliary itself,
-    # reserve space in the input vector. Note that these go before
-    # the parameters.
-    aux.space <-
-      NVL3(outlist$auxiliaries, length(list_rhs.formula(.)), 0) + # requests auxiliaries
-      (length(outlist$coef.names)==0) # is an auxiliary
 
-    outlist$inputs <- as.double(c(ifelse(is.null(tmp), 0, tmp)+aux.space,
-                                  length(outlist$coef.names),
-                                  length(outlist$inputs)+aux.space, rep(NA, aux.space), outlist$inputs))
+    # If the term requests auxiliaries or is an auxiliary itself,
+    # reserve space in the input vector.
+    attr(outlist, "aux.slots") <-
+      integer(NVL3(outlist$auxiliaries, length(list_rhs.formula(.)), 0) + # requests auxiliaries
+              (length(outlist$coef.names)==0)) # is an auxiliary
+
+    # Ensure input vectors are of the correct storage mode. (There is
+    # no checking on C level at this time.)
+    outlist$inputs <- as.double(outlist$inputs)
+    outlist$iinputs <- as.integer(outlist$iinputs)
+
+    # Update global model properties.
+    model$coef.names <- c(model$coef.names, outlist$coef.names)
     model$minval <- c(model$minval,
                       rep(NVL(outlist$minval, -Inf),
                           length.out=length(outlist$coef.names)))
@@ -186,7 +187,7 @@ updatemodel.ErgmTerm <- function(model, outlist) {
                           length.out=length(outlist$coef.names)))
     model$duration <- max(model$duration,
                           NVL(outlist$duration, FALSE))
-    model$terms[[termnumber]] <- outlist
+    model$terms[[length(model$terms)+1]] <- outlist
   }
   model
 }
@@ -213,9 +214,9 @@ c.ergm_model <- function(...){
     omap <- integer(length(o$terms[oaux]))
     for(i in seq_along(o$terms[oaux]))
       if(!onaux[i]){ # sink
-        omap[i] <- o$terms[oaux][[i]]$inputs[4L] <- NA
+        omap[i] <- attr(o$terms[oaux][[i]],"aux.slots")[1L] <- NA
       }else{ # non-sink
-        omap[i] <- o$terms[oaux][[i]]$inputs[4L] <- pos
+        omap[i] <- attr(o$terms[oaux][[i]],"aux.slots")[1L] <- pos
         pos <- pos+1L
       }
 
@@ -223,9 +224,9 @@ c.ergm_model <- function(...){
     mmap <- integer(length(m$terms[maux]))
     for(i in seq_along(m$terms[maux]))
       if(!mnaux[i]){ # sink
-        mmap[i] <- m$terms[maux][[i]]$inputs[4L] <- NA
+        mmap[i] <- attr(m$terms[maux][[i]],"aux.slots")[1L] <- NA
       }else{ # non-sink
-        mmap[i] <- m$terms[maux][[i]]$inputs[4L] <- pos
+        mmap[i] <- attr(m$terms[maux][[i]],"aux.slots")[1L] <- pos
         pos <- pos+1L
       }
 
@@ -238,24 +239,24 @@ c.ergm_model <- function(...){
     
     # Now, give them indices again:
     for(i in seq_along(sinks))
-      sinks[[i]]$inputs[[4L]] <- pos + i - 1L
+      attr(sinks[[i]],"aux.slots")[[1L]] <- pos + i - 1L
 
     # Remap client term pointers:
     for(i in seq_along(o$terms[!oaux]))
       if((tnaux <- naux(o$terms[!oaux][[i]]))!=0L)
-        o$terms[!oaux][[i]]$inputs[3L+seq_len(tnaux)] <- omap[o$terms[!oaux][[i]]$inputs[3L+seq_len(tnaux)]+1L]
+        attr(o$terms[!oaux][[i]],"aux.slots")[seq_len(tnaux)] <- omap[attr(o$terms[!oaux][[i]],"aux.slots")[seq_len(tnaux)]+1L]
     o$slots.extra.aux <-  map(o$slots.extra.aux, ~omap[.+1L])
     
     for(i in seq_along(m$terms[!maux]))
       if((tnaux <- naux(m$terms[!maux][[i]]))!=0L)
-        m$terms[!maux][[i]]$inputs[3+seq_len(tnaux)] <- mmap[m$terms[!maux][[i]]$inputs[3L+seq_len(tnaux)]+1L]
+        attr(m$terms[!maux][[i]],"aux.slots")[seq_len(tnaux)] <- mmap[attr(m$terms[!maux][[i]],"aux.slots")[seq_len(tnaux)]+1L]
     m$slots.extra.aux <- map(m$slots.extra.aux, ~mmap[.+1L])
 
     # Similarly for auxiliaries as clients.
     for(i in seq_along(o$terms[oaux])[onaux!=0L])
-      o$terms[oaux][[i]]$inputs[4L+seq_len(onaux[i])] <- omap[o$terms[oaux][[i]]$inputs[4L+seq_len(onaux[i])]+1L]
+      attr(o$terms[oaux][[i]],"aux.slots")[1L+seq_len(onaux[i])] <- omap[attr(o$terms[oaux][[i]],"aux.slots")[1L+seq_len(onaux[i])]+1L]
     for(i in seq_along(m$terms[maux])[mnaux!=0L])
-      m$terms[maux][[i]]$inputs[4L+seq_len(mnaux[i])] <- mmap[m$terms[maux][[i]]$inputs[4L+seq_len(mnaux[i])]+1L]
+      attr(m$terms[maux][[i]],"aux.slots")[1L+seq_len(mnaux[i])] <- mmap[attr(m$terms[maux][[i]],"aux.slots")[1L+seq_len(mnaux[i])]+1L]
 
     # New auxiliary list is o-nonsinks, m-nonsinks, and sinks.
     o$terms <- c(o$terms[!oaux], m$terms[!maux], o$terms[oaux][onaux!=0L], m$terms[maux][mnaux!=0L], sinks)

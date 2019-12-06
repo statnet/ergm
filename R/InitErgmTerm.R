@@ -1072,7 +1072,7 @@ InitErgmTerm.b2dsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   # partners is just the number of b2 dyads, which is nb2*(nb2-1)/2
   emptynwstats[d==0] <- nb2*(nb2-1)/2 
   
-  list(name="ddspbwrap", coef.names=paste("b2dsp",d,sep=""), inputs=c(if(!cache.sp) -1, typecode, d), 
+  list(name="ddspbwrap", coef.names=paste("b2dsp",d,sep=""), inputs=c(typecode, d), 
        emptynwstats=emptynwstats, minval = 0, maxval = nb2*(nb2-1)/2, dependence = TRUE, auxiliaries=if(cache.sp) .spcache.aux(type) else NULL)
 }
 
@@ -1725,9 +1725,9 @@ InitErgmTerm.dsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   if(is.directed(nw)){dname <- "tdsp"}else{dname <- "dsp"}
   if (!is.null(emptynwstats)){
     list(name=dname, coef.names=paste("dsp",d,sep=""),
-         inputs=c(if(!cache.sp) -1, d), emptynwstats=emptynwstats, minval = 0, auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)
+         inputs=c(d), emptynwstats=emptynwstats, minval = 0, auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)
   }else{
-    list(name=dname, coef.names=paste("dsp",d,sep=""),inputs=c(if(!cache.sp) -1, d), minval = 0, auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)
+    list(name=dname, coef.names=paste("dsp",d,sep=""),inputs=c(d), minval = 0, auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)
   }
 }
 
@@ -1853,7 +1853,7 @@ InitErgmTerm.esp<-function(nw, arglist, cache.sp=TRUE, ...) {
   if(ld==0){return(NULL)}
   if(is.directed(nw)){dname <- "tesp"}else{dname <- "esp"}
 
-  list(name=dname, coef.names=paste("esp",d,sep=""), inputs=c(if(!cache.sp) -1, d), minval=0, auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)
+  list(name=dname, coef.names=paste("esp",d,sep=""), inputs=c(d), minval=0, auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)
 }
 
 
@@ -2151,7 +2151,7 @@ InitErgmTerm.gwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
     if(ld==0){return(NULL)}
     if(is.directed(nw)){dname <- "tdsp"}else{dname <- "dsp"}
     c(list(name=dname, coef.names=paste("gwdsp#",d,sep=""), 
-           inputs=c(if(!cache.sp) -1, d), params=list(gwdsp=NULL,gwdsp.decay=decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL),
+           inputs=c(d), params=list(gwdsp=NULL,gwdsp.decay=decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL),
       GWDECAY)
   }else{
     if(is.null(a$decay)) stop("Term 'gwdsp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
@@ -2161,7 +2161,7 @@ InitErgmTerm.gwdsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
     else  # fixed == TRUE
       coef.names <- paste("gwdsp.fixed.",decay,sep="")
   if(is.directed(nw)){dname <- "gwtdsp"}else{dname <- "gwdsp"}
-  list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)
+  list(name=dname, coef.names=coef.names, inputs=c(decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)
   }
 }
 
@@ -2194,14 +2194,14 @@ InitErgmTerm.gwesp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
     if(ld==0){return(NULL)}
     if(is.directed(nw)){dname <- "tesp"}else{dname <- "esp"}
     c(list(name=dname, coef.names=paste("esp#",d,sep=""), 
-         inputs=c(if(!cache.sp) -1, d), params=list(gwesp=NULL,gwesp.decay=decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL),
+         inputs=c(d), params=list(gwesp=NULL,gwesp.decay=decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL),
       GWDECAY)
   }else{
     if(is.null(a$decay)) stop("Term 'gwesp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
     coef.names <- paste("gwesp.fixed.",decay,sep="")
     if(is.directed(nw)){dname <- "gwtesp"}else{dname <- "gwesp"}
-    list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)
+    list(name=dname, coef.names=coef.names, inputs=c(decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)
   }
 }
 
@@ -2295,14 +2295,14 @@ InitErgmTerm.gwnsp<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...) {
     if(ld==0){return(NULL)}
     if(is.directed(nw)){dname <- "tnsp"}else{dname <- "nsp"}
     c(list(name=dname, coef.names=paste("nsp#",d,sep=""),
-           inputs=c(if(!cache.sp) -1, d), params=list(gwnsp=NULL,gwnsp.decay=decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL),
+           inputs=c(d), params=list(gwnsp=NULL,gwnsp.decay=decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL),
       GWDECAY)
   }else{
     if(is.null(decay)) stop("Term 'gwnsp' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
     coef.names <- paste("gwnsp.fixed.",decay,sep="")
     if(is.directed(nw)){dname <- "gwtnsp"}else{dname <- "gwnsp"}
-    list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)    
+    list(name=dname, coef.names=coef.names, inputs=c(decay), auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)    
   }
 }
 
@@ -3548,10 +3548,10 @@ InitErgmTerm.nsp<-function(nw, arglist, cache.sp=TRUE, ...) {
   if(is.directed(nw)){dname <- "tnsp"}else{dname <- "nsp"}
 
   if (!is.null(emptynwstats)) {
-    list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, d),
+    list(name=dname, coef.names=coef.names, inputs=c(d),
          emptynwstats=emptynwstats, minval=0, auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)
   } else {
-    list(name=dname, coef.names=coef.names, inputs=c(if(!cache.sp) -1, d), minval=0, auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)
+    list(name=dname, coef.names=coef.names, inputs=c(d), minval=0, auxiliaries=if(cache.sp) .spcache.aux(if(is.directed(nw)) "OTP" else "UTP") else NULL)
   }
 }
 

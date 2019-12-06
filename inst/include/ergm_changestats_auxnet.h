@@ -50,7 +50,7 @@ MAP_TOGGLE_MAXTOGGLES_FN(map_toggle_maxtoggles__intersect_net_Network){
 
 MAP_TOGGLE_FN(map_toggle__intersect_net_Network){
   ModelTerm *mtp = auxnet->mtp;
-  double *ref_el = INPUT_PARAM + 1;
+  double *ref_el = INPUT_PARAM;
   MAP_TOGGLE_PROPAGATE_IF(dEdgeListSearch(tail, head, ref_el));
 }
 
@@ -60,7 +60,7 @@ MAP_TOGGLE_MAXTOGGLES_FN(map_toggle_maxtoggles__union_net_Network){
 
 MAP_TOGGLE_FN(map_toggle__union_net_Network){
   ModelTerm *mtp = auxnet->mtp;
-  double *ref_el = INPUT_PARAM + 1;
+  double *ref_el = INPUT_PARAM;
   MAP_TOGGLE_PROPAGATE_IF(!dEdgeListSearch(tail, head, ref_el));
 }
 
@@ -99,7 +99,7 @@ MAP_TOGGLE_MAXTOGGLES_FN(map_toggle_maxtoggles__undir_net){
 
 MAP_TOGGLE_FN(map_toggle__undir_net){
   ModelTerm *mtp = auxnet->mtp;
-  unsigned int rule = INPUT_PARAM[1];
+  unsigned int rule = INPUT_PARAM[0];
   Network *nwp = auxnet->inwp;
   __undir_net_totoggle;
   if(totoggle){

@@ -21,14 +21,19 @@ typedef struct WtModelTermstruct {
   void (*s_func)(struct WtModelTermstruct*, WtNetwork*);
   void (*x_func)(unsigned int type, void *data, struct WtModelTermstruct*, WtNetwork*);
   double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
+  int *iattrib; /* Ptr to vector of integer covariates (if necessary; generally unused) */
   int nstats;   /* Number of change statistics to be returned */
   unsigned int statspos; /* Position of this term's stats in the workspace vector. */ 
   double *dstats; /* ptr to change statistics returned */
-  int ninputparams; /* Number of input parameters passed to function */
-  double *inputparams; /* ptr to input parameters passed */
+  int ninputparams; /* Number of double input parameters passed to function */
+  double *inputparams; /* ptr to double input parameters passed */
+  int niinputparams; /* Number of integer input parameters passed to function */
+  int *iinputparams; /* ptr to integer input parameters passed */
   double *statcache; /* vector of the same length as dstats */
   void *storage; /* optional space for persistent storage */
   void **aux_storage; /* optional space for persistent public (auxiliary) storage */
+  unsigned int n_aux;
+  unsigned int *aux_slots;
   SEXP R; /* R term object. */
 } WtModelTerm;
 

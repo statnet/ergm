@@ -54,8 +54,11 @@ MHProposal *MHProposalInitialize(SEXP pR, Network *nwp, void **aux_storage){
   MHp->u_func=(void (*)(Vertex tail, Vertex head, MHProposal*, Network*, Rboolean)) R_FindSymbol(fn,sn,NULL);
   fn[1] = 'f';
   MHp->f_func=(void (*)(MHProposal*, Network*)) R_FindSymbol(fn,sn,NULL);
-    
-  MHp->inputs=REAL(getListElement(pR, "inputs"));
+
+  SEXP tmp = getListElement(pR, "inputs");
+  MHp->inputs=length(tmp) ? REAL(tmp) : NULL;
+  tmp = getListElement(pR, "iinputs");
+  MHp->iinputs=length(tmp) ? INTEGER(tmp) : NULL;
 
   SEXP bdR = getListElement(getListElement(getListElement(pR, "arguments"),"constraints"),"bd");
   MHp->bd=DegreeBoundInitialize(INTEGER(getListElement(bdR,"attribs")),

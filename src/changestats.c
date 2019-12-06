@@ -1916,7 +1916,7 @@ C_CHANGESTAT_FN(c_diff) {
  changestat: d_dsp
 *****************/
 C_CHANGESTAT_FN(c_dsp) { 
-  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   Edge e, f;
   int j, echange;
   int L2tu, L2uh;
@@ -1941,7 +1941,7 @@ C_CHANGESTAT_FN(c_dsp) {
 	  }
 	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j+1];
+          deg = (Vertex)INPUT_PARAM[j];
           CHANGE_STAT[j] += ((L2tu + echange == deg)
           - (L2tu == deg));
         }
@@ -1963,7 +1963,7 @@ C_CHANGESTAT_FN(c_dsp) {
 	  }
 	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j+1];
+          deg = (Vertex)INPUT_PARAM[j];
           CHANGE_STAT[j] += ((L2tu + echange == deg)
           - (L2tu == deg));
         }
@@ -1985,7 +1985,7 @@ C_CHANGESTAT_FN(c_dsp) {
 	  }
 	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j+1];
+          deg = (Vertex)INPUT_PARAM[j];
           CHANGE_STAT[j] += ((L2uh + echange == deg)
           - (L2uh == deg));
         }
@@ -2007,7 +2007,7 @@ C_CHANGESTAT_FN(c_dsp) {
 	  }
 	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j+1];
+          deg = (Vertex)INPUT_PARAM[j];
           CHANGE_STAT[j] += ((L2uh + echange == deg)
           - (L2uh == deg));
         }
@@ -2148,7 +2148,7 @@ S_CHANGESTAT_FN(s_edges) {
  changestat: c_esp
 *****************/
 C_CHANGESTAT_FN(c_esp) { 
-  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   Edge e, f;
   int j, echange;
   int L2th, L2tu, L2uh;
@@ -2180,7 +2180,7 @@ C_CHANGESTAT_FN(c_esp) {
 	  }
 	}
 	for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j+1];
+          deg = (Vertex)INPUT_PARAM[j];
           CHANGE_STAT[j] += ((L2tu + echange == deg)
           - (L2tu == deg));
           CHANGE_STAT[j] += ((L2uh + echange == deg)
@@ -2210,7 +2210,7 @@ C_CHANGESTAT_FN(c_esp) {
 	  }
 	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j+1];
+          deg = (Vertex)INPUT_PARAM[j];
           CHANGE_STAT[j] += ((L2tu + echange == deg)
           - (L2tu == deg));
           CHANGE_STAT[j] += ((L2uh + echange == deg)
@@ -2219,7 +2219,7 @@ C_CHANGESTAT_FN(c_esp) {
       }
     }
     for(j = 0; j < N_CHANGE_STATS; j++){
-      deg = (Vertex)INPUT_PARAM[j+1];
+      deg = (Vertex)INPUT_PARAM[j];
 /*      CHANGE_STAT[j] += echange*((L2th == deg) - (0 == deg)); */
       CHANGE_STAT[j] += echange*(L2th == deg);
     }
@@ -2341,7 +2341,7 @@ C_CHANGESTAT_FN(c_gwdegree_by_attr) {
  changestat: d_gwdsp
 ****************/
 C_CHANGESTAT_FN(c_gwdsp) {
-  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   Edge e, f;
   int echange, ochange;
   int L2tu, L2uh;
@@ -2349,7 +2349,7 @@ C_CHANGESTAT_FN(c_gwdsp) {
   double alpha, oneexpa, cumchange;
   
   /* *** don't forget tail -> head */    
-  alpha = INPUT_PARAM[1];
+  alpha = INPUT_PARAM[0];
   oneexpa = 1.0-exp(-alpha);
   
     cumchange=0.0;
@@ -2495,14 +2495,14 @@ C_CHANGESTAT_FN(c_gwb2degree_by_attr) {
  changestat: d_gwesp
 *****************/
 C_CHANGESTAT_FN(c_gwesp) { 
-  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   Edge e, f;
   int  echange, ochange;
   int L2th, L2tu, L2uh;
   Vertex u, v;
   double alpha, oneexpa, cumchange;
   
-  alpha = INPUT_PARAM[1];
+  alpha = INPUT_PARAM[0];
   oneexpa = 1.0-exp(-alpha);
   
   /* *** don't forget tail -> head */    
@@ -2619,7 +2619,7 @@ C_CHANGESTAT_FN(c_gwidegree_by_attr) {
  changestat: d_gwnsp
 *****************/
 C_CHANGESTAT_FN(c_gwnsp) { 
-  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   Edge e, f;
   int  echange, ochange;
   int L2th, L2tu, L2uh;
@@ -2627,7 +2627,7 @@ C_CHANGESTAT_FN(c_gwnsp) {
   double alpha, oneexpa, cumchange;
   
 
-  alpha = INPUT_PARAM[1];
+  alpha = INPUT_PARAM[0];
   oneexpa = 1.0-exp(-alpha);
   
     cumchange=0.0;
@@ -2829,13 +2829,13 @@ C_CHANGESTAT_FN(c_gwodegree_by_attr) {
  changestat: d_gwtdsp
 ****************/
 C_CHANGESTAT_FN(c_gwtdsp) {
-  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   Edge e, f;
   int  echange, ochange, L2tu, L2uh;
   Vertex u, v;
   double alpha, oneexpa, cumchange;
   
-  alpha = INPUT_PARAM[1];
+  alpha = INPUT_PARAM[0];
   oneexpa = 1.0-exp(-alpha);
   
   /* *** don't forget tail -> head */    
@@ -2879,14 +2879,14 @@ C_CHANGESTAT_FN(c_gwtdsp) {
  changestat: d_gwtesp
 *****************/
 C_CHANGESTAT_FN(c_gwtesp) { 
-  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   Edge e, f;
   int  echange, ochange;
   int L2th, L2tu, L2uh;
   Vertex u, v;
   double alpha, oneexpa, cumchange;
   
-  alpha = INPUT_PARAM[1];
+  alpha = INPUT_PARAM[0];
   oneexpa = 1.0-exp(-alpha);
   
   /* *** don't forget tail -> head */    
@@ -2943,7 +2943,7 @@ C_CHANGESTAT_FN(c_gwtesp) {
  changestat: d_gwtnsp
 *****************/
 C_CHANGESTAT_FN(c_gwtnsp) { 
-  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   Edge e, f;
   int  echange, ochange;
   int L2th, L2tu, L2uh;
@@ -2951,7 +2951,7 @@ C_CHANGESTAT_FN(c_gwtnsp) {
   double alpha, oneexpa, cumchange;
   
 
-  alpha = INPUT_PARAM[1];
+  alpha = INPUT_PARAM[0];
   oneexpa = 1.0-exp(-alpha);
   
   /* *** don't forget tail -> head */    
@@ -3879,7 +3879,7 @@ C_CHANGESTAT_FN(c_nodeofactor) {
  changestat: d_nsp
 *****************/
 C_CHANGESTAT_FN(c_nsp) { 
-  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   Edge e, f;
   int j, echange;
   int L2th, L2tu, L2uh;
@@ -3904,7 +3904,7 @@ C_CHANGESTAT_FN(c_nsp) {
 	  }
 	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j+1];
+          deg = (Vertex)INPUT_PARAM[j];
           CHANGE_STAT[j] += ((L2tu + echange == deg)
           - (L2tu == deg));
         }
@@ -3926,7 +3926,7 @@ C_CHANGESTAT_FN(c_nsp) {
 	  }
 	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j+1];
+          deg = (Vertex)INPUT_PARAM[j];
           CHANGE_STAT[j] += ((L2tu + echange == deg)
           - (L2tu == deg));
         }
@@ -3948,7 +3948,7 @@ C_CHANGESTAT_FN(c_nsp) {
 	  }
 	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j+1];
+          deg = (Vertex)INPUT_PARAM[j];
           CHANGE_STAT[j] += ((L2uh + echange == deg)
           - (L2uh == deg));
         }
@@ -3970,7 +3970,7 @@ C_CHANGESTAT_FN(c_nsp) {
 	  }
 	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j+1];
+          deg = (Vertex)INPUT_PARAM[j];
           CHANGE_STAT[j] += ((L2uh + echange == deg)
           - (L2uh == deg));
         }
@@ -4001,7 +4001,7 @@ C_CHANGESTAT_FN(c_nsp) {
 	  }
 	}
 	for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j+1];
+          deg = (Vertex)INPUT_PARAM[j];
           CHANGE_STAT[j] -= ((L2tu + echange == deg)
           - (L2tu == deg));
           CHANGE_STAT[j] -= ((L2uh + echange == deg)
@@ -4031,7 +4031,7 @@ C_CHANGESTAT_FN(c_nsp) {
 	  }
 	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j+1];
+          deg = (Vertex)INPUT_PARAM[j];
           CHANGE_STAT[j] -= ((L2tu + echange == deg)
           - (L2tu == deg));
           CHANGE_STAT[j] -= ((L2uh + echange == deg)
@@ -4040,7 +4040,7 @@ C_CHANGESTAT_FN(c_nsp) {
       }
     }
     for(j = 0; j < N_CHANGE_STATS; j++){
-      deg = (Vertex)INPUT_PARAM[j+1];
+      deg = (Vertex)INPUT_PARAM[j];
 /*      CHANGE_STAT[j] -= echange*((L2th == deg) - (0 == deg)); */
       CHANGE_STAT[j] -= echange*(L2th == deg);
     }
@@ -4567,7 +4567,7 @@ C_CHANGESTAT_FN(c_sociality) {
  changestat: d_tdsp
 *****************/
 C_CHANGESTAT_FN(c_tdsp) {
-  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   Edge e, f;
   int j, echange, L2tu, L2uh;
   Vertex deg, u, v;
@@ -4586,7 +4586,7 @@ C_CHANGESTAT_FN(c_tdsp) {
 	  }
 	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j+1];
+          deg = (Vertex)INPUT_PARAM[j];
           CHANGE_STAT[j] += ((L2tu + echange == deg) - (L2tu == deg));
         }
       }
@@ -4603,7 +4603,7 @@ C_CHANGESTAT_FN(c_tdsp) {
 	  }
 	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j+1];
+          deg = (Vertex)INPUT_PARAM[j];
           CHANGE_STAT[j] += ((L2uh + echange == deg) - (L2uh == deg));
         }
       }
@@ -4617,7 +4617,7 @@ C_CHANGESTAT_FN(c_tdsp) {
  changestat: d_tesp
 *****************/
 C_CHANGESTAT_FN(c_tesp) { 
-  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   Edge e, f;
   int j, echange;
   int L2th, L2tu, L2uh;
@@ -4640,7 +4640,7 @@ C_CHANGESTAT_FN(c_tesp) {
 	  }
 	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j+1];
+          deg = (Vertex)INPUT_PARAM[j];
           CHANGE_STAT[j] += ((L2tu + echange == deg) - (L2tu == deg));
         }
       }
@@ -4661,13 +4661,13 @@ C_CHANGESTAT_FN(c_tesp) {
 	  }
 	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j+1];
+          deg = (Vertex)INPUT_PARAM[j];
           CHANGE_STAT[j] += ((L2uh + echange == deg) - (L2uh == deg));
         }
       }
     }
     for(j = 0; j < N_CHANGE_STATS; j++){
-      deg = (Vertex)INPUT_PARAM[j+1];
+      deg = (Vertex)INPUT_PARAM[j];
       CHANGE_STAT[j] += echange*(L2th == deg);
     }
 }
@@ -4733,7 +4733,7 @@ C_CHANGESTAT_FN(c_threetrail) {
  changestat: d_tnsp
 *****************/
 C_CHANGESTAT_FN(c_tnsp) { 
-  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   Edge e, f;
   int j, echange;
   int L2th, L2tu, L2uh;
@@ -4754,7 +4754,7 @@ C_CHANGESTAT_FN(c_tnsp) {
 	  }
 	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j+1];
+          deg = (Vertex)INPUT_PARAM[j];
           CHANGE_STAT[j] += ((L2tu + echange == deg) - (L2tu == deg));
         }
       }
@@ -4771,7 +4771,7 @@ C_CHANGESTAT_FN(c_tnsp) {
 	  }
 	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j+1];
+          deg = (Vertex)INPUT_PARAM[j];
           CHANGE_STAT[j] += ((L2uh + echange == deg) - (L2uh == deg));
         }
       }
@@ -4793,7 +4793,7 @@ C_CHANGESTAT_FN(c_tnsp) {
 	  }
 	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j+1];
+          deg = (Vertex)INPUT_PARAM[j];
           CHANGE_STAT[j] -= ((L2tu + echange == deg) - (L2tu == deg));
         }
       }
@@ -4814,13 +4814,13 @@ C_CHANGESTAT_FN(c_tnsp) {
 	  }
 	}
         for(j = 0; j < N_CHANGE_STATS; j++){
-          deg = (Vertex)INPUT_PARAM[j+1];
+          deg = (Vertex)INPUT_PARAM[j];
           CHANGE_STAT[j] -= ((L2uh + echange == deg) - (L2uh == deg));
         }
       }
     }
     for(j = 0; j < N_CHANGE_STATS; j++){
-      deg = (Vertex)INPUT_PARAM[j+1];
+      deg = (Vertex)INPUT_PARAM[j];
       CHANGE_STAT[j] -= echange*(L2th == deg);
     }
 

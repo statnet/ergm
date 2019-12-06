@@ -13,6 +13,7 @@
 
 /* Storage utilities for MH proposal clients */
 #define MH_STORAGE (/* (stored_type *) */ MHp->storage)
+#define MH_N_AUX (MHp->n_aux)
 #define MH_ALLOC_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (MH_STORAGE = Calloc(nmemb, stored_type));
 #define MH_GET_STORAGE(stored_type, store_into) stored_type *store_into = (stored_type *) MH_STORAGE;
 
@@ -28,6 +29,7 @@
 #ifndef STRICT_MH_HEADERS
 
 #define STORAGE MH_STORAGE
+#define N_AUX MH_N_AUX
 #define ALLOC_STORAGE MH_ALLOC_STORAGE
 #define GET_STORAGE MH_GET_STORAGE
 #define AUX_STORAGE MH_AUX_STORAGE

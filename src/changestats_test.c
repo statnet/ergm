@@ -66,7 +66,7 @@ C_CHANGESTAT_FN(c_disc_inter_union_net_Network){
   GET_AUX_STORAGE_NUM(StoreAuxnet, uauxnet, 2);
 
   int nwedge = IS_OUTEDGE(tail, head)!=0;
-  int refedge = dEdgeListSearch(tail, head, INPUT_PARAM+3)!=0;
+  int refedge = dEdgeListSearch(tail, head, INPUT_PARAM)!=0;
   
   CHANGE_STAT[0] = nwedge!=refedge ? -1 : +1;
   CHANGE_STAT[1] = refedge ? (nwedge ? -1 : +1) : 0;
@@ -85,7 +85,7 @@ C_CHANGESTAT_FN(c_disc_inter_union_net_DyadSet){
   GET_AUX_STORAGE_NUM(StoreDyadSetAndRefEL, ustorage, 2);
 
   int nwedge = IS_OUTEDGE(tail, head)!=0;
-  int refedge = dEdgeListSearch(tail, head, INPUT_PARAM+3)!=0;
+  int refedge = dEdgeListSearch(tail, head, INPUT_PARAM)!=0;
   
   CHANGE_STAT[0] = nwedge!=refedge ? -1 : +1;
   CHANGE_STAT[1] = refedge ? (nwedge ? -1 : +1) : 0;

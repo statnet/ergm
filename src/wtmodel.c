@@ -128,20 +128,32 @@ WtModel* WtModelInitialize (SEXP mR, WtNetwork *nwp, Rboolean noinit_s) {
       strcpy(fn+2, fname);
       /* fn is now the string ' _[name]', where [name] is fname */
 
-      /*  Second, process the values in
-          model$option[[optionnumber]]$inputs; See comments in
-          InitErgm.r for details. This needs to be done before change
-          statistica are found, to determine whether a term is
-          auxiliary.  */
-      double *inputs=REAL(getListElement(thisterm->R, "inputs"));
+      /* Extract the term inputs. */
 
-      unsigned int offset = (unsigned int) *inputs++;  /* Set offset for attr vector */
-      /*      Rprintf("offsets: %f %f %f %f %f\n",inputs[0],inputs[1],inputs[2], */
-      /*		         inputs[3],inputs[4],inputs[5]); */
-      thisterm->nstats = (int) *inputs++; /* If >0, # of statistics returned. If ==0 an auxiliary statistic. */
-      
-      /*      Rprintf("l %d offset %d thisterm %d\n",l,offset,thisterm->nstats); */
-      
+      /* Double input vector with an optional attribute shift. */
+      SEXP tmp = getListElement(thisterm->R, "inputs");
+      thisterm->ninputparams = length(tmp);
+      thisterm->inputparams = thisterm->ninputparams ? REAL(tmp) : NULL;
+
+      unsigned int offset = asInteger(getAttrib(tmp, install("ParamsBeforeCov")));  /* Set offset for attr vector */
+      thisterm->attrib = thisterm->inputparams + offset; /* Ptr to attributes */
+
+      /* Integer input vector with an optional attribute shift. */
+      tmp = getListElement(thisterm->R, "iinputs");
+      thisterm->niinputparams = length(tmp);
+      thisterm->iinputparams = thisterm->ninputparams ? INTEGER(tmp) : NULL;
+
+      offset = asInteger(getAttrib(tmp, install("ParamsBeforeCov")));  /* Set offset for attr vector */
+      thisterm->attrib = thisterm->inputparams + offset; /* Ptr to attributes */
+
+      /* Number of statistics. */
+      thisterm->nstats = length(getListElement(thisterm->R, "coef.names")); /* If >0, # of statistics returned. If ==0 an auxiliary statistic. */
+
+      /* Set auxiliary counts and values. */
+      tmp = getAttrib(thisterm->R, install("aux.slots"));
+      thisterm->n_aux = length(tmp);
+      thisterm->aux_slots = (unsigned int *) INTEGER(tmp);
+
       /*  Update the running total of statistics */
       m->n_stats += thisterm->nstats; 
       m->dstatarray[l] = (double *) Calloc(thisterm->nstats, double);
@@ -151,13 +163,6 @@ WtModel* WtModelInitialize (SEXP mR, WtNetwork *nwp, Rboolean noinit_s) {
 					       can be modified but 
 					       m->dstatarray[l] cannot be.  */
       thisterm->statcache = (double *) Calloc(thisterm->nstats, double);
-
-      thisterm->ninputparams = (int) *inputs++; /* Set # of inputs */
-      /* thisterm->inputparams is a ptr to inputs */
-      thisterm->inputparams = (thisterm->ninputparams ==0) ? 0 : inputs; 
-      
-      thisterm->attrib = inputs + offset; /* Ptr to attributes */
-      inputs += thisterm->ninputparams;  /* Skip to next model option */
 
       /* If the term's nstats==0, it is auxiliary: it does not affect
 	 acceptance probabilities or contribute any
@@ -229,11 +234,6 @@ WtModel* WtModelInitialize (SEXP mR, WtNetwork *nwp, Rboolean noinit_s) {
       
       /*Clean up by freeing fn*/
       Free(fn);
-
-      /*  The lines above set thisterm->inputparams to point to needed input
-      parameters (or zero if none) and then increments the inputs pointer so
-      that it points to the inputs for the next model option for the next pass
-      through the loop. */
   }
   
   m->workspace = (double *) Calloc(m->n_stats, double);

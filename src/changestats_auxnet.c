@@ -15,7 +15,7 @@
 // sets aux network to y0 XOR y1
 I_CHANGESTAT_FN(i__discord_net_Network){
   I_AUXNET(NetworkCopy(nwp));
-  double *ref_el = INPUT_PARAM + 1;
+  double *ref_el = INPUT_PARAM;
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
@@ -39,7 +39,7 @@ F_CHANGESTAT_FN(f__discord_net_Network){
 // The storage auxnet->onwp should be initialized as y0&y1 at the end.
 I_CHANGESTAT_FN(i__intersect_net_Network){
   I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL));
-  double *ref_el = INPUT_PARAM + 1;
+  double *ref_el = INPUT_PARAM;
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
@@ -52,7 +52,7 @@ I_CHANGESTAT_FN(i__intersect_net_Network){
 
 U_CHANGESTAT_FN(u__intersect_net_Network){
   GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  double *ref_el = INPUT_PARAM + 1;
+  double *ref_el = INPUT_PARAM;
   // only toggle if the edge is in y0. otherwise changing y1 won't matter.
   if(dEdgeListSearch(tail, head, ref_el))
     ToggleEdge(tail, head, auxnet->onwp);
@@ -66,7 +66,7 @@ F_CHANGESTAT_FN(f__intersect_net_Network){
 I_CHANGESTAT_FN(i__intersect_net_toggles_in_list_Network){
   //Rprintf("allocating intersect_net_tog\n");
   I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL));
-  double *ref_el = INPUT_PARAM + 1;
+  double *ref_el = INPUT_PARAM;
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
@@ -92,7 +92,7 @@ F_CHANGESTAT_FN(f__intersect_net_toggles_in_list_Network){
 // The storage auxnet->onwp should be initialized as y0|y1 at the end.
 I_CHANGESTAT_FN(i__union_net_Network){
   I_AUXNET(NetworkCopy(nwp));
-  double *ref_el = INPUT_PARAM + 1;
+  double *ref_el = INPUT_PARAM;
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
@@ -105,7 +105,7 @@ I_CHANGESTAT_FN(i__union_net_Network){
 
 U_CHANGESTAT_FN(u__union_net_Network){
   GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  double *ref_el = INPUT_PARAM + 1;
+  double *ref_el = INPUT_PARAM;
   // If the edge is in y0, changing y1 won't matter.
   if(dEdgeListSearch(tail, head, ref_el)==0)
     ToggleEdge(tail, head, auxnet->onwp);
@@ -163,7 +163,7 @@ F_CHANGESTAT_FN(f__blockdiag_net){
 I_CHANGESTAT_FN(i__undir_net){
   I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, FALSE, BIPARTITE, FALSE, 0, NULL));
 
-  unsigned int rule = INPUT_PARAM[1];
+  unsigned int rule = INPUT_PARAM[0];
   EXEC_THROUGH_NET_EDGES_PRE(tail, head, e, {
       __undir_net_totoggle;
       if(totoggle) AddEdgeToTrees(MIN(tail,head), MAX(tail,head), auxnet->onwp);
@@ -172,7 +172,7 @@ I_CHANGESTAT_FN(i__undir_net){
 
 U_CHANGESTAT_FN(u__undir_net){
   GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  unsigned int rule = INPUT_PARAM[1];
+  unsigned int rule = INPUT_PARAM[0];
 
   __undir_net_totoggle;
   if(totoggle) ToggleEdge(MIN(tail,head),MAX(tail,head),auxnet->onwp);
@@ -238,7 +238,7 @@ F_CHANGESTAT_FN(f__filter_formula_net){
 
 I_CHANGESTAT_FN(i__subgraph_net){
   ALLOC_STORAGE(2, double*, thmap);
-  double *inputs = INPUT_PARAM+1;
+  double *inputs = INPUT_PARAM;
   unsigned int type = *(inputs++);
   /* These will be overwritten in the following switch statement. */
   Vertex n=0, bip=0;

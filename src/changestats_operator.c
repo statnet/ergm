@@ -65,7 +65,7 @@ D_CHANGESTAT_FN(d_submodel_test_term){
 
 
 I_CHANGESTAT_FN(i__summary_term){
-  double *inputs = INPUT_PARAM+1;
+  double *inputs = INPUT_PARAM;
   GET_STORAGE(Model, m); // No need to allocate, since we just need a pointer.
 
   // Initialize empty network.
@@ -116,7 +116,7 @@ C_CHANGESTAT_FN(c_summary_test_term){
   GET_AUX_STORAGE(double, stats);
   CHANGE_STAT[0] = 0;
   /* Rprintf("Test .summary auxiliary: ["); */
-  for(unsigned int i=0; i<INPUT_PARAM[1]; i++){
+  for(unsigned int i=0; i<INPUT_PARAM[0]; i++){
     Rprintf(" %f", stats[i]);
   }
   Rprintf(" \n");
@@ -126,7 +126,7 @@ C_CHANGESTAT_FN(c_summary_test_term){
 F_CHANGESTAT_FN(f_summary_test_term){
   GET_AUX_STORAGE(double, stats);
   /* Rprintf("Test .summary auxiliary (last): ["); */
-  for(unsigned int i=0; i<INPUT_PARAM[1]; i++) Rprintf(" %f", stats[i]);
+  for(unsigned int i=0; i<INPUT_PARAM[0]; i++) Rprintf(" %f", stats[i]);
   Rprintf(" \n");
   /* Rprintf(" ]\n"); */
 }

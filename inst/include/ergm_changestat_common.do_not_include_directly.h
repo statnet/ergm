@@ -53,8 +53,12 @@ double my_choose(double n, int r);
 #define N_CHANGE_STATS (mtp->nstats)
 
 /* Vector of values passed via "inputs" from R */
-#define INPUT_PARAM (mtp->inputparams)
-#define N_INPUT_PARAMS (mtp->ninputparams) /* Number of inputs passed */
+#define INPUT_PARAM DINPUT_PARAM
+#define N_INPUT_PARAMS N_DINPUT_PARAMS /* Number of inputs passed */
+#define DINPUT_PARAM (mtp->inputparams)
+#define N_DINPUT_PARAMS (mtp->ninputparams) /* Number of inputs passed */
+#define IINPUT_PARAM (mtp->iinputparams)
+#define N_IINPUT_PARAMS (mtp->niinputparams) /* Number of inputs passed */
 
 /* Set all changestats to zero at start of function: takes arbitrary arguments, for backwards compatibility. */
 #define ZERO_ALL_CHANGESTATS(...) memset(CHANGE_STAT, 0, N_CHANGE_STATS*sizeof(double))

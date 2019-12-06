@@ -83,8 +83,7 @@ WtF_CHANGESTAT_FN(f_import_binary_term_sum){
 */
 
 WtI_CHANGESTAT_FN(i_import_binary_term_nonzero){
-  double *inputs = INPUT_PARAM;
-  GET_AUX_STORAGE(Network, bnwp); inputs++;
+  GET_AUX_STORAGE(Network, bnwp);
   GET_STORAGE(Model, m); // Only need the pointer, no allocation needed.
 
   STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"),  bnwp, FALSE);
@@ -130,8 +129,7 @@ WtF_CHANGESTAT_FN(f_import_binary_term_nonzero){
 */
 
 WtI_CHANGESTAT_FN(i_import_binary_term_form){
-  double *inputs = INPUT_PARAM;
-  GET_AUX_STORAGE(StoreNetAndWtModel, storage); inputs++;
+  GET_AUX_STORAGE(StoreNetAndWtModel, storage);
   Network *bnwp = storage->nwp;
 
   GET_STORAGE(Model, m); // Only need the pointer, no allocation needed.
@@ -213,8 +211,7 @@ WtF_CHANGESTAT_FN(f__binary_nonzero_net){
 
 
 WtI_CHANGESTAT_FN(i__binary_formula_net){
-  double *inputs = INPUT_PARAM;
-  ALLOC_AUX_STORAGE(1, StoreNetAndWtModel, storage); inputs++;
+  ALLOC_AUX_STORAGE(1, StoreNetAndWtModel, storage);
   WtModel *m = storage->m = WtModelInitialize(getListElement(mtp->R, "submodel"), nwp, FALSE);
   Network *bnwp = storage->nwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
   double zero=0;

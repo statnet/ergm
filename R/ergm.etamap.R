@@ -76,7 +76,7 @@ ergm.etamap <- function(model) {
     return(etamap)
   }
   for (i in 1:length(model$terms)) {
-    j <- model$terms[[i]]$inputs[2]
+    j <- length(model$terms[[i]]$coef.names)
     if(j==0) next # Auxiliary: no parameters or statistics.
     if(model$offset[i]){
      etamap$offsetmap <- c(etamap$offsetmap, rep(TRUE,j))

@@ -56,6 +56,11 @@ WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage
     
   MHp->inputs=REAL(getListElement(pR, "inputs"));
 
+  SEXP tmp = getListElement(pR, "inputs");
+  MHp->inputs=length(tmp) ? REAL(tmp) : NULL;
+  tmp = getListElement(pR, "iinputs");
+  MHp->iinputs=length(tmp) ? INTEGER(tmp) : NULL;
+
   /*Clean up by freeing sn and fn*/
   Free(fn);
 

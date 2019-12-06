@@ -54,7 +54,7 @@ ergm.auxstorage <- function(model, nw, response=NULL,..., extra.aux=list(), term
   for(i in seq_along(uniq.aux.outlists)){
     aux.outlist <- uniq.aux.outlists[[i]]
     model <- updatemodel.ErgmTerm(model, aux.outlist)
-    model$terms[[n.stat.terms+i]]$inputs[4L] <- i-1L # The storage slot belonging to this auxiliary.
+    attr(model$terms[[n.stat.terms+i]],"aux.slots")[1L] <- i-1L # The storage slot belonging to this auxiliary.
   }
 
   # Which term is requiring which auxiliary slot? (+1)
@@ -64,7 +64,7 @@ ergm.auxstorage <- function(model, nw, response=NULL,..., extra.aux=list(), term
   for(i in seq_along(aux.outlists)){
     if(length(aux.outlists[[i]])){
       if(i<=n.stat.terms) # If it's a model term.
-        model$terms[[i]]$inputs[3L+seq_len(length(aux.outlists[[i]]))] <- aux.slots[[i]]-1L
+        attr(model$terms[[i]],"aux.slots")[seq_len(length(aux.outlists[[i]]))] <- aux.slots[[i]]-1L
       else # If it's some other entity requesting auxiliaries.
         slots.extra.aux[[i-n.stat.terms]] <- aux.slots[[i]]-1L
     }
@@ -76,8 +76,8 @@ ergm.auxstorage <- function(model, nw, response=NULL,..., extra.aux=list(), term
   
   for(i in seq_along(aux.aux.outlists)){
     if(length(aux.aux.outlists[[i]])){
-      # 4th input is auxiliary's own slot, so its auxiliaries get put into subsequent slots.
-      model$terms[[n.stat.terms+i]]$inputs[4L+seq_len(length(aux.aux.outlists[[i]]))] <- aux.aux.slots[[i]]-1L
+      # 1st slot is the auxiliary's own slot, so its auxiliaries get put into subsequent slots.
+      attr(model$terms[[n.stat.terms+i]], "aux.slots")[1L+seq_len(length(aux.aux.outlists[[i]]))] <- aux.aux.slots[[i]]-1L
     }
   }
 

@@ -52,7 +52,7 @@ F_CHANGESTAT_FN(f__discord_isociomatrix){
 I_CHANGESTAT_FN(i__discord_net_DyadSet){
   ALLOC_AUX_STORAGE(1, StoreDyadSetAndRefEL, storage);
   StoreDyadSet *dnwp = storage->nwp = NetworkToDyadSet(nwp);
-  double *ref_el = storage->ref_el = INPUT_PARAM + 1;
+  double *ref_el = storage->ref_el = INPUT_PARAM;
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
@@ -78,7 +78,7 @@ F_CHANGESTAT_FN(f__discord_net_DyadSet){
 I_CHANGESTAT_FN(i__intersect_net_DyadSet){
   ALLOC_AUX_STORAGE(1, StoreDyadSetAndRefEL, storage);
   StoreDyadSet *dnwp = storage->nwp = kh_init(DyadSet); dnwp->directed=DIRECTED;
-  double *ref_el = storage->ref_el = INPUT_PARAM + 1;
+  double *ref_el = storage->ref_el = INPUT_PARAM;
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
@@ -108,7 +108,7 @@ F_CHANGESTAT_FN(f__intersect_net_DyadSet){
 I_CHANGESTAT_FN(i__intersect_net_toggles_in_list_DyadSet){
   ALLOC_AUX_STORAGE(1, StoreDyadSetAndRefEL, storage);
   StoreDyadSet *dnwp = storage->nwp = kh_init(DyadSet); dnwp->directed=DIRECTED;
-  double *ref_el = storage->ref_el = INPUT_PARAM + 1;
+  double *ref_el = storage->ref_el = INPUT_PARAM;
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
@@ -135,7 +135,7 @@ F_CHANGESTAT_FN(f__intersect_net_toggles_in_list_DyadSet){
 I_CHANGESTAT_FN(i__union_net_DyadSet){
   ALLOC_AUX_STORAGE(1, StoreDyadSetAndRefEL, storage);
   StoreDyadSet *dnwp = storage->nwp = NetworkToDyadSet(nwp);
-  double *ref_el = storage->ref_el = INPUT_PARAM + 1;
+  double *ref_el = storage->ref_el = INPUT_PARAM;
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){

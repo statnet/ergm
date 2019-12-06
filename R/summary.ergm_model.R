@@ -38,7 +38,7 @@ summary.ergm_model <- function(object, nw=NULL, response=NULL,...){
   i <- 1
   for (j in 1:length(m$terms)) {
     tmp <- m$terms[[j]]
-    k <- tmp$inputs[2] # Number of statistics for this model term
+    k <- length(tmp$coef.names) # Number of statistics for this model term
     if (!is.null(tmp$emptynwstats)) {
       gs[i:(i+k-1)] <- gs[i:(i+k-1)] + tmp$emptynwstats
     }

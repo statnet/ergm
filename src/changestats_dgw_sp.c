@@ -403,13 +403,13 @@ Type codes are as follows (where (i,j) is the focal edge):
 Only one type may be specified per esp term.  UTP should always be used for undirected graphs; OTP is the traditional directed default.
 */
 C_CHANGESTAT_FN(c_ddsp) { 
-  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   int type;
   double *dvec,*cs;
   
   /*Set things up*/
-  type=(int)INPUT_PARAM[1];     /*Get the ESP type code to be used*/
-  dvec=INPUT_PARAM+2;           /*Get the pointer to the ESP stats list*/
+  type=(int)INPUT_PARAM[0];     /*Get the ESP type code to be used*/
+  dvec=INPUT_PARAM+1;           /*Get the pointer to the ESP stats list*/
   cs=CHANGE_STAT;               /*Grab the pointer to the CS vector*/
 
   /*Obtain the ESP changescores (by type)*/
@@ -451,7 +451,7 @@ I_CHANGESTAT_FN(i_dgwdsp) {
 
 C_CHANGESTAT_FN(c_dgwdsp) {
   GET_STORAGE(double, storage);
-  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   int type;
   Vertex i,maxesp;
   double alpha, oneexpa,*dvec,*cs;
@@ -970,13 +970,13 @@ Type codes are as follows (where (i,j) is the focal edge):
 Only one type may be specified per esp term.  UTP should always be used for undirected graphs; OTP is the traditional directed default.
 */
 C_CHANGESTAT_FN(c_desp) {
-  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
   int type;
   double *dvec,*cs;
   
   /*Set things up*/
-  type=(int)INPUT_PARAM[1];     /*Get the ESP type code to be used*/
-  dvec=INPUT_PARAM+2;           /*Get the pointer to the ESP stats list*/
+  type=(int)INPUT_PARAM[0];     /*Get the ESP type code to be used*/
+  dvec=INPUT_PARAM+1;           /*Get the pointer to the ESP stats list*/
   cs=CHANGE_STAT;               /*Grab the pointer to the CS vector*/
 
   /*Obtain the ESP changescores (by type)*/
@@ -1017,7 +1017,7 @@ I_CHANGESTAT_FN(i_dgwesp) {
 
 C_CHANGESTAT_FN(c_dgwesp) { 
   GET_STORAGE(double, storage);
-  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
 
   int type;
   Vertex i,maxesp;
@@ -1079,14 +1079,14 @@ I_CHANGESTAT_FN(i_dnsp) {
 
 C_CHANGESTAT_FN(c_dnsp) {
   GET_STORAGE(double, storage);
-  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
 
   int i,type;
   double *dvec,*cs_esp, *cs_dsp;
   
   /*Set things up*/
-  type=(int)INPUT_PARAM[1];     /*Get the ESP type code to be used*/
-  dvec=INPUT_PARAM+2;           /*Get the pointer to the ESP stats list*/
+  type=(int)INPUT_PARAM[0];     /*Get the ESP type code to be used*/
+  dvec=INPUT_PARAM+1;           /*Get the pointer to the ESP stats list*/
   cs_esp=storage;               /*Grab memory for the DSP changescores*/
   cs_dsp=storage+N_CHANGE_STATS;/*Grab memory for the DSP changescores*/
 
@@ -1149,7 +1149,7 @@ I_CHANGESTAT_FN(i_dgwnsp) {
 
 C_CHANGESTAT_FN(c_dgwnsp) { 
   GET_STORAGE(double, storage);
-  StoreDyadMapUInt *spcache = (INPUT_PARAM[0]>=0) ? AUX_STORAGE : NULL;
+  StoreDyadMapUInt *spcache = N_AUX ? AUX_STORAGE : NULL;
 
   int type;
   Vertex i,maxesp;
