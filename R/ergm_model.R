@@ -173,9 +173,11 @@ updatemodel.ErgmTerm <- function(model, outlist) {
               (length(outlist$coef.names)==0)) # is an auxiliary
 
     # Ensure input vectors are of the correct storage mode. (There is
-    # no checking on C level at this time.)
-    outlist$inputs <- as.double(outlist$inputs)
-    outlist$iinputs <- as.integer(outlist$iinputs)
+    # no checking on C level at this time.) Note that as.double() and
+    # as.integer() will strip attributes such as ParamBeforeCov and so
+    # should not be used.
+    storage.mode(outlist$inputs) <- "double"
+    storage.mode(outlist$iinputs) <- "integer"
 
     # Update global model properties.
     model$coef.names <- c(model$coef.names, outlist$coef.names)
@@ -187,7 +189,7 @@ updatemodel.ErgmTerm <- function(model, outlist) {
                           length.out=length(outlist$coef.names)))
     model$duration <- max(model$duration,
                           NVL(outlist$duration, FALSE))
-    model$terms[[length(model$terms)+1]] <- outlist
+    model$terms[[length(model$terms)+1L]] <- outlist
   }
   model
 }

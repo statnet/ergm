@@ -135,16 +135,18 @@ WtModel* WtModelInitialize (SEXP mR, WtNetwork *nwp, Rboolean noinit_s) {
       thisterm->ninputparams = length(tmp);
       thisterm->inputparams = thisterm->ninputparams ? REAL(tmp) : NULL;
 
-      unsigned int offset = asInteger(getAttrib(tmp, install("ParamsBeforeCov")));  /* Set offset for attr vector */
+      tmp = getAttrib(tmp, install("ParamsBeforeCov"));
+      unsigned int offset = length(tmp) ? asInteger(tmp): 0;  /* Set offset for attr vector */
       thisterm->attrib = thisterm->inputparams + offset; /* Ptr to attributes */
 
       /* Integer input vector with an optional attribute shift. */
       tmp = getListElement(thisterm->R, "iinputs");
       thisterm->niinputparams = length(tmp);
-      thisterm->iinputparams = thisterm->ninputparams ? INTEGER(tmp) : NULL;
+      thisterm->iinputparams = thisterm->niinputparams ? INTEGER(tmp) : NULL;
 
-      offset = asInteger(getAttrib(tmp, install("ParamsBeforeCov")));  /* Set offset for attr vector */
-      thisterm->attrib = thisterm->inputparams + offset; /* Ptr to attributes */
+      tmp = getAttrib(tmp, install("ParamsBeforeCov"));
+      offset = length(tmp) ? asInteger(tmp): 0;  /* Set offset for attr vector */
+      thisterm->iattrib = thisterm->iinputparams + offset; /* Ptr to attributes */
 
       /* Number of statistics. */
       thisterm->nstats = length(getListElement(thisterm->R, "coef.names")); /* If >0, # of statistics returned. If ==0 an auxiliary statistic. */

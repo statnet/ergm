@@ -185,8 +185,8 @@ ergm_proposal.character <- function(object, arguments, nw, ..., response=NULL, r
                    eval(as.call(list(f, arguments, nw, .))),
                    eval(as.call(list(f, arguments, nw))))
 
-  proposal$inputs <- as.double(proposal$inputs)
-  proposal$iinputs <- as.integer(proposal$iinputs)
+  storage.mode(proposal$inputs) <- "double"
+  storage.mode(proposal$iinputs) <- "integer"
   proposal$arguments <- arguments
   proposal$arguments$reference <- NULL
 
