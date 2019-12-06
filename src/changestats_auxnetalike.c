@@ -52,7 +52,7 @@ F_CHANGESTAT_FN(f__discord_isociomatrix){
 I_CHANGESTAT_FN(i__discord_net_DyadSet){
   ALLOC_AUX_STORAGE(1, StoreDyadSetAndRefEL, storage);
   StoreDyadSet *dnwp = storage->nwp = NetworkToDyadSet(nwp);
-  double *ref_el = storage->ref_el = INPUT_PARAM;
+  int *ref_el = storage->ref_el = IINPUT_PARAM;
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
@@ -78,7 +78,7 @@ F_CHANGESTAT_FN(f__discord_net_DyadSet){
 I_CHANGESTAT_FN(i__intersect_net_DyadSet){
   ALLOC_AUX_STORAGE(1, StoreDyadSetAndRefEL, storage);
   StoreDyadSet *dnwp = storage->nwp = kh_init(DyadSet); dnwp->directed=DIRECTED;
-  double *ref_el = storage->ref_el = INPUT_PARAM;
+  int *ref_el = storage->ref_el = IINPUT_PARAM;
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
@@ -92,9 +92,9 @@ I_CHANGESTAT_FN(i__intersect_net_DyadSet){
 U_CHANGESTAT_FN(u__intersect_net_DyadSet){
   GET_AUX_STORAGE(StoreDyadSetAndRefEL, storage);
   StoreDyadSet *dnwp = storage->nwp;
-  double *ref_el = storage->ref_el;
+  int *ref_el = storage->ref_el;
   // only toggle if the edge is in y0. otherwise changing y1 won't matter.
-  if(dEdgeListSearch(tail, head, ref_el))
+  if(iEdgeListSearch(tail, head, ref_el))
     DyadSetToggle(tail,head, dnwp);
 }
 
@@ -108,7 +108,7 @@ F_CHANGESTAT_FN(f__intersect_net_DyadSet){
 I_CHANGESTAT_FN(i__intersect_net_toggles_in_list_DyadSet){
   ALLOC_AUX_STORAGE(1, StoreDyadSetAndRefEL, storage);
   StoreDyadSet *dnwp = storage->nwp = kh_init(DyadSet); dnwp->directed=DIRECTED;
-  double *ref_el = storage->ref_el = INPUT_PARAM;
+  int *ref_el = storage->ref_el = IINPUT_PARAM;
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
@@ -135,7 +135,7 @@ F_CHANGESTAT_FN(f__intersect_net_toggles_in_list_DyadSet){
 I_CHANGESTAT_FN(i__union_net_DyadSet){
   ALLOC_AUX_STORAGE(1, StoreDyadSetAndRefEL, storage);
   StoreDyadSet *dnwp = storage->nwp = NetworkToDyadSet(nwp);
-  double *ref_el = storage->ref_el = INPUT_PARAM;
+  int *ref_el = storage->ref_el = IINPUT_PARAM;
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
@@ -148,9 +148,9 @@ I_CHANGESTAT_FN(i__union_net_DyadSet){
 U_CHANGESTAT_FN(u__union_net_DyadSet){
   GET_AUX_STORAGE(StoreDyadSetAndRefEL, storage);
   StoreDyadSet *dnwp = storage->nwp;
-  double *ref_el = storage->ref_el;
+  int *ref_el = storage->ref_el;
   // If the edge is in y0, changing y1 won't matter.
-  if(dEdgeListSearch(tail, head, ref_el)==0)
+  if(iEdgeListSearch(tail, head, ref_el)==0)
     DyadSetToggle(tail,head, dnwp);
 }
 

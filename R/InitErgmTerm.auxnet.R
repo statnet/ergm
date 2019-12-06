@@ -64,7 +64,7 @@ InitErgmTerm..intersect.net<-function(nw, arglist, ...) {
 
   list(name=paste0(if(a$assume_all_toggles_in_list) "_intersect_net_toggles_in_list_" else "_intersect_net_", impl),
        coef.names=c(),
-       inputs=to_ergm_Cdouble(a$x, prototype=nw),
+       iinputs=to_ergm_Cdouble(a$x, prototype=nw),
        dependence=FALSE)
 }
 
@@ -79,7 +79,7 @@ InitErgmTerm..union.net<-function(nw, arglist, ...) {
   
   list(name=paste0("_union_net_",impl),
        coef.names=c(),
-       inputs=to_ergm_Cdouble(a$x, prototype=nw),
+       iinputs=to_ergm_Cdouble(a$x, prototype=nw),
        dependence=FALSE)
 }
 
@@ -100,7 +100,7 @@ InitErgmTerm..blockdiag.net <- function(nw, arglist, response=NULL, ...){
   u <- sort(unique(nodecov))
   nodecov <- match(nodecov,u)
 
-  list(name="_blockdiag_net", coef.names = c(), inputs=nodecov, dependence=FALSE)
+  list(name="_blockdiag_net", coef.names = c(), iinputs=nodecov, dependence=FALSE)
 }
 
 InitErgmTerm..undir.net <- function(nw, arglist, response=NULL, ...){

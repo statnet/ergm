@@ -13,7 +13,7 @@
 #include "ergm_changestat_auxnet.h"
 #include "ergm_dyad_hashmap.h"
 
-typedef struct{StoreDyadSet *nwp; double *ref_el;} StoreDyadSetAndRefEL;
+typedef struct{StoreDyadSet *nwp; int *ref_el;} StoreDyadSetAndRefEL;
 
 I_CHANGESTAT_FN(i__isociomatrix);
 U_CHANGESTAT_FN(u__isociomatrix);
@@ -50,8 +50,8 @@ MAP_TOGGLE_MAXTOGGLES_FN(map_toggle_maxtoggles__intersect_net_Network){
 
 MAP_TOGGLE_FN(map_toggle__intersect_net_Network){
   ModelTerm *mtp = auxnet->mtp;
-  double *ref_el = INPUT_PARAM;
-  MAP_TOGGLE_PROPAGATE_IF(dEdgeListSearch(tail, head, ref_el));
+  int *ref_el = IINPUT_PARAM;
+  MAP_TOGGLE_PROPAGATE_IF(iEdgeListSearch(tail, head, ref_el));
 }
 
 MAP_TOGGLE_MAXTOGGLES_FN(map_toggle_maxtoggles__union_net_Network){
@@ -60,8 +60,8 @@ MAP_TOGGLE_MAXTOGGLES_FN(map_toggle_maxtoggles__union_net_Network){
 
 MAP_TOGGLE_FN(map_toggle__union_net_Network){
   ModelTerm *mtp = auxnet->mtp;
-  double *ref_el = INPUT_PARAM;
-  MAP_TOGGLE_PROPAGATE_IF(!dEdgeListSearch(tail, head, ref_el));
+  int *ref_el = IINPUT_PARAM;
+  MAP_TOGGLE_PROPAGATE_IF(!iEdgeListSearch(tail, head, ref_el));
 }
 
 MAP_TOGGLE_MAXTOGGLES_FN(map_toggle_maxtoggles__blockdiag_net){
@@ -70,7 +70,7 @@ MAP_TOGGLE_MAXTOGGLES_FN(map_toggle_maxtoggles__blockdiag_net){
 
 MAP_TOGGLE_FN(map_toggle__blockdiag_net){
   ModelTerm *mtp = auxnet->mtp;
-  double *b = INPUT_PARAM-1; // tail and head are indexed from 1.
+  int *b = IINPUT_PARAM-1; // tail and head are indexed from 1.
   MAP_TOGGLE_PROPAGATE_IF(b[tail]==b[head]);
 }
 

@@ -52,9 +52,9 @@ I_CHANGESTAT_FN(i__intersect_net_Network){
 
 U_CHANGESTAT_FN(u__intersect_net_Network){
   GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  double *ref_el = INPUT_PARAM;
+  int *ref_el = IINPUT_PARAM;
   // only toggle if the edge is in y0. otherwise changing y1 won't matter.
-  if(dEdgeListSearch(tail, head, ref_el))
+  if(iEdgeListSearch(tail, head, ref_el))
     ToggleEdge(tail, head, auxnet->onwp);
 }
 
@@ -105,9 +105,9 @@ I_CHANGESTAT_FN(i__union_net_Network){
 
 U_CHANGESTAT_FN(u__union_net_Network){
   GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  double *ref_el = INPUT_PARAM;
+  int *ref_el = IINPUT_PARAM;
   // If the edge is in y0, changing y1 won't matter.
-  if(dEdgeListSearch(tail, head, ref_el)==0)
+  if(iEdgeListSearch(tail, head, ref_el)==0)
     ToggleEdge(tail, head, auxnet->onwp);
 }
 
@@ -124,7 +124,7 @@ F_CHANGESTAT_FN(f__union_net_Network){
 
 I_CHANGESTAT_FN(i__blockdiag_net){
   I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL));
-  double *b = INPUT_PARAM-1; // tail and head are indexed from 1.
+  int *b = IINPUT_PARAM-1; // tail and head are indexed from 1.
 
   for(Vertex tail=1; tail <= N_TAILS; tail++){
     Vertex head;
@@ -138,7 +138,7 @@ I_CHANGESTAT_FN(i__blockdiag_net){
 
 U_CHANGESTAT_FN(u__blockdiag_net){
   GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  double *b = INPUT_PARAM-1; // tail and head are indexed from 1.
+  int *b = IINPUT_PARAM-1; // tail and head are indexed from 1.
 
   if(b[tail]==b[head])
     ToggleKnownEdge(tail, head, auxnet->onwp, edgeflag);
