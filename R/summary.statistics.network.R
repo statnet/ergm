@@ -116,9 +116,7 @@ summary_formula.ergm <- function(object, ..., basis=NULL)
 }
 
 #' @describeIn summary_formula a method for a [`network.list`] on the LHS of the formula.
-#' @param response Name of the edge attribute whose value is to be modeled.
-#' Defaults to \code{NULL} for simple presence or absence, modeled via binary
-#' ERGM terms. Passing anything but \code{NULL} uses valued ERGM terms.
+#' @template response
 #' @export
 summary_formula.network.list <- function(object, response=NULL, ..., basis=NULL){
   if(!is.null(basis)){

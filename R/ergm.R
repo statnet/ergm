@@ -143,11 +143,7 @@
 #' fixes its value to one specified in \code{offset.coef}.
 #' }
 #' @template response
-#' @param reference {A one-sided formula specifying
-#' the reference measure (\eqn{h(y)}) to be used. (Defaults to \code{~Bernoulli}.)
-#' See help for [ERGM reference measures][ergm-references] implemented in the
-#' **[ergm][ergm-package]** package.}
-#' 
+#' @template reference
 #' @param constraints {A formula specifying one or more constraints
 #' on the support of the distribution of the networks being modeled,
 #' using syntax similar to the \code{formula} argument, on the

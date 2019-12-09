@@ -167,8 +167,7 @@ ergm_proposal.ergm_proposal<-function(object,...) return(object)
 #'   via 'formula'
 #' @param arguments A list of parameters used by the InitErgmProposal routines
 #' @template response
-#' @param reference One-sided formula whose RHS gives the reference
-#'   measure to be used. (Defaults to \code{~Bernoulli}.)
+#' @template reference
 #' @export
 ergm_proposal.character <- function(object, arguments, nw, ..., response=NULL, reference=~Bernoulli){
   name<-object

@@ -58,8 +58,10 @@ via 'formula'}
 modeled in the valued ERGM framework. Defaults to \code{NULL} for
 simple presence or absence, modeled via a binary ERGM.}
 
-\item{reference}{One-sided formula whose RHS gives the reference
-measure to be used. (Defaults to \code{~Bernoulli}.)}
+\item{reference}{A one-sided formula specifying
+the reference measure (\eqn{h(y)}) to be used.
+See help for \link[=ergm-references]{ERGM reference measures} implemented in the
+\strong{\link[=ergm-package]{ergm}} package.}
 
 \item{weights}{Specifies the method used to allocate probabilities of being
 proposed to dyads; options are "TNT", "TNT10", "random", "nonobserved" and

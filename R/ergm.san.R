@@ -40,10 +40,8 @@ san.default <- function(object,...)
 }
 #' @describeIn san Sufficient statistics are specified by a [`formula`].
 #' 
-#' @param response Name of the edge attribute whose value
-#' is to be modeled. Defaults to \code{NULL} for simple presence or absence.
-#' @param reference One-sided formula whose RHS gives the
-#' reference measure to be used. (Defaults to \code{~Bernoulli}.)
+#' @template response
+#' @template reference
 #' @param formula (By default, the \code{formula} is taken from the \code{ergm}
 #' object.  If a different \code{formula} object is wanted, specify it here.
 #' @param constraints A one-sided formula specifying one or more constraints on

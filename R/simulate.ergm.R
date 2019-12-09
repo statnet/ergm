@@ -53,11 +53,7 @@
 #' is to be drawn.  If \code{object} is of class \code{ergm}, the default value
 #' is the vector of estimated coefficients.
 #' @template response
-#' @param reference A one-sided formula specifying the
-#' reference measure (\eqn{h(y)}) to be used. (Defaults to \code{~Bernoulli}.)
-#' See help for [ERGM reference measures][ergm-references] implemented in
-#' the \code{\link[=ergm-package]{ergm}} package.
-#'
+#' @template reference
 #' @param constraints A one-sided formula specifying one or more
 #'   constraints on the support of the distribution of the networks
 #'   being simulated. See the documentation for a similar argument for
