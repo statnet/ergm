@@ -53,10 +53,6 @@ a bipartite graph }
 
 \item{nterms}{ the number of model terms }
 \item{nstats}{ the total number of change statistics for all model terms }
-\item{inputs}{ the concatenated vector of 'input's from each model term as returned by
-\code{InitErgmTerm.X} or \code{InitErgm.X} }
-\item{fnamestring}{ the concatenated string of model term names }
-\item{snamestring}{ the concatenated string of package names that contain the C function 'd_fname'; default="ergm" for each fname in fnamestring }
 
 \code{ergm.design} returns a \code{\link{rlebdm}} of
 informative (non-missing, non fixed) dyads.

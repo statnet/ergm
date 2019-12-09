@@ -64,7 +64,7 @@ dynamic network models.}
 
 \item{term.options}{a list of optional settings such as calculation tuning options to be passed to the \code{InitErgmTerm} functions.}
 
-\item{extra.aux}{a list of auxiliary request formulas required elsewhere.}
+\item{extra.aux}{a list of auxiliary request formulas required elsewhere; if named, the resulting \code{slots.extra.aux} will also be named.}
 
 \item{x}{object to be converted to an \code{ergm_model}.}
 
