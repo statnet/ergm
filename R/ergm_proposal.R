@@ -115,13 +115,11 @@ prune.ergm_conlist <- function(conlist){
 #' 
 #' @aliases ergm_proposal.NULL ergm_proposal.ergm_proposal
 #' @param object Either a character, a \code{\link{formula}} or an
-#' \code{\link{ergm}} object.  The \code{\link{formula}} should be of the form
-#' \code{y ~ <model terms>}, where \code{y} is a network object or a matrix
-#' that can be coerced to a \code{\link[network]{network}} object.
+#' \code{\link{ergm}} object.  The \code{\link{formula}} should be of the format documented in the `constraints` argument of [ergm()] and in the [ERGM constraints][ergm-constraints] documentation.
 #' @param \dots Further arguments passed to other functions.
 #' @return Returns an ergm_proposal object: a list with class `ergm_proposal`
 #' containing the following named elements:
-#' \item{ name}{the C name of the proposal}
+#' \item{name}{the C name of the proposal}
 #' \item{inputs}{inputs to be passed to C}
 #' \item{pkgname}{shared library name where the proposal
 #' can be found (usually `"ergm"`)}
@@ -172,7 +170,7 @@ ergm_proposal.ergm_proposal<-function(object,...) return(object)
 #' @param reference One-sided formula whose RHS gives the reference
 #'   measure to be used. (Defaults to \code{~Bernoulli}.)
 #' @export
-ergm_proposal.character <- function(object, arguments, nw, ..., response=NULL, reference=reference){
+ergm_proposal.character <- function(object, arguments, nw, ..., response=NULL, reference=~Bernoulli){
   name<-object
 
   arguments$reference <- reference
