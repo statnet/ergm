@@ -15,7 +15,7 @@ Authors@R: c(
 	   person("Chad", "Klumb", role=c("ctb"), email="cklumb@gmail.com"))
 Depends:
     R (>= 3.5),
-    network (>= 1.15)
+    network (>= 1.17)
 Imports:
     robustbase (>= 0.93.5),
     coda (>= 0.19.2),
