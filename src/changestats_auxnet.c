@@ -15,7 +15,7 @@
 // sets aux network to y0 XOR y1
 I_CHANGESTAT_FN(i__discord_net_Network){
   I_AUXNET(NetworkCopy(nwp));
-  double *ref_el = INPUT_PARAM;
+  int *ref_el = IINPUT_PARAM;
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
@@ -39,7 +39,7 @@ F_CHANGESTAT_FN(f__discord_net_Network){
 // The storage auxnet->onwp should be initialized as y0&y1 at the end.
 I_CHANGESTAT_FN(i__intersect_net_Network){
   I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL));
-  double *ref_el = INPUT_PARAM;
+  int *ref_el = IINPUT_PARAM;
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
@@ -66,7 +66,7 @@ F_CHANGESTAT_FN(f__intersect_net_Network){
 I_CHANGESTAT_FN(i__intersect_net_toggles_in_list_Network){
   //Rprintf("allocating intersect_net_tog\n");
   I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL));
-  double *ref_el = INPUT_PARAM;
+  int *ref_el = IINPUT_PARAM;
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
@@ -92,7 +92,7 @@ F_CHANGESTAT_FN(f__intersect_net_toggles_in_list_Network){
 // The storage auxnet->onwp should be initialized as y0|y1 at the end.
 I_CHANGESTAT_FN(i__union_net_Network){
   I_AUXNET(NetworkCopy(nwp));
-  double *ref_el = INPUT_PARAM;
+  int *ref_el = IINPUT_PARAM;
   
   Edge nedges = *ref_el;
   for(Edge i=0; i<nedges; i++){
@@ -237,8 +237,8 @@ F_CHANGESTAT_FN(f__filter_formula_net){
 */
 
 I_CHANGESTAT_FN(i__subgraph_net){
-  ALLOC_STORAGE(2, double*, thmap);
-  double *inputs = INPUT_PARAM;
+  ALLOC_STORAGE(2, int*, thmap);
+  int *inputs = IINPUT_PARAM;
   unsigned int type = *(inputs++);
   /* These will be overwritten in the following switch statement. */
   Vertex n=0, bip=0;
@@ -283,7 +283,7 @@ I_CHANGESTAT_FN(i__subgraph_net){
 
 U_CHANGESTAT_FN(u__subgraph_net){
   GET_AUX_STORAGE(StoreAuxnet, auxnet);
-  GET_STORAGE(double*, thmap);
+  GET_STORAGE(int*, thmap);
   Vertex st = thmap[0][tail];
   Vertex sh = thmap[1][head];
   if(!DIRECTED & (st==0 || sh==0)){

@@ -615,8 +615,8 @@ WtC_CHANGESTAT_FN(c_nodeocov_sum){
 *****************/
 WtC_CHANGESTAT_FN(c_nodefactor_nonzero){ 
   double s = (weight!=0) - (edgeweight!=0);
-  int tailpos = INPUT_ATTRIB[tail-1];
-  int headpos = INPUT_ATTRIB[head-1];
+  int tailpos = IINPUT_ATTRIB[tail-1];
+  int headpos = IINPUT_ATTRIB[head-1];
   if (tailpos != -1) CHANGE_STAT[tailpos] += s;
   if (headpos != -1) CHANGE_STAT[headpos] += s;
 }
@@ -625,8 +625,8 @@ WtC_CHANGESTAT_FN(c_nodefactor_nonzero){
 *****************/
 WtC_CHANGESTAT_FN(c_nodefactor_sum){ 
   double s = weight - edgeweight;
-  int tailpos = INPUT_ATTRIB[tail-1];
-  int headpos = INPUT_ATTRIB[head-1];
+  int tailpos = IINPUT_ATTRIB[tail-1];
+  int headpos = IINPUT_ATTRIB[head-1];
   if (tailpos != -1) CHANGE_STAT[tailpos] += s;
   if (headpos != -1) CHANGE_STAT[headpos] += s;
 }

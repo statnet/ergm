@@ -49,7 +49,7 @@ InitErgmTerm..discord.net<-function(nw, arglist, ...) {
   
   list(name=paste0("_discord_net_",impl),
        coef.names=c(),
-       inputs=to_ergm_Cdouble(a$x, prototype=nw),
+       iinputs=to_ergm_Cdouble(a$x, prototype=nw),
        dependence=FALSE)
 }
 
@@ -140,5 +140,5 @@ InitErgmTerm..subgraph.net <- function(nw, arglist, response=NULL, ...){
 
   TYPES <- c("dir", "undir", "bip")
 
-  list(name=paste0("_subgraph_net"), coef.names = c(), inputs=c(match(type, TYPES), length(tailsel), if(type=="bip") length(headsel), tailmap, headmap), dependence=FALSE)
+  list(name=paste0("_subgraph_net"), coef.names = c(), iinputs=c(match(type, TYPES), length(tailsel), if(type=="bip") length(headsel), tailmap, headmap), dependence=FALSE)
 }

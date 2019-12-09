@@ -129,7 +129,7 @@ MAP_TOGGLE_MAXTOGGLES_FN(map_toggle_maxtoggles__subgraph_net){
 MAP_TOGGLE_FN(map_toggle__subgraph_net){
   Network *nwp = auxnet->inwp;
   ModelTerm *mtp = auxnet->mtp;
-  GET_STORAGE(double*, thmap);
+  GET_STORAGE(int*, thmap);
 
   Vertex st = thmap[0][tail];
   Vertex sh = thmap[1][head];
