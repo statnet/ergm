@@ -8,7 +8,6 @@
  *  Copyright 2003-2019 Statnet Commons
  */
 #include "wtSAN.h"
-#include "ergm_util.h"
 
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
@@ -22,12 +21,11 @@
  Wrapper for a call from R.
 *****************/
 
-SEXP WtSAN_wrapper(ARGS_WTNWSETTINGS,
+SEXP WtSAN_wrapper(ARGS_WTNW,
                     ARGS_WTMODEL,
                     ARGS_WTMHPROPOSAL,
-                    ARGS_WTNWSTATE,
                    // MCMC settings
-                   SEXP tau, SEXP stats,
+                   SEXP tau,
                    SEXP samplesize, SEXP nsteps,
                    SEXP invcov,
                    SEXP statindices,
@@ -37,18 +35,15 @@ SEXP WtSAN_wrapper(ARGS_WTNWSETTINGS,
   GetRNGstate();  /* R function enabling uniform RNG */
   unsigned int nstats = length(statindices), noffsets = length(offsetindices);
   
-  WtErgmState *s = WtErgmStateInit(YES_WTNWSETTINGS,
+  WtErgmState *s = WtErgmStateInit(YES_WTNW,
                                    YES_WTMODEL,
                                    YES_WTMHPROPOSAL,
-                                   YES_WTNWSTATE,
                                    NO_WTLASTTOGGLE);
-
-  WtNetwork *nwp = s->nwp;
   WtMHProposal *MHp = s->MHp;
 
   SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*nstats));
   memset(REAL(sample), 0, asInteger(samplesize)*nstats*sizeof(double));
-  memcpy(REAL(sample), REAL(stats), nstats*sizeof(double));
+  memcpy(REAL(sample), s->stats, nstats*sizeof(double));
   SEXP prop_sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*nstats));
   memset(REAL(prop_sample), 0, asInteger(samplesize)*nstats*sizeof(double));
 
@@ -60,7 +55,7 @@ SEXP WtSAN_wrapper(ARGS_WTNWSETTINGS,
                                                      asInteger(verbose))));
   else status = PROTECT(ScalarInteger(MCMC_MH_FAILED));
 
-  const char *outn[] = {"status", "s", "s.prop", WTNWSTATE_NAMES, ""};
+  const char *outn[] = {"status", "s", "s.prop", "state", ""};
   SEXP outl = PROTECT(mkNamed(VECSXP, outn));
   SET_VECTOR_ELT(outl, 0, status);
   SET_VECTOR_ELT(outl, 1, sample);
@@ -68,7 +63,8 @@ SEXP WtSAN_wrapper(ARGS_WTNWSETTINGS,
 
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK){
-    WTNWSTATE_SAVE_INTO_RLIST(nwp, outl, 3);
+    s->stats = REAL(sample) + (asInteger(samplesize)-1)*nstats;
+    SET_VECTOR_ELT(outl, 3, WtErgmStateRSave(stateR, s));
   }
 
   WtErgmStateDestroy(s);

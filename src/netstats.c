@@ -9,7 +9,6 @@
  */
 #include "netstats.h"
 #include "ergm_omp.h"
-#include "ergm_util.h"
 /*****************
  void network_stats_wrapper
 
@@ -19,32 +18,33 @@
  change gives the true global values for the observed graph.
 *****************/
 
-SEXP network_stats_wrapper(ARGS_NWSETTINGS,
+SEXP network_stats_wrapper(ARGS_NW,
                            ARGS_MODEL,
-                           ARGS_NWSTATE,
-                           ARGS_LASTTOGGLE,
-                           // Summary settings
-                           SEXP emptynwstats){
+                           ARGS_LASTTOGGLE){
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmState *s = ErgmStateInit(YES_NWSETTINGS,
+  ErgmState *s = ErgmStateInit(YES_NW_EMPTY,
                                YES_MODEL_NOINIT_S,
                                NO_MHPROPOSAL,
-                               NO_NWSTATE,
                                YES_LASTTOGGLE);
 
   Model *m = s->m;
 
   SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats));
 
-  if(length(emptynwstats)>0) memcpy(REAL(stats), REAL(emptynwstats), m->n_stats*sizeof(double));
+  if(s->stats) memcpy(REAL(stats), s->stats, m->n_stats*sizeof(double));
   else memset(REAL(stats), 0, m->n_stats*sizeof(double));
 
   /* Compute the change statistics and copy them to stats for return
      to R.  Note that stats already has the statistics of an empty
      network, so d_??? statistics will add on to them, while s_???
      statistics will simply overwrite them. */
-  SummStats(s, asInteger(nedges), (Vertex*)INTEGER(tails), (Vertex*)INTEGER(heads), REAL(stats));
-  
+  SEXP elR = getListElement(stateR, "el");
+  SummStats(s,
+            length(VECTOR_ELT(elR, 0)),
+            (Vertex*) INTEGER(VECTOR_ELT(elR, 0)),
+            (Vertex*) INTEGER(VECTOR_ELT(elR, 1)),
+            REAL(stats));
+
   PutRNGstate();
   UNPROTECT(1);
   return stats;

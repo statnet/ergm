@@ -9,7 +9,6 @@
  */
 #include "CD.h"
 #include "ergm_util.h"
-
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
  as (j,k) rather than (k,j).  In other words, only directed networks
@@ -23,19 +22,17 @@
 
  and don't forget that tail -> head
 *****************/
-SEXP CD_wrapper(ARGS_NWSETTINGS,
+SEXP CD_wrapper(ARGS_NW,
                 ARGS_MODEL,
                 ARGS_MHPROPOSAL,
-                ARGS_NWSTATE,
                 // MCMC settings
                 SEXP eta, SEXP samplesize, 
                 SEXP CDparams,
                 SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmState *s = ErgmStateInit(YES_NWSETTINGS,
+  ErgmState *s = ErgmStateInit(YES_NW,
                                YES_MODEL,
                                YES_MHPROPOSAL,
-                               YES_NWSTATE,
                                NO_LASTTOGGLE);
 
   Model *m = s->m;

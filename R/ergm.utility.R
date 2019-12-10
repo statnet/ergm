@@ -202,29 +202,6 @@ function(x, alternative = c("two.sided", "less", "greater"),
     return(rval)
 }
 
-#' @describeIn ergm-deprecated Use the [`pending_update_network`] "API".
-#' @export newnw.extract
-newnw.extract<-function(oldnw,z=NULL,output="network",response=NULL){
-  .Deprecate_once('pending_network_update "API"')
-  if(is(oldnw,"pending_update_network") && is.null(z)){
-    class(oldnw) <- "network"
-    z <- oldnw%n%".update"
-    delete.network.attribute(oldnw, ".update")
-  }
-
-  newedgelist <- .extract_z_edgelist(z, response)
-  
-  newnw<-network.update(oldnw,newedgelist,matrix.type="edgelist",output=output)
-  if(!is.null(response)){
-    newnwweights <- newedgelist[,3]
-    # It's very important that the order of weights here is the same
-    # as the one that network accepts.
-    newnw<-set.edge.attribute(newnw,attrname=response,newnwweights,e=apply(newedgelist,1,function(e) get.edgeIDs(newnw,e[1],e[2])))
-  }
-  newnw
-}
-
-
 #' Copy network- and vertex-level attributes between two network objects
 #' 
 #' An internal ergm utility function to copy the network-level attributes and
@@ -293,7 +270,7 @@ standardize.network <- function(nw, preserve.eattr=TRUE){
   apply(x, 1, paste, collapse="\r")
 }
 
-single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints.obs=NULL, min_informative=NULL, default_density=NULL, output=c("network","pending_update_network"), verbose=FALSE){
+single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints.obs=NULL, min_informative=NULL, default_density=NULL, output=c("network","edgelist"), verbose=FALSE){
   output <- match.arg(output)
   stopifnot(!is.null(constraints)||is.null(constraints.obs))
 
@@ -365,19 +342,19 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
       todel <- union(setdiff(i.cur, i.new), setdiff(i.na, i.new))
       toadd <- union(setdiff(i.new, i.cur), intersect(i.na, i.new))
       nw[na.el[c(todel,toadd),,drop=FALSE]] <- rep(0:1, c(length(todel),length(toadd)))
-    }else{ # pending_update_network
+    }else{ # edgelist
       el <- s2el(union(setdiff(el2s(as.edgelist(nw)), el2s(na.el)), el2s(na.el[i.new,,drop=FALSE])))
-      nw <- pending_update_network(nw, list(newedgelist = el))
+      nw <- as_tibble(el)
     }
   }else{
     if(output=="network"){
       nw[na.el,names.eval=response,add.edges=TRUE] <- sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))
-    }else{ # pending_update_network
+    }else{ # edgelist
       el <- as.edgelist(nw, attrname=response)
       el <- el[!el2s(el[,-3,drop=FALSE])%in%el2s(na.el),,drop=FALSE]
       el <- rbind(el, cbind(na.el, sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))))
       el <- el[el[,3]!=0,,drop=FALSE]
-      nw <- pending_update_network(nw, list(newedgelist = el), response=response)
+      nw <- as_tibble(el)
     }
   }
 

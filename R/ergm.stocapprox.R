@@ -44,7 +44,7 @@
 #
 ###########################################################################      
 
-ergm.stocapprox <- function(init, nw, model, Clist,
+ergm.stocapprox <- function(init, nw, model,
                             control, proposal,
                             verbose=FALSE){
 

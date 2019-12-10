@@ -9,7 +9,6 @@
  */
 #include "wtCD.h"
 #include "ergm_util.h"
-
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
  as (j,k) rather than (k,j).  In other words, only directed networks
@@ -23,19 +22,17 @@
 
  and don't forget that tail -> head
 *****************/
-SEXP WtCD_wrapper(ARGS_WTNWSETTINGS,
+SEXP WtCD_wrapper(ARGS_WTNW,
                   ARGS_WTMODEL,
                   ARGS_WTMHPROPOSAL,
-                  ARGS_WTNWSTATE,
                   // MCMC settings
                   SEXP eta, SEXP samplesize, 
                   SEXP CDparams,
                   SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  WtErgmState *s = WtErgmStateInit(YES_WTNWSETTINGS,
+  WtErgmState *s = WtErgmStateInit(YES_WTNW,
                                    YES_WTMODEL,
                                    YES_WTMHPROPOSAL,
-                                   YES_WTNWSTATE,
                                    NO_WTLASTTOGGLE);
 
   WtModel *m = s->m;

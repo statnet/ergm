@@ -8,131 +8,6 @@
 #  Copyright 2003-2019 Statnet Commons
 #######################################################################
 
-
-#' Internal Functions to Prepare Data for ergm's C Interface
-#' 
-#' These are internal functions not intended to be called by end
-#' users. `ergm_Clist` collates the information in the given object
-#' into a form suitable for being passed to the C routines.
-#'
-#' @param object object to be collated.
-#' @param ... additional arguments for methods.
-#' @return A list of class `"ergm_Clist"` and possibly a subclass `"ORIGINAL.ergm_Clist"` containing some subset of the following elements: 
-#' @keywords internal
-#' @export
-ergm_Clist <- function(object, ...){
-  UseMethod("ergm_Clist")
-}
-
-#' @rdname ergm_Clist
-#' 
-#' @description The \code{ergm.Cprepare} is a legacy function that constructs a combination of `ergm_Clist`s from the given [`network`] and the given [`ergm_model`].
-#'
-#' @param nw a network or similar object
-#' @param m a model object, as returned by \code{\link{ergm_model}}
-#' @param verbose logical, whether the design matrix should be printed;
-#' default=FALSE
-#'
-#' @export ergm.Cprepare
-ergm.Cprepare <- function(nw, m, response=NULL){
-  nw.Clist <- ergm_Clist(nw, response=response)
-  m.Clist <- ergm_Clist(m)
-
-  c(nw.Clist, m.Clist)
-}
-
-
-#' @describeIn ergm_Clist
-#'
-#' Collates a [`network`] object.
-#'
-#' @template response
-#' 
-#' @return
-#' \item{n}{ the size of the network }
-#' \item{dir}{ whether the network is directed (T or F) }
-#' \item{bipartite}{ whether the network is bipartite (T or F) }
-#' \item{ndyads}{ the number of dyads in the network }
-#' \item{nedges}{ the number of edges in this network }
-#' \item{tails}{ the vector of tail nodes; tail nodes are the 1st
-#' column of the implicit edgelist, so either the lower-numbered nodes in an
-#' undirected graph, or the out nodes of a directed graph, or the b1 nodes of a
-#' bipartite graph }
-#' \item{heads}{ the vector of head nodes; head nodes are the
-#' 2nd column of the implicit edgelist, so either the higher-numbered nodes in
-#' an undirected graph, or the in nodes of a directed graph, or the b2 nodes of
-#' a bipartite graph }
-#' 
-#' @export
-ergm_Clist.network <- function(object, response=NULL, ...){
-  NVL(response) <- NVL(object %ergmlhs% "response")
-  e <- na.omit(as.edgelist(object,attrname=response)) # Ensures that for undirected networks, tail<head.
-  class(object) <- "network"
-
-  n <- network.size(object)
-  dir <- is.directed(object)
-  Clist<-list(n=n, dir=dir)
-  bip <- object %n% "bipartite"
-  if (is.null(bip)) bip <- 0
-  Clist$bipartite <- bip
-  Clist$ndyads <- network.dyadcount(object)
-
-  if(length(e)==0){
-    Clist$nedges<-0
-    Clist$tails<-NULL
-    Clist$heads<-NULL
-    ## Make sure weights is not NULL if response!=NULL, even if it's
-    ## empty, since it's used to decide whether MCMC or WtMCMC is
-    ## called.
-    if(!is.null(response)) Clist$weights<-numeric(0)
-  }else{
-    if(!is.matrix(e)){e <- matrix(e, ncol=2+!is.null(response))}
-
-    ## Delete 0 edges.
-    if(!is.null(response)) e<-e[e[,3]!=0,,drop=FALSE]
-    
-    Clist$nedges<-dim(e)[1]
-    Clist$tails<-e[,1]
-    Clist$heads<-e[,2]
-    if(!is.null(response)) Clist$weights<-e[,3]
-  }
-
-  Clist$lasttoggle <- object %n% "lasttoggle"
-  Clist$time <- object %n% "time"
-
-  class(Clist) <- c("network.ergm_Clist", "ergm_Clist")
-  Clist
-}
-
-#' @noRd
-ergm_Clist.pending_update_network <- ergm_Clist.network
-
-#' @describeIn ergm_Clist
-#'
-#' Collates an [`ergm_model`] object.
-#'
-#' @return 
-#' \item{nterms}{ the number of model terms }
-#' \item{nstats}{ the total number of change statistics for all model terms }
-#' @export
-ergm_Clist.ergm_model <- function(object, ...){
-  mo<-object$terms 
-  Clist <- list()
-
-  Clist$nterms<-length(mo)
-  Clist$nstats<-nparam(object,canonical=TRUE)
-  
-  # We don't care about diagnostics for terms that are not being
-  # estimated.
-  Clist$diagnosable <- ! object$etamap$offsetmap
-  names(Clist$diagnosable) <- object$coef.names
-
-  Clist$m <- object
-
-  class(Clist) <- c("ergm_model.ergm_Clist", "ergm_Clist")
-  Clist
-}
-
 #' @describeIn to_ergm_Cdouble
 #'
 #' Method for [`network`] objects.
@@ -146,7 +21,7 @@ to_ergm_Cdouble.network <- function(x, attrname=NULL, ...){
 }
 
 #' @noRd
-to_ergm_Cdouble.pending_update_network <- to_ergm_Cdouble.network
+to_ergm_Cdouble.ergm_state <- to_ergm_Cdouble.network
 
 
 #' @describeIn to_ergm_Cdouble

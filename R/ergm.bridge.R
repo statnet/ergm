@@ -122,7 +122,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
     if(verbose>0) message("Running theta=[",paste(format(theta),collapse=","),"].")
     if(verbose>1) message("Burning in...")
     ## First burn-in has to be longer, but those thereafter should be shorter if the bridges are closer together.
-    nw.state<-simulate(m, coef=theta, nsim=1, response=response, reference=reference, constraints=proposal, basis=nw, output="pending_update_network", verbose=max(verbose-1,0),
+    nw.state<-simulate(m, coef=theta, nsim=1, response=response, reference=reference, constraints=proposal, basis=nw, output="ergm_state", verbose=max(verbose-1,0),
                        control=control.simulate.formula(MCMC.burnin=if(i==1) control$MCMC.burnin else ceiling(control$MCMC.burnin/sqrt(control$nsteps)),
                                                         term.options=control$term.options,
                          MCMC.interval=1,
@@ -143,7 +143,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
                               nsim=ceiling(control$MCMC.samplesize/control$nsteps), ...)))
     
     if(!is.null(constraints.obs)){
-      nw.state.obs<-simulate(m.obs, coef=theta, nsim=1, response=response, reference=reference, constraints=proposal.obs, basis=nw, output="pending_update_network", verbose=max(verbose-1,0),
+      nw.state.obs<-simulate(m.obs, coef=theta, nsim=1, response=response, reference=reference, constraints=proposal.obs, basis=nw, output="ergm_state", verbose=max(verbose-1,0),
                              control=control.simulate.formula(MCMC.burnin=if(i==1) control$obs.MCMC.burnin else ceiling(control$obs.MCMC.burnin/sqrt(control$nsteps)),
                                                               term.options=control$term.options,
                                MCMC.interval=1,

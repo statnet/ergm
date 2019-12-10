@@ -34,7 +34,7 @@ simulate.call <- function(y)
            + cyclicalweights("min","max","min")
            + cyclicalweights("min","sum","min")
            + cyclicalweights("geomean","sum","geomean"),
-           coef=rep(0,6),reference=~DiscUnif(0,4),response="w",control=control.simulate(MCMC.burnin=0,MCMC.interval=100),nsim=100,output="pending_update_network")
+           coef=rep(0,6),reference=~DiscUnif(0,4),response="w",control=control.simulate(MCMC.burnin=0,MCMC.interval=100),nsim=100,output="ergm_state")
 
 test_that("valued triadic effects in undirected networks", {
 

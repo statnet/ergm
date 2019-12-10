@@ -8,6 +8,7 @@
  *  Copyright 2003-2019 Statnet Commons
  */
 #include "ergm_wtedgetree.h"
+#include "ergm_Rutil.h"
 
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed
@@ -27,6 +28,8 @@ WtNetwork *WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
 			       Edge nedges, Vertex nnodes, int directed_flag, Vertex bipartite,
 			       int lasttoggle_flag, int time, int *lasttoggle) {
   WtNetwork *nwp = Calloc(1, WtNetwork);
+
+  nwp->eattrname = NULL;
 
   nwp->last_inedge = nwp->last_outedge = (Edge)nnodes;
   /* Calloc will zero the allocated memory for us, probably a lot
@@ -59,6 +62,7 @@ WtNetwork *WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
   for(Edge i = 0; i < nedges; i++) {
     Vertex tail=tails[i], head=heads[i];
     double w=weights[i];
+    if(w==0) continue;
     if (!directed_flag && tail > head) 
       WtAddEdgeToTrees(head,tail,w,nwp); /* Undir edges always have tail < head */ 
     else 
@@ -801,4 +805,53 @@ void WtExpireTimestamps(unsigned int edges, unsigned int nonedges, WtNetwork *nw
           kh_del(DyadMapInt, nwp->duration_info->lasttoggle, __i);
       });
   }
+}
+
+WtNetwork *Redgelist2WtNetwork(SEXP elR, Rboolean empty, 
+                             Rboolean lasttoggle_flag, int time, int *lasttoggle){
+  Vertex e = empty ? 0 : length(VECTOR_ELT(elR, 0));
+  Vertex *tails = empty ? NULL : (Vertex*) INTEGER(VECTOR_ELT(elR, 0));
+  Vertex *heads = empty ? NULL : (Vertex*) INTEGER(VECTOR_ELT(elR, 1));
+  double *weights = empty ? NULL : REAL(VECTOR_ELT(elR, 2));
+  Vertex n = asInteger(getAttrib(elR, install("n")));
+  Rboolean directed = asLogical(getAttrib(elR, install("directed")));
+  Vertex bipartite = asInteger(getAttrib(elR, install("bipartite")));
+  WtNetwork *nwp = WtNetworkInitialize(tails, heads, weights, e, n, directed, bipartite, lasttoggle_flag, time, lasttoggle);
+  nwp->eattrname = CHAR(STRING_ELT(getAttrib(elR, R_NamesSymbol),2));
+  return nwp;
+}
+
+
+SEXP WtNetwork2Redgelist(WtNetwork *nwp){
+  SEXP outl = PROTECT(mkNamed(VECSXP, (const char *[]){".tail", ".head", nwp->eattrname, ""}));
+  SEXP newnetworktails = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)));
+  SEXP newnetworkheads = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)));
+  SEXP newnetworkweights = PROTECT(allocVector(REALSXP, EDGECOUNT(nwp)));
+  WtEdgeTree2EdgeList((Vertex*)INTEGER(newnetworktails),
+                      (Vertex*)INTEGER(newnetworkheads),
+                      (double*)REAL(newnetworkweights),
+                    nwp,EDGECOUNT(nwp));
+  SET_VECTOR_ELT(outl, 0, newnetworktails);
+  SET_VECTOR_ELT(outl, 1, newnetworkheads);
+  SET_VECTOR_ELT(outl, 2, newnetworkweights);
+  UNPROTECT(3);
+
+  SEXP rownames = PROTECT(allocVector(INTSXP, EDGECOUNT(nwp)));
+  int *r = INTEGER(rownames);
+  for(unsigned int i=1; i<=EDGECOUNT(nwp); i++, r++) *r=i; 
+  setAttrib(outl, install("row.names"), rownames);
+  UNPROTECT(1);
+
+  setAttrib(outl, install("n"), PROTECT(ScalarInteger(nwp->nnodes)));
+  setAttrib(outl, install("directed"), PROTECT(ScalarLogical(nwp->directed_flag)));
+  setAttrib(outl, install("bipartite"), PROTECT(ScalarInteger(nwp->bipartite)));
+  setAttrib(outl, install("response"), PROTECT(mkChar(nwp->eattrname)));
+  UNPROTECT(4);
+
+  SEXP class = PROTECT(mkRStrVec((const char*[]){"edgelist", "tbl_df", "tbl", "data.frame", NULL}));
+  classgets(outl, class);
+  UNPROTECT(1);
+
+  UNPROTECT(1);
+  return outl;
 }

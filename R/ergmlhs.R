@@ -26,6 +26,12 @@
 #' @keywords internal
 #' @export
 `%ergmlhs%` <- function(lhs, setting){
+  UseMethod("%ergmlhs%")
+}
+
+#' @rdname ergmlhs
+#' @export
+`%ergmlhs%.network` <- function(lhs, setting){
   out <- (lhs %n% "ergm")[[setting]]
   if(!is.null(out)) return(out)
 
@@ -43,6 +49,12 @@
 #' @param value value with which to overwrite the setting.
 #' @export
 `%ergmlhs%<-` <- function(lhs, setting, value){
+  UseMethod("%ergmlhs%<-")
+}
+
+#' @rdname ergmlhs
+#' @export
+`%ergmlhs%<-.network` <- function(lhs, setting, value){
   settings <- NVL(lhs %n% "ergm", list())
   settings[[setting]] <- value
   lhs %n% "ergm" <- settings

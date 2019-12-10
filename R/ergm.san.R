@@ -59,7 +59,7 @@ san.default <- function(object,...)
 #' chain.  If NULL, this is taken to be the network named in the formula.
 #'
 #' @param output Character, one of `"network"` (default),
-#'   `"edgelist"`, or `"pending_update_network"`: determines the
+#'   `"edgelist"`, or `"ergm_state"`: determines the
 #'   output format. Partial matching is performed.
 #' @param only.last if `TRUE`, only return the last network generated;
 #'   otherwise, return a [`network.list`] with `nsim` networks.
@@ -122,7 +122,7 @@ san.default <- function(object,...)
 #' @export
 san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints=~., target.stats=NULL,
                         nsim=NULL, basis=NULL,
-                        output=c("network","edgelist","pending_update_network"),
+                        output=c("network","edgelist","ergm_state"),
                         only.last=TRUE,
                         control=control.san(),
                         verbose=FALSE, 
@@ -147,9 +147,9 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   }
 
   nw <- as.network(ensure_network(nw), populate=FALSE)
-  # nw is now a network/pending_update_network hybrid class. As long
+  # nw is now a network/ergm_state hybrid class. As long
   # as its edges are only accessed through methods that
-  # pending_update_network methods overload, it should be fine.
+  # ergm_state methods overload, it should be fine.
 
   # Inherit constraints from nw if needed.
   tmp <- .handle.auto.constraints(nw, constraints, NULL, NULL)
@@ -166,7 +166,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
 #' @export
 san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constraints=~., target.stats=NULL,
                            nsim=NULL, basis=NULL,
-                           output=c("network","edgelist","pending_update_network"),
+                           output=c("network","edgelist","ergm_state"),
                            only.last=TRUE,
                            control=control.san(),
                            verbose=FALSE, 
@@ -200,9 +200,9 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
   if(!is.null(control$seed)) set.seed(as.integer(control$seed))
   nw <- basis
   nw <- as.network(ensure_network(nw), populate=FALSE)
-  # nw is now a network/pending_update_network hybrid class. As long
+  # nw is now a network/ergm_state hybrid class. As long
   # as its edges are only accessed through methods that
-  # pending_update_network methods overload, it should be fine.
+  # ergm_state methods overload, it should be fine.
 
   if(is.null(target.stats)){
     stop("You need to specify target statistic via",
@@ -226,8 +226,6 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
     stop("Length of ", sQuote("offset.coef"), " in SAN is ", length(offset.coef), ", while the number of offset statistics in the model is ", noffset, ".")
   }    
   
-  Clist <- ergm.Cprepare(nw, model, response=response)
-  
   if (verbose) {
     message(paste("Starting ",control$SAN.maxit," MCMC iteration", ifelse(control$SAN.maxit>1,"s",""),
         " of ", control$SAN.nsteps,
@@ -244,7 +242,8 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
     (function(x) x/sum(x) * control$SAN.nsteps) %>%
     round()
 
-  z <- NULL
+  state <- ergm_state(nw, model, response=response, stats=stats)
+  sm <- NULL
   for(i in 1:control$SAN.maxit){
     if (verbose) {
       message(paste("#", i, " of ", control$SAN.maxit, ": ", sep=""),appendLF=FALSE)
@@ -257,20 +256,19 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
     # even if control$SAN.ignore.finite.offsets is FALSE
     if(abs(tau) < .Machine$double.eps) offsets[is.finite(offsets)] <- 0
     
-    z <- ergm_SAN_slave(Clist, proposal, stats, tau, control, verbose,..., prev.run=z, nsteps=nsteps, statindices=statindices, offsetindices=offsetindices, offsets=offsets)
+    z <- ergm_SAN_slave(state, model, proposal, tau, control, verbose,..., nsteps=nsteps, statindices=statindices, offsetindices=offsetindices, offsets=offsets)
+    state <- z$state
+    sm <- rbind(sm, z$s)
+    sm.prop <- z$s.prop
 
     if(z$status!=0) stop("Error in SAN.")
     
-    outnw <- pending_update_network(nw,z,response=response)
-    nw <-  outnw
-    stats <- z$s[nrow(z$s),]
+    stats <- sm[nrow(sm),]
     # Use *proposal* distribution of statistics for weights.
     invcov <-
-      if(control$SAN.invcov.diag) ginv(diag(diag(cov(z$s.prop)), ncol(z$s.prop)), tol=.Machine$double.eps)
-      else ginv(cov(z$s.prop), tol=.Machine$double.eps)
+      if(control$SAN.invcov.diag) ginv(diag(diag(cov(sm.prop)), ncol(sm.prop)), tol=.Machine$double.eps)
+      else ginv(cov(sm.prop), tol=.Machine$double.eps)
 
-    # On resuming, don't accumulate proposal record.
-    z$s.prop <- NULL
     # Ensure no statistic has weight 0:
     diag(invcov)[abs(diag(invcov))<.Machine$double.eps] <- min(diag(invcov)[abs(diag(invcov))>=.Machine$double.eps],1)
     invcov <- invcov / sum(diag(invcov)) # Rescale for consistency.
@@ -290,9 +288,9 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
     
     if(!only.last){
       out.list[[i]] <- switch(output,
-                              pending_update_network=outnw,
-                              network=as.network(outnw),
-                              edgelist=as.edgelist(outnw)
+                              ergm_state=state,
+                              network=as.network(state),
+                              edgelist=as.edgelist(state)
                               )
       out.mat <- z$s
       attr(out.mat, "W") <- invcov
@@ -308,9 +306,9 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
               stats = out.mat, class="network.list")
   }else{
     switch(output,
-           pending_update_network=outnw,
-           network=as.network(outnw),
-           edgelist=as.edgelist(outnw)
+           ergm_state=state,
+           network=as.network(state),
+           edgelist=as.edgelist(state)
            )    
   }
 }
@@ -322,7 +320,7 @@ san.ergm <- function(object, formula=object$formula,
                      constraints=object$constraints, 
                      target.stats=object$target.stats,
                      nsim=NULL, basis=NULL,
-                     output=c("network","edgelist","pending_update_network"),
+                     output=c("network","edgelist","ergm_state"),
                      only.last=TRUE,
                      control=object$control$SAN.control,
                      verbose=FALSE, 
@@ -339,38 +337,16 @@ san.ergm <- function(object, formula=object$formula,
               offset.coef=offset.coef, ...)
 }
 
-ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run=NULL, nsteps=NULL, samplesize=NULL, statindices=NULL, offsetindices=NULL, offsets=NULL) {
-  if(is.null(prev.run)){ # Start from Clist
-    nedges <- Clist$nedges
-    tails <- Clist$tails
-    heads <- Clist$heads
-    weights <- Clist$weights
-  }else{ # Pick up where we left off
-    nedges <- prev.run$newnwtails[1]
-    tails <- prev.run$newnwtails[2:(nedges+1)]
-    heads <- prev.run$newnwheads[2:(nedges+1)]
-    weights <- prev.run$newnwweights[2:(nedges+1)]
-    stats <- prev.run$s[nrow(prev.run$s),]
-  }
-
+ergm_SAN_slave <- function(state, m, proposal, tau,control,verbose,..., nsteps=NULL, samplesize=NULL, statindices=NULL, offsetindices=NULL, offsets=NULL){
   if(is.null(nsteps)) nsteps <- control$SAN.nsteps
   if(is.null(samplesize)) samplesize <- control$SAN.samplesize
 
   z <-
-    if(is.null(Clist$weights)){
+    if(!is.valued(state)){
       .Call("SAN_wrapper",
-            # Network settings
-            as.integer(Clist$n),
-            as.integer(Clist$dir), as.integer(Clist$bipartite),
-            # Model settings
-            Clist$m,
-            # Proposal settings
-            proposal,
-            # Network state
-            as.integer(nedges),
-            as.integer(tails), as.integer(heads),
+            state, m, proposal,
             # SAN settings
-            as.double(.deinf(tau)), as.double(stats),
+            as.double(.deinf(tau)),
             as.integer(samplesize),
             as.integer(nsteps),
             as.double(control$invcov),
@@ -381,18 +357,9 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
             PACKAGE="ergm")
     }else{
       .Call("WtSAN_wrapper",
-            # Network settings
-            as.integer(Clist$n),
-            as.integer(Clist$dir), as.integer(Clist$bipartite),
-            # Model settings
-            Clist$m,
-            # Proposal settings
-            proposal,
-            # Network state
-            as.integer(nedges),
-            as.integer(tails), as.integer(heads), as.double(weights),
-            # MCMC settings
-            as.double(.deinf(tau)), as.double(stats),
+            state, m, proposal,
+            # SAN settings
+            as.double(.deinf(tau)),
             as.integer(samplesize),
             as.integer(nsteps),
             as.double(control$invcov),
@@ -403,11 +370,9 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
             PACKAGE="ergm")
     }
   # save the results
-  z<-list(s=matrix(z$s, ncol=length(statindices), byrow = TRUE), s.prop=matrix(z$s.prop, ncol=length(statindices), byrow = TRUE),
-          newnwtails=z$newnwtails, newnwheads=z$newnwheads, newnwweights=z$newnwweights, status=z$status)
-
-  z$s <- rbind(prev.run$s,z$s)
-  z$s.prop <- rbind(prev.run$s.prop,z$s.prop)
+  z$s <- matrix(z$s, ncol=length(statindices), byrow = TRUE)
+  z$s.prop <- matrix(z$s.prop, ncol=length(statindices), byrow = TRUE)
+  colnames(z$s) <- colnames(z$s.prop) <- param_names(m, canonical=TRUE)[statindices]
 
   z
 }

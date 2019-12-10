@@ -28,21 +28,21 @@ extern void node_geodesics(void *, void *, void *, void *, void *, void *, void 
 extern void pair_geodesic(void *, void *, void *, void *, void *, void *, void *, void *, void *);
 
 /* .Call calls */
-extern SEXP AllStatistics(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP CD_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP AllStatistics(SEXP, SEXP, SEXP);
+extern SEXP CD_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP get_ergm_omp_terms();
-extern SEXP Godfather_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP MCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP MCMCPhase12(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP MPLE_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP network_stats_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP SAN_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP Godfather_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP MCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP MCMCPhase12(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP MPLE_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP network_stats_wrapper(SEXP, SEXP, SEXP, SEXP);
+extern SEXP SAN_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP set_ergm_omp_terms(SEXP);
-extern SEXP wt_network_stats_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP WtCD_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP WtGodfather_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP WtMCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP WtSAN_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP wt_network_stats_wrapper(SEXP, SEXP, SEXP, SEXP);
+extern SEXP WtCD_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP WtGodfather_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP WtMCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP WtSAN_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
 static const R_CMethodDef CEntries[] = {
     {"full_geodesic_distribution", (DL_FUNC) &full_geodesic_distribution, 8},
@@ -53,21 +53,21 @@ static const R_CMethodDef CEntries[] = {
 };
 
 static const R_CallMethodDef CallEntries[] = {
-    {"AllStatistics",            (DL_FUNC) &AllStatistics,             8},
-    {"CD_wrapper",               (DL_FUNC) &CD_wrapper,               12},
+    {"AllStatistics",            (DL_FUNC) &AllStatistics,             3},
+    {"CD_wrapper",               (DL_FUNC) &CD_wrapper,                7},
     {"get_ergm_omp_terms",       (DL_FUNC) &get_ergm_omp_terms,        0},
-    {"Godfather_wrapper",        (DL_FUNC) &Godfather_wrapper,        13},
-    {"MCMC_wrapper",             (DL_FUNC) &MCMC_wrapper,             14},
-    {"MCMCPhase12",              (DL_FUNC) &MCMCPhase12,              18},
-    {"MPLE_wrapper",             (DL_FUNC) &MPLE_wrapper,             10},
-    {"network_stats_wrapper",    (DL_FUNC) &network_stats_wrapper,    10},
-    {"SAN_wrapper",              (DL_FUNC) &SAN_wrapper,              17},
+    {"Godfather_wrapper",        (DL_FUNC) &Godfather_wrapper,         8},
+    {"MCMC_wrapper",             (DL_FUNC) &MCMC_wrapper,              9},
+    {"MCMCPhase12",              (DL_FUNC) &MCMCPhase12,              12},
+    {"MPLE_wrapper",             (DL_FUNC) &MPLE_wrapper,              5},
+    {"network_stats_wrapper",    (DL_FUNC) &network_stats_wrapper,     4},
+    {"SAN_wrapper",              (DL_FUNC) &SAN_wrapper,              11},
     {"set_ergm_omp_terms",       (DL_FUNC) &set_ergm_omp_terms,        1},
-    {"wt_network_stats_wrapper", (DL_FUNC) &wt_network_stats_wrapper, 11},
-    {"WtCD_wrapper",             (DL_FUNC) &WtCD_wrapper,             13},
-    {"WtGodfather_wrapper",      (DL_FUNC) &WtGodfather_wrapper,      14},
-    {"WtMCMC_wrapper",           (DL_FUNC) &WtMCMC_wrapper,           15},
-    {"WtSAN_wrapper",            (DL_FUNC) &WtSAN_wrapper,            18},
+    {"wt_network_stats_wrapper", (DL_FUNC) &wt_network_stats_wrapper,  4},
+    {"WtCD_wrapper",             (DL_FUNC) &WtCD_wrapper,              7},
+    {"WtGodfather_wrapper",      (DL_FUNC) &WtGodfather_wrapper,       8},
+    {"WtMCMC_wrapper",           (DL_FUNC) &WtMCMC_wrapper,            9},
+    {"WtSAN_wrapper",            (DL_FUNC) &WtSAN_wrapper,            11},
     {NULL, NULL, 0}
 };
 

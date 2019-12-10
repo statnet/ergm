@@ -89,7 +89,7 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
   })
 
   m <- ergm_model(formula, nw, role="target", response=response, term.options=control$term.options)
-  Clist <- ergm.Cprepare(nw, m, response=response)
+  state <- ergm_state(nw, m, response=response)
   m$obs <- if(changes.only) numeric(nparam(m, canonical=TRUE))
            else summary(m, nw, response=response)
 
@@ -97,18 +97,9 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
   
   if(verbose) message_print("Applying changes...\n")
   z <-
-    if(is.null(Clist$weights))
+    if(!is.valued(state))
       .Call("Godfather_wrapper",
-            # Network settings
-            as.integer(Clist$n),
-            as.integer(Clist$dir),
-            as.integer(Clist$bipartite),
-            # Model settings
-            Clist$m,
-            # Network state
-            as.integer(Clist$nedges),
-            as.integer(Clist$tails),
-            as.integer(Clist$heads),
+            state, m,
             # Godfather settings
             as.integer(length(changes)),
             as.integer(changem[,1]),
@@ -119,17 +110,7 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
             PACKAGE="ergm")
     else
       .Call("WtGodfather_wrapper",
-            # Network settings
-            as.integer(Clist$n),
-            as.integer(Clist$dir),
-            as.integer(Clist$bipartite),
-            # Model settings
-            Clist$m,
-            # Network state
-            as.integer(Clist$nedges),
-            as.integer(Clist$tails),
-            as.integer(Clist$heads),
-            as.double(Clist$weights),
+            state, m,
             # Godfather settings
             as.integer(length(changes)),
             as.integer(changem[,1]),
@@ -139,7 +120,7 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
             as.integer(verbose),
             PACKAGE="ergm")
 
-  stats <- matrix(z$s, ncol=Clist$nstats, byrow=TRUE)
+  stats <- matrix(z$s, ncol=nparam(m,canonical=TRUE), byrow=TRUE)
   stats <- t(t(apply(stats,2,cumsum)) + m$obs)
   
   colnames(stats) <- param_names(m, canonical=TRUE)
@@ -149,7 +130,7 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
   
   if(end.network){ 
     if(verbose) cat("Creating new network...\n")
-    newnetwork <- as.network(pending_update_network(nw,z,response=response))
+    newnetwork <- as.network(z$state)
     attr(newnetwork,"stats")<-stats
     newnetwork
   }else stats

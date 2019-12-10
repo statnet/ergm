@@ -104,7 +104,7 @@ ergm.MCMLE <- function(init, nw, model,
   # statshifts will be 0. target.stats and missing dyads are mutually
   # exclusive, so model$target.stats will be set equal to
   # model$nw.stats, causing this to happen.
-  nw <- single.impute.dyads(nw, response=response, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, output="pending", verbose=verbose)
+  nw <- single.impute.dyads(nw, response=response, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, output="network", verbose=verbose)
 
   ec <- if(is(nw, "network")) network.edgecount(nw, FALSE)
         else nrow(as.edgelist(nw))

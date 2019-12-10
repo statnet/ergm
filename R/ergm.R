@@ -594,7 +594,7 @@ ergm <- function(formula, response=NULL,
       if(!is.null(proposal.obs$auxiliaries)){
         if(verbose) message(" (requests auxiliaries: updating model).")
         model$obs.model <- c(model, ergm_model(~., nw, response=response, extra.aux=list(proposal=proposal.obs$auxiliaries), term.options=control$term.options))
-        proposal.obs$slots.extra.aux <- model.obs$slots.extra.aux$proposal
+        proposal.obs$slots.extra.aux <- model$model.obs$slots.extra.aux$proposal
         if(verbose) message("Model reinitialized.")
       }else if(verbose) message(".")
     }else proposal.obs <- NULL
@@ -623,7 +623,7 @@ ergm <- function(formula, response=NULL,
                 constraints=constraints,
                 control=san.control,
                 only.last=TRUE,
-                output="pending_update_network",
+                output="ergm_state",
                 verbose=verbose,
                 offset.coef=offset.coef)
       if(verbose) message("Finished SAN run.")

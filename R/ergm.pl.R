@@ -44,28 +44,12 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
                     control, ignore.offset=FALSE,
                     verbose=FALSE) {
-  Clist <- ergm.Cprepare(nw, m)
-  bip <- Clist$bipartite
-  n <- Clist$n
-
   maxNumDyadTypes <- min(control$MPLE.max.dyad.types,
-                         ifelse(bip>0, bip*(n-bip), 
-                                ifelse(Clist$dir, n*(n-1), n*(n-1)/2)))
-                        
-  # May have to think harder about what maxNumDyadTypes should be if we 
-  # implement a hash-table approach to compression.
+                         network.dyadcount(nw,na.omit=TRUE))
+  state <- ergm_state(nw)
   # *** don't forget, pass in tails first now, not heads
   z <- .Call("MPLE_wrapper",
-             # Network settings
-             as.integer(Clist$n),
-             as.integer(Clist$dir),
-             as.integer(Clist$bipartite),
-             # Model settings
-             Clist$m,
-             # Network state
-             as.integer(Clist$nedges),
-             as.integer(Clist$tails),
-             as.integer(Clist$heads),
+             state, m,
              # MPLE settings
              as.double(to_ergm_Cdouble(fd)),
              as.integer(.Machine$integer.max), # maxDyads
@@ -78,7 +62,7 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
   zy <- z$y[uvals]
   wend <- as.numeric(z$weightsvector[uvals])
   informative.ties <- sum(wend[zy==1])
-  xmat <- matrix(z$x, ncol=Clist$nstats, byrow=TRUE)[uvals,,drop=FALSE]
+  xmat <- matrix(z$x, ncol=nparam(m,canonical=TRUE), byrow=TRUE)[uvals,,drop=FALSE]
   colnames(xmat) <- param_names(m,canonical=TRUE)
   rm(z,uvals)
 
@@ -91,29 +75,19 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
     xmat <- xmat[zy==0,,drop=FALSE]
     zy <- zy[zy==0]
 
-    el <- as.edgelist(cbind(Clist$tails, Clist$heads), n, directed=TRUE, bipartite=FALSE, loops=TRUE) # This will be filtered by fd anyway.
     ## Run a whitelist PL over all of the toggleable edges in the network.
-    presentrle <- as.rlebdm(el) & fd
-  z <- .Call("MPLE_wrapper",
-             # Network settings
-             as.integer(Clist$n),
-             as.integer(Clist$dir),
-             as.integer(Clist$bipartite),
-             # Model settings
-             Clist$m,
-             # Network state
-             as.integer(Clist$nedges),
-             as.integer(Clist$tails),
-             as.integer(Clist$heads),
-             # MPLE settings
-             as.double(to_ergm_Cdouble(presentrle)),
-             as.integer(.Machine$integer.max), # maxDyads
-             as.integer(maxNumDyadTypes),
-             PACKAGE="ergm")
+    presentrle <- as.rlebdm(state) & fd
+    z <- .Call("MPLE_wrapper",
+               state, m,
+               # MPLE settings
+               as.double(to_ergm_Cdouble(presentrle)),
+               as.integer(.Machine$integer.max), # maxDyads
+               as.integer(maxNumDyadTypes),
+               PACKAGE="ergm")
     uvals <- z$weightsvector!=0
     zy.e <- z$y[uvals]
     wend.e <- as.numeric(z$weightsvector[uvals])
-    xmat.e <- matrix(z$x, ncol=Clist$nstats, byrow=TRUE)[uvals,,drop=FALSE]
+    xmat.e <- matrix(z$x, ncol=nparam(m,canonical=TRUE), byrow=TRUE)[uvals,,drop=FALSE]
     colnames(xmat.e) <- param_names(m,canonical=TRUE)
     rm(z,uvals)
 

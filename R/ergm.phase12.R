@@ -39,13 +39,13 @@
 #
 ###############################################################################
 
-ergm.phase12 <- function(g, model,
+ergm.phase12 <- function(g, m,
                         proposal, eta0,
                         control, verbose) {
-# ms <- model$target.stats
+# ms <- m$target.stats
 # if(!is.null(ms)) {
-#   if (is.null(names(ms)) && length(ms) == nparam(model,canonical=TRUE))
-#     names(ms) <- param_names(model,canonical=TRUE)
+#   if (is.null(names(ms)) && length(ms) == nparam(m,canonical=TRUE))
+#     names(ms) <- param_names(m,canonical=TRUE)
 #   obs <- control$orig.obs
 #   obs <- obs[match(names(ms), names(obs))]
 #   ms  <-  ms[match(names(obs), names(ms))]
@@ -53,21 +53,12 @@ ergm.phase12 <- function(g, model,
 #   if (any(!is.na(matchcols))) {
 #     ms[!is.na(matchcols)] <- ms[!is.na(matchcols)] - obs[matchcols[!is.na(matchcols)]]
 #   }
-# }
-  Clist <- ergm.Cprepare(g, model)
+  # }
+  state <- ergm_state(g, m, stats=control$stats)
   z <- .Call("MCMCPhase12",
-             # Network settings
-             as.integer(Clist$n),
-             as.integer(Clist$dir), as.integer(Clist$bipartite),
-             # Model settings
-             Clist$m,
-             # Proposal settings
-             proposal,
-             # Network state
-             as.integer(Clist$nedges),
-             as.integer(Clist$tails), as.integer(Clist$heads),
+             state, m, proposal,
              # Phase12 settings
-             as.double(.deinf(eta0)), as.double(control$stats),
+             as.double(.deinf(eta0)),
              as.integer(control$MCMC.samplesize), as.integer(control$MCMC.burnin), as.integer(control$MCMC.interval),
              as.double(control$gain), as.integer(control$phase1), as.integer(control$nsub),
              as.integer(.deinf(NVL(control$MCMC.maxedges,Inf),"maxint")),
@@ -75,15 +66,15 @@ ergm.phase12 <- function(g, model,
              PACKAGE="ergm")
 
   statsmatrix <- matrix(z$s, nrow=control$MCMC.samplesize,
-                        ncol=Clist$nstats,
+                        ncol=nparam(m,canonical=TRUE),
                         byrow = TRUE)
   eta <- z$eta
   names(eta) <- names(eta0)
 
-  newnetwork<-as.network(pending_update_network(g,z))
+  newnetwork<-as.network(z$state)
   
-  colnames(statsmatrix) <- param_names(model,canonical=TRUE)
-  list(statsmatrix=statsmatrix, newnetwork=newnetwork, target.stats=model$target.stats, nw.stats=model$nw.stats,
+  colnames(statsmatrix) <- param_names(m,canonical=TRUE)
+  list(statsmatrix=statsmatrix, newnetwork=newnetwork, target.stats=m$target.stats, nw.stats=m$nw.stats,
        maxedges=control$MCMC.init.maxedges,
        eta=eta)
 }

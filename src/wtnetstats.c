@@ -9,7 +9,6 @@
  */
 #include "wtnetstats.h"
 #include "ergm_omp.h"
-#include "ergm_util.h"
 /*****************
  void network_stats_wrapper
 
@@ -19,31 +18,33 @@
  change gives the true global values for the observed graph.
 *****************/
 
-SEXP wt_network_stats_wrapper(ARGS_WTNWSETTINGS,
+SEXP wt_network_stats_wrapper(ARGS_WTNW,
                               ARGS_WTMODEL,
-                              ARGS_WTNWSTATE,
-                              ARGS_WTLASTTOGGLE,
-                              // Summary settings
-                              SEXP emptynwstats){
+                              ARGS_WTLASTTOGGLE){
   GetRNGstate();  /* R function enabling uniform RNG */
-  WtErgmState *s = WtErgmStateInit(YES_WTNWSETTINGS,
+  WtErgmState *s = WtErgmStateInit(YES_WTNW_EMPTY,
                                    YES_WTMODEL_NOINIT_S,
                                    NO_WTMHPROPOSAL,
-                                   NO_WTNWSTATE,
                                    YES_WTLASTTOGGLE);
 
   WtModel *m = s->m;
 
   SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats));
 
-  if(length(emptynwstats)>0) memcpy(REAL(stats), REAL(emptynwstats), m->n_stats*sizeof(double));
+  if(s->stats) memcpy(REAL(stats), s->stats, m->n_stats*sizeof(double));
   else memset(REAL(stats), 0, m->n_stats*sizeof(double));
 
   /* Compute the change statistics and copy them to stats for return
      to R.  Note that stats already has the statistics of an empty
      network, so d_??? statistics will add on to them, while s_???
-     statistics will simply overwrite them.*/
-  WtSummStats(s, asInteger(nedges), (Vertex*)INTEGER(tails), (Vertex*)INTEGER(heads), REAL(weights), REAL(stats));
+     statistics will simply overwrite them. */
+  SEXP elR = getListElement(stateR, "el");
+  WtSummStats(s,
+              length(VECTOR_ELT(elR, 0)),
+              (Vertex*) INTEGER(VECTOR_ELT(elR, 0)),
+              (Vertex*) INTEGER(VECTOR_ELT(elR, 1)),
+              REAL(VECTOR_ELT(elR, 2)),
+              REAL(stats));
   
   PutRNGstate();
   UNPROTECT(1);

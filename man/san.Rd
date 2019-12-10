@@ -19,7 +19,7 @@ san(object, ...)
   target.stats = NULL,
   nsim = NULL,
   basis = NULL,
-  output = c("network", "edgelist", "pending_update_network"),
+  output = c("network", "edgelist", "ergm_state"),
   only.last = TRUE,
   control = control.san(),
   verbose = FALSE,
@@ -35,7 +35,7 @@ san(object, ...)
   target.stats = NULL,
   nsim = NULL,
   basis = NULL,
-  output = c("network", "edgelist", "pending_update_network"),
+  output = c("network", "edgelist", "ergm_state"),
   only.last = TRUE,
   control = control.san(),
   verbose = FALSE,
@@ -50,7 +50,7 @@ san(object, ...)
   target.stats = object$target.stats,
   nsim = NULL,
   basis = NULL,
-  output = c("network", "edgelist", "pending_update_network"),
+  output = c("network", "edgelist", "ergm_state"),
   only.last = TRUE,
   control = object$control$SAN.control,
   verbose = FALSE,
@@ -97,7 +97,7 @@ implied by the formula, which is either \code{object} itself in the case of
 chain.  If NULL, this is taken to be the network named in the formula.}
 
 \item{output}{Character, one of \code{"network"} (default),
-\code{"edgelist"}, or \code{"pending_update_network"}: determines the
+\code{"edgelist"}, or \code{"ergm_state"}: determines the
 output format. Partial matching is performed.}
 
 \item{only.last}{if \code{TRUE}, only return the last network generated;

@@ -55,7 +55,7 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, role="stat
   if(is.null(nw)) nw <- eval_lhs.formula(formula)
 
   nw <- ensure_network(nw)
-  nw <- as.network(nw, populate=FALSE) # In case it's a pending_update_network.
+  nw <- as.network(nw, populate=FALSE) # In case it's an ergm_state.
 
   NVL(response) <- NVL(nw %ergmlhs% "response")
 

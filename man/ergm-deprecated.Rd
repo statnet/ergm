@@ -6,7 +6,6 @@
 \alias{InitErgmTerm.degreepopularity}
 \alias{InitErgmTerm.idegreepopularity}
 \alias{InitErgmTerm.odegreepopularity}
-\alias{newnw.extract}
 \alias{standardize.network}
 \alias{offset.info.formula}
 \title{Functions that will no longer be supported in future releases of the package}
@@ -16,8 +15,6 @@ InitErgmTerm.degreepopularity(nw, arglist, ...)
 InitErgmTerm.idegreepopularity(nw, arglist, ...)
 
 InitErgmTerm.odegreepopularity(nw, arglist, ...)
-
-newnw.extract(oldnw, z = NULL, output = "network", response = NULL)
 
 standardize.network(nw, preserve.eattr = TRUE)
 
@@ -36,8 +33,6 @@ Functions that have been superceed, were never documented, or will be removed fr
 \item \code{InitErgmTerm.idegreepopularity}: Use \code{\link{idegree1.5}} instead.
 
 \item \code{InitErgmTerm.odegreepopularity}: Use \code{\link{odegree1.5}} instead.
-
-\item \code{newnw.extract}: Use the \code{\link{pending_update_network}} "API".
 
 \item \code{offset.info.formula}: \code{offset.info.formula} returns the offset
 vectors associated with a formula.

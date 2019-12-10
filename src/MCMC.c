@@ -22,28 +22,26 @@
 
  and don't forget that tail -> head
 *****************/
-SEXP MCMC_wrapper(ARGS_NWSETTINGS,
+SEXP MCMC_wrapper(ARGS_NW,
                   ARGS_MODEL,
                   ARGS_MHPROPOSAL,
-                  ARGS_NWSTATE,
                   // MCMC settings
                   SEXP eta, SEXP samplesize, 
                   SEXP burnin, SEXP interval,  
                   SEXP maxedges,
                   SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmState *s = ErgmStateInit(YES_NWSETTINGS,
+  ErgmState *s = ErgmStateInit(YES_NW,
                                YES_MODEL,
                                YES_MHPROPOSAL,
-                               YES_NWSTATE,
                                NO_LASTTOGGLE);
 
-  Network *nwp = s->nwp;
   Model *m = s->m;
   MHProposal *MHp = s->MHp;
 
   SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*m->n_stats));
   memset(REAL(sample), 0, asInteger(samplesize)*m->n_stats*sizeof(double));
+  memcpy(REAL(sample), s->stats, m->n_stats*sizeof(double));
 
   SEXP status;
   if(MHp) status = PROTECT(ScalarInteger(MCMCSample(s,
@@ -52,14 +50,15 @@ SEXP MCMC_wrapper(ARGS_NWSETTINGS,
                                                     asInteger(verbose))));
   else status = PROTECT(ScalarInteger(MCMC_MH_FAILED));
 
-  const char *outn[] = {"status", "s", NWSTATE_NAMES, ""};
+  const char *outn[] = {"status", "s", "state", ""};
   SEXP outl = PROTECT(mkNamed(VECSXP, outn));
   SET_VECTOR_ELT(outl, 0, status);
   SET_VECTOR_ELT(outl, 1, sample);
   
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK && asInteger(maxedges)>0){
-    NWSTATE_SAVE_INTO_RLIST(nwp, outl, 2);
+    s->stats = REAL(sample) + (asInteger(samplesize)-1)*m->n_stats;
+    SET_VECTOR_ELT(outl, 2, ErgmStateRSave(stateR, s));
   }
 
   ErgmStateDestroy(s);  
@@ -271,40 +270,38 @@ MCMCStatus MetropolisHastings(ErgmState *s,
 
 /* *** don't forget tail -> head */
 
-SEXP MCMCPhase12 (ARGS_NWSETTINGS,
+SEXP MCMCPhase12 (ARGS_NW,
                   ARGS_MODEL,
                   ARGS_MHPROPOSAL,
-                  ARGS_NWSTATE,
                   // Phase12 settings
-                  SEXP eta0, SEXP meanstats,
+                  SEXP eta0,
                   SEXP samplesize, SEXP burnin, SEXP interval,
                   SEXP gain, SEXP phase1, SEXP nsub,
                   SEXP maxedges,
                   SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmState *s = ErgmStateInit(YES_NWSETTINGS,
+  ErgmState *s = ErgmStateInit(YES_NW,
                                YES_MODEL,
                                YES_MHPROPOSAL,
-                               YES_NWSTATE,
                                NO_LASTTOGGLE);
 
-  Network *nwp = s->nwp;
   Model *m = s->m;
   MHProposal *MHp = s->MHp;
 
   SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*m->n_stats));
   memset(REAL(sample), 0, asInteger(samplesize)*m->n_stats*sizeof(double));
+  memcpy(REAL(sample), s->stats, m->n_stats*sizeof(double));
   SEXP eta = PROTECT(allocVector(REALSXP, m->n_stats));
   memcpy(REAL(eta), REAL(eta0), m->n_stats*sizeof(double));
 
   SEXP status;
   if(MHp) status = PROTECT(ScalarInteger(MCMCSamplePhase12(s,
-                                                           REAL(eta), asReal(gain), REAL(meanstats), asInteger(phase1), asInteger(nsub), REAL(sample), asInteger(samplesize),
+                                                           REAL(eta), asReal(gain), asInteger(phase1), asInteger(nsub), REAL(sample), asInteger(samplesize),
                                                            asInteger(burnin), asInteger(interval),
                                                            asInteger(verbose))));
   else status = PROTECT(ScalarInteger(MCMC_MH_FAILED));
 
-  const char *outn[] = {"status", "s", "eta", NWSTATE_NAMES, ""};
+  const char *outn[] = {"status", "s", "eta", "state", ""};
   SEXP outl = PROTECT(mkNamed(VECSXP, outn));
   SET_VECTOR_ELT(outl, 0, status);
   SET_VECTOR_ELT(outl, 1, sample);
@@ -312,7 +309,8 @@ SEXP MCMCPhase12 (ARGS_NWSETTINGS,
 
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK && asInteger(maxedges)>0){
-    NWSTATE_SAVE_INTO_RLIST(nwp, outl, 3);
+    s->stats = REAL(sample) + (asInteger(samplesize)-1)*m->n_stats;
+    SET_VECTOR_ELT(outl, 3, ErgmStateRSave(stateR, s));
   }
 
   ErgmStateDestroy(s);
@@ -332,7 +330,7 @@ SEXP MCMCPhase12 (ARGS_NWSETTINGS,
  the networkstatistics array. 
 *********************/
 MCMCStatus MCMCSamplePhase12(ErgmState *s,
-                             double *eta, double gain, double *meanstats, int nphase1, int nsubphases, double *networkstatistics,
+                             double *eta, double gain, int nphase1, int nsubphases, double *networkstatistics,
                              int samplesize, int burnin,
                              int interval, int verbose){
   Model *m = s->m;
@@ -358,7 +356,6 @@ MCMCStatus MCMCSamplePhase12(ErgmState *s,
   u2bar = (double *)Calloc(m->n_stats, double);
   aDdiaginv = (double *)Calloc(m->n_stats, double);
   for (j=0; j < m->n_stats; j++){
-    networkstatistics[j] = -meanstats[j];
     ubar[j] = 0.0;
     u2bar[j] = 0.0;
   }
@@ -439,15 +436,11 @@ MCMCStatus MCMCSamplePhase12(ErgmState *s,
           aDdiaginv[j] /= 2.0;
           if (verbose){Rprintf("eta_%d = %f; change statistic[%d] = %f\n",
 		                 j+1, eta[j], j+1, networkstatistics[j]);}
-/*        if (verbose){ Rprintf(" %f statsmean %f",  eta[j],(networkstatistics[j]-meanstats[j])); } */
         }
         if (verbose){ Rprintf("\n"); }
       }
       /* Set current vector of stats equal to previous vector */
-      for (j=0; j<m->n_stats; j++){
-/*      networkstatistics[j] -= meanstats[j]; */
-        networkstatistics[j+m->n_stats] = networkstatistics[j];
-      }
+      memcpy(networkstatistics+m->n_stats, networkstatistics, m->n_stats*sizeof(double));
       networkstatistics += m->n_stats;
 /*      if (verbose){ Rprintf("step %d from %d:\n",i, samplesize);} */
       /* This then adds the change statistics to these values */

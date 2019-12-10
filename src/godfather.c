@@ -11,7 +11,6 @@
 #include "ergm_model.h"
 #include "ergm_changestat.h"
 #include "ergm_state.h"
-#include "ergm_util.h"
 
 MCMCStatus Godfather(ErgmState *s, Edge n_changes, Vertex *tails, Vertex *heads, int *weights, double *stats){
   Network *nwp = s->nwp;
@@ -68,21 +67,18 @@ MCMCStatus Godfather(ErgmState *s, Edge n_changes, Vertex *tails, Vertex *heads,
  find the changestats that result from starting from an empty network
  and then adding all of the edges to make up an observed network of interest.
 *****************/
-SEXP Godfather_wrapper(ARGS_NWSETTINGS,
+SEXP Godfather_wrapper(ARGS_NW,
                        ARGS_MODEL,
-                       ARGS_NWSTATE,
                        // Godfather settings
                        SEXP nsteps,
                        SEXP changetails, SEXP changeheads, SEXP changeweights,
                        SEXP end_network,
                        SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmState *s = ErgmStateInit(YES_NWSETTINGS,
+  ErgmState *s = ErgmStateInit(YES_NW,
                                YES_MODEL,
                                NO_MHPROPOSAL,
-                               YES_NWSTATE,
                                NO_LASTTOGGLE);
-  Network *nwp = s->nwp;
   Model *m = s->m;
 
   SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats*(1+asInteger(nsteps))));
@@ -91,14 +87,14 @@ SEXP Godfather_wrapper(ARGS_NWSETTINGS,
   SEXP status = PROTECT(ScalarInteger(Godfather(s, length(changetails), (Vertex*)INTEGER(changetails), (Vertex*)INTEGER(changeheads),
                                                 length(changeweights)==0? NULL : INTEGER(changeweights), REAL(stats))));
 
-  const char *outn[] = {"status", "s", NWSTATE_NAMES, ""};
+  const char *outn[] = {"status", "s", "state", ""};
   SEXP outl = PROTECT(mkNamed(VECSXP, outn));
   SET_VECTOR_ELT(outl, 0, status);
   SET_VECTOR_ELT(outl, 1, stats);
 
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK && asInteger(end_network)){
-    NWSTATE_SAVE_INTO_RLIST(nwp, outl, 2);
+    SET_VECTOR_ELT(outl, 2, ErgmStateRSave(stateR, s));
   }
 
   ErgmStateDestroy(s);

@@ -9,7 +9,6 @@
  */
 #include "wtMCMC.h"
 #include "ergm_util.h"
-#include "ergm_wtstate.h"
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
  as (j,k) rather than (k,j).  In other words, only directed networks
@@ -23,28 +22,26 @@
 
  and don't forget that tail -> head
 *****************/
-SEXP WtMCMC_wrapper(ARGS_WTNWSETTINGS,
+SEXP WtMCMC_wrapper(ARGS_WTNW,
                     ARGS_WTMODEL,
                     ARGS_WTMHPROPOSAL,
-                    ARGS_WTNWSTATE,
                     // MCMC settings
                     SEXP eta, SEXP samplesize,
                     SEXP burnin, SEXP interval,
                     SEXP maxedges,
                     SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  WtErgmState *s = WtErgmStateInit(YES_WTNWSETTINGS,
+  WtErgmState *s = WtErgmStateInit(YES_WTNW,
                                    YES_WTMODEL,
                                    YES_WTMHPROPOSAL,
-                                   YES_WTNWSTATE,
                                    NO_WTLASTTOGGLE);
 
-  WtNetwork *nwp = s->nwp;
   WtModel *m = s->m;
   WtMHProposal *MHp = s->MHp;
 
   SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*m->n_stats));
   memset(REAL(sample), 0, asInteger(samplesize)*m->n_stats*sizeof(double));
+  memcpy(REAL(sample), s->stats, m->n_stats*sizeof(double));
 
   SEXP status;
   if(MHp) status = PROTECT(ScalarInteger(WtMCMCSample(s,
@@ -53,14 +50,15 @@ SEXP WtMCMC_wrapper(ARGS_WTNWSETTINGS,
                                                       asInteger(verbose))));
   else status = PROTECT(ScalarInteger(MCMC_MH_FAILED));
 
-  const char *outn[] = {"status", "s", WTNWSTATE_NAMES, ""};
+  const char *outn[] = {"status", "s", "state", ""};
   SEXP outl = PROTECT(mkNamed(VECSXP, outn));
   SET_VECTOR_ELT(outl, 0, status);
   SET_VECTOR_ELT(outl, 1, sample);
   
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK && asInteger(maxedges)>0){
-    WTNWSTATE_SAVE_INTO_RLIST(nwp, outl, 2);
+    s->stats = REAL(sample) + (asInteger(samplesize)-1)*m->n_stats;
+    SET_VECTOR_ELT(outl, 2, WtErgmStateRSave(stateR, s));
   }
 
   WtErgmStateDestroy(s);  

@@ -35,7 +35,7 @@ typedef struct WtNetworkstruct {
   Edge last_outedge;
   Vertex *indegree;
   Vertex *outdegree;
-  double *value;  
+  const char *eattrname;
   Dur_Inf *duration_info;
   Edge maxedges;
 } WtNetwork;
@@ -50,6 +50,10 @@ WtNetwork *WtNetworkInitializeD(double *tails, double *heads, double *weights, E
 				int lasttoggle_flag, int time, int *lasttoggle);
 
 WtNetwork *WtNetworkCopy(WtNetwork *src);
+
+SEXP WtNetwork2Redgelist(WtNetwork *nwp);
+WtNetwork *Redgelist2WtNetwork(SEXP elR, Rboolean empty, 
+                               Rboolean lasttoggle_flag, int time, int *lasttoggle);
 
 /* /\* Accessors. *\/ */
 /* static inline Edge WtEdgetreeSearch (Vertex a, Vertex b, WtTreeNode *edges); */

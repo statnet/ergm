@@ -8,7 +8,7 @@
  *  Copyright 2003-2019 Statnet Commons
  */
 #include "ergm_wtMHproposal.h"
-#include "ergm_util.h"
+#include "ergm_Rutil.h"
 
 /*********************
  void WtMHProposalInitialize

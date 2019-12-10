@@ -20,21 +20,20 @@ ergm_MCMC_sample(
 )
 
 ergm_MCMC_slave(
-  Clist,
+  state,
+  model,
   proposal,
   eta,
   control,
   verbose,
   ...,
-  prev.run = NULL,
   burnin = NULL,
   samplesize = NULL,
-  interval = NULL,
-  stats0 = numeric(Clist$nstats)
+  interval = NULL
 )
 }
 \arguments{
-\item{nw}{a \code{\link{network}} (or \code{\link{pending_update_network}}) object representing the sampler state.}
+\item{nw}{a \code{\link{network}} (or \code{\link{ergm_state}}) object representing the sampler state.}
 
 \item{model}{an \code{\link{ergm_model}} to be sampled from, as returned by
 \code{\link[=ergm_model]{ergm_model()}}.}
@@ -65,14 +64,7 @@ to return an object "promising" to update the network.}
 containing the statistics corresponding to the initial network;
 or a list thereof of the same length as that of \code{nw} if it is a
 list of networks (for parallel sampling). Defaults to a vector of
-0s. Note that if passed to \code{ergm_MCMC_slave}, it is overridden if
-\code{prev.run} is passed as well.}
-
-\item{Clist}{the list of parameters returned by
-\code{\link{ergm.Cprepare}}}
-
-\item{prev.run}{a summary of the state of the sampler allowing a
-run to be resumed quickly by \code{ergm_MCMC_slave}.}
+0s.}
 
 \item{burnin, samplesize, interval}{MCMC paramters that can
 be used to temporarily override those in the \code{control} list.}
@@ -86,14 +78,12 @@ containing:
 \item{final.interval}{adaptively determined MCMC interval.}
 
 If \code{update.nws==FALSE}, rather than returning the updated networks,
-the function will return a \code{\link{pending_update_network}}.
+the function will return a \code{\link{ergm_state}}.
 
 \code{ergm_MCMC_slave} returns the MCMC sample as a list of
 the following: \item{s}{the matrix of statistics.}
-\item{newnwtails}{the vector of tails for the new network.}
-\item{newnwheads}{the vector of heads for the new network.}
-\item{newnwweights}{the vector of weights for the new network (if
-applicable)} \item{status}{success or failure code: \code{0} is
+\item{el}{an \code{\link{edgelist}} object for the new network.}
+\item{status}{success or failure code: \code{0} is
 success, \code{1} for too many edges, and \code{2} for a
 Metropolis-Hastings proposal failing.}
 }

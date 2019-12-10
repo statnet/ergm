@@ -53,43 +53,25 @@ summary.ergm_model <- function(object, nw=NULL, response=NULL,...){
   # overwrite them, since it can compute the whole thing, while if
   # only the d_??? function exists, it needs to add on to empty
   # network statistics.
+
+  NVL(response) <- nw %ergmlhs% "response"
+  state <- ergm_state(nw, m=m, response=response, stats=gs)
+  gs <-
+    if(!is.valued(state))
+      .Call("network_stats_wrapper",
+            state, m,
+            # Network state additional information
+            as.integer(nw %n% "time"),
+            as.integer(nw %n% "lasttoggle"),
+            PACKAGE="ergm")
+    else
+      .Call("wt_network_stats_wrapper",
+            state, m,
+            # Network state additional information
+            as.integer(nw %n% "time"),
+            as.integer(nw %n% "lasttoggle"),
+            PACKAGE="ergm")
   
-  Clist <- ergm.Cprepare(nw, m, response=response)
-  
-  # *** don't forget, tails are passes in first now, notheads  
-  gs <- if(is.null(Clist$weights))
-          .Call("network_stats_wrapper",
-                # Network settings
-                as.integer(Clist$n),
-                as.integer(Clist$dir),
-                as.integer(Clist$bipartite),
-                # Model settings
-                Clist$m,
-                # Network state
-                as.integer(Clist$nedges),
-                as.integer(Clist$tails),
-                as.integer(Clist$heads),
-                as.integer(Clist$time),
-                as.integer(NVL(Clist$lasttoggle,0)),
-                as.double(gs),
-                PACKAGE="ergm")
-        else
-          .Call("wt_network_stats_wrapper",
-                # Network settings
-                as.integer(Clist$n),
-                as.integer(Clist$dir),
-                as.integer(Clist$bipartite),
-                # Model settings
-                Clist$m,
-                # Network state
-                as.integer(Clist$nedges),
-                as.integer(Clist$tails),
-                as.integer(Clist$heads),
-                as.double(Clist$weights),
-                as.integer(Clist$time),
-                as.integer(NVL(Clist$lasttoggle,0)),
-                as.double(gs),
-                PACKAGE="ergm")
   names(gs) <- param_names(m,canonical=TRUE)
 
   gs

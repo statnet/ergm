@@ -35,13 +35,12 @@
 #      missing edges, and the remainder a column-major edgelist
 ################################################################################
 
-#' @rdname ergm_Clist
-#' @description \code{ergm.design} obtain the set of informative dyads based on the network structure. Note that `model=` argument is not needed and will be removed in a future release.
+#' Obtain the set of informative dyads based on the network structure. Note that `model=` argument is not needed and will be removed in a future release.
 #' @return \code{ergm.design} returns a \code{\link{rlebdm}} of
 #'   informative (non-missing, non fixed) dyads.
 #' @export ergm.design
 ergm.design <- function(nw, verbose=FALSE){
   basecon <- ergm_conlist(~.attributes, nw)
-  misscon <- if(!is.pending_update_network(nw) && network.naedgecount(nw)) ergm_conlist(~.attributes+observed, nw)
+  misscon <- if(!is.ergm_state(nw) && network.naedgecount(nw)) ergm_conlist(~.attributes+observed, nw)
   as.rlebdm(basecon, misscon, which="informative")
 }

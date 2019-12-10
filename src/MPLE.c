@@ -10,7 +10,6 @@
 #include "MPLE.h"
 #include "ergm_changestat.h"
 #include "ergm_rlebdm.h"
-#include "ergm_util.h"
 
 /* *****************
  void MPLE_wrapper
@@ -35,17 +34,15 @@
 /* *** don't forget tail -> head, and so this function accepts
    tails before heads now */
 
-SEXP MPLE_wrapper(ARGS_NWSETTINGS,
+SEXP MPLE_wrapper(ARGS_NW,
                   ARGS_MODEL,
-                  ARGS_NWSTATE,
                   // MPLE settings
                   SEXP wl,
 		  SEXP maxNumDyads, SEXP maxNumDyadTypes){
   GetRNGstate(); /* Necessary for R random number generator */
-  ErgmState *s = ErgmStateInit(YES_NWSETTINGS,
+  ErgmState *s = ErgmStateInit(YES_NW,
                                YES_MODEL,
                                NO_MHPROPOSAL,
-                               YES_NWSTATE,
                                NO_LASTTOGGLE);
 
   Network *nwp = s->nwp;

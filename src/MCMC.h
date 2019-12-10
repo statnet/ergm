@@ -27,7 +27,7 @@ MCMCStatus MetropolisHastings(ErgmState *s,
 			      int verbose);
 
 MCMCStatus MCMCSamplePhase12(ErgmState *s,
-  double *eta, double gain, double *meanstats,
+  double *eta, double gain,
   int nphase1, int nsubphases, double *networkstatistics, 
   int samplesize, int burnin, 
   int interval, int verbose);

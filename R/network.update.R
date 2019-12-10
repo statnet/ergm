@@ -55,15 +55,8 @@
 #' 
 #' @param attrname For a network with edge weights gives the name of
 #'   the edge attribute whose names to set.
-#' 
-#' @param ignore.nattr Character vector of the names of network-level
-#'   attributes to ignore when updating network objects (defaults to
-#'   standard network properties).
 #'
 #' @param \dots Additional arguments; currently unused.
-#' 
-#' @param ignore.vattr Character vector of the names of vertex-level
-#'   attributes to ignore when updating network objects.
 #' 
 #' @return A new [`network`] object with the edges specified by
 #'   \code{new} and network and vertex attributes copied from
@@ -89,7 +82,44 @@
 #' update(flomarriage, rand.mat, matrix.type="edgelist")
 #' 
 #' @export
-update.network <- function(object, new, matrix.type=NULL, attrname=NULL, ..., ignore.nattr=c("bipartite","directed","hyper","loops","mnext","multiple","n"), ignore.vattr=c()){
+update.network <- function(object, ...){
+  update_network(object, ...)
+}
+
+#' @describeIn update.network dispatcher for network update based on the type of updating information.
+#' @export
+update_network <- function(object, new, ...){
+  UseMethod("update_network", new)
+}
+
+#' @describeIn update.network a method for updating a network based on a matrix-form edgelist
+#' @export
+update_network.matrix_edgelist <- function(object, new, attrname=if(ncol(new)>2) names(new)[3], ...){
+  NVL(colnames(new)) <- c(".tail",".head",attrname)
+  new <- as_tibble(new)
+  update_network(object, new, attrname=attrname, ...)
+}
+
+#' @describeIn update.network a method for updating a network based on an edgelist
+#' @export
+update_network.data.frame <- function(object, new, attrname=if(ncol(new)>2) names(new)[3], ...){
+  # Empty the network.
+  object[,] <- FALSE
+  if(nrow(new)){
+    if(!is.null(attrname)){
+      names.eval <- rep(list(attrname), nrow(new))
+      vals.eval <- {tmp <- new[[3]]; mode(tmp) <- "list"; tmp}
+    }else{
+      names.eval <- vals.eval <- NULL
+    }
+    add.edges(object,tail=new[[1]],head=new[[2]],names.eval=names.eval, vals.eval=vals.eval)
+  }
+  object
+}
+
+#' @describeIn update.network a method for updating a network based on a matrix
+#' @export
+update_network.matrix <- function(object, new, matrix.type=NULL, attrname=NULL, ...){
   if(is.null(matrix.type)){
     warning("Don't leave matrix type to chance! Pass matrix.type to update.network!")
     matrix.type <- which.matrix.type(new)
@@ -103,15 +133,16 @@ update.network <- function(object, new, matrix.type=NULL, attrname=NULL, ..., ig
 
   if(matrix.type=="adjacency"){
     object[,,names.eval=attrname,add.edges=TRUE] <- new
-  }else if(matrix.type=="edgelist" && !is.null(new) && nrow(new)>0){
-    if(!is.null(attrname)){
-      names.eval <- rep(list(attrname), nrow(new))
-      vals.eval <- {tmp <- new[,3]; mode(tmp) <- "list"; tmp}
-    }else{
-      names.eval <- vals.eval <- NULL
-    }
-    add.edges(object,tail=new[,1],head=new[,2],names.eval=names.eval, vals.eval=vals.eval)
+  }else{
+    object <- update_network.matrix_edgelist(object, new, matrix.type=matrix.type, attrname=attrname, ...)
   }
   
+  object
+}
+
+#' @describeIn update.network a method for updating a network based on an [`ergm_state`] object.
+#' @export
+update_network.ergm_state <- function(object, new, ...){
+  update.network(object, new$el)  
   object
 }

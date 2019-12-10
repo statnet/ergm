@@ -9,7 +9,7 @@
  */
 #include "ergm_MHproposal.h"
 #include "ergm_changestat.h"
-#include "ergm_util.h"
+#include "ergm_Rutil.h"
 
 /*********************
  void MHProposalInitialize

@@ -234,10 +234,9 @@ gof.formula <- function(object, ...,
   GOF <- as.formula(paste("~",paste(all.gof.vars,collapse="+")))
   
   m <- ergm_model(object, nw, term.options=control$term.options)
-  Clist <- ergm.Cprepare(nw, m)
 
   if(is.null(coef)){
-      coef <- rep(0,Clist$nstats)
+      coef <- numeric(nparam(m, canonical=TRUE))
       warning("No parameter values given, using 0\n\t")
   }
 # if(is.bipartite(nw)){

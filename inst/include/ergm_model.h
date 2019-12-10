@@ -9,12 +9,12 @@
  */
 #ifndef _ERGM_MODEL_H_
 #define _ERGM_MODEL_H_
-#include "ergm_util.h"
 
 #include "ergm_edgetree.h"
 #include "ergm_changestat.h"
 #include "R_ext/Rdynload.h"
 #include "ergm_MHproposal.h"
+#include "ergm_Rutil.h"
 
 /* A Model object contains information about an entire ERGM, including the
    total numbers of terms, parameters, and statistics along with a pointer

@@ -76,6 +76,10 @@ Network *NetworkInitializeD(double *tails, double *heads, Edge nedges,
 
 Network *NetworkCopy(Network *src);
 
+SEXP Network2Redgelist(Network *nwp);
+Network *Redgelist2Network(SEXP elR, Rboolean empty, 
+                           Rboolean lasttoggle_flag, int time, int *lasttoggle);
+
 /* /\* Accessors. *\/ */
 /* static inline Edge EdgetreeSearch (Vertex a, Vertex b, TreeNode *edges); */
 /* static inline Edge EdgetreeSuccessor (TreeNode *edges, Edge x); */

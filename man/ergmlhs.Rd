@@ -3,14 +3,20 @@
 \name{ergmlhs}
 \alias{ergmlhs}
 \alias{\%ergmlhs\%}
+\alias{\%ergmlhs\%.network}
 \alias{\%ergmlhs\%<-}
+\alias{\%ergmlhs\%<-.network}
 \alias{convert_ergmlhs}
 \title{An API for specifying aspects of an \code{\link{ergm}} model in the
 LHS/basis network.}
 \usage{
 lhs \%ergmlhs\% setting
 
+\method{\%ergmlhs\%}{network}(lhs, setting)
+
 lhs %ergmlhs% setting <- value
+
+\method{\%ergmlhs\%}{network}(lhs, setting) <- value
 
 convert_ergmlhs(lhs)
 }

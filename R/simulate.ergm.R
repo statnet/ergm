@@ -77,7 +77,7 @@
 #' an error results because the characteristics of the network (e.g., size and
 #' directedness) must be specified.  The \code{ergm} package provides support
 #' for \code{basis} arguments of class \code{\link[network]{network}} and 
-#' of class \code{\link[ergm]{pending_update_network}}; other packages may
+#' of class \code{\link[ergm]{ergm_state}}; other packages may
 #' extend support to other classes.
 #' 
 #' @param statsonly Logical: If TRUE, return only the network statistics, not
@@ -88,7 +88,7 @@
 #' (3.1) by Hunter and Handcock (2006) are returned instead.
 #' 
 #' @param output Character, one of `"network"` (default), `"stats"`,
-#'   `"edgelist"`, or `"pending_update_network"`: determines the
+#'   `"edgelist"`, or `"ergm_state"`: determines the
 #'   output format. Partial matching is performed.
 #'
 #' @param simplify Logical: If `TRUE` the output is "simplified":
@@ -153,7 +153,7 @@
 #' \item{`"edgelist"`}{An [`edgelist`] representation of the network,
 #' or a list thereof, depending on `nsim`.}
 #'
-#' \item{`"pending_update_network"`}{A semi-internal representation of
+#' \item{`"ergm_state"`}{A semi-internal representation of
 #' a network consisting of a [`network`] object emptied of edges, with
 #' an attached edgelist matrix, or a list thereof, depending on
 #' `nsim`.}
@@ -249,7 +249,7 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
                                monitor=NULL,
                                statsonly=FALSE,
                              esteq=FALSE,
-                             output=c("network","stats","edgelist","pending_update_network"),
+                             output=c("network","stats","edgelist","ergm_state"),
                              simplify=TRUE,
                              sequential=TRUE,
                                control=control.simulate.formula(),
@@ -264,13 +264,7 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
   }
 
   nw <- basis
-  
-  # Do some error-checking on the nw object
-  nw <- as.network(ensure_network(nw), populate=FALSE)
-  # nw is now a network/pending_update_network hybrid class. As long
-  # as its edges are only accessed through methods that
-  # pending_update_network methods overload, it should be fine.
-
+  nw <- as.network(nw, populate=FALSE)
   NVL(response) <- nw %ergmlhs% "response"
 
   mon.m <- if(!is.null(monitor)) as.ergm_model(monitor, nw, response=response, term.options=control$term.options)
@@ -332,7 +326,7 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
 #' @rdname simulate.ergm
 #'
 #' @export
-simulate_formula.pending_update_network <- .simulate_formula.network
+simulate_formula.ergm_state <- .simulate_formula.network
 
 #' @rdname simulate.ergm
 #'
@@ -349,7 +343,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                                 monitor=NULL,
                                 basis=NULL,
                                 esteq=FALSE,
-                                output=c("network","stats","edgelist","pending_update_network"),
+                                output=c("network","stats","edgelist","ergm_state"),
                                 simplify=TRUE,
                                 sequential=TRUE,
                                 control=control.simulate.formula(),
@@ -373,12 +367,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   
   # define nw as either the basis argument or (if NULL) the LHS of the formula
   nw <- basis
-  # Do some error-checking on the nw object
-  nw <- as.network(ensure_network(nw), populate=FALSE)
-  # nw is now a network/pending_update_network hybrid class. As long
-  # as its edges are only accessed through methods that
-  # pending_update_network methods overload, it should be fine.
-
+  nw <- as.network(nw, populate=FALSE)
   NVL(response) <- nw %ergmlhs% "response"
 
 
@@ -438,9 +427,9 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     # In this case, we can make one, parallelized run of
     # ergm.getMCMCsample.
     control$MCMC.samplesize <- nsim
-    z <- ergm_MCMC_sample(nw, m, proposal, control, theta=coef, verbose=max(verbose-1,0), response=response, update.nws=FALSE)
+    z <- ergm_MCMC_sample(nw, m, proposal, control, theta=coef, verbose=max(verbose-1,0), response=response, update.nws=FALSE, stats0=curstats)
     # Post-processing: Shift each row by observed statistics.
-    stats <- sweep.mcmc.list(z$stats, curstats, "+")
+    stats <- z$stats
   }else{
     # Create objects to store output
     if (output!="stats") { 
@@ -461,16 +450,16 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
       control.parallel <- modifyList(control,
                                      list(MCMC.samplesize = nthreads(control),
                                           MCMC.burnin = if(i==1 || sequential==FALSE) control$MCMC.burnin else control$MCMC.interval))
-      z <- ergm_MCMC_sample(nw, m, proposal, control.parallel, theta=coef, verbose=max(verbose-1,0), response=response, update.nws=FALSE)
+      z <- ergm_MCMC_sample(nw, m, proposal, control.parallel, theta=coef, verbose=max(verbose-1,0), response=response, update.nws=FALSE, stats0=curstats)
       
-      stats <- mapply(function(s, cs, os) rbind(s, os+cs), stats, curstats, z$stats, SIMPLIFY=FALSE)
+      stats <- mapply(function(s, os) rbind(s, os), stats, z$stats, SIMPLIFY=FALSE)
       
       if(output!="stats") # then store the returned network:
         # Concatenate the following...
         nw.list <- mapply(function(nwl, newnw){nwl[[length(nwl)+1]] <- newnw; nwl}, nw.list,
                           # Extract into a list of network representations, one for each thread:
                           switch(output,
-                                 pending_update_network=z$networks,
+                                 ergm_state=z$networks,
                                  network=lapply(z$networks, as.network),
                                  edgelist=lapply(z$networks, as.edgelist)
                                  ),
@@ -534,7 +523,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           basis=object$newnetwork,
                           statsonly=FALSE,
                           esteq=FALSE,
-                          output=c("network","stats","edgelist","pending_update_network"),
+                          output=c("network","stats","edgelist","ergm_state"),
                           simplify=TRUE,
                           sequential=TRUE,
                           control=control.simulate.ergm(),

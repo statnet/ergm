@@ -7,7 +7,7 @@
 \alias{simulate_formula}
 \alias{.simulate_formula.network}
 \alias{simulate_formula.network}
-\alias{simulate_formula.pending_update_network}
+\alias{simulate_formula.ergm_state}
 \alias{simulate.ergm_model}
 \title{Draw from the distribution of an Exponential Family Random Graph Model}
 \usage{
@@ -27,7 +27,7 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   monitor = NULL,
   statsonly = FALSE,
   esteq = FALSE,
-  output = c("network", "stats", "edgelist", "pending_update_network"),
+  output = c("network", "stats", "edgelist", "ergm_state"),
   simplify = TRUE,
   sequential = TRUE,
   control = control.simulate.formula(),
@@ -37,7 +37,7 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   do.sim = TRUE
 )
 
-\method{simulate_formula}{pending_update_network}(
+\method{simulate_formula}{ergm_state}(
   object,
   nsim = 1,
   seed = NULL,
@@ -49,7 +49,7 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   monitor = NULL,
   statsonly = FALSE,
   esteq = FALSE,
-  output = c("network", "stats", "edgelist", "pending_update_network"),
+  output = c("network", "stats", "edgelist", "ergm_state"),
   simplify = TRUE,
   sequential = TRUE,
   control = control.simulate.formula(),
@@ -71,7 +71,7 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   monitor = NULL,
   basis = NULL,
   esteq = FALSE,
-  output = c("network", "stats", "edgelist", "pending_update_network"),
+  output = c("network", "stats", "edgelist", "ergm_state"),
   simplify = TRUE,
   sequential = TRUE,
   control = control.simulate.formula(),
@@ -92,7 +92,7 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   basis = object$newnetwork,
   statsonly = FALSE,
   esteq = FALSE,
-  output = c("network", "stats", "edgelist", "pending_update_network"),
+  output = c("network", "stats", "edgelist", "ergm_state"),
   simplify = TRUE,
   sequential = TRUE,
   control = control.simulate.ergm(),
@@ -125,7 +125,7 @@ Markov chain.  If omitted, the default is the left-hand-side of the
 an error results because the characteristics of the network (e.g., size and
 directedness) must be specified.  The \code{ergm} package provides support
 for \code{basis} arguments of class \code{\link[network]{network}} and
-of class \code{\link[ergm]{pending_update_network}}; other packages may
+of class \code{\link[ergm]{ergm_state}}; other packages may
 extend support to other classes.}
 
 \item{coef}{Vector of parameter values for the model from which the sample
@@ -166,7 +166,7 @@ either way, but if the model is curved, the score estimating function values
 (3.1) by Hunter and Handcock (2006) are returned instead.}
 
 \item{output}{Character, one of \code{"network"} (default), \code{"stats"},
-\code{"edgelist"}, or \code{"pending_update_network"}: determines the
+\code{"edgelist"}, or \code{"ergm_state"}: determines the
 output format. Partial matching is performed.}
 
 \item{simplify}{Logical: If \code{TRUE} the output is "simplified":
@@ -233,7 +233,7 @@ above-listed additional attributes.}
 \item{\code{"edgelist"}}{An \code{\link{edgelist}} representation of the network,
 or a list thereof, depending on \code{nsim}.}
 
-\item{\code{"pending_update_network"}}{A semi-internal representation of
+\item{\code{"ergm_state"}}{A semi-internal representation of
 a network consisting of a \code{\link{network}} object emptied of edges, with
 an attached edgelist matrix, or a list thereof, depending on
 \code{nsim}.}

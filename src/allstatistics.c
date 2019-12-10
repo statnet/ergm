@@ -9,7 +9,6 @@
  */
 #include "MPLE.h"
 #include "ergm_changestat.h"
-#include "ergm_util.h"
 #include "ergm_state.h"
 
 void RecurseOffOn(ErgmState *s, Vertex *nodelist1,Vertex *nodelist2, Vertex nodelistlength, 
@@ -34,18 +33,16 @@ unsigned int hashNetStatRow(double *newRow, unsigned int rowLength,
  possible network is visited.
  *****************/
 
-SEXP AllStatistics(ARGS_NWSETTINGS,
+SEXP AllStatistics(ARGS_NW,
                    ARGS_MODEL,
-                   ARGS_NWSTATE,
                   // Allstats settings
                   SEXP maxNumDyadTypes){
 
   /* Step 1:  Initialize empty network and initialize model */
   GetRNGstate(); /* Necessary for R random number generator */
-  ErgmState *s = ErgmStateInit(YES_NWSETTINGS,
+  ErgmState *s = ErgmStateInit(YES_NW,
                                YES_MODEL,
                                NO_MHPROPOSAL,
-                               YES_NWSTATE,
                                NO_LASTTOGGLE);
 
   Network *nwp = s->nwp;
@@ -86,7 +83,7 @@ SEXP AllStatistics(ARGS_NWSETTINGS,
     totalStats += mtp->nstats; 
     });
   if (totalStats != m->n_stats) {
-    Rprintf("I thought totalStats=%d and m->nstats=%d should be the same.\n", 
+    Rprintf("I thought totalStats=%d and m->n_stats=%d should be the same.\n", 
     totalStats, m->n_stats);
   }
 

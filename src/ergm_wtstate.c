@@ -1,20 +1,21 @@
 #include "ergm_wtstate.h"
 
 WtErgmState *WtErgmStateInit(// Network settings
-			     Vertex n_nodes, Rboolean directed_flag, Vertex bip,
+			     SEXP stateR, Rboolean empty,
                              // Model settings
 			     SEXP mR, Rboolean noinit_s,
                              // Proposal settings
 			     SEXP pR,
                              // Network state
-                             Edge n_edges,
-			     Vertex *tails, Vertex *heads, double *weights,
                              Rboolean timings, int time, int *lasttoggle){
   WtErgmState *s = Calloc(1, WtErgmState);
-  
+
+  /* Extract stats vector */
+  SEXP tmp = getListElement(stateR, "stats");
+  s->stats = length(tmp) ? REAL(tmp) : NULL;
+
   /* Form the network */
-  s->nwp=WtNetworkInitialize(tails, heads, weights, n_edges, 
-                             n_nodes, directed_flag, bip, timings, time, lasttoggle);
+  s->nwp=Redgelist2WtNetwork(getListElement(stateR,"el"), empty, timings, time, lasttoggle);
 
   /* Initialize the model */
   s->m=NULL;
@@ -27,6 +28,32 @@ WtErgmState *WtErgmStateInit(// Network settings
     s->MHp = WtMHProposalInitialize(pR, s->nwp, s->m->termarray->aux_storage);
   
   return s;
+}
+
+SEXP WtErgmStateRSave(SEXP startR, WtErgmState *s){
+  // Duplicate state
+  SEXP outl = PROTECT(allocVector(VECSXP, length(startR)));
+  setAttrib(outl, R_NamesSymbol, getAttrib(startR, R_NamesSymbol));
+  for(unsigned int i=0; i<length(startR); i++)
+    SET_VECTOR_ELT(outl, i, VECTOR_ELT(startR, i));
+
+  // Network state
+  if(s->nwp) setListElement(outl, "el", WtNetwork2Redgelist(s->nwp));
+
+  // Statistics
+  if(s->stats){
+    SEXP statsR = PROTECT(allocVector(REALSXP, length(getListElement(startR, "stats"))));
+    memcpy(REAL(statsR), s->stats, length(statsR)*sizeof(double));
+    setListElement(outl, "stats", statsR);
+    UNPROTECT(1); // statsR
+  }
+
+  SEXP class = PROTECT(mkRStrVec((const char*[]){"ergm_state", NULL}));
+  classgets(outl, class);
+  UNPROTECT(1); // class
+
+  UNPROTECT(1); // outl
+  return outl;
 }
 
 void WtErgmStateDestroy(WtErgmState *s){

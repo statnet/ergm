@@ -11,7 +11,6 @@
 #include "ergm_wtmodel.h"
 #include "ergm_wtchangestat.h"
 #include "ergm_wtstate.h"
-#include "ergm_util.h"
 
 MCMCStatus WtGodfather(WtErgmState *s, Edge n_changes, Vertex *tails, Vertex *heads, double *weights, double *stats){
   WtNetwork *nwp = s->nwp;
@@ -65,21 +64,18 @@ MCMCStatus WtGodfather(WtErgmState *s, Edge n_changes, Vertex *tails, Vertex *he
  find the changestats that result from starting from an empty network
  and then adding all of the edges to make up an observed network of interest.
 *****************/
-SEXP WtGodfather_wrapper(ARGS_WTNWSETTINGS,
+SEXP WtGodfather_wrapper(ARGS_WTNW,
                          ARGS_WTMODEL,
-                         ARGS_WTNWSTATE,
                          // Godfather settings
                          SEXP nsteps,
                          SEXP changetails, SEXP changeheads, SEXP changeweights,
                          SEXP end_network,
                          SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  WtErgmState *s = WtErgmStateInit(YES_WTNWSETTINGS,
+  WtErgmState *s = WtErgmStateInit(YES_WTNW,
                                    YES_WTMODEL,
                                    NO_WTMHPROPOSAL,
-                                   YES_WTNWSTATE,
                                    NO_WTLASTTOGGLE);
-  WtNetwork *nwp = s->nwp;
   WtModel *m = s->m;
 
   SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats*(1+asInteger(nsteps))));
@@ -87,14 +83,14 @@ SEXP WtGodfather_wrapper(ARGS_WTNWSETTINGS,
 
   SEXP status = PROTECT(ScalarInteger(WtGodfather(s, length(changetails), (Vertex*)INTEGER(changetails), (Vertex*)INTEGER(changeheads), REAL(changeweights), REAL(stats))));
 
-  const char *outn[] = {"status", "s", WTNWSTATE_NAMES, ""};
+  const char *outn[] = {"status", "s", "state", ""};
   SEXP outl = PROTECT(mkNamed(VECSXP, outn));
   SET_VECTOR_ELT(outl, 0, status);
   SET_VECTOR_ELT(outl, 1, stats);
 
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK && asInteger(end_network)){
-    WTNWSTATE_SAVE_INTO_RLIST(nwp, outl, 2);
+    SET_VECTOR_ELT(outl, 2, WtErgmStateRSave(stateR, s));
   }
   
   WtErgmStateDestroy(s);
