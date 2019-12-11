@@ -273,10 +273,15 @@ fun(ntoggles,toggletail,togglehead,nwp,m);
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_state.h"
-ErgmState * ErgmStateInit(SEXP elR, Rboolean empty,SEXP mR, Rboolean noinit_s,SEXP pR,Rboolean timings, int time, int *lasttoggle){
-static ErgmState * (*fun)(SEXP,Rboolean,SEXP,Rboolean,SEXP,Rboolean,int,int *) = NULL;
-if(fun==NULL) fun = (ErgmState * (*)(SEXP,Rboolean,SEXP,Rboolean,SEXP,Rboolean,int,int *)) R_FindSymbol("ErgmStateInit", "ergm", NULL);
-return fun(elR,empty,mR,noinit_s,pR,timings,time,lasttoggle);
+ErgmState * ErgmStateInit(SEXP stateR,Rboolean empty, Rboolean noinit_s,Rboolean timings, int time, int *lasttoggle){
+static ErgmState * (*fun)(SEXP,Rboolean,Rboolean,Rboolean,int,int *) = NULL;
+if(fun==NULL) fun = (ErgmState * (*)(SEXP,Rboolean,Rboolean,Rboolean,int,int *)) R_FindSymbol("ErgmStateInit", "ergm", NULL);
+return fun(stateR,empty,noinit_s,timings,time,lasttoggle);
+}
+SEXP ErgmStateRSave(SEXP startR, ErgmState *s){
+static SEXP (*fun)(SEXP,ErgmState *) = NULL;
+if(fun==NULL) fun = (SEXP (*)(SEXP,ErgmState *)) R_FindSymbol("ErgmStateRSave", "ergm", NULL);
+return fun(startR,s);
 }
 void ErgmStateDestroy(ErgmState *s){
 static void (*fun)(ErgmState *) = NULL;
@@ -473,10 +478,15 @@ fun(ntoggles,toggletail,togglehead,toggleweight,nwp,m);
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_wtstate.h"
-WtErgmState * WtErgmStateInit(SEXP elR, Rboolean empty,SEXP mR, Rboolean noinit_s,SEXP pR,Rboolean timings, int time, int *lasttoggle){
-static WtErgmState * (*fun)(SEXP,Rboolean,SEXP,Rboolean,SEXP,Rboolean,int,int *) = NULL;
-if(fun==NULL) fun = (WtErgmState * (*)(SEXP,Rboolean,SEXP,Rboolean,SEXP,Rboolean,int,int *)) R_FindSymbol("WtErgmStateInit", "ergm", NULL);
-return fun(elR,empty,mR,noinit_s,pR,timings,time,lasttoggle);
+WtErgmState * WtErgmStateInit(SEXP stateR,Rboolean empty, Rboolean noinit_s,Rboolean timings, int time, int *lasttoggle){
+static WtErgmState * (*fun)(SEXP,Rboolean,Rboolean,Rboolean,int,int *) = NULL;
+if(fun==NULL) fun = (WtErgmState * (*)(SEXP,Rboolean,Rboolean,Rboolean,int,int *)) R_FindSymbol("WtErgmStateInit", "ergm", NULL);
+return fun(stateR,empty,noinit_s,timings,time,lasttoggle);
+}
+SEXP WtErgmStateRSave(SEXP startR, WtErgmState *s){
+static SEXP (*fun)(SEXP,WtErgmState *) = NULL;
+if(fun==NULL) fun = (SEXP (*)(SEXP,WtErgmState *)) R_FindSymbol("WtErgmStateRSave", "ergm", NULL);
+return fun(startR,s);
 }
 void WtErgmStateDestroy(WtErgmState *s){
 static void (*fun)(WtErgmState *) = NULL;
