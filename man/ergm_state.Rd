@@ -74,11 +74,11 @@ is.ergm_state(x)
 
 \method{as.ergm_model}{ergm_state}(x, ...)
 
-\method{is.curved}{ergm_state}(x, ...)
+\method{is.curved}{ergm_state}(object, ...)
 
-\method{param_names}{ergm_state}(x, ...)
+\method{param_names}{ergm_state}(object, ...)
 
-\method{nparam}{ergm_state}(x, ...)
+\method{nparam}{ergm_state}(object, ...)
 
 \method{summary}{ergm_state}(object, ...)
 }

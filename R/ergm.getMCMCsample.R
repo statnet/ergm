@@ -26,9 +26,6 @@
 #' @param theta the (possibly curved) parameters of the model.
 #' @param eta the natural parameters of the model; by default constructed from `theta`.
 #' @param verbose verbosity level.
-#' @template response
-#' @param update.nws whether to actually update the network state or
-#'   to return an object "promising" to update the network.
 #' @param ... additional arugments.
 #'
 #' @return

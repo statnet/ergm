@@ -42,13 +42,6 @@ ergm_MCMC_slave(
 
 \item{burnin, samplesize, interval}{MCMC paramters that can
 be used to temporarily override those in the \code{control} list.}
-
-\item{response}{Name of the edge attribute whose value is to be
-modeled in the valued ERGM framework. Defaults to \code{NULL} for
-simple presence or absence, modeled via a binary ERGM.}
-
-\item{update.nws}{whether to actually update the network state or
-to return an object "promising" to update the network.}
 }
 \value{
 \code{ergm_MCMC_sample} returns a list
