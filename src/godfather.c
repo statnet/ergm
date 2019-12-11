@@ -16,6 +16,7 @@ MCMCStatus Godfather(ErgmState *s, Edge n_changes, Vertex *tails, Vertex *heads,
   Network *nwp = s->nwp;
   Model *m = s->m;
 
+  memcpy(stats+m->n_stats, stats, m->n_stats*sizeof(double));
   stats+=m->n_stats;
 
   /* Doing this one change at a time saves a lot of changes... */
@@ -23,6 +24,7 @@ MCMCStatus Godfather(ErgmState *s, Edge n_changes, Vertex *tails, Vertex *heads,
     Vertex t=TAIL(e), h=HEAD(e);
 
     if(t==0){
+      memcpy(stats+m->n_stats, stats, m->n_stats*sizeof(double));
       stats+=m->n_stats;
       continue;
     }
@@ -67,22 +69,20 @@ MCMCStatus Godfather(ErgmState *s, Edge n_changes, Vertex *tails, Vertex *heads,
  find the changestats that result from starting from an empty network
  and then adding all of the edges to make up an observed network of interest.
 *****************/
-SEXP Godfather_wrapper(ARGS_NW,
-                       ARGS_MODEL,
+SEXP Godfather_wrapper(ARGS_STATE,
                        // Godfather settings
                        SEXP nsteps,
                        SEXP changetails, SEXP changeheads, SEXP changeweights,
                        SEXP end_network,
                        SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmState *s = ErgmStateInit(YES_NW,
-                               YES_MODEL,
-                               NO_MHPROPOSAL,
+  ErgmState *s = ErgmStateInit(YES_STATE,
                                NO_LASTTOGGLE);
   Model *m = s->m;
 
   SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats*(1+asInteger(nsteps))));
   memset(REAL(stats), 0, m->n_stats*(1+asInteger(nsteps))*sizeof(double));
+  memcpy(REAL(stats), s->stats, m->n_stats*sizeof(double));
 
   SEXP status = PROTECT(ScalarInteger(Godfather(s, length(changetails), (Vertex*)INTEGER(changetails), (Vertex*)INTEGER(changeheads),
                                                 length(changeweights)==0? NULL : INTEGER(changeweights), REAL(stats))));
@@ -94,6 +94,7 @@ SEXP Godfather_wrapper(ARGS_NW,
 
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK && asInteger(end_network)){
+    s->stats = REAL(stats) + asInteger(nsteps)*m->n_stats;
     SET_VECTOR_ELT(outl, 2, ErgmStateRSave(stateR, s));
   }
 

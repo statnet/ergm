@@ -1,11 +1,7 @@
 #include "ergm_wtstate.h"
 
-WtErgmState *WtErgmStateInit(// Network settings
-			     SEXP stateR, Rboolean empty,
-                             // Model settings
-			     SEXP mR, Rboolean noinit_s,
-                             // Proposal settings
-			     SEXP pR,
+WtErgmState *WtErgmStateInit(SEXP stateR,
+                             Rboolean empty, Rboolean noinit_s,
                              // Network state
                              Rboolean timings, int time, int *lasttoggle){
   WtErgmState *s = Calloc(1, WtErgmState);
@@ -19,14 +15,16 @@ WtErgmState *WtErgmStateInit(// Network settings
 
   /* Initialize the model */
   s->m=NULL;
-  if(s->nwp && mR) // Model also requires network.
-    s->m = WtModelInitialize(mR, s->nwp, noinit_s);
+  tmp = getListElement(stateR, "model");
+  if(s->nwp && length(tmp)) // Model also requires network.
+    s->m = WtModelInitialize(tmp, s->nwp, noinit_s);
 
   /* Initialize the M-H proposal */
   s->MHp=NULL;
-  if(s->m && pR) // Proposal also requires model's auxiliaries.
-    s->MHp = WtMHProposalInitialize(pR, s->nwp, s->m->termarray->aux_storage);
-  
+  tmp = getListElement(stateR, "proposal");
+  if(s->m && length(tmp)) // Proposal also requires model's auxiliaries.
+    s->MHp = WtMHProposalInitialize(tmp, s->nwp, s->m->termarray->aux_storage);
+
   return s;
 }
 

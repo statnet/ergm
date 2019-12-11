@@ -22,17 +22,13 @@
 
  and don't forget that tail -> head
 *****************/
-SEXP CD_wrapper(ARGS_NW,
-                ARGS_MODEL,
-                ARGS_MHPROPOSAL,
+SEXP CD_wrapper(ARGS_STATE,
                 // MCMC settings
                 SEXP eta, SEXP samplesize, 
                 SEXP CDparams,
                 SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmState *s = ErgmStateInit(YES_NW,
-                               YES_MODEL,
-                               YES_MHPROPOSAL,
+  ErgmState *s = ErgmStateInit(YES_STATE,
                                NO_LASTTOGGLE);
 
   Model *m = s->m;

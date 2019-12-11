@@ -130,7 +130,7 @@ ergm.allstats <- function(formula, zeroobs = TRUE, force = FALSE,
   
   # Calculate the statistics relative to the current network using recursive C code
   z <- .Call("AllStatistics",
-             ergm_state(nw, m=m), m,
+             ergm_state(nw, model=m),
              # Allstats settings
              as.integer(maxNumChangeStatVectors),
           PACKAGE="ergm")

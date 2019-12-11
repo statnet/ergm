@@ -104,21 +104,16 @@ ergm.MCMLE <- function(init, nw, model,
   # statshifts will be 0. target.stats and missing dyads are mutually
   # exclusive, so model$target.stats will be set equal to
   # model$nw.stats, causing this to happen.
-  nw <- single.impute.dyads(nw, response=response, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, output="network", verbose=verbose)
+  s <- single.impute.dyads(nw, response=response, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, output="ergm_state", verbose=verbose)
 
-  ec <- if(is(nw, "network")) network.edgecount(nw, FALSE)
-        else nrow(as.edgelist(nw))
-  model$nw.stats <- summary(model, nw, response=response)
-  
   if(control$MCMLE.density.guard>1){
     # Calculate the density guard threshold.
+    ec <- network.edgecount(s)
     control$MCMC.maxedges <- round(min(control$MCMC.max.maxedges,
                                        max(control$MCMLE.density.guard*ec,
                                            control$MCMLE.density.guard.min)))
     if(verbose) message("Density guard set to ",control$MCMC.maxedges," from an initial count of ",ec," edges.")
   }  
-
-  nws <- rep(list(nw),nthreads(control)) # nws is now a list of networks.
 
   # statshift is the difference between the target.stats (if
   # specified) and the statistics of the networks in the LHS of the
@@ -126,9 +121,12 @@ ergm.MCMLE <- function(init, nw, model,
   # explicitly, they are computed from this network, so
   # statshift==0. To make target.stats play nicely with offsets, we
   # set statshifts to 0 where target.stats is NA (due to offset).
+  model$nw.stats <- summary(model, s, response=response)
   statshift <- model$nw.stats - NVL(model$target.stats,model$nw.stats)
   statshift[is.na(statshift)] <- 0
-  statshifts <- rep(list(statshift), nthreads(control)) # Each network needs its own statshift.
+  s <- ergm_state(s, model=model, proposal=proposal, stats=statshift)
+
+  s <- rep(list(s),nthreads(control)) # s is now a list of states.
   
   # Initialize control.obs and other *.obs if there is observation structure
   
@@ -142,8 +140,7 @@ ergm.MCMLE <- function(init, nw, model,
     control.obs$MCMC.burnin <- control$obs.MCMC.burnin
     control0.obs <- control.obs
 
-    nws.obs <- lapply(nws, identity)
-    statshifts.obs <- statshifts
+    s.obs <- lapply(s, ergm_state, model=NVL(model$obs.model,model), proposal=proposal.obs)
   }
 
   # A helper function to increase the MCMC sample size and target effective size by the specified factor.
@@ -182,9 +179,9 @@ ergm.MCMLE <- function(init, nw, model,
   # INTERMEDIATE_VARIABLES = variables of interest in debugging and diagnostics.
   #
   # Both lists need to be kept up to date with the implementation.
-  STATE_VARIABLES <- c("nws", "nws.obs", "mcmc.init", "statshifts", "statshifts.obs", "calc.MCSE", "last.adequate", "coef.hist", "stats.hist", "stats.obs.hist", "steplen.hist", "steplen","setdiff.prev","d2.not.improved")
+  STATE_VARIABLES <- c("s", "s.obs", "mcmc.init", "statshifts", "statshifts.obs", "calc.MCSE", "last.adequate", "coef.hist", "stats.hist", "stats.obs.hist", "steplen.hist", "steplen","setdiff.prev","d2.not.improved")
   CONTROL_VARIABLES <- c("control", "control.obs", "control0", "control0.obs")
-  INTERMEDIATE_VARIABLES <- c("nws", "nws.obs", "statsmatrices", "statsmatrices.obs", "statshifts", "statshifts.obs", "coef.hist", "stats.hist", "stats.obs.hist", "steplen.hist")
+  INTERMEDIATE_VARIABLES <- c("s", "s.obs", "statsmatrices", "statsmatrices.obs", "coef.hist", "stats.hist", "stats.obs.hist", "steplen.hist")
 
   if(!is.null(control$resume)){
     message("Resuming from state saved in ", sQuote(control$resume),".")
@@ -231,7 +228,7 @@ ergm.MCMLE <- function(init, nw, model,
 
     # Obtain MCMC sample
     if(verbose) message("Starting unconstrained MCMC...")
-    z <- ergm_MCMC_sample(nws, model, proposal, control, theta=mcmc.init, response=response, update.nws=FALSE, verbose=max(verbose-1,0), stats0=statshifts)
+    z <- ergm_MCMC_sample(s, control, theta=mcmc.init, response=response, verbose=max(verbose-1,0))
 
     if(z$status==1) stop("Number of edges in a simulated network exceeds that in the observed by a factor of more than ",floor(control$MCMLE.density.guard),". This is a strong indicator of model degeneracy or a very poor starting parameter configuration. If you are reasonably certain that neither of these is the case, increase the MCMLE.density.guard control.ergm() parameter.")
         
@@ -240,7 +237,7 @@ ergm.MCMLE <- function(init, nw, model,
     # (i.e., the estimation goal is to use the statsmatrix to find 
     # parameters that will give a mean vector of zero).
     statsmatrices <- z$stats
-    nws.returned <- z$networks
+    s.returned <- z$networks
     statsmatrix <- as.matrix(statsmatrices)
     
     if(verbose){
@@ -254,12 +251,12 @@ ergm.MCMLE <- function(init, nw, model,
     ##  Does the same, if observation process:
     if(obs){
       if(verbose) message("Starting constrained MCMC...")
-      z.obs <- ergm_MCMC_sample(nws.obs, NVL(model$obs.model,model), proposal.obs, control.obs, theta=mcmc.init, response=response, update.nws=FALSE, verbose=max(verbose-1,0),stats0=statshifts.obs)
+      z.obs <- ergm_MCMC_sample(s.obs, control.obs, theta=mcmc.init, response=response, verbose=max(verbose-1,0))
       
       ## if(z.obs$status==1) stop("Number of edges in the simulated network exceeds that observed by a large factor (",control$MCMC.max.maxedges,"). This is a strong indication of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
 
       statsmatrices.obs <- z.obs$stats
-      nws.obs.returned <- z.obs$networks
+      s.obs.returned <- z.obs$networks
       statsmatrix.obs <- as.matrix(statsmatrices.obs)
       
       if(verbose){
@@ -275,12 +272,10 @@ ergm.MCMLE <- function(init, nw, model,
     }
     
     if(sequential) {
-      nws <- nws.returned
-      statshifts <- lapply(statsmatrices, function(sm) sm[nrow(sm),])
+      s <- s.returned
       
       if(obs){
-        nws.obs <- nws.obs.returned
-        statshifts.obs <- lapply(statsmatrices.obs, function(sm) sm[nrow(sm),])
+        s.obs <- s.obs.returned
       }      
     }
 
@@ -320,7 +315,7 @@ ergm.MCMLE <- function(init, nw, model,
 
     if(!estimate){
       if(verbose){message("Skipping optimization routines...")}
-      nws.returned <- lapply(nws.returned, as.network, response=response)
+      s.returned <- lapply(s.returned, as.network)
       l <- list(coef=mcmc.init, mc.se=rep(NA,length=length(mcmc.init)),
                 sample=statsmatrices, sample.obs=statsmatrices.obs,
                 iterations=1, MCMCtheta=mcmc.init,
@@ -328,8 +323,8 @@ ergm.MCMLE <- function(init, nw, model,
                 mle.lik=NULL,
                 gradient=rep(NA,length=length(mcmc.init)), #acf=NULL,
                 samplesize=control$MCMC.samplesize, failure=TRUE,
-                newnetwork = nws.returned[[1]],
-                newnetworks = nws.returned)
+                newnetwork = s.returned[[1]],
+                newnetworks = s.returned)
       return(structure (l, class="ergm"))
     } 
 
@@ -639,7 +634,7 @@ ergm.MCMLE <- function(init, nw, model,
   # some of the info returned from ergm.estimate.
   v$sample <- statsmatrices
   if(obs) v$sample.obs <- statsmatrices.obs
-  nws.returned <- lapply(nws.returned, as.network, response=response)
+  nws.returned <- lapply(s.returned, as.network)
   v$network <- nw.orig
   v$newnetworks <- nws.returned
   v$newnetwork <- nws.returned[[1]]

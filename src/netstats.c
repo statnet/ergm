@@ -18,13 +18,10 @@
  change gives the true global values for the observed graph.
 *****************/
 
-SEXP network_stats_wrapper(ARGS_NW,
-                           ARGS_MODEL,
+SEXP network_stats_wrapper(ARGS_STATE,
                            ARGS_LASTTOGGLE){
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmState *s = ErgmStateInit(YES_NW_EMPTY,
-                               YES_MODEL_NOINIT_S,
-                               NO_MHPROPOSAL,
+  ErgmState *s = ErgmStateInit(YES_STATE_EMPTY_NO_INIT_S,
                                YES_LASTTOGGLE);
 
   Model *m = s->m;

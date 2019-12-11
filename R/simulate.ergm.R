@@ -356,7 +356,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   if(is.null(basis)) stop("ergm_model method for simulate() requires the basis= argument for the initial state of the simulation.")
 
   output <- match.arg(output)
-
+  
   # Backwards-compatibility code:
   if("theta0" %in% names(list(...))){
     warning("Passing the parameter vector as theta0= is deprecated. Use coef= instead.")
@@ -405,9 +405,35 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   curstats<-summary(m, nw, response=response, term.options=control$term.options)
   names(curstats) <- param_names(m, canonical=TRUE)
 
-  # prepare control object
-  control$MCMC.init.maxedges <- 1+max(control$MCMC.init.maxedges, network.edgecount(nw))
-  
+  state <- ergm_state(nw, response=response, model=m, proposal=proposal, stats=curstats)
+  o <- simulate(state, nsim=nsim, seed=seed,
+                coef,
+                esteq=esteq,
+                output=output,
+                simplify=simplify,
+                sequential=sequential,
+                control=control,
+                verbose=verbose, ...)
+  mon <- rep(c(FALSE,TRUE), c(nparam(m,canonical=!esteq) - NVL3(monitor, nparam(.,canonical=!esteq), 0), NVL3(monitor, nparam(.,canonical=!esteq), 0)))
+  if(output=="stats") attr(o, "monitored") <- mon
+  else attr(attr(o, "stats"), "monitored") <- mon
+  o
+}
+
+#' @describeIn simulate.ergm a low-level function to simulate from an [`ergm_state`] object.
+#' @export
+simulate.ergm_state <- function(object, nsim=1, seed=NULL,
+                                coef,
+                                esteq=FALSE,
+                                output=c("network","stats","edgelist","ergm_state"),
+                                simplify=TRUE,
+                                sequential=TRUE,
+                                control=control.simulate.formula(),
+                                verbose=FALSE, ...){
+  output <- match.arg(output)
+  state <- object
+  m <- as.ergm_model(state)
+
   # Explain how many iterations and steps will ensue if verbose==TRUE
   if (verbose) {
     message(paste ("Starting MCMC iterations to generate ", nsim,
@@ -424,33 +450,30 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   #########################
   ## Main part of function:
   if(sequential && output=="stats"){
-    # In this case, we can make one, parallelized run of
-    # ergm.getMCMCsample.
+    # In this case, we can make one parallelized run of
+    # ergm_MCMC_sample.
     control$MCMC.samplesize <- nsim
-    z <- ergm_MCMC_sample(nw, m, proposal, control, theta=coef, verbose=max(verbose-1,0), response=response, update.nws=FALSE, stats0=curstats)
-    # Post-processing: Shift each row by observed statistics.
+    z <- ergm_MCMC_sample(state, control, theta=coef, verbose=max(verbose-1,0))
     stats <- z$stats
   }else{
     # Create objects to store output
     if (output!="stats") { 
       nw.list <- rep(list(list()),nthreads(control))
     }
-    stats <- rep(list(matrix(nrow=0, ncol=length(curstats), 
+    stats <- rep(list(matrix(nrow=0, ncol=nparam(state,canonical=TRUE), 
                              dimnames = list(NULL, param_names(m,canonical=TRUE)))),nthreads(control))
     
-    # Call ergm.getMCMCsample once for each network desired.  This is much slower
-    # than when sequential==TRUE and output=="stats", but here we have a 
-    # more complicated situation:  Either we want a network for each
-    # MCMC iteration (output="network") or we want to restart each chain
-    # at the original network (sequential=FALSE).
-    curstats <- rep(list(curstats), nthreads(control))
-    
+    # Call ergm_MCMC_sample once for each network desired.  This is
+    # much slower than when sequential==TRUE and output=="stats", but
+    # here we have a more complicated situation: Either we want a
+    # network for each MCMC iteration (output="network") or we want to
+    # restart each chain at the original network (sequential=FALSE).
     for(i in 1:ceiling(nsim/nthreads(control))){
 
       control.parallel <- modifyList(control,
                                      list(MCMC.samplesize = nthreads(control),
                                           MCMC.burnin = if(i==1 || sequential==FALSE) control$MCMC.burnin else control$MCMC.interval))
-      z <- ergm_MCMC_sample(nw, m, proposal, control.parallel, theta=coef, verbose=max(verbose-1,0), response=response, update.nws=FALSE, stats0=curstats)
+      z <- ergm_MCMC_sample(state, control.parallel, theta=coef, verbose=max(verbose-1,0))
       
       stats <- mapply(function(s, os) rbind(s, os), stats, z$stats, SIMPLIFY=FALSE)
       
@@ -466,8 +489,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                           SIMPLIFY=FALSE)
       
       if(sequential){ # then update the network state:
-        nw <- z$networks
-        curstats <- mapply(`+`,curstats, z$stats, SIMPLIFY=FALSE)
+        state <- z$networks
       }
 
       if(verbose){message(sprintf("Finished simulation %d of %d.",i, nsim))}
@@ -480,8 +502,6 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   if(simplify)
     stats <- as.matrix(stats)[seq_len(nsim),,drop=FALSE]
 
-  attr(stats, "monitored") <- rep(c(FALSE,TRUE), c(nparam(m,canonical=!esteq) - NVL3(monitor, nparam(.,canonical=!esteq), 0), NVL3(monitor, nparam(.,canonical=!esteq), 0)))
-
   if(output=="stats")
     return(stats)
   
@@ -493,13 +513,15 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   if(length(nw.list)==1&&simplify){
     nw.list <- nw.list[[1]] # Just one network.
   }else{
-      attributes(nw.list) <- list(stats=stats, coef=coef,
-                                  control=control,
-                                  response=response)
+    attributes(nw.list) <- list(coef=coef,
+                                control=control,
+                                response=names(as.edgelist(
+                                  if(is.ergm_state(state)) state
+                                  else state[[1]]))[3])
     
     class(nw.list) <- "network.list"
   }
-  
+  attr(nw.list, "stats") <- stats
   return(nw.list)
 }
 

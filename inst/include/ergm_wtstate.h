@@ -6,20 +6,13 @@
 #include "ergm_wtMHproposal.h"
 #include "ergm_wtmodel.h"
 
-#define ARGS_WTNW SEXP stateR
-#define ARGS_WTMODEL SEXP mR
-#define ARGS_WTMHPROPOSAL SEXP pR
+#define ARGS_WTSTATE SEXP stateR
 #define ARGS_WTLASTTOGGLE SEXP time, SEXP lasttoggle
 
-#define YES_WTNW stateR, FALSE
-#define YES_WTNW_EMPTY stateR, TRUE
-#define YES_WTMODEL mR, FALSE
-#define YES_WTMODEL_NOINIT_S mR, TRUE
-#define YES_WTMHPROPOSAL pR
+#define YES_WTSTATE stateR, FALSE, FALSE
+#define YES_WTSTATE_EMPTY_NO_INIT_S stateR, TRUE, TRUE
 #define YES_WTLASTTOGGLE length(time)>0, asInteger(time), INTEGER(lasttoggle)
 
-#define NO_WTMODEL NULL, FALSE
-#define NO_WTMHPROPOSAL  NULL
 #define NO_WTLASTTOGGLE FALSE, 0, NULL
 
 typedef struct{
@@ -29,12 +22,8 @@ typedef struct{
   WtMHProposal *MHp;
 } WtErgmState;
 
-WtErgmState *WtErgmStateInit(// Network settings
-			     SEXP stateR, Rboolean empty,
-                             // Model settings
-			     SEXP mR, Rboolean noinit_s,
-                             // Proposal settings
-                             SEXP pR,
+WtErgmState *WtErgmStateInit(SEXP stateR,
+                             Rboolean empty, Rboolean noinit_s,
                              // Network state
                              Rboolean timings, int time, int *lasttoggle);
 SEXP WtErgmStateRSave(SEXP startR, WtErgmState *s);

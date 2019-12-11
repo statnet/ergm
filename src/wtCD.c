@@ -22,17 +22,13 @@
 
  and don't forget that tail -> head
 *****************/
-SEXP WtCD_wrapper(ARGS_WTNW,
-                  ARGS_WTMODEL,
-                  ARGS_WTMHPROPOSAL,
+SEXP WtCD_wrapper(ARGS_WTSTATE,
                   // MCMC settings
                   SEXP eta, SEXP samplesize, 
                   SEXP CDparams,
                   SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  WtErgmState *s = WtErgmStateInit(YES_WTNW,
-                                   YES_WTMODEL,
-                                   YES_WTMHPROPOSAL,
+  WtErgmState *s = WtErgmStateInit(YES_WTSTATE,
                                    NO_WTLASTTOGGLE);
 
   WtModel *m = s->m;

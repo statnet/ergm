@@ -270,7 +270,7 @@ standardize.network <- function(nw, preserve.eattr=TRUE){
   apply(x, 1, paste, collapse="\r")
 }
 
-single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints.obs=NULL, min_informative=NULL, default_density=NULL, output=c("network","edgelist"), verbose=FALSE){
+single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints.obs=NULL, min_informative=NULL, default_density=NULL, output=c("network","ergm_state"), verbose=FALSE){
   output <- match.arg(output)
   stopifnot(!is.null(constraints)||is.null(constraints.obs))
 
@@ -284,7 +284,10 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
     nae <- network.naedgecount(nw)
     if(nae) na.el <- as.edgelist(is.na(nw))
   }
-  if(nae==0) return(nw)
+  if(nae==0){
+    if(output=="network") return(nw)
+    else return(ergm_state(nw, attrname=response))
+  }
 
   if(verbose) message("Imputing ", nae, " dyads is required.")
 
@@ -344,7 +347,8 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
       nw[na.el[c(todel,toadd),,drop=FALSE]] <- rep(0:1, c(length(todel),length(toadd)))
     }else{ # edgelist
       el <- s2el(union(setdiff(el2s(as.edgelist(nw)), el2s(na.el)), el2s(na.el[i.new,,drop=FALSE])))
-      nw <- as_tibble(el)
+      colnames(el) <- c(".tail",".head")
+      nw <- ergm_state(el, nw=nw)
     }
   }else{
     if(output=="network"){
@@ -354,7 +358,8 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
       el <- el[!el2s(el[,-3,drop=FALSE])%in%el2s(na.el),,drop=FALSE]
       el <- rbind(el, cbind(na.el, sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))))
       el <- el[el[,3]!=0,,drop=FALSE]
-      nw <- as_tibble(el)
+      colnames(el) <- c(".tail",".head",response)
+      nw <- ergm_state(el, nw=nw)
     }
   }
 

@@ -20,21 +20,11 @@
 #' Note that unless `stats0` is passed, the returned stats will be relative to the original network, i.e.,
 #' the calling function must shift the statistics if required.
 #' 
-#' @param nw a [`network`] (or [`ergm_state`]) object representing the sampler state.
-#' @param model an [`ergm_model`] to be sampled from, as returned by
-#'   [ergm_model()].
-#' @param proposal a list of the parameters needed for
-#'   Metropolis-Hastings proposals and the result of calling
-#'   [ergm_proposal()].
+#' @param state an [`ergm_state`] representing the sampler state, containing information about the network, the model, the proposal, and (optionally) initial statistics, or a list thereof.
 #' @param control list of MCMC tuning parameters; see
 #'   [control.ergm()].
 #' @param theta the (possibly curved) parameters of the model.
 #' @param eta the natural parameters of the model; by default constructed from `theta`.
-#' @param stats0 either a numeric vector of the same length as `eta`
-#'   containing the statistics corresponding to the initial network;
-#'   or a list thereof of the same length as that of `nw` if it is a
-#'   list of networks (for parallel sampling). Defaults to a vector of
-#'   0s.
 #' @param verbose verbosity level.
 #' @template response
 #' @param update.nws whether to actually update the network state or
@@ -62,20 +52,20 @@
 #'   `stats` is an [`mcmc.list`] with one chain and `networks` is a
 #'   list with one element.
 #' @export
-ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL, 
-                             response=NULL, update.nws = TRUE, verbose=FALSE,..., eta=ergm.eta(theta, model$etamap), stats0=NULL) {
+ergm_MCMC_sample <- function(state, control, theta=NULL, 
+                             verbose=FALSE,..., eta=ergm.eta(theta, (if(is.ergm_state(state))as.ergm_model(state)else as.ergm_model(state[[1]]))$etamap)){
   # Start cluster if required (just in case we haven't already).
   ergm.getCluster(control, verbose)
   
-  if(is.network(nw) || is.ergm_state(nw)) nw <- list(nw)
-  nws <- rep(nw, length.out=nthreads(control))
-  states <- if(is.network(nws[[1]])){
-    NVL(stats0) <- numeric(length(eta))
-    if(is.numeric(stats0)) stats0 <- list(stats0)
-    stats0 <- rep(stats0, length.out=length(nws))
+  if(is.ergm_state(state)) state <- list(state)
+  states <- rep(state, length.out=nthreads(control))
+  ## states <- if(is.network(states[[1]])){
+  ##   NVL(stats0) <- numeric(length(eta))
+  ##   if(is.numeric(stats0)) stats0 <- list(stats0)
+  ##   stats0 <- rep(stats0, length.out=length(states))
 
-    states <- mapply(ergm_state, nws, stats0, MoreArgs=list(model=model, response=response), SIMPLIFY=FALSE)
-  }else nws
+  ##   states <- mapply(ergm_state, states, stats=stats0, MoreArgs=list(response=response, model=model, proposal=proposal), SIMPLIFY=FALSE)
+  ## }else states
 
   control.parallel <- control
   control.parallel$MCMC.samplesize <- NVL3(control$MCMC.samplesize, ceiling(. / nthreads(control)))
@@ -85,8 +75,8 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
   #' @importFrom parallel clusterMap
   doruns <- function(burnin=NULL, samplesize=NULL, interval=NULL){
     if(!is.null(ergm.getCluster(control))) persistEvalQ({clusterMap(ergm.getCluster(control),ergm_MCMC_slave,
-                                  state=states, MoreArgs=list(model=model, proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)})
-    else list(ergm_MCMC_slave(states[[1]], burnin=burnin,samplesize=samplesize,interval=interval,model=model,proposal=proposal,eta=eta,control=control.parallel,verbose=verbose,...))
+                                  state=states, MoreArgs=list(eta=eta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)})
+    else list(ergm_MCMC_slave(states[[1]], burnin=burnin,samplesize=samplesize,interval=interval,eta=eta,control=control.parallel,verbose=verbose,...))
   }
 
   sms <- vector("list", nthreads(control))
@@ -135,7 +125,7 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
       }
       
       esteq <- lapply.mcmc.list(lapply(sms, function(sm)
-                      NVL3(theta, ergm.estfun(sm, ., model), sm[,!model$etamap$offsetmap,drop=FALSE])
+                      NVL3(theta, ergm.estfun(sm, ., as.ergm_model(state[[1]])), sm[,!as.ergm_model(state[[1]])$etamap$offsetmap,drop=FALSE])
                       ), mcmc, start=1, thin=interval)
       
       if(control.parallel$MCMC.runtime.traceplot){
@@ -182,7 +172,7 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
     
     if(control.parallel$MCMC.runtime.traceplot){
       esteq <- as.mcmc.list(lapply(lapply(sms, function(sm)
-        NVL3(theta, ergm.estfun(sm, ., model), sm[,!model$etamap$offsetmap,drop=FALSE])
+        NVL3(theta, ergm.estfun(sm, ., as.ergm_model(state[[1]])), sm[,!as.ergm_model(state[[1]])$etamap$offsetmap,drop=FALSE])
       ), mcmc, start=control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval))
       plot(window(esteq, thin=thin(esteq)*max(1,floor(niter(esteq)/1000)))
            ,ask=FALSE,smooth=TRUE,density=FALSE)
@@ -210,9 +200,6 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
     statsmatrices[[i]] <- sms[[i]]
 
     newnetworks[[i]] <- z$state
-    if(update.nws){
-      newnetworks[[i]] <- as.network(newnetworks[[i]])
-    }
     final.interval <- c(final.interval, z$final.interval)
   }
   
@@ -237,14 +224,14 @@ ergm_MCMC_sample <- function(nw, model, proposal, control, theta=NULL,
 #'   Metropolis-Hastings proposal failing.}
 #' @useDynLib ergm
 #' @export
-ergm_MCMC_slave <- function(state, model, proposal,eta,control,verbose,..., burnin=NULL, samplesize=NULL, interval=NULL){
+ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samplesize=NULL, interval=NULL){
   NVL(burnin) <- control$MCMC.burnin
   NVL(samplesize) <- control$MCMC.samplesize
   NVL(interval) <- control$MCMC.interval
   z <-
     if(!is.valued(state))
       .Call("MCMC_wrapper",
-            state, model, proposal,
+            state,
             # MCMC settings
             as.double(.deinf(eta)),
             as.integer(samplesize),
@@ -255,7 +242,7 @@ ergm_MCMC_slave <- function(state, model, proposal,eta,control,verbose,..., burn
             PACKAGE="ergm")
     else
       .Call("WtMCMC_wrapper",
-            state, model, proposal,
+            state,
             # MCMC settings
             as.double(.deinf(eta)),
             as.integer(samplesize),
@@ -264,8 +251,8 @@ ergm_MCMC_slave <- function(state, model, proposal,eta,control,verbose,..., burn
             as.integer(.deinf(NVL(control$MCMC.maxedges,Inf),"maxint")),
             as.integer(verbose),
             PACKAGE="ergm")
-  z$s <- matrix(z$s, ncol=nparam(model,canonical=TRUE), byrow = TRUE)
-  colnames(z$s) <- param_names(model, canonical=TRUE)
+  z$s <- matrix(z$s, ncol=nparam(state,canonical=TRUE), byrow = TRUE)
+  colnames(z$s) <- param_names(state, canonical=TRUE)
 
   z
 }

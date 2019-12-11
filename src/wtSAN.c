@@ -21,9 +21,7 @@
  Wrapper for a call from R.
 *****************/
 
-SEXP WtSAN_wrapper(ARGS_WTNW,
-                    ARGS_WTMODEL,
-                    ARGS_WTMHPROPOSAL,
+SEXP WtSAN_wrapper(ARGS_WTSTATE,
                    // MCMC settings
                    SEXP tau,
                    SEXP samplesize, SEXP nsteps,
@@ -35,9 +33,7 @@ SEXP WtSAN_wrapper(ARGS_WTNW,
   GetRNGstate();  /* R function enabling uniform RNG */
   unsigned int nstats = length(statindices), noffsets = length(offsetindices);
   
-  WtErgmState *s = WtErgmStateInit(YES_WTNW,
-                                   YES_WTMODEL,
-                                   YES_WTMHPROPOSAL,
+  WtErgmState *s = WtErgmStateInit(YES_WTSTATE,
                                    NO_WTLASTTOGGLE);
   WtMHProposal *MHp = s->MHp;
 

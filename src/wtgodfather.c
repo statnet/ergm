@@ -16,6 +16,7 @@ MCMCStatus WtGodfather(WtErgmState *s, Edge n_changes, Vertex *tails, Vertex *he
   WtNetwork *nwp = s->nwp;
   WtModel *m = s->m;
 
+  memcpy(stats+m->n_stats, stats, m->n_stats*sizeof(double));
   stats+=m->n_stats;
 
   /* Doing this one change at a time saves a lot of changes... */
@@ -24,6 +25,7 @@ MCMCStatus WtGodfather(WtErgmState *s, Edge n_changes, Vertex *tails, Vertex *he
     double w = weights[e], edgeweight;
 
     if(t==0){
+      memcpy(stats+m->n_stats, stats, m->n_stats*sizeof(double));
       stats+=m->n_stats;
       continue;
     }
@@ -64,22 +66,20 @@ MCMCStatus WtGodfather(WtErgmState *s, Edge n_changes, Vertex *tails, Vertex *he
  find the changestats that result from starting from an empty network
  and then adding all of the edges to make up an observed network of interest.
 *****************/
-SEXP WtGodfather_wrapper(ARGS_WTNW,
-                         ARGS_WTMODEL,
+SEXP WtGodfather_wrapper(ARGS_WTSTATE,
                          // Godfather settings
                          SEXP nsteps,
                          SEXP changetails, SEXP changeheads, SEXP changeweights,
                          SEXP end_network,
                          SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  WtErgmState *s = WtErgmStateInit(YES_WTNW,
-                                   YES_WTMODEL,
-                                   NO_WTMHPROPOSAL,
+  WtErgmState *s = WtErgmStateInit(YES_WTSTATE,
                                    NO_WTLASTTOGGLE);
   WtModel *m = s->m;
 
   SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats*(1+asInteger(nsteps))));
   memset(REAL(stats), 0, m->n_stats*(1+asInteger(nsteps))*sizeof(double));
+  memcpy(REAL(stats), s->stats, m->n_stats*sizeof(double));
 
   SEXP status = PROTECT(ScalarInteger(WtGodfather(s, length(changetails), (Vertex*)INTEGER(changetails), (Vertex*)INTEGER(changeheads), REAL(changeweights), REAL(stats))));
 
@@ -90,6 +90,7 @@ SEXP WtGodfather_wrapper(ARGS_WTNW,
 
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK && asInteger(end_network)){
+    s->stats = REAL(stats) + asInteger(nsteps)*m->n_stats;
     SET_VECTOR_ELT(outl, 2, WtErgmStateRSave(stateR, s));
   }
   

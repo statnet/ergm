@@ -9,6 +9,7 @@
 \alias{simulate_formula.network}
 \alias{simulate_formula.ergm_state}
 \alias{simulate.ergm_model}
+\alias{simulate.ergm_state}
 \title{Draw from the distribution of an Exponential Family Random Graph Model}
 \usage{
 \method{simulate}{formula}(object, nsim = 1, seed = NULL, ...)
@@ -70,6 +71,20 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   observational = FALSE,
   monitor = NULL,
   basis = NULL,
+  esteq = FALSE,
+  output = c("network", "stats", "edgelist", "ergm_state"),
+  simplify = TRUE,
+  sequential = TRUE,
+  control = control.simulate.formula(),
+  verbose = FALSE,
+  ...
+)
+
+\method{simulate}{ergm_state}(
+  object,
+  nsim = 1,
+  seed = NULL,
+  coef,
   esteq = FALSE,
   output = c("network", "stats", "edgelist", "ergm_state"),
   simplify = TRUE,
@@ -276,6 +291,11 @@ after the first.
 More information can be found by looking at the documentation of
 \code{\link{ergm}}.
 }
+\section{Functions}{
+\itemize{
+\item \code{simulate.ergm_state}: a low-level function to simulate from an \code{\link{ergm_state}} object.
+}}
+
 \note{
 \code{\link[=simulate.ergm_model]{simulate.ergm_model()}} is a lower-level interface, providing
 a \code{\link[=simulate]{simulate()}} method for \code{\link{ergm_model}} class. The \code{basis}

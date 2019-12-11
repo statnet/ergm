@@ -242,7 +242,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
     (function(x) x/sum(x) * control$SAN.nsteps) %>%
     round()
 
-  state <- ergm_state(nw, model, response=response, stats=stats)
+  state <- ergm_state(nw, model=model, response=response, proposal=proposal, stats=stats)
   sm <- NULL
   for(i in 1:control$SAN.maxit){
     if (verbose) {
@@ -256,7 +256,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
     # even if control$SAN.ignore.finite.offsets is FALSE
     if(abs(tau) < .Machine$double.eps) offsets[is.finite(offsets)] <- 0
     
-    z <- ergm_SAN_slave(state, model, proposal, tau, control, verbose,..., nsteps=nsteps, statindices=statindices, offsetindices=offsetindices, offsets=offsets)
+    z <- ergm_SAN_slave(state, tau, control, verbose,..., nsteps=nsteps, statindices=statindices, offsetindices=offsetindices, offsets=offsets)
     state <- z$state
     sm <- rbind(sm, z$s)
     sm.prop <- z$s.prop
@@ -337,14 +337,14 @@ san.ergm <- function(object, formula=object$formula,
               offset.coef=offset.coef, ...)
 }
 
-ergm_SAN_slave <- function(state, m, proposal, tau,control,verbose,..., nsteps=NULL, samplesize=NULL, statindices=NULL, offsetindices=NULL, offsets=NULL){
+ergm_SAN_slave <- function(state, tau,control,verbose,..., nsteps=NULL, samplesize=NULL, statindices=NULL, offsetindices=NULL, offsets=NULL){
   if(is.null(nsteps)) nsteps <- control$SAN.nsteps
   if(is.null(samplesize)) samplesize <- control$SAN.samplesize
 
   z <-
     if(!is.valued(state)){
       .Call("SAN_wrapper",
-            state, m, proposal,
+            state,
             # SAN settings
             as.double(.deinf(tau)),
             as.integer(samplesize),
@@ -357,7 +357,7 @@ ergm_SAN_slave <- function(state, m, proposal, tau,control,verbose,..., nsteps=N
             PACKAGE="ergm")
     }else{
       .Call("WtSAN_wrapper",
-            state, m, proposal,
+            state,
             # SAN settings
             as.double(.deinf(tau)),
             as.integer(samplesize),
@@ -372,7 +372,7 @@ ergm_SAN_slave <- function(state, m, proposal, tau,control,verbose,..., nsteps=N
   # save the results
   z$s <- matrix(z$s, ncol=length(statindices), byrow = TRUE)
   z$s.prop <- matrix(z$s.prop, ncol=length(statindices), byrow = TRUE)
-  colnames(z$s) <- colnames(z$s.prop) <- param_names(m, canonical=TRUE)[statindices]
+  colnames(z$s) <- colnames(z$s.prop) <- param_names(state, canonical=TRUE)[statindices]
 
   z
 }

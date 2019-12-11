@@ -152,10 +152,8 @@ summary_formula.ergm_state <- function(object, response=NULL,...,basis=NULL) {
   }else{
     s <- eval_lhs.formula(formula)
   }
-  m <- ergm_model(formula, as.network(s, populate=FALSE), response=response, role="target",...)
-  summary(m, s, response=response)
+  summary(s)
 }
-
 
 #' @describeIn summary_formula a method for a [`matrix`] on the LHS of the formula.
 #' @export

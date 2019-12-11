@@ -46,10 +46,10 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
                     verbose=FALSE) {
   maxNumDyadTypes <- min(control$MPLE.max.dyad.types,
                          network.dyadcount(nw,na.omit=TRUE))
-  state <- ergm_state(nw)
+  state <- ergm_state(nw, model=m)
   # *** don't forget, pass in tails first now, not heads
   z <- .Call("MPLE_wrapper",
-             state, m,
+             state,
              # MPLE settings
              as.double(to_ergm_Cdouble(fd)),
              as.integer(.Machine$integer.max), # maxDyads
@@ -78,7 +78,7 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
     ## Run a whitelist PL over all of the toggleable edges in the network.
     presentrle <- as.rlebdm(state) & fd
     z <- .Call("MPLE_wrapper",
-               state, m,
+               state,
                # MPLE settings
                as.double(to_ergm_Cdouble(presentrle)),
                as.integer(.Machine$integer.max), # maxDyads

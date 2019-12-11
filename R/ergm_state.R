@@ -35,33 +35,74 @@
 #' @export
 ergm_state <- function(x, ...) UseMethod("ergm_state")
 
-#' @describeIn ergm_state a method for updating an ergm_state.
+#' @describeIn ergm_state a method for constructing an ergm_state from an [`edgelist`] object and an empty [`network`].
 #' @export
-ergm_state.ergm_state <- function(x, nw=NULL, model=NULL, response=NULL, stats=NULL, ...){
-  if(!is.null(nw)) stop("Updating the network state is not supported at this time.")
-  if(!is.null(response) && (ncol(x$el)<3 || names(x$el)[3]!=response))
-    stop("Attempting to update ergm_state object with a non-matching response attribute.")
-  if(!is.null(stats)) x$stats <- as.double(stats)
-  x
-}
-
-#' @describeIn ergm_state a method for constructing an ergm_state from a [`network`] object.
-#' @export
-ergm_state.network <- function(x, model, response=NULL, stats=NULL, ...){
-  NVL(response) <- x %ergmlhs% "response"
-  x %ergmlhs% "response" <- response
+ergm_state.edgelist <- function(x, nw0, model=NULL, proposal=NULL, stats=NULL, ...){
+  response <- if(ncol(x)>=3) colnames(x)[3]
   out <- list()
-  out$el <- as.edgelist(x, attrname=response, output="tibble")
+  if(is.matrix(x)){
+    x <- as_tibble(x)
+    colnames(x) <- c(".tail",".head",response)
+    x <- as.edgelist(x, n=network.size(nw0), directed=is.directed(nw0), bipartite=nw0%n%"bipartite", loops=has.loops(nw0), vnames=nw0 %v% "vertex.names", output="tibble")
+  }
+  out$el <- x
   if(!is.null(response)){
     out$el <- out$el[out$el[[response]]!=0,]
     mode(out$el[[3]]) <- "double" # If network is empty, may default to a list().
   }
-  out$nw0 <- x
+  out$nw0 <- nw0
   out$nw0[,] <- FALSE
+  out$model <- model
+  out$proposal <- proposal
   out$stats <- as.double(stats)
   structure(out, class="ergm_state")
 }
 
+#' @describeIn ergm_state a method for constructing an ergm_state from a matrix object and an empty [`network`].
+#' @export
+ergm_state.matrix <- ergm_state.edgelist
+
+#' @describeIn ergm_state a method for constructing an ergm_state from a [`network`] object.
+#' @export
+ergm_state.network <- function(x, response=NULL, model=NULL, proposal=NULL, stats=NULL, ...){
+  NVL(response) <- x %ergmlhs% "response"
+  x %ergmlhs% "response" <- response
+  el <- as.edgelist(x, attrname=response, output="tibble")
+  nw0 <- x
+  nw0[,] <- FALSE
+  ergm_state(el, nw0, model=model, proposal=proposal, stats=stats, ...)
+}
+
+#' @describeIn ergm_state a method for updating an ergm_state.
+#' @export
+ergm_state.ergm_state <- function(x, el=NULL, nw0=NULL, response=NULL, model=NULL, proposal=NULL, stats=NULL, ...){
+  # TODO: Implement sanity checks.
+  if(!is.null(nw0)){
+    if(is.network(nw0)) x$nw0 <- nw0
+    else stop("New nw0 is not a network object.")
+  }
+
+  if(!is.null(el)){
+    if(is(el, "tibble_edgelist")) x$el <- el
+    else stop("New el is not a tibble-style edgelist.")
+  }
+
+  if(!is.null(response) && (ncol(x$el)<3 || names(x$el)[3]!=response))
+    stop("Attempting to update ergm_state object with a non-matching response attribute.")
+
+  if(!is.null(model)){
+    if(is(model, "ergm_model")) x$model <- model
+    else stop("New model is not an ergm_model.")
+  }
+
+  if(!is.null(proposal)){
+    if(is(proposal, "ergm_proposal")) x$proposal <- proposal
+    else stop("New proposal is not an ergm_proposal.")
+  }
+
+  if(!is.null(stats)) x$stats <- as.double(stats)
+  x
+}
 
 #' @rdname ergm_state
 #' @export
@@ -139,3 +180,19 @@ network.naedgecount.ergm_state <- function(x,...){
 as.rlebdm.ergm_state <- function(x, ...){
   as.rlebdm(x$el, ...)
 }
+
+#' @rdname ergm_state
+#' @export
+as.ergm_model.ergm_state <- function(x, ...) x$model
+
+#' @rdname ergm_state
+#' @export
+is.curved.ergm_state <- function(object, ...) is.curved(object$model, ...)
+
+#' @rdname ergm_state
+#' @export
+param_names.ergm_state <- function(object, ...) param_names(object$model, ...)
+
+#' @rdname ergm_state
+#' @export
+nparam.ergm_state <- function(object, ...) nparam(object$model, ...)

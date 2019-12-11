@@ -89,7 +89,8 @@ ergm.stocapprox <- function(init, nw, model,
   }
 # message(paste("Phase 2: a=",a,"Total Samplesize",control$MCMC.samplesize,""))
 # aDdiaginv <- a * Ddiaginv
-  z <- ergm.phase12(nw, model, proposal, 
+  s <- ergm_state(nw, model=model, proposal=proposal, stats = summary(model, nw) - NVL(model$target.stats,model$nw.stats))
+  z <- ergm.phase12(s, 
                     eta, control, verbose=TRUE)
   nw <- z$newnetwork
 # toggle.dyads(nw, head = z$changed[,2], tail = z$changed[,3])
@@ -111,23 +112,19 @@ ergm.stocapprox <- function(init, nw, model,
 #message(paste(" eta=",eta,")",sep=""))
 
   # Obtain MCMC sample
-  z <- ergm_MCMC_sample(nw, model, proposal, control, eta=eta0, verbose=max(verbose-1,0))
+  s <- ergm_state(nw, model=model, proposal=proposal, stats = summary(model, nw) - NVL(model$target.stats,model$nw.stats))
+  z <- ergm_MCMC_sample(s, control, eta=eta0, verbose=max(verbose-1,0))
   
-  # post-processing of sample statistics:  Shift each row,
-  # attach column names
-  statshift <- summary(model, nw) - NVL(model$target.stats,model$nw.stats)
-  statsmatrix <- sweep(as.matrix(z$stats), 2, statshift, "+")
-  colnames(statsmatrix) <- param_names(model,canonical=TRUE)
-  #v$sample <- statsmatrix
-# ubar <- apply(z$statsmatrix, 2, mean)
-# hessian <- (t(z$statsmatrix) %*% z$statsmatrix)/n3 - outer(ubar,ubar)
+#v$sample <- stats
+# ubar <- apply(z$stats, 2, mean)
+# hessian <- (t(z$stats) %*% z$stats)/n3 - outer(ubar,ubar)
 # covar <- ginv(covar)
   
   if(verbose){message("Calling MCMLE Optimization...")}
   if(verbose){message("Using Newton-Raphson Step ...")}
 
   ve<-ergm.estimate(init=theta, model=model,
-                   statsmatrices=mcmc.list(as.mcmc(statsmatrix)),
+                   statsmatrices=mcmc.list(as.mcmc(z$stats)),
                    statsmatrices.obs=NULL,
                    epsilon=control$epsilon, 
                    nr.maxit=control$MCMLE.NR.maxit, 
@@ -147,13 +144,13 @@ ergm.stocapprox <- function(init, nw, model,
 # ve$mcmcloglik <- ve$mcmcloglik - network.dyadcount(nw)*log(2)
 
   # From ergm.estimate:
-  #    structure(list(coef=theta, sample=mcmc.list(as.mcmc(statsmatrix)), 
+  #    structure(list(coef=theta, sample=mcmc.list(as.mcmc(stats)), 
                       # iterations=iteration, mcmcloglik=mcmcloglik,
                       # MCMCtheta=init, 
                       # loglikelihood=loglikelihood, gradient=gradient,
                       # covar=covar, samplesize=samplesize, failure=FALSE,
                       # mc.se=mc.se, acf=mcmcacf,
-                      # fullsample=statsmatrix.all),
+                      # fullsample=stats.all),
                   # class="ergm") 
   structure(c(ve, list(newnetwork=nw, 
                  theta.original=init,

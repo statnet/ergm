@@ -55,26 +55,32 @@ summary.ergm_model <- function(object, nw=NULL, response=NULL,...){
   # network statistics.
 
   NVL(response) <- nw %ergmlhs% "response"
-  state <- ergm_state(nw, m=m, response=response, stats=gs)
+  state <- ergm_state(nw, response=response, model=m, stats=gs)
+  summary(state)
+}
+
+#' @describeIn ergm_state a very low-level function that calculates summary statistics associated with an [`ergm_state`] object.
+#' @export
+summary.ergm_state <- function(object, ...){
+  state <- object
+  nw0 <- as.network(state, populate=FALSE)
   gs <-
     if(!is.valued(state))
       .Call("network_stats_wrapper",
-            state, m,
+            state,
             # Network state additional information
-            as.integer(nw %n% "time"),
-            as.integer(nw %n% "lasttoggle"),
+            as.integer(nw0 %n% "time"),
+            as.integer(nw0 %n% "lasttoggle"),
             PACKAGE="ergm")
     else
       .Call("wt_network_stats_wrapper",
-            state, m,
+            state,
             # Network state additional information
-            as.integer(nw %n% "time"),
-            as.integer(nw %n% "lasttoggle"),
+            as.integer(nw0 %n% "time"),
+            as.integer(nw0 %n% "lasttoggle"),
             PACKAGE="ergm")
   
-  names(gs) <- param_names(m,canonical=TRUE)
+  names(gs) <- param_names(state,canonical=TRUE)
 
   gs
 }
-
-

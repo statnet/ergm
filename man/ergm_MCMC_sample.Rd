@@ -6,23 +6,17 @@
 \title{Internal Function to Sample Networks and Network Statistics}
 \usage{
 ergm_MCMC_sample(
-  nw,
-  model,
-  proposal,
+  state,
   control,
   theta = NULL,
-  response = NULL,
-  update.nws = TRUE,
   verbose = FALSE,
   ...,
-  eta = ergm.eta(theta, model$etamap),
-  stats0 = NULL
+  eta = ergm.eta(theta, (if (is.ergm_state(state)) as.ergm_model(state) else
+    as.ergm_model(state[[1]]))$etamap)
 )
 
 ergm_MCMC_slave(
   state,
-  model,
-  proposal,
   eta,
   control,
   verbose,
@@ -33,26 +27,12 @@ ergm_MCMC_slave(
 )
 }
 \arguments{
-\item{nw}{a \code{\link{network}} (or \code{\link{ergm_state}}) object representing the sampler state.}
-
-\item{model}{an \code{\link{ergm_model}} to be sampled from, as returned by
-\code{\link[=ergm_model]{ergm_model()}}.}
-
-\item{proposal}{a list of the parameters needed for
-Metropolis-Hastings proposals and the result of calling
-\code{\link[=ergm_proposal]{ergm_proposal()}}.}
+\item{state}{an \code{\link{ergm_state}} representing the sampler state, containing information about the network, the model, the proposal, and (optionally) initial statistics, or a list thereof.}
 
 \item{control}{list of MCMC tuning parameters; see
 \code{\link[=control.ergm]{control.ergm()}}.}
 
 \item{theta}{the (possibly curved) parameters of the model.}
-
-\item{response}{Name of the edge attribute whose value is to be
-modeled in the valued ERGM framework. Defaults to \code{NULL} for
-simple presence or absence, modeled via a binary ERGM.}
-
-\item{update.nws}{whether to actually update the network state or
-to return an object "promising" to update the network.}
 
 \item{verbose}{verbosity level.}
 
@@ -60,14 +40,15 @@ to return an object "promising" to update the network.}
 
 \item{eta}{the natural parameters of the model; by default constructed from \code{theta}.}
 
-\item{stats0}{either a numeric vector of the same length as \code{eta}
-containing the statistics corresponding to the initial network;
-or a list thereof of the same length as that of \code{nw} if it is a
-list of networks (for parallel sampling). Defaults to a vector of
-0s.}
-
 \item{burnin, samplesize, interval}{MCMC paramters that can
 be used to temporarily override those in the \code{control} list.}
+
+\item{response}{Name of the edge attribute whose value is to be
+modeled in the valued ERGM framework. Defaults to \code{NULL} for
+simple presence or absence, modeled via a binary ERGM.}
+
+\item{update.nws}{whether to actually update the network state or
+to return an object "promising" to update the network.}
 }
 \value{
 \code{ergm_MCMC_sample} returns a list

@@ -89,9 +89,8 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
   })
 
   m <- ergm_model(formula, nw, role="target", response=response, term.options=control$term.options)
-  state <- ergm_state(nw, m, response=response)
-  m$obs <- if(changes.only) numeric(nparam(m, canonical=TRUE))
-           else summary(m, nw, response=response)
+  state <- ergm_state(nw, model=m, response=response)
+  if(!changes.only) state <- ergm_state(state, stats=summary(state))
 
   changem <- changes %>% map(rbind, 0) %>% do.call(rbind, .) # 0s are sentinels indicating next iteration.
   
@@ -99,7 +98,7 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
   z <-
     if(!is.valued(state))
       .Call("Godfather_wrapper",
-            state, m,
+            state,
             # Godfather settings
             as.integer(length(changes)),
             as.integer(changem[,1]),
@@ -110,7 +109,7 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
             PACKAGE="ergm")
     else
       .Call("WtGodfather_wrapper",
-            state, m,
+            state,
             # Godfather settings
             as.integer(length(changes)),
             as.integer(changem[,1]),
@@ -121,9 +120,8 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
             PACKAGE="ergm")
 
   stats <- matrix(z$s, ncol=nparam(m,canonical=TRUE), byrow=TRUE)
-  stats <- t(t(apply(stats,2,cumsum)) + m$obs)
-  
   colnames(stats) <- param_names(m, canonical=TRUE)
+
   if(!stats.start) stats <- stats[-1,,drop=FALSE]
   #' @importFrom coda mcmc
   stats <- mcmc(stats)

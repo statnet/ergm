@@ -22,18 +22,14 @@
 
  and don't forget that tail -> head
 *****************/
-SEXP MCMC_wrapper(ARGS_NW,
-                  ARGS_MODEL,
-                  ARGS_MHPROPOSAL,
+SEXP MCMC_wrapper(ARGS_STATE,
                   // MCMC settings
                   SEXP eta, SEXP samplesize, 
                   SEXP burnin, SEXP interval,  
                   SEXP maxedges,
                   SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmState *s = ErgmStateInit(YES_NW,
-                               YES_MODEL,
-                               YES_MHPROPOSAL,
+  ErgmState *s = ErgmStateInit(YES_STATE,
                                NO_LASTTOGGLE);
 
   Model *m = s->m;
@@ -270,9 +266,7 @@ MCMCStatus MetropolisHastings(ErgmState *s,
 
 /* *** don't forget tail -> head */
 
-SEXP MCMCPhase12 (ARGS_NW,
-                  ARGS_MODEL,
-                  ARGS_MHPROPOSAL,
+SEXP MCMCPhase12 (ARGS_STATE,
                   // Phase12 settings
                   SEXP eta0,
                   SEXP samplesize, SEXP burnin, SEXP interval,
@@ -280,9 +274,7 @@ SEXP MCMCPhase12 (ARGS_NW,
                   SEXP maxedges,
                   SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmState *s = ErgmStateInit(YES_NW,
-                               YES_MODEL,
-                               YES_MHPROPOSAL,
+  ErgmState *s = ErgmStateInit(YES_STATE,
                                NO_LASTTOGGLE);
 
   Model *m = s->m;

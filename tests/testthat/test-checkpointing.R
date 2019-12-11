@@ -20,11 +20,11 @@ teardown({
 niterations <- NA
 
 test_that("checkpointing works",{
-  gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle, control=control.ergm(checkpoint=paste0(tmpf,"_%03d.RData")))
+  gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle, control=control.ergm(MCMLE.termination="Hummel", checkpoint=paste0(tmpf,"_%03d.RData")))
   niterations <<- gest$iterations # Save for later.
 })
 
 test_that("resuming works",{
-  gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle, control=control.ergm(resume=sprintf(paste0(tmpf,"_%03d.RData"),niterations)))
+  gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle, control=control.ergm(MCMLE.termination="Hummel", resume=sprintf(paste0(tmpf,"_%03d.RData"),niterations)))
   expect_equal(gest$iterations, 1) # It'll take at least 2 if resume fails.
 })

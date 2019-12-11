@@ -83,10 +83,15 @@ ergm.CD.fixed <- function(init, nw, model,
   nw.orig <- nw
 
   # Impute missing dyads.
-  nw <- single.impute.dyads(nw, response=response, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, output="network", verbose=verbose)
-  model$nw.stats <- summary(model, nw, response=response)
-  
-  nws <- rep(list(nw),nthreads(control)) # nws is now a list of networks.
+  #
+  # Note: We do not need to update nw.stats, because if we are in a
+  # situation where we are imputing dyads, the optimization is in the
+  # observational mode, and since both the constrained and the
+  # unconstrained samplers start from the same place, the initial
+  # statshifts will be 0. target.stats and missing dyads are mutually
+  # exclusive, so model$target.stats will be set equal to
+  # model$nw.stats, causing this to happen.
+  s <- single.impute.dyads(nw, response=response, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, output="ergm_state", verbose=verbose)
 
   # statshift is the difference between the target.stats (if
   # specified) and the statistics of the networks in the LHS of the
@@ -94,9 +99,12 @@ ergm.CD.fixed <- function(init, nw, model,
   # explicitly, they are computed from this network, so
   # statshift==0. To make target.stats play nicely with offsets, we
   # set statshifts to 0 where target.stats is NA (due to offset).
+  model$nw.stats <- summary(model, s, response=response)
   statshift <- model$nw.stats - NVL(model$target.stats,model$nw.stats)
   statshift[is.na(statshift)] <- 0
-  statshifts <- rep(list(statshift), nthreads(control)) # Each network needs its own statshift.
+  s <- ergm_state(s, model=model, proposal=proposal, stats=statshift)
+
+  s <- rep(list(s),nthreads(control)) # s is now a list of states.
   
   # Initialize control.obs and other *.obs if there is observation structure
   
@@ -108,8 +116,7 @@ ergm.CD.fixed <- function(init, nw, model,
     control.obs$CD.interval <- control$obs.CD.interval
     control.obs$CD.burnin <- control$obs.CD.burnin
 
-    nws.obs <- lapply(nws, identity)
-    statshifts.obs <- statshifts
+    s.obs <- lapply(s, ergm_state, model=NVL(model$obs.model,model), proposal=proposal.obs)
   }
   # mcmc.init will change at each iteration.  It is the value that is used
   # to generate the CD samples.  init will never change.
@@ -127,7 +134,7 @@ ergm.CD.fixed <- function(init, nw, model,
     }
 
     # Obtain CD sample
-    z <- ergm_CD_sample(nws, model, proposal, control, verbose=verbose, response=response, theta=mcmc.init, stats0=statshifts)
+    z <- ergm_CD_sample(s, control, verbose=verbose, response=response, theta=mcmc.init)
 
     # The statistics in statsmatrix should all be relative to either the
     # observed statistics or, if given, the alternative target.stats
@@ -146,7 +153,7 @@ ergm.CD.fixed <- function(init, nw, model,
     
     ##  Does the same, if observation process:
     if(obs){
-      z.obs <- ergm_CD_sample(nws.obs, NVL(model$obs.model,model), proposal.obs, control.obs, theta=mcmc.init, response=response, verbose=max(verbose-1,0), stats0=statshifts.obs)
+      z.obs <- ergm_CD_sample(s.obs, control.obs, theta=mcmc.init, response=response, verbose=max(verbose-1,0))
 
       statsmatrices.obs <- z.obs$stats
       statsmatrix.obs <- as.matrix(statsmatrices.obs)
@@ -195,8 +202,8 @@ ergm.CD.fixed <- function(init, nw, model,
                 mle.lik=NULL,
                 gradient=rep(NA,length=length(mcmc.init)), #acf=NULL,
                 samplesize=control$CD.samplesize, failure=TRUE,
-                newnetwork = nws[[1]],
-                newnetworks = nws)
+                newnetwork = nw,
+                newnetworks = nw)
       return(structure (l, class="ergm"))
     } 
 
@@ -304,8 +311,8 @@ ergm.CD.fixed <- function(init, nw, model,
   if(obs) v$sample.obs <- statsmatrices.obs
   
   v$network <- nw.orig
-  v$newnetworks <- nws
-  v$newnetwork <- nws[[1]]
+  v$newnetworks <- nw
+  v$newnetwork <- nw
   v$coef.init <- init
   #v$initialfit <- initialfit
   v$est.cov <- v$mc.cov
