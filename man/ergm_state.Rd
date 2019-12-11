@@ -83,6 +83,8 @@ is.ergm_state(x)
 \method{summary}{ergm_state}(object, ...)
 }
 \arguments{
+\item{nw0}{a \code{\link{network}} object, whose edges are absent or ignored.}
+
 \item{model}{an \code{\link{ergm_model}} object.}
 
 \item{response}{a character vector representing the response attribute. If
@@ -101,6 +103,10 @@ change) a list containing the following elements:
 \item{el}{a \code{\link{tibble}} \code{\link{edgelist}} representing the edge state of the network}
 
 \item{nw0}{a \code{\link{network}} object with all edges removed.}
+
+\item{model}{an \code{\link{ergm_model}} object.}
+
+\item{proposal}{an \code{\link{ergm_proposal}} object.}
 
 \item{stats}{a numeric vector of network statistics or some other
 statistics used to resume.}}

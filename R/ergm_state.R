@@ -15,6 +15,7 @@
 #' specified, and its structure and even name are subject to change.
 #'
 #' @param nw a [`network`] object.
+#' @param nw0 a [`network`] object, whose edges are absent or ignored.
 #' @param model an [`ergm_model`] object.
 #' @param response a character vector representing the response attribute. If
 #'   `NULL`, binary network is assumed.
@@ -27,6 +28,10 @@
 #' \item{el}{a [`tibble`] [`edgelist`] representing the edge state of the network}
 #' 
 #' \item{nw0}{a [`network`] object with all edges removed.}
+#'
+#' \item{model}{an [`ergm_model`] object.}
+#'
+#' \item{proposal}{an [`ergm_proposal`] object.}
 #'
 #' \item{stats}{a numeric vector of network statistics or some other
 #' statistics used to resume.}}
@@ -76,7 +81,6 @@ ergm_state.network <- function(x, response=NULL, model=NULL, proposal=NULL, stat
 #' @describeIn ergm_state a method for updating an ergm_state.
 #' @export
 ergm_state.ergm_state <- function(x, el=NULL, nw0=NULL, response=NULL, model=NULL, proposal=NULL, stats=NULL, ...){
-  # TODO: Implement sanity checks.
   if(!is.null(nw0)){
     if(is.network(nw0)) x$nw0 <- nw0
     else stop("New nw0 is not a network object.")
