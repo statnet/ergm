@@ -35,7 +35,7 @@ For the purposes of this overview, the following information is relevant, and is
 
 * Each term has a a pointer `void *mtp->storage` to private storage
 * Each term has a pointer to an array of pointers to public storage `void **mtp->aux_storage`. (The pointer is to the same location for all terms of a model.)
-* Each term has some subset of five functions on the C side: initializers (`i_`), updaters (`u_`), change stats (`c_`), difference stats (`d_`), finalizers (`f_`), and "eXtended" functions (`x_`).
+* Each term has some subset of five functions on the C side: initializers (`i_`), updaters (`u_`), change stats (`c_`), difference stats (`d_`), finalizers (`f_`), writers (`w_`), and "eXtended" functions (`x_`).
 * An `InitErgmTerm.` function's output list can have an additional element, `auxiliaries`, a one-sided formula.
 
 1. The user passes a formula to the procedure (`ergm`, `summary`, etc.); this formula may only have statistics.
@@ -49,7 +49,10 @@ For the purposes of this overview, the following information is relevant, and is
         1. It constructs a list of unique initialized auxilariy terms (that is, when two or more terms had requested an identical auxiliary).
         1. It insets the initialized unique auxiliary terms in `model$terms` and the index (in the unique list) of the auxiliary requested by each statistic in the `model$aux.slots` of the requesting statistic.
         1. For auxiliary itself, the first element of `model$aux.slots` is set to the position of the auxiliary itself.
-1. The `ergm_model` is passed to the C code.
+1. The `ergm_state` is constructed from an edgelist (`state$el`), an empty network (`state$nw0`), a model (`state$model`), and (optionally) a proposal (`state$proposal`) and a statistics vector (`state$stats`).
+1. `update.ergm_state()` is called.
+    1. It iterates through the formula terms, calling `term$ext.encode()` (if defined) to construct a vector `state$ext.state`. `state$ext.flag` is set to reconciled.
+1. The `ergm_state` is passed to the C code.
 1. `Redgelist2Network()` initializes the network.
 1. `ModelInitialize()` is called:
     1. `ModelInitialize()` initializes all terms (statistic and auxiliaries), also counting up the number of auxiliaries (distinguished by having no `c_`, `d_`, or `s_` functions). If a term exports a `c_` function, a `d_` function is not looked up.
@@ -74,8 +77,14 @@ For the purposes of this overview, the following information is relevant, and is
         1. Finalizer (`f_`) function is called, if defined.
 	    1. If `mtp->storage` is not `NULL`, it is freed.
     1. Other parts of the model are freed; in particular those of `mtp->aux_storage` if not `NULL`.
-1. `Network2Redgelist()` is called, returning a `SEXP` with the state.
+1. `ErgmStateRSave()` is called:
+    1. `Network2Redgelist()` is called, returning a `SEXP` with the state.
+    1. For each term, a writer (`w_` function) is called if defined, returning a `SEXP` with the extended state.
+    1. These are stored in a vector `state$ext.state`. Element `state$ext.flag` is set to signal that a change was made on the C side.
 1. `NetworkDestroy()` is called.
+1. States and other outputs are passed back to R.
+1. `update.ergm_state()` is called.
+    1. It iterates through the formula terms, calling `term$ext.decode()` (if defined) to update `state$nw0` or other aspects of the network. `state$ext.flag` is set to reconciled.
 
 # Formal API definition
 
