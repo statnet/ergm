@@ -35,11 +35,21 @@
 #      missing edges, and the remainder a column-major edgelist
 ################################################################################
 
-#' Obtain the set of informative dyads based on the network structure. Note that `model=` argument is not needed and will be removed in a future release.
+#' Obtain the set of informative dyads based on the network structure.
+#'
+#' Note that this function is not recommended for general use, since
+#' it only supports only one way of specifying observational
+#' structure---through `NA` edges. It is likely to be deprecated in
+#' the future.
+#'
+#' @param nw a [`network`] object.
+#' @param verbose verbosity; currently ignored.
+#'
 #' @return \code{ergm.design} returns a \code{\link{rlebdm}} of
 #'   informative (non-missing, non fixed) dyads.
 #' @export ergm.design
 ergm.design <- function(nw, verbose=FALSE){
+  if(!missing(verbose)) .Deprecate_once(msg="verbose= argument to ergm.design() has been deprecated and is ignored.")
   basecon <- ergm_conlist(~.attributes, nw)
   misscon <- if(!is.ergm_state(nw) && network.naedgecount(nw)) ergm_conlist(~.attributes+observed, nw)
   as.rlebdm(basecon, misscon, which="informative")

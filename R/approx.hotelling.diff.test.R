@@ -165,12 +165,12 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
   }else if(var.equal){
     NANVL(x$neff,1)+NANVL(y$neff,1)-2
   }else{
-    mywith <- function(data, ...) with(data, ...)
     # This is the Krishnamoorthy and Yu (2004) degrees of freedom formula, courtesy of Wikipedia.
-    df <- (p+p^2)/sum(NANVL(sapply(vars, mywith, (tr(vcov.m[!novar,!novar] %*% ivcov.d %*% vcov.m[!novar,!novar] %*% ivcov.d) +
-                                            tr(vcov.m[!novar,!novar] %*% ivcov.d)^2)/neff), 0))
-    rm(mywith)
-    df
+    (p+p^2)/(
+      NANVL((tr(x$vcov.m[!novar,!novar] %*% ivcov.d %*% x$vcov.m[!novar,!novar] %*% ivcov.d) +
+             tr(x$vcov.m[!novar,!novar] %*% ivcov.d)^2)/x$neff,0) +
+      NANVL((tr(y$vcov.m[!novar,!novar] %*% ivcov.d %*% y$vcov.m[!novar,!novar] %*% ivcov.d) +
+             tr(y$vcov.m[!novar,!novar] %*% ivcov.d)^2)/y$neff,0))
   })
 
   if(pars[1]>=pars[2]) warning("Effective degrees of freedom (",pars[2],") must exceed the number of varying parameters (",pars[1],"). P-value will not be computed.")

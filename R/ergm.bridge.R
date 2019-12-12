@@ -89,12 +89,12 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
   
   ## Here, we need to get the model object to get the likelihood and gradient functions.
-  list2env(ergm.bridge.preproc(object,basis,response), environment())
+  tmp <- ergm.bridge.preproc(object,basis,response); nw <- tmp$nw; form <- tmp$form; response <- tmp$response
 
   ## Generate the path.
   path<-t(rbind(sapply(seq(from=0+1/2/(control$nsteps+1),to=1-1/2/(control$nsteps+1),length.out=control$nsteps),function(u) cbind(to*u + from*(1-u)))))
 
-  list2env(.handle.auto.constraints(nw, constraints, obs.constraints, target.stats), environment())
+  tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats); nw <- tmp$nw; constraints <- tmp$constraints; constraints.obs <- tmp$constraints.obs
 
   ## Preinitialize proposals and set "observed" statistics:
   proposal <- ergm_proposal(constraints,arguments=control$MCMC.prop.args,
@@ -224,7 +224,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
 
   ## Here, we need to get the model object to get the list of
   ## dyad-independent terms.
-  list2env(ergm.bridge.preproc(object,basis,response), environment())
+  tmp <- ergm.bridge.preproc(object,basis,response); nw <- tmp$nw; form <- tmp$form; response <- tmp$response
 
   if(!is.null(response)) stop("Only binary ERGMs are supported at this time.")
 
@@ -233,8 +233,8 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   q.pos.full <- c(0,cumsum(nparam(m, canonical=FALSE, byterm=TRUE)))
   p.pos.full <- c(0,cumsum(nparam(m, canonical=TRUE, byterm=TRUE)))
   
-  list2env(.handle.auto.constraints(nw, constraints, obs.constraints, target.stats), environment())
- 
+  tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats); nw <- tmp$nw; constraints <- tmp$constraints; constraints.obs <- tmp$constraints.obs
+
   if(!is.dyad.independent(ergm_conlist(constraints,nw), ergm_conlist(constraints.obs,nw))) stop("Bridge sampling with dyad-independent start does not work with dyad-dependent constraints.")
 
   # If target.stats are given, then we need between passed network and

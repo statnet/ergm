@@ -2,14 +2,22 @@
 % Please edit documentation in R/ergm.design.R
 \name{ergm.design}
 \alias{ergm.design}
-\title{Obtain the set of informative dyads based on the network structure. Note that \verb{model=} argument is not needed and will be removed in a future release.}
+\title{Obtain the set of informative dyads based on the network structure.}
 \usage{
 ergm.design(nw, verbose = FALSE)
+}
+\arguments{
+\item{nw}{a \code{\link{network}} object.}
+
+\item{verbose}{verbosity; currently ignored.}
 }
 \value{
 \code{ergm.design} returns a \code{\link{rlebdm}} of
 informative (non-missing, non fixed) dyads.
 }
 \description{
-Obtain the set of informative dyads based on the network structure. Note that \verb{model=} argument is not needed and will be removed in a future release.
+Note that this function is not recommended for general use, since
+it only supports only one way of specifying observational
+structure---through \code{NA} edges. It is likely to be deprecated in
+the future.
 }
