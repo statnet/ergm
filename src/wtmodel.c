@@ -243,7 +243,6 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_stateR, WtNetwork *nwp, Rboolean n
       thisterm->x_func =
 	(void (*)(unsigned int type, void *data, WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
 
-      
       /*Clean up by freeing fn*/
       Free(fn);
   }

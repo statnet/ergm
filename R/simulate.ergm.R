@@ -108,10 +108,11 @@
 #' 
 #' @param do.sim Logical: If `FALSE`, do not proceed to the simulation
 #'   but rather return a list of arguments that would have been passed
-#'   to [simulate.ergm_model()]. This can be useful if, for example,
+#'   to the next function down ([simulate.ergm_model()] for formula
+#'   and [simulate.ergm_state()]). This can be useful if, for example,
 #'   one wants to run several simulations with varying coefficients
-#'   and did not want to reinitialize the model and the proposal ever
-#'   time.
+#'   and does not want to reinitialize the model and the proposal
+#'   every time.
 #' 
 #' @return If \code{output=="stats"} an [`mcmc`] object containing the
 #'   simulated network statistics. If \code{control$parallel>0}, an
@@ -347,7 +348,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                                 simplify=TRUE,
                                 sequential=TRUE,
                                 control=control.simulate.formula(),
-                                verbose=FALSE, ...){
+                                verbose=FALSE, ..., do.sim=TRUE){
 
   check.control.class(c("simulate.formula", "simulate.ergm_model"), myname="simulate.ergm_model")
   control.toplevel(..., myname="simulate.formula")
@@ -367,8 +368,8 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   
   # define nw as either the basis argument or (if NULL) the LHS of the formula
   nw <- basis
-  nw <- as.network(nw, populate=FALSE)
-  NVL(response) <- nw %ergmlhs% "response"
+  nw0 <- as.network(nw, populate=FALSE)
+  NVL(response) <- nw0 %ergmlhs% "response"
 
 
   m <- c(object, monitor)
@@ -386,13 +387,14 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
 
   proposal <- if(inherits(constraints, "ergm_proposal")) constraints
               else{
+                if(is.ergm_state(nw)) warning(sQuote("simulate.ergm_model()"), " has been passed a network in ", sQuote("ergm_state"), " form but not a pre-initialized proposal. Information about missing dyads may be lost.")
                 if(!is.list(constraints)) constraints <- list(constraints)
                 constraints <- rep(constraints, length.out=2)
                 # Inherit constraints from nw if needed.
-                tmp <- .handle.auto.constraints(nw, constraints[[1]], constraints[[2]], NULL)
-                nw <- tmp$nw; constraints <- if(observational) tmp$constraints.obs else tmp$constraints
+                tmp <- .handle.auto.constraints(nw0, constraints[[1]], constraints[[2]], NULL)
+                nw0 <- tmp$nw; constraints <- if(observational) tmp$constraints.obs else tmp$constraints
                 ergm_proposal(constraints,arguments=control$MCMC.prop.args,
-                              nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
+                              nw=nw0, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
               }
 
   if(length(proposal$auxiliaries) && !length(m$slots.extra.aux$proposal))
@@ -406,16 +408,29 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   names(curstats) <- param_names(m, canonical=TRUE)
 
   state <- ergm_state(nw, response=response, model=m, proposal=proposal, stats=curstats)
-  o <- simulate(state, nsim=nsim, seed=seed,
-                coef,
-                esteq=esteq,
-                output=output,
-                simplify=simplify,
-                sequential=sequential,
-                control=control,
-                verbose=verbose, ...)
+
+  if(do.sim){
+    o <- simulate(state, nsim=nsim, seed=seed,
+                  coef,
+                  esteq=esteq,
+                  output=output,
+                  simplify=simplify,
+                  sequential=sequential,
+                  control=control,
+                  verbose=verbose, ...)
+  }else{
+    o <- list(state=state, nsim=nsim, seed=seed,
+              coef=coef,
+              esteq=esteq,
+              output=output,
+              simplify=simplify,
+              sequential=sequential,
+              control=control,
+              verbose=verbose, ...)
+  }
+
   mon <- rep(c(FALSE,TRUE), c(nparam(m,canonical=!esteq) - NVL3(monitor, nparam(.,canonical=!esteq), 0), NVL3(monitor, nparam(.,canonical=!esteq), 0)))
-  if(output=="stats") attr(o, "monitored") <- mon
+  if(output=="stats" || !do.sim) attr(o, "monitored") <- mon
   else attr(attr(o, "stats"), "monitored") <- mon
   o
 }

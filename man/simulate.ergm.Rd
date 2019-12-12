@@ -77,7 +77,8 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   sequential = TRUE,
   control = control.simulate.formula(),
   verbose = FALSE,
-  ...
+  ...,
+  do.sim = TRUE
 )
 
 \method{simulate}{ergm_state}(
@@ -202,10 +203,11 @@ chain progresses.}
 
 \item{do.sim}{Logical: If \code{FALSE}, do not proceed to the simulation
 but rather return a list of arguments that would have been passed
-to \code{\link[=simulate.ergm_model]{simulate.ergm_model()}}. This can be useful if, for example,
+to the next function down (\code{\link[=simulate.ergm_model]{simulate.ergm_model()}} for formula
+and \code{\link[=simulate.ergm_state]{simulate.ergm_state()}}). This can be useful if, for example,
 one wants to run several simulations with varying coefficients
-and did not want to reinitialize the model and the proposal ever
-time.}
+and does not want to reinitialize the model and the proposal
+every time.}
 }
 \value{
 If \code{output=="stats"} an \code{\link{mcmc}} object containing the

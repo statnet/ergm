@@ -87,7 +87,7 @@ is.ergm_state(x)
 )
 
 \method{ergm_state}{ergm_state}(
-  object,
+  x,
   response = NULL,
   model = NULL,
   proposal = NULL,

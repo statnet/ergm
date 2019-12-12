@@ -242,7 +242,7 @@ Model* ModelInitialize(SEXP mR, SEXP ext_stateR, Network *nwp, Rboolean noinit_s
       fn[0]='x';
       thisterm->x_func =
 	(void (*)(unsigned int type, void *data, ModelTerm*, Network*)) R_FindSymbol(fn,sn,NULL);
-      
+
       /*Clean up by freeing fn*/
       Free(fn);
   }
