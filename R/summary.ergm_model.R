@@ -64,6 +64,7 @@ summary.ergm_model <- function(object, nw=NULL, response=NULL,...){
 summary.ergm_state <- function(object, ...){
   state <- object
   nw0 <- as.network(state, populate=FALSE)
+
   gs <-
     if(!is.valued(state))
       .Call("network_stats_wrapper",

@@ -4,7 +4,7 @@
 
 WtI_CHANGESTAT_FN(i_wtpassthrough_term){
   // No need to allocate it: we are only storing a pointer to a model.
-  STORAGE = WtModelInitialize(getListElement(mtp->R, "submodel"), nwp, FALSE);
+  STORAGE = WtModelInitialize(getListElement(mtp->R, "submodel"), NULL, nwp, FALSE);
 }
 
 WtD_CHANGESTAT_FN(d_wtpassthrough_term){
@@ -43,7 +43,7 @@ WtI_CHANGESTAT_FN(i_import_binary_term_sum){
 
   store->nwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
   Network *mynwp = store->nwp;
-  store->m = ModelInitialize(getListElement(mtp->R, "submodel"),  mynwp, FALSE);
+  store->m = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  mynwp, FALSE);
 }
 
 WtC_CHANGESTAT_FN(c_import_binary_term_sum){
@@ -86,7 +86,7 @@ WtI_CHANGESTAT_FN(i_import_binary_term_nonzero){
   GET_AUX_STORAGE(Network, bnwp);
   GET_STORAGE(Model, m); // Only need the pointer, no allocation needed.
 
-  STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"),  bnwp, FALSE);
+  STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  bnwp, FALSE);
 }
 
 WtC_CHANGESTAT_FN(c_import_binary_term_nonzero){
@@ -134,7 +134,7 @@ WtI_CHANGESTAT_FN(i_import_binary_term_form){
 
   GET_STORAGE(Model, m); // Only need the pointer, no allocation needed.
 
-  STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"),  bnwp, FALSE);
+  STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  bnwp, FALSE);
 }
 
 WtC_CHANGESTAT_FN(c_import_binary_term_form){
@@ -212,7 +212,7 @@ WtF_CHANGESTAT_FN(f__binary_nonzero_net){
 
 WtI_CHANGESTAT_FN(i__binary_formula_net){
   ALLOC_AUX_STORAGE(1, StoreNetAndWtModel, storage);
-  WtModel *m = storage->m = WtModelInitialize(getListElement(mtp->R, "submodel"), nwp, FALSE);
+  WtModel *m = storage->m = WtModelInitialize(getListElement(mtp->R, "submodel"), NULL, nwp, FALSE);
   Network *bnwp = storage->nwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
   double zero=0;
 
@@ -274,7 +274,7 @@ WtI_CHANGESTAT_FN(i_wtSum){
 
  SEXP submodels = getListElement(mtp->R, "submodels");
    for(unsigned int i=0; i<nms; i++){
-     ms[i] = WtModelInitialize(VECTOR_ELT(submodels, i), nwp, FALSE);
+     ms[i] = WtModelInitialize(VECTOR_ELT(submodels, i), NULL, nwp, FALSE);
   }
 }
 

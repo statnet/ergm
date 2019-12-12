@@ -111,7 +111,7 @@ typedef struct WtModelstruct {
     WtSetEdge((tail), (head), (weight), (nwp));				\
   }
 
-WtModel* WtModelInitialize(SEXP mR, WtNetwork *nwp, Rboolean noinit_s);
+WtModel* WtModelInitialize(SEXP mR, SEXP ext_stateR, WtNetwork *nwp, Rboolean noinit_s);
 
 void WtModelDestroy(WtNetwork *nwp, WtModel *m);
 

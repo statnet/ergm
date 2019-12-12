@@ -85,8 +85,9 @@ void WtModelDestroy(WtNetwork *nwp, WtModel *m)
  Allocate and initialize the WtModelTerm structures, each of which contains
  all necessary information about how to compute one term in the model.
 *****************/
-WtModel* WtModelInitialize (SEXP mR, WtNetwork *nwp, Rboolean noinit_s) {
+WtModel* WtModelInitialize (SEXP mR, SEXP ext_stateR, WtNetwork *nwp, Rboolean noinit_s) {
   SEXP terms = getListElement(mR, "terms");
+  if(ext_stateR == R_NilValue) ext_stateR = NULL;
   
   WtModel *m = (WtModel *) Calloc(1, WtModel);
   unsigned int n_terms = m->n_terms = length(terms);
@@ -104,12 +105,14 @@ WtModel* WtModelInitialize (SEXP mR, WtNetwork *nwp, Rboolean noinit_s) {
       /* Initialize storage and term functions to NULL. */
       thisterm->storage = NULL;
       thisterm->aux_storage = NULL;
+      thisterm->ext_state = NULL;
       thisterm->d_func = NULL;
       thisterm->c_func = NULL;
       thisterm->s_func = NULL;
       thisterm->i_func = NULL;
       thisterm->u_func = NULL;
       thisterm->f_func = NULL;
+      thisterm->w_func = NULL;
       thisterm->x_func = NULL;
       
       /* First, obtain the term name and library: fnames points to a
@@ -165,6 +168,8 @@ WtModel* WtModelInitialize (SEXP mR, WtNetwork *nwp, Rboolean noinit_s) {
 					       can be modified but 
 					       m->dstatarray[l] cannot be.  */
       thisterm->statcache = (double *) Calloc(thisterm->nstats, double);
+
+      if(ext_stateR) thisterm->ext_state = VECTOR_ELT(ext_stateR, l);
 
       /* If the term's nstats==0, it is auxiliary: it does not affect
 	 acceptance probabilities or contribute any
@@ -228,6 +233,11 @@ WtModel* WtModelInitialize (SEXP mR, WtNetwork *nwp, Rboolean noinit_s) {
       fn[0]='f';
       thisterm->f_func = 
 	(void (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+
+      fn[0]='w';
+      thisterm->w_func =
+	(SEXP (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+      if(thisterm->w_func && !ext_stateR) error("Term '%s:%s' uses the extended state API but no extended state has been provided to model initialization.", sn, fn+2);
 
       fn[0]='x';
       thisterm->x_func =

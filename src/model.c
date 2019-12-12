@@ -85,9 +85,10 @@ void ModelDestroy(Network *nwp, Model *m)
  Allocate and initialize the ModelTerm structures, each of which contains
  all necessary information about how to compute one term in the model.
 *****************/
-Model* ModelInitialize (SEXP mR, Network *nwp, Rboolean noinit_s) {
+Model* ModelInitialize(SEXP mR, SEXP ext_stateR, Network *nwp, Rboolean noinit_s){
   SEXP terms = getListElement(mR, "terms");
-  
+  if(ext_stateR == R_NilValue) ext_stateR = NULL;
+
   Model *m = (Model *) Calloc(1, Model);
   unsigned int n_terms = m->n_terms = length(terms);
   m->termarray = (ModelTerm *) Calloc(n_terms, ModelTerm);
@@ -104,12 +105,14 @@ Model* ModelInitialize (SEXP mR, Network *nwp, Rboolean noinit_s) {
       /* Initialize storage and term functions to NULL. */
       thisterm->storage = NULL;
       thisterm->aux_storage = NULL;
+      thisterm->ext_state = NULL;
       thisterm->d_func = NULL;
       thisterm->c_func = NULL;
       thisterm->s_func = NULL;
       thisterm->i_func = NULL;
       thisterm->u_func = NULL;
       thisterm->f_func = NULL;
+      thisterm->w_func = NULL;
       thisterm->x_func = NULL;
       
       /* First, obtain the term name and library: fnames points to a
@@ -165,6 +168,8 @@ Model* ModelInitialize (SEXP mR, Network *nwp, Rboolean noinit_s) {
 					       can be modified but 
 					       m->dstatarray[l] cannot be.  */
       thisterm->statcache = (double *) Calloc(thisterm->nstats, double);
+
+      if(ext_stateR) thisterm->ext_state = VECTOR_ELT(ext_stateR, l);
 
       /* If the term's nstats==0, it is auxiliary: it does not affect
 	 acceptance probabilities or contribute any
@@ -229,10 +234,14 @@ Model* ModelInitialize (SEXP mR, Network *nwp, Rboolean noinit_s) {
       thisterm->f_func = 
 	(void (*)(ModelTerm*, Network*)) R_FindSymbol(fn,sn,NULL);
 
+      fn[0]='w';
+      thisterm->w_func =
+	(SEXP (*)(ModelTerm*, Network*)) R_FindSymbol(fn,sn,NULL);
+      if(thisterm->w_func && !ext_stateR) error("Term '%s:%s' uses the extended state API but no extended state has been provided to model initialization.", sn, fn+2);
+
       fn[0]='x';
       thisterm->x_func =
 	(void (*)(unsigned int type, void *data, ModelTerm*, Network*)) R_FindSymbol(fn,sn,NULL);
-
       
       /*Clean up by freeing fn*/
       Free(fn);

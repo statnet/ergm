@@ -112,7 +112,7 @@ typedef struct Modelstruct {
   }
 
 
-Model* ModelInitialize(SEXP mR, Network *nwp, Rboolean noinit_s);
+Model* ModelInitialize(SEXP mR, SEXP ext_stateR, Network *nwp, Rboolean noinit_s);
 
 void ModelDestroy(Network *nwp, Model *m);
 

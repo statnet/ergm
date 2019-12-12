@@ -33,6 +33,10 @@
 #'
 #' \item{proposal}{an [`ergm_proposal`] object.}
 #'
+#' \item{ext.state}{a list of length equalling to the number of terms in the model.}
+#'
+#' \item{ext.flag}{one of `ERGM_STATE_R_CHANGED`, `ERGM_STATE_C_CHANGED`, and `ERGM_STATE_R_RECONCILED`.}
+#'
 #' \item{stats}{a numeric vector of network statistics or some other
 #' statistics used to resume.}}
 #'
@@ -60,6 +64,9 @@ ergm_state.edgelist <- function(x, nw0, model=NULL, proposal=NULL, stats=NULL, .
   out$model <- model
   out$proposal <- proposal
   out$stats <- as.double(stats)
+  out$ext.state <- vector("list", length(out$model$terms))
+  out$ext.flag <- ERGM_STATE_R_CHANGED
+  out <- .reconcile_ergm_state(out)
   structure(out, class="ergm_state")
 }
 
@@ -76,36 +83,6 @@ ergm_state.network <- function(x, response=NULL, model=NULL, proposal=NULL, stat
   nw0 <- x
   nw0[,] <- FALSE
   ergm_state(el, nw0, model=model, proposal=proposal, stats=stats, ...)
-}
-
-#' @describeIn ergm_state a method for updating an ergm_state.
-#' @export
-ergm_state.ergm_state <- function(x, el=NULL, nw0=NULL, response=NULL, model=NULL, proposal=NULL, stats=NULL, ...){
-  if(!is.null(nw0)){
-    if(is.network(nw0)) x$nw0 <- nw0
-    else stop("New nw0 is not a network object.")
-  }
-
-  if(!is.null(el)){
-    if(is(el, "tibble_edgelist")) x$el <- el
-    else stop("New el is not a tibble-style edgelist.")
-  }
-
-  if(!is.null(response) && (ncol(x$el)<3 || names(x$el)[3]!=response))
-    stop("Attempting to update ergm_state object with a non-matching response attribute.")
-
-  if(!is.null(model)){
-    if(is(model, "ergm_model")) x$model <- model
-    else stop("New model is not an ergm_model.")
-  }
-
-  if(!is.null(proposal)){
-    if(is(proposal, "ergm_proposal")) x$proposal <- proposal
-    else stop("New proposal is not an ergm_proposal.")
-  }
-
-  if(!is.null(stats)) x$stats <- as.double(stats)
-  x
 }
 
 #' @rdname ergm_state
@@ -200,3 +177,75 @@ param_names.ergm_state <- function(object, ...) param_names(object$model, ...)
 #' @rdname ergm_state
 #' @export
 nparam.ergm_state <- function(object, ...) nparam(object$model, ...)
+
+#' @describeIn ergm_state a method for updating an `ergm_state` and reconciling extended state.
+#' @export
+update.ergm_state <- function(object, el=NULL, nw0=NULL, response=NULL, model=NULL, proposal=NULL, stats=NULL, ...){
+  object <- .reconcile_ergm_state(object)
+  
+  if(!is.null(nw0)){
+    if(!is.network(nw0)) stop("New nw0 is not a network object.")
+    object$nw0 <- nw0
+    object$ext.flag <- ERGM_STATE_R_CHANGED
+  }
+
+  if(!is.null(el)){
+    if(!is(el, "tibble_edgelist")) stop("New el is not a tibble-style edgelist.")
+    object$el <- el
+    object$ext.flag <- ERGM_STATE_R_CHANGED
+  }
+
+  if(!is.null(response) && (ncol(object$el)<3 || names(object$el)[3]!=response))
+    stop("Attempting to update ergm_state object with a non-matching response attribute.")
+
+  if(!is.null(model)){
+    if(!is(model, "ergm_model")) stop("New model is not an ergm_model.")
+    object$model <- model
+    object$ext.flag <- ERGM_STATE_R_CHANGED
+  }
+
+  if(!is.null(proposal)){
+    if(!is(proposal, "ergm_proposal")) stop("New proposal is not an ergm_proposal.")
+    object$proposal <- proposal
+  }
+
+  if(!is.null(stats)) object$stats <- as.double(stats)
+
+  .reconcile_ergm_state(object)
+}
+
+#' @describeIn ergm_state a method for constructing an `ergm_state`.
+#' @export
+ergm_state.ergm_state <- function(x, response=NULL, model=NULL, proposal=NULL, stats=NULL, ...){
+  update(x, response=response, model=model, proposal=proposal, stats=stats, ...)
+}
+
+#' @rdname ergm_state
+#' @export
+ERGM_STATE_R_CHANGED <- -1L
+#' @rdname ergm_state
+#' @export
+ERGM_STATE_C_CHANGED <- +1L
+#' @rdname ergm_state
+#' @export
+ERGM_STATE_RECONCILED <- 0L
+.reconcile_ergm_state <- function(object){
+  if(is.null(object$model) || object$ext.flag==ERGM_STATE_RECONCILED) return(object)
+  if(object$ext.flag==ERGM_STATE_R_CHANGED){ # Extended state changed in R; encode.
+    object$ext.state <- lapply(object$model$terms, function(trm, el, nw0){
+      if(!is.null(trm$ext.encode)) trm$ext.encode(el=object$el, nw0=object$nw0)
+    }, state$el, state$nw0)
+    object$ext.flag <- ERGM_STATE_RECONCILED
+  }
+  if(object$ext.flag==ERGM_STATE_C_CHANGED){ # Extended state changed in C; decode.
+    for(i in seq_along(object$model$terms)){
+      trm <- object$model$terms[[i]]
+      if(is.null(trm$ext.decode)) next
+      o <- trm$ext.decode(object$ext.state[[i]], state$el, state$nw0)
+      state$el <- o$el
+      state$nw0 <- o$nw0
+    }
+    object$ext.flag <- ERGM_STATE_RECONCILED
+  }
+  object
+}

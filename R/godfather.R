@@ -90,7 +90,7 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
 
   m <- ergm_model(formula, nw, role="target", response=response, term.options=control$term.options)
   state <- ergm_state(nw, model=m, response=response)
-  if(!changes.only) state <- ergm_state(state, stats=summary(state))
+  if(!changes.only) state <- update(state, stats=summary(state))
 
   changem <- changes %>% map(rbind, 0) %>% do.call(rbind, .) # 0s are sentinels indicating next iteration.
   
@@ -128,7 +128,7 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
   
   if(end.network){ 
     if(verbose) cat("Creating new network...\n")
-    newnetwork <- as.network(z$state)
+    newnetwork <- as.network(update(z$state))
     attr(newnetwork,"stats")<-stats
     newnetwork
   }else stats

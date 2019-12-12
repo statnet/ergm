@@ -102,7 +102,7 @@ ergm.CD.fixed <- function(init, nw, model,
   model$nw.stats <- summary(model, s, response=response)
   statshift <- model$nw.stats - NVL(model$target.stats,model$nw.stats)
   statshift[is.na(statshift)] <- 0
-  s <- ergm_state(s, model=model, proposal=proposal, stats=statshift)
+  s <- update(s, model=model, proposal=proposal, stats=statshift)
 
   s <- rep(list(s),nthreads(control)) # s is now a list of states.
   
@@ -116,7 +116,7 @@ ergm.CD.fixed <- function(init, nw, model,
     control.obs$CD.interval <- control$obs.CD.interval
     control.obs$CD.burnin <- control$obs.CD.burnin
 
-    s.obs <- lapply(s, ergm_state, model=NVL(model$obs.model,model), proposal=proposal.obs)
+    s.obs <- lapply(s, update, model=NVL(model$obs.model,model), proposal=proposal.obs)
   }
   # mcmc.init will change at each iteration.  It is the value that is used
   # to generate the CD samples.  init will never change.

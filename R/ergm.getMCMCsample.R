@@ -250,6 +250,7 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
             PACKAGE="ergm")
   z$s <- matrix(z$s, ncol=nparam(state,canonical=TRUE), byrow = TRUE)
   colnames(z$s) <- param_names(state, canonical=TRUE)
+  z$state <- update(z$state)
 
   z
 }

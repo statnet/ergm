@@ -69,6 +69,7 @@ ergm.phase12 <- function(s, eta0,
   eta <- z$eta
   names(eta) <- names(eta0)
 
+  z$state <- update(z$state)
   newnetwork<-as.network(z$state)
   
   colnames(statsmatrix) <- param_names(s,canonical=TRUE)

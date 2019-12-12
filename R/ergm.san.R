@@ -373,6 +373,7 @@ ergm_SAN_slave <- function(state, tau,control,verbose,..., nsteps=NULL, samplesi
   z$s <- matrix(z$s, ncol=length(statindices), byrow = TRUE)
   z$s.prop <- matrix(z$s.prop, ncol=length(statindices), byrow = TRUE)
   colnames(z$s) <- colnames(z$s.prop) <- param_names(state, canonical=TRUE)[statindices]
+  z$state <- update(z$state)
 
   z
 }

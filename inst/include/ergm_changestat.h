@@ -20,6 +20,7 @@ typedef struct ModelTermstruct {
   void (*u_func)(Vertex, Vertex, struct ModelTermstruct*, Network*, Rboolean);
   void (*f_func)(struct ModelTermstruct*, Network*);
   void (*s_func)(struct ModelTermstruct*, Network*);
+  SEXP (*w_func)(struct ModelTermstruct*, Network*);  
   void (*x_func)(unsigned int type, void *data, struct ModelTermstruct*, Network*);
   double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
   int *iattrib; /* Ptr to vector of integer covariates (if necessary; generally unused) */
@@ -36,6 +37,7 @@ typedef struct ModelTermstruct {
   unsigned int n_aux;
   unsigned int *aux_slots;
   SEXP R; /* R term object. */
+  SEXP ext_state; /* A place from which to read extended state. */
 } ModelTerm;
 
 /****************************************************
@@ -155,6 +157,7 @@ typedef struct ModelTermstruct {
 #define U_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgeflag)
 #define F_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
 #define S_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
+#define W_CHANGESTAT_FN(a) SEXP (a) (ModelTerm *mtp, Network *nwp)
 #define X_CHANGESTAT_FN(a) void (a) (unsigned int type, void *data, ModelTerm *mtp, Network *nwp)
 
 /* This macro wraps two calls to an s_??? function with toggles

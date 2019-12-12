@@ -195,7 +195,7 @@ I_CHANGESTAT_FN(i__filter_formula_net){
   I_AUXNET(NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL));
   GET_STORAGE(Model, m);
 
-  STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"),  nwp, FALSE);
+  STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"), NULL, nwp, FALSE);
 
   EXEC_THROUGH_NET_EDGES_PRE(t, h, e, {
       ChangeStats(1, &t, &h, nwp, m);
