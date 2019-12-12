@@ -238,10 +238,10 @@ return fun(MHp,nwp);
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_model.h"
-Model* ModelInitialize(SEXP mR, Network *nwp, Rboolean noinit_s){
-static Model* (*fun)(SEXP,Network *,Rboolean) = NULL;
-if(fun==NULL) fun = (Model* (*)(SEXP,Network *,Rboolean)) R_FindSymbol("ModelInitialize", "ergm", NULL);
-return fun(mR,nwp,noinit_s);
+Model* ModelInitialize(SEXP mR, SEXP ext_stateR, Network *nwp, Rboolean noinit_s){
+static Model* (*fun)(SEXP,SEXP,Network *,Rboolean) = NULL;
+if(fun==NULL) fun = (Model* (*)(SEXP,SEXP,Network *,Rboolean)) R_FindSymbol("ModelInitialize", "ergm", NULL);
+return fun(mR,ext_stateR,nwp,noinit_s);
 }
 void ModelDestroy(Network *nwp, Model *m){
 static void (*fun)(Network *,Model *) = NULL;
@@ -458,10 +458,10 @@ fun(MH,nwp);
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_wtmodel.h"
-WtModel* WtModelInitialize(SEXP mR, WtNetwork *nwp, Rboolean noinit_s){
-static WtModel* (*fun)(SEXP,WtNetwork *,Rboolean) = NULL;
-if(fun==NULL) fun = (WtModel* (*)(SEXP,WtNetwork *,Rboolean)) R_FindSymbol("WtModelInitialize", "ergm", NULL);
-return fun(mR,nwp,noinit_s);
+WtModel* WtModelInitialize(SEXP mR, SEXP ext_stateR, WtNetwork *nwp, Rboolean noinit_s){
+static WtModel* (*fun)(SEXP,SEXP,WtNetwork *,Rboolean) = NULL;
+if(fun==NULL) fun = (WtModel* (*)(SEXP,SEXP,WtNetwork *,Rboolean)) R_FindSymbol("WtModelInitialize", "ergm", NULL);
+return fun(mR,ext_stateR,nwp,noinit_s);
 }
 void WtModelDestroy(WtNetwork *nwp, WtModel *m){
 static void (*fun)(WtNetwork *,WtModel *) = NULL;
