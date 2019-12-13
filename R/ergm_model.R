@@ -187,8 +187,6 @@ updatemodel.ErgmTerm <- function(model, outlist) {
     model$maxval <- c(model$maxval,
                       rep(NVL(outlist$maxval, +Inf),
                           length.out=length(outlist$coef.names)))
-    model$duration <- max(model$duration,
-                          NVL(outlist$duration, FALSE))
     model$terms[[length(model$terms)+1L]] <- outlist
   }
   model
@@ -270,8 +268,6 @@ c.ergm_model <- function(...){
                   "term.skipped",
                   "slots.extra.aux"))
       o[[name]] <- c(o[[name]], m[[name]])
-    
-    o$duration <- max(o$duration, m$duration)
   }
 
   o$etamap <- ergm.etamap(o)
