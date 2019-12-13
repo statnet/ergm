@@ -9,6 +9,7 @@
  */
 #include "wtnetstats.h"
 #include "ergm_omp.h"
+#include "ergm_util.h"
 /*****************
  void network_stats_wrapper
 
@@ -66,9 +67,7 @@ void WtSummStats(WtErgmState *s, Edge n_edges, Vertex *tails, Vertex *heads, dou
       if(mtp->s_func==NULL && mtp->c_func==NULL && mtp->d_func){
 	(*(mtp->d_func))(ntoggles, tails, heads, weights,
 			 mtp, nwp);  /* Call d_??? function */
-	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
-	  dstats[k] += mtp->dstats[k];
-	}
+	addonto(dstats, mtp->dstats, N_CHANGE_STATS);
       }
     });
 
@@ -82,10 +81,7 @@ void WtSummStats(WtErgmState *s, Edge n_edges, Vertex *tails, Vertex *heads, dou
 	  ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
 			   mtp, nwp, OLDWT);  /* Call c_??? function */
-	  
-	  for(unsigned int k=0; k<N_CHANGE_STATS; k++){
-	    dstats[k] += mtp->dstats[k];
-	  }
+	    addonto(dstats, mtp->dstats, N_CHANGE_STATS);
 	}
       });
     

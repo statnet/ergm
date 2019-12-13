@@ -10,6 +10,7 @@
 #include "MPLE.h"
 #include "ergm_changestat.h"
 #include "ergm_state.h"
+#include "ergm_util.h"
 
 void RecurseOffOn(ErgmState *s, Vertex *nodelist1,Vertex *nodelist2, Vertex nodelistlength, 
        Vertex currentnodes, double *changeStats, double *cumulativeStats,
@@ -143,7 +144,7 @@ void RecurseOffOn(ErgmState *s,
 	}
       });
 
-    for (int j=0; j < m->n_stats; j++) cumulativeStats[j] += changeStats[j];
+    addonto(cumulativeStats, changeStats, m->n_stats);
     /* Now toggle the dyad so it's ready for the next pass */
     /* Inform u_* functions that the network is about to change. */
     UPDATE_STORAGE_TOGGLE(nodelist1[currentnodes], nodelist2[currentnodes], nwp, m, NULL, edgeflag);

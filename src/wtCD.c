@@ -196,9 +196,8 @@ MCMCStatus WtCDStep(WtErgmState *s,
       WtChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, MHp->toggleweight, nwp, m);
 
       // Add them to the cumulative changes.
-      for(unsigned int i=0; i<m->n_stats; i++)
-	extraworkspace[i] += m->workspace[i];
-      
+      addonto(extraworkspace, m->workspace, m->n_stats);
+
       if(verbose>=5){
 	Rprintf("Changes: (");
 	for(unsigned int i=0; i<m->n_stats; i++){
@@ -269,10 +268,7 @@ MCMCStatus WtCDStep(WtErgmState *s,
       }
 
       /* record network statistics for posterity */
-      for (unsigned int i = 0; i < m->n_stats; i++){
-	networkstatistics[i] += extraworkspace[i];
-      }
-
+      addonto(networkstatistics, extraworkspace, m->n_stats);
     }else{
     REJECT:
       if(verbose>=5){

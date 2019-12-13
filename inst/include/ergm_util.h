@@ -10,12 +10,21 @@
 #ifndef _ERGM_UTIL_H_
 #define _ERGM_UTIL_H_
 
+/* Calculate the dot product between two vectors. */
 static inline double dotprod(double *x, double *y, unsigned int n){
   double out = 0;
   for(unsigned int i = 0; i < n; i++, x++, y++){
     out += *x * *y;
   }
   return out;
+}
+
+/* Add y to x elementwise in place. */
+static inline double *addonto(double *x, double *y, unsigned int n){
+  for(unsigned int i = 0; i < n; i++, x++, y++){
+    *x += *y;
+  }
+  return x;
 }
 
 #endif 

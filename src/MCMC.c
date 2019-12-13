@@ -249,9 +249,7 @@ MCMCStatus MetropolisHastings(ErgmState *s,
 	GET_EDGE_UPDATE_STORAGE_TOGGLE(MHp->toggletail[i], MHp->togglehead[i], nwp, m, MHp);
       }
       /* record network statistics for posterity */
-      for (unsigned int i = 0; i < m->n_stats; i++){
-	networkstatistics[i] += m->workspace[i];
-      }
+      addonto(networkstatistics, m->workspace, m->n_stats);
       taken++;
     }else{
       if(verbose>=5){

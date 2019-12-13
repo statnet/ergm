@@ -193,8 +193,7 @@ MCMCStatus CDStep(ErgmState *s,
       ChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m);
 
       // Add them to the cumulative changes.
-      for(unsigned int i=0; i<m->n_stats; i++)
-	extraworkspace[i] += m->workspace[i];
+      addonto(extraworkspace, m->workspace, m->n_stats);
       
       if(verbose>=5){
 	Rprintf("Changes: (");
@@ -260,9 +259,7 @@ MCMCStatus CDStep(ErgmState *s,
       }
 
       /* record network statistics for posterity */
-      for (unsigned int i = 0; i < m->n_stats; i++){
-	networkstatistics[i] += extraworkspace[i];
-      }
+      addonto(networkstatistics, extraworkspace, m->n_stats);
 
     }else{
     REJECT:

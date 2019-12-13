@@ -11,6 +11,7 @@
 #include "ergm_wtmodel.h"
 #include "ergm_wtchangestat.h"
 #include "ergm_wtstate.h"
+#include "ergm_util.h"
 
 MCMCStatus WtGodfather(WtErgmState *s, Edge n_changes, Vertex *tails, Vertex *heads, double *weights, double *stats){
   WtNetwork *nwp = s->nwp;
@@ -42,9 +43,7 @@ MCMCStatus WtGodfather(WtErgmState *s, Edge n_changes, Vertex *tails, Vertex *he
 	  (*(mtp->d_func))(1, &t, &h, &w,
 			   mtp, nwp);  /* Call d_??? function */
 	}
-	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
-	    dstats[k] += mtp->dstats[k];
-	}
+        addonto(dstats, mtp->dstats, N_CHANGE_STATS);
       });
 
 

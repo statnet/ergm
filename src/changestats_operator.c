@@ -1,4 +1,5 @@
 #include "ergm_changestat_auxnet.h"
+#include "ergm_util.h"
 
 /* passthrough(formula) */
 
@@ -82,8 +83,7 @@ I_CHANGESTAT_FN(i__summary_term){
     Edge e;
     STEP_THROUGH_OUTEDGES(tail, e, head) {
       ChangeStats(1, &tail, &head, tmpnwp, m);
-      for(unsigned int k=0; k<m->n_stats; k++)
-	stats[k] += m->workspace[k];
+      addonto(stats, m->workspace, m->n_stats);
       UPDATE_STORAGE_TOGGLE(tail, head, tmpnwp, m, NULL, 0);
     }
   }
@@ -96,8 +96,7 @@ U_CHANGESTAT_FN(u__summary_term){
   GET_AUX_STORAGE(double, stats);
 
   ChangeStats(1, &tail, &head, nwp, m);
-  for(unsigned int k=0; k<m->n_stats; k++)
-    stats[k] += m->workspace[k];
+  addonto(stats, m->workspace, m->n_stats);
 
   UPDATE_STORAGE(tail, head, nwp, m, NULL, edgeflag);
 }

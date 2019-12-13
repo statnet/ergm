@@ -11,6 +11,7 @@
 #include "ergm_model.h"
 #include "ergm_changestat.h"
 #include "ergm_state.h"
+#include "ergm_util.h"
 
 MCMCStatus Godfather(ErgmState *s, Edge n_changes, Vertex *tails, Vertex *heads, int *weights, double *stats){
   Network *nwp = s->nwp;
@@ -44,9 +45,7 @@ MCMCStatus Godfather(ErgmState *s, Edge n_changes, Vertex *tails, Vertex *heads,
 	  (*(mtp->d_func))(1, &t, &h,
 			   mtp, nwp);  /* Call d_??? function */
 	}
-	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
-	    dstats[k] += mtp->dstats[k];
-	}
+        addonto(dstats, mtp->dstats, N_CHANGE_STATS);
       });
 
 

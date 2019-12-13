@@ -10,6 +10,7 @@
 #include <string.h>
 #include "ergm_model.h"
 #include "ergm_omp.h"
+#include "ergm_util.h"
 
 /*
   InitStats
@@ -309,9 +310,7 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
 	  (*(mtp->c_func))(tails[toggle], heads[toggle],
 			   mtp, nwp, edgeflag);  /* Call d_??? function */
 	  if(ntoggles!=1){
-	    for(unsigned int k=0; k<N_CHANGE_STATS; k++){
-	      dstats[k] += mtp->dstats[k];
-	    }
+            addonto(dstats, mtp->dstats, N_CHANGE_STATS);
 	  }
 	}
       });
