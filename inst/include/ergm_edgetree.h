@@ -57,7 +57,6 @@ typedef struct Networkstruct {
   Vertex *indegree;
   Vertex *outdegree;
   double *value;  
-  Dur_Inf *duration_info;
   Edge maxedges;
 } Network;
 
@@ -77,8 +76,7 @@ Network *NetworkInitializeD(double *tails, double *heads, Edge nedges,
 Network *NetworkCopy(Network *src);
 
 SEXP Network2Redgelist(Network *nwp);
-Network *Redgelist2Network(SEXP elR, Rboolean empty, 
-                           Rboolean lasttoggle_flag, int time, int *lasttoggle);
+Network *Redgelist2Network(SEXP elR, Rboolean empty);
 
 /* /\* Accessors. *\/ */
 /* static inline Edge EdgetreeSearch (Vertex a, Vertex b, TreeNode *edges); */
@@ -93,10 +91,8 @@ Network *Redgelist2Network(SEXP elR, Rboolean empty,
    heads & tails, now list tails before heads */
 
 void SetEdge (Vertex tail, Vertex head, unsigned int weight, Network *nwp);
-void SetEdgeWithTimestamp (Vertex tail, Vertex head, unsigned int weight, Network *nwp);
 int ToggleEdge (Vertex tail, Vertex head, Network *nwp);
 int ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgeflag);
-int ToggleEdgeWithTimestamp (Vertex tail, Vertex head, Network *nwp);
 int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp);
 void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge);
 void CheckEdgetreeFull (Network *nwp);
@@ -104,11 +100,6 @@ int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp);
 int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
 		     Edge *last_edge);
 void RelocateHalfedge(Edge from, Edge to, TreeNode *edges);
-
-/* /\* Duration functions. *\/ */
-/* static inline int ElapsedTime(Vertex tail, Vertex head, Network *nwp); */
-void TouchEdge(Vertex tail, Vertex head, Network *nwp);
-void ExpireTimestamps(unsigned int edges, unsigned int nonedges, Network *nwp);
 
 #include "ergm_edgetree_inline.do_not_include_directly.h"
 

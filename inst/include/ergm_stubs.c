@@ -83,11 +83,6 @@ static void (*fun)(Vertex,Vertex,unsigned int,Network *) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex,Vertex,unsigned int,Network *)) R_FindSymbol("SetEdge", "ergm", NULL);
 fun(tail,head,weight,nwp);
 }
-void SetEdgeWithTimestamp(Vertex tail, Vertex head, unsigned int weight, Network *nwp){
-static void (*fun)(Vertex,Vertex,unsigned int,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,unsigned int,Network *)) R_FindSymbol("SetEdgeWithTimestamp", "ergm", NULL);
-fun(tail,head,weight,nwp);
-}
 int ToggleEdge(Vertex tail, Vertex head, Network *nwp){
 static int (*fun)(Vertex,Vertex,Network *) = NULL;
 if(fun==NULL) fun = (int (*)(Vertex,Vertex,Network *)) R_FindSymbol("ToggleEdge", "ergm", NULL);
@@ -97,11 +92,6 @@ int ToggleKnownEdge(Vertex tail, Vertex head, Network *nwp, Rboolean edgeflag){
 static int (*fun)(Vertex,Vertex,Network *,Rboolean) = NULL;
 if(fun==NULL) fun = (int (*)(Vertex,Vertex,Network *,Rboolean)) R_FindSymbol("ToggleKnownEdge", "ergm", NULL);
 return fun(tail,head,nwp,edgeflag);
-}
-int ToggleEdgeWithTimestamp(Vertex tail, Vertex head, Network *nwp){
-static int (*fun)(Vertex,Vertex,Network *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,Network *)) R_FindSymbol("ToggleEdgeWithTimestamp", "ergm", NULL);
-return fun(tail,head,nwp);
 }
 int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp){
 static int (*fun)(Vertex,Vertex,Network *) = NULL;
@@ -132,16 +122,6 @@ void RelocateHalfedge(Edge from, Edge to, TreeNode *edges){
 static void (*fun)(Edge,Edge,TreeNode *) = NULL;
 if(fun==NULL) fun = (void (*)(Edge,Edge,TreeNode *)) R_FindSymbol("RelocateHalfedge", "ergm", NULL);
 fun(from,to,edges);
-}
-void TouchEdge(Vertex tail, Vertex head, Network *nwp){
-static void (*fun)(Vertex,Vertex,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,Network *)) R_FindSymbol("TouchEdge", "ergm", NULL);
-fun(tail,head,nwp);
-}
-void ExpireTimestamps(unsigned int edges, unsigned int nonedges, Network *nwp){
-static void (*fun)(unsigned int,unsigned int,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(unsigned int,unsigned int,Network *)) R_FindSymbol("ExpireTimestamps", "ergm", NULL);
-fun(edges,nonedges,nwp);
 }
 int FindithEdge(Vertex *tail, Vertex *head, Edge i, Network *nwp){
 static int (*fun)(Vertex *,Vertex *,Edge,Network *) = NULL;
@@ -273,10 +253,10 @@ fun(ntoggles,toggletail,togglehead,nwp,m);
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_state.h"
-ErgmState * ErgmStateInit(SEXP stateR,Rboolean empty, Rboolean noinit_s,Rboolean timings, int time, int *lasttoggle){
-static ErgmState * (*fun)(SEXP,Rboolean,Rboolean,Rboolean,int,int *) = NULL;
-if(fun==NULL) fun = (ErgmState * (*)(SEXP,Rboolean,Rboolean,Rboolean,int,int *)) R_FindSymbol("ErgmStateInit", "ergm", NULL);
-return fun(stateR,empty,noinit_s,timings,time,lasttoggle);
+ErgmState * ErgmStateInit(SEXP stateR,Rboolean empty, Rboolean noinit_s){
+static ErgmState * (*fun)(SEXP,Rboolean,Rboolean) = NULL;
+if(fun==NULL) fun = (ErgmState * (*)(SEXP,Rboolean,Rboolean)) R_FindSymbol("ErgmStateInit", "ergm", NULL);
+return fun(stateR,empty,noinit_s);
 }
 SEXP ErgmStateRSave(SEXP startR, ErgmState *s){
 static SEXP (*fun)(SEXP,ErgmState *) = NULL;
@@ -328,19 +308,9 @@ static void (*fun)(Vertex,Vertex,double,WtNetwork *) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,WtNetwork *)) R_FindSymbol("WtSetEdge", "ergm", NULL);
 fun(tail,head,weight,nwp);
 }
-void WtSetEdgeWithTimestamp(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
-static void (*fun)(Vertex,Vertex,double,WtNetwork *) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,WtNetwork *)) R_FindSymbol("WtSetEdgeWithTimestamp", "ergm", NULL);
-fun(tail,head,weight,nwp);
-}
 int WtToggleEdge(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
 static int (*fun)(Vertex,Vertex,double,WtNetwork *) = NULL;
 if(fun==NULL) fun = (int (*)(Vertex,Vertex,double,WtNetwork *)) R_FindSymbol("WtToggleEdge", "ergm", NULL);
-return fun(tail,head,weight,nwp);
-}
-int WtToggleEdgeWithTimestamp(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
-static int (*fun)(Vertex,Vertex,double,WtNetwork *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,double,WtNetwork *)) R_FindSymbol("WtToggleEdgeWithTimestamp", "ergm", NULL);
 return fun(tail,head,weight,nwp);
 }
 int WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
@@ -372,16 +342,6 @@ void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges){
 static void (*fun)(Edge,Edge,WtTreeNode *) = NULL;
 if(fun==NULL) fun = (void (*)(Edge,Edge,WtTreeNode *)) R_FindSymbol("WtRelocateHalfedge", "ergm", NULL);
 fun(from,to,edges);
-}
-void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp){
-static void (*fun)(Vertex,Vertex,WtNetwork *) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,WtNetwork *)) R_FindSymbol("WtTouchEdge", "ergm", NULL);
-fun(tail,head,nwp);
-}
-void WtExpireTimestamps(unsigned int edges, unsigned int nonedges, WtNetwork *nwp){
-static void (*fun)(unsigned int,unsigned int,WtNetwork *) = NULL;
-if(fun==NULL) fun = (void (*)(unsigned int,unsigned int,WtNetwork *)) R_FindSymbol("WtExpireTimestamps", "ergm", NULL);
-fun(edges,nonedges,nwp);
 }
 int WtFindithEdge(Vertex *tail, Vertex *head, double *weight, Edge i, WtNetwork *nwp){
 static int (*fun)(Vertex *,Vertex *,double *,Edge,WtNetwork *) = NULL;
@@ -478,10 +438,10 @@ fun(ntoggles,toggletail,togglehead,toggleweight,nwp,m);
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_wtstate.h"
-WtErgmState * WtErgmStateInit(SEXP stateR,Rboolean empty, Rboolean noinit_s,Rboolean timings, int time, int *lasttoggle){
-static WtErgmState * (*fun)(SEXP,Rboolean,Rboolean,Rboolean,int,int *) = NULL;
-if(fun==NULL) fun = (WtErgmState * (*)(SEXP,Rboolean,Rboolean,Rboolean,int,int *)) R_FindSymbol("WtErgmStateInit", "ergm", NULL);
-return fun(stateR,empty,noinit_s,timings,time,lasttoggle);
+WtErgmState * WtErgmStateInit(SEXP stateR,Rboolean empty, Rboolean noinit_s){
+static WtErgmState * (*fun)(SEXP,Rboolean,Rboolean) = NULL;
+if(fun==NULL) fun = (WtErgmState * (*)(SEXP,Rboolean,Rboolean)) R_FindSymbol("WtErgmStateInit", "ergm", NULL);
+return fun(stateR,empty,noinit_s);
 }
 SEXP WtErgmStateRSave(SEXP startR, WtErgmState *s){
 static SEXP (*fun)(SEXP,WtErgmState *) = NULL;

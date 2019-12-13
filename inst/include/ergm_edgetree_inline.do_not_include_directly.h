@@ -130,23 +130,6 @@ static inline Edge EdgetreePredecessor (TreeNode *edges, Edge x) {
 }   
 
 /*****************
- long int ElapsedTime
-
- Return time since given (tail,head) was last toggled using
- ToggleEdgeWithTimestamp function
-*****************/
-
-/* *** don't forget tail->head, so this function now accepts tail before head */
-
-static inline int ElapsedTime(Vertex tail, Vertex head, Network *nwp){
-  if(nwp->duration_info){ /* Return INT_MAX if no duration info. */
-    khint_t i = kh_get(DyadMapInt, nwp->duration_info->lasttoggle, THKey(nwp->duration_info->lasttoggle,tail,head));
-    if(i==kh_none) return INT_MAX;
-    return nwp->duration_info->time - kh_value(nwp->duration_info->lasttoggle, i); // Possible int overflow here.
-  }else error("Attempting to access durational information on a network with no durational information. Memory has not been freed, so restart R soon.");
-}
-
-/*****************
  int GetEdge
 
 Get edge value. Return 0 if edge does not exist.

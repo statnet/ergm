@@ -40,16 +40,7 @@ WtNetwork *WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
   nwp->inedges = (WtTreeNode *) Calloc(nwp->maxedges, WtTreeNode);
   nwp->outedges = (WtTreeNode *) Calloc(nwp->maxedges, WtTreeNode);
 
-  if(lasttoggle_flag){
-    nwp->duration_info = Calloc(1, Dur_Inf);
-    nwp->duration_info->time=time;
-    nwp->duration_info->lasttoggle = kh_init(DyadMapInt); nwp->duration_info->lasttoggle->directed=directed_flag;
-    for(Edge i = 1; i <= lasttoggle[0]; i++){
-      Vertex tail=lasttoggle[i], head=lasttoggle[i+lasttoggle[0]];
-      /* Note: we can't use helper macros here, since those treat 0 as deletion. */
-      kh_set(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head), lasttoggle[i+lasttoggle[0]+lasttoggle[0]]);
-    }
-  }else nwp->duration_info = NULL;
+  if(lasttoggle_flag) error("The lasttoggle API has been removed from ergm.");
 
   /*Configure a Network*/
   nwp->nnodes = nnodes;
@@ -106,10 +97,6 @@ void WtNetworkDestroy(WtNetwork *nwp) {
   Free(nwp->outdegree);
   Free(nwp->inedges);
   Free(nwp->outedges);
-  if(nwp->duration_info){
-    kh_destroy(DyadMapInt, nwp->duration_info->lasttoggle);
-    Free(nwp->duration_info);
-  }
   Free(nwp);
 }
 
@@ -137,12 +124,6 @@ WtNetwork *WtNetworkCopy(WtNetwork *src){
 
   dest->directed_flag = src->directed_flag;
   dest->bipartite = src->bipartite;
-
-  if(src->duration_info){
-    dest->duration_info = Calloc(1, Dur_Inf);
-    dest->duration_info->time=src->duration_info->time;
-    dest->duration_info->lasttoggle = kh_copy(DyadMapInt,src->duration_info->lasttoggle);
-  }else dest->duration_info = NULL;
 
   EDGECOUNT(dest) = EDGECOUNT(src);
 
@@ -172,54 +153,6 @@ int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp)
     return 1;
   else 
     return 1 - WtDeleteEdgeFromTrees(tail,head,nwp);
-}
-
-
-
-/* *** don't forget, edges are now given by tails -> heads, and as
-       such, the function definitions now require tails to be passed
-       in before heads */
-
-/*****************
- Edge ToggleEdgeWithTimestamp
- By MSH 11/26/06
-
- Same as ToggleEdge, but this time with the additional
- step of updating the matrix of 'lasttoggle' times
- *****************/
-
-/* *** don't forget tail->head, so this function now accepts tail before head */
-
-int WtToggleEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork *nwp) 
-{
-  ENSURE_TH_ORDER;
-
-  kh_set(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head), nwp->duration_info->time);
-  if (WtAddEdgeToTrees(tail,head,weight,nwp)){
-    return 1;
-  }else{ 
-    return 1 - WtDeleteEdgeFromTrees(tail,head,nwp);
-  }
-}
-
-/*****************
- void TouchEdge
-
- Named after the UNIX "touch" command.
- Set an edge's time-stamp to the current MCMC time.
- *****************/
-
-/* *** don't forget tail->head, so this function now accepts tail before head */
-
-void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp){
-  if(nwp->duration_info){ /* Skip timestamps if no duration info. */
-    ENSURE_TH_ORDER
-    if(WtEdgetreeSearch(tail, head, nwp->outedges)){
-      kh_set(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head), nwp->duration_info->time);
-    }else{
-      kh_unset(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head));
-    }
-  }
 }
 
 /* *** don't forget, edges are now given by tails -> heads, and as
@@ -762,53 +695,7 @@ void WtSetEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp)
   }
 }
 
-/*****************
- Edge WtSetEdgeWithTimestamp
-
- Same as WtSetEdge, but this time with the additional
- step of updating the matrix of 'lasttoggle' times
- *****************/
-void WtSetEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork *nwp) 
-{
-  kh_set(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head), nwp->duration_info->time);
-  WtSetEdge(tail,head,weight,nwp);
-}
-
-/*****************
- void WtExpireTimestamps
-
- Walks through the lasttoggle structure, expiring edges and non-edges
- from the lasttoggle structure that had been toggled more than the
- specified number of steps ago.
- *****************/
-void WtExpireTimestamps(unsigned int edges, unsigned int nonedges, WtNetwork *nwp)
-{
-  if(edges==nonedges){ // Same horizon for edges and non-edges means that we don't need to check if an edge exists.
-    int lt;
-    kh_foreach_value(nwp->duration_info->lasttoggle, lt, {
-        /* Note: This bit is implementation-dependent, relying on the
-           fact that __i is the iterator variable. If we ever change to
-           a backend different from khash, we would need to implement
-           this differently. */
-        if(nwp->duration_info->time - lt > edges)
-          kh_del(DyadMapInt, nwp->duration_info->lasttoggle, __i);
-      });
-  }else{
-    TailHead dyad;
-    int lt;
-    kh_foreach(nwp->duration_info->lasttoggle, dyad, lt, {
-        /* Note: This bit is implementation-dependent, relying on the
-           fact that __i is the iterator variable. If we ever change to
-           a backend different from khash, we would need to implement
-           this differently. */
-        if(nwp->duration_info->time - lt > (WtEdgetreeSearch(dyad.tail,dyad.head,nwp->outedges) ? edges : nonedges))
-          kh_del(DyadMapInt, nwp->duration_info->lasttoggle, __i);
-      });
-  }
-}
-
-WtNetwork *Redgelist2WtNetwork(SEXP elR, Rboolean empty, 
-                             Rboolean lasttoggle_flag, int time, int *lasttoggle){
+WtNetwork *Redgelist2WtNetwork(SEXP elR, Rboolean empty){
   Vertex e = empty ? 0 : length(VECTOR_ELT(elR, 0));
   Vertex *tails = empty ? NULL : (Vertex*) INTEGER(VECTOR_ELT(elR, 0));
   Vertex *heads = empty ? NULL : (Vertex*) INTEGER(VECTOR_ELT(elR, 1));
@@ -816,7 +703,7 @@ WtNetwork *Redgelist2WtNetwork(SEXP elR, Rboolean empty,
   Vertex n = asInteger(getAttrib(elR, install("n")));
   Rboolean directed = asLogical(getAttrib(elR, install("directed")));
   Vertex bipartite = asInteger(getAttrib(elR, install("bipartite")));
-  WtNetwork *nwp = WtNetworkInitialize(tails, heads, weights, e, n, directed, bipartite, lasttoggle_flag, time, lasttoggle);
+  WtNetwork *nwp = WtNetworkInitialize(tails, heads, weights, e, n, directed, bipartite, FALSE, 0, NULL);
   nwp->eattrname = CHAR(STRING_ELT(getAttrib(elR, R_NamesSymbol),2));
   return nwp;
 }

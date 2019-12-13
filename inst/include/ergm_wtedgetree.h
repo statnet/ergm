@@ -36,7 +36,6 @@ typedef struct WtNetworkstruct {
   Vertex *indegree;
   Vertex *outdegree;
   const char *eattrname;
-  Dur_Inf *duration_info;
   Edge maxedges;
 } WtNetwork;
 
@@ -52,8 +51,7 @@ WtNetwork *WtNetworkInitializeD(double *tails, double *heads, double *weights, E
 WtNetwork *WtNetworkCopy(WtNetwork *src);
 
 SEXP WtNetwork2Redgelist(WtNetwork *nwp);
-WtNetwork *Redgelist2WtNetwork(SEXP elR, Rboolean empty, 
-                               Rboolean lasttoggle_flag, int time, int *lasttoggle);
+WtNetwork *Redgelist2WtNetwork(SEXP elR, Rboolean empty);
 
 /* /\* Accessors. *\/ */
 /* static inline Edge WtEdgetreeSearch (Vertex a, Vertex b, WtTreeNode *edges); */
@@ -69,9 +67,7 @@ WtNetwork *Redgelist2WtNetwork(SEXP elR, Rboolean empty,
    heads & tails, now list tails before heads */
 
 void WtSetEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
-void WtSetEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
 int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
-int WtToggleEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
 int WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp);
 void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, WtTreeNode *edges, Edge *last_edge);
 void WtCheckEdgetreeFull (WtNetwork *nwp);
@@ -79,11 +75,6 @@ int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp);
 int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
 		     Edge *last_edge);
 void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges);
-
-/* /\* Duration functions. *\/ */
-/* static inline int WtElapsedTime (Vertex tail, Vertex head, WtNetwork *nwp); */
-void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp);
-void WtExpireTimestamps(unsigned int edges, unsigned int nonedges, WtNetwork *nwp);
 
 #include "ergm_wtedgetree_inline.do_not_include_directly.h"
 

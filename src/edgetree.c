@@ -39,16 +39,7 @@ Network *NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
   nwp->inedges = (TreeNode *) Calloc(nwp->maxedges, TreeNode);
   nwp->outedges = (TreeNode *) Calloc(nwp->maxedges, TreeNode);
 
-  if(lasttoggle_flag){
-    nwp->duration_info = Calloc(1, Dur_Inf);
-    nwp->duration_info->time=time;
-    nwp->duration_info->lasttoggle = kh_init(DyadMapInt); nwp->duration_info->lasttoggle->directed=directed_flag;
-    for(Edge i = 1; i <= lasttoggle[0]; i++){
-      Vertex tail=lasttoggle[i], head=lasttoggle[i+lasttoggle[0]];
-      /* Note: we can't use helper macros here, since those treat 0 as deletion. */
-      kh_set(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head), lasttoggle[i+lasttoggle[0]+lasttoggle[0]]);
-    }
-  }else nwp->duration_info = NULL;
+  if(lasttoggle_flag) error("The lasttoggle API has been removed from ergm.");
 
   /*Configure a Network*/
   nwp->nnodes = nnodes;
@@ -103,10 +94,6 @@ void NetworkDestroy(Network *nwp) {
   Free(nwp->outdegree);
   Free(nwp->inedges);
   Free(nwp->outedges);
-  if(nwp->duration_info){
-    kh_destroy(DyadMapInt, nwp->duration_info->lasttoggle);
-    Free(nwp->duration_info);
-  }
   Free(nwp);
 }
 
@@ -134,12 +121,6 @@ Network *NetworkCopy(Network *src){
 
   dest->directed_flag = src->directed_flag;
   dest->bipartite = src->bipartite;
-
-  if(src->duration_info){
-    dest->duration_info = Calloc(1, Dur_Inf);
-    dest->duration_info->time=src->duration_info->time;
-    dest->duration_info->lasttoggle = kh_copy(DyadMapInt,src->duration_info->lasttoggle);
-  }else dest->duration_info = NULL;
 
   EDGECOUNT(dest) = EDGECOUNT(src);
 
@@ -197,43 +178,6 @@ int ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgeflag)
        such, the function definitions now require tails to be passed
        in before heads */
 
-/*****************
- Edge ToggleEdgeWithTimestamp
- By MSH 11/26/06
-
- Same as ToggleEdge, but this time with the additional
- step of updating the matrix of 'lasttoggle' times
- *****************/
-
-/* *** don't forget tail->head, so this function now accepts tail before head */
-
-int ToggleEdgeWithTimestamp(Vertex tail, Vertex head, Network *nwp){
-  /* don't forget, tails < heads in undirected networks now  */
-  ENSURE_TH_ORDER;
-
-  kh_set(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head), nwp->duration_info->time);
-  if (AddEdgeToTrees(tail,head,nwp)){
-    return 1;
-  }else{
-    return 1 - DeleteEdgeFromTrees(tail,head,nwp);
-  }
-}
-
-/*****************
- void TouchEdge
-
- Named after the UNIX "touch" command.
- Set an edge's time-stamp to the current MCMC time or unset it if edge is absent.
- *****************/
-
-/* *** don't forget tail->head, so this function now accepts tail before head */
- 
-void TouchEdge(Vertex tail, Vertex head, Network *nwp){
-  if(nwp->duration_info){ /* Skip timestamps if no duration info. */
-    ENSURE_TH_ORDER
-    kh_set(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head), nwp->duration_info->time);
-  }
-}
 
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed
@@ -742,60 +686,14 @@ void SetEdge (Vertex tail, Vertex head, unsigned int weight, Network *nwp)
   }
 }
 
-/*****************
- Edge SetEdgeWithTimestamp
-
- Same as SetEdge, but this time with the additional
- step of updating the matrix of 'lasttoggle' times
- *****************/
-void SetEdgeWithTimestamp (Vertex tail, Vertex head, unsigned int weight, Network *nwp) 
-{
-  kh_set(DyadMapInt,nwp->duration_info->lasttoggle,THKey(nwp->duration_info->lasttoggle,tail,head), nwp->duration_info->time);
-  SetEdge(tail,head,weight,nwp);
-}
-
-/*****************
- void ExpireTimestamps
-
- Walks through the lasttoggle structure, expiring edges and non-edges
- from the lasttoggle structure that had been toggled more than the
- specified number of steps ago.
- *****************/
-void ExpireTimestamps(unsigned int edges, unsigned int nonedges, Network *nwp)
-{
-  if(edges==nonedges){ // Same horizon for edges and non-edges means that we don't need to check if an edge exists.
-    int lt;
-    kh_foreach_value(nwp->duration_info->lasttoggle, lt, {
-        /* Note: This bit is implementation-dependent, relying on the
-           fact that __i is the iterator variable. If we ever change to
-           a backend different from khash, we would need to implement
-           this differently. */
-        if(nwp->duration_info->time - lt > edges)
-          kh_del(DyadMapInt, nwp->duration_info->lasttoggle, __i);
-      });
-  }else{
-    TailHead dyad;
-    int lt;
-    kh_foreach(nwp->duration_info->lasttoggle, dyad, lt, {
-        /* Note: This bit is implementation-dependent, relying on the
-           fact that __i is the iterator variable. If we ever change to
-           a backend different from khash, we would need to implement
-           this differently. */
-        if(nwp->duration_info->time - lt > (EdgetreeSearch(dyad.tail,dyad.head,nwp->outedges) ? edges : nonedges))
-          kh_del(DyadMapInt, nwp->duration_info->lasttoggle, __i);
-      });
-  }
-}
-
-Network *Redgelist2Network(SEXP elR, Rboolean empty, 
-                           Rboolean lasttoggle_flag, int time, int *lasttoggle){
+Network *Redgelist2Network(SEXP elR, Rboolean empty){
   Vertex e = empty ? 0 : length(VECTOR_ELT(elR, 0));
   Vertex *tails = empty ? NULL : (Vertex*) INTEGER(VECTOR_ELT(elR, 0));
   Vertex *heads = empty ? NULL : (Vertex*) INTEGER(VECTOR_ELT(elR, 1));
   Vertex n = asInteger(getAttrib(elR, install("n")));
   Rboolean directed = asLogical(getAttrib(elR, install("directed")));
   Vertex bipartite = asInteger(getAttrib(elR, install("bipartite")));
-  return NetworkInitialize(tails, heads, e, n, directed, bipartite, lasttoggle_flag, time, lasttoggle); 
+  return NetworkInitialize(tails, heads, e, n, directed, bipartite, FALSE, 0, NULL); 
 }
 
 

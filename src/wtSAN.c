@@ -33,8 +33,7 @@ SEXP WtSAN_wrapper(ARGS_WTSTATE,
   GetRNGstate();  /* R function enabling uniform RNG */
   unsigned int nstats = length(statindices), noffsets = length(offsetindices);
   
-  WtErgmState *s = WtErgmStateInit(YES_WTSTATE,
-                                   NO_WTLASTTOGGLE);
+  WtErgmState *s = WtErgmStateInit(YES_WTSTATE);
   WtMHProposal *MHp = s->MHp;
 
   SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*nstats));

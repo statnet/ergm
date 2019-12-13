@@ -2,9 +2,7 @@
 #include "ergm_constants.h"
 
 ErgmState *ErgmStateInit(SEXP stateR,
-                         Rboolean empty, Rboolean noinit_s,
-                         // Network state
-                         Rboolean timings, int time, int *lasttoggle){
+                         Rboolean empty, Rboolean noinit_s){
   ErgmState *s = Calloc(1, ErgmState);
 
   /* Extract stats vector */
@@ -12,7 +10,7 @@ ErgmState *ErgmStateInit(SEXP stateR,
   s->stats = length(tmp) ? REAL(tmp) : NULL;
 
   /* Form the network */
-  s->nwp=Redgelist2Network(getListElement(stateR,"el"), empty, timings, time, lasttoggle);
+  s->nwp=Redgelist2Network(getListElement(stateR,"el"), empty);
 
   /* Initialize the model */
   s->m=NULL;

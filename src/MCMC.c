@@ -29,8 +29,7 @@ SEXP MCMC_wrapper(ARGS_STATE,
                   SEXP maxedges,
                   SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmState *s = ErgmStateInit(YES_STATE,
-                               NO_LASTTOGGLE);
+  ErgmState *s = ErgmStateInit(YES_STATE);
 
   Model *m = s->m;
   MHProposal *MHp = s->MHp;
@@ -272,8 +271,7 @@ SEXP MCMCPhase12 (ARGS_STATE,
                   SEXP maxedges,
                   SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmState *s = ErgmStateInit(YES_STATE,
-                               NO_LASTTOGGLE);
+  ErgmState *s = ErgmStateInit(YES_STATE);
 
   Model *m = s->m;
   MHProposal *MHp = s->MHp;

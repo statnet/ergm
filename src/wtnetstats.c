@@ -19,11 +19,9 @@
  change gives the true global values for the observed graph.
 *****************/
 
-SEXP wt_network_stats_wrapper(ARGS_WTSTATE,
-                              ARGS_WTLASTTOGGLE){
+SEXP wt_network_stats_wrapper(ARGS_WTSTATE){
   GetRNGstate();  /* R function enabling uniform RNG */
-  WtErgmState *s = WtErgmStateInit(YES_WTSTATE_EMPTY_NO_INIT_S,
-                                   YES_WTLASTTOGGLE);
+  WtErgmState *s = WtErgmStateInit(YES_WTSTATE_EMPTY_NO_INIT_S);
 
   WtModel *m = s->m;
 

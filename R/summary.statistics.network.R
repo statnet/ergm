@@ -30,9 +30,6 @@
 #' [summary_formula()] generic, which dispatches methods based on the
 #' class of the LHS of the formula.
 #'
-#' \code{summary.formula} for networks understands the
-#' \code{\link{lasttoggle}} "API".
-#'
 #' @aliases summary
 #' @param object A formula having as its LHS a
 #'   \code{\link[network]{network}} object or a matrix that can be

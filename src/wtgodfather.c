@@ -72,8 +72,7 @@ SEXP WtGodfather_wrapper(ARGS_WTSTATE,
                          SEXP end_network,
                          SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  WtErgmState *s = WtErgmStateInit(YES_WTSTATE,
-                                   NO_WTLASTTOGGLE);
+  WtErgmState *s = WtErgmStateInit(YES_WTSTATE);
   WtModel *m = s->m;
 
   SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats*(1+asInteger(nsteps))));

@@ -33,8 +33,7 @@ SEXP SAN_wrapper(ARGS_STATE,
   GetRNGstate();  /* R function enabling uniform RNG */
   unsigned int nstats = length(statindices), noffsets = length(offsetindices);
   
-  ErgmState *s = ErgmStateInit(YES_STATE,
-                               NO_LASTTOGGLE);
+  ErgmState *s = ErgmStateInit(YES_STATE);
   MHProposal *MHp = s->MHp;
 
   SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*nstats));

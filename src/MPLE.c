@@ -39,8 +39,7 @@ SEXP MPLE_wrapper(ARGS_STATE,
                   SEXP wl,
 		  SEXP maxNumDyads, SEXP maxNumDyadTypes){
   GetRNGstate(); /* Necessary for R random number generator */
-  ErgmState *s = ErgmStateInit(YES_STATE,
-                               NO_LASTTOGGLE);
+  ErgmState *s = ErgmStateInit(YES_STATE);
 
   Network *nwp = s->nwp;
   Model *m = s->m;

@@ -28,8 +28,7 @@ SEXP CD_wrapper(ARGS_STATE,
                 SEXP CDparams,
                 SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmState *s = ErgmStateInit(YES_STATE,
-                               NO_LASTTOGGLE);
+  ErgmState *s = ErgmStateInit(YES_STATE);
 
   Model *m = s->m;
   MHProposal *MHp = s->MHp;

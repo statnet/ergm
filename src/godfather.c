@@ -75,8 +75,7 @@ SEXP Godfather_wrapper(ARGS_STATE,
                        SEXP end_network,
                        SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmState *s = ErgmStateInit(YES_STATE,
-                               NO_LASTTOGGLE);
+  ErgmState *s = ErgmStateInit(YES_STATE);
   Model *m = s->m;
 
   SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats*(1+asInteger(nsteps))));

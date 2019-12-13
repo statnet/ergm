@@ -63,18 +63,3 @@
     tail = head;							\
     head = temp;							\
   }
-
-/* Struct definitions do only need to happen once. */
-
-#ifndef _ERGM_EDGETREE_COMMON_H_
-#define _ERGM_EDGETREE_COMMON_H_
-
-/* Dur_Inf is a structure containing information about durations of
-edges in a network structure.
-*/ 
-typedef struct Dur_Infstruct {
-  int time;
-  StoreDyadMapInt *lasttoggle;
-} Dur_Inf;
-
-#endif // _ERGM_EDGETREE_COMMON_H_

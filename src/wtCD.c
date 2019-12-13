@@ -28,8 +28,7 @@ SEXP WtCD_wrapper(ARGS_WTSTATE,
                   SEXP CDparams,
                   SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  WtErgmState *s = WtErgmStateInit(YES_WTSTATE,
-                                   NO_WTLASTTOGGLE);
+  WtErgmState *s = WtErgmStateInit(YES_WTSTATE);
 
   WtModel *m = s->m;
   WtMHProposal *MHp = s->MHp;

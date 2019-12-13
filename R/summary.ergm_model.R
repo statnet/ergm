@@ -69,16 +69,10 @@ summary.ergm_state <- function(object, ...){
     if(!is.valued(state))
       .Call("network_stats_wrapper",
             state,
-            # Network state additional information
-            as.integer(nw0 %n% "time"),
-            as.integer(nw0 %n% "lasttoggle"),
             PACKAGE="ergm")
     else
       .Call("wt_network_stats_wrapper",
             state,
-            # Network state additional information
-            as.integer(nw0 %n% "time"),
-            as.integer(nw0 %n% "lasttoggle"),
             PACKAGE="ergm")
   
   names(gs) <- param_names(state,canonical=TRUE)

@@ -7,13 +7,9 @@
 #include "ergm_wtmodel.h"
 
 #define ARGS_WTSTATE SEXP stateR
-#define ARGS_WTLASTTOGGLE SEXP time, SEXP lasttoggle
 
 #define YES_WTSTATE stateR, FALSE, FALSE
 #define YES_WTSTATE_EMPTY_NO_INIT_S stateR, TRUE, TRUE
-#define YES_WTLASTTOGGLE length(time)>0, asInteger(time), INTEGER(lasttoggle)
-
-#define NO_WTLASTTOGGLE FALSE, 0, NULL
 
 typedef struct{
   double *stats;
@@ -23,9 +19,7 @@ typedef struct{
 } WtErgmState;
 
 WtErgmState *WtErgmStateInit(SEXP stateR,
-                             Rboolean empty, Rboolean noinit_s,
-                             // Network state
-                             Rboolean timings, int time, int *lasttoggle);
+                             Rboolean empty, Rboolean noinit_s);
 SEXP WtErgmStateRSave(SEXP startR, WtErgmState *s);
 void WtErgmStateDestroy(WtErgmState *s);
 
