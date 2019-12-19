@@ -365,7 +365,7 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
               as.character(Clist$fnamestring),
               as.character(Clist$snamestring),
               as.character(proposal$name), as.character(proposal$pkgname),
-              as.double(c(Clist$inputs,proposal$inputs)), as.double(.deinf(tau)),
+              as.double(c(Clist$inputs,proposal$inputs)), as.double(deInf(tau)),
               s = as.double(c(stats, numeric(length(stats)*(samplesize-1)))), s.prop = double(length(stats)*samplesize),
               as.integer(samplesize),
               as.integer(nsteps), 
@@ -382,7 +382,7 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
               statindices=as.integer(statindices - 1),
               noffsets=as.integer(length(offsetindices)),
               offsetindices=as.integer(offsetindices - 1),
-              offsets=as.double(.deinf(offsets)),
+              offsets=as.double(deInf(offsets)),
               PACKAGE="ergm")
       
         # save the results (note that if prev.run is NULL, c(NULL$s,z$s)==z$s.
@@ -398,7 +398,7 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
               as.character(Clist$fnamestring),
               as.character(Clist$snamestring),
               as.character(proposal$name), as.character(proposal$pkgname),
-              as.double(c(Clist$inputs,proposal$inputs)), as.double(.deinf(tau)),
+              as.double(c(Clist$inputs,proposal$inputs)), as.double(deInf(tau)),
               s = as.double(c(stats, numeric(length(stats)*(samplesize-1)))), s.prop = double(length(stats)*samplesize),
               as.integer(samplesize),
               as.integer(nsteps), 
@@ -413,7 +413,7 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
               statindices=as.integer(statindices - 1),
               noffsets=as.integer(length(offsetindices)),
               offsetindices=as.integer(offsetindices - 1),
-              offsets=as.double(.deinf(offsets)),              
+              offsets=as.double(deInf(offsets)),              
               PACKAGE="ergm")
       # save the results
       z<-list(s=matrix(z$s, ncol=length(statindices), byrow = TRUE), s.prop=matrix(z$s.prop, ncol=length(statindices), byrow = TRUE),
