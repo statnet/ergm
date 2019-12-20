@@ -230,22 +230,22 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
       .Call("MCMC_wrapper",
             state,
             # MCMC settings
-            as.double(.deinf(eta)),
+            as.double(deInf(eta)),
             as.integer(samplesize),
             as.integer(burnin), 
             as.integer(interval),
-            as.integer(.deinf(NVL(control$MCMC.maxedges,Inf),"maxint")),
+            as.integer(deInf(NVL(control$MCMC.maxedges,Inf),"maxint")),
             as.integer(verbose),
             PACKAGE="ergm")
     else
       .Call("WtMCMC_wrapper",
             state,
             # MCMC settings
-            as.double(.deinf(eta)),
+            as.double(deInf(eta)),
             as.integer(samplesize),
             as.integer(burnin), 
             as.integer(interval),
-            as.integer(.deinf(NVL(control$MCMC.maxedges,Inf),"maxint")),
+            as.integer(deInf(NVL(control$MCMC.maxedges,Inf),"maxint")),
             as.integer(verbose),
             PACKAGE="ergm")
   z$s <- matrix(z$s, ncol=nparam(state,canonical=TRUE), byrow = TRUE)

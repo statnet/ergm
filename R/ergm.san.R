@@ -210,8 +210,8 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
   }
 
   proposal <- if(inherits(constraints, "ergm_proposal")) constraints
-              else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
-                                 nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
+              else ergm_proposal(constraints,arguments=control$SAN.prop.args,
+                                 nw=nw, weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
 
   offset.indicators <- model$etamap$offsetmap
   
@@ -227,7 +227,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
   }    
   
   if (verbose) {
-    message(paste("Starting ",control$SAN.maxit," MCMC iteration", ifelse(control$SAN.maxit>1,"s",""),
+    message(paste("Starting ",control$SAN.maxit," SAN iteration", ifelse(control$SAN.maxit>1,"s",""),
         " of ", control$SAN.nsteps,
         " steps", ifelse(control$SAN.maxit>1, " each", ""), ".", sep=""))
   }
@@ -346,26 +346,26 @@ ergm_SAN_slave <- function(state, tau,control,verbose,..., nsteps=NULL, samplesi
       .Call("SAN_wrapper",
             state,
             # SAN settings
-            as.double(.deinf(tau)),
+            as.double(deInf(tau)),
             as.integer(samplesize),
             as.integer(nsteps),
             as.double(control$invcov),
             statindices=as.integer(statindices - 1),
             offsetindices=as.integer(offsetindices - 1),
-            offsets=as.double(.deinf(offsets)),
+            offsets=as.double(deInf(offsets)),
             as.integer(verbose),
             PACKAGE="ergm")
     }else{
       .Call("WtSAN_wrapper",
             state,
             # SAN settings
-            as.double(.deinf(tau)),
+            as.double(deInf(tau)),
             as.integer(samplesize),
             as.integer(nsteps),
             as.double(control$invcov),
             statindices=as.integer(statindices - 1),
             offsetindices=as.integer(offsetindices - 1),
-            offsets=as.double(.deinf(offsets)),
+            offsets=as.double(deInf(offsets)),
             as.integer(verbose),
             PACKAGE="ergm")
     }

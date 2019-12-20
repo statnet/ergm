@@ -70,7 +70,7 @@ ergm_CD_slave <- function(state, eta,control,verbose,..., samplesize=NULL){
          .Call("CD_wrapper",
                state,
                # MCMC settings
-               as.double(.deinf(eta)),
+               as.double(deInf(eta)),
                as.integer(samplesize),
                as.integer(c(control$CD.nsteps,control$CD.multiplicity)),
                as.integer(verbose),
@@ -79,7 +79,7 @@ ergm_CD_slave <- function(state, eta,control,verbose,..., samplesize=NULL){
          .Call("WtCD_wrapper",
                state,
                # MCMC settings
-               as.double(.deinf(eta)),
+               as.double(deInf(eta)),
                as.integer(samplesize),
                as.integer(c(control$CD.nsteps,control$CD.multiplicity)),
                as.integer(verbose),
