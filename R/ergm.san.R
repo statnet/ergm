@@ -205,8 +205,8 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
   }
 
   proposal <- if(inherits(constraints, "ergm_proposal")) constraints
-              else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
-                                 nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
+              else ergm_proposal(constraints,arguments=control$SAN.prop.args,
+                                 nw=nw, weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
 
   offset.indicators <- model$etamap$offsetmap
   
@@ -431,7 +431,7 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
     if(!is.null(control$SAN.max.maxedges)){
       if(maxedges == control$SAN.max.maxedges*10) # True iff the previous maxedges exactly equaled control$SAN.max.maxedges and that was too small.
         return(z) # This will kick the too many edges problem upstairs, so to speak.
-      maxedges <- min(maxedges, control$MCMC.max.maxedges)
+      maxedges <- min(maxedges, control$SAN.max.maxedges)
     }
   }
 }
