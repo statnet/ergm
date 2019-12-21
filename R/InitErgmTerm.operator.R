@@ -234,7 +234,6 @@ InitErgmTerm.Offset <- function(nw, arglist, response=NULL, ...){
            logical = which(rep(a$which, length.out=nparams)),
            numeric = a$which),
     nparams)
-  if(length(which)) selection[which] <- TRUE
   
   offset.coef <- rep(a$coef, length.out=sum(selection))
 
