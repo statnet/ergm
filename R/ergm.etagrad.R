@@ -44,3 +44,9 @@ ergm.etagrad <- function(theta, etamap) {
   }
   etagrad
 }
+
+#' @rdname ergm.eta
+#' @export ergm.etagrad.C
+ergm.etagrad.C <- function(theta, etamap){
+  .Call("ergm_etagrad_wrapper", as.numeric(theta), etamap, PACKAGE="ergm")
+}

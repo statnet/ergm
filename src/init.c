@@ -30,6 +30,9 @@ extern void pair_geodesic(void *, void *, void *, void *, void *, void *, void *
 /* .Call calls */
 extern SEXP AllStatistics(SEXP, SEXP);
 extern SEXP CD_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP ergm_eta_wrapper(SEXP, SEXP);
+extern SEXP ergm_etagrad_wrapper(SEXP, SEXP);
+extern SEXP ergm_etagradmult_wrapper(SEXP, SEXP, SEXP);
 extern SEXP get_ergm_omp_terms();
 extern SEXP Godfather_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP MCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
@@ -55,6 +58,9 @@ static const R_CMethodDef CEntries[] = {
 static const R_CallMethodDef CallEntries[] = {
     {"AllStatistics",            (DL_FUNC) &AllStatistics,             2},
     {"CD_wrapper",               (DL_FUNC) &CD_wrapper,                5},
+    {"ergm_eta_wrapper",         (DL_FUNC) &ergm_eta_wrapper,          2},
+    {"ergm_etagrad_wrapper",     (DL_FUNC) &ergm_etagrad_wrapper,      2},
+    {"ergm_etagradmult_wrapper", (DL_FUNC) &ergm_etagradmult_wrapper,  3},
     {"get_ergm_omp_terms",       (DL_FUNC) &get_ergm_omp_terms,        0},
     {"Godfather_wrapper",        (DL_FUNC) &Godfather_wrapper,         7},
     {"MCMC_wrapper",             (DL_FUNC) &MCMC_wrapper,              7},

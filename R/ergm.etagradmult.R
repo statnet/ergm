@@ -28,8 +28,7 @@
 #' @param v a vector of the same length as the vector of mapped eta
 #'   parameters
 #' @return For \code{ergm.etagradmult}, the vector that is the product
-#'   of the gradient of eta and \code{v}; infinite values are replaced
-#'   by (+-)10000.
+#'   of the gradient of eta and \code{v}.
 #' @export ergm.etagradmult
 ergm.etagradmult <- function(theta, v, etamap) {
   v <- as.matrix(v)
@@ -47,4 +46,11 @@ ergm.etagradmult <- function(theta, v, etamap) {
     }
   }
   ans
+}
+
+#' @rdname ergm.eta
+#' @export ergm.etagradmult.C
+ergm.etagradmult.C <- function(theta, v, etamap){
+  storage.mode(v) <- "double"
+  .Call("ergm_etagradmult_wrapper", as.numeric(theta), v,  etamap, PACKAGE="ergm")
 }

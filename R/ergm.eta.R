@@ -44,6 +44,11 @@
 #'   mapping and is returned by \code{ergm.etamap}
 #' @return For \code{ergm.eta}, the canonical eta parameters as mapped
 #'   from theta.
+#'
+#' @note The `*.C` variants of each function are their preliminary
+#'   reimplementations using the `.Call` API. They may replace their R
+#'   counterparts in the future.
+#'
 #' @seealso \code{\link{ergm-terms}}
 #' @references \itemize{ \item Hunter, D. R. and M. S. Handcock
 #'   (2006).  Inference in curved exponential family models for
@@ -55,7 +60,7 @@
 #' @keywords internal
 #' @export ergm.eta
 ergm.eta <- function(theta, etamap) {
-  eta <- rep(0,etamap$etalength)
+  eta <- numeric(etamap$etalength)
   ec <- etamap$canonical
   eta[ec[ec>0]] <- theta[ec>0]
   if(length(etamap$curved)>0) {
@@ -64,4 +69,10 @@ ergm.eta <- function(theta, etamap) {
     }
   }
   eta
+}
+
+#' @rdname ergm.eta
+#' @export ergm.eta.C
+ergm.eta.C <- function(theta, etamap){
+  .Call("ergm_eta_wrapper", as.numeric(theta), etamap, PACKAGE="ergm")
 }

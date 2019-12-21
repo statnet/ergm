@@ -182,6 +182,26 @@ return fun(tails,heads,nwp,nmax);
 #define STUBFILE
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
+#include "ergm_etamap.h"
+void ergm_eta(double *theta, SEXP etamap, double *eta){
+static void (*fun)(double *,SEXP,double *) = NULL;
+if(fun==NULL) fun = (void (*)(double *,SEXP,double *)) R_FindSymbol("ergm_eta", "ergm", NULL);
+fun(theta,etamap,eta);
+}
+void ergm_etagrad(double *theta, SEXP etamap, double *eta){
+static void (*fun)(double *,SEXP,double *) = NULL;
+if(fun==NULL) fun = (void (*)(double *,SEXP,double *)) R_FindSymbol("ergm_etagrad", "ergm", NULL);
+fun(theta,etamap,eta);
+}
+void ergm_etagradmult(double *theta, double *v, unsigned int nv, SEXP etamap, double *ans){
+static void (*fun)(double *,double *,unsigned int,SEXP,double *) = NULL;
+if(fun==NULL) fun = (void (*)(double *,double *,unsigned int,SEXP,double *)) R_FindSymbol("ergm_etagradmult", "ergm", NULL);
+fun(theta,v,nv,etamap,ans);
+}
+
+#define STUBFILE
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_MHproposal.h"
 DegreeBound* DegreeBoundInitialize(int *attribs, int *maxout, int *maxin,int *minout, int *minin, int condAllDegExact,int attriblength, Network *nwp){
 static DegreeBound* (*fun)(int *,int *,int *,int *,int *,int,int,Network *) = NULL;

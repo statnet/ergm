@@ -3,16 +3,25 @@
 %   R/ergm.etagradmult.R, R/ergm.etamap.R
 \name{ergm.eta}
 \alias{ergm.eta}
+\alias{ergm.eta.C}
 \alias{ergm.etagrad}
+\alias{ergm.etagrad.C}
 \alias{ergm.etagradmult}
+\alias{ergm.etagradmult.C}
 \alias{ergm.etamap}
 \title{Operations to map curved \code{\link[=ergm]{ergm()}} parameters onto canonical parameters}
 \usage{
 ergm.eta(theta, etamap)
 
+ergm.eta.C(theta, etamap)
+
 ergm.etagrad(theta, etamap)
 
+ergm.etagrad.C(theta, etamap)
+
 ergm.etagradmult(theta, v, etamap)
+
+ergm.etagradmult.C(theta, v, etamap)
 
 ergm.etamap(model)
 }
@@ -36,8 +45,7 @@ For \code{ergm.etagrad}, a matrix of the gradient of eta
 with respect to theta.
 
 For \code{ergm.etagradmult}, the vector that is the product
-of the gradient of eta and \code{v}; infinite values are replaced
-by (+-)10000.
+of the gradient of eta and \code{v}.
 
 For \code{ergm.etamap}, a data structure describing the theta-to-eta mapping given by a list of the
 following:
@@ -85,6 +93,11 @@ A succinct description of how eta(theta) is incorporated into an ERGM is
 given by equation (5) of Hunter (2007).  See Hunter and Handcock (2006) and
 Hunter (2007) for further details about how eta and its derivatives are used
 in the estimation process.
+}
+\note{
+The \verb{*.C} variants of each function are their preliminary
+reimplementations using the \code{.Call} API. They may replace their R
+counterparts in the future.
 }
 \references{
 \itemize{ \item Hunter, D. R. and M. S. Handcock

@@ -68,14 +68,14 @@
 #' @keywords internal
 ergm.etamap <- function(model) {
   etamap <- list(canonical = NULL, offsetmap=NULL, offset=model$offset,
-                 offsettheta=NULL, curved=list(), etalength=0)
-  from <- 1
-  to <- 1
-  a <- 1
+                 offsettheta=NULL, curved=list(), etalength=0L)
+  from <- 1L
+  to <- 1L
+  a <- 1L
   if (is.null(model$terms)) {
     return(etamap)
   }
-  for (i in 1:length(model$terms)) {
+  for (i in seq_along(model$terms)) {
     j <- length(model$terms[[i]]$coef.names)
     if(j==0) next # Auxiliary: no parameters or statistics.
     if(model$offset[i]){
@@ -85,7 +85,7 @@ ergm.etamap <- function(model) {
     }
     mti <- model$terms[[i]]
     if (is.null(mti$params)) { # Not a curved parameter
-      etamap$canonical <- c(etamap$canonical, to:(to+j-1))
+      etamap$canonical <- c(etamap$canonical, to:(to+j-1L))
       from <- from+j
       to <- to+j
       if(model$offset[i]){
@@ -100,14 +100,14 @@ ergm.etamap <- function(model) {
                            rep(NVL(mti$maxpar, +Inf), length.out=j))
     } else { # curved parameter
       k <- length(mti$params)
-      etamap$canonical <- c(etamap$canonical, rep(0, k))
-      etamap$curved[[a]] <- list(from=from+seq_len(k)-1,
-                                 to=to:(to+j-1),
+      etamap$canonical <- c(etamap$canonical, rep(0L, k))
+      etamap$curved[[a]] <- list(from=from+seq_len(k)-1L,
+                                 to=to:(to+j-1L),
                                  map=mti$map, gradient=mti$gradient,
                                  cov=mti$eta.cov)  #Added by CTB 1/28/06
       from <- from+k
       to <- to+j
-      a <- a+1
+      a <- a+1L
       if(model$offset[i]){
        etamap$offsettheta <- c(etamap$offsettheta, rep(TRUE,k))
       }else{
@@ -120,7 +120,7 @@ ergm.etamap <- function(model) {
                            rep(NVL(mti$maxpar, +Inf), length.out=k))
     }
   }
-  etamap$etalength <- to-1
+  etamap$etalength <- to-1L
   etamap
 } 
 
