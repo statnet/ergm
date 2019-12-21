@@ -38,89 +38,9 @@ ergm.etagrad <- function(theta, etamap) {
 # Set gradient for canonical parameters to the identity matrix
   etagrad[ec>0, ec[ec>0]] <- diag(sum(ec>0))
   if(length(etamap$curved)>0) {
-    for(i in 1:length(etamap$curved)) {
-      cm <- etamap$curved[[i]]
-      etagrad[cm$from,cm$to] <- cm$gradient(theta[cm$from], length(cm$to), cm$cov)  #Added by CTB on 1/28/06
+    for(cm in etamap$curved) {
+      etagrad[cm$from,cm$to] <- cm$gradient(theta[cm$from], length(cm$to), cm$cov)
     }
   }
   etagrad
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
