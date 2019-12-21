@@ -113,7 +113,7 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, role="stat
     if(ult(model$offset)){
       outlist$coef.names <- paste0("offset(",outlist$coef.names,")")
       if(!is.null(outlist$params))
-        names(outlist$params) <- paste0("offset(",outlist$params,")")
+        names(outlist$params) <- paste0("offset(",names(outlist$params),")")
     }
     # Now it is necessary to add the output to the model formula
     model <- updatemodel.ErgmTerm(model, outlist)

@@ -132,10 +132,10 @@ is the vector of estimated coefficients.}
 modeled in the valued ERGM framework. Defaults to \code{NULL} for
 simple presence or absence, modeled via a binary ERGM.}
 
-\item{reference}{A one-sided formula specifying the
-reference measure (\eqn{h(y)}) to be used. (Defaults to \code{~Bernoulli}.)
-See help for \link[=ergm-references]{ERGM reference measures} implemented in
-the \code{\link[=ergm-package]{ergm}} package.}
+\item{reference}{A one-sided formula specifying
+the reference measure (\eqn{h(y)}) to be used.
+See help for \link[=ergm-references]{ERGM reference measures} implemented in the
+\strong{\link[=ergm-package]{ergm}} package.}
 
 \item{constraints}{A one-sided formula specifying one or more
 constraints on the support of the distribution of the networks

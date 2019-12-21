@@ -17,7 +17,7 @@ ergm_proposal(object, ...)
   nw,
   ...,
   response = NULL,
-  reference = reference
+  reference = ~Bernoulli
 )
 
 \method{ergm_proposal}{formula}(
@@ -45,9 +45,7 @@ ergm_proposal(object, ...)
 }
 \arguments{
 \item{object}{Either a character, a \code{\link{formula}} or an
-\code{\link{ergm}} object.  The \code{\link{formula}} should be of the form
-\code{y ~ <model terms>}, where \code{y} is a network object or a matrix
-that can be coerced to a \code{\link[network]{network}} object.}
+\code{\link{ergm}} object.  The \code{\link{formula}} should be of the format documented in the \code{constraints} argument of \code{\link[=ergm]{ergm()}} and in the \link[=ergm-constraints]{ERGM constraints} documentation.}
 
 \item{\dots}{Further arguments passed to other functions.}
 
@@ -60,8 +58,10 @@ via 'formula'}
 modeled in the valued ERGM framework. Defaults to \code{NULL} for
 simple presence or absence, modeled via a binary ERGM.}
 
-\item{reference}{One-sided formula whose RHS gives the reference
-measure to be used. (Defaults to \code{~Bernoulli}.)}
+\item{reference}{A one-sided formula specifying
+the reference measure (\eqn{h(y)}) to be used.
+See help for \link[=ergm-references]{ERGM reference measures} implemented in the
+\strong{\link[=ergm-package]{ergm}} package.}
 
 \item{weights}{Specifies the method used to allocate probabilities of being
 proposed to dyads; options are "TNT", "TNT10", "random", "nonobserved" and
@@ -78,7 +78,7 @@ documentation for a similar argument for \code{\link{ergm}} and see
 \value{
 Returns an ergm_proposal object: a list with class \code{ergm_proposal}
 containing the following named elements:
-\item{ name}{the C name of the proposal}
+\item{name}{the C name of the proposal}
 \item{inputs}{inputs to be passed to C}
 \item{pkgname}{shared library name where the proposal
 can be found (usually \code{"ergm"})}

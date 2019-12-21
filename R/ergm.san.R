@@ -40,10 +40,8 @@ san.default <- function(object,...)
 }
 #' @describeIn san Sufficient statistics are specified by a [`formula`].
 #' 
-#' @param response Name of the edge attribute whose value
-#' is to be modeled. Defaults to \code{NULL} for simple presence or absence.
-#' @param reference One-sided formula whose RHS gives the
-#' reference measure to be used. (Defaults to \code{~Bernoulli}.)
+#' @template response
+#' @template reference
 #' @param formula (By default, the \code{formula} is taken from the \code{ergm}
 #' object.  If a different \code{formula} object is wanted, specify it here.
 #' @param constraints A one-sided formula specifying one or more constraints on
@@ -89,8 +87,8 @@ san.default <- function(object,...)
 #' x <- network(50)
 #' 
 #' # add vertex attributes
-#' x \%v\% 'give' <- runif(50, 0, 1)
-#' x \%v\% 'take' <- runif(50, 0, 1)
+#' x %v% 'give' <- runif(50, 0, 1)
+#' x %v% 'take' <- runif(50, 0, 1)
 #' 
 #' # try to find a set of 100 directed edges making the outward sum of
 #' # 'give' and the inward sum of 'take' both equal to 62.5, so in
@@ -106,7 +104,7 @@ san.default <- function(object,...)
 #' x <- network(50, directed = FALSE)
 #' 
 #' # add a vertex attribute
-#' x \%v\% 'popularity' <- runif(50, 0, 1)
+#' x %v% 'popularity' <- runif(50, 0, 1)
 #' 
 #' # try to find a set of 100 edges making the total sum of
 #' # popularity(i) and popularity(j) over all edges (i,j) equal to
@@ -207,8 +205,8 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
   }
 
   proposal <- if(inherits(constraints, "ergm_proposal")) constraints
-              else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
-                                 nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
+              else ergm_proposal(constraints,arguments=control$SAN.prop.args,
+                                 nw=nw, weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
 
   offset.indicators <- model$etamap$offsetmap
   
@@ -367,7 +365,7 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
               as.character(Clist$fnamestring),
               as.character(Clist$snamestring),
               as.character(proposal$name), as.character(proposal$pkgname),
-              as.double(c(Clist$inputs,proposal$inputs)), as.double(.deinf(tau)),
+              as.double(c(Clist$inputs,proposal$inputs)), as.double(deInf(tau)),
               s = as.double(c(stats, numeric(length(stats)*(samplesize-1)))), s.prop = double(length(stats)*samplesize),
               as.integer(samplesize),
               as.integer(nsteps), 
@@ -384,7 +382,7 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
               statindices=as.integer(statindices - 1),
               noffsets=as.integer(length(offsetindices)),
               offsetindices=as.integer(offsetindices - 1),
-              offsets=as.double(.deinf(offsets)),
+              offsets=as.double(deInf(offsets)),
               PACKAGE="ergm")
       
         # save the results (note that if prev.run is NULL, c(NULL$s,z$s)==z$s.
@@ -400,7 +398,7 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
               as.character(Clist$fnamestring),
               as.character(Clist$snamestring),
               as.character(proposal$name), as.character(proposal$pkgname),
-              as.double(c(Clist$inputs,proposal$inputs)), as.double(.deinf(tau)),
+              as.double(c(Clist$inputs,proposal$inputs)), as.double(deInf(tau)),
               s = as.double(c(stats, numeric(length(stats)*(samplesize-1)))), s.prop = double(length(stats)*samplesize),
               as.integer(samplesize),
               as.integer(nsteps), 
@@ -415,7 +413,7 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
               statindices=as.integer(statindices - 1),
               noffsets=as.integer(length(offsetindices)),
               offsetindices=as.integer(offsetindices - 1),
-              offsets=as.double(.deinf(offsets)),              
+              offsets=as.double(deInf(offsets)),              
               PACKAGE="ergm")
       # save the results
       z<-list(s=matrix(z$s, ncol=length(statindices), byrow = TRUE), s.prop=matrix(z$s.prop, ncol=length(statindices), byrow = TRUE),
@@ -433,7 +431,7 @@ ergm_SAN_slave <- function(Clist,proposal,stats,tau,control,verbose,...,prev.run
     if(!is.null(control$SAN.max.maxedges)){
       if(maxedges == control$SAN.max.maxedges*10) # True iff the previous maxedges exactly equaled control$SAN.max.maxedges and that was too small.
         return(z) # This will kick the too many edges problem upstairs, so to speak.
-      maxedges <- min(maxedges, control$MCMC.max.maxedges)
+      maxedges <- min(maxedges, control$SAN.max.maxedges)
     }
   }
 }

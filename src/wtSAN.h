@@ -38,7 +38,7 @@ void WtSAN_wrapper (int *nedges,
             int *offsetindices,
             double *offsets);
 
-WtMCMCStatus WtSANSample (WtMHProposal *MHp,
+MCMCStatus WtSANSample (WtMHProposal *MHp,
 		double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
 		int samplesize, int nsteps, 
 	        int fVerbose, int nmax,
@@ -48,7 +48,7 @@ WtMCMCStatus WtSANSample (WtMHProposal *MHp,
         int noffsets,
         int *offsetindices,
         double *offsets);
-WtMCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
+MCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
 			 double *invcov, double *tau, double *statistics, double *prop_statistics,
 			 int nsteps, int *staken,
 			 int fVerbose,

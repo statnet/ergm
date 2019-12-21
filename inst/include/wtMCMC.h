@@ -10,19 +10,12 @@
 #ifndef _ERGM_WTMCMC_H_
 #define _ERGM_WTMCMC_H_
 
+#include "ergm_constants.h"
 #include "ergm_wtedgetree.h"
 #include "ergm_wtchangestat.h"
 #include "ergm_wtMHproposal.h"
 #include "ergm_wtmodel.h"
 
-// TODO: This might be worth moving into a common "constants.h".
-typedef enum WtMCMCStatus_enum {
-  WtMCMC_OK = 0,
-  WtMCMC_TOO_MANY_EDGES = 1,
-  WtMCMC_MH_FAILED = 2
-} WtMCMCStatus;
-
-/* *** don't forget tail-> head, so this function accepts tails first, not heads  */
 void WtMCMC_wrapper(int *nedges, 
 		    int *tails, int *heads, double *weights,
 		    int *dn, int *dflag, int *bipartite, 
@@ -37,12 +30,12 @@ void WtMCMC_wrapper(int *nedges,
 		    int *fVerbose, 
 		    int *maxedges,
 		    int *status);
-WtMCMCStatus WtMCMCSample(WtMHProposal *MHp,
+MCMCStatus WtMCMCSample(WtMHProposal *MHp,
 			   double *theta, double *networkstatistics, 
 			   int samplesize, int burnin, 
 			   int interval, int fVerbose, int nmax,
 			   WtNetwork *nwp, WtModel *m);
-WtMCMCStatus WtMetropolisHastings(WtMHProposal *MHp,
+MCMCStatus WtMetropolisHastings(WtMHProposal *MHp,
 				   double *theta, double *statistics, 
 				   int nsteps, int *staken,
 				   int fVerbose,

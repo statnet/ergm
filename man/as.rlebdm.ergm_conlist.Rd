@@ -47,8 +47,8 @@ is a placeholder for a matrix of \code{TRUE}, whereas for
 \code{which=="missing"} it is a placeholder for a matrix of \code{FALSE}.
 
 Each element in the constraint list has a sign, which
-determins whether the constraint further restricts (for \verb{+}) or
-potentially relaxes restriction (for \verb{-}).
+determins whether the constraint further restricts (for \code{+}) or
+potentially relaxes restriction (for \code{-}).
 }
 \seealso{
 \link{ergm-constraints}

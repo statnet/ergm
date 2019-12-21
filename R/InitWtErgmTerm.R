@@ -252,7 +252,7 @@ InitWtErgmTerm.ininterval<-function(nw, arglist, response, ...) {
 
   list(name="ininterval",
        coef.names=paste("ininterval",if(open[1]) "(" else "[", a$lower,",",a$upper, if(open[2]) ")" else "]",sep=""),
-       inputs=c(.deinf(a$lower),.deinf(a$upper),open),
+       inputs=c(deInf(a$lower),deInf(a$upper),open),
        dependence=FALSE,
        minval=0, maxval=network.dyadcount(nw,FALSE),
        emptynwstats=if(

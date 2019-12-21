@@ -796,14 +796,14 @@ static void (*fun)(int *,int *,int *,double *,int *,int *,int *,int *,char **,ch
 if(fun==NULL) fun = (void (*)(int *,int *,int *,double *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,double *,int *,int *,int *)) R_FindSymbol("WtMCMC_wrapper", "ergm", NULL);
 fun(nedges,tails,heads,weights,dn,dflag,bipartite,nterms,funnames,sonames,MHProposaltype,MHProposalpackage,inputs,theta0,samplesize,sample,burnin,interval,newnetworktails,newnetworkheads,newnetworkweights,fVerbose,maxedges,status);
 }
-WtMCMCStatus WtMCMCSample(WtMHProposal *MHp,double *theta, double *networkstatistics,int samplesize, int burnin,int interval, int fVerbose, int nmax,WtNetwork *nwp, WtModel *m){
-static WtMCMCStatus (*fun)(WtMHProposal *,double *,double *,int,int,int,int,int,WtNetwork *,WtModel *) = NULL;
-if(fun==NULL) fun = (WtMCMCStatus (*)(WtMHProposal *,double *,double *,int,int,int,int,int,WtNetwork *,WtModel *)) R_FindSymbol("WtMCMCSample", "ergm", NULL);
+MCMCStatus WtMCMCSample(WtMHProposal *MHp,double *theta, double *networkstatistics,int samplesize, int burnin,int interval, int fVerbose, int nmax,WtNetwork *nwp, WtModel *m){
+static MCMCStatus (*fun)(WtMHProposal *,double *,double *,int,int,int,int,int,WtNetwork *,WtModel *) = NULL;
+if(fun==NULL) fun = (MCMCStatus (*)(WtMHProposal *,double *,double *,int,int,int,int,int,WtNetwork *,WtModel *)) R_FindSymbol("WtMCMCSample", "ergm", NULL);
 return fun(MHp,theta,networkstatistics,samplesize,burnin,interval,fVerbose,nmax,nwp,m);
 }
-WtMCMCStatus WtMetropolisHastings(WtMHProposal *MHp,double *theta, double *statistics,int nsteps, int *staken,int fVerbose,WtNetwork *nwp, WtModel *m){
-static WtMCMCStatus (*fun)(WtMHProposal *,double *,double *,int,int *,int,WtNetwork *,WtModel *) = NULL;
-if(fun==NULL) fun = (WtMCMCStatus (*)(WtMHProposal *,double *,double *,int,int *,int,WtNetwork *,WtModel *)) R_FindSymbol("WtMetropolisHastings", "ergm", NULL);
+MCMCStatus WtMetropolisHastings(WtMHProposal *MHp,double *theta, double *statistics,int nsteps, int *staken,int fVerbose,WtNetwork *nwp, WtModel *m){
+static MCMCStatus (*fun)(WtMHProposal *,double *,double *,int,int *,int,WtNetwork *,WtModel *) = NULL;
+if(fun==NULL) fun = (MCMCStatus (*)(WtMHProposal *,double *,double *,int,int *,int,WtNetwork *,WtModel *)) R_FindSymbol("WtMetropolisHastings", "ergm", NULL);
 return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 }
 #undef MIN
