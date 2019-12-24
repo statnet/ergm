@@ -124,7 +124,8 @@ int GetIndexForAttrValue(int value);
 
 /* *** don't forget tail-> head, so this function accepts toggletail first, not togglehead  */
 
-void ChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, Network *nwp, Model *m);
+void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, Network *nwp, Model *m);
+void ChangeStats1(Vertex tail, Vertex head, Network *nwp, Model *m, Rboolean edgeflag);
 
 #endif
 

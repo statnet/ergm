@@ -189,16 +189,13 @@ Model* ModelInitialize(SEXP mR, SEXP ext_stateR, Network *nwp, Rboolean noinit_s
 	  (void (*)(Vertex, Vertex, ModelTerm*, Network*, Rboolean))
 	  R_FindSymbol(fn,sn,NULL);
 
-	if(thisterm->c_func==NULL){
-	  fn[0]='d';
-	  thisterm->d_func = 
-	    (void (*)(Edge, Vertex*, Vertex*, ModelTerm*, Network*))
-	    R_FindSymbol(fn,sn,NULL);
+        fn[0]='d';
+        thisterm->d_func =
+          (void (*)(Edge, Vertex*, Vertex*, ModelTerm*, Network*))
+          R_FindSymbol(fn,sn,NULL);
 	
-	  if(thisterm->d_func==NULL){
-	    error("Error in ModelInitialize: could not find function %s in "
-		  "namespace for package %s. Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
-	  }
+        if(thisterm->c_func==NULL && thisterm->d_func==NULL){
+          error("Error in ModelInitialize: term with functions %s::%s is declared to have statistics but does not appear to have a change or a difference function. Memory has not been deallocated, so restart R sometime soon.\n",sn,fn+2);
 	}
 	
 	/* Optional function to compute the statistic of interest for
@@ -218,8 +215,7 @@ Model* ModelInitialize(SEXP mR, SEXP ext_stateR, Network *nwp, Rboolean noinit_s
       /* If it's an auxiliary, then it needs a u_function, or
 	 it's not doing anything. */
       if(thisterm->nstats==0 && thisterm->u_func==NULL){
-	error("Error in ModelInitialize: could not find updater function %s in "
-	      "namespace for package %s: this term will not do anything. Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
+          error("Error in ModelInitialize: term with functions %s::%s is declared to have no statistics but does not appear to have an updater function, so does not do anything. Memory has not been deallocated, so restart R sometime soon.\n",sn,fn+2);
       }
   
 
@@ -238,7 +234,7 @@ Model* ModelInitialize(SEXP mR, SEXP ext_stateR, Network *nwp, Rboolean noinit_s
       fn[0]='w';
       thisterm->w_func =
 	(SEXP (*)(ModelTerm*, Network*)) R_FindSymbol(fn,sn,NULL);
-      if(thisterm->w_func && !ext_stateR) error("Term '%s:%s' uses the extended state API but no extended state has been provided to model initialization.", sn, fn+2);
+      if(thisterm->w_func && !ext_stateR) error("Term '%s::%s' uses the extended state API but no extended state has been provided to model initialization.  Memory has not been deallocated, so restart R sometime soon.\n", sn, fn+2);
 
       fn[0]='x';
       thisterm->x_func =
@@ -265,6 +261,13 @@ Model* ModelInitialize(SEXP mR, SEXP ext_stateR, Network *nwp, Rboolean noinit_s
 
   /* Trigger initial storage update */
   InitStats(nwp, m);
+
+  /* Now, check that no term exports both a d_ and a c_
+     function. TODO: provide an informative "traceback" to which term
+     caused the problem.*/
+  FOR_EACH_TERM(m){
+    if(mtp->c_func && mtp->d_func) error("A term exports both a change and a difference function.  Memory has not been deallocated, so restart R sometime soon.\n");
+  }
 
   return m;
 }
@@ -327,4 +330,26 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
     UPDATE_STORAGE_COND(tails[toggle],heads[toggle], nwp, m, NULL, edgeflag, mtp->d_func==NULL);
     TOGGLE_KNOWN(tails[toggle],heads[toggle],edgeflag);
   }
+}
+
+/*
+  ChangeStats1
+  A simplified version of WtChangeStats for exactly one change.
+*/
+void ChangeStats1(Vertex tail, Vertex head,
+                  Network *nwp, Model *m, Rboolean edgeflag){
+  memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */
+
+  /* Make a pass through terms with c_functions. */
+  ergm_PARALLEL_FOR_LIMIT(m->n_terms)
+    EXEC_THROUGH_TERMS_INTO(m, m->workspace, {
+        mtp->dstats = dstats; /* Stuck the change statistic here.*/
+        if(mtp->c_func){
+          (*(mtp->c_func))(tail, head,
+                           mtp, nwp, edgeflag);  /* Call c_??? function */
+        }else if(mtp->d_func){
+          (*(mtp->d_func))(1, &tail, &head,
+                           mtp, nwp);  /* Call d_??? function */
+        }
+      });
 }

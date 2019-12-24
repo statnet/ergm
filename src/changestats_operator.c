@@ -1,3 +1,4 @@
+#include "ergm_changestat_operator.h"
 #include "ergm_changestat_auxnet.h"
 #include "ergm_util.h"
 
@@ -5,7 +6,9 @@
 
 I_CHANGESTAT_FN(i_passthrough_term){
   // No need to allocate it: we are only storing a pointer to a model.
-  STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
+  Model *m = STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
+
+  SELECT_C_OR_D_BASED_ON_SUBMODEL(m);
 }
 
 D_CHANGESTAT_FN(d_passthrough_term){
@@ -15,6 +18,15 @@ D_CHANGESTAT_FN(d_passthrough_term){
   
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
+
+C_CHANGESTAT_FN(c_passthrough_term){
+  GET_STORAGE(Model, m);
+
+  ChangeStats1(tail, head, nwp, m, edgeflag);
+
+  memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
+}
+
 
 U_CHANGESTAT_FN(u_passthrough_term){
   GET_STORAGE(Model, m);

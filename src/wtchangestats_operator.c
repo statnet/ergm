@@ -4,13 +4,23 @@
 
 WtI_CHANGESTAT_FN(i_wtpassthrough_term){
   // No need to allocate it: we are only storing a pointer to a model.
-  STORAGE = WtModelInitialize(getListElement(mtp->R, "submodel"), NULL, nwp, FALSE);
+  WtModel *m = STORAGE = WtModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
+
+  WtSELECT_C_OR_D_BASED_ON_SUBMODEL(m);
 }
 
 WtD_CHANGESTAT_FN(d_wtpassthrough_term){
   GET_STORAGE(WtModel, m);
 
   WtChangeStats(ntoggles, tails, heads, weights, nwp, m);
+
+  memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
+}
+
+WtC_CHANGESTAT_FN(c_wtpassthrough_term){
+  GET_STORAGE(WtModel, m);
+
+  WtChangeStats1(tail, head, weight, nwp, m, edgeweight);
 
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }

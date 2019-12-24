@@ -89,7 +89,7 @@ void WtModelDestroy(WtNetwork *nwp, WtModel *m)
 WtModel* WtModelInitialize (SEXP mR, SEXP ext_stateR, WtNetwork *nwp, Rboolean noinit_s) {
   SEXP terms = getListElement(mR, "terms");
   if(ext_stateR == R_NilValue) ext_stateR = NULL;
-  
+
   WtModel *m = (WtModel *) Calloc(1, WtModel);
   unsigned int n_terms = m->n_terms = length(terms);
   m->termarray = (WtModelTerm *) Calloc(n_terms, WtModelTerm);
@@ -189,16 +189,13 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_stateR, WtNetwork *nwp, Rboolean n
 	  (void (*)(Vertex, Vertex, double, WtModelTerm*, WtNetwork*, double))
 	  R_FindSymbol(fn,sn,NULL);
 
-	if(thisterm->c_func==NULL){
-	  fn[0]='d';
-	  thisterm->d_func = 
-	    (void (*)(Edge, Vertex*, Vertex*, double*, WtModelTerm*, WtNetwork*))
-	    R_FindSymbol(fn,sn,NULL);
+        fn[0]='d';
+        thisterm->d_func =
+          (void (*)(Edge, Vertex*, Vertex*, double*, WtModelTerm*, WtNetwork*))
+          R_FindSymbol(fn,sn,NULL);
 	
-	  if(thisterm->d_func==NULL){
-	    error("Error in WtModelInitialize: could not find function %s in "
-		  "namespace for package %s. Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
-	  }
+        if(thisterm->c_func==NULL && thisterm->d_func==NULL){
+          error("Error in WtModelInitialize: term with functions %s::%s is declared to have statistics but does not appear to have a change or a difference function. Memory has not been deallocated, so restart R sometime soon.\n",sn,fn+2);
 	}
 	
 	/* Optional function to compute the statistic of interest for
@@ -266,6 +263,13 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_stateR, WtNetwork *nwp, Rboolean n
   /* Trigger initial storage update */
   WtInitStats(nwp, m);
 
+  /* Now, check that no term exports both a d_ and a c_
+     function. TODO: provide an informative "traceback" to which term
+     caused the problem.*/
+  WtFOR_EACH_TERM(m){
+    if(mtp->c_func && mtp->d_func) error("A term exports both a change and a difference function.  Memory has not been deallocated, so restart R sometime soon.\n");
+  }
+
   return m;
 }
 
@@ -327,4 +331,26 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
     SETWT(TAIL,HEAD,weights[TOGGLEIND]);
     weights[TOGGLEIND]=OLDWT;
   }
+}
+
+/*
+  WtChangeStats1
+  A simplified version of WtChangeStats for exactly one change.
+*/
+void WtChangeStats1(Vertex tail, Vertex head, double weight,
+                    WtNetwork *nwp, WtModel *m, double edgeweight){
+  memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */
+
+  /* Make a pass through terms with c_functions. */
+  ergm_PARALLEL_FOR_LIMIT(m->n_terms)
+    WtEXEC_THROUGH_TERMS_INTO(m, m->workspace, {
+        mtp->dstats = dstats; /* Stuck the change statistic here.*/
+        if(mtp->c_func){
+          (*(mtp->c_func))(tail, head, weight,
+                           mtp, nwp, edgeweight);  /* Call c_??? function */
+        }else if(mtp->d_func){
+          (*(mtp->d_func))(1, &tail, &head, &weight,
+                           mtp, nwp);  /* Call d_??? function */
+        }
+      });
 }
