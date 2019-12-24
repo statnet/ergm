@@ -24,3 +24,4 @@ parameter names, wrap the calls to its \code{ergm.eta()} and
 \code{ergm.etagrad()} into \code{map()} and \code{gradient()} functions, similarly
 with the \code{params} element.
 }
+\keyword{internal}

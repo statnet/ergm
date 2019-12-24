@@ -27,7 +27,7 @@ InitWtErgmTerm.B <- function(nw, arglist, response=NULL, ...){
         else rep(0, nparam(m, canonical=TRUE))
 
   if(is(form, "formula")){
-    form.name <- deparse(ult(form))
+    form.name <- despace(deparse(ult(form)))
     name <- "import_binary_term_form"
     auxiliaries <- ~.binary.formula.net(form)
   }else{
@@ -37,12 +37,11 @@ InitWtErgmTerm.B <- function(nw, arglist, response=NULL, ...){
   }
   
   c(list(name=name,
-         coef.names = paste0(form.name,'(',m$coef.names,')'),
          submodel = m,
          dependence=!is.dyad.independent(m),
          emptynwstats = gs,
          auxiliaries=auxiliaries),
-    passthrough.curved.ergm_model(m, function(x) paste0(form.name,'(',x,')')))
+    passthrough.curved.ergm_model(m, mk_std_op_namewrap('B', form.name)))
 }
 
 InitWtErgmTerm..binary.nonzero.net <- function(nw, arglist, response=NULL, ...){
