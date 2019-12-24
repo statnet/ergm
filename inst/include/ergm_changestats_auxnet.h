@@ -36,38 +36,26 @@ U_CHANGESTAT_FN(u__union_net_DyadSet);
 F_CHANGESTAT_FN(f__union_net_DyadSet);
 
 
-MAP_TOGGLE_MAXTOGGLES_FN(map_toggle_maxtoggles__discord_net_Network){
-  return 1;
-}
-
+#define map_toggle_maxtoggles__discord_net_Network 1
 MAP_TOGGLE_FN(map_toggle__discord_net_Network){
   MAP_TOGGLE_PROPAGATE;
 }
 
-MAP_TOGGLE_MAXTOGGLES_FN(map_toggle_maxtoggles__intersect_net_Network){
-  return 1;
-}
-
+#define map_toggle_maxtoggles__intersect_net_Network 1
 MAP_TOGGLE_FN(map_toggle__intersect_net_Network){
   ModelTerm *mtp = auxnet->mtp;
   int *ref_el = IINPUT_PARAM;
   MAP_TOGGLE_PROPAGATE_IF(iEdgeListSearch(tail, head, ref_el));
 }
 
-MAP_TOGGLE_MAXTOGGLES_FN(map_toggle_maxtoggles__union_net_Network){
-  return 1;
-}
-
+#define map_toggle_maxtoggles__union_net_Network 1
 MAP_TOGGLE_FN(map_toggle__union_net_Network){
   ModelTerm *mtp = auxnet->mtp;
   int *ref_el = IINPUT_PARAM;
   MAP_TOGGLE_PROPAGATE_IF(!iEdgeListSearch(tail, head, ref_el));
 }
 
-MAP_TOGGLE_MAXTOGGLES_FN(map_toggle_maxtoggles__blockdiag_net){
-  return 1;
-}
-
+#define map_toggle_maxtoggles__blockdiag_net 1
 MAP_TOGGLE_FN(map_toggle__blockdiag_net){
   ModelTerm *mtp = auxnet->mtp;
   int *b = IINPUT_PARAM-1; // tail and head are indexed from 1.
@@ -93,10 +81,7 @@ MAP_TOGGLE_FN(map_toggle__blockdiag_net){
     totoggle = FALSE;					\
   }
 
-MAP_TOGGLE_MAXTOGGLES_FN(map_toggle_maxtoggles__undir_net){
-  return 1;
-}
-
+#define map_toggle_maxtoggles__undir_net 1
 MAP_TOGGLE_FN(map_toggle__undir_net){
   ModelTerm *mtp = auxnet->mtp;
   unsigned int rule = INPUT_PARAM[0];
@@ -111,10 +96,7 @@ MAP_TOGGLE_FN(map_toggle__undir_net){
   }
 }
 
-MAP_TOGGLE_MAXTOGGLES_FN(map_toggle_maxtoggles__filter_formula_net){
-  return 1;
-}
-
+#define map_toggle_maxtoggles__filter_formula_net 1
 MAP_TOGGLE_FN(map_toggle__filter_formula_net){
   ModelTerm *mtp = auxnet->mtp;
   GET_STORAGE(Model, m);
@@ -122,10 +104,7 @@ MAP_TOGGLE_FN(map_toggle__filter_formula_net){
   MAP_TOGGLE_PROPAGATE_IF(*(m->workspace)!=0);
 }
 
-MAP_TOGGLE_MAXTOGGLES_FN(map_toggle_maxtoggles__subgraph_net){
-  return 1;
-}
-
+#define map_toggle_maxtoggles__subgraph_net 1
 MAP_TOGGLE_FN(map_toggle__subgraph_net){
   Network *nwp = auxnet->inwp;
   ModelTerm *mtp = auxnet->mtp;
@@ -145,6 +124,5 @@ MAP_TOGGLE_FN(map_toggle__subgraph_net){
     return 0;
   }
 }
-
 
 #endif
