@@ -52,7 +52,7 @@ ergm_state.edgelist <- function(x, nw0, model=NULL, proposal=NULL, stats=NULL, .
   if(is.matrix(x)){
     x <- as_tibble(x)
     colnames(x) <- c(".tail",".head",response)
-    x <- as.edgelist(x, n=network.size(nw0), directed=is.directed(nw0), bipartite=nw0%n%"bipartite", loops=has.loops(nw0), vnames=nw0 %v% "vertex.names", output="tibble")
+    x <- as.edgelist(x, n=network.size(nw0), directed=is.directed(nw0), bipartite=NVL(nw0%n%"bipartite", FALSE), loops=has.loops(nw0), vnames=nw0 %v% "vertex.names", output="tibble")
   }
   out$el <- x
   if(!is.null(response)){

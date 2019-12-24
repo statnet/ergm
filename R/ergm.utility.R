@@ -286,7 +286,7 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
   }
   if(nae==0){
     if(output=="network") return(nw)
-    else return(ergm_state(nw, attrname=response))
+    else return(ergm_state(nw, response=response))
   }
 
   if(verbose) message("Imputing ", nae, " dyads is required.")
