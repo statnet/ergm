@@ -116,7 +116,29 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, role="stat
   model
 }
 
-
+#' Locate and call an ERGM term initialization function.
+#'
+#' A helper function that searches attached and loaded packages for a
+#' term with a specifies name, calls it with the specified arguments,
+#' and returns the result.
+#'
+#' @param A term from an [ergm()] formula: typically a [`name`] or a
+#'   [`call`].
+#' @param env Environment in which it is to be evaluated.
+#' @param nw A [`network`] object.
+#' @template response
+#' @param role A term option determining how the term will be used;
+#'   may be removed in the future.
+#' @param term.options A list of optional settings such as calculation
+#'   tuning options to be passed to the `InitErgmTerm` functions.
+#' @param ... Additional term options.
+#'
+#' @return The list returned by the the `InitErgmTerm` or
+#'   `InitWtErgmTerm` function, with package name autodetected if
+#'   neede.
+#'
+#' @keywords internal
+#' @export call.ErgmTerm
 call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ..., term.options=list()){
   term.options <- modifyList(term.options, list(...))
 

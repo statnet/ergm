@@ -4,7 +4,7 @@
 \alias{mk_std_op_namewrap}
 \title{Combine an operator term's and a subterm's name in a standard fashion.}
 \usage{
-mk_std_op_namewrap(opname, opargs = character(0))
+mk_std_op_namewrap(opname, opargs = NULL)
 }
 \arguments{
 \item{opname}{Name of the operator (or an abbreviation thereof).}
