@@ -61,7 +61,7 @@ typedef struct StoreAuxnet_s{Network *inwp, *onwp;
 #define ON_AUXNET(name)                                                 \
   I_CHANGESTAT_FN(i_on ## name){                                        \
     GET_AUX_STORAGE(StoreAuxnet, auxnet);                               \
-    Model *m = STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"),  NULL, auxnet->onwp, FALSE); \
+    /* Model *m = */STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"),  NULL, auxnet->onwp, FALSE); \
     /* SELECT_C_OR_D_BASED_ON_SUBMODEL(m); */                           \
   }                                                                     \
                                                                         \
