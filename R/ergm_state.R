@@ -234,16 +234,16 @@ ERGM_STATE_RECONCILED <- 0L
   if(object$ext.flag==ERGM_STATE_R_CHANGED){ # Extended state changed in R; encode.
     object$ext.state <- lapply(object$model$terms, function(trm, el, nw0){
       if(!is.null(trm$ext.encode)) trm$ext.encode(el=object$el, nw0=object$nw0)
-    }, state$el, state$nw0)
+    }, el=object$el, nw0=object$nw0)
     object$ext.flag <- ERGM_STATE_RECONCILED
   }
   if(object$ext.flag==ERGM_STATE_C_CHANGED){ # Extended state changed in C; decode.
     for(i in seq_along(object$model$terms)){
       trm <- object$model$terms[[i]]
       if(is.null(trm$ext.decode)) next
-      o <- trm$ext.decode(object$ext.state[[i]], state$el, state$nw0)
-      state$el <- o$el
-      state$nw0 <- o$nw0
+      o <- trm$ext.decode(object$ext.state[[i]], object$el, object$nw0)
+      object$el <- o$el
+      object$nw0 <- o$nw0
     }
     object$ext.flag <- ERGM_STATE_RECONCILED
   }
