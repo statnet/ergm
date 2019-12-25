@@ -253,10 +253,15 @@ static int (*fun)(int) = NULL;
 if(fun==NULL) fun = (int (*)(int)) R_FindSymbol("GetIndexForAttrValue", "ergm", NULL);
 return fun(value);
 }
-void ChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, Network *nwp, Model *m){
+void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, Network *nwp, Model *m){
 static void (*fun)(unsigned int,Vertex *,Vertex *,Network *,Model *) = NULL;
 if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,Network *,Model *)) R_FindSymbol("ChangeStats", "ergm", NULL);
-fun(ntoggles,toggletail,togglehead,nwp,m);
+fun(ntoggles,tails,heads,nwp,m);
+}
+void ChangeStats1(Vertex tail, Vertex head, Network *nwp, Model *m, Rboolean edgeflag){
+static void (*fun)(Vertex,Vertex,Network *,Model *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,Network *,Model *,Rboolean)) R_FindSymbol("ChangeStats1", "ergm", NULL);
+fun(tail,head,nwp,m,edgeflag);
 }
 
 #define STUBFILE
@@ -448,10 +453,15 @@ static void (*fun)(WtNetwork *,WtModel *) = NULL;
 if(fun==NULL) fun = (void (*)(WtNetwork *,WtModel *)) R_FindSymbol("WtModelDestroy", "ergm", NULL);
 fun(nwp,m);
 }
-void WtChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, double *toggleweight, WtNetwork *nwp, WtModel *m){
+void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, WtModel *m){
 static void (*fun)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *) = NULL;
 if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *)) R_FindSymbol("WtChangeStats", "ergm", NULL);
-fun(ntoggles,toggletail,togglehead,toggleweight,nwp,m);
+fun(ntoggles,tails,heads,weights,nwp,m);
+}
+void WtChangeStats1(Vertex tail, Vertex head, double weight, WtNetwork *nwp, WtModel *m, double edgeweight){
+static void (*fun)(Vertex,Vertex,double,WtNetwork *,WtModel *,double) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,WtNetwork *,WtModel *,double)) R_FindSymbol("WtChangeStats1", "ergm", NULL);
+fun(tail,head,weight,nwp,m,edgeweight);
 }
 
 #define STUBFILE
