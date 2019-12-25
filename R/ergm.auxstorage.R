@@ -37,7 +37,7 @@ ergm.auxstorage <- function(model, nw, response=NULL,..., extra.aux=list(), term
   # Until we reach a fixed point (which we should, unless there is a circular dependency.
   #
   # TODO: Check for circular dependencies.
-  while(!identical(uniq.aux.outlists,prev)){
+  while(!identical(uniq.aux.outlists,prev, ignore.environment=TRUE)){
     prev <- uniq.aux.outlists
     aux.aux.outlists <- aux_list_list(uniq.aux.outlists)
     uniq.aux.outlists <- unique(c(uniq.aux.outlists, unlist(aux.aux.outlists, recursive=FALSE)), fromLast=TRUE)
