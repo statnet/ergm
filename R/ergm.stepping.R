@@ -249,7 +249,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 
 ## This is a variant of Hummel et al. (2010)'s steplength algorithm
 ## also usable for missing data MLE.
-.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, x1.prefilter=FALSE, x2.prefilter=FALSE, steplength.prev=steplength.max, point.gamma.exp=1, x2.num.max=100, steplength.maxit=25, parallel=c("observational","always","never"), control=NULL, verbose=FALSE){
+.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, x1.prefilter=FALSE, x2.prefilter=FALSE, steplength.prev=steplength.max, point.gamma.exp=1, x2.num.max=100, steplength.maxit=25, parallel=c("observational","always","never"), min=0.0001, precision=0.25, control=NULL, verbose=FALSE){
   parallel <- match.arg(parallel)
   margin <- 1 + margin
   point.margin <- min(1, margin)
@@ -361,11 +361,11 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
     if(first) q <- c(q, high) # Ensure that the last one is "high".
     q
   }
-  low <- 0
+  low <- min
   high <- steplength.max
   g <- mk.guesses(low, high, first=TRUE)
   i <- 0
-  while(i < steplength.maxit & abs(high-low)>0.001){
+  while(i < steplength.maxit && (high-low)/low>precision){
    if(verbose>1) message(sprintf("iter=%d, low=%f, high=%f, guesses=%s: ",i,low,high,deparse(g, 500L)), appendLF=FALSE)
    z <- NVL3(if(parallel) ergm.getCluster(control), persistEvalQ({unlist(parallel::clusterApply(ergm.getCluster(control), g, passed))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)}), passed(g))
    if(verbose>1 && parallel && !is.null(ergm.getCluster(control))) message("lowest ", sum(z), " passed.")
@@ -377,5 +377,5 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 #  names(out) <- c("iters","est","low","high","z")
 #  message_print(out)
   }
-  low
+  if(low==min) 0 else low
 }

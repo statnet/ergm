@@ -302,6 +302,9 @@
 #'   (default) `"observational"` (i.e., when missing data MLE is
 #'   used).
 #'
+#' @param MCMLE.steplength.precision Required relative precision of the step
+#'   length calculation: \eqn{(u-l)/l}.
+#'
 #' @param MCMLE.adaptive.trustregion Maximum increase the algorithm will allow
 #' for the approximated loglikelihood at a given iteration when
 #' \code{MCMLE.steplength="adaptive"}.
@@ -541,6 +544,7 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.steplength.prefilter=FALSE,
                        MCMLE.steplength=NVL2(MCMLE.steplength.margin, 1, 0.5),
                        MCMLE.steplength.parallel=c("observational","always","never"),
+                       MCMLE.steplength.precision=.25,
                        MCMLE.adaptive.trustregion=3,
                        MCMLE.sequential=TRUE,
                        MCMLE.density.guard.min=10000,

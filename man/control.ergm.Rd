@@ -80,6 +80,7 @@ control.ergm(
   MCMLE.steplength.prefilter = FALSE,
   MCMLE.steplength = NVL2(MCMLE.steplength.margin, 1, 0.5),
   MCMLE.steplength.parallel = c("observational", "always", "never"),
+  MCMLE.steplength.precision = 0.25,
   MCMLE.adaptive.trustregion = 3,
   MCMLE.sequential = TRUE,
   MCMLE.density.guard.min = 10000,
@@ -490,6 +491,9 @@ length should be used if running in multiple threads. Possible
 values (partially matched) are \code{"always"}, \code{"never"}, and
 (default) \code{"observational"} (i.e., when missing data MLE is
 used).}
+
+\item{MCMLE.steplength.precision}{Required relative precision of the step
+length calculation: \eqn{(u-l)/l}.}
 
 \item{MCMLE.adaptive.trustregion}{Maximum increase the algorithm will allow
 for the approximated loglikelihood at a given iteration when
