@@ -55,14 +55,14 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
   ergm.getCluster(control, verbose)
   
   if(is.ergm_state(state)) state <- list(state)
-  states <- rep(state, length.out=nthreads(control))
-  ## states <- if(is.network(states[[1]])){
+  state <- rep(state, length.out=nthreads(control))
+  ## state <- if(is.network(state[[1]])){
   ##   NVL(stats0) <- numeric(length(eta))
   ##   if(is.numeric(stats0)) stats0 <- list(stats0)
-  ##   stats0 <- rep(stats0, length.out=length(states))
+  ##   stats0 <- rep(stats0, length.out=length(state))
 
-  ##   states <- mapply(ergm_state, states, stats=stats0, MoreArgs=list(response=response, model=model, proposal=proposal), SIMPLIFY=FALSE)
-  ## }else states
+  ##   state <- mapply(ergm_state, state, stats=stats0, MoreArgs=list(response=response, model=model, proposal=proposal), SIMPLIFY=FALSE)
+  ## }else state
 
   control.parallel <- control
   control.parallel$MCMC.samplesize <- NVL3(control$MCMC.samplesize, ceiling(. / nthreads(control)))
@@ -72,8 +72,8 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
   #' @importFrom parallel clusterMap
   doruns <- function(burnin=NULL, samplesize=NULL, interval=NULL){
     if(!is.null(ergm.getCluster(control))) persistEvalQ({clusterMap(ergm.getCluster(control),ergm_MCMC_slave,
-                                  state=states, MoreArgs=list(eta=eta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)})
-    else list(ergm_MCMC_slave(states[[1]], burnin=burnin,samplesize=samplesize,interval=interval,eta=eta,control=control.parallel,verbose=verbose,...))
+                                                                    state=state, MoreArgs=list(eta=eta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)})
+    else list(ergm_MCMC_slave(state[[1]], burnin=burnin,samplesize=samplesize,interval=interval,eta=eta,control=control.parallel,verbose=verbose,...))
   }
 
   sms <- vector("list", nthreads(control))
@@ -114,6 +114,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
       # Stop if something went wrong.
       if(any(map_int(outl,"status")!=0)) break
       sms <- mapply(rbind, sms, map(outl, "s"), SIMPLIFY=FALSE)
+      state <- map(outl, "state")
       
       while(nrow(sms[[1]])-best.burnin$burnin>=(control.parallel$MCMC.samplesize)*2){
         for(i in seq_along(outl)) sms[[i]] <- sms[[i]][seq_len(floor(nrow(sms[[i]])/2))*2+nrow(sms[[i]])%%2,,drop=FALSE]
@@ -122,12 +123,12 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
       }
       
       esteq <- lapply.mcmc.list(lapply(sms, function(sm)
-                      NVL3(theta, ergm.estfun(sm, ., as.ergm_model(state[[1]])), sm[,!as.ergm_model(state[[1]])$etamap$offsetmap,drop=FALSE])
-                      ), mcmc, start=1, thin=interval)
-      
+        NVL3(theta, ergm.estfun(sm, ., as.ergm_model(state[[1]])), sm[,!as.ergm_model(state[[1]])$etamap$offsetmap,drop=FALSE])
+        ), mcmc, start=1, thin=interval)
+
       if(control.parallel$MCMC.runtime.traceplot){
         plot(window(esteq, thin=thin(esteq)*max(1,floor(niter(esteq)/1000)))
-             ,ask=FALSE,smooth=TRUE,density=FALSE)
+            ,ask=FALSE,smooth=TRUE,density=FALSE)
       }
 
       best.burnin <- .find_OK_burnin(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, min.pval=control$MCMC.effectiveSize.burnin.pval, order.max=control$MCMC.effectiveSize.order.max)

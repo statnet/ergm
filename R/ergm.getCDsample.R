@@ -14,7 +14,7 @@ ergm_CD_sample <- function(state, control, theta=NULL,
   ergm.getCluster(control, verbose)
   
   if(is.ergm_state(state)) state <- list(state)
-  states <- rep(state, length.out=nthreads(control))
+  state <- rep(state, length.out=nthreads(control))
 
   control.parallel <- control
   control.parallel$CD.samplesize <- NVL3(control$CD.samplesize, ceiling(. / nthreads(control)))
@@ -23,8 +23,8 @@ ergm_CD_sample <- function(state, control, theta=NULL,
 
   doruns <- function(samplesize=NULL){
     if(!is.null(ergm.getCluster(control))) persistEvalQ({clusterMap(ergm.getCluster(control), ergm_CD_slave,
-                                  state=states, MoreArgs=list(eta=eta,control=control.parallel,verbose=verbose,...,samplesize=samplesize))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)})
-    else list(ergm_CD_slave(state=states[[1]], samplesize=samplesize,eta=eta,control=control.parallel,verbose=verbose,...))
+                                                                    state=state, MoreArgs=list(eta=eta,control=control.parallel,verbose=verbose,...,samplesize=samplesize))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)})
+    else list(ergm_CD_slave(state=state[[1]], samplesize=samplesize,eta=eta,control=control.parallel,verbose=verbose,...))
   }
   
   outl <- doruns()
@@ -33,11 +33,11 @@ ergm_CD_sample <- function(state, control, theta=NULL,
   }
   
   if(control.parallel$MCMC.runtime.traceplot){
-      esteq <- lapply.mcmc.list(lapply(outl, function(out)
-                      NVL3(theta, ergm.estfun(out$s, ., as.ergm_model(states[[1]])), out$s[,!as.ergm_model(states[[1]])$offsetmap,drop=FALSE])
-                      ), mcmc, start=1)
-        plot(window(esteq, thin=thin(esteq)*max(1,floor(niter(esteq)/1000)))
-             ,ask=FALSE,smooth=TRUE,density=FALSE)
+    esteq <- lapply.mcmc.list(lapply(outl, function(out)
+      NVL3(theta, ergm.estfun(out$s, ., as.ergm_model(state[[1]])), out$s[,!as.ergm_model(state[[1]])$offsetmap,drop=FALSE])
+      ), mcmc, start=1)
+    plot(window(esteq, thin=thin(esteq)*max(1,floor(niter(esteq)/1000)))
+        ,ask=FALSE,smooth=TRUE,density=FALSE)
   }
 
   #
