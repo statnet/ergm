@@ -101,7 +101,7 @@ ergm.MCMLE <- function(init, nw, model,
   # situation where we are imputing dyads, the optimization is in the
   # observational mode, and since both the constrained and the
   # unconstrained samplers start from the same place, the initial
-  # statshifts will be 0. target.stats and missing dyads are mutually
+  # stat shifts will be 0. target.stats and missing dyads are mutually
   # exclusive, so model$target.stats will be set equal to
   # model$nw.stats, causing this to happen.
   s <- single.impute.dyads(nw, response=response, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, output="ergm_state", verbose=verbose)
@@ -120,7 +120,7 @@ ergm.MCMLE <- function(init, nw, model,
   # formula or produced by SAN. If target.stats is not speficied
   # explicitly, they are computed from this network, so
   # statshift==0. To make target.stats play nicely with offsets, we
-  # set statshifts to 0 where target.stats is NA (due to offset).
+  # set stat shifts to 0 where target.stats is NA (due to offset).
   model$nw.stats <- summary(model, s, response=response)
   statshift <- model$nw.stats - NVL(model$target.stats,model$nw.stats)
   statshift[is.na(statshift)] <- 0
@@ -174,12 +174,14 @@ ergm.MCMLE <- function(init, nw, model,
   calc.MCSE <- FALSE
   last.adequate <- FALSE
 
+  # ERGM_STATE_ELEMENTS = elements of the ergm_state objects (currently s and s.obs) that need to be saved.
   # STATE_VARIABLES = variables collectively containing the state of the optimizer that would allow it to resume, excluding control lists.
   # CONTROL_VARIABLES = control lists
   # INTERMEDIATE_VARIABLES = variables of interest in debugging and diagnostics.
   #
-  # Both lists need to be kept up to date with the implementation.
-  STATE_VARIABLES <- c("s", "s.obs", "mcmc.init", "statshifts", "statshifts.obs", "calc.MCSE", "last.adequate", "coef.hist", "stats.hist", "stats.obs.hist", "steplen.hist", "steplen","setdiff.prev","d2.not.improved")
+  # All lists need to be kept up to date with the implementation.
+  ERGM_STATE_ELEMENTS <- c("el", "nw0", "stats", "ext.state", "ext.flag")
+  STATE_VARIABLES <- c("mcmc.init", "calc.MCSE", "last.adequate", "coef.hist", "stats.hist", "stats.obs.hist", "steplen.hist", "steplen","setdiff.prev","d2.not.improved")
   CONTROL_VARIABLES <- c("control", "control.obs", "control0", "control0.obs")
   INTERMEDIATE_VARIABLES <- c("s", "s.obs", "statsmatrices", "statsmatrices.obs", "coef.hist", "stats.hist", "stats.obs.hist", "steplen.hist")
 
@@ -205,6 +207,10 @@ ergm.MCMLE <- function(init, nw, model,
     control <- .merge_controls(state$control, state$control0, control0)
     if(obs) control.obs <- .merge_controls(state$control.obs, state$control0.obs, control0.obs)
 
+    # TODO: Implement a version with proper encapsulation.
+    for(i in seq_along(s)) for(name in ERGM_STATE_ELEMENTS) s[[i]][[name]] <- state$s.reduced[[i]][[name]]
+    if(obs) for(i in seq_along(s.obs)) for(name in ERGM_STATE_ELEMENTS) s.obs[[i]][[name]] <- state$s.obs.reduced[[i]][[name]]
+
     # Copy the rest
     for(name in intersect(ls(state), STATE_VARIABLES)) assign(name, state[[name]])
 
@@ -223,7 +229,16 @@ ergm.MCMLE <- function(init, nw, model,
     }
 
     if(!is.null(control$checkpoint)){
-      save(list=intersect(ls(), c(STATE_VARIABLES, CONTROL_VARIABLES)), file=sprintf(control$checkpoint, iteration))
+      message("Saving state in ", sQuote(sprintf(control$checkpoint, iteration)),".")
+      s.reduced <- s
+      for(i in seq_along(s.reduced)) s.reduced[[i]]$model <- s.reduced[[i]]$proposal <- NULL
+      if(obs){
+        s.obs.reduced <- s.obs
+        for(i in seq_along(s.obs.reduced)) s.obs.reduced[[i]]$model <- s.obs.reduced[[i]]$proposal <- NULL
+      }
+      save(list=intersect(ls(), c("s.reduced", "s.obs.reduced", STATE_VARIABLES, CONTROL_VARIABLES)), file=sprintf(control$checkpoint, iteration))
+      rm(s.reduced)
+      rm(s.obs.reduced)
     }
 
     # Obtain MCMC sample
