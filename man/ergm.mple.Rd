@@ -31,7 +31,7 @@ ergm.pl(
 )
 }
 \arguments{
-\item{nw}{response network.}
+\item{nw}{response \code{\link{network}} or \code{\link{ergm_state}}.}
 
 \item{fd}{An \code{\link{rlebdm}} with informative dyads.}
 

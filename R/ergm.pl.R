@@ -44,8 +44,7 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
                     control, ignore.offset=FALSE,
                     verbose=FALSE) {
-  maxNumDyadTypes <- min(control$MPLE.max.dyad.types,
-                         network.dyadcount(nw,na.omit=TRUE))
+  maxNumDyadTypes <- min(control$MPLE.max.dyad.types, sum(fd))
   state <- ergm_state(nw, model=m)
   # *** don't forget, pass in tails first now, not heads
   z <- .Call("MPLE_wrapper",

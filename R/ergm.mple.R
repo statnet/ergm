@@ -36,7 +36,7 @@
 #' MPLE values are used even in the case of dyadic dependence models as
 #' starting points for the MCMC algorithm.
 #' 
-#' @param nw response network.
+#' @param nw response [`network`] or [`ergm_state`].
 #' @param fd An \code{\link{rlebdm}} with informative dyads.
 #' @param m the model, as returned by \code{\link{ergm_model}}
 #' @param init a vector a vector of initial theta coefficients

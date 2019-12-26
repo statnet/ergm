@@ -66,7 +66,7 @@ ergm.initialfit<-function(init, initial.is.final,
     # Also make sure that any initial values specified by the user are respected.
     fit <- switch(method,
                   MPLE = {
-                    nw <- single.impute.dyads(nw, response=response, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, output="network", verbose=verbose)
+                    nw <- single.impute.dyads(nw, response=response, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, output="ergm_state", verbose=verbose)
                     fd <- as.rlebdm(proposal$arguments$constraints, proposal.obs$arguments$constraints, which="informative")
                     
                     ergm.mple(nw, fd, m, MPLEtype=MPLEtype,
