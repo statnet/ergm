@@ -284,7 +284,7 @@ WtI_CHANGESTAT_FN(i_wtSum){
 
   SEXP submodels = getListElement(mtp->R, "submodels");
   for(unsigned int i=0; i<nms; i++){
-    ms[i] = WtModelInitialize(VECTOR_ELT(submodels,i), isNull(mtp->ext_state) ? NULL : VECTOR_ELT(mtp->ext_state,i), nwp, FALSE);
+    ms[i] = WtModelInitialize(VECTOR_ELT(submodels,i), isNULL(mtp->ext_state) ? NULL : VECTOR_ELT(mtp->ext_state,i), nwp, FALSE);
   }
 }
 

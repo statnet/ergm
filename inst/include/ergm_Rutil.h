@@ -54,4 +54,7 @@ static inline SEXP mkRStrVec(const char **x){
 #define TOREALSXP(x) x = PROTECT(coerceVector(x, REALSXP))
 #define FIRSTCHAR(x) CHAR(STRING_ELT(x, 0))
 
+// Safely test if x is a NULL C pointer or a NULL R pointer.
+#define isNULL(x) ((x)==NULL || (x)==R_NilValue)
+
 #endif 
