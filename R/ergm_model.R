@@ -163,8 +163,23 @@ call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ..., term
   #Call the InitErgm function in the environment where the formula was created
   # so that it will have access to any parameters of the ergm terms
   out <- eval(termCall,env)
+  if(is.null(out)) return(NULL)
   # If SO package name not specified explicitly, autodetect.
-  if(!is.null(out) && is.null(out$pkgname)) out$pkgname <- environmentName(environment(eval(termFun)))
+  if(is.null(out$pkgname)) out$pkgname <- environmentName(environment(eval(termFun)))
+
+  # If the term requests auxiliaries or is an auxiliary itself,
+  # reserve space in the input vector.
+  attr(out, "aux.slots") <-
+    integer(NVL3(out$auxiliaries, length(list_rhs.formula(.)), 0) + # requests auxiliaries
+            (length(out$coef.names)==0)) # is an auxiliary
+
+  # Ensure input vectors are of the correct storage mode. (There is no
+  # checking on C level at this time.) Note that as.double() and
+  # as.integer() will strip attributes such as ParamBeforeCov and so
+  # should not be used.
+  storage.mode(out$inputs) <- "double"
+  storage.mode(out$iinputs) <- "integer"
+
   out
 }
 
@@ -187,20 +202,6 @@ call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ..., term
 
 updatemodel.ErgmTerm <- function(model, outlist) { 
   if (!is.null(outlist)) { # Allow for no change if outlist==NULL
-
-    # If the term requests auxiliaries or is an auxiliary itself,
-    # reserve space in the input vector.
-    attr(outlist, "aux.slots") <-
-      integer(NVL3(outlist$auxiliaries, length(list_rhs.formula(.)), 0) + # requests auxiliaries
-              (length(outlist$coef.names)==0)) # is an auxiliary
-
-    # Ensure input vectors are of the correct storage mode. (There is
-    # no checking on C level at this time.) Note that as.double() and
-    # as.integer() will strip attributes such as ParamBeforeCov and so
-    # should not be used.
-    storage.mode(outlist$inputs) <- "double"
-    storage.mode(outlist$iinputs) <- "integer"
-
     # Update global model properties.
     model$coef.names <- c(model$coef.names, outlist$coef.names)
     model$minval <- c(model$minval,
