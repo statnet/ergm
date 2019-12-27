@@ -4,13 +4,12 @@
 \alias{summary.ergm_model}
 \title{Evaluate network summary statistics from an initialized ergm model}
 \usage{
-\method{summary}{ergm_model}(object, nw = NULL, response = NULL, ...)
+\method{summary}{ergm_model}(object, nw, response = NULL, ...)
 }
 \arguments{
 \item{object}{an \code{\link{ergm_model}} object.}
 
-\item{nw}{a \code{\link{network}} whose statistics are to be evaluated. If
-\code{NULL}, returns empty network's statistics for that model.}
+\item{nw}{a \code{\link{network}} whose statistics are to be evaluated.}
 
 \item{response}{Name of the edge attribute whose value is to be
 modeled in the valued ERGM framework. Defaults to \code{NULL} for

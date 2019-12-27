@@ -1,3 +1,5 @@
+#include "ergm_state.h"
+#include "netstats.h"
 #include "ergm_changestat_operator.h"
 #include "ergm_changestat_auxnet.h"
 #include "ergm_util.h"
@@ -6,7 +8,7 @@
 
 I_CHANGESTAT_FN(i_passthrough_term){
   // No need to allocate it: we are only storing a pointer to a model.
-  Model *m = STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
+  Model *m = STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state,  nwp, FALSE);
 
   SELECT_C_OR_D_BASED_ON_SUBMODEL(m);
 }
@@ -46,7 +48,7 @@ F_CHANGESTAT_FN(f_passthrough_term){
 
 I_CHANGESTAT_FN(i__submodel_term){
   // No need to allocate it: we are only storing a pointer to a model.
-  AUX_STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
+  AUX_STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state,  nwp, FALSE);
 }
 
 U_CHANGESTAT_FN(u__submodel_term){
@@ -78,27 +80,23 @@ D_CHANGESTAT_FN(d_submodel_test_term){
 
 
 I_CHANGESTAT_FN(i__summary_term){
-  double *inputs = INPUT_PARAM;
   GET_STORAGE(Model, m); // No need to allocate, since we just need a pointer.
 
   // Initialize empty network.
   Network *tmpnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
   // Unpack the submodel.
-  STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  tmpnwp, FALSE);
+  STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state,  tmpnwp, FALSE);
 
   ALLOC_AUX_STORAGE(m->n_stats, double, stats);
-  memcpy(stats, inputs, m->n_stats*sizeof(double));
+  ErgmState s={.stats=NULL,
+               .nwp=tmpnwp,
+               .m=m,
+               .MHp=NULL};
+  Vertex *tails = Calloc(EDGECOUNT(nwp), Vertex);
+  Vertex *heads = Calloc(EDGECOUNT(nwp), Vertex);
+  EdgeTree2EdgeList(tails, heads, nwp, EDGECOUNT(nwp));
 
-  // Evaluate the initial summary statistics (the slow way).
-  for(Vertex tail=1; tail <= N_TAILS; tail++){
-    Vertex head;
-    Edge e;
-    STEP_THROUGH_OUTEDGES(tail, e, head) {
-      ChangeStats(1, &tail, &head, tmpnwp, m);
-      addonto(stats, m->workspace, m->n_stats);
-      UPDATE_STORAGE_TOGGLE(tail, head, tmpnwp, m, NULL, 0);
-    }
-  }
+  SummStats(&s, EDGECOUNT(nwp), tails, heads, stats);
   // Note that nw is now identitical to nwp.
   NetworkDestroy(tmpnwp);
 }
@@ -161,7 +159,7 @@ I_CHANGESTAT_FN(i_Sum){
 
   SEXP submodels = getListElement(mtp->R, "submodels");
   for(unsigned int i=0; i<nms; i++){
-    ms[i] = ModelInitialize(VECTOR_ELT(submodels, i), NULL, nwp, FALSE);
+    ms[i] = ModelInitialize(VECTOR_ELT(submodels, i), isNull(mtp->ext_state) ? NULL : VECTOR_ELT(mtp->ext_state,i), nwp, FALSE);
   }
 }
 

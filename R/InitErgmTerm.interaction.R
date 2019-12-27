@@ -28,8 +28,10 @@
   inputs <- c(length(cn1), length(cn2))
   
   cn <- outer(cn1,cn2,paste,sep=":")
-  
-  list(name="interact", coef.names = cn, inputs=inputs, submodel=m, dependence=!is.dyad.independent(m))
+
+  mw <- wrap.ergm_model(m, nw, response, NULL)
+
+  list(name="interact", coef.names = cn, inputs=inputs, submodel=m, dependence=!mw$dependence, ext.encode=mw$ext.encode)
 }
 
 ## This will always be passed with two arguments in arglist, which
@@ -62,5 +64,7 @@
 
   cn <- c(cn1,cn2,outer(cn1,cn2,paste,sep=":"))
   
-  list(name="main_interact", coef.names = cn, inputs=inputs, submodel=m, dependence=!is.dyad.independent(m))
+  mw <- wrap.ergm_model(m, nw, response, NULL)
+
+  list(name="main_interact", coef.names = cn, inputs=inputs, submodel=m, dependence=!mw$dependence, ext.encode=mw$ext.encode)
 }

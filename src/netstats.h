@@ -17,5 +17,6 @@
 
 /* *** don't forget tail -> head, so these functions accept tails first, not heads */
 
+void EmptyNetworkStats(ErgmState *s, Rboolean skip_s, double *stats);
 void SummStats(ErgmState *s, Edge n_edges, Vertex *tails, Vertex *heads, double *stats);
 #endif

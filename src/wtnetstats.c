@@ -13,10 +13,7 @@
 /*****************
  void network_stats_wrapper
 
- Wrapper for a call from R.  Return the change in the statistics when
- we go from an empty graph to the observed graph.  If the empty graph
- has true global values equal to zero for all statistics, then this
- change gives the true global values for the observed graph.
+ Wrapper for a call from R.  Return the statistics when of the observed graph.
 *****************/
 
 SEXP wt_network_stats_wrapper(ARGS_WTSTATE){
@@ -27,13 +24,6 @@ SEXP wt_network_stats_wrapper(ARGS_WTSTATE){
 
   SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats));
 
-  if(s->stats) memcpy(REAL(stats), s->stats, m->n_stats*sizeof(double));
-  else memset(REAL(stats), 0, m->n_stats*sizeof(double));
-
-  /* Compute the change statistics and copy them to stats for return
-     to R.  Note that stats already has the statistics of an empty
-     network, so d_??? statistics will add on to them, while s_???
-     statistics will simply overwrite them. */
   SEXP elR = getListElement(stateR, "el");
   WtSummStats(s,
               length(VECTOR_ELT(elR, 0)),
@@ -47,14 +37,37 @@ SEXP wt_network_stats_wrapper(ARGS_WTSTATE){
   return stats;
 }
 
+void WtEmptyNetworkStats(WtErgmState *s, Rboolean skip_s, double *stats){
+  WtModel *m = s->m;
+  SEXP call = PROTECT(allocList(2));
+  SET_TYPEOF(call, LANGSXP);
+
+  WtEXEC_THROUGH_TERMS_INTO(m, stats, {
+      if(!skip_s || mtp->s_func==NULL){
+        SEXP s0 = getListElement(mtp->R, "emptynwstats");
+        if(isFunction(s0)){
+          SEXP pos=call;
+          SETCAR(pos, s0); pos = CDR(pos);
+          SETCAR(pos, mtp->ext_state);
+          s0 = eval(call, R_EmptyEnv); // This value is unprotected; however, it just needs to be copied and thrown away.
+        }
+        if(s0!=R_NilValue)
+          memcpy(dstats, REAL(s0), mtp->nstats*sizeof(double));
+      }});
+  UNPROTECT(1);
+}
 
 /****************
- void SummStats Computes summary statistics for a network. Must be
- passed an empty network and passed an empty network
+ void WtSummStats Computes summary statistics for a network. Must be
+ passed an empty network.
 *****************/
 void WtSummStats(WtErgmState *s, Edge n_edges, Vertex *tails, Vertex *heads, double *weights, double *stats){
   WtNetwork *nwp = s->nwp;
   WtModel *m = s->m;
+
+  memset(stats, 0, m->n_stats*sizeof(double));
+
+  WtEmptyNetworkStats(s, TRUE, stats);
 
   WtDetShuffleEdges(tails,heads,weights,n_edges); /* Shuffle edgelist. */
   
@@ -99,4 +112,3 @@ void WtSummStats(WtErgmState *s, Edge n_edges, Vertex *tails, Vertex *heads, dou
       }
     });
 }
-

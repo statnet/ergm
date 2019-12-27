@@ -13,9 +13,7 @@ InitErgmTerm.NodematchFilter <- function(nw, arglist, response=NULL, ...){
 
   m <- ergm_model(f, nw, response=response,...)
 
-  gs <- summary(m)
-
-  c(list(name="on_blockdiag_net", submodel=m, dependence=!is.dyad.independent(m), emptynwstats = gs, auxiliaries=~.blockdiag.net(a$attrname)),
-    passthrough.curved.ergm_model(m, mk_std_op_namewrap('NodematchFilter',a$attrname)))
+  c(list(name="on_blockdiag_net", submodel=m, auxiliaries=~.blockdiag.net(a$attrname)),
+    wrap.ergm_model(m, nw, response, mk_std_op_namewrap('NodematchFilter',a$attrname)))
 }
 

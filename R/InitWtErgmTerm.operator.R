@@ -23,9 +23,6 @@ InitWtErgmTerm.B <- function(nw, arglist, response=NULL, ...){
 
   if(!is.dyad.independent(m) && form=="sum") stop("Only dyad-independent binary terms can be imported with form 'sum'.")
   
-  gs <- if(form=="nonzero" || is(form, "formula")) summary(m)
-        else rep(0, nparam(m, canonical=TRUE))
-
   if(is(form, "formula")){
     form.name <- despace(deparse(ult(form)))
     name <- "import_binary_term_form"
@@ -35,13 +32,14 @@ InitWtErgmTerm.B <- function(nw, arglist, response=NULL, ...){
     name <- paste("import_binary_term",form,sep="_")
     auxiliaries <- if(form=="nonzero") ~.binary.nonzero.net
   }
-  
+
+  mw <- wrap.ergm_model(m, nwb, NULL, mk_std_op_namewrap('B', form.name))
+  if(form=="sum") mw$emptynwstats <- NULL
+
   c(list(name=name,
          submodel = m,
-         dependence=!is.dyad.independent(m),
-         emptynwstats = gs,
          auxiliaries=auxiliaries),
-    passthrough.curved.ergm_model(m, mk_std_op_namewrap('B', form.name)))
+    mw)
 }
 
 InitWtErgmTerm..binary.nonzero.net <- function(nw, arglist, response=NULL, ...){
@@ -70,10 +68,12 @@ InitWtErgmTerm..binary.formula.net <- function(nw, arglist, response=NULL, ...){
 
   if(!is.dyad.independent(m) || nparam(m)!=1) stop("The binary test formula must be dyad-independent and have exactly one statistc.")
 
-  gs <- summary(m)
+  nw[,] <- FALSE
+  gs <- summary(m, nw, response=response)
   if(gs!=0) stop("At this time, the binary test term must have the property that its dyadwise components are 0 for 0-valued relations. This limitation may be removed in the future.")
   
-  list(name="_binary_formula_net", submodel=m, depenence=FALSE)
+  c(list(name="_binary_formula_net", submodel=m, depenence=FALSE),
+    wrap.ergm_model(m, nw, response, NULL))
 }
 
 # Arguments and outputs are identical to the binary version, except for the C routine names.

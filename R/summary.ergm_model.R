@@ -15,47 +15,19 @@
 #' used by end-users, but may be useful to developers.
 #'
 #' @param object an [`ergm_model`] object.
-#' @param nw a [`network`] whose statistics are to be evaluated. If
-#'   `NULL`, returns empty network's statistics for that model.
+#' @param nw a [`network`] whose statistics are to be evaluated.
 #' @template response
 #' @template dotdotdot
 #' 
 #' @seealso [summary_formula()]
 #' @keywords internal
 #' @export
-summary.ergm_model <- function(object, nw=NULL, response=NULL,...){
+summary.ergm_model <- function(object, nw, response=NULL,...){
   m <- object
-
-  # Adjust to global values. This needs to happen before the C call,
-  # so that an s_function, if exists, could override.
-                                                                
-  # New method:  Use $emptynwstats added to m$terms by the InitErgmTerm function
-  # Read the comments at the top of InitErgm.R or InitErgmTerm.R for 
-  # an explanation of the $emptynwstats mechanism
-  gs <- numeric(nparam(m,canonical=TRUE))
-  if(length(gs)==0) return(gs) # Escape if the model has 0 statistics.
-  
-  i <- 1
-  for (j in 1:length(m$terms)) {
-    tmp <- m$terms[[j]]
-    k <- length(tmp$coef.names) # Number of statistics for this model term
-    if (!is.null(tmp$emptynwstats)) {
-      gs[i:(i+k-1)] <- gs[i:(i+k-1)] + tmp$emptynwstats
-    }
-    i <- i + k
-  }
-
-  # If no actual network, we are done.
-  if(is.null(nw)) return(gs)
-  
-  # Note that the empty network statistics are passed to the C
-  # code. The reason is that if an s_??? function exists, it can
-  # overwrite them, since it can compute the whole thing, while if
-  # only the d_??? function exists, it needs to add on to empty
-  # network statistics.
-
+  if(nparam(m,canonical=TRUE)==0) return(numeric(0)) # Escape if the model has 0 statistics.
+    
   NVL(response) <- nw %ergmlhs% "response"
-  state <- ergm_state(nw, response=response, model=m, stats=gs)
+  state <- ergm_state(nw, response=response, model=m)
   summary(state)
 }
 
@@ -63,7 +35,6 @@ summary.ergm_model <- function(object, nw=NULL, response=NULL,...){
 #' @export
 summary.ergm_state <- function(object, ...){
   state <- object
-  nw0 <- as.network(state, populate=FALSE)
 
   gs <-
     if(!is.valued(state))
