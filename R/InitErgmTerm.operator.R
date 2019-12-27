@@ -529,7 +529,7 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
         reduce(`+`) %>%
         c()
     }else{ # Some functions: the hard case.
-      function(ext.state, nw0){
+      function(ext.state){
         gss <- mapply(function(gs, ext.st){
           if(is.function(gs)) gs(ext.state=ext.st)
           else gs
