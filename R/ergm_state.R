@@ -90,7 +90,6 @@ ergm_state.matrix <- ergm_state.edgelist
 #' @export
 ergm_state.network <- function(x, response=NULL, ...){
   NVL(response) <- x %ergmlhs% "response"
-  x %ergmlhs% "response" <- response
   el <- as.edgelist(x, attrname=response, output="tibble")
   nw0 <- x
   ergm_state(el, nw0, ...)

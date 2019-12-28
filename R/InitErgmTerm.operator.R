@@ -30,13 +30,7 @@ wrap.ergm_model <- function(m, nw, response=NULL, namewrap = identity){
     coef.names <- namewrap(param_names(m, canonical=TRUE))
 
     # Empty network statistics
-    if(any(sapply(m$terms, function(trm) is.function(trm$emptynwstats)))){
-      emptynwstats <- function(ext.state){
-        summary(ergm_state(nw, response=response, model=m, ext.state=ext.state))
-      }
-    }else{
-      emptynwstats <- summary(m, nw, response=response)
-    }
+    emptynwstats <- summary(m, NULL, response=response)
     if(all(emptynwstats==0)) emptynwstats <- NULL
 
     # Curved model
@@ -521,26 +515,13 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
   gs <-
     if(all(map_lgl(gss, is.null))){ # Linear combination of 0s is 0.
       NULL
-    }else if(!any(map_lgl(gss, is.function))){ # All numeric or NULL
+    }else{ # All numeric or NULL
       gs0 <- map_lgl(gs, is.null)
       lst(x = wl[!gs0],
           y = gss[!gs0]) %>%
         pmap(`%*%`) %>%
         reduce(`+`) %>%
         c()
-    }else{ # Some functions: the hard case.
-      function(ext.state){
-        gss <- mapply(function(gs, ext.st){
-          if(is.function(gs)) gs(ext.state=ext.st)
-          else gs
-        }, gs=gss, ext.st=ext.state, SIMPLIFY=FALSE)
-        gs0 <- map_lgl(gs, is.null)
-        lst(x = wl[!gs0],
-            y = gss[!gs0]) %>%
-        pmap(`%*%`) %>%
-        reduce(`+`) %>%
-        c()
-      }
     }
 
   ext.encodes <- map(wms, "ext.encode")

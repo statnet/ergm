@@ -15,17 +15,32 @@
 #' used by end-users, but may be useful to developers.
 #'
 #' @param object an [`ergm_model`] object.
-#' @param nw a [`network`] whose statistics are to be evaluated.
+#' @param nw a [`network`] whose statistics are to be evaluated,
+#'   though an [`ergm_state`] object will also work. If `NULL`,
+#'   returns empty network's statistics for that model.
 #' @template response
 #' @template dotdotdot
 #' 
 #' @seealso [summary_formula()]
 #' @keywords internal
 #' @export
-summary.ergm_model <- function(object, nw, response=NULL,...){
+summary.ergm_model <- function(object, nw=NULL, response=NULL,...){
   m <- object
-  if(nparam(m,canonical=TRUE)==0) return(numeric(0)) # Escape if the model has 0 statistics.
-    
+  if((nstats=nparam(m,canonical=TRUE))==0) return(numeric(0)) # Escape if the model has 0 statistics.
+
+  if(is.null(nw)){
+    gs <- numeric(nstats)
+
+    i <- 1L
+    for (trm in m$terms){
+      k <- length(trm$coef.names) # Number of statistics for this model term
+      if(!is.null(trm$emptynwstats))
+        gs[i + seq_len(k) - 1L] <- trm$emptynwstats
+      i <- i + k
+    }
+    return(gs)
+  }
+
   NVL(response) <- nw %ergmlhs% "response"
   state <- ergm_state(nw, response=response, model=m)
   summary(state)

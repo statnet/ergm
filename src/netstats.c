@@ -38,18 +38,10 @@ SEXP network_stats_wrapper(ARGS_STATE){
 
 void EmptyNetworkStats(ErgmState *s, Rboolean skip_s, double *stats){
   Model *m = s->m;
-  SEXP call = PROTECT(allocList(2));
-  SET_TYPEOF(call, LANGSXP);
 
   EXEC_THROUGH_TERMS_INTO(m, stats, {
       if(!skip_s || mtp->s_func==NULL){
         SEXP s0 = getListElement(mtp->R, "emptynwstats");
-        if(isFunction(s0)){
-          SEXP pos=call;
-          SETCAR(pos, s0); pos = CDR(pos);
-          SETCAR(pos, mtp->ext_state);
-          s0 = eval(call, R_EmptyEnv); // This value is unprotected; however, it just needs to be copied and thrown away.
-        }
         if(s0!=R_NilValue)
           memcpy(dstats, REAL(s0), mtp->nstats*sizeof(double));
       }});

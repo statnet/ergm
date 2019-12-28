@@ -179,7 +179,7 @@ call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ..., term
   # should not be used.
   storage.mode(out$inputs) <- "double"
   storage.mode(out$iinputs) <- "integer"
-  if(is.vector(out$emptynwstats)) storage.mode(out$emptynwstats) <- "double"
+  if(!is.null(out$emptynwstats)) storage.mode(out$emptynwstats) <- "double"
 
   out
 }
