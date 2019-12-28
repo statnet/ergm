@@ -121,6 +121,32 @@ int CheckConstrainedTogglesValid(MHProposal *MHp, Network *nwp);
 
 #define MH_P_FN(a) void (a) (MHProposal *MHp, Network *nwp)
 
+/* Implementation of TNT log ratio for the three cases.
+   The parameters are as follows. Let 
+   D = number of dyads
+   P = probability of drawing from the set of edges
+   
+   Then, the arguments are:
+
+   E = number of edges
+   Q = 1-P
+   DP = D*P
+   DO = D*P/(1-P)
+ */
+
+/* Thanks to Robert Goudie for pointing out an error in an earlier
+   version of this sampler when proposing to go from E==0 to E==1 or
+   vice versa.  Note that this happens extremely rarely unless the
+   network is small or the parameter values lead to extremely sparse
+   networks. */
+
+// Select edge.
+#define TNT_LR_E(E, Q, DP, DO) (log(((E)==1 ? 1.0/((DP) + (Q)) : (E) / ((DO) + (E)))))
+// Select dyad, get edge.
+#define TNT_LR_DE(E, Q, DP, DO) (log(((E)==1 ? 1.0/((DP) + (Q)) : (E) / ((DO) + (E)))))
+// Select dyad, get nonedge.
+#define TNT_LR_DN(E, Q, DP, DO) (log(((E)==0 ? (DP) + (Q) : 1.0 + (DO)/((E) + 1))))
+
 #endif 
 
 

@@ -63,17 +63,14 @@ MH_P_FN(MH_TNT)
 	   or vice versa.  Note that this happens extremely rarely unless the 
 	   network is small or the parameter values lead to extremely sparse 
 	   networks.  */
-	logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
-			      nedges / (odds*ndyads + nedges)));
+	logratio = TNT_LR_E(nedges, 1-comp, comp*ndyads, odds*ndyads);
       }else{ /* Select a dyad at random */
 	GetRandDyad(Mtail, Mhead, nwp);
 	
 	if(EdgetreeSearch(Mtail[0],Mhead[0],nwp->outedges)!=0){
-	  logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
-				nedges / (odds*ndyads + nedges)));
+          logratio = TNT_LR_DE(nedges, 1-comp, comp*ndyads, odds*ndyads);
 	}else{
-	  logratio = log((nedges==0 ? comp*ndyads + (1.0-comp) :
-				1.0 + (odds*ndyads)/(nedges + 1)));
+          logratio = TNT_LR_DN(nedges, 1-comp, comp*ndyads, odds*ndyads);
 	}
       }
     });
@@ -108,15 +105,13 @@ MH_P_FN(MH_TNT10)
       for(unsigned int n = 0; n < 10; n++){
 	if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
 	  GetRandEdge(Mtail, Mhead, nwp);
-	  logratio += log(nedges  / (odds*ndyads + nedges));
+	  logratio += TNT_LR_E(nedges, 1-comp, comp*ndyads, odds*ndyads);
 	}else{ /* Select a dyad at random */
 	  GetRandDyad(Mtail+n, Mhead+n, nwp);
 	  if(EdgetreeSearch(Mtail[n],Mhead[n],nwp->outedges)!=0){
-	    logratio += log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
-				  nedges / (odds*ndyads + nedges)));
+	    logratio += TNT_LR_DE(nedges, 1-comp, comp*ndyads, odds*ndyads);
 	  }else{
-	    logratio += log((nedges==0 ? comp*ndyads + (1.0-comp) :
-				  1.0 + (odds*ndyads)/(nedges + 1)));
+	    logratio += TNT_LR_DN(nedges, 1-comp, comp*ndyads, odds*ndyads);
 	  }
 	} 
       }
@@ -581,24 +576,16 @@ MH_P_FN(MH_listTNT)
   BD_LOOP({
       if (unif_rand() < comp && nedges > 0) { /* Select a tie at random from the network of eligibles */
 	GetRandEdge(Mtail, Mhead, discord);
-	/* Thanks to Robert Goudie for pointing out an error in the previous 
-	   version of this sampler when proposing to go from nedges==0 to nedges==1 
-	   or vice versa.  Note that this happens extremely rarely unless the 
-	   network is small or the parameter values lead to extremely sparse 
-	   networks.  */
-	logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
-			      nedges / (odds*ndyads + nedges)));
+	logratio = TNT_LR_E(nedges, 1-comp, comp*ndyads, odds*ndyads);
       }else{ /* Select a dyad at random from the list */
 	Edge rane = 1 + unif_rand() * ndyads;
 	Mtail[0]=MHp->inputs[rane];
 	Mhead[0]=MHp->inputs[ndyads+rane];
 	
 	if(EdgetreeSearch(Mtail[0],Mhead[0],discord->outedges)!=0){
-	  logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
-				nedges / (odds*ndyads + nedges)));
+	  logratio = TNT_LR_DE(nedges, 1-comp, comp*ndyads, odds*ndyads);
 	}else{
-	  logratio = log((nedges==0 ? comp*ndyads + (1.0-comp) :
-				1.0 + (odds*ndyads)/(nedges + 1)));
+	  logratio = TNT_LR_DN(nedges, 1-comp, comp*ndyads, odds*ndyads);
 	}
       }
     });
@@ -665,22 +652,14 @@ MH_P_FN(MH_RLETNT)
   BD_LOOP({
       if (unif_rand() < comp && nedges > 0) { /* Select a tie at random from the network of eligibles */
 	GetRandEdge(Mtail, Mhead, nwp1);
-	/* Thanks to Robert Goudie for pointing out an error in the previous 
-	   version of this sampler when proposing to go from nedges==0 to nedges==1 
-	   or vice versa.  Note that this happens extremely rarely unless the 
-	   network is small or the parameter values lead to extremely sparse 
-	   networks.  */
-	logratio = log((nedges==1 ? 1.0/(comp*r.ndyads + (1.0-comp)) :
-			      nedges / (odds*r.ndyads + nedges)));
+	logratio = TNT_LR_E(nedges, 1-comp, comp*r.ndyads, odds*r.ndyads);
       }else{ /* Select a dyad at random from the list */
 	GetRandRLEBDM1D_RS(Mtail, Mhead, &r);
 	
 	if(EdgetreeSearch(Mtail[0],Mhead[0],nwp1->outedges)!=0){
-	  logratio = log((nedges==1 ? 1.0/(comp*r.ndyads + (1.0-comp)) :
-				nedges / (odds*r.ndyads + nedges)));
+	  logratio = TNT_LR_DE(nedges, 1-comp, comp*r.ndyads, odds*r.ndyads);
 	}else{
-	  logratio = log((nedges==0 ? comp*r.ndyads + (1.0-comp) :
-				1.0 + (odds*r.ndyads)/(nedges + 1)));
+	  logratio = TNT_LR_DN(nedges, 1-comp, comp*r.ndyads, odds*r.ndyads);
 	}
       }
     });

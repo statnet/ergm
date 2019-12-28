@@ -113,8 +113,7 @@ MH_P_FN(MH_blockdiagTNT)
 	   or vice versa.  Note that this happens extremely rarely unless the 
 	   network is small or the parameter values lead to extremely sparse 
 	   networks.  */
-	logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
-			 nedges / (odds*ndyads + nedges)));
+	logratio = TNT_LR_E(nedges, 1-comp, comp*ndyads, odds*ndyads);
       }else{ /* Select a dyad at random within a block */
 	double r = unif_rand();
 	// TODO: Use bisection to perform this search in O(log b) instead of O(b) time. 
@@ -131,11 +130,9 @@ MH_P_FN(MH_blockdiagTNT)
 	  Mhead[0] = head;
 	}
 	if(EdgetreeSearch(Mtail[0],Mhead[0],nwp->outedges)!=0){
-	  logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
-				nedges / (odds*ndyads + nedges)));
+	  logratio = TNT_LR_DE(nedges, 1-comp, comp*ndyads, odds*ndyads);
 	}else{
-	  logratio = log((nedges==0 ? comp*ndyads + (1.0-comp) :
-				1.0 + (odds*ndyads)/(nedges + 1)));
+	  logratio = TNT_LR_DN(nedges, 1-comp, comp*ndyads, odds*ndyads);
 	}
       }
     });
@@ -180,8 +177,7 @@ MH_P_FN(MH_blockdiagTNTB)
 	   or vice versa.  Note that this happens extremely rarely unless the 
 	   network is small or the parameter values lead to extremely sparse 
 	   networks.  */
-	logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
-			 nedges / (odds*ndyads + nedges)));
+	logratio = TNT_LR_E(nedges, 1-comp, comp*ndyads, odds*ndyads);
       }else{ /* Select a dyad at random within a block */
 	double r = unif_rand();
 	// TODO: Use bisection to perform this search in O(log b) instead of O(b) time. 
@@ -191,11 +187,9 @@ MH_P_FN(MH_blockdiagTNTB)
 	Mhead[0] = ablkpos[blk-1]+1 + unif_rand() * (ablkpos[blk]-ablkpos[blk-1]);
 
 	if(EdgetreeSearch(Mtail[0],Mhead[0],nwp->outedges)!=0){
-	  logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
-				nedges / (odds*ndyads + nedges)));
+	  logratio = TNT_LR_DE(nedges, 1-comp, comp*ndyads, odds*ndyads);
 	}else{
-	  logratio = log((nedges==0 ? comp*ndyads + (1.0-comp) :
-				1.0 + (odds*ndyads)/(nedges + 1)));
+	  logratio = TNT_LR_DN(nedges, 1-comp, comp*ndyads, odds*ndyads);
 	}
       }
     });
