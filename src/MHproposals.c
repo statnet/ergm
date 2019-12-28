@@ -43,34 +43,34 @@ MH_P_FN(MH_TNT)
   /* *** don't forget tail-> head now */
   
   Edge nedges=EDGECOUNT(nwp);
-  static double comp=0.5;
-  static double odds;
-  static Dyad ndyads;
+  static double P=0.5;
+  static double Q, DP, DO;
   
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
-    odds = comp/(1.0-comp);
-    ndyads = DYADCOUNT(nwp);
+    Q = 1-P;
+    DP = P*DYADCOUNT(nwp);
+    DO = DP/Q;
     return;
   }
 
   double logratio=0;
   BD_LOOP({
-      if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
+      if (unif_rand() < P && nedges > 0) { /* Select a tie at random */
 	GetRandEdge(Mtail, Mhead, nwp);
 	/* Thanks to Robert Goudie for pointing out an error in the previous 
 	   version of this sampler when proposing to go from nedges==0 to nedges==1 
 	   or vice versa.  Note that this happens extremely rarely unless the 
 	   network is small or the parameter values lead to extremely sparse 
 	   networks.  */
-	logratio = TNT_LR_E(nedges, 1-comp, comp*ndyads, odds*ndyads);
+	logratio = TNT_LR_E(nedges, Q, DP, DO);
       }else{ /* Select a dyad at random */
 	GetRandDyad(Mtail, Mhead, nwp);
 	
 	if(EdgetreeSearch(Mtail[0],Mhead[0],nwp->outedges)!=0){
-          logratio = TNT_LR_DE(nedges, 1-comp, comp*ndyads, odds*ndyads);
+          logratio = TNT_LR_DE(nedges, Q, DP, DO);
 	}else{
-          logratio = TNT_LR_DN(nedges, 1-comp, comp*ndyads, odds*ndyads);
+          logratio = TNT_LR_DN(nedges, Q, DP, DO);
 	}
       }
     });
@@ -88,30 +88,30 @@ MH_P_FN(MH_TNT10)
   /* *** don't forget tail-> head now */
   
   Edge nedges=EDGECOUNT(nwp);
-  static double comp=0.5;
-  static double odds;
-  static Dyad ndyads;
-  
+  static double P=0.5;
+  static double Q, DP, DO;
+
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=10;
-    odds = comp/(1.0-comp);
-    ndyads = DYADCOUNT(nwp);
+    Q = 1-P;
+    DP = P*DYADCOUNT(nwp);
+    DO = DP/Q;
     return;
   }
-  
+
   double logratio = 0;
   BD_LOOP({
       logratio = 0;
       for(unsigned int n = 0; n < 10; n++){
-	if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
+	if (unif_rand() < P && nedges > 0) { /* Select a tie at random */
 	  GetRandEdge(Mtail, Mhead, nwp);
-	  logratio += TNT_LR_E(nedges, 1-comp, comp*ndyads, odds*ndyads);
+	  logratio += TNT_LR_E(nedges, Q, DP, DO);
 	}else{ /* Select a dyad at random */
 	  GetRandDyad(Mtail+n, Mhead+n, nwp);
 	  if(EdgetreeSearch(Mtail[n],Mhead[n],nwp->outedges)!=0){
-	    logratio += TNT_LR_DE(nedges, 1-comp, comp*ndyads, odds*ndyads);
+	    logratio += TNT_LR_DE(nedges, Q, DP, DO);
 	  }else{
-	    logratio += TNT_LR_DN(nedges, 1-comp, comp*ndyads, odds*ndyads);
+	    logratio += TNT_LR_DN(nedges, Q, DP, DO);
 	  }
 	} 
       }
@@ -542,24 +542,27 @@ MH_P_FN(MH_RLE)
 MH_P_FN(MH_listTNT)
 {
   static Vertex nnodes;
-  static double comp=0.5, odds;
+  static double P=0.5;
+  static double Q, DP, DO;
   static Dyad ndyads;
-
   Network *discord;
   
   if(MHp->ntoggles == 0) { /* Initialize */
     nnodes = nwp->nnodes;
-    odds = comp/(1.0-comp);
-
     ndyads = MHp->inputs[0]; // Note that ndyads here is the number of dyads in the list.
-    if(ndyads==0) MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
-    else MHp->ntoggles=1;
+    if(ndyads==0){
+      MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
+      return;
+    }
+    MHp->ntoggles=1;
+    Q = 1-P;
+    DP = P*ndyads;
+    DO = DP/Q;
+
     MHp->discord = (Network**) Calloc(2, Network*); // A space for the sentinel NULL pointer.
     MHp->discord[0] = discord = NetworkInitialize(NULL, NULL, 0, nnodes, nwp->directed_flag, nwp->bipartite, 0, 0, NULL);
     
     // Network containing edges that are present in the network AND are on the toggleable list.
-
-   
     for(Edge i=0; i<ndyads; i++){
       Vertex tail=MHp->inputs[1+i], head=MHp->inputs[1+ndyads+i];
       if(EdgetreeSearch(tail, head,nwp->outedges)!=0)
@@ -574,18 +577,18 @@ MH_P_FN(MH_listTNT)
   Edge nedges=EDGECOUNT(discord);
   double logratio=0;
   BD_LOOP({
-      if (unif_rand() < comp && nedges > 0) { /* Select a tie at random from the network of eligibles */
+      if (unif_rand() < P && nedges > 0) { /* Select a tie at random from the network of eligibles */
 	GetRandEdge(Mtail, Mhead, discord);
-	logratio = TNT_LR_E(nedges, 1-comp, comp*ndyads, odds*ndyads);
+	logratio = TNT_LR_E(nedges, Q, DP, DO);
       }else{ /* Select a dyad at random from the list */
 	Edge rane = 1 + unif_rand() * ndyads;
 	Mtail[0]=MHp->inputs[rane];
 	Mhead[0]=MHp->inputs[ndyads+rane];
 	
 	if(EdgetreeSearch(Mtail[0],Mhead[0],discord->outedges)!=0){
-	  logratio = TNT_LR_DE(nedges, 1-comp, comp*ndyads, odds*ndyads);
+	  logratio = TNT_LR_DE(nedges, Q, DP, DO);
 	}else{
-	  logratio = TNT_LR_DN(nedges, 1-comp, comp*ndyads, odds*ndyads);
+	  logratio = TNT_LR_DN(nedges, Q, DP, DO);
 	}
       }
     });
@@ -609,25 +612,28 @@ MH_P_FN(MH_RLETNT)
   static RLEBDM1D r;
 
   static Vertex nnodes;
-  static double comp=0.5, odds;
-
+  static double P=0.5;
+  static double Q, DP, DO;
   Network *discord;
 
   if(MHp->ntoggles == 0) { /* Initialize */
     nnodes = nwp->nnodes;
-    odds = comp/(1.0-comp);
-
     double *inputs = MHp->inputs;
     r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
-    if(r.ndyads==0) MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
-    else MHp->ntoggles=1;
+    if(r.ndyads==0){
+      MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
+      return;
+    }
+    MHp->ntoggles=1;
+
+    Q = 1-P;
+    DP = P*r.ndyads;
+    DO = DP/Q;
 
     MHp->discord = (Network**) Calloc(2, Network*); // A space for the sentinel NULL pointer.
     MHp->discord[0] = discord = NetworkInitialize(NULL, NULL, 0, nnodes, nwp->directed_flag, nwp->bipartite, 0, 0, NULL);
-;
-    
-    // Network containing edges that are present in the network AND are on the toggleable list.
 
+    // Network containing edges that are present in the network AND are on the toggleable list.
     for(Vertex tail=1; tail<=nwp->nnodes; tail++){
       Vertex head;
       Edge e;
@@ -650,16 +656,16 @@ MH_P_FN(MH_RLETNT)
   Edge nedges= EDGECOUNT(nwp1);
   double logratio=0;
   BD_LOOP({
-      if (unif_rand() < comp && nedges > 0) { /* Select a tie at random from the network of eligibles */
+      if (unif_rand() < P && nedges > 0) { /* Select a tie at random from the network of eligibles */
 	GetRandEdge(Mtail, Mhead, nwp1);
-	logratio = TNT_LR_E(nedges, 1-comp, comp*r.ndyads, odds*r.ndyads);
+	logratio = TNT_LR_E(nedges, Q, DP, DO);
       }else{ /* Select a dyad at random from the list */
 	GetRandRLEBDM1D_RS(Mtail, Mhead, &r);
 	
 	if(EdgetreeSearch(Mtail[0],Mhead[0],nwp1->outedges)!=0){
-	  logratio = TNT_LR_DE(nedges, 1-comp, comp*r.ndyads, odds*r.ndyads);
+	  logratio = TNT_LR_DE(nedges, Q, DP, DO);
 	}else{
-	  logratio = TNT_LR_DN(nedges, 1-comp, comp*r.ndyads, odds*r.ndyads);
+	  logratio = TNT_LR_DN(nedges, Q, DP, DO);
 	}
       }
     });

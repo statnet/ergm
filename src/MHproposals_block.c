@@ -93,19 +93,20 @@ MH_P_FN(MH_blockdiagTNT)
   Vertex tail, head, blks=MHp->inputs[1];
   double *blkpos = MHp->inputs+2, *blkcwt = MHp->inputs+2+blks+1, logratio=0; 
   Edge nedges=EDGECOUNT(nwp);
-  static double comp=0.5;
-  static double odds;
-  static Dyad ndyads;
+  static double P=0.5;
+  static double Q, DP, DO;
   
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
-    odds = comp/(1.0-comp);
-    ndyads = MHp->inputs[0];
+    Dyad ndyads = MHp->inputs[0];
+    Q = 1-P;
+    DP = P*ndyads;
+    DO = DP/Q;
     return;
   }
   
   BD_LOOP({
-      if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
+      if (unif_rand() < P && nedges > 0) { /* Select a tie at random */
 	// Note that, by construction, this tie will be within a block.
 	GetRandEdge(Mtail, Mhead, nwp);
 	/* Thanks to Robert Goudie for pointing out an error in the previous 
@@ -113,7 +114,7 @@ MH_P_FN(MH_blockdiagTNT)
 	   or vice versa.  Note that this happens extremely rarely unless the 
 	   network is small or the parameter values lead to extremely sparse 
 	   networks.  */
-	logratio = TNT_LR_E(nedges, 1-comp, comp*ndyads, odds*ndyads);
+	logratio = TNT_LR_E(nedges, Q, DP, DO);
       }else{ /* Select a dyad at random within a block */
 	double r = unif_rand();
 	// TODO: Use bisection to perform this search in O(log b) instead of O(b) time. 
@@ -130,9 +131,9 @@ MH_P_FN(MH_blockdiagTNT)
 	  Mhead[0] = head;
 	}
 	if(EdgetreeSearch(Mtail[0],Mhead[0],nwp->outedges)!=0){
-	  logratio = TNT_LR_DE(nedges, 1-comp, comp*ndyads, odds*ndyads);
+	  logratio = TNT_LR_DE(nedges, Q, DP, DO);
 	}else{
-	  logratio = TNT_LR_DN(nedges, 1-comp, comp*ndyads, odds*ndyads);
+	  logratio = TNT_LR_DN(nedges, Q, DP, DO);
 	}
       }
     });
@@ -152,9 +153,8 @@ MH_P_FN(MH_blockdiagTNTB)
   static Vertex blks;
   double logratio=0; 
   Edge nedges=EDGECOUNT(nwp);
-  static double comp=0.5;
-  static double odds;
-  static Dyad ndyads;
+  static double P=0.5;
+  static double Q, DP, DO;
 
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
@@ -163,13 +163,15 @@ MH_P_FN(MH_blockdiagTNTB)
     ablkpos = MHp->inputs+2+blks+1;
     blkcwt = MHp->inputs+2+blks+1+blks+1;
     
-    odds = comp/(1.0-comp);
-    ndyads = MHp->inputs[0];
+    Dyad ndyads = MHp->inputs[0];
+    Q = 1-P;
+    DP = P*ndyads;
+    DO = DP/Q;
     return;
   }
   
   BD_LOOP({
-      if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
+      if (unif_rand() < P && nedges > 0) { /* Select a tie at random */
 	// Note that, by construction, this tie will be within a block.
 	GetRandEdge(Mtail, Mhead, nwp);
 	/* Thanks to Robert Goudie for pointing out an error in the previous 
@@ -177,7 +179,7 @@ MH_P_FN(MH_blockdiagTNTB)
 	   or vice versa.  Note that this happens extremely rarely unless the 
 	   network is small or the parameter values lead to extremely sparse 
 	   networks.  */
-	logratio = TNT_LR_E(nedges, 1-comp, comp*ndyads, odds*ndyads);
+	logratio = TNT_LR_E(nedges, Q, DP, DO);
       }else{ /* Select a dyad at random within a block */
 	double r = unif_rand();
 	// TODO: Use bisection to perform this search in O(log b) instead of O(b) time. 
@@ -187,9 +189,9 @@ MH_P_FN(MH_blockdiagTNTB)
 	Mhead[0] = ablkpos[blk-1]+1 + unif_rand() * (ablkpos[blk]-ablkpos[blk-1]);
 
 	if(EdgetreeSearch(Mtail[0],Mhead[0],nwp->outedges)!=0){
-	  logratio = TNT_LR_DE(nedges, 1-comp, comp*ndyads, odds*ndyads);
+	  logratio = TNT_LR_DE(nedges, Q, DP, DO);
 	}else{
-	  logratio = TNT_LR_DN(nedges, 1-comp, comp*ndyads, odds*ndyads);
+	  logratio = TNT_LR_DN(nedges, Q, DP, DO);
 	}
       }
     });
