@@ -12,6 +12,7 @@
 #include "ergm_changestat.h"
 #include "ergm_rlebdm.h"
 #include "ergm_MHstorage.h"
+#include "ergm_unsorted_edgelist.h"
 
 /*********************
  void MH_randomtoggle
@@ -822,17 +823,18 @@ MH_I_FN(Mi_listTNT){
     return;
   }else MHp->ntoggles=1;
   double *list = MH_INPUTS+1;
-  Network *intersect = STORAGE = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
+  UnsrtEL *intersect = STORAGE = UnsrtELInitialize(0, NULL, NULL, FALSE);
   for(Edge i=0; i<ndyads; i++){
     Vertex tail=list[i], head=list[ndyads+i];
     if(IS_OUTEDGE(tail, head)!=0)
-      ToggleEdge(tail, head, intersect);
+      UnsrtELInsert(tail, head, intersect);
   }
 }
 
 MH_U_FN(Mu_listTNT){
-  Network *intersect = STORAGE;
-  ToggleEdge(tail, head, intersect);
+  UnsrtEL *intersect = STORAGE;
+  if(edgeflag) UnsrtELDelete(tail, head, intersect); // Deleting
+  else UnsrtELInsert(tail, head, intersect); // Inserting
 }
 
 MH_P_FN(Mp_listTNT){
@@ -840,14 +842,14 @@ MH_P_FN(Mp_listTNT){
   Dyad ndyads = MH_INPUTS[0]; // Note that ndyads here is the number of dyads in the list.
   double *list = MH_INPUTS+1;
 
-  Network *intersect = STORAGE;
+  UnsrtEL *intersect = STORAGE;
 
-  Edge nedges=EDGECOUNT(intersect);
+  Edge nedges=intersect->nedges;
   
   double logratio=0;
   BD_LOOP({
       if (unif_rand() < comp && nedges > 0) { /* Select a tie at random from the network of eligibles */
-	GetRandEdge(Mtail, Mhead, intersect);
+	UnsrtELGetRand(Mtail, Mhead, intersect);
 	/* Thanks to Robert Goudie for pointing out an error in the previous 
 	   version of this sampler when proposing to go from nedges==0 to nedges==1 
 	   or vice versa.  Note that this happens extremely rarely unless the 
@@ -860,7 +862,8 @@ MH_P_FN(Mp_listTNT){
 	Mtail[0]=list[rane];
 	Mhead[0]=list[ndyads+rane];
 	
-	if(IS_OUTEDGE(Mtail[0],Mhead[0],intersect)){
+	if(IS_OUTEDGE(Mtail[0],Mhead[0])){
+          UnsrtELGetRand(Mtail, Mhead, intersect); // Re-select from the intersect list so that we would know its index.
 	  logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
 				nedges / (odds*ndyads + nedges)));
 	}else{
@@ -873,8 +876,8 @@ MH_P_FN(Mp_listTNT){
 }
 
 MH_F_FN(Mf_listTNT){
-  Network *intersect = STORAGE;
-  NetworkDestroy(intersect);
+  UnsrtEL *intersect = STORAGE;
+  UnsrtELDestroy(intersect);
   STORAGE = NULL;
 }
 
@@ -892,41 +895,41 @@ MH_F_FN(Mf_listTNT){
 ***********************/
 typedef struct {
   RLEBDM1D r;
-  Network *intersect;
-} StoreRLEBDM1DAndNet;
+  UnsrtEL *intersect;
+} StoreRLEBDM1DAndUnsrtEL;
 
 MH_I_FN(Mi_RLETNT){
-  ALLOC_STORAGE(1, StoreRLEBDM1DAndNet, storage);
+  ALLOC_STORAGE(1, StoreRLEBDM1DAndUnsrtEL, storage);
   double *inputs = MHp->inputs;
   storage->r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
   if(storage->r.ndyads==0){
     MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
     return;
   }else MHp->ntoggles=1;
-  storage->intersect = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
-  EXEC_THROUGH_NET_EDGES_PRE(t, h, e, {
+  storage->intersect = UnsrtELInitialize(0, NULL, NULL, FALSE);
+  EXEC_THROUGH_NET_EDGES(t, h, e, {
       if(GetRLEBDM1D(t, h, &storage->r)){
-	ToggleEdge(t, h, storage->intersect);
+        UnsrtELInsert(t, h, storage->intersect);
       }
     });
   
-  if(EDGECOUNT(storage->intersect)==EDGECOUNT(nwp)){ // There are no ties in the initial network that are fixed.
-    NetworkDestroy(storage->intersect);
+  if(storage->intersect->nedges==EDGECOUNT(nwp)){ // There are no ties in the initial network that are fixed.
+    UnsrtELDestroy(storage->intersect);
     storage->intersect = NULL; // "Signal" that there is no discordance network.
   }
 }
 
 MH_P_FN(Mp_RLETNT){
-  GET_STORAGE(StoreRLEBDM1DAndNet, storage);
+  GET_STORAGE(StoreRLEBDM1DAndUnsrtEL, storage);
 
   const double comp=0.5, odds=comp/(1.0-comp);
 
-  Network *nwp1 = storage->intersect ? storage->intersect : nwp;
-  Edge nedges= EDGECOUNT(nwp1);
+  Edge nedges = storage->intersect ? storage->intersect->nedges : EDGECOUNT(nwp);
   double logratio=0;
   BD_LOOP({
       if (unif_rand() < comp && nedges > 0) { /* Select a tie at random from the network of eligibles */
-	GetRandEdge(Mtail, Mhead, nwp1);
+	if(storage->intersect) UnsrtELGetRand(Mtail, Mhead, storage->intersect);
+        else GetRandEdge(Mtail, Mhead, nwp);
 	/* Thanks to Robert Goudie for pointing out an error in the previous 
 	   version of this sampler when proposing to go from nedges==0 to nedges==1 
 	   or vice versa.  Note that this happens extremely rarely unless the 
@@ -937,7 +940,8 @@ MH_P_FN(Mp_RLETNT){
       }else{ /* Select a dyad at random from the list */
 	GetRandRLEBDM1D_RS(Mtail, Mhead, &storage->r);
 	
-	if(IS_OUTEDGE(Mtail[0],Mhead[0],nwp1)){
+	if(IS_OUTEDGE(Mtail[0],Mhead[0])){
+          if(storage->intersect) UnsrtELGetRand(Mtail, Mhead, storage->intersect); // Re-select from the intersect list so that we would know its index.
 	  logratio = log((nedges==1 ? 1.0/(comp*storage->r.ndyads + (1.0-comp)) :
 				nedges / (odds*storage->r.ndyads + nedges)));
 	}else{
@@ -950,13 +954,16 @@ MH_P_FN(Mp_RLETNT){
 }
 
 MH_U_FN(Mu_RLETNT){
-  GET_STORAGE(StoreRLEBDM1DAndNet, storage);
-  if(storage->intersect) ToggleEdge(tail, head, storage->intersect);
+  GET_STORAGE(StoreRLEBDM1DAndUnsrtEL, storage);
+  if(storage->intersect){
+    if(edgeflag) UnsrtELDelete(tail, head, storage->intersect); // Deleting
+    else UnsrtELInsert(tail, head, storage->intersect); // Inserting
+  }
 }
 
 MH_F_FN(Mf_RLETNT){
-  GET_STORAGE(StoreRLEBDM1DAndNet, storage);
-  if(storage->intersect) NetworkDestroy(storage->intersect);
+  GET_STORAGE(StoreRLEBDM1DAndUnsrtEL, storage);
+  if(storage->intersect) UnsrtELDestroy(storage->intersect);
 }
 
 /* The ones below have not been tested */
