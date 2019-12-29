@@ -111,6 +111,8 @@ I_CHANGESTAT_FN(i__summary_term){
   SummStats(&s, EDGECOUNT(nwp), tails, heads, stats);
   // Note that nw is now identitical to nwp.
   NetworkDestroy(tmpnwp);
+  Free(tails);
+  Free(heads);
 
   DELETE_IF_UNUSED_IN_SUBMODEL(z_func, m);
 }
