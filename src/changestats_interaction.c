@@ -1,5 +1,6 @@
 #include "ergm_model.h"
 #include "ergm_storage.h"
+#include "ergm_changestat_operator.h"
 
 typedef struct{Model *m; unsigned int n_stats_1, n_stats_2;} StoreModelAnd2Stats;
 
@@ -10,6 +11,7 @@ I_CHANGESTAT_FN(i_interact){
   store->n_stats_1 = *(inputs++);
   store->n_stats_2 = *(inputs++);
   store->m = ModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state,  nwp, FALSE);
+  DELETE_IF_UNUSED_IN_SUBMODEL(u_func, store->m);
 }
 
 C_CHANGESTAT_FN(c_interact){
@@ -50,6 +52,7 @@ I_CHANGESTAT_FN(i_main_interact){
   store->n_stats_1 = *(inputs++);
   store->n_stats_2 = *(inputs++);
   store->m = ModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state,  nwp, FALSE);
+  DELETE_IF_UNUSED_IN_SUBMODEL(u_func, store->m);
 }
 
 C_CHANGESTAT_FN(c_main_interact){
