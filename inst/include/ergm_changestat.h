@@ -32,6 +32,7 @@ typedef struct ModelTermstruct {
   int niinputparams; /* Number of integer input parameters passed to function */
   int *iinputparams; /* ptr to integer input parameters passed */
   double *statcache; /* vector of the same length as dstats */
+  double *emptynwstats; /* vector of the same length as dstats or NULL*/
   void *storage; /* optional space for persistent storage */
   void **aux_storage; /* optional space for persistent public (auxiliary) storage */
   unsigned int n_aux;

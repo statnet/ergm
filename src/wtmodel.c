@@ -160,6 +160,10 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_stateR, WtNetwork *nwp, Rboolean n
       thisterm->n_aux = length(tmp);
       thisterm->aux_slots = (unsigned int *) INTEGER(tmp);
 
+      /* Empty network statistics. */
+      tmp = getListElement(thisterm->R, "emptynwstats");
+      thisterm->emptynwstats = isNULL(tmp) ? NULL : REAL(tmp);
+
       /*  Update the running total of statistics */
       m->n_stats += thisterm->nstats; 
       m->dstatarray[l] = (double *) Calloc(thisterm->nstats, double);

@@ -42,11 +42,9 @@ void WtEmptyNetworkStats(WtErgmState *s, Rboolean skip_s, double *stats){
 
   WtEXEC_THROUGH_TERMS_INTO(m, stats, {
       if(!skip_s || mtp->s_func==NULL){
-        SEXP s0 = getListElement(mtp->R, "emptynwstats");
-        if(s0!=R_NilValue)
-          memcpy(dstats, REAL(s0), mtp->nstats*sizeof(double));
+        if(mtp->emptynwstats)
+          memcpy(dstats, mtp->emptynwstats, mtp->nstats*sizeof(double));
       }});
-  UNPROTECT(1);
 }
 
 /****************
