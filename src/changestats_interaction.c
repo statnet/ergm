@@ -10,7 +10,7 @@ I_CHANGESTAT_FN(i_interact){
 
   store->n_stats_1 = *(inputs++);
   store->n_stats_2 = *(inputs++);
-  store->m = ModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state,  nwp, FALSE);
+  store->m = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
   DELETE_IF_UNUSED_IN_SUBMODEL(u_func, store->m);
   DELETE_IF_UNUSED_IN_SUBMODEL(z_func, store->m);
 }
@@ -67,7 +67,7 @@ I_CHANGESTAT_FN(i_main_interact){
 
   store->n_stats_1 = *(inputs++);
   store->n_stats_2 = *(inputs++);
-  store->m = ModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state,  nwp, FALSE);
+  store->m = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
   DELETE_IF_UNUSED_IN_SUBMODEL(u_func, store->m);
   DELETE_IF_UNUSED_IN_SUBMODEL(z_func, store->m);
 }

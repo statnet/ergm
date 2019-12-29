@@ -5,9 +5,8 @@
 #' Given a `ergm` model and (optionally) a function with which to wrap
 #' parameter names, wrap the calls to its `ergm.eta()` and
 #' `ergm.etagrad()` into `map()` and `gradient()` functions, similarly
-#' with the `params` element; wrap `ext.encode()` (if applicable);
-#' wrap empty network statistics; and wrap indicator of dyadic
-#' independence.
+#' with the `params` element; wrap empty network statistics; and wrap
+#' indicator of dyadic independence.
 #'
 #' @param m An `ergm_model` object.
 #' @param nw A `network` object.
@@ -18,14 +17,13 @@
 #'   `NULL` for auxiliary terms to avoid generating elements not
 #'   relevant to auxiliaries.
 #'
-#' @return a list with elements `map`, `gradient`, `params`, and
-#'   `ext.encode`, `emptynwstats`, and `dependence`, suitable for
-#'   concatenating with an `InitErgmTerm` or `InitWtErgmTerm` output
-#'   list (possibly after modification).
+#' @return a list with elements `map`, `gradient`, `params`,
+#'   `emptynwstats`, and `dependence`, suitable for concatenating with
+#'   an `InitErgmTerm` or `InitWtErgmTerm` output list (possibly after
+#'   modification).
 #' @keywords internal
 #' @export wrap.ergm_model
 wrap.ergm_model <- function(m, nw, response=NULL, namewrap = identity){
-  nw[,] <- FALSE
   if(!is.null(namewrap)){
     coef.names <- namewrap(param_names(m, canonical=TRUE))
 
@@ -48,16 +46,7 @@ wrap.ergm_model <- function(m, nw, response=NULL, namewrap = identity){
     coef.names <- emptynwstats <- map <- gradient <- params <- NULL
   }
 
-  # Extended state (read-only)
-  if(any(sapply(m$terms, function(trm) "ext.encode" %in% names(trm)))){
-    ext.encode <- function(el, nw0){
-      lapply(m$terms, function(trm, el, nw0){
-        if(!is.null(trm$ext.encode)) trm$ext.encode(el=el, nw0=nw0)
-      })
-    }
-  }else ext.encode <- NULL
-  
-  list(map = map, gradient = gradient, params = params, minpar=m$etamap$mintheta, maxpar=m$etamap$maxtheta, coef.names=coef.names, ext.encode=ext.encode, emptynwstats=emptynwstats, dependence=!is.dyad.independent(m))
+  list(map = map, gradient = gradient, params = params, minpar=m$etamap$mintheta, maxpar=m$etamap$maxtheta, coef.names=coef.names, emptynwstats=emptynwstats, dependence=!is.dyad.independent(m))
 }
 
 #' Combine an operator term's and a subterm's name in a standard fashion.
@@ -524,15 +513,9 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
         c()
     }
 
-  ext.encodes <- map(wms, "ext.encode")
-  ext.encode <-
-    if(any(!map_lgl(ext.encodes, is.null))){
-      function(el, nw0) lapply(ext.encodes, function(ext.encode) ext.encode(el=el, nw0=nw0))
-    }
-
   dependence <- any(map_lgl(wms, "dependence"))
   
-  list(name="Sum", coef.names = coef.names, inputs=inputs, submodels=ms, emptynwstats=gs, ext.encode=ext.encode, dependence=dependence)
+  list(name="Sum", coef.names = coef.names, inputs=inputs, submodels=ms, emptynwstats=gs, dependence=dependence)
 }
 
 InitErgmTerm.S <- function(nw, arglist, response=NULL, ...){

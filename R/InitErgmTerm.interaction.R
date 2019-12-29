@@ -1,4 +1,3 @@
-
 ## This will always be passed with two arguments in arglist, which
 ## will cause an error if we actually try to evaluate them. So,
 ## there's no check.ErgmTerm() but rather an immediate substitute() to
@@ -31,7 +30,7 @@
 
   mw <- wrap.ergm_model(m, nw, response, NULL)
 
-  list(name="interact", coef.names = cn, inputs=inputs, submodel=m, dependence=!mw$dependence, ext.encode=mw$ext.encode)
+  list(name="interact", coef.names = cn, inputs=inputs, submodel=m, dependence=!mw$dependence)
 }
 
 ## This will always be passed with two arguments in arglist, which
@@ -66,5 +65,5 @@
   
   mw <- wrap.ergm_model(m, nw, response, NULL)
 
-  list(name="main_interact", coef.names = cn, inputs=inputs, submodel=m, dependence=!mw$dependence, ext.encode=mw$ext.encode)
+  list(name="main_interact", coef.names = cn, inputs=inputs, submodel=m, dependence=!mw$dependence)
 }

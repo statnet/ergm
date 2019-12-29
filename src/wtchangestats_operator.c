@@ -4,7 +4,7 @@
 
 WtI_CHANGESTAT_FN(i_wtpassthrough_term){
   // No need to allocate it: we are only storing a pointer to a model.
-  WtModel *m = STORAGE = WtModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state,  nwp, FALSE);
+  WtModel *m = STORAGE = WtModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
 
   WtSELECT_C_OR_D_BASED_ON_SUBMODEL(m);
   WtDELETE_IF_UNUSED_IN_SUBMODEL(u_func, m);
@@ -63,7 +63,7 @@ WtI_CHANGESTAT_FN(i_import_binary_term_sum){
 
   store->nwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
   Network *mynwp = store->nwp;
-  store->m = ModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state,  mynwp, FALSE);
+  store->m = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  mynwp, FALSE);
   DELETE_IF_UNUSED_IN_SUBMODEL(u_func, store->m);
   DELETE_IF_UNUSED_IN_SUBMODEL(z_func, store->m);
 }
@@ -110,7 +110,7 @@ WtI_CHANGESTAT_FN(i_import_binary_term_nonzero){
   GET_AUX_STORAGE(Network, bnwp);
   GET_STORAGE(Model, m); // Only need the pointer, no allocation needed.
 
-  STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state,  bnwp, FALSE);
+  STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  bnwp, FALSE);
   DELETE_IF_UNUSED_IN_SUBMODEL(u_func, m);
   DELETE_IF_UNUSED_IN_SUBMODEL(z_func, m);
 }
@@ -168,7 +168,7 @@ WtI_CHANGESTAT_FN(i_import_binary_term_form){
 
   GET_STORAGE(Model, m); // Only need the pointer, no allocation needed.
 
-  STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state, bnwp, FALSE);
+  STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"), NULL, bnwp, FALSE);
   DELETE_IF_UNUSED_IN_SUBMODEL(u_func, m);
   DELETE_IF_UNUSED_IN_SUBMODEL(z_func, m);
 }
@@ -257,7 +257,7 @@ WtF_CHANGESTAT_FN(f__binary_nonzero_net){
 
 WtI_CHANGESTAT_FN(i__binary_formula_net){
   ALLOC_AUX_STORAGE(1, StoreNetAndWtModel, storage);
-  WtModel *m = storage->m = WtModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state, nwp, FALSE);
+  WtModel *m = storage->m = WtModelInitialize(getListElement(mtp->R, "submodel"), NULL, nwp, FALSE);
   Network *bnwp = storage->nwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
  
   WtEXEC_THROUGH_NET_EDGES_PRE(t, h, e, w, {
@@ -320,7 +320,7 @@ WtI_CHANGESTAT_FN(i_wtSum){
 
   SEXP submodels = getListElement(mtp->R, "submodels");
   for(unsigned int i=0; i<nms; i++){
-    ms[i] = WtModelInitialize(VECTOR_ELT(submodels,i), isNULL(mtp->ext_state) ? NULL : VECTOR_ELT(mtp->ext_state,i), nwp, FALSE);
+    ms[i] = WtModelInitialize(VECTOR_ELT(submodels,i), NULL, nwp, FALSE);
   }
   WtDELETE_IF_UNUSED_IN_SUBMODELS(u_func, ms, nms);
   WtDELETE_IF_UNUSED_IN_SUBMODELS(z_func, ms, nms);
