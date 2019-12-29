@@ -757,10 +757,9 @@ MH_P_FN(MH_randomnode){
 ***********************/
 MH_P_FN(MH_randomtoggleList)
 {  
-  static Edge nedges0;
+  Dyad nedges0 = MH_IINPUTS[0];
 
   if(MHp->ntoggles == 0) { /* Initialize */
-    nedges0 = MH_INPUTS[0];
     if(nedges0==0) MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
     else MHp->ntoggles=1;
     return;
@@ -771,8 +770,8 @@ MH_P_FN(MH_randomtoggleList)
 	 have a convenient sampling frame.) */
       /* Generate. */
       Edge rane = 1 + unif_rand() * nedges0;
-      Mtail[0]=MH_INPUTS[rane];
-      Mhead[0]=MH_INPUTS[nedges0+rane];
+      Mtail[0]=MH_IINPUTS[rane];
+      Mhead[0]=MH_IINPUTS[nedges0+rane];
     });
 }
 
@@ -812,12 +811,12 @@ MH_P_FN(Mp_RLE){
    network for the ties is the ties in the intersect network.
 ***********************/
 MH_I_FN(Mi_listTNT){
-  Dyad ndyads = MH_INPUTS[0]; // Note that ndyads here is the number of dyads in the list.
+  Dyad ndyads = MH_IINPUTS[0]; // Note that ndyads here is the number of dyads in the list.
   if(ndyads==0){
     MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
     return;
   }else MHp->ntoggles=1;
-  double *list = MH_INPUTS+1;
+  Vertex *list = (Vertex *) MH_IINPUTS+1;
   UnsrtEL *intersect = STORAGE = UnsrtELInitialize(0, NULL, NULL, FALSE);
   for(Edge i=0; i<ndyads; i++){
     Vertex tail=list[i], head=list[ndyads+i];
@@ -834,9 +833,9 @@ MH_U_FN(Mu_listTNT){
 
 MH_P_FN(Mp_listTNT){
   const double P=0.5, Q=1-P;
-  Dyad ndyads = MH_INPUTS[0]; // Note that ndyads here is the number of dyads in the list.
+  Dyad ndyads = MH_IINPUTS[0]; // Note that ndyads here is the number of dyads in the list.
   double DP = P*ndyads, DO = DP/Q;
-  double *list = MH_INPUTS+1;
+  Vertex *list = (Vertex *) MH_IINPUTS+1;
 
   UnsrtEL *intersect = STORAGE;
 
