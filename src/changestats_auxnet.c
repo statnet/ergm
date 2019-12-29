@@ -198,7 +198,7 @@ I_CHANGESTAT_FN(i__filter_formula_net){
   STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state, nwp, FALSE);
 
   EXEC_THROUGH_NET_EDGES_PRE(t, h, e, {
-      ChangeStats(1, &t, &h, nwp, m);
+      ChangeStats1(t, h, nwp, m, TRUE); // We know the edge is present in nwp.
       // I.e., if toggling the dyad changes the statistic, add
       // edge to the filter network.
       if(*(m->workspace)!=0) 
@@ -210,7 +210,7 @@ U_CHANGESTAT_FN(u__filter_formula_net){
   GET_AUX_STORAGE(StoreAuxnet, auxnet);
   Model *m = STORAGE;
 
-  ChangeStats(1, &tail, &head, nwp, m);
+  ChangeStats1(tail, head, nwp, m, edgeflag);
   if(*(m->workspace)!=0){
     if(edgeflag) DeleteEdgeFromTrees(tail,head,auxnet->onwp);
     else AddEdgeToTrees(tail,head,auxnet->onwp);

@@ -149,7 +149,7 @@ void MpleInit_hash_wl_RLE(ErgmState *s, int *responsevec, double *covmat, int *w
       Dyad2TH(&t, &h, d, N_NODES);
       
       int response = IS_OUTEDGE(t,h);
-      ChangeStats(1, &t, &h, nwp, m);
+      ChangeStats1(t, h, nwp, m, response);
       if(response){
 	for(unsigned int l=0; l<m->n_stats; l++){
 	  m->workspace[l] = -m->workspace[l];

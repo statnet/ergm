@@ -63,7 +63,7 @@ WtC_CHANGESTAT_FN(c_import_binary_term_sum){
   Model *m = store->m;
   Network *mynwp = store->nwp;
     
-  ChangeStats(1, &tail, &head, mynwp, m);
+  ChangeStats1(tail, head, mynwp, m, FALSE); // mynwp is a dummy network that is always empty.
 
   for(unsigned int i=0; i<N_CHANGE_STATS; i++)
     CHANGE_STAT[i] = m->workspace[i]*(weight-edgeweight);
@@ -108,7 +108,7 @@ WtC_CHANGESTAT_FN(c_import_binary_term_nonzero){
   
 
   if((weight!=0)!=(edgeweight!=0)){ // If going from 0 to nonzero or vice versa...
-    ChangeStats(1, &tail, &head, bnwp, m);
+    ChangeStats1(tail, head, bnwp, m, edgeweight!=0);
   }
   
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
@@ -155,10 +155,10 @@ WtC_CHANGESTAT_FN(c_import_binary_term_form){
   Network *bnwp = storage->nwp;
   GET_STORAGE(Model, m);
 
-  WtChangeStats(1, &tail, &head, &weight, nwp, storage->m);
+  WtChangeStats1(tail, head, weight, nwp, storage->m, edgeweight);
   
   if(*(storage->m->workspace)!=0){ // If the binary view changes...
-    ChangeStats(1, &tail, &head, bnwp, m);
+    ChangeStats1(tail, head, bnwp, m, IS_OUTEDGE(tail, head, bnwp));
     memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
   } // Otherwise, leave the change stats at 0.
 }
@@ -168,7 +168,7 @@ WtU_CHANGESTAT_FN(u_import_binary_term_form){
   Network *bnwp = storage->nwp;
   GET_STORAGE(Model, m);
 
-  WtChangeStats(1, &tail, &head, &weight, nwp, storage->m);
+  WtChangeStats1(tail, head, weight, nwp, storage->m, edgeweight);
   
   if(*(storage->m->workspace)!=0){ // If the binary view changes...
     GET_EDGE_UPDATE_STORAGE(tail, head, bnwp, m, NULL);
@@ -227,11 +227,10 @@ WtI_CHANGESTAT_FN(i__binary_formula_net){
   ALLOC_AUX_STORAGE(1, StoreNetAndWtModel, storage);
   WtModel *m = storage->m = WtModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state, nwp, FALSE);
   Network *bnwp = storage->nwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, FALSE, 0, NULL);
-  double zero=0;
-
+ 
   WtEXEC_THROUGH_NET_EDGES_PRE(t, h, e, w, {
       if(w!=0){
-	WtChangeStats(1, &t, &h, &zero, nwp, m);
+	WtChangeStats1(t, h, 0, nwp, m, w);
 	// I.e., if reducing the value from the current value to 0
 	// decreases the statistic, add edge to the binary network.
 	if(*(m->workspace)==-1) 
@@ -246,7 +245,7 @@ WtU_CHANGESTAT_FN(u__binary_formula_net){
   WtModel *m = storage->m;
   Network *bnwp = storage->nwp;
 
-  WtChangeStats(1, &tail, &head, &weight, nwp, m);
+  WtChangeStats1(tail, head, weight, nwp, m, edgeweight);
   switch((int) *(m->workspace)){
   case  0: break;
   case -1: DeleteEdgeFromTrees(tail,head,bnwp); break;
@@ -301,7 +300,7 @@ WtC_CHANGESTAT_FN(c_wtSum){
 
   for(unsigned int i=0; i<nms; i++){
     WtModel *m = ms[i];
-    WtChangeStats(1, &tail, &head, &weight, nwp, m);
+    WtChangeStats1(tail, head, weight, nwp, m, edgeweight);
     for(unsigned int j=0; j<m->n_stats; j++)
       for(unsigned int k=0; k<N_CHANGE_STATS; k++)
 	CHANGE_STAT[k] += m->workspace[j]* *(wts++);

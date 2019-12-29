@@ -107,7 +107,7 @@ U_CHANGESTAT_FN(u__summary_term){
   GET_STORAGE(Model, m);
   GET_AUX_STORAGE(double, stats);
 
-  ChangeStats(1, &tail, &head, nwp, m);
+  ChangeStats1(tail, head, nwp, m, edgeflag);
   addonto(stats, m->workspace, m->n_stats);
 
   UPDATE_STORAGE(tail, head, nwp, m, NULL, edgeflag);
@@ -175,7 +175,7 @@ C_CHANGESTAT_FN(c_Sum){
 
   for(unsigned int i=0; i<nms; i++){
     Model *m = ms[i];
-    ChangeStats(1, &tail, &head, nwp, m);
+    ChangeStats1(tail, head, nwp, m, edgeflag);
     for(unsigned int j=0; j<m->n_stats; j++)
       for(unsigned int k=0; k<N_CHANGE_STATS; k++)
 	CHANGE_STAT[k] += m->workspace[j]* *(wts++);

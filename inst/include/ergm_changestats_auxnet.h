@@ -100,7 +100,7 @@ MAP_TOGGLE_FN(map_toggle__undir_net){
 MAP_TOGGLE_FN(map_toggle__filter_formula_net){
   ModelTerm *mtp = auxnet->mtp;
   GET_STORAGE(Model, m);
-  ChangeStats(1, &tail, &head, auxnet->inwp, m);
+  ChangeStats1(tail, head, auxnet->inwp, m, edgeflag);
   MAP_TOGGLE_PROPAGATE_IF(*(m->workspace)!=0);
 }
 

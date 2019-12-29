@@ -18,8 +18,8 @@ C_CHANGESTAT_FN(c_interact){
   GET_STORAGE(StoreModelAnd2Stats, store);
   Model *m = store->m;
 
-  int change = GETWT(tail, head) ? -1 : +1;
-  ChangeStats(1, &tail, &head, nwp, m);
+  int change = edgeflag ? -1 : +1;
+  ChangeStats1(tail, head, nwp, m, edgeflag);
 
   double *w2 = m->workspace + store->n_stats_1;
   unsigned int pos = 0;
@@ -60,8 +60,8 @@ C_CHANGESTAT_FN(c_main_interact){
   GET_STORAGE(StoreModelAnd2Stats, store);
   Model *m = store->m;
   
-  int change = GETWT(tail, head) ? -1 : +1;
-  ChangeStats(1, &tail, &head, nwp, m);
+  int change = edgeflag ? -1 : +1;
+  ChangeStats1(tail, head, nwp, m, edgeflag);
 
   double *w2 = m->workspace + store->n_stats_1;
   unsigned int pos = 0;
