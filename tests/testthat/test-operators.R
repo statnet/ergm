@@ -114,13 +114,13 @@ test_that("Binary Label() summary", {
 library(ergm.count)
 data(zach)
 test_that("Summary for the B() operator with nonzero criteria",{
-  summ <- summary(zach~B(~edges+triangles, "nonzero") + B(~edges+triangles, ~nonzero), response="contexts")
-  expect_equivalent(summ, rep(summary(zach~edges+triangles),2))
+  summ <- summary(zach~B(~edges+triangles+degree(0:5), "nonzero") + B(~edges+triangles+degree(0:5), ~nonzero), response="contexts")
+  expect_equivalent(summ, rep(summary(zach~edges+triangles+degree(0:5)),2))
 })
 
 test_that("Summary for the B() operator with interval criteria",{
-  summ <- summary(zach~B(~edges+triangles, ~ininterval(3,5,c(FALSE,FALSE))), response="contexts")
-  expect_equivalent(summ, summary(ergm.multi::network_view(zach, ~ contexts>=3 & contexts<=5)~edges+triangles))
+  summ <- summary(zach~B(~edges+triangles+degree(0:5), ~ininterval(3,5,c(FALSE,FALSE))), response="contexts")
+  expect_equivalent(summ, summary(ergm.multi::network_view(zach, ~ contexts>=3 & contexts<=5)~edges+triangles+degree(0:5)))
 })
 
 test_that("Valued Label() summary", {
