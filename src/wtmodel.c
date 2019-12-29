@@ -358,3 +358,20 @@ void WtChangeStats1(Vertex tail, Vertex head, double weight,
         }
       });
 }
+
+
+/*
+  WtZStats
+  Call baseline statistics calculation.
+*/
+void WtZStats(WtNetwork *nwp, WtModel *m){
+  memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */
+
+  /* Make a pass through terms with c_functions. */
+  ergm_PARALLEL_FOR_LIMIT(m->n_terms)
+    WtEXEC_THROUGH_TERMS_INTO(m, m->workspace, {
+        mtp->dstats = dstats; /* Stuck the change statistic here.*/
+        if(mtp->z_func)
+          (*(mtp->z_func))(mtp, nwp);  /* Call z_??? function */
+      });
+}

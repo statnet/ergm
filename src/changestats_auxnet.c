@@ -204,6 +204,7 @@ I_CHANGESTAT_FN(i__filter_formula_net){
       if(*(m->workspace)!=0) 
 	AddEdgeToTrees(t, h, auxnet->onwp);
     });
+  DELETE_IF_UNUSED_IN_SUBMODEL(z_func, m);
 }
 
 U_CHANGESTAT_FN(u__filter_formula_net){

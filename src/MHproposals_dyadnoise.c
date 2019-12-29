@@ -9,6 +9,7 @@
  */
 #include "MHproposals_dyadnoise.h" 
 #include "ergm_changestat.h"
+#include "ergm_edgelist.h"
 /* Shorthand. */
 #define Mtail (MHp->toggletail)
 #define Mhead (MHp->togglehead)

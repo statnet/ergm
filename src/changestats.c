@@ -10,6 +10,7 @@
 #include "changestats.h"
 #include "ergm_storage.h"
 #include "ergm_dyad_hashmap.h"
+#include "ergm_edgelist.h"
 
 /********************  changestats:  A    ***********/
 /*****************                       

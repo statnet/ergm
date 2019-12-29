@@ -357,3 +357,19 @@ void ChangeStats1(Vertex tail, Vertex head,
         }
       });
 }
+
+/*
+  ZStats
+  Call baseline statistics calculation.
+*/
+void ZStats(Network *nwp, Model *m){
+  memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */
+
+  /* Make a pass through terms with c_functions. */
+  ergm_PARALLEL_FOR_LIMIT(m->n_terms)
+    EXEC_THROUGH_TERMS_INTO(m, m->workspace, {
+        mtp->dstats = dstats; /* Stuck the change statistic here.*/
+        if(mtp->z_func)
+          (*(mtp->z_func))(mtp, nwp);  /* Call z_??? function */
+      });
+}

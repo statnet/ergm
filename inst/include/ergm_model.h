@@ -126,6 +126,7 @@ int GetIndexForAttrValue(int value);
 
 void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, Network *nwp, Model *m);
 void ChangeStats1(Vertex tail, Vertex head, Network *nwp, Model *m, Rboolean edgeflag);
+void ZStats(Network *nwp, Model *m);
 
 #endif
 

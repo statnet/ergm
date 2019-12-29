@@ -8,6 +8,7 @@ WtI_CHANGESTAT_FN(i_wtpassthrough_term){
 
   WtSELECT_C_OR_D_BASED_ON_SUBMODEL(m);
   WtDELETE_IF_UNUSED_IN_SUBMODEL(u_func, m);
+  WtDELETE_IF_UNUSED_IN_SUBMODEL(z_func, m);
 }
 
 WtD_CHANGESTAT_FN(d_wtpassthrough_term){
@@ -30,6 +31,14 @@ WtU_CHANGESTAT_FN(u_wtpassthrough_term){
   GET_STORAGE(WtModel, m);
 
   WtUPDATE_STORAGE(tail, head, weight, nwp, m, NULL, edgeweight);
+}
+
+WtZ_CHANGESTAT_FN(z_wtpassthrough_term){
+  GET_STORAGE(WtModel, m);
+
+  WtZStats(nwp, m);
+
+  memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
 
 WtF_CHANGESTAT_FN(f_wtpassthrough_term){
@@ -56,6 +65,7 @@ WtI_CHANGESTAT_FN(i_import_binary_term_sum){
   Network *mynwp = store->nwp;
   store->m = ModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state,  mynwp, FALSE);
   DELETE_IF_UNUSED_IN_SUBMODEL(u_func, store->m);
+  DELETE_IF_UNUSED_IN_SUBMODEL(z_func, store->m);
 }
 
 WtC_CHANGESTAT_FN(c_import_binary_term_sum){
@@ -76,6 +86,8 @@ WtU_CHANGESTAT_FN(u_import_binary_term_sum){
 
   GET_EDGE_UPDATE_STORAGE(tail, head, mynwp, m, NULL);
 }
+
+/* WtZ_CHANGESTAT_FN(z_import_binary_term_sum) is not meaningful. */
 
 WtF_CHANGESTAT_FN(f_import_binary_term_sum){
   GET_STORAGE(StoreNetAndModel, store);
@@ -100,6 +112,7 @@ WtI_CHANGESTAT_FN(i_import_binary_term_nonzero){
 
   STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state,  bnwp, FALSE);
   DELETE_IF_UNUSED_IN_SUBMODEL(u_func, m);
+  DELETE_IF_UNUSED_IN_SUBMODEL(z_func, m);
 }
 
 WtC_CHANGESTAT_FN(c_import_binary_term_nonzero){
@@ -121,6 +134,15 @@ WtU_CHANGESTAT_FN(u_import_binary_term_nonzero){
   if((weight!=0)!=(edgeweight!=0)){ // If going from 0 to nonzero or vice versa...
     GET_EDGE_UPDATE_STORAGE(tail, head, bnwp, m, NULL);
   }
+}
+
+WtZ_CHANGESTAT_FN(z_import_binary_term_nonzero){
+  GET_AUX_STORAGE(Network, bnwp);
+  GET_STORAGE(Model, m);
+
+  ZStats(bnwp, m);
+
+  memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
 
 WtF_CHANGESTAT_FN(f_import_binary_term_nonzero){
@@ -148,6 +170,7 @@ WtI_CHANGESTAT_FN(i_import_binary_term_form){
 
   STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"), mtp->ext_state, bnwp, FALSE);
   DELETE_IF_UNUSED_IN_SUBMODEL(u_func, m);
+  DELETE_IF_UNUSED_IN_SUBMODEL(z_func, m);
 }
 
 WtC_CHANGESTAT_FN(c_import_binary_term_form){
@@ -173,6 +196,15 @@ WtU_CHANGESTAT_FN(u_import_binary_term_form){
   if(*(storage->m->workspace)!=0){ // If the binary view changes...
     GET_EDGE_UPDATE_STORAGE(tail, head, bnwp, m, NULL);
   }
+}
+
+WtZ_CHANGESTAT_FN(z_import_binary_term_form){
+  GET_AUX_STORAGE(StoreNetAndWtModel, storage);
+  Network *bnwp = storage->nwp;
+  GET_STORAGE(Model, m);
+
+  ZStats(bnwp, m);
+  memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
 
 WtF_CHANGESTAT_FN(f_import_binary_term_form){
@@ -238,6 +270,8 @@ WtI_CHANGESTAT_FN(i__binary_formula_net){
 	else if(*(m->workspace)!=0) error("Binary test term may have a dyadwise contribution of either 0 or 1. Memory has not been deallocated, so restart R soon.");
       }
     });
+
+  WtDELETE_IF_UNUSED_IN_SUBMODEL(z_func, m);
 }
 
 WtU_CHANGESTAT_FN(u__binary_formula_net){
@@ -289,6 +323,7 @@ WtI_CHANGESTAT_FN(i_wtSum){
     ms[i] = WtModelInitialize(VECTOR_ELT(submodels,i), isNULL(mtp->ext_state) ? NULL : VECTOR_ELT(mtp->ext_state,i), nwp, FALSE);
   }
   WtDELETE_IF_UNUSED_IN_SUBMODELS(u_func, ms, nms);
+  WtDELETE_IF_UNUSED_IN_SUBMODELS(z_func, ms, nms);
 }
 
 WtC_CHANGESTAT_FN(c_wtSum){
@@ -315,6 +350,22 @@ WtU_CHANGESTAT_FN(u_wtSum){
   for(unsigned int i=0; i<nms; i++){
     WtModel *m = ms[i];
     WtUPDATE_STORAGE(tail, head, weight, nwp, m, NULL, edgeweight);
+  }
+}
+
+WtZ_CHANGESTAT_FN(z_wtSum){
+  double *inputs = INPUT_PARAM;
+  GET_STORAGE(WtModel*, ms);
+  unsigned int nms = *(inputs++);
+  inputs++; //  Skip total length of weight matrices.
+  double *wts = inputs;
+
+  for(unsigned int i=0; i<nms; i++){
+    WtModel *m = ms[i];
+    WtZStats(nwp, m);
+    for(unsigned int j=0; j<m->n_stats; j++)
+      for(unsigned int k=0; k<N_CHANGE_STATS; k++)
+	CHANGE_STAT[k] += m->workspace[j]* *(wts++);
   }
 }
 

@@ -263,6 +263,11 @@ static void (*fun)(Vertex,Vertex,Network *,Model *,Rboolean) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex,Vertex,Network *,Model *,Rboolean)) R_FindSymbol("ChangeStats1", "ergm", NULL);
 fun(tail,head,nwp,m,edgeflag);
 }
+void ZStats(Network *nwp, Model *m){
+static void (*fun)(Network *,Model *) = NULL;
+if(fun==NULL) fun = (void (*)(Network *,Model *)) R_FindSymbol("ZStats", "ergm", NULL);
+fun(nwp,m);
+}
 
 #define STUBFILE
 #include <stddef.h>
@@ -462,6 +467,11 @@ void WtChangeStats1(Vertex tail, Vertex head, double weight, WtNetwork *nwp, WtM
 static void (*fun)(Vertex,Vertex,double,WtNetwork *,WtModel *,double) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,WtNetwork *,WtModel *,double)) R_FindSymbol("WtChangeStats1", "ergm", NULL);
 fun(tail,head,weight,nwp,m,edgeweight);
+}
+void WtZStats(WtNetwork *nwp, WtModel *m){
+static void (*fun)(WtNetwork *,WtModel *) = NULL;
+if(fun==NULL) fun = (void (*)(WtNetwork *,WtModel *)) R_FindSymbol("WtZStats", "ergm", NULL);
+fun(nwp,m);
 }
 
 #define STUBFILE

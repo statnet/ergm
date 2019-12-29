@@ -11,7 +11,6 @@
 #define _ERGM_CHANGESTAT_H_
 
 #include "ergm_edgetree.h"
-#include "ergm_edgelist.h"
 
 typedef struct ModelTermstruct {
   void (*c_func)(Vertex, Vertex, struct ModelTermstruct*, Network*, Rboolean);
@@ -22,6 +21,7 @@ typedef struct ModelTermstruct {
   void (*s_func)(struct ModelTermstruct*, Network*);
   SEXP (*w_func)(struct ModelTermstruct*, Network*);  
   void (*x_func)(unsigned int type, void *data, struct ModelTermstruct*, Network*);
+  void (*z_func)(struct ModelTermstruct*, Network*);
   double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
   int *iattrib; /* Ptr to vector of integer covariates (if necessary; generally unused) */
   int nstats;   /* Number of change statistics to be returned */
@@ -160,6 +160,7 @@ typedef struct ModelTermstruct {
 #define S_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
 #define W_CHANGESTAT_FN(a) SEXP (a) (ModelTerm *mtp, Network *nwp)
 #define X_CHANGESTAT_FN(a) void (a) (unsigned int type, void *data, ModelTerm *mtp, Network *nwp)
+#define Z_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
 
 /* This macro wraps two calls to an s_??? function with toggles
    between them. */

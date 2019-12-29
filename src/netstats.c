@@ -57,6 +57,8 @@ void SummStats(ErgmState *s, Edge n_edges, Vertex *tails, Vertex *heads, double 
   memset(stats, 0, m->n_stats*sizeof(double));
 
   EmptyNetworkStats(s, TRUE, stats);
+  ZStats(nwp, m);
+  addonto(stats, m->workspace, m->n_stats);
 
   DetShuffleEdges(tails,heads,n_edges); /* Shuffle edgelist. */
   

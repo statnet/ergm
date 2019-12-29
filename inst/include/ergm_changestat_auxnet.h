@@ -15,6 +15,7 @@
 #include "ergm_storage.h"
 #include "ergm_model.h"
 #include "ergm_changestat_operator.h"
+#include "ergm_edgelist.h"
 
 /* Brief API description:
 
@@ -62,7 +63,8 @@ typedef struct StoreAuxnet_s{Network *inwp, *onwp;
   I_CHANGESTAT_FN(i_on ## name){                                        \
     GET_AUX_STORAGE(StoreAuxnet, auxnet);                               \
     Model *m = STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"),  mtp->ext_state, auxnet->onwp, FALSE); \
-    DELETE_IF_UNUSED_IN_SUBMODEL(u_func, m);                                \
+    DELETE_IF_UNUSED_IN_SUBMODEL(u_func, m);                            \
+    DELETE_IF_UNUSED_IN_SUBMODEL(z_func, m);                            \
     /* SELECT_C_OR_D_BASED_ON_SUBMODEL(m); */                           \
   }                                                                     \
                                                                         \
@@ -73,14 +75,18 @@ typedef struct StoreAuxnet_s{Network *inwp, *onwp;
     Vertex tails[map_toggle_maxtoggles_ ## name], heads[map_toggle_maxtoggles_ ## name]; \
     if(map_toggle_maxtoggles_ ## name == 1){ /* One of these should get optimized away by the compiler. */ \
       MAP_TOGGLE_THEN(name, tail, head, edgeflag, auxnet, tails, heads){ \
+        double *tmp = m->workspace;                                     \
+        m->workspace = CHANGE_STAT;                                     \
         ChangeStats1(*tails, *heads, auxnet->onwp, m, IS_OUTEDGE(*tails, *heads, auxnet->onwp)); \
-        memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double)); \
+        m->workspace = tmp;                                             \
       }                                                                 \
     }else{                                                              \
       unsigned int ntoggles = MAP_TOGGLE(name, tail, head, edgeflag, auxnet, tails, heads); \
       if(ntoggles){                                                     \
+        double *tmp = m->workspace;                                     \
+        m->workspace = CHANGE_STAT;                                     \
         ChangeStats(ntoggles, tails, heads, auxnet->onwp, m);           \
-        memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double)); \
+        m->workspace = tmp;                                             \
       }                                                                 \
     }                                                                   \
   }                                                                     \
@@ -100,6 +106,15 @@ typedef struct StoreAuxnet_s{Network *inwp, *onwp;
         UPDATE_STORAGE(tails[i], heads[i], auxnet->onwp, m, NULL, IS_OUTEDGE(tails[i], heads[i], auxnet->onwp)); \
       }                                                                 \
     }                                                                   \
+  }                                                                     \
+                                                                        \
+  Z_CHANGESTAT_FN(z_on ## name){                                        \
+    GET_STORAGE(Model, m);                                              \
+                                                                        \
+    double *tmp = m->workspace;                                         \
+    m->workspace = CHANGE_STAT;                                         \
+    ZStats(nwp, m);                                                     \
+    m->workspace = tmp;                                                 \
   }                                                                     \
                                                                         \
   F_CHANGESTAT_FN(f_on ## name){                                        \

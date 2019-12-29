@@ -12,6 +12,7 @@ I_CHANGESTAT_FN(i_passthrough_term){
 
   SELECT_C_OR_D_BASED_ON_SUBMODEL(m);
   DELETE_IF_UNUSED_IN_SUBMODEL(u_func, m);
+  DELETE_IF_UNUSED_IN_SUBMODEL(z_func, m);
 }
 
 D_CHANGESTAT_FN(d_passthrough_term){
@@ -36,6 +37,15 @@ U_CHANGESTAT_FN(u_passthrough_term){
 
   UPDATE_STORAGE(tail, head, nwp, m, NULL, edgeflag);
 }
+
+Z_CHANGESTAT_FN(z_passthrough_term){
+  GET_STORAGE(Model, m);
+
+  ZStats(nwp, m);
+
+  memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
+}
+
 
 F_CHANGESTAT_FN(f_passthrough_term){
   GET_STORAGE(Model, m);
@@ -101,6 +111,8 @@ I_CHANGESTAT_FN(i__summary_term){
   SummStats(&s, EDGECOUNT(nwp), tails, heads, stats);
   // Note that nw is now identitical to nwp.
   NetworkDestroy(tmpnwp);
+
+  DELETE_IF_UNUSED_IN_SUBMODEL(z_func, m);
 }
 
 U_CHANGESTAT_FN(u__summary_term){
@@ -164,6 +176,7 @@ I_CHANGESTAT_FN(i_Sum){
     ms[i] = ModelInitialize(VECTOR_ELT(submodels, i), isNULL(mtp->ext_state) ? NULL : VECTOR_ELT(mtp->ext_state,i), nwp, FALSE);
   }
   DELETE_IF_UNUSED_IN_SUBMODELS(u_func, ms, nms);
+  DELETE_IF_UNUSED_IN_SUBMODELS(z_func, ms, nms);
 }
 
 C_CHANGESTAT_FN(c_Sum){
@@ -190,6 +203,22 @@ U_CHANGESTAT_FN(u_Sum){
   for(unsigned int i=0; i<nms; i++){
     Model *m = ms[i];
     UPDATE_STORAGE(tail, head, nwp, m, NULL, edgeflag);
+  }
+}
+
+Z_CHANGESTAT_FN(z_Sum){
+  double *inputs = INPUT_PARAM;
+  GET_STORAGE(Model*, ms);
+  unsigned int nms = *(inputs++);
+  inputs++; //  Skip total length of weight matrices.
+  double *wts = inputs;
+
+  for(unsigned int i=0; i<nms; i++){
+    Model *m = ms[i];
+    ZStats(nwp, m);
+    for(unsigned int j=0; j<m->n_stats; j++)
+      for(unsigned int k=0; k<N_CHANGE_STATS; k++)
+	CHANGE_STAT[k] += m->workspace[j]* *(wts++);
   }
 }
 

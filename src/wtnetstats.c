@@ -58,6 +58,9 @@ void WtSummStats(WtErgmState *s, Edge n_edges, Vertex *tails, Vertex *heads, dou
   memset(stats, 0, m->n_stats*sizeof(double));
 
   WtEmptyNetworkStats(s, TRUE, stats);
+  WtZStats(nwp, m);
+  addonto(stats, m->workspace, m->n_stats);
+  
 
   WtDetShuffleEdges(tails,heads,weights,n_edges); /* Shuffle edgelist. */
   
