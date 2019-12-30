@@ -700,7 +700,7 @@ void WtSetEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp)
 }
 
 WtNetwork *Redgelist2WtNetwork(SEXP elR, Rboolean empty){
-  Vertex e = empty ? 0 : length(VECTOR_ELT(elR, 0));
+  Vertex e = length(VECTOR_ELT(elR, 0));
   Vertex *tails = empty ? NULL : (Vertex*) INTEGER(VECTOR_ELT(elR, 0));
   Vertex *heads = empty ? NULL : (Vertex*) INTEGER(VECTOR_ELT(elR, 1));
   double *weights = empty ? NULL : REAL(VECTOR_ELT(elR, 2));

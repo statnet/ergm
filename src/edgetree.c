@@ -691,7 +691,7 @@ void SetEdge (Vertex tail, Vertex head, unsigned int weight, Network *nwp)
 }
 
 Network *Redgelist2Network(SEXP elR, Rboolean empty){
-  Vertex e = empty ? 0 : length(VECTOR_ELT(elR, 0));
+  Vertex e = length(VECTOR_ELT(elR, 0));
   Vertex *tails = empty ? NULL : (Vertex*) INTEGER(VECTOR_ELT(elR, 0));
   Vertex *heads = empty ? NULL : (Vertex*) INTEGER(VECTOR_ELT(elR, 1));
   Vertex n = asInteger(getAttrib(elR, install("n")));
