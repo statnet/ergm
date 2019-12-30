@@ -76,7 +76,7 @@ void WtModelDestroy(WtNetwork *nwp, WtModel *m)
   
   Free(m->dstatarray);
   Free(m->termarray);
-  Free(m->workspace); 
+  Free(m->workspace_backup);
   Free(m);
 }
 
@@ -249,7 +249,7 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_stateR, WtNetwork *nwp, Rboolean n
       Free(fn);
   }
   
-  m->workspace = (double *) Calloc(m->n_stats, double);
+  m->workspace_backup = m->workspace = (double *) Calloc(m->n_stats, double);
 
   unsigned int pos = 0;
   WtFOR_EACH_TERM(m){

@@ -26,7 +26,8 @@ typedef struct WtModelstruct {
   int n_terms;
   int n_stats;
   unsigned int n_u; /* Number of terms with updaters. */
-  double *workspace; /* temporary workspace of size */
+  double *workspace; /* temporary workspace of size n_stats */
+  double *workspace_backup; /* since workspace is often replaced, we need to keep track of it for freeing */
   double **dstatarray; /* array of size n_terms; the ith element in this
 			  array is a pointer to an array of size
 			  termarray[i].nstats                    */

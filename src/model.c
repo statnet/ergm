@@ -76,7 +76,7 @@ void ModelDestroy(Network *nwp, Model *m)
   
   Free(m->dstatarray);
   Free(m->termarray);
-  Free(m->workspace); 
+  Free(m->workspace_backup);
   Free(m);
 }
 
@@ -248,7 +248,7 @@ Model* ModelInitialize(SEXP mR, SEXP ext_stateR, Network *nwp, Rboolean noinit_s
       Free(fn);
   }
   
-  m->workspace = (double *) Calloc(m->n_stats, double);
+  m->workspace_backup = m->workspace = (double *) Calloc(m->n_stats, double);
 
   unsigned int pos = 0;
   FOR_EACH_TERM(m){
