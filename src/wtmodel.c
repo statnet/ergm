@@ -392,9 +392,11 @@ void WtEmptyNetworkStats(WtModel *m, Rboolean skip_s){
 }
 
 /****************
- void WtSummStats Computes summary statistics for a network. nwp and m
- must be in a consistent state, and either nwp must be empty or
- n_edges must be 0.
+ void WtSummStats
+
+Compute summary statistics. It has two modes:
+* nwp is empty and m is initialized consistently with nwp -> use edgelist
+* nwp is not empty n_edges=0, and m does not have to be initialized consistently with nwp -> use nwp (making temporary copies of nwp and reinitializing m)
 *****************/
 void WtSummStats(Edge n_edges, Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, WtModel *m){
   Rboolean mynet;
@@ -412,7 +414,7 @@ void WtSummStats(Edge n_edges, Vertex *tails, Vertex *heads, double *weights, Wt
 
     /* Replace the model and network with an empty one. */
     nwp = WtNetworkInitialize(NULL, NULL, NULL, n_edges, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
-    m = WtModelInitialize(m->R, m->ext_state, nwp, FALSE);
+    m = WtModelInitialize(m->R, m->ext_state, nwp, TRUE);
     mynet = TRUE;
   }else{
     stats = Calloc(m->n_stats, double);
@@ -472,6 +474,9 @@ void WtSummStats(Edge n_edges, Vertex *tails, Vertex *heads, double *weights, Wt
   if(mynet){
     WtModelDestroy(nwp,m);
     WtNetworkDestroy(nwp);
+    Free(tails);
+    Free(heads);
+    Free(weights);
   }else{
     memcpy(m->workspace, stats, m->n_stats*sizeof(double));
   }

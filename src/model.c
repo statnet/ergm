@@ -390,9 +390,11 @@ void EmptyNetworkStats(Model *m, Rboolean skip_s){
 }
 
 /****************
- void SummStats Computes summary statistics for a network. nwp and m
- must be in a consistent state, and either nwp must be empty or
- n_edges must be 0.
+ void SummStats
+
+Compute summary statistics. It has two modes:
+* nwp is empty and m is initialized consistently with nwp -> use edgelist
+* nwp is not empty n_edges=0, and m does not have to be initialized consistently with nwp -> use nwp (making temporary copies of nwp and reinitializing m)
 *****************/
 void SummStats(Edge n_edges, Vertex *tails, Vertex *heads, Network *nwp, Model *m){
   Rboolean mynet;
@@ -409,7 +411,7 @@ void SummStats(Edge n_edges, Vertex *tails, Vertex *heads, Network *nwp, Model *
 
     /* Replace the model and network with an empty one. */
     nwp = NetworkInitialize(NULL, NULL, n_edges, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
-    m = ModelInitialize(m->R, m->ext_state, nwp, FALSE);
+    m = ModelInitialize(m->R, m->ext_state, nwp, TRUE);
     mynet = TRUE;
   }else{
     stats = Calloc(m->n_stats, double);
@@ -469,6 +471,8 @@ void SummStats(Edge n_edges, Vertex *tails, Vertex *heads, Network *nwp, Model *
   if(mynet){
     ModelDestroy(nwp,m);
     NetworkDestroy(nwp);
+    Free(tails);
+    Free(heads);
   }else{
     memcpy(m->workspace, stats, m->n_stats*sizeof(double));
   }
