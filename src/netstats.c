@@ -76,21 +76,20 @@ void SummStats(ErgmState *s, Edge n_edges, Vertex *tails, Vertex *heads, double 
   /* Calculate statistics for terms that have c_functions but not s_functions.  */
   for(Edge e=0; e<n_edges; e++){
     Vertex t=TAIL(e), h=HEAD(e);
-    Rboolean edgeflag = IS_OUTEDGE(t,h);
 
     ergm_PARALLEL_FOR_LIMIT(m->n_terms)        
     EXEC_THROUGH_TERMS_INTO(m, stats, {
 	if(mtp->s_func==NULL && mtp->c_func){
 	  ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(t, h,
-			   mtp, nwp, edgeflag);  /* Call c_??? function */
+			   mtp, nwp, FALSE);  /* Call c_??? function */
           addonto(dstats, mtp->dstats, N_CHANGE_STATS);
 	}
       });
     
     /* Update storage and network */    
-    UPDATE_STORAGE_COND(t, h, nwp, m, NULL, edgeflag, mtp->s_func==NULL && mtp->d_func==NULL);
-    TOGGLE_KNOWN(t, h, edgeflag);
+    UPDATE_STORAGE_COND(t, h, nwp, m, NULL, FALSE, mtp->s_func==NULL && mtp->d_func==NULL);
+    TOGGLE_KNOWN(t, h, FALSE);
   }
   
   /* Calculate statistics for terms have s_functions  */

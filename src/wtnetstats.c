@@ -77,20 +77,20 @@ void WtSummStats(WtErgmState *s, Edge n_edges, Vertex *tails, Vertex *heads, dou
 
   /* Calculate statistics for terms that have c_functions but not s_functions.  */
   FOR_EACH_TOGGLE{
-    GETTOGGLEINFO();
+    GETNEWTOGGLEINFO();
     
     ergm_PARALLEL_FOR_LIMIT(m->n_terms)
     WtEXEC_THROUGH_TERMS_INTO(m, stats, {
 	if(mtp->s_func==NULL && mtp->c_func){
 	  ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
-			   mtp, nwp, OLDWT);  /* Call c_??? function */
+			   mtp, nwp, 0);  /* Call c_??? function */
 	    addonto(dstats, mtp->dstats, N_CHANGE_STATS);
 	}
       });
     
     /* Update storage and network */    
-    WtUPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, nwp, m, NULL, OLDWT, mtp->s_func==NULL && mtp->d_func==NULL);
+    WtUPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, nwp, m, NULL, 0, mtp->s_func==NULL && mtp->d_func==NULL);
     SETWT(TAIL, HEAD, NEWWT);
   }
   
