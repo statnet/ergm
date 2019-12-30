@@ -21,6 +21,8 @@
  Initialize, construct binary tree version of network.  Note
  that the 0th TreeNode in the array is unused and should 
  have all its values set to zero
+
+Note: passing nedges > 0 and tails == heads == weights == NULL is OK: it creates an empty network with at least nedges of space preallocated.
 *******************/
 /* *** don't forget, tail -> head */
 
@@ -46,6 +48,8 @@ Network *NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
   EDGECOUNT(nwp) = 0; /* Edges will be added one by one */
   nwp->directed_flag=directed_flag;
   nwp->bipartite=bipartite;
+
+  if(tails==NULL && heads==NULL) return nwp;
 
   DetShuffleEdges(tails,heads,nedges); /* shuffle to avoid worst-case performance */
 
