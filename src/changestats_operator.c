@@ -39,7 +39,7 @@ U_CHANGESTAT_FN(u_passthrough_term){
 Z_CHANGESTAT_FN(z_passthrough_term){
   GET_STORAGE(Model, m);
 
-  ZStats(nwp, m, skip_s);
+  ZStats(nwp, m, FALSE);
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
 

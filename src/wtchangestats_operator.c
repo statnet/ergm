@@ -36,7 +36,7 @@ WtU_CHANGESTAT_FN(u_wtpassthrough_term){
 WtZ_CHANGESTAT_FN(z_wtpassthrough_term){
   GET_STORAGE(WtModel, m);
 
-  WtZStats(nwp, m, skip_s);
+  WtZStats(nwp, m, FALSE);
 
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
@@ -140,7 +140,7 @@ WtZ_CHANGESTAT_FN(z_import_binary_term_nonzero){
   GET_AUX_STORAGE(Network, bnwp);
   GET_STORAGE(Model, m);
 
-  ZStats(bnwp, m, skip_s);
+  ZStats(bnwp, m, FALSE);
 
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
@@ -203,7 +203,7 @@ WtZ_CHANGESTAT_FN(z_import_binary_term_form){
   Network *bnwp = storage->nwp;
   GET_STORAGE(Model, m);
 
-  ZStats(bnwp, m, skip_s);
+  ZStats(bnwp, m, FALSE);
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
 
