@@ -86,9 +86,9 @@ void ModelDestroy(Network *nwp, Model *m)
  Allocate and initialize the ModelTerm structures, each of which contains
  all necessary information about how to compute one term in the model.
 *****************/
-Model* ModelInitialize(SEXP mR, SEXP ext_stateR, Network *nwp, Rboolean noinit_s){
+Model* ModelInitialize(SEXP mR, SEXP ext_state, Network *nwp, Rboolean noinit_s){
   SEXP terms = getListElement(mR, "terms");
-  if(ext_stateR == R_NilValue) ext_stateR = NULL;
+  if(ext_state == R_NilValue) ext_state = NULL;
 
   Model *m = (Model *) Calloc(1, Model);
   unsigned int n_terms = m->n_terms = length(terms);
@@ -99,6 +99,7 @@ Model* ModelInitialize(SEXP mR, SEXP ext_stateR, Network *nwp, Rboolean noinit_s
   m->n_u = 0;
   m->noinit_s = noinit_s;
   m->R = mR;
+  m->ext_state = ext_state;
   for (unsigned int l=0; l < m->n_terms; l++) {
     ModelTerm *thisterm = m->termarray + l;
     thisterm->R = VECTOR_ELT(terms, l);
@@ -174,7 +175,7 @@ Model* ModelInitialize(SEXP mR, SEXP ext_stateR, Network *nwp, Rboolean noinit_s
 					       m->dstatarray[l] cannot be.  */
       thisterm->statcache = (double *) Calloc(thisterm->nstats, double);
 
-      if(ext_stateR) thisterm->ext_state = VECTOR_ELT(ext_stateR, l);
+      if(ext_state) thisterm->ext_state = VECTOR_ELT(ext_state, l);
 
       /* If the term's nstats==0, it is auxiliary: it does not affect
 	 acceptance probabilities or contribute any
@@ -238,7 +239,6 @@ Model* ModelInitialize(SEXP mR, SEXP ext_stateR, Network *nwp, Rboolean noinit_s
       fn[0]='w';
       thisterm->w_func =
 	(SEXP (*)(ModelTerm*, Network*)) R_FindSymbol(fn,sn,NULL);
-      if(thisterm->w_func && !ext_stateR) error("Term '%s::%s' uses the extended state API but no extended state has been provided to model initialization.  Memory has not been deallocated, so restart R sometime soon.\n", sn, fn+2);
 
       fn[0]='x';
       thisterm->x_func =
@@ -362,14 +362,114 @@ void ChangeStats1(Vertex tail, Vertex head,
   ZStats
   Call baseline statistics calculation.
 */
-void ZStats(Network *nwp, Model *m){
+void ZStats(Network *nwp, Model *m, Rboolean skip_s){
   memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */
 
   /* Make a pass through terms with c_functions. */
   ergm_PARALLEL_FOR_LIMIT(m->n_terms)
     EXEC_THROUGH_TERMS_INTO(m, m->workspace, {
         mtp->dstats = dstats; /* Stuck the change statistic here.*/
-        if(mtp->z_func)
-          (*(mtp->z_func))(mtp, nwp);  /* Call z_??? function */
+        if(!skip_s || mtp->s_func==NULL)
+          if(mtp->z_func)
+            (*(mtp->z_func))(mtp, nwp, skip_s);  /* Call z_??? function */
       });
+}
+
+/*
+  EmptyNetworkStats
+  Extract constant empty network stats.
+*/
+void EmptyNetworkStats(Model *m, Rboolean skip_s){
+  memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */
+
+  EXEC_THROUGH_TERMS_INTO(m, m->workspace, {
+      if(!skip_s || mtp->s_func==NULL){
+        if(mtp->emptynwstats)
+          memcpy(dstats, mtp->emptynwstats, mtp->nstats*sizeof(double));
+      }});
+}
+
+/****************
+ void SummStats Computes summary statistics for a network. nwp and m
+ must be in a consistent state, and either nwp must be empty or
+ n_edges must be 0.
+*****************/
+void SummStats(Edge n_edges, Vertex *tails, Vertex *heads, Network *nwp, Model *m){
+  Rboolean mynet;
+  double *stats;
+  if(EDGECOUNT(nwp)){
+    if(n_edges) error("WtSummStats must be passed either an empty network and a list of edges or a non-empty network and no edges.");
+    /* The following code is pretty inefficient, but it'll do for now. */
+    /* Grab network state and output workspace. */
+    n_edges = EDGECOUNT(nwp);
+    tails = Calloc(n_edges, Vertex);
+    heads = Calloc(n_edges, Vertex);
+    EdgeTree2EdgeList(tails, heads, nwp, n_edges);
+    stats = m->workspace;
+
+    /* Replace the model and network with an empty one. */
+    nwp = NetworkInitialize(NULL, NULL, n_edges, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
+    m = ModelInitialize(m->R, m->ext_state, nwp, FALSE);
+    mynet = TRUE;
+  }else{
+    stats = Calloc(m->n_stats, double);
+    mynet = FALSE;
+  }
+
+  memset(stats, 0, m->n_stats*sizeof(double));
+
+  EmptyNetworkStats(m, TRUE);
+  addonto(stats, m->workspace, m->n_stats);
+  ZStats(nwp, m, TRUE);
+  addonto(stats, m->workspace, m->n_stats);
+
+  DetShuffleEdges(tails,heads,n_edges); /* Shuffle edgelist. */
+
+  Edge ntoggles = n_edges; // So that we can use the macros
+
+  /* Calculate statistics for terms that don't have c_functions or s_functions.  */
+  EXEC_THROUGH_TERMS_INTO(m, stats, {
+      if(mtp->s_func==NULL && mtp->c_func==NULL && mtp->d_func){
+	(*(mtp->d_func))(ntoggles, tails, heads,
+			 mtp, nwp);  /* Call d_??? function */
+        addonto(dstats, mtp->dstats, N_CHANGE_STATS);
+      }
+    });
+
+  /* Calculate statistics for terms that have c_functions but not s_functions.  */
+  for(Edge e=0; e<n_edges; e++){
+    Vertex t=TAIL(e), h=HEAD(e);
+
+    ergm_PARALLEL_FOR_LIMIT(m->n_terms)
+    EXEC_THROUGH_TERMS_INTO(m, stats, {
+	if(mtp->s_func==NULL && mtp->c_func){
+	  ZERO_ALL_CHANGESTATS();
+	  (*(mtp->c_func))(t, h,
+			   mtp, nwp, FALSE);  /* Call c_??? function */
+          addonto(dstats, mtp->dstats, N_CHANGE_STATS);
+	}
+      });
+
+    /* Update storage and network */
+    UPDATE_STORAGE_COND(t, h, nwp, m, NULL, FALSE, mtp->s_func==NULL && mtp->d_func==NULL);
+    TOGGLE_KNOWN(t, h, FALSE);
+  }
+
+  /* Calculate statistics for terms have s_functions  */
+  EXEC_THROUGH_TERMS_INTO(m, stats, {
+      if(mtp->s_func){
+	ZERO_ALL_CHANGESTATS();
+	(*(mtp->s_func))(mtp, nwp);  /* Call d_??? function */
+	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
+	  dstats[k] = mtp->dstats[k]; // Overwrite, not accumulate.
+	}
+      }
+    });
+
+  if(mynet){
+    ModelDestroy(nwp,m);
+    NetworkDestroy(nwp);
+  }else{
+    memcpy(m->workspace, stats, m->n_stats*sizeof(double));
+  }
 }

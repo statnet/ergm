@@ -1,5 +1,3 @@
-#include "ergm_state.h"
-#include "netstats.h"
 #include "ergm_changestat_operator.h"
 #include "ergm_changestat_auxnet.h"
 #include "ergm_util.h"
@@ -41,8 +39,7 @@ U_CHANGESTAT_FN(u_passthrough_term){
 Z_CHANGESTAT_FN(z_passthrough_term){
   GET_STORAGE(Model, m);
 
-  ZStats(nwp, m);
-
+  ZStats(nwp, m, skip_s);
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
 
@@ -93,26 +90,12 @@ D_CHANGESTAT_FN(d_submodel_test_term){
 
 I_CHANGESTAT_FN(i__summary_term){
   GET_STORAGE(Model, m); // No need to allocate, since we just need a pointer.
-
-  // Initialize empty network.
-  Network *tmpnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
   // Unpack the submodel.
-  STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  tmpnwp, FALSE);
-
+  STORAGE = m = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
   ALLOC_AUX_STORAGE(m->n_stats, double, stats);
-  ErgmState s={.stats=NULL,
-               .nwp=tmpnwp,
-               .m=m,
-               .MHp=NULL};
-  Vertex *tails = Calloc(EDGECOUNT(nwp), Vertex);
-  Vertex *heads = Calloc(EDGECOUNT(nwp), Vertex);
-  EdgeTree2EdgeList(tails, heads, nwp, EDGECOUNT(nwp));
 
-  SummStats(&s, EDGECOUNT(nwp), tails, heads, stats);
-  // Note that nw is now identitical to nwp.
-  NetworkDestroy(tmpnwp);
-  Free(tails);
-  Free(heads);
+  SummStats(0, NULL, NULL, nwp, m);
+  memcpy(stats, m->workspace, m->n_stats*sizeof(double));
 
   DELETE_IF_UNUSED_IN_SUBMODEL(z_func, m);
 }
@@ -217,7 +200,7 @@ Z_CHANGESTAT_FN(z_Sum){
 
   for(unsigned int i=0; i<nms; i++){
     Model *m = ms[i];
-    ZStats(nwp, m);
+    ZStats(nwp, m, FALSE);
     for(unsigned int j=0; j<m->n_stats; j++)
       for(unsigned int k=0; k<N_CHANGE_STATS; k++)
 	CHANGE_STAT[k] += m->workspace[j]* *(wts++);

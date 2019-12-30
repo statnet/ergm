@@ -263,10 +263,20 @@ static void (*fun)(Vertex,Vertex,Network *,Model *,Rboolean) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex,Vertex,Network *,Model *,Rboolean)) R_FindSymbol("ChangeStats1", "ergm", NULL);
 fun(tail,head,nwp,m,edgeflag);
 }
-void ZStats(Network *nwp, Model *m){
-static void (*fun)(Network *,Model *) = NULL;
-if(fun==NULL) fun = (void (*)(Network *,Model *)) R_FindSymbol("ZStats", "ergm", NULL);
-fun(nwp,m);
+void ZStats(Network *nwp, Model *m, Rboolean skip_s){
+static void (*fun)(Network *,Model *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(Network *,Model *,Rboolean)) R_FindSymbol("ZStats", "ergm", NULL);
+fun(nwp,m,skip_s);
+}
+void EmptyNetworkStats(Model *m, Rboolean skip_s){
+static void (*fun)(Model *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(Model *,Rboolean)) R_FindSymbol("EmptyNetworkStats", "ergm", NULL);
+fun(m,skip_s);
+}
+void SummStats(Edge n_edges, Vertex *tails, Vertex *heads, Network *nwp, Model *m){
+static void (*fun)(Edge,Vertex *,Vertex *,Network *,Model *) = NULL;
+if(fun==NULL) fun = (void (*)(Edge,Vertex *,Vertex *,Network *,Model *)) R_FindSymbol("SummStats", "ergm", NULL);
+fun(n_edges,tails,heads,nwp,m);
 }
 
 #define STUBFILE
@@ -468,10 +478,20 @@ static void (*fun)(Vertex,Vertex,double,WtNetwork *,WtModel *,double) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,WtNetwork *,WtModel *,double)) R_FindSymbol("WtChangeStats1", "ergm", NULL);
 fun(tail,head,weight,nwp,m,edgeweight);
 }
-void WtZStats(WtNetwork *nwp, WtModel *m){
-static void (*fun)(WtNetwork *,WtModel *) = NULL;
-if(fun==NULL) fun = (void (*)(WtNetwork *,WtModel *)) R_FindSymbol("WtZStats", "ergm", NULL);
-fun(nwp,m);
+void WtZStats(WtNetwork *nwp, WtModel *m, Rboolean skip_s){
+static void (*fun)(WtNetwork *,WtModel *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(WtNetwork *,WtModel *,Rboolean)) R_FindSymbol("WtZStats", "ergm", NULL);
+fun(nwp,m,skip_s);
+}
+void WtEmptyNetworkStats(WtModel *m, Rboolean skip_s){
+static void (*fun)(WtModel *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(WtModel *,Rboolean)) R_FindSymbol("WtEmptyNetworkStats", "ergm", NULL);
+fun(m,skip_s);
+}
+void WtSummStats(Edge n_edges, Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, WtModel *m){
+static void (*fun)(Edge,Vertex *,Vertex *,double *,WtNetwork *,WtModel *) = NULL;
+if(fun==NULL) fun = (void (*)(Edge,Vertex *,Vertex *,double *,WtNetwork *,WtModel *)) R_FindSymbol("WtSummStats", "ergm", NULL);
+fun(n_edges,tails,heads,weights,nwp,m);
 }
 
 #define STUBFILE

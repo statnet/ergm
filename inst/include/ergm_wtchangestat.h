@@ -21,7 +21,7 @@ typedef struct WtModelTermstruct {
   void (*s_func)(struct WtModelTermstruct*, WtNetwork*);
   SEXP (*w_func)(struct WtModelTermstruct*, WtNetwork*);  
   void (*x_func)(unsigned int type, void *data, struct WtModelTermstruct*, WtNetwork*);
-  void (*z_func)(struct WtModelTermstruct*, WtNetwork*);
+  void (*z_func)(struct WtModelTermstruct*, WtNetwork*, Rboolean);
   double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
   int *iattrib; /* Ptr to vector of integer covariates (if necessary; generally unused) */
   int nstats;   /* Number of change statistics to be returned */
@@ -182,7 +182,7 @@ typedef struct WtModelTermstruct {
 #define WtS_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
 #define WtW_CHANGESTAT_FN(a) SEXP (a) (WtModelTerm *mtp, WtNetwork *nwp)
 #define WtX_CHANGESTAT_FN(a) void (a) (unsigned int type, void *data, WtModelTerm *mtp, WtNetwork *nwp)
-#define WtZ_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
+#define WtZ_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp, Rboolean skip_s)
 
 /* This macro wraps two calls to an s_??? function with toggles
    between them. */

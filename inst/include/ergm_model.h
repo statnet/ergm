@@ -21,6 +21,7 @@
    to an array of ModelTerm structures.  */
 typedef struct Modelstruct {
   SEXP R; /* Pointer to the R ergm_model object. */
+  SEXP ext_state; /* Pointer to the extended state for the whole model. */
   ModelTerm *termarray; /* array of size n_terms; see changestat.h
                            for ModelTerm definition */
   int n_terms;
@@ -127,7 +128,8 @@ int GetIndexForAttrValue(int value);
 
 void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, Network *nwp, Model *m);
 void ChangeStats1(Vertex tail, Vertex head, Network *nwp, Model *m, Rboolean edgeflag);
-void ZStats(Network *nwp, Model *m);
-
+void ZStats(Network *nwp, Model *m, Rboolean skip_s);
+void EmptyNetworkStats(Model *m, Rboolean skip_s);
+void SummStats(Edge n_edges, Vertex *tails, Vertex *heads, Network *nwp, Model *m);
 #endif
 

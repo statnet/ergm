@@ -113,7 +113,7 @@ typedef struct StoreAuxnet_s{Network *inwp, *onwp;
                                                                         \
     double *tmp = m->workspace;                                         \
     m->workspace = CHANGE_STAT;                                         \
-    ZStats(nwp, m);                                                     \
+    ZStats(nwp, m, skip_s);                                             \
     m->workspace = tmp;                                                 \
   }                                                                     \
                                                                         \

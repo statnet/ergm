@@ -21,6 +21,7 @@
    to an array of WtModelTerm structures.  */
 typedef struct WtModelstruct {
   SEXP R; /* Pointer to the R ergm_model object. */
+  SEXP ext_state; /* Pointer to the extended state for the whole model. */
   WtModelTerm *termarray; /* array of size n_terms; see changestat.h
                            for WtModelTerm definition */
   int n_terms;
@@ -122,6 +123,8 @@ void WtModelDestroy(WtNetwork *nwp, WtModel *m);
 
 void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, WtModel *m);
 void WtChangeStats1(Vertex tail, Vertex head, double weight, WtNetwork *nwp, WtModel *m, double edgeweight);
-void WtZStats(WtNetwork *nwp, WtModel *m);
+void WtZStats(WtNetwork *nwp, WtModel *m, Rboolean skip_s);
+void WtEmptyNetworkStats(WtModel *m, Rboolean skip_s);
+void WtSummStats(Edge n_edges, Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, WtModel *m);
 #endif
 

@@ -42,7 +42,7 @@ Z_CHANGESTAT_FN(z_interact){
   GET_STORAGE(StoreModelAnd2Stats, store);
   Model *m = store->m;
 
-  ZStats(nwp, m);
+  ZStats(nwp, m, FALSE);
 
   double *w2 = m->workspace + store->n_stats_1;
   unsigned int pos = 0;
@@ -106,7 +106,7 @@ Z_CHANGESTAT_FN(z_main_interact){
   GET_STORAGE(StoreModelAnd2Stats, store);
   Model *m = store->m;
 
-  ZStats(nwp, m);
+  ZStats(nwp, m, FALSE);
 
   double *w2 = m->workspace + store->n_stats_1;
   unsigned int pos = 0;

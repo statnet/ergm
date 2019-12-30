@@ -36,7 +36,7 @@ WtU_CHANGESTAT_FN(u_wtpassthrough_term){
 WtZ_CHANGESTAT_FN(z_wtpassthrough_term){
   GET_STORAGE(WtModel, m);
 
-  WtZStats(nwp, m);
+  WtZStats(nwp, m, skip_s);
 
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
@@ -140,7 +140,7 @@ WtZ_CHANGESTAT_FN(z_import_binary_term_nonzero){
   GET_AUX_STORAGE(Network, bnwp);
   GET_STORAGE(Model, m);
 
-  ZStats(bnwp, m);
+  ZStats(bnwp, m, skip_s);
 
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
@@ -203,7 +203,7 @@ WtZ_CHANGESTAT_FN(z_import_binary_term_form){
   Network *bnwp = storage->nwp;
   GET_STORAGE(Model, m);
 
-  ZStats(bnwp, m);
+  ZStats(bnwp, m, skip_s);
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
 
@@ -362,7 +362,7 @@ WtZ_CHANGESTAT_FN(z_wtSum){
 
   for(unsigned int i=0; i<nms; i++){
     WtModel *m = ms[i];
-    WtZStats(nwp, m);
+    WtZStats(nwp, m, FALSE);
     for(unsigned int j=0; j<m->n_stats; j++)
       for(unsigned int k=0; k<N_CHANGE_STATS; k++)
 	CHANGE_STAT[k] += m->workspace[j]* *(wts++);

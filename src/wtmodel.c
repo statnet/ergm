@@ -86,9 +86,9 @@ void WtModelDestroy(WtNetwork *nwp, WtModel *m)
  Allocate and initialize the WtModelTerm structures, each of which contains
  all necessary information about how to compute one term in the model.
 *****************/
-WtModel* WtModelInitialize (SEXP mR, SEXP ext_stateR, WtNetwork *nwp, Rboolean noinit_s) {
+WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean noinit_s) {
   SEXP terms = getListElement(mR, "terms");
-  if(ext_stateR == R_NilValue) ext_stateR = NULL;
+  if(ext_state == R_NilValue) ext_state = NULL;
 
   WtModel *m = (WtModel *) Calloc(1, WtModel);
   unsigned int n_terms = m->n_terms = length(terms);
@@ -99,6 +99,7 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_stateR, WtNetwork *nwp, Rboolean n
   m->n_u = 0;
   m->noinit_s = noinit_s;
   m->R = mR;
+  m->ext_state = ext_state;
   for (unsigned int l=0; l < m->n_terms; l++) {
     WtModelTerm *thisterm = m->termarray + l;
     thisterm->R = VECTOR_ELT(terms, l);
@@ -174,7 +175,7 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_stateR, WtNetwork *nwp, Rboolean n
 					       m->dstatarray[l] cannot be.  */
       thisterm->statcache = (double *) Calloc(thisterm->nstats, double);
 
-      if(ext_stateR) thisterm->ext_state = VECTOR_ELT(ext_stateR, l);
+      if(ext_state) thisterm->ext_state = VECTOR_ELT(ext_state, l);
 
       /* If the term's nstats==0, it is auxiliary: it does not affect
 	 acceptance probabilities or contribute any
@@ -239,7 +240,6 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_stateR, WtNetwork *nwp, Rboolean n
       fn[0]='w';
       thisterm->w_func =
 	(SEXP (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
-      if(thisterm->w_func && !ext_stateR) error("Term '%s:%s' uses the extended state API but no extended state has been provided to model initialization.", sn, fn+2);
 
       fn[0]='x';
       thisterm->x_func =
@@ -362,16 +362,117 @@ void WtChangeStats1(Vertex tail, Vertex head, double weight,
 
 /*
   WtZStats
-  Call baseline statistics calculation.
+  Call baseline statistics calculation (for extended state).
 */
-void WtZStats(WtNetwork *nwp, WtModel *m){
+void WtZStats(WtNetwork *nwp, WtModel *m, Rboolean skip_s){
   memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */
 
   /* Make a pass through terms with c_functions. */
   ergm_PARALLEL_FOR_LIMIT(m->n_terms)
     WtEXEC_THROUGH_TERMS_INTO(m, m->workspace, {
         mtp->dstats = dstats; /* Stuck the change statistic here.*/
-        if(mtp->z_func)
-          (*(mtp->z_func))(mtp, nwp);  /* Call z_??? function */
+        if(!skip_s || mtp->s_func==NULL)
+          if(mtp->z_func)
+            (*(mtp->z_func))(mtp, nwp, skip_s);  /* Call z_??? function */
       });
+}
+
+/*
+  WtEmptyNetworkStats
+  Extract constant empty network stats.
+*/
+void WtEmptyNetworkStats(WtModel *m, Rboolean skip_s){
+  memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */
+
+  WtEXEC_THROUGH_TERMS_INTO(m, m->workspace, {
+      if(!skip_s || mtp->s_func==NULL){
+        if(mtp->emptynwstats)
+          memcpy(dstats, mtp->emptynwstats, mtp->nstats*sizeof(double));
+      }});
+}
+
+/****************
+ void WtSummStats Computes summary statistics for a network. nwp and m
+ must be in a consistent state, and either nwp must be empty or
+ n_edges must be 0.
+*****************/
+void WtSummStats(Edge n_edges, Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, WtModel *m){
+  Rboolean mynet;
+  double *stats;
+  if(EDGECOUNT(nwp)){
+    if(n_edges) error("WtSummStats must be passed either an empty network and a list of edges or a non-empty network and no edges.");
+    /* The following code is pretty inefficient, but it'll do for now. */
+    /* Grab network state and output workspace. */
+    n_edges = EDGECOUNT(nwp);
+    tails = Calloc(n_edges, Vertex);
+    heads = Calloc(n_edges, Vertex);
+    weights = Calloc(n_edges, double);
+    WtEdgeTree2EdgeList(tails, heads, weights, nwp, n_edges);
+    stats = m->workspace;
+
+    /* Replace the model and network with an empty one. */
+    nwp = WtNetworkInitialize(NULL, NULL, NULL, n_edges, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL);
+    m = WtModelInitialize(m->R, m->ext_state, nwp, FALSE);
+    mynet = TRUE;
+  }else{
+    stats = Calloc(m->n_stats, double);
+    mynet = FALSE;
+  }
+
+  memset(stats, 0, m->n_stats*sizeof(double));
+
+  WtEmptyNetworkStats(m, TRUE);
+  addonto(stats, m->workspace, m->n_stats);
+  WtZStats(nwp, m, TRUE);
+  addonto(stats, m->workspace, m->n_stats);
+
+  WtDetShuffleEdges(tails,heads,weights,n_edges); /* Shuffle edgelist. */
+
+  Edge ntoggles = n_edges; // So that we can use the macros
+
+  /* Calculate statistics for terms that don't have c_functions or s_functions.  */
+  WtEXEC_THROUGH_TERMS_INTO(m, stats, {
+      if(mtp->s_func==NULL && mtp->c_func==NULL && mtp->d_func){
+	(*(mtp->d_func))(ntoggles, tails, heads, weights,
+			 mtp, nwp);  /* Call d_??? function */
+	addonto(dstats, mtp->dstats, N_CHANGE_STATS);
+      }
+    });
+
+  /* Calculate statistics for terms that have c_functions but not s_functions.  */
+  FOR_EACH_TOGGLE{
+    GETNEWTOGGLEINFO();
+
+    ergm_PARALLEL_FOR_LIMIT(m->n_terms)
+    WtEXEC_THROUGH_TERMS_INTO(m, stats, {
+	if(mtp->s_func==NULL && mtp->c_func){
+	  ZERO_ALL_CHANGESTATS();
+	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
+			   mtp, nwp, 0);  /* Call c_??? function */
+	    addonto(dstats, mtp->dstats, N_CHANGE_STATS);
+	}
+      });
+
+    /* Update storage and network */
+    WtUPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, nwp, m, NULL, 0, mtp->s_func==NULL && mtp->d_func==NULL);
+    SETWT(TAIL, HEAD, NEWWT);
+  }
+
+  /* Calculate statistics for terms have s_functions  */
+  WtEXEC_THROUGH_TERMS_INTO(m, stats, {
+      if(mtp->s_func){
+	ZERO_ALL_CHANGESTATS();
+	(*(mtp->s_func))(mtp, nwp);  /* Call d_??? function */
+	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
+	  dstats[k] = mtp->dstats[k]; // Overwrite, not accumulate.
+	}
+      }
+    });
+
+  if(mynet){
+    WtModelDestroy(nwp,m);
+    WtNetworkDestroy(nwp);
+  }else{
+    memcpy(m->workspace, stats, m->n_stats*sizeof(double));
+  }
 }
