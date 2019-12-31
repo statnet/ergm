@@ -209,6 +209,13 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
 	fn[0]='s';
 	thisterm->s_func = 
 	  (void (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+
+	/* Optional function to compute the statistic of interest for
+	   the empty network (over and above the constant value if
+	   given) and taking into account the extended state. */
+	fn[0]='z';
+	thisterm->z_func =
+	  (void (*)(WtModelTerm*, WtNetwork*, Rboolean)) R_FindSymbol(fn,sn,NULL);
       }else m->n_aux++;
       
       /* Optional functions to store persistent information about the
