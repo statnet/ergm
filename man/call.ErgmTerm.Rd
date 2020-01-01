@@ -4,15 +4,7 @@
 \alias{call.ErgmTerm}
 \title{Locate and call an ERGM term initialization function.}
 \usage{
-call.ErgmTerm(
-  term,
-  env,
-  nw,
-  response = NULL,
-  role = "static",
-  ...,
-  term.options = list()
-)
+call.ErgmTerm(term, env, nw, response = NULL, ..., term.options = list())
 }
 \arguments{
 \item{env}{Environment in which it is to be evaluated.}
@@ -22,9 +14,6 @@ call.ErgmTerm(
 \item{response}{Name of the edge attribute whose value is to be
 modeled in the valued ERGM framework. Defaults to \code{NULL} for
 simple presence or absence, modeled via a binary ERGM.}
-
-\item{role}{A term option determining how the term will be used;
-may be removed in the future.}
 
 \item{...}{Additional term options.}
 

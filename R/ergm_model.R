@@ -28,8 +28,6 @@
 #' @template response
 #' @param silent logical, whether to print the warning messages from the
 #' initialization of each model term.
-#' @param role A hint about how the model will be used. Used primarily for
-#' dynamic network models.
 #' @param \dots additional parameters for model formulation
 #' @param term.options a list of optional settings such as calculation tuning options to be passed to the `InitErgmTerm` functions.
 #' @param extra.aux a list of auxiliary request formulas required elsewhere; if named, the resulting `slots.extra.aux` will also be named.
@@ -47,7 +45,7 @@
 #' @seealso [summary.ergm_model()]
 #' @keywords internal
 #' @export
-ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, role="static",...,term.options=list(),extra.aux=list()){
+ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, ..., term.options=list(), extra.aux=list()){
   if (!is(formula, "formula"))
     stop("Invalid model formula of class ",sQuote(class(formula)),".", call.=FALSE)
   
@@ -85,7 +83,7 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, role="stat
     
     if(!is.call(term) && term==".") next
     
-    outlist <- call.ErgmTerm(term, formula.env, nw, response=response, role=role, term.options=term.options, ...)
+    outlist <- call.ErgmTerm(term, formula.env, nw, response=response, term.options=term.options, ...)
     
     # If initialization fails without error (e.g., all statistics have been dropped), continue.
     if(is.null(outlist)){
@@ -127,8 +125,6 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, role="stat
 #' @param env Environment in which it is to be evaluated.
 #' @param nw A [`network`] object.
 #' @template response
-#' @param role A term option determining how the term will be used;
-#'   may be removed in the future.
 #' @param term.options A list of optional settings such as calculation
 #'   tuning options to be passed to the `InitErgmTerm` functions.
 #' @param ... Additional term options.
@@ -139,7 +135,7 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, role="stat
 #'
 #' @keywords internal
 #' @export call.ErgmTerm
-call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ..., term.options=list()){
+call.ErgmTerm <- function(term, env, nw, response=NULL, ..., term.options=list()){
   term.options <- modifyList(term.options, list(...))
 
   NVL(response) <- nw %ergmlhs% "response"
@@ -154,7 +150,7 @@ call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ..., term
   termFun<-locate.InitFunction(term, paste0(termroot,"Term"), "ERGM term", env=env)
   termCall<-as.call(list(termFun, nw, args))
   
-  dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), term.options)
+  dotdotdot <- c(if(!is.null(response)) list(response=response), term.options)
   for(j in seq_along(dotdotdot)) {
     termCall[[3L+j]] <- dotdotdot[[j]]
     names(termCall)[3L+j] <- names(dotdotdot)[j]

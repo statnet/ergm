@@ -288,7 +288,7 @@ enformulate.curved.formula <- function(object, theta, response=NULL, ...){
 
 set.offset.formula <- function(object, which, response=NULL, ...){
   nw <- ergm.getnetwork(object)
-  m<-ergm_model(object, nw, response=response,role="target", ...)
+  m<-ergm_model(object, nw, response=response, ...)
   to_offset <-unique(rep(seq_along(m$terms),nparam(m, byterm=TRUE))[which]) # Figure out which terms correspond to the coefficients to be offset.
   terms <- list_rhs.formula(object)
   for(i in to_offset)
@@ -299,7 +299,7 @@ set.offset.formula <- function(object, which, response=NULL, ...){
 
 unset.offset.formula <- function(object, which=TRUE, response=NULL, ...){
   nw <- ergm.getnetwork(object)
-  m<-ergm_model(object, nw, response=response,role="target", ...)
+  m<-ergm_model(object, nw, response=response, ...)
   to_unoffset <-unique(rep(seq_along(m$terms),nparam(m, byterm=TRUE))[which]) # Figure out which terms correspond to the coefficients to be un offset.
   terms <- list_rhs.formula(object)
   for(i in to_unoffset)
@@ -314,6 +314,6 @@ unset.offset.formula <- function(object, which=TRUE, response=NULL, ...){
 offset.info.formula <- function(object, response=NULL, ...){
   .Deprecated()
   nw <- ergm.getnetwork(object)
-  m<-ergm_model(object, nw, response=response,role="target", ...)
+  m<-ergm_model(object, nw, response=response, ...)
   with(m$etamap, list(term=offset, theta=offsettheta,eta=offsetmap))
 }

@@ -18,7 +18,6 @@ ergm_model(
   nw = NULL,
   response = NULL,
   silent = FALSE,
-  role = "static",
   ...,
   term.options = list(),
   extra.aux = list()
@@ -53,9 +52,6 @@ simple presence or absence, modeled via a binary ERGM.}
 
 \item{silent}{logical, whether to print the warning messages from the
 initialization of each model term.}
-
-\item{role}{A hint about how the model will be used. Used primarily for
-dynamic network models.}
 
 \item{\dots}{additional parameters for model formulation}
 

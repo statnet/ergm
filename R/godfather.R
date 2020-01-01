@@ -88,7 +88,7 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
     x[,1:2] <- t(apply(x[,1:2,drop=FALSE], 1, sort))
   })
 
-  m <- ergm_model(formula, nw, role="target", response=response, term.options=control$term.options)
+  m <- ergm_model(formula, nw, response=response, term.options=control$term.options)
   state <- ergm_state(nw, model=m, response=response)
   if(!changes.only) state <- update(state, stats=summary(state))
 

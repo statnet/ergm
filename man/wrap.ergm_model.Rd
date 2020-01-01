@@ -24,17 +24,16 @@ model's canonical and curved parameter names to wrap them. Set to
 relevant to auxiliaries.}
 }
 \value{
-a list with elements \code{map}, \code{gradient}, \code{params}, and
-\code{ext.encode}, \code{emptynwstats}, and \code{dependence}, suitable for
-concatenating with an \code{InitErgmTerm} or \code{InitWtErgmTerm} output
-list (possibly after modification).
+a list with elements \code{map}, \code{gradient}, \code{params},
+\code{emptynwstats}, and \code{dependence}, suitable for concatenating with
+an \code{InitErgmTerm} or \code{InitWtErgmTerm} output list (possibly after
+modification).
 }
 \description{
 Given a \code{ergm} model and (optionally) a function with which to wrap
 parameter names, wrap the calls to its \code{ergm.eta()} and
 \code{ergm.etagrad()} into \code{map()} and \code{gradient()} functions, similarly
-with the \code{params} element; wrap \code{ext.encode()} (if applicable);
-wrap empty network statistics; and wrap indicator of dyadic
-independence.
+with the \code{params} element; wrap empty network statistics; and wrap
+indicator of dyadic independence.
 }
 \keyword{internal}

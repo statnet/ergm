@@ -283,7 +283,7 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
                                    nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
   
   # Prepare inputs to ergm.getMCMCsample
-  m <- ergm_model(object, nw, response=response, role="static", extra.aux=list(proposal=proposal$auxiliaries),term.options=control$term.options)
+  m <- ergm_model(object, nw, response=response, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
   proposal$aux.slots <- m$slots.extra.aux$proposal
 
   if(do.sim){

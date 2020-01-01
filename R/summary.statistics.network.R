@@ -136,7 +136,7 @@ summary_formula.network <- function(object, response=NULL,...,basis=NULL) {
   }else{
     nw <- ergm.getnetwork(formula)
   }
-  m <- ergm_model(formula, nw, response=response, role="target",...)
+  m <- ergm_model(formula, nw, response=response, ...)
   summary(m, nw, response=response)
 }
 
