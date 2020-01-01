@@ -156,7 +156,6 @@ call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ..., term
   
   dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), term.options)
   for(j in seq_along(dotdotdot)) {
-    if(is.null(dotdotdot[[j]])) next
     termCall[[3L+j]] <- dotdotdot[[j]]
     names(termCall)[3L+j] <- names(dotdotdot)[j]
   }
