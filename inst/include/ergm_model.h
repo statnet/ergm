@@ -57,13 +57,19 @@ typedef struct Modelstruct {
     subroutine;								\
   }
 
-#define SIGNAL_TERMS(m, type, data)             \
+#define SIGNAL_TERMS(nwp, m, type, data)                \
   EXEC_THROUGH_TERMS(m, {                               \
       if(mtp->x_func)                                   \
         (*(mtp->x_func))(type, data, mtp, nwp);         \
     });
 
-#define SIGNAL_TERMS_INTO(m, output, type, data)        \
+#define SIGNAL_TERMS_INREVERSE(nwp, m, type, data)      \
+  EXEC_THROUGH_TERMS_INREVERSE(m, {                     \
+      if(mtp->x_func)                                   \
+        (*(mtp->x_func))(type, data, mtp, nwp);         \
+    });
+
+#define SIGNAL_TERMS_INTO(nwp, m, output, type, data)   \
   EXEC_THROUGH_TERMS_INTO(m, output, {                  \
       if(mtp->x_func){                                  \
         mtp->dstats = dstats;                           \

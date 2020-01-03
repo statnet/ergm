@@ -56,13 +56,19 @@ typedef struct WtModelstruct {
     subroutine;								\
   }
 
-#define WtSIGNAL_TERMS(m, output, type, data)             \
+#define WtSIGNAL_TERMS(nwp, m, output, type, data)        \
   WtEXEC_THROUGH_TERMS(m, {                               \
       if(mtp->x_func)                                     \
         (*(mtp->x_func))(type, data, mtp, nwp);           \
     });
 
-#define WtSIGNAL_TERMS_INTO(m, output, type, data)        \
+#define WtSIGNAL_TERMS_INREVERSE(nwp, m, type, data)      \
+  WtEXEC_THROUGH_TERMS_INREVERSE(m, {                     \
+      if(mtp->x_func)                                     \
+        (*(mtp->x_func))(type, data, mtp, nwp);           \
+    });
+
+#define WtSIGNAL_TERMS_INTO(nwp, m, output, type, data)   \
   WtEXEC_THROUGH_TERMS_INTO(m, output, {                  \
       if(mtp->x_func){                                    \
         mtp->dstats = dstats;                             \
