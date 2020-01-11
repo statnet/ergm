@@ -28,7 +28,7 @@ wrap.ergm_model <- function(m, nw, response=NULL, namewrap = identity){
     offsettheta <- m$etamap$offsettheta
     offsetmap <- m$etamap$offsetmap
     coef.names <- namewrap(param_names(m, canonical=TRUE))
-    coef.names[offsetmap] <- paste0("offset(", coef.names[offsetmap], ")")
+    ## coef.names[offsetmap] <- paste0("offset(", coef.names[offsetmap], ")")
     minpar <- m$etamap$mintheta
     maxpar <- m$etamap$maxtheta
     # Empty network statistics
@@ -45,7 +45,7 @@ wrap.ergm_model <- function(m, nw, response=NULL, namewrap = identity){
       }
       params <- rep(list(NULL), nparam(m))
       names(params) <- namewrap(param_names(m, canonical=FALSE))
-      names(params)[offsettheta] <- paste0("offset(", names(params)[offsettheta], ")")
+      ## names(params)[offsettheta] <- paste0("offset(", names(params)[offsettheta], ")")
     }else map <- gradient <- params <- NULL
   }else{
     minpar <- maxpar <- offsettheta <- offsetmap <- coef.names <- emptynwstats <- map <- gradient <- params <- NULL
