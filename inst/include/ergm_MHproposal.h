@@ -76,6 +76,7 @@ typedef struct MHProposalstruct {
   void (*p_func)(struct MHProposalstruct*, Network*);
   void (*u_func)(Vertex tail, Vertex head, struct MHProposalstruct*, Network*, Rboolean);
   void (*f_func)(struct MHProposalstruct*, Network*);
+  void (*x_func)(unsigned int type, void *data, struct MHProposalstruct*, Network*);
   Edge ntoggles;
   Vertex *toggletail;
   Vertex *togglehead;
@@ -126,6 +127,7 @@ int CheckConstrainedTogglesValid(MHProposal *MHp, Network *nwp);
 #define MH_U_FN(a) void (a) (Vertex tail, Vertex head, MHProposal *MHp, Network *nwp, Rboolean edgeflag)
 #define MH_P_FN(a) void (a) (MHProposal *MHp, Network *nwp)
 #define MH_F_FN(a) void (a) (MHProposal *MHp, Network *nwp)
+#define MH_X_FN(a) void (a) (unsigned int type, void *data, MHProposal*, Network*)
 
 /* Implementation of TNT log ratio for the three cases.
    The parameters are as follows. Let 

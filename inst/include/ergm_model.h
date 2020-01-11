@@ -57,24 +57,27 @@ typedef struct Modelstruct {
     subroutine;								\
   }
 
-#define SIGNAL_TERMS(nwp, m, type, data)                \
-  EXEC_THROUGH_TERMS(m, {                               \
-      if(mtp->x_func)                                   \
-        (*(mtp->x_func))(type, data, mtp, nwp);         \
+#define SEND_X_SIGNAL(nwp, m, MHp, type, data)                          \
+  if((MHp) && ((MHProposal*)(MHp))->x_func) ((MHProposal*)(MHp))->x_func((type), (data), (MHp), (nwp)); \
+  EXEC_THROUGH_TERMS((m), {                                             \
+      if(mtp->x_func)                                                   \
+        (*(mtp->x_func))((type), (data), (mtp), (nwp));                 \
     });
 
-#define SIGNAL_TERMS_INREVERSE(nwp, m, type, data)      \
-  EXEC_THROUGH_TERMS_INREVERSE(m, {                     \
-      if(mtp->x_func)                                   \
-        (*(mtp->x_func))(type, data, mtp, nwp);         \
-    });
+#define SEND_X_SIGNAL_INREVERSE(nwp, m, MHp, type, data)                 \
+  EXEC_THROUGH_TERMS_INREVERSE((m), {                                   \
+      if(mtp->x_func)                                                   \
+        (*(mtp->x_func))((type), (data), (mtp), (nwp));                 \
+    });                                                                 \
+  if((MHp) && ((MHProposal*)(MHp))->x_func) ((MHProposal*)(MHp))->x_func((type), (data), (MHp), (nwp));
 
-#define SIGNAL_TERMS_INTO(nwp, m, output, type, data)   \
-  EXEC_THROUGH_TERMS_INTO(m, output, {                  \
-      if(mtp->x_func){                                  \
-        mtp->dstats = dstats;                           \
-        (*(mtp->x_func))(type, data, mtp, nwp);         \
-      }                                                 \
+#define SEND_X_SIGNAL_INTO(nwp, m, MHp, output, type, data)              \
+  if((MHp) && ((MHProposal*)(MHp))->x_func) ((MHProposal*)(MHp))->x_func((type), (data), (MHp), (nwp)); \
+  EXEC_THROUGH_TERMS_INTO((m), output, {                                \
+      if(mtp->x_func){                                                  \
+        mtp->dstats = dstats;                                           \
+        (*(mtp->x_func))((type), (data), (mtp), (nwp));                 \
+      }                                                                 \
     });
 
  /* If DEBUG is set, back up mtp->dstats and set it to NULL in order

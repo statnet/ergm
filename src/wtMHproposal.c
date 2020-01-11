@@ -53,9 +53,9 @@ WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage
   MHp->u_func=(void (*)(Vertex tail, Vertex head, double weight, WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
   fn[1] = 'f';
   MHp->f_func=(void (*)(WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+  fn[1] = 'x';
+  MHp->x_func=(void (*)(unsigned int type, void *data, WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
     
-  MHp->inputs=REAL(getListElement(pR, "inputs"));
-
   SEXP tmp = getListElement(pR, "inputs");
   MHp->inputs=length(tmp) ? REAL(tmp) : NULL;
   tmp = getListElement(pR, "iinputs");

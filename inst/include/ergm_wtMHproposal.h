@@ -59,6 +59,7 @@ typedef struct WtMHProposalstruct {
   void (*p_func)(struct WtMHProposalstruct*, WtNetwork*);
   void (*u_func)(Vertex tail, Vertex head, double weight, struct WtMHProposalstruct*, WtNetwork*);
   void (*f_func)(struct WtMHProposalstruct*, WtNetwork*);
+  void (*x_func)(unsigned int type, void *data, struct WtMHProposalstruct*, WtNetwork*);
   Edge ntoggles;
   Vertex *toggletail;
   Vertex *togglehead;
@@ -90,6 +91,7 @@ void WtMHProposalDestroy(WtMHProposal *MH, WtNetwork *nwp);
 #define WtMH_U_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtMHProposal *MHp, WtNetwork *nwp)
 #define WtMH_P_FN(a) void (a) (WtMHProposal *MHp, WtNetwork *nwp)
 #define WtMH_F_FN(a) void (a) (WtMHProposal *MHp, WtNetwork *nwp)
+#define WtMH_X_FN(a) void (a) (unsigned int type, void *data, WtMHProposal*, WtNetwork*)
 
 #endif 
 
