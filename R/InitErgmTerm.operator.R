@@ -5,8 +5,8 @@
 #' Given a `ergm` model and (optionally) a function with which to wrap
 #' parameter names, wrap the calls to its `ergm.eta()` and
 #' `ergm.etagrad()` into `map()` and `gradient()` functions, similarly
-#' with the `params` element; wrap empty network statistics; and wrap
-#' indicator of dyadic independence.
+#' with the `params` element; wrap empty network statistics; wrap
+#' indicator of dyadic independence; and wrap offset indicators.
 #'
 #' @param m An `ergm_model` object.
 #' @param nw A `network` object.
@@ -18,15 +18,19 @@
 #'   relevant to auxiliaries.
 #'
 #' @return a list with elements `map`, `gradient`, `params`,
-#'   `emptynwstats`, and `dependence`, suitable for concatenating with
-#'   an `InitErgmTerm` or `InitWtErgmTerm` output list (possibly after
-#'   modification).
+#'   `emptynwstats`, `dependence`, `offsettheta`, and `offsetmap`,
+#'   suitable for concatenating with an `InitErgmTerm` or
+#'   `InitWtErgmTerm` output list (possibly after modification).
 #' @keywords internal
 #' @export wrap.ergm_model
 wrap.ergm_model <- function(m, nw, response=NULL, namewrap = identity){
   if(!is.null(namewrap)){
+    offsettheta <- m$etamap$offsettheta
+    offsetmap <- m$etamap$offsetmap
     coef.names <- namewrap(param_names(m, canonical=TRUE))
-
+    coef.names[offsetmap] <- paste0("offset(", coef.names, ")")
+    minpar <- m$etamap$mintheta
+    maxpar <- m$etamap$maxtheta
     # Empty network statistics
     emptynwstats <- summary(m, NULL, response=response)
     if(all(emptynwstats==0)) emptynwstats <- NULL
@@ -41,12 +45,13 @@ wrap.ergm_model <- function(m, nw, response=NULL, namewrap = identity){
       }
       params <- rep(list(NULL), nparam(m))
       names(params) <- namewrap(param_names(m, canonical=FALSE))
+      names(params)[offsettheta] <- paste0("offset(", names(params), ")")
     }else map <- gradient <- params <- NULL
   }else{
-    coef.names <- emptynwstats <- map <- gradient <- params <- NULL
+    minpar <- maxpar <- offsettheta <- offsetmap <- coef.names <- emptynwstats <- map <- gradient <- params <- NULL
   }
 
-  list(map = map, gradient = gradient, params = params, minpar=m$etamap$mintheta, maxpar=m$etamap$maxtheta, coef.names=coef.names, emptynwstats=emptynwstats, dependence=!is.dyad.independent(m))
+  list(map=map, gradient=gradient, params=params, minpar=minpar, maxpar=maxpar, coef.names=coef.names, emptynwstats=emptynwstats, dependence=!is.dyad.independent(m), offsettheta=offsettheta, offsetmap=offsetmap)
 }
 
 #' Combine an operator term's and a subterm's name in a standard fashion.
@@ -514,6 +519,8 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
     }
 
   dependence <- any(map_lgl(wms, "dependence"))
+
+  if(any(unlist(map(wms, "offsettheta"))) || any(unlist(map(wms, "offsetmap")))) ergm_Init_warn(paste0("Sum operator does not propagate offset() decorators."))
   
   list(name="Sum", coef.names = coef.names, inputs=inputs, submodels=ms, emptynwstats=gs, dependence=dependence)
 }

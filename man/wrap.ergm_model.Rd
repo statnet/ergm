@@ -25,15 +25,15 @@ relevant to auxiliaries.}
 }
 \value{
 a list with elements \code{map}, \code{gradient}, \code{params},
-\code{emptynwstats}, and \code{dependence}, suitable for concatenating with
-an \code{InitErgmTerm} or \code{InitWtErgmTerm} output list (possibly after
-modification).
+\code{emptynwstats}, \code{dependence}, \code{offsettheta}, and \code{offsetmap},
+suitable for concatenating with an \code{InitErgmTerm} or
+\code{InitWtErgmTerm} output list (possibly after modification).
 }
 \description{
 Given a \code{ergm} model and (optionally) a function with which to wrap
 parameter names, wrap the calls to its \code{ergm.eta()} and
 \code{ergm.etagrad()} into \code{map()} and \code{gradient()} functions, similarly
-with the \code{params} element; wrap empty network statistics; and wrap
-indicator of dyadic independence.
+with the \code{params} element; wrap empty network statistics; wrap
+indicator of dyadic independence; and wrap offset indicators.
 }
 \keyword{internal}
