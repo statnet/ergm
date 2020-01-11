@@ -92,6 +92,7 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, ..., term.
       next
     }else model$term.skipped <- c(model$term.skipped, FALSE)
     # If the term is an offset, rename the coefficient names and parameter names
+    if(NVL(outlist$offset,FALSE)) ult(model$offset) <- TRUE
     if(ult(model$offset)){
       outlist$coef.names <- paste0("offset(",outlist$coef.names,")")
       if(!is.null(outlist$params))

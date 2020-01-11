@@ -116,7 +116,11 @@
 #                  gives the gradient of the eta map above as a p by q matrix, where
 #                  p=length(theta), q=length(params); 'gradient' is only necessary
 #                  for curved exponential family model terms
-#
+#   offset       : a logical value; if TRUE, forces the term to be an offset
+#   offsettheta  : a logical vector length equal to the number of parameters; if TRUE,
+#                  the corresponding parameter is forced to be an offset
+#   offsetmap    : a logical vector length equal to the number of statistics; if TRUE,
+#                  the corresponding statistic is forced to be an offset
 # WHAT THE C CHANGESTAT FUNCTION RECEIVES:
 #                The changestat function, written in C and called d_'name',
 #                will have access to 'inputs'; this array will be called INPUT_PARAMS

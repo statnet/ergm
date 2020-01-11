@@ -76,14 +76,15 @@ ergm.etamap <- function(model) {
     return(etamap)
   }
   for (i in seq_along(model$terms)) {
-    j <- length(model$terms[[i]]$coef.names)
+    mti <- model$terms[[i]]
+    if(NVL(mti$offset,FALSE)) model$offset[i] <- TRUE
+    j <- length(mti$coef.names)
     if(j==0) next # Auxiliary: no parameters or statistics.
     if(model$offset[i]){
      etamap$offsetmap <- c(etamap$offsetmap, rep(TRUE,j))
     }else{
-     etamap$offsetmap <- c(etamap$offsetmap, rep(FALSE,j))
+     etamap$offsetmap <- c(etamap$offsetmap, rep(FALSE,j)) | NVL(mti$offsetmap,FALSE)
     }
-    mti <- model$terms[[i]]
     if (is.null(mti$params)) { # Not a curved parameter
       etamap$canonical <- c(etamap$canonical, to:(to+j-1L))
       from <- from+j
@@ -91,7 +92,7 @@ ergm.etamap <- function(model) {
       if(model$offset[i]){
        etamap$offsettheta <- c(etamap$offsettheta, rep(TRUE,j))
       }else{
-       etamap$offsettheta <- c(etamap$offsettheta, rep(FALSE,j))
+       etamap$offsettheta <- c(etamap$offsettheta, rep(FALSE,j)) | NVL(mti$offsettheta,FALSE)
       }
       
       etamap$mintheta <- c(etamap$mintheta,
@@ -111,7 +112,7 @@ ergm.etamap <- function(model) {
       if(model$offset[i]){
        etamap$offsettheta <- c(etamap$offsettheta, rep(TRUE,k))
       }else{
-       etamap$offsettheta <- c(etamap$offsettheta, rep(FALSE,k))
+       etamap$offsettheta <- c(etamap$offsettheta, rep(FALSE,k)) | NVL(mti$offsettheta,FALSE)
       }
       
       etamap$mintheta <- c(etamap$mintheta,
@@ -123,4 +124,3 @@ ergm.etamap <- function(model) {
   etamap$etalength <- to-1L
   etamap
 } 
-
