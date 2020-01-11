@@ -45,7 +45,7 @@ I_CHANGESTAT_FN(i__intersect_net_Network){
   for(Edge i=0; i<nedges; i++){
     Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i];
     if(IS_OUTEDGE(tail, head)) {
-      ToggleEdge(tail,head, auxnet->onwp);
+      ToggleKnownEdge(tail,head, auxnet->onwp, FALSE);
     }
   }
 }
@@ -98,7 +98,7 @@ I_CHANGESTAT_FN(i__union_net_Network){
   for(Edge i=0; i<nedges; i++){
     Vertex tail=ref_el[1+i], head=ref_el[1+nedges+i];
     if(IS_OUTEDGE(tail, head)==0) {
-      ToggleEdge(tail,head, auxnet->onwp);
+      ToggleKnownEdge(tail,head, auxnet->onwp, FALSE);
     }
   }
 }
