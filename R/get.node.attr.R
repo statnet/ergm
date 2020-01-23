@@ -409,7 +409,7 @@ ergm_get_vattr.function <- function(object, nw, accept="character", bip=c("n","b
 
 
 #' @rdname node-attr-api
-#' @importFrom purrr "%>%" map set_names when
+#' @importFrom purrr "%>%" map when
 #' @importFrom tibble lst
 #' @export
 ergm_get_vattr.formula <- function(object, nw, accept="character", bip=c("n","b1","b2","a"), multiple=if(accept=="character") "paste" else "stop", ...){
