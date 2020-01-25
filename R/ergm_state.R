@@ -189,8 +189,17 @@ param_names.ergm_state <- function(object, ...) param_names(object$model, ...)
 nparam.ergm_state <- function(object, ...) nparam(object$model, ...)
 
 #' @describeIn ergm_state a method for updating an `ergm_state` and reconciling extended state.
+#' @param state An `ergm_state` or an [`ergm_substate`] to replace the state with.
 #' @export
-update.ergm_state <- function(object, el=NULL, nw0=NULL, response=NULL, model=NULL, proposal=NULL, stats=NULL, ext.state=NULL, ...){
+update.ergm_state <- function(object, el=NULL, nw0=NULL, response=NULL, model=NULL, proposal=NULL, stats=NULL, ext.state=NULL, state=NULL, ...){
+  if(!is.null(state)){
+    nw0 <- NVL(state$nw0, object$nw0)
+    cl <- class(object)
+    object <- state
+    object$nw0 <- nw0
+    class(object) <- cl
+  }
+
   object <- .reconcile_ergm_state(object)
   
   if(!is.null(nw0)){
@@ -264,4 +273,34 @@ ERGM_STATE_RECONCILED <- 0L
     object$ext.flag <- ERGM_STATE_RECONCILED
   }
   object
+}
+
+#' A nonce class representing an [`ergm_state`] without `nw0`.
+#'
+#' @param x Typically an [`ergm_state`].
+#'
+#' @export
+ergm_substate <- function(x, ...){
+  UseMethod("ergm_substate")
+}
+
+#' @rdname ergm_substate
+#' @export
+ergm_substate.ergm_substate <- function(x, ...){
+  x
+}
+
+#' @rdname ergm_substate
+#' @export
+ergm_substate.ergm_state <- function(x, ...){
+  if(x$ext.flag == ERGM_STATE_R_CHANGED)
+    x <- .reconcile_ergm_state(x)
+  x$nw0 <- NULL
+  structure(x, class=c("ergm_substate","ergm_state"))
+}
+
+#' @rdname ergm_substate
+#' @export
+update.ergm_substate <- function(object, ...){
+  stop("update method should not be called on ergm_substate, only on ergm_state.")
 }

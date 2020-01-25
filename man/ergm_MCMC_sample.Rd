@@ -56,7 +56,7 @@ the function will return a \code{\link{ergm_state}}.
 
 \code{ergm_MCMC_slave} returns the MCMC sample as a list of
 the following: \item{s}{the matrix of statistics.}
-\item{el}{an \code{\link{edgelist}} object for the new network.}
+\item{state}{an \code{\link{ergm_state}} or \code{\link{ergm_substate}} object for the new network.}
 \item{status}{success or failure code: \code{0} is
 success, \code{1} for too many edges, and \code{2} for a
 Metropolis-Hastings proposal failing.}

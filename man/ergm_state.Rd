@@ -93,6 +93,7 @@ is.ergm_state(x)
   proposal = NULL,
   stats = NULL,
   ext.state = NULL,
+  state = NULL,
   ...
 )
 
@@ -130,6 +131,8 @@ attribute. If \code{NULL}, binary network is assumed.}
 
 \item{na.omit}{Whether missing edges should be counted. Note that
 missing edge information is not stored.}
+
+\item{state}{An \code{ergm_state} or an \code{\link{ergm_substate}} to replace the state with.}
 
 \item{nw}{a \code{\link{network}} object.}
 }

@@ -69,6 +69,9 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
 
   flush.console()
 
+  state0 <- state
+  state <- lapply(state, ergm_substate) # Don't carry around nw0.
+  
   #' @importFrom parallel clusterMap
   doruns <- function(burnin=NULL, samplesize=NULL, interval=NULL){
     if(!is.null(ergm.getCluster(control))) persistEvalQ({clusterMap(ergm.getCluster(control),ergm_MCMC_slave,
@@ -197,7 +200,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
     
     statsmatrices[[i]] <- sms[[i]]
 
-    newnetworks[[i]] <- z$state
+    newnetworks[[i]] <- update(state0[[i]], state=z$state)
     final.interval <- c(final.interval, z$final.interval)
   }
   
@@ -216,7 +219,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
 #'   be used to temporarily override those in the `control` list.
 #' @return \code{ergm_MCMC_slave} returns the MCMC sample as a list of
 #'   the following: \item{s}{the matrix of statistics.}
-#'   \item{el}{an [`edgelist`] object for the new network.}
+#'   \item{state}{an [`ergm_state`] or [`ergm_substate`] object for the new network.}
 #'   \item{status}{success or failure code: `0` is
 #'   success, `1` for too many edges, and `2` for a
 #'   Metropolis-Hastings proposal failing.}
@@ -251,7 +254,6 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
             PACKAGE="ergm")
   z$s <- matrix(z$s, ncol=nparam(state,canonical=TRUE), byrow = TRUE)
   colnames(z$s) <- param_names(state, canonical=TRUE)
-  z$state <- update(z$state)
 
   z
 }
