@@ -60,9 +60,7 @@ SEXP ErgmStateRSave(SEXP startR, ErgmState *s){
     UNPROTECT(1); // statsR
   }
 
-  SEXP class = PROTECT(mkRStrVec((const char*[]){"ergm_state", NULL}));
-  classgets(outl, class);
-  UNPROTECT(1); // class
+  classgets(outl, getAttrib(startR, R_ClassSymbol));
 
   UNPROTECT(1); // outl
   return outl;
