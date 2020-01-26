@@ -9,7 +9,7 @@
 #######################################################################
 #' A Representation of ERGM state
 #' 
-#' `ergm_state` is an semi-internal class for passing
+#' `ergm_state` is a family of semi-internal classes for passing
 #' around results of MCMC sampling, particularly when the result is
 #' used to start another MCMC sampler. It is deliberately loosely
 #' specified, and its structure and even name are subject to change.
@@ -25,9 +25,10 @@
 #'   can be specified directly.
 #' @param ... Additional arguments, passed to further methods.
 #'
-#' @return 
-#' At this time, an `ergm_state` object is (subject to
-#' change) a list containing the following elements:
+#' @return At this time, an `ergm_state` object is (subject to change)
+#'   a list containing some subset of the following elements, with
+#'   `el`, `ext.state`, and `ext.flag` mandatory and others depending
+#'   on how it is used:
 #' \describe{
 #' 
 #' \item{el}{a [`tibble`] [`edgelist`] representing the edge state of the network}
@@ -45,6 +46,17 @@
 #' \item{stats}{a numeric vector of network statistics or some other
 #' statistics used to resume.}}
 #'
+#' @details
+#'
+#' `ergm_state` is actually a hierarchy of classes, defined by what
+#' they can be used for. Specifically,
+#' \describe{
+#'
+#' \item{c(`ergm_state_receive`,`ergm_state`)}{ needs to contain only `el`, `ext.state`, and `ext.flag`: it is the information that can change in the process of MCMC sampling; it is the one returned by the `*_slave` functions, to minimize the amount of data being sent between nodes in parallel computing.}
+#' \item{c(`ergm_state_send`,`ergm_state_receive`,`ergm_state`)}{ needs the above but also the `model` and the `proposal`: is needed to initiate MCMC sampling; it is the information required by the `*_slave` functions, again, to minimize the amount of data being sent between nodes in parallel computing.}
+#' \item{c(`ergm_state_full`, `ergm_state_send`,`ergm_state_receive`,`ergm_state`)}{ needs the above but also the `nw0`: is needed to reconstruct the original network.}
+#'
+#' }
 #' @keywords internal
 #' @export
 ergm_state <- function(x, ...) UseMethod("ergm_state")
@@ -77,7 +89,7 @@ ergm_state.edgelist <- function(x, nw0, model=NULL, proposal=NULL, stats=NULL, e
     out$ext.flag <- ERGM_STATE_R_CHANGED
     out <- .reconcile_ergm_state(out)
   }
-  structure(out, class="ergm_state")
+  structure(out, class=c("ergm_state_full", "ergm_state_send", "ergm_state_receive", "ergm_state"))
 }
 
 #' @describeIn ergm_state a method for constructing an ergm_state from a matrix object and an empty [`network`].
@@ -118,7 +130,7 @@ as.matrix.ergm_state <- function(x,matrix.type=NULL,...){
 
 #' @rdname ergm_state
 #' @export
-as.network.ergm_state <- function(x, ..., populate=TRUE){
+as.network.ergm_state_full <- function(x, ..., populate=TRUE){
   if(!populate) x$nw0
   else update(x$nw0,x$el)
 }
@@ -136,14 +148,14 @@ network.edgecount.ergm_state <- function(x, na.omit=TRUE,...){
 #' @describeIn ergm_state Note that this method fails with
 #'   its default argument, since missing edges are not stored.
 #' @export
-network.dyadcount.ergm_state <- function(x, na.omit=TRUE,...){
+network.dyadcount.ergm_state_full <- function(x, na.omit=TRUE,...){
   if(na.omit) stop("ergm_state cannot store missing edges.")
-  network.dyadcount(x$nw0)
+  network.dyadcount(x$nw0, na.omit=na.omit)
 }
 
 #' @rdname ergm_state
 #' @export
-network.size.ergm_state <- function(x,...){
+network.size.ergm_state_full <- function(x,...){
   network.size(x$nw0)
 }
 
@@ -155,13 +167,13 @@ network.naedgecount.ergm_state <- function(x,...){
 
 #' @rdname ergm_state
 #' @export
-`%ergmlhs%.ergm_state` <- function(lhs, setting){
+`%ergmlhs%.ergm_state_full` <- function(lhs, setting){
   lhs$nw0 %ergmlhs% setting
 }
 
 #' @rdname ergm_state
 #' @export
-`%ergmlhs%<-.ergm_state` <- function(lhs, setting, value){
+`%ergmlhs%<-.ergm_state_full` <- function(lhs, setting, value){
   lhs$nw0 %ergmlhs% setting <- value
   lhs
 }
@@ -174,30 +186,26 @@ as.rlebdm.ergm_state <- function(x, ...){
 
 #' @rdname ergm_state
 #' @export
-as.ergm_model.ergm_state <- function(x, ...) x$model
+as.ergm_model.ergm_state_send <- function(x, ...) x$model
 
 #' @rdname ergm_state
 #' @export
-is.curved.ergm_state <- function(object, ...) is.curved(object$model, ...)
+is.curved.ergm_state_send <- function(object, ...) is.curved(object$model, ...)
 
 #' @rdname ergm_state
 #' @export
-param_names.ergm_state <- function(object, ...) param_names(object$model, ...)
+param_names.ergm_state_send <- function(object, ...) param_names(object$model, ...)
 
 #' @rdname ergm_state
 #' @export
-nparam.ergm_state <- function(object, ...) nparam(object$model, ...)
+nparam.ergm_state_send <- function(object, ...) nparam(object$model, ...)
 
 #' @describeIn ergm_state a method for updating an `ergm_state` and reconciling extended state.
 #' @param state An `ergm_state` or an [`ergm_substate`] to replace the state with.
 #' @export
-update.ergm_state <- function(object, el=NULL, nw0=NULL, response=NULL, model=NULL, proposal=NULL, stats=NULL, ext.state=NULL, state=NULL, ...){
+update.ergm_state_full <- function(object, el=NULL, nw0=NULL, response=NULL, model=NULL, proposal=NULL, stats=NULL, ext.state=NULL, state=NULL, ...){
   if(!is.null(state)){
-    nw0 <- NVL(state$nw0, object$nw0)
-    cl <- class(object)
-    object <- state
-    object$nw0 <- nw0
-    class(object) <- cl
+    for(name in names(state)) object[[name]] <- state[[name]]
   }
 
   object <- .reconcile_ergm_state(object)
@@ -277,30 +285,56 @@ ERGM_STATE_RECONCILED <- 0L
 
 #' A nonce class representing an [`ergm_state`] without `nw0`.
 #'
+#' @export
+ergm_state_send <- function(x, ...){
+  UseMethod("ergm_state_send")
+}
+
+#' @rdname ergm_state_send
+#' @export
+ergm_state_send.ergm_state_send <- function(x, ...){
+  x$nw0 <- NULL
+  structure(x, class=c("ergm_state_send","ergm_state_receive","ergm_state"))
+}
+
+#' @rdname ergm_state_send
+#' @export
+ergm_state_send.ergm_state_full <- function(x, ...){
+  if(x$ext.flag == ERGM_STATE_R_CHANGED)
+    x <- .reconcile_ergm_state(x)
+  NextMethod("ergm_state_send")
+}
+
+#' @rdname ergm_state_send
+#' @export
+update.ergm_state_send <- function(object, state, ...){
+  for(name in names(state)) object[[name]] <- state[[name]]
+  object
+}
+
+#' A nonce class representing an [`ergm_state`] without `nw0`, `model`, or `proposal`.
+#'
 #' @param x Typically an [`ergm_state`].
 #'
 #' @export
-ergm_substate <- function(x, ...){
-  UseMethod("ergm_substate")
+ergm_state_receive <- function(x, ...){
+  UseMethod("ergm_state_receive")
 }
 
-#' @rdname ergm_substate
+#' @rdname ergm_state_receive
 #' @export
-ergm_substate.ergm_substate <- function(x, ...){
-  x
+ergm_state_receive.ergm_state <- function(x, ...){
+  x$nw0 <- NULL
+  x$model <- NULL
+  x$proposal <- NULL
+  structure(x, class=c("ergm_state_receive","ergm_state"))
 }
 
-#' @rdname ergm_substate
+#' @rdname ergm_state_receive
 #' @export
-ergm_substate.ergm_state <- function(x, ...){
+ergm_state_receive.ergm_state_full <- function(x, ...){
   if(x$ext.flag == ERGM_STATE_R_CHANGED)
     x <- .reconcile_ergm_state(x)
-  x$nw0 <- NULL
-  structure(x, class=c("ergm_substate","ergm_state"))
+  NextMethod("ergm_state_receive")
 }
 
-#' @rdname ergm_substate
-#' @export
-update.ergm_substate <- function(object, ...){
-  stop("update method should not be called on ergm_substate, only on ergm_state.")
-}

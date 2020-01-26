@@ -9,19 +9,19 @@
 \alias{is.ergm_state}
 \alias{as.edgelist.ergm_state}
 \alias{as.matrix.ergm_state}
-\alias{as.network.ergm_state}
+\alias{as.network.ergm_state_full}
 \alias{network.edgecount.ergm_state}
-\alias{network.dyadcount.ergm_state}
-\alias{network.size.ergm_state}
+\alias{network.dyadcount.ergm_state_full}
+\alias{network.size.ergm_state_full}
 \alias{network.naedgecount.ergm_state}
-\alias{\%ergmlhs\%.ergm_state}
-\alias{\%ergmlhs\%<-.ergm_state}
+\alias{\%ergmlhs\%.ergm_state_full}
+\alias{\%ergmlhs\%<-.ergm_state_full}
 \alias{as.rlebdm.ergm_state}
-\alias{as.ergm_model.ergm_state}
-\alias{is.curved.ergm_state}
-\alias{param_names.ergm_state}
-\alias{nparam.ergm_state}
-\alias{update.ergm_state}
+\alias{as.ergm_model.ergm_state_send}
+\alias{is.curved.ergm_state_send}
+\alias{param_names.ergm_state_send}
+\alias{nparam.ergm_state_send}
+\alias{update.ergm_state_full}
 \alias{ergm_state.ergm_state}
 \alias{ERGM_STATE_R_CHANGED}
 \alias{ERGM_STATE_C_CHANGED}
@@ -60,31 +60,31 @@ is.ergm_state(x)
 
 \method{as.matrix}{ergm_state}(x, matrix.type = NULL, ...)
 
-\method{as.network}{ergm_state}(x, ..., populate = TRUE)
+\method{as.network}{ergm_state_full}(x, ..., populate = TRUE)
 
 \method{network.edgecount}{ergm_state}(x, na.omit = TRUE, ...)
 
-\method{network.dyadcount}{ergm_state}(x, na.omit = TRUE, ...)
+\method{network.dyadcount}{ergm_state_full}(x, na.omit = TRUE, ...)
 
-\method{network.size}{ergm_state}(x, ...)
+\method{network.size}{ergm_state_full}(x, ...)
 
 \method{network.naedgecount}{ergm_state}(x, ...)
 
-\method{\%ergmlhs\%}{ergm_state}(lhs, setting)
+\method{\%ergmlhs\%}{ergm_state_full}(lhs, setting)
 
-\method{\%ergmlhs\%}{ergm_state}(lhs, setting) <- value
+\method{\%ergmlhs\%}{ergm_state_full}(lhs, setting) <- value
 
 \method{as.rlebdm}{ergm_state}(x, ...)
 
-\method{as.ergm_model}{ergm_state}(x, ...)
+\method{as.ergm_model}{ergm_state_send}(x, ...)
 
-\method{is.curved}{ergm_state}(object, ...)
+\method{is.curved}{ergm_state_send}(object, ...)
 
-\method{param_names}{ergm_state}(object, ...)
+\method{param_names}{ergm_state_send}(object, ...)
 
-\method{nparam}{ergm_state}(object, ...)
+\method{nparam}{ergm_state_send}(object, ...)
 
-\method{update}{ergm_state}(
+\method{update}{ergm_state_full}(
   object,
   el = NULL,
   nw0 = NULL,
@@ -137,8 +137,10 @@ missing edge information is not stored.}
 \item{nw}{a \code{\link{network}} object.}
 }
 \value{
-At this time, an \code{ergm_state} object is (subject to
-change) a list containing the following elements:
+At this time, an \code{ergm_state} object is (subject to change)
+a list containing some subset of the following elements, with
+\code{el}, \code{ext.state}, and \code{ext.flag} mandatory and others depending
+on how it is used:
 \describe{
 
 \item{el}{a \code{\link{tibble}} \code{\link{edgelist}} representing the edge state of the network}
@@ -157,10 +159,21 @@ change) a list containing the following elements:
 statistics used to resume.}}
 }
 \description{
-\code{ergm_state} is an semi-internal class for passing
+\code{ergm_state} is a family of semi-internal classes for passing
 around results of MCMC sampling, particularly when the result is
 used to start another MCMC sampler. It is deliberately loosely
 specified, and its structure and even name are subject to change.
+}
+\details{
+\code{ergm_state} is actually a hierarchy of classes, defined by what
+they can be used for. Specifically,
+\describe{
+
+\item{c(\code{ergm_state_receive},\code{ergm_state})}{ needs to contain only \code{el}, \code{ext.state}, and \code{ext.flag}: it is the information that can change in the process of MCMC sampling; it is the one returned by the \verb{*_slave} functions, to minimize the amount of data being sent between nodes in parallel computing.}
+\item{c(\code{ergm_state_send},\code{ergm_state_receive},\code{ergm_state})}{ needs the above but also the \code{model} and the \code{proposal}: is needed to initiate MCMC sampling; it is the information required by the \verb{*_slave} functions, again, to minimize the amount of data being sent between nodes in parallel computing.}
+\item{c(\code{ergm_state_full}, \code{ergm_state_send},\code{ergm_state_receive},\code{ergm_state})}{ needs the above but also the \code{nw0}: is needed to reconstruct the original network.}
+
+}
 }
 \section{Methods (by class)}{
 \itemize{
@@ -175,12 +188,12 @@ directly to the \code{\link{edgelist}} method.
 \item \code{ergm_state}: Note that this method fails when
 \code{na.omit=FALSE}, since missing edges are not stored.
 
-\item \code{ergm_state}: Note that this method fails with
+\item \code{ergm_state_full}: Note that this method fails with
 its default argument, since missing edges are not stored.
 
 \item \code{ergm_state}: A stub that returns 0.
 
-\item \code{ergm_state}: a method for updating an \code{ergm_state} and reconciling extended state.
+\item \code{ergm_state_full}: a method for updating an \code{ergm_state} and reconciling extended state.
 
 \item \code{ergm_state}: a method for constructing an \code{ergm_state}.
 

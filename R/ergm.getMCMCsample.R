@@ -70,13 +70,16 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
   flush.console()
 
   state0 <- state
-  state <- lapply(state, ergm_substate) # Don't carry around nw0.
+  state <- lapply(state, ergm_state_send) # Don't carry around nw0.
   
   #' @importFrom parallel clusterMap
   doruns <- function(burnin=NULL, samplesize=NULL, interval=NULL){
-    if(!is.null(ergm.getCluster(control))) persistEvalQ({clusterMap(ergm.getCluster(control),ergm_MCMC_slave,
+    out <- if(!is.null(ergm.getCluster(control))) persistEvalQ({clusterMap(ergm.getCluster(control),ergm_MCMC_slave,
                                                                     state=state, MoreArgs=list(eta=eta,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)})
     else list(ergm_MCMC_slave(state[[1]], burnin=burnin,samplesize=samplesize,interval=interval,eta=eta,control=control.parallel,verbose=verbose,...))
+    # Note: the return value's state will be a ergm_state_receive.
+    for(i in seq_along(out)) out[[i]]$state <- update(state[[i]], out[[i]]$state)
+    out
   }
 
   sms <- vector("list", nthreads(control))
@@ -254,6 +257,7 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
             PACKAGE="ergm")
   z$s <- matrix(z$s, ncol=nparam(state,canonical=TRUE), byrow = TRUE)
   colnames(z$s) <- param_names(state, canonical=TRUE)
+  z$state <- ergm_state_receive(z$state)
 
   z
 }
