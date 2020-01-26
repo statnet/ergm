@@ -26,6 +26,13 @@
 \alias{ERGM_STATE_R_CHANGED}
 \alias{ERGM_STATE_C_CHANGED}
 \alias{ERGM_STATE_RECONCILED}
+\alias{ergm_state_send}
+\alias{ergm_state_send.ergm_state_send}
+\alias{ergm_state_send.ergm_state_full}
+\alias{update.ergm_state_send}
+\alias{ergm_state_receive}
+\alias{ergm_state_receive.ergm_state}
+\alias{ergm_state_receive.ergm_state_full}
 \alias{summary.ergm_state}
 \title{A Representation of ERGM state}
 \format{An object of class \code{integer} of length 1.}
@@ -112,6 +119,20 @@ ERGM_STATE_C_CHANGED
 
 ERGM_STATE_RECONCILED
 
+ergm_state_send(x, ...)
+
+\method{ergm_state_send}{ergm_state_send}(x, ...)
+
+\method{ergm_state_send}{ergm_state_full}(x, ...)
+
+\method{update}{ergm_state_send}(object, state, ...)
+
+ergm_state_receive(x, ...)
+
+\method{ergm_state_receive}{ergm_state}(x, ...)
+
+\method{ergm_state_receive}{ergm_state_full}(x, ...)
+
 \method{summary}{ergm_state}(object, ...)
 }
 \arguments{
@@ -132,7 +153,7 @@ attribute. If \code{NULL}, binary network is assumed.}
 \item{na.omit}{Whether missing edges should be counted. Note that
 missing edge information is not stored.}
 
-\item{state}{An \code{ergm_state} or an \code{\link{ergm_substate}} to replace the state with.}
+\item{state}{An \code{ergm_state} to replace the state with.}
 
 \item{nw}{a \code{\link{network}} object.}
 }

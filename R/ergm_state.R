@@ -201,7 +201,7 @@ param_names.ergm_state_send <- function(object, ...) param_names(object$model, .
 nparam.ergm_state_send <- function(object, ...) nparam(object$model, ...)
 
 #' @describeIn ergm_state a method for updating an `ergm_state` and reconciling extended state.
-#' @param state An `ergm_state` or an [`ergm_substate`] to replace the state with.
+#' @param state An `ergm_state` to replace the state with.
 #' @export
 update.ergm_state_full <- function(object, el=NULL, nw0=NULL, response=NULL, model=NULL, proposal=NULL, stats=NULL, ext.state=NULL, state=NULL, ...){
   if(!is.null(state)){
@@ -283,21 +283,20 @@ ERGM_STATE_RECONCILED <- 0L
   object
 }
 
-#' A nonce class representing an [`ergm_state`] without `nw0`.
-#'
+#' @rdname ergm_state
 #' @export
 ergm_state_send <- function(x, ...){
   UseMethod("ergm_state_send")
 }
 
-#' @rdname ergm_state_send
+#' @rdname ergm_state
 #' @export
 ergm_state_send.ergm_state_send <- function(x, ...){
   x$nw0 <- NULL
   structure(x, class=c("ergm_state_send","ergm_state_receive","ergm_state"))
 }
 
-#' @rdname ergm_state_send
+#' @rdname ergm_state
 #' @export
 ergm_state_send.ergm_state_full <- function(x, ...){
   if(x$ext.flag == ERGM_STATE_R_CHANGED)
@@ -305,23 +304,20 @@ ergm_state_send.ergm_state_full <- function(x, ...){
   NextMethod("ergm_state_send")
 }
 
-#' @rdname ergm_state_send
+#' @rdname ergm_state
 #' @export
 update.ergm_state_send <- function(object, state, ...){
   for(name in names(state)) object[[name]] <- state[[name]]
   object
 }
 
-#' A nonce class representing an [`ergm_state`] without `nw0`, `model`, or `proposal`.
-#'
-#' @param x Typically an [`ergm_state`].
-#'
+#' @rdname ergm_state
 #' @export
 ergm_state_receive <- function(x, ...){
   UseMethod("ergm_state_receive")
 }
 
-#' @rdname ergm_state_receive
+#' @rdname ergm_state
 #' @export
 ergm_state_receive.ergm_state <- function(x, ...){
   x$nw0 <- NULL
@@ -330,7 +326,7 @@ ergm_state_receive.ergm_state <- function(x, ...){
   structure(x, class=c("ergm_state_receive","ergm_state"))
 }
 
-#' @rdname ergm_state_receive
+#' @rdname ergm_state
 #' @export
 ergm_state_receive.ergm_state_full <- function(x, ...){
   if(x$ext.flag == ERGM_STATE_R_CHANGED)

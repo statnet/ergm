@@ -222,7 +222,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
 #'   be used to temporarily override those in the `control` list.
 #' @return \code{ergm_MCMC_slave} returns the MCMC sample as a list of
 #'   the following: \item{s}{the matrix of statistics.}
-#'   \item{state}{an [`ergm_state`] or [`ergm_substate`] object for the new network.}
+#'   \item{state}{an [`ergm_state`] object for the new network.}
 #'   \item{status}{success or failure code: `0` is
 #'   success, `1` for too many edges, and `2` for a
 #'   Metropolis-Hastings proposal failing.}
