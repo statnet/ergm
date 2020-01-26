@@ -21,10 +21,16 @@ ergm_CD_sample <- function(state, control, theta=NULL,
 
   flush.console()
 
+  state0 <- state
+  state <- lapply(state, ergm_state_send) # Don't carry around nw0.
+
   doruns <- function(samplesize=NULL){
-    if(!is.null(ergm.getCluster(control))) persistEvalQ({clusterMap(ergm.getCluster(control), ergm_CD_slave,
+    out <- if(!is.null(ergm.getCluster(control))) persistEvalQ({clusterMap(ergm.getCluster(control), ergm_CD_slave,
                                                                     state=state, MoreArgs=list(eta=eta,control=control.parallel,verbose=verbose,...,samplesize=samplesize))}, retries=getOption("ergm.cluster.retries"), beforeRetry={ergm.restartCluster(control,verbose)})
     else list(ergm_CD_slave(state=state[[1]], samplesize=samplesize,eta=eta,control=control.parallel,verbose=verbose,...))
+    # Note: the return value's state will be a ergm_state_receive.
+    for(i in seq_along(out)) out[[i]]$state <- update(state[[i]], out[[i]]$state)
+    out
   }
   
   outl <- doruns()
@@ -87,6 +93,7 @@ ergm_CD_slave <- function(state, eta,control,verbose,..., samplesize=NULL){
 
   z$s <- matrix(z$s, ncol=nparam(state,canonical=TRUE), byrow = TRUE)
   colnames(z$s) <- param_names(state, canonical=TRUE)
+  z$state <- ergm_state_receive(z$state)
 
   z
 }
