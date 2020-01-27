@@ -419,7 +419,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                   control=control,
                   verbose=verbose, ...)
   }else{
-    o <- list(state=state, nsim=nsim, seed=seed,
+    o <- list(object=state, nsim=nsim, seed=seed,
               coef=coef,
               esteq=esteq,
               output=output,
@@ -437,7 +437,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
 
 #' @describeIn simulate.ergm a low-level function to simulate from an [`ergm_state`] object.
 #' @export
-simulate.ergm_state <- function(object, nsim=1, seed=NULL,
+simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
                                 coef,
                                 esteq=FALSE,
                                 output=c("network","stats","edgelist","ergm_state"),

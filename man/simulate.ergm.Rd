@@ -9,7 +9,7 @@
 \alias{simulate_formula.network}
 \alias{simulate_formula.ergm_state}
 \alias{simulate.ergm_model}
-\alias{simulate.ergm_state}
+\alias{simulate.ergm_state_full}
 \title{Draw from the distribution of an Exponential Family Random Graph Model}
 \usage{
 \method{simulate}{formula}(object, nsim = 1, seed = NULL, ...)
@@ -81,7 +81,7 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   do.sim = TRUE
 )
 
-\method{simulate}{ergm_state}(
+\method{simulate}{ergm_state_full}(
   object,
   nsim = 1,
   seed = NULL,
@@ -295,7 +295,7 @@ More information can be found by looking at the documentation of
 }
 \section{Functions}{
 \itemize{
-\item \code{simulate.ergm_state}: a low-level function to simulate from an \code{\link{ergm_state}} object.
+\item \code{simulate.ergm_state_full}: a low-level function to simulate from an \code{\link{ergm_state}} object.
 }}
 
 \note{
