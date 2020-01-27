@@ -739,7 +739,7 @@ SEXP WtNetwork2Redgelist(WtNetwork *nwp){
   setAttrib(outl, install("response"), PROTECT(mkChar(nwp->eattrname)));
   UNPROTECT(4);
 
-  SEXP class = PROTECT(mkRStrVec((const char*[]){"edgelist", "tbl_df", "tbl", "data.frame", NULL}));
+  SEXP class = PROTECT(mkRStrVec((const char*[]){"tibble_edgelist", "edgelist", "tbl_df", "tbl", "data.frame", NULL}));
   classgets(outl, class);
   UNPROTECT(1);
 

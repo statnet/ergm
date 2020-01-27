@@ -723,7 +723,7 @@ SEXP Network2Redgelist(Network *nwp){
   setAttrib(outl, install("bipartite"), PROTECT(ScalarInteger(nwp->bipartite)));
   UNPROTECT(3);
 
-  SEXP class = PROTECT(mkRStrVec((const char*[]){"edgelist", "tbl_df", "tbl", "data.frame", NULL}));
+  SEXP class = PROTECT(mkRStrVec((const char*[]){"tibble_edgelist", "edgelist", "tbl_df", "tbl", "data.frame", NULL}));
   classgets(outl, class);
   UNPROTECT(1);
 
