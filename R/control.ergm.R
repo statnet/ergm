@@ -83,6 +83,17 @@
 #' uses the bias-reduced method of Firth (1993) as originally implemented by
 #' Meinhard Ploner, Daniela Dunkler, Harry Southworth, and Georg Heinze in the
 #' "logistf" package.
+#'
+#' @param MPLE.singular,MPLE.singular.rcond A preliminary
+#'   nonidentifiability/multicollinearity diagnostic. If
+#'   `MPLE.singular.rcond > 0`, test the estimated MPLE
+#'   variance-covariance matrix for being approximately singular by
+#'   checking if its reciprocal condition number ([rcond()]) is less
+#'   than `MPLE.singular.rcond`. This is often (not always) indicative
+#'   of a non-identifiable (multicollinear) model. If singular,
+#'   depending on `MPLE.singular` issue a warning, an error, or a
+#'   message.
+#'
 #' @param MCMC.prop.weights,obs.MCMC.prop.weights Specifies the proposal
 #' distribution used in the MCMC Metropolis-Hastings algorithm.  Possible
 #' choices depending on selected \code{reference} and \code{constraints}
@@ -420,7 +431,9 @@ control.ergm<-function(drop=TRUE,
                        MPLE.max.dyad.types=1e+6, 
                        MPLE.samplesize=50000,                       
                        MPLE.type=c("glm", "penalized"),
-                      
+                       MPLE.singular=c("warning","message","error"),
+                       MPLE.singular.rcond=1e-10,
+
                        MCMC.prop.weights="default", MCMC.prop.args=list(),
                        MCMC.interval=1024,
                        MCMC.burnin=MCMC.interval*16,
@@ -598,7 +611,7 @@ control.ergm<-function(drop=TRUE,
                        SAN.burnin.times="SAN.nsteps.times"
                        )
 
-  match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method","MCMLE.steplength.parallel","CD.steplength.parallel")
+  match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method","MCMLE.steplength.parallel","CD.steplength.parallel","MPLE.singular")
   
   control<-list()
   formal.args<-formals(sys.function())

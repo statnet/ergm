@@ -737,7 +737,20 @@ ergm <- function(formula, response=NULL,
                                 verbose=verbose, response=response,
                                 maxNumDyadTypes=control$MPLE.max.dyad.types,
                                 ...)
-  
+
+  # TODO: this may also work for CD initial method.
+  if(control$init.method=="MPLE" &&
+     control$MPLE.singular.rcond!=0 &&
+     is.matrix(initialfit$covar) &&
+     (rc <- rcond(initialfit$covar)) < control$MPLE.singular.rcond){
+    msg <- paste0("MPLE variance-covariance matrix appears to be singular or nearly so (reciprocal condition number = ", rc, "). This may indicate that the model is nonidentifiable.")
+    switch(control$MPLE.singular,
+           error = stop(msg),
+           warning = warning(msg, immediate.=TRUE), # Warn immediately, so the user gets the warning before the MCMC starts.
+           message = message(msg)
+           )
+  }
+
   if (!MCMCflag){ # Just return initial (non-MLE) fit and exit.
     message("Stopping at the initial estimate.")
     initialfit$MPLE_is_MLE <- MPLE.is.MLE
