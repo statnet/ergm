@@ -28,10 +28,10 @@
   
   cn <- outer(cn1,cn2,paste,sep=":")
 
-  mw <- wrap.ergm_model(m, nw, response, NULL)
-  if(any(mw$offsettheta) || any(wm$offsetmap)) ergm_Init_warn(paste0("The interaction operator does not propagate offset() decorators."))
+  wm <- wrap.ergm_model(m, nw, response, NULL)
+  if(any(wm$offsettheta) || any(wm$offsetmap)) ergm_Init_warn(paste0("The interaction operator does not propagate offset() decorators."))
 
-  list(name="interact", coef.names = cn, inputs=inputs, submodel=m, dependence=!mw$dependence)
+  list(name="interact", coef.names = cn, inputs=inputs, submodel=m, dependence=!wm$dependence)
 }
 
 ## This will always be passed with two arguments in arglist, which
@@ -64,8 +64,8 @@
 
   cn <- c(cn1,cn2,outer(cn1,cn2,paste,sep=":"))
   
-  mw <- wrap.ergm_model(m, nw, response, NULL)
-  if(any(mw$offsettheta) || any(wm$offsetmap)) ergm_Init_warn(paste0("The interaction operator does not propagate offset() decorators."))
+  wm <- wrap.ergm_model(m, nw, response, NULL)
+  if(any(wm$offsettheta) || any(wm$offsetmap)) ergm_Init_warn(paste0("The interaction operator does not propagate offset() decorators."))
 
-  list(name="main_interact", coef.names = cn, inputs=inputs, submodel=m, dependence=!mw$dependence)
+  list(name="main_interact", coef.names = cn, inputs=inputs, submodel=m, dependence=!wm$dependence)
 }
