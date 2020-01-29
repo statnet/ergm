@@ -99,21 +99,21 @@ deoffset.etamap <- function(etamap){
   if(!any(etamap$offsetmap)) return(etamap) # Nothing to do.
 
   # Construct "mappings" from model with offset to model without.
-  remap.theta <- cumsum(!etamap$offsettheta)
-  remap.theta[etamap$offsettheta] <- 0
-  remap.eta <- cumsum(!etamap$offsetmap)
-  remap.eta[etamap$offsetmap] <- 0
+  remap.theta <- as.integer(cumsum(!etamap$offsettheta))
+  remap.theta[etamap$offsettheta] <- 0L
+  remap.eta <- as.integer(cumsum(!etamap$offsetmap))
+  remap.eta[etamap$offsetmap] <- 0L
 
   out <- list()  
   # Canonical map: for those non-offset elements of $canonical that
   # are not 0, copy them over after remapping them to their new
   # positions.
-  out$canonical <- rep(0, sum(!etamap$offsettheta))
-  out$canonical[etamap$canonical[!etamap$offsettheta]>0] <- remap.eta[etamap$canonical[!etamap$offsettheta]]
+  out$canonical <- integer(sum(!etamap$offsettheta))
+  out$canonical[etamap$canonical[!etamap$offsettheta]>0L] <- remap.eta[etamap$canonical[!etamap$offsettheta]]
 
   # These are just the non-FALSE elements.
   out$offsetmap <- etamap$offsetmap[!etamap$offsetmap]
-out$offsettheta <- etamap$offsettheta[!etamap$offsettheta]
+  out$offsettheta <- etamap$offsettheta[!etamap$offsettheta]
   out$offset <- etamap$offset[!etamap$offset]
 
   # For each curved term,

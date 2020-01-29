@@ -30,27 +30,7 @@
 #' @return For \code{ergm.etagradmult}, the vector that is the product
 #'   of the gradient of eta and \code{v}.
 #' @export ergm.etagradmult
-ergm.etagradmult <- function(theta, v, etamap) {
-  v <- as.matrix(v)
-  ans <- matrix(0, length(theta), dim(v)[2])
-  if(dim(v)[1] != etamap$etalength)
-    stop("Non-conforming matrix multiply: grad(eta) %*% v.\n",
-         "grad(eta) has ", etamap$etalength, " columns ",
-         "and v has ", dim(v)[1], " rows.")
-  ec <- etamap$canonical
-# Set gradient for canonical parameters to the identity matrix
-  ans[ec>0,] <- v[ec[ec>0],]
-  if(length(etamap$curved)>0) {
-    for(cm in etamap$curved) {
-      ans[cm$from,] <- cm$gradient(theta[cm$from], length(cm$to), cm$cov)%*%v[cm$to,]  
-    }
-  }
-  ans
-}
-
-#' @rdname ergm.eta
-#' @export ergm.etagradmult.C
-ergm.etagradmult.C <- function(theta, v, etamap){
+ergm.etagradmult <- function(theta, v, etamap){
   storage.mode(v) <- "double"
   .Call("ergm_etagradmult_wrapper", as.numeric(theta), v,  etamap, PACKAGE="ergm")
 }
