@@ -17,6 +17,8 @@ control.ergm(
   MPLE.samplesize = 50000,
   MPLE.type = c("glm", "penalized", "logitreg"),
   MPLE.maxit = 10000,
+  MPLE.singular = c("warning", "message", "error"),
+  MPLE.singular.rcond = 1e-10,
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
   MCMC.interval = NULL,
@@ -258,6 +260,16 @@ model has curved terms.}
 
 \item{MPLE.maxit}{Maximum number of iterations for \code{"logitreg"}
 implementation of MPLE.}
+
+\item{MPLE.singular, MPLE.singular.rcond}{A preliminary
+nonidentifiability/multicollinearity diagnostic. If
+\code{MPLE.singular.rcond > 0}, test the estimated MPLE
+variance-covariance matrix for being approximately singular by
+checking if its reciprocal condition number (\code{\link[=rcond]{rcond()}}) is less
+than \code{MPLE.singular.rcond}. This is often (not always) indicative
+of a non-identifiable (multicollinear) model. If singular,
+depending on \code{MPLE.singular} issue a warning, an error, or a
+message.}
 
 \item{MCMC.prop.weights, obs.MCMC.prop.weights}{Specifies the proposal
 distribution used in the MCMC Metropolis-Hastings algorithm.  Possible
