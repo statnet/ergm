@@ -10,6 +10,7 @@
 \alias{simulate_formula.ergm_state}
 \alias{simulate.ergm_model}
 \alias{simulate.ergm_state_full}
+\alias{simulate.ergm_state}
 \title{Draw from the distribution of an Exponential Family Random Graph Model}
 \usage{
 \method{simulate}{formula}(object, nsim = 1, seed = NULL, ...)

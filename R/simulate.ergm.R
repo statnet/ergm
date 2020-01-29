@@ -436,6 +436,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
 }
 
 #' @describeIn simulate.ergm a low-level function to simulate from an [`ergm_state`] object.
+#' @aliases simulate.ergm_state
 #' @export
 simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
                                 coef,
