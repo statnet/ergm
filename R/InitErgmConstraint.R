@@ -66,7 +66,7 @@ InitErgmConstraint..attributes <- function(lhs.nw, ...){
           }
       }
       
-      rlebdm(compact.rle(d), n)
+      rlebdm(compress(d), n)
     },
     constrain = character(0),
     dependence = FALSE)
@@ -186,7 +186,7 @@ InitErgmConstraint.blockdiag<-function(lhs.nw, attrname=NULL, ...){
            o | ot
          }else{
            a <- rle(a)
-           rlebdm(compact.rle(do.call(c,rep(
+           rlebdm(compress(do.call(c,rep(
                                           mapply(function(blen,bend){rep(rle(c(FALSE,TRUE,FALSE)), c(bend-blen, blen, n-bend), scale="run")},
                                                  a$lengths, cumsum(a$lengths), SIMPLIFY=FALSE),
                                           a$lengths)

@@ -91,7 +91,7 @@ as.rlebdm.edgelist <- function(x, ...){
     rep(o, lens, scale='run')
   })
   # Concatenate the RLEs and compact.
-  rlebdm(compact.rle(do.call(c, o)), attr(x, "n"))
+  rlebdm(compress(do.call(c, o)), attr(x, "n"))
 }
 
 #' @describeIn rlebdm
@@ -252,23 +252,31 @@ as.rlebdm.ergm_conlist <- function(x, constraints.obs = NULL, which = c("free", 
                  }
              }
            }
-           if(!is.null(y)) rlebdm(compact.rle(y), sqrt(length(y)))
+           if(!is.null(y)) compress(y)
          },
          missing={
            free_dyads <- as.rlebdm(x)
            free_dyads.obs <- as.rlebdm(constraints.obs)
            
            if(is.null(free_dyads)){
-             free_dyads.obs
+             free_dyads.obs # Already compacted.
            }else{
-             NVL3(free_dyads.obs, free_dyads & .,  NULL)
+             NVL3(free_dyads.obs, compress(free_dyads & .),  NULL)
            }
          },
          informative={
            y <- as.rlebdm(x)
-           NVL3(constraints.obs, y & !as.rlebdm(x, ., which="missing"), y)
+           NVL3(constraints.obs, compress(y & !as.rlebdm(x, ., which="missing")), y)
          }
          )
+}
+
+#' @describeIn rlebdm Compress the `rle` data structure in the
+#'   `rlebdm` by merging successive runs with identical values.
+#' @export
+compress.rlebdm <- function(x, ...){
+  y <- NextMethod("compress")
+  structure(y, n=attr(x, "n"), class=class(x))
 }
 
 
@@ -350,6 +358,7 @@ as.edgelist.rlebdm <- function(x, prototype=NULL, ...){
 #' * starting positions of the runs, and
 #' * cumulative lengths of the runs, prepended with 0.
 to_ergm_Cdouble.rlebdm <- function(x, ...){
+  x <- compress(x) # Just in case.
   cumlen <- cumsum(as.numeric(x$lengths[x$values==TRUE]))
   nruns <- length(cumlen)
   ndyads <- cumlen[nruns]
