@@ -91,7 +91,7 @@ void WtMHProposalDestroy(WtMHProposal *MH, WtNetwork *nwp);
 #define WtMH_U_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtMHProposal *MHp, WtNetwork *nwp)
 #define WtMH_P_FN(a) void (a) (WtMHProposal *MHp, WtNetwork *nwp)
 #define WtMH_F_FN(a) void (a) (WtMHProposal *MHp, WtNetwork *nwp)
-#define WtMH_X_FN(a) void (a) (unsigned int type, void *data, WtMHProposal*, WtNetwork*)
+#define WtMH_X_FN(a) void (a) (unsigned int type, void *data, WtMHProposal* MHp, WtNetwork* nwp)
 
 #endif 
 
