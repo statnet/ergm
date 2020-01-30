@@ -85,7 +85,7 @@ InitErgmConstraint..attributes <- function(lhs.nw, ...){
           }
       }
       
-      rlebdm(compact.rle(d), n)
+      rlebdm(compress(d), n)
     },
     constrain = character(0),
     dependence = FALSE)
@@ -273,7 +273,7 @@ InitErgmConstraint.egocentric <- function(lhs.nw, attr=NULL, direction = c("both
       fd <- rlebdm(switch(direction,
                           `out` = rep(rlea, n),
                           `in` = rep(rlea, rep(n, length(rlea$lengths)), scale="run"),
-                          `both` = rep(rlea, n) & rep(rlea, rep(n, length(rlea$lengths)), scale="run")),
+                          `both` = compress(rep(rlea, n) & rep(rlea, rep(n, length(rlea$lengths)), scale="run"))), # The others are already compressed by rep().
                    n)
     },
     dependence = FALSE

@@ -18,6 +18,7 @@
 \alias{>=.rlebdm}
 \alias{==.rlebdm}
 \alias{!=.rlebdm}
+\alias{compress.rlebdm}
 \alias{as.edgelist.rlebdm}
 \title{RLE-Compressed Boolean Dyad Matrix}
 \usage{
@@ -55,6 +56,8 @@ as.rlebdm(x, ...)
 
 \method{!=}{rlebdm}(e1, e2)
 
+\method{compress}{rlebdm}(x, ...)
+
 \method{as.edgelist}{rlebdm}(x, prototype = NULL, ...)
 }
 \arguments{
@@ -90,6 +93,9 @@ cells are set to \code{FALSE}.
 \item \code{as.rlebdm}: Convert an object of class \code{\link{network}} to an \code{\link{rlebdm}} object
 whose cells corresponding to extant edges are set to \code{TRUE} and
 whose other cells are set to \code{FALSE}.
+
+\item \code{compress}: Compress the \code{rle} data structure in the
+\code{rlebdm} by merging successive runs with identical values.
 
 \item \code{as.edgelist}: Convert an \code{\link{rlebdm}} object to an \code{\link{edgelist}}: a two-column
 integer matrix giving the cells with \code{TRUE} values.
