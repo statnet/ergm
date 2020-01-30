@@ -153,7 +153,7 @@ GWDECAY <- list(
 
 .spcache.aux <- function(type){
   type <- toupper(type)
-  as.formula(as.call(list(as.name('~'), as.call(list(as.name('.spcache.net'),type=if(type=='ITP')'OTP' else type)))))
+  trim_env(as.formula(as.call(list(as.name('~'), as.call(list(as.name('.spcache.net'),type=if(type=='ITP')'OTP' else type))))))
 }
 
 # LEVELS_BASE1 is a placeholder for whatever the value of levels= or

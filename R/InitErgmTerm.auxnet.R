@@ -32,10 +32,12 @@ InitErgmTerm..discord.sociomatrix<-function(nw, arglist, ...) {
   mode <- match.arg(a$mode, c("integer"))
   name <- switch(mode,
                  integer = "_discord_isociomatrix")
-  
+
+  x <- a$x
+
   list(name=name,
        coef.names=c(), dependence=FALSE,
-       auxiliaries = ~ .discord.net(a$x, implementation="Network"))
+       auxiliaries = trim_env(~ .discord.net(x, implementation="Network"), "x"))
 }
 
 InitErgmTerm..discord.net<-function(nw, arglist, ...) {

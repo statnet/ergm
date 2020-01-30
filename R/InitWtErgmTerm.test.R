@@ -21,7 +21,7 @@ InitWtErgmTerm.test.abs.sum.minus.5<-function(nw, arglist, ...) {
                   else if(a$summary) "test_abs_sum_minus_5"
                   else "test_abs_sum_minus_5_no_summary", dependence=TRUE, emptynwstats = 5,
        minval = 0, maxval = +Inf, conflicts.constraints="sum",
-       auxiliaries=if(a$aux) ~.sum)
+       auxiliaries=if(a$aux) trim_env(~.sum))
 }
 
 InitWtErgmTerm..sociomatrix<-function(nw, arglist, ...) {
@@ -54,7 +54,7 @@ InitWtErgmTerm.sociomatrix<-function(nw, arglist, ...) {
   heads <- rep(1:n,each=n)
   list(name=name,
        coef.names=paste(tails,heads,sep="."), dependence=FALSE,
-       auxiliaries = ~.sociomatrix(mode))
+       auxiliaries = trim_env(~.sociomatrix(mode), "mode"))
 }
 
 InitWtErgmTerm..sum<-function(nw, arglist, ...) {

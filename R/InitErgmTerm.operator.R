@@ -163,8 +163,9 @@ InitErgmTerm.submodel.test <- function(nw, arglist, response=NULL, ...){
   else nw <- ergm.getnetwork(f)
 
   m <- ergm_model(f, nw, response=response,...)
-  
-  c(list(name="submodel_test_term", auxiliaries = ~.submodel(a$formula)),
+
+  af <- a$formula
+  c(list(name="submodel_test_term", auxiliaries = trim_env(~.submodel(af),"af")),
     wrap.ergm_model(m, nw, response, mk_std_op_namewrap('submodel.test')))
 }
 
@@ -203,8 +204,9 @@ InitErgmTerm.summary.test <- function(nw, arglist, response=NULL, ...){
   else nw <- ergm.getnetwork(f)
 
   m <- ergm_model(f, nw, response=response,...)
-  
-  list(name="summary_test_term", coef.names="summ.test", inputs=c(nparam(m)), auxiliaries=~.summary(a$formula),
+
+  af <- a$formula
+  list(name="summary_test_term", coef.names="summ.test", inputs=c(nparam(m)), auxiliaries=trim_env(~.summary(af),"af"),
        wrap.ergm_model(m, nw, response, NULL))
 }
 
@@ -222,7 +224,7 @@ InitErgmTerm.F <- function(nw, arglist, response=NULL, ...){
   m <- ergm_model(f, nw,...)
   
   form.name <- despace(deparse(ult(form)))
-  auxiliaries <- ~.filter.formula.net(form)
+  auxiliaries <- trim_env(~.filter.formula.net(form), "form")
   
   c(list(name="on_filter_formula_net",
          submodel = m,
@@ -457,7 +459,7 @@ InitErgmTerm.Undir <- function(nw, arglist, response=NULL, ...){
 
   m <- ergm_model(f, nw,...)
 
-  auxiliaries <- ~.undir.net(rule)
+  auxiliaries <- trim_env(~.undir.net(rule), "rule")
   
   c(list(name="on_undir_net",
          submodel = m,
@@ -588,7 +590,7 @@ InitErgmTerm.S <- function(nw, arglist, response=NULL, ...){
 
   m <- ergm_model(f, snw,...)
 
-  auxiliaries <- ~.subgraph.net(tailsel, headsel)
+  auxiliaries <- trim_env(~.subgraph.net(tailsel, headsel), c("tailsel","headsel"))
 
   selname <- if(tailname==headname) tailname else paste0(tailname,',',headname)
 

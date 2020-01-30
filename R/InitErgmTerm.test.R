@@ -34,7 +34,7 @@ InitErgmTerm.sociomatrix<-function(nw, arglist, ...) {
   heads <- rep(1:n,each=n)
   list(name=name,
        coef.names=paste(tails,heads,sep="."), dependence=FALSE,
-       auxiliaries = ~.sociomatrix(mode))
+       auxiliaries = trim_env(~.sociomatrix(mode),"mode"))
 }
 
 InitErgmTerm.discord.sociomatrix<-function(nw, arglist, ...) {
@@ -50,9 +50,10 @@ InitErgmTerm.discord.sociomatrix<-function(nw, arglist, ...) {
   n <- network.size(nw)
   tails <- rep(1:n,n)
   heads <- rep(1:n,each=n)
+  x <- a$x
   list(name=name,
        coef.names=paste(tails,heads,sep="."), dependence=FALSE,
-       auxiliaries = ~.discord.sociomatrix(a$x,mode),
+       auxiliaries = trim_env(~.discord.sociomatrix(x,mode), c("x","mode")),
        emptynwstats=as.matrix(a$x,matrix.type="adjacency"))
 }
 
@@ -64,12 +65,12 @@ InitErgmTerm.discord.inter.union.net <- function(nw, arglist, ...) {
                       required = c(TRUE, FALSE))
 
   impl <- match.arg(a$implementation, c("Network","DyadSet"))
+  x <- a$x
+  nedges <- network.edgecount(x)
 
-  nedges <- network.edgecount(a$x)
-  
   list(name=paste0("disc_inter_union_net_", impl),
        coef.names=c("Diun","dIun","diUn","Diun2","dIun2","diUn2"),
-       auxiliaries = ~ .discord.net(a$x, implementation=impl) + .intersect.net(a$x, implementation=impl) + .union.net(a$x, implementation=impl),
+       auxiliaries = trim_env(~ .discord.net(x, implementation=impl) + .intersect.net(x, implementation=impl) + .union.net(x, implementation=impl), c("x","impl")),
        inputs=to_ergm_Cdouble(a$x, prototype=nw),
        emptynwstats=c(nedges, 0, nedges, nedges^2, 0, nedges^2),
        dependence=TRUE)

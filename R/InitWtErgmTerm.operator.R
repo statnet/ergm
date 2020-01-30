@@ -26,11 +26,11 @@ InitWtErgmTerm.B <- function(nw, arglist, response=NULL, ...){
   if(is(form, "formula")){
     form.name <- despace(deparse(ult(form)))
     name <- "import_binary_term_form"
-    auxiliaries <- ~.binary.formula.net(form)
+    auxiliaries <- trim_env(~.binary.formula.net(form),"form")
   }else{
     form.name <- form
     name <- paste("import_binary_term",form,sep="_")
-    auxiliaries <- if(form=="nonzero") ~.binary.nonzero.net
+    auxiliaries <- if(form=="nonzero") trim_env(~.binary.nonzero.net)
   }
 
   mw <- wrap.ergm_model(m, nwb, NULL, mk_std_op_namewrap('B', form.name))

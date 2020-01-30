@@ -533,6 +533,10 @@ ergm <- function(formula, response=NULL,
                  verbose=FALSE,...) {
   check.control.class("ergm", "ergm")
   control.toplevel(control,...)
+
+  reference <- trim_env_const_formula(reference)
+  constraints <- trim_env_const_formula(constraints)
+  obs.constraints <- trim_env_const_formula(obs.constraints)
   
   estimate <- match.arg(estimate)
 
@@ -561,7 +565,7 @@ ergm <- function(formula, response=NULL,
     constraints <- tmp$constraints
   }else if(!is(obs.constraints, "ergm_proposal")){
   # Handle the observation process and other "automatic" constraints.
-    tmp <- .handle.auto.constraints(nw, ~., obs.constraints, target.stats)
+    tmp <- .handle.auto.constraints(nw, trim_env(~.), obs.constraints, target.stats)
     nw <- tmp$nw
     constraints.obs <- tmp$constraints.obs
     constraints <- tmp$constraints
@@ -571,7 +575,7 @@ ergm <- function(formula, response=NULL,
     if (verbose) message("Initializing unconstrained Metropolis-Hastings proposal: ", appendLF=FALSE)
     
   ## FIXME: a more general framework is needed?
-  if(!is.null(response) && reference==~Bernoulli){
+  if(!is.null(response) && reference==trim_env(~Bernoulli)){
     warn(paste0("The default Bernoulli reference distribution operates in the binary (",sQuote("response=NULL"),") mode only. Did you specify the ",sQuote("reference")," argument?"))
   }
     
@@ -593,7 +597,7 @@ ergm <- function(formula, response=NULL,
       
       if(!is.null(proposal.obs$auxiliaries)){
         if(verbose) message(" (requests auxiliaries: updating model).")
-        model$obs.model <- c(model, ergm_model(~., nw, response=response, extra.aux=list(proposal=proposal.obs$auxiliaries), term.options=control$term.options))
+        model$obs.model <- c(model, ergm_model(trim_env(~.), nw, response=response, extra.aux=list(proposal=proposal.obs$auxiliaries), term.options=control$term.options))
         proposal.obs$slots.extra.aux <- model$model.obs$slots.extra.aux$proposal
         if(verbose) message("Model reinitialized.")
       }else if(verbose) message(".")

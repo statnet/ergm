@@ -288,7 +288,7 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
 
   if(do.sim){
     out <- simulate(m, nsim=nsim, seed=seed,
-                    coef=coef, response=response, reference=reference,
+                    coef=coef, response=response,
                     constraints=proposal,
                     monitor=mon.m,
                     basis=nw,
@@ -311,7 +311,7 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
     out
   }else{
     list(object=m, nsim=nsim, seed=seed,
-         coef=coef, response=response, reference=reference,
+         coef=coef, response=response,
          constraints=proposal,
          monitor=mon.m,
          basis=nw,
@@ -338,8 +338,8 @@ simulate_formula.ergm_state <- .simulate_formula.network
 #'   [`ergm_proposal`] object instead.
 #' @export
 simulate.ergm_model <- function(object, nsim=1, seed=NULL,
-                                coef, response=NULL, reference=~Bernoulli,
-                                constraints=~.,
+                                coef, response=NULL, reference=if(is(constraints, "ergm_proposal")) NULL else trim_env(~Bernoulli),
+                                constraints=trim_env(~.),
                                 observational=FALSE,
                                 monitor=NULL,
                                 basis=NULL,

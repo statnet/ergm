@@ -13,7 +13,8 @@ InitErgmTerm.NodematchFilter <- function(nw, arglist, response=NULL, ...){
 
   m <- ergm_model(f, nw, response=response,...)
 
-  c(list(name="on_blockdiag_net", submodel=m, auxiliaries=~.blockdiag.net(a$attrname)),
+  attrname <- a$attrname
+  c(list(name="on_blockdiag_net", submodel=m, auxiliaries=trim_env(~.blockdiag.net(attrname), "attrname")),
     wrap.ergm_model(m, nw, response, mk_std_op_namewrap('NodematchFilter',a$attrname)))
 }
 

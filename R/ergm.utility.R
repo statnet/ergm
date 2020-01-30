@@ -388,3 +388,27 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
 .multiply.with.inf <- function(A,V) {
   cbind(colSums(t(A)*c(V), na.rm=TRUE))
 }
+
+trim_env_const_formula <- function(x, keep=NULL){
+  terms <- list_rhs.formula(x)
+  needs_env <- FALSE
+  basefn <- ls(baseenv())
+
+  is_simple <- function(x, toplevel=FALSE){
+    if(is.null(x) || is.character(x) || is.numeric(x) || is.logical(x) || is.complex(x) || identical(x, as.name("."))) TRUE
+    else if(is.call(x)){
+      fn <- as.character(x[[1]])
+      if(!toplevel && ! fn%in%basefn) FALSE
+      else all(sapply(as.list(x)[-1], is_simple))
+    } else FALSE
+  }
+
+  for(trm in terms){
+    if(is.call(trm) && !is_simple(trm, TRUE)){
+        needs_env <- TRUE
+        break
+    }
+  }
+
+  if(needs_env) x else trim_env(x, keep)
+}
