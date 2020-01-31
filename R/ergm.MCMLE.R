@@ -408,7 +408,7 @@ ergm.MCMLE <- function(init, nw, model,
           if(control$MCMLE.steplength.esteq) esteq else statsmatrix[,!model$etamap$offsetmap,drop=FALSE],
           if(control$MCMLE.steplength.esteq) esteq.obs else statsmatrix.obs[,!model$etamap$offsetmap,drop=FALSE],
           control$MCMLE.steplength.margin, control$MCMLE.steplength, point.gamma.exp=control$MCMLE.steplength.point.exp, steplength.prev=steplen, x1.prefilter=control$MCMLE.steplength.prefilter, x2.prefilter=control$MCMLE.steplength.prefilter, precision=control$MCMLE.steplength.precision, min=control$MCMLE.steplength.min, verbose=verbose,
-          x2.num.max=control$MCMLE.steplength.miss.sample, steplength.maxit=control$MCMLE.steplength.maxit, control=control
+          x2.num.max=control$MCMLE.steplength.miss.sample, parallel=control$MCMLE.steplength.parallel, steplength.maxit=control$MCMLE.steplength.maxit, control=control
         )
 
         # If the step length margin is negative and signals convergence,

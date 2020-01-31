@@ -249,11 +249,12 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 
 ## This is a variant of Hummel et al. (2010)'s steplength algorithm
 ## also usable for missing data MLE.
-.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, x1.prefilter=FALSE, x2.prefilter=FALSE, steplength.prev=steplength.max, point.gamma.exp=1, x2.num.max=100, steplength.maxit=25, parallel=c("observational","always","never"), min=0.0001, precision=0.25, control=NULL, verbose=FALSE){
+.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, x1.prefilter=FALSE, x2.prefilter=FALSE, steplength.prev=steplength.max, point.gamma.exp=1, x2.num.max=ceiling(sqrt(ncol(rbind(x1)))), steplength.maxit=25, parallel=c("observational","always","never"), min=0.0001, precision=0.25, control=NULL, verbose=FALSE){
   parallel <- match.arg(parallel)
   margin <- 1 + margin
   point.margin <- min(1, margin)
   x1 <- rbind(x1); m1 <- rbind(colMeans(x1)); ; n1 <- nrow(x1)
+  if(is.function(x2.num.max)) x2.num.max <- x2.num.max(x1)
   if(is.null(x2)){
     m2 <- rbind(rep(0,ncol(x1)))
     parallel <- parallel == "always"

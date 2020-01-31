@@ -100,7 +100,7 @@ control.ergm(
   obs.MCMLE.burnin = round(MCMLE.burnin * obs.MCMC.burnin.mul),
   MCMLE.last.boost = 4,
   MCMLE.steplength.esteq = TRUE,
-  MCMLE.steplength.miss.sample = 100,
+  MCMLE.steplength.miss.sample = function(x1) ceiling(sqrt(ncol(rbind(x1)))),
   MCMLE.steplength.maxit = if (MCMLE.steplength.margin < 0) 5 else 25,
   MCMLE.steplength.min = 1e-04,
   MCMLE.effectiveSize.interval_drop = 2,
@@ -148,7 +148,7 @@ control.ergm(
   CD.adaptive.trustregion = 3,
   CD.adaptive.epsilon = 0.01,
   CD.steplength.esteq = TRUE,
-  CD.steplength.miss.sample = 100,
+  CD.steplength.miss.sample = function(x1) ceiling(sqrt(ncol(rbind(x1)))),
   CD.steplength.maxit = 25,
   CD.steplength.min = 1e-04,
   CD.steplength.parallel = c("observational", "always", "never"),
@@ -557,14 +557,17 @@ MCMC sample size of the last iteration by this factor.}
 values be used to compute the Hummel step length? This allows the Hummel
 stepping algorithm converge when some sufficient statistics are at 0.}
 
-\item{MCMLE.steplength.miss.sample}{In fitting the missing data MLE, the rules
-for step length become more complicated. In short, it is necessary for
-\emph{all} points in the constrained sample to be in the convex hull of the
-unconstrained (though they may be on the border); and it is necessary for
-their centroid to be in its interior. This requires checking a large number
-of points against whether they are in the convex hull, so to speed up the
-procedure, a sample is taken of the points most likely to be outside it.
-This parameter specifies the sample size.}
+\item{MCMLE.steplength.miss.sample}{In fitting the missing data
+MLE, the rules for step length become more complicated. In short,
+it is necessary for \emph{all} points in the constrained sample
+to be in the convex hull of the unconstrained (though they may be
+on the border); and it is necessary for their centroid to be in
+its interior. This requires checking a large number of points
+against whether they are in the convex hull, so to speed up the
+procedure, a sample is taken of the points most likely to be
+outside it.  This parameter specifies the sample size or a
+function of the unconstrained sample matrix to determine the
+sample size.}
 
 \item{MCMLE.steplength.maxit}{Maximum number of iterations in searching for the
 best step length.}
