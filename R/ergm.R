@@ -742,7 +742,7 @@ ergm <- function(formula, response=NULL,
   if(control$init.method=="MPLE" &&
      control$MPLE.singular.rcond!=0 &&
      is.matrix(initialfit$covar) &&
-     (rc <- rcond(initialfit$covar)) < control$MPLE.singular.rcond){
+     (rc <- rcond(initialfit$covar[!model.initial$etamap$offsettheta,!model.initial$etamap$offsettheta,drop=FALSE])) < control$MPLE.singular.rcond){
     msg <- paste0("MPLE variance-covariance matrix appears to be singular or nearly so (reciprocal condition number = ", rc, "). This may indicate that the model is nonidentifiable.")
     switch(control$MPLE.singular,
            error = stop(msg),
