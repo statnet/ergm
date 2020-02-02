@@ -170,3 +170,5 @@ Collate:
     'vcov.ergm.R'
     'wtd.median.R'
     'zzz.R'
+Remotes: github::statnet/statnet.common@master,
+    github::statnet/network@master
