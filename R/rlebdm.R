@@ -79,6 +79,7 @@ as.rlebdm.matrix <- function(x, ...){
 #' @export
 as.rlebdm.edgelist <- function(x, ...){
   n <- attr(x, "n")
+  x <- as.matrix(x)
   ils <- lapply(lapply(lapply(seq_len(n), function(j) x[x[,2]==j,1]), unique), sort)
   o <- lapply(ils, function(il){
     o <- rle(c(rep(c(FALSE,TRUE), length(il)),FALSE))
@@ -91,7 +92,7 @@ as.rlebdm.edgelist <- function(x, ...){
     rep(o, lens, scale='run')
   })
   # Concatenate the RLEs and compact.
-  rlebdm(compress(do.call(c, o)), attr(x, "n"))
+  rlebdm(compress(do.call(c, o)), n)
 }
 
 #' @describeIn rlebdm
