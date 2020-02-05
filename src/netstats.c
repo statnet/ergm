@@ -29,6 +29,7 @@ SEXP network_stats_wrapper(ARGS_STATE){
             (Vertex*) INTEGER(VECTOR_ELT(elR, 1)),
             s->nwp, m);
 
+  ErgmStateDestroy(s);
   PutRNGstate();
   UNPROTECT(1);
   return stats;

@@ -30,6 +30,7 @@ SEXP wt_network_stats_wrapper(ARGS_WTSTATE){
               REAL(VECTOR_ELT(elR, 2)),
               s->nwp, m);
 
+  WtErgmStateDestroy(s);
   PutRNGstate();
   UNPROTECT(1);
   return stats;
