@@ -478,6 +478,7 @@ MCMCStatus MCMCSamplePhase12(ErgmState *s,
 
   Free(ubar);
   Free(u2bar);
+  Free(aDdiaginv);
 
   return MCMC_OK;
 }
