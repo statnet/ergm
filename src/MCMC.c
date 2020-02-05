@@ -534,5 +534,6 @@ void MCMCSamplePhase12(MHProposal *MHp,
 
   Free(ubar);
   Free(u2bar);
+  Free(aDdiaginv);
 }
 
