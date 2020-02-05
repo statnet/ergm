@@ -482,5 +482,6 @@ void SummStats(Edge n_edges, Vertex *tails, Vertex *heads, Network *nwp, Model *
     Free(heads);
   }else{
     memcpy(m->workspace, stats, m->n_stats*sizeof(double));
+    Free(stats);
   }
 }
