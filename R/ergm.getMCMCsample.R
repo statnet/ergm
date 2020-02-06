@@ -269,13 +269,20 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
     suppressWarnings(geweke.diag.mv(x, ...)$p.value)
   }
 
-  # TODO: Implement bisection algorithm here.
+  # TODO: Parallel multisection search?
   pts <- sort(round(base^seq_len(npts)*niter(x)))
-  pvals <- sapply(pts, geweke)
+  pvals <- rep(NA, length(pts))
+  l <- 1L; u <- length(pts)
+  while(l < u){
+    m <- l + (u-l)%/%2
+    pvals[m] <- geweke(pts[m])
+    if(pvals[m] >= min.pval) l = m + 1L
+    else u = m
+  }
 
   best <- suppressWarnings(min(which(pvals>min.pval)))
   if(!is.finite(best))
     best <- which.max(pvals)
-  
+
   list(burnin=pts[best], pval=pvals[best])
 }
