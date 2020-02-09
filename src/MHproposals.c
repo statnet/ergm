@@ -96,24 +96,12 @@ MH_I_FN(Mi_StratTNT) {
   
   double *vattr = MHp->inputs + 1 + 3*nmixtypes + 1 + nattrcodes + N_NODES;
   
-  // in storage, we need:
-  // (1,2) integer count of how many edges each mixing type has, and what the maximum allowed in current storage is
-  // (3,4) tail and head vertex lists for edges of each mixing type
-  // (5,6) when adding/removing an edge in the U function below, it will save time to know its mixing type and 
-  //       (if applicable) index within the edgelist so the last two entries will be an int * mixingtype and an int * edgeindex
-  ALLOC_STORAGE(6, void *, sto);
+  ALLOC_STORAGE(2, void *, sto);
   
-  Vertex **tailsvec = (Vertex **)Calloc(nmixtypes, Vertex *);
-  Vertex **headsvec = (Vertex **)Calloc(nmixtypes, Vertex *);
-  int *mixcounts = (int *)Calloc(nmixtypes, int);
-  int *maxcounts = (int *)Calloc(nmixtypes, int);
-    
+  UnsrtEL **els = (UnsrtEL **)Calloc(nmixtypes, UnsrtEL *);
+      
   for(int i = 0; i < nmixtypes; i++) {
-    // start with maxcounts[i] = nwp->maxedges, which is assumed to be larger than the number 
-    // of edges in the network at the time this initialization function is called
-    tailsvec[i] = (Vertex *)Calloc(nwp->maxedges, Vertex);
-    headsvec[i] = (Vertex *)Calloc(nwp->maxedges, Vertex);
-    maxcounts[i] = nwp->maxedges;
+    els[i] = UnsrtELInitialize(0, NULL, NULL, FALSE);
   }
   
   Vertex head;
@@ -126,25 +114,18 @@ MH_I_FN(Mi_StratTNT) {
         if((vattr[tail - 1] == tailtypes[i] && vattr[head - 1] == headtypes[i]) || (!DIRECTED && !BIPARTITE && vattr[head - 1] == tailtypes[i] && vattr[tail - 1] == headtypes[i])) {
           // this edge is of mixing type i and should be added to the ith edgelist, updating the count accordingly
           // note that tail < head is guaranteed in the undirected case since e is an outedge from tail to head
-          tailsvec[i][mixcounts[i]] = tail;
-          headsvec[i][mixcounts[i]] = head;
-          mixcounts[i]++;
+          UnsrtELInsert(tail, head, els[i]);
           break; // so we don't bother checking remaining mixing types for this particular edge
         }
       }
     }
   }
   
-  // assign counts and edgelists to storage
-  sto[0] = (void *)mixcounts;
-  sto[1] = (void *)maxcounts;
+  // assign edgelists to storage
+  sto[0] = els;
   
-  sto[2] = (void *)tailsvec;
-  sto[3] = (void *)headsvec;
-
-  // make room for mixingtype and edgeindex
-  sto[4] = Calloc(1, int);
-  sto[5] = Calloc(1, int);  
+  // will track mixing type of current proposal
+  sto[1] = Calloc(1, int);  
 }
 
 MH_P_FN(MH_StratTNT) {
@@ -163,12 +144,9 @@ MH_P_FN(MH_StratTNT) {
   GET_STORAGE(void *, sto);
 
   // record the mixing type of the toggle, in case it's needed in the U function later
-  ((int *)sto[4])[0] = i;    
+  ((int *)sto[1])[0] = i;    
   
-  int *mixcounts = (int *)sto[0];
-  
-  Vertex **tailsvec = (Vertex **)sto[2];
-  Vertex **headsvec = (Vertex **)sto[3];
+  UnsrtEL **els = (UnsrtEL **)sto[0];
 
   // for the logratio calculation, we will need some statistics
   double *tailtypes = MHp->inputs + 1;
@@ -180,7 +158,7 @@ MH_P_FN(MH_StratTNT) {
   double *nodecountsbycode = MHp->inputs + 1 + 3*nmixtypes + 1;  
   
   // number of edges of this mixing type
-  int nedgestype = mixcounts[i];
+  int nedgestype = els[i]->nedges;
 
   // number of dyads of this mixing type
   // note tailtype == headtype will never hold
@@ -199,17 +177,9 @@ MH_P_FN(MH_StratTNT) {
   double logratio = 0;
 
   BD_LOOP({
-    if(unif_rand() < 0.5 && mixcounts[i] > 0) {
+    if(unif_rand() < 0.5 && nedgestype > 0) {
       // select an existing edge of type i at random, and propose toggling it off
-      int edgeindex = mixcounts[i]*unif_rand();
-      
-      // in the undirected case, we always have tailsvec[i][edgeindex] < headsvec[i][edgeindex],
-      // so we don't need to check that here
-      Mtail[0] = tailsvec[i][edgeindex];
-      Mhead[0] = headsvec[i][edgeindex];
-      
-      // set edgeindex in storage in case we need to update
-      ((int *)sto[5])[0] = edgeindex;
+      UnsrtELGetRand(Mtail, Mhead, els[i]);
       
       // logratio is essentially copied from TNT, because the probability of 
       // choosing this particular mixing type cancels upon taking the ratio;
@@ -258,21 +228,14 @@ MH_P_FN(MH_StratTNT) {
         // the same probability of picking each existing edge as if we used the tail -> head
         // edge, but also allows us to keep the edgelists unsorted (at the cost of generating
         // an extra random index in this case)
-        int edgeindex = unif_rand()*mixcounts[i];
-                
-        Mtail[0] = tailsvec[i][edgeindex];
-        Mhead[0] = headsvec[i][edgeindex];
-
-        ((int *)sto[5])[0] = edgeindex;
+        UnsrtELGetRand(Mtail, Mhead, els[i]);
 
         logratio = log((nedgestype == 1 ? 1.0/(0.5*ndyadstype + 0.5) :
                         nedgestype / ((double) ndyadstype + nedgestype)));
       }else{
         Mtail[0] = tail;
         Mhead[0] = head;
-        
-        ((int *)sto[5])[0] = -1; // meaning not currently in edgelist
-                
+                        
         logratio = log((nedgestype == 0 ? 0.5*ndyadstype + 0.5 :
                         1.0 + (ndyadstype)/((double) nedgestype + 1)));
       }
@@ -283,74 +246,36 @@ MH_P_FN(MH_StratTNT) {
 }
 
 MH_U_FN(Mu_StratTNT) {
-  // add or remove edge from appropriate edgelist; update edgelist length
+  // add or remove edge from appropriate edgelist
   GET_STORAGE(void *, sto);
-
-  int *mixcounts = (int *)sto[0];
-  int *maxcounts = (int *)sto[1];
   
-  Vertex **tailsvec = (Vertex **)sto[2];
-  Vertex **headsvec = (Vertex **)sto[3];
-
-  int mixtype = ((int *)sto[4])[0];
-  int edgeindex = ((int *)sto[5])[0];
+  UnsrtEL **els = (UnsrtEL **)sto[0];
+  int i = ((int *)sto[1])[0];
   
-  if(edgeindex >= 0) {
-    // we are removing an existing edge; move the last edge into the place of the edge we're removing;
-    // this movement is unnecessary if we are removing the last edge, but oh well (it doesn't hurt anything)
-    tailsvec[mixtype][edgeindex] = tailsvec[mixtype][mixcounts[mixtype] - 1];
-    headsvec[mixtype][edgeindex] = headsvec[mixtype][mixcounts[mixtype] - 1];
-
-    // decrement the count
-    mixcounts[mixtype]--;
+  if(edgeflag) {
+    // we are removing an existing edge
+    UnsrtELDelete(tail, head, els[i]);
   } else {
-    // we are adding a new edge; put it on the end of the edgelist
-    
-    // check if mixcounts[mixtype] is maxcounts[mixtype];
-    // if so, copy everything to a new location twice the size, and *then* add the new edge
-    // being sure to update storage pters appropriately    
-    if(mixcounts[mixtype] == maxcounts[mixtype]) {
-      Vertex *newtailsvec = (Vertex *)Calloc(2*maxcounts[mixtype], Vertex);
-      Vertex *newheadsvec = (Vertex *)Calloc(2*maxcounts[mixtype], Vertex);
-      memcpy(newtailsvec, tailsvec[mixtype], sizeof(Vertex)*maxcounts[mixtype]);
-      memcpy(newheadsvec, headsvec[mixtype], sizeof(Vertex)*maxcounts[mixtype]);
-      maxcounts[mixtype] = 2*maxcounts[mixtype];
-      Free(tailsvec[mixtype]);
-      Free(headsvec[mixtype]);
-      tailsvec[mixtype] = newtailsvec;
-      headsvec[mixtype] = newheadsvec;
-    }
-
-    tailsvec[mixtype][mixcounts[mixtype]] = tail;
-    headsvec[mixtype][mixcounts[mixtype]] = head;
-    
-    // increment the count
-    mixcounts[mixtype]++;
+    // we are adding a new edge
+    UnsrtELInsert(tail, head, els[i]);
   }
 }
 
 MH_F_FN(Mf_StratTNT) {
   // Free all the things
+  int nmixtypes = MHp->inputs[0];
+
   GET_STORAGE(void *, sto);
   
-  int nmixtypes = MHp->inputs[0];
-    
-  Free(sto[5]);
-  Free(sto[4]);
-
-  Vertex **headsvec = (Vertex **)sto[3];  
-  Vertex **tailsvec = (Vertex **)sto[2];
+  Free(sto[1]);
+  
+  UnsrtEL **els = (UnsrtEL **)sto[0];
 
   for(int i = 0; i < nmixtypes; i++) {
-    Free(headsvec[i]);
-    Free(tailsvec[i]);
+    UnsrtELDestroy(els[i]);
   }
 
-  Free(headsvec);  
-  Free(tailsvec);
-
-  Free(sto[1]);  
-  Free(sto[0]);
+  Free(els);
   
   // MHp->storage itself should be Freed by MHProposalDestroy
 }
