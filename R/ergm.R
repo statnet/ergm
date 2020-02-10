@@ -794,6 +794,10 @@ ergm <- function(formula, response=NULL,
      is.matrix(initialfit$covar) &&
      (rc <- rcond(initialfit$covar[!model$etamap$offsettheta,!model$etamap$offsettheta,drop=FALSE])) < control$MPLE.singular.rcond){
     msg <- paste0("MPLE variance-covariance matrix appears to be singular or nearly so (reciprocal condition number = ", rc, "). This may indicate that the model is nonidentifiable.")
+    # TODO: It may be possible to provide a more general diagnostic by
+    # looking at eigenvectors of covar corresponding to small
+    # eigenvalues.
+    if(any(nacoef <- is.na(coef(initialfit)))) msg <- paste0(msg, " The following parameters have nonidentifiable MPLE: ", paste.and(sQuote(param_names(initialfit)[nacoef])), ". Their initial coefficients will be set to 0.")
     switch(control$MPLE.singular,
            error = stop(msg),
            warning = warning(msg, immediate.=TRUE), # Warn immediately, so the user gets the warning before the MCMC starts.
