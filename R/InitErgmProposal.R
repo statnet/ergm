@@ -145,15 +145,32 @@ InitErgmProposal.StratTNT <- function(arguments, nw) {
     nodecountsbycode <- c(nodecountsbycode, length(w))
   }
   
+  dyadcounts <- rep(0,nmixingtypes)
+  indmat <- matrix(-1, nrow=ncodes, ncol=ncodes)
   # check that all mixing types with positive probability have at least 1 dyad; error if not
   for(i in 1:nmixingtypes) {
-    if(nodecountsbycode[tailattrs[i]] == 0 || nodecountsbycode[headattrs[i]] == 0 || (tailattrs[i] == headattrs[i] && nodecountsbycode[tailattrs[i]] == 1)) {
+    if(tailattrs[i] == headattrs[i]) {
+      if(is.directed(nw)) {
+        ndyadstype <- nodecountsbycode[tailattrs[i]]*(nodecountsbycode[headattrs[i]] - 1)
+      } else {
+        ndyadstype <- nodecountsbycode[tailattrs[i]]*(nodecountsbycode[headattrs[i]] - 1)/2
+      }
+    } else {
+      ndyadstype <- nodecountsbycode[tailattrs[i]]*nodecountsbycode[headattrs[i]]
+    }
+    
+    if(ndyadstype == 0) {
       ergm_Init_abort("Mixing types with positive proposal probability must have at least one dyad.")
     }
+    
+    dyadcounts[i] <- ndyadstype
+    
+    indmat[tailattrs[i], headattrs[i]] <- i - 1 # zero-based for C code
+    if(!is.directed(nw) && !is.bipartite(nw)) indmat[headattrs[i], tailattrs[i]] <- i - 1 # symmetrize if undirected unipartite
   }
   
   # awkwardly force everything into one big vector for the C code...
-  inputs <- c(nmixingtypes, tailattrs, headattrs, probvec, ncodes, nodecountsbycode, nodeindicesbycode, codesbynodeindex)
+  inputs <- c(nmixingtypes, tailattrs - 1, headattrs - 1, probvec, ncodes, nodecountsbycode, nodeindicesbycode, codesbynodeindex - 1, dyadcounts, t(indmat))
     
   proposal <- list(name = "StratTNT", inputs=inputs)
   proposal
