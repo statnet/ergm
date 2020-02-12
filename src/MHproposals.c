@@ -88,15 +88,12 @@ MH_I_FN(Mi_StratTNT) {
   MHp->ntoggles = 1;
   
   int nmixtypes = MHp->inputs[0];
-  
-  double *tailtypes = MHp->inputs + 1;
-  double *headtypes = tailtypes + nmixtypes;
-  
+    
   int nattrcodes = MHp->inputs[1 + 3*nmixtypes];
   
   double *vattr = MHp->inputs + 1 + 3*nmixtypes + 1 + nattrcodes + N_NODES;
   
-  ALLOC_STORAGE(2, void *, sto);
+  ALLOC_STORAGE(3, void *, sto);
   
   UnsrtEL **els = (UnsrtEL **)Calloc(nmixtypes, UnsrtEL *);
       
@@ -104,28 +101,41 @@ MH_I_FN(Mi_StratTNT) {
     els[i] = UnsrtELInitialize(0, NULL, NULL, FALSE);
   }
   
+  double *inputindmat = MHp->inputs + 1 + 3*nmixtypes + 1 + nattrcodes + N_NODES + N_NODES + nmixtypes;  
+  
+  double **indmat = (double **)Calloc(nattrcodes, double *);
+  indmat[0] = inputindmat;
+  for(int i = 1; i < nattrcodes; i++) {
+    indmat[i] = indmat[i - 1] + nattrcodes;
+  }
+  
   Vertex head;
   Edge e;
   for(Vertex tail = 1; tail <= N_NODES; tail++) {
     STEP_THROUGH_OUTEDGES(tail, e, head) {
-      // i indexes possible mixing types
-      for(int i = 0; i < nmixtypes; i++) {
-        // in undirected unipartite case we need to allow the combination of attr values to occur in either order; in other cases (dir. or bip.), mixing is directed
-        if((vattr[tail - 1] == tailtypes[i] && vattr[head - 1] == headtypes[i]) || (!DIRECTED && !BIPARTITE && vattr[head - 1] == tailtypes[i] && vattr[tail - 1] == headtypes[i])) {
-          // this edge is of mixing type i and should be added to the ith edgelist, updating the count accordingly
-          // note that tail < head is guaranteed in the undirected case since e is an outedge from tail to head
-          UnsrtELInsert(tail, head, els[i]);
-          break; // so we don't bother checking remaining mixing types for this particular edge
-        }
+      int index = indmat[(int)vattr[tail - 1]][(int)vattr[head - 1]];
+      if(index >= 0) {
+        UnsrtELInsert(tail, head, els[index]);
       }
     }
   }
+  Free(indmat);
   
   // assign edgelists to storage
   sto[0] = els;
   
   // will track mixing type of current proposal
   sto[1] = Calloc(1, int);  
+  
+  double *nodecountsbycode = MHp->inputs + 1 + 3*nmixtypes + 1;
+  
+  double **nodesbycode = (double **)Calloc(nattrcodes, double *);
+  nodesbycode[0] = MHp->inputs + 1 + 3*nmixtypes + 1 + nattrcodes;
+  for(int i = 1; i < nattrcodes; i++) {
+    nodesbycode[i] = nodesbycode[i - 1] + (int)nodecountsbycode[i - 1];
+  }
+  
+  sto[2] = nodesbycode;
 }
 
 MH_P_FN(MH_StratTNT) {
@@ -146,14 +156,14 @@ MH_P_FN(MH_StratTNT) {
   // record the mixing type of the toggle, in case it's needed in the U function later
   ((int *)sto[1])[0] = i;    
   
+  double **nodesbycode = sto[2];
+  
   UnsrtEL **els = (UnsrtEL **)sto[0];
 
-  // for the logratio calculation, we will need some statistics
-  double *tailtypes = MHp->inputs + 1;
-  double *headtypes = tailtypes + nmixtypes;
-  
-  int tailtype = tailtypes[i];
-  int headtype = headtypes[i];
+  int nattrcodes = MHp->inputs[1 + 3*nmixtypes];
+
+  int tailtype = MHp->inputs[1 + i];
+  int headtype = MHp->inputs[1 + nmixtypes + i];
   
   double *nodecountsbycode = MHp->inputs + 1 + 3*nmixtypes + 1;  
   
@@ -161,18 +171,7 @@ MH_P_FN(MH_StratTNT) {
   int nedgestype = els[i]->nedges;
 
   // number of dyads of this mixing type
-  // note tailtype == headtype will never hold
-  // for bipartite graphs, given the way
-  // we recoded things in R
-  int ndyadstype;
-  if(tailtype == headtype) {
-    if(DIRECTED)
-      ndyadstype = nodecountsbycode[tailtype - 1]*(nodecountsbycode[headtype - 1] - 1);
-    else
-      ndyadstype = nodecountsbycode[tailtype - 1]*(nodecountsbycode[headtype - 1] - 1)/2;
-  } else {
-    ndyadstype = nodecountsbycode[tailtype - 1]*nodecountsbycode[headtype - 1];
-  }
+  int ndyadstype = MHp->inputs[1 + 3*nmixtypes + 1 + nattrcodes + N_NODES + N_NODES + i];
   
   double logratio = 0;
 
@@ -187,34 +186,22 @@ MH_P_FN(MH_StratTNT) {
   	  logratio = log((nedgestype == 1 ? 1.0/(0.5*ndyadstype + 0.5) :
                       nedgestype / ((double) ndyadstype + nedgestype)));
     } else {
-      // select a dyad of type i and propose toggling it
-      int nattrcodes = MHp->inputs[1 + 3*nmixtypes];
-      
-      double *nodeindicesbycode = MHp->inputs + 1 + 3*nmixtypes + 1 + nattrcodes;
-  
-      int tailindex = nodecountsbycode[tailtype - 1]*unif_rand();
+      // select a dyad of type i and propose toggling it        
+      int tailindex = nodecountsbycode[tailtype]*unif_rand();
       int headindex;
       if(tailtype == headtype) {
         // need to avoid sampling a loop
-        headindex = (nodecountsbycode[headtype - 1] - 1)*unif_rand();
+        headindex = (nodecountsbycode[headtype] - 1)*unif_rand();
         if(headindex == tailindex) {
-          headindex = nodecountsbycode[headtype - 1] - 1;
+          headindex = nodecountsbycode[headtype] - 1;
         }
       } else {
         // any old head will do
-        headindex = nodecountsbycode[headtype - 1]*unif_rand();
-      }
-            
-      for(int j = 0; j < tailtype - 1; j++) {
-        tailindex += nodecountsbycode[j];
-      }
-        
-      for(int j = 0; j < headtype - 1; j++) {
-        headindex += nodecountsbycode[j];
+        headindex = nodecountsbycode[headtype]*unif_rand();
       }
       
-      Vertex tail = nodeindicesbycode[tailindex];
-      Vertex head = nodeindicesbycode[headindex];
+      Vertex tail = nodesbycode[tailtype][tailindex];
+      Vertex head = nodesbycode[headtype][headindex];
       
       if(tail > head && !DIRECTED) {
         Vertex tmp = tail;
@@ -267,6 +254,7 @@ MH_F_FN(Mf_StratTNT) {
 
   GET_STORAGE(void *, sto);
   
+  Free(sto[2]);
   Free(sto[1]);
   
   UnsrtEL **els = (UnsrtEL **)sto[0];
