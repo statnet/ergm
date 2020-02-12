@@ -293,7 +293,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
       out.mat <- z$s
       attr(out.mat, "W") <- invcov
     }else{
-      if(i<control$SAN.maxit && isTRUE(all.equal(stats, numeric(length(stats))))){
+      if(i<control$SAN.maxit && isTRUE(all.equal(unname(stats), numeric(length(stats))))){
         if(verbose) message("Target statistics matched exactly.")
         break
       }
