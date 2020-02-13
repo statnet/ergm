@@ -18,7 +18,7 @@ control.ergm(
   MPLE.type = c("glm", "penalized", "logitreg"),
   MPLE.maxit = 10000,
   MPLE.singular = c("warning", "message", "error"),
-  MPLE.singular.rcond = 1e-10,
+  MPLE.singular.rcond = .Machine$double.eps,
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
   MCMC.interval = NULL,
