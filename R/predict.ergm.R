@@ -1,0 +1,141 @@
+#' ERGM-based tie probabilities
+#' 
+#' @description 
+#' Calculate model-predicted **conditional** and **unconditional** tie
+#' probabilities for dyads in the given network. Conditional probabilities of a
+#' dyad given the state of all the remaining dyads in the graph are computed
+#' exactly. Unconditional probabilities are computed through simulating networks
+#' using the given model. Currently there are two methods implemented:
+#' - Method for formula objects requires (1) an ERGM model formula with an existing
+#' network object on the left hand side and model terms on the right hand side, and
+#' (2) a vector of corresponding parameter values.
+#' - Method for `ergm` objects, as returned by [ergm()], takes both the formula
+#' and parameter values from the fitted model object.
+#' 
+#' @description 
+#' Both methods can limit calculations to specific set of dyads of interest.
+#'
+#' @param object a formula or a fitted ERGM model object
+#' @param theta numeric vector of ERGM model parameter values
+#' @param conditional logical whether to compute conditional or unconditional
+#'   predicted probabilities
+#' @param nsim integer, number of simulated networks used for computing
+#'   unconditional probabilities. Defaults to 100.
+#' @param type character element, one of `"response"` (default) or `"link"` -
+#'   whether the returned predictions are on the probability scale or on the
+#'   scale of linear predictor. This is similar to `type` argument of [predict.glm()].
+#' @param output character, type of object returned. Defaults to `"data.frame"`.
+#'   See section Value below.
+#' @param ... other arguments passed to/from other methods. For [ergm.formula()] if
+#'   `conditional=TRUE` arguments are passed to [ergmMPLE()]. If `conditional=FALSE` arguments
+#'   are passed to [simulate_formula()].
+#'
+#' @return 
+#' Type of object returned depends on the argument `output`. If
+#' `output="data.frame"` the function will return a data frame with columns:
+#' 
+#' - `tail`, `head` -- indices of nodes identifying a dyad
+#' - `p` -- predicted conditional tie probability
+#' 
+#' If `output="matrix"` the function will return an "adjacency matrix" with the
+#' predicted probabilities. Diagonal values are 0s.
+#' 
+#' @method predict formula
+#'
+#' @export
+#' @examples 
+#' # A three-node empty directed network
+#' net <- network.initialize(3, directed=TRUE)
+#' 
+#' # In homogeneous Bernoulli model with odds of a tie of 1/5 all ties are
+#' # equally likely
+#' predict(net ~ edges, log(1/5))
+#' 
+#' # Let's add a tie so that `net` has 1 tie out of possible 6 (so odds of 1/5)
+#' net[1,2] <- 1
+#' 
+#' # Fit the model
+#' fit <- ergm(net ~ edges)
+#' 
+#' # The p's should be identical
+#' predict(fit)
+#' 
+
+predict.formula <- function(object, theta,
+                            conditional = TRUE,
+                            type=c("response", "link"),
+                            nsim = 100,
+                            output=c("data.frame", "matrix"), ...) {
+  stopifnot(is.numeric(theta))
+  output <- match.arg(output)
+  type <- match.arg(type)
+  
+  # Transform extended ergmMPLE() output to matrix with 0s on the diagonal
+  .df_to_matrix <- function(d) {
+    res <- tapply(predmat[,"p"], list(predmat[,"tail"], predmat[,"head"]), identity)
+    diag(res) <- 0
+    res
+  }
+  
+  # Matrix to data.frame
+  .matrix_to_df <- function(m, name=".value") {
+    d <- as.data.frame(as.table(m), stringsAsFactors=FALSE)
+    names(d) <- c("tail", "head", name)
+    d
+  }
+  
+  # Simulated unconditional Ps
+  if(!conditional) {
+    if(type != "response") 
+      stop("type='link' for unconditional probabilities is not supported")
+    predm <- predict_ergm_unconditional(object=object, coef=theta, nsim=100, ...)
+    return(
+      switch(
+        output,
+        data.frame = .matrix_to_df(predm, name="p"),
+        matrix = predm
+      )
+    )
+  }
+  
+  predmat <- ergmMPLE(
+    update(object, . ~ . + indices),
+    output = "matrix",
+    ...
+  )$predictor
+  stopifnot(length(theta) == (ncol(predmat)-2))
+  # Compute conditional Ps and cbind to ergmMPLE() output
+  predmat <- cbind(predmat, p=drop(switch(
+    type,
+    link = predmat[,seq(1, length(theta)), drop=FALSE] %*% theta,
+    response = 1 / (1 + exp( - predmat[,seq(1, length(theta)), drop=FALSE] %*% theta))
+  ) ) )
+  # Format output
+  switch(
+    output,
+    data.frame = as.data.frame(predmat[,c("tail", "head", "p")]),
+    matrix = .df_to_matrix(predmat)
+  )
+}
+
+predict_ergm_unconditional <- function(object, coef, nsim=100, output="network", ...) {
+  netlist <- simulate_formula(object=object, coef=coef, nsim=nsim, output=output, ...)
+  mats <- vapply(
+    netlist, as.matrix, 
+    matrix(0, ncol=network.size(netlist[[1]]), nrow=network.size(netlist[[1]])),
+    matrix.type="adjacency"
+  )
+  apply(mats, 1:2, mean)
+}
+
+
+#' @rdname predict.formula
+#' @method predict ergm
+#' @export
+predict.ergm <- function(object, ...) {
+  predict.formula(
+    object = object$formula,
+    theta = ergm.eta(object$coef, object$etamap),
+    ...
+  )
+}

@@ -146,6 +146,7 @@ Collate:
     'parallel.utils.R'
     'param_names.R'
     'pending_update_network.R'
+    'predict.ergm.R'
     'print.ergm.R'
     'print.network.list.R'
     'print.summary.ergm.R'
