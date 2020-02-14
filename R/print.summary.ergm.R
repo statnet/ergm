@@ -45,7 +45,7 @@ print.summary.ergm <- function (x,
               digits = max(3, getOption("digits") - 3),
               correlation=FALSE, covariance=FALSE,
               signif.stars= getOption("show.signif.stars"),
-              eps.Pvalue=0.0001, print.header=TRUE, print.formula=TRUE, print.fitinfo=TRUE, print.coefmat=TRUE, print.message=TRUE, print.deviances=TRUE, print.drop=TRUE, print.offset=TRUE, print.degeneracy=TRUE,...){
+              eps.Pvalue=0.0001, print.header=TRUE, print.formula=TRUE, print.fitinfo=TRUE, print.coefmat=TRUE, print.message=TRUE, print.deviances=TRUE, print.drop=TRUE, print.offset=TRUE, print.degeneracy=TRUE, print.call=!print.formula,...){
   
   control <- x$control
   if(print.header){
@@ -54,6 +54,9 @@ print.summary.ergm <- function (x,
     cat("==========================\n\n")
   }
   
+  # The following code is based on stats:::print.lm(), but there really isn't another concise way to do this:
+  if(print.call && !is.null(x$call)) cat("\nCall:\n", paste(deparse(x$call), sep="\n", collapse="\n"), "\n\n", sep="")
+
   if(print.formula){
     cat("Formula:   ")
     print(x$formula)

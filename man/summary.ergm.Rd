@@ -21,6 +21,7 @@
   print.drop = TRUE,
   print.offset = TRUE,
   print.degeneracy = TRUE,
+  print.call = !print.formula,
   ...
 )
 
