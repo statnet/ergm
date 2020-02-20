@@ -120,6 +120,7 @@ summary.ergm <- function (object, ...,
   nodes<- network.size(object$network)
 
   ans <- list(formula=object$formula,
+              call=object$call,
               correlation=correlation,
               degeneracy.value = object$degeneracy.value,
               offset = object$offset,

@@ -38,14 +38,14 @@
 #' @param eps.Pvalue \eqn{p}-values below this level will be printed
 #'   as "<`eps.Pvalue`".
 #' @param
-#'   print.header,print.formula,print.fitinfo,print.coefmat,print.message,print.deviances,print.drop,print.offset,print.degeneracy
+#'   print.header,print.formula,print.fitinfo,print.coefmat,print.message,print.deviances,print.drop,print.offset,print.degeneracy,print.call
 #'   which components of the fit summary to print.
 #' @export
 print.summary.ergm <- function (x, 
               digits = max(3, getOption("digits") - 3),
               correlation=FALSE, covariance=FALSE,
               signif.stars= getOption("show.signif.stars"),
-              eps.Pvalue=0.0001, print.header=TRUE, print.formula=TRUE, print.fitinfo=TRUE, print.coefmat=TRUE, print.message=TRUE, print.deviances=TRUE, print.drop=TRUE, print.offset=TRUE, print.degeneracy=TRUE,...){
+              eps.Pvalue=0.0001, print.header=TRUE, print.formula=FALSE, print.fitinfo=TRUE, print.coefmat=TRUE, print.message=TRUE, print.deviances=TRUE, print.drop=TRUE, print.offset=TRUE, print.degeneracy=TRUE, print.call=TRUE,...){
   
   control <- x$control
   if(print.header){
@@ -54,11 +54,10 @@ print.summary.ergm <- function (x,
     cat("==========================\n\n")
   }
   
-  if(print.formula){
-    cat("Formula:   ")
-    print(x$formula)
-    cat("\n")
-  }
+  # The following code is based on stats:::print.lm(), but there really isn't another concise way to do this:
+  if(print.call && !is.null(x$call)) cat("Call:\n", paste(deparse(x$call), sep="\n", collapse="\n"), "\n\n", sep="")
+
+  if(print.formula) cat("Formula:\n", paste(deparse(x$formula), sep="\n", collapse="\n"), "\n\n", sep="")
 
   if(print.fitinfo){
     if (!is.null(x$iterations)) {

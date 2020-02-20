@@ -534,6 +534,8 @@ ergm <- function(formula, response=NULL,
   check.control.class("ergm", "ergm")
   control.toplevel(control,...)
 
+  ergm_call <- match.call(ergm)
+
   reference <- trim_env_const_formula(reference)
   constraints <- trim_env_const_formula(constraints)
   obs.constraints <- trim_env_const_formula(obs.constraints)
@@ -745,6 +747,7 @@ ergm <- function(formula, response=NULL,
     # Note that this cannot be overridden with control$force.main.
     message("All terms are either offsets or extreme values. No optimization is performed.")
     return(structure(list(coef=control$init,
+                          call=ergm_call,
                           iterations=0,
                           loglikelihood=NA,
                           mle.lik=NULL,
@@ -807,6 +810,7 @@ ergm <- function(formula, response=NULL,
 
   if (!MCMCflag){ # Just return initial (non-MLE) fit and exit.
     message("Stopping at the initial estimate.")
+    initialfit$call <- ergm_call
     initialfit$ergm_version <- packageVersion("ergm")
     initialfit$offset <- model$etamap$offsettheta
     initialfit$MPLE_is_MLE <- MPLE.is.MLE
@@ -887,6 +891,7 @@ ergm <- function(formula, response=NULL,
   } else {
     degeneracy <- list(degeneracy.value=NULL, degeneracy.type=NULL)
   }
+  mainfit$call <- ergm_call
   mainfit$ergm_version <- packageVersion("ergm")
   mainfit$MPLE_is_MLE <- MPLE.is.MLE
   mainfit$degeneracy.value <- degeneracy$degeneracy.value
