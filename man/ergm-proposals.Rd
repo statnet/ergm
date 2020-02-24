@@ -17,6 +17,7 @@
 \alias{InitErgmProposal.ConstantEdges}
 \alias{InitErgmProposal.TNT}
 \alias{InitErgmProposal.StratTNT}
+\alias{InitErgmProposal.BDTNT}
 \alias{InitErgmProposal.randomtoggle}
 \alias{InitErgmProposal.randomtoggleNonObserved}
 \alias{InitErgmProposal.NonObservedTNT}
@@ -135,6 +136,32 @@
         \item{InitErgmProposal.CondInDegree}{MHp for \eqn{constraints= ~idegrees}. For directed networks, randomly select two dyads with a common head node, one having an edge one not, and propose to swap the tie from one tail to the other.
         }
         \item{InitErgmProposal.CondOutDegree}{MHp for \eqn{constraints= ~odegrees}. For directed networks, randomly select two dyads with a common tail node, one having an edge and one not, and propose to swap the tie from one head to the other.
+        }
+
+        \item{InitErgmProposal.BDTNT}{Implements a TNT proposal with an upper bound on degree.  Optionally prohibits certain mixing types on a specified attribute.
+        
+        Specifically, the user must pass an upper bound for total degree via the \code{bound}
+                    argument, and may optionally pass an attribute \code{attr} and a logical matrix
+                    \code{fmat} indicating which mixing types of \code{attr} are forbidden from
+                    having ties.  See \link[=node-attr]{Specifying Vertex Attributes and Levels}
+                    for details on specifying vertex attributes.  The matrix \code{fmat}, if specified, must have
+                    the same dimensions as a mixing matrix for the network and attribute under
+                    consideration, and the correspondence between rows and columns of \code{fmat}
+                    and values of \code{attr} is the same as for a mixing matrix.
+                   
+        The interpretation is that \code{fmat[i,j]} is \code{FALSE} if the attribute pairing
+                    \code{(i,j)} is not forbidden, and \code{fmat[i,j]} is \code{TRUE} if the attribute pairing
+                    \code{(i,j)} is forbidden.  Undirected, unipartite networks are considered to have undirected mixing,
+                    and the pairing \code{(i,j)} is forbidden if either \code{fmat[i,j]} is \code{TRUE} or
+                    \code{fmat[j,i]} is \code{TRUE}.  Bipartite networks are also supported, and are considered
+                    to have directed mixing, so \code{(i,j)} is forbidden iff \code{fmat[i,j]} is \code{TRUE}.
+        
+        Directed networks are not supported by \code{BDTNT} at this time.
+        
+        All arguments must be named in order to be recognized by \code{BDTNT}.  
+                    While some mixing types may be forbidden by \code{fmat}, this will not be
+                    recognized as a constraint by all components of \code{ergm}, and should
+                    be used with caution.
         }
 
        }}
