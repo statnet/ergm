@@ -51,6 +51,90 @@ InitErgmProposal.TNT <- function(arguments, nw) {
   proposal
 }
 
+InitErgmProposal.BDTNT <- function(arguments, nw) {
+  # BDTNT does not currently support directed networks
+  if(is.directed(nw)) {
+    ergm_Init_abort(sQuote("BDTNT"), " only supports undirected networks.")
+  }
+  
+  if(is.bipartite(nw)) {
+    # (undirected) bipartite
+
+    # attr defaults to all the same value (one mixing type)    
+    b1nodecov <- NVL2(arguments$attr, ergm_get_vattr(arguments$attr, nw, bip = "b1"), rep(1, nw %n% "bipartite"))
+    b2nodecov <- NVL2(arguments$attr, ergm_get_vattr(arguments$attr, nw, bip = "b2"), rep(1, network.size(nw) - nw %n% "bipartite"))
+    
+    b1levels <- sort(unique(b1nodecov))
+    b2levels <- sort(unique(b2nodecov))
+    
+    b1nodecov <- match(b1nodecov, b1levels)
+    b2nodecov <- match(b2nodecov, b2levels)
+    
+    # shift b2 codes so there is no overlap with b1 codes
+    nodecov <- c(b1nodecov, b2nodecov + length(b1levels))
+    
+    # by default, no pairings are forbidden
+    fmat <- NVL(arguments$fmat, matrix(FALSE, nrow = length(b1levels), ncol = length(b2levels)))
+    
+    # create vectors of allowed mixing types
+    allowed.tails <- NULL
+    allowed.heads <- NULL
+    
+    for(i in 1:NROW(fmat)) {
+      for(j in 1:NCOL(fmat)) {
+        if(!fmat[i,j]) {
+          allowed.tails <- c(allowed.tails, i)
+          allowed.heads <- c(allowed.heads, j + length(b1levels))
+        }
+      }
+    }  
+  } else {
+    # undirected unipartite    
+    
+    # attr defaults to all the same value (one mixing type)    
+    nodecov <- NVL2(arguments$attr, ergm_get_vattr(arguments$attr, nw), rep(1, network.size(nw)))
+    
+    levels <- sort(unique(nodecov))
+
+    nodecov <- match(nodecov, levels)
+    
+    # by default, no pairings are forbidden
+    fmat <- NVL(arguments$fmat, matrix(FALSE, nrow = length(levels), ncol = length(levels)))
+    
+    # symmetrize fmat in unipartite case
+    fmat <- fmat | t(fmat)
+    
+    # create vectors of allowed mixing types    
+    allowed.tails <- NULL
+    allowed.heads <- NULL
+    
+    for(i in 1:NROW(fmat)) {
+      for(j in i:NCOL(fmat)) {
+        if(!fmat[i,j]) {
+          allowed.tails <- c(allowed.tails, i)
+          allowed.heads <- c(allowed.heads, j)
+        }
+      }
+    }     
+  }
+  
+  # bound defaults to network.size - 1, which is effectively no bound (could be made smaller in the bipartite case, but oh well)
+  bound <- NVL(arguments$bound, network.size(nw) - 1)  
+  
+  ncodes <- max(nodecov)
+  
+  # record number of nodes of each type
+  nodecountsbycode <- NULL
+  for(i in 1:ncodes)
+    nodecountsbycode <- c(nodecountsbycode, length(which(nodecov == i)))
+  
+  ## subtract one from attr codes for greater convenience re. C's zero-based indexing
+  inputs <- c(bound, ncodes, nodecountsbycode, length(allowed.tails), allowed.tails - 1, allowed.heads - 1, nodecov - 1)
+  
+  proposal <- list(name = "BDTNT", inputs = inputs)
+  proposal
+}
+
 InitErgmProposal.StratTNT <- function(arguments, nw) {
   if(is.null(arguments$attr))
     ergm_Init_abort("The ", sQuote("attr"), " argument to ", sQuote("StratTNT"), " is required (and must be named).")
