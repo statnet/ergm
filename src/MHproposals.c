@@ -220,7 +220,7 @@ MH_P_FN(MH_BDTNT) {
 
     ((int*)sto[7])[0] = proposeddyads;
     
-    logratio = log(((nedges == 1 ? 1.0 : 0.5)/proposeddyads)/(0.5/nedges + (tailmaxl || headmaxl ? 0 : 0.5/currentdyads)));
+    logratio = log(((nedges == 1 ? 1.0 : 0.5)/proposeddyads)/((currentdyads == 0 ? 1.0 : 0.5)/nedges + (tailmaxl || headmaxl ? 0 : 0.5/currentdyads)));
     
     stotailtype[0] = vattr[Mtail[0] - 1];
     stoheadtype[0] = vattr[Mhead[0] - 1];
@@ -312,7 +312,7 @@ MH_P_FN(MH_BDTNT) {
     
       ((int*)sto[7])[0] = proposeddyads;  
     
-      logratio = log(((nedges == 1 ? 1.0 : 0.5)/proposeddyads)/(0.5/nedges + (tailmaxl || headmaxl ? 0 : 0.5/currentdyads)));
+      logratio = log(((nedges == 1 ? 1.0 : 0.5)/proposeddyads)/((currentdyads == 0 ? 1.0 : 0.5)/nedges + (tailmaxl || headmaxl ? 0 : 0.5/currentdyads)));
     } else {
       int proposeddyads = 0;
       
@@ -332,7 +332,7 @@ MH_P_FN(MH_BDTNT) {
       
       ((int*)sto[7])[0] = proposeddyads;    
       
-      logratio = log((0.5/(nedges + 1) + (tailmaxl || headmaxl ? 0 : 0.5/proposeddyads))/((nedges == 0 ? 1.0 : 0.5)/currentdyads));
+      logratio = log(((proposeddyads == 0 ? 1.0 : 0.5)/(nedges + 1) + (tailmaxl || headmaxl ? 0 : 0.5/proposeddyads))/((nedges == 0 ? 1.0 : 0.5)/currentdyads));
     }
   }
   
