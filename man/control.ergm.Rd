@@ -89,7 +89,7 @@ control.ergm(
   MCMLE.density.guard = exp(3),
   MCMLE.effectiveSize = 64,
   obs.MCMLE.effectiveSize = NVL3(MCMLE.effectiveSize, . * obs.MCMC.mul),
-  MCMLE.interval = 32,
+  MCMLE.interval = 1024,
   MCMLE.burnin = MCMLE.interval * 16,
   MCMLE.samplesize.per_theta = 128,
   MCMLE.samplesize = NULL,
