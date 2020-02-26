@@ -12,7 +12,6 @@
   covariance = FALSE,
   signif.stars = getOption("show.signif.stars"),
   eps.Pvalue = 1e-04,
-  print.header = TRUE,
   print.formula = FALSE,
   print.fitinfo = TRUE,
   print.coefmat = TRUE,
@@ -51,7 +50,7 @@ statistical significance. See \code{\link[=print.summary.lm]{print.summary.lm()}
 \item{eps.Pvalue}{\eqn{p}-values below this level will be printed
 as "<\code{eps.Pvalue}".}
 
-\item{print.header, print.formula, print.fitinfo, print.coefmat, print.message, print.deviances, print.drop, print.offset, print.degeneracy, print.call}{which components of the fit summary to print.}
+\item{print.formula, print.fitinfo, print.coefmat, print.message, print.deviances, print.drop, print.offset, print.degeneracy, print.call}{which components of the fit summary to print.}
 
 \item{\dots}{Arguments to \code{\link{logLik.ergm}}}
 
