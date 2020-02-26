@@ -266,7 +266,7 @@
 #' \item{covar}{Approximate covariance matrix for the MLE, based on the inverse
 #' Hessian of the approximated loglikelihood evaluated at the maximizer.}
 #' \item{failure}{Logical:  Did the MCMC estimation fail?}
-#' \item{network}{Original network}
+#' \item{network}{Network passed on the left-hand side of `formula`. If `target.stats` are passed, it is replaced by the network returned by [san()].}
 #' \item{newnetworks}{A list of the final networks at the end of the MCMC
 #' simulation, one for each thread.}
 #' \item{newnetwork}{The first (possibly only) element of \code{netwonetworks}.}
