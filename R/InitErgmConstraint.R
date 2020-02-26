@@ -270,3 +270,30 @@ InitErgmConstraint.fixallbut<-function(lhs.nw, free.dyads=NULL,...){
     },
     dependence = FALSE)
 }
+
+
+InitErgmConstraint.Dyads<-function(lhs.nw, fix=NULL, vary=NULL,...){
+  if(is.null(fix) & is.null(vary))
+    ergm_Init_abort(paste("Dyads constraint takes at least one argument, either",sQuote("fix"),"or",sQuote("vary"),"or both."))
+
+  fd <- lapply(list(fix=fix,vary=vary),
+                       function(f){
+                         if(!is.null(f)){
+                           f[[3]] <- f[[2]]
+                           f[[2]] <- lhs.nw
+                           m <- ergmMPLE(f, output="array")$predictor
+                           m <- m!=0
+                           m[is.na(m)] <- FALSE
+                           if(!is.directed(lhs.nw)){
+                             m <- m | aperm(m, c(2L,1L,3L))
+                           }
+                           lapply(seq_len(dim(m)[3]), function(i) as.rlebdm(m[,,i]))
+                         }
+                       })
+  fd$fix <- if(length(fd$fix)) fd$fix %>% map(`!`) %>% reduce(`&`)
+  fd$vary <- if(length(fd$vary)) fd$vary %>% reduce(`|`)
+  fd <- Reduce(`|`, fd)
+
+  list(free_dyads = compress(fd),
+       dependence = FALSE)
+}

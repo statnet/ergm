@@ -13,6 +13,7 @@
 \alias{ergm.constraints}
 \alias{constraints.ergm}
 
+\alias{Dyads}
 \alias{bd}
 \alias{degreedist-constraint}
 \alias{degrees}
@@ -97,6 +98,9 @@
       A placeholder for no constraints: all networks of a
       particular size and type have non-zero probability.
       Cannot be combined with other constraints.
+    }
+    \item{\code{Dyads(fix=NULL, vary=NULL)} (dyad-independent)}{
+      This is an \dQuote{operator} constraint that takes one or two \code{\link{ergm}} formulas. These formulas should contaion only dyad-independent terms. For the terms in the \code{fix=} formula, dyads that affect the network statistic (i.e., have nonzero change statistic) for \emph{any} the terms will be fixed at their current values. For the terms in the \code{vary=} formula, only those that change \emph{at least one} of the terms will be allowed to vary, and all others will be fixed. If both formulas are given, the dyads that vary either for one or for the other will be allowed to vary. Note that a formula passed to \code{Dyads} without an argument name will default to \code{fix=}.
     }
     \item{\code{bd(attribs,maxout,maxin,minout,minin)}}{
       Constrain maximum and minimum vertex degree. See

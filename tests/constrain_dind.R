@@ -185,3 +185,27 @@ y0 %v% "b" <- a
 
 test_dind_constr(y0, ~blockdiag("b"), Mmin, Mmax, response="w", reference=~DiscUnif(0,4))
 
+
+#### Dyads operator ####
+## TODO: Put in the same framework as the others.
+
+data(sampson)
+fix_g <- coef(ergm(samplike~edges, constraints=~Dyads(~nodematch("group"))))
+vary_g <- coef(ergm(samplike~edges, constraints=~Dyads(vary=~nodematch("group"))))
+fix_g_and_c <- coef(ergm(samplike~edges, constraints=~Dyads(~nodematch("group")+nodematch("cloisterville"))))
+fix_g_vary_c <- coef(ergm(samplike~edges, constraints=~Dyads(~nodematch("group"),~nodematch("cloisterville"))))
+vary_g_or_c <- coef(ergm(samplike~edges, constraints=~Dyads(vary=~nodematch("group")+nodematch("cloisterville"))))
+vary_g_fix_c <- coef(ergm(samplike~edges, constraints=~Dyads(vary=~nodematch("group"))+Dyads(~nodematch("cloisterville"))))
+
+# Check:
+m <- as.matrix(samplike)
+g <- outer(samplike%v%"group",samplike%v%"group",FUN=`==`)
+c <- outer(samplike%v%"cloisterville",samplike%v%"cloisterville",FUN=`==`)
+n <- network.size(samplike)
+logit <- function(p) log(p/(1-p))
+stopifnot(isTRUE(all.equal(fix_g,logit(sum((!g)*m)/(sum(!g))),check.attributes=FALSE)))
+stopifnot(isTRUE(all.equal(vary_g,logit(sum(g*m)/(sum(g)-n)),check.attributes=FALSE)))
+stopifnot(isTRUE(all.equal(fix_g_and_c,logit(sum((!g&!c)*m)/(sum(!g&!c))),check.attributes=FALSE)))
+stopifnot(isTRUE(all.equal(fix_g_vary_c,logit(sum((!g|c)*m)/(sum(!g|c)-n)),check.attributes=FALSE)))
+stopifnot(isTRUE(all.equal(vary_g_or_c,logit(sum((g|c)*m)/(sum(g|c)-n)),check.attributes=FALSE)))
+stopifnot(isTRUE(all.equal(vary_g_fix_c,logit(sum((g&!c)*m)/(sum(g&!c))),check.attributes=FALSE)))
