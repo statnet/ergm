@@ -1573,7 +1573,7 @@
 
       For an analogous term for quantitative vertex attributes, see \code{nodeicov}.}
 
-    \item{\code{nodeisqrtcovar}  (valued)  (directed)  (non-negative) (quantitative nodal attribute)
+    \item{\code{nodeisqrtcovar}  (valued)  (directed)  (non-negative)
     }{\emph{Uncentered covariance of square roots of in-dyad values
 	incident on each actor:} This term adds one statistic equal to \eqn{\sum_{i,j,k}
 	\sqrt{y_{i,j}}\sqrt{y_{k,j}}}. This can be
@@ -1665,21 +1665,20 @@
       \Directed}
 
     \item{\code{nodeosqrtcovar}  (valued)  (directed)  (non-negative)
-      (quantitative nodal attribute)
     }{\emph{Uncentered covariance of square roots of out-dyad values
 	incident on each actor:} This term adds one statistic equal to \eqn{\sum_{i,j,k}
 	\sqrt{y_{i,j}}\sqrt{y_{i,k}}}. This can be
       viewed as a valued analog of the \code{\link[=ergm-terms]{ostar(2)}}
       statistic.}
 
-    \item{\code{nodesqrtcovar(center=TRUE)}  (valued)  (non-negative)  (directed)  (undirected) (quantitative nodal attribute)
+    \item{\code{nodesqrtcovar(center=TRUE)}  (valued)  (non-negative)  (directed)  (undirected)
     }{\emph{Covariance of square roots of dyad values
 	incident on each actor:} This term adds one statistic equal to
       \eqn{\sum_{i,j,k}
 	(\sqrt{y_{i,j}}\sqrt{y_{i,k}}+\sqrt{y_{k,j}}\sqrt{y_{k,j}})} if
       \code{center=FALSE}. This can be
       viewed as a valued analog of the \code{\link[=ergm-terms]{kstar(2)}}
-      statistic. If \code{center=FALSE} (the default), the statistic is
+      statistic. If \code{center=TRUE} (the default), the statistic is
       instead \eqn{\sum_{i,j,k}
 	((\sqrt{y_{i,j}}-\bar{\sqrt{y}})(\sqrt{y_{i,k}}-\bar{\sqrt{y}})+(\sqrt{y_{k,j}}-\bar{\sqrt{y}})(\sqrt{y_{k,j}}-\bar{\sqrt{y}}))},
       where \eqn{\bar{\sqrt{y}}} is the mean of the square root of
