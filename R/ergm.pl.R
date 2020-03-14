@@ -24,26 +24,34 @@
 #'   column.
 #' @return \code{ergm.pl} returns a list containing: \itemize{ \item
 #'   xmat : the compressed and possibly sampled matrix of change
-#'   statistics \item zy : the corresponding vector of responses,
-#'   i.e. tie values \item foffset : ?? \item wend : the vector of
-#'   weights for 'xmat' and 'zy' \item numobs : the number of dyads
-#'   \item xmat.full: the 'xmat' before sampling; if no sampling is
-#'   needed, this is NULL \item zy.full : the 'zy' before sampling; if
-#'   no sampling is needed, this is NULL \item foffset.full : ?? \item
+#'   statistics
+#' \item zy : the corresponding vector of responses,
+#'   i.e. tie values
+#' \item foffset : ??
+#' \item wend : the vector of
+#'   weights for 'xmat' and 'zy'
+#' \item numobs : the number of dyads
+#'  
+#' \item
 #'   theta.offset : a numeric vector whose ith entry tells whether the
 #'   the ith curved coefficient?? was offset/fixed; -Inf implies the
 #'   coefficient was fixed, 0 otherwise; if the model hasn't any
 #'   curved terms, the first entry of this vector is one of
 #'   log(Clist$nedges/(Clist$ndyads-Clist$nedges))
-#'   log(1/(Clist$ndyads-1)) depending on 'Clist$nedges' \item
-#'   maxMPLEsamplesize: the 'maxMPLEsamplesize' inputted to
-#'   \code{ergm.pl} }
+#'   log(1/(Clist$ndyads-1)) depending on 'Clist$nedges' }
 #' @keywords internal
 #' @export
 ergm.pl<-function(nw, fd, m, theta.offset=NULL,
-                    maxMPLEsamplesize=1e+6,
                     control, ignore.offset=FALSE,
                     verbose=FALSE) {
+  d <- sum(fd)
+  el <- as.edgelist(NVL(cbind(Clist$tails, Clist$heads), matrix(,0,2)), n, directed=TRUE, bipartite=FALSE, loops=TRUE) # This will be filtered by fd anyway.
+  elfd <- as.rlebdm(el) & fd
+  e <- sum(elfd)
+
+  maxNumDyadTypes <- min(if(is.function(control$MPLE.max.dyad.types)) control$MPLE.max.dyad.types(d=d, e=e) else control$MPLE.max.dyad.types,
+                         d)
+  maxDyads <- if(is.function(control$MPLE.samplesize)) control$MPLE.samplesize(d=d, e=e) else control$MPLE.samplesize
   maxNumDyadTypes <- min(control$MPLE.max.dyad.types, sum(fd))
   state <- ergm_state(nw, model=m)
   # *** don't forget, pass in tails first now, not heads
@@ -60,14 +68,13 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
   }
   zy <- z$y[uvals]
   wend <- as.numeric(z$weightsvector[uvals])
-  informative.ties <- sum(wend[zy==1])
   xmat <- matrix(z$x, ncol=nparam(m,canonical=TRUE), byrow=TRUE)[uvals,,drop=FALSE]
   colnames(xmat) <- param_names(m,canonical=TRUE)
   rm(z,uvals)
 
   # If we ran out of space, AND we have a sparse network, then, use
   # case-control MPLE.
-  if(sum(wend)<sum(fd) && mean(zy)<1/2){
+  if(sum(wend)<d && mean(zy)<1/2){
     if(verbose) message("A sparse network with too many unique dyads encountered. Using case-control MPLE.")
     # Strip out the rows associated with ties.
     wend <- wend[zy==0]
@@ -75,7 +82,8 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
     zy <- zy[zy==0]
 
     ## Run a whitelist PL over all of the toggleable edges in the network.
-    presentrle <- as.rlebdm(state) & fd
+    maxNumDyadTypes <- min(maxNumDyadTypes, e)
+
     z <- .Call("MPLE_wrapper",
                state,
                # MPLE settings
@@ -91,11 +99,10 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
     rm(z,uvals)
 
     # Divvy up the sampling weight of the ties:
-    informative.ties <- wend.e.total <- sum(presentrle)
-    wend.e <- wend.e / sum(wend.e) * wend.e.total
+    wend.e <- wend.e / sum(wend.e) * e
 
     # Divvy up the sampling weight of the nonties:
-    wend <- wend / sum(wend) * (sum(fd)-wend.e.total)
+    wend <- wend / sum(wend) * (d-e)
 
     zy <- c(zy,zy.e)
     wend <- c(wend, wend.e)
@@ -129,33 +136,6 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
     foffset <- rep(0, length=length(zy))
   }
   
-#
-# Sample if necessary
-#
-  if(nrow(xmat) > maxMPLEsamplesize){
-   rsample <- sample((1:nrow(xmat))[zy==1], size=min(maxMPLEsamplesize,sum(zy)),
-                     replace=FALSE)
-   rsample <- c(rsample, 
-     sample((1:nrow(xmat))[zy==0], size=min(maxMPLEsamplesize,sum(!zy)),
-                     replace=FALSE) )
-   tau <- sum(zy*wend)/sum(wend)
-   xmat.full <- xmat
-   zy.full <- zy
-   foffset.full <- foffset
-   zy <- zy[rsample]
-   wend <- wend[rsample]
-   wend <- tau*zy*wend/sum(zy*wend) +
-           (1-tau)*(1-zy)*wend/sum((1-zy)*wend)
-   wend <- wend*nrow(xmat)/sum(wend)
-   xmat <- xmat[rsample,,drop=FALSE]
-   foffset <- foffset[rsample]
-  }else{
-   xmat.full <- NULL
-   zy.full <- NULL
-   foffset.full <- NULL
-  }
-
   list(xmat=xmat, zy=zy, foffset=foffset, wend=wend, numobs=round(sum(wend)),
-       xmat.full=xmat.full, zy.full=zy.full, foffset.full=foffset.full,
-       theta.offset=theta.offset, maxMPLEsamplesize=maxMPLEsamplesize)
+       theta.offset=theta.offset)
 }

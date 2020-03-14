@@ -12,7 +12,6 @@ ergm.mple(
   init = NULL,
   MPLEtype = "glm",
   family = "binomial",
-  maxMPLEsamplesize = 1e+06,
   save.glm = TRUE,
   control = NULL,
   verbose = FALSE,
@@ -24,7 +23,6 @@ ergm.pl(
   fd,
   m,
   theta.offset = NULL,
-  maxMPLEsamplesize = 1e+06,
   control,
   ignore.offset = FALSE,
   verbose = FALSE
@@ -45,9 +43,6 @@ or "logitreg"; default="glm"}
 \item{family}{the family to use in the R native routine
 \code{\link{glm}}; only applicable if "glm" is the 'MPLEtype';
 default="binomial"}
-
-\item{maxMPLEsamplesize}{the sample size to use for endogenous
-sampling in the psuedo-likelihood computation; default=1e6}
 
 \item{save.glm}{whether the mple fit and the null mple fit should
 be returned (T or F); if false, NULL is returned for both;
@@ -81,20 +76,21 @@ containing several items; for details see the return list in the
 
 \code{ergm.pl} returns a list containing: \itemize{ \item
 xmat : the compressed and possibly sampled matrix of change
-statistics \item zy : the corresponding vector of responses,
-i.e. tie values \item foffset : ?? \item wend : the vector of
-weights for 'xmat' and 'zy' \item numobs : the number of dyads
-\item xmat.full: the 'xmat' before sampling; if no sampling is
-needed, this is NULL \item zy.full : the 'zy' before sampling; if
-no sampling is needed, this is NULL \item foffset.full : ?? \item
+statistics
+\item zy : the corresponding vector of responses,
+i.e. tie values
+\item foffset : ??
+\item wend : the vector of
+weights for 'xmat' and 'zy'
+\item numobs : the number of dyads
+
+\item
 theta.offset : a numeric vector whose ith entry tells whether the
 the ith curved coefficient?? was offset/fixed; -Inf implies the
 coefficient was fixed, 0 otherwise; if the model hasn't any
 curved terms, the first entry of this vector is one of
 log(Clist$nedges/(Clist$ndyads-Clist$nedges))
-log(1/(Clist$ndyads-1)) depending on 'Clist$nedges' \item
-maxMPLEsamplesize: the 'maxMPLEsamplesize' inputted to
-\code{ergm.pl} }
+log(1/(Clist$ndyads-1)) depending on 'Clist$nedges' }
 }
 \description{
 The \code{ergm.mple} function finds a maximizer to the psuedolikelihood

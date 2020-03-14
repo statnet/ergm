@@ -1,6 +1,6 @@
 Package: ergm
-Version: 4.0-5411
-Date: 2020-02-27
+Version: 4.0-5416
+Date: 2020-03-14
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
 	   person("Mark S.", "Handcock", role=c("aut"), email="handcock@stat.ucla.edu"),
@@ -121,8 +121,6 @@ Collate:
     'ergm.llik.R'
     'ergm.llik.obs.R'
     'ergm.logitreg.R'
-    'ergm.mapl.R'
-    'ergm.maple.R'
     'ergm.mple.R'
     'ergm.pen.glm.R'
     'ergm.phase12.R'

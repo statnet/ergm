@@ -72,12 +72,27 @@
 #' estimation.
 #' @param main.hessian Logical: If TRUE, then an approximate Hessian matrix is
 #' used in the MCMC-based estimation method.
-#' @param MPLE.max.dyad.types Maximum number of unique values of change
-#' statistic vectors, which are the predictors in a logistic regression used to
-#' calculate the MPLE.  This calculation uses a compression algorithm that
-#' allocates space based on \code{MPLE.max.dyad.types}.
-#' @param MPLE.samplesize Not currently documented; used in
-#' conditional-on-degree version of MPLE.
+#'
+#' @param MPLE.samplesize,init.MPLE.samplesize,MPLE.max.dyad.types
+#'   These parameters control the maximum number of dyads (potential
+#'   ties) that will be used by the MPLE to construct the predictor
+#'   matrix for its logistic regression. In general, the algorithm
+#'   visits dyads in a systematic sample that, if it does not hit one
+#'   of these limits, will visit every informative dyad. If a limit is
+#'   exceeded, case-control approximation to the likelihood,
+#'   comprising all edges and those non-edges that have been visited
+#'   by the algorithm before the limit was exceeded will be used.
+#'
+#'   `MPLE.samplesize` limits the number of dyads visited, unless the
+#'   MPLE is being computed for the purpose of being the initial value
+#'   for MCMC-based estimation, in which case `init.MPLE.samplesize`
+#'   is used instead, `MPLE.max.dyad.types` limits the number of
+#'   unique values of change statistic vectors that will be
+#'   stored. All of these can be specified either as numbers or as
+#'   `function(d,e)` taking the number of informative dyads and
+#'   informative edges. Specifying or returning a larger number than
+#'   the number of informative dyads is safe.
+#'
 #' @param MPLE.type One of `"glm"`, `"penalized"`, or
 #' `"logitreg"`.  Chooses method of calculating MPLE.  `"glm"` is the
 #' usual formal logistic regression called via \code{\link{glm}}, whereas
@@ -482,8 +497,9 @@ control.ergm<-function(drop=TRUE,
                        checkpoint=NULL,
                        resume=NULL,
 
-                       MPLE.max.dyad.types=1e+6, 
-                       MPLE.samplesize=50000,                       
+                       MPLE.max.dyad.types=1e+6,
+                       MPLE.samplesize=.Machine$integer.max,
+                       init.MPLE.samplesize=function(d, e) max(e,50)*2,
                        MPLE.type=c("glm", "penalized","logitreg"),
                        MPLE.maxit=10000,
                        MPLE.singular=c("warning","message","error"),
