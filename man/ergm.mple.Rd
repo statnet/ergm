@@ -69,12 +69,15 @@ containing several items; for details see the return list in the
 
 \code{ergm.pl} returns a list containing: \itemize{ \item
 xmat : the compressed and possibly sampled matrix of change
-statistics \item zy : the corresponding vector of responses,
-i.e. tie values \item foffset : ?? \item wend : the vector of
-weights for 'xmat' and 'zy' \item numobs : the number of dyads
-\item xmat.full: the 'xmat' before sampling; if no sampling is
-needed, this is NULL \item zy.full : the 'zy' before sampling; if
-no sampling is needed, this is NULL \item foffset.full : ?? \item
+statistics
+\item zy : the corresponding vector of responses,
+i.e. tie values
+\item foffset : ??
+\item wend : the vector of
+weights for 'xmat' and 'zy'
+\item numobs : the number of dyads
+
+\item
 theta.offset : a numeric vector whose ith entry tells whether the
 the ith curved coefficient?? was offset/fixed; -Inf implies the
 coefficient was fixed, 0 otherwise; if the model hasn't any
