@@ -111,8 +111,6 @@ Collate:
     'ergm.llik.R'
     'ergm.llik.obs.R'
     'ergm.logitreg.R'
-    'ergm.mapl.R'
-    'ergm.maple.R'
     'ergm.mple.R'
     'ergm.pen.glm.R'
     'ergm.phase12.R'

@@ -47,8 +47,6 @@
 #       <ergm.stocapprox>  = %
 #       <ergm.estimate>    = ^
 #       <ergm.robmon>      = &
-#       <ergm.mapl>        = #
-#       <ergm.maple>       = ~
 #
 #   the components include:
 #
