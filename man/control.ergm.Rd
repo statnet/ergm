@@ -14,7 +14,8 @@ control.ergm(
   checkpoint = NULL,
   resume = NULL,
   MPLE.max.dyad.types = 1e+06,
-  MPLE.samplesize = 50000,
+  MPLE.samplesize = .Machine$integer.max,
+  init.MPLE.samplesize = function(d, e) max(e, 50) * 2,
   MPLE.type = c("glm", "penalized"),
   MPLE.singular = c("warning", "message", "error"),
   MPLE.singular.rcond = 1e-10,
@@ -206,13 +207,24 @@ be reused, except for those whose value passed via
 network, the model, or some critical settings differ between
 runs, the results may be undefined.}
 
-\item{MPLE.max.dyad.types}{Maximum number of unique values of change
-statistic vectors, which are the predictors in a logistic regression used to
-calculate the MPLE.  This calculation uses a compression algorithm that
-allocates space based on \code{MPLE.max.dyad.types}.}
+\item{MPLE.samplesize, init.MPLE.samplesize, MPLE.max.dyad.types}{These parameters control the maximum number of dyads (potential
+ties) that will be used by the MPLE to construct the predictor
+matrix for its logistic regression. In general, the algorithm
+visits dyads in a systematic sample that, if it does not hit one
+of these limits, will visit every informative dyad. If a limit is
+exceeded, case-control approximation to the likelihood,
+comprising all edges and those non-edges that have been visited
+by the algorithm before the limit was exceeded will be used.
 
-\item{MPLE.samplesize}{Not currently documented; used in
-conditional-on-degree version of MPLE.}
+\code{MPLE.samplesize} limits the number of dyads visited, unless the
+MPLE is being computed for the purpose of being the initial value
+for MCMC-based estimation, in which case \code{init.MPLE.samplesize}
+is used instead, \code{MPLE.max.dyad.types} limits the number of
+unique values of change statistic vectors that will be
+stored. All of these can be specified either as numbers or as
+\verb{function(d,e)} taking the number of informative dyads and
+informative edges. Specifying or returning a larger number than
+the number of informative dyads is safe.}
 
 \item{MPLE.type}{One of \code{"glm"} or \code{"penalized"}.  Chooses method of calculating
 MPLE.  \code{"glm"} is the usual formal logistic regression, whereas "penalized"

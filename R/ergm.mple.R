@@ -45,8 +45,6 @@
 #' @param family the family to use in the R native routine
 #'   \code{\link{glm}}; only applicable if "glm" is the 'MPLEtype';
 #'   default="binomial"
-#' @param maxMPLEsamplesize the sample size to use for endogenous
-#'   sampling in the psuedo-likelihood computation; default=1e6
 #' @param save.glm whether the mple fit and the null mple fit should
 #'   be returned (T or F); if false, NULL is returned for both;
 #'   default==TRUE
@@ -78,7 +76,6 @@
 #' Graph Models." _Social Networks_, *31*, pp. 52-62.
 ergm.mple<-function(nw, fd, m, init=NULL,
                     MPLEtype="glm", family="binomial",
-                    maxMPLEsamplesize=1e+6,
                     save.glm=TRUE,
                     theta1=NULL, 
 		    control=NULL, proposal=NULL,
@@ -88,7 +85,6 @@ ergm.mple<-function(nw, fd, m, init=NULL,
   message("Evaluating the predictor and response matrix.")
   pl <- ergm.pl(nw=nw, fd=fd, m=m,
                 theta.offset=init,
-                maxMPLEsamplesize=maxMPLEsamplesize,
 		control=control,
                 verbose=verbose)
 
@@ -218,16 +214,6 @@ ergm.mple<-function(nw, fd, m, init=NULL,
                     theta=rep(0,ncol(pl$xmat)),
                     independent=independent)
     }
-   }
-#
-   if(nrow(pl$xmat) > pl$maxMPLEsamplesize){
-#
-#   fix deviance for sampled data
-#
-    mplefit$deviance <- ergm.logisticdeviance(beta=mplefit$coef,
-     X=model.matrix(terms(pl$zy.full ~ .-1,data=data.frame(pl$xmat.full)),
-                           data=data.frame(pl$xmat.full)),
-     y=pl$zy.full, offset=pl$foffset.full)
    }
   }
   theta <- pl$theta.offset

@@ -736,8 +736,7 @@ ergm <- function(formula, response=NULL,
                                 control=control,
                                 proposal=proposal,
                                 proposal.obs=proposal.obs,
-                                verbose=verbose, response=response,
-                                maxNumDyadTypes=control$MPLE.max.dyad.types,
+                                verbose=if(MCMCflag) FALSE else verbose, response=response,
                                 ...)
 
   # TODO: this may also work for CD initial method.

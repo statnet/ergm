@@ -12,7 +12,6 @@ ergm.mple(
   init = NULL,
   MPLEtype = "glm",
   family = "binomial",
-  maxMPLEsamplesize = 1e+06,
   save.glm = TRUE,
   theta1 = NULL,
   control = NULL,
@@ -21,15 +20,7 @@ ergm.mple(
   ...
 )
 
-ergm.pl(
-  nw,
-  fd,
-  m,
-  theta.offset = NULL,
-  maxMPLEsamplesize = 1e+06,
-  control,
-  verbose = FALSE
-)
+ergm.pl(nw, fd, m, theta.offset = NULL, control, verbose = FALSE)
 }
 \arguments{
 \item{nw}{response network.}
@@ -46,9 +37,6 @@ or "logitreg"; default="glm"}
 \item{family}{the family to use in the R native routine
 \code{\link{glm}}; only applicable if "glm" is the 'MPLEtype';
 default="binomial"}
-
-\item{maxMPLEsamplesize}{the sample size to use for endogenous
-sampling in the psuedo-likelihood computation; default=1e6}
 
 \item{save.glm}{whether the mple fit and the null mple fit should
 be returned (T or F); if false, NULL is returned for both;
@@ -92,9 +80,7 @@ the ith curved coefficient?? was offset/fixed; -Inf implies the
 coefficient was fixed, 0 otherwise; if the model hasn't any
 curved terms, the first entry of this vector is one of
 log(Clist$nedges/(Clist$ndyads-Clist$nedges))
-log(1/(Clist$ndyads-1)) depending on 'Clist$nedges' \item
-maxMPLEsamplesize: the 'maxMPLEsamplesize' inputted to
-\code{ergm.pl} }
+log(1/(Clist$ndyads-1)) depending on 'Clist$nedges' }
 }
 \description{
 The \code{ergm.mple} function finds a maximizer to the psuedolikelihood

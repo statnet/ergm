@@ -113,17 +113,6 @@ ergm.maple<-function(pl, m, init=NULL,
                     independent=independent)
     }
    }
-#
-
-   if(nrow(pl$xmat) > pl$maxMPLEsamplesize){
-#
-#   fix deviance for sampled data
-#
-    mplefit$deviance <- ergm.logisticdeviance(beta=mplefit$coef,
-     X=model.matrix(terms(pl$zy.full ~ .-1,data=data.frame(pl$xmat.full)),
-                           data=data.frame(pl$xmat.full)),
-     y=pl$zy.full, offset=pl$foffset.full)
-   }
   }
   theta <- pl$theta.offset
   real.coef <- mplefit$coef
