@@ -176,3 +176,29 @@ test_that("BDTNT works with bipartite networks", {
   expect_equal(unname(sr8), c(200,0, 200))
 
 })
+
+
+test_that("BDTNT works with churning", {
+  nw <- network.initialize(1000, dir=FALSE)
+
+  nw %v% "race" <- c(rep("A", 30), rep("B", 30), rep("W", 940))
+  nw %v% "sex"  <- rep(c("W", "X", "Y", "Z"), 250)
+  
+  fmat <- matrix(0, 4, 4)
+  fmat[1,3] <- fmat[3,1] <- fmat[2,2] <- fmat[3,4] <- fmat[4,3] <- fmat[4,4] <- 1
+  
+  pmat <- matrix(c(25, 50, 5, 50, 25, 5, 5, 5, 100),3,3,byrow=TRUE)
+
+  # impossible to hit these exactly
+  target.stats <- c(211, 25, 50, 25, 5, 5, 100)
+  nws <- san(nw ~ edges + nodemix("race"), target.stats = target.stats, control=control.san(SAN.prop.args = list(bound = 4, attr = "sex", fmat = fmat)), constraints="BDTNT"~.)
+  sr <- summary(nws ~ edges + nodemix("race"))
+
+  expect_true(all(abs(sr - target.stats) <= 0.05*target.stats + 1))
+  expect_equal(unname(summary(nws ~ degrange(5))), 0)
+  # and check sex nodemix
+  srs <- summary(nws ~ nodemix("sex"))
+  expect_true(all(srs[as.logical(fmat[upper.tri(fmat,diag=TRUE)])] == 0))
+})
+
+
