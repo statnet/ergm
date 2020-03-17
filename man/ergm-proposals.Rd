@@ -18,6 +18,7 @@
 \alias{InitErgmProposal.TNT}
 \alias{InitErgmProposal.StratTNT}
 \alias{InitErgmProposal.BDTNT}
+\alias{InitErgmProposal.BDStratTNT}
 \alias{InitErgmProposal.randomtoggle}
 \alias{InitErgmProposal.randomtoggleNonObserved}
 \alias{InitErgmProposal.NonObservedTNT}
@@ -63,8 +64,9 @@
             on a given vertex attribute \code{attr}; within each mixing type, dyads are 
             stratified by edge status as in \code{TNT}.
             
-            Specifically, the user must pass a vertex attribute \code{attr} as an argument, 
-            and may optionally pass a matrix of weights \code{pmat} (the default for 
+            Specifically, the user may pass a vertex attribute \code{attr} as an argument 
+            (the default for \code{attr} gives every vertex the same attribute value),
+            and may also pass a matrix of weights \code{pmat} (the default for 
             \code{pmat} gives equal weight to each mixing type).  See 
             \link[=node-attr]{Specifying Vertex Attributes and Levels} for details on 
             specifying vertex attributes.  The matrix \code{pmat}, if specified, must have
@@ -140,10 +142,12 @@
 
         \item{InitErgmProposal.BDTNT}{Implements a TNT proposal with an upper bound on degree.  Optionally prohibits certain mixing types on a specified attribute.
         
-        Specifically, the user must pass an upper bound for total degree via the \code{bound}
-                    argument, and may optionally pass an attribute \code{attr} and a logical matrix
-                    \code{fmat} indicating which mixing types of \code{attr} are forbidden from
-                    having ties.  See \link[=node-attr]{Specifying Vertex Attributes and Levels}
+        Specifically, the user may pass an upper bound for total degree via the \code{bound}
+                    argument (the default \code{bound} is the network size minus one), and may also pass an 
+                    attribute \code{attr} (the default \code{attr} gives every vertex the same attribute value)
+                    and a logical matrix \code{fmat} indicating which mixing types of \code{attr}
+                    are forbidden from having ties (the default \code{fmat} allows all mixing types).  
+                    See \link[=node-attr]{Specifying Vertex Attributes and Levels}
                     for details on specifying vertex attributes.  The matrix \code{fmat}, if specified, must have
                     the same dimensions as a mixing matrix for the network and attribute under
                     consideration, and the correspondence between rows and columns of \code{fmat}
@@ -162,6 +166,19 @@
                     While some mixing types may be forbidden by \code{fmat}, this will not be
                     recognized as a constraint by all components of \code{ergm}, and should
                     be used with caution.
+        }
+
+        \item{InitErgmProposal.BDStratTNT}{Implements a TNT proposal with an upper bound on degree, with proposed
+                    toggles stratified by mixing type on a specified vertex attribute.  Optionally prohibits certain
+                    mixing types on a(nother) specified attribute.
+        
+        Specifically, the user may pass arguments \code{bound}, \code{BD_attr}, and \code{fmat} as for \code{BDTNT},
+                    and may also pass arguments \code{Strat_attr} and \code{pmat} as for \code{StratTNT}.  Proposals 
+                    are made based on mixing type according to \code{pmat} and \code{Strat_attr}, respecting constraints 
+                    imposed by \code{bound}, \code{BD_attr}, and \code{fmat}.  See \code{BDTNT} and \code{StratTNT} for
+                    more information.
+                    
+        Directed networks are not supported by \code{BDStratTNT} at this time.
         }
 
        }}
