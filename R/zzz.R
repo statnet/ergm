@@ -40,6 +40,7 @@
   ergm_proposal_table("c", "Bernoulli", c("", "bd"),  1, "TNT", "TNT")
   ergm_proposal_table("c", "Bernoulli", c(""),  0, "BDTNT", "BDTNT")  
   ergm_proposal_table("c", "Bernoulli", c("", "bd"),  0, "StratTNT", "StratTNT")  
+  ergm_proposal_table("c", "Bernoulli", c(""),  0, "BDStratTNT", "BDStratTNT")  
   ergm_proposal_table("c", "Bernoulli", c(".dyads",".dyads+bd"),  -2, "random", "RLE")
   ergm_proposal_table("c", "Bernoulli", c(".dyads",".dyads+bd"),  -1, "TNT", "RLETNT")
   ergm_proposal_table("c", "Bernoulli", "", -100, "TNT10", "TNT10")
