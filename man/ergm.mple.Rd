@@ -48,10 +48,7 @@ default="binomial"}
 be returned (T or F); if false, NULL is returned for both;
 default==TRUE}
 
-\item{control}{a list of MCMC related parameters; recognized
-components include: samplesize : the number of networks to sample
-Clist.miss : see 'Clist.miss' above; some of the code uses this
-Clist.miss,}
+\item{control}{a control list returned by \code{\link[=control.ergm]{control.ergm()}}}
 
 \item{verbose}{whether this and the C routines should be verbose (T
 or F); default=FALSE}
@@ -74,23 +71,19 @@ column.}
 containing several items; for details see the return list in the
 \code{\link{ergm}}
 
-\code{ergm.pl} returns a list containing: \itemize{ \item
-xmat : the compressed and possibly sampled matrix of change
-statistics
-\item zy : the corresponding vector of responses,
-i.e. tie values
-\item foffset : ??
-\item wend : the vector of
-weights for 'xmat' and 'zy'
-\item numobs : the number of dyads
+\code{ergm.pl} returns a list containing:
 
-\item
-theta.offset : a numeric vector whose ith entry tells whether the
-the ith curved coefficient?? was offset/fixed; -Inf implies the
-coefficient was fixed, 0 otherwise; if the model hasn't any
-curved terms, the first entry of this vector is one of
-log(Clist$nedges/(Clist$ndyads-Clist$nedges))
-log(1/(Clist$ndyads-1)) depending on 'Clist$nedges' }
+\item{xmat}{the compressed and possibly sampled matrix of change
+statistics}
+
+\item{zy}{the corresponding vector of responses, i.e. tie values}
+
+\item{foffset}{if \code{ignore.offset==FALSE}, the combined offset statistics multiplied by their parameter values}
+
+\item{wend}{the vector of weights for \code{xmat}
+and \code{zy}}
+
+\item{theta.offset}{ a numeric vector of offset coefficients}
 }
 \description{
 The \code{ergm.mple} function finds a maximizer to the psuedolikelihood

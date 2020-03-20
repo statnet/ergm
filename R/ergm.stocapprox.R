@@ -20,9 +20,6 @@
 #   init    : the initial theta values
 #   nw        : the network
 #   model     : the model, as returned by <ergm_model>
-#   Clist     : a list of several network and model parameters,
-#               as returned by <ergm.Cprepare>
-#   initialfit: an ergm object, as the initial fit
 #   control: a list of parameters for controlling the MCMC sampling;
 #               recognized components include
 #                  'phase1_n'      'phase3_n'    'epsilon'

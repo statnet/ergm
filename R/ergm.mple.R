@@ -48,10 +48,7 @@
 #' @param save.glm whether the mple fit and the null mple fit should
 #'   be returned (T or F); if false, NULL is returned for both;
 #'   default==TRUE
-#' @param control a list of MCMC related parameters; recognized
-#'   components include: samplesize : the number of networks to sample
-#'   Clist.miss : see 'Clist.miss' above; some of the code uses this
-#'   Clist.miss,
+#' @param control a control list returned by [control.ergm()]
 #' @param verbose whether this and the C routines should be verbose (T
 #'   or F); default=FALSE
 #' @param \dots additional parameters passed from within; all will be

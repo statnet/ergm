@@ -134,25 +134,6 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
   }else stats
 }
 
-
-
-
-####################################################################
-# The <control.godfather> function allows for tuning of the
-# <ergm.godfather> function
-#
-# --PARAMETERS--
-#   maxedges          : the maximum number of edges to make space
-#                       for for the new network; this is ignored
-#                       if 5*Clist$nedges is greater; this is also
-#                       ignored if 'return_new_network' is FALSE;
-#                       default=100000
-#
-#
-# --RETURNED--
-#   a list of the above parameters
-#
-####################################################################
 #' Control parameters for [ergm.godfather()].
 #'
 #' Returns a list of its arguments.

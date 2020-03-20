@@ -18,11 +18,6 @@
 #
 # --RETURNED--
 #   fd
-#      if 'nw' has missing edges, see the return list, 'Clist', from the
-#                                 <ergm.Cprepare> function header
-#      if 'nw' hasn't any missing edges, the list will only contain NULL
-#                                 values for the 'tails' and 'heads' components,
-#                                 a 0 for 'nedges' and 'dir' appropriately set
 #
 # The <ergm.Cprepare.miss> function functions constructs a static edgelist for
 # the proposals that need it.
