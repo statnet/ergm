@@ -6,11 +6,13 @@
 \alias{kapferer2}
 \alias{tailor}
 \title{Kapferer's tailor shop data}
-\format{Two \code{network} objects, \code{kapferer} and \code{kapferer2}.
+\format{
+Two \code{network} objects, \code{kapferer} and \code{kapferer2}.
 The \code{kapferer} dataset contains only the 39 individuals who were
 present at both data-collection time periods.  However, these data only
 reflect data collected during the first period.  The individuals' names are
-included as a nodal covariate called \code{names}.}
+included as a nodal covariate called \code{names}.
+}
 \source{
 Original source: Kapferer, Bruce (1972), Strategy and Transaction in
 an African Factory, Manchester University Press.

@@ -5,7 +5,8 @@
 \alias{faux.mesa.high}
 \alias{fauxhigh}
 \title{Goodreau's Faux Mesa High School as a network object}
-\format{\code{faux.mesa.high} is a \code{\link[network]{network}} object
+\format{
+\code{faux.mesa.high} is a \code{\link[network]{network}} object
 with 205 vertices (students, in this case) and 203 undirected edges (mutual
 friendships).  To obtain additional summary information about it, type
 \code{summary(faux.mesa.high)}.
@@ -15,7 +16,8 @@ The vertex attributes are \code{Grade}, \code{Sex}, and \code{Race}. The
 grade in school.  The \code{Race} attribute is based on the answers to two
 questions, one on Hispanic identity and one on race, and takes six possible
 values: White (non-Hisp.), Black (non-Hisp.), Hispanic, Asian (non-Hisp.),
-Native American, and Other (non-Hisp.)}
+Native American, and Other (non-Hisp.)
+}
 \source{
 The data set is based upon a model fit to data from one school
 community from the AddHealth Study, Wave I (Resnick et al., 1997). It was

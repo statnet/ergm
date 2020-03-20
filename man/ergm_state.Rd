@@ -35,7 +35,13 @@
 \alias{ergm_state_receive.ergm_state_full}
 \alias{summary.ergm_state}
 \title{A Representation of ERGM state}
-\format{An object of class \code{integer} of length 1.}
+\format{
+An object of class \code{integer} of length 1.
+
+An object of class \code{integer} of length 1.
+
+An object of class \code{integer} of length 1.
+}
 \usage{
 ergm_state(x, ...)
 

@@ -23,7 +23,13 @@
 \alias{SMALLEST}
 \alias{COLLAPSE_SMALLEST}
 \title{Helper functions for specifying nodal attribute levels}
-\format{An object of class \code{character} of length 3.}
+\format{
+An object of class \code{character} of length 3.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{character} of length 1.
+}
 \usage{
 ERGM_GET_VATTR_MULTIPLE_TYPES
 
