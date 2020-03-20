@@ -44,8 +44,9 @@
 ergm.pl<-function(nw, fd, m, theta.offset=NULL,
                     control, ignore.offset=FALSE,
                     verbose=FALSE) {
+  state <- ergm_state(nw, model=m)
   d <- sum(fd)
-  el <- as.edgelist(NVL(cbind(Clist$tails, Clist$heads), matrix(,0,2)), n, directed=TRUE, bipartite=FALSE, loops=TRUE) # This will be filtered by fd anyway.
+  el <- as.edgelist(state)
   elfd <- as.rlebdm(el) & fd
   e <- sum(elfd)
 
@@ -53,7 +54,6 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
                          d)
   maxDyads <- if(is.function(control$MPLE.samplesize)) control$MPLE.samplesize(d=d, e=e) else control$MPLE.samplesize
   maxNumDyadTypes <- min(control$MPLE.max.dyad.types, sum(fd))
-  state <- ergm_state(nw, model=m)
   # *** don't forget, pass in tails first now, not heads
   z <- .Call("MPLE_wrapper",
              state,
