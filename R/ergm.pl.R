@@ -56,7 +56,7 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
              state,
              # MPLE settings
              as.double(to_ergm_Cdouble(fd)),
-             as.integer(.Machine$integer.max), # maxDyads
+             as.integer(maxDyads),
              as.integer(maxNumDyadTypes),
              PACKAGE="ergm")
   uvals <- z$weightsvector!=0
