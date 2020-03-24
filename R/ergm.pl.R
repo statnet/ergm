@@ -84,7 +84,7 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
     z <- .Call("MPLE_wrapper",
                state,
                # MPLE settings
-               as.double(to_ergm_Cdouble(presentrle)),
+               as.double(to_ergm_Cdouble(elfd)),
                as.integer(.Machine$integer.max), # maxDyads
                as.integer(maxNumDyadTypes),
                PACKAGE="ergm")
