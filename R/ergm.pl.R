@@ -50,7 +50,6 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
   maxNumDyadTypes <- min(if(is.function(control$MPLE.max.dyad.types)) control$MPLE.max.dyad.types(d=d, e=e) else control$MPLE.max.dyad.types,
                          d)
   maxDyads <- if(is.function(control$MPLE.samplesize)) control$MPLE.samplesize(d=d, e=e) else control$MPLE.samplesize
-  maxNumDyadTypes <- min(control$MPLE.max.dyad.types, sum(fd))
   # *** don't forget, pass in tails first now, not heads
   z <- .Call("MPLE_wrapper",
              state,
