@@ -644,6 +644,7 @@ ergm <- function(formula, response=NULL,
     target.stats <- .align.target.stats.offset(model, target.stats)   
 
     nw <- TARGET_STATS <- as.network(TARGET_STATS)
+    nw.stats <- summary(model, nw, response=response, term.options=control$term.options) # TODO: SAN has this information, so maybe we should grab it from there.
     formula<-nonsimp_update.formula(formula,TARGET_STATS~., from.new="TARGET_STATS")
   } else {
     if (network.edgecount(nw) == 0) warning("Network is empty and no target stats are specified.")
@@ -772,7 +773,7 @@ ergm <- function(formula, response=NULL,
     
   }
   
-  model$nw.stats <- summary(model, nw, response=response, term.options=control$term.options)
+  model$nw.stats <- nw.stats
   model$target.stats <- target.stats
   
   if(control$init.method=="CD") if(is.null(names(control$init)))
