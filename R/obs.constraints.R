@@ -25,7 +25,12 @@
   if(!is.null(obs.constraints)){
     # We have observational process information.
     obs.constraints <- NVL3(nw%ergmlhs%"obs.constraints", nonsimp_update.formula(., obs.constraints), obs.constraints)
-    
+
+    # If no missing edges, remove the "observed" constraint.
+    if(network.naedgecount(nw)==0){
+      obs.constraints <- .delete_from_conform_rhs(obs.constraints, "observed")
+    }
+
     # Observation process handling only needs to happen if the
     # sufficient statistics are not specified. If the sufficient
     # statistics are specified, the nw's dyad states are irrelevant.
@@ -35,11 +40,6 @@
       obs.constraints <- trim_env(~.)
     }
 
-    # If no missing edges, remove the "observed" constraint.
-    if(network.naedgecount(nw)==0){
-      obs.constraints <- .delete_from_conform_rhs(obs.constraints, "observed")
-    }
-    
     constraints.obs<-obs.constraints
     ult(constraints.obs) <- call('+', ult(constraints.obs), ult(constraints))
     constraints.obs <- .delete_from_conform_rhs(constraints.obs, ".")
