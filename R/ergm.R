@@ -644,12 +644,14 @@ ergm <- function(formula, response=NULL,
     target.stats <- .align.target.stats.offset(model, target.stats)   
 
     nw <- TARGET_STATS <- as.network(TARGET_STATS)
-    nw.stats <- summary(model, nw, response=response, term.options=control$term.options) # TODO: SAN has this information, so maybe we should grab it from there.
     formula<-nonsimp_update.formula(formula,TARGET_STATS~., from.new="TARGET_STATS")
   } else {
     if (network.edgecount(nw) == 0) warning("Network is empty and no target stats are specified.")
   }
-   
+
+  # TODO: SAN has this information, so maybe we should grab it from there if SAN does get run.
+  nw.stats <- summary(model, nw, response=response, term.options=control$term.options)
+
   # conddeg MPLE has been superceded, but let the user know:
   if(!is.directed(nw) && ("degrees" %in% names(proposal$arguments$constraints) ||
                                            all(c("b1degrees","b2degrees") %in% names(proposal$arguments$constraints)))) message("Note that degree-conditional MPLE has been removed in version 4.0, having been superceded by Contrastive Divergence.")  
