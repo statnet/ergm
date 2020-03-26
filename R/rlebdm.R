@@ -78,18 +78,22 @@ as.rlebdm.matrix <- function(x, ...){
 #' 
 #' @export
 as.rlebdm.edgelist <- function(x, ...){
-  n <- attr(x, "n")
+  n <- as.integer(attr(x, "n"))
   x <- as.matrix(x)
-  ils <- lapply(lapply(lapply(seq_len(n), function(j) x[x[,2]==j,1]), unique), sort)
+  ils <- lapply(lapply(lapply(seq_len(n), function(j) as.integer(x[x[,2]==j,1])), unique), sort)
   o <- lapply(ils, function(il){
-    o <- rle(c(rep(c(FALSE,TRUE), length(il)),FALSE))
+    vals <- c(rep(c(FALSE,TRUE), length(il)),FALSE)
     
     # Construct repetition counts: gaps between the i's, as well as
     # the gap before the first i and after the last i for that j,
     # and interleave it with 1s.
-    lens <- c(rbind(diff(c(0,il,n+1))-1,1))
+    lens <- as.integer(c(rbind(diff(c(0L,il,n+1L))-1L,1L)))
     lens <- lens[-length(lens)]
-    rep(o, lens, scale='run')
+
+    structure(list(
+      values = vals,
+      lengths = lens
+    ), class = "rle")
   })
   # Concatenate the RLEs and compact.
   rlebdm(compress(do.call(c, o)), n)
