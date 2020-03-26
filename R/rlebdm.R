@@ -80,7 +80,9 @@ as.rlebdm.matrix <- function(x, ...){
 as.rlebdm.edgelist <- function(x, ...){
   n <- as.integer(attr(x, "n"))
   x <- as.matrix(x)
-  ils <- lapply(lapply(lapply(seq_len(n), function(j) as.integer(x[x[,2]==j,1])), unique), sort)
+  storage.mode(x) <- "integer"
+  x <- x[order(x[,2]),,drop=FALSE]
+  ils <- unname(split(x[,1], factor(x[,2], levels=seq_len(n)), drop=FALSE))
   o <- lapply(ils, function(il){
     vals <- c(rep(c(FALSE,TRUE), length(il)),FALSE)
     
