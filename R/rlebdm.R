@@ -78,27 +78,49 @@ as.rlebdm.matrix <- function(x, ...){
 #' 
 #' @export
 as.rlebdm.edgelist <- function(x, ...){
-  n <- as.integer(attr(x, "n"))
-  x <- as.matrix(x)
-  storage.mode(x) <- "integer"
-  x <- x[order(x[,1]),,drop=FALSE]
-  ils <- unname(split(x[,1], factor(x[,2], levels=seq_len(n)), drop=FALSE))
-  o <- lapply(ils, function(il){
-    vals <- c(rep(c(FALSE,TRUE), length(il)),FALSE)
-    
-    # Construct repetition counts: gaps between the i's, as well as
-    # the gap before the first i and after the last i for that j,
-    # and interleave it with 1s.
-    lens <- as.integer(c(rbind(diff(c(0L,il,n+1L))-1L,1L)))
-    lens <- lens[-length(lens)]
+  n <- as.integer(attr(x, "n")) # network size
 
-    structure(list(
-      values = vals,
-      lengths = lens
-    ), class = "rle")
-  })
-  # Concatenate the RLEs and compact.
-  rlebdm(compress(do.call(c, o)), n)
+  x <- as.matrix(x) # matrix edgelist
+  storage.mode(x) <- "integer" # be sure tails and heads are stored as integers
+
+  o <- order(x[,2L],x[,1L]) # order edges by head (then tail)
+  t <- x[o,1L] # tails
+  h <- x[o,2L] # heads
+  
+  ne <- length(t) # number of edges
+
+  vals <- logical(n + 2L*ne) # RLE values
+  lens <- rep(n, n + 2L*ne) # RLE lengths
+
+  ch <- 0L # current head
+  ci <- 0L # current index in vals and lens
+
+  i <- 1L # current row in edgelist
+
+  while(i <= ne){ # while not all the way through the edgelist
+    # "skip" nodes that are not heads, as they contribute a FALSE run of length n, 
+    # which was already set above
+    ci <- ci + h[i] - ch
+    ch <- h[i]
+    
+    # handle the current node, which has at least one in-edge;
+    # we force alternating FALSE and TRUE runs with each TRUE run of length 1,
+    # starting and finishing with FALSE runs; some of the FALSE runs may 
+    # therefore have length zero, but this will be cleaned up by compress
+    lt <- 0L # last tail handled for current head
+    while(i <= ne && h[i] == ch){
+      lens[ci] <- t[i] - lt - 1L
+      lt <- t[i]
+      ci <- ci + 1L
+      lens[ci] <- 1L
+      vals[ci] <- TRUE
+      ci <- ci + 1L
+      i <- i + 1L
+    }
+    lens[ci] <- n - lt
+  }
+    
+  rlebdm(compress(structure(list(values=vals, lengths=lens), class = "rle")), n)
 }
 
 #' @describeIn rlebdm
