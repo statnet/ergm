@@ -81,7 +81,7 @@ as.rlebdm.edgelist <- function(x, ...){
   n <- as.integer(attr(x, "n"))
   x <- as.matrix(x)
   storage.mode(x) <- "integer"
-  x <- x[order(x[,2]),,drop=FALSE]
+  x <- x[order(x[,1]),,drop=FALSE]
   ils <- unname(split(x[,1], factor(x[,2], levels=seq_len(n)), drop=FALSE))
   o <- lapply(ils, function(il){
     vals <- c(rep(c(FALSE,TRUE), length(il)),FALSE)
