@@ -83,43 +83,55 @@ as.rlebdm.edgelist <- function(x, ...){
   x <- as.matrix(x) # matrix edgelist
   storage.mode(x) <- "integer" # be sure tails and heads are stored as integers
 
-  o <- order(x[,2L],x[,1L]) # order edges by head (then tail)
+  o <- order(x[,2L],x[,1L]) # order edges by head, then tail
   t <- x[o,1L] # tails
   h <- x[o,2L] # heads
   
   ne <- length(t) # number of edges
 
-  vals <- logical(n + 2L*ne) # RLE values
-  lens <- rep(n, n + 2L*ne) # RLE lengths
+  vals <- logical(n + 2L*ne) # RLE values, defaulting to FALSE
+  lens <- rep(n, n + 2L*ne) # RLE lengths, defaulting to n
 
-  ch <- 0L # current head
-  ci <- 0L # current index in vals and lens
-
-  i <- 1L # current row in edgelist
-
-  while(i <= ne){ # while not all the way through the edgelist
-    # "skip" nodes that are not heads, as they contribute a FALSE run of length n, 
-    # which was already set above
-    ci <- ci + h[i] - ch
-    ch <- h[i]
-    
-    # handle the current node, which has at least one in-edge;
-    # we force alternating FALSE and TRUE runs with each TRUE run of length 1,
-    # starting and finishing with FALSE runs; some of the FALSE runs may 
-    # therefore have length zero, but this will be cleaned up by compress
-    lt <- 0L # last tail handled for current head
-    while(i <= ne && h[i] == ch){
+  ci <- 1L # current index in vals and lens
+  
+  lh <- 1L # last head we handled
+  lt <- 0L # last tail we handled
+  
+  for(i in seq_len(ne)){ # for each edge
+    if(h[i] == lh){ # if this head is the same as the last head
+      # add the FALSE run between this tail and the last tail
       lens[ci] <- t[i] - lt - 1L
-      lt <- t[i]
-      ci <- ci + 1L
-      lens[ci] <- 1L
-      vals[ci] <- TRUE
-      ci <- ci + 1L
-      i <- i + 1L
+    }else{ # else this head is different than the last head
+      # add the final FALSE run for the last head
+      lens[ci] <- n - lt
+      
+      # move the index forward to correspond to the current head
+      ci <- ci + h[i] - lh
+
+      # add the initial FALSE run for the current head
+      lens[ci] <- t[i] - 1L
+      
+      # update the last head
+      lh <- h[i]
     }
+
+    # update the index for the (last) FALSE run added in the above conditional
+    ci <- ci + 1L
+    
+    # add the TRUE run for the current tail
+    lens[ci] <- 1L
+    vals[ci] <- TRUE
+    ci <- ci + 1L
+    
+    # update the last tail
+    lt <- t[i]    
+  }
+  
+  # add the final FALSE run, if needed
+  if(ne > 0){
     lens[ci] <- n - lt
   }
-    
+  
   rlebdm(compress(structure(list(values=vals, lengths=lens), class = "rle")), n)
 }
 
