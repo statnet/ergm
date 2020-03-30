@@ -76,8 +76,8 @@ ergm.MCMLE <- function(init, nw, model,
   steplen <- control$MCMLE.steplength
   if(control$MCMLE.steplength=="adaptive") steplen <- 1
 
-  if(is.null(control$MCMLE.samplesize)) control$MCMLE.samplesize <- control$MCMLE.samplesize.per_theta*nparam(model,canonical=FALSE, offset=FALSE)
-  if(obs && is.null(control$obs.MCMLE.samplesize)) control$obs.MCMLE.samplesize <- control$obs.MCMLE.samplesize.per_theta*nparam(model,canonical=FALSE, offset=FALSE)
+  if(is.null(control$MCMLE.samplesize)) control$MCMLE.samplesize <- max(control$MCMLE.samplesize.min,control$MCMLE.samplesize.per_theta*nparam(model,canonical=FALSE, offset=FALSE))
+  if(obs && is.null(control$obs.MCMLE.samplesize)) control$obs.MCMLE.samplesize <- max(control$obs.MCMLE.samplesize.min,control$obs.MCMLE.samplesize.per_theta*nparam(model,canonical=FALSE, offset=FALSE))
 
   control <- remap_algorithm_MCMC_controls(control, "MCMLE")
    

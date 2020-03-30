@@ -45,7 +45,7 @@ control.ergm(
     1024), SAN.packagenames = MCMC.packagenames, parallel = parallel, parallel.type =
     parallel.type, parallel.version.check = parallel.version.check),
   MCMLE.termination = c("confidence", "Hummel", "Hotelling", "precision", "none"),
-  MCMLE.maxit = 30,
+  MCMLE.maxit = 60,
   MCMLE.conv.min.pval = 0.5,
   MCMLE.confidence = 0.99,
   MCMLE.confidence.boost = 2,
@@ -92,10 +92,12 @@ control.ergm(
   obs.MCMLE.effectiveSize = NVL3(MCMLE.effectiveSize, . * obs.MCMC.mul),
   MCMLE.interval = 1024,
   MCMLE.burnin = MCMLE.interval * 16,
-  MCMLE.samplesize.per_theta = 128,
+  MCMLE.samplesize.per_theta = 32,
+  MCMLE.samplesize.min = 256,
   MCMLE.samplesize = NULL,
   obs.MCMLE.samplesize.per_theta = round(MCMLE.samplesize.per_theta *
     obs.MCMC.samplesize.mul),
+  obs.MCMLE.samplesize.min = 256,
   obs.MCMLE.samplesize = NULL,
   obs.MCMLE.interval = round(MCMLE.interval * obs.MCMC.interval.mul),
   obs.MCMLE.burnin = round(MCMLE.burnin * obs.MCMC.burnin.mul),
@@ -538,13 +540,15 @@ whose number of edges is exceeds the observed network by more than
 \code{MCMLE.density.guard}, the optimization process will be stopped with an
 error.}
 
-\item{MCMLE.effectiveSize, MCMLE.effectiveSize.interval_drop, MCMLE.burnin, MCMLE.interval, MCMLE.samplesize, MCMLE.samplesize.per_theta}{Sets the corresponding \verb{MCMC.*} parameters when \code{main.method="MCMLE"} (the
-default). Used because defaults may be different for different
-methods. \code{MCMLE.samplesize.per_theta} controls the MCMC sample
-size (not target effective size) as a function of the number of
-(curved) parameters in the model.}
+\item{MCMLE.effectiveSize, MCMLE.effectiveSize.interval_drop, MCMLE.burnin, MCMLE.interval, MCMLE.samplesize, MCMLE.samplesize.per_theta, MCMLE.samplesize.min}{Sets the corresponding \verb{MCMC.*} parameters when
+\code{main.method="MCMLE"} (the default). Used because defaults may be
+different for different methods. \code{MCMLE.samplesize.per_theta}
+controls the MCMC sample size (not target effective size) as a
+function of the number of (curved) parameters in the model, and
+\code{MCMLE.samplesize.min} sets the minimum sample size regardless of
+their number.}
 
-\item{obs.MCMLE.effectiveSize, obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.mul, obs.MCMC.samplesize.mul, obs.MCMC.burnin.mul, obs.MCMC.interval.mul, obs.MCMC.effectiveSize, obs.MCMLE.burnin, obs.MCMLE.interval, obs.MCMLE.samplesize, obs.MCMLE.samplesize.per_theta}{Sample size, burnin, and interval parameters for the MCMC
+\item{obs.MCMLE.effectiveSize, obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.mul, obs.MCMC.samplesize.mul, obs.MCMC.burnin.mul, obs.MCMC.interval.mul, obs.MCMC.effectiveSize, obs.MCMLE.burnin, obs.MCMLE.interval, obs.MCMLE.samplesize, obs.MCMLE.samplesize.per_theta, obs.MCMLE.samplesize.min}{Sample size, burnin, and interval parameters for the MCMC
 sampling used when unobserved data are present in the estimation
 routine. By default, they are controlled by the \verb{*.mul}
 parameters, as fractions of the corresponding settings for the

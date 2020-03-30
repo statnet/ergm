@@ -152,12 +152,14 @@
 #' @template control_MCMC_effectiveSize
 #' 
 #' @param
-#'   MCMLE.effectiveSize,MCMLE.effectiveSize.interval_drop,MCMLE.burnin,MCMLE.interval,MCMLE.samplesize,MCMLE.samplesize.per_theta
-#'   Sets the corresponding `MCMC.*` parameters when `main.method="MCMLE"` (the
-#'   default). Used because defaults may be different for different
-#'   methods. `MCMLE.samplesize.per_theta` controls the MCMC sample
-#'   size (not target effective size) as a function of the number of
-#'   (curved) parameters in the model.
+#'   MCMLE.effectiveSize,MCMLE.effectiveSize.interval_drop,MCMLE.burnin,MCMLE.interval,MCMLE.samplesize,MCMLE.samplesize.per_theta,MCMLE.samplesize.min
+#'   Sets the corresponding `MCMC.*` parameters when
+#'   `main.method="MCMLE"` (the default). Used because defaults may be
+#'   different for different methods. `MCMLE.samplesize.per_theta`
+#'   controls the MCMC sample size (not target effective size) as a
+#'   function of the number of (curved) parameters in the model, and
+#'   `MCMLE.samplesize.min` sets the minimum sample size regardless of
+#'   their number.
 #'
 #' @param SA.burnin,SA.interval,SA.samplesize Sets the corresponding
 #'   `MCMC.*` parameters when `main.method="Stochastic-Approximation"`.
@@ -241,7 +243,7 @@
 #' falls back to \code{optim} only when \code{trust} fails.
 #'
 #' @param
-#'   obs.MCMLE.effectiveSize,obs.MCMC.samplesize,obs.MCMC.burnin,obs.MCMC.interval,obs.MCMC.mul,obs.MCMC.samplesize.mul,obs.MCMC.burnin.mul,obs.MCMC.interval.mul,obs.MCMC.effectiveSize,obs.MCMLE.burnin,obs.MCMLE.interval,obs.MCMLE.samplesize,obs.MCMLE.samplesize.per_theta
+#'   obs.MCMLE.effectiveSize,obs.MCMC.samplesize,obs.MCMC.burnin,obs.MCMC.interval,obs.MCMC.mul,obs.MCMC.samplesize.mul,obs.MCMC.burnin.mul,obs.MCMC.interval.mul,obs.MCMC.effectiveSize,obs.MCMLE.burnin,obs.MCMLE.interval,obs.MCMLE.samplesize,obs.MCMLE.samplesize.per_theta,obs.MCMLE.samplesize.min
 #'   Sample size, burnin, and interval parameters for the MCMC
 #'   sampling used when unobserved data are present in the estimation
 #'   routine. By default, they are controlled by the `*.mul`
@@ -539,7 +541,7 @@ control.ergm<-function(drop=TRUE,
                          parallel.version.check=parallel.version.check),
                        
                        MCMLE.termination=c("confidence", "Hummel", "Hotelling", "precision", "none"),
-                       MCMLE.maxit=30,
+                       MCMLE.maxit=60,
                        MCMLE.conv.min.pval=0.5,
                        MCMLE.confidence=0.99,
                        MCMLE.confidence.boost=2,
@@ -587,9 +589,11 @@ control.ergm<-function(drop=TRUE,
                        obs.MCMLE.effectiveSize=NVL3(MCMLE.effectiveSize, .*obs.MCMC.mul),
                        MCMLE.interval=1024,
                        MCMLE.burnin=MCMLE.interval*16,
-                       MCMLE.samplesize.per_theta=128,
+                       MCMLE.samplesize.per_theta=32,
+                       MCMLE.samplesize.min=256,
                        MCMLE.samplesize=NULL,
                        obs.MCMLE.samplesize.per_theta=round(MCMLE.samplesize.per_theta*obs.MCMC.samplesize.mul),
+                       obs.MCMLE.samplesize.min=256,
                        obs.MCMLE.samplesize=NULL,
                        obs.MCMLE.interval=round(MCMLE.interval*obs.MCMC.interval.mul),
                        obs.MCMLE.burnin=round(MCMLE.burnin*obs.MCMC.burnin.mul),
