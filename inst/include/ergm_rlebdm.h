@@ -10,6 +10,7 @@
 #ifndef _ERGM_RLEBDM_H_
 #define _ERGM_RLEBDM_H_
 
+#include <limits.h>
 #include "ergm_edgetree.h"
 
 /* Serialization format for RLE-encoded Binary Dyad Matrix with only
@@ -44,8 +45,12 @@
 
 static inline void Dyad2TH(Vertex *tail, Vertex *head, Dyad d, Vertex n){
   // Quotient is the column (head) and remainder is the row (tail), counted from 0.
+  // On systems for which long integers are 32 bits, use lldiv() instead of ldiv().
+#if ULONG_MAX >= 18446744073709551615ULL
   ldiv_t q = ldiv(d-1, n);
-  
+#else
+  lldiv_t q = lldiv(d-1, n);
+#endif
   *tail = q.rem + 1;
   *head = q.quot + 1;
 }
