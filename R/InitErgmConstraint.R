@@ -60,32 +60,37 @@ InitErgmConstraint..attributes <- function(lhs.nw, ...){
       ## NB: Free dyad RLE matrix is stored in a column-major order for
       ## consistency with R.
       d <-
-        if(has.loops(lhs.nw)) rep(rep(rle(TRUE),n,scale="run"),n,scale="run")
-        else{
-          v <- c(rep(c(FALSE, TRUE), n-1), FALSE)
-          r <- c(rep(c(1L, n), n-1), 1L)
-          rep(rle(v), r, scale="run")
-        }
-      
-      if(is.bipartite(lhs.nw)){
-        n1 <- lhs.nw%n%"bipartite"
-        n2 <- n - n1
-        
-        d <- d &
-          c(rep(rep(rle(c(FALSE)),n,scale="run"),n1,scale="run"),
-            rep(rep(rle(c(TRUE,FALSE)),c(n1,n2),scale="run"),n2,scale="run"))
-      }
-      
-      if(!is.directed(lhs.nw)){
-        d <- d &
-          {
-            v <- rep(c(TRUE,FALSE), n)
-            r <- as.vector(rbind(seq_len(n), n-seq_len(n)))
-            rep(rle(v), r, scale="run")
+        if(is.directed(lhs.nw)){
+          if(has.loops(lhs.nw)){
+            compress(structure(list(lengths=rep(n,n), values=rep(TRUE,n)), class="rle"))
+          }else{
+            structure(list(lengths=c(1L,rep(c(n,1L),n-1L)), values=c(rep(c(FALSE, TRUE),n-1L),FALSE)), class="rle")
           }
-      }
-      
-      rlebdm(compress(d), n)
+        }else if(is.bipartite(lhs.nw)){
+          b1 <- as.integer(lhs.nw%n%"bipartite")
+          b2 <- n - b1
+          compress(structure(list(lengths=c(rep(n,b1), rep(c(b1,b2),b2)), values=c(rep(FALSE, b1), rep(c(TRUE,FALSE),b2))),class="rle"))
+        }else{
+          if(has.loops(lhs.nw)){
+            vals <- c(rep(c(TRUE,FALSE),n-1L),TRUE)
+            lens <- integer(2L*(n-1L)+1L)
+            for(i in seq_len(n-1L)){
+              lens[2L*i-1L] <- i
+              lens[2L*i] <- n-i
+            }
+            lens[2L*n-1L] <- n
+          }else{
+            vals <- c(rep(c(FALSE,TRUE),n-1L),FALSE)
+            lens <- integer(2L*(n-1L)+1L)
+            for(i in seq_len(n-1L)){
+              lens[2L*i-1L] <- n-i+1L
+              lens[2L*i] <- i
+            }
+            lens[2L*n-1L] <- 1L
+          }          
+          structure(list(lengths=lens,values=vals), class="rle")
+        }
+      rlebdm(d, n)        
     },
     constrain = character(0),
     dependence = FALSE)
