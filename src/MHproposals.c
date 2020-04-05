@@ -558,6 +558,8 @@ typedef struct {
   int *attrcounts;
   Vertex **nodesvec;
   
+  UnsrtEL *edgelist;
+  
   int tailtype;
   int tailindex;
   int tailmaxl;
@@ -635,6 +637,15 @@ MH_I_FN(Mi_BDTNT) {
   sto->vattr = vattr;
   sto->tailtypes = tailtypes;
   sto->headtypes = headtypes;
+
+  sto->edgelist = UnsrtELInitialize(0, NULL, NULL, FALSE);
+  Vertex head;
+  Edge e;
+  for(Vertex tail = 1; tail <= N_NODES; tail++) {
+    STEP_THROUGH_OUTEDGES(tail, e, head) {
+      UnsrtELInsert(tail, head, sto->edgelist);
+    }
+  }
 }
 
 MH_P_FN(MH_BDTNT) {    
@@ -650,11 +661,8 @@ MH_P_FN(MH_BDTNT) {
   // (assuming the initial network is valid)  
   if((unif_rand() < 0.5 && nedges > 0) || (sto->currentdyads == 0)) {
     // select an existing edge at random, and propose toggling it off
-    GetRandEdge(Mtail, Mhead, nwp);
-    
-    sto->tailtype = sto->vattr[Mtail[0] - 1];
-    sto->headtype = sto->vattr[Mhead[0] - 1];    
-    
+    UnsrtELGetRand(Mtail, Mhead, sto->edgelist);
+        
     edgeflag = TRUE;
   } else {
     // select a BD-toggleable dyad and propose toggling it
@@ -703,15 +711,11 @@ MH_P_FN(MH_BDTNT) {
         if(tail > head) {
           sto->tailindex = headindex;
           sto->headindex = tailindex;
-          sto->tailtype = (int)sto->headtypes[i];
-          sto->headtype = (int)sto->tailtypes[i];
           Mtail[0] = head;
           Mhead[0] = tail;
         } else {
           sto->tailindex = tailindex;
           sto->headindex = headindex;
-          sto->tailtype = (int)sto->tailtypes[i];
-          sto->headtype = (int)sto->headtypes[i];
           Mtail[0] = tail;
           Mhead[0] = head;
         }
@@ -723,7 +727,11 @@ MH_P_FN(MH_BDTNT) {
     }
         
     edgeflag = IS_OUTEDGE(Mtail[0],Mhead[0]);
+    if(edgeflag) UnsrtELGetRand(Mtail, Mhead, sto->edgelist);
   }
+  
+  sto->tailtype = sto->vattr[Mtail[0] - 1];
+  sto->headtype = sto->vattr[Mhead[0] - 1];    
   
   if(edgeflag) {
     sto->tailmaxl = IN_DEG[Mtail[0]] + OUT_DEG[Mtail[0]] == sto->bound;
@@ -766,6 +774,7 @@ MH_U_FN(Mu_BDTNT) {
   
   if(edgeflag) {
     // we are removing an edge
+    UnsrtELDelete(tail, head, sto->edgelist);
     
     if(sto->tailmaxl) {
       // tail will be newly submaxl after toggle, so add it to the appropriate node list
@@ -780,7 +789,8 @@ MH_U_FN(Mu_BDTNT) {
     }
   } else {
     // we are adding an edge
-        
+    UnsrtELInsert(tail, head, sto->edgelist);
+    
     if(sto->tailmaxl) {
       // tail will be newly maxl after toggle, so remove it from the appropriate node list
       sto->nodesvec[sto->tailtype][sto->tailindex] = sto->nodesvec[sto->tailtype][sto->attrcounts[sto->tailtype] - 1];
@@ -816,6 +826,7 @@ MH_F_FN(Mf_BDTNT) {
   Free(sto->nodesvec);
   Free(sto->attrcounts);
 
+  UnsrtELDestroy(sto->edgelist);
   // MHp->storage itself should be Freed by MHProposalDestroy
 }
 
