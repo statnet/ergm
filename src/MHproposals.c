@@ -743,24 +743,70 @@ MH_P_FN(MH_BDTNT) {
         
   // the count of dyads that can be toggled in the "GetRandBDDyad" branch,
   // in the proposed network
-  sto->proposeddyads = 0;
+  sto->proposeddyads = sto->currentdyads;
   
-  for(int i = 0; i < sto->nmixtypes; i++) {
-    int proposedtailadjustment = (sto->vattr[Mtail[0] - 1] == sto->tailtypes[i] && sto->tailmaxl) + (sto->vattr[Mhead[0] - 1] == sto->tailtypes[i] && sto->headmaxl);
-    int proposedheadadjustment = (sto->vattr[Mtail[0] - 1] == sto->headtypes[i] && sto->tailmaxl) + (sto->vattr[Mhead[0] - 1] == sto->headtypes[i] && sto->headmaxl);
-    
-    if(!edgeflag) {
-      proposedtailadjustment = -proposedtailadjustment;
-      proposedheadadjustment = -proposedheadadjustment;
+  if(edgeflag) {
+    for(int i = 0; i < sto->nmixtypes; i++) {
+      int corr = 0;
+      int ha = 0;
+  
+      if(sto->tailtype == sto->headtypes[i] && sto->tailmaxl) {
+        ha++;
+        corr += sto->attrcounts[(int)sto->tailtypes[i]];
+      }
+        
+      if(sto->headtype == sto->headtypes[i] && sto->headmaxl) {
+        ha++;
+        corr += sto->attrcounts[(int)sto->tailtypes[i]];        
+      }
+        
+      if(sto->tailtype == sto->tailtypes[i] && sto->tailmaxl) {
+        corr += sto->attrcounts[(int)sto->headtypes[i]] + ha;
+      }
+        
+      if(sto->headtype == sto->tailtypes[i] && sto->headmaxl) {
+        corr += sto->attrcounts[(int)sto->headtypes[i]] + ha;
+      }
+        
+      if(sto->tailtypes[i] == sto->headtypes[i]) {
+        corr -= ha;
+        corr /= 2;
+      }
+      
+      sto->proposeddyads += corr;
     }
-    
-    if(sto->tailtypes[i] == sto->headtypes[i]) {
-      sto->proposeddyads += (sto->attrcounts[(int)sto->tailtypes[i]] + proposedtailadjustment)*(sto->attrcounts[(int)sto->headtypes[i]] + proposedheadadjustment - 1)/2;
-    } else {
-      sto->proposeddyads += (sto->attrcounts[(int)sto->tailtypes[i]] + proposedtailadjustment)*(sto->attrcounts[(int)sto->headtypes[i]] + proposedheadadjustment);
-    }
+  } else {
+    for(int i = 0; i < sto->nmixtypes; i++) {
+      int corr = 0;
+      int ha = 0;
+  
+      if(sto->tailtype == sto->headtypes[i] && sto->tailmaxl) {
+        ha--;
+        corr -= sto->attrcounts[(int)sto->tailtypes[i]];
+      }
+        
+      if(sto->headtype == sto->headtypes[i] && sto->headmaxl) {
+        ha--;
+        corr -= sto->attrcounts[(int)sto->tailtypes[i]];        
+      }
+        
+      if(sto->tailtype == sto->tailtypes[i] && sto->tailmaxl) {
+        corr -= sto->attrcounts[(int)sto->headtypes[i]] + ha;
+      }
+        
+      if(sto->headtype == sto->tailtypes[i] && sto->headmaxl) {
+        corr -= sto->attrcounts[(int)sto->headtypes[i]] + ha;
+      }
+        
+      if(sto->tailtypes[i] == sto->headtypes[i]) {
+        corr -= ha;
+        corr /= 2;
+      }
+      
+      sto->proposeddyads += corr;
+    }      
   }
-  
+    
   if(edgeflag) {
     MHp->logratio = log(((nedges == 1 ? 1.0 : 0.5)/sto->proposeddyads)/((sto->currentdyads == 0 ? 1.0 : 0.5)/nedges + (sto->tailmaxl || sto->headmaxl ? 0 : 0.5/sto->currentdyads)));
   } else {
