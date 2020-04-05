@@ -60,7 +60,7 @@ static inline Edge UnsrtELSearch(Vertex tail, Vertex head, UnsrtEL *el){
       el->ltail=tail;
       el->lhead=head;
       el->lindex=i;
-    }
+    }else return 0;
   }
   return el->lindex;
 }
