@@ -568,8 +568,8 @@ typedef struct {
   int headindex;
   int headmaxl;
   
-  int currentdyads;
-  int proposeddyads;
+  Dyad currentdyads;
+  Dyad proposeddyads;
   
   int bound;
   int nmixtypes;
@@ -612,12 +612,12 @@ MH_I_FN(Mi_BDTNT) {
   }
   
   // count number of "BD-toggleable" dyads in current network
-  int currentdyads = 0;    
+  Dyad currentdyads = 0;    
   for(int i = 0; i < nmixtypes; i++) {
     if(tailtypes[i] == headtypes[i]) {
-      currentdyads += attrcounts[(int)tailtypes[i]]*(attrcounts[(int)headtypes[i]] - 1)/2;
+      currentdyads += (Dyad)attrcounts[(int)tailtypes[i]]*(attrcounts[(int)headtypes[i]] - 1)/2;
     } else {
-      currentdyads += attrcounts[(int)tailtypes[i]]*attrcounts[(int)headtypes[i]];
+      currentdyads += (Dyad)attrcounts[(int)tailtypes[i]]*attrcounts[(int)headtypes[i]];
     }
   }
 
@@ -669,7 +669,7 @@ MH_P_FN(MH_BDTNT) {
     // doubling here allows more efficient calculation in 
     // the case tailtypes[i] == headtypes[i]
     
-    int dyadindex = 2*sto->currentdyads*unif_rand();
+    Dyad dyadindex = 2*sto->currentdyads*unif_rand();
             
     Vertex head;
     Vertex tail;
@@ -678,11 +678,11 @@ MH_P_FN(MH_BDTNT) {
     // to the dyadindex we drew above, and then setting the info for
     // tail and head appropriately
     for(int i = 0; i < sto->nmixtypes; i++) {
-      int dyadstype;
+      Dyad dyadstype;
       if(sto->tailtypes[i] == sto->headtypes[i]) {
-        dyadstype = sto->attrcounts[(int)sto->tailtypes[i]]*(sto->attrcounts[(int)sto->headtypes[i]] - 1)/2;
+        dyadstype = (Dyad)sto->attrcounts[(int)sto->tailtypes[i]]*(sto->attrcounts[(int)sto->headtypes[i]] - 1)/2;
       } else {
-        dyadstype = sto->attrcounts[(int)sto->tailtypes[i]]*sto->attrcounts[(int)sto->headtypes[i]];
+        dyadstype = (Dyad)sto->attrcounts[(int)sto->tailtypes[i]]*sto->attrcounts[(int)sto->headtypes[i]];
       }
       
       if(dyadindex < 2*dyadstype) {
@@ -745,66 +745,36 @@ MH_P_FN(MH_BDTNT) {
   // in the proposed network
   sto->proposeddyads = sto->currentdyads;
   
-  if(edgeflag) {
-    for(int i = 0; i < sto->nmixtypes; i++) {
-      int corr = 0;
-      int ha = 0;
+  int delta = edgeflag ? +1 : -1;
   
-      if(sto->tailtype == sto->headtypes[i] && sto->tailmaxl) {
-        ha++;
-        corr += sto->attrcounts[(int)sto->tailtypes[i]];
-      }
-        
-      if(sto->headtype == sto->headtypes[i] && sto->headmaxl) {
-        ha++;
-        corr += sto->attrcounts[(int)sto->tailtypes[i]];        
-      }
-        
-      if(sto->tailtype == sto->tailtypes[i] && sto->tailmaxl) {
-        corr += sto->attrcounts[(int)sto->headtypes[i]] + ha;
-      }
-        
-      if(sto->headtype == sto->tailtypes[i] && sto->headmaxl) {
-        corr += sto->attrcounts[(int)sto->headtypes[i]] + ha;
-      }
-        
-      if(sto->tailtypes[i] == sto->headtypes[i]) {
-        corr -= ha;
-        corr /= 2;
-      }
-      
-      sto->proposeddyads += corr;
+  for(int i = 0; i < sto->nmixtypes; i++) {
+    int corr = 0;
+    int ha = 0;
+
+    if(sto->tailtype == sto->headtypes[i] && sto->tailmaxl) {
+      ha += delta;
+      corr += sto->attrcounts[(int)sto->tailtypes[i]];
     }
-  } else {
-    for(int i = 0; i < sto->nmixtypes; i++) {
-      int corr = 0;
-      int ha = 0;
-  
-      if(sto->tailtype == sto->headtypes[i] && sto->tailmaxl) {
-        ha--;
-        corr -= sto->attrcounts[(int)sto->tailtypes[i]];
-      }
-        
-      if(sto->headtype == sto->headtypes[i] && sto->headmaxl) {
-        ha--;
-        corr -= sto->attrcounts[(int)sto->tailtypes[i]];        
-      }
-        
-      if(sto->tailtype == sto->tailtypes[i] && sto->tailmaxl) {
-        corr -= sto->attrcounts[(int)sto->headtypes[i]] + ha;
-      }
-        
-      if(sto->headtype == sto->tailtypes[i] && sto->headmaxl) {
-        corr -= sto->attrcounts[(int)sto->headtypes[i]] + ha;
-      }
-        
-      if(sto->tailtypes[i] == sto->headtypes[i]) {
-        corr -= ha;
-        corr /= 2;
-      }
       
-      sto->proposeddyads += corr;
-    }      
+    if(sto->headtype == sto->headtypes[i] && sto->headmaxl) {
+      ha += delta;
+      corr += sto->attrcounts[(int)sto->tailtypes[i]];        
+    }
+      
+    if(sto->tailtype == sto->tailtypes[i] && sto->tailmaxl) {
+      corr += sto->attrcounts[(int)sto->headtypes[i]] + ha;
+    }
+      
+    if(sto->headtype == sto->tailtypes[i] && sto->headmaxl) {
+      corr += sto->attrcounts[(int)sto->headtypes[i]] + ha;
+    }
+      
+    if(sto->tailtypes[i] == sto->headtypes[i]) {
+      corr += edgeflag ? -ha : ha;
+      corr /= 2;
+    }
+    
+    sto->proposeddyads += edgeflag ? corr : -corr;
   }
     
   if(edgeflag) {
