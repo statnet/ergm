@@ -100,8 +100,8 @@ typedef struct {
   
   int stratmixingtype;
   
-  int *currentdyads;
-  int *proposeddyads;
+  double currentcumprob;
+  double proposedcumprob;
   
   double *originalprobvec;
   double *currentprobvec;
@@ -114,8 +114,8 @@ typedef struct {
   double *bd_vattr;
   
   double *BDtypesbyStrattype;
-  double *BDtailsbyStrattype;
-  double *BDheadsbyStrattype;
+  double **BDtailsbyStrattype;
+  double **BDheadsbyStrattype;
   
   double *strattailtypes;
   double *stratheadtypes;
@@ -124,6 +124,8 @@ typedef struct {
 MH_I_FN(Mi_BDStratTNT) {
   // process the inputs and initialize all the edgelists in storage; set MHp->ntoggles to 1
   MHp->ntoggles = 1;
+
+  ALLOC_STORAGE(1, BDStratTNTStorage, sto);
   
   int nmixtypes = MHp->inputs[0];
   
@@ -206,37 +208,42 @@ MH_I_FN(Mi_BDStratTNT) {
     }
   }
 
-  double *BDtypesbyStrattype = MHp->inputs + 1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings + 1 + 1 + 1 + 2*bdmixtypes + N_NODES;
+  sto->BDtypesbyStrattype = MHp->inputs + 1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings + 1 + 1 + 1 + 2*bdmixtypes + N_NODES;
   
   int sumtypes = MHp->inputs[1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings + 1 + 1 + 1 + 2*bdmixtypes + N_NODES + nmixtypes];
   
-  double *BDtailsbyStrattype = MHp->inputs + 1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings + 1 + 1 + 1 + 2*bdmixtypes + N_NODES + nmixtypes + 1;
+  sto->BDtailsbyStrattype = Calloc(nmixtypes, double *);
+  sto->BDheadsbyStrattype = Calloc(nmixtypes, double *);
   
-  double *BDheadsbyStrattype = MHp->inputs + 1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings + 1 + 1 + 1 + 2*bdmixtypes + N_NODES + nmixtypes + 1 + sumtypes;
+  sto->BDtailsbyStrattype[0] = MHp->inputs + 1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings + 1 + 1 + 1 + 2*bdmixtypes + N_NODES + nmixtypes + 1;
+  sto->BDheadsbyStrattype[0] = MHp->inputs + 1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings + 1 + 1 + 1 + 2*bdmixtypes + N_NODES + nmixtypes + 1 + sumtypes;
   
-  int sumcurrentdyads = 0;
-  int *currentdyads = Calloc(nmixtypes, int);
+  for(int i = 1; i < nmixtypes; i++) {
+    sto->BDtailsbyStrattype[i] = sto->BDtailsbyStrattype[i - 1] + (int)sto->BDtypesbyStrattype[i - 1];
+    sto->BDheadsbyStrattype[i] = sto->BDheadsbyStrattype[i - 1] + (int)sto->BDtypesbyStrattype[i - 1];
+  }
+  
+  Dyad sumcurrentdyads = 0;
   
   double *currentprobvec = Calloc(nmixtypes, double);
   double sumprobs = 0;
   
   for(int i = 0; i < nmixtypes; i++) {
-    for(int j = 0; j < BDtypesbyStrattype[i]; j++) {
-      int tailcounts = attrcounts[(int)strattailattrs[i]][(int)BDtailsbyStrattype[j]];
-      int headcounts = attrcounts[(int)stratheadattrs[i]][(int)BDheadsbyStrattype[j]];
+    Dyad currentdyads = 0;
+    for(int j = 0; j < (int)sto->BDtypesbyStrattype[i]; j++) {
+      int tailcounts = attrcounts[(int)strattailattrs[i]][(int)sto->BDtailsbyStrattype[i][j]];
+      int headcounts = attrcounts[(int)stratheadattrs[i]][(int)sto->BDheadsbyStrattype[i][j]];
       
-      if(strattailattrs[i] != stratheadattrs[i] || BDtailsbyStrattype[j] != BDheadsbyStrattype[j]) {
-        currentdyads[i] += tailcounts*headcounts;
+      if(strattailattrs[i] != stratheadattrs[i] || sto->BDtailsbyStrattype[i][j] != sto->BDheadsbyStrattype[i][j]) {
+        currentdyads += (Dyad)tailcounts*headcounts;
       } else {
-        currentdyads[i] += tailcounts*(headcounts - 1)/2;
+        currentdyads += (Dyad)tailcounts*(headcounts - 1)/2;
       }
     }
     
-    BDtailsbyStrattype += (int)BDtypesbyStrattype[i];
-    BDheadsbyStrattype += (int)BDtypesbyStrattype[i];
-    sumcurrentdyads += currentdyads[i];
+    sumcurrentdyads += currentdyads;
     
-    if(currentdyads[i] > 0 || els[i]->nedges > 0) {
+    if(currentdyads > 0 || els[i]->nedges > 0) {
       currentprobvec[i] = probvec[i];
       sumprobs += probvec[i];
     } // else it's already 0
@@ -247,34 +254,27 @@ MH_I_FN(Mi_BDStratTNT) {
     MHp->ntoggles = MH_FAILED;
     return;
   }
-
-  for(int i = 0; i < nmixtypes; i++) {
-    currentprobvec[i] /= sumprobs;
-  }
-
-  ALLOC_STORAGE(1, BDStratTNTStorage, sto);
   
   sto->els = els;
   sto->nodesvec = nodesvec;
   sto->attrcounts = attrcounts;
-  
-  sto->currentdyads = currentdyads;
-  sto->proposeddyads = Calloc(nmixtypes, int);
-  
+    
   sto->originalprobvec = probvec;
   sto->currentprobvec = currentprobvec;
   sto->proposedprobvec = Calloc(nmixtypes, double);
+  
+  sto->currentcumprob = sumprobs;
+  
+  // NB: the next two lines reference the logic in the P function
+  sto->proposedcumprob = 1;
+  memcpy(sto->proposedprobvec, sto->originalprobvec, nmixtypes*sizeof(double));
   
   sto->bound = bound;
   sto->nmixtypes = nmixtypes;
   
   sto->strat_vattr = strat_vattr;
   sto->bd_vattr = bd_vattr;
-  
-  sto->BDtypesbyStrattype = BDtypesbyStrattype;
-  sto->BDtailsbyStrattype = MHp->inputs + 1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings + 1 + 1 + 1 + 2*bdmixtypes + N_NODES + nmixtypes + 1;
-  sto->BDheadsbyStrattype = MHp->inputs + 1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings + 1 + 1 + 1 + 2*bdmixtypes + N_NODES + nmixtypes + 1 + sumtypes;
-  
+    
   sto->strattailtypes = MHp->inputs + 1;
   sto->stratheadtypes = MHp->inputs + 1 + nmixtypes;
 }
@@ -282,7 +282,7 @@ MH_I_FN(Mi_BDStratTNT) {
 MH_P_FN(MH_BDStratTNT) {
   GET_STORAGE(BDStratTNTStorage, sto);
 
-  double ur = unif_rand();
+  double ur = unif_rand()*sto->currentcumprob;
   
   // find the first mixing type strat_i with (cumulative) probability larger than ur
   int strat_i = 0;
@@ -301,7 +301,15 @@ MH_P_FN(MH_BDStratTNT) {
     
   // number of edges of this mixing type
   int nedgestype = sto->els[strat_i]->nedges;
-  int ndyadstype = sto->currentdyads[strat_i];
+  
+  Dyad ndyadstype = 0;
+  for(int j = 0; j < (int)sto->BDtypesbyStrattype[strat_i]; j++) {
+    if(strattailtype == stratheadtype && sto->BDtailsbyStrattype[strat_i][j] == sto->BDheadsbyStrattype[strat_i][j]) {
+      ndyadstype += (Dyad)sto->attrcounts[strattailtype][(int)sto->BDtailsbyStrattype[strat_i][j]]*(sto->attrcounts[stratheadtype][(int)sto->BDheadsbyStrattype[strat_i][j]] - 1)/2;
+    } else {
+      ndyadstype += (Dyad)sto->attrcounts[strattailtype][(int)sto->BDtailsbyStrattype[strat_i][j]]*sto->attrcounts[stratheadtype][(int)sto->BDheadsbyStrattype[strat_i][j]];
+    }
+  }
   
   int edgeflag;
   
@@ -311,71 +319,62 @@ MH_P_FN(MH_BDStratTNT) {
     edgeflag = TRUE;
   } else {
     // select a random BD toggleable dyad of strat mixing type strat_i and propose toggling it
-    int dyadindex = 2*sto->currentdyads[strat_i]*unif_rand();
+    Dyad dyadindex = 2*ndyadstype*unif_rand();
 
     Vertex head;
     Vertex tail;
-
-    double *BDtailsbyStrattype = sto->BDtailsbyStrattype;
-    double *BDheadsbyStrattype = sto->BDheadsbyStrattype;
-
-    // need to increment BDtails/headsbyStrattype    
-    for(int j = 0; j < strat_i; j++) {
-      BDtailsbyStrattype += (int)sto->BDtypesbyStrattype[j];
-      BDheadsbyStrattype += (int)sto->BDtypesbyStrattype[j];
-    }
     
     // this rather ugly block of code is just finding the dyad that corresponds
     // to the dyadindex we drew above, and then setting the info for
     // tail and head appropriately
-    for(int j = 0; j < sto->BDtypesbyStrattype[strat_i]; j++) {
-      int dyadstype;
+    for(int j = 0; j < (int)sto->BDtypesbyStrattype[strat_i]; j++) {
+      Dyad dyadsthistype;
 
-      int tailcounts = sto->attrcounts[(int)sto->strattailtypes[strat_i]][(int)BDtailsbyStrattype[j]];
-      int headcounts = sto->attrcounts[(int)sto->stratheadtypes[strat_i]][(int)BDheadsbyStrattype[j]];
+      int tailcounts = sto->attrcounts[strattailtype][(int)sto->BDtailsbyStrattype[strat_i][j]];
+      int headcounts = sto->attrcounts[stratheadtype][(int)sto->BDheadsbyStrattype[strat_i][j]];
 
-      if(sto->strattailtypes[strat_i] != sto->stratheadtypes[strat_i] || BDtailsbyStrattype[j] != BDheadsbyStrattype[j]) {
-        dyadstype = tailcounts*headcounts;
+      if(strattailtype != stratheadtype || sto->BDtailsbyStrattype[strat_i][j] != sto->BDheadsbyStrattype[strat_i][j]) {
+        dyadsthistype = (Dyad)tailcounts*headcounts;
       } else {
-        dyadstype = tailcounts*(headcounts - 1)/2;
+        dyadsthistype = (Dyad)tailcounts*(headcounts - 1)/2;
       }
       
-      if(dyadindex < 2*dyadstype) {
+      if(dyadindex < 2*dyadsthistype) {
         int tailindex;
         int headindex;
         
-        if(sto->strattailtypes[strat_i] == sto->stratheadtypes[strat_i] && BDtailsbyStrattype[j] == BDheadsbyStrattype[j]) {
+        if(strattailtype == stratheadtype && sto->BDtailsbyStrattype[strat_i][j] == sto->BDheadsbyStrattype[strat_i][j]) {
           tailindex = dyadindex / tailcounts;
           headindex = dyadindex % (headcounts - 1);
           if(tailindex == headindex) {
             headindex = headcounts - 1;
           }
                     
-          tail = sto->nodesvec[strattailtype][(int)BDtailsbyStrattype[j]][tailindex];
-          head = sto->nodesvec[stratheadtype][(int)BDheadsbyStrattype[j]][headindex];
+          tail = sto->nodesvec[strattailtype][(int)sto->BDtailsbyStrattype[strat_i][j]][tailindex];
+          head = sto->nodesvec[stratheadtype][(int)sto->BDheadsbyStrattype[strat_i][j]][headindex];
         } else {
           dyadindex /= 2;
           tailindex = dyadindex / headcounts;
           headindex = dyadindex % headcounts;
           
-          tail = sto->nodesvec[strattailtype][(int)BDtailsbyStrattype[j]][tailindex];
-          head = sto->nodesvec[stratheadtype][(int)BDheadsbyStrattype[j]][headindex];
+          tail = sto->nodesvec[strattailtype][(int)sto->BDtailsbyStrattype[strat_i][j]][tailindex];
+          head = sto->nodesvec[stratheadtype][(int)sto->BDheadsbyStrattype[strat_i][j]][headindex];
         }
             
         if(tail > head) {
           sto->strattailtype = stratheadtype;
-          sto->bdtailtype = BDheadsbyStrattype[j];
+          sto->bdtailtype = sto->BDheadsbyStrattype[strat_i][j];
           sto->stratheadtype = strattailtype;
-          sto->bdheadtype = BDtailsbyStrattype[j];
+          sto->bdheadtype = sto->BDtailsbyStrattype[strat_i][j];
           sto->tailindex = headindex;
           sto->headindex = tailindex;
           Mtail[0] = head;
           Mhead[0] = tail;
         } else {
           sto->strattailtype = strattailtype;
-          sto->bdtailtype = BDtailsbyStrattype[j];
+          sto->bdtailtype = sto->BDtailsbyStrattype[strat_i][j];
           sto->stratheadtype = stratheadtype;
-          sto->bdheadtype = BDheadsbyStrattype[j];
+          sto->bdheadtype = sto->BDheadsbyStrattype[strat_i][j];
           sto->tailindex = tailindex;
           sto->headindex = headindex;
           Mtail[0] = tail;
@@ -384,7 +383,7 @@ MH_P_FN(MH_BDStratTNT) {
         
         break;
       } else {
-        dyadindex -= 2*dyadstype;
+        dyadindex -= 2*dyadsthistype;
       }
     }
        
@@ -414,56 +413,95 @@ MH_P_FN(MH_BDStratTNT) {
     sto->tailmaxl = IN_DEG[Mtail[0]] + OUT_DEG[Mtail[0]] == sto->bound - 1;
     sto->headmaxl = IN_DEG[Mhead[0]] + OUT_DEG[Mhead[0]] == sto->bound - 1;
   }
-  
-  double proposedcumprob = 0;
-  
-  double *BDtailsbyStrattype = sto->BDtailsbyStrattype;
-  double *BDheadsbyStrattype = sto->BDheadsbyStrattype;
+    
+  if(sto->proposedcumprob < 1) {
+    sto->proposedcumprob = 1;
+    memcpy(sto->proposedprobvec, sto->originalprobvec, sto->nmixtypes*sizeof(double));
+  } // else it's already initialized appropriately for us
   
   for(int i = 0; i < sto->nmixtypes; i++) {
-    sto->proposeddyads[i] = 0;        
-    for(int j = 0; j < sto->BDtypesbyStrattype[i]; j++) {
+    if(sto->els[i]->nedges > 0 || i == strat_i) {
+      continue; // something is obviously toggleable in the proposed network
+    }
+    
+    // if no edges and not strat_i, need to check for any toggleable dyads in the proposed network
+    int anytoggleable = FALSE;
+    
+    for(int j = 0; j < (int)sto->BDtypesbyStrattype[i]; j++) {
       // adjustments
-      int proposedtailadjustment = (sto->strattailtype == sto->strattailtypes[i] && sto->bdtailtype == BDtailsbyStrattype[j] && sto->tailmaxl) + (sto->stratheadtype == sto->strattailtypes[i] && sto->bdheadtype == BDtailsbyStrattype[j] && sto->headmaxl);
-      int proposedheadadjustment = (sto->strattailtype == sto->stratheadtypes[i] && sto->bdtailtype == BDheadsbyStrattype[j] && sto->tailmaxl) + (sto->stratheadtype == sto->stratheadtypes[i] && sto->bdheadtype == BDheadsbyStrattype[j] && sto->headmaxl);
+      int proposedtailadjustment = (sto->strattailtype == sto->strattailtypes[i] && sto->bdtailtype == sto->BDtailsbyStrattype[i][j] && sto->tailmaxl) + (sto->stratheadtype == sto->strattailtypes[i] && sto->bdheadtype == sto->BDtailsbyStrattype[i][j] && sto->headmaxl);
+      int proposedheadadjustment = (sto->strattailtype == sto->stratheadtypes[i] && sto->bdtailtype == sto->BDheadsbyStrattype[i][j] && sto->tailmaxl) + (sto->stratheadtype == sto->stratheadtypes[i] && sto->bdheadtype == sto->BDheadsbyStrattype[i][j] && sto->headmaxl);
       
-      int tailcounts = sto->attrcounts[(int)sto->strattailtypes[i]][(int)BDtailsbyStrattype[j]];
-      int headcounts = sto->attrcounts[(int)sto->stratheadtypes[i]][(int)BDheadsbyStrattype[j]];
+      int tailcounts = sto->attrcounts[(int)sto->strattailtypes[i]][(int)sto->BDtailsbyStrattype[i][j]];
+      int headcounts = sto->attrcounts[(int)sto->stratheadtypes[i]][(int)sto->BDheadsbyStrattype[i][j]];
       
-      if(!edgeflag) {
+      if(edgeflag) {
         proposedtailadjustment = -proposedtailadjustment;
         proposedheadadjustment = -proposedheadadjustment;
       }
       
-      if(sto->strattailtypes[i] != sto->stratheadtypes[i] || BDtailsbyStrattype[j] != BDheadsbyStrattype[j]) {
-        sto->proposeddyads[i] += (tailcounts + proposedtailadjustment)*(headcounts + proposedheadadjustment);
-      } else {
-        sto->proposeddyads[i] += (tailcounts + proposedtailadjustment)*(headcounts + proposedheadadjustment - 1)/2;
-      }
+      if(tailcounts > proposedtailadjustment && headcounts > proposedheadadjustment + (sto->strattailtypes[i] == sto->stratheadtypes[i] && sto->BDtailsbyStrattype[i][j] == sto->BDheadsbyStrattype[i][j])) {
+        anytoggleable = TRUE;
+        break;
+      }      
     }
   
-    BDtailsbyStrattype += (int)sto->BDtypesbyStrattype[i];
-    BDheadsbyStrattype += (int)sto->BDtypesbyStrattype[i];
-    
-    if(sto->proposeddyads[i] + sto->els[i]->nedges + (edgeflag ? -(i == strat_i) : (i == strat_i)) > 0) {
-      sto->proposedprobvec[i] = sto->originalprobvec[i];
-      proposedcumprob += sto->originalprobvec[i];
-    } else {
+    // if no toggleable dyads in the proposed network, must update proposed probs accordingly
+    if(!anytoggleable) {
+      sto->proposedcumprob -= sto->originalprobvec[i];
       sto->proposedprobvec[i] = 0;
     }
   }
 
-  for(int i = 0; i < sto->nmixtypes; i++) {
-    sto->proposedprobvec[i] /= proposedcumprob;
+  // need to compute proposed dyad count for current mixing type (only)
+  Dyad proposeddyadstype = ndyadstype;
+
+  int delta = edgeflag ? +1 : -1;
+
+  for(int j = 0; j < (int)sto->BDtypesbyStrattype[strat_i]; j++) {
+    int corr = 0;
+    int ha = 0;
+
+    if(sto->strattailtype == sto->stratheadtypes[strat_i] && sto->bdtailtype == sto->BDheadsbyStrattype[strat_i][j] && sto->tailmaxl) {
+      ha += delta;
+      corr += sto->attrcounts[(int)sto->strattailtypes[strat_i]][(int)sto->BDtailsbyStrattype[strat_i][j]];
+    }
+      
+    if(sto->stratheadtype == sto->stratheadtypes[strat_i] && sto->bdheadtype == sto->BDheadsbyStrattype[strat_i][j] && sto->headmaxl) {
+      ha += delta;
+      corr += sto->attrcounts[(int)sto->strattailtypes[strat_i]][(int)sto->BDtailsbyStrattype[strat_i][j]];        
+    }
+      
+    if(sto->strattailtype == sto->strattailtypes[strat_i] && sto->bdtailtype == sto->BDtailsbyStrattype[strat_i][j] && sto->tailmaxl) {
+      corr += sto->attrcounts[(int)sto->stratheadtypes[strat_i]][(int)sto->BDheadsbyStrattype[strat_i][j]] + ha;
+    }
+      
+    if(sto->stratheadtype == sto->strattailtypes[strat_i] && sto->bdheadtype == sto->BDtailsbyStrattype[strat_i][j] && sto->headmaxl) {
+      corr += sto->attrcounts[(int)sto->stratheadtypes[strat_i]][(int)sto->BDheadsbyStrattype[strat_i][j]] + ha;
+    }
+      
+    if(sto->strattailtypes[strat_i] == sto->stratheadtypes[strat_i] && sto->BDtailsbyStrattype[strat_i][j] == sto->BDheadsbyStrattype[strat_i][j]) {
+      if(edgeflag) {
+        corr -= ha;
+      } else {
+        corr += ha;
+      }
+      corr /= 2;
+    }
+    
+    if(edgeflag) {
+      proposeddyadstype += corr;
+    } else {
+      proposeddyadstype -= corr;
+    }      
   }
   
-  double forward_weight = sto->currentprobvec[strat_i];
-  double backward_weight = sto->proposedprobvec[strat_i];
+  double prob_weight = sto->currentcumprob/sto->proposedcumprob;
   
   if(edgeflag) {
-    MHp->logratio = log((backward_weight*((nedgestype == 1 ? 1.0 : 0.5)/sto->proposeddyads[strat_i]))/(forward_weight*((sto->currentdyads[strat_i] == 0 ? 1.0 : 0.5)/nedgestype + (sto->tailmaxl || sto->headmaxl ? 0 : 0.5/sto->currentdyads[strat_i]))));
+    MHp->logratio = log(prob_weight*(((nedgestype == 1 ? 1.0 : 0.5)/proposeddyadstype))/(((ndyadstype == 0 ? 1.0 : 0.5)/nedgestype + (sto->tailmaxl || sto->headmaxl ? 0 : 0.5/ndyadstype))));
   } else {
-    MHp->logratio = log((backward_weight*((sto->proposeddyads[strat_i] == 0 ? 1.0 : 0.5)/(nedgestype + 1) + (sto->tailmaxl || sto->headmaxl ? 0 : 0.5/sto->proposeddyads[strat_i])))/(forward_weight*((nedgestype == 0 ? 1.0 : 0.5)/sto->currentdyads[strat_i])));
+    MHp->logratio = log(prob_weight*(((proposeddyadstype == 0 ? 1.0 : 0.5)/(nedgestype + 1) + (sto->tailmaxl || sto->headmaxl ? 0 : 0.5/proposeddyadstype)))/(((nedgestype == 0 ? 1.0 : 0.5)/ndyadstype)));
   }
 }
 
@@ -509,8 +547,11 @@ MH_U_FN(Mu_BDStratTNT) {
     
   }
   
-  memcpy(sto->currentdyads, sto->proposeddyads, sto->nmixtypes*sizeof(int));
-  memcpy(sto->currentprobvec, sto->proposedprobvec, sto->nmixtypes*sizeof(double));
+  // avoid copying in the common case where all strat types are toggleable in both the current and proposed networks
+  if(sto->currentcumprob != 1 || sto->proposedcumprob != 1) {
+    sto->currentcumprob = sto->proposedcumprob;
+    memcpy(sto->currentprobvec, sto->proposedprobvec, sto->nmixtypes*sizeof(double));
+  }
 }
 
 MH_F_FN(Mf_BDStratTNT) {
@@ -539,9 +580,8 @@ MH_F_FN(Mf_BDStratTNT) {
   }
   Free(sto->els);
 
-  // free dyad counts and probvecs
-  Free(sto->proposeddyads);
-  Free(sto->currentdyads);
+  Free(sto->BDtailsbyStrattype);
+  Free(sto->BDheadsbyStrattype);
 
   Free(sto->proposedprobvec);
   Free(sto->currentprobvec);
@@ -770,11 +810,19 @@ MH_P_FN(MH_BDTNT) {
     }
       
     if(sto->tailtypes[i] == sto->headtypes[i]) {
-      corr += edgeflag ? -ha : ha;
+      if(edgeflag) {
+        corr -= ha;
+      } else {
+        corr += ha;
+      }
       corr /= 2;
     }
     
-    sto->proposeddyads += edgeflag ? corr : -corr;
+    if(edgeflag) {
+      sto->proposeddyads += corr;
+    } else {
+      sto->proposeddyads -= corr;
+    }
   }
     
   if(edgeflag) {
