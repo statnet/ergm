@@ -528,7 +528,7 @@ int WtGetRandEdge(Vertex *tail, Vertex *head, double *weight, WtNetwork *nwp) {
   if(EDGECOUNT(nwp)==0) return(0);
   // FIXME: The constant maxEattempts needs to be tuned.
   const unsigned int maxEattempts=10;
-  unsigned int Eattempts = (nwp->maxedges-1)/EDGECOUNT(nwp);
+  unsigned int Eattempts = nwp->last_outedge/EDGECOUNT(nwp);
   Edge rane;
   
   if(Eattempts>maxEattempts){
