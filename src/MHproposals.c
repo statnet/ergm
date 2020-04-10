@@ -984,7 +984,7 @@ MH_I_FN(Mi_StratTNT) {
   
   sto->pmat = Calloc(nmixtypes, double);
   
-  int empirical_flag = MHp->inputs[1 + 3*nmixtypes + 1 + nattrcodes + N_NODES + N_NODES + nmixtypes*nmixtypes];
+  int empirical_flag = MHp->inputs[1 + 3*nmixtypes + 1 + nattrcodes + N_NODES + N_NODES + nattrcodes*nattrcodes];
   if(empirical_flag) {
     sto->pmat[0] = els[0]->nedges;
     for(int i = 1; i < nmixtypes; i++) {
