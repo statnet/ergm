@@ -54,12 +54,3 @@
       *(head) = tmp;							\
     }									\
   }
-
-/* Ensure that tail < head for undriected networks. */
-#define ENSURE_TH_ORDER							\
-  if(!(nwp->directed_flag) && tail>head){				\
-    Vertex temp;							\
-    temp = tail;							\
-    tail = head;							\
-    head = temp;							\
-  }
