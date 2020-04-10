@@ -223,6 +223,28 @@ MH_I_FN(Mi_BDStratTNT) {
     sto->BDheadsbyStrattype[i] = sto->BDheadsbyStrattype[i - 1] + (int)sto->BDtypesbyStrattype[i - 1];
   }
   
+  int empirical_flag = MHp->inputs[1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings + 1 + 1 + 1 + 2*bdmixtypes + N_NODES + nmixtypes + 1 + sumtypes + sumtypes];
+  sto->originalprobvec = Calloc(nmixtypes, double);
+  if(empirical_flag) {
+    int sumedges = 0;
+    for(int i = 0; i < nmixtypes; i++) {
+      sto->originalprobvec[i] = els[i]->nedges;
+      sumedges += els[i]->nedges;
+    }
+    
+    // empirical_flag with no edges is an error
+    if(sumedges == 0) {
+      MHp->ntoggles = MH_FAILED;
+      return;
+    }
+    
+    for(int i = 0; i < nmixtypes; i++) {
+      sto->originalprobvec[i] /= sumedges;
+    }
+  } else {
+    memcpy(sto->originalprobvec, probvec, nmixtypes*sizeof(double));
+  }
+  
   Dyad sumcurrentdyads = 0;
   
   double *currentprobvec = Calloc(nmixtypes, double);
@@ -244,8 +266,8 @@ MH_I_FN(Mi_BDStratTNT) {
     sumcurrentdyads += currentdyads;
     
     if(currentdyads > 0 || els[i]->nedges > 0) {
-      currentprobvec[i] = probvec[i];
-      sumprobs += probvec[i];
+      currentprobvec[i] = sto->originalprobvec[i];
+      sumprobs += sto->originalprobvec[i];
     } // else it's already 0
   }
   
@@ -259,7 +281,6 @@ MH_I_FN(Mi_BDStratTNT) {
   sto->nodesvec = nodesvec;
   sto->attrcounts = attrcounts;
     
-  sto->originalprobvec = probvec;
   sto->currentprobvec = currentprobvec;
   sto->proposedprobvec = Calloc(nmixtypes, double);
   
@@ -583,6 +604,7 @@ MH_F_FN(Mf_BDStratTNT) {
   Free(sto->BDtailsbyStrattype);
   Free(sto->BDheadsbyStrattype);
 
+  Free(sto->originalprobvec);
   Free(sto->proposedprobvec);
   Free(sto->currentprobvec);
   
@@ -910,7 +932,7 @@ typedef struct {
   double *tailtypes;
   double *headtypes;
 
-  double *ndyadstype;
+  Dyad *ndyadstype;
   double *nodecountsbycode;
 } StratTNTStorage;
 
@@ -932,7 +954,7 @@ MH_I_FN(Mi_StratTNT) {
     els[i] = UnsrtELInitialize(0, NULL, NULL, FALSE);
   }
   
-  double *inputindmat = MHp->inputs + 1 + 3*nmixtypes + 1 + nattrcodes + N_NODES + N_NODES + nmixtypes;  
+  double *inputindmat = MHp->inputs + 1 + 3*nmixtypes + 1 + nattrcodes + N_NODES + N_NODES;  
   
   double **indmat = (double **)Calloc(nattrcodes, double *);
   indmat[0] = inputindmat;
@@ -960,14 +982,54 @@ MH_I_FN(Mi_StratTNT) {
     nodesbycode[i] = nodesbycode[i - 1] + (int)nodecountsbycode[i - 1];
   }
   
+  sto->pmat = Calloc(nmixtypes, double);
+  
+  int empirical_flag = MHp->inputs[1 + 3*nmixtypes + 1 + nattrcodes + N_NODES + N_NODES + nmixtypes*nmixtypes];
+  if(empirical_flag) {
+    sto->pmat[0] = els[0]->nedges;
+    for(int i = 1; i < nmixtypes; i++) {
+      sto->pmat[i] = sto->pmat[i - 1] + els[i]->nedges;
+    }
+    
+    // empirical_flag with no edges is an error
+    if(sto->pmat[nmixtypes - 1] == 0) {
+      MHp->ntoggles = MH_FAILED;
+      return;
+    }
+    
+    for(int i = 0; i < nmixtypes; i++) {
+      sto->pmat[i] /= sto->pmat[nmixtypes - 1];
+    }
+  } else {
+    memcpy(sto->pmat, MHp->inputs + 1 + 2*nmixtypes, nmixtypes*sizeof(double));
+  }
+  
   sto->els = els;
   sto->nodesbycode = nodesbycode;
   sto->nmixtypes = nmixtypes;
-  sto->pmat = MHp->inputs + 1 + 2*nmixtypes;
+
   sto->tailtypes = MHp->inputs + 1;
   sto->headtypes = MHp->inputs + 1 + nmixtypes;
-  sto->ndyadstype = MHp->inputs + 1 + 3*nmixtypes + 1 + nattrcodes + N_NODES + N_NODES;
   sto->nodecountsbycode = MHp->inputs + 1 + 3*nmixtypes + 1;
+
+  sto->ndyadstype = Calloc(nmixtypes, Dyad);
+  for(int i = 0; i < nmixtypes; i++) {
+    int tailtype = sto->tailtypes[i];
+    int headtype = sto->headtypes[i];
+    
+    int tailcounts = sto->nodecountsbycode[tailtype];
+    int headcounts = sto->nodecountsbycode[headtype];
+    
+    if(tailtype == headtype) {
+      if(DIRECTED) {
+        sto->ndyadstype[i] = (Dyad)tailcounts*(headcounts - 1);
+      } else {
+        sto->ndyadstype[i] = (Dyad)tailcounts*(headcounts - 1)/2;
+      }
+    } else {
+      sto->ndyadstype[i] = (Dyad)tailcounts*headcounts;
+    }
+  }
 }
 
 MH_P_FN(MH_StratTNT) {
@@ -991,7 +1053,7 @@ MH_P_FN(MH_StratTNT) {
   int nedgestype = sto->els[i]->nedges;
 
   // number of dyads of this mixing type
-  int ndyadstype = sto->ndyadstype[i];
+  Dyad ndyadstype = sto->ndyadstype[i];
   
   double logratio = 0;
 
@@ -1075,7 +1137,8 @@ MH_F_FN(Mf_StratTNT) {
 
   Free(sto->els);
   Free(sto->nodesbycode);
-  
+  Free(sto->pmat);
+  Free(sto->ndyadstype);
   // MHp->storage itself should be Freed by MHProposalDestroy
 }
 
