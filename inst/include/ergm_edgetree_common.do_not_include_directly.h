@@ -12,7 +12,6 @@
 #include <Rinternals.h>
 #include <Rmath.h>
 #include "ergm_edgetree_types.h"
-#include "ergm_dyad_hashmap.h"
 
 #define MIN(a,b) ((a)<(b) ? (a) : (b))
 #define MAX(a,b) ((a)<(b) ? (b) : (a))
