@@ -73,7 +73,7 @@
             the same dimensions as a mixing matrix for the network and attribute under 
             consideration, and the correspondence between rows and columns of \code{pmat}
             and values of \code{attr} is the same as for a mixing matrix.
-            
+                        
             The interpretation is that \code{pmat[i,j]/sum(pmat)} is the probability of 
             proposing a toggle for mixing type \code{(i,j)}.  (For undirected, unipartite
             networks, \code{pmat} is first symmetrized, and then entries below the diagonal 
@@ -85,7 +85,12 @@
             once the mixing type is chosen, an edge or dyad of that mixing type is 
             chosen at random and proposed to be toggled, as in \code{TNT}.
             
-            Both arguments \code{attr} and \code{pmat} must be named in order to be recognized
+            As an alternative way of specifying \code{pmat}, the user may pass 
+            \code{empirical=TRUE} to use the mixing matrix of the network beginning 
+            the MCMC chain as \code{pmat}.  In order for this to work,
+            that network should have a reasonable (in particular, nonempty) edge set.
+            
+            All arguments must be named in order to be recognized
             by \code{StratTNT}.  While some mixing types may be assigned zero proposal 
             probability, this will not be recognized as a constraint
             by all components of \code{ergm}, and should be used with caution.
@@ -176,7 +181,8 @@
                     and may also pass arguments \code{Strat_attr} and \code{pmat} as for \code{StratTNT}.  Proposals 
                     are made based on mixing type according to \code{pmat} and \code{Strat_attr}, respecting constraints 
                     imposed by \code{bound}, \code{BD_attr}, and \code{fmat}.  See \code{BDTNT} and \code{StratTNT} for
-                    more information.
+                    more information.  The \code{empirical=TRUE} option for specifying \code{pmat} is also supported,
+                    as for \code{StratTNT}.
                     
         Directed networks are not supported by \code{BDStratTNT} at this time.
         }
