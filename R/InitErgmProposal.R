@@ -275,8 +275,9 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
     }
   }
   
+  empirical_flag <- as.logical(NVL(arguments$empirical, FALSE))
 
-  inputs <- c(length(tailattrs), tailattrs - 1, headattrs - 1, probvec, length(strat_levels), strat_nodecov - 1, t(indmat), length(strat_levels)*length(bd_levels), nodecountsbypairedcode,  bound, length(bd_levels), length(allowed.tails), allowed.tails - 1, allowed.heads - 1, bd_nodecov - 1, BDtypesbyStrattype, sum(BDtypesbyStrattype), BDtailsbyStrattype - 1, BDheadsbyStrattype - 1)
+  inputs <- c(length(tailattrs), tailattrs - 1, headattrs - 1, probvec, length(strat_levels), strat_nodecov - 1, t(indmat), length(strat_levels)*length(bd_levels), nodecountsbypairedcode,  bound, length(bd_levels), length(allowed.tails), allowed.tails - 1, allowed.heads - 1, bd_nodecov - 1, BDtypesbyStrattype, sum(BDtypesbyStrattype), BDtailsbyStrattype - 1, BDheadsbyStrattype - 1, empirical_flag)
     
   proposal <- list(name = "BDStratTNT", inputs=inputs)
   proposal
@@ -463,32 +464,23 @@ InitErgmProposal.StratTNT <- function(arguments, nw) {
     nodecountsbycode <- c(nodecountsbycode, length(w))
   }
   
-  dyadcounts <- rep(0,nmixingtypes)
   indmat <- matrix(-1, nrow=ncodes, ncol=ncodes)
   # check that all mixing types with positive probability have at least 1 dyad; error if not
-  for(i in 1:nmixingtypes) {
-    if(tailattrs[i] == headattrs[i]) {
-      if(is.directed(nw)) {
-        ndyadstype <- nodecountsbycode[tailattrs[i]]*(nodecountsbycode[headattrs[i]] - 1)
-      } else {
-        ndyadstype <- nodecountsbycode[tailattrs[i]]*(nodecountsbycode[headattrs[i]] - 1)/2
-      }
-    } else {
-      ndyadstype <- nodecountsbycode[tailattrs[i]]*nodecountsbycode[headattrs[i]]
-    }
+  for(i in 1:nmixingtypes) {    
+    hasdyads <- (nodecountsbycode[tailattrs[i]] > 0L) && (nodecountsbycode[headattrs[i]] > as.integer(tailattrs[i] == headattrs[i]))
     
-    if(ndyadstype == 0) {
+    if(!hasdyads) {
       ergm_Init_abort("Mixing types with positive proposal probability must have at least one dyad.")
     }
-    
-    dyadcounts[i] <- ndyadstype
-    
+        
     indmat[tailattrs[i], headattrs[i]] <- i - 1 # zero-based for C code
     if(!is.directed(nw) && !is.bipartite(nw)) indmat[headattrs[i], tailattrs[i]] <- i - 1 # symmetrize if undirected unipartite
   }
   
+  empirical_flag <- as.logical(NVL(arguments$empirical, FALSE))
+
   # awkwardly force everything into one big vector for the C code...
-  inputs <- c(nmixingtypes, tailattrs - 1, headattrs - 1, probvec, ncodes, nodecountsbycode, nodeindicesbycode, codesbynodeindex - 1, dyadcounts, t(indmat))
+  inputs <- c(nmixingtypes, tailattrs - 1, headattrs - 1, probvec, ncodes, nodecountsbycode, nodeindicesbycode, codesbynodeindex - 1, t(indmat), empirical_flag)
     
   proposal <- list(name = "StratTNT", inputs=inputs)
   proposal
