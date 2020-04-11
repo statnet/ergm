@@ -294,7 +294,7 @@ void CheckEdgetreeFull (Network *nwp) {
   // Note that maximum index in the nwp->*edges is nwp->maxedges-1, and we need to keep one element open for the next insertion.
   if(nwp->last_outedge==nwp->maxedges-2 || nwp->last_inedge==nwp->maxedges-2){
     // Only enlarge the non-root part of the array.
-    Edge newmax = nwp->maxedges + (nwp->maxedges - nwp->nnodes - 1)*mult;
+    Edge newmax = nwp->nnodes + 1 + (nwp->maxedges - nwp->nnodes - 1)*mult;
     nwp->inedges = (TreeNode *) Realloc(nwp->inedges, newmax, TreeNode);
     memset(nwp->inedges+nwp->last_inedge+2,0,
 	   sizeof(TreeNode) * (newmax-nwp->maxedges));
