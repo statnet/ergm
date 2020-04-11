@@ -223,10 +223,10 @@ void WtCheckEdgetreeFull (WtNetwork *nwp) {
     // Only enlarge the non-root part of the array.
     Edge newmax = nwp->nnodes + 1 + (nwp->maxedges - nwp->nnodes - 1)*mult;
     nwp->inedges = (WtTreeNode *) Realloc(nwp->inedges, newmax, WtTreeNode);
-    memset(nwp->inedges+nwp->last_inedge+2,0,
+    memset(nwp->inedges+nwp->maxedges, 0,
 	   sizeof(WtTreeNode) * (newmax-nwp->maxedges));
     nwp->outedges = (WtTreeNode *) Realloc(nwp->outedges, newmax, WtTreeNode);
-    memset(nwp->outedges+nwp->last_outedge+2,0,
+    memset(nwp->outedges+nwp->maxedges, 0,
 	   sizeof(WtTreeNode) * (newmax-nwp->maxedges));
     nwp->maxedges = newmax;
   }
