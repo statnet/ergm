@@ -376,10 +376,10 @@ static const double __ac_HASH_UPPER = 0.77;
 		if (h->n_occupied >= h->upper_bound) { /* update the hash table */ \
 			if (h->n_buckets > (h->size<<1)) {							\
 				if (kh_resize_##name(h, h->n_buckets - 1) < 0) { /* clear "deleted" elements */ \
-					*ret = -1; return kh_none;						\
+					if(ret) *ret = -1; return kh_none;     \
 				}														\
 			} else if (kh_resize_##name(h, h->n_buckets + 1) < 0) { /* expand the hash table */ \
-				*ret = -1; return kh_none;							\
+				if(ret) *ret = -1; return kh_none;							\
 			}															\
 		} /* TODO: to implement automatically shrinking; resize() already support shrinking */ \
 		{																\
@@ -404,13 +404,13 @@ static const double __ac_HASH_UPPER = 0.77;
 			h->keys[x] = key;											\
 			__ac_set_isboth_false2(xi, xb);			\
 			++h->size; ++h->n_occupied;									\
-			*ret = 1;													\
+			if(ret) *ret = 1;													\
 		} else if (__ac_isdel2(xi, xb)) { /* deleted */		\
 			h->keys[x] = key;											\
 			__ac_set_isboth_false2(xi, xb);			\
 			++h->size;													\
-			*ret = 2;													\
-		} else *ret = 0; /* Don't touch h->keys[x] if present and not deleted */ \
+			if(ret) *ret = 2;													\
+		} else if(ret) *ret = 0; /* Don't touch h->keys[x] if present and not deleted */ \
 		return x;														\
 	}																	\
 	SCOPE void kh_del_##name(kh_##name##_t *h, khint_t x)				\
@@ -545,6 +545,7 @@ static kh_inline khint_t __ac_Wang_hash(khint_t key)
                 0 if the key is present in the hash table;
                 1 if the bucket is empty (never used); 2 if the element in
 				the bucket has been deleted [int*]
+		r may be NULL, in which case it is not set.
   @return       Iterator to the inserted element [khint_t]
  */
 #define kh_put(name, h, k, r) kh_put_##name(h, k, r)
