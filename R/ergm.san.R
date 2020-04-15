@@ -131,6 +131,8 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   check.control.class("san", "san")
   control.toplevel(...,myname="san")
 
+  output <- match.arg(output)
+
   formula <- object
 
   if(!is.null(basis)) {
@@ -326,6 +328,7 @@ san.ergm <- function(object, formula=object$formula,
                      verbose=FALSE, 
                      offset.coef=object$coef[object$offset],
                      ...) {
+  output <- match.arg(output)
   san.formula(formula, nsim=nsim, 
               target.stats=target.stats,
               basis=basis,
