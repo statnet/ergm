@@ -222,6 +222,7 @@
 #' @name simulate.ergm
 #' @importFrom stats simulate
 #' @aliases simulate.formula.ergm
+#' @export simulate.formula
 #' @export
 simulate.formula <- function(object, nsim=1, seed=NULL, ...){
   simulate_formula(object, nsim=nsim, seed=seed, ...)
