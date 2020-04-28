@@ -73,7 +73,7 @@ ergm_state.edgelist <- function(x, nw0, model=NULL, proposal=NULL, stats=NULL, e
   }
   out$el <- x
   if(!is.null(response)){
-    out$el <- out$el[out$el[[response]]!=0,]
+    out$el <- out$el[!is.na(out$el[[response]]) & out$el[[response]]!=0,]
     mode(out$el[[3]]) <- "double" # If network is empty, may default to a list().
   }
   out$nw0 <- nw0
