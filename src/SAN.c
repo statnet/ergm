@@ -287,7 +287,7 @@ MCMCStatus SANMetropolisHastings(ErgmState *s,
 
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for(unsigned int i=0; i < MHp->ntoggles; i++){
-	GET_EDGE_UPDATE_STORAGE_TOGGLE(MHp->toggletail[i],  MHp->togglehead[i], nwp, m, MHp);
+	ToggleEdge(MHp->toggletail[i],  MHp->togglehead[i], nwp);
       }
       /* record network statistics for posterity */
       Rboolean found = TRUE;

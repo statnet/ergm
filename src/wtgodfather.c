@@ -47,8 +47,8 @@ MCMCStatus WtGodfather(WtErgmState *s, Edge n_changes, Vertex *tails, Vertex *he
       });
 
 
-    /* Update storage and network */    
-    WtUPDATE_STORAGE_SET(t, h, w, nwp, m, NULL, edgeweight);
+    /* Update network */
+    WtSetEdge(t, h, w, nwp);
   }
 
   return MCMC_OK;

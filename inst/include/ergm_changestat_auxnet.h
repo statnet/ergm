@@ -91,23 +91,6 @@ typedef struct StoreAuxnet_s{Network *inwp, *onwp;
     }                                                                   \
   }                                                                     \
                                                                         \
-  U_CHANGESTAT_FN(u_on ## name){                                        \
-    GET_STORAGE(Model, m);                                              \
-    GET_AUX_STORAGE(StoreAuxnet, auxnet);                               \
-                                                                        \
-    Vertex tails[map_toggle_maxtoggles_ ## name], heads[map_toggle_maxtoggles_ ## name]; \
-    if(map_toggle_maxtoggles_ ## name ==1){ /* One of these should get optimized away by the compiler. */ \
-      MAP_TOGGLE_THEN(name, tail, head, edgeflag, auxnet, tails, heads){ \
-        UPDATE_STORAGE(*tails, *heads, auxnet->onwp, m, NULL, IS_OUTEDGE(*tails, *heads, auxnet->onwp)); \
-      }                                                                 \
-    }else{                                                              \
-      unsigned int ntoggles = MAP_TOGGLE(name, tail, head, edgeflag, auxnet, tails, heads); \
-      for(unsigned int i=0; i<ntoggles; i++){                           \
-        UPDATE_STORAGE(tails[i], heads[i], auxnet->onwp, m, NULL, IS_OUTEDGE(tails[i], heads[i], auxnet->onwp)); \
-      }                                                                 \
-    }                                                                   \
-  }                                                                     \
-                                                                        \
   Z_CHANGESTAT_FN(z_on ## name){                                        \
     GET_STORAGE(Model, m);                                              \
                                                                         \

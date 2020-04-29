@@ -31,13 +31,6 @@ C_CHANGESTAT_FN(c_interact){
   }
 }
 
-U_CHANGESTAT_FN(u_interact){
-  GET_STORAGE(StoreModelAnd2Stats, store);
-  Model *m = store->m;
-
-  UPDATE_STORAGE(tail, head, nwp, m, NULL, edgeflag);
-}
-
 Z_CHANGESTAT_FN(z_interact){
   GET_STORAGE(StoreModelAnd2Stats, store);
   Model *m = store->m;
@@ -93,13 +86,6 @@ C_CHANGESTAT_FN(c_main_interact){
       CHANGE_STAT[pos++] = m->workspace[i]*w2[j] * change;
     }
   }
-}
-
-U_CHANGESTAT_FN(u_main_interact){
-  GET_STORAGE(StoreModelAnd2Stats, store);
-  Model *m = store->m;
-
-  UPDATE_STORAGE(tail, head, nwp, m, NULL, edgeflag);
 }
 
 Z_CHANGESTAT_FN(z_main_interact){

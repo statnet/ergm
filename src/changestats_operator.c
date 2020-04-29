@@ -29,13 +29,6 @@ C_CHANGESTAT_FN(c_passthrough_term){
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
 
-
-U_CHANGESTAT_FN(u_passthrough_term){
-  GET_STORAGE(Model, m);
-
-  UPDATE_STORAGE(tail, head, nwp, m, NULL, edgeflag);
-}
-
 Z_CHANGESTAT_FN(z_passthrough_term){
   GET_STORAGE(Model, m);
 
@@ -58,12 +51,6 @@ I_CHANGESTAT_FN(i__submodel_term){
   // No need to allocate it: we are only storing a pointer to a model.
   Model *m = AUX_STORAGE = ModelInitialize(getListElement(mtp->R, "submodel"), NULL,  nwp, FALSE);
   DELETE_IF_UNUSED_IN_SUBMODEL(u_func, m);
-}
-
-U_CHANGESTAT_FN(u__submodel_term){
-  GET_AUX_STORAGE(Model, m);
-
-  UPDATE_STORAGE(tail, head, nwp, m, NULL, edgeflag);
 }
 
 F_CHANGESTAT_FN(f__submodel_term){
@@ -106,8 +93,6 @@ U_CHANGESTAT_FN(u__summary_term){
 
   ChangeStats1(tail, head, nwp, m, edgeflag);
   addonto(stats, m->workspace, m->n_stats);
-
-  UPDATE_STORAGE(tail, head, nwp, m, NULL, edgeflag);
 }
 
 F_CHANGESTAT_FN(f__summary_term){
@@ -177,17 +162,6 @@ C_CHANGESTAT_FN(c_Sum){
     for(unsigned int j=0; j<m->n_stats; j++)
       for(unsigned int k=0; k<N_CHANGE_STATS; k++)
 	CHANGE_STAT[k] += m->workspace[j]* *(wts++);
-  }
-}
-
-U_CHANGESTAT_FN(u_Sum){
-  double *inputs = INPUT_PARAM; 
-  GET_STORAGE(Model*, ms);
-  unsigned int nms = *(inputs++);
-
-  for(unsigned int i=0; i<nms; i++){
-    Model *m = ms[i];
-    UPDATE_STORAGE(tail, head, nwp, m, NULL, edgeflag);
   }
 }
 

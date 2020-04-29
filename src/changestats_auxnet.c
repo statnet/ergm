@@ -216,8 +216,6 @@ U_CHANGESTAT_FN(u__filter_formula_net){
     if(edgeflag) DeleteEdgeFromTrees(tail,head,auxnet->onwp);
     else AddEdgeToTrees(tail,head,auxnet->onwp);
   }
-
-  UPDATE_STORAGE(tail, head, nwp, m, NULL, edgeflag);
 }
 
 F_CHANGESTAT_FN(f__filter_formula_net){

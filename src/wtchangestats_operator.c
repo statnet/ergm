@@ -27,12 +27,6 @@ WtC_CHANGESTAT_FN(c_wtpassthrough_term){
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
 
-WtU_CHANGESTAT_FN(u_wtpassthrough_term){
-  GET_STORAGE(WtModel, m);
-
-  WtUPDATE_STORAGE(tail, head, weight, nwp, m, NULL, edgeweight);
-}
-
 WtZ_CHANGESTAT_FN(z_wtpassthrough_term){
   GET_STORAGE(WtModel, m);
 
@@ -79,14 +73,6 @@ WtC_CHANGESTAT_FN(c_import_binary_term_sum){
     CHANGE_STAT[i] = m->workspace[i]*(weight-edgeweight);
 }
 
-WtU_CHANGESTAT_FN(u_import_binary_term_sum){
-  GET_STORAGE(StoreNetAndModel, store);
-  Model *m = store->m;
-  Network *mynwp = store->nwp;
-
-  GET_EDGE_UPDATE_STORAGE(tail, head, mynwp, m, NULL);
-}
-
 /* WtZ_CHANGESTAT_FN(z_import_binary_term_sum) is not meaningful. */
 
 WtF_CHANGESTAT_FN(f_import_binary_term_sum){
@@ -125,15 +111,6 @@ WtC_CHANGESTAT_FN(c_import_binary_term_nonzero){
   }
   
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
-}
-
-WtU_CHANGESTAT_FN(u_import_binary_term_nonzero){
-  GET_AUX_STORAGE(Network, bnwp);
-  GET_STORAGE(Model, m);
-
-  if((weight!=0)!=(edgeweight!=0)){ // If going from 0 to nonzero or vice versa...
-    GET_EDGE_UPDATE_STORAGE(tail, head, bnwp, m, NULL);
-  }
 }
 
 WtZ_CHANGESTAT_FN(z_import_binary_term_nonzero){
@@ -184,18 +161,6 @@ WtC_CHANGESTAT_FN(c_import_binary_term_form){
     ChangeStats1(tail, head, bnwp, m, IS_OUTEDGE(tail, head, bnwp));
     memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
   } // Otherwise, leave the change stats at 0.
-}
-
-WtU_CHANGESTAT_FN(u_import_binary_term_form){
-  GET_AUX_STORAGE(StoreNetAndWtModel, storage);
-  Network *bnwp = storage->nwp;
-  GET_STORAGE(Model, m);
-
-  WtChangeStats1(tail, head, weight, nwp, storage->m, edgeweight);
-  
-  if(*(storage->m->workspace)!=0){ // If the binary view changes...
-    GET_EDGE_UPDATE_STORAGE(tail, head, bnwp, m, NULL);
-  }
 }
 
 WtZ_CHANGESTAT_FN(z_import_binary_term_form){
@@ -286,8 +251,6 @@ WtU_CHANGESTAT_FN(u__binary_formula_net){
   case +1: AddEdgeToTrees(tail,head,bnwp); break;
   default: error("Binary test term may have a dyadwise contribution of either 0 or 1. Memory has not been deallocated, so restart R soon."); 
   }
-
-  WtUPDATE_STORAGE(tail, head, weight, nwp, m, NULL, edgeweight);
 }
 
 WtF_CHANGESTAT_FN(f__binary_formula_net){
@@ -339,17 +302,6 @@ WtC_CHANGESTAT_FN(c_wtSum){
     for(unsigned int j=0; j<m->n_stats; j++)
       for(unsigned int k=0; k<N_CHANGE_STATS; k++)
 	CHANGE_STAT[k] += m->workspace[j]* *(wts++);
-  }
-}
-
-WtU_CHANGESTAT_FN(u_wtSum){
-  double *inputs = INPUT_PARAM; 
-  GET_STORAGE(WtModel*, ms);
-  unsigned int nms = *(inputs++);
-
-  for(unsigned int i=0; i<nms; i++){
-    WtModel *m = ms[i];
-    WtUPDATE_STORAGE(tail, head, weight, nwp, m, NULL, edgeweight);
   }
 }
 

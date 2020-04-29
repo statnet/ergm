@@ -146,7 +146,7 @@ void RecurseOffOn(ErgmState *s,
     addonto(cumulativeStats, changeStats, m->n_stats);
     /* Now toggle the dyad so it's ready for the next pass */
     /* Inform u_* functions that the network is about to change. */
-    UPDATE_STORAGE_TOGGLE(nodelist1[currentnodes], nodelist2[currentnodes], nwp, m, NULL, edgeflag);
+    ToggleKnownEdge(nodelist1[currentnodes], nodelist2[currentnodes], nwp, edgeflag);
   }
 }
 

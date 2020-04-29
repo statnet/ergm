@@ -339,14 +339,12 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
 
     /* Update storage and network */    
     IF_MORE_TO_COME{
-      WtUPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, nwp, m, NULL, OLDWT, mtp->d_func==NULL);
       SETWT_WITH_BACKUP();
     }
   }
   /* Undo previous storage updates and toggles */
   UNDO_PREVIOUS{
     GETOLDTOGGLEINFO();
-    WtUPDATE_STORAGE_COND(TAIL,HEAD,weights[TOGGLEIND], nwp, m, NULL, OLDWT, mtp->d_func==NULL);
     SETWT(TAIL,HEAD,weights[TOGGLEIND]);
     weights[TOGGLEIND]=OLDWT;
   }
@@ -471,7 +469,6 @@ void WtSummStats(Edge n_edges, Vertex *tails, Vertex *heads, double *weights, Wt
       });
 
     /* Update storage and network */
-    WtUPDATE_STORAGE_COND(TAIL, HEAD, NEWWT, nwp, m, NULL, 0, mtp->s_func==NULL && mtp->d_func==NULL);
     SETWT(TAIL, HEAD, NEWWT);
   }
 

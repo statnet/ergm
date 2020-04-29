@@ -48,9 +48,8 @@ MCMCStatus Godfather(ErgmState *s, Edge n_changes, Vertex *tails, Vertex *heads,
         addonto(dstats, mtp->dstats, N_CHANGE_STATS);
       });
 
-
-    /* Update storage and network */    
-    UPDATE_STORAGE_TOGGLE(t, h, nwp, m, NULL, edgeflag);
+    /* Update network */
+    ToggleKnownEdge(t, h, nwp, edgeflag);
   } 
 
   return MCMC_OK;

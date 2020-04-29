@@ -247,7 +247,7 @@ MCMCStatus WtMetropolisHastings (WtErgmState *s,
 	Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];
 	double w=MHp->toggleweight[i];
 
-	WtGET_EDGE_UPDATE_STORAGE_SET(t, h, w, nwp, m, MHp);
+	WtSetEdge(t, h, w, nwp);
       }
       /* record network statistics for posterity */
       addonto(networkstatistics, m->workspace, m->n_stats);

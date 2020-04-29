@@ -216,7 +216,7 @@ MCMCStatus WtCDStep(WtErgmState *s,
 	  ntoggled++;
 	  mtoggled++;
 
-	  WtUPDATE_STORAGE_SET(t, h, w, nwp, m, MHp, undoweight[ntoggled]);
+	  WtSetEdge(t, h, w, nwp);
 	}
       }
 
@@ -262,7 +262,7 @@ MCMCStatus WtCDStep(WtErgmState *s,
 	  undoweight[ntoggled]=WtGetEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 	  ntoggled++;
 
-	  WtUPDATE_STORAGE_SET(t, h, w, nwp, m, MHp, undoweight[ntoggled]);
+	  WtSetEdge(t, h, w, nwp);
 	}
       }
 
@@ -281,7 +281,7 @@ MCMCStatus WtCDStep(WtErgmState *s,
 
 	/* FIXME: This should be done in one call, but it's very easy
 	   to make a fencepost error here. */
-	WtGET_EDGE_UPDATE_STORAGE_SET(t, h, w, nwp, m, MHp);
+	WtSetEdge(t, h, w, nwp);
       }
     }
   } // step
@@ -293,7 +293,7 @@ MCMCStatus WtCDStep(WtErgmState *s,
 
     /* FIXME: This should be done in one call, but it's very easy
        to make a fencepost error here. */
-    WtGET_EDGE_UPDATE_STORAGE_SET(t, h, w, nwp, m, MHp);
+    WtSetEdge(t, h, w, nwp);
   }
   
   return MCMC_OK;

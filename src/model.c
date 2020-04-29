@@ -339,15 +339,12 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
 
     /* Execute storage updates */
     IF_MORE_TO_COME(toggle){
-      UPDATE_STORAGE_COND(tails[toggle],heads[toggle], nwp, m, NULL, edgeflag, mtp->d_func==NULL);
       TOGGLE_KNOWN(tails[toggle],heads[toggle], edgeflag);
     }
   }
   /* Undo previous storage updates and toggles */
   UNDO_PREVIOUS(toggle){
-    Rboolean edgeflag = IS_OUTEDGE(tails[toggle], heads[toggle]);
-    UPDATE_STORAGE_COND(tails[toggle],heads[toggle], nwp, m, NULL, edgeflag, mtp->d_func==NULL);
-    TOGGLE_KNOWN(tails[toggle],heads[toggle],edgeflag);
+    TOGGLE(tails[toggle],heads[toggle]);
   }
 }
 
@@ -468,7 +465,6 @@ void SummStats(Edge n_edges, Vertex *tails, Vertex *heads, Network *nwp, Model *
       });
 
     /* Update storage and network */
-    UPDATE_STORAGE_COND(t, h, nwp, m, NULL, FALSE, mtp->s_func==NULL && mtp->d_func==NULL);
     TOGGLE_KNOWN(t, h, FALSE);
   }
 
