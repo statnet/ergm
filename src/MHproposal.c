@@ -97,6 +97,10 @@ MHProposal *MHProposalInitialize(SEXP pR, Network *nwp, void **aux_storage){
   MHp->toggletail = (Vertex *)Calloc(MHp->ntoggles, Vertex);
   MHp->togglehead = (Vertex *)Calloc(MHp->ntoggles, Vertex);
 
+  if(MHp->u_func){
+    AddOnNetworkToggle(nwp, MHp->u_func, MHp, 0); // Need to insert at the start.
+  }
+
   return MHp;
 }
 

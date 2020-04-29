@@ -29,6 +29,13 @@ static inline void InitStats(Network *nwp, Model *m){
         mtp->dstats = dstats;
       }
     });
+
+  // Now, bind the terms to the network through the callback API.
+  EXEC_THROUGH_TERMS(m, {
+      if(mtp->u_func && (!m->noinit_s || !mtp->s_func)){ // Skip if noinit_s is set and s_func is present.
+        AddOnNetworkToggle(nwp, mtp->u_func, mtp, INT_MAX);
+      }
+    });
 }
 
 /*
