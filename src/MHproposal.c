@@ -111,7 +111,8 @@ MHProposal *MHProposalInitialize(SEXP pR, Network *nwp, void **aux_storage){
 *********************/
 void MHProposalDestroy(MHProposal *MHp, Network *nwp){
   if(!MHp) return;
-  if(MHp->bd)DegreeBoundDestroy(MHp->bd);
+  if(MHp->u_func) DeleteOnNetworkToggle(nwp, MHp->u_func, MHp);
+  if(MHp->bd) DegreeBoundDestroy(MHp->bd);
   if(MHp->f_func) (*(MHp->f_func))(MHp, nwp);
   if(MHp->storage){
     Free(MHp->storage);
