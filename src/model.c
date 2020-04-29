@@ -232,13 +232,6 @@ Model* ModelInitialize(SEXP mR, SEXP ext_state, Network *nwp, Rboolean noinit_s)
       if((thisterm->u_func = 
 	  (void (*)(Vertex, Vertex, ModelTerm*, Network*, Rboolean)) R_FindSymbol(fn,sn,NULL))!=NULL) m->n_u++;
 
-      /* If it's an auxiliary, then it needs a u_function, or
-	 it's not doing anything. */
-      if(thisterm->nstats==0 && thisterm->u_func==NULL){
-          error("Error in ModelInitialize: term with functions %s::%s is declared to have no statistics but does not appear to have an updater function, so does not do anything. Memory has not been deallocated, so restart R sometime soon.\n",sn,fn+2);
-      }
-  
-
       /* Optional-optional functions to initialize and finalize the
 	 term's storage, and the "eXtension" function to allow an
 	 arbitrary "signal" to be sent to a statistic. */
@@ -250,6 +243,13 @@ Model* ModelInitialize(SEXP mR, SEXP ext_state, Network *nwp, Rboolean noinit_s)
       fn[0]='f';
       thisterm->f_func = 
 	(void (*)(ModelTerm*, Network*)) R_FindSymbol(fn,sn,NULL);
+
+      /* If it's an auxiliary, then it needs an i_function or a
+	 u_function, or it's not doing anything. */
+      if(thisterm->nstats==0 && (thisterm->i_func==NULL && thisterm->u_func==NULL)){
+          error("Error in ModelInitialize: term with functions %s::%s is declared to have no statistics but does not appear to have an updater function, so does not do anything. Memory has not been deallocated, so restart R sometime soon.\n",sn,fn+2);
+      }
+  
 
       fn[0]='w';
       thisterm->w_func =

@@ -232,14 +232,6 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
       if((thisterm->u_func = 
 	  (void (*)(Vertex, Vertex, double, WtModelTerm*, WtNetwork*, double)) R_FindSymbol(fn,sn,NULL))!=NULL) m->n_u++;
 
-      /* If it's an auxiliary, then it needs a u_function, or
-	 it's not doing anything. */
-      if(thisterm->nstats==0 && thisterm->u_func==NULL){
-	error("Error in WtModelInitialize: could not find updater function %s in "
-	      "namespace for package %s: this term will not do anything. Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
-      }
-  
-
       /* Optional-optional functions to initialize and finalize the
 	 term's storage, and the "eXtension" function to allow an
 	 arbitrary "signal" to be sent to a statistic. */
@@ -252,6 +244,12 @@ WtModel* WtModelInitialize (SEXP mR, SEXP ext_state, WtNetwork *nwp, Rboolean no
       thisterm->f_func = 
 	(void (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
 
+      /* If it's an auxiliary, then it needs an i_function or a
+	 u_function, or it's not doing anything. */
+      if(thisterm->nstats==0 && (thisterm->i_func==NULL && thisterm->u_func==NULL)){
+          error("Error in WtModelInitialize: term with functions %s::%s is declared to have no statistics but does not appear to have an updater function, so does not do anything. Memory has not been deallocated, so restart R sometime soon.\n",sn,fn+2);
+      }
+  
       fn[0]='w';
       thisterm->w_func =
 	(SEXP (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
