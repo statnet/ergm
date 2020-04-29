@@ -29,6 +29,12 @@ static inline void WtInitStats(WtNetwork *nwp, WtModel *m){
         mtp->dstats = dstats;
       }
     });
+
+  // Now, bind the terms to the network through the callback API.
+  WtEXEC_THROUGH_TERMS(m, {
+      if(mtp->u_func && (!m->noinit_s || !mtp->s_func)) // Skip if noinit_s is set and s_func is present.
+        AddOnWtNetworkToggle(nwp, mtp->u_func, mtp, INT_MAX);
+    });
 }
 
 /*
@@ -39,14 +45,16 @@ static inline void WtDestroyStats(WtNetwork *nwp, WtModel *m){
   unsigned int i=0;
   WtEXEC_THROUGH_TERMS(m, {
       if(!m->noinit_s || !mtp->s_func){ // Skip if noinit_s is set and s_func is present.
+        if(mtp->u_func)
+          DeleteOnWtNetworkToggle(nwp, mtp->u_func, mtp);
         if(mtp->f_func)
           (*(mtp->f_func))(mtp, nwp);  /* Call f_??? function */
       }
       Free(m->dstatarray[i]);
       Free(mtp->statcache);
       if(mtp->storage){
-	Free(mtp->storage);
-	mtp->storage = NULL;
+        Free(mtp->storage);
+        mtp->storage = NULL;
       }
       i++;
     });

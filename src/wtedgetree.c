@@ -97,6 +97,8 @@ WtNetwork *WtNetworkInitializeD(double *tails, double *heads, double *weights, E
  void NetworkDestroy
 *******************/
 void WtNetworkDestroy(WtNetwork *nwp) {
+  Free(nwp->on_toggle);
+  Free(nwp->on_toggle_payload);
   Free(nwp->indegree);
   Free(nwp->outdegree);
   Free(nwp->inedges);
@@ -177,6 +179,8 @@ int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp)
 
 int WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
   if (WtEdgetreeSearch(tail, head, nwp->outedges) == 0) {
+    for(unsigned int i = 0; i < nwp->n_on_toggle; i++) nwp->on_toggle[i](tail, head, weight, nwp->on_toggle_payload[i], nwp, 0);
+
     WtAddHalfedgeToTree(tail, head, weight, nwp->outedges, &(nwp->last_outedge));
     WtAddHalfedgeToTree(head, tail, weight, nwp->inedges, &(nwp->last_inedge));
     ++nwp->outdegree[tail];
@@ -248,6 +252,12 @@ void WtCheckEdgetreeFull (WtNetwork *nwp) {
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
 int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp){
+  // Note: the following statement assumes that DeleteEdgeFromTrees
+  // will *never* be called on a nonexistent edge. This should be safe
+  // since the end-user should only call it through ToggleEdge() or
+  // ToggleKnownEdge(). TODO: Either specify that in the API or
+  // robustify without losing speed.
+  for(unsigned int i = 0; i < nwp->n_on_toggle; i++) nwp->on_toggle[i](tail, head, 0, nwp->on_toggle_payload[i], nwp, WtGetEdge(tail,head,nwp));
   if (WtDeleteHalfedgeFromTree(tail, head, nwp->outedges,&(nwp->last_outedge))&&
       WtDeleteHalfedgeFromTree(head, tail, nwp->inedges, &(nwp->last_inedge))) {
     --nwp->outdegree[tail];
@@ -335,6 +345,54 @@ void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges){
   memcpy(toptr,fromptr,sizeof(WtTreeNode));
   fromptr->value = 0;
 }
+
+/*****************
+ void AddOnWtNetworkToggle
+
+ Insert a specified toggle callback at the specified position.
+*****************/
+void AddOnWtNetworkToggle(WtNetwork *nwp, OnWtNetworkToggle callback, void *payload, unsigned int pos){
+  if(nwp->n_on_toggle+1 > nwp->max_on_toggle){
+    nwp->max_on_toggle = MAX(nwp->max_on_toggle,1)*2;
+    nwp->on_toggle = Realloc(nwp->on_toggle, nwp->max_on_toggle, OnWtNetworkToggle);
+    nwp->on_toggle_payload = Realloc(nwp->on_toggle_payload, nwp->max_on_toggle, void*);
+  }
+
+  pos = MIN(pos, nwp->n_on_toggle); // Last position.
+  // Move everything down the list.
+  for(unsigned int i = nwp->n_on_toggle; i>pos ; i--){
+    nwp->on_toggle[i] = nwp->on_toggle[i-1];
+    nwp->on_toggle_payload[i] = nwp->on_toggle_payload[i-1];
+  }
+  
+  nwp->on_toggle[pos] = callback;
+  nwp->on_toggle_payload[pos] = payload;
+  
+  nwp->n_on_toggle++;
+}
+
+/*****************
+ void DeleteOnWtNetworkToggle
+
+ Delete a specified toggle callback from the list and move the other
+ callbacks up the list. Note that both callback and payload pointers
+ must match.
+*****************/
+void DeleteOnWtNetworkToggle(WtNetwork *nwp, OnWtNetworkToggle callback, void *payload){
+  unsigned int i;
+  for(i = 0; i < nwp->n_on_toggle; i++)
+    if(nwp->on_toggle[i]==callback && nwp->on_toggle_payload[i]==payload) break;
+
+  if(i==nwp->n_on_toggle) error("Attempting to delete a nonexistent callback.");
+
+  for(; i+1 < nwp->n_on_toggle; i++){
+    nwp->on_toggle[i] = nwp->on_toggle[i+1];
+    nwp->on_toggle_payload[i] = nwp->on_toggle_payload[i+1];
+  }
+
+  nwp->n_on_toggle--;
+}
+
 
 /*****************
  void Wtprintedge
@@ -688,6 +746,7 @@ void WtSetEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp)
       // If it exists AND already has the target weight, do nothing.
       if(nwp->outedges[oe].weight==weight) return;
       else{
+        for(unsigned int i = 0; i < nwp->n_on_toggle; i++) nwp->on_toggle[i](tail, head, weight, nwp->on_toggle_payload[i], nwp, nwp->outedges[oe].weight);
 	// Find the corresponding in-edge.
 	Edge ie=WtEdgetreeSearch(head,tail,nwp->inedges);
 	nwp->inedges[ie].weight=nwp->outedges[oe].weight=weight;
