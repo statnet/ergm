@@ -33,7 +33,7 @@ static inline void InitStats(Network *nwp, Model *m){
   // Now, bind the terms to the network through the callback API.
   EXEC_THROUGH_TERMS(m, {
       if(mtp->u_func && (!m->noinit_s || !mtp->s_func)) // Skip if noinit_s is set and s_func is present.
-        AddOnNetworkToggle(nwp, mtp->u_func, mtp, INT_MAX);
+        AddOnNetworkToggle(nwp, (OnNetworkToggle) mtp->u_func, mtp, INT_MAX);
     });
 }
 
@@ -46,7 +46,7 @@ static inline void DestroyStats(Network *nwp, Model *m){
   EXEC_THROUGH_TERMS(m, {
       if(!m->noinit_s || !mtp->s_func){ // Skip if noinit_s is set and s_func is present.
         if(mtp->u_func)
-          DeleteOnNetworkToggle(nwp, mtp->u_func, mtp);
+          DeleteOnNetworkToggle(nwp, (OnNetworkToggle) mtp->u_func, mtp);
         if(mtp->f_func)
           (*(mtp->f_func))(mtp, nwp);  /* Call f_??? function */
       }

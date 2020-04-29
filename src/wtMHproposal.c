@@ -91,7 +91,7 @@ WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage
   MHp->toggleweight = (double *)Calloc(MHp->ntoggles, double);
 
   if(MHp->u_func){
-    AddOnWtNetworkToggle(nwp, MHp->u_func, MHp, 0); // Need to insert at the start.
+    AddOnWtNetworkToggle(nwp, (OnWtNetworkToggle) MHp->u_func, MHp, 0); // Need to insert at the start.
   }
 
   return MHp;
@@ -104,7 +104,7 @@ WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage
 *********************/
 void WtMHProposalDestroy(WtMHProposal *MHp, WtNetwork *nwp){
   if(!MHp) return;
-  if(MHp->u_func) DeleteOnWtNetworkToggle(nwp, MHp->u_func, MHp);
+  if(MHp->u_func) DeleteOnWtNetworkToggle(nwp, (OnWtNetworkToggle) MHp->u_func, MHp);
   if(MHp->f_func) (*(MHp->f_func))(MHp, nwp);
   if(MHp->storage){
     Free(MHp->storage);
