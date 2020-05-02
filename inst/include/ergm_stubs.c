@@ -113,16 +113,6 @@ static int (*fun)(Vertex,Vertex,Network *) = NULL;
 if(fun==NULL) fun = (int (*)(Vertex,Vertex,Network *)) R_FindSymbol("DeleteEdgeFromTrees", "ergm", NULL);
 return fun(tail,head,nwp);
 }
-int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,Edge *last_edge){
-static int (*fun)(Vertex,Vertex,TreeNode *,Edge *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,TreeNode *,Edge *)) R_FindSymbol("DeleteHalfedgeFromTree", "ergm", NULL);
-return fun(a,b,edges,last_edge);
-}
-void RelocateHalfedge(Edge from, Edge to, TreeNode *edges){
-static void (*fun)(Edge,Edge,TreeNode *) = NULL;
-if(fun==NULL) fun = (void (*)(Edge,Edge,TreeNode *)) R_FindSymbol("RelocateHalfedge", "ergm", NULL);
-fun(from,to,edges);
-}
 void AddOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange callback, void *payload, unsigned int pos){
 static void (*fun)(Network *,OnNetworkEdgeChange,void *,unsigned int) = NULL;
 if(fun==NULL) fun = (void (*)(Network *,OnNetworkEdgeChange,void *,unsigned int)) R_FindSymbol("AddOnNetworkEdgeChange", "ergm", NULL);
@@ -382,16 +372,6 @@ int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp){
 static int (*fun)(Vertex,Vertex,WtNetwork *) = NULL;
 if(fun==NULL) fun = (int (*)(Vertex,Vertex,WtNetwork *)) R_FindSymbol("WtDeleteEdgeFromTrees", "ergm", NULL);
 return fun(tail,head,nwp);
-}
-int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,Edge *last_edge){
-static int (*fun)(Vertex,Vertex,WtTreeNode *,Edge *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,WtTreeNode *,Edge *)) R_FindSymbol("WtDeleteHalfedgeFromTree", "ergm", NULL);
-return fun(a,b,edges,last_edge);
-}
-void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges){
-static void (*fun)(Edge,Edge,WtTreeNode *) = NULL;
-if(fun==NULL) fun = (void (*)(Edge,Edge,WtTreeNode *)) R_FindSymbol("WtRelocateHalfedge", "ergm", NULL);
-fun(from,to,edges);
 }
 void AddOnWtNetworkToggle(WtNetwork *nwp, OnWtNetworkToggle callback, void *payload, unsigned int pos){
 static void (*fun)(WtNetwork *,OnWtNetworkToggle,void *,unsigned int) = NULL;

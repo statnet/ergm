@@ -10,6 +10,8 @@
 #include "ergm_wtedgetree.h"
 #include "ergm_Rutil.h"
 
+#include "wtedgetree_inline.do_not_include_directly.h"
+
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed
        in before heads */
@@ -252,98 +254,20 @@ void WtCheckEdgetreeFull (WtNetwork *nwp) {
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
 int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp){
-  // Note: the following statement assumes that DeleteEdgeFromTrees
-  // will *never* be called on a nonexistent edge. This should be safe
-  // since the end-user should only call it through ToggleEdge() or
-  // ToggleKnownEdge(). TODO: Either specify that in the API or
-  // robustify without losing speed.
-  for(unsigned int i = 0; i < nwp->n_on_edge_change; i++) nwp->on_edge_change[i](tail, head, 0, nwp->on_edge_change_payload[i], nwp, WtGetEdge(tail,head,nwp));
-  if (WtDeleteHalfedgeFromTree(tail, head, nwp->outedges,&(nwp->last_outedge))&&
-      WtDeleteHalfedgeFromTree(head, tail, nwp->inedges, &(nwp->last_inedge))) {
+  Edge zth, zht;
+  if((zth=WtEdgetreeSearch(tail, head, nwp->outedges))&&(zht=WtEdgetreeSearch(head, tail, nwp->inedges))){
+    if(nwp->n_on_edge_change){
+      double w = nwp->outedges[zth].weight;
+      for(unsigned int i = 0; i < nwp->n_on_edge_change; i++) nwp->on_edge_change[i](tail, head, 0, nwp->on_edge_change_payload[i], nwp, w);
+    }
+    WtDeleteHalfedgeFromTreeAt(tail, head, nwp->outedges,&(nwp->last_outedge), zth);
+    WtDeleteHalfedgeFromTreeAt(head, tail, nwp->inedges, &(nwp->last_inedge), zht);
     --nwp->outdegree[tail];
     --nwp->indegree[head];
     --EDGECOUNT(nwp);
-    if(nwp->last_outedge < nwp->nnodes) nwp->last_outedge=nwp->nnodes;
-    if(nwp->last_inedge < nwp->nnodes) nwp->last_inedge=nwp->nnodes;
     return 1;
   }
   return 0;
-}
-
-/*****************
- int WtDeleteHalfedgeFromTree
-
- Delete the WtTreeNode with value b from the tree rooted at edges[a].
- Return 0 if no such WtTreeNode exists, 1 otherwise.  Also update the
- value of *last_edge appropriately.
-*****************/
-int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
-		     Edge *last_edge){ 
-  Edge x, z, root=(Edge)a;
-  WtTreeNode *xptr, *zptr, *ptr;
-
-  if ((z=WtEdgetreeSearch(a, b, edges))==0)  /* z is the current WtTreeNode. */
-    return 0; /* This edge doesn't exist, so return 0 */
-  /* First, determine which node to splice out; this is z.  If the current
-     z has two children, then we'll actually splice out its successor. */
-  if ((zptr=edges+z)->left != 0 && zptr->right != 0) {
-    /* Select which child to promote based on whether the left child's
-       position is divisible by 2: the position of a node in an edge
-       tree is effectively random, *unless* it's a root node. Using
-       the left child ensures that it is not a root node. */
-    if(zptr->left&1u)
-      z=WtEdgetreeSuccessor(edges, z);  
-    else
-      z=WtEdgetreePredecessor(edges, z);  
-    zptr->value = (ptr=edges+z)->value;
-    zptr->weight = ptr->weight;
-    zptr=ptr;
-  }
-  /* Set x to the child of z (there is at most one). */
-  if ((x=zptr->left) == 0)
-    x = zptr->right;
-  /* Splice out node z */
-  if (z == root) {
-    zptr->value = (xptr=edges+x)->value;
-    zptr->weight = xptr->weight;
-    if (x != 0) {
-      if ((zptr->left=xptr->left) != 0)
-	(edges+zptr->left)->parent = z;
-      if ((zptr->right=xptr->right) != 0)
-	(edges+zptr->right)->parent = z;
-      zptr=edges+(z=x);
-    }  else 
-      return 1;
-  } else {
-    if (x != 0)
-      (xptr=edges+x)->parent = zptr->parent;
-    if (z==(ptr=(edges+zptr->parent))->left)
-      ptr->left = x;
-    else 
-      ptr->right = x;
-  }  
-  /* Clear z node, update *last_edge if necessary. */
-  zptr->value=0;
-  if(z!=root){
-    WtRelocateHalfedge(*last_edge,z,edges);
-    (*last_edge)--;
-  }
-  return 1;
-}
-
-void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges){
-  if(from==to) return;
-  WtTreeNode *toptr=edges+to, *fromptr=edges+from;
-
-  if(fromptr->left) edges[fromptr->left].parent = to;
-  if(fromptr->right) edges[fromptr->right].parent = to;
-  if(fromptr->parent){
-    WtTreeNode *parentptr = edges+fromptr->parent;
-    if(parentptr->left==from) parentptr->left = to;
-    else parentptr->right =  to;
-  }
-  memcpy(toptr,fromptr,sizeof(WtTreeNode));
-  fromptr->value = 0;
 }
 
 /*****************

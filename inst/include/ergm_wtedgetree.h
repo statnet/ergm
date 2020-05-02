@@ -78,9 +78,9 @@ int WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp);
 void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, WtTreeNode *edges, Edge *last_edge);
 void WtCheckEdgetreeFull (WtNetwork *nwp);
 int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp);
-int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
-		     Edge *last_edge);
-void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges);
+/* int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges, */
+/* 		     Edge *last_edge); */
+/* void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges); */
 
 /* Callback management. */
 void AddOnWtNetworkToggle(WtNetwork *nwp, OnWtNetworkToggle callback, void *payload, unsigned int pos);

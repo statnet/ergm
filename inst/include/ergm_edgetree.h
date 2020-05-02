@@ -103,9 +103,9 @@ int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp);
 void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge);
 void CheckEdgetreeFull (Network *nwp);
 int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp);
-int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
-		     Edge *last_edge);
-void RelocateHalfedge(Edge from, Edge to, TreeNode *edges);
+/* int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges, */
+/* 		     Edge *last_edge); */
+/* void RelocateHalfedge(Edge from, Edge to, TreeNode *edges); */
 
 /* Callback management. */
 void AddOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange callback, void *payload, unsigned int pos);
