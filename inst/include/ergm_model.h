@@ -91,22 +91,6 @@ typedef struct Modelstruct {
 #define IFDEBUG_RESTORE_DSTATS
 #endif
 
-#define UPDATE_STORAGE_COND(tail, head, nwp, m, MHp, edgeflag, cond)
-
-#define UPDATE_STORAGE(tail, head, nwp, m, MHp, edgeflag)
-
-#define GET_EDGE_UPDATE_STORAGE(tail, head, nwp, m, MHp)
-
-#define UPDATE_STORAGE_TOGGLE(tail, head, nwp, m, MHp, edgeflag){	\
-    ToggleKnownEdge((tail), (head), (nwp), (edgeflag));			\
-  }
-
-#define GET_EDGE_UPDATE_STORAGE_TOGGLE(tail, head, nwp, m, MHp){	\
-    Rboolean edgeflag = IS_OUTEDGE((tail), (head), (nwp));		\
-    UPDATE_STORAGE_TOGGLE((tail), (head), (nwp), (m), (MHp), (edgeflag)); \
-  }
-
-
 Model* ModelInitialize(SEXP mR, SEXP ext_stateR, Network *nwp, Rboolean noinit_s);
 
 void ModelDestroy(Network *nwp, Model *m);

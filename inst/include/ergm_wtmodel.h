@@ -90,21 +90,6 @@ typedef struct WtModelstruct {
 #define IFDEBUG_RESTORE_DSTATS
 #endif
 
-#define WtUPDATE_STORAGE_COND(tail, head, weight, nwp, m, MHp, edgeweight, cond)
-
-#define WtUPDATE_STORAGE(tail, head, weight, nwp, m, MHp, edgeweight)
-
-#define WtGET_EDGE_UPDATE_STORAGE(tail, head, weight, nwp, m, MHp)
-
-#define WtUPDATE_STORAGE_SET(tail, head, weight, nwp, m, MHp, edgeweight){ \
-    WtSetEdge((tail), (head), (weight), (nwp));				\
-  }
-
-#define WtGET_EDGE_UPDATE_STORAGE_SET(tail, head, weight, nwp, m, MHp){ \
-    WtGET_EDGE_UPDATE_STORAGE((tail), (head), (weight), (nwp), (m), (MHp)); \
-    WtSetEdge((tail), (head), (weight), (nwp));				\
-  }
-
 WtModel* WtModelInitialize(SEXP mR, SEXP ext_stateR, WtNetwork *nwp, Rboolean noinit_s);
 
 void WtModelDestroy(WtNetwork *nwp, WtModel *m);
