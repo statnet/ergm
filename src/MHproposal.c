@@ -98,7 +98,7 @@ MHProposal *MHProposalInitialize(SEXP pR, Network *nwp, void **aux_storage){
   MHp->togglehead = (Vertex *)Calloc(MHp->ntoggles, Vertex);
 
   if(MHp->u_func){
-    AddOnNetworkToggle(nwp, (OnNetworkToggle) MHp->u_func, MHp, 0); // Need to insert at the start.
+    AddOnNetworkEdgeChange(nwp, (OnNetworkEdgeChange) MHp->u_func, MHp, 0); // Need to insert at the start.
   }
 
   return MHp;
@@ -111,7 +111,7 @@ MHProposal *MHProposalInitialize(SEXP pR, Network *nwp, void **aux_storage){
 *********************/
 void MHProposalDestroy(MHProposal *MHp, Network *nwp){
   if(!MHp) return;
-  if(MHp->u_func) DeleteOnNetworkToggle(nwp, (OnNetworkToggle) MHp->u_func, MHp);
+  if(MHp->u_func) DeleteOnNetworkEdgeChange(nwp, (OnNetworkEdgeChange) MHp->u_func, MHp);
   if(MHp->bd) DegreeBoundDestroy(MHp->bd);
   if(MHp->f_func) (*(MHp->f_func))(MHp, nwp);
   if(MHp->storage){

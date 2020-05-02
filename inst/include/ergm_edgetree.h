@@ -59,12 +59,12 @@ typedef struct Networkstruct {
   double *value;  
   Edge maxedges;
 
-  unsigned int n_on_toggle;
-  unsigned int max_on_toggle;
-  void (**on_toggle)(Vertex, Vertex, void*, struct Networkstruct*, Rboolean);
-  void **on_toggle_payload;
+  unsigned int n_on_edge_change;
+  unsigned int max_on_edge_change;
+  void (**on_edge_change)(Vertex, Vertex, void*, struct Networkstruct*, Rboolean);
+  void **on_edge_change_payload;
 } Network;
-typedef void (*OnNetworkToggle)(Vertex, Vertex, void*, Network*, Rboolean);
+typedef void (*OnNetworkEdgeChange)(Vertex, Vertex, void*, Network*, Rboolean);
 
 
 /* *** don't forget,  tails -> heads, so all the functions below using
@@ -108,8 +108,8 @@ int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
 void RelocateHalfedge(Edge from, Edge to, TreeNode *edges);
 
 /* Callback management. */
-void AddOnNetworkToggle(Network *nwp, OnNetworkToggle callback, void *payload, unsigned int pos);
-void DeleteOnNetworkToggle(Network *nwp, OnNetworkToggle callback, void *payload);
+void AddOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange callback, void *payload, unsigned int pos);
+void DeleteOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange callback, void *payload);
 
 #include "ergm_edgetree_inline.do_not_include_directly.h"
 

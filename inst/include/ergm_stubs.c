@@ -123,14 +123,14 @@ static void (*fun)(Edge,Edge,TreeNode *) = NULL;
 if(fun==NULL) fun = (void (*)(Edge,Edge,TreeNode *)) R_FindSymbol("RelocateHalfedge", "ergm", NULL);
 fun(from,to,edges);
 }
-void AddOnNetworkToggle(Network *nwp, OnNetworkToggle callback, void *payload, unsigned int pos){
-static void (*fun)(Network *,OnNetworkToggle,void *,unsigned int) = NULL;
-if(fun==NULL) fun = (void (*)(Network *,OnNetworkToggle,void *,unsigned int)) R_FindSymbol("AddOnNetworkToggle", "ergm", NULL);
+void AddOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange callback, void *payload, unsigned int pos){
+static void (*fun)(Network *,OnNetworkEdgeChange,void *,unsigned int) = NULL;
+if(fun==NULL) fun = (void (*)(Network *,OnNetworkEdgeChange,void *,unsigned int)) R_FindSymbol("AddOnNetworkEdgeChange", "ergm", NULL);
 fun(nwp,callback,payload,pos);
 }
-void DeleteOnNetworkToggle(Network *nwp, OnNetworkToggle callback, void *payload){
-static void (*fun)(Network *,OnNetworkToggle,void *) = NULL;
-if(fun==NULL) fun = (void (*)(Network *,OnNetworkToggle,void *)) R_FindSymbol("DeleteOnNetworkToggle", "ergm", NULL);
+void DeleteOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange callback, void *payload){
+static void (*fun)(Network *,OnNetworkEdgeChange,void *) = NULL;
+if(fun==NULL) fun = (void (*)(Network *,OnNetworkEdgeChange,void *)) R_FindSymbol("DeleteOnNetworkEdgeChange", "ergm", NULL);
 fun(nwp,callback,payload);
 }
 int FindithEdge(Vertex *tail, Vertex *head, Edge i, Network *nwp){

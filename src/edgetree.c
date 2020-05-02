@@ -94,8 +94,8 @@ Network *NetworkInitializeD(double *tails, double *heads, Edge nedges,
  void NetworkDestroy
 *******************/
 void NetworkDestroy(Network *nwp) {
-  Free(nwp->on_toggle);
-  Free(nwp->on_toggle_payload);
+  Free(nwp->on_edge_change);
+  Free(nwp->on_edge_change_payload);
   Free(nwp->indegree);
   Free(nwp->outdegree);
   Free(nwp->inedges);
@@ -203,7 +203,7 @@ int ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgeflag)
 
 int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp){
   if (EdgetreeSearch(tail, head, nwp->outedges) == 0) {
-    for(unsigned int i = 0; i < nwp->n_on_toggle; i++) nwp->on_toggle[i](tail, head, nwp->on_toggle_payload[i], nwp, FALSE);
+    for(unsigned int i = 0; i < nwp->n_on_edge_change; i++) nwp->on_edge_change[i](tail, head, nwp->on_edge_change_payload[i], nwp, FALSE);
 
     AddHalfedgeToTree(tail, head, nwp->outedges, &(nwp->last_outedge));
     AddHalfedgeToTree(head, tail, nwp->inedges, &(nwp->last_inedge));
@@ -279,7 +279,7 @@ int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp){
   // since the end-user should only call it through ToggleEdge() or
   // ToggleKnownEdge(). TODO: Either specify that in the API or
   // robustify without losing speed.
-  for(unsigned int i = 0; i < nwp->n_on_toggle; i++) nwp->on_toggle[i](tail, head, nwp->on_toggle_payload[i], nwp, TRUE);
+  for(unsigned int i = 0; i < nwp->n_on_edge_change; i++) nwp->on_edge_change[i](tail, head, nwp->on_edge_change_payload[i], nwp, TRUE);
   if (DeleteHalfedgeFromTree(tail, head, nwp->outedges,&(nwp->last_outedge))&&
       DeleteHalfedgeFromTree(head, tail, nwp->inedges, &(nwp->last_inedge))) {
     --nwp->outdegree[tail];
@@ -367,50 +367,50 @@ void RelocateHalfedge(Edge from, Edge to, TreeNode *edges){
 }
 
 /*****************
- void AddOnNetworkToggle
+ void AddOnNetworkEdgeChange
 
  Insert a specified toggle callback at the specified position.
 *****************/
-void AddOnNetworkToggle(Network *nwp, OnNetworkToggle callback, void *payload, unsigned int pos){
-  if(nwp->n_on_toggle+1 > nwp->max_on_toggle){
-    nwp->max_on_toggle = MAX(nwp->max_on_toggle,1)*2;
-    nwp->on_toggle = Realloc(nwp->on_toggle, nwp->max_on_toggle, OnNetworkToggle);
-    nwp->on_toggle_payload = Realloc(nwp->on_toggle_payload, nwp->max_on_toggle, void*);
+void AddOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange callback, void *payload, unsigned int pos){
+  if(nwp->n_on_edge_change+1 > nwp->max_on_edge_change){
+    nwp->max_on_edge_change = MAX(nwp->max_on_edge_change,1)*2;
+    nwp->on_edge_change = Realloc(nwp->on_edge_change, nwp->max_on_edge_change, OnNetworkEdgeChange);
+    nwp->on_edge_change_payload = Realloc(nwp->on_edge_change_payload, nwp->max_on_edge_change, void*);
   }
 
-  pos = MIN(pos, nwp->n_on_toggle); // Last position.
+  pos = MIN(pos, nwp->n_on_edge_change); // Last position.
   // Move everything down the list.
-  for(unsigned int i = nwp->n_on_toggle; i>pos ; i--){
-    nwp->on_toggle[i] = nwp->on_toggle[i-1];
-    nwp->on_toggle_payload[i] = nwp->on_toggle_payload[i-1];
+  for(unsigned int i = nwp->n_on_edge_change; i>pos ; i--){
+    nwp->on_edge_change[i] = nwp->on_edge_change[i-1];
+    nwp->on_edge_change_payload[i] = nwp->on_edge_change_payload[i-1];
   }
   
-  nwp->on_toggle[pos] = callback;
-  nwp->on_toggle_payload[pos] = payload;
+  nwp->on_edge_change[pos] = callback;
+  nwp->on_edge_change_payload[pos] = payload;
   
-  nwp->n_on_toggle++;
+  nwp->n_on_edge_change++;
 }
 
 /*****************
- void DeleteOnNetworkToggle
+ void DeleteOnNetworkEdgeChange
 
  Delete a specified toggle callback from the list and move the other
  callbacks up the list. Note that both callback and payload pointers
  must match.
 *****************/
-void DeleteOnNetworkToggle(Network *nwp, OnNetworkToggle callback, void *payload){
+void DeleteOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange callback, void *payload){
   unsigned int i;
-  for(i = 0; i < nwp->n_on_toggle; i++)
-    if(nwp->on_toggle[i]==callback && nwp->on_toggle_payload[i]==payload) break;
+  for(i = 0; i < nwp->n_on_edge_change; i++)
+    if(nwp->on_edge_change[i]==callback && nwp->on_edge_change_payload[i]==payload) break;
 
-  if(i==nwp->n_on_toggle) error("Attempting to delete a nonexistent callback.");
+  if(i==nwp->n_on_edge_change) error("Attempting to delete a nonexistent callback.");
 
-  for(; i+1 < nwp->n_on_toggle; i++){
-    nwp->on_toggle[i] = nwp->on_toggle[i+1];
-    nwp->on_toggle_payload[i] = nwp->on_toggle_payload[i+1];
+  for(; i+1 < nwp->n_on_edge_change; i++){
+    nwp->on_edge_change[i] = nwp->on_edge_change[i+1];
+    nwp->on_edge_change_payload[i] = nwp->on_edge_change_payload[i+1];
   }
 
-  nwp->n_on_toggle--;
+  nwp->n_on_edge_change--;
 }
 
 

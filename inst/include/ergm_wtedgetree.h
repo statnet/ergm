@@ -38,10 +38,10 @@ typedef struct WtNetworkstruct {
   const char *eattrname;
   Edge maxedges;
 
-  unsigned int n_on_toggle;
-  unsigned int max_on_toggle;
-  void (**on_toggle)(Vertex, Vertex, double, void*, struct WtNetworkstruct*, double);
-  void **on_toggle_payload;
+  unsigned int n_on_edge_change;
+  unsigned int max_on_edge_change;
+  void (**on_edge_change)(Vertex, Vertex, double, void*, struct WtNetworkstruct*, double);
+  void **on_edge_change_payload;
 } WtNetwork;
 typedef void (*OnWtNetworkToggle)(Vertex, Vertex, double, void*, WtNetwork*, double);
 
