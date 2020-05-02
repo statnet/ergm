@@ -74,9 +74,9 @@ WtNetwork *Redgelist2WtNetwork(SEXP elR, Rboolean empty);
 
 void WtSetEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
 int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
-int WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp);
-void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, WtTreeNode *edges, Edge *last_edge);
-void WtCheckEdgetreeFull (WtNetwork *nwp);
+void WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp);
+/* void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, WtTreeNode *edges, Edge *last_edge); */
+/* void WtCheckEdgetreeFull (WtNetwork *nwp); */
 int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp);
 /* int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges, */
 /* 		     Edge *last_edge); */

@@ -157,10 +157,12 @@ int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp)
 {
   /* don't forget tails < heads now for undirected networks */
   ENSURE_TH_ORDER;
-  if (WtAddEdgeToTrees(tail,head,weight,nwp))
+  if(WtDeleteEdgeFromTrees(tail,head,nwp))
+    return 0;
+  else{
+    WtAddEdgeToTrees(tail,head,weight,nwp);
     return 1;
-  else 
-    return 1 - WtDeleteEdgeFromTrees(tail,head,nwp);
+  }
 }
 
 /* *** don't forget, edges are now given by tails -> heads, and as
@@ -170,74 +172,25 @@ int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp)
 /*****************
  Edge AddEdgeToTrees
 
- Add an edge from tail to head after checking to see
- if it's legal. Return 1 if edge added, 0 otherwise.  Since each
- "edge" should be added to both the list of outedges and the list of 
+ Add an edge from tail to head; note that the function assumes that it
+ is legal and therefore does not have a return value.  Since each
+ "edge" should be added to both the list of outedges and the list of
  inedges, this actually involves two calls to AddHalfedgeToTree (hence
  "Trees" instead of "Tree" in the name of this function).
 *****************/
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-int WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
-  if (WtEdgetreeSearch(tail, head, nwp->outedges) == 0) {
-    for(unsigned int i = 0; i < nwp->n_on_edge_change; i++) nwp->on_edge_change[i](tail, head, weight, nwp->on_edge_change_payload[i], nwp, 0);
+void WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
+  for(unsigned int i = 0; i < nwp->n_on_edge_change; i++) nwp->on_edge_change[i](tail, head, weight, nwp->on_edge_change_payload[i], nwp, 0);
 
-    WtAddHalfedgeToTree(tail, head, weight, nwp->outedges, &(nwp->last_outedge));
-    WtAddHalfedgeToTree(head, tail, weight, nwp->inedges, &(nwp->last_inedge));
-    ++nwp->outdegree[tail];
-    ++nwp->indegree[head];
-    ++EDGECOUNT(nwp);
-    WtCheckEdgetreeFull(nwp); 
-    return 1;
-  }
-  return 0;
+  WtAddHalfedgeToTree(tail, head, weight, nwp->outedges, &(nwp->last_outedge));
+  WtAddHalfedgeToTree(head, tail, weight, nwp->inedges, &(nwp->last_inedge));
+  ++nwp->outdegree[tail];
+  ++nwp->indegree[head];
+  ++EDGECOUNT(nwp);
+  WtCheckEdgetreeFull(nwp);
 }
-
-/*****************
- void WtAddHalfedgeToTree:  Only called by WtAddEdgeToTrees
-*****************/
-void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, WtTreeNode *edges, Edge *last_edge){
-  WtTreeNode *eptr = edges+a, *newnode;
-  Edge e;
-
-  if (eptr->value==0) { /* This is the first edge for vertex a. */
-    eptr->value=b;
-    eptr->weight = weight;  /*  Add weight too */
-    return;
-  }
-  (newnode = edges + (++*last_edge))->value=b;  
-  newnode->left = newnode->right = 0;
-  newnode->weight=weight;  /*  Add weight too */
-  /* Now find the parent of this new edge */
-  for (e=a; e!=0; e=(b < (eptr=edges+e)->value) ? eptr->left : eptr->right);
-  newnode->parent=eptr-edges;  /* Point from the new edge to the parent... */
-  if (b < eptr->value)  /* ...and have the parent point back. */
-    eptr->left=*last_edge; 
-  else
-    eptr->right=*last_edge;
-}
-
-/*****************
-void CheckEdgetreeFull
-*****************/
-void WtCheckEdgetreeFull (WtNetwork *nwp) {
-  const unsigned int mult=2;
-  
-  // Note that maximum index in the nwp->*edges is nwp->maxedges-1, and we need to keep one element open for the next insertion.
-  if(nwp->last_outedge==nwp->maxedges-2 || nwp->last_inedge==nwp->maxedges-2){
-    // Only enlarge the non-root part of the array.
-    Edge newmax = nwp->nnodes + 1 + (nwp->maxedges - nwp->nnodes - 1)*mult;
-    nwp->inedges = (WtTreeNode *) Realloc(nwp->inedges, newmax, WtTreeNode);
-    memset(nwp->inedges+nwp->maxedges, 0,
-	   sizeof(WtTreeNode) * (newmax-nwp->maxedges));
-    nwp->outedges = (WtTreeNode *) Realloc(nwp->outedges, newmax, WtTreeNode);
-    memset(nwp->outedges+nwp->maxedges, 0,
-	   sizeof(WtTreeNode) * (newmax-nwp->maxedges));
-    nwp->maxedges = newmax;
-  }
-}
-
 
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed
@@ -666,11 +619,12 @@ void WtSetEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp)
   }else{
     // Find the out-edge
     Edge oe=WtEdgetreeSearch(tail,head,nwp->outedges);
+    double w = nwp->outedges[oe].weight;
     if(oe){
       // If it exists AND already has the target weight, do nothing.
-      if(nwp->outedges[oe].weight==weight) return;
+      if(w==weight) return;
       else{
-        for(unsigned int i = 0; i < nwp->n_on_edge_change; i++) nwp->on_edge_change[i](tail, head, weight, nwp->on_edge_change_payload[i], nwp, nwp->outedges[oe].weight);
+        for(unsigned int i = 0; i < nwp->n_on_edge_change; i++) nwp->on_edge_change[i](tail, head, weight, nwp->on_edge_change_payload[i], nwp, w);
 	// Find the corresponding in-edge.
 	Edge ie=WtEdgetreeSearch(head,tail,nwp->inedges);
 	nwp->inedges[ie].weight=nwp->outedges[oe].weight=weight;

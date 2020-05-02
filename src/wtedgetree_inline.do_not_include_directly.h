@@ -72,3 +72,47 @@ static inline void WtDeleteHalfedgeFromTreeAt(Vertex a, Vertex b, WtTreeNode *ed
   }
   return;
 }
+
+/*****************
+void CheckEdgetreeFull
+*****************/
+static inline void WtCheckEdgetreeFull (WtNetwork *nwp) {
+  const unsigned int mult=2;
+  
+  // Note that maximum index in the nwp->*edges is nwp->maxedges-1, and we need to keep one element open for the next insertion.
+  if(nwp->last_outedge==nwp->maxedges-2 || nwp->last_inedge==nwp->maxedges-2){
+    // Only enlarge the non-root part of the array.
+    Edge newmax = nwp->nnodes + 1 + (nwp->maxedges - nwp->nnodes - 1)*mult;
+    nwp->inedges = (WtTreeNode *) Realloc(nwp->inedges, newmax, WtTreeNode);
+    memset(nwp->inedges+nwp->maxedges, 0,
+	   sizeof(WtTreeNode) * (newmax-nwp->maxedges));
+    nwp->outedges = (WtTreeNode *) Realloc(nwp->outedges, newmax, WtTreeNode);
+    memset(nwp->outedges+nwp->maxedges, 0,
+	   sizeof(WtTreeNode) * (newmax-nwp->maxedges));
+    nwp->maxedges = newmax;
+  }
+}
+
+/*****************
+ void WtAddHalfedgeToTree:  Only called by WtAddEdgeToTrees
+*****************/
+static inline void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, WtTreeNode *edges, Edge *last_edge){
+  WtTreeNode *eptr = edges+a, *newnode;
+  Edge e;
+
+  if (eptr->value==0) { /* This is the first edge for vertex a. */
+    eptr->value=b;
+    eptr->weight = weight;  /*  Add weight too */
+    return;
+  }
+  (newnode = edges + (++*last_edge))->value=b;  
+  newnode->left = newnode->right = 0;
+  newnode->weight=weight;  /*  Add weight too */
+  /* Now find the parent of this new edge */
+  for (e=a; e!=0; e=(b < (eptr=edges+e)->value) ? eptr->left : eptr->right);
+  newnode->parent=eptr-edges;  /* Point from the new edge to the parent... */
+  if (b < eptr->value)  /* ...and have the parent point back. */
+    eptr->left=*last_edge; 
+  else
+    eptr->right=*last_edge;
+}

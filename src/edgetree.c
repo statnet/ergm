@@ -154,10 +154,12 @@ int ToggleEdge (Vertex tail, Vertex head, Network *nwp)
 {
   /* don't forget tails < heads now for undirected networks */
   ENSURE_TH_ORDER;
-  if (AddEdgeToTrees(tail,head,nwp))
+  if(DeleteEdgeFromTrees(tail,head,nwp))
+    return 0;
+  else{
+    AddEdgeToTrees(tail,head,nwp);
     return 1;
-  else 
-    return 1 - DeleteEdgeFromTrees(tail,head,nwp);
+  }
 }
 
 
@@ -170,14 +172,12 @@ int ToggleEdge (Vertex tail, Vertex head, Network *nwp)
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-int ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgeflag) 
+void ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgeflag) 
 {
   if (edgeflag){
     DeleteEdgeFromTrees(tail,head,nwp);
-    return 0;
   }else{
     AddEdgeToTrees(tail,head,nwp);
-    return 1;
   }
 }
 
@@ -192,74 +192,27 @@ int ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgeflag)
        in before heads */
 
 /*****************
- Edge AddEdgeToTrees
+ void AddEdgeToTrees
 
- Add an edge from tail to head after checking to see
- if it's legal. Return 1 if edge added, 0 otherwise.  Since each
- "edge" should be added to both the list of outedges and the list of 
+ Add an edge from tail to head; note that the function assumes that it
+ is legal and therefore does not have a return value. Since each
+ "edge" should be added to both the list of outedges and the list of
  inedges, this actually involves two calls to AddHalfedgeToTree (hence
  "Trees" instead of "Tree" in the name of this function).
 *****************/
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp){
-  if (EdgetreeSearch(tail, head, nwp->outedges) == 0) {
-    for(unsigned int i = 0; i < nwp->n_on_edge_change; i++) nwp->on_edge_change[i](tail, head, nwp->on_edge_change_payload[i], nwp, FALSE);
+void AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp){
+  for(unsigned int i = 0; i < nwp->n_on_edge_change; i++) nwp->on_edge_change[i](tail, head, nwp->on_edge_change_payload[i], nwp, FALSE);
 
-    AddHalfedgeToTree(tail, head, nwp->outedges, &(nwp->last_outedge));
-    AddHalfedgeToTree(head, tail, nwp->inedges, &(nwp->last_inedge));
-    ++nwp->outdegree[tail];
-    ++nwp->indegree[head];
-    ++EDGECOUNT(nwp);
-    CheckEdgetreeFull(nwp); 
-    return 1;
-  }
-  return 0;
+  AddHalfedgeToTree(tail, head, nwp->outedges, &(nwp->last_outedge));
+  AddHalfedgeToTree(head, tail, nwp->inedges, &(nwp->last_inedge));
+  ++nwp->outdegree[tail];
+  ++nwp->indegree[head];
+  ++EDGECOUNT(nwp);
+  CheckEdgetreeFull(nwp);
 }
-
-/*****************
- void AddHalfedgeToTree:  Only called by AddEdgeToTrees
-*****************/
-void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge){
-  TreeNode *eptr = edges+a, *newnode;
-  Edge e;
-
-  if (eptr->value==0) { /* This is the first edge for vertex a. */
-    eptr->value=b;
-    return;
-  }
-  (newnode = edges + (++*last_edge))->value=b;  
-  newnode->left = newnode->right = 0;
-  /* Now find the parent of this new edge */
-  for (e=a; e!=0; e=(b < (eptr=edges+e)->value) ? eptr->left : eptr->right);
-  newnode->parent=eptr-edges;  /* Point from the new edge to the parent... */
-  if (b < eptr->value)  /* ...and have the parent point back. */
-    eptr->left=*last_edge; 
-  else
-    eptr->right=*last_edge;
-}
-
-/*****************
-void CheckEdgetreeFull
-*****************/
-void CheckEdgetreeFull (Network *nwp) {
-  const unsigned int mult=2;
-  
-  // Note that maximum index in the nwp->*edges is nwp->maxedges-1, and we need to keep one element open for the next insertion.
-  if(nwp->last_outedge==nwp->maxedges-2 || nwp->last_inedge==nwp->maxedges-2){
-    // Only enlarge the non-root part of the array.
-    Edge newmax = nwp->nnodes + 1 + (nwp->maxedges - nwp->nnodes - 1)*mult;
-    nwp->inedges = (TreeNode *) Realloc(nwp->inedges, newmax, TreeNode);
-    memset(nwp->inedges+nwp->maxedges, 0,
-	   sizeof(TreeNode) * (newmax-nwp->maxedges));
-    nwp->outedges = (TreeNode *) Realloc(nwp->outedges, newmax, TreeNode);
-    memset(nwp->outedges+nwp->maxedges, 0,
-	   sizeof(TreeNode) * (newmax-nwp->maxedges));
-    nwp->maxedges = newmax;
-  }
-}
-
 
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed
@@ -670,7 +623,7 @@ void SetEdge (Vertex tail, Vertex head, unsigned int weight, Network *nwp)
   if(weight==0){
     DeleteEdgeFromTrees(tail,head,nwp);
   }else{
-    AddEdgeToTrees(tail,head,nwp);
+    if(EdgetreeSearch(tail, head, nwp->outedges)) AddEdgeToTrees(tail,head,nwp);
   }
 }
 

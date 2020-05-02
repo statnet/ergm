@@ -70,3 +70,45 @@ static inline void DeleteHalfedgeFromTreeAt(Vertex a, Vertex b, TreeNode *edges,
   return;
 }
 
+
+/*****************
+void CheckEdgetreeFull
+*****************/
+static inline void CheckEdgetreeFull (Network *nwp) {
+  const unsigned int mult=2;
+  
+  // Note that maximum index in the nwp->*edges is nwp->maxedges-1, and we need to keep one element open for the next insertion.
+  if(nwp->last_outedge==nwp->maxedges-2 || nwp->last_inedge==nwp->maxedges-2){
+    // Only enlarge the non-root part of the array.
+    Edge newmax = nwp->nnodes + 1 + (nwp->maxedges - nwp->nnodes - 1)*mult;
+    nwp->inedges = (TreeNode *) Realloc(nwp->inedges, newmax, TreeNode);
+    memset(nwp->inedges+nwp->maxedges, 0,
+	   sizeof(TreeNode) * (newmax-nwp->maxedges));
+    nwp->outedges = (TreeNode *) Realloc(nwp->outedges, newmax, TreeNode);
+    memset(nwp->outedges+nwp->maxedges, 0,
+	   sizeof(TreeNode) * (newmax-nwp->maxedges));
+    nwp->maxedges = newmax;
+  }
+}
+
+/*****************
+ void AddHalfedgeToTree:  Only called by AddEdgeToTrees
+*****************/
+static inline void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge){
+  TreeNode *eptr = edges+a, *newnode;
+  Edge e;
+
+  if (eptr->value==0) { /* This is the first edge for vertex a. */
+    eptr->value=b;
+    return;
+  }
+  (newnode = edges + (++*last_edge))->value=b;  
+  newnode->left = newnode->right = 0;
+  /* Now find the parent of this new edge */
+  for (e=a; e!=0; e=(b < (eptr=edges+e)->value) ? eptr->left : eptr->right);
+  newnode->parent=eptr-edges;  /* Point from the new edge to the parent... */
+  if (b < eptr->value)  /* ...and have the parent point back. */
+    eptr->left=*last_edge; 
+  else
+    eptr->right=*last_edge;
+}

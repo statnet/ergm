@@ -98,10 +98,10 @@ Network *Redgelist2Network(SEXP elR, Rboolean empty);
 
 void SetEdge (Vertex tail, Vertex head, unsigned int weight, Network *nwp);
 int ToggleEdge (Vertex tail, Vertex head, Network *nwp);
-int ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgeflag);
-int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp);
-void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge);
-void CheckEdgetreeFull (Network *nwp);
+void ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgeflag);
+void AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp);
+/* void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge); */
+/* void CheckEdgetreeFull (Network *nwp); */
 int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp);
 /* int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges, */
 /* 		     Edge *last_edge); */
