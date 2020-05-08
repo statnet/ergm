@@ -182,6 +182,9 @@ int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp)
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
 void WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
+#ifdef DEBUG
+  if(WtEdgetreeSearch(tail, head, nwp->outedges)||WtEdgetreeSearch(head, tail, nwp->inedges)) error("WtAddEdgeToTrees() called for an extant edge. Note that this produces an error only if compiling with DEBUG macro set and silently produces undefined behavior otherwise.");
+#endif // DEBUG
   for(unsigned int i = 0; i < nwp->n_on_edge_change; i++) nwp->on_edge_change[i](tail, head, weight, nwp->on_edge_change_payload[i], nwp, 0);
 
   WtAddHalfedgeToTree(tail, head, weight, nwp->outedges, &(nwp->last_outedge));
