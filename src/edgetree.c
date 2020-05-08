@@ -626,7 +626,7 @@ void SetEdge (Vertex tail, Vertex head, unsigned int weight, Network *nwp)
   if(weight==0){
     DeleteEdgeFromTrees(tail,head,nwp);
   }else{
-    if(EdgetreeSearch(tail, head, nwp->outedges)) AddEdgeToTrees(tail,head,nwp);
+    if(EdgetreeSearch(tail, head, nwp->outedges)==0) AddEdgeToTrees(tail,head,nwp);
   }
 }
 
