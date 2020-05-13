@@ -38,14 +38,14 @@
 #' @param eps.Pvalue \eqn{p}-values below this level will be printed
 #'   as "<`eps.Pvalue`".
 #' @param
-#'   print.formula,print.fitinfo,print.coefmat,print.message,print.deviances,print.drop,print.offset,print.degeneracy,print.call
+#'   print.formula,print.fitinfo,print.coefmat,print.message,print.deviances,print.drop,print.offset,print.call
 #'   which components of the fit summary to print.
 #' @export
 print.summary.ergm <- function (x, 
               digits = max(3, getOption("digits") - 3),
               correlation=FALSE, covariance=FALSE,
               signif.stars= getOption("show.signif.stars"),
-              eps.Pvalue=0.0001, print.formula=FALSE, print.fitinfo=TRUE, print.coefmat=TRUE, print.message=TRUE, print.deviances=TRUE, print.drop=TRUE, print.offset=TRUE, print.degeneracy=TRUE, print.call=TRUE,...){
+              eps.Pvalue=0.0001, print.formula=FALSE, print.fitinfo=TRUE, print.coefmat=TRUE, print.message=TRUE, print.deviances=TRUE, print.drop=TRUE, print.offset=TRUE, print.call=TRUE,...){
   
   control <- x$control
 
@@ -122,20 +122,6 @@ print.summary.ergm <- function (x,
     if(any(x$offset & x$drop==0 & x$estimable)){
       cat("\n The following terms are fixed by offset and are not estimated:\n  ")
       cat(rownames(x$coefficients)[x$offset & x$drop==0 & x$estimable], "\n\n")
-    }
-  }
-
-  if(print.degeneracy){
-    if(!is.null(x$degeneracy.value) && !is.na(x$degeneracy.value)){
-      if(is.infinite(x$degeneracy.value)){
-        cat("\n Warning: The diagnostics indicate that the model is very unstable.\n   They suggest that the model is near degenerate,\n   and that the numerical summaries are suspect.\n")
-      }else{
-        if(x$degeneracy.value > 1){
-          cat("The instability of the model is: ",
-              format(x$degeneracy.value, digits=2),"\n")
-          cat("Instabilities greater than 1 suggest the model is near degenerate.\n")
-        }
-      }
     }
   }
 

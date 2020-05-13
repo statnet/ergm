@@ -219,10 +219,6 @@ unconstrained models.}
 \item{mle.lik}{The approximate log-likelihood for the MLE.
 The value is only approximate because it is estimated based
 on the MCMC random sample.}
-
-\item{degeneracy.value}{Score calculated to assess the degree of
-degeneracy in the model. Only shows when MCMLE.check.degeneracy is TRUE in \code{control.ergm}. }
-\item{degeneracy.type}{Supporting output for \code{degeneracy.value}. Only shows when MCMLE.check.degeneracy is TRUE in \code{control.ergm}. Mainly for internal use.}
 }
 \description{
 \code{\link{ergm}} is used to fit exponential-family random graph

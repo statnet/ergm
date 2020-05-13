@@ -58,7 +58,6 @@ control.ergm(
   obs.MCMC.prop.args = MCMC.prop.args,
   obs.MCMC.impute.min_informative = function(nw) network.size(nw)/4,
   obs.MCMC.impute.default_density = function(nw) 2/network.size(nw),
-  MCMLE.check.degeneracy = FALSE,
   MCMLE.MCMC.precision = 0.005,
   MCMLE.MCMC.max.ESS.frac = 0.1,
   MCMLE.metric = c("lognormal", "logtaylor", "Median.Likelihood", "EF.Likelihood",
@@ -376,9 +375,6 @@ sample network density is used as the imputation density. It can
 also be specified as a function that returns this
 value. \code{obs.MCMC.impute.default_density} similarly controls the
 imputation density when number of non-missing dyads is too low.}
-
-\item{MCMLE.check.degeneracy}{Logical: If TRUE, employ a check for model
-degeneracy.}
 
 \item{MCMLE.MCMC.precision, MCMLE.MCMC.max.ESS.frac}{\code{MCMLE.MCMC.precision} is a vector of upper bounds on the standard
 errors induced by the MCMC algorithm, expressed as a percentage of the total

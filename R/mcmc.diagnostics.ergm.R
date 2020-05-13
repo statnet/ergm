@@ -50,10 +50,6 @@
 #   raft: a list containing
 #    params          : ?? 
 #    resmatrix       : ??
-#    degeneracy.value: the degeneracy.value of 'object', as computed by
-#                      <ergm.degeneracy>
-#    degeneracy.type : the degeneracy.type of 'object', as computed by
-#                      <ergm.compute.degeneracy> 
 #    simvals         :
 #
 ##########################################################################
@@ -171,36 +167,19 @@ mcmc.diagnostics.default <- function(object, ...) {
 #'
 #' \item{`"burnin"`}{Burn-in diagnostics, in particular, the Geweke test.}
 #'
-#' \item{`"degeneracy"`}{Degeneracy diagnostic, possibly not functional.}
-#'
 #' } Partial matching is supported. (E.g., `which=c("auto","cross")`
 #' will print autocorrelation and cross-correlations.)
 #'
-#' @return \code{\link{mcmc.diagnostics.ergm}} returns invisibly some
-#'   degeneracy information, if it is included in the original object.
-#'   The function is mainly used for its side effect, which is to
-#'   produce plots and summary output based on those plots.
 #' @import coda
 #' @export
 mcmc.diagnostics.ergm <- function(object,
                                   center=TRUE,
                                   esteq=TRUE,
                                   vars.per.page=3,
-                                  which=c("plots", "texts", "summary", "autocorrelation", "crosscorrelation", "burnin", "degeneracy"), ...) {
+                                  which=c("plots", "texts", "summary", "autocorrelation", "crosscorrelation", "burnin"), ...) {
 
   which <- match.arg(which, several.ok=TRUE)
-  if("texts" %in% which) which <- c(which, "summary", "autocorrelation", "crosscorrelation", "burnin", "degeneracy")
-
-  # Degeneracy diagnostic. TODO: Does it even work anymore?
-  if("degeneracy" %in% which){
-    if(!is.null(object$degeneracy.value) && !is.na(object$degeneracy.value)){
-      degeneracy.value <- object$degeneracy.value
-      degeneracy.type <- object$degeneracy.type
-    }else{
-      degeneracy.value <- NULL
-      degeneracy.type <- NULL
-    }
-  }
+  if("texts" %in% which) which <- c(which, "summary", "autocorrelation", "crosscorrelation", "burnin")
 
   # Coerce sample objects to mcmc.list. This allows all subsequent
   # operations to assume mcmc.list. The reason [["sample"]] is being
@@ -353,10 +332,6 @@ mcmc.diagnostics.ergm <- function(object,
   }
 
   cat("\nMCMC diagnostics shown here are from the last round of simulation, prior to computation of final parameter estimates. Because the final estimates are refinements of those used for this simulation run, these diagnostics may understate model performance. To directly assess the performance of the final model on in-model statistics, please use the GOF command: gof(ergmFitObject, GOF=~model).\n")
-
-  if("degeneracy" %in% which)
-    invisible(list(degeneracy.value=degeneracy.value,
-                   degeneracy.type=degeneracy.type))
 }
 
 #' Plot MCMC list using `lattice` package graphics

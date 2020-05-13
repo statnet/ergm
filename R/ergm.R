@@ -79,10 +79,6 @@
 #    $*!@% &#~+  mle.lik         :  the approximate log-likelihood for the MLE, if computed
 #    $* @        etamap          :  the set of function mapping theta -> eta;
 #                                   see <etamap>? for the components of this list
-#    $           degeneracy.value:  the degeneracy value assigned by <ergm.degeneracy>
-#    $           degeneracy.type :  a vector of length 2, as returned by
-#                                   <ergm.compute.degeneracy> (found in the
-#                                   <ergm.degeracy> file)
 #    $      #    formula         :  the 'formula' value inputted to <ergm>
 #    $      #    constraints     :  the 'constraints' value inputted to <ergm>
 #           #    prop.args       :  the list of arguments that were passed onto the
@@ -281,10 +277,6 @@
 #' The value is only approximate because it is estimated based 
 #' on the MCMC random sample.}
 #' 
-#' \item{degeneracy.value}{Score calculated to assess the degree of 
-#' degeneracy in the model. Only shows when MCMLE.check.degeneracy is TRUE in \code{control.ergm}. }
-#' \item{degeneracy.type}{Supporting output for \code{degeneracy.value}. Only shows when MCMLE.check.degeneracy is TRUE in \code{control.ergm}. Mainly for internal use.}
-#'
 #' @section Notes on model specification:
 #' Although each of the statistics in a given model is a summary
 #' statistic for the entire network, it is rarely necessary to
@@ -839,19 +831,9 @@ ergm <- function(formula, response=NULL,
   
   # done with main fit
   
-  if(!is.null(control$MCMLE.check.degeneracy) && control$MCMLE.check.degeneracy && (is.null(mainfit$theta1$independent) || !all(mainfit$theta1$independent))){
-    if(verbose) {
-      message("Checking for degeneracy.")
-    }
-    degeneracy <- ergm.degeneracy(mainfit, test.only=TRUE)
-  } else {
-    degeneracy <- list(degeneracy.value=NULL, degeneracy.type=NULL)
-  }
   mainfit$call <- ergm_call
   mainfit$ergm_version <- packageVersion("ergm")
   mainfit$MPLE_is_MLE <- MPLE.is.MLE
-  mainfit$degeneracy.value <- degeneracy$degeneracy.value
-  mainfit$degeneracy.type <- degeneracy$degeneracy.type
   
   mainfit$formula <- formula
   mainfit$target.stats <- model$target.stats
