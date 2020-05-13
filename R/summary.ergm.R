@@ -29,7 +29,6 @@
 #      formula         : object$formula
 #      randomeffects   : object$re
 #      correlation     : the 'correlation' passed to <summary.ergm>
-#      degeneracy.value: object$degenarcy.value
 #      offset          : object$offset
 #      drop            : object$drop
 #      covariance      : the 'covariance' passed to <summary.ergm>
@@ -122,7 +121,6 @@ summary.ergm <- function (object, ...,
   ans <- list(formula=object$formula,
               call=object$call,
               correlation=correlation,
-              degeneracy.value = object$degeneracy.value,
               offset = object$offset,
               drop = NVL(object$drop, rep(0,length(object$offset))),
               estimable = NVL(object$estimable, rep(TRUE,length(object$offset))),

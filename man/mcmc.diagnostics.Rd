@@ -14,7 +14,7 @@ mcmc.diagnostics(object, ...)
   esteq = TRUE,
   vars.per.page = 3,
   which = c("plots", "texts", "summary", "autocorrelation", "crosscorrelation",
-    "burnin", "degeneracy"),
+    "burnin"),
   ...
 )
 }
@@ -54,16 +54,8 @@ plot and/or print. Defaults to all of the below if meaningful:
 
 \item{\code{"burnin"}}{Burn-in diagnostics, in particular, the Geweke test.}
 
-\item{\code{"degeneracy"}}{Degeneracy diagnostic, possibly not functional.}
-
 } Partial matching is supported. (E.g., \code{which=c("auto","cross")}
 will print autocorrelation and cross-correlations.)}
-}
-\value{
-\code{\link{mcmc.diagnostics.ergm}} returns invisibly some
-degeneracy information, if it is included in the original object.
-The function is mainly used for its side effect, which is to
-produce plots and summary output based on those plots.
 }
 \description{
 This function prints diagnistic information and creates simple diagnostic

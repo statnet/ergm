@@ -67,7 +67,6 @@ control.ergm(
   obs.MCMC.impute.default_density = function(nw) 2/network.size(nw),
   MCMLE.min.depfac = 2,
   MCMLE.sampsize.boost.pow = 0.5,
-  MCMLE.check.degeneracy = FALSE,
   MCMLE.MCMC.precision = if (startsWith("confidence", MCMLE.termination[1])) 0.1 else
     0.005,
   MCMLE.MCMC.max.ESS.frac = 0.1,
@@ -451,9 +450,6 @@ value. \code{obs.MCMC.impute.default_density} similarly controls the
 imputation density when number of non-missing dyads is too low.}
 
 \item{MCMLE.min.depfac, MCMLE.sampsize.boost.pow}{When using adaptive MCMC effective size, and methods that increase the MCMC sample size, use \code{MCMLE.sampsize.boost.pow} as the power of the boost amount (relative to the boost of the target effective size), but ensure that sample size is no less than \code{MCMLE.min.depfac} times the target effective size.}
-
-\item{MCMLE.check.degeneracy}{Logical: If TRUE, employ a check for model
-degeneracy.}
 
 \item{MCMLE.MCMC.precision, MCMLE.MCMC.max.ESS.frac}{\code{MCMLE.MCMC.precision} is a vector of upper bounds on the standard
 errors induced by the MCMC algorithm, expressed as a percentage of the total

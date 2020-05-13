@@ -273,8 +273,6 @@
 #'   value. `obs.MCMC.impute.default_density` similarly controls the
 #'   imputation density when number of non-missing dyads is too low.
 #' 
-#' @param MCMLE.check.degeneracy Logical: If TRUE, employ a check for model
-#' degeneracy.
 #' @param MCMLE.MCMC.precision,MCMLE.MCMC.max.ESS.frac
 #' \code{MCMLE.MCMC.precision} is a vector of upper bounds on the standard
 #' errors induced by the MCMC algorithm, expressed as a percentage of the total
@@ -564,7 +562,6 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.min.depfac=2,
                        MCMLE.sampsize.boost.pow=0.5,
 
-                       MCMLE.check.degeneracy=FALSE,
                        MCMLE.MCMC.precision=if(startsWith("confidence", MCMLE.termination[1])) 0.1 else 0.005,
                        MCMLE.MCMC.max.ESS.frac=0.1,
                        MCMLE.metric=c("lognormal", "logtaylor",
@@ -694,7 +691,6 @@ control.ergm<-function(drop=TRUE,
                        mcmc.precision="MCMLE.MCMC.precision",
                        method="MCMLE.method",
                        MPLEtype="MPLE.type",
-                       check.degeneracy="MCMLE.check.degeneracy",
                        MPLEsamplesize="MPLE.samplesize",
                        phase1_n="SA.phase1_n", initial_gain="SA.initial_gain", 
                        nsubphases="SA.nsubphases", niterations="SA.niterations", phase3_n="SA.phase3_n",
