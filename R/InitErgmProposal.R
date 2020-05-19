@@ -281,16 +281,22 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   influenced <- NULL
   influenced_counts <- rep(0, length(tailattrs))
   
+  infl_list <- list()  
+  
   for(i in 1:length(tailattrs)) {
-    for(j in 1:length(tailattrs)) {
-      if((i != j) && length(intersect(c(tailattrs[i], headattrs[i]), c(tailattrs[j], headattrs[j]))) > 0) {
-        influenced <- c(influenced, j)
-        influenced_counts[i] <- influenced_counts[i] + 1
-      }
+    if(tailattrs[i] == headattrs[i]) {
+      tvec <- indmat[tailattrs[i],][-headattrs[i]]
+      tvec <- tvec[tvec >= 0]
+      infl_list[[i]] <- tvec
+      influenced_counts[i] <- length(tvec)
+    } else {
+      tvec <- c(indmat[tailattrs[i],][-headattrs[i]], indmat[,headattrs[i]][-tailattrs[i]])
+      tvec <- tvec[tvec >= 0]
+      infl_list[[i]] <- tvec
+      influenced_counts[i] <- length(tvec)
     }
   }
-  
-  influenced <- influenced - 1 # 0-based indexing for C code
+  influenced <- unlist(infl_list)
   
   empirical_flag <- as.logical(NVL(arguments$empirical, FALSE))
 
