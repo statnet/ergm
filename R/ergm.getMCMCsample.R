@@ -255,6 +255,8 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
             as.integer(deInf(NVL(control$MCMC.maxedges,Inf),"maxint")),
             as.integer(verbose),
             PACKAGE="ergm")
+
+  if(z$status) return(z) # If there is an error.
   z$s <- matrix(z$s, ncol=nparam(state,canonical=TRUE), byrow = TRUE)
   colnames(z$s) <- param_names(state, canonical=TRUE)
   z$state <- ergm_state_receive(z$state)
