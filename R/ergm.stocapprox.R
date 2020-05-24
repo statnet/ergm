@@ -50,7 +50,6 @@ ergm.stocapprox <- function(init, nw, model,
   #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for init)
   n1 <- control$SA.phase1_n
   if(is.null(n1)) {n1 <- max(200,7 + 3 * model$etamap$etalength)} #default value
-  eta0 <- ergm.eta(init, model$etamap)
   message("Stochastic approximation algorithm with theta_0 equal to:")
   print(init)
   control <- within(control, {
@@ -80,7 +79,6 @@ ergm.stocapprox <- function(init, nw, model,
 # if(control$parallel>0){
 #  control$MCMC.samplesize <- control$MCMC.samplesize*control$parallel
 # }
-  eta <- ergm.eta(theta, model$etamap)
   for(i in 1:n_sub){
     control$MCMC.samplesize <- trunc(control$MCMC.samplesize*2.52)+1 # 2.52 is approx. 2^(4/3)
   }
@@ -88,13 +86,13 @@ ergm.stocapprox <- function(init, nw, model,
 # aDdiaginv <- a * Ddiaginv
   s <- ergm_state(nw, model=model, proposal=proposal, stats = summary(model, nw) - NVL(model$target.stats,model$nw.stats))
   z <- ergm.phase12(s, 
-                    eta, control, verbose=TRUE)
+                    theta, control, verbose=TRUE)
   nw <- z$newnetwork
 # toggle.dyads(nw, head = z$changed[,2], tail = z$changed[,3])
 # control$maxchanges <- z$maxchanges
-  theta <- z$eta
+  theta <- z$theta
   names(theta) <- names(init)
-  message(paste(" (eta[",seq(along=theta),"] = ",paste(theta),")",sep=""))
+  message(paste(" (theta[",seq(along=theta),"] = ",paste(theta),")",sep=""))
   
   #phase 3:  Estimate covariance matrix for final theta
   n3 <- control$SA.phase3_n
@@ -109,8 +107,7 @@ ergm.stocapprox <- function(init, nw, model,
 #message(paste(" eta=",eta,")",sep=""))
 
   # Obtain MCMC sample
-  s <- ergm_state(nw, model=model, proposal=proposal, stats = summary(model, nw) - NVL(model$target.stats,model$nw.stats))
-  z <- ergm_MCMC_sample(s, control, eta=eta0, verbose=max(verbose-1,0))
+  z <- ergm_MCMC_sample(z$state, control, theta=theta, verbose=max(verbose-1,0))
   
 #v$sample <- stats
 # ubar <- apply(z$stats, 2, mean)

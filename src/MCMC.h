@@ -18,18 +18,18 @@
 #include "ergm_state.h"
 
 MCMCStatus MCMCSample(ErgmState *s,
-		      double *eta, double *networkstatistics, 
-		      int samplesize, int burnin, 
+		      double *eta, double *networkstatistics,
+		      int samplesize, int burnin,
 		      int interval, int nmax, int verbose);
 MCMCStatus MetropolisHastings(ErgmState *s,
-			      double *eta, double *statistics, 
+			      double *eta, double *statistics,
 			      int nsteps, int *staken,
 			      int verbose);
 
 MCMCStatus MCMCSamplePhase12(ErgmState *s,
-  double *eta, double gain,
-  int nphase1, int nsubphases, double *networkstatistics, 
-  int samplesize, int burnin, 
-  int interval, int verbose);
+                             double *eta, unsigned int n_param, double gain,
+                             int nphase1, int nsubphases, double *networkstatistics,
+                             int samplesize, int burnin,
+                             int interval, int verbose);
 
 #endif

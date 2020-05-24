@@ -39,7 +39,7 @@
 #
 ###############################################################################
 
-ergm.phase12 <- function(s, eta0,
+ergm.phase12 <- function(s, theta0,
                         control, verbose) {
 # ms <- m$target.stats
 # if(!is.null(ms)) {
@@ -56,7 +56,7 @@ ergm.phase12 <- function(s, eta0,
   z <- .Call("MCMCPhase12",
              s,
              # Phase12 settings
-             as.double(deInf(eta0)),
+             as.double(deInf(theta0)),
              as.integer(control$MCMC.samplesize), as.integer(control$MCMC.burnin), as.integer(control$MCMC.interval),
              as.double(control$gain), as.integer(control$phase1), as.integer(control$nsub),
              as.integer(deInf(NVL(control$MCMC.maxedges,Inf),"maxint")),
@@ -66,8 +66,8 @@ ergm.phase12 <- function(s, eta0,
   statsmatrix <- matrix(z$s, nrow=control$MCMC.samplesize,
                         ncol=nparam(s,canonical=TRUE),
                         byrow = TRUE)
-  eta <- z$eta
-  names(eta) <- names(eta0)
+  theta <- z$theta
+  names(theta) <- names(theta0)
 
   z$state <- update(z$state)
   newnetwork<-as.network(z$state)
@@ -75,5 +75,5 @@ ergm.phase12 <- function(s, eta0,
   colnames(statsmatrix) <- param_names(s,canonical=TRUE)
   list(statsmatrix=statsmatrix, newnetwork=newnetwork, target.stats=as.ergm_model(s)$target.stats, nw.stats=as.ergm_model(s)$nw.stats,
        maxedges=control$MCMC.init.maxedges,
-       eta=eta)
+       theta=theta, state=z$state)
 }
