@@ -26,4 +26,10 @@ MCMCStatus WtMetropolisHastings(WtErgmState *s,
 				   int nsteps, int *staken,
 				   int verbose);
 
+MCMCStatus WtMCMCSamplePhase12(WtErgmState *s,
+                               double *eta, unsigned int n_param, double gain,
+                               int nphase1, int nsubphases, double *networkstatistics,
+                               int samplesize, int burnin,
+                               int interval, int verbose);
+
 #endif
