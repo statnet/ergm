@@ -1703,7 +1703,7 @@ D_CHANGESTAT_FN(d_cycle) {
   
   /*Perform initial setup*/
   maxlen=(long int)(INPUT_PARAM[0]);
-  countv=(double *)R_alloc(sizeof(double),maxlen-1);
+  countv=Calloc(maxlen-1, double);
 
   /* *** don't forget tail -> head */    
   ZERO_ALL_CHANGESTATS(i);
@@ -1735,6 +1735,8 @@ D_CHANGESTAT_FN(d_cycle) {
     TOGGLE_IF_MORE_TO_COME(i);
   }
   UNDO_PREVIOUS_TOGGLES(i);
+
+  Free(countv);
 }
 
 /*****************
