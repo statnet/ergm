@@ -1446,7 +1446,7 @@ C_CHANGESTAT_FN(c_cycle) {
   
   /*Perform initial setup*/
   maxlen=(long int)(INPUT_PARAM[0]);
-  countv=(double *)R_alloc(sizeof(double),maxlen-1);
+  countv=Calloc(maxlen-1, double);
 
   /* *** don't forget tail -> head */    
     for(j=0;j<maxlen-1;j++)  /*Clear out the count vector*/
@@ -1471,6 +1471,8 @@ C_CHANGESTAT_FN(c_cycle) {
     for(j=0;j<maxlen-1;j++)
       if(INPUT_PARAM[1+j]>0.0)
         CHANGE_STAT[k++]+=emult*countv[j];
+
+  Free(countv);
 }
 
 /*****************

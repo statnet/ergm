@@ -121,7 +121,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
   }
   if(!inherits(llk,"logLik")){
     class(llk)<-"logLik"
-    attr(llk,"df")<-length(coef(object))
+    attr(llk,"df")<-nparam(object, offset=FALSE)
     attr(llk,"nobs")<- nobs(object, ...)
   }
 

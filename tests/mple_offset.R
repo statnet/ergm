@@ -10,7 +10,6 @@
 library(statnet.common)
 opttest({
 library(ergm)
-options(ergm.eval.loglik=FALSE)
 data(sampson)
 
 set.seed(0)
@@ -18,12 +17,15 @@ set.seed(0)
 total.theta <- coef(ergm(samplike~edges))
 offset.theta <- pi
 
-stopifnot(all.equal(coef(ergm(samplike~edges+offset(edges), offset.coef=c(pi)))[1],
-          total.theta-offset.theta, tolerance=0.00001))
+e1 <- ergm(samplike~edges+offset(edges), offset.coef=c(pi))
+stopifnot(all.equal(coef(e1)[1], total.theta-offset.theta, tolerance=0.00001),
+          attr(logLik(e1),"df")==1)
 
-stopifnot(all.equal(coef(ergm(samplike~offset(edges)+edges, offset.coef=c(pi)))[2], 
-          total.theta-offset.theta, tolerance=0.00001))
+e2 <- ergm(samplike~offset(edges)+edges, offset.coef=c(pi))
+stopifnot(all.equal(coef(e2)[2], total.theta-offset.theta, tolerance=0.00001),
+          attr(logLik(e1),"df")==1)
 
+options(ergm.eval.loglik=FALSE)
 data(florentine)
 boo<-flomarriage
 boo[1:3,]<-0
