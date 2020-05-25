@@ -1,5 +1,3 @@
-library(ergm)
-library(testthat)
 context("test-operators.R")
 data(florentine)
 
@@ -107,6 +105,18 @@ test_that("Binary Label() summary", {
   expect_named(
     summary(flomarriage ~ Label(~edges+absdiff("wealth"), ~gsub(".","!",.,fixed=TRUE))),
     c("edges","absdiff!wealth")
+  )
+})
+
+test_that("Binary Label() estimation and offsets in submodels", {
+  expect_equivalent(
+    coef(ergm(flomarriage ~ Label(~edges+offset(absdiff("wealth")), "abc"), offset.coef=-.5)),
+    coef(ergm(flomarriage ~ edges+offset(absdiff("wealth")), offset.coef=-.5))
+  )
+
+  expect_equivalent(
+    coef(ergm(flomarriage ~ Label(~edges+offset(gwesp), "abc"), offset.coef=c(-.5,1), estimate="MPLE")),
+    coef(ergm(flomarriage ~ edges+offset(gwesp), offset.coef=c(-.5,1), estimate="MPLE"))
   )
 })
 
