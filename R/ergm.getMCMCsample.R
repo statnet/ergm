@@ -229,6 +229,8 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
 #' @useDynLib ergm
 #' @export
 ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samplesize=NULL, interval=NULL){
+  on.exit(ergm_Cstate_clear())
+
   NVL(burnin) <- control$MCMC.burnin
   NVL(samplesize) <- control$MCMC.samplesize
   NVL(interval) <- control$MCMC.interval

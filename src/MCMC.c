@@ -135,6 +135,7 @@ MCMCStatus MCMCSample(ErgmState *s,
       }
       tottaken += staken;
 
+      R_CheckUserInterrupt();
 #ifdef Win32
       if( ((100*i) % samplesize)==0 && samplesize > 500){
 	R_FlushConsole();
@@ -347,7 +348,7 @@ MCMCStatus MCMCSamplePhase12(ErgmState *s,
   *********************/
   double *ubar = Calloc(n_param, double),
     *u2bar = Calloc(n_param, double),
-    *aDdiaginv = (double *)Calloc(n_param, double);
+    *aDdiaginv = Calloc(n_param, double);
 
   /*********************
    Burn in step.  While we're at it, use burnin statistics to

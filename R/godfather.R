@@ -74,6 +74,8 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
                            changes.only=FALSE,
                            verbose=FALSE,
                            control=control.ergm.godfather()){
+  on.exit(ergm_Cstate_clear())
+
   check.control.class("ergm.godfather", "ergm.godfather")
 
   if(!is.list(changes)) changes <- list(changes)

@@ -49,6 +49,8 @@ summary.ergm_model <- function(object, nw=NULL, response=NULL,...){
 #' @describeIn ergm_state a very low-level function that calculates summary statistics associated with an [`ergm_state`] object.
 #' @export
 summary.ergm_state <- function(object, ...){
+  on.exit(ergm_Cstate_clear())
+
   state <- object
 
   gs <-

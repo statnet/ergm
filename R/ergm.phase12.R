@@ -41,18 +41,8 @@
 
 ergm.phase12 <- function(s, theta0,
                         control, verbose) {
-# ms <- m$target.stats
-# if(!is.null(ms)) {
-#   if (is.null(names(ms)) && length(ms) == nparam(m,canonical=TRUE))
-#     names(ms) <- param_names(m,canonical=TRUE)
-#   obs <- control$orig.obs
-#   obs <- obs[match(names(ms), names(obs))]
-#   ms  <-  ms[match(names(obs), names(ms))]
-#   matchcols <- match(names(ms), names(obs))
-#   if (any(!is.na(matchcols))) {
-#     ms[!is.na(matchcols)] <- ms[!is.na(matchcols)] - obs[matchcols[!is.na(matchcols)]]
-#   }
-  # }
+  on.exit(ergm_Cstate_clear())
+
   z <-
     if(!is.valued(s))
       .Call("MCMCPhase12",

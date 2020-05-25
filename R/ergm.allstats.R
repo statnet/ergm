@@ -114,6 +114,8 @@
 ergm.allstats <- function(formula, zeroobs = TRUE, force = FALSE,
                           maxNumChangeStatVectors = 2^16, ...)
 {
+  on.exit(ergm_Cstate_clear())
+
   # Initialization stuff
   nw <- ergm.getnetwork(formula)
   m <- ergm_model(formula, nw, initialfit=TRUE, ...)

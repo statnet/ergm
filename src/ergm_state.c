@@ -1,6 +1,10 @@
 #include "ergm_state.h"
 #include "ergm_constants.h"
 
+static ErgmState **ergm_state_array = NULL;
+static unsigned int ergm_state_array_len = 0;
+static unsigned int ergm_state_array_maxlen = 0;
+
 ErgmState *ErgmStateInit(SEXP stateR,
                          unsigned int flags){
   ErgmState *s = Calloc(1, ErgmState);
@@ -24,6 +28,12 @@ ErgmState *ErgmStateInit(SEXP stateR,
   s->MHp=NULL;
   if(!(flags & ERGM_STATE_NO_INIT_PROP) && s->m && length(tmp = getListElement(stateR, "proposal"))) // Proposal also requires model's auxiliaries.
     s->MHp = MHProposalInitialize(tmp, s->nwp, s->m->termarray->aux_storage);
+
+  if(ergm_state_array_len == ergm_state_array_maxlen){
+    ergm_state_array_maxlen = MAX(1, ergm_state_array_maxlen*2);
+    ergm_state_array = Realloc(ergm_state_array, ergm_state_array_maxlen, ErgmState*);
+  }
+  ergm_state_array[ergm_state_array_len++] = s;
 
   return s;
 }
@@ -66,8 +76,23 @@ SEXP ErgmStateRSave(SEXP startR, ErgmState *s){
 }
 
 void ErgmStateDestroy(ErgmState *s){
+  // Find and clear the corresponding element in the active state
+  // array. Note that most of the time, this will be the first element
+  // in the array.
+  unsigned int i=0;
+  while(ergm_state_array[i] != s) i++;
+  ergm_state_array[i] = ergm_state_array[--ergm_state_array_len];
+  ergm_state_array[ergm_state_array_len] = NULL;
+
   if(s->MHp) MHProposalDestroy(s->MHp, s->nwp);
   if(s->m) ModelDestroy(s->nwp, s->m);
   if(s->nwp) NetworkDestroy(s->nwp);
   Free(s);
+}
+
+SEXP ErgmStateArrayClear(){
+  while(ergm_state_array_len) ErgmStateDestroy(ergm_state_array[0]);
+  ergm_state_array_maxlen = 0;
+  Free(ergm_state_array);
+  return R_NilValue;
 }

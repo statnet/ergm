@@ -114,6 +114,7 @@ void RecurseOffOn(ErgmState *s,
        unsigned int *weightsvector,
        unsigned int maxNumDyadTypes) {
 
+  R_CheckUserInterrupt();
   Network *nwp = s->nwp;
   Model *m = s->m;
 

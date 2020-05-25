@@ -298,6 +298,11 @@ static void (*fun)(ErgmState *) = NULL;
 if(fun==NULL) fun = (void (*)(ErgmState *)) R_FindSymbol("ErgmStateDestroy", "ergm", NULL);
 fun(s);
 }
+SEXP ErgmStateArrayClear(){
+static SEXP (*fun)() = NULL;
+if(fun==NULL) fun = (SEXP (*)()) R_FindSymbol("ErgmStateArrayClear", "ergm", NULL);
+return fun();
+}
 
 #define STUBFILE
 #include <stddef.h>

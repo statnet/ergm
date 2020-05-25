@@ -334,3 +334,7 @@ ergm_state_receive.ergm_state_full <- function(x, ...){
   NextMethod("ergm_state_receive")
 }
 
+ergm_Cstate_clear <- function(){
+  .Call("ErgmStateArrayClear", PACKAGE="ergm")
+  .Call("ErgmWtStateArrayClear", PACKAGE="ergm")
+}

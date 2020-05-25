@@ -33,6 +33,8 @@ extern SEXP CD_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP ergm_eta_wrapper(SEXP, SEXP);
 extern SEXP ergm_etagrad_wrapper(SEXP, SEXP);
 extern SEXP ergm_etagradmult_wrapper(SEXP, SEXP, SEXP);
+extern SEXP ErgmStateArrayClear();
+extern SEXP ErgmWtStateArrayClear();
 extern SEXP get_ergm_omp_terms();
 extern SEXP Godfather_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP MCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
@@ -45,6 +47,7 @@ extern SEXP wt_network_stats_wrapper(SEXP);
 extern SEXP WtCD_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtGodfather_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtMCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP WtMCMCPhase12(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtSAN_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
 static const R_CMethodDef CEntries[] = {
@@ -61,6 +64,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"ergm_eta_wrapper",         (DL_FUNC) &ergm_eta_wrapper,          2},
     {"ergm_etagrad_wrapper",     (DL_FUNC) &ergm_etagrad_wrapper,      2},
     {"ergm_etagradmult_wrapper", (DL_FUNC) &ergm_etagradmult_wrapper,  3},
+    {"ErgmStateArrayClear",      (DL_FUNC) &ErgmStateArrayClear,       0},
+    {"ErgmWtStateArrayClear",    (DL_FUNC) &ErgmWtStateArrayClear,     0},
     {"get_ergm_omp_terms",       (DL_FUNC) &get_ergm_omp_terms,        0},
     {"Godfather_wrapper",        (DL_FUNC) &Godfather_wrapper,         7},
     {"MCMC_wrapper",             (DL_FUNC) &MCMC_wrapper,              7},
@@ -73,6 +78,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"WtCD_wrapper",             (DL_FUNC) &WtCD_wrapper,              5},
     {"WtGodfather_wrapper",      (DL_FUNC) &WtGodfather_wrapper,       7},
     {"WtMCMC_wrapper",           (DL_FUNC) &WtMCMC_wrapper,            7},
+    {"WtMCMCPhase12",            (DL_FUNC) &WtMCMCPhase12,            10},
     {"WtSAN_wrapper",            (DL_FUNC) &WtSAN_wrapper,             9},
     {NULL, NULL, 0}
 };

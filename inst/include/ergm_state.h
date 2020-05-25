@@ -19,5 +19,6 @@ ErgmState *ErgmStateInit(// Network settings
                          unsigned int flags);
 SEXP ErgmStateRSave(SEXP startR, ErgmState *s);
 void ErgmStateDestroy(ErgmState *s);
+SEXP ErgmStateArrayClear();
 
 #endif

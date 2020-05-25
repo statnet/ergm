@@ -41,6 +41,8 @@
 ergm.pl<-function(nw, fd, m, theta.offset=NULL,
                     control, ignore.offset=FALSE,
                     verbose=FALSE) {
+  on.exit(ergm_Cstate_clear())
+
   state <- ergm_state(nw, model=m)
   d <- sum(fd)
   el <- as.edgelist(state)
