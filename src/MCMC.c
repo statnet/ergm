@@ -346,19 +346,18 @@ MCMCStatus MCMCSamplePhase12(ErgmState *s,
   values of the first group of m->n_stats networkstatistics should
   all be zero
   *********************/
-  double *ubar = Calloc(n_param, double),
-    *u2bar = Calloc(n_param, double),
-    *aDdiaginv = Calloc(n_param, double);
+  double *ubar = R_calloc(n_param, double),
+    *u2bar = R_calloc(n_param, double),
+    *aDdiaginv = R_calloc(n_param, double);
 
   /*********************
    Burn in step.  While we're at it, use burnin statistics to
    prepare covariance matrix for Mahalanobis distance calculations
    in subsequent calls to M-H
    *********************/
-/*Rprintf("MCMCSampleDyn pre burnin numdissolve %d\n", *numdissolve); */
 
-  double *eta = Calloc(m->n_stats, double),
-    *etagrad = Calloc(m->n_stats*n_param, double);
+  double *eta = R_calloc(m->n_stats, double),
+    *etagrad = R_calloc(m->n_stats*n_param, double);
 
   ergm_eta(theta, etamap, eta);
   ergm_etagrad(theta, etamap, etagrad);
@@ -453,6 +452,7 @@ MCMCStatus MCMCSamplePhase12(ErgmState *s,
     /*      if (verbose){ Rprintf("step %d from %d:\n",i, samplesize);} */
     /* This then adds the change statistics to these values */
     tottaken += staken;
+    R_CheckUserInterrupt();
 #ifdef Win32
     if( ((100*i) % samplesize)==0 && samplesize > 500){
       R_FlushConsole();
@@ -496,11 +496,7 @@ MCMCStatus MCMCSamplePhase12(ErgmState *s,
     Rprintf("Phase 3: MCMC-Newton-Raphson\n");
   }
 
-  Free(etagrad);
-  Free(eta);
-  Free(ubar);
-  Free(u2bar);
-  Free(aDdiaginv);
+  // eta, etagrad, ubar, u2bar, and aDiaginv freed on return to R.
 
   return MCMC_OK;
 }

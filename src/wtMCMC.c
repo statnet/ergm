@@ -83,12 +83,12 @@ MCMCStatus WtMCMCSample(WtErgmState *s,
 
   int staken, tottaken;
   int i;
-    
+
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
   reflect the CHANGE in the values of the statistics from the
-  original (observed) network.  Thus, when we begin, the initial 
-  values of the first group of m->n_stats networkstatistics should 
+  original (observed) network.  Thus, when we begin, the initial
+  values of the first group of m->n_stats networkstatistics should
   all be zero
   *********************/
 /*for (j=0; j < m->n_stats; j++) */
@@ -110,22 +110,22 @@ MCMCStatus WtMCMCSample(WtErgmState *s,
     WtErgmStateDestroy(s);  
     error("Number of edges %u exceeds the upper limit set by the user (%u). This can be a sign of degeneracy, but if not, it can be controlled via MCMC.max.maxedges= and/or MCMLE.density.guard= control parameters.", EDGECOUNT(nwp), nmax);
   }
-  
-/*   if (verbose){ 
+
+/*   if (verbose){
        Rprintf(".");
      } */
-  
+
   if (samplesize>1){
     staken = 0;
     tottaken = 0;
-    
+
     /* Now sample networks */
     for (i=1; i < samplesize; i++){
       /* Set current vector of stats equal to previous vector */
       memcpy(networkstatistics+m->n_stats, networkstatistics, m->n_stats*sizeof(double));
       networkstatistics += m->n_stats;
       /* This then adds the change statistics to these values */
-      
+
       /* Catch massive number of edges caused by degeneracy */
       if(WtMetropolisHastings(s, eta, networkstatistics, interval, &staken,
 			    verbose)!=MCMC_OK)
@@ -149,14 +149,15 @@ MCMCStatus WtMCMCSample(WtErgmState *s,
     *********************/
     if (verbose){
       Rprintf("Sampler accepted %7.3f%% of %lld proposed steps.\n",
-	    tottaken*100.0/(1.0*interval*samplesize), (long long) interval*samplesize); 
+	    tottaken*100.0/(1.0*interval*samplesize), (long long) interval*samplesize);
     }
   }else{
     if (verbose){
       Rprintf("Sampler accepted %7.3f%% of %d proposed steps.\n",
-      staken*100.0/(1.0*burnin), burnin); 
+      staken*100.0/(1.0*burnin), burnin);
     }
   }
+
   return MCMC_OK;
 }
 
@@ -168,7 +169,7 @@ MCMCStatus WtMCMCSample(WtErgmState *s,
  this function merely iterates nsteps times through the Markov
  chain, keeping track of the cumulative change statistics along
  the way, then returns, leaving the updated change statistics in
- the networkstatistics vector.  In other words, this function 
+ the networkstatistics vector.  In other words, this function
  essentially generates a sample of size one
 *********************/
 MCMCStatus WtMetropolisHastings (WtErgmState *s,
@@ -191,11 +192,11 @@ MCMCStatus WtMetropolisHastings (WtErgmState *s,
       switch(MHp->togglehead[0]){
       case MH_UNRECOVERABLE:
 	error("Something very bad happened during proposal. Memory has not been deallocated, so restart R soon.");
-	
+
       case MH_IMPOSSIBLE:
 	Rprintf("MH MHProposal function encountered a configuration from which no toggle(s) can be proposed.\n");
 	return MCMC_MH_FAILED;
-	
+
       case MH_UNSUCCESSFUL:
 	warning("MH MHProposal function failed to find a valid proposal.");
 	unsuccessful++;
@@ -207,7 +208,7 @@ MCMCStatus WtMetropolisHastings (WtErgmState *s,
 	continue;
       }
     }
-    
+
     if(verbose>=5){
       Rprintf("MHProposal: ");
       for(unsigned int i=0; i<MHp->ntoggles; i++)
@@ -225,7 +226,7 @@ MCMCStatus WtMetropolisHastings (WtErgmState *s,
 	Rprintf(" %f ", m->workspace[i]);
       Rprintf(")\n");
     }
-    
+
     /* Calculate inner (dot) product */
     double ip = dotprod(eta, m->workspace, m->n_stats);
 
@@ -237,7 +238,7 @@ MCMCStatus WtMetropolisHastings (WtErgmState *s,
     if(verbose>=5){
       Rprintf("log acceptance probability: %f + %f = %f\n", ip, MHp->logratio, cutoff);
     }
-    
+
     /* if we accept the proposed network */
     if (cutoff >= 0.0 || logf(unif_rand()) < cutoff) { 
       if(verbose>=5){
@@ -246,10 +247,7 @@ MCMCStatus WtMetropolisHastings (WtErgmState *s,
 
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for(unsigned int i=0; i < MHp->ntoggles; i++){
-	Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];
-	double w=MHp->toggleweight[i];
-
-	WtSetEdge(t, h, w, nwp);
+	WtSetEdge(MHp->toggletail[i], MHp->togglehead[i], MHp->toggleweight[i], nwp);
       }
       /* record network statistics for posterity */
       addonto(networkstatistics, m->workspace, m->n_stats);
@@ -260,7 +258,7 @@ MCMCStatus WtMetropolisHastings (WtErgmState *s,
       }
     }
   }
-  
+
   *staken = taken;
   return MCMC_OK;
 }
@@ -348,19 +346,18 @@ MCMCStatus WtMCMCSamplePhase12(WtErgmState *s,
   values of the first group of m->n_stats networkstatistics should
   all be zero
   *********************/
-  double *ubar = Calloc(n_param, double),
-    *u2bar = Calloc(n_param, double),
-    *aDdiaginv = Calloc(n_param, double);
+  double *ubar = R_calloc(n_param, double),
+    *u2bar = R_calloc(n_param, double),
+    *aDdiaginv = R_calloc(n_param, double);
 
   /*********************
    Burn in step.  While we're at it, use burnin statistics to
    prepare covariance matrix for Mahalanobis distance calculations
    in subsequent calls to M-H
    *********************/
-/*Rprintf("MCMCSampleDyn pre burnin numdissolve %d\n", *numdissolve); */
 
-  double *eta = Calloc(m->n_stats, double),
-    *etagrad = Calloc(m->n_stats*n_param, double);
+  double *eta = R_calloc(m->n_stats, double),
+    *etagrad = R_calloc(m->n_stats*n_param, double);
 
   ergm_eta(theta, etamap, eta);
   ergm_etagrad(theta, etamap, etagrad);
@@ -455,6 +452,7 @@ MCMCStatus WtMCMCSamplePhase12(WtErgmState *s,
     /*      if (verbose){ Rprintf("step %d from %d:\n",i, samplesize);} */
     /* This then adds the change statistics to these values */
     tottaken += staken;
+    R_CheckUserInterrupt();
 #ifdef Win32
     if( ((100*i) % samplesize)==0 && samplesize > 500){
       R_FlushConsole();
@@ -498,11 +496,7 @@ MCMCStatus WtMCMCSamplePhase12(WtErgmState *s,
     Rprintf("Phase 3: MCMC-Newton-Raphson\n");
   }
 
-  Free(etagrad);
-  Free(eta);
-  Free(ubar);
-  Free(u2bar);
-  Free(aDdiaginv);
+  // eta, etagrad, ubar, u2bar, and aDiaginv freed on return to R.
 
   return MCMC_OK;
 }

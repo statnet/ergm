@@ -39,7 +39,7 @@ SEXP MPLE_wrapper(SEXP stateR,
                   SEXP wl,
 		  SEXP maxNumDyads, SEXP maxNumDyadTypes){
   GetRNGstate(); /* Necessary for R random number generator */
-  ErgmState *s = ErgmStateInit(stateR, 0);
+  ErgmState *s = ErgmStateInit(stateR, ERGM_STATE_NO_INIT_PROP);
 
   Network *nwp = s->nwp;
   Model *m = s->m;
@@ -146,6 +146,7 @@ void MpleInit_hash_wl_RLE(ErgmState *s, int *responsevec, double *covmat, int *w
     RLERun r=0;
     
     for(Dyad i = 0; i < MIN(maxNumDyads,dc); i++, d=NextRLEBDM1D(d, step, wl, &r)){
+      R_CheckUserInterrupt();
       Dyad2TH(&t, &h, d, N_NODES);
       
       int response = IS_OUTEDGE(t,h);
