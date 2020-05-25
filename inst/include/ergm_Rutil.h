@@ -57,4 +57,13 @@ static inline SEXP mkRStrVec(const char **x){
 // Safely test if x is a NULL C pointer or a NULL R pointer.
 #define isNULL(x) ((x)==NULL || (x)==R_NilValue)
 
+// An alias for R_alloc that behaves more like Calloc(); uses the
+// following helper function:
+static inline void *R_calloc_helper(size_t n, size_t size){
+  char *tmp = R_alloc(n, size);
+  memset(tmp, 0, n*size);
+  return (void*) tmp;
+}
+#define R_calloc(n, type) ((type*) R_calloc_helper((n), sizeof(type)))
+
 #endif 
