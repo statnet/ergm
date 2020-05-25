@@ -283,10 +283,10 @@ fun(n_edges,tails,heads,nwp,m);
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_state.h"
-ErgmState * ErgmStateInit(SEXP stateR,Rboolean empty, Rboolean noinit_s){
-static ErgmState * (*fun)(SEXP,Rboolean,Rboolean) = NULL;
-if(fun==NULL) fun = (ErgmState * (*)(SEXP,Rboolean,Rboolean)) R_FindSymbol("ErgmStateInit", "ergm", NULL);
-return fun(stateR,empty,noinit_s);
+ErgmState * ErgmStateInit(SEXP stateR,unsigned int flags){
+static ErgmState * (*fun)(SEXP,unsigned int) = NULL;
+if(fun==NULL) fun = (ErgmState * (*)(SEXP,unsigned int)) R_FindSymbol("ErgmStateInit", "ergm", NULL);
+return fun(stateR,flags);
 }
 SEXP ErgmStateRSave(SEXP startR, ErgmState *s){
 static SEXP (*fun)(SEXP,ErgmState *) = NULL;
@@ -478,10 +478,10 @@ fun(n_edges,tails,heads,weights,nwp,m);
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_wtstate.h"
-WtErgmState * WtErgmStateInit(SEXP stateR,Rboolean empty, Rboolean noinit_s){
-static WtErgmState * (*fun)(SEXP,Rboolean,Rboolean) = NULL;
-if(fun==NULL) fun = (WtErgmState * (*)(SEXP,Rboolean,Rboolean)) R_FindSymbol("WtErgmStateInit", "ergm", NULL);
-return fun(stateR,empty,noinit_s);
+WtErgmState * WtErgmStateInit(SEXP stateR,unsigned int flags){
+static WtErgmState * (*fun)(SEXP,unsigned int) = NULL;
+if(fun==NULL) fun = (WtErgmState * (*)(SEXP,unsigned int)) R_FindSymbol("WtErgmStateInit", "ergm", NULL);
+return fun(stateR,flags);
 }
 SEXP WtErgmStateRSave(SEXP startR, WtErgmState *s){
 static SEXP (*fun)(SEXP,WtErgmState *) = NULL;

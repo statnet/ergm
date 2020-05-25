@@ -65,14 +65,14 @@ MCMCStatus WtGodfather(WtErgmState *s, Edge n_changes, Vertex *tails, Vertex *he
  find the changestats that result from starting from an empty network
  and then adding all of the edges to make up an observed network of interest.
 *****************/
-SEXP WtGodfather_wrapper(ARGS_WTSTATE,
+SEXP WtGodfather_wrapper(SEXP stateR,
                          // Godfather settings
                          SEXP nsteps,
                          SEXP changetails, SEXP changeheads, SEXP changeweights,
                          SEXP end_network,
                          SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  WtErgmState *s = WtErgmStateInit(YES_WTSTATE);
+  WtErgmState *s = WtErgmStateInit(stateR, ERGM_STATE_NO_INIT_PROP);
   WtModel *m = s->m;
 
   SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats*(1+asInteger(nsteps))));

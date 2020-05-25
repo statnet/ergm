@@ -2,7 +2,7 @@
 #include "ergm_constants.h"
 
 ErgmState *ErgmStateInit(SEXP stateR,
-                         Rboolean empty, Rboolean noinit_s){
+                         unsigned int flags){
   ErgmState *s = Calloc(1, ErgmState);
 
   /* Extract stats vector */
@@ -10,20 +10,19 @@ ErgmState *ErgmStateInit(SEXP stateR,
   s->stats = length(tmp) ? REAL(tmp) : NULL;
 
   /* Form the network */
-  s->nwp=Redgelist2Network(getListElement(stateR,"el"), empty);
+  s->nwp=Redgelist2Network(getListElement(stateR,"el"), flags & ERGM_STATE_EMPTY_NET);
 
   /* Initialize the model */
   s->m=NULL;
   tmp = getListElement(stateR, "model");
   if(s->nwp && length(tmp)){ // Model also requires network.
     if(asInteger(getListElement(stateR, "ext.flag"))==ERGM_STATE_R_CHANGED) error("R ergm_state has changed in R but has not been reconciled.");
-    s->m = ModelInitialize(tmp, getListElement(stateR, "ext.state"), s->nwp, noinit_s);
+    s->m = ModelInitialize(tmp, getListElement(stateR, "ext.state"), s->nwp, flags & ERGM_STATE_NO_INIT_S);
   }
 
   /* Initialize the M-H proposal */
   s->MHp=NULL;
-  tmp = getListElement(stateR, "proposal");
-  if(s->m && length(tmp)) // Proposal also requires model's auxiliaries.
+  if(!(flags & ERGM_STATE_NO_INIT_PROP) && s->m && length(tmp = getListElement(stateR, "proposal"))) // Proposal also requires model's auxiliaries.
     s->MHp = MHProposalInitialize(tmp, s->nwp, s->m->termarray->aux_storage);
 
   return s;

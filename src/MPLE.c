@@ -34,12 +34,12 @@
 /* *** don't forget tail -> head, and so this function accepts
    tails before heads now */
 
-SEXP MPLE_wrapper(ARGS_STATE,
+SEXP MPLE_wrapper(SEXP stateR,
                   // MPLE settings
                   SEXP wl,
 		  SEXP maxNumDyads, SEXP maxNumDyadTypes){
   GetRNGstate(); /* Necessary for R random number generator */
-  ErgmState *s = ErgmStateInit(YES_STATE);
+  ErgmState *s = ErgmStateInit(stateR, 0);
 
   Network *nwp = s->nwp;
   Model *m = s->m;

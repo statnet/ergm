@@ -34,13 +34,13 @@ unsigned int hashNetStatRow(double *newRow, unsigned int rowLength,
  possible network is visited.
  *****************/
 
-SEXP AllStatistics(ARGS_STATE,
-                  // Allstats settings
-                  SEXP maxNumDyadTypes){
+SEXP AllStatistics(SEXP stateR,
+                   // Allstats settings
+                   SEXP maxNumDyadTypes){
 
   /* Step 1:  Initialize empty network and initialize model */
   GetRNGstate(); /* Necessary for R random number generator */
-  ErgmState *s = ErgmStateInit(YES_STATE);
+  ErgmState *s = ErgmStateInit(stateR, ERGM_STATE_NO_INIT_PROP);
 
   Network *nwp = s->nwp;
   Model *m = s->m;

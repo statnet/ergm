@@ -91,6 +91,7 @@ MHProposal *MHProposalInitialize(SEXP pR, Network *nwp, void **aux_storage){
   if(MHp->ntoggles==MH_FAILED){
     REprintf("MH proposal function's initial network configuration is one from which no toggle(s) can be proposed.\n");
     MHp->toggletail = MHp->togglehead = NULL; // To be safe.
+    MHp->u_func = NULL; // Important, since the callback was never installed.
     MHProposalDestroy(MHp, nwp);
     return NULL;
   }

@@ -23,14 +23,14 @@
 
  and don't forget that tail -> head
 *****************/
-SEXP WtMCMC_wrapper(ARGS_WTSTATE,
+SEXP WtMCMC_wrapper(SEXP stateR,
                     // MCMC settings
                     SEXP eta, SEXP samplesize,
                     SEXP burnin, SEXP interval,
                     SEXP maxedges,
                     SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  WtErgmState *s = WtErgmStateInit(YES_WTSTATE);
+  WtErgmState *s = WtErgmStateInit(stateR, 0);
 
   WtModel *m = s->m;
   WtMHProposal *MHp = s->MHp;
@@ -266,7 +266,7 @@ MCMCStatus WtMetropolisHastings (WtErgmState *s,
 
 /* *** don't forget tail -> head */
 
-SEXP WtMCMCPhase12 (ARGS_WTSTATE,
+SEXP WtMCMCPhase12 (SEXP stateR,
                     // Phase12 settings
                     SEXP theta0,
                     SEXP samplesize, SEXP burnin, SEXP interval,
@@ -274,7 +274,7 @@ SEXP WtMCMCPhase12 (ARGS_WTSTATE,
                     SEXP maxedges,
                     SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  WtErgmState *s = WtErgmStateInit(YES_WTSTATE);
+  WtErgmState *s = WtErgmStateInit(stateR, 0);
 
   WtModel *m = s->m;
   WtMHProposal *MHp = s->MHp;

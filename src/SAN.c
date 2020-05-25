@@ -21,7 +21,7 @@
  Wrapper for a call from R.
 *****************/
 
-SEXP SAN_wrapper(ARGS_STATE,
+SEXP SAN_wrapper(SEXP stateR,
                  // MCMC settings
                  SEXP tau,
                  SEXP samplesize, SEXP nsteps,
@@ -33,7 +33,7 @@ SEXP SAN_wrapper(ARGS_STATE,
   GetRNGstate();  /* R function enabling uniform RNG */
   unsigned int nstats = length(statindices), noffsets = length(offsetindices);
   
-  ErgmState *s = ErgmStateInit(YES_STATE);
+  ErgmState *s = ErgmStateInit(stateR, 0);
   MHProposal *MHp = s->MHp;
 
   SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*nstats));

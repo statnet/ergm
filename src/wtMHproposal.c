@@ -55,7 +55,7 @@ WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage
   MHp->f_func=(void (*)(WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
   fn[1] = 'x';
   MHp->x_func=(void (*)(unsigned int type, void *data, WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
-    
+
   SEXP tmp = getListElement(pR, "inputs");
   MHp->inputs=length(tmp) ? REAL(tmp) : NULL;
   tmp = getListElement(pR, "iinputs");
@@ -83,6 +83,7 @@ WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage
     REprintf("MH proposal function's initial network configuration is one from which no toggle(s) can be proposed.\n");
     MHp->toggletail = MHp->togglehead = NULL; // To be safe.
     MHp->toggleweight = NULL;
+    MHp->u_func = NULL; // Important, since the callback was never installed.
     WtMHProposalDestroy(MHp, nwp);
     return NULL;
   }

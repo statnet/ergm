@@ -14,9 +14,10 @@
  Wrapper for a call from R.  Return the statistics when of the observed graph.
 *****************/
 
-SEXP network_stats_wrapper(ARGS_STATE){
+SEXP network_stats_wrapper(SEXP stateR){
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmState *s = ErgmStateInit(YES_STATE_EMPTY_NO_INIT_S);
+  ErgmState *s = ErgmStateInit(stateR,
+                               ERGM_STATE_EMPTY_NET | ERGM_STATE_NO_INIT_S | ERGM_STATE_NO_INIT_PROP);
 
   Model *m = s->m;
 

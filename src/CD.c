@@ -22,13 +22,13 @@
 
  and don't forget that tail -> head
 *****************/
-SEXP CD_wrapper(ARGS_STATE,
+SEXP CD_wrapper(SEXP stateR,
                 // MCMC settings
                 SEXP eta, SEXP samplesize, 
                 SEXP CDparams,
                 SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
-  ErgmState *s = ErgmStateInit(YES_STATE);
+  ErgmState *s = ErgmStateInit(stateR, 0);
 
   Model *m = s->m;
   MHProposal *MHp = s->MHp;

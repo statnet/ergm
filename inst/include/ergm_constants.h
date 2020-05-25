@@ -7,6 +7,10 @@ typedef enum MCMCStatus_enum {
   MCMC_MH_FAILED = 2
 } MCMCStatus;
 
+#define ERGM_STATE_EMPTY_NET 1u
+#define ERGM_STATE_NO_INIT_S 2u
+#define ERGM_STATE_NO_INIT_PROP 4u
+
 typedef enum ErgmStateExtFlag_enum {
   ERGM_STATE_R_CHANGED = -1,
   ERGM_STATE_C_CHANGED = +1,

@@ -14,9 +14,10 @@
  Wrapper for a call from R.  Return the statistics when of the observed graph.
 *****************/
 
-SEXP wt_network_stats_wrapper(ARGS_WTSTATE){
+SEXP wt_network_stats_wrapper(SEXP stateR){
   GetRNGstate();  /* R function enabling uniform RNG */
-  WtErgmState *s = WtErgmStateInit(YES_WTSTATE_EMPTY_NO_INIT_S);
+  WtErgmState *s = WtErgmStateInit(stateR,
+                                   ERGM_STATE_EMPTY_NET | ERGM_STATE_NO_INIT_S | ERGM_STATE_NO_INIT_PROP);
 
   WtModel *m = s->m;
 
