@@ -1513,9 +1513,6 @@ void edgewise_path_recurse(Network *nwp, Vertex dest, Vertex curnode,
     if(newavail!=NULL)
       Free(newavail);
   }
-
-  /*Check for interrupts (if recursion is taking way too long...)*/
-  R_CheckUserInterrupt();
 }
 
 /*****************
