@@ -103,6 +103,8 @@ SEXP AllStatistics(SEXP stateR,
   return outl;
 }
 
+static unsigned int interrupt_steps = 0; // It's OK if this overflows.
+
 void RecurseOffOn(ErgmState *s,
        Vertex *nodelist1, 
        Vertex *nodelist2, 
@@ -114,7 +116,7 @@ void RecurseOffOn(ErgmState *s,
        unsigned int *weightsvector,
        unsigned int maxNumDyadTypes) {
 
-  R_CheckUserInterrupt();
+  R_CheckUserInterruptEvery(1024u, interrupt_steps++);
   Network *nwp = s->nwp;
   Model *m = s->m;
 

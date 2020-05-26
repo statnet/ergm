@@ -146,7 +146,7 @@ void MpleInit_hash_wl_RLE(ErgmState *s, int *responsevec, double *covmat, int *w
     RLERun r=0;
     
     for(Dyad i = 0; i < MIN(maxNumDyads,dc); i++, d=NextRLEBDM1D(d, step, wl, &r)){
-      R_CheckUserInterrupt();
+      R_CheckUserInterruptEvery(1024u, i);
       Dyad2TH(&t, &h, d, N_NODES);
       
       int response = IS_OUTEDGE(t,h);

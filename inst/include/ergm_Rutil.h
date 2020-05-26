@@ -66,4 +66,6 @@ static inline void *R_calloc_helper(size_t n, size_t size){
 }
 #define R_calloc(n, type) ((type*) R_calloc_helper((n), sizeof(type)))
 
+#define R_CheckUserInterruptEvery(freq, iter) if((iter)%(freq) == 0) R_CheckUserInterrupt();
+
 #endif 

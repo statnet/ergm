@@ -452,6 +452,7 @@ MCMCStatus MCMCSamplePhase12(ErgmState *s,
     /*      if (verbose){ Rprintf("step %d from %d:\n",i, samplesize);} */
     /* This then adds the change statistics to these values */
     tottaken += staken;
+
     R_CheckUserInterrupt();
 #ifdef Win32
     if( ((100*i) % samplesize)==0 && samplesize > 500){
