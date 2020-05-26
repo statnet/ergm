@@ -334,6 +334,21 @@ ergm_state_receive.ergm_state_full <- function(x, ...){
   NextMethod("ergm_state_receive")
 }
 
+#' Deallocate the C data structures corresponding to an [`ergm_state`] left over from a [.Call()] run.
+#'
+#' This function is exported for use by other packages that use the `ErgmState` C API. It should be used as a part of an [on.exit()] call in the function that calls the C routine if the C routine contains `R_CheckUserInterrupt()` calls, in order to ensure that memory is freed if the routine is interrupted.
+#'
+#' @examples
+#' \dontrun{
+#' long_run <- function(...){
+#'   on.exit(ergm_Cstate_clear())
+#'   .Call("long_run",...)
+#' }
+#' }
+#'
+#' @keywords internal
+#' @seealso [`ergm_state`]
+#' @export
 ergm_Cstate_clear <- function(){
   .Call("ErgmStateArrayClear", PACKAGE="ergm")
   .Call("ErgmWtStateArrayClear", PACKAGE="ergm")
