@@ -10,26 +10,19 @@
 #ifndef _ERGM_WTMCMC_H_
 #define _ERGM_WTMCMC_H_
 
-#include "ergm_constants.h"
 #include "ergm_wtedgetree.h"
 #include "ergm_wtchangestat.h"
 #include "ergm_wtMHproposal.h"
 #include "ergm_wtmodel.h"
 #include "ergm_wtstate.h"
 
-MCMCStatus WtMCMCSample(WtErgmState *s,
-			   double *eta, double *networkstatistics, 
-			   int samplesize, int burnin, 
-			   int interval, int nmax, int verbose);
-MCMCStatus WtMetropolisHastings(WtErgmState *s,
-				   double *eta, double *statistics, 
-				   int nsteps, int *staken,
-				   int verbose);
+#include "ergm_wttype_defs_common.h"
 
-MCMCStatus WtMCMCSamplePhase12(WtErgmState *s,
-                               double *eta, unsigned int n_param, double gain,
-                               int nphase1, int nsubphases, double *networkstatistics,
-                               int samplesize, int burnin,
-                               int interval, int verbose);
+#define DISPATCH_MCMC_wrapper WtMCMC_wrapper
+#define DISPATCH_MCMCSample WtMCMCSample
+#define DISPATCH_MetropolisHastings WtMetropolisHastings
+#define DISPATCH_MCMCPhase12 WtMCMCPhase12
+#define DISPATCH_MCMCSamplePhase12 WtMCMCSamplePhase12
 
+#include "MCMC.h.template.do_not_include_directly.h"
 #endif

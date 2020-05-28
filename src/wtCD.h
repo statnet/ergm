@@ -12,15 +12,39 @@
 
 #include "wtMCMC.h"
 
-MCMCStatus WtCDSample(WtErgmState *s,
-                        double *eta, double *networkstatistics, 
-			int samplesize, int *CDparams,
-                        Vertex *undotail, Vertex *undohead, double *undoweight, double *extraworkspace,
-                        int verbose);
-MCMCStatus WtCDStep(WtErgmState *s,
-                      double *eta, double *networkstatistics,
-                      int *CDparams, int *staken,
-                      Vertex *undotail, Vertex *undohead, double *undoweight, double *extraworkspace,
-                      int verbose);
+#define CD_UNDOS_ALLOC \
+  Vertex *undotail = Calloc(MHp->ntoggles * INTEGER(CDparams)[0] * INTEGER(CDparams)[1], Vertex); \
+  Vertex *undohead = Calloc(MHp->ntoggles * INTEGER(CDparams)[0] * INTEGER(CDparams)[1], Vertex); \
+  double *undoweight = Calloc(MHp->ntoggles * INTEGER(CDparams)[0] * INTEGER(CDparams)[1], double);
+
+#define CD_UNDOS_PASS undotail, undohead, undoweight
+#define CD_UNDOS_FREE \
+  Free(undotail);     \
+  Free(undohead);     \
+  Free(undoweight);
+
+#define CD_UNDOS_RECEIVE Vertex *undotail, Vertex *undohead, double *undoweight
+
+#define CD_PROP_TOGGLE_PROVISIONAL                                      \
+  Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];                    \
+  double w=MHp->toggleweight[i];                                        \
+  undotail[ntoggled]=t;                                                 \
+  undohead[ntoggled]=h;                                                 \
+  undoweight[ntoggled]=WtGetEdge(MHp->toggletail[i], MHp->togglehead[i], nwp); \
+  ntoggled++;                                                           \
+  WtSetEdge(t, h, w, nwp);
+
+#define CD_PROP_UNDO_TOGGLE(idvar)                              \
+  Vertex t = undotail[idvar], h = undohead[idvar];              \
+  double w = undoweight[idvar];                                 \
+  /* FIXME: This should be done in one call, but it's very easy \
+     to make a fencepost error here. */                         \
+  WtSetEdge(t, h, w, nwp);
+
+#define DISPATCH_CD_wrapper WtCD_wrapper
+#define DISPATCH_CDSample WtCDSample
+#define DISPATCH_CDStep WtCDStep
+
+#include "CD.h.template.do_not_include_directly.h"
 
 #endif

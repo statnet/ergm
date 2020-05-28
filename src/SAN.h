@@ -10,28 +10,11 @@
 #ifndef SAN_H
 #define SAN_H
 
-#include "ergm_edgetree.h"
-#include "ergm_changestat.h"
-#include "ergm_MHproposal.h"
-#include "ergm_model.h"
 #include "MCMC.h"
 
-MCMCStatus SANSample(ErgmState *s,
-                     double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
-                     int samplesize, int nsteps,
-                     int nstats,
-                     int *statindices,
-                     int noffsets,
-                     int *offsetindices,
-                     double *offsets,
-                     int verbose);
-MCMCStatus SANMetropolisHastings(ErgmState *s,
-                                 double *invcov, double *tau, double *statistics, double *prop_statistics,
-                                 int nsteps, int *staken,
-                                 int nstats,
-                                 int *statindices,
-                                 int noffsets,
-                                 int *offsetindices,
-                                 double *offsets,
-                                 int verbose);
+#define DISPATCH_SANMetropolisHastings SANMetropolisHastings
+#define DISPATCH_SANSample SANSample
+#define DISPATCH_SAN_wrapper SAN_wrapper
+
+#include "SAN.h.template.do_not_include_directly.h"
 #endif
