@@ -33,7 +33,7 @@ static inline void WtInitStats(WtNetwork *nwp, WtModel *m){
   // Now, bind the terms to the network through the callback API.
   WtEXEC_THROUGH_TERMS(m, {
       if(mtp->u_func && (!m->noinit_s || !mtp->s_func)) // Skip if noinit_s is set and s_func is present.
-        AddOnWtNetworkToggle(nwp, (OnWtNetworkToggle) mtp->u_func, mtp, INT_MAX);
+        AddOnWtNetworkEdgeChange(nwp, (OnWtNetworkEdgeChange) mtp->u_func, mtp, INT_MAX);
     });
 }
 
@@ -46,7 +46,7 @@ static inline void WtDestroyStats(WtNetwork *nwp, WtModel *m){
   WtEXEC_THROUGH_TERMS(m, {
       if(!m->noinit_s || !mtp->s_func){ // Skip if noinit_s is set and s_func is present.
         if(mtp->u_func)
-          DeleteOnWtNetworkToggle(nwp, (OnWtNetworkToggle) mtp->u_func, mtp);
+          DeleteOnWtNetworkEdgeChange(nwp, (OnWtNetworkEdgeChange) mtp->u_func, mtp);
         if(mtp->f_func)
           (*(mtp->f_func))(mtp, nwp);  /* Call f_??? function */
       }

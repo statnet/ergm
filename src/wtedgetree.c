@@ -227,14 +227,14 @@ int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp){
 }
 
 /*****************
- void AddOnWtNetworkToggle
+ void AddOnWtNetworkEdgeChange
 
  Insert a specified toggle callback at the specified position.
 *****************/
-void AddOnWtNetworkToggle(WtNetwork *nwp, OnWtNetworkToggle callback, void *payload, unsigned int pos){
+void AddOnWtNetworkEdgeChange(WtNetwork *nwp, OnWtNetworkEdgeChange callback, void *payload, unsigned int pos){
   if(nwp->n_on_edge_change+1 > nwp->max_on_edge_change){
     nwp->max_on_edge_change = MAX(nwp->max_on_edge_change,1)*2;
-    nwp->on_edge_change = Realloc(nwp->on_edge_change, nwp->max_on_edge_change, OnWtNetworkToggle);
+    nwp->on_edge_change = Realloc(nwp->on_edge_change, nwp->max_on_edge_change, OnWtNetworkEdgeChange);
     nwp->on_edge_change_payload = Realloc(nwp->on_edge_change_payload, nwp->max_on_edge_change, void*);
   }
 
@@ -252,13 +252,13 @@ void AddOnWtNetworkToggle(WtNetwork *nwp, OnWtNetworkToggle callback, void *payl
 }
 
 /*****************
- void DeleteOnWtNetworkToggle
+ void DeleteOnWtNetworkEdgeChange
 
  Delete a specified toggle callback from the list and move the other
  callbacks up the list. Note that both callback and payload pointers
  must match.
 *****************/
-void DeleteOnWtNetworkToggle(WtNetwork *nwp, OnWtNetworkToggle callback, void *payload){
+void DeleteOnWtNetworkEdgeChange(WtNetwork *nwp, OnWtNetworkEdgeChange callback, void *payload){
   unsigned int i;
   for(i = 0; i < nwp->n_on_edge_change; i++)
     if(nwp->on_edge_change[i]==callback && nwp->on_edge_change_payload[i]==payload) break;

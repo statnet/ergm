@@ -43,7 +43,7 @@ typedef struct WtNetworkstruct {
   void (**on_edge_change)(Vertex, Vertex, double, void*, struct WtNetworkstruct*, double);
   void **on_edge_change_payload;
 } WtNetwork;
-typedef void (*OnWtNetworkToggle)(Vertex, Vertex, double, void*, WtNetwork*, double);
+typedef void (*OnWtNetworkEdgeChange)(Vertex, Vertex, double, void*, WtNetwork*, double);
 
 /* Initialization and destruction. */
 WtNetwork *WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights, Edge nedges,
@@ -83,8 +83,8 @@ int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp);
 /* void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges); */
 
 /* Callback management. */
-void AddOnWtNetworkToggle(WtNetwork *nwp, OnWtNetworkToggle callback, void *payload, unsigned int pos);
-void DeleteOnWtNetworkToggle(WtNetwork *nwp, OnWtNetworkToggle callback, void *payload);
+void AddOnWtNetworkEdgeChange(WtNetwork *nwp, OnWtNetworkEdgeChange callback, void *payload, unsigned int pos);
+void DeleteOnWtNetworkEdgeChange(WtNetwork *nwp, OnWtNetworkEdgeChange callback, void *payload);
 
 #include "ergm_wtedgetree_inline.do_not_include_directly.h"
 
