@@ -33,7 +33,7 @@ SEXP DISPATCH_CD_wrapper(SEXP stateR,
   DISPATCH_MHProposal *MHp = s->MHp;
 
   CD_UNDOS_ALLOC;
-  double *extraworkspace = Calloc(m->n_stats, double);
+  double *extraworkspace = R_calloc(m->n_stats, double);
 
   SEXP sample = PROTECT(allocVector(REALSXP, asInteger(samplesize)*m->n_stats));
   memset(REAL(sample), 0, asInteger(samplesize)*m->n_stats*sizeof(double));
@@ -48,9 +48,6 @@ SEXP DISPATCH_CD_wrapper(SEXP stateR,
   SEXP outl = PROTECT(mkNamed(VECSXP, outn));
   SET_VECTOR_ELT(outl, 0, status);
   SET_VECTOR_ELT(outl, 1, sample);
-
-  CD_UNDOS_FREE;
-  Free(extraworkspace);
 
   DISPATCH_ErgmStateDestroy(s);  
   PutRNGstate();  /* Disable RNG before returning */
@@ -100,7 +97,8 @@ MCMCStatus DISPATCH_CDSample(DISPATCH_ErgmState *s,
     if(DISPATCH_CDStep(s, eta, networkstatistics, CDparams, &staken, CD_UNDOS_PASS, extraworkspace,
 		verbose)!=MCMC_OK)
       return MCMC_MH_FAILED;
-    
+
+    R_CheckUserInterruptEvery(16L, i);
 #ifdef Win32
     if( ((100*i) % samplesize)==0 && samplesize > 500){
       R_FlushConsole();

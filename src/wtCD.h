@@ -13,15 +13,11 @@
 #include "wtMCMC.h"
 
 #define CD_UNDOS_ALLOC \
-  Vertex *undotail = Calloc(MHp->ntoggles * INTEGER(CDparams)[0] * INTEGER(CDparams)[1], Vertex); \
-  Vertex *undohead = Calloc(MHp->ntoggles * INTEGER(CDparams)[0] * INTEGER(CDparams)[1], Vertex); \
-  double *undoweight = Calloc(MHp->ntoggles * INTEGER(CDparams)[0] * INTEGER(CDparams)[1], double);
+  Vertex *undotail = R_calloc(MHp->ntoggles * INTEGER(CDparams)[0] * INTEGER(CDparams)[1], Vertex); \
+  Vertex *undohead = R_calloc(MHp->ntoggles * INTEGER(CDparams)[0] * INTEGER(CDparams)[1], Vertex); \
+  double *undoweight = R_calloc(MHp->ntoggles * INTEGER(CDparams)[0] * INTEGER(CDparams)[1], double);
 
 #define CD_UNDOS_PASS undotail, undohead, undoweight
-#define CD_UNDOS_FREE \
-  Free(undotail);     \
-  Free(undohead);     \
-  Free(undoweight);
 
 #define CD_UNDOS_RECEIVE Vertex *undotail, Vertex *undohead, double *undoweight
 
