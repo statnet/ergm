@@ -13,7 +13,7 @@ library(ergm)
 theta0err<--1 # Perturbation in the initial values
 maxit<-60 # Maximum number of iterations
 tolerance<-0.01 # Result must be within 1% of truth.
-tolerance.CD<-0.1 # Result must be within 10% of truth.
+tolerance.CD<-0.15 # Result must be within 15% of truth.
 
 n<-20 # Number of nodes
 b<-7 # Bipartite split
