@@ -25,4 +25,5 @@ MCMCStatus DISPATCH_SANMetropolisHastings(DISPATCH_ErgmState *s,
                                    int noffsets,
                                    int *offsetindices,
                                    double *offsets,
+                                          double *deltainvsig,
                                    int verbose);

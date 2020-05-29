@@ -106,7 +106,9 @@ MCMCStatus DISPATCH_SANSample(DISPATCH_ErgmState *s,
 
   unsigned int interval = nsteps / samplesize; // Integer division: rounds down.
   unsigned int burnin = nsteps - (samplesize-1)*interval;
-  
+
+  double *deltainvsig = R_calloc(nstats, double);
+
   /*********************
    Burn in step.  While we're at it, use nsteps statistics to 
    prepare covariance matrix for Mahalanobis distance calculations 
@@ -114,7 +116,7 @@ MCMCStatus DISPATCH_SANSample(DISPATCH_ErgmState *s,
    *********************/
   /*  Catch more edges than we can return */
   if(DISPATCH_SANMetropolisHastings(s, invcov, tau, networkstatistics, prop_networkstatistics, burnin, &staken,
-			     nstats, statindices, noffsets, offsetindices, offsets,
+                                    nstats, statindices, noffsets, offsetindices, offsets, deltainvsig,
                              verbose)!=MCMC_OK)
     return MCMC_MH_FAILED;
 
@@ -141,7 +143,7 @@ MCMCStatus DISPATCH_SANSample(DISPATCH_ErgmState *s,
       
       if(DISPATCH_SANMetropolisHastings(s, invcov, tau, networkstatistics, prop_networkstatistics,
                                  interval, &staken, nstats, statindices, noffsets, offsetindices, offsets,
-                                 verbose)!=MCMC_OK)
+                                        deltainvsig, verbose)!=MCMC_OK)
 	return MCMC_MH_FAILED;
       tottaken += staken;
       if (verbose){
@@ -155,6 +157,7 @@ MCMCStatus DISPATCH_SANSample(DISPATCH_ErgmState *s,
         "%d steps out of a possible %d\n",  ptottaken-tottaken, i); 
       }
 
+      R_CheckUserInterrupt();
 #ifdef Win32
       if( ((100*i) % samplesize)==0 && samplesize > 500){
 	R_FlushConsole();
@@ -199,14 +202,13 @@ MCMCStatus DISPATCH_SANMetropolisHastings(DISPATCH_ErgmState *s,
                                    int noffsets,
                                    int *offsetindices,
                                    double *offsets,
+                                          double *deltainvsig,
                                    int verbose){
   DISPATCH_Network *nwp = s->nwp;
   DISPATCH_Model *m = s->m;
   DISPATCH_MHProposal *MHp = s->MHp;
 
   unsigned int taken=0, unsuccessful=0;
-  double *deltainvsig;
-  deltainvsig = (double *)Calloc(nstats, double);
   
 /*  if (verbose)
     Rprintf("Now proposing %d DISPATCH_MH steps... ", nsteps); */
@@ -299,8 +301,6 @@ MCMCStatus DISPATCH_SANMetropolisHastings(DISPATCH_ErgmState *s,
       }
     }
   }
-
-  Free(deltainvsig);
 
   *staken = taken;
   return MCMC_OK;
