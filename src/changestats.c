@@ -2480,9 +2480,6 @@ D_CHANGESTAT_FN(d_edgecov) {
     /*Get the initial edge state*/
     edgeflag=IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
     /*Get the covariate value*/
-    /*    val = INPUT_ATTRIB[(head-1-nrow)+(tail-1)*ncols]; */
-    /*OLD COMMENT:  Note: h/t are backwards!*/
-    /* *** despite the comment above, I swapped heads/tails in the line below. is this right? */
     val = INPUT_ATTRIB[(head-1-noffset)*nrow+(tail-1)];  
     /*  Rprintf("tail %d head %d nrow %d val %f\n", tail, head, nrow, val); */
     /*Update the change statistic, based on the toggle type*/
