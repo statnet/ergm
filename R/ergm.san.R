@@ -212,8 +212,16 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
   }
 
   proposal <- if(inherits(constraints, "ergm_proposal")) constraints
-              else ergm_proposal(constraints,arguments=control$SAN.prop.args,
-                                 nw=nw, weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
+              else{
+                # Inherit constraints from nw if needed.
+                tmp <- .handle.auto.constraints(nw, constraints, NULL, NULL)
+                nw <- tmp$nw; constraints <- tmp$constraints
+                ergm_proposal(constraints,arguments=control$SAN.prop.args,
+                              nw=nw, weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
+              }
+
+  if(length(proposal$auxiliaries) && !length(m$slots.extra.aux$proposal))
+    stop("The proposal appears to be requesting auxiliaries, but the initialized model does not export any proposal auxiliaries.")
 
   offset.indicators <- model$etamap$offsetmap
   
