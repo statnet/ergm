@@ -242,7 +242,7 @@ of a non-identifiable (multicollinear) model. If singular,
 depending on \code{MPLE.singular} issue a warning, an error, or a
 message.}
 
-\item{MCMC.prop.weights, obs.MCMC.prop.weights}{Specifies the proposal
+\item{MCMC.prop.weights}{Specifies the proposal
 distribution used in the MCMC Metropolis-Hastings algorithm.  Possible
 choices depending on selected \code{reference} and \code{constraints}
 arguments of the \code{\link[=ergm]{ergm()}} function, but often include \code{"TNT"}
@@ -255,17 +255,10 @@ a dyad with or without a tie as a candidate for toggling, whereas the
 interpretation of \code{random} may change according to the constraints in
 place.  When no constraints are in place, the default is TNT, which appears
 to improve Markov chain mixing particularly for networks with a low edge
-density, as is typical of many realistic social networks.
+density, as is typical of many realistic social networks.}
 
-\code{obs.MCMC.prop.weights}, if given separately, specifies the weights to
-be used for the constrained MCMC when missing dyads are present, defaulting
-to the same as \code{MCMC.prop.weights}.}
-
-\item{MCMC.prop.args, obs.MCMC.prop.args}{An alternative, direct way of
-specifying additional arguments to proposal. \code{obs.MCMC.prop.args}, if
-given separately, specifies the weights to be used for the constrained MCMC
-when missing dyads are present, defaulting to the same as
-\code{MCMC.prop.args}.}
+\item{MCMC.prop.args}{An alternative, direct way of
+specifying additional arguments to proposal.}
 
 \item{MCMC.interval}{Number of proposals between sampled statistics.
 Increasing interval will reduces the autocorrelation in the sample, and may
@@ -365,7 +358,7 @@ iterations and relative tolerance to use within the \code{optim} rountine in
 the MLE optimization. Note that by default, ergm uses \code{trust}, and
 falls back to \code{optim} only when \code{trust} fails.}
 
-\item{obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.burnin.min}{Sample size, burnin, and interval parameters for the MCMC sampling used when
+\item{obs.MCMC.prop.weights, obs.MCMC.prop.args, obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.burnin.min}{Corresponding MCMC parameters and settings used for the constrained sample when
 unobserved data are present in the estimation routine.}
 
 \item{obs.MCMC.impute.min_informative, obs.MCMC.impute.default_density}{Controls for imputation of missing dyads for initializing MCMC

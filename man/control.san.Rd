@@ -55,14 +55,23 @@ simulated annealing runs.}
 
 \item{SAN.max.maxedges}{Hard upper bound on the number of edges in the network.}
 
-\item{SAN.prop.weights}{Specifies the method to allocate probabilities of
-being proposed to dyads. Defaults to \code{"default"}, which picks a
-reasonable default for the specified constraint.  Other possible values are
-\code{"TNT"}, \code{"random"}, and \code{"nonobserved"}, though not all
-values may be used with all possible constraints.}
+\item{SAN.prop.weights}{Specifies the proposal
+distribution used in the SAN Metropolis-Hastings algorithm.  Possible
+choices depending on selected \code{reference} and \code{constraints}
+arguments of the \code{\link[=ergm]{ergm()}} function, but often include \code{"TNT"}
+and \code{"random"}, and the \code{"default"} is to use the one with the
+highest priority available.
 
-\item{SAN.prop.args}{An alternative, direct way of specifying additional
-arguments to proposal.}
+The \code{TNT} (tie / no tie) option puts roughly equal weight on selecting
+a dyad with or without a tie as a candidate for toggling, whereas the
+\code{random} option puts equal weight on all possible dyads, though the
+interpretation of \code{random} may change according to the constraints in
+place.  When no constraints are in place, the default is TNT, which appears
+to improve Markov chain mixing particularly for networks with a low edge
+density, as is typical of many realistic social networks.}
+
+\item{SAN.prop.args}{An alternative, direct way of
+specifying additional arguments to proposal.}
 
 \item{SAN.packagenames}{Names of packages in which to look for change
 statistic functions in addition to those autodetected. This argument should
