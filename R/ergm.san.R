@@ -157,7 +157,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   tmp <- .handle.auto.constraints(nw, constraints, NULL, NULL)
   nw <- tmp$nw; constraints <- tmp$constraints
 
-  proposal<-ergm_proposal(constraints,arguments=control$SAN.prop.args,nw=nw,weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
+  proposal<-ergm_proposal(constraints,arguments=control$SAN.prop.args,nw=nw, hints=control$SAN.prop, weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
   model <- ergm_model(formula, nw, response=response, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
   proposal$aux.slots <- model$slots.extra.aux$proposal
 
@@ -217,7 +217,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
                 tmp <- .handle.auto.constraints(nw, constraints, NULL, NULL)
                 nw <- tmp$nw; constraints <- tmp$constraints
                 ergm_proposal(constraints,arguments=control$SAN.prop.args,
-                              nw=nw, weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
+                              nw=nw, hints=control$SAN.prop, weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
               }
 
   if(length(proposal$auxiliaries) && !length(m$slots.extra.aux$proposal))

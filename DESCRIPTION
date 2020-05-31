@@ -1,5 +1,5 @@
 Package: ergm
-Version: 4.0-5536
+Version: 4.0-5537
 Date: 2020-05-31
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
@@ -56,6 +56,7 @@ Encoding: UTF-8
 Collate: 
     'InitErgm.bipartite.R'
     'InitErgmConstraint.R'
+    'InitErgmConstraint.hints.R'
     'InitErgmProposal.R'
     'InitErgmProposal.dyadnoise.R'
     'InitErgmReference.R'

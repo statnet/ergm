@@ -49,6 +49,7 @@ control.logLik.ergm<-function(nsteps=20,
                               obs.MCMC.interval=MCMC.interval,
                               obs.MCMC.burnin=MCMC.burnin,
                               
+                              MCMC.prop=NULL,
                               MCMC.prop.weights=NULL,
                               MCMC.prop.args=NULL,
 

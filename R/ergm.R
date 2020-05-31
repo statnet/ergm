@@ -571,7 +571,7 @@ ergm <- function(formula, response=NULL,
     warn(paste0("The default Bernoulli reference distribution operates in the binary (",sQuote("response=NULL"),") mode only. Did you specify the ",sQuote("reference")," argument?"))
   }
     
-    proposal <- ergm_proposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
+    proposal <- ergm_proposal(constraints, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
   }else proposal <- constraints
   
   if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
@@ -584,7 +584,7 @@ ergm <- function(formula, response=NULL,
   if(!is(obs.constraints, "ergm_proposal")){
     if(!is.null(constraints.obs)){
       if (verbose) message("Initializing constrained Metropolis-Hastings proposal: ", appendLF=FALSE)
-      proposal.obs <- ergm_proposal(constraints.obs, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
+      proposal.obs <- ergm_proposal(constraints.obs, hints=control$obs.MCMC.prop, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
       if (verbose) message(sQuote(paste0(proposal.obs$pkgname,":MH_",proposal.obs$name)), appendLF=FALSE)
       
       if(!is.null(proposal.obs$auxiliaries)){

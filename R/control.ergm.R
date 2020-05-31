@@ -224,7 +224,7 @@
 #' falls back to \code{optim} only when \code{trust} fails.
 #'
 #' @param
-#'   obs.MCMC.prop.weights,obs.MCMC.prop.args,obs.MCMLE.effectiveSize,obs.MCMC.samplesize,obs.MCMC.burnin,obs.MCMC.interval,obs.MCMC.mul,obs.MCMC.samplesize.mul,obs.MCMC.burnin.mul,obs.MCMC.interval.mul,obs.MCMC.effectiveSize,obs.MCMLE.burnin,obs.MCMLE.interval,obs.MCMLE.samplesize,obs.MCMLE.samplesize.per_theta,obs.MCMLE.samplesize.min
+#'   obs.MCMC.prop,obs.MCMC.prop.weights,obs.MCMC.prop.args,obs.MCMLE.effectiveSize,obs.MCMC.samplesize,obs.MCMC.burnin,obs.MCMC.interval,obs.MCMC.mul,obs.MCMC.samplesize.mul,obs.MCMC.burnin.mul,obs.MCMC.interval.mul,obs.MCMC.effectiveSize,obs.MCMLE.burnin,obs.MCMLE.interval,obs.MCMLE.samplesize,obs.MCMLE.samplesize.per_theta,obs.MCMLE.samplesize.min
 #'   Corresponding MCMC parameters and settings used for the constrained sample when
 #'   unobserved data are present in the estimation routine. By default, they are controlled by the `*.mul`
 #'   parameters, as fractions of the corresponding settings for the
@@ -485,6 +485,7 @@ control.ergm<-function(drop=TRUE,
                        MPLE.singular=c("warning","message","error"),
                        MPLE.singular.rcond=.Machine$double.eps,
 
+                       MCMC.prop=trim_env(~TNT),
                        MCMC.prop.weights="default", MCMC.prop.args=list(),
                        MCMC.interval=NULL,
                        MCMC.burnin=EVL(MCMC.interval*16),
@@ -535,7 +536,7 @@ control.ergm<-function(drop=TRUE,
                        obs.MCMC.interval=round(MCMC.interval*obs.MCMC.interval.mul),
                        obs.MCMC.burnin.mul=sqrt(obs.MCMC.mul),
                        obs.MCMC.burnin=round(MCMC.burnin*obs.MCMC.burnin.mul),
-                       obs.MCMC.prop.weights=MCMC.prop.weights, obs.MCMC.prop.args=MCMC.prop.args,
+                       obs.MCMC.prop=MCMC.prop, obs.MCMC.prop.weights=MCMC.prop.weights, obs.MCMC.prop.args=MCMC.prop.args,
                        obs.MCMC.impute.min_informative = function(nw) network.size(nw)/4,
                        obs.MCMC.impute.default_density = function(nw) 2/network.size(nw),
 
@@ -729,7 +730,7 @@ control.toplevel<-function(..., myname= as.character(ult(sys.calls(), 2)[[1]])){
 }
 
 SCALABLE_MCMC_CONTROLS <- c("MCMC.burnin", "MCMC.interval")
-STATIC_MCMC_CONTROLS <- c("MCMC.samplesize", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.maxedges", "term.options", "obs.MCMC.mul", "obs.MCMC.samplesize.mul", "obs.MCMC.samplesize", "obs.MCMC.interval.mul", "obs.MCMC.interval", "obs.MCMC.burnin.mul", "obs.MCMC.burnin", "obs.MCMC.prop.weights", "obs.MCMC.prop.args", "term.options")
+STATIC_MCMC_CONTROLS <- c("MCMC.samplesize", "MCMC.prop", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.maxedges", "term.options", "obs.MCMC.mul", "obs.MCMC.samplesize.mul", "obs.MCMC.samplesize", "obs.MCMC.interval.mul", "obs.MCMC.interval", "obs.MCMC.burnin.mul", "obs.MCMC.burnin", "obs.MCMC.prop", "obs.MCMC.prop.weights", "obs.MCMC.prop.args", "term.options")
 ADAPTIVE_MCMC_CONTROLS <- c("MCMC.effectiveSize", "MCMC.effectiveSize.damp", "MCMC.effectiveSize.maxruns", "MCMC.effectiveSize.base", "MCMC.effectiveSize.points", "MCMC.effectiveSize.burnin.pval", "obs.MCMC.effectiveSize")
 PARALLEL_MCMC_CONTROLS <- c("parallel","parallel.type","parallel.version.check")
 MPLE_CONTROLS <- c("MPLE.max.dyad.types","MPLE.samplesize","MPLE.type","MPLE.maxit")

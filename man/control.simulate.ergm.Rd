@@ -10,6 +10,7 @@
 control.simulate.formula.ergm(
   MCMC.burnin = MCMC.interval * 16,
   MCMC.interval = 1024,
+  MCMC.prop = trim_env(~TNT),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
   MCMC.effectiveSize = NULL,
@@ -34,6 +35,7 @@ control.simulate.formula.ergm(
 control.simulate(
   MCMC.burnin = MCMC.interval * 16,
   MCMC.interval = 1024,
+  MCMC.prop = trim_env(~TNT),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
   MCMC.effectiveSize = NULL,
@@ -58,6 +60,7 @@ control.simulate(
 control.simulate.formula(
   MCMC.burnin = MCMC.interval * 16,
   MCMC.interval = 1024,
+  MCMC.prop = trim_env(~TNT),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
   MCMC.effectiveSize = NULL,
@@ -110,20 +113,23 @@ typically is set to a fairly large number.}
 
 \item{MCMC.interval}{Number of proposals between sampled statistics.}
 
+\item{MCMC.prop}{Specifies the proposal (directly) and/or
+a series of "hints" about the structure of the model being
+sampled. The specification is in the form of a one-sided formula
+with hints separated by \code{+} operations. If the LHS exists and is
+a string, the proposal to be used is selected directly.
+
+A common and default "hint" is ~TNT (tie / no tie), indicating
+that the network is sparse and that the sample should put roughly
+equal weight on selecting a dyad with or without a tie as a
+candidate for toggling.}
+
 \item{MCMC.prop.weights}{Specifies the proposal
 distribution used in the MCMC Metropolis-Hastings algorithm.  Possible
 choices depending on selected \code{reference} and \code{constraints}
 arguments of the \code{\link[=ergm]{ergm()}} function, but often include \code{"TNT"}
 and \code{"random"}, and the \code{"default"} is to use the one with the
-highest priority available.
-
-The \code{TNT} (tie / no tie) option puts roughly equal weight on selecting
-a dyad with or without a tie as a candidate for toggling, whereas the
-\code{random} option puts equal weight on all possible dyads, though the
-interpretation of \code{random} may change according to the constraints in
-place.  When no constraints are in place, the default is TNT, which appears
-to improve Markov chain mixing particularly for networks with a low edge
-density, as is typical of many realistic social networks.}
+highest priority available.}
 
 \item{MCMC.prop.args}{An alternative, direct way of
 specifying additional arguments to proposal.}

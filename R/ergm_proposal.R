@@ -253,9 +253,9 @@ ergm_conlist <- function(object, nw){
     NVL(con$dependence) <- TRUE
     if(con$dependence && consign < 0) stop("Only dyad-independent costraints can have negative signs.")
     con$sign <- consign
+    NVL(con$priority) <- Inf
+    NVL(con$constrain) <- conname
 
-    if(is.null(con$constrain)) con$constrain <- conname
-    
     conlist[[length(conlist)+1]] <- con
     names(conlist)[length(conlist)] <- conname
   }
@@ -277,7 +277,7 @@ ergm_conlist <- function(object, nw){
 #' documentation for a similar argument for \code{\link{ergm}} and see
 #' [list of implemented constraints][ergm-constraints] for more information.
 #' @export
-ergm_proposal.formula <- function(object, arguments, nw, weights="default", class="c", reference=~Bernoulli, response=NULL, ...) {
+ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), weights="default", class="c", reference=~Bernoulli, response=NULL, ...) {
   NVL(response) <- nw %ergmlhs% "response"
   if(is(reference, "formula")){
     f <- locate.InitFunction(reference[[2]], "InitErgmReference", "Reference distribution")
@@ -294,12 +294,15 @@ ergm_proposal.formula <- function(object, arguments, nw, weights="default", clas
     ref <- reference
   }else stop("Invalid reference= argument.")
 
+  ult(hints) <- call("+", ult(hints), as.name("."))
+  object <- nonsimp_update.formula(object, hints)
+
   if(length(object)==3){
     lhs <- object[[2]]
     if(is.character(lhs)){
       name <- object[[2]]
     }else{
-      name <- try(eval(lhs, envir=environment(object)), silent=TRUE)
+      name <- try(eval_lhs.formula(object), silent=TRUE)
       if(is(name, "try-error") || !is.character(name)) stop("Constraints formula must be either one-sided or have a string expression as its LHS.")
     }
     object <- object[-2]
@@ -312,40 +315,76 @@ ergm_proposal.formula <- function(object, arguments, nw, weights="default", clas
     conlist <- ergm_conlist(object, nw)
   }
 
-  if(is.null(name)){ # Unless specified, autodetect.
-    ## Convert vector of constraints to a "standard form".
+  candidates <- subset(ergm_proposal_table(), Class==class & Reference==ref$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights)
+  if(!is.null(name)) candidates <- subset(candidates, Proposal==name)
 
-    # Try the specific constraint combination.
-    constraints.specific <- tolower(unlist(lapply(conlist, `[[`, "constrain")))
-    constraints.specific <- paste(sort(unique(constraints.specific)),collapse="+")
+  decode_constraints <- function(s){
+    # Convert old-style specification to the new-style
+    # specification. Note that .dyads is always optional.
+    if(!startsWith(s,"&") && !startsWith(s,"|"))
+      s <- strsplit(s, "+")[[1L]] %>% paste0(ifelse(.==".dyads", "|", "&"), ., collapse="")
 
-    qualifying.specific <-
-      if(all(sapply(conlist, `[[`, "sign")==+1)){ # If all constraints are conjunctive...
-        with(ergm_proposal_table(),ergm_proposal_table()[Class==class & Constraints==constraints.specific & Reference==ref$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
-      }
+    # Split on flags, but keep flags.
+    s <- strsplit(s, "(?<=.)(?=[&|])", perl=TRUE)[[1L]]
 
-    # Try the general dyad-independent constraint combination.
-    constraints.general <- tolower(unlist(ifelse(sapply(conlist,`[[`,"dependence"),lapply(conlist, `[[`, "constrain"), ".dyads")))
-    constraints.general <- paste(sort(unique(constraints.general)),collapse="+")
-    qualifying.general <- with(ergm_proposal_table(),ergm_proposal_table()[Class==class & Constraints==constraints.general & Reference==ref$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
-
-    qualifying <- rbind(qualifying.general, qualifying.specific)
-    
-    if(nrow(qualifying)<1){
-      commonalities<-(ergm_proposal_table()$Class==class)+(ergm_proposal_table()$Weights==weights)+(ergm_proposal_table()$Reference==ref)+(ergm_proposal_table()$Constraints==constraints.specific)
-      stop("The combination of class (",class,"), model constraints (",constraints.specific,"), reference measure (",deparse(ult(reference)),"), proposal weighting (",weights,"), and conjunctions and disjunctions is not implemented. ", "Check your arguments for typos. ", if(any(commonalities>=3)) paste("Nearest matching proposals: (",paste(apply(ergm_proposal_table()[commonalities==3,-5],1,paste, sep="), (",collapse=", "),collapse="), ("),")",sep="",".") else "")
-    }
-    
-    if(nrow(qualifying)==1){
-      name<-qualifying$Proposal
-    }else{
-      name<-with(qualifying,Proposal[which.max(Priority)])
-    }
+    list(does = s %>% keep(startsWith, "&") %>% map_chr(~substr(.,2,nchar(.))),
+         can = s %>% keep(startsWith, "|") %>% map_chr(~substr(.,2,nchar(.))))
   }
+
+  # proposals = the proposal table
+  # constraints = an ergm_conlist
+  score_proposals <- function(proposals, conlist){
+    constraints <- map_dbl(conlist, "priority")
+    names(constraints) <- map_chr(conlist, "constrain", .default="")
+    constraints <- constraints[names(constraints)!=""]
+
+    add_score <- function(proposal){
+      propcon <- decode_constraints(proposal$Constraints)
+      does <- propcon$does
+      can <- propcon$can
+      wanted <- names(constraints)
+
+      if(any(! does%in%wanted)) return(NULL) # Proposal has an unwanted constraint.
+
+      unmet <- setdiff(wanted, c(does,can))
+      # Penalised proposal score.
+      proposal$Unmet <- if(length(unmet)) paste.and(sQuote(unmet)) else ""
+      proposal$UnmetScore <- sum(constraints[match(unmet, wanted)])
+      proposal$Score <- proposal$Priority - proposal$UnmetScore
+      proposal
+    }
+    proposals <- lapply(transpose(proposals), add_score) %>% compact %>% transpose %>% map(unlist) %>% as.data.frame
+  }
+
   
+  # Try the specific constraint combination.
+  qualifying.specific <- if(all(sapply(conlist, `[[`, "sign")==+1)) score_proposals(candidates, conlist) # If all constraints are conjunctive...
+
+  # Try the general dyad-independent constraint combination.
+  qualifying.general <- {
+    conlist.general <- lapply(conlist, function(con){
+      if(!con$dependence) con$constrain <- ".dyads"
+      con
+    })
+    score_proposals(candidates, conlist.general)
+  }
+
+  qualifying <- rbind(qualifying.general, qualifying.specific)
+
+  if(nrow(qualifying)<1){
+    connames <- list_rhs.formula(object) %>% map_chr(deparse)
+    stop("The combination of class (",class,"), model constraints and hints (",paste.and(sQuote(connames)),"), reference measure (",deparse(ult(reference)),"), proposal weighting (",weights,"), and conjunctions and disjunctions is not implemented. ", "Check your arguments for typos. ")
+  }
+
+  if(nrow(qualifying)==1){
+    name<-qualifying$Proposal
+  }else{
+    name<-with(qualifying,Proposal[which.max(Priority)])
+  }
+
   arguments$constraints<-conlist
   ## Hand it off to the class character method.
-  ergm_proposal.character(name, arguments, nw, response=response, reference=ref)
+  ergm_proposal(name, arguments, nw, response=response, reference=ref)
 }
 
 

@@ -20,6 +20,7 @@ control.ergm(
   MPLE.maxit = 10000,
   MPLE.singular = c("warning", "message", "error"),
   MPLE.singular.rcond = .Machine$double.eps,
+  MCMC.prop = trim_env(~TNT),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
   MCMC.interval = NULL,
@@ -61,6 +62,7 @@ control.ergm(
   obs.MCMC.interval = round(MCMC.interval * obs.MCMC.interval.mul),
   obs.MCMC.burnin.mul = sqrt(obs.MCMC.mul),
   obs.MCMC.burnin = round(MCMC.burnin * obs.MCMC.burnin.mul),
+  obs.MCMC.prop = MCMC.prop,
   obs.MCMC.prop.weights = MCMC.prop.weights,
   obs.MCMC.prop.args = MCMC.prop.args,
   obs.MCMC.impute.min_informative = function(nw) network.size(nw)/4,
@@ -285,20 +287,23 @@ of a non-identifiable (multicollinear) model. If singular,
 depending on \code{MPLE.singular} issue a warning, an error, or a
 message.}
 
+\item{MCMC.prop}{Specifies the proposal (directly) and/or
+a series of "hints" about the structure of the model being
+sampled. The specification is in the form of a one-sided formula
+with hints separated by \code{+} operations. If the LHS exists and is
+a string, the proposal to be used is selected directly.
+
+A common and default "hint" is ~TNT (tie / no tie), indicating
+that the network is sparse and that the sample should put roughly
+equal weight on selecting a dyad with or without a tie as a
+candidate for toggling.}
+
 \item{MCMC.prop.weights}{Specifies the proposal
 distribution used in the MCMC Metropolis-Hastings algorithm.  Possible
 choices depending on selected \code{reference} and \code{constraints}
 arguments of the \code{\link[=ergm]{ergm()}} function, but often include \code{"TNT"}
 and \code{"random"}, and the \code{"default"} is to use the one with the
-highest priority available.
-
-The \code{TNT} (tie / no tie) option puts roughly equal weight on selecting
-a dyad with or without a tie as a candidate for toggling, whereas the
-\code{random} option puts equal weight on all possible dyads, though the
-interpretation of \code{random} may change according to the constraints in
-place.  When no constraints are in place, the default is TNT, which appears
-to improve Markov chain mixing particularly for networks with a low edge
-density, as is typical of many realistic social networks.}
+highest priority available.}
 
 \item{MCMC.prop.args}{An alternative, direct way of
 specifying additional arguments to proposal.}
@@ -434,7 +439,7 @@ iterations and relative tolerance to use within the \code{optim} rountine in
 the MLE optimization. Note that by default, ergm uses \code{trust}, and
 falls back to \code{optim} only when \code{trust} fails.}
 
-\item{obs.MCMC.prop.weights, obs.MCMC.prop.args, obs.MCMLE.effectiveSize, obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.mul, obs.MCMC.samplesize.mul, obs.MCMC.burnin.mul, obs.MCMC.interval.mul, obs.MCMC.effectiveSize, obs.MCMLE.burnin, obs.MCMLE.interval, obs.MCMLE.samplesize, obs.MCMLE.samplesize.per_theta, obs.MCMLE.samplesize.min}{Corresponding MCMC parameters and settings used for the constrained sample when
+\item{obs.MCMC.prop, obs.MCMC.prop.weights, obs.MCMC.prop.args, obs.MCMLE.effectiveSize, obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.mul, obs.MCMC.samplesize.mul, obs.MCMC.burnin.mul, obs.MCMC.interval.mul, obs.MCMC.effectiveSize, obs.MCMLE.burnin, obs.MCMLE.interval, obs.MCMLE.samplesize, obs.MCMLE.samplesize.per_theta, obs.MCMLE.samplesize.min}{Corresponding MCMC parameters and settings used for the constrained sample when
 unobserved data are present in the estimation routine. By default, they are controlled by the \verb{*.mul}
 parameters, as fractions of the corresponding settings for the
 unconstrained (standard) MCMC.
