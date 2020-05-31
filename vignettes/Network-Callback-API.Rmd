@@ -23,13 +23,13 @@ The callback API provides a way for a `Network` structure to signal precisely wh
 
 ## New types
 
-`OnNetworkEdgeChange`: `void (Vertex, Vertex, void *, Network *)`, a callback function, compatible with `u_` functions and `Mu_` functions both (since a `void*` can be any pointer).
+`void OnNetworkEdgeChange(Vertex, Vertex, void *, Network *)` and `void OnWtNetworkEdgeChange(Vertex, Vertex, double, void *, Network *)`, a callback function, compatible with `u_` functions and `Mu_` functions both (since a `void*` can be any pointer).
 
 ## New struct elements
 
 ### `Network` and `WtNetwork`
 
-`OnNetworkEdgeChange **on_edge_change`: an array of pointers to callback functions.
+`OnNetworkEdgeChange **on_edge_change` and `OnWtNetworkEdgeChange **on_edge_change`: an array of pointers to callback functions.
 
 `void **on_edge_change_payload`: an array of `void` pointers that get passed as the third argument to the corresponding `on_edge_change` function.
 
@@ -39,6 +39,6 @@ The callback API provides a way for a `Network` structure to signal precisely wh
 
 ## New functions
 
-`void AddOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange u_func, void *payload, unsigned int pos)`: Set a callback `u_func` to be called with argument `payload` whenever an edge in `nwp` is toggled. Its position in the list (i.e., the order in which it is called) is set to be `pos` (with large `pos` truncated to indicate the last position).
+`void AddOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange u_func, void *payload, unsigned int pos)` and `void AddOnWtNetworkEdgeChange(WtNetwork *nwp, OnWtNetworkEdgeChange u_func, void *payload, unsigned int pos)`: Set a callback `u_func` to be called with argument `payload` whenever an edge in `nwp` is changed. Its position in the list (i.e., the order in which it is called) is set to be `pos` (with large `pos` truncated to indicate the last position).
 
-`void DeleteOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange u_func, void *payload)`: Search the list of `nwp`'s callbacks for `u_func` and `payload` and delete the callback when it is found. (If it is not found, an immediate error is raised.)
+`void DeleteOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange u_func, void *payload)` and `void DeleteOnWtNetworkEdgeChange(WtNetwork *nwp, OnWTNetworkEdgeChange u_func, void *payload)`: Search the list of `nwp`'s callbacks for `u_func` and `payload` and delete the callback when it is found. (If it is not found, an immediate error is raised.)
