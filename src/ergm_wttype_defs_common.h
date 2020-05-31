@@ -7,5 +7,4 @@
 #define DISPATCH_MHProposal WtMHProposal
 #define DISPATCH_ErgmStateRSave WtErgmStateRSave
 #define DISPATCH_ErgmStateDestroy WtErgmStateDestroy
-#define DISPATCH_MCMCSample WtMCMCSample
 #define DISPATCH_Network WtNetwork
