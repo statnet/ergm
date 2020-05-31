@@ -17,7 +17,9 @@
 #' This function is only used within a call to the
 #' \code{\link{ergm.bridge.llr}} or \code{\link{ergm.bridge.dindstart.llk}}
 #' functions.
-#' 
+#'
+#' @templateVar MCMCType MCMC
+#'
 #' @param nsteps Number of geometric bridges to use.
 #' @param MCMC.burnin Number of proposals before any MCMC sampling is done. It
 #' typically is set to a fairly large number.
@@ -28,20 +30,7 @@
 #' @param obs.MCMC.burnin,obs.MCMC.interval,obs.MCMC.samplesize The \code{obs}
 #' versions of these arguments are for the unobserved data simulation
 #' algorithm.
-#' @param MCMC.prop.weights Specifies the proposal distribution used in the
-#' MCMC Metropolis-Hastings algorithm.  Possible choices are \code{"TNT"} or
-#' \code{"random"}; the \code{"default"} is one of these two, depending on the
-#' constraints in place (as defined by the \code{constraints} argument of the
-#' \code{\link{ergm}} function), though not all weights may be used with all
-#' constraints.  The \code{TNT} (tie / no tie) option puts roughly equal weight
-#' on selecting a dyad with or without a tie as a candidate for toggling,
-#' whereas the \code{random} option puts equal weight on all possible dyads,
-#' though the interpretation of \code{random} may change according to the
-#' constraints in place.  When no constraints are in place, the default is TNT,
-#' which appears to improve Markov chain mixing particularly for networks with
-#' a low edge density, as is typical of many realistic social networks.
-#' @param MCMC.prop.args An alternative, direct way of specifying additional
-#' arguments to proposal.
+#' @template control_MCMC_prop
 #' @param obs.MCMC.prop.weights,obs.MCMC.prop.args The `obs` versions of these arguments are for the unobserved data simulation algorithm.
 #' @param MCMC.init.maxedges Maximum number of edges expected in network.
 #' @template term_options

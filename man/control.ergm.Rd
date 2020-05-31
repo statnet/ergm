@@ -285,7 +285,7 @@ of a non-identifiable (multicollinear) model. If singular,
 depending on \code{MPLE.singular} issue a warning, an error, or a
 message.}
 
-\item{MCMC.prop.weights, obs.MCMC.prop.weights}{Specifies the proposal
+\item{MCMC.prop.weights}{Specifies the proposal
 distribution used in the MCMC Metropolis-Hastings algorithm.  Possible
 choices depending on selected \code{reference} and \code{constraints}
 arguments of the \code{\link[=ergm]{ergm()}} function, but often include \code{"TNT"}
@@ -298,17 +298,10 @@ a dyad with or without a tie as a candidate for toggling, whereas the
 interpretation of \code{random} may change according to the constraints in
 place.  When no constraints are in place, the default is TNT, which appears
 to improve Markov chain mixing particularly for networks with a low edge
-density, as is typical of many realistic social networks.
+density, as is typical of many realistic social networks.}
 
-\code{obs.MCMC.prop.weights}, if given separately, specifies the weights to
-be used for the constrained MCMC when missing dyads are present, defaulting
-to the same as \code{MCMC.prop.weights}.}
-
-\item{MCMC.prop.args, obs.MCMC.prop.args}{An alternative, direct way of
-specifying additional arguments to proposal. \code{obs.MCMC.prop.args}, if
-given separately, specifies the weights to be used for the constrained MCMC
-when missing dyads are present, defaulting to the same as
-\code{MCMC.prop.args}.}
+\item{MCMC.prop.args}{An alternative, direct way of
+specifying additional arguments to proposal.}
 
 \item{MCMC.interval}{Number of proposals between sampled statistics.
 Increasing interval will reduces the autocorrelation in the sample, and may
@@ -441,6 +434,24 @@ iterations and relative tolerance to use within the \code{optim} rountine in
 the MLE optimization. Note that by default, ergm uses \code{trust}, and
 falls back to \code{optim} only when \code{trust} fails.}
 
+\item{obs.MCMC.prop.weights, obs.MCMC.prop.args, obs.MCMLE.effectiveSize, obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.mul, obs.MCMC.samplesize.mul, obs.MCMC.burnin.mul, obs.MCMC.interval.mul, obs.MCMC.effectiveSize, obs.MCMLE.burnin, obs.MCMLE.interval, obs.MCMLE.samplesize, obs.MCMLE.samplesize.per_theta, obs.MCMLE.samplesize.min}{Corresponding MCMC parameters and settings used for the constrained sample when
+unobserved data are present in the estimation routine. By default, they are controlled by the \verb{*.mul}
+parameters, as fractions of the corresponding settings for the
+unconstrained (standard) MCMC.
+
+These can, in turn, be controlled by \code{obs.MCMC.mul}, which can be
+used to set the overal multiplier for the number of MCMC steps in
+the constrained sample; one half of its effect applies to the
+burn-in and interval and the other half to the total sample
+size. For example, for \code{obs.MCMC.mul=1/4} (the default),
+\code{obs.MCMC.samplesize} is set to \eqn{\sqrt{1/4}=1/2} that of
+\code{obs.MCMC.samplesize}, and \code{obs.MCMC.burnin} and
+\code{obs.MCMC.interval} are set to \eqn{\sqrt{1/4}=1/2} of their
+respective unconstrained sampling parameters. When
+\code{MCMC.effectiveSize} or \code{MCMLE.effectiveSize} are given, their
+corresponding \code{obs} parameters are set to them multiplied by
+\code{obs.MCMC.mul}.}
+
 \item{obs.MCMC.impute.min_informative, obs.MCMC.impute.default_density}{Controls for imputation of missing dyads for initializing MCMC
 sampling. If numeric, \code{obs.MCMC.impute.min_informative} specifies
 the minimum number dyads that need to be non-missing before
@@ -543,25 +554,6 @@ controls the MCMC sample size (not target effective size) as a
 function of the number of (curved) parameters in the model, and
 \code{MCMLE.samplesize.min} sets the minimum sample size regardless of
 their number.}
-
-\item{obs.MCMLE.effectiveSize, obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.mul, obs.MCMC.samplesize.mul, obs.MCMC.burnin.mul, obs.MCMC.interval.mul, obs.MCMC.effectiveSize, obs.MCMLE.burnin, obs.MCMLE.interval, obs.MCMLE.samplesize, obs.MCMLE.samplesize.per_theta, obs.MCMLE.samplesize.min}{Sample size, burnin, and interval parameters for the MCMC
-sampling used when unobserved data are present in the estimation
-routine. By default, they are controlled by the \verb{*.mul}
-parameters, as fractions of the corresponding settings for the
-unconstrained (standard) MCMC.
-
-These can, in turn, be controlled by \code{obs.MCMC.mul}, which can be
-used to set the overal multiplier for the number of MCMC steps in
-the constrained sample; one half of its effect applies to the
-burn-in and interval and the other half to the total sample
-size. For example, for \code{obs.MCMC.mul=1/4} (the default),
-\code{obs.MCMC.samplesize} is set to \eqn{\sqrt{1/4}=1/2} that of
-\code{obs.MCMC.samplesize}, and \code{obs.MCMC.burnin} and
-\code{obs.MCMC.interval} are set to \eqn{\sqrt{1/4}=1/2} of their
-respective unconstrained sampling parameters. When
-\code{MCMC.effectiveSize} or \code{MCMLE.effectiveSize} are given, their
-corresponding \code{obs} parameters are set to them multiplied by
-\code{obs.MCMC.mul}.}
 
 \item{MCMLE.last.boost}{For the Hummel termination criterion, increase the
 MCMC sample size of the last iteration by this factor.}

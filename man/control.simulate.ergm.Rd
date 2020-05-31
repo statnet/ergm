@@ -110,21 +110,23 @@ typically is set to a fairly large number.}
 
 \item{MCMC.interval}{Number of proposals between sampled statistics.}
 
-\item{MCMC.prop.weights}{Specifies the proposal distribution used in the
-MCMC Metropolis-Hastings algorithm.  Possible choices are \code{"TNT"} or
-\code{"random"}; the \code{"default"} is one of these two, depending on the
-constraints in place (as defined by the \code{constraints} argument of the
-\code{\link{ergm}} function), though not all weights may be used with all
-constraints.  The \code{TNT} (tie / no tie) option puts roughly equal weight
-on selecting a dyad with or without a tie as a candidate for toggling,
-whereas the \code{random} option puts equal weight on all possible dyads,
-though the interpretation of \code{random} may change according to the
-constraints in place.  When no constraints are in place, the default is TNT,
-which appears to improve Markov chain mixing particularly for networks with
-a low edge density, as is typical of many realistic social networks.}
+\item{MCMC.prop.weights}{Specifies the proposal
+distribution used in the MCMC Metropolis-Hastings algorithm.  Possible
+choices depending on selected \code{reference} and \code{constraints}
+arguments of the \code{\link[=ergm]{ergm()}} function, but often include \code{"TNT"}
+and \code{"random"}, and the \code{"default"} is to use the one with the
+highest priority available.
 
-\item{MCMC.prop.args}{An alternative, direct way of specifying additional
-arguments to proposal.}
+The \code{TNT} (tie / no tie) option puts roughly equal weight on selecting
+a dyad with or without a tie as a candidate for toggling, whereas the
+\code{random} option puts equal weight on all possible dyads, though the
+interpretation of \code{random} may change according to the constraints in
+place.  When no constraints are in place, the default is TNT, which appears
+to improve Markov chain mixing particularly for networks with a low edge
+density, as is typical of many realistic social networks.}
+
+\item{MCMC.prop.args}{An alternative, direct way of
+specifying additional arguments to proposal.}
 
 \item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.burnin.pval, MCMC.effectiveSize.order.max}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
 determine the burn-in and the MCMC length needed to get the

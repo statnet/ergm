@@ -17,6 +17,8 @@
 #' This function is only used within a call to the \code{\link{san}} function.
 #' See the \code{usage} section in \code{\link{san}} for details.
 #'
+#' @templateVar MCMCType SAN
+#'
 #' @param SAN.maxit Number of temperature levels to use.
 #' 
 #' @param SAN.tau Tuning parameter, specifying the temperature of the
@@ -40,13 +42,7 @@
 #'
 #' @param SAN.nsteps Number of MCMC proposals for all the annealing runs combined.
 #' @param SAN.samplesize Number of realisations' statistics to obtain for tuning purposes.
-#' @param SAN.prop.weights Specifies the method to allocate probabilities of
-#' being proposed to dyads. Defaults to \code{"default"}, which picks a
-#' reasonable default for the specified constraint.  Other possible values are
-#' \code{"TNT"}, \code{"random"}, and \code{"nonobserved"}, though not all
-#' values may be used with all possible constraints.
-#' @param SAN.prop.args An alternative, direct way of specifying additional
-#' arguments to proposal.
+#' @template control_MCMC_prop
 #' @param SAN.packagenames Names of packages in which to look for change
 #' statistic functions in addition to those autodetected. This argument should
 #' not be needed outside of very strange setups.

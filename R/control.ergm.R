@@ -14,6 +14,8 @@
 #' This function is only used within a call to the [ergm()] function.
 #' See the \code{usage} section in [ergm()] for details.
 #' 
+#' @templateVar MCMCType MCMC
+#'
 #' @param drop Logical: If TRUE, terms whose observed statistic values are at
 #' the extremes of their possible ranges are dropped from the fit and their
 #' corresponding parameter estimates are set to plus or minus infinity, as
@@ -115,29 +117,8 @@
 #'   depending on `MPLE.singular` issue a warning, an error, or a
 #'   message.
 #'
-#' @param MCMC.prop.weights,obs.MCMC.prop.weights Specifies the proposal
-#' distribution used in the MCMC Metropolis-Hastings algorithm.  Possible
-#' choices depending on selected \code{reference} and \code{constraints}
-#' arguments of the [ergm()] function, but often include \code{"TNT"}
-#' and \code{"random"}, and the \code{"default"} is to use the one with the
-#' highest priority available.
-#' 
-#' The \code{TNT} (tie / no tie) option puts roughly equal weight on selecting
-#' a dyad with or without a tie as a candidate for toggling, whereas the
-#' \code{random} option puts equal weight on all possible dyads, though the
-#' interpretation of \code{random} may change according to the constraints in
-#' place.  When no constraints are in place, the default is TNT, which appears
-#' to improve Markov chain mixing particularly for networks with a low edge
-#' density, as is typical of many realistic social networks.
-#' 
-#' \code{obs.MCMC.prop.weights}, if given separately, specifies the weights to
-#' be used for the constrained MCMC when missing dyads are present, defaulting
-#' to the same as \code{MCMC.prop.weights}.
-#' @param MCMC.prop.args,obs.MCMC.prop.args An alternative, direct way of
-#' specifying additional arguments to proposal. \code{obs.MCMC.prop.args}, if
-#' given separately, specifies the weights to be used for the constrained MCMC
-#' when missing dyads are present, defaulting to the same as
-#' \code{MCMC.prop.args}.
+#' @template control_MCMC_prop
+#'
 #' @param MCMC.interval Number of proposals between sampled statistics.
 #' Increasing interval will reduces the autocorrelation in the sample, and may
 #' increase the precision in estimates by reducing MCMC error, at the expense
@@ -243,10 +224,9 @@
 #' falls back to \code{optim} only when \code{trust} fails.
 #'
 #' @param
-#'   obs.MCMLE.effectiveSize,obs.MCMC.samplesize,obs.MCMC.burnin,obs.MCMC.interval,obs.MCMC.mul,obs.MCMC.samplesize.mul,obs.MCMC.burnin.mul,obs.MCMC.interval.mul,obs.MCMC.effectiveSize,obs.MCMLE.burnin,obs.MCMLE.interval,obs.MCMLE.samplesize,obs.MCMLE.samplesize.per_theta,obs.MCMLE.samplesize.min
-#'   Sample size, burnin, and interval parameters for the MCMC
-#'   sampling used when unobserved data are present in the estimation
-#'   routine. By default, they are controlled by the `*.mul`
+#'   obs.MCMC.prop.weights,obs.MCMC.prop.args,obs.MCMLE.effectiveSize,obs.MCMC.samplesize,obs.MCMC.burnin,obs.MCMC.interval,obs.MCMC.mul,obs.MCMC.samplesize.mul,obs.MCMC.burnin.mul,obs.MCMC.interval.mul,obs.MCMC.effectiveSize,obs.MCMLE.burnin,obs.MCMLE.interval,obs.MCMLE.samplesize,obs.MCMLE.samplesize.per_theta,obs.MCMLE.samplesize.min
+#'   Corresponding MCMC parameters and settings used for the constrained sample when
+#'   unobserved data are present in the estimation routine. By default, they are controlled by the `*.mul`
 #'   parameters, as fractions of the corresponding settings for the
 #'   unconstrained (standard) MCMC.
 #'
