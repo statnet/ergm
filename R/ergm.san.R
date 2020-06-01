@@ -220,7 +220,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
                               nw=nw, weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
               }
 
-  if(length(proposal$auxiliaries) && !length(m$slots.extra.aux$proposal))
+  if(length(proposal$auxiliaries) && !length(model$slots.extra.aux$proposal))
     stop("The proposal appears to be requesting auxiliaries, but the initialized model does not export any proposal auxiliaries.")
 
   offset.indicators <- model$etamap$offsetmap
