@@ -300,6 +300,10 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), w
   }else stop("Invalid reference= argument.")
 
   ult(hints) <- call("+", ult(hints), as.name("."))
+  if(length(hints)==2 && length(object)==3){
+    hints[[3]] <- hints[[2]]
+    hints[[2]] <- as.name(".")
+  }
   object <- nonsimp_update.formula(object, hints)
 
   if(length(object)==3){
