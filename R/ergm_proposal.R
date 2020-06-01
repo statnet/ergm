@@ -34,8 +34,13 @@
 #' @param Class default to "c"
 #' @param Reference The reference measure used in the model. For the list of
 #' reference measures, see \code{\link{ergm-references}}
-#' @param Constraints The constraints used in the model. For the list of
-#' constraints, see \code{\link{ergm-constraints}}
+#'
+#' @param Constraints The constraints used in the model. For the list
+#'   of constraints, see \code{\link{ergm-constraints}}. They are
+#'   specified as a single string of text, with each contrast prefixed
+#'   by either `&` for constraints that the proposal *always* enforces
+#'   or `|` for constraints that the proposal *can* enforce if needed.
+#'
 #' @param Priority On existence of multiple qualifying proposals, specifies the
 #' priority (`-1`,`0`,`1`, etc.) of proposals to be used.
 #' @param Weights The sampling weights on selecting toggles (random, TNT, etc).
@@ -377,12 +382,10 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), w
     stop("The combination of class (",class,"), model constraints and hints (",paste.and(sQuote(connames)),"), reference measure (",deparse(ult(reference)),"), proposal weighting (",weights,"), and conjunctions and disjunctions is not implemented. ", "Check your arguments for typos. ")
   }
 
-  if(nrow(qualifying)==1){
-    name<-qualifying$Proposal
-  }else{
-    name<-with(qualifying,Proposal[which.max(Score)])
-  }
+  proposal <- qualifying[which.max(qualifying$Score),]
+  if(proposal$Unmet!="") message("Best valid proposal ", sQuote(proposal$Proposal), " cannot take into account hint(s) ", proposal$Unmet, ".")
 
+  name<-qualifying$Proposal
   arguments$constraints<-conlist
   ## Hand it off to the class character method.
   ergm_proposal(name, arguments, nw, response=response, reference=ref)
