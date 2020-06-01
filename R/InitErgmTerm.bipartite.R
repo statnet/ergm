@@ -7,13 +7,13 @@
 #
 #  Copyright 2003-2019 Statnet Commons
 #######################################################################
-#  See InitErgm.R for a general explanation 
-#  of InitErgm functions
+#  See InitErgmTerm.R for a general explanation 
+#  of InitErgmTerm functions
 
 # NOTE: a number of undocumented terms from this file have been removed 
 # but the terms are retained on the experimental_terms svn branch
 
-###################################### InitErgm TERMS:  A
+###################################### InitErgmTerm TERMS:  A
 ##########################################################
 
 
@@ -200,20 +200,20 @@ InitErgmTerm.b2nodematch	<-	function (nw, arglist, ..., version=packageVersion("
 
 
 
-###################################### InitErgm TERMS:  B
+###################################### InitErgmTerm TERMS:  B
 #########################################################
 
 
 
-###################################### InitErgm TERMS:  E
+###################################### InitErgmTerm TERMS:  E
 #########################################################
 
 
-###################################### InitErgm TERMS:  G
+###################################### InitErgmTerm TERMS:  G
 #########################################################
 
 
-###################################### InitErgm TERMS:  M
+###################################### InitErgmTerm TERMS:  M
 #########################################################
 
 
