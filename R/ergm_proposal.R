@@ -385,7 +385,7 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), w
   proposal <- qualifying[which.max(qualifying$Score),]
   if(proposal$Unmet!="") message("Best valid proposal ", sQuote(proposal$Proposal), " cannot take into account hint(s) ", proposal$Unmet, ".")
 
-  name<-qualifying$Proposal
+  name<-proposal$Proposal
   arguments$constraints<-conlist
   ## Hand it off to the class character method.
   ergm_proposal(name, arguments, nw, response=response, reference=ref)
