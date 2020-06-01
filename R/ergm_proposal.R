@@ -322,7 +322,7 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), w
     # Convert old-style specification to the new-style
     # specification. Note that .dyads is always optional.
     if(!startsWith(s,"&") && !startsWith(s,"|"))
-      s <- strsplit(s, "+")[[1L]] %>% paste0(ifelse(.==".dyads", "|", "&"), ., collapse="")
+      s <- strsplit(s, "+", fixed=TRUE)[[1L]] %>% paste0(ifelse(.==".dyads", "|", "&"), ., collapse="")
 
     # Split on flags, but keep flags.
     s <- strsplit(s, "(?<=.)(?=[&|])", perl=TRUE)[[1L]]
@@ -351,9 +351,10 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), w
       proposal$Unmet <- if(length(unmet)) paste.and(sQuote(unmet)) else ""
       proposal$UnmetScore <- sum(constraints[match(unmet, wanted)])
       proposal$Score <- proposal$Priority - proposal$UnmetScore
+      if(proposal$Score==-Inf) return(NULL)
       proposal
     }
-    proposals <- lapply(transpose(proposals), add_score) %>% compact %>% transpose %>% map(unlist) %>% as.data.frame
+    lapply(transpose(proposals), add_score) %>% compact %>% transpose %>% map(unlist) %>% as.data.frame
   }
 
   
@@ -363,7 +364,7 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), w
   # Try the general dyad-independent constraint combination.
   qualifying.general <- {
     conlist.general <- lapply(conlist, function(con){
-      if(!con$dependence) con$constrain <- ".dyads"
+      if(con$priority==Inf && !con$dependence) con$constrain <- ".dyads"
       con
     })
     score_proposals(candidates, conlist.general)
@@ -379,7 +380,7 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), w
   if(nrow(qualifying)==1){
     name<-qualifying$Proposal
   }else{
-    name<-with(qualifying,Proposal[which.max(Priority)])
+    name<-with(qualifying,Proposal[which.max(Score)])
   }
 
   arguments$constraints<-conlist
