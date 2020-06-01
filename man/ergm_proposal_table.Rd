@@ -12,8 +12,11 @@ ergm_proposal_table(Class, Reference, Constraints, Priority, Weights, Proposal)
 \item{Reference}{The reference measure used in the model. For the list of
 reference measures, see \code{\link{ergm-references}}}
 
-\item{Constraints}{The constraints used in the model. For the list of
-constraints, see \code{\link{ergm-constraints}}}
+\item{Constraints}{The constraints used in the model. For the list
+of constraints, see \code{\link{ergm-constraints}}. They are
+specified as a single string of text, with each contrast prefixed
+by either \code{&} for constraints that the proposal \emph{always} enforces
+or \code{|} for constraints that the proposal \emph{can} enforce if needed.}
 
 \item{Priority}{On existence of multiple qualifying proposals, specifies the
 priority (\code{-1},\code{0},\code{1}, etc.) of proposals to be used.}
