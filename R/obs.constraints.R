@@ -41,10 +41,18 @@
     }
 
     constraints.obs<-obs.constraints
-    ult(constraints.obs) <- call('+', ult(constraints.obs), ult(constraints))
+
+    constraints.sub <- constraints
+    if(length(constraints.sub)==2){
+      constraints.sub[[3]] <- constraints.sub[[2]]
+      constraints.sub[[2]] <- as.name(".")
+    }
+    ult(constraints.sub) <- call('+', as.name('.'), ult(constraints.sub))
+
+    constraints.obs <- nonsimp_update.formula(constraints.obs, constraints.sub, from.new=TRUE)
     constraints.obs <- .delete_from_conform_rhs(constraints.obs, ".")
     if(identical(ult(constraints),ult(constraints.obs))) constraints.obs<-NULL
-    
+
   }else constraints.obs<-NULL
   
   list(nw = nw, constraints = constraints, constraints.obs = constraints.obs)
