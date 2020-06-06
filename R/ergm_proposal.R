@@ -384,12 +384,12 @@ ergm_proposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NUL
   ergm_proposal(constraints,arguments=arguments,nw=nw,weights=weights,class=class,reference=reference,response=response)
 }
 
-DyadGenType <- list(RandDyadGen=0L, WtRandDyadGen=1L, RLEBDM1DGen=2L, EdgeListGen=3L)
+DyadGenType <- list(RandDyadGen=0L, WtRandDyadGen=1L, RLEBDM1DGen=2L, WtRLEBDM1DGen=3L, EdgeListGen=4L, WtEdgeListGen=5L)
 
 ergm_dyadgen_select <- function(arguments, nw, response=NULL){
   valued <- !is.null(response)
 
-  dyadgen <- list()
+  dyadgen <- list(valued=valued)
 
   r <- as.rlebdm(arguments$constraints)
 
@@ -401,11 +401,11 @@ ergm_dyadgen_select <- function(arguments, nw, response=NULL){
     #
     # TODO: The exact constant needs to be tuned.
     if(sum(r) > length(r$lengths)*20){
-      dyadgen$type <- DyadGenType$RLEBDM1DGen
-      dyadgen$data <- to_ergm_Cdouble(r)
+      dyadgen$type <- if(valued) DyadGenType$WtRLEBDM1DGen else DyadGenType$RLEBDM1DGen
+      dyadgen$dyads <- to_ergm_Cdouble(r)
     }else{
-      dyadgen$type <- DyadGenType$EdgeListGen
-      dyadgen$data <- as.integer(to_ergm_Cdouble(as.edgelist(r)))
+      dyadgen$type <- if(valued) DyadGenType$WtEdgeListGen else DyadGenType$EdgeListGen
+      dyadgen$dyads <- as.integer(to_ergm_Cdouble(as.edgelist(r)))
     }
   }
   dyadgen

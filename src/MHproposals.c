@@ -25,13 +25,13 @@ MH_P_FN(MH_randomtoggle){
   /* *** don't forget tail-> head now */
 
   if(MHp->ntoggles == 0) { /* Initialize randomtoggle */
-    MH_STORAGE = DyadGenInitializeR(MHp->R, nwp);
+    MH_STORAGE = DyadGenInitializeR(MHp->R, nwp, FALSE);
     MHp->ntoggles=1;
     return;
   }
   
   BD_LOOP({
-      GenRandDyad(Mtail, Mhead, MH_STORAGE);
+      DyadGenRandDyad(Mtail, Mhead, MH_STORAGE);
     });
 }
 
@@ -52,46 +52,28 @@ MH_F_FN(Mf_randomtoggle){
    number of dyads) is the number of dyads in the static list and the
    network for the ties is the ties in the discord network.
 ***********************/
-typedef struct {
-  DyadGen *gen;
-  UnsrtEL *intersect;
-} StoreDyadGenAndUnsrtEL;
-
-MH_I_FN(Mi_TNT){
-  ALLOC_STORAGE(1, StoreDyadGenAndUnsrtEL, storage);
-  storage->gen = DyadGenInitializeR(MHp->R, nwp);
-  MHp->ntoggles=1;
-  storage->intersect = UnsrtELInitialize(0, NULL, NULL, FALSE);
-  EXEC_THROUGH_NET_EDGES(t, h, e, {
-      if(GetDyadGen(t, h, storage->gen)){
-        UnsrtELInsert(t, h, storage->intersect);
-      }
-    });
-  
-  if(storage->intersect->nedges==EDGECOUNT(nwp)){ // There are no ties in the initial network that are fixed.
-    UnsrtELDestroy(storage->intersect);
-    storage->intersect = NULL; // "Signal" that there is no discordance network.
-  }
-}
 
 MH_P_FN(Mp_TNT){
-  GET_STORAGE(StoreDyadGenAndUnsrtEL, storage);
+  if(MHp->ntoggles == 0) { /* Initialize randomtoggle */
+    MH_STORAGE = DyadGenInitializeR(MHp->R, nwp, TRUE);
+    MHp->ntoggles=1;
+    return;
+  }
 
   const double P=0.5, Q=1-P;
-  double DP = P*storage->gen->ndyads, DO = DP/Q;
+  double DP = P*((DyadGen *)MH_STORAGE)->ndyads, DO = DP/Q;
 
-  Edge nedges = storage->intersect ? storage->intersect->nedges : EDGECOUNT(nwp);
+  Edge nedges = DyadGenEdgecount(MH_STORAGE);
   double logratio=0;
   BD_LOOP({
       if (unif_rand() < P && nedges > 0) { /* Select a tie at random from the network of eligibles */
-	if(storage->intersect) UnsrtELGetRand(Mtail, Mhead, storage->intersect);
-        else GetRandEdge(Mtail, Mhead, nwp);
+        DyadGenRandEdge(Mtail, Mhead, MH_STORAGE);
 	logratio = TNT_LR_E(nedges, Q, DP, DO);
       }else{ /* Select a dyad at random from the list */
-	GenRandDyad(Mtail, Mhead, storage->gen);
+	DyadGenRandDyad(Mtail, Mhead, MH_STORAGE);
 	
 	if(IS_OUTEDGE(Mtail[0],Mhead[0])){
-          if(storage->intersect) UnsrtELGetRand(Mtail, Mhead, storage->intersect); // Re-select from the intersect list so that we would know its index.
+          if(((DyadGen *) MH_STORAGE)->intersect) DyadGenRandEdge(Mtail, Mhead, MH_STORAGE); // Re-select from the intersect list so that we would know its index.
 	  logratio = TNT_LR_DE(nedges, Q, DP, DO);
 	}else{
 	  logratio = TNT_LR_DN(nedges, Q, DP, DO);
@@ -101,18 +83,9 @@ MH_P_FN(Mp_TNT){
   MHp->logratio += logratio;
 }
 
-MH_U_FN(Mu_TNT){
-  GET_STORAGE(StoreDyadGenAndUnsrtEL, storage);
-  if(storage->intersect){
-    if(edgeflag) UnsrtELDelete(tail, head, storage->intersect); // Deleting
-    else UnsrtELInsert(tail, head, storage->intersect); // Inserting
-  }
-}
-
 MH_F_FN(Mf_TNT){
-  GET_STORAGE(StoreDyadGenAndUnsrtEL, storage);
-  DyadGenDestroy(storage->gen);
-  if(storage->intersect) UnsrtELDestroy(storage->intersect);
+  DyadGenDestroy(MH_STORAGE);
+  MH_STORAGE = NULL;
 }
 
 /********************

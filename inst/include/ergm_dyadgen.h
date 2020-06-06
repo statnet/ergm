@@ -1,40 +1,47 @@
 #ifndef _ERGM_DYADGEN_H_
 #define _ERGM_DYADGEN_H_
 
-#define STRICT_WT_HEADERS
+#define STRICT_Wt_HEADERS
 #include "ergm_edgetree.h"
 #include "ergm_wtedgetree.h"
 #include "ergm_rlebdm.h"
 #include "ergm_edgelist.h"
+#include "ergm_unsorted_edgelist.h"
 
-enum DyadGenType {RandDyadGen, WtRandDyadGen, RLEBDM1DGen, EdgeListGen};
+enum DyadGenType {RandDyadGen, WtRandDyadGen, RLEBDM1DGen, WtRLEBDM1DGen, EdgeListGen, WtEdgeListGen};
 
 typedef struct {
   enum DyadGenType type;
   union {
-    Network *nwp;
-    WtNetwork *wtnwp;
+    Network *b;
+    WtNetwork *w;
+  } nwp;
+  union {
     RLEBDM1D rlebdm;
     int *el;
-  } data;
+  } dyads;
   Dyad ndyads;
+  UnsrtEL *intersect;
 } DyadGen;
 
-static inline void GenRandDyad(Vertex *tail, Vertex *head, DyadGen *gen){
+
+static inline void DyadGenRandDyad(Vertex *tail, Vertex *head, DyadGen *gen){
   switch(gen->type){
   case RandDyadGen:
-    GetRandDyad(tail, head, gen->data.nwp);
+    GetRandDyad(tail, head, gen->nwp.b);
     break;
   case WtRandDyadGen:
-    GetRandDyad(tail, head, gen->data.wtnwp);
+    GetRandDyad(tail, head, gen->nwp.w);
     break;
   case RLEBDM1DGen:
-    GetRandRLEBDM1D(tail, head, &gen->data.rlebdm);
+  case WtRLEBDM1DGen:
+    GetRandRLEBDM1D(tail, head, &gen->dyads.rlebdm);
     break;
   case EdgeListGen:
+  case WtEdgeListGen:
     {
       int ndyads = gen->ndyads;
-      int *list = gen->data.el + 1;
+      int *list = gen->dyads.el + 1;
       Edge rane = unif_rand() * ndyads;
       *tail = list[rane];
       *head = list[ndyads+rane];
@@ -45,25 +52,110 @@ static inline void GenRandDyad(Vertex *tail, Vertex *head, DyadGen *gen){
   }
 }
 
-static inline Rboolean GetDyadGen(Vertex tail, Vertex head, DyadGen *gen){
+
+static inline Edge DyadGenEdgecount(DyadGen *gen){
+  if(gen->intersect){
+    return gen->intersect->nedges;
+  }else{
+    switch(gen->type){
+    case RandDyadGen:
+    case RLEBDM1DGen:
+    case EdgeListGen:
+      return EDGECOUNT(gen->nwp.b);
+    case WtRandDyadGen:
+    case WtRLEBDM1DGen:
+    case WtEdgeListGen:
+      return EDGECOUNT(gen->nwp.w);
+    default:
+      error("Undefined dyad generator type.");
+    }
+  }
+}
+
+
+static inline void DyadGenRandEdge(Vertex *tail, Vertex *head, DyadGen *gen){
   switch(gen->type){
   case RandDyadGen:
+    GetRandEdge(tail, head, gen->nwp.b);
+    break;
   case WtRandDyadGen:
-    return TRUE;
+    {
+      double dummy;
+      WtGetRandEdge(tail, head, &dummy, gen->nwp.w);
+    }
     break;
   case RLEBDM1DGen:
-    return GetRLEBDM1D(tail, head, &gen->data.rlebdm);
-    break;
   case EdgeListGen:
-    return iEdgeListSearch(tail, head, gen->data.el);
+    {
+      if(gen->intersect) UnsrtELGetRand(tail, head, gen->intersect);
+      else GetRandEdge(tail, head, gen->nwp.b);
+    }
+    break;
+  case WtRLEBDM1DGen:
+  case WtEdgeListGen:
+    {
+      double dummy;
+      if(gen->intersect) UnsrtELGetRand(tail, head, gen->intersect);
+      else WtGetRandEdge(tail, head, &dummy, gen->nwp.w);
+    }
     break;
   default:
     error("Undefined dyad generator type.");
   }
 }
 
-DyadGen *DyadGenInitialize(enum DyadGenType type, void *data);
-DyadGen *DyadGenInitializeR(SEXP pR, void *any_nwp);
+
+static inline void DyadGenRandWtEdge(Vertex *tail, Vertex *head, double *weight, DyadGen *gen){
+  switch(gen->type){
+  case RandDyadGen:
+    GetRandEdge(tail, head, gen->nwp.b);
+    *weight = 1;
+    break;
+  case WtRandDyadGen:
+    WtGetRandEdge(tail, head, weight, gen->nwp.w);
+    break;
+  case RLEBDM1DGen:
+  case EdgeListGen:
+    if(gen->intersect) UnsrtELGetRand(tail, head, gen->intersect);
+    else GetRandEdge(tail, head, gen->nwp.b);
+    *weight = 1;
+    break;
+  case WtRLEBDM1DGen:
+  case WtEdgeListGen:
+    if(gen->intersect){
+      UnsrtELGetRand(tail, head, gen->intersect);
+      *weight = WtGetEdge(*tail, *head, gen->nwp.w);
+    }
+    else WtGetRandEdge(tail, head, weight, gen->nwp.w);
+    *weight = 1;
+    break;
+  default:
+    error("Undefined dyad generator type.");
+  }
+}
+
+
+static inline Rboolean DyadGenSearch(Vertex tail, Vertex head, DyadGen *gen){
+  switch(gen->type){
+  case RandDyadGen:
+  case WtRandDyadGen:
+    return TRUE;
+  case RLEBDM1DGen:
+  case WtRLEBDM1DGen:
+    return GetRLEBDM1D(tail, head, &gen->dyads.rlebdm);
+  case EdgeListGen:
+  case WtEdgeListGen:
+    return iEdgeListSearch(tail, head, gen->dyads.el);
+  default:
+    error("Undefined dyad generator type.");
+  }
+}
+
+DyadGen *DyadGenInitialize(enum DyadGenType type, void *dyads, void *track_nwp);
+DyadGen *DyadGenInitializeR(SEXP pR, void *any_nwp, Rboolean el);
 void DyadGenDestroy(DyadGen *gen);
+
+void DyadGenUpdate(Vertex tail, Vertex head, DyadGen *gen, Network *nwp, Rboolean edgeflag);
+void WtDyadGenUpdate(Vertex tail, Vertex head, double weight, DyadGen *gen, WtNetwork *nwp, double edgeweight);
 
 #endif
