@@ -383,3 +383,30 @@ ergm_proposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NUL
 
   ergm_proposal(constraints,arguments=arguments,nw=nw,weights=weights,class=class,reference=reference,response=response)
 }
+
+DyadGenType <- list(RandDyadGen=0L, WtRandDyadGen=1L, RLEBDM1DGen=2L, EdgeListGen=3L)
+
+ergm_dyadgen_select <- function(arguments, nw, response=NULL){
+  valued <- !is.null(response)
+
+  dyadgen <- list()
+
+  r <- as.rlebdm(arguments$constraints)
+
+  if(all(r==arguments$constraints$.attributes$free_dyads)){
+    dyadgen$type <- if(valued) DyadGenType$WtRandDyadGen else DyadGenType$RandDyadGen
+  }else{
+    # If the number of selectable edges exceeds the number of runs by
+    # some factor, use RLEBDM, otherwise just edgelist.
+    #
+    # TODO: The exact constant needs to be tuned.
+    if(sum(r) > length(r$lengths)*20){
+      dyadgen$type <- DyadGenType$RLEBDM1DGen
+      dyadgen$data <- to_ergm_Cdouble(r)
+    }else{
+      dyadgen$type <- DyadGenType$EdgeListGen
+      dyadgen$data <- as.integer(to_ergm_Cdouble(as.edgelist(r)))
+    }
+  }
+  dyadgen
+}

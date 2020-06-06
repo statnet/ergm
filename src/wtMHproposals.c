@@ -213,7 +213,7 @@ WtMH_P_FN(MH_DistRLE)
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
     inputs = MHp->inputs;
-    r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
+    r = unpack_RLEBDM1D(&inputs);
     if(r.ndyads==0) MHp->ntoggles = MH_FAILED; /* No missing values. */
     else MHp->ntoggles=1;
     return;
