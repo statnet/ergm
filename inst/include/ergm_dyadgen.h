@@ -8,10 +8,10 @@
 #include "ergm_edgelist.h"
 #include "ergm_unsorted_edgelist.h"
 
-enum DyadGenType {RandDyadGen, WtRandDyadGen, RLEBDM1DGen, WtRLEBDM1DGen, EdgeListGen, WtEdgeListGen};
+typedef enum{RandDyadGen, WtRandDyadGen, RLEBDM1DGen, WtRLEBDM1DGen, EdgeListGen, WtEdgeListGen} DyadGenType;
 
 typedef struct {
-  enum DyadGenType type;
+  DyadGenType type;
   union {
     Network *b;
     WtNetwork *w;
@@ -151,7 +151,7 @@ static inline Rboolean DyadGenSearch(Vertex tail, Vertex head, DyadGen *gen){
   }
 }
 
-DyadGen *DyadGenInitialize(enum DyadGenType type, void *dyads, void *track_nwp);
+DyadGen *DyadGenInitialize(DyadGenType type, void *dyads, void *track_nwp);
 DyadGen *DyadGenInitializeR(SEXP pR, void *any_nwp, Rboolean el);
 void DyadGenDestroy(DyadGen *gen);
 

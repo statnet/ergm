@@ -3,7 +3,7 @@
 #include "ergm_changestat.h"
 #include "ergm_wtchangestat.h"
 
-DyadGen *DyadGenInitialize(enum DyadGenType type, void *dyads, void *track_nwp){
+DyadGen *DyadGenInitialize(DyadGenType type, void *dyads, void *track_nwp){
   DyadGen *gen = Calloc(1, DyadGen);
   gen->type = type;
 
@@ -96,7 +96,7 @@ DyadGen *DyadGenInitializeR(SEXP pR, void *any_nwp, Rboolean el){
   SEXP dgR = getListElement(pR, "dyadgen");
   if(isNULL(dgR)) dgR = pR;
 
-  enum DyadGenType type = asInteger(getListElement(dgR, "type"));
+  DyadGenType type = asInteger(getListElement(dgR, "type"));
 
   DyadGen *gen = Calloc(1, DyadGen);
   gen->type = type;
