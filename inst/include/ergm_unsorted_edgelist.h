@@ -10,7 +10,7 @@
    to a C file and save RAM.*/
 
 typedef struct{
-  Vertex *tails, *heads, ltail, lhead;
+  Vertex *tails, *heads;
   Edge lindex, nedges, maxedges;
 } UnsrtEL;
 
@@ -46,22 +46,20 @@ static inline void UnsrtELDestroy(UnsrtEL *el){
 static inline Edge UnsrtELGetRand(Vertex *tail, Vertex *head, UnsrtEL *el){
   if(el->nedges==0) return 0;
   el->lindex = el->nedges*unif_rand() + 1;
-  *tail = el->ltail = el->tails[el->lindex];
-  *head = el->lhead = el->heads[el->lindex];
+  *tail = el->tails[el->lindex];
+  *head = el->heads[el->lindex];
   return el->lindex;
 }
 
 static inline Edge UnsrtELSearch(Vertex tail, Vertex head, UnsrtEL *el){
-  if(el->lindex==0 || el->lindex>el->nedges || tail!=el->ltail || head!=el->lhead){ // Linear search
+  if(el->lindex==0 || tail!=el->tails[el->lindex] || head!=el->heads[el->lindex]){ // Linear search
     Edge i = el->nedges;
     while(i!=0 && (tail!=el->tails[i] || head!=el->heads[i])) i--;
 
-    if(i){
-      el->ltail=tail;
-      el->lhead=head;
-      el->lindex=i;
-    }else return 0;
+    if(i) return el->lindex=i;
+    else return 0;
   }
+
   return el->lindex;
 }
 
