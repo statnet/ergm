@@ -73,7 +73,6 @@ MH_P_FN(Mp_TNT){
 	DyadGenRandDyad(Mtail, Mhead, MH_STORAGE);
 	
 	if(IS_OUTEDGE(Mtail[0],Mhead[0])){
-          if(((DyadGen *) MH_STORAGE)->intersect) DyadGenRandEdge(Mtail, Mhead, MH_STORAGE); // Re-select from the intersect list so that we would know its index.
 	  logratio = TNT_LR_DE(nedges, Q, DP, DO);
 	}else{
 	  logratio = TNT_LR_DN(nedges, Q, DP, DO);

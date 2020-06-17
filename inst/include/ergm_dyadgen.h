@@ -50,6 +50,26 @@ static inline void DyadGenRandDyad(Vertex *tail, Vertex *head, DyadGen *gen){
   default:
     error("Undefined dyad generator type.");
   }
+
+  if(gen->intersect){ /* If we are maintaining an unsorted edgelist (which also implies that we are *not* in a *RandDyadGen mode)... */
+    /* Use the appropriate function to check if we had selected an extant edge, */
+    Rboolean extant;
+    switch(gen->type){
+    case RLEBDM1DGen:
+    case EdgeListGen:
+      extant = EdgetreeSearch(*tail, *head, gen->nwp.b->outedges)!=0;
+      break;
+    case WtRLEBDM1DGen:
+    case WtEdgeListGen:
+      extant = WtEdgetreeSearch(*tail, *head, gen->nwp.w->outedges)!=0;
+      break;
+    default:
+      error("Undefined dyad generator type.");
+    }
+
+    /* ... and if so, reselect it from the unsorted edgelist. */
+    if(extant) UnsrtELGetRand(tail, head, gen->intersect);
+  }
 }
 
 
