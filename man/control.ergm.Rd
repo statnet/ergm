@@ -82,6 +82,8 @@ control.ergm(
   MCMLE.steplength.min = 1e-04,
   MCMLE.effectiveSize.interval_drop = 2,
   MCMLE.save_intermediates = NULL,
+  MCMLE.singular = c("warning", "message", "error"),
+  MCMLE.singular.rcond = 1e-10,
   SA.phase1_n = NULL,
   SA.initial_gain = NULL,
   SA.nsubphases = 4,
@@ -232,15 +234,15 @@ uses the bias-reduced method of Firth (1993) as originally implemented by
 Meinhard Ploner, Daniela Dunkler, Harry Southworth, and Georg Heinze in the
 "logistf" package.}
 
-\item{MPLE.singular, MPLE.singular.rcond}{A preliminary
-nonidentifiability/multicollinearity diagnostic. If
+\item{MPLE.singular, MPLE.singular.rcond, MCMLE.singular, MCMLE.singular.rcond}{A rudimentary nonidentifiability/multicollinearity diagnostic. If
 \code{MPLE.singular.rcond > 0}, test the estimated MPLE
 variance-covariance matrix for being approximately singular by
 checking if its reciprocal condition number (\code{\link[=rcond]{rcond()}}) is less
 than \code{MPLE.singular.rcond}. This is often (not always) indicative
 of a non-identifiable (multicollinear) model. If singular,
 depending on \code{MPLE.singular} issue a warning, an error, or a
-message.}
+message. The corresponding \verb{MCMLE.*} arguments provide a similar
+diagnostic for the unconstrained MCMC sample's estimating functions.}
 
 \item{MCMC.prop.weights}{Specifies the proposal
 distribution used in the MCMC Metropolis-Hastings algorithm.  Possible

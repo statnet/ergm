@@ -736,8 +736,8 @@ ergm <- function(formula, response=NULL,
      (rc <- rcond(initialfit$covar[!model.initial$etamap$offsettheta,!model.initial$etamap$offsettheta,drop=FALSE])) < control$MPLE.singular.rcond){
     msg <- paste0("MPLE variance-covariance matrix appears to be singular or nearly so (reciprocal condition number = ", rc, "). This may indicate that the model is nonidentifiable.")
     switch(control$MPLE.singular,
-           error = stop(msg),
-           warning = warning(msg, immediate.=TRUE), # Warn immediately, so the user gets the warning before the MCMC starts.
+           error = stop(msg, call.=FALSE),
+           warning = warning(msg, immediate.=TRUE, call.=FALSE), # Warn immediately, so the user gets the warning before the MCMC starts.
            message = message(msg)
            )
   }
