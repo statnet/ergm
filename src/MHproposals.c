@@ -724,28 +724,33 @@ MH_F_FN(Mf_BDStratTNT) {
 
 /********************
     MH_BDTNT
+
+This proposal handles a constant outdegree upper bound and uses a
+whitelist of blocks (sets of dyads defined by combinations of vertex
+attributes) so that specific combinations can be forbidden.
 ********************/
 
 typedef struct {
-  int *attrcounts;
-  Vertex **nodesvec;
+  int *attrcounts; // Count of the number of nodes with each attribute type i that are "submaximal degree" (attrcounts[i] lengths of nodesvec[i]).
+  Vertex **nodesvec; // List of lists of submaximal nodes of attribute i.
   
-  UnsrtEL *edgelist;
+  UnsrtEL *edgelist; // All edges in the network.
   
-  int tailtype;
-  int tailindex;
-  int tailmaxl;
+  int tailtype; // Attribute type of the last tail to be proposed.
+  int tailindex; // Index of that tail in nodesvec[i] where i is tail type.
+  int tailmaxl; // Will the tail change the maximality status if the current proposal is accepted?
   
-  int headtype;
+  int headtype; // Ditto for heads.
   int headindex;
   int headmaxl;
   
-  Dyad currentdyads;
-  Dyad proposeddyads;
+  Dyad currentdyads; // Number of dyads that can be selected in the current network.
+  Dyad proposeddyads; // As above, but if the proposal is accepted.
   
-  int bound;
-  int nmixtypes;
-  double *vattr;
+  int bound; // Single upper bound on degree.
+  int nmixtypes; // Number of pairings of attributes.
+  double *vattr; // Vertex attributes.
+  // Parallel vectors of attribute combinations that are allowed.
   double *tailtypes;
   double *headtypes;
 } BDTNTStorage;
@@ -754,27 +759,28 @@ MH_I_FN(Mi_BDTNT) {
   // process the inputs and initialize all the node lists in storage; set MHp->ntoggles to 1
   MHp->ntoggles = 1;
   
-  int bound = MHp->inputs[0];
-  int nlevels = MHp->inputs[1];
+  int bound = MHp->inputs[0]; // As in struct.
+  int nlevels = MHp->inputs[1]; // Number of distinct types of types of vertex.
   
-  double *nodecountsbycode = MHp->inputs + 2;
+  double *nodecountsbycode = MHp->inputs + 2; // Number of nodes of each type.
   
-  int nmixtypes = MHp->inputs[2 + nlevels];
+  int nmixtypes = MHp->inputs[2 + nlevels]; // As in struct.
   
-  double *tailtypes = MHp->inputs + 3 + nlevels;
-  double *headtypes = tailtypes + nmixtypes;
+  double *tailtypes = MHp->inputs + 3 + nlevels; // As in struct.
+  double *headtypes = tailtypes + nmixtypes; // As in struct.
   
-  double *vattr = headtypes + nmixtypes;
+  double *vattr = headtypes + nmixtypes; // As in struct.
     
-  Vertex **nodesvec = (Vertex **)Calloc(nlevels, Vertex *);
+  Vertex **nodesvec = (Vertex **)Calloc(nlevels, Vertex *); // As in struct.
   
-  int *attrcounts = (int *)Calloc(nlevels, int);
+  int *attrcounts = (int *)Calloc(nlevels, int); // As in struct.
     
   for(int i = 0; i < nlevels; i++) {
     // make room for maximum number of nodes of each type
     nodesvec[i] = (Vertex *)Calloc((int)nodecountsbycode[i], Vertex);
   }
 
+  // Populate the list of submaximal vertices by checking whether a given vertex has a maximal degree.
   for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
     if(IN_DEG[vertex] + OUT_DEG[vertex] < bound) {
       // add vertex to the submaximal list corresponding to its attribute type
@@ -786,9 +792,9 @@ MH_I_FN(Mi_BDTNT) {
   // count number of "BD-toggleable" dyads in current network
   Dyad currentdyads = 0;    
   for(int i = 0; i < nmixtypes; i++) {
-    if(tailtypes[i] == headtypes[i]) {
+    if(tailtypes[i] == headtypes[i]) { // Includes a diagonal dyad.
       currentdyads += (Dyad)attrcounts[(int)tailtypes[i]]*(attrcounts[(int)headtypes[i]] - 1)/2;
-    } else {
+    } else { // Includes a nondiagonal dyad.
       currentdyads += (Dyad)attrcounts[(int)tailtypes[i]]*attrcounts[(int)headtypes[i]];
     }
   }
@@ -810,6 +816,7 @@ MH_I_FN(Mi_BDTNT) {
   sto->tailtypes = tailtypes;
   sto->headtypes = headtypes;
 
+  // Construct and populate the list of edges. (May be obviated by more efficient network sampling.)
   sto->edgelist = UnsrtELInitialize(0, NULL, NULL, FALSE);
   Vertex head;
   Edge e;
@@ -846,18 +853,24 @@ MH_P_FN(MH_BDTNT) {
     Vertex head;
     Vertex tail;
     
-    // this rather ugly block of code is just finding the dyad that corresponds
+    // This rather ugly block of code is just finding the dyad that corresponds
     // to the dyadindex we drew above, and then setting the info for
-    // tail and head appropriately
+    // tail and head appropriately.
+    //
+    // Note that the dyad block selector cannot select an edge
+    // incident on a maximal node; but the edge "reselection" below
+    // will be able to select it with equal probability to the others,
+    // equalising it changes of being selected, and requiring only a
+    // "marginal" adjustment to the acceptance probability.
     for(int i = 0; i < sto->nmixtypes; i++) {
-      Dyad dyadstype;
+      Dyad dyadstype; // Number of dyads in that block.
       if(sto->tailtypes[i] == sto->headtypes[i]) {
         dyadstype = (Dyad)sto->attrcounts[(int)sto->tailtypes[i]]*(sto->attrcounts[(int)sto->headtypes[i]] - 1)/2;
       } else {
         dyadstype = (Dyad)sto->attrcounts[(int)sto->tailtypes[i]]*sto->attrcounts[(int)sto->headtypes[i]];
       }
       
-      if(dyadindex < 2*dyadstype) {
+      if(dyadindex < 2*dyadstype) { // We are in the right block.
         int tailindex;
         int headindex;
         
@@ -893,11 +906,12 @@ MH_P_FN(MH_BDTNT) {
         }
         
         break;
-      } else {
+      } else { // Decrement index and continue.
         dyadindex -= 2*dyadstype;
       }
     }
-        
+
+    // Resample the edge to make it known to the unsorted edgelist.
     edgeflag = IS_OUTEDGE(Mtail[0],Mhead[0]);
     if(edgeflag) UnsrtELGetRand(Mtail, Mhead, sto->edgelist);
   }
@@ -916,12 +930,13 @@ MH_P_FN(MH_BDTNT) {
   // the count of dyads that can be toggled in the "GetRandBDDyad" branch,
   // in the proposed network
   sto->proposeddyads = sto->currentdyads;
-  
+
+  // Update the number of toggleable dyads.
   int delta = edgeflag ? +1 : -1;
   
   for(int i = 0; i < sto->nmixtypes; i++) {
-    int corr = 0;
-    int ha = 0;
+    int corr = 0; // Change to the number of dyads that can be selected.
+    int ha = 0; // "Head adjustment": prevent double-counting.
 
     if(sto->tailtype == sto->headtypes[i] && sto->tailmaxl) {
       ha += delta;
