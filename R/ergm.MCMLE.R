@@ -303,6 +303,17 @@ ergm.MCMLE <- function(init, nw, model,
     esteq <- as.matrix(esteqs)
     if(isTRUE(all.equal(apply(esteq,2,stats::sd), rep(0,ncol(esteq)), check.names=FALSE))&&!all(esteq==0))
       stop("Unconstrained MCMC sampling did not mix at all. Optimization cannot continue.")
+
+    if(control$MCMLE.singular.rcond!=0 &&
+       (rc <- rcond(cov(esteq))) < control$MCMLE.singular.rcond){
+      msg <- paste0("Unconstrained MCMC sample's variance-covariance matrix appears to be singular or nearly so (reciprocal condition number = ", rc, "). This may indicate that the model is nonidentifiable, particularly if this warning occurs several times in a row.")
+    switch(control$MCMLE.singular,
+           error = stop(msg, call.=FALSE),
+           warning = warning(msg, call.=FALSE, immediate.=TRUE), # Warn immediately, so the user gets the warning before the MCMC starts.
+           message = message(msg)
+           )
+    }
+
     esteqs.obs <- if(obs) ergm.estfun(statsmatrices.obs, theta=mcmc.init, model=model) else NULL
     esteq.obs <- if(obs) as.matrix(esteqs.obs) else NULL
 

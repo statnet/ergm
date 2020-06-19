@@ -794,8 +794,8 @@ ergm <- function(formula, response=NULL,
     # eigenvalues.
     if(any(nacoef <- is.na(coef(initialfit)))) msg <- paste0(msg, " The following parameters have nonidentifiable MPLE: ", paste.and(sQuote(param_names(initialfit)[nacoef])), ". Their initial coefficients will be set to 0.")
     switch(control$MPLE.singular,
-           error = stop(msg),
-           warning = warning(msg, immediate.=TRUE), # Warn immediately, so the user gets the warning before the MCMC starts.
+           error = stop(msg, call.=FALSE),
+           warning = warning(msg, immediate.=TRUE, call.=FALSE), # Warn immediately, so the user gets the warning before the MCMC starts.
            message = message(msg)
            )
   }
