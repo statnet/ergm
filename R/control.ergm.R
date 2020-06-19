@@ -493,8 +493,6 @@ control.ergm<-function(drop=TRUE,
                        MCMC.effectiveSize=NULL,
                        MCMC.effectiveSize.damp=10,
                        MCMC.effectiveSize.maxruns=16,
-                       MCMC.effectiveSize.base=1/2,
-                       MCMC.effectiveSize.points=5,
                        MCMC.effectiveSize.burnin.pval=0.2,
                        MCMC.effectiveSize.order.max=NULL,
                        MCMC.return.stats=TRUE,
@@ -733,7 +731,7 @@ control.toplevel<-function(..., myname= as.character(ult(sys.calls(), 2)[[1]])){
 
 SCALABLE_MCMC_CONTROLS <- c("MCMC.burnin", "MCMC.interval")
 STATIC_MCMC_CONTROLS <- c("MCMC.samplesize", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.maxedges", "term.options", "obs.MCMC.mul", "obs.MCMC.samplesize.mul", "obs.MCMC.samplesize", "obs.MCMC.interval.mul", "obs.MCMC.interval", "obs.MCMC.burnin.mul", "obs.MCMC.burnin", "obs.MCMC.prop.weights", "obs.MCMC.prop.args", "term.options")
-ADAPTIVE_MCMC_CONTROLS <- c("MCMC.effectiveSize", "MCMC.effectiveSize.damp", "MCMC.effectiveSize.maxruns", "MCMC.effectiveSize.base", "MCMC.effectiveSize.points", "MCMC.effectiveSize.burnin.pval", "obs.MCMC.effectiveSize")
+ADAPTIVE_MCMC_CONTROLS <- c("MCMC.effectiveSize", "MCMC.effectiveSize.damp", "MCMC.effectiveSize.maxruns", "MCMC.effectiveSize.burnin.pval", "obs.MCMC.effectiveSize")
 PARALLEL_MCMC_CONTROLS <- c("parallel","parallel.type","parallel.version.check")
 MPLE_CONTROLS <- c("MPLE.max.dyad.types","MPLE.samplesize","MPLE.type","MPLE.maxit")
 
