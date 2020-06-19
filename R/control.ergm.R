@@ -107,15 +107,16 @@
 #' @param MPLE.maxit Maximum number of iterations for `"logitreg"`
 #' implementation of MPLE.
 #'
-#' @param MPLE.singular,MPLE.singular.rcond A preliminary
-#'   nonidentifiability/multicollinearity diagnostic. If
+#' @param MPLE.singular,MPLE.singular.rcond,MCMLE.singular,MCMLE.singular.rcond
+#'   A rudimentary nonidentifiability/multicollinearity diagnostic. If
 #'   `MPLE.singular.rcond > 0`, test the estimated MPLE
 #'   variance-covariance matrix for being approximately singular by
 #'   checking if its reciprocal condition number ([rcond()]) is less
 #'   than `MPLE.singular.rcond`. This is often (not always) indicative
 #'   of a non-identifiable (multicollinear) model. If singular,
 #'   depending on `MPLE.singular` issue a warning, an error, or a
-#'   message.
+#'   message. The corresponding `MCMLE.*` arguments provide a similar
+#'   diagnostic for the unconstrained MCMC sample's estimating functions.
 #'
 #' @template control_MCMC_prop
 #'
@@ -582,6 +583,8 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.steplength.min=0.0001,
                        MCMLE.effectiveSize.interval_drop=2,
                        MCMLE.save_intermediates=NULL,
+                       MCMLE.singular=c("warning","message","error"),
+                       MCMLE.singular.rcond=1e-10,
 
                        SA.phase1_n=NULL, SA.initial_gain=NULL, 
                        SA.nsubphases=4,
@@ -694,7 +697,7 @@ control.ergm<-function(drop=TRUE,
                        SAN.burnin.times="SAN.nsteps.times"
                        )
 
-  match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method","MCMLE.steplength.parallel","CD.steplength.parallel","MPLE.singular")
+  match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method","MCMLE.steplength.parallel","CD.steplength.parallel","MPLE.singular","MCMLE.singular")
   
   control<-list()
   formal.args<-formals(sys.function())

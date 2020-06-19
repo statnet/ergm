@@ -54,7 +54,6 @@ RoxygenNote: 7.1.0
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
 Collate: 
-    'InitErgm.bipartite.R'
     'InitErgmConstraint.R'
     'InitErgmProposal.R'
     'InitErgmProposal.dyadnoise.R'
@@ -62,6 +61,7 @@ Collate:
     'ergm-deprecated.R'
     'InitErgmTerm.R'
     'InitErgmTerm.auxnet.R'
+    'InitErgmTerm.bipartite.R'
     'InitErgmTerm.bipartite.degree.R'
     'InitErgmTerm.blockop.R'
     'InitErgmTerm.coincidence.R'
