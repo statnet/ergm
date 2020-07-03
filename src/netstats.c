@@ -19,7 +19,7 @@
 
 /* *** don't forget tail-> head, so this fucntion now accepts tails before heads */
 
-void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int *lasttoggle, int *dnedges, 
+void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int *lasttoggle_flag, int *lasttoggle, int *dnedges, 
 			   int *dn, int *dflag,  int *bipartite,
 			   int *nterms, char **funnames,
 			   char **sonames, double *inputs,  double *stats)
@@ -37,7 +37,7 @@ void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int 
   directed_flag = *dflag;
   bip = (Vertex)*bipartite;
   
-  if(*lasttoggle == 0) lasttoggle = NULL;
+  if(!*lasttoggle_flag) lasttoggle = NULL;
 
   GetRNGstate();  /* R function enabling uniform RNG */
 

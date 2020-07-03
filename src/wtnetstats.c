@@ -16,7 +16,7 @@
  has true global values equal to zero for all statistics, then this
  change gives the true global values for the observed graph.
 *****************/
-void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timings, int *time, int *lasttoggle, int *dnedges,
+void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timings, int *time, int *lasttoggle_flag, int *lasttoggle, int *dnedges,
 			   int *dn, int *dflag,  int *bipartite,
 			   int *nterms, char **funnames,
 			   char **sonames, double *inputs,  double *stats)
@@ -34,7 +34,7 @@ void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timi
   directed_flag = *dflag;
   bip = (Vertex)*bipartite;
   
-  if(*lasttoggle == 0) lasttoggle = NULL;
+  if(!*lasttoggle_flag) lasttoggle = NULL;
 
   GetRNGstate();  /* R function enabling uniform RNG */
 
