@@ -303,4 +303,4 @@ test_that("BDStratTNT simulates reasonably", {
       expect_true(summ_stats[paste0("deg", deg_bound + 1, "+")] == 0)    
     }  
   }
-}
+})
