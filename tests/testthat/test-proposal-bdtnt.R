@@ -201,4 +201,38 @@ test_that("BDTNT works with churning", {
   expect_true(all(srs[as.logical(fmat[upper.tri(fmat,diag=TRUE)])] == 0))
 })
 
-
+test_that("BDTNT simulates reasonably", {
+  for(deg_bound in 1:5) {
+    net_size <- 500L
+  
+    nw <- network.initialize(net_size, dir = FALSE)
+  
+    vattr <- sample(c("A","B","C"), net_size, TRUE)
+    
+    nw %v% "vattr" <- vattr
+    
+    fmat <- matrix(c(1,0,0,0,1,0,0,0,0),3,3)
+      
+    control <- control.simulate.formula(MCMC.prop.weights = "BDTNT", 
+                                        MCMC.prop.args = list(bound = deg_bound,
+                                                              attr = "vattr",
+                                                              fmat = fmat))
+    
+    nw_sim <- nw
+    
+    for(i in 1:5) {
+      nw_sim <- simulate(nw_sim ~ edges, 
+                         coef = c(0),
+                         output = "network",
+                         control = control)
+      summ_stats <- summary(nw_sim ~ nodemix("vattr") + degrange(deg_bound + 1))
+      expect_true(summ_stats[paste0("deg", deg_bound + 1, "+")] == 0)
+      expect_true(summ_stats["mix.vattr.A.A"] == 0)
+      expect_true(summ_stats["mix.vattr.B.B"] == 0)
+      expect_true(summ_stats["mix.vattr.A.B"] > 0)
+      expect_true(summ_stats["mix.vattr.A.C"] > 0)
+      expect_true(summ_stats["mix.vattr.B.C"] > 0)
+      expect_true(summ_stats["mix.vattr.C.C"] > 0)    
+    }
+  }  
+})
