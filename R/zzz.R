@@ -42,16 +42,16 @@
   ergm_proposal_table("c", "Bernoulli", "|bd",  0, "StratTNT", "StratTNT")
   ergm_proposal_table("c", "Bernoulli", "",  0, "BDStratTNT", "BDStratTNT")
   ergm_proposal_table("c", "Bernoulli", "", -100, "TNT10", "TNT10")
-  ergm_proposal_table("c", "Bernoulli", "degrees",  0, "random", "CondDegree")
-  ergm_proposal_table("c", "Bernoulli", "degreesmix",  0, "random", "CondDegreeMix")
+  ergm_proposal_table("c", "Bernoulli", "&degrees",  0, "random", "CondDegree")
+  ergm_proposal_table("c", "Bernoulli", "&degreesmix",  0, "random", "CondDegreeMix")
   ergm_proposal_table("c", "Bernoulli", c("&idegrees&odegrees","&b1degrees&b2degrees"),  0, "random", "CondDegree")
-  ergm_proposal_table("c", "Bernoulli", "odegrees",  0, "random", "CondOutDegree")
-  ergm_proposal_table("c", "Bernoulli", "idegrees",  0, "random", "CondInDegree")
-  ergm_proposal_table("c", "Bernoulli", "b1degrees",  0, "random", "CondB1Degree")
-  ergm_proposal_table("c", "Bernoulli", "b2degrees",  0, "random", "CondB2Degree")
-  ergm_proposal_table("c", "Bernoulli", "degreedist",  0, "random", "CondDegreeDist")
-  ergm_proposal_table("c", "Bernoulli", "idegreedist",  0, "random", "CondInDegreeDist")
-  ergm_proposal_table("c", "Bernoulli", "odegreedist",  0, "random", "CondOutDegreeDist")
+  ergm_proposal_table("c", "Bernoulli", "&odegrees",  0, "random", "CondOutDegree")
+  ergm_proposal_table("c", "Bernoulli", "&idegrees",  0, "random", "CondInDegree")
+  ergm_proposal_table("c", "Bernoulli", "&b1degrees",  0, "random", "CondB1Degree")
+  ergm_proposal_table("c", "Bernoulli", "&b2degrees",  0, "random", "CondB2Degree")
+  ergm_proposal_table("c", "Bernoulli", "&degreedist",  0, "random", "CondDegreeDist")
+  ergm_proposal_table("c", "Bernoulli", "&idegreedist",  0, "random", "CondInDegreeDist")
+  ergm_proposal_table("c", "Bernoulli", "&odegreedist",  0, "random", "CondOutDegreeDist")
   ergm_proposal_table("c", "Bernoulli", "|bd&edges",  0, "random", "ConstantEdges")
   ergm_proposal_table("c", "Bernoulli", "&edges&hamming",  0, "random", "HammingConstantEdges")
   ergm_proposal_table("c", "Bernoulli", "&hamming&TNT",  0, "random", "HammingTNT")
@@ -59,17 +59,17 @@
   ergm_proposal_table("c", "Bernoulli", "dyadnoise",  0, "random", "dyadnoise")
 
   ergm_proposal_table("c", "StdNormal", "",  0, "random", "StdNormal")
-  ergm_proposal_table("c", "StdNormal", ".dyads",  0, "random", "DistRLE")
+  ergm_proposal_table("c", "StdNormal", "|.dyads",  0, "random", "DistRLE")
 
   ergm_proposal_table("c", "Unif", "",  0, "random", "Unif")
-  ergm_proposal_table("c", "Unif", "observed",  0, "random", "UnifNonObserved")
-  ergm_proposal_table("c", "Unif", ".dyads",  0, "random", "DistRLE")
+  ergm_proposal_table("c", "Unif", "&observed",  0, "random", "UnifNonObserved")
+  ergm_proposal_table("c", "Unif", "|.dyads",  0, "random", "DistRLE")
 
   ergm_proposal_table("c", "DiscUnif", "",  0, "random", "DiscUnif")
-  ergm_proposal_table("c", "DiscUnif", "observed",  0, "random", "DiscUnifNonObserved")
+  ergm_proposal_table("c", "DiscUnif", "&observed",  0, "random", "DiscUnifNonObserved")
 
   ergm_proposal_table("c", "DiscUnif", "",  -1, "random2", "DiscUnif2")
-  ergm_proposal_table("c", c("Unif","DiscUnif","StdNormal","Poisson","Binomial"), ".dyads",  -3, "random", "DistRLE")
+  ergm_proposal_table("c", c("Unif","DiscUnif","StdNormal","Poisson","Binomial"), "|.dyads",  -3, "random", "DistRLE")
 }
 
 .onUnload <- function(libpath){

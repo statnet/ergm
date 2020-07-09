@@ -330,15 +330,22 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), w
   decode_constraints <- function(s){
     # Convert old-style specification to the new-style
     # specification. Note that .dyads is always optional.
-    if(!startsWith(s,"&") && !startsWith(s,"|"))
+    if(nchar(s) && !startsWith(s,"&") && !startsWith(s,"|"))
       s <- strsplit(s, "+", fixed=TRUE)[[1L]] %>% paste0(ifelse(.==".dyads", "|", "&"), ., collapse="")
 
     # Split on flags, but keep flags.
     s <- strsplit(s, "(?<=.)(?=[&|])", perl=TRUE)[[1L]]
 
-    list(does = s %>% keep(startsWith, "&") %>% map_chr(~substr(.,2,nchar(.))),
-         can = s %>% keep(startsWith, "|") %>% map_chr(~substr(.,2,nchar(.))))
+    names <- substr(s, 2, 2147483647L)
+    does <- map_lgl(s, startsWith, "&")
+    can <- !does
+
+    list(does = names[does],
+         can = names[can])
   }
+
+  candidates <- as_tibble(candidates)
+  candidates$Constraints <- lapply(candidates$Constraints, decode_constraints)
 
   # proposals = the proposal table
   # constraints = an ergm_conlist
@@ -348,7 +355,7 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), w
     constraints <- constraints[names(constraints)!=""]
 
     add_score <- function(proposal){
-      propcon <- decode_constraints(proposal$Constraints)
+      propcon <- proposal$Constraints
       does <- propcon$does
       can <- propcon$can
       wanted <- names(constraints)
@@ -363,7 +370,7 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), w
       if(proposal$Score==-Inf) return(NULL)
       proposal
     }
-    lapply(transpose(proposals), add_score) %>% compact %>% transpose %>% map(unlist) %>% as.data.frame
+    proposals %>% transpose %>% map(add_score) %>% compact %>% transpose %>% map_if(~!is.list(.[[1]]), unlist) %>% as_tibble
   }
 
   
@@ -379,7 +386,8 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), w
     score_proposals(candidates, conlist.general)
   }
 
-  qualifying <- rbind(qualifying.general, qualifying.specific)
+  #' @importFrom dplyr bind_rows
+  qualifying <- bind_rows(qualifying.general, qualifying.specific)
 
   if(nrow(qualifying)<1){
     connames <- list_rhs.formula(object) %>% map_chr(deparse)
