@@ -36,13 +36,11 @@
 }
 
 .RegisterProposals <- function(){
-  ergm_proposal_table("c", "Bernoulli", "|bd",  0, "random", "randomtoggle")
-  ergm_proposal_table("c", "Bernoulli", "|bd&TNT",  0, "TNT", "TNT")
+  ergm_proposal_table("c", "Bernoulli", "|.dyads|bd",  -2, "random", "randomtoggle")
+  ergm_proposal_table("c", "Bernoulli", "|.dyads|bd&TNT",  -1, "TNT", "TNT")
   ergm_proposal_table("c", "Bernoulli", "",  0, "BDTNT", "BDTNT")
   ergm_proposal_table("c", "Bernoulli", "|bd",  0, "StratTNT", "StratTNT")
   ergm_proposal_table("c", "Bernoulli", "",  0, "BDStratTNT", "BDStratTNT")
-  ergm_proposal_table("c", "Bernoulli", "|.dyads|bd",  -2, "random", "RLE")
-  ergm_proposal_table("c", "Bernoulli", "|.dyads|bd&TNT",  -1, "TNT", "RLETNT")
   ergm_proposal_table("c", "Bernoulli", "", -100, "TNT10", "TNT10")
   ergm_proposal_table("c", "Bernoulli", "degrees",  0, "random", "CondDegree")
   ergm_proposal_table("c", "Bernoulli", "degreesmix",  0, "random", "CondDegreeMix")
@@ -57,12 +55,6 @@
   ergm_proposal_table("c", "Bernoulli", "|bd&edges",  0, "random", "ConstantEdges")
   ergm_proposal_table("c", "Bernoulli", "&edges&hamming",  0, "random", "HammingConstantEdges")
   ergm_proposal_table("c", "Bernoulli", "&hamming&TNT",  0, "random", "HammingTNT")
-  ergm_proposal_table("c", "Bernoulli", "|bd&observed",  0, "random", "randomtoggleNonObserved")
-  ergm_proposal_table("c", "Bernoulli", "|bd&observed&TNT",  1, "TNT", "NonObservedTNT")
-  ergm_proposal_table("c", "Bernoulli", "fixedas",  0, "random", "fixedas")
-  ergm_proposal_table("c", "Bernoulli", "fixedas",  1, "TNT", "fixedasTNT")
-  ergm_proposal_table("c", "Bernoulli", "fixallbut",  0, "random", "fixallbut")
-  ergm_proposal_table("c", "Bernoulli", "fixallbut",  1, "TNT", "fixallbutTNT")
   ergm_proposal_table("c", "Bernoulli", "dyadnoise",  1, "TNT", "dyadnoiseTNT")
   ergm_proposal_table("c", "Bernoulli", "dyadnoise",  0, "random", "dyadnoise")
 

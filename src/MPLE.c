@@ -41,11 +41,10 @@ SEXP MPLE_wrapper(SEXP stateR,
   GetRNGstate(); /* Necessary for R random number generator */
   ErgmState *s = ErgmStateInit(stateR, ERGM_STATE_NO_INIT_PROP);
 
-  Network *nwp = s->nwp;
   Model *m = s->m;
 
   double *tmp = REAL(wl);
-  RLEBDM1D wlm = unpack_RLEBDM1D(&tmp, nwp->nnodes);
+  RLEBDM1D wlm = unpack_RLEBDM1D(&tmp);
 
   SEXP responsevec = PROTECT(allocVector(INTSXP, asInteger(maxNumDyadTypes)));
   memset(INTEGER(responsevec), 0, asInteger(maxNumDyadTypes)*sizeof(int));

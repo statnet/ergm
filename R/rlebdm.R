@@ -407,5 +407,5 @@ to_ergm_Cdouble.rlebdm <- function(x, ...){
   runstart <- runstart[-length(runstart)]
   runstart <- runstart[x$values==TRUE]
 
-  as.double(c(ndyads, nruns, runstart, c(0,cumlen)))
+  as.double(c(attr(x,"n"), ndyads, nruns, runstart, c(0,cumlen)))
 }
