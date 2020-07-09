@@ -235,9 +235,14 @@ gof.formula <- function(object, ...,
   
   m <- ergm_model(object, nw, term.options=control$term.options)
 
+  proposal <- if(inherits(constraints, "ergm_proposal")) constraints
+                else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
+                                   nw=nw, weights=control$MCMC.prop.weights, class="c"## ,reference=reference,response=response
+                                   )
+
   if(is.null(coef)){
-      coef <- numeric(nparam(m, canonical=TRUE))
-      warning("No parameter values given, using 0\n\t")
+      coef <- numeric(nparam(m, canonical=FALSE))
+      warning("No parameter values given, using 0.")
   }
 # if(is.bipartite(nw)){
 #     coef <- c(coef,-1)
@@ -410,8 +415,8 @@ gof.formula <- function(object, ...,
       message("Sim ",i," of ",control$nsim,": ",appendLF=FALSE)
     }
     if(network.naedgecount(nw) & !unconditional){tempnet <- nw}
-    tempnet <- simulate(object, nsim=1, coef=coef,
-                        constraints=constraints, 
+    tempnet <- simulate(m, nsim=1, coef=coef,
+                        constraints=proposal,
                         control=set.control.class("control.simulate.formula",control),
                         basis=tempnet,
                         verbose=verbose)
