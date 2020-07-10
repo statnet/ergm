@@ -28,6 +28,7 @@
 #' stopifnot(length(big)==50000^2)
 #'
 #' @seealso [as.rlebdm.ergm_conlist()]
+#' @import rle
 #' @import statnet.common
 #' @keywords internal
 #' @export
@@ -316,7 +317,7 @@ as.rlebdm.ergm_conlist <- function(x, constraints.obs = NULL, which = c("free", 
 #'   `rlebdm` by merging successive runs with identical values.
 #' @export
 compress.rlebdm <- function(x, ...){
-  y <- NextMethod("compress")
+  y <- NextMethod()
   structure(y, n=attr(x, "n"), class=class(x))
 }
 

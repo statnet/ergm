@@ -26,6 +26,7 @@ Imports:
     methods,
     MASS (>= 7.3.51.4),
     statnet.common (>= 4.4.0),
+    rle,
     purrr (>= 0.3.2),
     rlang (>= 0.3.4),
     tibble (>= 2.1.1)
@@ -167,4 +168,5 @@ Collate:
     'wtd.median.R'
     'zzz.R'
 Remotes: github::statnet/statnet.common@master,
+    github::statnet/rle@master,
     github::statnet/network@master
