@@ -64,6 +64,124 @@
 
 %% }
 
+\section{Changes in version 3.11.0}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+        Non-identifiability checks have been added for \code{MPLE} and \code{MCMLE}.
+      }      
+      \item{
+        The number of dyads that the \code{\link[=ergm.mple]{MPLE}} visits before resorting to the case-control likelihood is now controlled by the \code{MPLE.samplesize} control parameter (if initial fit is final) and by the \code{init.MPLE.samplesize} control parameter (if it is used only to initialize the MCMC-based estimation).
+      }
+      \item{
+        Added a \code{\link[=ergm-constraints]{Dyads}} constraint that takes \code{ergm} formulas and constrains dyads based on which dyads affect their change statistics.
+      }
+      \item{
+        Added \code{\link{compress.rlebdm}}.
+      }
+      \item{
+        Added \code{\link{predict.ergm}} and \code{\link{predict.formula}} to calculate model-predicted \strong{conditional} and \strong{unconditional} tie probabilities (contributed by Michal Bojanowski).
+      }
+      \item{
+        Restructured the \code{\link[=simulate.ergm]{simulate}} family of methods.  Also added \code{nsim} and \code{seed} arguments to \code{\link{simulate.formula}}.
+      }
+      \item{
+        \code{\link{ergm_get_vattr.function}} now propagates its arguments to the function it calls.
+      }
+      \item{
+        The vertex attribute levels specification API has been extended to include various convenience "functions" such as \code{\link[=node-attr]{LARGEST}} and \code{\link[=node-attr]{SMALLEST}}.
+      }
+      \item{
+        \code{\link{ergmMPLE}} now takes a \code{constraints} argument and handles it and missing dyads correctly.
+      }
+      \item{
+        \code{\link{san}} now has the ability to take offsets into account.
+      }
+      \item{
+        Added an argument \code{which} to \code{\link{mcmc.diagnostics.ergm}} to specify which output is wanted.
+      }
+      \item{
+        Missing nodal attributes now generate an error in model initialization.
+      }
+      \item{
+        Bipartite versions of \code{\link{dsp}} and \code{\link{gwdsp}} have been added.
+      }
+      \item{
+        A new term \code{\link{isolatededges}} has been added.
+      }
+      \item{
+        \code{\link{ergm_get_vattr}} now has an \code{AsIs} method that makes minimal changes to the input before returning.      
+      }
+    }
+  }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        A bug involving assumptions based on the first entry in the lasttoggle vector has been corrected.
+      }
+      \item{
+        In \code{\link{logLik.ergm}}, degrees of freedom no longer count offsets.
+      }
+      \item{
+        The \code{Dyad} type used in C code is now at least 64 bits on all systems.
+      }
+      \item{
+        A bug that made \code{\link{san}} fail to terminate when it had hit its target stats exactly has been corrected.
+      }
+      \item{
+        The \code{\link{as.rlebdm.edgelist}} function now correctly handles the network size attribute attached to the edgelist.
+      }
+      \item{
+        Fixed incorrect use of \code{MCMC.*} control parameters in \code{\link{san}}.
+      }
+      \item{
+        Fixed the documentation for the \code{object} argument to \code{\link{ergm_proposal}}, and fixed a recursive default argument to \code{\link{ergm_proposal.character}}.
+      }
+      \item{
+        Added a workaround for a limitation of \code{coda::densityplot.mcmc.list} when variable names are not unique, which caused a problem in \code{\link{mcmc.diagnostics}} pointed out by James Wells.
+      }
+      \item{
+        The \code{levels} argument was removed from \code{starmix} terms as it was not functioning correctly.
+      }
+      \item{
+        Documentation and implementation for term \code{balance} have been corrected.
+      }
+    }
+  }
+
+
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+        Removed \code{fauxhigh} and \code{fauxhigh.withnumericattributes} from the datalist.
+      }
+      \item{
+        Some optimizations have been made to RLEBDMs.
+      }
+      \item{
+        Removed \code{.deinf} and replaced it with \code{\link[statnet.common]{deInf}} in \code{statnet.common}.
+      }
+      \item{
+        Various documentation updates have been made.
+      }
+      \item{
+        Previously deprecated functions \code{ergm.getglobalstats}, \code{ergm.getmodel}, \code{ergm.update.formula}, \code{network.update}, and \code{remove.offset.formula} are now defunct.
+      }
+      \item{
+        Renamed \code{.Hummel.} to \code{.steplength.} control parameters for consistency.
+      }
+      \item{
+        Parallel multisection search for Hummel step length is now only enabled for missing data MLE by default, and can be disabled altogether with appropriate control parameters.
+      }
+      \item{
+        Formulas are no longer attached to \code{\link{ergm_model}}, \code{\link{ergm_proposal}}, \code{\link{ergm_conlist}}, and others.
+      }
+    }
+  }
+}
 
 \section{Changes in version 3.10.4}{
 
