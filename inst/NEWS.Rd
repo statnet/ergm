@@ -120,7 +120,7 @@
   \subsection{BUG FIXES}{
     \itemize{
       \item{
-        A bug involving assumptions based on the first entry in the lasttoggle vector has been corrected.
+        A bug involving assumptions based on the first entry in the \code{lasttoggle} vector has been corrected.
       }
       \item{
         In \code{\link{logLik.ergm}}, degrees of freedom no longer count offsets.
