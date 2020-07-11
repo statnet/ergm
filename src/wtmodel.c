@@ -73,7 +73,7 @@ void WtModelDestroy(WtNetwork *nwp, WtModel *m)
       m->termarray[0].aux_storage[i] = NULL;
   }
   
-  if(m->termarray[0].aux_storage!=NULL){
+  if(m->n_terms && m->termarray[0].aux_storage!=NULL){
     Free(m->termarray[0].aux_storage);
   }
   
