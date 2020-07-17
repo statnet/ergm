@@ -101,16 +101,18 @@
 #' Meinhard Ploner, Daniela Dunkler, Harry Southworth, and Georg Heinze in the
 #' "logistf" package.
 #'
-#' @param MPLE.singular,MPLE.singular.rcond,MCMLE.singular,MCMLE.singular.rcond
+#' @param
+#'   MPLE.nonident,MPLE.nonident.tol,MCMLE.nonident,MCMLE.nonident.tol
 #'   A rudimentary nonidentifiability/multicollinearity diagnostic. If
-#'   `MPLE.singular.rcond > 0`, test the estimated MPLE
-#'   variance-covariance matrix for being approximately singular by
-#'   checking if its reciprocal condition number ([rcond()]) is less
-#'   than `MPLE.singular.rcond`. This is often (not always) indicative
-#'   of a non-identifiable (multicollinear) model. If singular,
-#'   depending on `MPLE.singular` issue a warning, an error, or a
-#'   message. The corresponding `MCMLE.*` arguments provide a similar
-#'   diagnostic for the unconstrained MCMC sample's estimating functions.
+#'   `MPLE.nonident.tol > 0`, test the MPLE covariate matrix or the CD
+#'   statistics matrix has linearly dependent columns via [QR
+#'   decomposition][qr] with tolerance `MPLE.nonident.tol`. This is
+#'   often (not always) indicative of a non-identifiable
+#'   (multicollinear) model. If nonidentifiable, depending on
+#'   `MPLE.nonident` issue a warning, an error, or a message
+#'   specifying the potentially redundant statistics. The
+#'   corresponding `MCMLE.*` arguments provide a similar diagnostic
+#'   for the unconstrained MCMC sample's estimating functions.
 #'
 #' @template control_MCMC_prop
 #'
@@ -427,8 +429,8 @@ control.ergm<-function(drop=TRUE,
                        MPLE.samplesize=.Machine$integer.max,
                        init.MPLE.samplesize=function(d,e) max(e,40)*8,
                        MPLE.type=c("glm", "penalized"),
-                       MPLE.singular=c("warning","message","error"),
-                       MPLE.singular.rcond=1e-10,
+                       MPLE.nonident=c("warning","message","error"),
+                       MPLE.nonident.tol=1e-10,
 
                        MCMC.prop.weights="default", MCMC.prop.args=list(),
                        MCMC.interval=1024,
@@ -504,8 +506,8 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.steplength.min=0.0001,
                        MCMLE.effectiveSize.interval_drop=2,
                        MCMLE.save_intermediates=NULL,
-                       MCMLE.singular=c("warning","message","error"),
-                       MCMLE.singular.rcond=1e-10,
+                       MCMLE.nonident=c("warning","message","error"),
+                       MCMLE.nonident.tol=1e-10,
 
                        SA.phase1_n=NULL, SA.initial_gain=NULL, 
                        SA.nsubphases=4,
@@ -607,7 +609,7 @@ control.ergm<-function(drop=TRUE,
                        SAN.burnin.times="SAN.nsteps.times"
                        )
 
-  match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method","MCMLE.steplength.parallel","CD.steplength.parallel","MPLE.singular","MCMLE.singular")
+  match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method","MCMLE.steplength.parallel","CD.steplength.parallel","MPLE.nonident","MCMLE.nonident")
   
   control<-list()
   formal.args<-formals(sys.function())

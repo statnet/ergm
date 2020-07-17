@@ -74,6 +74,7 @@
 ergm.mple<-function(nw, fd, m, init=NULL,
                     MPLEtype="glm", family="binomial",
                     save.glm=TRUE,
+                    save.xmat=TRUE,
 		    control=NULL, proposal=NULL,
                     verbose=FALSE,
                     ...) {
@@ -204,7 +205,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
       iterations=iteration, 
       MCMCtheta=theta, gradient=gradient,
       hessian=hess, covar=covar, failure=FALSE,
-      est.cov=est.cov, glm = glm, glm.null = glm.null),
+      est.cov=est.cov, glm = glm, glm.null = glm.null, xmat.full = if(save.xmat) pl$xmat.full),
      class="ergm")
 }
 

@@ -13,6 +13,7 @@ ergm.mple(
   MPLEtype = "glm",
   family = "binomial",
   save.glm = TRUE,
+  save.xmat = TRUE,
   control = NULL,
   proposal = NULL,
   verbose = FALSE,

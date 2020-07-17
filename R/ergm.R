@@ -728,18 +728,14 @@ ergm <- function(formula, response=NULL,
                                 verbose=if(MCMCflag) FALSE else verbose, response=response,
                                 ...)
 
-  # TODO: this may also work for CD initial method.
-  if(control$init.method=="MPLE" &&
-     control$MPLE.singular.rcond!=0 &&
-     is.matrix(initialfit$covar) &&
-     (rc <- rcond(initialfit$covar[!model.initial$etamap$offsettheta,!model.initial$etamap$offsettheta,drop=FALSE])) < control$MPLE.singular.rcond){
-    msg <- paste0("MPLE variance-covariance matrix appears to be singular or nearly so (reciprocal condition number = ", rc, "). This may indicate that the model is nonidentifiable.")
-    switch(control$MPLE.singular,
-           error = stop(msg, call.=FALSE),
-           warning = warning(msg, immediate.=TRUE, call.=FALSE), # Warn immediately, so the user gets the warning before the MCMC starts.
-           message = message(msg)
-           )
-  }
+  switch(control$init.method,
+         MPLE = NVL3(initialfit$xmat.full, check_nonidentifiability(., initialfit$coef, model.initial,
+                                         tol = control$MPLE.nonident.tol, type="covariates",
+                                         action = control$MPLE.nonident)),
+         CD = NVL3(initialfit$sample, check_nonidentifiability(as.matrix(.), initialfit$coef, model.initial,
+                                       tol = control$MPLE.nonident.tol, type="statistics",
+                                       action = control$MPLE.nonident))
+         )
 
   if (!MCMCflag){ # Just return initial (non-MLE) fit and exit.
     message("Stopping at the initial estimate.")
