@@ -1,6 +1,6 @@
 Package: ergm
-Version: 3.10.4-5582
-Date: 2020-07-09
+Version: 3.10.4-5590
+Date: 2020-07-17
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
 	   person("Mark S.", "Handcock", role=c("aut"), email="handcock@stat.ucla.edu"),
@@ -49,7 +49,7 @@ Description: An integrated set of tools to analyze and simulate networks based o
 License: GPL-3 + file LICENSE
 URL: https://statnet.org
 VignetteBuilder: rmarkdown, knitr
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
 Collate: 

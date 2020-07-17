@@ -97,7 +97,6 @@
 #      !    #~   glm.null        :  the null fit established by MPL estimation and
 #                                   returned by <ergm.logitreg>, <ergm.pen.glm> or <glm>
 #                                   depending on the 'MPLEtype';
-#      !   #~    theta1          :  the vector of ??
 #         &      rm.coef         :  the robmon coefficients used as 'init' in the final
 #                                   estimation
 #      !   #~   loglikelihoodratio: the log-likelihood corresponding to
