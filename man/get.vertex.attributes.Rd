@@ -14,10 +14,10 @@ get.vertex.attributes(
 )
 }
 \arguments{
-\item{x, na.omit, null.na, unlist}{see \code{\link[network:get.vertex.attribute]{network::get.vertex.attribute()}}.}
+\item{x, na.omit, null.na, unlist}{see \code{\link[network:attribute.methods]{network::get.vertex.attribute()}}.}
 
 \item{attrnames}{a character vector of one or more vertex attribute
-names; see \code{\link[network:get.vertex.attribute]{network::get.vertex.attribute()}}.}
+names; see \code{\link[network:attribute.methods]{network::get.vertex.attribute()}}.}
 
 \item{sep}{an optional character vector of length 1 to use as a
 separator for attribute values.}
