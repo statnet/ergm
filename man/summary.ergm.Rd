@@ -75,6 +75,17 @@ those returned by \code{\link[=summary.lm]{summary.lm()}}).
 \code{\link[base]{summary}} method for \code{\link{ergm}} fits.
 }
 \details{
+The default printout of the summary object contains the call, number
+of iterations used, null and residual deviances, and the values of AIC and
+BIC. The coeficient table contains the following columns:
+\itemize{
+\item \code{Estimate}, \verb{Std. Error} - parameter estimates and their standard errors
+\item \verb{MCMC \%} - if \code{total.variation=TRUE} (default) the percentage of standard
+error attributable to MCMC estimation process rounded to an integer. See
+also \code{\link[=vcov.ergm]{vcov.ergm()}} and its \code{sources} argument.
+\item \verb{z value}, \verb{Pr(>|z|)} - z-test and p-values
+}
+
 \code{\link{summary.ergm}} tries to be smart about formatting the
 coefficients, standard errors, etc.
 }
