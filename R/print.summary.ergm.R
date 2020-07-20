@@ -40,6 +40,15 @@
 #' @param
 #'   print.formula,print.fitinfo,print.coefmat,print.message,print.deviances,print.drop,print.offset,print.call
 #'   which components of the fit summary to print.
+#'   
+#' @details The default printout of the summary object contains the call, number
+#'   of iterations used, null and residual deviances, and the values of AIC and
+#'   BIC. The coeficient table contains the following columns:
+#'   
+#'   - `Estimate`,`Std. Error` - parameter estimates and their standard errors
+#'   - `MCMC %` - if `total.variation=TRUE` the percentage of standard error attributable to MCMC estimation process
+#'   - `z value`,`Pr(>|z|)` - z-test and p-value
+#'    
 #' @export
 print.summary.ergm <- function (x, 
               digits = max(3, getOption("digits") - 3),
