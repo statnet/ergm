@@ -58,7 +58,6 @@
 #' \code{\link{summary.ergm}} tries to be smart about formatting the
 #' coefficients, standard errors, etc.
 #' 
-#' @aliases print.summary.ergm
 #' @param object an object of class \code{"ergm"}, usually, a result
 #'   of a call to \code{\link{ergm}}.
 #' @param digits Significant digits for coefficients
