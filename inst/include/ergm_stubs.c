@@ -17,6 +17,31 @@ return fun(n,r);
 #define STUBFILE
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
+#include "ergm_dyadgen.h"
+DyadGen * DyadGenInitializeR(SEXP pR, void *any_nwp, Rboolean el){
+static DyadGen * (*fun)(SEXP,void *,Rboolean) = NULL;
+if(fun==NULL) fun = (DyadGen * (*)(SEXP,void *,Rboolean)) R_FindSymbol("DyadGenInitializeR", "ergm", NULL);
+return fun(pR,any_nwp,el);
+}
+void DyadGenDestroy(DyadGen *gen){
+static void (*fun)(DyadGen *) = NULL;
+if(fun==NULL) fun = (void (*)(DyadGen *)) R_FindSymbol("DyadGenDestroy", "ergm", NULL);
+fun(gen);
+}
+void DyadGenUpdate(Vertex tail, Vertex head, DyadGen *gen, Network *nwp, Rboolean edgeflag){
+static void (*fun)(Vertex,Vertex,DyadGen *,Network *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,DyadGen *,Network *,Rboolean)) R_FindSymbol("DyadGenUpdate", "ergm", NULL);
+fun(tail,head,gen,nwp,edgeflag);
+}
+void WtDyadGenUpdate(Vertex tail, Vertex head, double weight, DyadGen *gen, WtNetwork *nwp, double edgeweight){
+static void (*fun)(Vertex,Vertex,double,DyadGen *,WtNetwork *,double) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,DyadGen *,WtNetwork *,double)) R_FindSymbol("WtDyadGenUpdate", "ergm", NULL);
+fun(tail,head,weight,gen,nwp,edgeweight);
+}
+
+#define STUBFILE
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_dyad_hashmap.h"
 
 #define STUBFILE
