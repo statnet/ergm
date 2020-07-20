@@ -45,9 +45,11 @@
 #'   of iterations used, null and residual deviances, and the values of AIC and
 #'   BIC. The coeficient table contains the following columns:
 #'   
-#'   - `Estimate`,`Std. Error` - parameter estimates and their standard errors
-#'   - `MCMC %` - if `total.variation=TRUE` the percentage of standard error attributable to MCMC estimation process
-#'   - `z value`,`Pr(>|z|)` - z-test and p-value
+#'   - `Estimate`, `Std. Error` - parameter estimates and their standard errors
+#'   - `MCMC %` - if `total.variation=TRUE` (default) the percentage of standard
+#'   error attributable to MCMC estimation process rounded to an integer. See
+#'   also [vcov.ergm()] and its `sources` argument.
+#'   - `z value`, `Pr(>|z|)` - z-test and p-values
 #'    
 #' @export
 print.summary.ergm <- function (x, 
