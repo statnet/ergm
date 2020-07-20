@@ -18,8 +18,8 @@ control.ergm(
   init.MPLE.samplesize = function(d, e) max(e, 40) * 8,
   MPLE.type = c("glm", "penalized", "logitreg"),
   MPLE.maxit = 10000,
-  MPLE.singular = c("warning", "message", "error"),
-  MPLE.singular.rcond = .Machine$double.eps,
+  MPLE.nonident = c("warning", "message", "error"),
+  MPLE.nonident.tol = 1e-10,
   MCMC.prop = trim_env(~TNT),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
@@ -109,8 +109,8 @@ control.ergm(
   MCMLE.steplength.min = 1e-04,
   MCMLE.effectiveSize.interval_drop = 2,
   MCMLE.save_intermediates = NULL,
-  MCMLE.singular = c("warning", "message", "error"),
-  MCMLE.singular.rcond = 1e-10,
+  MCMLE.nonident = c("warning", "message", "error"),
+  MCMLE.nonident.tol = 1e-10,
   SA.phase1_n = NULL,
   SA.initial_gain = NULL,
   SA.nsubphases = 4,
@@ -279,15 +279,15 @@ model has curved terms.}
 \item{MPLE.maxit}{Maximum number of iterations for \code{"logitreg"}
 implementation of MPLE.}
 
-\item{MPLE.singular, MPLE.singular.rcond, MCMLE.singular, MCMLE.singular.rcond}{A rudimentary nonidentifiability/multicollinearity diagnostic. If
-\code{MPLE.singular.rcond > 0}, test the estimated MPLE
-variance-covariance matrix for being approximately singular by
-checking if its reciprocal condition number (\code{\link[=rcond]{rcond()}}) is less
-than \code{MPLE.singular.rcond}. This is often (not always) indicative
-of a non-identifiable (multicollinear) model. If singular,
-depending on \code{MPLE.singular} issue a warning, an error, or a
-message. The corresponding \verb{MCMLE.*} arguments provide a similar
-diagnostic for the unconstrained MCMC sample's estimating functions.}
+\item{MPLE.nonident, MPLE.nonident.tol, MCMLE.nonident, MCMLE.nonident.tol}{A rudimentary nonidentifiability/multicollinearity diagnostic. If
+\code{MPLE.nonident.tol > 0}, test the MPLE covariate matrix or the CD
+statistics matrix has linearly dependent columns via \link[=qr]{QR decomposition} with tolerance \code{MPLE.nonident.tol}. This is
+often (not always) indicative of a non-identifiable
+(multicollinear) model. If nonidentifiable, depending on
+\code{MPLE.nonident} issue a warning, an error, or a message
+specifying the potentially redundant statistics. The
+corresponding \verb{MCMLE.*} arguments provide a similar diagnostic
+for the unconstrained MCMC sample's estimating functions.}
 
 \item{MCMC.prop}{Specifies the proposal (directly) and/or
 a series of "hints" about the structure of the model being

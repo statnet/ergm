@@ -24,7 +24,7 @@ withWarnings <- function(expr){
 }
 
 out <- withWarnings({ergm(flomarriage~offset(edges)+edges+degree(1)+offset(degree(0)),target.stats=summary(flomarriage~edges+degree(1)),
-            offset.coef=c(0,-0.25),control=control.ergm(init=c(0,-1.47,0.462,-0.25),MPLE.singular.rcond=0,MCMLE.singular.rcond=0))})
+            offset.coef=c(0,-0.25),control=control.ergm(init=c(0,-1.47,0.462,-0.25),MPLE.nonident.tol=0,MCMLE.nonident.tol=0))})
 
 if(length(out$warnings)!=1) stop("Unexpected number of warnings.")
 summary(out$value)
@@ -32,7 +32,7 @@ mcmc.diagnostics(out$value)
 
 set.seed(10)
 
-out <- withWarnings({ergm(flomarriage~offset(edges)+edges+gwdegree(fix=FALSE)+degree(0)+offset(degree(1)),target.stats=summary(flomarriage~edges+gwdegree(fix=FALSE)+degree(0)), offset.coef=c(0,-0.25), control=control.ergm(MCMLE.termination="none",MCMLE.maxit=3,MPLE.singular.rcond=0,MCMLE.singular.rcond=0))})
+out <- withWarnings({ergm(flomarriage~offset(edges)+edges+gwdegree(fix=FALSE)+degree(0)+offset(degree(1)),target.stats=summary(flomarriage~edges+gwdegree(fix=FALSE)+degree(0)), offset.coef=c(0,-0.25), control=control.ergm(MCMLE.termination="none",MCMLE.maxit=3,MPLE.nonident.tol=0,MCMLE.nonident.tol=0))})
 
 if(length(out$warnings)>2) stop("Unexpected number of warnings.")
 summary(out$value)
