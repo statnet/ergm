@@ -27,7 +27,7 @@
 #'   and the MCMC variation. If `FALSE` only the likelihood variation is used.
 #'   The \eqn{p}-values are based on this source of variation.
 #' @param ... For [summary.ergm()] additional arguments are passed to
-#'   [logLik.ergm()]
+#'   [logLik.ergm()]. For [print.summary.ergm()], to [stats::printCoefmat()].
 #'
 #' @details [summary.ergm()] tries to be smart about formatting the
 #' coefficients, standard errors, etc.

@@ -32,9 +32,9 @@
 
 #' @rdname summary.ergm
 #' @order 2
-#' @param x object of class `summary.ergm` returned by
-#'   [summary.ergm()].
-#' @param digits Significant digits for coefficients
+#' 
+#' @param x object of class `summary.ergm` returned by [summary.ergm()].
+#' @param digits significant digits for coefficients
 #' @param signif.stars whether to print dots and stars to signify
 #'   statistical significance. See [print.summary.lm()].
 #' @param eps.Pvalue \eqn{p}-values below this level will be printed
@@ -56,7 +56,7 @@
 #' @export
 print.summary.ergm <- function (x, 
               digits = max(3, getOption("digits") - 3),
-              correlation=FALSE, covariance=FALSE,
+              correlation=x$correlation, covariance=x$covariance,
               signif.stars= getOption("show.signif.stars"),
               eps.Pvalue=0.0001, print.formula=FALSE, print.fitinfo=TRUE, print.coefmat=TRUE, print.message=TRUE, print.deviances=TRUE, print.drop=TRUE, print.offset=TRUE, print.call=TRUE,...){
   
