@@ -81,7 +81,7 @@
 #'   therefore more similar to those returned by [stats::summary.lm()]).
 #'   
 #' @seealso The model fitting function [ergm()], [print.ergm()], and
-#'   [base::summary()]. Function [stats::coef()] will extract the matrix of
+#'   [base::summary()]. Function [stats::coef()] will extract the data frame of
 #'   coefficients with standard errors, t-statistics and p-values.
 #'   
 #' 
