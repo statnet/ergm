@@ -59,7 +59,6 @@
 #' 
 #' @param object an object of class "ergm", usually, a result
 #'   of a call to [ergm()].
-#' @param digits Significant digits for coefficients
 #' @param correlation logical; if `TRUE`, the correlation matrix of the
 #'   estimated parameters is returned and printed.
 #' @param covariance logical; if `TRUE`, the covariance matrix of the estimated

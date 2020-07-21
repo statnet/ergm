@@ -34,6 +34,7 @@
 #' @order 2
 #' @param x object of class `summary.ergm` returned by
 #'   [summary.ergm()].
+#' @param digits Significant digits for coefficients
 #' @param signif.stars whether to print dots and stars to signify
 #'   statistical significance. See [print.summary.lm()].
 #' @param eps.Pvalue \eqn{p}-values below this level will be printed
