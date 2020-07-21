@@ -115,7 +115,7 @@ summary.ergm <- function (object, ...,
   
   ans$samplesize <- switch(object$estimate,
                            EGMME = NVL3(control$EGMME.main.method, switch(.,
-                             `Gradient-Descent`=control$SA.phase3n,
+                             `Gradient-Descent`=control$SA.phase3_n,
                              stop("Unknown estimation method. This is a bug."))),
                            MPLE = NA,
                            CD=,
