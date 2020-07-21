@@ -53,36 +53,41 @@
 
 #' Summarizing ERGM Model Fits
 #' 
-#' \code{\link[base]{summary}} method for [`ergm`] fits.
+#' [base::summary()] method for [ergm()] fits.
 #' 
-#' \code{\link{summary.ergm}} tries to be smart about formatting the
+#' @order 1
+#' 
+#' @param object an object of class "ergm", usually, a result
+#'   of a call to [ergm()].
+#' @param digits Significant digits for coefficients
+#' @param correlation logical; if `TRUE`, the correlation matrix of the
+#'   estimated parameters is returned and printed.
+#' @param covariance logical; if `TRUE`, the covariance matrix of the estimated
+#'   parameters is returned and printed.
+#' @param total.variation logical; if `TRUE`, the standard errors reported in
+#'   the `Std. Error` column are based on the sum of the likelihood variation
+#'   and the MCMC variation. If `FALSE` only the likelihood variation is used.
+#'   The \eqn{p}-values are based on this source of variation.
+#' @param ... For [summary.ergm()] additional arguments are passed to
+#'   [logLik.ergm()]
+#' 
+#' @details 
+#' [summary.ergm()] tries to be smart about formatting the
 #' coefficients, standard errors, etc.
 #' 
-#' @param object an object of class \code{"ergm"}, usually, a result
-#'   of a call to \code{\link{ergm}}.
-#' @param digits Significant digits for coefficients
-#' @param correlation logical; if \code{TRUE}, the correlation matrix
-#'   of the estimated parameters is returned and printed.
-#' @param covariance logical; if \code{TRUE}, the covariance matrix of
-#'   the estimated parameters is returned and printed.
-#' @param total.variation logical; if \code{TRUE}, the standard errors
-#'   reported in the \code{Std. Error} column are based on the sum of
-#'   the likelihood variation and the MCMC variation. If \code{FALSE}
-#'   only the likelihood varuation is used. The \eqn{p}-values are
-#'   based on this source of variation.
-#' @param \dots Arguments to \code{\link{logLik.ergm}}
-#' @return The function \code{\link{summary.ergm}} computes and
-#'   returns a list of summary statistics of the fitted
-#'   \code{\link{ergm}} model given in \code{object}. Note that for
-#'   backwards compatibility, it returns two coefficient tables:
-#'   `$coefs` which does not contain the z-statistics and
-#'   `$coefficeints` which does (and is therefore more similar to
-#'   those returned by [summary.lm()]).
-#' @seealso network, ergm, print.ergm.  The model fitting function
-#'   \code{\link{ergm}}, \code{\link{summary}}.
+#' @return The function [summary.ergm()] computes and returns a list of summary
+#'   statistics of the fitted [ergm()] model given in `object`. Note that for
+#'   backwards compatibility, it returns two coefficient tables: `$coefs` which
+#'   does not contain the z-statistics and `$coefficeints` which does (and is
+#'   therefore more similar to those returned by [summary.lm()]).
+#'   
+#' @seealso The model fitting function [ergm()], [print.ergm()], and
+#'   [base::summary()]. Function [stats::coef()] will extract the matrix of
+#'   coefficients with standard errors, t-statistics and p-values.
+#'   
 #' 
-#' Function \code{\link{coef}} will extract the matrix of coefficients with
-#' standard errors, t-statistics and p-values.
+#'   
+#' 
 #' @keywords regression models
 #' @examples
 #' 

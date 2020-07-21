@@ -31,6 +31,7 @@
 ###############################################################################
 
 #' @rdname summary.ergm
+#' @order 2
 #' @param x object of class `summary.ergm` returned by
 #'   [summary.ergm()].
 #' @param signif.stars whether to print dots and stars to signify
