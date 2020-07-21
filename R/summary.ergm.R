@@ -56,7 +56,9 @@
 #' \item{coefs, coefficients}{data frames with model parameters and associated statistics}
 #' \item{asycov}{asymptotic covariance matrix}
 #' \item{asyse}{asymptotic standard error matrix}
-#' \item{offset, drop, estimate, iterations, mle.lik, null.lik}{see documentation of the object returned by [ergm()]}
+#' \item{offset, drop, estimate, iterations, mle.lik, null.lik}{
+#' see documentation of the object returned by [ergm()]
+#' }
 #'
 #' @seealso The model fitting function [ergm()], [print.ergm()], and
 #'   [base::summary()]. Function [stats::coef()] will extract the data frame of
