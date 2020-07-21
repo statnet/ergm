@@ -47,11 +47,10 @@
 #' \item{pseudolikelihood}{was the model estimated with MPLE}
 #' \item{independence}{is the model dyad-independent}
 #' \item{control}{the [control.ergm()] object used}
-#' \item{samplesize}{?}
+#' \item{samplesize}{MCMC sample size}
 #' \item{message}{optional message on the validity of the standard error estimates}
-#' \item{null.lik.0}{?}
-#' \item{devtable}{?}
-#' \item{devtext}{?}
+#' \item{null.lik.0}{It is `TRUE` of the null model likelihood has not been calculated. See [logLikNull()]}
+#' \item{devtext, devtable}{Deviance type and table}
 #' \item{aic, bic}{values of AIC and BIC}
 #' \item{coefs, coefficients}{data frames with model parameters and associated statistics}
 #' \item{asycov}{asymptotic covariance matrix}
