@@ -7,47 +7,6 @@
 #
 #  Copyright 2003-2019 Statnet Commons
 #######################################################################
-###############################################################################
-# The <summary.ergm> function prints a 'summary of model fit' table and returns
-# the components of this table and several others listed below
-#
-# --PARAMETERS--
-#   object     : an ergm object
-#
-#
-# --IGNORED PARAMETERS--
-#   ...        : used for flexibility
-#   digits     : significant digits for the coefficients;default=
-#                max(3,getOption("digits")-3), but the hard-coded value is 5
-#   correlation: whether the correlation matrix of the estimated parameters
-#                should be printed (T or F); default=FALSE
-#   covariance : whether the covariance matrix of the estimated parameters
-#                should be printed (T or F); default=FALSE
-#
-# --RETURNED--
-#   ans: a "summary.ergm" object as a list containing the following
-#      formula         : object$formula
-#      randomeffects   : object$re
-#      correlation     : the 'correlation' passed to <summary.ergm>
-#      offset          : object$offset
-#      drop            : object$drop
-#      covariance      : the 'covariance' passed to <summary.ergm>
-#      pseudolikelihood: whether pseudoliklelihood was used (T or F)
-#      independence    : whether ?? (T or F)
-#      iterations      : object$iterations
-#      samplesize      : NA if 'pseudolikelihood'=TRUE, object$samplesize otherwise
-#      message         : a message regarding the validity of the standard error
-#                        estimates
-#      aic             : the AIC goodness of fit measure
-#      bic             : the BIC goodness of fit measure
-#      coefficients    : the dataframe of parameter coefficients and their
-#                        standard erros and p-values
-#      asycov          : the asymptotic covariance matrix
-#      asyse           : the asymptotic standard error matrix
-#      senderreceivercorrelation: 'randomeffects' if this is a matrix;
-#                        otherwise, the correlation between sender and receiver??
-#
-################################################################################
 
 
 
