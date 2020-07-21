@@ -79,7 +79,7 @@
 #'   statistics of the fitted [ergm()] model given in `object`. Note that for
 #'   backwards compatibility, it returns two coefficient tables: `$coefs` which
 #'   does not contain the z-statistics and `$coefficeints` which does (and is
-#'   therefore more similar to those returned by [summary.lm()]).
+#'   therefore more similar to those returned by [stats::summary.lm()]).
 #'   
 #' @seealso The model fitting function [ergm()], [print.ergm()], and
 #'   [base::summary()]. Function [stats::coef()] will extract the matrix of
