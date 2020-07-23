@@ -590,7 +590,7 @@ ergm <- function(formula, response=NULL,
                 only.last=TRUE,
                 output="pending_update_network",
                 verbose=verbose,
-                offset.coef=offset.coef)
+                offset.coef=NVL(offset.coef,control$init[model.initial$etamap$offsettheta]))
       if(verbose) message("Finished SAN run.")
     }else{
       TARGET_STATS <- nw

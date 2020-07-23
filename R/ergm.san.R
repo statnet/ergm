@@ -165,6 +165,10 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
     stop("Length of ", sQuote("offset.coef"), " in SAN is ", length(offset.coef), ", while the number of offset coefficients in the model is ", sum(model.initial$etamap$offsettheta), ".")  
   }
   
+  if(any(is.na(offset.coef))) {
+    stop("Missing offset coefficients passed to SAN.")
+  }
+  
   init.coefs <- numeric(nparam(model.initial, canonical=FALSE))
   names(init.coefs) <- param_names(model.initial)
   init.coefs[model.initial$etamap$offsettheta] <- offset.coef
