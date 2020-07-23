@@ -166,6 +166,10 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
     stop("Length of ", sQuote("offset.coef"), " in SAN is ", length(offset.coef), ", while the number of offset coefficients in the model is ", sum(model$etamap$offsettheta), ".")  
   }
   
+  if(any(is.na(offset.coef))) {
+    stop("Missing offset coefficients passed to SAN.")
+  }
+  
   san(model, response=response, reference=reference, constraints=proposal, target.stats=target.stats, nsim=nsim, basis=nw, output=output, only.last=only.last, control=control, verbose=verbose, offset.coef=offset.coef, ...)
 }
 
