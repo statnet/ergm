@@ -111,7 +111,7 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
 
   mc.cov <- matrix(NA,ncol=length(novar),nrow=length(novar))
 
-  if(sum(!novar)==0 || inherits(try(solve(H,tol=1e-20)),"try-error")){
+  if(sum(!novar)==0 || inherits(try(solve(H,tol=1e-20),silent=TRUE),"try-error")){
     warning("Approximate Hessian matrix is singular. Standard errors due to MCMC approximation of the likelihood cannot be evaluated. This is likely due to insufficient MCMC sample size or highly correlated model terms.")
   }else{
     mc.cov0 <- solve(H, cov.zbar, tol=1e-20)
