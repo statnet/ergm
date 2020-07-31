@@ -256,4 +256,51 @@ test_that("BDStratTNT works with churning", {
   expect_true(all(srs[as.logical(fmat[upper.tri(fmat,diag=TRUE)])] == 0))
 })
 
-
+test_that("BDStratTNT simulates reasonably", {
+  for(deg_bound in 1:5) {
+    net_size <- 2000L
+  
+    nw <- network.initialize(net_size, dir = FALSE)
+  
+    vattr <- sample(c("A","B","C"), net_size, TRUE)
+    sex <- sample(c("X","Y","Z"), net_size, TRUE)
+    
+    nw %v% "vattr" <- vattr
+    nw %v% "sex" <-  sex
+    
+    fmat <- matrix(c(1,0,1,0,0,0,1,0,0),3,3)
+    pmat <- 1 - matrix(c(1,0,0,0,1,0,0,0,0),3,3)
+      
+    control <- control.simulate.formula(MCMC.prop.weights = "BDStratTNT", 
+                                        MCMC.prop.args = list(bound = deg_bound, 
+                                                              BD_attr = "sex",
+                                                              fmat = fmat,
+                                                              Strat_attr = "vattr",
+                                                              pmat = pmat))
+    
+    nw_sim <- nw
+    
+    for(i in 1:5) {
+      nw_sim <- simulate(nw_sim ~ edges, 
+                         coef = c(0), 
+                         output = "network",
+                         control = control)
+      summ_stats <- summary(nw_sim ~ nodemix("vattr") + nodemix("sex") + degrange(deg_bound + 1))
+      expect_true(summ_stats["mix.vattr.A.A"] == 0)
+      expect_true(summ_stats["mix.vattr.B.B"] == 0)
+      expect_true(summ_stats["mix.vattr.A.B"] > 0)
+      expect_true(summ_stats["mix.vattr.A.C"] > 0)
+      expect_true(summ_stats["mix.vattr.B.C"] > 0)
+      expect_true(summ_stats["mix.vattr.C.C"] > 0)    
+  
+      expect_true(summ_stats["mix.sex.X.X"] == 0)
+      expect_true(summ_stats["mix.sex.X.Z"] == 0)
+      expect_true(summ_stats["mix.sex.X.Y"] > 0)
+      expect_true(summ_stats["mix.sex.Y.Y"] > 0)
+      expect_true(summ_stats["mix.sex.Y.Z"] > 0)
+      expect_true(summ_stats["mix.sex.Z.Z"] > 0)
+  
+      expect_true(summ_stats[paste0("deg", deg_bound + 1, "+")] == 0)    
+    }  
+  }
+})

@@ -67,9 +67,9 @@ san.default <- function(object,...)
 #' @param control A list of control parameters for algorithm tuning; see
 #' \code{\link{control.san}}.
 #' @param verbose Logical or numeric giving the level of verbosity. Higher values produce more verbose output.
-#' @param offset.coef A vector of coefficients for the offset statistics.  For \code{san.formula}, these must be
-#' passed in as an argument.  For \code{san.ergm}, they can be passed in as an argument, but will default to the
-#' offsets in the \code{ergm} object.
+#' @param offset.coef A vector of offset coefficients; these must be passed in by the user.  
+#' Note that these should be the same set of coefficients one would pass to \code{ergm} via 
+#' its \code{offset.coef} argument.
 #' @param \dots Further arguments passed to other functions.
 #' @examples
 #' \donttest{
@@ -161,6 +161,15 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   model <- ergm_model(formula, nw, response=response, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
   proposal$aux.slots <- model$slots.extra.aux$proposal
 
+  
+  if(length(offset.coef) != sum(model$etamap$offsettheta)) {
+    stop("Length of ", sQuote("offset.coef"), " in SAN is ", length(offset.coef), ", while the number of offset coefficients in the model is ", sum(model$etamap$offsettheta), ".")  
+  }
+  
+  if(any(is.na(offset.coef))) {
+    stop("Missing offset coefficients passed to SAN.")
+  }
+  
   san(model, response=response, reference=reference, constraints=proposal, target.stats=target.stats, nsim=nsim, basis=nw, output=output, only.last=only.last, control=control, verbose=verbose, offset.coef=offset.coef, ...)
 }
 
@@ -193,7 +202,9 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
                                      output=output,
                                      only.last=only.last,
                                      control=control,
-                                     verbose=verbose, ...)),
+                                     verbose=verbose,
+                                     offset.coef=offset.coef,
+                                     ...)),
                        class="network.list"))
     }
   }
@@ -223,18 +234,22 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
   if(length(proposal$auxiliaries) && !length(model$slots.extra.aux$proposal))
     stop("The proposal appears to be requesting auxiliaries, but the initialized model does not export any proposal auxiliaries.")
 
+  ## need to remap thetas to etas using ergm.eta
+  ## then just keep the offsets because we don't
+  ## care about the non-offset coefs
+  coefs <- numeric(nparam(model, canonical=FALSE))
+  coefs[model$etamap$offsettheta] <- offset.coef
+  etas <- ergm.eta(coefs, model$etamap)
+  
+  
   offset.indicators <- model$etamap$offsetmap
   
   offsetindices <- which(offset.indicators)
   statindices <- which(!offset.indicators)
-  offsets <- offset.coef
+  offsets <- etas[offset.indicators]
   if(control$SAN.ignore.finite.offsets) offsets[is.finite(offsets)] <- 0
   
   noffset <- sum(offset.indicators)
-  
-  if(noffset != length(offsets)) {
-    stop("Length of ", sQuote("offset.coef"), " in SAN is ", length(offset.coef), ", while the number of offset statistics in the model is ", noffset, ".")
-  }    
   
   if (verbose) {
     message(paste("Starting ",control$SAN.maxit," SAN iteration", ifelse(control$SAN.maxit>1,"s",""),
@@ -334,7 +349,7 @@ san.ergm <- function(object, formula=object$formula,
                      only.last=TRUE,
                      control=object$control$SAN.control,
                      verbose=FALSE, 
-                     offset.coef=object$coef[object$offset],
+                     offset.coef=NULL,
                      ...) {
   output <- match.arg(output)
   san.formula(formula, nsim=nsim, 

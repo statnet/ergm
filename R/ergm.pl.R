@@ -113,6 +113,8 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
   # Adjust for the offset
   #
 
+  xmat.full <- xmat
+
   if(any(m$etamap$offsettheta) && !ignore.offset){
     if(any(is.na(theta.offset[m$etamap$offsettheta]))){
       stop("Offset terms without offset coefficients specified!")
@@ -135,5 +137,5 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
   }
   
   list(xmat=xmat, zy=zy, foffset=foffset, wend=wend,
-       theta.offset=theta.offset)
+       theta.offset=theta.offset, xmat.full=xmat.full)
 }

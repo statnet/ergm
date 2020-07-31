@@ -1,18 +1,19 @@
 Package: ergm
-Version: 4.0-5567
-Date: 2020-06-19
+Version: 4.0-5623
+Date: 2020-07-31
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
-	   person("Mark S.", "Handcock", role=c("aut"), email="handcock@stat.ucla.edu"),
-           person("David R.", "Hunter", role=c("aut"), email="dhunter@stat.psu.edu"),
-   	   person("Carter T.", "Butts", role=c("aut"), email="buttsc@uci.edu"),
-           person("Steven M.", "Goodreau", role=c("aut"), email="goodreau@u.washington.edu"),
-           person("Pavel N.", "Krivitsky", role=c("aut","cre"), email="pavel@uow.edu.au", comment=c(ORCID="0000-0002-9101-3362")),
-     	   person("Martina", "Morris", role=c("aut"), email="morrism@u.washington.edu"),
-           person("Li","Wang",role=c("ctb"),email="lxwang@gmail.com"),
-           person("Kirk","Li",role=c("ctb"),email="kirkli@u.washington.edu"),
-	   person("Skye", "Bender-deMoll", role=c("ctb"), email="skyebend@u.washington.edu"),
-	   person("Chad", "Klumb", role=c("ctb"), email="cklumb@gmail.com"))
+             person("Mark S.", "Handcock", role=c("aut"), email="handcock@stat.ucla.edu"),
+             person("David R.", "Hunter", role=c("aut"), email="dhunter@stat.psu.edu"),
+             person("Carter T.", "Butts", role=c("aut"), email="buttsc@uci.edu"),
+             person("Steven M.", "Goodreau", role=c("aut"), email="goodreau@u.washington.edu"),
+             person("Pavel N.", "Krivitsky", role=c("aut","cre"), email="pavel@statnet.org", comment=c(ORCID="0000-0002-9101-3362")),
+     	     person("Martina", "Morris", role=c("aut"), email="morrism@u.washington.edu"),
+             person("Li","Wang",role=c("ctb"),email="lxwang@gmail.com"),
+             person("Kirk","Li",role=c("ctb"),email="kirkli@u.washington.edu"),
+	     person("Skye", "Bender-deMoll", role=c("ctb"), email="skyebend@u.washington.edu"),
+             person("Chad", "Klumb", role=c("ctb"), email="cklumb@gmail.com"),
+             person("Michał", " Bojanowski", role=c("ctb"), email="mbojanowski@kozminski.edu.pl"))
 Depends:
     R (>= 3.5),
     network (>= 1.17)
@@ -26,6 +27,7 @@ Imports:
     methods,
     MASS (>= 7.3.51.4),
     statnet.common (>= 4.4.0),
+    rle,
     purrr (>= 0.3.2),
     rlang (>= 0.3.4),
     tibble (>= 2.1.1)
@@ -50,7 +52,7 @@ Description: An integrated set of tools to analyze and simulate networks based o
 License: GPL-3 + file LICENSE
 URL: https://statnet.org
 VignetteBuilder: rmarkdown, knitr
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
 Collate: 
@@ -147,6 +149,7 @@ Collate:
     'mcmc.diagnostics.ergm.R'
     'network.list.R'
     'network.update.R'
+    'nonidentifiability.R'
     'nparam.R'
     'obs.constraints.R'
     'parallel.utils.R'
@@ -167,4 +170,5 @@ Collate:
     'wtd.median.R'
     'zzz.R'
 Remotes: github::statnet/statnet.common@master,
+    github::statnet/rle@master,
     github::statnet/network@master

@@ -13,6 +13,7 @@
 #include "ergm_rlebdm.h"
 #include "ergm_MHstorage.h"
 #include "ergm_unsorted_edgelist.h"
+#include "ergm_dyadgen.h"
 
 /*********************
  void MH_randomtoggle
@@ -24,59 +25,66 @@ MH_P_FN(MH_randomtoggle){
   /* *** don't forget tail-> head now */
 
   if(MHp->ntoggles == 0) { /* Initialize randomtoggle */
+    MH_STORAGE = DyadGenInitializeR(MHp->R, nwp, FALSE);
     MHp->ntoggles=1;
     return;
   }
   
   BD_LOOP({
-      GetRandDyad(Mtail, Mhead, nwp);
+      DyadGenRandDyad(Mtail, Mhead, MH_STORAGE);
     });
+}
+
+MH_F_FN(Mf_randomtoggle){
+  DyadGenDestroy(MH_STORAGE);
+  MH_STORAGE = NULL;
 }
 
 /********************
    void MH_TNT
-   Tie/no tie:  Gives at least 50% chance of
-   proposing a toggle of an existing edge, as opposed
-   to simple random toggles that rarely do so in sparse 
-   networks
+   Propose ONLY edges on a static list
+   Use TNT weights.
+   This is a fusion of MH_DissolutionMLETNT and MH_TNT:
+
+   A "intersect" network is constructed that is the intersection of
+   dyads on the static list and the edges present in nwp. Then,
+   standard TNT procedure is followed, but the dyad space (and the
+   number of dyads) is the number of dyads in the static list and the
+   network for the ties is the ties in the discord network.
 ***********************/
-MH_P_FN(MH_TNT)
-{
-  /* *** don't forget tail-> head now */
-  
-  Edge nedges=EDGECOUNT(nwp);
-  static double P=0.5;
-  static double Q, DP, DO;
-  
-  if(MHp->ntoggles == 0) { /* Initialize */
+
+MH_P_FN(Mp_TNT){
+  if(MHp->ntoggles == 0) { /* Initialize randomtoggle */
+    MH_STORAGE = DyadGenInitializeR(MHp->R, nwp, TRUE);
     MHp->ntoggles=1;
-    Q = 1-P;
-    DP = P*DYADCOUNT(nwp);
-    DO = DP/Q;
     return;
   }
 
+  const double P=0.5, Q=1-P;
+  double DP = P*((DyadGen *)MH_STORAGE)->ndyads, DO = DP/Q;
+
+  Edge nedges = DyadGenEdgecount(MH_STORAGE);
   double logratio=0;
   BD_LOOP({
-      if (unif_rand() < P && nedges > 0) { /* Select a tie at random */
-	GetRandEdge(Mtail, Mhead, nwp);
-	/* Thanks to Robert Goudie for pointing out an error in the previous 
-	   version of this sampler when proposing to go from nedges==0 to nedges==1 
-	   or vice versa.  Note that this happens extremely rarely unless the 
-	   network is small or the parameter values lead to extremely sparse 
-	   networks.  */
+      if (unif_rand() < P && nedges > 0) { /* Select a tie at random from the network of eligibles */
+        DyadGenRandEdge(Mtail, Mhead, MH_STORAGE);
 	logratio = TNT_LR_E(nedges, Q, DP, DO);
-      }else{ /* Select a dyad at random */
-	GetRandDyad(Mtail, Mhead, nwp);
+      }else{ /* Select a dyad at random from the list */
+	DyadGenRandDyad(Mtail, Mhead, MH_STORAGE);
 	
-	if(IS_OUTEDGE(Mtail[0],Mhead[0])!=0){
-          logratio = TNT_LR_DE(nedges, Q, DP, DO);
+	if(IS_OUTEDGE(Mtail[0],Mhead[0])){
+	  logratio = TNT_LR_DE(nedges, Q, DP, DO);
 	}else{
-          logratio = TNT_LR_DN(nedges, Q, DP, DO);
+	  logratio = TNT_LR_DN(nedges, Q, DP, DO);
 	}
       }
     });
   MHp->logratio += logratio;
+}
+
+MH_F_FN(Mf_TNT){
+  DyadGenDestroy(MH_STORAGE);
+  MH_STORAGE = NULL;
 }
 
 /********************
@@ -120,7 +128,10 @@ typedef struct {
   double *stratheadtypes;
   
   int *influenced_counts;
-  int **influenced;  
+  int **influenced;
+  
+  int *currentsubmaxledgestype;
+  double **indmat;
 } BDStratTNTStorage;
 
 MH_I_FN(Mi_BDStratTNT) {
@@ -154,6 +165,12 @@ MH_I_FN(Mi_BDStratTNT) {
     indmat[i] = indmat[i - 1] + nattrcodes;
   }
   
+  sto->currentsubmaxledgestype = Calloc(nmixtypes, int);
+  
+  int npairings = MHp->inputs[1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes];
+  
+  int bound = MHp->inputs[1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings];  
+  
   Vertex head;
   Edge e;
   for(Vertex tail = 1; tail <= N_NODES; tail++) {
@@ -161,17 +178,16 @@ MH_I_FN(Mi_BDStratTNT) {
       int index = indmat[(int)strat_vattr[tail - 1]][(int)strat_vattr[head - 1]];
       if(index >= 0) {
         UnsrtELInsert(tail, head, els[index]);
+        if(IN_DEG[tail] + OUT_DEG[tail] < bound && IN_DEG[head] + OUT_DEG[head] < bound) {
+          sto->currentsubmaxledgestype[index]++;
+        }
       }
     }
   }
-  Free(indmat);
+  sto->indmat = indmat;
   
   // above handles initialization of edgelists according to the "strat" part of BDStratTNT
-  
-  int npairings = MHp->inputs[1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes];
-  
-  int bound = MHp->inputs[1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings];
-  
+    
   int bdlevels = MHp->inputs[1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings + 1];
   
   int bdmixtypes = MHp->inputs[1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings + 1 + 1];
@@ -565,12 +581,71 @@ MH_P_FN(MH_BDStratTNT) {
     }      
   }
   
+  int proposedsubmaxledgestype = sto->currentsubmaxledgestype[strat_i];
+  
+  // if we are adding an edge that will be submaximal in the post-toggle 
+  // network, then increment proposedsubmaxledgestype for this particular edge
+  if(!edgeflag && !sto->tailmaxl && !sto->headmaxl) {
+    proposedsubmaxledgestype++;
+  }
+  
+  // if we are removing an edge that is submaximal in the current
+  // network, decrement proposedsubmaxledgestype for this particular edge
+  if(edgeflag && !sto->tailmaxl && !sto->headmaxl) {
+    proposedsubmaxledgestype--;
+  }
+
+  Edge e;
+  Vertex v;
+
+  // if tail will change maximality on toggle, then adjust
+  // proposedsubmaxledgestype for all edges between tail and
+  // a submaximal neighbor v with the edge between tail and v
+  // having the mixing type strat_i, taking care not to count head,
+  // since that was handled separately above
+  if(sto->tailmaxl) {
+    STEP_THROUGH_OUTEDGES(Mtail[0], e, v) {
+      if(v != Mhead[0] && IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->strattailtype][(int)sto->strat_vattr[v - 1]] == strat_i) {
+        proposedsubmaxledgestype += delta;
+      }
+    }
+    STEP_THROUGH_INEDGES(Mtail[0], e, v) {
+      if(IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->strattailtype][(int)sto->strat_vattr[v - 1]] == strat_i) {
+        proposedsubmaxledgestype += delta;
+      }
+    }
+  }
+  
+  // ditto head
+  if(sto->headmaxl) {
+    STEP_THROUGH_OUTEDGES(Mhead[0], e, v) {
+      if(IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->stratheadtype][(int)sto->strat_vattr[v - 1]] == strat_i) {
+        proposedsubmaxledgestype += delta;
+      }
+    }
+    STEP_THROUGH_INEDGES(Mhead[0], e, v) {
+      if(v != Mtail[0] && IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->stratheadtype][(int)sto->strat_vattr[v - 1]] == strat_i) {
+        proposedsubmaxledgestype += delta;
+      }
+    }
+  }
+  
   double prob_weight = sto->currentcumprob/sto->proposedcumprob;
   
+  // the rationale for the logratio is similar to that given for BDTNT, with two additional considerations:
+  // 
+  // - counts of edges and BD toggleable dyads should be for the current mixing type only, and
+  //
+  // - it is possible for a strat mixing type to reach zero toggleable dyads (by having no edges and also no BD toggleable dyads);
+  //   such a strat mixing type cannot be selected when we choose the strat mixing type at the top of the P_FN, and so we must 
+  //   "disable" it until it comes to have toggleable dyads again; the term prob_weight adjusts for the fact that the total weight 
+  //   given to toggleable strat mixing types may be different in the current and proposed networks, and thus the probability
+  //   to select the current strat mixing type may be different in the current and proposed networks
+  
   if(edgeflag) {
-    MHp->logratio = log(prob_weight*(((nedgestype == 1 ? 1.0 : 0.5)/proposeddyadstype))/(((ndyadstype == 0 ? 1.0 : 0.5)/nedgestype + (sto->tailmaxl || sto->headmaxl ? 0 : 0.5/ndyadstype))));
+    MHp->logratio = log(prob_weight*(((nedgestype == 1 ? 1.0 : 0.5)/proposeddyadstype))/(((ndyadstype == 0 ? 1.0/nedgestype : (0.5/nedgestype)*(1 + (double)sto->currentsubmaxledgestype[strat_i]/ndyadstype)))));
   } else {
-    MHp->logratio = log(prob_weight*(((proposeddyadstype == 0 ? 1.0 : 0.5)/(nedgestype + 1) + (sto->tailmaxl || sto->headmaxl ? 0 : 0.5/proposeddyadstype)))/(((nedgestype == 0 ? 1.0 : 0.5)/ndyadstype)));
+    MHp->logratio = log(prob_weight*((proposeddyadstype == 0 ? 1.0/(nedgestype + 1) : (0.5/(nedgestype + 1))*(1 + (double)proposedsubmaxledgestype/proposeddyadstype))/((nedgestype == 0 ? 1.0 : 0.5)/ndyadstype)));
   }
 }
 
@@ -678,6 +753,54 @@ MH_U_FN(Mu_BDStratTNT) {
       sto->attrcounts[sto->stratheadtype][sto->bdheadtype]--;
     }       
   }
+  
+  // if we are adding an edge that will be submaximal in the post-toggle 
+  // network, then increment currentsubmaxledgestype for this particular edge
+  if(!edgeflag && !sto->tailmaxl && !sto->headmaxl) {
+    sto->currentsubmaxledgestype[sto->stratmixingtype]++;
+  }
+  
+  // if we are removing an edge that is submaximal in the current
+  // network, decrement currentsubmaxledgestype for this particular edge
+  if(edgeflag && !sto->tailmaxl && !sto->headmaxl) {
+    sto->currentsubmaxledgestype[sto->stratmixingtype]--;
+  }
+
+  int delta = edgeflag ? +1 : -1;
+
+  Edge e;
+  Vertex v;
+
+  // if tail will change maximality on toggle, then adjust
+  // currentsubmaxledgestype for all edges between tail and
+  // a submaximal neighbor v, taking care not to count head,
+  // since that was handled separately above
+  if(sto->tailmaxl) {
+    STEP_THROUGH_OUTEDGES(tail, e, v) {
+      if(v != head && IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->strattailtype][(int)sto->strat_vattr[v - 1]] >= 0) {
+        sto->currentsubmaxledgestype[(int)sto->indmat[sto->strattailtype][(int)sto->strat_vattr[v - 1]]] += delta;
+      }
+    }
+    STEP_THROUGH_INEDGES(tail, e, v) {
+      if(IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->strattailtype][(int)sto->strat_vattr[v - 1]] >= 0) {
+        sto->currentsubmaxledgestype[(int)sto->indmat[sto->strattailtype][(int)sto->strat_vattr[v - 1]]] += delta;
+      }
+    }
+  }
+  
+  // ditto head
+  if(sto->headmaxl) {
+    STEP_THROUGH_OUTEDGES(head, e, v) {
+      if(IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->stratheadtype][(int)sto->strat_vattr[v - 1]] >= 0) {
+        sto->currentsubmaxledgestype[(int)sto->indmat[sto->stratheadtype][(int)sto->strat_vattr[v - 1]]] += delta;
+      }
+    }
+    STEP_THROUGH_INEDGES(head, e, v) {
+      if(v != tail && IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->stratheadtype][(int)sto->strat_vattr[v - 1]] >= 0) {
+        sto->currentsubmaxledgestype[(int)sto->indmat[sto->stratheadtype][(int)sto->strat_vattr[v - 1]]] += delta;
+      }
+    }
+  }
 }
 
 MH_F_FN(Mf_BDStratTNT) {
@@ -712,12 +835,15 @@ MH_F_FN(Mf_BDStratTNT) {
   Free(sto->influenced);
   Free(sto->influenced_counts);
 
+  Free(sto->currentsubmaxledgestype);
+  Free(sto->indmat);
+
   Free(sto->BDtailsbyStrattype);
   Free(sto->BDheadsbyStrattype);
 
   Free(sto->originalprobvec);
   Free(sto->currentprobvec);
-  
+    
   // MHp->storage itself should be Freed by MHProposalDestroy
 }
 
@@ -746,6 +872,9 @@ typedef struct {
   
   Dyad currentdyads; // Number of dyads that can be selected in the current network.
   Dyad proposeddyads; // As above, but if the proposal is accepted.
+  
+  int currentsubmaxledges;  // Number of edges in the current network both of whose endpoints are submaximal
+  int proposedsubmaxledges; // Number of edges in the proposed network both of whose endpoints are submaximal
   
   int bound; // Single upper bound on degree.
   int nmixtypes; // Number of pairings of attributes.
@@ -823,6 +952,9 @@ MH_I_FN(Mi_BDTNT) {
   for(Vertex tail = 1; tail <= N_NODES; tail++) {
     STEP_THROUGH_OUTEDGES(tail, e, head) {
       UnsrtELInsert(tail, head, sto->edgelist);
+      if(IN_DEG[tail] + OUT_DEG[tail] < bound && IN_DEG[head] + OUT_DEG[head] < bound) {
+        sto->currentsubmaxledges++;
+      }
     }
   }
 }
@@ -860,7 +992,7 @@ MH_P_FN(MH_BDTNT) {
     // Note that the dyad block selector cannot select an edge
     // incident on a maximal node; but the edge "reselection" below
     // will be able to select it with equal probability to the others,
-    // equalising it changes of being selected, and requiring only a
+    // equalising its chances of being selected, and requiring only a
     // "marginal" adjustment to the acceptance probability.
     for(int i = 0; i < sto->nmixtypes; i++) {
       Dyad dyadstype; // Number of dyads in that block.
@@ -971,11 +1103,79 @@ MH_P_FN(MH_BDTNT) {
       sto->proposeddyads -= corr;
     }
   }
-    
+  
+  sto->proposedsubmaxledges = sto->currentsubmaxledges;
+  
+  // if we are adding an edge that will be submaximal in the post-toggle 
+  // network, then increment proposedsubmaxledges for this particular edge
+  if(!edgeflag && !sto->tailmaxl && !sto->headmaxl) {
+    sto->proposedsubmaxledges++;
+  }
+  
+  // if we are removing an edge that is submaximal in the current
+  // network, decrement proposedsubmaxledges for this particular edge
+  if(edgeflag && !sto->tailmaxl && !sto->headmaxl) {
+    sto->proposedsubmaxledges--;
+  }
+
+  Edge e;
+  Vertex v;
+
+  // if tail will change maximality on toggle, then adjust
+  // proposedsubmaxledges for all edges between tail and
+  // a submaximal neighbor v, taking care not to count head,
+  // since that was handled separately above
+  if(sto->tailmaxl) {
+    STEP_THROUGH_OUTEDGES(Mtail[0], e, v) {
+      if(v != Mhead[0] && IN_DEG[v] + OUT_DEG[v] < sto->bound) {
+        sto->proposedsubmaxledges += delta;
+      }
+    }
+    STEP_THROUGH_INEDGES(Mtail[0], e, v) {
+      if(IN_DEG[v] + OUT_DEG[v] < sto->bound) {
+        sto->proposedsubmaxledges += delta;
+      }
+    }
+  }
+  
+  // ditto head
+  if(sto->headmaxl) {
+    STEP_THROUGH_OUTEDGES(Mhead[0], e, v) {
+      if(IN_DEG[v] + OUT_DEG[v] < sto->bound) {
+        sto->proposedsubmaxledges += delta;
+      }
+    }
+    STEP_THROUGH_INEDGES(Mhead[0], e, v) {
+      if(v != Mtail[0] && IN_DEG[v] + OUT_DEG[v] < sto->bound) {
+        sto->proposedsubmaxledges += delta;
+      }
+    }
+  }
+  
+  // rationale for the logratio:
+  //
+  // there is only one way to select a non-edge, and that is via the initial dyad sample in the "GetRandBDDyad" branch above;
+  // all "BD toggleable dyads" are given equal weight in the initial dyad sampling in the GetRandBDDyad branch,
+  // so if one has entered the GetRandBDDyad branch, the probability to select a given non-edge is 1 over the number of 
+  // BD toggleable dyads, which is sto->currentdyads in the current network and proposeddyads in the proposed network; 
+  // given that the network has at least one BD toggleable dyad, the probability to enter the GetRandBDDyad branch 
+  // is either 1/2 if the network has any edges or 1 if the network has no edges; this fully explains the calculation 
+  // of non-edge sampling probabilities below
+  //
+  // there are two ways to select an edge: it can be sampled directly in the "GetRandEdge" branch above, or it can be sampled 
+  // indirectly by entering the GetRandBDDyad branch, sampling a submaximal edge, and then resampling an arbitrary edge;
+  // in the GetRandEdge branch, the probability to select a given edge is 1 over the number of edges in the network;
+  // in the GetRandBDDyad branch, the probability to select a submaximal edge in the initial dyad sample is the number of
+  // submaximal edges divided by the number of BD toggleable dyads, and given that a submaximal edge was selected as the initial
+  // dyad sample, the probability to select a given edge on resampling is 1 over the number of edges; given that an edge exists
+  // in the network, the probability to enter to GetRandEdge branch is either 1/2 if any BD toggleable dyads exist in the network,
+  // or is 1 if no BD toggleable dyads exist in the network; the probability to enter the GetRandBDDyad branch is 1 minus the
+  // probability to enter the GetRandEdge branch; this fully explains the calculation of edge sampling probabilities below
+  
   if(edgeflag) {
-    MHp->logratio = log(((nedges == 1 ? 1.0 : 0.5)/sto->proposeddyads)/((sto->currentdyads == 0 ? 1.0 : 0.5)/nedges + (sto->tailmaxl || sto->headmaxl ? 0 : 0.5/sto->currentdyads)));
+    MHp->logratio = log(((nedges == 1 ? 1.0 : 0.5)/sto->proposeddyads)/(sto->currentdyads == 0 ? 1.0/nedges : (0.5/nedges)*(1 + ((double)sto->currentsubmaxledges/sto->currentdyads))));
   } else {
-    MHp->logratio = log(((sto->proposeddyads == 0 ? 1.0 : 0.5)/(nedges + 1) + (sto->tailmaxl || sto->headmaxl ? 0 : 0.5/sto->proposeddyads))/((nedges == 0 ? 1.0 : 0.5)/sto->currentdyads));  
+    MHp->logratio = log((sto->proposeddyads == 0 ? 1.0/(nedges + 1) : (0.5/(nedges + 1))*(1 + (double)sto->proposedsubmaxledges/sto->proposeddyads))/((nedges == 0 ? 1.0 : 0.5)/sto->currentdyads));  
   }
 }
 
@@ -1022,6 +1222,9 @@ MH_U_FN(Mu_BDTNT) {
   
   // update current dyad count
   sto->currentdyads = sto->proposeddyads;
+
+  // update the current submaximal edge count
+  sto->currentsubmaxledges = sto->proposedsubmaxledges;
 }
 
 MH_F_FN(Mf_BDTNT) {
@@ -1661,201 +1864,6 @@ MH_P_FN(MH_randomnode){
        j++;
       }
     }
-}
-
-/********************
-   void MH_randomtoggleList
-   Propose ONLY edges on a static list
-***********************/
-MH_P_FN(MH_randomtoggleList)
-{  
-  Dyad nedges0 = MH_IINPUTS[0];
-
-  if(MHp->ntoggles == 0) { /* Initialize */
-    if(nedges0==0) MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
-    else MHp->ntoggles=1;
-    return;
-  }
-  
-  BD_LOOP({
-      /* Select a dyad at random that is in the reference graph. (We
-	 have a convenient sampling frame.) */
-      /* Generate. */
-      Edge rane = 1 + unif_rand() * nedges0;
-      Mtail[0]=MH_IINPUTS[rane];
-      Mhead[0]=MH_IINPUTS[nedges0+rane];
-    });
-}
-
-/********************
-   void MH_randomtoggleRLE
-   Propose ONLY edges on an RLE-compressed list
-***********************/
-MH_I_FN(Mi_RLE){
-  ALLOC_STORAGE(1, RLEBDM1D, r);
-  double *inputs = MHp->inputs;
-  *r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
-  if(r->ndyads==0) MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
-  else MHp->ntoggles=1;
-}
-
-MH_P_FN(Mp_RLE){
-  GET_STORAGE(RLEBDM1D, r);
-
-  BD_LOOP({
-      /* Select a dyad at random that is in the reference graph. (We
-	 have a convenient sampling frame.) */
-      /* Generate. */
-      GetRandRLEBDM1D_RS(Mtail, Mhead, r);
-    });
-}
-
-/********************
-   void MH_listTNT
-   Propose ONLY edges on a static list
-   Use TNT weights.
-   This is a fusion of MH_DissolutionMLETNT and MH_TNT:
-
-   The "intersect" network is requested that is the intersection of
-   dyads on the static list and the edges present in nwp. Then,
-   standard TNT procedure is followed, but the dyad space (and the
-   number of dyads) is the number of dyads in the static list and the
-   network for the ties is the ties in the intersect network.
-***********************/
-MH_I_FN(Mi_listTNT){
-  Dyad ndyads = MH_IINPUTS[0]; // Note that ndyads here is the number of dyads in the list.
-  if(ndyads==0){
-    MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
-    return;
-  }else MHp->ntoggles=1;
-  Vertex *list = (Vertex *) MH_IINPUTS+1;
-  UnsrtEL *intersect = STORAGE = UnsrtELInitialize(0, NULL, NULL, FALSE);
-  for(Edge i=0; i<ndyads; i++){
-    Vertex tail=list[i], head=list[ndyads+i];
-    if(IS_OUTEDGE(tail, head)!=0)
-      UnsrtELInsert(tail, head, intersect);
-  }
-}
-
-MH_U_FN(Mu_listTNT){
-  UnsrtEL *intersect = STORAGE;
-  if(edgeflag) UnsrtELDelete(tail, head, intersect); // Deleting
-  else UnsrtELInsert(tail, head, intersect); // Inserting
-}
-
-MH_P_FN(Mp_listTNT){
-  const double P=0.5, Q=1-P;
-  Dyad ndyads = MH_IINPUTS[0]; // Note that ndyads here is the number of dyads in the list.
-  double DP = P*ndyads, DO = DP/Q;
-  Vertex *list = (Vertex *) MH_IINPUTS+1;
-
-  UnsrtEL *intersect = STORAGE;
-
-  Edge nedges=intersect->nedges;
-  
-  double logratio=0;
-  BD_LOOP({
-      if (unif_rand() < P && nedges > 0) { /* Select a tie at random from the network of eligibles */
-	UnsrtELGetRand(Mtail, Mhead, intersect);
-        logratio = TNT_LR_E(nedges, Q, DP, DO);
-      }else{ /* Select a dyad at random from the list */
-	Edge rane = unif_rand() * ndyads;
-	Mtail[0]=list[rane];
-	Mhead[0]=list[ndyads+rane];
-	
-	if(IS_OUTEDGE(Mtail[0],Mhead[0])){
-          UnsrtELGetRand(Mtail, Mhead, intersect); // Re-select from the intersect list so that we would know its index.
-	  logratio = TNT_LR_DE(nedges, Q, DP, DO);
-	}else{
-	  logratio = TNT_LR_DN(nedges, Q, DP, DO);
-	}
-      }
-    });
-  MHp->logratio += logratio;
-}
-
-MH_F_FN(Mf_listTNT){
-  UnsrtEL *intersect = STORAGE;
-  UnsrtELDestroy(intersect);
-  STORAGE = NULL;
-}
-
-/********************
-   void MH_RLETNT
-   Propose ONLY edges on a static list
-   Use TNT weights.
-   This is a fusion of MH_DissolutionMLETNT and MH_TNT:
-
-   A "intersect" network is constructed that is the intersection of
-   dyads on the static list and the edges present in nwp. Then,
-   standard TNT procedure is followed, but the dyad space (and the
-   number of dyads) is the number of dyads in the static list and the
-   network for the ties is the ties in the discord network.
-***********************/
-typedef struct {
-  RLEBDM1D r;
-  UnsrtEL *intersect;
-} StoreRLEBDM1DAndUnsrtEL;
-
-MH_I_FN(Mi_RLETNT){
-  ALLOC_STORAGE(1, StoreRLEBDM1DAndUnsrtEL, storage);
-  double *inputs = MHp->inputs;
-  storage->r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
-  if(storage->r.ndyads==0){
-    MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
-    return;
-  }else MHp->ntoggles=1;
-  storage->intersect = UnsrtELInitialize(0, NULL, NULL, FALSE);
-  EXEC_THROUGH_NET_EDGES(t, h, e, {
-      if(GetRLEBDM1D(t, h, &storage->r)){
-        UnsrtELInsert(t, h, storage->intersect);
-      }
-    });
-  
-  if(storage->intersect->nedges==EDGECOUNT(nwp)){ // There are no ties in the initial network that are fixed.
-    UnsrtELDestroy(storage->intersect);
-    storage->intersect = NULL; // "Signal" that there is no discordance network.
-  }
-}
-
-MH_P_FN(Mp_RLETNT){
-  GET_STORAGE(StoreRLEBDM1DAndUnsrtEL, storage);
-
-  const double P=0.5, Q=1-P;
-  double DP = P*storage->r.ndyads, DO = DP/Q;
-
-  Edge nedges = storage->intersect ? storage->intersect->nedges : EDGECOUNT(nwp);
-  double logratio=0;
-  BD_LOOP({
-      if (unif_rand() < P && nedges > 0) { /* Select a tie at random from the network of eligibles */
-	if(storage->intersect) UnsrtELGetRand(Mtail, Mhead, storage->intersect);
-        else GetRandEdge(Mtail, Mhead, nwp);
-	logratio = TNT_LR_E(nedges, Q, DP, DO);
-      }else{ /* Select a dyad at random from the list */
-	GetRandRLEBDM1D_RS(Mtail, Mhead, &storage->r);
-	
-	if(IS_OUTEDGE(Mtail[0],Mhead[0])){
-          if(storage->intersect) UnsrtELGetRand(Mtail, Mhead, storage->intersect); // Re-select from the intersect list so that we would know its index.
-	  logratio = TNT_LR_DE(nedges, Q, DP, DO);
-	}else{
-	  logratio = TNT_LR_DN(nedges, Q, DP, DO);
-	}
-      }
-    });
-  MHp->logratio += logratio;
-}
-
-MH_U_FN(Mu_RLETNT){
-  GET_STORAGE(StoreRLEBDM1DAndUnsrtEL, storage);
-  if(storage->intersect){
-    if(edgeflag) UnsrtELDelete(tail, head, storage->intersect); // Deleting
-    else UnsrtELInsert(tail, head, storage->intersect); // Inserting
-  }
-}
-
-MH_F_FN(Mf_RLETNT){
-  GET_STORAGE(StoreRLEBDM1DAndUnsrtEL, storage);
-  if(storage->intersect) UnsrtELDestroy(storage->intersect);
 }
 
 /* The ones below have not been tested */

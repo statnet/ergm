@@ -97,7 +97,6 @@
 #      !    #~   glm.null        :  the null fit established by MPL estimation and
 #                                   returned by <ergm.logitreg>, <ergm.pen.glm> or <glm>
 #                                   depending on the 'MPLEtype';
-#      !   #~    theta1          :  the vector of ??
 #         &      rm.coef         :  the robmon coefficients used as 'init' in the final
 #                                   estimation
 #      !   #~   loglikelihoodratio: the log-likelihood corresponding to
@@ -621,7 +620,7 @@ ergm <- function(formula, response=NULL,
                 only.last=TRUE,
                 output="ergm_state",
                 verbose=verbose,
-                offset.coef=offset.coef)
+                offset.coef=NVL(offset.coef,control$init[model$etamap$offsettheta]))
       if(verbose) message("Finished SAN run.")
     }else{
       TARGET_STATS <- nw
@@ -783,22 +782,14 @@ ergm <- function(formula, response=NULL,
                                 verbose=if(MCMCflag) FALSE else verbose, response=response,
                                 ...)
 
-  # TODO: this may also work for CD initial method.
-  if(control$init.method=="MPLE" &&
-     control$MPLE.singular.rcond!=0 &&
-     is.matrix(initialfit$covar) &&
-     (rc <- rcond(initialfit$covar[!model$etamap$offsettheta,!model$etamap$offsettheta,drop=FALSE])) < control$MPLE.singular.rcond){
-    msg <- paste0("MPLE variance-covariance matrix appears to be singular or nearly so (reciprocal condition number = ", rc, "). This may indicate that the model is nonidentifiable.")
-    # TODO: It may be possible to provide a more general diagnostic by
-    # looking at eigenvectors of covar corresponding to small
-    # eigenvalues.
-    if(any(nacoef <- is.na(coef(initialfit)))) msg <- paste0(msg, " The following parameters have nonidentifiable MPLE: ", paste.and(sQuote(param_names(initialfit)[nacoef])), ". Their initial coefficients will be set to 0.")
-    switch(control$MPLE.singular,
-           error = stop(msg, call.=FALSE),
-           warning = warning(msg, immediate.=TRUE, call.=FALSE), # Warn immediately, so the user gets the warning before the MCMC starts.
-           message = message(msg)
-           )
-  }
+  switch(control$init.method,
+         MPLE = NVL3(initialfit$xmat.full, check_nonidentifiability(., initialfit$coef, model,
+                                         tol = control$MPLE.nonident.tol, type="covariates",
+                                         action = control$MPLE.nonident)),
+         CD = NVL3(initialfit$sample, check_nonidentifiability(as.matrix(.), initialfit$coef, model,
+                                       tol = control$MPLE.nonident.tol, type="statistics",
+                                       action = control$MPLE.nonident))
+         )
 
   if (!MCMCflag){ # Just return initial (non-MLE) fit and exit.
     message("Stopping at the initial estimate.")
