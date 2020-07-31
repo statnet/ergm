@@ -7,91 +7,73 @@
 #
 #  Copyright 2003-2019 Statnet Commons
 #######################################################################
-###############################################################################
-# The <summary.ergm> function prints a 'summary of model fit' table and returns
-# the components of this table and several others listed below
-#
-# --PARAMETERS--
-#   object     : an ergm object
-#
-#
-# --IGNORED PARAMETERS--
-#   ...        : used for flexibility
-#   digits     : significant digits for the coefficients;default=
-#                max(3,getOption("digits")-3), but the hard-coded value is 5
-#   correlation: whether the correlation matrix of the estimated parameters
-#                should be printed (T or F); default=FALSE
-#   covariance : whether the covariance matrix of the estimated parameters
-#                should be printed (T or F); default=FALSE
-#
-# --RETURNED--
-#   ans: a "summary.ergm" object as a list containing the following
-#      formula         : object$formula
-#      randomeffects   : object$re
-#      correlation     : the 'correlation' passed to <summary.ergm>
-#      offset          : object$offset
-#      drop            : object$drop
-#      covariance      : the 'covariance' passed to <summary.ergm>
-#      pseudolikelihood: whether pseudoliklelihood was used (T or F)
-#      independence    : whether ?? (T or F)
-#      iterations      : object$iterations
-#      samplesize      : NA if 'pseudolikelihood'=TRUE, object$samplesize otherwise
-#      message         : a message regarding the validity of the standard error
-#                        estimates
-#      aic             : the AIC goodness of fit measure
-#      bic             : the BIC goodness of fit measure
-#      coefficients    : the dataframe of parameter coefficients and their
-#                        standard erros and p-values
-#      asycov          : the asymptotic covariance matrix
-#      asyse           : the asymptotic standard error matrix
-#      senderreceivercorrelation: 'randomeffects' if this is a matrix;
-#                        otherwise, the correlation between sender and receiver??
-#
-################################################################################
 
 
 
 #' Summarizing ERGM Model Fits
-#' 
-#' \code{\link[base]{summary}} method for [`ergm`] fits.
-#' 
-#' \code{\link{summary.ergm}} tries to be smart about formatting the
+#'
+#' [base::summary()] method for [ergm()] fits.
+#'
+#' @order 1
+#'
+#' @param object an object of class "ergm", usually, a result of a call to
+#'   [ergm()].
+#' @param correlation logical; if `TRUE`, the correlation matrix of the
+#'   estimated parameters is returned and printed.
+#' @param covariance logical; if `TRUE`, the covariance matrix of the estimated
+#'   parameters is returned and printed.
+#' @param total.variation logical; if `TRUE`, the standard errors reported in
+#'   the `Std. Error` column are based on the sum of the likelihood variation
+#'   and the MCMC variation. If `FALSE` only the likelihood variation is used.
+#'   The \eqn{p}-values are based on this source of variation.
+#' @param ... For [summary.ergm()] additional arguments are passed to
+#'   [logLik.ergm()]. For [print.summary.ergm()], to [stats::printCoefmat()].
+#'
+#' @details [summary.ergm()] tries to be smart about formatting the
 #' coefficients, standard errors, etc.
-#' 
-#' @aliases print.summary.ergm
-#' @param object an object of class \code{"ergm"}, usually, a result
-#'   of a call to \code{\link{ergm}}.
-#' @param digits Significant digits for coefficients
-#' @param correlation logical; if \code{TRUE}, the correlation matrix
-#'   of the estimated parameters is returned and printed.
-#' @param covariance logical; if \code{TRUE}, the covariance matrix of
-#'   the estimated parameters is returned and printed.
-#' @param total.variation logical; if \code{TRUE}, the standard errors
-#'   reported in the \code{Std. Error} column are based on the sum of
-#'   the likelihood variation and the MCMC variation. If \code{FALSE}
-#'   only the likelihood varuation is used. The \eqn{p}-values are
-#'   based on this source of variation.
-#' @param \dots Arguments to \code{\link{logLik.ergm}}
-#' @return The function \code{\link{summary.ergm}} computes and
-#'   returns a list of summary statistics of the fitted
-#'   \code{\link{ergm}} model given in \code{object}. Note that for
-#'   backwards compatibility, it returns two coefficient tables:
-#'   `$coefs` which does not contain the z-statistics and
-#'   `$coefficeints` which does (and is therefore more similar to
-#'   those returned by [summary.lm()]).
-#' @seealso network, ergm, print.ergm.  The model fitting function
-#'   \code{\link{ergm}}, \code{\link{summary}}.
-#' 
-#' Function \code{\link{coef}} will extract the matrix of coefficients with
-#' standard errors, t-statistics and p-values.
+#'
+#' @return The function [summary.ergm()] computes and returns a list of summary
+#'   statistics of the fitted [ergm()] model given in `object`. Note that for
+#'   backwards compatibility, it returns two coefficient tables: `$coefs` which
+#'   does not contain the z-statistics and `$coefficeints` which does (and is
+#'   therefore more similar to those returned by [stats::summary.lm()]).
+#'
+#'   The returned object is a list of class "ergm.summary" with the following
+#'   elements:
+#'   
+#' \item{formula}{ERGM model formula}
+#' \item{call}{R call used to fit the model}
+#' \item{correlation, covariance}{whether to print correlation/covariance matrices of the estimated parameters}
+#' \item{pseudolikelihood}{was the model estimated with MPLE}
+#' \item{independence}{is the model dyad-independent}
+#' \item{control}{the [control.ergm()] object used}
+#' \item{samplesize}{MCMC sample size}
+#' \item{message}{optional message on the validity of the standard error estimates}
+#' \item{null.lik.0}{It is `TRUE` of the null model likelihood has not been calculated. See [logLikNull()]}
+#' \item{devtext, devtable}{Deviance type and table}
+#' \item{aic, bic}{values of AIC and BIC}
+#' \item{coefs, coefficients}{data frames with model parameters and associated statistics}
+#' \item{asycov}{asymptotic covariance matrix}
+#' \item{asyse}{asymptotic standard error matrix}
+#' \item{offset, drop, estimate, iterations, mle.lik, null.lik}{
+#' see documentation of the object returned by [ergm()]
+#' }
+#'
+#' @seealso The model fitting function [ergm()], [print.ergm()], and
+#'   [base::summary()]. Function [stats::coef()] will extract the data frame of
+#'   coefficients with standard errors, t-statistics and p-values.
+#'
+#'
+#'
+#'
 #' @keywords regression models
 #' @examples
-#' 
+#'
 #'  data(florentine)
-#' 
+#'
 #'  x <- ergm(flomarriage ~ density)
 #'  summary(x)
-#' 
+#'
 #' @export
 summary.ergm <- function (object, ..., 
                           correlation=FALSE, covariance=FALSE,
@@ -132,7 +114,7 @@ summary.ergm <- function (object, ...,
   
   ans$samplesize <- switch(object$estimate,
                            EGMME = NVL3(control$EGMME.main.method, switch(.,
-                             `Gradient-Descent`=control$SA.phase3n,
+                             `Gradient-Descent`=control$SA.phase3_n,
                              stop("Unknown estimation method. This is a bug."))),
                            MPLE = NA,
                            CD=,
