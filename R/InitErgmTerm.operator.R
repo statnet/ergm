@@ -478,12 +478,14 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
   fs <- a$formulas
   if(is(fs,"formula")) fs <- list(fs)
   nf <- length(fs)
-  
-  ms <- lapply(fs, function(f){
-    m <- ergm_model(f, nw, response=response,...)
-    if(is.curved(m)) ergm_Init_inform("Model ", sQuote(deparse(f,500)), " appears to be curved. Its canonical parameters will be used.")
-    m
-  })
+
+  ms <- lapply(fs, ergm_model, nw=nw, response=response, ...)
+
+  curved <- ms[[1]]$etamap$curved
+  for(i in seq_len(nf-1L)+1L){
+    m <- ms[[i]]
+    if(!identical(curved, m$etamap$curved)) ergm_Init_inform("Model ", i, " in the list appears to be curved, and its mapping differs from that of the first model; the first model's mapping will be used.")
+  }
 
   nstats <-  ms %>% map_int(nparam, canonical=TRUE)
 
@@ -497,6 +499,8 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
 
   nparams <- wl %>% map_int(nrow)
 
+  if(!is.null(curved) && !all(nparams==nstats[1])) ergm_Init_abort("Specified weights produce different number of output statistics different from those expected by the curved effects in Model 1.")
+
   if(!all_identical(nparams)) ergm_Init_abort("Specified models and weights appear to differ in lengths of output statistics.")
   nparam <- nparams[1]
 
@@ -507,12 +511,17 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
   coef.names <- mk_std_op_namewrap("Sum")(label)
 
   wms <- lapply(ms, wrap.ergm_model, nw, response)
+  if(is.curved(ms[[1L]])){
+    label <- if(length(a$label)==1L) paste0(a$label,seq_along(wms[[1L]]$params)) else attr(a$label,"curved")
+    names(wms[[1L]]$params) <- mk_std_op_namewrap("Sum")(label)
+  }
+
   gss <- map(wms, "emptynwstats")
   gs <-
     if(all(map_lgl(gss, is.null))){ # Linear combination of 0s is 0.
       NULL
     }else{ # All numeric or NULL
-      gs0 <- map_lgl(gs, is.null)
+      gs0 <- map_lgl(gss, is.null)
       lst(x = wl[!gs0],
           y = gss[!gs0]) %>%
         pmap(`%*%`) %>%
@@ -524,7 +533,8 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
 
   if(any(unlist(map(wms, "offsettheta"))) || any(unlist(map(wms, "offsetmap")))) ergm_Init_warn(paste0("Sum operator does not propagate offset() decorators."))
   
-  list(name="Sum", coef.names = coef.names, inputs=inputs, submodels=ms, emptynwstats=gs, dependence=dependence)
+  c(list(name="Sum", coef.names = coef.names, inputs=inputs, submodels=ms, emptynwstats=gs, dependence=dependence),
+    wms[[1L]][c("map", "gradient", "params", "minpar", "maxpar")])
 }
 
 InitErgmTerm.S <- function(nw, arglist, response=NULL, ...){

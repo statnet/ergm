@@ -465,7 +465,7 @@
 
       \code{attrs} is a two-sided formula whose LHS gives the attribute or attribute function (see \link[=node-attr]{Specifying Vertex Attributes and Levels}) for which tails and heads will be used to construct the induced subgraph. A one-sided formula (e.g., \code{~A}) is symmetrized (e.g., \code{A~A}).
 
-      It should evaluate either to a logical vector equal in length to the number of tails (for LHS) and tails (for RHS) indicating which nodes are to be used to induce the subgraph or a numeric vector giving their indices.
+      It should evaluate either to a logical vector equal in length to the number of tails (for LHS) and heads (for RHS) indicating which nodes are to be used to induce the subgraph or a numeric vector giving their indices.
 
       When the two sets are identical, the induced subgraph retains the directedness of the original graph. If they are disjoint, an undirected bipartite graph is induced.
     }
@@ -487,8 +487,9 @@
       A single formula is also permissible. This can be useful if one
       wishes to, say, sum up the statistics returned by a formula.
 
-      \code{label} is used to specify the name of the resulting term sum
-      vector.
+      \code{label} is used to specify the names of the elements of the resulting term sum vector. If \code{label} is of length 1, it will be recycled with indices appended.
+
+      Curved models are supported, subject to some limitations. In particular, the \emph{first} model's etamap will be used, overwriting the others. If \code{label} is not of length 1, it should have an \code{\link{attr}}-style attribute \code{"curved"} specifying the names for the curved parameters.
     }
 
 
