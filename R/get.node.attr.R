@@ -225,7 +225,7 @@ NULL
 #' \describe{
 #'
 #' \item{`"character"`}{Accept any mode or class (since it can
-#' beconverted to character).}
+#' be converted to character).}
 #' 
 #' \item{`"numeric"`}{Accept real, integer, or logical.}
 #' 
@@ -240,6 +240,9 @@ NULL
 #' \item{`"nonnegative"`}{Accept a nonnegative number or logical.}
 #'
 #' \item{`"positive"`}{Accept a strictly positive number or logical.}
+#'
+#' \item{`"index"`}{Accept input appropriate for selecting from an unnamed vector: an integer or a logical; positive integers are returned as they are (`bip` ignored), logicals are right-sized, and negative integers reverse the selection (as with vector indexing).}
+#'
 #' }
 #'
 #' Given that, the `multiple` argument controls how passing multiple
@@ -283,6 +286,8 @@ ERGM_GET_VATTR_MULTIPLE_TYPES <- c("paste", "matrix", "stop")
 #' ergm_get_vattr(c("wealth","priorates"), flomarriage)
 #' ergm_get_vattr(c("wealth","priorates"), flomarriage, multiple="matrix")
 #' ergm_get_vattr(~priorates>30, flomarriage)
+#' ergm_get_vattr(~TRUE, flomarriage, accept="index")
+#' ergm_get_vattr(~-(2:12), flomarriage, accept="index")
 #' (a <- ergm_get_vattr(~cut(priorates,c(-Inf,0,20,40,60,Inf),label=FALSE)-1, flomarriage))
 #' @keywords internal
 #' @export
@@ -306,27 +311,48 @@ ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2","
     name = name)
 }
 
-.rightsize_vattr <- function(a, nw, bip){
-  name <- attr(a, "name")
+.rightsize_vattr <- function(a, nw, bip, accept){
   if(bip=="a") return(a)
-  rep_len_warn <- function(x, length.out){
-    if(length.out%%NVL(nrow(x), length(x))) ergm_Init_warn("Network size or bipartite group size is not a multiple of the length of vertex attributes.")
-    if(is.null(nrow(x))) rep_len(x, length.out) else apply(x, 2, rep_len, length.out)
+
+  if(!is.bipartite(nw)) bip <- "n"
+
+  name <- attr(a, "name")
+
+  if(accept=="index" && is.numeric(a)){
+    a <- a[a!=0]
+    if(all(a>0)) return(a)
+
+    if(!is.null(nrow(a))) ergm_Init_abort("Subtractive (negative) index matrices are not supported at this time.")
+    # Now it's negative indices.
+    l <- switch(bip,
+                n=seq_len(network.size(nw)),
+                b1=seq_len(nw%n%"bipartite"),
+                b2=seq_len(network.size(nw)-nw%n%"bipartite")+nw%n%"bipartite")
+    if(bip=="b2" && any(-a > nw%n%"bipartite")) a <- a + nw%n%"bipartite"
+    if(!all(-a%in%seq_along(l))) ergm_Init_warn("Vertex index is out of bound.")
+
+    structure(l[a], name=name)
+  }else{
+    rep_len_warn <- function(x, length.out){
+      if(length.out%%NVL(nrow(x), length(x))) ergm_Init_warn("Network size or bipartite group size is not a multiple of the length of vertex attributes.")
+      if(is.null(nrow(x))) rep_len(x, length.out) else apply(x, 2, rep_len, length.out)
+    }
+
+    structure(
+      if(bip=="n") rep_len_warn(a, network.size(nw))
+      else if(NVL(nrow(a), length(a))==network.size(nw)) # Input vector is n-long, need to trim.
+        switch(bip,
+               b1 = if(is.null(nrow(a))) a[seq_len(nw%n%"bipartite")] else a[seq_len(nw%n%"bipartite"),,drop=FALSE],
+               b2 = if(is.null(nrow(a))) a[-seq_len(nw%n%"bipartite")] else a[-seq_len(nw%n%"bipartite"),,drop=FALSE])
+      else # Othewise, recycle until the right length.
+        rep_len_warn(a, switch(bip,
+                               b1=nw%n%"bipartite",
+                               b2=network.size(nw)-nw%n%"bipartite")),
+      name = name)
   }
-  structure(
-    if(!is.bipartite(nw) || bip=="n") rep_len_warn(a, network.size(nw))
-    else if(NVL(nrow(a), length(a))==network.size(nw)) # Input vector is n-long, need to trim.
-      switch(bip,
-             b1 = if(is.null(nrow(a))) a[seq_len(nw%n%"bipartite")] else a[seq_len(nw%n%"bipartite"),,drop=FALSE],
-             b2 = if(is.null(nrow(a))) a[-seq_len(nw%n%"bipartite")] else a[-seq_len(nw%n%"bipartite"),,drop=FALSE])
-    else # Othewise, recycle until the right length.
-      rep_len_warn(a, switch(bip,
-                             b1=nw%n%"bipartite",
-                             b2=network.size(nw)-nw%n%"bipartite")),
-    name = name)
 }
 
-.check_acceptable <- function(x, accept=c("character", "numeric", "logical", "integer", "natural", "0natural", "nonnegative"), xspec=NULL){
+.check_acceptable <- function(x, accept=c("character", "numeric", "logical", "integer", "natural", "0natural", "nonnegative", "index"), xspec=NULL){
   accept <- match.arg(accept)
 
   ACCNAME <- list(character = "a character",
@@ -336,7 +362,8 @@ ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2","
                   natural = "a natural (positive integer) numeric",
                   `0natural` = "a nonnegative integer or logical",
                   nonnegative = "a nonnegative numeric or logical",
-                  positive = "a positive numeric or logical")
+                  positive = "a positive numeric or logical",
+                  index = "an integer (of the same sign) or logical")
   OK <-
     if(accept == "character") TRUE
     else if(!is.numeric(x) && !is.logical(x)) FALSE
@@ -347,7 +374,8 @@ ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2","
                 natural = all(round(x)==x) && x>0,
                 `0natural` = all(round(x)==x) && x>=0,
                 nonnegative = x>=0,
-                positive = x>0)
+                positive = x>0,
+                index = is.logical(x) || (all(round(x)==x) && (all(x>0) || all(x<0))))
 
   if(!OK) ergm_Init_abort("Attribute ", NVL3(xspec, paste0(sQuote(paste(deparse(.),collapse="\n")), " ")), "is not ", ACCNAME[[accept]], " vector as required.")
   if(any(is.na(x))) ergm_Init_abort("Attribute ", NVL3(xspec, paste0(sQuote(paste(deparse(.),collapse="\n")), " ")), "has missing data, which is not currently supported by ergm.")
@@ -363,7 +391,7 @@ ergm_get_vattr.AsIs <- function(object, nw, accept="character", bip=c("n","b1","
   multiple <- match.arg(multiple, ERGM_GET_VATTR_MULTIPLE_TYPES)
 
   object %>% .handle_multiple(multiple=multiple) %>%
-    .rightsize_vattr(nw, bip) %>% structure(name=attr(object,"name")) %>%
+    .rightsize_vattr(nw, bip, accept) %>% structure(name=attr(object,"name")) %>%
     structure(class = class(object) %>% discard(~(.=="AsIs")) %>%
     map_chr(identity)) %>% .check_acceptable(accept=accept, xspec=object)
 }
@@ -382,7 +410,7 @@ ergm_get_vattr.character <- function(object, nw, accept="character", bip=c("n","
   }
 
   object %>% map(~nw%v%.) %>% set_names(object) %>% .handle_multiple(multiple=multiple) %>%
-    .rightsize_vattr(nw, bip) %>% structure(name=paste(object, collapse=".")) %>%
+    .rightsize_vattr(nw, bip, accept) %>% structure(name=paste(object, collapse=".")) %>%
     .check_acceptable(accept=accept, xspec=object)
 }
 
@@ -400,7 +428,7 @@ ergm_get_vattr.function <- function(object, nw, accept="character", bip=c("n","b
   args <- c(list(nw), list(...), args)
 
   ERRVL(try(do.call(object, args) %>%
-            .rightsize_vattr(nw, bip) %>% .handle_multiple(multiple=multiple) %>%
+            .rightsize_vattr(nw, bip, accept) %>% .handle_multiple(multiple=multiple) %>%
             structure(., name=NVL(attr(.,"name"), strtrim(despace(paste(deparse(body(object)),collapse="\n")),80))),
             silent=TRUE),
         ergm_Init_abort(.)) %>%
@@ -423,7 +451,7 @@ ergm_get_vattr.formula <- function(object, nw, accept="character", bip=c("n","b1
   e <- ult(object)
   ERRVL(try({
     eval(e, envir=vlist, enclos=environment(object)) %>%
-      .rightsize_vattr(nw, bip) %>% .handle_multiple(multiple=multiple) %>%
+      .rightsize_vattr(nw, bip, accept) %>% .handle_multiple(multiple=multiple) %>%
       structure(name=if(length(object)>2) eval_lhs.formula(object) else despace(paste(deparse(e),collapse="\n")))
   }, silent=TRUE),
   ergm_Init_abort(.)) %>%
