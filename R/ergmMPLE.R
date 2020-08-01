@@ -172,10 +172,13 @@ ergmMPLE <- function(formula, constraints=~., fitmodel=FALSE, output=c("matrix",
          matrix = list(response = pl$zy, predictor = pl$xmat, 
            weights = pl$wend),
          array = {
+           bip <- NVL(nw %n% "bipartite", 0)
            vn <- if(all(is.na(nw %v% "vertex.names"))) 1:network.size(nw) else nw %v% "vertex.names"
-           t.names <- if(is.bipartite(nw)) vn[seq_len(nw %n% "bipartite")] else vn
-           h.names <- if(is.bipartite(nw)) vn[-seq_len(nw %n% "bipartite")] else vn
+           t.names <- if(bip) vn[seq_len(bip)] else vn
+           h.names <- if(bip) vn[-seq_len(bip)] else vn
            term.names <- colnames(pl$xmat)[-(1:2),drop=FALSE]
+
+           if(bip) pl$xmat[,2] <- pl$xmat[,2] - bip
            
            xa <- array(NA, dim = c(length(t.names), length(h.names), ncol(pl$xmat)-2), dimnames = list(tail = t.names, head = h.names, term = term.names))
            
