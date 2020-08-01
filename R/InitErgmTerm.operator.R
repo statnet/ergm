@@ -246,11 +246,11 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, response=NULL, ...){
   
   m <- ergm_model(f, nw, response=response,...)
 
-  if(!is.dyad.independent(m) || nparam(m)!=1) stop("The filter test formula must be dyad-independent and have exactly one statistc.")
+  if(!is.dyad.independent(m) || nparam(m)!=1) ergm_Init_abort("The filter test formula must be dyad-independent and have exactly one statistc.")
 
   nw[,] <- FALSE
   gs <- summary(m, nw, response=response)
-  if(gs!=0) stop("At this time, the filter test term must have the property that its dyadwise components are 0 for 0-valued relations. This limitation may be removed in the future.")
+  if(gs!=0) ergm_Init_abort("At this time, the filter test term must have the property that its dyadwise components are 0 for 0-valued relations. This limitation may be removed in the future.")
   
   c(list(name="_filter_formula_net", submodel=m),
     wrap.ergm_model(m, nw, response, NULL))
@@ -571,16 +571,16 @@ InitErgmTerm.S <- function(nw, arglist, response=NULL, ...){
   if(is.logical(headsel)) headsel <- which(headsel) + bip
 
   # TODO: Check if 1-node graphs cause crashes.
-  if(length(tailsel)==0 || length(headsel)==0) stop("Empty subgraph selected.")
+  if(length(tailsel)==0 || length(headsel)==0) ergm_Init_abort("Empty subgraph selected.")
 
   type <- if(is.directed(nw)) "directed" else "undirected"
   if(bip){
     if(max(tailsel)>bip || min(headsel)<=bip)
-      stop("Invalid vertex subsets selected for a bipartite graph.")
+      ergm_Init_abort("Invalid vertex subsets selected for a bipartite graph.")
     type <- "bipartite"
   }else{
     if(!identical(tailsel,headsel)){ # Rectangular selection: output bipartite.
-      if(length(intersect(tailsel,headsel))) stop("Vertex subsets constructing a bipartite subgraph must have disjoint ranges.")
+      if(length(intersect(tailsel,headsel))) ergm_Init_abort("Vertex subsets constructing a bipartite subgraph must have disjoint ranges.")
       type <- "bipartite"
     }
   }
