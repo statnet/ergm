@@ -69,28 +69,19 @@
   \subsection{NEW FEATURES}{
     \itemize{
       \item{
-        Non-identifiability checks have been added for \code{MPLE} and \code{MCMLE}.
+        \code{\link{ergm}} now checks models for evidence of nonidentifiability (linear dependence between statistics) after MPLE and during the MCMLE and CD estimation. QR decomposition is used to attempt to identify which statistics are redundant.
       }      
       \item{
-        The number of dyads that the \code{\link[=ergm.mple]{MPLE}} visits before resorting to the case-control likelihood is now controlled by the \code{MPLE.samplesize} control parameter (if initial fit is final) and by the \code{init.MPLE.samplesize} control parameter (if it is used only to initialize the MCMC-based estimation).
+        It is now possible to limit the systematic sample size taken by \code{\link[=ergm.mple]{MPLE}} before resorting to the case-control likelihood using the \code{MPLE.samplesize} control parameter (if initial fit is final) and by the \code{init.MPLE.samplesize} control parameter (if it is used only to initialize the MCMC-based estimation).
       }
       \item{
-        Added a \code{\link[=ergm-constraints]{Dyads}} constraint that takes \code{ergm} formulas and constrains dyads based on which dyads affect their change statistics.
+        A new \dQuote{operator} constraint \code{\link[=ergm-constraints]{Dyads}} takes \code{ergm} formulas and constrains dyads based on which dyads affect their change statistics.
       }
       \item{
-        Added \code{\link{compress.rlebdm}}.
+        It is now possible to calculate model-predicted \strong{conditional} and \strong{unconditional} tie probabilities using  \code{\link{predict.ergm}} and \code{\link{predict.formula}}. (Contributed by Michal Bojanowski.)
       }
       \item{
-        Added \code{\link{predict.ergm}} and \code{\link{predict.formula}} to calculate model-predicted \strong{conditional} and \strong{unconditional} tie probabilities (contributed by Michal Bojanowski).
-      }
-      \item{
-        Restructured the \code{\link[=simulate.ergm]{simulate}} family of methods.  Also added \code{nsim} and \code{seed} arguments to \code{\link{simulate.formula}}.
-      }
-      \item{
-        \code{\link{ergm_get_vattr.function}} now propagates its arguments to the function it calls.
-      }
-      \item{
-        The vertex attribute levels specification API has been extended to include various convenience "functions" such as \code{\link[=node-attr]{LARGEST}} and \code{\link[=node-attr]{SMALLEST}}.
+        The nodal attribute specification mechamism (i.e., the \code{attr=} and \code{levels=} arguments to terms) now includes a number of convenience functions and predicates, such as \code{\link[=node-attr]{LARGEST}} and \code{\link[=node-attr]{SMALLEST}} to select or exclude the most/least frequent levels, and \code{\link[=node-attr]{COLLAPSE_SMALLEST}} to collapse the smallest categories into one.
       }
       \item{
         \code{\link{ergmMPLE}} now takes a \code{constraints} argument and handles it and missing dyads correctly.
@@ -99,19 +90,17 @@
         \code{\link{san}} now has the ability to take offsets into account.
       }
       \item{
-        Added an argument \code{which} to \code{\link{mcmc.diagnostics.ergm}} to specify which output is wanted.
+        \code{\link{mcmc.diagnostics.ergm}} now takes an argument \code{which=} to  to specify which output is wanted.
       }
       \item{
-        Missing nodal attributes now generate an error in model initialization.
-      }
-      \item{
-        Bipartite versions of \code{\link{dsp}} and \code{\link{gwdsp}} have been added.
-      }
-      \item{
-        A new term \code{\link{isolatededges}} has been added.
-      }
-      \item{
-        \code{\link{ergm_get_vattr}} now has an \code{AsIs} method that makes minimal changes to the input before returning.      
+        The following new model terms have been implemented:
+        \itemize{
+          \item{
+            \code{\link{b1dsp}}, \code{\link{b2dsp}}, \code{\link{gwb1dsp}}, and \code{\link{gwb1dsp}}, the bipartite versions of \code{\link{dsp}} and \code{\link{gwdsp}}.
+          }
+          \item{
+            \code{\link{isolatededges}}, to count the number of edges that are in a single component.
+          }
       }
     }
   }
@@ -144,10 +133,7 @@
         Added a workaround for a limitation of \code{coda::densityplot.mcmc.list} when variable names are not unique, which caused a problem in \code{\link{mcmc.diagnostics}} pointed out by James Wells.
       }
       \item{
-        The \code{levels} argument was removed from \code{starmix} terms as it was not functioning correctly.
-      }
-      \item{
-        Documentation and implementation for term \code{balance} have been corrected.
+        The \code{levels} argument was removed from \code{starmix} terms, as it was not functioning correctly.
       }
     }
   }
@@ -156,29 +142,33 @@
   \subsection{OTHER USER-VISIBLE CHANGES}{
     \itemize{
       \item{
-        Removed \code{fauxhigh} and \code{fauxhigh.withnumericattributes} from the datalist.
+        Datasets \code{fauxhigh} and \code{fauxhigh.withnumericattributes} have been removed.
       }
       \item{
-        Some optimizations have been made to RLEBDMs.
+        Control parameters \code{*.Hummel.*} have been renamed to \code{*.steplength.*} for consistency.
       }
       \item{
-        Removed \code{.deinf} and replaced it with \code{\link[statnet.common]{deInf}} in \code{statnet.common}.
-      }
-      \item{
-        Various documentation updates have been made.
-      }
-      \item{
-        Previously deprecated functions \code{ergm.getglobalstats}, \code{ergm.getmodel}, \code{ergm.update.formula}, \code{network.update}, and \code{remove.offset.formula} are now defunct.
-      }
-      \item{
-        Renamed \code{.Hummel.} to \code{.steplength.} control parameters for consistency.
-      }
-      \item{
-        Parallel multisection search for Hummel step length is now only enabled for missing data MLE by default, and can be disabled altogether with appropriate control parameters.
+        Parallel multisection search for the Hummel step length is now only enabled for missing data MLE by default, and can be disabled altogether with appropriate control parameters.
       }
       \item{
         Formulas are no longer attached to \code{\link{ergm_model}}, \code{\link{ergm_proposal}}, \code{\link{ergm_conlist}}, and others.
       }
+      \item{
+        The \code{\link[=simulate.ergm]{simulate}} family of methods has been restructured. In particular, it is now possible to call \code{simulate()} on an \code{\link{ergm_model}} object without reinitializing it.
+      }
+      \item{
+        A number of improvements have been made to the nodal attribute API. In particular, \code{\link{ergm_get_vattr}} now has an \code{AsIs} method that makes minimal changes to the input before returning and \code{\link{ergm_get_vattr.function}} now propagates its arguments to the function it calls.
+      }
+      \item{
+        Missing nodal attributes now generate an error in model initialization.
+      }
+      \item{
+        \code{\link{summary.ergm}} and its printing method have been cleaned up.
+      }
+      \item{
+        A variety of miscellaneous optimizations, coleanups, and documentation improvements.
+      }
+
     }
   }
 }
