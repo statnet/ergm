@@ -560,21 +560,18 @@ InitErgmTerm.S <- function(nw, arglist, response=NULL, ...){
   # is bipartite in the first place, expect bipartite indices.
   bip <- NVL(nw %n% "bipartite", 0)
 
-  tailsel <- ergm_get_vattr(tailspec, nw, accept="numeric", bip="a")
+  tailsel <- ergm_get_vattr(tailspec, nw, accept="index", bip="b1")
   tailname <- attr(tailsel, "name")
 
-  headsel <- ergm_get_vattr(headspec, nw, accept="numeric", bip="a")
+  headsel <- ergm_get_vattr(headspec, nw, accept="index", bip="b2")
   headname <- attr(headsel, "name")
 
   # Convert to numeric selectors.
-  if(is.logical(tailsel) && (if(bip) length(tailsel)==bip else length(tailsel)==network.size(nw))) tailsel <- sort(which(tailsel))
-  if(is.logical(headsel) && (if(bip) length(headsel)==network.size(nw)-bip else length(headsel)==network.size(nw))) headsel <- sort(which(headsel))
+  if(is.logical(tailsel)) tailsel <- which(tailsel)
+  if(is.logical(headsel)) headsel <- which(headsel) + bip
 
   # TODO: Check if 1-node graphs cause crashes.
   if(length(tailsel)==0 || length(headsel)==0) stop("Empty subgraph selected.")
-
-  # If bipartite, remap to the whole network's indexes.
-  if(bip) headsel <- headsel + bip
 
   type <- if(is.directed(nw)) "directed" else "undirected"
   if(bip){

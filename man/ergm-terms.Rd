@@ -465,9 +465,9 @@
 
       \code{attrs} is a two-sided formula whose LHS gives the attribute or attribute function (see \link[=node-attr]{Specifying Vertex Attributes and Levels}) for which tails and heads will be used to construct the induced subgraph. A one-sided formula (e.g., \code{~A}) is symmetrized (e.g., \code{A~A}).
 
-      It should evaluate either to a logical vector equal in length to the number of tails (for LHS) and heads (for RHS) indicating which nodes are to be used to induce the subgraph or a numeric vector giving their indices.
+      It should evaluate either to a logical vector equal in length to the number of tails (for LHS) and heads (for RHS) indicating which nodes are to be used to induce the subgraph or a numeric vector giving their indices. (As with indexing vectors, the logical vector will be recycled to the size of the network or the size of the appropriate bipartition, and negative indices will deselect vertices.)
 
-      When the two sets are identical, the induced subgraph retains the directedness of the original graph. If they are disjoint, an undirected bipartite graph is induced.
+      When the two sets are identical, the induced subgraph retains the directedness of the original graph. Otherwise, an undirected bipartite graph is induced.
     }
 
     \item{\code{Sum(formulas, label)} (binary) (operator), \code{Sum(formulas, label)} (valued) (operator)}{\emph{A sum (or an arbitrary linear combination) of one or more formulas}:
