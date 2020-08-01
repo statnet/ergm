@@ -389,9 +389,6 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     #
     mcmcloglik <- -abs(c0 - c01)
     
-    #   c1 <- theta1$loglikelihood
-    #   c1  <- c01
-    # loglikelihood <- mcmcloglik
     loglikelihood <- Lout$value
     
     #

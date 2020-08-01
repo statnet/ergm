@@ -54,7 +54,7 @@ san(object, ...)
   only.last = TRUE,
   control = object$control$SAN.control,
   verbose = FALSE,
-  offset.coef = object$coef[object$offset],
+  offset.coef = NULL,
   ...
 )
 }
@@ -108,9 +108,11 @@ otherwise, return a \code{\link{network.list}} with \code{nsim} networks.}
 
 \item{verbose}{Logical or numeric giving the level of verbosity. Higher values produce more verbose output.}
 
-\item{offset.coef}{A vector of coefficients for the offset statistics.  For \code{san.formula}, these must be
-passed in as an argument.  For \code{san.ergm}, they can be passed in as an argument, but will default to the
-offsets in the \code{ergm} object.}
+\item{offset.coef}{A vector of offset coefficients; these must be passed in by the user.
+Note that these should be the same set of coefficients one would pass to \code{ergm} via
+its \code{offset.coef} argument.  For example, if one has a curved \code{offset(gwesp)}
+term in the model, then the \code{decay} parameter should \emph{not} be passed in via
+\code{offset.coef}.}
 
 \item{formula}{(By default, the \code{formula} is taken from the \code{ergm}
 object.  If a different \code{formula} object is wanted, specify it here.}

@@ -46,7 +46,7 @@ plot and/or print. Defaults to all of the below if meaningful:
 
 \item{\code{"texts"}}{Shorthand for the following text diagnostics.}
 
-\item{\code{"summary"}}{Summary of network statistic or estimating function elements as produced by \code{\link[coda:summary.mcmc.list]{coda::summary.mcmc.list()}}.}
+\item{\code{"summary"}}{Summary of network statistic or estimating function elements as produced by \code{\link[coda:summary.mcmc]{coda::summary.mcmc.list()}}.}
 
 \item{\code{"autocorrelation"}}{Autocorrelation of each of the network statistic or estimating function elements.}
 

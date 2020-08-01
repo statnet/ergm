@@ -48,9 +48,6 @@
 #' @param save.glm whether the mple fit and the null mple fit should
 #'   be returned (T or F); if false, NULL is returned for both;
 #'   default==TRUE
-#' @param theta1 the independence theta; if specified and non-NULL,
-#'   this is ignored except to return its value in the returned ergm;
-#'   default=NULL, in which case 'theta1' is computed
 #' @param control a list of MCMC related parameters; recognized
 #'   components include: samplesize : the number of networks to sample
 #'   Clist.miss : see 'Clist.miss' above; some of the code uses this
@@ -77,7 +74,7 @@
 ergm.mple<-function(nw, fd, m, init=NULL,
                     MPLEtype="glm", family="binomial",
                     save.glm=TRUE,
-                    theta1=NULL, 
+                    save.xmat=TRUE,
 		    control=NULL, proposal=NULL,
                     verbose=FALSE,
                     ...) {
@@ -144,77 +141,6 @@ ergm.mple<-function(nw, fd, m, init=NULL,
     
 
    }
-#
-#  Determine the independence theta and MLE
-#  Note that the term "match" is deprecated.
-#
-   if(is.null(theta1)){
-    independent.terms <- 
-       c("edges","match","nodecov","nodefactor","nodematch","absdiff",
-         "nodeofactor","nodeifactor","nodemain",
-         "edgecov","dyadcov","sender","receiver","sociality", 
-         "nodemix","mix",
-         "b1","b2",
-         "testme")
-    independent <- rep(0,ncol(pl$xmat))
-    names(independent) <- colnames(pl$xmat)
-    theta.ind <- independent
-    for(i in seq(along=independent.terms)){
-     independent[grep(independent.terms[i], colnames(pl$xmat))] <- i
-    }
-    independent <- independent>0
-    if(any(independent)){
-      
-      glm.result <- .catchToList(glm(pl$zy ~ .-1 + offset(pl$foffset), 
-                                    data=data.frame(pl$xmat[,independent,drop=FALSE]),
-                                    weights=pl$wend, family=family))
-      
-      # error handling for glm results
-      if (!is.null(glm.result$error)) {
-        warning(glm.result$error)
-        theta1 <- list(coef=NULL, 
-                       theta=rep(0,ncol(pl$xmat)),
-                       independent=independent)
-      } else if (!is.null(glm.result$warnings)) {
-        # if the glm results are crazy, redo it with 0 starting values
-        if (max(abs(glm.result$value$coef), na.rm=T) > 1e6) {
-          warning("GLM model may be separable; restarting glm with zeros.\n")
-          mindfit <- glm(pl$zy ~ .-1 + offset(pl$foffset), 
-                         data=data.frame(pl$xmat[,independent,drop=FALSE]),
-                         weights=pl$wend, family=family,
-                         start=rep.int(0, sum(independent)))
-          mindfit.summary <- summary(mindfit)
-          theta.ind[independent] <- mindfit$coef
-          theta1 <- list(coef=mindfit$coef, 
-                         theta=theta.ind,
-                         independent=independent)
-        } else {
-          # unknown warning, just report it
-          warning(glm.result$warnings)
-          mindfit <- glm.result$value
-          mindfit.summary <- summary(mindfit)
-          theta.ind[independent] <- mindfit$coef
-          theta1 <- list(coef=mindfit$coef, 
-                         theta=theta.ind,
-                         independent=independent)
-        }
-      } else {
-        # no errors or warnings
-        mindfit <- glm.result$value
-        mindfit.summary <- summary(mindfit)
-        theta.ind[independent] <- mindfit$coef
-        theta1 <- list(coef=mindfit$coef, 
-                       theta=theta.ind,
-                       independent=independent)
-      }
-      
-     
-    }else{
-     theta1 <- list(coef=NULL, 
-                    theta=rep(0,ncol(pl$xmat)),
-                    independent=independent)
-    }
-   }
   }
   theta <- pl$theta.offset
   real.coef <- mplefit$coef
@@ -279,8 +205,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
       iterations=iteration, 
       MCMCtheta=theta, gradient=gradient,
       hessian=hess, covar=covar, failure=FALSE,
-      est.cov=est.cov, glm = glm, glm.null = glm.null,
-      theta1=theta1),
+      est.cov=est.cov, glm = glm, glm.null = glm.null, xmat.full = if(save.xmat) pl$xmat.full),
      class="ergm")
 }
 

@@ -67,9 +67,11 @@ san.default <- function(object,...)
 #' @param control A list of control parameters for algorithm tuning; see
 #' \code{\link{control.san}}.
 #' @param verbose Logical or numeric giving the level of verbosity. Higher values produce more verbose output.
-#' @param offset.coef A vector of coefficients for the offset statistics.  For \code{san.formula}, these must be
-#' passed in as an argument.  For \code{san.ergm}, they can be passed in as an argument, but will default to the
-#' offsets in the \code{ergm} object.
+#' @param offset.coef A vector of offset coefficients; these must be passed in by the user.  
+#' Note that these should be the same set of coefficients one would pass to \code{ergm} via 
+#' its \code{offset.coef} argument.  For example, if one has a curved \code{offset(gwesp)} 
+#' term in the model, then the \code{decay} parameter should \emph{not} be passed in via 
+#' \code{offset.coef}.
 #' @param \dots Further arguments passed to other functions.
 #' @examples
 #' \donttest{
@@ -156,6 +158,23 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   proposal<-ergm_proposal(constraints,arguments=control$SAN.prop.args,nw=nw,weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
   model <- ergm_model(formula, nw, response=response, term.options=control$term.options)
     
+  ## need to extract post-reviseinit theta offsets here
+  model.initial <- ergm_model(formula, nw, response=response, initialfit=TRUE, term.options=control$term.options)  
+  
+  if(length(offset.coef) != sum(model.initial$etamap$offsettheta)) {
+    stop("Length of ", sQuote("offset.coef"), " in SAN is ", length(offset.coef), ", while the number of offset coefficients in the model is ", sum(model.initial$etamap$offsettheta), ".")  
+  }
+  
+  if(any(is.na(offset.coef))) {
+    stop("Missing offset coefficients passed to SAN.")
+  }
+  
+  init.coefs <- numeric(nparam(model.initial, canonical=FALSE))
+  names(init.coefs) <- param_names(model.initial)
+  init.coefs[model.initial$etamap$offsettheta] <- offset.coef
+  coefs <- ergm.reviseinit(model, init.coefs)
+  offset.coef <- coefs[model$etamap$offsettheta]
+    
   san(model, response=response, reference=reference, constraints=proposal, target.stats=target.stats, nsim=nsim, basis=nw, output=output, only.last=only.last, control=control, verbose=verbose, offset.coef=offset.coef, ...)
 }
 
@@ -188,7 +207,9 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
                                      output=output,
                                      only.last=only.last,
                                      control=control,
-                                     verbose=verbose, ...)),
+                                     verbose=verbose,
+                                     offset.coef=offset.coef,
+                                     ...)),
                        class="network.list"))
     }
   }
@@ -210,19 +231,24 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
               else ergm_proposal(constraints,arguments=control$SAN.prop.args,
                                  nw=nw, weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
 
+  ## we have the post-reviseinit offset thetas
+  ## need to remap them to etas using ergm.eta
+  ## then just keep the offsets because we don't
+  ## care about the non-offset coefs
+  coefs <- numeric(nparam(model, canonical=FALSE))
+  coefs[model$etamap$offsettheta] <- offset.coef
+  etas <- ergm.eta(coefs, model$etamap)
+  
+  
   offset.indicators <- model$etamap$offsetmap
   
   offsetindices <- which(offset.indicators)
   statindices <- which(!offset.indicators)
-  offsets <- offset.coef
+  offsets <- etas[offset.indicators]
   if(control$SAN.ignore.finite.offsets) offsets[is.finite(offsets)] <- 0
   
   noffset <- sum(offset.indicators)
-  
-  if(noffset != length(offsets)) {
-    stop("Length of ", sQuote("offset.coef"), " in SAN is ", length(offset.coef), ", while the number of offset statistics in the model is ", noffset, ".")
-  }    
-  
+    
   Clist <- ergm.Cprepare(nw, model, response=response)
   
   if (verbose) {
@@ -231,7 +257,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
         " steps", ifelse(control$SAN.maxit>1, " each", ""), ".", sep=""))
   }
   maxedges <- max(control$SAN.init.maxedges, Clist$nedges)
-  netsumm<-summary(model,nw,response=response)[!offset.indicators]
+  netsumm <- summary(model,nw,response=response)[!offset.indicators]
   target.stats <- vector.namesmatch(target.stats, names(netsumm))
   stats <- netsumm-target.stats
   control$invcov <- diag(1/(nparam(model, canonical=TRUE) - noffset), nparam(model, canonical=TRUE) - noffset)
@@ -324,7 +350,7 @@ san.ergm <- function(object, formula=object$formula,
                      only.last=TRUE,
                      control=object$control$SAN.control,
                      verbose=FALSE, 
-                     offset.coef=object$coef[object$offset],
+                     offset.coef=NULL,
                      ...) {
   output <- match.arg(output)
   san.formula(formula, nsim=nsim, 

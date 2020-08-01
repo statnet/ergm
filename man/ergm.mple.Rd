@@ -13,7 +13,7 @@ ergm.mple(
   MPLEtype = "glm",
   family = "binomial",
   save.glm = TRUE,
-  theta1 = NULL,
+  save.xmat = TRUE,
   control = NULL,
   proposal = NULL,
   verbose = FALSE,
@@ -41,10 +41,6 @@ default="binomial"}
 \item{save.glm}{whether the mple fit and the null mple fit should
 be returned (T or F); if false, NULL is returned for both;
 default==TRUE}
-
-\item{theta1}{the independence theta; if specified and non-NULL,
-this is ignored except to return its value in the returned ergm;
-default=NULL, in which case 'theta1' is computed}
 
 \item{control}{a list of MCMC related parameters; recognized
 components include: samplesize : the number of networks to sample

@@ -132,6 +132,8 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
     cbind(sapply(seq_len(nrow(A)), function(i) sum(V * A[i,], na.rm=TRUE)))
   }
 
+  xmat.full <- xmat
+
   if(any(m$etamap$offsettheta)){
     if(any(is.na(theta.offset[m$etamap$offsettheta]))){
       stop("Offset terms without offset coefficients specified!")
@@ -161,5 +163,5 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
   }
   
   list(xmat=xmat, zy=zy, foffset=foffset, wend=wend, numobs=round(sum(wend)),
-       theta.offset=theta.offset)
+       theta.offset=theta.offset, xmat.full=xmat.full)
 }
