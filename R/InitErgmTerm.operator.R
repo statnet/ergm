@@ -558,7 +558,7 @@ InitErgmTerm.S <- function(nw, arglist, response=NULL, ...){
 
   # Obtain the boolean indicators or numeric indices. If the network
   # is bipartite in the first place, expect bipartite indices.
-  bip <- NVL(nw %n% "bipartite", 0)
+  bip <- as.integer(NVL(nw %n% "bipartite", 0L))
 
   tailsel <- ergm_get_vattr(tailspec, nw, accept="index", bip="b1")
   tailname <- attr(tailsel, "name")
@@ -570,6 +570,9 @@ InitErgmTerm.S <- function(nw, arglist, response=NULL, ...){
   if(is.logical(tailsel)) tailsel <- which(tailsel)
   if(is.logical(headsel)) headsel <- which(headsel) + bip
 
+  tailsel <- as.integer(tailsel)
+  headsel <- as.integer(headsel)
+  
   # TODO: Check if 1-node graphs cause crashes.
   if(length(tailsel)==0 || length(headsel)==0) ergm_Init_abort("Empty subgraph selected.")
 
