@@ -499,7 +499,7 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
 
   nparams <- wl %>% map_int(nrow)
 
-  if(!is.null(curved) && !all(nparams==nstats[1])) ergm_Init_abort("Specified weights produce different number of output statistics different from those expected by the curved effects in Model 1.")
+  if(length(curved) && !all(nparams==nstats[1])) ergm_Init_abort("Specified weights produce different number of output statistics different from those expected by the curved effects in Model 1.")
 
   if(!all_identical(nparams)) ergm_Init_abort("Specified models and weights appear to differ in lengths of output statistics.")
   nparam <- nparams[1]
