@@ -25,6 +25,13 @@ the transformed variance-covariance matrix is greater than this.}
 
 \item{...}{additional arguments to \code{\link[=ar]{ar()}}.}
 }
+\value{
+A square matrix with dimension equalling to the number of
+columns of \code{x}, with an additional attribute \code{"infl"} giving the
+factor by which the effective sample size is reduced due to
+autocorrelation, according to the Vats, Flegal, and Jones (2015)
+estimate for ESS.
+}
 \description{
 Its return value, divided by \code{nrow(cbind(x))}, is the estimated
 variance-covariance matrix of the sampling distribution of the mean

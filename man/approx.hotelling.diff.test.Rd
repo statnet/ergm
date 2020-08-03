@@ -2,7 +2,7 @@
 % Please edit documentation in R/approx.hotelling.diff.test.R
 \name{approx.hotelling.diff.test}
 \alias{approx.hotelling.diff.test}
-\title{Approximate Hotelling T^2-Test for One Sample Means}
+\title{Approximate Hotelling T^2-Test for One or Two Population Means}
 \usage{
 approx.hotelling.diff.test(
   x,
@@ -46,6 +46,8 @@ An object of class \code{htest} with the following information:
 \item{alternative}{Always \code{"two.sided"}.}
 \item{estimate}{Sample difference.}
 \item{covariance}{Estimated variance-covariance matrix of the estimate of the difference.}
+\item{covariance.x}{Estimated variance-covariance matrix of the estimate of the mean of \code{x}.}
+\item{covariance.y}{Estimated variance-covariance matrix of the estimate of the mean of \code{y}.}
 
 It has a print method \code{\link[=print.htest]{print.htest()}}.
 }
