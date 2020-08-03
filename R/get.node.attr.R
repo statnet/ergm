@@ -69,8 +69,16 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #'   categorical factors to include. For the helper functions to
 #'   facilitate this, see [`node-attr-api`].
 #'
-#' @details
-#' 
+#' @param object,l,a,n,into `COLLAPSE_SMALLEST`, `LARGEST`, and
+#'   `SMALLEST` are technically functions but they are generally not
+#'   called in a standard fashion but rather as a part of an vertex
+#'   attribute specification or a level specification as described
+#'   below. The above usage examples are needed to pass \R's package
+#'   checking without warnings; please disregard them, and refer to the
+#'   sections and examples below instead.
+#'
+#' @section Specifying nodal attributes:
+#'
 #' Term nodal attribute arguments, typically called `attr`, `attrs`, `by`, or
 #' `on` are interpreted as follows: \describe{
 #' 
@@ -110,6 +118,8 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' into one, naming it `into`. Note that `into` must be of the same
 #' type (numeric, character, etc.) as the vertex attribute in
 #' question.
+#'
+#' @section Specifying categorical attribute levels and their ordering:
 #'
 #' For categorical attributes, to select which levels are of interest
 #' and their ordering, use the argument `levels`.  Selection of nodes (from
@@ -153,7 +163,7 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' Note that `levels` or `nodes` often has a default that is sensible for the
 #' term in question.
 #' 
-#' @aliases attrname on by attrs LARGEST SMALLEST COLLAPSE_SMALLEST
+#' @aliases attrname on by attrs
 #' @examples
 #' library(magrittr) # for %>%
 #'
@@ -531,7 +541,7 @@ ERGM_VATTR_SPEC <- "function,formula,character,AsIs"
 #' @export
 ERGM_LEVELS_SPEC <- "function,formula,character,numeric,logical,AsIs,NULL"
 
-#' @rdname node-attr-api
+#' @rdname node-attr
 #' @export
 LARGEST <- structure(function(l, a){
   if(!missing(a)) which.max(tabulate(match(a, l))) # passed as levels=LARGEST
@@ -543,7 +553,7 @@ LARGEST <- structure(function(l, a){
   }
 }, class = c("ergm_levels_spec_function", "function"))
 
-#' @rdname node-attr-api
+#' @rdname node-attr
 #' @export
 SMALLEST <- structure(function(l, a){
   if(!missing(a)) which.min(tabulate(match(a, l))) # passed as levels=SMALLEST
@@ -571,7 +581,7 @@ SMALLEST <- structure(function(l, a){
 }
 
 
-#' @rdname node-attr-api
+#' @rdname node-attr
 #' @export
 COLLAPSE_SMALLEST <- function(object, n, into){
   attr <- object

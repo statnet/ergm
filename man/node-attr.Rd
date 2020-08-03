@@ -10,13 +10,31 @@
 \alias{SMALLEST}
 \alias{COLLAPSE_SMALLEST}
 \title{Specifying nodal attributes and their levels}
+\usage{
+LARGEST(l, a)
+
+SMALLEST(l, a)
+
+COLLAPSE_SMALLEST(object, n, into)
+}
+\arguments{
+\item{object, l, a, n, into}{\code{COLLAPSE_SMALLEST}, \code{LARGEST}, and
+\code{SMALLEST} are technically functions but they are generally not
+called in a standard fashion but rather as a part of an vertex
+attribute specification or a level specification as described
+below. The above usage examples are needed to pass \R's package
+checking without warnings; please disregard them, and refer to the
+sections and examples below instead.}
+}
 \description{
 This document describes the ways to specify nodal
 attributes or functions of nodal attributes and which levels for
 categorical factors to include. For the helper functions to
 facilitate this, see \code{\link{node-attr-api}}.
 }
-\details{
+\section{Specifying nodal attributes}{
+
+
 Term nodal attribute arguments, typically called \code{attr}, \code{attrs}, \code{by}, or
 \code{on} are interpreted as follows: \describe{
 
@@ -55,6 +73,10 @@ transform the attribute by collapsing the smallest \code{n} categories
 into one, naming it \code{into}. Note that \code{into} must be of the same
 type (numeric, character, etc.) as the vertex attribute in
 question.
+}
+
+\section{Specifying categorical attribute levels and their ordering}{
+
 
 For categorical attributes, to select which levels are of interest
 and their ordering, use the argument \code{levels}.  Selection of nodes (from
@@ -98,6 +120,7 @@ accessible as \code{.nw}, the list of unique values of the attribute as
 Note that \code{levels} or \code{nodes} often has a default that is sensible for the
 term in question.
 }
+
 \examples{
 library(magrittr) # for \%>\%
 
