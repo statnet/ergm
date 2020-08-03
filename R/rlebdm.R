@@ -195,7 +195,7 @@ Ops.rlebdm <- function(e1, e2){
 #' @export
 Math.rlebdm <- function(x, ...){
   o <- NextMethod()
-  rlebdm(o, attr(e1, "n"))
+  rlebdm(o, attr(x, "n"))
 }
 
 #' Extract dyad-level ERGM constraint information into an [`rlebdm`] object
