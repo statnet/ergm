@@ -477,158 +477,37 @@ gof.formula <- function(object, ...,
   # calculate p-values
   
   returnlist <- list(network.size=n, GOF=GOF)
-  
-  if ('model' %in% all.gof.vars) {
-    pval.model <- apply(sim.model <= obs.model[col(sim.model)],2,mean)
-    pval.model.top <- apply(sim.model >= obs.model[col(sim.model)],2,mean)
-    pval.model <- cbind(obs.model,apply(sim.model, 2,min), apply(sim.model, 2,mean),
-                        apply(sim.model, 2,max), pmin(1,2*pmin(pval.model,pval.model.top)))
-    dimnames(pval.model)[[2]] <- c("obs","min","mean","max","MC p-value")
-    pobs.model <- pval.model.top
-    psim.model <- apply(sim.model,2,rank)/nrow(sim.model)
-    psim.model <- matrix(psim.model, ncol=ncol(sim.model)) # Guard against the case of sim.model having only one row.
-    bds.model <- apply(psim.model,2,quantile,probs=c(0.025,0.975))
 
-    returnlist$summary.model <- returnlist$pval.model <- pval.model
-    returnlist$pobs.model <- pobs.model
-    returnlist$psim.model <- psim.model
-    returnlist$bds.model <- bds.model
-    returnlist$obs.model <- obs.model
-    returnlist$sim.model <- sim.model
+  calc_pvals <- function(gv){
+    sim <- get(paste("sim", gv, sep="."))
+    obs <- get(paste("obs", gv, sep="."))
+
+    pval <- apply(sim <= obs[col(sim)],2,mean)
+    pval.top <- apply(sim >= obs[col(sim)],2,mean)
+    pval <- cbind(obs,apply(sim, 2,min), apply(sim, 2,mean),
+                  apply(sim, 2,max), pmin(1,2*pmin(pval,pval.top)))
+    dimnames(pval)[[2]] <- c("obs","min","mean","max","MC p-value")
+    pobs <- obs/sum(obs)
+    psim <- sweep(sim,1,apply(sim,1,sum),"/")
+    psim[is.na(psim)] <- 1
+    bds <- apply(psim,2,quantile,probs=c(0.025,0.975))
+
+    l <- list(pval = pval, summary = pval, pobs = pobs, psim = psim, bds = bds, obs = obs, sim = sim)
+    setNames(l, paste(names(l), gv, sep="."))
   }
 
-  if ('distance' %in% all.gof.vars) {
-    pval.dist <- apply(sim.dist <= obs.dist[col(sim.dist)],2,mean)
-    pval.dist.top <- apply(sim.dist >= obs.dist[col(sim.dist)],2,mean)
-    pval.dist <- cbind(obs.dist,apply(sim.dist, 2,min), apply(sim.dist, 2,mean),
-                       apply(sim.dist, 2,max), pmin(1,2*pmin(pval.dist,pval.dist.top)))
-    dimnames(pval.dist)[[2]] <- c("obs","min","mean","max","MC p-value")
-    pobs.dist <- obs.dist/sum(obs.dist)
-    psim.dist <- sweep(sim.dist,1,apply(sim.dist,1,sum),"/")
-    psim.dist[is.na(psim.dist)] <- 1
-    bds.dist <- apply(psim.dist,2,quantile,probs=c(0.025,0.975))
-    
-    returnlist$summary.dist <- returnlist$pval.dist <- pval.dist
-    returnlist$pobs.dist <- pobs.dist
-    returnlist$psim.dist <- psim.dist
-    returnlist$bds.dist <- bds.dist
-    returnlist$obs.dist <- obs.dist
-    returnlist$sim.dist <- sim.dist
-  }
+  GVMAP = list(model='model',
+               distance='dist',
+               idegree='ideg',
+               odegree='odeg',
+               degree='deg',
+               espartners='espart',
+               dspartners='dspart',
+               triadcensus='triadcensus')
+  for(gv in names(GVMAP))
+    if (gv %in% all.gof.vars)
+      returnlist <- modifyList(returnlist, calc_pvals(GVMAP[[gv]]))
 
-  if ('idegree' %in% all.gof.vars) {
-    pval.ideg <- apply(sim.ideg <= obs.ideg[col(sim.ideg)],2,mean)
-    pval.ideg.top <- apply(sim.ideg >= obs.ideg[col(sim.ideg)],2,mean)
-    pval.ideg <- cbind(obs.ideg,apply(sim.ideg, 2,min), apply(sim.ideg, 2,mean),
-                       apply(sim.ideg, 2,max), pmin(1,2*pmin(pval.ideg,pval.ideg.top)))
-    dimnames(pval.ideg)[[2]] <- c("obs","min","mean","max","MC p-value")
-    pobs.ideg <- obs.ideg/sum(obs.ideg)
-    psim.ideg <- sweep(sim.ideg,1,apply(sim.ideg,1,sum),"/")
-    psim.ideg[is.na(psim.ideg)] <- 1
-    bds.ideg <- apply(psim.ideg,2,quantile,probs=c(0.025,0.975))
-    
-    returnlist$summary.ideg <- returnlist$pval.ideg <- pval.ideg
-    returnlist$pobs.ideg <- pobs.ideg
-    returnlist$psim.ideg <- psim.ideg
-    returnlist$bds.ideg <- bds.ideg
-    returnlist$obs.ideg <- obs.ideg
-    returnlist$sim.ideg <- sim.ideg
-  }
-
-  if ('odegree' %in% all.gof.vars) {
-    pval.odeg <- apply(sim.odeg <= obs.odeg[col(sim.odeg)],2,mean)
-    pval.odeg.top <- apply(sim.odeg >= obs.odeg[col(sim.odeg)],2,mean)
-    pval.odeg <- cbind(obs.odeg,apply(sim.odeg, 2,min), apply(sim.odeg, 2,mean),
-                       apply(sim.odeg, 2,max), pmin(1,2*pmin(pval.odeg,pval.odeg.top)))
-    dimnames(pval.odeg)[[2]] <- c("obs","min","mean","max","MC p-value")
-    pobs.odeg <- obs.odeg/sum(obs.odeg)
-    psim.odeg <- sweep(sim.odeg,1,apply(sim.odeg,1,sum),"/")
-    psim.odeg[is.na(psim.odeg)] <- 1
-    bds.odeg <- apply(psim.odeg,2,quantile,probs=c(0.025,0.975))
-    
-    returnlist$summary.odeg <- returnlist$pval.odeg <- pval.odeg
-    returnlist$pobs.odeg <- pobs.odeg
-    returnlist$psim.odeg <- psim.odeg
-    returnlist$bds.odeg <- bds.odeg
-    returnlist$obs.odeg <- obs.odeg
-    returnlist$sim.odeg <- sim.odeg
-  }
-
-  if ('degree' %in% all.gof.vars) {
-    pval.deg <- apply(sim.deg <= obs.deg[col(sim.deg)],2,mean)
-    pval.deg.top <- apply(sim.deg >= obs.deg[col(sim.deg)],2,mean)
-    pval.deg <- cbind(obs.deg,apply(sim.deg, 2,min), apply(sim.deg, 2,mean),
-                      apply(sim.deg, 2,max), pmin(1,2*pmin(pval.deg,pval.deg.top)))
-    dimnames(pval.deg)[[2]] <- c("obs","min","mean","max","MC p-value")
-    pobs.deg <- obs.deg/sum(obs.deg)
-    psim.deg <- sweep(sim.deg,1,apply(sim.deg,1,sum),"/")
-    psim.deg[is.na(psim.deg)] <- 1
-    bds.deg <- apply(psim.deg,2,quantile,probs=c(0.025,0.975))
-    
-    returnlist$summary.deg <- returnlist$pval.deg <- pval.deg
-    returnlist$pobs.deg <- pobs.deg
-    returnlist$psim.deg <- psim.deg
-    returnlist$bds.deg <- bds.deg
-    returnlist$obs.deg <- obs.deg
-    returnlist$sim.deg <- sim.deg
-  }
-
-  if ('espartners' %in% all.gof.vars) {
-    pval.espart <- apply(sim.espart <= obs.espart[col(sim.espart)],2,mean)
-    pval.espart.top <- apply(sim.espart >= obs.espart[col(sim.espart)],2,mean)
-    pval.espart <- cbind(obs.espart,apply(sim.espart, 2,min), apply(sim.espart, 2,mean),
-                         apply(sim.espart, 2,max), pmin(1,2*pmin(pval.espart,pval.espart.top)))
-    dimnames(pval.espart)[[2]] <- c("obs","min","mean","max","MC p-value")
-    pobs.espart <- obs.espart/sum(obs.espart)
-    psim.espart <- sweep(sim.espart,1,apply(sim.espart,1,sum),"/")
-    psim.espart[is.na(psim.espart)] <- 1
-    bds.espart <- apply(psim.espart,2,quantile,probs=c(0.025,0.975))
-    
-    returnlist$summary.espart <- returnlist$pval.espart <- pval.espart
-    returnlist$pobs.espart <- pobs.espart
-    returnlist$psim.espart <- psim.espart
-    returnlist$bds.espart <- bds.espart
-    returnlist$obs.espart <- obs.espart
-    returnlist$sim.espart <- sim.espart
-  }
-
-  if ('dspartners' %in% all.gof.vars) {
-    pval.dspart <- apply(sim.dspart <= obs.dspart[col(sim.dspart)],2,mean)
-    pval.dspart.top <- apply(sim.dspart >= obs.dspart[col(sim.dspart)],2,mean)
-    pval.dspart <- cbind(obs.dspart,apply(sim.dspart, 2,min), apply(sim.dspart, 2,mean),
-                         apply(sim.dspart, 2,max), pmin(1,2*pmin(pval.dspart,pval.dspart.top)))
-    dimnames(pval.dspart)[[2]] <- c("obs","min","mean","max","MC p-value")
-    pobs.dspart <- obs.dspart/sum(obs.dspart)
-    psim.dspart <- sweep(sim.dspart,1,apply(sim.dspart,1,sum),"/")
-    psim.dspart[is.na(psim.dspart)] <- 1
-    bds.dspart <- apply(psim.dspart,2,quantile,probs=c(0.025,0.975))
-    
-    returnlist$summary.dspart <- returnlist$pval.dspart <- pval.dspart
-    returnlist$pobs.dspart <- pobs.dspart
-    returnlist$psim.dspart <- psim.dspart
-    returnlist$bds.dspart <- bds.dspart
-    returnlist$obs.dspart <- obs.dspart
-    returnlist$sim.dspart <- sim.dspart
-  }
-
-  if ('triadcensus' %in% all.gof.vars) {
-    pval.triadcensus <- apply(sim.triadcensus <= obs.triadcensus[col(sim.triadcensus)],2,mean)
-    pval.triadcensus.top <- apply(sim.triadcensus >= obs.triadcensus[col(sim.triadcensus)],2,mean)
-    pval.triadcensus <- cbind(obs.triadcensus,apply(sim.triadcensus, 2,min), apply(sim.triadcensus, 2,mean),
-                              apply(sim.triadcensus, 2,max), pmin(1,2*pmin(pval.triadcensus,pval.triadcensus.top)))
-    dimnames(pval.triadcensus)[[2]] <- c("obs","min","mean","max","MC p-value")
-    pobs.triadcensus <- obs.triadcensus/sum(obs.triadcensus)
-    psim.triadcensus <- sweep(sim.triadcensus,1,apply(sim.triadcensus,1,sum),"/")
-    psim.triadcensus[is.na(psim.triadcensus)] <- 1
-    bds.triadcensus <- apply(psim.triadcensus,2,quantile,probs=c(0.025,0.975))
-    
-    returnlist$summary.triadcensus <- returnlist$pval.triadcensus <- pval.triadcensus
-    returnlist$pobs.triadcensus <- pobs.triadcensus
-    returnlist$psim.triadcensus <- psim.triadcensus
-    returnlist$bds.triadcensus <- bds.triadcensus
-    returnlist$obs.triadcensus <- obs.triadcensus
-    returnlist$sim.triadcensus <- sim.triadcensus
-  }
   class(returnlist) <- c("gof.ergm", "gof")
   returnlist
 }
