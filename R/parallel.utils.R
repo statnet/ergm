@@ -285,7 +285,7 @@ ergm.sample.tomcmc<-function(sample, params){
 #'   parallel processes represented by its argument, keeping in mind
 #'   that having no cluster (e.g., `NULL`) represents one thread.
 #'
-#' @param clinfo a [`cluster`] or another object.
+#' @param clinfo a [`cluster`][parallel::makeCluster] or another object.
 #' @export
 nthreads <- function(clinfo=NULL, ...){
   UseMethod("nthreads")

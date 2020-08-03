@@ -46,7 +46,7 @@ exits.}
 
 \item{\dots}{not currently used}
 
-\item{clinfo}{a \code{\link{cluster}} or another object.}
+\item{clinfo}{a \code{\link[parallel:makeCluster]{cluster}} or another object.}
 }
 \description{
 For estimation that require MCMC, \code{\link[=ergm-package]{ergm}}
