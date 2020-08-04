@@ -246,11 +246,11 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, response=NULL, ...){
   
   m <- ergm_model(f, nw, response=response,...)
 
-  if(!is.dyad.independent(m) || nparam(m)!=1) stop("The filter test formula must be dyad-independent and have exactly one statistc.")
+  if(!is.dyad.independent(m) || nparam(m)!=1) ergm_Init_abort("The filter test formula must be dyad-independent and have exactly one statistc.")
 
   nw[,] <- FALSE
   gs <- summary(m, nw, response=response)
-  if(gs!=0) stop("At this time, the filter test term must have the property that its dyadwise components are 0 for 0-valued relations. This limitation may be removed in the future.")
+  if(gs!=0) ergm_Init_abort("At this time, the filter test term must have the property that its dyadwise components are 0 for 0-valued relations. This limitation may be removed in the future.")
   
   c(list(name="_filter_formula_net", submodel=m),
     wrap.ergm_model(m, nw, response, NULL))
@@ -478,12 +478,14 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
   fs <- a$formulas
   if(is(fs,"formula")) fs <- list(fs)
   nf <- length(fs)
-  
-  ms <- lapply(fs, function(f){
-    m <- ergm_model(f, nw, response=response,...)
-    if(is.curved(m)) ergm_Init_inform("Model ", sQuote(deparse(f,500)), " appears to be curved. Its canonical parameters will be used.")
-    m
-  })
+
+  ms <- lapply(fs, ergm_model, nw=nw, response=response, ...)
+
+  curved <- ms[[1]]$etamap$curved
+  for(i in seq_len(nf-1L)+1L){
+    m <- ms[[i]]
+    if(!identical(curved, m$etamap$curved)) ergm_Init_inform("Model ", i, " in the list appears to be curved, and its mapping differs from that of the first model; the first model's mapping will be used.")
+  }
 
   nstats <-  ms %>% map_int(nparam, canonical=TRUE)
 
@@ -497,6 +499,8 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
 
   nparams <- wl %>% map_int(nrow)
 
+  if(length(curved) && !all(nparams==nstats[1])) ergm_Init_abort("Specified weights produce different number of output statistics different from those expected by the curved effects in Model 1.")
+
   if(!all_identical(nparams)) ergm_Init_abort("Specified models and weights appear to differ in lengths of output statistics.")
   nparam <- nparams[1]
 
@@ -507,12 +511,17 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
   coef.names <- mk_std_op_namewrap("Sum")(label)
 
   wms <- lapply(ms, wrap.ergm_model, nw, response)
+  if(is.curved(ms[[1L]])){
+    label <- if(length(a$label)==1L) paste0(a$label,seq_along(wms[[1L]]$params)) else attr(a$label,"curved")
+    names(wms[[1L]]$params) <- mk_std_op_namewrap("Sum")(label)
+  }
+
   gss <- map(wms, "emptynwstats")
   gs <-
     if(all(map_lgl(gss, is.null))){ # Linear combination of 0s is 0.
       NULL
     }else{ # All numeric or NULL
-      gs0 <- map_lgl(gs, is.null)
+      gs0 <- map_lgl(gss, is.null)
       lst(x = wl[!gs0],
           y = gss[!gs0]) %>%
         pmap(`%*%`) %>%
@@ -524,7 +533,8 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
 
   if(any(unlist(map(wms, "offsettheta"))) || any(unlist(map(wms, "offsetmap")))) ergm_Init_warn(paste0("Sum operator does not propagate offset() decorators."))
   
-  list(name="Sum", coef.names = coef.names, inputs=inputs, submodels=ms, emptynwstats=gs, dependence=dependence)
+  c(list(name="Sum", coef.names = coef.names, inputs=inputs, submodels=ms, emptynwstats=gs, dependence=dependence),
+    wms[[1L]][c("map", "gradient", "params", "minpar", "maxpar")])
 }
 
 InitErgmTerm.S <- function(nw, arglist, response=NULL, ...){
@@ -548,32 +558,32 @@ InitErgmTerm.S <- function(nw, arglist, response=NULL, ...){
 
   # Obtain the boolean indicators or numeric indices. If the network
   # is bipartite in the first place, expect bipartite indices.
-  bip <- NVL(nw %n% "bipartite", 0)
+  bip <- as.integer(NVL(nw %n% "bipartite", 0L))
 
-  tailsel <- ergm_get_vattr(tailspec, nw, accept="numeric", bip="a")
+  tailsel <- ergm_get_vattr(tailspec, nw, accept="index", bip="b1")
   tailname <- attr(tailsel, "name")
 
-  headsel <- ergm_get_vattr(headspec, nw, accept="numeric", bip="a")
+  headsel <- ergm_get_vattr(headspec, nw, accept="index", bip="b2")
   headname <- attr(headsel, "name")
 
   # Convert to numeric selectors.
-  if(is.logical(tailsel) && (if(bip) length(tailsel)==bip else length(tailsel)==network.size(nw))) tailsel <- sort(which(tailsel))
-  if(is.logical(headsel) && (if(bip) length(headsel)==network.size(nw)-bip else length(headsel)==network.size(nw))) headsel <- sort(which(headsel))
+  if(is.logical(tailsel)) tailsel <- which(tailsel)
+  if(is.logical(headsel)) headsel <- which(headsel) + bip
 
+  tailsel <- as.integer(tailsel)
+  headsel <- as.integer(headsel)
+  
   # TODO: Check if 1-node graphs cause crashes.
-  if(length(tailsel)==0 || length(headsel)==0) stop("Empty subgraph selected.")
-
-  # If bipartite, remap to the whole network's indexes.
-  if(bip) headsel <- headsel + bip
+  if(length(tailsel)==0 || length(headsel)==0) ergm_Init_abort("Empty subgraph selected.")
 
   type <- if(is.directed(nw)) "directed" else "undirected"
   if(bip){
     if(max(tailsel)>bip || min(headsel)<=bip)
-      stop("Invalid vertex subsets selected for a bipartite graph.")
+      ergm_Init_abort("Invalid vertex subsets selected for a bipartite graph.")
     type <- "bipartite"
   }else{
     if(!identical(tailsel,headsel)){ # Rectangular selection: output bipartite.
-      if(length(intersect(tailsel,headsel))) stop("Vertex subsets constructing a bipartite subgraph must have disjoint ranges.")
+      if(length(intersect(tailsel,headsel))) ergm_Init_abort("Vertex subsets constructing a bipartite subgraph must have disjoint ranges.")
       type <- "bipartite"
     }
   }

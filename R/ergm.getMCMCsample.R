@@ -137,10 +137,10 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
             ,ask=FALSE,smooth=TRUE,density=FALSE)
       }
 
-      best.burnin <- .find_OK_burnin(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, min.pval=control$MCMC.effectiveSize.burnin.pval, order.max=control$MCMC.effectiveSize.order.max)
+      best.burnin <- .find_OK_burnin(esteq, order.max=control$MCMC.effectiveSize.order.max)
       burnin.pval <- best.burnin$pval
       if(burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
-        if(verbose>1) message("No adequate burn-in found. Best convergence p-value = ", burnin.pval)
+        if(verbose>1) message("Selected burn-in p-value = ", burnin.pval, " is below the threshold of ",control$MCMC.effectiveSize.burnin.pval,".")
         next
       }
       postburnin.mcmc <- window(esteq, start=start(esteq)+best.burnin$burnin*thin(esteq))
@@ -267,26 +267,21 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
 }
 
 
-.find_OK_burnin <- function(x, npts, base, min.pval=0.2, ...){
+.find_OK_burnin <- function(x, ...){
+  xs <- x %>% map(scale) %>% map(~.[,attr(.,"scaled:scale")>0,drop=FALSE])
+  ssr <- function(b,s){
+    b <- round(b)
+    n <- nrow(s)
+    sum(resid(lm(s~c(seq_len(b), numeric(n-b))+ I(seq_len(n)>b)))^2)
+  }
+
   geweke <- function(b){
     if(b>0) x <- window(x, start=start(x) + b * thin(x))
-    suppressWarnings(geweke.diag.mv(x, ...)$p.value)
+    p.val <- suppressWarnings(geweke.diag.mv(x, ...)$p.value)
+    if(is.na(p.val)) 0 else p.val
   }
 
-  # TODO: Parallel multisection search?
-  pts <- sort(round(base^seq_len(npts)*niter(x)))
-  pvals <- rep(NA, length(pts))
-  l <- 1L; u <- length(pts)
-  while(l < u){
-    m <- l + (u-l)%/%2
-    pvals[m] <- geweke(pts[m])
-    if(pvals[m] >= min.pval) l = m + 1L
-    else u = m
-  }
+  best <- max(sapply(xs, function(x) optimize(ssr, c(0, nrow(x)/2), s=x, tol=1)$minimum))
 
-  best <- suppressWarnings(min(which(pvals>min.pval)))
-  if(!is.finite(best))
-    best <- which.max(pvals)
-
-  list(burnin=pts[best], pval=pvals[best])
+  list(burnin=round(best), pval=geweke(round(best)))
 }

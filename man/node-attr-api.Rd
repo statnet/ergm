@@ -19,9 +19,6 @@
 \alias{ergm_attr_levels.formula}
 \alias{ERGM_VATTR_SPEC}
 \alias{ERGM_LEVELS_SPEC}
-\alias{LARGEST}
-\alias{SMALLEST}
-\alias{COLLAPSE_SMALLEST}
 \title{Helper functions for specifying nodal attribute levels}
 \format{
 An object of class \code{character} of length 3.
@@ -97,12 +94,6 @@ ergm_attr_levels(object, attr, nw, levels = sort(unique(attr)), ...)
 ERGM_VATTR_SPEC
 
 ERGM_LEVELS_SPEC
-
-LARGEST(l, a)
-
-SMALLEST(l, a)
-
-COLLAPSE_SMALLEST(object, n, into)
 }
 \arguments{
 \item{object}{An argument specifying the nodal attribute to select
@@ -170,7 +161,7 @@ following outputs are defined:
 \describe{
 
 \item{\code{"character"}}{Accept any mode or class (since it can
-beconverted to character).}
+be converted to character).}
 
 \item{\code{"numeric"}}{Accept real, integer, or logical.}
 
@@ -185,6 +176,9 @@ beconverted to character).}
 \item{\code{"nonnegative"}}{Accept a nonnegative number or logical.}
 
 \item{\code{"positive"}}{Accept a strictly positive number or logical.}
+
+\item{\code{"index"}}{Accept input appropriate for selecting from an unnamed vector: an integer or a logical; positive integers are returned as they are (\code{bip} ignored), logicals are right-sized, and negative integers reverse the selection (as with vector indexing).}
+
 }
 
 Given that, the \code{multiple} argument controls how passing multiple
@@ -207,6 +201,8 @@ ergm_get_vattr(~cbind(priorates, priorates^2), flomarriage, multiple="matrix")
 ergm_get_vattr(c("wealth","priorates"), flomarriage)
 ergm_get_vattr(c("wealth","priorates"), flomarriage, multiple="matrix")
 ergm_get_vattr(~priorates>30, flomarriage)
+ergm_get_vattr(~TRUE, flomarriage, accept="index")
+ergm_get_vattr(~-(2:12), flomarriage, accept="index")
 (a <- ergm_get_vattr(~cut(priorates,c(-Inf,0,20,40,60,Inf),label=FALSE)-1, flomarriage))
 ergm_attr_levels(NULL, a, flomarriage)
 ergm_attr_levels(-1, a, flomarriage)

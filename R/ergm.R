@@ -620,7 +620,7 @@ ergm <- function(formula, response=NULL,
                 only.last=TRUE,
                 output="ergm_state",
                 verbose=verbose,
-                offset.coef=offset.coef)
+                offset.coef=NVL(offset.coef,control$init[model$etamap$offsettheta]))
       if(verbose) message("Finished SAN run.")
     }else{
       TARGET_STATS <- nw

@@ -16,8 +16,6 @@ control.simulate.formula.ergm(
   MCMC.effectiveSize = NULL,
   MCMC.effectiveSize.damp = 10,
   MCMC.effectiveSize.maxruns = 1000,
-  MCMC.effectiveSize.base = 1/2,
-  MCMC.effectiveSize.points = 5,
   MCMC.effectiveSize.burnin.pval = 0.2,
   MCMC.effectiveSize.order.max = NULL,
   MCMC.maxedges = Inf,
@@ -41,8 +39,6 @@ control.simulate(
   MCMC.effectiveSize = NULL,
   MCMC.effectiveSize.damp = 10,
   MCMC.effectiveSize.maxruns = 1000,
-  MCMC.effectiveSize.base = 1/2,
-  MCMC.effectiveSize.points = 5,
   MCMC.effectiveSize.burnin.pval = 0.2,
   MCMC.effectiveSize.order.max = NULL,
   MCMC.maxedges = Inf,
@@ -66,8 +62,6 @@ control.simulate.formula(
   MCMC.effectiveSize = NULL,
   MCMC.effectiveSize.damp = 10,
   MCMC.effectiveSize.maxruns = 1000,
-  MCMC.effectiveSize.base = 1/2,
-  MCMC.effectiveSize.points = 5,
   MCMC.effectiveSize.burnin.pval = 0.2,
   MCMC.effectiveSize.order.max = NULL,
   MCMC.maxedges = Inf,
@@ -91,8 +85,6 @@ control.simulate.ergm(
   MCMC.effectiveSize = NULL,
   MCMC.effectiveSize.damp = 10,
   MCMC.effectiveSize.maxruns = 1000,
-  MCMC.effectiveSize.base = 1/2,
-  MCMC.effectiveSize.points = 5,
   MCMC.effectiveSize.burnin.pval = 0.2,
   MCMC.effectiveSize.order.max = NULL,
   MCMC.maxedges = Inf,
@@ -134,7 +126,7 @@ highest priority available.}
 \item{MCMC.prop.args}{An alternative, direct way of
 specifying additional arguments to proposal.}
 
-\item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.burnin.pval, MCMC.effectiveSize.order.max}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
+\item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.burnin.pval, MCMC.effectiveSize.order.max}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
 determine the burn-in and the MCMC length needed to get the
 specified effective size; 50 is a reasonable value. In the
 adaptive MCMC mode, MCMC is run forward repeatedly
@@ -142,17 +134,14 @@ adaptive MCMC mode, MCMC is run forward repeatedly
 \code{MCMC.effectiveSize.maxruns} times) until the target effective
 sample size is reached or exceeded. After each run, the returned
 statistics are mapped to the estimating function scale, then a
-series of \code{MCMC.effectiveSize.points} possible burn-in points are
-considered, at
-\code{MCMC.effectiveSize.base^(1:MCMC.effectiveSize.points)} of the
-way into the sample, and the earliest one whose Geweke diagnostic
-produces a \eqn{p}-value less than
-\code{MCMC.effectiveSize.burnin.pval} is selected. The effective size
-of the post-burn-in sample is computed via Vats, Flegal, and
-Jones (2015), and compared to the target effective size. If it is
-not matched, the MCMC run is resumed, with the additional draws
-needed linearly extrapolated but weighted in favor of the
-baseline \code{MCMC.samplesize} by the weighting factor
+broken stick model is fit to each statistic to find the candidate
+burn-in. If its Geweke diagnostic produces a \eqn{p}-value higher
+than \code{MCMC.effectiveSize.burnin.pval}, it is accepted. The
+effective size of the post-burn-in sample is computed via Vats,
+Flegal, and Jones (2015), and compared to the target effective
+size. If it is not matched, the MCMC run is resumed, with the
+additional draws needed linearly extrapolated but weighted in
+favor of the baseline \code{MCMC.samplesize} by the weighting factor
 \code{MCMC.effectiveSize.damp} (higher = less damping). Lastly, if
 after an MCMC run, the number of samples equals or exceeds
 \code{2*MCMC.samplesize}, the chain will be thinned by 2 until it
