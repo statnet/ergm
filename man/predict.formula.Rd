@@ -35,7 +35,7 @@ unconditional probabilities. Defaults to 100.}
 \item{output}{character, type of object returned. Defaults to \code{"data.frame"}.
 See section Value below.}
 
-\item{...}{other arguments passed to/from other methods. For \code{\link[=ergm.formula]{ergm.formula()}} if
+\item{...}{other arguments passed to/from other methods. For the \code{predict.formula} method, if
 \code{conditional=TRUE} arguments are passed to \code{\link[=ergmMPLE]{ergmMPLE()}}. If \code{conditional=FALSE} arguments
 are passed to \code{\link[=simulate_formula]{simulate_formula()}}.}
 }

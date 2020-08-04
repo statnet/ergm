@@ -26,7 +26,7 @@
 #'   scale of linear predictor. This is similar to `type` argument of [predict.glm()].
 #' @param output character, type of object returned. Defaults to `"data.frame"`.
 #'   See section Value below.
-#' @param ... other arguments passed to/from other methods. For [ergm.formula()] if
+#' @param ... other arguments passed to/from other methods. For the `predict.formula` method, if
 #'   `conditional=TRUE` arguments are passed to [ergmMPLE()]. If `conditional=FALSE` arguments
 #'   are passed to [simulate_formula()].
 #'

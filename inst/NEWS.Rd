@@ -101,6 +101,7 @@
           \item{
             \code{\link{isolatededges}}, to count the number of edges that are in a single component.
           }
+        }
       }
     }
   }
