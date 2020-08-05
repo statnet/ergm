@@ -54,25 +54,32 @@
 #############################################################################
 
 ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
-                          intercept = FALSE, start = rep(0, p),
-                          offset=NULL, m=NULL, maxit=200, verbose=FALSE, ...)
-{
+                          intercept = FALSE, start = NULL,
+                          offset=NULL, m=NULL, maxit=200, verbose=FALSE, ...){
+
+  if(is.null(dim(x))) dim(x) <- c(length(x), 1)
+  if(is.null(offset)) offset <- rep(0,length(y))
+  if(intercept){
+    x <- cbind(1, x)
+    dn <- c("(Intercept)", dn)
+  }
+  if(is.factor(y)) y <- (unclass(y) != 1)
+
   if(is.null(m)){
     etamap <- identity
     etagrad <- function(theta) diag(1,length(theta),length(theta))
+    dn <- dimnames(x)[[2]]
+    if(!length(dn)) dn <- paste("Var", 1:ncol(x), sep="")
+    p <- ncol(x)
   }else{
     etamap <- function(theta) ergm.eta(theta,m$etamap)
     etagrad <- function(theta) ergm.etagrad(theta, m$etamap)
+    dn <- param_names(m, FALSE)
+    p <- nparam(m, FALSE)
   }
-  if(is.null(dim(x))) dim(x) <- c(length(x), 1)
-  if(is.null(offset)) offset <- rep(0,length(y))
-  dn <- if(is.null(m)) dimnames(x)[[2]] else param_names(m, FALSE)
-  if(!length(dn)) dn <- paste("Var", 1:ncol(x), sep="")
-  p <- ncol(x) + intercept
-  if(intercept) {x <- cbind(1, x); dn <- c("(Intercept)", dn)}
-  if(is.factor(y)) y <- (unclass(y) != 1)
-  start[is.na(start)]<-rnorm(sum(is.na(start)), 0, sqrt(.Machine$double.eps))
 
+  NVL(start) <- rep(NA, p)
+  start[is.na(start)]<-rnorm(sum(is.na(start)), 0, sqrt(.Machine$double.eps))
 
   loglikelihoodfn.trust <-
     if(is.null(m)){
