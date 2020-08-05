@@ -15,8 +15,8 @@
 \alias{InitErgmTerm}
 
 \alias{B}
+\alias{Curve}
 \alias{F}
-\alias{N}
 \alias{NodematchFilter}
 \alias{Label}
 \alias{Offset}
@@ -439,8 +439,18 @@
       preferred, as it is likely to be faster.
     }
 
-    \item{\code{F(formula, form)} (binary) (operator)}{
-      Filtering on arbitrary one-term model. \code{form} must contain one binary \code{ergm} term, with
+    \item{\code{Curve(formula, params, map, gradient, minpar, maxpar, cov)} (binary) (operator), \code{Curve(formula, params, map, gradient, minpar, maxpar, cov)} (valued) (operator)}{\emph{Impose a curved structure on term parameters.}
+
+      \code{formula} is an arbitrary formula for a linear or curved ERGM. \code{params}, \code{map}, \code{gradient}, \code{minpar}, \code{maxpar}, and \code{cov} are the curved ERGM term API: a named list whose names are the curved parameter names, the mapping from curved to canonical, its gradient function, the minimum and the maximum allowed curved parameter values, and an optional \dQuote{covariate} object.
+
+      \code{params} may also be a character verctor with names; and \code{minpar} and \code{maxpar} will be recycled to appropriate length.
+
+      If the model in \code{formula} is curved, then the outputs of this operator term's \code{map} argument will be used as inputs to the curved terms of the \code{formula} model.
+
+    }
+
+    \item{\code{F(formula, form)} (binary) (operator)}{\emph{Filtering on arbitrary one-term model.}
+      \code{form} must contain one binary \code{ergm} term, with
       the following properties:
       \itemize{
 	\item{dyadic independence;}

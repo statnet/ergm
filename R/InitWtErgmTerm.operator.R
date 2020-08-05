@@ -91,3 +91,9 @@ InitWtErgmTerm.Label <- function(nw, arglist, response=NULL, ...){
   out$name <- "wtpassthrough_term"
   out
 }
+
+InitWtErgmTerm.Curve <- function(nw, arglist, response=NULL, ...){
+  out <- InitErgmTerm.Curve(nw, arglist, response=response, ...)
+  out$name <- "wtpassthrough_term"
+  out
+}
