@@ -443,7 +443,33 @@
 
       \code{formula} is an arbitrary formula for a linear or curved ERGM. \code{params}, \code{map}, \code{gradient}, \code{minpar}, \code{maxpar}, and \code{cov} are the curved ERGM term API: a named list whose names are the curved parameter names, the mapping from curved to canonical, its gradient function, the minimum and the maximum allowed curved parameter values, and an optional \dQuote{covariate} object.
 
-      \code{params} may also be a character verctor with names; and \code{minpar} and \code{maxpar} will be recycled to appropriate length.
+      Arguments may have the same forms as in the API, but for convenience, alternative forms are accepted.
+      \describe{
+        \item{\code{params}}{may also be a character verctor with names.}
+        \item{\code{minpar} and \code{maxpar}}{will be recycled to appropriate length.}
+        \item{\code{map}}{may have the following forms:
+          \describe{
+            \item{a \code{function(x, n, ...)}}{treated as in the API: called with \code{x} set to the curved parameter vector, \code{n} to the length of output expected, and \code{cov}, if present, passed in \code{...}. The function must return a numeric vector of length \code{n}.}
+            \item{a numeric vector}{to fix the output coefficients, like in an offset.}
+            \item{a character string}{to select (partially-matched) one of predefined forms. Currently, the defined forms include:
+              \describe{
+                \item{\code{"rep"}}{recycle the input vector to the length of the output vector as a \code{\link{rep}} function would.}
+              }
+            }
+          }
+        }
+        \item{\code{gradient}}{is optional if \code{map} is constant or one of the predefined forms; otherwise, it must have one of the following forms:
+          \describe{
+            \item{a \code{function(x, n, ...)}}{treated as in the API: called with \code{x} set to the curved parameter vector, \code{n} to the length of output expected, and \code{cov}, if present, passed in \code{...}. The function must return a numeric matrix with \code{length(params)} rows and \code{n} columns.}
+            \item{a numeric matrix}{to fix the gradient; this is useful when \code{map} is linear.}
+            \item{a character string}{to select (partially-matched) one of predefined forms. Currently, the defined forms include:
+              \describe{
+                \item{\code{"linear"}}{calculate the (constant) gradient matrix using finite differences. Note that this will be done only once at the initialization stage, so use only if you are certain \code{map} is, in fact, linear.}
+              }
+            }
+          }
+        }
+      }
 
       If the model in \code{formula} is curved, then the outputs of this operator term's \code{map} argument will be used as inputs to the curved terms of the \code{formula} model.
 

@@ -614,9 +614,9 @@ InitErgmTerm.S <- function(nw, arglist, response=NULL, ...){
 InitErgmTerm.Curve <- function(nw, arglist, response=NULL,...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "params", "map", "gradient", "minpar", "maxpar", "cov"),
-                      vartypes = c("formula", "character,list", "function", "function,matrix", "numeric", "numeric", ""),
+                      vartypes = c("formula", "character,list", "function,numeric,character", "function,matrix,character", "numeric", "numeric", ""),
                       defaultvalues = list(NULL, NULL, NULL, NULL, -Inf, +Inf, NULL),
-                      required = c(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE))
+                      required = c(TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE))
 
   m <- ergm_model(a$formula, nw=nw, response=response, ...)
   p <- nparam(m, canonical=FALSE)
@@ -627,14 +627,44 @@ InitErgmTerm.Curve <- function(nw, arglist, response=NULL,...){
   minpar <- rep(a$minpar, length.out=q)
   maxpar <- rep(a$maxpar, length.out=q)
 
-  emap <- if(is.numeric(a$map)) function(...) a$map else a$map # map() is used by purrr.
-  gradient <- if(is.matrix(a$gradient)) function(...) a$gradient else a$gradient
+  emap <- # map() is used by purrr.
+    if(is.numeric(a$map)){
+      NVL(a$gradient) <- "linear" # TODO: Replace with a constructed matrix.
+      function(...) a$map
+    }else if(is.character(a$map)){
+      switch(match.arg(a$map, c("rep")),
+             rep = {
+               NVL(a$gradient) <- "linear" # TODO: Replace with a constructed matrix.
+               function(x, n, ...) rep_len(x, n)
+             })
+    }else a$map
+
+  if(is.null(a$gradient)) ergm_Init_abort(paste0("The ", sQuote("gradient"), " argument must be supplied unless ", sQuote("map"), " is of a special type."))
+
+  gradient <-
+    if(is.matrix(a$gradient)) function(...) a$gradient
+    else if(is.character(a$gradient))
+      switch(match.arg(a$gradient, c("linear")),
+             linear = { # Gradient is constant.
+
+               x <- (deInf(minpar) + deInf(maxpar))/2
+               u <- pmin(x+1/2, maxpar)
+               l <- pmax(x-1/2, minpar)
+               d <- u-l
+
+               G <- vapply(seq_len(q), function(i){
+                 (emap(ifelse(i==seq_len(q), u, x), p, a$cov)
+                   - emap(ifelse(i==seq_len(q), l, x), p, a$cov))/d[i]
+               }, numeric(p)) %>% t
+               function(...) G
+             })
+    else a$gradient
 
   # Make sure the output dimensions are correct.
   test.param <- (deInf(minpar) + deInf(maxpar))/2
   test.map <- emap(test.param, p, a$cov)
   if(length(test.map)!=p) ergm_Init_abort(paste0("Model expects ", p, " parameters, but the map function returned a vector of length ", length(test.map), "."))
-  test.gradient <- a$gradient(test.param, p, a$cov)
+  test.gradient <- gradient(test.param, p, a$cov)
   if(!identical(dim(test.gradient),c(q,p))) ergm_Init_abort(paste0("Mapping of ", q, " to ", p, " parameters expected, but the gradient function returned an object with dimension (", paste0(dim(test.gradient), collapse=","), ")."))
 
   wm <- wrap.ergm_model(m, nw, response)
