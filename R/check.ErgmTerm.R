@@ -41,7 +41,7 @@ ergm_Init_warn_once <- once(ergm_Init_warn)
 #' @param varnames the vector of names of the possible arguments for
 #'   term X; default=NULL
 #' @param vartypes the vector of types of the possible arguments for
-#'   term X; default=NULL
+#'   term X, separated by commas; an empty string (`""`) or `NA` disables the check for that argument; default=NULL
 #' @param defaultvalues the list of default values for the possible
 #'   arguments of term X; default=list()
 #' @param required the logical vector of whether each possible
@@ -134,7 +134,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
           ergm_Init_abort("Model term does not recognize ", sQuote(name), " argument.")
         }
         # valid name match with mth variable if we got to here
-        if (all(sapply(strsplit(vartypes[m],",",fixed=TRUE)[[1]], function(vartype) !is.null(arglist[[i]]) && !is(arglist[[i]], vartype)))) {
+        if (!is.na(vartypes[m]) && nchar(vartypes[m]) && all(sapply(strsplit(vartypes[m],",",fixed=TRUE)[[1]], function(vartype) !is.null(arglist[[i]]) && !is(arglist[[i]], vartype)))) {
           # Wrong type
           ergm_Init_abort(sQuote(name), " argument is not of the expected ", sQuote(vartypes[m]), " type.")
         }
@@ -161,7 +161,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
         if (!is.null(m)) {
           ergm_Init_abort("Unnamed argument follows named argument.")
         }
-        if (all(sapply(strsplit(vartypes[i],",",fixed=TRUE)[[1]], function(vartype) !is.null(arglist[[i]]) && !is(arglist[[i]], vartype)))) {
+        if (!is.na(vartypes[i]) && nchar(vartypes[i]) && all(sapply(strsplit(vartypes[i],",",fixed=TRUE)[[1]], function(vartype) !is.null(arglist[[i]]) && !is(arglist[[i]], vartype)))) {
           # Wrong type
           ergm_Init_abort("Argument number ", i, " is not of the expected ", sQuote(vartypes[i]), " type.")
         }

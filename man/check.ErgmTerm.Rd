@@ -37,7 +37,7 @@ nonnegative weights; default=FALSE}
 term X; default=NULL}
 
 \item{vartypes}{the vector of types of the possible arguments for
-term X; default=NULL}
+term X, separated by commas; an empty string (\code{""}) or \code{NA} disables the check for that argument; default=NULL}
 
 \item{defaultvalues}{the list of default values for the possible
 arguments of term X; default=list()}
