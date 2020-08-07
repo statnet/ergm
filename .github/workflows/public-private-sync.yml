@@ -1,0 +1,31 @@
+env:
+  # Public repository:
+  PUBLIC: 'statnet/ergm'
+  # Private repository:
+  PRIVATE: 'statnet/ergm-private'
+  # Comma-separated list of branches and tags (in their full, refs/heads/NAME and refs/tags/NAME format) indicating which ones should be synced from private to public. E.g., 'refs/heads/master,ref/heads/test,refs/tags/success'.
+  PRIVATE_TO_PUBLIC: 'refs/heads/master'
+
+on: push
+jobs:
+  public-private-sync:
+    runs-on: ubuntu-latest
+    steps:
+    - name: repo-sync-private-public # From private repo, sync only specified.
+      if: github.repository == env.PRIVATE && contains(env.PRIVATE_TO_PUBLIC, github.ref)
+      uses: wei/git-sync@v2
+      with:
+        source_repo: ${{ env.PRIVATE }}
+        source_branch: ${{ github.ref }}
+        destination_repo: ${{ env.PUBLIC }}
+        destination_branch: ${{ github.ref }}
+        ssh_private_key: ${{ secrets.JANITORS_SSH_KEY }}
+    - name: repo-sync-public-private  # From public repo, sync whatever branch was pushed.
+      if: github.repository == env.PUBLIC
+      uses: wei/git-sync@v2
+      with:
+        source_repo: ${{ env.PUBLIC }}
+        source_branch: ${{ github.ref }}
+        destination_repo: ${{ env.PRIVATE }}
+        destination_branch: ${{ github.ref }}
+        ssh_private_key: ${{ secrets.JANITORS_SSH_KEY }}
