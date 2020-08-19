@@ -507,12 +507,12 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
   inputs <- unlist(wl%>%map(t))
   inputs <- c(nf, length(inputs), inputs)
 
-  label <- if(length(a$label)==1) paste0(a$label,seq_len(nparam)) else a$label
+  label <- if(length(a$label)==1L) paste0(a$label, if(nparam>1L)seq_len(nparam)) else a$label
   coef.names <- mk_std_op_namewrap("Sum")(label)
 
   wms <- lapply(ms, wrap.ergm_model, nw, response)
   if(is.curved(ms[[1L]])){
-    label <- if(length(a$label)==1L) paste0(a$label,seq_along(wms[[1L]]$params)) else attr(a$label,"curved")
+    label <- if(length(a$label)==1L) paste0(a$label, if(length(wms[[1L]]$params)>1L)seq_along(wms[[1L]]$params)) else attr(a$label,"curved")
     names(wms[[1L]]$params) <- mk_std_op_namewrap("Sum")(label)
   }
 
