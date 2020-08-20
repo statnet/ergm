@@ -64,7 +64,7 @@ wrap.ergm_model <- function(m, nw, response=NULL, namewrap = identity){
 #' @export
 ergm_mk_std_op_namewrap <- function(opname, opargs=NULL){
   if(is.null(opargs)) function(subterms, subargs=NULL) NVL3(subargs, paste0(opname, "(", ., ")~", subterms), paste0(opname, "~", subterms))
-  else function(subterms, subargs=NULL) NVL3(subargs, paste0(opname, "(", paste0(opargs, collapse=","), ",",., ")~"), paste0(opname, "(", paste(opargs, collapse=","), ")~"))
+  else function(subterms, subargs=NULL) NVL3(subargs, paste0(opname, "(", paste0(opargs, collapse=","), ",",., ")~", subterms), paste0(opname, "(", paste(opargs, collapse=","), ")~", subterms))
 }
 
 ## Creates a submodel that does exactly what the model terms passed to
