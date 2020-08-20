@@ -15,6 +15,6 @@ InitErgmTerm.NodematchFilter <- function(nw, arglist, response=NULL, ...){
 
   attrname <- a$attrname
   c(list(name="on_blockdiag_net", submodel=m, auxiliaries=trim_env(~.blockdiag.net(attrname), "attrname")),
-    wrap.ergm_model(m, nw, response, mk_std_op_namewrap('NodematchFilter',a$attrname)))
+    wrap.ergm_model(m, nw, response, ergm_mk_std_op_namewrap('NodematchFilter',a$attrname)))
 }
 

@@ -33,7 +33,7 @@ InitWtErgmTerm.B <- function(nw, arglist, response=NULL, ...){
     auxiliaries <- if(form=="nonzero") trim_env(~.binary.nonzero.net)
   }
 
-  mw <- wrap.ergm_model(m, nwb, NULL, mk_std_op_namewrap('B', form.name))
+  mw <- wrap.ergm_model(m, nwb, NULL, ergm_mk_std_op_namewrap('B', form.name))
   if(form=="sum") mw$emptynwstats <- NULL
 
   c(list(name=name,
