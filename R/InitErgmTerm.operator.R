@@ -59,14 +59,12 @@ wrap.ergm_model <- function(m, nw, response=NULL, namewrap = identity){
 #' @param opname Name of the operator (or an abbreviation thereof).
 #' @param opargs A character vector describing arguments passed to the operator (excluding the model); if lengths exceeds one, will be concatenated with commas.
 #'
-#' @return A function with 1 argument, `subterms`, returning a character vector of length equal to the length of `subterms` wrapped in the operator's name and arguments appropriately.
+#' @return A function with 1 required argument, `subterms` and one optional argument, `subargs`, returning a character vector of length equal to the length of `subterms` wrapped in the operator's name and arguments appropriately.
 #' @keywords internal
 #' @export
 mk_std_op_namewrap <- function(opname, opargs=NULL){
-  prefix <-
-    if(is.null(opargs)) paste0(opname, "~")
-    else paste0(opname, "(", paste(opargs, collapse=","), ")~")
-  function(subterms) paste0(prefix, subterms)
+  if(is.null(opargs)) function(subterms, subargs=NULL) NVL3(subargs, paste0(opname, "(", ., ")~", subterms), paste0(opname, "~", subterms))
+  else function(subterms, subargs=NULL) NVL3(subargs, paste0(opname, "(", paste0(opargs, collapse=","), ",",., ")~"), paste0(opname, "(", paste(opargs, collapse=","), ")~"))
 }
 
 ## Creates a submodel that does exactly what the model terms passed to

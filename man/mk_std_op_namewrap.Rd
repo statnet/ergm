@@ -12,7 +12,7 @@ mk_std_op_namewrap(opname, opargs = NULL)
 \item{opargs}{A character vector describing arguments passed to the operator (excluding the model); if lengths exceeds one, will be concatenated with commas.}
 }
 \value{
-A function with 1 argument, \code{subterms}, returning a character vector of length equal to the length of \code{subterms} wrapped in the operator's name and arguments appropriately.
+A function with 1 required argument, \code{subterms} and one optional argument, \code{subargs}, returning a character vector of length equal to the length of \code{subterms} wrapped in the operator's name and arguments appropriately.
 }
 \description{
 Combine an operator term's and a subterm's name in a standard fashion.
