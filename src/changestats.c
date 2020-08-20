@@ -316,7 +316,7 @@ C_CHANGESTAT_FN(c_b1nodematch) {
     ninputs = N_INPUT_PARAMS - 2*N_NODES - b2attrsize;/*have 2 sets of node attributes and b2attrvals */  
   }                                      
   else{                                  
-    ninputs = N_INPUT_PARAMS - N_NODES; 
+    ninputs = N_INPUT_PARAMS - BIPARTITE; 
   }                                      
 
   diffstatus = !(ninputs == 3); /* 1 if Diff = T and 0 if Diff = F */
@@ -732,7 +732,7 @@ C_CHANGESTAT_FN(c_b2nodematch) {
     ninputs = N_INPUT_PARAMS - 2*N_NODES - b1attrsize;/*have 2 sets of node attributes and b2attrvals */  
   }                                      
   else{                                  
-    ninputs = N_INPUT_PARAMS - N_NODES;  
+    ninputs = N_INPUT_PARAMS - BIPARTITE;  
   }
 
   diffstatus = !(ninputs == 3); /* 1 if Diff = T and o if Diff = F - RPB */
