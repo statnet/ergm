@@ -112,7 +112,7 @@ static inline unsigned int insCovMatRow(double *newRow, double *matrix, unsigned
 }
 
 // Euclid's Algorithm to compute Greatest Common Divisor of a and b.
-unsigned long int gcd(unsigned long int a, unsigned long int b){
+Dyad gcd(Dyad a, Dyad b){
   if(b==0) return a;
   else return gcd(b, a%b);
 }
