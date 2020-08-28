@@ -24,7 +24,7 @@
 #define _GET_OVERRIDE6(_1, _2, _3, _4, _5, _6, NAME, ...) NAME
 
 #define _DYADCOUNT1(nwp) _DYADCOUNT3(nwp->nnodes, nwp->bipartite, nwp->directed_flag)
-#define _DYADCOUNT3(nnodes, bipartite, directed) ((bipartite)? (unsigned long)((nnodes)-(bipartite))*(unsigned long)(bipartite) : ((directed)? (unsigned long)(nnodes)*(unsigned long)((nnodes)-1) : (((unsigned long)(nnodes)*(unsigned long)((nnodes)-1))/2)))
+#define _DYADCOUNT3(nnodes, bipartite, directed) ((bipartite)? (Dyad)((nnodes)-(bipartite))*(Dyad)(bipartite) : ((directed)? (Dyad)(nnodes)*(Dyad)((nnodes)-1) : (((Dyad)(nnodes)*(Dyad)((nnodes)-1))/2)))
 #define DYADCOUNT(...) _GET_OVERRIDE3(__VA_ARGS__, _DYADCOUNT3, , _DYADCOUNT1,)(__VA_ARGS__)
 #define EDGECOUNT(nwp) nwp->nedges
 

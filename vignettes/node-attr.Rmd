@@ -1,0 +1,160 @@
+---
+title: "Nodal Attribute Specification in ERGM Terms"
+author: "The Statnet Team"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Nodal Attribute Specification in ERGM Terms}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+This document provides some examples of how to specify nodal attributes and their transformations in `ergm` terms. For the R help on the topic, see `help("node-attr")`.
+
+## Extraction and transformation ##
+
+It is sometimes desirable to specify a transformation of a nodal attribute as a covariate in a model term. Most `ergm` terms now support a new Tidyverse-inspired user interface to do so. Arguments using this interface are typically called `attr`, `attrs`, `by`, or
+`on` and are interpreted depending on their type:
+
+character string
+
+: Extract the vertex attribute with
+      this name.
+
+character vector of length greater than 1
+
+: Extract the vertex attributes and paste them together, separated by
+      dots if the term expects categorical attributes and (typically)
+      combine into a covariate matrix if it expects quantitative
+      attributes.
+
+function
+
+: The function is called on the LHS network, expected to return a
+      vector or matrix of appropriate dimension. (Shorter vectors and
+      matrix columns will be recycled as needed.)
+
+formula
+
+: Borrowing the interface from \pkg{tidyverse}, the expression on the right hand side of the formula is evaluated in an
+      environment of the vertex attributes of the network, expected to
+      return a vector or matrix of appropriate dimension. (Shorter
+      vectors and matrix columns will be recycled as needed.) Within
+      this expression, the network itself accessible as either
+      \code{.} or \code{.nw}. For example, in the example below,
+      \code{nodecov(~abs(Grade-mean(Grade))/network.size(.))} would
+      return the absolute difference of each actor's "Grade" attribute
+      from its network-wide mean, divided by the network size.
+
+\code{AsIs} object created by \code{I()}
+
+: Use as is, checking only for correct length and type, with optional
+      attribute \code{"name"} indicating the predictor's name.
+
+Any of these arguments may also be wrapped in `COLLAPSE_SMALLEST(attr, n, into)`, a convenience function that will
+transform the attribute by collapsing the smallest `n` categories into one, naming it according to the `into` argument. Note that `into` must be of the same type (numeric, character, etc.) as the vertex attribute in
+question. This is compatible with using `magrittr`'s pipes for improved readability, i.e., `attr %>% COLLAPSE_SMALLEST(n, into)`. This is illustrated in the next section.
+
+Then, taking `faux.mesa.high` dataset's actor attribute `Grade`, representing the grade of the student, we can evaluate, equivalently, the linear effect of grade on overall activity of an actor:
+```{r, node-attr-spec, message=FALSE}
+library(ergm)
+data(faux.mesa.high)
+summary(faux.mesa.high~nodecov("Grade")) # String
+summary(faux.mesa.high~nodecov(~Grade)) # Formula
+summary(faux.mesa.high~nodecov(function(nw) nw%v%"Grade")) # Function
+```
+Taking advantage of `nodecov`'s new ability to take matrix-valued arguments, we might also evaluate a polynomial effect of `Grade`:
+```{r, node-attr-mat}
+# Directly:
+summary(faux.mesa.high~nodecov(~cbind(Grade,Grade^2)))
+# Using stats::poly() function:
+summary(faux.mesa.high~nodecov(~poly(Grade,2)))
+```
+We can even pass a random nodal covariate. Notice that setting an attribute "name" gives it a label:
+```{r, node-attr-rand}
+randomcov <- structure(I(rbinom(network.size(faux.mesa.high),1,0.5)), name="random")
+summary(faux.mesa.high~nodefactor(I(randomcov)))
+```
+
+## Level selection ##
+
+For categorical attributes, to select which levels are of interest
+and their ordering, use the argument \code{levels}.  Selection of nodes (from
+the appropriate vector of nodal indices) is likewise handled as the
+selection of levels, using the argument \code{nodes}.  These arguments are interpreted
+as follows:
+
+\code{AsIs} object created by \code{I()}
+
+: Use the given list of levels as is.
+
+numeric or logical vector
+
+: Used for indexing of a list of all possible levels (typically,
+\mmnote{this is useful when the attr is not already a factor, right?  should say so}
+      unique values of the attribute) in default order (typically
+      lexicographic). In particular, `levels=TRUE` will retain all
+      levels. 
+      \mmnote{what does this do when there is an edges term in the model, which will alias a factor level?}
+      \pknote{It'll produce a nonidentifiable model, which the new code will hopefully warn the user about.}
+      Negative values exclude. Another special value is
+      `LARGEST`, which will refer to the most frequent category, so,
+      say, to set such a category as the baseline, pass
+      `levels=-LARGEST`. In addition, `LARGEST(n)` will refer to the
+      `n` largest categories. `SMALLEST` works analogously. Note that
+      if there are ties in frequencies, they will be broken
+      arbitrarily. To specify numeric or logical levels literally,
+      wrap in `I()`.
+
+\code{NULL}
+
+: Retain all possible levels; usually equivalent to passing
+      \code{TRUE}.
+
+character vector
+
+: Use as is.
+
+function
+
+: The function is called on the list of unique values of the
+      attribute, the values of the attribute themselves, and the
+      network itself, depending on its arity. Its return value is
+      interpreted as above.
+
+formula
+
+: The expression on the right hand side of the formula is evaluated in an
+      environment in which the network itself is accessible as
+      \code{.nw}, the list of unique values of the attribute as
+      \code{.} or as \code{.levels}, and the attribute vector itself
+      as \code{.attr}. Its return value is interpreted as above.
+
+Note that \code{levels} or \code{nodes} often has a default that is
+sensible for the term in question.
+
+Returning to the `faux.mesa.high` example, and treating `Grade` as a categorical variable, we can use a number of combinations:
+```{r, node-attr-cats}
+# Activity by grade with a baseline grade excluded:
+summary(faux.mesa.high~nodefactor(~Grade))
+# Retain all levels:
+summary(faux.mesa.high~nodefactor(~Grade, levels=TRUE)) # or levels=NULL
+# Use the largest grade as baseline (also Grade 7):
+table(faux.mesa.high %v% "Grade")
+summary(faux.mesa.high~nodefactor(~Grade, levels=-LARGEST))
+# Collapse the smallest two grades (11 and 12) into a new category, 99.
+library(magrittr) # For the %>% operator.
+summary(faux.mesa.high~nodefactor((~Grade) %>% COLLAPSE_SMALLEST(2, 99)))
+
+# Mixing between lower and upper grades:
+summary(faux.mesa.high~mm(~Grade>=10))
+# Mixing between grades 7 and 8 only:
+summary(faux.mesa.high~mm("Grade", levels=I(c(7,8))))
+# or
+summary(faux.mesa.high~mm("Grade", levels=1:2))
+# or using levels2 (see ? mm) to filter the combinations of levels,
+summary(faux.mesa.high~mm("Grade",
+        levels2=~sapply(.levels,
+                        function(l)
+                          l[[1]]%in%c(7,8) && l[[2]]%in%c(7,8))))
+```
