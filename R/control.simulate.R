@@ -37,8 +37,8 @@
 #' @template control_MCMC_effectiveSize
 #' 
 #' @param MCMC.maxedges The maximum number of edges that may occur during the MCMC sampling.
-#' @param MCMC.runtime.traceplot Logical: If TRUE, plot traceplots of the MCMC
-#' sample after every MCMC MLE iteration.
+#' @param MCMC.runtime.traceplot Logical: If `TRUE`, plot traceplots of the MCMC
+#' sample.
 #' @param network.output R class with which to output networks. The options are
 #' "network" (default) and "edgelist.compressed" (which saves space but only
 #' supports networks without vertex attributes)

@@ -192,10 +192,6 @@ ergm.MCMC.packagenames <- local({
 #'
 NULL
 
-#' @importFrom utils packageDescription
-myLibLoc <- function()
-  sub('/ergm/Meta/package.rds','',attr(packageDescription("ergm"),"file"))
-
 #' @rdname ergm-parallel
 #' @description The \code{ergm.getCluster} function is usually called
 #'   internally by the ergm process (in
@@ -262,29 +258,24 @@ ergm.getCluster <- function(control=NULL, verbose=FALSE, stop_on_exit=parent.fra
   for(pkg in ergm.MCMC.packagenames(pending=TRUE)){
 
     # Try loading from the same location as the master.
-  #' @importFrom parallel clusterCall
+    #' @importFrom parallel clusterCall
     attached <- unlist(clusterCall(cl, require,
                                    package=pkg,
                                    character.only=TRUE,
-                                   lib.loc=myLibLoc()))
+                                   lib.loc=.libPaths()))
     # If something failed, warn and try loading from anywhere.
     if(!all(attached)){
-      if(verbose) message("Failed to attach package ", sQuote(pkg), " on the slave nodes from the same location as the master node. Will try to load from anywhere in the library path.")
-      attached <- clusterCall(cl, require,
-                              package=pkg,
-                              character.only=TRUE)
-      if(!all(attached)){
-        stop("Failed to attach package ", sQuote(pkg), " on one or more slave nodes. Make sure it's installed on or accessible from all of them and is in the library path.")
-      }
+      stop("Failed to attach package ", sQuote(pkg), " on one or more slave nodes. Make sure it's installed on or accessible from all of them and is in the library path.")
     }
-    
+
     if(control$parallel.version.check){
       slave.versions <- clusterCall(cl,packageVersion,pkg)
       #' @importFrom utils packageVersion
       master.version <- packageVersion(pkg)
-      
-      if(!all(sapply(slave.versions,identical,master.version)))
-        stop("The version of ", sQuote(pkg), " attached on one or more slave nodes is different from from that on the master node (this node). Make sure that the same version is installed on all nodes. If you are absolutely certain that this message is in error, override with the parallel.version.check=FALSE control parameter.")
+
+      wrong <- !sapply(slave.versions,identical,master.version)
+      if(any(wrong))
+        stop("The version of ", sQuote(pkg), " (", paste(slave.versions[wrong], collapse=", "), ") attached on one or more slave nodes is different from that on the (this) master node (", master.version,"). Make sure that the same version is installed on all nodes. If you are absolutely certain that this message is in error, override with the parallel.version.check=FALSE control parameter.")
     }
 
     if(control$parallel.inherit.MT && ERRVL(try(get.MT_terms(), silent=TRUE), 0)!=0){
