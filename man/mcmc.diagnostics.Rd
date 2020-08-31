@@ -28,11 +28,11 @@ statistics.}
 
 \item{esteq}{Logical: If TRUE, for statistics corresponding to
 curved ERGM terms, summarize the curved statistics by their
-estimating equation values (evaluated at the MLE of any curved
-parameters) (i.e., \eqn{\eta'_{I}(\hat{\theta})\cdot g_{I}(y)}
+negated estimating function values (evaluated at the MLE of any curved
+parameters) (i.e., \eqn{\eta'_{I}(\hat{\theta})\cdot (g_{I}(Y)-g_{I}(y))}
 for \eqn{I} being indices of the canonical parameters in
 question), rather than the canonical (sufficient) vectors of the
-curved statistics (\eqn{g_{I}(y)}).}
+curved statistics relative to the observed (\eqn{g_{I}(Y)-g_{I}(y)}).}
 
 \item{vars.per.page}{Number of rows (one variable per row) per
 plotting page.  Ignored if \code{latticeExtra} package is not

@@ -138,7 +138,7 @@
 #' network statistics.  This matrix should have \code{MCMC.samplesize} rows.
 #' This matrix can be used directly by the \code{coda} package to assess MCMC
 #' convergence.
-#' @param MCMC.runtime.traceplot Logical: If TRUE, plot traceplots of the MCMC
+#' @param MCMC.runtime.traceplot Logical: If `TRUE`, plot traceplots of the MCMC
 #' sample after every MCMC MLE iteration.
 #' @param MCMC.init.maxedges,MCMC.max.maxedges These parameters
 #'   control how much space is allocated for storing edgelists for

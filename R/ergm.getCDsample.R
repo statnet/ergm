@@ -35,11 +35,9 @@ ergm_CD_sample <- function(nw, model, proposal, control, theta=NULL,
   }
   
   if(control.parallel$MCMC.runtime.traceplot){
-      esteq <- lapply.mcmc.list(lapply(outl, function(out)
-                      NVL3(theta, ergm.estfun(out$s, ., model), out$s[,Clists[[1]]$diagnosable,drop=FALSE])
-                      ), mcmc, start=1)
-        plot(window(esteq, thin=thin(esteq)*max(1,floor(niter(esteq)/1000)))
-             ,ask=FALSE,smooth=TRUE,density=FALSE)
+    lapply(outl, function(out) NVL3(theta, ergm.estfun(out$s, ., model), out$s[,Clists[[1]]$diagnosable,drop=FALSE])) %>%
+      lapply.mcmc.list(mcmc, start=1) %>% lapply.mcmc.list(`-`) %>% window(thin=thin(esteq)*max(1,floor(niter(esteq)/1000))) %>%
+      plot(ask=FALSE,smooth=TRUE,density=FALSE)
   }
 
   #
