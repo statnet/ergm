@@ -128,7 +128,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
         if(verbose) message("Increasing thinning to ",interval,".")
       }
       
-      esteq <- lapply(outl, function(out) NVL3(theta, ergm.estfun(out$s, ., as.ergm_model(state[[1]])), sm[,!as.ergm_model(state[[1]])$etamap$offsetmap,drop=FALSE])) %>%
+      esteq <- lapply(sms, function(sm) NVL3(theta, ergm.estfun(sm, ., as.ergm_model(state[[1]])), sm[,!as.ergm_model(state[[1]])$etamap$offsetmap,drop=FALSE])) %>%
         lapply.mcmc.list(mcmc, start=1, thin=interval) %>% lapply.mcmc.list(`-`)
 
       if(control.parallel$MCMC.runtime.traceplot){
@@ -174,7 +174,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
     }
     
     if(control.parallel$MCMC.runtime.traceplot){
-      lapply(sms, function(sm) NVL3(theta, ergm.estfun(sm, ., as.ergm_model(state[[1]])), sm[,!as.ergm_model(state[[1]])$etamap$offsetmap,drop=FALSE])) %>% lapply(mcmc, start=control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval) %>% as.mcmc.list() %>% window(., thin=thin(.)*max(1,floor(niter(.)/1000)) %>% plot(ask=FALSE,smooth=TRUE,density=FALSE)
+      lapply(sms, function(sm) NVL3(theta, ergm.estfun(sm, ., as.ergm_model(state[[1]])), sm[,!as.ergm_model(state[[1]])$etamap$offsetmap,drop=FALSE])) %>% lapply(mcmc, start=control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval) %>% as.mcmc.list() %>% window(., thin=thin(.)*max(1,floor(niter(.)/1000))) %>% plot(ask=FALSE,smooth=TRUE,density=FALSE)
     }
   }
 
