@@ -84,9 +84,19 @@
 #' either way, but if the model is curved, the score estimating function values
 #' (3.1) by Hunter and Handcock (2006) are returned instead.
 #' 
-#' @param output Character, one of `"network"` (default), `"stats"`,
-#'   `"edgelist"`, or `"pending_update_network"`: determines the
-#'   output format. Partial matching is performed.
+#' @param output Normally character, one of `"network"` (default),
+#'   `"stats"`, `"edgelist"`, or `"pending_update_network"` to
+#'   determine the output format. Partial matching is
+#'   performed.
+#'
+#'   Alternatively, a function with prototype
+#'   `function(pending_update_network, chain, iter, ...)` that is
+#'   called for each returned network, and its return value, rather
+#'   than the network itself, is stored. This can be used to, for
+#'   example, store the simulated networks to disk without storing
+#'   them in memory or compute network statistics not implemented
+#'   using the ERGM API, without having to store the networks
+#'   themselves.
 #'
 #' @param simplify Logical: If `TRUE` the output is "simplified":
 #'   sampled networks are returned in a single list, statistics from
@@ -219,6 +229,16 @@
 #'             monitor=~triangles, output="stats",
 #'             control=control.simulate.ergm(MCMC.burnin=1000, MCMC.interval=100))
 #' g.sim
+#'
+#' # Custom output: store the edgecount (computed in R), iteration index, and chain index.
+#' output.f <- function(x, iter, chain, ...){
+#'   list(nedges = network.edgecount(as.network(x)),
+#'        chain = chain, iter = iter)
+#' }
+#' g.sim <- simulate(gest, nsim=3,
+#'             output=output.f, simplify=FALSE,
+#'             control=control.simulate.ergm(MCMC.burnin=1000, MCMC.interval=100))
+#' unclass(g.sim)
 #' @name simulate.ergm
 #' @importFrom stats simulate
 #' @aliases simulate.formula.ergm
@@ -347,7 +367,12 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   if(!is.null(monitor) && !is(monitor, "ergm_model")) stop("ergm_model method for simulate() requires monitor= argument of class ergm_model or NULL.")
   if(is.null(basis)) stop("ergm_model method for simulate() requires the basis= argument for the initial state of the simulation.")
 
-  output <- match.arg(output)
+  if(is.character(output))
+    output <- match.arg(output)
+  else{
+    output.f <- output
+    output <- "function"
+  }
 
   # Backwards-compatibility code:
   if("theta0" %in% names(list(...))){
@@ -445,7 +470,8 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                           switch(output,
                                  pending_update_network=z$networks,
                                  network=lapply(z$networks, as.network),
-                                 edgelist=lapply(z$networks, as.edgelist)
+                                 edgelist=lapply(z$networks, as.edgelist),
+                                 "function"=mapply(output.f, z$networks, chain=seq_along(z$networks), iter=i, SIMPLIFY=FALSE)
                                  ),
                           SIMPLIFY=FALSE)
       

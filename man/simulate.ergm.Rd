@@ -158,9 +158,19 @@ ERGM: if the model is non-curved, all non-offset statistics are returned
 either way, but if the model is curved, the score estimating function values
 (3.1) by Hunter and Handcock (2006) are returned instead.}
 
-\item{output}{Character, one of \code{"network"} (default), \code{"stats"},
-\code{"edgelist"}, or \code{"pending_update_network"}: determines the
-output format. Partial matching is performed.}
+\item{output}{Normally character, one of \code{"network"} (default),
+\code{"stats"}, \code{"edgelist"}, or \code{"pending_update_network"} to
+determine the output format. Partial matching is
+performed.
+
+Alternatively, a function with prototype
+\verb{function(pending_update_network, chain, iter, ...)} that is
+called for each returned network, and its return value, rather
+than the network itself, is stored. This can be used to, for
+example, store the simulated networks to disk without storing
+them in memory or compute network statistics not implemented
+using the ERGM API, without having to store the networks
+themselves.}
 
 \item{simplify}{Logical: If \code{TRUE} the output is "simplified":
 sampled networks are returned in a single list, statistics from
@@ -329,6 +339,16 @@ g.sim <- simulate(gest, nsim=10,
             monitor=~triangles, output="stats",
             control=control.simulate.ergm(MCMC.burnin=1000, MCMC.interval=100))
 g.sim
+
+# Custom output: store the edgecount (computed in R), iteration index, and chain index.
+output.f <- function(x, iter, chain, ...){
+  list(nedges = network.edgecount(as.network(x)),
+       chain = chain, iter = iter)
+}
+g.sim <- simulate(gest, nsim=3,
+            output=output.f, simplify=FALSE,
+            control=control.simulate.ergm(MCMC.burnin=1000, MCMC.interval=100))
+unclass(g.sim)
 }
 \seealso{
 \code{\link{ergm}}, \code{\link[network]{network}}
