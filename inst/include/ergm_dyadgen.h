@@ -22,6 +22,7 @@ typedef struct {
   } dyads;
   Dyad ndyads;
   UnsrtEL *intersect;
+  Rboolean sleeping;
 } DyadGen;
 
 
@@ -169,6 +170,14 @@ static inline Rboolean DyadGenSearch(Vertex tail, Vertex head, DyadGen *gen){
   default:
     error("Undefined dyad generator type.");
   }
+}
+
+static inline void DyadGenSleep(DyadGen *gen){
+  gen->sleeping = TRUE;
+}
+
+static inline void DyadGenWake(DyadGen *gen){
+  gen->sleeping = FALSE;
 }
 
 DyadGen *DyadGenInitialize(DyadGenType type, void *dyads, void *track_nwp);
