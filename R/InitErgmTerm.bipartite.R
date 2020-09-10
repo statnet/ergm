@@ -44,7 +44,7 @@ InitErgmTerm.b1nodematch	<-	function (nw, arglist, ..., version=packageVersion("
   if (!is.numeric(a$alpha) || a$alpha>1 || a$alpha<0)
     ergm_Init_abort("alpha argument to b1nodematch must be between 0 and 1 inclusive.")
   
-  nodecov <- ergm_get_vattr(attrarg, nw)
+  nodecov <- ergm_get_vattr(attrarg, nw, bip="b1")
   attrname <- attr(nodecov, "name")
   
   b1.len	<-	get.network.attribute(nw, "bipartite")# gives # of b1 nodes
@@ -131,7 +131,7 @@ InitErgmTerm.b2nodematch	<-	function (nw, arglist, ..., version=packageVersion("
   if (!is.numeric(a$alpha) || a$alpha>1 || a$alpha<0)
     ergm_Init_abort("alpha argument to b2nodematch must be between 0 and 1 inclusive.")
   
-  nodecov <- ergm_get_vattr(attrarg, nw)
+  nodecov <- ergm_get_vattr(attrarg, nw, bip="b2")
   attrname <- attr(nodecov, "name")
   
   b1.len 	<-	get.network.attribute(nw, "bipartite")# gives # of b1 nodes

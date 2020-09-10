@@ -351,7 +351,7 @@ network statistics.  This matrix should have \code{MCMC.samplesize} rows.
 This matrix can be used directly by the \code{coda} package to assess MCMC
 convergence.}
 
-\item{MCMC.runtime.traceplot}{Logical: If TRUE, plot traceplots of the MCMC
+\item{MCMC.runtime.traceplot}{Logical: If \code{TRUE}, plot traceplots of the MCMC
 sample after every MCMC MLE iteration.}
 
 \item{MCMC.maxedges}{The maximum number of edges that may occur during the MCMC sampling.}

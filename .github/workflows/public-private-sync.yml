@@ -1,0 +1,65 @@
+### WARNING: This action script uses force pushing and so it can potentially overwrite repositories.
+
+## Usage:
+#
+# 1. Copy this file to the .github/workflows/ directory at the root of the main branch of your public repository. Do NOT push it yet.
+# 2. IF your repositories DON'T follow the standard naming convention (public: USER/PKG, private: USER/PKG-private), THEN set the repository names in the env statement below. (OTHERWISE, leave them blank.)
+# 3. IF your package is hosted OUTSIDE the Statnet organization, THEN from the repository statnet/janitors-closet, obtain file ssh_keys/statnet-janitor.id_rsa .
+# 4. For each of the two repositories,
+# 4.1. IF your package is hosted IN the Statnet organization, THEN go to Settings -> Secrets, click "Manage organization secrets", click "Update" next to "JANITORS_SSH_KEY", click on the gear icon, and tick your repository's box if it isn't already ticked. OTHERWISE, go to Settings -> Secrets, click "New Secret", enter Name "JANITORS_SSH_KEY", and paste the contents of ssh_keysstatnet-janitor.id_rsa into Value.
+# 4.2. Go to Settings -> Manage Access, click "Invite Teams or People" (or "Invite People"), and invite statnet-janitor as a collaborator with read and write access.
+# 4.3. IF your package is hosted OUTSIDE the Statnet organization, THEN log in as statnet-janitor and accept the invitation.
+# 5. Push this file to the repository. (It should propagate automatically.)
+
+# Set public and private repositories (i.e., USER/PKG). Leave blank to autodetect.
+env:
+  PUBLIC: ''
+  PRIVATE: ''
+
+on: push
+jobs:
+  public-private-sync:
+    runs-on: ubuntu-latest
+    steps:
+    - name: check-config # Make sure either neither or both are set; abort if not.
+      if: (env.PUBLIC == '') != (env.PRIVATE == '')
+      run: |
+        echo "Configuration problem: only one of the repositories is set."
+        exit 1
+    - name: detect-repos
+      if: env.PUBLIC == '' && env.PRIVATE == ''
+      run: |
+        if [[ "${{ github.repository }}" == *-private ]]
+        then # Current repo is provate.
+          PRIVATE="${{ github.repository }}"
+          PUBLIC="${PRIVATE%-private}"
+        else # Current repo is public.
+          PUBLIC="${{ github.repository }}"
+          PRIVATE="$PUBLIC-private"
+        fi
+        echo "::set-env name=PRIVATE::$PRIVATE"
+        echo "::set-env name=PUBLIC::$PUBLIC"
+    - name: repo-sync-public-private  # From public repo, sync whatever branch was pushed.
+      if: github.repository == env.PUBLIC
+      uses: wei/git-sync@v2
+      with:
+        source_repo: ${{ env.PUBLIC }}
+        source_branch: ${{ github.ref }}
+        destination_repo: ${{ env.PRIVATE }}
+        destination_branch: ${{ github.ref }}
+        ssh_private_key: ${{ secrets.JANITORS_SSH_KEY }}
+    - name: public-check # Check if the branch/tag exists in the public repository.
+      if: github.repository == env.PRIVATE # Only check if from private repo.
+      run: |
+        set +e
+        git ls-remote --exit-code https://github.com/${{ env.PUBLIC }} ${{ github.ref }}
+        echo "::set-env name=FOUND_PUBLIC::$?"
+    - name: repo-sync-private-public # From private repo, sync only if public branch/tag present.
+      if: github.repository == env.PRIVATE && env.FOUND_PUBLIC == '0'
+      uses: wei/git-sync@v2
+      with:
+        source_repo: ${{ env.PRIVATE }}
+        source_branch: ${{ github.ref }}
+        destination_repo: ${{ env.PUBLIC }}
+        destination_branch: ${{ github.ref }}
+        ssh_private_key: ${{ secrets.JANITORS_SSH_KEY }}

@@ -59,14 +59,12 @@ wrap.ergm_model <- function(m, nw, response=NULL, namewrap = identity){
 #' @param opname Name of the operator (or an abbreviation thereof).
 #' @param opargs A character vector describing arguments passed to the operator (excluding the model); if lengths exceeds one, will be concatenated with commas.
 #'
-#' @return A function with 1 argument, `subterms`, returning a character vector of length equal to the length of `subterms` wrapped in the operator's name and arguments appropriately.
+#' @return A function with 1 required argument, `subterms` and one optional argument, `subargs`, returning a character vector of length equal to the length of `subterms` wrapped in the operator's name and arguments appropriately.
 #' @keywords internal
 #' @export
-mk_std_op_namewrap <- function(opname, opargs=NULL){
-  prefix <-
-    if(is.null(opargs)) paste0(opname, "~")
-    else paste0(opname, "(", paste(opargs, collapse=","), ")~")
-  function(subterms) paste0(prefix, subterms)
+ergm_mk_std_op_namewrap <- function(opname, opargs=NULL){
+  if(is.null(opargs)) function(subterms, subargs=NULL) NVL3(subargs, paste0(opname, "(", ., ")~", subterms), paste0(opname, "~", subterms))
+  else function(subterms, subargs=NULL) NVL3(subargs, paste0(opname, "(", paste0(opargs, collapse=","), ",",., ")~", subterms), paste0(opname, "(", paste(opargs, collapse=","), ")~", subterms))
 }
 
 ## Creates a submodel that does exactly what the model terms passed to
@@ -86,7 +84,7 @@ InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
   m <- ergm_model(f, nw, response=response,...)
   
   c(list(name="passthrough_term", submodel=m),
-    wrap.ergm_model(m, nw, response, mk_std_op_namewrap('passthrough')))
+    wrap.ergm_model(m, nw, response, ergm_mk_std_op_namewrap('passthrough')))
 }
 
 InitErgmTerm.Label <- function(nw, arglist, response=NULL, ...){
@@ -166,7 +164,7 @@ InitErgmTerm.submodel.test <- function(nw, arglist, response=NULL, ...){
 
   af <- a$formula
   c(list(name="submodel_test_term", auxiliaries = trim_env(~.submodel(af),"af")),
-    wrap.ergm_model(m, nw, response, mk_std_op_namewrap('submodel.test')))
+    wrap.ergm_model(m, nw, response, ergm_mk_std_op_namewrap('submodel.test')))
 }
 
 ## An auxiliary that exports a double vector that contains the current
@@ -229,7 +227,7 @@ InitErgmTerm.F <- function(nw, arglist, response=NULL, ...){
   c(list(name="on_filter_formula_net",
          submodel = m,
          auxiliaries=auxiliaries),
-    wrap.ergm_model(m, nw, response, mk_std_op_namewrap("F", form.name)))
+    wrap.ergm_model(m, nw, response, ergm_mk_std_op_namewrap("F", form.name)))
 }
 
 InitErgmTerm..filter.formula.net <- function(nw, arglist, response=NULL, ...){
@@ -464,7 +462,7 @@ InitErgmTerm.Undir <- function(nw, arglist, response=NULL, ...){
   c(list(name="on_undir_net",
          submodel = m,
          auxiliaries=auxiliaries),
-    modifyList(wrap.ergm_model(m, nw, response, mk_std_op_namewrap('Undir', rule)),
+    modifyList(wrap.ergm_model(m, nw, response, ergm_mk_std_op_namewrap('Undir', rule)),
                list(dependence=!is.dyad.independent(m) || rule%in%c("weak","strong"))))
 }
 
@@ -507,13 +505,13 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
   inputs <- unlist(wl%>%map(t))
   inputs <- c(nf, length(inputs), inputs)
 
-  label <- if(length(a$label)==1) paste0(a$label,seq_len(nparam)) else a$label
-  coef.names <- mk_std_op_namewrap("Sum")(label)
+  label <- if(length(a$label)==1L) paste0(a$label, if(nparam>1L)seq_len(nparam)) else a$label
+  coef.names <- ergm_mk_std_op_namewrap("Sum")(label)
 
   wms <- lapply(ms, wrap.ergm_model, nw, response)
   if(is.curved(ms[[1L]])){
-    label <- if(length(a$label)==1L) paste0(a$label,seq_along(wms[[1L]]$params)) else attr(a$label,"curved")
-    names(wms[[1L]]$params) <- mk_std_op_namewrap("Sum")(label)
+    label <- if(length(a$label)==1L) paste0(a$label, if(length(wms[[1L]]$params)>1L)seq_along(wms[[1L]]$params)) else attr(a$label,"curved")
+    names(wms[[1L]]$params) <- ergm_mk_std_op_namewrap("Sum")(label)
   }
 
   gss <- map(wms, "emptynwstats")
@@ -607,7 +605,7 @@ InitErgmTerm.S <- function(nw, arglist, response=NULL, ...){
   c(list(name="on_subgraph_net",
          submodel = m,
          auxiliaries=auxiliaries),
-    wrap.ergm_model(m, snw, response, mk_std_op_namewrap('S',selname)))
+    wrap.ergm_model(m, snw, response, ergm_mk_std_op_namewrap('S',selname)))
 }
 
 

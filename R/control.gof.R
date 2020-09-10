@@ -66,8 +66,8 @@
 #' @param MCMC.interval Number of proposals between sampled statistics.
 #' @template control_MCMC_prop
 #' @param MCMC.init.maxedges Maximum number of edges expected in network.
-#' @param MCMC.runtime.traceplot Logical: If TRUE, plot traceplots of the MCMC
-#' sample after every MCMC MLE iteration.
+#' @param MCMC.runtime.traceplot Logical: If `TRUE`, plot traceplots of the MCMC
+#' sample.
 #' @param network.output R class with which to output networks. The options are
 #' "network" (default) and "edgelist.compressed" (which saves space but only
 #' supports networks without vertex attributes)
