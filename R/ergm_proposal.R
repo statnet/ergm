@@ -386,12 +386,21 @@ ergm_proposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NUL
 
 DyadGenType <- list(RandDyadGen=0L, WtRandDyadGen=1L, RLEBDM1DGen=2L, WtRLEBDM1DGen=3L, EdgeListGen=4L, WtEdgeListGen=5L)
 
-ergm_dyadgen_select <- function(arguments, nw, response=NULL){
+#' A helper function to select and construct a dyad generator for C.
+#'
+#' @param arguments argumements passed to the [`ergm_proposal`].
+#' @param nw a [`network`].
+#' @template response
+#' @param extra_rlebdm an [`rlebdm`] representing any additional constraints.
+#' @return A list understood by the C `DyadGen` API.
+#' @export
+ergm_dyadgen_select <- function(arguments, nw, response=NULL, extra_rlebdm=NULL){
   valued <- !is.null(response)
 
   dyadgen <- list(valued=valued)
 
   r <- as.rlebdm(arguments$constraints)
+  if(!is.null(extra_rlebdm)) r <- r & extra_rlebdm
 
   if(all(r==arguments$constraints$.attributes$free_dyads)){
     dyadgen$type <- if(valued) DyadGenType$WtRandDyadGen else DyadGenType$RandDyadGen

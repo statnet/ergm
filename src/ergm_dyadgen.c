@@ -6,6 +6,7 @@
 DyadGen *DyadGenInitialize(DyadGenType type, void *dyads, void *track_nwp){
   DyadGen *gen = Calloc(1, DyadGen);
   gen->type = type;
+  gen->sleeping = FALSE;
 
   switch(gen->type){
   case RandDyadGen:
@@ -157,12 +158,14 @@ void DyadGenDestroy(DyadGen *gen){
 
 
 void DyadGenUpdate(Vertex tail, Vertex head, DyadGen *gen, Network *nwp, Rboolean edgeflag){
+  if(gen->sleeping) return;
   if(edgeflag) UnsrtELDelete(tail, head, gen->intersect); // Deleting
   else UnsrtELInsert(tail, head, gen->intersect); // Inserting
 }
 
 
 void WtDyadGenUpdate(Vertex tail, Vertex head, double weight, DyadGen *gen, WtNetwork *nwp, double edgeweight){
+  if(gen->sleeping) return;
   if(edgeweight!=0 && weight==0) UnsrtELDelete(tail, head, gen->intersect); // Deleting
   else if(edgeweight==0 && weight!=0) UnsrtELInsert(tail, head, gen->intersect); // Inserting
 }
