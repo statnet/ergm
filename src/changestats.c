@@ -389,7 +389,7 @@ C_CHANGESTAT_FN(c_b1nodematch) {
 
     } else {  
       
-      attrval1 = INPUT_PARAM[head + ninputs + N_NODES + b2attrsize - BIPARTITE - 1];  
+      attrval1 = INPUT_PARAM[head + ninputs + b2attrsize - 1];  
  
       STEP_THROUGH_INEDGES(head, e, node3) {
 	
@@ -407,7 +407,7 @@ C_CHANGESTAT_FN(c_b1nodematch) {
 	    STEP_THROUGH_OUTEDGES(tail, e2, node4) {
 	      // Rprintf("node3=%d, node4=%d, alpha=%f\n", node3,node4,alpha);
 	      if (node4 != head) { 
-		    attrval2 = INPUT_PARAM[node4 + ninputs + N_NODES + b2attrsize - BIPARTITE - 1];  
+		    attrval2 = INPUT_PARAM[node4 + ninputs + b2attrsize - 1];  
 		    if(attrval2 == attrval1) count += IS_OUTEDGE(node3, node4); 
 	      }
 	    }
@@ -804,7 +804,7 @@ C_CHANGESTAT_FN(c_b2nodematch) {
     }
   } else {
 
- attrval1 = INPUT_PARAM[tail + ninputs + N_NODES + b1attrsize - 1];  
+ attrval1 = INPUT_PARAM[tail + ninputs + N_NODES + b1attrsize - BIPARTITE - 1];  
  
       STEP_THROUGH_OUTEDGES(tail, e, node3) {
 	
