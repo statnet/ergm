@@ -45,105 +45,114 @@ if (max(abs(as.vector(m3) - summary(mynw ~ nodemix("names")))) > 0)
 if (max(abs(as.vector(m3) - summary(mynw ~ nodemix("names", form="nonzero"), response="eattr"))) > 0)
   stop ("weighted nodemix failed test on bipartite network")
 
-## extend below to binary as well, and (b1/b2)levels + levels2 ##
+net_size <- 1000
+bip_size <- 300
+attr_levels <- 6
+b1attr_levels <- 5
+b2attr_levels <- 7
 
 ## undirected ##
 
-nw <- network.initialize(100, dir=FALSE)
-nw <- san(nw ~ edges, target.stats=100)
+nw <- network.initialize(net_size, dir=FALSE)
+nw <- san(nw ~ edges, target.stats=net_size)
 el <- as.edgelist(nw)
 eattr <- runif(network.edgecount(nw))
-vattr <- rep(1:3, 100)
+vattr <- rep(seq_len(attr_levels), length.out=net_size)
 nw %e% "eattr" <- eattr
 nw %v% "vattr" <- vattr
-m_ind <- matrix(c(1,2,4,2,3,5,4,5,6),3,3)
-levs <- -2
-levs2 <- c(1,5,3,6)
+m_ind <- matrix(0L, attr_levels, attr_levels)
+m_ind[upper.tri(m_ind, diag=TRUE)] <- seq_len(attr_levels*(attr_levels + 1)/2)
+m_ind <- m_ind + t(m_ind) - diag(diag(m_ind))
+levs <- -c(5,3)
+levs2 <- c(1,15,6,3,7,4,20,18)
+levs2withlevs <- c(8,2,7,6,4)
 
-stats <- rep(0, 6)
+stats <- rep(0, attr_levels*(attr_levels + 1)/2)
 types <- m_ind[matrix(vattr[el], ncol=2)]
 for(i in seq_along(types)) stats[types[i]] <- stats[types[i]] + eattr[i]
 stopifnot(all(stats == summary(nw ~ nodemix("vattr", form="sum"),response="eattr")))
 stopifnot(all(stats[levs2] == summary(nw ~ nodemix("vattr", levels2 = levs2, form="sum"),response="eattr")))
-stopifnot(all(stats[c(1,4,6)] == summary(nw ~ nodemix("vattr", levels = levs, form="sum"),response="eattr")))
-stopifnot(all(stats[c(6,1)] == summary(nw ~ nodemix("vattr", levels = levs, levels2 = c(3,1), form="sum"),response="eattr")))
+stopifnot(all(stats[sort(unique(c(m_ind[levs,levs])))] == summary(nw ~ nodemix("vattr", levels = levs, form="sum"),response="eattr")))
+stopifnot(all(stats[sort(unique(c(m_ind[levs,levs])))[levs2withlevs]] == summary(nw ~ nodemix("vattr", levels = levs, levels2 = levs2withlevs, form="sum"),response="eattr")))
 
-stats <- rep(0, 6)
+stats <- rep(0, attr_levels*(attr_levels + 1)/2)
 for(i in seq_along(types)) stats[types[i]] <- stats[types[i]] + 1
 stopifnot(all(stats == summary(nw ~ nodemix("vattr", form="nonzero"),response="eattr")))
 stopifnot(all(stats[levs2] == summary(nw ~ nodemix("vattr", levels2 = levs2, form="nonzero"),response="eattr")))
-stopifnot(all(stats[c(1,4,6)] == summary(nw ~ nodemix("vattr", levels = levs, form="nonzero"),response="eattr")))
-stopifnot(all(stats[c(6,1)] == summary(nw ~ nodemix("vattr", levels = levs, levels2 = c(3,1), form="nonzero"),response="eattr")))
+stopifnot(all(stats[sort(unique(c(m_ind[levs,levs])))] == summary(nw ~ nodemix("vattr", levels = levs, form="nonzero"),response="eattr")))
+stopifnot(all(stats[sort(unique(c(m_ind[levs,levs])))[levs2withlevs]] == summary(nw ~ nodemix("vattr", levels = levs, levels2 = levs2withlevs, form="nonzero"),response="eattr")))
 
 stopifnot(all(stats == summary(nw ~ nodemix("vattr"))))
 stopifnot(all(stats[levs2] == summary(nw ~ nodemix("vattr", levels2 = levs2))))
-stopifnot(all(stats[c(1,4,6)] == summary(nw ~ nodemix("vattr", levels = levs))))
-stopifnot(all(stats[c(6,1)] == summary(nw ~ nodemix("vattr", levels = levs, levels2 = c(3,1)))))
+stopifnot(all(stats[sort(unique(c(m_ind[levs,levs])))] == summary(nw ~ nodemix("vattr", levels = levs))))
+stopifnot(all(stats[sort(unique(c(m_ind[levs,levs])))[levs2withlevs]] == summary(nw ~ nodemix("vattr", levels = levs, levels2 = levs2withlevs))))
 
 
 ## directed ##
 
-nw <- network.initialize(100, dir=TRUE)
-nw <- san(nw ~ edges, target.stats=100)
+nw <- network.initialize(net_size, dir=TRUE)
+nw <- san(nw ~ edges, target.stats=net_size)
 el <- as.edgelist(nw)
 eattr <- runif(network.edgecount(nw))
-vattr <- rep(1:3, 100)
+vattr <- rep(seq_len(attr_levels), length.out=net_size)
 nw %e% "eattr" <- eattr
 nw %v% "vattr" <- vattr
-m_ind <- matrix(1:9,3,3)
-levs <- 3:2
-levs2 <- c(1,5,3,7)
+m_ind <- matrix(seq_len(attr_levels*attr_levels), attr_levels, attr_levels)
+levs <- -c(5,3)
+levs2 <- c(1,15,33,3,27,24,30,18,5,9,11)
+levs2withlevs <- c(8,12,7,6,14,4,3)
 
-stats <- rep(0, 9)
+stats <- rep(0, attr_levels*attr_levels)
 types <- m_ind[matrix(vattr[el], ncol=2)]
 for(i in seq_along(types)) stats[types[i]] <- stats[types[i]] + eattr[i]
 stopifnot(all(stats == summary(nw ~ nodemix("vattr", form="sum"),response="eattr")))
 stopifnot(all(stats[levs2] == summary(nw ~ nodemix("vattr", levels2 = levs2, form="sum"),response="eattr")))
-stopifnot(all(stats[c(9,8,6,5)] == summary(nw ~ nodemix("vattr", levels = levs, form="sum"),response="eattr")))
-stopifnot(all(stats[c(8,5,9)] == summary(nw ~ nodemix("vattr", levels = levs, levels2 = c(2,4,1), form="sum"),response="eattr")))
+stopifnot(all(stats[sort(unique(c(m_ind[levs,levs])))] == summary(nw ~ nodemix("vattr", levels = levs, form="sum"),response="eattr")))
+stopifnot(all(stats[sort(unique(c(m_ind[levs,levs])))[levs2withlevs]] == summary(nw ~ nodemix("vattr", levels = levs, levels2 = levs2withlevs, form="sum"),response="eattr")))
 
-stats <- rep(0, 9)
+stats <- rep(0, attr_levels*attr_levels)
 for(i in seq_along(types)) stats[types[i]] <- stats[types[i]] + 1
 stopifnot(all(stats == summary(nw ~ nodemix("vattr", form="nonzero"),response="eattr")))
 stopifnot(all(stats[levs2] == summary(nw ~ nodemix("vattr", levels2 = levs2, form="nonzero"),response="eattr")))
-stopifnot(all(stats[c(9,8,6,5)] == summary(nw ~ nodemix("vattr", levels = levs, form="nonzero"),response="eattr")))
-stopifnot(all(stats[c(8,5,9)] == summary(nw ~ nodemix("vattr", levels = levs, levels2 = c(2,4,1), form="nonzero"),response="eattr")))
+stopifnot(all(stats[sort(unique(c(m_ind[levs,levs])))] == summary(nw ~ nodemix("vattr", levels = levs, form="nonzero"),response="eattr")))
+stopifnot(all(stats[sort(unique(c(m_ind[levs,levs])))[levs2withlevs]] == summary(nw ~ nodemix("vattr", levels = levs, levels2 = levs2withlevs, form="nonzero"),response="eattr")))
 
 stopifnot(all(stats == summary(nw ~ nodemix("vattr"))))
 stopifnot(all(stats[levs2] == summary(nw ~ nodemix("vattr", levels2 = levs2))))
-stopifnot(all(stats[c(9,8,6,5)] == summary(nw ~ nodemix("vattr", levels = levs))))
-stopifnot(all(stats[c(8,5,9)] == summary(nw ~ nodemix("vattr", levels = levs, levels2 = c(2,4,1)))))
+stopifnot(all(stats[sort(unique(c(m_ind[levs,levs])))] == summary(nw ~ nodemix("vattr", levels = levs))))
+stopifnot(all(stats[sort(unique(c(m_ind[levs,levs])))[levs2withlevs]] == summary(nw ~ nodemix("vattr", levels = levs, levels2 = levs2withlevs))))
 
 ## bipartite ##
 
-nw <- network.initialize(100, dir=FALSE, bip=30)
-nw <- san(nw ~ edges, target.stats=100)
+nw <- network.initialize(net_size, dir=FALSE, bip=bip_size)
+nw <- san(nw ~ edges, target.stats=net_size)
 el <- as.edgelist(nw)
 eattr <- runif(network.edgecount(nw))
-vattr <- rep(1:3, 100)
+vattr <- c(rep(seq_len(b1attr_levels), length.out=bip_size), rep(seq_len(b2attr_levels), length.out=net_size - bip_size))
 nw %e% "eattr" <- eattr
 nw %v% "vattr" <- vattr
-m_ind <- matrix(1:9,3,3)
-b1levs <- c(3,1)
-b2levs <- -3
-levs2 <- c(1,5,3,7)
+m_ind <- matrix(seq_len(b1attr_levels*b2attr_levels), b1attr_levels, b2attr_levels)
+b1levs <- c(1,2,4,5)
+b2levs <- -c(3,6)
+levs2 <- c(34,23,11,6,3,9,19,25,28,30)
+levs2withblevs <- c(16,4,12,3,19,17,8)
 
-stats <- rep(0, 9)
+stats <- rep(0, b1attr_levels*b2attr_levels)
 types <- m_ind[matrix(vattr[el], ncol=2)]
 for(i in seq_along(types)) stats[types[i]] <- stats[types[i]] + eattr[i]
 stopifnot(all(stats == summary(nw ~ nodemix("vattr", form="sum"),response="eattr")))
 stopifnot(all(stats[levs2] == summary(nw ~ nodemix("vattr", levels2 = levs2, form="sum"),response="eattr")))
-stopifnot(all(stats[c(3,1,6,4)] == summary(nw ~ nodemix("vattr", b1levels = b1levs, b2levels = b2levs, form="sum"),response="eattr")))
-stopifnot(all(stats[c(4,1,3)] == summary(nw ~ nodemix("vattr", b1levels = b1levs, b2levels = b2levs, levels2 = c(4,2,1), form="sum"),response="eattr")))
+stopifnot(all(stats[sort(unique(c(m_ind[b1levs,b2levs])))] == summary(nw ~ nodemix("vattr", b1levels = b1levs, b2levels = b2levs, form="sum"),response="eattr")))
+stopifnot(all(stats[sort(unique(c(m_ind[b1levs,b2levs])))[levs2withblevs]] == summary(nw ~ nodemix("vattr", b1levels = b1levs, b2levels = b2levs, levels2 = levs2withblevs, form="sum"),response="eattr")))
 
-stats <- rep(0, 9)
+stats <- rep(0, b1attr_levels*b2attr_levels)
 for(i in seq_along(types)) stats[types[i]] <- stats[types[i]] + 1
 stopifnot(all(stats == summary(nw ~ nodemix("vattr", form="nonzero"),response="eattr")))
 stopifnot(all(stats[levs2] == summary(nw ~ nodemix("vattr", levels2 = levs2, form="nonzero"),response="eattr")))
-stopifnot(all(stats[c(3,1,6,4)] == summary(nw ~ nodemix("vattr", b1levels = b1levs, b2levels = b2levs, form="nonzero"),response="eattr")))
-stopifnot(all(stats[c(4,1,3)] == summary(nw ~ nodemix("vattr", b1levels = b1levs, b2levels = b2levs, levels2 = c(4,2,1), form="nonzero"),response="eattr")))
+stopifnot(all(stats[sort(unique(c(m_ind[b1levs,b2levs])))] == summary(nw ~ nodemix("vattr", b1levels = b1levs, b2levels = b2levs, form="nonzero"),response="eattr")))
+stopifnot(all(stats[sort(unique(c(m_ind[b1levs,b2levs])))[levs2withblevs]] == summary(nw ~ nodemix("vattr", b1levels = b1levs, b2levels = b2levs, levels2 = levs2withblevs, form="nonzero"),response="eattr")))
 
 stopifnot(all(stats == summary(nw ~ nodemix("vattr"))))
 stopifnot(all(stats[levs2] == summary(nw ~ nodemix("vattr", levels2 = levs2))))
-stopifnot(all(stats[c(3,1,6,4)] == summary(nw ~ nodemix("vattr", b1levels = b1levs, b2levels = b2levs))))
-stopifnot(all(stats[c(4,1,3)] == summary(nw ~ nodemix("vattr", b1levels = b1levs, b2levels = b2levs, levels2 = c(4,2,1)))))
+stopifnot(all(stats[sort(unique(c(m_ind[b1levs,b2levs])))] == summary(nw ~ nodemix("vattr", b1levels = b1levs, b2levels = b2levs))))
+stopifnot(all(stats[sort(unique(c(m_ind[b1levs,b2levs])))[levs2withblevs]] == summary(nw ~ nodemix("vattr", b1levels = b1levs, b2levels = b2levs, levels2 = levs2withblevs))))
