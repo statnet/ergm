@@ -313,7 +313,7 @@ C_CHANGESTAT_FN(c_b1nodematch) {
   b2attrsize = INPUT_PARAM[0];          
 
   if(b2attrsize > 0){                   
-    ninputs = N_INPUT_PARAMS - 2*N_NODES - b2attrsize;/*have 2 sets of node attributes and b2attrvals */  
+    ninputs = N_INPUT_PARAMS - N_NODES - b2attrsize;/*have 2 sets of node attributes and b2attrvals */  
   }                                      
   else{                                  
     ninputs = N_INPUT_PARAMS - BIPARTITE; 
@@ -389,7 +389,7 @@ C_CHANGESTAT_FN(c_b1nodematch) {
 
     } else {  
       
-      attrval1 = INPUT_PARAM[head + ninputs + N_NODES + b2attrsize - 1];  
+      attrval1 = INPUT_PARAM[head + ninputs + b2attrsize - 1];  
  
       STEP_THROUGH_INEDGES(head, e, node3) {
 	
@@ -407,7 +407,7 @@ C_CHANGESTAT_FN(c_b1nodematch) {
 	    STEP_THROUGH_OUTEDGES(tail, e2, node4) {
 	      // Rprintf("node3=%d, node4=%d, alpha=%f\n", node3,node4,alpha);
 	      if (node4 != head) { 
-		    attrval2 = INPUT_PARAM[node4 + ninputs + N_NODES + b2attrsize - 1];  
+		    attrval2 = INPUT_PARAM[node4 + ninputs + b2attrsize - 1];  
 		    if(attrval2 == attrval1) count += IS_OUTEDGE(node3, node4); 
 	      }
 	    }
@@ -729,10 +729,10 @@ C_CHANGESTAT_FN(c_b2nodematch) {
   b1attrsize = INPUT_PARAM[0];             
 
   if(b1attrsize > 0){                   
-    ninputs = N_INPUT_PARAMS - 2*N_NODES - b1attrsize;/*have 2 sets of node attributes and b2attrvals */  
+    ninputs = N_INPUT_PARAMS - N_NODES - b1attrsize;/*have 2 sets of node attributes and b2attrvals */  
   }                                      
   else{                                  
-    ninputs = N_INPUT_PARAMS - BIPARTITE;  
+    ninputs = N_INPUT_PARAMS - N_NODES + BIPARTITE;  
   }
 
   diffstatus = !(ninputs == 3); /* 1 if Diff = T and o if Diff = F - RPB */
@@ -749,7 +749,7 @@ C_CHANGESTAT_FN(c_b2nodematch) {
   //  Rprintf("ninputs = %d, beta=%f, alpha=%f, exponenttype=%d, exponent=%f\n",
   //  ninputs, beta, alpha, exponenttype, exponent);
   
-    matchval = INPUT_PARAM[head + ninputs - 1];
+    matchval = INPUT_PARAM[head + ninputs - BIPARTITE - 1];
     /* Now count the neighbors of tail whose attribute value equals matchval */
     /* All neighbors of tail are outedges because this is a bipartite network */
     count=0;
@@ -762,7 +762,7 @@ C_CHANGESTAT_FN(c_b2nodematch) {
   if(b1attrsize == 0){
 
     STEP_THROUGH_OUTEDGES(tail, e, node3) {
-      if (INPUT_PARAM[node3 + ninputs - 1] == matchval && head != node3) { /* match! */
+      if (INPUT_PARAM[node3 + ninputs - BIPARTITE - 1] == matchval && head != node3) { /* match! */
         ++count;
         
 	// Rprintf("Matching twostar found! %d and %d connect to %d\n==================\n", tail, node3, head);
@@ -804,11 +804,11 @@ C_CHANGESTAT_FN(c_b2nodematch) {
     }
   } else {
 
- attrval1 = INPUT_PARAM[tail + ninputs + N_NODES + b1attrsize - 1];  
+ attrval1 = INPUT_PARAM[tail + ninputs + N_NODES + b1attrsize - BIPARTITE - 1];  
  
       STEP_THROUGH_OUTEDGES(tail, e, node3) {
 	
-	if (INPUT_PARAM[node3 + ninputs - 1] == matchval && head != node3) { /* match! */ 
+	if (INPUT_PARAM[node3 + ninputs - BIPARTITE - 1] == matchval && head != node3) { /* match! */ 
 	 
 	  ++count;   
 
@@ -822,7 +822,7 @@ C_CHANGESTAT_FN(c_b2nodematch) {
 	    STEP_THROUGH_INEDGES(head, e2, node4) {
 	      // Rprintf("node3=%d, node4=%d, alpha=%f\n", node3,node4,alpha);
 	      if (node4 != tail) { 
-		    attrval2 = INPUT_PARAM[node4 + ninputs + N_NODES + b1attrsize - 1];  
+		    attrval2 = INPUT_PARAM[node4 + ninputs + N_NODES + b1attrsize - BIPARTITE - 1];  
 		    if(attrval2 == attrval1) count += IS_OUTEDGE(node4, node3); 
 	      }
 	    }

@@ -437,7 +437,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     o <- simulate(state, nsim=nsim, seed=seed,
                   coef,
                   esteq=esteq,
-                  output=output,
+                  output=if(output=="function") output.f else output,
                   simplify=simplify,
                   sequential=sequential,
                   control=control,
@@ -446,7 +446,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     o <- list(object=state, nsim=nsim, seed=seed,
               coef=coef,
               esteq=esteq,
-              output=output,
+              output=if(output=="function") output.f else output,
               simplify=simplify,
               sequential=sequential,
               control=control,
@@ -470,7 +470,13 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
                                 sequential=TRUE,
                                 control=control.simulate.formula(),
                                 verbose=FALSE, ...){
-  output <- match.arg(output)
+  if(is.character(output))
+    output <- match.arg(output)
+  else{
+    output.f <- output
+    output <- "function"
+  }
+
   state <- object
   m <- as.ergm_model(state)
 
