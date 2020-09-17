@@ -88,6 +88,7 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
 
   if(!is.directed(nw)) changes <- lapply(changes, function(x){
     x[,1:2] <- t(apply(x[,1:2,drop=FALSE], 1, sort))
+    x
   })
 
   m <- ergm_model(formula, nw, response=response, term.options=control$term.options)
