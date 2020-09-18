@@ -29,7 +29,7 @@
 #   formula: a formula 'y ~ x + ..', presumably y as the 'zy' returned by 
 #            <ergm.pl> and x as 'xmat' returned by <ergm.pl>
 #   data   : the dataframe or environment in which to find the variables
-#            contained in 'formula'; default=sys.parent()
+#            contained in 'formula'; defaults to the formula's environment.
 #   alpha  : ??, this code merely returns 'alpha', and no caller provides
 #            an alpha; default=0.05
 #   maxit  : the maximum number of iterations to use in this fitting;
@@ -65,11 +65,12 @@
 ##############################################################################
 
 ergm.pen.glm <- function(formula,
-  data = sys.parent(), alpha = 0.05, 
+  data, alpha = 0.05,
   maxit = 25, maxhs = 5, epsilon = 0.0001, maxstep = 10, 
   start=NULL,
   weights=NULL)
 {
+  if(missing(data)) data <- environment(formula)
   y <- as.vector(model.extract(model.frame(formula, data = data), "response"))
   n <- length(y)
   x <- model.matrix(formula, data = data)  # Model-Matrix
@@ -165,10 +166,11 @@ ergm.pen.glm <- function(formula,
 ###############################################################################
 
 logistftest <- function(formula,
-  data = sys.parent(), test, values, maxit = 25, maxhs = 5, 
+  data, test, values, maxit = 25, maxhs = 5,
   epsilon = 0.0001, maxstep = 10, start, weights=NULL)
 {
   #n <- nrow(data)
+  if(missing(data)) data <- environment(formula)
   y <- model.extract(model.frame(formula, data = data), "response")
   n <- length(y)
   x <- model.matrix(formula, data = data)  ## Model-Matrix
