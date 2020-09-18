@@ -164,7 +164,7 @@
 
 % levels= arguments
 
-\newcommand{\LevelsExplain}{The optional \code{levels} argument controls which levels of the attribute should be included and which should be excluded. (See \link[=node-attr]{Specifying Vertex Attributes and Levels} for details.) For example, if the \dQuote{fruit} attribute has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and \dQuote{pear}, then to include just two levels, one for \dQuote{apple} and one for \dQuote{pear}, use any of \code{#1("fruit", levels=-(2:3))}, \code{#1("fruit", levels=c(1,4))}, and \code{#1("fruit", levels=c("apple", "pear"))}.}
+\newcommand{\LevelsExplain}{The optional \code{levels} argument controls which levels of the attribute should be included and which should be excluded. (See \link[=node-attr]{Specifying Vertex Attributes and Levels} for details.) For example, if the \dQuote{fruit} attribute has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and \dQuote{pear}, then to include just two levels, one for \dQuote{apple} and one for \dQuote{pear}, use any of \code{#1("fruit", levels=-(2:3))}, \code{#1("fruit", levels=c(1,4))}, and \code{#1("fruit", levels=c("apple", "pear"))}. Note: if you are using numeric values to specify the levels of a character variable, the levels will correspond to the alphabetically sorted character levels.}
 
 \newcommand{\LevelsAll}{By default, all levels are included.}
 
