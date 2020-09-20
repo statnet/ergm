@@ -1704,7 +1704,7 @@ D_CHANGESTAT_FN(d_cycle) {
   /*Perform initial setup*/
   semi=(int)(INPUT_PARAM[0]);             /*Are we using semicycles?*/
   maxlen=(long int)(INPUT_PARAM[1]);      /*Get max cycle length*/
-  countv=(double *)R_alloc(sizeof(double),maxlen-1); /*Cycle count vector*/
+  countv=Calloc(maxlen-1, double); /*Cycle count vector*/
 
   /* *** don't forget tail -> head */    
   ZERO_ALL_CHANGESTATS(i);
@@ -1732,6 +1732,7 @@ D_CHANGESTAT_FN(d_cycle) {
     TOGGLE_IF_MORE_TO_COME(i);
   }
   UNDO_PREVIOUS_TOGGLES(i);
+  Free(countv);
 }
 
 /*****************
@@ -1778,9 +1779,6 @@ void edgewise_path_recurse(Network *nwp, Vertex dest, Vertex curnode,
       }
     }
   }
-
-  /*Check for interrupts (if recursion is taking way too long...)*/
-  R_CheckUserInterrupt();
 }
 
 /*****************
