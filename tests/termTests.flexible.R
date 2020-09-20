@@ -116,11 +116,19 @@ if (s.0 != 40139 || round(e.0$coef + .02376, 3) != 0) {
 
 # cycle, either
 num.tests=num.tests+1
+s.0 <- summary(samplike ~ cycle(2:6))
+e.0 <- ergm(samplike ~ cycle(2:6), estimate="MPLE")
+s.1 <- summary(samplike ~ cycle(3:7,semi=TRUE))
+e.1 <- ergm(samplike ~ cycle(3:7,semi=TRUE), estimate="MPLE")
 s.k <- summary(fmh~cycle(3:6))
 e.k <- ergm(fmh~cycle(c(4,6)), estimate="MPLE")
-if(!all(s.k==c(62,80,138,270)) ||
-    !all(round(e.k$coef+c(-.1615, .2083),3)==0)) {
- print(list(s.k=s.k,e.k=e.k))
+if(!all(s.0 == c(28, 39, 111, 260, 651)) ||
+   !all(round(coef(e.0), 3) == c(2.118, -0.539, 0.410, -0.022, -0.049)) || 
+   !all(s.1 == c(57, 216, 787, 2908, 10508)) ||
+   !all(round(coef(e.1), 3) == c(-0.009, 0.144, 0.070, -0.031, 0.001)) || 
+   !all(s.k==c(62,80,138,270)) ||
+   !all(round(e.k$coef+c(-.1615, .2083),3)==0)) {
+ print(list(s.0=s.0, e.0=e.0, s.1=s.1, e.1=e.1, s.k=s.k, e.k=e.k))
  stop("Failed cycle test")
 } else {
  num.passed.tests=num.passed.tests+1

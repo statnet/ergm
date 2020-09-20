@@ -841,17 +841,23 @@
       value of \code{attr} specified by \code{levels} if that argument is passed), equal to the number of cyclic triples where all
       three nodes have that value of the attribute.  \Directed}
 
-    \item{\code{cycle(k)}  (binary)  (directed)  (undirected)}{\emph{Cycles:}
-      The \code{k} argument is a vector of distinct integers. This term adds one
-      network statistic to the model for each element in \code{k}; the \eqn{i}th
-      such statistic equals the number of cycles in the network with length
-      exactly \code{k[i]}. The cycle statistic applies to both directed and
-      undirected networks. For directed networks, it counts directed cycles of
-      length \eqn{k}, as opposed to undirected cycles in the undirected case. The
-      directed cycle terms of lengths 2 and 3 are equivalent to \code{mutual} and
-      \code{ctriple} (respectively). The undirected cycle term of length 3 is
-      equivalent to \code{triangle}, and there is no undirected cycle term of
-      length 2.}
+    \item{\code{cycle(k, semi=FALSE)} (binary) (directed) (undirected)}{\emph{k-Cycle Census:}
+      The \code{k} argument must be a vector of integers giving the cycle lengths to count.
+      Directed cycle lengths may range from \code{2} to \code{N} (the network size); undirected
+      cycle lengths and semicycle lengths may range from \code{3} to \code{N}; length 2 semicycles
+      are not currently supported.  Note that directed 2-cycles are equivalent to mutual 
+      dyads.
+      
+      This term adds one network statistic to the model for each value of \code{k},
+      corresponding to the number of \code{k}-cycles (or, alternately, semicycles)
+      in the graph.
+      
+      The optional argument \code{semi} is a logical indicating whether semicycles 
+      (rather than directed cycles) should be counted; this is ignored in the 
+      undirected case.
+      
+      This term can be used with either directed or undirected networks.
+    }
 
     \item{\code{cyclicalties(attr=NULL, levels=NULL)}   (binary)  (directed), \code{cyclicalties(threshold=0)}   (valued)  (directed)  (undirected)}{\emph{Cyclical ties:}
       This term adds one statistic, equal to the number of ties
