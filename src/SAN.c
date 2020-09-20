@@ -309,7 +309,7 @@ MCMCStatus SANMetropolisHastings (MHProposal *MHp,
     }
     
     if(fVerbose>=5){
-      Rprintf("log acceptance probability: %f\n", ip - offsetcontrib);
+      Rprintf("log acceptance probability: %f\n", -ip/tau[0] + offsetcontrib);
     }
     
     /* if we accept the proposed network */
