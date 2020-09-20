@@ -9,7 +9,7 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
-This document provides some examples of how to specify nodal attributes and their transformations in `ergm` terms. For the R help on the topic, see `help("node-attr")`.
+This document provides some examples of how to specify nodal attributes and their transformations in `ergm` terms. For the R help on the topic, see `?nodal_attributes` and for help on implementing terms that use this interface, see `API?nodal_attributes`.
 
 ## Extraction and transformation ##
 
@@ -94,7 +94,7 @@ numeric or logical vector
 \mmnote{this is useful when the attr is not already a factor, right?  should say so}
       unique values of the attribute) in default order (typically
       lexicographic). In particular, `levels=TRUE` will retain all
-      levels. 
+      levels.
       \mmnote{what does this do when there is an edges term in the model, which will alias a factor level?}
       \pknote{It'll produce a nonidentifiable model, which the new code will hopefully warn the user about.}
       Negative values exclude. Another special value is

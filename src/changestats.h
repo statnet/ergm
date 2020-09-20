@@ -53,16 +53,13 @@ C_CHANGESTAT_FN(c_boundedtriangle);
 C_CHANGESTAT_FN(c_concurrent);
 C_CHANGESTAT_FN(c_concurrent_by_attr);
 C_CHANGESTAT_FN(c_ctriple);
-C_CHANGESTAT_FN(c_cycle);
-  void edgewise_path_recurse(Network *g, Vertex dest, 
-     Vertex curnode, Vertex *availnodes, long int availcount, 
-     long int curlen, double *countv, long int maxlen);
+D_CHANGESTAT_FN(d_cycle);
 
-/* *** I didn't swap heads and tails here, since these already 
-   seem in line with the tails->heads naming convenction*/
-       
-  void edgewise_cycle_census(Network *g, Vertex tail, Vertex head, 
-     double *countv, long int maxlen);
+void edgewise_path_recurse(Network *nwp, Vertex dest, Vertex curnode, 
+     Vertex *visited, long int curlen, double *countv, long int maxlen, int semi);
+
+void edgewise_cycle_census(Network *nwp, Vertex tail, Vertex head, 
+                           double *countv, long int maxlen, int semi);
 /********************  changestats:  D    ***********/
 C_CHANGESTAT_FN(c_degcor); S_CHANGESTAT_FN(s_degcor);
 C_CHANGESTAT_FN(c_degcrossprod);
