@@ -1439,15 +1439,20 @@ C_CHANGESTAT_FN(c_ctriple) {
 /*****************
  changestat: d_cycle
 *****************/
-C_CHANGESTAT_FN(c_cycle) { 
+I_CHANGESTAT_FN(i_cycle) {
+  ALLOC_STORAGE(INPUT_PARAM[1], double, dummy);
+  dummy=dummy;
+}
+
+C_CHANGESTAT_FN(c_cycle) {
+  GET_STORAGE(double, countv);
   int j,k,semi;
   long int maxlen;
-  double *countv,emult;
+  double emult;
   
   /*Perform initial setup*/
   semi=(int)(INPUT_PARAM[0]);             /*Are we using semicycles?*/
   maxlen=(long int)(INPUT_PARAM[1]);      /*Get max cycle length*/
-  countv=Calloc(maxlen-1, double); /*Cycle count vector*/
 
   /* *** don't forget tail -> head */    
     for(j=0;j<maxlen-1;j++)  /*Clear out the count vector*/
@@ -1468,7 +1473,6 @@ C_CHANGESTAT_FN(c_cycle) {
         if(INPUT_PARAM[2+j]>0.0)
           CHANGE_STAT[k++]+=emult*countv[j];
     }
-  Free(countv);
 }
 
 /*****************

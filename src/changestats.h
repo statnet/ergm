@@ -53,7 +53,7 @@ C_CHANGESTAT_FN(c_boundedtriangle);
 C_CHANGESTAT_FN(c_concurrent);
 C_CHANGESTAT_FN(c_concurrent_by_attr);
 C_CHANGESTAT_FN(c_ctriple);
-D_CHANGESTAT_FN(d_cycle);
+C_CHANGESTAT_FN(c_cycle);
 
 void edgewise_path_recurse(Network *nwp, Vertex dest, Vertex curnode, 
      Vertex *visited, long int curlen, double *countv, long int maxlen, int semi);
