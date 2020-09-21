@@ -1424,16 +1424,42 @@ InitErgmTerm.ctriple<-InitErgmTerm.ctriad<-function (nw, arglist, ..., version=p
 InitErgmTerm.cycle <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist,
-                     varnames = c("k"),
-                     vartypes = c("numeric"),
-                     defaultvalues = list(NULL),
-                     required = c(TRUE))
+                     varnames = c("k","semi"),
+                     vartypes = c("numeric","logical"),
+                     defaultvalues = list(NULL,FALSE),
+                     required = c(TRUE,FALSE))
   ### Process the arguments
+  if(any(a$k > network.size(nw))) {
+    ergm_Init_warn("cycles of length greater than the network size cannot exist and their statistics will be omitted")
+    a$k <- a$k[a$k <= network.size(nw)]
+  }
+
+  if(!is.directed(nw) && any(a$k < 3)) {
+    ergm_Init_warn("cycles of length less than 3 cannot exist in an undirected network and their statistics will be omitted")
+    a$k <- a$k[a$k >= 3]  
+  }
+
+  if(any(a$k < 2)) {
+    ergm_Init_warn("cycles of length less than 2 cannot exist and their statistics will be omitted")
+    a$k <- a$k[a$k >= 2]
+  }
+  
+  if(is.directed(nw) && a$semi && any(a$k == 2)) {
+    ergm_Init_warn("semicycles of length 2 are not currently supported and their statistics will be omitted")
+    a$k <- a$k[a$k >= 3]  
+  }
+
   if (length(a$k)==0) return(NULL)
+
+  semi<-is.directed(nw)&&a$semi  #Are we computing semicycles?
   ### Construct the list to return
+  if(semi)
+    basenam<-"semicycle"
+  else
+    basenam<-"cycle"
   list(name="cycle",                            #name: required
-       coef.names = paste("cycle", a$k, sep=""),  #coef.names: required
-       inputs = c(max(a$k), (2:max(a$k)) %in% a$k),
+       coef.names = paste(basenam, a$k, sep=""),  #coef.names: required
+       inputs = c(a$semi, max(a$k), (2:max(a$k)) %in% a$k),
        minval = 0)
 }
 

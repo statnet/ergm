@@ -61,13 +61,13 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
   ergm_get_vattr(attrname, nw, accept=if(numeric)"numeric"else"character")
 }
 
-#' @name node-attr
+#' @name nodal_attributes
 #' @title Specifying nodal attributes and their levels
 #'
 #' @description This document describes the ways to specify nodal
 #'   attributes or functions of nodal attributes and which levels for
 #'   categorical factors to include. For the helper functions to
-#'   facilitate this, see [`node-attr-api`].
+#'   facilitate this, see [`nodal_attributes-API`].
 #'
 #' @param object,l,a,n,into `COLLAPSE_SMALLEST`, `LARGEST`, and
 #'   `SMALLEST` are technically functions but they are generally not
@@ -163,7 +163,7 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' Note that `levels` or `nodes` often has a default that is sensible for the
 #' term in question.
 #' 
-#' @aliases attrname on by attrs
+#' @aliases attr attrname on by attrs node.attr nodal.attr vertex.attr node.attribute nodal.attribute vertex.attribute
 #' @examples
 #' library(magrittr) # for %>%
 #'
@@ -198,13 +198,13 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' summary(faux.mesa.high~nodefactor(I(randomcov)))
 NULL
 
-#' @name node-attr-api
+#' @name nodal_attributes-API
 #' @title Helper functions for specifying nodal attribute levels
 #'
 #' @description These functions are meant to be used in `InitErgmTerm` and other
 #' implementations to provide the user with a way to extract nodal
 #' attributes and select their levels in standardized and flexible
-#' ways described under [`node-attr`].
+#' ways described under [`nodal_attributes`].
 #'
 #' @param object An argument specifying the nodal attribute to select
 #'   or which levels to include.
@@ -270,11 +270,11 @@ NULL
 #'
 NULL
 
-#' @rdname node-attr-api
+#' @rdname nodal_attributes-API
 #' @export
 ERGM_GET_VATTR_MULTIPLE_TYPES <- c("paste", "matrix", "stop")
 
-#' @rdname node-attr-api
+#' @rdname nodal_attributes-API
 #'
 #' @description `ergm_get_vattr` extracts and processes the specified
 #'   nodal attribute vector. It is strongly recommended that
@@ -392,7 +392,7 @@ ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2","
   x
 }
 
-#' @rdname node-attr-api
+#' @rdname nodal_attributes-API
 #' @importFrom purrr "%>%" map pmap_chr map_chr discard
 #' @importFrom rlang set_names
 #' @export
@@ -406,7 +406,7 @@ ergm_get_vattr.AsIs <- function(object, nw, accept="character", bip=c("n","b1","
     map_chr(identity)) %>% .check_acceptable(accept=accept, xspec=object)
 }
 
-#' @rdname node-attr-api
+#' @rdname nodal_attributes-API
 #' @importFrom purrr "%>%" map pmap_chr
 #' @importFrom rlang set_names
 #' @export
@@ -425,7 +425,7 @@ ergm_get_vattr.character <- function(object, nw, accept="character", bip=c("n","
 }
 
 
-#' @rdname node-attr-api
+#' @rdname nodal_attributes-API
 #' @export
 ergm_get_vattr.function <- function(object, nw, accept="character", bip=c("n","b1","b2","a"), multiple=if(accept=="character") "paste" else "stop", ...){
   bip <- match.arg(bip)
@@ -446,7 +446,7 @@ ergm_get_vattr.function <- function(object, nw, accept="character", bip=c("n","b
 }
 
 
-#' @rdname node-attr-api
+#' @rdname nodal_attributes-API
 #' @importFrom purrr "%>%" map when
 #' @importFrom tibble lst
 #' @export
@@ -468,7 +468,7 @@ ergm_get_vattr.formula <- function(object, nw, accept="character", bip=c("n","b1
     .check_acceptable(accept=accept, xspec=object)
 }
 
-#' @rdname node-attr-api
+#' @rdname nodal_attributes-API
 #'
 #' @description `ergm_attr_levels` filters the levels of the
 #'   attribute.  It is strongly recommended that [check.ErgmTerm()]'s
@@ -487,33 +487,33 @@ ergm_attr_levels <- function(object, attr, nw, levels=sort(unique(attr)), ...){
   UseMethod("ergm_attr_levels")
 }
 
-#' @rdname node-attr-api
+#' @rdname nodal_attributes-API
 #' @export
 ergm_attr_levels.numeric <- function(object, attr, nw, levels=sort(unique(attr)), ...){
   levels[object]
 }
 
-#' @rdname node-attr-api
+#' @rdname nodal_attributes-API
 #' @export
 ergm_attr_levels.logical <- ergm_attr_levels.numeric
 
-#' @rdname node-attr-api
+#' @rdname nodal_attributes-API
 #' @export
 ergm_attr_levels.AsIs <- function(object, attr, nw, levels=sort(unique(attr)), ...){
   object
 }
 
-#' @rdname node-attr-api
+#' @rdname nodal_attributes-API
 #' @export
 ergm_attr_levels.character <- ergm_attr_levels.AsIs
 
-#' @rdname node-attr-api
+#' @rdname nodal_attributes-API
 #' @export
 ergm_attr_levels.NULL <- function(object, attr, nw, levels=sort(unique(attr)), ...){
   levels
 }
 
-#' @rdname node-attr-api
+#' @rdname nodal_attributes-API
 #' @export
 ergm_attr_levels.function <- function(object, attr, nw, levels=sort(unique(attr)), ...){
   object <- if('...' %in% names(formals(object))) object(levels, attr, nw, ...)
@@ -524,7 +524,7 @@ ergm_attr_levels.function <- function(object, attr, nw, levels=sort(unique(attr)
   ergm_attr_levels(object, attr, nw, levels, ...)
 }
 
-#' @rdname node-attr-api
+#' @rdname nodal_attributes-API
 #' @export
 ergm_attr_levels.formula <- function(object, attr, nw, levels=sort(unique(attr)), ...){
   vlist <- lst(`.`=levels, .levels=levels, .attr=attr, .nw=nw, ...)
@@ -533,15 +533,15 @@ ergm_attr_levels.formula <- function(object, attr, nw, levels=sort(unique(attr))
   ergm_attr_levels(object, attr, nw, levels, ...)
 }
 
-#' @rdname node-attr-api
+#' @rdname nodal_attributes-API
 #' @export
 ERGM_VATTR_SPEC <- "function,formula,character,AsIs"
 
-#' @rdname node-attr-api
+#' @rdname nodal_attributes-API
 #' @export
 ERGM_LEVELS_SPEC <- "function,formula,character,numeric,logical,AsIs,NULL"
 
-#' @rdname node-attr
+#' @rdname nodal_attributes
 #' @export
 LARGEST <- structure(function(l, a){
   if(!missing(a)) which.max(tabulate(match(a, l))) # passed as levels=LARGEST
@@ -553,7 +553,7 @@ LARGEST <- structure(function(l, a){
   }
 }, class = c("ergm_levels_spec_function", "function"))
 
-#' @rdname node-attr
+#' @rdname nodal_attributes
 #' @export
 SMALLEST <- structure(function(l, a){
   if(!missing(a)) which.min(tabulate(match(a, l))) # passed as levels=SMALLEST
@@ -581,7 +581,7 @@ SMALLEST <- structure(function(l, a){
 }
 
 
-#' @rdname node-attr
+#' @rdname nodal_attributes
 #' @export
 COLLAPSE_SMALLEST <- function(object, n, into){
   attr <- object

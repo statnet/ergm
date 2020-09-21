@@ -1439,117 +1439,124 @@ C_CHANGESTAT_FN(c_ctriple) {
 /*****************
  changestat: d_cycle
 *****************/
-C_CHANGESTAT_FN(c_cycle) { 
-  int j,k;
+I_CHANGESTAT_FN(i_cycle) {
+  ALLOC_STORAGE(INPUT_PARAM[1], double, dummy);
+  dummy=dummy;
+}
+
+C_CHANGESTAT_FN(c_cycle) {
+  GET_STORAGE(double, countv);
+  int j,k,semi;
   long int maxlen;
-  double *countv,emult;
+  double emult;
   
   /*Perform initial setup*/
-  maxlen=(long int)(INPUT_PARAM[0]);
-  countv=Calloc(maxlen-1, double);
+  semi=(int)(INPUT_PARAM[0]);             /*Are we using semicycles?*/
+  maxlen=(long int)(INPUT_PARAM[1]);      /*Get max cycle length*/
 
   /* *** don't forget tail -> head */    
     for(j=0;j<maxlen-1;j++)  /*Clear out the count vector*/
       countv[j]=0.0;
-    /*Count the cycles associated with this edge*/
-    /* OLD COMMENTS */
-    /*     Note: the ergm toggle system gets heads and tails reversed!*/
-    /* NEW COMMENTS */ 
-    /*     *** with the h/t swap, the <edgewise_cycle_census> function
-           seems correct as written */
-    /*edgewise_cycle_census(g,tail,HEAD(i),countv,maxlen,directed);*/
-    edgewise_cycle_census(nwp,tail,head,countv,maxlen);
+    /*In semi-cycle case, this toggle can't matter if there is a*/
+    /*head->tail edge in the graph; not counting saves much time.*/
+    if(!(semi&&(IS_OUTEDGE(head,tail)))){
+      /*Count the cycles associated with this edge*/
+      edgewise_cycle_census(nwp,tail,head,countv,maxlen,semi);
 
-    /*Make the change, as needed*/
-    /* I did not swap h/t in the comment below */
-    /*edgeflag = IS_OUTEDGE(tail, head, g);*/
-    if((!DIRECTED)&&(tail>head))
-      emult = IS_OUTEDGE(head, tail) ? -1.0 : 1.0;
-    else
-      emult = edgeflag ? -1.0 : 1.0;
-    k=0;
-    for(j=0;j<maxlen-1;j++)
-      if(INPUT_PARAM[1+j]>0.0)
-        CHANGE_STAT[k++]+=emult*countv[j];
-
-  Free(countv);
+      /*Make the change, as needed*/
+      if((!DIRECTED)&&(tail>head))
+        emult = IS_OUTEDGE(head, tail) ? -1.0 : 1.0;
+      else
+        emult = edgeflag ? -1.0 : 1.0;
+      k=0;
+      for(j=0;j<maxlen-1;j++)
+        if(INPUT_PARAM[2+j]>0.0)
+          CHANGE_STAT[k++]+=emult*countv[j];
+    }
 }
 
 /*****************
  edgewise_path_recurse:  Called by d_cycle
 *****************/
 void edgewise_path_recurse(Network *nwp, Vertex dest, Vertex curnode, 
-                   Vertex *availnodes, long int availcount, long int curlen, 
-                   double *countv, long int maxlen) {
-  Vertex *newavail,i,j;
-  long int newavailcount;
+     Vertex *visited, long int curlen, double *countv, long int maxlen, int semi) {
+  Vertex i,v;
+  Edge e;
   int rflag;
   
   /*If we've found a path to the destination, increment the census vector*/ 
-  if(DIRECTED||(curnode<dest)) countv[curlen] += IS_OUTEDGE(curnode, dest);
-  else countv[curlen] += IS_OUTEDGE(dest, curnode);
+  if(DIRECTED){  /*Use outedges, or both if counting semi-paths*/
+    if(!semi)
+      countv[curlen] += IS_OUTEDGE(curnode, dest);
+    else
+      countv[curlen] += (IS_OUTEDGE(curnode, dest) || IS_INEDGE(curnode, dest));
+  }else{   /*For undirected graphs, edges go from low to high*/
+    if(curnode<dest)
+      countv[curlen] += IS_OUTEDGE(curnode, dest);
+    else
+      countv[curlen] += IS_INEDGE(curnode, dest);
+  }
   
   /*If possible, keep searching for novel paths*/
-  if((availcount>0)&&(curlen<maxlen-2)){
-    if(availcount>1){    /*Remove the current node from the available list*/
-      newavail=Calloc(availcount-1, Vertex);
-      j=0;
-      for(i=0;i<availcount;i++)      /*Create the reduced list, fur passin'*/
-        if(availnodes[i]!=curnode)
-          newavail[j++]=availnodes[i];
-    }else
-      newavail=NULL;                 /*Set to NULL if we're out of nodes*/
-    newavailcount=availcount-1;      /*Decrement the available count*/
+  if(curlen<maxlen-2){
+    visited[curlen+1]=curnode; /*Add current node to visited list*/
 
-    /*Recurse on all available nodes*/
-    for(i=0;i<newavailcount;i++) {
-      rflag = DIRECTED || (curnode<newavail[i]) ? 
-              IS_OUTEDGE(curnode,newavail[i]) : IS_OUTEDGE(newavail[i],curnode);
+    /*Recurse on all unvisited neighbors of curnode*/
+    STEP_THROUGH_OUTEDGES(curnode,e,v){
+      rflag=1;
+      for(i=0;(i<=curlen)&&(rflag);i++)  /*Check earlier nodes in path*/
+        rflag=(v!=visited[i]);
       if(rflag)
-        edgewise_path_recurse(nwp,dest,newavail[i],newavail,newavailcount,
-                              curlen+1,countv,maxlen);
+        edgewise_path_recurse(nwp,dest,v,visited,curlen+1,countv,maxlen, semi);
     }
-    /*Free the available node list*/
-    if(newavail!=NULL)
-      Free(newavail);
+    if(semi||(!DIRECTED)){ /*If semi or !directed, need in-neighbors too*/
+      STEP_THROUGH_INEDGES(curnode,e,v){
+        rflag=((!DIRECTED)||(!(IS_OUTEDGE(curnode,v))));
+        for(i=0;(i<=curlen)&&(rflag);i++)  /*Check earlier nodes in path*/
+          rflag=(v!=visited[i]);
+        if(rflag)
+          edgewise_path_recurse(nwp,dest,v,visited,curlen+1,countv,maxlen, semi);
+      }
+    }
   }
 }
 
 /*****************
  edgewise_cycle_census:  Called by d_cycle
 *****************/
-/* *** I did NOT swap heads and tails in this function, since it
-   appears to have been written with tail -> head in mind */ 
-
 void edgewise_cycle_census(Network *nwp, Vertex tail, Vertex head, 
-                           double *countv, long int maxlen) {
+                           double *countv, long int maxlen, int semi) {
   /* *** don't forget tail -> head */    
-  long int n,i,j;
-  Vertex *availnodes;
-  int rflag;
+  long int n;
+  Vertex *visited,v;
+  Edge e;
 
   /*Set things up*/
   n=N_NODES;
 
-  /*First, check for a 2-cycle (but only if directed)*/
-  if(DIRECTED && IS_OUTEDGE(head,tail))
+  /*First, check for a 2-cycle (but only if directed and !semi)*/
+  if(DIRECTED && (!semi) && IS_OUTEDGE(head,tail))
     countv[0]++;
   if(n==2)
     return;                 /*Failsafe for graphs of order 2*/
   
   /*Perform the recursive path count*/
-  availnodes=Calloc(n-2, Vertex);
-  j=0;                             /*Initialize the list of available nodes*/
-  for(i=1;i<=n;i++)
-    if((i!=head)&&(i!=tail))
-      availnodes[j++]=i;
-  for(i=0;i<n-2;i++) {             /*Recurse on each available vertex*/
-    rflag = DIRECTED || (head < availnodes[i]) ? 
-            IS_OUTEDGE(head, availnodes[i]) : IS_OUTEDGE(availnodes[i], head);
-    if(rflag)
-      edgewise_path_recurse(nwp,tail,availnodes[i],availnodes,n-2,1,countv,maxlen);
+  visited=Calloc(maxlen,Vertex); /*Initialize the list of visited nodes*/
+  visited[0]=tail;
+  visited[1]=head;
+  
+  /*Recurse on each neighbor of head*/
+  STEP_THROUGH_OUTEDGES(head,e,v){
+    if(v!=tail)
+      edgewise_path_recurse(nwp,tail,v,visited,1,countv,maxlen,semi);
   }
-  Free(availnodes);  /*Free the available node list*/
+  if(semi||(!DIRECTED)){ /*If semi or !directed, need in-neighbors too*/
+    STEP_THROUGH_INEDGES(head,e,v){
+      if((v!=tail)&&((!DIRECTED)||(!(IS_OUTEDGE(head,v)))))
+        edgewise_path_recurse(nwp,tail,v,visited,1,countv,maxlen, semi);
+    }
+  }
+  Free(visited);  /*Free the visited node list*/
 }
 
 /********************  changestats:  D    ***********/
