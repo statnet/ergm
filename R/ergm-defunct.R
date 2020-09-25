@@ -106,5 +106,5 @@ as.network.uncompressed<-function(...) .Defunct(msg="No longer used.")
 #' @rdname ergm-defunct
 standardize.network <- function(...) .Defunct(msg=paste0("Obviated by improvements to ", sQuote("network"), " package."))
 
-#' @rdname ergm-defuct
+#' @rdname ergm-defunct
 newnw.extract<-function(...) .Defunct('pending_network_update "API"')
