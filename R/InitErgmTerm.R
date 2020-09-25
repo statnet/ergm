@@ -421,9 +421,8 @@ InitErgmTerm.b1degrange<-function(nw, arglist, ..., version=packageVersion("ergm
   nb1 <- get.network.attribute(nw, "bipartite")
   emptynwstats<-NULL
   if(!is.null(byarg)) {
-    nodecov <- ergm_get_vattr(byarg, nw)
+    nodecov <- ergm_get_vattr(byarg, nw, bip = if(homophily) "n" else "b1")
     attrname <- attr(nodecov, "name")
-    if(!homophily) nodecov <- nodecov[seq_len(nb1)]
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
 
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
@@ -940,9 +939,8 @@ InitErgmTerm.b2degrange<-function(nw, arglist, ..., version=packageVersion("ergm
   nb1 <- get.network.attribute(nw, "bipartite")
   emptynwstats<-NULL
   if(!is.null(byarg)) {
-    nodecov <- ergm_get_vattr(byarg, nw)
+    nodecov <- ergm_get_vattr(byarg, nw, bip = if(homophily) "n" else "b2")
     attrname <- attr(nodecov, "name")
-    if(!homophily) nodecov <- nodecov[-seq_len(nb1)]
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
   }
@@ -1935,7 +1933,7 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, gw.cutoff=30, ..., version=packag
     if(is.null(a$decay)) stop("Term 'gwb1degree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
     if(!is.null(attrarg)) {
-      nodecov <- ergm_get_vattr(attrarg, nw)
+      nodecov <- ergm_get_vattr(attrarg, nw, bip="b1")
       attrname <- attr(nodecov, "name")
       u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
       nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
@@ -2038,7 +2036,7 @@ InitErgmTerm.gwb2degree<-function(nw, arglist, cache.sp=TRUE, gw.cutoff=30, ...,
     if(is.null(a$decay)) stop("Term 'gwb2degree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
 
     if(!is.null(attrarg)) {
-      nodecov <- ergm_get_vattr(attrarg, nw)
+      nodecov <- ergm_get_vattr(attrarg, nw, bip="b2")
       attrname <- attr(nodecov, "name")
       u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
       nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
