@@ -427,7 +427,7 @@ control.ergm<-function(drop=TRUE,
 
                        MPLE.max.dyad.types=1e+6,
                        MPLE.samplesize=.Machine$integer.max,
-                       init.MPLE.samplesize=function(d,e) max(e,40)*8,
+                       init.MPLE.samplesize=function(d,e) max(sqrt(d),e,40)*8,
                        MPLE.type=c("glm", "penalized"),
                        MPLE.nonident=c("warning","message","error"),
                        MPLE.nonident.tol=1e-10,
