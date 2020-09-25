@@ -74,10 +74,14 @@ if (!all(s.a==c(121)) ||
 num.tests=num.tests+1
 s.d <- summary(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf)))
 e.d <- ergm(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf)), estimate="MPLE")
+s.anh <- summary(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf),by="Letter",homophily=FALSE))
+e.anh <- ergm(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf),by=function(x) x %v% "Letter",homophily=FALSE), estimate="MPLE")
 s.dh <- summary(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf),by="Letter",homophily=TRUE))
 e.dh <- ergm(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf),by=function(x) x %v% "Letter",homophily=TRUE), estimate="MPLE")
 if (!all(s.d==c(42,12)) ||
 		!all(round(e.d$coef+c(4.027, 3.961),3)==0) ||
+        !all(s.anh==c(13,4,13,5,16,3)) ||
+        !all(round(e.anh$coef+c(4.215, 4.143, 4.284, 3.620, 3.636, 4.105),3)==0) ||
 		!all(s.dh==c(19,3)) ||
 		!all(round(e.dh$coef+c(3.891, 3.143 ),3)==0)) {
 	print(list(s.d=s.d, e.d=e.d, s.dh=s.dh, e.db=e.db))
@@ -287,10 +291,14 @@ if (!all(s.a==c(129)) ||
 num.tests=num.tests+1
 s.d <- summary(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf)))
 e.d <- ergm(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf)), estimate="MPLE")
+s.anh <- summary(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf),by=function(x) x %v% "Letter",homophily=FALSE))
+e.anh <- ergm(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf),by=~Letter,homophily=FALSE), estimate="MPLE")
 s.dh <- summary(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf),by=function(x) x %v% "Letter",homophily=TRUE))
 e.dh <- ergm(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf),by=~Letter,homophily=TRUE), estimate="MPLE")
 if (!all(s.d==c(26,20)) ||
 		!all(round(e.d$coef+c(3.912,3.497),3)==0) ||
+        !all(s.anh==c(9,8,10,6,7,6)) ||
+        !all(round(e.anh$coef+c(-13.566, 2.803, -14.365, 4.190, 5.704, 2.803),3)==0) ||
 		!all(s.dh==c(19,3)) ||
 		!all(round(e.dh$coef+c(3.03, 4.46 ),3)==0)) {
 	print(list(s.d=s.d, e.d=e.d, s.dh=s.dh, e.db=e.db))

@@ -44,11 +44,11 @@ InitErgmTerm.b1nodematch	<-	function (nw, arglist, ..., version=packageVersion("
   if (!is.numeric(a$alpha) || a$alpha>1 || a$alpha<0)
     ergm_Init_abort("alpha argument to b1nodematch must be between 0 and 1 inclusive.")
   
-  nodecov <- ergm_get_vattr(attrarg, nw)
+  nodecov <- ergm_get_vattr(attrarg, nw, bip="b1")
   attrname <- attr(nodecov, "name")
   
   b1.len	<-	get.network.attribute(nw, "bipartite")# gives # of b1 nodes
-  u 		<-  ergm_attr_levels(a$levels, nodecov[1:b1.len], nw, sort(unique(nodecov[1:b1.len])))		  # gives unique attrnames of b1
+  u 		<-  ergm_attr_levels(a$levels, nodecov, nw, sort(unique(nodecov)))		  # gives unique attrnames of b1
   if((!hasName(attr(a,"missing"), "levels") || attr(a,"missing")["levels"]) && !is.null(a$keep)) u <- u[a$keep]
   
   #   Recode to numeric
@@ -60,8 +60,8 @@ InitErgmTerm.b1nodematch	<-	function (nw, arglist, ..., version=packageVersion("
   
   
    if (!is.null(a$byb2attr)) {										  			
-  	b2nodecov 	<-	ergm_get_vattr(a$byb2attr, nw)
-  	v 	 		<-  sort(unique(b2nodecov[-(1:b1.len)]))	# unique byb2attrnames of b2 
+  	b2nodecov 	<-	ergm_get_vattr(a$byb2attr, nw, bip="b2")
+  	v 	 		<-  sort(unique(b2nodecov))	# unique byb2attrnames of b2 
   	b2attrsize	<-	length(v)	# to get the levels of the byb2attr				
   																		    	
   	#   Recode to numeric														
@@ -131,11 +131,11 @@ InitErgmTerm.b2nodematch	<-	function (nw, arglist, ..., version=packageVersion("
   if (!is.numeric(a$alpha) || a$alpha>1 || a$alpha<0)
     ergm_Init_abort("alpha argument to b2nodematch must be between 0 and 1 inclusive.")
   
-  nodecov <- ergm_get_vattr(attrarg, nw)
+  nodecov <- ergm_get_vattr(attrarg, nw, bip="b2")
   attrname <- attr(nodecov, "name")
   
   b1.len 	<-	get.network.attribute(nw, "bipartite")# gives # of b1 nodes
-  u 	 	<-  ergm_attr_levels(a$levels, nodecov[-(1:b1.len)], nw, sort(unique(nodecov[-(1:b1.len)])))	  # gives unique attrnames of b2's
+  u 	 	<-  ergm_attr_levels(a$levels, nodecov, nw, sort(unique(nodecov)))	  # gives unique attrnames of b2's
    																  # gives unique byb1attrnames of b1's
   if((!hasName(attr(a,"missing"), "levels") || attr(a,"missing")["levels"]) && !is.null(a$keep)) u <- u[a$keep]
 																  
@@ -148,9 +148,9 @@ InitErgmTerm.b2nodematch	<-	function (nw, arglist, ..., version=packageVersion("
   
   if (!is.null(a$byb1attr)) {										# gives unique byb1attrnames of b1's
   	
-  	b1nodecov 	<-	ergm_get_vattr(a$byb1attr, nw)												# get byb1attr vals
+  	b1nodecov 	<-	ergm_get_vattr(a$byb1attr, nw, bip="b1")												# get byb1attr vals
 
-  	v 	 		<-  sort(unique(b1nodecov[1:b1.len]))# gives unique byb1attrnames of b1's
+  	v 	 		<-  sort(unique(b1nodecov))# gives unique byb1attrnames of b1's
   	b1attrsize	<-	length(v)	# to get the levels of the byb1attr			
   	
   	#   Recode to numeric														

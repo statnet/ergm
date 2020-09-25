@@ -375,10 +375,10 @@ D_CHANGESTAT_FN(d_b1nodematch) {
   b2attrsize = INPUT_PARAM[0];          
 
   if(b2attrsize > 0){                   
-    ninputs = N_INPUT_PARAMS - 2*N_NODES - b2attrsize;/*have 2 sets of node attributes and b2attrvals */  
+    ninputs = N_INPUT_PARAMS - N_NODES - b2attrsize;/*have 2 sets of node attributes and b2attrvals */  
   }                                      
   else{                                  
-    ninputs = N_INPUT_PARAMS - N_NODES; 
+    ninputs = N_INPUT_PARAMS - BIPARTITE; 
   }                                      
 
   diffstatus = !(ninputs == 3); /* 1 if Diff = T and 0 if Diff = F */
@@ -456,7 +456,7 @@ D_CHANGESTAT_FN(d_b1nodematch) {
 
     } else {  
       
-      attrval1 = INPUT_PARAM[h + ninputs + N_NODES + b2attrsize - 1];  
+      attrval1 = INPUT_PARAM[h + ninputs + b2attrsize - 1];  
  
       STEP_THROUGH_INEDGES(h, e, node3) {
 	
@@ -474,7 +474,7 @@ D_CHANGESTAT_FN(d_b1nodematch) {
 	    STEP_THROUGH_OUTEDGES(t, e2, node4) {
 	      // Rprintf("node3=%d, node4=%d, alpha=%f\n", node3,node4,alpha);
 	      if (node4 != h) { 
-		    attrval2 = INPUT_PARAM[node4 + ninputs + N_NODES + b2attrsize - 1];  
+		    attrval2 = INPUT_PARAM[node4 + ninputs + b2attrsize - 1];  
 		    if(attrval2 == attrval1) count += IS_OUTEDGE(node3, node4); 
 	      }
 	    }
@@ -869,10 +869,10 @@ D_CHANGESTAT_FN(d_b2nodematch) {
   b1attrsize = INPUT_PARAM[0];             
 
   if(b1attrsize > 0){                   
-    ninputs = N_INPUT_PARAMS - 2*N_NODES - b1attrsize;/*have 2 sets of node attributes and b2attrvals */  
+    ninputs = N_INPUT_PARAMS - N_NODES - b1attrsize;/*have 2 sets of node attributes and b2attrvals */  
   }                                      
   else{                                  
-    ninputs = N_INPUT_PARAMS - N_NODES;  
+    ninputs = N_INPUT_PARAMS - N_NODES + BIPARTITE;  
   }
 
   diffstatus = !(ninputs == 3); /* 1 if Diff = T and o if Diff = F - RPB */
@@ -894,7 +894,7 @@ D_CHANGESTAT_FN(d_b2nodematch) {
     t = TAIL(i);
     h = HEAD(i);
     edgeflag = IS_OUTEDGE(t, h);
-    matchval = INPUT_PARAM[h + ninputs - 1];
+    matchval = INPUT_PARAM[h + ninputs - BIPARTITE - 1];
     /* Now count the neighbors of t whose attribute value equals matchval */
     /* All neighbors of t are outedges because this is a bipartite network */
     count=0;
@@ -907,7 +907,7 @@ D_CHANGESTAT_FN(d_b2nodematch) {
   if(b1attrsize == 0){
 
     STEP_THROUGH_OUTEDGES(t, e, node3) {
-      if (INPUT_PARAM[node3 + ninputs - 1] == matchval && h != node3) { /* match! */
+      if (INPUT_PARAM[node3 + ninputs - BIPARTITE - 1] == matchval && h != node3) { /* match! */
         ++count;
         
 	// Rprintf("Matching twostar found! %d and %d connect to %d\n==================\n", t, node3, h);
@@ -949,11 +949,11 @@ D_CHANGESTAT_FN(d_b2nodematch) {
     }
   } else {
 
- attrval1 = INPUT_PARAM[t + ninputs + N_NODES + b1attrsize - 1];  
+ attrval1 = INPUT_PARAM[t + ninputs + N_NODES + b1attrsize - BIPARTITE - 1];  
  
       STEP_THROUGH_OUTEDGES(t, e, node3) {
 	
-	if (INPUT_PARAM[node3 + ninputs - 1] == matchval && h != node3) { /* match! */ 
+	if (INPUT_PARAM[node3 + ninputs - BIPARTITE - 1] == matchval && h != node3) { /* match! */ 
 	 
 	  ++count;   
 
@@ -967,7 +967,7 @@ D_CHANGESTAT_FN(d_b2nodematch) {
 	    STEP_THROUGH_INEDGES(h, e2, node4) {
 	      // Rprintf("node3=%d, node4=%d, alpha=%f\n", node3,node4,alpha);
 	      if (node4 != t) { 
-		    attrval2 = INPUT_PARAM[node4 + ninputs + N_NODES + b1attrsize - 1];  
+		    attrval2 = INPUT_PARAM[node4 + ninputs + N_NODES + b1attrsize - BIPARTITE - 1];  
 		    if(attrval2 == attrval1) count += IS_OUTEDGE(node4, node3); 
 	      }
 	    }
@@ -2857,7 +2857,7 @@ D_CHANGESTAT_FN(d_gwb2degree_by_attr) {
   FOR_EACH_TOGGLE(i) {      
     echange=IS_OUTEDGE(TAIL(i), b2=HEAD(i)) ? -1 : +1;
     b2deg = id[b2]+(echange-1)/2;
-    b2attr = INPUT_PARAM[b2]; 
+    b2attr = INPUT_PARAM[b2 - BIPARTITE]; 
 /*  Rprintf("tail %d b2 %d b2deg %d b2attr %d echange %d\n",TAIL(i), b2, b2deg, b2attr, echange); */
     CHANGE_STAT[b2attr-1] += echange * pow(oneexpd,(double)b2deg);
     TOGGLE_IF_MORE_TO_COME(i);
