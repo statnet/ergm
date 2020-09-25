@@ -107,6 +107,48 @@ statistics close to the \code{target.stats} vector.
 This function attempts to find a network or networks whose statistics match
 those passed in via the \code{target.stats} vector.
 }
+\details{
+Acceptance probabilities for proposed toggles are computed as
+we now describe.  There are two contributions: one from targeted
+statistics and one from offsets.
+
+For the targeted statistics, a matrix of weights \code{W} is determined on
+each \code{san} iteration as follows.  On the first iteration, the matrix
+\code{W} is the \code{n} by \code{n} identity matrix (\code{n} = number of
+target statistics), divided by \code{n}.  On subsequent iterations: if
+\code{control$SAN.invcov.diag = FALSE} (the default), then the matrix
+\code{W} is the inverse of the covariance matrix of the targeted
+statistics, divided by the sum of its (the inverse's) diagonal;
+if \code{control$SAN.invcov.diag = TRUE}, then \code{W} is the inverse
+of the diagonal (regarded as a matrix) of the covariance matrix of the
+targeted statistics, divided by the sum of its (the inverse's) diagonal.
+In either of these two cases, the covariance matrix is computed based on
+proposals (not acceptances) made on the previous iteration, and the
+normalization for \code{W} is such that \code{sum(diag(W)) = 1}.  The
+component of the acceptance probability coming from the targeted statistics
+is then computed for a given \code{W} as \code{exp([y.Wy - x.Wx]/T)} where
+\code{T} is the temperature, \code{y} the column vector of differences
+\code{network statistics - target statistics} computed before the current
+proposal is made, \code{x} the column vector of differences
+\code{network statistics - target statistics} computed assuming the current proposal
+is accepted, and \code{.} the dot product.  If \code{control$SAN.maxit > 1},
+then on the \code{i}th iteration, the temperature \code{T} takes the value
+\code{control$SAN.tau * (1/i - 1/control$SAN.maxit)/(1 - 1/control$SAN.maxit)};
+if \code{control$SAN.maxit = 1}, then the temperature \code{T} takes the
+value \code{0}.  Thus, \code{T} steps down from \code{control$SAN.tau} to
+\code{0} and is always \code{0} on the final iteration.
+
+Offsets also contribute to the acceptance probability, as follows.  If
+\code{eta} are the canonical offsets and \code{Delta} the corresponding
+change statistics for a given proposal, then the offset contribution to
+the acceptance probability is simply \code{exp(eta.Delta)} where
+\code{.} denotes the dot product.  By default, finite offsets are ignored,
+but this behavior can be changed by setting
+\code{control$SAN.ignore.finite.offsets = FALSE}.
+
+The overall acceptance probability is the product of the targeted statistics
+contribution and the offset contribution (with the product capped at one).
+}
 \section{Methods (by class)}{
 \itemize{
 \item \code{formula}: Sufficient statistics are specified by a \code{\link{formula}}.
