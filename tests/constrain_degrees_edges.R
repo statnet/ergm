@@ -62,7 +62,7 @@ stopifnot(all(e(y0)==rowSums(ys)/2),
           any(sweep(ys, 2, od(y0))!=0)) # Edges shouldn't vary, but degrees should.
 
 ###### Bipartite undirected
-y0 <- as.network(n-m, density=d, directed=FALSE, bipartite=m)
+y0 <- as.network(n, density=d, directed=FALSE, bipartite=m)
 
 ### B1degrees
 ys <- simulate(y0~sociality(nodes=TRUE), constraints=~b1degrees, coef=rep(0,n), nsim=nsim, output="stats")
