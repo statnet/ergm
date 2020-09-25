@@ -338,8 +338,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
   }
 }
 
-#' @describeIn san Sufficient statistics and other settings are
-#'   inherited from the [`ergm`] fit unless overridden.
+#' @describeIn ergm-deprecated The developers are not aware of a use case for this function. Please contact them if you would like to prevent its removal.
 #' @export
 san.ergm <- function(object, formula=object$formula, 
                      constraints=object$constraints, 
@@ -351,6 +350,7 @@ san.ergm <- function(object, formula=object$formula,
                      verbose=FALSE, 
                      offset.coef=NULL,
                      ...) {
+  .Deprecate_once('The developers are not aware of a use case for this function. Please contact them if you would like to prevent its removal.')
   output <- match.arg(output)
   san.formula(formula, nsim=nsim, 
               target.stats=target.stats,
