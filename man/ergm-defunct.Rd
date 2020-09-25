@@ -28,6 +28,7 @@
 \alias{ergm.getglobalstats}
 \alias{as.edgelist.compressed}
 \alias{as.network.uncompressed}
+\alias{standardize.network}
 \title{Functions that have been removed from this package}
 \usage{
 sociality(object, ...)
@@ -83,6 +84,8 @@ ergm.getglobalstats(...)
 \method{as.edgelist}{compressed}(...)
 
 \method{as.network}{uncompressed}(...)
+
+standardize.network(...)
 }
 \arguments{
 \item{...}{Arguments to defunct functions.}

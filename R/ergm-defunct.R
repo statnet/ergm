@@ -100,3 +100,11 @@ as.edgelist.compressed<-function(...) .Defunct(msg="No longer used.")
 
 #' @rdname ergm-defunct
 as.network.uncompressed<-function(...) .Defunct(msg="No longer used.")
+
+# The following were defunct-ed 2020-09-25.
+
+#' @rdname ergm-defunct
+standardize.network <- function(...) .Defunct(msg=paste0("Obviated by improvements to ", sQuote("network"), " package."))
+
+#' @rdname ergm-defuct
+newnw.extract<-function(...) .Defunct('pending_network_update "API"')
