@@ -2490,7 +2490,7 @@ C_CHANGESTAT_FN(c_gwb2degree_by_attr) {
   /* *** don't forget tail -> head */    
     echange=IS_OUTEDGE(tail, b2 = head) ? -1 : +1;
     b2deg = id[b2]+(echange-1)/2;
-    b2attr = INPUT_PARAM[b2]; 
+    b2attr = INPUT_PARAM[b2 - BIPARTITE]; 
 /*  Rprintf("tail %d b2 %d b2deg %d b2attr %d echange %d\n",tail, b2, b2deg, b2attr, echange); */
     CHANGE_STAT[b2attr-1] += echange * pow(oneexpd,(double)b2deg);
 }

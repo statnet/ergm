@@ -13,11 +13,10 @@
 #' \code{\link{as.network.numeric}} creates a random Bernoulli network of the
 #' given size as an object of class \code{\link[network]{network}}.
 #' 
-#' The network will have not have vertex, edge or network attributes.  These
+#' The network will not have vertex, edge or network attributes.  These
 #' can be added with operators such as \code{\%v\%}, \code{\%n\%}, \code{\%e\%}.
 #' 
-#' @param x count; the number of nodes in the network. If
-#' \code{bipartite=TRUE}, it is the number of events in the network.
+#' @param x count; the number of nodes in the network
 #' @param directed logical; should edges be interpreted as directed?
 #' @param hyper logical; are hyperedges allowed? Currently ignored.
 #' @param loops logical; should loops be allowed? Currently ignored.
@@ -52,8 +51,8 @@
 #' g<-network(25)
 #' #Draw a random undirected network with density 0.1
 #' g<-network(25, directed=FALSE, density=0.1)
-#' #Draw a random bipartite network with 10 events and 5 actors and density 0.1
-#' g<-network(5, bipartite=10, density=0.1)
+#' #Draw a random bipartite network with 4 actors and 6 events and density 0.1
+#' g<-network(10, bipartite=4, density=0.1)
 #' @importFrom network as.network
 #' @export
 as.network.numeric<-function(x,
@@ -64,7 +63,7 @@ as.network.numeric<-function(x,
     density=NULL, init=NULL, numedges=NULL, ...){
   #returns a bernouli network.
   if(bipartite){
-   nb2 <- x
+   nb2 <- x - bipartite
    nb1 <- bipartite
    directed <- FALSE
   }else{                                                        

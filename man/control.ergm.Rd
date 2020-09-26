@@ -15,7 +15,7 @@ control.ergm(
   resume = NULL,
   MPLE.max.dyad.types = 1e+06,
   MPLE.samplesize = .Machine$integer.max,
-  init.MPLE.samplesize = function(d, e) max(e, 40) * 8,
+  init.MPLE.samplesize = function(d, e) max(sqrt(d), e, 40) * 8,
   MPLE.type = c("glm", "penalized", "logitreg"),
   MPLE.maxit = 10000,
   MPLE.nonident = c("warning", "message", "error"),

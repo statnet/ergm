@@ -14,7 +14,6 @@
 #      <is.ergm>                <ergm.t.summary>
 #      <is.latent>
 #      <degreedist>             <is.latent.cluster>
-#      <newnw.extract>
 #      <espartnerdist>          <dspartnerdist>         
 #      <rspartnerdist>         
 #      <twopathdist>            <copy.named>
@@ -231,43 +230,6 @@ nvattr.copy.network <- function(to, from, ignore=c("bipartite","directed","hyper
       to <- set.network.attribute(to, a, get.network.attribute(from, a, unlist=FALSE))
   }
   to
-}
-
-#' @rdname ergm-deprecated
-#' @export standardize.network
-standardize.network <- function(nw, preserve.eattr=TRUE){
-  .Deprecate_once(msg=paste0(sQuote("standardize.network"), " has been obviated by improvements to ", sQuote("network"), "."))
-  if(preserve.eattr){
-    el <- rbind(as.edgelist(nw),as.edgelist(is.na(nw)))
-    eids <- lapply(seq_len(nrow(el)), function(i) get.edgeIDs(nw, el[i,1], el[i,2], na.omit=FALSE))
-
-    bad.ei <- which(sapply(eids,length)>1)
-    for(ei in bad.ei){
-      dup.eids <- duplicated(nw$mel[eids[[ei]]])
-      if(sum(!dup.eids)!=1) stop("Edge (",el[ei,1],",",el[ei,2],") has multiple IDs with distinct attributes. Cannot repair.")
-      eids[[ei]] <- eids[[ei]][!dup.eids]
-    }
-    eids <- unlist(eids)
-    
-    vals <- lapply(nw$mel,"[[","atl")[eids]
-    names <- lapply(vals, names)
-    el.na <- NULL
-  }else{
-    el <- rbind(as.edgelist(nw))
-    vals <- NULL
-    names <- NULL
-    el.na <- as.edgelist(is.na(nw))
-  }
-  
-  nw <- delete.edges(nw, seq_along(nw$mel))
-  nw <- add.edges(nw, el[,1], el[,2], names.eval=names, vals.eval=vals)
-  if(!is.null(el.na)) nw[el.na] <- NA
-  nw
-}
-
-
-.hash.el <- function(x){
-  apply(x, 1, paste, collapse="\r")
 }
 
 single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints.obs=NULL, min_informative=NULL, default_density=NULL, output=c("network","ergm_state"), verbose=FALSE){
