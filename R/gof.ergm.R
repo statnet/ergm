@@ -478,7 +478,7 @@ gof.formula <- function(object, ...,
   
   returnlist <- list(network.size=n, GOF=GOF)
 
-  calc_pvals <- function(gv){
+  calc_pvals <- function(gv, count=TRUE){
     sim <- get(paste("sim", gv, sep="."))
     obs <- get(paste("obs", gv, sep="."))
 
@@ -487,26 +487,31 @@ gof.formula <- function(object, ...,
     pval <- cbind(obs,apply(sim, 2,min), apply(sim, 2,mean),
                   apply(sim, 2,max), pmin(1,2*pmin(pval,pval.top)))
     dimnames(pval)[[2]] <- c("obs","min","mean","max","MC p-value")
-    pobs <- obs/sum(obs)
-    psim <- sweep(sim,1,apply(sim,1,sum),"/")
-    psim[is.na(psim)] <- 1
+    pobs <- if(count) obs/sum(obs) else pval.top
+    if(count){
+      psim <- sweep(sim,1,apply(sim,1,sum),"/")
+      psim[is.na(psim)] <- 1
+    }else{
+      psim <- apply(sim,2,rank)/nrow(sim)
+      psim <- matrix(psim, ncol=ncol(sim)) # Guard against the case of sim having only one row.
+    }
     bds <- apply(psim,2,quantile,probs=c(0.025,0.975))
 
     l <- list(pval = pval, summary = pval, pobs = pobs, psim = psim, bds = bds, obs = obs, sim = sim)
     setNames(l, paste(names(l), gv, sep="."))
   }
 
-  GVMAP = list(model='model',
-               distance='dist',
-               idegree='ideg',
-               odegree='odeg',
-               degree='deg',
-               espartners='espart',
-               dspartners='dspart',
-               triadcensus='triadcensus')
+  GVMAP = list(model=c('model', FALSE),
+               distance=c('dist', TRUE),
+               idegree=c('ideg', TRUE),
+               odegree=c('odeg', TRUE),
+               degree=c('deg', TRUE),
+               espartners=c('espart', TRUE),
+               dspartners=c('dspart', TRUE),
+               triadcensus=c('triadcensus', TRUE))
   for(gv in names(GVMAP))
     if (gv %in% all.gof.vars)
-      returnlist <- modifyList(returnlist, calc_pvals(GVMAP[[gv]]))
+      returnlist <- modifyList(returnlist, calc_pvals(GVMAP[[gv]][1],GVMAP[[gv]][2]))
 
   class(returnlist) <- c("gof.ergm", "gof")
   returnlist
@@ -732,7 +737,7 @@ plot.gof <- function(x, ...,
  for(statname in all.gof.vars){
 
   if ('model' == statname) {
-    gofcomp("model", "the statistic", "nominal") %>% gofplot("model statistics")
+    gofcomp("model", "statistic", "nominal") %>% gofplot("model statistics")
   }
 
   if ('degree' == statname) {
