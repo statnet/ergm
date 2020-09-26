@@ -81,7 +81,7 @@
         It is now possible to calculate model-predicted \strong{conditional} and \strong{unconditional} tie probabilities using  \code{\link{predict.ergm}} and \code{\link{predict.formula}}. (Contributed by Michal Bojanowski.)
       }
       \item{
-        The nodal attribute specification mechamism (i.e., the \code{attr=} and \code{levels=} arguments to terms) now includes a number of convenience functions and predicates, such as \code{\link[=node-attr]{LARGEST}} and \code{\link[=node-attr]{SMALLEST}} to select or exclude the most/least frequent levels, and \code{\link[=node-attr]{COLLAPSE_SMALLEST}} to collapse the smallest categories into one.
+        The nodal attribute specification mechamism (i.e., the \code{attr=} and \code{levels=} arguments to terms) now includes a number of convenience functions and predicates, such as \code{\link[=nodal_attributes]{LARGEST}} and \code{\link[=nodal_attributes]{SMALLEST}} to select or exclude the most/least frequent levels, and \code{\link[=nodal_attributes]{COLLAPSE_SMALLEST}} to collapse the smallest categories into one.
       }
       \item{
         \code{\link{ergmMPLE}} now takes a \code{constraints} argument and handles it and missing dyads correctly.
@@ -103,6 +103,12 @@
           }
         }
       }
+      \code{A vignette for the \link[=nodal_attributes]{nodal attributes UI} has been added.}
+    }
+    \item{The \code{\link{simulate.ergm}} family of functions' \code{output=} argument can no only takes a function through which the simulated networks are mapped before returning.
+    }
+    \item{
+      The \code{\link[ergm]{cycle}} term implementation has been greatly improved.
     }
   }
 
@@ -116,7 +122,7 @@
         In \code{\link{logLik.ergm}}, degrees of freedom no longer count offsets.
       }
       \item{
-        The \code{Dyad} type used in C code is now at least 64 bits on all systems.
+        The \code{Dyad} type used in C code is now at least 64 bits on all systems, fixing some issues around large networks.
       }
       \item{
         A bug that made \code{\link{san}} fail to terminate when it had hit its target stats exactly has been corrected.
@@ -136,7 +142,27 @@
       \item{
         The \code{levels} argument was removed from \code{starmix} terms, as it was not functioning correctly.
       }
-    }
+      \item{
+        A bug in \code{\link{ergmMPLE}} for bipartite networks has been fixed.
+      }
+      \item{
+        Some fixes to \code{\link{approx.hotelling.diff.test}}.
+      }
+      \item{
+        Contrastive divergence runtime diagnostics now work correctly.
+      }
+      \item{
+        \code{\link{ergm.godfather}} now handles undirected valued networks correctly.
+      }
+      \item{
+        Per CRAN warning, none of the internal \code{\link{glm}}-alike functions default to \code{data=sys.parent()} anymore.
+      }
+      \item{
+        \code{\link{as.network.numeric}} now handles the \code{bip} argument consistently with \code{\link{network.initialize}}.
+      }
+      \item{
+        For bipartite terms, \code{NA}s in nodal attributes are now tolerated if they are in the unused bipartition.
+      }
   }
 
 
@@ -158,7 +184,7 @@
         The \code{\link[=simulate.ergm]{simulate}} family of methods has been restructured. In particular, it is now possible to call \code{simulate()} on an \code{\link{ergm_model}} object without reinitializing it.
       }
       \item{
-        A number of improvements have been made to the nodal attribute API. In particular, \code{\link{ergm_get_vattr}} now has an \code{AsIs} method that makes minimal changes to the input before returning and \code{\link{ergm_get_vattr.function}} now propagates its arguments to the function it calls.
+        A number of improvements have been made to the nodal attribute API. In particular, \code{\link{ergm_get_vattr}} now has an \code{AsIs} method that makes minimal changes to the input before returning, \code{\link{ergm_get_vattr.function}} now propagates its arguments to the function it calls, and \code{\link{ergm_get_vattr}} now accepts a \code{"index"} type argument representing vertex indices (a logical of appropriate length, or a nonnegative or nonpositive integer vector).
       }
       \item{
         Missing nodal attributes now generate an error in model initialization.
@@ -169,8 +195,18 @@
       \item{
         A variety of miscellaneous optimizations, coleanups, and documentation improvements.
       }
-
-    }
+      \item{
+        The \code{InitErgmTerm} API's \code{\link{check.ErgmTerm}} now accepts \code{NA} or \code{""} for argument type, indicating that any type is accepted.
+      }
+      \item{
+        In parallel computing, worker nodes now load packges \code{\link{.libPaths}} of the manager node.
+      }
+      \item{
+        The following deprecated functions have been made defunct: \code{ergm.update.formula}, \code{remove.offset.formula}, \code{network.update}, \code{ergm.getmodel}, \code{ergm.getglobalstats}, \code{as.edgelist.compressed}, \code{as.network.uncompressed}, \code{standardize.network}, and \code{newnw.extract}.
+      }
+      \item{
+        \code{san.ergm} has been deprecated, since it lacks a known use case.
+      }
   }
 }
 
@@ -237,7 +273,7 @@
       }
 
       \item{
-	A number of terms (see terms help) now use the new \link[node-attr]{nodal attributes UI}.
+	A number of terms (see terms help) now use the new \link[nodal_attributes]{nodal attributes UI}.
       }
 
       \item{
@@ -527,7 +563,7 @@
 	  \item{
 	    A new set of helper functions has been added to
 	    improve handling of nodal attributes. See
-	    \link{node-attr-api} for details.
+	    \link{nodal_attributes-API} for details.
 	  }
 	  \item{
 	    \code{\link[=summary.ergm]{summary}} method for \code{ergm}
