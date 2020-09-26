@@ -671,13 +671,10 @@ plot.gof <- function(x, ...,
 
     if (plotlogodds) {
       odds <- psim
-      #       odds[odds==0] <- NA
       odds[!is.na(odds)] <- log(odds[!is.na(odds)]/(1 - odds[!is.na(odds)]))
       odds.obs <- pobs
-      #       odds.obs[odds.obs==0] <- NA
       odds.obs[!is.na(odds.obs)] <- log(odds.obs[!is.na(odds.obs)]/(1 - odds.obs[!is.na(odds.obs)]))
       odds.bds <- bds
-      #       odds.bds[odds.bds==0] <- NA
       odds.bds[!is.na(odds.bds)] <- log(odds.bds[!is.na(odds.bds)]/(1 - odds.bds[!is.na(odds.bds)]))
       mininf <- min(min(odds[is.finite(odds)]),min(odds.obs[is.finite(odds.obs)]),min(odds.bds[is.finite(odds.bds)]))
       maxinf <- max(max(odds[is.finite(odds)]),max(odds.obs[is.finite(odds.obs)]),max(odds.bds[is.finite(odds.bds)]))
@@ -717,10 +714,11 @@ plot.gof <- function(x, ...,
     ymin <- min(min(out,na.rm=TRUE),min(out.obs,na.rm=TRUE))
     ymax <- max(max(out,na.rm=TRUE),max(out.obs,na.rm=TRUE))
 
-    boxplot(data.frame(out[, na.omit(i)]), xlab = xlab,
+    boxplot(data.frame(out[, na.omit(i), drop=FALSE]), xlab = xlab,
             ylab = ylab, names = na.omit(pnames), cex.axis = cex.axis, outline=FALSE,
             ylim=c(ymin,ymax), ...)
 
+    points(cumsum(!is.na(i)), colMeans(out[, i, drop=FALSE]), pch=19, cex=2)
     points(cumsum(!is.na(i)), out.bds[1,i], pch = 1,cex=0.75)
     points(cumsum(!is.na(i)), out.bds[2,i], pch = 1,cex=0.75)
     lines(cumsum(!is.na(i)), out.bds[1,i], pch = 18,lty=1,lwd=1,col=color)
