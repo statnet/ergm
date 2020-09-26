@@ -484,7 +484,7 @@ gof.formula <- function(object, ...,
   
   returnlist <- list(network.size=n, GOF=GOF)
 
-  calc_pvals <- function(gv){
+  calc_pvals <- function(gv, count=TRUE){
     sim <- get(paste("sim", gv, sep="."))
     obs <- get(paste("obs", gv, sep="."))
 
@@ -493,26 +493,31 @@ gof.formula <- function(object, ...,
     pval <- cbind(obs,apply(sim, 2,min), apply(sim, 2,mean),
                   apply(sim, 2,max), pmin(1,2*pmin(pval,pval.top)))
     dimnames(pval)[[2]] <- c("obs","min","mean","max","MC p-value")
-    pobs <- obs/sum(obs)
-    psim <- sweep(sim,1,apply(sim,1,sum),"/")
-    psim[is.na(psim)] <- 1
+    pobs <- if(count) obs/sum(obs) else pval.top
+    if(count){
+      psim <- sweep(sim,1,apply(sim,1,sum),"/")
+      psim[is.na(psim)] <- 1
+    }else{
+      psim <- apply(sim,2,rank)/nrow(sim)
+      psim <- matrix(psim, ncol=ncol(sim)) # Guard against the case of sim having only one row.
+    }
     bds <- apply(psim,2,quantile,probs=c(0.025,0.975))
 
     l <- list(pval = pval, summary = pval, pobs = pobs, psim = psim, bds = bds, obs = obs, sim = sim)
     setNames(l, paste(names(l), gv, sep="."))
   }
 
-  GVMAP = list(model='model',
-               distance='dist',
-               idegree='ideg',
-               odegree='odeg',
-               degree='deg',
-               espartners='espart',
-               dspartners='dspart',
-               triadcensus='triadcensus')
+  GVMAP = list(model=c('model', FALSE),
+               distance=c('dist', TRUE),
+               idegree=c('ideg', TRUE),
+               odegree=c('odeg', TRUE),
+               degree=c('deg', TRUE),
+               espartners=c('espart', TRUE),
+               dspartners=c('dspart', TRUE),
+               triadcensus=c('triadcensus', TRUE))
   for(gv in names(GVMAP))
     if (gv %in% all.gof.vars)
-      returnlist <- modifyList(returnlist, calc_pvals(GVMAP[[gv]]))
+      returnlist <- modifyList(returnlist, calc_pvals(GVMAP[[gv]][1],GVMAP[[gv]][2]))
 
   class(returnlist) <- c("gof.ergm", "gof")
   returnlist
@@ -643,540 +648,148 @@ plot.gof <- function(x, ...,
  }
  n <- x$network.size
 
-#attach(x)
+#attach(x) 
   
+  gofcomp <- function(tag, unit, idx=c("finite","infinite","nominal")){
+    idx <- match.arg(idx)
+
+    pval <- x[[paste0("pval.",tag)]]
+    sim <- x[[paste0("sim.",tag)]]
+    obs <- x[[paste0("obs.",tag)]]
+    psim <- x[[paste0("psim.",tag)]]
+    pobs <- x[[paste0("pobs.",tag)]]
+    bds <- x[[paste0("bds.",tag)]]
+    
+    if(idx == "nominal"){
+      ngs <- nrow(pval)
+      i <- seq_len(ngs)
+    }else{
+      ngs <- min(n-1, nrow(pval))
+      
+      if( min(pval[,"MC p-value"]) <1) {
+        pval.max <- max((1:ngs)[pval[1:ngs, "MC p-value"] < 1]) + 3
+      }
+      else {
+        pval.max <- max((1:ngs)[obs[1:ngs] > 0]) + 3
+      }
+      
+      i <- seq_len(if(is.finite(pval.max) & pval.max < n) pval.max
+                   else ngs+1)
+    }
+    if(idx == "infinite"){
+      i <- c(i, NA, n)
+    }
+
+    if (plotlogodds) {
+      odds <- psim
+      odds[!is.na(odds)] <- log(odds[!is.na(odds)]/(1 - odds[!is.na(odds)]))
+      odds.obs <- pobs
+      odds.obs[!is.na(odds.obs)] <- log(odds.obs[!is.na(odds.obs)]/(1 - odds.obs[!is.na(odds.obs)]))
+      odds.bds <- bds
+      odds.bds[!is.na(odds.bds)] <- log(odds.bds[!is.na(odds.bds)]/(1 - odds.bds[!is.na(odds.bds)]))
+      mininf <- min(min(odds[is.finite(odds)]),min(odds.obs[is.finite(odds.obs)]),min(odds.bds[is.finite(odds.bds)]))
+      maxinf <- max(max(odds[is.finite(odds)]),max(odds.obs[is.finite(odds.obs)]),max(odds.bds[is.finite(odds.bds)]))
+
+      odds[!is.finite(odds)&odds>0] <- maxinf
+      odds[!is.finite(odds)&odds<0] <- mininf
+      odds.obs[!is.finite(odds.obs)&odds.obs>0] <- maxinf
+      odds.obs[!is.finite(odds.obs)&odds.obs<0] <- mininf
+      odds.bds[!is.finite(odds.bds)&odds.bds>0] <- maxinf
+      odds.bds[!is.finite(odds.bds)&odds.bds<0] <- mininf
+
+      out <- odds
+      out.obs <- odds.obs
+      out.bds <- odds.bds
+
+      ylab <- paste0("log-odds for a ", unit)
+    }
+    else {
+      out <- psim
+      out.obs <- pobs
+      out.bds <- bds
+      ylab <- paste0("proportion of ", unit, "s")
+    }
+    pnames <- NVL(colnames(sim), i-1)[i]
+
+    list(out=out, pnames=pnames, out.obs=out.obs, out.bds=out.bds, i=i, ylab=ylab)
+  }
+
+  gofplot <- function(gofstats, xlab){
+    out <- gofstats$out
+    out.obs <- gofstats$out.obs
+    out.bds <- gofstats$out.bds
+    i <- gofstats$i
+    ylab <- gofstats$ylab
+    pnames <- gofstats$pnames
+
+    ymin <- min(min(out,na.rm=TRUE),min(out.obs,na.rm=TRUE))
+    ymax <- max(max(out,na.rm=TRUE),max(out.obs,na.rm=TRUE))
+
+    boxplot(data.frame(out[, na.omit(i), drop=FALSE]), xlab = xlab,
+            ylab = ylab, names = na.omit(pnames), cex.axis = cex.axis, outline=FALSE,
+            ylim=c(ymin,ymax), ...)
+
+    points(cumsum(!is.na(i)), colMeans(out[, i, drop=FALSE]), pch=19, cex=2)
+    points(cumsum(!is.na(i)), out.bds[1,i], pch = 1,cex=0.75)
+    points(cumsum(!is.na(i)), out.bds[2,i], pch = 1,cex=0.75)
+    lines(cumsum(!is.na(i)), out.bds[1,i], pch = 18,lty=1,lwd=1,col=color)
+    lines(cumsum(!is.na(i)), out.bds[2,i], pch = 18,lty=1,lwd=1,col=color)
+    points(cumsum(!is.na(i)), out.obs[i], pch = 16,cex=0.75)
+    lines(cumsum(!is.na(i)), out.obs[i], lty = 1,lwd=3)
+  }
+
  ###model####
 
  for(statname in all.gof.vars){
+
   if ('model' == statname) {
-
-   nstats <- length(x$obs.model)
-   if( min(x$pval.model[,"MC p-value"]) <0) {
-    pval.max <- max((1:nstats)[x$pval.model[1:nstats, "MC p-value"] < 1]) + 3
-   }
-   else {
-    pval.max <- max((1:nstats)[x$obs.model[1:nstats] > 0]) + 3
-   }
-
-   if (is.finite(pval.max) & pval.max < nstats) {
-        model <- c(1:pval.max)
-    }
-    else {
-        model <- c(1:nstats)
-    }
-    if (plotlogodds) {
-        odds <- x$psim.model
-#       odds[odds==0] <- NA
-        odds[!is.na(odds)] <- log(odds[!is.na(odds)]/(1 - odds[!is.na(odds)]))
-        odds.obs <- x$pobs.model
-#       odds.obs[odds.obs==0] <- NA
-        odds.obs[!is.na(odds.obs)] <- log(odds.obs[!is.na(odds.obs)]/(1 - odds.obs[!is.na(odds.obs)]))
-        odds.bds <- x$bds.model
-#       odds.bds[odds.bds==0] <- NA
-        odds.bds[!is.na(odds.bds)] <- log(odds.bds[!is.na(odds.bds)]/(1 - odds.bds[!is.na(odds.bds)]))
-        mininf <- min(min(odds[!is.infinite(odds)]),min(odds.obs[!is.infinite(odds.obs)]),min(odds.bds[!is.infinite(odds.bds)]))
-        maxinf <- max(max(odds[!is.infinite(odds)]),max(odds.obs[!is.infinite(odds.obs)]),max(odds.bds[!is.infinite(odds.bds)]))
-
-        odds[is.infinite(odds)&odds>0] <- maxinf
-        odds[is.infinite(odds)&odds<0] <- mininf
-        odds.obs[is.infinite(odds.obs)&odds.obs>0] <- maxinf
-        odds.obs[is.infinite(odds.obs)&odds.obs<0] <- mininf
-        odds.bds[is.infinite(odds.bds)&odds.bds>0] <- maxinf
-        odds.bds[is.infinite(odds.bds)&odds.bds<0] <- mininf
-
-        out <- odds
-        out.obs <- odds.obs
-        out.bds <- odds.bds
-
-        ylab <- "log-odds for the statistic"
-    }
-    else {
-        out <- x$psim.model
-        out.obs <- x$pobs.model
-        out.bds <- x$bds.model
-        ylab <- "simulated quantiles"
-    }
-    pnames <- names(out.obs)
-    ymin <- min(min(out,na.rm=TRUE),min(out.obs,na.rm=TRUE))
-    ymax <- max(max(out,na.rm=TRUE),max(out.obs,na.rm=TRUE))
-
-    boxplot(data.frame(out[, model]), xlab = "model statistics", 
-            ylab = ylab, names = pnames[model], cex.axis = cex.axis, outline=FALSE,
-            ylim=c(ymin,ymax), ...)
-
-    points(seq(along = model), out.bds[1,model], pch = 1,cex=0.75)
-    points(seq(along = model), out.bds[2,model], pch = 1,cex=0.75)
-    lines(seq(along = model), out.bds[1, model], pch = 18,lty=1,lwd=1,col=color)
-    lines(seq(along = model), out.bds[2, model], pch = 18,lty=1,lwd=1,col=color)
-    points(seq(along = model), out.obs[model], pch = 16,cex=0.75)
-    lines(seq(along = model), out.obs[model], lty = 1,lwd=3)
+    gofcomp("model", "statistic", "nominal") %>% gofplot("model statistics")
   }
-
- ###degree####
 
   if ('degree' == statname) {
-
-    ngs <- min(n-1, nrow(x$pval.deg))
-    
-   if( min(x$pval.deg[,"MC p-value"]) <0) {
-    pval.max <- max((1:ngs)[x$pval.deg[1:ngs, "MC p-value"] < 1]) + 3
-   }
-   else {
-    pval.max <- max((1:ngs)[x$obs.deg[1:ngs] > 0]) + 3
-   }
-
-   if (is.finite(pval.max) & pval.max < n) {
-        deg <- c(1:pval.max)
-    }
-    else {
-        deg <- c(1:(ngs+1))
-    }
-    if (plotlogodds) {
-        odds <- x$psim.deg
-#       odds[odds==0] <- NA
-        odds[!is.na(odds)] <- log(odds[!is.na(odds)]/(1 - odds[!is.na(odds)]))
-        odds.obs <- x$pobs.deg
-#       odds.obs[odds.obs==0] <- NA
-        odds.obs[!is.na(odds.obs)] <- log(odds.obs[!is.na(odds.obs)]/(1 - odds.obs[!is.na(odds.obs)]))
-        odds.bds <- x$bds.deg
-#       odds.bds[odds.bds==0] <- NA
-        odds.bds[!is.na(odds.bds)] <- log(odds.bds[!is.na(odds.bds)]/(1 - odds.bds[!is.na(odds.bds)]))
-        mininf <- min(min(odds[!is.infinite(odds)]),min(odds.obs[!is.infinite(odds.obs)]),min(odds.bds[!is.infinite(odds.bds)]))
-        maxinf <- max(max(odds[!is.infinite(odds)]),max(odds.obs[!is.infinite(odds.obs)]),max(odds.bds[!is.infinite(odds.bds)]))
-
-        odds[is.infinite(odds)&odds>0] <- maxinf
-        odds[is.infinite(odds)&odds<0] <- mininf
-        odds.obs[is.infinite(odds.obs)&odds.obs>0] <- maxinf
-        odds.obs[is.infinite(odds.obs)&odds.obs<0] <- mininf
-        odds.bds[is.infinite(odds.bds)&odds.bds>0] <- maxinf
-        odds.bds[is.infinite(odds.bds)&odds.bds<0] <- mininf
-
-        out <- odds
-        out.obs <- odds.obs
-        out.bds <- odds.bds
-
-        ylab <- "log-odds for a node"
-    }
-    else {
-        out <- x$psim.deg
-        out.obs <- x$pobs.deg
-        out.bds <- x$bds.deg
-        ylab <- "proportion of nodes"
-    }
-    pnames <- c(deg)-1
-    ymin <- min(min(out,na.rm=TRUE),min(out.obs,na.rm=TRUE))
-    ymax <- max(max(out,na.rm=TRUE),max(out.obs,na.rm=TRUE))
-
-    boxplot(data.frame(out[, deg]), xlab = "degree", 
-            ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
-            ylim=c(ymin,ymax), ...)
-
-    points(seq(along = deg), out.bds[1,deg], pch = 1,cex=0.75)
-    points(seq(along = deg), out.bds[2,deg], pch = 1,cex=0.75)
-    lines(seq(along = deg), out.bds[1, deg], pch = 18,lty=1,lwd=1,col=color)
-    lines(seq(along = deg), out.bds[2, deg], pch = 18,lty=1,lwd=1,col=color)
-    points(seq(along = deg), out.obs[deg], pch = 16,cex=0.75)
-    lines(seq(along = deg), out.obs[deg], lty = 1,lwd=3)
+    gofcomp("deg", "node") %>% gofplot("degree")
   }
-
-  ###odegree####
 
   if ('odegree' == statname) {
-    
-    ngs <- min(n-1, nrow(x$pval.odeg))
-
-   if( min(x$pval.odeg[,"MC p-value"]) <0) {
-    pval.max <- max((1:ngs)[x$pval.odeg[1:ngs, "MC p-value"] < 1]) + 3
-   }
-   else {
-    pval.max <- max((1:ngs)[x$obs.odeg[1:ngs] > 0]) + 3
-   }
-
-   if (is.finite(pval.max) & pval.max < n) {
-        odeg <- c(1:pval.max)
-    }
-    else {
-        odeg <- c(1:(ngs+1))
-    }
-    if (plotlogodds) {
-        odds <- x$psim.odeg
-#       odds[odds==0] <- NA
-        odds[!is.na(odds)] <- log(odds[!is.na(odds)]/(1 - odds[!is.na(odds)]))
-        odds.obs <- x$pobs.odeg
-#       odds.obs[odds.obs==0] <- NA
-        odds.obs[!is.na(odds.obs)] <- log(odds.obs[!is.na(odds.obs)]/(1 - odds.obs[!is.na(odds.obs)]))
-        odds.bds <- x$bds.odeg
-#       odds.bds[odds.bds==0] <- NA
-        odds.bds[!is.na(odds.bds)] <- log(odds.bds[!is.na(odds.bds)]/(1 - odds.bds[!is.na(odds.bds)]))
-        mininf <- min(min(odds[!is.infinite(odds)]),min(odds.obs[!is.infinite(odds.obs)]),min(odds.bds[!is.infinite(odds.bds)]))
-        maxinf <- max(max(odds[!is.infinite(odds)]),max(odds.obs[!is.infinite(odds.obs)]),max(odds.bds[!is.infinite(odds.bds)]))
-
-        odds[is.infinite(odds)&odds>0] <- maxinf
-        odds[is.infinite(odds)&odds<0] <- mininf
-        odds.obs[is.infinite(odds.obs)&odds.obs>0] <- maxinf
-        odds.obs[is.infinite(odds.obs)&odds.obs<0] <- mininf
-        odds.bds[is.infinite(odds.bds)&odds.bds>0] <- maxinf
-        odds.bds[is.infinite(odds.bds)&odds.bds<0] <- mininf
-
-        out <- odds
-        out.obs <- odds.obs
-        out.bds <- odds.bds
-
-        ylab <- "log-odds for a node"
-    }
-    else {
-        out <- x$psim.odeg
-        out.obs <- x$pobs.odeg
-        out.bds <- x$bds.odeg
-        ylab <- "proportion of nodes"
-    }
-    pnames <- c(odeg)-1
-    ymin <- min(min(out,na.rm=TRUE),min(out.obs,na.rm=TRUE))
-    ymax <- max(max(out,na.rm=TRUE),max(out.obs,na.rm=TRUE))
-
-    boxplot(data.frame(out[, odeg]), xlab = "out degree", 
-            ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
-            ylim=c(ymin,ymax), ...)
-
-    points(seq(along = odeg), out.bds[1,odeg], pch = 1,cex=0.75)
-    points(seq(along = odeg), out.bds[2,odeg], pch = 1,cex=0.75)
-    lines(seq(along = odeg), out.bds[1, odeg], pch = 18,lty=1,lwd=1,col=color)
-    lines(seq(along = odeg), out.bds[2, odeg], pch = 18,lty=1,lwd=1,col=color)
-    points(seq(along = odeg), out.obs[odeg], pch = 16,cex=0.75)
-    lines(seq(along = odeg), out.obs[odeg], lty = 1,lwd=3)
+    gofcomp("odeg", "node") %>% gofplot("out degree")
   }
-
-  ###idegree####
 
   if ('idegree' == statname) {
-
-    ngs <- min(n-1, nrow(x$pval.ideg))
-
-   if( min(x$pval.ideg[,"MC p-value"]) <0) {
-    pval.max <- max((1:ngs)[x$pval.ideg[1:ngs, "MC p-value"] < 1]) + 3
-   }
-   else {
-    pval.max <- max((1:ngs)[x$obs.ideg[1:ngs] > 0]) + 3
-   }
-
-   if (is.finite(pval.max) & pval.max < n) {
-        ideg <- c(1:pval.max)
-    }
-    else {
-        ideg <- c(1:(ngs+1))
-    }
-    if (plotlogodds) {
-        odds <- x$psim.ideg
-#       odds[odds==0] <- NA
-        odds[!is.na(odds)] <- log(odds[!is.na(odds)]/(1 - odds[!is.na(odds)]))
-        odds.obs <- x$pobs.ideg
-#       odds.obs[odds.obs==0] <- NA
-        odds.obs[!is.na(odds.obs)] <- log(odds.obs[!is.na(odds.obs)]/(1 - odds.obs[!is.na(odds.obs)]))
-        odds.bds <- x$bds.ideg
-#       odds.bds[odds.bds==0] <- NA
-        odds.bds[!is.na(odds.bds)] <- log(odds.bds[!is.na(odds.bds)]/(1 - odds.bds[!is.na(odds.bds)]))
-        mininf <- min(min(odds[!is.infinite(odds)]),min(odds.obs[!is.infinite(odds.obs)]),min(odds.bds[!is.infinite(odds.bds)]))
-        maxinf <- max(max(odds[!is.infinite(odds)]),max(odds.obs[!is.infinite(odds.obs)]),max(odds.bds[!is.infinite(odds.bds)]))
-
-        odds[is.infinite(odds)&odds>0] <- maxinf
-        odds[is.infinite(odds)&odds<0] <- mininf
-        odds.obs[is.infinite(odds.obs)&odds.obs>0] <- maxinf
-        odds.obs[is.infinite(odds.obs)&odds.obs<0] <- mininf
-        odds.bds[is.infinite(odds.bds)&odds.bds>0] <- maxinf
-        odds.bds[is.infinite(odds.bds)&odds.bds<0] <- mininf
-
-        out <- odds
-        out.obs <- odds.obs
-        out.bds <- odds.bds
-
-        ylab <- "log-odds for a node"
-    }
-    else {
-        out <- x$psim.ideg
-        out.obs <- x$pobs.ideg
-        out.bds <- x$bds.ideg
-        ylab <- "proportion of nodes"
-    }
-    pnames <- c(ideg)-1
-    ymin <- min(min(out,na.rm=TRUE),min(out.obs,na.rm=TRUE))
-    ymax <- max(max(out,na.rm=TRUE),max(out.obs,na.rm=TRUE))
-
-    boxplot(data.frame(out[, ideg]), xlab = "in degree", 
-            ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
-            ylim=c(ymin,ymax), ...)
-
-    points(seq(along = ideg), out.bds[1,ideg], pch = 1,cex=0.75)
-    points(seq(along = ideg), out.bds[2,ideg], pch = 1,cex=0.75)
-    lines(seq(along = ideg), out.bds[1, ideg], pch = 18,lty=1,lwd=1,col=color)
-    lines(seq(along = ideg), out.bds[2, ideg], pch = 18,lty=1,lwd=1,col=color)
-    points(seq(along = ideg), out.obs[ideg], pch = 16,cex=0.75)
-    lines(seq(along = ideg), out.obs[ideg], lty = 1,lwd=3)
+    gofcomp("ideg", "node") %>% gofplot("in degree")
   }
-
-  ###espart####
 
   if ('espartners' == statname) {
-
-    ngs <- min(n-1, nrow(x$pval.espart))
-    
-   pval.max <- max((1:ngs)[x$pval.espart[1:ngs, "MC p-value"] < 
-        1]) + 3
-    if (is.finite(pval.max) & pval.max < n) {
-        espart <- c(1:pval.max)
-    }
-    else {
-        espart <- c(1:(n-1))
-    }
-    if (plotlogodds) {
-        odds <- x$psim.espart
-#       odds[odds==0] <- NA
-        odds[!is.na(odds)] <- log(odds[!is.na(odds)]/(1 - odds[!is.na(odds)]))
-        odds.obs <- x$pobs.espart
-#       odds.obs[odds.obs==0] <- NA
-        odds.obs[!is.na(odds.obs)] <- log(odds.obs[!is.na(odds.obs)]/(1 - odds.obs[!is.na(odds.obs)]))
-        odds.bds <- x$bds.espart
-#       odds.bds[odds.bds==0] <- NA
-        odds.bds[!is.na(odds.bds)] <- log(odds.bds[!is.na(odds.bds)]/(1 - odds.bds[!is.na(odds.bds)]))
-        mininf <- min(min(odds[!is.infinite(odds)]),min(odds.obs[!is.infinite(odds.obs)]),min(odds.bds[!is.infinite(odds.bds)]))
-        maxinf <- max(max(odds[!is.infinite(odds)]),max(odds.obs[!is.infinite(odds.obs)]),max(odds.bds[!is.infinite(odds.bds)]))
-        odds[is.infinite(odds)&odds>0] <- maxinf
-        odds[is.infinite(odds)&odds<0] <- mininf
-        odds.obs[is.infinite(odds.obs)&odds.obs>0] <- maxinf
-        odds.obs[is.infinite(odds.obs)&odds.obs<0] <- mininf
-        odds.bds[is.infinite(odds.bds)&odds.bds>0] <- maxinf
-        odds.bds[is.infinite(odds.bds)&odds.bds<0] <- mininf
-        out <- odds
-        out.obs <- odds.obs
-        out.bds <- odds.bds
-
-        ylab <- "log-odds for an edge"
-    }
-    else {
-        out <- x$psim.espart
-        out.obs <- x$pobs.espart
-        out.bds <- x$bds.espart
-        ylab <- "proportion of edges"
-        mininf <- min(min(out),min(out.obs),min(out.bds))
-        maxinf <- max(max(out),max(out.obs),max(out.bds))
-    }
-    pnames <- c(espart)-1
-    ymin <- min(min(out,na.rm=TRUE),min(out.obs,na.rm=TRUE))
-    ymax <- max(max(out,na.rm=TRUE),max(out.obs,na.rm=TRUE))
-
-    boxplot(data.frame(out[, espart]), xlab = "edge-wise shared partners", 
-            ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
-            ylim=c(ymin,ymax), ...)
-
-    points(seq(along = espart), out.bds[1,espart], pch = 1,cex=0.75)
-    points(seq(along = espart), out.bds[2,espart], pch = 1,cex=0.75)
-    lines(seq(along = espart), out.bds[1, espart], pch = 18,lty=1,lwd=1,col=color)
-    lines(seq(along = espart), out.bds[2, espart], pch = 18,lty=1,lwd=1,col=color)
-    points(seq(along = espart), out.obs[espart], pch = 16, cex=0.75)
-    lines(seq(along = espart), out.obs[espart], lty = 1,lwd=3)
-
+    gofcomp("espart", "edge") %>% gofplot("edge-wise shared partners")
   }
-
-  ###dspart####
 
   if ('dspartners' == statname) {
-    ngs <- min(n-1, nrow(x$pval.dspart))
-
-    pval.max <- max((1:ngs)[x$pval.dspart[1:ngs, "MC p-value"] < 
-        1]) + 3
-    if (is.finite(pval.max) & pval.max < n) {
-        dspart <- c(1:pval.max)
-    }
-    else {
-        dspart <- c(1:(ngs+1))
-    }
-    if (plotlogodds) {
-        odds <- x$psim.dspart
-#       odds[odds==0] <- NA
-        odds[!is.na(odds)] <- log(odds[!is.na(odds)]/(1 - odds[!is.na(odds)]))
-        odds.obs <- x$pobs.dspart
-#       odds.obs[odds.obs==0] <- NA
-        odds.obs[!is.na(odds.obs)] <- log(odds.obs[!is.na(odds.obs)]/(1 - odds.obs[!is.na(odds.obs)]))
-        odds.bds <- x$bds.dspart
-#       odds.bds[odds.bds==0] <- NA
-        odds.bds[!is.na(odds.bds)] <- log(odds.bds[!is.na(odds.bds)]/(1 - odds.bds[!is.na(odds.bds)]))
-        mininf <- min(min(odds[!is.infinite(odds)]),min(odds.obs[!is.infinite(odds.obs)]),min(odds.bds[!is.infinite(odds.bds)]))
-        maxinf <- max(max(odds[!is.infinite(odds)]),max(odds.obs[!is.infinite(odds.obs)]),max(odds.bds[!is.infinite(odds.bds)]))
-        odds[is.infinite(odds)&odds>0] <- maxinf
-        odds[is.infinite(odds)&odds<0] <- mininf
-        odds.obs[is.infinite(odds.obs)&odds.obs>0] <- maxinf
-        odds.obs[is.infinite(odds.obs)&odds.obs<0] <- mininf
-        odds.bds[is.infinite(odds.bds)&odds.bds>0] <- maxinf
-        odds.bds[is.infinite(odds.bds)&odds.bds<0] <- mininf
-        out <- odds
-        out.obs <- odds.obs
-        out.bds <- odds.bds
-
-        ylab <- "log-odds for an edge"
-    }
-    else {
-        out <- x$psim.dspart
-        out.obs <- x$pobs.dspart
-        out.bds <- x$bds.dspart
-        ylab <- "proportion of dyads"
-        mininf <- min(min(out),min(out.obs),min(out.bds))
-        maxinf <- max(max(out),max(out.obs),max(out.bds))
-    }
-    pnames <- c(dspart)-1
-    ymin <- min(min(out,na.rm=TRUE),min(out.obs,na.rm=TRUE))
-    ymax <- max(max(out,na.rm=TRUE),max(out.obs,na.rm=TRUE))
-
-    boxplot(data.frame(out[, dspart]), xlab = "dyad-wise shared partners", 
-            ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
-            ylim=c(ymin,ymax), ...)
-
-    points(seq(along = dspart), out.bds[1,dspart], pch = 1,cex=0.75)
-    points(seq(along = dspart), out.bds[2,dspart], pch = 1,cex=0.75)
-    lines(seq(along = dspart), out.bds[1, dspart], pch = 18,lty=1,lwd=1,col=color)
-    lines(seq(along = dspart), out.bds[2, dspart], pch = 18,lty=1,lwd=1,col=color)
-    points(seq(along = dspart), out.obs[dspart], pch = 16,cex=0.75)
-    lines(seq(along = dspart), out.obs[dspart], lty = 1,lwd=3)
+    gofcomp("dspart", "dyad") %>% gofplot("dyad-wise shared partners")
   }
-
-  ###triadcensus####
 
   if ('triadcensus' == statname) {
-
-    if (plotlogodds) {
-        odds <- x$psim.triadcensus
-#       odds[odds==0] <- NA
-        odds[!is.na(odds)] <- log(odds[!is.na(odds)]/(1 - odds[!is.na(odds)]))
-        odds.obs <- x$pobs.triadcensus
-#       odds.obs[odds.obs==0] <- NA
-        odds.obs[!is.na(odds.obs)] <- log(odds.obs[!is.na(odds.obs)]/(1 - odds.obs[!is.na(odds.obs)]))
-        odds.bds <- x$bds.triadcensus
-#       odds.bds[odds.bds==0] <- NA
-        odds.bds[!is.na(odds.bds)] <- log(odds.bds[!is.na(odds.bds)]/(1 - odds.bds[!is.na(odds.bds)]))
-        mininf <- min(min(odds[!is.infinite(odds)]),min(odds.obs[!is.infinite(odds.obs)]),min(odds.bds[!is.infinite(odds.bds)]))
-        maxinf <- max(max(odds[!is.infinite(odds)]),max(odds.obs[!is.infinite(odds.obs)]),max(odds.bds[!is.infinite(odds.bds)]))
-        odds[is.infinite(odds)&odds>0] <- maxinf
-        odds[is.infinite(odds)&odds<0] <- mininf
-        odds.obs[is.infinite(odds.obs)&odds.obs>0] <- maxinf
-        odds.obs[is.infinite(odds.obs)&odds.obs<0] <- mininf
-        odds.bds[is.infinite(odds.bds)&odds.bds>0] <- maxinf
-        odds.bds[is.infinite(odds.bds)&odds.bds<0] <- mininf
-        out <- odds
-        out.obs <- odds.obs
-        out.bds <- odds.bds
-
-        ylab <- "log-odds for a triad"
-    }
-    else {
-        out <- x$psim.triadcensus
-        out.obs <- x$pobs.triadcensus
-        out.bds <- x$bds.triadcensus
-        ylab <- "proportion of triads"
-        mininf <- min(min(out),min(out.obs),min(out.bds))
-        maxinf <- max(max(out),max(out.obs),max(out.bds))
-    }
-    triadcensus <- dimnames(x$sim.triadcensus)[[2]]
-    pnames <- dimnames(x$sim.triadcensus)[[2]]
-    ymin <- min(min(out,na.rm=TRUE),min(out.obs,na.rm=TRUE))
-    ymax <- max(max(out,na.rm=TRUE),max(out.obs,na.rm=TRUE))
-
-    boxplot(data.frame(out[, triadcensus]), xlab = "triad census", 
-            ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
-            ylim=c(ymin,ymax), ...)
-
-    points(seq(along = triadcensus), out.bds[1,triadcensus], pch = 1,cex=0.75)
-    points(seq(along = triadcensus), out.bds[2,triadcensus], pch = 1,cex=0.75)
-    lines(seq(along = triadcensus), out.bds[1, triadcensus], pch = 18,lty=1,lwd=1,col=color)
-    lines(seq(along = triadcensus), out.bds[2, triadcensus], pch = 18,lty=1,lwd=1,col=color)
-    points(seq(along = triadcensus), out.obs[triadcensus], pch = 16, cex=0.75)
-    lines(seq(along = triadcensus), out.obs[triadcensus], lty = 1,lwd=3)
-
+    gofcomp("triadcensus", "triad", "nominal") %>% gofplot("triad census")
   }
 
-  ###distance####
-
   if ('distance' == statname) {
-
-    ngs <- min(n-1, nrow(x$pval.dist))
-
-    pval.max <- max((1:ngs)[x$pval.dist[1:ngs, "MC p-value"] < 
-        1]) + 3
-    if (is.finite(pval.max) & pval.max < n) {
-        dist <- c(1:pval.max, n)
-    }
-    else {
-        dist <- c(1:(ngs+1))
-    }
-    pnames <- paste(dist)
-    pnames[length(dist)] <- "NR"
-    if (plotlogodds) {
-        odds <- x$psim.dist
-#       odds[odds==0] <- NA
-        odds[!is.na(odds)] <- log(odds[!is.na(odds)]/(1 - odds[!is.na(odds)]))
-        odds.obs <- x$pobs.dist
-#       odds.obs[odds.obs==0] <- NA
-        odds.obs[!is.na(odds.obs)] <- log(odds.obs[!is.na(odds.obs)]/(1 - odds.obs[!is.na(odds.obs)]))
-        odds.bds <- x$bds.dist
-#       odds.bds[odds.bds==0] <- NA
-        odds.bds[!is.na(odds.bds)] <- log(odds.bds[!is.na(odds.bds)]/(1 - odds.bds[!is.na(odds.bds)]))
-        oodds <- is.infinite(odds) | is.na(odds)
-        oodds.obs <- is.infinite(odds.obs) | is.na(odds.obs)
-        oodds.bds <- is.infinite(odds.bds) | is.na(odds.bds)
-        mininf <- min(min(odds[!oodds]),min(odds.obs[!oodds.obs]),min(odds.bds[!oodds.bds]))
-        maxinf <- max(max(odds[!oodds]),max(odds.obs[!oodds.obs]),max(odds.bds[!oodds.bds]))
-        odds[is.infinite(odds)&odds>0] <- maxinf
-        odds[is.infinite(odds)&odds<0] <- mininf
-        odds.obs[is.infinite(odds.obs)&odds.obs>0] <- maxinf
-        odds.obs[is.infinite(odds.obs)&odds.obs<0] <- mininf
-        odds.bds[is.infinite(odds.bds)&odds.bds>0] <- maxinf
-        odds.bds[is.infinite(odds.bds)&odds.bds<0] <- mininf
-        odds.bds[1,][is.na(odds.bds[1,])] <- mininf
-        odds.bds[2,][is.na(odds.bds[2,])] <- maxinf
-        out <- odds
-        out.obs <- odds.obs
-        out.bds <- odds.bds
-
-        ylab <- "log-odds for a dyad"
-    }
-    else {
-        out <- x$psim.dist
-        out.obs <- x$pobs.dist
-        out.bds <- x$bds.dist
-        ylab <- "proportion of dyads"
-        mininf <- min(min(out),min(out.obs),min(out.bds))
-        maxinf <- max(max(out),max(out.obs),max(out.bds))
-    }
-
+    gc <- gofcomp("dist", "dyad", "infinite")
+    ult(gc$pnames) <- "NR"
     if(normalize.reachability){
-      mdist <- max(dist,na.rm=TRUE)
-      totrange <- range(out.bds[1,][out.bds[1,] > out.bds[1,mdist]],
-                        out.bds[2,][out.bds[2,] < out.bds[2,mdist]])
-      out[,mdist] <- (out[,mdist]-out.bds[1,mdist]) * 
-        diff(totrange) / diff(out.bds[,mdist]) + totrange[1]
-      out.obs[mdist] <- (out.obs[mdist]- out.bds[1,mdist]) *
-        diff(totrange) / diff(out.bds[,mdist]) + totrange[1]
-      out.bds[,mdist] <- totrange
+      gc <- within(gc,
+      {
+        mi <- max(i,na.rm=TRUE)
+        totrange <- range(out.bds[1,][out.bds[1,] > out.bds[1,mi]],
+                          out.bds[2,][out.bds[2,] < out.bds[2,mi]])
+        out[,mi] <- (out[,mi]-out.bds[1,mi]) * 
+          diff(totrange) / diff(out.bds[,mi]) + totrange[1]
+        out.obs[mi] <- (out.obs[mi]- out.bds[1,mi]) *
+          diff(totrange) / diff(out.bds[,mi]) + totrange[1]
+        out.bds[,mi] <- totrange
+      }
+      )
     }
-
-    ymin <- min(min(out,na.rm=TRUE),min(out.obs,na.rm=TRUE))
-    ymax <- max(max(out,na.rm=TRUE),max(out.obs,na.rm=TRUE))
-    if(!plotlogodds){
-     ymin <- max(0,ymin)
-     ymax <- min(1,ymax)
-    }
-
-    boxplot(data.frame(out[, dist]), xlab = "minimum geodesic distance", 
-            ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
-            ylim=c(ymin,ymax), ...)
-
-    points(seq(along = dist), out.bds[1,dist], pch = 1,cex=0.75)
-    points(seq(along = dist), out.bds[2,dist], pch = 1,cex=0.75)
-    lines(seq(along = dist)[-length(dist)], out.bds[1, dist][-length(dist)], pch = 18,lty=1,lwd=1,col=color)
-    lines(seq(along = dist)[-length(dist)], out.bds[2, dist][-length(dist)], pch = 18,lty=1,lwd=1,col=color)
-    points(seq(along = dist), out.obs[dist], pch = 16,cex=0.75)
-    lines(seq(along = dist)[-length(dist)], out.obs[dist][-length(dist)],
-		 lty = 1,lwd=3)
-    }
-   }
-
+    gofplot(gc, "minimum geodesic distance")
+  }
+ }
    mtext(main,side=3,outer=TRUE,cex=1.5,padj=2)
    invisible()
 }
