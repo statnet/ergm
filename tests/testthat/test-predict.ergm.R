@@ -100,8 +100,13 @@ test_that("works for edges model on small graph", {
 
 
 
-
-
+test_that("predict.ergm() works for models with offset terms", {
+  net <- network.initialize(4, directed=FALSE)
+  m <- matrix(1, 4, 4)
+  m[lower.tri(m)] <- diag(m) <- 0
+  net %n% "dcov" <- m
+  predict(net ~ edges + offset(edges), c(log(1/4),  - log(1/4)))
+})
 
 
 
