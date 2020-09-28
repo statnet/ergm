@@ -63,23 +63,20 @@ coefficients are offset, i.e. fixed}
 containing several items; for details see the return list in the
 \code{\link{ergm}}
 
-\code{ergm.pl} returns a list containing: \itemize{ \item
-xmat : the compressed and possibly sampled matrix of change
-statistics
-\item zy : the corresponding vector of responses,
+\code{ergm.pl} returns a list containing: \itemize{
+\item \code{xmat} : the compressed and possibly sampled matrix of change statistics
+\item \code{xmat.full} : as \code{xmat} but with offset terms
+\item \code{zy} : the corresponding vector of responses,
 i.e. tie values
-\item foffset : ??
-\item wend : the vector of
-weights for 'xmat' and 'zy'
-\item numobs : the number of dyads
-
-\item
-theta.offset : a numeric vector whose ith entry tells whether the
-the ith curved coefficient?? was offset/fixed; -Inf implies the
+\item \code{foffset} : combined effect of offset terms
+\item \code{wend} : the vector of weights for \code{xmat} and \code{zy}
+\item \code{numobs} : the number of dyads
+\item \code{theta.offset} : a logical vector whose ith entry tells whether the
+the ith curved coefficient?? was offset/fixed; \code{-Inf} implies the
 coefficient was fixed, 0 otherwise; if the model hasn't any
 curved terms, the first entry of this vector is one of
-log(Clist$nedges/(Clist$ndyads-Clist$nedges))
-log(1/(Clist$ndyads-1)) depending on 'Clist$nedges' }
+\code{log(Clist$nedges/(Clist$ndyads-Clist$nedges))} or
+\code{log(1/(Clist$ndyads-1))} depending on \code{Clist$nedges}}
 }
 \description{
 The \code{ergm.mple} function finds a maximizer to the psuedolikelihood

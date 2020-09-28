@@ -16,23 +16,20 @@
 #'   the user.
 #' @param theta.offset a logical vector specifying which of the model
 #'   coefficients are offset, i.e. fixed
-#' @return \code{ergm.pl} returns a list containing: \itemize{ \item
-#'   xmat : the compressed and possibly sampled matrix of change
-#'   statistics
-#' \item zy : the corresponding vector of responses,
+#' @return \code{ergm.pl} returns a list containing: \itemize{ 
+#' \item `xmat` : the compressed and possibly sampled matrix of change statistics
+#' \item `xmat.full` : as `xmat` but with offset terms
+#' \item `zy` : the corresponding vector of responses,
 #'   i.e. tie values
-#' \item foffset : ??
-#' \item wend : the vector of
-#'   weights for 'xmat' and 'zy'
-#' \item numobs : the number of dyads
-#'  
-#' \item
-#'   theta.offset : a numeric vector whose ith entry tells whether the
-#'   the ith curved coefficient?? was offset/fixed; -Inf implies the
+#' \item `foffset` : combined effect of offset terms
+#' \item `wend` : the vector of weights for `xmat` and `zy`
+#' \item `numobs` : the number of dyads
+#' \item `theta.offset` : a logical vector whose ith entry tells whether the
+#'   the ith curved coefficient?? was offset/fixed; `-Inf` implies the
 #'   coefficient was fixed, 0 otherwise; if the model hasn't any
 #'   curved terms, the first entry of this vector is one of
-#'   log(Clist$nedges/(Clist$ndyads-Clist$nedges))
-#'   log(1/(Clist$ndyads-1)) depending on 'Clist$nedges' }
+#'   `log(Clist$nedges/(Clist$ndyads-Clist$nedges))` or
+#'   `log(1/(Clist$ndyads-1))` depending on `Clist$nedges`}
 #' @keywords internal
 #' @export
 ergm.pl<-function(nw, fd, m, theta.offset=NULL,
