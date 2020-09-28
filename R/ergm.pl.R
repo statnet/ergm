@@ -21,7 +21,7 @@
 #' \item `xmat.full` : as `xmat` but with offset terms
 #' \item `zy` : the corresponding vector of responses,
 #'   i.e. tie values
-#' \item `foffset` : sum of all offset terms
+#' \item `foffset` : combined effect of offset terms
 #' \item `wend` : the vector of weights for `xmat` and `zy`
 #' \item `numobs` : the number of dyads
 #' \item `theta.offset` : a logical vector whose ith entry tells whether the

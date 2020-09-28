@@ -68,7 +68,7 @@ containing several items; for details see the return list in the
 \item \code{xmat.full} : as \code{xmat} but with offset terms
 \item \code{zy} : the corresponding vector of responses,
 i.e. tie values
-\item \code{foffset} : sum of all offset terms
+\item \code{foffset} : combined effect of offset terms
 \item \code{wend} : the vector of weights for \code{xmat} and \code{zy}
 \item \code{numobs} : the number of dyads
 \item \code{theta.offset} : a logical vector whose ith entry tells whether the
