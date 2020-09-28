@@ -78,59 +78,59 @@ InitErgmConstraint..attributes <- function(lhs.nw, ...){
 }
 
 InitErgmConstraint.edges<-function(lhs.nw, ...){
-   if(length(list(...)))
+   if(...length())
      ergm_Init_abort(paste("Edge count constraint does not take arguments at this time."))
    list(dependence = TRUE, implies = "edges")
 }
 
 InitErgmConstraint.degrees<-InitErgmConstraint.nodedegrees<-function(lhs.nw, ...){
-   if(length(list(...)))
+   if(...length())
      ergm_Init_abort(paste("Vertex degrees constraint does not take arguments at this time."))
    list(dependence = TRUE, constrain = "degrees", implies = c("degrees", "edges", "idegrees", "odegrees", "idegreedist", "odegreedist", "degreedist", "bd"))
 }
 
 InitErgmConstraint.odegrees<-function(lhs.nw, ...){
-   if(length(list(...)))
+   if(...length())
      ergm_Init_abort(paste("Vertex odegrees constraint does not take arguments at this time."))
    if(!is.directed(lhs.nw)) ergm_Init_abort("Vertex odegrees constraint is only meaningful for directed networks.")
    list(dependence = TRUE, implies = c("odegrees", "edges", "odegreedist"))
 }
 
 InitErgmConstraint.idegrees<-function(lhs.nw, ...){
-   if(length(list(...)))
+   if(...length())
      ergm_Init_abort(paste("Vertex idegrees constraint does not take arguments at this time."))
    if(!is.directed(lhs.nw)) ergm_Init_abort("Vertex idegrees constraint is only meaningful for directed networks.")
    list(dependence = TRUE, implies = c("idegrees", "edges", "idegreedist"))
 }
 
 InitErgmConstraint.b1degrees<-function(lhs.nw, ...){
-   if(length(list(...)))
+   if(...length())
      ergm_Init_abort(paste("B1 vertex degrees constraint does not take arguments at this time."))
    if(!is.bipartite(lhs.nw)) ergm_Init_abort("B1 vertex degrees constraint is only meaningful for bipartite networks.")
    list(dependence = TRUE, implies = c("b1degrees", "edges"))
 }
 
 InitErgmConstraint.b2degrees<-function(lhs.nw, ...){
-   if(length(list(...)))
+   if(...length())
      ergm_Init_abort(paste("B2 vertex degrees constraint does not take arguments at this time."))
    if(!is.bipartite(lhs.nw)) ergm_Init_abort("B2 vertex degrees constraint is only meaningful for bipartite networks.")
    list(dependence = TRUE, implies = c("b2degrees", "edges"))
 }
 
 InitErgmConstraint.degreedist<-function(lhs.nw, ...){
-   if(length(list(...)))
+   if(...length())
      ergm_Init_abort(paste("Degree distribution constraint does not take arguments at this time."))
    list(dependence = TRUE, implies = c("degreedist", "edges", "idegreedist", "odegreedist"))
 }
 
 InitErgmConstraint.idegreedist<-function(lhs.nw, ...){
-   if(length(list(...)))
+   if(...length())
      ergm_Init_abort(paste("InDegree distribution constraint does not take arguments at this time."))
    list(dependence = TRUE, implies = c("idegreedist", "edges"))
 }
 
 InitErgmConstraint.odegreedist<-function(lhs.nw, ...){
-   if(length(list(...)))
+   if(...length())
      ergm_Init_abort(paste("OutDegree distribution constraint does not take arguments at this time."))
    list(dependence = TRUE, implies = c("odegreedist", "edges"))
 }
@@ -138,25 +138,25 @@ InitErgmConstraint.odegreedist<-function(lhs.nw, ...){
 InitErgmConstraint.bd<-function(lhs.nw, attribs=NULL, maxout=NA, maxin=NA, minout=NA, minin=NA, ...){
    if(nargs()>6)
      ergm_Init_abort(paste("Bounded degrees constraint takes at most 5 arguments; ",nargs()-1," given.",sep=""))
-   if(length(list(...))) ergm_Init_abort(paste0("Unrecognised argument(s) ", paste.and(names(list(...)), oq="'", cq="'"),".")) 
+   if(...length()) ergm_Init_abort(paste0("Unrecognised argument(s) ", paste.and(names(list(...)), oq="'", cq="'"),".")) 
    list(attribs=attribs,maxout=maxout,maxin=maxin,minout=minout,minin=minin)
 }
 
 InitErgmConstraint.hamming<-function(lhs.nw, ...){
-   if(length(list(...)))
+   if(...length())
      ergm_Init_abort(paste("Hamming distance constraint does not take arguments at this time."))
    list(dependence = TRUE)
 }
 
 InitErgmConstraint.observed <- function(lhs.nw, ...){
-  if(length(list(...)))
+  if(...length())
     ergm_Init_abort(paste("Toggle non-observed constraint does not take arguments at this time."))
   list(free_dyads = as.rlebdm(as.edgelist(is.na(lhs.nw))),
        dependence = FALSE, implies = c("observed"))
 }
 
 InitErgmConstraint.blockdiag<-function(lhs.nw, attrname=NULL, ...){
-  if(length(list(...)))
+  if(...length())
     ergm_Init_abort(paste("Block diagonal constraint takes one argument at this time."))
   list(attrname=attrname,
        free_dyads = {

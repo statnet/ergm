@@ -222,7 +222,7 @@ ergm.getCluster <- function(control=NULL, verbose=FALSE, stop_on_exit=parent.fra
 #' @param \dots not currently used
 #' @export ergm.stopCluster
 ergm.stopCluster <- function(..., verbose=FALSE){
-  if(length(list(...))) warning("Arguments to ergm.stopCluster() have been deprecated.")
+  if(...length()) warning("Arguments to ergm.stopCluster() have been deprecated.")
   if(!is.null(ergm.cluster.started())){
     #' @importFrom parallel stopCluster
     if(verbose) message("Stopping the running cluster.")
