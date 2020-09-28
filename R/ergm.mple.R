@@ -114,10 +114,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
     
     # error handling for glm results
     if (!is.null(glm.result$error)) {
-      warning(glm.result$error)
-      mplefit <- list(coef=pl$theta.offset, deviance=0,
-                      cov.unscaled=diag(length(pl$theta.offset)))
-      mplefit.summary <- list(cov.unscaled=diag(length(pl$theta.offset)))
+      stop(glm.result$error)
     } else if (!is.null(glm.result$warnings)) {
       # if the glm results are crazy, redo it with 0 starting values
       if (max(abs(glm.result$value$coef), na.rm=T) > 1e6) {
@@ -142,12 +139,11 @@ ergm.mple<-function(nw, fd, m, init=NULL,
 
    }
   }
-  theta <- pl$theta.offset
   real.coef <- mplefit$coef
   real.cov <- mplefit.summary$cov.unscaled
-  if(ncol(real.cov)==1){real.cov <- as.vector(real.cov)}
+
+  theta <- NVL(init, real.coef)
   theta[!m$etamap$offsettheta] <- real.coef
-# theta[is.na(theta)] <- 0
   names(theta) <- param_names(m,canonical=TRUE)
 
 #

@@ -72,13 +72,7 @@ containing several items; for details see the return list in the
 i.e. tie values
 \item \code{foffset} : combined effect of offset terms
 \item \code{wend} : the vector of weights for \code{xmat} and \code{zy}
-\item \code{numobs} : the number of dyads
-\item \code{theta.offset} : a logical vector whose ith entry tells whether the
-the ith curved coefficient?? was offset/fixed; \code{-Inf} implies the
-coefficient was fixed, 0 otherwise; if the model hasn't any
-curved terms, the first entry of this vector is one of
-\code{log(Clist$nedges/(Clist$ndyads-Clist$nedges))} or
-\code{log(1/(Clist$ndyads-1))} depending on \code{Clist$nedges}}
+\item \code{numobs} : the number of dyads}
 }
 \description{
 The \code{ergm.mple} function finds a maximizer to the psuedolikelihood

@@ -27,13 +27,7 @@
 #'   i.e. tie values
 #' \item `foffset` : combined effect of offset terms
 #' \item `wend` : the vector of weights for `xmat` and `zy`
-#' \item `numobs` : the number of dyads
-#' \item `theta.offset` : a logical vector whose ith entry tells whether the
-#'   the ith curved coefficient?? was offset/fixed; `-Inf` implies the
-#'   coefficient was fixed, 0 otherwise; if the model hasn't any
-#'   curved terms, the first entry of this vector is one of
-#'   `log(Clist$nedges/(Clist$ndyads-Clist$nedges))` or
-#'   `log(1/(Clist$ndyads-1))` depending on `Clist$nedges`}
+#' \item `numobs` : the number of dyads}
 #' @keywords internal
 #' @export
 ergm.pl<-function(nw, fd, m, theta.offset=NULL,
@@ -154,15 +148,8 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
     foffset <- foffset[is.finite(foffset)]
   }else{
     foffset <- rep(0, length=length(zy))
-    theta.offset <- rep(0, length=Clist$nstats)
-    if(e>0){
-      theta.offset[1] <- log(e/(d-e))
-    }else{
-      theta.offset[1] <- log(1/(d-1))
-    }
-    names(theta.offset) <- param_names(m,canonical=TRUE)
   }
   
   list(xmat=xmat, zy=zy, foffset=foffset, wend=wend, numobs=round(sum(wend)),
-       theta.offset=theta.offset, xmat.full=xmat.full)
+       xmat.full=xmat.full)
 }
