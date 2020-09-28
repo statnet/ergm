@@ -55,8 +55,10 @@ or F); default=FALSE}
 \item{\dots}{additional parameters passed from within; all will be
 ignored}
 
-\item{theta.offset}{a logical vector specifying which of the model
-coefficients are offset, i.e. fixed}
+\item{theta.offset}{a numeric vector of length equal to the number
+of statistics of the model, specifying (positionally) the
+coefficients of the offset statistics; elements corresponding to
+free parameters are ignored.}
 }
 \value{
 \code{ergm.mple} returns an ergm object as a list

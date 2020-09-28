@@ -14,8 +14,12 @@
 #'   \code{ergm.mple} for the regression rountines that are used to
 #'   find the MPLE estimated ergm. It should not be called directly by
 #'   the user.
-#' @param theta.offset a logical vector specifying which of the model
-#'   coefficients are offset, i.e. fixed
+#'
+#' @param theta.offset a numeric vector of length equal to the number
+#'   of statistics of the model, specifying (positionally) the
+#'   coefficients of the offset statistics; elements corresponding to
+#'   free parameters are ignored.
+#'
 #' @return \code{ergm.pl} returns a list containing: \itemize{ 
 #' \item `xmat` : the compressed and possibly sampled matrix of change statistics
 #' \item `xmat.full` : as `xmat` but with offset terms
