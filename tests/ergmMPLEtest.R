@@ -18,7 +18,7 @@ if (!all(m - matrix(c(71, 132, 10284, 10423, 1, 1, 0, 0, 0, 1, 1, 0), 4,3) == 0)
   stop("Failed first test of ergmMPLE")
 }
 
-modelfit <- ergmMPLE(formula, fitmodel=TRUE)
+modelfit <- ergmMPLE(formula, output="fit")
 alt <- glm(mplesetup$response ~ mplesetup$predictor - 1, 
            weights = mplesetup$weights, family="binomial")
 if(!all(abs(modelfit$coef - alt$coefficients)<1e-4)) {
