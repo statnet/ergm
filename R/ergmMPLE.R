@@ -210,11 +210,11 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmod
   pl <- ergm.pl(nw, fd, model, verbose=verbose, control=control, ignore.offset=TRUE,...)
 
   switch(output,
-         matrix = list(response = pl$zy, predictor = pl$xmat, 
-                       weights = pl$wend),
+         matrix = list(response = pl$zy, predictor = pl$xmat.full,
+           weights = pl$wend),
          dyadlist = {
-           o <- order(pl$xmat[,"tail"], pl$xmat[,"head"])
-           list(response = pl$zy[o], predictor = pl$xmat[o,,drop=FALSE], 
+           o <- order(pl$xmat.full[,"tail"], pl$xmat.full[,"head"])
+           list(response = pl$zy[o], predictor = pl$xmat.full[o,,drop=FALSE],
                 weights = pl$wend[o])
          },
          array = {
@@ -222,19 +222,19 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmod
            vn <- if(all(is.na(nw %v% "vertex.names"))) 1:network.size(nw) else nw %v% "vertex.names"
            t.names <- if(bip) vn[seq_len(bip)] else vn
            h.names <- if(bip) vn[-seq_len(bip)] else vn
-           term.names <- colnames(pl$xmat)[-(1:2),drop=FALSE]
+           term.names <- colnames(pl$xmat.full)[-(1:2),drop=FALSE]
 
-           if(bip) pl$xmat[,2] <- pl$xmat[,2] - bip
+           if(bip) pl$xmat.full[,2] <- pl$xmat.full[,2] - bip
            
-           xa <- array(NA, dim = c(length(t.names), length(h.names), ncol(pl$xmat)-2), dimnames = list(tail = t.names, head = h.names, term = term.names))
+           xa <- array(NA, dim = c(length(t.names), length(h.names), ncol(pl$xmat.full)-2), dimnames = list(tail = t.names, head = h.names, term = term.names))
            
            for(k in seq_along(term.names))
-             xa[cbind(pl$xmat[,1:2,drop=FALSE],k)] <- pl$xmat[,k+2]
+             xa[cbind(pl$xmat.full[,1:2,drop=FALSE],k)] <- pl$xmat.full[,k+2]
            
            ym <- as.matrix(nw, matrix.type="adjacency")
 
            wm <- matrix(0, nrow(ym), ncol(ym))
-           wm[cbind(pl$xmat[,1:2,drop=FALSE])] <- pl$wend
+           wm[cbind(pl$xmat.full[,1:2,drop=FALSE])] <- pl$wend
 
            list(response = ym, predictor = xa, weights = wm)
          }

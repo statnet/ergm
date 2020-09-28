@@ -103,12 +103,14 @@
           }
         }
       }
-      \code{A vignette for the \link[=nodal_attributes]{nodal attributes UI} has been added.}
-    }
-    \item{The \code{\link{simulate.ergm}} family of functions' \code{output=} argument can no only takes a function through which the simulated networks are mapped before returning.
-    }
-    \item{
-      The \code{\link[ergm]{cycle}} term implementation has been greatly improved.
+      \item{
+        A vignette for the \link[=nodal_attributes]{nodal attributes UI} has been added.
+      }
+      \item{The \code{\link{simulate.ergm}} family of functions' \code{output=} argument can no only takes a function through which the simulated networks are mapped before returning.
+      }
+      \item{
+        The \code{\link[ergm]{cycle}} term implementation has been greatly improved.
+      }
     }
   }
 
@@ -163,6 +165,7 @@
       \item{
         For bipartite terms, \code{NA}s in nodal attributes are now tolerated if they are in the unused bipartition.
       }
+    }
   }
 
 
@@ -207,6 +210,7 @@
       \item{
         \code{san.ergm} has been deprecated, since it lacks a known use case.
       }
+    }
   }
 }
 
