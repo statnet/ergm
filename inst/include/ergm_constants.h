@@ -1,8 +1,9 @@
 #ifndef _ERGM_CONSTANTS_H_
 #define _ERGM_CONSTANTS_H_
 
-// Macro indicating the version of the C API.
-#define ERGM_API 3.11
+// Macros indicating the version of the C API.
+#define ERGM_API_MAJOR 3
+#define ERGM_API_MINOR 11
 
 typedef enum MCMCStatus_enum {
   MCMC_OK = 0,
