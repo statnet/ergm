@@ -99,7 +99,7 @@ predict.formula <- function(object, theta,
   }
   
   predmat <- ergmMPLE(
-    update(object, . ~ . + indices),
+    update(object, . ~ indices + . ),
     output = "matrix",
     ...
   )$predictor
@@ -107,8 +107,8 @@ predict.formula <- function(object, theta,
   # Compute conditional Ps and cbind to ergmMPLE() output
   predmat <- cbind(predmat, p=drop(switch(
     type,
-    link = predmat[,seq(1, length(theta)), drop=FALSE] %*% theta,
-    response = 1 / (1 + exp( - predmat[,seq(1, length(theta)), drop=FALSE] %*% theta))
+    link = predmat[,-(1:2), drop=FALSE] %*% theta,
+    response = 1 / (1 + exp( - predmat[,-(1:2), drop=FALSE] %*% theta))
   ) ) )
   # Format output
   switch(

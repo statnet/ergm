@@ -100,146 +100,62 @@ test_that("works for edges model on small graph", {
 
 
 
+test_that("predict.formula(net ~ edges + offset(edges))", {
+  net <- network.initialize(4, directed=FALSE)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Scrapbook ---------------------------------------------------------------
-
-# Some ideas for tests not [yet] implemented.
-
-if(FALSE) {
-  
-  logit <- function(p, ...) log(p / (1-p), ...)
-  expit <- function(lgit, ...) 1 / (1 + exp(-lgit))
-
-  r1 <- predict_ergm(fit, flomarriage)
-  
-  data("flo")
-  fit <- ergm(flomarriage ~ edges + gwesp(0.25, fixed = TRUE))
-  # term: indicies
-  z <- ergmMPLE( 
-    update(fit$formula, . ~ . + indices), 
-    output="matrix"
+  # edges + offset(edges)
+  expect_silent(
+    # Odds = 1/4 * 4 = 1
+    # P = 0.5
+    p <- predict(net ~ edges + offset(edges), c(log(1/4),  log(4)))
   )
-  str(z)
-  coef(fit)
-  v <- ergm.eta(fit$coef, fit$etamap)
-  z$predictor[,1:2] %*% v -> m
+  expect_equal(p$p, rep(0.5, 6))
   
-  p <- predict_formula(flomarriage ~ edges + gwesp(0.25, fixed = TRUE), c(-1, 0.5))
-  
-  
-  # OTPs --------------------------------------------------------------------
-  
-  net <-
-    igraph::make_graph(~A --+ C:D --+ B +-- A) %>%
-    intergraph::asNetwork() 
-  plot(net, displaylabels=TRUE)
-  
-  # Formula
-  fit <- ergm(
-    net ~ edges + dgwesp(decay=0.5, fixed=TRUE, type="OTP"),
-    control = control.ergm(MCMLE.maxit = 2)
+  net[1,2:4] <- 1
+  expect_equal(
+    predict(ergm(net ~ edges + offset(edges), offset.coef=log(4)))$p,
+    rep(0.5, 6)
   )
-  summary(fit)
-  
-  simulate(fit, nsim=1)
+})
 
-  predict(fit)
-  predict(fit, conditional=FALSE, nsim=10)
-  
-  predict(
-    net ~ edges + dgwesp(decay=0.5, fixed=TRUE, type="OTP"),
-    theta = c(-191, 66)
+
+test_that("predict.formula(net ~ edges + offset(nodematch))", {
+  net <- network.initialize(4, directed=FALSE)
+  net %v% "a" <- a <- c(1,1,2,2)
+
+  expect_silent(
+    p <- predict(
+      net ~ edges + offset(nodematch("a", diff=FALSE)), 
+      c(log(1/4),  log(4))
+    )
   )
-
-  simulate_formula(
-    net ~ edges + dgwesp(decay=0.5, fixed=TRUE, type="OTP"),
-    coef = c(-191, 66)
+  match_on_a <-  a[p$tail] == a[p$head]
+  expect_equal(
+    p$p,
+    ifelse(match_on_a, 0.5, 0.2)
   )
-
-  # Sampson data ------------------------------------------------------------
-  
-  # Curved ERGM
-  
-  data(sampson)
-  gest <- ergm(
-    samplike ~ edges + gwesp(decay=0.5, fixed=TRUE)
-  )
-  coef(gest)
-  summary(samplike ~ edges + gwesp(decay=0.5, fixed=TRUE))
-
-  predict(gest)
-  predict(gest, conditional=FALSE, output="matrix")
-  
-  # predict on net different than the one the model was fit to --------------
-  
-  predict(
-    net ~ edges + gwesp(decay=0.5, fixed=TRUE),
-    theta = coef(gest)
-  )  
-  
-  
-  # IBE121 - play --------------------------------------------------------
-  
-  
-  netw <- isnar::IBE121 %>%
-    igraph::delete_edges(igraph::E(.)[question != "play"]) %>%
-    intergraph::asNetwork()
-  
-  fit <- ergm(
-    netw ~ edges + nodematch("female") + gwesp(decay=0.2, fixed=FALSE),
-    control = control.ergm(MCMLE.maxit=1)
-  )
-  
-  ff <- enformulate.curved(fit)
-  
-  
-  summary(netw ~ edges + nodematch("female") + gwesp(decay=0.2, fixed=TRUE) )
-  p <- cond_probs(fit, netw)  
+})
 
 
 
-  # Subsets -----------------------------------------------------------------
-  
-  net <- network.initialize(3, directed=TRUE)
+
+test_that("predict.formula(net ~ edges + degree(1)", {
+  net <- network.initialize(3, directed=FALSE)
   net[1,2] <- 1
-  r <- predict(net ~ edges, -1.609, constraints= ~ fixallbut(net))
-  theta <- -1.609
-  predmat <- ergmMPLE(net ~ edges + indices, constraints = ~ fixallbut(net))$predictor
-  
-  
-  
-  data(sampson)
-  gest2 <- ergm(
-    samplike ~ edges + nodematch("group")
+  expect_silent(
+    p <- predict(
+      # logodds(1--2) = log(1/4) + log(4)*2
+      # odds(1--2) = 16/4 = 4
+      # P(1--2) = 4/5
+      # logodds(1--3 | 2--3) = log(1/4) + log(4) * 0
+      # odds(1--3 | 2--3) = 1/4
+      # P(1--3 | 2--3) = 1/5
+      net ~ edges + degree(1), 
+      c(log(1/4),  log(4))
+    )
   )
-  summary(gest2)
-  g <- gof(gest2)
-  plot(g)
-  
-  # Probs for all dyads
-  predict(gest2)
-  
-  # Probs for dyads in `net`
-
-  
-}
-
+  expect_equal(
+    p$p,
+    with(p, ifelse(tail == 1 & head == 2, 4/5, 1/5))
+  )
+})
