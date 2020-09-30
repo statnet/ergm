@@ -159,3 +159,23 @@ test_that("predict.formula(net ~ edges + degree(1)", {
     with(p, ifelse(tail == 1 & head == 2, 4/5, 1/5))
   )
 })
+
+
+
+
+test_that("it works for offsets and non-finite offset coefs", {
+  data("faux.mesa.high")
+  fit <- ergm(
+    faux.mesa.high ~ edges 
+    + nodefactor("Grade")
+    + nodematch("Grade", diff=T)
+    + offset(nodematch("Sex", diff = TRUE, levels = c(1, 2))),
+    offset.coef = rep(-Inf, 2)
+  )
+  expect_silent(
+    p <- predict(fit)
+  )
+  expect_true(
+    all(is.finite(p$p))
+  )
+})
