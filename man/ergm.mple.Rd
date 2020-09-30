@@ -57,8 +57,10 @@ or F); default=FALSE}
 \item{\dots}{additional parameters passed from within; all will be
 ignored}
 
-\item{theta.offset}{a numeric vector used to specify the offset
-(i.e., fixed) coefficients when \code{ignore.offset=FALSE}.}
+\item{theta.offset}{a numeric vector of length equal to the number
+of statistics of the model, specifying (positionally) the
+coefficients of the offset statistics; elements corresponding to
+free parameters are ignored.}
 
 \item{ignore.offset}{If \code{FALSE} (the default), columns
 corresponding to terms enclosed in \code{offset()} are not
@@ -77,14 +79,14 @@ containing several items; for details see the return list in the
 \item{xmat}{the compressed and possibly sampled matrix of change
 statistics}
 
+\item{xmat.full}{as \code{xmat} but with offset terms}
+
 \item{zy}{the corresponding vector of responses, i.e. tie values}
 
 \item{foffset}{if \code{ignore.offset==FALSE}, the combined offset statistics multiplied by their parameter values}
 
 \item{wend}{the vector of weights for \code{xmat}
 and \code{zy}}
-
-\item{theta.offset}{ a numeric vector of offset coefficients}
 }
 \description{
 The \code{ergm.mple} function finds a maximizer to the psuedolikelihood

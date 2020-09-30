@@ -20,6 +20,8 @@ on: push
 jobs:
   public-private-sync:
     runs-on: ubuntu-latest
+    env:
+      KEY_AVAILABLE: ${{ secrets.JANITORS_SSH_KEY != '' }}
     steps:
     - name: check-config # Make sure either neither or both are set; abort if not.
       if: (env.PUBLIC == '') != (env.PRIVATE == '')
@@ -27,10 +29,10 @@ jobs:
         echo "Configuration problem: only one of the repositories is set."
         exit 1
     - name: detect-repos
-      if: env.PUBLIC == '' && env.PRIVATE == ''
+      if: env.KEY_AVAILABLE != 'false' && env.PUBLIC == '' && env.PRIVATE == '' # If Janitor's key is not present, then we are probably in a fork, so don't autodetect (which then effectively disables all subsequent steps if PUBLIC and PRIVATE aren't set).
       run: |
         if [[ "${{ github.repository }}" == *-private ]]
-        then # Current repo is provate.
+        then # Current repo is private.
           PRIVATE="${{ github.repository }}"
           PUBLIC="${PRIVATE%-private}"
         else # Current repo is public.

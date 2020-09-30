@@ -14,18 +14,24 @@
 #'   \code{ergm.mple} for the regression rountines that are used to
 #'   find the MPLE estimated ergm. It should not be called directly by
 #'   the user.
-#' @param theta.offset a numeric vector used to specify the offset
-#'   (i.e., fixed) coefficients when `ignore.offset=FALSE`.
+#'
+#' @param theta.offset a numeric vector of length equal to the number
+#'   of statistics of the model, specifying (positionally) the
+#'   coefficients of the offset statistics; elements corresponding to
+#'   free parameters are ignored.
 #' @param ignore.offset If \code{FALSE} (the default), columns
 #'   corresponding to terms enclosed in \code{offset()} are not
 #'   returned with others but are instead processed by multiplying
 #'   them by their corresponding coefficients (which are fixed, by
 #'   virtue of being offsets) and the results stored in a separate
 #'   column.
+#'
 #' @return \code{ergm.pl} returns a list containing:
 #'
 #' \item{xmat}{the compressed and possibly sampled matrix of change
 #'   statistics}
+#'
+#' \item{xmat.full}{as `xmat` but with offset terms}
 #'
 #' \item{zy}{the corresponding vector of responses, i.e. tie values}
 #'
@@ -33,8 +39,6 @@
 #'
 #' \item{wend}{the vector of weights for `xmat`
 #'   and `zy`}
-#'  
-#' \item{theta.offset}{ a numeric vector of offset coefficients}
 #'
 #' @keywords internal
 #' @export
@@ -137,5 +141,5 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
   }
   
   list(xmat=xmat, zy=zy, foffset=foffset, wend=wend,
-       theta.offset=theta.offset, xmat.full=xmat.full)
+       xmat.full=xmat.full)
 }
