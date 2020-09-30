@@ -67,6 +67,7 @@ predict.formula <- function(object, theta,
                             nsim = 100,
                             output=c("data.frame", "matrix"), ...) {
   stopifnot(is.numeric(theta))
+  theta <- statnet.common::deInf(theta)
   output <- match.arg(output)
   type <- match.arg(type)
   
