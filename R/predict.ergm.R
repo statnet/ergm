@@ -100,7 +100,7 @@ predict.formula <- function(object, theta,
   }
   
   predmat <- ergmMPLE(
-    update(object, . ~ indices + . ),
+    statnet.common::nonsimp_update.formula(object, . ~ indices + . ),
     output = "matrix",
     ...
   )$predictor
