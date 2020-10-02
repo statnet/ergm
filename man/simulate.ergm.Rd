@@ -2,16 +2,17 @@
 % Please edit documentation in R/simulate.ergm.R
 \name{simulate.ergm}
 \alias{simulate.ergm}
-\alias{simulate.formula}
+\alias{simulate.formula_lhs_network}
 \alias{simulate.formula.ergm}
 \alias{simulate_formula}
 \alias{.simulate_formula.network}
 \alias{simulate_formula.network}
+\alias{simulate.formula_lhs_pending_update_network}
 \alias{simulate_formula.pending_update_network}
 \alias{simulate.ergm_model}
 \title{Draw from the distribution of an Exponential Family Random Graph Model}
 \usage{
-\method{simulate}{formula}(object, nsim = 1, seed = NULL, ...)
+\method{simulate}{formula_lhs_network}(object, nsim = 1, seed = NULL, ...)
 
 simulate_formula(object, ..., basis = eval_lhs.formula(object))
 
@@ -35,6 +36,8 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   basis = eval_lhs.formula(object),
   do.sim = TRUE
 )
+
+\method{simulate}{formula_lhs_pending_update_network}(object, nsim = 1, seed = NULL, ...)
 
 \method{simulate_formula}{pending_update_network}(
   object,
@@ -115,14 +118,7 @@ algorithm.}
 
 \item{\dots}{Further arguments passed to or used by methods.}
 
-\item{basis}{An optional network data object to start the
-Markov chain.  If omitted, the default is the left-hand-side of the
-\code{formula}.  If neither a left-hand-side nor a \code{basis} is present,
-an error results because the characteristics of the network (e.g., size and
-directedness) must be specified.  The \code{ergm} package provides support
-for \code{basis} arguments of class \code{\link[network]{network}} and
-of class \code{\link[ergm]{pending_update_network}}; other packages may
-extend support to other classes.}
+\item{basis}{a value (usually a \code{\link{network}}) to override the LHS of the formula.}
 
 \item{coef}{Vector of parameter values for the model from which the sample
 is to be drawn.  If \code{object} is of class \code{ergm}, the default value
