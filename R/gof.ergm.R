@@ -729,13 +729,13 @@ plot.gof <- function(x, ...,
             ylab = ylab, names = na.omit(pnames), cex.axis = cex.axis, outline=FALSE,
             ylim=c(ymin,ymax), ...)
 
-    points(cumsum(!is.na(i)), colMeans(out[, i, drop=FALSE]), pch=19, cex=2)
     points(cumsum(!is.na(i)), out.bds[1,i], pch = 1,cex=0.75)
     points(cumsum(!is.na(i)), out.bds[2,i], pch = 1,cex=0.75)
     lines(cumsum(!is.na(i)), out.bds[1,i], pch = 18,lty=1,lwd=1,col=color)
     lines(cumsum(!is.na(i)), out.bds[2,i], pch = 18,lty=1,lwd=1,col=color)
     points(cumsum(!is.na(i)), out.obs[i], pch = 16,cex=0.75)
     lines(cumsum(!is.na(i)), out.obs[i], lty = 1,lwd=3)
+    points(cumsum(!is.na(i)), colMeans(out[, i, drop=FALSE]), pch=18, cex=2, col="blue")
   }
 
  ###model####

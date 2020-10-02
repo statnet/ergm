@@ -68,7 +68,7 @@
             (the default for \code{attr} gives every vertex the same attribute value),
             and may also pass a matrix of weights \code{pmat} (the default for 
             \code{pmat} gives equal weight to each mixing type).  See 
-            \link[=node-attr]{Specifying Vertex Attributes and Levels} for details on 
+            \link[=nodal_attributes]{Specifying Vertex Attributes and Levels} for details on 
             specifying vertex attributes.  The matrix \code{pmat}, if specified, must have
             the same dimensions as a mixing matrix for the network and attribute under 
             consideration, and the correspondence between rows and columns of \code{pmat}
@@ -152,7 +152,7 @@
                     attribute \code{attr} (the default \code{attr} gives every vertex the same attribute value)
                     and a logical matrix \code{fmat} indicating which mixing types of \code{attr}
                     are forbidden from having ties (the default \code{fmat} allows all mixing types).  
-                    See \link[=node-attr]{Specifying Vertex Attributes and Levels}
+                    See \link[=nodal_attributes]{Specifying Vertex Attributes and Levels}
                     for details on specifying vertex attributes.  The matrix \code{fmat}, if specified, must have
                     the same dimensions as a mixing matrix for the network and attribute under
                     consideration, and the correspondence between rows and columns of \code{fmat}
