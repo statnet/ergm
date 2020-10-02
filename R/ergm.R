@@ -219,16 +219,18 @@
 #' \code{force.main} argument of \code{\link{control.ergm}}. If "CD" (\emph{EXPERIMENTAL}),
 #' the Monte-Carlo contrastive divergence estimate is returned. )
 #' }
-#' @param control {A list of control parameters for algorithm
+#' @param control A list of control parameters for algorithm
 #' tuning. Constructed using \code{\link{control.ergm}}. 
-#' }
-#' @param verbose {logical; if this is
-#' \code{TRUE}, the program will print out additional
-#' information, including goodness of fit statistics.
-#' }
-#' @param \dots {Additional
+#'
+#' @param verbose A `logical` or an integer: if this is
+#'   \code{TRUE}/\code{1}, the program will print out additional
+#'   information about the progress of estimation and
+#'   simulation. Higher values produce more verbosity.
+#'
+#' @param \dots Additional
 #' arguments, to be passed to lower-level functions.
-#' }
+#'
+#' @template basis
 #' 
 #' @return
 #' \code{\link{ergm}} returns an object of class \code{\link{ergm}} that is a list
@@ -519,7 +521,7 @@ ergm <- function(formula, response=NULL,
                  eval.loglik=getOption("ergm.eval.loglik"),
                  estimate=c("MLE", "MPLE", "CD"),
                  control=control.ergm(),
-                 verbose=FALSE,...) {
+                 verbose=FALSE,..., basis=ergm.getnetwork(formula)) {
   check.control.class("ergm", "ergm")
   control.toplevel(control,...)
 
@@ -543,7 +545,7 @@ ergm <- function(formula, response=NULL,
   if(!is.null(control$seed))  set.seed(as.integer(control$seed))
   if (verbose) message("Evaluating network in model.")
   
-  nw <- ergm.getnetwork(formula)
+  nw <- basis
   NVL(response) <- nw %ergmlhs% "response"
 
   proposalclass <- "c"

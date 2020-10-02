@@ -89,7 +89,9 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
   
   ## Here, we need to get the model object to get the likelihood and gradient functions.
-  tmp <- ergm.bridge.preproc(object,basis,response); nw <- tmp$nw; form <- tmp$form; response <- tmp$response
+  tmp<-ergm.bridge.preproc(object,basis,response,term.options=control$term.options)
+  nw.state <-nw<-tmp$nw; m<-tmp$model; form<-tmp$form; rm(tmp)
+
 
   ## Generate the path.
   path<-t(rbind(sapply(seq(from=0+1/2/(control$nsteps+1),to=1-1/2/(control$nsteps+1),length.out=control$nsteps),function(u) cbind(to*u + from*(1-u)))))
@@ -109,57 +111,88 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
     proposal.obs$aux.slots <- m.obs$slots.extra.aux$proposal
 
     stats.obs <- matrix(NA,control$nsteps,m$etamap$etalength)
+    nw.state.obs <- nw.state
   }else
     stats.obs<-matrix(NVL(target.stats,summary(m, nw, response=response)),control$nsteps,m$etamap$etalength,byrow=TRUE)
 
   stats<-matrix(NA,control$nsteps,m$etamap$etalength)
   
-  message("Using ", control$nsteps, " bridges: ", appendLF=FALSE)
+  bridge.control <- control
+
+  gen_control <- function(obs, burnin){
+    control.simulate.formula(
+      MCMC.burnin = if(burnin=="first"){
+                      if(obs) bridge.control$obs.MCMC.burnin
+                      else bridge.control$MCMC.burnin
+                    }else if(burnin=="next"){
+                      if(obs) ceiling(bridge.control$obs.MCMC.burnin/sqrt(bridge.control$nsteps))
+                      else ceiling(bridge.control$MCMC.burnin/sqrt(bridge.control$nsteps))
+                    }else{
+                      0
+                    },
+      term.options = bridge.control$term.options,
+      MCMC.interval = if(burnin!="no"){
+                       1
+                     }else{
+                       if(obs) bridge.control$obs.MCMC.interval
+                       else bridge.control$MCMC.interval
+                     },
+      MCMC.packagenames=bridge.control$MCMC.packagenames,
+      parallel=bridge.control$parallel,
+      parallel.type=bridge.control$parallel.type,
+      parallel.version.check=bridge.control$parallel.version.check
+    )
+  }
+
+  sim_settings <- simulate(m, coef=from, nsim=1, response=response, constraints=proposal, output="ergm_state", verbose=max(verbose-1,0), basis = nw.state, control=gen_control(FALSE, "first"), ..., do.sim=FALSE)
+  if(!is.null(constraints.obs)) sim_settings.obs <- simulate(m.obs, coef=from, nsim=1, response=response, constraints=proposal.obs, output="ergm_state", verbose=max(verbose-1,0), basis = nw.state.obs, control=gen_control(TRUE, "first"), ..., do.sim=FALSE)
+
+  message("Using ", bridge.control$nsteps, " bridges: ", appendLF=FALSE)
   
-  for(i in seq_len(control$nsteps)){
+  for(i in seq_len(bridge.control$nsteps)){
     theta<-path[i,]
     if(verbose==0) message(i," ",appendLF=FALSE)
     if(verbose>0) message("Running theta=[",paste(format(theta),collapse=","),"].")
     if(verbose>1) message("Burning in...")
+
     ## First burn-in has to be longer, but those thereafter should be shorter if the bridges are closer together.
-    nw.state<-simulate(m, coef=theta, nsim=1, response=response, reference=reference, constraints=proposal, basis=nw, output="ergm_state", verbose=max(verbose-1,0),
-                       control=control.simulate.formula(MCMC.burnin=if(i==1) control$MCMC.burnin else ceiling(control$MCMC.burnin/sqrt(control$nsteps)),
-                                                        term.options=control$term.options,
-                         MCMC.interval=1,
-                         MCMC.packagenames=control$MCMC.packagenames,
-                         parallel=control$parallel,
-                         parallel.type=control$parallel.type,
-                         parallel.version.check=control$parallel.version.check
-                                                        ), ...)
+    sim_settings <- within(sim_settings, {
+      nsim <- 1
+      coef <- theta
+      basis <- nw.state
+      output <- "ergm_state"
+      control <- gen_control(FALSE, if(i==1)"first"else"next")
+    })
+    nw.state <- do.call(stats::simulate, sim_settings)
 
-    stats[i,]<-colMeans(as.matrix(simulate(m, coef=theta, response=response, reference=reference, constraints=proposal, basis=nw.state, output="stats", verbose=max(verbose-1,0),
-                              control=control.simulate.formula(MCMC.burnin=0,
-                                                               MCMC.interval=control$MCMC.interval,
-                                                               MCMC.packagenames=control$MCMC.packagenames,
-                                                               parallel=control$parallel,
-                                                               parallel.type=control$parallel.type,
-                                                               parallel.version.check=control$parallel.version.check
-                                                               ),
-                              nsim=ceiling(control$MCMC.samplesize/control$nsteps), ...)))
-    
-    if(!is.null(constraints.obs)){
-      nw.state.obs<-simulate(m.obs, coef=theta, nsim=1, response=response, reference=reference, constraints=proposal.obs, basis=nw, output="ergm_state", verbose=max(verbose-1,0),
-                             control=control.simulate.formula(MCMC.burnin=if(i==1) control$obs.MCMC.burnin else ceiling(control$obs.MCMC.burnin/sqrt(control$nsteps)),
-                                                              term.options=control$term.options,
-                               MCMC.interval=1,
-                               MCMC.packagenames=control$MCMC.packagenames,
-                               parallel=control$parallel,
-                               parallel.type=control$parallel.type,
-                               parallel.version.check=control$parallel.version.check), ...)
+    if(network.naedgecount(nw)){
+      sim_settings.obs <- within(sim_settings.obs, {
+        nsim <- 1
+        coef <- theta
+        basis <- nw.state.obs
+        output <- "ergm_state"
+        control <- gen_control(TRUE, if(i==1)"first"else"next")
+      })
+      nw.state.obs <- do.call(stats::simulate, sim_settings.obs)
+    }
 
-      stats.obs[i,]<-colMeans(as.matrix(simulate(m.obs, coef=theta, response=response, reference=reference, constraints=proposal.obs, basis=nw.state.obs, output="stats", verbose=max(verbose-1,0),
-                                control=control.simulate.formula(MCMC.burnin=0,
-                                  MCMC.interval=control$obs.MCMC.interval,
-                                  MCMC.packagenames=control$MCMC.packagenames,
-                                  parallel=control$parallel,
-                                  parallel.type=control$parallel.type,
-                                  parallel.version.check=control$parallel.version.check),
-                                nsim=ceiling(control$obs.MCMC.samplesize/control$nsteps), ...)))
+    if(verbose>1) message("Simulating...")
+    sim_settings <- within(sim_settings, {
+      nsim <- ceiling(bridge.control$MCMC.samplesize/bridge.control$nsteps)
+      basis <- nw.state
+      output <- "stats"
+      control <- gen_control(FALSE,"no")
+    })
+    stats[i,]<-colMeans(as.matrix(do.call(stats::simulate, sim_settings)))
+
+    if(network.naedgecount(nw)){
+      nsim <- ceiling(bridge.control$obs.MCMC.samplesize/bridge.control$nsteps)
+      sim_settings.obs <- within(sim_settings.obs, {
+        basis <- nw.state.obs
+        output <- "stats"
+        control <- gen_control(TRUE,"no")
+      })
+      stats.obs[i,]<-colMeans(as.matrix(do.call(stats::simulate, sim_settings.obs)))
     }
   }
   message(".")
