@@ -23,7 +23,8 @@ ergm(
   estimate = c("MLE", "MPLE", "CD"),
   control = control.ergm(),
   verbose = FALSE,
-  ...
+  ...,
+  basis = ergm.getnetwork(formula)
 )
 
 is.ergm(object)
@@ -121,18 +122,18 @@ likelihood calculation even when the MLE and MPLE are the same, see the
 the Monte-Carlo contrastive divergence estimate is returned. )
 }}
 
-\item{control}{{A list of control parameters for algorithm
-tuning. Constructed using \code{\link{control.ergm}}.
-}}
+\item{control}{A list of control parameters for algorithm
+tuning. Constructed using \code{\link{control.ergm}}.}
 
-\item{verbose}{{logical; if this is
-\code{TRUE}, the program will print out additional
-information, including goodness of fit statistics.
-}}
+\item{verbose}{A \code{logical} or an integer: if this is
+\code{TRUE}/\code{1}, the program will print out additional
+information about the progress of estimation and
+simulation. Higher values produce more verbosity.}
 
-\item{\dots}{{Additional
-arguments, to be passed to lower-level functions.
-}}
+\item{\dots}{Additional
+arguments, to be passed to lower-level functions.}
+
+\item{basis}{a value (usually a \code{\link{network}}) to override the LHS of the formula.}
 
 \item{object}{{an \code{ergm} object.}}
 
