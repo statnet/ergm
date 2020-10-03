@@ -58,3 +58,6 @@ setting an nonce class name on the formula.
 \item \code{simulate.formula_lhs}: A function to catch the situation when there is no method implemented for the class to which the LHS evaluates.
 }}
 
+\seealso{
+\code{\link[=simulate.ergm]{simulate.ergm()}} family of functions, which uses this interface.
+}
