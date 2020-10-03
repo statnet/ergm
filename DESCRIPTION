@@ -13,7 +13,8 @@ Authors@R: c(
              person("Kirk","Li",role=c("ctb"),email="kirkli@u.washington.edu"),
 	     person("Skye", "Bender-deMoll", role=c("ctb"), email="skyebend@u.washington.edu"),
              person("Chad", "Klumb", role=c("ctb"), email="cklumb@gmail.com"),
-             person("Michał", " Bojanowski", role=c("ctb"), email="mbojanowski@kozminski.edu.pl"))
+             person("Michał", " Bojanowski", role=c("ctb"), email="mbojanowski@kozminski.edu.pl"),
+             person("Ben", "Bolker", role=c("ctb"), email="bbolker+lme4@gmail.com"))
 Depends:
     R (>= 3.5),
     network (>= 1.17)
@@ -50,6 +51,8 @@ SystemRequirements: OpenMPI
 BugReports: https://github.com/statnet/ergm/issues
 Description: An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGMs). 'ergm' is a part of the Statnet suite of packages for network analysis.
 License: GPL-3 + file LICENSE
+License_is_FOSS: yes
+License_restricts_use: no
 URL: https://statnet.org
 VignetteBuilder: rmarkdown, knitr
 RoxygenNote: 7.1.1
@@ -161,6 +164,7 @@ Collate:
     'rank_test.ergm.R'
     'rlebdm.R'
     'simulate.ergm.R'
+    'simulate.formula.R'
     'summary.ergm.R'
     'summary.ergm_model.R'
     'summary.network.list.R'

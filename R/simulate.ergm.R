@@ -71,14 +71,7 @@
 #'   model, along with a coefficient of 0, so their statistics are
 #'   returned. An [`ergm_model`] objectcan be passed as well.
 #'
-#' @param basis An optional network data object to start the
-#' Markov chain.  If omitted, the default is the left-hand-side of the
-#' \code{formula}.  If neither a left-hand-side nor a \code{basis} is present,
-#' an error results because the characteristics of the network (e.g., size and
-#' directedness) must be specified.  The \code{ergm} package provides support
-#' for \code{basis} arguments of class \code{\link[network]{network}} and 
-#' of class \code{\link[ergm]{ergm_state}}; other packages may
-#' extend support to other classes.
+#' @template basis
 #' 
 #' @param statsonly Logical: If TRUE, return only the network statistics, not
 #' the network(s) themselves. Deprecated in favor of `output=`.
@@ -246,8 +239,8 @@
 #' @importFrom stats simulate
 #' @aliases simulate.formula.ergm
 #' @export
-simulate.formula <- function(object, nsim=1, seed=NULL, ...){
-  simulate_formula(object, nsim=nsim, seed=seed, ...)
+simulate.formula_lhs_network <- function(object, nsim=1, seed=NULL, ...){
+  simulate_formula(object, nsim=nsim, seed=seed, ..., basis=attr(object, ".Basis"))
 }
 
 #' @rdname simulate.ergm
@@ -347,6 +340,11 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
 #'
 #' @export
 simulate_formula.ergm_state <- .simulate_formula.network
+
+#' @rdname simulate.ergm
+#'
+#' @export
+simulate.formula_lhs_ergm_state <- simulate_formula.ergm_state
 
 #' @rdname simulate.ergm
 #'
