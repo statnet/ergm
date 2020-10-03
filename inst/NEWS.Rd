@@ -111,6 +111,12 @@
       \item{
         The \code{\link[ergm]{cycle}} term implementation has been greatly improved.
       }
+      \item{
+        \code{\link{ergm}} now takes a \code{basis=} argument as others.
+      }
+      \item{
+        \code{\link{plot.gof}} now plots a blue rhombus to indicate the simulated mean.
+      }
     }
   }
 
@@ -165,6 +171,12 @@
       \item{
         For bipartite terms, \code{NA}s in nodal attributes are now tolerated if they are in the unused bipartition.
       }
+      \item{
+        \code{\link{ergm.bridge}} now correctly updates the state of the network after every bridge's burn-in. (This bug did not invalidate any prior results, but it made the log-likelihoods and derived quantities reported by \code{\link{summary.ergm}} less accurate.)
+      }
+      \item{
+        \code{\link{ergmMPLE}} now handles offsets corectly when returning matrix and array output.
+      }
     }
   }
 
@@ -209,6 +221,19 @@
       }
       \item{
         \code{san.ergm} has been deprecated, since it lacks a known use case.
+      }
+      \item{
+        The \code{\link{simulate.formula}} dispatching mechanism has been rewritten to coexist with other pacakges that want to dispatch based on the LHS of the formula, particularly \code{lme4}. The \code{\link{simulate_formula}} API still works, but it may be phased out in the future.
+      }
+      \item{
+        \code{\link{ergm.bridge}} has has been optimised to avoid repeated calls to model and proposal initialisation.
+      }
+    }
+  }
+
+  \subsection{C-LEVEL FACILITIES}{
+    \itemize{
+      \item{C export \code{ergm_constants.h} now exports the major and the minor version of \code{\link[ergm-package]{ergm}}.
       }
     }
   }
