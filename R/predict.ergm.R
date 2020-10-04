@@ -109,8 +109,9 @@ predict.formula <- function(object, theta,
   }
   
   predmat <- ergmMPLE(
-    update(object, . ~ indices + . ),
+    statnet.common::nonsimp_update.formula(object, . ~ indices + . ),
     output = "matrix",
+    control = control.ergm(MPLE.max.dyad.types = Inf), # reduced to number of informative dyads in ergm.pl
     ...
   )$predictor
   stopifnot(length(theta) == (ncol(predmat)-2))
