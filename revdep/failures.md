@@ -228,3 +228,36 @@ ERROR: lazy loading failed for package ‘ergmito’
 * removing ‘/home/pavel/Documents/Research/Software/statnet/ergm/revdep/checks/ergmito/old/ergmito.Rcheck/ergmito’
 
 ```
+# fergm
+
+<details>
+
+* Version: 
+* GitHub: https://github.com/statnet/ergm
+* Source code: NA
+* Number of recursive dependencies: 0
+
+</details>
+
+## Error before installation
+
+### Devel
+
+```
+
+
+
+
+
+
+```
+### CRAN
+
+```
+
+
+
+
+
+
+```

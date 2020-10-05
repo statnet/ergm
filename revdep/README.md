@@ -51,19 +51,18 @@
 
 # Revdeps
 
-## Failed to check (3)
+## Failed to check (4)
 
 |package                      |version |error  |warning |note |
 |:----------------------------|:-------|:------|:-------|:----|
 |broom                        |?       |       |        |     |
 |[btergm](failures.md#btergm) |1.9.9   |__+1__ |-2      |     |
 |ergmito                      |0.3-0   |1      |        |     |
+|fergm                        |?       |       |        |     |
 
-## New problems (3)
+## New problems (1)
 
-|package                          |version |error  |warning   |note |
-|:--------------------------------|:-------|:------|:---------|:----|
-|[Bergm](problems.md#bergm)       |5.0.1   |__+1__ |-1        |     |
-|[EpiModel](problems.md#epimodel) |2.0.2   |__+2__ |-1        |     |
-|[ergm.ego](problems.md#ergmego)  |0.5     |       |-1 __+1__ |     |
+|package                         |version |error |warning   |note |
+|:-------------------------------|:-------|:-----|:---------|:----|
+|[ergm.ego](problems.md#ergmego) |0.5     |      |-1 __+1__ |     |
 
