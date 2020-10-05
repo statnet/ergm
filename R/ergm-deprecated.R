@@ -15,3 +15,9 @@
 #' Arguments to deprecated functions.
 #' @keywords misc internal
 NULL
+
+# Workaround so that tergm and EpiModel are not broken.
+.deinf <- function(...){
+  .Deprecated("statnet.common::deInf()")
+  statnet.common::deInf(...)
+}
