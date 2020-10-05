@@ -1,46 +1,69 @@
 # Platform
 
-|field    |value                        |
-|:--------|:----------------------------|
-|version  |R version 4.0.2 (2020-06-22) |
-|os       |Debian GNU/Linux 10 (buster) |
-|system   |x86_64, linux-gnu            |
-|ui       |RStudio                      |
-|language |(EN)                         |
-|collate  |en_US.UTF-8                  |
-|ctype    |en_US.UTF-8                  |
-|tz       |America/Los_Angeles          |
-|date     |2020-09-04                   |
+|field    |value                         |
+|:--------|:-----------------------------|
+|version  |R version 4.0.2 (2020-06-22)  |
+|os       |Debian GNU/Linux bullseye/sid |
+|system   |x86_64, linux-gnu             |
+|ui       |X11                           |
+|language |en_AU:en                      |
+|collate  |en_AU.UTF-8                   |
+|ctype    |en_AU.UTF-8                   |
+|tz       |Australia/Sydney              |
+|date     |2020-10-05                    |
 
 # Dependencies
 
-|package        |old    |new         |Δ  |
-|:--------------|:------|:-----------|:--|
-|ergm           |3.10.4 |3.11.0-5675 |*  |
-|coda           |0.19-3 |0.19-3      |   |
-|DEoptimR       |1.0-8  |1.0-8       |   |
-|glue           |NA     |1.4.2       |*  |
-|lpSolve        |5.6.15 |5.6.15      |   |
-|network        |1.16.0 |1.17.0-413  |*  |
-|rle            |NA     |0.9.1-223   |*  |
-|robustbase     |0.93-6 |0.93-6      |   |
-|statnet.common |4.3.0  |4.4.0-273   |*  |
-|trust          |0.1-8  |0.1-8       |   |
-|vctrs          |NA     |0.3.4       |*  |
+|package        |old     |new     |Δ  |
+|:--------------|:-------|:-------|:--|
+|ergm           |3.10.4  |3.11.0  |*  |
+|assertthat     |0.2.1   |0.2.1   |   |
+|cli            |2.0.2   |2.0.2   |   |
+|coda           |0.19-4  |0.19-4  |   |
+|crayon         |1.3.4   |1.3.4   |   |
+|DEoptimR       |1.0-8   |1.0-8   |   |
+|digest         |0.6.25  |0.6.25  |   |
+|dplyr          |1.0.2   |NA      |*  |
+|ellipsis       |0.3.1   |0.3.1   |   |
+|fansi          |0.4.1   |0.4.1   |   |
+|generics       |0.0.2   |NA      |*  |
+|glue           |1.4.2   |1.4.2   |   |
+|lattice        |0.20-41 |0.20-41 |   |
+|lifecycle      |0.2.0   |0.2.0   |   |
+|lpSolve        |5.6.15  |5.6.15  |   |
+|magrittr       |1.5     |1.5     |   |
+|MASS           |7.3-53  |7.3-53  |   |
+|Matrix         |1.2-18  |1.2-18  |   |
+|network        |1.16.0  |1.16.0  |   |
+|pillar         |1.4.6   |1.4.6   |   |
+|pkgconfig      |2.0.3   |2.0.3   |   |
+|purrr          |0.3.4   |0.3.4   |   |
+|R6             |2.4.1   |NA      |*  |
+|rlang          |0.4.7   |0.4.7   |   |
+|rle            |0.9.2   |0.9.2   |   |
+|robustbase     |0.93-6  |0.93-6  |   |
+|statnet.common |4.4.1   |4.4.1   |   |
+|tibble         |3.0.3   |3.0.3   |   |
+|tidyselect     |1.1.0   |NA      |*  |
+|trust          |0.1-8   |0.1-8   |   |
+|utf8           |1.1.4   |1.1.4   |   |
+|vctrs          |0.3.4   |0.3.4   |   |
 
 # Revdeps
 
-## Failed to check (1)
+## Failed to check (3)
 
 |package                      |version |error  |warning |note |
 |:----------------------------|:-------|:------|:-------|:----|
-|[btergm](failures.md#btergm) |1.9.9   |__+1__ |-1      |     |
+|broom                        |?       |       |        |     |
+|[btergm](failures.md#btergm) |1.9.9   |__+1__ |-2      |     |
+|ergmito                      |0.3-0   |1      |        |     |
 
 ## New problems (3)
 
-|package                          |version |error  |warning |note     |
-|:--------------------------------|:-------|:------|:-------|:--------|
-|[broom](problems.md#broom)       |0.7.0   |__+1__ |        |         |
-|[EpiModel](problems.md#epimodel) |2.0.2   |2      |__+2__  |1 __+2__ |
-|[ergm](problems.md#ergm)         |3.10.4  |__+2__ |        |1 __+1__ |
+|package                          |version |error  |warning   |note |
+|:--------------------------------|:-------|:------|:---------|:----|
+|[Bergm](problems.md#bergm)       |5.0.1   |__+1__ |-1        |     |
+|[EpiModel](problems.md#epimodel) |2.0.2   |__+2__ |-1        |     |
+|[ergm.ego](problems.md#ergmego)  |0.5     |       |-1 __+1__ |     |
 

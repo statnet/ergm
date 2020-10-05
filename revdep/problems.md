@@ -1,14 +1,14 @@
-# broom
+# Bergm
 
 <details>
 
-* Version: 0.7.0
-* GitHub: https://github.com/tidymodels/broom
-* Source code: https://github.com/cran/broom
-* Date/Publication: 2020-07-09 12:30:09 UTC
-* Number of recursive dependencies: 277
+* Version: 5.0.1
+* GitHub: NA
+* Source code: https://github.com/cran/Bergm
+* Date/Publication: 2019-11-04 12:00:02 UTC
+* Number of recursive dependencies: 43
 
-Run `revdep_details(, "broom")` for more info
+Run `revdep_details(, "Bergm")` for more info
 
 </details>
 
@@ -17,27 +17,43 @@ Run `revdep_details(, "broom")` for more info
 *   checking examples ... ERROR
     ```
     ...
-    NOTE: Versions before 3.6.1 had a bug in the implementation of the bd()
-    constraint which distorted the sampled distribution somewhat. In
-    addition, Sampson's Monks datasets had mislabeled vertices. See the
-    NEWS and the documentation for more details.
     
-    NOTE: Some common term arguments pertaining to vertex attribute and
-    level selection have changed in 3.10.0. See terms help for more
-    details. Use ‘options(ergm.term=list(version="3.9.4"))’ to use old
-    behavior.
+    R is free software and comes with ABSOLUTELY NO WARRANTY.
+    You are welcome to redistribute it under certain conditions.
+    Type 'license()' or 'licence()' for distribution details.
     
+      Natural language support but running in an English locale
     
-    Attaching package: ‘xergm.common’
+    R is a collaborative project with many contributors.
+    Type 'contributors()' for more information and
+    'citation()' on how to cite R or R packages in publications.
     
-    The following object is masked from ‘package:ergm’:
+    Type 'demo()' for some demos, 'help()' for on-line help, or
+    'help.start()' for an HTML browser interface to help.
+    Type 'q()' to quit R.
     
-        gof
-    
-    Loading required package: ggplot2
-    Error: package or namespace load failed for ‘btergm’:
-     object ‘remove.offset.formula’ is not exported by 'namespace:ergm'
+    > pkgname <- "Bergm"
+    > source(file.path(R.home("share"), "R", "examples-header.R"))
+    > options(warn = 1)
+    > library('Bergm')
+    Error: package ‘ergm’ required by ‘Bergm’ could not be found
     Execution halted
+    ```
+
+## Newly fixed
+
+*   checking examples ... WARNING
+    ```
+    Found the following significant warnings:
+    
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+    Deprecated functions may be defunct as soon as of the next release of
+    R.
+    See ?Deprecated.
     ```
 
 # btergm
@@ -59,7 +75,7 @@ Run `revdep_details(, "btergm")` for more info
 *   checking whether package ‘btergm’ can be installed ... ERROR
     ```
     Installation failed.
-    See ‘/homes/morrism/GitHub/StatnetOrganization/ergm/revdep/checks/btergm/new/btergm.Rcheck/00install.out’ for details.
+    See ‘/home/pavel/Documents/Research/Software/statnet/ergm/revdep/checks/btergm/new/btergm.Rcheck/00install.out’ for details.
     ```
 
 ## Newly fixed
@@ -68,7 +84,33 @@ Run `revdep_details(, "btergm")` for more info
     ```
     Found the following significant warnings:
       Warning: no DISPLAY variable so Tk is not available
-    See ‘/homes/morrism/GitHub/StatnetOrganization/ergm/revdep/checks/btergm/old/btergm.Rcheck/00install.out’ for details.
+    See ‘/home/pavel/Documents/Research/Software/statnet/ergm/revdep/checks/btergm/old/btergm.Rcheck/00install.out’ for details.
+    ```
+
+*   checking examples ... WARNING
+    ```
+    ...
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+    Deprecated functions may be defunct as soon as of the next release of
+    R.
+    See ?Deprecated.
     ```
 
 ## Installation
@@ -85,7 +127,7 @@ Run `revdep_details(, "btergm")` for more info
 Error: object ‘remove.offset.formula’ is not exported by 'namespace:ergm'
 Execution halted
 ERROR: lazy loading failed for package ‘btergm’
-* removing ‘/homes/morrism/GitHub/StatnetOrganization/ergm/revdep/checks/btergm/new/btergm.Rcheck/btergm’
+* removing ‘/home/pavel/Documents/Research/Software/statnet/ergm/revdep/checks/btergm/new/btergm.Rcheck/btergm’
 
 ```
 ### CRAN
@@ -117,7 +159,7 @@ Warning: no DISPLAY variable so Tk is not available
 * GitHub: https://github.com/statnet/EpiModel
 * Source code: https://github.com/cran/EpiModel
 * Date/Publication: 2020-08-05 09:52:19 UTC
-* Number of recursive dependencies: 99
+* Number of recursive dependencies: 100
 
 Run `revdep_details(, "EpiModel")` for more info
 
@@ -125,97 +167,29 @@ Run `revdep_details(, "EpiModel")` for more info
 
 ## Newly broken
 
-*   checking for missing documentation entries ... WARNING
-    ```
-    Error: package ‘ergm’ required by ‘tergm’ could not be found
-    Call sequence:
-    5: stop(gettextf("package %s required by %s could not be found", 
-           sQuote(pkg), sQuote(pkgname)), call. = FALSE, domain = NA)
-    4: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    3: library(pkg, character.only = TRUE, logical.return = TRUE, lib.loc = lib.loc, 
-           quietly = quietly)
-    2: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    1: library(package, lib.loc = lib.loc, character.only = TRUE, verbose = FALSE)
-    Execution halted
-    All user-level objects in a package should have documentation entries.
-    See chapter ‘Writing R documentation files’ in the ‘Writing R
-    Extensions’ manual.
-    ```
-
-*   checking for code/documentation mismatches ... WARNING
-    ```
-    ...
-    Execution halted
-    Error: package ‘ergm’ required by ‘tergm’ could not be found
-    Call sequence:
-    5: stop(gettextf("package %s required by %s could not be found", 
-           sQuote(pkg), sQuote(pkgname)), call. = FALSE, domain = NA)
-    4: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    3: library(pkg, character.only = TRUE, logical.return = TRUE, lib.loc = lib.loc, 
-           quietly = quietly)
-    2: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    1: library(package, lib.loc = lib.loc, character.only = TRUE, verbose = FALSE)
-    Execution halted
-    Error: package ‘ergm’ required by ‘tergm’ could not be found
-    Call sequence:
-    5: stop(gettextf("package %s required by %s could not be found", 
-           sQuote(pkg), sQuote(pkgname)), call. = FALSE, domain = NA)
-    4: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    3: library(pkg, character.only = TRUE, logical.return = TRUE, lib.loc = lib.loc, 
-           quietly = quietly)
-    2: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    1: library(package, lib.loc = lib.loc, character.only = TRUE, verbose = FALSE)
-    Execution halted
-    ```
-
-*   checking Rd cross-references ... NOTE
-    ```
-    Package unavailable to check Rd xrefs: ‘ergm’
-    ```
-
-*   checking Rd \usage sections ... NOTE
-    ```
-    Error: package ‘ergm’ required by ‘tergm’ could not be found
-    Call sequence:
-    5: stop(gettextf("package %s required by %s could not be found", 
-           sQuote(pkg), sQuote(pkgname)), call. = FALSE, domain = NA)
-    4: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    3: library(pkg, character.only = TRUE, logical.return = TRUE, lib.loc = lib.loc, 
-           quietly = quietly)
-    2: .getRequiredPackages2(pkgInfo, quietly = quietly)
-    1: library(package, lib.loc = lib.loc, character.only = TRUE, verbose = FALSE)
-    Execution halted
-    The \usage entries for S3 methods should use the \method markup and not
-    their full name.
-    See chapter ‘Writing R documentation files’ in the ‘Writing R
-    Extensions’ manual.
-    ```
-
-## In both
-
 *   checking examples ... ERROR
     ```
     ...
-    
-    networkDynamic: version 0.10.1, created on 2020-01-16
-    Copyright (c) 2020, Carter T. Butts, University of California -- Irvine
-                        Ayn Leslie-Cook, University of Washington
-                        Pavel N. Krivitsky, University of Wollongong
-                        Skye Bender-deMoll, University of Washington
-                        with contributions from
-                        Zack Almquist, University of California -- Irvine
-                        David R. Hunter, Penn State University
-                        Li Wang
-                        Kirk Li, University of Washington
-                        Steven M. Goodreau, University of Washington
-                        Jeffrey Horner
-                        Martina Morris, University of Washington
-    Based on "statnet" project software (statnet.org).
-    For license and citation information see statnet.org/attribution
-    or type citation("networkDynamic").
-    
-    Loading required package: tergm
-    Error: package ‘ergm’ required by ‘tergm’ could not be found
+    > 
+    > # Initialize and parameterize the network model
+    > nw <- network_initialize(n = 100)
+    > formation <- ~edges
+    > target.stats <- 50
+    > coef.diss <- dissolution_coefs(dissolution = ~offset(edges), duration = 20)
+    > 
+    > # Model estimation
+    > est <- netest(nw, formation, target.stats, coef.diss, verbose = FALSE)
+    Starting maximum pseudolikelihood estimation (MPLE):
+    Evaluating the predictor and response matrix.
+    Maximizing the pseudolikelihood.
+    Finished MPLE.
+    Stopping at the initial estimate.
+    > 
+    > # Simulate the network with netdx
+    > dx <- netdx(est, nsims = 3, nsteps = 10, keep.tedgelist = TRUE, verbose = FALSE)
+    Error in get(name, envir = asNamespace(pkg), inherits = FALSE) : 
+      object '.deinf' not found
+    Calls: netdx ... stergm_MCMC_sample -> stergm_MCMC_slave -> ::: -> get
     Execution halted
     ```
 
@@ -224,107 +198,100 @@ Run `revdep_details(, "EpiModel")` for more info
      ERROR
     Running the tests in ‘tests/test-all.R’ failed.
     Last 13 lines of output:
-                          Li Wang
-                          Kirk Li, University of Washington
-                          Steven M. Goodreau, University of Washington
-                          Jeffrey Horner
-                          Martina Morris, University of Washington
-      Based on "statnet" project software (statnet.org).
-      For license and citation information see statnet.org/attribution
-      or type citation("networkDynamic").
+      ══ testthat results  ═══════════════════════════════════════════════════════════
+      [ OK: 242 | SKIPPED: 78 | WARNINGS: 0 | FAILED: 36 ]
+      1. Error: Copying attributes from network to attribute list (@test-attr-copy.R#23) 
+      2. Error: (unknown) (@test-get.R#18) 
+      3. Error: merge for netsim (@test-merge.R#71) 
+      4. Error: merge for netsim (@test-merge.R#90) 
+      5. Error: merge works for open sims saving nw stats (@test-merge.R#111) 
+      6. Error: mutate_epi.netsim (@test-mutate.R#16) 
+      7. Error: status.vector and infTime.vector (@test-net-long.R#747) 
+      8. Error: tergmLite: 1G, Closed (@test-net-tergmLite.R#22) 
+      9. Error: tergmLite: 2G, Closed (@test-net-tergmLite.R#67) 
+      1. ...
       
-      Loading required package: tergm
-      Failed with error:  'package 'ergm' required by 'tergm' could not be found'
-      Error in loadNamespace(i, c(lib.loc, .libPaths()), versionCheck = vI[[i]]) : 
-        there is no package called 'ergm'
-      Calls: test_check ... loadNamespace -> withRestarts -> withOneRestart -> doWithOneRestart
+      Error: testthat unit tests failed
       Execution halted
     ```
 
-*   checking package dependencies ... NOTE
+## Newly fixed
+
+*   checking examples ... WARNING
     ```
-    Package suggested but not available for checking: ‘ndtv’
+    ...
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+    Deprecated functions may be defunct as soon as of the next release of
+    R.
+    See ?Deprecated.
     ```
 
-# ergm
+# ergm.ego
 
 <details>
 
-* Version: 3.10.4
-* GitHub: https://github.com/statnet/ergm
-* Source code: https://github.com/cran/ergm
-* Date/Publication: 2019-06-10 05:30:07 UTC
-* Number of recursive dependencies: 71
+* Version: 0.5
+* GitHub: https://github.com/statnet/ergm.ego
+* Source code: https://github.com/cran/ergm.ego
+* Date/Publication: 2019-05-31 16:00:03 UTC
+* Number of recursive dependencies: 58
 
-Run `revdep_details(, "ergm")` for more info
+Run `revdep_details(, "ergm.ego")` for more info
 
 </details>
 
 ## Newly broken
 
-*   checking examples ... ERROR
+*   checking Rd cross-references ... WARNING
+    ```
+    Missing link or links in documentation object 'node-attr-api.Rd':
+      ‘node-attr’
+    
+    See section 'Cross-references' in the 'Writing R Extensions' manual.
+    ```
+
+## Newly fixed
+
+*   checking examples ... WARNING
     ```
     ...
-    Running examples in ‘ergm-Ex.R’ failed
-    The error most likely occurred in:
-    
-    > ### Name: ergmMPLE
-    > ### Title: ERGM Predictors and response for logistic regression calculation
-    > ###   of MPLE
-    > ### Aliases: ergmMPLE
-    > ### Keywords: models regression
-    > 
-    > ### ** Examples
-    > 
-    > 
-    > data(faux.mesa.high)
-    > formula <- faux.mesa.high ~ edges + nodematch("Sex") + nodefactor("Grade")
-    > mplesetup <- ergmMPLE(formula)
-    Warning: 'compact.rle' is deprecated.
-    Use 'compress' instead.
-    See help("Deprecated")
-    Error in as.rle(x) : could not find function "as.rle"
-    Calls: ergmMPLE ... ergm_conlist -> eval -> eval -> <Anonymous> -> rlebdm
-    Execution halted
-    ```
-
-*   checking tests ...
-    ```
-     ERROR
-    Running the tests in ‘tests/constrain_degrees_edges.R’ failed.
-    Last 13 lines of output:
-      > id <- function(nw) apply(as.matrix(nw, matrix.type="adjacency"), 2, sum)
-      > e <- function(nw) network.edgecount(nw)
-      > 
-      > ###### Directed
-      > y0 <- as.network(n, density=d, directed=TRUE)
-      > 
-      > ### Outdegrees
-      > ys <- simulate(y0~sender(nodes=TRUE)+receiver(nodes=TRUE), constraints=~odegrees, coef=rep(0,n*2), nsim=nsim, output="stats")
-      Error in as.rle(x) : could not find function "as.rle"
-      Calls: simulate ... ergm_conlist -> eval -> eval -> <Anonymous> -> rlebdm
-      In addition: Warning message:
-      'compact.rle' is deprecated.
-      Use 'compress' instead.
-      See help("Deprecated") 
-      Execution halted
-    ```
-
-*   checking R code for possible problems ... NOTE
-    ```
-    rlebdm: no visible global function definition for ‘as.rle’
-    Undefined global functions or variables:
-      as.rle
-    ```
-
-## In both
-
-*   checking installed package size ... NOTE
-    ```
-      installed size is  6.5Mb
-      sub-directories of 1Mb or more:
-        R      1.2Mb
-        doc    1.7Mb
-        libs   2.5Mb
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+      Warning: 'compact.rle' is deprecated.
+    Deprecated functions may be defunct as soon as of the next release of
+    R.
+    See ?Deprecated.
     ```
 
