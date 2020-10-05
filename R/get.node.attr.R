@@ -163,7 +163,7 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' Note that `levels` or `nodes` often has a default that is sensible for the
 #' term in question.
 #' 
-#' @aliases attr attrname on by attrs node.attr nodal.attr vertex.attr node.attribute nodal.attribute vertex.attribute
+#' @aliases attr attrname on by attrs node.attr nodal.attr vertex.attr node.attribute nodal.attribute vertex.attribute node-attr
 #' @examples
 #' library(magrittr) # for %>%
 #'

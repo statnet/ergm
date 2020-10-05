@@ -13,6 +13,7 @@
 \alias{node.attribute}
 \alias{nodal.attribute}
 \alias{vertex.attribute}
+\alias{node-attr}
 \alias{LARGEST}
 \alias{SMALLEST}
 \alias{COLLAPSE_SMALLEST}
