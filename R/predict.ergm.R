@@ -30,6 +30,16 @@
 #'   predicted probabilities
 #' @param nsim integer, number of simulated networks used for computing
 #'   unconditional probabilities. Defaults to 100.
+#' @param ndyads number of free dyads for which to compute the conditional 
+#'   probabilities, or \code{function(d,e)} returning this number, where 
+#'   \code{d} = number of free dyads in the network and \code{e} = number of
+#'   free edges in the network.  Defaults to \code{Inf}, which will compute 
+#'   conditional probabilities for all free dyads.  Note that 
+#'   over-specification is generally safe.  If the number of free dyads in
+#'   the network times the number of statistics in the model approaches 
+#'   \code{2^31}, it may be necessary to reduce \code{ndyads} in order to avoid
+#'   32 bit integer overflow (an error message should be generated indicating
+#'   when this needs to be done).
 #' @param type character element, one of `"response"` (default) or `"link"` -
 #'   whether the returned predictions are on the probability scale or on the
 #'   scale of linear predictor. This is similar to `type` argument of [predict.glm()].
@@ -74,6 +84,7 @@ predict.formula <- function(object, theta,
                             conditional = TRUE,
                             type=c("response", "link"),
                             nsim = 100,
+                            ndyads = Inf,
                             output=c("data.frame", "matrix"), ...) {
   stopifnot(is.numeric(theta))
   theta <- statnet.common::deInf(theta)
@@ -111,7 +122,7 @@ predict.formula <- function(object, theta,
   predmat <- ergmMPLE(
     statnet.common::nonsimp_update.formula(object, . ~ indices + . ),
     output = "matrix",
-    control = control.ergm(MPLE.max.dyad.types = Inf), # reduced to number of informative dyads in ergm.pl
+    control = control.ergm(MPLE.max.dyad.types = ndyads), # reduced to number of informative dyads (ish) in ergm.pl
     ...
   )$predictor
   stopifnot(length(theta) == (ncol(predmat)-2))
