@@ -31,7 +31,7 @@
   wm <- wrap.ergm_model(m, nw, response, NULL)
   if(any(wm$offsettheta) || any(wm$offsetmap)) ergm_Init_warn(paste0("The interaction operator does not propagate offset() decorators."))
 
-  list(name="interact", coef.names = cn, inputs=inputs, submodel=m, dependence=!wm$dependence)
+  list(name="interact", coef.names = cn, inputs=inputs, submodel=m, dependence=wm$dependence)
 }
 
 ## This will always be passed with two arguments in arglist, which
@@ -67,5 +67,5 @@
   wm <- wrap.ergm_model(m, nw, response, NULL)
   if(any(wm$offsettheta) || any(wm$offsetmap)) ergm_Init_warn(paste0("The interaction operator does not propagate offset() decorators."))
 
-  list(name="main_interact", coef.names = cn, inputs=inputs, submodel=m, dependence=!wm$dependence)
+  list(name="main_interact", coef.names = cn, inputs=inputs, submodel=m, dependence=wm$dependence)
 }
