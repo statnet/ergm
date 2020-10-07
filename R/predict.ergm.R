@@ -1,3 +1,12 @@
+#  File R/predict.ergm.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, https://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  https://statnet.org/attribution
+#
+#  Copyright 2003-2020 Statnet Commons
+#######################################################################
 #' ERGM-based tie probabilities
 #' 
 #' @description 
@@ -100,8 +109,9 @@ predict.formula <- function(object, theta,
   }
   
   predmat <- ergmMPLE(
-    update(object, . ~ indices + . ),
+    statnet.common::nonsimp_update.formula(object, . ~ indices + . ),
     output = "matrix",
+    control = control.ergm(MPLE.max.dyad.types = Inf), # reduced to number of informative dyads in ergm.pl
     ...
   )$predictor
   stopifnot(length(theta) == (ncol(predmat)-2))
