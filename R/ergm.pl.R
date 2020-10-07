@@ -45,8 +45,8 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
                          1.05*d)) # a little larger than d so the hash table doesn't bog down
   maxDyads <- if(is.function(control$MPLE.samplesize)) control$MPLE.samplesize(d=d, e=e) else control$MPLE.samplesize
 
-  if(as.double(maxNumDyadTypes)*Clist$nstats > .Machine$integer.max) {
-    stop("The maximum number of unique dyad types times the number of statistics exceeds 32 bit limits so the MPLE cannot proceed; try reducing MPLE.max.dyad.types.")
+  if(as.double(maxNumDyadTypes)*nparam(m, canonical=TRUE) > .Machine$integer.max) {
+    stop("The maximum number of unique dyad types times the number of statistics exceeds 32 bit limits, so the MPLE cannot proceed; try reducing either MPLE.max.dyad.types or the number of terms in the model.")
   }
 
   z <- .C("MPLE_wrapper",
