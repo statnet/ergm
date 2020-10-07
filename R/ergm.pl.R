@@ -53,10 +53,14 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
   elfd <- as.rlebdm(el) & fd
   e <- sum(elfd)
 
-  maxNumDyadTypes <- min(if(is.function(control$MPLE.max.dyad.types)) control$MPLE.max.dyad.types(d=d, e=e) else control$MPLE.max.dyad.types,
-                         d)
+  maxNumDyadTypes <- as.integer(min(if(is.function(control$MPLE.max.dyad.types)) control$MPLE.max.dyad.types(d=d, e=e) else control$MPLE.max.dyad.types,
+                         1.05*d)) # a little larger than d so the hash table doesn't bog down
   maxDyads <- if(is.function(control$MPLE.samplesize)) control$MPLE.samplesize(d=d, e=e) else control$MPLE.samplesize
-  # *** don't forget, pass in tails first now, not heads
+
+  if(as.double(maxNumDyadTypes)*nparam(m, canonical=TRUE) > .Machine$integer.max) {
+    stop("The maximum number of unique dyad types times the number of statistics exceeds 32 bit limits, so the MPLE cannot proceed; try reducing either MPLE.max.dyad.types or the number of terms in the model.")
+  }
+
   z <- .Call("MPLE_wrapper",
              state,
              # MPLE settings

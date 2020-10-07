@@ -133,9 +133,9 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
   
   ivcov.d <-ginv(vcov.d[!novar,!novar,drop=FALSE])
   
-  method <- paste("Hotelling's",
+  method <- paste0("Hotelling's ",
                   NVL2(y, "Two", "One"),
-                  "-Sample",if(var.equal) "Pooled","T^2-Test", if(!assume.indep) "with correction for autocorrelation")
+                  "-Sample",if(var.equal) " Pooled"," T^2-Test", if(!assume.indep) " with correction for autocorrelation")
   
   # If a statistic doesn't vary and doesn't match, return a 0 p-value:
   if(any((d-mu0)[novar]!=0)){

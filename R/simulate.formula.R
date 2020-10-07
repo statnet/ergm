@@ -65,6 +65,8 @@
 #' [`formula`] object, with additional attribute `.Basis` giving the
 #' evaluated LHS (so that it does not need to be evaluated again).
 #'
+#' @seealso [simulate.ergm()] family of functions, which uses this interface.
+#'
 #' @export
 simulate.formula <- function(object, nsim=1, seed=NULL, ..., basis, newdata, data) {
   ## utility fun for generating new class
