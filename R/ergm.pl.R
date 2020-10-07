@@ -42,7 +42,7 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
   e <- sum(elfd)
 
   maxNumDyadTypes <- min(if(is.function(control$MPLE.max.dyad.types)) control$MPLE.max.dyad.types(d=d, e=e) else control$MPLE.max.dyad.types,
-                         d)
+                         1.05*d) # a little larger than d so the hash table doesn't bog down
   maxDyads <- if(is.function(control$MPLE.samplesize)) control$MPLE.samplesize(d=d, e=e) else control$MPLE.samplesize
 
   z <- .C("MPLE_wrapper",
