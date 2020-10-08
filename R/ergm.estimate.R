@@ -254,7 +254,8 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
     
     loglikelihoodfn.trust<-function(theta, ..., trustregion=20){
       # Check for box constraint violation.
-      if(any(theta < model$etamap$mintheta[!model$etamap$offsettheta]) ||
+      if(anyNA(theta) ||
+         any(theta < model$etamap$mintheta[!model$etamap$offsettheta]) ||
          any(theta > model$etamap$maxtheta[!model$etamap$offsettheta]))
         return(list(value=-Inf))
       
