@@ -483,7 +483,7 @@ ergm.MCMLE <- function(init, nw, model,
     # This allows premature termination.
     
     if(control$MCMLE.termination=='Hotelling'){
-      conv.pval <- ERRVL(try(approx.hotelling.diff.test(esteqs, esteqs.obs)$p.value), NA)
+      conv.pval <- ERRVL(try(suppressWarnings(approx.hotelling.diff.test(esteqs, esteqs.obs)$p.value)), NA)
       message("Nonconvergence test p-value:",conv.pval,"")
       # I.e., so that the probability of one false nonconvergence in two successive iterations is control$MCMLE.conv.min.pval (sort of).
       if(!is.na(conv.pval) && conv.pval>=1-sqrt(1-control$MCMLE.conv.min.pval)){
@@ -518,7 +518,7 @@ ergm.MCMLE <- function(init, nw, model,
           basepred <- sm[,!nochg,drop=FALSE] %*% etadiff[!nochg]
         }
         lw2w <- function(lw){w<-exp(lw-max(lw)); w/sum(w)}
-        hotel <- try(approx.hotelling.diff.test(esteqs, esteqs.obs), silent=TRUE)
+        hotel <- try(suppressWarnings(approx.hotelling.diff.test(esteqs, esteqs.obs)), silent=TRUE)
         if(inherits(hotel, "try-error")){ # Within tolerance ellipsoid, but cannot be tested.
           message("Unable to test for convergence; increasing sample size.")
           .boost_samplesize(control$MCMLE.confidence.boost)
