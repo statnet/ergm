@@ -177,6 +177,9 @@
       \item{
         \code{\link{ergmMPLE}} now handles offsets corectly when returning matrix and array output.
       }
+      \item{
+        Miscellaneous fixes to \code{\link{predict.ergm}} and \code{\link{ergmMPLE}}, particularly in handling offsets.
+      }
     }
   }
 
