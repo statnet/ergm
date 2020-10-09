@@ -7,7 +7,6 @@
 #
 #  Copyright 2003-2020 Statnet Commons
 #######################################################################
-context("test-valued-terms.R")
 
 # Correct values. Note that for undirected networks, this needs to be
 # divied by 2.
