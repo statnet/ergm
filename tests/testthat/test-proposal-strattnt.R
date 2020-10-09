@@ -8,7 +8,6 @@
 #  Copyright 2003-2019 Statnet Commons
 #######################################################################
 
-context("test-proposal-strattnt.R")
 
 test_that("StratTNT works with undirected unipartite networks", {
   nw <- network.initialize(1000, dir=FALSE)

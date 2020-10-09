@@ -1,4 +1,3 @@
-context("test-stocapprox.R")
 
 options(ergm.eval.loglik=FALSE)
 

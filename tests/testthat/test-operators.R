@@ -1,4 +1,3 @@
-context("test-operators.R")
 data(florentine)
 
 test_that("Simulation for passthrough() and .submodel() and .summary()", {

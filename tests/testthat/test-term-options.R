@@ -7,7 +7,6 @@
 #
 #  Copyright 2003-2020 Statnet Commons
 #######################################################################
-context("test-term-options.R")
 
 data(florentine)
 old.opts1 <- options(ergm.eval.loglik=TRUE)

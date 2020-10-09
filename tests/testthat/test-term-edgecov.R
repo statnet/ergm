@@ -7,7 +7,6 @@
 #
 #  Copyright 2003-2020 Statnet Commons
 #######################################################################
-context("test-term-edgecov.R")
 
 test_that("edgecov works with undirected unipartite networks", {
   nw <- network.initialize(5, dir=FALSE)

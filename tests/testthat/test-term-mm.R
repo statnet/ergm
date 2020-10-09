@@ -7,7 +7,6 @@
 #
 #  Copyright 2003-2020 Statnet Commons
 #######################################################################
-context("test-term-mm.R")
 
 # a bipartite nw
 set.seed(143)

@@ -7,7 +7,6 @@
 #
 #  Copyright 2003-2020 Statnet Commons
 #######################################################################
-context("test-bipartite-missing-data.R")
 
 test_that("bipartite terms abort for missing data when they should and not when they shouldn't", {
   nw <- network.initialize(10,bip=4,dir=FALSE)

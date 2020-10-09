@@ -1,4 +1,3 @@
-context("test-C-Curved.R")
 
 ergm.eta.R <- function(theta, etamap) {
   eta <- numeric(etamap$etalength)

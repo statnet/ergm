@@ -7,7 +7,6 @@
 #
 #  Copyright 2003-2020 Statnet Commons
 #######################################################################
-context("test-ergm-godfather.R")
 
 nwd <- network.initialize(4, dir=TRUE)
 nwd[,,names.eval="w",add.edges=TRUE] <-

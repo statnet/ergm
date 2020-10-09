@@ -1,4 +1,3 @@
-context("test-bridge-target.stats.R")
 
 library(ergm)
 library(statnet.common)

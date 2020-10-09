@@ -8,7 +8,6 @@
 #  Copyright 2003-2019 Statnet Commons
 #######################################################################
 
-context("test-proposal-bdstrattnt.R")
 
 test_that("BDStratTNT works with undirected unipartite networks", {
   nw <- network.initialize(1000, dir=FALSE)

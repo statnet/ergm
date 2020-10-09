@@ -1,4 +1,3 @@
-context("test-Sum.R")
 
 data(florentine)
 
