@@ -16,8 +16,16 @@
 #' @keywords misc internal
 NULL
 
-# Workaround so that tergm and EpiModel are not broken.
+# Workarounds so that tergm and EpiModel are not broken.
 .deinf <- function(...){
   .Deprecated("statnet.common::deInf()")
   statnet.common::deInf(...)
 }
+
+#' @rdname ergm-deprecated
+#' @export
+remove.offset.formula <- function(object, ...){
+  .Deprecated("statnet.common::filter_rhs.formula")
+  statnet.common::filter_rhs.formula(objerct, function(x) (if(is.call(x)) x[[1]] else x)!="offset")
+}
+

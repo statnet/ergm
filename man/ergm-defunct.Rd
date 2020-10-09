@@ -22,7 +22,6 @@
 \alias{ergm.ConstraintImplications}
 \alias{ergm.mcmcslave}
 \alias{ergm.update.formula}
-\alias{remove.offset.formula}
 \alias{network.update}
 \alias{ergm.getmodel}
 \alias{ergm.getglobalstats}
@@ -73,8 +72,6 @@ ergm.ConstraintImplications(...)
 ergm.mcmcslave(...)
 
 ergm.update.formula(...)
-
-remove.offset.formula(...)
 
 network.update(...)
 

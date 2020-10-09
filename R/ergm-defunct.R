@@ -84,9 +84,6 @@ ergm.mcmcslave <- function(...) .Defunct("ergm_MCMC_slave")
 ergm.update.formula <- function(...) .Defunct("statnet.common::nonsimp_update.formula")
 
 #' @rdname ergm-defunct
-remove.offset.formula <- function(...) .Defunct("statnet.common::filter_rhs.formula")
-
-#' @rdname ergm-defunct
 network.update<-function(...) .Defunct("update.network")
 
 #' @rdname ergm-defunct

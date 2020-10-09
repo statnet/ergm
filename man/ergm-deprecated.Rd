@@ -3,6 +3,7 @@
 %   R/ergm.san.R, R/formula.utils.R
 \name{ergm-deprecated}
 \alias{ergm-deprecated}
+\alias{remove.offset.formula}
 \alias{InitErgmTerm.degreepopularity}
 \alias{InitErgmTerm.idegreepopularity}
 \alias{InitErgmTerm.odegreepopularity}
@@ -10,6 +11,8 @@
 \alias{offset.info.formula}
 \title{Functions that will no longer be supported in future releases of the package}
 \usage{
+remove.offset.formula(object, ...)
+
 InitErgmTerm.degreepopularity(nw, arglist, ...)
 
 InitErgmTerm.idegreepopularity(nw, arglist, ...)
