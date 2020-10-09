@@ -7,7 +7,6 @@
 #
 #  Copyright 2003-2020 Statnet Commons
 #######################################################################
-context("test-nonunique-names.R")
 data(samplk)
 samplk2 %e% "a" <- 1
 samplk3 %e% "a" <- 1

@@ -7,7 +7,6 @@
 #
 #  Copyright 2003-2020 Statnet Commons
 #######################################################################
-context("test-nonident-test.R")
 o <- options(ergm.eval.loglik=FALSE)
 
 data(florentine)

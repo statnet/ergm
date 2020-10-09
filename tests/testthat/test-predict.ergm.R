@@ -7,7 +7,6 @@
 #
 #  Copyright 2003-2020 Statnet Commons
 #######################################################################
-context("Test predict.formula() and predict.ergm()")
 
 library(ergm)
 

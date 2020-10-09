@@ -7,7 +7,6 @@
 #
 #  Copyright 2003-2020 Statnet Commons
 #######################################################################
-context("test-checkpointing.R")
 
 data(florentine)
 set.seed(0)
