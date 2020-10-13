@@ -1,16 +1,16 @@
 # Platform
 
-|field    |value                         |
-|:--------|:-----------------------------|
-|version  |R version 4.0.2 (2020-06-22)  |
-|os       |Debian GNU/Linux bullseye/sid |
-|system   |x86_64, linux-gnu             |
-|ui       |X11                           |
-|language |en_AU:en                      |
-|collate  |en_AU.UTF-8                   |
-|ctype    |en_AU.UTF-8                   |
-|tz       |Australia/Sydney              |
-|date     |2020-10-05                    |
+|field    |value                                  |
+|:--------|:--------------------------------------|
+|version  |R version 4.0.3 RC (2020-10-02 r79292) |
+|os       |Debian GNU/Linux bullseye/sid          |
+|system   |x86_64, linux-gnu                      |
+|ui       |X11                                    |
+|language |en_AU:en                               |
+|collate  |en_AU.UTF-8                            |
+|ctype    |en_AU.UTF-8                            |
+|tz       |Australia/Sydney                       |
+|date     |2020-10-13                             |
 
 # Dependencies
 
@@ -18,7 +18,7 @@
 |:--------------|:-------|:-------|:--|
 |ergm           |3.10.4  |3.11.0  |*  |
 |assertthat     |0.2.1   |0.2.1   |   |
-|cli            |2.0.2   |2.0.2   |   |
+|cli            |2.1.0   |2.1.0   |   |
 |coda           |0.19-4  |0.19-4  |   |
 |crayon         |1.3.4   |1.3.4   |   |
 |DEoptimR       |1.0-8   |1.0-8   |   |
@@ -34,16 +34,16 @@
 |magrittr       |1.5     |1.5     |   |
 |MASS           |7.3-53  |7.3-53  |   |
 |Matrix         |1.2-18  |1.2-18  |   |
-|network        |1.16.0  |1.16.0  |   |
+|network        |1.16.1  |1.16.1  |   |
 |pillar         |1.4.6   |1.4.6   |   |
 |pkgconfig      |2.0.3   |2.0.3   |   |
 |purrr          |0.3.4   |0.3.4   |   |
 |R6             |2.4.1   |NA      |*  |
-|rlang          |0.4.7   |0.4.7   |   |
+|rlang          |0.4.8   |0.4.8   |   |
 |rle            |0.9.2   |0.9.2   |   |
 |robustbase     |0.93-6  |0.93-6  |   |
 |statnet.common |4.4.1   |4.4.1   |   |
-|tibble         |3.0.3   |3.0.3   |   |
+|tibble         |3.0.4   |3.0.4   |   |
 |tidyselect     |1.1.0   |NA      |*  |
 |trust          |0.1-8   |0.1-8   |   |
 |utf8           |1.1.4   |1.1.4   |   |
@@ -51,18 +51,11 @@
 
 # Revdeps
 
-## Failed to check (4)
+## Failed to check (3)
 
 |package                      |version |error  |warning |note |
 |:----------------------------|:-------|:------|:-------|:----|
 |broom                        |?       |       |        |     |
 |[btergm](failures.md#btergm) |1.9.9   |__+1__ |-2      |     |
-|ergmito                      |0.3-0   |1      |        |     |
 |fergm                        |?       |       |        |     |
-
-## New problems (1)
-
-|package                         |version |error |warning   |note |
-|:-------------------------------|:-------|:-----|:---------|:----|
-|[ergm.ego](problems.md#ergmego) |0.5     |      |-1 __+1__ |     |
 

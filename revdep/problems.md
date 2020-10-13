@@ -66,7 +66,7 @@ Run `revdep_details(, "btergm")` for more info
 ** R
 ** inst
 ** byte-compile and prepare package for lazy loading
-Error: object ‘remove.offset.formula’ is not exported by 'namespace:ergm'
+Error: object ‘ergm.getmodel’ is not exported by 'namespace:ergm'
 Execution halted
 ERROR: lazy loading failed for package ‘btergm’
 * removing ‘/home/pavel/Documents/Research/Software/statnet/ergm/revdep/checks/btergm/new/btergm.Rcheck/btergm’
@@ -93,55 +93,3 @@ Warning: no DISPLAY variable so Tk is not available
 * DONE (btergm)
 
 ```
-# ergm.ego
-
-<details>
-
-* Version: 0.5
-* GitHub: https://github.com/statnet/ergm.ego
-* Source code: https://github.com/cran/ergm.ego
-* Date/Publication: 2019-05-31 16:00:03 UTC
-* Number of recursive dependencies: 58
-
-Run `revdep_details(, "ergm.ego")` for more info
-
-</details>
-
-## Newly broken
-
-*   checking Rd cross-references ... WARNING
-    ```
-    Missing link or links in documentation object 'node-attr-api.Rd':
-      ‘node-attr’
-    
-    See section 'Cross-references' in the 'Writing R Extensions' manual.
-    ```
-
-## Newly fixed
-
-*   checking examples ... WARNING
-    ```
-    ...
-      Warning: 'compact.rle' is deprecated.
-      Warning: 'compact.rle' is deprecated.
-      Warning: 'compact.rle' is deprecated.
-      Warning: 'compact.rle' is deprecated.
-      Warning: 'compact.rle' is deprecated.
-      Warning: 'compact.rle' is deprecated.
-      Warning: 'compact.rle' is deprecated.
-      Warning: 'compact.rle' is deprecated.
-      Warning: 'compact.rle' is deprecated.
-      Warning: 'compact.rle' is deprecated.
-      Warning: 'compact.rle' is deprecated.
-      Warning: 'compact.rle' is deprecated.
-      Warning: 'compact.rle' is deprecated.
-      Warning: 'compact.rle' is deprecated.
-      Warning: 'compact.rle' is deprecated.
-      Warning: 'compact.rle' is deprecated.
-      Warning: 'compact.rle' is deprecated.
-      Warning: 'compact.rle' is deprecated.
-    Deprecated functions may be defunct as soon as of the next release of
-    R.
-    See ?Deprecated.
-    ```
-
