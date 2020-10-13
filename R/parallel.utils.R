@@ -140,10 +140,11 @@ ergm.MCMC.packagenames <- local({
 #' with the `parallel` control parameter. [ergm()] will detect the
 #' number of nodes in the cluster, and use all of them for MCMC
 #' sampling. This method is flexible: it will accept any cluster type
-#' that is compatible with `snow` or `parallel` packages. Usage
-#' examples for a multiple-machine high performance MPI cluster can be
-#' found at the [Statnet
-#' wiki](https://statnet.csde.washington.edu/trac/wiki/ergmParallel).
+#' that is compatible with `snow` or `parallel` packages.
+## #' Usage
+## #' examples for a multiple-machine high performance MPI cluster can be
+## #' found at the [Statnet
+## #' wiki](https://statnet.csde.washington.edu/trac/wiki/ergmParallel).
 #' }}
 #'
 #' @section When is multithreading terms worthwhile?:

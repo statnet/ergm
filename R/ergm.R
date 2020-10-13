@@ -379,7 +379,7 @@
 #' Working Paper \#39, 
 #' Center for Statistics and the Social Sciences,
 #' University of Washington.
-#' \url{https://www.csss.washington.edu/Papers/wp39.pdf}
+#' \url{https://www.csss.washington.edu/research/working-papers/assessing-degeneracy-statistical-models-social-networks}
 #' 
 #' Handcock MS (2003b).
 #' \pkg{degreenet}: Models for Skewed Count Distributions Relevant

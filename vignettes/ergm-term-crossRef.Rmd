@@ -2,10 +2,11 @@
 title: "ERGM terms cross-reference"
 author: "statnet.org"
 date: "07/28/2014"
-output: 
-  html_document:
-    toc: true
-    mathjax: null
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ERGM terms cross-reference}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
 ---
 <style type="text/css">
 table, td, th {
@@ -13,12 +14,6 @@ table, td, th {
   padding: 8px;
 }
 </style>
-
-<!-- 
-%\VignetteEngine{knitr::knitr} 
-%\VignetteIndexEntry{ERGM terms cross-reference}
--->
-<!-- to render out this file for preview when not using RStudio:  rmarkdown::render('vignettes/ergm-term-crossRef.Rmd') -->
 
 This document is an automatically generated cross reference for the ergm model terms from the [stanet project](https://statnet.org).  The source for this data and additional descriptions are in the `?ergm.terms` help file or the [ergm manual](https://cran.r-project.org/package=ergm). 
 
