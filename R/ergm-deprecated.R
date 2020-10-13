@@ -26,6 +26,6 @@ NULL
 #' @export
 remove.offset.formula <- function(object, ...){
   .Deprecated("statnet.common::filter_rhs.formula")
-  statnet.common::filter_rhs.formula(objerct, function(x) (if(is.call(x)) x[[1]] else x)!="offset")
+  statnet.common::filter_rhs.formula(object, function(x) (if(is.call(x)) x[[1]] else x)!="offset")
 }
 
