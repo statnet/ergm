@@ -20,4 +20,4 @@ addons:
   apt:
     packages:
       - r-cran-rmpi
-r_build_args: --no-build-vignettes
+
