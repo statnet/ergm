@@ -52,6 +52,14 @@ InitErgmProposal.TNT <- function(arguments, nw){
 }
 
 InitErgmProposal.BDStratTNT <- function(arguments, nw) {
+  arguments$bound <- NVL(arguments$bound, arguments$constraints$BD$bound)
+  arguments$BD_attr <- NVL(arguments$BD_attr, arguments$constraints$BD$attr)
+  arguments$fmat <- NVL(arguments$fmat, arguments$constraints$BD$fmat)
+
+  arguments$Strat_attr <- NVL(arguments$Strat_attr, arguments$constraints$Strat$attr)
+  arguments$pmat <- NVL(arguments$pmat, arguments$constraints$Strat$pmat)
+  arguments$empirical <- NVL(arguments$empirical, arguments$constraints$Strat$empirical)
+
   if(is.directed(nw)) {
     ergm_Init_abort("BDStratTNT does not support directed networks")
   }
@@ -307,6 +315,10 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
 }
 
 InitErgmProposal.BDTNT <- function(arguments, nw) {
+  arguments$bound <- NVL(arguments$bound, arguments$constraints$BD$bound)
+  arguments$attr <- NVL(arguments$attr, arguments$constraints$BD$attr)
+  arguments$fmat <- NVL(arguments$fmat, arguments$constraints$BD$fmat)
+
   # BDTNT does not currently support directed networks
   if(is.directed(nw)) {
     ergm_Init_abort(sQuote("BDTNT"), " only supports undirected networks.")
@@ -399,6 +411,10 @@ InitErgmProposal.BDTNT <- function(arguments, nw) {
 }
 
 InitErgmProposal.StratTNT <- function(arguments, nw) {
+  arguments$attr <- NVL(arguments$attr, arguments$constraints$Strat$attr)
+  arguments$pmat <- NVL(arguments$pmat, arguments$constraints$Strat$pmat)
+  arguments$empirical <- NVL(arguments$empirical, arguments$constraints$Strat$empirical)
+  
   if(!is.bipartite(nw)) {
     nodecov <- NVL2(arguments$attr, ergm_get_vattr(arguments$attr, nw), rep(1, network.size(nw)))
     levels <- sort(unique(nodecov))
