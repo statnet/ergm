@@ -161,6 +161,12 @@ InitErgmConstraint.bd<-function(lhs.nw, attribs=NULL, maxout=NA, maxin=NA, minou
    list(attribs=attribs,maxout=maxout,maxin=maxin,minout=minout,minin=minin)
 }
 
+InitErgmConstraint.BD <- function(lhs.nw, bound=NULL, attr=NULL, fmat=NULL, ...){
+   if(...length()) ergm_Init_abort(paste0("Unrecognised argument(s) ", paste.and(names(list(...)), oq="'", cq="'"),".")) 
+
+   list(dependence = TRUE, bound=bound, attr=attr, fmat=fmat)
+}
+
 InitErgmConstraint.hamming<-function(lhs.nw, ...){
    if(...length())
      ergm_Init_abort(paste("Hamming distance constraint does not take arguments at this time."))
