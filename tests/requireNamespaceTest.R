@@ -22,6 +22,9 @@ ergm::summary_formula(as.network(flo)~myedges)
 data(sampson, package="ergm")
 ergm::summary_formula(samplike~hammingmix("group"))
 
+# actually run ergm()
+fit <- ergm::ergm(samplike~edges)
+stopifnot(isTRUE(all.equal(-log(1/(network.edgecount(samplike)/network.dyadcount(samplike))-1), coef(fit), check.attributes=FALSE)))
 
 # check that we get an appropriate error if no term exists
 # should generate an 'unable to locate termed named ... ' error
