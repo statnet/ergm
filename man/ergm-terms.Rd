@@ -2120,17 +2120,16 @@
       \code{sociality(attr=NULL, base=1, levels=NULL, nodes=-1, form="sum")}  (valued) (undirected) (dyad-independent) (categorical nodal attribute)
     }{\emph{Undirected degree:}
       This term adds one network statistic for each node equal to the number of
-      ties of that node. The optional \code{attr} argument specifies a categorical vertex attribute (see \link[=nodal_attributes]{Specifying Vertex
-	Attributes and Levels} for details). If provided, this term only counts ties
-      between nodes with the same value of the attribute (an actor-specific
-      version of the \code{nodematch} term), restricted to be one of the values specified by \code{levels} if \code{levels} is not \code{NULL}.  \Undirected  For directed networks, see \code{sender} and
+      ties of that node.  \Undirected  For directed networks, see \code{sender} and
       \code{receiver}. By default, \code{nodes=-1} means that the statistic for the
       first node will be omitted, but this argument may be changed to control
       which statistics are included just as for the \code{nodes} argument of \code{sender} and
       \code{receiver} terms.
 
-      \BaseDepNodes}
-    
+      \BaseDepNodes
+
+      The optional \code{attr} argument is deprecated and will be replaced with a more elegant implementation in a future release. In the meantime, it specifies a categorical vertex attribute (see \link[=nodal_attributes]{Specifying Vertex Attributes and Levels} for details). If provided, this term only counts ties between nodes with the same value of the attribute (an actor-specific version of the \code{nodematch} term), restricted to be one of the values specified by (also deprecated) \code{levels} if \code{levels} is not \code{NULL}.}
+
     \item{\code{sum(pow=1)}  (valued)  (directed)  (undirected)}{\emph{Sum of dyad values (optionally taken
 	to a power):} This term adds one statistic equal to the sum of
       dyad values taken to the power \code{pow}, which defaults to 1.}
