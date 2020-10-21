@@ -93,7 +93,7 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
 
   m <- ergm_model(formula, nw, response=response, term.options=control$term.options)
   state <- ergm_state(nw, model=m, response=response)
-  if(!changes.only) state <- update(state, stats=summary(state))
+  state <- update(state, stats = if(changes.only) numeric(nparam(state,canonical=TRUE)) else summary(state))
 
   changem <- changes %>% map(rbind, 0) %>% do.call(rbind, .) # 0s are sentinels indicating next iteration.
   
