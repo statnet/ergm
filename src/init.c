@@ -36,7 +36,7 @@ extern SEXP ergm_etagradmult_wrapper(SEXP, SEXP, SEXP);
 extern SEXP ErgmStateArrayClear();
 extern SEXP ErgmWtStateArrayClear();
 extern SEXP get_ergm_omp_terms();
-extern SEXP Godfather_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP Godfather_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP MCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP MCMCPhase12(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP MPLE_wrapper(SEXP, SEXP, SEXP, SEXP);
@@ -45,7 +45,7 @@ extern SEXP SAN_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP set_ergm_omp_terms(SEXP);
 extern SEXP wt_network_stats_wrapper(SEXP);
 extern SEXP WtCD_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP WtGodfather_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP WtGodfather_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtMCMC_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtMCMCPhase12(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP WtSAN_wrapper(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
@@ -67,7 +67,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"ErgmStateArrayClear",      (DL_FUNC) &ErgmStateArrayClear,       0},
     {"ErgmWtStateArrayClear",    (DL_FUNC) &ErgmWtStateArrayClear,     0},
     {"get_ergm_omp_terms",       (DL_FUNC) &get_ergm_omp_terms,        0},
-    {"Godfather_wrapper",        (DL_FUNC) &Godfather_wrapper,         7},
+    {"Godfather_wrapper",        (DL_FUNC) &Godfather_wrapper,         6},
     {"MCMC_wrapper",             (DL_FUNC) &MCMC_wrapper,              7},
     {"MCMCPhase12",              (DL_FUNC) &MCMCPhase12,              10},
     {"MPLE_wrapper",             (DL_FUNC) &MPLE_wrapper,              4},
@@ -76,7 +76,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"set_ergm_omp_terms",       (DL_FUNC) &set_ergm_omp_terms,        1},
     {"wt_network_stats_wrapper", (DL_FUNC) &wt_network_stats_wrapper,  1},
     {"WtCD_wrapper",             (DL_FUNC) &WtCD_wrapper,              5},
-    {"WtGodfather_wrapper",      (DL_FUNC) &WtGodfather_wrapper,       7},
+    {"WtGodfather_wrapper",      (DL_FUNC) &WtGodfather_wrapper,       6},
     {"WtMCMC_wrapper",           (DL_FUNC) &WtMCMC_wrapper,            7},
     {"WtMCMCPhase12",            (DL_FUNC) &WtMCMCPhase12,            10},
     {"WtSAN_wrapper",            (DL_FUNC) &WtSAN_wrapper,             9},

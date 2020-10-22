@@ -17,9 +17,6 @@ MCMCStatus Godfather(ErgmState *s, Edge n_changes, Vertex *tails, Vertex *heads,
   Network *nwp = s->nwp;
   Model *m = s->m;
 
-  memcpy(stats+m->n_stats, stats, m->n_stats*sizeof(double));
-  stats+=m->n_stats;
-
   /* Doing this one change at a time saves a lot of changes... */
   for(Edge e=0; e<n_changes; e++){
     Vertex t=TAIL(e), h=HEAD(e);
@@ -69,7 +66,6 @@ MCMCStatus Godfather(ErgmState *s, Edge n_changes, Vertex *tails, Vertex *heads,
 *****************/
 SEXP Godfather_wrapper(SEXP stateR,
                        // Godfather settings
-                       SEXP nsteps,
                        SEXP changetails, SEXP changeheads, SEXP changeweights,
                        SEXP end_network,
                        SEXP verbose){
@@ -77,8 +73,11 @@ SEXP Godfather_wrapper(SEXP stateR,
   ErgmState *s = ErgmStateInit(stateR, ERGM_STATE_NO_INIT_PROP);
   Model *m = s->m;
 
-  SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats*(1+asInteger(nsteps))));
-  memset(REAL(stats), 0, m->n_stats*(1+asInteger(nsteps))*sizeof(double));
+  /* (# 0-sentinels) + 1 is the number of output rows. */
+  unsigned int nstatrows = 1;
+  for(int *ct = INTEGER(changetails), *cte = ct+length(changetails); ct < cte ; ct++) if(*ct==0) nstatrows++;
+
+  SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats*nstatrows));
   memcpy(REAL(stats), s->stats, m->n_stats*sizeof(double));
 
   SEXP status = PROTECT(ScalarInteger(Godfather(s, length(changetails), (Vertex*)INTEGER(changetails), (Vertex*)INTEGER(changeheads),
@@ -91,7 +90,7 @@ SEXP Godfather_wrapper(SEXP stateR,
 
   /* record new generated network to pass back to R */
   if(asInteger(status) == MCMC_OK && asInteger(end_network)){
-    s->stats = REAL(stats) + asInteger(nsteps)*m->n_stats;
+    s->stats = REAL(stats) + (nstatrows-1)*m->n_stats;
     SET_VECTOR_ELT(outl, 2, ErgmStateRSave(stateR, s));
   }
 

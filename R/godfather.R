@@ -95,7 +95,8 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
   state <- ergm_state(nw, model=m, response=response)
   state <- update(state, stats = if(changes.only) numeric(nparam(state,canonical=TRUE)) else summary(state))
 
-  changem <- changes %>% map(rbind, 0) %>% do.call(rbind, .) # 0s are sentinels indicating next iteration.
+  changem <- changes %>% map(~rbind(0L,.)) %>% do.call(rbind, .) # 0s are sentinels indicating next iteration.
+  if(!stats.start) changem <- changem[-1,,drop=FALSE] # I.e., overwrite the initial statistic rather than advancing past it first thing.
   
   if(verbose) message_print("Applying changes...\n")
   z <-
@@ -103,7 +104,6 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
       .Call("Godfather_wrapper",
             state,
             # Godfather settings
-            as.integer(length(changes)),
             as.integer(changem[,1]),
             as.integer(changem[,2]),
             if(ncol(changem)==3) as.integer(changem[,3]) else integer(0),
@@ -114,7 +114,6 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
       .Call("WtGodfather_wrapper",
             state,
             # Godfather settings
-            as.integer(length(changes)),
             as.integer(changem[,1]),
             as.integer(changem[,2]),
             as.double(changem[,3]),
@@ -125,7 +124,6 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
   stats <- matrix(z$s, ncol=nparam(m,canonical=TRUE), byrow=TRUE)
   colnames(stats) <- param_names(m, canonical=TRUE)
 
-  if(!stats.start) stats <- stats[-1,,drop=FALSE]
   #' @importFrom coda mcmc
   stats <- mcmc(stats)
   
