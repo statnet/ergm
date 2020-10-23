@@ -284,6 +284,8 @@ ergm_conlist <- function(object, nw){
 #' @export
 ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), weights="default", class="c", reference=~Bernoulli, response=NULL, ...) {
   NVL(response) <- nw %ergmlhs% "response"
+  NVL(hints) <- trim_env(~TNT)
+
   if(is(reference, "formula")){
     f <- locate_prefixed_function(reference[[2]], "InitErgmReference", "Reference distribution")
 
