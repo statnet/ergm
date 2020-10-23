@@ -181,7 +181,7 @@ ergm_proposal.character <- function(object, arguments, nw, ..., response=NULL, r
 
   arguments$reference <- reference
 
-  f <- locate.InitFunction(name, NVL2(response, "InitWtErgmProposal", "InitErgmProposal"), "Metropolis-Hastings proposal")
+  f <- locate_prefixed_function(name, NVL2(response, "InitWtErgmProposal", "InitErgmProposal"), "Metropolis-Hastings proposal")
 
   proposal <- NVL3(response,
                    eval(as.call(list(f, arguments, nw, .))),
@@ -244,7 +244,7 @@ ergm_conlist <- function(object, nw){
     ## There may be other constraints in the formula, however.
     if(constraint==".") next
 
-    f <- locate.InitFunction(constraint, "InitErgmConstraint", "Sample space constraint")
+    f <- locate_prefixed_function(constraint, "InitErgmConstraint", "Sample space constraint")
     
     if(is.call(constraint)){
       conname <- as.character(constraint[[1]])
@@ -285,7 +285,7 @@ ergm_conlist <- function(object, nw){
 ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), weights="default", class="c", reference=~Bernoulli, response=NULL, ...) {
   NVL(response) <- nw %ergmlhs% "response"
   if(is(reference, "formula")){
-    f <- locate.InitFunction(reference[[2]], "InitErgmReference", "Reference distribution")
+    f <- locate_prefixed_function(reference[[2]], "InitErgmReference", "Reference distribution")
 
     if(is.call(reference[[2]])){
       ref.call <- list(f, lhs.nw=nw)

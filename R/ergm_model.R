@@ -148,7 +148,7 @@ call.ErgmTerm <- function(term, env, nw, response=NULL, ..., term.options=list()
     args[[1]] <- as.name("list")
   }else args <- list()
   
-  termFun<-locate.InitFunction(term, paste0(termroot,"Term"), "ERGM term", env=env)
+  termFun<-locate_prefixed_function(term, paste0(termroot,"Term"), "ERGM term", env=env)
   termCall<-as.call(list(termFun, nw, args))
   
   dotdotdot <- c(if(!is.null(response)) list(response=response), term.options)
