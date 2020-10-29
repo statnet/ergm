@@ -32,6 +32,18 @@ color[color ==1] <- "Purple"
 color[color ==0] <- "Gold"
 bipnw2 %v% "Color" <- color
 
+# another bipartite nw with 2 attributes
+set.seed(301)
+b1 <- floor(runif(60, 1,100))
+b2 <- floor(runif(60, 101, 130))
+exbip.el <- cbind(b1,b2)
+bipnw3 <- as.network(exbip.el, matrix.type="edgelist", bipartite=100, directed=FALSE)
+bipnw3 %v% "Letter" <- c(rep(letters[1:2], times=50), rep(NA, times=29))
+color <- rbinom(29, 1, .4)
+color[color ==1] <- "Purple"
+color[color ==0] <- "Gold"
+bipnw3 %v% "Color" <- c(rep(NA, times=100), color)
+
 
 num.passed.tests=0
 num.tests=0
@@ -74,22 +86,29 @@ if (!all(s.a==c(121)) ||
 num.tests=num.tests+1
 s.d <- summary(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf)))
 e.d <- ergm(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf)), estimate="MPLE")
-s.anh <- summary(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf),by="Letter",homophily=FALSE))
-e.anh <- ergm(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf),by=function(x) x %v% "Letter",homophily=FALSE), estimate="MPLE")
-s.dh <- summary(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf),by="Letter",homophily=TRUE))
-e.dh <- ergm(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf),by=function(x) x %v% "Letter",homophily=TRUE), estimate="MPLE")
+s.anh <- summary(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf),b1attr="Letter",homophily=FALSE))
+e.anh <- ergm(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf),b1attr=function(x) x %v% "Letter",homophily=FALSE), estimate="MPLE")
+s.dh <- summary(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf),b1attr="Letter",homophily=TRUE))
+e.dh <- ergm(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf),b1attr=function(x) x %v% "Letter",homophily=TRUE), estimate="MPLE")
+
+s.anh1 <- summary(bipnw3~b1degrange(from=c(1,2),to=c(Inf,Inf),b1attr="Letter",homophily=FALSE))
+e.anh1 <- ergm(bipnw3~b1degrange(from=c(1,2),to=c(Inf,Inf),b1attr=function(x) x %v% "Letter",homophily=FALSE), estimate="MPLE")
+
 if (!all(s.d==c(42,12)) ||
-		!all(round(e.d$coef+c(4.027, 3.961),3)==0) ||
-        !all(s.anh==c(13,4,13,5,16,3)) ||
-        !all(round(e.anh$coef+c(4.215, 4.143, 4.284, 3.620, 3.636, 4.105),3)==0) ||
-		!all(s.dh==c(19,3)) ||
-		!all(round(e.dh$coef+c(3.891, 3.143 ),3)==0)) {
-	print(list(s.d=s.d, e.d=e.d, s.dh=s.dh, e.db=e.db))
-	stop("Failed b1degree term test")
+    !all(round(e.d$coef+c(4.027, 3.961),3)==0) ||
+    !all(s.anh==c(13,4,13,5,16,3)) ||
+    !all(round(e.anh$coef+c(4.215, 4.143, 4.284, 3.620, 3.636, 4.105),3)==0) ||
+    !all(s.dh==c(19,3)) ||
+    !all(round(e.dh$coef+c(3.891, 3.143 ),3)==0) ||
+    !all(s.anh1==c(23,7,21,6)) ||
+    !all(round(e.anh1$coef+c(3.891,3.802,4.027,3.555),3)==0)) {
+  print(list(s.d=s.d, e.d=e.d, s.anh=s.anh, e.anh=e.anh, s.dh=s.dh, e.db=e.db, s.anh1=s.anh1, e.anh1=e.anh1))
+  stop("Failed b1degrange term test")
 } else {
-	num.passed.tests=num.passed.tests+1
-	print("Passed b1degree term test")
+  num.passed.tests=num.passed.tests+1
+  print("Passed b1degrange term test")
 }
+
 
 #b1degree, bipartite, undirected
 num.tests=num.tests+1
@@ -291,21 +310,25 @@ if (!all(s.a==c(129)) ||
 num.tests=num.tests+1
 s.d <- summary(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf)))
 e.d <- ergm(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf)), estimate="MPLE")
-s.anh <- summary(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf),by=function(x) x %v% "Letter",homophily=FALSE))
-e.anh <- ergm(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf),by=~Letter,homophily=FALSE), estimate="MPLE")
-s.dh <- summary(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf),by=function(x) x %v% "Letter",homophily=TRUE))
-e.dh <- ergm(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf),by=~Letter,homophily=TRUE), estimate="MPLE")
+s.anh <- summary(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf),b2attr=function(x) x %v% "Letter",homophily=FALSE))
+e.anh <- ergm(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf),b2attr=~Letter,homophily=FALSE), estimate="MPLE")
+s.dh <- summary(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf),b2attr=function(x) x %v% "Letter",homophily=TRUE))
+e.dh <- ergm(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf),b2attr=~Letter,homophily=TRUE), estimate="MPLE")
+s.anh1 <- summary(bipnw3~b2degrange(from=c(1,2),to=c(Inf,Inf),b2attr="Color",homophily=FALSE))
+e.anh1 <- ergm(bipnw3~b2degrange(from=c(1,2),to=c(Inf,Inf),b2attr=function(x) x %v% "Color",homophily=FALSE), estimate="MPLE")
 if (!all(s.d==c(26,20)) ||
-		!all(round(e.d$coef+c(3.912,3.497),3)==0) ||
-        !all(s.anh==c(9,8,10,6,7,6)) ||
-        !all(round(e.anh$coef+c(-13.566, 2.803, -14.365, 4.190, 5.704, 2.803),3)==0) ||
-		!all(s.dh==c(19,3)) ||
-		!all(round(e.dh$coef+c(3.03, 4.46 ),3)==0)) {
-	print(list(s.d=s.d, e.d=e.d, s.dh=s.dh, e.db=e.db))
-	stop("Failed b2degree term test")
+    !all(round(e.d$coef+c(3.912,3.497),3)==0) ||
+    !all(s.anh==c(9,8,10,6,7,6)) ||
+    !all(round(e.anh$coef+c(-13.566, 2.803, -14.365, 4.190, 5.704, 2.803),3)==0) ||
+    !all(s.dh==c(19,3)) ||
+    !all(round(e.dh$coef+c(3.03, 4.46 ),3)==0) ||
+    !all(s.anh1==c(20,14,7,4)) ||
+    !all(round(e.anh1$coef+c(-13.683,3.614,4.200,4.307),3)==0)) {
+  print(list(s.d=s.d, e.d=e.d, s.dh=s.dh, e.db=e.db))
+  stop("Failed b2degrange term test")
 } else {
-	num.passed.tests=num.passed.tests+1
-	print("Passed b2degree term test")
+  num.passed.tests=num.passed.tests+1
+  print("Passed b2degrange term test")
 }
 
 #b2degree, bipartite, undirected

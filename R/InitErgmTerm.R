@@ -384,7 +384,7 @@ InitErgmTerm.b1degrange<-function(nw, arglist, ..., version=packageVersion("ergm
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, bipartite=TRUE,
-                        varnames = c("from", "to", "by", "homophily", "levels"),
+                        varnames = c("from", "to", "b1attr", "homophily", "levels"),
                         vartypes = c("numeric", "numeric", "character", "logical", "character,numeric,logical"),
                         defaultvalues = list(NULL, Inf, NULL, FALSE, NULL),
                         required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
@@ -392,32 +392,32 @@ InitErgmTerm.b1degrange<-function(nw, arglist, ..., version=packageVersion("ergm
   }else{
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, bipartite=TRUE,
-                        varnames = c("from", "to", "by", "homophily", "levels"),
+                        varnames = c("from", "to", "b1attr", "homophily", "levels"),
                         vartypes = c("numeric", "numeric", ERGM_VATTR_SPEC, "logical", ERGM_LEVELS_SPEC),
                         defaultvalues = list(NULL, Inf, NULL, FALSE, NULL),
                         required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
     levels <- a$levels  
   }
-
+  
   ### Process the arguments
-  from<-a$from; to<-a$to; byarg <- a$by; homophily <- a$homophily
+  from<-a$from; to<-a$to; b1attrarg <- a$b1attr; homophily <- a$homophily
   to <- ifelse(to==Inf, network.size(nw)+1, to)
-
+  
   if(length(to)==1 && length(from)>1) to <- rep(to, length(from))
   else if(length(from)==1 && length(to)>1) from <- rep(from, length(to))
   else if(length(from)!=length(to)) ergm_Init_abort("The arguments of term odegrange must have arguments either of the same length, or one of them must have length 1.")
   else if(any(from>=to)) ergm_Init_abort("Term odegrange must have from<to.")
-
+  
   nb1 <- get.network.attribute(nw, "bipartite")
   emptynwstats<-NULL
-  if(!is.null(byarg)) {
-    nodecov <- ergm_get_vattr(byarg, nw, bip = if(homophily) "n" else "b1")
+  if(!is.null(b1attrarg)) {
+    nodecov <- ergm_get_vattr(b1attrarg, nw, bip = if(homophily) "n" else "b1")
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
-
+    
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
   }
-  if(!is.null(byarg) && !homophily) {
+  if(!is.null(b1attrarg) && !homophily) {
     # Combine b1degrange and u into 3xk matrix, where k=length(from)*length(u)
     lu <- length(u)
     du <- rbind(rep(from,lu), rep(to,lu), rep(1:lu, rep(length(from), lu)))
@@ -425,7 +425,7 @@ InitErgmTerm.b1degrange<-function(nw, arglist, ..., version=packageVersion("ergm
       emptynwstats <- rep(0, ncol(du))
       tmp <- du[3,du[1,]==0]
       for(i in 1:length(tmp)) tmp[i] <- sum(nodecov==tmp[i])
-        emptynwstats[du[1,]==0] <- tmp
+      emptynwstats[du[1,]==0] <- tmp
     }
   } else {
     if (any(from==0)) {
@@ -433,7 +433,7 @@ InitErgmTerm.b1degrange<-function(nw, arglist, ..., version=packageVersion("ergm
       emptynwstats[from==0] <- network.size(nw)
     }
   }
-  if(is.null(byarg)) {
+  if(is.null(b1attrarg)) {
     if(length(from)==0){return(NULL)}
     coef.names <- ifelse(to>=network.size(nw)+1,
                          paste("b1deg",from,"+",sep=""),
@@ -900,7 +900,7 @@ InitErgmTerm.b2degrange<-function(nw, arglist, ..., version=packageVersion("ergm
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, bipartite=TRUE,
-                        varnames = c("from", "to", "by", "homophily", "levels"),
+                        varnames = c("from", "to", "b2attr", "homophily", "levels"),
                         vartypes = c("numeric", "numeric", "character", "logical", "character,numeric,logical"),
                         defaultvalues = list(NULL, Inf, NULL, FALSE, NULL),
                         required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
@@ -908,31 +908,31 @@ InitErgmTerm.b2degrange<-function(nw, arglist, ..., version=packageVersion("ergm
   }else{
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, bipartite=TRUE,
-                        varnames = c("from", "to", "by", "homophily", "levels"),
+                        varnames = c("from", "to", "b2attr", "homophily", "levels"),
                         vartypes = c("numeric", "numeric", ERGM_VATTR_SPEC, "logical", ERGM_LEVELS_SPEC),
                         defaultvalues = list(NULL, Inf, NULL, FALSE, NULL),
                         required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
     levels <- a$levels  
   }
-
+  
   ### Process the arguments  
-  from<-a$from; to<-a$to; byarg <- a$by; homophily <- a$homophily
+  from<-a$from; to<-a$to; b2attrarg <- a$b2attr; homophily <- a$homophily
   to <- ifelse(to==Inf, network.size(nw)+1, to)
-
+  
   if(length(to)==1 && length(from)>1) to <- rep(to, length(from))
   else if(length(from)==1 && length(to)>1) from <- rep(from, length(to))
   else if(length(from)!=length(to)) ergm_Init_abort("The arguments of term odegrange must have arguments either of the same length, or one of them must have length 1.")
   else if(any(from>=to)) ergm_Init_abort("Term odegrange must have from<to.")
-
+  
   nb1 <- get.network.attribute(nw, "bipartite")
   emptynwstats<-NULL
-  if(!is.null(byarg)) {
-    nodecov <- ergm_get_vattr(byarg, nw, bip = if(homophily) "n" else "b2")
+  if(!is.null(b2attrarg)) {
+    nodecov <- ergm_get_vattr(b2attrarg, nw, bip = if(homophily) "n" else "b2")
     attrname <- attr(nodecov, "name")
     u <- ergm_attr_levels(levels, nodecov, nw, levels = sort(unique(nodecov)))
     nodecov <- match(nodecov,u,nomatch=length(u)+1) # Recode to numeric
   }
-  if(!is.null(byarg) && !homophily) {
+  if(!is.null(b2attrarg) && !homophily) {
     # Combine b2degrange and u into 3xk matrix, where k=length(from)*length(u)
     lu <- length(u)
     du <- rbind(rep(from,lu), rep(to,lu), rep(1:lu, rep(length(from), lu)))
@@ -940,7 +940,7 @@ InitErgmTerm.b2degrange<-function(nw, arglist, ..., version=packageVersion("ergm
       emptynwstats <- rep(0, ncol(du))
       tmp <- du[3,du[1,]==0]
       for(i in 1:length(tmp)) tmp[i] <- sum(nodecov==tmp[i])
-        emptynwstats[du[1,]==0] <- tmp
+      emptynwstats[du[1,]==0] <- tmp
     }
   } else {
     if (any(from==0)) {
@@ -948,7 +948,7 @@ InitErgmTerm.b2degrange<-function(nw, arglist, ..., version=packageVersion("ergm
       emptynwstats[from==0] <- network.size(nw)
     }
   }
-  if(is.null(byarg)) {
+  if(is.null(b2attrarg)) {
     if(length(from)==0){return(NULL)}
     coef.names <- ifelse(to>=network.size(nw)+1,
                          paste("b2deg",from,"+",sep=""),

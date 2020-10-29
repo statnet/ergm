@@ -419,7 +419,7 @@
 
       \ThreeNineFour}
 
-    \item{\code{b1degrange(from, to=+Inf, by=NULL, homophily=FALSE, levels=NULL)}  (binary)  (bipartite)  (undirected)
+    \item{\code{b1degrange(from, to=+Inf, b1attr=NULL, homophily=FALSE, levels=NULL)}  (binary)  (bipartite)  (undirected)
     }{\emph{Degree range for the first mode in a bipartite
 	(a.k.a. two-mode) network:}
       The \code{from} and \code{to} arguments are vectors of distinct
@@ -433,12 +433,12 @@
       \code{from[i]} but strictly less than \code{to[i]}, i.e. with
       edge count
       in semiopen interval \code{[from,to)}. The optional argument
-      \code{by} specifies a vertex attribute (see \link[=nodal_attributes]{Specifying Vertex
+      \code{b1attr} specifies a vertex attribute (see \link[=nodal_attributes]{Specifying Vertex
 	Attributes and Levels} for details).
-      If this is specified and \code{homophily} is \code{TRUE},
-      then degrees are calculated using the subnetwork consisting of only
-      edges whose endpoints have the same value of the \code{by} attribute.
-      If \code{by} is specified and
+      If this is specified and the b2 nodes have the same vertex attribute, then with \code{homophily} is \code{TRUE},
+      degrees are calculated using the subnetwork consisting of only
+      edges whose endpoints have the same value of the \code{b1attr} attribute.
+      If \code{b1attr} is specified and
       \code{homophily} is \code{FALSE} (the default), then separate degree range
       statistics are calculated for nodes having each separate
       value of the attribute.
@@ -624,7 +624,7 @@
 
       \ThreeNineFour}
 
-    \item{\code{b2degrange(from, to=+Inf, by=NULL, homophily=FALSE, levels=NULL)}  (binary)  (bipartite)  (undirected)
+    \item{\code{b2degrange(from, to=+Inf, b2attr=NULL, homophily=FALSE, levels=NULL)}  (binary)  (bipartite)  (undirected)
     }{\emph{Degree range for the second mode in a bipartite
 	(a.k.a. two-mode) network:}
       The \code{from} and \code{to} arguments are vectors of distinct
@@ -638,13 +638,13 @@
       \code{from[i]} but strictly less than \code{to[i]}, i.e. with
       edge count
       in semiopen interval \code{[from,to)}. The optional argument
-      \code{by} specifies
+      \code{b2attr} specifies
       a vertex attribute (see \link[=nodal_attributes]{Specifying Vertex
 	Attributes and Levels} for details).
-      If this is specified and \code{homophily} is \code{TRUE},
-      then degrees are calculated using the subnetwork consisting of only
-      edges whose endpoints have the same value of the \code{by} attribute.
-      If \code{by} is specified and
+	    If this is specified and the b1 nodes have the same vertex attribute, then with \code{homophily} is \code{TRUE},
+      degrees are calculated using the subnetwork consisting of only
+      edges whose endpoints have the same value of the \code{b2attr} attribute.
+      If \code{b2attr} is specified and
       \code{homophily} is \code{FALSE} (the default), then separate degree range
       statistics are calculated for nodes having each separate
       value of the attribute.
