@@ -3622,31 +3622,6 @@ C_CHANGESTAT_FN(c_meandeg) {
 }
 
 /*****************
- changestat: d_mix
- This appears to be the version of nodemix used for 
- bipartite networks (only)
-*****************/
-C_CHANGESTAT_FN(c_mix) {
-  Vertex tmpi;
-  int matchvaltail, matchvalhead;
-  int j, nstats;
-
-  nstats = N_CHANGE_STATS;
-
-  /* *** don't forget tail -> head */    
-    if (BIPARTITE > 0 && tail > head) { 
-      tmpi = tail; tail = head; head = tmpi; /* swap tail, head */
-    }
-    matchvaltail = INPUT_PARAM[tail-1+2*nstats];
-    matchvalhead = INPUT_PARAM[head-1+2*nstats];
-    for (j=0; j<nstats; j++) {
-      if(matchvaltail==INPUT_PARAM[j] && matchvalhead==INPUT_PARAM[nstats+j]) {
-        CHANGE_STAT[j] += edgeflag ? -1.0 : 1.0;
-      }
-	  }
-}
-
-/*****************
  changestat: d_mixmat
  General mixing matrix (mm) implementation.
 *****************/
@@ -3829,33 +3804,62 @@ C_CHANGESTAT_FN(c_nodematch) {
 }
 
 /*****************
- changestat: d_nodemix
- Update mixing matrix, non-bipartite networks only 
- (but see also d_mix)
+ changestat: nodemix
 *****************/
-C_CHANGESTAT_FN(c_nodemix) {
-  int j, ninputs, ninputs2;
-  double rtype, ctype, tmp, change;
 
-  ninputs = N_INPUT_PARAMS - N_NODES;
-  ninputs2 = ninputs/2;
+typedef struct {
+  int *nodecov;
+  int **indmat;
+} nodemix_storage;
 
-  /* *** don't forget tail -> head */    
-      change = edgeflag ? -1.0 : 1.0;
-      /*Find the node covariate values (types) for the tail and head*/
-      rtype=INPUT_PARAM[tail+ninputs-1];
-      ctype=INPUT_PARAM[head+ninputs-1];
-      if (!DIRECTED && rtype > ctype)  {
-        tmp = rtype; rtype = ctype; ctype = tmp; /* swap rtype, ctype */
-      }
-      /*Find the right statistic to update */
-      for(j=0; j<ninputs2; j++){
-        if((INPUT_PARAM[j] == rtype) && (INPUT_PARAM[j+ninputs2] == ctype)){
-          CHANGE_STAT[j] += change;
-          j = ninputs2; /* leave the for loop */
-        }
-      } 
+I_CHANGESTAT_FN(i_nodemix) {
+  ALLOC_STORAGE(1, nodemix_storage, sto);
+  sto->nodecov = INTEGER(getListElement(mtp->R, "nodecov"));
+  
+  int nr = asInteger(getListElement(mtp->R, "nr"));
+  int nc = asInteger(getListElement(mtp->R, "nc"));
+  
+  sto->indmat = Calloc(nr, int *);
+  sto->indmat[0] = INTEGER(getListElement(mtp->R, "indmat"));
+  for(int i = 1; i < nr; i++) {
+    sto->indmat[i] = sto->indmat[i - 1] + nc;
   }
+}
+
+C_CHANGESTAT_FN(c_nodemix) {
+  GET_STORAGE(nodemix_storage, sto);  
+  int index = sto->indmat[sto->nodecov[tail]][sto->nodecov[head]];
+  if(index >= 0) {
+    CHANGE_STAT[index] += edgeflag ? -1 : +1;
+  }
+}
+
+F_CHANGESTAT_FN(f_nodemix) {
+  GET_STORAGE(nodemix_storage, sto);
+  Free(sto->indmat);  
+}
+
+S_CHANGESTAT_FN(s_nodemix) {
+  int *nodecov = INTEGER(getListElement(mtp->R, "nodecov"));
+  
+  int nr = asInteger(getListElement(mtp->R, "nr"));
+  int nc = asInteger(getListElement(mtp->R, "nc"));
+  
+  int **indmat = Calloc(nr, int *);
+  indmat[0] = INTEGER(getListElement(mtp->R, "indmat"));
+  for(int i = 1; i < nr; i++) {
+    indmat[i] = indmat[i - 1] + nc;
+  }
+  
+  EXEC_THROUGH_NET_EDGES_PRE(tail, head, edge_var, {
+    int index = indmat[nodecov[tail]][nodecov[head]];
+    if(index >= 0) {
+      CHANGE_STAT[index]++;
+    }
+  });
+  
+  Free(indmat);
+}
 
 /*****************
  changestat: d_nodeocov

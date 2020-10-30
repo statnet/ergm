@@ -440,48 +440,6 @@ WtC_CHANGESTAT_FN(c_ininterval){
 /********************  changestats:   M    ***********/
 
 /*****************
- changestat: d_mix_nonzero
- This appears to be the version of nodemix used for 
- bipartite networks (only)
-*****************/
-WtC_CHANGESTAT_FN(c_mix_nonzero){
-  int matchvaltail, matchvalhead;
-  int j, nstats;
-
-  nstats = N_CHANGE_STATS;
-
-  /* *** don't forget tail -> head */    
-      double s = (weight!=0) - (edgeweight!=0);
-      matchvaltail = INPUT_PARAM[tail-1+2*nstats];
-      matchvalhead = INPUT_PARAM[head-1+2*nstats];
-      for (j=0; j<nstats; j++) {
-	if(matchvaltail==INPUT_PARAM[j] && matchvalhead==INPUT_PARAM[nstats+j]) {
-	  CHANGE_STAT[j] += s;
-	}
-      }
-}
-/*****************
- changestat: d_mix_sum
- This appears to be the version of nodemix used for 
- bipartite networks (only)
-*****************/
-WtC_CHANGESTAT_FN(c_mix_sum){
-  int matchvaltail, matchvalhead;
-  int j, nstats;
-
-  nstats = N_CHANGE_STATS;
-
-  /* *** don't forget tail -> head */    
-      double s = weight - edgeweight;
-      matchvaltail = INPUT_PARAM[tail-1+2*nstats];
-      matchvalhead = INPUT_PARAM[head-1+2*nstats];
-      for (j=0; j<nstats; j++) {
-	if(matchvaltail==INPUT_PARAM[j] && matchvalhead==INPUT_PARAM[nstats+j]) {
-	  CHANGE_STAT[j] += s;
-	}
-      }
-}
-/*****************
  stat: mutual (product a.k.a. covariance)
 *****************/
 WtC_CHANGESTAT_FN(c_mutual_wt_product){
@@ -884,50 +842,69 @@ WtC_CHANGESTAT_FN(c_nodematch_sum) {
  Update mixing matrix, non-bipartite networks only 
  (but see also d_mix_nonzero)
 *****************/
-WtC_CHANGESTAT_FN(c_nodemix_nonzero) {
-  int ninputs = N_INPUT_PARAMS - N_NODES, ninputs2 = ninputs/2;
-  double rtype, ctype, tmp;
 
-  /* *** don't forget tail -> head */    
-      double change = (weight!=0) - (edgeweight!=0);
-      /*Find the node covariate values (types) for the tail and head*/
-      rtype=INPUT_PARAM[tail+ninputs-1];
-      ctype=INPUT_PARAM[head+ninputs-1];
-      if (!DIRECTED && rtype > ctype)  {
-        tmp = rtype; rtype = ctype; ctype = tmp; /* swap rtype, ctype */
-      }
-      /*Find the right statistic to update */
-      for(unsigned int j=0; j<ninputs2; j++){
-        if((INPUT_PARAM[j] == rtype) && (INPUT_PARAM[j+ninputs2] == ctype)){
-          CHANGE_STAT[j] += change;
-          j = ninputs2; /* leave the for loop */
-        }
-      } 
+typedef struct {
+  int *nodecov;
+  int **indmat;
+} nodemix_storage;
+
+WtI_CHANGESTAT_FN(i_nodemix_nonzero) {
+  ALLOC_STORAGE(1, nodemix_storage, sto);
+  sto->nodecov = INTEGER(getListElement(mtp->R, "nodecov"));
+  
+  int nr = asInteger(getListElement(mtp->R, "nr"));
+  int nc = asInteger(getListElement(mtp->R, "nc"));
+  
+  sto->indmat = Calloc(nr, int *);
+  sto->indmat[0] = INTEGER(getListElement(mtp->R, "indmat"));
+  for(int i = 1; i < nr; i++) {
+    sto->indmat[i] = sto->indmat[i - 1] + nc;
+  }
 }
+
+WtC_CHANGESTAT_FN(c_nodemix_nonzero) {
+  GET_STORAGE(nodemix_storage, sto);  
+  int index = sto->indmat[sto->nodecov[tail]][sto->nodecov[head]];
+  if(index >= 0) {
+    CHANGE_STAT[index] += (weight != 0) - (edgeweight != 0);
+  }
+}
+
+WtF_CHANGESTAT_FN(f_nodemix_nonzero) {
+  GET_STORAGE(nodemix_storage, sto);
+  Free(sto->indmat);
+}
+
 /*****************
  changestat: d_nodemix_sum
  Update mixing matrix, non-bipartite networks only 
  (but see also d_mix_sum)
 *****************/
-WtC_CHANGESTAT_FN(c_nodemix_sum) {
-  int ninputs = N_INPUT_PARAMS - N_NODES, ninputs2 = ninputs/2;
-  double rtype, ctype, tmp;
+WtI_CHANGESTAT_FN(i_nodemix_sum) {
+  ALLOC_STORAGE(1, nodemix_storage, sto);
+  sto->nodecov = INTEGER(getListElement(mtp->R, "nodecov"));
+  
+  int nr = asInteger(getListElement(mtp->R, "nr"));
+  int nc = asInteger(getListElement(mtp->R, "nc"));
+  
+  sto->indmat = Calloc(nr, int *);
+  sto->indmat[0] = INTEGER(getListElement(mtp->R, "indmat"));
+  for(int i = 1; i < nr; i++) {
+    sto->indmat[i] = sto->indmat[i - 1] + nc;
+  }
+}
 
-  /* *** don't forget tail -> head */    
-      double change = weight - edgeweight;
-      /*Find the node covariate values (types) for the tail and head*/
-      rtype=INPUT_PARAM[tail+ninputs-1];
-      ctype=INPUT_PARAM[head+ninputs-1];
-      if (!DIRECTED && rtype > ctype)  {
-        tmp = rtype; rtype = ctype; ctype = tmp; /* swap rtype, ctype */
-      }
-      /*Find the right statistic to update */
-      for(unsigned int j=0; j<ninputs2; j++){
-        if((INPUT_PARAM[j] == rtype) && (INPUT_PARAM[j+ninputs2] == ctype)){
-          CHANGE_STAT[j] += change;
-          j = ninputs2; /* leave the for loop */
-        }
-      } 
+WtC_CHANGESTAT_FN(c_nodemix_sum) {
+  GET_STORAGE(nodemix_storage, sto);  
+  int index = sto->indmat[sto->nodecov[tail]][sto->nodecov[head]];
+  if(index >= 0) {
+    CHANGE_STAT[index] += weight - edgeweight;
+  }
+}
+
+WtF_CHANGESTAT_FN(f_nodemix_sum) {
+  GET_STORAGE(nodemix_storage, sto);
+  Free(sto->indmat);
 }
 /*****************
  stat: node o[ut] covar[iance] 

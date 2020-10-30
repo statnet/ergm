@@ -13,6 +13,8 @@
 #include "ergm_wtedgetree.h"
 #include "ergm_wtchangestat.h"
 #include "ergm_storage.h"
+#include "ergm_Rutil.h"
+
 
 /********************  Utility macros    ***********/
 
@@ -41,8 +43,6 @@ WtD_CHANGESTAT_FN(d_greaterthan);
 WtD_CHANGESTAT_FN(d_ininterval);
 
 /********************  changestats:   M    ***********/
-WtD_CHANGESTAT_FN(d_mix_nonzero);
-WtD_CHANGESTAT_FN(d_mix_sum);
 WtD_CHANGESTAT_FN(d_mutual_wt_product);
 WtD_CHANGESTAT_FN(d_mutual_wt_geom_mean);
 WtD_CHANGESTAT_FN(d_mutual_wt_min); 
@@ -60,8 +60,12 @@ WtD_CHANGESTAT_FN(d_nodeifactor_nonzero);
 WtD_CHANGESTAT_FN(d_nodeifactor_sum);
 WtD_CHANGESTAT_FN(d_nodematch_nonzero);
 WtD_CHANGESTAT_FN(d_nodematch_sum);
-WtD_CHANGESTAT_FN(d_nodemix_nonzero);
-WtD_CHANGESTAT_FN(d_nodemix_sum);
+WtI_CHANGESTAT_FN(i_nodemix_nonzero);
+WtI_CHANGESTAT_FN(i_nodemix_sum);
+WtC_CHANGESTAT_FN(c_nodemix_nonzero);
+WtC_CHANGESTAT_FN(c_nodemix_sum);
+WtF_CHANGESTAT_FN(f_nodemix_nonzero);
+WtF_CHANGESTAT_FN(f_nodemix_sum);
 WtD_CHANGESTAT_FN(d_nodeocorr);
 WtD_CHANGESTAT_FN(d_nodeofactor_nonzero);
 WtD_CHANGESTAT_FN(d_nodeofactor_sum);

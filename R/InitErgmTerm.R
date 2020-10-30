@@ -3417,14 +3417,17 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
   
     namescov <- c(b1namescov, b2namescov)
     
-    nodecov <- c(b1nodecov, b2nodecov + nr)
+    nodecov <- c(b1nodecov, b2nodecov)
     
-    name <- "mix"
     cn <- paste("mix", paste(attrname,collapse="."), apply(matrix(namescov[as.matrix(u)],ncol=2),
                                        1,paste,collapse="."), sep=".")
-    inputs <- c(u[,1], u[,2], nodecov)
-    attr(inputs, "ParamsBeforeCov") <- NROW(u)
-  } else {# So one mode, but could be directed or undirected
+                                       
+    ## the +1 for nrow and ncol are needed by the way we code non-included b1 and b2 levels above
+    indmat <- matrix(0L, nrow = nr + 1, ncol = nc + 1)
+    u[,2L] <- u[,2L] - nr
+    indmat[as.matrix(u)] <- seq_len(NROW(u))
+    indmat <- indmat - 1L
+  } else { # So one mode, but could be directed or undirected
     u <- ergm_attr_levels(a$levels, nodecov, nw, sort(unique(nodecov)))
     namescov <- u 
     
@@ -3451,21 +3454,25 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
     u <- indices2.grid[rows2keep,]
     uun <- uun[rows2keep]
 
-
     nodecov <- match(nodecov,namescov,nomatch=length(namescov)+1)
     
-    
-    name <- "nodemix"
     cn <- paste("mix", paste(attrname,collapse="."), uun, sep=".")
-    inputs <- c(u[,1], u[,2], nodecov)
-    #attr(inputs, "ParamsBeforeCov") <- 2*length(uui)
-    attr(inputs, "ParamsBeforeCov") <- 2*length(uun)
+
+    ## the +1 for nrow and ncol are needed by the way we code non-included b1 and b2 levels above
+    indmat <- matrix(0L, nrow = nr + 1, ncol = nc + 1)
+    indmat[as.matrix(u)] <- seq_len(NROW(u))
+    if(!is.directed(nw)) indmat <- indmat + t(indmat) - diag(diag(indmat))
+    indmat <- indmat - 1L
   }
   ### Construct the list to return
-  list(name = name, coef.names = cn, # required
-       inputs = inputs, 
+  list(name = "nodemix", coef.names = cn, # required
        dependence = FALSE, # So we don't use MCMC if not necessary
-       minval = 0
+       minval = 0,
+       inputs = NULL, # passed by name below
+       nr = as.integer(nr + 1),
+       nc = as.integer(nc + 1),
+       indmat = as.integer(t(indmat)),
+       nodecov = as.integer(c(0L, nodecov) - 1L) # two shifts to make the C code cleaner
        )
 }
 

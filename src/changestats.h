@@ -12,6 +12,7 @@
 
 #include "ergm_edgetree.h"
 #include "ergm_changestat.h"
+#include "ergm_Rutil.h"
 
 /********************  changestats:  A    ***********/
 C_CHANGESTAT_FN(c_absdiff);
@@ -113,7 +114,6 @@ C_CHANGESTAT_FN(c_localtriangle);
 /********************  changestats:   M    ***********/
 C_CHANGESTAT_FN(c_m2star);
 C_CHANGESTAT_FN(c_meandeg);
-C_CHANGESTAT_FN(c_mix);
 C_CHANGESTAT_FN(c_mutual);
 C_CHANGESTAT_FN(c_mutual_by_attr);
 /********************  changestats:   N    ***********/                       
@@ -123,7 +123,10 @@ C_CHANGESTAT_FN(c_nodefactor);
 C_CHANGESTAT_FN(c_nodeicov);
 C_CHANGESTAT_FN(c_nodeifactor);
 C_CHANGESTAT_FN(c_nodematch);
+I_CHANGESTAT_FN(i_nodemix);
 C_CHANGESTAT_FN(c_nodemix);
+F_CHANGESTAT_FN(f_nodemix);
+S_CHANGESTAT_FN(s_nodemix);
 C_CHANGESTAT_FN(c_nodeocov);
 C_CHANGESTAT_FN(c_nodeofactor);
 C_CHANGESTAT_FN(c_nsp);
