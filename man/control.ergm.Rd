@@ -19,6 +19,8 @@ control.ergm(
   MPLE.type = c("glm", "penalized"),
   MPLE.nonident = c("warning", "message", "error"),
   MPLE.nonident.tol = 1e-10,
+  MPLE.Godambe.samplesize = 500,
+  MPLE.covariance.method = c("invHess", "Godambe", "Bootstrap"),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
   MCMC.interval = 1024,
@@ -242,7 +244,14 @@ often (not always) indicative of a non-identifiable
 \code{MPLE.nonident} issue a warning, an error, or a message
 specifying the potentially redundant statistics. The
 corresponding \verb{MCMLE.*} arguments provide a similar diagnostic
-for the unconstrained MCMC sample's estimating functions.}
+for the unconstrained MCMC sample's estimating functions.
+
+@param MPLE.Godambe.samplesize The number of networks to simulate to approximate
+the MPLE covariance matrix using the Godambe matrix (see Schmid and Hunter (2020)).
+
+@param MPLE.covariance.method The method to estimate the MPLE covariance method. \code{invHess}
+returns the covariance estimate obtained from the glm()-function. \code{Godambe} estimates the
+covariance matrix using the Godambe-matrix. This method is recommended for dyad-dependent models.}
 
 \item{MCMC.prop.weights}{Specifies the proposal
 distribution used in the MCMC Metropolis-Hastings algorithm.  Possible

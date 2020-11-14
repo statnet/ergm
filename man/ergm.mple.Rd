@@ -3,7 +3,7 @@
 \name{ergm.mple}
 \alias{ergm.mple}
 \alias{ergm.pl}
-\title{Find a maximizer to the psuedolikelihood function}
+\title{Find a maximizer to the pseudolikelihood function}
 \usage{
 ergm.mple(
   nw,
