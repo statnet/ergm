@@ -169,14 +169,6 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
       indmat[tailattrs[i], headattrs[i]] <- i - 1 # zero-based for C code
     }
 
-    # for economy of C space, best to count # of nodes of each pairing type ij
-    nodecountsbypairedcode <- NULL
-    for(i in 1:length(strat_levels)) {
-      for(j in 1:length(bd_levels)) {
-        nodecountsbypairedcode <- c(nodecountsbypairedcode, sum(strat_nodecov == i & bd_nodecov == j))
-      }
-    }
-    
   } else { # undirected, unipartite
     strat_nodecov <- NVL2(arguments$Strat_attr, ergm_get_vattr(arguments$Strat_attr, nw), rep(1, network.size(nw)))
     strat_levels <- sort(unique(strat_nodecov))
@@ -272,16 +264,11 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
     for(i in 1:length(tailattrs)) {   
       indmat[tailattrs[i], headattrs[i]] <- i - 1 # zero-based for C code
       indmat[headattrs[i], tailattrs[i]] <- i - 1 # symmetrize for undirected unipartite
-    }
-  
-    # for economy of C space, best to count # of nodes of each pairing type ij
-    nodecountsbypairedcode <- NULL
-    for(i in 1:NCOL(pmat)) {
-      for(j in 1:NCOL(fmat)) {
-        nodecountsbypairedcode <- c(nodecountsbypairedcode, sum(strat_nodecov == i & bd_nodecov == j))
-      }
-    }
+    }  
   }
+
+  # for economy of C space, best to count # of nodes of each bd-strat pairing
+  nodecountsbypairedcode <- as.integer(table(from=bd_nodecov, to=strat_nodecov))
   
   ## for each mixing type, precompute which other mixing types it can influence
   ## in terms of BD-toggleability; note that a mixing type cannot influence
