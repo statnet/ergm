@@ -303,3 +303,21 @@ test_that("BDStratTNT simulates reasonably", {
     }  
   }
 })
+
+test_that("BDStratTNT works with degree bound saturation", {
+  nw <- network.initialize(900, dir=FALSE)
+
+  nw %v% "race" <- rep(c("A","B","C"), times = c(30,30,840))
+  nw %v% "sex" <- rep(c("X","Y","Z"), length.out=900)
+
+  pmat <- matrix(1,3,3)
+
+  # mix.race.A.A mix.race.A.B mix.race.B.B mix.race.A.C mix.race.B.C mix.race.C.C
+
+  target.stats <- c(425, 10, 5, 10, 0, 0, 400.01)
+  nws <- san(nw ~ edges + nodemix("race"), target.stats = target.stats, control=control.san(SAN.invcov.diag=TRUE, SAN.maxit = 4, SAN.nsteps=5e4, SAN.prop.args = list(bound = 1, BD_attr = "sex", fmat = matrix(c(1,0,0,0,0,1,0,1,0),3,3), pmat=pmat, Strat_attr="race")), constraints="BDStratTNT"~.)
+  sr <- summary(nws ~ edges + nodemix("race"))  
+  
+  expect_true(all(abs(sr - target.stats) <= pmax(1, 0.05*target.stats)))
+  expect_true(all(summary(nws ~ concurrent + nodemix("sex", levels2=c(1,5))) == 0))
+})
