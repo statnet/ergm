@@ -116,11 +116,12 @@ ergm.mple<-function(nw, fd, m, init=NULL,
                                   data=data.frame(pl$xmat),
                                   weights=pl$wend, family=family))
     
-  # estimate variability matrix V for Godambe covariance matrix, only for dyad dependent models
+  # estimate variability matrix V for Godambe covariance matrix, only for dyad dependent models and 
+  #  init.method="MPLE"
   if(!is.dyad.independent(m) && control$init.method == "MPLE" && control$MPLE.covariance.method=="Godambe"){ #
   invHess <- summary(glm.result$value)$cov.unscaled
-  mple.cov<-  ergm_mplecov(pl,nw, fd, m, theta.mple=glm.result$value$coef, invHess=invHess, verbose=verbose,
-                           control=control)
+  mple.cov<-  ergm_mplecov(pl,nw, fd, m, theta.mple=glm.result$value$coef, invHess=invHess, 
+                           verbose=verbose, control=control)
   }
   
   # estimating MPLE standard errors using parametric bootstrap  

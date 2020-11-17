@@ -114,12 +114,15 @@
 #'   corresponding `MCMLE.*` arguments provide a similar diagnostic
 #'   for the unconstrained MCMC sample's estimating functions.
 #'   
-#'  @param MPLE.Godambe.samplesize The number of networks to simulate to approximate 
-#'  the MPLE covariance matrix using the Godambe matrix (see Schmid and Hunter (2020)).
+#' @param MPLE.covariance.samplesize The number of networks to simulate to approximate 
+#'  the MPLE covariance matrix using the Godambe matrix (see Schmid and Hunter (2020)) or 
+#'  parametric Bootstrapping (see Schmid and Desmarais (2017)).
 #'  
-#'  @param MPLE.covariance.method The method to estimate the MPLE covariance method. `invHess`
+#' @param MPLE.covariance.method The method to estimate the MPLE covariance method. `invHess`
 #'  returns the covariance estimate obtained from the glm()-function. `Godambe` estimates the 
-#'  covariance matrix using the Godambe-matrix. This method is recommended for dyad-dependent models.
+#'  covariance matrix using the Godambe-matrix (Schmid and Hunter (2020)). This method is recommended 
+#'  for dyad-dependent models. Alternatively, `Bootstrap` estimates standard deviations using a parametric
+#'  bootstrapping approach (see Schmid and Desmarais (2017)).
 #'
 #' @template control_MCMC_prop
 #'
@@ -416,6 +419,12 @@
 #' simulations. Master's Thesis. Stockholm University, 2011.
 #' \url{https://www2.math.su.se/matstat/reports/master/2011/rep2/report.pdf}
 #' 
+#' 
+#' * Schmid, C. S. and Desmarais B. A., Exponential Random Graph Models with Big Networks: Maximum 
+#' pseudolikelihood estimation and the parametric bootstrap, IEEE International Conference on Big Data, 2017.
+#' 
+#' * Schmid, C. S. and Hunter D. R., Accounting for Model Misspecification When Using Pseudolikelihood for ERGMs, 
+#' Working Paper, 2020.
 #' }
 #' @keywords models
 #' @export control.ergm
@@ -438,7 +447,7 @@ control.ergm<-function(drop=TRUE,
                        MPLE.type=c("glm", "penalized"),
                        MPLE.nonident=c("warning","message","error"),
                        MPLE.nonident.tol=1e-10,
-                       MPLE.Godambe.samplesize = 500,
+                       MPLE.covariance.samplesize = 500,
                        MPLE.covariance.method = c("invHess",  "Godambe", "Bootstrap"),
 
                        MCMC.prop.weights="default", MCMC.prop.args=list(),

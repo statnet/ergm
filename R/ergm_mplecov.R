@@ -40,7 +40,7 @@ ergm_mplecov <- function(pl,nw, fd, m,  theta.mple, invHess,  control,
                          verbose){
   
   # get sample size from control.ergm
-  R <- control$MPLE.Godambe.samplesize
+  R <- control$MPLE.covariance.samplesize
 
   
   # Simulate R networks

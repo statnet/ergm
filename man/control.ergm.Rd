@@ -19,7 +19,7 @@ control.ergm(
   MPLE.type = c("glm", "penalized"),
   MPLE.nonident = c("warning", "message", "error"),
   MPLE.nonident.tol = 1e-10,
-  MPLE.Godambe.samplesize = 500,
+  MPLE.covariance.samplesize = 500,
   MPLE.covariance.method = c("invHess", "Godambe", "Bootstrap"),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
@@ -244,14 +244,17 @@ often (not always) indicative of a non-identifiable
 \code{MPLE.nonident} issue a warning, an error, or a message
 specifying the potentially redundant statistics. The
 corresponding \verb{MCMLE.*} arguments provide a similar diagnostic
-for the unconstrained MCMC sample's estimating functions.
+for the unconstrained MCMC sample's estimating functions.}
 
-@param MPLE.Godambe.samplesize The number of networks to simulate to approximate
-the MPLE covariance matrix using the Godambe matrix (see Schmid and Hunter (2020)).
+\item{MPLE.covariance.samplesize}{The number of networks to simulate to approximate
+the MPLE covariance matrix using the Godambe matrix (see Schmid and Hunter (2020)) or
+parametric Bootstrapping (see Schmid and Desmarais (2017)).}
 
-@param MPLE.covariance.method The method to estimate the MPLE covariance method. \code{invHess}
+\item{MPLE.covariance.method}{The method to estimate the MPLE covariance method. \code{invHess}
 returns the covariance estimate obtained from the glm()-function. \code{Godambe} estimates the
-covariance matrix using the Godambe-matrix. This method is recommended for dyad-dependent models.}
+covariance matrix using the Godambe-matrix (Schmid and Hunter (2020)). This method is recommended
+for dyad-dependent models. Alternatively, \code{Bootstrap} estimates standard deviations using a parametric
+bootstrapping approach (see Schmid and Desmarais (2017)).}
 
 \item{MCMC.prop.weights}{Specifies the proposal
 distribution used in the MCMC Metropolis-Hastings algorithm.  Possible
@@ -604,8 +607,11 @@ Graphical Statistics, 21: 920-939.
 \item Kristoffer Sahlin. Estimating convergence of Markov chain Monte Carlo
 simulations. Master's Thesis. Stockholm University, 2011.
 \url{https://www2.math.su.se/matstat/reports/master/2011/rep2/report.pdf}
+\item Schmid, C. S. and Desmarais B. A., Exponential Random Graph Models with Big Networks: Maximum
+pseudolikelihood estimation and the parametric bootstrap, IEEE International Conference on Big Data, 2017.
+\item Schmid, C. S. and Hunter D. R., Accounting for Model Misspecification When Using Pseudolikelihood for ERGMs,
+Working Paper, 2020.
 }
-
 }
 }
 \seealso{
