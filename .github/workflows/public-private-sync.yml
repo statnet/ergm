@@ -39,8 +39,8 @@ jobs:
           PUBLIC="${{ github.repository }}"
           PRIVATE="$PUBLIC-private"
         fi
-        echo "::set-env name=PRIVATE::$PRIVATE"
-        echo "::set-env name=PUBLIC::$PUBLIC"
+        echo "PRIVATE=$PRIVATE" >> $GITHUB_ENV
+        echo "PUBLIC=$PUBLIC" >> $GITHUB_ENV
     - name: repo-sync-public-private  # From public repo, sync whatever branch was pushed.
       if: github.repository == env.PUBLIC
       uses: wei/git-sync@v2
@@ -55,7 +55,7 @@ jobs:
       run: |
         set +e
         git ls-remote --exit-code https://github.com/${{ env.PUBLIC }} ${{ github.ref }}
-        echo "::set-env name=FOUND_PUBLIC::$?"
+        echo "FOUND_PUBLIC=$?" >> $GITHUB_ENV
     - name: repo-sync-private-public # From private repo, sync only if public branch/tag present.
       if: github.repository == env.PRIVATE && env.FOUND_PUBLIC == '0'
       uses: wei/git-sync@v2
