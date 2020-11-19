@@ -201,9 +201,24 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
     
   empirical_flag <- as.logical(NVL(arguments$empirical, FALSE))
 
-  inputs <- c(length(tailattrs), tailattrs - 1, headattrs - 1, probvec, length(strat_levels), strat_nodecov - 1, t(indmat), length(strat_levels)*length(bd_levels), nodecountsbypairedcode,  bound, length(bd_levels), length(allowed.tails), allowed.tails - 1, allowed.heads - 1, bd_nodecov - 1, BDtypesbyStrattype, sum(BDtypesbyStrattype), BDtailsbyStrattype - 1, BDheadsbyStrattype - 1, empirical_flag)
-    
-  proposal <- list(name = "BDStratTNT", inputs=inputs)
+  proposal <- list(name = "BDStratTNT",
+                   inputs = NULL, # passed by name below
+                   nmixtypes = as.integer(length(tailattrs)),
+                   strattailattrs = as.integer(tailattrs - 1),
+                   stratheadattrs = as.integer(headattrs - 1),
+                   probvec = as.double(probvec),
+                   nattrcodes = as.integer(length(strat_levels)),
+                   strat_vattr = as.integer(strat_nodecov - 1),
+                   indmat = as.integer(t(indmat)), 
+                   nodecountsbypairedcode = as.integer(nodecountsbypairedcode),
+                   bound = as.integer(bound),
+                   bd_levels = as.integer(length(bd_levels)),
+                   bd_vattr = as.integer(bd_nodecov - 1),
+                   BDtypesbyStrattype = as.integer(BDtypesbyStrattype), 
+                   BDtailsbyStrattype = as.integer(BDtailsbyStrattype - 1), 
+                   BDheadsbyStrattype = as.integer(BDheadsbyStrattype - 1), 
+                   empirical_flag = as.integer(empirical_flag))
+
   proposal
 }
 
