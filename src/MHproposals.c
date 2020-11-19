@@ -15,6 +15,7 @@
 #include "ergm_unsorted_edgelist.h"
 #include "ergm_weighted_population.h"
 #include "ergm_dyadgen.h"
+#include "ergm_Rutil.h"
 
 /*********************
  void MH_randomtoggle
@@ -120,20 +121,20 @@ typedef struct {
   int bound;
   int nmixtypes;
   
-  double *strat_vattr;
-  double *bd_vattr;
+  int *strat_vattr;
+  int *bd_vattr;
   
-  double *BDtypesbyStrattype;
-  double **BDtailsbyStrattype;
-  double **BDheadsbyStrattype;
+  int *BDtypesbyStrattype;
+  int **BDtailsbyStrattype;
+  int **BDheadsbyStrattype;
   
-  double *strattailtypes;
-  double *stratheadtypes;
+  int *strattailtypes;
+  int *stratheadtypes;
   
   int nstratlevels;
   
   int *currentsubmaxledgestype;
-  double **indmat;
+  int **indmat;
 } BDStratTNTStorage;
 
 MH_I_FN(Mi_BDStratTNT) {
@@ -142,17 +143,17 @@ MH_I_FN(Mi_BDStratTNT) {
 
   ALLOC_STORAGE(1, BDStratTNTStorage, sto);
   
-  int nmixtypes = MHp->inputs[0];
+  int nmixtypes = asInteger(getListElement(MHp->R, "nmixtypes"));
   
-  double *probvec = MHp->inputs + 1 + 2*nmixtypes;
-  
-  double *strattailattrs = MHp->inputs + 1;
-  double *stratheadattrs = MHp->inputs + 1 + nmixtypes;
-  
-  int nattrcodes = MHp->inputs[1 + 3*nmixtypes];
+  int *strattailattrs = INTEGER(getListElement(MHp->R, "strattailattrs"));
+  int *stratheadattrs = INTEGER(getListElement(MHp->R, "stratheadattrs"));
+
+  double *probvec = REAL(getListElement(MHp->R, "probvec"));
+    
+  int nattrcodes = asInteger(getListElement(MHp->R, "nattrcodes"));
   sto->nstratlevels = nattrcodes;
   
-  double *strat_vattr = MHp->inputs + 1 + 3*nmixtypes + 1;
+  int *strat_vattr = INTEGER(getListElement(MHp->R, "strat_vattr"));
   
   UnsrtEL **els = (UnsrtEL **)Calloc(nmixtypes, UnsrtEL *);
       
@@ -160,9 +161,9 @@ MH_I_FN(Mi_BDStratTNT) {
     els[i] = UnsrtELInitialize(0, NULL, NULL, FALSE);
   }
   
-  double *inputindmat = MHp->inputs + 1 + 3*nmixtypes + 1 + N_NODES;  
+  int *inputindmat = INTEGER(getListElement(MHp->R, "indmat"));  
   
-  double **indmat = (double **)Calloc(nattrcodes, double *);
+  int **indmat = (int **)Calloc(nattrcodes, int *);
   indmat[0] = inputindmat;
   for(int i = 1; i < nattrcodes; i++) {
     indmat[i] = indmat[i - 1] + nattrcodes;
@@ -170,9 +171,7 @@ MH_I_FN(Mi_BDStratTNT) {
   
   sto->currentsubmaxledgestype = Calloc(nmixtypes, int);
   
-  int npairings = MHp->inputs[1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes];
-  
-  int bound = MHp->inputs[1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings];  
+  int bound = asInteger(getListElement(MHp->R, "bound"));
   
   Vertex head;
   Edge e;
@@ -191,16 +190,14 @@ MH_I_FN(Mi_BDStratTNT) {
   
   // above handles initialization of edgelists according to the "strat" part of BDStratTNT
     
-  int bdlevels = MHp->inputs[1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings + 1];
+  int bdlevels = asInteger(getListElement(MHp->R, "bd_levels"));
   
-  int bdmixtypes = MHp->inputs[1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings + 1 + 1];
+  int *bd_vattr = INTEGER(getListElement(MHp->R, "bd_vattr"));
   
-  double *bd_vattr = MHp->inputs + 1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings + 1 + 1 + 1 + 2*bdmixtypes;
-  
-  double *nodecountsbypairedcode = MHp->inputs + 1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1;
+  int *nodecountsbypairedcode = INTEGER(getListElement(MHp->R, "nodecountsbypairedcode"));
   
   
-  double **nodecountsmat = (double **)Calloc(nattrcodes, double *);
+  int **nodecountsmat = (int **)Calloc(nattrcodes, int *);
   nodecountsmat[0] = nodecountsbypairedcode;
   for(int i = 1; i < nattrcodes; i++) {
     nodecountsmat[i] = nodecountsmat[i - 1] + bdlevels;
@@ -229,22 +226,20 @@ MH_I_FN(Mi_BDStratTNT) {
     }
   }
 
-  sto->BDtypesbyStrattype = MHp->inputs + 1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings + 1 + 1 + 1 + 2*bdmixtypes + N_NODES;
+  sto->BDtypesbyStrattype = INTEGER(getListElement(MHp->R, "BDtypesbyStrattype"));
   
-  int sumtypes = MHp->inputs[1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings + 1 + 1 + 1 + 2*bdmixtypes + N_NODES + nmixtypes];
+  sto->BDtailsbyStrattype = Calloc(nmixtypes, int *);
+  sto->BDheadsbyStrattype = Calloc(nmixtypes, int *);
   
-  sto->BDtailsbyStrattype = Calloc(nmixtypes, double *);
-  sto->BDheadsbyStrattype = Calloc(nmixtypes, double *);
-  
-  sto->BDtailsbyStrattype[0] = MHp->inputs + 1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings + 1 + 1 + 1 + 2*bdmixtypes + N_NODES + nmixtypes + 1;
-  sto->BDheadsbyStrattype[0] = MHp->inputs + 1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings + 1 + 1 + 1 + 2*bdmixtypes + N_NODES + nmixtypes + 1 + sumtypes;
+  sto->BDtailsbyStrattype[0] = INTEGER(getListElement(MHp->R, "BDtailsbyStrattype"));
+  sto->BDheadsbyStrattype[0] = INTEGER(getListElement(MHp->R, "BDheadsbyStrattype"));
   
   for(int i = 1; i < nmixtypes; i++) {
     sto->BDtailsbyStrattype[i] = sto->BDtailsbyStrattype[i - 1] + (int)sto->BDtypesbyStrattype[i - 1];
     sto->BDheadsbyStrattype[i] = sto->BDheadsbyStrattype[i - 1] + (int)sto->BDtypesbyStrattype[i - 1];
   }
   
-  int empirical_flag = MHp->inputs[1 + 3*nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings + 1 + 1 + 1 + 2*bdmixtypes + N_NODES + nmixtypes + 1 + sumtypes + sumtypes];
+  int empirical_flag = asInteger(getListElement(MHp->R, "empirical_flag"));
   sto->originalprobvec = Calloc(nmixtypes, double);
   if(empirical_flag) {
     int sumedges = 0;
@@ -314,8 +309,8 @@ MH_I_FN(Mi_BDStratTNT) {
   sto->strat_vattr = strat_vattr;
   sto->bd_vattr = bd_vattr;
     
-  sto->strattailtypes = MHp->inputs + 1;
-  sto->stratheadtypes = MHp->inputs + 1 + nmixtypes;
+  sto->strattailtypes = strattailattrs;
+  sto->stratheadtypes = stratheadattrs;
   
   sto->wtp = WtPopInitialize(sto->nmixtypes, sto->currentprobvec);
 }
@@ -841,9 +836,8 @@ MH_F_FN(Mf_BDStratTNT) {
   // Free all the things
   GET_STORAGE(BDStratTNTStorage, sto);
 
-  int nattrcodes = MHp->inputs[1 + 3*sto->nmixtypes];
-  int npairings = MHp->inputs[1 + 3*sto->nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes];
-  int bdlevels = MHp->inputs[1 + 3*sto->nmixtypes + 1 + N_NODES + nattrcodes*nattrcodes + 1 + npairings + 1];
+  int nattrcodes = asInteger(getListElement(MHp->R, "nattrcodes"));
+  int bdlevels = asInteger(getListElement(MHp->R, "bd_levels"));
 
   for(int i = 0; i < nattrcodes; i++) {
     Free(sto->attrcounts[i]);
