@@ -198,28 +198,10 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
 
   # for economy of C space, best to count # of nodes of each bd-strat pairing
   nodecountsbypairedcode <- as.integer(table(from=bd_nodecov, to=strat_nodecov))
-  
-  ## for each mixing type, precompute which other mixing types it can influence
-  ## in terms of BD-toggleability; note that a mixing type cannot influence
-  ## itself in this convention
-  influenced <- vector(mode = "list", length = length(tailattrs))  
-
-  for(i in 1:length(tailattrs)) {
-    if(tailattrs[i] == headattrs[i]) {
-      tvec <- indmat[tailattrs[i],-headattrs[i]]
-      influenced[[i]] <- tvec[tvec >= 0]
-    } else {
-      tvec <- c(indmat[tailattrs[i],-headattrs[i]], indmat[-tailattrs[i],headattrs[i]])
-      influenced[[i]] <- tvec[tvec >= 0]
-    }
-  }
-
-  influenced_counts <- sapply(influenced, length)
-  influenced <- unlist(influenced)
-  
+    
   empirical_flag <- as.logical(NVL(arguments$empirical, FALSE))
 
-  inputs <- c(length(tailattrs), tailattrs - 1, headattrs - 1, probvec, length(strat_levels), strat_nodecov - 1, t(indmat), length(strat_levels)*length(bd_levels), nodecountsbypairedcode,  bound, length(bd_levels), length(allowed.tails), allowed.tails - 1, allowed.heads - 1, bd_nodecov - 1, BDtypesbyStrattype, sum(BDtypesbyStrattype), BDtailsbyStrattype - 1, BDheadsbyStrattype - 1, empirical_flag, influenced_counts, influenced)
+  inputs <- c(length(tailattrs), tailattrs - 1, headattrs - 1, probvec, length(strat_levels), strat_nodecov - 1, t(indmat), length(strat_levels)*length(bd_levels), nodecountsbypairedcode,  bound, length(bd_levels), length(allowed.tails), allowed.tails - 1, allowed.heads - 1, bd_nodecov - 1, BDtypesbyStrattype, sum(BDtypesbyStrattype), BDtailsbyStrattype - 1, BDheadsbyStrattype - 1, empirical_flag)
     
   proposal <- list(name = "BDStratTNT", inputs=inputs)
   proposal
