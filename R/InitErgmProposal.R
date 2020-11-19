@@ -105,20 +105,11 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   pmat <- pmat/sum(pmat)
 
   # record the tail and head attr code for each mixing type with positive probability
-  tailattrs <- NULL
-  headattrs <- NULL
-  probvec <- NULL
+  prob_inds <- which(pmat > 0, arr.ind = TRUE)
+  tailattrs <- prob_inds[,1]
+  headattrs <- prob_inds[,2]
+  probvec <- pmat[prob_inds]
   
-  for(i in 1:NROW(pmat)) {
-    for(j in 1:NCOL(pmat)) {
-      if(pmat[i,j] > 0) {
-        tailattrs <- c(tailattrs, i)
-        headattrs <- c(headattrs, j)
-        probvec <- c(probvec, pmat[i,j])
-      }
-    }
-  }
-
   if(is.bipartite(nw)) {
     headattrs <- headattrs + length(strat_row_levels)
   }
@@ -165,50 +156,44 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   }
   
   # create vectors of allowed mixing types
-  allowed.tails <- NULL
-  allowed.heads <- NULL
-    
-  for(i in 1:NROW(fmat)) {
-    for(j in 1:NCOL(fmat)) {
-      if(!fmat[i,j]) {
-        allowed.tails <- c(allowed.tails, i)
-        allowed.heads <- c(allowed.heads, j)
-      }
-    }
-  }
+  allowed.attrs <- which(!fmat, arr.ind = TRUE)
+  allowed.tails <- allowed.attrs[,1]
+  allowed.heads <- allowed.attrs[,2]
   
   if(is.bipartite(nw)) {
     allowed.heads <- allowed.heads + length(bd_row_levels)  
   }
-
-  BDtypesbyStrattype <- rep(0,length(tailattrs))
-  BDtailsbyStrattype <- NULL
-  BDheadsbyStrattype <- NULL
-    
-  for(i in 1:length(tailattrs)) {
-    a <- tailattrs[i]
-    b <- headattrs[i]
-        
-    for(j in 1:length(allowed.tails)) {
-      u <- allowed.tails[j]
-      v <- allowed.heads[j]
-      
-      if(a == b || u == v || is.bipartite(nw)) {
-        BDtailsbyStrattype <- c(BDtailsbyStrattype, u)
-        BDheadsbyStrattype <- c(BDheadsbyStrattype, v)
-        BDtypesbyStrattype[i] <- BDtypesbyStrattype[i] + 1
-      } else {
-        BDtailsbyStrattype <- c(BDtailsbyStrattype, u, v)
-        BDheadsbyStrattype <- c(BDheadsbyStrattype, v, u)
-        BDtypesbyStrattype[i] <- BDtypesbyStrattype[i] + 2
-      }
-    }
-  }  
+ 
+  bd_offdiag_pairs <- which(allowed.tails != allowed.heads)
   
-  indmat <- matrix(-1, nrow=length(strat_levels), ncol=length(strat_levels))
-  for(i in 1:length(tailattrs)) {   
-    indmat[tailattrs[i], headattrs[i]] <- i - 1 # zero-based for C code
-    indmat[headattrs[i], tailattrs[i]] <- i - 1 # symmetrize for undirected unipartite; needless but harmless for bipartite
+  type1_bd_tails <- allowed.tails
+  type1_bd_heads <- allowed.heads
+  
+  type2_bd_tails <- c(allowed.tails, allowed.heads[bd_offdiag_pairs])
+  type2_bd_heads <- c(allowed.heads, allowed.tails[bd_offdiag_pairs])
+
+  BDtailsbyStrattype <- vector(mode = "list", length = length(tailattrs))
+  BDheadsbyStrattype <- vector(mode = "list", length = length(tailattrs))
+  
+  for(i in 1:length(tailattrs)) {
+    if(tailattrs[i] == headattrs[i] || is.bipartite(nw)) {
+      BDtailsbyStrattype[[i]] <- type1_bd_tails
+      BDheadsbyStrattype[[i]] <- type1_bd_heads
+    } else {
+      BDtailsbyStrattype[[i]] <- type2_bd_tails
+      BDheadsbyStrattype[[i]] <- type2_bd_heads    
+    }
+  }
+
+  BDtypesbyStrattype <- sapply(BDtailsbyStrattype, length)
+  BDtailsbyStrattype <- unlist(BDtailsbyStrattype)
+  BDheadsbyStrattype <- unlist(BDheadsbyStrattype)
+  
+  indmat <- matrix(-1L, nrow=length(strat_levels), ncol=length(strat_levels))
+  indmat[cbind(tailattrs, headattrs)] <- seq_along(tailattrs) - 1L  # zero-based for C code
+  if(!is.bipartite(nw)) {
+    # symmetrize for undirected unipartite
+    indmat[cbind(headattrs, tailattrs)] <- seq_along(tailattrs) - 1L
   }
 
   # for economy of C space, best to count # of nodes of each bd-strat pairing
@@ -217,25 +202,20 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   ## for each mixing type, precompute which other mixing types it can influence
   ## in terms of BD-toggleability; note that a mixing type cannot influence
   ## itself in this convention
-  influenced <- NULL
-  influenced_counts <- rep(0, length(tailattrs))
-  
-  infl_list <- list()  
-  
+  influenced <- vector(mode = "list", length = length(tailattrs))  
+
   for(i in 1:length(tailattrs)) {
     if(tailattrs[i] == headattrs[i]) {
-      tvec <- indmat[tailattrs[i],][-headattrs[i]]
-      tvec <- tvec[tvec >= 0]
-      infl_list[[i]] <- tvec
-      influenced_counts[i] <- length(tvec)
+      tvec <- indmat[tailattrs[i],-headattrs[i]]
+      influenced[[i]] <- tvec[tvec >= 0]
     } else {
-      tvec <- c(indmat[tailattrs[i],][-headattrs[i]], indmat[,headattrs[i]][-tailattrs[i]])
-      tvec <- tvec[tvec >= 0]
-      infl_list[[i]] <- tvec
-      influenced_counts[i] <- length(tvec)
+      tvec <- c(indmat[tailattrs[i],-headattrs[i]], indmat[-tailattrs[i],headattrs[i]])
+      influenced[[i]] <- tvec[tvec >= 0]
     }
   }
-  influenced <- unlist(infl_list)
+
+  influenced_counts <- sapply(influenced, length)
+  influenced <- unlist(influenced)
   
   empirical_flag <- as.logical(NVL(arguments$empirical, FALSE))
 
