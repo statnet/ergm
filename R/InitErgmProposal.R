@@ -92,8 +92,9 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   
   pmat <- NVL(arguments$pmat, matrix(1, nrow = length(strat_row_levels), ncol = length(strat_col_levels)))
     
-  if(NROW(pmat) != length(strat_row_levels) || NCOL(pmat) != length(strat_col_levels))
+  if(NROW(pmat) != length(strat_row_levels) || NCOL(pmat) != length(strat_col_levels)) {
     ergm_Init_abort(sQuote("pmat"), " does not have the correct dimensions for ", sQuote("Strat_attr"), ".")    
+  }
   
   if(!is.bipartite(nw)) {
     # for undirected unipartite, symmetrize pmat and then set the sub-diagonal to zero
@@ -204,19 +205,19 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   proposal <- list(name = "BDStratTNT",
                    inputs = NULL, # passed by name below
                    nmixtypes = as.integer(length(tailattrs)),
-                   strattailattrs = as.integer(tailattrs - 1),
-                   stratheadattrs = as.integer(headattrs - 1),
+                   strattailattrs = as.integer(tailattrs - 1L),
+                   stratheadattrs = as.integer(headattrs - 1L),
                    probvec = as.double(probvec),
                    nattrcodes = as.integer(length(strat_levels)),
-                   strat_vattr = as.integer(strat_nodecov - 1),
+                   strat_vattr = as.integer(c(0L,strat_nodecov) - 1L),
                    indmat = as.integer(t(indmat)), 
                    nodecountsbypairedcode = as.integer(nodecountsbypairedcode),
                    bound = as.integer(bound),
                    bd_levels = as.integer(length(bd_levels)),
-                   bd_vattr = as.integer(bd_nodecov - 1),
+                   bd_vattr = as.integer(c(0L,bd_nodecov) - 1L),
                    BDtypesbyStrattype = as.integer(BDtypesbyStrattype), 
-                   BDtailsbyStrattype = as.integer(BDtailsbyStrattype - 1), 
-                   BDheadsbyStrattype = as.integer(BDheadsbyStrattype - 1), 
+                   BDtailsbyStrattype = as.integer(BDtailsbyStrattype - 1L), 
+                   BDheadsbyStrattype = as.integer(BDheadsbyStrattype - 1L), 
                    empirical_flag = as.integer(empirical_flag))
 
   proposal
