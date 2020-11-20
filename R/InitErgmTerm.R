@@ -144,6 +144,11 @@ GWDECAY <- list(
   }
 )
 
+nodecov_names <- function(nodecov, prefix=NULL){
+  cn <- if(is.matrix(nodecov)) NVL3(colnames(nodecov), ., paste(attr(nodecov, "name"), seq_len(ncol(nodecov)), sep="."))
+        else attr(nodecov, "name")
+  NVL3(prefix, paste0(prefix,".",cn), cn)
+}
 
 # LEVELS_BASE1 is a placeholder for whatever the value of levels= or
 # nodes= should be when base==1. For now, it's NULL to prevent the two
@@ -491,9 +496,8 @@ InitErgmTerm.b1cov<-function (nw, arglist, ..., version=packageVersion("ergm")) 
                         required = c(TRUE))
     ### Process the arguments
     nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", bip = "b1", multiple="matrix")
-    coef.names <- paste("b1cov",attr(nodecov, "name"),sep=".")
-    if(is.matrix(nodecov)) coef.names <- paste(coef.names, NVL(colnames(nodecov), seq_len(ncol(nodecov))), sep=".")
-  }    
+    coef.names <- nodecov_names(nodecov, "b1cov")
+  }
   # C implementation is identical
   list(name="nodeocov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
@@ -888,8 +892,7 @@ InitErgmTerm.b2cov<-function (nw, arglist, ..., version=packageVersion("ergm")) 
                         required = c(TRUE))
     ### Process the arguments
     nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", bip = "b2", multiple="matrix")
-    coef.names <- paste("b2cov",attr(nodecov, "name"),sep=".")
-    if(is.matrix(nodecov)) coef.names <- paste(coef.names, NVL(colnames(nodecov), seq_len(ncol(nodecov))), sep=".")
+    coef.names <- nodecov_names(nodecov, "b2cov")
   }
   list(name="b2cov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
@@ -3160,8 +3163,7 @@ InitErgmTerm.nodecov<-InitErgmTerm.nodemain<-function (nw, arglist, ..., version
                         required = c(TRUE))
     ### Process the arguments
     nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", multiple="matrix")
-    coef.names <- paste("nodecov",attr(nodecov, "name"),sep=".")
-    if(is.matrix(nodecov)) coef.names <- paste(coef.names, NVL(colnames(nodecov), seq_len(ncol(nodecov))), sep=".")
+    coef.names <- nodecov_names(nodecov, "nodecov")
   }
   list(name="nodecov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
@@ -3237,8 +3239,7 @@ InitErgmTerm.nodeicov<-function (nw, arglist, ..., version=packageVersion("ergm"
                         required = c(TRUE))
     ### Process the arguments
     nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", multiple="matrix")
-    coef.names <- paste("nodeicov",attr(nodecov, "name"),sep=".")
-    if(is.matrix(nodecov)) coef.names <- paste(coef.names, NVL(colnames(nodecov), seq_len(ncol(nodecov))), sep=".")
+    coef.names <- nodecov_names(nodecov, "nodeicov")
   }
   list(name="nodeicov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
@@ -3479,8 +3480,7 @@ InitErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("ergm"
                         required = c(TRUE))
     ### Process the arguments
     nodecov <- ergm_get_vattr(a$attr, nw, accept="numeric", multiple="matrix")
-    coef.names <- paste("nodeocov",attr(nodecov, "name"),sep=".")
-    if(is.matrix(nodecov)) coef.names <- paste(coef.names, NVL(colnames(nodecov), seq_len(ncol(nodecov))), sep=".")
+    coef.names <- nodecov_names(nodecov, "nodeocov")
   }
   list(name="nodeocov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
 }
