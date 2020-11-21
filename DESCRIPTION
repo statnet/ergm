@@ -178,4 +178,5 @@ Remotes: github::statnet/statnet.common@master,
     github::statnet/rle@master,
     github::statnet/network@master,
     github::statnet/ergm.multi-private@dev,
-    github::statnet/tergm-private@dev
+    github::statnet/tergm-private@dev,
+    github::statnet/ergm.count-private@dev
