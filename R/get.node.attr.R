@@ -192,7 +192,26 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #'         levels2=~sapply(.levels,
 #'                         function(l)
 #'                           l[[1]]%in%c(7,8) && l[[2]]%in%c(7,8))))
-#' 
+#'
+#' # Some terms, such as nodecov(), accept matrices of nodal
+#' # covariates. An certain R quirk means that columns whose
+#' # expressions are not typical variable names have their names
+#' # dropped and need to be adjusted. Consider, for example, the
+#' # linear and quadratic effects of grade:
+#' Grade <- faux.mesa.high %v% "Grade"
+#' colnames(cbind(Grade, Grade^2)) # Second column name missing.
+#' colnames(cbind(Grade, Grade2=Grade^2)) # Can be set manually,
+#' colnames(cbind(Grade, `Grade^2`=Grade^2)) # even to non-variable-names.
+#' colnames(cbind(Grade, Grade^2, deparse.level=2)) # Alternatively, deparse.level=2 forces naming.
+#' rm(Grade)
+#' \dontshow{
+#' options(warn=1) # Print warnings immediately.
+#' }
+#' # Therefore, the nodal attribute names are set as follows:
+#' summary(faux.mesa.high~nodecov(~cbind(Grade, Grade^2))) # column names dropped with a warning
+#' summary(faux.mesa.high~nodecov(~cbind(Grade, Grade2=Grade^2))) # column names set manually
+#' summary(faux.mesa.high~nodecov(~cbind(Grade, Grade^2, deparse.level=2))) # using deparse.level=2
+#'
 #' # Activity by grade with a random covariate. Note that setting an attribute "name" gives it a name:
 #' randomcov <- structure(I(rbinom(network.size(faux.mesa.high),1,0.5)), name="random")
 #' summary(faux.mesa.high~nodefactor(I(randomcov)))
@@ -389,6 +408,12 @@ ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2","
 
   if(!OK) ergm_Init_abort("Attribute ", NVL3(xspec, paste0(sQuote(paste(deparse(.),collapse="\n")), " ")), "is not ", ACCNAME[[accept]], " vector as required.")
   if(any(is.na(x))) ergm_Init_abort("Attribute ", NVL3(xspec, paste0(sQuote(paste(deparse(.),collapse="\n")), " ")), "has missing data, which is not currently supported by ergm.")
+  if(is.matrix(x) && !is.null(cn <- colnames(x))){
+    if(any(cn=="")){
+      ergm_Init_warn("Attribute specification ", NVL3(xspec, paste0(sQuote(paste(deparse(.),collapse="\n")), " ")), "is a matrix with some column names set and others not; you may need to set them manually. See example(nodal_attributes) for more information.")
+      colnames(x) <- NULL
+    }
+  }
   x
 }
 
