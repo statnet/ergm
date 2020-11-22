@@ -1,4 +1,4 @@
-# NOTE: This script is a modification of the r-lib/actions standard cehcking script and the public-private sync script, on which it piggybacks to detect when it's in a private repo and can therefore skip some or even all tests.
+# NOTE: This script is a modification of the r-lib/actions standard cehcking script and the public-private sync script, on which it piggybacks to detect when it's in a private repo and can therefore skip some or even all tests. It also builds and uploads binaries for Windows and MacOS.
 
 # For help debugging build failures open an issue on the RStudio community with the 'github-actions' tag.
 # https://community.rstudio.com/new-topic?category=Package%20development&tags=github-actions
@@ -124,8 +124,28 @@ jobs:
       - name: Install dependencies
         run: |
           remotes::install_deps(dependencies = TRUE)
+          remotes::install_cran("pkgbuild")
           remotes::install_cran("rcmdcheck")
         shell: Rscript {0}
+
+      - name: Build
+        if: runner.os != 'Linux'
+        run: |
+          dir.create("binaries", FALSE)
+          pkgbuild::build(binary=TRUE, vignettes=FALSE, dest_path = "binaries")
+        shell: Rscript {0}
+
+      - name: Upload build results
+        if: runner.os != 'Linux' && !failure()
+        uses: actions/upload-artifact@main
+        with:
+          name: ${{ runner.os }}-r${{ matrix.config.r }}-binaries
+          path: binaries
+
+      - name: Clean up build results
+        if: runner.os != 'Linux'
+        run: rm -rf binaries
+        shell: bash
 
       - name: Check
         env:
