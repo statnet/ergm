@@ -29,6 +29,7 @@
 \alias{asymmetric}
 \alias{atleast}
 \alias{atmost}
+\alias{attrcov}
 \alias{b1concurrent}
 \alias{b1cov}
 \alias{b1degrange}
@@ -643,6 +644,19 @@
       equaling to the number of dyads whose values equal or are exceeded by the
       corresponding element of
       \code{threshold}.}
+
+    \item{\code{attrcov(attr, mat)}  (binary)  (dyad-independent)  (directed)  (undirected)}{\emph{Edge covariate by attribute 
+      pairing:} The \code{attr} argument specifies a vertex attribute (see \link[=nodal_attributes]{Specifying Vertex
+      Attributes and Levels} for details), and the \code{mat} argument is a matrix of covariates with the same dimensions
+      as a mixing matrix for \code{attr}.  This term adds one statistic to the model, equal to the sum of the covariate values
+      for each edge appearing in the network, where the covariate value for a given edge is determined by its mixing type on 
+      \code{attr}.  Undirected networks are regarded as having undirected mixing, and it is assumed that \code{mat} is symmetric
+      in that case.
+      
+      This term can be useful for simulating large networks with many mixing types, where \code{nodemix} would be slow due to 
+      the large number of statistics, and \code{edgecov} cannot be used because an adjacency matrix would be too big.
+      }
+
 
     \item{\code{b1concurrent(by=NULL, levels=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{Concurrent node count for the

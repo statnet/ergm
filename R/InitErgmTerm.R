@@ -344,6 +344,52 @@ InitErgmTerm.asymmetric <- function(nw, arglist, ..., version=packageVersion("er
   out
 }
 
+################################################################################
+InitErgmTerm.attrcov <- function (nw, arglist, ..., version=packageVersion("ergm")) {
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("attr", "mat"),
+                      vartypes = c(ERGM_VATTR_SPEC, "matrix"),
+                      defaultvalues = list(NULL, NULL),
+                      required = c(TRUE, TRUE))
+
+
+  if(is.bipartite(nw)) {
+    b1nodecov <- ergm_get_vattr(a$attr, nw, bip="b1")
+    b2nodecov <- ergm_get_vattr(a$attr, nw, bip="b2")
+
+    attrname <- attr(b1nodecov, "name")
+    
+    b1levels <- sort(unique(b1nodecov))
+    b2levels <- sort(unique(b2nodecov))
+    
+    nodecov <- c(match(b1nodecov, b1levels), match(b2nodecov, b2levels))
+  
+    if(NROW(a$mat) != length(b1levels) || NCOL(a$mat) != length(b2levels)) {
+      ergm_Init_abort("mat has wrong dimensions for attr")
+    }
+  } else {
+    nodecov <- ergm_get_vattr(a$attr, nw)
+    attrname <- attr(nodecov, "name")
+    
+    levels <- sort(unique(nodecov))
+    nodecov <- match(nodecov, levels)
+      
+    if(NROW(a$mat) != length(levels) || NCOL(a$mat) != length(levels)) {
+      ergm_Init_abort("mat has wrong dimensions for attr")
+    }
+  }
+  
+  list(name = "attrcov", 
+       coef.names = paste("attrcov", attrname, sep = "."),
+       dependence = FALSE,
+       inputs = NULL, # passed by name below
+       nr = NROW(a$mat),
+       nc = NCOL(a$mat),
+       mat = if(is.double(a$mat)) a$mat else as.double(a$mat), # do not transpose, and only coerce if we have to, as a$mat can be quite large
+       nodecov = c(0L, nodecov) - 1L # two shifts to make the C code cleaner
+       )
+}
+
 
 
 #=======================InitErgmTerm functions:  B============================#

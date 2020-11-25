@@ -139,6 +139,42 @@ C_CHANGESTAT_FN(c_asymmetric) {
     }
 }
 
+/*****************
+ changestat: attrcov
+*****************/
+
+typedef struct {
+  int *nodecov;
+  double **mat;
+} attrcov_storage;
+
+I_CHANGESTAT_FN(i_attrcov) {
+  ALLOC_STORAGE(1, attrcov_storage, sto);
+  sto->nodecov = INTEGER(getListElement(mtp->R, "nodecov"));
+  
+  int nr = asInteger(getListElement(mtp->R, "nr"));
+  int nc = asInteger(getListElement(mtp->R, "nc"));
+  
+  // rows vary faster than columns because we did not transpose a$mat in the InitErgmTerm function
+  sto->mat = Calloc(nc, double *);
+  sto->mat[0] = REAL(getListElement(mtp->R, "mat"));
+  for(int i = 1; i < nc; i++) {
+    sto->mat[i] = sto->mat[i - 1] + nr;
+  }
+}
+
+C_CHANGESTAT_FN(c_attrcov) {
+  GET_STORAGE(attrcov_storage, sto);  
+  // head comes before tail here because we did not transpose a$mat in the InitErgmTerm function
+  CHANGE_STAT[0] += edgeflag ? -sto->mat[sto->nodecov[head]][sto->nodecov[tail]] : sto->mat[sto->nodecov[head]][sto->nodecov[tail]];
+}
+
+F_CHANGESTAT_FN(f_attrcov) {
+  GET_STORAGE(attrcov_storage, sto);
+  Free(sto->mat);
+}
+
+
 /********************  changestats:  B    ***********/
   /* For all bipartite networks:
    It is assumed that in this bipartite network, the only edges are

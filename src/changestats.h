@@ -20,6 +20,9 @@ C_CHANGESTAT_FN(c_absdiffcat);
 D_CHANGESTAT_FN(d_adegcor); S_CHANGESTAT_FN(s_adegcor);
 C_CHANGESTAT_FN(c_altkstar);
 C_CHANGESTAT_FN(c_asymmetric);
+I_CHANGESTAT_FN(i_attrcov);
+C_CHANGESTAT_FN(c_attrcov);
+F_CHANGESTAT_FN(f_attrcov);
 /********************  changestats:  B    ***********/
 C_CHANGESTAT_FN(c_b1concurrent);
 C_CHANGESTAT_FN(c_b1concurrent_by_attr);
