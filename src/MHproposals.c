@@ -320,6 +320,7 @@ MH_I_FN(Mi_BDStratTNT) {
   sto->stratheadtypes = stratheadattrs;
   
   sto->wtp = WtPopInitialize(sto->nmixtypes, currentprobvec);
+  Free(currentprobvec);
 }
 
 MH_P_FN(MH_BDStratTNT) {
