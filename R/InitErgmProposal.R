@@ -234,86 +234,63 @@ InitErgmProposal.BDTNT <- function(arguments, nw) {
   }
   
   if(is.bipartite(nw)) {
-    # (undirected) bipartite
+    bd_row_nodecov <- NVL2(arguments$attr, ergm_get_vattr(arguments$attr, nw, bip="b1"), rep(1, nw %n% "bipartite"))
+    bd_col_nodecov <- NVL2(arguments$attr, ergm_get_vattr(arguments$attr, nw, bip="b2"), rep(1, network.size(nw) - (nw %n% "bipartite")))
 
-    # attr defaults to all the same value (one mixing type)    
-    b1nodecov <- NVL2(arguments$attr, ergm_get_vattr(arguments$attr, nw, bip = "b1"), rep(1, nw %n% "bipartite"))
-    b2nodecov <- NVL2(arguments$attr, ergm_get_vattr(arguments$attr, nw, bip = "b2"), rep(1, network.size(nw) - nw %n% "bipartite"))
-    
-    b1levels <- sort(unique(b1nodecov))
-    b2levels <- sort(unique(b2nodecov))
-    
-    b1nodecov <- match(b1nodecov, b1levels)
-    b2nodecov <- match(b2nodecov, b2levels)
-    
-    # shift b2 codes so there is no overlap with b1 codes
-    nodecov <- c(b1nodecov, b2nodecov + length(b1levels))
-    
-    # by default, no pairings are forbidden
-    fmat <- NVL(arguments$fmat, matrix(FALSE, nrow = length(b1levels), ncol = length(b2levels)))
-    
-    if(NROW(fmat) != length(b1levels) || NCOL(fmat) != length(b2levels)) {
-      ergm_Init_abort(sQuote("fmat"), " does not have the correct dimensions for ", sQuote("attr"), ".")
-    }
-    
-    # create vectors of allowed mixing types
-    allowed.tails <- NULL
-    allowed.heads <- NULL
-    
-    for(i in 1:NROW(fmat)) {
-      for(j in 1:NCOL(fmat)) {
-        if(!fmat[i,j]) {
-          allowed.tails <- c(allowed.tails, i)
-          allowed.heads <- c(allowed.heads, j + length(b1levels))
-        }
-      }
-    }  
+    bd_row_levels <- sort(unique(bd_row_nodecov))
+    bd_col_levels <- sort(unique(bd_col_nodecov))
+
+    bd_levels <- c(bd_row_levels, bd_col_levels)
+
+    bd_row_nodecov <- match(bd_row_nodecov, bd_row_levels)
+    bd_col_nodecov <- match(bd_col_nodecov, bd_col_levels)
+    bd_nodecov <- c(bd_row_nodecov, bd_col_nodecov + length(bd_row_levels))
   } else {
-    # undirected unipartite    
-    
-    # attr defaults to all the same value (one mixing type)    
-    nodecov <- NVL2(arguments$attr, ergm_get_vattr(arguments$attr, nw), rep(1, network.size(nw)))
-    
-    levels <- sort(unique(nodecov))
+    bd_row_nodecov <- NVL2(arguments$attr, ergm_get_vattr(arguments$attr, nw), rep(1, network.size(nw)))
+    bd_col_nodecov <- bd_row_nodecov
 
-    nodecov <- match(nodecov, levels)
+    bd_row_levels <- sort(unique(bd_row_nodecov))
+    bd_col_levels <- bd_row_levels
+
+    bd_levels <- bd_row_levels
     
-    # by default, no pairings are forbidden
-    fmat <- NVL(arguments$fmat, matrix(FALSE, nrow = length(levels), ncol = length(levels)))
-    
-    if(NROW(fmat) != length(levels) || NCOL(fmat) != length(levels)) {
-      ergm_Init_abort(sQuote("fmat"), " does not have the correct dimensions for ", sQuote("attr"), ".")
-    }    
-    
-    # symmetrize fmat in unipartite case
+    bd_row_nodecov <- match(bd_row_nodecov, bd_row_levels)
+    bd_col_nodecov <- bd_row_nodecov
+    bd_nodecov <- bd_row_nodecov
+  }
+  
+  # by default, no pairings are forbidden
+  fmat <- NVL(arguments$fmat, matrix(FALSE, nrow = length(bd_row_levels), ncol = length(bd_col_levels)))
+  
+  if(NROW(fmat) != length(bd_row_levels) || NCOL(fmat) != length(bd_col_levels)) {
+    ergm_Init_abort(sQuote("fmat"), " does not have the correct dimensions for ", sQuote("BD_attr"), ".")
+  }    
+  
+  if(!is.bipartite(nw)) {
+    # for undirected unipartite, symmetrize fmat and then set the sub-diagonal to TRUE
     fmat <- fmat | t(fmat)
-    
-    # create vectors of allowed mixing types    
-    allowed.tails <- NULL
-    allowed.heads <- NULL
-    
-    for(i in 1:NROW(fmat)) {
-      for(j in i:NCOL(fmat)) {
-        if(!fmat[i,j]) {
-          allowed.tails <- c(allowed.tails, i)
-          allowed.heads <- c(allowed.heads, j)
-        }
-      }
-    }     
+    fmat[lower.tri(fmat)] <- TRUE
+  }
+  
+  # create vectors of allowed mixing types
+  allowed.attrs <- which(!fmat, arr.ind = TRUE)
+  allowed.tails <- allowed.attrs[,1]
+  allowed.heads <- allowed.attrs[,2]
+  
+  if(is.bipartite(nw)) {
+    allowed.heads <- allowed.heads + length(bd_row_levels)  
   }
   
   # bound defaults to network.size - 1, which is effectively no bound (could be made smaller in the bipartite case, but oh well)
   bound <- NVL(arguments$bound, network.size(nw) - 1)  
   
-  ncodes <- max(nodecov)
+  ncodes <- length(bd_levels)
   
   # record number of nodes of each type
-  nodecountsbycode <- NULL
-  for(i in 1:ncodes)
-    nodecountsbycode <- c(nodecountsbycode, length(which(nodecov == i)))
+  nodecountsbycode <- tabulate(bd_nodecov, nbins=length(bd_levels))
   
   ## subtract one from attr codes for greater convenience re. C's zero-based indexing
-  inputs <- c(bound, ncodes, nodecountsbycode, length(allowed.tails), allowed.tails - 1, allowed.heads - 1, nodecov - 1)
+  inputs <- c(bound, ncodes, nodecountsbycode, length(allowed.tails), allowed.tails - 1, allowed.heads - 1, bd_nodecov - 1)
   
   proposal <- list(name = "BDTNT", inputs = inputs)
   proposal
@@ -324,105 +301,76 @@ InitErgmProposal.StratTNT <- function(arguments, nw) {
   arguments$pmat <- NVL(arguments$pmat, arguments$constraints$Strat$pmat)
   arguments$empirical <- NVL(arguments$empirical, arguments$constraints$Strat$empirical)
   
-  if(!is.bipartite(nw)) {
-    nodecov <- NVL2(arguments$attr, ergm_get_vattr(arguments$attr, nw), rep(1, network.size(nw)))
-    levels <- sort(unique(nodecov))
-    nodecov <- match(nodecov, levels)
+  if(is.bipartite(nw)) {
+    strat_row_nodecov <- NVL2(arguments$attr, ergm_get_vattr(arguments$attr, nw, bip="b1"), rep(1, nw %n% "bipartite"))
+    strat_col_nodecov <- NVL2(arguments$attr, ergm_get_vattr(arguments$attr, nw, bip="b2"), rep(1, network.size(nw) - (nw %n% "bipartite")))
 
-    # default is matrix of 1s
-    pmat <- NVL(arguments$pmat, matrix(1, nrow = length(levels), ncol = length(levels)))
-    
-    if(!is.matrix(pmat) || !is.numeric(pmat)) ergm_Init_abort("The ", sQuote("pmat"), " argument to ", sQuote("StratTNT"), " must be a numeric matrix.")
-    
-    if(NROW(pmat) != length(levels) || NCOL(pmat) != length(levels))
-      ergm_Init_abort("For unipartite networks, the ", sQuote("pmat"), " argument to ", sQuote("StratTNT"), " must be a square matrix with number of rows and number of columns both equal to the number of unique values of the ", sQuote("attr"), " argument.")
-  
-    # if undirected unipartite, then symmetrize and set the sub-diagonal to zero
-    if(!is.directed(nw)) {
-      pmat <- (pmat + t(pmat))/2
-      pmat[!upper.tri(pmat, diag=TRUE)] <- 0
-    }
-  } else {  
-    b1nodecov <- NVL2(arguments$attr, ergm_get_vattr(arguments$attr, nw, bip="b1"), rep(1, nw %n% "bipartite"))
-    b2nodecov <- NVL2(arguments$attr, ergm_get_vattr(arguments$attr, nw, bip="b2"), rep(1, network.size(nw) - nw %n% "bipartite"))
-    
-    b1levels <- sort(unique(b1nodecov))
-    b2levels <- sort(unique(b2nodecov))
-    
-    # default is matrix of 1s    
-    pmat <- NVL(arguments$pmat, matrix(1, nrow = length(b1levels), ncol = length(b2levels)))
-    
-    if(!is.matrix(pmat) || !is.numeric(pmat)) ergm_Init_abort("The ", sQuote("pmat"), " argument to ", sQuote("StratTNT"), " must be a numeric matrix.")    
-    
-    if(NROW(pmat) != length(b1levels) || NCOL(pmat) != length(b2levels))
-      ergm_Init_abort("For bipartite networks, the ", sQuote("pmat"), " argument to ", sQuote("StratTNT"), " must be a matrix with number of rows equal to the number of unique values of the ", sQuote("attr"), " argument on the first bipartition, and number of columns equal to the number of unique values of the ", sQuote("attr"), " argument on the second bipartition.")
-      
-    # shift b2 codes so there is no overlap with b1 codes
-    nodecov <- c(match(b1nodecov, b1levels), match(b2nodecov, b2levels) + length(b1levels))
-  }
+    strat_row_levels <- sort(unique(strat_row_nodecov))
+    strat_col_levels <- sort(unique(strat_col_nodecov))
 
-  if(any(is.na(pmat)) || any(pmat < 0) || all(pmat <= 0)) {
-    ergm_Init_abort("The ", sQuote("pmat"), " argument to ", sQuote("StratTNT"), " must be a numeric matrix with non-negative entries, at least one of which is strictly positive.  It cannot contain any missing data.")
+    strat_levels <- c(strat_row_levels, strat_col_levels)
+
+    strat_row_nodecov <- match(strat_row_nodecov, strat_row_levels)
+    strat_col_nodecov <- match(strat_col_nodecov, strat_col_levels)
+    strat_nodecov <- c(strat_row_nodecov, strat_col_nodecov + length(strat_row_levels))
+  } else {
+    strat_row_nodecov <- NVL2(arguments$attr, ergm_get_vattr(arguments$attr, nw), rep(1, network.size(nw)))
+    strat_col_nodecov <- strat_row_nodecov
+
+    strat_row_levels <- sort(unique(strat_row_nodecov))
+    strat_col_levels <- strat_row_levels
+
+    strat_levels <- strat_row_levels
+    
+    strat_row_nodecov <- match(strat_row_nodecov, strat_row_levels)
+    strat_col_nodecov <- strat_row_nodecov
+    strat_nodecov <- strat_row_nodecov
   }
   
+  pmat <- NVL(arguments$pmat, matrix(1, nrow = length(strat_row_levels), ncol = length(strat_col_levels)))
+    
+  if(NROW(pmat) != length(strat_row_levels) || NCOL(pmat) != length(strat_col_levels)) {
+    ergm_Init_abort(sQuote("pmat"), " does not have the correct dimensions for ", sQuote("Strat_attr"), ".")    
+  }
+  
+  if(!is.bipartite(nw) && !is.directed(nw)) {
+    # for undirected unipartite, symmetrize pmat and then set the sub-diagonal to zero
+    pmat <- (pmat + t(pmat))/2
+    pmat[lower.tri(pmat)] <- 0
+  }  
+    
   # renormalize to probability matrix
   pmat <- pmat/sum(pmat)
 
   # record the tail and head attr code for each mixing type with positive probability
-  tailattrs <- NULL
-  headattrs <- NULL
-  probvec <- NULL
+  prob_inds <- which(pmat > 0, arr.ind = TRUE)
+  tailattrs <- prob_inds[,1]
+  headattrs <- prob_inds[,2]
+  probvec <- pmat[prob_inds]
   
-  for(i in 1:NROW(pmat)) {
-    for(j in 1:NCOL(pmat)) {
-      if(pmat[i,j] > 0) {
-        tailattrs <- c(tailattrs, i)
-        headattrs <- c(headattrs, j)
-        probvec <- c(probvec, pmat[i,j])
-      }
-    }
-  }
-
-  # if bipartite, shift b2 codes (which always correspond to heads) so there is no overlap with b1 codes
   if(is.bipartite(nw)) {
-    headattrs <- headattrs + length(b1levels)
+    headattrs <- headattrs + length(strat_row_levels)
   }
 
-  # order mixing types so largest probabilities occur first (hopefully save a little time in the C code)
-  o <- rev(order(probvec))
-  
-  tailattrs <- tailattrs[o]
-  headattrs <- headattrs[o]
-  probvec <- cumsum(probvec[o])
+  probvec <- cumsum(probvec)
 
   # record the number of mixing types and the number of unique attr codes
   nmixingtypes <- length(probvec)
-  ncodes <- max(nodecov)
+  ncodes <- length(strat_levels)
   
   # record the attr codes in the order of the nodal indices
-  codesbynodeindex <- nodecov
+  codesbynodeindex <- strat_nodecov
   
   # record the nodal indices grouped (and counted) by attr code
-  nodeindicesbycode <- NULL
-  nodecountsbycode <- NULL
+  nodeindicesbycode <- order(strat_nodecov)
+  nodecountsbycode <- tabulate(strat_nodecov, nbins=length(strat_levels))
   
-  for(i in 1:ncodes) {
-    w <- which(nodecov == i)
-    nodeindicesbycode <- c(nodeindicesbycode, w)
-    nodecountsbycode <- c(nodecountsbycode, length(w))
-  }
-  
-  indmat <- matrix(-1, nrow=ncodes, ncol=ncodes)
-  # check that all mixing types with positive probability have at least 1 dyad; error if not
-  for(i in 1:nmixingtypes) {    
-    hasdyads <- (nodecountsbycode[tailattrs[i]] > 0L) && (nodecountsbycode[headattrs[i]] > as.integer(tailattrs[i] == headattrs[i]))
-    
-    if(!hasdyads) {
-      ergm_Init_abort("Mixing types with positive proposal probability must have at least one dyad.")
-    }
-        
-    indmat[tailattrs[i], headattrs[i]] <- i - 1 # zero-based for C code
-    if(!is.directed(nw) && !is.bipartite(nw)) indmat[headattrs[i], tailattrs[i]] <- i - 1 # symmetrize if undirected unipartite
+  ## may wish to add check that if pmat[i,j] > 0 then at least one dyad  
+  indmat <- matrix(-1L, nrow=length(strat_levels), ncol=length(strat_levels))
+  indmat[cbind(tailattrs, headattrs)] <- seq_along(tailattrs) - 1L  # zero-based for C code
+  if(!is.bipartite(nw) && !is.directed(nw)) {
+    # symmetrize for undirected unipartite
+    indmat[cbind(headattrs, tailattrs)] <- seq_along(tailattrs) - 1L
   }
   
   empirical_flag <- as.logical(NVL(arguments$empirical, FALSE))
