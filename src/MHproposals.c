@@ -100,13 +100,13 @@ typedef struct {
   
   int strattailtype;
   int bdtailtype;
-  int tailindex;
   int tailmaxl;
   
   int stratheadtype;
   int bdheadtype;  
-  int headindex;
   int headmaxl;
+
+  int *nodepos;
   
   int stratmixingtype;
   
@@ -219,14 +219,19 @@ MH_I_FN(Mi_BDStratTNT) {
   for(int i = 0; i < nattrcodes; i++) {
     attrcounts[i] = (int *)Calloc(bdlevels, int);
   }
-  
+
+  int *nodepos = Calloc(N_NODES + 1, int);  
+
   for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
     if(IN_DEG[vertex] + OUT_DEG[vertex] < bound) {
       // add vertex to the submaximal list corresponding to its attribute type
       nodesvec[strat_vattr[vertex]][bd_vattr[vertex]][attrcounts[strat_vattr[vertex]][bd_vattr[vertex]]] = vertex;
+      nodepos[vertex] = attrcounts[strat_vattr[vertex]][bd_vattr[vertex]];      
       attrcounts[strat_vattr[vertex]][bd_vattr[vertex]]++;
     }
   }
+  
+  sto->nodepos = nodepos;  
 
   sto->BDtypesbyStrattype = INTEGER(getListElement(MHp->R, "BDtypesbyStrattype"));
   
@@ -391,13 +396,9 @@ MH_P_FN(MH_BDStratTNT) {
         }
             
         if(tail > head) {
-          sto->tailindex = headindex;
-          sto->headindex = tailindex;
           Mtail[0] = head;
           Mhead[0] = tail;
         } else {
-          sto->tailindex = tailindex;
-          sto->headindex = headindex;
           Mtail[0] = tail;
           Mhead[0] = head;
         }
@@ -669,12 +670,14 @@ MH_U_FN(Mu_BDStratTNT) {
     if(sto->tailmaxl) {
       // tail will be newly submaxl after toggle, so add it to the appropriate node list
       sto->nodesvec[sto->strattailtype][sto->bdtailtype][sto->attrcounts[sto->strattailtype][sto->bdtailtype]] = tail;
+      sto->nodepos[tail] = sto->attrcounts[sto->strattailtype][sto->bdtailtype];
       sto->attrcounts[sto->strattailtype][sto->bdtailtype]++;
     }
     
     if(sto->headmaxl) {
       // head will be newly submaxl after toggle, so add it to the appropriate node list    
       sto->nodesvec[sto->stratheadtype][sto->bdheadtype][sto->attrcounts[sto->stratheadtype][sto->bdheadtype]] = head;
+      sto->nodepos[head] = sto->attrcounts[sto->stratheadtype][sto->bdheadtype];
       sto->attrcounts[sto->stratheadtype][sto->bdheadtype]++;
     }
   } else {
@@ -683,18 +686,15 @@ MH_U_FN(Mu_BDStratTNT) {
         
     if(sto->tailmaxl) {
       // tail will be newly maxl after toggle, so remove it from the appropriate node list
-      sto->nodesvec[sto->strattailtype][sto->bdtailtype][sto->tailindex] = sto->nodesvec[sto->strattailtype][sto->bdtailtype][sto->attrcounts[sto->strattailtype][sto->bdtailtype] - 1];
+      sto->nodesvec[sto->strattailtype][sto->bdtailtype][sto->nodepos[tail]] = sto->nodesvec[sto->strattailtype][sto->bdtailtype][sto->attrcounts[sto->strattailtype][sto->bdtailtype] - 1];
+      sto->nodepos[sto->nodesvec[sto->strattailtype][sto->bdtailtype][sto->nodepos[tail]]] = sto->nodepos[tail];
       sto->attrcounts[sto->strattailtype][sto->bdtailtype]--;
-      
-      // if we just moved the head, update its index
-      if((sto->strattailtype == sto->stratheadtype) && (sto->bdtailtype == sto->bdheadtype) && (sto->headindex == sto->attrcounts[sto->strattailtype][sto->bdtailtype])) {
-        sto->headindex = sto->tailindex;
-      }
     }
     
     if(sto->headmaxl) {
       // head will be newly maxl after toggle, so remove it from the appropriate node list
-      sto->nodesvec[sto->stratheadtype][sto->bdheadtype][sto->headindex] = sto->nodesvec[sto->stratheadtype][sto->bdheadtype][sto->attrcounts[sto->stratheadtype][sto->bdheadtype] - 1];
+      sto->nodesvec[sto->stratheadtype][sto->bdheadtype][sto->nodepos[head]] = sto->nodesvec[sto->stratheadtype][sto->bdheadtype][sto->attrcounts[sto->stratheadtype][sto->bdheadtype] - 1];
+      sto->nodepos[sto->nodesvec[sto->stratheadtype][sto->bdheadtype][sto->nodepos[head]]] = sto->nodepos[head];
       sto->attrcounts[sto->stratheadtype][sto->bdheadtype]--;
     }       
   }
@@ -767,6 +767,7 @@ MH_F_FN(Mf_BDStratTNT) {
     Free(sto->nodesvec[i]);
   }
   Free(sto->nodesvec);
+  Free(sto->nodepos);
   
   for(int i = 0; i < sto->nmixtypes; i++) {
     UnsrtELDestroy(sto->els[i]);
@@ -799,15 +800,14 @@ attributes) so that specific combinations can be forbidden.
 typedef struct {
   int *attrcounts; // Count of the number of nodes with each attribute type i that are "submaximal degree" (attrcounts[i] lengths of nodesvec[i]).
   Vertex **nodesvec; // List of lists of submaximal nodes of attribute i.
+  int *nodepos; // nodepos[i-1] is position of vertex i in nodesvec[vattr[i-1]]
   
   UnsrtEL *edgelist; // All edges in the network.
   
   int tailtype; // Attribute type of the last tail to be proposed.
-  int tailindex; // Index of that tail in nodesvec[i] where i is tail type.
   int tailmaxl; // Will the tail change the maximality status if the current proposal is accepted?
   
   int headtype; // Ditto for heads.
-  int headindex;
   int headmaxl;
   
   Dyad currentdyads; // Number of dyads that can be selected in the current network.
@@ -849,11 +849,14 @@ MH_I_FN(Mi_BDTNT) {
     nodesvec[i] = (Vertex *)Calloc((int)nodecountsbycode[i], Vertex);
   }
 
+  int *nodepos = Calloc(N_NODES, int);
+
   // Populate the list of submaximal vertices by checking whether a given vertex has a maximal degree.
   for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
     if(IN_DEG[vertex] + OUT_DEG[vertex] < bound) {
       // add vertex to the submaximal list corresponding to its attribute type
       nodesvec[(int)vattr[vertex - 1]][attrcounts[(int)vattr[vertex - 1]]] = vertex;
+      nodepos[vertex - 1] = attrcounts[(int)vattr[vertex - 1]];
       attrcounts[(int)vattr[vertex - 1]]++;
     }
   }
@@ -878,6 +881,7 @@ MH_I_FN(Mi_BDTNT) {
   
   sto->attrcounts = attrcounts;
   sto->nodesvec = nodesvec;
+  sto->nodepos = nodepos;
   sto->currentdyads = currentdyads;
   sto->bound = bound;
   sto->nmixtypes = nmixtypes;
@@ -966,13 +970,9 @@ MH_P_FN(MH_BDTNT) {
         }
         
         if(tail > head) {
-          sto->tailindex = headindex;
-          sto->headindex = tailindex;
           Mtail[0] = head;
           Mhead[0] = tail;
         } else {
-          sto->tailindex = tailindex;
-          sto->headindex = headindex;
           Mtail[0] = tail;
           Mhead[0] = head;
         }
@@ -1130,12 +1130,14 @@ MH_U_FN(Mu_BDTNT) {
     if(sto->tailmaxl) {
       // tail will be newly submaxl after toggle, so add it to the appropriate node list
       sto->nodesvec[sto->tailtype][sto->attrcounts[sto->tailtype]] = tail;
+      sto->nodepos[tail - 1] = sto->attrcounts[sto->tailtype];
       sto->attrcounts[sto->tailtype]++;
     }
     
     if(sto->headmaxl) {
       // head will be newly submaxl after toggle, so add it to the appropriate node list    
       sto->nodesvec[sto->headtype][sto->attrcounts[sto->headtype]] = head;
+      sto->nodepos[head - 1] = sto->attrcounts[sto->headtype];
       sto->attrcounts[sto->headtype]++;
     }
   } else {
@@ -1144,18 +1146,15 @@ MH_U_FN(Mu_BDTNT) {
     
     if(sto->tailmaxl) {
       // tail will be newly maxl after toggle, so remove it from the appropriate node list
-      sto->nodesvec[sto->tailtype][sto->tailindex] = sto->nodesvec[sto->tailtype][sto->attrcounts[sto->tailtype] - 1];
+      sto->nodepos[sto->nodesvec[sto->tailtype][sto->attrcounts[sto->tailtype] - 1] - 1] = sto->nodepos[tail - 1];
+      sto->nodesvec[sto->tailtype][sto->nodepos[tail - 1]] = sto->nodesvec[sto->tailtype][sto->attrcounts[sto->tailtype] - 1];
       sto->attrcounts[sto->tailtype]--;
-      
-      // if we just moved the head, update its index
-      if((sto->tailtype == sto->headtype) && (sto->headindex == sto->attrcounts[sto->tailtype])) {
-        sto->headindex = sto->tailindex;
-      }
     }
     
     if(sto->headmaxl) {
       // head will be newly maxl after toggle, so remove it from the appropriate node list
-      sto->nodesvec[sto->headtype][sto->headindex] = sto->nodesvec[sto->headtype][sto->attrcounts[sto->headtype] - 1];
+      sto->nodepos[sto->nodesvec[sto->headtype][sto->attrcounts[sto->headtype] - 1] - 1] = sto->nodepos[head - 1];
+      sto->nodesvec[sto->headtype][sto->nodepos[head - 1]] = sto->nodesvec[sto->headtype][sto->attrcounts[sto->headtype] - 1];
       sto->attrcounts[sto->headtype]--;
     }   
   }
@@ -1179,6 +1178,7 @@ MH_F_FN(Mf_BDTNT) {
 
   Free(sto->nodesvec);
   Free(sto->attrcounts);
+  Free(sto->nodepos);
 
   UnsrtELDestroy(sto->edgelist);
   // MHp->storage itself should be Freed by MHProposalDestroy
