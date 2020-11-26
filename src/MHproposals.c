@@ -16,6 +16,7 @@
 #include "ergm_weighted_population.h"
 #include "ergm_dyadgen.h"
 #include "ergm_Rutil.h"
+#include "ergm_nodelist_dyad_sampler.h"
 
 /*********************
  void MH_randomtoggle
@@ -353,62 +354,19 @@ MH_P_FN(MH_BDStratTNT) {
     edgeflag = TRUE;
   } else {
     // select a random BD toggleable dyad of strat mixing type strat_i and propose toggling it
-    Dyad dyadindex = 2*ndyadstype*unif_rand();
+    GetRandDyadFromLists(Mtail, // tail
+                         Mhead, // head
+                         sto->nodesvec[strattailtype], // tails
+                         sto->nodesvec[stratheadtype], // heads
+                         sto->BDtailsbyStrattype[strat_i], // tailattrs
+                         sto->BDheadsbyStrattype[strat_i], // headattrs
+                         sto->attrcounts[strattailtype], // tailcounts
+                         sto->attrcounts[stratheadtype], // headcounts
+                         sto->BDtypesbyStrattype[strat_i], // length
+                         ndyadstype, // dyadcount
+                         strattailtype == stratheadtype, // diagonal
+                         DIRECTED); // directed; always FALSE in BDStratTNT
 
-    Vertex head;
-    Vertex tail;
-    
-    // this rather ugly block of code is just finding the dyad that corresponds
-    // to the dyadindex we drew above, and then setting the info for
-    // tail and head appropriately
-    for(int j = 0; j < sto->BDtypesbyStrattype[strat_i]; j++) {
-      Dyad dyadsthistype;
-
-      int tailcounts = sto->attrcounts[strattailtype][sto->BDtailsbyStrattype[strat_i][j]];
-      int headcounts = sto->attrcounts[stratheadtype][sto->BDheadsbyStrattype[strat_i][j]];
-
-      if(strattailtype != stratheadtype || sto->BDtailsbyStrattype[strat_i][j] != sto->BDheadsbyStrattype[strat_i][j]) {
-        dyadsthistype = (Dyad)tailcounts*headcounts;
-      } else {
-        dyadsthistype = (Dyad)tailcounts*(headcounts - 1)/2;
-      }
-      
-      if(dyadindex < 2*dyadsthistype) {
-        int tailindex;
-        int headindex;
-        
-        if(strattailtype == stratheadtype && sto->BDtailsbyStrattype[strat_i][j] == sto->BDheadsbyStrattype[strat_i][j]) {
-          tailindex = dyadindex / tailcounts;
-          headindex = dyadindex % (headcounts - 1);
-          if(tailindex == headindex) {
-            headindex = headcounts - 1;
-          }
-                    
-          tail = sto->nodesvec[strattailtype][sto->BDtailsbyStrattype[strat_i][j]][tailindex];
-          head = sto->nodesvec[stratheadtype][sto->BDheadsbyStrattype[strat_i][j]][headindex];
-        } else {
-          dyadindex /= 2;
-          tailindex = dyadindex / headcounts;
-          headindex = dyadindex % headcounts;
-          
-          tail = sto->nodesvec[strattailtype][sto->BDtailsbyStrattype[strat_i][j]][tailindex];
-          head = sto->nodesvec[stratheadtype][sto->BDheadsbyStrattype[strat_i][j]][headindex];
-        }
-            
-        if(tail > head) {
-          Mtail[0] = head;
-          Mhead[0] = tail;
-        } else {
-          Mtail[0] = tail;
-          Mhead[0] = head;
-        }
-        
-        break;
-      } else {
-        dyadindex -= 2*dyadsthistype;
-      }
-    }
-       
     // now check if the dyad we drew is already an edge or not
     if(IS_OUTEDGE(Mtail[0],Mhead[0])) {
       // must resample to know edge index; we will fix strat and bd types below;
@@ -820,8 +778,8 @@ typedef struct {
   int nmixtypes; // Number of pairings of attributes.
   double *vattr; // Vertex attributes.
   // Parallel vectors of attribute combinations that are allowed.
-  double *tailtypes;
-  double *headtypes;
+  int *tailtypes;
+  int *headtypes;
 } BDTNTStorage;
 
 MH_I_FN(Mi_BDTNT) {
@@ -886,8 +844,13 @@ MH_I_FN(Mi_BDTNT) {
   sto->bound = bound;
   sto->nmixtypes = nmixtypes;
   sto->vattr = vattr;
-  sto->tailtypes = tailtypes;
-  sto->headtypes = headtypes;
+  
+  sto->tailtypes = Calloc(nmixtypes, int);
+  sto->headtypes = Calloc(nmixtypes, int);
+  for(int i = 0; i < nmixtypes; i++) {
+    sto->tailtypes[i] = (int)tailtypes[i];
+    sto->headtypes[i] = (int)headtypes[i];      
+  }
 
   // Construct and populate the list of edges. (May be obviated by more efficient network sampling.)
   sto->edgelist = UnsrtELInitialize(0, NULL, NULL, FALSE);
@@ -921,83 +884,35 @@ MH_P_FN(MH_BDTNT) {
     edgeflag = TRUE;
   } else {
     // select a BD-toggleable dyad and propose toggling it
-    // doubling here allows more efficient calculation in 
-    // the case tailtypes[i] == headtypes[i]
-    
-    Dyad dyadindex = 2*sto->currentdyads*unif_rand();
-            
-    Vertex head;
-    Vertex tail;
-    
-    // This rather ugly block of code is just finding the dyad that corresponds
-    // to the dyadindex we drew above, and then setting the info for
-    // tail and head appropriately.
-    //
+
     // Note that the dyad block selector cannot select an edge
     // incident on a maximal node; but the edge "reselection" below
     // will be able to select it with equal probability to the others,
     // equalising its chances of being selected, and requiring only a
     // "marginal" adjustment to the acceptance probability.
-    for(int i = 0; i < sto->nmixtypes; i++) {
-      Dyad dyadstype; // Number of dyads in that block.
-      if(sto->tailtypes[i] == sto->headtypes[i]) {
-        dyadstype = (Dyad)sto->attrcounts[(int)sto->tailtypes[i]]*(sto->attrcounts[(int)sto->headtypes[i]] - 1)/2;
-      } else {
-        dyadstype = (Dyad)sto->attrcounts[(int)sto->tailtypes[i]]*sto->attrcounts[(int)sto->headtypes[i]];
-      }
-      
-      if(dyadindex < 2*dyadstype) { // We are in the right block.
-        int tailindex;
-        int headindex;
-        
-        if(sto->tailtypes[i] == sto->headtypes[i]) {
-          tailindex = dyadindex / sto->attrcounts[(int)sto->headtypes[i]];
-          headindex = dyadindex % (sto->attrcounts[(int)sto->headtypes[i]] - 1);
-          if(tailindex == headindex) {
-            headindex = sto->attrcounts[(int)sto->headtypes[i]] - 1;
-          }
-                    
-          tail = sto->nodesvec[(int)sto->tailtypes[i]][tailindex];
-          head = sto->nodesvec[(int)sto->headtypes[i]][headindex];
-          
-        } else {
-          dyadindex /= 2;
-          tailindex = dyadindex / sto->attrcounts[(int)sto->headtypes[i]];
-          headindex = dyadindex % sto->attrcounts[(int)sto->headtypes[i]];
-          
-          tail = sto->nodesvec[(int)sto->tailtypes[i]][tailindex];
-          head = sto->nodesvec[(int)sto->headtypes[i]][headindex];
-        }
-        
-        if(tail > head) {
-          Mtail[0] = head;
-          Mhead[0] = tail;
-        } else {
-          Mtail[0] = tail;
-          Mhead[0] = head;
-        }
-        
-        break;
-      } else { // Decrement index and continue.
-        dyadindex -= 2*dyadstype;
-      }
-    }
+    GetRandDyadFromLists(Mtail, // tail
+                         Mhead, // head
+                         sto->nodesvec, // tails
+                         sto->nodesvec, // heads
+                         sto->tailtypes, // tailattrs
+                         sto->headtypes, // headattrs
+                         sto->attrcounts, // tailcounts
+                         sto->attrcounts, // headcounts
+                         sto->nmixtypes, // length
+                         sto->currentdyads, // dyadcount
+                         TRUE, // diagonal; no higher level types here, so always TRUE
+                         DIRECTED); // directed; always FALSE in BDTNT
 
-    // Resample the edge to make it known to the unsorted edgelist.
     edgeflag = IS_OUTEDGE(Mtail[0],Mhead[0]);
+    // Resample the edge to make it known to the unsorted edgelist, if necessary
     if(edgeflag) UnsrtELGetRand(Mtail, Mhead, sto->edgelist);
   }
   
   sto->tailtype = sto->vattr[Mtail[0] - 1];
   sto->headtype = sto->vattr[Mhead[0] - 1];    
   
-  if(edgeflag) {
-    sto->tailmaxl = IN_DEG[Mtail[0]] + OUT_DEG[Mtail[0]] == sto->bound;
-    sto->headmaxl = IN_DEG[Mhead[0]] + OUT_DEG[Mhead[0]] == sto->bound;   
-  } else {
-    sto->tailmaxl = IN_DEG[Mtail[0]] + OUT_DEG[Mtail[0]] == sto->bound - 1;
-    sto->headmaxl = IN_DEG[Mhead[0]] + OUT_DEG[Mhead[0]] == sto->bound - 1;
-  }
+  sto->tailmaxl = IN_DEG[Mtail[0]] + OUT_DEG[Mtail[0]] == sto->bound - 1 + edgeflag;
+  sto->headmaxl = IN_DEG[Mhead[0]] + OUT_DEG[Mhead[0]] == sto->bound - 1 + edgeflag;   
         
   // the count of dyads that can be toggled in the "GetRandBDDyad" branch,
   // in the proposed network
@@ -1180,6 +1095,9 @@ MH_F_FN(Mf_BDTNT) {
   Free(sto->attrcounts);
   Free(sto->nodepos);
 
+  Free(sto->tailtypes);
+  Free(sto->headtypes);
+
   UnsrtELDestroy(sto->edgelist);
   // MHp->storage itself should be Freed by MHProposalDestroy
 }
@@ -1191,7 +1109,7 @@ MH_F_FN(Mf_BDTNT) {
 typedef struct {
   UnsrtEL **els;
   int currentmixingtype;
-  double **nodesbycode;
+  Vertex **nodesbycode;
   
   int nmixtypes;
 
@@ -1202,7 +1120,7 @@ typedef struct {
   double *headtypes;
 
   Dyad *ndyadstype;
-  double *nodecountsbycode;
+  int *nodecountsbycode;
 } StratTNTStorage;
 
 MH_I_FN(Mi_StratTNT) {
@@ -1245,10 +1163,15 @@ MH_I_FN(Mi_StratTNT) {
       
   double *nodecountsbycode = MHp->inputs + 1 + 3*nmixtypes + 1;
   
-  double **nodesbycode = (double **)Calloc(nattrcodes, double *);
-  nodesbycode[0] = MHp->inputs + 1 + 3*nmixtypes + 1 + nattrcodes;
-  for(int i = 1; i < nattrcodes; i++) {
-    nodesbycode[i] = nodesbycode[i - 1] + (int)nodecountsbycode[i - 1];
+  double *inputnodesbycode = MHp->inputs + 1 + 3*nmixtypes + 1 + nattrcodes;
+  
+  Vertex **nodesbycode = Calloc(nattrcodes, Vertex *);
+  for(int i = 0; i < nattrcodes; i++) {
+    nodesbycode[i] = Calloc((int)nodecountsbycode[i], Vertex);
+    for(int j = 0; j < (int)nodecountsbycode[i]; j++) {
+      nodesbycode[i][j] = inputnodesbycode[j];
+    }
+    inputnodesbycode += (int)nodecountsbycode[i];
   }
   
   sto->pmat = Calloc(nmixtypes, double);
@@ -1279,7 +1202,10 @@ MH_I_FN(Mi_StratTNT) {
 
   sto->tailtypes = MHp->inputs + 1;
   sto->headtypes = MHp->inputs + 1 + nmixtypes;
-  sto->nodecountsbycode = MHp->inputs + 1 + 3*nmixtypes + 1;
+  sto->nodecountsbycode = Calloc(nattrcodes, int);
+  for(int i = 0; i < nattrcodes; i++) {
+    sto->nodecountsbycode[i] = (int)nodecountsbycode[i];
+  }
 
   sto->ndyadstype = Calloc(nmixtypes, Dyad);
   for(int i = 0; i < nmixtypes; i++) {
@@ -1340,29 +1266,20 @@ MH_P_FN(MH_StratTNT) {
                       nedgestype / ((double) ndyadstype + nedgestype)));
     } else {
       // select a dyad of type i and propose toggling it        
-      int tailindex = sto->nodecountsbycode[tailtype]*unif_rand();
-      int headindex;
-      if(tailtype == headtype) {
-        // need to avoid sampling a loop
-        headindex = (sto->nodecountsbycode[headtype] - 1)*unif_rand();
-        if(headindex == tailindex) {
-          headindex = sto->nodecountsbycode[headtype] - 1;
-        }
-      } else {
-        // any old head will do
-        headindex = sto->nodecountsbycode[headtype]*unif_rand();
-      }
-      
-      Vertex tail = sto->nodesbycode[tailtype][tailindex];
-      Vertex head = sto->nodesbycode[headtype][headindex];
-      
-      if(tail > head && !DIRECTED) {
-        Vertex tmp = tail;
-        tail = head;
-        head = tmp;
-      }
-      
-      if(IS_OUTEDGE(tail,head)) {
+      GetRandDyadFromLists(Mtail, // tail
+                           Mhead, // head
+                           sto->nodesbycode, // tails
+                           sto->nodesbycode, // heads
+                           &tailtype, // tailattrs
+                           &headtype, // headattrs
+                           sto->nodecountsbycode, // tailcounts
+                           sto->nodecountsbycode, // headcounts
+                           1, // length; only one allowed pairing since we've already sampled the strat type
+                           ndyadstype, // dyadcount
+                           TRUE, // diagonal; no higher level types here, so always TRUE
+                           DIRECTED); // directed
+
+      if(IS_OUTEDGE(Mtail[0],Mhead[0])) {
         // pick a new edge from the edgelist uniformly at random so we know its index
         // and hence don't have to look up the index of the edge tail -> head; this gives
         // the same probability of picking each existing edge as if we used the tail -> head
@@ -1372,10 +1289,7 @@ MH_P_FN(MH_StratTNT) {
 
         logratio = log((nedgestype == 1 ? 1.0/(0.5*ndyadstype + 0.5) :
                         nedgestype / ((double) ndyadstype + nedgestype)));
-      }else{
-        Mtail[0] = tail;
-        Mhead[0] = head;
-                        
+      }else{                        
         logratio = log((nedgestype == 0 ? 0.5*ndyadstype + 0.5 :
                         1.0 + (ndyadstype)/((double) nedgestype + 1)));
       }
@@ -1407,9 +1321,15 @@ MH_F_FN(Mf_StratTNT) {
   }
 
   Free(sto->els);
-  Free(sto->nodesbycode);
   Free(sto->pmat);
   Free(sto->ndyadstype);
+  Free(sto->nodecountsbycode);
+  
+  int nattrcodes = MHp->inputs[1 + 3*sto->nmixtypes];
+  for(int i = 0; i < nattrcodes; i++) {
+    Free(sto->nodesbycode[i]);
+  }
+  Free(sto->nodesbycode);  
   
   WtPopDestroy(sto->wtp);
   // MHp->storage itself should be Freed by MHProposalDestroy
