@@ -114,7 +114,6 @@ typedef struct {
   double proposedcumprob;
   
   double *originalprobvec;
-  double *currentprobvec;
   
   WtPop *wtp;
   
@@ -135,6 +134,9 @@ typedef struct {
   
   int *currentsubmaxledgestype;
   int **indmat;
+  
+  int nmixtypestoupdate;
+  int *mixtypestoupdate;
 } BDStratTNTStorage;
 
 MH_I_FN(Mi_BDStratTNT) {
@@ -297,14 +299,13 @@ MH_I_FN(Mi_BDStratTNT) {
   sto->nodesvec = nodesvec;
   sto->attrcounts = attrcounts;
     
-  sto->currentprobvec = currentprobvec;
-  
   sto->currentcumprob = sumprobs;
   
   sto->proposedcumprob = 1;
     
   sto->bound = bound;
   sto->nmixtypes = nmixtypes;
+  sto->mixtypestoupdate = Calloc(nmixtypes, int);
   
   sto->strat_vattr = strat_vattr;
   sto->bd_vattr = bd_vattr;
@@ -312,7 +313,7 @@ MH_I_FN(Mi_BDStratTNT) {
   sto->strattailtypes = strattailattrs;
   sto->stratheadtypes = stratheadattrs;
   
-  sto->wtp = WtPopInitialize(sto->nmixtypes, sto->currentprobvec);
+  sto->wtp = WtPopInitialize(sto->nmixtypes, currentprobvec);
 }
 
 MH_P_FN(MH_BDStratTNT) {
@@ -390,19 +391,11 @@ MH_P_FN(MH_BDStratTNT) {
         }
             
         if(tail > head) {
-          sto->strattailtype = stratheadtype;
-          sto->bdtailtype = sto->BDheadsbyStrattype[strat_i][j];
-          sto->stratheadtype = strattailtype;
-          sto->bdheadtype = sto->BDtailsbyStrattype[strat_i][j];
           sto->tailindex = headindex;
           sto->headindex = tailindex;
           Mtail[0] = head;
           Mhead[0] = tail;
         } else {
-          sto->strattailtype = strattailtype;
-          sto->bdtailtype = sto->BDtailsbyStrattype[strat_i][j];
-          sto->stratheadtype = stratheadtype;
-          sto->bdheadtype = sto->BDheadsbyStrattype[strat_i][j];
           sto->tailindex = tailindex;
           sto->headindex = headindex;
           Mtail[0] = tail;
@@ -427,25 +420,20 @@ MH_P_FN(MH_BDStratTNT) {
     }
   }
 
-  if(edgeflag) {
-    sto->strattailtype = sto->strat_vattr[Mtail[0]];
-    sto->stratheadtype = sto->strat_vattr[Mhead[0]];
-    
-    sto->bdtailtype = sto->bd_vattr[Mtail[0]];
-    sto->bdheadtype = sto->bd_vattr[Mhead[0]];
-    
-    sto->tailmaxl = IN_DEG[Mtail[0]] + OUT_DEG[Mtail[0]] == sto->bound;
-    sto->headmaxl = IN_DEG[Mhead[0]] + OUT_DEG[Mhead[0]] == sto->bound;
-  } else {
-    // strat and bd types already set above
-    sto->tailmaxl = IN_DEG[Mtail[0]] + OUT_DEG[Mtail[0]] == sto->bound - 1;
-    sto->headmaxl = IN_DEG[Mhead[0]] + OUT_DEG[Mhead[0]] == sto->bound - 1;
-  }
+  sto->strattailtype = sto->strat_vattr[Mtail[0]];
+  sto->stratheadtype = sto->strat_vattr[Mhead[0]];
+  
+  sto->bdtailtype = sto->bd_vattr[Mtail[0]];
+  sto->bdheadtype = sto->bd_vattr[Mhead[0]];
+  
+  sto->tailmaxl = IN_DEG[Mtail[0]] + OUT_DEG[Mtail[0]] == sto->bound - 1 + edgeflag;
+  sto->headmaxl = IN_DEG[Mhead[0]] + OUT_DEG[Mhead[0]] == sto->bound - 1 + edgeflag;
     
   // here we compute the proposedcumprob, checking only those
   // mixing types that can be influenced by toggles made on 
   // the current mixing type
   sto->proposedcumprob = sto->currentcumprob;
+  sto->nmixtypestoupdate = 0; // reset counter
   // avoid these somewhat expensive checks in the typical case
   // where you have enough submaximal nodes that you cannot
   // be exhausting any mixing types of toggleable dyads
@@ -469,7 +457,7 @@ MH_P_FN(MH_BDStratTNT) {
           continue;
         }
 
-        if(sto->currentprobvec[infl_i] > 0) {
+        if(WtPopGetWt(infl_i, sto->wtp) > 0) {
           continue;
         }
         // else there are no toggleable dyads of type infl_i in the current network;
@@ -495,6 +483,8 @@ MH_P_FN(MH_BDStratTNT) {
         
         if(anytoggleable) {
           sto->proposedcumprob += sto->originalprobvec[infl_i];
+          sto->mixtypestoupdate[sto->nmixtypestoupdate] = infl_i;
+          sto->nmixtypestoupdate++;
         }
       }
     } else if(!edgeflag) {
@@ -513,7 +503,7 @@ MH_P_FN(MH_BDStratTNT) {
           continue;
         }
 
-        if(sto->currentprobvec[infl_i] == 0 || sto->els[infl_i]->nedges > 0) {
+        if(WtPopGetWt(infl_i, sto->wtp) == 0 || sto->els[infl_i]->nedges > 0) {
           continue;
         }
         // else there are no toggleable dyads of type infl_i in the current network;
@@ -536,6 +526,8 @@ MH_P_FN(MH_BDStratTNT) {
         
         if(!anytoggleable) {
           sto->proposedcumprob -= sto->originalprobvec[infl_i];
+          sto->mixtypestoupdate[sto->nmixtypestoupdate] = infl_i;
+          sto->nmixtypestoupdate++;          
         }
       }    
     }
@@ -655,93 +647,17 @@ MH_P_FN(MH_BDStratTNT) {
 MH_U_FN(Mu_BDStratTNT) {
   GET_STORAGE(BDStratTNTStorage, sto);
 
-  // skip the next block if we have enough submaximal nodes that
-  // no strat type toggleability status can possibly have changed
-  if(sto->attrcounts[sto->strattailtype][sto->bdtailtype] <= 2 || sto->attrcounts[sto->stratheadtype][sto->bdheadtype] <= 2) {
-    // avoid copying in the common case where all strat types are toggleable in both the current and proposed networks
-    if(sto->currentcumprob != 1 || sto->proposedcumprob != 1) {
-      // copy cumprobs in case they're different
-      sto->currentcumprob = sto->proposedcumprob;
-    
-      if(edgeflag) {
-        int ntocheck = (2 - ((sto->strattailtype == sto->stratheadtype) || BIPARTITE))*sto->nstratlevels;
-        for(int i = 0; i < ntocheck; i++) {
-          int infl_i;
-          if(i < sto->nstratlevels) {
-            infl_i = sto->indmat[sto->strattailtype][i];
-          } else {
-            infl_i = sto->indmat[i - sto->nstratlevels][sto->stratheadtype];  
-          }
-          if(infl_i < 0 || infl_i == sto->stratmixingtype) {
-            continue;
-          }
+  // if any strat mixing types have changed toggleability status, update prob info accordingly
+  if(sto->nmixtypestoupdate > 0) {
+    sto->currentcumprob = sto->proposedcumprob;
 
-          if(sto->currentprobvec[infl_i] > 0) {
-            continue;
-          }
-  
-          int anytoggleable = FALSE;
-          
-          for(int j = 0; j < sto->BDtypesbyStrattype[infl_i]; j++) {
-            // adjustments
-            int proposedtailadjustment = (sto->strattailtype == sto->strattailtypes[infl_i] && sto->bdtailtype == sto->BDtailsbyStrattype[infl_i][j] && sto->tailmaxl) + (sto->stratheadtype == sto->strattailtypes[infl_i] && sto->bdheadtype == sto->BDtailsbyStrattype[infl_i][j] && sto->headmaxl);
-            int proposedheadadjustment = (sto->strattailtype == sto->stratheadtypes[infl_i] && sto->bdtailtype == sto->BDheadsbyStrattype[infl_i][j] && sto->tailmaxl) + (sto->stratheadtype == sto->stratheadtypes[infl_i] && sto->bdheadtype == sto->BDheadsbyStrattype[infl_i][j] && sto->headmaxl);
-            
-            int tailcounts = sto->attrcounts[sto->strattailtypes[infl_i]][sto->BDtailsbyStrattype[infl_i][j]];
-            int headcounts = sto->attrcounts[sto->stratheadtypes[infl_i]][sto->BDheadsbyStrattype[infl_i][j]];
-            
-            proposedtailadjustment = -proposedtailadjustment;
-            proposedheadadjustment = -proposedheadadjustment;
-            
-            if(tailcounts > proposedtailadjustment && headcounts > proposedheadadjustment + (sto->strattailtypes[infl_i] == sto->stratheadtypes[infl_i] && sto->BDtailsbyStrattype[infl_i][j] == sto->BDheadsbyStrattype[infl_i][j])) {
-              anytoggleable = TRUE;
-              break;
-            }      
-          }
-          
-          if(anytoggleable) {
-            sto->currentprobvec[infl_i] = sto->originalprobvec[infl_i];
-            WtPopSetWt(infl_i, sto->originalprobvec[infl_i], sto->wtp);
-          }
-        }
-      } else {
-        int ntocheck = (2 - ((sto->strattailtype == sto->stratheadtype) || BIPARTITE))*sto->nstratlevels;
-        for(int i = 0; i < ntocheck; i++) {
-          int infl_i;
-          if(i < sto->nstratlevels) {
-            infl_i = sto->indmat[sto->strattailtype][i];
-          } else {
-            infl_i = sto->indmat[i - sto->nstratlevels][sto->stratheadtype];  
-          }
-          if(infl_i < 0 || infl_i == sto->stratmixingtype) {
-            continue;
-          }
-
-          if(sto->currentprobvec[infl_i] == 0 || sto->els[infl_i]->nedges > 0) {
-            continue;
-          }
-  
-          int anytoggleable = FALSE;
-          
-          for(int j = 0; j < sto->BDtypesbyStrattype[infl_i]; j++) {
-            // adjustments
-            int proposedtailadjustment = (sto->strattailtype == sto->strattailtypes[infl_i] && sto->bdtailtype == sto->BDtailsbyStrattype[infl_i][j] && sto->tailmaxl) + (sto->stratheadtype == sto->strattailtypes[infl_i] && sto->bdheadtype == sto->BDtailsbyStrattype[infl_i][j] && sto->headmaxl);
-            int proposedheadadjustment = (sto->strattailtype == sto->stratheadtypes[infl_i] && sto->bdtailtype == sto->BDheadsbyStrattype[infl_i][j] && sto->tailmaxl) + (sto->stratheadtype == sto->stratheadtypes[infl_i] && sto->bdheadtype == sto->BDheadsbyStrattype[infl_i][j] && sto->headmaxl);
-            
-            int tailcounts = sto->attrcounts[sto->strattailtypes[infl_i]][sto->BDtailsbyStrattype[infl_i][j]];
-            int headcounts = sto->attrcounts[sto->stratheadtypes[infl_i]][sto->BDheadsbyStrattype[infl_i][j]];
-                      
-            if(tailcounts > proposedtailadjustment && headcounts > proposedheadadjustment + (sto->strattailtypes[infl_i] == sto->stratheadtypes[infl_i] && sto->BDtailsbyStrattype[infl_i][j] == sto->BDheadsbyStrattype[infl_i][j])) {
-              anytoggleable = TRUE;
-              break;
-            }      
-          }
-          
-          if(!anytoggleable) {
-            sto->currentprobvec[infl_i] = 0;
-            WtPopSetWt(infl_i, 0, sto->wtp);
-          }
-        }    
+    if(edgeflag) {
+      for(int i = 0; i < sto->nmixtypestoupdate; i++) {
+        WtPopSetWt(sto->mixtypestoupdate[i], sto->originalprobvec[sto->mixtypestoupdate[i]], sto->wtp);          
+      }
+    } else {
+      for(int i = 0; i < sto->nmixtypestoupdate; i++) {
+        WtPopSetWt(sto->mixtypestoupdate[i], 0, sto->wtp);          
       }
     }
   }
@@ -864,8 +780,9 @@ MH_F_FN(Mf_BDStratTNT) {
   Free(sto->BDheadsbyStrattype);
 
   Free(sto->originalprobvec);
-  Free(sto->currentprobvec);
-  
+
+  Free(sto->mixtypestoupdate);  
+
   WtPopDestroy(sto->wtp);
   // MHp->storage itself should be Freed by MHProposalDestroy
 }
