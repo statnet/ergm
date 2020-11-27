@@ -209,12 +209,12 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
                    stratheadattrs = as.integer(headattrs - 1L),
                    probvec = as.double(probvec),
                    nattrcodes = as.integer(length(strat_levels)),
-                   strat_vattr = as.integer(c(0L,strat_nodecov) - 1L),
+                   strat_vattr = as.integer(strat_nodecov - 1L),
                    indmat = as.integer(t(indmat)), 
                    nodecountsbypairedcode = as.integer(nodecountsbypairedcode),
                    bound = as.integer(bound),
                    bd_levels = as.integer(length(bd_levels)),
-                   bd_vattr = as.integer(c(0L,bd_nodecov) - 1L),
+                   bd_vattr = as.integer(bd_nodecov - 1L),
                    BDtypesbyStrattype = as.integer(BDtypesbyStrattype), 
                    BDtailsbyStrattype = as.integer(BDtailsbyStrattype - 1L), 
                    BDheadsbyStrattype = as.integer(BDheadsbyStrattype - 1L), 
@@ -364,10 +364,7 @@ InitErgmProposal.StratTNT <- function(arguments, nw) {
   # record the number of mixing types and the number of unique attr codes
   nmixingtypes <- length(probvec)
   ncodes <- length(strat_levels)
-  
-  # record the attr codes in the order of the nodal indices
-  codesbynodeindex <- strat_nodecov
-  
+    
   # record the nodal indices grouped (and counted) by attr code
   nodeindicesbycode <- order(strat_nodecov)
   nodecountsbycode <- tabulate(strat_nodecov, nbins=length(strat_levels))
@@ -392,7 +389,7 @@ InitErgmProposal.StratTNT <- function(arguments, nw) {
                    nlevels = as.integer(ncodes),
                    nodecountsbycode = as.integer(nodecountsbycode),
                    nodeindicesbycode = as.integer(nodeindicesbycode),
-                   nodecov = as.integer(codesbynodeindex - 1L),
+                   nodecov = as.integer(strat_nodecov - 1L),
                    indmat = as.integer(t(indmat)),
                    empirical = as.integer(empirical_flag))
 
