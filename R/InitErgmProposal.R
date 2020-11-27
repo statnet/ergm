@@ -282,17 +282,24 @@ InitErgmProposal.BDTNT <- function(arguments, nw) {
   }
   
   # bound defaults to network.size - 1, which is effectively no bound (could be made smaller in the bipartite case, but oh well)
-  bound <- NVL(arguments$bound, network.size(nw) - 1)  
+  bound <- NVL(arguments$bound, network.size(nw) - 1L)  
   
   ncodes <- length(bd_levels)
   
   # record number of nodes of each type
   nodecountsbycode <- tabulate(bd_nodecov, nbins=length(bd_levels))
   
-  ## subtract one from attr codes for greater convenience re. C's zero-based indexing
-  inputs <- c(bound, ncodes, nodecountsbycode, length(allowed.tails), allowed.tails - 1, allowed.heads - 1, bd_nodecov - 1)
-  
-  proposal <- list(name = "BDTNT", inputs = inputs)
+  ## subtract one from attr codes for greater convenience re. C's zero-based indexing  
+  proposal <- list(name = "BDTNT", 
+                   inputs = NULL, # passed by name below
+                   bound = as.integer(bound),
+                   nlevels = as.integer(ncodes),
+                   nodecountsbycode = as.integer(nodecountsbycode),
+                   nmixtypes = length(allowed.tails),
+                   allowed.tails = as.integer(allowed.tails - 1L),
+                   allowed.heads = as.integer(allowed.heads - 1L),
+                   nodecov = as.integer(bd_nodecov - 1L))
+                   
   proposal
 }
 
@@ -375,10 +382,20 @@ InitErgmProposal.StratTNT <- function(arguments, nw) {
   
   empirical_flag <- as.logical(NVL(arguments$empirical, FALSE))
 
-  # awkwardly force everything into one big vector for the C code...
-  inputs <- c(nmixingtypes, tailattrs - 1, headattrs - 1, probvec, ncodes, nodecountsbycode, nodeindicesbycode, codesbynodeindex - 1, t(indmat), empirical_flag)
-    
-  proposal <- list(name = "StratTNT", inputs=inputs)
+  ## subtract one from attr codes for greater convenience re. C's zero-based indexing  
+  proposal <- list(name = "StratTNT", 
+                   inputs = NULL, # passed by name below
+                   nmixtypes = as.integer(nmixingtypes),
+                   tailattrs = as.integer(tailattrs - 1L),
+                   headattrs = as.integer(headattrs - 1L),
+                   probvec = as.double(probvec),
+                   nlevels = as.integer(ncodes),
+                   nodecountsbycode = as.integer(nodecountsbycode),
+                   nodeindicesbycode = as.integer(nodeindicesbycode),
+                   nodecov = as.integer(codesbynodeindex - 1L),
+                   indmat = as.integer(t(indmat)),
+                   empirical = as.integer(empirical_flag))
+
   proposal
 }
 
