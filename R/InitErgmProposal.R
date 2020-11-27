@@ -63,108 +63,18 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   if(is.directed(nw)) {
     ergm_Init_abort("BDStratTNT does not support directed networks")
   }
+
+  rv_strat <- InitErgmProposal.StratTNT(list(attr=arguments$Strat_attr, pmat=arguments$pmat, empirical=arguments$empirical), nw)
+  rv_bd <- InitErgmProposal.BDTNT(list(attr=arguments$BD_attr, fmat=arguments$fmat, bound=arguments$bound), nw)
   
-  if(is.bipartite(nw)) {
-    strat_row_nodecov <- NVL2(arguments$Strat_attr, ergm_get_vattr(arguments$Strat_attr, nw, bip="b1"), rep(1, nw %n% "bipartite"))
-    strat_col_nodecov <- NVL2(arguments$Strat_attr, ergm_get_vattr(arguments$Strat_attr, nw, bip="b2"), rep(1, network.size(nw) - (nw %n% "bipartite")))
-
-    strat_row_levels <- sort(unique(strat_row_nodecov))
-    strat_col_levels <- sort(unique(strat_col_nodecov))
-
-    strat_levels <- c(strat_row_levels, strat_col_levels)
-
-    strat_row_nodecov <- match(strat_row_nodecov, strat_row_levels)
-    strat_col_nodecov <- match(strat_col_nodecov, strat_col_levels)
-    strat_nodecov <- c(strat_row_nodecov, strat_col_nodecov + length(strat_row_levels))
-  } else {
-    strat_row_nodecov <- NVL2(arguments$Strat_attr, ergm_get_vattr(arguments$Strat_attr, nw), rep(1, network.size(nw)))
-    strat_col_nodecov <- strat_row_nodecov
-
-    strat_row_levels <- sort(unique(strat_row_nodecov))
-    strat_col_levels <- strat_row_levels
-
-    strat_levels <- strat_row_levels
-    
-    strat_row_nodecov <- match(strat_row_nodecov, strat_row_levels)
-    strat_col_nodecov <- strat_row_nodecov
-    strat_nodecov <- strat_row_nodecov
-  }
+  ## note all six of these have already been decremented by the other IEP functions
+  tailattrs <- rv_strat$tailattrs
+  headattrs <- rv_strat$headattrs
+  allowed.tails <- rv_bd$allowed.tails
+  allowed.heads <- rv_bd$allowed.heads
+  strat_nodecov <- rv_strat$nodecov
+  bd_nodecov <- rv_bd$nodecov
   
-  pmat <- NVL(arguments$pmat, matrix(1, nrow = length(strat_row_levels), ncol = length(strat_col_levels)))
-    
-  if(NROW(pmat) != length(strat_row_levels) || NCOL(pmat) != length(strat_col_levels)) {
-    ergm_Init_abort(sQuote("pmat"), " does not have the correct dimensions for ", sQuote("Strat_attr"), ".")    
-  }
-  
-  if(!is.bipartite(nw)) {
-    # for undirected unipartite, symmetrize pmat and then set the sub-diagonal to zero
-    pmat <- (pmat + t(pmat))/2
-    pmat[lower.tri(pmat)] <- 0
-  }  
-    
-  # renormalize to probability matrix
-  pmat <- pmat/sum(pmat)
-
-  # record the tail and head attr code for each mixing type with positive probability
-  prob_inds <- which(pmat > 0, arr.ind = TRUE)
-  tailattrs <- prob_inds[,1]
-  headattrs <- prob_inds[,2]
-  probvec <- pmat[prob_inds]
-  
-  if(is.bipartite(nw)) {
-    headattrs <- headattrs + length(strat_row_levels)
-  }
-      
-  bound <- NVL(arguments$bound, network.size(nw) - 1)
-  
-  if(is.bipartite(nw)) {
-    bd_row_nodecov <- NVL2(arguments$BD_attr, ergm_get_vattr(arguments$BD_attr, nw, bip="b1"), rep(1, nw %n% "bipartite"))
-    bd_col_nodecov <- NVL2(arguments$BD_attr, ergm_get_vattr(arguments$BD_attr, nw, bip="b2"), rep(1, network.size(nw) - (nw %n% "bipartite")))
-
-    bd_row_levels <- sort(unique(bd_row_nodecov))
-    bd_col_levels <- sort(unique(bd_col_nodecov))
-
-    bd_levels <- c(bd_row_levels, bd_col_levels)
-
-    bd_row_nodecov <- match(bd_row_nodecov, bd_row_levels)
-    bd_col_nodecov <- match(bd_col_nodecov, bd_col_levels)
-    bd_nodecov <- c(bd_row_nodecov, bd_col_nodecov + length(bd_row_levels))
-  } else {
-    bd_row_nodecov <- NVL2(arguments$BD_attr, ergm_get_vattr(arguments$BD_attr, nw), rep(1, network.size(nw)))
-    bd_col_nodecov <- bd_row_nodecov
-
-    bd_row_levels <- sort(unique(bd_row_nodecov))
-    bd_col_levels <- bd_row_levels
-
-    bd_levels <- bd_row_levels
-    
-    bd_row_nodecov <- match(bd_row_nodecov, bd_row_levels)
-    bd_col_nodecov <- bd_row_nodecov
-    bd_nodecov <- bd_row_nodecov
-  }
-  
-  # by default, no pairings are forbidden
-  fmat <- NVL(arguments$fmat, matrix(FALSE, nrow = length(bd_row_levels), ncol = length(bd_col_levels)))
-  
-  if(NROW(fmat) != length(bd_row_levels) || NCOL(fmat) != length(bd_col_levels)) {
-    ergm_Init_abort(sQuote("fmat"), " does not have the correct dimensions for ", sQuote("BD_attr"), ".")
-  }    
-  
-  if(!is.bipartite(nw)) {
-    # for undirected unipartite, symmetrize fmat and then set the sub-diagonal to TRUE
-    fmat <- fmat | t(fmat)
-    fmat[lower.tri(fmat)] <- TRUE
-  }
-  
-  # create vectors of allowed mixing types
-  allowed.attrs <- which(!fmat, arr.ind = TRUE)
-  allowed.tails <- allowed.attrs[,1]
-  allowed.heads <- allowed.attrs[,2]
-  
-  if(is.bipartite(nw)) {
-    allowed.heads <- allowed.heads + length(bd_row_levels)  
-  }
- 
   bd_offdiag_pairs <- which(allowed.tails != allowed.heads)
   
   type1_bd_tails <- allowed.tails
@@ -190,35 +100,26 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   BDtailsbyStrattype <- unlist(BDtailsbyStrattype)
   BDheadsbyStrattype <- unlist(BDheadsbyStrattype)
   
-  indmat <- matrix(-1L, nrow=length(strat_levels), ncol=length(strat_levels))
-  indmat[cbind(tailattrs, headattrs)] <- seq_along(tailattrs) - 1L  # zero-based for C code
-  if(!is.bipartite(nw)) {
-    # symmetrize for undirected unipartite
-    indmat[cbind(headattrs, tailattrs)] <- seq_along(tailattrs) - 1L
-  }
-
   # for economy of C space, best to count # of nodes of each bd-strat pairing
   nodecountsbypairedcode <- as.integer(table(from=bd_nodecov, to=strat_nodecov))
-    
-  empirical_flag <- as.logical(NVL(arguments$empirical, FALSE))
-
+  
   proposal <- list(name = "BDStratTNT",
                    inputs = NULL, # passed by name below
                    nmixtypes = as.integer(length(tailattrs)),
-                   strattailattrs = as.integer(tailattrs - 1L),
-                   stratheadattrs = as.integer(headattrs - 1L),
-                   probvec = as.double(probvec),
-                   nattrcodes = as.integer(length(strat_levels)),
-                   strat_vattr = as.integer(strat_nodecov - 1L),
-                   indmat = as.integer(t(indmat)), 
+                   strattailattrs = as.integer(tailattrs),
+                   stratheadattrs = as.integer(headattrs),
+                   probvec = as.double(rv_strat$probvec),
+                   nattrcodes = as.integer(rv_strat$nlevels),
+                   strat_vattr = as.integer(strat_nodecov),
+                   indmat = as.integer(rv_strat$indmat), 
                    nodecountsbypairedcode = as.integer(nodecountsbypairedcode),
-                   bound = as.integer(bound),
-                   bd_levels = as.integer(length(bd_levels)),
-                   bd_vattr = as.integer(bd_nodecov - 1L),
+                   bound = as.integer(rv_bd$bound),
+                   bd_levels = as.integer(rv_bd$nlevels),
+                   bd_vattr = as.integer(bd_nodecov),
                    BDtypesbyStrattype = as.integer(BDtypesbyStrattype), 
-                   BDtailsbyStrattype = as.integer(BDtailsbyStrattype - 1L), 
-                   BDheadsbyStrattype = as.integer(BDheadsbyStrattype - 1L), 
-                   empirical_flag = as.integer(empirical_flag))
+                   BDtailsbyStrattype = as.integer(BDtailsbyStrattype), 
+                   BDheadsbyStrattype = as.integer(BDheadsbyStrattype), 
+                   empirical_flag = as.integer(rv_strat$empirical))
 
   proposal
 }
