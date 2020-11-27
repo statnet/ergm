@@ -777,7 +777,7 @@ typedef struct {
   
   int bound; // Single upper bound on degree.
   int nmixtypes; // Number of pairings of attributes.
-  double *vattr; // Vertex attributes.
+  int *vattr; // Vertex attributes.
   // Parallel vectors of attribute combinations that are allowed.
   int *tailtypes;
   int *headtypes;
@@ -787,17 +787,17 @@ MH_I_FN(Mi_BDTNT) {
   // process the inputs and initialize all the node lists in storage; set MHp->ntoggles to 1
   MHp->ntoggles = 1;
   
-  int bound = MHp->inputs[0]; // As in struct.
-  int nlevels = MHp->inputs[1]; // Number of distinct types of types of vertex.
+  int bound = asInteger(getListElement(MHp->R, "bound")); // As in struct.
+  int nlevels = asInteger(getListElement(MHp->R, "nlevels")); // Number of distinct types of types of vertex.
   
-  double *nodecountsbycode = MHp->inputs + 2; // Number of nodes of each type.
+  int *nodecountsbycode = INTEGER(getListElement(MHp->R, "nodecountsbycode")); // Number of nodes of each type.
   
-  int nmixtypes = MHp->inputs[2 + nlevels]; // As in struct.
+  int nmixtypes = asInteger(getListElement(MHp->R, "nmixtypes")); // As in struct.
   
-  double *tailtypes = MHp->inputs + 3 + nlevels; // As in struct.
-  double *headtypes = tailtypes + nmixtypes; // As in struct.
+  int *tailtypes = INTEGER(getListElement(MHp->R, "allowed.tails")); // As in struct.
+  int *headtypes = INTEGER(getListElement(MHp->R, "allowed.heads")); // As in struct.
   
-  double *vattr = headtypes + nmixtypes; // As in struct.
+  int *vattr = INTEGER(getListElement(MHp->R, "nodecov")); // As in struct.
     
   Vertex **nodesvec = (Vertex **)Calloc(nlevels, Vertex *); // As in struct.
   
@@ -1086,7 +1086,7 @@ MH_F_FN(Mf_BDTNT) {
   // Free all the things
   GET_STORAGE(BDTNTStorage, sto);
   
-  int nlevels = MHp->inputs[1];
+  int nlevels = asInteger(getListElement(MHp->R, "nlevels"));
 
   for(int i = 0; i < nlevels; i++) {
     Free(sto->nodesvec[i]);
@@ -1117,8 +1117,8 @@ typedef struct {
   double *pmat;
   WtPop *wtp;
   
-  double *tailtypes;
-  double *headtypes;
+  int *tailtypes;
+  int *headtypes;
 
   Dyad *ndyadstype;
   int *nodecountsbycode;
@@ -1126,15 +1126,15 @@ typedef struct {
 
 MH_I_FN(Mi_StratTNT) {
   ALLOC_STORAGE(1, StratTNTStorage, sto);
-    
+
   // process the inputs and initialize all the edgelists in storage; set MHp->ntoggles to 1
   MHp->ntoggles = 1;
   
-  int nmixtypes = MHp->inputs[0];
+  int nmixtypes = asInteger(getListElement(MHp->R, "nmixtypes"));
     
-  int nattrcodes = MHp->inputs[1 + 3*nmixtypes];
+  int nattrcodes = asInteger(getListElement(MHp->R, "nlevels"));
   
-  double *vattr = MHp->inputs + 1 + 3*nmixtypes + 1 + nattrcodes + N_NODES;
+  int *vattr = INTEGER(getListElement(MHp->R, "nodecov"));
     
   UnsrtEL **els = (UnsrtEL **)Calloc(nmixtypes, UnsrtEL *);
       
@@ -1142,9 +1142,9 @@ MH_I_FN(Mi_StratTNT) {
     els[i] = UnsrtELInitialize(0, NULL, NULL, FALSE);
   }
   
-  double *inputindmat = MHp->inputs + 1 + 3*nmixtypes + 1 + nattrcodes + N_NODES + N_NODES;  
+  int *inputindmat = INTEGER(getListElement(MHp->R, "indmat"));  
   
-  double **indmat = (double **)Calloc(nattrcodes, double *);
+  int **indmat = Calloc(nattrcodes, int *);
   indmat[0] = inputindmat;
   for(int i = 1; i < nattrcodes; i++) {
     indmat[i] = indmat[i - 1] + nattrcodes;
@@ -1162,9 +1162,9 @@ MH_I_FN(Mi_StratTNT) {
   }
   Free(indmat);
       
-  double *nodecountsbycode = MHp->inputs + 1 + 3*nmixtypes + 1;
+  int *nodecountsbycode = INTEGER(getListElement(MHp->R, "nodecountsbycode"));
   
-  double *inputnodesbycode = MHp->inputs + 1 + 3*nmixtypes + 1 + nattrcodes;
+  int *inputnodesbycode = INTEGER(getListElement(MHp->R, "nodeindicesbycode"));
   
   Vertex **nodesbycode = Calloc(nattrcodes, Vertex *);
   for(int i = 0; i < nattrcodes; i++) {
@@ -1177,7 +1177,7 @@ MH_I_FN(Mi_StratTNT) {
   
   sto->pmat = Calloc(nmixtypes, double);
   
-  int empirical_flag = MHp->inputs[1 + 3*nmixtypes + 1 + nattrcodes + N_NODES + N_NODES + nattrcodes*nattrcodes];
+  int empirical_flag = asInteger(getListElement(MHp->R, "empirical"));
   if(empirical_flag) {
     sto->pmat[0] = els[0]->nedges;
     for(int i = 1; i < nmixtypes; i++) {
@@ -1194,15 +1194,15 @@ MH_I_FN(Mi_StratTNT) {
       sto->pmat[i] /= sto->pmat[nmixtypes - 1];
     }
   } else {
-    memcpy(sto->pmat, MHp->inputs + 1 + 2*nmixtypes, nmixtypes*sizeof(double));
+    memcpy(sto->pmat, REAL(getListElement(MHp->R, "probvec")), nmixtypes*sizeof(double));
   }
   
   sto->els = els;
   sto->nodesbycode = nodesbycode;
   sto->nmixtypes = nmixtypes;
 
-  sto->tailtypes = MHp->inputs + 1;
-  sto->headtypes = MHp->inputs + 1 + nmixtypes;
+  sto->tailtypes = INTEGER(getListElement(MHp->R, "tailattrs"));
+  sto->headtypes = INTEGER(getListElement(MHp->R, "headattrs"));
   sto->nodecountsbycode = Calloc(nattrcodes, int);
   for(int i = 0; i < nattrcodes; i++) {
     sto->nodecountsbycode[i] = (int)nodecountsbycode[i];
@@ -1326,7 +1326,7 @@ MH_F_FN(Mf_StratTNT) {
   Free(sto->ndyadstype);
   Free(sto->nodecountsbycode);
   
-  int nattrcodes = MHp->inputs[1 + 3*sto->nmixtypes];
+  int nattrcodes = asInteger(getListElement(MHp->R, "nlevels"));
   for(int i = 0; i < nattrcodes; i++) {
     Free(sto->nodesbycode[i]);
   }
