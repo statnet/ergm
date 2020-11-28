@@ -1076,7 +1076,7 @@ MH_P_FN(MH_StratTNT) {
       // logratio is essentially copied from TNT, because the probability of 
       // choosing this particular mixing type cancels upon taking the ratio;
       // still need to count only edges and dyads of the appropriate mixing type, though
-  	  MHp->logratio = log((nedgestype == 1 ? 1.0/(0.5*ndyadstype + 0.5) :
+      MHp->logratio = log((nedgestype == 1 ? 1.0/(0.5*ndyadstype + 0.5) :
                            nedgestype / ((double) ndyadstype + nedgestype)));
     } else {
       // select a dyad of type i and propose toggling it        
