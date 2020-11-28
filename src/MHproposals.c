@@ -102,182 +102,139 @@ MH_I_FN(Mi_BDStratTNT) {
   MHp->ntoggles = 1;
 
   ALLOC_STORAGE(1, BDStratTNTStorage, sto);
-  
-  int nmixtypes = asInteger(getListElement(MHp->R, "nmixtypes"));
-  
-  int *strattailattrs = INTEGER(getListElement(MHp->R, "strattailattrs"));
-  int *stratheadattrs = INTEGER(getListElement(MHp->R, "stratheadattrs"));
 
-  double *probvec = REAL(getListElement(MHp->R, "probvec"));
-    
-  int nattrcodes = asInteger(getListElement(MHp->R, "nattrcodes"));
-  sto->nstratlevels = nattrcodes;
-  
-  int *strat_vattr = INTEGER(getListElement(MHp->R, "strat_vattr"));
-  strat_vattr--; // so node indices line up correctly
-  
-  UnsrtEL **els = (UnsrtEL **)Calloc(nmixtypes, UnsrtEL *);
-      
-  for(int i = 0; i < nmixtypes; i++) {
-    els[i] = UnsrtELInitialize(0, NULL, NULL, FALSE);
-  }
-  
-  int *inputindmat = INTEGER(getListElement(MHp->R, "indmat"));  
-  
-  int **indmat = (int **)Calloc(nattrcodes, int *);
-  indmat[0] = inputindmat;
-  for(int i = 1; i < nattrcodes; i++) {
-    indmat[i] = indmat[i - 1] + nattrcodes;
-  }
-  
-  sto->currentsubmaxledgestype = Calloc(nmixtypes, int);
-  
-  int bound = asInteger(getListElement(MHp->R, "bound"));
-  
-  Vertex head;
-  Edge e;
-  for(Vertex tail = 1; tail <= N_NODES; tail++) {
-    STEP_THROUGH_OUTEDGES(tail, e, head) {
-      int index = indmat[strat_vattr[tail]][strat_vattr[head]];
-      if(index >= 0) {
-        UnsrtELInsert(tail, head, els[index]);
-        if(IN_DEG[tail] + OUT_DEG[tail] < bound && IN_DEG[head] + OUT_DEG[head] < bound) {
-          sto->currentsubmaxledgestype[index]++;
-        }
-      }
-    }
-  }
-  sto->indmat = indmat;
-  
-  // above handles initialization of edgelists according to the "strat" part of BDStratTNT
-    
-  int bdlevels = asInteger(getListElement(MHp->R, "bd_levels"));
-  
-  int *bd_vattr = INTEGER(getListElement(MHp->R, "bd_vattr"));
-  bd_vattr--; // so node indices line up correctly
-  
-  int *nodecountsbypairedcode = INTEGER(getListElement(MHp->R, "nodecountsbypairedcode"));
-  
-  
-  int **nodecountsmat = (int **)Calloc(nattrcodes, int *);
-  nodecountsmat[0] = nodecountsbypairedcode;
-  for(int i = 1; i < nattrcodes; i++) {
-    nodecountsmat[i] = nodecountsmat[i - 1] + bdlevels;
-  }
+  sto->bound = asInteger(getListElement(MHp->R, "bound"));
+  sto->nmixtypes = asInteger(getListElement(MHp->R, "nmixtypes"));
+  sto->nstratlevels = asInteger(getListElement(MHp->R, "nattrcodes"));
+  sto->nbdlevels = asInteger(getListElement(MHp->R, "bd_levels"));
+  sto->strattailtypes = INTEGER(getListElement(MHp->R, "strattailattrs"));
+  sto->stratheadtypes = INTEGER(getListElement(MHp->R, "stratheadattrs"));
 
-  Vertex ***nodesvec = (Vertex ***)Calloc(nattrcodes, Vertex **);
-  for(int i = 0; i < nattrcodes; i++) {
-    nodesvec[i] = (Vertex **)Calloc(bdlevels, Vertex *);
-    for(int j = 0; j < bdlevels; j++) {
-      nodesvec[i][j] = (Vertex *)Calloc(nodecountsmat[i][j], Vertex);
-    }
-  }
-  Free(nodecountsmat);
-
-
-  int **attrcounts = (int **)Calloc(nattrcodes, int *);
-  for(int i = 0; i < nattrcodes; i++) {
-    attrcounts[i] = (int *)Calloc(bdlevels, int);
-  }
-
-  int *nodepos = Calloc(N_NODES + 1, int);  
-
-  for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
-    if(IN_DEG[vertex] + OUT_DEG[vertex] < bound) {
-      // add vertex to the submaximal list corresponding to its attribute type
-      nodesvec[strat_vattr[vertex]][bd_vattr[vertex]][attrcounts[strat_vattr[vertex]][bd_vattr[vertex]]] = vertex;
-      nodepos[vertex] = attrcounts[strat_vattr[vertex]][bd_vattr[vertex]];      
-      attrcounts[strat_vattr[vertex]][bd_vattr[vertex]]++;
-    }
-  }
+  sto->mixtypestoupdate = Calloc(sto->nmixtypes, int);
   
-  sto->nodepos = nodepos;  
+  sto->strat_vattr = INTEGER(getListElement(MHp->R, "strat_vattr"));
+  sto->strat_vattr--; // so node indices line up correctly
 
+  sto->bd_vattr = INTEGER(getListElement(MHp->R, "bd_vattr"));
+  sto->bd_vattr--; // so node indices line up correctly  
+  
+  
   sto->BDtypesbyStrattype = INTEGER(getListElement(MHp->R, "BDtypesbyStrattype"));
   
-  sto->BDtailsbyStrattype = Calloc(nmixtypes, int *);
-  sto->BDheadsbyStrattype = Calloc(nmixtypes, int *);
+  sto->BDtailsbyStrattype = Calloc(sto->nmixtypes, int *);
+  sto->BDheadsbyStrattype = Calloc(sto->nmixtypes, int *);
   
   sto->BDtailsbyStrattype[0] = INTEGER(getListElement(MHp->R, "BDtailsbyStrattype"));
   sto->BDheadsbyStrattype[0] = INTEGER(getListElement(MHp->R, "BDheadsbyStrattype"));
   
-  for(int i = 1; i < nmixtypes; i++) {
-    sto->BDtailsbyStrattype[i] = sto->BDtailsbyStrattype[i - 1] + (int)sto->BDtypesbyStrattype[i - 1];
-    sto->BDheadsbyStrattype[i] = sto->BDheadsbyStrattype[i - 1] + (int)sto->BDtypesbyStrattype[i - 1];
+  for(int i = 1; i < sto->nmixtypes; i++) {
+    sto->BDtailsbyStrattype[i] = sto->BDtailsbyStrattype[i - 1] + sto->BDtypesbyStrattype[i - 1];
+    sto->BDheadsbyStrattype[i] = sto->BDheadsbyStrattype[i - 1] + sto->BDtypesbyStrattype[i - 1];
   }
   
-  int empirical_flag = asInteger(getListElement(MHp->R, "empirical_flag"));
-  sto->originalprobvec = Calloc(nmixtypes, double);
-  if(empirical_flag) {
-    int sumedges = 0;
-    for(int i = 0; i < nmixtypes; i++) {
-      sto->originalprobvec[i] = els[i]->nedges;
-      sumedges += els[i]->nedges;
-    }
-    
-    // empirical_flag with no edges is an error
-    if(sumedges == 0) {
-      MHp->ntoggles = MH_FAILED;
-      return;
-    }
-    
-    for(int i = 0; i < nmixtypes; i++) {
-      sto->originalprobvec[i] /= sumedges;
-    }
-  } else {
-    memcpy(sto->originalprobvec, probvec, nmixtypes*sizeof(double));
+  
+  sto->els = Calloc(sto->nmixtypes, UnsrtEL *);
+  for(int i = 0; i < sto->nmixtypes; i++) {
+    sto->els[i] = UnsrtELInitialize(0, NULL, NULL, FALSE);
   }
-  
-  Dyad sumcurrentdyads = 0;
-  
-  double *currentprobvec = Calloc(nmixtypes, double);
-  double sumprobs = 0;
-  
-  for(int i = 0; i < nmixtypes; i++) {
-    Dyad currentdyads = 0;
-    for(int j = 0; j < sto->BDtypesbyStrattype[i]; j++) {
-      int tailcounts = attrcounts[strattailattrs[i]][sto->BDtailsbyStrattype[i][j]];
-      int headcounts = attrcounts[stratheadattrs[i]][sto->BDheadsbyStrattype[i][j]];
       
-      if(strattailattrs[i] != stratheadattrs[i] || sto->BDtailsbyStrattype[i][j] != sto->BDheadsbyStrattype[i][j]) {
-        currentdyads += (Dyad)tailcounts*headcounts;
-      } else {
-        currentdyads += (Dyad)tailcounts*(headcounts - 1)/2;
+  sto->indmat = Calloc(sto->nstratlevels, int *);
+  sto->indmat[0] = INTEGER(getListElement(MHp->R, "indmat"));
+  for(int i = 1; i < sto->nstratlevels; i++) {
+    sto->indmat[i] = sto->indmat[i - 1] + sto->nstratlevels;
+  }
+  
+  sto->currentsubmaxledgestype = Calloc(sto->nmixtypes, int);  
+  EXEC_THROUGH_NET_EDGES(tail, head, e, {
+    int index = sto->indmat[sto->strat_vattr[tail]][sto->strat_vattr[head]];
+    if(index >= 0) {
+      UnsrtELInsert(tail, head, sto->els[index]);
+      if(IN_DEG[tail] + OUT_DEG[tail] < sto->bound && IN_DEG[head] + OUT_DEG[head] < sto->bound) {
+        sto->currentsubmaxledgestype[index]++;
+      }
+    }  
+  });  
+    
+  int *nodecounts = INTEGER(getListElement(MHp->R, "nodecountsbypairedcode"));
+  
+  sto->nodesvec = Calloc(sto->nstratlevels, Vertex **);
+  for(int i = 0; i < sto->nstratlevels; i++) {
+    sto->nodesvec[i] = Calloc(sto->nbdlevels, Vertex *);
+    for(int j = 0; j < sto->nbdlevels; j++) {
+      sto->nodesvec[i][j] = Calloc(nodecounts[i*sto->nbdlevels + j], Vertex);
+    }
+  }
+  
+  sto->attrcounts = Calloc(sto->nstratlevels, int *);
+  for(int i = 0; i < sto->nstratlevels; i++) {
+    sto->attrcounts[i] = (int *)Calloc(sto->nbdlevels, int);
+  }
+
+  sto->nodepos = Calloc(N_NODES + 1, int);  
+
+  for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
+    if(IN_DEG[vertex] + OUT_DEG[vertex] < sto->bound) {
+      // add vertex to the submaximal list corresponding to its attribute type
+      sto->nodesvec[sto->strat_vattr[vertex]][sto->bd_vattr[vertex]][sto->attrcounts[sto->strat_vattr[vertex]][sto->bd_vattr[vertex]]] = vertex;
+      sto->nodepos[vertex] = sto->attrcounts[sto->strat_vattr[vertex]][sto->bd_vattr[vertex]];      
+      sto->attrcounts[sto->strat_vattr[vertex]][sto->bd_vattr[vertex]]++;
+    }
+  }
+  
+  sto->originalprobvec = Calloc(sto->nmixtypes, double);
+  int empirical_flag = asInteger(getListElement(MHp->R, "empirical_flag"));
+  if(empirical_flag) {
+    for(int i = 0; i < sto->nmixtypes; i++) {
+      if(sto->els[i]->nedges > 0) {
+        sto->originalprobvec[i] = sto->els[i]->nedges;
+        sto->nmixtypes_max++;
       }
     }
-    
-    sumcurrentdyads += currentdyads;
-    
-    if(currentdyads > 0 || els[i]->nedges > 0) {
-      currentprobvec[i] = sto->originalprobvec[i];
-      sumprobs += sto->originalprobvec[i];
-    } // else it's already 0
+  } else {
+    memcpy(sto->originalprobvec, REAL(getListElement(MHp->R, "probvec")), sto->nmixtypes*sizeof(double));
+    sto->nmixtypes_max = sto->nmixtypes;
   }
-  
-  // if we cannot toggle any edges or dyads, error
-  if(EDGECOUNT(nwp) == 0 && sumcurrentdyads == 0) {
+
+  // determine what mixing types are initially toggleable 
+  double *currentprobvec = Calloc(sto->nmixtypes, double);  
+  for(int i = 0; i < sto->nmixtypes; i++) {
+    if(sto->els[i]->nedges > 0) {
+      currentprobvec[i] = sto->originalprobvec[i];
+      sto->currentcumprob += sto->originalprobvec[i];
+      sto->nmixtypes_toggleable++;
+      continue;        
+    }
+
+    for(int j = 0; j < sto->BDtypesbyStrattype[i]; j++) {
+      int tailcounts = sto->attrcounts[sto->strattailtypes[i]][sto->BDtailsbyStrattype[i][j]];
+      int headcounts = sto->attrcounts[sto->stratheadtypes[i]][sto->BDheadsbyStrattype[i][j]];
+      
+      if(sto->strattailtypes[i] != sto->stratheadtypes[i] || sto->BDtailsbyStrattype[i][j] != sto->BDheadsbyStrattype[i][j]) {
+        if(tailcounts > 0 && headcounts > 0) {
+          currentprobvec[i] = sto->originalprobvec[i];
+          sto->currentcumprob += sto->originalprobvec[i];
+          sto->nmixtypes_toggleable++;
+          break;        
+        }
+      } else {
+        if(tailcounts > 1) {
+          currentprobvec[i] = sto->originalprobvec[i];
+          sto->currentcumprob += sto->originalprobvec[i];
+          sto->nmixtypes_toggleable++;
+          break;
+        }
+      }
+    }
+  }
+    
+  sto->wtp = WtPopInitialize(sto->nmixtypes, currentprobvec);
+  Free(currentprobvec);
+
+  // zero proposal probability is an error
+  if(WtPopSumWts(sto->wtp) == 0) {
     MHp->ntoggles = MH_FAILED;
     return;
   }
-  
-  sto->els = els;
-  sto->nodesvec = nodesvec;
-  sto->attrcounts = attrcounts;
-    
-  sto->currentcumprob = sumprobs;
-  
-  sto->bound = bound;
-  sto->nmixtypes = nmixtypes;
-  sto->mixtypestoupdate = Calloc(nmixtypes, int);
-  
-  sto->strat_vattr = strat_vattr;
-  sto->bd_vattr = bd_vattr;
-    
-  sto->strattailtypes = strattailattrs;
-  sto->stratheadtypes = stratheadattrs;
-  
-  sto->wtp = WtPopInitialize(sto->nmixtypes, currentprobvec);
-  Free(currentprobvec);
 }
 
 MH_P_FN(MH_BDStratTNT) {
@@ -355,7 +312,7 @@ MH_P_FN(MH_BDStratTNT) {
   // where you have enough submaximal nodes that you cannot
   // be exhausting any mixing types of toggleable dyads
   if(sto->attrcounts[sto->strattailtype][sto->bdtailtype] <= 2 || sto->attrcounts[sto->stratheadtype][sto->bdheadtype] <= 2) {
-    if(sto->proposedcumprob != 1 && edgeflag) {
+    if(sto->nmixtypes_toggleable < sto->nmixtypes_max && edgeflag) {
       // we are proposing removing an edge of the current mixing type and need to make sure 
       // that any influenced mixing type that couldn't be toggled before this toggle
       // but could be toggled after this toggle gets its prob added to proposedcumprob;
@@ -569,10 +526,12 @@ MH_U_FN(Mu_BDStratTNT) {
     sto->currentcumprob = sto->proposedcumprob;
 
     if(edgeflag) {
+      sto->nmixtypes_toggleable += sto->nmixtypestoupdate;
       for(int i = 0; i < sto->nmixtypestoupdate; i++) {
         WtPopSetWt(sto->mixtypestoupdate[i], sto->originalprobvec[sto->mixtypestoupdate[i]], sto->wtp);          
       }
     } else {
+      sto->nmixtypes_toggleable -= sto->nmixtypestoupdate;
       for(int i = 0; i < sto->nmixtypestoupdate; i++) {
         WtPopSetWt(sto->mixtypestoupdate[i], 0, sto->wtp);          
       }
@@ -667,17 +626,14 @@ MH_U_FN(Mu_BDStratTNT) {
 MH_F_FN(Mf_BDStratTNT) {
   // Free all the things
   GET_STORAGE(BDStratTNTStorage, sto);
-
-  int nattrcodes = asInteger(getListElement(MHp->R, "nattrcodes"));
-  int bdlevels = asInteger(getListElement(MHp->R, "bd_levels"));
-
-  for(int i = 0; i < nattrcodes; i++) {
+  
+  for(int i = 0; i < sto->nstratlevels; i++) {
     Free(sto->attrcounts[i]);
   }
   Free(sto->attrcounts);
 
-  for(int i = 0; i < nattrcodes; i++) {
-    for(int j = 0; j < bdlevels; j++) {
+  for(int i = 0; i < sto->nstratlevels; i++) {
+    for(int j = 0; j < sto->nbdlevels; j++) {
       Free(sto->nodesvec[i][j]);
     }
     Free(sto->nodesvec[i]);
@@ -718,86 +674,61 @@ attributes) so that specific combinations can be forbidden.
 MH_I_FN(Mi_BDTNT) {
   // process the inputs and initialize all the node lists in storage; set MHp->ntoggles to 1
   MHp->ntoggles = 1;
-  
-  int bound = asInteger(getListElement(MHp->R, "bound")); // As in struct.
-  int nlevels = asInteger(getListElement(MHp->R, "nlevels")); // Number of distinct types of types of vertex.
-  
-  int *nodecountsbycode = INTEGER(getListElement(MHp->R, "nodecountsbycode")); // Number of nodes of each type.
-  
-  int nmixtypes = asInteger(getListElement(MHp->R, "nmixtypes")); // As in struct.
-  
-  int *tailtypes = INTEGER(getListElement(MHp->R, "allowed.tails")); // As in struct.
-  int *headtypes = INTEGER(getListElement(MHp->R, "allowed.heads")); // As in struct.
-  
-  int *vattr = INTEGER(getListElement(MHp->R, "nodecov")); // As in struct.
-  vattr--; // so node indices line up correctly
-  
-  Vertex **nodesvec = (Vertex **)Calloc(nlevels, Vertex *); // As in struct.
-  
-  int *attrcounts = Calloc(nlevels, int); // As in struct.
-    
-  for(int i = 0; i < nlevels; i++) {
-    // make room for maximum number of nodes of each type
-    nodesvec[i] = (Vertex *)Calloc(nodecountsbycode[i], Vertex);
-  }
 
-  int *nodepos = Calloc(N_NODES + 1, int);
+  // used during initialization only; not retained in storage
+  int *nodecountsbycode = INTEGER(getListElement(MHp->R, "nodecountsbycode")); // Number of nodes of each type.
+
+  ALLOC_STORAGE(1, BDTNTStorage, sto);
+  sto->bound = asInteger(getListElement(MHp->R, "bound")); // As in struct.
+  sto->nlevels = asInteger(getListElement(MHp->R, "nlevels")); // Number of distinct types of types of vertex.
+  sto->nmixtypes = asInteger(getListElement(MHp->R, "nmixtypes")); // As in struct.
+  sto->tailtypes = INTEGER(getListElement(MHp->R, "allowed.tails")); // As in struct.
+  sto->headtypes = INTEGER(getListElement(MHp->R, "allowed.heads")); // As in struct.
+  
+  sto->vattr = INTEGER(getListElement(MHp->R, "nodecov")); // As in struct.
+  sto->vattr--; // so node indices line up correctly
+  
+  sto->nodesvec = Calloc(sto->nlevels, Vertex *); // As in struct.
+  sto->nodepos = Calloc(N_NODES + 1, int); // As in struct.
+  sto->attrcounts = Calloc(sto->nlevels, int); // As in struct.
+  // make room for maximum number of nodes of each type
+  for(int i = 0; i < sto->nlevels; i++) {
+    sto->nodesvec[i] = Calloc(nodecountsbycode[i], Vertex);
+  }
 
   // Populate the list of submaximal vertices by checking whether a given vertex has a maximal degree.
   for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
-    if(IN_DEG[vertex] + OUT_DEG[vertex] < bound) {
+    if(IN_DEG[vertex] + OUT_DEG[vertex] < sto->bound) {
       // add vertex to the submaximal list corresponding to its attribute type
-      nodesvec[vattr[vertex]][attrcounts[vattr[vertex]]] = vertex;
-      nodepos[vertex] = attrcounts[vattr[vertex]];
-      attrcounts[vattr[vertex]]++;
+      sto->nodesvec[sto->vattr[vertex]][sto->attrcounts[sto->vattr[vertex]]] = vertex;
+      sto->nodepos[vertex] = sto->attrcounts[sto->vattr[vertex]];
+      sto->attrcounts[sto->vattr[vertex]]++;
     }
   }
   
+  // Construct and populate the list of edges. (May be obviated by more efficient network sampling.)
+  sto->edgelist = UnsrtELInitialize(0, NULL, NULL, FALSE);
+  EXEC_THROUGH_NET_EDGES(tail, head, e, {
+    UnsrtELInsert(tail, head, sto->edgelist);
+    if(IN_DEG[tail] + OUT_DEG[tail] < sto->bound && IN_DEG[head] + OUT_DEG[head] < sto->bound) {
+      sto->currentsubmaxledges++;
+    }
+  });
+  
   // count number of "BD-toggleable" dyads in current network
-  Dyad currentdyads = 0;    
-  for(int i = 0; i < nmixtypes; i++) {
-    if(tailtypes[i] == headtypes[i]) { // Includes a diagonal dyad.
-      currentdyads += (Dyad)attrcounts[tailtypes[i]]*(attrcounts[headtypes[i]] - 1)/2;
+  for(int i = 0; i < sto->nmixtypes; i++) {
+    if(sto->tailtypes[i] == sto->headtypes[i]) { // Includes a diagonal dyad.
+      sto->currentdyads += (Dyad)sto->attrcounts[sto->tailtypes[i]]*(sto->attrcounts[sto->headtypes[i]] - 1)/2;
     } else { // Includes a nondiagonal dyad.
-      currentdyads += (Dyad)attrcounts[tailtypes[i]]*attrcounts[headtypes[i]];
+      sto->currentdyads += (Dyad)sto->attrcounts[sto->tailtypes[i]]*sto->attrcounts[sto->headtypes[i]];
     }
   }
 
   // if we cannot toggle any edges or dyads, error
-  if(EDGECOUNT(nwp) == 0 && currentdyads == 0) {
+  if(EDGECOUNT(nwp) == 0 && sto->currentdyads == 0) {
     MHp->ntoggles = MH_FAILED;
     return;
   }  
-  
-  ALLOC_STORAGE(1, BDTNTStorage, sto);
-  
-  sto->attrcounts = attrcounts;
-  sto->nodesvec = nodesvec;
-  sto->nodepos = nodepos;
-  sto->currentdyads = currentdyads;
-  sto->bound = bound;
-  sto->nmixtypes = nmixtypes;
-  sto->vattr = vattr;
-  
-  sto->tailtypes = Calloc(nmixtypes, int);
-  sto->headtypes = Calloc(nmixtypes, int);
-  for(int i = 0; i < nmixtypes; i++) {
-    sto->tailtypes[i] = tailtypes[i];
-    sto->headtypes[i] = headtypes[i];      
-  }
-
-  // Construct and populate the list of edges. (May be obviated by more efficient network sampling.)
-  sto->edgelist = UnsrtELInitialize(0, NULL, NULL, FALSE);
-  Vertex head;
-  Edge e;
-  for(Vertex tail = 1; tail <= N_NODES; tail++) {
-    STEP_THROUGH_OUTEDGES(tail, e, head) {
-      UnsrtELInsert(tail, head, sto->edgelist);
-      if(IN_DEG[tail] + OUT_DEG[tail] < bound && IN_DEG[head] + OUT_DEG[head] < bound) {
-        sto->currentsubmaxledges++;
-      }
-    }
-  }
 }
 
 MH_P_FN(MH_BDTNT) {    
@@ -1018,21 +949,15 @@ MH_U_FN(Mu_BDTNT) {
 MH_F_FN(Mf_BDTNT) {
   // Free all the things
   GET_STORAGE(BDTNTStorage, sto);
-  
-  int nlevels = asInteger(getListElement(MHp->R, "nlevels"));
+  UnsrtELDestroy(sto->edgelist);
 
-  for(int i = 0; i < nlevels; i++) {
+  Free(sto->attrcounts);
+  Free(sto->nodepos);  
+
+  for(int i = 0; i < sto->nlevels; i++) {
     Free(sto->nodesvec[i]);
   }
-
   Free(sto->nodesvec);
-  Free(sto->attrcounts);
-  Free(sto->nodepos);
-
-  Free(sto->tailtypes);
-  Free(sto->headtypes);
-
-  UnsrtELDestroy(sto->edgelist);
   // MHp->storage itself should be Freed by MHProposalDestroy
 }
 
@@ -1043,89 +968,67 @@ MH_F_FN(Mf_BDTNT) {
 // struct definition in ergm_BDStrat_proposals.h
 
 MH_I_FN(Mi_StratTNT) {
-  ALLOC_STORAGE(1, StratTNTStorage, sto);
-
   // process the inputs and initialize all the edgelists in storage; set MHp->ntoggles to 1
   MHp->ntoggles = 1;
-  
-  int nmixtypes = asInteger(getListElement(MHp->R, "nmixtypes"));
-    
-  int nattrcodes = asInteger(getListElement(MHp->R, "nlevels"));
-  
+
+  // used during initialization only; not retained in storage
   int *vattr = INTEGER(getListElement(MHp->R, "nodecov"));
   vattr--; // so node indices line up correctly
-    
-  UnsrtEL **els = (UnsrtEL **)Calloc(nmixtypes, UnsrtEL *);
-      
-  for(int i = 0; i < nmixtypes; i++) {
-    els[i] = UnsrtELInitialize(0, NULL, NULL, FALSE);
+
+  int nlevels = asInteger(getListElement(MHp->R, "nlevels"));
+
+  ALLOC_STORAGE(1, StratTNTStorage, sto);
+  sto->nmixtypes = asInteger(getListElement(MHp->R, "nmixtypes"));
+  sto->tailtypes = INTEGER(getListElement(MHp->R, "tailattrs"));
+  sto->headtypes = INTEGER(getListElement(MHp->R, "headattrs"));
+  sto->nodecountsbycode = INTEGER(getListElement(MHp->R, "nodecountsbycode"));
+  
+  sto->els = Calloc(sto->nmixtypes, UnsrtEL *);
+  for(int i = 0; i < sto->nmixtypes; i++) {
+    sto->els[i] = UnsrtELInitialize(0, NULL, NULL, FALSE);
   }
   
-  int *inputindmat = INTEGER(getListElement(MHp->R, "indmat"));  
-  
-  int **indmat = Calloc(nattrcodes, int *);
+  int *inputindmat = INTEGER(getListElement(MHp->R, "indmat"));    
+  int **indmat = Calloc(nlevels, int *);
   indmat[0] = inputindmat;
-  for(int i = 1; i < nattrcodes; i++) {
-    indmat[i] = indmat[i - 1] + nattrcodes;
+  for(int i = 1; i < nlevels; i++) {
+    indmat[i] = indmat[i - 1] + nlevels;
   }
   
-  Vertex head;
-  Edge e;
-  for(Vertex tail = 1; tail <= N_NODES; tail++) {
-    STEP_THROUGH_OUTEDGES(tail, e, head) {
-      int index = indmat[vattr[tail]][vattr[head]];
-      if(index >= 0) {
-        UnsrtELInsert(tail, head, els[index]);
-      }
-    }
-  }
+  EXEC_THROUGH_NET_EDGES(tail, head, e, {
+    int index = indmat[vattr[tail]][vattr[head]];
+    if(index >= 0) {
+      UnsrtELInsert(tail, head, sto->els[index]);
+    }      
+  });
   Free(indmat);
-      
-  int *nodecountsbycode = INTEGER(getListElement(MHp->R, "nodecountsbycode"));
   
-  int *inputnodesbycode = INTEGER(getListElement(MHp->R, "nodeindicesbycode"));
-  
-  Vertex **nodesbycode = Calloc(nattrcodes, Vertex *);
-  for(int i = 0; i < nattrcodes; i++) {
-    nodesbycode[i] = Calloc(nodecountsbycode[i], Vertex);
-    for(int j = 0; j < nodecountsbycode[i]; j++) {
-      nodesbycode[i][j] = inputnodesbycode[j];
-    }
-    inputnodesbycode += nodecountsbycode[i];
+  sto->nodesbycode = Calloc(nlevels, Vertex *);
+  sto->nodesbycode[0] = (Vertex *)INTEGER(getListElement(MHp->R, "nodeindicesbycode"));
+  for(int i = 1; i < nlevels; i++) {
+    sto->nodesbycode[i] = sto->nodesbycode[i - 1] + sto->nodecountsbycode[i - 1];
   }
-  
-  double *pmat = Calloc(nmixtypes, double);
   
   int empirical_flag = asInteger(getListElement(MHp->R, "empirical"));
   if(empirical_flag) {
-    int sumedges = 0;
-    for(int i = 0; i < nmixtypes; i++) {
-      pmat[i] = els[i]->nedges;
-      sumedges += els[i]->nedges;
+    double *probvec = Calloc(sto->nmixtypes, double);
+    for(int i = 0; i < sto->nmixtypes; i++) {
+      probvec[i] = sto->els[i]->nedges;
     }
-    
-    // empirical_flag with no edges is an error
-    if(sumedges == 0) {
-      MHp->ntoggles = MH_FAILED;
-      return;
-    }
+    sto->wtp = WtPopInitialize(sto->nmixtypes, probvec);
+    Free(probvec);
   } else {
-    memcpy(pmat, REAL(getListElement(MHp->R, "probvec")), nmixtypes*sizeof(double));
+    sto->wtp = WtPopInitialize(sto->nmixtypes, REAL(getListElement(MHp->R, "probvec")));
+  }
+
+  // zero total proposal probability is an error
+  if(WtPopSumWts(sto->wtp) == 0) {
+    MHp->ntoggles = MH_FAILED;
+    return;
   }
   
-  sto->els = els;
-  sto->nodesbycode = nodesbycode;
-  sto->nmixtypes = nmixtypes;
-
-  sto->tailtypes = INTEGER(getListElement(MHp->R, "tailattrs"));
-  sto->headtypes = INTEGER(getListElement(MHp->R, "headattrs"));
-  sto->nodecountsbycode = Calloc(nattrcodes, int);
-  for(int i = 0; i < nattrcodes; i++) {
-    sto->nodecountsbycode[i] = nodecountsbycode[i];
-  }
-
-  sto->ndyadstype = Calloc(nmixtypes, Dyad);
-  for(int i = 0; i < nmixtypes; i++) {
+  sto->ndyadstype = Calloc(sto->nmixtypes, Dyad);
+  for(int i = 0; i < sto->nmixtypes; i++) {
     int tailtype = sto->tailtypes[i];
     int headtype = sto->headtypes[i];
     
@@ -1133,6 +1036,12 @@ MH_I_FN(Mi_StratTNT) {
     int headcounts = sto->nodecountsbycode[headtype];
     
     if(tailtype == headtype) {
+      // positive proposal probability with zero dyads is an error;
+      // note that we may wish to relax this condition
+      if(tailcounts == 1 && WtPopGetWt(i, sto->wtp) > 0) {
+        MHp->ntoggles = MH_FAILED;
+        return;
+      }
       if(DIRECTED) {
         sto->ndyadstype[i] = (Dyad)tailcounts*(headcounts - 1);
       } else {
@@ -1142,9 +1051,6 @@ MH_I_FN(Mi_StratTNT) {
       sto->ndyadstype[i] = (Dyad)tailcounts*headcounts;
     }
   }
-    
-  sto->wtp = WtPopInitialize(sto->nmixtypes, pmat);
-  Free(pmat);  
 }
 
 MH_P_FN(MH_StratTNT) {
@@ -1155,18 +1061,13 @@ MH_P_FN(MH_StratTNT) {
   
   // record the mixing type of the toggle, in case it's needed in the U function later
   sto->currentmixingtype = i;    
-  
-  int tailtype = sto->tailtypes[i];
-  int headtype = sto->headtypes[i];
-    
+      
   // number of edges of this mixing type
   int nedgestype = sto->els[i]->nedges;
 
   // number of dyads of this mixing type
   Dyad ndyadstype = sto->ndyadstype[i];
   
-  double logratio = 0;
-
   BD_LOOP({
     if(unif_rand() < 0.5 && nedgestype > 0) {
       // select an existing edge of type i at random, and propose toggling it off
@@ -1175,16 +1076,16 @@ MH_P_FN(MH_StratTNT) {
       // logratio is essentially copied from TNT, because the probability of 
       // choosing this particular mixing type cancels upon taking the ratio;
       // still need to count only edges and dyads of the appropriate mixing type, though
-  	  logratio = log((nedgestype == 1 ? 1.0/(0.5*ndyadstype + 0.5) :
-                      nedgestype / ((double) ndyadstype + nedgestype)));
+  	  MHp->logratio = log((nedgestype == 1 ? 1.0/(0.5*ndyadstype + 0.5) :
+                           nedgestype / ((double) ndyadstype + nedgestype)));
     } else {
       // select a dyad of type i and propose toggling it        
       GetRandDyadFromLists(Mtail, // tail
                            Mhead, // head
                            sto->nodesbycode, // tails
                            sto->nodesbycode, // heads
-                           &tailtype, // tailattrs
-                           &headtype, // headattrs
+                           sto->tailtypes + i, // tailattrs
+                           sto->headtypes + i, // headattrs
                            sto->nodecountsbycode, // tailcounts
                            sto->nodecountsbycode, // headcounts
                            1, // length; only one allowed pairing since we've already sampled the strat type
@@ -1200,16 +1101,14 @@ MH_P_FN(MH_StratTNT) {
         // an extra random index in this case)
         UnsrtELGetRand(Mtail, Mhead, sto->els[i]);
 
-        logratio = log((nedgestype == 1 ? 1.0/(0.5*ndyadstype + 0.5) :
-                        nedgestype / ((double) ndyadstype + nedgestype)));
+        MHp->logratio = log((nedgestype == 1 ? 1.0/(0.5*ndyadstype + 0.5) :
+                             nedgestype / ((double) ndyadstype + nedgestype)));
       }else{                        
-        logratio = log((nedgestype == 0 ? 0.5*ndyadstype + 0.5 :
-                        1.0 + (ndyadstype)/((double) nedgestype + 1)));
+        MHp->logratio = log((nedgestype == 0 ? 0.5*ndyadstype + 0.5 :
+                             1.0 + (ndyadstype)/((double) nedgestype + 1)));
       }
     }
   });
-  
-  MHp->logratio += logratio;
 }
 
 MH_U_FN(Mu_StratTNT) {
@@ -1235,12 +1134,6 @@ MH_F_FN(Mf_StratTNT) {
 
   Free(sto->els);
   Free(sto->ndyadstype);
-  Free(sto->nodecountsbycode);
-  
-  int nattrcodes = asInteger(getListElement(MHp->R, "nlevels"));
-  for(int i = 0; i < nattrcodes; i++) {
-    Free(sto->nodesbycode[i]);
-  }
   Free(sto->nodesbycode);  
   
   WtPopDestroy(sto->wtp);
