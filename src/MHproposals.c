@@ -17,6 +17,7 @@
 #include "ergm_dyadgen.h"
 #include "ergm_Rutil.h"
 #include "ergm_nodelist_dyad_sampler.h"
+#include "ergm_BDStrat_proposals.h"
 
 /*********************
  void MH_randomtoggle
@@ -94,51 +95,7 @@ MH_F_FN(Mf_TNT){
     MH_BDStratTNT
 ********************/
 
-typedef struct {
-  UnsrtEL **els;
-  Vertex ***nodesvec;
-  int **attrcounts;
-  
-  int strattailtype;
-  int bdtailtype;
-  int tailmaxl;
-  
-  int stratheadtype;
-  int bdheadtype;  
-  int headmaxl;
-
-  int *nodepos;
-  
-  int stratmixingtype;
-  
-  double currentcumprob;
-  double proposedcumprob;
-  
-  double *originalprobvec;
-  
-  WtPop *wtp;
-  
-  int bound;
-  int nmixtypes;
-  
-  int *strat_vattr;
-  int *bd_vattr;
-  
-  int *BDtypesbyStrattype;
-  int **BDtailsbyStrattype;
-  int **BDheadsbyStrattype;
-  
-  int *strattailtypes;
-  int *stratheadtypes;
-  
-  int nstratlevels;
-  
-  int *currentsubmaxledgestype;
-  int **indmat;
-  
-  int nmixtypestoupdate;
-  int *mixtypestoupdate;
-} BDStratTNTStorage;
+// struct definition in ergm_BDStrat_proposals.h
 
 MH_I_FN(Mi_BDStratTNT) {
   // process the inputs and initialize all the edgelists in storage; set MHp->ntoggles to 1
@@ -309,8 +266,6 @@ MH_I_FN(Mi_BDStratTNT) {
     
   sto->currentcumprob = sumprobs;
   
-  sto->proposedcumprob = 1;
-    
   sto->bound = bound;
   sto->nmixtypes = nmixtypes;
   sto->mixtypestoupdate = Calloc(nmixtypes, int);
@@ -758,32 +713,7 @@ whitelist of blocks (sets of dyads defined by combinations of vertex
 attributes) so that specific combinations can be forbidden.
 ********************/
 
-typedef struct {
-  int *attrcounts; // Count of the number of nodes with each attribute type i that are "submaximal degree" (attrcounts[i] lengths of nodesvec[i]).
-  Vertex **nodesvec; // List of lists of submaximal nodes of attribute i.
-  int *nodepos; // nodepos[i-1] is position of vertex i in nodesvec[vattr[i-1]]
-  
-  UnsrtEL *edgelist; // All edges in the network.
-  
-  int tailtype; // Attribute type of the last tail to be proposed.
-  int tailmaxl; // Will the tail change the maximality status if the current proposal is accepted?
-  
-  int headtype; // Ditto for heads.
-  int headmaxl;
-  
-  Dyad currentdyads; // Number of dyads that can be selected in the current network.
-  Dyad proposeddyads; // As above, but if the proposal is accepted.
-  
-  int currentsubmaxledges;  // Number of edges in the current network both of whose endpoints are submaximal
-  int proposedsubmaxledges; // Number of edges in the proposed network both of whose endpoints are submaximal
-  
-  int bound; // Single upper bound on degree.
-  int nmixtypes; // Number of pairings of attributes.
-  int *vattr; // Vertex attributes.
-  // Parallel vectors of attribute combinations that are allowed.
-  int *tailtypes;
-  int *headtypes;
-} BDTNTStorage;
+// struct definition in ergm_BDStrat_proposals.h
 
 MH_I_FN(Mi_BDTNT) {
   // process the inputs and initialize all the node lists in storage; set MHp->ntoggles to 1
@@ -1110,22 +1040,7 @@ MH_F_FN(Mf_BDTNT) {
     MH_StratTNT
 ********************/
 
-typedef struct {
-  UnsrtEL **els;
-  int currentmixingtype;
-  Vertex **nodesbycode;
-  
-  int nmixtypes;
-
-  double *pmat;
-  WtPop *wtp;
-  
-  int *tailtypes;
-  int *headtypes;
-
-  Dyad *ndyadstype;
-  int *nodecountsbycode;
-} StratTNTStorage;
+// struct definition in ergm_BDStrat_proposals.h
 
 MH_I_FN(Mi_StratTNT) {
   ALLOC_STORAGE(1, StratTNTStorage, sto);
@@ -1179,26 +1094,26 @@ MH_I_FN(Mi_StratTNT) {
     inputnodesbycode += nodecountsbycode[i];
   }
   
-  sto->pmat = Calloc(nmixtypes, double);
+  double *pmat = Calloc(nmixtypes, double);
   
   int empirical_flag = asInteger(getListElement(MHp->R, "empirical"));
   if(empirical_flag) {
-    sto->pmat[0] = els[0]->nedges;
+    pmat[0] = els[0]->nedges;
     for(int i = 1; i < nmixtypes; i++) {
-      sto->pmat[i] = sto->pmat[i - 1] + els[i]->nedges;
+      pmat[i] = pmat[i - 1] + els[i]->nedges;
     }
     
     // empirical_flag with no edges is an error
-    if(sto->pmat[nmixtypes - 1] == 0) {
+    if(pmat[nmixtypes - 1] == 0) {
       MHp->ntoggles = MH_FAILED;
       return;
     }
     
     for(int i = 0; i < nmixtypes; i++) {
-      sto->pmat[i] /= sto->pmat[nmixtypes - 1];
+      pmat[i] /= pmat[nmixtypes - 1];
     }
   } else {
-    memcpy(sto->pmat, REAL(getListElement(MHp->R, "probvec")), nmixtypes*sizeof(double));
+    memcpy(pmat, REAL(getListElement(MHp->R, "probvec")), nmixtypes*sizeof(double));
   }
   
   sto->els = els;
@@ -1233,10 +1148,11 @@ MH_I_FN(Mi_StratTNT) {
   
   // undo cumsum for new WtPop approach
   for(int i = sto->nmixtypes - 1; i > 0; i--) {
-    sto->pmat[i] = sto->pmat[i] - sto->pmat[i - 1];
+    pmat[i] = pmat[i] - pmat[i - 1];
   }
   
-  sto->wtp = WtPopInitialize(sto->nmixtypes, sto->pmat);
+  sto->wtp = WtPopInitialize(sto->nmixtypes, pmat);
+  Free(pmat);  
 }
 
 MH_P_FN(MH_StratTNT) {
@@ -1326,7 +1242,6 @@ MH_F_FN(Mf_StratTNT) {
   }
 
   Free(sto->els);
-  Free(sto->pmat);
   Free(sto->ndyadstype);
   Free(sto->nodecountsbycode);
   
