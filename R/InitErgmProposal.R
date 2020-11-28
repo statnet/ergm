@@ -260,8 +260,6 @@ InitErgmProposal.StratTNT <- function(arguments, nw) {
     headattrs <- headattrs + length(strat_row_levels)
   }
 
-  probvec <- cumsum(probvec)
-
   # record the number of mixing types and the number of unique attr codes
   nmixingtypes <- length(probvec)
   ncodes <- length(strat_levels)
