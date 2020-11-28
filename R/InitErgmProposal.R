@@ -245,10 +245,7 @@ InitErgmProposal.StratTNT <- function(arguments, nw) {
     # for undirected unipartite, symmetrize pmat and then set the sub-diagonal to zero
     pmat <- (pmat + t(pmat))/2
     pmat[lower.tri(pmat)] <- 0
-  }  
-    
-  # renormalize to probability matrix
-  pmat <- pmat/sum(pmat)
+  }
 
   # record the tail and head attr code for each mixing type with positive probability
   prob_inds <- which(pmat > 0, arr.ind = TRUE)
