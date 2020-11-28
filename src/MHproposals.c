@@ -1099,7 +1099,7 @@ MH_I_FN(Mi_StratTNT) {
   int empirical_flag = asInteger(getListElement(MHp->R, "empirical"));
   if(empirical_flag) {
     int sumedges = 0;
-    for(int i = 1; i < nmixtypes; i++) {
+    for(int i = 0; i < nmixtypes; i++) {
       pmat[i] = els[i]->nedges;
       sumedges += els[i]->nedges;
     }
