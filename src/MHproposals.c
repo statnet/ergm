@@ -1098,19 +1098,16 @@ MH_I_FN(Mi_StratTNT) {
   
   int empirical_flag = asInteger(getListElement(MHp->R, "empirical"));
   if(empirical_flag) {
-    pmat[0] = els[0]->nedges;
+    int sumedges = 0;
     for(int i = 1; i < nmixtypes; i++) {
-      pmat[i] = pmat[i - 1] + els[i]->nedges;
+      pmat[i] = els[i]->nedges;
+      sumedges += els[i]->nedges;
     }
     
     // empirical_flag with no edges is an error
-    if(pmat[nmixtypes - 1] == 0) {
+    if(sumedges == 0) {
       MHp->ntoggles = MH_FAILED;
       return;
-    }
-    
-    for(int i = 0; i < nmixtypes; i++) {
-      pmat[i] /= pmat[nmixtypes - 1];
     }
   } else {
     memcpy(pmat, REAL(getListElement(MHp->R, "probvec")), nmixtypes*sizeof(double));
@@ -1145,12 +1142,7 @@ MH_I_FN(Mi_StratTNT) {
       sto->ndyadstype[i] = (Dyad)tailcounts*headcounts;
     }
   }
-  
-  // undo cumsum for new WtPop approach
-  for(int i = sto->nmixtypes - 1; i > 0; i--) {
-    pmat[i] = pmat[i] - pmat[i - 1];
-  }
-  
+    
   sto->wtp = WtPopInitialize(sto->nmixtypes, pmat);
   Free(pmat);  
 }
