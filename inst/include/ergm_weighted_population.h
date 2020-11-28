@@ -68,5 +68,8 @@ static inline double WtPopGetWt(int position, WtPop *wtp){
   return wtp->weights[wtp->height][position];
 }
 
+static inline double WtPopSumWts(WtPop *wtp) {
+  return wtp->weights[0][0];
+}
 
 #endif // _ERGM_WEIGHTED_POPULATION_H_

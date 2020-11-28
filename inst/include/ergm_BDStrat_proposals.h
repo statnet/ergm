@@ -33,7 +33,7 @@ typedef struct {
 typedef struct {
   int *attrcounts; // Count of the number of nodes with each attribute type i that are "submaximal degree" (attrcounts[i] lengths of nodesvec[i]).
   Vertex **nodesvec; // List of lists of submaximal nodes of attribute i.
-  int *nodepos; // nodepos[i-1] is position of vertex i in nodesvec[vattr[i-1]]
+  int *nodepos; // nodepos[i] is position of vertex i in nodesvec[vattr[i]]
   
   UnsrtEL *edgelist; // All edges in the network.
   
@@ -52,6 +52,8 @@ typedef struct {
   int bound; // Single upper bound on degree.
   int nmixtypes; // Number of pairings of attributes.
   int *vattr; // Vertex attributes.
+  int nlevels; // number of attribute levels
+  
   // Parallel vectors of attribute combinations that are allowed.
   int *tailtypes;
   int *headtypes;
@@ -83,6 +85,8 @@ typedef struct {
   
   int bound;
   int nmixtypes;
+  int nmixtypes_max;
+  int nmixtypes_toggleable;
   
   int *strat_vattr;
   int *bd_vattr;
@@ -95,6 +99,7 @@ typedef struct {
   int *stratheadtypes;
   
   int nstratlevels;
+  int nbdlevels;
   
   int *currentsubmaxledgestype;
   int **indmat;
