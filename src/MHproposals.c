@@ -521,6 +521,17 @@ MH_P_FN(MH_BDStratTNT) {
 MH_U_FN(Mu_BDStratTNT) {
   GET_STORAGE(BDStratTNTStorage, sto);
 
+  // update edgelist
+  UnsrtELToggleKnown(tail, head, sto->els[sto->stratmixingtype], edgeflag);
+
+  // update nodelists
+  if(sto->tailmaxl) {
+    NodeListToggleKnown(tail, sto->nodesvec[sto->strattailtype][sto->bdtailtype], sto->nodepos, sto->attrcounts[sto->strattailtype] + sto->bdtailtype, !edgeflag);
+  }
+  if(sto->headmaxl) {
+    NodeListToggleKnown(head, sto->nodesvec[sto->stratheadtype][sto->bdheadtype], sto->nodepos, sto->attrcounts[sto->stratheadtype] + sto->bdheadtype, !edgeflag);
+  }
+
   // if any strat mixing types have changed toggleability status, update prob info accordingly
   if(sto->nmixtypestoupdate > 0) {
     sto->currentcumprob = sto->proposedcumprob;
@@ -536,42 +547,6 @@ MH_U_FN(Mu_BDStratTNT) {
         WtPopSetWt(sto->mixtypestoupdate[i], 0, sto->wtp);          
       }
     }
-  }
-  
-  if(edgeflag) {
-    // we are removing an existing edge
-    UnsrtELDelete(tail, head, sto->els[sto->stratmixingtype]);
-    
-    if(sto->tailmaxl) {
-      // tail will be newly submaxl after toggle, so add it to the appropriate node list
-      sto->nodesvec[sto->strattailtype][sto->bdtailtype][sto->attrcounts[sto->strattailtype][sto->bdtailtype]] = tail;
-      sto->nodepos[tail] = sto->attrcounts[sto->strattailtype][sto->bdtailtype];
-      sto->attrcounts[sto->strattailtype][sto->bdtailtype]++;
-    }
-    
-    if(sto->headmaxl) {
-      // head will be newly submaxl after toggle, so add it to the appropriate node list    
-      sto->nodesvec[sto->stratheadtype][sto->bdheadtype][sto->attrcounts[sto->stratheadtype][sto->bdheadtype]] = head;
-      sto->nodepos[head] = sto->attrcounts[sto->stratheadtype][sto->bdheadtype];
-      sto->attrcounts[sto->stratheadtype][sto->bdheadtype]++;
-    }
-  } else {
-    // we are adding a new edge
-    UnsrtELInsert(tail, head, sto->els[sto->stratmixingtype]);
-        
-    if(sto->tailmaxl) {
-      // tail will be newly maxl after toggle, so remove it from the appropriate node list
-      sto->nodesvec[sto->strattailtype][sto->bdtailtype][sto->nodepos[tail]] = sto->nodesvec[sto->strattailtype][sto->bdtailtype][sto->attrcounts[sto->strattailtype][sto->bdtailtype] - 1];
-      sto->nodepos[sto->nodesvec[sto->strattailtype][sto->bdtailtype][sto->nodepos[tail]]] = sto->nodepos[tail];
-      sto->attrcounts[sto->strattailtype][sto->bdtailtype]--;
-    }
-    
-    if(sto->headmaxl) {
-      // head will be newly maxl after toggle, so remove it from the appropriate node list
-      sto->nodesvec[sto->stratheadtype][sto->bdheadtype][sto->nodepos[head]] = sto->nodesvec[sto->stratheadtype][sto->bdheadtype][sto->attrcounts[sto->stratheadtype][sto->bdheadtype] - 1];
-      sto->nodepos[sto->nodesvec[sto->stratheadtype][sto->bdheadtype][sto->nodepos[head]]] = sto->nodepos[head];
-      sto->attrcounts[sto->stratheadtype][sto->bdheadtype]--;
-    }       
   }
   
   // if we are adding an edge that will be submaximal in the post-toggle 
@@ -902,41 +877,15 @@ MH_P_FN(MH_BDTNT) {
 // this U_FN is called *before* the toggle is made in the network
 MH_U_FN(Mu_BDTNT) {  
   GET_STORAGE(BDTNTStorage, sto);
-  
-  if(edgeflag) {
-    // we are removing an edge
-    UnsrtELDelete(tail, head, sto->edgelist);
-    
-    if(sto->tailmaxl) {
-      // tail will be newly submaxl after toggle, so add it to the appropriate node list
-      sto->nodesvec[sto->tailtype][sto->attrcounts[sto->tailtype]] = tail;
-      sto->nodepos[tail] = sto->attrcounts[sto->tailtype];
-      sto->attrcounts[sto->tailtype]++;
-    }
-    
-    if(sto->headmaxl) {
-      // head will be newly submaxl after toggle, so add it to the appropriate node list    
-      sto->nodesvec[sto->headtype][sto->attrcounts[sto->headtype]] = head;
-      sto->nodepos[head] = sto->attrcounts[sto->headtype];
-      sto->attrcounts[sto->headtype]++;
-    }
-  } else {
-    // we are adding an edge
-    UnsrtELInsert(tail, head, sto->edgelist);
-    
-    if(sto->tailmaxl) {
-      // tail will be newly maxl after toggle, so remove it from the appropriate node list
-      sto->nodesvec[sto->tailtype][sto->nodepos[tail]] = sto->nodesvec[sto->tailtype][sto->attrcounts[sto->tailtype] - 1];
-      sto->nodepos[sto->nodesvec[sto->tailtype][sto->nodepos[tail]]] = sto->nodepos[tail];
-      sto->attrcounts[sto->tailtype]--;
-    }
-    
-    if(sto->headmaxl) {
-      // head will be newly maxl after toggle, so remove it from the appropriate node list
-      sto->nodesvec[sto->headtype][sto->nodepos[head]] = sto->nodesvec[sto->headtype][sto->attrcounts[sto->headtype] - 1];
-      sto->nodepos[sto->nodesvec[sto->headtype][sto->nodepos[head]]] = sto->nodepos[head];
-      sto->attrcounts[sto->headtype]--;
-    }   
+  // update edgelist
+  UnsrtELToggleKnown(tail, head, sto->edgelist, edgeflag);
+
+  // update nodelists
+  if(sto->tailmaxl) {
+    NodeListToggleKnown(tail, sto->nodesvec[sto->tailtype], sto->nodepos, sto->attrcounts + sto->tailtype, !edgeflag);
+  }
+  if(sto->headmaxl) {
+    NodeListToggleKnown(head, sto->nodesvec[sto->headtype], sto->nodepos, sto->attrcounts + sto->headtype, !edgeflag);    
   }
   
   // update current dyad count
@@ -1114,14 +1063,7 @@ MH_P_FN(MH_StratTNT) {
 MH_U_FN(Mu_StratTNT) {
   // add or remove edge from appropriate edgelist
   GET_STORAGE(StratTNTStorage, sto);
-  
-  if(edgeflag) {
-    // we are removing an existing edge
-    UnsrtELDelete(tail, head, sto->els[sto->currentmixingtype]);
-  } else {
-    // we are adding a new edge
-    UnsrtELInsert(tail, head, sto->els[sto->currentmixingtype]);
-  }
+  UnsrtELToggleKnown(tail, head, sto->els[sto->currentmixingtype], edgeflag);
 }
 
 MH_F_FN(Mf_StratTNT) {
