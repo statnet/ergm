@@ -94,4 +94,13 @@ static inline void UnsrtELInsert(Vertex tail, Vertex head, UnsrtEL *el){
   el->heads[el->lindex] = head;
 }
 
+// helper function for cleaner client code
+static inline void UnsrtELToggleKnown(Vertex tail, Vertex head, UnsrtEL *el, int edgeflag) {
+  if(edgeflag) {
+    UnsrtELDelete(tail, head, el);
+  } else {
+    UnsrtELInsert(tail, head, el);
+  }
+}
+
 #endif // _ERGM_UNSORTED_EDGELIST_H_

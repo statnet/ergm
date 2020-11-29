@@ -72,4 +72,17 @@ static inline void GetRandDyadFromLists(Vertex *tail,
   }
 }
 
+// for simplicity of U_FNs, adding this trivial updating function as well
+static inline void NodeListToggleKnown(Vertex node, Vertex *nodevec, int *nodepos, int *length, int nodeflag) {
+  if(nodeflag) { // present; remove node from the list
+    nodevec[nodepos[node]] = nodevec[*length - 1];  // move last node into node's position
+    nodepos[nodevec[*length - 1]] = nodepos[node];  // update formerly last node's position
+    (*length)--;  // update length
+  } else { // absent; add node to the list
+    nodevec[*length] = node;  // place node in last position
+    nodepos[node] = *length;  // set position for node
+    (*length)++;  // update length  
+  }
+}
+
 #endif
