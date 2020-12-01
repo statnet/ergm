@@ -91,9 +91,9 @@ typedef struct {
   int *strat_vattr;
   int *bd_vattr;
   
-  int *BDtypesbyStrattype;
-  int **BDtailsbyStrattype;
-  int **BDheadsbyStrattype;
+  int *bd_mixtypes;
+  int *bd_tails;
+  int *bd_heads;
   
   int *strattailtypes;
   int *stratheadtypes;
