@@ -67,58 +67,37 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   rv_strat <- InitErgmProposal.StratTNT(list(attr=arguments$Strat_attr, pmat=arguments$pmat, empirical=arguments$empirical), nw)
   rv_bd <- InitErgmProposal.BDTNT(list(attr=arguments$BD_attr, fmat=arguments$fmat, bound=arguments$bound), nw)
   
-  ## note all six of these have already been decremented by the other IEP functions
-  tailattrs <- rv_strat$tailattrs
-  headattrs <- rv_strat$headattrs
+  ## note these have already been decremented by IEP.BDTNT
   allowed.tails <- rv_bd$allowed.tails
   allowed.heads <- rv_bd$allowed.heads
-  strat_nodecov <- rv_strat$nodecov
-  bd_nodecov <- rv_bd$nodecov
   
-  bd_offdiag_pairs <- which(allowed.tails != allowed.heads)
+  bd_offdiag_pairs <- which(allowed.tails != allowed.heads)  
   
-  type1_bd_tails <- allowed.tails
-  type1_bd_heads <- allowed.heads
-  
-  type2_bd_tails <- c(allowed.tails, allowed.heads[bd_offdiag_pairs])
-  type2_bd_heads <- c(allowed.heads, allowed.tails[bd_offdiag_pairs])
+  bd_tails <- c(allowed.tails, if(!is.bipartite(nw)) allowed.heads[bd_offdiag_pairs])
+  bd_heads <- c(allowed.heads, if(!is.bipartite(nw)) allowed.tails[bd_offdiag_pairs])
 
-  BDtailsbyStrattype <- vector(mode = "list", length = length(tailattrs))
-  BDheadsbyStrattype <- vector(mode = "list", length = length(tailattrs))
-  
-  for(i in 1:length(tailattrs)) {
-    if(tailattrs[i] == headattrs[i] || is.bipartite(nw)) {
-      BDtailsbyStrattype[[i]] <- type1_bd_tails
-      BDheadsbyStrattype[[i]] <- type1_bd_heads
-    } else {
-      BDtailsbyStrattype[[i]] <- type2_bd_tails
-      BDheadsbyStrattype[[i]] <- type2_bd_heads    
-    }
-  }
-
-  BDtypesbyStrattype <- sapply(BDtailsbyStrattype, length)
-  BDtailsbyStrattype <- unlist(BDtailsbyStrattype)
-  BDheadsbyStrattype <- unlist(BDheadsbyStrattype)
-  
+  ## number of BD mixtypes that need to be considered when Strat mixing type is off-diag and on-diag, respectively
+  bd_mixtypes <- c(length(bd_tails), length(allowed.tails))
+    
   # for economy of C space, best to count # of nodes of each bd-strat pairing
-  nodecountsbypairedcode <- as.integer(table(from=bd_nodecov, to=strat_nodecov))
+  nodecountsbypairedcode <- as.integer(table(from=rv_bd$nodecov, to=rv_strat$nodecov))
   
   proposal <- list(name = "BDStratTNT",
                    inputs = NULL, # passed by name below
-                   nmixtypes = as.integer(length(tailattrs)),
-                   strattailattrs = as.integer(tailattrs),
-                   stratheadattrs = as.integer(headattrs),
+                   nmixtypes = as.integer(rv_strat$nmixtypes),
+                   strattailattrs = as.integer(rv_strat$tailattrs),
+                   stratheadattrs = as.integer(rv_strat$headattrs),
                    probvec = as.double(rv_strat$probvec),
                    nattrcodes = as.integer(rv_strat$nlevels),
-                   strat_vattr = as.integer(strat_nodecov),
+                   strat_vattr = as.integer(rv_strat$nodecov),
                    indmat = as.integer(rv_strat$indmat), 
                    nodecountsbypairedcode = as.integer(nodecountsbypairedcode),
                    bound = as.integer(rv_bd$bound),
                    bd_levels = as.integer(rv_bd$nlevels),
-                   bd_vattr = as.integer(bd_nodecov),
-                   BDtypesbyStrattype = as.integer(BDtypesbyStrattype), 
-                   BDtailsbyStrattype = as.integer(BDtailsbyStrattype), 
-                   BDheadsbyStrattype = as.integer(BDheadsbyStrattype), 
+                   bd_vattr = as.integer(rv_bd$nodecov),
+                   bd_tails = as.integer(bd_tails),
+                   bd_heads = as.integer(bd_heads),
+                   bd_mixtypes = as.integer(bd_mixtypes),
                    empirical_flag = as.integer(rv_strat$empirical))
 
   proposal
