@@ -85,4 +85,35 @@ static inline void NodeListToggleKnown(Vertex node, Vertex *nodevec, int *nodepo
   }
 }
 
+static inline Dyad NodeListDyadCount(int *tailcounts, int *headcounts, int *tailtypes, int *headtypes, int length, int diagonal, int directed) {
+  Dyad dyadcount = 0;
+  for(int i = 0; i < length; i++) {
+    if(diagonal && tailtypes[i] == headtypes[i]) {
+      if(directed) {
+        dyadcount += (Dyad)tailcounts[tailtypes[i]]*(headcounts[headtypes[i]] - 1);
+      } else {
+        dyadcount += (Dyad)tailcounts[tailtypes[i]]*(headcounts[headtypes[i]] - 1)/2;
+      }
+    } else {
+      dyadcount += (Dyad)tailcounts[tailtypes[i]]*headcounts[headtypes[i]];
+    }
+  }
+  return dyadcount;
+}
+
+static inline int NodeListDyadCountPositive(int *tailcounts, int *headcounts, int *tailtypes, int *headtypes, int length, int diagonal) {
+  for(int i = 0; i < length; i++) {
+    if(diagonal && tailtypes[i] == headtypes[i]) {
+      if(tailcounts[tailtypes[i]] > 1) {
+        return TRUE;
+      }
+    } else {
+      if(tailcounts[tailtypes[i]] > 0 && headcounts[headtypes[i]] > 0) {
+        return TRUE;
+      }
+    }
+  }
+  return FALSE;
+}
+
 #endif
