@@ -118,21 +118,10 @@ MH_I_FN(Mi_BDStratTNT) {
   sto->bd_vattr = INTEGER(getListElement(MHp->R, "bd_vattr"));
   sto->bd_vattr--; // so node indices line up correctly  
   
-  
-  sto->BDtypesbyStrattype = INTEGER(getListElement(MHp->R, "BDtypesbyStrattype"));
-  
-  sto->BDtailsbyStrattype = Calloc(sto->nmixtypes, int *);
-  sto->BDheadsbyStrattype = Calloc(sto->nmixtypes, int *);
-  
-  sto->BDtailsbyStrattype[0] = INTEGER(getListElement(MHp->R, "BDtailsbyStrattype"));
-  sto->BDheadsbyStrattype[0] = INTEGER(getListElement(MHp->R, "BDheadsbyStrattype"));
-  
-  for(int i = 1; i < sto->nmixtypes; i++) {
-    sto->BDtailsbyStrattype[i] = sto->BDtailsbyStrattype[i - 1] + sto->BDtypesbyStrattype[i - 1];
-    sto->BDheadsbyStrattype[i] = sto->BDheadsbyStrattype[i - 1] + sto->BDtypesbyStrattype[i - 1];
-  }
-  
-  
+  sto->bd_mixtypes = INTEGER(getListElement(MHp->R, "bd_mixtypes"));
+  sto->bd_tails = INTEGER(getListElement(MHp->R, "bd_tails"));
+  sto->bd_heads = INTEGER(getListElement(MHp->R, "bd_heads"));  
+    
   sto->els = Calloc(sto->nmixtypes, UnsrtEL *);
   for(int i = 0; i < sto->nmixtypes; i++) {
     sto->els[i] = UnsrtELInitialize(0, NULL, NULL, FALSE);
@@ -199,7 +188,8 @@ MH_I_FN(Mi_BDStratTNT) {
   double *currentprobvec = Calloc(sto->nmixtypes, double);  
   for(int i = 0; i < sto->nmixtypes; i++) {
     // if any edges or dyads of this type are toggleable
-    if(sto->els[i]->nedges > 0 || NodeListDyadCountPositive(sto->attrcounts[sto->strattailtypes[i]], sto->attrcounts[sto->stratheadtypes[i]], sto->BDtailsbyStrattype[i], sto->BDheadsbyStrattype[i], sto->BDtypesbyStrattype[i], sto->strattailtypes[i] == sto->stratheadtypes[i])) {
+    int strat_diag = sto->strattailtypes[i] == sto->stratheadtypes[i];
+    if(sto->els[i]->nedges > 0 || NodeListDyadCountPositive(sto->attrcounts[sto->strattailtypes[i]], sto->attrcounts[sto->stratheadtypes[i]], sto->bd_tails, sto->bd_heads, sto->bd_mixtypes[strat_diag], strat_diag)) {
       currentprobvec[i] = sto->originalprobvec[i];
       sto->currentcumprob += sto->originalprobvec[i];
       sto->nmixtypes_toggleable++;
@@ -227,11 +217,12 @@ MH_P_FN(MH_BDStratTNT) {
 
   int strattailtype = sto->strattailtypes[strat_i];
   int stratheadtype = sto->stratheadtypes[strat_i];
-    
+  int strat_diag = strattailtype == stratheadtype;
+  
   // number of edges of this mixing type
   int nedgestype = sto->els[strat_i]->nedges;
   
-  Dyad ndyadstype = NodeListDyadCount(sto->attrcounts[strattailtype], sto->attrcounts[stratheadtype], sto->BDtailsbyStrattype[strat_i], sto->BDheadsbyStrattype[strat_i], sto->BDtypesbyStrattype[strat_i], strattailtype == stratheadtype, DIRECTED);
+  Dyad ndyadstype = NodeListDyadCount(sto->attrcounts[strattailtype], sto->attrcounts[stratheadtype], sto->bd_tails, sto->bd_heads, sto->bd_mixtypes[strat_diag], strat_diag, DIRECTED);
   
   int edgeflag;
   
@@ -245,13 +236,13 @@ MH_P_FN(MH_BDStratTNT) {
                          Mhead, // head
                          sto->nodesvec[strattailtype], // tails
                          sto->nodesvec[stratheadtype], // heads
-                         sto->BDtailsbyStrattype[strat_i], // tailattrs
-                         sto->BDheadsbyStrattype[strat_i], // headattrs
+                         sto->bd_tails, // tailattrs
+                         sto->bd_heads, // headattrs
                          sto->attrcounts[strattailtype], // tailcounts
                          sto->attrcounts[stratheadtype], // headcounts
-                         sto->BDtypesbyStrattype[strat_i], // length
+                         sto->bd_mixtypes[strat_diag], // length
                          ndyadstype, // dyadcount
-                         strattailtype == stratheadtype, // diagonal
+                         strat_diag, // diagonal
                          DIRECTED); // directed; always FALSE in BDStratTNT
 
     // now check if the dyad we drew is already an edge or not
@@ -285,7 +276,7 @@ MH_P_FN(MH_BDStratTNT) {
   }
 
   // compute proposed dyad count for current mixing type (only)
-  Dyad proposeddyadstype = NodeListDyadCount(sto->attrcounts[strattailtype], sto->attrcounts[stratheadtype], sto->BDtailsbyStrattype[strat_i], sto->BDheadsbyStrattype[strat_i], sto->BDtypesbyStrattype[strat_i], strattailtype == stratheadtype, DIRECTED);
+  Dyad proposeddyadstype = NodeListDyadCount(sto->attrcounts[strattailtype], sto->attrcounts[stratheadtype], sto->bd_tails, sto->bd_heads, sto->bd_mixtypes[strat_diag], strat_diag, DIRECTED);
     
   // here we compute the proposedcumprob, checking only those
   // mixing types that can be influenced by toggles made on 
@@ -298,7 +289,7 @@ MH_P_FN(MH_BDStratTNT) {
   if(sto->attrcounts[sto->strattailtype][sto->bdtailtype] <= 2 || sto->attrcounts[sto->stratheadtype][sto->bdheadtype] <= 2) {
     
     // how many strat types do we need to check?
-    int ntocheck = (sto->strattailtype == sto->stratheadtype) ? sto->nstratlevels : 2*sto->nstratlevels;
+    int ntocheck = strat_diag ? sto->nstratlevels : 2*sto->nstratlevels;
 
     for(int i = 0; i < ntocheck; i++) {
       // find the index of the i'th strat type we need to check, by looking it up in the indmat
@@ -314,7 +305,7 @@ MH_P_FN(MH_BDStratTNT) {
       int toggle_curr = WtPopGetWt(infl_i, sto->wtp) > 0;
       
       // will we be able to toggle this mixing type in the proposed network? 
-      int toggle_prop = sto->els[infl_i]->nedges > 0 || NodeListDyadCountPositive(sto->attrcounts[sto->strattailtypes[infl_i]], sto->attrcounts[sto->stratheadtypes[infl_i]], sto->BDtailsbyStrattype[infl_i], sto->BDheadsbyStrattype[infl_i], sto->BDtypesbyStrattype[infl_i], sto->strattailtypes[infl_i] == sto->stratheadtypes[infl_i]);
+      int toggle_prop = sto->els[infl_i]->nedges > 0 || NodeListDyadCountPositive(sto->attrcounts[sto->strattailtypes[infl_i]], sto->attrcounts[sto->stratheadtypes[infl_i]], sto->bd_tails, sto->bd_heads, sto->bd_mixtypes[sto->strattailtypes[infl_i] == sto->stratheadtypes[infl_i]], sto->strattailtypes[infl_i] == sto->stratheadtypes[infl_i]);
       
       // will there be a change in toggleability status?
       int change = toggle_curr - toggle_prop;
@@ -512,9 +503,6 @@ MH_F_FN(Mf_BDStratTNT) {
 
   Free(sto->currentsubmaxledgestype);
   Free(sto->indmat);
-
-  Free(sto->BDtailsbyStrattype);
-  Free(sto->BDheadsbyStrattype);
 
   Free(sto->originalprobvec);
 
