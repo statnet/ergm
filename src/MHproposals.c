@@ -198,32 +198,11 @@ MH_I_FN(Mi_BDStratTNT) {
   // determine what mixing types are initially toggleable 
   double *currentprobvec = Calloc(sto->nmixtypes, double);  
   for(int i = 0; i < sto->nmixtypes; i++) {
-    if(sto->els[i]->nedges > 0) {
+    // if any edges or dyads of this type are toggleable
+    if(sto->els[i]->nedges > 0 || NodeListDyadCountPositive(sto->attrcounts[sto->strattailtypes[i]], sto->attrcounts[sto->stratheadtypes[i]], sto->BDtailsbyStrattype[i], sto->BDheadsbyStrattype[i], sto->BDtypesbyStrattype[i], sto->strattailtypes[i] == sto->stratheadtypes[i])) {
       currentprobvec[i] = sto->originalprobvec[i];
       sto->currentcumprob += sto->originalprobvec[i];
       sto->nmixtypes_toggleable++;
-      continue;        
-    }
-
-    for(int j = 0; j < sto->BDtypesbyStrattype[i]; j++) {
-      int tailcounts = sto->attrcounts[sto->strattailtypes[i]][sto->BDtailsbyStrattype[i][j]];
-      int headcounts = sto->attrcounts[sto->stratheadtypes[i]][sto->BDheadsbyStrattype[i][j]];
-      
-      if(sto->strattailtypes[i] != sto->stratheadtypes[i] || sto->BDtailsbyStrattype[i][j] != sto->BDheadsbyStrattype[i][j]) {
-        if(tailcounts > 0 && headcounts > 0) {
-          currentprobvec[i] = sto->originalprobvec[i];
-          sto->currentcumprob += sto->originalprobvec[i];
-          sto->nmixtypes_toggleable++;
-          break;        
-        }
-      } else {
-        if(tailcounts > 1) {
-          currentprobvec[i] = sto->originalprobvec[i];
-          sto->currentcumprob += sto->originalprobvec[i];
-          sto->nmixtypes_toggleable++;
-          break;
-        }
-      }
     }
   }
     
@@ -252,14 +231,7 @@ MH_P_FN(MH_BDStratTNT) {
   // number of edges of this mixing type
   int nedgestype = sto->els[strat_i]->nedges;
   
-  Dyad ndyadstype = 0;
-  for(int j = 0; j < sto->BDtypesbyStrattype[strat_i]; j++) {
-    if(strattailtype == stratheadtype && sto->BDtailsbyStrattype[strat_i][j] == sto->BDheadsbyStrattype[strat_i][j]) {
-      ndyadstype += (Dyad)sto->attrcounts[strattailtype][sto->BDtailsbyStrattype[strat_i][j]]*(sto->attrcounts[stratheadtype][sto->BDheadsbyStrattype[strat_i][j]] - 1)/2;
-    } else {
-      ndyadstype += (Dyad)sto->attrcounts[strattailtype][sto->BDtailsbyStrattype[strat_i][j]]*sto->attrcounts[stratheadtype][sto->BDheadsbyStrattype[strat_i][j]];
-    }
-  }
+  Dyad ndyadstype = NodeListDyadCount(sto->attrcounts[strattailtype], sto->attrcounts[stratheadtype], sto->BDtailsbyStrattype[strat_i], sto->BDheadsbyStrattype[strat_i], sto->BDtypesbyStrattype[strat_i], strattailtype == stratheadtype, DIRECTED);
   
   int edgeflag;
   
@@ -303,6 +275,18 @@ MH_P_FN(MH_BDStratTNT) {
   sto->tailmaxl = IN_DEG[Mtail[0]] + OUT_DEG[Mtail[0]] == sto->bound - 1 + edgeflag;
   sto->headmaxl = IN_DEG[Mhead[0]] + OUT_DEG[Mhead[0]] == sto->bound - 1 + edgeflag;
     
+    
+  // temporarily set tail and head toggleability to what it would be in the proposed network
+  if(sto->tailmaxl) {
+    NodeListToggleKnown(*Mtail, sto->nodesvec[sto->strattailtype][sto->bdtailtype], sto->nodepos, sto->attrcounts[sto->strattailtype] + sto->bdtailtype, !edgeflag);
+  }
+  if(sto->headmaxl) {
+    NodeListToggleKnown(*Mhead, sto->nodesvec[sto->stratheadtype][sto->bdheadtype], sto->nodepos, sto->attrcounts[sto->stratheadtype] + sto->bdheadtype, !edgeflag);
+  }
+
+  // compute proposed dyad count for current mixing type (only)
+  Dyad proposeddyadstype = NodeListDyadCount(sto->attrcounts[strattailtype], sto->attrcounts[stratheadtype], sto->BDtailsbyStrattype[strat_i], sto->BDheadsbyStrattype[strat_i], sto->BDtypesbyStrattype[strat_i], strattailtype == stratheadtype, DIRECTED);
+    
   // here we compute the proposedcumprob, checking only those
   // mixing types that can be influenced by toggles made on 
   // the current mixing type
@@ -312,144 +296,49 @@ MH_P_FN(MH_BDStratTNT) {
   // where you have enough submaximal nodes that you cannot
   // be exhausting any mixing types of toggleable dyads
   if(sto->attrcounts[sto->strattailtype][sto->bdtailtype] <= 2 || sto->attrcounts[sto->stratheadtype][sto->bdheadtype] <= 2) {
-    if(sto->nmixtypes_toggleable < sto->nmixtypes_max && edgeflag) {
-      // we are proposing removing an edge of the current mixing type and need to make sure 
-      // that any influenced mixing type that couldn't be toggled before this toggle
-      // but could be toggled after this toggle gets its prob added to proposedcumprob;
-      // note that if proposedcumprob = 1 in the test above then all mixing types were
-      // toggleable before this off-toggle and that will remain the case afterward, so
-      // there is nothing to do
-      int ntocheck = (2 - ((sto->strattailtype == sto->stratheadtype) || BIPARTITE))*sto->nstratlevels;
-      for(int i = 0; i < ntocheck; i++) {
-        int infl_i;
-        if(i < sto->nstratlevels) {
-          infl_i = sto->indmat[sto->strattailtype][i];
-        } else {
-          infl_i = sto->indmat[i - sto->nstratlevels][sto->stratheadtype];  
-        }
-        if(infl_i < 0 || infl_i == sto->stratmixingtype) {
-          continue;
-        }
+    
+    // how many strat types do we need to check?
+    int ntocheck = (sto->strattailtype == sto->stratheadtype) ? sto->nstratlevels : 2*sto->nstratlevels;
 
-        if(WtPopGetWt(infl_i, sto->wtp) > 0) {
-          continue;
-        }
-        // else there are no toggleable dyads of type infl_i in the current network;
-        // we need to check if that changes after hypothetically removing the proposed edge
-        int anytoggleable = FALSE;
-        
-        for(int j = 0; j < sto->BDtypesbyStrattype[infl_i]; j++) {
-          // adjustments
-          int proposedtailadjustment = (sto->strattailtype == sto->strattailtypes[infl_i] && sto->bdtailtype == sto->BDtailsbyStrattype[infl_i][j] && sto->tailmaxl) + (sto->stratheadtype == sto->strattailtypes[infl_i] && sto->bdheadtype == sto->BDtailsbyStrattype[infl_i][j] && sto->headmaxl);
-          int proposedheadadjustment = (sto->strattailtype == sto->stratheadtypes[infl_i] && sto->bdtailtype == sto->BDheadsbyStrattype[infl_i][j] && sto->tailmaxl) + (sto->stratheadtype == sto->stratheadtypes[infl_i] && sto->bdheadtype == sto->BDheadsbyStrattype[infl_i][j] && sto->headmaxl);
-          
-          int tailcounts = sto->attrcounts[sto->strattailtypes[infl_i]][sto->BDtailsbyStrattype[infl_i][j]];
-          int headcounts = sto->attrcounts[sto->stratheadtypes[infl_i]][sto->BDheadsbyStrattype[infl_i][j]];
-          
-          proposedtailadjustment = -proposedtailadjustment;
-          proposedheadadjustment = -proposedheadadjustment;
-          
-          if(tailcounts > proposedtailadjustment && headcounts > proposedheadadjustment + (sto->strattailtypes[infl_i] == sto->stratheadtypes[infl_i] && sto->BDtailsbyStrattype[infl_i][j] == sto->BDheadsbyStrattype[infl_i][j])) {
-            anytoggleable = TRUE;
-            break;
-          }      
-        }
-        
-        if(anytoggleable) {
-          sto->proposedcumprob += sto->originalprobvec[infl_i];
-          sto->mixtypestoupdate[sto->nmixtypestoupdate] = infl_i;
-          sto->nmixtypestoupdate++;
-        }
+    for(int i = 0; i < ntocheck; i++) {
+      // find the index of the i'th strat type we need to check, by looking it up in the indmat
+      int infl_i = sto->indmat[i < sto->nstratlevels ? sto->strattailtype : i - sto->nstratlevels][i < sto->nstratlevels ? i : sto->stratheadtype];
+
+      // if this strat type is not included in the proposal, or is the same as the strat type of the proposed toggle,
+      // then it cannot change toggleability status, so skip it
+      if(infl_i < 0 || infl_i == strat_i) {
+        continue;
       }
-    } else if(!edgeflag) {
-      // we are proposing toggling on an edge of the current mixing type, and need to make
-      // sure that any influenced mixing type that could be toggled before this toggle
-      // can also be toggled after this toggle, or else has its prob subtracted accordingly
-      int ntocheck = (2 - ((sto->strattailtype == sto->stratheadtype) || BIPARTITE))*sto->nstratlevels;
-      for(int i = 0; i < ntocheck; i++) {
-        int infl_i;
-        if(i < sto->nstratlevels) {
-          infl_i = sto->indmat[sto->strattailtype][i];
-        } else {
-          infl_i = sto->indmat[i - sto->nstratlevels][sto->stratheadtype];  
-        }
-        if(infl_i < 0 || infl_i == sto->stratmixingtype) {
-          continue;
-        }
+      
+      // can we toggle this mixing type in the current network?
+      int toggle_curr = WtPopGetWt(infl_i, sto->wtp) > 0;
+      
+      // will we be able to toggle this mixing type in the proposed network? 
+      int toggle_prop = sto->els[infl_i]->nedges > 0 || NodeListDyadCountPositive(sto->attrcounts[sto->strattailtypes[infl_i]], sto->attrcounts[sto->stratheadtypes[infl_i]], sto->BDtailsbyStrattype[infl_i], sto->BDheadsbyStrattype[infl_i], sto->BDtypesbyStrattype[infl_i], sto->strattailtypes[infl_i] == sto->stratheadtypes[infl_i]);
+      
+      // will there be a change in toggleability status?
+      int change = toggle_curr - toggle_prop;
 
-        if(WtPopGetWt(infl_i, sto->wtp) == 0 || sto->els[infl_i]->nedges > 0) {
-          continue;
-        }
-        // else there are no toggleable dyads of type infl_i in the current network;
-        // we need to check if that changes after hypothetically removing the proposed edge
-        int anytoggleable = FALSE;
-        
-        for(int j = 0; j < sto->BDtypesbyStrattype[infl_i]; j++) {
-          // adjustments
-          int proposedtailadjustment = (sto->strattailtype == sto->strattailtypes[infl_i] && sto->bdtailtype == sto->BDtailsbyStrattype[infl_i][j] && sto->tailmaxl) + (sto->stratheadtype == sto->strattailtypes[infl_i] && sto->bdheadtype == sto->BDtailsbyStrattype[infl_i][j] && sto->headmaxl);
-          int proposedheadadjustment = (sto->strattailtype == sto->stratheadtypes[infl_i] && sto->bdtailtype == sto->BDheadsbyStrattype[infl_i][j] && sto->tailmaxl) + (sto->stratheadtype == sto->stratheadtypes[infl_i] && sto->bdheadtype == sto->BDheadsbyStrattype[infl_i][j] && sto->headmaxl);
-          
-          int tailcounts = sto->attrcounts[sto->strattailtypes[infl_i]][sto->BDtailsbyStrattype[infl_i][j]];
-          int headcounts = sto->attrcounts[sto->stratheadtypes[infl_i]][sto->BDheadsbyStrattype[infl_i][j]];
-                
-          if(tailcounts > proposedtailadjustment && headcounts > proposedheadadjustment + (sto->strattailtypes[infl_i] == sto->stratheadtypes[infl_i] && sto->BDtailsbyStrattype[infl_i][j] == sto->BDheadsbyStrattype[infl_i][j])) {
-            anytoggleable = TRUE;
-            break;
-          }      
-        }
-        
-        if(!anytoggleable) {
-          sto->proposedcumprob -= sto->originalprobvec[infl_i];
-          sto->mixtypestoupdate[sto->nmixtypestoupdate] = infl_i;
-          sto->nmixtypestoupdate++;          
-        }
-      }    
+      // if so, take this into account      
+      if(change) {
+        sto->proposedcumprob -= change*sto->originalprobvec[infl_i];
+        sto->mixtypestoupdate[sto->nmixtypestoupdate] = infl_i;
+        sto->nmixtypestoupdate++;        
+      }
     }
   }
   
-  // need to compute proposed dyad count for current mixing type (only)
-  Dyad proposeddyadstype = ndyadstype;
+  // restore tail and head toggleability to their current status
+  if(sto->tailmaxl) {
+    NodeListToggleKnown(*Mtail, sto->nodesvec[sto->strattailtype][sto->bdtailtype], sto->nodepos, sto->attrcounts[sto->strattailtype] + sto->bdtailtype, edgeflag);
+  }
+  if(sto->headmaxl) {
+    NodeListToggleKnown(*Mhead, sto->nodesvec[sto->stratheadtype][sto->bdheadtype], sto->nodepos, sto->attrcounts[sto->stratheadtype] + sto->bdheadtype, edgeflag);
+  }
+
 
   int delta = edgeflag ? +1 : -1;
-
-  for(int j = 0; j < sto->BDtypesbyStrattype[strat_i]; j++) {
-    int corr = 0;
-    int ha = 0;
-
-    if(sto->strattailtype == sto->stratheadtypes[strat_i] && sto->bdtailtype == sto->BDheadsbyStrattype[strat_i][j] && sto->tailmaxl) {
-      ha += delta;
-      corr += sto->attrcounts[sto->strattailtypes[strat_i]][sto->BDtailsbyStrattype[strat_i][j]];
-    }
-      
-    if(sto->stratheadtype == sto->stratheadtypes[strat_i] && sto->bdheadtype == sto->BDheadsbyStrattype[strat_i][j] && sto->headmaxl) {
-      ha += delta;
-      corr += sto->attrcounts[sto->strattailtypes[strat_i]][sto->BDtailsbyStrattype[strat_i][j]];        
-    }
-      
-    if(sto->strattailtype == sto->strattailtypes[strat_i] && sto->bdtailtype == sto->BDtailsbyStrattype[strat_i][j] && sto->tailmaxl) {
-      corr += sto->attrcounts[sto->stratheadtypes[strat_i]][sto->BDheadsbyStrattype[strat_i][j]] + ha;
-    }
-      
-    if(sto->stratheadtype == sto->strattailtypes[strat_i] && sto->bdheadtype == sto->BDtailsbyStrattype[strat_i][j] && sto->headmaxl) {
-      corr += sto->attrcounts[sto->stratheadtypes[strat_i]][sto->BDheadsbyStrattype[strat_i][j]] + ha;
-    }
-      
-    if(sto->strattailtypes[strat_i] == sto->stratheadtypes[strat_i] && sto->BDtailsbyStrattype[strat_i][j] == sto->BDheadsbyStrattype[strat_i][j]) {
-      if(edgeflag) {
-        corr -= ha;
-      } else {
-        corr += ha;
-      }
-      corr /= 2;
-    }
-    
-    if(edgeflag) {
-      proposeddyadstype += corr;
-    } else {
-      proposeddyadstype -= corr;
-    }      
-  }
-  
+  // for the logratio, we will need to know the number of submaxl edges in the proposed network
   int proposedsubmaxledgestype = sto->currentsubmaxledgestype[strat_i];
   
   // if we are adding an edge that will be submaximal in the post-toggle 
@@ -691,13 +580,7 @@ MH_I_FN(Mi_BDTNT) {
   });
   
   // count number of "BD-toggleable" dyads in current network
-  for(int i = 0; i < sto->nmixtypes; i++) {
-    if(sto->tailtypes[i] == sto->headtypes[i]) { // Includes a diagonal dyad.
-      sto->currentdyads += (Dyad)sto->attrcounts[sto->tailtypes[i]]*(sto->attrcounts[sto->headtypes[i]] - 1)/2;
-    } else { // Includes a nondiagonal dyad.
-      sto->currentdyads += (Dyad)sto->attrcounts[sto->tailtypes[i]]*sto->attrcounts[sto->headtypes[i]];
-    }
-  }
+  sto->currentdyads = NodeListDyadCount(sto->attrcounts, sto->attrcounts, sto->tailtypes, sto->headtypes, sto->nmixtypes, TRUE, DIRECTED);
 
   // if we cannot toggle any edges or dyads, error
   if(EDGECOUNT(nwp) == 0 && sto->currentdyads == 0) {
@@ -753,52 +636,29 @@ MH_P_FN(MH_BDTNT) {
   
   sto->tailmaxl = IN_DEG[Mtail[0]] + OUT_DEG[Mtail[0]] == sto->bound - 1 + edgeflag;
   sto->headmaxl = IN_DEG[Mhead[0]] + OUT_DEG[Mhead[0]] == sto->bound - 1 + edgeflag;   
-        
+  
+  
+  // temporarily make tail and head assume their submaximal status in the proposed network
+  // so we can easily compute the number of "BD toggleable dyads" in the proposed network
+  if(sto->tailmaxl) {
+    NodeListToggleKnown(*Mtail, sto->nodesvec[sto->tailtype], sto->nodepos, sto->attrcounts + sto->tailtype, !edgeflag);
+  }
+  if(sto->headmaxl) {
+    NodeListToggleKnown(*Mhead, sto->nodesvec[sto->headtype], sto->nodepos, sto->attrcounts + sto->headtype, !edgeflag);    
+  }
   // the count of dyads that can be toggled in the "GetRandBDDyad" branch,
   // in the proposed network
-  sto->proposeddyads = sto->currentdyads;
-
-  // Update the number of toggleable dyads.
-  int delta = edgeflag ? +1 : -1;
-  
-  for(int i = 0; i < sto->nmixtypes; i++) {
-    int corr = 0; // Change to the number of dyads that can be selected.
-    int ha = 0; // "Head adjustment": prevent double-counting.
-
-    if(sto->tailtype == sto->headtypes[i] && sto->tailmaxl) {
-      ha += delta;
-      corr += sto->attrcounts[sto->tailtypes[i]];
-    }
-      
-    if(sto->headtype == sto->headtypes[i] && sto->headmaxl) {
-      ha += delta;
-      corr += sto->attrcounts[sto->tailtypes[i]];        
-    }
-      
-    if(sto->tailtype == sto->tailtypes[i] && sto->tailmaxl) {
-      corr += sto->attrcounts[sto->headtypes[i]] + ha;
-    }
-      
-    if(sto->headtype == sto->tailtypes[i] && sto->headmaxl) {
-      corr += sto->attrcounts[sto->headtypes[i]] + ha;
-    }
-      
-    if(sto->tailtypes[i] == sto->headtypes[i]) {
-      if(edgeflag) {
-        corr -= ha;
-      } else {
-        corr += ha;
-      }
-      corr /= 2;
-    }
-    
-    if(edgeflag) {
-      sto->proposeddyads += corr;
-    } else {
-      sto->proposeddyads -= corr;
-    }
+  sto->proposeddyads = NodeListDyadCount(sto->attrcounts, sto->attrcounts, sto->tailtypes, sto->headtypes, sto->nmixtypes, TRUE, DIRECTED);
+  // now restore tail and head to their current state, since we won't necesssarily accept this proposed toggle
+  if(sto->tailmaxl) {
+    NodeListToggleKnown(*Mtail, sto->nodesvec[sto->tailtype], sto->nodepos, sto->attrcounts + sto->tailtype, edgeflag);
+  }
+  if(sto->headmaxl) {
+    NodeListToggleKnown(*Mhead, sto->nodesvec[sto->headtype], sto->nodepos, sto->attrcounts + sto->headtype, edgeflag);    
   }
   
+  // calculate the number of submaximal edges in the proposed network
+  int delta = edgeflag ? +1 : -1;  
   sto->proposedsubmaxledges = sto->currentsubmaxledges;
   
   // if we are adding an edge that will be submaximal in the post-toggle 
@@ -978,26 +838,12 @@ MH_I_FN(Mi_StratTNT) {
   
   sto->ndyadstype = Calloc(sto->nmixtypes, Dyad);
   for(int i = 0; i < sto->nmixtypes; i++) {
-    int tailtype = sto->tailtypes[i];
-    int headtype = sto->headtypes[i];
-    
-    int tailcounts = sto->nodecountsbycode[tailtype];
-    int headcounts = sto->nodecountsbycode[headtype];
-    
-    if(tailtype == headtype) {
-      // positive proposal probability with zero dyads is an error;
-      // note that we may wish to relax this condition
-      if(tailcounts == 1 && WtPopGetWt(i, sto->wtp) > 0) {
-        MHp->ntoggles = MH_FAILED;
-        return;
-      }
-      if(DIRECTED) {
-        sto->ndyadstype[i] = (Dyad)tailcounts*(headcounts - 1);
-      } else {
-        sto->ndyadstype[i] = (Dyad)tailcounts*(headcounts - 1)/2;
-      }
-    } else {
-      sto->ndyadstype[i] = (Dyad)tailcounts*headcounts;
+    sto->ndyadstype[i] = NodeListDyadCount(sto->nodecountsbycode, sto->nodecountsbycode, sto->tailtypes + i, sto->headtypes + i, 1, TRUE, DIRECTED);
+    // positive proposal probability with zero dyads is an error;
+    // note that we may wish to relax this condition
+    if(sto->ndyadstype[i] == 0 && WtPopGetWt(i, sto->wtp) > 0) {
+      MHp->ntoggles = MH_FAILED;
+      return;        
     }
   }
 }
