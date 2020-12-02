@@ -14,21 +14,21 @@ test_that("bipartite terms abort for missing data when they should and not when 
   nw %v% "b2only" <- c(NA,NA,NA,NA,3,3,3,4,4,4)
   nw %v% "both" <- c(1,2,1,2,3,3,3,4,4,4)
   
-  expect_error(summary(nw ~ b1degrange(from=1, by="b1only")), NA)
-  expect_error(summary(nw ~ b1degrange(from=1, by="b2only")))
-  expect_error(summary(nw ~ b1degrange(from=1, by="both")), NA)
+  expect_error(summary(nw ~ b1degrange(from=1, b1attr="b1only")), NA)
+  expect_error(summary(nw ~ b1degrange(from=1, b1attr="b2only")))
+  expect_error(summary(nw ~ b1degrange(from=1, b1attr="both")), NA)
                
-  expect_error(summary(nw ~ b1degrange(from=1, by="b1only", homophily=TRUE)))
-  expect_error(summary(nw ~ b1degrange(from=1, by="b2only", homophily=TRUE)))
-  expect_error(summary(nw ~ b1degrange(from=1, by="both", homophily=TRUE)), NA)
+  expect_error(summary(nw ~ b1degrange(from=1, b1attr="b1only", homophily=TRUE)))
+  expect_error(summary(nw ~ b1degrange(from=1, b1attr="b2only", homophily=TRUE)))
+  expect_error(summary(nw ~ b1degrange(from=1, b1attr="both", homophily=TRUE)), NA)
 
-  expect_error(summary(nw ~ b2degrange(from=1, by="b1only")))
-  expect_error(summary(nw ~ b2degrange(from=1, by="b2only")), NA)
-  expect_error(summary(nw ~ b2degrange(from=1, by="both")), NA)
+  expect_error(summary(nw ~ b2degrange(from=1, b2attr="b1only")))
+  expect_error(summary(nw ~ b2degrange(from=1, b2attr="b2only")), NA)
+  expect_error(summary(nw ~ b2degrange(from=1, b2attr="both")), NA)
                              
-  expect_error(summary(nw ~ b2degrange(from=1, by="b1only", homophily=TRUE)))
-  expect_error(summary(nw ~ b2degrange(from=1, by="b2only", homophily=TRUE)))
-  expect_error(summary(nw ~ b2degrange(from=1, by="both", homophily=TRUE)), NA)
+  expect_error(summary(nw ~ b2degrange(from=1, b2attr="b1only", homophily=TRUE)))
+  expect_error(summary(nw ~ b2degrange(from=1, b2attr="b2only", homophily=TRUE)))
+  expect_error(summary(nw ~ b2degrange(from=1, b2attr="both", homophily=TRUE)), NA)
 
   expect_error(summary(nw ~ gwb1degree(decay=0, fixed=TRUE, attr="b1only")), NA)
   expect_error(summary(nw ~ gwb1degree(decay=0, fixed=TRUE, attr="b2only")))
