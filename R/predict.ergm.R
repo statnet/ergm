@@ -82,7 +82,25 @@ predict.formula <- function(object, theta,
   
   # Transform extended ergmMPLE() output to matrix with 0s on the diagonal
   .df_to_matrix <- function(d) {
-    res <- tapply(predmat[,"p"], list(predmat[,"tail"], predmat[,"head"]), identity)
+    # Store tail and head vertex id and tie probability
+    tail <- d[, "tail"]
+    head <- d[, "head"]
+    p <- d[, "p"]
+    # Get the minimum and maximum vertex ids
+    vertexid_min <- min(tail)
+    vertexid_max <- max(head)
+    # Add loops for vertexid_min and vertexid_max to avoid the issue for undirected networks.
+    tail <- c(vertexid_min, tail, vertexid_max)
+    head <- c(vertexid_min, head, vertexid_max)
+    p <- c(0, p, 0)
+    # Get predicted adjacency matrix
+    res <- tapply(p, list(tail, head), identity)
+    # If undirected, replace the lower triangular matrix elements of the predicted adjacency matrix
+    if (is.na(res[nodeid_max, nodeid_min])) {
+      res[lower.tri(res)] <- 0
+      res <- res + t(res)
+    }
+    # Put zeros in the diagonals.
     diag(res) <- 0
     res
   }
