@@ -359,7 +359,7 @@ MH_P_FN(MH_BDStratTNT) {
       }
     }
     STEP_THROUGH_INEDGES(Mtail[0], e, v) {
-      if(IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->strattailtype][sto->strat_vattr[v]] == strat_i) {
+      if(IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->strat_vattr[v]][sto->strattailtype] == strat_i) {
         proposedsubmaxledgestype += delta;
       }
     }
@@ -373,7 +373,7 @@ MH_P_FN(MH_BDStratTNT) {
       }
     }
     STEP_THROUGH_INEDGES(Mhead[0], e, v) {
-      if(v != Mtail[0] && IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->stratheadtype][sto->strat_vattr[v]] == strat_i) {
+      if(v != Mtail[0] && IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->strat_vattr[v]][sto->stratheadtype] == strat_i) {
         proposedsubmaxledgestype += delta;
       }
     }
@@ -457,8 +457,8 @@ MH_U_FN(Mu_BDStratTNT) {
       }
     }
     STEP_THROUGH_INEDGES(tail, e, v) {
-      if(IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->strattailtype][sto->strat_vattr[v]] >= 0) {
-        sto->currentsubmaxledgestype[sto->indmat[sto->strattailtype][sto->strat_vattr[v]]] += delta;
+      if(IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->strat_vattr[v]][sto->strattailtype] >= 0) {
+        sto->currentsubmaxledgestype[sto->indmat[sto->strat_vattr[v]][sto->strattailtype]] += delta;
       }
     }
   }
@@ -471,8 +471,8 @@ MH_U_FN(Mu_BDStratTNT) {
       }
     }
     STEP_THROUGH_INEDGES(head, e, v) {
-      if(v != tail && IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->stratheadtype][sto->strat_vattr[v]] >= 0) {
-        sto->currentsubmaxledgestype[sto->indmat[sto->stratheadtype][sto->strat_vattr[v]]] += delta;
+      if(v != tail && IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->strat_vattr[v]][sto->stratheadtype] >= 0) {
+        sto->currentsubmaxledgestype[sto->indmat[sto->strat_vattr[v]][sto->stratheadtype]] += delta;
       }
     }
   }
