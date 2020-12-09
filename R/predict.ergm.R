@@ -96,7 +96,7 @@ predict.formula <- function(object, theta,
     # Get predicted adjacency matrix
     res <- tapply(p, list(tail, head), identity)
     # If undirected, replace the lower triangular matrix elements of the predicted adjacency matrix
-    if (is.na(res[nodeid_max, nodeid_min])) {
+    if (is.na(res[vertexid_max, vertexid_min])) {
       res[lower.tri(res)] <- 0
       res <- res + t(res)
     }

@@ -187,3 +187,32 @@ test_that("it works for offsets and non-finite offset coefs", {
     all(is.finite(p$p))
   )
 })
+
+
+
+
+test_that("predicting adjacency matrix for undirected networks works", {
+  # Prepare a network
+  g <- network::network.initialize(n = 5, directed = FALSE)
+  network::add.edges(g, tail = c(1, 2, 2, 4), head = c(2, 3, 4, 5))
+  network::set.vertex.attribute(g, attrname = "x", value = rnorm(5))
+  # Estimate logit
+  logit <- ergm(formula = g ~ edges + absdiff("x"), estimate = "MPLE")
+  param <- logit$coef
+  # Get predicted adjacency matrix using predict.ergm
+  pred_adj <- predict(logit, output = "matrix")
+  # True predicted adjacency matrix
+  x <- network::get.vertex.attribute(g, "x")
+  true_pred_adj <- matrix(0, nrow = 5, ncol = 5)
+  for (i in 1:5) {
+    for (j in 1:5) {
+      if (i != j) {
+        absdiff_x <- abs(x[i] - x[j])
+        p_ij <- 1 / (1 + exp(-(param[1] + param[2] * absdiff_x)))
+        true_pred_adj[i, j] <- p_ij
+      }
+    }
+  }
+  # Check if it works
+  expect_equal(pred_adj, true_pred_adj, check.attributes = FALSE)
+})
