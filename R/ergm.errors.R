@@ -48,7 +48,7 @@ ergm_Init_inform <- function(..., default.loc=NULL){
 }
 
 format.traceback <- function(x){
-  if(NVL2(nrow(x)==0,TRUE)) return(NULL)
+  if(EVL(nrow(x)==0,TRUE)) return(NULL)
   x <- x[nrow(x):1,]
   x <- paste0(ifelse(x$valued,"valued ", ""),
               x$type, " ",
