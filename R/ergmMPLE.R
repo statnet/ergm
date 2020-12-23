@@ -81,6 +81,7 @@
 #' \code{\link{control.ergm}} for details about all of the control parameters.
 #' @param verbose Logical; if \code{TRUE}, the program will print out some
 #' additional information.
+#' @template expand.bipartite
 #' @param \dots Additional arguments, to be passed to lower-level functions.
 #' @return
 #' 
@@ -167,7 +168,7 @@
 #' mplearray$predictor[1:5,1:5,1:3]
 #' mplearray$weights[1:5,1:5]
 #' @export ergmMPLE
-ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmodel=FALSE, output=c("matrix", "array", "dyadlist", "fit"), control=control.ergm(),
+ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmodel=FALSE, output=c("matrix", "array", "dyadlist", "fit"), expand.bipartite=FALSE, control=control.ergm(),
                      verbose=FALSE, ...){
   if(!missing(fitmodel)){
       warning("Argument fitmodel= to ergmMPLE() has been deprecated and will be removed in a future version. Use output=\"fit\" instead.")
@@ -218,7 +219,9 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmod
                 weights = pl$wend[o])
          },
          array = {
-           bip <- NVL(nw %n% "bipartite", 0)
+           # If expand.bipartite==TRUE, then no special treatment for bipartite networks is needed.
+           bip <- if(!expand.bipartite) NVL(nw %n% "bipartite", 0) else 0
+
            vn <- if(all(is.na(nw %v% "vertex.names"))) 1:network.size(nw) else nw %v% "vertex.names"
            t.names <- if(bip) vn[seq_len(bip)] else vn
            h.names <- if(bip) vn[-seq_len(bip)] else vn
@@ -230,11 +233,14 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmod
            
            for(k in seq_along(term.names))
              xa[cbind(pl$xmat.full[,1:2,drop=FALSE],k)] <- pl$xmat.full[,k+2]
-           
-           ym <- as.matrix(nw, matrix.type="adjacency")
 
-           wm <- matrix(0, nrow(ym), ncol(ym))
-           wm[cbind(pl$xmat.full[,1:2,drop=FALSE])] <- pl$wend
+           ym <- replace(matrix(NA, length(t.names), length(h.names), dimnames = list(tail = t.names, head = h.names)),
+                         pl$xmat.full[,1:2,drop=FALSE],
+                         pl$zy)
+
+           wm <- replace(matrix(0, length(t.names), length(h.names), dimnames = list(tail = t.names, head = h.names)),
+                         pl$xmat.full[,1:2,drop=FALSE],
+                         pl$wend)
 
            list(response = ym, predictor = xa, weights = wm)
          }

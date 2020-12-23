@@ -10,6 +10,7 @@ ergmMPLE(
   obs.constraints = ~-observed,
   fitmodel = FALSE,
   output = c("matrix", "array", "dyadlist", "fit"),
+  expand.bipartite = FALSE,
   control = control.ergm(),
   verbose = FALSE,
   ...
@@ -22,6 +23,8 @@ ergmMPLE(
 \item{fitmodel}{Deprecated. Use \code{output="fit"} instead.}
 
 \item{output}{Character, partially matched. See Value.}
+
+\item{expand.bipartite}{Logical. Specifies whether the output matrices (or array slices) representing dyads for bipartite networks are represented as rectangular matrices with first mode vertices in rows and second mode in columns, or as square matrices with dimension equalling the total number of vertices, containing with structural \code{NA}s or 0s within each mode.}
 
 \item{control}{A list of control parameters for tuning the fitting of an
 ERGM.  Most of these parameters are irrelevant in this context.  See

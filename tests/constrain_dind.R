@@ -88,6 +88,9 @@ test_dind_constr(y0, ~observed, Mmin, Mmax) # in the block OR unobserved
 #### Dyads operator ####
 ## TODO: Put in the same framework as the others.
 
+## Directed:
+
+# Set up:
 data(sampson)
 fix_g <- coef(ergm(samplike~edges, constraints=~Dyads(~nodematch("group"))))
 vary_g <- coef(ergm(samplike~edges, constraints=~Dyads(vary=~nodematch("group"))))
@@ -108,3 +111,14 @@ stopifnot(isTRUE(all.equal(fix_g_and_c,logit(sum((!g&!c)*m)/(sum(!g&!c))),check.
 stopifnot(isTRUE(all.equal(fix_g_vary_c,logit(sum((!g|c)*m)/(sum(!g|c)-n)),check.attributes=FALSE)))
 stopifnot(isTRUE(all.equal(vary_g_or_c,logit(sum((g|c)*m)/(sum(g|c)-n)),check.attributes=FALSE)))
 stopifnot(isTRUE(all.equal(vary_g_fix_c,logit(sum((g&!c)*m)/(sum(g&!c))),check.attributes=FALSE)))
+
+## Bipartite undirected:
+data(florentine)
+bfl <- get.inducedSubgraph(flomarriage, 1:7, 8:16)
+fix_g <- coef(ergm(bfl~edges, constraints=~Dyads(~nodematch(~wealth>median(wealth)))))
+
+m <- as.matrix(bfl)
+wealth <- bfl %v% "wealth"
+wealth01 <- wealth > median(wealth)
+w <- outer(wealth01[1:7],wealth01[8:16],FUN=`==`)
+stopifnot(isTRUE(all.equal(fix_g,logit(sum((!w)*m)/sum(!w)),check.attributes=FALSE)))
