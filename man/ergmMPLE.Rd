@@ -9,6 +9,7 @@ ergmMPLE(
   constraints = ~.,
   fitmodel = FALSE,
   output = c("matrix", "array", "fit"),
+  expand.bipartite = FALSE,
   as.initialfit = TRUE,
   control = control.ergm(),
   verbose = FALSE,
@@ -21,6 +22,8 @@ ergmMPLE(
 \item{fitmodel}{Deprecated. Use \code{output="fit"} instead.}
 
 \item{output}{Character, partially matched. See Value.}
+
+\item{expand.bipartite}{Logical. Specifies whether the output matrices (or array slices) representing dyads for bipartite networks are represented as rectangular matrices with first mode vertices in rows and second mode in columns, or as square matrices with dimension equalling the total number of vertices, containing with structural \code{NA}s or 0s within each mode.}
 
 \item{as.initialfit}{Logical. Specifies whether terms are initialized with
 argument \code{initialfit==TRUE} (the default). Generally, if \code{TRUE},
