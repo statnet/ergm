@@ -4,7 +4,7 @@
 [![Build Status](https://ci.appveyor.com/api/projects/status/8lxl3cm48ktlo9j3?svg=true)](https://ci.appveyor.com/project/statnet/ergm)
 [![rstudio mirror downloads](https://cranlogs.r-pkg.org/badges/ergm?color=2ED968)](https://cranlogs.r-pkg.org/)
 [![cran version](https://www.r-pkg.org/badges/version/ergm)](https://cran.r-project.org/package=ergm)
-
+[![R build status](https://github.com/statnet/ergm/workflows/R-CMD-check/badge.svg)](https://github.com/statnet/ergm/actions)
 
 An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGMs). 'ergm' is a part of the Statnet suite of packages for network analysis.
 
@@ -27,4 +27,4 @@ A set of binaries is built after every commit to the public repository. We stron
 
 You will need to extract the MacOS `.tgz` or the Windows `.zip` file from the outer `.zip` file before installing. These binaries are usually built under the latest version of R and their operating system and may not work under other versions.
 
-You may also want to install the corresponding latest binaries for packages on which `ergm` depends, including `statnet.common`, `rle`, and `network`.
+You may also want to install the corresponding latest binaries for packages on which `ergm` depends, including [`rle`](https://github.com/statnet/rle), [`statnet.common`](https://github.com/statnet/statnet.common), and [`network`](https://github.com/statnet/network).
