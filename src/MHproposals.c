@@ -91,6 +91,7 @@ MH_F_FN(Mf_TNT){
   MH_STORAGE = NULL;
 }
 
+
 /********************
     MH_BDStratTNT
 ********************/
@@ -169,6 +170,9 @@ MH_I_FN(Mi_BDStratTNT) {
       sto->attrcounts[sto->strat_vattr[vertex]][sto->bd_vattr[vertex]]++;
     }
   }
+  
+  sto->nodes = Calloc(2, Vertex);
+  sto->maxl = Calloc(2, int);
   
   sto->originalprobvec = Calloc(sto->nmixtypes, double);
   int empirical_flag = asInteger(getListElement(MHp->R, "empirical_flag"));
@@ -265,15 +269,16 @@ MH_P_FN(MH_BDStratTNT) {
   
   sto->tailmaxl = IN_DEG[Mtail[0]] + OUT_DEG[Mtail[0]] == sto->bound - 1 + edgeflag;
   sto->headmaxl = IN_DEG[Mhead[0]] + OUT_DEG[Mhead[0]] == sto->bound - 1 + edgeflag;
-    
+  
+  sto->nodes[0] = *Mtail;
+  sto->nodes[1] = *Mhead;
+
+  sto->maxl[0] = sto->tailmaxl;
+  sto->maxl[1] = sto->headmaxl;
     
   // temporarily set tail and head toggleability to what it would be in the proposed network
-  if(sto->tailmaxl) {
-    NodeListToggleKnown(*Mtail, sto->nodesvec[sto->strattailtype][sto->bdtailtype], sto->nodepos, sto->attrcounts[sto->strattailtype] + sto->bdtailtype, !edgeflag);
-  }
-  if(sto->headmaxl) {
-    NodeListToggleKnown(*Mhead, sto->nodesvec[sto->stratheadtype][sto->bdheadtype], sto->nodepos, sto->attrcounts[sto->stratheadtype] + sto->bdheadtype, !edgeflag);
-  }
+  NodeListToggleKnownIf(*Mtail, sto->nodesvec[sto->strattailtype][sto->bdtailtype], sto->nodepos, sto->attrcounts[sto->strattailtype] + sto->bdtailtype, !edgeflag, sto->tailmaxl);
+  NodeListToggleKnownIf(*Mhead, sto->nodesvec[sto->stratheadtype][sto->bdheadtype], sto->nodepos, sto->attrcounts[sto->stratheadtype] + sto->bdheadtype, !edgeflag, sto->headmaxl);
 
   // compute proposed dyad count for current mixing type (only)
   Dyad proposeddyadstype = NodeListDyadCount(sto->attrcounts[strattailtype], sto->attrcounts[stratheadtype], sto->bd_tails, sto->bd_heads, sto->bd_mixtypes[strat_diag], strat_diag, DIRECTED);
@@ -320,62 +325,32 @@ MH_P_FN(MH_BDStratTNT) {
   }
   
   // restore tail and head toggleability to their current status
-  if(sto->tailmaxl) {
-    NodeListToggleKnown(*Mtail, sto->nodesvec[sto->strattailtype][sto->bdtailtype], sto->nodepos, sto->attrcounts[sto->strattailtype] + sto->bdtailtype, edgeflag);
-  }
-  if(sto->headmaxl) {
-    NodeListToggleKnown(*Mhead, sto->nodesvec[sto->stratheadtype][sto->bdheadtype], sto->nodepos, sto->attrcounts[sto->stratheadtype] + sto->bdheadtype, edgeflag);
-  }
-
+  NodeListToggleKnownIf(*Mtail, sto->nodesvec[sto->strattailtype][sto->bdtailtype], sto->nodepos, sto->attrcounts[sto->strattailtype] + sto->bdtailtype, edgeflag, sto->tailmaxl);
+  NodeListToggleKnownIf(*Mhead, sto->nodesvec[sto->stratheadtype][sto->bdheadtype], sto->nodepos, sto->attrcounts[sto->stratheadtype] + sto->bdheadtype, edgeflag, sto->headmaxl);
 
   int delta = edgeflag ? +1 : -1;
   // for the logratio, we will need to know the number of submaxl edges in the proposed network
   int proposedsubmaxledgestype = sto->currentsubmaxledgestype[strat_i];
-  
+
   // if we are adding an edge that will be submaximal in the post-toggle 
-  // network, then increment proposedsubmaxledgestype for this particular edge
-  if(!edgeflag && !sto->tailmaxl && !sto->headmaxl) {
-    proposedsubmaxledgestype++;
-  }
-  
+  // network, then increment proposedsubmaxledgestype for this particular edge;
   // if we are removing an edge that is submaximal in the current
   // network, decrement proposedsubmaxledgestype for this particular edge
-  if(edgeflag && !sto->tailmaxl && !sto->headmaxl) {
-    proposedsubmaxledgestype--;
+  if(!sto->tailmaxl && !sto->headmaxl) {
+    proposedsubmaxledgestype -= delta;
   }
 
-  Edge e;
-  Vertex v;
-
-  // if tail will change maximality on toggle, then adjust
-  // proposedsubmaxledgestype for all edges between tail and
-  // a submaximal neighbor v with the edge between tail and v
-  // having the mixing type strat_i, taking care not to count head,
+  // if a node in the proposal dyad will change maximality on toggle,
+  // then adjust proposedsubmaxledgestype as necessary for all edges 
+  // incident on that node, taking care not to count the proposal dyad, 
   // since that was handled separately above
-  if(sto->tailmaxl) {
-    STEP_THROUGH_OUTEDGES(Mtail[0], e, v) {
-      if(v != Mhead[0] && IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->strattailtype][sto->strat_vattr[v]] == strat_i) {
-        proposedsubmaxledgestype += delta;
-      }
-    }
-    STEP_THROUGH_INEDGES(Mtail[0], e, v) {
-      if(IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->strat_vattr[v]][sto->strattailtype] == strat_i) {
-        proposedsubmaxledgestype += delta;
-      }
-    }
-  }
-  
-  // ditto head
-  if(sto->headmaxl) {
-    STEP_THROUGH_OUTEDGES(Mhead[0], e, v) {
-      if(IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->stratheadtype][sto->strat_vattr[v]] == strat_i) {
-        proposedsubmaxledgestype += delta;
-      }
-    }
-    STEP_THROUGH_INEDGES(Mhead[0], e, v) {
-      if(v != Mtail[0] && IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->strat_vattr[v]][sto->stratheadtype] == strat_i) {
-        proposedsubmaxledgestype += delta;
-      }
+  for(int i = 0; i < 2; i++) {
+    if(sto->maxl[i]) {
+      EXEC_THROUGH_EDGES_EATH_NET_DECL(sto->nodes[i], ego, alter, tail, head, edge, nwp, {
+        if(alter != sto->nodes[1 - i] && IN_DEG[alter] + OUT_DEG[alter] < sto->bound && sto->indmat[sto->strat_vattr[tail]][sto->strat_vattr[head]] == strat_i) {
+          proposedsubmaxledgestype += delta;
+        }
+      });
     }
   }
   
@@ -404,13 +379,9 @@ MH_U_FN(Mu_BDStratTNT) {
   // update edgelist
   UnsrtELToggleKnown(tail, head, sto->els[sto->stratmixingtype], edgeflag);
 
-  // update nodelists
-  if(sto->tailmaxl) {
-    NodeListToggleKnown(tail, sto->nodesvec[sto->strattailtype][sto->bdtailtype], sto->nodepos, sto->attrcounts[sto->strattailtype] + sto->bdtailtype, !edgeflag);
-  }
-  if(sto->headmaxl) {
-    NodeListToggleKnown(head, sto->nodesvec[sto->stratheadtype][sto->bdheadtype], sto->nodepos, sto->attrcounts[sto->stratheadtype] + sto->bdheadtype, !edgeflag);
-  }
+  // update nodelists as needed
+  NodeListToggleKnownIf(tail, sto->nodesvec[sto->strattailtype][sto->bdtailtype], sto->nodepos, sto->attrcounts[sto->strattailtype] + sto->bdtailtype, !edgeflag, sto->tailmaxl);
+  NodeListToggleKnownIf(head, sto->nodesvec[sto->stratheadtype][sto->bdheadtype], sto->nodepos, sto->attrcounts[sto->stratheadtype] + sto->bdheadtype, !edgeflag, sto->headmaxl);
 
   // if any strat mixing types have changed toggleability status, update prob info accordingly
   if(sto->nmixtypestoupdate > 0) {
@@ -428,52 +399,28 @@ MH_U_FN(Mu_BDStratTNT) {
       }
     }
   }
-  
-  // if we are adding an edge that will be submaximal in the post-toggle 
-  // network, then increment currentsubmaxledgestype for this particular edge
-  if(!edgeflag && !sto->tailmaxl && !sto->headmaxl) {
-    sto->currentsubmaxledgestype[sto->stratmixingtype]++;
-  }
-  
-  // if we are removing an edge that is submaximal in the current
-  // network, decrement currentsubmaxledgestype for this particular edge
-  if(edgeflag && !sto->tailmaxl && !sto->headmaxl) {
-    sto->currentsubmaxledgestype[sto->stratmixingtype]--;
-  }
 
   int delta = edgeflag ? +1 : -1;
-
-  Edge e;
-  Vertex v;
-
-  // if tail will change maximality on toggle, then adjust
-  // currentsubmaxledgestype for all edges between tail and
-  // a submaximal neighbor v, taking care not to count head,
-  // since that was handled separately above
-  if(sto->tailmaxl) {
-    STEP_THROUGH_OUTEDGES(tail, e, v) {
-      if(v != head && IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->strattailtype][sto->strat_vattr[v]] >= 0) {
-        sto->currentsubmaxledgestype[sto->indmat[sto->strattailtype][sto->strat_vattr[v]]] += delta;
-      }
-    }
-    STEP_THROUGH_INEDGES(tail, e, v) {
-      if(IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->strat_vattr[v]][sto->strattailtype] >= 0) {
-        sto->currentsubmaxledgestype[sto->indmat[sto->strat_vattr[v]][sto->strattailtype]] += delta;
-      }
-    }
-  }
   
-  // ditto head
-  if(sto->headmaxl) {
-    STEP_THROUGH_OUTEDGES(head, e, v) {
-      if(IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->stratheadtype][sto->strat_vattr[v]] >= 0) {
-        sto->currentsubmaxledgestype[sto->indmat[sto->stratheadtype][sto->strat_vattr[v]]] += delta;
-      }
-    }
-    STEP_THROUGH_INEDGES(head, e, v) {
-      if(v != tail && IN_DEG[v] + OUT_DEG[v] < sto->bound && sto->indmat[sto->strat_vattr[v]][sto->stratheadtype] >= 0) {
-        sto->currentsubmaxledgestype[sto->indmat[sto->strat_vattr[v]][sto->stratheadtype]] += delta;
-      }
+  // if we are adding an edge that will be submaximal in the post-toggle 
+  // network, then increment currentsubmaxledgestype for this particular edge;
+  // if we are removing an edge that is submaximal in the current
+  // network, decrement currentsubmaxledgestype for this particular edge
+  if(!sto->tailmaxl && !sto->headmaxl) {
+    sto->currentsubmaxledgestype[sto->stratmixingtype] -= delta;
+  }
+
+  // if a node in the proposal dyad will change maximality on toggle,
+  // then adjust currentsubmaxledgestype as necessary for all edges 
+  // incident on that node, taking care not to count the proposal dyad, 
+  // since that was handled separately above
+  for(int i = 0; i < 2; i++) {
+    if(sto->maxl[i]) {
+      EXEC_THROUGH_EDGES_EATH_NET_DECL(sto->nodes[i], ego, alter, _tail, _head, edge, nwp, {
+        if(alter != sto->nodes[1 - i] && IN_DEG[alter] + OUT_DEG[alter] < sto->bound && sto->indmat[sto->strat_vattr[_tail]][sto->strat_vattr[_head]] >= 0) {
+          sto->currentsubmaxledgestype[sto->indmat[sto->strat_vattr[_tail]][sto->strat_vattr[_head]]] += delta;
+        }
+      });
     }
   }
 }
@@ -481,6 +428,9 @@ MH_U_FN(Mu_BDStratTNT) {
 MH_F_FN(Mf_BDStratTNT) {
   // Free all the things
   GET_STORAGE(BDStratTNTStorage, sto);
+  
+  Free(sto->nodes);
+  Free(sto->maxl);
   
   for(int i = 0; i < sto->nstratlevels; i++) {
     Free(sto->attrcounts[i]);
@@ -539,6 +489,9 @@ MH_I_FN(Mi_BDTNT) {
   
   sto->vattr = INTEGER(getListElement(MHp->R, "nodecov")); // As in struct.
   sto->vattr--; // so node indices line up correctly
+  
+  sto->nodes = Calloc(2, Vertex); // tail and head of proposal dyad
+  sto->maxl = Calloc(2, int); // will tail, head change maximality status on toggle?
   
   sto->nodesvec = Calloc(sto->nlevels, Vertex *); // As in struct.
   sto->nodepos = Calloc(N_NODES + 1, int); // As in struct.
@@ -625,73 +578,48 @@ MH_P_FN(MH_BDTNT) {
   sto->tailmaxl = IN_DEG[Mtail[0]] + OUT_DEG[Mtail[0]] == sto->bound - 1 + edgeflag;
   sto->headmaxl = IN_DEG[Mhead[0]] + OUT_DEG[Mhead[0]] == sto->bound - 1 + edgeflag;   
   
+  sto->nodes[0] = *Mtail;
+  sto->nodes[1] = *Mhead;
+  
+  sto->maxl[0] = sto->tailmaxl;
+  sto->maxl[1] = sto->headmaxl;
   
   // temporarily make tail and head assume their submaximal status in the proposed network
   // so we can easily compute the number of "BD toggleable dyads" in the proposed network
-  if(sto->tailmaxl) {
-    NodeListToggleKnown(*Mtail, sto->nodesvec[sto->tailtype], sto->nodepos, sto->attrcounts + sto->tailtype, !edgeflag);
-  }
-  if(sto->headmaxl) {
-    NodeListToggleKnown(*Mhead, sto->nodesvec[sto->headtype], sto->nodepos, sto->attrcounts + sto->headtype, !edgeflag);    
-  }
+  NodeListToggleKnownIf(*Mtail, sto->nodesvec[sto->tailtype], sto->nodepos, sto->attrcounts + sto->tailtype, !edgeflag, sto->tailmaxl);
+  NodeListToggleKnownIf(*Mhead, sto->nodesvec[sto->headtype], sto->nodepos, sto->attrcounts + sto->headtype, !edgeflag, sto->headmaxl);    
+
   // the count of dyads that can be toggled in the "GetRandBDDyad" branch,
   // in the proposed network
   sto->proposeddyads = NodeListDyadCount(sto->attrcounts, sto->attrcounts, sto->tailtypes, sto->headtypes, sto->nmixtypes, TRUE, DIRECTED);
+
   // now restore tail and head to their current state, since we won't necesssarily accept this proposed toggle
-  if(sto->tailmaxl) {
-    NodeListToggleKnown(*Mtail, sto->nodesvec[sto->tailtype], sto->nodepos, sto->attrcounts + sto->tailtype, edgeflag);
-  }
-  if(sto->headmaxl) {
-    NodeListToggleKnown(*Mhead, sto->nodesvec[sto->headtype], sto->nodepos, sto->attrcounts + sto->headtype, edgeflag);    
-  }
+  NodeListToggleKnownIf(*Mtail, sto->nodesvec[sto->tailtype], sto->nodepos, sto->attrcounts + sto->tailtype, edgeflag, sto->tailmaxl);
+  NodeListToggleKnownIf(*Mhead, sto->nodesvec[sto->headtype], sto->nodepos, sto->attrcounts + sto->headtype, edgeflag, sto->headmaxl);    
   
   // calculate the number of submaximal edges in the proposed network
   int delta = edgeflag ? +1 : -1;  
   sto->proposedsubmaxledges = sto->currentsubmaxledges;
   
   // if we are adding an edge that will be submaximal in the post-toggle 
-  // network, then increment proposedsubmaxledges for this particular edge
-  if(!edgeflag && !sto->tailmaxl && !sto->headmaxl) {
-    sto->proposedsubmaxledges++;
-  }
-  
+  // network, then increment proposedsubmaxledges for this particular edge;
   // if we are removing an edge that is submaximal in the current
-  // network, decrement proposedsubmaxledges for this particular edge
-  if(edgeflag && !sto->tailmaxl && !sto->headmaxl) {
-    sto->proposedsubmaxledges--;
-  }
-
-  Edge e;
-  Vertex v;
-
-  // if tail will change maximality on toggle, then adjust
-  // proposedsubmaxledges for all edges between tail and
-  // a submaximal neighbor v, taking care not to count head,
-  // since that was handled separately above
-  if(sto->tailmaxl) {
-    STEP_THROUGH_OUTEDGES(Mtail[0], e, v) {
-      if(v != Mhead[0] && IN_DEG[v] + OUT_DEG[v] < sto->bound) {
-        sto->proposedsubmaxledges += delta;
-      }
-    }
-    STEP_THROUGH_INEDGES(Mtail[0], e, v) {
-      if(IN_DEG[v] + OUT_DEG[v] < sto->bound) {
-        sto->proposedsubmaxledges += delta;
-      }
-    }
+  // network, decrement proposedsubmaxledges for this particular edge  
+  if(!sto->tailmaxl && !sto->headmaxl) {
+    sto->proposedsubmaxledges -= delta;      
   }
   
-  // ditto head
-  if(sto->headmaxl) {
-    STEP_THROUGH_OUTEDGES(Mhead[0], e, v) {
-      if(IN_DEG[v] + OUT_DEG[v] < sto->bound) {
-        sto->proposedsubmaxledges += delta;
-      }
-    }
-    STEP_THROUGH_INEDGES(Mhead[0], e, v) {
-      if(v != Mtail[0] && IN_DEG[v] + OUT_DEG[v] < sto->bound) {
-        sto->proposedsubmaxledges += delta;
-      }
+  // if a node in the proposal dyad will change maximality on toggle,
+  // then adjust proposedsubmaxledges as necessary for all edges incident
+  // on that node, taking care not to count the proposal dyad, since that
+  // was handled separately above
+  for(int i = 0; i < 2; i++) {
+    if(sto->maxl[i]) {
+      EXEC_THROUGH_EDGES_EA_NET_DECL(sto->nodes[i], ego, alter, edge, nwp, {
+        if(alter != sto->nodes[1 - i] && IN_DEG[alter] + OUT_DEG[alter] < sto->bound) {
+          sto->proposedsubmaxledges += delta;
+        }
+      });
     }
   }
   
@@ -728,14 +656,10 @@ MH_U_FN(Mu_BDTNT) {
   // update edgelist
   UnsrtELToggleKnown(tail, head, sto->edgelist, edgeflag);
 
-  // update nodelists
-  if(sto->tailmaxl) {
-    NodeListToggleKnown(tail, sto->nodesvec[sto->tailtype], sto->nodepos, sto->attrcounts + sto->tailtype, !edgeflag);
-  }
-  if(sto->headmaxl) {
-    NodeListToggleKnown(head, sto->nodesvec[sto->headtype], sto->nodepos, sto->attrcounts + sto->headtype, !edgeflag);    
-  }
-  
+  // update nodelists as needed
+  NodeListToggleKnownIf(tail, sto->nodesvec[sto->tailtype], sto->nodepos, sto->attrcounts + sto->tailtype, !edgeflag, sto->tailmaxl);
+  NodeListToggleKnownIf(head, sto->nodesvec[sto->headtype], sto->nodepos, sto->attrcounts + sto->headtype, !edgeflag, sto->headmaxl);    
+
   // update current dyad count
   sto->currentdyads = sto->proposeddyads;
 
@@ -747,6 +671,9 @@ MH_F_FN(Mf_BDTNT) {
   // Free all the things
   GET_STORAGE(BDTNTStorage, sto);
   UnsrtELDestroy(sto->edgelist);
+
+  Free(sto->nodes);
+  Free(sto->maxl);
 
   Free(sto->attrcounts);
   Free(sto->nodepos);  
