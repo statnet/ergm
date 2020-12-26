@@ -85,6 +85,12 @@ static inline void NodeListToggleKnown(Vertex node, Vertex *nodevec, int *nodepo
   }
 }
 
+static inline void NodeListToggleKnownIf(Vertex node, Vertex *nodevec, int *nodepos, int *length, int nodeflag, int condition) {
+  if(condition) {
+    NodeListToggleKnown(node, nodevec, nodepos, length, nodeflag);
+  }
+}
+
 static inline Dyad NodeListDyadCount(int *tailcounts, int *headcounts, int *tailtypes, int *headtypes, int length, int diagonal, int directed) {
   Dyad dyadcount = 0;
   for(int i = 0; i < length; i++) {

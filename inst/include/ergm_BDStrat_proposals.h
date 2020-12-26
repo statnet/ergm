@@ -6,6 +6,41 @@
 #include "ergm_unsorted_edgelist.h"
 #include "ergm_weighted_population.h"
 
+#define OUTVAL_NET(e,n) ((n)->outedges[(e)].value)
+#define INVAL_NET(e,n) ((n)->inedges[(e)].value)
+#define MIN_OUTEDGE_NET(a,n) (EdgetreeMinimum((n)->outedges, (a)))
+#define MIN_INEDGE_NET(a,n) (EdgetreeMinimum((n)->inedges, (a)))
+#define NEXT_OUTEDGE_NET(e,n) (EdgetreeSuccessor((n)->outedges,(e)))
+#define NEXT_INEDGE_NET(e,n) (EdgetreeSuccessor((n)->inedges,(e)))
+#define STEP_THROUGH_OUTEDGES_NET(a,e,v,n) for((e)=MIN_OUTEDGE_NET((a),(n));((v)=OUTVAL_NET((e),(n)))!=0;(e)=NEXT_OUTEDGE_NET((e),(n)))
+#define STEP_THROUGH_INEDGES_NET(a,e,v,n) for((e)=MIN_INEDGE_NET((a),(n));((v)=INVAL_NET((e),(n)))!=0;(e)=NEXT_INEDGE_NET((e),(n)))
+
+#define EXEC_THROUGH_EDGES_EA_NET_DECL(node, ego, alter, edge, net, subroutine) { \
+  Vertex (ego) = (node); \
+  Vertex (alter); \
+  Edge (edge); \
+  for((edge) = MIN_OUTEDGE_NET((ego),(net)); ((alter) = OUTVAL_NET((edge),(net))) != 0; (edge) = NEXT_OUTEDGE_NET((edge),(net))) { \
+    (subroutine); \
+  } \
+  for((edge) = MIN_INEDGE_NET((ego),(net)); ((alter) = INVAL_NET((edge),(net))) != 0; (edge) = NEXT_INEDGE_NET((edge),(net))) { \
+    (subroutine); \
+  } \
+}
+
+#define EXEC_THROUGH_EDGES_EATH_NET_DECL(node, ego, alter, tail, head, edge, net, subroutine) { \
+  Vertex (ego) = (node); \
+  Vertex (alter), (tail), (head); \
+  Edge (edge); \
+  (tail) = (ego); \
+  for((edge) = MIN_OUTEDGE_NET((ego),(net)); ((head) = (alter) = OUTVAL_NET((edge),(net))) != 0; (edge) = NEXT_OUTEDGE_NET((edge),(net))) { \
+    (subroutine); \
+  } \
+  (head) = (ego); \
+  for((edge) = MIN_INEDGE_NET((ego),(net)); ((tail) = (alter) = INVAL_NET((edge),(net))) != 0; (edge) = NEXT_INEDGE_NET((edge),(net))) { \
+    (subroutine); \
+  } \
+}
+
 MH_I_FN(Mi_StratTNT);
 MH_I_FN(Mi_BDTNT);
 MH_I_FN(Mi_BDStratTNT);
@@ -57,6 +92,9 @@ typedef struct {
   // Parallel vectors of attribute combinations that are allowed.
   int *tailtypes;
   int *headtypes;
+  
+  Vertex *nodes;
+  int *maxl;  
 } BDTNTStorage;
 
 typedef struct {
@@ -106,6 +144,9 @@ typedef struct {
   
   int nmixtypestoupdate;
   int *mixtypestoupdate;
+
+  Vertex *nodes;
+  int *maxl;
 } BDStratTNTStorage;
 
 
