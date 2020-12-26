@@ -266,7 +266,7 @@ as.rlebdm.ergm_conlist <- function(x, constraints.obs = NULL, which = c("free", 
          },
          informative={
            y <- as.rlebdm(x)
-           NVL3(constraints.obs, compress(y & !as.rlebdm(x, ., which="missing")), y)
+           EVL3(constraints.obs, compress(y & !as.rlebdm(x, ., which="missing")), y)
          }
          )
 }
