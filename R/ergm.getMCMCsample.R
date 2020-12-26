@@ -82,6 +82,13 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
     out
   }
 
+  handle_statuses <- function(outl){
+    statuses <- map_int(outl,"status")
+    if(2L %in% statuses) stop("Sampling failed due to a Metropolis-Hastings proposal failing.") # MCMC_MH_FAILED: MH proposal failed somewhere. Throw an error.
+    else if(1L %in% statuses) 1L # MCMC_TOO_MANY_EDGES, exceeding even control.parallel$MCMC.maxedges
+    else 0L
+  }
+
   sms <- vector("list", nthreads(control))
   
   if(!is.null(control.parallel$MCMC.effectiveSize)){
@@ -116,9 +123,8 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
       outl<-doruns(burnin = interval, # I.e., skip that much before the first draw.
                    samplesize = samplesize,
                    interval = interval)
+      if(status <- handle_statuses(outl)) return(list(status=status)) # Stop if something went wrong.
 
-      # Stop if something went wrong.
-      if(any(map_int(outl,"status")!=0)) break
       sms <- mapply(rbind, sms, map(outl, "s"), SIMPLIFY=FALSE)
       state <- map(outl, "state")
       
@@ -168,6 +174,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
     }
   }else{
     outl <- doruns()
+    if(status <- handle_statuses(outl)) return(list(status=status)) # Stop if something went wrong.
     sms <- map(outl, "s")
     for(i in seq_along(outl)){
       sms[[i]] <- coda::mcmc(sms[[i]], control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval)
@@ -186,18 +193,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
   final.interval <- c()
   for(i in (1:nthreads(control))){
     z <- outl[[i]]
-    
-    if(z$status == 1){ # MCMC_TOO_MANY_EDGES, exceeding even control.parallel$MCMC.maxedges
-      return(list(status=z$status))
-    }
-    
-    if(z$status == 2){ # MCMC_MH_FAILED
-      # MH proposal failed somewhere. Throw an error.
-      stop("Sampling failed due to a Metropolis-Hastings proposal failing.")
-    }
-    
     statsmatrices[[i]] <- sms[[i]]
-
     newnetworks[[i]] <- update(state0[[i]], state=z$state)
     final.interval <- c(final.interval, z$final.interval)
   }
