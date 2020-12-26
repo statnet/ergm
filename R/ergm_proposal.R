@@ -229,7 +229,11 @@ ergm_proposal.character <- function(object, arguments, nw, ..., response=NULL, r
 #
 ########################################################################################
 
-ergm_conlist <- function(object, nw){
+ergm_conlist <- function(object, ...) UseMethod("ergm_conlist")
+
+ergm_conlist.NULL <- function(object, ...) structure(list(), class="ergm_conlist")
+
+ergm_conlist.formula <- function(object, nw){
   if(is.null(object)) return(NULL)
   ## Construct a list of constraints and arguments from the formula.
   conlist<-list()
@@ -267,8 +271,11 @@ ergm_conlist <- function(object, nw){
   
   conlist <- prune.ergm_conlist(conlist)
   
-  class(conlist) <- "ergm_conlist"
-  conlist
+  structure(conlist, class="ergm_conlist")
+}
+
+c.ergm_conlist <- function(...){
+  NextMethod() %>% prune.ergm_conlist() %>% structure(class="ergm_conlist")
 }
 
 #' @describeIn ergm_proposal `object` argument is an ERGM constraint formula.
@@ -301,13 +308,6 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), w
     ref <- reference
   }else stop("Invalid reference= argument.")
 
-  ult(hints) <- call("+", ult(hints), as.name("."))
-  if(length(hints)==2 && length(object)==3){
-    hints[[3]] <- hints[[2]]
-    hints[[2]] <- as.name(".")
-  }
-  object <- nonsimp_update.formula(object, hints)
-
   if(length(object)==3){
     lhs <- object[[2]]
     if(is.character(lhs)){
@@ -317,13 +317,22 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), w
       if(is(name, "try-error") || !is.character(name)) stop("Constraints formula must be either one-sided or have a string expression as its LHS.")
     }
     object <- object[-2]
+  }else if(length(hints)==3){
+    lhs <- hints[[2]]
+    if(is.character(lhs)){
+      name <- hints[[2]]
+    }else{
+      name <- try(eval_lhs.formula(hints), silent=TRUE)
+      if(is(name, "try-error") || !is.character(name)) stop("Constraints formula must be either one-sided or have a string expression as its LHS.")
+    }
+    hints <- hints[-2]
   }else name <- NULL
   
   if("constraints" %in% names(arguments)){
     conlist <- prune.ergm_conlist(arguments$constraints)
     class(conlist) <- "ergm_conlist"
   }else{
-    conlist <- ergm_conlist(object, nw)
+    conlist <- c(ergm_conlist(object, nw), ergm_conlist(hints, nw))
   }
 
   candidates <- subset(ergm_proposal_table(), Class==class & Reference==ref$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights)
