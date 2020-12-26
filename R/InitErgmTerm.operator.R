@@ -77,11 +77,8 @@ InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
                       vartypes = c("formula"),
                       defaultvalues = list(NULL),
                       required = c(TRUE))
-  f <- a$formula
-  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
-  else nw <- ergm.getnetwork(f)
 
-  m <- ergm_model(f, nw, response=response,...)
+  m <- ergm_model(a$formula, nw, response=response,...)
   
   c(list(name="passthrough_term", submodel=m),
     wrap.ergm_model(m, nw, response, ergm_mk_std_op_namewrap('passthrough')))
@@ -94,11 +91,8 @@ InitErgmTerm.Label <- function(nw, arglist, response=NULL, ...){
                       defaultvalues = list(NULL, NULL, "("),
                       required = c(TRUE, TRUE, FALSE))
 
-  f <- a$formula
-  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
-  else nw <- ergm.getnetwork(f)
 
-  m <- ergm_model(f, nw, response=response,...)
+  m <- ergm_model(a$formula, nw, response=response,...)
 
   if(is.character(a$label)){
     pos <- match.arg(a$pos, c("prepend","replace", "(" ,"append"))
@@ -138,11 +132,8 @@ InitErgmTerm..submodel <- function(nw, arglist, response=NULL, ...){
                       vartypes = c("formula"),
                       defaultvalues = list(NULL),
                       required = c(TRUE))
-  f <- a$formula
-  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
-  else nw <- ergm.getnetwork(f)
 
-  m <- ergm_model(f, nw, response=response,...)
+  m <- ergm_model(a$formula, nw, response=response,...)
 
   c(list(name="_submodel_term", submodel=m),
     wrap.ergm_model(m, nw, response, NULL))
@@ -156,11 +147,8 @@ InitErgmTerm.submodel.test <- function(nw, arglist, response=NULL, ...){
                       vartypes = c("formula"),
                       defaultvalues = list(NULL),
                       required = c(TRUE))
-  f <- a$formula
-  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
-  else nw <- ergm.getnetwork(f)
 
-  m <- ergm_model(f, nw, response=response,...)
+  m <- ergm_model(a$formula, nw, response=response,...)
 
   af <- a$formula
   c(list(name="submodel_test_term", auxiliaries = trim_env(~.submodel(af),"af")),
@@ -177,11 +165,8 @@ InitErgmTerm..summary <- function(nw, arglist, response=NULL, ...){
                       vartypes = c("formula"),
                       defaultvalues = list(NULL),
                       required = c(TRUE))
-  f <- a$formula
-  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
-  else nw <- ergm.getnetwork(f)
 
-  m <- ergm_model(f, nw, response=response,...)
+  m <- ergm_model(a$formula, nw, response=response,...)
 
   list(name="_summary_term", submodel=m,
        wrap.ergm_model(m, nw, response, NULL))
@@ -197,11 +182,7 @@ InitErgmTerm.summary.test <- function(nw, arglist, response=NULL, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  f <- a$formula
-  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
-  else nw <- ergm.getnetwork(f)
-
-  m <- ergm_model(f, nw, response=response,...)
+  m <- ergm_model(a$formula, nw, response=response,...)
 
   af <- a$formula
   list(name="summary_test_term", coef.names="summ.test", inputs=c(nparam(m)), auxiliaries=trim_env(~.summary(af),"af"),
@@ -214,12 +195,9 @@ InitErgmTerm.F <- function(nw, arglist, response=NULL, ...){
                       vartypes = c("formula", "formula"),
                       defaultvalues = list(NULL, NULL),
                       required = c(TRUE, TRUE))
-  form <- a$form
-  f <- a$formula
-  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
-  else nw <- ergm.getnetwork(f)
 
-  m <- ergm_model(f, nw,...)
+  form <- a$form
+  m <- ergm_model(a$formula, nw,...)
   
   form.name <- despace(deparse(ult(form)))
   auxiliaries <- trim_env(~.filter.formula.net(form), "form")
@@ -237,12 +215,7 @@ InitErgmTerm..filter.formula.net <- function(nw, arglist, response=NULL, ...){
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  # Form is a model.
-  f<-a$formula
-  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
-  else nw <- ergm.getnetwork(f)
-  
-  m <- ergm_model(f, nw, response=response,...)
+  m <- ergm_model(a$formula, nw, response=response,...)
 
   if(!is.dyad.independent(m) || nparam(m)!=1) ergm_Init_abort("The filter test formula must be dyad-independent and have exactly one statistc.")
 
@@ -260,11 +233,9 @@ InitErgmTerm.Offset <- function(nw, arglist, response=NULL, ...){
                       vartypes = c("formula", "numeric", "logical,numeric,character"),
                       defaultvalues = list(NULL, 0, TRUE),
                       required = c(TRUE, FALSE, FALSE))
-  f <- a$formula
-  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
-  else nw <- ergm.getnetwork(f)
 
-  m <- ergm_model(f, nw, response=response,...)
+  m <- ergm_model(a$formula, nw, response=response,...)
+
   parnames <- param_names(m, canonical=FALSE)
   nparams <- nparam(m, canonical=FALSE)
   coefnames <- param_names(m, canonical=TRUE)
@@ -449,13 +420,8 @@ InitErgmTerm.Undir <- function(nw, arglist, response=NULL, ...){
   RULES <- c("weak","strong","upper","lower")
   rule <- match.arg(a$rule, RULES)
 
-  f <- a$formula
-  if(length(f)==3) nw <- ergm.getnetwork(f)
   if(is.directed(nw)) nw <- symmetrize(nw, rule)
-  
-  if(length(f)==2) f <- nonsimp_update.formula(f, nw~.)
-
-  m <- ergm_model(f, nw,...)
+  m <- ergm_model(a$formula, nw,...)
 
   auxiliaries <- trim_env(~.undir.net(rule), "rule")
   
@@ -587,16 +553,12 @@ InitErgmTerm.S <- function(nw, arglist, response=NULL, ...){
   }
 
   ### Construct an empty network with the correct structure.
-  f <- a$formula
-  if(length(f)==3) nw <- ergm.getnetwork(f)
   snw <- nw
   snw[,] <- 0
   snw <- get.inducedSubgraph(snw, tailsel, if(type=="bipartite") headsel)
   if(NVL(snw%n%"bipartite", FALSE)) snw %n% "directed" <- FALSE # Need to do this because snw is a "directed bipartite" network. I hope it doesn't break anything.
 
-  if(length(f)==2) f <- nonsimp_update.formula(f, snw~.)
-
-  m <- ergm_model(f, snw,...)
+  m <- ergm_model(a$formula, snw,...)
 
   auxiliaries <- trim_env(~.subgraph.net(tailsel, headsel), c("tailsel","headsel"))
 
