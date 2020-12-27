@@ -1,5 +1,6 @@
 #include "ergm_changestat_operator.h"
 #include "ergm_changestat_auxnet.h"
+#include "ergm_changestats_operator.h"
 #include "ergm_util.h"
 
 /* passthrough(formula) */
@@ -123,6 +124,39 @@ F_CHANGESTAT_FN(f_summary_test_term){
   Rprintf(" \n");
   /* Rprintf(" ]\n"); */
 }
+
+
+/* .submodel_and_summary(formula) */
+
+I_CHANGESTAT_FN(i__submodel_and_summary_term){
+  ALLOC_AUX_STORAGE(1, StoreModelAndStats, storage);
+
+  // Unpack the submodel.
+  Model *m = storage->m = ModelInitialize(getListElement(mtp->R, "submodel"),  NULL, nwp, FALSE);
+
+  storage->stats = Calloc(m->n_stats, double);
+
+  SummStats(0, NULL, NULL, nwp, m);
+  memcpy(storage->stats, m->workspace, m->n_stats*sizeof(double));
+
+  DELETE_IF_UNUSED_IN_SUBMODEL(z_func, m);
+}
+
+U_CHANGESTAT_FN(u__submodel_and_summary_term){
+  GET_AUX_STORAGE(StoreModelAndStats, storage);
+  Model *m = storage->m;
+
+  ChangeStats1(tail, head, nwp, m, edgeflag);
+  addonto(storage->stats, m->workspace, m->n_stats);
+}
+
+F_CHANGESTAT_FN(f__submodel_and_summary_term){
+  GET_AUX_STORAGE(StoreModelAndStats, storage);
+
+  Free(storage->stats);
+  ModelDestroy(nwp, storage->m);
+}
+
 
 // Sum: Take a weighted sum of the models' statistics.
 

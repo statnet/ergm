@@ -189,6 +189,22 @@ InitErgmTerm.summary.test <- function(nw, arglist, response=NULL, ...){
        wrap.ergm_model(m, nw, response, NULL))
 }
 
+## An auxiliary that exports a model and a double vector that contains
+## the current summary statistics of the network for the terms given
+## in the formula.
+
+InitErgmTerm..submodel_and_summary <- function(nw, arglist, response=NULL, ...){
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("formula"),
+                      vartypes = c("formula"),
+                      defaultvalues = list(NULL),
+                      required = c(TRUE))
+
+  m <- ergm_model(a$formula, nw, response=response,...)
+
+  list(name="_submodel_and_summary_term", coef.names = c(), submodel=m, dependence=!is.dyad.independent(m))
+}
+
 InitErgmTerm.F <- function(nw, arglist, response=NULL, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "form"),
