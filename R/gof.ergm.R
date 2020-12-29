@@ -39,8 +39,8 @@
 #' specifying the statistics to use to diagnosis the goodness-of-fit of the
 #' model.  They do not need to be in the model formula specified in
 #' \code{formula}, and typically are not.  Currently supported terms are the
-#' degree distribution (\dQuote{degree} for undirected graphs, or
-#' \dQuote{idegree} and/or \dQuote{odegree} for directed graphs), geodesic
+#' degree distribution (\dQuote{degree} for undirected graphs,
+#' \dQuote{idegree} and/or \dQuote{odegree} for directed graphs, and \dQuote{b1degree} and \dQuote{b2degree} for bipartite undirected graphs), geodesic
 #' distances (\dQuote{distance}), shared partner distributions
 #' (\dQuote{espartners} and \dQuote{dspartners}), the triad census
 #' (\dQuote{triadcensus}), and the terms of the original model
@@ -202,10 +202,10 @@ gof.formula <- function(object, ...,
 
   #Set up the defaults, if called with GOF==NULL
   if(is.null(GOF)){
-    if(is.directed(nw))
-      GOF<- ~idegree + odegree + espartners + distance + model
-    else
-      GOF<- ~degree + espartners + distance + model
+    GOF <-
+      if(is.directed(nw)) ~idegree + odegree + espartners + distance + model
+    else if(is.bipartite(nw)) ~b1degree + b2degree + espartners + distance + model
+    else ~degree + espartners + distance + model
   }
   # Add a model term, unless it is explicitly excluded
   GOFtrms <- list_rhs.formula(GOF)
@@ -221,7 +221,7 @@ gof.formula <- function(object, ...,
   for(i in seq(along=all.gof.vars)){
     all.gof.vars[i] <- match.arg(all.gof.vars[i],
                                  c('distance', 'espartners', 'dspartners', 'odegree', 'idegree', 
-                                   'degree', 'triadcensus', 'model'
+                                   'degree', 'triadcensus', 'model', 'b1degree', 'b2degree'
                                    )
                                  )
   }
@@ -255,153 +255,72 @@ gof.formula <- function(object, ...,
                   verbose=verbose)
   }
 
-# test to see which of these is/are necessary
-#  pval.model<-pval.triadcensus<-pval.dist<-pval.deg<-pval.espart<-pval.espart<-NULL
-##
-#  obs.model<-pobs.model<-sim.model<-psim.model<-pval.model<-bds.model<-NULL
-#  obs.triadcensus<-pobs.triadcensus<-sim.triadcensus<-psim.triadcensus<-pval.triadcensus<-bds.triadcensus<-NULL
-#  obs.dist<-pobs.dist<-sim.dist<-psim.dist<-pval.dist<-bds.dist<-NULL
-#  obs.deg<-pobs.deg<-sim.deg<-psim.deg<-pval.deg<-bds.deg<-NULL
-#  obs.espart<-pobs.espart<-sim.espart<-psim.espart<-pval.espart<-bds.espart<-NULL
-#  obs.dspart<-pobs.dspart<-sim.dspart<-psim.dspart<-pval.dspart<-bds.dspart<-NULL
-#
-#  obs.ideg<-pobs.ideg<-sim.ideg<-psim.ideg<-pval.ideg<-bds.ideg<-pval.ideg<-NULL
-#  obs.odeg<-pobs.odeg<-sim.odeg<-psim.odeg<-pval.odeg<-bds.odeg<-pval.odeg<-NULL
-
   n <- network.size(nw)
 
   # Calculate network statistics for the observed graph
   # Set up the output arrays of sim variables
   if(verbose)
     message("Calculating observed network statistics.")
-  
-  if ('model' %in% all.gof.vars) {
-   if(!network.naedgecount(nw) | !unconditional){
-    obs.model <- summary(object, term.options=control$term.options)
-   }else{
-    obs.model <- SimCond$obs.model
-   }
-   sim.model <- array(0,dim=c(control$nsim,length(obs.model)))
-   dimnames(sim.model) <- list(paste(c(1:control$nsim)),names(obs.model))
+
+  summ_form <- function(nw, term, range){
+    summary(as.formula(call('~',call(term, range))), basis=nw)
   }
 
-  if ('distance' %in% all.gof.vars) {
-   if(!network.naedgecount(nw) | !unconditional){
-    obs.dist <- ergm.geodistdist(nw)
-    obs.dist[obs.dist==Inf] <- n
-   }else{
-    obs.dist <- SimCond$summary.dist[,"mean"]
-   }
-   sim.dist <-array(0,dim=c(control$nsim,n))
-   dimnames(sim.dist)  <- list(paste(c(1:control$nsim)),paste(1:n))
+  if(is.bipartite(nw)){
+    nb1 <- nw %v% "bipratite"
+    nb2 <- n-nb1
+  }else{
+    nb1 <- nb2 <- n
   }
 
-  if ('odegree' %in% all.gof.vars) {
-   if(!network.naedgecount(nw) | !unconditional){
-    mesp <- paste("c(",paste(0:(n-1),collapse=","),")",sep="")
-    obs.odeg <- summary(as.formula(paste('nw ~ odegree(',mesp,')',sep="")))
-   }else{
-    obs.odeg <- SimCond$summary.odeg[,"mean"]
-   }
-   sim.odeg <- array(0,dim=c(control$nsim,n))
-#  obs.odeg <- c(obs.odeg,rep(0,n-length(obs.odeg)))
-   dimnames(sim.odeg)   <- list(paste(c(1:control$nsim)),paste(0:(n-1)))
-   names(obs.odeg) <- dimnames(sim.odeg)[[2]]
-  }
-
-  if ('idegree' %in% all.gof.vars) {
-   if(!network.naedgecount(nw) | !unconditional){
-    mesp <- paste("c(",paste(0:(n-1),collapse=","),")",sep="")
-    obs.ideg <- summary(as.formula(paste('nw ~ idegree(',mesp,')',sep="")))
-   }else{
-    obs.ideg <- SimCond$summary.ideg[,"mean"]
-   }
-   sim.ideg <- array(0,dim=c(control$nsim,n))
-#  obs.ideg <- c(obs.ideg,rep(0,n-length(obs.ideg)))
-   dimnames(sim.ideg)   <- list(paste(c(1:control$nsim)),paste(0:(n-1)))
-   names(obs.ideg) <- dimnames(sim.ideg)[[2]]
-  }
-
-  if ('degree' %in% all.gof.vars) {
-   if(!network.naedgecount(nw) | !unconditional){
-    if(is.bipartite(nw)){
-     obs.deg <- degreedist(nw, print=FALSE)$b2
-     obs.deg <- c(obs.deg,rep(0,n-length(obs.deg)))
-    }else{
-     mesp <- paste("c(",paste(0:(n-1),collapse=","),")",sep="")
-     obs.deg <- summary(as.formula(paste('nw ~ degree(',mesp,')',sep="")))
-    }
-   }else{
-    obs.deg <- SimCond$summary.deg[,"mean"]
-   }
-   sim.deg <- array(0,dim=c(control$nsim,n))
-   dimnames(sim.deg)   <- list(paste(c(1:control$nsim)),paste(0:(n-1)))
-   names(obs.deg) <- dimnames(sim.deg)[[2]]
-  }
- 
-  if ('espartners' %in% all.gof.vars) {
-#  obs.espart <- espartnerdist(nw, print=verbose)
-   if(!network.naedgecount(nw) | !unconditional){
-    mesp <- paste("c(",paste(0:(network.size(nw)-2),collapse=","),")",sep="")
-    obs.espart <- summary(as.formula(paste('nw ~ esp(',mesp,')',sep="")))
-   }else{
-    obs.espart <- SimCond$summary.espart[,"mean"]
-   }
-   sim.espart <- array(0,dim=c(control$nsim,n-1))
-   dimnames(sim.espart) <- list(paste(c(1:control$nsim)),paste(0:(n-2)))
-  }
- 
-  if ('dspartners' %in% all.gof.vars) {
-   if(!network.naedgecount(nw) | !unconditional){
-#   obs.dspart <- dspartnerdist(nw, print=verbose)
-    mesp <- paste("c(",paste(0:(network.size(nw)-2),collapse=","),")",sep="")
-    obs.dspart <- summary(as.formula(paste('nw ~ dsp(',mesp,')',sep="")))
-   }else{
-    obs.dspart <- SimCond$summary.dspart[,"mean"]
-   }
-   sim.dspart <- array(0,dim=c(control$nsim,n-1))
-   dimnames(sim.dspart) <- list(paste(c(1:control$nsim)),paste(0:(n-2)))
-  }
-
-  if ('triadcensus' %in% all.gof.vars) {
-   if(is.directed(nw)){
+  if(is.directed(nw)){
     triadcensus <- 0:15
     namestriadcensus <- c("003","012", "102", "021D", "021U", "021C",
-      "111D", "111U", "030T",
-      "030C", "201", "120D", "120U", "120C", "210", "300")
-    triadcensus.formula <- "~ triadcensus(0:15)"
-   }else{
+                          "111D", "111U", "030T",
+                          "030C", "201", "120D", "120U", "120C", "210", "300")
+  }else{
     triadcensus <- 0:3
     namestriadcensus <- c("0","1","2", "3")
-    triadcensus.formula <- "~ triadcensus(0:3)"
-   }
-   if(!network.naedgecount(nw) | !unconditional){
-    obs.triadcensus <- summary(as.formula(paste('nw',triadcensus.formula,sep="")))
-   }else{
-    obs.triadcensus <- SimCond$summary.triadcensus[,"mean"]
-   }
-   sim.triadcensus <- array(0,dim=c(control$nsim,length(triadcensus)))
-   dimnames(sim.triadcensus) <- list(paste(c(1:control$nsim)), namestriadcensus)
-   names(obs.triadcensus) <- namestriadcensus
   }
- 
-  # Simulate an exponential family random graph model
 
-#  SimNetworkSeriesObj <- simulate(object, control$nsim=control$nsim, seed=seed,
-#                                  coef=coef,
-#                                  burnin=burnin, interval=interval,
-#                                  constraints=constraints,
-#                                  control=control.simulate.formula(
-#                                   prop.args=control$MCMC.prop.args,
-#                                   prop.weights=control$MCMC.prop.weights,
-#                                   summarizestats=control$summarizestats,
-#                                   drop=control$drop),
-#                                  verbose=verbose, basis=nw)
-# New approach below avoids having to store gigantic unnecessary
-# network.list object
+  GVMAP = list(model=list('model', NULL, function(x) summary(object, basis=x, term.options=control$term.options)),
+               distance=list('dist', 1:n, function(x){o <- ergm.geodistdist(nw); o[o==Inf]<-n; o}),
+               idegree=list('odeg', 0:(n-1), function(x) summ_form(x, 'odegree', 0:(n-1))),
+               odegree=list('ideg', 0:(n-1), function(x) summ_form(x, 'idegree', 0:(n-1))),
+               degree=list('deg', 0:(n-1), function(x) summ_form(x, 'degree', 0:(n-1))),
+               b1degree=list('b1deg', 0:nb2, function(x) summ_form(x, 'b1degree', 0:nb2)),
+               b2degree=list('b2deg', 0:nb1, function(x) summ_form(x, 'b2degree', 0:nb1)),
+               espartners=list('espart', 0:(n-2), function(x) summ_form(x, 'esp', 0:(n-2))),
+               dspartners=list('dspart', 0:(n-2), function(x) summ_form(x, 'dsp', 0:(n-2))),
+               triadcensus=list('triadcensus', namestriadcensus, function(x) summ_form(x, 'triadcensus', triadcensus)))
+
+  calc_obs_stat <- function(gv, names, calc){
+    simname <- paste("sim", gv, sep=".")
+    obsname <- paste("obs", gv, sep=".")
+
+    obs <- if(!network.naedgecount(nw) | !unconditional) calc(nw)
+           else SimCond[[obs]]
+    assign(obsname, obs, parent.frame())
+
+    sim <- array(0,
+                 dim = c(control$nsim,length(obs)),
+                 dimnames = list(paste(c(1:control$nsim)), NVL3(names, paste(.), names(obs))))
+    assign(simname, sim, parent.frame())
+  }
+
+  for(gv in names(GVMAP))
+    if (gv %in% all.gof.vars)
+      calc_obs_stat(GVMAP[[gv]][[1]], GVMAP[[gv]][[2]], GVMAP[[gv]][[3]])
 
   if(verbose)
     message("Starting simulations.")
+
+  calc_sim_stat <- function(gv, calc, i){
+    simname <- paste("sim", gv, sep=".")
+    sim <- get(simname)
+    sim[i,] <- calc(tempnet)
+    assign(simname, sim, parent.frame())
+  }
 
   tempnet <- nw
   for (i in 1:control$nsim) {
@@ -415,60 +334,11 @@ gof.formula <- function(object, ...,
                         basis=tempnet,
                         verbose=verbose)
     seed <- NULL # Don't re-seed after first iteration   
-#    if(verbose){
-#     cat(paste("...",i,sep=""))
-#     if ((i %% 10 == 0) || (i==control$nsim)) cat("\n")
-#    }
-    if ('model' %in% all.gof.vars) {
-     sim.model[i,] <- summary(nonsimp_update.formula(object,tempnet ~ ., from.new="tempnet"), term.options=control$term.options)
-    }
-    if ('distance' %in% all.gof.vars) {
-     sim.dist[i,] <- ergm.geodistdist(tempnet)
-    }
-    if ('idegree' %in% all.gof.vars) {
-     mesp <- paste("c(",paste(0:(n-1),collapse=","),")",sep="")
-     gi <- tempnet
-     sim.ideg[i,] <- summary(as.formula(paste('gi ~ idegree(',mesp,')',sep="")))
-#    temp <- table(degreedist(tempnet, print=verbose)[1,])
-#    sim.ideg[i,] <- c(temp, rep(0, n-length(temp)))
-    }
-    if ('odegree' %in% all.gof.vars) {
-     mesp <- paste("c(",paste(0:(n-1),collapse=","),")",sep="")
-     gi <- tempnet
-     sim.odeg[i,] <- summary(as.formula(paste('gi ~ odegree(',mesp,')',sep="")))
-#    temp <- table(degreedist(tempnet, print=verbose)[2,])
-#    sim.odeg[i,] <- c(temp, rep(0, n-length(temp)))
-    }
-    if ('degree' %in% all.gof.vars) {
-     gi <- tempnet
-     if(is.bipartite(gi)){
-      temp <- degreedist(gi, print=FALSE)$b2
-      sim.deg[i,] <- c(temp,rep(0,n-length(temp)))
-     }else{                                                
-      mesp <- paste("c(",paste(0:(n-1),collapse=","),")",sep="")
-      sim.deg[i,] <- summary(as.formula(paste('gi ~ degree(',mesp,')',sep="")))
-     }
-#    temp <- table(degreedist(tempnet, print=verbose))
-#    sim.deg[i,] <- c(temp, rep(0, n-length(temp)))
-    }
-    if ('espartners' %in% all.gof.vars) {
-#    sim.espart[i,] <- espartnerdist(tempnet,
-#                                   print=verbose)
-     gi <- tempnet
-     mesp <- paste("c(",paste(0:(network.size(gi)-2),collapse=","),")",sep="")
-     sim.espart[i,] <- summary(as.formula(paste('gi ~ esp(',mesp,')',sep="")))
-    }
-    if ('dspartners' %in% all.gof.vars) {
-#    sim.espart[i,] <- dspartnerdist(tempnet,
-#                                   print=verbose)
-     gi <- tempnet
-     mesp <- paste("c(",paste(0:(network.size(gi)-2),collapse=","),")",sep="")
-     sim.dspart[i,] <- summary(as.formula(paste('gi ~ dsp(',mesp,')',sep="")))
-    }
-    if ('triadcensus' %in% all.gof.vars) {
-     gi <- tempnet
-     sim.triadcensus[i,] <- summary(as.formula(paste('gi',triadcensus.formula,sep="")))
-    }
+
+    for(gv in names(GVMAP))
+      if (gv %in% all.gof.vars)
+        calc_sim_stat(GVMAP[[gv]][[1]], GVMAP[[gv]][[3]], i)
+
   }
   if(verbose){
     message("")
@@ -478,7 +348,7 @@ gof.formula <- function(object, ...,
   
   returnlist <- list(network.size=n, GOF=GOF)
 
-  calc_pvals <- function(gv, count=TRUE){
+  calc_pvals <- function(gv, names){
     sim <- get(paste("sim", gv, sep="."))
     obs <- get(paste("obs", gv, sep="."))
 
@@ -487,8 +357,8 @@ gof.formula <- function(object, ...,
     pval <- cbind(obs,apply(sim, 2,min), apply(sim, 2,mean),
                   apply(sim, 2,max), pmin(1,2*pmin(pval,pval.top)))
     dimnames(pval)[[2]] <- c("obs","min","mean","max","MC p-value")
-    pobs <- if(count) obs/sum(obs) else pval.top
-    if(count){
+    pobs <- if(!is.null(names)) obs/sum(obs) else pval.top
+    if(!is.null(names)){
       psim <- sweep(sim,1,apply(sim,1,sum),"/")
       psim[is.na(psim)] <- 1
     }else{
@@ -501,17 +371,9 @@ gof.formula <- function(object, ...,
     setNames(l, paste(names(l), gv, sep="."))
   }
 
-  GVMAP = list(model=c('model', FALSE),
-               distance=c('dist', TRUE),
-               idegree=c('ideg', TRUE),
-               odegree=c('odeg', TRUE),
-               degree=c('deg', TRUE),
-               espartners=c('espart', TRUE),
-               dspartners=c('dspart', TRUE),
-               triadcensus=c('triadcensus', TRUE))
   for(gv in names(GVMAP))
     if (gv %in% all.gof.vars)
-      returnlist <- modifyList(returnlist, calc_pvals(GVMAP[[gv]][1],GVMAP[[gv]][2]))
+      returnlist <- modifyList(returnlist, calc_pvals(GVMAP[[gv]][[1]],GVMAP[[gv]][[2]]))
 
   class(returnlist) <- c("gof.ergm", "gof")
   returnlist
@@ -551,6 +413,8 @@ print.gof <- function(x, ...){
       "idegree", "in-degree", "summary.ideg",
       "odegree", "out-degree", "summary.odeg",
       "degree", "degree", "summary.deg",
+      "b1degree", "bipartition 1 degree", "summary.b1deg",
+      "b2degree", "bipartition 2 degree", "summary.b2deg",
       "espartners", "edgewise shared partner", "summary.espart",
       "dspartners", "dyadwise shared partner", "summary.dspart",
       "triadcensus", "triad census", "summary.triadcensus"), 
