@@ -148,6 +148,7 @@ jobs:
         shell: bash
 
       - name: Check
+        timeout-minutes: 10 # TODO: This should be different depending on whether the repo is public or private.
         env:
           _R_CHECK_CRAN_INCOMING_REMOTE_: false
           _R_CHECK_FORCE_SUGGESTS_: ${{ runner.os != 'macOS' }} # Rmpi is not available on macOS.
