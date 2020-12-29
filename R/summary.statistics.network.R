@@ -93,9 +93,14 @@ summary.formula <- function(object, ...){
 #' @keywords internal
 #' @export
 summary_formula <- function(object, ..., basis=NULL) {
-  if(length(object)!=3 || object[[1]]!="~")
-    stop ("Formula must be of form 'y ~ model'.")
-  lhs <- eval_lhs.formula(object)
+  if(!is.null(basis)){
+    lhs <- basis
+  }else{
+    if(length(object)!=3 || object[[1]]!="~")
+      stop ("Formula must be of form 'y ~ model'.")
+    lhs <- eval_lhs.formula(object)
+  }
+
   UseMethod("summary_formula",object=lhs)
 }
 
