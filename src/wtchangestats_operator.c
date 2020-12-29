@@ -1,4 +1,6 @@
 #include "wtchangestats_operator.h"
+#include "ergm_wtchangestats_operator.h"
+#include "ergm_util.h"
 
 /* passthrough(formula) */
 
@@ -260,6 +262,38 @@ WtF_CHANGESTAT_FN(f__binary_formula_net){
   WtModelDestroy(nwp, m);
   NetworkDestroy(bnwp);
   // WtDestroyStats() will deallocate the rest.
+}
+
+
+/* .submodel_and_summary(formula) */
+
+WtI_CHANGESTAT_FN(i__wtsubmodel_and_summary_term){
+  ALLOC_AUX_STORAGE(1, StoreWtModelAndStats, storage);
+
+  // Unpack the submodel.
+  WtModel *m = storage->m = WtModelInitialize(getListElement(mtp->R, "submodel"),  NULL, nwp, FALSE);
+
+  storage->stats = Calloc(m->n_stats, double);
+
+  WtSummStats(0, NULL, NULL, NULL, nwp, m);
+  memcpy(storage->stats, m->workspace, m->n_stats*sizeof(double));
+
+  DELETE_IF_UNUSED_IN_SUBMODEL(z_func, m);
+}
+
+WtU_CHANGESTAT_FN(u__wtsubmodel_and_summary_term){
+  GET_AUX_STORAGE(StoreWtModelAndStats, storage);
+  WtModel *m = storage->m;
+
+  WtChangeStats1(tail, head, weight, nwp, m, edgeweight);
+  addonto(storage->stats, m->workspace, m->n_stats);
+}
+
+WtF_CHANGESTAT_FN(f__wtsubmodel_and_summary_term){
+  GET_AUX_STORAGE(StoreWtModelAndStats, storage);
+
+  Free(storage->stats);
+  WtModelDestroy(nwp, storage->m);
 }
 
 
