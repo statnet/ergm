@@ -20,7 +20,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
-      timeout: ${{ steps.set-timeout.outputs.timeout }}
     steps:
       - name: check-config # Make sure either neither or both are set; abort if not.
         if: (env.PUBLIC == '') != (env.PRIVATE == '')
@@ -54,21 +53,12 @@ jobs:
         run: |
           if [[ "${{ env.IAM }}" == 'public' ]] # Public: full set.
           then
-            echo "::set-output name=matrix::{\"config\":[{\"os\":\"windows-latest\", \"r\":\"release\"},{\"os\":\"macOS-latest\", \"r\":\"release\"},{\"os\":\"ubuntu-20.04\", \"r\":\"release\", \"rspm\":\"https://packagemanager.rstudio.com/cran/__linux__/focal/latest\"},{\"os\":\"ubuntu-20.04\", \"r\":\"devel\", \"rspm\":\"https://packagemanager.rstudio.com/cran/__linux__/focal/latest\"}]}"
+            echo "::set-output name=matrix::{\"config\":[{\"os\":\"windows-latest\", \"r\":\"release\", \"timeout\":360},{\"os\":\"macOS-latest\", \"r\":\"release\", \"timeout\":360},{\"os\":\"ubuntu-20.04\", \"r\":\"release\", \"rspm\":\"https://packagemanager.rstudio.com/cran/__linux__/focal/latest\", \"timeout\":360},{\"os\":\"ubuntu-20.04\", \"r\":\"devel\", \"rspm\":\"https://packagemanager.rstudio.com/cran/__linux__/focal/latest\", \"timeout\":360}]}"
           elif [[ "${{ env.FOUND_PUBLIC }}" != '0' ]] # Private with no public analogue: reduced set.
           then
-            echo "::set-output name=matrix::{\"config\":[{\"os\":\"ubuntu-20.04\", \"r\":\"release\", \"rspm\":\"https://packagemanager.rstudio.com/cran/__linux__/focal/latest\"}]}"
+            echo "::set-output name=matrix::{\"config\":[{\"os\":\"ubuntu-20.04\", \"r\":\"release\", \"rspm\":\"https://packagemanager.rstudio.com/cran/__linux__/focal/latest\", \"timeout\":10}]}"
           else
             echo "::set-output name=matrix::" # Private with public analogue: no checking.
-          fi
-      - name: set-timeout
-        id: set-timeout
-        run: |
-          if [[ "${{ env.IAM }}" == 'public' ]]
-          then # Public: 1 hour.
-            echo "::set-output name=timeout::60"
-          else # Private: 10 min.
-            echo "::set-output name=timeout::10"
           fi
 
   R-CMD-check:
@@ -158,7 +148,7 @@ jobs:
         shell: bash
 
       - name: Check
-        timeout-minutes: ${{ needs.Set-Matrix-Private.outputs.timeout }}
+        timeout-minutes: ${{ matrix.config.timeout }}
         env:
           _R_CHECK_CRAN_INCOMING_REMOTE_: false
           _R_CHECK_FORCE_SUGGESTS_: ${{ runner.os != 'macOS' }} # Rmpi is not available on macOS.
