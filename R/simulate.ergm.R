@@ -343,11 +343,6 @@ simulate_formula.ergm_state <- .simulate_formula.network
 
 #' @rdname simulate.ergm
 #'
-#' @export
-simulate.formula_lhs_ergm_state <- simulate_formula.ergm_state
-
-#' @rdname simulate.ergm
-#'
 #' @note [simulate.ergm_model()] is a lower-level interface, providing
 #'   a [simulate()] method for [`ergm_model`] class. The `basis`
 #'   argument is required; `monitor`, if passed, must be an

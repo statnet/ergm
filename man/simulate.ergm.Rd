@@ -8,7 +8,6 @@
 \alias{.simulate_formula.network}
 \alias{simulate_formula.network}
 \alias{simulate_formula.ergm_state}
-\alias{simulate.formula_lhs_ergm_state}
 \alias{simulate.ergm_model}
 \alias{simulate.ergm_state_full}
 \alias{simulate.ergm_state}
@@ -41,28 +40,6 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
 )
 
 \method{simulate_formula}{ergm_state}(
-  object,
-  nsim = 1,
-  seed = NULL,
-  coef,
-  response = NULL,
-  reference = ~Bernoulli,
-  constraints = ~.,
-  observational = FALSE,
-  monitor = NULL,
-  statsonly = FALSE,
-  esteq = FALSE,
-  output = c("network", "stats", "edgelist", "ergm_state"),
-  simplify = TRUE,
-  sequential = TRUE,
-  control = control.simulate.formula(),
-  verbose = FALSE,
-  ...,
-  basis = eval_lhs.formula(object),
-  do.sim = TRUE
-)
-
-\method{simulate}{formula_lhs_ergm_state}(
   object,
   nsim = 1,
   seed = NULL,
