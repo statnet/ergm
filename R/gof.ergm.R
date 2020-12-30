@@ -177,11 +177,12 @@ gof.formula <- function(object, ...,
                         verbose=FALSE) {
   if("response" %in% names(list(...))) stop("GoF for valued ERGMs is not implemented at this time.")
 
-  if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
+  if(!is.null(control$seed)){
+    set.seed(as.integer(control$seed))
+  }
   if (verbose) 
     message("Starting GOF for the given ERGM formula.")
-  # Unused code
-  coefmissing <- NULL
+
   # get network
   lhs <- ERRVL(try(eval_lhs.formula(object)),
                stop("A network object on the RHS of the formula argument must be given"))
@@ -217,14 +218,11 @@ gof.formula <- function(object, ...,
   all.gof.vars <- as.character(list_rhs.formula(GOF))
 
   # match variables
+  all.gof.vars <- sapply(all.gof.vars, match.arg,
+                         c('distance', 'espartners', 'dspartners', 'odegree', 'idegree',
+                           'degree', 'triadcensus', 'model', 'b1degree', 'b2degree')
+                         )
 
-  for(i in seq(along=all.gof.vars)){
-    all.gof.vars[i] <- match.arg(all.gof.vars[i],
-                                 c('distance', 'espartners', 'dspartners', 'odegree', 'idegree', 
-                                   'degree', 'triadcensus', 'model', 'b1degree', 'b2degree'
-                                   )
-                                 )
-  }
   GOF <- as.formula(paste("~",paste(all.gof.vars,collapse="+")))
   
   m <- ergm_model(object, nw, term.options=control$term.options)
@@ -238,16 +236,12 @@ gof.formula <- function(object, ...,
       coef <- numeric(nparam(m, canonical=FALSE))
       warning("No parameter values given, using 0.")
   }
-# if(is.bipartite(nw)){
-#     coef <- c(coef,-1)
-# }
 
   # If missing simulate from the conditional model
   if(network.naedgecount(nw) & unconditional){
    if(verbose){message("Conditional simulations for missing fit")}
-   if(is.null(coefmissing)){coefmissing <- coef}
    constraints.obs<-nonsimp_update.formula(constraints,~.+observed)
-   SimCond <- gof(object=object, coef=coefmissing,
+   SimCond <- gof(object=object, coef=coef,
                   GOF=GOF, 
                   constraints=constraints.obs,
                   control=control,
@@ -283,16 +277,18 @@ gof.formula <- function(object, ...,
     namestriadcensus <- c("0","1","2", "3")
   }
 
-  GVMAP = list(model=list('model', NULL, function(x) summary(object, basis=x, term.options=control$term.options)),
-               distance=list('dist', 1:n, function(x){o <- ergm.geodistdist(nw); o[o==Inf]<-n; o}),
-               idegree=list('odeg', 0:(n-1), function(x) summ_form(x, 'odegree', 0:(n-1))),
-               odegree=list('ideg', 0:(n-1), function(x) summ_form(x, 'idegree', 0:(n-1))),
-               degree=list('deg', 0:(n-1), function(x) summ_form(x, 'degree', 0:(n-1))),
-               b1degree=list('b1deg', 0:nb2, function(x) summ_form(x, 'b1degree', 0:nb2)),
-               b2degree=list('b2deg', 0:nb1, function(x) summ_form(x, 'b2degree', 0:nb1)),
-               espartners=list('espart', 0:(n-2), function(x) summ_form(x, 'esp', 0:(n-2))),
-               dspartners=list('dspart', 0:(n-2), function(x) summ_form(x, 'dsp', 0:(n-2))),
-               triadcensus=list('triadcensus', namestriadcensus, function(x) summ_form(x, 'triadcensus', triadcensus)))
+  GVMAP <- list(model=list('model', NULL, function(x) summary(object, basis=x, term.options=control$term.options)),
+                distance=list('dist', 1:n, function(x){o <- ergm.geodistdist(nw); o[o==Inf]<-n; o}),
+                idegree=list('odeg', 0:(n-1), function(x) summ_form(x, 'odegree', 0:(n-1))),
+                odegree=list('ideg', 0:(n-1), function(x) summ_form(x, 'idegree', 0:(n-1))),
+                degree=list('deg', 0:(n-1), function(x) summ_form(x, 'degree', 0:(n-1))),
+                b1degree=list('b1deg', 0:nb2, function(x) summ_form(x, 'b1degree', 0:nb2)),
+                b2degree=list('b2deg', 0:nb1, function(x) summ_form(x, 'b2degree', 0:nb1)),
+                espartners=list('espart', 0:(n-2), function(x) summ_form(x, 'esp', 0:(n-2))),
+                dspartners=list('dspart', 0:(n-2), function(x) summ_form(x, 'dsp', 0:(n-2))),
+                triadcensus=list('triadcensus', namestriadcensus, function(x) summ_form(x, 'triadcensus', triadcensus)))
+
+  GVMAP <- GVMAP[names(GVMAP)%in%all.gof.vars]
 
   calc_obs_stat <- function(gv, names, calc){
     simname <- paste("sim", gv, sep=".")
@@ -308,9 +304,8 @@ gof.formula <- function(object, ...,
     assign(simname, sim, parent.frame())
   }
 
-  for(gv in names(GVMAP))
-    if (gv %in% all.gof.vars)
-      calc_obs_stat(GVMAP[[gv]][[1]], GVMAP[[gv]][[2]], GVMAP[[gv]][[3]])
+  for(gv in GVMAP)
+    calc_obs_stat(gv[[1]], gv[[2]], gv[[3]])
 
   if(verbose)
     message("Starting simulations.")
@@ -333,12 +328,9 @@ gof.formula <- function(object, ...,
                         control=set.control.class("control.simulate.formula",control),
                         basis=tempnet,
                         verbose=verbose)
-    seed <- NULL # Don't re-seed after first iteration   
 
-    for(gv in names(GVMAP))
-      if (gv %in% all.gof.vars)
-        calc_sim_stat(GVMAP[[gv]][[1]], GVMAP[[gv]][[3]], i)
-
+    for(gv in GVMAP)
+      calc_sim_stat(gv[[1]], gv[[3]], i)
   }
   if(verbose){
     message("")
@@ -371,9 +363,8 @@ gof.formula <- function(object, ...,
     setNames(l, paste(names(l), gv, sep="."))
   }
 
-  for(gv in names(GVMAP))
-    if (gv %in% all.gof.vars)
-      returnlist <- modifyList(returnlist, calc_pvals(GVMAP[[gv]][[1]],GVMAP[[gv]][[2]]))
+  for(gv in GVMAP)
+    returnlist <- modifyList(returnlist, calc_pvals(gv[[1]],gv[[2]]))
 
   class(returnlist) <- c("gof.ergm", "gof")
   returnlist
@@ -419,9 +410,8 @@ print.gof <- function(x, ...){
       "dspartners", "dyadwise shared partner", "summary.dspart",
       "triadcensus", "triad census", "summary.triadcensus"), 
                       byrow=TRUE, ncol=3)
-  for(i in seq(along=all.gof.vars)){
-    all.gof.vars[i] <- match.arg(all.gof.vars[i], goftypes[,1])
-  }
+  all.gof.vars <- sapply(all.gof.vars,
+                         match.arg, goftypes[,1])
   for(statname in all.gof.vars){
     r <- match(statname, goftypes[,1])  # find row in goftypes matrix
     cat("\nGoodness-of-fit for", goftypes[r, 2],"\n\n")
@@ -506,8 +496,6 @@ plot.gof <- function(x, ...,
  }
  n <- x$network.size
 
-#attach(x) 
-  
   gofcomp <- function(tag, unit, idx=c("finite","infinite","nominal")){
     idx <- match.arg(idx)
 
@@ -596,60 +584,43 @@ plot.gof <- function(x, ...,
     points(cumsum(!is.na(i)), colMeans(out[, i, drop=FALSE]), pch=18, cex=2, col="blue")
   }
 
- ###model####
+  ###model####
 
- for(statname in all.gof.vars){
+  GVMAP <- list(model = list('model', 'statistic', 'n', 'model statistics', identity),
+                degree = list('deg', 'node', 'f', 'degree', identity),
+                b1degree = list('b1deg', 'node', 'f', 'b1degree', identity),
+                b2degree = list('b2deg', 'node', 'f', 'b2degree', identity),
+                odegree = list('odeg', 'node', 'f', 'odegree', identity),
+                idegree = list('ideg', 'node', 'f', 'idegree', identity),
+                espartners = list('espart', 'edge', 'f', 'edge-wise shared partners', identity),
+                dspartners = list('dspart', 'dyad', 'f', 'dyad-wise shared partners', identity),
+                triadcensus = list('triadcensus', 'triad', 'n', 'triad census', identity),
+                distance = list('dist', 'dyad', 'i', 'minimum geodesic distance', function(gc){
+                  ult(gc$pnames) <- "NR"
+                  if(normalize.reachability){
+                    gc <- within(gc,
+                    {
+                      mi <- max(i,na.rm=TRUE)
+                      totrange <- range(out.bds[1,][out.bds[1,] > out.bds[1,mi]],
+                                        out.bds[2,][out.bds[2,] < out.bds[2,mi]])
+                      out[,mi] <- (out[,mi]-out.bds[1,mi]) *
+                        diff(totrange) / diff(out.bds[,mi]) + totrange[1]
+                      out.obs[mi] <- (out.obs[mi]- out.bds[1,mi]) *
+                        diff(totrange) / diff(out.bds[,mi]) + totrange[1]
+                      out.bds[,mi] <- totrange
+                    }
+                    )
+                  }
+                  gc
+                }))
 
-  if ('model' == statname) {
-    gofcomp("model", "statistic", "nominal") %>% gofplot("model statistics")
-  }
 
-  if ('degree' == statname) {
-    gofcomp("deg", "node") %>% gofplot("degree")
-  }
+  GVMAP <- GVMAP[names(GVMAP)%in%all.gof.vars]
+  for(gv in GVMAP)
+    gofcomp(gv[[1]], gv[[2]], gv[[3]]) %>% (gv[[5]]) %>% gofplot(gv[[4]])
 
-  if ('odegree' == statname) {
-    gofcomp("odeg", "node") %>% gofplot("out degree")
-  }
-
-  if ('idegree' == statname) {
-    gofcomp("ideg", "node") %>% gofplot("in degree")
-  }
-
-  if ('espartners' == statname) {
-    gofcomp("espart", "edge") %>% gofplot("edge-wise shared partners")
-  }
-
-  if ('dspartners' == statname) {
-    gofcomp("dspart", "dyad") %>% gofplot("dyad-wise shared partners")
-  }
-
-  if ('triadcensus' == statname) {
-    gofcomp("triadcensus", "triad", "nominal") %>% gofplot("triad census")
-  }
-
-  if ('distance' == statname) {
-    gc <- gofcomp("dist", "dyad", "infinite")
-    ult(gc$pnames) <- "NR"
-    if(normalize.reachability){
-      gc <- within(gc,
-      {
-        mi <- max(i,na.rm=TRUE)
-        totrange <- range(out.bds[1,][out.bds[1,] > out.bds[1,mi]],
-                          out.bds[2,][out.bds[2,] < out.bds[2,mi]])
-        out[,mi] <- (out[,mi]-out.bds[1,mi]) * 
-          diff(totrange) / diff(out.bds[,mi]) + totrange[1]
-        out.obs[mi] <- (out.obs[mi]- out.bds[1,mi]) *
-          diff(totrange) / diff(out.bds[,mi]) + totrange[1]
-        out.bds[,mi] <- totrange
-      }
-      )
-    }
-    gofplot(gc, "minimum geodesic distance")
-  }
- }
-   mtext(main,side=3,outer=TRUE,cex=1.5,padj=2)
-   invisible()
+  mtext(main,side=3,outer=TRUE,cex=1.5,padj=2)
+  invisible()
 }
 
 
