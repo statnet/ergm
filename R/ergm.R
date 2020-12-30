@@ -608,7 +608,7 @@ ergm <- function(formula, response=NULL,
     }
     
     # no need to pass the offset term's init to SAN
-    san.control <- control$SAN.control
+    san.control <- control$SAN
     
     if(verbose) message("Constructing an approximate response network.")
     ## If target.stats are given, overwrite the given network and formula
@@ -821,7 +821,7 @@ ergm <- function(formula, response=NULL,
     if(eval.loglik) initialfit$null.lik <- logLikNull.ergm(initialfit, verbose=verbose)
     if(any(!model$etamap$offsettheta) && eval.loglik){
       message("Evaluating log-likelihood at the estimate. ",appendLF=FALSE)
-      initialfit<-logLik(initialfit, add=TRUE, control=control$loglik.control, verbose=verbose)
+      initialfit<-logLik(initialfit, add=TRUE, control=control$loglik, verbose=verbose)
       message("")
     }
     return(initialfit)
@@ -901,7 +901,7 @@ ergm <- function(formula, response=NULL,
   
   if(eval.loglik){
     message("Evaluating log-likelihood at the estimate. ", appendLF=FALSE)
-    mainfit<-logLik(mainfit, add=TRUE, control=control$loglik.control, verbose=verbose)
+    mainfit<-logLik(mainfit, add=TRUE, control=control$loglik, verbose=verbose)
   }
     
   if (MCMCflag) {

@@ -169,8 +169,8 @@
 #' @param SAN.nsteps.times Multiplier for \code{SAN.nsteps} relative to
 #' \code{MCMC.burnin}. This lets one control the amount of SAN burn-in
 #' (arguably, the most important of SAN parameters) without overriding the
-#' other SAN.control defaults.
-#' @param SAN.control Control arguments to \code{\link{san}}.  See
+#' other `SAN` defaults.
+#' @param SAN Control arguments to \code{\link{san}}.  See
 #' \code{\link{control.san}} for details.
 #' @param MCMLE.termination The criterion used for terminating MCMLE
 #' estimation:  
@@ -427,7 +427,7 @@
 #'   Note that only the Hotelling's stopping criterion is implemented
 #'   for CD.
 #' 
-#' @param loglik.control See \code{\link{control.ergm.bridge}}
+#' @param loglik See \code{\link{control.ergm.bridge}}
 #' @template term_options
 #' @template control_MCMC_parallel
 #' @template seed
@@ -506,7 +506,7 @@ control.ergm<-function(drop=TRUE,
 
                        SAN.maxit=4,
                        SAN.nsteps.times=8,
-                       SAN.control=control.san(
+                       SAN=control.san(
                          term.options=term.options,
                          SAN.maxit=SAN.maxit,
                          SAN.prop.weights=MCMC.prop.weights,
@@ -639,7 +639,7 @@ control.ergm<-function(drop=TRUE,
                        CD.steplength.min=0.0001,
                        CD.steplength.parallel=c("observational","always","never"),
                        
-                       loglik.control=control.logLik.ergm(),
+                       loglik=control.logLik.ergm(),
 
                        term.options=NULL,
 
@@ -651,49 +651,17 @@ control.ergm<-function(drop=TRUE,
                        
                        ...
                        ){
-  old.controls <- list(CD.Hummel.esteq="CD.steplength.esteq",
+  old.controls <- list(SAN.control="SAN",
+                       loglik.control="loglik",
+
+                       CD.Hummel.esteq="CD.steplength.esteq",
                        CD.Hummel.miss.sample="CD.steplength.miss.sample",
                        CD.Hummel.maxit="CD.steplength.maxit",
                        MCMLE.Hummel.esteq="MCMLE.steplength.esteq",
                        MCMLE.Hummel.miss.sample="MCMLE.steplength.miss.sample",
                        MCMLE.Hummel.maxit="MCMLE.steplength.maxit",
 
-                       nr.maxit="MCMLE.NR.maxit",
-                       nr.reltol="MCMLE.NR.reltol",
-                       maxNumDyadTypes="MPLE.max.dyad.types",
-                       maxedges="MCMC.init.maxedges",
-                       steplength="MCMLE.steplength",
-                       initialfit="init.method",
-                       style="main.method",
-                       obs.MCMCsamplesize="MCMLE.obs.samplesize",
-                       obs.interval="obs.MCMC.interval",
-                       obs.burnin="obs.MCMC.burnin",
-                       metric="MCMLE.metric",
-                       force.mcmc="force.main",
-                       adaptive.trustregion="MCMLE.adaptive.trustregion",
-                       adaptive.epsilon="MCMLE.adaptive.epsilon",
                        mcmc.precision="MCMLE.MCMC.precision",
-                       method="MCMLE.method",
-                       MPLEtype="MPLE.type",
-                       MPLEsamplesize="MPLE.samplesize",
-                       phase1_n="SA.phase1_n", initial_gain="SA.initial_gain", 
-                       nsubphases="SA.nsubphases", niterations="SA.niterations", phase3_n="SA.phase3_n",
-                       RobMon.phase1n_base="RM.phase1n_base",
-                       RobMon.phase2n_base="RM.phase2n_base",
-                       RobMon.phase2sub="RM.phase2sub",
-                       RobMon.init_gain="RM.init_gain",
-                       RobMon.phase3n="RM.phase3n",
-                       Step.MCMC.samplesize="Step.samplesize",
-                       trustregion="MCMLE.trustregion",
-                       stepMCMCsize="Step.MCMC.samplesize",
-                       steppingmaxit="Step.maxit",
-                       gridsize="Step.gridsize",
-                       sequential="MCMLE.sequential",
-                       returnMCMCstats="MCMC.return.stats",
-                       calc.mcmc.se="MCMC.addto.se",
-                       hessian="main.hessian",
-                       prop.weights="MCMC.prop.weights",
-                       prop.args="MCMC.prop.args",
                        packagenames="MCMC.packagenames",
                        SAN.burnin.times="SAN.nsteps.times"
                        )

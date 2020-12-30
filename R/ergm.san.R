@@ -386,7 +386,7 @@ san.ergm <- function(object, formula=object$formula,
                      nsim=NULL, basis=NULL,
                      output=c("network","edgelist","ergm_state"),
                      only.last=TRUE,
-                     control=object$control$SAN.control,
+                     control=object$control$SAN,
                      verbose=FALSE, 
                      offset.coef=NULL,
                      ...) {

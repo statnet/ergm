@@ -38,7 +38,7 @@ control.ergm(
   MCMC.packagenames = c(),
   SAN.maxit = 4,
   SAN.nsteps.times = 8,
-  SAN.control = control.san(term.options = term.options, SAN.maxit = SAN.maxit,
+  SAN = control.san(term.options = term.options, SAN.maxit = SAN.maxit,
     SAN.prop.weights = MCMC.prop.weights, SAN.prop.args = MCMC.prop.args, SAN.nsteps =
     EVL(MCMC.burnin, 16384) * SAN.nsteps.times, SAN.samplesize = EVL(MCMC.samplesize,
     1024), SAN.packagenames = MCMC.packagenames, parallel = parallel, parallel.type =
@@ -157,7 +157,7 @@ control.ergm(
   CD.steplength.maxit = 25,
   CD.steplength.min = 1e-04,
   CD.steplength.parallel = c("observational", "always", "never"),
-  loglik.control = control.logLik.ergm(),
+  loglik = control.logLik.ergm(),
   term.options = NULL,
   seed = NULL,
   parallel = 0,
@@ -370,9 +370,9 @@ to obtain a network with statistics close to those specified.}
 \item{SAN.nsteps.times}{Multiplier for \code{SAN.nsteps} relative to
 \code{MCMC.burnin}. This lets one control the amount of SAN burn-in
 (arguably, the most important of SAN parameters) without overriding the
-other SAN.control defaults.}
+other \code{SAN} defaults.}
 
-\item{SAN.control}{Control arguments to \code{\link{san}}.  See
+\item{SAN}{Control arguments to \code{\link{san}}.  See
 \code{\link{control.san}} for details.}
 
 \item{MCMLE.termination}{The criterion used for terminating MCMLE
@@ -660,7 +660,7 @@ value, as the network passed is not necessarily a good start for CD.
 Therefore, these settings are in effect if there are missing dyads in the
 observed network, using a higher default number of steps.}
 
-\item{loglik.control}{See \code{\link{control.ergm.bridge}}}
+\item{loglik}{See \code{\link{control.ergm.bridge}}}
 
 \item{term.options}{A list of additional arguments to be passed to term initializers. It can also be set globally via \code{option(ergm.term=list(...))}.}
 
