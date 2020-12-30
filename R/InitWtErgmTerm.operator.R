@@ -90,7 +90,7 @@ InitWtErgmTerm.Curve <- function(nw, arglist, response=NULL, ...){
 }
 
 InitWtErgmTerm..submodel_and_summary <- function(nw, arglist, response=NULL, ...){
-  out <- InitWtErgmTerm..submodel_and_summary(nw, arglist, response=response, ...)
+  out <- InitErgmTerm..submodel_and_summary(nw, arglist, response=response, ...)
   out$name <- "_wtsubmodel_and_summary_term"
   out
 }
