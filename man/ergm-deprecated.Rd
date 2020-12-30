@@ -25,7 +25,7 @@ InitErgmTerm.odegreepopularity(nw, arglist, ...)
   basis = NULL,
   output = c("network", "edgelist", "pending_update_network"),
   only.last = TRUE,
-  control = object$control$SAN.control,
+  control = object$control$SAN,
   verbose = FALSE,
   offset.coef = NULL,
   ...
