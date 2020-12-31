@@ -462,11 +462,13 @@ ergm_get_vattr.function <- function(object, nw, accept="character", bip=c("n","b
       args[[aname]] <- get(aname)
   args <- c(list(nw), list(...), args)
 
-  ERRVL(try(do.call(object, args) %>%
-            .rightsize_vattr(nw, bip, accept) %>% .handle_multiple(multiple=multiple) %>%
-            structure(., name=NVL(attr(.,"name"), strtrim(despace(paste(deparse(body(object)),collapse="\n")),80))),
-            silent=TRUE),
-        ergm_Init_abort(.)) %>%
+  ERRVL(try({
+    a <- do.call(object, args)
+    while(is(a,'formula')||is(a,'function')) a <- ergm_get_vattr(a, nw, accept=accept, bip=bip, multiple=multiple, ...)
+    a %>% .rightsize_vattr(nw, bip, accept) %>% .handle_multiple(multiple=multiple) %>%
+      structure(., name=NVL(attr(.,"name"), strtrim(despace(paste(deparse(body(object)),collapse="\n")),80)))
+  }, silent=TRUE),
+  ergm_Init_abort(.)) %>%
     .check_acceptable(accept=accept)
 }
 
@@ -485,8 +487,9 @@ ergm_get_vattr.formula <- function(object, nw, accept="character", bip=c("n","b1
 
   e <- ult(object)
   ERRVL(try({
-    eval(e, envir=vlist, enclos=environment(object)) %>%
-      .rightsize_vattr(nw, bip, accept) %>% .handle_multiple(multiple=multiple) %>%
+    a <- eval(e, envir=vlist, enclos=environment(object))
+    while(is(a,'formula')||is(a,'function')) a <- ergm_get_vattr(a, nw, accept=accept, bip=bip, multiple=multiple, ...)
+    a %>% .rightsize_vattr(nw, bip, accept) %>% .handle_multiple(multiple=multiple) %>%
       structure(name=if(length(object)>2) eval_lhs.formula(object) else despace(paste(deparse(e),collapse="\n")))
   }, silent=TRUE),
   ergm_Init_abort(.)) %>%
