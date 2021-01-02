@@ -7,8 +7,9 @@
 ergm_mplecov(pl, nw, fd, m, theta.mple, invHess, control, verbose)
 }
 \arguments{
-\item{pl}{An \code{\link{ergm.pl}} object.
-@param nw response network.}
+\item{pl}{An \code{\link{ergm.pl}} object.}
+
+\item{nw}{response network.}
 
 \item{fd}{An \code{\link{rlebdm}} with informative dyads.}
 

@@ -95,56 +95,77 @@ is.inCH_message_periodic <- once(message, expire_after=20)
 #' Graphical Statistics, 21: 920-939. }
 #' @export is.inCH
 is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly to LP solver
-
+  
   if(is.null(dim(p))) p <- rbind(p)
-
+  
   if (!is.matrix(M)) 
     stop("Second argument must be a matrix.")
   if (ncol(p) != ncol(M)) 
     stop("Number of columns in matrix (2nd argument) is not equal to dimension ",
          "of first argument.")
-
+  
   if(nrow(M)==1){
     for(i in seq_len(nrow(p))){
       if(!isTRUE(all.equal(p[i,], M, check.attributes = FALSE))) return(FALSE)
     }
     return(TRUE)
   }
-
+  
   ##
   ## NOTE: PCA code has been moved to .Hummel.steplength().
   ##
-
+  
   if(getRversion()=="3.6.0" && .Platform$OS.type=="unix") is.inCH_message_periodic("NOTE: Messages ",sQuote("Error in mcexit(0L)..."), " may appear; please disregard them.")
-
+  
   timeout <- 1
   for(i in seq_len(nrow(p))){
     ############################################
     # USE lp FUNCTION FROM lpSolve PACKAGE:
-    #' @importFrom lpSolve lp
-
+    #' @importFrom lpSolveAPI make.lp set.column set.objfn set.constr.type set.rhs set.bounds get.objective
+    
     ## This works around what appears to be a bug in lpsolve library
     ## that causes the process the process to reproducibly hang on
     ## some inputs. After a time limit, the call is terminated and
     ## re-attempted after randomly shifting p and M (preserving
     ## whether one is in the convex hull of the other).
-
+    
     ## TODO: Parametrize the timeout settings and/or figure out what's
     ## wrong with lpSolve().
-
+    
     repeat{
+      
+      ## Old code using R-package lpSolve
+      
+     #     ans <- forkTimeout({
+    #       L <- cbind(1, M)
+    #       q <- c(1, p[i,])
+    #      lp(objective.in = c(-q, q),
+    #          const.mat = rbind( c(q, -q), cbind(L, -L)),
+    #          const.dir = "<=",
+    #          const.rhs = c(1, rep(0, NROW(L))),
+    #          ...
+    #          )
+    #    }, timeout=timeout, unsupported="silent", onTimeout=list(objval=NA)) #if time out, return NA
+
+      # ## New code using R package lpSolveAPI by column
       ans <- forkTimeout({
         L <- cbind(1, M)
         q <- c(1, p[i,])
-        lp(objective.in = c(-q, q),
-           const.mat = rbind( c(q, -q), cbind(L, -L)),
-           const.dir = "<=",
-           const.rhs = c(1, rep(0, NROW(L))),
-           ...
-           )
+        lprec<- make.lp(nrow=NROW(L), ncol=length(q)) # set constraint and decision variables
+        for(k in 1:length(c(q))){
+          set.column(lprec, k, L[,k])
+        }
+        set.objfn(lprec, c( q) ) 
+        set.constr.type(lprec, rep(">=", NROW(L)))
+        set.rhs(lprec,  rep(0, NROW(L)))
+        set.bounds(lprec, lower = rep(-1, length(c(q))), upper = rep(1, length(c(q))))
+        solve(lprec) # solve problem
+        get.objective(lprec)# get the value of the objective function
       }, timeout=timeout, unsupported="silent", onTimeout=list(objval=NA))
-
-      if(is.na(ans$objval)){
+      
+      
+      
+      if(is.na(ans)){
         # Perturb p and M.
         shift <- rnorm(1)
         M <- M + shift
@@ -156,38 +177,39 @@ is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly 
         timeout <- max(timeout/2^(1/5),1)
         break
       }
+    } # end repeat
+    
+    
+    if(ans!=0){
+      if(verbose>1) message(sprintf("is.inCH: iter= %d, outside hull.",i))
+      return(FALSE)  #if the min is not zero, the point p[i,] is not in the CH of the points M
     }
-
-   if(ans$objval!=0){
-    if(verbose>1) message(sprintf("is.inCH: iter= %d, outside hull.",i))
-    return(FALSE)  #if the min is not zero, the point p[i,] is not in the CH of the points M
-   }
-  }
+  } # end for(i)
   if(verbose>1) message(sprintf("is.inCH: iter= %d, inside hull.",i))
   return(TRUE) # If all points passed the test, return TRUE.
-
-##############################################
-## USE solveLP FUNCTION FROM linprog PACKAGE (deprecated)
-## From help for function 'solveLP' in package 'linprog':
-##     Minimizes (or maximizes) c'x, subject to A x <= b and x >= 0.
-#  ans <- solveLP (cvec = c(-q, q),
-#                  bvec = c(1, rep(0, NROW(L))),
-#                  Amat= rbind( c(q, -q), cbind(L, -L)),
-#                  ...
-#                  )
-#  if(ans$opt==0)return(TRUE)  #if the min is zero, the point p is in the CH of the points M
-#  else return(FALSE)              
-
-### OLD CODE USING Rglpk PACKAGE (deprecated)
-#  R = NROW(M)
-#  C=length(p)+1
-#	ans <- Rglpk_solve_LP(obj=c(p,-1), 
-#	                      mat=cbind(rbind(p,M),-1),
-#	                      dir=as.vector(rep("<=",R+1)), 
-#	                      rhs=as.vector(c(1,rep(0,R))),
-#	                      max=TRUE, 
-#	                      bounds=list(lower=list(ind=1:C,val=rep(-Inf,C))))
-#  if(ans$optimum==0)return(TRUE)  #if the max is zero, the point p is in the CH of the points M
-#  else return(FALSE)
-
+  
+  ##############################################
+  ## USE solveLP FUNCTION FROM linprog PACKAGE (deprecated)
+  ## From help for function 'solveLP' in package 'linprog':
+  ##     Minimizes (or maximizes) c'x, subject to A x <= b and x >= 0.
+  #  ans <- solveLP (cvec = c(-q, q),
+  #                  bvec = c(1, rep(0, NROW(L))),
+  #                  Amat= rbind( c(q, -q), cbind(L, -L)),
+  #                  ...
+  #                  )
+  #  if(ans$opt==0)return(TRUE)  #if the min is zero, the point p is in the CH of the points M
+  #  else return(FALSE)              
+  
+  ### OLD CODE USING Rglpk PACKAGE (deprecated)
+  #  R = NROW(M)
+  #  C=length(p)+1
+  #	ans <- Rglpk_solve_LP(obj=c(p,-1), 
+  #	                      mat=cbind(rbind(p,M),-1),
+  #	                      dir=as.vector(rep("<=",R+1)), 
+  #	                      rhs=as.vector(c(1,rep(0,R))),
+  #	                      max=TRUE, 
+  #	                      bounds=list(lower=list(ind=1:C,val=rep(-Inf,C))))
+  #  if(ans$optimum==0)return(TRUE)  #if the max is zero, the point p is in the CH of the points M
+  #  else return(FALSE)
+  
 }

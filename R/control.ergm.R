@@ -121,7 +121,7 @@
 #' @param MPLE.covariance.method The method to estimate the MPLE covariance method. `invHess`
 #'  returns the covariance estimate obtained from the glm()-function. `Godambe` estimates the 
 #'  covariance matrix using the Godambe-matrix (Schmid and Hunter (2020)). This method is recommended 
-#'  for dyad-dependent models. Alternatively, `Bootstrap` estimates standard deviations using a parametric
+#'  for dyad-dependent models. Alternatively, `bootstrap` estimates standard deviations using a parametric
 #'  bootstrapping approach (see Schmid and Desmarais (2017)).
 #'
 #' @template control_MCMC_prop
@@ -448,7 +448,7 @@ control.ergm<-function(drop=TRUE,
                        MPLE.nonident=c("warning","message","error"),
                        MPLE.nonident.tol=1e-10,
                        MPLE.covariance.samplesize = 500,
-                       MPLE.covariance.method = c("invHess",  "Godambe", "Bootstrap"),
+                       MPLE.covariance.method = c("invHess",  "Godambe", "bootstrap"),
 
                        MCMC.prop.weights="default", MCMC.prop.args=list(),
                        MCMC.interval=1024,
@@ -627,7 +627,7 @@ control.ergm<-function(drop=TRUE,
                        SAN.burnin.times="SAN.nsteps.times"
                        )
 
-  match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method","MCMLE.steplength.parallel","CD.steplength.parallel","MPLE.nonident","MCMLE.nonident")
+  match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method","MCMLE.steplength.parallel","CD.steplength.parallel","MPLE.nonident","MCMLE.nonident", "MPLE.covariance.method")
   
   control<-list()
   formal.args<-formals(sys.function())

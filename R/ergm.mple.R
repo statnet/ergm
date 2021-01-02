@@ -80,14 +80,8 @@ ergm.mple<-function(nw, fd, m, init=NULL,
                     ...) {
   message("Starting maximum pseudolikelihood estimation (MPLE):")
   message("Evaluating the predictor and response matrix.")
-  pl <- ergm.pl(nw=nw, fd=fd, m=m,
-                theta.offset=init,
-		control=control,
-                verbose=verbose)
-  
-  if(control$MPLE.covariance.method != "invHess" && control$MPLE.covariance.method != "Godambe" && control$MPLE.covariance.method != "Bootstrap"){
-    abort("Not a valid covariance method.")
-  }
+  pl <- ergm.pl(nw=nw, fd=fd, m=m, theta.offset=init,
+		            control=control,verbose=verbose)
 
   message("Maximizing the pseudolikelihood.")
   if(MPLEtype=="penalized"){
@@ -116,19 +110,14 @@ ergm.mple<-function(nw, fd, m, init=NULL,
                                   data=data.frame(pl$xmat),
                                   weights=pl$wend, family=family))
     
-  # estimate variability matrix V for Godambe covariance matrix, only for dyad dependent models and 
+  # estimate variability matrix V for Godambe covariance matrix or via bootstrapping, only for dyad dependent models and 
   #  init.method="MPLE"
-  if(!is.dyad.independent(m) && control$init.method == "MPLE" && control$MPLE.covariance.method=="Godambe"){ #
+  if(!is.dyad.independent(m) && control$init.method == "MPLE" && control$MPLE.covariance.method=="Godambe" || 
+     control$MPLE.covariance.method=="bootstrap"){ 
   invHess <- summary(glm.result$value)$cov.unscaled
-  mple.cov<-  ergm_mplecov(pl,nw, fd, m, theta.mple=glm.result$value$coef, invHess=invHess, 
+  mple.cov <- ergm_mplecov(pl,nw, fd, m, theta.mple=glm.result$value$coef, invHess=invHess, 
                            verbose=verbose, control=control)
   }
-  
-  # estimating MPLE standard errors using parametric bootstrap  
-  if(!is.dyad.independent(m) && control$init.method == "MPLE" && control$MPLE.covariance.method=="Bootstrap"){ #
-      mple.cov<-  ergm_mplecov(pl,nw, fd, m, theta.mple=glm.result$value$coef, invHess=invHess, verbose=verbose,
-                               control=control)
-    }  
     
     # error handling for glm results
     if (!is.null(glm.result$error)) {
@@ -148,7 +137,6 @@ ergm.mple<-function(nw, fd, m, init=NULL,
         mplefit <- glm.result$value
         
         
-        
         mplefit.summary <- summary(mplefit)
       }
     } else {
@@ -162,13 +150,12 @@ ergm.mple<-function(nw, fd, m, init=NULL,
   }
   real.coef <- mplefit$coef
   
-  if(!is.dyad.independent(m) && control$init.method == "MPLE" && control$MPLE.covariance.method=="Godambe"){ 
-  real.cov <- mple.cov$Godambe
-  }else{ if(!is.dyad.independent(m) && control$init.method == "MPLE" && control$MPLE.covariance.method=="Bootstrap"){
-    real.cov <- mple.cov$Bootstrap  
+  if(!is.dyad.independent(m) && control$init.method == "MPLE" && control$MPLE.covariance.method=="Godambe" ||
+     control$MPLE.covariance.method=="bootstrap" ){ 
+  real.cov <- mple.cov
   }else{
   real.cov <- mplefit.summary$cov.unscaled
-  }}
+  }
   
   theta <- NVL(init, real.coef)
   theta[!m$etamap$offsettheta] <- real.coef
