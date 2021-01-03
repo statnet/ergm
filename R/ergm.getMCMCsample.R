@@ -108,7 +108,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
         if(verbose>1)
           message("First run: running each chain forward by ",samplesize, " steps with interval ", interval, ".")
       }else{
-        if(burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
+        if(is.na(burnin.pval) | burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
           samplesize <- control.parallel$MCMC.samplesize
           if(verbose>1)
             message("Insufficient ESS or untrustworthy burn-in estimate to determine the number of steps remaining: running forward by ",samplesize, " steps with interval ", interval, ".")
@@ -143,8 +143,12 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
       }
 
       best.burnin <- .find_OK_burnin(esteq, order.max=control$MCMC.effectiveSize.order.max)
+      if(is.na(best.burnin$burnin)){
+        if(verbose>1) message("Can not compute a valid burn-in. Setting burn-in to",interval,".")
+        best.burnin$burnin <- interval
+      }
       burnin.pval <- best.burnin$pval
-      if(burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
+      if(is.na(burnin.pval) | burnin.pval <= control$MCMC.effectiveSize.burnin.pval){
         if(verbose>1) message("Selected burn-in p-value = ", burnin.pval, " is below the threshold of ",control$MCMC.effectiveSize.burnin.pval,".")
         next
       }
@@ -263,16 +267,36 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
   ssr <- function(b,s){
     b <- round(b)
     n <- nrow(s)
-    sum(resid(lm(s~c(seq_len(b), numeric(n-b))+ I(seq_len(n)>b)))^2)
+    a <- try(lm(s~c(seq_len(b), numeric(n-b))+ I(seq_len(n)>b)))
+    if(!inherits(a,"try-error")){
+      sum(resid(a)^2)
+    }else{
+      NA
+    }
+  }
+
+  ssr_opt <- function(x){
+    a <- try(optimize(ssr, c(0, nrow(x)/2), s=x, tol=1))
+    if(!inherits(a,"try-error")){
+      a$minimum
+    }else{
+      NA
+    }
   }
 
   geweke <- function(b){
+    if(is.na(b)) return(NA)
     if(b>0) x <- window(x, start=start(x) + b * thin(x))
     p.val <- suppressWarnings(geweke.diag.mv(x, ...)$p.value)
     if(is.na(p.val)) 0 else p.val
   }
 
-  best <- max(sapply(xs, function(x) optimize(ssr, c(0, nrow(x)/2), s=x, tol=1)$minimum))
+  best <- sapply(xs, ssr_opt)
+  if(all(is.na(best) | is.infinite(best))){
+    best <- NA
+  }else{
+    best <- max(best, na.rm=TRUE)
+  }
 
   list(burnin=round(best), pval=geweke(round(best)))
 }
