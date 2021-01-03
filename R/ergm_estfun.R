@@ -30,27 +30,34 @@
 #'   \eqn{q}-vectors of estimating function values.
 #' @keywords internal
 #' @export
-ergm.estfun <- function(stats, theta, model, ...){
+ergm.estfun <- function(stats, theta, model, exclude=NULL, ...){
   UseMethod("ergm.estfun")
 }
 
 #' @describeIn ergm.estfun Method for matrices with \eqn{p} columns.
 #' @export
-ergm.estfun.matrix <- function(stats, theta, model, ...){
+ergm.estfun.matrix <- function(stats, theta, model, exclude=NULL, ...){
   etamap <- if(is(model, "ergm_model")) model$etamap else model
   estf <- t(ergm.etagradmult(theta,t(as.matrix(stats)),etamap))[,!etamap$offsettheta,drop=FALSE]
   colnames(estf) <- (if(is(model, "ergm_model")) param_names(model, FALSE) else names(theta))[!etamap$offsettheta]
+# Exclude statistics that are not expected to have a specific mean
+  if(!is.null(exclude)){
+    x.exclude <- grep(exclude,colnames(as.matrix(estf)),fixed=TRUE)
+    if(length(x.exclude)>0){
+     estf <- estf[,-x.exclude]
+    }
+  }
   -estf
 }
 
 #' @describeIn ergm.estfun Method for [`mcmc`] objects with \eqn{p} variables.
 #' @export
-ergm.estfun.mcmc <- function(stats, theta, model, ...){
-  mcmc(ergm.estfun(as.matrix(stats), theta, model), start=start(stats), end=end(stats), thin=thin(stats))
+ergm.estfun.mcmc <- function(stats, theta, model, exclude=NULL, ...){
+  mcmc(ergm.estfun(as.matrix(stats), theta, model, exclude=exclude), start=start(stats), end=end(stats), thin=thin(stats))
 }
 
 #' @describeIn ergm.estfun Method for  [`mcmc.list`] objects with \eqn{p} variables.
 #' @export
-ergm.estfun.mcmc.list <- function(stats, theta, model, ...){
-  lapply.mcmc.list(stats, ergm.estfun, theta, model)
+ergm.estfun.mcmc.list <- function(stats, theta, model, exclude=NULL, ...){
+  lapply.mcmc.list(stats, ergm.estfun, theta, model, exclude=exclude)
 }

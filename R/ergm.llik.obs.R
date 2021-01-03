@@ -60,9 +60,9 @@
 #        normally  distributed so that exp(eta * stats) is lognormal
 #####################################################################################                           
 llik.fun.obs.lognormal <- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5, trustregion=20,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+                     eta0, etamap, 
+                     control.llik=list(MCMLE.trustregion=20, MCMLE.varweight=0.5, MCMLE.dampening=FALSE,MCMLE.dampening.min.ess=100, MCMLE.dampening.level=0.1),
+                     ...){
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
 # These lines standardize:
@@ -80,13 +80,13 @@ llik.fun.obs.lognormal <- function(theta, xsim, xsim.obs=NULL,
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
-  llr <- (mm + varweight*vm) - (mb + varweight*vb)
+  llr <- (mm + control.llik$MCMLE.varweight*vm) - (mb + control.llik$MCMLE.varweight*vb)
   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #
-# Penalize changes to trustregion
+# Penalize changes to control.llik$MCMLE.trustregion
 #
-  if (is.numeric(trustregion) && llr>trustregion) {
-    return(2*trustregion - llr)
+  if (is.numeric(control.llik$MCMLE.trustregion) && llr>control.llik$MCMLE.trustregion) {
+    return(2*control.llik$MCMLE.trustregion - llr)
   } else {
     return(llr)
   }
@@ -99,9 +99,9 @@ llik.fun.obs.lognormal <- function(theta, xsim, xsim.obs=NULL,
 #   llg: the gradient of the not-offset eta parameters with ??
 #####################################################################################
 llik.grad.obs.IS <- function(theta, xsim,  xsim.obs=NULL,
-                      varweight=0.5, trustregion=20,
-                      dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                      eta0, etamap){
+                      eta0, etamap, 
+                      control.llik=list(MCMLE.trustregion=20, MCMLE.varweight=0.5, MCMLE.dampening=FALSE,MCMLE.dampening.min.ess=100, MCMLE.dampening.level=0.1),
+                      ...){
   # Obtain canonical parameters incl. offsets and difference from sampled-from
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
@@ -128,9 +128,9 @@ llik.grad.obs.IS <- function(theta, xsim,  xsim.obs=NULL,
 #####################################################################################
 
 llik.hessian.obs.IS <- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5, trustregion=20,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+                     eta0, etamap, 
+                     control.llik=list(MCMLE.trustregion=20, MCMLE.varweight=0.5, MCMLE.dampening=FALSE,MCMLE.dampening.min.ess=100, MCMLE.dampening.level=0.1),
+                     ...){
   # Obtain canonical parameters incl. offsets and difference from sampled-from
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
@@ -160,9 +160,9 @@ llik.hessian.obs.IS <- function(theta, xsim, xsim.obs=NULL,
 #####################################################################################
 
 llik.fun.obs.IS <- function(theta, xsim, xsim.obs=NULL, 
-                     varweight=0.5, trustregion=20,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+                     eta0, etamap, 
+                     control.llik=list(MCMLE.trustregion=20, MCMLE.varweight=0.5, MCMLE.dampening=FALSE,MCMLE.dampening.min.ess=100, MCMLE.dampening.level=0.1),
+                     ...){
   # Obtain canonical parameters incl. offsets and difference from sampled-from
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
@@ -174,8 +174,8 @@ llik.fun.obs.IS <- function(theta, xsim, xsim.obs=NULL,
   
   # trustregion is the maximum value of llr that we actually trust.
   # So if llr>trustregion, return a value less than trustregion instead.
-  if (is.numeric(trustregion) && llr>trustregion) {
-    return(2*trustregion - llr)
+  if (is.numeric(control.llik$MCMLE.trustregion) && llr>control.llik$MCMLE.trustregion) {
+    return(2*control.llik$MCMLE.trustregion - llr)
   } else {
     return(llr)
   }
@@ -189,9 +189,9 @@ llik.fun.obs.IS <- function(theta, xsim, xsim.obs=NULL,
 #####################################################################################
 
 llik.fun.obs.robust<- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5, trustregion=20,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+                     eta0, etamap, 
+                     control.llik=list(MCMLE.trustregion=20, MCMLE.varweight=0.5, MCMLE.dampening=FALSE,MCMLE.dampening.min.ess=100, MCMLE.dampening.level=0.1),
+                     ...){
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
 
@@ -210,13 +210,13 @@ llik.fun.obs.robust<- function(theta, xsim, xsim.obs=NULL,
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
-  llr <- (mm + varweight*vm*vm) - (mb + varweight*vb*vb)
+  llr <- (mm + control.llik$MCMLE.varweight*vm*vm) - (mb + control.llik$MCMLE.varweight*vb*vb)
   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #
 # Penalize changes to trustregion
 #
-  if (is.numeric(trustregion) && llr>trustregion) {
-    return(2*trustregion - llr)
+  if (is.numeric(control.llik$MCMLE.trustregion) && llr>control.llik$MCMLE.trustregion) {
+    return(2*control.llik$MCMLE.trustregion - llr)
   } else {
     return(llr)
   }

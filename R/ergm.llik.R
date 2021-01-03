@@ -62,9 +62,9 @@
 #####################################################################################
 
 llik.fun.lognormal <- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5, trustregion=20, 
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+                     eta0, etamap, 
+                     control.llik=list(MCMLE.trustregion=20, MCMLE.varweight=0.5, MCMLE.dampening=FALSE,MCMLE.dampening.min.ess=100, MCMLE.dampening.level=0.1),
+                     ...){
   # Convert theta to eta
   eta <- ergm.eta(theta, etamap)
 
@@ -74,7 +74,7 @@ llik.fun.lognormal <- function(theta, xsim, xsim.obs=NULL,
   basepred <- xsim %*% etaparam
   mb <- lweighted.mean(basepred,lrowweights(xsim))
   vb <- lweighted.var(basepred,lrowweights(xsim))
-  llr <- - mb - varweight*vb
+  llr <- - mb - control.llik$MCMLE.varweight*vb
   #
 
   # Simplistic error control;  -800 is effectively like -Inf:
@@ -82,8 +82,8 @@ llik.fun.lognormal <- function(theta, xsim, xsim.obs=NULL,
 
   # trustregion is the maximum value of llr that we actually trust.
   # So if llr>trustregion, return a value less than trustregion instead.
-  if (is.numeric(trustregion) && llr>trustregion) {
-    return(2*trustregion - llr)
+  if (is.numeric(control.llik$MCMLE.trustregion) && llr>control.llik$MCMLE.trustregion) {
+    return(2*control.llik$MCMLE.trustregion - llr)
   } else {
     return(llr)
   }
@@ -96,9 +96,9 @@ llik.fun.lognormal <- function(theta, xsim, xsim.obs=NULL,
 #####################################################################################
 
 llik.grad.IS <- function(theta, xsim,  xsim.obs=NULL,
-                     varweight=0.5, trustregion=20, 
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+                     eta0, etamap, 
+                     control.llik=list(MCMLE.trustregion=20, MCMLE.varweight=0.5, MCMLE.dampening=FALSE,MCMLE.dampening.min.ess=100, MCMLE.dampening.level=0.1),
+                     ...){
 
   # Obtain canonical parameters incl. offsets and difference from sampled-from
   eta <- ergm.eta(theta, etamap)
@@ -128,9 +128,9 @@ llik.grad.IS <- function(theta, xsim,  xsim.obs=NULL,
 #       this is equation (3.5) of Hunter & Handcock (2006)
 #####################################################################################
 llik.hessian.IS <- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5, trustregion=20, 
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+                     eta0, etamap, 
+                     control.llik=list(MCMLE.trustregion=20, MCMLE.varweight=0.5, MCMLE.dampening=FALSE,MCMLE.dampening.min.ess=100, MCMLE.dampening.level=0.1),
+                     ...){
   # Obtain canonical parameters incl. offsets and difference from sampled-from
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
@@ -155,9 +155,9 @@ llik.hessian.IS <- function(theta, xsim, xsim.obs=NULL,
 #####################################################################################
 
 llik.fun.EF <- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5, trustregion=20,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+                     eta0, etamap, 
+                     control.llik=list(MCMLE.trustregion=20, MCMLE.varweight=0.5, MCMLE.dampening=FALSE,MCMLE.dampening.min.ess=100, MCMLE.dampening.level=0.1),
+                     ...){
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
   basepred <- xsim %*% etaparam
@@ -167,8 +167,8 @@ llik.fun.EF <- function(theta, xsim, xsim.obs=NULL,
 #
 # Penalize changes to trustregion
 #
-  if (is.numeric(trustregion) && llr>trustregion) {
-    return(2*trustregion - llr)
+  if (is.numeric(control.llik$MCMLE.trustregion) && llr>control.llik$MCMLE.trustregion) {
+    return(2*control.llik$MCMLE.trustregion - llr)
   } else {
     return(llr)
   }
@@ -190,9 +190,9 @@ llik.fun.EF <- function(theta, xsim, xsim.obs=NULL,
 #####################################################################################
 
 llik.fun.IS <- function(theta, xsim, xsim.obs=NULL, 
-                     varweight=0.5, trustregion=20,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+                     eta0, etamap, 
+                     control.llik=list(MCMLE.trustregion=20, MCMLE.varweight=0.5, MCMLE.dampening=FALSE,MCMLE.dampening.min.ess=100, MCMLE.dampening.level=0.1),
+                     ...){
   # Obtain canonical parameters incl. offsets and difference from sampled-from
   eta <- ergm.eta(theta, etamap)
   etaparam <- eta-eta0
@@ -202,8 +202,8 @@ llik.fun.IS <- function(theta, xsim, xsim.obs=NULL,
   llr <- - log_sum_exp(basepred)
   # trustregion is the maximum value of llr that we actually trust.
   # So if llr>trustregion, return a value less than trustregion instead.
-  if (is.numeric(trustregion) && llr>trustregion) {
-    return(2*trustregion - llr)
+  if (is.numeric(control.llik$MCMLE.trustregion) && llr>control.llik$MCMLE.trustregion) {
+    return(2*control.llik$MCMLE.trustregion - llr)
   } else {
     return(llr)
   }
@@ -215,9 +215,9 @@ llik.fun.IS <- function(theta, xsim, xsim.obs=NULL,
 #####################################################################################
 
 llik.fun.median <- function(theta, xsim, xsim.obs=NULL,
-                     varweight=0.5, trustregion=20,
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
+                     eta0, etamap, 
+                     control.llik=list(MCMLE.trustregion=20, MCMLE.varweight=0.5, MCMLE.dampening=FALSE,MCMLE.dampening.min.ess=100, MCMLE.dampening.level=0.1),
+                     ...){
   # Convert theta to eta
   eta <- ergm.eta(theta, etamap)
 
@@ -237,13 +237,13 @@ llik.fun.median <- function(theta, xsim, xsim.obs=NULL,
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
-  llr <- - (mb + varweight*sdb*sdb)
+  llr <- - (mb + control.llik$MCMLE.varweight*sdb*sdb)
   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #
 # Penalize changes to trustregion
 #
-  if (is.numeric(trustregion) && llr>trustregion) {
-    return(2*trustregion - llr)
+  if (is.numeric(control.llik$MCMLE.trustregion) && llr>control.llik$MCMLE.trustregion) {
+    return(2*control.llik$MCMLE.trustregion - llr)
   } else {
     return(llr)
   }
@@ -256,23 +256,23 @@ llik.fun.median <- function(theta, xsim, xsim.obs=NULL,
 }
 
 llik.fun.logtaylor <- function(theta, xsim, xsim.obs=NULL, 
-	 	                     varweight=0.5, trustregion=20,  
-	 	                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1, 
-	 	                     eta0, etamap){ 
+                               eta0, etamap, 
+                               control.llik=list(MCMLE.trustregion=20, MCMLE.varweight=0.5, MCMLE.dampening=FALSE,MCMLE.dampening.min.ess=100, MCMLE.dampening.level=0.1),
+                               ...){
 	 	  # Convert theta to eta 
 	 	  eta <- ergm.eta(theta, etamap) 
  	 
  	  # Calculate approximation to l(eta) - l(eta0) using a lognormal approximation 
 	 	  etaparam <- eta-eta0 
 	 	  # 
-	 	  if (dampening) { 
+	 	  if (control.llik$MCMLE.dampening) { 
 	 	    #if theta_extended is (almost) outside convex hull don't trust theta 
-	 	    eta_extended <- eta + etaparam*dampening.level 
+	 	    eta_extended <- eta + etaparam*control.llik$MCMLE.dampening.level 
 	 	    expon_extended <- xsim %*% (eta_extended - eta0) 
 	 	    wts <- exp(expon_extended) 
 	 	    ess <- ceiling(sum(wts)^2/sum(wts^2)) 
 	 	#   https://xianblog.wordpress.com/2010/09/24/effective-sample-size/ 
-	 	    if(!is.na(ess) && {ess<dampening.min.ess}){ return(-Inf) } #.005*length(wts)) 
+	 	    if(!is.na(ess) && {ess<control.llik$MCMLE.dampening.min.ess}){ return(-Inf) } #.005*length(wts)) 
 	 	  } 
 	 	 
 	 	  basepred <- xsim %*% etaparam 
@@ -290,8 +290,8 @@ llik.fun.logtaylor <- function(theta, xsim, xsim.obs=NULL,
 	 	 
 	 	  # trustregion is the maximum value of llr that we actually trust. 
 	 	  # So if llr>trustregion, return a value less than trustregion instead. 
-	 	  if (is.numeric(trustregion) && llr>trustregion) { 
-	 	    return(2*trustregion - llr) 
+	 	  if (is.numeric(control.llik$MCMLE.trustregion) && llr>control.llik$MCMLE.trustregion) { 
+	 	    return(2*control.llik$MCMLE.trustregion - llr) 
 	 	  } else { 
 	 	    return(llr) 
 	 	  } 
@@ -308,3 +308,19 @@ llik.fun.logtaylor <- function(theta, xsim, xsim.obs=NULL,
   	    x[x > xtop] <- xtop 
 	 	    return(x) 
 	 	} 
+
+# equality functions
+eq.fun.IS <- function(theta, xsim,  xsim.obs=NULL,
+                     eta0, etamap, 
+                     control.llik=list(MCMLE.trustregion=20, MCMLE.varweight=0.5, MCMLE.dampening=FALSE,MCMLE.dampening.min.ess=100, MCMLE.dampening.level=0.1),
+                     ...){
+
+return(0)
+}
+eq.jacobian.fun.IS <- function(theta, xsim,  xsim.obs=NULL,
+                     eta0, etamap, 
+                     control.llik=list(MCMLE.trustregion=20, MCMLE.varweight=0.5, MCMLE.dampening=FALSE,MCMLE.dampening.min.ess=100, MCMLE.dampening.level=0.1),
+                     ...){
+
+return(0)
+}

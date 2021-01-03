@@ -129,7 +129,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=0, assume.indep=FALSE, var.eq
   novar <- diag(vcov.d)==0
   p <- p-sum(novar)
 
-  if(p==0) stop("data are essentially contstant")
+  if(p==0) stop("data are essentially constant")
   
   ivcov.d <-ginv(vcov.d[!novar,!novar,drop=FALSE])
   
