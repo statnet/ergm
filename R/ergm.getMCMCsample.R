@@ -61,7 +61,7 @@ ergm_MCMC_sample <- function(state, control, theta=NULL,
   ##   if(is.numeric(stats0)) stats0 <- list(stats0)
   ##   stats0 <- rep(stats0, length.out=length(state))
 
-  ##   state <- mapply(ergm_state, state, stats=stats0, MoreArgs=list(response=response, model=model, proposal=proposal), SIMPLIFY=FALSE)
+  ##   state <- mapply(ergm_state, state, stats=stats0, MoreArgs=list(model=model, proposal=proposal), SIMPLIFY=FALSE)
   ## }else state
 
   control.parallel <- control

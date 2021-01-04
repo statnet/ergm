@@ -53,8 +53,9 @@ is.curved.formula<-function(object,response=NULL,basis=NULL,...){
   }
   
   nw <- ensure_network(nw)
+  ergm_preprocess_response(nw, response)
   
-  m<-ergm_model(object, nw, response=response, ...)
+  m<-ergm_model(object, nw, ...)
   is.curved(m)
 }
 

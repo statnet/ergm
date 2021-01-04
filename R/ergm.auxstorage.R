@@ -7,7 +7,7 @@
 #
 #  Copyright 2003-2017 Statnet Commons
 #######################################################################
-ergm.auxstorage <- function(model, nw, response=NULL,..., extra.aux=list(), term.options=list()){
+ergm.auxstorage <- function(model, nw,..., extra.aux=list(), term.options=list()){
 
   aux_list_list <- function(terms, extra=NULL) {
     # As formulas
@@ -21,7 +21,7 @@ ergm.auxstorage <- function(model, nw, response=NULL,..., extra.aux=list(), term
       else{
         formula.env <- environment(aux.form)
         lapply(list_rhs.formula(aux.form), function(aux.term){
-          call.ErgmTerm(aux.term, formula.env, nw, response=response,term.options=term.options,...)
+          call.ErgmTerm(aux.term, formula.env, nw, term.options=term.options, ...)
         })
       }
     })

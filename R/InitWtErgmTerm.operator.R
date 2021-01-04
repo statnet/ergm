@@ -1,10 +1,10 @@
-InitWtErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
-  out <- InitErgmTerm.passthrough(nw, arglist, response=response, ...)
+InitWtErgmTerm.passthrough <- function(nw, arglist, ...){
+  out <- InitErgmTerm.passthrough(nw, arglist, ...)
   out$name <- "wtpassthrough_term"
   out
 }
 
-InitWtErgmTerm.B <- function(nw, arglist, response=NULL, ...){
+InitWtErgmTerm.B <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "form"),
                       vartypes = c("formula", "character,formula"),
@@ -29,7 +29,7 @@ InitWtErgmTerm.B <- function(nw, arglist, response=NULL, ...){
     auxiliaries <- if(form=="nonzero") trim_env(~.binary.nonzero.net)
   }
 
-  mw <- wrap.ergm_model(m, nwb, NULL, ergm_mk_std_op_namewrap('B', form.name))
+  mw <- wrap.ergm_model(m, nwb, ergm_mk_std_op_namewrap('B', form.name))
   if(form=="sum") mw$emptynwstats <- NULL
 
   c(list(name=name,
@@ -38,7 +38,7 @@ InitWtErgmTerm.B <- function(nw, arglist, response=NULL, ...){
     mw)
 }
 
-InitWtErgmTerm..binary.nonzero.net <- function(nw, arglist, response=NULL, ...){
+InitWtErgmTerm..binary.nonzero.net <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c(),
                       vartypes = c(),
@@ -48,23 +48,23 @@ InitWtErgmTerm..binary.nonzero.net <- function(nw, arglist, response=NULL, ...){
   list(name="_binary_nonzero_net", depenence=FALSE)
 }
 
-InitWtErgmTerm..binary.formula.net <- function(nw, arglist, response=NULL, ...){
+InitWtErgmTerm..binary.formula.net <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
                       vartypes = c("formula"),
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  m <- ergm_model(a$formula, nw, response=response,...)
+  m <- ergm_model(a$formula, nw,...)
 
   if(!is.dyad.independent(m) || nparam(m)!=1) stop("The binary test formula must be dyad-independent and have exactly one statistc.")
 
   nw[,] <- FALSE
-  gs <- summary(m, nw, response=response)
+  gs <- summary(m, nw)
   if(gs!=0) stop("At this time, the binary test term must have the property that its dyadwise components are 0 for 0-valued relations. This limitation may be removed in the future.")
   
   c(list(name="_binary_formula_net", submodel=m, depenence=FALSE),
-    wrap.ergm_model(m, nw, response, NULL))
+    wrap.ergm_model(m, nw, NULL))
 }
 
 # Arguments and outputs are identical to the binary version, except for the C routine names.
@@ -77,20 +77,20 @@ InitWtErgmTerm.Sum <- function(...){
   term
 }
 
-InitWtErgmTerm.Label <- function(nw, arglist, response=NULL, ...){
-  out <- InitErgmTerm.Label(nw, arglist, response=response, ...)
+InitWtErgmTerm.Label <- function(nw, arglist, ...){
+  out <- InitErgmTerm.Label(nw, arglist, ...)
   out$name <- "wtpassthrough_term"
   out
 }
 
-InitWtErgmTerm.Curve <- function(nw, arglist, response=NULL, ...){
-  out <- InitErgmTerm.Curve(nw, arglist, response=response, ...)
+InitWtErgmTerm.Curve <- function(nw, arglist, ...){
+  out <- InitErgmTerm.Curve(nw, arglist, ...)
   out$name <- "wtpassthrough_term"
   out
 }
 
-InitWtErgmTerm..submodel_and_summary <- function(nw, arglist, response=NULL, ...){
-  out <- InitErgmTerm..submodel_and_summary(nw, arglist, response=response, ...)
+InitWtErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
+  out <- InitErgmTerm..submodel_and_summary(nw, arglist, ...)
   out$name <- "_wtsubmodel_and_summary_term"
   out
 }

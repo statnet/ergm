@@ -42,7 +42,7 @@
 ###########################################################################      
 
 ergm.stocapprox <- function(init, nw, model,
-                            control, proposal, response=NULL,
+                            control, proposal,
                             verbose=FALSE){
 
   control <- remap_algorithm_MCMC_controls(control, "RM")
@@ -84,7 +84,7 @@ ergm.stocapprox <- function(init, nw, model,
   }
 # message(paste("Phase 2: a=",a,"Total Samplesize",control$MCMC.samplesize,""))
 # aDdiaginv <- a * Ddiaginv
-  s <- ergm_state(nw, model=model, response=response, proposal=proposal, stats = summary(model, nw, response=response) - NVL(model$target.stats,model$nw.stats))
+  s <- ergm_state(nw, model=model, proposal=proposal, stats = summary(model, nw) - NVL(model$target.stats,model$nw.stats))
   z <- ergm.phase12(s, 
                     theta, control, verbose=TRUE)
   nw <- z$newnetwork

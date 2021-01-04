@@ -546,7 +546,7 @@ ergm <- function(formula, response=NULL,
   if (verbose) message("Evaluating network in model.")
   
   nw <- basis
-  NVL(response) <- nw %ergmlhs% "response"
+  ergm_preprocess_response(nw,response)
 
   proposalclass <- "c"
 
@@ -568,29 +568,29 @@ ergm <- function(formula, response=NULL,
     if (verbose) message("Initializing unconstrained Metropolis-Hastings proposal: ", appendLF=FALSE)
     
   ## FIXME: a more general framework is needed?
-  if(!is.null(response) && reference==trim_env(~Bernoulli)){
+  if(is.valued(nw) && reference==trim_env(~Bernoulli)){
     warn(paste0("The default Bernoulli reference distribution operates in the binary (",sQuote("response=NULL"),") mode only. Did you specify the ",sQuote("reference")," argument?"))
   }
     
-    proposal <- ergm_proposal(constraints, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
+    proposal <- ergm_proposal(constraints, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference)
   }else proposal <- constraints
   
   if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
   
   if (verbose) message("Initializing model...")
-  model <- ergm_model(formula, nw, response=response, extra.aux=NVL3(proposal$auxiliaries,list(proposal=.)), term.options=control$term.options)
+  model <- ergm_model(formula, nw, extra.aux=NVL3(proposal$auxiliaries,list(proposal=.)), term.options=control$term.options)
   proposal$aux.slots <- model$slots.extra.aux$proposal
   if (verbose) message("Model initialized.")
   
   if(!is(obs.constraints, "ergm_proposal")){
     if(!is.null(constraints.obs)){
       if (verbose) message("Initializing constrained Metropolis-Hastings proposal: ", appendLF=FALSE)
-      proposal.obs <- ergm_proposal(constraints.obs, hints=control$obs.MCMC.prop, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
+      proposal.obs <- ergm_proposal(constraints.obs, hints=control$obs.MCMC.prop, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference)
       if (verbose) message(sQuote(paste0(proposal.obs$pkgname,":MH_",proposal.obs$name)), appendLF=FALSE)
       
       if(!is.null(proposal.obs$auxiliaries)){
         if(verbose) message(" (requests auxiliaries: updating model).")
-        model$obs.model <- c(model, ergm_model(trim_env(~.), nw, response=response, extra.aux=list(proposal=proposal.obs$auxiliaries), term.options=control$term.options))
+        model$obs.model <- c(model, ergm_model(trim_env(~.), nw, extra.aux=list(proposal=proposal.obs$auxiliaries), term.options=control$term.options))
         proposal.obs$slots.extra.aux <- model$model.obs$slots.extra.aux$proposal
         if(verbose) message("Model reinitialized.")
       }else if(verbose) message(".")
@@ -600,7 +600,7 @@ ergm <- function(formula, response=NULL,
   ## Construct approximate response network if target.stats are given.
   if(!is.null(target.stats)){
     formula.no <- filter_rhs.formula(formula, function(x) (if(is.call(x)) x[[1]] else x)!="offset")
-    nw.stats <- summary(model, nw, response=response)[!model$etamap$offsetmap]
+    nw.stats <- summary(model, nw)[!model$etamap$offsetmap]
     target.stats <- vector.namesmatch(target.stats, names(nw.stats))
     target.stats <- na.omit(target.stats)
     if(length(nw.stats)!=length(target.stats)){
@@ -615,7 +615,6 @@ ergm <- function(formula, response=NULL,
     ## with SAN-ed network and formula.
     if(control$SAN.maxit > 0){
       TARGET_STATS<-san(formula, target.stats=target.stats,
-                response=response,
                 reference=reference,
                 constraints=constraints,
                 control=san.control,
@@ -643,7 +642,7 @@ ergm <- function(formula, response=NULL,
   }
 
   # TODO: SAN has this information, so maybe we should grab it from there if SAN does get run.
-  nw.stats <- summary(model, nw, response=response, term.options=control$term.options)
+  nw.stats <- summary(model, nw, term.options=control$term.options)
 
   # conddeg MPLE has been superceded, but let the user know:
   if(!is.directed(nw) && ("degrees" %in% names(proposal$arguments$constraints) ||
@@ -710,12 +709,12 @@ ergm <- function(formula, response=NULL,
   model <- constrcheck$model; control$init <- constrcheck$init
   
   # Check if any terms are at their extremes and handle them depending on control$drop.
-  extremecheck <- ergm.checkextreme.model(model=model, nw=nw, init=control$init, response=response, target.stats=target.stats, drop=control$drop)
+  extremecheck <- ergm.checkextreme.model(model=model, nw=nw, init=control$init, target.stats=target.stats, drop=control$drop)
   model <- extremecheck$model; control$init <- extremecheck$init
   
   # MPLE is not supported for valued ERGMs.
   if(estimate=="MPLE"){
-    if(!is.null(response)) stop("Maximum Pseudo-Likelihood (MPLE) estimation for valued ERGM terms is not implemented at this time. You may want to use Contrastive Divergence by passing estimate='CD' instead.")
+    if(is.valued(nw)) stop("Maximum Pseudo-Likelihood (MPLE) estimation for valued ERGM terms is not implemented at this time. You may want to use Contrastive Divergence by passing estimate='CD' instead.")
     if(!is.dyad.independent(proposal$arguments$constraints,
                             proposal.obs$arguments$constraints))
       message("Maximum Pseudo-Likelihood (MPLE) estimation for ERGMs with dyad-dependent constraints is not implemented at this time. You may want to use Contrastive Divergence by passing estimate='CD' instead.")
@@ -752,7 +751,6 @@ ergm <- function(formula, response=NULL,
                           estimable=constrcheck$estimable,
                           network=nw,
                           reference=reference,
-                          response=response,
                           newnetwork=nw,
                           formula=formula,
                           constrained=proposal$arguments$constraints,
@@ -781,7 +779,7 @@ ergm <- function(formula, response=NULL,
                                 control=control,
                                 proposal=proposal,
                                 proposal.obs=proposal.obs,
-                                verbose=if(MCMCflag) FALSE else verbose, response=response,
+                                verbose=if(MCMCflag) FALSE else verbose,
                                 ...)
 
   switch(control$init.method,
@@ -803,7 +801,6 @@ ergm <- function(formula, response=NULL,
     initialfit$estimable <- constrcheck$estimable
     initialfit$network <- nw
     initialfit$reference <- reference
-    initialfit$response <- response
     initialfit$newnetwork <- nw
     initialfit$formula <- formula
     initialfit$constrained <- proposal$arguments$constraints
@@ -839,7 +836,7 @@ ergm <- function(formula, response=NULL,
   mainfit <- switch(control$main.method,
                     "Robbins-Monro" = ergm.robmon(init, nw, model, 
                                                   proposal=proposal, verbose=verbose, control=control),
-                    "Stochastic-Approximation" = ergm.stocapprox(init, nw, model, response=response,
+                    "Stochastic-Approximation" = ergm.stocapprox(init, nw, model,
                                                                  control=control, proposal=proposal,
                                                                  verbose=verbose),
                     "Stepping" = ergm.stepping(init, nw, model, initialfit, constraints,
@@ -857,7 +854,6 @@ ergm <- function(formula, response=NULL,
                                          control=control, proposal=proposal,
                                          proposal.obs=proposal.obs,
                                          verbose=verbose,
-                                         response=response,
                                          ...),
                     
                     
@@ -885,7 +881,6 @@ ergm <- function(formula, response=NULL,
   # unless the main fitting algorithm passes back a modified control
   if (is.null(mainfit$control)) mainfit$control<-control
   
-  mainfit$response<-response
   mainfit$reference<-reference
   mainfit$estimate <- estimate
   

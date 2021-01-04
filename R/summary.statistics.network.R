@@ -120,39 +120,27 @@ summary_formula.ergm <- function(object, ..., basis=NULL)
 #' @describeIn summary_formula a method for a [`network.list`] on the LHS of the formula.
 #' @template response
 #' @export
-summary_formula.network.list <- function(object, response=NULL, ..., basis=NULL){
-  if(!is.null(basis)){
-    if(inherits(basis,'network.list'))
-      object[[2]] <- basis
-    else stop('basis, if specified, should be the same type as the LHS of the formula (network.list, in this case).')
-  }
-  nwl <- eval_lhs.formula(object)
-  out<-lapply(nwl, function(nw) summary_formula.network(object, response=response, ..., basis=nw))
+summary_formula.network.list <- function(object, response=NULL, ..., basis=eval_lhs.formula(object)){
+  out<-lapply(basis, function(nw) summary_formula.network(object, response=response, ..., basis=nw))
   do.call(rbind,out)
 }
 
 #' @describeIn summary_formula a method for a [`network`] on the LHS of the formula.
 #' @seealso [summary.ergm_model()]
 #' @export
-summary_formula.network <- function(object, response=NULL,...,basis=NULL) {
-  formula <- object
-  if(is.network(basis)){
-    nw <- basis
-  }else{
-    nw <- ergm.getnetwork(formula)
-  }
-  m <- ergm_model(formula, nw, response=response, ...)
-  summary(m, nw, response=response)
+summary_formula.network <- function(object, response=NULL,...,basis=ergm.getnetwork(object)){
+  ergm_preprocess_response(basis,response)
+  m <- ergm_model(object, basis, ...)
+  summary(m, basis)
 }
 
 #' @describeIn summary_formula a method for the semi-internal [`ergm_state`] on the LHS of the formula.
 #' @export
-summary_formula.ergm_state <- function(object, response=NULL,...,basis=NULL) {
-  formula <- object
+summary_formula.ergm_state <- function(object,...,basis=NULL) {
   if(is(basis,"ergm_state")){
     s <- basis
   }else{
-    s <- eval_lhs.formula(formula)
+    s <- eval_lhs.formula(object)
   }
   summary(s)
 }

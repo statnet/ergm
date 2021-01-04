@@ -10,7 +10,6 @@
 #'
 #' @param m An `ergm_model` object.
 #' @param nw A `network` object.
-#' @template response
 #' @param namewrap An optional function taking a character vector and
 #'   returning a character vector of the same length, called on the
 #'   model's canonical and curved parameter names to wrap them. Set to
@@ -23,7 +22,7 @@
 #'   `InitWtErgmTerm` output list (possibly after modification).
 #' @keywords internal
 #' @export wrap.ergm_model
-wrap.ergm_model <- function(m, nw, response=NULL, namewrap = identity){
+wrap.ergm_model <- function(m, nw, namewrap = identity){
   if(!is.null(namewrap)){
     offsettheta <- m$etamap$offsettheta
     offsetmap <- m$etamap$offsetmap
@@ -32,7 +31,7 @@ wrap.ergm_model <- function(m, nw, response=NULL, namewrap = identity){
     minpar <- m$etamap$mintheta
     maxpar <- m$etamap$maxtheta
     # Empty network statistics
-    emptynwstats <- summary(m, NULL, response=response)
+    emptynwstats <- summary(m, NULL)
     if(all(emptynwstats==0)) emptynwstats <- NULL
 
     # Curved model
@@ -71,20 +70,20 @@ ergm_mk_std_op_namewrap <- function(opname, opargs=NULL){
 ## it would have done.
 ##
 
-InitErgmTerm.passthrough <- function(nw, arglist, response=NULL, ...){
+InitErgmTerm.passthrough <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
                       vartypes = c("formula"),
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  m <- ergm_model(a$formula, nw, response=response,...)
+  m <- ergm_model(a$formula, nw,...)
   
   c(list(name="passthrough_term", submodel=m),
-    wrap.ergm_model(m, nw, response, ergm_mk_std_op_namewrap('passthrough')))
+    wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap('passthrough')))
 }
 
-InitErgmTerm.Label <- function(nw, arglist, response=NULL, ...){
+InitErgmTerm.Label <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "label", "pos"),
                       vartypes = c("formula", "character,function,formula,list", "character"),
@@ -92,7 +91,7 @@ InitErgmTerm.Label <- function(nw, arglist, response=NULL, ...){
                       required = c(TRUE, TRUE, FALSE))
 
 
-  m <- ergm_model(a$formula, nw, response=response,...)
+  m <- ergm_model(a$formula, nw,...)
 
   if(is.character(a$label)){
     pos <- match.arg(a$pos, c("prepend","replace", "(" ,"append"))
@@ -121,91 +120,91 @@ InitErgmTerm.Label <- function(nw, arglist, response=NULL, ...){
   }
 
   c(list(name="passthrough_term", submodel=m),
-    wrap.ergm_model(m, nw, response, renamer))
+    wrap.ergm_model(m, nw, renamer))
 }
 
 
 ## Creates a submodel that tracks the given formula.
-InitErgmTerm..submodel <- function(nw, arglist, response=NULL, ...){
+InitErgmTerm..submodel <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
                       vartypes = c("formula"),
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  m <- ergm_model(a$formula, nw, response=response,...)
+  m <- ergm_model(a$formula, nw,...)
 
   c(list(name="_submodel_term", submodel=m),
-    wrap.ergm_model(m, nw, response, NULL))
+    wrap.ergm_model(m, nw, NULL))
 }
 
 ## Tests .submodel().
 
-InitErgmTerm.submodel.test <- function(nw, arglist, response=NULL, ...){
+InitErgmTerm.submodel.test <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
                       vartypes = c("formula"),
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  m <- ergm_model(a$formula, nw, response=response,...)
+  m <- ergm_model(a$formula, nw,...)
 
   af <- a$formula
   c(list(name="submodel_test_term", auxiliaries = trim_env(~.submodel(af),"af")),
-    wrap.ergm_model(m, nw, response, ergm_mk_std_op_namewrap('submodel.test')))
+    wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap('submodel.test')))
 }
 
 ## An auxiliary that exports a double vector that contains the current
 ## summary statistics of the network for the terms given in the
 ## formula.
 
-InitErgmTerm..summary <- function(nw, arglist, response=NULL, ...){
+InitErgmTerm..summary <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
                       vartypes = c("formula"),
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  m <- ergm_model(a$formula, nw, response=response,...)
+  m <- ergm_model(a$formula, nw,...)
 
   list(name="_summary_term", submodel=m,
-       wrap.ergm_model(m, nw, response, NULL))
+       wrap.ergm_model(m, nw, NULL))
 }
 
 
 ## A term to test (very verbosely) the correctness of the .summary() auxiliary.
 
-InitErgmTerm.summary.test <- function(nw, arglist, response=NULL, ...){
+InitErgmTerm.summary.test <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
                       vartypes = c("formula"),
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  m <- ergm_model(a$formula, nw, response=response,...)
+  m <- ergm_model(a$formula, nw,...)
 
   af <- a$formula
   list(name="summary_test_term", coef.names="summ.test", inputs=c(nparam(m)), auxiliaries=trim_env(~.summary(af),"af"),
-       wrap.ergm_model(m, nw, response, NULL))
+       wrap.ergm_model(m, nw, NULL))
 }
 
 ## An auxiliary that exports a model and a double vector that contains
 ## the current summary statistics of the network for the terms given
 ## in the formula.
 
-InitErgmTerm..submodel_and_summary <- function(nw, arglist, response=NULL, ...){
+InitErgmTerm..submodel_and_summary <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
                       vartypes = c("formula"),
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  m <- ergm_model(a$formula, nw, response=response,...)
+  m <- ergm_model(a$formula, nw,...)
 
   list(name="_submodel_and_summary_term", coef.names = c(), submodel=m, dependence=!is.dyad.independent(m))
 }
 
-InitErgmTerm.F <- function(nw, arglist, response=NULL, ...){
+InitErgmTerm.F <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "form"),
                       vartypes = c("formula", "formula"),
@@ -221,36 +220,36 @@ InitErgmTerm.F <- function(nw, arglist, response=NULL, ...){
   c(list(name="on_filter_formula_net",
          submodel = m,
          auxiliaries=auxiliaries),
-    wrap.ergm_model(m, nw, response, ergm_mk_std_op_namewrap("F", form.name)))
+    wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap("F", form.name)))
 }
 
-InitErgmTerm..filter.formula.net <- function(nw, arglist, response=NULL, ...){
+InitErgmTerm..filter.formula.net <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula"),
                       vartypes = c("formula"),
                       defaultvalues = list(NULL),
                       required = c(TRUE))
 
-  m <- ergm_model(a$formula, nw, response=response,...)
+  m <- ergm_model(a$formula, nw,...)
 
   if(!is.dyad.independent(m) || nparam(m)!=1) ergm_Init_abort("The filter test formula must be dyad-independent and have exactly one statistc.")
 
   nw[,] <- FALSE
-  gs <- summary(m, nw, response=response)
+  gs <- summary(m, nw)
   if(gs!=0) ergm_Init_abort("At this time, the filter test term must have the property that its dyadwise components are 0 for 0-valued relations. This limitation may be removed in the future.")
   
   c(list(name="_filter_formula_net", submodel=m),
-    wrap.ergm_model(m, nw, response, NULL))
+    wrap.ergm_model(m, nw, NULL))
 }
 
-InitErgmTerm.Offset <- function(nw, arglist, response=NULL, ...){
+InitErgmTerm.Offset <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "coef", "which"),
                       vartypes = c("formula", "numeric", "logical,numeric,character"),
                       defaultvalues = list(NULL, 0, TRUE),
                       required = c(TRUE, FALSE, FALSE))
 
-  m <- ergm_model(a$formula, nw, response=response,...)
+  m <- ergm_model(a$formula, nw,...)
 
   parnames <- param_names(m, canonical=FALSE)
   nparams <- nparam(m, canonical=FALSE)
@@ -273,7 +272,7 @@ InitErgmTerm.Offset <- function(nw, arglist, response=NULL, ...){
   names(params) <- parnames[!selection]
 
   c(list(name="passthrough_term", submodel=m),
-    modifyList(wrap.ergm_model(m, nw, response),
+    modifyList(wrap.ergm_model(m, nw),
                list(coef.names = coefnames,
                     params=params,
                     map = function(x, n, ...){
@@ -427,7 +426,7 @@ symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), ...){
   nvattr.copy.network(o, x)
 }
 
-InitErgmTerm.Undir <- function(nw, arglist, response=NULL, ...){
+InitErgmTerm.Undir <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist, directed = TRUE,
                       varnames = c("formula", "rule"),
                       vartypes = c("formula", "character"),
@@ -444,11 +443,11 @@ InitErgmTerm.Undir <- function(nw, arglist, response=NULL, ...){
   c(list(name="on_undir_net",
          submodel = m,
          auxiliaries=auxiliaries),
-    modifyList(wrap.ergm_model(m, nw, response, ergm_mk_std_op_namewrap('Undir', rule)),
+    modifyList(wrap.ergm_model(m, nw, ergm_mk_std_op_namewrap('Undir', rule)),
                list(dependence=!is.dyad.independent(m) || rule%in%c("weak","strong"))))
 }
 
-InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
+InitErgmTerm.Sum <- function(nw, arglist,...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formulas", "label"),
                       vartypes = c("list,formula", "character"),
@@ -459,7 +458,7 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
   if(is(fs,"formula")) fs <- list(fs)
   nf <- length(fs)
 
-  ms <- lapply(fs, ergm_model, nw=nw, response=response, ...)
+  ms <- lapply(fs, ergm_model, nw=nw, ...)
 
   curved <- ms[[1]]$etamap$curved
   for(i in seq_len(nf-1L)+1L){
@@ -490,7 +489,7 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
   label <- if(length(a$label)==1L) paste0(a$label, if(nparam>1L)seq_len(nparam)) else a$label
   coef.names <- ergm_mk_std_op_namewrap("Sum")(label)
 
-  wms <- lapply(ms, wrap.ergm_model, nw, response)
+  wms <- lapply(ms, wrap.ergm_model, nw)
   if(is.curved(ms[[1L]])){
     label <- if(length(a$label)==1L) paste0(a$label, if(length(wms[[1L]]$params)>1L)seq_along(wms[[1L]]$params)) else attr(a$label,"curved")
     names(wms[[1L]]$params) <- ergm_mk_std_op_namewrap("Sum")(label)
@@ -517,7 +516,7 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
     wms[[1L]][c("map", "gradient", "params", "minpar", "maxpar")])
 }
 
-InitErgmTerm.S <- function(nw, arglist, response=NULL, ...){
+InitErgmTerm.S <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "attrs"),
                       vartypes = c("formula", ERGM_VATTR_SPEC),
@@ -583,18 +582,18 @@ InitErgmTerm.S <- function(nw, arglist, response=NULL, ...){
   c(list(name="on_subgraph_net",
          submodel = m,
          auxiliaries=auxiliaries),
-    wrap.ergm_model(m, snw, response, ergm_mk_std_op_namewrap('S',selname)))
+    wrap.ergm_model(m, snw, ergm_mk_std_op_namewrap('S',selname)))
 }
 
 
-InitErgmTerm.Curve <- function(nw, arglist, response=NULL,...){
+InitErgmTerm.Curve <- function(nw, arglist,...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("formula", "params", "map", "gradient", "minpar", "maxpar", "cov"),
                       vartypes = c("formula", "character,list", "function,numeric,character", "function,matrix,character", "numeric", "numeric", ""),
                       defaultvalues = list(NULL, NULL, NULL, NULL, -Inf, +Inf, NULL),
                       required = c(TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE))
 
-  m <- ergm_model(a$formula, nw=nw, response=response, ...)
+  m <- ergm_model(a$formula, nw=nw, ...)
   p <- nparam(m, canonical=FALSE)
 
   params <- if(is.character(a$params)) setNames(rep(list(NULL), length(a$params)), a$params) else a$params
@@ -643,7 +642,7 @@ InitErgmTerm.Curve <- function(nw, arglist, response=NULL,...){
   test.gradient <- gradient(test.param, p, a$cov)
   if(!identical(dim(test.gradient),c(q,p))) ergm_Init_abort(paste0("Mapping of ", q, " to ", p, " parameters expected, but the gradient function returned an object with dimension (", paste0(dim(test.gradient), collapse=","), ")."))
 
-  wm <- wrap.ergm_model(m, nw, response)
+  wm <- wrap.ergm_model(m, nw)
 
   if(any(unlist(map(wm, "offsettheta"))) || any(unlist(map(wm, "offsetmap")))) ergm_Init_warn(paste0("Curve operator does not propagate offset() decorators."))
 

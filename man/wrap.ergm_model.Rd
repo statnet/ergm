@@ -6,16 +6,12 @@
 state (read-only) specification (if present) for output from an
 \code{InitErgmTerm} or \code{InitWtErgmTerm}.}
 \usage{
-wrap.ergm_model(m, nw, response = NULL, namewrap = identity)
+wrap.ergm_model(m, nw, namewrap = identity)
 }
 \arguments{
 \item{m}{An \code{ergm_model} object.}
 
 \item{nw}{A \code{network} object.}
-
-\item{response}{Name of the edge attribute whose value is to be
-modeled in the valued ERGM framework. Defaults to \code{NULL} for
-simple presence or absence, modeled via a binary ERGM.}
 
 \item{namewrap}{An optional function taking a character vector and
 returning a character vector of the same length, called on the

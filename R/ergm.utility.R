@@ -232,12 +232,10 @@ nvattr.copy.network <- function(to, from, ignore=c("bipartite","directed","hyper
   to
 }
 
-single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints.obs=NULL, min_informative=NULL, default_density=NULL, output=c("network","ergm_state"), verbose=FALSE){
+single.impute.dyads <- function(nw, constraints=NULL, constraints.obs=NULL, min_informative=NULL, default_density=NULL, output=c("network","ergm_state"), verbose=FALSE){
   output <- match.arg(output)
   stopifnot(!is.null(constraints)||is.null(constraints.obs))
 
-  NVL(response) <- nw %ergmlhs% "response"
-  
   if(!is.null(constraints)){
     imputable <- as.rlebdm(constraints, constraints.obs, "missing")
     nae <- NVL3(imputable, sum(.), 0)
@@ -248,7 +246,7 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
   }
   if(nae==0){
     if(output=="network") return(nw)
-    else return(ergm_state(nw, response=response))
+    else return(ergm_state(nw))
   }
 
   if(verbose) message("Imputing ", nae, " dyads is required.")
@@ -262,7 +260,7 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
   if(!is.null(constraints)){ # Constraints
     informative <- as.rlebdm(constraints, constraints.obs, "informative")
     nonzeros <- as.rlebdm(nw)
-    if(is.null(response)){
+    if(!is.valued(nw)){
       d <-
         if(sum(informative)<min_informative){
           message("Number of informative dyads is too low. Using default imputation density.")
@@ -274,13 +272,13 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
         message("Number of informative dyads is too low. Imputing valued relations is not possible.")
         return(nw)
       }
-      x <- as.edgelist(nw,attrname=response)
+      x <- as.edgelist(nw,attrname=nw%ergmlhs%"response")
       x.el <- x[,1:2,drop=FALSE]
       x <- x.el[! el2s(x.el)%in%el2s(na.el),3]
       zeros <- sum(informative) - length(x)
     }
   }else{ # No Constraints
-    if(is.null(response)){
+    if(!is.valued(nw)){
       d <-
         if(network.dyadcount(nw,na.omit=TRUE)<min_informative){
           message("Number of informative dyads is too low. Using default imputation density.")
@@ -292,12 +290,12 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
         message("Number of informative dyads is too low. Imputing valued relations is not possible.")
         return(nw)
       }
-      x <- as.edgelist(nw,attrname=response)[,3]
+      x <- as.edgelist(nw,attrname=nw%ergmlhs%"response")[,3]
       zeros <- network.dyadcount(nw,na.omit=TRUE)-length(x)
     }
   }
   
-  if(is.null(response)){
+  if(!is.valued(nw)){
     if(verbose) message("Imputing ", nimpute, " edges at random.")
     i.new <- sample.int(nae,nimpute)
     if(output=="network"){
@@ -314,13 +312,13 @@ single.impute.dyads <- function(nw, response=NULL, constraints=NULL, constraints
     }
   }else{
     if(output=="network"){
-      nw[na.el,names.eval=response,add.edges=TRUE] <- sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))
+      nw[na.el,names.eval=nw%ergmlhs%"response",add.edges=TRUE] <- sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))
     }else{ # edgelist
-      el <- as.edgelist(nw, attrname=response)
+      el <- as.edgelist(nw, attrname=nw%ergmlhs%"response")
       el <- el[!el2s(el[,-3,drop=FALSE])%in%el2s(na.el),,drop=FALSE]
       el <- rbind(el, cbind(na.el, sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))))
       el <- el[el[,3]!=0,,drop=FALSE]
-      colnames(el) <- c(".tail",".head",response)
+      colnames(el) <- c(".tail",".head",nw%ergmlhs%"response")
       nw <- ergm_state(el, nw=nw)
     }
   }

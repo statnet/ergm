@@ -5,6 +5,7 @@
 \alias{is.valued.ergm_state}
 \alias{is.valued.edgelist}
 \alias{is.valued.ergm}
+\alias{is.valued.network}
 \title{Function to check whether an ERGM fit or some aspect of it is valued}
 \usage{
 is.valued(object, ...)
@@ -14,6 +15,8 @@ is.valued(object, ...)
 \method{is.valued}{edgelist}(object, ...)
 
 \method{is.valued}{ergm}(object, ...)
+
+\method{is.valued}{network}(object, ...)
 }
 \arguments{
 \item{object}{the object to be tested.}
@@ -30,5 +33,7 @@ Function to check whether an ERGM fit or some aspect of it is valued
 \item \code{edgelist}: a method for \code{\link{edgelist}} objects.
 
 \item \code{ergm}: a method for \code{\link{ergm}} objects.
+
+\item \code{network}: a method for \code{\link{network}} objects.
 }}
 

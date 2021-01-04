@@ -16,7 +16,7 @@ ergm.checkextreme.model <- function(model, nw, init, response, target.stats, dro
   obs.stats.eta <- if(!is.null(target.stats)){
     if(is.null(names(target.stats))) names(target.stats) <- param_names(model, canonical=TRUE)
     target.stats
-  }else summary(model, nw, response=response)
+  }else summary(model, nw)
 
   extremeval.eta <- +(model$maxval==obs.stats.eta)-(model$minval==obs.stats.eta)
   names.eta<-names(obs.stats.eta)      

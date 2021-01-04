@@ -81,18 +81,18 @@ ergm.godfather <- function(formula, changes=NULL, response=NULL,
   if(!is.list(changes)) changes <- list(changes)
 
   nw <- ergm.getnetwork(formula)
-  NVL(response) <- nw %ergmlhs% "response"
+  ergm_preprocess_response(nw,response)
 
   ncols <- sapply(changes, ncol)
-  if(!all_identical(ncols) || ncols[1]<2 || ncols[1]>3 || (!is.null(response)&&ncols[1]==2)) abort("Invalid format for list of changes. See help('ergm.godfather').")
+  if(!all_identical(ncols) || ncols[1]<2 || ncols[1]>3 || (is.valued(nw)&&ncols[1]==2)) abort("Invalid format for list of changes. See help('ergm.godfather').")
 
   if(!is.directed(nw)) changes <- lapply(changes, function(x){
     x[,1:2] <- t(apply(x[,1:2,drop=FALSE], 1, sort))
     x
   })
 
-  m <- ergm_model(formula, nw, response=response, term.options=control$term.options)
-  state <- ergm_state(nw, model=m, response=response)
+  m <- ergm_model(formula, nw, term.options=control$term.options)
+  state <- ergm_state(nw, model=m)
   state <- update(state, stats = if(changes.only) numeric(nparam(state,canonical=TRUE)) else summary(state))
 
   changem <- changes %>% map(~rbind(0L,.)) %>% do.call(rbind, .) # 0s are sentinels indicating next iteration.

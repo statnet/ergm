@@ -25,7 +25,6 @@
 #' formula of the form \code{network ~ model.term(s)} or \code{~
 #' model.term(s)}.
 #' @param nw The network of interest; if passed, the LHS of `formula` is ignored. This is the recommended usage.
-#' @template response
 #' @param silent logical, whether to print the warning messages from the
 #' initialization of each model term.
 #' @param \dots additional parameters for model formulation
@@ -45,7 +44,7 @@
 #' @seealso [summary.ergm_model()]
 #' @keywords internal
 #' @export
-ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, ..., term.options=list(), extra.aux=list()){
+ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(), extra.aux=list()){
   if (!is(formula, "formula"))
     stop("Invalid model formula of class ",sQuote(class(formula)),".", call.=FALSE)
   
@@ -54,8 +53,6 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, ..., term.
 
   nw <- ensure_network(nw)
   nw <- as.network(nw, populate=FALSE) # In case it's an ergm_state.
-
-  NVL(response) <- NVL(nw %ergmlhs% "response")
 
   #' @importFrom utils modifyList
   term.options <- modifyList(as.list(getOption("ergm.term")), as.list(term.options))
@@ -83,7 +80,7 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, ..., term.
     
     if(!is.call(term) && term==".") next
     
-    outlist <- call.ErgmTerm(term, formula.env, nw, response=response, term.options=term.options, ...)
+    outlist <- call.ErgmTerm(term, formula.env, nw, term.options=term.options, ...)
     
     # If initialization fails without error (e.g., all statistics have been dropped), continue.
     if(is.null(outlist)){
@@ -102,7 +99,7 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, ..., term.
     model <- updatemodel.ErgmTerm(model, outlist)
   }
 
-  model <- ergm.auxstorage(model, nw, response=response, term.options=term.options, ..., extra.aux=extra.aux)
+  model <- ergm.auxstorage(model, nw, term.options=term.options, ..., extra.aux=extra.aux)
   
   model$etamap <- ergm.etamap(model)
 
@@ -125,7 +122,6 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, ..., term.
 #'   [`call`].
 #' @param env Environment in which it is to be evaluated.
 #' @param nw A [`network`] object.
-#' @template response
 #' @param term.options A list of optional settings such as calculation
 #'   tuning options to be passed to the `InitErgmTerm` functions.
 #' @param ... Additional term options.
@@ -136,12 +132,10 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, ..., term.
 #'
 #' @keywords internal
 #' @export call.ErgmTerm
-call.ErgmTerm <- function(term, env, nw, response=NULL, ..., term.options=list()){
+call.ErgmTerm <- function(term, env, nw, ..., term.options=list()){
   term.options <- modifyList(term.options, list(...))
 
-  NVL(response) <- nw %ergmlhs% "response"
-  
-  termroot<-if(is.null(response)) "InitErgm" else "InitWtErgm"
+  termroot<-if(!is.valued(nw)) "InitErgm" else "InitWtErgm"
   
   if(is.call(term)) { # This term has some arguments; save them.
     args <- term
@@ -151,7 +145,7 @@ call.ErgmTerm <- function(term, env, nw, response=NULL, ..., term.options=list()
   termFun<-locate_prefixed_function(term, paste0(termroot,"Term"), "ERGM term", env=env)
   termCall<-as.call(list(termFun, nw, args))
   
-  dotdotdot <- c(if(!is.null(response)) list(response=response), term.options)
+  dotdotdot <- term.options
   for(j in seq_along(dotdotdot)) {
     termCall[[3L+j]] <- dotdotdot[[j]]
     names(termCall)[3L+j] <- names(dotdotdot)[j]
