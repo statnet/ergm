@@ -2942,13 +2942,20 @@ InitErgmTerm.meandeg<-function(nw, arglist, ...) {
 
 
 ################################################################################
-InitErgmTerm.mm<-function (nw, arglist, ...) {
-  ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("attrs", "levels", "levels2"),
-                      vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC),
-                      defaultvalues = list(NULL, NULL, NULL),
-                      required = c(TRUE, FALSE, FALSE))
+InitErgmTerm.mm<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+  if(version <= as.package_version("3.11.0")){
+    a <- check.ErgmTerm(nw, arglist,
+                        varnames = c("attrs", "levels", "levels2"),
+                        vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, NULL, NULL),
+                        required = c(TRUE, FALSE, FALSE))
+  }else{
+    a <- check.ErgmTerm(nw, arglist,
+                        varnames = c("attrs", "levels", "levels2"),
+                        vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, NULL, -1),
+                        required = c(TRUE, FALSE, FALSE))
+  }
 
   # Some preprocessing steps are the same, so run together:
   #' @import purrr
@@ -3345,7 +3352,6 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, ..., version=
 ################################################################################
 InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
-    ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attrname", "base", "b1levels", "b2levels"),
                         vartypes = c("character", "numeric", "character,numeric,logical", "character,numeric,logical"),
@@ -3355,8 +3361,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
     attrarg <- a$attrname
     b1levels <- if(!is.null(a$b1levels)) I(a$b1levels) else NULL
     b2levels <- if(!is.null(a$b2levels)) I(a$b2levels) else NULL
-  }else{
-    ### Check the network and arguments to make sure they are appropriate.
+  }else if(version <= as.package_version("3.11.0")){
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attr", "base", "b1levels", "b2levels", "levels", "levels2"),
                         vartypes = c(ERGM_VATTR_SPEC, "numeric", ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC),
@@ -3366,7 +3371,18 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
     attrarg <- a$attr
     b1levels <- a$b1levels
     b2levels <- a$b2levels
+  }else{
+    a <- check.ErgmTerm(nw, arglist,
+                        varnames = c("attr", "base", "b1levels", "b2levels", "levels", "levels2"),
+                        vartypes = c(ERGM_VATTR_SPEC, "numeric", ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC),
+                        defaultvalues = list(NULL, NULL, NULL, NULL, NULL, -1),
+                        required = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE),
+                        dep.inform = list(FALSE, "levels2", FALSE, FALSE, FALSE, FALSE))
+    attrarg <- a$attr
+    b1levels <- a$b1levels
+    b2levels <- a$b2levels
   }
+
   ### Process the arguments
   if (is.bipartite(nw) && is.directed(nw)) {
     ergm_Init_abort("Directed bipartite networks are not currently possible")
@@ -3429,8 +3445,8 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
         uun <- uun[rowleqcol]
     }    
    
-    levels2.sel <- ergm_attr_levels(a$levels2, list(row = nodecov, col = nodecov), nw, levels2.list)
-    if((!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"]) && any(NVL(a$base,0)!=0)) levels2.sel <- levels2.sel[-a$base]
+    levels2.sel <- if((!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"]) && any(NVL(a$base,0)!=0)) levels2.list[-a$base]
+                   else ergm_attr_levels(a$levels2, list(row = nodecov, col = nodecov), nw, levels2.list)
     
     rows2keep <- match(levels2.sel,levels2.list, NA)
     rows2keep <- rows2keep[!is.na(rows2keep)]

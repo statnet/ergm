@@ -1454,7 +1454,7 @@
       average degree of a node.  Note that this term is a constant multiple of
       both \code{edges} and \code{density}.}
 
-    \item{\code{mm(attrs, levels=NULL, levels2=NULL)} (binary)  (dyad-independent)  (frequently-used) (directed)  (undirected) (categorical nodal attribute), \code{mm(attrs, levels=NULL, levels2=NULL, form="sum")} (valued)  (dyad-independent)  (frequently-used) (directed)  (undirected) (categorical nodal attribute)}{\emph{Mixing matrix cells and margins:}
+    \item{\code{mm(attrs, levels=NULL, levels2=-1)} (binary)  (dyad-independent)  (frequently-used) (directed)  (undirected) (categorical nodal attribute), \code{mm(attrs, levels=NULL, levels2=-1, form="sum")} (valued)  (dyad-independent)  (frequently-used) (directed)  (undirected) (categorical nodal attribute)}{\emph{Mixing matrix cells and margins:}
       \code{attrs} is a two-sided formula whose LHS gives the attribute or
       attribute function (see \link[=nodal_attributes]{Specifying Vertex
 	Attributes and Levels}) for the rows of the mixing matrix and whose RHS gives
@@ -1608,9 +1608,9 @@
 
       \KeepDep}
 
-    \item{\code{nodemix(attr, base=NULL, b1levels=NULL, b2levels=NULL, levels=NULL, levels2=NULL)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (categorical nodal attribute)
+    \item{\code{nodemix(attr, base=NULL, b1levels=NULL, b2levels=NULL, levels=NULL, levels2=-1)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (categorical nodal attribute)
       ,
-      \code{nodemix(attr, base=NULL, b1levels=NULL, b2levels=NULL, levels=NULL, levels2=NULL, form="sum")}  (valued)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute)
+      \code{nodemix(attr, base=NULL, b1levels=NULL, b2levels=NULL, levels=NULL, levels2=-1, form="sum")}  (valued)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute)
     }{\emph{Nodal attribute
 	mixing:} The \code{attr} argument specifies one or more categorical vertex attributes
       (see \link[=nodal_attributes]{Specifying Vertex Attributes and Levels} for details). By default, this term adds one network statistic to
