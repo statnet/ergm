@@ -516,6 +516,10 @@
 	\item{a numeric scalar}{Network statistics of this formula will be multiplied by this.}
 	\item{a numeric vector}{Corresponding network statistics of this formula will be multiplied by this.}
 	\item{a numeric matrix}{Vector of network statistics will be pre-multiplied by this.}
+	\item{a character string}{One of several predefined linear combinations. Currently supported presets are as follows: \describe{
+            \item{\code{"sum"}}{Network statistics of this formula will be summed up; equivalent to \code{matrix(1,1,p)}, where \code{p} is the length of the network statistic vector.}
+            \item{\code{"mean"}}{Network statistics of this formula will be averaged; equivalent to \code{matrix(1/p,1,p)}, where \code{p} is the length of the network statistic vector.}
+            }.}
       }
       Note that each formula must either produce the same number of
       statistics or be mapped through a matrix to produce the same

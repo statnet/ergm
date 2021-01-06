@@ -472,7 +472,11 @@ InitErgmTerm.Sum <- function(nw, arglist, response=NULL,...){
   wl <- list()
   for(i in seq_along(fs)){
     f <- fs[[i]]
-    w <- if(length(f)==2) 1 else eval_lhs.formula(f)
+    w <- if(length(f)==2) 1
+         else if(!is.character(lhs <- eval_lhs.formula(f))) lhs
+         else switch(match.arg(lhs, c("sum","mean")),
+                     sum = matrix(1, 1, nstats[i]),
+                     mean = matrix(1/nstats[i], 1, nstats[i]))
     if(!is.matrix(w)) w <- diag(w, nstats[i])
     wl[[i]] <- w
   }
