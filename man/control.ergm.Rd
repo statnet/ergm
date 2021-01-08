@@ -20,6 +20,7 @@ control.ergm(
   MPLE.maxit = 10000,
   MPLE.nonident = c("warning", "message", "error"),
   MPLE.nonident.tol = 1e-10,
+  MPLE.constraints.ignore = FALSE,
   MCMC.prop = trim_env(~TNT),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
@@ -286,6 +287,13 @@ often (not always) indicative of a non-identifiable
 specifying the potentially redundant statistics. The
 corresponding \verb{MCMLE.*} arguments provide a similar diagnostic
 for the unconstrained MCMC sample's estimating functions.}
+
+\item{MPLE.constraints.ignore}{If \code{TRUE}, MPLE will ignore all
+dyad-independent constraints except for those due to attributes
+missingness. This can be used to avert evaluating and storing the
+\code{\link{rlebdm}}s for very large networks except where absolutely
+necessary. Note that this can be very dangerous unless you know
+what you are doing.}
 
 \item{MCMC.prop}{Specifies the proposal (directly) and/or
 a series of "hints" about the structure of the model being

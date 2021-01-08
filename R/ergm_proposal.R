@@ -280,6 +280,10 @@ c.ergm_conlist <- function(...){
   NextMethod() %>% prune.ergm_conlist() %>% structure(class="ergm_conlist")
 }
 
+`[.ergm_conlist` <- function(x, ...){
+  structure(NextMethod(), class="ergm_conlist")
+}
+
 #' @describeIn ergm_proposal `object` argument is an ERGM constraint formula.
 #' @param weights Specifies the method used to allocate probabilities of being
 #' proposed to dyads; options are "TNT", "StratTNT", "TNT10", "random", "nonobserved" and

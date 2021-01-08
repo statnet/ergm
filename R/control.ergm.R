@@ -120,6 +120,13 @@
 #'   corresponding `MCMLE.*` arguments provide a similar diagnostic
 #'   for the unconstrained MCMC sample's estimating functions.
 #'
+#' @param MPLE.constraints.ignore If `TRUE`, MPLE will ignore all
+#'   dyad-independent constraints except for those due to attributes
+#'   missingness. This can be used to avert evaluating and storing the
+#'   [`rlebdm`]s for very large networks except where absolutely
+#'   necessary. Note that this can be very dangerous unless you know
+#'   what you are doing.
+#'
 #' @template control_MCMC_prop
 #'
 #' @param MCMC.interval Number of proposals between sampled statistics.
@@ -487,6 +494,7 @@ control.ergm<-function(drop=TRUE,
                        MPLE.maxit=10000,
                        MPLE.nonident=c("warning","message","error"),
                        MPLE.nonident.tol=1e-10,
+                       MPLE.constraints.ignore=FALSE,
 
                        MCMC.prop=trim_env(~TNT),
                        MCMC.prop.weights="default", MCMC.prop.args=list(),
