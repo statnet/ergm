@@ -243,12 +243,12 @@ as.rlebdm.ergm_conlist <- function(x, constraints.obs = NULL, which = c("free", 
          free={
            y <- NULL
            for(con in x){
-             if(!is.null(con$free_dyads)){
+             if(!is.null(free_dyads(con))){
                y <-
-                 if(is.null(y)) con$free_dyads
+                 if(is.null(y)) free_dyads(con)
                  else{
-                   if(NVL(con$sign, +1)==+1) y & con$free_dyads
-                   else y | con$free_dyads
+                   if(NVL(con$sign, +1)==+1) y & free_dyads(con)
+                   else y | free_dyads(con)
                  }
              }
            }

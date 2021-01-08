@@ -54,7 +54,7 @@ get.vertex.attributes <- function(x, attrnames, na.omit = FALSE, null.na = TRUE,
 # directedness, bipartitedness, and self-loops.
 InitErgmConstraint..attributes <- function(lhs.nw, ...){
   list(
-    free_dyads = {
+    free_dyads = function(){
       n <- network.size(lhs.nw)
       storage.mode(n) <- "integer"
       ## NB: Free dyad RLE matrix is stored in a column-major order for
@@ -90,7 +90,7 @@ InitErgmConstraint..attributes <- function(lhs.nw, ...){
           }          
           structure(list(lengths=lens,values=vals), class="rle")
         }
-      rlebdm(d, n)        
+      rlebdm(d, n)
     },
     constrain = character(0),
     dependence = FALSE)
@@ -181,26 +181,18 @@ InitErgmConstraint.observed <- function(lhs.nw, ...){
 }
 
 InitErgmConstraint.fixedas<-function(lhs.nw, present=NULL, absent=NULL,...){
-  if(is.null(present) & is.null(absent))
+  if(is.null(present) && is.null(absent))
     ergm_Init_abort(paste("fixedas constraint takes at least one argument, either present or absent or both."))
-  if(!is.null(present)){
-    if(is.network(present)){
-      present <- as.edgelist(present)
-    }
-    if(!is.matrix(present)){
-      ergm_Init_abort("Argument 'present' in fixedas constraint should be either a network or edgelist")
-    }
-  }
-  if(!is.null(absent)){
-    if(is.network(absent)){
-      absent <- as.edgelist(absent)
-    }
-    if(!is.matrix(absent)){
-      ergm_Init_abort("Argument 'absent' in fixedas constraint should be either a network or edgelist")
-    }
-  }
+  if(!is.null(present) && !is.network(present) && !is.matrix(present))
+    ergm_Init_abort("Argument 'present' in fixedas constraint should be either a network or edgelist")
+  if(!is.null(absent) && !is.network(present) && !is.matrix(absent))
+    ergm_Init_abort("Argument 'absent' in fixedas constraint should be either a network or edgelist")
+
   list(
-    free_dyads = {
+    free_dyads = function(){
+      if(is.network(present)) present <- as.edgelist(present)
+      if(is.network(absent)) absent <- as.edgelist(absent)
+
       # FixedEdgeList
       fixed <- as.edgelist(rbind(present,absent),
                            n=lhs.nw%n%"n",
@@ -219,16 +211,9 @@ InitErgmConstraint.fixedas<-function(lhs.nw, present=NULL, absent=NULL,...){
 
 InitErgmConstraint.fixallbut<-function(lhs.nw, free.dyads=NULL,...){
   if(is.null(free.dyads))
-    ergm_Init_abort(paste("fixallbut constraint takes one required argument free.dyads and one optional argument fixed.state"))
-  
-  
-  if(is.network(free.dyads)){
-    free.dyads <- as.edgelist(free.dyads)
-  }
-  
-  if(!is.matrix(free.dyads)){
+    ergm_Init_abort(paste("fixallbut constraint takes one required argument free.dyads"))
+  if(!is.network(free.dyads) && !is.matrix(free.dyads))
     ergm_Init_abort("Argument 'free.dyads' in fixallbut constraint should be either a network or edgelist")
-  }
   
 #	
 #	if(!is.null(fixed.state)){
@@ -242,7 +227,8 @@ InitErgmConstraint.fixallbut<-function(lhs.nw, free.dyads=NULL,...){
 #	
 #	
   list(
-    free_dyads = { 
+    free_dyads = function(){
+      if(is.network(free.dyads)) free.dyads <- as.edgelist(free.dyads)
       fixed <- as.edgelist(free.dyads,
                            n=lhs.nw%n%"n",
                            directed=lhs.nw%n%"directed",
@@ -266,17 +252,17 @@ InitErgmConstraint.dyadnoise<-function(lhs.nw, p01, p10, ...){
 
 InitErgmConstraint.egocentric <- function(lhs.nw, attr=NULL, direction = c("both", "out", "in")){
   direction <- match.arg(direction)
-  if(!is.directed(lhs.nw) && direction!="both"){
+  if(!is.directed(lhs.nw) && direction!="both")
     stop("Directed egocentric constraint cannot be used for an undirected network.")
-  }
-  n <- network.size(lhs.nw)
-  a <- ( # Are that node's dyads toggleable?
-    if(is.null(attr)) get.vertex.attribute(lhs.nw, "na")
-    else !as.vector(ergm_get_vattr(attr, lhs.nw, accept="logical"))
-  )
 
   list(
-    free_dyads = {
+    free_dyads = function(){
+      n <- network.size(lhs.nw)
+      a <- ( # Are that node's dyads toggleable?
+        if(is.null(attr)) get.vertex.attribute(lhs.nw, "na")
+        else !as.vector(ergm_get_vattr(attr, lhs.nw, accept="logical"))
+      )
+
       # Remember: column-major order.
 
       rlea <- rle(a)
@@ -295,24 +281,28 @@ InitErgmConstraint.Dyads<-function(lhs.nw, fix=NULL, vary=NULL,...){
   if(is.null(fix) & is.null(vary))
     ergm_Init_abort(paste("Dyads constraint takes at least one argument, either",sQuote("fix"),"or",sQuote("vary"),"or both."))
 
-  fd <- lapply(list(fix=fix,vary=vary),
-                       function(f){
-                         if(!is.null(f)){
-                           f[[3]] <- f[[2]]
-                           f[[2]] <- lhs.nw
-                           m <- ergmMPLE(f, expand.bipartite=TRUE, output="array")$predictor
-                           m <- m!=0
-                           m[is.na(m)] <- FALSE
-                           if(!is.directed(lhs.nw)){
-                             m <- m | aperm(m, c(2L,1L,3L))
-                           }
-                           lapply(seq_len(dim(m)[3]), function(i) as.rlebdm(m[,,i]))
-                         }
-                       })
-  fd$fix <- if(length(fd$fix)) fd$fix %>% map(`!`) %>% reduce(`&`)
-  fd$vary <- if(length(fd$vary)) fd$vary %>% reduce(`|`)
-  fd <- Reduce(`|`, fd)
+  list(
+    free_dyads = function(){
+      fd <- lapply(list(fix=fix,vary=vary),
+                   function(f){
+                     if(!is.null(f)){
+                       f[[3]] <- f[[2]]
+                       f[[2]] <- lhs.nw
+                       m <- ergmMPLE(f, expand.bipartite=TRUE, output="array")$predictor
+                       m <- m!=0
+                       m[is.na(m)] <- FALSE
+                       if(!is.directed(lhs.nw)){
+                         m <- m | aperm(m, c(2L,1L,3L))
+                       }
+                       lapply(seq_len(dim(m)[3]), function(i) as.rlebdm(m[,,i]))
+                     }
+                   })
+      fd$fix <- if(length(fd$fix)) fd$fix %>% map(`!`) %>% reduce(`&`)
+      fd$vary <- if(length(fd$vary)) fd$vary %>% reduce(`|`)
+      fd <- Reduce(`|`, fd)
 
-  list(free_dyads = compress(fd),
-       dependence = FALSE)
+      compress(fd)
+    },
+    dependence = FALSE
+  )
 }

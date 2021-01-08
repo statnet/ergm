@@ -264,6 +264,8 @@ ergm_conlist.formula <- function(object, nw){
     con$sign <- consign
     NVL(con$priority) <- Inf
     NVL(con$constrain) <- conname
+#' @import memoise
+    if(is.function(con$free_dyads) && !is.memoised(con$free_dyads)) con$free_dyads <- memoise(con$free_dyads)
 
     conlist[[length(conlist)+1]] <- con
     names(conlist)[length(conlist)] <- conname
@@ -468,7 +470,7 @@ ergm_dyadgen_select <- function(arguments, nw, response=NULL, extra_rlebdm=NULL)
   r <- as.rlebdm(arguments$constraints)
   if(!is.null(extra_rlebdm)) r <- r & extra_rlebdm
 
-  if(all(r==arguments$constraints$.attributes$free_dyads)){
+  if(all(r==free_dyads(arguments$constraints$.attributes))){
     dyadgen$type <- if(valued) DyadGenType$WtRandDyadGen else DyadGenType$RandDyadGen
   }else{
     # If the number of selectable edges exceeds the number of runs by
@@ -484,4 +486,17 @@ ergm_dyadgen_select <- function(arguments, nw, response=NULL, extra_rlebdm=NULL)
     }
   }
   dyadgen
+}
+
+#' A function to extract a constraint's free_dyads RLEBDM.
+#'
+#' @param con a list containing constraint information as returned by `InitErgmConstraiont.*()`; if `con$free_dyads` is `NULL` or an [`rlebdm`], returned as is; if a function, the function is called with no arguments and the result returned.
+#'
+#' @return an [`rlebdm`] or `NULL`.
+#' @noRd
+free_dyads <- function(con){
+  fd <- con$free_dyads
+  if(is.null(fd) || is(fd, "rlebdm")) fd
+  else if(is.function(fd)) fd()
+  else stop("Unsupported free_dyad type; this is probably a programming error.")
 }
