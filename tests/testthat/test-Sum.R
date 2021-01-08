@@ -9,14 +9,13 @@ test_that("Sum() summary with one formula", {
 
 
 test_that("Sum() summary with one term and default weights", {
-  baseline <- summary(flomarriage~absdiff("wealth"))
   test <- summary(flomarriage~Sum(c(~absdiff("wealth"), ~absdiff("wealth")),""))
-  expect_equivalent(test, baseline*2)
+  expect_equivalent(test, baseline[2]*2)
 })
 
 test_that("Sum() summary with one term and differing weights", {
   test <- summary(flomarriage~Sum(c(~absdiff("wealth"), 0.5~absdiff("wealth")),""))
-  expect_equivalent(test, baseline*1.5)
+  expect_equivalent(test, baseline[2]*1.5)
 })
 
 
