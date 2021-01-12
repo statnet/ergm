@@ -122,19 +122,22 @@
 #' on a similar scheme.
 #' (For an overview of the package, see \code{\link{ergm-package}}.)
 #' 
-#' @param formula {An \R \code{\link{formula}} object, of the form
-#' \code{y ~ <model terms>},
-#' where \code{y} is a \code{\link[network]{network}} object or a matrix that can be
-#' coerced to a \code{\link[network]{network}}  object.  For the details on the possible
-#' \code{<model terms>}, see \code{\link{ergm-terms}} and Morris, Handcock and
-#' Hunter (2008) for binary ERGM terms and
-#' Krivitsky (2012) for valued ERGM
-#' terms (terms for weighted edges).  To create a
-#' \code{\link[network]{network}} object in \R, use the \code{network()} function,
-#' then add nodal attributes to it using the \code{\%v\%}
-#' operator if necessary. Enclosing a model term in \code{offset()}
-#' fixes its value to one specified in \code{offset.coef}.
-#' }
+#' @param formula An \R \code{\link{formula}} object, of the form
+#'   \code{y ~ <model terms>}, where \code{y} is a
+#'   \code{\link[network]{network}} object or a matrix that can be
+#'   coerced to a \code{\link[network]{network}} object.  For the
+#'   details on the possible \code{<model terms>}, see
+#'   \code{\link{ergm-terms}} and Morris, Handcock and Hunter (2008)
+#'   for binary ERGM terms and Krivitsky (2012) for valued ERGM terms
+#'   (terms for weighted edges).  To create a
+#'   \code{\link[network]{network}} object in \R, use the
+#'   \code{network()} function, then add nodal attributes to it using
+#'   the \code{\%v\%} operator if necessary. Enclosing a model term in
+#'   \code{offset()} fixes its value to one specified in
+#'   \code{offset.coef}.  (A second argument---a logical or numeric
+#'   index vector---can be used to select *which* of the parameters
+#'   within the term are offsets.)
+#'
 #' @template response
 #' @template reference
 #' @param constraints {A formula specifying one or more constraints
@@ -599,7 +602,6 @@ ergm <- function(formula, response=NULL,
   
   ## Construct approximate response network if target.stats are given.
   if(!is.null(target.stats)){
-    formula.no <- filter_rhs.formula(formula, function(x) (if(is.call(x)) x[[1]] else x)!="offset")
     nw.stats <- summary(model, nw, response=response)[!model$etamap$offsetmap]
     target.stats <- vector.namesmatch(target.stats, names(nw.stats))
     target.stats <- na.omit(target.stats)
@@ -703,7 +705,7 @@ ergm <- function(formula, response=NULL,
   }
   
   # Make sure any offset elements are given in control$init.
-  if(any(is.na(control$init) & model$etamap$offsettheta)) stop("The model contains offset terms whose parameter values have not been specified:", paste.and(model$coef.names[is.na(control$init)|model$offsettheta]), ".", sep="")
+  if(any(is.na(control$init) & model$etamap$offsettheta)) stop("The model contains offset terms whose parameter values have not been specified:", paste.and(param_names(model)[is.na(control$init)&model$offsettheta]), ".", sep="")
   
   # Check if any terms are constrained to a constant and issue a warning.
   constrcheck <- ergm.checkconstraints.model(model, proposal, control$init)

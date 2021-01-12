@@ -76,11 +76,8 @@ coefficients for each term.}
 \code{ergm_model} returns an  \code{ergm_model} object as a list
 containing:
 \item{coef.names}{a vector of coefficient names}
-\item{offset}{a logical vector of whether each term was "offset", i.e.
-fixed}
 \item{terms}{a list of terms and 'term components' initialized by the
 appropriate \code{InitErgmTerm.X} function.}
-\item{network.stats0}{NULL always??}
 \item{etamap}{the theta -> eta mapping as a list returned from
 <ergm.etamap>}
 }

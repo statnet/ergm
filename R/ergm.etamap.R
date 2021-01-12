@@ -43,40 +43,35 @@
 
 # Note: Documentation for the return data structure is in `ergm.eta.R`.
 ergm.etamap <- function(model) {
-  etamap <- list(canonical = NULL, offsetmap=NULL, offset=model$offset,
+  etamap <- list(canonical = NULL, offsetmap=NULL,
                  offsettheta=NULL, curved=list(), etalength=0L)
   from <- 1L
   to <- 1L
   a <- 1L
-  if (is.null(model$terms)) {
-    return(etamap)
-  }
+  if(length(model$terms)==0L) return(etamap)
+
   for (i in seq_along(model$terms)) {
     mti <- model$terms[[i]]
-    if(NVL(mti$offset,FALSE)) model$offset[i] <- TRUE
     j <- length(mti$coef.names)
-    if(j==0) next # Auxiliary: no parameters or statistics.
-    if(model$offset[i]){
-     etamap$offsetmap <- c(etamap$offsetmap, rep(TRUE,j))
-    }else{
-     etamap$offsetmap <- c(etamap$offsetmap, rep(FALSE,j) | NVL(mti$offsetmap,FALSE))
-    }
+    k <- NVL3(mti$params, length(.), j)
+
+    if(j==0L) next # Auxiliary: no parameters or statistics.
+
+    offset <- mti$offset
+    etamap$offsettheta <- c(etamap$offsettheta, offset)
+
     if (is.null(mti$params)) { # Not a curved parameter
       etamap$canonical <- c(etamap$canonical, to:(to+j-1L))
       from <- from+j
       to <- to+j
-      if(model$offset[i]){
-       etamap$offsettheta <- c(etamap$offsettheta, rep(TRUE,j))
-      }else{
-       etamap$offsettheta <- c(etamap$offsettheta, rep(FALSE,j) | NVL(mti$offsettheta,FALSE))
-      }
-      
+
       etamap$mintheta <- c(etamap$mintheta,
                            rep(NVL(mti$minpar, -Inf), length.out=j))
       etamap$maxtheta <- c(etamap$maxtheta,
                            rep(NVL(mti$maxpar, +Inf), length.out=j))
+
+      etamap$offsetmap <- c(etamap$offsetmap, offset)
     } else { # curved parameter
-      k <- length(mti$params)
       etamap$canonical <- c(etamap$canonical, rep(0L, k))
       etamap$curved[[a]] <- list(from=from+seq_len(k)-1L,
                                  to=to:(to+j-1L),
@@ -85,16 +80,13 @@ ergm.etamap <- function(model) {
       from <- from+k
       to <- to+j
       a <- a+1L
-      if(model$offset[i]){
-       etamap$offsettheta <- c(etamap$offsettheta, rep(TRUE,k))
-      }else{
-       etamap$offsettheta <- c(etamap$offsettheta, rep(FALSE,k) | NVL(mti$offsettheta,FALSE))
-      }
-      
+
       etamap$mintheta <- c(etamap$mintheta,
                            rep(NVL(mti$minpar, -Inf), length.out=k))
       etamap$maxtheta <- c(etamap$maxtheta,
                            rep(NVL(mti$maxpar, +Inf), length.out=k))
+
+      etamap$offsetmap <- c(etamap$offsetmap, rep(all(offset),j)) # In a curved model, only set canonical parameters as offsets if *all* model parameters are offsets.
     }
   }
   etamap$etalength <- to-1L

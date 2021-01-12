@@ -35,11 +35,8 @@
 #' @return `ergm_model` returns an  `ergm_model` object as a list
 #' containing:
 #' \item{coef.names}{a vector of coefficient names}
-#' \item{offset}{a logical vector of whether each term was "offset", i.e.
-#' fixed}
 #' \item{terms}{a list of terms and 'term components' initialized by the
 #' appropriate \code{InitErgmTerm.X} function.}
-#' \item{network.stats0}{NULL always??}
 #' \item{etamap}{the theta -> eta mapping as a list returned from
 #' <ergm.etamap>}
 #' @seealso [summary.ergm_model()]
@@ -65,20 +62,20 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, ..., term.
   
   formula.env<-environment(formula)
   
-  model <- structure(list(coef.names = NULL,
-                      offset = NULL,
-                      terms = NULL, networkstats.0 = NULL, etamap = NULL),
+  model <- structure(list(coef.names = character(),
+                          terms = list(), networkstats.0 = numeric()),
                  class = "ergm_model")
-  
+
   for (i in 1:length(v)) {
     term <- v[[i]]
-    
+
     if (is.call(term) && term[[1L]] == "offset"){ # Offset term
+      offset <-
+        if(length(term)==3) eval(term[[3]], formula.env)
+        else TRUE
       term <- term[[2L]]
-      model$offset <- c(model$offset,TRUE)
-    }else{
-      model$offset <- c(model$offset,FALSE)
-    }
+    }else offset <- FALSE
+
     ## term is now a call or a name that is not "offset".
     
     if(!is.call(term) && term==".") next
@@ -91,26 +88,19 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, ..., term.
       model$term.skipped <- c(model$term.skipped, TRUE)
       next
     }else model$term.skipped <- c(model$term.skipped, FALSE)
-    # If the term is an offset, rename the coefficient names and parameter names
-    if(NVL(outlist$offset,FALSE)) ult(model$offset) <- TRUE
-    if(ult(model$offset)){
-      outlist$coef.names <- paste0("offset(",outlist$coef.names,")")
-      if(!is.null(outlist$params))
-        names(outlist$params) <- paste0("offset(",names(outlist$params),")")
-    }
+
     # Now it is necessary to add the output to the model formula
-    model <- updatemodel.ErgmTerm(model, outlist)
+    model <- updatemodel.ErgmTerm(model, outlist, offset=offset)
   }
 
   model <- ergm.auxstorage(model, nw, response=response, term.options=term.options, ..., extra.aux=extra.aux)
-  
+
   model$etamap <- ergm.etamap(model)
 
   # I.e., construct a vector of package names associated with the model terms.
   # Note that soname is not the same, since it's not guaranteed to be a loadable package.
   ergm.MCMC.packagenames(unlist(sapply(model$terms, "[[", "pkgname")))
-  ergm.MCMC.packagenames(unlist(sapply(model$model.aux$terms, "[[", "pkgname")))
-  
+
   class(model) <- "ergm_model"
   model
 }
@@ -180,33 +170,37 @@ call.ErgmTerm <- function(term, env, nw, response=NULL, ..., term.options=list()
   out
 }
 
-#######################################################################
-# The <updatemodel.ErgmTerm> function updates an existing model object
-# to include an initialized ergm term, X;
-#
-# --PARAMETERS--
-#   model  : the pre-existing model, as created by <ergm_model>
-#   outlist: the list describing term X, as returned by <InitErgmTerm.X>
-#
-# --RETURNED--
-#   model: the updated model (with the obvious changes seen below) if
-#            'outlist'!=NULL, else
-#          the original model; (note that this return is necessary,
-#            since terms may be eliminated by giving only 0 statistics,
-#            and consequently returning a NULL 'outlist')
-#
-#######################################################################
-
-updatemodel.ErgmTerm <- function(model, outlist) { 
+#' Updates an existing model object to include an initialized `ergm` term
+#'
+#' @param model the pre-existing model, as created by [`ergm_model`]
+#' @param outlist the list describing new term, as returned by `InitErgmTerm.*()`
+#'
+#' @return The updated model (with the obvious changes seen below) if
+#'   `outlist!=NULL`, else the original model. (Note that this return
+#'   is necessary, since terms may be eliminated by giving only 0
+#'   statistics, and consequently returning a NULL `outlist`.)
+#' @noRd
+updatemodel.ErgmTerm <- function(model, outlist, offset=FALSE) {
   if (!is.null(outlist)) { # Allow for no change if outlist==NULL
     # Update global model properties.
+    nstats <- length(outlist$coef.names)
+    npars <- NVL3(outlist$params, length(.), nstats)
+
+    if(is.numeric(offset)) offset <- unwhich(offset, npars)
+    outlist$offset <- offset <- rep(offset, length.out=npars) | NVL(outlist$offset,FALSE)
+
+    if(is.null(outlist$params)) # Linear
+      outlist$coef.names <- ifelse(offset, paste0("offset(",outlist$coef.names,")"), outlist$coef.names)
+    else # Curved
+      names(outlist$params) <- ifelse(offset, paste0("offset(",names(outlist$params),")"), names(outlist$params))
+
     model$coef.names <- c(model$coef.names, outlist$coef.names)
     model$minval <- c(model$minval,
                       rep(NVL(outlist$minval, -Inf),
-                          length.out=length(outlist$coef.names)))
+                          length.out=nstats))
     model$maxval <- c(model$maxval,
                       rep(NVL(outlist$maxval, +Inf),
-                          length.out=length(outlist$coef.names)))
+                          length.out=nstats))
     model$terms[[length(model$terms)+1L]] <- outlist
   }
   model

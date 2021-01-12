@@ -26,9 +26,7 @@
 wrap.ergm_model <- function(m, nw, response=NULL, namewrap = identity){
   if(!is.null(namewrap)){
     offsettheta <- m$etamap$offsettheta
-    offsetmap <- m$etamap$offsetmap
     coef.names <- namewrap(param_names(m, canonical=TRUE))
-    ## coef.names[offsetmap] <- paste0("offset(", coef.names[offsetmap], ")")
     minpar <- m$etamap$mintheta
     maxpar <- m$etamap$maxtheta
     # Empty network statistics
@@ -48,10 +46,10 @@ wrap.ergm_model <- function(m, nw, response=NULL, namewrap = identity){
       ## names(params)[offsettheta] <- paste0("offset(", names(params)[offsettheta], ")")
     }else map <- gradient <- params <- NULL
   }else{
-    minpar <- maxpar <- offsettheta <- offsetmap <- coef.names <- emptynwstats <- map <- gradient <- params <- NULL
+    minpar <- maxpar <- offsettheta <- coef.names <- emptynwstats <- map <- gradient <- params <- NULL
   }
 
-  list(map=map, gradient=gradient, params=params, minpar=minpar, maxpar=maxpar, coef.names=coef.names, emptynwstats=emptynwstats, dependence=!is.dyad.independent(m), offsettheta=offsettheta, offsetmap=offsetmap)
+  list(map=map, gradient=gradient, params=params, minpar=minpar, maxpar=maxpar, coef.names=coef.names, emptynwstats=emptynwstats, dependence=!is.dyad.independent(m), offset=offsettheta)
 }
 
 #' Combine an operator term's and a subterm's name in a standard fashion.
@@ -283,7 +281,8 @@ InitErgmTerm.Offset <- function(nw, arglist, response=NULL, ...){
                     gradient = function(x, n, ...){
                       coef0[!selection] <- x
                       ergm.etagrad(coef0, m$etamap)[!selection,,drop=FALSE]
-                    }
+                    },
+                    offset = m$etamap$offsettheta[!selection]
                     )))
 }
 
@@ -663,8 +662,7 @@ InitErgmTerm.Curve <- function(nw, arglist, response=NULL,...){
   wm$params <- params
   wm$minpar <- minpar
   wm$maxpar <- maxpar
-  wm$offset <- FALSE
-  wm$offsettheta <- logical(q)
+  wm$offset <- logical(q)
 
   c(list(name="passthrough_term", submodel=m), wm)
 }

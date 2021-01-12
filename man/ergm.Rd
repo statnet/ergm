@@ -41,19 +41,21 @@ is.ergm(object)
 \method{vcov}{ergm}(object, sources = c("all", "model", "estimation"), ...)
 }
 \arguments{
-\item{formula}{{An \R \code{\link{formula}} object, of the form
-\code{y ~ <model terms>},
-where \code{y} is a \code{\link[network]{network}} object or a matrix that can be
-coerced to a \code{\link[network]{network}}  object.  For the details on the possible
-\code{<model terms>}, see \code{\link{ergm-terms}} and Morris, Handcock and
-Hunter (2008) for binary ERGM terms and
-Krivitsky (2012) for valued ERGM
-terms (terms for weighted edges).  To create a
-\code{\link[network]{network}} object in \R, use the \code{network()} function,
-then add nodal attributes to it using the \code{\%v\%}
-operator if necessary. Enclosing a model term in \code{offset()}
-fixes its value to one specified in \code{offset.coef}.
-}}
+\item{formula}{An \R \code{\link{formula}} object, of the form
+\code{y ~ <model terms>}, where \code{y} is a
+\code{\link[network]{network}} object or a matrix that can be
+coerced to a \code{\link[network]{network}} object.  For the
+details on the possible \code{<model terms>}, see
+\code{\link{ergm-terms}} and Morris, Handcock and Hunter (2008)
+for binary ERGM terms and Krivitsky (2012) for valued ERGM terms
+(terms for weighted edges).  To create a
+\code{\link[network]{network}} object in \R, use the
+\code{network()} function, then add nodal attributes to it using
+the \code{\%v\%} operator if necessary. Enclosing a model term in
+\code{offset()} fixes its value to one specified in
+\code{offset.coef}.  (A second argument---a logical or numeric
+index vector---can be used to select \emph{which} of the parameters
+within the term are offsets.)}
 
 \item{response}{Name of the edge attribute whose value is to be
 modeled in the valued ERGM framework. Defaults to \code{NULL} for

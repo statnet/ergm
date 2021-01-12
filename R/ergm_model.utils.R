@@ -92,11 +92,16 @@ ergm.checkconstraints.model <- function(model, proposal, init, silent=FALSE){
 #' `ergm_model`'s `etamap` with all offset terms removed and remapped
 #'
 #' @param etamap the `etamap` element of the `ergm_model`.
+#' @param coef the vector of model coefficients specifying the offsets, if any
 #'
 #' @return a copy of the input as if all offset terms were dropped
-#'   from the model
-deoffset.etamap <- function(etamap){
-  if(!any(etamap$offsetmap)) return(etamap) # Nothing to do.
+#'   from the model; if a term is a partial offset, the term is kept
+#'   but the map and gradient functions are rewritten to substitute
+#'   the elements of `coef`. It should be safe to call with
+#'   `theta=coef[!etamap$offsettheta]`.
+#' @noRd
+deoffset.etamap <- function(etamap, coef){
+  if(!any(etamap$offsettheta)) return(etamap) # Nothing to do.
 
   # Construct "mappings" from model with offset to model without.
   remap.theta <- as.integer(cumsum(!etamap$offsettheta))
@@ -111,19 +116,37 @@ deoffset.etamap <- function(etamap){
   out$canonical <- integer(sum(!etamap$offsettheta))
   out$canonical[etamap$canonical[!etamap$offsettheta]>0L] <- remap.eta[etamap$canonical[!etamap$offsettheta]]
 
-  # These are just the non-FALSE elements.
-  out$offsetmap <- etamap$offsetmap[!etamap$offsetmap]
-  out$offsettheta <- etamap$offsettheta[!etamap$offsettheta]
-  out$offset <- etamap$offset[!etamap$offset]
-
   # For each curved term,
   out$curved <- lapply(etamap$curved, function(term){
+    offtheta <- etamap$offsettheta[term$from]
+    if(all(offtheta)) return(NULL) # Drop the whole term
+
+    if(any(offtheta)){ # Only some are offsets...
+      mymap <- term$map
+      mygrad <- term$gradient
+      myx <- coef[term$from]
+
+      term$map <- function(x, ...){
+        myx[!offtheta] <- x
+        mymap(myx, ...)
+      }
+      term$gradient <- function(x, ...){
+        myx[!offtheta] <- x
+        mygrad(myx, ...)[!offtheta,,drop=FALSE]
+      }
+
+      term$from <- term$from[!offtheta]
+    }
+
     term$from <- remap.theta[term$from] # remap from
     term$to <- remap.eta[term$to] # remap to
     term
-  })
-  # Filter out those terms for which the "to" map is not all nonzeros.
-  out$curved <- out$curved[!sapply(lapply(lapply(out$curved, "[[", "to"),"==",0), any)]
+  }) %>% compact()
+
+  # These are just the non-FALSE elements.
+  out$offsetmap <- etamap$offsetmap[!etamap$offsetmap]
+  out$offsettheta <- etamap$offsettheta[!etamap$offsettheta]
+
   out$etalength <- length(out$offsetmap)
 
   out

@@ -41,7 +41,7 @@ ergm.bridge.dindstart.llk(
   target.stats = NULL,
   dind = NULL,
   coef.dind = NULL,
-  basis = NULL,
+  basis = eval_lhs.formula(object),
   ...,
   llkonly = TRUE,
   control = control.ergm.bridge()
