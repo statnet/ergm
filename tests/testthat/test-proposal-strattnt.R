@@ -18,7 +18,7 @@ test_that("StratTNT works with undirected unipartite networks", {
   diag(pmat) <- c(2,2,30)
 
   target.stats <- c(1000, 50, 50, 800)
-  nws <- san(nw ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4, SAN.prop.args = list(pmat=pmat, attr="race")), constraints="StratTNT"~.)
+  nws <- san(nw ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, constraints=~Strat(pmat=pmat, attr="race"), control=control.san(SAN.maxit = 1, SAN.nsteps=1e4))
   sr <- summary(nws ~ edges + nodematch("race",levels=NULL, diff=TRUE))  
   
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -28,7 +28,7 @@ test_that("StratTNT works with undirected unipartite networks", {
   diag(pmat) <- c(7,7,20)
 
   target.stats <- c(1000, 125, 125, 350)
-  nws2 <- san(nws ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=2e4, SAN.prop.args = list(pmat=pmat, attr="race")), constraints="StratTNT"~.)
+  nws2 <- san(nws ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, constraints=~Strat(pmat=pmat, attr="race"), control=control.san(SAN.maxit = 1, SAN.nsteps=2e4))
   sr <- summary(nws2 ~ edges + nodematch("race",levels=NULL, diff=TRUE))
   
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -43,7 +43,7 @@ test_that("StratTNT works with directed networks", {
   pmat <- matrix(c(100, 350, 0, 10, 100, 0, 100, 0, 840),3,3,byrow=TRUE)
 
   target.stats <- c(100, 10, 100, 350, 100, 0, 0, 0, 840)
-  nws <- san(nw ~ nodemix("race"), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4, SAN.prop.args = list(pmat=pmat, attr="race")), constraints="StratTNT"~.)
+  nws <- san(nw ~ nodemix("race"), target.stats = target.stats, constraints=~Strat(pmat=pmat, attr="race"), control=control.san(SAN.maxit = 1, SAN.nsteps=1e4))
   sr <- summary(nws ~ nodemix("race"))
   
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -54,7 +54,7 @@ test_that("StratTNT works with directed networks", {
   pmat3 <- (pmat + pmat2)/2
 
   target.stats <- c(pmat2)
-  nws2 <- san(nws ~ nodemix("race"), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=2e4, SAN.prop.args = list(pmat=pmat3, attr="race")), constraints="StratTNT"~.)
+  nws2 <- san(nws ~ nodemix("race"), target.stats = target.stats, constraints=~Strat(pmat=pmat3, attr="race"), control=control.san(SAN.maxit = 1, SAN.nsteps=2e4))
   sr <- summary(nws2 ~ nodemix("race"))
   
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -68,7 +68,7 @@ test_that("StratTNT works with bipartite networks", {
   pmat <- matrix(c(0, 100, 2, 2, 0, 2, 100, 100, 0),3,3,byrow=TRUE)
 
   target.stats <- c(0, 2, 100, 100, 0, 100, 2, 2, 0)
-  nws <- san(nw ~ nodemix("race"), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4, SAN.prop.args = list(pmat=pmat, attr="race")), constraints="StratTNT"~.)
+  nws <- san(nw ~ nodemix("race"), target.stats = target.stats, constraints=~Strat(pmat=pmat, attr="race"), control=control.san(SAN.maxit = 1, SAN.nsteps=1e4))
   sr <- summary(nws ~ nodemix("race"))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -79,7 +79,7 @@ test_that("StratTNT works with bipartite networks", {
   pmat3 <- (pmat + pmat2)/2
 
   target.stats <- c(pmat2)  
-  nws2 <- san(nws ~ nodemix("race"), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=2e4, SAN.prop.args = list(pmat=pmat3, attr="race")), constraints="StratTNT"~.)
+  nws2 <- san(nws ~ nodemix("race"), target.stats = target.stats, constraints=~Strat(pmat=pmat3, attr="race"), control=control.san(SAN.maxit = 1, SAN.nsteps=2e4))
   sr <- summary(nws2 ~ nodemix("race"))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -94,7 +94,7 @@ test_that("StratTNT works with churning", {
 
   # impossible to hit these exactly
   target.stats <- c(261, 50, 50, 50, 5, 5, 100)
-  nws <- san(nw ~ edges + nodemix("race"), target.stats = target.stats, control=control.san(SAN.prop.args = list(pmat=pmat, attr="race")), constraints="StratTNT"~.)
+  nws <- san(nw ~ edges + nodemix("race"), target.stats = target.stats, constraints=~Strat(pmat=pmat, attr="race"))
   sr <- summary(nws ~ edges + nodemix("race"))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats + 1))
@@ -111,18 +111,14 @@ test_that("StratTNT simulates reasonably", {
   nw %v% "vattr" <- vattr
   
   pmat <- 1 - matrix(c(1,0,0,0,1,0,0,0,0),3,3)
-    
-  control <- control.simulate.formula(MCMC.prop.weights = "StratTNT", 
-                                      MCMC.prop.args = list(attr = "vattr",
-                                                            pmat = pmat))
-  
+      
   nw_sim <- nw
   
   for(i in 1:5) {
     nw_sim <- simulate(nw_sim ~ edges, 
                        coef = c(-3), 
-                       output = "network",
-                       control = control)
+                       constraints = ~Strat(attr = "vattr", pmat = pmat),
+                       output = "network")
     summ_stats <- summary(nw_sim ~ nodemix("vattr"))
     expect_true(summ_stats["mix.vattr.A.A"] == 0)
     expect_true(summ_stats["mix.vattr.B.B"] == 0)
