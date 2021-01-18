@@ -240,11 +240,13 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   ergm_preprocess_response(nw, response)
 
   if(is.valued(nw)) stop("Only binary ERGMs are supported at this time.")
+  if(!is.null(dind)) stop("Custom dind scaffolding has been disabled. It may be reenabled in the future.")
 
   m<-ergm_model(object, nw, term.options=control$term.options)
   
-  q.pos.full <- c(0,cumsum(nparam(m, canonical=FALSE, byterm=TRUE)))
-  p.pos.full <- c(0,cumsum(nparam(m, canonical=TRUE, byterm=TRUE)))
+  q.pos.full <- c(0,cumsum(nparam(m, canonical=FALSE, byterm=TRUE, offset=TRUE)))
+  p.pos.full <- c(0,cumsum(nparam(m, canonical=TRUE, byterm=TRUE, offset=FALSE)))
+  rng <- function(x, from, to) if(to>=from) x[from:to]
   
   tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats); nw <- tmp$nw; constraints <- tmp$constraints; constraints.obs <- tmp$constraints.obs
 
@@ -256,33 +258,35 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   # so edges are not added on.
   if(!is.null(target.stats) && !is.null(dind)) stop("Non-default dyad-independent model is not supported when target.stats is passed and passed network's statistics do not match it.")
 
-  ## From this point on, target.stats has NAs corresponding to offset
-  ## terms.
-  if(!is.null(target.stats)) target.stats <- .align.target.stats.offset(m, target.stats)
-  
   ## By default, take dyad-independent terms in the formula, fit a
   ## model with these terms and "edges". Terms that are redundant (NA)
   ## get their coefficients zeroed out below.
   ## FIXME: What to do about dyad-independent curved terms?
   offset.dind <- c()
   if(!is.null(target.stats)) ts.dind <- c()
+  dindmap <- logical(0)
   if(is.null(dind)){
-    dind<-~.
     terms.full<-list_rhs.formula(object)[!m$term.skipped] # Ensure that terms to be added to the dyad-independent formula are aligned with terms that had actually made it into the model.
     for(i in seq_along(terms.full))
-      if(NVL(m$terms[[i]]$dependence, TRUE) == FALSE){
-        dind<-append_rhs.formula(dind,list(terms.full[[i]]))
-        if(!is.null(target.stats) && !m$offset[i]) ts.dind <- c(ts.dind, target.stats[(p.pos.full[i]+1):p.pos.full[i+1]])
-        if(m$offset[i]) offset.dind <- c(offset.dind, coef[(q.pos.full[i]+1):q.pos.full[i+1]])
+      if(NVL(m$terms[[i]]$dependence, TRUE)){ # Dyad-dependent: drop.
+        terms.full[i] <- list(NULL)
+        dindmap <- c(dindmap, rep(FALSE, length(m$terms[[i]]$offset)))
+      }else{
+        dindmap <- c(dindmap, rep(TRUE, length(m$terms[[i]]$offset)))
+        if(!is.null(target.stats)) ts.dind <- c(ts.dind, rng(target.stats, p.pos.full[i]+1, p.pos.full[i+1]))
+        offset.dind <- c(offset.dind, coef[(q.pos.full[i]+1):q.pos.full[i+1]][m$terms[[i]]$offset]) # Add offset coefficient where applicable.
       }
-    if(is.null(target.stats)) dind<-append_rhs.formula(dind,list(as.name("edges")))
-    environment(dind) <- environment(object)
-  }
-  
-  dind<-nonsimp_update.formula(dind,nw~., from.new="nw")
 
-  if(!is.dyad.independent(dind, term.options=control$term.options))
-    stop("Reference model `dind' must be dyad-independent.")
+    if(is.null(target.stats)){
+      terms.full <- c(terms.full, list(as.name("edges")))
+      dindmap <- c(dindmap, TRUE)
+    }
+
+    # Copy environment and LHS if present.
+    dind <- append_rhs.formula(object[-length(object)], compact(terms.full))
+
+    if(length(object)==3) dind[[2]] <- object[[2]] else dind <- dind[-2]
+  }
 
   ergm.dind<-suppressMessages(suppressWarnings(ergm(dind,estimate="MPLE",constraints=constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef = offset.dind)))
   
@@ -303,21 +307,23 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   # l(theta,ts)-l(theta,ns)=sum(theta*(ts-ns)).
   if(!is.null(target.stats)) llk.dind <- llk.dind + c(crossprod(coef.dind, NVL(c(ts.dind), ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]) - ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]))
 
-  ## Construct the augmented formula.
-  formula.aug<-append_rhs.formula(object, list_rhs.formula(dind)[!ergm.dind$etamap$offset])
+  from <- numeric(length(dindmap))
+  from[dindmap] <- replace(coef(ergm.dind), is.na(coef(ergm.dind)), 0)
+  to <- c(coef, if(is.null(target.stats)) 0)
 
-  from<-c(rep(0,length(coef)),coef.dind)
-  to<-c(coef,rep(0,length(coef.dind)))
+  form.aug <- if(is.null(target.stats)) append_rhs.formula(object, list(as.name("edges"))) else object
+
+  ## From this point on, target.stats has NAs corresponding to offset
+  ## terms.
+  if(!is.null(target.stats)) target.stats <- .align.target.stats.offset(m, target.stats)
 
   if(!is.null(target.stats) && any(is.na(target.stats))){
     warning("Using target.stats for a model with offset terms may produce an inaccurate estimate of the log-likelihood and derived quantities (deviance, AIC, BIC, etc.), because some of the target stats must be imputed.")
     target.stats[m$etamap$offsetmap] <- summary(m, nw)[m$etamap$offsetmap]
   }
 
-  br<-ergm.bridge.llr(formula.aug, constraints=constraints, from=from, to=to, basis=basis, target.stats=c(target.stats, if(!is.null(target.stats)) ts.dind), control=control)
+  br<-ergm.bridge.llr(form.aug, constraints=constraints, from=from, to=to, basis=basis, target.stats=target.stats, control=control)
   
   if(llkonly) llk.dind + br$llr
   else c(br,llk.dind=llk.dind, llk=llk.dind + br$llr)
 }
-
-

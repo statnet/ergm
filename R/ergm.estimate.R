@@ -77,7 +77,7 @@ ergm.estimate<-function(init, model, statsmatrices, statsmatrices.obs=NULL,
   # Construct an offsetless map and convert init (possibly "curved"
   # parameters) to eta0 (canonical parameters)
   etamap <- model$etamap
-  etamap.no <- deoffset.etamap(etamap)
+  etamap.no <- deoffset.etamap(etamap, init)
   eta0 <- ergm.eta(init[!etamap$offsettheta], etamap.no)
 
 
