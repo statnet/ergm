@@ -227,9 +227,7 @@ ergm_proposal.character <- function(object, arguments, nw, ..., reference=~Berno
 
 ergm_conlist <- function(object, ...) UseMethod("ergm_conlist")
 
-ergm_conlist.NULL <- function(object, ...){
-  ergm_conlist(trim_env(~.), ...)
-}
+ergm_conlist.NULL <- function(object, ...) NULL
 
 ergm_conlist.formula <- function(object, nw){
   ## Construct a list of constraints and arguments from the formula.
