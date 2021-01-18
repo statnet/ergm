@@ -20,10 +20,10 @@
   Vertex (alter); \
   Edge (edge); \
   for((edge) = MIN_OUTEDGE_NET((ego),(net)); ((alter) = OUTVAL_NET((edge),(net))) != 0; (edge) = NEXT_OUTEDGE_NET((edge),(net))) { \
-    (subroutine); \
+    subroutine \
   } \
   for((edge) = MIN_INEDGE_NET((ego),(net)); ((alter) = INVAL_NET((edge),(net))) != 0; (edge) = NEXT_INEDGE_NET((edge),(net))) { \
-    (subroutine); \
+    subroutine \
   } \
 }
 
@@ -33,11 +33,11 @@
   Edge (edge); \
   (tail) = (ego); \
   for((edge) = MIN_OUTEDGE_NET((ego),(net)); ((head) = (alter) = OUTVAL_NET((edge),(net))) != 0; (edge) = NEXT_OUTEDGE_NET((edge),(net))) { \
-    (subroutine); \
+    subroutine \
   } \
   (head) = (ego); \
   for((edge) = MIN_INEDGE_NET((ego),(net)); ((tail) = (alter) = INVAL_NET((edge),(net))) != 0; (edge) = NEXT_INEDGE_NET((edge),(net))) { \
-    (subroutine); \
+    subroutine \
   } \
 }
 
