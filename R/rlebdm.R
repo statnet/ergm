@@ -255,13 +255,12 @@ as.rlebdm.ergm_conlist <- function(x, constraints.obs = NULL, which = c("free", 
            if(!is.null(y)) compress(y)
          },
          missing={
-           free_dyads <- as.rlebdm(x)
            free_dyads.obs <- as.rlebdm(constraints.obs)
            
-           if(is.null(free_dyads)){
+           if(is.null(x)){
              free_dyads.obs # Already compacted.
            }else{
-             NVL3(free_dyads.obs, compress(free_dyads & .),  NULL)
+             NVL3(free_dyads.obs, compress(as.rlebdm(x) & .),  NULL)
            }
          },
          informative={
