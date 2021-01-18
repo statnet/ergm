@@ -37,6 +37,9 @@ The settings are stored in a named list in an \code{"ergm"}
 network attribute attached to the LHS network. Currently
 understood settings include: \describe{
 
+\item{\code{response}}{Edge attribute to be used as the response
+variable, constructed from the \verb{response=} argument of \code{\link[=ergm]{ergm()}}.}
+
 \item{\code{constraints}}{Structural constraints of the network:
 inherited by the \verb{constraints=} argument of \code{\link[=ergm]{ergm()}},
 \code{\link[=simulate.formula]{simulate.formula()}}, etc..}

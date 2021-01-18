@@ -13,6 +13,9 @@
 #'   network attribute attached to the LHS network. Currently
 #'   understood settings include: \describe{
 #'
+#'   \item{`response`}{Edge attribute to be used as the response
+#'   variable, constructed from the `response=` argument of [ergm()].}
+#'
 #'   \item{`constraints`}{Structural constraints of the network:
 #'   inherited by the `constraints=` argument of [ergm()],
 #'   [simulate.formula()], etc..}
