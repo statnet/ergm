@@ -78,8 +78,10 @@ prune.ergm_conlist <- function(conlist){
       ed.con <- NVL(conlist[[ed]]$constrain,character(0))
       ed.impliedby <- NVL(conlist[[ed]]$impliedby,character(0))
       
-      if(any(er.con %in% ed.impliedby) || any(ed.con %in% er.implies) || any(er.implies %in% ed.impliedby))
+      if(any(er.con %in% ed.impliedby) || any(ed.con %in% er.implies) || any(er.implies %in% ed.impliedby)){
         conlist[[ed]]<-NULL
+        break
+      }
     }
   }
   conlist
@@ -231,10 +233,11 @@ ergm_proposal.character <- function(object, arguments, nw, ..., response=NULL, r
 
 ergm_conlist <- function(object, ...) UseMethod("ergm_conlist")
 
-ergm_conlist.NULL <- function(object, ...) structure(list(), class="ergm_conlist")
+ergm_conlist.NULL <- function(object, ...){
+  ergm_conlist(trim_env(~.), ...)
+}
 
 ergm_conlist.formula <- function(object, nw){
-  if(is.null(object)) return(NULL)
   ## Construct a list of constraints and arguments from the formula.
   conlist<-list()
   constraints<-list_rhs.formula(object)
@@ -369,7 +372,7 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), w
   score_proposals <- function(proposals, conlist){
     constraints <- map_dbl(conlist, "priority")
     names(constraints) <- map_chr(conlist, "constrain", .default="")
-    constraints <- constraints[names(constraints)!=""]
+    constraints <- constraints[! names(constraints) %in% c("",".attributes")]
 
     add_score <- function(proposal){
       propcon <- proposal$Constraints

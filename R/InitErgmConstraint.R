@@ -92,7 +92,7 @@ InitErgmConstraint..attributes <- function(lhs.nw, ...){
         }
       rlebdm(d, n)
     },
-    constrain = character(0),
+    implies = ".attributes",
     dependence = FALSE)
 }
 
