@@ -143,7 +143,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
     })
     nw.state <- do.call(stats::simulate, sim_settings)
 
-    if(network.naedgecount(nw)){
+    if(!is.null(constraints.obs)){
       sim_settings.obs <- within(sim_settings.obs, {
         nsim <- 1
         coef <- theta
@@ -163,7 +163,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
     })
     stats[i,]<-colMeans(as.matrix(do.call(stats::simulate, sim_settings)))
 
-    if(network.naedgecount(nw)){
+    if(!is.null(constraints.obs)){
       nsim <- ceiling(bridge.control$obs.MCMC.samplesize/bridge.control$nsteps)
       sim_settings.obs <- within(sim_settings.obs, {
         basis <- nw.state.obs
