@@ -173,7 +173,6 @@ InitErgmConstraint.BD <- function(lhs.nw, bound = NULL, attr = NULL, fmat = NULL
     dependence <- FALSE    
     
     free_dyads <- function() {
-      message("Computing free_dyads for BD constraint.")
       n <- as.integer(network.size(lhs.nw))
       
       if(is.bipartite(lhs.nw)) {
