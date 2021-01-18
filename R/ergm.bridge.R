@@ -8,27 +8,6 @@
 #  Copyright 2003-2020 Statnet Commons
 #######################################################################
 
-## This is a helper function that constructs and returns the network
-## object to be used and the model object.
-ergm.bridge.preproc<-function(object, basis, response, ...){
-
-  # If basis is not null, replace network in formula by basis.
-  # In either case, let nw be network object from formula.
-  if(is.null(nw <- basis)) {
-    nw <- ergm.getnetwork(object)
-  }
-
-  nw <- ensure_network(nw)
-
-  NVL(response) <- nw %ergmlhs% "response"
-  
-  # New formula (no longer use 'object'):
-  form <- nonsimp_update.formula(object, nw ~ ., from.new="nw")
-  
-  list(nw=nw, form=form, response=response)
-}
-
-
 #' Bridge sampling to evaluate ERGM log-likelihoods and log-likelihood ratios
 #' 
 #' \code{ergm.bridge.llr} uses bridge sampling with geometric spacing to
@@ -82,15 +61,14 @@ ergm.bridge.preproc<-function(object, basis, response, ...){
 #'   networks}, Journal of Computational and Graphical Statistics.
 #' @keywords model
 #' @export
-ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constraints=~., from, to, obs.constraints=~.-observed, target.stats=NULL, basis=NULL, verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){
+ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constraints=~., from, to, obs.constraints=~.-observed, target.stats=NULL, basis=eval_lhs.formula(object), verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){
   check.control.class("ergm.bridge", "ergm.bridge.llr")
   control.toplevel("ergm.bridge", ...)
 
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
   
-  ## Here, we need to get the model object to get the likelihood and gradient functions.
-  tmp<-ergm.bridge.preproc(object,basis,response,term.options=control$term.options)
-  nw.state <-nw<-tmp$nw; m<-tmp$model; form<-tmp$form; rm(tmp)
+  ergm_preprocess_response(basis, response)
+  nw.state <- nw <- basis
 
 
   ## Generate the path.
@@ -100,20 +78,20 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
 
   ## Preinitialize proposals and set "observed" statistics:
   proposal <- ergm_proposal(constraints,arguments=control$MCMC.prop.args,
-                           nw=nw, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
-  m<-ergm_model(object, nw, response=response, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
+                           nw=nw, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, class="c",reference=reference)
+  m<-ergm_model(object, nw, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
   proposal$aux.slots <- m$slots.extra.aux$proposal
 
   if(!is.null(constraints.obs)){
     proposal.obs <- ergm_proposal(constraints.obs,arguments=control$obs.MCMC.prop.args,
-                                 nw=nw, hints=control$obs.MCMC.prop, weights=control$obs.MCMC.prop.weights, class="c",reference=reference,response=response)
-    m.obs<-ergm_model(object, nw, response=response, extra.aux=list(proposal=proposal.obs$auxiliaries), term.options=control$term.options)
+                                 nw=nw, hints=control$obs.MCMC.prop, weights=control$obs.MCMC.prop.weights, class="c",reference=reference)
+    m.obs<-ergm_model(object, nw, extra.aux=list(proposal=proposal.obs$auxiliaries), term.options=control$term.options)
     proposal.obs$aux.slots <- m.obs$slots.extra.aux$proposal
 
     stats.obs <- matrix(NA,control$nsteps,m$etamap$etalength)
     nw.state.obs <- nw.state
   }else
-    stats.obs<-matrix(NVL(target.stats,summary(m, nw, response=response)),control$nsteps,m$etamap$etalength,byrow=TRUE)
+    stats.obs<-matrix(NVL(target.stats,summary(m, nw)),control$nsteps,m$etamap$etalength,byrow=TRUE)
 
   stats<-matrix(NA,control$nsteps,m$etamap$etalength)
   
@@ -144,8 +122,8 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
     )
   }
 
-  sim_settings <- simulate(m, coef=from, nsim=1, response=response, constraints=proposal, output="ergm_state", verbose=max(verbose-1,0), basis = nw.state, control=gen_control(FALSE, "first"), ..., do.sim=FALSE)
-  if(!is.null(constraints.obs)) sim_settings.obs <- simulate(m.obs, coef=from, nsim=1, response=response, constraints=proposal.obs, output="ergm_state", verbose=max(verbose-1,0), basis = nw.state.obs, control=gen_control(TRUE, "first"), ..., do.sim=FALSE)
+  sim_settings <- simulate(m, coef=from, nsim=1, constraints=proposal, output="ergm_state", verbose=max(verbose-1,0), basis = nw.state, control=gen_control(FALSE, "first"), ..., do.sim=FALSE)
+  if(!is.null(constraints.obs)) sim_settings.obs <- simulate(m.obs, coef=from, nsim=1, constraints=proposal.obs, output="ergm_state", verbose=max(verbose-1,0), basis = nw.state.obs, control=gen_control(TRUE, "first"), ..., do.sim=FALSE)
 
   message("Using ", bridge.control$nsteps, " bridges: ", appendLF=FALSE)
   
@@ -221,10 +199,11 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
 #' 
 #' 
 #' @export
-ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, ..., llkonly=TRUE, control=control.ergm.bridge()){
+ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, ..., llkonly=TRUE, control=control.ergm.bridge(), basis=eval_lhs.formula(object)){
   check.control.class("ergm.bridge", "ergm.bridge.0.llk")
   control.toplevel("ergm.bridge", ...)
-  br<-ergm.bridge.llr(object, from=rep(0,length(coef)), to=coef, response=response, reference=reference, control=control, ...)
+  ergm_preprocess_response(basis, response)
+  br<-ergm.bridge.llr(object, from=rep(0,length(coef)), to=coef, reference=reference, control=control, ..., basis=basis)
   if(llkonly) br$llr
   else c(br,llk=br$llr)
 }
@@ -257,12 +236,13 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
 
   ## Here, we need to get the model object to get the list of
   ## dyad-independent terms.
-  tmp <- ergm.bridge.preproc(object,basis,response); nw <- tmp$nw; form <- tmp$form; response <- tmp$response
+  nw <- basis
+  ergm_preprocess_response(nw, response)
 
-  if(!is.null(response)) stop("Only binary ERGMs are supported at this time.")
+  if(is.valued(nw)) stop("Only binary ERGMs are supported at this time.")
   if(!is.null(dind)) stop("Custom dind scaffolding has been disabled. It may be reenabled in the future.")
 
-  m<-ergm_model(object, nw, response=response, term.options=control$term.options)
+  m<-ergm_model(object, nw, term.options=control$term.options)
   
   q.pos.full <- c(0,cumsum(nparam(m, canonical=FALSE, byterm=TRUE, offset=TRUE)))
   p.pos.full <- c(0,cumsum(nparam(m, canonical=TRUE, byterm=TRUE, offset=FALSE)))
@@ -286,7 +266,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   if(!is.null(target.stats)) ts.dind <- c()
   dindmap <- logical(0)
   if(is.null(dind)){
-    terms.full<-list_rhs.formula(form)[!m$term.skipped] # Ensure that terms to be added to the dyad-independent formula are aligned with terms that had actually made it into the model.
+    terms.full<-list_rhs.formula(object)[!m$term.skipped] # Ensure that terms to be added to the dyad-independent formula are aligned with terms that had actually made it into the model.
     for(i in seq_along(terms.full))
       if(NVL(m$terms[[i]]$dependence, TRUE)){ # Dyad-dependent: drop.
         terms.full[i] <- list(NULL)
@@ -342,7 +322,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
     target.stats[m$etamap$offsetmap] <- summary(m, nw)[m$etamap$offsetmap]
   }
 
-  br<-ergm.bridge.llr(form.aug, response=response, constraints=constraints, from=from, to=to, basis=basis, target.stats=target.stats, control=control)
+  br<-ergm.bridge.llr(form.aug, constraints=constraints, from=from, to=to, basis=basis, target.stats=target.stats, control=control)
   
   if(llkonly) llk.dind + br$llr
   else c(br,llk.dind=llk.dind, llk=llk.dind + br$llr)

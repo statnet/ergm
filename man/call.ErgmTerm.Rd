@@ -4,16 +4,12 @@
 \alias{call.ErgmTerm}
 \title{Locate and call an ERGM term initialization function.}
 \usage{
-call.ErgmTerm(term, env, nw, response = NULL, ..., term.options = list())
+call.ErgmTerm(term, env, nw, ..., term.options = list())
 }
 \arguments{
 \item{env}{Environment in which it is to be evaluated.}
 
 \item{nw}{A \code{\link{network}} object.}
-
-\item{response}{Name of the edge attribute whose value is to be
-modeled in the valued ERGM framework. Defaults to \code{NULL} for
-simple presence or absence, modeled via a binary ERGM.}
 
 \item{...}{Additional term options.}
 

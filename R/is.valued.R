@@ -19,5 +19,11 @@ is.valued.edgelist <- function(object, ...){
 #' @describeIn is.valued a method for [`ergm`] objects.
 #' @export
 is.valued.ergm <- function(object, ...){
-  !is.null(object$response)
+  is.valued(object$network)
+}
+
+#' @describeIn is.valued a method for [`network`] objects.
+#' @export
+is.valued.network <- function(object, ...){
+  NVL(attr(object %ergmlhs% "response", "valued"), FALSE)
 }

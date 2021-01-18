@@ -11,14 +11,7 @@
 \usage{
 ergm_proposal(object, ...)
 
-\method{ergm_proposal}{character}(
-  object,
-  arguments,
-  nw,
-  ...,
-  response = NULL,
-  reference = ~Bernoulli
-)
+\method{ergm_proposal}{character}(object, arguments, nw, ..., reference = ~Bernoulli)
 
 \method{ergm_proposal}{formula}(
   object,
@@ -28,7 +21,6 @@ ergm_proposal(object, ...)
   weights = "default",
   class = "c",
   reference = ~Bernoulli,
-  response = NULL,
   ...
 )
 
@@ -40,8 +32,7 @@ ergm_proposal(object, ...)
   nw = NULL,
   weights = NULL,
   class = "c",
-  reference = NULL,
-  response = NULL
+  reference = NULL
 )
 }
 \arguments{
@@ -54,10 +45,6 @@ ergm_proposal(object, ...)
 
 \item{nw}{The network object originally given to \code{\link{ergm}}
 via 'formula'}
-
-\item{response}{Name of the edge attribute whose value is to be
-modeled in the valued ERGM framework. Defaults to \code{NULL} for
-simple presence or absence, modeled via a binary ERGM.}
 
 \item{reference}{A one-sided formula specifying
 the reference measure (\eqn{h(y)}) to be used.

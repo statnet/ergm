@@ -61,8 +61,7 @@ ergm.CD.fixed <- function(init, nw, model,
                              control, 
                              proposal, proposal.obs,
                              verbose=FALSE,
-                             estimate=TRUE,
-                             response=NULL, ...) {
+                             estimate=TRUE, ...) {
   message("Starting contrastive divergence estimation via CD-MCMLE:")
   # Is there observational structure?
   obs <- ! is.null(proposal.obs)
@@ -91,7 +90,7 @@ ergm.CD.fixed <- function(init, nw, model,
   # statshifts will be 0. target.stats and missing dyads are mutually
   # exclusive, so model$target.stats will be set equal to
   # model$nw.stats, causing this to happen.
-  s <- single.impute.dyads(nw, response=response, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, output="ergm_state", verbose=verbose)
+  s <- single.impute.dyads(nw, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, output="ergm_state", verbose=verbose)
 
   # statshift is the difference between the target.stats (if
   # specified) and the statistics of the networks in the LHS of the
@@ -99,7 +98,7 @@ ergm.CD.fixed <- function(init, nw, model,
   # explicitly, they are computed from this network, so
   # statshift==0. To make target.stats play nicely with offsets, we
   # set statshifts to 0 where target.stats is NA (due to offset).
-  model$nw.stats <- summary(model, s, response=response)
+  model$nw.stats <- summary(model, s)
   statshift <- model$nw.stats - NVL(model$target.stats,model$nw.stats)
   statshift[is.na(statshift)] <- 0
   s <- update(s, model=model, proposal=proposal, stats=statshift)
@@ -134,7 +133,7 @@ ergm.CD.fixed <- function(init, nw, model,
     }
 
     # Obtain CD sample
-    z <- ergm_CD_sample(s, control, verbose=verbose, response=response, theta=mcmc.init)
+    z <- ergm_CD_sample(s, control, verbose=verbose, theta=mcmc.init)
 
     # The statistics in statsmatrix should all be relative to either the
     # observed statistics or, if given, the alternative target.stats
@@ -153,7 +152,7 @@ ergm.CD.fixed <- function(init, nw, model,
     
     ##  Does the same, if observation process:
     if(obs){
-      z.obs <- ergm_CD_sample(s.obs, control.obs, theta=mcmc.init, response=response, verbose=max(verbose-1,0))
+      z.obs <- ergm_CD_sample(s.obs, control.obs, theta=mcmc.init, verbose=max(verbose-1,0))
 
       statsmatrices.obs <- z.obs$stats
       statsmatrix.obs <- as.matrix(statsmatrices.obs)

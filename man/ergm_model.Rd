@@ -16,7 +16,6 @@
 ergm_model(
   formula,
   nw = NULL,
-  response = NULL,
   silent = FALSE,
   ...,
   term.options = list(),
@@ -45,10 +44,6 @@ formula of the form \code{network ~ model.term(s)} or \code{~
 model.term(s)}.}
 
 \item{nw}{The network of interest; if passed, the LHS of \code{formula} is ignored. This is the recommended usage.}
-
-\item{response}{Name of the edge attribute whose value is to be
-modeled in the valued ERGM framework. Defaults to \code{NULL} for
-simple presence or absence, modeled via a binary ERGM.}
 
 \item{silent}{logical, whether to print the warning messages from the
 initialization of each model term.}

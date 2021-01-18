@@ -2,7 +2,7 @@
 ## will cause an error if we actually try to evaluate them. So,
 ## there's no check.ErgmTerm() but rather an immediate substitute() to
 ## grab the actual names or calls being passed.
-`InitErgmTerm.:` <- function(nw, arglist, response=NULL, ...){
+`InitErgmTerm.:` <- function(nw, arglist, ...){
   arglist <- substitute(arglist)
   e1 <- arglist[[2]]
   e2 <- arglist[[3]]
@@ -16,7 +16,7 @@
   f <- ~nw
   f <- append_rhs.formula(f, c(e1,e2))
   
-  m <- ergm_model(f, nw, response=response,...)
+  m <- ergm_model(f, nw,...)
 
   if(!is.dyad.independent(m)) message("Note that interactions might not be meaningful for dyad-dependent terms.")
   if(is.curved(m)) stop("Interactions are undefined for curved terms at this time.")
@@ -28,7 +28,7 @@
   
   cn <- outer(cn1,cn2,paste,sep=":")
 
-  wm <- wrap.ergm_model(m, nw, response, NULL)
+  wm <- wrap.ergm_model(m, nw, NULL)
   if(any(wm$offsettheta) || any(wm$offsetmap)) ergm_Init_warn(paste0("The interaction operator does not propagate offset() decorators."))
 
   list(name="interact", coef.names = cn, inputs=inputs, submodel=m, dependence=wm$dependence)
@@ -38,7 +38,7 @@
 ## will cause an error if we actually try to evaluate them. So,
 ## there's no check.ErgmTerm() but rather an immediate substitute() to
 ## grab the actual names or calls being passed.
-`InitErgmTerm.*` <- function(nw, arglist, response=NULL, ...){
+`InitErgmTerm.*` <- function(nw, arglist, ...){
   arglist <- substitute(arglist)
   e1 <- arglist[[2]]
   e2 <- arglist[[3]]
@@ -52,7 +52,7 @@
   f <- ~nw
   f <- append_rhs.formula(f, c(e1,e2))
   
-  m <- ergm_model(f, nw, response=response,...)
+  m <- ergm_model(f, nw,...)
 
   if(!is.dyad.independent(m)) message("Note that interactions might not be meaningful for dyad-dependent terms.")
   if(is.curved(m)) stop("Interactions are undefined for curved terms at this time.")
@@ -64,7 +64,7 @@
 
   cn <- c(cn1,cn2,outer(cn1,cn2,paste,sep=":"))
   
-  wm <- wrap.ergm_model(m, nw, response, NULL)
+  wm <- wrap.ergm_model(m, nw, NULL)
   if(any(wm$offsettheta) || any(wm$offsetmap)) ergm_Init_warn(paste0("The interaction operator does not propagate offset() decorators."))
 
   list(name="main_interact", coef.names = cn, inputs=inputs, submodel=m, dependence=wm$dependence)

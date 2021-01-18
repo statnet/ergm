@@ -139,6 +139,7 @@ Collate:
     'ergm_model.R'
     'ergm_model.utils.R'
     'ergm_proposal.R'
+    'ergm_response.R'
     'ergm_state.R'
     'ergmlhs.R'
     'formula.utils.R'

@@ -278,9 +278,9 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
 
   nw <- basis
   nw <- as.network(nw, populate=FALSE)
-  NVL(response) <- nw %ergmlhs% "response"
+  ergm_preprocess_response(nw, response)
 
-  mon.m <- if(!is.null(monitor)) as.ergm_model(monitor, nw, response=response, term.options=control$term.options)
+  mon.m <- if(!is.null(monitor)) as.ergm_model(monitor, nw, term.options=control$term.options)
 
   if(!is.list(constraints)) constraints <- list(constraints)
     constraints <- rep(constraints, length.out=2)
@@ -292,15 +292,15 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
   # auxiliary requests could be passed to ergm_model().
   proposal <- if(inherits(constraints, "ergm_proposal")) constraints
                 else ergm_proposal(constraints,arguments=if(observational) control$obs.MCMC.prop.args else control$MCMC.prop.args,
-                                   nw=nw, hints=if(observational) control$obs.MCMC.prop else control$MCMC.prop, weights=if(observational) control$obs.MCMC.prop.weights else control$MCMC.prop.weights, class="c",reference=reference,response=response)
+                                   nw=nw, hints=if(observational) control$obs.MCMC.prop else control$MCMC.prop, weights=if(observational) control$obs.MCMC.prop.weights else control$MCMC.prop.weights, class="c",reference=reference)
   
   # Prepare inputs to ergm.getMCMCsample
-  m <- ergm_model(object, nw, response=response, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
+  m <- ergm_model(object, nw, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
   proposal$aux.slots <- m$slots.extra.aux$proposal
 
   if(do.sim){
     out <- simulate(m, nsim=nsim, seed=seed,
-                    coef=coef, response=response,
+                    coef=coef,
                     constraints=proposal,
                     monitor=mon.m,
                     basis=nw,
@@ -323,7 +323,7 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
     out
   }else{
     list(object=m, nsim=nsim, seed=seed,
-         coef=coef, response=response,
+         coef=coef,
          constraints=proposal,
          monitor=mon.m,
          basis=nw,
@@ -350,7 +350,7 @@ simulate_formula.ergm_state <- .simulate_formula.network
 #'   [`ergm_proposal`] object instead.
 #' @export
 simulate.ergm_model <- function(object, nsim=1, seed=NULL,
-                                coef, response=NULL, reference=if(is(constraints, "ergm_proposal")) NULL else trim_env(~Bernoulli),
+                                coef, reference=if(is(constraints, "ergm_proposal")) NULL else trim_env(~Bernoulli),
                                 constraints=trim_env(~.),
                                 observational=FALSE,
                                 monitor=NULL,
@@ -386,8 +386,6 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
   # define nw as either the basis argument or (if NULL) the LHS of the formula
   nw <- basis
   nw0 <- as.network(nw, populate=FALSE)
-  NVL(response) <- nw0 %ergmlhs% "response"
-
 
   m <- c(object, monitor)
   
@@ -411,7 +409,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                 tmp <- .handle.auto.constraints(nw0, constraints[[1]], constraints[[2]], NULL)
                 nw0 <- tmp$nw; constraints <- if(observational) tmp$constraints.obs else tmp$constraints
                 ergm_proposal(constraints,arguments=control$MCMC.prop.args,
-                              nw=nw0, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)
+                              nw=nw0, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, class="c",reference=reference)
               }
 
   if(length(proposal$auxiliaries) && !length(m$slots.extra.aux$proposal))
@@ -421,10 +419,10 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
     stop("Illegal value of coef passed to simulate.formula")
   
   # Create vector of current statistics
-  curstats<-summary(m, nw, response=response, term.options=control$term.options)
+  curstats<-summary(m, nw, term.options=control$term.options)
   names(curstats) <- param_names(m, canonical=TRUE)
 
-  state <- ergm_state(nw, response=response, model=m, proposal=proposal, stats=curstats)
+  state <- ergm_state(nw, model=m, proposal=proposal, stats=curstats)
 
   if(do.sim){
     o <- simulate(state, nsim=nsim, seed=seed,
@@ -577,7 +575,7 @@ simulate.ergm_state_full <- function(object, nsim=1, seed=NULL,
 #' @export
 simulate.ergm <- function(object, nsim=1, seed=NULL, 
                           coef=object$coef,
-                          response=object$response,
+                          response=object$network%ergmlhs%"response",
                           reference=object$reference,
                           constraints=list(object$constraints, object$obs.constraints),
                           observational=FALSE,

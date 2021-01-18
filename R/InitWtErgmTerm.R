@@ -46,7 +46,7 @@ InitWtErgmTerm.absdiff <- function(nw, arglist, ..., version=packageVersion("erg
   binary_dind_wrap("absdiff", nw, a, ..., version=version)
 }
 
-InitWtErgmTerm.absdiffcat <- function(nw, arglist, response, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.absdiffcat <- function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
     a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
@@ -66,7 +66,7 @@ InitWtErgmTerm.absdiffcat <- function(nw, arglist, response, ..., version=packag
 }
 
 
-InitWtErgmTerm.atleast<-function(nw, arglist, response, ...) {
+InitWtErgmTerm.atleast<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("threshold"),
                       vartypes = c("numeric"),
@@ -80,7 +80,7 @@ InitWtErgmTerm.atleast<-function(nw, arglist, response, ...) {
        emptynwstats=ifelse(0>=a$threshold, network.dyadcount(nw,FALSE), 0))
 }
 
-InitWtErgmTerm.atmost<-function(nw, arglist, response, ...) {
+InitWtErgmTerm.atmost<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("threshold"),
                       vartypes = c("numeric"),
@@ -206,7 +206,7 @@ InitWtErgmTerm.diff <- function(nw, arglist, ..., version=packageVersion("ergm")
   binary_dind_wrap("diff", nw, a, ..., version=version)
 }
 
-InitWtErgmTerm.edgecov <- function(nw, arglist, response, ...) {
+InitWtErgmTerm.edgecov <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
                       varnames = c("x", "attrname", "form"),
@@ -217,7 +217,7 @@ InitWtErgmTerm.edgecov <- function(nw, arglist, response, ...) {
 }
 
 
-InitWtErgmTerm.equalto<-function(nw, arglist, response, ...) {
+InitWtErgmTerm.equalto<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("value", "tolerance"),
                       vartypes = c("numeric", "numeric"),
@@ -232,7 +232,7 @@ InitWtErgmTerm.equalto<-function(nw, arglist, response, ...) {
 }
 
 
-InitWtErgmTerm.ininterval<-function(nw, arglist, response, ...) {
+InitWtErgmTerm.ininterval<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("lower","upper","open"),
                       vartypes = c("numeric","numeric","logical,character"),
@@ -261,7 +261,7 @@ InitWtErgmTerm.ininterval<-function(nw, arglist, response, ...) {
        ) network.dyadcount(nw,FALSE) else 0)
 }
 
-InitWtErgmTerm.greaterthan<-function(nw, arglist, response, ...) {
+InitWtErgmTerm.greaterthan<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("threshold"),
                       vartypes = c("numeric"),
@@ -275,7 +275,7 @@ InitWtErgmTerm.greaterthan<-function(nw, arglist, response, ...) {
        emptynwstats=ifelse(0>a$threshold, network.dyadcount(nw,FALSE), 0))
 }
 
-InitWtErgmTerm.smallerthan<-function(nw, arglist, response, ...) {
+InitWtErgmTerm.smallerthan<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("threshold"),
                       vartypes = c("numeric"),
@@ -290,7 +290,7 @@ InitWtErgmTerm.smallerthan<-function(nw, arglist, response, ...) {
 }
 
 
-InitWtErgmTerm.sum<-function(nw, arglist, response, ...) {
+InitWtErgmTerm.sum<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("pow"),
                       vartypes = c("numeric"),
@@ -309,7 +309,7 @@ InitWtErgmTerm.sum<-function(nw, arglist, response, ...) {
   }
 }
 
-InitWtErgmTerm.nodecovar<-function (nw, arglist, response, ...) {
+InitWtErgmTerm.nodecovar<-function (nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed = FALSE,
                       varnames = c("center","transform"),
@@ -325,28 +325,28 @@ InitWtErgmTerm.nodecovar<-function (nw, arglist, response, ...) {
        )
 }
 
-InitWtErgmTerm.nodeosqrtcovar<-function (nw, arglist, response, ...) {
+InitWtErgmTerm.nodeosqrtcovar<-function (nw, arglist, ...) {
   .Deprecated('nodeocovar(transform="sqrt")',
             old = "nodeosqrtcovar")
   arglist$transform <- "sqrt"
-  InitWtErgmTerm.nodeocovar(nw, arglist, response, ...)
+  InitWtErgmTerm.nodeocovar(nw, arglist, ...)
 }
 
-InitWtErgmTerm.nodeisqrtcovar<-function (nw, arglist, response, ...) {
+InitWtErgmTerm.nodeisqrtcovar<-function (nw, arglist, ...) {
   .Deprecated('nodeicovar(transform="sqrt")',
             old = "nodeisqrtcovar")
   arglist$transform <- "sqrt"
-  InitWtErgmTerm.nodeicovar(nw, arglist, response, ...)
+  InitWtErgmTerm.nodeicovar(nw, arglist, ...)
 }
 
-InitWtErgmTerm.nodesqrtcovar<-function (nw, arglist, response, ...) {
+InitWtErgmTerm.nodesqrtcovar<-function (nw, arglist, ...) {
   .Deprecated('nodecovar(transform="sqrt")',
             old = "nodesqrtcovar")
   arglist$transform <- "sqrt"
-  InitWtErgmTerm.nodecovar(nw, arglist, response, ...)
+  InitWtErgmTerm.nodecovar(nw, arglist, ...)
 }
 
-InitWtErgmTerm.nodefactor<-function (nw, arglist, response, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.nodefactor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
@@ -366,7 +366,7 @@ InitWtErgmTerm.nodefactor<-function (nw, arglist, response, ..., version=package
 }
 
 
-InitWtErgmTerm.sociality<-function (nw, arglist, response, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.sociality<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=FALSE,
@@ -386,7 +386,7 @@ InitWtErgmTerm.sociality<-function (nw, arglist, response, ..., version=packageV
 }
 
 
-InitWtErgmTerm.nodeocovar<-function (nw, arglist, response, ...) {
+InitWtErgmTerm.nodeocovar<-function (nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed = TRUE,
                       varnames = c("center","transform"),
@@ -402,7 +402,7 @@ InitWtErgmTerm.nodeocovar<-function (nw, arglist, response, ...) {
        )
 }
 
-InitWtErgmTerm.nodeofactor<-function (nw, arglist, response, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.nodeofactor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
@@ -421,7 +421,7 @@ InitWtErgmTerm.nodeofactor<-function (nw, arglist, response, ..., version=packag
   binary_dind_wrap("nodeofactor", nw, a, ..., version=version)
 }
 
-InitWtErgmTerm.sender<-function (nw, arglist, response, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.sender<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
@@ -440,7 +440,7 @@ InitWtErgmTerm.sender<-function (nw, arglist, response, ..., version=packageVers
   binary_dind_wrap("sender", nw, a, ..., version=version)
 }
 
-InitWtErgmTerm.nodeicovar<-function (nw, arglist, response, ...) {
+InitWtErgmTerm.nodeicovar<-function (nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed = TRUE,
                       varnames = c("center","transform"),
@@ -456,7 +456,7 @@ InitWtErgmTerm.nodeicovar<-function (nw, arglist, response, ...) {
        )
 }
 
-InitWtErgmTerm.nodeifactor<-function (nw, arglist, response, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.nodeifactor<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
@@ -475,7 +475,7 @@ InitWtErgmTerm.nodeifactor<-function (nw, arglist, response, ..., version=packag
   binary_dind_wrap("nodeifactor", nw, a, ..., version=version)
 }
 
-InitWtErgmTerm.receiver<-function (nw, arglist, response, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.receiver<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   ### Check the network and arguments to make sure they are appropriate.
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
@@ -534,7 +534,7 @@ InitWtErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm
   binary_dind_wrap("nodemix", nw, a, ..., version=version)
 }
 
-InitWtErgmTerm.nodecov<-InitWtErgmTerm.nodemain<-function (nw, arglist, response, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.nodecov<-InitWtErgmTerm.nodemain<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attrname","transform","transformname","form"),
@@ -551,7 +551,7 @@ InitWtErgmTerm.nodecov<-InitWtErgmTerm.nodemain<-function (nw, arglist, response
   binary_dind_wrap("nodecov", nw, a, ..., version=version)
 }
 
-InitWtErgmTerm.nodeicov<-function (nw, arglist, response, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.nodeicov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                         varnames = c("attrname","transform","transformname","form"),
@@ -570,7 +570,7 @@ InitWtErgmTerm.nodeicov<-function (nw, arglist, response, ..., version=packageVe
 }
 
 
-InitWtErgmTerm.nodeocov<-function (nw, arglist, response, ..., version=packageVersion("ergm")) {
+InitWtErgmTerm.nodeocov<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
                         varnames = c("attrname","transform","transformname","form"),
@@ -589,7 +589,7 @@ InitWtErgmTerm.nodeocov<-function (nw, arglist, response, ..., version=packageVe
 }
 
 
-InitWtErgmTerm.edges<-InitWtErgmTerm.nonzero<-function(nw, arglist, response, ...) {
+InitWtErgmTerm.edges<-InitWtErgmTerm.nonzero<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = NULL,
                       vartypes = NULL,
@@ -602,7 +602,7 @@ InitWtErgmTerm.edges<-InitWtErgmTerm.nonzero<-function(nw, arglist, response, ..
        minval=0, maxval=network.dyadcount(nw,FALSE))
 }
 
-InitWtErgmTerm.mutual<-function (nw, arglist, response, ...) {
+InitWtErgmTerm.mutual<-function (nw, arglist, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
                       varnames = c("form","threshold"),
@@ -622,7 +622,7 @@ InitWtErgmTerm.mutual<-function (nw, arglist, response, ...) {
        )
 }
 
-InitWtErgmTerm.transitiveties<-function (nw, arglist, response, ...) {
+InitWtErgmTerm.transitiveties<-function (nw, arglist, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, bipartite=NULL,
                       varnames = c("threshold"),
@@ -637,13 +637,13 @@ InitWtErgmTerm.transitiveties<-function (nw, arglist, response, ...) {
        minval=0, maxval=network.dyadcount(nw,FALSE))  
 }
 
-InitWtErgmTerm.transitiveweights<-function (nw, arglist, response, ...) {
+InitWtErgmTerm.transitiveweights<-function (nw, arglist, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, bipartite=NULL, nonnegative=TRUE,
                       varnames = c("twopath","combine","affect"),
                       vartypes = c("character","character","character"),
                       defaultvalues = list("min","max","min"),
-                      required = c(FALSE,FALSE,FALSE), response=response)
+                      required = c(FALSE,FALSE,FALSE))
   twopaths<-c("min","geomean")
   twopath<-match.arg(a$twopath,twopaths)
   combines<-c("max", "sum")
@@ -662,7 +662,7 @@ InitWtErgmTerm.transitiveweights<-function (nw, arglist, response, ...) {
        minval = 0)
 }
 
-InitWtErgmTerm.cyclicalties<-function (nw, arglist, response, ...) {
+InitWtErgmTerm.cyclicalties<-function (nw, arglist, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, bipartite=NULL,
                       varnames = c("threshold"),
@@ -677,13 +677,13 @@ InitWtErgmTerm.cyclicalties<-function (nw, arglist, response, ...) {
   
 }
 
-InitWtErgmTerm.cyclicalweights<-function (nw, arglist, response, ...) {
+InitWtErgmTerm.cyclicalweights<-function (nw, arglist, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, bipartite=NULL, nonnegative=TRUE,
                       varnames = c("twopath","combine","affect"),
                       vartypes = c("character","character","character"),
                       defaultvalues = list("min","max","min"),
-                      required = c(FALSE,FALSE,FALSE), response=response)
+                      required = c(FALSE,FALSE,FALSE))
   twopaths<-c("min","geomean")
   twopath<-match.arg(a$twopath,twopaths)
   combines<-c("max", "sum")
@@ -702,7 +702,7 @@ InitWtErgmTerm.cyclicalweights<-function (nw, arglist, response, ...) {
        minval = 0)
 }
 
-InitWtErgmTerm.mm<-function (nw, arglist, response, ...) {
+InitWtErgmTerm.mm<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attrs", "levels", "levels2", "form"),
                       vartypes = c(ERGM_VATTR_SPEC, ERGM_LEVELS_SPEC, ERGM_LEVELS_SPEC, "character"),

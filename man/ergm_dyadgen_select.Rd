@@ -4,16 +4,12 @@
 \alias{ergm_dyadgen_select}
 \title{A helper function to select and construct a dyad generator for C.}
 \usage{
-ergm_dyadgen_select(arguments, nw, response = NULL, extra_rlebdm = NULL)
+ergm_dyadgen_select(arguments, nw, extra_rlebdm = NULL)
 }
 \arguments{
 \item{arguments}{argumements passed to the \code{\link{ergm_proposal}}.}
 
 \item{nw}{a \code{\link{network}}.}
-
-\item{response}{Name of the edge attribute whose value is to be
-modeled in the valued ERGM framework. Defaults to \code{NULL} for
-simple presence or absence, modeled via a binary ERGM.}
 
 \item{extra_rlebdm}{an \code{\link{rlebdm}} representing any additional constraints.}
 }

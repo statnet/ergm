@@ -12,7 +12,7 @@
 ## manipulating ERGM formulas.                                   ##
 ###################################################################
 
-model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
+model.transform.formula <- function(object, theta, recipes, ...){
   ## Recipe syntax:
   ##
   ## Recipes are a named list with the names representing a map from
@@ -65,7 +65,7 @@ model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
   ## a simple special case of toarg, if it were given a function that
   ## returned a constant value.
 
-  m <- ergm_model(object, ergm.getnetwork(object), response=response, ...)
+  m <- ergm_model(object, ergm.getnetwork(object), ...)
   theta.inds<-cumsum(c(1,nparam(m, byterm=TRUE)))
   terms<-list_rhs.formula(object)
   form<-object
@@ -190,14 +190,13 @@ fix.curved <- function(object, ...) UseMethod("fix.curved")
 #' @rdname fix.curved
 #' @export
 fix.curved.ergm <- function(object,...){
-  fix.curved.formula(object$formula, coef(object), response=object$response, ...)
+  fix.curved.formula(object$formula, coef(object), ...)
 }
 
 #' @rdname fix.curved
 #' @param theta Curved model parameter configuration.
-#' @template response
 #' @export
-fix.curved.formula <- function(object, theta, response=NULL, ...){
+fix.curved.formula <- function(object, theta, ...){
   recipes<-list()
   is.fixed.1<-function(a) is.null(a$fixed) || a$fixed==FALSE
   recipes$dgwdsp<-recipes$dgwesp<-recipes$dgwnsp<-recipes$gwdsp<-recipes$gwesp<-recipes$gwnsp<-recipes$gwb1dsp<-recipes$gwb2dsp<-
@@ -207,7 +206,7 @@ fix.curved.formula <- function(object, theta, response=NULL, ...){
   recipes$gwb1degree<-recipes$gwb2degree<-recipes$gwdegree<-recipes$gwidegree<-recipes$gwodegree<-
     list(filter=is.fixed.1, tocoef=1, toarg=list(decay=2), constant=list(fixed=TRUE))
 
-  model.transform.formula(object, theta, response=response, recipes, ...)
+  model.transform.formula(object, theta, recipes, ...)
 }
 
 
@@ -266,14 +265,13 @@ enformulate.curved <- function(object, ...) UseMethod("enformulate.curved")
 #' @export
 enformulate.curved.ergm <- function(object,...){
   .Deprecated(msg="enformulate.curved() family of functions has been obviated by native handling of curved ERGM terms.")
-  fix.curved.formula(object$formula, coef(object), response=object$response, ...)
+  fix.curved.formula(object$formula, coef(object), ...)
 }
 
 #' @rdname enformulate.curved-deprecated
 #' @param theta Curved model parameter configuration.
-#' @template response
 #' @export
-enformulate.curved.formula <- function(object, theta, response=NULL, ...){
+enformulate.curved.formula <- function(object, theta, ...){
   recipes<-list()
   is.fixed.1<-function(a) is.null(a$fixed) || a$fixed==FALSE
   recipes$dgwdsp<-recipes$dgwesp<-recipes$dgwnsp<-recipes$gwdsp<-recipes$gwesp<-recipes$gwnsp<-recipes$gwb1dsp<-recipes$gwb2dsp<-
@@ -283,12 +281,12 @@ enformulate.curved.formula <- function(object, theta, response=NULL, ...){
   recipes$gwb1degree<-recipes$gwb2degree<-recipes$gwdegree<-recipes$gwidegree<-recipes$gwodegree<-
     list(filter=is.fixed.1, tocoef=1, toarg=list(decay=2))
 
-  model.transform.formula(object, theta, response=response, recipes, ...) 
+  model.transform.formula(object, theta, recipes, ...)
 }
 
-set.offset.formula <- function(object, which, response=NULL, ...){
+set.offset.formula <- function(object, which, ...){
   nw <- ergm.getnetwork(object)
-  m<-ergm_model(object, nw, response=response, ...)
+  m<-ergm_model(object, nw, ...)
   to_offset <-unique(rep(seq_along(m$terms),nparam(m, byterm=TRUE))[which]) # Figure out which terms correspond to the coefficients to be offset.
   terms <- list_rhs.formula(object)
   for(i in to_offset)
@@ -297,9 +295,9 @@ set.offset.formula <- function(object, which, response=NULL, ...){
   nonsimp_update.formula(object, append_rhs.formula(~.,terms)) # append_rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
 }
 
-unset.offset.formula <- function(object, which=TRUE, response=NULL, ...){
+unset.offset.formula <- function(object, which=TRUE, ...){
   nw <- ergm.getnetwork(object)
-  m<-ergm_model(object, nw, response=response, ...)
+  m<-ergm_model(object, nw, ...)
   to_unoffset <-unique(rep(seq_along(m$terms),nparam(m, byterm=TRUE))[which]) # Figure out which terms correspond to the coefficients to be un offset.
   terms <- list_rhs.formula(object)
   for(i in to_unoffset)
@@ -311,9 +309,9 @@ unset.offset.formula <- function(object, which=TRUE, response=NULL, ...){
 #' @describeIn ergm-deprecated \code{offset.info.formula} returns the offset
 #'   vectors associated with a formula.
 #' @export offset.info.formula
-offset.info.formula <- function(object, response=NULL, ...){
+offset.info.formula <- function(object, ...){
   .Deprecated()
   nw <- ergm.getnetwork(object)
-  m<-ergm_model(object, nw, response=response, ...)
+  m<-ergm_model(object, nw, ...)
   with(m$etamap, list(term=offset, theta=offsettheta,eta=offsetmap))
 }

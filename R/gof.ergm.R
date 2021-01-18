@@ -132,7 +132,7 @@ gof.ergm <- function (object, ...,
   control.toplevel("gof.ergm", ...)
   .gof.nw <- as.network(object$network)
 
-  if(!is.null(object$response)) stop("GoF for valued ERGMs is not implemented at this time.")
+  if(is.valued(object)) stop("GoF for valued ERGMs is not implemented at this time.")
   
   formula <- nonsimp_update.formula(object$formula, .gof.nw~., from.new=".gof.nw")
 # paste("~",paste(unlist(dimnames(attr(terms(formula),"factors"))[-1]),collapse="+"),sep="")
@@ -235,7 +235,7 @@ gof.formula <- function(object, ...,
 
   proposal <- if(inherits(constraints, "ergm_proposal")) constraints
                 else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
-                                   nw=nw, weights=control$MCMC.prop.weights, class="c"## ,reference=reference,response=response
+                                   nw=nw, weights=control$MCMC.prop.weights, class="c"## ,reference=reference
                                    )
 
   if(is.null(coef)){

@@ -10,7 +10,7 @@ fix.curved(object, ...)
 
 \method{fix.curved}{ergm}(object, ...)
 
-\method{fix.curved}{formula}(object, theta, response = NULL, ...)
+\method{fix.curved}{formula}(object, theta, ...)
 }
 \arguments{
 \item{object}{An \code{\link{ergm}} object or an ERGM formula. The curved
@@ -20,10 +20,6 @@ their arguments passed by name.}
 \item{\dots}{Unused at this time.}
 
 \item{theta}{Curved model parameter configuration.}
-
-\item{response}{Name of the edge attribute whose value is to be
-modeled in the valued ERGM framework. Defaults to \code{NULL} for
-simple presence or absence, modeled via a binary ERGM.}
 }
 \value{
 A list with the following components: \item{formula}{The "fixed"
