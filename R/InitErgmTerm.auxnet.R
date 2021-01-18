@@ -87,7 +87,7 @@ InitErgmTerm..union.net<-function(nw, arglist, ...) {
 
 ## Exports a network that tracks the current network but excludes ties outside of the blocks specified by attrname.
 
-InitErgmTerm..blockdiag.net <- function(nw, arglist, response=NULL, ...){
+InitErgmTerm..blockdiag.net <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attrname"),
                       vartypes = c("character"),
@@ -105,7 +105,7 @@ InitErgmTerm..blockdiag.net <- function(nw, arglist, response=NULL, ...){
   list(name="_blockdiag_net", coef.names = c(), iinputs=nodecov, dependence=FALSE)
 }
 
-InitErgmTerm..undir.net <- function(nw, arglist, response=NULL, ...){
+InitErgmTerm..undir.net <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist, directed = TRUE,
                       varnames = c("rule"),
                       vartypes = c("character"),
@@ -119,7 +119,7 @@ InitErgmTerm..undir.net <- function(nw, arglist, response=NULL, ...){
        dependence=rule%in%c("weak","strong")) # Just discarding half the network does not induce dependence.
 }
 
-InitErgmTerm..subgraph.net <- function(nw, arglist, response=NULL, ...){
+InitErgmTerm..subgraph.net <- function(nw, arglist, ...){
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("tailsel", "headsel"),
                       vartypes = c("numeric", "numeric"),

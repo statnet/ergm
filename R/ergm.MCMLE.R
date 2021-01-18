@@ -63,8 +63,7 @@ ergm.MCMLE <- function(init, nw, model,
                              proposal, proposal.obs,
                              verbose=FALSE,
                              sequential=control$MCMLE.sequential,
-                             estimate=TRUE,
-                       response=NULL, ...) {
+                             estimate=TRUE, ...) {
   message("Starting Monte Carlo maximum likelihood estimation (MCMLE):")
   # Is there observational structure?
   obs <- ! is.null(proposal.obs)
@@ -104,7 +103,7 @@ ergm.MCMLE <- function(init, nw, model,
   # stat shifts will be 0. target.stats and missing dyads are mutually
   # exclusive, so model$target.stats will be set equal to
   # model$nw.stats, causing this to happen.
-  s <- single.impute.dyads(nw, response=response, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, output="ergm_state", verbose=verbose)
+  s <- single.impute.dyads(nw, constraints=proposal$arguments$constraints, constraints.obs=proposal.obs$arguments$constraints, min_informative = control$obs.MCMC.impute.min_informative, default_density = control$obs.MCMC.impute.default_density, output="ergm_state", verbose=verbose)
 
   if(control$MCMLE.density.guard>1){
     # Calculate the density guard threshold.
@@ -121,7 +120,7 @@ ergm.MCMLE <- function(init, nw, model,
   # explicitly, they are computed from this network, so
   # statshift==0. To make target.stats play nicely with offsets, we
   # set stat shifts to 0 where target.stats is NA (due to offset).
-  model$nw.stats <- summary(model, s, response=response)
+  model$nw.stats <- summary(model, s)
   statshift <- model$nw.stats - NVL(model$target.stats,model$nw.stats)
   statshift[is.na(statshift)] <- 0
   s <- update(s, model=model, proposal=proposal, stats=statshift)
@@ -243,7 +242,7 @@ ergm.MCMLE <- function(init, nw, model,
 
     # Obtain MCMC sample
     if(verbose) message("Starting unconstrained MCMC...")
-    z <- ergm_MCMC_sample(s, control, theta=mcmc.init, response=response, verbose=max(verbose-1,0))
+    z <- ergm_MCMC_sample(s, control, theta=mcmc.init, verbose=max(verbose-1,0))
 
     if(z$status==1) stop("Number of edges in a simulated network exceeds that in the observed by a factor of more than ",floor(control$MCMLE.density.guard),". This is a strong indicator of model degeneracy or a very poor starting parameter configuration. If you are reasonably certain that neither of these is the case, increase the MCMLE.density.guard control.ergm() parameter.")
         
@@ -266,7 +265,7 @@ ergm.MCMLE <- function(init, nw, model,
     ##  Does the same, if observation process:
     if(obs){
       if(verbose) message("Starting constrained MCMC...")
-      z.obs <- ergm_MCMC_sample(s.obs, control.obs, theta=mcmc.init, response=response, verbose=max(verbose-1,0))
+      z.obs <- ergm_MCMC_sample(s.obs, control.obs, theta=mcmc.init, verbose=max(verbose-1,0))
       
       ## if(z.obs$status==1) stop("Number of edges in the simulated network exceeds that observed by a large factor (",control$MCMC.max.maxedges,"). This is a strong indication of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
 

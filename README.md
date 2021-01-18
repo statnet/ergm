@@ -1,6 +1,5 @@
 # `ergm`: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 
-[![Build Status](https://travis-ci.org/statnet/ergm.svg?branch=master)](https://travis-ci.org/statnet/ergm)
 [![rstudio mirror downloads](https://cranlogs.r-pkg.org/badges/ergm?color=2ED968)](https://cranlogs.r-pkg.org/)
 [![cran version](https://www.r-pkg.org/badges/version/ergm)](https://cran.r-project.org/package=ergm)
 [![R build status](https://github.com/statnet/ergm/workflows/R-CMD-check/badge.svg)](https://github.com/statnet/ergm/actions)

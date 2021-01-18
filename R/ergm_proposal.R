@@ -173,21 +173,15 @@ ergm_proposal.ergm_proposal<-function(object,...) return(object)
 #' @param nw The network object originally given to \code{\link{ergm}}
 #'   via 'formula'
 #' @param arguments A list of parameters used by the InitErgmProposal routines
-#' @template response
 #' @template reference
 #' @export
-ergm_proposal.character <- function(object, arguments, nw, ..., response=NULL, reference=~Bernoulli){
-  NVL(response) <- nw %ergmlhs% "response"
-
+ergm_proposal.character <- function(object, arguments, nw, ..., reference=~Bernoulli){
   name<-object
 
   arguments$reference <- reference
 
-  f <- locate_prefixed_function(name, NVL2(response, "InitWtErgmProposal", "InitErgmProposal"), "Metropolis-Hastings proposal")
-
-  proposal <- NVL3(response,
-                   eval(as.call(list(f, arguments, nw, .))),
-                   eval(as.call(list(f, arguments, nw))))
+  f <- locate_prefixed_function(name, if(is.valued(nw)) "InitWtErgmProposal" else "InitErgmProposal", "Metropolis-Hastings proposal")
+  proposal <- eval(as.call(list(f, arguments, nw)))
 
   storage.mode(proposal$inputs) <- "double"
   storage.mode(proposal$iinputs) <- "integer"
@@ -298,8 +292,7 @@ c.ergm_conlist <- function(...){
 #' documentation for a similar argument for \code{\link{ergm}} and see
 #' [list of implemented constraints][ergm-constraints] for more information.
 #' @export
-ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), weights="default", class="c", reference=~Bernoulli, response=NULL, ...) {
-  NVL(response) <- nw %ergmlhs% "response"
+ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), weights="default", class="c", reference=~Bernoulli, ...) {
   NVL(hints) <- trim_env(~TNT)
 
   if(is(reference, "formula")){
@@ -420,7 +413,7 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), w
   name<-proposal$Proposal
   arguments$constraints<-conlist
   ## Hand it off to the class character method.
-  ergm_proposal(name, arguments, nw, response=response, reference=ref)
+  ergm_proposal(name, arguments, nw, reference=ref)
 }
 
 
@@ -447,16 +440,14 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), w
 
 #' @describeIn ergm_proposal `object` argument is an [`ergm`] fit whose proposals are extracted which is reproduced as best as possible.
 #' @export
-ergm_proposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, weights=NULL,class="c", reference=NULL, response=NULL){
+ergm_proposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, weights=NULL,class="c", reference=NULL){
   if(is.null(constraints)) constraints<-object$constraints
   if(is.null(arguments)) arguments<-object$control$MCMC.prop.args
   if(is.null(weights)) weights<-object$control$MCMC.prop.weights
   if(is.null(nw)) nw<-object$network
   if(is.null(reference)) reference<-object$reference
-  if(is.null(response)) response<-object$response
-  NVL(response) <- nw %ergmlhs% "response"
 
-  ergm_proposal(constraints,arguments=arguments,nw=nw,weights=weights,class=class,reference=reference,response=response)
+  ergm_proposal(constraints,arguments=arguments,nw=nw,weights=weights,class=class,reference=reference)
 }
 
 DyadGenType <- list(RandDyadGen=0L, WtRandDyadGen=1L, RLEBDM1DGen=2L, WtRLEBDM1DGen=3L, EdgeListGen=4L, WtEdgeListGen=5L)
@@ -465,12 +456,11 @@ DyadGenType <- list(RandDyadGen=0L, WtRandDyadGen=1L, RLEBDM1DGen=2L, WtRLEBDM1D
 #'
 #' @param arguments argumements passed to the [`ergm_proposal`].
 #' @param nw a [`network`].
-#' @template response
 #' @param extra_rlebdm an [`rlebdm`] representing any additional constraints.
 #' @return A list understood by the C `DyadGen` API.
 #' @export
-ergm_dyadgen_select <- function(arguments, nw, response=NULL, extra_rlebdm=NULL){
-  valued <- !is.null(response)
+ergm_dyadgen_select <- function(arguments, nw, extra_rlebdm=NULL){
+  valued <- is.valued(nw)
 
   dyadgen <- list(valued=valued)
 

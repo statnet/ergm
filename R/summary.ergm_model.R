@@ -24,7 +24,7 @@
 #' @seealso [summary_formula()]
 #' @keywords internal
 #' @export
-summary.ergm_model <- function(object, nw=NULL, response=NULL,...){
+summary.ergm_model <- function(object, nw=NULL,...){
   m <- object
   if((nstats=nparam(m,canonical=TRUE))==0) return(numeric(0)) # Escape if the model has 0 statistics.
 
@@ -41,8 +41,7 @@ summary.ergm_model <- function(object, nw=NULL, response=NULL,...){
     return(gs)
   }
 
-  NVL(response) <- nw %ergmlhs% "response"
-  state <- ergm_state(nw, response=response, model=m)
+  state <- ergm_state(nw, model=m)
   summary(state)
 }
 

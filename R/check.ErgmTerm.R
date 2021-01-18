@@ -52,7 +52,6 @@ ergm_Init_warn_once <- once(ergm_Init_warn)
 #'   will be issued if the user tries to pass it; if the element is a
 #'   character string, it will be used as a suggestion for
 #'   replacement.
-#' @template response
 #' @return A list of the values for each possible argument of term X;
 #'   user provided values are used when given, default values
 #'   otherwise. The list also has an `attr(,"missing")` attribute
@@ -63,7 +62,7 @@ ergm_Init_warn_once <- once(ergm_Init_warn)
 #' @export check.ErgmTerm
 check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegative=FALSE,
                            varnames=NULL, vartypes=NULL,
-                           defaultvalues=list(), required=NULL, response=NULL, dep.inform=rep(FALSE, length(required)), dep.warn=rep(FALSE, length(required))){
+                           defaultvalues=list(), required=NULL, dep.inform=rep(FALSE, length(required)), dep.warn=rep(FALSE, length(required))){
   # Ensure that all inputs are of the correct type.
   arglist <- as.list(arglist)
   varnames <- as.character(varnames)
@@ -96,7 +95,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
   if (is.directed(nw) && bnw > 0) {
     message <- "directed bipartite networks"
   }
-  if (is.null(message) && nonnegative && any(nw %e% response < 0)){
+  if (is.null(message) && nonnegative && any(nw %e% (nw%ergmlhs%"response") < 0)){
     message <- "networks with negative dyad weights"
   }
   if (!is.null(message)) {

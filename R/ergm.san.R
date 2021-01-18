@@ -192,13 +192,14 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   # nw is now a network/ergm_state hybrid class. As long
   # as its edges are only accessed through methods that
   # ergm_state methods overload, it should be fine.
+  if(!is(nw,"ergm_state")) ergm_preprocess_response(nw, response)
 
   # Inherit constraints from nw if needed.
   tmp <- .handle.auto.constraints(nw, constraints, NULL, NULL)
   nw <- tmp$nw; constraints <- tmp$constraints
 
-  proposal<-ergm_proposal(constraints,arguments=control$SAN.prop.args,nw=nw, hints=control$SAN.prop, weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
-  model <- ergm_model(formula, nw, response=response, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
+  proposal<-ergm_proposal(constraints,arguments=control$SAN.prop.args,nw=nw, hints=control$SAN.prop, weights=control$SAN.prop.weights, class="c",reference=reference)
+  model <- ergm_model(formula, nw, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
   proposal$aux.slots <- model$slots.extra.aux$proposal
 
   
@@ -210,12 +211,12 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
     stop("Missing offset coefficients passed to SAN.")
   }
   
-  san(model, response=response, reference=reference, constraints=proposal, target.stats=target.stats, nsim=nsim, basis=nw, output=output, only.last=only.last, control=control, verbose=verbose, offset.coef=offset.coef, ...)
+  san(model, reference=reference, constraints=proposal, target.stats=target.stats, nsim=nsim, basis=nw, output=output, only.last=only.last, control=control, verbose=verbose, offset.coef=offset.coef, ...)
 }
 
 #' @describeIn san A lower-level function that expects a pre-initialized [`ergm_model`].
 #' @export
-san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constraints=~., target.stats=NULL,
+san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.stats=NULL,
                            nsim=NULL, basis=NULL,
                            output=c("network","edgelist","ergm_state"),
                            only.last=TRUE,
@@ -237,7 +238,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
     if(nsim>1 && !is.null(control$seed)) warn("Setting the random seed with nsim>1 will produce a list of identical networks.")
     if(nsim>1){
       return(structure(replicate(nsim,
-                                 san(object, response=response, reference=reference, constraints=constraints, target.stats=target.stats,
+                                 san(object, reference=reference, constraints=constraints, target.stats=target.stats,
                                      basis=basis,
                                      output=output,
                                      only.last=only.last,
@@ -268,7 +269,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
                 tmp <- .handle.auto.constraints(nw, constraints, NULL, NULL)
                 nw <- tmp$nw; constraints <- tmp$constraints
                 ergm_proposal(constraints,arguments=control$SAN.prop.args,
-                              nw=nw, hints=control$SAN.prop, weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
+                              nw=nw, hints=control$SAN.prop, weights=control$SAN.prop.weights, class="c",reference=reference)
               }
 
   if(length(proposal$auxiliaries) && !length(model$slots.extra.aux$proposal))
@@ -296,7 +297,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
         " of ", control$SAN.nsteps,
         " steps", ifelse(control$SAN.maxit>1, " each", ""), ".", sep=""))
   }
-  netsumm<-summary(model,nw,response=response)[!offset.indicators]
+  netsumm<-summary(model,nw)[!offset.indicators]
   target.stats <- vector.namesmatch(target.stats, names(netsumm))
   stats <- netsumm-target.stats
   control$invcov <- diag(1/(nparam(model, canonical=TRUE) - noffset), nparam(model, canonical=TRUE) - noffset)
@@ -307,7 +308,7 @@ san.ergm_model <- function(object, response=NULL, reference=~Bernoulli, constrai
     (function(x) x/sum(x) * control$SAN.nsteps) %>%
     round()
 
-  state <- ergm_state(nw, model=model, response=response, proposal=proposal, stats=stats)
+  state <- ergm_state(nw, model=model, proposal=proposal, stats=stats)
   sm <- NULL
   for(i in 1:control$SAN.maxit){
     if (verbose) {
