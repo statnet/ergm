@@ -7,6 +7,8 @@
 #include "ergm_rlebdm.h"
 #include "ergm_edgelist.h"
 #include "ergm_unsorted_edgelist.h"
+#include "ergm_changestat.h"
+#include "ergm_wtchangestat.h"
 
 typedef enum{RandDyadGen, WtRandDyadGen, RLEBDM1DGen, WtRLEBDM1DGen, EdgeListGen, WtEdgeListGen} DyadGenType;
 
@@ -25,6 +27,13 @@ typedef struct {
   Rboolean sleeping;
 } DyadGen;
 
+void DyadGenSetUpIntersect(DyadGen *gen, void *track_nwp, Rboolean force);
+DyadGen *DyadGenInitialize(DyadGenType type, void *dyads, void *track_nwp);
+DyadGen *DyadGenInitializeR(SEXP pR, void *any_nwp, Rboolean el);
+void DyadGenDestroy(DyadGen *gen);
+
+void DyadGenUpdate(Vertex tail, Vertex head, DyadGen *gen, Network *nwp, Rboolean edgeflag);
+void WtDyadGenUpdate(Vertex tail, Vertex head, double weight, DyadGen *gen, WtNetwork *nwp, double edgeweight);
 
 static inline void DyadGenRandDyad(Vertex *tail, Vertex *head, DyadGen *gen){
   switch(gen->type){
@@ -174,17 +183,17 @@ static inline Rboolean DyadGenSearch(Vertex tail, Vertex head, DyadGen *gen){
 
 static inline void DyadGenSleep(DyadGen *gen){
   gen->sleeping = TRUE;
+
+  /* If this DyadGen is asked to sleep, that means that someone else
+     might add edges that don't "belong" to this DyadGen, which means
+     that it must keep track of what they are.
+
+     FIXME: Maybe we should *always* maintain an UnsrtEL? Need to benchmark. */
+  if(!gen->intersect) DyadGenSetUpIntersect(gen, NULL, TRUE);
 }
 
 static inline void DyadGenWake(DyadGen *gen){
   gen->sleeping = FALSE;
 }
-
-DyadGen *DyadGenInitialize(DyadGenType type, void *dyads, void *track_nwp);
-DyadGen *DyadGenInitializeR(SEXP pR, void *any_nwp, Rboolean el);
-void DyadGenDestroy(DyadGen *gen);
-
-void DyadGenUpdate(Vertex tail, Vertex head, DyadGen *gen, Network *nwp, Rboolean edgeflag);
-void WtDyadGenUpdate(Vertex tail, Vertex head, double weight, DyadGen *gen, WtNetwork *nwp, double edgeweight);
 
 #endif

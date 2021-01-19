@@ -3,6 +3,58 @@
 #include "ergm_changestat.h"
 #include "ergm_wtchangestat.h"
 
+void DyadGenSetUpIntersect(DyadGen *gen, void *track_nwp, Rboolean force){
+    switch(gen->type){
+    case RandDyadGen:
+    case WtRandDyadGen:
+      gen->intersect = NULL;
+      break;
+    case EdgeListGen:
+    case RLEBDM1DGen:
+      {
+        Network *nwp = track_nwp ? track_nwp : gen->nwp.b;
+        gen->nwp.b = nwp;
+        gen->intersect = UnsrtELInitialize(0, NULL, NULL, FALSE);
+        EXEC_THROUGH_NET_EDGES(t, h, e, {
+            if(DyadGenSearch(t, h, gen)){
+              UnsrtELInsert(t, h, gen->intersect);
+            }
+          });
+        
+        if(!force && gen->intersect->nedges==EDGECOUNT(nwp)){ // There are no ties in the initial network that are fixed.
+          UnsrtELDestroy(gen->intersect);
+          gen->intersect = NULL; // "Signal" that there is no discordance network.
+        }else{
+          AddOnNetworkEdgeChange(nwp, (OnNetworkEdgeChange) DyadGenUpdate, gen, INT_MAX);
+        }
+      }
+      break;
+    case WtEdgeListGen:
+    case WtRLEBDM1DGen:
+      {
+        WtNetwork *nwp = track_nwp ? track_nwp : gen->nwp.w;
+        gen->nwp.w = nwp;
+        gen->intersect = UnsrtELInitialize(0, NULL, NULL, FALSE);
+        WtEXEC_THROUGH_NET_EDGES(t, h, w, e, {
+            (void) e;
+            if(w!=0 && DyadGenSearch(t, h, gen)){
+              UnsrtELInsert(t, h, gen->intersect);
+            }
+          });
+        
+      if(!force && gen->intersect->nedges==EDGECOUNT(nwp)){ // There are no ties in the initial network that are fixed.
+        UnsrtELDestroy(gen->intersect);
+        gen->intersect = NULL; // "Signal" that there is no discordance network.
+      }else{
+        AddOnWtNetworkEdgeChange(nwp, (OnWtNetworkEdgeChange) WtDyadGenUpdate, gen, INT_MAX);
+      }
+      }
+      break;
+    default:
+      error("Undefined dyad generator type.");
+    }
+}
+
 DyadGen *DyadGenInitialize(DyadGenType type, void *dyads, void *track_nwp){
   DyadGen *gen = Calloc(1, DyadGen);
   gen->type = type;
@@ -36,57 +88,7 @@ DyadGen *DyadGenInitialize(DyadGenType type, void *dyads, void *track_nwp){
     error("Undefined dyad generator type.");
   }
 
-  if(track_nwp){
-    switch(gen->type){
-    case RandDyadGen:
-    case WtRandDyadGen:
-      gen->intersect = NULL;
-      break;
-    case EdgeListGen:
-    case RLEBDM1DGen:
-      {
-        Network *nwp = track_nwp;
-        gen->nwp.b = nwp;
-        gen->intersect = UnsrtELInitialize(0, NULL, NULL, FALSE);
-        EXEC_THROUGH_NET_EDGES(t, h, e, {
-            if(DyadGenSearch(t, h, gen)){
-              UnsrtELInsert(t, h, gen->intersect);
-            }
-          });
-        
-        if(gen->intersect->nedges==EDGECOUNT(nwp)){ // There are no ties in the initial network that are fixed.
-          UnsrtELDestroy(gen->intersect);
-          gen->intersect = NULL; // "Signal" that there is no discordance network.
-        }else{
-          AddOnNetworkEdgeChange(nwp, (OnNetworkEdgeChange) DyadGenUpdate, gen, INT_MAX);
-        }
-      }
-      break;
-    case WtEdgeListGen:
-    case WtRLEBDM1DGen:
-      {
-        WtNetwork *nwp = track_nwp;
-        gen->nwp.w = nwp;
-        gen->intersect = UnsrtELInitialize(0, NULL, NULL, FALSE);
-        WtEXEC_THROUGH_NET_EDGES(t, h, w, e, {
-            (void) e;
-            if(w!=0 && DyadGenSearch(t, h, gen)){
-              UnsrtELInsert(t, h, gen->intersect);
-            }
-          });
-        
-      if(gen->intersect->nedges==EDGECOUNT(nwp)){ // There are no ties in the initial network that are fixed.
-        UnsrtELDestroy(gen->intersect);
-        gen->intersect = NULL; // "Signal" that there is no discordance network.
-      }else{
-        AddOnWtNetworkEdgeChange(nwp, (OnWtNetworkEdgeChange) WtDyadGenUpdate, gen, INT_MAX);
-      }
-      }
-      break;
-    default:
-      error("Undefined dyad generator type.");
-    }
-  }
+  if(track_nwp) DyadGenSetUpIntersect(gen, track_nwp, FALSE);
 
   return gen;
 }
@@ -106,7 +108,6 @@ DyadGen *DyadGenInitializeR(SEXP pR, void *any_nwp, Rboolean el){
 
   switch(gen->type){
   case RandDyadGen:
-    return DyadGenInitialize(type, any_nwp, track);
   case WtRandDyadGen:
     return DyadGenInitialize(type, any_nwp, track);
   case RLEBDM1DGen:

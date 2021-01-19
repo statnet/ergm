@@ -128,6 +128,16 @@ fun(mtp,nwp);
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_dyadgen.h"
+void DyadGenSetUpIntersect(DyadGen *gen, void *track_nwp, Rboolean force){
+static void (*fun)(DyadGen *,void *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(DyadGen *,void *,Rboolean)) R_FindSymbol("DyadGenSetUpIntersect", "ergm", NULL);
+fun(gen,track_nwp,force);
+}
+DyadGen * DyadGenInitialize(DyadGenType type, void *dyads, void *track_nwp){
+static DyadGen * (*fun)(DyadGenType,void *,void *) = NULL;
+if(fun==NULL) fun = (DyadGen * (*)(DyadGenType,void *,void *)) R_FindSymbol("DyadGenInitialize", "ergm", NULL);
+return fun(type,dyads,track_nwp);
+}
 DyadGen * DyadGenInitializeR(SEXP pR, void *any_nwp, Rboolean el){
 static DyadGen * (*fun)(SEXP,void *,Rboolean) = NULL;
 if(fun==NULL) fun = (DyadGen * (*)(SEXP,void *,Rboolean)) R_FindSymbol("DyadGenInitializeR", "ergm", NULL);
