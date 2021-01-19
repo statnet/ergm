@@ -149,18 +149,18 @@ typedef struct ModelTermstruct {
 
 /* *** don't forget tail -> head, so this prototype now accepts tails first, not heads first */
 
-#define CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp)
+#define CHANGESTAT_FN(a) void a (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp)
 
 /* NB:  CHANGESTAT_FN is now deprecated (replaced by D_CHANGESTAT_FN) */
-#define C_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgeflag)
-#define D_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp)
-#define I_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
-#define U_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgeflag)
-#define F_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
-#define S_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
-#define W_CHANGESTAT_FN(a) SEXP (a) (ModelTerm *mtp, Network *nwp)
-#define X_CHANGESTAT_FN(a) void (a) (unsigned int type, void *data, ModelTerm *mtp, Network *nwp)
-#define Z_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp, Rboolean skip_s)
+#define C_CHANGESTAT_FN(a) void a (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgeflag)
+#define D_CHANGESTAT_FN(a) void a (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp)
+#define I_CHANGESTAT_FN(a) void a (ModelTerm *mtp, Network *nwp)
+#define U_CHANGESTAT_FN(a) void a (Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgeflag)
+#define F_CHANGESTAT_FN(a) void a (ModelTerm *mtp, Network *nwp)
+#define S_CHANGESTAT_FN(a) void a (ModelTerm *mtp, Network *nwp)
+#define W_CHANGESTAT_FN(a) SEXP a (ModelTerm *mtp, Network *nwp)
+#define X_CHANGESTAT_FN(a) void a (unsigned int type, void *data, ModelTerm *mtp, Network *nwp)
+#define Z_CHANGESTAT_FN(a) void a (ModelTerm *mtp, Network *nwp, Rboolean skip_s)
 
 /* This macro wraps two calls to an s_??? function with toggles
    between them. */
