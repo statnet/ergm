@@ -69,8 +69,7 @@ absolute difference of each actor's "Grade" attribute from its
 network-wide mean, divided by the network size.}
 
 \item{an \code{AsIs} object created by \code{I()}}{Use as is, checking only
-for correct length and type, with optional attribute \code{"name"}
-indicating the predictor's name.}
+for correct length and type.}
 
 }
 
@@ -80,6 +79,9 @@ transform the attribute by collapsing the smallest \code{n} categories
 into one, naming it \code{into}. Note that \code{into} must be of the same
 type (numeric, character, etc.) as the vertex attribute in
 question.
+
+The name the nodal attribute receives in the statistic can be
+overridden by setting a an \code{\link[=attr]{attr()}}-style attribute \code{"name"}.
 }
 
 \section{Specifying categorical attribute levels and their ordering}{
@@ -135,6 +137,9 @@ data(faux.mesa.high)
 
 # Activity by grade with a baseline grade excluded:
 summary(faux.mesa.high~nodefactor(~Grade))
+# Name overrides:
+summary(faux.mesa.high~nodefactor("Form"~Grade)) # Only works for terms that don't use the LHS for something else.
+summary(faux.mesa.high~nodefactor(~structure(Grade,name="Form")))
 # Retain all levels:
 summary(faux.mesa.high~nodefactor(~Grade, levels=TRUE)) # or levels=NULL
 # Use the largest grade as baseline (also Grade 7):

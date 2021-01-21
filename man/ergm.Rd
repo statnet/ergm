@@ -147,7 +147,7 @@ sampling to evaluate the log-likelihoood associated with the
 fit. Has no effect for dyad-independent models.
 Since bridge sampling takes additional time, setting to FALSE may
 speed performance if likelihood values (and likelihood-based
-values like AIC and BIC) are not needed. Can be set globally via \code{option(ergm.eval.loglik=...)}, which is set to \code{TRUE} when the package is loaded.
+values like AIC and BIC) are not needed. Can be set globally via \code{option(ergm.eval.loglik=...)}, which is set to \code{TRUE} when the package is loaded. (See \code{\link[=ergm-options]{options?ergm}}.)
 }}
 
 \item{estimate}{{If "MPLE," then the maximum pseudolikelihood estimator

@@ -106,8 +106,7 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' network-wide mean, divided by the network size.}
 #'
 #' \item{an `AsIs` object created by `I()`}{Use as is, checking only
-#' for correct length and type, with optional attribute `"name"`
-#' indicating the predictor's name.}
+#' for correct length and type.}
 #' 
 #' }
 #'
@@ -118,6 +117,9 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' into one, naming it `into`. Note that `into` must be of the same
 #' type (numeric, character, etc.) as the vertex attribute in
 #' question.
+#'
+#' The name the nodal attribute receives in the statistic can be
+#' overridden by setting a an [attr()]-style attribute `"name"`.
 #'
 #' @section Specifying categorical attribute levels and their ordering:
 #'
@@ -171,6 +173,9 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' 
 #' # Activity by grade with a baseline grade excluded:
 #' summary(faux.mesa.high~nodefactor(~Grade))
+#' # Name overrides:
+#' summary(faux.mesa.high~nodefactor("Form"~Grade)) # Only works for terms that don't use the LHS for something else.
+#' summary(faux.mesa.high~nodefactor(~structure(Grade,name="Form")))
 #' # Retain all levels:
 #' summary(faux.mesa.high~nodefactor(~Grade, levels=TRUE)) # or levels=NULL
 #' # Use the largest grade as baseline (also Grade 7):
@@ -490,7 +495,7 @@ ergm_get_vattr.formula <- function(object, nw, accept="character", bip=c("n","b1
     a <- eval(e, envir=vlist, enclos=environment(object))
     while(is(a,'formula')||is(a,'function')) a <- ergm_get_vattr(a, nw, accept=accept, bip=bip, multiple=multiple, ...)
     a %>% .rightsize_vattr(nw, bip, accept) %>% .handle_multiple(multiple=multiple) %>%
-      structure(name=if(length(object)>2) eval_lhs.formula(object) else despace(paste(deparse(e),collapse="\n")))
+      structure(., name=NVL(attr(.,"name"), if(length(object)>2) eval_lhs.formula(object) else despace(paste(deparse(e),collapse="\n"))))
   }, silent=TRUE),
   ergm_Init_abort(.)) %>%
     .check_acceptable(accept=accept, xspec=object)
