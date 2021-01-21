@@ -800,8 +800,8 @@ InitErgmTerm.b1twostar <- function(nw, arglist, ..., version=packageVersion("erg
   levels2.list <- transpose(levels2.grid[indices2.grid$col <= indices2.grid$col2,])
   indices2.grid <- indices2.grid[indices2.grid$col <= indices2.grid$col2,]
   
-  levels2.sel <- ergm_attr_levels(a$levels2, list(row = b1nodecov, col = b2nodecov, col2 = b2nodecov), nw, levels2.list)
-  if((!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"]) && any(a$base != 0)) levels2.sel <- levels2.sel[-a$base]
+  levels2.sel <- if((!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"]) && any(a$base != 0)) levels2.list[-a$base]
+                 else ergm_attr_levels(a$levels2, list(row = b1nodecov, col = b2nodecov, col2 = b2nodecov), nw, levels2.list)
   
   rows2keep <- match(levels2.sel,levels2.list, NA)
   rows2keep <- rows2keep[!is.na(rows2keep)]
@@ -1284,8 +1284,8 @@ InitErgmTerm.b2twostar <- function(nw, arglist, ..., version=packageVersion("erg
   levels2.list <- transpose(levels2.grid[indices2.grid$col <= indices2.grid$col2,])
   indices2.grid <- indices2.grid[indices2.grid$col <= indices2.grid$col2,]
   
-  levels2.sel <- ergm_attr_levels(a$levels2, list(row = b2nodecov, col = b1nodecov, col2 = b1nodecov), nw, levels2.list)
-  if((!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"]) && any(NVL(a$base,0)!=0)) levels2.sel <- levels2.sel[-a$base]
+  levels2.sel <- if((!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"]) && any(NVL(a$base,0)!=0)) levels2.list[-a$base]
+                 else ergm_attr_levels(a$levels2, list(row = b2nodecov, col = b1nodecov, col2 = b1nodecov), nw, levels2.list)
   
   rows2keep <- match(levels2.sel,levels2.list, NA)
   rows2keep <- rows2keep[!is.na(rows2keep)]
@@ -2532,8 +2532,8 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ..., version=packageVersion("erg
   levels2.list <- transpose(expand.grid(row = u, col = u, stringsAsFactors=FALSE))
   indices2.grid <- expand.grid(row = 1:nr, col = 1:nc)
     
-  levels2.sel <- ergm_attr_levels(a$levels2, list(row = nodecov, col = nodecov), nw, levels2.list)
-  if((!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"]) && any(NVL(a$base,0)!=0)) levels2.sel <- levels2.sel[-a$base]
+  levels2.sel <- if((!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"]) && any(NVL(a$base,0)!=0)) levels2.list[-a$base]
+                 else ergm_attr_levels(a$levels2, list(row = nodecov, col = nodecov), nw, levels2.list)
   
   rows2keep <- match(levels2.sel,levels2.list, NA)
   rows2keep <- rows2keep[!is.na(rows2keep)]
@@ -3406,8 +3406,8 @@ InitErgmTerm.nodemix<-function (nw, arglist, ..., version=packageVersion("ergm")
     levels2.list <- transpose(expand.grid(row = b1namescov, col = b2namescov, stringsAsFactors=FALSE))
     indices2.grid <- expand.grid(row = 1:nr, col = nr + 1:nc)
    
-    levels2.sel <- ergm_attr_levels(a$levels2, list(row = b1nodecov, col = b2nodecov), nw, levels2.list)
-    if((!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"]) && any(NVL(a$base,0)!=0)) levels2.sel <- levels2.sel[-a$base]
+    levels2.sel <- if((!hasName(attr(a,"missing"), "levels2") || attr(a,"missing")["levels2"]) && any(NVL(a$base,0)!=0)) levels2.list[-a$base]
+                   else ergm_attr_levels(a$levels2, list(row = b1nodecov, col = b2nodecov), nw, levels2.list)
     
     rows2keep <- match(levels2.sel,levels2.list, NA)
     rows2keep <- rows2keep[!is.na(rows2keep)]
