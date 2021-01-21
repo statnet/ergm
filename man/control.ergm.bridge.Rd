@@ -63,7 +63,7 @@ specifying additional arguments to proposal.}
 statistic functions in addition to those autodetected. This argument should
 not be needed outside of very strange setups.}
 
-\item{term.options}{A list of additional arguments to be passed to term initializers. It can also be set globally via \code{option(ergm.term=list(...))}.}
+\item{term.options}{A list of additional arguments to be passed to term initializers. See \code{\link[=term.options]{? term.options}}.}
 
 \item{seed}{Seed value (integer) for the random number generator.  See
 \code{\link[base]{set.seed}}.}
