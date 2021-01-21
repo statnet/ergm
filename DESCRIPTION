@@ -88,6 +88,7 @@ Collate:
     'data.R'
     'ergm-defunct.R'
     'ergm-disambiguation.R'
+    'ergm-package.R'
     'ergm.CD.fixed.R'
     'ergm.Cprepare.R'
     'ergm.MCMCse.R'
