@@ -1,5 +1,5 @@
 Package: ergm
-Version: 3.11.0-5976
+Version: 3.11.0-5978
 Date: 2021-01-21
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
@@ -57,6 +57,7 @@ RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
 Collate: 
+    'Getting.Started.R'
     'InitErgmConstraint.R'
     'InitErgmProposal.R'
     'InitErgmProposal.blockdiag.R'
@@ -88,6 +89,7 @@ Collate:
     'data.R'
     'ergm-defunct.R'
     'ergm-disambiguation.R'
+    'ergm-internal.R'
     'ergm-options.R'
     'ergm-package.R'
     'ergm.CD.fixed.R'
