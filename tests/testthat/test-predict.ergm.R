@@ -187,18 +187,3 @@ test_that("it works for offsets and non-finite offset coefs", {
     all(is.finite(p$p))
   )
 })
-
-
-
-
-test_that("issue 199 is resolved", {
-  g <- network::network.initialize(n = 3, directed = FALSE)
-  network::add.edges(g, tail = c(1, 2), head = c(2, 3))
-  network::set.vertex.attribute(g, attrname = "x", value = rnorm(3))
-  logit <- ergm(formula = g ~ edges + absdiff("x"), estimate = "MPLE")
-  predicted_adj <- predict(logit, output = "matrix")
-  expect_identical(
-    dim(predicted_adj),
-    c(3L, 3L)
-  )
-})
