@@ -92,10 +92,36 @@ test_that("Undirected mm() summary with level2 filter", {
   expect_equivalent(s.ab2, c(8,53,13,41,46,0,1,0,0,5,22,10,0,4))
 })
 
+test_that("Undirected mm() summary with level2 filter by logical matrix", {
+  M <- matrix(TRUE, 5, 5)
+  M[1,1] <- M[3,2] <- M[2,3] <- FALSE
+  s.ab2 <- summary(fmh ~ mm("Race", levels2=M))
+  expect_equivalent(s.ab2, c(0,8,53,13,41,46,0,1,0,0,5,22,10,0,4)[M[upper.tri(M,TRUE)]])
+})
+
+test_that("Undirected mm() summary with level2 filter by numeric matrix", {
+  M <- cbind(2,3)
+  s.ab2 <- summary(fmh ~ mm("Race", levels2=M))
+  expect_equivalent(s.ab2, c(0,8,53,13,41,46,0,1,0,0,5,22,10,0,4)[5])
+})
+
 test_that("Directed mm() ERGM with level2 filter", {
   e.ab2 <- ergm(samplike ~ mm("Trinity", levels2=-(3:9)))
   expect_equivalent(coef(e.ab2),
                     c(-1.01160091056776, -0.693147180549145))
+})
+
+test_that("Directed mm() ERGM with level2 filter", {
+  e.ab2 <- ergm(samplike ~ mm("Trinity", levels2=-(3:9)))
+  expect_equivalent(coef(e.ab2),
+                    c(-1.01160091056776, -0.693147180549145))
+})
+
+test_that("Directed mm() summary with level2 matrix filter", {
+  M <- matrix(FALSE, 3, 3)
+  M[1,2] <- M[1,3] <- TRUE
+  s.ab2 <- summary(samplike ~ mm("Trinity", levels2=M))
+  expect_equivalent(s.ab2, c(8,13))
 })
 
 test_that("Undirected mm() marginal summary", {
@@ -112,6 +138,7 @@ test_that("Undirected mm() summary with fixed levels set", {
   s.a <- summary(fmh ~ mm("Grade", levels=I(c(7,6,9,8)), levels2=TRUE))
   expect_equivalent(s.a, c(75, 0, 0, 0, 0, 23, 0, 0, 2, 33))
 })
+
 
 test_that("Undirected valued mm() sum summary", {
   s.a <- summary(fmh ~ mm("Grade"), response="GradeMet")
