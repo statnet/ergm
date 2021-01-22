@@ -60,12 +60,12 @@ unnw %v% "Pet" <- c("dog", "cat")
 
 test_that("Undirected mm() summary", {
   s.a <- summary(fmh ~ mm("Grade"))
-  expect_equivalent(s.a, c(75, 0, 33, 0, 2, 23, 1, 4, 7, 9, 1,
+  expect_equivalent(s.a, c(0, 33, 0, 2, 23, 1, 4, 7, 9, 1,
                            2, 6, 1, 17, 1, 1, 4, 5, 5, 6))
 })
 
 test_that("Directed mm() ERGM", {
-  e.a <- ergm(samplike ~ nodemix("group"))
+  e.a <- ergm(samplike ~ mm("group", levels2=TRUE))
   expect_equivalent(coef(e.a),
                     c(0.191055236762708, -3.29583686600359,
                       -2.17475172140943, -2.5649493574587,
@@ -76,7 +76,7 @@ test_that("Directed mm() ERGM", {
 
 test_that("Bipartite mm() summary", {
   s.ab <- summary(bipnw ~ mm("Letter"))
-  expect_equivalent(s.ab, c(9,8,8,7,7,5,4,6,6))
+  expect_equivalent(s.ab, c(8,8,7,7,5,4,6,6))
 })
 
 
@@ -100,30 +100,30 @@ test_that("Directed mm() ERGM with level2 filter", {
 
 test_that("Undirected mm() marginal summary", {
   s.a <- summary(fmh ~ mm(.~Grade))
-  expect_equivalent(s.a, c(153, 75, 65, 36, 49, 28))
+  expect_equivalent(s.a, c(75, 65, 36, 49, 28))
 })
 
 test_that("Undirected mm() marginal summary with fixed levels set", {
-  s.a <- summary(fmh ~ mm(.~Grade, levels=I(c(7,6,9,8))))
+  s.a <- summary(fmh ~ mm(.~Grade, levels=I(c(7,6,9,8)), levels2=TRUE))
   expect_equivalent(s.a, c(153, 0, 65, 75))
 })
 
 test_that("Undirected mm() summary with fixed levels set", {
-  s.a <- summary(fmh ~ mm("Grade", levels=I(c(7,6,9,8))))
+  s.a <- summary(fmh ~ mm("Grade", levels=I(c(7,6,9,8)), levels2=TRUE))
   expect_equivalent(s.a, c(75, 0, 0, 0, 0, 23, 0, 0, 2, 33))
 })
 
 test_that("Undirected valued mm() sum summary", {
   s.a <- summary(fmh ~ mm("Grade"), response="GradeMet")
   expect_equivalent(s.a,
-                    c(246, 0, 96, 0, 6, 75, 3, 15, 21, 24, 3, 6, 19,
+                    c(0, 96, 0, 6, 75, 3, 15, 21, 24, 3, 6, 19,
                       4, 54, 2, 5, 11, 17, 18, 16))
 })
 
 test_that("Undirected valued mm() nonzero summary", {
   s.a <- summary(fmh ~ mm("Grade", form="nonzero"), response="GradeMet")
   expect_equivalent(s.a,
-                    c(75, 0, 33, 0, 2, 22, 1, 4, 7, 8, 1, 2, 6, 1, 17,
+                    c(0, 33, 0, 2, 22, 1, 4, 7, 8, 1, 2, 6, 1, 17,
                       1, 1, 4, 5,  5, 6))
 })
 
