@@ -159,10 +159,17 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' accessible as `.nw`, the list of unique values of the attribute as
 #' `.` or as `.levels`, and the attribute vector itself as
 #' `.attr`. Its return value is interpreted as above.}
+#'
+#' \item{a matrix}{For mixing effects (i.e., `level2=` arguments), a
+#' matrix can be used to select elements of the mixing matrix, either
+#' by specifying a logical (`TRUE` and `FALSE`) matrix of the same
+#' dimension as the mixing matrix to select the corresponding cells or
+#' a two-column numeric matrix indicating giving the coordinates of
+#' cells to be used.}
 #' 
 #' }
 #' 
-#' Note that `levels` or `nodes` often has a default that is sensible for the
+#' Note that `levels`, `nodes`, and others often have a default that is sensible for the
 #' term in question.
 #' 
 #' @aliases attr attrname on by attrs node.attr nodal.attr vertex.attr node.attribute nodal.attribute vertex.attribute
@@ -197,6 +204,26 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #'         levels2=~sapply(.levels,
 #'                         function(l)
 #'                           l[[1]]%in%c(7,8) && l[[2]]%in%c(7,8))))
+#'
+#' # Here are some complex ways to specify levels2. This is the full
+#' # list of effects.
+#' summary(faux.mesa.high~mm("Sex", levels2=TRUE))
+#' # Select only the second combination:
+#' summary(faux.mesa.high~mm("Sex", levels2=2))
+#' # Equivalently,
+#' summary(faux.mesa.high~mm("Sex", levels2=-c(1,3)))
+#' # or
+#' summary(faux.mesa.high~mm("Sex", levels2=c(FALSE,TRUE,FALSE)))
+#' # Select all *but* the second one:
+#' summary(faux.mesa.high~mm("Sex", levels2=-2))
+#' # Select through a mixing matrix: (Network is undirected and
+#' # attributes are the same on both sides, so we can use either M or
+#' # its transpose.)
+#' (M <- matrix(c(FALSE,TRUE,FALSE,FALSE),2,2))
+#' summary(faux.mesa.high~mm("Sex", levels2=M)+mm("Sex", levels2=t(M)))
+#' # Select through an index:
+#' idx <- cbind(1,2)
+#' summary(faux.mesa.high~mm("Sex", levels2=idx))
 #'
 #' # Some terms, such as nodecov(), accept matrices of nodal
 #' # covariates. An certain R quirk means that columns whose
