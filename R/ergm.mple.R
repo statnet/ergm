@@ -106,6 +106,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
 		            control=control,verbose=verbose)
   
   # test whether the MPLE actually exists
+  #' @importFrom rcdd lpcdd
   if(control$init.method == "MPLE"){
     X <- pl$xmat
     y<-  pl$zy
