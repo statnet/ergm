@@ -18,11 +18,8 @@ ergm::summary_formula(as.network(flo)~density)
 InitErgmTerm.myedges<-ergm:::InitErgmTerm.edges
 ergm::summary_formula(as.network(flo)~myedges)
 
-# try a term that needs to mysteriously access an environment variable
-data(sampson, package="ergm")
-ergm::summary_formula(samplike~hammingmix("group"))
-
 # actually run ergm()
+data(sampson, package="ergm")
 fit <- ergm::ergm(samplike~edges)
 stopifnot(isTRUE(all.equal(-log(1/(network.edgecount(samplike)/network.dyadcount(samplike))-1), coef(fit), check.attributes=FALSE)))
 

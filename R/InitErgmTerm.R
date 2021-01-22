@@ -29,7 +29,7 @@
 #   G:   <gwb1degree>       <gwb2degree>      <gwdegree>
 #        <gwdsp>            <gwesp>           <gwidegree>
 #        <gwnsp>            <gwodegree>
-#   H:   <hamming>          <hammingmix>
+#   H:   <hamming>
 #   I:   <idegree>          <intransitive>    <idegreepopularity> 
 #        <isolates>         <istar>
 #   K:   <kstar>
@@ -2478,7 +2478,10 @@ InitErgmTerm.hamming<-function (nw, arglist, ...) {
 }
 
 ################################################################################
+#' @rdname ergm-deprecated
+#' @aliases hammingmix
 InitErgmTerm.hammingmix<-function (nw, arglist, ..., version=packageVersion("ergm")) {
+  .Deprecate_once(msg="hammingmix() has been deprecated due to disuse.")
   if(version <= as.package_version("3.9.4")){
     # There is no reason hammingmix should be directed-only, but for now
     # the undirected version does not seem to work properly, so:

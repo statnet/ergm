@@ -4,6 +4,8 @@
 \name{ergm-deprecated}
 \alias{ergm-deprecated}
 \alias{InitErgmTerm.degreepopularity}
+\alias{InitErgmTerm.hammingmix}
+\alias{hammingmix}
 \alias{InitErgmTerm.idegreepopularity}
 \alias{InitErgmTerm.odegreepopularity}
 \alias{san.ergm}
@@ -11,6 +13,8 @@
 \title{Functions that will no longer be supported in future releases of the package}
 \usage{
 InitErgmTerm.degreepopularity(nw, arglist, ...)
+
+InitErgmTerm.hammingmix(nw, arglist, ..., version = packageVersion("ergm"))
 
 InitErgmTerm.idegreepopularity(nw, arglist, ...)
 

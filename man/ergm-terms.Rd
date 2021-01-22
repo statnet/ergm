@@ -85,7 +85,6 @@
 \alias{gwnsp}
 \alias{gwodegree}
 \alias{hamming-term}
-\alias{hammingmix}
 \alias{idegrange}
 \alias{idegree}
 \alias{idegree1.5}
@@ -1283,23 +1282,6 @@
       that pair. The argument \code{cov} is either a matrix of edgewise weights or
       a network; if the latter, the optional argument \code{attrname} provides the
       name of the edge attribute to use for weight values.}
-
-    \item{\code{hammingmix(attr, x, base=NULL, levels=NULL, levels2=NULL)}  (binary)  (directed)  (dyad-independent)}{\emph{Hamming
-	distance within mixing:}
-      By default, this term adds one statistic to the model for every possible pairing of
-      attribute values of the network for the vertex attribute specified by \code{attr} (see \link[=nodal_attributes]{Specifying Vertex
-	Attributes and Levels}).  Each such statistic is the Hamming distance (i.e., the number of differences)
-      between the appropriate subset of dyads in
-      the network and the corresponding subset in \code{x}.  The ordering of the
-      attribute values is alphabetical by default, but this may be overridden using the \code{levels} arguments.
-      The optional arguments \code{levels} and \code{levels2} allow the user to control what pairings are included (see \link[=nodal_attributes]{Specifying Vertex
-	Attributes and Levels}), and the order in which they appear. For example \code{levels2=-2} will
-      omit the second statistic, making it the de facto reference
-      category.
-
-      \BaseDepII
-
-      \Directed}
 
     \item{\code{idegrange(from, to=+Inf, by=NULL, homophily=FALSE, levels=NULL)}  (binary)  (directed) (categorical nodal attribute)
     }{\emph{In-degree range:}
