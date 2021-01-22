@@ -793,6 +793,17 @@ ergm <- function(formula, response=NULL,
                                        action = control$MPLE.nonident))
          )
 
+  estimate.desc <- switch(estimate,
+                          MPLE = if(MPLE.is.MLE) "Maximum Likelihood"
+                                 else "Maximum Pseudolikelihood",
+                          CD = "Contrastive Divergence",
+                          MLE = paste(switch(control$main.method,
+                                             MCMLE = "Monte Carlo",
+                                             `Stochastic-Approximation`="Stochastic Approximation",
+                                             `Robbins-Monro`="Robbins-Monro",
+                                             `Stepping`="Hummel Stepping"),
+                                      "Maximum Likelihood"))
+
   if (!MCMCflag){ # Just return initial (non-MLE) fit and exit.
     message("Stopping at the initial estimate.")
     initialfit$call <- ergm_call
@@ -814,7 +825,8 @@ ergm <- function(formula, response=NULL,
       initialfit$etamap <- model$etamap
     initialfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), initialfit$coef, model)))
     initialfit$estimate <- estimate
-    
+    initialfit$estimate.desc <- estimate.desc
+
     initialfit$control<-control
     
     if(eval.loglik) initialfit$null.lik <- logLikNull.ergm(initialfit, verbose=verbose)
@@ -885,7 +897,8 @@ ergm <- function(formula, response=NULL,
   
   mainfit$reference<-reference
   mainfit$estimate <- estimate
-  
+  mainfit$estimate.desc <- estimate.desc
+
   mainfit$offset <- model$etamap$offsettheta
   mainfit$drop <- if(control$drop) extremecheck$extremeval.theta
   mainfit$estimable <- constrcheck$estimable

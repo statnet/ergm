@@ -46,28 +46,11 @@ print.summary.ergm <- function (x,
   if(print.formula) cat("Formula:\n", paste(deparse(x$formula), sep="\n", collapse="\n"), "\n\n", sep="")
 
   if(print.fitinfo){
-    if (!is.null(x$iterations)) {
-      cat("Iterations: ", x$iterations, "\n")
-    }
+    ## if (!is.null(x$iterations)) {
+    ##   cat("Iterations: ", x$iterations, "\n")
+    ## }
 
-    switch(x$estimate,
-           MPLE = if (x$independence) {
-             cat("\nMaximum Likelihood Results:\n")
-           } else {
-             cat("\nMaximum Pseudolikelihood Results:\n")
-           },
-           CD = cat("\nContrastive Divergence results:\n"),
-           MLE = NVL3(control$main.method, switch(.,
-             MCMLE = cat("\nMonte Carlo MLE Results:\n"),
-             `Stochastic-Approximation`=cat("\nMonte Carlo MLE Results:\n"),
-             `Robbins-Monro`=cat("\nRobbins-Monro MLE Results:\n"),
-             `Stepping`=cat("\n Stepping MLE Results:\n"),
-             stop("Unknown estimation method. This is a bug."))),
-           EGMME = NVL3(control$EGMME.main.method, switch(.,
-             `Gradient-Descent`=cat("\nEquilibrium Generalized Method of Moments Results:\n"),
-             stop("Unknown estimation method. This is a bug."))),
-           stop("Unknown estimate type. This is a bug.")
-           )
+    cat(paste0(x$estimate.desc, " Results:\n\n"))
   }
 
   if(print.coefmat){
@@ -84,7 +67,8 @@ print.summary.ergm <- function (x,
   }
 
   if(print.deviances){
-    if(!is.null(x$devtable)){
+    if(is.null(x$devtable)) message(NO_LOGLIK_MESSAGE)
+    else if(length(x$devtable)>1 || !is.na(x$devtable)){
       cat(c("",apply(cbind(paste(format(c("    Null", "Residual"), width = 8), x$devtext), 
                                      format(x$devtable[,1], digits = digits), " on",
                                      format(x$devtable[,2], digits = digits)," degrees of freedom\n"), 
@@ -95,7 +79,7 @@ print.summary.ergm <- function (x,
       cat(paste("AIC:", format(x$aic, digits = digits), "  ", 
                 "BIC:", format(x$bic, digits = digits), "  ",
                 "(Smaller is better.)", "\n", sep=" "))
-    } else message(NO_LOGLIK_MESSAGE)
+    }
   }
 
   if(print.drop){
