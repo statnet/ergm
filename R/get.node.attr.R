@@ -547,6 +547,50 @@ ergm_attr_levels.NULL <- function(object, attr, nw, levels=sort(unique(attr)), .
 }
 
 #' @rdname nodal_attributes-API
+#'
+#' @note `ergm_attr_levels.matrix()` expects `levels=` to be a
+#'   [`list`] with each element having length 2 and containing the
+#'   values of the two categorical attributes being crossed. It also
+#'   assumes that they are in the same order as the user would like
+#'   them in the matrix.
+#' @export
+ergm_attr_levels.matrix <- function(object, attr, nw, levels=sort(unique(attr)), ...){
+
+  # This should get the levels in the right order.
+  ol <- levels %>% map(1L) %>% unique
+  nol <- length(ol)
+  il <- levels %>% map(2L) %>% unique
+  nil <- length(il)
+
+  # Construct a matrix indicating where on the levels list does each
+  # element go. Then, indexing elements of m with either a logical
+  # matrix or a two-column matrix of cell indices will produce a list
+  # of level indices selected along with 0s, which can then be
+  # dropped.
+  ol2c <- match(levels%>%map(1L), ol)
+  il2c <- match(levels%>%map(2L), il)
+  m <- matrix(0L, nol, nil)
+  m[cbind(ol2c,il2c)] <- seq_along(levels)
+
+  sel <- switch(mode(object),
+                logical = { # Binary matrix
+                  if(any(dim(object)!=c(nol,nil))) ergm_Init_abort("Level combination selection binary matrix should have dimension ", nol, " by ", nil, " but has dimension ", nrow(object), " by ", ncol(object), ".") # Check dimension.
+                  if(!is.directed(nw) && !is.bipartite(nw) && identical(ol,il)) object <- object | t(object) # Symmetrize, if appropriate.
+                  object
+                },
+                numeric = { # Two-column index matrix
+                  if(ncol(object)!=2) ergm_Init_abort("Level combination selection two-column index matrix should have two columns but has ", ncol(object), ".")
+                  if(!is.directed(nw) && !is.bipartite(nw) && identical(ol,il)) object <- rbind(object, object[,2:1,drop=FALSE]) # Symmetrize, if appropriate.
+                  object
+                },
+                ergm_Init_abort("Level combination selection matrix must be either numeric or logical.")
+                )
+
+  sel <- m[sel] %>% keep(`!=`,0L) %>% sort %>% unique
+  levels[sel]
+}
+
+#' @rdname nodal_attributes-API
 #' @export
 ergm_attr_levels.function <- function(object, attr, nw, levels=sort(unique(attr)), ...){
   object <- if('...' %in% names(formals(object))) object(levels, attr, nw, ...)
@@ -572,7 +616,7 @@ ERGM_VATTR_SPEC <- "function,formula,character,AsIs"
 
 #' @rdname nodal_attributes-API
 #' @export
-ERGM_LEVELS_SPEC <- "function,formula,character,numeric,logical,AsIs,NULL"
+ERGM_LEVELS_SPEC <- "function,formula,character,numeric,logical,AsIs,NULL,matrix"
 
 #' @rdname nodal_attributes
 #' @export
