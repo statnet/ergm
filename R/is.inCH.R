@@ -95,34 +95,27 @@ is.inCH_message_periodic <- once(message, expire_after=20)
 #' Graphical Statistics, 21: 920-939. }
 #' @export is.inCH
 is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly to LP solver
-  
   if(is.null(dim(p))) p <- rbind(p)
-  
   if (!is.matrix(M)) 
     stop("Second argument must be a matrix.")
   if (ncol(p) != ncol(M)) 
     stop("Number of columns in matrix (2nd argument) is not equal to dimension ",
          "of first argument.")
-  
   if(nrow(M)==1){
     for(i in seq_len(nrow(p))){
       if(!isTRUE(all.equal(p[i,], M, check.attributes = FALSE))) return(FALSE)
     }
     return(TRUE)
   }
-  
   ##
   ## NOTE: PCA code has been moved to .Hummel.steplength().
   ##
-  
   if(getRversion()=="3.6.0" && .Platform$OS.type=="unix") is.inCH_message_periodic("NOTE: Messages ",sQuote("Error in mcexit(0L)..."), " may appear; please disregard them.")
-  
   timeout <- 1
   for(i in seq_len(nrow(p))){
     ############################################
-    # USE lp FUNCTION FROM lpSolve PACKAGE:
+    # USE lpSolveAPI PACKAGE:
     #' @importFrom lpSolveAPI make.lp set.column set.objfn set.constr.type set.rhs set.bounds get.objective
-    
     ## This works around what appears to be a bug in lpsolve library
     ## that causes the process the process to reproducibly hang on
     ## some inputs. After a time limit, the call is terminated and
@@ -132,13 +125,18 @@ is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly 
     ## TODO: Parametrize the timeout settings and/or figure out what's
     ## wrong with lpSolve().
     
+    ## The new code fixes Issue #230 (lpSolve's lp() via is.inCH() hangs 
+    ## for some high-dimensional input)
+    ## The data provided in this issue (is.inCH.zip) does not hang when using
+    ## the lpSolveAPI package.
+    ## as a side note: the minimal code to reproduce that was provided in Issue #230
+    ## works if row 704 of the M matrix is being taken out.
     repeat{
       
-      ## Old code using R-package lpSolve
-      
-     #     ans <- forkTimeout({
-    #       L <- cbind(1, M)
-    #       q <- c(1, p[i,])
+    ## Old code using R-package lpSolve
+    #    ans <- forkTimeout({
+    #      L <- cbind(1, M)
+    #      q <- c(1, p[i,])
     #      lp(objective.in = c(-q, q),
     #          const.mat = rbind( c(q, -q), cbind(L, -L)),
     #          const.dir = "<=",
@@ -147,7 +145,7 @@ is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly 
     #          )
     #    }, timeout=timeout, unsupported="silent", onTimeout=list(objval=NA)) #if time out, return NA
 
-      # ## New code using R package lpSolveAPI by column
+    # ## New code using R package lpSolveAPI by column
       ans <- forkTimeout({
         L <- cbind(1, M)
         q <- c(1, p[i,])
@@ -162,9 +160,7 @@ is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly 
         solve(lprec) # solve problem
         get.objective(lprec)# get the value of the objective function
       }, timeout=timeout, unsupported="silent", onTimeout=list(objval=NA))
-      
-      
-      
+
       if(is.na(ans)){
         # Perturb p and M.
         shift <- rnorm(1)
@@ -178,8 +174,6 @@ is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly 
         break
       }
     } # end repeat
-    
-    
     if(ans!=0){
       if(verbose>1) message(sprintf("is.inCH: iter= %d, outside hull.",i))
       return(FALSE)  #if the min is not zero, the point p[i,] is not in the CH of the points M

@@ -8,6 +8,28 @@
 #  Copyright 2003-2020 Statnet Commons
 #######################################################################
 
+##################################################################################
+# Explanation on how to test whether the MPLE exists.
+#
+# Kyell Konis (2007) shows in his dissertation that if the data may be 
+# separated, in the sense that there exists a vector beta such that
+#
+#    beta > (T(A^+_{ij})−T(A^−_{ij})) <0  when Aij= 0,
+#                                     >0  when Aij= 1,
+#
+# the MPLE does not exist. Here T(A^+_{ij})−T(A^−_{ij}) is the change 
+# statistic of an adjacency matrix A. He derives that finding such beta 
+# can be posed as a linear programming problem. In particular, 
+#
+# maximize (e' X)beta 
+# subject to X beta >= 0   (1)
+#
+# where e is a vector of ones, and X is the design matrix (T(A^+_ij)−T(A^−_ij)),
+# where each element in a row that corresponds to a dyad with no tie, i.e.,Aij= 0,
+# is being multiplied by −1. If there exist a beta such that (1) has a solution, 
+# then the data is separable and the MPLE does not exist.
+####################################################################################
+
 #' Find a maximizer to the pseudolikelihood function
 #' 
 #' The \code{ergm.mple} function finds a maximizer to the psuedolikelihood
@@ -82,7 +104,24 @@ ergm.mple<-function(nw, fd, m, init=NULL,
   message("Evaluating the predictor and response matrix.")
   pl <- ergm.pl(nw=nw, fd=fd, m=m, theta.offset=init,
 		            control=control,verbose=verbose)
-
+  
+  # test whether the MPLE actually exists
+  if(control$init.method == "MPLE"){
+    X <- pl$xmat
+    y<-  pl$zy
+    y[y==0]<- -1
+    X.bar<- y*X
+    X.bar.m<- -1*X.bar
+    e_n <- rep(1, nrow(X.bar))
+    obj <- e_n%*%X.bar
+    obj<- as.vector(obj)
+    H.rep <- cbind(rep(0,nrow(X.bar)),  rep(0,nrow(X.bar)), X.bar) # need -X.bar.m = X.bar
+    linp <- lpcdd(H.rep, obj, minimize=F)
+    if(linp$solution.type == "DualInconsistent"){
+      warning("The MPLE does not exist!")
+    }
+  }
+  
   message("Maximizing the pseudolikelihood.")
   if(MPLEtype=="penalized"){
    if(verbose) message("Using penalized MPLE.")
