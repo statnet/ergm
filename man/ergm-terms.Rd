@@ -163,7 +163,7 @@
 
 % levels= arguments
 
-\newcommand{\NodalAttr}{\link[=nodal_attributes]{Specifying Vertex attributes and Levels (\verb{? nodal_attributes})}}
+\newcommand{\NodalAttr}{\link[=nodal_attributes]{Specifying Vertex attributes and Levels} (\verb{? nodal_attributes})}
 
 \newcommand{\LevelsExplain}{The optional \code{levels} argument controls which levels of the attribute should be included and which should be excluded. (See \NodalAttr for details.) For example, if the \dQuote{fruit} attribute has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and \dQuote{pear}, then to include just two levels, one for \dQuote{apple} and one for \dQuote{pear}, use any of \code{#1("fruit", levels=-(2:3))}, \code{#1("fruit", levels=c(1,4))}, and \code{#1("fruit", levels=c("apple", "pear"))}. Note: if you are using numeric values to specify the levels of a character variable, the levels will correspond to the alphabetically sorted character levels.}
 
@@ -266,7 +266,7 @@
   themselves.
 
   Both \code{levels} and \code{nodes} use the new level
-  selection UI. (See \NodalAttr{} for details.)
+  selection UI. (See \NodalAttr for details.)
 
   \subsection{Legacy arguments}{
 
@@ -1403,8 +1403,7 @@
 
     \item{\code{mm(attrs, levels=NULL, levels2=-1)} (binary)  (dyad-independent)  (frequently-used) (directed)  (undirected) (categorical nodal attribute), \code{mm(attrs, levels=NULL, levels2=-1, form="sum")} (valued)  (dyad-independent)  (frequently-used) (directed)  (undirected) (categorical nodal attribute)}{\emph{Mixing matrix cells and margins:}
       \code{attrs} is a two-sided formula whose LHS gives the attribute or
-      attribute function (see \link[=nodal_attributes]{Specifying Vertex
-	Attributes and Levels (\verb{? nodal_attributes})}) for the rows of the mixing matrix and whose RHS gives
+      attribute function (see \NodalAttr) for the rows of the mixing matrix and whose RHS gives
       that for its columns. A one-sided formula (e.g.,
       \code{~A}) is symmetrized (e.g., \code{A~A}). \code{levels}
       similarly specifies the subset of rows and columns to be
