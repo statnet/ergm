@@ -205,8 +205,8 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #'                         function(l)
 #'                           l[[1]]%in%c(7,8) && l[[2]]%in%c(7,8))))
 #'
-#' # Here are some complex ways to specify levels2. This is the full
-#' # list of effects.
+#' # Here are some less complex ways to specify levels2. This is the
+#' # full list of combinations of sexes in an undirected network:
 #' summary(faux.mesa.high~mm("Sex", levels2=TRUE))
 #' # Select only the second combination:
 #' summary(faux.mesa.high~mm("Sex", levels2=2))
@@ -216,12 +216,12 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' summary(faux.mesa.high~mm("Sex", levels2=c(FALSE,TRUE,FALSE)))
 #' # Select all *but* the second one:
 #' summary(faux.mesa.high~mm("Sex", levels2=-2))
-#' # Select through a mixing matrix: (Network is undirected and
+#' # Select via a mixing matrix: (Network is undirected and
 #' # attributes are the same on both sides, so we can use either M or
 #' # its transpose.)
 #' (M <- matrix(c(FALSE,TRUE,FALSE,FALSE),2,2))
 #' summary(faux.mesa.high~mm("Sex", levels2=M)+mm("Sex", levels2=t(M)))
-#' # Select through an index:
+#' # Select via an index of a cell:
 #' idx <- cbind(1,2)
 #' summary(faux.mesa.high~mm("Sex", levels2=idx))
 #'
