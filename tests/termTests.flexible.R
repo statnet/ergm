@@ -544,11 +544,10 @@ s.ab <- summary(bipnw ~ nodemix("Letter", levels2=TRUE))
 e.ab <- ergm(bipnw ~ nodemix(function(x) x %v% "Letter", levels2=-(2:6)))
 s.ab2 <- summary(fmh ~ nodemix("Race", base=1))
 e.ab2 <- ergm(samplike ~ nodemix(~Trinity, base=(3:9)))                
-if (!all(s.a == c(75, 0, 33, 0, 2, 23, 1, 4, 7, 9, 1,
+if (!all(s.a == c(0, 33, 0, 2, 23, 1, 4, 7, 9, 1,
                   2, 6, 1, 17, 1, 1, 4, 5, 5, 6)) ||
-    !all(round(e.a$coef - c(0.1910552, -3.2958369, -2.1747517, -2.5649494,
-                           1.6094379, -3.2958369, -1.4916549, -1.0986123,
-                            0.9162907), 3) == 0) ||
+    !all(round(coef(e.a) - c(-3.2958369, -2.1747517, -2.5649494, 1.6094379,
+                             -3.2958369,  -1.4916549, -1.0986123, 0.9162907), 3) == 0) ||
     !all(s.ab==c(9,8,8,7,7,5,4,6,6)) ||
     !all(round(e.ab$coef+c(3.497, 4.431, 3.989, 3.989),3)==0) ||
     !all(s.ab2==c(8,53,13,41,46,0,1,0,0,5,22,10,0,4)) ||

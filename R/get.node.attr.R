@@ -159,10 +159,17 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' accessible as `.nw`, the list of unique values of the attribute as
 #' `.` or as `.levels`, and the attribute vector itself as
 #' `.attr`. Its return value is interpreted as above.}
+#'
+#' \item{a matrix}{For mixing effects (i.e., `level2=` arguments), a
+#' matrix can be used to select elements of the mixing matrix, either
+#' by specifying a logical (`TRUE` and `FALSE`) matrix of the same
+#' dimension as the mixing matrix to select the corresponding cells or
+#' a two-column numeric matrix indicating giving the coordinates of
+#' cells to be used.}
 #' 
 #' }
 #' 
-#' Note that `levels` or `nodes` often has a default that is sensible for the
+#' Note that `levels`, `nodes`, and others often have a default that is sensible for the
 #' term in question.
 #' 
 #' @aliases attr attrname on by attrs node.attr nodal.attr vertex.attr node.attribute nodal.attribute vertex.attribute
@@ -197,6 +204,26 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #'         levels2=~sapply(.levels,
 #'                         function(l)
 #'                           l[[1]]%in%c(7,8) && l[[2]]%in%c(7,8))))
+#'
+#' # Here are some less complex ways to specify levels2. This is the
+#' # full list of combinations of sexes in an undirected network:
+#' summary(faux.mesa.high~mm("Sex", levels2=TRUE))
+#' # Select only the second combination:
+#' summary(faux.mesa.high~mm("Sex", levels2=2))
+#' # Equivalently,
+#' summary(faux.mesa.high~mm("Sex", levels2=-c(1,3)))
+#' # or
+#' summary(faux.mesa.high~mm("Sex", levels2=c(FALSE,TRUE,FALSE)))
+#' # Select all *but* the second one:
+#' summary(faux.mesa.high~mm("Sex", levels2=-2))
+#' # Select via a mixing matrix: (Network is undirected and
+#' # attributes are the same on both sides, so we can use either M or
+#' # its transpose.)
+#' (M <- matrix(c(FALSE,TRUE,FALSE,FALSE),2,2))
+#' summary(faux.mesa.high~mm("Sex", levels2=M)+mm("Sex", levels2=t(M)))
+#' # Select via an index of a cell:
+#' idx <- cbind(1,2)
+#' summary(faux.mesa.high~mm("Sex", levels2=idx))
 #'
 #' # Some terms, such as nodecov(), accept matrices of nodal
 #' # covariates. An certain R quirk means that columns whose
@@ -547,6 +574,50 @@ ergm_attr_levels.NULL <- function(object, attr, nw, levels=sort(unique(attr)), .
 }
 
 #' @rdname nodal_attributes-API
+#'
+#' @note `ergm_attr_levels.matrix()` expects `levels=` to be a
+#'   [`list`] with each element having length 2 and containing the
+#'   values of the two categorical attributes being crossed. It also
+#'   assumes that they are in the same order as the user would like
+#'   them in the matrix.
+#' @export
+ergm_attr_levels.matrix <- function(object, attr, nw, levels=sort(unique(attr)), ...){
+
+  # This should get the levels in the right order.
+  ol <- levels %>% map(1L) %>% unique
+  nol <- length(ol)
+  il <- levels %>% map(2L) %>% unique
+  nil <- length(il)
+
+  # Construct a matrix indicating where on the levels list does each
+  # element go. Then, indexing elements of m with either a logical
+  # matrix or a two-column matrix of cell indices will produce a list
+  # of level indices selected along with 0s, which can then be
+  # dropped.
+  ol2c <- match(levels%>%map(1L), ol)
+  il2c <- match(levels%>%map(2L), il)
+  m <- matrix(0L, nol, nil)
+  m[cbind(ol2c,il2c)] <- seq_along(levels)
+
+  sel <- switch(mode(object),
+                logical = { # Binary matrix
+                  if(any(dim(object)!=c(nol,nil))) ergm_Init_abort("Level combination selection binary matrix should have dimension ", nol, " by ", nil, " but has dimension ", nrow(object), " by ", ncol(object), ".") # Check dimension.
+                  if(!is.directed(nw) && !is.bipartite(nw) && identical(ol,il)) object <- object | t(object) # Symmetrize, if appropriate.
+                  object
+                },
+                numeric = { # Two-column index matrix
+                  if(ncol(object)!=2) ergm_Init_abort("Level combination selection two-column index matrix should have two columns but has ", ncol(object), ".")
+                  if(!is.directed(nw) && !is.bipartite(nw) && identical(ol,il)) object <- rbind(object, object[,2:1,drop=FALSE]) # Symmetrize, if appropriate.
+                  object
+                },
+                ergm_Init_abort("Level combination selection matrix must be either numeric or logical.")
+                )
+
+  sel <- m[sel] %>% keep(`!=`,0L) %>% sort %>% unique
+  levels[sel]
+}
+
+#' @rdname nodal_attributes-API
 #' @export
 ergm_attr_levels.function <- function(object, attr, nw, levels=sort(unique(attr)), ...){
   object <- if('...' %in% names(formals(object))) object(levels, attr, nw, ...)
@@ -572,7 +643,7 @@ ERGM_VATTR_SPEC <- "function,formula,character,AsIs"
 
 #' @rdname nodal_attributes-API
 #' @export
-ERGM_LEVELS_SPEC <- "function,formula,character,numeric,logical,AsIs,NULL"
+ERGM_LEVELS_SPEC <- "function,formula,character,numeric,logical,AsIs,NULL,matrix"
 
 #' @rdname nodal_attributes
 #' @export
