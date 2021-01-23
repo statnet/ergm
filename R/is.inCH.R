@@ -133,23 +133,23 @@ is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly 
     ## works if row 704 of the M matrix is being taken out.
     repeat{
       
-    ## Old code using R-package lpSolve
-    #    ans <- forkTimeout({
-    #      L <- cbind(1, M)
-    #      q <- c(1, p[i,])
-    #      lp(objective.in = c(-q, q),
-    #          const.mat = rbind( c(q, -q), cbind(L, -L)),
-    #          const.dir = "<=",
-    #          const.rhs = c(1, rep(0, NROW(L))),
-    #          ...
-    #          )
-    #    }, timeout=timeout, unsupported="silent", onTimeout=list(objval=NA)) #if time out, return NA
-
-    # ## New code using R package lpSolveAPI by column
+      ## Old code using R-package lpSolve
+      #    ans <- forkTimeout({
+      #      L <- cbind(1, M)
+      #      q <- c(1, p[i,])
+      #      lp(objective.in = c(-q, q),
+      #          const.mat = rbind( c(q, -q), cbind(L, -L)),
+      #          const.dir = "<=",
+      #          const.rhs = c(1, rep(0, NROW(L))),
+      #          ...
+      #          )
+      #    }, timeout=timeout, unsupported="silent", onTimeout=list(objval=NA)) #if time out, return NA
+      
+      # ## New code using R package lpSolveAPI by column
       ans <- forkTimeout({
         L <- cbind(1, M)
         q <- c(1, p[i,])
-        lprec<- make.lp(nrow=NROW(L), ncol=length(q)) # set constraint and decision variables
+        lprec <- make.lp(nrow=NROW(L), ncol=length(q)) # set constraint and decision variables
         for(k in 1:length(c(q))){
           set.column(lprec, k, L[,k])
         }
@@ -160,7 +160,7 @@ is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly 
         solve(lprec) # solve problem
         get.objective(lprec)# get the value of the objective function
       }, timeout=timeout, unsupported="silent", onTimeout=list(objval=NA))
-
+      
       if(is.na(ans)){
         # Perturb p and M.
         shift <- rnorm(1)

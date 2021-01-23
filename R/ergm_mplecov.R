@@ -41,44 +41,44 @@ ergm_mplecov <- function(pl,nw, fd, m,  theta.mple, invHess,  control,
   
   # get sample size from control.ergm
   R <- control$MPLE.covariance.samplesize
-
+  
   # Simulate R networks
   sim.mple <- simulate(m, nsim=R, coef=theta.mple, basis=nw, control=control.simulate.formula(MCMC.burnin=5000, MCMC.interval=3000))
   
   X <- pl$xmat
   num.variables <- ncol(pl$xmat)
   
-  if(control$MPLE.covariance.method   =="Godambe"){
-     message("Estimating Godambe Matrix using ", R, " simulated networks.")
-  
-     # calculation of V(theta) = Var(u(theta,y)) using the sim.num networks
-     net.stat <- matrix(0, nrow=length(sim.mple), ncol=num.variables)
-     colnames(net.stat) <- colnames(pl$xmat)
-     u.data <- matrix(0,nrow=length(sim.mple), ncol=num.variables)
-  
-     for(i in 1:length(sim.mple)){
-        # replace response network in formula and get MPLE of simulated network
-        pl_sim <- ergm.pl(nw=sim.mple[[i]], fd=fd, m=m, theta.offset=init, 
-                          control=control,verbose=verbose)
-        # write the response, weight and designmatrix into one matrix
-        X.dat <- cbind(pl_sim$zy, pl_sim$wend, pl_sim$xmat)
-        # calculate s(theta)
-        u.data[i,] <- sapply(1:num.variables, function(k){
+  if(control$MPLE.covariance.method == "Godambe"){
+    message("Estimating Godambe Matrix using ", R, " simulated networks.")
+    
+    # calculation of V(theta) = Var(u(theta,y)) using the sim.num networks
+    net.stat <- matrix(0, nrow=length(sim.mple), ncol=num.variables)
+    colnames(net.stat) <- colnames(pl$xmat)
+    u.data <- matrix(0,nrow=length(sim.mple), ncol=num.variables)
+    
+    for(i in 1:length(sim.mple)){
+      # replace response network in formula and get MPLE of simulated network
+      pl_sim <- ergm.pl(nw=sim.mple[[i]], fd=fd, m=m, theta.offset=init, 
+                        control=control,verbose=verbose)
+      # write the response, weight and designmatrix into one matrix
+      X.dat <- cbind(pl_sim$zy, pl_sim$wend, pl_sim$xmat)
+      # calculate s(theta)
+      u.data[i,] <- sapply(1:num.variables, function(k){
         sum(apply(X.dat, 1, function(x){
-        x[2]*(x[k+2]*(x[1] - exp(sum(theta.mple*x[(3:(num.variables+2))]))/(1+exp(sum(theta.mple*x[(3:(num.variables+2))]))) )) } ) ) } )
-     } # end for i
-     # calculate V.hat by estimating sd
-     u.mean <- colMeans(u.data)
-     u.sum <- matrix(0,num.variables,num.variables)
-     for(i in 1: nrow(u.data)){
-        u.diff <- u.data[i,]- u.mean
-        u.sum <- u.sum + u.diff%*%t(u.diff)
-     }
-     u.sum.n <- u.sum/(nrow(u.data)-1)
-     G <- invHess%*%u.sum.n%*%invHess
-     return(G)
+          x[2]*(x[k+2]*(x[1] - exp(sum(theta.mple*x[(3:(num.variables+2))]))/(1+exp(sum(theta.mple*x[(3:(num.variables+2))]))) )) } ) ) } )
+    } # end for i
+    # calculate V.hat by estimating sd
+    u.mean <- colMeans(u.data)
+    u.sum <- matrix(0,num.variables,num.variables)
+    for(i in 1: nrow(u.data)){
+      u.diff <- u.data[i,]- u.mean
+      u.sum <- u.sum + u.diff%*%t(u.diff)
+    }
+    u.sum.n <- u.sum/(nrow(u.data)-1)
+    G <- invHess%*%u.sum.n%*%invHess
+    return(G)
   } # end if Godambe
-  if(control$MPLE.covariance.method   =="bootstrap"){ 
+  if(control$MPLE.covariance.method == "bootstrap"){ 
     message("Estimating Bootstrap Standard Errors using ", R, " simulated networks.")
     # create empty matrix to store mple of bootstrap samples
     boot.mple.mat <- matrix(0, nrow=length(sim.mple), ncol=num.variables)
@@ -93,7 +93,7 @@ ergm_mplecov <- function(pl,nw, fd, m,  theta.mple, invHess,  control,
                      weights=pl_sim$wend, family="binomial")
       boot.mple.mat[i,] <- coef(glm.sim)
     }# end for i
-    Boot.cov<- matrix(0,num.variables, num.variables)
+    Boot.cov <- matrix(0,num.variables, num.variables)
     diag(Boot.cov) <- apply(boot.mple.mat, 2, var)
     return(Boot.cov)
   } # end if bootstrap
