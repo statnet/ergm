@@ -130,8 +130,8 @@ test_that("BDStratTNT works with bipartite networks", {
   pmat <- matrix(c(0, 100, 2, 2, 0, 2, 100, 100, 0),3,3,byrow=TRUE)
 
   target.stats <- c(0, 2, 100, 100, 0, 100, 2, 2, 0)
-  nws <- san(nw ~ nodemix("race"), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~BD + Strat(attr = "race", pmat = pmat))
-  sr <- summary(nws ~ nodemix("race"))
+  nws <- san(nw ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~BD + Strat(attr = "race", pmat = pmat))
+  sr <- summary(nws ~ nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
   
@@ -141,8 +141,8 @@ test_that("BDStratTNT works with bipartite networks", {
   pmat3 <- (pmat + pmat2)/2
 
   target.stats <- c(pmat2)  
-  nws2 <- san(nws ~ nodemix("race"), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~BD + Strat(attr = "race", pmat = pmat3))
-  sr <- summary(nws2 ~ nodemix("race"))
+  nws2 <- san(nws ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~BD + Strat(attr = "race", pmat = pmat3))
+  sr <- summary(nws2 ~ nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
   
@@ -154,8 +154,8 @@ test_that("BDStratTNT works with bipartite networks", {
   pmat <- matrix(c(0, 45, 2, 2, 0, 2, 90, 45, 0),3,3,byrow=TRUE)
 
   target.stats <- c(0, 2, 90, 45, 0, 45, 2, 2, 0)
-  nws <- san(nw ~ nodemix("race"), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~BD(bound=5) + Strat(attr = "race", pmat = pmat))
-  sr <- summary(nws ~ nodemix("race"))
+  nws <- san(nw ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~BD(bound=5) + Strat(attr = "race", pmat = pmat))
+  sr <- summary(nws ~ nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
   expect_equal(unname(summary(nws ~ degrange(6))), 0)
@@ -166,8 +166,8 @@ test_that("BDStratTNT works with bipartite networks", {
   pmat3 <- (pmat + pmat2)/2
 
   target.stats <- c(pmat2)  
-  nws2 <- san(nws ~ nodemix("race"), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~BD(bound=5) + Strat(attr = "race", pmat = pmat3))
-  sr <- summary(nws2 ~ nodemix("race"))
+  nws2 <- san(nws ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~BD(bound=5) + Strat(attr = "race", pmat = pmat3))
+  sr <- summary(nws2 ~ nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
   expect_equal(unname(summary(nws2 ~ degrange(6))), 0)
@@ -182,8 +182,8 @@ test_that("BDStratTNT works with bipartite networks", {
   pmat <- matrix(c(0, 45, 2, 2, 0, 2, 90, 45, 0),3,3,byrow=TRUE)
 
   target.stats <- round(c(0, 2, 90, 45, 0, 45, 2, 2, 0)/2)
-  nws <- san(nw ~ nodemix("race"), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~BD(bound=5, attr="sex", fmat=diag(2)) + Strat(attr = "race", pmat = pmat))
-  sr <- summary(nws ~ nodemix("race"))
+  nws <- san(nw ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~BD(bound=5, attr="sex", fmat=diag(2)) + Strat(attr = "race", pmat = pmat))
+  sr <- summary(nws ~ nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
   expect_equal(unname(summary(nws ~ degrange(6))), 0)
@@ -195,8 +195,8 @@ test_that("BDStratTNT works with bipartite networks", {
   pmat3 <- (pmat + pmat2)/2
 
   target.stats <- round(c(pmat2)/2)
-  nws2 <- san(nws ~ nodemix("race"), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~BD(bound=5, attr="sex", fmat=diag(2)) + Strat(attr = "race", pmat = pmat3))
-  sr <- summary(nws2 ~ nodemix("race"))
+  nws2 <- san(nws ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~BD(bound=5, attr="sex", fmat=diag(2)) + Strat(attr = "race", pmat = pmat3))
+  sr <- summary(nws2 ~ nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
   expect_equal(unname(summary(nws2 ~ degrange(6))), 0)  
@@ -211,8 +211,8 @@ test_that("BDStratTNT works with bipartite networks", {
   pmat <- matrix(c(0, 45, 2, 2, 0, 2, 90, 45, 0),3,3,byrow=TRUE)
 
   target.stats <- round(c(0, 2, 90, 45, 0, 45, 2, 2, 0)/2)
-  nws <- san(nw ~ nodemix("race"), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~BD(bound=5, attr="sex", fmat=1-diag(2)) + Strat(attr = "race", pmat = pmat))
-  sr <- summary(nws ~ nodemix("race"))
+  nws <- san(nw ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~BD(bound=5, attr="sex", fmat=1-diag(2)) + Strat(attr = "race", pmat = pmat))
+  sr <- summary(nws ~ nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
   expect_equal(unname(summary(nws ~ degrange(6))), 0)
@@ -224,8 +224,8 @@ test_that("BDStratTNT works with bipartite networks", {
   pmat3 <- (pmat + pmat2)/2
 
   target.stats <- round(c(pmat2)/2)
-  nws2 <- san(nws ~ nodemix("race"), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~BD(bound=5, attr="sex", fmat=1-diag(2)) + Strat(attr = "race", pmat = pmat3))
-  sr <- summary(nws2 ~ nodemix("race"))
+  nws2 <- san(nws ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~BD(bound=5, attr="sex", fmat=1-diag(2)) + Strat(attr = "race", pmat = pmat3))
+  sr <- summary(nws2 ~ nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
   expect_equal(unname(summary(nws2 ~ degrange(6))), 0)  
@@ -245,13 +245,13 @@ test_that("BDStratTNT works with churning", {
 
   # impossible to hit these exactly
   target.stats <- c(211, 25, 50, 25, 5, 5, 100)
-  nws <- san(nw ~ edges + nodemix("race"), target.stats = target.stats, constraints = ~BD(bound=4, attr="sex", fmat=fmat) + Strat(attr = "race", pmat = pmat))
-  sr <- summary(nws ~ edges + nodemix("race"))
+  nws <- san(nw ~ edges + nodemix("race",levels2=TRUE), target.stats = target.stats, constraints = ~BD(bound=4, attr="sex", fmat=fmat) + Strat(attr = "race", pmat = pmat))
+  sr <- summary(nws ~ edges + nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats + 1))
   expect_equal(unname(summary(nws ~ degrange(5))), 0)
   # and check sex nodemix
-  srs <- summary(nws ~ nodemix("sex"))
+  srs <- summary(nws ~ nodemix("sex",levels2=TRUE))
   expect_true(all(srs[as.logical(fmat[upper.tri(fmat,diag=TRUE)])] == 0))
 })
 
@@ -277,7 +277,7 @@ test_that("BDStratTNT simulates reasonably", {
                          coef = c(0), 
                          constraints = ~BD(bound = deg_bound, attr = "sex", fmat = fmat) + Strat(attr = "vattr", pmat = pmat),
                          output = "network")
-      summ_stats <- summary(nw_sim ~ nodemix("vattr") + nodemix("sex") + degrange(deg_bound + 1))
+      summ_stats <- summary(nw_sim ~ nodemix("vattr",levels2=TRUE) + nodemix("sex",levels2=TRUE) + degrange(deg_bound + 1))
       expect_true(summ_stats["mix.vattr.A.A"] == 0)
       expect_true(summ_stats["mix.vattr.B.B"] == 0)
       expect_true(summ_stats["mix.vattr.A.B"] > 0)
@@ -308,8 +308,8 @@ test_that("BDStratTNT works with degree bound saturation", {
   # mix.race.A.A mix.race.A.B mix.race.B.B mix.race.A.C mix.race.B.C mix.race.C.C
 
   target.stats <- c(425, 10, 5, 10, 0, 0, 400.01)
-  nws <- san(nw ~ edges + nodemix("race"), target.stats = target.stats, constraints = ~BD(bound = 1, attr = "sex", fmat = matrix(c(1,0,0,0,0,1,0,1,0),3,3)) + Strat(attr = "race", pmat = pmat), control=control.san(SAN.invcov.diag=TRUE, SAN.maxit = 4, SAN.nsteps=5e4))
-  sr <- summary(nws ~ edges + nodemix("race"))  
+  nws <- san(nw ~ edges + nodemix("race",levels2=TRUE), target.stats = target.stats, constraints = ~BD(bound = 1, attr = "sex", fmat = matrix(c(1,0,0,0,0,1,0,1,0),3,3)) + Strat(attr = "race", pmat = pmat), control=control.san(SAN.invcov.diag=TRUE, SAN.maxit = 4, SAN.nsteps=5e4))
+  sr <- summary(nws ~ edges + nodemix("race",levels2=TRUE))  
   
   expect_true(all(abs(sr - target.stats) <= pmax(1, 0.05*target.stats)))
   expect_true(all(summary(nws ~ concurrent + nodemix("sex", levels2=c(1,5))) == 0))
