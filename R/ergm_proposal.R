@@ -335,8 +335,9 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), w
     conlist <- c(ergm_conlist(object, nw), ergm_conlist(hints, nw))
   }
 
-  candidates <- subset(ergm_proposal_table(), Class==class & Reference==ref$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights)
-  if(!is.null(name)) candidates <- subset(candidates, Proposal==name)
+  candidates <- ergm_proposal_table()
+  candidates <- candidates[candidates$Class==class & candidates$Reference==ref$name & if(is.null(weights) || weights=="default") TRUE else candidates$Weights==weights, , drop=FALSE]
+  if(!is.null(name)) candidates <- candidates[candidates$Proposal==name, , drop=FALSE]
 
   decode_constraints <- function(s){
     # Convert old-style specification to the new-style
