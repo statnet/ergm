@@ -190,13 +190,13 @@ test_that("BDTNT works with churning", {
 
   # impossible to hit these exactly
   target.stats <- c(211, 25, 50, 25, 5, 5, 100)
-  nws <- san(nw ~ edges + nodemix("race"), target.stats = target.stats, constraints = ~BD(bound = 4, attr = "sex", fmat = fmat))
-  sr <- summary(nws ~ edges + nodemix("race"))
+  nws <- san(nw ~ edges + nodemix("race",levels2=TRUE), target.stats = target.stats, constraints = ~BD(bound = 4, attr = "sex", fmat = fmat))
+  sr <- summary(nws ~ edges + nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats + 1))
   expect_equal(unname(summary(nws ~ degrange(5))), 0)
   # and check sex nodemix
-  srs <- summary(nws ~ nodemix("sex"))
+  srs <- summary(nws ~ nodemix("sex",levels2=TRUE))
   expect_true(all(srs[as.logical(fmat[upper.tri(fmat,diag=TRUE)])] == 0))
 })
 
@@ -219,7 +219,7 @@ test_that("BDTNT simulates reasonably", {
                          coef = c(0),
                          constraints = ~BD(bound = deg_bound, attr = "vattr", fmat = fmat),
                          output = "network")
-      summ_stats <- summary(nw_sim ~ nodemix("vattr") + degrange(deg_bound + 1))
+      summ_stats <- summary(nw_sim ~ nodemix("vattr",levels2=TRUE) + degrange(deg_bound + 1))
       expect_true(summ_stats[paste0("deg", deg_bound + 1, "+")] == 0)
       expect_true(summ_stats["mix.vattr.A.A"] == 0)
       expect_true(summ_stats["mix.vattr.B.B"] == 0)
