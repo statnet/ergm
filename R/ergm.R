@@ -181,7 +181,7 @@
 #' fit. Has no effect for dyad-independent models.
 #' Since bridge sampling takes additional time, setting to FALSE may
 #' speed performance if likelihood values (and likelihood-based
-#' values like AIC and BIC) are not needed. Can be set globally via `option(ergm.eval.loglik=...)`, which is set to `TRUE` when the package is loaded.
+#' values like AIC and BIC) are not needed. Can be set globally via `option(ergm.eval.loglik=...)`, which is set to `TRUE` when the package is loaded. (See [`options?ergm`][ergm-options].)
 #' }
 #' @param estimate {If "MPLE," then the maximum pseudolikelihood estimator
 #' is returned.  If "MLE" (the default), then an approximate maximum likelihood
@@ -578,7 +578,7 @@ ergm <- function(formula, response=NULL,
     
     # no need to pass the offset term's init to SAN
     offset.terms <- model.initial$etamap$offsettheta
-    san.control <- control$SAN.control
+    san.control <- control$SAN
     
     if(verbose) message("Constructing an approximate response network.")
     ## If target.stats are given, overwrite the given network and formula
@@ -765,7 +765,7 @@ ergm <- function(formula, response=NULL,
     if(eval.loglik) initialfit$null.lik <- logLikNull.ergm(initialfit, verbose=verbose)
     if(any(!model.initial$etamap$offsettheta) && eval.loglik){
       message("Evaluating log-likelihood at the estimate. ",appendLF=FALSE)
-      initialfit<-logLik(initialfit, add=TRUE, control=control$loglik.control, verbose=verbose)
+      initialfit<-logLik(initialfit, add=TRUE, control=control$loglik, verbose=verbose)
       message("")
     }
     return(initialfit)
@@ -859,7 +859,7 @@ ergm <- function(formula, response=NULL,
   
   if(eval.loglik){
     message("Evaluating log-likelihood at the estimate. ", appendLF=FALSE)
-    mainfit<-logLik(mainfit, add=TRUE, control=control$loglik.control, verbose=verbose)
+    mainfit<-logLik(mainfit, add=TRUE, control=control$loglik, verbose=verbose)
   }
     
   if (MCMCflag) {

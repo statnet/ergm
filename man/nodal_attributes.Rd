@@ -69,8 +69,7 @@ absolute difference of each actor's "Grade" attribute from its
 network-wide mean, divided by the network size.}
 
 \item{an \code{AsIs} object created by \code{I()}}{Use as is, checking only
-for correct length and type, with optional attribute \code{"name"}
-indicating the predictor's name.}
+for correct length and type.}
 
 }
 
@@ -80,6 +79,9 @@ transform the attribute by collapsing the smallest \code{n} categories
 into one, naming it \code{into}. Note that \code{into} must be of the same
 type (numeric, character, etc.) as the vertex attribute in
 question.
+
+The name the nodal attribute receives in the statistic can be
+overridden by setting a an \code{\link[=attr]{attr()}}-style attribute \code{"name"}.
 }
 
 \section{Specifying categorical attribute levels and their ordering}{
@@ -122,9 +124,16 @@ accessible as \code{.nw}, the list of unique values of the attribute as
 \code{.} or as \code{.levels}, and the attribute vector itself as
 \code{.attr}. Its return value is interpreted as above.}
 
+\item{a matrix}{For mixing effects (i.e., \verb{level2=} arguments), a
+matrix can be used to select elements of the mixing matrix, either
+by specifying a logical (\code{TRUE} and \code{FALSE}) matrix of the same
+dimension as the mixing matrix to select the corresponding cells or
+a two-column numeric matrix indicating giving the coordinates of
+cells to be used.}
+
 }
 
-Note that \code{levels} or \code{nodes} often has a default that is sensible for the
+Note that \code{levels}, \code{nodes}, and others often have a default that is sensible for the
 term in question.
 }
 
@@ -135,6 +144,9 @@ data(faux.mesa.high)
 
 # Activity by grade with a baseline grade excluded:
 summary(faux.mesa.high~nodefactor(~Grade))
+# Name overrides:
+summary(faux.mesa.high~nodefactor("Form"~Grade)) # Only works for terms that don't use the LHS for something else.
+summary(faux.mesa.high~nodefactor(~structure(Grade,name="Form")))
 # Retain all levels:
 summary(faux.mesa.high~nodefactor(~Grade, levels=TRUE)) # or levels=NULL
 # Use the largest grade as baseline (also Grade 7):
@@ -156,6 +168,45 @@ summary(faux.mesa.high~mm("Grade",
         levels2=~sapply(.levels,
                         function(l)
                           l[[1]]\%in\%c(7,8) && l[[2]]\%in\%c(7,8))))
+
+# Here are some less complex ways to specify levels2. This is the
+# full list of combinations of sexes in an undirected network:
+summary(faux.mesa.high~mm("Sex", levels2=TRUE))
+# Select only the second combination:
+summary(faux.mesa.high~mm("Sex", levels2=2))
+# Equivalently,
+summary(faux.mesa.high~mm("Sex", levels2=-c(1,3)))
+# or
+summary(faux.mesa.high~mm("Sex", levels2=c(FALSE,TRUE,FALSE)))
+# Select all *but* the second one:
+summary(faux.mesa.high~mm("Sex", levels2=-2))
+# Select via a mixing matrix: (Network is undirected and
+# attributes are the same on both sides, so we can use either M or
+# its transpose.)
+(M <- matrix(c(FALSE,TRUE,FALSE,FALSE),2,2))
+summary(faux.mesa.high~mm("Sex", levels2=M)+mm("Sex", levels2=t(M)))
+# Select via an index of a cell:
+idx <- cbind(1,2)
+summary(faux.mesa.high~mm("Sex", levels2=idx))
+
+# Some terms, such as nodecov(), accept matrices of nodal
+# covariates. An certain R quirk means that columns whose
+# expressions are not typical variable names have their names
+# dropped and need to be adjusted. Consider, for example, the
+# linear and quadratic effects of grade:
+Grade <- faux.mesa.high \%v\% "Grade"
+colnames(cbind(Grade, Grade^2)) # Second column name missing.
+colnames(cbind(Grade, Grade2=Grade^2)) # Can be set manually,
+colnames(cbind(Grade, `Grade^2`=Grade^2)) # even to non-variable-names.
+colnames(cbind(Grade, Grade^2, deparse.level=2)) # Alternatively, deparse.level=2 forces naming.
+rm(Grade)
+\dontshow{
+options(warn=1) # Print warnings immediately.
+}
+# Therefore, the nodal attribute names are set as follows:
+summary(faux.mesa.high~nodecov(~cbind(Grade, Grade^2))) # column names dropped with a warning
+summary(faux.mesa.high~nodecov(~cbind(Grade, Grade2=Grade^2))) # column names set manually
+summary(faux.mesa.high~nodecov(~cbind(Grade, Grade^2, deparse.level=2))) # using deparse.level=2
 
 # Activity by grade with a random covariate. Note that setting an attribute "name" gives it a name:
 randomcov <- structure(I(rbinom(network.size(faux.mesa.high),1,0.5)), name="random")

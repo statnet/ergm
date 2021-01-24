@@ -286,7 +286,7 @@ InitErgmConstraint.Dyads<-function(lhs.nw, fix=NULL, vary=NULL,...){
                          if(!is.null(f)){
                            f[[3]] <- f[[2]]
                            f[[2]] <- lhs.nw
-                           m <- ergmMPLE(f, output="array")$predictor
+                           m <- ergmMPLE(f, expand.bipartite=TRUE, output="array")$predictor
                            m <- m!=0
                            m[is.na(m)] <- FALSE
                            if(!is.directed(lhs.nw)){

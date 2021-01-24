@@ -1,0 +1,163 @@
+# NOTE: This script is a modification of the r-lib/actions standard cehcking script and the public-private sync script, on which it piggybacks to detect when it's in a private repo and can therefore skip some or even all tests. It also builds and uploads binaries for Windows and MacOS.
+
+# For help debugging build failures open an issue on the RStudio community with the 'github-actions' tag.
+# https://community.rstudio.com/new-topic?category=Package%20development&tags=github-actions
+
+# TODO:
+# * Sort out the builders for the PDF manuals and vignettes (since a tex installation may be needed for those), perhaps depending on the OS.
+
+on: [push, pull_request]
+
+name: R-CMD-check
+
+# Set public and private repositories (i.e., USER/PKG). Leave blank to autodetect.
+env:
+  PUBLIC: ''
+  PRIVATE: ''
+
+jobs:
+  Set-Matrix-Private:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: check-config # Make sure either neither or both are set; abort if not.
+        if: (env.PUBLIC == '') != (env.PRIVATE == '')
+        run: |
+          echo "Configuration problem: only one of the repositories is set."
+          exit 1
+      - name: detect-repos
+        if: env.PUBLIC == '' && env.PRIVATE == '' # Autodetect always.
+        run: |
+          if [[ "${{ github.repository }}" == *-private ]]
+          then # Current repo is private.
+            IAM="private"
+            PRIVATE="${{ github.repository }}"
+            PUBLIC="${PRIVATE%-private}"
+          else # Current repo is public.
+            IAM="public"
+            PUBLIC="${{ github.repository }}"
+            PRIVATE="$PUBLIC-private"
+          fi
+          echo "IAM=$IAM" >> $GITHUB_ENV
+          echo "PRIVATE=$PRIVATE" >> $GITHUB_ENV
+          echo "PUBLIC=$PUBLIC" >> $GITHUB_ENV
+      - name: public-check # Check if the branch/tag exists in the public repository.
+        if: env.IAM == 'private' # Only check if from private repo.
+        run: |
+          set +e
+          git ls-remote --exit-code https://github.com/${{ env.PUBLIC }} ${{ github.ref }}
+          echo "FOUND_PUBLIC=$?" >> $GITHUB_ENV
+      - name: set-matrix
+        id: set-matrix
+        run: |
+          if [[ "${{ env.IAM }}" == 'public' ]] # Public: full set.
+          then
+            echo "::set-output name=matrix::{\"config\":[{\"os\":\"windows-latest\", \"r\":\"release\", \"timeout\":360},{\"os\":\"macOS-latest\", \"r\":\"release\", \"timeout\":360},{\"os\":\"ubuntu-20.04\", \"r\":\"release\", \"rspm\":\"https://packagemanager.rstudio.com/cran/__linux__/focal/latest\", \"timeout\":360},{\"os\":\"ubuntu-20.04\", \"r\":\"devel\", \"rspm\":\"https://packagemanager.rstudio.com/cran/__linux__/focal/latest\", \"timeout\":360}]}"
+          elif [[ "${{ env.FOUND_PUBLIC }}" != '0' ]] # Private with no public analogue: reduced set.
+          then
+            echo "::set-output name=matrix::{\"config\":[{\"os\":\"ubuntu-20.04\", \"r\":\"release\", \"rspm\":\"https://packagemanager.rstudio.com/cran/__linux__/focal/latest\", \"timeout\":10}]}"
+          else
+            echo "::set-output name=matrix::" # Private with public analogue: no checking.
+          fi
+
+  R-CMD-check:
+    needs: Set-Matrix-Private
+
+    if: needs.Set-Matrix-Private.outputs.matrix != ''
+
+    runs-on: ${{ matrix.config.os }}
+
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+
+    strategy:
+      fail-fast: false
+      matrix: ${{fromJson(needs.Set-Matrix-Private.outputs.matrix)}}
+
+    env:
+      R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
+      RSPM: ${{ matrix.config.rspm }}
+
+    steps:
+      - name: If available, use the Janitor's key rather than the repository-specific key.
+        id: set-pat
+        run: |
+          if [[ -n "${{ secrets.JANITORS_GITHUB_PAT }}" ]]
+          then
+            echo "GITHUB_PAT=${{ secrets.JANITORS_GITHUB_PAT }}" >> $GITHUB_ENV
+          else
+            echo "GITHUB_PAT=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+          fi
+        shell: bash
+
+      - uses: actions/checkout@v2
+
+      - uses: r-lib/actions/setup-r@v1
+        with:
+          r-version: ${{ matrix.config.r }}
+
+      - uses: r-lib/actions/setup-pandoc@v1
+
+      - name: Query dependencies
+        run: |
+          install.packages('remotes')
+          saveRDS(remotes::dev_package_deps(dependencies = TRUE), ".github/depends.Rds", version = 2)
+          writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
+        shell: Rscript {0}
+
+      - name: Cache R packages
+        if: runner.os != 'Windows'
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
+          restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
+
+      - name: Install system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          while read -r cmd
+          do
+            eval sudo $cmd
+          done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "20.04"))')
+
+      - name: Install dependencies
+        run: |
+          remotes::install_deps(dependencies = TRUE)
+          remotes::install_cran("pkgbuild")
+          remotes::install_cran("rcmdcheck")
+        shell: Rscript {0}
+
+      - name: Build
+        if: runner.os != 'Linux'
+        run: |
+          dir.create("binaries", FALSE)
+          pkgbuild::build(binary=TRUE, vignettes=FALSE, dest_path = "binaries")
+        shell: Rscript {0}
+
+      - name: Upload build results
+        if: runner.os != 'Linux' && !failure()
+        uses: actions/upload-artifact@main
+        with:
+          name: ${{ runner.os }}-r${{ matrix.config.r }}-binaries
+          path: binaries
+
+      - name: Clean up build results
+        if: runner.os != 'Linux'
+        run: rm -rf binaries
+        shell: bash
+
+      - name: Check
+        timeout-minutes: ${{ matrix.config.timeout }}
+        env:
+          _R_CHECK_CRAN_INCOMING_REMOTE_: false
+          _R_CHECK_FORCE_SUGGESTS_: ${{ runner.os != 'macOS' }} # Rmpi is not available on macOS.
+        run: rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran", "--no-build-vignettes"), build_args = c("--no-manual", "--no-build-vignettes"), error_on = "error", check_dir = "check")
+        shell: Rscript {0}
+
+      - name: Upload check results
+        if: failure()
+        uses: actions/upload-artifact@main
+        with:
+          name: ${{ runner.os }}-r${{ matrix.config.r }}-results
+          path: check

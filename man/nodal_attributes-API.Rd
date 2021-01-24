@@ -15,6 +15,7 @@
 \alias{ergm_attr_levels.AsIs}
 \alias{ergm_attr_levels.character}
 \alias{ergm_attr_levels.NULL}
+\alias{ergm_attr_levels.matrix}
 \alias{ergm_attr_levels.function}
 \alias{ergm_attr_levels.formula}
 \alias{ERGM_VATTR_SPEC}
@@ -86,6 +87,8 @@ ergm_attr_levels(object, attr, nw, levels = sort(unique(attr)), ...)
 \method{ergm_attr_levels}{character}(object, attr, nw, levels = sort(unique(attr)), ...)
 
 \method{ergm_attr_levels}{`NULL`}(object, attr, nw, levels = sort(unique(attr)), ...)
+
+\method{ergm_attr_levels}{matrix}(object, attr, nw, levels = sort(unique(attr)), ...)
 
 \method{ergm_attr_levels}{`function`}(object, attr, nw, levels = sort(unique(attr)), ...)
 
@@ -192,6 +195,13 @@ dimension are handled: \describe{
 \item{\code{"matrix"}}{Construct and/or return a matrix whose rows correspond to vertices.}
 
 }
+}
+\note{
+\code{ergm_attr_levels.matrix()} expects \verb{levels=} to be a
+\code{\link{list}} with each element having length 2 and containing the
+values of the two categorical attributes being crossed. It also
+assumes that they are in the same order as the user would like
+them in the matrix.
 }
 \examples{
 data(florentine)

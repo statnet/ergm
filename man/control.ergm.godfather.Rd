@@ -11,7 +11,7 @@ control.ergm.godfather(GF.init.maxedges.mul = 5, term.options = NULL)
 is allocated for the edgelist of the final network. It is used
 adaptively, so should not be greater than \code{10}.}
 
-\item{term.options}{A list of additional arguments to be passed to term initializers. It can also be set globally via \code{option(ergm.term=list(...))}.}
+\item{term.options}{A list of additional arguments to be passed to term initializers. See \code{\link[=term.options]{? term.options}}.}
 }
 \description{
 Returns a list of its arguments.

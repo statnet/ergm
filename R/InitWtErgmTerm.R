@@ -368,8 +368,8 @@ InitWtErgmTerm.nodeisqrtcovar<-function (nw, arglist, response, ...) {
   a <- check.ErgmTerm(nw, arglist, directed = TRUE, nonnegative=TRUE, response=response,
                       varnames = c(),
                       vartypes = c(),
-                      defaultvalues = list(FALSE),
-                      required = c(FALSE))
+                      defaultvalues = list(),
+                      required = c())
   ### Process the arguments
 
   list(name="nodeisqrtcovar",
