@@ -146,7 +146,8 @@ call.ErgmTerm <- function(term, env, nw, ..., term.options=list()){
   if(is.null(out)) return(NULL)
   # If SO package name not specified explicitly, autodetect.
   if(is.null(out$pkgname)) out$pkgname <- environmentName(environment(eval(termFun)))
-
+  # Store the term call in the term list (with the term able to override)
+  NVL(out$call) <- term
   # If the term requests auxiliaries or is an auxiliary itself,
   # reserve space in the input vector.
   attr(out, "aux.slots") <-
