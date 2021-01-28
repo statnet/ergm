@@ -157,71 +157,77 @@ InitErgmConstraint.odegreedist<-function(lhs.nw, ...){
 InitErgmConstraint.bd<-function(lhs.nw, attribs=NULL, maxout=NA, maxin=NA, minout=NA, minin=NA, ...){
    if(nargs()>6)
      ergm_Init_abort(paste("Bounded degrees constraint takes at most 5 arguments; ",nargs()-1," given.",sep=""))
-   if(...length()) ergm_Init_abort(paste0("Unrecognised argument(s) ", paste.and(names(list(...)), oq="'", cq="'"),".")) 
-   list(attribs=attribs,maxout=maxout,maxin=maxin,minout=minout,minin=minin)
+   if(...length()) ergm_Init_abort(paste0("Unrecognised argument(s) ", paste.and(names(list(...)), oq="'", cq="'"),"."))
+
+   if(!is.directed(lhs.nw) && is.null(attribs) && length(maxout) == 1 && is.na(maxin) && is.na(minout) && is.na(minin)) {
+     constrain <- "bdmax"
+   } else {
+     constrain <- "bd"
+   }
+
+   list(constrain=constrain, attribs=attribs, maxout=maxout, maxin=maxin, minout=minout, minin=minin)
 }
 
-InitErgmConstraint.BD <- function(lhs.nw, bound = NULL, attr = NULL, fmat = NULL, ...) {
+InitErgmConstraint.blocks <- function(lhs.nw, attr = NULL, fmat = NULL, ...) {
   if(...length()) ergm_Init_abort(paste0("Unrecognised argument(s) ", paste.and(names(list(...)), oq = "'", cq = "'"), ".")) 
 
-  if(!is.null(bound)) {
-    ## dyad-dependent constraint (typically, anyway)
-    dependence <- TRUE
-    free_dyads <- NULL # not required in dyad-dependent case
-  } else {
-    ## dyad-independent constraint
-    dependence <- FALSE    
+  if(is.directed(lhs.nw)) {
+    ergm_Init_abort("blocks constraint does not currently support directed networks.")
+  }
+
+  ## dyad-independent constraint
+  dependence <- FALSE    
+  
+  free_dyads <- function() {
+    n <- as.integer(network.size(lhs.nw))
     
-    free_dyads <- function() {
-      n <- as.integer(network.size(lhs.nw))
+    if(is.bipartite(lhs.nw)) {
+      b1 <- as.integer(lhs.nw %n% "bipartite")
+      b2 <- n - b1
       
-      if(is.bipartite(lhs.nw)) {
-        b1 <- as.integer(lhs.nw %n% "bipartite")
-        b2 <- n - b1
-        
-        bd_row_nodecov <- NVL2(attr, ergm_get_vattr(attr, lhs.nw, bip = "b1"), integer(b1))
-        bd_col_nodecov <- NVL2(attr, ergm_get_vattr(attr, lhs.nw, bip = "b2"), integer(b2))    
-      } else {
-        b1 <- 0L
-        b2 <- 0L
-        
-        bd_row_nodecov <- NVL2(attr, ergm_get_vattr(attr, lhs.nw), integer(n))
-        bd_col_nodecov <- bd_row_nodecov    
-      }
+      bd_row_nodecov <- NVL2(attr, ergm_get_vattr(attr, lhs.nw, bip = "b1"), integer(b1))
+      bd_col_nodecov <- NVL2(attr, ergm_get_vattr(attr, lhs.nw, bip = "b2"), integer(b2))    
+    } else {
+      b1 <- 0L
+      b2 <- 0L
       
-      bd_row_levels <- sort(unique(bd_row_nodecov))
-      bd_col_levels <- sort(unique(bd_col_nodecov))
-        
-      bd_row_nodecov <- match(bd_row_nodecov, bd_row_levels)
-      bd_col_nodecov <- match(bd_col_nodecov, bd_col_levels)
-      
-      fmat <- NVL(fmat, matrix(FALSE, nrow = length(bd_row_levels), ncol = length(bd_col_levels)))
-      amat <- matrix(!fmat, nrow = nrow(fmat), ncol = ncol(fmat))
-      
-      rle_list <- vector(mode = "list", length = length(bd_col_levels))
-      for(i in seq_along(bd_col_levels)) {
-        rle_list[[i]] <- rle(c(amat[bd_row_nodecov,i], logical(b2)))
-      }
-      
-      lens <- vector(mode = "list", length = n)
-      vals <- vector(mode = "list", length = n)
-
-      for(i in seq_len(n)) {
-        if(i > b1) {
-          lens[[i]] <- rle_list[[bd_col_nodecov[i - b1]]]$lengths
-          vals[[i]] <- rle_list[[bd_col_nodecov[i - b1]]]$values
-        } else {
-          lens[[i]] <- n
-          vals[[i]] <- FALSE    
-        }
-      }
-
-      rlebdm(compress(structure(list(lengths=unlist(lens), values=unlist(vals)), class="rle")), n)
+      bd_row_nodecov <- NVL2(attr, ergm_get_vattr(attr, lhs.nw), integer(n))
+      bd_col_nodecov <- bd_row_nodecov    
     }
+    
+    bd_row_levels <- sort(unique(bd_row_nodecov))
+    bd_col_levels <- sort(unique(bd_col_nodecov))
+      
+    bd_row_nodecov <- match(bd_row_nodecov, bd_row_levels)
+    bd_col_nodecov <- match(bd_col_nodecov, bd_col_levels)
+    
+    fmat <- NVL(fmat, matrix(FALSE, nrow = length(bd_row_levels), ncol = length(bd_col_levels)))
+    amat <- matrix(!fmat, nrow = nrow(fmat), ncol = ncol(fmat))
+    
+    rle_list <- vector(mode = "list", length = length(bd_col_levels))
+    for(i in seq_along(bd_col_levels)) {
+      rle_list[[i]] <- rle(c(amat[bd_row_nodecov,i], logical(b2)))
+    }
+    
+    lens <- vector(mode = "list", length = n)
+    vals <- vector(mode = "list", length = n)
+
+    for(i in seq_len(n)) {
+      if(i > b1) {
+        lens[[i]] <- rle_list[[bd_col_nodecov[i - b1]]]$lengths
+        vals[[i]] <- rle_list[[bd_col_nodecov[i - b1]]]$values
+      } else {
+        lens[[i]] <- n
+        vals[[i]] <- FALSE    
+      }
+    }
+
+    rlebdm(compress(structure(list(lengths=unlist(lens), values=unlist(vals)), class="rle")), n)
   }
   
-  list(dependence = dependence, free_dyads = free_dyads, bound = bound, attr = attr, fmat = fmat)  
+  list(dependence = dependence, free_dyads = free_dyads, attr = attr, fmat = fmat)  
 }
+
 
 InitErgmConstraint.hamming<-function(lhs.nw, ...){
    if(...length())

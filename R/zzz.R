@@ -29,11 +29,13 @@
 }
 
 .RegisterProposals <- function(){
-  ergm_proposal_table("c", "Bernoulli", "|.dyads|bd",  -2, "random", "randomtoggle")
-  ergm_proposal_table("c", "Bernoulli", "|.dyads|bd&TNT",  -1, "TNT", "TNT")
-  ergm_proposal_table("c", "Bernoulli", "&BD&TNT",  0, "BDTNT", "BDTNT")
-  ergm_proposal_table("c", "Bernoulli", "|bd&Strat&TNT",  0, "StratTNT", "StratTNT")
-  ergm_proposal_table("c", "Bernoulli", "&BD&Strat&TNT",  0, "BDStratTNT", "BDStratTNT")
+  ergm_proposal_table("c", "Bernoulli", "|.dyads|bd|bdmax",  -2, "random", "randomtoggle")
+  ergm_proposal_table("c", "Bernoulli", "|.dyads|bd|bdmax&TNT",  -1, "TNT", "TNT")
+  ergm_proposal_table("c", "Bernoulli", "|bdmax|blocks&TNT",  -2, "BDTNT", "BDTNT")
+  ergm_proposal_table("c", "Bernoulli", "|bd|bdmax|Strat&TNT",  -2, "StratTNT", "StratTNT")
+  ergm_proposal_table("c", "Bernoulli", "|bdmax|blocks|Strat&TNT",  -3, "BDStratTNT", "BDStratTNT")
+  ergm_proposal_table("c", "Bernoulli", c("&bdmax|blocks&TNT", "|bdmax&blocks&TNT"),  0, "BDTNT", "BDTNT")
+  ergm_proposal_table("c", "Bernoulli", c("&bdmax|blocks|Strat&TNT", "|bdmax&blocks|Strat&TNT"),  0, "BDStratTNT", "BDStratTNT")
   ergm_proposal_table("c", "Bernoulli", "", -100, "TNT10", "TNT10")
   ergm_proposal_table("c", "Bernoulli", "&degrees",  0, "random", "CondDegree")
   ergm_proposal_table("c", "Bernoulli", "&degreesmix",  0, "random", "CondDegreeMix")
@@ -45,7 +47,7 @@
   ergm_proposal_table("c", "Bernoulli", "&degreedist",  0, "random", "CondDegreeDist")
   ergm_proposal_table("c", "Bernoulli", "&idegreedist",  0, "random", "CondInDegreeDist")
   ergm_proposal_table("c", "Bernoulli", "&odegreedist",  0, "random", "CondOutDegreeDist")
-  ergm_proposal_table("c", "Bernoulli", "|bd&edges",  0, "random", "ConstantEdges")
+  ergm_proposal_table("c", "Bernoulli", "|bd|bdmax&edges",  0, "random", "ConstantEdges")
   ergm_proposal_table("c", "Bernoulli", "&edges&hamming",  0, "random", "HammingConstantEdges")
   ergm_proposal_table("c", "Bernoulli", "&hamming&TNT",  0, "random", "HammingTNT")
   ergm_proposal_table("c", "Bernoulli", "dyadnoise",  1, "TNT", "dyadnoiseTNT")

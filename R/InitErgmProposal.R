@@ -52,9 +52,9 @@ InitErgmProposal.TNT <- function(arguments, nw){
 }
 
 InitErgmProposal.BDStratTNT <- function(arguments, nw) {
-  arguments$bound <- NVL(arguments$bound, arguments$constraints$BD$bound)
-  arguments$BD_attr <- NVL(arguments$BD_attr, arguments$constraints$BD$attr)
-  arguments$fmat <- NVL(arguments$fmat, arguments$constraints$BD$fmat)
+  arguments$bound <- NVL(arguments$bound, arguments$constraints$bd$maxout)
+  arguments$BD_attr <- NVL(arguments$BD_attr, arguments$constraints$blocks$attr)
+  arguments$fmat <- NVL(arguments$fmat, arguments$constraints$blocks$fmat)
 
   arguments$Strat_attr <- NVL(arguments$Strat_attr, arguments$constraints$Strat$attr)
   arguments$pmat <- NVL(arguments$pmat, arguments$constraints$Strat$pmat)
@@ -104,9 +104,9 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
 }
 
 InitErgmProposal.BDTNT <- function(arguments, nw) {
-  arguments$bound <- NVL(arguments$bound, arguments$constraints$BD$bound)
-  arguments$attr <- NVL(arguments$attr, arguments$constraints$BD$attr)
-  arguments$fmat <- NVL(arguments$fmat, arguments$constraints$BD$fmat)
+  arguments$bound <- NVL(arguments$bound, arguments$constraints$bd$maxout)
+  arguments$attr <- NVL(arguments$attr, arguments$constraints$blocks$attr)
+  arguments$fmat <- NVL(arguments$fmat, arguments$constraints$blocks$fmat)
 
   # BDTNT does not currently support directed networks
   if(is.directed(nw)) {
