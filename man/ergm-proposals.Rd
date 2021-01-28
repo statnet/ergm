@@ -90,10 +90,15 @@
             the MCMC chain as \code{pmat}.  In order for this to work,
             that network should have a reasonable (in particular, nonempty) edge set.
             
-            All arguments must be named in order to be recognized
-            by \code{StratTNT}.  While some mixing types may be assigned zero proposal 
-            probability, this will not be recognized as a constraint
-            by all components of \code{ergm}, and should be used with caution.
+            While some mixing types may be assigned zero proposal probability
+            (either with a direct specification of \code{pmat} or with \code{empirical=TRUE}),
+            this will not be recognized as a constraint by all components of \code{ergm},
+            and should be used with caution.
+            
+            With the new hints API, the user may pass the \code{attr}, \code{pmat},
+            and \code{empirical} arguments to \code{StratTNT} via the identically
+            named arguments to the \code{Strat} hint, and this is now the recommended 
+            approach.
         }
              
 }
@@ -167,10 +172,11 @@
         
         Directed networks are not supported by \code{BDTNT} at this time.
         
-        All arguments must be named in order to be recognized by \code{BDTNT}.  
-                    While some mixing types may be forbidden by \code{fmat}, this will not be
-                    recognized as a constraint by all components of \code{ergm}, and should
-                    be used with caution.
+        Passing arguments directly to the proposal is not recommended.  Instead, one should pass
+                    the \code{bound} argument to \code{BDTNT} via the \code{maxout} argument to the \code{bd} 
+                    constraint, and the \code{attr} and \code{fmat} arguments to \code{BDTNT} via the identically
+                    named arguments to the \code{blocks} constraint.
+                    
         }
 
         \item{InitErgmProposal.BDStratTNT}{Implements a TNT proposal with an upper bound on degree, with proposed
@@ -185,6 +191,14 @@
                     as for \code{StratTNT}.
                     
         Directed networks are not supported by \code{BDStratTNT} at this time.
+
+        Passing arguments directly to the proposal is not recommended.  Instead, one should pass
+                    the \code{bound} argument to \code{BDStratTNT} via the \code{maxout} argument to the \code{bd} 
+                    constraint, the \code{BD_attr} and \code{fmat} arguments to \code{BDStratTNT} via the \code{attr} and
+                    \code{fmat} arguments to the \code{blocks} constraint, and the \code{Strat_attr}, \code{pmat}, and
+                    \code{empirical} arguments to \code{BDStratTNT} via the \code{attr}, \code{pmat}, and \code{empirical}
+                    arguments to the \code{Strat} hint.
+
         }
 
        }}
