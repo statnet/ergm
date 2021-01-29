@@ -221,7 +221,7 @@ mcmc.diagnostics.ergm <- function(object,
     }
 
     # only show if we are using Hotelling termination criterion
-    if (object$control$MCMLE.termination %in% c("Hotelling","precision","confidence")) {
+    if(EVL(object$control$MCMLE.termination %in% c("Hotelling","precision","confidence"), TRUE)){
       # This can probably be improved.
       if(is.null(sm.obs)){
         cat("\nAre sample statistics significantly different from observed?\n")
