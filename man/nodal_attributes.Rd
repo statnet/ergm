@@ -189,6 +189,13 @@ summary(faux.mesa.high~mm("Sex", levels2=M)+mm("Sex", levels2=t(M)))
 idx <- cbind(1,2)
 summary(faux.mesa.high~mm("Sex", levels2=idx))
 
+# mm() term allows two-sided attribute formulas with different attributes:
+summary(faux.mesa.high~mm(Grade~Race, levels2=TRUE))
+# It is possible to have collapsing functions in the formula; note
+# the parentheses around "~Race": this is because a formula
+# operator (~) has lower precedence than pipe (|>):
+summary(faux.mesa.high~mm(Grade~(~Race) \%>\% COLLAPSE_SMALLEST(3,"BWO"), levels2=TRUE))
+
 # Some terms, such as nodecov(), accept matrices of nodal
 # covariates. An certain R quirk means that columns whose
 # expressions are not typical variable names have their names
