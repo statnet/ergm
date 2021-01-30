@@ -181,3 +181,12 @@ summary(faux.mesa.high~mm("Sex", levels2=M)+mm("Sex", levels2=t(M)))
 idx <- cbind(1,2)
 summary(faux.mesa.high~mm("Sex", levels2=idx))
 ```
+
+The attributes of the `mm()` term can be a two-sided formula with different attributes:
+```{r, mm-2sided}
+summary(faux.mesa.high~mm(Grade~Race, levels2=TRUE))
+# It is possible to have collapsing functions in the formula; note
+# the parentheses around "~Race": this is because a formula
+# operator (~) has lower precedence than pipe (|>):
+summary(faux.mesa.high~mm(Grade~(~Race) %>% COLLAPSE_SMALLEST(3,"BWO"), levels2=TRUE))
+```
