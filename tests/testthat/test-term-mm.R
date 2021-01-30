@@ -129,6 +129,27 @@ test_that("Undirected mm() marginal summary", {
   expect_equivalent(s.a, c(75, 65, 36, 49, 28))
 })
 
+test_that("Undirected mm() asymmetric two-sided summary", {
+  s.a.tab <- as.matrix(fmh, matrix.type="edgelist") %>%
+    rbind(.,.[,2:1,drop=FALSE]) %>%
+    (function(x) data.frame(Race=factor(fmh%v%"Race")[x[,1]], Grade=factor(fmh%v%"Grade")[x[,2]])) %>%
+    table()
+  s.a <- summary(fmh ~ mm(Race~Grade, levels2=TRUE))
+  expect_equivalent(s.a, c(s.a.tab))
+})
+
+test_that("Undirected mm() asymmetric two-sided summary and pipe operator on one side", {
+  Grade <- fmh%v%"Grade" %>% factor()
+  Race <- fmh%v%"Race" %>% replace(., . %in% c("Black","White","Other"), "BWO") %>% factor()
+
+  s.a.tab <- as.matrix(fmh, matrix.type="edgelist") %>%
+    rbind(.,.[,2:1,drop=FALSE]) %>%
+    (function(x) data.frame(Grade=Grade[x[,2]], Race=Race[x[,1]])) %>%
+    table()
+  s.a <- summary(fmh ~ mm(Grade~(~Race) %>% COLLAPSE_SMALLEST(3,"BWO"), levels2=TRUE))
+  expect_equivalent(s.a, c(s.a.tab))
+})
+
 test_that("Undirected mm() marginal summary with fixed levels set", {
   s.a <- summary(fmh ~ mm(.~Grade, levels=I(c(7,6,9,8)), levels2=TRUE))
   expect_equivalent(s.a, c(153, 0, 65, 75))
