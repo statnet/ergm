@@ -53,25 +53,30 @@ get.vertex.attributes <- function(x, attrnames, na.omit = FALSE, null.na = TRUE,
 # Baseline constraint incorporating network attributes such as
 # directedness, bipartitedness, and self-loops.
 InitErgmConstraint..attributes <- function(lhs.nw, ...){
+  n <- network.size(lhs.nw)
+  storage.mode(n) <- "integer"
+  dir <- is.directed(lhs.nw)
+  loops <- has.loops(lhs.nw)
+  bip <- EVL(as.integer(lhs.nw%n%"bipartite"), FALSE)
+  rm(lhs.nw) # All needed information has now been extracted from lhs.nw.
+
   list(
     free_dyads = function(){
-      n <- network.size(lhs.nw)
-      storage.mode(n) <- "integer"
       ## NB: Free dyad RLE matrix is stored in a column-major order for
       ## consistency with R.
       d <-
-        if(is.directed(lhs.nw)){
-          if(has.loops(lhs.nw)){
+        if(dir){
+          if(loops){
             compress(structure(list(lengths=rep(n,n), values=rep(TRUE,n)), class="rle"))
           }else{
             structure(list(lengths=c(1L,rep(c(n,1L),n-1L)), values=c(rep(c(FALSE, TRUE),n-1L),FALSE)), class="rle")
           }
-        }else if(is.bipartite(lhs.nw)){
-          b1 <- as.integer(lhs.nw%n%"bipartite")
+        }else if(bip){
+          b1 <- as.integer(bip)
           b2 <- n - b1
           compress(structure(list(lengths=c(rep(n,b1), rep(c(b1,b2),b2)), values=c(rep(FALSE, b1), rep(c(TRUE,FALSE),b2))),class="rle"))
         }else{
-          if(has.loops(lhs.nw)){
+          if(loops){
             vals <- c(rep(c(TRUE,FALSE),n-1L),TRUE)
             lens <- integer(2L*(n-1L)+1L)
             for(i in seq_len(n-1L)){
@@ -169,46 +174,48 @@ InitErgmConstraint.bd<-function(lhs.nw, attribs=NULL, maxout=NA, maxin=NA, minou
 }
 
 InitErgmConstraint.blocks <- function(lhs.nw, attr = NULL, fmat = NULL, ...) {
-  if(...length()) ergm_Init_abort(paste0("Unrecognised argument(s) ", paste.and(names(list(...)), oq = "'", cq = "'"), ".")) 
+  if(...length()) ergm_Init_abort(paste0("Unrecognised argument(s) ", paste.and(names(list(...)), oq = "'", cq = "'"), "."))
 
   if(is.directed(lhs.nw)) {
     ergm_Init_abort("blocks constraint does not currently support directed networks.")
   }
 
   ## dyad-independent constraint
-  dependence <- FALSE    
-  
+  dependence <- FALSE
+
+  n <- as.integer(network.size(lhs.nw))
+
+  if(is.bipartite(lhs.nw)) {
+    b1 <- as.integer(lhs.nw %n% "bipartite")
+    b2 <- n - b1
+
+    bd_row_nodecov <- NVL2(attr, ergm_get_vattr(attr, lhs.nw, bip = "b1"), integer(b1))
+    bd_col_nodecov <- NVL2(attr, ergm_get_vattr(attr, lhs.nw, bip = "b2"), integer(b2))
+  } else {
+    b1 <- 0L
+    b2 <- 0L
+
+    bd_row_nodecov <- NVL2(attr, ergm_get_vattr(attr, lhs.nw), integer(n))
+    bd_col_nodecov <- bd_row_nodecov
+  }
+
+  bd_row_levels <- sort(unique(bd_row_nodecov))
+  bd_col_levels <- sort(unique(bd_col_nodecov))
+
+  bd_row_nodecov <- match(bd_row_nodecov, bd_row_levels)
+  bd_col_nodecov <- match(bd_col_nodecov, bd_col_levels)
+
+  rm(lhs.nw) # All needed information has now been extracted from lhs.nw.
+
   free_dyads <- function() {
-    n <- as.integer(network.size(lhs.nw))
-    
-    if(is.bipartite(lhs.nw)) {
-      b1 <- as.integer(lhs.nw %n% "bipartite")
-      b2 <- n - b1
-      
-      bd_row_nodecov <- NVL2(attr, ergm_get_vattr(attr, lhs.nw, bip = "b1"), integer(b1))
-      bd_col_nodecov <- NVL2(attr, ergm_get_vattr(attr, lhs.nw, bip = "b2"), integer(b2))    
-    } else {
-      b1 <- 0L
-      b2 <- 0L
-      
-      bd_row_nodecov <- NVL2(attr, ergm_get_vattr(attr, lhs.nw), integer(n))
-      bd_col_nodecov <- bd_row_nodecov    
-    }
-    
-    bd_row_levels <- sort(unique(bd_row_nodecov))
-    bd_col_levels <- sort(unique(bd_col_nodecov))
-      
-    bd_row_nodecov <- match(bd_row_nodecov, bd_row_levels)
-    bd_col_nodecov <- match(bd_col_nodecov, bd_col_levels)
-    
     fmat <- NVL(fmat, matrix(FALSE, nrow = length(bd_row_levels), ncol = length(bd_col_levels)))
     amat <- matrix(!fmat, nrow = nrow(fmat), ncol = ncol(fmat))
-    
+
     rle_list <- vector(mode = "list", length = length(bd_col_levels))
     for(i in seq_along(bd_col_levels)) {
       rle_list[[i]] <- rle(c(amat[bd_row_nodecov,i], logical(b2)))
     }
-    
+
     lens <- vector(mode = "list", length = n)
     vals <- vector(mode = "list", length = n)
 
@@ -218,14 +225,14 @@ InitErgmConstraint.blocks <- function(lhs.nw, attr = NULL, fmat = NULL, ...) {
         vals[[i]] <- rle_list[[bd_col_nodecov[i - b1]]]$values
       } else {
         lens[[i]] <- n
-        vals[[i]] <- FALSE    
+        vals[[i]] <- FALSE
       }
     }
 
     rlebdm(compress(structure(list(lengths=unlist(lens), values=unlist(vals)), class="rle")), n)
   }
-  
-  list(dependence = dependence, free_dyads = free_dyads, attr = attr, fmat = fmat)  
+
+  list(dependence = dependence, free_dyads = free_dyads, attr = attr, fmat = fmat)
 }
 
 
