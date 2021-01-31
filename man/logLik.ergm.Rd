@@ -19,7 +19,7 @@
 
 \item{add}{Logical: If \code{TRUE}, instead of returning the
 log-likelihood, return \code{object} with log-likelihood value
-set.}
+(and the null likelihood value) set.}
 
 \item{force.reeval}{Logical: If \code{TRUE}, reestimate the
 log-likelihood even if \code{object} already has an estiamte.}

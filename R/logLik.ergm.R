@@ -21,7 +21,7 @@
 #'   \code{\link{ergm}}.
 #' @param add Logical: If `TRUE`, instead of returning the
 #'   log-likelihood, return \code{object} with log-likelihood value
-#'   set.
+#'   (and the null likelihood value) set.
 #' @param force.reeval Logical: If `TRUE`, reestimate the
 #'   log-likelihood even if \code{object} already has an estiamte.
 #' @param eval.loglik Logical: If `TRUE`, evaluate the log-likelihood
@@ -88,8 +88,8 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
     if(is.null(control[[arg]]))
       control[arg] <- list(object$control[[arg]])
 
+  control.null <- control
   control <- set.control.class("control.ergm.bridge")
-
   # "object" has an element control.
   loglik.control<-control
   
@@ -112,7 +112,10 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
       ergm.bridge.0.llk(formula,reference=reference,constraints=constraints,obs.constraints=obs.constraints,coef=coef(object),target.stats=object$target.stats,control=loglik.control,llkonly=FALSE,basis=object$network,...)
   }
   )
-  
+
+  # Add the null likelihood. This incidentally means that the nobs() calls below is short-circuited to reuse the result here.
+  if(add) object$null.lik <- logLikNull(object, control=control.null, ...)
+
   if(is.numeric(out)){
     llk<-out
   }else{
