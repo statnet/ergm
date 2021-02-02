@@ -84,6 +84,8 @@ typedef struct {
   int currentsubmaxledges;  // Number of edges in the current network both of whose endpoints are submaximal
   int proposedsubmaxledges; // Number of edges in the proposed network both of whose endpoints are submaximal
   
+  int **amat;
+  
   int bound; // Single upper bound on degree.
   int nmixtypes; // Number of pairings of attributes.
   int *vattr; // Vertex attributes.
@@ -141,6 +143,8 @@ typedef struct {
   
   int *currentsubmaxledgestype;
   int **indmat;
+  
+  int **amat;
   
   int nmixtypestoupdate;
   int *mixtypestoupdate;

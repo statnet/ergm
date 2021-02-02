@@ -128,3 +128,52 @@ test_that("StratTNT simulates reasonably", {
     expect_true(summ_stats["mix.vattr.C.C"] > 0)    
   }  
 })
+
+test_that("StratTNT handles undirected arguments correctly", {
+  nw <- network.initialize(100, dir=FALSE)
+  nw %v% "strat_attr" <- rep(1:3, length.out=100)
+
+  nws <- simulate(nw ~ edges, coef = c(0), control = list(MCMC.prop.weights = "StratTNT"))
+  expect_true(all(summary(nws ~ nodemix(~strat_attr, levels2=TRUE)) > 0))
+  
+  nws <- simulate(nw ~ edges, coef = c(0), control = list(MCMC.prop.weights = "StratTNT", MCMC.prop.args = list(attr = ~strat_attr, pmat = matrix(c(0,rep(1,8)),3,3))))
+  expect_true(summary(nws ~ nodemix(~strat_attr, levels2=1)) == 0)
+  expect_true(all(summary(nws ~ nodemix(~strat_attr, levels2=-1)) > 0))
+  
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~Strat(~strat_attr, pmat = matrix(c(0,rep(1,8)),3,3)), control = list(MCMC.prop.weights = "StratTNT", MCMC.prop.args = list(attr = ~strat_attr, pmat = matrix(c(1,0,1,0,rep(1,5)),3,3))))
+  expect_true(summary(nws ~ nodemix(~strat_attr, levels2=2)) == 0)  
+  expect_true(all(summary(nws ~ nodemix(~strat_attr, levels2=-2)) > 0))
+})
+
+test_that("StratTNT handles directed arguments correctly", {
+  nw <- network.initialize(100, dir=TRUE)
+  nw %v% "strat_attr" <- rep(1:3, length.out=100)
+
+  nws <- simulate(nw ~ edges, coef = c(0), control = list(MCMC.prop.weights = "StratTNT"))
+  expect_true(all(summary(nws ~ nodemix(~strat_attr, levels2=TRUE)) > 0))
+  
+  nws <- simulate(nw ~ edges, coef = c(0), control = list(MCMC.prop.weights = "StratTNT", MCMC.prop.args = list(attr = ~strat_attr, pmat = matrix(c(0,rep(1,8)),3,3))))
+  expect_true(summary(nws ~ nodemix(~strat_attr, levels2=1)) == 0)
+  expect_true(all(summary(nws ~ nodemix(~strat_attr, levels2=-1)) > 0))
+  
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~Strat(~strat_attr, pmat = matrix(c(0,rep(1,8)),3,3)), control = list(MCMC.prop.weights = "StratTNT", MCMC.prop.args = list(attr = ~strat_attr, pmat = matrix(c(1,0,1,1,rep(1,5)),3,3))))
+  expect_true(summary(nws ~ nodemix(~strat_attr, levels2=2)) == 0)  
+  expect_true(all(summary(nws ~ nodemix(~strat_attr, levels2=-2)) > 0))
+})
+
+test_that("StratTNT handles bipartite arguments correctly", {
+  nw <- network.initialize(100, dir=FALSE, bip=30)
+  nw %v% "strat_attr" <- c(rep(1:3, length.out=30), rep(6:10, length.out=70))
+
+  nws <- simulate(nw ~ edges, coef = c(0), control = list(MCMC.prop.weights = "StratTNT"))
+  expect_true(all(summary(nws ~ nodemix(~strat_attr, levels2=TRUE)) > 0))
+  
+  nws <- simulate(nw ~ edges, coef = c(0), control = list(MCMC.prop.weights = "StratTNT", MCMC.prop.args = list(attr = ~strat_attr, pmat = matrix(c(0,rep(1,14)),nrow=3,ncol=5))))
+  expect_true(summary(nws ~ nodemix(~strat_attr, levels2=1)) == 0)
+  expect_true(all(summary(nws ~ nodemix(~strat_attr, levels2=-1)) > 0))
+  
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~Strat(~strat_attr, pmat = matrix(c(0,rep(1,14)),nrow=3,ncol=5)), control = list(MCMC.prop.weights = "StratTNT", MCMC.prop.args = list(attr = ~strat_attr, pmat = matrix(c(1,0,1,1,rep(1,11)),nrow=3,ncol=5))))
+  expect_true(summary(nws ~ nodemix(~strat_attr, levels2=2)) == 0)  
+  expect_true(all(summary(nws ~ nodemix(~strat_attr, levels2=-2)) > 0))
+})
+

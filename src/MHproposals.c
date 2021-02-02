@@ -133,11 +133,18 @@ MH_I_FN(Mi_BDStratTNT) {
   for(int i = 1; i < sto->nstratlevels; i++) {
     sto->indmat[i] = sto->indmat[i - 1] + sto->nstratlevels;
   }
+
+  sto->amat = Calloc(sto->nbdlevels, int *);
+  sto->amat[0] = INTEGER(getListElement(MHp->R, "amat_C"));
+  for(int i = 1; i < sto->nbdlevels; i++) {
+    sto->amat[i] = sto->amat[i - 1] + sto->nbdlevels;
+  }
   
   sto->currentsubmaxledgestype = Calloc(sto->nmixtypes, int);  
   EXEC_THROUGH_NET_EDGES(tail, head, e, {
     int index = sto->indmat[sto->strat_vattr[tail]][sto->strat_vattr[head]];
-    if(index >= 0) {
+    int allowed = sto->amat[sto->bd_vattr[tail]][sto->bd_vattr[head]];
+    if(index >= 0 && allowed) {
       UnsrtELInsert(tail, head, sto->els[index]);
       if(IN_DEG[tail] + OUT_DEG[tail] < sto->bound && IN_DEG[head] + OUT_DEG[head] < sto->bound) {
         sto->currentsubmaxledgestype[index]++;
@@ -347,7 +354,7 @@ MH_P_FN(MH_BDStratTNT) {
   for(int i = 0; i < 2; i++) {
     if(sto->maxl[i]) {
       EXEC_THROUGH_EDGES_EATH_NET_DECL(sto->nodes[i], ego, alter, tail, head, edge, nwp, {
-        if(alter != sto->nodes[1 - i] && IN_DEG[alter] + OUT_DEG[alter] < sto->bound && sto->indmat[sto->strat_vattr[tail]][sto->strat_vattr[head]] == strat_i) {
+        if(alter != sto->nodes[1 - i] && IN_DEG[alter] + OUT_DEG[alter] < sto->bound && sto->indmat[sto->strat_vattr[tail]][sto->strat_vattr[head]] == strat_i && sto->amat[sto->bd_vattr[tail]][sto->bd_vattr[head]]) {
           proposedsubmaxledgestype += delta;
         }
       });
@@ -417,7 +424,7 @@ MH_U_FN(Mu_BDStratTNT) {
   for(int i = 0; i < 2; i++) {
     if(sto->maxl[i]) {
       EXEC_THROUGH_EDGES_EATH_NET_DECL(sto->nodes[i], ego, alter, _tail, _head, edge, nwp, {
-        if(alter != sto->nodes[1 - i] && IN_DEG[alter] + OUT_DEG[alter] < sto->bound && sto->indmat[sto->strat_vattr[_tail]][sto->strat_vattr[_head]] >= 0) {
+        if(alter != sto->nodes[1 - i] && IN_DEG[alter] + OUT_DEG[alter] < sto->bound && sto->indmat[sto->strat_vattr[_tail]][sto->strat_vattr[_head]] >= 0 && sto->amat[sto->bd_vattr[_tail]][sto->bd_vattr[_head]]) {
           sto->currentsubmaxledgestype[sto->indmat[sto->strat_vattr[_tail]][sto->strat_vattr[_head]]] += delta;
         }
       });
@@ -453,6 +460,8 @@ MH_F_FN(Mf_BDStratTNT) {
 
   Free(sto->currentsubmaxledgestype);
   Free(sto->indmat);
+
+  Free(sto->amat);
 
   Free(sto->originalprobvec);
 
@@ -511,20 +520,29 @@ MH_I_FN(Mi_BDTNT) {
     }
   }
   
+  sto->amat = Calloc(sto->nlevels, int *);
+  sto->amat[0] = INTEGER(getListElement(MHp->R, "amat_C"));
+  for(int i = 1; i < sto->nlevels; i++) {
+    sto->amat[i] = sto->amat[i - 1] + sto->nlevels;
+  }  
+  
   // Construct and populate the list of edges. (May be obviated by more efficient network sampling.)
   sto->edgelist = UnsrtELInitialize(0, NULL, NULL, FALSE);
   EXEC_THROUGH_NET_EDGES(tail, head, e, {
-    UnsrtELInsert(tail, head, sto->edgelist);
-    if(IN_DEG[tail] + OUT_DEG[tail] < sto->bound && IN_DEG[head] + OUT_DEG[head] < sto->bound) {
-      sto->currentsubmaxledges++;
+    int allowed = sto->amat[sto->vattr[tail]][sto->vattr[head]];
+    if(allowed) {
+      UnsrtELInsert(tail, head, sto->edgelist);
+      if(IN_DEG[tail] + OUT_DEG[tail] < sto->bound && IN_DEG[head] + OUT_DEG[head] < sto->bound) {
+        sto->currentsubmaxledges++;
+      }
     }
   });
-  
+    
   // count number of "BD-toggleable" dyads in current network
   sto->currentdyads = NodeListDyadCount(sto->attrcounts, sto->attrcounts, sto->tailtypes, sto->headtypes, sto->nmixtypes, TRUE, DIRECTED);
 
   // if we cannot toggle any edges or dyads, error
-  if(EDGECOUNT(nwp) == 0 && sto->currentdyads == 0) {
+  if(sto->edgelist->nedges == 0 && sto->currentdyads == 0) {
     MHp->ntoggles = MH_FAILED;
     return;
   }  
@@ -533,7 +551,7 @@ MH_I_FN(Mi_BDTNT) {
 MH_P_FN(MH_BDTNT) {    
   GET_STORAGE(BDTNTStorage, sto);
 
-  int nedges = EDGECOUNT(nwp);
+  int nedges = sto->edgelist->nedges;
   
   int edgeflag;
 
@@ -615,8 +633,8 @@ MH_P_FN(MH_BDTNT) {
   // was handled separately above
   for(int i = 0; i < 2; i++) {
     if(sto->maxl[i]) {
-      EXEC_THROUGH_EDGES_EA_NET_DECL(sto->nodes[i], ego, alter, edge, nwp, {
-        if(alter != sto->nodes[1 - i] && IN_DEG[alter] + OUT_DEG[alter] < sto->bound) {
+      EXEC_THROUGH_EDGES_EATH_NET_DECL(sto->nodes[i], ego, alter, _tail, _head, edge, nwp, {
+        if(alter != sto->nodes[1 - i] && IN_DEG[alter] + OUT_DEG[alter] < sto->bound && sto->amat[sto->vattr[_tail]][sto->vattr[_head]]) {
           sto->proposedsubmaxledges += delta;
         }
       });
@@ -674,6 +692,8 @@ MH_F_FN(Mf_BDTNT) {
 
   Free(sto->nodes);
   Free(sto->maxl);
+
+  Free(sto->amat);
 
   Free(sto->attrcounts);
   Free(sto->nodepos);  

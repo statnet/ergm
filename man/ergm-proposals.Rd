@@ -60,45 +60,9 @@
         	because it gives at least 50\% chance of proposing a toggle of an existing edge.
         }
 
-        \item{InitErgmProposal.StratTNT}{Stratifies the population of dyads by mixing type
-            on a given vertex attribute \code{attr}; within each mixing type, dyads are 
-            stratified by edge status as in \code{TNT}.
-            
-            Specifically, the user may pass a vertex attribute \code{attr} as an argument 
-            (the default for \code{attr} gives every vertex the same attribute value),
-            and may also pass a matrix of weights \code{pmat} (the default for 
-            \code{pmat} gives equal weight to each mixing type).  See 
-            \link[=nodal_attributes]{Specifying Vertex Attributes and Levels} for details on 
-            specifying vertex attributes.  The matrix \code{pmat}, if specified, must have
-            the same dimensions as a mixing matrix for the network and attribute under 
-            consideration, and the correspondence between rows and columns of \code{pmat}
-            and values of \code{attr} is the same as for a mixing matrix.
-                        
-            The interpretation is that \code{pmat[i,j]/sum(pmat)} is the probability of 
-            proposing a toggle for mixing type \code{(i,j)}.  (For undirected, unipartite
-            networks, \code{pmat} is first symmetrized, and then entries below the diagonal 
-            are set to zero.  Only entries on or above the diagonal of the symmetrized 
-            \code{pmat} are considered when making proposals.  This accounts for the 
-            convention that mixing is undirected in an undirected, unipartite network: 
-            a tail of type \code{i} and a head of type \code{j} has the same mixing type 
-            as a tail of type \code{j} and a head of type \code{i}.) For a given proposal,
-            once the mixing type is chosen, an edge or dyad of that mixing type is 
-            chosen at random and proposed to be toggled, as in \code{TNT}.
-            
-            As an alternative way of specifying \code{pmat}, the user may pass 
-            \code{empirical=TRUE} to use the mixing matrix of the network beginning 
-            the MCMC chain as \code{pmat}.  In order for this to work,
-            that network should have a reasonable (in particular, nonempty) edge set.
-            
-            While some mixing types may be assigned zero proposal probability
-            (either with a direct specification of \code{pmat} or with \code{empirical=TRUE}),
-            this will not be recognized as a constraint by all components of \code{ergm},
-            and should be used with caution.
-            
-            With the new hints API, the user may pass the \code{attr}, \code{pmat},
-            and \code{empirical} arguments to \code{StratTNT} via the identically
-            named arguments to the \code{Strat} hint, and this is now the recommended 
-            approach.
+        \item{InitErgmProposal.StratTNT}{Stratifies proposals by mixing type on a given vertex attribute;
+            within each mixing type, proposals are stratified by edge status as in \code{TNT}.
+            Arguments should generally be passed in via the \code{\link{Strat}} hint.
         }
              
 }
@@ -150,55 +114,20 @@
         \item{InitErgmProposal.CondOutDegree}{MHp for \eqn{constraints= ~odegrees}. For directed networks, randomly select two dyads with a common tail node, one having an edge and one not, and propose to swap the tie from one head to the other.
         }
 
-        \item{InitErgmProposal.BDTNT}{Implements a TNT proposal with an upper bound on degree.  Optionally prohibits certain mixing types on a specified attribute.
-        
-        Specifically, the user may pass an upper bound for total degree via the \code{bound}
-                    argument (the default \code{bound} is the network size minus one), and may also pass an 
-                    attribute \code{attr} (the default \code{attr} gives every vertex the same attribute value)
-                    and a logical matrix \code{fmat} indicating which mixing types of \code{attr}
-                    are forbidden from having ties (the default \code{fmat} allows all mixing types).  
-                    See \link[=nodal_attributes]{Specifying Vertex Attributes and Levels}
-                    for details on specifying vertex attributes.  The matrix \code{fmat}, if specified, must have
-                    the same dimensions as a mixing matrix for the network and attribute under
-                    consideration, and the correspondence between rows and columns of \code{fmat}
-                    and values of \code{attr} is the same as for a mixing matrix.
-                   
-        The interpretation is that \code{fmat[i,j]} is \code{FALSE} if the attribute pairing
-                    \code{(i,j)} is not forbidden, and \code{fmat[i,j]} is \code{TRUE} if the attribute pairing
-                    \code{(i,j)} is forbidden.  Undirected, unipartite networks are considered to have undirected mixing,
-                    and the pairing \code{(i,j)} is forbidden if either \code{fmat[i,j]} is \code{TRUE} or
-                    \code{fmat[j,i]} is \code{TRUE}.  Bipartite networks are also supported, and are considered
-                    to have directed mixing, so \code{(i,j)} is forbidden iff \code{fmat[i,j]} is \code{TRUE}.
-        
-        Directed networks are not supported by \code{BDTNT} at this time.
-        
-        Passing arguments directly to the proposal is not recommended.  Instead, one should pass
-                    the \code{bound} argument to \code{BDTNT} via the \code{maxout} argument to the \code{bd} 
-                    constraint, and the \code{attr} and \code{fmat} arguments to \code{BDTNT} via the identically
-                    named arguments to the \code{blocks} constraint.
-                    
+        \item{InitErgmProposal.BDTNT}{Implements a TNT proposal with an upper bound on degree.  
+                    Optionally constrains certain mixing types on a specified attribute.  The upper
+                    bound on degree is specified via the \code{\link{bd}} constraint's \code{maxout} argument
+                    (which must be a single number for \code{BDTNT}), and the constraints on mixing type
+                    are specified via the \code{\link{blocks}} constraint.  Directed networks are not supported by 
+                    \code{BDTNT} at this time.                    
         }
 
         \item{InitErgmProposal.BDStratTNT}{Implements a TNT proposal with an upper bound on degree, with proposed
-                    toggles stratified by mixing type on a specified vertex attribute.  Optionally prohibits certain
-                    mixing types on a(nother) specified attribute.
-        
-        Specifically, the user may pass arguments \code{bound}, \code{BD_attr}, and \code{fmat} as for \code{BDTNT},
-                    and may also pass arguments \code{Strat_attr} and \code{pmat} as for \code{StratTNT}.  Proposals 
-                    are made based on mixing type according to \code{pmat} and \code{Strat_attr}, respecting constraints 
-                    imposed by \code{bound}, \code{BD_attr}, and \code{fmat}.  See \code{BDTNT} and \code{StratTNT} for
-                    more information.  The \code{empirical=TRUE} option for specifying \code{pmat} is also supported,
-                    as for \code{StratTNT}.
-                    
-        Directed networks are not supported by \code{BDStratTNT} at this time.
-
-        Passing arguments directly to the proposal is not recommended.  Instead, one should pass
-                    the \code{bound} argument to \code{BDStratTNT} via the \code{maxout} argument to the \code{bd} 
-                    constraint, the \code{BD_attr} and \code{fmat} arguments to \code{BDStratTNT} via the \code{attr} and
-                    \code{fmat} arguments to the \code{blocks} constraint, and the \code{Strat_attr}, \code{pmat}, and
-                    \code{empirical} arguments to \code{BDStratTNT} via the \code{attr}, \code{pmat}, and \code{empirical}
-                    arguments to the \code{Strat} hint.
-
+                    toggles stratified by mixing type on a specified vertex attribute.  Optionally constrains certain
+                    mixing types on a(nother) specified attribute.  The upper bound on degree is specified via the 
+                    \code{\link{bd}} constraint's \code{maxout} argument (which must be a single number for \code{BDStratTNT});
+                    the constraints on mixing type are specified via the \code{\link{blocks}} constraint; the stratification
+                    is specified via the \code{\link{Strat}} hint.  Directed networks are not supported by \code{BDStratTNT} at this time.
         }
 
        }}

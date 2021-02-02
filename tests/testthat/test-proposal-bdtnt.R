@@ -56,42 +56,42 @@ test_that("BDTNT works with undirected unipartite networks", {
   
   nw %v% "sex" <- rep(c("A","B"), 500)
   target.stats <- c(500)
-  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 1) + blocks(attr = "sex", fmat = diag(2)), control=control.san(SAN.maxit = 1, SAN.nsteps=2e3))
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 1) + blocks(attr = "sex", levels2 = diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=2e3))
   sr3 <- summary(nws ~ edges + concurrent + nodematch("sex"))  
   
   expect_equal(unname(sr3), c(500,0, 0))
   
 
   target.stats <- c(500)
-  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 1) + blocks(attr = "sex", fmat = 1 - diag(2)), control=control.san(SAN.maxit = 1, SAN.nsteps=2e3))
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 1) + blocks(attr = "sex", levels2 = !diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=2e3))
   sr4 <- summary(nws ~ edges + concurrent + nodematch("sex"))  
   
   expect_equal(unname(sr4), c(500,0, 500))
   
   ## may be off by small amount
   target.stats <- c(1500)
-  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", fmat = diag(2)), control=control.san(SAN.maxit = 1, SAN.nsteps=6e3))
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", levels2 = diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=6e3))
   sr5 <- summary(nws ~ edges + degree(3) + degrange(4) + nodematch("sex"))  
   
   expect_true(all(abs(sr5 - c(1500, 1000, 0, 0)) <= c(2,4,0,2)))
   
   ## may be off by small amount
   target.stats <- c(1500)
-  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", fmat = 1 - diag(2)), control=control.san(SAN.maxit = 1, SAN.nsteps=6e3))
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", levels2 = !diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=6e3))
   sr6 <- summary(nws ~ edges + degree(3) + degrange(4) + nodematch("sex"))  
   
   expect_true(all(abs(sr6 - c(1500, 1000, 0, 1500)) <= c(4,4,0,4)))
   
 
   target.stats <- c(1000)
-  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", fmat = diag(2)), control=control.san(SAN.maxit = 1, SAN.nsteps=4e3))
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", levels2 = diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=4e3))
   sr7 <- summary(nws ~ edges + degrange(4) + nodematch("sex"))  
   
   expect_equal(unname(sr7), c(1000,0, 0))
   
 
   target.stats <- c(1000)
-  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", fmat = 1 - diag(2)), control=control.san(SAN.maxit = 1, SAN.nsteps=4e3))
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", levels2 = !diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=4e3))
   sr8 <- summary(nws ~ edges + degrange(4) + nodematch("sex"))  
   
   expect_equal(unname(sr8), c(1000,0, 1000))
@@ -137,39 +137,39 @@ test_that("BDTNT works with bipartite networks", {
   
   nw %v% "sex" <- c(rep(c("A","B"), 50), rep(c("A","B"), 450))
   target.stats <- c(100)
-  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 1) + blocks(attr = "sex", fmat = diag(2)), control=control.san(SAN.maxit = 1, SAN.nsteps=4e2))
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 1) + blocks(attr = "sex", levels2 = diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=4e2))
   sr3 <- summary(nws ~ edges + concurrent + nodematch("sex"))  
   
   expect_equal(unname(sr3), c(100,0, 0))
   
   target.stats <- c(100)
-  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 1) + blocks(attr = "sex", fmat = 1 - diag(2)), control=control.san(SAN.maxit = 1, SAN.nsteps=4e2))
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 1) + blocks(attr = "sex", levels2 = !diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=4e2))
   sr4 <- summary(nws ~ edges + concurrent + nodematch("sex"))  
   
   expect_equal(unname(sr4), c(100,0, 100))
   
   target.stats <- c(300)
-  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", fmat = diag(2)), control=control.san(SAN.maxit = 1, SAN.nsteps=1.2e3))
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", levels2 = diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=1.2e3))
   sr5 <- summary(nws ~ edges + b1degree(3) + degrange(4) + nodematch("sex"))  
   
   expect_true(all(abs(sr5 - c(300, 100, 0, 0)) <= c(0,0,0,0)))
   
   target.stats <- c(300)
-  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", fmat = 1 - diag(2)), control=control.san(SAN.maxit = 1, SAN.nsteps=1.2e3))
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", levels2 = !diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=1.2e3))
   sr6 <- summary(nws ~ edges + b1degree(3) + degrange(4) + nodematch("sex"))  
   
   expect_true(all(abs(sr6 - c(300, 100, 0, 300)) <= c(0,0,0,0)))
   
 
   target.stats <- c(200)
-  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", fmat = diag(2)), control=control.san(SAN.maxit = 1, SAN.nsteps=8e2))
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", levels2 = diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=8e2))
   sr7 <- summary(nws ~ edges + degrange(4) + nodematch("sex"))  
   
   expect_equal(unname(sr7), c(200,0, 0))
   
 
   target.stats <- c(200)
-  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", fmat = 1 - diag(2)), control=control.san(SAN.maxit = 1, SAN.nsteps=8e2))
+  nws <- san(nw ~ edges , target.stats = target.stats, constraints = ~bd(maxout = 3) + blocks(attr = "sex", levels2 = !diag(TRUE, 2)), control=control.san(SAN.maxit = 1, SAN.nsteps=8e2))
   sr8 <- summary(nws ~ edges + degrange(4) + nodematch("sex"))  
   
   expect_equal(unname(sr8), c(200,0, 200))
@@ -183,21 +183,22 @@ test_that("BDTNT works with churning", {
   nw %v% "race" <- c(rep("A", 30), rep("B", 30), rep("W", 940))
   nw %v% "sex"  <- rep(c("W", "X", "Y", "Z"), 250)
   
-  fmat <- matrix(0, 4, 4)
-  fmat[1,3] <- fmat[3,1] <- fmat[2,2] <- fmat[3,4] <- fmat[4,3] <- fmat[4,4] <- 1
+  levels2 <- matrix(0, 4, 4)
+  levels2[1,3] <- levels2[3,1] <- levels2[2,2] <- levels2[3,4] <- levels2[4,3] <- levels2[4,4] <- 1
+  levels2 <- levels2 > 0
   
   pmat <- matrix(c(25, 50, 5, 50, 25, 5, 5, 5, 100),3,3,byrow=TRUE)
 
   # impossible to hit these exactly
   target.stats <- c(211, 25, 50, 25, 5, 5, 100)
-  nws <- san(nw ~ edges + nodemix("race",levels2=TRUE), target.stats = target.stats, constraints = ~bd(maxout = 4) + blocks(attr = "sex", fmat = fmat))
+  nws <- san(nw ~ edges + nodemix("race",levels2=TRUE), target.stats = target.stats, constraints = ~bd(maxout = 4) + blocks(attr = "sex", levels2 = levels2))
   sr <- summary(nws ~ edges + nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats + 1))
   expect_equal(unname(summary(nws ~ degrange(5))), 0)
   # and check sex nodemix
   srs <- summary(nws ~ nodemix("sex",levels2=TRUE))
-  expect_true(all(srs[as.logical(fmat[upper.tri(fmat,diag=TRUE)])] == 0))
+  expect_true(all(srs[as.logical(levels2[upper.tri(levels2,diag=TRUE)])] == 0))
 })
 
 test_that("BDTNT simulates reasonably", {
@@ -210,14 +211,15 @@ test_that("BDTNT simulates reasonably", {
     
     nw %v% "vattr" <- vattr
     
-    fmat <- matrix(c(1,0,0,0,1,0,0,0,0),3,3)
-        
+    levels2 <- matrix(c(1,0,0,0,1,0,0,0,0),3,3)
+    levels2 <- levels2 > 0
+    
     nw_sim <- nw
     
     for(i in 1:5) {
       nw_sim <- simulate(nw_sim ~ edges, 
                          coef = c(0),
-                         constraints = ~bd(maxout = deg_bound) + blocks(attr = "vattr", fmat = fmat),
+                         constraints = ~bd(maxout = deg_bound) + blocks(attr = "vattr", levels2 = levels2),
                          output = "network")
       summ_stats <- summary(nw_sim ~ nodemix("vattr",levels2=TRUE) + degrange(deg_bound + 1))
       expect_true(summ_stats[paste0("deg", deg_bound + 1, "+")] == 0)
@@ -230,3 +232,110 @@ test_that("BDTNT simulates reasonably", {
     }
   }  
 })
+
+test_that("BDTNT constrains undirected appropriately", {
+  nw <- network.initialize(100, dir=FALSE)
+  nw %v% "attr" <- rep(c("A","B","C","D","E"), each = 20)
+  nw[cbind(1:10,30:21)] <- 1
+  nw[cbind(44:53,99:90)] <- 1
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~attr, levels2=c(2,13)))
+  
+  expect_true(all(nws[cbind(1:10,30:21)] == 1))
+  expect_true(all(nws[cbind(44:53,99:90)] == 1))
+  expect_true(summary(nws ~ nodemix(~attr, levels2=2)) == 10)
+  expect_true(summary(nws ~ nodemix(~attr, levels2=13)) == 10)
+  expect_true(summary(nws ~ edges) > 1000)
+  
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout = 1) + blocks(~attr, levels2=c(2,13)))
+  
+  expect_true(all(nws[cbind(1:10,30:21)] == 1))
+  expect_true(all(nws[cbind(44:53,99:90)] == 1))
+  expect_true(summary(nws ~ nodemix(~attr, levels2=2)) == 10)
+  expect_true(summary(nws ~ nodemix(~attr, levels2=13)) == 10)
+  expect_true(summary(nws ~ edges) > 30)  
+})
+
+test_that("BDTNT constrains bipartite appropriately", {
+  nw <- network.initialize(100, bip=30, dir=FALSE)
+  nw %v% "attr" <- c(rep(c("A","B","C"), each = 10), rep(c("D","E","F","G"), times = c(20,20,20,10)))
+  nw[cbind(1:10,100:91)] <- 1
+  nw[cbind(25:21,60:56)] <- 1
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~attr, levels2=c(6,10)))
+  
+  expect_true(all(nws[cbind(1:10,100:91)] == 1))
+  expect_true(all(nws[cbind(25:21,60:56)] == 1))
+  expect_true(summary(nws ~ nodemix(~attr, levels2=6)) == 5)
+  expect_true(summary(nws ~ nodemix(~attr, levels2=10)) == 10)
+  expect_true(summary(nws ~ edges) > 500)
+  
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout = 1) + blocks(~attr, levels2=c(6,10)))
+  
+  expect_true(all(nws[cbind(1:10,100:91)] == 1))
+  expect_true(all(nws[cbind(25:21,60:56)] == 1))
+  expect_true(summary(nws ~ nodemix(~attr, levels2=6)) == 5)
+  expect_true(summary(nws ~ nodemix(~attr, levels2=10)) == 10)
+  expect_true(summary(nws ~ edges) > 20)
+})
+
+test_that("BDTNT handles undirected arguments correctly", {
+  nw <- network.initialize(100, dir=FALSE)
+  nw %v% "bd_attr" <- rep(1:3, length.out=100)
+
+  nws <- simulate(nw ~ edges, coef = c(0), control = list(MCMC.prop.weights = "BDTNT"))
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
+  
+  nws <- simulate(nw ~ edges, coef = c(0), control = list(MCMC.prop.weights = "BDTNT", MCMC.prop.args = list(attr = ~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,8)),3,3))))
+  expect_true(summary(nws ~ nodemix(~bd_attr, levels2=1)) == 0)
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-1)) > 0))
+
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout=1), control = list(MCMC.prop.weights = "BDTNT", MCMC.prop.args = list(attr = ~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,8)),3,3))))
+  expect_true(summary(nws ~ nodemix(~bd_attr, levels2=1)) == 0)
+  expect_true(all(summary(nws ~ nodefactor(~bd_attr, levels=TRUE)) > 0))
+  expect_true(summary(nws ~ concurrent) == 0)
+
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,8)),3,3)), control = list(MCMC.prop.weights = "BDTNT", MCMC.prop.args = list(attr = ~bd_attr, levels2 = matrix(c(FALSE,TRUE,FALSE,TRUE,rep(FALSE,5)),3,3))))
+  expect_true(summary(nws ~ nodemix(~bd_attr, levels2=2)) == 0)  
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-2)) > 0))
+  
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout=1) + blocks(~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,8)),3,3)), control = list(MCMC.prop.weights = "BDTNT", MCMC.prop.args = list(attr = ~bd_attr, levels2 = matrix(c(FALSE,TRUE,FALSE,TRUE,rep(FALSE,5)),3,3))))
+  expect_true(summary(nws ~ nodemix(~bd_attr, levels2=2)) == 0)  
+  expect_true(all(summary(nws ~ nodefactor(~bd_attr, levels=TRUE)) > 0))
+  expect_true(summary(nws ~ concurrent) == 0)
+})
+
+test_that("BDTNT handles bipartite arguments correctly", {
+  nw <- network.initialize(100, dir=FALSE, bip=30)
+  nw %v% "bd_attr" <- c(rep(1:3, length.out=30), rep(6:10, length.out=70))
+
+  nws <- simulate(nw ~ edges, coef = c(0), control = list(MCMC.prop.weights = "BDTNT"))
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
+  
+  nws <- simulate(nw ~ edges, coef = c(0), control = list(MCMC.prop.weights = "BDTNT", MCMC.prop.args = list(attr = ~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,14)),nrow=3,ncol=5))))
+  expect_true(summary(nws ~ nodemix(~bd_attr, levels2=1)) == 0)
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-1)) > 0))
+
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout = 1), control = list(MCMC.prop.weights = "BDTNT", MCMC.prop.args = list(attr = ~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,14)),nrow=3,ncol=5))))
+  expect_true(summary(nws ~ nodemix(~bd_attr, levels2=1)) == 0)
+  expect_true(all(summary(nws ~ nodefactor(~bd_attr, levels=TRUE)) > 0))
+  expect_true(summary(nws ~ concurrent) == 0)
+  
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,14)),nrow=3,ncol=5)), control = list(MCMC.prop.weights = "BDTNT", MCMC.prop.args = list(attr = ~bd_attr, levels2 = matrix(c(FALSE,TRUE,FALSE,FALSE,rep(FALSE,11)),nrow=3,ncol=5))))
+  expect_true(summary(nws ~ nodemix(~bd_attr, levels2=2)) == 0)  
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-2)) > 0))
+
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout = 1) + blocks(~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,14)),nrow=3,ncol=5)), control = list(MCMC.prop.weights = "BDTNT", MCMC.prop.args = list(attr = ~bd_attr, levels2 = matrix(c(FALSE,TRUE,FALSE,FALSE,rep(FALSE,11)),nrow=3,ncol=5))))
+  expect_true(summary(nws ~ nodemix(~bd_attr, levels2=2)) == 0)  
+  expect_true(all(summary(nws ~ nodefactor(~bd_attr, levels=TRUE)) > 0))
+  expect_true(summary(nws ~ concurrent) == 0)
+})
+
+## not a BDTNT test but putting it here for the time being
+## also does not work for the time being, so commenting it out
+## test_that("directed blocks", {
+##   nw <- network.initialize(100, dir = TRUE)
+##   nw %v% "attr" <- rep(1:5, each = 20)
+##   
+##   nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(attr = ~attr, levels2 = c(2, 7, 10)))
+##   expect_true(all(summary(nws ~ nodemix(~attr, levels2 = c(2, 7, 10))) == 0))
+##   expect_true(all(summary(nws ~ nodemix(~attr, levels2 = -c(2, 7, 10))) > 0))  
+## })

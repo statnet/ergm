@@ -31,6 +31,7 @@
 \alias{fixedas}
 \alias{fixallbut}
 \alias{egocentric}
+\alias{blocks}
 
 \docType{methods}
 
@@ -166,6 +167,10 @@
 
     \item{\code{egocentric(attr = NULL, direction = c("both","out","in"))} (dyad-independent)}{
       Preserve values of dyads incident on vertices with attribute \code{attr} (see \link[=nodal_attributes]{Specifying Vertex Attributes and Levels} for details) being \code{TRUE} or if \code{attrname} is \code{NULL}, the vertex attribute \code{"na"} being `FALSE`. For directed networks, \code{direction=="out"} only preserves the out-dyads of those actors, and \code{direction=="in"} preserves their in-dyads.
+    }
+
+    \item{\code{blocks(attr = NULL, levels = NULL, levels2 = FALSE, b1levels = NULL, b2levels = NULL)} (dyad-independent)}{
+      Constrain "blocks" of dyads; any dyad whose toggle would produce a nonzero change statistic for a \code{nodemix} term with the same arguments will be fixed.  Note that the \code{levels2} argument has a different default value for \code{blocks} than it does for \code{nodemix}.
     }
 
   Not all combinations of the above are supported.
