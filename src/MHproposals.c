@@ -158,7 +158,10 @@ MH_I_FN(Mi_BDStratTNT) {
   for(int i = 0; i < sto->nstratlevels; i++) {
     sto->nodesvec[i] = Calloc(sto->nbdlevels, Vertex *);
     for(int j = 0; j < sto->nbdlevels; j++) {
-      sto->nodesvec[i][j] = Calloc(nodecounts[i*sto->nbdlevels + j], Vertex);
+      int size = nodecounts[i*sto->nbdlevels + j];
+      if(size > 0) {
+        sto->nodesvec[i][j] = Calloc(size, Vertex);
+      }
     }
   }
   
@@ -444,9 +447,14 @@ MH_F_FN(Mf_BDStratTNT) {
   }
   Free(sto->attrcounts);
 
+  int *nodecounts = INTEGER(getListElement(MHp->R, "nodecountsbypairedcode"));
+  
   for(int i = 0; i < sto->nstratlevels; i++) {
     for(int j = 0; j < sto->nbdlevels; j++) {
-      Free(sto->nodesvec[i][j]);
+      int size = nodecounts[i*sto->nbdlevels + j];
+      if(size > 0) {
+        Free(sto->nodesvec[i][j]);
+      }
     }
     Free(sto->nodesvec[i]);
   }
@@ -507,7 +515,10 @@ MH_I_FN(Mi_BDTNT) {
   sto->attrcounts = Calloc(sto->nlevels, int); // As in struct.
   // make room for maximum number of nodes of each type
   for(int i = 0; i < sto->nlevels; i++) {
-    sto->nodesvec[i] = Calloc(nodecountsbycode[i], Vertex);
+    int size = nodecountsbycode[i];
+    if(size > 0) {
+      sto->nodesvec[i] = Calloc(size, Vertex);
+    }
   }
 
   // Populate the list of submaximal vertices by checking whether a given vertex has a maximal degree.
@@ -698,8 +709,13 @@ MH_F_FN(Mf_BDTNT) {
   Free(sto->attrcounts);
   Free(sto->nodepos);  
 
+  int *nodecountsbycode = INTEGER(getListElement(MHp->R, "nodecountsbycode")); // Number of nodes of each type.
+
   for(int i = 0; i < sto->nlevels; i++) {
-    Free(sto->nodesvec[i]);
+    int size = nodecountsbycode[i];
+    if(size > 0) {
+      Free(sto->nodesvec[i]);
+    }
   }
   Free(sto->nodesvec);
   // MHp->storage itself should be Freed by MHProposalDestroy
