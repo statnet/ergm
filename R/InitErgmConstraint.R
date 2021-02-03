@@ -195,20 +195,18 @@ InitErgmConstraint.blocks <- function(lhs.nw, attr = NULL, levels = NULL, levels
     rows2keep <- rows2keep[!is.na(rows2keep)]
     
     u <- indices2.grid[rows2keep,]
-    u[,2L] <- u[,2L] - nr
   
     # Recode to numeric
     b1nodecov <- match(b1nodecov, b1namescov, nomatch = length(b1namescov) + 1)
     b2nodecov <- match(b2nodecov, b2namescov, nomatch = length(b2namescov) + 1)
     
-    nr <- max(b1nodecov)
-    nc <- max(b2nodecov)
+    u[,2L] <- u[,2L] - nr
                                                
-    amat <- matrix(TRUE, nrow = nr, ncol = nc)
+    amat <- matrix(TRUE, nrow = nr + 1, ncol = nc + 1)
     amat[as.matrix(u)] <- FALSE
 
-    bd_row_levels <- seq_len(nr)
-    bd_col_levels <- seq_len(nc)
+    bd_row_levels <- seq_len(nr + 1)
+    bd_col_levels <- seq_len(nc + 1)
     bd_levels <- c(bd_row_levels, bd_col_levels + length(bd_row_levels))
     
     bd_row_nodecov <- b1nodecov
@@ -243,15 +241,12 @@ InitErgmConstraint.blocks <- function(lhs.nw, attr = NULL, levels = NULL, levels
     uun <- uun[rows2keep]
 
     nodecov <- match(nodecov, namescov, nomatch = length(namescov) + 1)
-    
-    nr <- max(nodecov)
-    nc <- max(nodecov)
-    
-    amat <- matrix(TRUE, nrow = nr, ncol = nc)
+        
+    amat <- matrix(TRUE, nrow = nr + 1, ncol = nc + 1)
     amat[as.matrix(u)] <- FALSE
 
-    bd_row_levels <- seq_len(nr)
-    bd_col_levels <- seq_len(nc)
+    bd_row_levels <- seq_len(nr + 1)
+    bd_col_levels <- seq_len(nc + 1)
     bd_levels <- bd_row_levels
     
     bd_row_nodecov <- nodecov
@@ -262,9 +257,12 @@ InitErgmConstraint.blocks <- function(lhs.nw, attr = NULL, levels = NULL, levels
   # now used in the BD*TNT C code as blocks can constrain ties and not just non-ties
   if(!is.bipartite(lhs.nw)) {
     amat_C <- amat
+    if(!is.directed(lhs.nw)) {
+      amat_C <- amat_C & t(amat_C)
+    }
   } else {
     amat_C <- matrix(FALSE, nrow = length(bd_levels), ncol = length(bd_levels))
-    amat_C[seq_len(nr), -seq_len(nr)] <- amat
+    amat_C[seq_len(nr + 1), -seq_len(nr + 1)] <- amat
   }
   
   if(!is.directed(lhs.nw) && !is.bipartite(lhs.nw)) {
@@ -297,10 +295,20 @@ InitErgmConstraint.blocks <- function(lhs.nw, attr = NULL, levels = NULL, levels
   # record number of nodes of each type
   nodecountsbycode <- tabulate(bd_nodecov, nbins=length(bd_levels))
   
+  ## the general levels stuff above can introduce pairs of levels that have no dyads; this 
+  ## removes those pairings before we pass to the C code, so we don't waste time in iterations
+  pairs_to_keep <- (allowed.tails != allowed.heads & nodecountsbycode[allowed.tails] > 0 & nodecountsbycode[allowed.heads] > 0) | (allowed.tails == allowed.heads & nodecountsbycode[allowed.tails] > 1)
+  allowed.tails <- allowed.tails[pairs_to_keep]
+  allowed.heads <- allowed.heads[pairs_to_keep]
+  
   if(is.directed(lhs.nw)) {
     constrain <- "blocksdir"
   } else {
     constrain <- "blocks"
+  }
+
+  if(!is.directed(lhs.nw) && !is.bipartite(lhs.nw)) {
+    amat <- amat | t(amat)
   }
   
   rm(lhs.nw) # All needed information has now been extracted from lhs.nw.

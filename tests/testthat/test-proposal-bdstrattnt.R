@@ -339,6 +339,19 @@ test_that("BDStratTNT constrains undirected appropriately", {
   expect_true(summary(nws ~ nodemix(~attr, levels2=2)) == 10)
   expect_true(summary(nws ~ nodemix(~attr, levels2=13)) == 10)
   expect_true(summary(nws ~ edges) > 30)  
+
+  nw <- network.initialize(100, dir=FALSE)
+  nw %v% "attr" <- rep(c("B","A","C","D","E"), each = 20)
+  nw %v% "strat_attr" <- rep(1:3, length.out=100)
+  nw[cbind(1:10,30:21)] <- 1
+  nw[cbind(44:53,99:90)] <- 1
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~attr, levels2=c(2,13)) + Strat(~strat_attr, pmat = matrix(2 + runif(9),3,3)))
+  
+  expect_true(all(nws[cbind(1:10,30:21)] == 1))
+  expect_true(all(nws[cbind(44:53,99:90)] == 1))
+  expect_true(summary(nws ~ nodemix(~attr, levels2=2)) == 10)
+  expect_true(summary(nws ~ nodemix(~attr, levels2=13)) == 10)
+  expect_true(summary(nws ~ edges) > 1000)
 })
 
 test_that("BDStratTNT constrains bipartite appropriately", {
@@ -460,3 +473,68 @@ test_that("BDStratTNT handles bipartite arguments correctly", {
   expect_true(summary(nws ~ concurrent) == 0)
 })
 
+test_that("BDStratTNT handles atypical levels specifications correctly", {
+  nw <- network.initialize(100, dir=FALSE)
+  nw %v% "bd_attr" <- rep(1:3, length.out=100)
+  nw %v% "strat_attr" <- rep(1:5, length.out = 100)
+  pmat <- matrix(2 + runif(25), 5, 5)
+  
+  ## should be unconstrained
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels=TRUE) + Strat(attr = ~strat_attr, pmat = pmat))
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
+
+  ## should also be unconstrained
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels=FALSE) + Strat(attr = ~strat_attr, pmat = pmat))
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
+
+  ## any pairing with a 3 should be allowed, with all other pairings forbidden
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels=I(c(1,2,4,6)), levels2=TRUE) + Strat(attr = ~strat_attr, pmat = pmat))
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=c(4,5,6))) > 0))
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-c(4,5,6))) == 0))
+
+  ## only 2-2 pairings should be allowed
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels=I(c(1,2,3,4,6)), levels2=-3) + Strat(attr = ~strat_attr, pmat = pmat))
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=c(3))) > 0))
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-c(3))) == 0))
+  
+  ## should fail as we omit all pairings
+  expect_error(nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels2=TRUE) + Strat(attr = ~strat_attr, pmat = pmat)))
+  
+  
+  ## similar bipartite tests
+  nw <- network.initialize(100, dir=FALSE, bip = 30)
+  nw %v% "bd_attr" <- c(rep(1:3, length.out=30), rep(10:16, length.out = 70))
+  nw %v% "strat_attr" <- c(rep(1:5, length.out = 30), rep(1:4, length.out = 70))
+  pmat <- matrix(2 + runif(20), nrow = 5, ncol = 4)
+
+  ## should be unconstrained
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b1levels=TRUE, b2levels=TRUE) + Strat(attr = ~strat_attr, pmat = pmat))
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
+
+  ## should also be unconstrained
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b1levels=FALSE, b2levels=FALSE) + Strat(attr = ~strat_attr, pmat = pmat))
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b1levels=FALSE) + Strat(attr = ~strat_attr, pmat = pmat))
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b2levels=FALSE) + Strat(attr = ~strat_attr, pmat = pmat))
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b1levels=FALSE, b2levels=FALSE, levels2=TRUE) + Strat(attr = ~strat_attr, pmat = pmat))
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b1levels=FALSE, levels2=TRUE) + Strat(attr = ~strat_attr, pmat = pmat))
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b2levels=FALSE, levels2=TRUE) + Strat(attr = ~strat_attr, pmat = pmat))
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
+
+  ## any pairing with a 3 should be allowed, with all other pairings forbidden
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b1levels=I(c(1,2,4,6)), levels2=TRUE) + Strat(attr = ~strat_attr, pmat = pmat))
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=3*(1:7))) > 0))
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-3*(1:7))) == 0))
+
+  ## only 1-14 pairings should be allowed
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b1levels=I(c(1,2,3,4,6)), levels2=-21) + Strat(attr = ~strat_attr, pmat = pmat))
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, b1levels = I(1), b2levels = I(14), levels2=TRUE)) > 0))
+  expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-c(13))) == 0))
+  
+  ## should fail as we omit all pairings
+  expect_error(nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels2=TRUE) + Strat(attr = ~strat_attr, pmat = pmat)))  
+})
