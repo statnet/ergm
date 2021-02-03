@@ -92,7 +92,7 @@ test_dind_constr(y0, ~observed, Mmin, Mmax) # in the block OR unobserved
 
 # Set up:
 data(sampson)
-fix_g <- coef(ergm(samplike~edges, constraints=~Dyads(~nodematch("group"))))
+fix_g <- coef(ergm(samplike~edges, constraints=~Dyads(~nodematch("group")), control=control.ergm(force.main=TRUE))) # Test MCMC.
 vary_g <- coef(ergm(samplike~edges, constraints=~Dyads(vary=~nodematch("group"))))
 fix_g_and_c <- coef(ergm(samplike~edges, constraints=~Dyads(~nodematch("group")+nodematch("cloisterville"))))
 fix_g_vary_c <- coef(ergm(samplike~edges, constraints=~Dyads(~nodematch("group"),~nodematch("cloisterville"))))
@@ -105,7 +105,7 @@ g <- outer(samplike%v%"group",samplike%v%"group",FUN=`==`)
 c <- outer(samplike%v%"cloisterville",samplike%v%"cloisterville",FUN=`==`)
 n <- network.size(samplike)
 logit <- function(p) log(p/(1-p))
-stopifnot(isTRUE(all.equal(fix_g,logit(sum((!g)*m)/(sum(!g))),check.attributes=FALSE)))
+stopifnot(isTRUE(all.equal(fix_g,logit(sum((!g)*m)/(sum(!g))),tolerance=.01,check.attributes=FALSE)))
 stopifnot(isTRUE(all.equal(vary_g,logit(sum(g*m)/(sum(g)-n)),check.attributes=FALSE)))
 stopifnot(isTRUE(all.equal(fix_g_and_c,logit(sum((!g&!c)*m)/(sum(!g&!c))),check.attributes=FALSE)))
 stopifnot(isTRUE(all.equal(fix_g_vary_c,logit(sum((!g|c)*m)/(sum(!g|c)-n)),check.attributes=FALSE)))

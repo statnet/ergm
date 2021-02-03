@@ -114,7 +114,7 @@ DyadGen *DyadGenInitializeR(SEXP pR, void *any_nwp, Rboolean el){
   case WtRLEBDM1DGen:
     // RLEBDM1D's unpacking function expects a double **.
     {
-      double *tmp = REAL(getListElement(pR, "dyads"));
+      double *tmp = REAL(getListElement(dgR, "dyads"));
       return DyadGenInitialize(type, &tmp, track);
     }
   case EdgeListGen:
