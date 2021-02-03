@@ -175,10 +175,10 @@ InitErgmConstraint.bd<-function(lhs.nw, attribs=NULL, maxout=NA, maxin=NA, minou
 
 InitErgmConstraint.blocks <- function(lhs.nw, attr = NULL, levels = NULL, levels2 = FALSE, b1levels = NULL, b2levels = NULL, ...) {
   if(...length()) ergm_Init_abort(paste0("Unrecognised argument(s) ", paste.and(names(list(...)), oq = "'", cq = "'"), "."))
-  
-  if(is.bipartite(lhs.nw)) {    
-    b1nodecov <- NVL2(attr, ergm_get_vattr(attr, lhs.nw, bip="b1"), rep(1, lhs.nw %n% "bipartite"))
-    b2nodecov <- NVL2(attr, ergm_get_vattr(attr, lhs.nw, bip="b2"), rep(1, network.size(lhs.nw) - (lhs.nw %n% "bipartite")))
+    
+  if(is.bipartite(lhs.nw)) {
+    b1nodecov <- NVL2(attr, ergm_get_vattr(attr, lhs.nw, bip = "b1"), rep(1, lhs.nw %n% "bipartite"))
+    b2nodecov <- NVL2(attr, ergm_get_vattr(attr, lhs.nw, bip = "b2"), rep(1, network.size(lhs.nw) - (lhs.nw %n% "bipartite")))
     
     b1namescov <- ergm_attr_levels(b1levels, b1nodecov, lhs.nw, sort(unique(b1nodecov)))
     b2namescov <- ergm_attr_levels(b2levels, b2nodecov, lhs.nw, sort(unique(b2nodecov)))
@@ -191,30 +191,26 @@ InitErgmConstraint.blocks <- function(lhs.nw, attr = NULL, levels = NULL, levels
    
     levels2.sel <- ergm_attr_levels(levels2, list(row = b1nodecov, col = b2nodecov), lhs.nw, levels2.list)
     
-    rows2keep <- match(levels2.sel, levels2.list, NA)
+    rows2keep <- match(levels2.sel,levels2.list, NA)
     rows2keep <- rows2keep[!is.na(rows2keep)]
-    
+  
     u <- indices2.grid[rows2keep,]
   
-    # Recode to numeric
     b1nodecov <- match(b1nodecov, b1namescov, nomatch = length(b1namescov) + 1)
     b2nodecov <- match(b2nodecov, b2namescov, nomatch = length(b2namescov) + 1)
-    
+      
+    nodecov <- c(b1nodecov, b2nodecov)
+                                           
     u[,2L] <- u[,2L] - nr
-                                               
     amat <- matrix(TRUE, nrow = nr + 1, ncol = nc + 1)
     amat[as.matrix(u)] <- FALSE
-
-    bd_row_levels <- seq_len(nr + 1)
-    bd_col_levels <- seq_len(nc + 1)
-    bd_levels <- c(bd_row_levels, bd_col_levels + length(bd_row_levels))
     
-    bd_row_nodecov <- b1nodecov
-    bd_col_nodecov <- b2nodecov
-    bd_nodecov <- c(bd_row_nodecov, bd_col_nodecov + length(bd_row_levels))
+    row_nodecov <- b1nodecov
+    col_nodecov <- b2nodecov
+    
   } else {
     nodecov <- NVL2(attr, ergm_get_vattr(attr, lhs.nw), rep(1, network.size(lhs.nw)))
-
+  
     u <- ergm_attr_levels(levels, nodecov, lhs.nw, sort(unique(nodecov)))
     namescov <- u 
     
@@ -226,52 +222,37 @@ InitErgmConstraint.blocks <- function(lhs.nw, attr = NULL, levels = NULL, levels
     uun <- as.vector(outer(u,u,paste,sep="."))
     
     if(!is.directed(lhs.nw)) {
-      rowleqcol <- indices2.grid$row <= indices2.grid$col
-      levels2.list <- levels2.list[rowleqcol]
-      indices2.grid <- indices2.grid[rowleqcol,]
-      uun <- uun[rowleqcol]
+        rowleqcol <- indices2.grid$row <= indices2.grid$col
+        levels2.list <- levels2.list[rowleqcol]
+        indices2.grid <- indices2.grid[rowleqcol,]
+        uun <- uun[rowleqcol]
     }    
-    
+   
     levels2.sel <- ergm_attr_levels(levels2, list(row = nodecov, col = nodecov), lhs.nw, levels2.list)
     
-    rows2keep <- match(levels2.sel, levels2.list, NA)
+    rows2keep <- match(levels2.sel,levels2.list, NA)
     rows2keep <- rows2keep[!is.na(rows2keep)]
   
     u <- indices2.grid[rows2keep,]
     uun <- uun[rows2keep]
 
     nodecov <- match(nodecov, namescov, nomatch = length(namescov) + 1)
-        
+    
     amat <- matrix(TRUE, nrow = nr + 1, ncol = nc + 1)
     amat[as.matrix(u)] <- FALSE
-
-    bd_row_levels <- seq_len(nr + 1)
-    bd_col_levels <- seq_len(nc + 1)
-    bd_levels <- bd_row_levels
+    if(!is.directed(lhs.nw)) amat <- amat & t(amat)
     
-    bd_row_nodecov <- nodecov
-    bd_col_nodecov <- nodecov    
-    bd_nodecov <- bd_row_nodecov    
-  }
-  
-  # now used in the BD*TNT C code as blocks can constrain ties and not just non-ties
-  if(!is.bipartite(lhs.nw)) {
-    amat_C <- amat
-    if(!is.directed(lhs.nw)) {
-      amat_C <- amat_C & t(amat_C)
-    }
-  } else {
-    amat_C <- matrix(FALSE, nrow = length(bd_levels), ncol = length(bd_levels))
-    amat_C[seq_len(nr + 1), -seq_len(nr + 1)] <- amat
-  }
-  
-  if(!is.directed(lhs.nw) && !is.bipartite(lhs.nw)) {
-    amat[lower.tri(amat, diag = FALSE)] <- FALSE
-  }
-  
-  ## dyad-independent constraint
-  dependence <- FALSE
+    row_nodecov <- nodecov
+    col_nodecov <- nodecov
+    
+  }  
 
+  if(is.directed(lhs.nw)) {
+    constrain <- "blocksdir"
+  } else {
+    constrain <- "blocks"
+  }
+  
   n <- as.integer(network.size(lhs.nw))
 
   if(is.bipartite(lhs.nw)) {
@@ -281,42 +262,13 @@ InitErgmConstraint.blocks <- function(lhs.nw, attr = NULL, levels = NULL, levels
     b1 <- 0L
     b2 <- 0L
   }
-
-  allowed.attrs <- which(amat, arr.ind = TRUE)
-  allowed.tails <- allowed.attrs[,1]
-  allowed.heads <- allowed.attrs[,2]
-    
-  if(is.bipartite(lhs.nw)) {
-    allowed.heads <- allowed.heads + length(bd_row_levels)  
-  }
-
-  ncodes <- length(bd_levels)
-  
-  # record number of nodes of each type
-  nodecountsbycode <- tabulate(bd_nodecov, nbins=length(bd_levels))
-  
-  ## the general levels stuff above can introduce pairs of levels that have no dyads; this 
-  ## removes those pairings before we pass to the C code, so we don't waste time in iterations
-  pairs_to_keep <- (allowed.tails != allowed.heads & nodecountsbycode[allowed.tails] > 0 & nodecountsbycode[allowed.heads] > 0) | (allowed.tails == allowed.heads & nodecountsbycode[allowed.tails] > 1)
-  allowed.tails <- allowed.tails[pairs_to_keep]
-  allowed.heads <- allowed.heads[pairs_to_keep]
-  
-  if(is.directed(lhs.nw)) {
-    constrain <- "blocksdir"
-  } else {
-    constrain <- "blocks"
-  }
-
-  if(!is.directed(lhs.nw) && !is.bipartite(lhs.nw)) {
-    amat <- amat | t(amat)
-  }
   
   rm(lhs.nw) # All needed information has now been extracted from lhs.nw.
 
   free_dyads <- function() {
-    rle_list <- vector(mode = "list", length = length(bd_col_levels))
-    for(i in seq_along(bd_col_levels)) {
-      rle_list[[i]] <- rle(c(amat[bd_row_nodecov,i], logical(b2)))
+    rle_list <- vector(mode = "list", length = nc + 1)
+    for(i in seq_len(nc + 1)) {
+      rle_list[[i]] <- rle(c(amat[row_nodecov,i], logical(b2)))
     }
 
     lens <- vector(mode = "list", length = n)
@@ -324,8 +276,8 @@ InitErgmConstraint.blocks <- function(lhs.nw, attr = NULL, levels = NULL, levels
 
     for(i in seq_len(n)) {
       if(i > b1) {
-        lens[[i]] <- rle_list[[bd_col_nodecov[i - b1]]]$lengths
-        vals[[i]] <- rle_list[[bd_col_nodecov[i - b1]]]$values
+        lens[[i]] <- rle_list[[col_nodecov[i - b1]]]$lengths
+        vals[[i]] <- rle_list[[col_nodecov[i - b1]]]$values
       } else {
         lens[[i]] <- n
         vals[[i]] <- FALSE
@@ -336,15 +288,10 @@ InitErgmConstraint.blocks <- function(lhs.nw, attr = NULL, levels = NULL, levels
   }
 
   list(constrain = constrain,
-       dependence = dependence, 
-       free_dyads = free_dyads, 
-       nlevels = ncodes,
-       nodecountsbycode = nodecountsbycode,
-       nmixtypes = length(allowed.tails),
-       allowed.tails = allowed.tails,
-       allowed.heads = allowed.heads,
-       nodecov = bd_nodecov,
-       amat_C = amat_C)
+       dependence = FALSE, 
+       free_dyads = free_dyads,
+       nodecov = nodecov,
+       amat = amat)
 }
 
 

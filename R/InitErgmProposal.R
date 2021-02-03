@@ -68,9 +68,36 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   if(is.null(arguments$constraints$Strat) || any(!unlist(lapply(arguments[c("Strat_attr", "pmat", "empirical")], is.null)))) {
     arguments$constraints$Strat <- InitErgmConstraint.Strat(nw, attr = arguments[["Strat_attr"]], pmat = arguments[["pmat"]], empirical = arguments[["empirical"]])
   }
+
+  nodecov <- arguments$constraints$blocks$nodecov
+  amat <- arguments$constraints$blocks$amat
+
+  if(is.bipartite(nw)) {
+    nodecov[-seq_len(nw %n% "bipartite")] <- nodecov[-seq_len(nw %n% "bipartite")] + NROW(amat)
+    pairs_mat <- matrix(FALSE, nrow = NROW(amat) + NCOL(amat), ncol = NROW(amat) + NCOL(amat))
+    pairs_mat[seq_len(NROW(amat)), -seq_len(NROW(amat))] <- amat
+  } else if(!is.directed(nw)) {
+    pairs_mat <- amat
+    pairs_mat[lower.tri(pairs_mat, diag = FALSE)] <- FALSE
+  } else {
+    pairs_mat <- amat
+  }
   
-  allowed.tails <- arguments$constraints$blocks$allowed.tails
-  allowed.heads <- arguments$constraints$blocks$allowed.heads
+  allowed.attrs <- which(pairs_mat, arr.ind = TRUE)
+  allowed.tails <- allowed.attrs[,1]
+  allowed.heads <- allowed.attrs[,2]  
+
+  nlevels <- NROW(pairs_mat)
+  nodecountsbycode <- tabulate(nodecov, nbins = nlevels)
+  
+  if(!is.directed(nw) && !is.bipartite(nw)) {
+    pairs_mat <- pairs_mat | t(pairs_mat)
+  }
+  
+  pairs_to_keep <- (allowed.tails != allowed.heads & nodecountsbycode[allowed.tails] > 0 & nodecountsbycode[allowed.heads] > 0) | (allowed.tails == allowed.heads & nodecountsbycode[allowed.tails] > 1)
+  allowed.tails <- allowed.tails[pairs_to_keep]
+  allowed.heads <- allowed.heads[pairs_to_keep]
+  
   
   bd_offdiag_pairs <- which(allowed.tails != allowed.heads)  
   
@@ -81,7 +108,7 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   bd_mixtypes <- c(length(bd_tails), length(allowed.tails))
     
   # for economy of C space, best to count # of nodes of each bd-strat pairing
-  nodecountsbypairedcode <- as.integer(table(from=factor(arguments$constraints$blocks$nodecov, levels=seq_len(arguments$constraints$blocks$nlevels)), to=factor(arguments$constraints$Strat$nodecov, levels=seq_len(arguments$constraints$Strat$nlevels))))
+  nodecountsbypairedcode <- as.integer(table(from=factor(nodecov, levels=seq_len(nlevels)), to=factor(arguments$constraints$Strat$nodecov, levels=seq_len(arguments$constraints$Strat$nlevels))))
   
   proposal <- list(name = "BDStratTNT",
                    inputs = NULL, # passed by name below
@@ -94,13 +121,13 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
                    indmat = as.integer(t(arguments$constraints$Strat$indmat)), 
                    nodecountsbypairedcode = as.integer(nodecountsbypairedcode),
                    bound = as.integer(bound),
-                   bd_levels = as.integer(arguments$constraints$blocks$nlevels),
-                   bd_vattr = as.integer(arguments$constraints$blocks$nodecov - 1L),
+                   bd_levels = as.integer(nlevels),
+                   bd_vattr = as.integer(nodecov - 1L),
                    bd_tails = as.integer(bd_tails - 1L),
                    bd_heads = as.integer(bd_heads - 1L),
                    bd_mixtypes = as.integer(bd_mixtypes),
                    empirical_flag = as.integer(arguments$constraints$Strat$empirical),
-                   amat_C = as.integer(t(arguments$constraints$blocks$amat_C)))
+                   amat = as.integer(t(pairs_mat)))
 
   proposal
 }
@@ -119,16 +146,47 @@ InitErgmProposal.BDTNT <- function(arguments, nw) {
     arguments$constraints$blocks <- InitErgmConstraint.blocks(nw, attr = arguments[["attr"]], levels = arguments[["levels"]], levels2 = NVL(arguments[["levels2"]], FALSE), b1levels = arguments[["b1levels"]], b2levels = arguments[["b2levels"]])
   }
 
+  nodecov <- arguments$constraints$blocks$nodecov
+  amat <- arguments$constraints$blocks$amat
+
+  if(is.bipartite(nw)) {
+    nodecov[-seq_len(nw %n% "bipartite")] <- nodecov[-seq_len(nw %n% "bipartite")] + NROW(amat)
+    pairs_mat <- matrix(FALSE, nrow = NROW(amat) + NCOL(amat), ncol = NROW(amat) + NCOL(amat))
+    pairs_mat[seq_len(NROW(amat)), -seq_len(NROW(amat))] <- amat
+  } else if(!is.directed(nw)) {
+    pairs_mat <- amat
+    pairs_mat[lower.tri(pairs_mat, diag = FALSE)] <- FALSE
+  } else {
+    pairs_mat <- amat
+  }
+  
+  allowed.attrs <- which(pairs_mat, arr.ind = TRUE)
+  allowed.tails <- allowed.attrs[,1]
+  allowed.heads <- allowed.attrs[,2]  
+
+  nlevels <- NROW(pairs_mat)
+  nodecountsbycode <- tabulate(nodecov, nbins = nlevels)
+  
+  if(!is.directed(nw) && !is.bipartite(nw)) {
+    pairs_mat <- pairs_mat | t(pairs_mat)
+  }
+  
+  pairs_to_keep <- (allowed.tails != allowed.heads & nodecountsbycode[allowed.tails] > 0 & nodecountsbycode[allowed.heads] > 0) | (allowed.tails == allowed.heads & nodecountsbycode[allowed.tails] > 1)
+  allowed.tails <- allowed.tails[pairs_to_keep]
+  allowed.heads <- allowed.heads[pairs_to_keep]
+  
+  nmixtypes <- length(allowed.tails)
+  
   proposal <- list(name = "BDTNT", 
                    inputs = NULL, # passed by name below
                    bound = as.integer(bound),
-                   nlevels = as.integer(arguments$constraints$blocks$nlevels),
-                   nodecountsbycode = as.integer(arguments$constraints$blocks$nodecountsbycode),
-                   nmixtypes = as.integer(arguments$constraints$blocks$nmixtypes),
-                   allowed.tails = as.integer(arguments$constraints$blocks$allowed.tails - 1L),
-                   allowed.heads = as.integer(arguments$constraints$blocks$allowed.heads - 1L),
-                   nodecov = as.integer(arguments$constraints$blocks$nodecov - 1L),
-                   amat_C = as.integer(t(arguments$constraints$blocks$amat_C)))
+                   nlevels = as.integer(nlevels),
+                   nodecountsbycode = as.integer(nodecountsbycode),
+                   nmixtypes = as.integer(nmixtypes),
+                   allowed.tails = as.integer(allowed.tails - 1L),
+                   allowed.heads = as.integer(allowed.heads - 1L),
+                   nodecov = as.integer(nodecov - 1L),
+                   amat = as.integer(t(pairs_mat)))
                    
   proposal
 }

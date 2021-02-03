@@ -135,7 +135,7 @@ MH_I_FN(Mi_BDStratTNT) {
   }
 
   sto->amat = Calloc(sto->nbdlevels, int *);
-  sto->amat[0] = INTEGER(getListElement(MHp->R, "amat_C"));
+  sto->amat[0] = INTEGER(getListElement(MHp->R, "amat"));
   for(int i = 1; i < sto->nbdlevels; i++) {
     sto->amat[i] = sto->amat[i - 1] + sto->nbdlevels;
   }
@@ -521,7 +521,7 @@ MH_I_FN(Mi_BDTNT) {
   }
   
   sto->amat = Calloc(sto->nlevels, int *);
-  sto->amat[0] = INTEGER(getListElement(MHp->R, "amat_C"));
+  sto->amat[0] = INTEGER(getListElement(MHp->R, "amat"));
   for(int i = 1; i < sto->nlevels; i++) {
     sto->amat[i] = sto->amat[i - 1] + sto->nlevels;
   }  
