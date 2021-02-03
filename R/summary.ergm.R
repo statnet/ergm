@@ -98,8 +98,6 @@ summary.ergm <- function (object, ...,
   }
 
   
-  nodes<- network.size(object$network)
-
   ans <- list(formula=object$formula,
               call=object$call,
               correlation=correlation,
@@ -113,11 +111,6 @@ summary.ergm <- function (object, ...,
               estimate.desc=object$estimate.desc,
               control=object$control)
   
-  nodes<- network.size(object$network)
-  dyads<- sum(as.rlebdm(object$constrained, object$constrained.obs, which="informative"))
-  df <- length(object$coef)
-
-
   asycov <- vcov(object, sources=if(total.variation) "all" else "model")
   asyse <- sqrt(diag(asycov))
   # Convert to % error  
@@ -130,7 +123,6 @@ summary.ergm <- function (object, ...,
     est.pct[!is.na(est.se)] <- ifelse(est.se[!is.na(est.se)]>0, round(100*(tot.se[!is.na(est.se)]-mod.se[!is.na(est.se)])/tot.se[!is.na(est.se)]), 0)
   }
 
-  rdf <- dyads - df
   zval <- object$coef / asyse
   pval <- 2 * pnorm(q=abs(zval), lower.tail=FALSE)
   
@@ -164,6 +156,9 @@ summary.ergm <- function (object, ...,
 
   if(inherits(mle.lik,"try-error")) ans$objname<-deparse(substitute(object))
   else if(!is.na(mle.lik)){
+    df <- coef(object)
+    dyads<- sum(as.rlebdm(object$constrained, object$constrained.obs, which="informative"))
+    rdf <- dyads - df
     ans$devtable <- matrix(c(if(is.na(null.lik)) 0 else -2*null.lik, -2*mle.lik,
                              c(dyads, rdf)), 2,2, dimnames=list(c("Null","Residual"),
                                                                 c("Resid. Dev", "Resid. Df")))
