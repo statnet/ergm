@@ -105,8 +105,6 @@
 \alias{isolates}
 \alias{istar}
 \alias{kstar}
-\alias{lCMB}
-\alias{ldegree}
 \alias{localtriangle}
 \alias{m2star}
 \alias{match}
