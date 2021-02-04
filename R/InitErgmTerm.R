@@ -175,6 +175,32 @@ LEVELS_BASE1 <- NULL
 
 
 ################################################################################
+
+#' @name absdiff
+#' 
+#' @title Absolute difference
+#' 
+#' @usage absdiff(attr, pow) # binary
+#' @usage absdiff(attr, pow, form="sum") # valued
+#' 
+#' @param attr name of vertex attribute
+#' @param pow power, default to 1
+#' 
+#' @details The attr argument specifies a quantitative attribute (see Specifying
+#'   Vertex attributes and Levels (? nodal_attributes) for details). This term
+#'   adds one network statistic to the model equaling the sum of
+#'   abs(attr[i]-attr[j])^pow for all edges (i,j) in the network. 
+#'   
+#'   Note that ergm versions 3.9.4 and earlier used different arguments for this
+#'   term. See the above section on versioning for invoking the old behavior.
+#' 
+#' @family binary
+#' @family dyad-independent
+#' @family directed
+#' @family undirected
+#' @family nodal-quantitative
+
+
 InitErgmTerm.absdiff <- function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.
