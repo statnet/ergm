@@ -91,6 +91,7 @@ summary.ergm <- function (object, ...,
   control <- object$control
   pseudolikelihood <- object$estimate=="MPLE"
   independence <- NVL(object$MPLE_is_MLE, is.dyad.independent(object))
+  coef <- coef(object)
 
   ans <- list(formula=object$formula,
               call=object$call,
@@ -117,12 +118,12 @@ summary.ergm <- function (object, ...,
     est.pct[!is.na(est.se)] <- ifelse(est.se[!is.na(est.se)]>0, round(100*(tot.se[!is.na(est.se)]-mod.se[!is.na(est.se)])/tot.se[!is.na(est.se)]), 0)
   }
 
-  zval <- object$coef / asyse
+  zval <- coef / asyse
   pval <- 2 * pnorm(q=abs(zval), lower.tail=FALSE)
   
   count <- 1
   coefmat <- cbind(
-    `Estimate` = coef(object),
+    `Estimate` = coef,
     `Std. Error` = asyse,
     `MCMC %` = est.pct,
     `z value` = zval,
@@ -150,7 +151,7 @@ summary.ergm <- function (object, ...,
 
   if(inherits(mle.lik,"try-error")) ans$objname<-deparse(substitute(object))
   else if(!is.na(mle.lik)){
-    df <- coef(object)
+    df <- length(coef)
     dyads<- sum(as.rlebdm(object$constrained, object$constrained.obs, which="informative"))
     rdf <- dyads - df
     ans$devtable <- matrix(c(if(is.na(null.lik)) 0 else -2*null.lik, -2*mle.lik,
@@ -171,4 +172,3 @@ summary.ergm <- function (object, ...,
   class(ans) <- "summary.ergm"
   ans
 }
-
