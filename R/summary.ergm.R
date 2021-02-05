@@ -91,13 +91,7 @@ summary.ergm <- function (object, ...,
   control <- object$control
   pseudolikelihood <- object$estimate=="MPLE"
   independence <- NVL(object$MPLE_is_MLE, is.dyad.independent(object))
-  
-  if(any(is.na(object$coef)) & !is.null(object$mplefit)){
-     object$coef[is.na(object$coef)] <-
-     object$mplefit$coef[is.na(object$coef)]
-  }
 
-  
   ans <- list(formula=object$formula,
               call=object$call,
               correlation=correlation,

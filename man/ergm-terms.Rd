@@ -668,7 +668,7 @@
       This term can only be
       used with undirected bipartite networks.}
 
-    \item{\code{b1cov(attr)}  (binary) (undirected) (bipartite) (dyad-independent) (quantitative nodalattribute) (frequently-used),
+    \item{\code{b1cov(attr)}  (binary) (undirected) (bipartite) (dyad-independent) (quantitative nodal attribute) (frequently-used),
       \code{b1cov(attr, form="sum")}  (valued)  (undirected) (bipartite) (dyad-independent) (quantitative nodal attribute) (frequently-used)
     }{\emph{Main effect of a covariate for
 	the first mode in a bipartite (aka two-mode) network:}
