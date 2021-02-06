@@ -263,40 +263,25 @@ ergm_MCMC_slave <- function(state, eta,control,verbose,..., burnin=NULL, samples
 
 
 .find_OK_burnin <- function(x, ...){
-  xs <- x %>% map(scale) %>% map(~.[,attr(.,"scaled:scale")>0,drop=FALSE])
+  n <- nrow(x[[1]])
   ssr <- function(b,s){
     b <- round(b)
-    n <- nrow(s)
-    a <- try(lm(s~c(seq_len(b), numeric(n-b))+ I(seq_len(n)>b)))
-    if(!inherits(a,"try-error")){
-      sum(resid(a)^2)
-    }else{
-      NA
-    }
+    a <- lm(s~c(seq_len(b), numeric(n-b))+ I(seq_len(n)>b))
+    sum(resid(a)^2)
   }
-
-  ssr_opt <- function(x){
-    a <- try(optimize(ssr, c(0, nrow(x)/2), s=x, tol=1))
-    if(!inherits(a,"try-error")){
-      a$minimum
-    }else{
-      NA
-    }
-  }
-
   geweke <- function(b){
-    if(is.na(b)) return(NA)
     if(b>0) x <- window(x, start=start(x) + b * thin(x))
     p.val <- suppressWarnings(geweke.diag.mv(x, ...)$p.value)
     if(is.na(p.val)) 0 else p.val
   }
 
-  best <- sapply(xs, ssr_opt)
-  if(all(is.na(best) | is.infinite(best))){
-    best <- NA
-  }else{
-    best <- max(best, na.rm=TRUE)
-  }
+  FAIL <- list(burnin=round(n/2), pval=0)
+  xs <- x %>% map(scale) %>% map(~.[,attr(.,"scaled:scale")>0,drop=FALSE]) %>% discard(~ncol(.)==0)
+  if(length(xs)==0) return(FAIL)
 
+  best <- sapply(xs, function(x) optimize(ssr, c(0, n/2), s=x, tol=1)$minimum)
+  if(all(is.na(best) | is.infinite(best))) return(FAIL)
+
+  best <- max(best, na.rm=TRUE)
   list(burnin=round(best), pval=geweke(round(best)))
 }
