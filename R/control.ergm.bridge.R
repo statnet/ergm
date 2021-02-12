@@ -50,7 +50,7 @@ control.ergm.bridge<-function(nsteps=20, # Number of geometric bridges to use
                               obs.MCMC.interval=MCMC.interval,
                               obs.MCMC.burnin=MCMC.burnin,
                               
-                              MCMC.prop=trim_env(~TNT),
+                              MCMC.prop=trim_env(~sparse),
                               MCMC.prop.weights="default",
                               MCMC.prop.args=list(),
                               obs.MCMC.prop=MCMC.prop,

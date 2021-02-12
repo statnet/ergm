@@ -500,7 +500,7 @@ control.ergm<-function(drop=TRUE,
                        MPLE.nonident.tol=1e-10,
                        MPLE.constraints.ignore=FALSE,
 
-                       MCMC.prop=trim_env(~TNT),
+                       MCMC.prop=trim_env(~sparse),
                        MCMC.prop.weights="default", MCMC.prop.args=list(),
                        MCMC.interval=NULL,
                        MCMC.burnin=EVL(MCMC.interval*16),

@@ -10,7 +10,7 @@
 \name{ergm-hints}
 \alias{ergm-hints}
 \alias{hints}
-\alias{TNT}
+\alias{sparse}
 \alias{Strat}
 
 \docType{methods}
@@ -23,11 +23,13 @@
 
 \section{Hints implemented in the \code{\link[=ergm-package]{ergm}} package}{
   \describe{
-    \item{\code{TNT} (dyad-independent)}{
-      Make approximately half of proposed toggles on ties and approximately half on non-ties.
+    \item{\code{sparse} (dyad-independent)}{
+      The network is sparse. This typically results in a Tie-Non-Tie (TNT) proposal regime.
     }
     \item{\code{Strat(attr=NULL, pmat=NULL, empirical=FALSE)} (dyad-independent)}{
-      Stratify proposals by mixing type on a vertex attribute.
+      The dyads in the network are stratified according to an attribute combination.
+
+      This typically results in stratifying proposals by mixing type on a vertex attribute.
 
       Specifically, the user may pass a vertex attribute \code{attr} as an argument 
       (the default for \code{attr} gives every vertex the same attribute value),

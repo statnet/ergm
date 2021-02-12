@@ -12,7 +12,7 @@ control.san(
   SAN.nsteps.alloc = function(nsim) 2^seq_len(nsim),
   SAN.nsteps = 2^19,
   SAN.samplesize = 2^12,
-  SAN.prop = trim_env(~TNT),
+  SAN.prop = trim_env(~sparse),
   SAN.prop.weights = "default",
   SAN.prop.args = list(),
   SAN.packagenames = c(),
@@ -57,7 +57,7 @@ sampled. The specification is in the form of a one-sided formula
 with hints separated by \code{+} operations. If the LHS exists and is
 a string, the proposal to be used is selected directly.
 
-A common and default "hint" is \code{~TNT} (tie / no tie), indicating
+A common and default "hint" is \code{~sparse}, indicating
 that the network is sparse and that the sample should put roughly
 equal weight on selecting a dyad with or without a tie as a
 candidate for toggling.}

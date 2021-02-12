@@ -59,7 +59,7 @@
 #' @export control.simulate.formula.ergm
 control.simulate.formula.ergm<-function(MCMC.burnin=MCMC.interval*16,
                                         MCMC.interval=1024,
-                                        MCMC.prop=trim_env(~TNT),
+                                        MCMC.prop=trim_env(~sparse),
                                         MCMC.prop.weights="default",
                                         MCMC.prop.args=list(),
                                         

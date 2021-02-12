@@ -294,8 +294,8 @@ c.ergm_conlist <- function(...){
 #' documentation for a similar argument for \code{\link{ergm}} and see
 #' [list of implemented constraints][ergm-constraints] for more information.
 #' @export
-ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~TNT), weights="default", class="c", reference=~Bernoulli, ...) {
-  NVL(hints) <- trim_env(~TNT)
+ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~sparse), weights="default", class="c", reference=~Bernoulli, ...) {
+  NVL(hints) <- trim_env(~sparse)
 
   if(is(reference, "formula")){
     f <- locate_prefixed_function(reference[[2]], "InitErgmReference", "Reference distribution")

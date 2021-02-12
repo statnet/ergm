@@ -22,7 +22,7 @@ control.ergm(
   MPLE.nonident = c("warning", "message", "error"),
   MPLE.nonident.tol = 1e-10,
   MPLE.constraints.ignore = FALSE,
-  MCMC.prop = trim_env(~TNT),
+  MCMC.prop = trim_env(~sparse),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
   MCMC.interval = NULL,
@@ -306,7 +306,7 @@ sampled. The specification is in the form of a one-sided formula
 with hints separated by \code{+} operations. If the LHS exists and is
 a string, the proposal to be used is selected directly.
 
-A common and default "hint" is \code{~TNT} (tie / no tie), indicating
+A common and default "hint" is \code{~sparse}, indicating
 that the network is sparse and that the sample should put roughly
 equal weight on selecting a dyad with or without a tie as a
 candidate for toggling.}

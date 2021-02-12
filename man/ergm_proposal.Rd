@@ -17,7 +17,7 @@ ergm_proposal(object, ...)
   object,
   arguments,
   nw,
-  hints = trim_env(~TNT),
+  hints = trim_env(~sparse),
   weights = "default",
   class = "c",
   reference = ~Bernoulli,

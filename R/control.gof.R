@@ -84,7 +84,7 @@
 control.gof.formula<-function(nsim=100,
                               MCMC.burnin=10000,
                               MCMC.interval=1000,
-                              MCMC.prop=trim_env(~TNT),
+                              MCMC.prop=trim_env(~sparse),
                               MCMC.prop.weights="default",
                               MCMC.prop.args=list(),
                               
