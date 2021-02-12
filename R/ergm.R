@@ -786,11 +786,13 @@ ergm <- function(formula, response=NULL,
 
   switch(control$init.method,
          MPLE = NVL3(initialfit$xmat.full, check_nonidentifiability(., initialfit$coef, model,
-                                         tol = control$MPLE.nonident.tol, type="covariates",
-                                         action = control$MPLE.nonident)),
+                                                                    tol = control$MPLE.nonident.tol, type="covariates",
+                                                                    nonident_action = control$MPLE.nonident,
+                                                                    nonvar_action = control$MPLE.nonvar)),
          CD = NVL3(initialfit$sample, check_nonidentifiability(as.matrix(.), initialfit$coef, model,
-                                       tol = control$MPLE.nonident.tol, type="statistics",
-                                       action = control$MPLE.nonident))
+                                                               tol = control$MPLE.nonident.tol, type="statistics",
+                                                               nonident_action = control$MPLE.nonident,
+                                                               nonvar_action = control$MPLE.nonvar))
          )
 
   estimate.desc <- switch(estimate,

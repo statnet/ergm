@@ -305,7 +305,8 @@ ergm.MCMLE <- function(init, nw, model,
 
     check_nonidentifiability(esteq, NULL, model,
                              tol = control$MCMLE.nonident.tol, type="statistics",
-                             action = control$MCMLE.nonident)
+                             nonident_action = control$MCMLE.nonident,
+                             nonvar_action = control$MCMLE.nonvar)
 
     esteqs.obs <- if(obs) ergm.estfun(statsmatrices.obs, theta=mcmc.init, model=model) else NULL
     esteq.obs <- if(obs) as.matrix(esteqs.obs) else NULL

@@ -24,4 +24,9 @@ test_that("Model identifiable only due to offsets does not.", {
   expect_warning(ergm(flomarriage~edges+offset(nodecov(~wealth))+nodecov(~-wealth/2+1)+gwesp(fixed=FALSE), offset.coef=-1, control=control.ergm(MCMLE.maxit=1)),NA)
 })
 
+test_that("Nonvarying statistics are detected and are not misdetected as nonidentifiable.", {
+  expect_warning(ergm(flomarriage~edges+nodecov(~wealth)+nodematch(~priorates<20), constraints=~Dyads(fix=~nodematch(~priorates<20)), control=control.ergm(MPLE.nonident="error")),".*nodematch\\.priorates<20.*\\bnot varying\\b.*")
+  expect_warning(ergm(flomarriage~edges+nodecov(~wealth)+nodematch(~priorates<20), constraints=~Dyads(fix=~nodematch(~priorates<20)), control=control.ergm(init.method="CD",MPLE.nonident="error")),".*nodematch\\.priorates<20.*\\bnot varying\\b.*")
+})
+
 options(o)

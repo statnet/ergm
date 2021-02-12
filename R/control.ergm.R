@@ -108,7 +108,7 @@
 #' implementation of MPLE.
 #'
 #' @param
-#'   MPLE.nonident,MPLE.nonident.tol,MCMLE.nonident,MCMLE.nonident.tol
+#'   MPLE.nonident,MPLE.nonident.tol,MPLE.nonvar,MCMLE.nonident,MCMLE.nonident.tol,MCMLE.nonvar
 #'   A rudimentary nonidentifiability/multicollinearity diagnostic. If
 #'   `MPLE.nonident.tol > 0`, test the MPLE covariate matrix or the CD
 #'   statistics matrix has linearly dependent columns via [QR
@@ -116,9 +116,12 @@
 #'   often (not always) indicative of a non-identifiable
 #'   (multicollinear) model. If nonidentifiable, depending on
 #'   `MPLE.nonident` issue a warning, an error, or a message
-#'   specifying the potentially redundant statistics. The
-#'   corresponding `MCMLE.*` arguments provide a similar diagnostic
-#'   for the unconstrained MCMC sample's estimating functions.
+#'   specifying the potentially redundant statistics. Before the
+#'   diagnostic is performed, covariates that do not vary (i.e.,
+#'   all-zero columns) are dropped, with their handling controlled by
+#'   `MPLE.nonvar`. The corresponding `MCMLE.*` arguments provide a
+#'   similar diagnostic for the unconstrained MCMC sample's estimating
+#'   functions.
 #'
 #' @param MPLE.constraints.ignore If `TRUE`, MPLE will ignore all
 #'   dyad-independent constraints except for those due to attributes
@@ -492,6 +495,7 @@ control.ergm<-function(drop=TRUE,
                        init.MPLE.samplesize=function(d,e) max(sqrt(d),e,40)*8,
                        MPLE.type=c("glm", "penalized","logitreg"),
                        MPLE.maxit=10000,
+                       MPLE.nonvar=c("warning","message","error"),
                        MPLE.nonident=c("warning","message","error"),
                        MPLE.nonident.tol=1e-10,
                        MPLE.constraints.ignore=FALSE,
@@ -592,6 +596,7 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.steplength.min=0.0001,
                        MCMLE.effectiveSize.interval_drop=2,
                        MCMLE.save_intermediates=NULL,
+                       MCMLE.nonvar=c("message","warning","error"),
                        MCMLE.nonident=c("warning","message","error"),
                        MCMLE.nonident.tol=1e-10,
 
@@ -674,7 +679,7 @@ control.ergm<-function(drop=TRUE,
                        SAN.burnin.times="SAN.nsteps.times"
                        )
 
-  match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method","MCMLE.steplength.parallel","CD.steplength.parallel","MPLE.nonident","MCMLE.nonident")
+  match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method","MCMLE.steplength.parallel","CD.steplength.parallel","MPLE.nonident","MPLE.nonvar","MCMLE.nonvar","MCMLE.nonident")
   
   control<-list()
   formal.args<-formals(sys.function())
