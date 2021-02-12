@@ -732,11 +732,13 @@ ergm <- function(formula, response=NULL,
 
   switch(control$init.method,
          MPLE = NVL3(initialfit$xmat.full, check_nonidentifiability(., initialfit$coef, model.initial,
-                                         tol = control$MPLE.nonident.tol, type="covariates",
-                                         action = control$MPLE.nonident)),
+                                                                    tol = control$MPLE.nonident.tol, type="covariates",
+                                                                    nonident_action = control$MPLE.nonident,
+                                                                    nonvar_action = control$MPLE.nonvar)),
          CD = NVL3(initialfit$sample, check_nonidentifiability(as.matrix(.), initialfit$coef, model.initial,
-                                       tol = control$MPLE.nonident.tol, type="statistics",
-                                       action = control$MPLE.nonident))
+                                                               tol = control$MPLE.nonident.tol, type="statistics",
+                                                               nonident_action = control$MPLE.nonident,
+                                                               nonvar_action = control$MPLE.nonvar))
          )
 
   if (!MCMCflag){ # Just return initial (non-MLE) fit and exit.
