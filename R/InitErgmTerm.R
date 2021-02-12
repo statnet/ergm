@@ -177,29 +177,35 @@ LEVELS_BASE1 <- NULL
 ################################################################################
 
 #' @name absdiff
-#' 
+#' @aliases absdiff2
 #' @title Absolute difference
+#' @description Absolute difference in nodal attribute. The `attr` argument
+#'   specifies a quantitative attribute (see Specifying Vertex attributes and
+#'   Levels (`?nodal_attributes`) for details). This term adds one network
+#'   statistic to the model equaling the sum of `abs(attr[i]-attr[j])^pow` for
+#'   all edges `(i,j)` in the network.
+#'
+#'   Note that ergm versions 3.9.4 and earlier used different arguments for this
+#'   term. See the above section on versioning for invoking the old behavior.
 #' 
-#' @usage absdiff(attr, pow) # binary
-#' @usage absdiff(attr, pow, form="sum") # valued
+#' @section Usage:
+#' 
+#' ```{r, eval=FALSE}
+#' absdiff(attr, pow) # binary
+#' absdiff(attr, pow, form="sum") # valued
+#' ```
 #' 
 #' @param attr name of vertex attribute
 #' @param pow power, default to 1
 #' 
-#' @details The attr argument specifies a quantitative attribute (see Specifying
-#'   Vertex attributes and Levels (? nodal_attributes) for details). This term
-#'   adds one network statistic to the model equaling the sum of
-#'   abs(attr[i]-attr[j])^pow for all edges (i,j) in the network. 
-#'   
-#'   Note that ergm versions 3.9.4 and earlier used different arguments for this
-#'   term. See the above section on versioning for invoking the old behavior.
+#' @details 
 #' 
 #' @family binary
 #' @family dyad-independent
 #' @family directed
 #' @family undirected
 #' @family nodal-quantitative
-
+NULL
 
 InitErgmTerm.absdiff <- function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
@@ -1932,6 +1938,30 @@ InitErgmTerm.edgecov <- function(nw, arglist, ...) {
 }
 
 ################################################################################
+
+
+
+#' @name edges
+#' @aliases edges2
+#' @title Edges
+#' @description This term adds one network statistic equal to the number of
+#'   edges (i.e. nonzero values) in the network. For undirected networks, `edges`
+#'   is equal to `kstar(1)`; for directed networks, edges is equal to both
+#'   `ostar(1)` and `istar(1)`.
+#' 
+#' @section Usage:
+#' 
+#' ```{r, eval=FALSE}
+#' edges
+#' ```
+#' 
+#' @family binary
+#' @family valued
+#' @family dyad-independent 
+#' @family directed
+#' @family undirected
+NULL
+
 InitErgmTerm.edges<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = NULL,

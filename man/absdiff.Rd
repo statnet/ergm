@@ -2,29 +2,44 @@
 % Please edit documentation in R/InitErgmTerm.R
 \name{absdiff}
 \alias{absdiff}
-\alias{InitErgmTerm.absdiff}
+\alias{absdiff2}
 \title{Absolute difference}
-\usage{
-absdiff(attr, pow) # binary
-
-absdiff(attr, pow, form="sum") # valued
-}
 \arguments{
 \item{attr}{name of vertex attribute}
 
 \item{pow}{power, default to 1}
 }
 \description{
-Absolute difference
-}
-\details{
-The attr argument specifies a quantitative attribute (see Specifying
-Vertex attributes and Levels (? nodal_attributes) for details). This term
-adds one network statistic to the model equaling the sum of
-abs(attr\link{i}-attr\link{j})^pow for all edges (i,j) in the network.
+Absolute difference in nodal attribute. The \code{attr} argument
+specifies a quantitative attribute (see Specifying Vertex attributes and
+Levels (\code{?nodal_attributes}) for details). This term adds one network
+statistic to the model equaling the sum of \code{abs(attr[i]-attr[j])^pow} for
+all edges \verb{(i,j)} in the network.
 
 Note that ergm versions 3.9.4 and earlier used different arguments for this
 term. See the above section on versioning for invoking the old behavior.
+}
+\details{
+
+}
+\section{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{absdiff(attr, pow) # binary
+absdiff(attr, pow, form="sum") # valued
+}\if{html}{\out{</div>}}
+}
+
+\seealso{
+Other binary: 
+\code{\link{edges}}
+
+Other dyad-independent: 
+\code{\link{edges}}
+
+Other directed: 
+\code{\link{edges}}
+
+Other undirected: 
+\code{\link{edges}}
 }
 \concept{binary}
 \concept{directed}
