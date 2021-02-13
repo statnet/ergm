@@ -4,6 +4,10 @@
 \alias{absdiff}
 \alias{absdiff2}
 \title{Absolute difference}
+\usage{
+# absdiff(attr, pow) # binary
+# absdiff(attr, pow, form="sum") # valued
+}
 \arguments{
 \item{attr}{name of vertex attribute}
 
@@ -19,15 +23,6 @@ all edges \verb{(i,j)} in the network.
 Note that ergm versions 3.9.4 and earlier used different arguments for this
 term. See the above section on versioning for invoking the old behavior.
 }
-\details{
-
-}
-\section{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{absdiff(attr, pow) # binary
-absdiff(attr, pow, form="sum") # valued
-}\if{html}{\out{</div>}}
-}
-
 \seealso{
 Other binary: 
 \code{\link{edges}}

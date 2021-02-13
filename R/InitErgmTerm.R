@@ -188,17 +188,12 @@ LEVELS_BASE1 <- NULL
 #'   Note that ergm versions 3.9.4 and earlier used different arguments for this
 #'   term. See the above section on versioning for invoking the old behavior.
 #' 
-#' @section Usage:
-#' 
-#' ```{r, eval=FALSE}
-#' absdiff(attr, pow) # binary
-#' absdiff(attr, pow, form="sum") # valued
-#' ```
+#' @usage
+#' # absdiff(attr, pow) # binary
+#' # absdiff(attr, pow, form="sum") # valued
 #' 
 #' @param attr name of vertex attribute
 #' @param pow power, default to 1
-#' 
-#' @details 
 #' 
 #' @family binary
 #' @family dyad-independent
@@ -1949,11 +1944,8 @@ InitErgmTerm.edgecov <- function(nw, arglist, ...) {
 #'   is equal to `kstar(1)`; for directed networks, edges is equal to both
 #'   `ostar(1)` and `istar(1)`.
 #' 
-#' @section Usage:
-#' 
-#' ```{r, eval=FALSE}
-#' edges
-#' ```
+#' @usage
+#' # edges
 #' 
 #' @family binary
 #' @family valued

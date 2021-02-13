@@ -4,6 +4,9 @@
 \alias{edges}
 \alias{edges2}
 \title{Edges}
+\usage{
+# edges
+}
 \description{
 This term adds one network statistic equal to the number of
 edges (i.e. nonzero values) in the network. For undirected networks, \code{edges}
@@ -16,11 +19,6 @@ is equal to \code{kstar(1)}; for directed networks, edges is equal to both
 \item \link[=edges-constraint]{An ERGM sample space constraint} (\code{help("edges-constraint")})
 }
 }
-\section{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{edges
-}\if{html}{\out{</div>}}
-}
-
 \seealso{
 Other binary: 
 \code{\link{absdiff}}
