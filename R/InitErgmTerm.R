@@ -194,6 +194,7 @@ LEVELS_BASE1 <- NULL
 #' 
 #' @param attr name of vertex attribute
 #' @param pow power, default to 1
+#' @param form character how to aggregate tie values in a valued ERGM
 #' 
 #' @family binary
 #' @family dyad-independent

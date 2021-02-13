@@ -12,6 +12,8 @@
 \item{attr}{name of vertex attribute}
 
 \item{pow}{power, default to 1}
+
+\item{form}{character how to aggregate tie values in a valued ERGM}
 }
 \description{
 Absolute difference in nodal attribute. The \code{attr} argument
