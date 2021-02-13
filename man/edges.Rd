@@ -2,7 +2,7 @@
 % Please edit documentation in R/InitErgmTerm.R, R/ergm-disambiguation.R
 \name{edges}
 \alias{edges}
-\alias{edges2}
+\alias{edges-ergmTerm}
 \title{Edges}
 \usage{
 # edges

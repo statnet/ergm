@@ -177,7 +177,7 @@ LEVELS_BASE1 <- NULL
 ################################################################################
 
 #' @name absdiff
-#' @aliases absdiff2
+#' @aliases absdiff-ergmTerm
 #' @title Absolute difference
 #' @description Absolute difference in nodal attribute. The `attr` argument
 #'   specifies a quantitative attribute (see Specifying Vertex attributes and
@@ -1937,7 +1937,7 @@ InitErgmTerm.edgecov <- function(nw, arglist, ...) {
 
 
 #' @name edges
-#' @aliases edges2
+#' @aliases edges-ergmTerm
 #' @title Edges
 #' @description This term adds one network statistic equal to the number of
 #'   edges (i.e. nonzero values) in the network. For undirected networks, `edges`

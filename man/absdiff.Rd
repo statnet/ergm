@@ -2,7 +2,7 @@
 % Please edit documentation in R/InitErgmTerm.R
 \name{absdiff}
 \alias{absdiff}
-\alias{absdiff2}
+\alias{absdiff-ergmTerm}
 \title{Absolute difference}
 \usage{
 # absdiff(attr, pow) # binary
