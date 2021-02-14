@@ -488,6 +488,7 @@ void WtSummStats(Edge n_edges, Vertex *tails, Vertex *heads, double *weights, Wt
     Free(heads);
     Free(weights);
   }else{
+    WtDetUnShuffleEdges(tails,heads,weights,n_edges); /* Unshuffle edgelist. */
     memcpy(m->workspace, stats, m->n_stats*sizeof(double));
     Free(stats);
   }

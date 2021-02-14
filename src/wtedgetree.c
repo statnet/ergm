@@ -65,6 +65,9 @@ WtNetwork *WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
     else 
       WtAddEdgeToTrees(tail,head,w,nwp);
   }
+
+  WtDetUnShuffleEdges(tails,heads,weights,nedges); /* Unshuffle edges */
+
   return nwp;
 }
 
@@ -589,6 +592,27 @@ void WtShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges){
 void WtDetShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges){
   /* *** don't forget,  tail -> head */
   for(Edge i = nedges; i > 0; i--) {
+    Edge j = i/2;
+    Vertex tail = tails[j];
+    Vertex head = heads[j];
+    double w = weights[j];
+    tails[j] = tails[i-1];
+    heads[j] = heads[i-1];
+    weights[j] = weights[i-1];
+    tails[i-1] = tail;
+    heads[i-1] = head;
+    weights[i-1] = w;
+  }
+}
+
+/****************
+ Edge WtDetUnShuffleEdges
+
+ Reverses WtDetShuffleEdges().
+****************/
+void WtDetUnShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges){
+  /* *** don't forget,  tail -> head */
+  for(Edge i = 1; i <= nedges; i++) {
     Edge j = i/2;
     Vertex tail = tails[j];
     Vertex head = heads[j];

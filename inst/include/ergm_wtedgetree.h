@@ -98,6 +98,7 @@ void WtInOrderTreeWalk(WtTreeNode *edges, Edge x);
 void WtNetworkEdgeList(WtNetwork *nwp);
 void WtShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges);
 void WtDetShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges);
+void WtDetUnShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges);
 
 /* Others... */
 Edge WtDesignMissing (Vertex a, Vertex b, WtNetwork *mnwp);

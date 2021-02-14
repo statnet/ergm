@@ -123,6 +123,7 @@ void InOrderTreeWalk(TreeNode *edges, Edge x);
 void NetworkEdgeList(Network *nwp);
 void ShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges);
 void DetShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges);
+void DetUnShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges);
 
 /* Others... */
 Edge DesignMissing (Vertex a, Vertex b, Network *mnwp);

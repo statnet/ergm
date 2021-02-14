@@ -303,6 +303,11 @@ static void (*fun)(Vertex *,Vertex *,Edge) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex *,Vertex *,Edge)) R_FindSymbol("DetShuffleEdges", "ergm", NULL);
 fun(tails,heads,nedges);
 }
+void DetUnShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges){
+static void (*fun)(Vertex *,Vertex *,Edge) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex *,Vertex *,Edge)) R_FindSymbol("DetUnShuffleEdges", "ergm", NULL);
+fun(tails,heads,nedges);
+}
 Edge DesignMissing(Vertex a, Vertex b, Network *mnwp){
 static Edge (*fun)(Vertex,Vertex,Network *) = NULL;
 if(fun==NULL) fun = (Edge (*)(Vertex,Vertex,Network *)) R_FindSymbol("DesignMissing", "ergm", NULL);
@@ -556,6 +561,11 @@ fun(tails,heads,weights,nedges);
 void WtDetShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges){
 static void (*fun)(Vertex *,Vertex *,double *,Edge) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex *,Vertex *,double *,Edge)) R_FindSymbol("WtDetShuffleEdges", "ergm", NULL);
+fun(tails,heads,weights,nedges);
+}
+void WtDetUnShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges){
+static void (*fun)(Vertex *,Vertex *,double *,Edge) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex *,Vertex *,double *,Edge)) R_FindSymbol("WtDetUnShuffleEdges", "ergm", NULL);
 fun(tails,heads,weights,nedges);
 }
 Edge WtDesignMissing(Vertex a, Vertex b, WtNetwork *mnwp){

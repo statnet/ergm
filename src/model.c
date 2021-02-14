@@ -485,6 +485,7 @@ void SummStats(Edge n_edges, Vertex *tails, Vertex *heads, Network *nwp, Model *
     Free(tails);
     Free(heads);
   }else{
+    DetUnShuffleEdges(tails,heads,n_edges); /* Unshuffle edgelist. */
     memcpy(m->workspace, stats, m->n_stats*sizeof(double));
     Free(stats);
   }

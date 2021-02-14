@@ -62,6 +62,9 @@ Network *NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
     else 
       AddEdgeToTrees(tail,head,nwp);
   }
+
+  DetUnShuffleEdges(tails,heads,nedges); /* Unshuffle edges */
+
   return nwp;
 }
 
@@ -599,6 +602,24 @@ void ShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges){
 void DetShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges){
   /* *** don't forget,  tail -> head */
   for(Edge i = nedges; i > 0; i--) {
+    Edge j = i/2;
+    Vertex tail = tails[j];
+    Vertex head = heads[j];
+    tails[j] = tails[i-1];
+    heads[j] = heads[i-1];
+    tails[i-1] = tail;
+    heads[i-1] = head;
+  }
+}
+
+/****************
+ Edge DetUnShuffleEdges
+
+ Reverses DetShuffleEdges().
+****************/
+void DetUnShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges){
+  /* *** don't forget,  tail -> head */
+  for(Edge i = 1; i <= nedges; i++) {
     Edge j = i/2;
     Vertex tail = tails[j];
     Vertex head = heads[j];
