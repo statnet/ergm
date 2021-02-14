@@ -26,6 +26,9 @@ binary_dind_wrap <- function(name, nw, a, ..., cn=name){
   binary_wrap(get(paste0("InitErgmTerm.",name), mode="function"), nw, a, "form", list(...), namemap=~paste(.,form,sep="_"), cnmap=~sub(cn,paste(cn,form,sep="."), .))
 }
 
+#' @rdname absdiff-ergmTerm
+#' @usage # valued: absdiff(attr, pow=1, form="sum")
+#' @param form character how to aggregate tie values in a valued ERGM
 InitWtErgmTerm.absdiff <- function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
     ### Check the network and arguments to make sure they are appropriate.

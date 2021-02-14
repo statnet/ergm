@@ -11,7 +11,7 @@
 #' @title `edges` (disambiguation)
 #'
 #' @description `edges` may refer to:
-#' * [An ERGM statistic][edges-term] (`help("edges-term")`)
+#' * [An ERGM statistic][edges-ergmTerm] (`ergmTerm?edges`)
 #' * [An ERGM sample space constraint][edges-constraint] (`help("edges-constraint")`)
 NULL
 
