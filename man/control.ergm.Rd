@@ -17,6 +17,7 @@ control.ergm(
   MPLE.samplesize = .Machine$integer.max,
   init.MPLE.samplesize = function(d, e) max(sqrt(d), e, 40) * 8,
   MPLE.type = c("glm", "penalized"),
+  MPLE.nonvar = c("warning", "message", "error"),
   MPLE.nonident = c("warning", "message", "error"),
   MPLE.nonident.tol = 1e-10,
   MPLE.covariance.samplesize = 500,
@@ -84,6 +85,7 @@ control.ergm(
   MCMLE.steplength.min = 1e-04,
   MCMLE.effectiveSize.interval_drop = 2,
   MCMLE.save_intermediates = NULL,
+  MCMLE.nonvar = c("message", "warning", "error"),
   MCMLE.nonident = c("warning", "message", "error"),
   MCMLE.nonident.tol = 1e-10,
   SA.phase1_n = NULL,
@@ -236,15 +238,18 @@ uses the bias-reduced method of Firth (1993) as originally implemented by
 Meinhard Ploner, Daniela Dunkler, Harry Southworth, and Georg Heinze in the
 "logistf" package.}
 
-\item{MPLE.nonident, MPLE.nonident.tol, MCMLE.nonident, MCMLE.nonident.tol}{A rudimentary nonidentifiability/multicollinearity diagnostic. If
+\item{MPLE.nonident, MPLE.nonident.tol, MPLE.nonvar, MCMLE.nonident, MCMLE.nonident.tol, MCMLE.nonvar}{A rudimentary nonidentifiability/multicollinearity diagnostic. If
 \code{MPLE.nonident.tol > 0}, test the MPLE covariate matrix or the CD
 statistics matrix has linearly dependent columns via \link[=qr]{QR decomposition} with tolerance \code{MPLE.nonident.tol}. This is
 often (not always) indicative of a non-identifiable
 (multicollinear) model. If nonidentifiable, depending on
 \code{MPLE.nonident} issue a warning, an error, or a message
-specifying the potentially redundant statistics. The
-corresponding \verb{MCMLE.*} arguments provide a similar diagnostic
-for the unconstrained MCMC sample's estimating functions.}
+specifying the potentially redundant statistics. Before the
+diagnostic is performed, covariates that do not vary (i.e.,
+all-zero columns) are dropped, with their handling controlled by
+\code{MPLE.nonvar}. The corresponding \verb{MCMLE.*} arguments provide a
+similar diagnostic for the unconstrained MCMC sample's estimating
+functions.}
 
 \item{MPLE.covariance.samplesize}{The number of networks to simulate to approximate
 the MPLE covariance matrix using the Godambe matrix (see Schmid and Hunter (2020)) or

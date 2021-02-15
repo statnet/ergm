@@ -326,21 +326,20 @@ void dspISP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Ne
 
 
 /*
-Changescore for ESPs based on recursive two-paths, i.e. configurations for edge i->j such that i<->k and j<->k (with k!=j).
+Changescore for DSPs based on recursive two-paths, i.e. configurations for edge i->j such that i<->k and j<->k (with k!=j).
 
 RTP:
-L2th - count t<->k<->h
-L2kt - for each k->t neq h: h->t,k<->h, count u such that k<->u<->t
-L2tk - for each t->k neq h: h->t,k<->h, count u such that k<->u<->t
 L2kh - for each k->h neq t: h->t,k<->t, count u such that k<->u<->h
-L2hk - for each h->k neq t: h->t,k<->t, count u such that k<->u<->h
+L2kt - for each k->t neq h: h->t,k<->h, count u such that k<->u<->t
+
+Thanks to the symmetries involved, this covers all cases.
 
 We assume that this is only called for directed graphs - otherwise, use the baseline espUTP function.
 */
 void dspRTP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp, int nd, double *dvec, double *cs) { 
   Edge e, f;
   int i, j, echange, htedge;
-  int L2th,L2tk,L2kt,L2hk,L2kh; /*Two-path counts for various edges*/
+  int L2kh,L2kt; /*Two-path counts for various edges*/
   Vertex deg;
   Vertex tail, head, k, u;
   
@@ -348,87 +347,41 @@ void dspRTP_calc(Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Ne
     cs[i]=0.0;
 
   FOR_EACH_TOGGLE(i) {
-    L2th=0;
-    echange = (IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) == 0) ? 1 : -1;
-    htedge=IS_OUTEDGE(head,tail);  /*Is there an h->t (reciprocating) edge?*/
-    /* step through inedges of tail (k->t: k!=h,h->t,k<->h)*/
-    STEP_THROUGH_INEDGES(tail,e,k){
-      if(k!=head){
-        /*Do we have a t<->k<->h TP?  If so, add it to our count.*/
-        L2th+=(IS_OUTEDGE(tail,k)&&IS_OUTEDGE(head,k)&&IS_OUTEDGE(k,head));
-        if(htedge&&IS_OUTEDGE(head,k)&&IS_OUTEDGE(k,head)){ /*Only consider stats that could change*/
-          L2kt=0;
-          /*Now, count # u such that k<->u<->t (to get (k,t)'s ESP value)*/
-          STEP_THROUGH_OUTEDGES(k,f,u){ 
-            if((u!=tail)&&(IS_OUTEDGE(u,k)))
-              L2kt+=(IS_OUTEDGE(u,tail)&&IS_OUTEDGE(tail,u));  /*k<->u<->t?*/
-          }
-          /*Update the changestat for the k->t edge*/
-          for(j = 0; j < nd; j++){
-            deg = (Vertex)dvec[j];
-            cs[j] += ((L2kt + echange == deg) - (L2kt == deg));
-          }
-        }
-      }
-    }
-    /* step through outedges of tail (t->k: k!=h,h->t,k<->h)*/
-    STEP_THROUGH_OUTEDGES(tail,e,k) {
-      if(k!=head){
-        if(htedge&&IS_OUTEDGE(head,k)&&IS_OUTEDGE(k,head)){ /*Only consider stats that could change*/
-          L2tk=0;
-          /*Now, count # u such that k<->u<->t (to get (tk)'s ESP value)*/
-          STEP_THROUGH_OUTEDGES(k,f,u){ 
-            if((u!=tail)&&(IS_OUTEDGE(u,k)))
-              L2tk+=(IS_OUTEDGE(u,tail)&&IS_OUTEDGE(tail,u));  /*k<->u<->t?*/
-          }
-          /*Update the changestat for the t->k edge*/
-          for(j = 0; j < nd; j++){
-            deg = (Vertex)dvec[j];
-            cs[j] += ((L2tk + echange == deg) - (L2tk == deg));
-          }
-        }
-      }
-    }
-    /* step through inedges of head (k->h: k!=t,h->t,k<->t)*/
-    STEP_THROUGH_INEDGES(head,e,k){
-      if(k!=tail){
-        if(htedge&&IS_OUTEDGE(tail,k)&&IS_OUTEDGE(k,tail)){ /*Only consider stats that could change*/
+    htedge=IS_OUTEDGE(head=HEAD(i),tail=TAIL(i));  /*Is there an h->t (reciprocating) edge?*/
+    if(htedge){ /* Otherwise, t->h doesn't make a difference. */
+      echange = (IS_OUTEDGE(tail,head)==0) ? 1 : -1;
+      /* step through reciprocated outedges of tail (t->k: k!=h,k<-t)*/
+      STEP_THROUGH_OUTEDGES(tail,e,k) {
+        if(k!=head&&IS_OUTEDGE(k,tail)){
           L2kh=0;
-          /*Now, count # u such that k<->u<->h (to get k->h's ESP value)*/
-          STEP_THROUGH_OUTEDGES(k,f,u){ 
-            if((u!=head)&&(IS_OUTEDGE(u,k)))
+          /*Now, count # u such that k<->u<->h (to get k->h's SP value)*/
+          STEP_THROUGH_OUTEDGES(k,f,u){
+            if(u!=tail&&u!=head&&(IS_OUTEDGE(u,k)))
               L2kh+=(IS_OUTEDGE(u,head)&&IS_OUTEDGE(head,u));  /*k<->u<->h?*/
           }
           /*Update the changestat for the k->h edge*/
           for(j = 0; j < nd; j++){
             deg = (Vertex)dvec[j];
-            cs[j] += ((L2kh + echange == deg) - (L2kh == deg));
+            cs[j] += ((L2kh + echange == deg) - (L2kh == deg))*2; /* *2 because L2kh===L2hk */
           }
         }
       }
-    }
-    /* step through outedges of head (h->k: k!=t,h->t,k<->t)*/
-    STEP_THROUGH_OUTEDGES(head,e,k){
-      if(k!=tail){
-        if(htedge&&IS_OUTEDGE(tail,k)&&IS_OUTEDGE(k,tail)){ /*Only consider stats that could change*/
-          L2hk=0;
-          /*Now, count # u such that k<->u<->h (to get h->k's ESP value)*/
-          STEP_THROUGH_OUTEDGES(k,f,u){ 
-            if((u!=head)&&(IS_OUTEDGE(u,k)))
-              L2hk+=(IS_OUTEDGE(u,head)&&IS_OUTEDGE(head,u));  /*k<->u<->h?*/
+            /* step through reciprocated outedges of tail (t->k: k!=h,k<-t)*/
+      STEP_THROUGH_OUTEDGES(head,e,k) {
+        if(k!=tail&&IS_OUTEDGE(k,head)){
+          L2kt=0;
+          /*Now, count # u such that k<->u<->t (to get k->t's SP value)*/
+          STEP_THROUGH_OUTEDGES(k,f,u){
+            if(u!=head&&u!=tail&&(IS_OUTEDGE(u,k)))
+              L2kt+=(IS_OUTEDGE(u,tail)&&IS_OUTEDGE(tail,u));  /*k<->u<->t?*/
           }
-          /*Update the changestat for the h->k edge*/
+          /*Update the changestat for the k->t edge*/
           for(j = 0; j < nd; j++){
             deg = (Vertex)dvec[j];
-            cs[j] += ((L2hk + echange == deg) - (L2hk == deg));
+            cs[j] += ((L2kt + echange == deg) - (L2kt == deg))*2; /* *2 because L2kt===L2tk */
           }
         }
       }
-    }
-    /*Finally, update the changestat for the t->h edge*/
-    for(j = 0; j < nd; j++){
-      deg = (Vertex)dvec[j];
-      cs[j] += echange*(L2th == deg);
     }
     TOGGLE_IF_MORE_TO_COME(i);
   }  
