@@ -218,6 +218,12 @@ MH_I_FN(Mi_BDStratTNT) {
     MHp->ntoggles = MH_FAILED;
     return;
   }
+
+  for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
+    if(IN_DEG[vertex] + OUT_DEG[vertex] > sto->bound) {
+      error("degree bound is violated by initial network; proposal cannot proceed");
+    }
+  }
 }
 
 MH_P_FN(MH_BDStratTNT) {
@@ -556,6 +562,12 @@ MH_I_FN(Mi_BDTNT) {
   if(sto->edgelist->nedges == 0 && sto->currentdyads == 0) {
     MHp->ntoggles = MH_FAILED;
     return;
+  }
+  
+  for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
+    if(IN_DEG[vertex] + OUT_DEG[vertex] > sto->bound) {
+      error("degree bound is violated by initial network; proposal cannot proceed");
+    }
   }  
 }
 
