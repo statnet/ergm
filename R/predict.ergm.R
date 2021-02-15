@@ -82,7 +82,8 @@ predict.formula <- function(object, theta,
   
   # Transform extended ergmMPLE() output to matrix with 0s on the diagonal
   .df_to_matrix <- function(d) {
-    res <- tapply(predmat[,"p"], list(predmat[,"tail"], predmat[,"head"]), identity)
+    N <- max(predmat[,c("tail", "head")])
+    res <- replace(matrix(NA, N, N), as.matrix(d[,c("tail", "head")]), d[,"p"])
     diag(res) <- 0
     res
   }

@@ -102,7 +102,7 @@
 #' "logistf" package.
 #'
 #' @param
-#'   MPLE.nonident,MPLE.nonident.tol,MCMLE.nonident,MCMLE.nonident.tol
+#'   MPLE.nonident,MPLE.nonident.tol,MPLE.nonvar,MCMLE.nonident,MCMLE.nonident.tol,MCMLE.nonvar
 #'   A rudimentary nonidentifiability/multicollinearity diagnostic. If
 #'   `MPLE.nonident.tol > 0`, test the MPLE covariate matrix or the CD
 #'   statistics matrix has linearly dependent columns via [QR
@@ -110,8 +110,11 @@
 #'   often (not always) indicative of a non-identifiable
 #'   (multicollinear) model. If nonidentifiable, depending on
 #'   `MPLE.nonident` issue a warning, an error, or a message
-#'   specifying the potentially redundant statistics. The
-#'   corresponding `MCMLE.*` arguments provide a similar diagnostic
+
+#'   specifying the potentially redundant statistics. Before the
+#'   diagnostic is performed, covariates that do not vary (i.e.,
+#'   all-zero columns) are dropped, with their handling controlled by
+#'   `MPLE.nonvar`. The corresponding `MCMLE.*` arguments provide a similar diagnostic
 #'   for the unconstrained MCMC sample's estimating functions.
 #'   
 #' @param MPLE.covariance.samplesize The number of networks to simulate to approximate 
@@ -123,6 +126,7 @@
 #'  covariance matrix using the Godambe-matrix (Schmid and Hunter (2020)). This method is recommended 
 #'  for dyad-dependent models. Alternatively, `bootstrap` estimates standard deviations using a parametric
 #'  bootstrapping approach (see Schmid and Desmarais (2017)).
+
 #'
 #' @template control_MCMC_prop
 #'
@@ -168,8 +172,8 @@
 #' @param SAN.nsteps.times Multiplier for \code{SAN.nsteps} relative to
 #' \code{MCMC.burnin}. This lets one control the amount of SAN burn-in
 #' (arguably, the most important of SAN parameters) without overriding the
-#' other SAN.control defaults.
-#' @param SAN.control Control arguments to \code{\link{san}}.  See
+#' other `SAN` defaults.
+#' @param SAN Control arguments to \code{\link{san}}.  See
 #' \code{\link{control.san}} for details.
 #' @param MCMLE.termination The criterion used for terminating MCMLE
 #' estimation:  
@@ -382,7 +386,7 @@
 #'   Note that only the Hotelling's stopping criterion is implemented
 #'   for CD.
 #' 
-#' @param loglik.control See \code{\link{control.ergm.bridge}}
+#' @param loglik See \code{\link{control.ergm.bridge}}
 #' @template term_options
 #' @template control_MCMC_parallel
 #' @template seed
@@ -445,6 +449,7 @@ control.ergm<-function(drop=TRUE,
                        MPLE.samplesize=.Machine$integer.max,
                        init.MPLE.samplesize=function(d,e) max(sqrt(d),e,40)*8,
                        MPLE.type=c("glm", "penalized"),
+                       MPLE.nonvar=c("warning","message","error"),
                        MPLE.nonident=c("warning","message","error"),
                        MPLE.nonident.tol=1e-10,
                        MPLE.covariance.samplesize = 500,
@@ -470,7 +475,7 @@ control.ergm<-function(drop=TRUE,
 
                        SAN.maxit=4,
                        SAN.nsteps.times=8,
-                       SAN.control=control.san(
+                       SAN=control.san(
                          term.options=term.options,
                          SAN.maxit=SAN.maxit,
                          SAN.prop.weights=MCMC.prop.weights,
@@ -524,6 +529,7 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.steplength.min=0.0001,
                        MCMLE.effectiveSize.interval_drop=2,
                        MCMLE.save_intermediates=NULL,
+                       MCMLE.nonvar=c("message","warning","error"),
                        MCMLE.nonident=c("warning","message","error"),
                        MCMLE.nonident.tol=1e-10,
 
@@ -569,7 +575,7 @@ control.ergm<-function(drop=TRUE,
                        CD.steplength.min=0.0001,
                        CD.steplength.parallel=c("observational","always","never"),
                        
-                       loglik.control=control.logLik.ergm(),
+                       loglik=control.logLik.ergm(),
 
                        term.options=NULL,
 
@@ -580,54 +586,24 @@ control.ergm<-function(drop=TRUE,
                        
                        ...
                        ){
-  old.controls <- list(CD.Hummel.esteq="CD.steplength.esteq",
+  old.controls <- list(SAN.control="SAN",
+                       loglik.control="loglik",
+
+                       CD.Hummel.esteq="CD.steplength.esteq",
                        CD.Hummel.miss.sample="CD.steplength.miss.sample",
                        CD.Hummel.maxit="CD.steplength.maxit",
                        MCMLE.Hummel.esteq="MCMLE.steplength.esteq",
                        MCMLE.Hummel.miss.sample="MCMLE.steplength.miss.sample",
                        MCMLE.Hummel.maxit="MCMLE.steplength.maxit",
 
-                       nr.maxit="MCMLE.NR.maxit",
-                       nr.reltol="MCMLE.NR.reltol",
-                       maxNumDyadTypes="MPLE.max.dyad.types",
-                       maxedges="MCMC.init.maxedges",
-                       steplength="MCMLE.steplength",
-                       initialfit="init.method",
-                       style="main.method",
-                       obs.MCMCsamplesize="MCMLE.obs.samplesize",
-                       obs.interval="obs.MCMC.interval",
-                       obs.burnin="obs.MCMC.burnin",
-                       compress="MCMC.compress",
-                       metric="MCMLE.metric",
-                       force.mcmc="force.main",
-                       adaptive.trustregion="MCMLE.adaptive.trustregion",
-                       adaptive.epsilon="MCMLE.adaptive.epsilon",
                        mcmc.precision="MCMLE.MCMC.precision",
-                       method="MCMLE.method",
-                       MPLEtype="MPLE.type",
-                       MPLEsamplesize="MPLE.samplesize",
-                       phase1_n="SA.phase1_n", initial_gain="SA.initial_gain", 
-                       nsubphases="SA.nsubphases", niterations="SA.niterations", phase3_n="SA.phase3_n",
-                       RobMon.phase1n_base="RM.phase1n_base",
-                       RobMon.phase2n_base="RM.phase2n_base",
-                       RobMon.phase2sub="RM.phase2sub",
-                       RobMon.init_gain="RM.init_gain",
-                       RobMon.phase3n="RM.phase3n",
-                       trustregion="MCMLE.trustregion",
-                       stepMCMCsize="Step.MCMC.samplesize",
-                       steppingmaxit="Step.maxit",
-                       gridsize="Step.gridsize",
-                       sequential="MCMLE.sequential",
-                       returnMCMCstats="MCMC.return.stats",
-                       calc.mcmc.se="MCMC.addto.se",
-                       hessian="main.hessian",
-                       prop.weights="MCMC.prop.weights",
-                       prop.args="MCMC.prop.args",
                        packagenames="MCMC.packagenames",
                        SAN.burnin.times="SAN.nsteps.times"
                        )
 
-  match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method","MCMLE.steplength.parallel","CD.steplength.parallel","MPLE.nonident","MCMLE.nonident", "MPLE.covariance.method")
+
+  match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method","MCMLE.steplength.parallel","CD.steplength.parallel","MPLE.nonident","MPLE.nonvar","MCMLE.nonvar","MCMLE.nonident","MCMLE.nonident", "MPLE.covariance.method")
+
   
   control<-list()
   formal.args<-formals(sys.function())

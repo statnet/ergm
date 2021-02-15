@@ -106,8 +106,7 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' network-wide mean, divided by the network size.}
 #'
 #' \item{an `AsIs` object created by `I()`}{Use as is, checking only
-#' for correct length and type, with optional attribute `"name"`
-#' indicating the predictor's name.}
+#' for correct length and type.}
 #' 
 #' }
 #'
@@ -118,6 +117,9 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' into one, naming it `into`. Note that `into` must be of the same
 #' type (numeric, character, etc.) as the vertex attribute in
 #' question.
+#'
+#' The name the nodal attribute receives in the statistic can be
+#' overridden by setting a an [attr()]-style attribute `"name"`.
 #'
 #' @section Specifying categorical attribute levels and their ordering:
 #'
@@ -157,10 +159,17 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' accessible as `.nw`, the list of unique values of the attribute as
 #' `.` or as `.levels`, and the attribute vector itself as
 #' `.attr`. Its return value is interpreted as above.}
+#'
+#' \item{a matrix}{For mixing effects (i.e., `level2=` arguments), a
+#' matrix can be used to select elements of the mixing matrix, either
+#' by specifying a logical (`TRUE` and `FALSE`) matrix of the same
+#' dimension as the mixing matrix to select the corresponding cells or
+#' a two-column numeric matrix indicating giving the coordinates of
+#' cells to be used.}
 #' 
 #' }
 #' 
-#' Note that `levels` or `nodes` often has a default that is sensible for the
+#' Note that `levels`, `nodes`, and others often have a default that is sensible for the
 #' term in question.
 #' 
 #' @aliases attr attrname on by attrs node.attr nodal.attr vertex.attr node.attribute nodal.attribute vertex.attribute
@@ -171,6 +180,9 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' 
 #' # Activity by grade with a baseline grade excluded:
 #' summary(faux.mesa.high~nodefactor(~Grade))
+#' # Name overrides:
+#' summary(faux.mesa.high~nodefactor("Form"~Grade)) # Only works for terms that don't use the LHS for something else.
+#' summary(faux.mesa.high~nodefactor(~structure(Grade,name="Form")))
 #' # Retain all levels:
 #' summary(faux.mesa.high~nodefactor(~Grade, levels=TRUE)) # or levels=NULL
 #' # Use the largest grade as baseline (also Grade 7):
@@ -192,7 +204,53 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #'         levels2=~sapply(.levels,
 #'                         function(l)
 #'                           l[[1]]%in%c(7,8) && l[[2]]%in%c(7,8))))
-#' 
+#'
+#' # Here are some less complex ways to specify levels2. This is the
+#' # full list of combinations of sexes in an undirected network:
+#' summary(faux.mesa.high~mm("Sex", levels2=TRUE))
+#' # Select only the second combination:
+#' summary(faux.mesa.high~mm("Sex", levels2=2))
+#' # Equivalently,
+#' summary(faux.mesa.high~mm("Sex", levels2=-c(1,3)))
+#' # or
+#' summary(faux.mesa.high~mm("Sex", levels2=c(FALSE,TRUE,FALSE)))
+#' # Select all *but* the second one:
+#' summary(faux.mesa.high~mm("Sex", levels2=-2))
+#' # Select via a mixing matrix: (Network is undirected and
+#' # attributes are the same on both sides, so we can use either M or
+#' # its transpose.)
+#' (M <- matrix(c(FALSE,TRUE,FALSE,FALSE),2,2))
+#' summary(faux.mesa.high~mm("Sex", levels2=M)+mm("Sex", levels2=t(M)))
+#' # Select via an index of a cell:
+#' idx <- cbind(1,2)
+#' summary(faux.mesa.high~mm("Sex", levels2=idx))
+#'
+#' # mm() term allows two-sided attribute formulas with different attributes:
+#' summary(faux.mesa.high~mm(Grade~Race, levels2=TRUE))
+#' # It is possible to have collapsing functions in the formula; note
+#' # the parentheses around "~Race": this is because a formula
+#' # operator (~) has lower precedence than pipe (|>):
+#' summary(faux.mesa.high~mm(Grade~(~Race) %>% COLLAPSE_SMALLEST(3,"BWO"), levels2=TRUE))
+#'
+#' # Some terms, such as nodecov(), accept matrices of nodal
+#' # covariates. An certain R quirk means that columns whose
+#' # expressions are not typical variable names have their names
+#' # dropped and need to be adjusted. Consider, for example, the
+#' # linear and quadratic effects of grade:
+#' Grade <- faux.mesa.high %v% "Grade"
+#' colnames(cbind(Grade, Grade^2)) # Second column name missing.
+#' colnames(cbind(Grade, Grade2=Grade^2)) # Can be set manually,
+#' colnames(cbind(Grade, `Grade^2`=Grade^2)) # even to non-variable-names.
+#' colnames(cbind(Grade, Grade^2, deparse.level=2)) # Alternatively, deparse.level=2 forces naming.
+#' rm(Grade)
+#' \dontshow{
+#' options(warn=1) # Print warnings immediately.
+#' }
+#' # Therefore, the nodal attribute names are set as follows:
+#' summary(faux.mesa.high~nodecov(~cbind(Grade, Grade^2))) # column names dropped with a warning
+#' summary(faux.mesa.high~nodecov(~cbind(Grade, Grade2=Grade^2))) # column names set manually
+#' summary(faux.mesa.high~nodecov(~cbind(Grade, Grade^2, deparse.level=2))) # using deparse.level=2
+#'
 #' # Activity by grade with a random covariate. Note that setting an attribute "name" gives it a name:
 #' randomcov <- structure(I(rbinom(network.size(faux.mesa.high),1,0.5)), name="random")
 #' summary(faux.mesa.high~nodefactor(I(randomcov)))
@@ -389,6 +447,12 @@ ergm_get_vattr <- function(object, nw, accept="character", bip=c("n","b1","b2","
 
   if(!OK) ergm_Init_abort("Attribute ", NVL3(xspec, paste0(sQuote(paste(deparse(.),collapse="\n")), " ")), "is not ", ACCNAME[[accept]], " vector as required.")
   if(any(is.na(x))) ergm_Init_abort("Attribute ", NVL3(xspec, paste0(sQuote(paste(deparse(.),collapse="\n")), " ")), "has missing data, which is not currently supported by ergm.")
+  if(is.matrix(x) && !is.null(cn <- colnames(x))){
+    if(any(cn=="")){
+      ergm_Init_warn("Attribute specification ", NVL3(xspec, paste0(sQuote(paste(deparse(.),collapse="\n")), " ")), "is a matrix with some column names set and others not; you may need to set them manually. See example(nodal_attributes) for more information.")
+      colnames(x) <- NULL
+    }
+  }
   x
 }
 
@@ -437,11 +501,13 @@ ergm_get_vattr.function <- function(object, nw, accept="character", bip=c("n","b
       args[[aname]] <- get(aname)
   args <- c(list(nw), list(...), args)
 
-  ERRVL(try(do.call(object, args) %>%
-            .rightsize_vattr(nw, bip, accept) %>% .handle_multiple(multiple=multiple) %>%
-            structure(., name=NVL(attr(.,"name"), strtrim(despace(paste(deparse(body(object)),collapse="\n")),80))),
-            silent=TRUE),
-        ergm_Init_abort(.)) %>%
+  ERRVL(try({
+    a <- do.call(object, args)
+    while(is(a,'formula')||is(a,'function')) a <- ergm_get_vattr(a, nw, accept=accept, bip=bip, multiple=multiple, ...)
+    a %>% .rightsize_vattr(nw, bip, accept) %>% .handle_multiple(multiple=multiple) %>%
+      structure(., name=NVL(attr(.,"name"), strtrim(despace(paste(deparse(body(object)),collapse="\n")),80)))
+  }, silent=TRUE),
+  ergm_Init_abort(.)) %>%
     .check_acceptable(accept=accept)
 }
 
@@ -460,9 +526,10 @@ ergm_get_vattr.formula <- function(object, nw, accept="character", bip=c("n","b1
 
   e <- ult(object)
   ERRVL(try({
-    eval(e, envir=vlist, enclos=environment(object)) %>%
-      .rightsize_vattr(nw, bip, accept) %>% .handle_multiple(multiple=multiple) %>%
-      structure(name=if(length(object)>2) eval_lhs.formula(object) else despace(paste(deparse(e),collapse="\n")))
+    a <- eval(e, envir=vlist, enclos=environment(object))
+    while(is(a,'formula')||is(a,'function')) a <- ergm_get_vattr(a, nw, accept=accept, bip=bip, multiple=multiple, ...)
+    a %>% .rightsize_vattr(nw, bip, accept) %>% .handle_multiple(multiple=multiple) %>%
+      structure(., name=NVL(attr(.,"name"), if(length(object)>2) eval_lhs.formula(object) else despace(paste(deparse(e),collapse="\n"))))
   }, silent=TRUE),
   ergm_Init_abort(.)) %>%
     .check_acceptable(accept=accept, xspec=object)
@@ -514,6 +581,50 @@ ergm_attr_levels.NULL <- function(object, attr, nw, levels=sort(unique(attr)), .
 }
 
 #' @rdname nodal_attributes-API
+#'
+#' @note `ergm_attr_levels.matrix()` expects `levels=` to be a
+#'   [`list`] with each element having length 2 and containing the
+#'   values of the two categorical attributes being crossed. It also
+#'   assumes that they are in the same order as the user would like
+#'   them in the matrix.
+#' @export
+ergm_attr_levels.matrix <- function(object, attr, nw, levels=sort(unique(attr)), ...){
+
+  # This should get the levels in the right order.
+  ol <- levels %>% map(1L) %>% unique
+  nol <- length(ol)
+  il <- levels %>% map(2L) %>% unique
+  nil <- length(il)
+
+  # Construct a matrix indicating where on the levels list does each
+  # element go. Then, indexing elements of m with either a logical
+  # matrix or a two-column matrix of cell indices will produce a list
+  # of level indices selected along with 0s, which can then be
+  # dropped.
+  ol2c <- match(levels%>%map(1L), ol)
+  il2c <- match(levels%>%map(2L), il)
+  m <- matrix(0L, nol, nil)
+  m[cbind(ol2c,il2c)] <- seq_along(levels)
+
+  sel <- switch(mode(object),
+                logical = { # Binary matrix
+                  if(any(dim(object)!=c(nol,nil))) ergm_Init_abort("Level combination selection binary matrix should have dimension ", nol, " by ", nil, " but has dimension ", nrow(object), " by ", ncol(object), ".") # Check dimension.
+                  if(!is.directed(nw) && !is.bipartite(nw) && identical(ol,il)) object <- object | t(object) # Symmetrize, if appropriate.
+                  object
+                },
+                numeric = { # Two-column index matrix
+                  if(ncol(object)!=2) ergm_Init_abort("Level combination selection two-column index matrix should have two columns but has ", ncol(object), ".")
+                  if(!is.directed(nw) && !is.bipartite(nw) && identical(ol,il)) object <- rbind(object, object[,2:1,drop=FALSE]) # Symmetrize, if appropriate.
+                  object
+                },
+                ergm_Init_abort("Level combination selection matrix must be either numeric or logical.")
+                )
+
+  sel <- m[sel] %>% keep(`!=`,0L) %>% sort %>% unique
+  levels[sel]
+}
+
+#' @rdname nodal_attributes-API
 #' @export
 ergm_attr_levels.function <- function(object, attr, nw, levels=sort(unique(attr)), ...){
   object <- if('...' %in% names(formals(object))) object(levels, attr, nw, ...)
@@ -539,7 +650,7 @@ ERGM_VATTR_SPEC <- "function,formula,character,AsIs"
 
 #' @rdname nodal_attributes-API
 #' @export
-ERGM_LEVELS_SPEC <- "function,formula,character,numeric,logical,AsIs,NULL"
+ERGM_LEVELS_SPEC <- "function,formula,character,numeric,logical,AsIs,NULL,matrix"
 
 #' @rdname nodal_attributes
 #' @export

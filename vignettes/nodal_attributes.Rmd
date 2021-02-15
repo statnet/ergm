@@ -158,3 +158,35 @@ summary(faux.mesa.high~mm("Grade",
                         function(l)
                           l[[1]]%in%c(7,8) && l[[2]]%in%c(7,8))))
 ```
+
+Generally, `levels2=` selects from among the combinations of levels selected by `levels=`. Here are some examples, using the attribute `Sex` (which as two levels):
+
+```{r, node-attr-levels2}
+# Here is the full list of combinations of sexes in an undirected network:
+summary(faux.mesa.high~mm("Sex", levels2=TRUE))
+# Select only the second combination:
+summary(faux.mesa.high~mm("Sex", levels2=2))
+# Equivalently,
+summary(faux.mesa.high~mm("Sex", levels2=-c(1,3)))
+# or
+summary(faux.mesa.high~mm("Sex", levels2=c(FALSE,TRUE,FALSE)))
+# Select all *but* the second one:
+summary(faux.mesa.high~mm("Sex", levels2=-2))
+# We can select via a mixing matrix: (Network is undirected and
+# attributes are the same on both sides, so we can use either M or
+# its transpose.)
+(M <- matrix(c(FALSE,TRUE,FALSE,FALSE),2,2))
+summary(faux.mesa.high~mm("Sex", levels2=M)+mm("Sex", levels2=t(M)))
+# Select via an index of a cell:
+idx <- cbind(1,2)
+summary(faux.mesa.high~mm("Sex", levels2=idx))
+```
+
+The attributes of the `mm()` term can be a two-sided formula with different attributes:
+```{r, mm-2sided}
+summary(faux.mesa.high~mm(Grade~Race, levels2=TRUE))
+# It is possible to have collapsing functions in the formula; note
+# the parentheses around "~Race": this is because a formula
+# operator (~) has lower precedence than pipe (|>):
+summary(faux.mesa.high~mm(Grade~(~Race) %>% COLLAPSE_SMALLEST(3,"BWO"), levels2=TRUE))
+```

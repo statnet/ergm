@@ -28,5 +28,10 @@ test_that("estimate with target.stats matches that with LHS", {
 })
 
 test_that("simulating from the MPLE target statistics fit", {
-  ergm.sim<-simulate(ergm.ts.fit,nsim=10,output="stats", control=control.simulate.ergm(MCMC.burnin=10,MCMC.interval=1))
+  expect_error(ergm.sim<-simulate(ergm.ts.fit,nsim=10,output="stats", control=control.simulate.ergm(MCMC.burnin=10,MCMC.interval=1)), NA)
+})
+
+test_that("MPLE with no estimable parameters fails at a later stage", {
+  net1<-network.initialize(5578,directed=FALSE)
+  expect_error(ergm(net1~triangles,target.stats=c(1)), "^Number of edges in a simulated network exceeds that in the observed by a factor of more than.*")
 })

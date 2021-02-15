@@ -29,6 +29,7 @@ if (summary(net ~ ddsp(type="OTP", d=2)) != 1077) stop("ddsp OTP count error")
 if (summary(net ~ ddsp(type="ITP", d=2)) != 1077) stop("ddsp ITP count error")
 if (summary(net ~ ddsp(type="OSP", d=2)) != 948) stop("ddsp OSP count error")
 if (summary(net ~ ddsp(type="ISP", d=2)) != 1132) stop("ddsp ISP count error")
+if (any(summary(net ~ ddsp(type="RTP", d=1:2)) != c(1096,96))) stop("ddsp RTP count error")
 
 # GWDSP OTP test
 

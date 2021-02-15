@@ -220,7 +220,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
         !is.na(theta)&!m$etamap$offsettheta] <- real.cov
   hess[!is.na(theta)&!m$etamap$offsettheta,
        !is.na(theta)&!m$etamap$offsettheta] <- if(length(real.cov)) -ginv(real.cov) else matrix(0,0,0)
-  #
+
   iteration <-  mplefit$iter 
   
   # mplefit <- call(MPLEtype, pl$zy ~ 1, family=binomial)

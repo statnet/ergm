@@ -115,7 +115,9 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, role="stat
       if(!is.null(outlist$params))
         names(outlist$params) <- paste0("offset(",names(outlist$params),")")
     }
-    # Now it is necessary to add the output to the model formula
+    # Store the term call in the term list (with the term able to override)
+    NVL(outlist$call) <- term
+    # Now it is necessary to add the output to the model
     model <- updatemodel.ErgmTerm(model, outlist)
   } 
   model$etamap <- ergm.etamap(model)

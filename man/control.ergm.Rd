@@ -17,6 +17,7 @@ control.ergm(
   MPLE.samplesize = .Machine$integer.max,
   init.MPLE.samplesize = function(d, e) max(sqrt(d), e, 40) * 8,
   MPLE.type = c("glm", "penalized"),
+  MPLE.nonvar = c("warning", "message", "error"),
   MPLE.nonident = c("warning", "message", "error"),
   MPLE.nonident.tol = 1e-10,
   MPLE.covariance.samplesize = 500,
@@ -41,7 +42,7 @@ control.ergm(
   MCMC.packagenames = c(),
   SAN.maxit = 4,
   SAN.nsteps.times = 8,
-  SAN.control = control.san(term.options = term.options, SAN.maxit = SAN.maxit,
+  SAN = control.san(term.options = term.options, SAN.maxit = SAN.maxit,
     SAN.prop.weights = MCMC.prop.weights, SAN.prop.args = MCMC.prop.args,
     SAN.init.maxedges = MCMC.init.maxedges, SAN.max.maxedges = MCMC.max.maxedges,
     SAN.nsteps = MCMC.burnin * SAN.nsteps.times, SAN.samplesize = MCMC.samplesize,
@@ -84,6 +85,7 @@ control.ergm(
   MCMLE.steplength.min = 1e-04,
   MCMLE.effectiveSize.interval_drop = 2,
   MCMLE.save_intermediates = NULL,
+  MCMLE.nonvar = c("message", "warning", "error"),
   MCMLE.nonident = c("warning", "message", "error"),
   MCMLE.nonident.tol = 1e-10,
   SA.phase1_n = NULL,
@@ -124,7 +126,7 @@ control.ergm(
   CD.steplength.maxit = 25,
   CD.steplength.min = 1e-04,
   CD.steplength.parallel = c("observational", "always", "never"),
-  loglik.control = control.logLik.ergm(),
+  loglik = control.logLik.ergm(),
   term.options = NULL,
   seed = NULL,
   parallel = 0,
@@ -236,15 +238,18 @@ uses the bias-reduced method of Firth (1993) as originally implemented by
 Meinhard Ploner, Daniela Dunkler, Harry Southworth, and Georg Heinze in the
 "logistf" package.}
 
-\item{MPLE.nonident, MPLE.nonident.tol, MCMLE.nonident, MCMLE.nonident.tol}{A rudimentary nonidentifiability/multicollinearity diagnostic. If
+\item{MPLE.nonident, MPLE.nonident.tol, MPLE.nonvar, MCMLE.nonident, MCMLE.nonident.tol, MCMLE.nonvar}{A rudimentary nonidentifiability/multicollinearity diagnostic. If
 \code{MPLE.nonident.tol > 0}, test the MPLE covariate matrix or the CD
 statistics matrix has linearly dependent columns via \link[=qr]{QR decomposition} with tolerance \code{MPLE.nonident.tol}. This is
 often (not always) indicative of a non-identifiable
 (multicollinear) model. If nonidentifiable, depending on
 \code{MPLE.nonident} issue a warning, an error, or a message
-specifying the potentially redundant statistics. The
-corresponding \verb{MCMLE.*} arguments provide a similar diagnostic
-for the unconstrained MCMC sample's estimating functions.}
+specifying the potentially redundant statistics. Before the
+diagnostic is performed, covariates that do not vary (i.e.,
+all-zero columns) are dropped, with their handling controlled by
+\code{MPLE.nonvar}. The corresponding \verb{MCMLE.*} arguments provide a
+similar diagnostic for the unconstrained MCMC sample's estimating
+functions.}
 
 \item{MPLE.covariance.samplesize}{The number of networks to simulate to approximate
 the MPLE covariance matrix using the Godambe matrix (see Schmid and Hunter (2020)) or
@@ -322,9 +327,9 @@ to obtain a network with statistics close to those specified.}
 \item{SAN.nsteps.times}{Multiplier for \code{SAN.nsteps} relative to
 \code{MCMC.burnin}. This lets one control the amount of SAN burn-in
 (arguably, the most important of SAN parameters) without overriding the
-other SAN.control defaults.}
+other \code{SAN} defaults.}
 
-\item{SAN.control}{Control arguments to \code{\link{san}}.  See
+\item{SAN}{Control arguments to \code{\link{san}}.  See
 \code{\link{control.san}} for details.}
 
 \item{MCMLE.termination}{The criterion used for terminating MCMLE
@@ -556,9 +561,9 @@ optimizer. These have the same meaning as their \verb{MCMLE.*} and
 Note that only the Hotelling's stopping criterion is implemented
 for CD.}
 
-\item{loglik.control}{See \code{\link{control.ergm.bridge}}}
+\item{loglik}{See \code{\link{control.ergm.bridge}}}
 
-\item{term.options}{A list of additional arguments to be passed to term initializers. It can also be set globally via \code{option(ergm.term=list(...))}.}
+\item{term.options}{A list of additional arguments to be passed to term initializers. See \code{\link[=term.options]{? term.options}}.}
 
 \item{seed}{Seed value (integer) for the random number generator.  See
 \code{\link[base]{set.seed}}.}

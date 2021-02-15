@@ -59,8 +59,8 @@ set to a vector of 0.}
 specifying the statistics to use to diagnosis the goodness-of-fit of the
 model.  They do not need to be in the model formula specified in
 \code{formula}, and typically are not.  Currently supported terms are the
-degree distribution (\dQuote{degree} for undirected graphs, or
-\dQuote{idegree} and/or \dQuote{odegree} for directed graphs), geodesic
+degree distribution (\dQuote{degree} for undirected graphs,
+\dQuote{idegree} and/or \dQuote{odegree} for directed graphs, and \dQuote{b1degree} and \dQuote{b2degree} for bipartite undirected graphs), geodesic
 distances (\dQuote{distance}), shared partner distributions
 (\dQuote{espartners} and \dQuote{dspartners}), the triad census
 (\dQuote{triadcensus}), and the terms of the original model
