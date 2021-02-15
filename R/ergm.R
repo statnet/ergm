@@ -666,7 +666,7 @@ ergm <- function(formula, response=NULL,
   }
 
   control$init.method <- ERRVL(try(match.arg(control$init.method, init.candidates), silent=TRUE), {
-    message("Sepcified initial parameter method ", sQuote(control$init.method), " is not in the list of candidates. Use at your own risk.")
+    message("Specified initial parameter method ", sQuote(control$init.method), " is not in the list of candidates. Use at your own risk.")
     control$init.method
   })
   if(verbose) message(paste0("Using initial method '",control$init.method,"'."))
