@@ -190,7 +190,11 @@ ergm_proposal.character <- function(object, arguments, nw, ..., reference=~Berno
 
   proposal$reference <- reference
 
-  proposal$arguments$constraints$bd <- ergm.bounddeg(arguments$constraints$bd,nw)
+  # optionally bypass bd initialization if we are handling bd in some other way
+  if(!NVL(proposal$skip_bd, FALSE)) {
+    proposal$arguments$constraints$bd <- ergm.bounddeg(arguments$constraints$bd,nw)
+  }
+  
   # If package not specified, autodetect.
   if(is.null(proposal$pkgname))  proposal$pkgname <- environmentName(environment(eval(f)))
 

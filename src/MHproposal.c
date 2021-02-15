@@ -62,14 +62,20 @@ MHProposal *MHProposalInitialize(SEXP pR, Network *nwp, void **aux_storage){
   tmp = getListElement(pR, "iinputs");
   MHp->iinputs=length(tmp) ? INTEGER(tmp) : NULL;
 
-  SEXP bdR = getListElement(getListElement(getListElement(pR, "arguments"),"constraints"),"bd");
-  MHp->bd=DegreeBoundInitialize(INTEGER(getListElement(bdR,"attribs")),
-                                INTEGER(getListElement(bdR,"maxout")),
-                                INTEGER(getListElement(bdR,"maxin")),
-                                INTEGER(getListElement(bdR,"minout")),
-                                INTEGER(getListElement(bdR,"minin")),
-                                asInteger(getListElement(bdR,"condAllDegExact")), length(getListElement(bdR,"attribs")), nwp);
-
+  // optionally bypass bd initialization if we are handling bd in some other way
+  SEXP skip_bd = getListElement(pR, "skip_bd");
+  if(skip_bd == R_NilValue || !asInteger(skip_bd)) {
+    SEXP bdR = getListElement(getListElement(getListElement(pR, "arguments"),"constraints"),"bd");
+    MHp->bd=DegreeBoundInitialize(INTEGER(getListElement(bdR,"attribs")),
+                                  INTEGER(getListElement(bdR,"maxout")),
+                                  INTEGER(getListElement(bdR,"maxin")),
+                                  INTEGER(getListElement(bdR,"minout")),
+                                  INTEGER(getListElement(bdR,"minin")),
+                                  asInteger(getListElement(bdR,"condAllDegExact")), length(getListElement(bdR,"attribs")), nwp);
+  } else {
+    MHp->bd = NULL;
+  }
+  
   /*Clean up by freeing sn and fn*/
   Free(fn);
 

@@ -127,7 +127,8 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
                    bd_heads = as.integer(bd_heads - 1L),
                    bd_mixtypes = as.integer(bd_mixtypes),
                    empirical_flag = as.integer(arguments$constraints$Strat$empirical),
-                   amat = as.integer(t(pairs_mat)))
+                   amat = as.integer(t(pairs_mat)),
+                   skip_bd = TRUE)
 
   proposal
 }
@@ -186,7 +187,8 @@ InitErgmProposal.BDTNT <- function(arguments, nw) {
                    allowed.tails = as.integer(allowed.tails - 1L),
                    allowed.heads = as.integer(allowed.heads - 1L),
                    nodecov = as.integer(nodecov - 1L),
-                   amat = as.integer(t(pairs_mat)))
+                   amat = as.integer(t(pairs_mat)),
+                   skip_bd = TRUE)
                    
   proposal
 }
