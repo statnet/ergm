@@ -183,7 +183,9 @@ LEVELS_BASE1 <- NULL
 #'   the sum of `abs(attr[i]-attr[j])^pow` for all edges `(i,j)` in
 #'   the network.
 #'
-#' @usage # binary: absdiff(attr, pow=1)
+#' @usage
+#' # binary: absdiff(attr,
+#' #                 pow=1)
 #'
 #' @param attr a quantitative attribute (see Specifying Vertex
 #'   attributes and Levels (`?nodal_attributes`) for details

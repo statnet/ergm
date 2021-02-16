@@ -27,7 +27,10 @@ binary_dind_wrap <- function(name, nw, a, ..., cn=name){
 }
 
 #' @rdname absdiff-ergmTerm
-#' @usage # valued: absdiff(attr, pow=1, form="sum")
+#' @usage
+#' # valued: absdiff(attr,
+#' #                 pow=1,
+#' #                 form="sum")
 #' @param form character how to aggregate tie values in a valued ERGM
 InitWtErgmTerm.absdiff <- function(nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){

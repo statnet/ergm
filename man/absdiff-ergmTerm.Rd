@@ -6,9 +6,12 @@
 \alias{InitWtErgmTerm.absdiff}
 \title{Absolute difference}
 \usage{
-# binary: absdiff(attr, pow=1)
+# binary: absdiff(attr,
+#                 pow=1)
 
-# valued: absdiff(attr, pow=1, form="sum")
+# valued: absdiff(attr,
+#                 pow=1,
+#                 form="sum")
 }
 \arguments{
 \item{attr}{a quantitative attribute (see Specifying Vertex
