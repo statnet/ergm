@@ -129,7 +129,7 @@ gof.ergm <- function (object, ...,
                       control=control.gof.ergm(),
                       verbose=FALSE) {
   check.control.class(c("gof.ergm","gof.formula"), "gof.ergm")
-  control.toplevel("gof.ergm", ...)
+  handle.control.toplevel("gof.ergm", ...)
   .gof.nw <- as.network(object$network)
 
   if(!is.null(object$response)) stop("GoF for valued ERGMs is not implemented at this time.")
@@ -199,7 +199,7 @@ gof.formula <- function(object, ...,
   if(is.null(control)) control <- control.gof.formula()
 
   check.control.class(c("gof.formula","gof.ergm"), "ERGM gof.formula")
-  control.toplevel("gof.formula", ...)
+  handle.control.toplevel("gof.formula", ...)
 
   #Set up the defaults, if called with GOF==NULL
   if(is.null(GOF)){

@@ -265,7 +265,7 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
                              verbose=FALSE, ..., basis=eval_lhs.formula(object), do.sim=TRUE) {
   #' @importFrom statnet.common check.control.class
   check.control.class("simulate.formula", myname="ERGM simulate.formula")
-  control.toplevel("simulate.formula", ...)
+  handle.control.toplevel("simulate.formula", ...)
 
   if(!missing(statsonly)){
     .Deprecate_once(msg=paste0("Use of ",sQuote("statsonly=")," argument has been deprecated. Use ",sQuote("output='stats'")," instead."))
@@ -360,7 +360,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                                 verbose=FALSE, ...){
 
   check.control.class(c("simulate.formula", "simulate.ergm_model"), myname="simulate.ergm_model")
-  control.toplevel("simulate.formula", ...)
+  handle.control.toplevel("simulate.formula", ...)
   
   if(!is.null(monitor) && !is(monitor, "ergm_model")) stop("ergm_model method for simulate() requires monitor= argument of class ergm_model or NULL.")
   if(is.null(basis)) stop("ergm_model method for simulate() requires the basis= argument for the initial state of the simulation.")
@@ -536,7 +536,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           control=control.simulate.ergm(),
                           verbose=FALSE, ...) {
   check.control.class(c("simulate.ergm","simulate.formula"), "simulate.ergm")
-  control.toplevel("simulate.ergm", ...)
+  handle.control.toplevel("simulate.ergm", ...)
   control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges","parallel","parallel.type","parallel.version.check","term.options")
   for(arg in control.transfer)
     if(is.null(control[[arg]]))

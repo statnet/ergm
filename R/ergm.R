@@ -491,7 +491,7 @@ ergm <- function(formula, response=NULL,
                  control=control.ergm(),
                  verbose=FALSE,..., basis=ergm.getnetwork(formula)) {
   check.control.class("ergm", "ergm")
-  control.toplevel("ergm", ...)
+  handle.control.toplevel("ergm", ...)
   ergm_call <- match.call(ergm)
   
   estimate <- match.arg(estimate)

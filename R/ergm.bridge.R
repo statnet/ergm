@@ -76,7 +76,7 @@ ergm.bridge.preproc<-function(object, basis, response, ...){
 #' @export
 ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis=NULL, verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){
   check.control.class("ergm.bridge", "ergm.bridge.llr")
-  control.toplevel("ergm.bridge", ...)
+  handle.control.toplevel("ergm.bridge", ...)
 
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
   
@@ -202,7 +202,7 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
 #' @export
 ergm.bridge.0.llk<-function(object, response=response, constraints=~., coef, ..., llkonly=TRUE, control=control.ergm.bridge()){
   check.control.class("ergm.bridge", "ergm.bridge.0.llk")
-  control.toplevel("ergm.bridge", ...)
+  handle.control.toplevel("ergm.bridge", ...)
 
   br<-ergm.bridge.llr(object, constraints=constraints, from=rep(0,length(coef)), to=coef, response=response, control=control, ...)
   if(llkonly) br$llr
@@ -233,7 +233,7 @@ ergm.bridge.0.llk<-function(object, response=response, constraints=~., coef, ...
 #' @export
 ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef, dind=NULL, coef.dind=NULL,  basis=NULL, ..., llkonly=TRUE, control=control.ergm.bridge()){
   check.control.class("ergm.bridge", "ergm.bridge.dindstart.llk")
-  control.toplevel("ergm.bridge", ...)
+  handle.control.toplevel("ergm.bridge", ...)
 
   if(!is.null(response)) stop("Only binary ERGMs are supported at this time.")
 
