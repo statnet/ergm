@@ -240,11 +240,11 @@ c.ergm_model <- function(...){
       }
 
     # Remove redundant auxiliaries, but only among sinks:
-    sinks <- unique(c(o$terms[oaux][!onaux], m$terms[maux][!mnaux]), fromLast=TRUE)
+    sinks <- unique_aux_terms(c(o$terms[oaux][!onaux], m$terms[maux][!mnaux]))
     
     # To which term in the new auxilary list does each of the current auxiliary pointers to sinks correspond? Note that they are numbered from 0.
-    omap[!onaux] <- match(o$terms[oaux][!onaux], sinks) + pos - 1L
-    mmap[!mnaux] <- match(m$terms[maux][!mnaux], sinks) + pos - 1L
+    omap[!onaux] <- match_aux_terms(o$terms[oaux][!onaux], sinks) + pos - 1L
+    mmap[!mnaux] <- match_aux_terms(m$terms[maux][!mnaux], sinks) + pos - 1L
     
     # Now, give them indices again:
     for(i in seq_along(sinks))
@@ -278,6 +278,9 @@ c.ergm_model <- function(...){
                   "slots.extra.aux"))
       o[[name]] <- c(o[[name]], m[[name]])
   }
+
+  # Check that terms and auxiliaries are properly positioned.
+  assert_aux_dependencies(o$terms)
 
   o$etamap <- ergm.etamap(o)
   o

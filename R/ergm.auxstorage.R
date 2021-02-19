@@ -30,17 +30,17 @@ ergm.auxstorage <- function(model, nw,..., extra.aux=list(), term.options=list()
   aux.outlists <- aux_list_list(model$terms, extra.aux)
 
   # Remove duplicated auxiliaries.
-  uniq.aux.outlists <- unique(unlist(aux.outlists, recursive=FALSE), fromLast=TRUE)
+  uniq.aux.outlists <- unique_aux_terms(unlist(aux.outlists, recursive=FALSE))
   prev <- NULL
   aux.aux.outlists <- list()
 
-  # Until we reach a fixed point (which we should, unless there is a circular dependency.
+  # Until we reach a fixed point (which we should, unless there is a circular dependency).
   #
   # TODO: Check for circular dependencies.
   while(!identical(uniq.aux.outlists,prev, ignore.environment=TRUE)){
     prev <- uniq.aux.outlists
     aux.aux.outlists <- aux_list_list(uniq.aux.outlists)
-    uniq.aux.outlists <- unique(c(uniq.aux.outlists, unlist(aux.aux.outlists, recursive=FALSE)), fromLast=TRUE)
+    uniq.aux.outlists <- unique_aux_terms(c(uniq.aux.outlists, unlist(aux.aux.outlists, recursive=FALSE)))
   }
 
   # uniq.aux.outlists is now a list of unique initialized auxiliaries
@@ -58,7 +58,7 @@ ergm.auxstorage <- function(model, nw,..., extra.aux=list(), term.options=list()
   }
 
   # Which term is requiring which auxiliary slot? (+1)
-  aux.slots <- lapply(aux.outlists, match, uniq.aux.outlists)
+  aux.slots <- lapply(aux.outlists, match_aux_terms, uniq.aux.outlists)
   slots.extra.aux <- rep(list(integer(0)), length(extra.aux))
   
   for(i in seq_along(aux.outlists)){
@@ -72,7 +72,7 @@ ergm.auxstorage <- function(model, nw,..., extra.aux=list(), term.options=list()
   names(slots.extra.aux) <- names(extra.aux)
 
   # Which auxiliary is requiring which auxiliary slot? (+1)
-  aux.aux.slots <- lapply(aux.aux.outlists, match, uniq.aux.outlists)
+  aux.aux.slots <- lapply(aux.aux.outlists, match_aux_terms, uniq.aux.outlists)
   
   for(i in seq_along(aux.aux.outlists)){
     if(length(aux.aux.outlists[[i]])){
@@ -81,6 +81,38 @@ ergm.auxstorage <- function(model, nw,..., extra.aux=list(), term.options=list()
     }
   }
 
+  # Check that terms and auxiliaries are properly positioned.
+  assert_aux_dependencies(model$terms)
+
   model$slots.extra.aux <- slots.extra.aux
   model
+}
+
+unique_aux_terms <- function(terms){
+  # Known issue: unique() and match() don't necessarily have the same notion of equality. This can cause problems. Hopefully, assert_aux_dependencies() can catch them early.
+  IGNORE <- "call"
+  terms.clean <- lapply(terms, function(term) term[! names(term)%in%IGNORE])
+  terms[!duplicated(terms.clean, fromLast=TRUE)]
+}
+
+match_aux_terms <- function(x, table){
+  # Known issue: unique() and match() don't necessarily have the same notion of equality. This can cause problems. Hopefully, assert_aux_dependencies() can catch them early.
+  IGNORE <- "call"
+  x.clean <- lapply(x, function(term) term[! names(term)%in%IGNORE])
+  table.clean <- lapply(table, function(term) term[! names(term)%in%IGNORE])
+  match(x.clean, table.clean)
+}
+
+assert_aux_dependencies <- function(terms){
+  aux <- (lapply(terms, `[[`, "coef.names") %>% lengths)==0
+  aux.slots <- lapply(terms, attr, "aux.slots")
+
+  provided <- ifelse(aux, lapply(aux.slots, `[`, 1), NA)
+  requested <- ifelse(aux, lapply(aux.slots, `[`, -1), aux.slots)
+
+  if(anyNA(aux.slots, TRUE)) stop("A requested auxiliary is not provided or is positioned after the requester in the term list. This indicates an implementation bug.")
+
+  for(i in seq_along(aux))
+    if(any(! requested[[i]] %in% unlist(provided[-seq_len(i)])))
+      stop("A requested auxiliary is not provided or is positioned after the requester in the term list. This indicates an implementation bug.")
 }
