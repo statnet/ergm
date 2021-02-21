@@ -57,7 +57,7 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   }
 
   # bound defaults to network.size - 1, which is effectively no bound (could be made smaller in the bipartite case, but oh well)
-  bound <- NVL(arguments$bound, arguments$constraints$bd$maxout, network.size(nw) - 1L)
+  bound <- NVL(arguments$maxout, arguments$constraints$bd$maxout, network.size(nw) - 1L)
   if(is.na(bound)) bound <- network.size(nw) - 1L
 
   # if blocks has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
@@ -141,7 +141,7 @@ InitErgmProposal.BDTNT <- function(arguments, nw) {
   }
   
   # bound defaults to network.size - 1, which is effectively no bound (could be made smaller in the bipartite case, but oh well)
-  bound <- NVL(arguments$bound, arguments$constraints$bd$maxout, network.size(nw) - 1L)
+  bound <- NVL(arguments$maxout, arguments$constraints$bd$maxout, network.size(nw) - 1L)
   if(is.na(bound)) bound <- network.size(nw) - 1L
 
   # if blocks has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
