@@ -90,9 +90,12 @@ predict.formula <- function(object, theta,
   
   # Matrix to data.frame
   .matrix_to_df <- function(m, name=".value") {
+    unames <- sort(unique(unlist(dimnames(m))))
     d <- as.data.frame(as.table(m), stringsAsFactors=FALSE)
     names(d) <- c("tail", "head", name)
-    d
+    d$tail <- match(d$tail, unames)
+    d$head <- match(d$head, unames)
+    subset(d, tail != head)
   }
   
   # Simulated unconditional Ps
