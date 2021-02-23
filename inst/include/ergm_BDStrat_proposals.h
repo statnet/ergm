@@ -5,6 +5,7 @@
 #include "ergm_edgetree_types.h"
 #include "ergm_unsorted_edgelist.h"
 #include "ergm_weighted_population.h"
+#include "ergm_hash_edgelist.h"
 
 #define OUTVAL_NET(e,n) ((n)->outedges[(e)].value)
 #define INVAL_NET(e,n) ((n)->inedges[(e)].value)
@@ -70,7 +71,7 @@ typedef struct {
   Vertex **nodesvec; // List of lists of submaximal nodes of attribute i.
   int *nodepos; // nodepos[i] is position of vertex i in nodesvec[vattr[i]]
   
-  UnsrtEL *edgelist; // All edges in the network.
+  HashEL *hash; // All edges in the network.
   
   int tailtype; // Attribute type of the last tail to be proposed.
   int tailmaxl; // Will the tail change the maximality status if the current proposal is accepted?
@@ -80,12 +81,7 @@ typedef struct {
   
   Dyad currentdyads; // Number of dyads that can be selected in the current network.
   Dyad proposeddyads; // As above, but if the proposal is accepted.
-  
-  int currentsubmaxledges;  // Number of edges in the current network both of whose endpoints are submaximal
-  int proposedsubmaxledges; // Number of edges in the proposed network both of whose endpoints are submaximal
-  
-  int **amat;
-  
+    
   int bound; // Single upper bound on degree.
   int nmixtypes; // Number of pairings of attributes.
   int *vattr; // Vertex attributes.
@@ -94,13 +90,10 @@ typedef struct {
   // Parallel vectors of attribute combinations that are allowed.
   int *tailtypes;
   int *headtypes;
-  
-  Vertex *nodes;
-  int *maxl;  
 } BDTNTStorage;
 
 typedef struct {
-  UnsrtEL **els;
+  HashEL **hash;
   Vertex ***nodesvec;
   int **attrcounts;
   
@@ -125,8 +118,6 @@ typedef struct {
   
   int bound;
   int nmixtypes;
-  int nmixtypes_max;
-  int nmixtypes_toggleable;
   
   int *strat_vattr;
   int *bd_vattr;
@@ -141,16 +132,10 @@ typedef struct {
   int nstratlevels;
   int nbdlevels;
   
-  int *currentsubmaxledgestype;
   int **indmat;
-  
-  int **amat;
-  
+    
   int nmixtypestoupdate;
   int *mixtypestoupdate;
-
-  Vertex *nodes;
-  int *maxl;
 } BDStratTNTStorage;
 
 

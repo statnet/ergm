@@ -5,7 +5,7 @@
 #include <R.h>
 
 /* This is a data structure based on the StratTNT algorithm developed
-   by Chad Kumb. For now, these are static-inlined for simplicity, but
+   by Chad Klumb. For now, these are static-inlined for simplicity, but
    we may want to move some of the less frequently used functions
    to a C file and save RAM.*/
 
@@ -43,6 +43,11 @@ static inline void UnsrtELDestroy(UnsrtEL *el){
   Free(el);
 }
 
+static inline void UnsrtELClear(UnsrtEL *el) {
+  el->lindex = 0;
+  el->nedges = 0;
+}
+
 static inline Edge UnsrtELGetRand(Vertex *tail, Vertex *head, UnsrtEL *el){
   if(el->nedges==0) return 0;
   el->lindex = el->nedges*unif_rand() + 1;
@@ -71,6 +76,17 @@ static inline void UnsrtELDelete(Vertex tail, Vertex head, UnsrtEL *el){
   if(UnsrtELSearch(tail, head, el)==0) return; // Edge already absent.
   el->tails[el->lindex] = el->tails[el->nedges];
   el->heads[el->lindex] = el->heads[el->nedges];
+  el->nedges--;
+  el->lindex=0;
+}
+
+// used by HashEL; assumes `at` is a valid edge index in `el`
+static inline void UnsrtELDeleteAt(unsigned int at, UnsrtEL *el) {
+  if(at < el->nedges) {
+    el->tails[at] = el->tails[el->nedges];
+    el->heads[at] = el->heads[el->nedges];
+  }
+  
   el->nedges--;
   el->lindex=0;
 }
