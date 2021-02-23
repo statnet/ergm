@@ -97,26 +97,26 @@ ergm.mple<-function(nw, fd, m, init=NULL,
                     MPLEtype="glm", family="binomial",
                     save.glm=TRUE,
                     save.xmat=TRUE,
-		    control=NULL, proposal=NULL,
+                    control=NULL, proposal=NULL,
                     verbose=FALSE,
                     ...) {
   message("Starting maximum pseudolikelihood estimation (MPLE):")
   message("Evaluating the predictor and response matrix.")
   pl <- ergm.pl(nw=nw, fd=fd, m=m, theta.offset=init,
-		            control=control, verbose=verbose)
+                control=control, verbose=verbose)
 
   # test whether the MPLE actually exists
   #' @importFrom rcdd lpcdd
   if(control$init.method == "MPLE"){
     X <- pl$xmat
-    y<-  pl$zy
-    y[y==0]<- -1
-    X.bar<- y*X
-    X.bar.m<- -1*X.bar
+    y <-  pl$zy
+    y[y==0] <- -1
+    X.bar <- y*X
+    X.bar.m <- -1*X.bar
     e_n <- rep(1, nrow(X.bar))
     obj <- e_n%*%X.bar
-    obj<- as.vector(obj)
-    H.rep <- cbind(rep(0,nrow(X.bar)),  rep(0,nrow(X.bar)), X.bar) # need -X.bar.m = X.bar
+    obj <- as.vector(obj)
+    H.rep <- cbind(rep(0,nrow(X.bar)), rep(0,nrow(X.bar)), X.bar) # need -X.bar.m = X.bar
     linp <- lpcdd(H.rep, obj, minimize=F)
     if(linp$solution.type == "DualInconsistent"){
       warning("The MPLE does not exist!")
@@ -125,66 +125,66 @@ ergm.mple<-function(nw, fd, m, init=NULL,
 
   message("Maximizing the pseudolikelihood.")
   if(MPLEtype=="penalized"){
-   if(verbose) message("Using penalized MPLE.")
-   mplefit <- ergm.pen.glm(
-                  pl$zy ~ pl$xmat -1 + offset(pl$foffset),
-                  data=data.frame(pl$xmat), weights=pl$wend,
-                  start=init[!m$etamap$offsettheta])
-   mplefit$cov.unscaled <- mplefit$var
-   mplefit.summary <- mplefit
+    if(verbose) message("Using penalized MPLE.")
+    mplefit <- ergm.pen.glm(
+      pl$zy ~ pl$xmat -1 + offset(pl$foffset),
+      data=data.frame(pl$xmat), weights=pl$wend,
+      start=init[!m$etamap$offsettheta])
+    mplefit$cov.unscaled <- mplefit$var
+    mplefit.summary <- mplefit
   }else{
-   if(MPLEtype=="logitreg"){
-    mplefit <- model.matrix(terms(pl$zy ~ .-1,data=data.frame(pl$xmat)),
-                           data=data.frame(pl$xmat))
-    mplefit <- ergm.logitreg(x=mplefit, y=pl$zy, offset=pl$foffset, wt=pl$wend,
-                             start=init[!m$etamap$offsettheta])
-    mplefit.summary <- list(cov.unscaled=mplefit$cov.unscaled)
-   }else{
-#     mplefit <- suppressWarnings(try(
-#           glm(pl$zy ~ .-1 + offset(pl$foffset), data=data.frame(pl$xmat),
-#                weights=pl$wend, family=family),
-# # Note:  It appears that specifying a starting vector can lead to problems!
-# #               start=init[!m$etamap$offsettheta]),
-#                     silent = TRUE))
-    glm.result <- .catchToList(glm(pl$zy ~ .-1 + offset(pl$foffset), 
-                                  data=data.frame(pl$xmat),
-                                  weights=pl$wend, family=family))
-    
-    # estimate variability matrix V for Godambe covariance matrix or via bootstrapping, only for dyad dependent models and
-    #  init.method="MPLE"
-    if(!is.dyad.independent(m) && control$init.method == "MPLE" && control$MPLE.covariance.method=="Godambe" ||
-       control$MPLE.covariance.method=="bootstrap"){
-      invHess <- summary(glm.result$value)$cov.unscaled
-      mple.cov <- ergm_mplecov(pl,nw, fd, m, theta.mple=glm.result$value$coef, invHess=invHess,
-                               verbose=verbose, control=control)
-    }
+    if(MPLEtype=="logitreg"){
+      mplefit <- model.matrix(terms(pl$zy ~ .-1,data=data.frame(pl$xmat)),
+                              data=data.frame(pl$xmat))
+      mplefit <- ergm.logitreg(x=mplefit, y=pl$zy, offset=pl$foffset, wt=pl$wend,
+                               start=init[!m$etamap$offsettheta])
+      mplefit.summary <- list(cov.unscaled=mplefit$cov.unscaled)
+    }else{
+      #     mplefit <- suppressWarnings(try(
+      #           glm(pl$zy ~ .-1 + offset(pl$foffset), data=data.frame(pl$xmat),
+      #                weights=pl$wend, family=family),
+      # # Note:  It appears that specifying a starting vector can lead to problems!
+      # #               start=init[!m$etamap$offsettheta]),
+      #                     silent = TRUE))
+      glm.result <- .catchToList(glm(pl$zy ~ .-1 + offset(pl$foffset),
+                                     data=data.frame(pl$xmat),
+                                     weights=pl$wend, family=family))
 
-    # error handling for glm results
-    if (!is.null(glm.result$error)) {
-      stop(glm.result$error)
-    } else if (!is.null(glm.result$warnings)) {
-      # if the glm results are crazy, redo it with 0 starting values
-      if (max(abs(glm.result$value$coef), na.rm=T) > 1e6) {
-        warning("GLM model may be separable; restarting glm with zeros.\n")
-        mplefit <- glm(pl$zy ~ .-1 + offset(pl$foffset), 
-                       data=data.frame(pl$xmat),
-                       weights=pl$wend, family=family, 
-                       start=rep.int(0, length(init[!m$etamap$offsettheta])))
-        mplefit.summary <- summary(mplefit)
+      # estimate variability matrix V for Godambe covariance matrix or via bootstrapping, only for dyad dependent models and
+      #  init.method="MPLE"
+      if(!is.dyad.independent(m) && control$init.method == "MPLE" && control$MPLE.covariance.method=="Godambe" ||
+         control$MPLE.covariance.method=="bootstrap"){
+        invHess <- summary(glm.result$value)$cov.unscaled
+        mple.cov <- ergm_mplecov(pl,nw, fd, m, theta.mple=glm.result$value$coef, invHess=invHess,
+                                 verbose=verbose, control=control)
+      }
+
+      # error handling for glm results
+      if (!is.null(glm.result$error)) {
+        stop(glm.result$error)
+      } else if (!is.null(glm.result$warnings)) {
+        # if the glm results are crazy, redo it with 0 starting values
+        if (max(abs(glm.result$value$coef), na.rm=T) > 1e6) {
+          warning("GLM model may be separable; restarting glm with zeros.\n")
+          mplefit <- glm(pl$zy ~ .-1 + offset(pl$foffset),
+                         data=data.frame(pl$xmat),
+                         weights=pl$wend, family=family,
+                         start=rep.int(0, length(init[!m$etamap$offsettheta])))
+          mplefit.summary <- summary(mplefit)
+        } else {
+          # unknown warning, just report it
+          warning(glm.result$warnings)
+          mplefit <- glm.result$value
+          mplefit.summary <- summary(mplefit)
+        }
       } else {
-        # unknown warning, just report it
-        warning(glm.result$warnings)
+        # no errors or warnings
         mplefit <- glm.result$value
         mplefit.summary <- summary(mplefit)
       }
-    } else {
-      # no errors or warnings
-      mplefit <- glm.result$value
-      mplefit.summary <- summary(mplefit)
-    }
-    
 
-   }
+
+    }
   }
   real.coef <- mplefit$coef
 
@@ -199,32 +199,32 @@ ergm.mple<-function(nw, fd, m, init=NULL,
   theta[!m$etamap$offsettheta] <- real.coef
   names(theta) <- param_names(m,canonical=TRUE)
 
-#
-# Old end
-#
+  #
+  # Old end
+  #
   gradient <- rep(NA, length(theta))
 
   # FIXME: Actually, if case-control sampling was used, this should be positive.
   est.cov <- matrix(0, length(theta),length(theta))
   
   if(length(theta)==1){
-   covar <- array(0,dim=c(1,1))
-   hess <- array(0,dim=c(1,1))
+    covar <- array(0,dim=c(1,1))
+    hess <- array(0,dim=c(1,1))
   }else{
-   covar <- diag(rep(0,length(theta)))
-   hess <- diag(rep(0,length(theta)))
+    covar <- diag(rep(0,length(theta)))
+    hess <- diag(rep(0,length(theta)))
   }
-# covar <- as.matrix(covar[!m$etamap$offsettheta,!m$etamap$offsettheta])
-# covar[!is.na(real.coef),!is.na(real.coef)] <- real.cov
+  # covar <- as.matrix(covar[!m$etamap$offsettheta,!m$etamap$offsettheta])
+  # covar[!is.na(real.coef),!is.na(real.coef)] <- real.cov
   covar[!is.na(theta)&!m$etamap$offsettheta,
         !is.na(theta)&!m$etamap$offsettheta] <- real.cov
   hess[!is.na(theta)&!m$etamap$offsettheta,
-        !is.na(theta)&!m$etamap$offsettheta] <- if(length(real.cov)) -ginv(real.cov) else matrix(0,0,0)
-#
+       !is.na(theta)&!m$etamap$offsettheta] <- if(length(real.cov)) -ginv(real.cov) else matrix(0,0,0)
+  #
   iteration <-  mplefit$iter 
 
-# mplefit <- call(MPLEtype, pl$zy ~ 1, family=binomial)
-#
+  # mplefit <- call(MPLEtype, pl$zy ~ 1, family=binomial)
+  #
   if(MPLEtype=="penalized"){
     mplefit.null <- ergm.pen.glm(pl$zy ~ 1, weights=pl$wend)
   }else{
@@ -251,10 +251,10 @@ ergm.mple<-function(nw, fd, m, init=NULL,
   message("Finished MPLE.")
   # Output results as ergm-class object
   structure(list(coef=theta,
-      iterations=iteration, 
-      MCMCtheta=theta, gradient=gradient,
-      hessian=hess, covar=covar, failure=FALSE,
-      est.cov=est.cov, glm = glm, glm.null = glm.null, xmat.full = if(save.xmat) pl$xmat.full),
-     class="ergm")
+                 iterations=iteration,
+                 MCMCtheta=theta, gradient=gradient,
+                 hessian=hess, covar=covar, failure=FALSE,
+                 est.cov=est.cov, glm = glm, glm.null = glm.null, xmat.full = if(save.xmat) pl$xmat.full),
+            class="ergm")
 }
 
