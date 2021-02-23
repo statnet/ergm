@@ -99,7 +99,7 @@ predict.formula <- function(object, theta,
   if(!conditional) {
     if(type != "response") 
       stop("type='link' for unconditional probabilities is not supported")
-    predm <- predict_ergm_unconditional(object=object, coef=theta, nsim=100, ...)
+    predm <- predict_ergm_unconditional(object=object, coef=theta, nsim=nsim, ...)
     return(
       switch(
         output,
