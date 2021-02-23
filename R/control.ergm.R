@@ -116,6 +116,16 @@
 #'   `MPLE.nonvar`. The corresponding `MCMLE.*` arguments provide a
 #'   similar diagnostic for the unconstrained MCMC sample's estimating
 #'   functions.
+#'   
+#' @param MPLE.covariance.samplesize The number of networks to simulate to approximate 
+#'  the MPLE covariance matrix using the Godambe matrix (see Schmid and Hunter (2020)) or 
+#'  parametric Bootstrapping (see Schmid and Desmarais (2017)).
+#'  
+#' @param MPLE.covariance.method The method to estimate the MPLE covariance method. `invHess`
+#'  returns the covariance estimate obtained from the glm()-function. `Godambe` estimates the 
+#'  covariance matrix using the Godambe-matrix (Schmid and Hunter (2020)). This method is recommended 
+#'  for dyad-dependent models. Alternatively, `bootstrap` estimates standard deviations using a parametric
+#'  bootstrapping approach (see Schmid and Desmarais (2017)).
 #'
 #' @param MPLE.covariance.samplesize The number of networks to simulate to approximate
 #'  the MPLE covariance matrix using the Godambe matrix (see Schmid and Hunter (2020)) or

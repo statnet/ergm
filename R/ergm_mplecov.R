@@ -8,11 +8,19 @@
 #  Copyright 2003-2020 Statnet Commons
 #######################################################################
 #' Approximate MPLE standard errors in dyad-dependent models
+<<<<<<< HEAD
 #'
 #' Function to approximate the MPLE covariance matrix in a dyad dependence model
 #' using the Godambe matrix as described in Schmid and Hunter (2020) or by parametric bootstrap
 #' as described by Schmid and Desmarais (2017).
 #'
+=======
+#' 
+#' Function to approximate the MPLE covariance matrix in a dyad dependence model 
+#' using the Godambe matrix as described in Schmid and Hunter (2020) or by parametric bootstrap
+#' as described by Schmid and Desmarais (2017).
+#' 
+>>>>>>> added code for MPLE covariance methods
 #' @param pl An \code{\link{ergm.pl}} object.
 #' @param nw response network.
 #' @param fd An \code{\link{rlebdm}} with informative dyads.
@@ -38,6 +46,7 @@
 
 ergm_mplecov <- function(pl,nw, fd, m,  theta.mple, invHess,  control,
                          verbose){
+<<<<<<< HEAD
 
   # get sample size from control.ergm
   R <- control$MPLE.covariance.samplesize
@@ -51,14 +60,36 @@ ergm_mplecov <- function(pl,nw, fd, m,  theta.mple, invHess,  control,
   if(control$MPLE.covariance.method == "Godambe"){
     message("Estimating Godambe Matrix using ", R, " simulated networks.")
 
+=======
+  
+  # get sample size from control.ergm
+  R <- control$MPLE.covariance.samplesize
+  
+  # Simulate R networks
+  sim.mple <- simulate(m, nsim=R, coef=theta.mple, basis=nw, control=control.simulate.formula(MCMC.burnin=5000, MCMC.interval=3000))
+  
+  X <- pl$xmat
+  num.variables <- ncol(pl$xmat)
+  
+  if(control$MPLE.covariance.method == "Godambe"){
+    message("Estimating Godambe Matrix using ", R, " simulated networks.")
+    
+>>>>>>> added code for MPLE covariance methods
     # calculation of V(theta) = Var(u(theta,y)) using the sim.num networks
     net.stat <- matrix(0, nrow=length(sim.mple), ncol=num.variables)
     colnames(net.stat) <- colnames(pl$xmat)
     u.data <- matrix(0,nrow=length(sim.mple), ncol=num.variables)
+<<<<<<< HEAD
 
     for(i in 1:length(sim.mple)){
       # replace response network in formula and get MPLE of simulated network
       pl_sim <- ergm.pl(nw=sim.mple[[i]], fd=fd, m=m, theta.offset=init,
+=======
+    
+    for(i in 1:length(sim.mple)){
+      # replace response network in formula and get MPLE of simulated network
+      pl_sim <- ergm.pl(nw=sim.mple[[i]], fd=fd, m=m, theta.offset=init, 
+>>>>>>> added code for MPLE covariance methods
                         control=control,verbose=verbose)
       # write the response, weight and designmatrix into one matrix
       X.dat <- cbind(pl_sim$zy, pl_sim$wend, pl_sim$xmat)
@@ -78,13 +109,22 @@ ergm_mplecov <- function(pl,nw, fd, m,  theta.mple, invHess,  control,
     G <- invHess%*%u.sum.n%*%invHess
     return(G)
   } # end if Godambe
+<<<<<<< HEAD
 
   if(control$MPLE.covariance.method == "bootstrap"){
+=======
+  
+  if(control$MPLE.covariance.method == "bootstrap"){ 
+>>>>>>> added code for MPLE covariance methods
     message("Estimating Bootstrap Standard Errors using ", R, " simulated networks.")
     # create empty matrix to store mple of bootstrap samples
     boot.mple.mat <- matrix(0, nrow=length(sim.mple), ncol=num.variables)
     colnames(boot.mple.mat) <- colnames(pl$xmat)
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> added code for MPLE covariance methods
     for(i in 1:length(sim.mple)){
       # replace response network in formula
       pl_sim <- ergm.pl(nw=sim.mple[[i]], fd=fd, m=m, theta.offset=init,control=control,
