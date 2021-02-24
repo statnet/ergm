@@ -14,7 +14,8 @@ Authors@R: c(
 	     person("Skye", "Bender-deMoll", role=c("ctb"), email="skyebend@u.washington.edu"),
              person("Chad", "Klumb", role=c("ctb"), email="cklumb@gmail.com"),
              person("Michał", " Bojanowski", role=c("ctb"), email="mbojanowski@kozminski.edu.pl"),
-             person("Ben", "Bolker", role=c("ctb"), email="bbolker+lme4@gmail.com"))
+             person("Ben", "Bolker", role=c("ctb"), email="bbolker+lme4@gmail.com"),
+             person("Christian", "Schmid", role=c("ctb"), email="cxs5700@psu.edu"))
 Depends:
     network (>= 1.15)
 Imports:
