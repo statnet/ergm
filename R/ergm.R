@@ -799,12 +799,13 @@ ergm <- function(formula, response=NULL,
                           MPLE = if(MPLE.is.MLE) "Maximum Likelihood"
                                  else "Maximum Pseudolikelihood",
                           CD = "Contrastive Divergence",
-                          MLE = paste(switch(control$main.method,
-                                             MCMLE = "Monte Carlo",
-                                             `Stochastic-Approximation`="Stochastic Approximation",
-                                             `Robbins-Monro`="Robbins-Monro",
-                                             `Stepping`="Hummel Stepping"),
-                                      "Maximum Likelihood"))
+                          MLE = paste0(if(MCMCflag) # If not, it's just MLE.
+                                         switch(control$main.method,
+                                                MCMLE = "Monte Carlo ",
+                                                `Stochastic-Approximation`="Stochastic Approximation ",
+                                                `Robbins-Monro`="Robbins-Monro ",
+                                                `Stepping`="Hummel Stepping "),
+                                       "Maximum Likelihood"))
 
   if (!MCMCflag){ # Just return initial (non-MLE) fit and exit.
     message("Stopping at the initial estimate.")
