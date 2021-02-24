@@ -145,12 +145,13 @@ summary.ergm <- function (object, ...,
     ans$message <- "\nFor this model, the pseudolikelihood is the same as the likelihood.\n"
   }
   mle.lik<-try(logLik(object,...), silent=TRUE)
-  null.lik<-try(logLikNull(object,...), silent=TRUE)
-
-  ans$null.lik.0 <- is.na(null.lik)
 
   if(inherits(mle.lik,"try-error")) ans$objname<-deparse(substitute(object))
   else if(!is.na(mle.lik)){
+    # Only evaluate the null likelihood if the MLE likelihood is defined.
+    null.lik<-try(logLikNull(object,...), silent=TRUE)
+    ans$null.lik.0 <- is.na(null.lik)
+
     df <- length(coef)
     dyads<- sum(as.rlebdm(object$constrained, object$constrained.obs, which="informative"))
     rdf <- dyads - df
