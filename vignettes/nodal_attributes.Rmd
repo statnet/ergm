@@ -64,10 +64,22 @@ summary(faux.mesa.high~nodecov(~Grade)) # Formula
 summary(faux.mesa.high~nodecov(function(nw) nw%v%"Grade")) # Function
 ```
 Taking advantage of `nodecov`'s new ability to take matrix-valued arguments, we might also evaluate a polynomial effect of `Grade`:
-```{r, node-attr-mat}
-# Directly:
+```{r, node-attr-cbind}
 summary(faux.mesa.high~nodecov(~cbind(Grade,Grade^2)))
-# Using stats::poly() function:
+```
+Notice the Warning. This is because the way `cbind()` assigns column names, the name of the second column will be blank unless we set it directly, in which case it can be anything:
+```{r, cbind-colnames-1}
+x <- 1:2
+cbind(x,x^2)
+cbind(x,x2=x^2)
+cbind(x,`x^2`=x^2) # Backticks for arbitrary names.
+```
+As the warning suggested, we can ensure that all columns have names, in which case they are not replaced with numbers:
+```{r, node-attr-cbind-name}
+summary(faux.mesa.high~nodecov(~cbind(Grade,Grade2=Grade^2)))
+```
+General functions, such as `stats::poly()`, can also be used:
+```{r, node-attr-poly}
 summary(faux.mesa.high~nodecov(~poly(Grade,2)))
 ```
 We can even pass a random nodal covariate. Notice that setting an attribute "name" gives it a label:
