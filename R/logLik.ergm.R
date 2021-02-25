@@ -81,7 +81,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
   # Then, we need to recalculate...
   
   check.control.class("logLik.ergm", "logLik.ergm")
-  control.toplevel("logLik.ergm", ...)
+  handle.control.toplevel("logLik.ergm", ...)
  
   control.transfer <- c("MCMC.samplesize", SCALABLE_MCMC_CONTROLS, STATIC_MCMC_CONTROLS, PARALLEL_MCMC_CONTROLS, MPLE_CONTROLS)
   for(arg in control.transfer)
@@ -163,7 +163,7 @@ logLikNull <- function(object, ...) UseMethod("logLikNull")
 logLikNull.ergm <- function(object, control=control.logLik.ergm(), ...){
   check.control.class("logLik.ergm", "logLikNull.ergm")
 
-  control.toplevel("logLik.ergm", ...)
+  handle.control.toplevel("logLik.ergm", ...)
   if(!is.null(object$null.lik)) return(object$null.lik)
   
   nobs <- nobs(object,...)

@@ -181,7 +181,7 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 #' # Activity by grade with a baseline grade excluded:
 #' summary(faux.mesa.high~nodefactor(~Grade))
 #' # Name overrides:
-#' summary(faux.mesa.high~nodefactor("Form"~Grade)) # Only works for terms that don't use the LHS for something else.
+#' summary(faux.mesa.high~nodefactor("Form"~Grade)) # Only for terms that don't use the LHS.
 #' summary(faux.mesa.high~nodefactor(~structure(Grade,name="Form")))
 #' # Retain all levels:
 #' summary(faux.mesa.high~nodefactor(~Grade, levels=TRUE)) # or levels=NULL

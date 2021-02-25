@@ -169,7 +169,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
                         offset.coef=NULL,
                         ...) {
   check.control.class("san", "san")
-  control.toplevel("san", ...)
+  handle.control.toplevel("san", ...)
 
   output <- match.arg(output)
 
@@ -225,7 +225,7 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
                            offset.coef=NULL,
                            ...) {
   check.control.class("san", "san")
-  control.toplevel("san", ...)
+  handle.control.toplevel("san", ...)
 
   output <- match.arg(output)
   model <- object

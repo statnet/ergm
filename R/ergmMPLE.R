@@ -175,7 +175,7 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmod
       if(fitmodel) output <- "fit"
   }
   check.control.class("ergm", "ergmMPLE")
-  control.toplevel("ergm", ...)
+  handle.control.toplevel("ergm", ...)
   output <- match.arg(output)
   if (output=="fit") {
     return(ergm(formula, estimate="MPLE", control=control, verbose=verbose, constraints=constraints, ...))

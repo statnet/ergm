@@ -63,7 +63,7 @@
 #' @export
 ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constraints=~., from, to, obs.constraints=~.-observed, target.stats=NULL, basis=eval_lhs.formula(object), verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){
   check.control.class("ergm.bridge", "ergm.bridge.llr")
-  control.toplevel("ergm.bridge", ...)
+  handle.control.toplevel("ergm.bridge", ...)
 
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
   
@@ -201,7 +201,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
 #' @export
 ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, ..., llkonly=TRUE, control=control.ergm.bridge(), basis=eval_lhs.formula(object)){
   check.control.class("ergm.bridge", "ergm.bridge.0.llk")
-  control.toplevel("ergm.bridge", ...)
+  handle.control.toplevel("ergm.bridge", ...)
   ergm_preprocess_response(basis, response)
   br<-ergm.bridge.llr(object, from=rep(0,length(coef)), to=coef, reference=reference, control=control, ..., basis=basis)
   if(llkonly) br$llr
@@ -232,7 +232,7 @@ ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, .
 #' @export
 ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef, obs.constraints=~.-observed, target.stats=NULL, dind=NULL, coef.dind=NULL,  basis=eval_lhs.formula(object), ..., llkonly=TRUE, control=control.ergm.bridge()){
   check.control.class("ergm.bridge", "ergm.bridge.dindstart.llk")
-  control.toplevel("ergm.bridge", ...)
+  handle.control.toplevel("ergm.bridge", ...)
 
   ## Here, we need to get the model object to get the list of
   ## dyad-independent terms.
