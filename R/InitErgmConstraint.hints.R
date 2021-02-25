@@ -9,7 +9,12 @@ InitErgmConstraint.sparse<-function(lhs.nw, ...){
    list(dependence = FALSE, priority=10, impliedby=c("sparse", "edges", "degrees", "edges", "idegrees", "odegrees", "b1degrees", "b2degrees", "idegreedist", "odegreedist", "degreedist", "b1degreedist", "b2degreedist"), constrain="sparse")
 }
 
-InitErgmConstraint.Strat <- function(lhs.nw, attr=NULL, pmat=NULL, empirical=NULL, ...) {
+InitErgmConstraint.Strat<-function(lhs.nw, ...){
+  .Deprecate_once("strat")
+  InitErgmConstraint.strat(lhs.nw, ...)
+}
+
+InitErgmConstraint.strat <- function(lhs.nw, attr=NULL, pmat=NULL, empirical=NULL, ...) {
   if(...length()) ergm_Init_abort(paste0("Unrecognised argument(s) ", paste.and(names(list(...)), oq="'", cq="'"),".")) 
 
   if(is.bipartite(lhs.nw)) {

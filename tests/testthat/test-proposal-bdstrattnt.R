@@ -18,7 +18,7 @@ test_that("BDStratTNT works with undirected unipartite networks", {
   diag(pmat) <- c(2,2,30)
 
   target.stats <- c(1000, 50, 50, 800)
-  nws <- san(nw ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~bd + Strat(attr = "race", pmat = pmat))
+  nws <- san(nw ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~bd + strat(attr = "race", pmat = pmat))
   sr <- summary(nws ~ edges + nodematch("race",levels=NULL, diff=TRUE))  
   
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -28,7 +28,7 @@ test_that("BDStratTNT works with undirected unipartite networks", {
   diag(pmat) <- c(7,7,20)
 
   target.stats <- c(1000, 125, 125, 350)
-  nws2 <- san(nws ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~bd + Strat(attr = "race", pmat = pmat))
+  nws2 <- san(nws ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~bd + strat(attr = "race", pmat = pmat))
   sr <- summary(nws2 ~ edges + nodematch("race",levels=NULL, diff=TRUE))
   
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -44,7 +44,7 @@ test_that("BDStratTNT works with undirected unipartite networks", {
   diag(pmat) <- c(2,2,10)
 
   target.stats <- c(160, 20, 20, 100)
-  nws <- san(nw ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~bd(maxout=5) + Strat(attr = "race", pmat = pmat))
+  nws <- san(nw ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~bd(maxout=5) + strat(attr = "race", pmat = pmat))
   sr <- summary(nws ~ edges + nodematch("race",levels=NULL, diff=TRUE))  
   
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -55,7 +55,7 @@ test_that("BDStratTNT works with undirected unipartite networks", {
   diag(pmat) <- c(7,7,20)
 
   target.stats <- c(530, 30, 30, 450)
-  nws2 <- san(nws ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~bd(maxout=5) + Strat(attr = "race", pmat = pmat))
+  nws2 <- san(nws ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~bd(maxout=5) + strat(attr = "race", pmat = pmat))
   sr <- summary(nws2 ~ edges + nodematch("race",levels=NULL, diff=TRUE))
   
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))  
@@ -71,7 +71,7 @@ test_that("BDStratTNT works with undirected unipartite networks", {
   diag(pmat) <- c(2,2,10)
 
   target.stats <- c(80, 10, 10, 50)
-  nws <- san(nw ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~bd(maxout=5) + blocks(attr="sex", levels2=diag(TRUE, 2)) + Strat(attr = "race", pmat = pmat))
+  nws <- san(nw ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~bd(maxout=5) + blocks(attr="sex", levels2=diag(TRUE, 2)) + strat(attr = "race", pmat = pmat))
   sr <- summary(nws ~ edges + nodematch("race",levels=NULL, diff=TRUE))  
   
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -83,7 +83,7 @@ test_that("BDStratTNT works with undirected unipartite networks", {
   diag(pmat) <- c(7,7,20)
 
   target.stats <- c(285, 15, 15, 230)
-  nws2 <- san(nws ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~bd(maxout=5) + blocks(attr="sex", levels2=diag(TRUE, 2)) + Strat(attr = "race", pmat = pmat))
+  nws2 <- san(nws ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~bd(maxout=5) + blocks(attr="sex", levels2=diag(TRUE, 2)) + strat(attr = "race", pmat = pmat))
   sr <- summary(nws2 ~ edges + nodematch("race",levels=NULL, diff=TRUE))
   
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))  
@@ -100,7 +100,7 @@ test_that("BDStratTNT works with undirected unipartite networks", {
   diag(pmat) <- c(2,2,10)
 
   target.stats <- c(80, 10, 10, 50)
-  nws <- san(nw ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~bd(maxout=5) + blocks(attr="sex", levels2=!diag(TRUE, 2)) + Strat(attr = "race", pmat = pmat))
+  nws <- san(nw ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~bd(maxout=5) + blocks(attr="sex", levels2=!diag(TRUE, 2)) + strat(attr = "race", pmat = pmat))
   sr <- summary(nws ~ edges + nodematch("race",levels=NULL, diff=TRUE))  
   
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -112,7 +112,7 @@ test_that("BDStratTNT works with undirected unipartite networks", {
   diag(pmat) <- c(7,7,20)
 
   target.stats <- c(285, 15, 15, 230)
-  nws2 <- san(nws ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~bd(maxout=5) + blocks(attr="sex", levels2=!diag(TRUE, 2)) + Strat(attr = "race", pmat = pmat))
+  nws2 <- san(nws ~ edges + nodematch("race",levels=NULL, diff=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~bd(maxout=5) + blocks(attr="sex", levels2=!diag(TRUE, 2)) + strat(attr = "race", pmat = pmat))
   sr <- summary(nws2 ~ edges + nodematch("race",levels=NULL, diff=TRUE))
   
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))  
@@ -130,7 +130,7 @@ test_that("BDStratTNT works with bipartite networks", {
   pmat <- matrix(c(0, 100, 2, 2, 0, 2, 100, 100, 0),3,3,byrow=TRUE)
 
   target.stats <- c(0, 2, 100, 100, 0, 100, 2, 2, 0)
-  nws <- san(nw ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~bd + Strat(attr = "race", pmat = pmat))
+  nws <- san(nw ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~bd + strat(attr = "race", pmat = pmat))
   sr <- summary(nws ~ nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -141,7 +141,7 @@ test_that("BDStratTNT works with bipartite networks", {
   pmat3 <- (pmat + pmat2)/2
 
   target.stats <- c(pmat2)  
-  nws2 <- san(nws ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~bd + Strat(attr = "race", pmat = pmat3))
+  nws2 <- san(nws ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~bd + strat(attr = "race", pmat = pmat3))
   sr <- summary(nws2 ~ nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -154,7 +154,7 @@ test_that("BDStratTNT works with bipartite networks", {
   pmat <- matrix(c(0, 45, 2, 2, 0, 2, 90, 45, 0),3,3,byrow=TRUE)
 
   target.stats <- c(0, 2, 90, 45, 0, 45, 2, 2, 0)
-  nws <- san(nw ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~bd(maxout=5) + Strat(attr = "race", pmat = pmat))
+  nws <- san(nw ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~bd(maxout=5) + strat(attr = "race", pmat = pmat))
   sr <- summary(nws ~ nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -166,7 +166,7 @@ test_that("BDStratTNT works with bipartite networks", {
   pmat3 <- (pmat + pmat2)/2
 
   target.stats <- c(pmat2)  
-  nws2 <- san(nws ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~bd(maxout=5) + Strat(attr = "race", pmat = pmat3))
+  nws2 <- san(nws ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~bd(maxout=5) + strat(attr = "race", pmat = pmat3))
   sr <- summary(nws2 ~ nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -182,7 +182,7 @@ test_that("BDStratTNT works with bipartite networks", {
   pmat <- matrix(c(0, 45, 2, 2, 0, 2, 90, 45, 0),3,3,byrow=TRUE)
 
   target.stats <- round(c(0, 2, 90, 45, 0, 45, 2, 2, 0)/2)
-  nws <- san(nw ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~bd(maxout=5) + blocks(attr="sex", levels2=diag(TRUE, 2)) + Strat(attr = "race", pmat = pmat))
+  nws <- san(nw ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~bd(maxout=5) + blocks(attr="sex", levels2=diag(TRUE, 2)) + strat(attr = "race", pmat = pmat))
   sr <- summary(nws ~ nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -195,7 +195,7 @@ test_that("BDStratTNT works with bipartite networks", {
   pmat3 <- (pmat + pmat2)/2
 
   target.stats <- round(c(pmat2)/2)
-  nws2 <- san(nws ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~bd(maxout=5) + blocks(attr="sex", levels2=diag(TRUE, 2)) + Strat(attr = "race", pmat = pmat3))
+  nws2 <- san(nws ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~bd(maxout=5) + blocks(attr="sex", levels2=diag(TRUE, 2)) + strat(attr = "race", pmat = pmat3))
   sr <- summary(nws2 ~ nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -211,7 +211,7 @@ test_that("BDStratTNT works with bipartite networks", {
   pmat <- matrix(c(0, 45, 2, 2, 0, 2, 90, 45, 0),3,3,byrow=TRUE)
 
   target.stats <- round(c(0, 2, 90, 45, 0, 45, 2, 2, 0)/2)
-  nws <- san(nw ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~bd(maxout=5) + blocks(attr="sex", levels2=!diag(TRUE, 2)) + Strat(attr = "race", pmat = pmat))
+  nws <- san(nw ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=5e3), constraints = ~bd(maxout=5) + blocks(attr="sex", levels2=!diag(TRUE, 2)) + strat(attr = "race", pmat = pmat))
   sr <- summary(nws ~ nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -224,7 +224,7 @@ test_that("BDStratTNT works with bipartite networks", {
   pmat3 <- (pmat + pmat2)/2
 
   target.stats <- round(c(pmat2)/2)
-  nws2 <- san(nws ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~bd(maxout=5) + blocks(attr="sex", levels2=!diag(TRUE, 2)) + Strat(attr = "race", pmat = pmat3))
+  nws2 <- san(nws ~ nodemix("race",levels2=TRUE), target.stats = target.stats, control=control.san(SAN.maxit = 1, SAN.nsteps=1e4), constraints = ~bd(maxout=5) + blocks(attr="sex", levels2=!diag(TRUE, 2)) + strat(attr = "race", pmat = pmat3))
   sr <- summary(nws2 ~ nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats))
@@ -246,7 +246,7 @@ test_that("BDStratTNT works with churning", {
 
   # impossible to hit these exactly
   target.stats <- c(211, 25, 50, 25, 5, 5, 100)
-  nws <- san(nw ~ edges + nodemix("race",levels2=TRUE), target.stats = target.stats, constraints = ~bd(maxout=4) + blocks(attr="sex", levels2=levels2) + Strat(attr = "race", pmat = pmat))
+  nws <- san(nw ~ edges + nodemix("race",levels2=TRUE), target.stats = target.stats, constraints = ~bd(maxout=4) + blocks(attr="sex", levels2=levels2) + strat(attr = "race", pmat = pmat))
   sr <- summary(nws ~ edges + nodemix("race",levels2=TRUE))
 
   expect_true(all(abs(sr - target.stats) <= 0.05*target.stats + 1))
@@ -278,7 +278,7 @@ test_that("BDStratTNT simulates reasonably", {
     for(i in 1:5) {
       nw_sim <- simulate(nw_sim ~ edges, 
                          coef = c(0), 
-                         constraints = ~bd(maxout = deg_bound) + blocks(attr = "sex", levels2 = levels2) + Strat(attr = "vattr", pmat = pmat),
+                         constraints = ~bd(maxout = deg_bound) + blocks(attr = "sex", levels2 = levels2) + strat(attr = "vattr", pmat = pmat),
                          output = "network")
       summ_stats <- summary(nw_sim ~ nodemix("vattr",levels2=TRUE) + nodemix("sex",levels2=TRUE) + degrange(deg_bound + 1))
       expect_true(summ_stats["mix.vattr.A.A"] == 0)
@@ -311,7 +311,7 @@ test_that("BDStratTNT works with degree bound saturation", {
   # mix.race.A.A mix.race.A.B mix.race.B.B mix.race.A.C mix.race.B.C mix.race.C.C
 
   target.stats <- c(425, 10, 5, 10, 0, 0, 400.01)
-  nws <- san(nw ~ edges + nodemix("race",levels2=TRUE), target.stats = target.stats, constraints = ~bd(maxout = 1) + blocks(attr = "sex", levels2 = matrix(c(TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,FALSE,TRUE,FALSE),3,3)) + Strat(attr = "race", pmat = pmat), control=control.san(SAN.invcov.diag=TRUE, SAN.maxit = 4, SAN.nsteps=5e4))
+  nws <- san(nw ~ edges + nodemix("race",levels2=TRUE), target.stats = target.stats, constraints = ~bd(maxout = 1) + blocks(attr = "sex", levels2 = matrix(c(TRUE,FALSE,FALSE,FALSE,FALSE,TRUE,FALSE,TRUE,FALSE),3,3)) + strat(attr = "race", pmat = pmat), control=control.san(SAN.invcov.diag=TRUE, SAN.maxit = 4, SAN.nsteps=5e4))
   sr <- summary(nws ~ edges + nodemix("race",levels2=TRUE))  
   
   expect_true(all(abs(sr - target.stats) <= pmax(1, 0.05*target.stats)))
@@ -324,7 +324,7 @@ test_that("BDStratTNT constrains undirected appropriately", {
   nw %v% "strat_attr" <- rep(1:3, length.out=100)
   nw[cbind(1:10,30:21)] <- 1
   nw[cbind(44:53,99:90)] <- 1
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~attr, levels2=c(2,13)) + Strat(~strat_attr, pmat = matrix(2 + runif(9),3,3)))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~attr, levels2=c(2,13)) + strat(~strat_attr, pmat = matrix(2 + runif(9),3,3)))
   
   expect_true(all(nws[cbind(1:10,30:21)] == 1))
   expect_true(all(nws[cbind(44:53,99:90)] == 1))
@@ -332,7 +332,7 @@ test_that("BDStratTNT constrains undirected appropriately", {
   expect_true(summary(nws ~ nodemix(~attr, levels2=13)) == 10)
   expect_true(summary(nws ~ edges) > 1000)
   
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout = 1) + blocks(~attr, levels2=c(2,13)) + Strat(~strat_attr, pmat = matrix(2 + runif(9),3,3)))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout = 1) + blocks(~attr, levels2=c(2,13)) + strat(~strat_attr, pmat = matrix(2 + runif(9),3,3)))
   
   expect_true(all(nws[cbind(1:10,30:21)] == 1))
   expect_true(all(nws[cbind(44:53,99:90)] == 1))
@@ -345,7 +345,7 @@ test_that("BDStratTNT constrains undirected appropriately", {
   nw %v% "strat_attr" <- rep(1:3, length.out=100)
   nw[cbind(1:10,30:21)] <- 1
   nw[cbind(44:53,99:90)] <- 1
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~attr, levels2=c(2,13)) + Strat(~strat_attr, pmat = matrix(2 + runif(9),3,3)))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~attr, levels2=c(2,13)) + strat(~strat_attr, pmat = matrix(2 + runif(9),3,3)))
   
   expect_true(all(nws[cbind(1:10,30:21)] == 1))
   expect_true(all(nws[cbind(44:53,99:90)] == 1))
@@ -360,7 +360,7 @@ test_that("BDStratTNT constrains bipartite appropriately", {
   nw %v% "strat_attr" <- rep(1:3, length.out=100)
   nw[cbind(1:10,100:91)] <- 1
   nw[cbind(25:21,60:56)] <- 1
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~attr, levels2=c(6,10)) + Strat(~strat_attr, pmat = matrix(2 + runif(9),3,3)))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~attr, levels2=c(6,10)) + strat(~strat_attr, pmat = matrix(2 + runif(9),3,3)))
   
   expect_true(all(nws[cbind(1:10,100:91)] == 1))
   expect_true(all(nws[cbind(25:21,60:56)] == 1))
@@ -368,7 +368,7 @@ test_that("BDStratTNT constrains bipartite appropriately", {
   expect_true(summary(nws ~ nodemix(~attr, levels2=10)) == 10)
   expect_true(summary(nws ~ edges) > 500)
   
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout = 1) + blocks(~attr, levels2=c(6,10)) + Strat(~strat_attr, pmat = matrix(2 + runif(9),3,3)))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout = 1) + blocks(~attr, levels2=c(6,10)) + strat(~strat_attr, pmat = matrix(2 + runif(9),3,3)))
   
   expect_true(all(nws[cbind(1:10,100:91)] == 1))
   expect_true(all(nws[cbind(25:21,60:56)] == 1))
@@ -403,23 +403,23 @@ test_that("BDStratTNT handles undirected arguments correctly", {
   expect_true(all(summary(nws ~ nodefactor(~bd_attr, levels=TRUE)) > 0))
   expect_true(summary(nws ~ concurrent) == 0)
 
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~Strat(attr = "strat_attr", pmat = matrix(2 + runif(7*7), 7, 7)), control = list(MCMC.prop.weights = "BDStratTNT"))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~strat(attr = "strat_attr", pmat = matrix(2 + runif(7*7), 7, 7)), control = list(MCMC.prop.weights = "BDStratTNT"))
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
   
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~Strat(attr = "strat_attr", pmat = matrix(2 + runif(7*7), 7, 7)), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,8)),3,3))))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~strat(attr = "strat_attr", pmat = matrix(2 + runif(7*7), 7, 7)), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,8)),3,3))))
   expect_true(summary(nws ~ nodemix(~bd_attr, levels2=1)) == 0)
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-1)) > 0))
 
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout=1) + Strat(attr = "strat_attr", pmat = matrix(2 + runif(7*7), 7, 7)), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,8)),3,3))))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout=1) + strat(attr = "strat_attr", pmat = matrix(2 + runif(7*7), 7, 7)), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,8)),3,3))))
   expect_true(summary(nws ~ nodemix(~bd_attr, levels2=1)) == 0)
   expect_true(all(summary(nws ~ nodefactor(~bd_attr, levels=TRUE)) > 0))
   expect_true(summary(nws ~ concurrent) == 0)
 
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~Strat(attr = "strat_attr", pmat = matrix(2 + runif(7*7), 7, 7)) + blocks(~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,8)),3,3)), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(FALSE,TRUE,FALSE,TRUE,rep(FALSE,5)),3,3))))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~strat(attr = "strat_attr", pmat = matrix(2 + runif(7*7), 7, 7)) + blocks(~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,8)),3,3)), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(FALSE,TRUE,FALSE,TRUE,rep(FALSE,5)),3,3))))
   expect_true(summary(nws ~ nodemix(~bd_attr, levels2=2)) == 0)  
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-2)) > 0))
   
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout=1) + Strat(attr = "strat_attr", pmat = matrix(2 + runif(7*7), 7, 7)) + blocks(~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,8)),3,3)), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(FALSE,TRUE,FALSE,TRUE,rep(FALSE,5)),3,3))))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout=1) + strat(attr = "strat_attr", pmat = matrix(2 + runif(7*7), 7, 7)) + blocks(~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,8)),3,3)), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(FALSE,TRUE,FALSE,TRUE,rep(FALSE,5)),3,3))))
   expect_true(summary(nws ~ nodemix(~bd_attr, levels2=2)) == 0)  
   expect_true(all(summary(nws ~ nodefactor(~bd_attr, levels=TRUE)) > 0))
   expect_true(summary(nws ~ concurrent) == 0)
@@ -451,23 +451,23 @@ test_that("BDStratTNT handles bipartite arguments correctly", {
   expect_true(all(summary(nws ~ nodefactor(~bd_attr, levels=TRUE)) > 0))
   expect_true(summary(nws ~ concurrent) == 0)
 
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~Strat(attr = "strat_attr", pmat = matrix(2 + runif(7*7), 7, 7)), control = list(MCMC.prop.weights = "BDStratTNT"))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~strat(attr = "strat_attr", pmat = matrix(2 + runif(7*7), 7, 7)), control = list(MCMC.prop.weights = "BDStratTNT"))
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
   
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~Strat(attr = "strat_attr", pmat = matrix(2 + runif(7*7), 7, 7)), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,14)),nrow=3,ncol=5))))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~strat(attr = "strat_attr", pmat = matrix(2 + runif(7*7), 7, 7)), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,14)),nrow=3,ncol=5))))
   expect_true(summary(nws ~ nodemix(~bd_attr, levels2=1)) == 0)
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-1)) > 0))
 
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~Strat(attr = "strat_attr", pmat = matrix(2 + runif(7*7), 7, 7)) + bd(maxout = 1), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,14)),nrow=3,ncol=5))))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~strat(attr = "strat_attr", pmat = matrix(2 + runif(7*7), 7, 7)) + bd(maxout = 1), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,14)),nrow=3,ncol=5))))
   expect_true(summary(nws ~ nodemix(~bd_attr, levels2=1)) == 0)
   expect_true(all(summary(nws ~ nodefactor(~bd_attr, levels=TRUE)) > 0))
   expect_true(summary(nws ~ concurrent) == 0)
   
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~Strat(attr = "strat_attr", pmat = matrix(2 + runif(7*7), 7, 7)) + blocks(~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,14)),nrow=3,ncol=5)), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(FALSE,TRUE,FALSE,FALSE,rep(FALSE,11)),nrow=3,ncol=5))))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~strat(attr = "strat_attr", pmat = matrix(2 + runif(7*7), 7, 7)) + blocks(~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,14)),nrow=3,ncol=5)), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(FALSE,TRUE,FALSE,FALSE,rep(FALSE,11)),nrow=3,ncol=5))))
   expect_true(summary(nws ~ nodemix(~bd_attr, levels2=2)) == 0)  
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-2)) > 0))
 
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~Strat(attr = "strat_attr", pmat = matrix(2 + runif(7*7), 7, 7)) + bd(maxout = 1) + blocks(~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,14)),nrow=3,ncol=5)), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(FALSE,TRUE,FALSE,FALSE,rep(FALSE,11)),nrow=3,ncol=5))))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~strat(attr = "strat_attr", pmat = matrix(2 + runif(7*7), 7, 7)) + bd(maxout = 1) + blocks(~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,14)),nrow=3,ncol=5)), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(FALSE,TRUE,FALSE,FALSE,rep(FALSE,11)),nrow=3,ncol=5))))
   expect_true(summary(nws ~ nodemix(~bd_attr, levels2=2)) == 0)  
   expect_true(all(summary(nws ~ nodefactor(~bd_attr, levels=TRUE)) > 0))
   expect_true(summary(nws ~ concurrent) == 0)
@@ -480,25 +480,25 @@ test_that("BDStratTNT handles atypical levels specifications correctly", {
   pmat <- matrix(2 + runif(25), 5, 5)
   
   ## should be unconstrained
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels=TRUE) + Strat(attr = ~strat_attr, pmat = pmat))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels=TRUE) + strat(attr = ~strat_attr, pmat = pmat))
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
 
   ## should also be unconstrained
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels=FALSE) + Strat(attr = ~strat_attr, pmat = pmat))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels=FALSE) + strat(attr = ~strat_attr, pmat = pmat))
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
 
   ## any pairing with a 3 should be allowed, with all other pairings forbidden
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels=I(c(1,2,4,6)), levels2=TRUE) + Strat(attr = ~strat_attr, pmat = pmat))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels=I(c(1,2,4,6)), levels2=TRUE) + strat(attr = ~strat_attr, pmat = pmat))
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=c(4,5,6))) > 0))
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-c(4,5,6))) == 0))
 
   ## only 2-2 pairings should be allowed
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels=I(c(1,2,3,4,6)), levels2=-3) + Strat(attr = ~strat_attr, pmat = pmat))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels=I(c(1,2,3,4,6)), levels2=-3) + strat(attr = ~strat_attr, pmat = pmat))
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=c(3))) > 0))
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-c(3))) == 0))
   
   ## should fail as we omit all pairings
-  expect_error(nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels2=TRUE) + Strat(attr = ~strat_attr, pmat = pmat)))
+  expect_error(nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels2=TRUE) + strat(attr = ~strat_attr, pmat = pmat)))
   
   
   ## similar bipartite tests
@@ -508,33 +508,33 @@ test_that("BDStratTNT handles atypical levels specifications correctly", {
   pmat <- matrix(2 + runif(20), nrow = 5, ncol = 4)
 
   ## should be unconstrained
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b1levels=TRUE, b2levels=TRUE) + Strat(attr = ~strat_attr, pmat = pmat))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b1levels=TRUE, b2levels=TRUE) + strat(attr = ~strat_attr, pmat = pmat))
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
 
   ## should also be unconstrained
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b1levels=FALSE, b2levels=FALSE) + Strat(attr = ~strat_attr, pmat = pmat))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b1levels=FALSE, b2levels=FALSE) + strat(attr = ~strat_attr, pmat = pmat))
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b1levels=FALSE) + Strat(attr = ~strat_attr, pmat = pmat))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b1levels=FALSE) + strat(attr = ~strat_attr, pmat = pmat))
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b2levels=FALSE) + Strat(attr = ~strat_attr, pmat = pmat))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b2levels=FALSE) + strat(attr = ~strat_attr, pmat = pmat))
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b1levels=FALSE, b2levels=FALSE, levels2=TRUE) + Strat(attr = ~strat_attr, pmat = pmat))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b1levels=FALSE, b2levels=FALSE, levels2=TRUE) + strat(attr = ~strat_attr, pmat = pmat))
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b1levels=FALSE, levels2=TRUE) + Strat(attr = ~strat_attr, pmat = pmat))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b1levels=FALSE, levels2=TRUE) + strat(attr = ~strat_attr, pmat = pmat))
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b2levels=FALSE, levels2=TRUE) + Strat(attr = ~strat_attr, pmat = pmat))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b2levels=FALSE, levels2=TRUE) + strat(attr = ~strat_attr, pmat = pmat))
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
 
   ## any pairing with a 3 should be allowed, with all other pairings forbidden
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b1levels=I(c(1,2,4,6)), levels2=TRUE) + Strat(attr = ~strat_attr, pmat = pmat))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b1levels=I(c(1,2,4,6)), levels2=TRUE) + strat(attr = ~strat_attr, pmat = pmat))
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=3*(1:7))) > 0))
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-3*(1:7))) == 0))
 
   ## only 1-14 pairings should be allowed
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b1levels=I(c(1,2,3,4,6)), levels2=-21) + Strat(attr = ~strat_attr, pmat = pmat))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, b1levels=I(c(1,2,3,4,6)), levels2=-21) + strat(attr = ~strat_attr, pmat = pmat))
   expect_true(all(summary(nws ~ nodemix(~bd_attr, b1levels = I(1), b2levels = I(14), levels2=TRUE)) > 0))
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-c(13))) == 0))
   
   ## should fail as we omit all pairings
-  expect_error(nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels2=TRUE) + Strat(attr = ~strat_attr, pmat = pmat)))  
+  expect_error(nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels2=TRUE) + strat(attr = ~strat_attr, pmat = pmat)))
 })

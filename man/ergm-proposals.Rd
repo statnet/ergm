@@ -62,7 +62,7 @@
 
         \item{InitErgmProposal.StratTNT}{Stratifies proposals by mixing type on a given vertex attribute;
             within each mixing type, proposals are stratified by edge status as in \code{TNT}.
-            Arguments should generally be passed in via the \code{\link{Strat}} hint.
+            Arguments should generally be passed in via the \code{\link{strat}} hint.
         }
              
 }
@@ -127,7 +127,7 @@
                     mixing types on a(nother) specified attribute.  The upper bound on degree is specified via the 
                     \code{\link{bd}} constraint's \code{maxout} argument (which must be a single number for \code{BDStratTNT});
                     the constraints on mixing type are specified via the \code{\link{blocks}} constraint; the stratification
-                    is specified via the \code{\link{Strat}} hint.  Directed networks are not supported by \code{BDStratTNT} at this time.
+                    is specified via the \code{\link{strat}} hint.  Directed networks are not supported by \code{BDStratTNT} at this time.
         }
 
        }}

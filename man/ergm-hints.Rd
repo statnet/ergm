@@ -11,7 +11,7 @@
 \alias{ergm-hints}
 \alias{hints}
 \alias{sparse}
-\alias{Strat}
+\alias{strat}
 
 \docType{methods}
 
@@ -26,7 +26,7 @@
     \item{\code{sparse} (dyad-independent)}{
       The network is sparse. This typically results in a Tie-Non-Tie (TNT) proposal regime.
     }
-    \item{\code{Strat(attr=NULL, pmat=NULL, empirical=FALSE)} (dyad-independent)}{
+    \item{\code{strat(attr=NULL, pmat=NULL, empirical=FALSE)} (dyad-independent)}{
       The dyads in the network are stratified according to an attribute combination.
 
       This typically results in stratifying proposals by mixing type on a vertex attribute.

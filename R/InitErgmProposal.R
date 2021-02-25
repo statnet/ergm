@@ -65,9 +65,9 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
     arguments$constraints$blocks <- InitErgmConstraint.blocks(nw, attr = arguments[["blocks_attr"]], levels = arguments[["levels"]], levels2 = NVL(arguments[["levels2"]], FALSE), b1levels = arguments[["b1levels"]], b2levels = arguments[["b2levels"]])
   }
 
-  # if Strat has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
-  if(is.null(arguments$constraints$Strat) || any(!unlist(lapply(arguments[c("Strat_attr", "pmat", "empirical")], is.null)))) {
-    arguments$constraints$Strat <- InitErgmConstraint.Strat(nw, attr = arguments[["Strat_attr"]], pmat = arguments[["pmat"]], empirical = arguments[["empirical"]])
+  # if strat has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
+  if(is.null(arguments$constraints$strat) || any(!unlist(lapply(arguments[c("Strat_attr", "pmat", "empirical")], is.null)))) {
+    arguments$constraints$strat <- InitErgmConstraint.strat(nw, attr = arguments[["Strat_attr"]], pmat = arguments[["pmat"]], empirical = arguments[["empirical"]])
   }
 
   nodecov <- arguments$constraints$blocks$nodecov
@@ -105,21 +105,21 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   bd_tails <- c(allowed.tails, if(!is.bipartite(nw)) allowed.heads[bd_offdiag_pairs])
   bd_heads <- c(allowed.heads, if(!is.bipartite(nw)) allowed.tails[bd_offdiag_pairs])
 
-  ## number of BD mixtypes that need to be considered when Strat mixing type is off-diag and on-diag, respectively
+  ## number of BD mixtypes that need to be considered when strat mixing type is off-diag and on-diag, respectively
   bd_mixtypes <- c(length(bd_tails), length(allowed.tails))
     
   # for economy of C space, best to count # of nodes of each bd-strat pairing
-  nodecountsbypairedcode <- as.integer(table(from=factor(nodecov, levels=seq_len(nlevels)), to=factor(arguments$constraints$Strat$nodecov, levels=seq_len(arguments$constraints$Strat$nlevels))))
+  nodecountsbypairedcode <- as.integer(table(from=factor(nodecov, levels=seq_len(nlevels)), to=factor(arguments$constraints$strat$nodecov, levels=seq_len(arguments$constraints$strat$nlevels))))
   
   proposal <- list(name = "BDStratTNT",
                    inputs = NULL, # passed by name below
-                   nmixtypes = as.integer(arguments$constraints$Strat$nmixtypes),
-                   strattailattrs = as.integer(arguments$constraints$Strat$tailattrs - 1L),
-                   stratheadattrs = as.integer(arguments$constraints$Strat$headattrs - 1L),
-                   probvec = as.double(arguments$constraints$Strat$probvec),
-                   nattrcodes = as.integer(arguments$constraints$Strat$nlevels),
-                   strat_vattr = as.integer(arguments$constraints$Strat$nodecov - 1L),
-                   indmat = as.integer(t(arguments$constraints$Strat$indmat)), 
+                   nmixtypes = as.integer(arguments$constraints$strat$nmixtypes),
+                   strattailattrs = as.integer(arguments$constraints$strat$tailattrs - 1L),
+                   stratheadattrs = as.integer(arguments$constraints$strat$headattrs - 1L),
+                   probvec = as.double(arguments$constraints$strat$probvec),
+                   nattrcodes = as.integer(arguments$constraints$strat$nlevels),
+                   strat_vattr = as.integer(arguments$constraints$strat$nodecov - 1L),
+                   indmat = as.integer(t(arguments$constraints$strat$indmat)),
                    nodecountsbypairedcode = as.integer(nodecountsbypairedcode),
                    bound = as.integer(bound),
                    bd_levels = as.integer(nlevels),
@@ -127,7 +127,7 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
                    bd_tails = as.integer(bd_tails - 1L),
                    bd_heads = as.integer(bd_heads - 1L),
                    bd_mixtypes = as.integer(bd_mixtypes),
-                   empirical_flag = as.integer(arguments$constraints$Strat$empirical),
+                   empirical_flag = as.integer(arguments$constraints$strat$empirical),
                    amat = as.integer(t(pairs_mat)),
                    skip_bd = TRUE)
 
@@ -196,24 +196,24 @@ InitErgmProposal.BDTNT <- function(arguments, nw) {
 }
 
 InitErgmProposal.StratTNT <- function(arguments, nw) {
-  # if Strat has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
-  if(is.null(arguments$constraints$Strat) || any(!unlist(lapply(arguments[c("attr", "pmat", "empirical")], is.null)))) {
-    arguments$constraints$Strat <- InitErgmConstraint.Strat(nw, attr = arguments[["attr"]], pmat = arguments[["pmat"]], empirical = arguments[["empirical"]])
+  # if strat has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
+  if(is.null(arguments$constraints$strat) || any(!unlist(lapply(arguments[c("attr", "pmat", "empirical")], is.null)))) {
+    arguments$constraints$strat <- InitErgmConstraint.strat(nw, attr = arguments[["attr"]], pmat = arguments[["pmat"]], empirical = arguments[["empirical"]])
   }
 
   ## subtract one from attr codes for greater convenience re. C's zero-based indexing  
   proposal <- list(name = "StratTNT", 
                    inputs = NULL, # passed by name below
-                   nmixtypes = as.integer(arguments$constraints$Strat$nmixtypes),
-                   tailattrs = as.integer(arguments$constraints$Strat$tailattrs - 1L),
-                   headattrs = as.integer(arguments$constraints$Strat$headattrs - 1L),
-                   probvec = as.double(arguments$constraints$Strat$probvec),
-                   nlevels = as.integer(arguments$constraints$Strat$nlevels),
-                   nodecountsbycode = as.integer(arguments$constraints$Strat$nodecountsbycode),
-                   nodeindicesbycode = as.integer(arguments$constraints$Strat$nodeindicesbycode),
-                   nodecov = as.integer(arguments$constraints$Strat$nodecov - 1L),
-                   indmat = as.integer(t(arguments$constraints$Strat$indmat)),
-                   empirical = as.integer(arguments$constraints$Strat$empirical))
+                   nmixtypes = as.integer(arguments$constraints$strat$nmixtypes),
+                   tailattrs = as.integer(arguments$constraints$strat$tailattrs - 1L),
+                   headattrs = as.integer(arguments$constraints$strat$headattrs - 1L),
+                   probvec = as.double(arguments$constraints$strat$probvec),
+                   nlevels = as.integer(arguments$constraints$strat$nlevels),
+                   nodecountsbycode = as.integer(arguments$constraints$strat$nodecountsbycode),
+                   nodeindicesbycode = as.integer(arguments$constraints$strat$nodeindicesbycode),
+                   nodecov = as.integer(arguments$constraints$strat$nodecov - 1L),
+                   indmat = as.integer(t(arguments$constraints$strat$indmat)),
+                   empirical = as.integer(arguments$constraints$strat$empirical))
 
   proposal
 }
