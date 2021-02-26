@@ -318,33 +318,3 @@ InitErgmProposal.HammingTNT <- function(arguments, nw) {
   }
   proposal
 }
-
-InitErgmProposal.NonObservedTNT <- function(arguments, nw) {
-  if(network.naedgecount(nw)==0){
-   ergm_Init_abort("The passed network does not have any non-observed dyads.\n Hence constraining to the observed will hold the network fixed at this network.\n Either the network or the constraint need to be altered.")
-  }
-  proposal <- list(name = "listTNT", iinputs=to_ergm_Cdouble(is.na(nw)))
-  proposal
-}
-
-InitErgmProposal.fixedasTNT <- function(arguments, nw){
-	y0<-as.edgelist(arguments$constraints$fixedas$free_dyads, prototype=nw)
-	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	proposal <- list(name = "listTNT", iinputs=to_ergm_Cdouble(y0), pkgname="ergm")
-	
-	proposal
-	
-}
-
-InitErgmProposal.fixallbutTNT <- function(arguments, nw){
-	y0<-as.edgelist(arguments$constraints$fixallbut$free_dyads, prototype=nw)
-	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	proposal <- list(name = "listTNT", iinputs=to_ergm_Cdouble(y0), pkgname="ergm")
-	
-	proposal
-	
-}
-
-InitErgmProposal.RLETNT <- function(arguments, nw){
-  proposal <- list(name = "RLETNT", inputs=to_ergm_Cdouble(as.rlebdm(arguments$constraints)), pkgname="ergm")
-}
