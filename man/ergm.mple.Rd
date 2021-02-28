@@ -42,10 +42,12 @@ default="binomial"}
 be returned (T or F); if false, NULL is returned for both;
 default==TRUE}
 
-\item{control}{a list of MCMC related parameters; recognized
-components include: samplesize : the number of networks to sample
-Clist.miss : see 'Clist.miss' above; some of the code uses this
-Clist.miss,}
+\item{control}{A list of control parameters for algorithm tuning,
+typically constructed with \code{\link[=control.ergm]{control.ergm()}}. Its documentation
+gives the the list of recognized control parameters and their
+meaning. The more generic utility \code{\link[=snctrl]{snctrl()}} (StatNet ConTRoL)
+also provides argument completion for the available control
+functions and limited argument name checking.}
 
 \item{proposal}{an \code{\link[=ergm_proposal]{ergm_proposal()}} object.}
 

@@ -87,8 +87,12 @@ output format. Partial matching is performed.}
 \item{only.last}{if \code{TRUE}, only return the last network generated;
 otherwise, return a \code{\link{network.list}} with \code{nsim} networks.}
 
-\item{control}{A list of control parameters for algorithm tuning; see
-\code{\link{control.san}}.}
+\item{control}{A list of control parameters for algorithm tuning,
+typically constructed with \code{\link[=control.san]{control.san()}}. Its documentation
+gives the the list of recognized control parameters and their
+meaning. The more generic utility \code{\link[=snctrl]{snctrl()}} (StatNet ConTRoL)
+also provides argument completion for the available control
+functions and limited argument name checking.}
 
 \item{verbose}{Logical or numeric giving the level of verbosity. Higher values produce more verbose output.}
 

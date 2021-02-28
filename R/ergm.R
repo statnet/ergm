@@ -191,8 +191,9 @@
 #' \code{force.main} argument of \code{\link{control.ergm}}. If "CD" (\emph{EXPERIMENTAL}),
 #' the Monte-Carlo contrastive divergence estimate is returned. )
 #' }
-#' @param control A list of control parameters for algorithm
-#' tuning. Constructed using \code{\link{control.ergm}}. 
+#'
+#' @templateVar mycontrol control.ergm
+#' @template control
 #'
 #' @param verbose A `logical` or an integer: if this is
 #'   \code{TRUE}/\code{1}, the program will print out additional
@@ -475,7 +476,7 @@
 #' # compare it to differential homophily by atomic type
 #' gest <- ergm(molecule ~ edges + kstar(2) + triangle
 #'                         + nodematch("atomic type",diff=TRUE),
-#' control=control.ergm(MCMC.samplesize=10000))
+#' control=snctrl(MCMC.samplesize=10000))
 #' summary(gest)
 #' }
 #' @keywords models

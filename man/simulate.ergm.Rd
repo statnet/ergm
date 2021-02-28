@@ -177,9 +177,13 @@ consistent with behavior prior to \code{ergm} 3.10.}
 Markov chains begins at the initial network.  If TRUE, the end of one
 simulation is used as the start of the next.  Irrelevant when \code{nsim=1}.}
 
-\item{control}{A list of control parameters for algorithm tuning.
-Constructed using \code{\link{control.simulate.ergm}} or
-\code{\link{control.simulate.formula}}, which have different defaults.}
+\item{control}{A list of control parameters for algorithm tuning,
+typically constructed with \code{\link[=control.simulate.ergm]{control.simulate.ergm()}} or \code{\link[=control.simulate.formula]{control.simulate.formula()}}, which have different
+defaults. Their documentation gives the the list of recognized
+control parameters and their meaning. The more generic utility
+\code{\link[=snctrl]{snctrl()}} (StatNet ConTRoL) also provides argument completion
+for the available control functions and limited argument name
+checking.}
 
 \item{verbose}{Logical: If TRUE, extra information is printed as the Markov
 chain progresses.}

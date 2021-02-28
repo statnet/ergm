@@ -30,9 +30,12 @@ argument \code{initialfit==TRUE} (the default). Generally, if \code{TRUE},
 all curved ERGM terms will be treated as having their curved parameters
 fixed. See Example.}
 
-\item{control}{A list of control parameters for tuning the fitting of an
-ERGM.  Most of these parameters are irrelevant in this context.  See
-\code{\link{control.ergm}} for details about all of the control parameters.}
+\item{control}{A list of control parameters for algorithm tuning,
+typically constructed with \code{\link[=control.ergm]{control.ergm()}}. Its documentation
+gives the the list of recognized control parameters and their
+meaning. The more generic utility \code{\link[=snctrl]{snctrl()}} (StatNet ConTRoL)
+also provides argument completion for the available control
+functions and limited argument name checking.}
 
 \item{verbose}{Logical; if \code{TRUE}, the program will print out some
 additional information.}

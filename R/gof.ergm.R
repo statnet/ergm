@@ -56,9 +56,10 @@
 #' for similarly-named argument in \code{\link{ergm}} for more information. For
 #' \code{gof.formula}, defaults to unconstrained. For \code{gof.ergm}, defaults
 #' to the constraints with which \code{object} was fitted.
-#' @param control A list to control parameters, constructed using
-#' \code{\link{control.gof.formula}} or \code{\link{control.gof.ergm}} (which
-#' have different defaults).
+#'
+#' @templateVar mycontrols [control.gof.formula()] or [control.gof.ergm()]
+#' @template control2
+#'
 #' @param unconditional logical; if \code{TRUE}, the simulation is
 #' unconditional on the observed dyads.  if not \code{TRUE}, the simulation is
 #' conditional on the observed dyads. This is primarily used internally when
