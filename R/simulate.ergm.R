@@ -101,9 +101,10 @@
 #' @param sequential Logical: If FALSE, each of the \code{nsim} simulated
 #' Markov chains begins at the initial network.  If TRUE, the end of one
 #' simulation is used as the start of the next.  Irrelevant when \code{nsim=1}.
-#' @param control A list of control parameters for algorithm tuning.
-#' Constructed using \code{\link{control.simulate.ergm}} or
-#' \code{\link{control.simulate.formula}}, which have different defaults.
+#'
+#' @templateVar mycontrols [control.simulate.ergm()] or [control.simulate.formula()]
+#' @template control2
+#'
 #' @param verbose Logical: If TRUE, extra information is printed as the Markov
 #' chain progresses.
 #' @param \dots Further arguments passed to or used by methods.

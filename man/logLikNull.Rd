@@ -17,8 +17,12 @@ logLikNull(object, ...)
 \code{logLikNull} computes, when possible the log-probability of
 the data under the null model (reference distribution).}
 
-\item{control}{A list of control parameters for algorithm tuning.
-Constructed using \code{\link{control.logLik.ergm}}.}
+\item{control}{A list of control parameters for algorithm tuning,
+typically constructed with \code{\link[=control.logLik.ergm]{control.logLik.ergm()}}. Its documentation
+gives the the list of recognized control parameters and their
+meaning. The more generic utility \code{\link[=snctrl]{snctrl()}} (StatNet ConTRoL)
+also provides argument completion for the available control
+functions and limited argument name checking.}
 }
 \value{
 \code{logLikNull} returns an object of type \code{\link{logLik}} if it is

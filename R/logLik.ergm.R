@@ -26,8 +26,10 @@
 #'   log-likelihood even if \code{object} already has an estiamte.
 #' @param eval.loglik Logical: If `TRUE`, evaluate the log-likelihood
 #'   if not set on \code{object}.
-#' @param control A list of control parameters for algorithm tuning.
-#'   Constructed using \code{\link{control.logLik.ergm}}.
+#'
+#' @templateVar mycontrol control.logLik.ergm
+#' @template control
+#'
 #' @param \dots Other arguments to the likelihood functions.
 #' @return The form of the output of \code{logLik.ergm} depends on
 #'   \code{add}: \code{add=FALSE} (the default), a
@@ -157,8 +159,10 @@ logLikNull <- function(object, ...) UseMethod("logLikNull")
 #' @describeIn logLikNull A method for [`ergm`] fits; currently only
 #'   implemented for binary ERGMs with dyad-independent sample-space
 #'   constraints.
-#' @param control A list of control parameters for algorithm tuning.
-#'   Constructed using \code{\link{control.logLik.ergm}}.
+#'
+#' @templateVar mycontrol control.logLik.ergm
+#' @template control
+#'
 #' @export
 logLikNull.ergm <- function(object, control=control.logLik.ergm(), ...){
   check.control.class("logLik.ergm", "logLikNull.ergm")

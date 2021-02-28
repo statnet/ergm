@@ -78,9 +78,13 @@ for similarly-named argument in \code{\link{ergm}} for more information. For
 \code{gof.formula}, defaults to unconstrained. For \code{gof.ergm}, defaults
 to the constraints with which \code{object} was fitted.}
 
-\item{control}{A list to control parameters, constructed using
-\code{\link{control.gof.formula}} or \code{\link{control.gof.ergm}} (which
-have different defaults).}
+\item{control}{A list of control parameters for algorithm tuning,
+typically constructed with \code{\link[=control.gof.formula]{control.gof.formula()}} or \code{\link[=control.gof.ergm]{control.gof.ergm()}}, which have different
+defaults. Their documentation gives the the list of recognized
+control parameters and their meaning. The more generic utility
+\code{\link[=snctrl]{snctrl()}} (StatNet ConTRoL) also provides argument completion
+for the available control functions and limited argument name
+checking.}
 
 \item{verbose}{Provide verbose information on the progress of the
 simulation.}

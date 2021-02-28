@@ -76,9 +76,10 @@
 #' 
 #' @param fitmodel Deprecated. Use \code{output="fit"} instead.
 #' @param output Character, partially matched. See Value.
-#' @param control A list of control parameters for tuning the fitting of an
-#' ERGM.  Most of these parameters are irrelevant in this context.  See
-#' \code{\link{control.ergm}} for details about all of the control parameters.
+#'
+#' @templateVar mycontrol control.ergm
+#' @template control
+#'
 #' @param verbose Logical; if \code{TRUE}, the program will print out some
 #' additional information.
 #' @template expand.bipartite

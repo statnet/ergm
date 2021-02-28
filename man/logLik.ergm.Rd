@@ -27,8 +27,12 @@ log-likelihood even if \code{object} already has an estiamte.}
 \item{eval.loglik}{Logical: If \code{TRUE}, evaluate the log-likelihood
 if not set on \code{object}.}
 
-\item{control}{A list of control parameters for algorithm tuning.
-Constructed using \code{\link{control.logLik.ergm}}.}
+\item{control}{A list of control parameters for algorithm tuning,
+typically constructed with \code{\link[=control.logLik.ergm]{control.logLik.ergm()}}. Its documentation
+gives the the list of recognized control parameters and their
+meaning. The more generic utility \code{\link[=snctrl]{snctrl()}} (StatNet ConTRoL)
+also provides argument completion for the available control
+functions and limited argument name checking.}
 
 \item{\dots}{Other arguments to the likelihood functions.}
 }

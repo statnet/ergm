@@ -88,8 +88,12 @@ left-hand-side of the \code{object}.}
 \item{llronly}{Logical: If TRUE, only the estiamted log-ratio will
 be returned by \code{ergm.bridge.llr}.}
 
-\item{control}{Control arguments.  See
-\code{\link{control.ergm.bridge}} for details.}
+\item{control}{A list of control parameters for algorithm tuning,
+typically constructed with \code{\link[=control.ergm.bridge]{control.ergm.bridge()}}. Its documentation
+gives the the list of recognized control parameters and their
+meaning. The more generic utility \code{\link[=snctrl]{snctrl()}} (StatNet ConTRoL)
+also provides argument completion for the available control
+functions and limited argument name checking.}
 
 \item{coef}{A vector of coefficients for the configuration of
 interest.}

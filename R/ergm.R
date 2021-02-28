@@ -222,8 +222,9 @@
 #' \code{force.main} argument of \code{\link{control.ergm}}. If "CD" (\emph{EXPERIMENTAL}),
 #' the Monte-Carlo contrastive divergence estimate is returned. )
 #' }
-#' @param control A list of control parameters for algorithm
-#' tuning. Constructed using \code{\link{control.ergm}}. 
+#'
+#' @templateVar mycontrol control.ergm
+#' @template control
 #'
 #' @param verbose A `logical` or an integer: if this is
 #'   \code{TRUE}/\code{1}, the program will print out additional

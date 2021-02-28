@@ -37,8 +37,10 @@
 #'   \code{\link{simulate.formula.ergm}}.
 #' @param llronly Logical: If TRUE, only the estiamted log-ratio will
 #'   be returned by `ergm.bridge.llr`.
-#' @param control Control arguments.  See
-#'   \code{\link{control.ergm.bridge}} for details.
+#'
+#' @templateVar mycontrol control.ergm.bridge
+#' @template control
+#'
 #' @param coef A vector of coefficients for the configuration of
 #'   interest.
 #' @param llkonly Whether only the estiamted log-likelihood should be

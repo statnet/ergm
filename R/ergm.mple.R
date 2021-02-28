@@ -48,7 +48,10 @@
 #' @param save.glm whether the mple fit and the null mple fit should
 #'   be returned (T or F); if false, NULL is returned for both;
 #'   default==TRUE
-#' @param control a control list returned by [control.ergm()]
+#'
+#' @templateVar mycontrol control.ergm
+#' @template control
+#'
 #' @param verbose whether this and the C routines should be verbose (T
 #'   or F); default=FALSE
 #' @param \dots additional parameters passed from within; all will be

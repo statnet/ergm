@@ -49,7 +49,12 @@ default="binomial"}
 be returned (T or F); if false, NULL is returned for both;
 default==TRUE}
 
-\item{control}{a control list returned by \code{\link[=control.ergm]{control.ergm()}}}
+\item{control}{A list of control parameters for algorithm tuning,
+typically constructed with \code{\link[=control.ergm]{control.ergm()}}. Its documentation
+gives the the list of recognized control parameters and their
+meaning. The more generic utility \code{\link[=snctrl]{snctrl()}} (StatNet ConTRoL)
+also provides argument completion for the available control
+functions and limited argument name checking.}
 
 \item{verbose}{whether this and the C routines should be verbose (T
 or F); default=FALSE}

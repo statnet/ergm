@@ -104,8 +104,9 @@ san.default <- function(object,...)
 #' @param only.last if `TRUE`, only return the last network generated;
 #'   otherwise, return a [`network.list`] with `nsim` networks.
 #'
-#' @param control A list of control parameters for algorithm tuning; see
-#' \code{\link{control.san}}.
+#' @templateVar mycontrol control.san
+#' @template control
+#'
 #' @param verbose Logical or numeric giving the level of verbosity. Higher values produce more verbose output.
 #' @param offset.coef A vector of offset coefficients; these must be passed in by the user.  
 #' Note that these should be the same set of coefficients one would pass to \code{ergm} via 

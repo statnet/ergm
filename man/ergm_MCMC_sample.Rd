@@ -29,8 +29,13 @@ ergm_MCMC_slave(
 \arguments{
 \item{state}{an \code{\link{ergm_state}} representing the sampler state, containing information about the network, the model, the proposal, and (optionally) initial statistics, or a list thereof.}
 
-\item{control}{list of MCMC tuning parameters; see
-\code{\link[=control.ergm]{control.ergm()}}.}
+\item{control}{A list of control parameters for algorithm tuning,
+typically constructed with \code{\link[=control.ergm]{control.ergm()}}, \code{\link[=control.simulate.ergm]{control.simulate.ergm()}}, etc., which have different
+defaults. Their documentation gives the the list of recognized
+control parameters and their meaning. The more generic utility
+\code{\link[=snctrl]{snctrl()}} (StatNet ConTRoL) also provides argument completion
+for the available control functions and limited argument name
+checking.}
 
 \item{theta}{the (possibly curved) parameters of the model.}
 

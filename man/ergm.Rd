@@ -159,8 +159,12 @@ likelihood calculation even when the MLE and MPLE are the same, see the
 the Monte-Carlo contrastive divergence estimate is returned. )
 }}
 
-\item{control}{A list of control parameters for algorithm
-tuning. Constructed using \code{\link{control.ergm}}.}
+\item{control}{A list of control parameters for algorithm tuning,
+typically constructed with \code{\link[=control.ergm]{control.ergm()}}. Its documentation
+gives the the list of recognized control parameters and their
+meaning. The more generic utility \code{\link[=snctrl]{snctrl()}} (StatNet ConTRoL)
+also provides argument completion for the available control
+functions and limited argument name checking.}
 
 \item{verbose}{A \code{logical} or an integer: if this is
 \code{TRUE}/\code{1}, the program will print out additional

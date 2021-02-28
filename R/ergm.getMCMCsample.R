@@ -21,8 +21,10 @@
 #' the calling function must shift the statistics if required.
 #' 
 #' @param state an [`ergm_state`] representing the sampler state, containing information about the network, the model, the proposal, and (optionally) initial statistics, or a list thereof.
-#' @param control list of MCMC tuning parameters; see
-#'   [control.ergm()].
+#'
+#' @templateVar mycontrols [control.ergm()], [control.simulate.ergm()], etc.
+#' @template control2
+#'
 #' @param theta the (possibly curved) parameters of the model.
 #' @param eta the natural parameters of the model; by default constructed from `theta`.
 #' @param verbose verbosity level.
