@@ -79,6 +79,7 @@ predict.formula <- function(object, theta,
   theta <- statnet.common::deInf(theta)
   output <- match.arg(output)
   type <- match.arg(type)
+  stopifnot(nsim >= 2)
   
   # Transform extended ergmMPLE() output to matrix with 0s on the diagonal
   .df_to_matrix <- function(d) {
