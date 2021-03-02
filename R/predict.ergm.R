@@ -129,7 +129,11 @@ predict.formula <- function(object, theta,
   switch(
     output,
     data.frame = as.data.frame(predmat[,c("tail", "head", "p")]),
-    matrix = .df_to_matrix(predmat)
+    matrix = {
+      # Get vertex names
+      vnames <- eval_lhs.formula(object) %v% "vertex.names"
+      structure(.df_to_matrix(predmat), dimnames = list(vnames, vnames))
+    }
   )
 }
 
