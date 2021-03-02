@@ -79,6 +79,7 @@ predict.formula <- function(object, theta,
   theta <- statnet.common::deInf(theta)
   output <- match.arg(output)
   type <- match.arg(type)
+  stopifnot(nsim >= 2)
   
   # Transform extended ergmMPLE() output to matrix with 0s on the diagonal
   .df_to_matrix <- function(d) {
@@ -90,16 +91,19 @@ predict.formula <- function(object, theta,
   
   # Matrix to data.frame
   .matrix_to_df <- function(m, name=".value") {
+    unames <- sort(unique(unlist(dimnames(m))))
     d <- as.data.frame(as.table(m), stringsAsFactors=FALSE)
     names(d) <- c("tail", "head", name)
-    d
+    d$tail <- match(d$tail, unames)
+    d$head <- match(d$head, unames)
+    subset(d, tail != head)
   }
   
   # Simulated unconditional Ps
   if(!conditional) {
     if(type != "response") 
       stop("type='link' for unconditional probabilities is not supported")
-    predm <- predict_ergm_unconditional(object=object, coef=theta, nsim=100, ...)
+    predm <- predict_ergm_unconditional(object=object, coef=theta, nsim=nsim, ...)
     return(
       switch(
         output,
@@ -126,7 +130,11 @@ predict.formula <- function(object, theta,
   switch(
     output,
     data.frame = as.data.frame(predmat[,c("tail", "head", "p")]),
-    matrix = .df_to_matrix(predmat)
+    matrix = {
+      # Get vertex names
+      vnames <- eval_lhs.formula(object) %v% "vertex.names"
+      structure(.df_to_matrix(predmat), dimnames = list(vnames, vnames))
+    }
   )
 }
 
