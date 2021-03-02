@@ -187,3 +187,16 @@ test_that("it works for offsets and non-finite offset coefs", {
     all(is.finite(p$p))
   )
 })
+
+
+test_that("matrix output of predict() is properly named", {
+  data(g4)
+  set.seed(666)
+  fit <- ergm(g4 ~ edges)
+  p.cond <- predict(fit, conditional = TRUE, output = "matrix")
+  expect_identical(rownames(p.cond), g4 %v% "vertex.names")
+  expect_identical(colnames(p.cond), g4 %v% "vertex.names")
+  p.uncond <- predict(fit, conditional = FALSE, output = "matrix", nsim = 2)
+  expect_identical(rownames(p.uncond), g4 %v% "vertex.names")
+  expect_identical(colnames(p.uncond), g4 %v% "vertex.names")
+})
