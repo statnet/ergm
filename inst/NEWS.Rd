@@ -64,6 +64,92 @@
 
 %% }
 
+\section{Changes in version 3.12.0}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+        Terms, such as \code{\link{nodecov}}, that take matrix-valued functions of nodal attributes now generate coefficient names from the matrix column names more sensibly.
+      }
+      \item{
+        The \code{levels2} argument in terms \code{\link{mm}} and \code{\link{nodemix}} now accepts an argument in the form of a logical mixing matrix, selecting which mixing matrix cells should be included.
+      }
+      \item{
+        \code{\link{ergmMPLE}()} now has an \code{expand.bipartite=} argument, which, for \code{output='array'}, controls whether bipartite networks' adjacency matrices are represented as rectangular or as square. Other behaviors under \code{output='array'} have also been made more consistent.
+      }
+      \item{
+        In \code{\link{gof}} functions, bipartite networks now have their own goodness-of-fit statistics, \code{\link{b1degree}} and \code{\link{b2degree}}.
+      }
+      \item{
+        Formula or function-type nodal attribute specifications can now be more complex. In particular, \code{\link{magrittr-package}}'s \code{\link{\%>\%}} operator can now be used on one of the sides of an \code{\link{mm}} formula.
+      }
+      \item{
+        \code{\link{nodal_attributes}} documentation and vignette now have more examples.
+      }
+      \item{
+        Nonidentifiability detection code now checks for nonvarying statistics first and handles them appropriately. See \code{\link{control.ergm}} for the parameters that control this handling.
+      }
+      \item{
+        Control lists can now be specified as plain lists with sublists allocated by argument name. Function \code{\link{snctrl}} can provide completion in base \R, RStudio, and elsewhere.
+      }
+    }
+  }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item{
+        The package functions now work more reliably when loaded but not attached and invoked via \code{::}.
+      }
+      \item{
+        The \code{\link{Dyads}} operator constraint now works correctly on undirected networks.
+      }
+      \item{
+        Term initialization traceback printing has been robustified.
+      }
+      \item{
+        Term \code{\link{nodeisqrtcovar}} now initializes without error. Thanks to Yu-Lun Chen (NYU) for reporting the issue.
+      }
+      \item{
+        The MPLE code has been robustified for some corner cases (e.g., a model with 0 free parameters).
+      }
+      \item{
+        Various fixes to \code{\link{predict.ergm}}. (Thanks to Michal Bojanowski.)
+      }
+      \item{
+        In \code{\link{ddsp}}, \code{\link{dnsp}}, \code{\link{dgwdsp}}, and \code{\link{dgwnsp}}, the \code{"RTP"} (reciprocated transitive partners) implementation has been fixed.
+      }
+      \item{
+        Miscellaneous documentation fixes.
+      }
+    }
+  }
+
+
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+        The \code{levels2=} argument of \code{\link{nodemix}} and \code{\link{mm}} terms now defaults to \code{-1} (i.e., exclude the first level combination). Old behaviour is available through the \code{version} \link{term option}.
+      }
+      \item{
+        \code{\link{summary_formula}} family of functions now dispatch based on the \code{basis=} argument if present, with the formula being allowed to be one-sided.
+      }
+      \item{
+        In \code{\link{control.ergm}}, arguments \code{SAN.control=} and \code{loglik.control=} have been shortened to \code{SAN=} and \code{loglik=}, respectively.
+      }
+      \item{
+        Global ERGM options and ERGM term options are now properly documented in \code{\link[=ergm-options]{options?ergm}}.}
+      \item{
+        The \code{hammingmix} term has been deprecaed.
+      }
+      \item{
+        The convex hull testing now uses the \code{\link{lpSolveAPI-package}} and is faster and more robust as a result. (Thanks to Christian Schmid (PSU).)
+      }
+    }
+  }
+
+}
+
 \section{Changes in version 3.11.0}{
 
   \subsection{NEW FEATURES}{
@@ -179,6 +265,9 @@
       }
       \item{
         Miscellaneous fixes to \code{\link{predict.ergm}} and \code{\link{ergmMPLE}}, particularly in handling offsets.
+      }
+      \item{
+        Miscellaneous vignette and documentation fixes.
       }
     }
   }
