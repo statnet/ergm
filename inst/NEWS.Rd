@@ -148,29 +148,6 @@
     }
   }
 
-  \subsection{C-LEVEL FACILITIES}{
-    \itemize{
-    }
-  }
-
-  \subsection{UTILITIES}{
-    \itemize{
-      \item Likewise, "UTILITIES" is probably unnecessary.
-    }
-  }
-
-  \subsection{INSTALLATION}{
-    \itemize{
-      \item ... as is "INSTALLATION".
-    }
-  }
-
-  \subsection{PACKAGE INSTALLATION}{
-    \itemize{
-      \item ditto.
-    }
-  }
-
 }
 
 \section{Changes in version 3.11.0}{
