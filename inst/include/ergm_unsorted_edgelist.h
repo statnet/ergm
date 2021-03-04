@@ -60,7 +60,7 @@ static inline Edge UnsrtELSearch(Vertex tail, Vertex head, UnsrtEL *el){
   if(el->lindex==0 || tail!=el->tails[el->lindex] || head!=el->heads[el->lindex]){ // Linear search
 #ifdef DEBUG_UnsrtEL
     /* To stop on an inefficient search, have the debugger break on the next line. */
-    Rprintf("UnsrtELSearch() called for an edge other than the last one inserted or selected, resulting in a linear search. This is O(E) slow and should be avoided whenever possible.");
+    Rprintf("UnsrtELSearch() called for an edge other than the last one inserted or selected, resulting in a linear search. This is O(E) slow and should be avoided whenever possible.\n");
 #endif
     Edge i = el->nedges;
     while(i!=0 && (tail!=el->tails[i] || head!=el->heads[i])) i--;
@@ -102,7 +102,7 @@ static inline void UnsrtELInsert(Vertex tail, Vertex head, UnsrtEL *el){
   Edge i = el->nedges;
   while(i!=0 && (tail!=el->tails[i] || head!=el->heads[i])) i--;
   if(i) /* To stop on an invariant violation, have the debugger break on the next line. */
-    Rprintf("UnsrtELInsert() called for an edge already present in the list. This should never happen.");
+    Rprintf("UnsrtELInsert() called for an edge already present in the list. This should never happen.\n");
 #endif
 
   el->lindex = ++el->nedges;
