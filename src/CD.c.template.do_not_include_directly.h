@@ -261,10 +261,11 @@ MCMCStatus DISPATCH_CDStep(DISPATCH_ErgmState *s,
   } // step
   
   /* Undo toggles. */
-  for(unsigned int i=0; i < ntoggled; i++){
-    CD_PROP_UNDO_TOGGLE(i)
+  while(ntoggled){
+    ntoggled--;
+    CD_PROP_UNDO_TOGGLE(ntoggled)
   }
-  
+
   return MCMC_OK;
 }
 
