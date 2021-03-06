@@ -675,3 +675,35 @@ NULL
 #' \url{http://vlado.fmf.uni-lj.si/pub/networks/data/esna/sampson.htm}
 #' @keywords datasets
 NULL
+
+#' Target statistics and model fit to a hypothetical network population based on 
+#' egocentric data on cohabitation 
+#' 
+#' This dataset consists of three objects,
+#' a mixing matrix, a vector of targets for sufficient statistics, and a 
+#' data.frame of model-derived weights for a network dataset in which only
+#' egocentric reports about partnerships are observed:
+#' 
+#' \describe{ 
+#' \item{cohab_MixMat}{Mixing matrix for 50K pop (explain)} 
+#' \itme{cohab_TargetStats}{Vector of target statistics for 50K pop (explain)}
+#' \item{cohab_PopWts}{Data frame including model-derived weights (explain)}
+#' }
+#' 
+#' (Insert explanation here regarding how these objects were created.)
+#' 
+#' @usage
+#' data(cohab)
+#' @docType data
+#' @name cohab
+#' @aliases cohab_MixMat cohab_PopWts cohab_TargetStats
+#' @seealso ergm
+#' @references Krivitsky, P.N., Hunter, D.R., Morris, M., and Klumb, C. (2011).
+#' \emph{ergm 4.0: New Features and Improvements}. 
+#' 
+#' Group, Stat N. (2011). \emph{Another Relevant Article about this Dataset}.
+#' @source Group, Stat N. (2011). \emph{Another Relevant Article about this 
+#' Dataset}.
+#' @keywords datasets
+NULL
+
