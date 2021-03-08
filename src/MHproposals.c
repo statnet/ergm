@@ -16,9 +16,9 @@
 #include "ergm_weighted_population.h"
 #include "ergm_dyadgen.h"
 #include "ergm_Rutil.h"
-#include "ergm_nodelist_dyad_sampler.h"
 #include "ergm_BDStrat_proposals.h"
 #include "ergm_hash_edgelist.h"
+#include "ergm_nodelist.h"
 
 /*********************
  void MH_randomtoggle
@@ -105,24 +105,38 @@ MH_I_FN(Mi_BDStratTNT) {
 
   ALLOC_STORAGE(1, BDStratTNTStorage, sto);
 
+  sto->CD = getListElement(getListElement(MHp->R, "flags"), "CD") != R_NilValue;
+  
   sto->bound = asInteger(getListElement(MHp->R, "bound"));
   sto->nmixtypes = asInteger(getListElement(MHp->R, "nmixtypes"));
   sto->nstratlevels = asInteger(getListElement(MHp->R, "nattrcodes"));
-  sto->nbdlevels = asInteger(getListElement(MHp->R, "bd_levels"));
-  sto->strattailtypes = INTEGER(getListElement(MHp->R, "strattailattrs"));
-  sto->stratheadtypes = INTEGER(getListElement(MHp->R, "stratheadattrs"));
+  int nbdlevels = asInteger(getListElement(MHp->R, "bd_levels"));
 
   sto->mixtypestoupdate = Calloc(sto->nmixtypes, int);
   
   sto->strat_vattr = INTEGER(getListElement(MHp->R, "strat_vattr"));
-  sto->strat_vattr--; // so node indices line up correctly
 
   sto->bd_vattr = INTEGER(getListElement(MHp->R, "bd_vattr"));
+    
+  sto->nodelist = NodeListInitialize(sto->bound, 
+                                     sto->strat_vattr, 
+                                     sto->nstratlevels, 
+                                     sto->nmixtypes, 
+                                     INTEGER(getListElement(MHp->R, "strattailattrs")), 
+                                     INTEGER(getListElement(MHp->R, "stratheadattrs")), 
+                                     NULL, 
+                                     sto->bd_vattr, 
+                                     nbdlevels, 
+                                     INTEGER(getListElement(MHp->R, "bd_mixtypes"))[0], 
+                                     INTEGER(getListElement(MHp->R, "bd_mixtypes"))[1], 
+                                     INTEGER(getListElement(MHp->R, "bd_tails")), 
+                                     INTEGER(getListElement(MHp->R, "bd_heads")), 
+                                     NULL,
+                                     INTEGER(getListElement(MHp->R, "nodecountsbypairedcode")), 
+                                     nwp);
+    
+  sto->strat_vattr--; // so node indices line up correctly
   sto->bd_vattr--; // so node indices line up correctly  
-  
-  sto->bd_mixtypes = INTEGER(getListElement(MHp->R, "bd_mixtypes"));
-  sto->bd_tails = INTEGER(getListElement(MHp->R, "bd_tails"));
-  sto->bd_heads = INTEGER(getListElement(MHp->R, "bd_heads"));  
     
   UnsrtEL **els = Calloc(sto->nmixtypes, UnsrtEL *);
   for(int i = 0; i < sto->nmixtypes; i++) {
@@ -135,10 +149,10 @@ MH_I_FN(Mi_BDStratTNT) {
     sto->indmat[i] = sto->indmat[i - 1] + sto->nstratlevels;
   }
 
-  int **amat = Calloc(sto->nbdlevels, int *);
+  int **amat = Calloc(nbdlevels, int *);
   amat[0] = INTEGER(getListElement(MHp->R, "amat"));
-  for(int i = 1; i < sto->nbdlevels; i++) {
-    amat[i] = amat[i - 1] + sto->nbdlevels;
+  for(int i = 1; i < nbdlevels; i++) {
+    amat[i] = amat[i - 1] + nbdlevels;
   }
   
   EXEC_THROUGH_NET_EDGES(tail, head, e, {
@@ -154,36 +168,7 @@ MH_I_FN(Mi_BDStratTNT) {
   for(int i = 0; i < sto->nmixtypes; i++) {
     sto->hash[i] = HashELInitialize(els[i]->nedges, els[i]->tails + 1, els[i]->heads + 1, FALSE, DIRECTED);
   }
-  
-  int *nodecounts = INTEGER(getListElement(MHp->R, "nodecountsbypairedcode"));
-  
-  sto->nodesvec = Calloc(sto->nstratlevels, Vertex **);
-  for(int i = 0; i < sto->nstratlevels; i++) {
-    sto->nodesvec[i] = Calloc(sto->nbdlevels, Vertex *);
-    for(int j = 0; j < sto->nbdlevels; j++) {
-      int size = nodecounts[i*sto->nbdlevels + j];
-      if(size > 0) {
-        sto->nodesvec[i][j] = Calloc(size, Vertex);
-      }
-    }
-  }
-  
-  sto->attrcounts = Calloc(sto->nstratlevels, int *);
-  for(int i = 0; i < sto->nstratlevels; i++) {
-    sto->attrcounts[i] = (int *)Calloc(sto->nbdlevels, int);
-  }
 
-  sto->nodepos = Calloc(N_NODES + 1, int);  
-
-  for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
-    if(IN_DEG[vertex] + OUT_DEG[vertex] < sto->bound) {
-      // add vertex to the submaximal list corresponding to its attribute type
-      sto->nodesvec[sto->strat_vattr[vertex]][sto->bd_vattr[vertex]][sto->attrcounts[sto->strat_vattr[vertex]][sto->bd_vattr[vertex]]] = vertex;
-      sto->nodepos[vertex] = sto->attrcounts[sto->strat_vattr[vertex]][sto->bd_vattr[vertex]];      
-      sto->attrcounts[sto->strat_vattr[vertex]][sto->bd_vattr[vertex]]++;
-    }
-  }
-    
   sto->originalprobvec = Calloc(sto->nmixtypes, double);
   int empirical_flag = asInteger(getListElement(MHp->R, "empirical_flag"));
   if(empirical_flag) {
@@ -200,8 +185,7 @@ MH_I_FN(Mi_BDStratTNT) {
   double *currentprobvec = Calloc(sto->nmixtypes, double);  
   for(int i = 0; i < sto->nmixtypes; i++) {
     // if any edges or dyads of this type are toggleable
-    int strat_diag = sto->strattailtypes[i] == sto->stratheadtypes[i];
-    if(sto->hash[i]->list->nedges > 0 || NodeListDyadCountPositive(sto->attrcounts[sto->strattailtypes[i]], sto->attrcounts[sto->stratheadtypes[i]], sto->bd_tails, sto->bd_heads, sto->bd_mixtypes[strat_diag], strat_diag)) {
+    if(sto->hash[i]->list->nedges > 0 || NodeListDyadCountPositive(sto->nodelist, i)) {
       currentprobvec[i] = sto->originalprobvec[i];
       sto->currentcumprob += sto->originalprobvec[i];
     }
@@ -227,105 +211,34 @@ MH_P_FN(MH_BDStratTNT) {
   GET_STORAGE(BDStratTNTStorage, sto);
 
   // sample a toggleable strat mixing type on which to make a proposal
-  int strat_i = WtPopGetRand(sto->wtp);
-
-  // record the mixing type of the toggle, in case it's needed in the U function later
-  sto->stratmixingtype = strat_i;    
-
-  int strattailtype = sto->strattailtypes[strat_i];
-  int stratheadtype = sto->stratheadtypes[strat_i];
-  int strat_diag = strattailtype == stratheadtype;
+  sto->stratmixingtype = WtPopGetRand(sto->wtp);
   
   // number of edges of this mixing type
-  int nedgestype = sto->hash[strat_i]->list->nedges;
+  int nedgestype = sto->hash[sto->stratmixingtype]->list->nedges;
   
-  Dyad ndyadstype = NodeListDyadCount(sto->attrcounts[strattailtype], sto->attrcounts[stratheadtype], sto->bd_tails, sto->bd_heads, sto->bd_mixtypes[strat_diag], strat_diag, DIRECTED);
+  Dyad ndyadstype = NodeListDyadCount(sto->nodelist, sto->stratmixingtype);
   
   int edgeflag;
   
   if((unif_rand() < 0.5 && nedgestype > 0) || ndyadstype == 0) {
-    // propose toggling off an existing edge of strat mixing type strat_i
-    HashELGetRand(Mtail, Mhead, sto->hash[strat_i]);    
+    // propose toggling off an existing edge of strat mixing type sto->stratmixingtype
+    HashELGetRand(Mtail, Mhead, sto->hash[sto->stratmixingtype]);    
     edgeflag = TRUE;
   } else {
-    // select a random BD toggleable dyad of strat mixing type strat_i and propose toggling it
-    GetRandDyadFromLists(Mtail, // tail
-                         Mhead, // head
-                         sto->nodesvec[strattailtype], // tails
-                         sto->nodesvec[stratheadtype], // heads
-                         sto->bd_tails, // tailattrs
-                         sto->bd_heads, // headattrs
-                         sto->attrcounts[strattailtype], // tailcounts
-                         sto->attrcounts[stratheadtype], // headcounts
-                         sto->bd_mixtypes[strat_diag], // length
-                         ndyadstype, // dyadcount
-                         strat_diag, // diagonal
-                         DIRECTED); // directed; always FALSE in BDStratTNT
+    // select a random BD toggleable dyad of strat mixing type sto->stratmixingtype and propose toggling it
+    NodeListGetRandWithCount(Mtail, Mhead, sto->nodelist, sto->stratmixingtype, ndyadstype);
 
     // now check if the dyad we drew is already an edge or not
     edgeflag = IS_OUTEDGE(Mtail[0],Mhead[0]);
   }
-
-  sto->strattailtype = sto->strat_vattr[Mtail[0]];
-  sto->stratheadtype = sto->strat_vattr[Mhead[0]];
-  
-  sto->bdtailtype = sto->bd_vattr[Mtail[0]];
-  sto->bdheadtype = sto->bd_vattr[Mhead[0]];
   
   sto->tailmaxl = IN_DEG[Mtail[0]] + OUT_DEG[Mtail[0]] == sto->bound - 1 + edgeflag;
   sto->headmaxl = IN_DEG[Mhead[0]] + OUT_DEG[Mhead[0]] == sto->bound - 1 + edgeflag;
-      
-  // temporarily set tail and head toggleability to what it would be in the proposed network
-  NodeListToggleKnownIf(*Mtail, sto->nodesvec[sto->strattailtype][sto->bdtailtype], sto->nodepos, sto->attrcounts[sto->strattailtype] + sto->bdtailtype, !edgeflag, sto->tailmaxl);
-  NodeListToggleKnownIf(*Mhead, sto->nodesvec[sto->stratheadtype][sto->bdheadtype], sto->nodepos, sto->attrcounts[sto->stratheadtype] + sto->bdheadtype, !edgeflag, sto->headmaxl);
-
-  // compute proposed dyad count for current mixing type (only)
-  Dyad proposeddyadstype = NodeListDyadCount(sto->attrcounts[strattailtype], sto->attrcounts[stratheadtype], sto->bd_tails, sto->bd_heads, sto->bd_mixtypes[strat_diag], strat_diag, DIRECTED);
-    
-  // here we compute the proposedcumprob, checking only those
-  // mixing types that can be influenced by toggles made on 
-  // the current mixing type
-  sto->proposedcumprob = sto->currentcumprob;
-  sto->nmixtypestoupdate = 0; // reset counter
-  // avoid these somewhat expensive checks in the typical case
-  // where you have enough submaximal nodes that you cannot
-  // be exhausting any mixing types of toggleable dyads
-  if(sto->attrcounts[sto->strattailtype][sto->bdtailtype] <= 2 || sto->attrcounts[sto->stratheadtype][sto->bdheadtype] <= 2) {
-    
-    // how many strat types do we need to check?
-    int ntocheck = strat_diag ? sto->nstratlevels : 2*sto->nstratlevels;
-
-    for(int i = 0; i < ntocheck; i++) {
-      // find the index of the i'th strat type we need to check, by looking it up in the indmat
-      int infl_i = sto->indmat[i < sto->nstratlevels ? sto->strattailtype : i - sto->nstratlevels][i < sto->nstratlevels ? i : sto->stratheadtype];
-
-      // if this strat type is not included in the proposal, or is the same as the strat type of the proposed toggle,
-      // then it cannot change toggleability status, so skip it
-      if(infl_i < 0 || infl_i == strat_i) {
-        continue;
-      }
-      
-      // can we toggle this mixing type in the current network?
-      int toggle_curr = WtPopGetWt(infl_i, sto->wtp) > 0;
-      
-      // will we be able to toggle this mixing type in the proposed network? 
-      int toggle_prop = sto->hash[infl_i]->list->nedges > 0 || NodeListDyadCountPositive(sto->attrcounts[sto->strattailtypes[infl_i]], sto->attrcounts[sto->stratheadtypes[infl_i]], sto->bd_tails, sto->bd_heads, sto->bd_mixtypes[sto->strattailtypes[infl_i] == sto->stratheadtypes[infl_i]], sto->strattailtypes[infl_i] == sto->stratheadtypes[infl_i]);
-      
-      // will there be a change in toggleability status?
-      int change = toggle_curr - toggle_prop;
-
-      // if so, take this into account      
-      if(change) {
-        sto->proposedcumprob -= change*sto->originalprobvec[infl_i];
-        sto->mixtypestoupdate[sto->nmixtypestoupdate] = infl_i;
-        sto->nmixtypestoupdate++;        
-      }
-    }
-  }
   
-  // restore tail and head toggleability to their current status
-  NodeListToggleKnownIf(*Mtail, sto->nodesvec[sto->strattailtype][sto->bdtailtype], sto->nodepos, sto->attrcounts[sto->strattailtype] + sto->bdtailtype, edgeflag, sto->tailmaxl);
-  NodeListToggleKnownIf(*Mhead, sto->nodesvec[sto->stratheadtype][sto->bdheadtype], sto->nodepos, sto->attrcounts[sto->stratheadtype] + sto->bdheadtype, edgeflag, sto->headmaxl);
+  // compute proposed dyad count for current mixing type (only)
+  Dyad proposeddyadstype = NodeListDyadCountOnToggle(*Mtail, *Mhead, sto->nodelist, sto->stratmixingtype, edgeflag ? 1 : -1, sto->tailmaxl, sto->headmaxl);
+  
+  ComputeChangesToToggleability(Mtail, Mhead, edgeflag, sto);
   
   double prob_weight = sto->currentcumprob/sto->proposedcumprob;
   
@@ -348,14 +261,20 @@ MH_P_FN(MH_BDStratTNT) {
 
 MH_U_FN(Mu_BDStratTNT) {
   GET_STORAGE(BDStratTNTStorage, sto);
+  if(sto->CD) {
+    sto->stratmixingtype = sto->indmat[sto->strat_vattr[tail]][sto->strat_vattr[head]];
 
+    sto->tailmaxl = IN_DEG[tail] + OUT_DEG[tail] == sto->bound - 1 + edgeflag;
+    sto->headmaxl = IN_DEG[head] + OUT_DEG[head] == sto->bound - 1 + edgeflag;
+
+    ComputeChangesToToggleability(&tail, &head, edgeflag, sto);    
+  }
   // update edgelist
   HashELToggleKnown(tail, head, sto->hash[sto->stratmixingtype], edgeflag);
 
   // update nodelists as needed
-  NodeListToggleKnownIf(tail, sto->nodesvec[sto->strattailtype][sto->bdtailtype], sto->nodepos, sto->attrcounts[sto->strattailtype] + sto->bdtailtype, !edgeflag, sto->tailmaxl);
-  NodeListToggleKnownIf(head, sto->nodesvec[sto->stratheadtype][sto->bdheadtype], sto->nodepos, sto->attrcounts[sto->stratheadtype] + sto->bdheadtype, !edgeflag, sto->headmaxl);
-
+  NodeListToggleKnownIf(tail, head, sto->nodelist, !edgeflag, sto->tailmaxl, sto->headmaxl);
+  
   // if any strat mixing types have changed toggleability status, update prob info accordingly
   if(sto->nmixtypestoupdate > 0) {
     sto->currentcumprob = sto->proposedcumprob;
@@ -368,25 +287,8 @@ MH_U_FN(Mu_BDStratTNT) {
 MH_F_FN(Mf_BDStratTNT) {
   // Free all the things
   GET_STORAGE(BDStratTNTStorage, sto);
-    
-  for(int i = 0; i < sto->nstratlevels; i++) {
-    Free(sto->attrcounts[i]);
-  }
-  Free(sto->attrcounts);
 
-  int *nodecounts = INTEGER(getListElement(MHp->R, "nodecountsbypairedcode"));
-  
-  for(int i = 0; i < sto->nstratlevels; i++) {
-    for(int j = 0; j < sto->nbdlevels; j++) {
-      int size = nodecounts[i*sto->nbdlevels + j];
-      if(size > 0) {
-        Free(sto->nodesvec[i][j]);
-      }
-    }
-    Free(sto->nodesvec[i]);
-  }
-  Free(sto->nodesvec);
-  Free(sto->nodepos);
+  NodeListDestroy(sto->nodelist);    
   
   for(int i = 0; i < sto->nmixtypes; i++) {
     HashELDestroy(sto->hash[i]);
@@ -418,50 +320,37 @@ MH_I_FN(Mi_BDTNT) {
   // process the inputs and initialize all the node lists in storage; set MHp->ntoggles to 1
   MHp->ntoggles = 1;
 
-  // used during initialization only; not retained in storage
-  int *nodecountsbycode = INTEGER(getListElement(MHp->R, "nodecountsbycode")); // Number of nodes of each type.
-
   ALLOC_STORAGE(1, BDTNTStorage, sto);
+  
+  sto->CD = getListElement(getListElement(MHp->R, "flags"), "CD") != R_NilValue;
+  
   sto->bound = asInteger(getListElement(MHp->R, "bound")); // As in struct.
-  sto->nlevels = asInteger(getListElement(MHp->R, "nlevels")); // Number of distinct types of types of vertex.
-  sto->nmixtypes = asInteger(getListElement(MHp->R, "nmixtypes")); // As in struct.
-  sto->tailtypes = INTEGER(getListElement(MHp->R, "allowed.tails")); // As in struct.
-  sto->headtypes = INTEGER(getListElement(MHp->R, "allowed.heads")); // As in struct.
+  int nlevels = asInteger(getListElement(MHp->R, "nlevels")); // Number of distinct types of types of vertex.
   
-  sto->vattr = INTEGER(getListElement(MHp->R, "nodecov")); // As in struct.
-  sto->vattr--; // so node indices line up correctly
+  int *vattr = INTEGER(getListElement(MHp->R, "nodecov")); // As in struct.
+  
+  sto->nodelist = NodeListInitialize(sto->bound, NULL, 0, 0, NULL, NULL, NULL, 
+                                     vattr, 
+                                     nlevels, 
+                                     asInteger(getListElement(MHp->R, "nmixtypes")), 
+                                     asInteger(getListElement(MHp->R, "nmixtypes")), 
+                                     INTEGER(getListElement(MHp->R, "allowed.tails")), 
+                                     INTEGER(getListElement(MHp->R, "allowed.heads")), 
+                                     INTEGER(getListElement(MHp->R, "nodecountsbycode")),
+                                     NULL, nwp);
+  
+  vattr--; // so node indices line up correctly
     
-  sto->nodesvec = Calloc(sto->nlevels, Vertex *); // As in struct.
-  sto->nodepos = Calloc(N_NODES + 1, int); // As in struct.
-  sto->attrcounts = Calloc(sto->nlevels, int); // As in struct.
-  // make room for maximum number of nodes of each type
-  for(int i = 0; i < sto->nlevels; i++) {
-    int size = nodecountsbycode[i];
-    if(size > 0) {
-      sto->nodesvec[i] = Calloc(size, Vertex);
-    }
-  }
-
-  // Populate the list of submaximal vertices by checking whether a given vertex has a maximal degree.
-  for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
-    if(IN_DEG[vertex] + OUT_DEG[vertex] < sto->bound) {
-      // add vertex to the submaximal list corresponding to its attribute type
-      sto->nodesvec[sto->vattr[vertex]][sto->attrcounts[sto->vattr[vertex]]] = vertex;
-      sto->nodepos[vertex] = sto->attrcounts[sto->vattr[vertex]];
-      sto->attrcounts[sto->vattr[vertex]]++;
-    }
-  }
-  
-  int **amat = Calloc(sto->nlevels, int *);
+  int **amat = Calloc(nlevels, int *);
   amat[0] = INTEGER(getListElement(MHp->R, "amat"));
-  for(int i = 1; i < sto->nlevels; i++) {
-    amat[i] = amat[i - 1] + sto->nlevels;
+  for(int i = 1; i < nlevels; i++) {
+    amat[i] = amat[i - 1] + nlevels;
   }  
   
   // Construct and populate the list of edges. (May be obviated by more efficient network sampling.)
   UnsrtEL *edgelist = UnsrtELInitialize(0, NULL, NULL, FALSE);
   EXEC_THROUGH_NET_EDGES(tail, head, e, {
-    int allowed = amat[sto->vattr[tail]][sto->vattr[head]];
+    int allowed = amat[vattr[tail]][vattr[head]];
     if(allowed) {
       UnsrtELInsert(tail, head, edgelist);
     }
@@ -471,8 +360,8 @@ MH_I_FN(Mi_BDTNT) {
   sto->hash = HashELInitialize(edgelist->nedges, edgelist->tails + 1, edgelist->heads + 1, FALSE, DIRECTED);
     
   // count number of "BD-toggleable" dyads in current network
-  sto->currentdyads = NodeListDyadCount(sto->attrcounts, sto->attrcounts, sto->tailtypes, sto->headtypes, sto->nmixtypes, TRUE, DIRECTED);
-
+  sto->currentdyads = NodeListDyadCount(sto->nodelist, 0);
+  
   // if we cannot toggle any edges or dyads, error
   if(sto->hash->list->nedges == 0 && sto->currentdyads == 0) {
     MHp->ntoggles = MH_FAILED;
@@ -510,40 +399,16 @@ MH_P_FN(MH_BDTNT) {
     // will be able to select it with equal probability to the others,
     // equalising its chances of being selected, and requiring only a
     // "marginal" adjustment to the acceptance probability.
-    GetRandDyadFromLists(Mtail, // tail
-                         Mhead, // head
-                         sto->nodesvec, // tails
-                         sto->nodesvec, // heads
-                         sto->tailtypes, // tailattrs
-                         sto->headtypes, // headattrs
-                         sto->attrcounts, // tailcounts
-                         sto->attrcounts, // headcounts
-                         sto->nmixtypes, // length
-                         sto->currentdyads, // dyadcount
-                         TRUE, // diagonal; no higher level types here, so always TRUE
-                         DIRECTED); // directed; always FALSE in BDTNT
+    NodeListGetRandWithCount(Mtail, Mhead, sto->nodelist, 0, sto->currentdyads);
 
     edgeflag = IS_OUTEDGE(Mtail[0],Mhead[0]);
   }
-  
-  sto->tailtype = sto->vattr[Mtail[0]];
-  sto->headtype = sto->vattr[Mhead[0]];    
-  
+    
   sto->tailmaxl = IN_DEG[Mtail[0]] + OUT_DEG[Mtail[0]] == sto->bound - 1 + edgeflag;
   sto->headmaxl = IN_DEG[Mhead[0]] + OUT_DEG[Mhead[0]] == sto->bound - 1 + edgeflag;   
-    
-  // temporarily make tail and head assume their submaximal status in the proposed network
-  // so we can easily compute the number of "BD toggleable dyads" in the proposed network
-  NodeListToggleKnownIf(*Mtail, sto->nodesvec[sto->tailtype], sto->nodepos, sto->attrcounts + sto->tailtype, !edgeflag, sto->tailmaxl);
-  NodeListToggleKnownIf(*Mhead, sto->nodesvec[sto->headtype], sto->nodepos, sto->attrcounts + sto->headtype, !edgeflag, sto->headmaxl);    
-
-  // the count of dyads that can be toggled in the "GetRandBDDyad" branch,
-  // in the proposed network
-  sto->proposeddyads = NodeListDyadCount(sto->attrcounts, sto->attrcounts, sto->tailtypes, sto->headtypes, sto->nmixtypes, TRUE, DIRECTED);
-
-  // now restore tail and head to their current state, since we won't necesssarily accept this proposed toggle
-  NodeListToggleKnownIf(*Mtail, sto->nodesvec[sto->tailtype], sto->nodepos, sto->attrcounts + sto->tailtype, edgeflag, sto->tailmaxl);
-  NodeListToggleKnownIf(*Mhead, sto->nodesvec[sto->headtype], sto->nodepos, sto->attrcounts + sto->headtype, edgeflag, sto->headmaxl);    
+  
+  // obtain the count of dyads that can be toggled in the "GetRandBDDyad" branch in the proposed network
+  sto->proposeddyads = NodeListDyadCountOnToggle(*Mtail, *Mhead, sto->nodelist, 0, edgeflag ? 1 : -1, sto->tailmaxl, sto->headmaxl);
     
   // rationale for the logratio:
   //
@@ -575,12 +440,17 @@ MH_P_FN(MH_BDTNT) {
 // this U_FN is called *before* the toggle is made in the network
 MH_U_FN(Mu_BDTNT) {  
   GET_STORAGE(BDTNTStorage, sto);
+  if(sto->CD) {
+    sto->tailmaxl = IN_DEG[tail] + OUT_DEG[tail] == sto->bound - 1 + edgeflag;
+    sto->headmaxl = IN_DEG[head] + OUT_DEG[head] == sto->bound - 1 + edgeflag;   
+  
+    sto->proposeddyads = NodeListDyadCountOnToggle(tail, head, sto->nodelist, 0, edgeflag ? 1 : -1, sto->tailmaxl, sto->headmaxl);
+  }
   // update edgelist
   HashELToggleKnown(tail, head, sto->hash, edgeflag);
 
   // update nodelists as needed
-  NodeListToggleKnownIf(tail, sto->nodesvec[sto->tailtype], sto->nodepos, sto->attrcounts + sto->tailtype, !edgeflag, sto->tailmaxl);
-  NodeListToggleKnownIf(head, sto->nodesvec[sto->headtype], sto->nodepos, sto->attrcounts + sto->headtype, !edgeflag, sto->headmaxl);    
+  NodeListToggleKnownIf(tail, head, sto->nodelist, !edgeflag, sto->tailmaxl, sto->headmaxl);    
 
   // update current dyad count
   sto->currentdyads = sto->proposeddyads;
@@ -591,18 +461,7 @@ MH_F_FN(Mf_BDTNT) {
   GET_STORAGE(BDTNTStorage, sto);
   HashELDestroy(sto->hash);
 
-  Free(sto->attrcounts);
-  Free(sto->nodepos);  
-
-  int *nodecountsbycode = INTEGER(getListElement(MHp->R, "nodecountsbycode")); // Number of nodes of each type.
-
-  for(int i = 0; i < sto->nlevels; i++) {
-    int size = nodecountsbycode[i];
-    if(size > 0) {
-      Free(sto->nodesvec[i]);
-    }
-  }
-  Free(sto->nodesvec);
+  NodeListDestroy(sto->nodelist);
   // MHp->storage itself should be Freed by MHProposalDestroy
 }
 
@@ -617,43 +476,44 @@ MH_I_FN(Mi_StratTNT) {
   MHp->ntoggles = 1;
 
   // used during initialization only; not retained in storage
-  int *vattr = INTEGER(getListElement(MHp->R, "nodecov"));
-  vattr--; // so node indices line up correctly
-
   int nlevels = asInteger(getListElement(MHp->R, "nlevels"));
 
   ALLOC_STORAGE(1, StratTNTStorage, sto);
+
+  sto->vattr = INTEGER(getListElement(MHp->R, "nodecov"));
+  
+  sto->CD = getListElement(getListElement(MHp->R, "flags"), "CD") != R_NilValue;
+  
   sto->nmixtypes = asInteger(getListElement(MHp->R, "nmixtypes"));
-  sto->tailtypes = INTEGER(getListElement(MHp->R, "tailattrs"));
-  sto->headtypes = INTEGER(getListElement(MHp->R, "headattrs"));
-  sto->nodecountsbycode = INTEGER(getListElement(MHp->R, "nodecountsbycode"));
+  
+  sto->nodelist = NodeListInitialize(N_NODES - 1, // i.e. no bound on degree
+                                     sto->vattr, 
+                                     nlevels, 
+                                     sto->nmixtypes, 
+                                     INTEGER(getListElement(MHp->R, "tailattrs")), 
+                                     INTEGER(getListElement(MHp->R, "headattrs")), 
+                                     INTEGER(getListElement(MHp->R, "nodecountsbycode")),
+                                     NULL, 0, 0, 0, NULL, NULL, NULL, NULL, nwp);
   
   sto->els = Calloc(sto->nmixtypes, UnsrtEL *);
   for(int i = 0; i < sto->nmixtypes; i++) {
     sto->els[i] = UnsrtELInitialize(0, NULL, NULL, FALSE);
   }
   
-  int *inputindmat = INTEGER(getListElement(MHp->R, "indmat"));    
-  int **indmat = Calloc(nlevels, int *);
-  indmat[0] = inputindmat;
+  sto->indmat = Calloc(nlevels, int *);
+  sto->indmat[0] = INTEGER(getListElement(MHp->R, "indmat"));
   for(int i = 1; i < nlevels; i++) {
-    indmat[i] = indmat[i - 1] + nlevels;
+    sto->indmat[i] = sto->indmat[i - 1] + nlevels;
   }
   
+  sto->vattr--; // decrement so node indices line up correctly
   EXEC_THROUGH_NET_EDGES(tail, head, e, {
-    int index = indmat[vattr[tail]][vattr[head]];
+    int index = sto->indmat[sto->vattr[tail]][sto->vattr[head]];
     if(index >= 0) {
       UnsrtELInsert(tail, head, sto->els[index]);
     }      
   });
-  Free(indmat);
-  
-  sto->nodesbycode = Calloc(nlevels, Vertex *);
-  sto->nodesbycode[0] = (Vertex *)INTEGER(getListElement(MHp->R, "nodeindicesbycode"));
-  for(int i = 1; i < nlevels; i++) {
-    sto->nodesbycode[i] = sto->nodesbycode[i - 1] + sto->nodecountsbycode[i - 1];
-  }
-  
+    
   int empirical_flag = asInteger(getListElement(MHp->R, "empirical"));
   if(empirical_flag) {
     double *probvec = Calloc(sto->nmixtypes, double);
@@ -674,7 +534,7 @@ MH_I_FN(Mi_StratTNT) {
   
   sto->ndyadstype = Calloc(sto->nmixtypes, Dyad);
   for(int i = 0; i < sto->nmixtypes; i++) {
-    sto->ndyadstype[i] = NodeListDyadCount(sto->nodecountsbycode, sto->nodecountsbycode, sto->tailtypes + i, sto->headtypes + i, 1, TRUE, DIRECTED);
+    sto->ndyadstype[i] = NodeListDyadCount(sto->nodelist, i);
     // positive proposal probability with zero dyads is an error;
     // note that we may wish to relax this condition
     if(sto->ndyadstype[i] == 0 && WtPopGetWt(i, sto->wtp) > 0) {
@@ -688,21 +548,18 @@ MH_P_FN(MH_StratTNT) {
   GET_STORAGE(StratTNTStorage, sto);
   
   // sample a strat mixing type on which to make a proposal
-  int i = WtPopGetRand(sto->wtp);
+  sto->currentmixingtype = WtPopGetRand(sto->wtp);
   
-  // record the mixing type of the toggle, in case it's needed in the U function later
-  sto->currentmixingtype = i;    
-      
   // number of edges of this mixing type
-  int nedgestype = sto->els[i]->nedges;
-
+  int nedgestype = sto->els[sto->currentmixingtype]->nedges;
+  
   // number of dyads of this mixing type
-  Dyad ndyadstype = sto->ndyadstype[i];
+  Dyad ndyadstype = sto->ndyadstype[sto->currentmixingtype];
   
   BD_LOOP({
     if(unif_rand() < 0.5 && nedgestype > 0) {
-      // select an existing edge of type i at random, and propose toggling it off
-      UnsrtELGetRand(Mtail, Mhead, sto->els[i]);
+      // select an existing edge of type sto->currentmixingtype at random, and propose toggling it off
+      UnsrtELGetRand(Mtail, Mhead, sto->els[sto->currentmixingtype]);
       
       // logratio is essentially copied from TNT, because the probability of 
       // choosing this particular mixing type cancels upon taking the ratio;
@@ -710,19 +567,8 @@ MH_P_FN(MH_StratTNT) {
       MHp->logratio = log((nedgestype == 1 ? 1.0/(0.5*ndyadstype + 0.5) :
                            nedgestype / ((double) ndyadstype + nedgestype)));
     } else {
-      // select a dyad of type i and propose toggling it        
-      GetRandDyadFromLists(Mtail, // tail
-                           Mhead, // head
-                           sto->nodesbycode, // tails
-                           sto->nodesbycode, // heads
-                           sto->tailtypes + i, // tailattrs
-                           sto->headtypes + i, // headattrs
-                           sto->nodecountsbycode, // tailcounts
-                           sto->nodecountsbycode, // headcounts
-                           1, // length; only one allowed pairing since we've already sampled the strat type
-                           ndyadstype, // dyadcount
-                           TRUE, // diagonal; no higher level types here, so always TRUE
-                           DIRECTED); // directed
+      // select a dyad of type sto->currentmixingtype and propose toggling it
+      NodeListGetRandWithCount(Mtail, Mhead, sto->nodelist, sto->currentmixingtype, ndyadstype);
 
       if(IS_OUTEDGE(Mtail[0],Mhead[0])) {
         // pick a new edge from the edgelist uniformly at random so we know its index
@@ -730,7 +576,7 @@ MH_P_FN(MH_StratTNT) {
         // the same probability of picking each existing edge as if we used the tail -> head
         // edge, but also allows us to keep the edgelists unsorted (at the cost of generating
         // an extra random index in this case)
-        UnsrtELGetRand(Mtail, Mhead, sto->els[i]);
+        UnsrtELGetRand(Mtail, Mhead, sto->els[sto->currentmixingtype]);
 
         MHp->logratio = log((nedgestype == 1 ? 1.0/(0.5*ndyadstype + 0.5) :
                              nedgestype / ((double) ndyadstype + nedgestype)));
@@ -745,20 +591,25 @@ MH_P_FN(MH_StratTNT) {
 MH_U_FN(Mu_StratTNT) {
   // add or remove edge from appropriate edgelist
   GET_STORAGE(StratTNTStorage, sto);
+  if(sto->CD) {
+    sto->currentmixingtype = sto->indmat[sto->vattr[tail]][sto->vattr[head]];
+  }
   UnsrtELToggleKnown(tail, head, sto->els[sto->currentmixingtype], edgeflag);
 }
 
 MH_F_FN(Mf_StratTNT) {
   // Free all the things
   GET_STORAGE(StratTNTStorage, sto);
-  
+
   for(int i = 0; i < sto->nmixtypes; i++) {
     UnsrtELDestroy(sto->els[i]);
   }
 
+  NodeListDestroy(sto->nodelist);
+
   Free(sto->els);
   Free(sto->ndyadstype);
-  Free(sto->nodesbycode);  
+  Free(sto->indmat);
   
   WtPopDestroy(sto->wtp);
   // MHp->storage itself should be Freed by MHProposalDestroy
