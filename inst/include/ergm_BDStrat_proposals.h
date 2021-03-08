@@ -6,6 +6,7 @@
 #include "ergm_unsorted_edgelist.h"
 #include "ergm_weighted_population.h"
 #include "ergm_hash_edgelist.h"
+#include "ergm_nodelist.h"
 
 #define OUTVAL_NET(e,n) ((n)->outedges[(e)].value)
 #define INVAL_NET(e,n) ((n)->inedges[(e)].value)
@@ -51,61 +52,47 @@ MH_F_FN(Mf_BDTNT);
 MH_F_FN(Mf_BDStratTNT);
 
 typedef struct {
-  UnsrtEL **els;
-  int currentmixingtype;
-  Vertex **nodesbycode;
+  NodeList *nodelist;
   
-  int nmixtypes;
+  UnsrtEL **els;
 
   WtPop *wtp;
   
-  int *tailtypes;
-  int *headtypes;
-
   Dyad *ndyadstype;
-  int *nodecountsbycode;
+
+  int **indmat;
+  
+  int *vattr;
+
+  int nmixtypes;
+  int currentmixingtype;
+  
+  int CD;
 } StratTNTStorage;
 
 typedef struct {
-  int *attrcounts; // Count of the number of nodes with each attribute type i that are "submaximal degree" (attrcounts[i] lengths of nodesvec[i]).
-  Vertex **nodesvec; // List of lists of submaximal nodes of attribute i.
-  int *nodepos; // nodepos[i] is position of vertex i in nodesvec[vattr[i]]
+  NodeList *nodelist;
   
   HashEL *hash; // All edges in the network.
   
-  int tailtype; // Attribute type of the last tail to be proposed.
-  int tailmaxl; // Will the tail change the maximality status if the current proposal is accepted?
-  
-  int headtype; // Ditto for heads.
-  int headmaxl;
+  int tailmaxl; // Will the tail change the maximality status if the current proposal is accepted?  
+  int headmaxl; // ditto head
   
   Dyad currentdyads; // Number of dyads that can be selected in the current network.
   Dyad proposeddyads; // As above, but if the proposal is accepted.
     
   int bound; // Single upper bound on degree.
-  int nmixtypes; // Number of pairings of attributes.
-  int *vattr; // Vertex attributes.
-  int nlevels; // number of attribute levels
-  
-  // Parallel vectors of attribute combinations that are allowed.
-  int *tailtypes;
-  int *headtypes;
+
+  int CD;
 } BDTNTStorage;
 
 typedef struct {
-  HashEL **hash;
-  Vertex ***nodesvec;
-  int **attrcounts;
-  
-  int strattailtype;
-  int bdtailtype;
-  int tailmaxl;
-  
-  int stratheadtype;
-  int bdheadtype;  
-  int headmaxl;
+  NodeList *nodelist;
 
-  int *nodepos;
+  HashEL **hash;
+  
+  int tailmaxl;  
+  int headmaxl;
   
   int stratmixingtype;
   
@@ -122,22 +109,62 @@ typedef struct {
   int *strat_vattr;
   int *bd_vattr;
   
-  int *bd_mixtypes;
-  int *bd_tails;
-  int *bd_heads;
-  
-  int *strattailtypes;
-  int *stratheadtypes;
-  
   int nstratlevels;
-  int nbdlevels;
   
   int **indmat;
     
   int nmixtypestoupdate;
   int *mixtypestoupdate;
+
+  int CD;
 } BDStratTNTStorage;
 
+// determines which strat mixing types (if any) will have a change in toggleability status if we make the proposed toggle
+static inline void ComputeChangesToToggleability(Vertex *tail, Vertex *head, int edgeflag, BDStratTNTStorage *sto) {
+  // here we compute the proposedcumprob, checking only those
+  // mixing types that can be influenced by toggles made on 
+  // the current mixing type
+  sto->proposedcumprob = sto->currentcumprob;
+  sto->nmixtypestoupdate = 0; // reset counter
+  // avoid these somewhat expensive checks in the typical case
+  // where you have enough submaximal nodes that you cannot
+  // be exhausting any mixing types of toggleable dyads
+  if(sto->nodelist->attrcounts[sto->strat_vattr[*tail]][sto->bd_vattr[*tail]] <= 2 || sto->nodelist->attrcounts[sto->strat_vattr[*head]][sto->bd_vattr[*head]] <= 2) {
+    // temporarily set tail and head toggleability to what it would be in the proposed network
+    NodeListToggleKnownIf(*tail, *head, sto->nodelist, !edgeflag, sto->tailmaxl, sto->headmaxl);
+    
+    // how many strat types do we need to check?
+    int ntocheck = (sto->strat_vattr[*tail] == sto->strat_vattr[*head]) ? sto->nstratlevels : 2*sto->nstratlevels;
 
+    for(int i = 0; i < ntocheck; i++) {
+      // find the index of the i'th strat type we need to check, by looking it up in the indmat
+      int infl_i = sto->indmat[i < sto->nstratlevels ? sto->strat_vattr[*tail] : i - sto->nstratlevels][i < sto->nstratlevels ? i : sto->strat_vattr[*head]];
+
+      // if this strat type is not included in the proposal, or is the same as the strat type of the proposed toggle,
+      // then it cannot change toggleability status, so skip it
+      if(infl_i < 0 || infl_i == sto->stratmixingtype) {
+        continue;
+      }
+      
+      // can we toggle this mixing type in the current network?
+      int toggle_curr = WtPopGetWt(infl_i, sto->wtp) > 0;
+      
+      // will we be able to toggle this mixing type in the proposed network? 
+      int toggle_prop = sto->hash[infl_i]->list->nedges > 0 || NodeListDyadCountPositive(sto->nodelist, infl_i);
+      
+      // will there be a change in toggleability status?
+      int change = toggle_curr - toggle_prop;
+
+      // if so, take this into account      
+      if(change) {
+        sto->proposedcumprob -= change*sto->originalprobvec[infl_i];
+        sto->mixtypestoupdate[sto->nmixtypestoupdate] = infl_i;
+        sto->nmixtypestoupdate++;        
+      }
+    }
+    // restore tail and head toggleability to their current status
+    NodeListToggleKnownIf(*tail, *head, sto->nodelist, edgeflag, sto->tailmaxl, sto->headmaxl);
+  }
+}
 
 #endif 
