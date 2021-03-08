@@ -686,7 +686,7 @@ NULL
 #' 
 #' \describe{ 
 #' \item{cohab_MixMat}{Mixing matrix for 50K pop (explain)} 
-#' \itme{cohab_TargetStats}{Vector of target statistics for 50K pop (explain)}
+#' \item{cohab_TargetStats}{Vector of target statistics for 50K pop (explain)}
 #' \item{cohab_PopWts}{Data frame including model-derived weights (explain)}
 #' }
 #' 
