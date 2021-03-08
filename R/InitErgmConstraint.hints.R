@@ -94,5 +94,6 @@ InitErgmConstraint.strat <- function(lhs.nw, attr=NULL, pmat=NULL, empirical=NUL
        nodeindicesbycode = nodeindicesbycode,
        nodecov = strat_nodecov,
        indmat = indmat,
-       empirical = empirical_flag)
+       empirical = empirical_flag,
+       constrain = "strat")
 }
