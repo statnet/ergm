@@ -134,6 +134,7 @@ Collate:
     'ergm_estfun.R'
     'ergm_model.R'
     'ergm_model.utils.R'
+    'ergm_mplecov.R'
     'ergm_proposal.R'
     'formula.utils.R'
     'get.node.attr.R'

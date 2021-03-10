@@ -20,6 +20,8 @@ control.ergm(
   MPLE.nonvar = c("warning", "message", "error"),
   MPLE.nonident = c("warning", "message", "error"),
   MPLE.nonident.tol = 1e-10,
+  MPLE.covariance.samplesize = 500,
+  MPLE.covariance.method = c("invHess", "Godambe", "bootstrap"),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
   MCMC.interval = 1024,
@@ -248,6 +250,16 @@ all-zero columns) are dropped, with their handling controlled by
 \code{MPLE.nonvar}. The corresponding \verb{MCMLE.*} arguments provide a
 similar diagnostic for the unconstrained MCMC sample's estimating
 functions.}
+
+\item{MPLE.covariance.samplesize}{The number of networks to simulate to approximate
+the MPLE covariance matrix using the Godambe matrix (see Schmid and Hunter (2020)) or
+parametric Bootstrapping (see Schmid and Desmarais (2017)).}
+
+\item{MPLE.covariance.method}{The method to estimate the MPLE covariance method. \code{invHess}
+returns the covariance estimate obtained from the glm()-function. \code{Godambe} estimates the
+covariance matrix using the Godambe-matrix (Schmid and Hunter (2020)). This method is recommended
+for dyad-dependent models. Alternatively, \code{bootstrap} estimates standard deviations using a parametric
+bootstrapping approach (see Schmid and Desmarais (2017)).}
 
 \item{MCMC.prop.weights}{Specifies the proposal
 distribution used in the MCMC Metropolis-Hastings algorithm.  Possible
