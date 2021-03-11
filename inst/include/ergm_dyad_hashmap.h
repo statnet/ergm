@@ -56,10 +56,8 @@ static inline void IncDyadMapUInt(Vertex tail, Vertex head, int inc, StoreDyadMa
     if(val==0){
       kh_del(DyadMapUInt, spcache, pos);
     }else{
-      if(pos==kh_none){
-	int ret;
-	pos = kh_put(DyadMapUInt, spcache, th, &ret);
-      }
+      if(pos==kh_none)
+        pos = kh_put(DyadMapUInt, spcache, th, NULL);
       kh_val(spcache, pos) = val;
     }
   }

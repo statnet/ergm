@@ -31,8 +31,7 @@ StoreDyadSet *NetworkToDyadSet(Network *nwp){
   h->directed = DIRECTED;
 
   EXEC_THROUGH_NET_EDGES(tail, head, e, {
-      int ret;
-      kh_put(DyadSet, h, THKey(h,tail,head), &ret);
+      kh_put(DyadSet, h, THKey(h,tail,head), NULL);
     });
   return h;
 }
