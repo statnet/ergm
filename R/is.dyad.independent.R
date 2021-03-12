@@ -40,7 +40,7 @@ is.dyad.independent.NULL <- function(object, ...) TRUE # By convention.
 #' @describeIn ergm_model Tests whether the model is dyad-independent.
 #' @export
 is.dyad.independent.ergm_model <- function(object, ...){
-  ! any(sapply(object$terms, function(term) is.null(term$dependence) || term$dependence)) && is.dyad.independent(object$model.aux)
+  ! any(sapply(object$terms, function(term) is.null(term$dependence) || term$dependence))
 }
 
 #' @rdname is.dyad.independent
