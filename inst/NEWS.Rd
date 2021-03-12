@@ -197,6 +197,10 @@
       }
 
       \item{
+        The \pkg{\link[sna:sna-package]{sna}} function \code{\link{symmetrize}} is made into a generic and a method for \code{\link{network}} objects is implemented.
+      }
+
+      \item{
 	The user term and proposal APIs has been extended significantly. A new API enables storage of information between calls that is updated with the network state, \emph{auxiliaries}: terms that make available information to other terms, and many other capabilities. See the \emph{Terms API} vignette for the current specification. The API remains source-compatible with the previous versions.
 
         The \R API for \code{\link{ergm_model}} takes an additional argument \code{extra.aux=}, which can be used to request auxiliaries by other functions, such as proposals.
