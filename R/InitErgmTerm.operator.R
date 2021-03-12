@@ -347,8 +347,10 @@ symmetrize.default <- function(x, rule=c("weak","strong","upper","lower"), ...){
 #' 
 #' stopifnot(all(tst(as.logical(as.matrix(symmetrize(samplike, "weak"))), sm | t(sm))),
 #'           all(tst(as.logical(as.matrix(symmetrize(samplike, "strong"))), sm & t(sm))),
-#'           all(tst(c(as.matrix(symmetrize(samplike, "upper"))), sm[cbind(c(pmin(row(sm),col(sm))),c(pmax(row(sm),col(sm))))])),
-#'           all(tst(c(as.matrix(symmetrize(samplike, "lower"))), sm[cbind(c(pmax(row(sm),col(sm))),c(pmin(row(sm),col(sm))))])))
+#'           all(tst(c(as.matrix(symmetrize(samplike, "upper"))),
+#'                   sm[cbind(c(pmin(row(sm),col(sm))),c(pmax(row(sm),col(sm))))])),
+#'           all(tst(c(as.matrix(symmetrize(samplike, "lower"))),
+#'                   sm[cbind(c(pmax(row(sm),col(sm))),c(pmin(row(sm),col(sm))))])))
 #' @export
 symmetrize.network <- function(x, rule=c("weak","strong","upper","lower"), ...){
   if(!is.directed(x)) return(x)

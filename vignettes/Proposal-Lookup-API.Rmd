@@ -7,6 +7,12 @@ output:
     mathjax: null
 ---
 
+<!--
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{API for ergm Terms}
+-->
+<!-- to render out this file for preview when not using RStudio:  rmarkdown::render('vignettes/Terms-API.Rmd') -->
+
 # Summary
 
 This document describes the process by which `ergm` and related packages selects the MCMC proposal for a particular analysis. Note that it is not intended to be a tutorial as much as a description of what inputs and outputs different parts of the system expect. Nor does it cover the C API.
