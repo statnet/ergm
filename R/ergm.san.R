@@ -408,6 +408,7 @@ san.ergm <- function(object, formula=object$formula,
 ergm_SAN_slave <- function(state, tau,control,verbose,..., nsteps=NULL, samplesize=NULL, statindices=NULL, offsetindices=NULL, offsets=NULL){
   on.exit(ergm_Cstate_clear())
 
+  state$proposal$flags$SAN <- TRUE
   if(is.null(nsteps)) nsteps <- control$SAN.nsteps
   if(is.null(samplesize)) samplesize <- control$SAN.samplesize
 

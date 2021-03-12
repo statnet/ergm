@@ -66,8 +66,10 @@ ergm_CD_sample <- function(state, control, theta=NULL,
 
 ergm_CD_slave <- function(state, eta,control,verbose,..., samplesize=NULL){  
   on.exit(ergm_Cstate_clear())
+
+  state$proposal$flags$CD <- TRUE
   if(is.null(samplesize)) samplesize <- control$CD.samplesize
-  
+
   z <- if(!is.valued(state))
          .Call("CD_wrapper",
                state,
