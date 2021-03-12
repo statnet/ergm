@@ -64,6 +64,295 @@
 
 %% }
 
+\section{Changes in version 4.0.0}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+	Curved ERGMs are no longer \dQuote{second class citizens}. Curved parameters can now be passed via
+	\code{coef=} and \code{init=} arguments rather than embedded in the formula.
+      }
+
+      \item{
+        A new type of term, an \emph{operator} is introduced, taking one or more \code{\link{ergm}} formulas as arguments and transforming their inputs and outputs allowing a wide variety of models to be specified. These include interactions for dyad-independent effects (\code{TERM1:TERM2} and \code{TERM1*TERM2}), \code{B()}inary terms in valued ERGMs, \code{Label()}, \code{F()}ilter, \code{Offset()}, \code{Undir()}, \code{Sum()}, \code{S()}ubgraph, \code{Curve()}, \code{NodematchFilter()}, \code{Undir()}ected, and others.
+      }
+
+      \item{
+        A new type of MPLE, \code{"logitreg"}, invoked when the model is curved.
+      }
+
+      \item{
+        A new term, \code{\link{attrcov}}, can cumulate statistics from multiple cells in the mixing matrix.
+      }
+
+      \item{
+        Termes \code{\link{transitiveties}} and \code{\link{cyclicalties}} now work for undirected networks (where they count undirected transitive ties).
+      }
+
+      \item{
+        \code{\link{is.valued}} is a family of methods for testing if a particular aspect of an ERGM is valued.
+      }
+
+      \item{
+        Long MCMC, SAN, etc. runs can now be interrupted (i.e., with CTRL-C) even from inside the C code.
+      }
+
+      \item{
+        \code{\link{update.network}} can now update the network using a variety of inputs, including edgelists and \code{\link{ergm_state}}s.
+      }
+
+      \item{
+        The MPLE initial method can now be used to estimate curved ERGMs without specifying the initial curved parameter. The \code{initialfit=} \code{InitErgmTerm} argument and \code{as.initialfit=} argument of \code{\link{ergmMPLE}} have been removed. Similarly, \code{\link{fix.curved}} and \code{\link{enformulate.curved}} have been deprecated and may be removed in a future release.
+      }
+
+      \item{
+	A mechanism for specifying \dQuote{observational constraints} (\code{obs.constraints})
+	has been added to \code{\link{ergm}}, allowing more complex observation processes than
+	just missing data to be estimated.
+
+	Currently, this can be used for estimating arbitrary ERGMs on networks whose edges have been randomly flipped with known probabilities (say, to preserve privacy) (Karwa, Krivitsky, and Slavcovic, 2017) using the \code{\link{dyadnoise}} or observed egocentrically with alters identified (Handcock and Gile, 2010) using the \code{\link{egocentric}} constraint.
+
+        An argument \code{observational=} to \code{\link{simulate.ergm}} can specify whether the model or the observational constraint from the \code{\link{ergm}} fit should be used.
+      }
+
+      \item{
+        The user can now specify \dQuote{hints} on a formula to \code{MCMC.prop=} and \code{obs.MCMC.prop=} arguments passed to \code{\link{control.ergm}} that can allow the MCMC sampler to select an optimal proposal for the process.
+
+        Currently, the available hints are \code{\link{sparse}} structure, implying that the network is sparse (the default), and \code{\link{strat}}, implying that the dyads are grouped in blocks which should be subject to stratified sampling.
+
+        This is documented in the \emph{Proposal Lookup API} vignette.
+      }
+
+      \item{
+        \code{\link{ergmMPLE}} output types now include \code{"dyadlist"}, which returns the same output as \code{"matrix"}, but without compressing the duplicate rows.
+      }
+
+      \item{
+        New constraint, \code{\link{blocks}} has been implemented, allowing dyads for some combinations of a factor to be prohibited from toggling (i.e., fixed, or set as structural 0s).
+      }
+
+      \item{
+        A family of MCMC proposals, \code{\link{BDTNT}}, \code{\link{BDStratTNT}}, and others, has been implemented, allowing for highly efficient MCMC sampling for some special cases of bounded degree and block-level stratification among the dyads.
+      }
+
+      \item{
+        A number of model specification settings, including \code{constraints}, \code{obs.constraints}, and \code{response} can be attached to the network itself using the \code{\link{\%ergmlhs\%}} operator and are inherited by the respective arguments unless overridden.
+      }
+
+      \item{
+        Terms \code{\link{nodecovar}}, \code{\link{nodeocovar}}, and similar have been improved. (Terms \code{\link{nodesqrtcovar}} terms had been folded into the former.)
+      }
+
+      \item{
+        \code{\link{san}} can now take into account offsets (finite and infinite).
+      }
+
+      \item{
+        A new default MCMLE stopping criterion, \code{"confidence"} has been implemented. It performs a multivarate equivalence test, stopping if it can reject the null hypothesis that the the parameter guess is outside of a certain tolerance region around the true parameter value. If the test fails to reject, it increases the target effective size and resumes the optimization.
+      }
+
+      \item{
+        Data structures for edgelists returned from MCMC, SAN, and Godfather are now allocated dynamically. This means that control parameters \code{*.init.maxedges} and \code{*.max.maxeges} are no longer useful and has been removed. \code{MCMC.maxedges} (for \code{\link{control.ergm}} and \code{\link{control.simulate.ergm}}) is retained (with an infinite default) to be used to short-circuit a sampler that has gone degenerate.
+      }
+
+      \item{
+        The \code{"Stochastic-Approxmation"} algorithm (a C-based implementation of Robbins-Monro) now fully supports curved ERGMs.
+      }
+
+      \item{
+        The \code{\link{control.ergm}} parameters for \code{"Stochastic-Approximation"} and \code{"Robbins-Monro"} have been reorganised.
+      }
+
+      \item{
+        Limited support for multithreaded (i.e., multicore) evaluation of change statistics has been implemented. It has to be enabled at compile time and is controlled by \code{\link{set.MT_terms}} and related functions, and \code{parallel.inherit.MT=} argument of \code{\link{control.ergm}} and others.
+      }
+
+      \item{
+        Controls for bridge sampling (i.e., \code{\link{control.ergm}}.bridge) can now be set separately for the constrained (missing data) sample.
+      }
+
+
+      \item{
+        The standard argument \code{response=} can now be a \code{rlang}-style formula containing an expression in terms of edge attributes for the modelled edge value. If the expression (or the attribute) evalutes to a logical (TRUE/FALSE) variable, a binary ERGM is estimated.
+      }
+
+      \item{
+        Adaptive (effective size) sampling is now possible for the \code{\link{simulate.ergm}} family of functions as well.
+      }
+
+      \item{
+        \code{\link{control.simulate.ergm}} control parameter \code{MCMC.scale} can now be used to set the MCMC burn-in and interval relative to those of the \code{\link{ergm}} fit.
+      }
+
+      \item{
+        In \code{\link{ergm}} formulas, the \code{offset()} decorator now takes a second optional argument allowing only some of the parameters in the term to be fixed.
+      }
+
+      \item{
+        \code{\link{ergm}} is now a bit more careful about saving formulas and environments, saving memory and disk space.
+      }
+
+      \item{
+        An experimental lack-of-fit diagnostic \code{\link{rank_test.ergm}} has been added.
+      }
+
+      \item{
+	The user term and proposal APIs has been extended significantly. A new API enables storage of information between calls that is updated with the network state, \emph{auxiliaries}: terms that make available information to other terms, and many other capabilities. See the \emph{Terms API} vignette for the current specification. The API remains source-compatible with the previous versions.
+
+        The \R API for \code{\link{ergm_model}} takes an additional argument \code{extra.aux=}, which can be used to request auxiliaries by other functions, such as proposals.
+      }
+
+      \item{
+        A number of auxiliaries has been implemented (see \verb{R/InitErgmTerm.auxnet.R}) and a convenient API for evaluating network statistics on auxiliary networks is provided.
+      }
+    }
+  }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+
+      \item{A large number of bugs in bridge sampling has been fixed.}
+
+      \item{Miscellaneous fixes to the documentation and
+	robustifications.}
+
+    }
+  }
+
+
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item{
+	\code{\link{enformulate.curved}} family of functions has been
+	deprecated.
+      }
+
+      \item{
+        Arguments to \code{\link{ergm_MCMC_sample}} and \code{\link{ergm_MCMC_slave}} have changed, and similarly for SAN and CD.
+      }
+
+      \item{
+        Shared partner counts in \code{gw*sp} and \code{*sp} terms are now cached, resulting in a significant speedup. This can be turned off with the \link[=ergm-options]{term option} \code{cache.sp}.
+      }
+
+      \item{
+	The term API now supports box constraints on parameters or
+	coefficients, which may be set via \code{minpar} and
+	\code{maxpar} elements in the \code{InitErgmTerm}'s return list.
+      }
+
+      \item{
+        In the valued ERGM API, the \code{response} setting is now carried as an \code{\%ergmlhs\%} setting \code{"response"}.
+      }
+
+      \item{
+        Some likelihood metrics, particularly the Median one, should work better now.
+      }
+
+      \item{
+        In the \code{InitErgmConstraint} API, \code{free_dyads} can now be a function with 0 arguments, that is only evaluated if needed and is memoized (using the \pkg{\link[=memoise:memoise-package]{memoise}} package).
+      }
+
+      \item{
+        \code{\link{control.ergm}} parameter \code{MPLE.constraints.ignore} can be used to suppress calculations of complex RLEBDMs for large networks if the constraint is imposed in some other fashion.
+      }
+
+      \item{
+        \code{\link{control.ergm}} \code{obs.MCMC.*} parameters can now be set relative to the unconstrained MCMC parameters via \code{obs.MCMC.mul}.
+      }
+
+      \item{
+        A variety of improvements and tuning parameters for the Hummel step length algorithm (\code{\link{control.ergm}} parameters \code{MCMLE.steplength.*}).
+      }
+
+      \item{
+        \code{\link{control.ergm}}'s \code{*.samplesize} can now be specified as a multiple of the number of free parameters in the model, via the \code{*.samplesize.per_theta} parameter.
+      }
+
+      \item{
+        Adaptive MCMC has been significantly improved. Methods of Vats, Flegal, and Jones (2019) are used to determine the multivariate effective sample size, and automatic burn-in detection now works by fitting a broken stick linear model to see where the sample statistics level out, then uses the Geweke convergence diagnostic to verify. See help for \code{\link{control.ergm}} and other functons for the available tuning parameters.
+      }
+
+      \item{
+        A number of defaults for control parameters have changed.
+      }
+
+      \item{
+        The \code{pending_update_network}, \code{ergm.Cprepare}, and other APIs for moving between R and C have been replaced by the \code{ergm_state} API that uses the \code{\link{.Call}} interface.
+      }
+
+      \item{
+        \code{\link{simulate.ergm}} now has not just the \code{\link{ergm_model}} methods but also \code{\link{ergm_state}} methods.
+      }
+
+      \item{
+        The \code{lasttoggle} API created for the \pkg{\link[tergm:tergm-packag]{tergm}} package has been removed in favour of the \dQuote{extended state} API that allows client packages to implement their own states. Similarly, \code{is.durational} family of methods has been removed.
+      }
+
+      \item{
+        Information used by \code{\link{print.summary.ergm}} to explain the type of fit is now set in \code{\link{ergm}}.
+      }
+
+      \item{
+        The \code{\link{ergm_proposal_table}} API now allows a more flexible specification of which constraints a proposal \emph{can} enforce as opposed to which ones it \emph{does} (i.e., can't not) enforce.
+      }
+
+      \item{
+        \code{blockdiag} constraint has been moved to \pkg{\link[=ergm.multi:ergm.multi-package]{ergm.multi}} package.
+      }
+    }
+  }
+
+
+  \subsection{C-LEVEL FACILITIES}{
+    \itemize{
+      \item{
+        Almost all of the \R-C interface has been transition to use the \code{\link{.Call}} rather than the \code{\link{.C}} API. Some helper functions are provided in \code{\link{inst/include/ergm_Rutils.h}}.
+      }
+
+      \item{
+        Functions \code{\link{ergm.eta}}, \code{\link{ergm.etagrad}}, and \code{\link{ergm.etagradmult}} have been reimplemented in C using the \code{\link{.Call}} interface. They are available in the C API in \verb{inst/include/ergm_etamap.h}.
+      }
+
+      \item{
+        \verb{inst/include/ergm_changestat.h} and \verb{inst/include/ergm_wtchangestat.h} now provide more helpful helper macros.
+      }
+
+      \item{
+        \code{InitErgmTerm} and \code{InitErgmProposal} functions can now pass a \code{\link{integer}} (as opposed to a \code{\link{numeric}}) vector to the C functions with an \code{outlist$iinputs} element.
+      }
+
+      \item{
+	A general API for setting callback functions that are called whenever a network changes is provided. See the \emph{Network Callback API} vignette.
+      }
+
+
+      \item{
+        The discordance network API has been removed in favour of the storage API.
+      }
+
+      \item{
+        The \verb{khash} macro library (from \url{https://github.com/attractivechaos/klib/}) has been incorporated into the package with some modifications and is available to use, in particular, for \eqn{O(1)} storage of dyad information, particularly in applications where efficient interation over edges incident on a node is not needed. It can be found in \verb{/inst/include/ergm_khash.h}.
+
+        A variety of helper data structures and functions make use of it and are also available, particularly \verb{/inst/include/ergm_dyad_hashmap.h}.
+      }
+
+      \item{
+        Additional helper APIs and data structures have been provided in \verb{/inst/include/}.
+      }
+
+      \item{
+        A \verb{DyadGen} API implemented on the C side by \verb{/inst/include/ergm_dyadgen.h} and on the R side by \code{\link{ergm_dyadgen_select}} automatically selects sampling arbitrary dyads, sampling from an edgelist, or sampling from an \link[=rlebdm]{RLEBDM}. It obviates a number of other proposals, such as \code{RLETNT} and \code{listTNT}.
+      }
+
+      \item{
+        All header files exported by \pkg{ergm} have been prefixed with \code{ergm_}. (Old header file names now issue deprecation warnings.)
+      }
+    }
+  }
+}
+
 \section{Changes in version 3.12.0}{
 
   \subsection{NEW FEATURES}{
@@ -156,7 +445,7 @@
     \itemize{
       \item{
         \code{\link{ergm}} now checks models for evidence of nonidentifiability (linear dependence between statistics) after MPLE and during the MCMLE and CD estimation. QR decomposition is used to attempt to identify which statistics are redundant.
-      }      
+      }
       \item{
         It is now possible to limit the systematic sample size taken by \code{\link[=ergm.mple]{MPLE}} before resorting to the case-control likelihood using the \code{MPLE.samplesize} control parameter (if initial fit is final) and by the \code{init.MPLE.samplesize} control parameter (if it is used only to initialize the MCMC-based estimation).
       }
@@ -331,72 +620,6 @@
   }
 }
 
-\section{Changes in version 4.0.0}{
-
-  \subsection{NEW FEATURES}{
-    \itemize{
-      \item{
-	Curved ERGMs are no longer \dQuote{second class citizens}. It is now
-	possible to obtain their MPLE, pass curved parameters via
-	\code{coef=} and \code{init=} arguments, etc.. 
-      }
-
-      \item{
-	The term API now supports box constraints on parameters or
-	coefficients, which may be set via \code{minpar} and
-	\code{maxpar} elements in the \code{InitErgmTerm}'s return list.
-      }
-
-      \item{
-	A mechanism for specifying \dQuote{observational constraints}
-	has been added, allowing more complex observation processes than
-	just missing data to be estimated.
-
-	Currently, this can be used for estimating arbitrary ERGMs on
-	networks whose edges have been randomly flipped with known
-	probabilities (say, to preserve privacy). (See Karwa, Krivitsky,
-	and Slavcovic (2016).)
-
-      }
-
-    }
-  }
-   
-  
-   \subsection{BUG FIXES}{
-     \itemize{
-       
-       \item{A large number of bugs in bridge sampling has been fixed.}
-
-       \item{Miscellaneous fixes to the documentation and
-	 robustifications.}
-
-     }
-   }
-
-  
-   \subsection{OTHER USER-VISIBLE CHANGES}{
-     \itemize{
-       \item{
-	 \code{\link{enformulate.curved}} family of functions has been
-	 deprecated.
-       }
-     }    
-   }
-
-  \subsection{C-LEVEL FACILITIES}{
-    \itemize{
-      \item{
-	The user term API now allows the C implementation to store
-	information about the network between calls to the \code{d_*}
-	function, by implementing a \code{u_*} function that initializes
-	the storage space and is called to update the stored information
-	before every toggle.
-      }
-    }
-  }
-}
-
 \section{Changes in version 3.10.4}{
 
   \subsection{OTHER USER-VISIBLE CHANGES}{
@@ -511,7 +734,7 @@
       \item{
 	Disambiguation help pages have been added for concepts (such as \code{edges} and \code{hamming}) that have multiple roles (such as as an ERGM term and as an ERGM sample space constraint), removing duplication of aliases.
       }
-      
+
       \item{
 	Miscellaneous term and example documentation fixes. (Thanks to Christian Loehle and others.)
       }
@@ -1243,14 +1466,14 @@
 
    \subsection{CHANGES}{
     \itemize{
-      \item {MCMC control parameters changes in control.ergm
+      \item {MCMC control parameters changes in \code{\link{control.ergm}}
         \itemize{
           \item default for \code{MCMC.interval} increased from 100 to 1000
           \item default for \code{MCMC.burnin} changed from 10000 to mcmc.interval*16
           \item default for \code{MCMC.samplesize} decreased from 10000 to 1024
         }
       }
-      \item{ MCMLE control parameter changes in control.ergm
+      \item{ MCMLE control parameter changes in \code{\link{control.ergm}}
         \itemize{
           \item a new control argument \code{MCMLE.termination} has been added to specify the criterion used for terminating MCMLE estimation.
           \item a new \code{MCMLE.metric} argument \code{'logtaylor'} has been added
@@ -1614,7 +1837,7 @@ fixes issue reported by Sebastian Daza}
       \eqn{\theta} and simulated statistics.
 
       \item \code{\link{ergm}} extreme statistics detection (if
-      \code{control.ergm(drop=TRUE)}) can now detect both extremely high
+      \code{\code{\link{control.ergm}}(drop=TRUE)}) can now detect both extremely high
       and extremely low values, setting the coefficients to +Inf and
       -Inf respectively. Direction of \dQuote{dropping} is returned.
 
