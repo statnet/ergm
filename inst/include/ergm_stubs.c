@@ -342,6 +342,11 @@ fun(theta,v,nv,etamap,ans);
 #define STUBFILE
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
+#include "ergm_hash_edgelist.h"
+
+#define STUBFILE
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
 #include "ergm_MHproposal.h"
 DegreeBound* DegreeBoundInitialize(int *attribs, int *maxout, int *maxin,int *minout, int *minin, int condAllDegExact,int attriblength, Network *nwp){
 static DegreeBound* (*fun)(int *,int *,int *,int *,int *,int,int,Network *) = NULL;
