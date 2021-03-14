@@ -21,7 +21,7 @@ control.ergm(
   MPLE.nonident = c("warning", "message", "error"),
   MPLE.nonident.tol = 1e-10,
   MPLE.covariance.samplesize = 500,
-  MPLE.covariance.method = c("invHess", "Godambe", "bootstrap"),
+  MPLE.covariance.method = "invHess",
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
   MCMC.interval = 1024,

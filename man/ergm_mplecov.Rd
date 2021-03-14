@@ -12,7 +12,7 @@ ergm_mplecov(
   theta.mple,
   invHess,
   control = NULL,
-  verbose = NULL
+  verbose = FALSE
 )
 }
 \arguments{
