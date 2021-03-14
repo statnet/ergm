@@ -5,6 +5,7 @@
 \alias{ergm_Init_abort}
 \alias{ergm_Init_warn}
 \alias{ergm_Init_inform}
+\alias{ergm_Init_try}
 \title{Sensible error and warning messages by \code{ergm} initializers}
 \usage{
 ergm_Init_abort(..., default.loc = NULL)
@@ -12,6 +13,8 @@ ergm_Init_abort(..., default.loc = NULL)
 ergm_Init_warn(..., default.loc = NULL)
 
 ergm_Init_inform(..., default.loc = NULL)
+
+ergm_Init_try(expr)
 }
 \arguments{
 \item{...}{Objects that can be coerced (via \code{\link[=paste0]{paste0()}}) into a
@@ -19,6 +22,9 @@ character vector, concatenated into the message.}
 
 \item{default.loc}{Optional name for the source of the error, to be
 used if an initializer cannot be autodetected.}
+
+\item{expr}{Expression to be evaluated (in the caller's
+environment).}
 }
 \description{
 These functions use traceback and pattern matching to find which
@@ -26,11 +32,20 @@ These functions use traceback and pattern matching to find which
 to the specified message. They are not meant to be used by
 end-users, but may be useful to developers.
 }
+\section{Functions}{
+\itemize{
+\item \code{ergm_Init_try}: A helper function that evaluates the
+specified expression in the caller's environment, passing any
+errors to \code{\link[=ergm_Init_abort]{ergm_Init_abort()}}.
+}}
+
 \seealso{
 \code{\link[=stop]{stop()}}, \code{\link[=abort]{abort()}}
 
 \code{\link[=warning]{warning()}}, \code{\link[=warn]{warn()}}
 
 \code{\link[=message]{message()}}, \code{\link[=inform]{inform()}}
+
+\code{\link[=try]{try()}}, \code{\link[=tryCatch]{tryCatch()}}
 }
 \keyword{internal}
