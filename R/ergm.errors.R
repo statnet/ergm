@@ -49,7 +49,7 @@ ergm_Init_inform <- function(..., default.loc=NULL){
 
 format.traceback <- function(x){
   if(EVL(nrow(x)==0,TRUE)) return(NULL)
-  x <- x[nrow(x):1,]
+  x <- as.data.frame(x)[nrow(x):1,,drop=FALSE]
   x <- paste0(ifelse(x$valued,"valued ", ""),
               x$type, " ",
               sQuote(x$name),
