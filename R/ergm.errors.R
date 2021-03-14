@@ -47,9 +47,22 @@ ergm_Init_inform <- function(..., default.loc=NULL){
   inform(paste0('In ', NVL(loc, default.loc, "unknown function"), ': ', ...))
 }
 
+#' @describeIn ergm-errors A helper function that evaluates the
+#'   specified expression in the caller's environment, passing any
+#'   errors to [ergm_Init_abort()].
+#' @param expr Expression to be evaluated (in the caller's
+#'   environment).
+#' @seealso [try()], [tryCatch()]
+#' @export
+ergm_Init_try <- function(expr){
+  expr <- substitute(expr)
+  tryCatch(eval(expr, parent.frame(1)),
+           error = function(e) ergm_Init_abort(e$message))
+}
+
 format.traceback <- function(x){
   if(EVL(nrow(x)==0,TRUE)) return(NULL)
-  x <- x[nrow(x):1,]
+  x <- as.data.frame(x)[nrow(x):1,,drop=FALSE]
   x <- paste0(ifelse(x$valued,"valued ", ""),
               x$type, " ",
               sQuote(x$name),
