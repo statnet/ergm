@@ -36,8 +36,8 @@
 #' Pseudolikelihood for ERGMs" _Working Paper_.
 
 
-ergm_mplecov <- function(pl,nw, fd, m,  theta.mple, invHess,  control,
-                         verbose){
+ergm_mplecov <- function(pl,nw, fd, m,  theta.mple, invHess,  control=NULL,
+                         verbose=NULL){
   
   # get sample size from control.ergm
   R <- control$MPLE.covariance.samplesize

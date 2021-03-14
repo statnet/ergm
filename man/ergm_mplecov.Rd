@@ -4,7 +4,16 @@
 \alias{ergm_mplecov}
 \title{Approximate MPLE standard errors in dyad-dependent models}
 \usage{
-ergm_mplecov(pl, nw, fd, m, theta.mple, invHess, control, verbose)
+ergm_mplecov(
+  pl,
+  nw,
+  fd,
+  m,
+  theta.mple,
+  invHess,
+  control = NULL,
+  verbose = NULL
+)
 }
 \arguments{
 \item{pl}{An \code{\link{ergm.pl}} object.}
