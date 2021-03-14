@@ -114,10 +114,10 @@ ergm.mple<-function(nw, fd, m, init=NULL,
     
     # estimate variability matrix V for Godambe covariance matrix or via bootstrapping, only for dyad dependent models and 
     #  init.method="MPLE"
-    if(!is.dyad.independent(m) && control$init.method == "MPLE" && control$MPLE.covariance.method=="Godambe" || 
+    if(!is.dyad.independent(m) && control$MPLE.covariance.method=="Godambe" || 
        control$MPLE.covariance.method=="bootstrap"){ 
       invHess <- summary(glm.result$value)$cov.unscaled
-      mple.cov <- ergm_mplecov(pl,nw, fd, m, theta.mple=glm.result$value$coef, invHess=invHess, 
+      mple.cov <- ergm_mplecov(pl=pl,nw=nw, fd=fd, m=m, theta.mple=glm.result$value$coef, invHess=invHess, 
                                verbose=verbose, control=control)
     }
     
@@ -150,7 +150,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
   }
   real.coef <- mplefit$coef
   
-  if(!is.dyad.independent(m) && control$init.method == "MPLE" && control$MPLE.covariance.method=="Godambe" ||
+  if(!is.dyad.independent(m) && control$MPLE.covariance.method=="Godambe" ||
      control$MPLE.covariance.method=="bootstrap" ){ 
     real.cov <- mple.cov
   }else{
