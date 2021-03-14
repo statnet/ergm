@@ -117,7 +117,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
     if(!is.dyad.independent(m) && control$MPLE.covariance.method=="Godambe" || 
        control$MPLE.covariance.method=="bootstrap"){ 
       invHess <- summary(glm.result$value)$cov.unscaled
-      mple.cov <- ergm_mplecov(pl=pl,nw=nw, fd=fd, m=m, theta.mple=glm.result$value$coef, invHess=invHess, 
+      mple.cov <- ergm_mplecov(pl=pl,nw=nw, fd=fd, m=m, init=init, theta.mple=glm.result$value$coef, invHess=invHess, 
                                verbose=verbose, control=control)
     }
     

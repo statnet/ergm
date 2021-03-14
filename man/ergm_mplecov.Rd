@@ -9,6 +9,7 @@ ergm_mplecov(
   nw,
   fd,
   m,
+  init = init,
   theta.mple,
   invHess,
   control = NULL,
@@ -23,6 +24,8 @@ ergm_mplecov(
 \item{fd}{An \code{\link{rlebdm}} with informative dyads.}
 
 \item{m}{the model, as returned by \code{\link{ergm_model}}}
+
+\item{init}{a vector a vector of initial theta coefficients}
 
 \item{theta.mple}{the MPLE of a given model}
 

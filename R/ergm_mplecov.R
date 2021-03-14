@@ -17,6 +17,7 @@
 #' @param nw response network.
 #' @param fd An \code{\link{rlebdm}} with informative dyads.
 #' @param m the model, as returned by \code{\link{ergm_model}}
+#' @param init a vector a vector of initial theta coefficients
 #' @param theta.mple the MPLE of a given model
 #' @param invHess the inverse Hessian matrix obtained from glm()
 #' @param control a list of MCMC related parameters; recognized
@@ -36,7 +37,7 @@
 #' Pseudolikelihood for ERGMs" _Working Paper_.
 
 
-ergm_mplecov <- function(pl,nw, fd, m,  theta.mple, invHess,  control=NULL,
+ergm_mplecov <- function(pl,nw, fd, m, init=init, theta.mple, invHess,  control=NULL,
                          verbose=FALSE){
   
   # get sample size from control.ergm
