@@ -35,8 +35,7 @@
 #' 
 #' Schmid CS and Hunter DR (2020).  "Accounting for Model Misspecification When Using 
 #' Pseudolikelihood for ERGMs" _Working Paper_.
-
-
+#' @noRd
 ergm_mplecov <- function(pl,nw, fd, m, init=init, theta.mple, invHess,  control=NULL,
                          verbose=FALSE){
   
