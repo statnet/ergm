@@ -86,7 +86,8 @@ ergm.mple<-function(nw, fd, m, init=NULL,
                 verbose=verbose)
 
   # test whether the MPLE actually exists
-  mple.existence(pl=pl)
+  # FIXME: Figure out how to test for MPLE's existence in penalised and curved MPLEs.
+  if(! MPLEtype%in%c("penalized","logitreg"))  mple.existence(pl)
 
   message("Maximizing the pseudolikelihood.")
   if(MPLEtype=="penalized"){
