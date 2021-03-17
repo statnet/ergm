@@ -71,28 +71,30 @@ void DegreeBoundDestroy(DegreeBound *bd);
 /* *** don't forget tail-> head */
 
 typedef struct MHProposalstruct {
-  void (*func)(struct MHProposalstruct*, Network*);
+  SEXP R;
+  void (*i_func)(struct MHProposalstruct*, Network*);
+  void (*p_func)(struct MHProposalstruct*, Network*);
+  void (*u_func)(Vertex tail, Vertex head, struct MHProposalstruct*, Network*, Rboolean);
+  void (*f_func)(struct MHProposalstruct*, Network*);
+  void (*x_func)(unsigned int type, void *data, struct MHProposalstruct*, Network*);
   Edge ntoggles;
   Vertex *toggletail;
   Vertex *togglehead;
   double logratio;
   int status;
   DegreeBound *bd;
-  Network **discord;
   double *inputs; /* may be used if needed, ignored if not. */
+  int *iinputs; /* may be used if needed, ignored if not. */
+  void *storage;
+  void **aux_storage;
+  unsigned int n_aux;
+  unsigned int *aux_slots;
 } MHProposal;
 
 
-MHProposal *MHProposalInitialize(
-	     char *MHProposaltype, char *MHProposalpackage, 
-	     double *inputs,
-	     int fVerbose,
-	     Network *nwp, 
-	     int *attribs, int *maxout, int *maxin, 
-	     int *minout, int *minin, int condAllDegExact, 
-	     int attriblength);
+MHProposal *MHProposalInitialize(SEXP pR, Network *nwp, void **aux_storage);
 
-void MHProposalDestroy(MHProposal *MHp);
+void MHProposalDestroy(MHProposal *MHp, Network *nwp);
 
 int CheckTogglesValid(MHProposal *MHp, Network *nwp);
 int CheckConstrainedTogglesValid(MHProposal *MHp, Network *nwp);
@@ -114,12 +116,18 @@ int CheckConstrainedTogglesValid(MHProposal *MHp, Network *nwp);
   }									
 
 /* Helper macros */
-#define MH_INPUTS MHp->inputs
+#define MH_DINPUTS MHp->inputs
+#define MH_INPUTS MH_DINPUTS
+#define MH_IINPUTS MHp->iinputs
 
 #define Mtail (MHp->toggletail)
 #define Mhead (MHp->togglehead)
 
-#define MH_P_FN(a) void (a) (MHProposal *MHp, Network *nwp)
+#define MH_I_FN(a) void a (MHProposal *MHp, Network *nwp)
+#define MH_U_FN(a) void a (Vertex tail, Vertex head, MHProposal *MHp, Network *nwp, Rboolean edgeflag)
+#define MH_P_FN(a) void a (MHProposal *MHp, Network *nwp)
+#define MH_F_FN(a) void a (MHProposal *MHp, Network *nwp)
+#define MH_X_FN(a) void a (unsigned int type, void *data, MHProposal* MHp, Network* nwp)
 
 /* Implementation of TNT log ratio for the three cases.
    The parameters are as follows. Let 

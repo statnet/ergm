@@ -17,11 +17,11 @@
 \alias{bd}
 \alias{degreedist-constraint}
 \alias{degrees}
+\alias{dyadnoise}
 \alias{odegrees}
 \alias{idegrees}
 \alias{b1degrees}
 \alias{b2degrees}
-\alias{blockdiag}
 \alias{edges-constraint}
 \alias{hamming-constraint}
 \alias{idegreedist}
@@ -30,6 +30,8 @@
 \alias{odegreedist}
 \alias{fixedas}
 \alias{fixallbut}
+\alias{egocentric}
+\alias{blocks}
 
 \docType{methods}
 
@@ -107,18 +109,6 @@
       \dQuote{Placing Bounds
         on Degrees} section for more information.
     }
-    \item{\code{blockdiag(attrname)} (dyad-independent)}{
-      Force a block-diagonal structure (and its bipartite analogue) on
-      the network. Only dyads \eqn{(i,j)} for which
-      \code{attrname(i)==attrname(j)} can have edges.
-
-      Note that the current implementation requires that blocks be
-      contiguous for \dQuote{unipartite} graphs, and for bipartite
-      graphs, they must be contiguous within a partition and must have
-      the same ordering in both partitions. (They do not, however,
-      require that all blocks be represented in both partitions, but
-      those that overlap must have the same order.)
-    }
     \item{\code{degrees} and \code{nodedegrees}}{
       Preserve the degree of each vertex of the given network: only networks
       whose vertex degrees are the same as those in the network passed
@@ -135,6 +125,21 @@
       Preserve the degree distribution of the given network: only networks
       whose degree distributions are the same as those in the network passed
       in the model formula have non-zero probability.
+    }
+    \item{\code{dyadnoise(p01,p10)}}{
+      A soft constraint to adjust the sampled distribution for
+      dyad-level noise with known perturbation probabilities. It is
+      assumed that the observed LHS network is a noisy observation of
+      some unobserved true network, with \code{p01} giving the dyadwise
+      probability of erroneously observing a tie where the true network
+      had a non-tie and \code{p10} giving the dyadwise probability of
+      erroneously observing a nontie where the true network had a tie.
+
+      \code{p01} and \code{p10} can be either both be scalars or or both
+      be adjacency matrices of the same dimension as that of the LHS
+      network giving these probabilities.
+
+      See Karwa et al. (2016) for an application.
     }
     \item{\code{idegreedist} and \code{odegreedist}}{
       Preserve the (respectively) indegree or outdegree distribution of 
@@ -158,10 +163,19 @@
       Preserve the dyad status in all but free.dyads. free.dyads can 
       take input object as edgelist and network, the latter will 
       convert to the corresponding edgelist.
- 	}
+    }
+
+    \item{\code{egocentric(attr = NULL, direction = c("both","out","in"))} (dyad-independent)}{
+      Preserve values of dyads incident on vertices with attribute \code{attr} (see \link[=nodal_attributes]{Specifying Vertex Attributes and Levels} for details) being \code{TRUE} or if \code{attrname} is \code{NULL}, the vertex attribute \code{"na"} being `FALSE`. For directed networks, \code{direction=="out"} only preserves the out-dyads of those actors, and \code{direction=="in"} preserves their in-dyads.
+    }
+
+    \item{\code{blocks(attr = NULL, levels = NULL, levels2 = FALSE, b1levels = NULL, b2levels = NULL)} (dyad-independent)}{
+      Constrain "blocks" of dyads; any dyad whose toggle would produce a nonzero change statistic for a \code{nodemix} term with the same arguments will be fixed.  Note that the \code{levels2} argument has a different default value for \code{blocks} than it does for \code{nodemix}.
+    }
+
   Not all combinations of the above are supported.
   }
-}  
+}
 \section{Placing Bounds on Degrees:}{
 There are many times when one may wish to condition on the
 number of inedges or outedges possessed by a node, either as a
@@ -340,6 +354,11 @@ Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
  \emph{Journal of Statistical Software}, 24(3).
  \url{https://www.jstatsoft.org/v24/i03/}.
 
+Karwa V, Krivitsky PN, and Slavkovi\'{c} AB (2016). Sharing Social Network
+ Data: Differentially Private Estimation of Exponential-Family Random
+ Graph Models. \emph{Journal of the Royal Statistical Society, Series
+ C}, to appear. \url{http://arxiv.org/abs/1511.02930}
+ 
 Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
 Networks. \emph{Electronic Journal of Statistics}, 2012, 6,
 1100-1128. \doi{10.1214/12-EJS696}

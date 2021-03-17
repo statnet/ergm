@@ -17,6 +17,7 @@ ergm(
   response = NULL,
   reference = ~Bernoulli,
   constraints = ~.,
+  obs.constraints = ~. - observed,
   offset.coef = NULL,
   target.stats = NULL,
   eval.loglik = getOption("ergm.eval.loglik"),
@@ -40,23 +41,31 @@ is.ergm(object)
 \method{vcov}{ergm}(object, sources = c("all", "model", "estimation"), ...)
 }
 \arguments{
-\item{formula}{{An \R \code{\link{formula}} object, of the form
-\code{y ~ <model terms>},
-where \code{y} is a \code{\link[network]{network}} object or a matrix that can be
-coerced to a \code{\link[network]{network}}  object.  For the details on the possible
-\code{<model terms>}, see \code{\link{ergm-terms}} and Morris, Handcock and
-Hunter (2008) for binary ERGM terms and
-Krivitsky (2012) for valued ERGM
-terms (terms for weighted edges).  To create a
-\code{\link[network]{network}} object in \R, use the \code{network()} function,
-then add nodal attributes to it using the \code{\%v\%}
-operator if necessary. Enclosing a model term in \code{offset()}
-fixes its value to one specified in \code{offset.coef}.
-}}
+\item{formula}{An \R \code{\link{formula}} object, of the form
+\code{y ~ <model terms>}, where \code{y} is a
+\code{\link[network]{network}} object or a matrix that can be
+coerced to a \code{\link[network]{network}} object.  For the
+details on the possible \code{<model terms>}, see
+\code{\link{ergm-terms}} and Morris, Handcock and Hunter (2008)
+for binary ERGM terms and Krivitsky (2012) for valued ERGM terms
+(terms for weighted edges).  To create a
+\code{\link[network]{network}} object in \R, use the
+\code{network()} function, then add nodal attributes to it using
+the \code{\%v\%} operator if necessary. Enclosing a model term in
+\code{offset()} fixes its value to one specified in
+\code{offset.coef}.  (A second argument---a logical or numeric
+index vector---can be used to select \emph{which} of the parameters
+within the term are offsets.)}
 
-\item{response}{Name of the edge attribute whose value is to be
-modeled in the valued ERGM framework. Defaults to \code{NULL} for
-simple presence or absence, modeled via a binary ERGM.}
+\item{response}{Either a character string, a formula, or \code{NULL} (the default), to specify the response attributes and whether the ERGM is binary or valued. Interpreted as follows: \describe{
+
+\item{\code{NULL}}{Model simple presence or absence, via a binary ERGM.}
+
+\item{character string}{The name of the edge attribute whose value is to be modeled. Type of ERGM will be determined by whether the attribute is \code{\link{logical}} (\code{TRUE}/\code{FALSE}) for binary or \code{\link{numeric}} for valued.}
+
+\item{a formula}{must be of the form \code{NAME~EXPR|TYPE} (with \code{|} being literal). \code{EXPR} is evaluated in the formula's environment with the network's edge attributes accessible as variables. The optional \code{NAME} specifies the name of the edge attribute into which the results should be stored, with the default being a concise version of \code{EXPR}. Normally, the type of ERGM is determined by whether the result of evaluating \code{EXPR} is logical or numeric, but the optional \code{TYPE} can be used to override by specifying a scalar of the type involved (e.g., \code{TRUE} for binary and \code{1} for valued).}
+
+}}
 
 \item{reference}{A one-sided formula specifying
 the reference measure (\eqn{h(y)}) to be used.
@@ -90,6 +99,34 @@ Note that not all possible combinations of constraints and reference
 measures are supported. However, for relatively simple constraints
 (i.e., those that simply permit or forbid specific dyads or sets of
 dyads from changing), arbitrary combinations should be possible.
+}}
+
+\item{obs.constraints}{{ A one-sided formula specifying one or more
+constraints or other modification \emph{in addition} to those
+specified by \code{constraints} that had affected the observation
+process for the network, using syntax similar to the
+\code{formula} argument. Multiple constraints may be given,
+separated by \dQuote{+} operators.
+
+This allows the domain of the integral in the numerator of the
+partially obseved network face-value likelihoods of Handcock and
+Gile (2010) and Karwa et al. (2017) to be specified explicitly.
+
+The default is \code{~observed}, to constrain the integral to
+only integrate over the missing dyads. (It is dropped
+automatically if the network is completely observed.)
+
+It is also possible to specify a proposal function directly by
+passing a string with the function's name. In that case,
+arguments to the proposal should be specified through the
+\code{obs.prop.args} argument to \code{\link{control.ergm}}.
+
+See the \link[=ergm-constraints]{ERGM constraints} documentation for
+the constraints implemented in the \strong{\link[=ergm-package]{ergm}}
+package. Other packages may add their own constraints.
+
+Note that not all possible combinations of constraints and
+reference measures are supported.
 }}
 
 \item{offset.coef}{{A vector of coefficients for the offset terms.}}
@@ -357,14 +394,12 @@ molecule \%v\% "atomic type" <- c(1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3)
 plot(molecule, vertex.col="atomic type",vertex.cex=3)
 
 # measure tendency to match within each atomic type
-gest <- ergm(molecule ~ edges + kstar(2) + triangle + nodematch("atomic type"),
-control=control.ergm(MCMC.samplesize=10000))
+gest <- ergm(molecule ~ edges + kstar(2) + triangle + nodematch("atomic type"))
 summary(gest)
 
 # compare it to differential homophily by atomic type
 gest <- ergm(molecule ~ edges + kstar(2) + triangle
-                        + nodematch("atomic type",diff=TRUE),
-control=snctrl(MCMC.samplesize=10000))
+                        + nodematch("atomic type",diff=TRUE))
 summary(gest)
 }
 \donttest{
@@ -449,6 +484,11 @@ Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
 Exponential-Family Models for Networks.
 \emph{Journal of Statistical Software}, 24(3).
 \url{https://www.jstatsoft.org/v24/i03/}.
+
+Karwa V, Krivitsky PN, and Slavkovi\'{c} AB (2017). Sharing Social Network
+Data: Differentially Private Estimation of Exponential-Family Random
+Graph Models. \emph{Journal of the Royal Statistical Society, Series
+C}, 66(3):481--500. \doi{10.1111/rssc.12185}
 
 Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
 Networks. \emph{Electronic Journal of Statistics}, 2012, 6,

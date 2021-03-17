@@ -6,41 +6,28 @@
 \title{Internal Function to Sample Networks and Network Statistics}
 \usage{
 ergm_MCMC_sample(
-  nw,
-  model,
-  proposal,
+  state,
   control,
   theta = NULL,
-  response = NULL,
-  update.nws = TRUE,
   verbose = FALSE,
   ...,
-  eta = ergm.eta(theta, model$etamap)
+  eta = ergm.eta(theta, (if (is.ergm_state(state)) as.ergm_model(state) else
+    as.ergm_model(state[[1]]))$etamap)
 )
 
 ergm_MCMC_slave(
-  Clist,
-  proposal,
+  state,
   eta,
   control,
   verbose,
   ...,
-  prev.run = NULL,
   burnin = NULL,
   samplesize = NULL,
-  interval = NULL,
-  maxedges = NULL
+  interval = NULL
 )
 }
 \arguments{
-\item{nw}{a \code{\link{network}} (or \code{\link{pending_update_network}}) object representing the sampler state.}
-
-\item{model}{an \code{\link{ergm_model}} to be sampled from, as returned by
-\code{\link[=ergm_model]{ergm_model()}}.}
-
-\item{proposal}{a list of the parameters needed for
-Metropolis-Hastings proposals and the result of calling
-\code{\link[=ergm_proposal]{ergm_proposal()}}.}
+\item{state}{an \code{\link{ergm_state}} representing the sampler state, containing information about the network, the model, the proposal, and (optionally) initial statistics, or a list thereof.}
 
 \item{control}{A list of control parameters for algorithm tuning,
 typically constructed with \code{\link[=control.ergm]{control.ergm()}}, \code{\link[=control.simulate.ergm]{control.simulate.ergm()}}, etc., which have different
@@ -52,26 +39,13 @@ checking.}
 
 \item{theta}{the (possibly curved) parameters of the model.}
 
-\item{response}{Name of the edge attribute whose value is to be
-modeled in the valued ERGM framework. Defaults to \code{NULL} for
-simple presence or absence, modeled via a binary ERGM.}
-
-\item{update.nws}{whether to actually update the network state or
-to return an object "promising" to update the network.}
-
 \item{verbose}{verbosity level.}
 
 \item{...}{additional arugments.}
 
 \item{eta}{the natural parameters of the model; by default constructed from \code{theta}.}
 
-\item{Clist}{the list of parameters returned by
-\code{\link{ergm.Cprepare}}}
-
-\item{prev.run}{a summary of the state of the sampler allowing a
-run to be resumed quickly by \code{ergm_MCMC_slave}.}
-
-\item{burnin, samplesize, interval, maxedges}{MCMC paramters that can
+\item{burnin, samplesize, interval}{MCMC paramters that can
 be used to temporarily override those in the \code{control} list.}
 }
 \value{
@@ -83,17 +57,14 @@ containing:
 \item{final.interval}{adaptively determined MCMC interval.}
 
 If \code{update.nws==FALSE}, rather than returning the updated networks,
-the function will return a \code{\link{pending_update_network}}.
+the function will return a \code{\link{ergm_state}}.
 
 \code{ergm_MCMC_slave} returns the MCMC sample as a list of
 the following: \item{s}{the matrix of statistics.}
-\item{newnwtails}{the vector of tails for the new network.}
-\item{newnwheads}{the vector of heads for the new network.}
-\item{newnwweights}{the vector of weights for the new network (if
-applicable)} \item{status}{success or failure code: \code{0} is
+\item{state}{an \code{\link{ergm_state}} object for the new network.}
+\item{status}{success or failure code: \code{0} is
 success, \code{1} for too many edges, and \code{2} for a
-Metropolis-Hastings proposal failing.}  \item{maxedges}{maximum
-allowed edges at the time of return.}
+Metropolis-Hastings proposal failing.}
 }
 \description{
 This is an internal function, not normally called directly by the
@@ -106,9 +77,8 @@ The \code{ergm_MCMC_slave} function calls the actual C
 routine and does minimal preprocessing.
 }
 \details{
-Note that the returned stats will be relative to the original network, i.e.,
-the calling function must shift the statistics if required. The calling
-function must also attach column names to the statistics matrix if required.
+Note that unless \code{stats0} is passed, the returned stats will be relative to the original network, i.e.,
+the calling function must shift the statistics if required.
 }
 \note{
 \code{ergm_MCMC_sample} and \code{ergm_MCMC_slave} replace

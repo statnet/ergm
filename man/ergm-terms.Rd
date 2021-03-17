@@ -14,12 +14,22 @@
 \alias{terms.ergm}
 \alias{InitErgmTerm}
 
+\alias{B}
+\alias{Curve}
+\alias{F}
+\alias{NodematchFilter}
+\alias{Label}
+\alias{Offset}
+\alias{S}
+\alias{Sum}
+\alias{Undir}
 \alias{absdiff}
 \alias{absdiffcat}
 \alias{altkstar}
 \alias{asymmetric}
 \alias{atleast}
 \alias{atmost}
+\alias{attrcov}
 \alias{b1concurrent}
 \alias{b1cov}
 \alias{b1degrange}
@@ -199,7 +209,8 @@
   \eqn{h(y)} is the reference measure (for valued network models),
   \eqn{g(y)} is a vector of network statistics for \eqn{y},
   \eqn{\eta(\theta)} is a natural parameter vector of the same
-  length (with \eqn{\eta(\theta)=\theta} for most terms), and \eqn{c(\theta)} is the
+  length (with \eqn{\eta(\theta)\equiv\theta}{eta(theta)=theta} for most
+  terms), \eqn{\cdot}{.} is the dot product, and \eqn{c(\theta)} is the
   normalizing constant for the distribution.
 
   The network statistics \eqn{g(y)} are entered as terms in the
@@ -225,6 +236,51 @@
   To create a network object in \R, use the \code{\link[network]{network}} function,
   then add nodal attributes to it using the \code{\%v\%} operator if necessary.
 
+  \subsection{Operator terms}{
+    Operator terms like \code{B} and \code{F} take
+    formulas with other \code{ergm} terms as their arguments and
+    trnasform them by modifying their inputs (e.g., the network they
+    evaluate) and/or their outputs.
+
+    By convention, their names are capitalized and CamelCased.
+  }
+
+  \subsection{Interactions}{
+
+    For binary ERGMs, interactions between
+    \code{\link{ergm}} terms can be specified in a manner similar to
+    \code{\link{lm}} and others, as using the \code{:} and \code{*}
+    operators. However, they must be interpreted carefully, especially
+    for dyad-dependent terms. (Interactions involving curved terms are
+    not supported at this time.)
+
+    Generally, if term \code{a} has \eqn{p_a}{p[a]} statistics and \code{b}
+    has \eqn{p_b}{p[b]}, \code{a:b} will add \eqn{p_a \times p_b}{p[a]*p[b]} statistics
+    to the model, corresponding to each element of \eqn{g_a(y)}{g[a](y)}
+    interacted with each element of \eqn{g_b(y)}{g[b](y)}.
+
+    The interaction is defined as follows. Dyad-independent terms can be
+    expressed in the general form \eqn{g(y;x)=\sum_{i,j}
+      x_{i,j}y_{i,j}}{sum[i,j] x[i,j]*y[i,j]}
+    for some edge covariate matrix \eqn{x},
+    \deqn{g_{a:b}(y)=\sum_{i,j} x_{a,i,j}x_{b,i,j}y_{i,j}.}{g[a:b](y) = \sum[i,j] x[a,i,j]*x[b,i,j]*y[i,j].} In
+    other words, rather than being a product of their sufficient
+    statistics (\eqn{g_{a}(y)g_{b}(y)}{g[a](y)*g[b](y)}), it is a dyadwise product of
+    their dyad-level effects.
+
+    This means that an interaction between two dyad-independent terms
+    can be interpreted the same way as it would be in the corresponding
+    logistic regression for each potential edge. However, for undirected
+    networks in particular, this may lead to somewhat counterintuitive
+    results. For example, given two nodal covariates \code{"a"} and
+    \code{"b"} (whose values for node \eqn{i} are denoted \eqn{a_i}{a[i]} and
+    \eqn{b_i}{b[i]}, respectively), \code{nodecov("a")} adds one statistic of
+    the form \eqn{\sum_{i,j} (a_{i}+a_{j}) y_{i,j}}{sum[i,j]
+      (a[i]+a[j])*y[i,j]} and analogously for \code{nodecov("b")}, so
+    \code{nodecov("a"):nodecov("b")} produces
+    \deqn{\sum_{i,j} (a_{i}+a_{j}) (b_{i}+b_{j}) y_{i,j}.}{sum[i,j] (a[i]+a[j])*(b[i]+b[j])*y[i,j].}
+  }
+
 \subsection{Binary and valued ERGM terms}{
 
   \code{\link[=ergm-package]{ergm}} functions such as \code{\link{ergm}}
@@ -233,23 +289,28 @@
   passing a non-NULL value as the \code{response} argument, giving the
   edge attribute name to be modeled/simulated.
 
-  Binary ERGM statistics cannot be used in valued mode and vice versa. However,
-  a substantial number of binary ERGM statistics --- particularly the
-  ones with dyadic indepenence --- have simple generalizations to valued
-  ERGMs, and have been adapted in
-  \code{\link[=ergm-package]{ergm}}. They have the same form as their
-  binary ERGM counterparts, with an additional argument: \code{form}, which, at
-  this time, has two possible values: \code{"sum"} (the default) and
-  \code{"nonzero"}. The former creates a statistic of the form
-  \eqn{\sum_{i,j} x_{i,j} y_{i,j}}, where \eqn{y_{i,j}} is the value of
-  dyad \eqn{(i,j)} and \eqn{x_{i,j}} is the term's covariate associated
-  with it. The latter computes the binary version, with the edge
-  considered to be present if its value is not 0.
+  \subsection{Generalizations of binary terms}{
+    Binary ERGM statistics cannot be used directly in valued mode and vice versa. However,
+    a substantial number of binary ERGM statistics --- particularly the
+    ones with dyadic indepenence --- have simple generalizations to valued
+    ERGMs, and have been adapted in
+    \code{\link[=ergm-package]{ergm}}. They have the same form as their
+    binary ERGM counterparts, with an additional argument: \code{form}, which, at
+    this time, has two possible values: \code{"sum"} (the default) and
+    \code{"nonzero"}. The former creates a statistic of the form
+    \eqn{\sum_{i,j} x_{i,j} y_{i,j}}{sum[i,j] x[i,j]*y[i,j]}, where \eqn{y_{i,j}}{y[i,j]} is the value of
+    dyad \eqn{(i,j)} and \eqn{x_{i,j}}{x[i,j]} is the term's covariate associated
+    with it. The latter computes the binary version, with the edge
+    considered to be present if its value is not 0.
+    Valued version of some binary ERGM terms have an argument
+    \code{threshold}, which sets the value above which a dyad is conidered
+    to have a tie. (Value less than or equal to \code{threshold} is
+    considered a nontie.)
 
-  Valued version of some binary ERGM terms have an argument
-  \code{threshold}, which sets the value above which a dyad is conidered
-  to have a tie. (Value less than or equal to \code{threshold} is
-  considered a nontie.)
+    The \code{B()} operator term documented below can be used to pass
+    other binary terms to valued models, and is more flexible, at the
+    cost of being somewhat slower.
+  }
 }
 
 \subsection{Nodal attribute levels and indices}{
@@ -324,6 +385,194 @@
     % documentation about ergm terms. (parsing functions are in build_term_index.R)
     % The list of term tags must appear on the same line as the term name to be parsed correctly
     %%beginTerms%%
+    \item{\code{B(formula, form)} (valued) (operator)}{
+      Wraps binary \code{ergm} terms for use in valued models, with \code{formula} specifying which terms
+      are to be wrapped and \code{form} specifying how they are to be
+      used and how the binary network they are evaluated on is to be constructed. More precisely,
+      \describe{
+	\item{\code{formula}}{A one-sided formula whose RHS contains the
+	  binary \code{ergm} terms to be used. Which terms may be used
+	  depends on the argument \code{form}.}
+	\item{\code{form}}{
+	  One of three values:
+	  \describe{
+	    \item{\code{"sum"}}{see section \dQuote{Generalizations of
+		binary terms} above; all terms in \code{formula} must
+              be dyad-independent.}
+	    \item{\code{"nonzero"}}{section \dQuote{Generalizations of
+		binary terms} above; any binary \code{ergm} terms
+              may be used in \code{formula}.}
+	    \item{a one-sided formula}{value-dependent
+              network. \code{form} must contain one \emph{valued} \code{ergm} term, with
+              the following properties:
+              \itemize{
+		\item{dyadic independence;}
+		\item{dyadwise contribution of either 0 or 1; and}
+		\item{dyadwise contribution of 0 for a 0-valued dyad.}
+              }
+              Formally, this means that it is expressable as
+              \deqn{g(y) = \sum_{i,j} f_{i,j}(y_{i,j}),}{sum[i,j]
+		f[i,j](y[i,j]),}, where for all \eqn{i}, \eqn{j}, and \eqn{y},
+              \eqn{f_{i,j}(y_{i,j})} is either 0 or 1 and, in particular,
+              \eqn{f_{i,j}(0)=0}{f[i,j](0)=0}.
+
+              Examples of such terms include \code{nonzero},
+              \code{ininterval()}, \code{atleast()}, \code{atmost()},
+              \code{greaterthan()}, \code{lessthen()}, and \code{equalto()}.
+
+              Then, the value of the statistic will be the value of the
+              statistics in \code{formula} evaluated on a binary network that is
+              defined to have an edge if and only if the corresponding
+              dyad of the valued network adds 1 to the valued term in
+              \code{form}.
+
+	    }
+	  }
+	}
+      }
+      For example, \code{B(~nodecov("a"), form="sum")} is equivalent to
+      \code{nodecov("a", form="sum")} and similarly with
+      \code{form="nonzero"}.
+
+      When a valued implementation is available, it should be
+      preferred, as it is likely to be faster.
+    }
+
+    \item{\code{Curve(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)} (binary) (operator), \code{Curve(formula, params, map, gradient=NULL, minpar=-Inf, maxpar=+Inf, cov=NULL)} (valued) (operator)}{\emph{Impose a curved structure on term parameters.}
+
+      \code{formula} is an arbitrary formula for a linear or curved ERGM. \code{params}, \code{map}, \code{gradient}, \code{minpar}, \code{maxpar}, and \code{cov} are the curved ERGM term API: a named list whose names are the curved parameter names, the mapping from curved to canonical, its gradient function, the minimum and the maximum allowed curved parameter values, and an optional \dQuote{covariate} object.
+
+      Arguments may have the same forms as in the API, but for convenience, alternative forms are accepted.
+      \describe{
+        \item{\code{params}}{may also be a character verctor with names.}
+        \item{\code{minpar} and \code{maxpar}}{will be recycled to appropriate length.}
+        \item{\code{map}}{may have the following forms:
+          \describe{
+            \item{a \code{function(x, n, ...)}}{treated as in the API: called with \code{x} set to the curved parameter vector, \code{n} to the length of output expected, and \code{cov}, if present, passed in \code{...}. The function must return a numeric vector of length \code{n}.}
+            \item{a numeric vector}{to fix the output coefficients, like in an offset.}
+            \item{a character string}{to select (partially-matched) one of predefined forms. Currently, the defined forms include:
+              \describe{
+                \item{\code{"rep"}}{recycle the input vector to the length of the output vector as a \code{\link{rep}} function would.}
+              }
+            }
+          }
+        }
+        \item{\code{gradient}}{is optional if \code{map} is constant or one of the predefined forms; otherwise, it must have one of the following forms:
+          \describe{
+            \item{a \code{function(x, n, ...)}}{treated as in the API: called with \code{x} set to the curved parameter vector, \code{n} to the length of output expected, and \code{cov}, if present, passed in \code{...}. The function must return a numeric matrix with \code{length(params)} rows and \code{n} columns.}
+            \item{a numeric matrix}{to fix the gradient; this is useful when \code{map} is linear.}
+            \item{a character string}{to select (partially-matched) one of predefined forms. Currently, the defined forms include:
+              \describe{
+                \item{\code{"linear"}}{calculate the (constant) gradient matrix using finite differences. Note that this will be done only once at the initialization stage, so use only if you are certain \code{map} is, in fact, linear.}
+              }
+            }
+          }
+        }
+      }
+
+      If the model in \code{formula} is curved, then the outputs of this operator term's \code{map} argument will be used as inputs to the curved terms of the \code{formula} model.
+
+    }
+
+    \item{\code{F(formula, form)} (binary) (operator)}{\emph{Filtering on arbitrary one-term model.}
+      \code{form} must contain one binary \code{ergm} term, with
+      the following properties:
+      \itemize{
+	\item{dyadic independence;}
+	\item{dyadwise contribution of 0 for a 0-valued dyad.}
+      }
+      Formally, this means that it is expressable as
+      \deqn{g(y) = \sum_{i,j} f_{i,j}(y_{i,j}),}{sum[i,j]
+	f[i,j](y[i,j]),} where for all \eqn{i}, \eqn{j}, and \eqn{y},
+      \eqn{f_{i,j}(y_{i,j})} for which
+      \eqn{f_{i,j}(0)=0}{f[i,j](0)=0}.
+
+      Examples of such terms include \code{nodemix},
+      \code{nodematch}, \code{nodefactor}, and \code{nodecov} and
+      \code{edgecov} with appropriate covariates.
+
+      \code{formula} will be evaluated on a network constructed by
+      taking \eqn{y} and removing any edges for which
+      \eqn{f_{i,j}(y_{i,j}) = 0}{f[i,j](y[i,j])=0}.
+    }
+
+    \item{\code{S(formula, attrs)} (binary) (operator)}{\emph{Evaluation on an induced subgraph}:
+
+      \code{attrs} is a two-sided formula whose LHS gives the attribute or attribute function (see \link[=nodal_attributes]{Specifying Vertex Attributes and Levels}) for which tails and heads will be used to construct the induced subgraph. A one-sided formula (e.g., \code{~A}) is symmetrized (e.g., \code{A~A}).
+
+      It should evaluate either to a logical vector equal in length to the number of tails (for LHS) and heads (for RHS) indicating which nodes are to be used to induce the subgraph or a numeric vector giving their indices. (As with indexing vectors, the logical vector will be recycled to the size of the network or the size of the appropriate bipartition, and negative indices will deselect vertices.)
+
+      When the two sets are identical, the induced subgraph retains the directedness of the original graph. Otherwise, an undirected bipartite graph is induced.
+    }
+
+    \item{\code{Sum(formulas, label)} (binary) (operator), \code{Sum(formulas, label)} (valued) (operator)}{\emph{A sum (or an arbitrary linear combination) of one or more formulas}:
+
+      \code{formulas} is a list of formulas whose corresponding RHS
+      statistics will be summed elementwise.
+
+      If a formula has an LHS, it is interpreted as follows: \describe{
+	\item{a numeric scalar}{Network statistics of this formula will be multiplied by this.}
+	\item{a numeric vector}{Corresponding network statistics of this formula will be multiplied by this.}
+	\item{a numeric matrix}{Vector of network statistics will be pre-multiplied by this.}
+	\item{a character string}{One of several predefined linear combinations. Currently supported presets are as follows: \describe{
+            \item{\code{"sum"}}{Network statistics of this formula will be summed up; equivalent to \code{matrix(1,1,p)}, where \code{p} is the length of the network statistic vector.}
+            \item{\code{"mean"}}{Network statistics of this formula will be averaged; equivalent to \code{matrix(1/p,1,p)}, where \code{p} is the length of the network statistic vector.}
+            }.}
+      }
+      Note that each formula must either produce the same number of
+      statistics or be mapped through a matrix to produce the same
+      number of statistics.
+
+      A single formula is also permissible. This can be useful if one
+      wishes to, say, sum up the statistics returned by a formula.
+
+      \code{label} is used to specify the names of the elements of the resulting term sum vector. If \code{label} is of length 1, it will be recycled with indices appended.
+
+      Curved models are supported, subject to some limitations. In particular, the \emph{first} model's etamap will be used, overwriting the others. If \code{label} is not of length 1, it should have an \code{\link{attr}}-style attribute \code{"curved"} specifying the names for the curved parameters.
+    }
+
+
+    \item{\code{Undir(formula, rule="weak")} (binary) (directed) (operator)}{\emph{Evaluation on symmetrized (undirected) network}:
+      Evaluates the terms in \code{formula} on an undirected network
+      constructed by symmetrizing the LHS network using one of four rules:
+      \describe{
+	\item{\code{"weak"}}{A tie \eqn{(i,j)} is present in the constructed
+	  network if the LHS network has either tie \eqn{(i,j)} or
+	  \eqn{(j,i)} (or both).}
+	\item{\code{"strong"}}{A tie \eqn{(i,j)} is present in the constructed
+	  network if the LHS network has both tie \eqn{(i,j)} and tie
+	  \eqn{(j,i)}.}
+	\item{\code{"upper"}}{A tie \eqn{(i,j)} is present in the constructed
+	  network if the LHS network has tie \eqn{(\min(i,j),\max(i,j))}:
+	  the upper triangle of the LHS network.}
+	\item{\code{"upper"}}{A tie \eqn{(i,j)} is present in the constructed
+	  network if the LHS network has tie \eqn{(\max(i,j),\min(i,j))}:
+	  the lower triangle of the LHS network.}
+      }
+    }
+
+    \item{\code{Label(formula, label, pos)} (binary) (operator), \code{Label(formula, label, pos)} (valued) (operator)}{\emph{Modify terms' coefficient names}:
+      The \code{Label} operator evaluates \code{formula} without modification, but modifies its coefficient and/or parameter names based on \code{label} and \code{pos}. \code{label} is either a character vector specifying the label for the terms or a function through which term names are mapped (or a \code{\link[purrr]{as_mapper}}-style formula). If it is a character vector, the \code{pos} argument controls how it modifies the term naes: one of \code{"prepend"}, \code{"replace"}, \code{"append"}, or \code{"("}, with the latter wrapping the term names in parentheses like a function call with name specified by \code{label}.
+    }
+
+    \item{\code{NodematchFilter(formula, attrname)} (binary) (operator)}{\emph{Filtering on \code{\link{nodematch}}}:
+      evaluates the terms specified in \code{formula} on a network
+      constructed by taking \eqn{y} and removing any edges for which
+      \code{attrname(i)!=attrname(j)}. The \code{attrname} argument is a character vector giving one or
+      more names of attributes in the network's vertex attribute
+      list.
+    }
+
+    \item{\code{Offset(formula, coef, which)} (binary) (operator)}{\emph{Terms
+	with fixed coefficients}:
+      This operator is analogous to the \code{offset()} wrapper, but the
+      coefficients are specified within the term and the curved ERGM
+      mechanism is used internally. In addition, the \code{which}
+      argument can be used to specify which of the \emph{parameters} in
+      the formula are fixed. It can be a logical vector (recycled as
+      needed), a numeric vector of indices of parameters to be fixed, or
+      the a character vector of parameter names.
+    }
     \item{\code{absdiff(attr, pow=1)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (quantitative nodal attribute),
       \code{absdiff(attr, pow=1, form ="sum")}  (valued)  (dyad-independent) (directed)  (undirected) (quantitative nodal attribute)}{\emph{Absolute difference:}
       The \code{attr} argument specifies a quantitative attribute (see \NodalAttr for details). This term adds one network statistic to the model equaling the
@@ -381,14 +630,31 @@
       \KeepDep}
 
     \item{\code{atleast(threshold=0)}  (valued)  (directed)  (undirected) (dyad-independent)}{\emph{Number of dyads with values
-	greater than or equal to a threshold} Adds one statistic
-      equaling to the number of dyads whose values equal or exceed
+	greater than or equal to a threshold} Adds the number of
+      statistics equal to the length of \code{threshold}
+      equaling to the number of dyads whose values equal or exceed the
+      corresponding element of
       \code{threshold}.}
 
     \item{\code{atmost(threshold=0)}  (valued)  (directed)  (undirected) (dyad-independent)}{\emph{Number of dyads with values
-	less than or equal to a threshold} Adds one statistic
-      equaling to the number of dyads whose values equal or are exceeded by
+	less than or equal to a threshold} Adds  the number of
+      statistics equal to the length of \code{threshold}
+      equaling to the number of dyads whose values equal or are exceeded by the
+      corresponding element of
       \code{threshold}.}
+
+    \item{\code{attrcov(attr, mat)}  (binary)  (dyad-independent)  (directed)  (undirected)}{\emph{Edge covariate by attribute 
+      pairing:} The \code{attr} argument specifies a vertex attribute (see \link[=nodal_attributes]{Specifying Vertex
+      Attributes and Levels} for details), and the \code{mat} argument is a matrix of covariates with the same dimensions
+      as a mixing matrix for \code{attr}.  This term adds one statistic to the model, equal to the sum of the covariate values
+      for each edge appearing in the network, where the covariate value for a given edge is determined by its mixing type on 
+      \code{attr}.  Undirected networks are regarded as having undirected mixing, and it is assumed that \code{mat} is symmetric
+      in that case.
+      
+      This term can be useful for simulating large networks with many mixing types, where \code{nodemix} would be slow due to 
+      the large number of statistics, and \code{edgecov} cannot be used because an adjacency matrix would be too big.
+      }
+
 
     \item{\code{b1concurrent(by=NULL, levels=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
     }{\emph{Concurrent node count for the
@@ -835,16 +1101,15 @@
       This term can be used with either directed or undirected networks.
     }
 
-    \item{\code{cyclicalties(attr=NULL, levels=NULL)}   (binary)  (directed), \code{cyclicalties(threshold=0)}   (valued)  (directed)  (undirected)}{\emph{Cyclical ties:}
+    \item{\code{cyclicalties(attr=NULL, levels=NULL)}   (binary)  (directed) (undirected), \code{cyclicalties(threshold=0)}   (valued)  (directed)  (undirected)}{\emph{Cyclical ties:}
       This term adds one statistic, equal to the number of ties
       \eqn{i\rightarrow j}{i-->j} such that there exists a two-path from
       \eqn{j} to \eqn{i}.  (Related to the \code{ttriple} term.)
       The binary version takes a nodal attribute \code{attr}, and, if
       given, all three nodes
       involved (\eqn{i}, \eqn{j}, and the node on the two-path) must match
-      on this attribute in order for \eqn{i\rightarrow j}{i-->j} to be counted.
-      The binary version of this term can only be used with directed
-      networks. The valued version can be used with both directed and undirected.}
+      on this attribute in order for \eqn{i\rightarrow j}{i-->j} to be counted.}
+
 
     \item{\code{cyclicalweights(twopath="min",combine="max",affect="min")} (valued)  (directed)  (undirected)}{\emph{Cyclical
 	weights:} This statistic implements the cyclical weights
@@ -978,19 +1243,19 @@
 
       \SPTypes}
 
-    \item{\code{dgwdsp(decay=0, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed)}{  \emph{Geometrically weighted dyadwise shared partner distribution:} This term adds one network statistic to the model equal to the geometrically weighted dyadwise shared partner distribution with decay parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for this parameter may be fixed (if \code{fixed=TRUE}), or it may be used instead as the starting value for the estimation of \code{decay} in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006).  Note that the GWDSP statistic is equal to the sum of GWNSP plus GWESP.
+    \item{\code{dgwdsp(decay, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed)}{  \emph{Geometrically weighted dyadwise shared partner distribution:} This term adds one network statistic to the model equal to the geometrically weighted dyadwise shared partner distribution with decay parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for this parameter may be fixed (if \code{fixed=TRUE}), or it may be used instead as the starting value for the estimation of \code{decay} in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006).  Note that the GWDSP statistic is equal to the sum of GWNSP plus GWESP.
 
       \SPTypes
 
       \GWCutoff{DSP}}
 
-    \item{\code{dgwesp(decay=0, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed)}{ \emph{Geometrically weighted edgewise shared partner distribution:} This term adds a statistic equal to the geometrically weighted \emph{edgewise} (not dyadwise) shared partner distribution with decay parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for this parameter may be fixed (if \code{fixed=TRUE}), or it may be used instead as the starting value for the estimation of \code{decay} in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006).
+    \item{\code{dgwesp(decay, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed)}{ \emph{Geometrically weighted edgewise shared partner distribution:} This term adds a statistic equal to the geometrically weighted \emph{edgewise} (not dyadwise) shared partner distribution with decay parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for this parameter may be fixed (if \code{fixed=TRUE}), or it may be used instead as the starting value for the estimation of \code{decay} in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006).
 
       \SPTypes
 
       \GWCutoff{ESP}}
-
-    \item{\code{dgwnsp(decay=0, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed)}{ \emph{Geometrically weighted non-edgewise shared partner distribution:} This term is just like gwesp and gwdsp except it adds a statistic equal to the geometrically weighted nonedgewise (that is, over dyads that do not have an edge) shared partner distribution with decay parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for this parameter may be fixed (if \code{fixed=TRUE}), or it may be used instead as the starting value for the estimation of \code{decay} in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006).
+    
+    \item{\code{dgwnsp(decay, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed)}{ \emph{Geometrically weighted non-edgewise shared partner distribution:} This term is just like gwesp and gwdsp except it adds a statistic equal to the geometrically weighted nonedgewise (that is, over dyads that do not have an edge) shared partner distribution with decay parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for this parameter may be fixed (if \code{fixed=TRUE}), or it may be used instead as the starting value for the estimation of \code{decay} in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006).
 
       \SPTypes
 
@@ -1069,8 +1334,12 @@
 
     \item{\code{greaterthan(threshold=0)}  (valued)  (directed)  (undirected) (dyad-independent)}{\emph{Number of dyads with
 	values strictly greater than a threshold:}
-      Adds one statistic equal to the number of dyads whose values
-      exceed \code{threshold}.}
+      Adds  the number of
+      statistics equal to the length of \code{threshold}
+      equaling to the number of dyads whose values exceed the
+      corresponding element of \code{threshold}.
+    }
+
 
     \item{\code{gwb1degree(decay, fixed=FALSE, attr=NULL, cutoff=30, levels=NULL)}  (binary)  (bipartite)  (undirected) (curved)}{\emph{Geometrically weighted
 	degree distribution for the first mode in a bipartite (aka two-mode)
@@ -1157,7 +1426,7 @@
       statistics are calculated for nodes having each separate
       value of the attribute.  This term can only be used with undirected networks.}
 
-    \item{\code{gwdsp(decay=0, fixed=FALSE, cutoff=30)}  (binary)  (directed)  (undirected)  (curved)}{\emph{Geometrically weighted
+    \item{\code{gwdsp(decay, fixed=FALSE, cutoff=30)}  (binary)  (directed)  (undirected)  (curved)}{\emph{Geometrically weighted
 	dyadwise shared partner distribution:}
       This term adds one network statistic to the model equal to the geometrically
       weighted dyadwise shared partner distribution with decay parameter
@@ -1173,7 +1442,7 @@
       \GWCutoff{DSP}
     }
 
-    \item{\code{gwesp(decay=0, fixed=FALSE, cutoff=30)}  (binary)  (frequently-used)   (directed)  (undirected)  (curved)}{\emph{Geometrically weighted
+    \item{\code{gwesp(decay, fixed=FALSE, cutoff=30)}  (binary)  (frequently-used)   (directed)  (undirected)  (curved)}{\emph{Geometrically weighted
 	edgewise shared partner distribution:}
       This term is just like \code{gwdsp} except it adds a statistic equal to the
       geometrically weighted \emph{edgewise} (not dyadwise) shared partner
@@ -1204,7 +1473,7 @@
       statistics are calculated for nodes having each separate
       value of the attribute.}
 
-    \item{\code{gwnsp(decay=0, fixed=FALSE, cutoff=30)}  (binary)  (directed)  (undirected) (curved)}{\emph{Geometrically weighted
+    \item{\code{gwnsp(decay, fixed=FALSE, cutoff=30)}  (binary)  (directed)  (undirected) (curved)}{\emph{Geometrically weighted
 	nonedgewise shared partner distribution:} This term is just like
       \code{gwesp} and \code{gwdsp} except it adds a statistic equal to
       the geometrically weighted \emph{nonedgewise} (that is, over dyads
@@ -1326,6 +1595,16 @@
       \code{\link[sna]{sna}} package. Note the distinction from the \code{ctriple}
       term. \Directed}
 
+
+    \item{\code{intransitive}  (binary)  (directed)  (triad-related)}{\emph{Intransitive triads:}
+      This term adds one statistic to the model, equal to the number of triads in
+      the network that are intransitive. The intransitive triads are those of type
+      \code{111D}, \code{201}, \code{111U}, \code{021C}, or \code{030C} in the
+      categorization of Davis and Leinhardt (1972). For details on the 16 possible
+      triad types, see \code{\link[sna]{triad.classify}} in the
+      \code{\link[sna]{sna}} package. Note the distinction from the \code{ctriple}
+      term. This term can only be used with directed networks.}
+
     \item{\code{isolatededges}  (binary)  (undirected) (bipartite)
     }{\emph{Isolated edges:} This term adds one statistic to the
       model equal to the number of isolated edges in the network, i.e., the number
@@ -1360,7 +1639,7 @@
       such statistic counts the number of distinct \code{k[i]}-stars in the
       network, where a \eqn{k}-star is defined to be a node \eqn{N} and a set of
       \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}}{\{O[1], ..., O[k]\}} such that the ties
-      \eqn{\{N, O_i\}} exist for \eqn{i=1, \dots, k}. The optional argument
+      \eqn{\{N, O_i\}}{\{N, O[i]\}} exist for \eqn{i=1, \dots, k}. The optional argument
       \code{attr} specifies a vertex attribute (see \NodalAttr for details). If this is specified then the count is over
       the number of \eqn{k}-stars where all nodes have the same value of the
       attribute. This term can only be used for undirected networks; for directed
@@ -1369,8 +1648,11 @@
 
     \item{\code{smallerthan(threshold=0)}  (valued)  (directed)  (undirected) (dyad-independent)}{\emph{Number of dyads with
 	values strictly smaller than a threshold:}
-      Adds one statistic equaling to the number of dyads whose values
-      exceeded by \code{threshold}.}
+      Adds  the number of
+      statistics equal to the length of \code{threshold}
+      equaling to the number of dyads whose values are exceeded by the
+      corresponding element of \code{threshold}.
+    }
 
     \item{\code{localtriangle(x)}  (binary)  (triad-related)  (directed)  (undirected)}{\emph{Triangles within neighborhoods:}
       This term adds one statistic to the model equal to the number of triangles
@@ -1460,6 +1742,25 @@
 
       \ThreeNineFour}
 
+    \item{\code{nodecovar(center, transform)}  (valued)  (directed)}{
+      \emph{Covariance of undirected dyad values
+	incident on each actor:} This term adds one statistic equal to
+      \eqn{\sum_{i,j<k} y_{i,j}y_{i,k}/(n-2)}. This can be
+      viewed as a valued analog of the \code{\link[=ergm-terms]{star(2)}}
+      statistic. If \code{center=TRUE}, the \eqn{y_{\cdot,\cdot}}s are
+      centered by their mean over the whole network before the
+      calculation. Note that this makes the model non-local, but it may
+      alleviate multimodailty. If \code{transform="sqrt"},
+      \eqn{y_{\cdot,\cdot}}s are repaced by their square roots before the
+      calculation. This makes sense for counts in particular. If
+      \code{center=TRUE} as well, they are centered by the mean of the
+      square roots.
+
+      Note that this term replaces \code{nodesqrtcovar}, which has been
+      deprecated in favor of \code{nodecovar(transform="sqrt")}.
+    }
+
+
     \item{\code{nodecovar}  (valued)  (directed)  (undirected) (quantitative nodal attribute)
     }{\emph{Uncentered covariance of dyad values
 	incident on each actor:} This term adds one statistic equal to
@@ -1495,12 +1796,23 @@
 
       \ThreeNineFour}
 
-    \item{\code{nodeicovar}  (valued)  (directed) (quantitative nodal attribute)
-    }{\emph{Uncentered covariance of in-dyad values
+    \item{\code{nodeicovar(center, transform)}  (valued)  (directed)}{
+      \emph{Covariance of in-dyad values
 	incident on each actor:} This term adds one statistic equal to
-      \eqn{\sum_{i,j,k} y_{k,j}y_{k,j}}. This can be
+      \eqn{\sum_{i,j,k} y_{j,i}y_{k,i}/(n-2)}. This can be
       viewed as a valued analog of the \code{\link[=ergm-terms]{istar(2)}}
-      statistic.}
+      statistic. If \code{center=TRUE}, the \eqn{y_{\cdot,\cdot}}s are
+      centered by their mean over the whole network before the
+      calculation. Note that this makes the model non-local, but it may
+      alleviate multimodailty. If \code{transform="sqrt"},
+      \eqn{y_{\cdot,\cdot}}s are repaced by their square roots before the
+      calculation. This makes sense for counts in particular. If
+      \code{center=TRUE} as well, they are centered by the mean of the
+      square roots.
+
+      Note that this term replaces \code{nodeisqrtcovar}, which has been
+      deprecated in favor of \code{nodeicovar(transform="sqrt")}.
+    }
 
     \item{\code{nodeifactor(attr, base=1, levels=-1)}  (binary)  (dyad-independent)  (directed) (categorical nodal attribute) (frequently-used)
       ,
@@ -1520,13 +1832,6 @@
       \BaseDep
 
       For an analogous term for quantitative vertex attributes, see \code{nodeicov}.}
-
-    \item{\code{nodeisqrtcovar}  (valued)  (directed)  (non-negative)
-    }{\emph{Uncentered covariance of square roots of in-dyad values
-	incident on each actor:} This term adds one statistic equal to \eqn{\sum_{i,j,k}
-	\sqrt{y_{i,j}}\sqrt{y_{k,j}}}. This can be
-      viewed as a valued analog of the \code{\link[=ergm-terms]{istar(2)}}
-      statistic.}
 
     \item{\code{nodematch(attr, diff=FALSE, keep=NULL, levels=NULL)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (categorical nodal attribute)
       , \code{nodematch(attr, diff=FALSE, keep=NULL, levels=NULL, form="sum")}  (valued)  (dyad-independent)  (directed)  (undirected) (categorical nodal attribute)
@@ -1583,12 +1888,23 @@
 
       \ThreeNineFour}
 
-    \item{\code{nodeocovar}  (valued)  (directed) (quantitative nodal attribute)
-    }{\emph{Uncentered covariance of out-dyad values
+    \item{\code{nodeocovar(center, transform)}  (valued)  (directed)}{
+      \emph{Covariance of out-dyad values
 	incident on each actor:} This term adds one statistic equal to
-      \eqn{\sum_{i,j,k} y_{i,j}y_{i,k}}. This can be
+      \eqn{\sum_{i,j,k} y_{i,j}y_{i,k}/(n-2)}. This can be
       viewed as a valued analog of the \code{\link[=ergm-terms]{ostar(2)}}
-      statistic.}
+      statistic. If \code{center=TRUE}, the \eqn{y_{\cdot,\cdot}}s are
+      centered by their mean over the whole network before the
+      calculation. Note that this makes the model non-local, but it may
+      alleviate multimodailty. If \code{transform="sqrt"},
+      \eqn{y_{\cdot,\cdot}}s are repaced by their square roots before the
+      calculation. This makes sense for counts in particular. If
+      \code{center=TRUE} as well, they are centered by the mean of the
+      square roots.
+
+      Note that this term replaces \code{nodeosqrtcovar}, which has been
+      deprecated in favor of \code{nodeocovar(transform="sqrt")}.
+    }
 
     \item{\code{nodeofactor(attr, base=1, levels=-1)}  (binary)  (dyad-independent)  (directed) (categorical nodal attribute)
       ,
@@ -1607,26 +1923,6 @@
       \BaseDep
 
       \Directed}
-
-    \item{\code{nodeosqrtcovar}  (valued)  (directed)  (non-negative)
-    }{\emph{Uncentered covariance of square roots of out-dyad values
-	incident on each actor:} This term adds one statistic equal to \eqn{\sum_{i,j,k}
-	\sqrt{y_{i,j}}\sqrt{y_{i,k}}}. This can be
-      viewed as a valued analog of the \code{\link[=ergm-terms]{ostar(2)}}
-      statistic.}
-
-    \item{\code{nodesqrtcovar(center=TRUE)}  (valued)  (non-negative)  (directed)  (undirected)
-    }{\emph{Covariance of square roots of dyad values
-	incident on each actor:} This term adds one statistic equal to
-      \eqn{\sum_{i,j,k}
-	(\sqrt{y_{i,j}}\sqrt{y_{i,k}}+\sqrt{y_{k,j}}\sqrt{y_{k,j}})} if
-      \code{center=FALSE}. This can be
-      viewed as a valued analog of the \code{\link[=ergm-terms]{kstar(2)}}
-      statistic. If \code{center=TRUE} (the default), the statistic is
-      instead \eqn{\sum_{i,j,k}
-	((\sqrt{y_{i,j}}-\bar{\sqrt{y}})(\sqrt{y_{i,k}}-\bar{\sqrt{y}})+(\sqrt{y_{k,j}}-\bar{\sqrt{y}})(\sqrt{y_{k,j}}-\bar{\sqrt{y}}))},
-      where \eqn{\bar{\sqrt{y}}} is the mean of the square root of
-      dyad values.}
 
     \item{\code{nsp(d)}  (binary)  (directed)  (undirected)}{\emph{Nonedgewise shared partners:} This is
       just like the \code{dsp} and \code{esp} terms, except this term adds
@@ -1748,7 +2044,7 @@
       statistic to the model equal to the number of Simmelian triads, as defined
       by Krackhardt and Handcock (2007). This is a complete sub-graph of size
       three. \Directed}
-
+    
     \item{\code{simmelianties}  (binary)  (triad-related)  (directed)}{\emph{Ties in simmelian triads:} This term adds
       one statistic to the model equal to the number of ties in the network that
       are associated with Simmelian triads, as defined by Krackhardt and Handcock
@@ -1757,7 +2053,7 @@
       these Simmelians is less than six times the number of Simmelians. Hence this
       is a measure of the clustering of Simmelians (given the number of
       Simmelians). \Directed}
-
+    
     \item{\code{smalldiff(attr, cutoff)}  (binary)  (dyad-independent)  (directed)  (undirected) (quantitative nodal attribute)
     }{\emph{Number of
 	ties between actors with similar (but not necessarily identical)
@@ -1827,7 +2123,7 @@
       Note the distinction from the \code{ttriple} term. This term can only be
       used with directed networks.}
 
-    \item{\code{transitiveties(attr=NULL, levels=NULL)}   (binary)  (directed) (triad-related) (categorical nodal attribute)
+    \item{\code{transitiveties(attr=NULL, levels=NULL)}   (binary)  (directed) (undirected) (triad-related) (categorical nodal attribute)
       , \code{transitiveties(threshold=0)}   (valued)  (directed)  (undirected) (triad-related)}{\emph{Transitive ties:}
       This term adds one statistic, equal to the number of ties
       \eqn{i\rightarrow j}{i-->j} such that there exists a two-path from
@@ -1835,10 +2131,7 @@
       The binary version takes a nodal attribute \code{attr}, and, if
       given, all three nodes
       involved (\eqn{i}, \eqn{j}, and the node on the two-path) must match
-      on this attribute in order for \eqn{i\rightarrow j}{i-->j} to be counted.
-      The binary version of this term can only be used with directed
-      networks. The valued version can be used with both directed and
-      undirected.}
+      on this attribute in order for \eqn{i\rightarrow j}{i-->j} to be counted.}
 
     \item{\code{transitiveweights(twopath="min",combine="max",affect="min")}  (valued)  (directed)  (undirected)  (non-negative) (triad-related)
     }{\emph{Transitive

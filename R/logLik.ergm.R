@@ -21,7 +21,7 @@
 #'   \code{\link{ergm}}.
 #' @param add Logical: If `TRUE`, instead of returning the
 #'   log-likelihood, return \code{object} with log-likelihood value
-#'   set.
+#'   (and the null likelihood value) set.
 #' @param force.reeval Logical: If `TRUE`, reestimate the
 #'   log-likelihood even if \code{object} already has an estiamte.
 #' @param eval.loglik Logical: If `TRUE`, evaluate the log-likelihood
@@ -85,16 +85,13 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
   check.control.class("logLik.ergm", "logLik.ergm")
   handle.control.toplevel("logLik.ergm", ...)
  
-  control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights",
-"MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges", "MCMC.samplesize",
-"obs.MCMC.burnin", "obs.MCMC.interval", "obs.MCMC.samplesize","MPLE.type","MPLE.max.dyad.types","parallel","parallel.type","parallel.version.check","term.options"
-)
+  control.transfer <- c("MCMC.samplesize", SCALABLE_MCMC_CONTROLS, STATIC_MCMC_CONTROLS, PARALLEL_MCMC_CONTROLS, MPLE_CONTROLS)
   for(arg in control.transfer)
     if(is.null(control[[arg]]))
       control[arg] <- list(object$control[[arg]])
 
+  control.null <- control
   control <- set.control.class("control.ergm.bridge")
-
   # "object" has an element control.
   loglik.control<-control
   
@@ -102,25 +99,25 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
             {
               if(!eval.loglik) stop(NO_LOGLIK_MESSAGE)
               
-              ## If dyad-independent or MPLE, just go from the deviance.
-              if(object$estimate=="MPLE"
-                 || (is.dyad.independent(object, term.options=control$term.options)
-                     && is.null(object$sample)
-                     && is.null(object$response)))
-			 if(control$MPLE.type=="penalized")
-				 object$glm$loglik - object$glm.null$loglik else
-                -object$glm$deviance/2 - -object$glm$null.deviance/2
-              else
-                ## If dyad-dependent but not valued and has a dyad-independent constraint, bridge from a dyad-independent model.
-                if(is.dyad.independent(object$constrained, object$constrained.obs)
-                   && is.null(object$response))
-                  ergm.bridge.dindstart.llk(formula,reference=reference,constraints=constraints,coef=coef(object),control=loglik.control,llkonly=FALSE,...)
-                else
-                  ## If valued or has dyad-dependent constraint, compute a path sample from reference measure.
-                  ergm.bridge.0.llk(formula,response=object$response,reference=reference,constraints=constraints,coef=coef(object),control=loglik.control,llkonly=FALSE,...)
-            }
-            )
-  
+    ## If dyad-independent or MPLE, just go from the deviance.
+    if(estimate=="MPLE"
+       || (is.dyad.independent(object, term.options=control$term.options)
+         && is.null(object$sample)
+         && !is.valued(object)))
+      -glm$deviance/2 - -glm.null$deviance/2
+    ## If dyad-dependent but not valued and has a dyad-independent constraint, bridge from a dyad-independent model.
+    else if(is.dyad.independent(object$constrained, object$constrained.obs)
+                   && !is.valued(object))
+      ergm.bridge.dindstart.llk(formula,reference=reference,constraints=constraints,obs.constraints=obs.constraints,coef=coef(object),target.stats=object$target.stats,control=loglik.control,llkonly=FALSE,...)
+    ## If valued or has dyad-dependent constraint, bridge from the null model (reference measure).
+    else
+      ergm.bridge.0.llk(formula,reference=reference,constraints=constraints,obs.constraints=obs.constraints,coef=coef(object),target.stats=object$target.stats,control=loglik.control,llkonly=FALSE,basis=object$network,...)
+  }
+  )
+
+  # Add the null likelihood. This incidentally means that the nobs() calls below is short-circuited to reuse the result here.
+  if(add) object$null.lik <- logLikNull(object, control=control.null, ...)
+
   if(is.numeric(out)){
     llk<-out
   }else{
@@ -176,7 +173,7 @@ logLikNull.ergm <- function(object, control=control.logLik.ergm(), ...){
   nobs <- nobs(object,...)
 
   llk <-
-    if(!is.null(object$response)){
+    if(is.valued(object)){
       message(paste(strwrap(paste("Note: Null model likelihood calculation is not implemented for valued ERGMs at this time. ", NO_NULL_IMPLICATION)), collapse="\n"))
       NA
     }else if(!is.dyad.independent(object$constrained, object$constrained.obs)){

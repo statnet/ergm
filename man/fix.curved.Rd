@@ -10,7 +10,7 @@ fix.curved(object, ...)
 
 \method{fix.curved}{ergm}(object, ...)
 
-\method{fix.curved}{formula}(object, theta, response = NULL, ...)
+\method{fix.curved}{formula}(object, theta, ...)
 }
 \arguments{
 \item{object}{An \code{\link{ergm}} object or an ERGM formula. The curved
@@ -20,10 +20,6 @@ their arguments passed by name.}
 \item{\dots}{Unused at this time.}
 
 \item{theta}{Curved model parameter configuration.}
-
-\item{response}{Name of the edge attribute whose value is to be
-modeled in the valued ERGM framework. Defaults to \code{NULL} for
-simple presence or absence, modeled via a binary ERGM.}
 }
 \value{
 A list with the following components: \item{formula}{The "fixed"
@@ -57,8 +53,8 @@ package. It does not work with curved terms not included in ergm.
 options(ergm.eval.loglik=FALSE)
 }
 data(sampson)
-gest<-ergm(samplike~edges+gwesp(decay=.5,fixed=FALSE),
-           control=control.ergm(MCMLE.maxit=3, MCMC.burnin=1024, MCMC.interval=128))
+gest<-ergm(samplike~edges+gwesp(),
+           control=control.ergm(MCMLE.maxit=2))
 summary(gest)
 # A statistic for esp(1),...,esp(16)
 simulate(gest,output="stats")

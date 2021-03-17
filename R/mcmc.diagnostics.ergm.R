@@ -191,8 +191,8 @@ mcmc.diagnostics.ergm <- function(object,
   if(is.null(sm)) stop("MCMC was not run or MCMC sample was not stored.")
 
   if(!center){
-    sm <- sweep.mcmc.list(sm, object$target.stats, "+")
-    if(!is.null(sm.obs)) sm.obs <- sweep.mcmc.list(sm.obs, object$target.stats, "+")
+    sm <- sweep.mcmc.list(sm, NVL(object$target.stats,object$nw.stats), "+")
+    if(!is.null(sm.obs)) sm.obs <- sweep.mcmc.list(sm.obs, NVL(object$target.stats,object$nw.stats), "+")
   }else{
     # Then sm is already centered, *unless* there is missing data.  In
     # that case, center sm relative to sm.obs and center sm.obs to
@@ -221,7 +221,7 @@ mcmc.diagnostics.ergm <- function(object,
     }
 
     # only show if we are using Hotelling termination criterion
-    if (identical(object$control$MCMLE.termination, "Hotelling")) {
+    if(EVL(object$control$MCMLE.termination %in% c("Hotelling","precision","confidence"), TRUE)){
       # This can probably be improved.
       if(is.null(sm.obs)){
         cat("\nAre sample statistics significantly different from observed?\n")

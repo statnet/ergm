@@ -25,8 +25,9 @@
 
 #' Operations to map curved [ergm()] parameters onto canonical parameters
 #' 
-#' The \code{ergm.eta} function calculates and returns eta, mapped from theta
-#' using the etamap object created by \code{ergm.etamap}.
+#' The \code{ergm.eta} function calculates and returns eta, mapped
+#' from theta using the `etamap` object, usually attached as the
+#' `$etamap` element of an [`ergm_model`] object.
 #' 
 #' These functions are mainly important in the case of curved exponential family
 #' models, i.e., those in which the parameter of interest (theta) is not a
@@ -40,10 +41,28 @@
 #' in the estimation process.
 #' 
 #' @param theta the curved model parameters
-#' @param etamap the list of values that constitutes the theta-> eta
-#'   mapping and is returned by \code{ergm.etamap}
+#' @param etamap the list of values that describes the theta -> eta
+#'   mapping, usually attached as `$etamap` element of an [`ergm_model`]
+#'   object. At this time, it is a list with the following elements:
+#' \describe{
+#' \item{`canonical`}{ a numeric vector whose `i`th entry specifies whether the `i`th component of theta is canonical (via non-negative integers) or curved (via zeroes)}
+#' \item{`offsetmap`}{ a logical vector whose `i`th entry tells whether the ith coefficient of the canonical parameterization was "offset", i.e fixed}
+#' \item{`offset`}{ a logical vector whose ith entry tells whether the ith model term was offset/fixed}
+#' \item{`offsettheta`}{ a logical vector whose ith entry tells whether the ith curved theta coeffient was offset/fixed;}
+#' \item{`curved`}{ a list with one component per curved EF term in
+#' the model containing \describe{
+#' \item{`from`}{ the indices of the curved theta parameter that are to be mapped from}
+#' \item{`to`}{ the indices of the canonical eta parameters to be mapped to}
+#' \item{`map`}{ the map provided by [`InitErgmTerm`]}
+#' \item{`gradient`}{ the gradient function provided by [`InitErgmTerm`]}
+#' \item{`cov`}{ optional additional covariates to be passed to the map and the gradient functions }
+#' \item{`etalength`}{ the length of the eta vector}
+#' }
+#' }
+#' }
 #' @return For \code{ergm.eta}, the canonical eta parameters as mapped
 #'   from theta.
+#'
 #' @seealso \code{\link{ergm-terms}}
 #' @references \itemize{ \item Hunter, D. R. and M. S. Handcock
 #'   (2006).  Inference in curved exponential family models for
@@ -54,14 +73,6 @@
 #' networks. \emph{Social Networks}, 29: 216--230.  }
 #' @keywords internal
 #' @export ergm.eta
-ergm.eta <- function(theta, etamap) {
-  eta <- rep(0,etamap$etalength)
-  ec <- etamap$canonical
-  eta[ec[ec>0]] <- theta[ec>0]
-  if(length(etamap$curved)>0) {
-    for(cm in etamap$curved) {
-      eta[cm$to] <- cm$map(theta[cm$from],length(cm$to),cm$cov)
-    }
-  }
-  eta
+ergm.eta <- function(theta, etamap){
+  .Call("ergm_eta_wrapper", as.numeric(theta), etamap, PACKAGE="ergm")
 }

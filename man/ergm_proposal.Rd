@@ -11,23 +11,16 @@
 \usage{
 ergm_proposal(object, ...)
 
-\method{ergm_proposal}{character}(
-  object,
-  arguments,
-  nw,
-  ...,
-  response = NULL,
-  reference = ~Bernoulli
-)
+\method{ergm_proposal}{character}(object, arguments, nw, ..., reference = ~Bernoulli)
 
 \method{ergm_proposal}{formula}(
   object,
   arguments,
   nw,
+  hints = trim_env(~sparse),
   weights = "default",
   class = "c",
   reference = ~Bernoulli,
-  response = NULL,
   ...
 )
 
@@ -39,8 +32,7 @@ ergm_proposal(object, ...)
   nw = NULL,
   weights = NULL,
   class = "c",
-  reference = NULL,
-  response = NULL
+  reference = NULL
 )
 }
 \arguments{
@@ -54,17 +46,13 @@ ergm_proposal(object, ...)
 \item{nw}{The network object originally given to \code{\link{ergm}}
 via 'formula'}
 
-\item{response}{Name of the edge attribute whose value is to be
-modeled in the valued ERGM framework. Defaults to \code{NULL} for
-simple presence or absence, modeled via a binary ERGM.}
-
 \item{reference}{A one-sided formula specifying
 the reference measure (\eqn{h(y)}) to be used.
 See help for \link[=ergm-references]{ERGM reference measures} implemented in the
 \strong{\link[=ergm-package]{ergm}} package.}
 
 \item{weights}{Specifies the method used to allocate probabilities of being
-proposed to dyads; options are "TNT", "TNT10", "random", "nonobserved" and
+proposed to dyads; options are "TNT", "StratTNT", "TNT10", "random", "nonobserved" and
 "default"; default="default"}
 
 \item{class}{The class of the proposal; choices include "c", "f", and "d"

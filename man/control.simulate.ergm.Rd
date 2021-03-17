@@ -8,11 +8,17 @@
 \title{Auxiliary for Controlling ERGM Simulation}
 \usage{
 control.simulate.formula.ergm(
-  MCMC.burnin = 10000,
-  MCMC.interval = 1000,
+  MCMC.burnin = MCMC.interval * 16,
+  MCMC.interval = 1024,
+  MCMC.prop = trim_env(~sparse),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
-  MCMC.init.maxedges = 20000,
+  MCMC.effectiveSize = NULL,
+  MCMC.effectiveSize.damp = 10,
+  MCMC.effectiveSize.maxruns = 1000,
+  MCMC.effectiveSize.burnin.pval = 0.2,
+  MCMC.effectiveSize.order.max = NULL,
+  MCMC.maxedges = Inf,
   MCMC.packagenames = c(),
   MCMC.runtime.traceplot = FALSE,
   network.output = "network",
@@ -20,15 +26,22 @@ control.simulate.formula.ergm(
   parallel = 0,
   parallel.type = NULL,
   parallel.version.check = TRUE,
+  parallel.inherit.MT = FALSE,
   ...
 )
 
 control.simulate(
-  MCMC.burnin = 10000,
-  MCMC.interval = 1000,
+  MCMC.burnin = MCMC.interval * 16,
+  MCMC.interval = 1024,
+  MCMC.prop = trim_env(~sparse),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
-  MCMC.init.maxedges = 20000,
+  MCMC.effectiveSize = NULL,
+  MCMC.effectiveSize.damp = 10,
+  MCMC.effectiveSize.maxruns = 1000,
+  MCMC.effectiveSize.burnin.pval = 0.2,
+  MCMC.effectiveSize.order.max = NULL,
+  MCMC.maxedges = Inf,
   MCMC.packagenames = c(),
   MCMC.runtime.traceplot = FALSE,
   network.output = "network",
@@ -36,15 +49,22 @@ control.simulate(
   parallel = 0,
   parallel.type = NULL,
   parallel.version.check = TRUE,
+  parallel.inherit.MT = FALSE,
   ...
 )
 
 control.simulate.formula(
-  MCMC.burnin = 10000,
-  MCMC.interval = 1000,
+  MCMC.burnin = MCMC.interval * 16,
+  MCMC.interval = 1024,
+  MCMC.prop = trim_env(~sparse),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
-  MCMC.init.maxedges = 20000,
+  MCMC.effectiveSize = NULL,
+  MCMC.effectiveSize.damp = 10,
+  MCMC.effectiveSize.maxruns = 1000,
+  MCMC.effectiveSize.burnin.pval = 0.2,
+  MCMC.effectiveSize.order.max = NULL,
+  MCMC.maxedges = Inf,
   MCMC.packagenames = c(),
   MCMC.runtime.traceplot = FALSE,
   network.output = "network",
@@ -52,15 +72,22 @@ control.simulate.formula(
   parallel = 0,
   parallel.type = NULL,
   parallel.version.check = TRUE,
+  parallel.inherit.MT = FALSE,
   ...
 )
 
 control.simulate.ergm(
   MCMC.burnin = NULL,
   MCMC.interval = NULL,
+  MCMC.scale = 1,
   MCMC.prop.weights = NULL,
   MCMC.prop.args = NULL,
-  MCMC.init.maxedges = NULL,
+  MCMC.effectiveSize = NULL,
+  MCMC.effectiveSize.damp = 10,
+  MCMC.effectiveSize.maxruns = 1000,
+  MCMC.effectiveSize.burnin.pval = 0.2,
+  MCMC.effectiveSize.order.max = NULL,
+  MCMC.maxedges = Inf,
   MCMC.packagenames = NULL,
   MCMC.runtime.traceplot = FALSE,
   network.output = "network",
@@ -68,6 +95,7 @@ control.simulate.ergm(
   parallel = 0,
   parallel.type = NULL,
   parallel.version.check = TRUE,
+  parallel.inherit.MT = FALSE,
   ...
 )
 }
@@ -77,25 +105,52 @@ typically is set to a fairly large number.}
 
 \item{MCMC.interval}{Number of proposals between sampled statistics.}
 
+\item{MCMC.prop}{Specifies the proposal (directly) and/or
+a series of "hints" about the structure of the model being
+sampled. The specification is in the form of a one-sided formula
+with hints separated by \code{+} operations. If the LHS exists and is
+a string, the proposal to be used is selected directly.
+
+A common and default "hint" is \code{~sparse}, indicating
+that the network is sparse and that the sample should put roughly
+equal weight on selecting a dyad with or without a tie as a
+candidate for toggling.}
+
 \item{MCMC.prop.weights}{Specifies the proposal
 distribution used in the MCMC Metropolis-Hastings algorithm.  Possible
 choices depending on selected \code{reference} and \code{constraints}
 arguments of the \code{\link[=ergm]{ergm()}} function, but often include \code{"TNT"}
 and \code{"random"}, and the \code{"default"} is to use the one with the
-highest priority available.
-
-The \code{TNT} (tie / no tie) option puts roughly equal weight on selecting
-a dyad with or without a tie as a candidate for toggling, whereas the
-\code{random} option puts equal weight on all possible dyads, though the
-interpretation of \code{random} may change according to the constraints in
-place.  When no constraints are in place, the default is TNT, which appears
-to improve Markov chain mixing particularly for networks with a low edge
-density, as is typical of many realistic social networks.}
+highest priority available.}
 
 \item{MCMC.prop.args}{An alternative, direct way of
 specifying additional arguments to proposal.}
 
-\item{MCMC.init.maxedges}{Maximum number of edges expected in network.}
+\item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns, MCMC.effectiveSize.burnin.pval, MCMC.effectiveSize.order.max}{Set \code{MCMC.effectiveSize} to a non-NULL value to adaptively
+determine the burn-in and the MCMC length needed to get the
+specified effective size; 50 is a reasonable value. In the
+adaptive MCMC mode, MCMC is run forward repeatedly
+(\code{MCMC.samplesize*MCMC.interval} steps, up to
+\code{MCMC.effectiveSize.maxruns} times) until the target effective
+sample size is reached or exceeded. After each run, the returned
+statistics are mapped to the estimating function scale, then a
+broken stick model is fit to each statistic to find the candidate
+burn-in. If its Geweke diagnostic produces a \eqn{p}-value higher
+than \code{MCMC.effectiveSize.burnin.pval}, it is accepted. The
+effective size of the post-burn-in sample is computed via Vats,
+Flegal, and Jones (2015), and compared to the target effective
+size. If it is not matched, the MCMC run is resumed, with the
+additional draws needed linearly extrapolated but weighted in
+favor of the baseline \code{MCMC.samplesize} by the weighting factor
+\code{MCMC.effectiveSize.damp} (higher = less damping). Lastly, if
+after an MCMC run, the number of samples equals or exceeds
+\code{2*MCMC.samplesize}, the chain will be thinned by 2 until it
+falls below that, while doubling
+\code{MCMC.interval}. \code{MCMC.effectiveSize.order.max} can be used to
+set the order of the AR model used to estimate the effective
+sample size and the variance for the Geweke diagnostic.}
+
+\item{MCMC.maxedges}{The maximum number of edges that may occur during the MCMC sampling.}
 
 \item{MCMC.packagenames}{Names of packages in which to look for change
 statistic functions in addition to those autodetected. This argument should
@@ -122,9 +177,20 @@ package with PSOCK clusters. See \code{\link{ergm-parallel}}}
 \code{\link[=ergm-package]{ergm}} running on the slave nodes is the same as
 that running on the master node.}
 
+\item{parallel.inherit.MT}{Logical: If TRUE, slave nodes and
+processes inherit the \code{\link[=set.MT_terms]{set.MT_terms()}} setting.}
+
 \item{\dots}{Additional arguments, passed to other functions This argument
 is helpful because it collects any control parameters that have been
 deprecated; a warning message is printed in case of deprecated arguments.}
+
+\item{MCMC.scale}{For \code{control.simulate.ergm()} inheriting
+\code{MCMC.burnin} and \code{MCMC.interval} from the \code{\link{ergm}} fit, the
+multiplier for the inherited values. This can be useful because
+MCMC parameters used in the fit are tuned to generate a specific
+effective sample size for the sufficient statistic in a large
+MCMC sample, so the inherited values might not generate
+independent realisations.}
 }
 \value{
 A list with arguments as components.

@@ -71,13 +71,11 @@
 #' must be greater than \code{network.dyadcount(.)} of the response network, or
 #' not all elements of the array that ought to be filled in will be.
 #' 
-#' @param formula,constraints An ERGM formula and a constraint formula. See \code{\link{ergm}}.
+#' @param formula,constraints,obs.constraints An ERGM formula and
+#'   (optional) constraint specification formulas. See \code{\link{ergm}}.
+#' 
 #' @param fitmodel Deprecated. Use \code{output="fit"} instead.
 #' @param output Character, partially matched. See Value.
-#' @param as.initialfit Logical. Specifies whether terms are initialized with
-#' argument \code{initialfit==TRUE} (the default). Generally, if \code{TRUE},
-#' all curved ERGM terms will be treated as having their curved parameters
-#' fixed. See Example.
 #'
 #' @templateVar mycontrol control.ergm
 #' @template control
@@ -97,6 +95,14 @@
 #' \code{weights}, respectively the response vector, the predictor matrix, and
 #' a vector of weights, which are really counts that tell how many times each
 #' corresponding response, predictor pair is repeated.
+#'
+#' If \code{output=="dyadlist"}, as `"matrix"`, but rather than
+#' coalescing the duplicated rows, every relation in the network that
+#' is not fixed and is observed will have its own row in `predictor`
+#' and element in `response` and `weights`, and `predictor` matrix
+#' will have two additional rows at the start, `tail` and `head`,
+#' indicating to which dyad the row and the corresponding elements
+#' pertain.
 #' 
 #' If \code{output=="array"}, a list with similarly named three elements is
 #' returned, but \code{response} is formatted into a sociomatrix;
@@ -134,20 +140,36 @@
 #' # We can also format the predictor matrix into an array:
 #' mplearray <- ergmMPLE(formula, output="array")
 #' 
+#' # The resulting matrices are big, so only print the first 8 actors:
+#' mplearray$response[1:8,1:8]
+#' mplearray$predictor[1:8,1:8,]
+#' mplearray$weights[1:8,1:8]
+#'
+#' if(require(tergm)){
+#' # Constraints are handled:
+#' faux.mesa.high%v%"block" <- seq_len(network.size(faux.mesa.high)) %/% 4
+#' mplearray <- ergmMPLE(faux.mesa.high~edges, constraints=~blockdiag("block"), output="array")
+#' mplearray$response[1:8,1:8]
+#' mplearray$predictor[1:8,1:8,]
+#' mplearray$weights[1:8,1:8]
+#'
+#' # Or, a dyad list:
+#' faux.mesa.high%v%"block" <- seq_len(network.size(faux.mesa.high)) %/% 4
+#' mplearray <- ergmMPLE(faux.mesa.high~edges, constraints=~blockdiag("block"), output="dyadlist")
+#' mplearray$response[1:8]
+#' mplearray$predictor[1:8,]
+#' mplearray$weights[1:8]
+#' }
+#' 
+#' # Curved terms produce predictors on the canonical scale:
+#' formula2 <- faux.mesa.high ~ gwesp
+#' mplearray <- ergmMPLE(formula2, output="array")
 #' # The resulting matrices are big, so only print the first 5 actors:
 #' mplearray$response[1:5,1:5]
-#' mplearray$predictor[1:5,1:5,]
+#' mplearray$predictor[1:5,1:5,1:3]
 #' mplearray$weights[1:5,1:5]
-#' 
-#' formula2 <- faux.mesa.high ~ gwesp(0.5,fix=FALSE)
-#' 
-#' # The term is treated as fixed: only the gwesp term is returned:
-#' colnames(ergmMPLE(formula2, as.initialfit=TRUE)$predictor)
-#' 
-#' # The term is treated as curved: individual esp# terms are returned:
-#' colnames(ergmMPLE(formula2, as.initialfit=FALSE)$predictor)
 #' @export ergmMPLE
-ergmMPLE <- function(formula, constraints=~., fitmodel=FALSE, output=c("matrix", "array", "fit"), expand.bipartite=FALSE, as.initialfit = TRUE, control=control.ergm(),
+ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmodel=FALSE, output=c("matrix", "array", "dyadlist", "fit"), expand.bipartite=FALSE, control=control.ergm(),
                      verbose=FALSE, ...){
   if(!missing(fitmodel)){
       warning("Argument fitmodel= to ergmMPLE() has been deprecated and will be removed in a future version. Use output=\"fit\" instead.")
@@ -160,19 +182,43 @@ ergmMPLE <- function(formula, constraints=~., fitmodel=FALSE, output=c("matrix",
     return(ergm(formula, estimate="MPLE", control=control, verbose=verbose, constraints=constraints, ...))
   }
 
-  if(output == "array") formula <- nonsimp_update.formula(formula, .~indices+.)
-  
-  nw <- ergm.getnetwork(formula)
-  model <- ergm_model(formula, nw, initialfit=as.initialfit, term.options=control$term.options)
-  basecon <- ergm_conlist(constraints, nw)
-  misscon <- if(network.naedgecount(nw)) ergm_conlist(~observed, nw)
-  fd <- as.rlebdm(basecon, misscon, which="informative")
+  if(output %in% c("array", "dyadlist")) formula <- nonsimp_update.formula(formula, .~indices+.)
 
-  pl <- ergm.pl(nw, fd, model, verbose=verbose, control=control,...)
+  # Construct the model
+  nw <- ergm.getnetwork(formula)
+  model <- ergm_model(formula, nw, term.options=control$term.options)
+
+  # Handle the observation process constraints.
+  tmp <- .handle.auto.constraints(nw, constraints, obs.constraints)
+  nw <- tmp$nw; constraints <- tmp$constraints; constraints.obs <- tmp$constraints.obs
+  
+  if("constraints" %in% names(control$MCMC.prop.args)){
+    conlist <- prune.ergm_conlist(control$MCMC.prop.args$constraints)
+    class(conlist) <- "ergm_conlist"
+  }else{
+    conlist <- ergm_conlist(constraints, nw)
+  }
+
+  if("constraints" %in% names(control$obs.MCMC.prop.args)){
+    conlist.obs <- prune.ergm_conlist(control$obs.MCMC.prop.args$constraints)
+    class(conlist.obs) <- "ergm_conlist"
+  }else{
+    conlist.obs <- ergm_conlist(constraints.obs, nw)
+  }
+
+  fd <- as.rlebdm(conlist, conlist.obs, which="informative")
+
+  # Get the MPLE predictors
+  pl <- ergm.pl(nw, fd, model, verbose=verbose, control=control, ignore.offset=TRUE,...)
 
   switch(output,
          matrix = list(response = pl$zy, predictor = pl$xmat.full,
            weights = pl$wend),
+         dyadlist = {
+           o <- order(pl$xmat.full[,"tail"], pl$xmat.full[,"head"])
+           list(response = pl$zy[o], predictor = pl$xmat.full[o,,drop=FALSE],
+                weights = pl$wend[o])
+         },
          array = {
            # If expand.bipartite==TRUE, then no special treatment for bipartite networks is needed.
            bip <- if(!expand.bipartite) NVL(nw %n% "bipartite", 0) else 0

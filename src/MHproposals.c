@@ -9,8 +9,16 @@
  */
 #include "MHproposals.h"
 #include "ergm_edgelist.h"
-#include "ergm_rlebdm.h"
 #include "ergm_changestat.h"
+#include "ergm_rlebdm.h"
+#include "ergm_MHstorage.h"
+#include "ergm_unsorted_edgelist.h"
+#include "ergm_weighted_population.h"
+#include "ergm_dyadgen.h"
+#include "ergm_Rutil.h"
+#include "ergm_BDStrat_proposals.h"
+#include "ergm_hash_edgelist.h"
+#include "ergm_nodelist.h"
 
 /*********************
  void MH_randomtoggle
@@ -22,59 +30,589 @@ MH_P_FN(MH_randomtoggle){
   /* *** don't forget tail-> head now */
 
   if(MHp->ntoggles == 0) { /* Initialize randomtoggle */
+    MH_STORAGE = DyadGenInitializeR(MHp->R, nwp, FALSE);
     MHp->ntoggles=1;
     return;
   }
   
   BD_LOOP({
-      GetRandDyad(Mtail, Mhead, nwp);
+      DyadGenRandDyad(Mtail, Mhead, MH_STORAGE);
     });
+}
+
+MH_F_FN(Mf_randomtoggle){
+  DyadGenDestroy(MH_STORAGE);
+  MH_STORAGE = NULL;
 }
 
 /********************
    void MH_TNT
-   Tie/no tie:  Gives at least 50% chance of
-   proposing a toggle of an existing edge, as opposed
-   to simple random toggles that rarely do so in sparse 
-   networks
+   Propose ONLY edges on a static list
+   Use TNT weights.
+   This is a fusion of MH_DissolutionMLETNT and MH_TNT:
+
+   A "intersect" network is constructed that is the intersection of
+   dyads on the static list and the edges present in nwp. Then,
+   standard TNT procedure is followed, but the dyad space (and the
+   number of dyads) is the number of dyads in the static list and the
+   network for the ties is the ties in the discord network.
 ***********************/
-MH_P_FN(MH_TNT)
-{
-  /* *** don't forget tail-> head now */
-  
-  Edge nedges=EDGECOUNT(nwp);
-  static double P=0.5;
-  static double Q, DP, DO;
-  
-  if(MHp->ntoggles == 0) { /* Initialize */
+
+MH_P_FN(Mp_TNT){
+  if(MHp->ntoggles == 0) { /* Initialize randomtoggle */
+    MH_STORAGE = DyadGenInitializeR(MHp->R, nwp, TRUE);
     MHp->ntoggles=1;
-    Q = 1-P;
-    DP = P*DYADCOUNT(nwp);
-    DO = DP/Q;
     return;
   }
 
+  const double P=0.5, Q=1-P;
+  double DP = P*((DyadGen *)MH_STORAGE)->ndyads, DO = DP/Q;
+
+  Edge nedges = DyadGenEdgecount(MH_STORAGE);
   double logratio=0;
   BD_LOOP({
-      if (unif_rand() < P && nedges > 0) { /* Select a tie at random */
-	GetRandEdge(Mtail, Mhead, nwp);
-	/* Thanks to Robert Goudie for pointing out an error in the previous 
-	   version of this sampler when proposing to go from nedges==0 to nedges==1 
-	   or vice versa.  Note that this happens extremely rarely unless the 
-	   network is small or the parameter values lead to extremely sparse 
-	   networks.  */
+      if (unif_rand() < P && nedges > 0) { /* Select a tie at random from the network of eligibles */
+        DyadGenRandEdge(Mtail, Mhead, MH_STORAGE);
 	logratio = TNT_LR_E(nedges, Q, DP, DO);
-      }else{ /* Select a dyad at random */
-	GetRandDyad(Mtail, Mhead, nwp);
+      }else{ /* Select a dyad at random from the list */
+	DyadGenRandDyad(Mtail, Mhead, MH_STORAGE);
 	
-	if(EdgetreeSearch(Mtail[0],Mhead[0],nwp->outedges)!=0){
-          logratio = TNT_LR_DE(nedges, Q, DP, DO);
+	if(IS_OUTEDGE(Mtail[0],Mhead[0])){
+	  logratio = TNT_LR_DE(nedges, Q, DP, DO);
 	}else{
-          logratio = TNT_LR_DN(nedges, Q, DP, DO);
+	  logratio = TNT_LR_DN(nedges, Q, DP, DO);
 	}
       }
     });
   MHp->logratio += logratio;
+}
+
+MH_F_FN(Mf_TNT){
+  DyadGenDestroy(MH_STORAGE);
+  MH_STORAGE = NULL;
+}
+
+
+/********************
+    MH_BDStratTNT
+********************/
+
+// struct definition in ergm_BDStrat_proposals.h
+
+MH_I_FN(Mi_BDStratTNT) {
+  // process the inputs and initialize all the edgelists in storage; set MHp->ntoggles to 1
+  MHp->ntoggles = 1;
+
+  ALLOC_STORAGE(1, BDStratTNTStorage, sto);
+
+  sto->CD = getListElement(getListElement(MHp->R, "flags"), "CD") != R_NilValue;
+  
+  sto->bound = asInteger(getListElement(MHp->R, "bound"));
+  sto->nmixtypes = asInteger(getListElement(MHp->R, "nmixtypes"));
+  sto->nstratlevels = asInteger(getListElement(MHp->R, "nattrcodes"));
+  int nbdlevels = asInteger(getListElement(MHp->R, "bd_levels"));
+
+  sto->mixtypestoupdate = Calloc(sto->nmixtypes, int);
+  
+  sto->strat_vattr = INTEGER(getListElement(MHp->R, "strat_vattr"));
+
+  sto->bd_vattr = INTEGER(getListElement(MHp->R, "bd_vattr"));
+    
+  sto->nodelist = NodeListInitialize(sto->bound, 
+                                     sto->strat_vattr, 
+                                     sto->nstratlevels, 
+                                     sto->nmixtypes, 
+                                     INTEGER(getListElement(MHp->R, "strattailattrs")), 
+                                     INTEGER(getListElement(MHp->R, "stratheadattrs")), 
+                                     NULL, 
+                                     sto->bd_vattr, 
+                                     nbdlevels, 
+                                     INTEGER(getListElement(MHp->R, "bd_mixtypes"))[0], 
+                                     INTEGER(getListElement(MHp->R, "bd_mixtypes"))[1], 
+                                     INTEGER(getListElement(MHp->R, "bd_tails")), 
+                                     INTEGER(getListElement(MHp->R, "bd_heads")), 
+                                     NULL,
+                                     INTEGER(getListElement(MHp->R, "nodecountsbypairedcode")), 
+                                     nwp);
+    
+  sto->strat_vattr--; // so node indices line up correctly
+  sto->bd_vattr--; // so node indices line up correctly  
+    
+  UnsrtEL **els = Calloc(sto->nmixtypes, UnsrtEL *);
+  for(int i = 0; i < sto->nmixtypes; i++) {
+    els[i] = UnsrtELInitialize(0, NULL, NULL, FALSE);
+  }
+      
+  sto->indmat = Calloc(sto->nstratlevels, int *);
+  sto->indmat[0] = INTEGER(getListElement(MHp->R, "indmat"));
+  for(int i = 1; i < sto->nstratlevels; i++) {
+    sto->indmat[i] = sto->indmat[i - 1] + sto->nstratlevels;
+  }
+
+  int **amat = Calloc(nbdlevels, int *);
+  amat[0] = INTEGER(getListElement(MHp->R, "amat"));
+  for(int i = 1; i < nbdlevels; i++) {
+    amat[i] = amat[i - 1] + nbdlevels;
+  }
+  
+  EXEC_THROUGH_NET_EDGES(tail, head, e, {
+    int index = sto->indmat[sto->strat_vattr[tail]][sto->strat_vattr[head]];
+    int allowed = amat[sto->bd_vattr[tail]][sto->bd_vattr[head]];
+    if(index >= 0 && allowed) {
+      UnsrtELInsert(tail, head, els[index]);
+    }  
+  });
+  Free(amat);
+
+  sto->hash = Calloc(sto->nmixtypes, HashEL *);
+  for(int i = 0; i < sto->nmixtypes; i++) {
+    sto->hash[i] = HashELInitialize(els[i]->nedges, els[i]->tails + 1, els[i]->heads + 1, FALSE, DIRECTED);
+  }
+
+  sto->originalprobvec = Calloc(sto->nmixtypes, double);
+  int empirical_flag = asInteger(getListElement(MHp->R, "empirical_flag"));
+  if(empirical_flag) {
+    for(int i = 0; i < sto->nmixtypes; i++) {
+      if(sto->hash[i]->list->nedges > 0) {
+        sto->originalprobvec[i] = sto->hash[i]->list->nedges;
+      }
+    }
+  } else {
+    memcpy(sto->originalprobvec, REAL(getListElement(MHp->R, "probvec")), sto->nmixtypes*sizeof(double));
+  }
+
+  // determine what mixing types are initially toggleable 
+  double *currentprobvec = Calloc(sto->nmixtypes, double);  
+  for(int i = 0; i < sto->nmixtypes; i++) {
+    // if any edges or dyads of this type are toggleable
+    if(sto->hash[i]->list->nedges > 0 || NodeListDyadCountPositive(sto->nodelist, i)) {
+      currentprobvec[i] = sto->originalprobvec[i];
+      sto->currentcumprob += sto->originalprobvec[i];
+    }
+  }
+    
+  sto->wtp = WtPopInitialize(sto->nmixtypes, currentprobvec);
+  Free(currentprobvec);
+
+  // zero proposal probability is an error
+  if(WtPopSumWts(sto->wtp) == 0) {
+    MHp->ntoggles = MH_FAILED;
+    return;
+  }
+
+  for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
+    if(IN_DEG[vertex] + OUT_DEG[vertex] > sto->bound) {
+      error("degree bound is violated by initial network; proposal cannot proceed");
+    }
+  }
+}
+
+MH_P_FN(MH_BDStratTNT) {
+  GET_STORAGE(BDStratTNTStorage, sto);
+
+  // sample a toggleable strat mixing type on which to make a proposal
+  sto->stratmixingtype = WtPopGetRand(sto->wtp);
+  
+  // number of edges of this mixing type
+  int nedgestype = sto->hash[sto->stratmixingtype]->list->nedges;
+  
+  Dyad ndyadstype = NodeListDyadCount(sto->nodelist, sto->stratmixingtype);
+  
+  int edgeflag;
+  
+  if((unif_rand() < 0.5 && nedgestype > 0) || ndyadstype == 0) {
+    // propose toggling off an existing edge of strat mixing type sto->stratmixingtype
+    HashELGetRand(Mtail, Mhead, sto->hash[sto->stratmixingtype]);    
+    edgeflag = TRUE;
+  } else {
+    // select a random BD toggleable dyad of strat mixing type sto->stratmixingtype and propose toggling it
+    NodeListGetRandWithCount(Mtail, Mhead, sto->nodelist, sto->stratmixingtype, ndyadstype);
+
+    // now check if the dyad we drew is already an edge or not
+    edgeflag = IS_OUTEDGE(Mtail[0],Mhead[0]);
+  }
+  
+  sto->tailmaxl = IN_DEG[Mtail[0]] + OUT_DEG[Mtail[0]] == sto->bound - 1 + edgeflag;
+  sto->headmaxl = IN_DEG[Mhead[0]] + OUT_DEG[Mhead[0]] == sto->bound - 1 + edgeflag;
+  
+  // compute proposed dyad count for current mixing type (only)
+  Dyad proposeddyadstype = NodeListDyadCountOnToggle(*Mtail, *Mhead, sto->nodelist, sto->stratmixingtype, edgeflag ? 1 : -1, sto->tailmaxl, sto->headmaxl);
+  
+  ComputeChangesToToggleability(Mtail, Mhead, edgeflag, sto);
+  
+  double prob_weight = sto->currentcumprob/sto->proposedcumprob;
+  
+  // the rationale for the logratio is similar to that given for BDTNT, with two additional considerations:
+  // 
+  // - counts of edges and BD toggleable dyads should be for the current mixing type only, and
+  //
+  // - it is possible for a strat mixing type to reach zero toggleable dyads (by having no edges and also no BD toggleable dyads);
+  //   such a strat mixing type cannot be selected when we choose the strat mixing type at the top of the P_FN, and so we must 
+  //   "disable" it until it comes to have toggleable dyads again; the term prob_weight adjusts for the fact that the total weight 
+  //   given to toggleable strat mixing types may be different in the current and proposed networks, and thus the probability
+  //   to select the current strat mixing type may be different in the current and proposed networks
+  
+  if(edgeflag) {
+    MHp->logratio = log(prob_weight*(((nedgestype == 1 ? 1.0 : 0.5)/proposeddyadstype))/(((ndyadstype == 0 ? 1.0/nedgestype : (0.5/nedgestype) + (sto->tailmaxl || sto->headmaxl ? 0.0 : 0.5/ndyadstype)))));
+  } else {
+    MHp->logratio = log(prob_weight*((proposeddyadstype == 0 ? 1.0/(nedgestype + 1) : (0.5/(nedgestype + 1)) + (sto->tailmaxl || sto->headmaxl ? 0.0 : 0.5/proposeddyadstype))/((nedgestype == 0 ? 1.0 : 0.5)/ndyadstype)));
+  }
+}
+
+MH_U_FN(Mu_BDStratTNT) {
+  GET_STORAGE(BDStratTNTStorage, sto);
+  if(sto->CD) {
+    sto->stratmixingtype = sto->indmat[sto->strat_vattr[tail]][sto->strat_vattr[head]];
+
+    sto->tailmaxl = IN_DEG[tail] + OUT_DEG[tail] == sto->bound - 1 + edgeflag;
+    sto->headmaxl = IN_DEG[head] + OUT_DEG[head] == sto->bound - 1 + edgeflag;
+
+    ComputeChangesToToggleability(&tail, &head, edgeflag, sto);    
+  }
+  // update edgelist
+  HashELToggleKnown(tail, head, sto->hash[sto->stratmixingtype], edgeflag);
+
+  // update nodelists as needed
+  NodeListToggleKnownIf(tail, head, sto->nodelist, !edgeflag, sto->tailmaxl, sto->headmaxl);
+  
+  // if any strat mixing types have changed toggleability status, update prob info accordingly
+  if(sto->nmixtypestoupdate > 0) {
+    sto->currentcumprob = sto->proposedcumprob;
+    for(int i = 0; i < sto->nmixtypestoupdate; i++) {
+      WtPopSetWt(sto->mixtypestoupdate[i], edgeflag ? sto->originalprobvec[sto->mixtypestoupdate[i]] : 0, sto->wtp);          
+    }
+  }
+}
+
+MH_F_FN(Mf_BDStratTNT) {
+  // Free all the things
+  GET_STORAGE(BDStratTNTStorage, sto);
+
+  NodeListDestroy(sto->nodelist);    
+  
+  for(int i = 0; i < sto->nmixtypes; i++) {
+    HashELDestroy(sto->hash[i]);
+  }
+  Free(sto->hash);
+
+  Free(sto->indmat);
+
+  Free(sto->originalprobvec);
+
+  Free(sto->mixtypestoupdate);  
+
+  WtPopDestroy(sto->wtp);
+  // MHp->storage itself should be Freed by MHProposalDestroy
+}
+
+
+/********************
+    MH_BDTNT
+
+This proposal handles a constant outdegree upper bound and uses a
+whitelist of blocks (sets of dyads defined by combinations of vertex
+attributes) so that specific combinations can be forbidden.
+********************/
+
+// struct definition in ergm_BDStrat_proposals.h
+
+MH_I_FN(Mi_BDTNT) {
+  // process the inputs and initialize all the node lists in storage; set MHp->ntoggles to 1
+  MHp->ntoggles = 1;
+
+  ALLOC_STORAGE(1, BDTNTStorage, sto);
+  
+  sto->CD = getListElement(getListElement(MHp->R, "flags"), "CD") != R_NilValue;
+  
+  sto->bound = asInteger(getListElement(MHp->R, "bound")); // As in struct.
+  int nlevels = asInteger(getListElement(MHp->R, "nlevels")); // Number of distinct types of types of vertex.
+  
+  int *vattr = INTEGER(getListElement(MHp->R, "nodecov")); // As in struct.
+  
+  sto->nodelist = NodeListInitialize(sto->bound, NULL, 0, 0, NULL, NULL, NULL, 
+                                     vattr, 
+                                     nlevels, 
+                                     asInteger(getListElement(MHp->R, "nmixtypes")), 
+                                     asInteger(getListElement(MHp->R, "nmixtypes")), 
+                                     INTEGER(getListElement(MHp->R, "allowed.tails")), 
+                                     INTEGER(getListElement(MHp->R, "allowed.heads")), 
+                                     INTEGER(getListElement(MHp->R, "nodecountsbycode")),
+                                     NULL, nwp);
+  
+  vattr--; // so node indices line up correctly
+    
+  int **amat = Calloc(nlevels, int *);
+  amat[0] = INTEGER(getListElement(MHp->R, "amat"));
+  for(int i = 1; i < nlevels; i++) {
+    amat[i] = amat[i - 1] + nlevels;
+  }  
+  
+  // Construct and populate the list of edges. (May be obviated by more efficient network sampling.)
+  UnsrtEL *edgelist = UnsrtELInitialize(0, NULL, NULL, FALSE);
+  EXEC_THROUGH_NET_EDGES(tail, head, e, {
+    int allowed = amat[vattr[tail]][vattr[head]];
+    if(allowed) {
+      UnsrtELInsert(tail, head, edgelist);
+    }
+  });
+  Free(amat);
+
+  sto->hash = HashELInitialize(edgelist->nedges, edgelist->tails + 1, edgelist->heads + 1, FALSE, DIRECTED);
+    
+  // count number of "BD-toggleable" dyads in current network
+  sto->currentdyads = NodeListDyadCount(sto->nodelist, 0);
+  
+  // if we cannot toggle any edges or dyads, error
+  if(sto->hash->list->nedges == 0 && sto->currentdyads == 0) {
+    MHp->ntoggles = MH_FAILED;
+    return;
+  }
+  
+  for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
+    if(IN_DEG[vertex] + OUT_DEG[vertex] > sto->bound) {
+      error("degree bound is violated by initial network; proposal cannot proceed");
+    }
+  }  
+}
+
+MH_P_FN(MH_BDTNT) {    
+  GET_STORAGE(BDTNTStorage, sto);
+
+  int nedges = sto->hash->list->nedges;
+  
+  int edgeflag;
+
+  // if currentdyads == 0, we *must* propose toggling off an existing edge;
+  // the case nedges == 0 && currentdyads == 0 was excluded during initialization,
+  // and we cannot end up in that case if we don't start in that case
+  // (assuming the initial network is valid)  
+  if((unif_rand() < 0.5 && nedges > 0) || (sto->currentdyads == 0)) {
+    // select an existing edge at random, and propose toggling it off
+    HashELGetRand(Mtail, Mhead, sto->hash);
+        
+    edgeflag = TRUE;
+  } else {
+    // select a BD-toggleable dyad and propose toggling it
+
+    // Note that the dyad block selector cannot select an edge
+    // incident on a maximal node; but the edge "reselection" below
+    // will be able to select it with equal probability to the others,
+    // equalising its chances of being selected, and requiring only a
+    // "marginal" adjustment to the acceptance probability.
+    NodeListGetRandWithCount(Mtail, Mhead, sto->nodelist, 0, sto->currentdyads);
+
+    edgeflag = IS_OUTEDGE(Mtail[0],Mhead[0]);
+  }
+    
+  sto->tailmaxl = IN_DEG[Mtail[0]] + OUT_DEG[Mtail[0]] == sto->bound - 1 + edgeflag;
+  sto->headmaxl = IN_DEG[Mhead[0]] + OUT_DEG[Mhead[0]] == sto->bound - 1 + edgeflag;   
+  
+  // obtain the count of dyads that can be toggled in the "GetRandBDDyad" branch in the proposed network
+  sto->proposeddyads = NodeListDyadCountOnToggle(*Mtail, *Mhead, sto->nodelist, 0, edgeflag ? 1 : -1, sto->tailmaxl, sto->headmaxl);
+    
+  // rationale for the logratio:
+  //
+  // there is only one way to select a non-edge, and that is via the initial dyad sample in the "GetRandBDDyad" branch above;
+  // all "BD toggleable dyads" are given equal weight in the initial dyad sampling in the GetRandBDDyad branch,
+  // so if one has entered the GetRandBDDyad branch, the probability to select a given non-edge is 1 over the number of 
+  // BD toggleable dyads, which is sto->currentdyads in the current network and proposeddyads in the proposed network; 
+  // given that the network has at least one BD toggleable dyad, the probability to enter the GetRandBDDyad branch 
+  // is either 1/2 if the network has any edges or 1 if the network has no edges; this fully explains the calculation 
+  // of non-edge sampling probabilities below
+  //
+  // there are two ways to select an edge: it can be sampled directly in the "GetRandEdge" branch above, or it can be sampled 
+  // indirectly by entering the GetRandBDDyad branch, sampling a submaximal edge, and then resampling an arbitrary edge;
+  // in the GetRandEdge branch, the probability to select a given edge is 1 over the number of edges in the network;
+  // in the GetRandBDDyad branch, the probability to select a submaximal edge in the initial dyad sample is the number of
+  // submaximal edges divided by the number of BD toggleable dyads, and given that a submaximal edge was selected as the initial
+  // dyad sample, the probability to select a given edge on resampling is 1 over the number of edges; given that an edge exists
+  // in the network, the probability to enter to GetRandEdge branch is either 1/2 if any BD toggleable dyads exist in the network,
+  // or is 1 if no BD toggleable dyads exist in the network; the probability to enter the GetRandBDDyad branch is 1 minus the
+  // probability to enter the GetRandEdge branch; this fully explains the calculation of edge sampling probabilities below
+  
+  if(edgeflag) {
+    MHp->logratio = log(((nedges == 1 ? 1.0 : 0.5)/sto->proposeddyads)/(sto->currentdyads == 0 ? 1.0/nedges : (0.5/nedges) + (sto->tailmaxl || sto->headmaxl ? 0.0 : 0.5/sto->currentdyads)));
+  } else {
+    MHp->logratio = log((sto->proposeddyads == 0 ? 1.0/(nedges + 1) : (0.5/(nedges + 1)) + (sto->tailmaxl || sto->headmaxl ? 0.0 : 0.5/sto->proposeddyads))/((nedges == 0 ? 1.0 : 0.5)/sto->currentdyads));  
+  }
+}
+
+// this U_FN is called *before* the toggle is made in the network
+MH_U_FN(Mu_BDTNT) {  
+  GET_STORAGE(BDTNTStorage, sto);
+  if(sto->CD) {
+    sto->tailmaxl = IN_DEG[tail] + OUT_DEG[tail] == sto->bound - 1 + edgeflag;
+    sto->headmaxl = IN_DEG[head] + OUT_DEG[head] == sto->bound - 1 + edgeflag;   
+  
+    sto->proposeddyads = NodeListDyadCountOnToggle(tail, head, sto->nodelist, 0, edgeflag ? 1 : -1, sto->tailmaxl, sto->headmaxl);
+  }
+  // update edgelist
+  HashELToggleKnown(tail, head, sto->hash, edgeflag);
+
+  // update nodelists as needed
+  NodeListToggleKnownIf(tail, head, sto->nodelist, !edgeflag, sto->tailmaxl, sto->headmaxl);    
+
+  // update current dyad count
+  sto->currentdyads = sto->proposeddyads;
+}
+
+MH_F_FN(Mf_BDTNT) {
+  // Free all the things
+  GET_STORAGE(BDTNTStorage, sto);
+  HashELDestroy(sto->hash);
+
+  NodeListDestroy(sto->nodelist);
+  // MHp->storage itself should be Freed by MHProposalDestroy
+}
+
+/********************
+    MH_StratTNT
+********************/
+
+// struct definition in ergm_BDStrat_proposals.h
+
+MH_I_FN(Mi_StratTNT) {
+  // process the inputs and initialize all the edgelists in storage; set MHp->ntoggles to 1
+  MHp->ntoggles = 1;
+
+  // used during initialization only; not retained in storage
+  int nlevels = asInteger(getListElement(MHp->R, "nlevels"));
+
+  ALLOC_STORAGE(1, StratTNTStorage, sto);
+
+  sto->vattr = INTEGER(getListElement(MHp->R, "nodecov"));
+  
+  sto->CD = getListElement(getListElement(MHp->R, "flags"), "CD") != R_NilValue;
+  
+  sto->nmixtypes = asInteger(getListElement(MHp->R, "nmixtypes"));
+  
+  sto->nodelist = NodeListInitialize(N_NODES - 1, // i.e. no bound on degree
+                                     sto->vattr, 
+                                     nlevels, 
+                                     sto->nmixtypes, 
+                                     INTEGER(getListElement(MHp->R, "tailattrs")), 
+                                     INTEGER(getListElement(MHp->R, "headattrs")), 
+                                     INTEGER(getListElement(MHp->R, "nodecountsbycode")),
+                                     NULL, 0, 0, 0, NULL, NULL, NULL, NULL, nwp);
+  
+  sto->els = Calloc(sto->nmixtypes, UnsrtEL *);
+  for(int i = 0; i < sto->nmixtypes; i++) {
+    sto->els[i] = UnsrtELInitialize(0, NULL, NULL, FALSE);
+  }
+  
+  sto->indmat = Calloc(nlevels, int *);
+  sto->indmat[0] = INTEGER(getListElement(MHp->R, "indmat"));
+  for(int i = 1; i < nlevels; i++) {
+    sto->indmat[i] = sto->indmat[i - 1] + nlevels;
+  }
+  
+  sto->vattr--; // decrement so node indices line up correctly
+  EXEC_THROUGH_NET_EDGES(tail, head, e, {
+    int index = sto->indmat[sto->vattr[tail]][sto->vattr[head]];
+    if(index >= 0) {
+      UnsrtELInsert(tail, head, sto->els[index]);
+    }      
+  });
+    
+  int empirical_flag = asInteger(getListElement(MHp->R, "empirical"));
+  if(empirical_flag) {
+    double *probvec = Calloc(sto->nmixtypes, double);
+    for(int i = 0; i < sto->nmixtypes; i++) {
+      probvec[i] = sto->els[i]->nedges;
+    }
+    sto->wtp = WtPopInitialize(sto->nmixtypes, probvec);
+    Free(probvec);
+  } else {
+    sto->wtp = WtPopInitialize(sto->nmixtypes, REAL(getListElement(MHp->R, "probvec")));
+  }
+
+  // zero total proposal probability is an error
+  if(WtPopSumWts(sto->wtp) == 0) {
+    MHp->ntoggles = MH_FAILED;
+    return;
+  }
+  
+  sto->ndyadstype = Calloc(sto->nmixtypes, Dyad);
+  for(int i = 0; i < sto->nmixtypes; i++) {
+    sto->ndyadstype[i] = NodeListDyadCount(sto->nodelist, i);
+    // positive proposal probability with zero dyads is an error;
+    // note that we may wish to relax this condition
+    if(sto->ndyadstype[i] == 0 && WtPopGetWt(i, sto->wtp) > 0) {
+      MHp->ntoggles = MH_FAILED;
+      return;        
+    }
+  }
+}
+
+MH_P_FN(MH_StratTNT) {
+  GET_STORAGE(StratTNTStorage, sto);
+  
+  // sample a strat mixing type on which to make a proposal
+  sto->currentmixingtype = WtPopGetRand(sto->wtp);
+  
+  // number of edges of this mixing type
+  int nedgestype = sto->els[sto->currentmixingtype]->nedges;
+  
+  // number of dyads of this mixing type
+  Dyad ndyadstype = sto->ndyadstype[sto->currentmixingtype];
+  
+  BD_LOOP({
+    if(unif_rand() < 0.5 && nedgestype > 0) {
+      // select an existing edge of type sto->currentmixingtype at random, and propose toggling it off
+      UnsrtELGetRand(Mtail, Mhead, sto->els[sto->currentmixingtype]);
+      
+      // logratio is essentially copied from TNT, because the probability of 
+      // choosing this particular mixing type cancels upon taking the ratio;
+      // still need to count only edges and dyads of the appropriate mixing type, though
+      MHp->logratio = log((nedgestype == 1 ? 1.0/(0.5*ndyadstype + 0.5) :
+                           nedgestype / ((double) ndyadstype + nedgestype)));
+    } else {
+      // select a dyad of type sto->currentmixingtype and propose toggling it
+      NodeListGetRandWithCount(Mtail, Mhead, sto->nodelist, sto->currentmixingtype, ndyadstype);
+
+      if(IS_OUTEDGE(Mtail[0],Mhead[0])) {
+        // pick a new edge from the edgelist uniformly at random so we know its index
+        // and hence don't have to look up the index of the edge tail -> head; this gives
+        // the same probability of picking each existing edge as if we used the tail -> head
+        // edge, but also allows us to keep the edgelists unsorted (at the cost of generating
+        // an extra random index in this case)
+        UnsrtELGetRand(Mtail, Mhead, sto->els[sto->currentmixingtype]);
+
+        MHp->logratio = log((nedgestype == 1 ? 1.0/(0.5*ndyadstype + 0.5) :
+                             nedgestype / ((double) ndyadstype + nedgestype)));
+      }else{                        
+        MHp->logratio = log((nedgestype == 0 ? 0.5*ndyadstype + 0.5 :
+                             1.0 + (ndyadstype)/((double) nedgestype + 1)));
+      }
+    }
+  });
+}
+
+MH_U_FN(Mu_StratTNT) {
+  // add or remove edge from appropriate edgelist
+  GET_STORAGE(StratTNTStorage, sto);
+  if(sto->CD) {
+    sto->currentmixingtype = sto->indmat[sto->vattr[tail]][sto->vattr[head]];
+  }
+  UnsrtELToggleKnown(tail, head, sto->els[sto->currentmixingtype], edgeflag);
+}
+
+MH_F_FN(Mf_StratTNT) {
+  // Free all the things
+  GET_STORAGE(StratTNTStorage, sto);
+
+  for(int i = 0; i < sto->nmixtypes; i++) {
+    UnsrtELDestroy(sto->els[i]);
+  }
+
+  NodeListDestroy(sto->nodelist);
+
+  Free(sto->els);
+  Free(sto->ndyadstype);
+  Free(sto->indmat);
+  
+  WtPopDestroy(sto->wtp);
+  // MHp->storage itself should be Freed by MHProposalDestroy
 }
 
 /********************
@@ -108,7 +646,7 @@ MH_P_FN(MH_TNT10)
 	  logratio += TNT_LR_E(nedges, Q, DP, DO);
 	}else{ /* Select a dyad at random */
 	  GetRandDyad(Mtail+n, Mhead+n, nwp);
-	  if(EdgetreeSearch(Mtail[n],Mhead[n],nwp->outedges)!=0){
+	  if(IS_OUTEDGE(Mtail[n],Mhead[n])!=0){
 	    logratio += TNT_LR_DE(nedges, Q, DP, DO);
 	  }else{
 	    logratio += TNT_LR_DN(nedges, Q, DP, DO);
@@ -144,10 +682,8 @@ MH_P_FN(MH_ConstantEdges){
   BD_LOOP({
       /* First, select edge at random */
       GetRandEdge(Mtail, Mhead, nwp);
-      /* Second, select dyad at random until it has no edge */
-      do{
-	GetRandDyad(Mtail+1, Mhead+1, nwp);
-      }while(EdgetreeSearch(Mtail[1], Mhead[1], nwp->outedges) != 0);
+      /* Second, select non-edge at random */
+      GetRandNonedge(Mtail+1, Mhead+1, nwp);
     });
 }
 
@@ -175,7 +711,7 @@ MH_P_FN(MH_CondDegreeDist){
   /* select a node at random */
   while(noutedge+ninedge==0){
     /* select a node at random */
-    tail = 1 + unif_rand() * nwp->nnodes;
+    tail = 1 + unif_rand() * N_NODES;
     ninedge  = nwp->indegree[tail];
     noutedge = nwp->outdegree[tail];
   }
@@ -196,8 +732,8 @@ MH_P_FN(MH_CondDegreeDist){
     e = EdgetreeSuccessor(nwp->inedges, e)){++k;}
   }
 
-  if ( (!nwp->directed_flag && tail > head) ||
-  (nwp->directed_flag && k0 >= noutedge) ) {
+  if ( (!DIRECTED && tail > head) ||
+  (DIRECTED && k0 >= noutedge) ) {
     Mtail[0] = head;
     Mhead[0] = tail;
   }else{
@@ -208,16 +744,16 @@ MH_P_FN(MH_CondDegreeDist){
   k1=0;
   fvalid=0;
   while(fvalid==0 && k1 < 100){
-    while((alter = 1 + unif_rand() * nwp->nnodes) == tail);
+    while((alter = 1 + unif_rand() * N_NODES) == tail);
     fvalid=1;
     if(alter == head){fvalid=0;}
-    if (k0 < noutedge || !nwp->directed_flag){
+    if (k0 < noutedge || !DIRECTED){
       for(e = EdgetreeMinimum(nwp->outedges, tail);
       (fvalid==1 && ((head1 = nwp->outedges[e].value) != 0));
       e = EdgetreeSuccessor(nwp->outedges, e)){
         if(alter==head1){fvalid=0;}}
     }
-    if (k0 >= noutedge || !nwp->directed_flag){
+    if (k0 >= noutedge || !DIRECTED){
       for(e = EdgetreeMinimum(nwp->inedges, tail);
       (fvalid==1 && ((head1 = nwp->inedges[e].value) != 0));
       e = EdgetreeSuccessor(nwp->inedges, e)){
@@ -231,8 +767,8 @@ MH_P_FN(MH_CondDegreeDist){
     continue;
   }
   
-  if ( (!nwp->directed_flag && alter > tail) ||
-       (nwp->directed_flag && k0 < noutedge) )
+  if ( (!DIRECTED && alter > tail) ||
+       (DIRECTED && k0 < noutedge) )
     {
       Mtail[1] = tail;
       Mhead[1] = alter;
@@ -241,7 +777,7 @@ MH_P_FN(MH_CondDegreeDist){
       Mhead[1] = tail;
     }
   
-  if (!nwp->directed_flag){
+  if (!DIRECTED){
     /* Check undirected degrees */
     k0 =nwp->outdegree[tail]  + nwp->indegree[tail];
     j0h=nwp->outdegree[head]  + nwp->indegree[head];
@@ -306,7 +842,7 @@ MH_P_FN(MH_CondOutDegreeDist){
 
   while(noutedge==0){
     /* select a node at random */
-    tail = 1 + unif_rand() * nwp->nnodes;
+    tail = 1 + unif_rand() * N_NODES;
     noutedge = nwp->outdegree[tail];
   }
   
@@ -321,7 +857,7 @@ MH_P_FN(MH_CondOutDegreeDist){
   k1=0;
   fvalid=0;
   while(fvalid==0 && k1 < 100){
-    while((alter = 1 + unif_rand() * nwp->nnodes) == tail);
+    while((alter = 1 + unif_rand() * N_NODES) == tail);
     fvalid=1;
     if(alter == head){fvalid=0;}
     for(e = EdgetreeMinimum(nwp->outedges, tail);
@@ -374,7 +910,7 @@ MH_P_FN(MH_CondInDegreeDist){
 
   while(ninedge==0){
     /* select a node at random */
-    tail = 1 + unif_rand() * nwp->nnodes;
+    tail = 1 + unif_rand() * N_NODES;
     ninedge = nwp->indegree[tail];
   }
   
@@ -389,7 +925,7 @@ MH_P_FN(MH_CondInDegreeDist){
   k1=0;
   fvalid=0;
   while(fvalid==0 && k1 < 100){
-    while((alter = 1 + unif_rand() * nwp->nnodes) == tail);
+    while((alter = 1 + unif_rand() * N_NODES) == tail);
     fvalid=1;
     if(alter == head){fvalid=0;}
     for(e = EdgetreeMinimum(nwp->inedges, tail);
@@ -431,9 +967,9 @@ MH_P_FN(MH_TwoRandomToggles){
   }
 
   for (i = 0; i < 2; i++){
-   tail = 1 + unif_rand() * nwp->nnodes;
-   while ((head = 1 + unif_rand() * nwp->nnodes) == tail);
-   if (!nwp->directed_flag && tail > head) {
+   tail = 1 + unif_rand() * N_NODES;
+   while ((head = 1 + unif_rand() * N_NODES) == tail);
+   if (!DIRECTED && tail > head) {
      Mtail[i] = head;
      Mhead[i] = tail;
    }else{
@@ -452,18 +988,18 @@ MH_P_FN(MH_randomnode){
   int j;
   
   if(MHp->ntoggles == 0) { /* Initialize OneRandomToggle */
-    MHp->ntoggles= nwp->nnodes - 1;
+    MHp->ntoggles= N_NODES - 1;
     return;
   }
 
-  root = 1 + unif_rand() * nwp->nnodes;
+  root = 1 + unif_rand() * N_NODES;
   
   j = 0;
-  for (alter = 1; alter <= nwp->nnodes; alter++)
+  for (alter = 1; alter <= N_NODES; alter++)
     {
       /* there is never an edge (root, root) */
       if (alter != root) {
-       if (!nwp->directed_flag && root > alter) {
+       if (!DIRECTED && root > alter) {
         Mtail[j] = alter;
         Mhead[j] = root;
        }else{
@@ -474,204 +1010,6 @@ MH_P_FN(MH_randomnode){
       }
     }
 }
-
-/********************
-   void MH_randomtoggleList
-   Propose ONLY edges on a static list
-***********************/
-MH_P_FN(MH_randomtoggleList)
-{  
-  static Edge nedges0;
-
-  if(MHp->ntoggles == 0) { /* Initialize */
-    nedges0 = MHp->inputs[0];
-    if(nedges0==0) MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
-    else MHp->ntoggles=1;
-    return;
-  }
-  
-  BD_LOOP({
-      /* Select a dyad at random that is in the reference graph. (We
-	 have a convenient sampling frame.) */
-      /* Generate. */
-      Edge rane = 1 + unif_rand() * nedges0;
-      Mtail[0]=MHp->inputs[rane];
-      Mhead[0]=MHp->inputs[nedges0+rane];
-    });
-}
-
-
-/********************
-   void MH_randomtoggleRLE
-   Propose ONLY edges on an RLE-compressed list
-***********************/
-MH_P_FN(MH_RLE)
-{  
-  static RLEBDM1D r;
-
-  if(MHp->ntoggles == 0) { /* Initialize */
-    MHp->ntoggles=1;
-    double *inputs = MHp->inputs;
-    r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
-    if(r.ndyads==0) MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
-    else MHp->ntoggles=1;
-    return;
-  }
-
-  BD_LOOP({
-      /* Select a dyad at random that is in the reference graph. (We
-	 have a convenient sampling frame.) */
-      /* Generate. */
-      GetRandRLEBDM1D_RS(Mtail, Mhead, &r);
-    });
-}
-
-
-/********************
-   void MH_listTNT
-   Propose ONLY edges on a static list
-   Use TNT weights.
-   This is a fusion of MH_DissolutionMLETNT and MH_TNT:
-
-   A "discord" network is constructed that is the intersection of
-   dyads on the static list and the edges present in nwp. Then,
-   standard TNT procedure is followed, but the dyad space (and the
-   number of dyads) is the number of dyads in the static list and the
-   network for the ties is the ties in the discord network.
-***********************/
-MH_P_FN(MH_listTNT)
-{
-  static Vertex nnodes;
-  static double P=0.5;
-  static double Q, DP, DO;
-  static Dyad ndyads;
-  Network *discord;
-  
-  if(MHp->ntoggles == 0) { /* Initialize */
-    nnodes = nwp->nnodes;
-    ndyads = MHp->inputs[0]; // Note that ndyads here is the number of dyads in the list.
-    if(ndyads==0){
-      MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
-      return;
-    }
-    MHp->ntoggles=1;
-    Q = 1-P;
-    DP = P*ndyads;
-    DO = DP/Q;
-
-    MHp->discord = (Network**) Calloc(2, Network*); // A space for the sentinel NULL pointer.
-    MHp->discord[0] = discord = NetworkInitialize(NULL, NULL, 0, nnodes, nwp->directed_flag, nwp->bipartite, 0, 0, NULL);
-    
-    // Network containing edges that are present in the network AND are on the toggleable list.
-    for(Edge i=0; i<ndyads; i++){
-      Vertex tail=MHp->inputs[1+i], head=MHp->inputs[1+ndyads+i];
-      if(EdgetreeSearch(tail, head,nwp->outedges)!=0)
-	ToggleEdge(tail,head, discord);
-    }
-
-    return;
-  }
-
-  discord = MHp->discord[0];
-  
-  Edge nedges=EDGECOUNT(discord);
-  double logratio=0;
-  BD_LOOP({
-      if (unif_rand() < P && nedges > 0) { /* Select a tie at random from the network of eligibles */
-	GetRandEdge(Mtail, Mhead, discord);
-	logratio = TNT_LR_E(nedges, Q, DP, DO);
-      }else{ /* Select a dyad at random from the list */
-	Edge rane = 1 + unif_rand() * ndyads;
-	Mtail[0]=MHp->inputs[rane];
-	Mhead[0]=MHp->inputs[ndyads+rane];
-	
-	if(EdgetreeSearch(Mtail[0],Mhead[0],discord->outedges)!=0){
-	  logratio = TNT_LR_DE(nedges, Q, DP, DO);
-	}else{
-	  logratio = TNT_LR_DN(nedges, Q, DP, DO);
-	}
-      }
-    });
-  MHp->logratio += logratio;
-}
-
-/********************
-   void MH_RLETNT
-   Propose ONLY edges on a static list
-   Use TNT weights.
-   This is a fusion of MH_DissolutionMLETNT and MH_TNT:
-
-   A "discord" network is constructed that is the intersection of
-   dyads on the static list and the edges present in nwp. Then,
-   standard TNT procedure is followed, but the dyad space (and the
-   number of dyads) is the number of dyads in the static list and the
-   network for the ties is the ties in the discord network.
-***********************/
-MH_P_FN(MH_RLETNT)
-{
-  static RLEBDM1D r;
-
-  static Vertex nnodes;
-  static double P=0.5;
-  static double Q, DP, DO;
-  Network *discord;
-
-  if(MHp->ntoggles == 0) { /* Initialize */
-    nnodes = nwp->nnodes;
-    double *inputs = MHp->inputs;
-    r = unpack_RLEBDM1D(&inputs, nwp->nnodes);
-    if(r.ndyads==0){
-      MHp->ntoggles=MH_FAILED; /* Dyad list has no elements. */
-      return;
-    }
-    MHp->ntoggles=1;
-
-    Q = 1-P;
-    DP = P*r.ndyads;
-    DO = DP/Q;
-
-    MHp->discord = (Network**) Calloc(2, Network*); // A space for the sentinel NULL pointer.
-    MHp->discord[0] = discord = NetworkInitialize(NULL, NULL, 0, nnodes, nwp->directed_flag, nwp->bipartite, 0, 0, NULL);
-
-    // Network containing edges that are present in the network AND are on the toggleable list.
-    for(Vertex tail=1; tail<=nwp->nnodes; tail++){
-      Vertex head;
-      Edge e;
-      STEP_THROUGH_OUTEDGES(tail, e, head){
-	if(GetRLEBDM1D(tail, head, &r)){
-	  ToggleEdge(tail,head, discord);
-	}
-      }
-    }
-
-    if(EDGECOUNT(discord)==EDGECOUNT(nwp)){ // There are no ties in the initial network that are fixed.
-      NetworkDestroy(discord);
-      Free(MHp->discord);
-      MHp->discord = NULL;
-    }
-    return;
-  }
-
-  Network *nwp1 = MHp->discord? MHp->discord[0] : nwp;
-  Edge nedges= EDGECOUNT(nwp1);
-  double logratio=0;
-  BD_LOOP({
-      if (unif_rand() < P && nedges > 0) { /* Select a tie at random from the network of eligibles */
-	GetRandEdge(Mtail, Mhead, nwp1);
-	logratio = TNT_LR_E(nedges, Q, DP, DO);
-      }else{ /* Select a dyad at random from the list */
-	GetRandRLEBDM1D_RS(Mtail, Mhead, &r);
-	
-	if(EdgetreeSearch(Mtail[0],Mhead[0],nwp1->outedges)!=0){
-	  logratio = TNT_LR_DE(nedges, Q, DP, DO);
-	}else{
-	  logratio = TNT_LR_DN(nedges, Q, DP, DO);
-	}
-      }
-    });
-  MHp->logratio += logratio;
-}
-
 
 /* The ones below have not been tested */
 
@@ -687,7 +1025,7 @@ MH_P_FN(MH_ConstrainedCondOutDegDist){
 
   while(noutedge==0){
     /* select a node at random */
-    tail = 1 + unif_rand() * nwp->nnodes;
+    tail = 1 + unif_rand() * N_NODES;
     noutedge = nwp->outdegree[tail];
   }
   
@@ -702,7 +1040,7 @@ MH_P_FN(MH_ConstrainedCondOutDegDist){
   k1=0;
   fvalid=0;
   while(fvalid==0 && k1 < 100){
-    while((alter = 1 + unif_rand() * nwp->nnodes) == tail);
+    while((alter = 1 + unif_rand() * N_NODES) == tail);
     fvalid=1;
     if(alter == head){fvalid=0;}
     for(e = EdgetreeMinimum(nwp->outedges, tail);
@@ -725,7 +1063,7 @@ MH_P_FN(MH_ConstrainedCondOutDegDist){
   }
   
   for(k=0; k < 2; k++){
-    if (dEdgeListSearch(Mtail[k], Mhead[k], MHp->inputs)==0){
+    if (dEdgeListSearch(Mtail[k], Mhead[k], MH_INPUTS)==0){
       Mtail[0] = Mhead[0] = 0;
       Mtail[1] = Mhead[1] = 0;
     }
@@ -744,7 +1082,7 @@ MH_P_FN(MH_NodePairedTiesToggles){
   /* *** don't forget tail-> head now */
   
   /* double to integer coercion */
-  tail = 1 + unif_rand() * nwp->nnodes; 
+  tail = 1 + unif_rand() * N_NODES; 
   
   for(e = EdgetreeMinimum(nwp->outedges, tail);
       (prop = nwp->outedges[e].value) != 0; /* loop if */
@@ -763,21 +1101,21 @@ MH_P_FN(MH_NodePairedTiesToggles){
       ++nedge;
     }
   
-  if(nedge > nwp->nnodes-nedge){
+  if(nedge > N_NODES-nedge){
     Mtail[0] = Mhead[0] = 0;
     Mtail[1] = Mhead[1] = 0;
   }  
   j = 0;
   while (j <=nedge)
     {
-      prop = 1 + unif_rand() * nwp->nnodes; 
+      prop = 1 + unif_rand() * N_NODES; 
       k=0;
       fvalid=1;
       while(fvalid==1 && k<nedge+j){
-	if(EdgetreeSearch( MIN(prop,Mtail[k]),
-			   MAX(prop,Mtail[k]), nwp->outedges) +
-	   EdgetreeSearch( MIN(prop,Mhead[k]),
-			   MAX(prop,Mhead[k]), nwp->outedges)==0
+	if(IS_OUTEDGE( MIN(prop,Mtail[k]),
+		       MAX(prop,Mtail[k])) +
+	   IS_OUTEDGE( MIN(prop,Mhead[k]),
+		       MAX(prop,Mhead[k]))==0
 	   ){++k;
 	}else{
 	  fvalid=0;
@@ -810,11 +1148,11 @@ MH_P_FN(MH_OneRandomTnTNode){
 
   /* *** don't forget tail-> head now */
   
-  /* if ( nwp->directed_flag )
+  /* if ( DIRECTED )
     {
-      ndyad = (nwp->nnodes - 1) * nwp->nnodes;
+      ndyad = (N_NODES - 1) * N_NODES;
     }else{
-      ndyad = (nwp->nnodes - 1) * nwp->nnodes / 2;
+      ndyad = (N_NODES - 1) * N_NODES / 2;
     } */
 
   double logratio=0;
@@ -829,7 +1167,7 @@ MH_P_FN(MH_OneRandomTnTNode){
 	noutedge=0;
 	while(noutedge+ninedge==0){
 	  /* select a node at random */
-	  tail = 1 + unif_rand() * nwp->nnodes;
+	  tail = 1 + unif_rand() * N_NODES;
 	  ninedge = nwp->indegree[tail];
 	  noutedge = nwp->outdegree[tail];
 	}
@@ -846,8 +1184,8 @@ MH_P_FN(MH_OneRandomTnTNode){
 	      ((head = nwp->inedges[e].value) != 0 && k<(k0-noutedge));
 	      e = EdgetreeSuccessor(nwp->inedges, e)){++k;}
 	}
-	if ( (!nwp->directed_flag && tail > head) ||
-	     (nwp->directed_flag && k0 >= noutedge) )
+	if ( (!DIRECTED && tail > head) ||
+	     (DIRECTED && k0 >= noutedge) )
 	  {
 	    Mtail[0] = head;
 	    Mhead[0] = tail;
@@ -856,31 +1194,31 @@ MH_P_FN(MH_OneRandomTnTNode){
 	    Mhead[0] = head;
 	  }
 	
-	logratio = log(((noutedge+ninedge)*1.0)/(nwp->nnodes-1-noutedge-ninedge-1));
+	logratio = log(((noutedge+ninedge)*1.0)/(N_NODES-1-noutedge-ninedge-1));
 	fvalid =1;
       }else{
 	/* Choose random non-tie */
 
 	/* select a node at random */
-	ninedge=nwp->nnodes-1;
+	ninedge=N_NODES-1;
 	noutedge=0;
-	while(noutedge+ninedge>=(nwp->nnodes-1)){
+	while(noutedge+ninedge>=(N_NODES-1)){
 	  ninedge=0;
 	  /* select a node at random */
-	  tail = 1 + unif_rand() * nwp->nnodes;
+	  tail = 1 + unif_rand() * N_NODES;
 	  ninedge = nwp->indegree[tail];
 	  noutedge = nwp->outdegree[tail];
 	}
 	
 	fvalid=0;
 	while(fvalid==0){
-	  while ((head = 1 + unif_rand() * nwp->nnodes) == tail);
+	  while ((head = 1 + unif_rand() * N_NODES) == tail);
 	  fvalid=1;
 	  for(e = EdgetreeMinimum(nwp->outedges, tail);
 	      (fvalid==1 && ((head1 = nwp->outedges[e].value) != 0));
 	      e = EdgetreeSuccessor(nwp->outedges, e)){
 	    if(head==head1){fvalid=0;}}
-	  if (!(nwp->directed_flag)){
+	  if (!(DIRECTED)){
 	    for(e = EdgetreeMinimum(nwp->inedges, tail);
 		(fvalid==1 && ((head1 = nwp->inedges[e].value) != 0));
 		e = EdgetreeSuccessor(nwp->inedges, e)){
@@ -888,8 +1226,8 @@ MH_P_FN(MH_OneRandomTnTNode){
 	  }
 	}
 	
-	if ( (!nwp->directed_flag && tail > head) ||
-	     (nwp->directed_flag && k0 >= noutedge) )
+	if ( (!DIRECTED && tail > head) ||
+	     (DIRECTED && k0 >= noutedge) )
 	  {
 	    Mtail[0] = head;
 	    Mhead[0] = tail;
@@ -898,11 +1236,11 @@ MH_P_FN(MH_OneRandomTnTNode){
 	    Mhead[0] = head;
 	  }
 	
-        if ( nwp->directed_flag )
+        if ( DIRECTED )
 	  {
-	    logratio = log((nwp->nnodes-1-noutedge-ninedge)/(noutedge+ninedge+1.0));
+	    logratio = log((N_NODES-1-noutedge-ninedge)/(noutedge+ninedge+1.0));
 	  }else{
-	    logratio = log((nwp->nnodes-1-noutedge-ninedge)/(noutedge+ninedge+1.0));
+	    logratio = log((N_NODES-1-noutedge-ninedge)/(noutedge+ninedge+1.0));
 	  }
       }
   }
@@ -919,23 +1257,23 @@ MH_P_FN(MH_ReallocateWithReplacement){
   int edgecount = 0;
   
   /* select a node at random */
-  root = 1 + unif_rand() * nwp->nnodes;
+  root = 1 + unif_rand() * N_NODES;
 
-  edges = (Vertex *) Calloc((nwp->nnodes+1), Vertex);
-  for (i = 0; i <= nwp->nnodes; i++)
+  edges = (Vertex *) Calloc(N_NODES+1, Vertex);
+  for (i = 0; i <= N_NODES; i++)
     edges[i] = NO_EDGE;
   
   /* count current edges and mark them in an array */
-  for (i = 1; i <= nwp->nnodes; i++)
+  for (i = 1; i <= N_NODES; i++)
     {
       if (root == i) continue;
-      if (EdgetreeSearch(root, i, nwp->outedges) > 0)
+      if (IS_OUTEDGE(root, i) > 0)
 	{
 	  edges[i] = OLD_EDGE;
 	  edgecount++;
 	}
-      if (!nwp->directed_flag && (root > i) &&
-	  (EdgetreeSearch(i, root, nwp->outedges) > 0))
+      if (!DIRECTED && (root > i) &&
+	  (IS_OUTEDGE(i, root) > 0))
 	{
 	  edges[i] = OLD_EDGE;
 	  edgecount++;
@@ -947,7 +1285,7 @@ MH_P_FN(MH_ReallocateWithReplacement){
     {
       Vertex newhead;
       /* get a new edge, neither the root nor something already chosen */
-      while ((newhead = 1 + unif_rand() * nwp->nnodes) == root ||
+      while ((newhead = 1 + unif_rand() * N_NODES) == root ||
 	     (edges[newhead] & NEW_EDGE))
 	;
       
@@ -960,7 +1298,7 @@ MH_P_FN(MH_ReallocateWithReplacement){
   
   /* add to toggle list:  anything that is non zero in edges array
      should be toggled, whether on or off. */
-  for (i = 0; i <= nwp->nnodes; i++)
+  for (i = 0; i <= N_NODES; i++)
     {
       if (edges[i] == NO_EDGE || edges[i] == CAN_IGNORE) continue;
       
@@ -968,7 +1306,7 @@ MH_P_FN(MH_ReallocateWithReplacement){
       Mtail[edgecount] = root;
       Mhead[edgecount] = i;
       
-      if (!nwp->directed_flag && (Mtail[edgecount] > Mhead[edgecount]))
+      if (!DIRECTED && (Mtail[edgecount] > Mhead[edgecount]))
 	{
 	  Vertex temp;
 	  temp = Mtail[edgecount];
@@ -989,10 +1327,10 @@ MH_P_FN(MH_AllTogglesForOneNode){
   int j;
   int root;
   
-  root = 1 + unif_rand() * nwp->nnodes;
+  root = 1 + unif_rand() * N_NODES;
   
   j = 0;
-  for (i = 1; i <= nwp->nnodes; i++)
+  for (i = 1; i <= N_NODES; i++)
     {
       /* probability here only do this with .8? */
       
@@ -1004,7 +1342,7 @@ MH_P_FN(MH_AllTogglesForOneNode){
       Mtail[j] = root;
       Mhead[j] = i;
       
-      if (!nwp->directed_flag && (Mtail[j] > Mhead[j]))
+      if (!DIRECTED && (Mtail[j] > Mhead[j]))
 	{
 	  Vertex temp;
 	  temp = Mtail[j];
@@ -1027,11 +1365,11 @@ MH_P_FN(MH_SwitchLabelTwoNodesToggles){
   /* *** don't forget tail-> head now */
   
   /* select a node at random */
-  edges1 = (Vertex *) Calloc((nwp->nnodes+1), Vertex);
-  edges2 = (Vertex *) Calloc((nwp->nnodes+1), Vertex);
+  edges1 = (Vertex *) Calloc(N_NODES+1, Vertex);
+  edges2 = (Vertex *) Calloc(N_NODES+1, Vertex);
   
   while(nedge1==0){
-    tail1 = 1 + unif_rand() * nwp->nnodes;
+    tail1 = 1 + unif_rand() * N_NODES;
     
     for(e = EdgetreeMinimum(nwp->outedges, tail1);
 	(head1 = nwp->outedges[e].value) != 0; /* loop if */
@@ -1049,7 +1387,7 @@ MH_P_FN(MH_SwitchLabelTwoNodesToggles){
       }
   }
   
-  while((tail2 = 1 + unif_rand() * nwp->nnodes) == tail1);
+  while((tail2 = 1 + unif_rand() * N_NODES) == tail1);
   
   for(e = EdgetreeMinimum(nwp->outedges, tail2);
       (head2 = nwp->outedges[e].value) != 0; /* loop if */
@@ -1136,11 +1474,11 @@ MH_P_FN(MH_ConstrainedCondDegDist){
   /* *** don't forget tail-> head now */
   
   /* select a node at random */
-  outedges = (Vertex *) Calloc((nwp->nnodes+1), Vertex);
-  inedges = (Vertex *) Calloc((nwp->nnodes+1), Vertex);
+  outedges = (Vertex *) Calloc(N_NODES+1, Vertex);
+  inedges = (Vertex *) Calloc(N_NODES+1, Vertex);
   
   while(noutedge==0 && ninedge==0){
-    tail = 1 + unif_rand() * nwp->nnodes;
+    tail = 1 + unif_rand() * N_NODES;
     
     for(e = EdgetreeMinimum(nwp->outedges, tail);
 	(head = nwp->outedges[e].value) != 0; /* loop if */
@@ -1164,8 +1502,8 @@ MH_P_FN(MH_ConstrainedCondDegDist){
   }else{
     head = inedges[k0-noutedge]; 
   }
-  if ( (!nwp->directed_flag && tail > head) ||
-       (  nwp->directed_flag  && k0 >= noutedge) )
+  if ( (!DIRECTED && tail > head) ||
+       (  DIRECTED  && k0 >= noutedge) )
     {
       Mtail[0] = head;
       Mhead[0] = tail;
@@ -1174,7 +1512,7 @@ MH_P_FN(MH_ConstrainedCondDegDist){
       Mhead[0] = head;
     }
   
-  if (dEdgeListSearch(Mtail[0], Mhead[0], MHp->inputs)==0){
+  if (dEdgeListSearch(Mtail[0], Mhead[0], MH_INPUTS)==0){
     Mtail[0] = Mhead[0] = 0;
     Mtail[1] = Mhead[1] = 0;
   }
@@ -1182,16 +1520,16 @@ MH_P_FN(MH_ConstrainedCondDegDist){
   fvalid=0;
   k1=0;
   while(fvalid==0 && k1 < 100){
-    while((alter = 1 + unif_rand() * nwp->nnodes) == tail);
+    while((alter = 1 + unif_rand() * N_NODES) == tail);
     if(alter != head){fvalid=1;}
     fvalid=1;
-    if (k0 < noutedge || !(nwp->directed_flag)){
+    if (k0 < noutedge || !(DIRECTED)){
       k=0;
       while(fvalid==1 && noutedge > 0 && k <= noutedge-1){
 	if(alter == outedges[k]){fvalid=0;}else{++k;}
       }
     }
-    if (k0 >= noutedge || !(nwp->directed_flag)){
+    if (k0 >= noutedge || !(DIRECTED)){
       k=0;
       while(fvalid==1 && ninedge > 0 && k <= ninedge-1){
 	if(alter == inedges[k]){fvalid=0;}else{++k;}
@@ -1205,8 +1543,8 @@ MH_P_FN(MH_ConstrainedCondDegDist){
     Mtail[1] = Mhead[1] = 0;
   }
   
-  if ( (!nwp->directed_flag && alter > tail) ||
-       (nwp->directed_flag && k0 < noutedge) )
+  if ( (!DIRECTED && alter > tail) ||
+       (DIRECTED && k0 < noutedge) )
     {
       Mtail[1] = tail;
       Mhead[1] = alter;
@@ -1215,7 +1553,7 @@ MH_P_FN(MH_ConstrainedCondDegDist){
       Mhead[1] = tail;
     }
   
-  if (dEdgeListSearch(Mtail[1], Mhead[1], MHp->inputs)==0){
+  if (dEdgeListSearch(Mtail[1], Mhead[1], MH_INPUTS)==0){
     Mtail[0] = Mhead[0] = 0;
     Mtail[1] = Mhead[1] = 0;
   }
@@ -1227,7 +1565,7 @@ MH_P_FN(MH_ConstrainedCondDegDist){
 
   /* *** don't forget tail-> head now */
 
-  if (!nwp->directed_flag){
+  if (!DIRECTED){
     k0=nwp->outdegree[tail]+ nwp->indegree[tail];
     j0h=nwp->outdegree[head]+ nwp->indegree[head];
     j1h=nwp->outdegree[alter]+ nwp->indegree[alter];
@@ -1278,7 +1616,7 @@ void MH_ConstrainedNodePairedTiesToggles (MHProposal *MHp,
   /* *** don't forget tail-> head now */
   
   /* double to integer coercion */
-  tail = 1 + unif_rand() * nwp->nnodes; 
+  tail = 1 + unif_rand() * N_NODES; 
   
   for(e = EdgetreeMinimum(nwp->outedges, tail);
       (prop = nwp->outedges[e].value) != 0; /* loop if */
@@ -1297,21 +1635,21 @@ void MH_ConstrainedNodePairedTiesToggles (MHProposal *MHp,
       ++nedge;
     }
   
-  if(nedge > nwp->nnodes-nedge){
+  if(nedge > N_NODES-nedge){
     Mtail[0] = Mhead[0] = 0;
     Mtail[1] = Mhead[1] = 0;
   }  
   j = 0;
   while (j <=nedge)
     {
-      prop = 1 + unif_rand() * nwp->nnodes; 
+      prop = 1 + unif_rand() * N_NODES; 
       k=0;
       fvalid=1;
       while(fvalid==1 && k<nedge+j){
-	if(EdgetreeSearch( MIN(prop,Mtail[k]),
-			   MAX(prop,Mtail[k]), nwp->outedges) +
-	   EdgetreeSearch( MIN(prop,Mhead[k]),
-			   MAX(prop,Mhead[k]), nwp->outedges)==0
+	if(IS_OUTEDGE(MIN(prop,Mtail[k]),
+			   MAX(prop,Mtail[k])) +
+	   IS_OUTEDGE( MIN(prop,Mhead[k]),
+			   MAX(prop,Mhead[k]))==0
 	   ){++k;
 	}else{
 	  fvalid=0;}
@@ -1344,23 +1682,23 @@ void MH_ConstrainedReallocateWithReplacement (MHProposal *MHp,
   int edgecount = 0;
   
   /* select a node at random */
-  root = 1 + unif_rand() * nwp->nnodes;
+  root = 1 + unif_rand() * N_NODES;
 
-  edges = (Vertex *) Calloc((nwp->nnodes+1), Vertex);
-  for (i = 0; i <= nwp->nnodes; i++)
+  edges = (Vertex *) Calloc(N_NODES+1, Vertex);
+  for (i = 0; i <= N_NODES; i++)
     edges[i] = NO_EDGE;
   
   /* count current edges and mark them in an array */
-  for (i = 1; i <= nwp->nnodes; i++)
+  for (i = 1; i <= N_NODES; i++)
     {
       if (root == i) continue;
-      if (EdgetreeSearch(root, i, nwp->outedges) > 0)
+      if (IS_OUTEDGE(root, i) > 0)
 	{
 	  edges[i] = OLD_EDGE;
 	  edgecount++;
 	}
-      if (!nwp->directed_flag && (root > i) &&
-	  (EdgetreeSearch(i, root, nwp->outedges) > 0))
+      if (!DIRECTED && (root > i) &&
+	  (IS_OUTEDGE(i, root) > 0))
 	{
 	  edges[i] = OLD_EDGE;
 	  edgecount++;
@@ -1373,7 +1711,7 @@ void MH_ConstrainedReallocateWithReplacement (MHProposal *MHp,
       Vertex newhead;
       
       /* get a new edge, neither the root nor something already chosen */
-      while ((newhead = 1 + unif_rand() * nwp->nnodes) == root ||
+      while ((newhead = 1 + unif_rand() * N_NODES) == root ||
 	     (edges[newhead] & NEW_EDGE))
 	;
       
@@ -1386,7 +1724,7 @@ void MH_ConstrainedReallocateWithReplacement (MHProposal *MHp,
   
   /* add to toggle list:  anything that is non zero in edges array
      should be toggled, whether on or off. */
-  for (i = 0; i <= nwp->nnodes; i++)
+  for (i = 0; i <= N_NODES; i++)
     {
       if (edges[i] == NO_EDGE || edges[i] == CAN_IGNORE) continue;
       
@@ -1394,7 +1732,7 @@ void MH_ConstrainedReallocateWithReplacement (MHProposal *MHp,
       Mtail[edgecount] = root;
       Mhead[edgecount] = i;
       
-      if (!nwp->directed_flag && (Mtail[edgecount] > Mhead[edgecount]))
+      if (!DIRECTED && (Mtail[edgecount] > Mhead[edgecount]))
 	{
 	  Vertex temp;
 	  temp = Mtail[edgecount];
@@ -1415,10 +1753,10 @@ void MH_ConstrainedAllTogglesForOneNode (MHProposal *MHp,
   int j;
   int root;
   
-  root = 1 + unif_rand() * nwp->nnodes;
+  root = 1 + unif_rand() * N_NODES;
   
   j = 0;
-  for (i = 1; i <= nwp->nnodes; i++)
+  for (i = 1; i <= N_NODES; i++)
     {
       /* probability here only do this with .8? */
       
@@ -1430,7 +1768,7 @@ void MH_ConstrainedAllTogglesForOneNode (MHProposal *MHp,
       Mtail[j] = root;
       Mhead[j] = i;
       
-      if (!nwp->directed_flag && (Mtail[j] > Mhead[j]))
+      if (!DIRECTED && (Mtail[j] > Mhead[j]))
 	{
 	  Vertex temp;
 	  temp = Mtail[j];
@@ -1451,14 +1789,14 @@ void MH_ConstrainedTwoRandomToggles (MHProposal *MHp,
   for (i = 0; i < 2; i++)
     {
       /* double to integer coercion */
-      Mtail[i] = 1 + unif_rand() * nwp->nnodes; 
-      while ((Mhead[i] = 1 + unif_rand() * nwp->nnodes) == Mtail[i]);
+      Mtail[i] = 1 + unif_rand() * N_NODES; 
+      while ((Mhead[i] = 1 + unif_rand() * N_NODES) == Mtail[i]);
       
-      while(dEdgeListSearch(Mtail[i], Mhead[i], MHp->inputs)==0){
-	Mtail[i] = 1 + unif_rand() * nwp->nnodes; 
-	while ((Mhead[i] = 1 + unif_rand() * nwp->nnodes) == Mtail[i]);
+      while(dEdgeListSearch(Mtail[i], Mhead[i], MH_INPUTS)==0){
+	Mtail[i] = 1 + unif_rand() * N_NODES; 
+	while ((Mhead[i] = 1 + unif_rand() * N_NODES) == Mtail[i]);
       }
-      if (!nwp->directed_flag && Mtail[i] > Mhead[i]) 
+      if (!DIRECTED && Mtail[i] > Mhead[i]) 
 	{
 	  Vertex temp;
 	  temp = Mtail[i];
@@ -1485,11 +1823,11 @@ void MH_ConstrainedCondDeg (MHProposal *MHp,
   Vertex e, tail2=0, head2, tail1, head1;
   
   /* select a node at random */
-  edges1 = (Vertex *) Calloc((nwp->nnodes+1), Vertex);
-  edges2 = (Vertex *) Calloc((nwp->nnodes+1), Vertex);
+  edges1 = (Vertex *) Calloc(N_NODES+1, Vertex);
+  edges2 = (Vertex *) Calloc(N_NODES+1, Vertex);
   
   while(nedge1==0){
-    tail1 = 1 + unif_rand() * nwp->nnodes;
+    tail1 = 1 + unif_rand() * N_NODES;
     
     for(e = EdgetreeMinimum(nwp->outedges, tail1);
 	(head1 = nwp->outedges[e].value) != 0; /* loop if */
@@ -1521,7 +1859,7 @@ void MH_ConstrainedCondDeg (MHProposal *MHp,
   while(nedge2==0 && toomany < 100){
     fvalid=0;
     while(fvalid==0){
-      while((tail2 = 1 + unif_rand() * nwp->nnodes) == tail1);
+      while((tail2 = 1 + unif_rand() * N_NODES) == tail1);
       k=0;
       fvalid=1;
       while(fvalid==1 && k < nedge1){
@@ -1591,11 +1929,11 @@ void MH_ConstrainedSwitchLabelTwoNodesToggles (MHProposal *MHp,
   
   /* select a node at random */
 
-  edges1 = (Vertex *) Calloc((nwp->nnodes+1), Vertex);
-  edges2 = (Vertex *) Calloc((nwp->nnodes+1), Vertex);
+  edges1 = (Vertex *) Calloc(N_NODES+1, Vertex);
+  edges2 = (Vertex *) Calloc(N_NODES+1, Vertex);
 
   while(nedge1==0){
-    tail1 = 1 + unif_rand() * nwp->nnodes;
+    tail1 = 1 + unif_rand() * N_NODES;
     
     for(e = EdgetreeMinimum(nwp->outedges, tail1);
 	(head1 = nwp->outedges[e].value) != 0; /* loop if */
@@ -1613,7 +1951,7 @@ void MH_ConstrainedSwitchLabelTwoNodesToggles (MHProposal *MHp,
       }
   }
   
-  while((tail2 = 1 + unif_rand() * nwp->nnodes) == tail1);
+  while((tail2 = 1 + unif_rand() * N_NODES) == tail1);
   
   for(e = EdgetreeMinimum(nwp->outedges, tail2);
       (head2 = nwp->outedges[e].value) != 0; /* loop if */
@@ -1698,7 +2036,7 @@ MH_P_FN(MH_ConstantEdgesToggles){
   
   while(noutedge+ninedge==0){
     /* select a node at random */
-    tail = 1 + unif_rand() * nwp->nnodes;
+    tail = 1 + unif_rand() * N_NODES;
     ninedge  = nwp->indegree[tail];
     noutedge = nwp->outdegree[tail];
   }
@@ -1716,8 +2054,8 @@ MH_P_FN(MH_ConstantEdgesToggles){
 	e = EdgetreeSuccessor(nwp->inedges, e)){++k;}
   }
   
-  if ( (!nwp->directed_flag && tail > head) ||
-       (nwp->directed_flag && k0 >= noutedge) )
+  if ( (!DIRECTED && tail > head) ||
+       (DIRECTED && k0 >= noutedge) )
     {
       Mtail[0] = head;
       Mhead[0] = tail;
@@ -1729,16 +2067,16 @@ MH_P_FN(MH_ConstantEdgesToggles){
   k1=0;
   fvalid=0;
   while(fvalid==0 && k1 < 100){
-    while((alter = 1 + unif_rand() * nwp->nnodes) == tail);
+    while((alter = 1 + unif_rand() * N_NODES) == tail);
     fvalid=1;
     if(alter == head){fvalid=0;}
-    if (k0 < noutedge || !(nwp->directed_flag)){
+    if (k0 < noutedge || !(DIRECTED)){
       for(e = EdgetreeMinimum(nwp->outedges, tail);
 	  (fvalid==1 && ((head1 = nwp->outedges[e].value) != 0));
 	  e = EdgetreeSuccessor(nwp->outedges, e)){
 	if(alter==head1){fvalid=0;}}
     }
-    if (k0 >= noutedge || !(nwp->directed_flag)){
+    if (k0 >= noutedge || !(DIRECTED)){
       for(e = EdgetreeMinimum(nwp->inedges, tail);
 	  (fvalid==1 && ((head1 = nwp->inedges[e].value) != 0));
 	  e = EdgetreeSuccessor(nwp->inedges, e)){
@@ -1751,8 +2089,8 @@ MH_P_FN(MH_ConstantEdgesToggles){
     Mtail[1] = Mhead[1] = 0;
   }
   
-  if ( (!nwp->directed_flag && alter > tail) ||
-       (nwp->directed_flag && k0 < noutedge) )
+  if ( (!DIRECTED && alter > tail) ||
+       (DIRECTED && k0 < noutedge) )
     {
       Mtail[1] = tail;
       Mhead[1] = alter;
@@ -1784,12 +2122,12 @@ MH_P_FN(MH_CondDegSwitchToggles){
     noutedge=0;
     ninedge=0;
     while(noutedge==0 && ninedge==0 && toomany < 100){
-      tail = 1 + unif_rand() * nwp->nnodes;
+      tail = 1 + unif_rand() * N_NODES;
       ninedge=0;
       noutedge=0;
       while(noutedge+ninedge==0){
 	/* select a node at random */
-	tail = 1 + unif_rand() * nwp->nnodes;
+	tail = 1 + unif_rand() * N_NODES;
 	ninedge = nwp->indegree[tail];
 	noutedge = nwp->outdegree[tail];
       }
@@ -1813,8 +2151,8 @@ MH_P_FN(MH_CondDegSwitchToggles){
 	  ((head = nwp->inedges[e].value) != 0 && k<(k0-noutedge));
 	  e = EdgetreeSuccessor(nwp->inedges, e)){++k;}
     }
-    if ( (!nwp->directed_flag && tail > head) ||
-	 (nwp->directed_flag && k0 >= noutedge) )
+    if ( (!DIRECTED && tail > head) ||
+	 (DIRECTED && k0 >= noutedge) )
       {
 	Mtail[i] = head;
 	Mhead[i] = tail;
@@ -1824,13 +2162,13 @@ MH_P_FN(MH_CondDegSwitchToggles){
       }
   }
   
-  if (EdgetreeSearch( Mtail[0],Mhead[1], nwp->outedges) ||
-      EdgetreeSearch( Mtail[1],Mhead[0], nwp->outedges) ){
+  if (IS_OUTEDGE( Mtail[0],Mhead[1]) ||
+      IS_OUTEDGE( Mtail[1],Mhead[0]) ){
     Mtail[0] = Mhead[0] = 0;
     Mtail[1] = Mhead[1] = 0;
   }
   
-  if ( (!nwp->directed_flag && Mtail[0] > Mhead[1]) )
+  if ( (!DIRECTED && Mtail[0] > Mhead[1]) )
     {
       Mtail[2] = Mhead[1];
       Mhead[2] = Mtail[0];
@@ -1839,7 +2177,7 @@ MH_P_FN(MH_CondDegSwitchToggles){
       Mhead[2] = Mhead[1];
     }
   
-  if ( (!nwp->directed_flag && Mtail[1] > Mhead[0]) )
+  if ( (!DIRECTED && Mtail[1] > Mhead[0]) )
     {
       Mtail[3] = Mhead[0];
       Mhead[3] = Mtail[1];

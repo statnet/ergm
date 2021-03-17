@@ -10,6 +10,7 @@ control.gof.formula(
   nsim = 100,
   MCMC.burnin = 10000,
   MCMC.interval = 1000,
+  MCMC.prop = trim_env(~sparse),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
   MCMC.init.maxedges = 20000,
@@ -19,13 +20,15 @@ control.gof.formula(
   seed = NULL,
   parallel = 0,
   parallel.type = NULL,
-  parallel.version.check = TRUE
+  parallel.version.check = TRUE,
+  parallel.inherit.MT = FALSE
 )
 
 control.gof.ergm(
   nsim = 100,
   MCMC.burnin = NULL,
   MCMC.interval = NULL,
+  MCMC.prop = NULL,
   MCMC.prop.weights = NULL,
   MCMC.prop.args = NULL,
   MCMC.init.maxedges = NULL,
@@ -35,7 +38,8 @@ control.gof.ergm(
   seed = NULL,
   parallel = 0,
   parallel.type = NULL,
-  parallel.version.check = TRUE
+  parallel.version.check = TRUE,
+  parallel.inherit.MT = FALSE
 )
 }
 \arguments{
@@ -48,20 +52,23 @@ typically is set to a fairly large number.}
 
 \item{MCMC.interval}{Number of proposals between sampled statistics.}
 
+\item{MCMC.prop}{Specifies the proposal (directly) and/or
+a series of "hints" about the structure of the model being
+sampled. The specification is in the form of a one-sided formula
+with hints separated by \code{+} operations. If the LHS exists and is
+a string, the proposal to be used is selected directly.
+
+A common and default "hint" is \code{~sparse}, indicating
+that the network is sparse and that the sample should put roughly
+equal weight on selecting a dyad with or without a tie as a
+candidate for toggling.}
+
 \item{MCMC.prop.weights}{Specifies the proposal
 distribution used in the MCMC Metropolis-Hastings algorithm.  Possible
 choices depending on selected \code{reference} and \code{constraints}
 arguments of the \code{\link[=ergm]{ergm()}} function, but often include \code{"TNT"}
 and \code{"random"}, and the \code{"default"} is to use the one with the
-highest priority available.
-
-The \code{TNT} (tie / no tie) option puts roughly equal weight on selecting
-a dyad with or without a tie as a candidate for toggling, whereas the
-\code{random} option puts equal weight on all possible dyads, though the
-interpretation of \code{random} may change according to the constraints in
-place.  When no constraints are in place, the default is TNT, which appears
-to improve Markov chain mixing particularly for networks with a low edge
-density, as is typical of many realistic social networks.}
+highest priority available.}
 
 \item{MCMC.prop.args}{An alternative, direct way of
 specifying additional arguments to proposal.}
@@ -93,6 +100,9 @@ package with PSOCK clusters. See \code{\link{ergm-parallel}}}
 \item{parallel.version.check}{Logical: If TRUE, check that the version of
 \code{\link[=ergm-package]{ergm}} running on the slave nodes is the same as
 that running on the master node.}
+
+\item{parallel.inherit.MT}{Logical: If TRUE, slave nodes and
+processes inherit the \code{\link[=set.MT_terms]{set.MT_terms()}} setting.}
 }
 \value{
 A list with arguments as components.

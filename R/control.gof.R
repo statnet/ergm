@@ -84,6 +84,7 @@
 control.gof.formula<-function(nsim=100,
                               MCMC.burnin=10000,
                               MCMC.interval=1000,
+                              MCMC.prop=trim_env(~sparse),
                               MCMC.prop.weights="default",
                               MCMC.prop.args=list(),
                               
@@ -96,7 +97,8 @@ control.gof.formula<-function(nsim=100,
                               seed=NULL,
                               parallel=0,
                               parallel.type=NULL,
-                              parallel.version.check=TRUE){
+                              parallel.version.check=TRUE,
+                              parallel.inherit.MT=FALSE){
   control<-list()
   for(arg in names(formals(sys.function())))
     control[arg]<-list(get(arg))
@@ -114,6 +116,7 @@ control.gof.formula<-function(nsim=100,
 control.gof.ergm<-function(nsim=100,
                            MCMC.burnin=NULL,
                            MCMC.interval=NULL,
+                           MCMC.prop=NULL,
                            MCMC.prop.weights=NULL,
                            MCMC.prop.args=NULL,
                            
@@ -126,7 +129,8 @@ control.gof.ergm<-function(nsim=100,
                            seed=NULL,
                            parallel=0,
                            parallel.type=NULL,
-                           parallel.version.check=TRUE){
+                           parallel.version.check=TRUE,
+                           parallel.inherit.MT=FALSE){
   control<-list()
   for(arg in names(formals(sys.function())))
     control[arg]<-list(get(arg))

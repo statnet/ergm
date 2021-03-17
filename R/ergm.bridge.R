@@ -8,25 +8,6 @@
 #  Copyright 2003-2020 Statnet Commons
 #######################################################################
 
-## This is a helper function that constructs and returns the network
-## object to be used and the model object.
-ergm.bridge.preproc<-function(object, basis, response, ...){
-
-  # If basis is not null, replace network in formula by basis.
-  # In either case, let nw be network object from formula.
-  if(is.null(nw <- basis)) {
-    nw <- ergm.getnetwork(object)
-  }
-
-  nw <- ensure_network(nw)
-  
-  # New formula (no longer use 'object'):
-  form <- nonsimp_update.formula(object, nw ~ ., from.new="nw")
-  
-  list(nw=nw, form=form, model=ergm_model(form, nw, response=response, ...))
-}
-
-
 #' Bridge sampling to evaluate ERGM log-likelihoods and log-likelihood ratios
 #' 
 #' \code{ergm.bridge.llr} uses bridge sampling with geometric spacing to
@@ -37,10 +18,16 @@ ergm.bridge.preproc<-function(object, basis, response, ...){
 #' 
 #' @param object A model formula. See \code{\link{ergm}} for details.
 #' @template response
-#' @param constraints A one-sided formula specifying one or more
-#'   constraints on the support of the distribution of the networks
-#'   being simulated. See the documentation for a similar argument for
+#' @param constraints,obs.constraints One-sided formulas specifying
+#'   one or more constraints on the support of the distribution of the
+#'   networks being simulated and on the observation process
+#'   respectively. See the documentation for a similar argument for
 #'   \code{\link{ergm}} for more information.
+#' @param reference {A one-sided formula specifying the reference
+#'   measure (\eqn{h(y)}) to be used.  (Defaults to
+#'   \code{~Bernoulli}.)}
+#' @param target.stats {A vector of sufficient statistics to be used
+#'   in place of those of the network in the formula.}
 #' @param from,to The initial and final parameter vectors.
 #' @param basis An optional \code{\link[network]{network}} object to
 #'   start the Markov chain.  If omitted, the default is the
@@ -76,29 +63,40 @@ ergm.bridge.preproc<-function(object, basis, response, ...){
 #'   networks}, Journal of Computational and Graphical Statistics.
 #' @keywords model
 #' @export
-ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis=NULL, verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){
+ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constraints=~., from, to, obs.constraints=~.-observed, target.stats=NULL, basis=eval_lhs.formula(object), verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){
   check.control.class("ergm.bridge", "ergm.bridge.llr")
   handle.control.toplevel("ergm.bridge", ...)
 
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
   
-  ## Here, we need to get the model object to get the likelihood and gradient functions.
-  tmp<-ergm.bridge.preproc(object,basis,response,term.options=control$term.options)
-  nw.state <-nw<-tmp$nw; m<-tmp$model; form<-tmp$form; rm(tmp)
+  ergm_preprocess_response(basis, response)
+  nw.state <- nw <- basis
 
 
   ## Generate the path.
   path<-t(rbind(sapply(seq(from=0+1/2/(control$nsteps+1),to=1-1/2/(control$nsteps+1),length.out=control$nsteps),function(u) cbind(to*u + from*(1-u)))))
 
-  stats<-matrix(NA,control$nsteps,m$etamap$etalength)
-  
-  if(network.naedgecount(nw)){
-    constraints.obs<-nonsimp_update.formula(constraints,~.+observed)
-    form.obs<-form
+  tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats); nw <- tmp$nw; constraints <- tmp$constraints; constraints.obs <- tmp$constraints.obs
+
+  ## Preinitialize proposals and set "observed" statistics:
+  proposal <- ergm_proposal(constraints,arguments=control$MCMC.prop.args,
+                           nw=nw, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, class="c",reference=reference)
+  m<-ergm_model(object, nw, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
+  proposal$aux.slots <- m$slots.extra.aux$proposal
+
+  if(!is.null(constraints.obs)){
+    proposal.obs <- ergm_proposal(constraints.obs,arguments=control$obs.MCMC.prop.args,
+                                 nw=nw, hints=control$obs.MCMC.prop, weights=control$obs.MCMC.prop.weights, class="c",reference=reference)
+    m.obs<-ergm_model(object, nw, extra.aux=list(proposal=proposal.obs$auxiliaries), term.options=control$term.options)
+    proposal.obs$aux.slots <- m.obs$slots.extra.aux$proposal
+
     stats.obs <- matrix(NA,control$nsteps,m$etamap$etalength)
     nw.state.obs <- nw.state
-  }else stats.obs<-matrix(summary(form,response=response, term.options=control$term.options),control$nsteps,m$etamap$etalength,byrow=TRUE)  
+  }else
+    stats.obs<-matrix(NVL(target.stats,summary(m, nw)),control$nsteps,m$etamap$etalength,byrow=TRUE)
 
+  stats<-matrix(NA,control$nsteps,m$etamap$etalength)
+  
   bridge.control <- control
 
   gen_control <- function(obs, burnin){
@@ -119,8 +117,6 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
                        if(obs) bridge.control$obs.MCMC.interval
                        else bridge.control$MCMC.interval
                      },
-      MCMC.prop.args=if(obs) bridge.control$obs.MCMC.prop.args else bridge.control$MCMC.prop.args,
-      MCMC.prop.weights=if(obs) bridge.control$obs.MCMC.prop.weights else bridge.control$MCMC.prop.weights,
       MCMC.packagenames=bridge.control$MCMC.packagenames,
       parallel=bridge.control$parallel,
       parallel.type=bridge.control$parallel.type,
@@ -128,10 +124,11 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
     )
   }
 
-  message("Using ", bridge.control$nsteps, " bridges: ", appendLF=FALSE)
-  sim_settings <- simulate(form, coef=from, nsim=1, response=response, constraints=constraints, output="pending_update_network", verbose=max(verbose-1,0), basis = nw.state, control=gen_control(FALSE, "first"), ..., do.sim=FALSE)
-  if(network.naedgecount(nw)) sim_settings.obs <- simulate(form.obs, coef=from, nsim=1, response=response, constraints=constraints.obs, output="pending_update_network", verbose=max(verbose-1,0), basis = nw.state.obs, control=gen_control(TRUE, "first"), ..., do.sim=FALSE)
+  sim_settings <- simulate(m, coef=from, nsim=1, constraints=proposal, output="ergm_state", verbose=max(verbose-1,0), basis = nw.state, control=gen_control(FALSE, "first"), ..., do.sim=FALSE)
+  if(!is.null(constraints.obs)) sim_settings.obs <- simulate(m.obs, coef=from, nsim=1, constraints=proposal.obs, output="ergm_state", verbose=max(verbose-1,0), basis = nw.state.obs, control=gen_control(TRUE, "first"), ..., do.sim=FALSE)
 
+  message("Using ", bridge.control$nsteps, " bridges: ", appendLF=FALSE)
+  
   for(i in seq_len(bridge.control$nsteps)){
     theta<-path[i,]
     if(verbose==0) message(i," ",appendLF=FALSE)
@@ -143,17 +140,17 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
       nsim <- 1
       coef <- theta
       basis <- nw.state
-      output <- "pending_update_network"
+      output <- "ergm_state"
       control <- gen_control(FALSE, if(i==1)"first"else"next")
     })
     nw.state <- do.call(stats::simulate, sim_settings)
 
-    if(network.naedgecount(nw)){
+    if(!is.null(constraints.obs)){
       sim_settings.obs <- within(sim_settings.obs, {
         nsim <- 1
         coef <- theta
         basis <- nw.state.obs
-        output <- "pending_update_network"
+        output <- "ergm_state"
         control <- gen_control(TRUE, if(i==1)"first"else"next")
       })
       nw.state.obs <- do.call(stats::simulate, sim_settings.obs)
@@ -168,7 +165,7 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
     })
     stats[i,]<-colMeans(as.matrix(do.call(stats::simulate, sim_settings)))
 
-    if(network.naedgecount(nw)){
+    if(!is.null(constraints.obs)){
       nsim <- ceiling(bridge.control$obs.MCMC.samplesize/bridge.control$nsteps)
       sim_settings.obs <- within(sim_settings.obs, {
         basis <- nw.state.obs
@@ -180,10 +177,12 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
   }
   message(".")
     
-  Dtheta.Du<-to-from
+  Dtheta.Du<-(to-from)/control$nsteps
 
-  llrs<--sapply(seq_len(bridge.control$nsteps), function(i) crossprod(Dtheta.Du,ergm.etagradmult(path[i,],stats[i,]-stats.obs[i,],m$etamap)))/bridge.control$nsteps
-  llr<-sum(llrs)
+  esteq  <- rbind(sapply(seq_len(control$nsteps), function(i) ergm.etagradmult(path[i,],stats[i,]-stats.obs[i,],m$etamap)))
+  nochg <- Dtheta.Du==0 | apply(esteq==0, 1, all)
+  llrs <- -as.vector(crossprod(Dtheta.Du[!nochg],esteq[!nochg,,drop=FALSE]))
+  llr <- sum(llrs)
   if(llronly) llr
   else list(llr=llr,from=from,to=to,llrs=llrs,path=path,stats=stats,stats.obs=stats.obs,Dtheta.Du=Dtheta.Du)
 }
@@ -202,11 +201,11 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
 #' 
 #' 
 #' @export
-ergm.bridge.0.llk<-function(object, response=response, constraints=~., coef, ..., llkonly=TRUE, control=control.ergm.bridge()){
+ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, ..., llkonly=TRUE, control=control.ergm.bridge(), basis=eval_lhs.formula(object)){
   check.control.class("ergm.bridge", "ergm.bridge.0.llk")
   handle.control.toplevel("ergm.bridge", ...)
-
-  br<-ergm.bridge.llr(object, constraints=constraints, from=rep(0,length(coef)), to=coef, response=response, control=control, ...)
+  ergm_preprocess_response(basis, response)
+  br<-ergm.bridge.llr(object, from=rep(0,length(coef)), to=coef, reference=reference, control=control, ..., basis=basis)
   if(llkonly) br$llr
   else c(br,llk=br$llr)
 }
@@ -233,69 +232,100 @@ ergm.bridge.0.llk<-function(object, response=response, constraints=~., coef, ...
 #'   dyad-independent model.
 #' 
 #' @export
-ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef, dind=NULL, coef.dind=NULL,  basis=NULL, ..., llkonly=TRUE, control=control.ergm.bridge()){
+ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef, obs.constraints=~.-observed, target.stats=NULL, dind=NULL, coef.dind=NULL,  basis=eval_lhs.formula(object), ..., llkonly=TRUE, control=control.ergm.bridge()){
   check.control.class("ergm.bridge", "ergm.bridge.dindstart.llk")
   handle.control.toplevel("ergm.bridge", ...)
 
-  if(!is.null(response)) stop("Only binary ERGMs are supported at this time.")
-
   ## Here, we need to get the model object to get the list of
   ## dyad-independent terms.
-  tmp<-ergm.bridge.preproc(object,basis,response,term.options=control$term.options)
-  nw<-tmp$nw; m<-tmp$model; form<-tmp$form; rm(tmp)
+  nw <- basis
+  ergm_preprocess_response(nw, response)
 
-  p.pos.full <- c(0,cumsum(nparam(m, byterm=TRUE)))
+  if(is.valued(nw)) stop("Only binary ERGMs are supported at this time.")
+  if(!is.null(dind)) stop("Custom dind scaffolding has been disabled. It may be reenabled in the future.")
+
+  m<-ergm_model(object, nw, term.options=control$term.options)
   
-  constraints.obs <- if(network.naedgecount(nw))
-    nonsimp_update.formula(constraints,~.+observed)
-  else
-    NULL
+  q.pos.full <- c(0,cumsum(nparam(m, canonical=FALSE, byterm=TRUE, offset=TRUE)))
+  p.pos.full <- c(0,cumsum(nparam(m, canonical=TRUE, byterm=TRUE, offset=FALSE)))
+  rng <- function(x, from, to) if(to>=from) x[from:to]
+  
+  tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats); nw <- tmp$nw; constraints <- tmp$constraints; constraints.obs <- tmp$constraints.obs
 
   if(!is.dyad.independent(ergm_conlist(constraints,nw), ergm_conlist(constraints.obs,nw))) stop("Bridge sampling with dyad-independent start does not work with dyad-dependent constraints.")
+
+  # If target.stats are given, then we need between passed network and
+  # target stats, if any. It also means that the dyad-independent
+  # submodel cannot contain any statistics that target.stats does not,
+  # so edges are not added on.
+  if(!is.null(target.stats) && !is.null(dind)) stop("Non-default dyad-independent model is not supported when target.stats is passed and passed network's statistics do not match it.")
 
   ## By default, take dyad-independent terms in the formula, fit a
   ## model with these terms and "edges". Terms that are redundant (NA)
   ## get their coefficients zeroed out below.
+  ## FIXME: What to do about dyad-independent curved terms?
   offset.dind <- c()
+  if(!is.null(target.stats)) ts.dind <- c()
+  dindmap <- logical(0)
   if(is.null(dind)){
-    dind<-~.
-    terms.full<-list_rhs.formula(form)[!m$term.skipped] # Ensure that terms to be added to the dyad-independent formula are aligned with terms that had actually made it into the model.
+    terms.full<-list_rhs.formula(object)[!m$term.skipped] # Ensure that terms to be added to the dyad-independent formula are aligned with terms that had actually made it into the model.
     for(i in seq_along(terms.full))
-      if(NVL(m$terms[[i]]$dependence, TRUE) == FALSE){
-        dind<-append_rhs.formula(dind,list(terms.full[[i]]))
-        if(m$offset[i]) offset.dind <- c(offset.dind, coef[(p.pos.full[i]+1):p.pos.full[i+1]])
+      if(NVL(m$terms[[i]]$dependence, TRUE)){ # Dyad-dependent: drop.
+        terms.full[i] <- list(NULL)
+        dindmap <- c(dindmap, rep(FALSE, length(m$terms[[i]]$offset)))
+      }else{
+        dindmap <- c(dindmap, rep(TRUE, length(m$terms[[i]]$offset)))
+        if(!is.null(target.stats)) ts.dind <- c(ts.dind, rng(target.stats, p.pos.full[i]+1, p.pos.full[i+1]))
+        offset.dind <- c(offset.dind, coef[(q.pos.full[i]+1):q.pos.full[i+1]][m$terms[[i]]$offset]) # Add offset coefficient where applicable.
       }
-    dind<-append_rhs.formula(dind,list(as.name("edges")))
-    environment(dind) <- environment(object)
-  }
-  
-  dind<-nonsimp_update.formula(dind,nw~., from.new="nw")
 
-  if(!is.dyad.independent(dind, term.options=control$term.options))
-    stop("Reference model `dind' must be dyad-independent.")
+    if(is.null(target.stats)){
+      terms.full <- c(terms.full, list(as.name("edges")))
+      dindmap <- c(dindmap, TRUE)
+    }
+
+    # Copy environment and LHS if present.
+    dind <- append_rhs.formula(object[-length(object)], compact(terms.full))
+
+    if(length(object)==3) dind[[2]] <- object[[2]] else dind <- dind[-2]
+  }
 
   ergm.dind<-suppressMessages(suppressWarnings(ergm(dind,estimate="MPLE",constraints=constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef = offset.dind)))
   
   if(is.null(coef.dind)){
-    coef.dind<-ifelse(is.na(coef(ergm.dind)),0,coef(ergm.dind))
-    llk.dind<--ergm.dind$glm$deviance/2 - -ergm.dind$glm$null.deviance/2
+    coef.dind <- coef(ergm.dind)[!ergm.dind$etamap$offsettheta]
+    coef.dind <- ifelse(is.na(coef.dind),0,coef.dind)
+    llk.dind<--ergm.dind$glm$deviance/2 - -ergm.dind$glm.null$deviance/2
   }else{
     lin.pred <- model.matrix(ergm.dind$glm) %*% coef.dind
-    llk.dind<-
+    llk.dind <- 
       crossprod(lin.pred,ergm.dind$glm$y*ergm.dind$glm$prior.weights)-sum(log1p(exp(lin.pred))*ergm.dind$glm$prior.weights) -
-      sum(as.rlebdm(ergm.dind$constrained, ergm.dind$constrained.obs, which="informative"))*log(1/2)
+        (network.dyadcount(ergm.dind$network,FALSE) - network.edgecount(NVL(as.rlebdm(ergm.dind$constrained, ergm.dind$constrained.obs,which="missing"),network.initialize(1))))*log(1/2)
+  }
+  
+  # If there are target.stats we need to adjust the log-likelihood in
+  # case they are different from those to which the dyad-independent
+  # submodel was actually fit:
+  # l(theta,ts)-l(theta,ns)=sum(theta*(ts-ns)).
+  if(!is.null(target.stats)) llk.dind <- llk.dind + c(crossprod(coef.dind, NVL(c(ts.dind), ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]) - ergm.dind$nw.stats[!ergm.dind$etamap$offsetmap]))
+
+  from <- numeric(length(dindmap))
+  from[dindmap] <- replace(coef(ergm.dind), is.na(coef(ergm.dind)), 0)
+  to <- c(coef, if(is.null(target.stats)) 0)
+
+  form.aug <- if(is.null(target.stats)) append_rhs.formula(object, list(as.name("edges"))) else object
+
+  ## From this point on, target.stats has NAs corresponding to offset
+  ## terms.
+  if(!is.null(target.stats)) target.stats <- .align.target.stats.offset(m, target.stats)
+
+  if(!is.null(target.stats) && any(is.na(target.stats))){
+    warning("Using target.stats for a model with offset terms may produce an inaccurate estimate of the log-likelihood and derived quantities (deviance, AIC, BIC, etc.), because some of the target stats must be imputed.")
+    target.stats[m$etamap$offsetmap] <- summary(m, nw)[m$etamap$offsetmap]
   }
 
-  ## Construct the augmented formula.
-  form.aug<-append_rhs.formula(object, list_rhs.formula(dind))
-
-  from<-c(rep(0,length(coef)),coef.dind)
-  to<-c(coef,rep(0,length(coef.dind)))
-
-  br<-ergm.bridge.llr(form.aug, response=response, constraints=constraints, from=from, to=to, basis=basis, control=control)
+  br<-ergm.bridge.llr(form.aug, constraints=constraints, from=from, to=to, basis=basis, target.stats=target.stats, control=control)
   
   if(llkonly) llk.dind + br$llr
   else c(br,llk.dind=llk.dind, llk=llk.dind + br$llr)
 }
-
-

@@ -2,20 +2,29 @@
 % Please edit documentation in R/network.update.R
 \name{update.network}
 \alias{update.network}
+\alias{update_network}
+\alias{update_network.matrix_edgelist}
+\alias{update_network.data.frame}
+\alias{update_network.matrix}
+\alias{update_network.ergm_state}
 \title{Update the edges in a network based on a matrix}
 \usage{
-\method{update}{network}(
-  object,
-  new,
-  matrix.type = NULL,
-  attrname = NULL,
-  ...,
-  ignore.nattr = c("bipartite", "directed", "hyper", "loops", "mnext", "multiple", "n"),
-  ignore.vattr = c()
-)
+\method{update}{network}(object, ...)
+
+update_network(object, new, ...)
+
+\method{update_network}{matrix_edgelist}(object, new, attrname = if (ncol(new) > 2) names(new)[3], ...)
+
+\method{update_network}{data.frame}(object, new, attrname = if (ncol(new) > 2) names(new)[3], ...)
+
+\method{update_network}{matrix}(object, new, matrix.type = NULL, attrname = NULL, ...)
+
+\method{update_network}{ergm_state}(object, new, ...)
 }
 \arguments{
 \item{object}{a \code{\link{network}} object.}
+
+\item{\dots}{Additional arguments; currently unused.}
 
 \item{new}{Either an adjacency matrix (a matrix of values
 indicating the presence and/or the value of a tie from i to j) or
@@ -23,21 +32,12 @@ an edge list (a two-column matrix listing origin and destination
 node numbers for each edge, with an optional third column for the
 value of the edge).}
 
-\item{matrix.type}{One of \code{"adjacency"} or \code{"edgelist"} telling
-which type of matrix \code{new} is.  Default is to use the
-\code{\link[network]{which.matrix.type}} function.}
-
 \item{attrname}{For a network with edge weights gives the name of
 the edge attribute whose names to set.}
 
-\item{\dots}{Additional arguments; currently unused.}
-
-\item{ignore.nattr}{Character vector of the names of network-level
-attributes to ignore when updating network objects (defaults to
-standard network properties).}
-
-\item{ignore.vattr}{Character vector of the names of vertex-level
-attributes to ignore when updating network objects.}
+\item{matrix.type}{One of \code{"adjacency"} or \code{"edgelist"} telling
+which type of matrix \code{new} is.  Default is to use the
+\code{\link[network]{which.matrix.type}} function.}
 }
 \value{
 A new \code{\link{network}} object with the edges specified by
@@ -48,6 +48,19 @@ the input network \code{object}. Input network is not modified.
 Replaces the edges in a \code{\link{network}} object with the edges corresponding
 to the sociomatrix or edge list specified by \code{new}.
 }
+\section{Functions}{
+\itemize{
+\item \code{update_network}: dispatcher for network update based on the type of updating information.
+
+\item \code{update_network.matrix_edgelist}: a method for updating a network based on a matrix-form edgelist
+
+\item \code{update_network.data.frame}: a method for updating a network based on an edgelist
+
+\item \code{update_network.matrix}: a method for updating a network based on a matrix
+
+\item \code{update_network.ergm_state}: a method for updating a network based on an \code{\link{ergm_state}} object.
+}}
+
 \examples{
 
 #

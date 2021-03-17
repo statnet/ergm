@@ -43,6 +43,8 @@ The following options are in use by terms in the \code{ergm} package:
 
 \item{\code{gw.cutoff}}{In geometrically weighted terms (\code{gwesp}, \code{gwdegree}, etc.) the highest number of shared partners, degrees, etc. for which to compute the statistic. This usually defaults to 30.}
 
+\item{\code{cache.sp}}{Whether the \code{\link{gwesp}}, \code{\link{dgwesp}}, and similar terms need should use a cache for the dyadwise number of shared partners. This usually improves performance significantly and therefore defaults to \code{TRUE}, but it can be disabled.}
+
 }
 }
 

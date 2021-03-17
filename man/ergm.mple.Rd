@@ -15,15 +15,22 @@ ergm.mple(
   save.glm = TRUE,
   save.xmat = TRUE,
   control = NULL,
-  proposal = NULL,
   verbose = FALSE,
   ...
 )
 
-ergm.pl(nw, fd, m, theta.offset = NULL, control, verbose = FALSE)
+ergm.pl(
+  nw,
+  fd,
+  m,
+  theta.offset = NULL,
+  control,
+  ignore.offset = FALSE,
+  verbose = FALSE
+)
 }
 \arguments{
-\item{nw}{response network.}
+\item{nw}{response \code{\link{network}} or \code{\link{ergm_state}}.}
 
 \item{fd}{An \code{\link{rlebdm}} with informative dyads.}
 
@@ -49,8 +56,6 @@ meaning. The more generic utility \code{\link[=snctrl]{snctrl()}} (StatNet ConTR
 also provides argument completion for the available control
 functions and limited argument name checking.}
 
-\item{proposal}{an \code{\link[=ergm_proposal]{ergm_proposal()}} object.}
-
 \item{verbose}{whether this and the C routines should be verbose (T
 or F); default=FALSE}
 
@@ -61,20 +66,32 @@ ignored}
 of statistics of the model, specifying (positionally) the
 coefficients of the offset statistics; elements corresponding to
 free parameters are ignored.}
+
+\item{ignore.offset}{If \code{FALSE} (the default), columns
+corresponding to terms enclosed in \code{offset()} are not
+returned with others but are instead processed by multiplying
+them by their corresponding coefficients (which are fixed, by
+virtue of being offsets) and the results stored in a separate
+column.}
 }
 \value{
 \code{ergm.mple} returns an ergm object as a list
 containing several items; for details see the return list in the
 \code{\link{ergm}}
 
-\code{ergm.pl} returns a list containing: \itemize{
-\item \code{xmat} : the compressed and possibly sampled matrix of change statistics
-\item \code{xmat.full} : as \code{xmat} but with offset terms
-\item \code{zy} : the corresponding vector of responses,
-i.e. tie values
-\item \code{foffset} : combined effect of offset terms
-\item \code{wend} : the vector of weights for \code{xmat} and \code{zy}
-\item \code{numobs} : the number of dyads}
+\code{ergm.pl} returns a list containing:
+
+\item{xmat}{the compressed and possibly sampled matrix of change
+statistics}
+
+\item{xmat.full}{as \code{xmat} but with offset terms}
+
+\item{zy}{the corresponding vector of responses, i.e. tie values}
+
+\item{foffset}{if \code{ignore.offset==FALSE}, the combined offset statistics multiplied by their parameter values}
+
+\item{wend}{the vector of weights for \code{xmat}
+and \code{zy}}
 }
 \description{
 The \code{ergm.mple} function finds a maximizer to the psuedolikelihood

@@ -10,52 +10,11 @@
 #ifndef WTSAN_H
 #define WTSAN_H
 
-#include "ergm_wtedgetree.h"
-#include "ergm_wtchangestat.h"
-#include "ergm_wtMHproposal.h"
-#include "ergm_wtmodel.h"
 #include "wtMCMC.h"
 
-void WtSAN_wrapper (int *nedges,
-		    int *tails, int *heads, double *weights,
-		    int *dn, int *dflag, int *bipartite, 
-		    int *nterms, char **funnames,
-		    char **sonames, 
-		    char **MHProposaltype, char **MHProposalpackage,
-		    double *inputs, double *tau,
-		    double *sample, double *prop_sample,
-		    int *samplesize, int *nsteps,  
-		    int *newnetworktails, 
-		    int *newnetworkheads, 
-		    double *newnetworkweights,
-		    double *invcov,
-		    int *fVerbose, 
-		    int *maxedges,
-		    int *status,
-            int *nstats,
-            int *statindices,
-            int *noffsets,
-            int *offsetindices,
-            double *offsets);
+#define DISPATCH_SANMetropolisHastings WtSANMetropolisHastings
+#define DISPATCH_SANSample WtSANSample
+#define DISPATCH_SAN_wrapper WtSAN_wrapper
 
-MCMCStatus WtSANSample (WtMHProposal *MHp,
-		double *invcov, double *tau, double *networkstatistics, double *prop_networkstatistics,
-		int samplesize, int nsteps, 
-	        int fVerbose, int nmax,
-		WtNetwork *nwp, WtModel *m,
-        int nstats,
-        int *statindices,
-        int noffsets,
-        int *offsetindices,
-        double *offsets);
-MCMCStatus WtSANMetropolisHastings (WtMHProposal *MHp,
-			 double *invcov, double *tau, double *statistics, double *prop_statistics,
-			 int nsteps, int *staken,
-			 int fVerbose,
-			 WtNetwork *nwp, WtModel *m,
-             int nstats,
-             int *statindices,
-             int noffsets,
-             int *offsetindices,
-             double *offsets);
+#include "SAN.h.template.do_not_include_directly.h"
 #endif

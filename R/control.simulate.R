@@ -25,7 +25,18 @@
 #' @param MCMC.burnin Number of proposals before any MCMC sampling is done. It
 #' typically is set to a fairly large number.
 #' @param MCMC.interval Number of proposals between sampled statistics.
-#' @param MCMC.init.maxedges Maximum number of edges expected in network.
+#'
+#' @param MCMC.scale For `control.simulate.ergm()` inheriting
+#'   `MCMC.burnin` and `MCMC.interval` from the [`ergm`] fit, the
+#'   multiplier for the inherited values. This can be useful because
+#'   MCMC parameters used in the fit are tuned to generate a specific
+#'   effective sample size for the sufficient statistic in a large
+#'   MCMC sample, so the inherited values might not generate
+#'   independent realisations.
+#'
+#' @template control_MCMC_effectiveSize
+#' 
+#' @param MCMC.maxedges The maximum number of edges that may occur during the MCMC sampling.
 #' @param MCMC.runtime.traceplot Logical: If `TRUE`, plot traceplots of the MCMC
 #' sample.
 #' @param network.output R class with which to output networks. The options are
@@ -46,12 +57,19 @@
 #' @name control.simulate.ergm
 #' @keywords models
 #' @export control.simulate.formula.ergm
-control.simulate.formula.ergm<-function(MCMC.burnin=10000,
-                                        MCMC.interval=1000,
+control.simulate.formula.ergm<-function(MCMC.burnin=MCMC.interval*16,
+                                        MCMC.interval=1024,
+                                        MCMC.prop=trim_env(~sparse),
                                         MCMC.prop.weights="default",
                                         MCMC.prop.args=list(),
                                         
-                                        MCMC.init.maxedges=20000,
+                                        MCMC.effectiveSize=NULL,
+                                        MCMC.effectiveSize.damp=10,
+                                        MCMC.effectiveSize.maxruns=1000,
+                                        MCMC.effectiveSize.burnin.pval=0.2,
+                                        MCMC.effectiveSize.order.max=NULL,
+                                        
+                                        MCMC.maxedges=Inf,
                                         MCMC.packagenames=c(),
                                         
                                         MCMC.runtime.traceplot=FALSE,  
@@ -62,6 +80,7 @@ control.simulate.formula.ergm<-function(MCMC.burnin=10000,
                                         parallel=0,
                                         parallel.type=NULL,
                                         parallel.version.check=TRUE,
+                                        parallel.inherit.MT=FALSE,
                                         ...){
   old.controls <- list(
                        maxedges="MCMC.init.maxedges",
@@ -105,10 +124,17 @@ control.simulate.formula<-control.simulate.formula.ergm
 #' @export control.simulate.ergm
 control.simulate.ergm<-function(MCMC.burnin=NULL,
                                 MCMC.interval=NULL,
+                                MCMC.scale=1,
                                 MCMC.prop.weights=NULL,
                                 MCMC.prop.args=NULL,
-
-                                MCMC.init.maxedges=NULL,
+                                
+                                MCMC.effectiveSize=NULL,
+                                MCMC.effectiveSize.damp=10,
+                                MCMC.effectiveSize.maxruns=1000,
+                                MCMC.effectiveSize.burnin.pval=0.2,
+                                MCMC.effectiveSize.order.max=NULL,
+                                
+                                MCMC.maxedges=Inf,
                                 MCMC.packagenames=NULL,
                                 
                                 MCMC.runtime.traceplot=FALSE,
@@ -119,6 +145,7 @@ control.simulate.ergm<-function(MCMC.burnin=NULL,
                                 parallel=0,
                                 parallel.type=NULL,
                                 parallel.version.check=TRUE,
+                                parallel.inherit.MT=FALSE,
                                 ...){
   old.controls <- list(
                        maxedges="MCMC.init.maxedges",
@@ -141,3 +168,4 @@ control.simulate.ergm<-function(MCMC.burnin=NULL,
  
   set.control.class("control.simulate.ergm")
 }
+

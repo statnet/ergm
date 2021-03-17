@@ -18,7 +18,7 @@ san(object, ...)
   target.stats = NULL,
   nsim = NULL,
   basis = NULL,
-  output = c("network", "edgelist", "pending_update_network"),
+  output = c("network", "edgelist", "ergm_state"),
   only.last = TRUE,
   control = control.san(),
   verbose = FALSE,
@@ -28,13 +28,12 @@ san(object, ...)
 
 \method{san}{ergm_model}(
   object,
-  response = NULL,
   reference = ~Bernoulli,
   constraints = ~.,
   target.stats = NULL,
   nsim = NULL,
   basis = NULL,
-  output = c("network", "edgelist", "pending_update_network"),
+  output = c("network", "edgelist", "ergm_state"),
   only.last = TRUE,
   control = control.san(),
   verbose = FALSE,
@@ -54,9 +53,15 @@ the \code{\%v\%} operator if necessary.}
 
 \item{\dots}{Further arguments passed to other functions.}
 
-\item{response}{Name of the edge attribute whose value is to be
-modeled in the valued ERGM framework. Defaults to \code{NULL} for
-simple presence or absence, modeled via a binary ERGM.}
+\item{response}{Either a character string, a formula, or \code{NULL} (the default), to specify the response attributes and whether the ERGM is binary or valued. Interpreted as follows: \describe{
+
+\item{\code{NULL}}{Model simple presence or absence, via a binary ERGM.}
+
+\item{character string}{The name of the edge attribute whose value is to be modeled. Type of ERGM will be determined by whether the attribute is \code{\link{logical}} (\code{TRUE}/\code{FALSE}) for binary or \code{\link{numeric}} for valued.}
+
+\item{a formula}{must be of the form \code{NAME~EXPR|TYPE} (with \code{|} being literal). \code{EXPR} is evaluated in the formula's environment with the network's edge attributes accessible as variables. The optional \code{NAME} specifies the name of the edge attribute into which the results should be stored, with the default being a concise version of \code{EXPR}. Normally, the type of ERGM is determined by whether the result of evaluating \code{EXPR} is logical or numeric, but the optional \code{TYPE} can be used to override by specifying a scalar of the type involved (e.g., \code{TRUE} for binary and \code{1} for valued).}
+
+}}
 
 \item{reference}{A one-sided formula specifying
 the reference measure (\eqn{h(y)}) to be used.
@@ -81,7 +86,7 @@ implied by the formula, which is either \code{object} itself in the case of
 chain.  If NULL, this is taken to be the network named in the formula.}
 
 \item{output}{Character, one of \code{"network"} (default),
-\code{"edgelist"}, or \code{"pending_update_network"}: determines the
+\code{"edgelist"}, or \code{"ergm_state"}: determines the
 output format. Partial matching is performed.}
 
 \item{only.last}{if \code{TRUE}, only return the last network generated;
@@ -98,9 +103,7 @@ functions and limited argument name checking.}
 
 \item{offset.coef}{A vector of offset coefficients; these must be passed in by the user.
 Note that these should be the same set of coefficients one would pass to \code{ergm} via
-its \code{offset.coef} argument.  For example, if one has a curved \code{offset(gwesp)}
-term in the model, then the \code{decay} parameter should \emph{not} be passed in via
-\code{offset.coef}.}
+its \code{offset.coef} argument.}
 
 \item{formula}{(By default, the \code{formula} is taken from the \code{ergm}
 object.  If a different \code{formula} object is wanted, specify it here.}

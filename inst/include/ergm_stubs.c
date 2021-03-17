@@ -1,13 +1,40 @@
-/*  File inst/include/ergm_stubs.c in package ergm, part of the Statnet suite
- *  of packages for network analysis, https://statnet.org .
- *
- *  This software is distributed under the GPL-3 license.  It is free,
- *  open source, and has the attribution requirements (GPL Section 7) at
- *  https://statnet.org/attribution
- *
- *  Copyright 2003-2020 Statnet Commons
- */
 
+#define STUBFILE
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
+#include "ergm_BDStrat_proposals.h"
+void Mi_StratTNT(MHProposal *MHp, Network *nwp){
+static void (*fun)(MHProposal *,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(MHProposal *,Network *)) R_FindSymbol("Mi_StratTNT", "ergm", NULL);
+fun(MHp,nwp);
+}
+void Mi_BDTNT(MHProposal *MHp, Network *nwp){
+static void (*fun)(MHProposal *,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(MHProposal *,Network *)) R_FindSymbol("Mi_BDTNT", "ergm", NULL);
+fun(MHp,nwp);
+}
+void Mi_BDStratTNT(MHProposal *MHp, Network *nwp){
+static void (*fun)(MHProposal *,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(MHProposal *,Network *)) R_FindSymbol("Mi_BDStratTNT", "ergm", NULL);
+fun(MHp,nwp);
+}
+void Mf_StratTNT(MHProposal *MHp, Network *nwp){
+static void (*fun)(MHProposal *,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(MHProposal *,Network *)) R_FindSymbol("Mf_StratTNT", "ergm", NULL);
+fun(MHp,nwp);
+}
+void Mf_BDTNT(MHProposal *MHp, Network *nwp){
+static void (*fun)(MHProposal *,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(MHProposal *,Network *)) R_FindSymbol("Mf_BDTNT", "ergm", NULL);
+fun(MHp,nwp);
+}
+void Mf_BDStratTNT(MHProposal *MHp, Network *nwp){
+static void (*fun)(MHProposal *,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(MHProposal *,Network *)) R_FindSymbol("Mf_BDStratTNT", "ergm", NULL);
+fun(MHp,nwp);
+}
+
+#define STUBFILE
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_changestat_common.do_not_include_directly.h"
@@ -16,57 +43,153 @@ static double (*fun)(double,int) = NULL;
 if(fun==NULL) fun = (double (*)(double,int)) R_FindSymbol("my_choose", "ergm", NULL);
 return fun(n,r);
 }
-#undef CHOOSE
-#undef EQUAL
-#undef XOR
-#undef XNOR
-#undef OUTVAL
-#undef INVAL
-#undef N_NODES
-#undef N_DYADS
-#undef OUT_DEG
-#undef IN_DEG
-#undef DIRECTED
-#undef N_EDGES
-#undef BIPARTITE
-#undef NEXT_INEDGE_NUM
-#undef NEXT_OUTEDGE_NUM
-#undef CHANGE_STAT
-#undef N_CHANGE_STATS
-#undef INPUT_PARAM
-#undef N_INPUT_PARAMS
-#undef ZERO_ALL_CHANGESTATS
-#undef INPUT_ATTRIB
 
+#define STUBFILE
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
+#include "ergm_changestats_auxnet.h"
+void i__isociomatrix(ModelTerm *mtp, Network *nwp){
+static void (*fun)(ModelTerm *,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("i__isociomatrix", "ergm", NULL);
+fun(mtp,nwp);
+}
+void u__isociomatrix(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgeflag){
+static void (*fun)(Vertex,Vertex,ModelTerm *,Network *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,ModelTerm *,Network *,Rboolean)) R_FindSymbol("u__isociomatrix", "ergm", NULL);
+fun(tail,head,mtp,nwp,edgeflag);
+}
+void f__isociomatrix(ModelTerm *mtp, Network *nwp){
+static void (*fun)(ModelTerm *,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("f__isociomatrix", "ergm", NULL);
+fun(mtp,nwp);
+}
+void i__discord_net_DyadSet(ModelTerm *mtp, Network *nwp){
+static void (*fun)(ModelTerm *,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("i__discord_net_DyadSet", "ergm", NULL);
+fun(mtp,nwp);
+}
+void u__discord_net_DyadSet(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgeflag){
+static void (*fun)(Vertex,Vertex,ModelTerm *,Network *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,ModelTerm *,Network *,Rboolean)) R_FindSymbol("u__discord_net_DyadSet", "ergm", NULL);
+fun(tail,head,mtp,nwp,edgeflag);
+}
+void f__discord_net_DyadSet(ModelTerm *mtp, Network *nwp){
+static void (*fun)(ModelTerm *,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("f__discord_net_DyadSet", "ergm", NULL);
+fun(mtp,nwp);
+}
+void i__intersect_net_DyadSet(ModelTerm *mtp, Network *nwp){
+static void (*fun)(ModelTerm *,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("i__intersect_net_DyadSet", "ergm", NULL);
+fun(mtp,nwp);
+}
+void u__intersect_net_DyadSet(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgeflag){
+static void (*fun)(Vertex,Vertex,ModelTerm *,Network *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,ModelTerm *,Network *,Rboolean)) R_FindSymbol("u__intersect_net_DyadSet", "ergm", NULL);
+fun(tail,head,mtp,nwp,edgeflag);
+}
+void f__intersect_net_DyadSet(ModelTerm *mtp, Network *nwp){
+static void (*fun)(ModelTerm *,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("f__intersect_net_DyadSet", "ergm", NULL);
+fun(mtp,nwp);
+}
+void i__intersect_net_toggles_in_list_DyadSet(ModelTerm *mtp, Network *nwp){
+static void (*fun)(ModelTerm *,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("i__intersect_net_toggles_in_list_DyadSet", "ergm", NULL);
+fun(mtp,nwp);
+}
+void u__intersect_net_toggles_in_list_DyadSet(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgeflag){
+static void (*fun)(Vertex,Vertex,ModelTerm *,Network *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,ModelTerm *,Network *,Rboolean)) R_FindSymbol("u__intersect_net_toggles_in_list_DyadSet", "ergm", NULL);
+fun(tail,head,mtp,nwp,edgeflag);
+}
+void f__intersect_net_toggles_in_list_DyadSet(ModelTerm *mtp, Network *nwp){
+static void (*fun)(ModelTerm *,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("f__intersect_net_toggles_in_list_DyadSet", "ergm", NULL);
+fun(mtp,nwp);
+}
+void i__union_net_DyadSet(ModelTerm *mtp, Network *nwp){
+static void (*fun)(ModelTerm *,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("i__union_net_DyadSet", "ergm", NULL);
+fun(mtp,nwp);
+}
+void u__union_net_DyadSet(Vertex tail, Vertex head, ModelTerm *mtp, Network *nwp, Rboolean edgeflag){
+static void (*fun)(Vertex,Vertex,ModelTerm *,Network *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,ModelTerm *,Network *,Rboolean)) R_FindSymbol("u__union_net_DyadSet", "ergm", NULL);
+fun(tail,head,mtp,nwp,edgeflag);
+}
+void f__union_net_DyadSet(ModelTerm *mtp, Network *nwp){
+static void (*fun)(ModelTerm *,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(ModelTerm *,Network *)) R_FindSymbol("f__union_net_DyadSet", "ergm", NULL);
+fun(mtp,nwp);
+}
+
+#define STUBFILE
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
+#include "ergm_dyadgen.h"
+void DyadGenSetUpIntersect(DyadGen *gen, void *track_nwp, Rboolean force){
+static void (*fun)(DyadGen *,void *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(DyadGen *,void *,Rboolean)) R_FindSymbol("DyadGenSetUpIntersect", "ergm", NULL);
+fun(gen,track_nwp,force);
+}
+DyadGen * DyadGenInitialize(DyadGenType type, void *dyads, void *track_nwp){
+static DyadGen * (*fun)(DyadGenType,void *,void *) = NULL;
+if(fun==NULL) fun = (DyadGen * (*)(DyadGenType,void *,void *)) R_FindSymbol("DyadGenInitialize", "ergm", NULL);
+return fun(type,dyads,track_nwp);
+}
+DyadGen * DyadGenInitializeR(SEXP pR, void *any_nwp, Rboolean el){
+static DyadGen * (*fun)(SEXP,void *,Rboolean) = NULL;
+if(fun==NULL) fun = (DyadGen * (*)(SEXP,void *,Rboolean)) R_FindSymbol("DyadGenInitializeR", "ergm", NULL);
+return fun(pR,any_nwp,el);
+}
+void DyadGenDestroy(DyadGen *gen){
+static void (*fun)(DyadGen *) = NULL;
+if(fun==NULL) fun = (void (*)(DyadGen *)) R_FindSymbol("DyadGenDestroy", "ergm", NULL);
+fun(gen);
+}
+void DyadGenUpdate(Vertex tail, Vertex head, DyadGen *gen, Network *nwp, Rboolean edgeflag){
+static void (*fun)(Vertex,Vertex,DyadGen *,Network *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,DyadGen *,Network *,Rboolean)) R_FindSymbol("DyadGenUpdate", "ergm", NULL);
+fun(tail,head,gen,nwp,edgeflag);
+}
+void WtDyadGenUpdate(Vertex tail, Vertex head, double weight, DyadGen *gen, WtNetwork *nwp, double edgeweight){
+static void (*fun)(Vertex,Vertex,double,DyadGen *,WtNetwork *,double) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,DyadGen *,WtNetwork *,double)) R_FindSymbol("WtDyadGenUpdate", "ergm", NULL);
+fun(tail,head,weight,gen,nwp,edgeweight);
+}
+
+#define STUBFILE
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
+#include "ergm_dyad_hashmap.h"
+
+#define STUBFILE
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
+#include "ergm_dyad_hashmap_utils.h"
+void PrintDyadMapUInt(StoreDyadMapUInt *h){
+static void (*fun)(StoreDyadMapUInt *) = NULL;
+if(fun==NULL) fun = (void (*)(StoreDyadMapUInt *)) R_FindSymbol("PrintDyadMapUInt", "ergm", NULL);
+fun(h);
+}
+void PrintDyadSet(StoreDyadSet *h){
+static void (*fun)(StoreDyadSet *) = NULL;
+if(fun==NULL) fun = (void (*)(StoreDyadSet *)) R_FindSymbol("PrintDyadSet", "ergm", NULL);
+fun(h);
+}
+StoreDyadSet * NetworkToDyadSet(Network *nwp){
+static StoreDyadSet * (*fun)(Network *) = NULL;
+if(fun==NULL) fun = (StoreDyadSet * (*)(Network *)) R_FindSymbol("NetworkToDyadSet", "ergm", NULL);
+return fun(nwp);
+}
+
+#define STUBFILE
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_edgelist.h"
-unsigned int dEdgeListSearch(Vertex tail, Vertex head, double *el){
-static unsigned int (*fun)(Vertex,Vertex,double *) = NULL;
-if(fun==NULL) fun = (unsigned int (*)(Vertex,Vertex,double *)) R_FindSymbol("dEdgeListSearch", "ergm", NULL);
-return fun(tail,head,el);
-}
-unsigned int iEdgeListSearch(Vertex tail, Vertex head, int *el){
-static unsigned int (*fun)(Vertex,Vertex,int *) = NULL;
-if(fun==NULL) fun = (unsigned int (*)(Vertex,Vertex,int *)) R_FindSymbol("iEdgeListSearch", "ergm", NULL);
-return fun(tail,head,el);
-}
-#undef MIN
-#undef MAX
-#undef _GET_OVERRIDE1
-#undef _GET_OVERRIDE2
-#undef _GET_OVERRIDE3
-#undef _GET_OVERRIDE4
-#undef _GET_OVERRIDE5
-#undef _GET_OVERRIDE6
-#undef _DYADCOUNT1
-#undef _DYADCOUNT3
-#undef DYADCOUNT
-#undef EDGECOUNT
-#undef ENSURE_TH_ORDER
-#undef GetRandDyad
-#undef ENSURE_TH_ORDER
 
+#define STUBFILE
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_edgetree.h"
@@ -90,14 +213,19 @@ static Network * (*fun)(Network *) = NULL;
 if(fun==NULL) fun = (Network * (*)(Network *)) R_FindSymbol("NetworkCopy", "ergm", NULL);
 return fun(src);
 }
+SEXP Network2Redgelist(Network *nwp){
+static SEXP (*fun)(Network *) = NULL;
+if(fun==NULL) fun = (SEXP (*)(Network *)) R_FindSymbol("Network2Redgelist", "ergm", NULL);
+return fun(nwp);
+}
+Network * Redgelist2Network(SEXP elR, Rboolean empty){
+static Network * (*fun)(SEXP,Rboolean) = NULL;
+if(fun==NULL) fun = (Network * (*)(SEXP,Rboolean)) R_FindSymbol("Redgelist2Network", "ergm", NULL);
+return fun(elR,empty);
+}
 void SetEdge(Vertex tail, Vertex head, unsigned int weight, Network *nwp){
 static void (*fun)(Vertex,Vertex,unsigned int,Network *) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex,Vertex,unsigned int,Network *)) R_FindSymbol("SetEdge", "ergm", NULL);
-fun(tail,head,weight,nwp);
-}
-void SetEdgeWithTimestamp(Vertex tail, Vertex head, unsigned int weight, Network *nwp){
-static void (*fun)(Vertex,Vertex,unsigned int,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,unsigned int,Network *)) R_FindSymbol("SetEdgeWithTimestamp", "ergm", NULL);
 fun(tail,head,weight,nwp);
 }
 int ToggleEdge(Vertex tail, Vertex head, Network *nwp){
@@ -105,45 +233,30 @@ static int (*fun)(Vertex,Vertex,Network *) = NULL;
 if(fun==NULL) fun = (int (*)(Vertex,Vertex,Network *)) R_FindSymbol("ToggleEdge", "ergm", NULL);
 return fun(tail,head,nwp);
 }
-int ToggleEdgeWithTimestamp(Vertex tail, Vertex head, Network *nwp){
-static int (*fun)(Vertex,Vertex,Network *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,Network *)) R_FindSymbol("ToggleEdgeWithTimestamp", "ergm", NULL);
-return fun(tail,head,nwp);
+void ToggleKnownEdge(Vertex tail, Vertex head, Network *nwp, Rboolean edgeflag){
+static void (*fun)(Vertex,Vertex,Network *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,Network *,Rboolean)) R_FindSymbol("ToggleKnownEdge", "ergm", NULL);
+fun(tail,head,nwp,edgeflag);
 }
-int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp){
-static int (*fun)(Vertex,Vertex,Network *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,Network *)) R_FindSymbol("AddEdgeToTrees", "ergm", NULL);
-return fun(tail,head,nwp);
-}
-void AddHalfedgeToTree(Vertex a, Vertex b, TreeNode *edges, Edge *last_edge){
-static void (*fun)(Vertex,Vertex,TreeNode *,Edge *) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,TreeNode *,Edge *)) R_FindSymbol("AddHalfedgeToTree", "ergm", NULL);
-fun(a,b,edges,last_edge);
-}
-void CheckEdgetreeFull(Network *nwp){
-static void (*fun)(Network *) = NULL;
-if(fun==NULL) fun = (void (*)(Network *)) R_FindSymbol("CheckEdgetreeFull", "ergm", NULL);
-fun(nwp);
+void AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp){
+static void (*fun)(Vertex,Vertex,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,Network *)) R_FindSymbol("AddEdgeToTrees", "ergm", NULL);
+fun(tail,head,nwp);
 }
 int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp){
 static int (*fun)(Vertex,Vertex,Network *) = NULL;
 if(fun==NULL) fun = (int (*)(Vertex,Vertex,Network *)) R_FindSymbol("DeleteEdgeFromTrees", "ergm", NULL);
 return fun(tail,head,nwp);
 }
-int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,Edge *last_edge){
-static int (*fun)(Vertex,Vertex,TreeNode *,Edge *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,TreeNode *,Edge *)) R_FindSymbol("DeleteHalfedgeFromTree", "ergm", NULL);
-return fun(a,b,edges,last_edge);
+void AddOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange callback, void *payload, unsigned int pos){
+static void (*fun)(Network *,OnNetworkEdgeChange,void *,unsigned int) = NULL;
+if(fun==NULL) fun = (void (*)(Network *,OnNetworkEdgeChange,void *,unsigned int)) R_FindSymbol("AddOnNetworkEdgeChange", "ergm", NULL);
+fun(nwp,callback,payload,pos);
 }
-void RelocateHalfedge(Edge from, Edge to, TreeNode *edges){
-static void (*fun)(Edge,Edge,TreeNode *) = NULL;
-if(fun==NULL) fun = (void (*)(Edge,Edge,TreeNode *)) R_FindSymbol("RelocateHalfedge", "ergm", NULL);
-fun(from,to,edges);
-}
-void TouchEdge(Vertex tail, Vertex head, Network *nwp){
-static void (*fun)(Vertex,Vertex,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,Network *)) R_FindSymbol("TouchEdge", "ergm", NULL);
-fun(tail,head,nwp);
+void DeleteOnNetworkEdgeChange(Network *nwp, OnNetworkEdgeChange callback, void *payload){
+static void (*fun)(Network *,OnNetworkEdgeChange,void *) = NULL;
+if(fun==NULL) fun = (void (*)(Network *,OnNetworkEdgeChange,void *)) R_FindSymbol("DeleteOnNetworkEdgeChange", "ergm", NULL);
+fun(nwp,callback,payload);
 }
 int FindithEdge(Vertex *tail, Vertex *head, Edge i, Network *nwp){
 static int (*fun)(Vertex *,Vertex *,Edge,Network *) = NULL;
@@ -190,6 +303,11 @@ static void (*fun)(Vertex *,Vertex *,Edge) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex *,Vertex *,Edge)) R_FindSymbol("DetShuffleEdges", "ergm", NULL);
 fun(tails,heads,nedges);
 }
+void DetUnShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges){
+static void (*fun)(Vertex *,Vertex *,Edge) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex *,Vertex *,Edge)) R_FindSymbol("DetUnShuffleEdges", "ergm", NULL);
+fun(tails,heads,nedges);
+}
 Edge DesignMissing(Vertex a, Vertex b, Network *mnwp){
 static Edge (*fun)(Vertex,Vertex,Network *) = NULL;
 if(fun==NULL) fun = (Edge (*)(Vertex,Vertex,Network *)) R_FindSymbol("DesignMissing", "ergm", NULL);
@@ -200,22 +318,33 @@ static Edge (*fun)(Vertex *,Vertex *,Network *,Edge) = NULL;
 if(fun==NULL) fun = (Edge (*)(Vertex *,Vertex *,Network *,Edge)) R_FindSymbol("EdgeTree2EdgeList", "ergm", NULL);
 return fun(tails,heads,nwp,nmax);
 }
-#undef MIN
-#undef MAX
-#undef _GET_OVERRIDE1
-#undef _GET_OVERRIDE2
-#undef _GET_OVERRIDE3
-#undef _GET_OVERRIDE4
-#undef _GET_OVERRIDE5
-#undef _GET_OVERRIDE6
-#undef _DYADCOUNT1
-#undef _DYADCOUNT3
-#undef DYADCOUNT
-#undef EDGECOUNT
-#undef ENSURE_TH_ORDER
-#undef GetRandDyad
-#undef ENSURE_TH_ORDER
 
+#define STUBFILE
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
+#include "ergm_etamap.h"
+void ergm_eta(double *theta, SEXP etamap, double *eta){
+static void (*fun)(double *,SEXP,double *) = NULL;
+if(fun==NULL) fun = (void (*)(double *,SEXP,double *)) R_FindSymbol("ergm_eta", "ergm", NULL);
+fun(theta,etamap,eta);
+}
+void ergm_etagrad(double *theta, SEXP etamap, double *eta){
+static void (*fun)(double *,SEXP,double *) = NULL;
+if(fun==NULL) fun = (void (*)(double *,SEXP,double *)) R_FindSymbol("ergm_etagrad", "ergm", NULL);
+fun(theta,etamap,eta);
+}
+void ergm_etagradmult(double *theta, double *v, unsigned int nv, SEXP etamap, double *ans){
+static void (*fun)(double *,double *,unsigned int,SEXP,double *) = NULL;
+if(fun==NULL) fun = (void (*)(double *,double *,unsigned int,SEXP,double *)) R_FindSymbol("ergm_etagradmult", "ergm", NULL);
+fun(theta,v,nv,etamap,ans);
+}
+
+#define STUBFILE
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
+#include "ergm_hash_edgelist.h"
+
+#define STUBFILE
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_MHproposal.h"
@@ -229,15 +358,15 @@ static void (*fun)(DegreeBound *) = NULL;
 if(fun==NULL) fun = (void (*)(DegreeBound *)) R_FindSymbol("DegreeBoundDestroy", "ergm", NULL);
 fun(bd);
 }
-MHProposal * MHProposalInitialize(char *MHProposaltype, char *MHProposalpackage,double *inputs,int fVerbose,Network *nwp,int *attribs, int *maxout, int *maxin,int *minout, int *minin, int condAllDegExact,int attriblength){
-static MHProposal * (*fun)(char *,char *,double *,int,Network *,int *,int *,int *,int *,int *,int,int) = NULL;
-if(fun==NULL) fun = (MHProposal * (*)(char *,char *,double *,int,Network *,int *,int *,int *,int *,int *,int,int)) R_FindSymbol("MHProposalInitialize", "ergm", NULL);
-return fun(MHProposaltype,MHProposalpackage,inputs,fVerbose,nwp,attribs,maxout,maxin,minout,minin,condAllDegExact,attriblength);
+MHProposal * MHProposalInitialize(SEXP pR, Network *nwp, void **aux_storage){
+static MHProposal * (*fun)(SEXP,Network *,void **) = NULL;
+if(fun==NULL) fun = (MHProposal * (*)(SEXP,Network *,void **)) R_FindSymbol("MHProposalInitialize", "ergm", NULL);
+return fun(pR,nwp,aux_storage);
 }
-void MHProposalDestroy(MHProposal *MHp){
-static void (*fun)(MHProposal *) = NULL;
-if(fun==NULL) fun = (void (*)(MHProposal *)) R_FindSymbol("MHProposalDestroy", "ergm", NULL);
-fun(MHp);
+void MHProposalDestroy(MHProposal *MHp, Network *nwp){
+static void (*fun)(MHProposal *,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(MHProposal *,Network *)) R_FindSymbol("MHProposalDestroy", "ergm", NULL);
+fun(MHp,nwp);
 }
 int CheckTogglesValid(MHProposal *MHp, Network *nwp){
 static int (*fun)(MHProposal *,Network *) = NULL;
@@ -249,146 +378,88 @@ static int (*fun)(MHProposal *,Network *) = NULL;
 if(fun==NULL) fun = (int (*)(MHProposal *,Network *)) R_FindSymbol("CheckConstrainedTogglesValid", "ergm", NULL);
 return fun(MHp,nwp);
 }
-#undef MIN
-#undef MAX
-#undef _GET_OVERRIDE1
-#undef _GET_OVERRIDE2
-#undef _GET_OVERRIDE3
-#undef _GET_OVERRIDE4
-#undef _GET_OVERRIDE5
-#undef _GET_OVERRIDE6
-#undef _DYADCOUNT1
-#undef _DYADCOUNT3
-#undef DYADCOUNT
-#undef EDGECOUNT
-#undef ENSURE_TH_ORDER
-#undef GetRandDyad
-#undef ENSURE_TH_ORDER
-#undef NO_EDGE
-#undef OLD_EDGE
-#undef NEW_EDGE
-#undef CAN_IGNORE
-#undef MAX_TRIES
-#undef MH_FAILED
-#undef MH_UNRECOVERABLE
-#undef MH_IMPOSSIBLE
-#undef MH_UNSUCCESSFUL
-#undef MH_CONSTRAINT
-#undef MH_QUIT_UNSUCCESSFUL
-#undef XOR
-#undef XNOR
-#undef BD_LOOP
-#undef BD_COND_LOOP
-#undef MH_INPUTS
-#undef Mtail
-#undef Mhead
-#undef MH_P_FN
 
+#define STUBFILE
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_model.h"
-Model* ModelInitialize(char *fnames, char *sonames, double **inputs,int n_terms){
-static Model* (*fun)(char *,char *,double **,int) = NULL;
-if(fun==NULL) fun = (Model* (*)(char *,char *,double **,int)) R_FindSymbol("ModelInitialize", "ergm", NULL);
-return fun(fnames,sonames,inputs,n_terms);
+Model* ModelInitialize(SEXP mR, SEXP ext_stateR, Network *nwp, Rboolean noinit_s){
+static Model* (*fun)(SEXP,SEXP,Network *,Rboolean) = NULL;
+if(fun==NULL) fun = (Model* (*)(SEXP,SEXP,Network *,Rboolean)) R_FindSymbol("ModelInitialize", "ergm", NULL);
+return fun(mR,ext_stateR,nwp,noinit_s);
 }
-void ModelDestroy(Model *m){
-static void (*fun)(Model *) = NULL;
-if(fun==NULL) fun = (void (*)(Model *)) R_FindSymbol("ModelDestroy", "ergm", NULL);
-fun(m);
+void ModelDestroy(Network *nwp, Model *m){
+static void (*fun)(Network *,Model *) = NULL;
+if(fun==NULL) fun = (void (*)(Network *,Model *)) R_FindSymbol("ModelDestroy", "ergm", NULL);
+fun(nwp,m);
 }
 int GetIndexForAttrValue(int value){
 static int (*fun)(int) = NULL;
 if(fun==NULL) fun = (int (*)(int)) R_FindSymbol("GetIndexForAttrValue", "ergm", NULL);
 return fun(value);
 }
-void ChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, Network *nwp, Model *m){
+void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, Network *nwp, Model *m){
 static void (*fun)(unsigned int,Vertex *,Vertex *,Network *,Model *) = NULL;
 if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,Network *,Model *)) R_FindSymbol("ChangeStats", "ergm", NULL);
-fun(ntoggles,toggletail,togglehead,nwp,m);
+fun(ntoggles,tails,heads,nwp,m);
 }
-#undef MIN
-#undef MAX
-#undef _GET_OVERRIDE1
-#undef _GET_OVERRIDE2
-#undef _GET_OVERRIDE3
-#undef _GET_OVERRIDE4
-#undef _GET_OVERRIDE5
-#undef _GET_OVERRIDE6
-#undef _DYADCOUNT1
-#undef _DYADCOUNT3
-#undef DYADCOUNT
-#undef EDGECOUNT
-#undef ENSURE_TH_ORDER
-#undef GetRandDyad
-#undef ENSURE_TH_ORDER
-#undef CHOOSE
-#undef EQUAL
-#undef XOR
-#undef XNOR
-#undef OUTVAL
-#undef INVAL
-#undef N_NODES
-#undef N_DYADS
-#undef OUT_DEG
-#undef IN_DEG
-#undef DIRECTED
-#undef N_EDGES
-#undef BIPARTITE
-#undef NEXT_INEDGE_NUM
-#undef NEXT_OUTEDGE_NUM
-#undef CHANGE_STAT
-#undef N_CHANGE_STATS
-#undef INPUT_PARAM
-#undef N_INPUT_PARAMS
-#undef ZERO_ALL_CHANGESTATS
-#undef INPUT_ATTRIB
-#undef TAIL
-#undef HEAD
-#undef IS_OUTEDGE
-#undef IS_INEDGE
-#undef IS_UNDIRECTED_EDGE
-#undef MIN_OUTEDGE
-#undef MIN_INEDGE
-#undef NEXT_OUTEDGE
-#undef NEXT_INEDGE
-#undef STEP_THROUGH_OUTEDGES
-#undef STEP_THROUGH_INEDGES
-#undef TOGGLE
-#undef TOGGLE_DISCORD
-#undef FOR_EACH_TOGGLE
-#undef TOGGLE_IF_MORE_TO_COME
-#undef TOGGLE_DISCORD_IF_MORE_TO_COME
-#undef UNDO_PREVIOUS_TOGGLES
-#undef UNDO_PREVIOUS_DISCORD_TOGGLES
-#undef CHANGESTAT_FN
-#undef D_CHANGESTAT_FN
-#undef S_CHANGESTAT_FN
-#undef D_FROM_S
-#undef D_FROM_S_FN
+void ChangeStats1(Vertex tail, Vertex head, Network *nwp, Model *m, Rboolean edgeflag){
+static void (*fun)(Vertex,Vertex,Network *,Model *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,Network *,Model *,Rboolean)) R_FindSymbol("ChangeStats1", "ergm", NULL);
+fun(tail,head,nwp,m,edgeflag);
+}
+void ZStats(Network *nwp, Model *m, Rboolean skip_s){
+static void (*fun)(Network *,Model *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(Network *,Model *,Rboolean)) R_FindSymbol("ZStats", "ergm", NULL);
+fun(nwp,m,skip_s);
+}
+void EmptyNetworkStats(Model *m, Rboolean skip_s){
+static void (*fun)(Model *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(Model *,Rboolean)) R_FindSymbol("EmptyNetworkStats", "ergm", NULL);
+fun(m,skip_s);
+}
+void SummStats(Edge n_edges, Vertex *tails, Vertex *heads, Network *nwp, Model *m){
+static void (*fun)(Edge,Vertex *,Vertex *,Network *,Model *) = NULL;
+if(fun==NULL) fun = (void (*)(Edge,Vertex *,Vertex *,Network *,Model *)) R_FindSymbol("SummStats", "ergm", NULL);
+fun(n_edges,tails,heads,nwp,m);
+}
 
+#define STUBFILE
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_rlebdm.h"
-#undef MIN
-#undef MAX
-#undef _GET_OVERRIDE1
-#undef _GET_OVERRIDE2
-#undef _GET_OVERRIDE3
-#undef _GET_OVERRIDE4
-#undef _GET_OVERRIDE5
-#undef _GET_OVERRIDE6
-#undef _DYADCOUNT1
-#undef _DYADCOUNT3
-#undef DYADCOUNT
-#undef EDGECOUNT
-#undef ENSURE_TH_ORDER
-#undef GetRandDyad
-#undef ENSURE_TH_ORDER
-#undef TH2Dyad
-#undef Dyad2T
-#undef Dyad2H
 
+#define STUBFILE
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
+#include "ergm_Rutil.h"
+
+#define STUBFILE
+#include <stddef.h>
+#include <R_ext/Rdynload.h>
+#include "ergm_state.h"
+ErgmState * ErgmStateInit(SEXP stateR,unsigned int flags){
+static ErgmState * (*fun)(SEXP,unsigned int) = NULL;
+if(fun==NULL) fun = (ErgmState * (*)(SEXP,unsigned int)) R_FindSymbol("ErgmStateInit", "ergm", NULL);
+return fun(stateR,flags);
+}
+SEXP ErgmStateRSave(SEXP startR, ErgmState *s){
+static SEXP (*fun)(SEXP,ErgmState *) = NULL;
+if(fun==NULL) fun = (SEXP (*)(SEXP,ErgmState *)) R_FindSymbol("ErgmStateRSave", "ergm", NULL);
+return fun(startR,s);
+}
+void ErgmStateDestroy(ErgmState *s){
+static void (*fun)(ErgmState *) = NULL;
+if(fun==NULL) fun = (void (*)(ErgmState *)) R_FindSymbol("ErgmStateDestroy", "ergm", NULL);
+fun(s);
+}
+SEXP ErgmStateArrayClear(){
+static SEXP (*fun)() = NULL;
+if(fun==NULL) fun = (SEXP (*)()) R_FindSymbol("ErgmStateArrayClear", "ergm", NULL);
+return fun();
+}
+
+#define STUBFILE
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_wtedgetree.h"
@@ -412,14 +483,19 @@ static WtNetwork * (*fun)(WtNetwork *) = NULL;
 if(fun==NULL) fun = (WtNetwork * (*)(WtNetwork *)) R_FindSymbol("WtNetworkCopy", "ergm", NULL);
 return fun(src);
 }
+SEXP WtNetwork2Redgelist(WtNetwork *nwp){
+static SEXP (*fun)(WtNetwork *) = NULL;
+if(fun==NULL) fun = (SEXP (*)(WtNetwork *)) R_FindSymbol("WtNetwork2Redgelist", "ergm", NULL);
+return fun(nwp);
+}
+WtNetwork * Redgelist2WtNetwork(SEXP elR, Rboolean empty){
+static WtNetwork * (*fun)(SEXP,Rboolean) = NULL;
+if(fun==NULL) fun = (WtNetwork * (*)(SEXP,Rboolean)) R_FindSymbol("Redgelist2WtNetwork", "ergm", NULL);
+return fun(elR,empty);
+}
 void WtSetEdge(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
 static void (*fun)(Vertex,Vertex,double,WtNetwork *) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,WtNetwork *)) R_FindSymbol("WtSetEdge", "ergm", NULL);
-fun(tail,head,weight,nwp);
-}
-void WtSetEdgeWithTimestamp(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
-static void (*fun)(Vertex,Vertex,double,WtNetwork *) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,WtNetwork *)) R_FindSymbol("WtSetEdgeWithTimestamp", "ergm", NULL);
 fun(tail,head,weight,nwp);
 }
 int WtToggleEdge(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
@@ -427,45 +503,25 @@ static int (*fun)(Vertex,Vertex,double,WtNetwork *) = NULL;
 if(fun==NULL) fun = (int (*)(Vertex,Vertex,double,WtNetwork *)) R_FindSymbol("WtToggleEdge", "ergm", NULL);
 return fun(tail,head,weight,nwp);
 }
-int WtToggleEdgeWithTimestamp(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
-static int (*fun)(Vertex,Vertex,double,WtNetwork *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,double,WtNetwork *)) R_FindSymbol("WtToggleEdgeWithTimestamp", "ergm", NULL);
-return fun(tail,head,weight,nwp);
-}
-int WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
-static int (*fun)(Vertex,Vertex,double,WtNetwork *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,double,WtNetwork *)) R_FindSymbol("WtAddEdgeToTrees", "ergm", NULL);
-return fun(tail,head,weight,nwp);
-}
-void WtAddHalfedgeToTree(Vertex a, Vertex b, double weight, WtTreeNode *edges, Edge *last_edge){
-static void (*fun)(Vertex,Vertex,double,WtTreeNode *,Edge *) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,WtTreeNode *,Edge *)) R_FindSymbol("WtAddHalfedgeToTree", "ergm", NULL);
-fun(a,b,weight,edges,last_edge);
-}
-void WtCheckEdgetreeFull(WtNetwork *nwp){
-static void (*fun)(WtNetwork *) = NULL;
-if(fun==NULL) fun = (void (*)(WtNetwork *)) R_FindSymbol("WtCheckEdgetreeFull", "ergm", NULL);
-fun(nwp);
+void WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
+static void (*fun)(Vertex,Vertex,double,WtNetwork *) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,WtNetwork *)) R_FindSymbol("WtAddEdgeToTrees", "ergm", NULL);
+fun(tail,head,weight,nwp);
 }
 int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp){
 static int (*fun)(Vertex,Vertex,WtNetwork *) = NULL;
 if(fun==NULL) fun = (int (*)(Vertex,Vertex,WtNetwork *)) R_FindSymbol("WtDeleteEdgeFromTrees", "ergm", NULL);
 return fun(tail,head,nwp);
 }
-int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,Edge *last_edge){
-static int (*fun)(Vertex,Vertex,WtTreeNode *,Edge *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex,Vertex,WtTreeNode *,Edge *)) R_FindSymbol("WtDeleteHalfedgeFromTree", "ergm", NULL);
-return fun(a,b,edges,last_edge);
+void AddOnWtNetworkEdgeChange(WtNetwork *nwp, OnWtNetworkEdgeChange callback, void *payload, unsigned int pos){
+static void (*fun)(WtNetwork *,OnWtNetworkEdgeChange,void *,unsigned int) = NULL;
+if(fun==NULL) fun = (void (*)(WtNetwork *,OnWtNetworkEdgeChange,void *,unsigned int)) R_FindSymbol("AddOnWtNetworkEdgeChange", "ergm", NULL);
+fun(nwp,callback,payload,pos);
 }
-void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges){
-static void (*fun)(Edge,Edge,WtTreeNode *) = NULL;
-if(fun==NULL) fun = (void (*)(Edge,Edge,WtTreeNode *)) R_FindSymbol("WtRelocateHalfedge", "ergm", NULL);
-fun(from,to,edges);
-}
-void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp){
-static void (*fun)(Vertex,Vertex,WtNetwork *) = NULL;
-if(fun==NULL) fun = (void (*)(Vertex,Vertex,WtNetwork *)) R_FindSymbol("WtTouchEdge", "ergm", NULL);
-fun(tail,head,nwp);
+void DeleteOnWtNetworkEdgeChange(WtNetwork *nwp, OnWtNetworkEdgeChange callback, void *payload){
+static void (*fun)(WtNetwork *,OnWtNetworkEdgeChange,void *) = NULL;
+if(fun==NULL) fun = (void (*)(WtNetwork *,OnWtNetworkEdgeChange,void *)) R_FindSymbol("DeleteOnWtNetworkEdgeChange", "ergm", NULL);
+fun(nwp,callback,payload);
 }
 int WtFindithEdge(Vertex *tail, Vertex *head, double *weight, Edge i, WtNetwork *nwp){
 static int (*fun)(Vertex *,Vertex *,double *,Edge,WtNetwork *) = NULL;
@@ -512,6 +568,11 @@ static void (*fun)(Vertex *,Vertex *,double *,Edge) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex *,Vertex *,double *,Edge)) R_FindSymbol("WtDetShuffleEdges", "ergm", NULL);
 fun(tails,heads,weights,nedges);
 }
+void WtDetUnShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges){
+static void (*fun)(Vertex *,Vertex *,double *,Edge) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex *,Vertex *,double *,Edge)) R_FindSymbol("WtDetUnShuffleEdges", "ergm", NULL);
+fun(tails,heads,weights,nedges);
+}
 Edge WtDesignMissing(Vertex a, Vertex b, WtNetwork *mnwp){
 static Edge (*fun)(Vertex,Vertex,WtNetwork *) = NULL;
 if(fun==NULL) fun = (Edge (*)(Vertex,Vertex,WtNetwork *)) R_FindSymbol("WtDesignMissing", "ergm", NULL);
@@ -522,382 +583,78 @@ static Edge (*fun)(Vertex *,Vertex *,double *,WtNetwork *,Edge) = NULL;
 if(fun==NULL) fun = (Edge (*)(Vertex *,Vertex *,double *,WtNetwork *,Edge)) R_FindSymbol("WtEdgeTree2EdgeList", "ergm", NULL);
 return fun(tails,heads,weights,nwp,nmax);
 }
-#undef MIN
-#undef MAX
-#undef _GET_OVERRIDE1
-#undef _GET_OVERRIDE2
-#undef _GET_OVERRIDE3
-#undef _GET_OVERRIDE4
-#undef _GET_OVERRIDE5
-#undef _GET_OVERRIDE6
-#undef _DYADCOUNT1
-#undef _DYADCOUNT3
-#undef DYADCOUNT
-#undef EDGECOUNT
-#undef ENSURE_TH_ORDER
-#undef GetRandDyad
-#undef ENSURE_TH_ORDER
 
+#define STUBFILE
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_wtMHproposal.h"
-WtMHProposal * WtMHProposalInitialize(char *MHProposaltype, char *MHProposalpackage,double *inputs,int fVerbose,WtNetwork *nwp){
-static WtMHProposal * (*fun)(char *,char *,double *,int,WtNetwork *) = NULL;
-if(fun==NULL) fun = (WtMHProposal * (*)(char *,char *,double *,int,WtNetwork *)) R_FindSymbol("WtMHProposalInitialize", "ergm", NULL);
-return fun(MHProposaltype,MHProposalpackage,inputs,fVerbose,nwp);
+WtMHProposal * WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage){
+static WtMHProposal * (*fun)(SEXP,WtNetwork *,void **) = NULL;
+if(fun==NULL) fun = (WtMHProposal * (*)(SEXP,WtNetwork *,void **)) R_FindSymbol("WtMHProposalInitialize", "ergm", NULL);
+return fun(pR,nwp,aux_storage);
 }
-void WtMHProposalDestroy(WtMHProposal *MH){
-static void (*fun)(WtMHProposal *) = NULL;
-if(fun==NULL) fun = (void (*)(WtMHProposal *)) R_FindSymbol("WtMHProposalDestroy", "ergm", NULL);
-fun(MH);
+void WtMHProposalDestroy(WtMHProposal *MH, WtNetwork *nwp){
+static void (*fun)(WtMHProposal *,WtNetwork *) = NULL;
+if(fun==NULL) fun = (void (*)(WtMHProposal *,WtNetwork *)) R_FindSymbol("WtMHProposalDestroy", "ergm", NULL);
+fun(MH,nwp);
 }
-#undef MIN
-#undef MAX
-#undef _GET_OVERRIDE1
-#undef _GET_OVERRIDE2
-#undef _GET_OVERRIDE3
-#undef _GET_OVERRIDE4
-#undef _GET_OVERRIDE5
-#undef _GET_OVERRIDE6
-#undef _DYADCOUNT1
-#undef _DYADCOUNT3
-#undef DYADCOUNT
-#undef EDGECOUNT
-#undef ENSURE_TH_ORDER
-#undef GetRandDyad
-#undef ENSURE_TH_ORDER
-#undef NO_EDGE
-#undef OLD_EDGE
-#undef NEW_EDGE
-#undef CAN_IGNORE
-#undef MAX_TRIES
-#undef MH_FAILED
-#undef MH_UNRECOVERABLE
-#undef MH_IMPOSSIBLE
-#undef MH_UNSUCCESSFUL
-#undef MH_CONSTRAINT
-#undef MH_QUIT_UNSUCCESSFUL
-#undef XOR
-#undef XNOR
-#undef MH_INPUTS
-#undef Mtail
-#undef Mhead
-#undef Mweight
-#undef WtMH_P_FN
 
+#define STUBFILE
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
 #include "ergm_wtmodel.h"
-WtModel* WtModelInitialize(char *fnames, char *sonames, double **inputs,int n_terms){
-static WtModel* (*fun)(char *,char *,double **,int) = NULL;
-if(fun==NULL) fun = (WtModel* (*)(char *,char *,double **,int)) R_FindSymbol("WtModelInitialize", "ergm", NULL);
-return fun(fnames,sonames,inputs,n_terms);
+WtModel* WtModelInitialize(SEXP mR, SEXP ext_stateR, WtNetwork *nwp, Rboolean noinit_s){
+static WtModel* (*fun)(SEXP,SEXP,WtNetwork *,Rboolean) = NULL;
+if(fun==NULL) fun = (WtModel* (*)(SEXP,SEXP,WtNetwork *,Rboolean)) R_FindSymbol("WtModelInitialize", "ergm", NULL);
+return fun(mR,ext_stateR,nwp,noinit_s);
 }
-void WtModelDestroy(WtModel *m){
-static void (*fun)(WtModel *) = NULL;
-if(fun==NULL) fun = (void (*)(WtModel *)) R_FindSymbol("WtModelDestroy", "ergm", NULL);
-fun(m);
+void WtModelDestroy(WtNetwork *nwp, WtModel *m){
+static void (*fun)(WtNetwork *,WtModel *) = NULL;
+if(fun==NULL) fun = (void (*)(WtNetwork *,WtModel *)) R_FindSymbol("WtModelDestroy", "ergm", NULL);
+fun(nwp,m);
 }
-void WtChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, double *toggleweight, WtNetwork *nwp, WtModel *m){
+void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, WtModel *m){
 static void (*fun)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *) = NULL;
 if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *)) R_FindSymbol("WtChangeStats", "ergm", NULL);
-fun(ntoggles,toggletail,togglehead,toggleweight,nwp,m);
+fun(ntoggles,tails,heads,weights,nwp,m);
 }
-#undef MIN
-#undef MAX
-#undef _GET_OVERRIDE1
-#undef _GET_OVERRIDE2
-#undef _GET_OVERRIDE3
-#undef _GET_OVERRIDE4
-#undef _GET_OVERRIDE5
-#undef _GET_OVERRIDE6
-#undef _DYADCOUNT1
-#undef _DYADCOUNT3
-#undef DYADCOUNT
-#undef EDGECOUNT
-#undef ENSURE_TH_ORDER
-#undef GetRandDyad
-#undef ENSURE_TH_ORDER
-#undef CHOOSE
-#undef EQUAL
-#undef XOR
-#undef XNOR
-#undef OUTVAL
-#undef INVAL
-#undef N_NODES
-#undef N_DYADS
-#undef OUT_DEG
-#undef IN_DEG
-#undef DIRECTED
-#undef N_EDGES
-#undef BIPARTITE
-#undef NEXT_INEDGE_NUM
-#undef NEXT_OUTEDGE_NUM
-#undef CHANGE_STAT
-#undef N_CHANGE_STATS
-#undef INPUT_PARAM
-#undef N_INPUT_PARAMS
-#undef ZERO_ALL_CHANGESTATS
-#undef INPUT_ATTRIB
-#undef IS_OUTEDGE
-#undef IS_INEDGE
-#undef IS_UNDIRECTED_EDGE
-#undef OUTWT
-#undef INWT
-#undef MIN_OUTEDGE
-#undef MIN_INEDGE
-#undef NEXT_OUTEDGE
-#undef NEXT_INEDGE
-#undef STEP_THROUGH_OUTEDGES
-#undef STEP_THROUGH_INEDGES
-#undef STEP_THROUGH_OUTEDGES_DECL
-#undef STEP_THROUGH_INEDGES_DECL
-#undef EXEC_THROUGH_OUTEDGES
-#undef EXEC_THROUGH_INEDGES
-#undef EXEC_THROUGH_EDGES
-#undef EXEC_THROUGH_FOUTEDGES
-#undef EXEC_THROUGH_FINEDGES
-#undef GETWT
-#undef SETWT
-#undef TOGGLEIND
-#undef FOR_EACH_TOGGLE
-#undef TAIL
-#undef HEAD
-#undef NEWWT
-#undef OLDWT
-#undef GETOLDTOGGLEINFO
-#undef GETTOGGLEINFO
-#undef SETWT_WITH_BACKUP
-#undef UNDO_SETWT
-#undef SETWT_IF_MORE_TO_COME
-#undef UNDO_PREVIOUS_SETWTS
-#undef EXEC_THROUGH_TOGGLES
-#undef SAMEDYAD
-#undef GETOLDWT
-#undef GETNEWWT
-#undef GETNEWWTOLD
-#undef WtD_CHANGESTAT_FN
-#undef WtS_CHANGESTAT_FN
-#undef D_FROM_S
-#undef WtD_FROM_S_FN
+void WtChangeStats1(Vertex tail, Vertex head, double weight, WtNetwork *nwp, WtModel *m, double edgeweight){
+static void (*fun)(Vertex,Vertex,double,WtNetwork *,WtModel *,double) = NULL;
+if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,WtNetwork *,WtModel *,double)) R_FindSymbol("WtChangeStats1", "ergm", NULL);
+fun(tail,head,weight,nwp,m,edgeweight);
+}
+void WtZStats(WtNetwork *nwp, WtModel *m, Rboolean skip_s){
+static void (*fun)(WtNetwork *,WtModel *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(WtNetwork *,WtModel *,Rboolean)) R_FindSymbol("WtZStats", "ergm", NULL);
+fun(nwp,m,skip_s);
+}
+void WtEmptyNetworkStats(WtModel *m, Rboolean skip_s){
+static void (*fun)(WtModel *,Rboolean) = NULL;
+if(fun==NULL) fun = (void (*)(WtModel *,Rboolean)) R_FindSymbol("WtEmptyNetworkStats", "ergm", NULL);
+fun(m,skip_s);
+}
+void WtSummStats(Edge n_edges, Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, WtModel *m){
+static void (*fun)(Edge,Vertex *,Vertex *,double *,WtNetwork *,WtModel *) = NULL;
+if(fun==NULL) fun = (void (*)(Edge,Vertex *,Vertex *,double *,WtNetwork *,WtModel *)) R_FindSymbol("WtSummStats", "ergm", NULL);
+fun(n_edges,tails,heads,weights,nwp,m);
+}
 
+#define STUBFILE
 #include <stddef.h>
 #include <R_ext/Rdynload.h>
-#include "MCMC.h"
-void MCMC_wrapper(int *dnedges,int *tails, int *heads,int *dn, int *dflag, int *bipartite,int *nterms, char **funnames,char **sonames,char **MHProposaltype, char **MHProposalpackage,double *inputs, double *theta0, int *samplesize,double *sample, int *burnin, int *interval,int *newnetworktails,int *newnetworkheads,int *fVerbose,int *attribs, int *maxout, int *maxin, int *minout,int *minin, int *condAllDegExact, int *attriblength,int *maxedges,int *status){
-static void (*fun)(int *,int *,int *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *) = NULL;
-if(fun==NULL) fun = (void (*)(int *,int *,int *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *)) R_FindSymbol("MCMC_wrapper", "ergm", NULL);
-fun(dnedges,tails,heads,dn,dflag,bipartite,nterms,funnames,sonames,MHProposaltype,MHProposalpackage,inputs,theta0,samplesize,sample,burnin,interval,newnetworktails,newnetworkheads,fVerbose,attribs,maxout,maxin,minout,minin,condAllDegExact,attriblength,maxedges,status);
+#include "ergm_wtstate.h"
+WtErgmState * WtErgmStateInit(SEXP stateR,unsigned int flags){
+static WtErgmState * (*fun)(SEXP,unsigned int) = NULL;
+if(fun==NULL) fun = (WtErgmState * (*)(SEXP,unsigned int)) R_FindSymbol("WtErgmStateInit", "ergm", NULL);
+return fun(stateR,flags);
 }
-MCMCStatus MCMCSample(MHProposal *MHp,double *theta, double *networkstatistics,int samplesize, int burnin,int interval, int fVerbose, int nmax,Network *nwp, Model *m){
-static MCMCStatus (*fun)(MHProposal *,double *,double *,int,int,int,int,int,Network *,Model *) = NULL;
-if(fun==NULL) fun = (MCMCStatus (*)(MHProposal *,double *,double *,int,int,int,int,int,Network *,Model *)) R_FindSymbol("MCMCSample", "ergm", NULL);
-return fun(MHp,theta,networkstatistics,samplesize,burnin,interval,fVerbose,nmax,nwp,m);
+SEXP WtErgmStateRSave(SEXP startR, WtErgmState *s){
+static SEXP (*fun)(SEXP,WtErgmState *) = NULL;
+if(fun==NULL) fun = (SEXP (*)(SEXP,WtErgmState *)) R_FindSymbol("WtErgmStateRSave", "ergm", NULL);
+return fun(startR,s);
 }
-MCMCStatus MetropolisHastings(MHProposal *MHp,double *theta, double *statistics,int nsteps, int *staken,int fVerbose,Network *nwp, Model *m){
-static MCMCStatus (*fun)(MHProposal *,double *,double *,int,int *,int,Network *,Model *) = NULL;
-if(fun==NULL) fun = (MCMCStatus (*)(MHProposal *,double *,double *,int,int *,int,Network *,Model *)) R_FindSymbol("MetropolisHastings", "ergm", NULL);
-return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
+void WtErgmStateDestroy(WtErgmState *s){
+static void (*fun)(WtErgmState *) = NULL;
+if(fun==NULL) fun = (void (*)(WtErgmState *)) R_FindSymbol("WtErgmStateDestroy", "ergm", NULL);
+fun(s);
 }
-void MCMCPhase12(int *tails, int *heads, int *dnedges,int *dn, int *dflag, int *bipartite,int *nterms, char **funnames,char **sonames,char **MHProposaltype, char **MHProposalpackage,double *inputs,double *theta0, int *samplesize,double *gain, double *meanstats, int *phase1, int *nsub,double *sample, int *burnin, int *interval,int *newnetworktails,int *newnetworkheads,int *fVerbose,int *attribs, int *maxout, int *maxin, int *minout,int *minin, int *condAllDegExact, int *attriblength,int *maxedges,int *mtails, int *mheads, int *mdnedges){
-static void (*fun)(int *,int *,int *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,double *,int *,int *,double *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *) = NULL;
-if(fun==NULL) fun = (void (*)(int *,int *,int *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,double *,int *,int *,double *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *,int *)) R_FindSymbol("MCMCPhase12", "ergm", NULL);
-fun(tails,heads,dnedges,dn,dflag,bipartite,nterms,funnames,sonames,MHProposaltype,MHProposalpackage,inputs,theta0,samplesize,gain,meanstats,phase1,nsub,sample,burnin,interval,newnetworktails,newnetworkheads,fVerbose,attribs,maxout,maxin,minout,minin,condAllDegExact,attriblength,maxedges,mtails,mheads,mdnedges);
-}
-void MCMCSamplePhase12(MHProposal *MH,double *theta, double gain, double *meanstats,int nphase1, int nsubphases, double *networkstatistics,int samplesize, int burnin,int interval, int fVerbose,Network *nwp, Model *m){
-static void (*fun)(MHProposal *,double *,double,double *,int,int,double *,int,int,int,int,Network *,Model *) = NULL;
-if(fun==NULL) fun = (void (*)(MHProposal *,double *,double,double *,int,int,double *,int,int,int,int,Network *,Model *)) R_FindSymbol("MCMCSamplePhase12", "ergm", NULL);
-fun(MH,theta,gain,meanstats,nphase1,nsubphases,networkstatistics,samplesize,burnin,interval,fVerbose,nwp,m);
-}
-#undef MIN
-#undef MAX
-#undef _GET_OVERRIDE1
-#undef _GET_OVERRIDE2
-#undef _GET_OVERRIDE3
-#undef _GET_OVERRIDE4
-#undef _GET_OVERRIDE5
-#undef _GET_OVERRIDE6
-#undef _DYADCOUNT1
-#undef _DYADCOUNT3
-#undef DYADCOUNT
-#undef EDGECOUNT
-#undef ENSURE_TH_ORDER
-#undef GetRandDyad
-#undef ENSURE_TH_ORDER
-#undef CHOOSE
-#undef EQUAL
-#undef XOR
-#undef XNOR
-#undef OUTVAL
-#undef INVAL
-#undef N_NODES
-#undef N_DYADS
-#undef OUT_DEG
-#undef IN_DEG
-#undef DIRECTED
-#undef N_EDGES
-#undef BIPARTITE
-#undef NEXT_INEDGE_NUM
-#undef NEXT_OUTEDGE_NUM
-#undef CHANGE_STAT
-#undef N_CHANGE_STATS
-#undef INPUT_PARAM
-#undef N_INPUT_PARAMS
-#undef ZERO_ALL_CHANGESTATS
-#undef INPUT_ATTRIB
-#undef TAIL
-#undef HEAD
-#undef IS_OUTEDGE
-#undef IS_INEDGE
-#undef IS_UNDIRECTED_EDGE
-#undef MIN_OUTEDGE
-#undef MIN_INEDGE
-#undef NEXT_OUTEDGE
-#undef NEXT_INEDGE
-#undef STEP_THROUGH_OUTEDGES
-#undef STEP_THROUGH_INEDGES
-#undef TOGGLE
-#undef TOGGLE_DISCORD
-#undef FOR_EACH_TOGGLE
-#undef TOGGLE_IF_MORE_TO_COME
-#undef TOGGLE_DISCORD_IF_MORE_TO_COME
-#undef UNDO_PREVIOUS_TOGGLES
-#undef UNDO_PREVIOUS_DISCORD_TOGGLES
-#undef CHANGESTAT_FN
-#undef D_CHANGESTAT_FN
-#undef S_CHANGESTAT_FN
-#undef D_FROM_S
-#undef D_FROM_S_FN
-#undef NO_EDGE
-#undef OLD_EDGE
-#undef NEW_EDGE
-#undef CAN_IGNORE
-#undef MAX_TRIES
-#undef MH_FAILED
-#undef MH_UNRECOVERABLE
-#undef MH_IMPOSSIBLE
-#undef MH_UNSUCCESSFUL
-#undef MH_CONSTRAINT
-#undef MH_QUIT_UNSUCCESSFUL
-#undef XOR
-#undef XNOR
-#undef BD_LOOP
-#undef BD_COND_LOOP
-#undef MH_INPUTS
-#undef Mtail
-#undef Mhead
-#undef MH_P_FN
-
-#include <stddef.h>
-#include <R_ext/Rdynload.h>
-#include "wtMCMC.h"
-void WtMCMC_wrapper(int *nedges,int *tails, int *heads, double *weights,int *dn, int *dflag, int *bipartite,int *nterms, char **funnames,char **sonames,char **MHProposaltype, char **MHProposalpackage,double *inputs, double *theta0, int *samplesize,double *sample, int *burnin, int *interval,int *newnetworktails,int *newnetworkheads,double *newnetworkweights,int *fVerbose,int *maxedges,int *status){
-static void (*fun)(int *,int *,int *,double *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,double *,int *,int *,int *) = NULL;
-if(fun==NULL) fun = (void (*)(int *,int *,int *,double *,int *,int *,int *,int *,char **,char **,char **,char **,double *,double *,int *,double *,int *,int *,int *,int *,double *,int *,int *,int *)) R_FindSymbol("WtMCMC_wrapper", "ergm", NULL);
-fun(nedges,tails,heads,weights,dn,dflag,bipartite,nterms,funnames,sonames,MHProposaltype,MHProposalpackage,inputs,theta0,samplesize,sample,burnin,interval,newnetworktails,newnetworkheads,newnetworkweights,fVerbose,maxedges,status);
-}
-MCMCStatus WtMCMCSample(WtMHProposal *MHp,double *theta, double *networkstatistics,int samplesize, int burnin,int interval, int fVerbose, int nmax,WtNetwork *nwp, WtModel *m){
-static MCMCStatus (*fun)(WtMHProposal *,double *,double *,int,int,int,int,int,WtNetwork *,WtModel *) = NULL;
-if(fun==NULL) fun = (MCMCStatus (*)(WtMHProposal *,double *,double *,int,int,int,int,int,WtNetwork *,WtModel *)) R_FindSymbol("WtMCMCSample", "ergm", NULL);
-return fun(MHp,theta,networkstatistics,samplesize,burnin,interval,fVerbose,nmax,nwp,m);
-}
-MCMCStatus WtMetropolisHastings(WtMHProposal *MHp,double *theta, double *statistics,int nsteps, int *staken,int fVerbose,WtNetwork *nwp, WtModel *m){
-static MCMCStatus (*fun)(WtMHProposal *,double *,double *,int,int *,int,WtNetwork *,WtModel *) = NULL;
-if(fun==NULL) fun = (MCMCStatus (*)(WtMHProposal *,double *,double *,int,int *,int,WtNetwork *,WtModel *)) R_FindSymbol("WtMetropolisHastings", "ergm", NULL);
-return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
-}
-#undef MIN
-#undef MAX
-#undef _GET_OVERRIDE1
-#undef _GET_OVERRIDE2
-#undef _GET_OVERRIDE3
-#undef _GET_OVERRIDE4
-#undef _GET_OVERRIDE5
-#undef _GET_OVERRIDE6
-#undef _DYADCOUNT1
-#undef _DYADCOUNT3
-#undef DYADCOUNT
-#undef EDGECOUNT
-#undef ENSURE_TH_ORDER
-#undef GetRandDyad
-#undef ENSURE_TH_ORDER
-#undef CHOOSE
-#undef EQUAL
-#undef XOR
-#undef XNOR
-#undef OUTVAL
-#undef INVAL
-#undef N_NODES
-#undef N_DYADS
-#undef OUT_DEG
-#undef IN_DEG
-#undef DIRECTED
-#undef N_EDGES
-#undef BIPARTITE
-#undef NEXT_INEDGE_NUM
-#undef NEXT_OUTEDGE_NUM
-#undef CHANGE_STAT
-#undef N_CHANGE_STATS
-#undef INPUT_PARAM
-#undef N_INPUT_PARAMS
-#undef ZERO_ALL_CHANGESTATS
-#undef INPUT_ATTRIB
-#undef IS_OUTEDGE
-#undef IS_INEDGE
-#undef IS_UNDIRECTED_EDGE
-#undef OUTWT
-#undef INWT
-#undef MIN_OUTEDGE
-#undef MIN_INEDGE
-#undef NEXT_OUTEDGE
-#undef NEXT_INEDGE
-#undef STEP_THROUGH_OUTEDGES
-#undef STEP_THROUGH_INEDGES
-#undef STEP_THROUGH_OUTEDGES_DECL
-#undef STEP_THROUGH_INEDGES_DECL
-#undef EXEC_THROUGH_OUTEDGES
-#undef EXEC_THROUGH_INEDGES
-#undef EXEC_THROUGH_EDGES
-#undef EXEC_THROUGH_FOUTEDGES
-#undef EXEC_THROUGH_FINEDGES
-#undef GETWT
-#undef SETWT
-#undef TOGGLEIND
-#undef FOR_EACH_TOGGLE
-#undef TAIL
-#undef HEAD
-#undef NEWWT
-#undef OLDWT
-#undef GETOLDTOGGLEINFO
-#undef GETTOGGLEINFO
-#undef SETWT_WITH_BACKUP
-#undef UNDO_SETWT
-#undef SETWT_IF_MORE_TO_COME
-#undef UNDO_PREVIOUS_SETWTS
-#undef EXEC_THROUGH_TOGGLES
-#undef SAMEDYAD
-#undef GETOLDWT
-#undef GETNEWWT
-#undef GETNEWWTOLD
-#undef WtD_CHANGESTAT_FN
-#undef WtS_CHANGESTAT_FN
-#undef D_FROM_S
-#undef WtD_FROM_S_FN
-#undef NO_EDGE
-#undef OLD_EDGE
-#undef NEW_EDGE
-#undef CAN_IGNORE
-#undef MAX_TRIES
-#undef MH_FAILED
-#undef MH_UNRECOVERABLE
-#undef MH_IMPOSSIBLE
-#undef MH_UNSUCCESSFUL
-#undef MH_CONSTRAINT
-#undef MH_QUIT_UNSUCCESSFUL
-#undef XOR
-#undef XNOR
-#undef MH_INPUTS
-#undef Mtail
-#undef Mhead
-#undef Mweight
-#undef WtMH_P_FN

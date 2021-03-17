@@ -1,6 +1,6 @@
 Package: ergm
-Version: 3.11.0-6077
-Date: 2021-02-26
+Version: 4.0-6118
+Date: 2021-03-13
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
              person("Mark S.", "Handcock", role=c("aut"), email="handcock@stat.ucla.edu"),
@@ -17,7 +17,8 @@ Authors@R: c(
              person("Ben", "Bolker", role=c("ctb"), email="bbolker+lme4@gmail.com"),
              person("Christian", "Schmid", role=c("ctb"), email="cxs5700@psu.edu"))
 Depends:
-    network (>= 1.15)
+    R (>= 3.5),
+    network (>= 1.17)
 Imports:
     robustbase (>= 0.93.5),
     coda (>= 0.19.2),
@@ -31,7 +32,10 @@ Imports:
     rle,
     purrr (>= 0.3.2),
     rlang (>= 0.3.4),
-    tibble (>= 2.1.1)
+    dplyr,
+    memoise,
+    tibble (>= 2.1.1),
+    rcdd (>= 1.2-2)
 Suggests:
     lattice (>= 0.20.38),
     latticeExtra (>= 0.6.28),
@@ -44,7 +48,7 @@ Suggests:
     testthat (>= 2.1.1),
     magrittr,
     tergm,
-    ergm.count,
+    ergm.count (>= 4.0),
     ergm.userterms,
     networkDynamic
 SystemRequirements: OpenMPI
@@ -61,21 +65,29 @@ Encoding: UTF-8
 Collate: 
     'Getting.Started.R'
     'InitErgmConstraint.R'
+    'InitErgmConstraint.hints.R'
     'InitErgmProposal.R'
-    'InitErgmProposal.blockdiag.R'
+    'InitErgmProposal.dyadnoise.R'
     'InitErgmReference.R'
     'ergm-deprecated.R'
     'InitErgmTerm.R'
+    'InitErgmTerm.auxnet.R'
     'InitErgmTerm.bipartite.R'
     'InitErgmTerm.bipartite.degree.R'
+    'InitErgmTerm.blockop.R'
     'InitErgmTerm.coincidence.R'
     'InitErgmTerm.dgw_sp.R'
     'InitErgmTerm.extra.R'
     'InitErgmTerm.indices.R'
+    'InitErgmTerm.interaction.R'
+    'InitErgmTerm.operator.R'
+    'InitErgmTerm.spcache.R'
     'InitErgmTerm.test.R'
     'InitErgmTerm.transitiveties.R'
     'InitWtErgmProposal.R'
     'InitWtErgmTerm.R'
+    'InitWtErgmTerm.operator.R'
+    'InitWtErgmTerm.test.R'
     'anova.ergm.R'
     'anova.ergmlist.R'
     'approx.hotelling.diff.test.R'
@@ -101,6 +113,7 @@ Collate:
     'ergm.MCMLE.R'
     'ergm.R'
     'ergm.allstats.R'
+    'ergm.auxstorage.R'
     'ergm.bounddeg.R'
     'ergm.bridge.R'
     'ergm.curved.statsmatrix.R'
@@ -123,12 +136,10 @@ Collate:
     'ergm.pen.glm.R'
     'ergm.phase12.R'
     'ergm.pl.R'
-    'ergm.reviseinit.R'
     'ergm.robmon.R'
     'ergm.san.R'
     'ergm.stepping.R'
     'ergm.stocapprox.R'
-    'ergm.sufftoprob.R'
     'ergm.utility.R'
     'ergmMPLE.R'
     'ergm_estfun.R'
@@ -136,27 +147,31 @@ Collate:
     'ergm_model.utils.R'
     'ergm_mplecov.R'
     'ergm_proposal.R'
+    'ergm_response.R'
+    'ergm_state.R'
+    'ergmlhs.R'
     'formula.utils.R'
     'get.node.attr.R'
     'godfather.R'
     'gof.ergm.R'
     'is.curved.R'
-    'is.durational.R'
     'is.dyad.independent.R'
     'is.inCH.R'
+    'is.valued.R'
     'logLik.ergm.R'
     'mcmc.diagnostics.ergm.R'
     'network.list.R'
     'network.update.R'
     'nonidentifiability.R'
     'nparam.R'
+    'obs.constraints.R'
     'parallel.utils.R'
     'param_names.R'
-    'pending_update_network.R'
     'predict.ergm.R'
     'print.ergm.R'
     'print.network.list.R'
     'print.summary.ergm.R'
+    'rank_test.ergm.R'
     'rlebdm.R'
     'simulate.ergm.R'
     'simulate.formula.R'
@@ -170,4 +185,6 @@ Collate:
     'zzz.R'
 Remotes: github::statnet/statnet.common@master,
     github::statnet/rle@master,
-    github::statnet/network@master
+    github::statnet/network@master,
+    github::statnet/tergm@master,
+    github::statnet/ergm.count@master

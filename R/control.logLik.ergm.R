@@ -49,6 +49,7 @@ control.logLik.ergm<-function(nsteps=20,
                               obs.MCMC.interval=MCMC.interval,
                               obs.MCMC.burnin=MCMC.burnin,
                               
+                              MCMC.prop=NULL,
                               MCMC.prop.weights=NULL,
                               MCMC.prop.args=NULL,
 
@@ -61,7 +62,8 @@ control.logLik.ergm<-function(nsteps=20,
                               seed=NULL,
                               parallel=NULL,
                               parallel.type=NULL,
-                              parallel.version.check=TRUE
+                              parallel.version.check=TRUE,
+                              parallel.inherit.MT=FALSE
 ){
 
   # TODO: Remove after 3.10 release.

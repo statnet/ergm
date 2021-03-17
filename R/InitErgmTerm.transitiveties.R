@@ -12,7 +12,7 @@
 #################################################################################
 InitErgmTerm.transitiveties<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
-    a <- check.ErgmTerm(nw, arglist, directed=TRUE,
+    a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attrname", "diff", "levels"),
                         vartypes = c("character", "logical", "character,numeric,logical"),
                         defaultvalues = list(NULL, FALSE, TRUE),
@@ -20,7 +20,7 @@ InitErgmTerm.transitiveties<-function (nw, arglist, ..., version=packageVersion(
 	attrarg <- a$attrname
 	levels <- if(!is.null(a$levels)) I(a$levels) else NULL
   }else{
-    a <- check.ErgmTerm(nw, arglist, directed=TRUE,
+    a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attr", "diff", "levels"),
                         vartypes = c(ERGM_VATTR_SPEC, "logical", ERGM_LEVELS_SPEC),
                         defaultvalues = list(NULL, FALSE, NULL),
@@ -58,7 +58,7 @@ InitErgmTerm.transitiveties<-function (nw, arglist, ..., version=packageVersion(
 #################################################################################
 InitErgmTerm.cyclicalties<-function (nw, arglist, ..., version=packageVersion("ergm")) {
   if(version <= as.package_version("3.9.4")){
-    a <- check.ErgmTerm(nw, arglist, directed=TRUE,
+    a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attrname", "diff", "levels"),
                         vartypes = c("character", "logical", "character,numeric,logical"),
                         defaultvalues = list(NULL, FALSE, TRUE),
@@ -66,7 +66,7 @@ InitErgmTerm.cyclicalties<-function (nw, arglist, ..., version=packageVersion("e
 	attrarg <- a$attrname
 	levels <- if(!is.null(a$levels)) I(a$levels) else NULL						
   }else{
-    a <- check.ErgmTerm(nw, arglist, directed=TRUE,
+    a <- check.ErgmTerm(nw, arglist,
                         varnames = c("attr", "diff", "levels"),
                         vartypes = c(ERGM_VATTR_SPEC, "logical", ERGM_LEVELS_SPEC),
                         defaultvalues = list(NULL, FALSE, TRUE),

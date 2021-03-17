@@ -7,9 +7,10 @@
 \alias{simulate_formula}
 \alias{.simulate_formula.network}
 \alias{simulate_formula.network}
-\alias{simulate.formula_lhs_pending_update_network}
-\alias{simulate_formula.pending_update_network}
+\alias{simulate_formula.ergm_state}
 \alias{simulate.ergm_model}
+\alias{simulate.ergm_state_full}
+\alias{simulate.ergm_state}
 \title{Draw from the distribution of an Exponential Family Random Graph Model}
 \usage{
 \method{simulate}{formula_lhs_network}(object, nsim = 1, seed = NULL, ...)
@@ -24,10 +25,11 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   response = NULL,
   reference = ~Bernoulli,
   constraints = ~.,
+  observational = FALSE,
   monitor = NULL,
   statsonly = FALSE,
   esteq = FALSE,
-  output = c("network", "stats", "edgelist", "pending_update_network"),
+  output = c("network", "stats", "edgelist", "ergm_state"),
   simplify = TRUE,
   sequential = TRUE,
   control = control.simulate.formula(),
@@ -37,9 +39,7 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   do.sim = TRUE
 )
 
-\method{simulate}{formula_lhs_pending_update_network}(object, nsim = 1, seed = NULL, ...)
-
-\method{simulate_formula}{pending_update_network}(
+\method{simulate_formula}{ergm_state}(
   object,
   nsim = 1,
   seed = NULL,
@@ -47,10 +47,11 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   response = NULL,
   reference = ~Bernoulli,
   constraints = ~.,
+  observational = FALSE,
   monitor = NULL,
   statsonly = FALSE,
   esteq = FALSE,
-  output = c("network", "stats", "edgelist", "pending_update_network"),
+  output = c("network", "stats", "edgelist", "ergm_state"),
   simplify = TRUE,
   sequential = TRUE,
   control = control.simulate.formula(),
@@ -65,13 +66,28 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   nsim = 1,
   seed = NULL,
   coef,
-  response = NULL,
-  reference = ~Bernoulli,
-  constraints = ~.,
+  reference = if (is(constraints, "ergm_proposal")) NULL else trim_env(~Bernoulli),
+  constraints = trim_env(~.),
+  observational = FALSE,
   monitor = NULL,
   basis = NULL,
   esteq = FALSE,
-  output = c("network", "stats", "edgelist", "pending_update_network"),
+  output = c("network", "stats", "edgelist", "ergm_state"),
+  simplify = TRUE,
+  sequential = TRUE,
+  control = control.simulate.formula(),
+  verbose = FALSE,
+  ...,
+  do.sim = TRUE
+)
+
+\method{simulate}{ergm_state_full}(
+  object,
+  nsim = 1,
+  seed = NULL,
+  coef,
+  esteq = FALSE,
+  output = c("network", "stats", "edgelist", "ergm_state"),
   simplify = TRUE,
   sequential = TRUE,
   control = control.simulate.formula(),
@@ -84,14 +100,15 @@ simulate_formula(object, ..., basis = eval_lhs.formula(object))
   nsim = 1,
   seed = NULL,
   coef = object$coef,
-  response = object$response,
+  response = object$network \%ergmlhs\% "response",
   reference = object$reference,
-  constraints = object$constraints,
+  constraints = list(object$constraints, object$obs.constraints),
+  observational = FALSE,
   monitor = NULL,
   basis = object$newnetwork,
   statsonly = FALSE,
   esteq = FALSE,
-  output = c("network", "stats", "edgelist", "pending_update_network"),
+  output = c("network", "stats", "edgelist", "ergm_state"),
   simplify = TRUE,
   sequential = TRUE,
   control = control.simulate.ergm(),
@@ -124,9 +141,15 @@ algorithm.}
 is to be drawn.  If \code{object} is of class \code{ergm}, the default value
 is the vector of estimated coefficients.}
 
-\item{response}{Name of the edge attribute whose value is to be
-modeled in the valued ERGM framework. Defaults to \code{NULL} for
-simple presence or absence, modeled via a binary ERGM.}
+\item{response}{Either a character string, a formula, or \code{NULL} (the default), to specify the response attributes and whether the ERGM is binary or valued. Interpreted as follows: \describe{
+
+\item{\code{NULL}}{Model simple presence or absence, via a binary ERGM.}
+
+\item{character string}{The name of the edge attribute whose value is to be modeled. Type of ERGM will be determined by whether the attribute is \code{\link{logical}} (\code{TRUE}/\code{FALSE}) for binary or \code{\link{numeric}} for valued.}
+
+\item{a formula}{must be of the form \code{NAME~EXPR|TYPE} (with \code{|} being literal). \code{EXPR} is evaluated in the formula's environment with the network's edge attributes accessible as variables. The optional \code{NAME} specifies the name of the edge attribute into which the results should be stored, with the default being a concise version of \code{EXPR}. Normally, the type of ERGM is determined by whether the result of evaluating \code{EXPR} is logical or numeric, but the optional \code{TYPE} can be used to override by specifying a scalar of the type involved (e.g., \code{TRUE} for binary and \code{1} for valued).}
+
+}}
 
 \item{reference}{A one-sided formula specifying
 the reference measure (\eqn{h(y)}) to be used.
@@ -140,6 +163,9 @@ being simulated. See the documentation for a similar argument for
 \code{simulate.formula}, defaults to no constraints. For
 \code{simulate.ergm}, defaults to using the same constraints as
 those with which \code{object} was fitted.}
+
+\item{observational}{Inherit observational constraints rather than model
+constraints.}
 
 \item{monitor}{A one-sided formula specifying one or more terms
 whose value is to be monitored. These terms are appeneded to the
@@ -155,12 +181,11 @@ either way, but if the model is curved, the score estimating function values
 (3.1) by Hunter and Handcock (2006) are returned instead.}
 
 \item{output}{Normally character, one of \code{"network"} (default),
-\code{"stats"}, \code{"edgelist"}, or \code{"pending_update_network"} to
-determine the output format. Partial matching is
-performed.
+\code{"stats"}, \code{"edgelist"}, or \code{"ergm_state"}: determines the output
+format. Partial matching is performed.
 
 Alternatively, a function with prototype
-\verb{function(pending_update_network, chain, iter, ...)} that is
+\verb{function(ergm_state, chain, iter, ...)} that is
 called for each returned network, and its return value, rather
 than the network itself, is stored. This can be used to, for
 example, store the simulated networks to disk without storing
@@ -190,10 +215,11 @@ chain progresses.}
 
 \item{do.sim}{Logical: If \code{FALSE}, do not proceed to the simulation
 but rather return a list of arguments that would have been passed
-to \code{\link[=simulate.ergm_model]{simulate.ergm_model()}}. This can be useful if, for example,
+to the next function down (\code{\link[=simulate.ergm_model]{simulate.ergm_model()}} for formula
+and \code{\link[=simulate.ergm_state]{simulate.ergm_state()}}). This can be useful if, for example,
 one wants to run several simulations with varying coefficients
-and did not want to reinitialize the model and the proposal ever
-time.}
+and does not want to reinitialize the model and the proposal
+every time.}
 }
 \value{
 If \code{output=="stats"} an \code{\link{mcmc}} object containing the
@@ -236,7 +262,7 @@ above-listed additional attributes.}
 \item{\code{"edgelist"}}{An \code{\link{edgelist}} representation of the network,
 or a list thereof, depending on \code{nsim}.}
 
-\item{\code{"pending_update_network"}}{A semi-internal representation of
+\item{\code{"ergm_state"}}{A semi-internal representation of
 a network consisting of a \code{\link{network}} object emptied of edges, with
 an attached edgelist matrix, or a list thereof, depending on
 \code{nsim}.}
@@ -279,6 +305,11 @@ after the first.
 More information can be found by looking at the documentation of
 \code{\link{ergm}}.
 }
+\section{Functions}{
+\itemize{
+\item \code{simulate.ergm_state_full}: a low-level function to simulate from an \code{\link{ergm_state}} object.
+}}
+
 \note{
 \code{\link[=simulate.ergm_model]{simulate.ergm_model()}} is a lower-level interface, providing
 a \code{\link[=simulate]{simulate()}} method for \code{\link{ergm_model}} class. The \code{basis}

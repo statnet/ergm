@@ -21,8 +21,6 @@
 #   init         : the initial theta values
 #   nw             : the network
 #   model          : the model, as returned by <ergm_model>
-#   Clist          : a list of several network and model parameters,
-#                    as returned by <ergm.Cprepare>
 #   burnin         : the number of proposals to disregard before sampling
 #                    begins
 #   interval       : the number of proposals between sampled statistics;
@@ -54,6 +52,8 @@ ergm.robmon <- function(init, nw, model,
   # Start cluster if required (just in case we haven't already).
   ergm.getCluster(control, max(verbose-1,0))
 
+  control <- remap_algorithm_MCMC_controls(control, "RM")
+
   #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for init)
   n1 <- control$SA.phase1_n
   if(is.null(n1)) {n1 <- 7 + 3 * model$etamap$etalength} #default value
@@ -67,12 +67,9 @@ ergm.robmon <- function(init, nw, model,
   control$MCMC.samplesize=n1
   message(paste("Phase 1: ",n1,"iterations"),appendLF=FALSE)
   message(paste(" (interval=",control$MCMC.interval,")",sep=""))
+  s <- ergm_state(nw, model=model, proposal=proposal, stats = model$nw.stats - NVL(model$target.stats,model$nw.stats))
   z <- ergm_MCMC_sample(nw, model, proposal, control, eta=eta0, verbose=max(verbose-1,0))
   steplength <- control$MCMLE.steplength
-  # post-processing of sample statistics:  Shift each row by the
-  # matrix model$nw.stats - model$target.stats, attach column names
-  statsmatrix <- sweep(as.matrix(z$stats), 2, model$nw.stats - model$target.stats, "+")
-  colnames(statsmatrix) <- param_names(model,canonical=TRUE)
 
   if(steplength<1){
     statsmean <- apply(statsmatrix,2,base::mean)
@@ -119,11 +116,8 @@ ergm.robmon <- function(init, nw, model,
       # control$MCMC.burnin should perhaps be increased here, since
       # each iteration begins from the observed network, which must be 
       # "forgotten".
+      s <- ergm_state(nw, model=model, proposal=proposal, stats = model$nw.stats - NVL(model$target.stats,model$nw.stats))
       z <- ergm_MCMC_sample(nw, model, proposal, control, eta=eta, verbose=max(verbose-1,0))
-      # post-processing of sample statistics:  Shift each row by the
-      # matrix model$nw.stats - model$target.stats, attach column names
-      statsmatrix <- sweep(as.matrix(z$stats), 2, model$nw.stats - model$target.stats, "+")
-      colnames(statsmatrix) <- param_names(model,canonical=TRUE)
 
       thetamatrix <- rbind(thetamatrix,theta)
       statsmean <- apply(statsmatrix,2,base::mean)
@@ -151,11 +145,8 @@ message(paste("theta new:",theta,""))
   message(paste(" (interval=",control$MCMC.interval,")",sep=""))
   eta <- ergm.eta(theta, model$etamap)
   control$nmatrixentries = control$MCMC.samplesize * model$etamap$etalength
+  s <- ergm_state(nw, model=model, proposal=proposal, stats = model$nw.stats - NVL(model$target.stats,model$nw.stats))
   z <- ergm_MCMC_sample(nw, model, proposal, control, eta=eta, verbose=max(verbose-1,0))
-  # post-processing of sample statistics:  Shift each row by the
-  # matrix model$nw.stats - model$target.stats, attach column names
-  statsmatrix <- sweep(as.matrix(z$stats), 2, model$nw.stats - model$target.stats, "+")
-  colnames(statsmatrix) <- param_names(model,canonical=TRUE)
 
 # ubar <- apply(z$statsmatrix, 2, base::mean)
 # hessian <- (t(z$statsmatrix) %*% z$statsmatrix)/n3 - outer(ubar,ubar)
@@ -173,7 +164,7 @@ message(paste("theta new:",theta,""))
                    hessianflag=control$main.hessian,
                    method=control$MCMLE.method,
                    metric=control$MCMLE.metric,
-                   compress=control$MCMC.compress, verbose=verbose)
+                   verbose=verbose)
 
   ve$sample <- ergm.sample.tomcmc(ve$sample, control)
 # The next is the right one to uncomment

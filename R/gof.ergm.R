@@ -133,7 +133,7 @@ gof.ergm <- function (object, ...,
   handle.control.toplevel("gof.ergm", ...)
   .gof.nw <- as.network(object$network)
 
-  if(!is.null(object$response)) stop("GoF for valued ERGMs is not implemented at this time.")
+  if(is.valued(object)) stop("GoF for valued ERGMs is not implemented at this time.")
   
   formula <- nonsimp_update.formula(object$formula, .gof.nw~., from.new=".gof.nw")
 # paste("~",paste(unlist(dimnames(attr(terms(formula),"factors"))[-1]),collapse="+"),sep="")
@@ -143,13 +143,19 @@ gof.ergm <- function (object, ...,
 
   if(is.null(coef)) coef <- coef(object)
 
-  control.transfer <- c("MCMC.burnin", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges","term.options")
-  for(arg in control.transfer)
+  # If both the passed control and the object's control are NULL (such as if MPLE was estimated), overwrite with simulate.formula()'s defaults.
+  formula.control <- control.simulate.formula()
+  for(arg in STATIC_MCMC_CONTROLS)
     if(is.null(control[[arg]]))
-      control[arg] <- list(object$control[[arg]])
+      control[arg] <- list(NVL(object$control[[arg]], formula.control[[arg]]))
+
+  MCMC.interval.set <- !is.null(control$MCMC.interval)
+  for(arg in SCALABLE_MCMC_CONTROLS)
+    if(is.null(control[[arg]]))
+      control[arg] <- list(EVL(object$control[[arg]]*control$MCMC.scale, formula.control[[arg]]))
 
   # Rescale the interval by the ratio between the estimation sample size and the GOF sample size so that the total number of MCMC iterations would be about the same.
-  NVL(control$MCMC.interval) <- max(ceiling(object$control$MCMC.interval*object$control$MCMC.samplesize/control$nsim),1)
+  if(!MCMC.interval.set) control$MCMC.interval <- max(ceiling(control$MCMC.interval*EVL(object$control$MCMC.samplesize/control$nsim,1)),1)
 
   control <- set.control.class("control.gof.formula")
   
@@ -230,7 +236,7 @@ gof.formula <- function(object, ...,
 
   proposal <- if(inherits(constraints, "ergm_proposal")) constraints
                 else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
-                                   nw=nw, weights=control$MCMC.prop.weights, class="c"## ,reference=reference,response=response
+                                   nw=nw, weights=control$MCMC.prop.weights, class="c"## ,reference=reference
                                    )
 
   if(is.null(coef)){

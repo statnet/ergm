@@ -302,7 +302,7 @@ D_CHANGESTAT_FN(d_degreep)
   od=OUT_DEG;
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
-    echange=(EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges)==0)? 1:-1;
+    echange=IS_OUTEDGE(tail=TAIL(i), head=HEAD(i))? -1:1;
     taildeg = od[tail] + id[tail];
     headdeg = od[head] + id[head];
     for(j = 0; j < mtp->nstats; j++) {
@@ -331,7 +331,7 @@ D_CHANGESTAT_FN(d_degreep_by_attr)
   od=OUT_DEG;
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
-    echange=(EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges)==0)? 1:-1;
+    echange=IS_OUTEDGE(tail=TAIL(i), head=HEAD(i))? -1:1;
     taildeg = od[tail] + id[tail];
     headdeg = od[head] + id[head];
     tailattr = INPUT_PARAM[2*mtp->nstats + tail - 1]; 
@@ -371,7 +371,7 @@ D_CHANGESTAT_FN(d_degreep_w_homophily)
     tailattr = (int)nodeattr[tail];
     headattr = (int)nodeattr[head];    
     if (tailattr == headattr) { /* They match; otherwise don't bother */
-      echange=(EdgetreeSearch(tail, head, nwp->outedges)==0)? 1:-1;
+      echange=IS_OUTEDGE(tail, head)? -1:1;
       taildeg=headdeg=0;
       for(e = EdgetreeMinimum(nwp->outedges, tail);
       (tmp = nwp->outedges[e].value) != 0;
@@ -413,7 +413,7 @@ D_CHANGESTAT_FN(d_dissolve) {
   
   CHANGE_STAT[0] = 0.0;
   FOR_EACH_TOGGLE(i) {
-      edgeflag = (EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges) != 0);
+      edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
       CHANGE_STAT[0] += edgeflag ? - 1 : 1;
     TOGGLE_IF_MORE_TO_COME(i);
     }
@@ -436,7 +436,7 @@ D_CHANGESTAT_FN(d_duration) {
   CHANGE_STAT[0] = 0.0;
   FOR_EACH_TOGGLE(i) {
     /*Get the initial state of the edge and its reflection*/
-    edgeflag=(EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges) != 0);
+    edgeflag=IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
     if(!nwp->directed_flag && tail < head){
       tailtail = head;
       tailhead = tail;
@@ -492,7 +492,7 @@ D_CHANGESTAT_FN(d_b2kappa)  {
   
   change = 0.0;
   FOR_EACH_TOGGLE(i) {
-    echange = (EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges) == 0) ? 1 : -1;
+    echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : +1;
     iek2=0;
     for (j=nb1+1; j<=nnodes; j++) {      
       fek2 = id[j];

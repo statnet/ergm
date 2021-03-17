@@ -8,36 +8,44 @@
  *  Copyright 2003-2020 Statnet Commons
  */
 #include "wtMCMC.h"
+#include "ergm_wtmodel.h"
 #include "ergm_wtchangestat.h"
+#include "ergm_wtstate.h"
+#include "ergm_util.h"
 
-MCMCStatus WtGodfather(Edge n_changes, Vertex *tails, Vertex *heads, double *weights,
-	       WtNetwork *nwp, WtModel *m, double *stats){
+MCMCStatus WtGodfather(WtErgmState *s, Edge n_changes, Vertex *tails, Vertex *heads, double *weights, double *stats){
+  WtNetwork *nwp = s->nwp;
+  WtModel *m = s->m;
 
-  stats+=m->n_stats;
-  
-  for (unsigned int termi=0; termi < m->n_terms; termi++)
-    m->termarray[termi].dstats = m->workspace;
-  
   /* Doing this one change at a time saves a lot of changes... */
   for(Edge e=0; e<n_changes; e++){
-    WtModelTerm *mtp = m->termarray;
-    double *statspos=stats;
-    Vertex tail = tails[e], head = heads[e];
-    double weight = weights[e];
+    Vertex t = tails[e], h = heads[e];
+    double w = weights[e], edgeweight;
 
-    if(tail==0){
+    if(t==0){
+      memcpy(stats+m->n_stats, stats, m->n_stats*sizeof(double));
       stats+=m->n_stats;
       continue;
     }
     
-    for (unsigned int termi=0; termi < m->n_terms; termi++, mtp++){
-      (*(mtp->d_func))(1, &tail, &head, &weight,
-		       mtp, nwp);  /* Call d_??? function */
-      for (unsigned int i=0; i < mtp->nstats; i++,statspos++)
-	*statspos += mtp->dstats[i];
-    }
-    
-    SETWT(tail,head,weight);
+    if((edgeweight=GETWT(t,h))==w)
+      continue;
+
+    WtEXEC_THROUGH_TERMS_INTO(m, stats, {
+	if(mtp->c_func){
+	  ZERO_ALL_CHANGESTATS();
+	  (*(mtp->c_func))(t, h, w,
+			   mtp, nwp, edgeweight);  /* Call c_??? function */
+	}else if(mtp->d_func){
+	  (*(mtp->d_func))(1, &t, &h, &w,
+			   mtp, nwp);  /* Call d_??? function */
+	}
+        addonto(dstats, mtp->dstats, N_CHANGE_STATS);
+      });
+
+
+    /* Update network */
+    WtSetEdge(t, h, w, nwp);
   }
 
   return MCMC_OK;
@@ -54,40 +62,37 @@ MCMCStatus WtGodfather(Edge n_changes, Vertex *tails, Vertex *heads, double *wei
  find the changestats that result from starting from an empty network
  and then adding all of the edges to make up an observed network of interest.
 *****************/
-void WtGodfather_wrapper(int *n_edges, int *tails, int *heads, double *weights,
-			 int *n_nodes, int *dflag, int *bipartite, 
-			 int *nterms, char **funnames, char **sonames, double *inputs,
-			 int *total_changes, int *changetails, int *changeheads, double *changeweights,
-			 double *changestats, 
-			 int *maxedges,
-			 int *newnetworktails, 
-			 int *newnetworkheads, 
-			 double *newnetworkweights, 
-			 int *fVerbose, 
-			 int *status){
-  Vertex nmax;
-  /* Edge n_networks; */
-  WtNetwork *nwp;
-  WtModel *m;
-  
-  nmax = (Edge)abs(*maxedges);
-
+SEXP WtGodfather_wrapper(SEXP stateR,
+                         // Godfather settings
+                         SEXP changetails, SEXP changeheads, SEXP changeweights,
+                         SEXP end_network,
+                         SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
+  WtErgmState *s = WtErgmStateInit(stateR, ERGM_STATE_NO_INIT_PROP);
+  WtModel *m = s->m;
 
-  m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
+  /* (# 0-sentinels) + 1 is the number of output rows. */
+  unsigned int nstatrows = 1;
+  for(int *ct = INTEGER(changetails), *cte = ct+length(changetails); ct < cte ; ct++) if(*ct==0) nstatrows++;
 
-  /* Form the network */
-  nwp=WtNetworkInitialize((Vertex*)tails, (Vertex*)heads, weights, n_edges[0], 
-			    *n_nodes, *dflag, *bipartite, 0, 0, NULL);
-  
-  *status = WtGodfather(abs(*total_changes), (Vertex*)changetails, (Vertex*)changeheads, changeweights,
-			nwp, m, changestats);
-  
+  SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats*nstatrows));
+  memcpy(REAL(stats), s->stats, m->n_stats*sizeof(double));
+
+  SEXP status = PROTECT(ScalarInteger(WtGodfather(s, length(changetails), (Vertex*)INTEGER(changetails), (Vertex*)INTEGER(changeheads), REAL(changeweights), REAL(stats))));
+
+  const char *outn[] = {"status", "s", "state", ""};
+  SEXP outl = PROTECT(mkNamed(VECSXP, outn));
+  SET_VECTOR_ELT(outl, 0, status);
+  SET_VECTOR_ELT(outl, 1, stats);
+
   /* record new generated network to pass back to R */
-  if(*status == MCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads && newnetworkweights)
-    newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList((Vertex*)newnetworktails+1,(Vertex*)newnetworkheads+1,newnetworkweights+1,nwp,nmax-1);
+  if(asInteger(status) == MCMC_OK && asInteger(end_network)){
+    s->stats = REAL(stats) + (nstatrows-1)*m->n_stats;
+    SET_VECTOR_ELT(outl, 2, WtErgmStateRSave(stateR, s));
+  }
   
-  WtModelDestroy(m);
-  WtNetworkDestroy(nwp);
-  PutRNGstate();
+  WtErgmStateDestroy(s);
+  PutRNGstate();  /* Disable RNG before returning */
+  UNPROTECT(3);
+  return outl;
 }

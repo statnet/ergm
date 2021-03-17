@@ -25,28 +25,23 @@
 #' formula of the form \code{network ~ model.term(s)} or \code{~
 #' model.term(s)}.
 #' @param nw The network of interest; if passed, the LHS of `formula` is ignored. This is the recommended usage.
-#' @template response
 #' @param silent logical, whether to print the warning messages from the
 #' initialization of each model term.
-#' @param role A hint about how the model will be used. Used primarily for
-#' dynamic network models.
 #' @param \dots additional parameters for model formulation
 #' @param term.options a list of optional settings such as calculation tuning options to be passed to the `InitErgmTerm` functions.
+#' @param extra.aux a list of auxiliary request formulas required elsewhere; if named, the resulting `slots.extra.aux` will also be named.
 #' @param object An `ergm_model` object.
 #' @return `ergm_model` returns an  `ergm_model` object as a list
 #' containing:
 #' \item{coef.names}{a vector of coefficient names}
-#' \item{offset}{a logical vector of whether each term was "offset", i.e.
-#' fixed}
 #' \item{terms}{a list of terms and 'term components' initialized by the
 #' appropriate \code{InitErgmTerm.X} function.}
-#' \item{network.stats0}{NULL always??}
 #' \item{etamap}{the theta -> eta mapping as a list returned from
 #' <ergm.etamap>}
 #' @seealso [summary.ergm_model()]
 #' @keywords internal
 #' @export
-ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, role="static",...,term.options=list()){
+ergm_model <- function(formula, nw=NULL, silent=FALSE, ..., term.options=list(), extra.aux=list()){
   if (!is(formula, "formula"))
     stop("Invalid model formula of class ",sQuote(class(formula)),".", call.=FALSE)
   
@@ -54,7 +49,7 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, role="stat
   if(is.null(nw)) nw <- eval_lhs.formula(formula)
 
   nw <- ensure_network(nw)
-  nw <- as.network(nw, populate=FALSE) # In case it's a pending_update_network.
+  nw <- as.network(nw, populate=FALSE) # In case it's an ergm_state.
 
   #' @importFrom utils modifyList
   term.options <- modifyList(as.list(getOption("ergm.term")), as.list(term.options))
@@ -64,106 +59,144 @@ ergm_model <- function(formula, nw=NULL, response=NULL, silent=FALSE, role="stat
   
   formula.env<-environment(formula)
   
-  model <- structure(list(coef.names = NULL,
-                      offset = NULL,
-                      terms = NULL, networkstats.0 = NULL, etamap = NULL),
+  model <- structure(list(coef.names = character(),
+                          terms = list(), networkstats.0 = numeric()),
                  class = "ergm_model")
 
-  termroot<-NVL2(response, "InitWtErgm", "InitErgm")
-
-  
   for (i in 1:length(v)) {
     term <- v[[i]]
-    
-    if (is.call(term) && term[[1]] == "offset"){ # Offset term
-      term <- term[[2]]
-      model$offset <- c(model$offset,TRUE)
-    }else{
-      model$offset <- c(model$offset,FALSE)
-    }
+
+    if (is.call(term) && term[[1L]] == "offset"){ # Offset term
+      offset <-
+        if(length(term)==3) eval(term[[3]], formula.env)
+        else TRUE
+      term <- term[[2L]]
+    }else offset <- FALSE
+
     ## term is now a call or a name that is not "offset".
     
-    if(is.call(term)) { # This term has some arguments; save them.
-      args <- term
-      args[[1]] <- as.name("list")
-    }else args <- list()
+    if(!is.call(term) && term==".") next
     
-    termFun<-locate_prefixed_function(term, paste0(termroot,"Term"), "ERGM term", env=formula.env)
-
-    termCall<-as.call(list(termFun, nw, args))
+    outlist <- call.ErgmTerm(term, formula.env, nw, term.options=term.options, ...)
     
-    dotdotdot <- c(if(!is.null(response)) list(response=response), list(...), list(role=role), term.options)
-    for(j in seq_along(dotdotdot)) {
-      if(is.null(dotdotdot[[j]])) next
-      termCall[[3+j]] <- dotdotdot[[j]]
-      names(termCall)[3+j] <- names(dotdotdot)[j]
-    }
-    #Call the InitErgm function in the environment where the formula was created
-    # so that it will have access to any parameters of the ergm terms
-    outlist <- eval(termCall,formula.env)
     # If initialization fails without error (e.g., all statistics have been dropped), continue.
     if(is.null(outlist)){
       if(!silent) message("Note: Term ", deparse(v[[i]])," skipped because it contributes no statistics.")
       model$term.skipped <- c(model$term.skipped, TRUE)
       next
     }else model$term.skipped <- c(model$term.skipped, FALSE)
-    # If SO package name not specified explicitly, autodetect.
-    if(is.null(outlist$pkgname)) outlist$pkgname <- environmentName(environment(eval(termFun)))
-    # If the term is an offset, rename the coefficient names and parameter names
-    if(ult(model$offset)){
-      outlist$coef.names <- paste0("offset(",outlist$coef.names,")")
-      if(!is.null(outlist$params))
-        names(outlist$params) <- paste0("offset(",names(outlist$params),")")
-    }
-    # Store the term call in the term list (with the term able to override)
-    NVL(outlist$call) <- term
-    # Now it is necessary to add the output to the model
-    model <- updatemodel.ErgmTerm(model, outlist)
-  } 
+
+    # Now it is necessary to add the output to the model formula
+    model <- updatemodel.ErgmTerm(model, outlist, offset=offset)
+  }
+
+  model <- ergm.auxstorage(model, nw, term.options=term.options, ..., extra.aux=extra.aux)
+  
   model$etamap <- ergm.etamap(model)
 
   # I.e., construct a vector of package names associated with the model terms.
   # Note that soname is not the same, since it's not guaranteed to be a loadable package.
   ergm.MCMC.packagenames(unlist(sapply(model$terms, "[[", "pkgname")))
-  
+
   class(model) <- "ergm_model"
   model
 }
 
-#######################################################################
-# The <updatemodel.ErgmTerm> function updates an existing model object
-# to include an initialized ergm term, X;
-#
-# --PARAMETERS--
-#   model  : the pre-existing model, as created by <ergm_model>
-#   outlist: the list describing term X, as returned by <InitErgmTerm.X>
-#
-# --RETURNED--
-#   model: the updated model (with the obvious changes seen below) if
-#            'outlist'!=NULL, else
-#          the original model; (note that this return is necessary,
-#            since terms may be eliminated by giving only 0 statistics,
-#            and consequently returning a NULL 'outlist')
-#
-#######################################################################
+#' Locate and call an ERGM term initialization function.
+#'
+#' A helper function that searches attached and loaded packages for a
+#' term with a specifies name, calls it with the specified arguments,
+#' and returns the result.
+#'
+#' @param A term from an [ergm()] formula: typically a [`name`] or a
+#'   [`call`].
+#' @param env Environment in which it is to be evaluated.
+#' @param nw A [`network`] object.
+#' @param term.options A list of optional settings such as calculation
+#'   tuning options to be passed to the `InitErgmTerm` functions.
+#' @param ... Additional term options.
+#'
+#' @return The list returned by the the `InitErgmTerm` or
+#'   `InitWtErgmTerm` function, with package name autodetected if
+#'   neede.
+#'
+#' @keywords internal
+#' @export call.ErgmTerm
+call.ErgmTerm <- function(term, env, nw, ..., term.options=list()){
+  term.options <- modifyList(term.options, list(...))
 
-updatemodel.ErgmTerm <- function(model, outlist) { 
+  termroot<-if(!is.valued(nw)) "InitErgm" else "InitWtErgm"
+  
+  if(is.call(term)) { # This term has some arguments; save them.
+    args <- term
+    args[[1]] <- as.name("list")
+  }else args <- list()
+  
+  termFun<-locate_prefixed_function(term, paste0(termroot,"Term"), "ERGM term", env=env)
+  termCall<-as.call(list(termFun, nw, args))
+  
+  dotdotdot <- term.options
+  for(j in seq_along(dotdotdot)) {
+    termCall[[3L+j]] <- dotdotdot[[j]]
+    names(termCall)[3L+j] <- names(dotdotdot)[j]
+  }
+  #Call the InitErgm function in the environment where the formula was created
+  # so that it will have access to any parameters of the ergm terms
+  out <- eval(termCall,env)
+  if(is.null(out)) return(NULL)
+  # If SO package name not specified explicitly, autodetect.
+  if(is.null(out$pkgname)) out$pkgname <- environmentName(environment(eval(termFun)))
+  # Store the term call in the term list (with the term able to override)
+  NVL(out$call) <- term
+  # If the term requests auxiliaries or is an auxiliary itself,
+  # reserve space in the input vector.
+  attr(out, "aux.slots") <-
+    integer(NVL3(out$auxiliaries, length(list_rhs.formula(.)), 0) + # requests auxiliaries
+            (length(out$coef.names)==0)) # is an auxiliary
+
+  # Ensure input vectors are of the correct storage mode. (There is no
+  # checking on C level at this time.) Note that as.double() and
+  # as.integer() will strip attributes such as ParamBeforeCov and so
+  # should not be used.
+  storage.mode(out$inputs) <- "double"
+  storage.mode(out$iinputs) <- "integer"
+  if(!is.null(out$emptynwstats)) storage.mode(out$emptynwstats) <- "double"
+
+  out
+}
+
+#' Updates an existing model object to include an initialized `ergm` term
+#'
+#' @param model the pre-existing model, as created by [`ergm_model`]
+#' @param outlist the list describing new term, as returned by `InitErgmTerm.*()`
+#'
+#' @return The updated model (with the obvious changes seen below) if
+#'   `outlist!=NULL`, else the original model. (Note that this return
+#'   is necessary, since terms may be eliminated by giving only 0
+#'   statistics, and consequently returning a NULL `outlist`.)
+#' @noRd
+updatemodel.ErgmTerm <- function(model, outlist, offset=FALSE) {
   if (!is.null(outlist)) { # Allow for no change if outlist==NULL
+    # Update global model properties.
+    nstats <- length(outlist$coef.names)
+    npars <- NVL3(outlist$params, length(.), nstats)
+
+    if(is.numeric(offset)) offset <- unwhich(offset, npars)
+    outlist$offset <- offset <- rep(offset, length.out=npars) | NVL(outlist$offset,FALSE)
+
+    if(is.null(outlist$params)) # Linear
+      outlist$coef.names <- ifelse(offset, paste0("offset(",outlist$coef.names,")"), outlist$coef.names)
+    else # Curved
+      names(outlist$params) <- ifelse(offset, paste0("offset(",names(outlist$params),")"), names(outlist$params))
+
     model$coef.names <- c(model$coef.names, outlist$coef.names)
-    termnumber <- 1+length(model$terms)
-    tmp <- attr(outlist$inputs, "ParamsBeforeCov")
-    outlist$inputs <- c(ifelse(is.null(tmp), 0, tmp),
-                        length(outlist$coef.names), 
-                        length(outlist$inputs), outlist$inputs)
     model$minval <- c(model$minval,
                       rep(NVL(outlist$minval, -Inf),
-                          length.out=length(outlist$coef.names)))
+                          length.out=nstats))
     model$maxval <- c(model$maxval,
                       rep(NVL(outlist$maxval, +Inf),
-                          length.out=length(outlist$coef.names)))
-    model$duration <- c(model$duration,
-                      NVL(outlist$duration, FALSE))
-    model$terms[[termnumber]] <- outlist
+                          length.out=nstats))
+    model$terms[[length(model$terms)+1L]] <- outlist
   }
   model
 }
@@ -173,18 +206,81 @@ updatemodel.ErgmTerm <- function(model, outlist) {
 c.ergm_model <- function(...){
   l <- list(...)
   o <- l[[1]]
+
+  # Generally useful:
+  naux <- function(trm) NVL3(trm$auxiliaries, length(list_rhs.formula(.)), 0L)
+
   for(m in l[-1]){
     if(is.null(m)) next
+
+    oaux <- o$terms %>% map("coef.names") %>% map_int(length)==0
+    maux <- m$terms %>% map("coef.names") %>% map_int(length)==0
+
+    # Sort auxiliaries into sinks (that don't depend on any others) and non-sinks:
+    ## TODO: Implement an iterative or graph algorithm that checks *all* auxiliaries for redundancy.
+    pos <- 0L
+    onaux <- o$terms[oaux] %>% map_int(naux)
+    omap <- integer(length(o$terms[oaux]))
+    for(i in seq_along(o$terms[oaux]))
+      if(!onaux[i]){ # sink
+        omap[i] <- attr(o$terms[oaux][[i]],"aux.slots")[1L] <- NA
+      }else{ # non-sink
+        omap[i] <- attr(o$terms[oaux][[i]],"aux.slots")[1L] <- pos
+        pos <- pos+1L
+      }
+
+    mnaux <- m$terms[maux] %>% map_int(naux)
+    mmap <- integer(length(m$terms[maux]))
+    for(i in seq_along(m$terms[maux]))
+      if(!mnaux[i]){ # sink
+        mmap[i] <- attr(m$terms[maux][[i]],"aux.slots")[1L] <- NA
+      }else{ # non-sink
+        mmap[i] <- attr(m$terms[maux][[i]],"aux.slots")[1L] <- pos
+        pos <- pos+1L
+      }
+
+    # Remove redundant auxiliaries, but only among sinks:
+    sinks <- unique_aux_terms(c(o$terms[oaux][!onaux], m$terms[maux][!mnaux]))
+    
+    # To which term in the new auxilary list does each of the current auxiliary pointers to sinks correspond? Note that they are numbered from 0.
+    omap[!onaux] <- match_aux_terms(o$terms[oaux][!onaux], sinks) + pos - 1L
+    mmap[!mnaux] <- match_aux_terms(m$terms[maux][!mnaux], sinks) + pos - 1L
+    
+    # Now, give them indices again:
+    for(i in seq_along(sinks))
+      attr(sinks[[i]],"aux.slots")[[1L]] <- pos + i - 1L
+
+    # Remap client term pointers:
+    for(i in seq_along(o$terms[!oaux]))
+      if((tnaux <- naux(o$terms[!oaux][[i]]))!=0L)
+        attr(o$terms[!oaux][[i]],"aux.slots")[seq_len(tnaux)] <- omap[attr(o$terms[!oaux][[i]],"aux.slots")[seq_len(tnaux)]+1L]
+    o$slots.extra.aux <-  map(o$slots.extra.aux, ~omap[.+1L])
+    
+    for(i in seq_along(m$terms[!maux]))
+      if((tnaux <- naux(m$terms[!maux][[i]]))!=0L)
+        attr(m$terms[!maux][[i]],"aux.slots")[seq_len(tnaux)] <- mmap[attr(m$terms[!maux][[i]],"aux.slots")[seq_len(tnaux)]+1L]
+    m$slots.extra.aux <- map(m$slots.extra.aux, ~mmap[.+1L])
+
+    # Similarly for auxiliaries as clients.
+    for(i in seq_along(o$terms[oaux])[onaux!=0L])
+      attr(o$terms[oaux][[i]],"aux.slots")[1L+seq_len(onaux[i])] <- omap[attr(o$terms[oaux][[i]],"aux.slots")[1L+seq_len(onaux[i])]+1L]
+    for(i in seq_along(m$terms[maux])[mnaux!=0L])
+      attr(m$terms[maux][[i]],"aux.slots")[1L+seq_len(mnaux[i])] <- mmap[attr(m$terms[maux][[i]],"aux.slots")[1L+seq_len(mnaux[i])]+1L]
+
+    # New auxiliary list is o-nonsinks, m-nonsinks, and sinks.
+    o$terms <- c(o$terms[!oaux], m$terms[!maux], o$terms[oaux][onaux!=0L], m$terms[maux][mnaux!=0L], sinks)
+
     for(name in c("coef.names",
-                  "inputs",
                   "minval",
                   "maxval",
-                  "duration",
-                  "terms",
                   "offset",
-                  "term.skipped"))
+                  "term.skipped",
+                  "slots.extra.aux"))
       o[[name]] <- c(o[[name]], m[[name]])
   }
+
+  # Check that terms and auxiliaries are properly positioned.
+  assert_aux_dependencies(o$terms)
 
   o$etamap <- ergm.etamap(o)
   o

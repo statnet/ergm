@@ -122,19 +122,22 @@
 #' on a similar scheme.
 #' (For an overview of the package, see \code{\link{ergm-package}}.)
 #' 
-#' @param formula {An \R \code{\link{formula}} object, of the form
-#' \code{y ~ <model terms>},
-#' where \code{y} is a \code{\link[network]{network}} object or a matrix that can be
-#' coerced to a \code{\link[network]{network}}  object.  For the details on the possible
-#' \code{<model terms>}, see \code{\link{ergm-terms}} and Morris, Handcock and
-#' Hunter (2008) for binary ERGM terms and
-#' Krivitsky (2012) for valued ERGM
-#' terms (terms for weighted edges).  To create a
-#' \code{\link[network]{network}} object in \R, use the \code{network()} function,
-#' then add nodal attributes to it using the \code{\%v\%}
-#' operator if necessary. Enclosing a model term in \code{offset()}
-#' fixes its value to one specified in \code{offset.coef}.
-#' }
+#' @param formula An \R \code{\link{formula}} object, of the form
+#'   \code{y ~ <model terms>}, where \code{y} is a
+#'   \code{\link[network]{network}} object or a matrix that can be
+#'   coerced to a \code{\link[network]{network}} object.  For the
+#'   details on the possible \code{<model terms>}, see
+#'   \code{\link{ergm-terms}} and Morris, Handcock and Hunter (2008)
+#'   for binary ERGM terms and Krivitsky (2012) for valued ERGM terms
+#'   (terms for weighted edges).  To create a
+#'   \code{\link[network]{network}} object in \R, use the
+#'   \code{network()} function, then add nodal attributes to it using
+#'   the \code{\%v\%} operator if necessary. Enclosing a model term in
+#'   \code{offset()} fixes its value to one specified in
+#'   \code{offset.coef}.  (A second argument---a logical or numeric
+#'   index vector---can be used to select *which* of the parameters
+#'   within the term are offsets.)
+#'
 #' @template response
 #' @template reference
 #' @param constraints {A formula specifying one or more constraints
@@ -165,6 +168,34 @@
 #' (i.e., those that simply permit or forbid specific dyads or sets of
 #' dyads from changing), arbitrary combinations should be possible.
 #' }
+#'
+#' @param obs.constraints { A one-sided formula specifying one or more
+#'   constraints or other modification \emph{in addition} to those
+#'   specified by \code{constraints} that had affected the observation
+#'   process for the network, using syntax similar to the
+#'   \code{formula} argument. Multiple constraints may be given,
+#'   separated by \dQuote{+} operators.
+#' 
+#'   This allows the domain of the integral in the numerator of the
+#'   partially obseved network face-value likelihoods of Handcock and
+#'   Gile (2010) and Karwa et al. (2017) to be specified explicitly.
+#' 
+#'   The default is \code{~observed}, to constrain the integral to
+#'   only integrate over the missing dyads. (It is dropped
+#'   automatically if the network is completely observed.)
+#'     
+#'   It is also possible to specify a proposal function directly by
+#'   passing a string with the function's name. In that case,
+#'   arguments to the proposal should be specified through the
+#'   \code{obs.prop.args} argument to \code{\link{control.ergm}}.
+#' 
+#'   See the [ERGM constraints][ergm-constraints] documentation for
+#'   the constraints implemented in the **[ergm][ergm-package]**
+#'   package. Other packages may add their own constraints.
+#'     
+#'   Note that not all possible combinations of constraints and
+#'   reference measures are supported.
+#' } 
 #' @param offset.coef {A vector of coefficients for the offset terms.}
 #' @param target.stats {vector of "observed network statistics,"
 #' if these statistics are for some reason different than the 
@@ -383,6 +414,11 @@
 #' Exponential-Family Models for Networks.
 #' \emph{Journal of Statistical Software}, 24(3).
 #' \url{https://www.jstatsoft.org/v24/i03/}.
+#'
+#' Karwa V, Krivitsky PN, and Slavkovi\'{c} AB (2017). Sharing Social Network
+#' Data: Differentially Private Estimation of Exponential-Family Random
+#' Graph Models. \emph{Journal of the Royal Statistical Society, Series
+#' C}, 66(3):481--500. \doi{10.1111/rssc.12185}
 #' 
 #' Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
 #' Networks. \emph{Electronic Journal of Statistics}, 2012, 6,
@@ -469,14 +505,12 @@
 #' plot(molecule, vertex.col="atomic type",vertex.cex=3)
 #' 
 #' # measure tendency to match within each atomic type
-#' gest <- ergm(molecule ~ edges + kstar(2) + triangle + nodematch("atomic type"),
-#' control=control.ergm(MCMC.samplesize=10000))
+#' gest <- ergm(molecule ~ edges + kstar(2) + triangle + nodematch("atomic type"))
 #' summary(gest)
 #' 
 #' # compare it to differential homophily by atomic type
 #' gest <- ergm(molecule ~ edges + kstar(2) + triangle
-#'                         + nodematch("atomic type",diff=TRUE),
-#' control=snctrl(MCMC.samplesize=10000))
+#'                         + nodematch("atomic type",diff=TRUE))
 #' summary(gest)
 #' }
 #' @keywords models
@@ -485,6 +519,7 @@
 ergm <- function(formula, response=NULL,
                  reference=~Bernoulli,
                  constraints=~.,
+                 obs.constraints=~.-observed,
                  offset.coef=NULL,
                  target.stats=NULL,
                  eval.loglik=getOption("ergm.eval.loglik"),
@@ -493,7 +528,12 @@ ergm <- function(formula, response=NULL,
                  verbose=FALSE,..., basis=ergm.getnetwork(formula)) {
   check.control.class("ergm", "ergm")
   handle.control.toplevel("ergm", ...)
+
   ergm_call <- match.call(ergm)
+
+  reference <- trim_env_const_formula(reference)
+  constraints <- trim_env_const_formula(constraints)
+  obs.constraints <- trim_env_const_formula(obs.constraints)
   
   estimate <- match.arg(estimate)
 
@@ -510,36 +550,106 @@ ergm <- function(formula, response=NULL,
   if (verbose) message("Evaluating network in model.")
   
   nw <- basis
+  ergm_preprocess_response(nw,response)
+
   proposalclass <- "c"
-  
-  
-  # Missing data handling only needs to happen if the sufficient
-  # statistics are not specified. If the sufficient statistics are
-  # specified, the nw's dyad states are irrelevant.
-  if(network.naedgecount(nw) && !is.null(target.stats)){
-    warning("Target statistics specified in a network with missing dyads. Missingness will be overridden.")
-    nw[as.matrix(is.na(nw),matrix.type="edgelist")] <- 0
+
+  if(!is(constraints, "ergm_proposal")){
+    # Handle the observation process and other "automatic" constraints.
+    tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats)
+    nw <- tmp$nw
+    constraints.obs <- tmp$constraints.obs
+    constraints <- tmp$constraints
+  }else if(!is(obs.constraints, "ergm_proposal")){
+  # Handle the observation process and other "automatic" constraints.
+    tmp <- .handle.auto.constraints(nw, trim_env(~.), obs.constraints, target.stats)
+    nw <- tmp$nw
+    constraints.obs <- tmp$constraints.obs
+    constraints <- tmp$constraints
   }
   
-  proposal.obs <- if(network.naedgecount(nw)==0) NULL else append_rhs.formula(constraints, list(as.name("observed")), TRUE)
-
-  if (verbose) message("Initializing Metropolis-Hastings proposal(s):",appendLF=FALSE) 
-  
+  if(!is(constraints, "ergm_proposal")){
+    if (verbose) message("Initializing unconstrained Metropolis-Hastings proposal: ", appendLF=FALSE)
+    
   ## FIXME: a more general framework is needed?
-  if(!is.null(response) && reference==~Bernoulli){
+  if(is.valued(nw) && reference==trim_env(~Bernoulli)){
     warn(paste0("The default Bernoulli reference distribution operates in the binary (",sQuote("response=NULL"),") mode only. Did you specify the ",sQuote("reference")," argument?"))
   }
+    
+    proposal <- ergm_proposal(constraints, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference)
+  }else proposal <- constraints
   
-  proposal <- ergm_proposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
-  if (verbose) message(" ",proposal$pkgname,":MH_",proposal$name)
+  if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
   
+  if (verbose) message("Initializing model...")
+  model <- ergm_model(formula, nw, extra.aux=NVL3(proposal$auxiliaries,list(proposal=.)), term.options=control$term.options)
+  proposal$aux.slots <- model$slots.extra.aux$proposal
+  if (verbose) message("Model initialized.")
   
-  if(!is.null(proposal.obs)){
-    proposal.obs <- ergm_proposal(proposal.obs, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
-    if (verbose) message(" ",proposal.obs$pkgname,":MH_",proposal.obs$name)
+  if(!is(obs.constraints, "ergm_proposal")){
+    if(!is.null(constraints.obs)){
+      if (verbose) message("Initializing constrained Metropolis-Hastings proposal: ", appendLF=FALSE)
+      proposal.obs <- ergm_proposal(constraints.obs, hints=control$obs.MCMC.prop, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference)
+      if (verbose) message(sQuote(paste0(proposal.obs$pkgname,":MH_",proposal.obs$name)), appendLF=FALSE)
+      
+      if(!is.null(proposal.obs$auxiliaries)){
+        if(verbose) message(" (requests auxiliaries: updating model).")
+        model$obs.model <- c(model, ergm_model(trim_env(~.), nw, extra.aux=list(proposal=proposal.obs$auxiliaries), term.options=control$term.options))
+        proposal.obs$slots.extra.aux <- model$model.obs$slots.extra.aux$proposal
+        if(verbose) message("Model reinitialized.")
+      }else if(verbose) message(".")
+    }else proposal.obs <- NULL
+  }else proposal.obs <- obs.constraints
+  
+  ## Construct approximate response network if target.stats are given.
+  if(!is.null(target.stats)){
+    nw.stats <- summary(model, nw)[!model$etamap$offsetmap]
+    target.stats <- vector.namesmatch(target.stats, names(nw.stats))
+    target.stats <- na.omit(target.stats)
+    if(length(nw.stats)!=length(target.stats)){
+      stop("Incorrect length of the target.stats vector: should be ", length(nw.stats), " but is ",length(target.stats),". Note that offset() terms should *not* get target statistics.")
+    }
+    
+    # no need to pass the offset term's init to SAN
+    san.control <- control$SAN
+    
+    if(verbose) message("Constructing an approximate response network.")
+    ## If target.stats are given, overwrite the given network and formula
+    ## with SAN-ed network and formula.
+    if(control$SAN.maxit > 0){
+      TARGET_STATS<-san(formula, target.stats=target.stats,
+                reference=reference,
+                constraints=constraints,
+                control=san.control,
+                only.last=TRUE,
+                output="ergm_state",
+                verbose=verbose,
+                offset.coef=NVL(offset.coef,control$init[model$etamap$offsettheta]))
+      if(verbose) message("Finished SAN run.")
+    }else{
+      TARGET_STATS <- nw
+    }
+    
+    # From this point on, target.stats has NAs corresponding to the
+    # offset terms.
+    #
+    # TODO: Only have target.stats contain non-offset terms'
+    # statistics, and have the rest of the code handle it
+    # intelligently.
+    target.stats <- .align.target.stats.offset(model, target.stats)   
+
+    nw <- TARGET_STATS <- as.network(TARGET_STATS)
+    formula<-nonsimp_update.formula(formula,TARGET_STATS~., from.new="TARGET_STATS")
+  } else {
+    if (network.edgecount(nw) == 0) warning("Network is empty and no target stats are specified.")
   }
-  
-  if (verbose) message("Initializing model.")
+
+  # TODO: SAN has this information, so maybe we should grab it from there if SAN does get run.
+  nw.stats <- summary(model, nw, term.options=control$term.options)
+
+  # conddeg MPLE has been superceded, but let the user know:
+  if(!is.directed(nw) && ("degrees" %in% names(proposal$arguments$constraints) ||
+                                           all(c("b1degrees","b2degrees") %in% names(proposal$arguments$constraints)))) message("Note that degree-conditional MPLE has been removed in version 4.0, having been superceded by Contrastive Divergence.")  
   
   # Construct the initial model.
   
@@ -555,123 +665,68 @@ ergm <- function(formula, response=NULL,
     init.candidates <- init.candidates[init.candidates!="MPLE"]
     if(verbose) message("MPLE cannot be used for this constraint structure.")
   }
-  if("MPLE" %in% init.candidates && !is.null(target.stats) && is.curved(formula, response=response, basis=nw, term.options=control$term.options)){
-    init.candidates <- init.candidates[init.candidates!="MPLE"]
-    if(verbose) message("At this time, MPLE cannot be used for curved families when target.stats are passed.")
-  }
+
   control$init.method <- ERRVL(try(match.arg(control$init.method, init.candidates), silent=TRUE), {
-    message("Sepcified initial parameter method ", sQuote(control$init.method), " is not in the list of candidates. Use at your own risk.")
+    message("Specified initial parameter method ", sQuote(control$init.method), " is not in the list of candidates. Use at your own risk.")
     control$init.method
   })
   if(verbose) message(paste0("Using initial method '",control$init.method,"'."))
-  model.initial <- ergm_model(formula, nw, response=response, initialfit=control$init.method=="MPLE", term.options=control$term.options)
-  
-  ## Construct approximate response network if target.stats are given.
-  
-  if(!is.null(target.stats)){
-    formula.no <- filter_rhs.formula(formula, function(x) (if(is.call(x)) x[[1]] else x)!="offset")
-    nw.stats<-summary(formula.no,response=response, term.options=control$term.options)
-    target.stats <- vector.namesmatch(target.stats, names(nw.stats))
-    target.stats <- na.omit(target.stats)
-    if(length(nw.stats)!=length(target.stats)){
-      stop("Incorrect length of the target.stats vector: should be ", length(nw.stats), " but is ",length(target.stats),". Note that offset() terms should *not* get target statistics.")
-    }
-    
-    # no need to pass the offset term's init to SAN
-    offset.terms <- model.initial$etamap$offsettheta
-    san.control <- control$SAN
-    
-    if(verbose) message("Constructing an approximate response network.")
-    ## If target.stats are given, overwrite the given network and formula
-    ## with SAN-ed network and formula.
-    if(control$SAN.maxit > 0){
-      TARGET_STATS<-san(formula, target.stats=target.stats,
-                response=response,
-                reference=reference,
-                constraints=constraints,
-                control=san.control,
-                only.last=TRUE,
-                output="pending_update_network",
-                verbose=verbose,
-                offset.coef=NVL(offset.coef,control$init[model.initial$etamap$offsettheta]))
-      if(verbose) message("Finished SAN run.")
-    }else{
-      TARGET_STATS <- nw
-    }
-    nw <- TARGET_STATS <- as.network(TARGET_STATS)
-    formula<-nonsimp_update.formula(formula,TARGET_STATS~., from.new="TARGET_STATS")
-    offinfo <- offset.info.formula(formula,response=response,term.options=control$term.options)
-    tmp <- rep(NA, length(offinfo$eta))
-    tmp[!offinfo$eta] <- target.stats
-    names(tmp)[!offinfo$eta] <- names(target.stats)
-    nw.stats <- summary(formula,response=response, term.options=control$term.options)
-    names(tmp)[offinfo$eta] <- names(nw.stats)[offinfo$eta]
-    
-    # From this point on, target.stats has NAs corresponding to the
-    # offset terms.
-    #
-    # TODO: Only have target.stats contain non-offset terms'
-    # statistics, and have the rest of the code handle it
-    # intelligently.
-    target.stats <- tmp
-  } else {
-    if (network.edgecount(nw) == 0) warning("Network is empty and no target stats are specified.")
-  } 
+
+  if(is.curved(model) ||
+     !all(model$etamap$mintheta==-Inf) ||
+     !all(model$etamap$maxtheta==+Inf)){ # Curved or constrained model: use ergm.logitreg() rather than glm().
+      control$MPLE.type <- "logitreg"
+  }
   
   # If some control$init is specified...
   if(!is.null(control$init)){
     # Check length of control$init.
-    if (length(control$init)!=length(model.initial$etamap$offsettheta)) {
+    if (length(control$init)!=length(model$etamap$offsettheta)) {
       if(verbose){
         message("control$init =")
         message_print(control$init)
-        message("number of statistics is ",length(model.initial$coef.names), "")
+        message("number of statistics is ",length(model$coef.names), "")
       }
       stop(paste("Invalid starting parameter vector control$init:",
                  "wrong number of parameters.",
                  "If you are passing output from another ergm run as control$init,",
                  "in a model with curved terms, see help(enformulate.curved)."))
     }
-  }else control$init <- rep(NA, length(model.initial$etamap$offsettheta)) # Set the default value of control$init.
+  }else control$init <- rep(NA, length(model$etamap$offsettheta)) # Set the default value of control$init.
   
   if(!is.null(offset.coef)){
-    # TODO: Names matching here?
-    if(length(control$init[model.initial$etamap$offsettheta])!=length(offset.coef))
-      stop("Invalid offset parameter vector offset.coef: ",
-           "wrong number of parameters: expected ",
-           length(control$init[model.initial$etamap$offsettheta]),
-           " got ",length(offset.coef),".")
-    control$init[model.initial$etamap$offsettheta]<-offset.coef
+      # TODO: Names matching here?
+      if(length(control$init[model$etamap$offsettheta])!=length(offset.coef))
+          stop("Invalid offset parameter vector offset.coef: ",
+               "wrong number of parameters: expected ",
+               length(control$init[model$etamap$offsettheta]),
+               " got ",length(offset.coef),".")
+      control$init[model$etamap$offsettheta]<-offset.coef
   }
   
   # Make sure any offset elements are given in control$init.
-  if(any(is.na(control$init) & model.initial$etamap$offsettheta)) stop("The model contains offset terms whose parameter values have not been specified:", paste.and(model.initial$coef.names[is.na(control$init)|model.initial$offsettheta]), ".", sep="")
+  if(any(is.na(control$init) & model$etamap$offsettheta)) stop("The model contains offset terms whose parameter values have not been specified:", paste.and(param_names(model)[is.na(control$init)&model$offsettheta]), ".", sep="")
   
   # Check if any terms are constrained to a constant and issue a warning.
-  constrcheck <- ergm.checkconstraints.model(model.initial, proposal, control$init)
-  model.initial <- constrcheck$model; control$init <- constrcheck$init
+  constrcheck <- ergm.checkconstraints.model(model, proposal, control$init)
+  model <- constrcheck$model; control$init <- constrcheck$init
   
   # Check if any terms are at their extremes and handle them depending on control$drop.
-  extremecheck <- ergm.checkextreme.model(model=model.initial, nw=nw, init=control$init, response=response, target.stats=target.stats, drop=control$drop)
-  model.initial <- extremecheck$model; control$init <- extremecheck$init
+  extremecheck <- ergm.checkextreme.model(model=model, nw=nw, init=control$init, target.stats=target.stats, drop=control$drop)
+  model <- extremecheck$model; control$init <- extremecheck$init
   
-  
-  # Construct the curved model, and check if it's different from the initial model. If so, we know that it's curved.
-  model <- ergm_model(formula, nw, response=response, expanded=TRUE, silent=TRUE, term.options=control$term.options)
-  # MPLE is not supported for curved ERGMs.
+  # MPLE is not supported for valued ERGMs.
   if(estimate=="MPLE"){
-    if(!is.null(response)) stop("Maximum Pseudo-Likelihood (MPLE) estimation for valued ERGMs is not implemented at this time. You may want to pass fixed=TRUE parameter in curved terms to specify the curved parameters as fixed.")
-    if(length(model$etamap$offsetmap)!=length(model.initial$etamap$offsetmap)) stop("Maximum Pseudo-Likelihood (MPLE) estimation for curved ERGMs is not implemented at this time. You may want to pass fixed=TRUE parameter in curved terms to specify the curved parameters as fixed.")
-    ## if(!is.dyad.independent(proposal$arguments$constraints,
-    ##                         proposal.obs$arguments$constraints))
-    ##   stop("Maximum Pseudo-Likelihood (MPLE) estimation for ERGMs with dyad-dependent constraints is only implemented for certain degree constraints at this time.")
+    if(is.valued(nw)) stop("Maximum Pseudo-Likelihood (MPLE) estimation for valued ERGM terms is not implemented at this time. You may want to use Contrastive Divergence by passing estimate='CD' instead.")
+    if(!is.dyad.independent(proposal$arguments$constraints,
+                            proposal.obs$arguments$constraints))
+      message("Maximum Pseudo-Likelihood (MPLE) estimation for ERGMs with dyad-dependent constraints is not implemented at this time. You may want to use Contrastive Divergence by passing estimate='CD' instead.")
   }
   
   if (verbose) { message("Fitting initial model.") }
   
   MPLE.is.MLE <- (proposal$reference$name=="Bernoulli"
-                  && is.dyad.independent(model.initial)
-                  && !is.curved(formula, response=response, basis=nw, term.options=control$term.options)
+                  && is.dyad.independent(model)
                   && !control$force.main
                   && is.dyad.independent(proposal$arguments$constraints,
                                          proposal.obs$arguments$constraints))
@@ -684,7 +739,7 @@ ergm <- function(formula, response=NULL,
   || control$force.main)
   
   # Short-circuit the optimization if all terms are either offsets or dropped.
-  if(all(model.initial$etamap$offsettheta)){
+  if(all(model$etamap$offsettheta)){
     # Note that this cannot be overridden with control$force.main.
     message("All terms are either offsets or extreme values. No optimization is performed.")
     return(structure(list(coef=control$init,
@@ -694,19 +749,18 @@ ergm <- function(formula, response=NULL,
                           mle.lik=NULL,
                           gradient=rep(NA,length=length(control$init)),
                           failure=TRUE,
-                          offset=model.initial$etamap$offsettheta,
+                          offset=model$etamap$offsettheta,
                           drop=if(control$drop) extremecheck$extremeval.theta,
                           estimable=constrcheck$estimable,
                           network=nw,
                           reference=reference,
-                          response=response,
                           newnetwork=nw,
                           formula=formula,
                           constrained=proposal$arguments$constraints,
                           constrained.obs=proposal.obs$arguments$constraints,
                           constraints=constraints,
-                          target.stats=model.initial$target.stats,
-                          target.esteq=if(!is.null(model.initial$target.stats)) ergm.estfun(rbind(model.initial$target.stats), control$init, model.initial),
+                          target.stats=target.stats,
+                          target.esteq=if(!is.null(target.stats)) ergm.estfun(rbind(target.stats), control$init, model),
                           estimate=estimate,
                           ergm_version=packageVersion("ergm"),
                           control=control
@@ -715,58 +769,71 @@ ergm <- function(formula, response=NULL,
     
   }
   
-  model.initial$nw.stats <- summary(model.initial, nw=nw, response=response, initialfit=control$init.method=="MPLE", term.options=control$term.options)
-  model.initial$target.stats <- NVL(target.stats, model.initial$nw.stats)
+  model$nw.stats <- nw.stats
+  model$target.stats <- target.stats
   
   if(control$init.method=="CD") if(is.null(names(control$init)))
-    names(control$init) <- param_names(model.initial, FALSE)
+      names(control$init) <- param_names(model, FALSE)
   
   initialfit <- ergm.initialfit(init=control$init, initial.is.final=!MCMCflag,
                                 formula=formula, nw=nw, reference=reference, 
-                                m=model.initial, method=control$init.method,
+                                m=model, method=control$init.method,
                                 MPLEtype=control$MPLE.type, 
                                 control=control,
                                 proposal=proposal,
                                 proposal.obs=proposal.obs,
-                                verbose=if(MCMCflag) FALSE else verbose, response=response,
+                                verbose=if(MCMCflag) FALSE else verbose,
                                 ...)
 
   switch(control$init.method,
-         MPLE = NVL3(initialfit$xmat.full, check_nonidentifiability(., initialfit$coef, model.initial,
+         MPLE = NVL3(initialfit$xmat.full, check_nonidentifiability(., initialfit$coef, model,
                                                                     tol = control$MPLE.nonident.tol, type="covariates",
                                                                     nonident_action = control$MPLE.nonident,
                                                                     nonvar_action = control$MPLE.nonvar)),
-         CD = NVL3(initialfit$sample, check_nonidentifiability(as.matrix(.), initialfit$coef, model.initial,
+         CD = NVL3(initialfit$sample, check_nonidentifiability(as.matrix(.), initialfit$coef, model,
                                                                tol = control$MPLE.nonident.tol, type="statistics",
                                                                nonident_action = control$MPLE.nonident,
                                                                nonvar_action = control$MPLE.nonvar))
          )
 
+  estimate.desc <- switch(estimate,
+                          MPLE = if(MPLE.is.MLE) "Maximum Likelihood"
+                                 else "Maximum Pseudolikelihood",
+                          CD = "Contrastive Divergence",
+                          MLE = paste0(if(MCMCflag) # If not, it's just MLE.
+                                         switch(control$main.method,
+                                                MCMLE = "Monte Carlo ",
+                                                `Stochastic-Approximation`="Stochastic Approximation ",
+                                                `Robbins-Monro`="Robbins-Monro ",
+                                                `Stepping`="Hummel Stepping "),
+                                       "Maximum Likelihood"))
+
   if (!MCMCflag){ # Just return initial (non-MLE) fit and exit.
     message("Stopping at the initial estimate.")
     initialfit$call <- ergm_call
-    initialfit$MPLE_is_MLE <- MPLE.is.MLE
     initialfit$ergm_version <- packageVersion("ergm")
-    initialfit$offset <- model.initial$etamap$offsettheta
+    initialfit$offset <- model$etamap$offsettheta
+    initialfit$MPLE_is_MLE <- MPLE.is.MLE
     initialfit$drop <- if(control$drop) extremecheck$extremeval.theta
     initialfit$estimable <- constrcheck$estimable
     initialfit$network <- nw
     initialfit$reference <- reference
-    initialfit$response <- response
     initialfit$newnetwork <- nw
     initialfit$formula <- formula
     initialfit$constrained <- proposal$arguments$constraints
     initialfit$constrained.obs <- proposal.obs$arguments$constraints
     initialfit$constraints <- constraints
-    initialfit$target.stats <- model.initial$target.stats
-    initialfit$etamap <- model.initial$etamap
-    initialfit$target.esteq <- if(!is.null(model.initial$target.stats)) ergm.estfun(rbind(model.initial$target.stats), initialfit$coef, model.initial)
+    initialfit$obs.constraints <- obs.constraints 
+    initialfit$target.stats <- suppressWarnings(na.omit(model$target.stats))
+    initialfit$nw.stats <- model$nw.stats
+      initialfit$etamap <- model$etamap
+    initialfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), initialfit$coef, model)))
     initialfit$estimate <- estimate
-    
+    initialfit$estimate.desc <- estimate.desc
+
     initialfit$control<-control
-    
-    if(eval.loglik) initialfit$null.lik <- logLikNull.ergm(initialfit, verbose=verbose)
-    if(any(!model.initial$etamap$offsettheta) && eval.loglik){
+
+    if(any(!model$etamap$offsettheta) && eval.loglik){
       message("Evaluating log-likelihood at the estimate. ",appendLF=FALSE)
       initialfit<-logLik(initialfit, add=TRUE, control=control$loglik, verbose=verbose)
       message("")
@@ -781,30 +848,14 @@ ergm <- function(formula, response=NULL,
   # Revise the initial value, if necessary:
   init <- initialfit$coef
   init[is.na(init)] <- 0
-  if(control$init.method=="MPLE"){ # Only MPLE requires these kludges.
-    names(init) <- model.initial$coef.names
-    # revise init to reflect additional parameters
-    init <- ergm.reviseinit(model, init)
-  }
   names(init) <- param_names(model, FALSE)
-  
-  # Check if any terms are constrained to a constant and issue a warning.
-  constrcheck <- ergm.checkconstraints.model(model, proposal, init=init, silent=TRUE)
-  model <- constrcheck$model; control$init <- constrcheck$init
-  
-  # Check if any terms are at their extremes and handle them depending on control$drop.
-  extremecheck <- ergm.checkextreme.model(model=model, nw=nw, init=init, response=response, target.stats=target.stats, drop=control$drop, silent=TRUE)
-  model <- extremecheck$model; init <- extremecheck$init
-  
-  model$nw.stats <- summary(model, nw=nw, response=response, term.options=control$term.options)
-  model$target.stats <- NVL(target.stats, model$nw.stats)
   
   mainfit <- switch(control$main.method,
                     "Robbins-Monro" = ergm.robmon(init, nw, model, 
                                                   proposal=proposal, verbose=verbose, control=control),
-                    "Stochastic-Approximation" = ergm.stocapprox(init, nw, model, 
+                    "Stochastic-Approximation" = ergm.stocapprox(init, nw, model,
                                                                  control=control, proposal=proposal,
-                                                                 verbose),
+                                                                 verbose=verbose),
                     "Stepping" = ergm.stepping(init, nw, model, initialfit, constraints,
                                                #nstats=nstats, 
                                                #approx=lognormapprox, filename.prefix=NULL, 
@@ -820,7 +871,6 @@ ergm <- function(formula, response=NULL,
                                          control=control, proposal=proposal,
                                          proposal.obs=proposal.obs,
                                          verbose=verbose,
-                                         response=response,
                                          ...),
                     
                     
@@ -836,30 +886,30 @@ ergm <- function(formula, response=NULL,
   mainfit$MPLE_is_MLE <- MPLE.is.MLE
   
   mainfit$formula <- formula
-  mainfit$target.stats <- model$target.stats
-  mainfit$target.esteq <- if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), mainfit$coef, model)
+  mainfit$target.stats <- suppressWarnings(na.omit(model$target.stats))
+  mainfit$nw.stats <- model$nw.stats
+  mainfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)) ergm.estfun(rbind(model$target.stats), mainfit$coef, model)))
   
   mainfit$constrained <- proposal$arguments$constraints
   mainfit$constrained.obs <- proposal.obs$arguments$constraints
   mainfit$constraints <- constraints
+  mainfit$obs.constraints <- obs.constraints
   
   # unless the main fitting algorithm passes back a modified control
   if (is.null(mainfit$control)) mainfit$control<-control
   
-  mainfit$response<-response
   mainfit$reference<-reference
   mainfit$estimate <- estimate
-  
+  mainfit$estimate.desc <- estimate.desc
+
   mainfit$offset <- model$etamap$offsettheta
   mainfit$drop <- if(control$drop) extremecheck$extremeval.theta
   mainfit$estimable <- constrcheck$estimable
   mainfit$etamap <- model$etamap
-  
-  mainfit$null.lik<-logLikNull.ergm(mainfit, verbose=verbose)
-  
+
   if (!control$MCMC.return.stats)
     mainfit$sample <- NULL
-  
+
   if(eval.loglik){
     message("Evaluating log-likelihood at the estimate. ", appendLF=FALSE)
     mainfit<-logLik(mainfit, add=TRUE, control=control$loglik, verbose=verbose)

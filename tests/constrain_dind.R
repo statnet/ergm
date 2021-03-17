@@ -85,107 +85,6 @@ Mmax[6,2] <- Mmax[7,1] <- 1
 
 test_dind_constr(y0, ~observed, Mmin, Mmax) # in the block OR unobserved
 
-
-
-######### Block diagonal #########
-
-a <- rep(1:4,1:4)
-
-Mmax <- Mmin <- matrix(0,n,n)
-
-for(i in unique(a)){
-  Mmax[a==i,a==i]<-1
-}
-diag(Mmax)<-0
-
-#### Directed ####
-
-y0 <- as.network(mean_mat(Mmin,Mmax), matrix.type="adjacency", directed=TRUE)
-y0 %v% "b" <- a
-
-test_dind_constr(y0, ~blockdiag("b"), Mmin, Mmax)
-
-#### Undirected ####
-
-y0 <- as.network(mean_mat(Mmin,Mmax), matrix.type="adjacency", directed=FALSE)
-y0 %v% "b" <- a
-
-test_dind_constr(y0, ~blockdiag("b"), Mmin, Mmax)
-
-#### Unobserved: disjunction ####
-
-y0 <- as.network(mean_mat(Mmin,Mmax), matrix.type="adjacency", directed=TRUE)
-y0 %v% "b" <- a
-y0[2,3]<-NA
-y0[2,10]<-NA
-
-Mmin[2,10] <- Mmin[2,3] <- 0
-Mmax[2,10] <- Mmax[2,3] <- 1
-
-test_dind_constr(y0, ~blockdiag("b")-observed, Mmin, Mmax) # in the block OR unobserved
-
-#### Unobserved: conjunction ####
-
-Mmin <- Mmax <- as.matrix(y0)
-
-Mmin[2,3] <- 0
-Mmax[2,3] <- 1
-
-test_dind_constr(y0, ~blockdiag("b")+observed, Mmin, Mmax) # in the block AND unobserved
-
-#### Bipartite ####
-
-a <- unlist(split(a, rep(1:2, n/2)))
-a <- c(sort(a[1:m]), sort(a[-(1:m)]))
-
-Mmin <- Mmax <- matrix(0,m,n-m)
-
-for(i in unique(a)){
-  Mmax[a[1:m]==i,a[-(1:m)]==i]<-1
-}
-
-y0 <- as.network(mean_mat(Mmin,Mmax), matrix.type="adjacency", directed=FALSE, bipartite=m)
-y0 %v% "b" <- a
-
-test_dind_constr(y0, ~blockdiag("b"), Mmin, Mmax)
-
-#### Bipartite Unobserved: disjunction ####
-
-y0[7,8]<-NA
-y0[6,9]<-NA
-
-Mmin[6,2] <- Mmin[7,1] <- 0
-Mmax[6,2] <- Mmax[7,1] <- 1
-
-test_dind_constr(y0, ~blockdiag("b")-observed, Mmin, Mmax) # in the block OR unobserved
-
-#### Bipartite Unobserved: conjunction ####
-
-Mmin <- Mmax <- as.matrix(y0)
-
-Mmin[6,2] <- 0
-Mmax[6,2] <- 1
-
-test_dind_constr(y0, ~blockdiag("b")+observed, Mmin, Mmax) # in the block AND unobserved
-
-
-#### Valued ####
-
-a <- rep(1:4,1:4)
-
-Mmax <- Mmin <- matrix(0,n,n)
-
-for(i in unique(a)){
-  Mmax[a==i,a==i]<-4
-}
-diag(Mmax)<-0
-
-y0 <- as.network(mean_mat(Mmin,Mmax), matrix.type="adjacency", directed=TRUE, ignore.eval=FALSE, names.eval="w")
-y0 %v% "b" <- a
-
-test_dind_constr(y0, ~blockdiag("b"), Mmin, Mmax, response="w", reference=~DiscUnif(0,4))
-
-
 #### Dyads operator ####
 ## TODO: Put in the same framework as the others.
 
@@ -193,7 +92,7 @@ test_dind_constr(y0, ~blockdiag("b"), Mmin, Mmax, response="w", reference=~DiscU
 
 # Set up:
 data(sampson)
-fix_g <- coef(ergm(samplike~edges, constraints=~Dyads(~nodematch("group"))))
+fix_g <- coef(ergm(samplike~edges, constraints=~Dyads(~nodematch("group")), control=control.ergm(force.main=TRUE))) # Test MCMC.
 vary_g <- coef(ergm(samplike~edges, constraints=~Dyads(vary=~nodematch("group"))))
 fix_g_and_c <- coef(ergm(samplike~edges, constraints=~Dyads(~nodematch("group")+nodematch("cloisterville"))))
 fix_g_vary_c <- coef(ergm(samplike~edges, constraints=~Dyads(~nodematch("group"),~nodematch("cloisterville"))))
@@ -206,7 +105,7 @@ g <- outer(samplike%v%"group",samplike%v%"group",FUN=`==`)
 c <- outer(samplike%v%"cloisterville",samplike%v%"cloisterville",FUN=`==`)
 n <- network.size(samplike)
 logit <- function(p) log(p/(1-p))
-stopifnot(isTRUE(all.equal(fix_g,logit(sum((!g)*m)/(sum(!g))),check.attributes=FALSE)))
+stopifnot(isTRUE(all.equal(fix_g,logit(sum((!g)*m)/(sum(!g))),tolerance=0.03,check.attributes=FALSE)))
 stopifnot(isTRUE(all.equal(vary_g,logit(sum(g*m)/(sum(g)-n)),check.attributes=FALSE)))
 stopifnot(isTRUE(all.equal(fix_g_and_c,logit(sum((!g&!c)*m)/(sum(!g&!c))),check.attributes=FALSE)))
 stopifnot(isTRUE(all.equal(fix_g_vary_c,logit(sum((!g|c)*m)/(sum(!g|c)-n)),check.attributes=FALSE)))

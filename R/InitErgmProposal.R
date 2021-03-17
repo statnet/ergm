@@ -41,13 +41,180 @@
 #        package: is "ergm"
 #
 ############################################################################
-InitErgmProposal.randomtoggle <- function(arguments, nw) {
-  proposal <- list(name = "randomtoggle", inputs=NULL)
+DyadGenType <- list(RandDyadGen=0L, WtRandDyadGen=1L, RLEBDM1DGen=2L, EdgeListGen=3L)
+
+InitErgmProposal.randomtoggle <- function(arguments, nw){
+  list(name = "randomtoggle", dyadgen = ergm_dyadgen_select(arguments, nw))
+}
+
+InitErgmProposal.TNT <- function(arguments, nw){
+  list(name = "TNT", dyadgen = ergm_dyadgen_select(arguments, nw))
+}
+
+InitErgmProposal.BDStratTNT <- function(arguments, nw) {
+  if(is.directed(nw)) {
+    ergm_Init_abort("BDStratTNT does not support directed networks")
+  }
+
+  # bound defaults to network.size - 1, which is effectively no bound (could be made smaller in the bipartite case, but oh well)
+  bound <- NVL(arguments$maxout, arguments$constraints$bd$maxout, network.size(nw) - 1L)
+  if(is.na(bound)) bound <- network.size(nw) - 1L
+
+  # if blocks has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
+  if(is.null(arguments$constraints$blocks) || any(!unlist(lapply(arguments[c("blocks_attr", "levels", "levels2", "b1levels", "b2levels")], is.null)))) {
+    arguments$constraints$blocks <- InitErgmConstraint.blocks(nw, attr = arguments[["blocks_attr"]], levels = arguments[["levels"]], levels2 = NVL(arguments[["levels2"]], FALSE), b1levels = arguments[["b1levels"]], b2levels = arguments[["b2levels"]])
+  }
+
+  # if strat has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
+  if(is.null(arguments$constraints$strat) || any(!unlist(lapply(arguments[c("Strat_attr", "pmat", "empirical")], is.null)))) {
+    arguments$constraints$strat <- InitErgmConstraint.strat(nw, attr = arguments[["Strat_attr"]], pmat = arguments[["pmat"]], empirical = arguments[["empirical"]])
+  }
+
+  nodecov <- arguments$constraints$blocks$nodecov
+  amat <- arguments$constraints$blocks$amat
+
+  if(is.bipartite(nw)) {
+    nodecov[-seq_len(nw %n% "bipartite")] <- nodecov[-seq_len(nw %n% "bipartite")] + NROW(amat)
+    pairs_mat <- matrix(FALSE, nrow = NROW(amat) + NCOL(amat), ncol = NROW(amat) + NCOL(amat))
+    pairs_mat[seq_len(NROW(amat)), -seq_len(NROW(amat))] <- amat
+  } else if(!is.directed(nw)) {
+    pairs_mat <- amat
+    pairs_mat[lower.tri(pairs_mat, diag = FALSE)] <- FALSE
+  } else {
+    pairs_mat <- amat
+  }
+  
+  allowed.attrs <- which(pairs_mat, arr.ind = TRUE)
+  allowed.tails <- allowed.attrs[,1]
+  allowed.heads <- allowed.attrs[,2]  
+
+  nlevels <- NROW(pairs_mat)
+  nodecountsbycode <- tabulate(nodecov, nbins = nlevels)
+  
+  if(!is.directed(nw) && !is.bipartite(nw)) {
+    pairs_mat <- pairs_mat | t(pairs_mat)
+  }
+  
+  pairs_to_keep <- (allowed.tails != allowed.heads & nodecountsbycode[allowed.tails] > 0 & nodecountsbycode[allowed.heads] > 0) | (allowed.tails == allowed.heads & nodecountsbycode[allowed.tails] > 1)
+  allowed.tails <- allowed.tails[pairs_to_keep]
+  allowed.heads <- allowed.heads[pairs_to_keep]
+  
+  
+  bd_offdiag_pairs <- which(allowed.tails != allowed.heads)  
+  
+  bd_tails <- c(allowed.tails, if(!is.bipartite(nw)) allowed.heads[bd_offdiag_pairs])
+  bd_heads <- c(allowed.heads, if(!is.bipartite(nw)) allowed.tails[bd_offdiag_pairs])
+
+  ## number of BD mixtypes that need to be considered when strat mixing type is off-diag and on-diag, respectively
+  bd_mixtypes <- c(length(bd_tails), length(allowed.tails))
+    
+  # for economy of C space, best to count # of nodes of each bd-strat pairing
+  nodecountsbypairedcode <- as.integer(table(from=factor(nodecov, levels=seq_len(nlevels)), to=factor(arguments$constraints$strat$nodecov, levels=seq_len(arguments$constraints$strat$nlevels))))
+  
+  proposal <- list(name = "BDStratTNT",
+                   inputs = NULL, # passed by name below
+                   nmixtypes = as.integer(arguments$constraints$strat$nmixtypes),
+                   strattailattrs = as.integer(arguments$constraints$strat$tailattrs - 1L),
+                   stratheadattrs = as.integer(arguments$constraints$strat$headattrs - 1L),
+                   probvec = as.double(arguments$constraints$strat$probvec),
+                   nattrcodes = as.integer(arguments$constraints$strat$nlevels),
+                   strat_vattr = as.integer(arguments$constraints$strat$nodecov - 1L),
+                   indmat = as.integer(t(arguments$constraints$strat$indmat)),
+                   nodecountsbypairedcode = as.integer(nodecountsbypairedcode),
+                   bound = as.integer(bound),
+                   bd_levels = as.integer(nlevels),
+                   bd_vattr = as.integer(nodecov - 1L),
+                   bd_tails = as.integer(bd_tails - 1L),
+                   bd_heads = as.integer(bd_heads - 1L),
+                   bd_mixtypes = as.integer(bd_mixtypes),
+                   empirical_flag = as.integer(arguments$constraints$strat$empirical),
+                   amat = as.integer(t(pairs_mat)),
+                   skip_bd = TRUE)
+
   proposal
 }
 
-InitErgmProposal.TNT <- function(arguments, nw) {
-  proposal <- list(name = "TNT", inputs=NULL)
+InitErgmProposal.BDTNT <- function(arguments, nw) {
+  # BDTNT does not currently support directed networks
+  if(is.directed(nw)) {
+    ergm_Init_abort(sQuote("BDTNT"), " only supports undirected networks.")
+  }
+  
+  # bound defaults to network.size - 1, which is effectively no bound (could be made smaller in the bipartite case, but oh well)
+  bound <- NVL(arguments$maxout, arguments$constraints$bd$maxout, network.size(nw) - 1L)
+  if(is.na(bound)) bound <- network.size(nw) - 1L
+
+  # if blocks has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
+  if(is.null(arguments$constraints$blocks) || any(!unlist(lapply(arguments[c("attr", "levels", "levels2", "b1levels", "b2levels")], is.null)))) {
+    arguments$constraints$blocks <- InitErgmConstraint.blocks(nw, attr = arguments[["attr"]], levels = arguments[["levels"]], levels2 = NVL(arguments[["levels2"]], FALSE), b1levels = arguments[["b1levels"]], b2levels = arguments[["b2levels"]])
+  }
+
+  nodecov <- arguments$constraints$blocks$nodecov
+  amat <- arguments$constraints$blocks$amat
+
+  if(is.bipartite(nw)) {
+    nodecov[-seq_len(nw %n% "bipartite")] <- nodecov[-seq_len(nw %n% "bipartite")] + NROW(amat)
+    pairs_mat <- matrix(FALSE, nrow = NROW(amat) + NCOL(amat), ncol = NROW(amat) + NCOL(amat))
+    pairs_mat[seq_len(NROW(amat)), -seq_len(NROW(amat))] <- amat
+  } else if(!is.directed(nw)) {
+    pairs_mat <- amat
+    pairs_mat[lower.tri(pairs_mat, diag = FALSE)] <- FALSE
+  } else {
+    pairs_mat <- amat
+  }
+  
+  allowed.attrs <- which(pairs_mat, arr.ind = TRUE)
+  allowed.tails <- allowed.attrs[,1]
+  allowed.heads <- allowed.attrs[,2]  
+
+  nlevels <- NROW(pairs_mat)
+  nodecountsbycode <- tabulate(nodecov, nbins = nlevels)
+  
+  if(!is.directed(nw) && !is.bipartite(nw)) {
+    pairs_mat <- pairs_mat | t(pairs_mat)
+  }
+  
+  pairs_to_keep <- (allowed.tails != allowed.heads & nodecountsbycode[allowed.tails] > 0 & nodecountsbycode[allowed.heads] > 0) | (allowed.tails == allowed.heads & nodecountsbycode[allowed.tails] > 1)
+  allowed.tails <- allowed.tails[pairs_to_keep]
+  allowed.heads <- allowed.heads[pairs_to_keep]
+  
+  nmixtypes <- length(allowed.tails)
+  
+  proposal <- list(name = "BDTNT", 
+                   inputs = NULL, # passed by name below
+                   bound = as.integer(bound),
+                   nlevels = as.integer(nlevels),
+                   nodecountsbycode = as.integer(nodecountsbycode),
+                   nmixtypes = as.integer(nmixtypes),
+                   allowed.tails = as.integer(allowed.tails - 1L),
+                   allowed.heads = as.integer(allowed.heads - 1L),
+                   nodecov = as.integer(nodecov - 1L),
+                   amat = as.integer(t(pairs_mat)),
+                   skip_bd = TRUE)
+                   
+  proposal
+}
+
+InitErgmProposal.StratTNT <- function(arguments, nw) {
+  # if strat has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
+  if(is.null(arguments$constraints$strat) || any(!unlist(lapply(arguments[c("attr", "pmat", "empirical")], is.null)))) {
+    arguments$constraints$strat <- InitErgmConstraint.strat(nw, attr = arguments[["attr"]], pmat = arguments[["pmat"]], empirical = arguments[["empirical"]])
+  }
+
+  ## subtract one from attr codes for greater convenience re. C's zero-based indexing  
+  proposal <- list(name = "StratTNT", 
+                   inputs = NULL, # passed by name below
+                   nmixtypes = as.integer(arguments$constraints$strat$nmixtypes),
+                   tailattrs = as.integer(arguments$constraints$strat$tailattrs - 1L),
+                   headattrs = as.integer(arguments$constraints$strat$headattrs - 1L),
+                   probvec = as.double(arguments$constraints$strat$probvec),
+                   nlevels = as.integer(arguments$constraints$strat$nlevels),
+                   nodecountsbycode = as.integer(arguments$constraints$strat$nodecountsbycode),
+                   nodeindicesbycode = as.integer(arguments$constraints$strat$nodeindicesbycode),
+                   nodecov = as.integer(arguments$constraints$strat$nodecov - 1L),
+                   indmat = as.integer(t(arguments$constraints$strat$indmat)),
+                   empirical = as.integer(arguments$constraints$strat$empirical))
+
   proposal
 }
 
@@ -66,7 +233,6 @@ InitErgmProposal.CondOutDegree <- function(arguments, nw) {
   if (!is.directed(nw)) # Really, this should never trigger, since the InitErgmConstraint function should check.
     ergm_Init_abort("The CondOutDegree proposal function does not work with an",
           "undirected network.")
-  
   proposal
 }
 
@@ -151,67 +317,4 @@ InitErgmProposal.HammingTNT <- function(arguments, nw) {
     proposal$name <- "BipartiteHammingTNT"
   }
   proposal
-}
-
-InitErgmProposal.randomtoggleNonObserved <- function(arguments, nw) {
-  if(network.naedgecount(nw)==0){
-   ergm_Init_abort("The passed network does not have any non-observed dyads.\n Hence constraining to the observed will hold the network fixed at this network.\n Either the network or the constraint need to be altered.")
-  }
-  proposal <- list(name = "randomtoggleList", inputs=to_ergm_Cdouble(is.na(nw)))
-  proposal
-}
-
-InitErgmProposal.NonObservedTNT <- function(arguments, nw) {
-  if(network.naedgecount(nw)==0){
-   ergm_Init_abort("The passed network does not have any non-observed dyads.\n Hence constraining to the observed will hold the network fixed at this network.\n Either the network or the constraint need to be altered.")
-  }
-  proposal <- list(name = "listTNT", inputs=to_ergm_Cdouble(is.na(nw)))
-  proposal
-}
-
-
-InitErgmProposal.fixedas <- function(arguments, nw){
-	y0<-as.edgelist(arguments$constraints$fixedas$free_dyads, prototype=nw)
-	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	proposal <- list(name = "randomtoggleList", inputs=to_ergm_Cdouble(y0), pkgname="ergm")
-	
-	proposal
-	
-}
-
-InitErgmProposal.fixedasTNT <- function(arguments, nw){
-	y0<-as.edgelist(arguments$constraints$fixedas$free_dyads, prototype=nw)
-	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	proposal <- list(name = "listTNT", inputs=to_ergm_Cdouble(y0), pkgname="ergm")
-	
-	proposal
-	
-}
-
-InitErgmProposal.fixallbut <- function(arguments, nw){
-	y0<-as.edgelist(arguments$constraints$fixallbut$free_dyads, prototype=nw)
-	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	proposal <- list(name = "randomtoggleList", inputs=to_ergm_Cdouble(y0), pkgname="ergm")
-	
-	proposal
-	
-}
-
-
-InitErgmProposal.fixallbutTNT <- function(arguments, nw){
-	y0<-as.edgelist(arguments$constraints$fixallbut$free_dyads, prototype=nw)
-	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
-	proposal <- list(name = "listTNT", inputs=to_ergm_Cdouble(y0), pkgname="ergm")
-	
-	proposal
-	
-}
-
-
-InitErgmProposal.RLE <- function(arguments, nw){
-  proposal <- list(name = "RLE", inputs=to_ergm_Cdouble(as.rlebdm(arguments$constraints)), pkgname="ergm")
-}
-
-InitErgmProposal.RLETNT <- function(arguments, nw){
-  proposal <- list(name = "RLETNT", inputs=to_ergm_Cdouble(as.rlebdm(arguments$constraints)), pkgname="ergm")
 }

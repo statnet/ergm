@@ -59,8 +59,9 @@ is.dyad.independent.formula<-function(object,response=NULL,basis=NULL,...){
       stop("A network object on the LHS of the formula or via",
            " the 'basis' argument must be given")
     }
-  
-  m<-ergm_model(object, nw, response=response, ...)
+
+  ergm_preprocess_response(nw, response)
+  m<-ergm_model(object, nw, ...)
   is.dyad.independent(m)
 }
 
@@ -80,7 +81,7 @@ is.dyad.independent.ergm_conlist <- function(object, object.obs=NULL, ...){
 is.dyad.independent.ergm<-function(object,...){
   NVL(object$MPLE_is_MLE,
       with(object,
-           is.dyad.independent(formula,object$response,network,...)
+           is.dyad.independent(formula,basis=network,...)
            && is.dyad.independent(object$constrained, object$constrained.obs))
       )
 }

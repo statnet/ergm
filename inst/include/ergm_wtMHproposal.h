@@ -54,34 +54,44 @@
 /* *** don't forget tail-> head */
 
 typedef struct WtMHProposalstruct {
-  void (*func)(struct WtMHProposalstruct*, WtNetwork*);
+  SEXP R;
+  void (*i_func)(struct WtMHProposalstruct*, WtNetwork*);
+  void (*p_func)(struct WtMHProposalstruct*, WtNetwork*);
+  void (*u_func)(Vertex tail, Vertex head, double weight, struct WtMHProposalstruct*, WtNetwork*);
+  void (*f_func)(struct WtMHProposalstruct*, WtNetwork*);
+  void (*x_func)(unsigned int type, void *data, struct WtMHProposalstruct*, WtNetwork*);
   Edge ntoggles;
   Vertex *toggletail;
   Vertex *togglehead;
   double *toggleweight;
   double logratio;
   int status;
-  WtNetwork **discord;
   double *inputs; /* may be used if needed, ignored if not. */
+  int *iinputs; /* may be used if needed, ignored if not. */
+  void *storage;
+  void **aux_storage;
+  unsigned int n_aux;
+  unsigned int *aux_slots;
 } WtMHProposal;
 
+WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage);
 
-WtMHProposal * WtMHProposalInitialize(
-	     char *MHProposaltype, char *MHProposalpackage, 
-	       double *inputs,
-	     int fVerbose,
-	     WtNetwork *nwp);
-
-void WtMHProposalDestroy(WtMHProposal *MH);
+void WtMHProposalDestroy(WtMHProposal *MH, WtNetwork *nwp);
 
 /* Helper macros */
-#define MH_INPUTS MHp->inputs
+#define MH_DINPUTS MHp->inputs
+#define MH_INPUTS MH_DINPUTS
+#define MH_IINPUTS MHp->iinputs
 
 #define Mtail (MHp->toggletail)
 #define Mhead (MHp->togglehead)
 #define Mweight (MHp->toggleweight)
 
+#define WtMH_I_FN(a) void (a) (WtMHProposal *MHp, WtNetwork *nwp)
+#define WtMH_U_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtMHProposal *MHp, WtNetwork *nwp)
 #define WtMH_P_FN(a) void (a) (WtMHProposal *MHp, WtNetwork *nwp)
+#define WtMH_F_FN(a) void (a) (WtMHProposal *MHp, WtNetwork *nwp)
+#define WtMH_X_FN(a) void (a) (unsigned int type, void *data, WtMHProposal* MHp, WtNetwork* nwp)
 
 #endif 
 

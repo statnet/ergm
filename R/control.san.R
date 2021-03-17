@@ -42,8 +42,6 @@
 #'
 #' @param SAN.nsteps Number of MCMC proposals for all the annealing runs combined.
 #' @param SAN.samplesize Number of realisations' statistics to obtain for tuning purposes.
-#' @param SAN.init.maxedges Maximum number of edges expected in network.
-#' @param SAN.max.maxedges Hard upper bound on the number of edges in the network.
 #' @template control_MCMC_prop
 #' @param SAN.packagenames Names of packages in which to look for change
 #' statistic functions in addition to those autodetected. This argument should
@@ -63,9 +61,8 @@ control.san<-function(SAN.maxit=4,
                       SAN.nsteps.alloc=function(nsim) 2^seq_len(nsim),
                       SAN.nsteps=2^19,
                       SAN.samplesize=2^12,
-                      SAN.init.maxedges=20000,
-                      SAN.max.maxedges=2^26,
                       
+                      SAN.prop=trim_env(~sparse),
                       SAN.prop.weights="default",
                       SAN.prop.args=list(),
                       SAN.packagenames=c(),
@@ -77,7 +74,8 @@ control.san<-function(SAN.maxit=4,
                       seed=NULL,
                       parallel=0,
                       parallel.type=NULL,
-                      parallel.version.check=TRUE){
+                      parallel.version.check=TRUE,
+                      parallel.inherit.MT=FALSE){
   control<-list()
   for(arg in names(formals(sys.function())))
     control[arg]<-list(get(arg))

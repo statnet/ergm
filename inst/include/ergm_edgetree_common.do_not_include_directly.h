@@ -7,8 +7,6 @@
  *
  *  Copyright 2003-2020 Statnet Commons
  */
-#ifndef _ERGM_EDGETREE_COMMON_H_
-#define  _ERGM_EDGETREE_COMMON_H_
 #include <math.h>
 #include <R.h>
 #include <Rinternals.h>
@@ -55,13 +53,3 @@
       *(head) = tmp;							\
     }									\
   }
-
-/* Dur_Inf is a structure containing information about durations of
-edges in a network structure.
-*/ 
-typedef struct Dur_Infstruct {
-  int time;
-  int *lasttoggle;
-} Dur_Inf;
-
-#endif // _ERGM_EDGETREE_COMMON_H_

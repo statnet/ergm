@@ -31,6 +31,7 @@
 #' versions of these arguments are for the unobserved data simulation
 #' algorithm.
 #' @template control_MCMC_prop
+#' @param obs.MCMC.prop,obs.MCMC.prop.weights,obs.MCMC.prop.args The `obs` versions of these arguments are for the unobserved data simulation algorithm.
 #' @param MCMC.init.maxedges Maximum number of edges expected in network.
 #' @template term_options
 #' @template control_MCMC_parallel
@@ -49,8 +50,12 @@ control.ergm.bridge<-function(nsteps=20, # Number of geometric bridges to use
                               obs.MCMC.interval=MCMC.interval,
                               obs.MCMC.burnin=MCMC.burnin,
                               
+                              MCMC.prop=trim_env(~sparse),
                               MCMC.prop.weights="default",
                               MCMC.prop.args=list(),
+                              obs.MCMC.prop=MCMC.prop,
+                              obs.MCMC.prop.weights=MCMC.prop.weights,
+                              obs.MCMC.prop.args=MCMC.prop.args,
 
                               MCMC.init.maxedges=20000,
                               MCMC.packagenames=c(),
@@ -59,7 +64,8 @@ control.ergm.bridge<-function(nsteps=20, # Number of geometric bridges to use
                               seed=NULL,
                               parallel=0,
                               parallel.type=NULL,
-                              parallel.version.check=TRUE
+                              parallel.version.check=TRUE,
+                              parallel.inherit.MT=FALSE
 ){
 
   control<-list()

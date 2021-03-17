@@ -7,11 +7,3 @@ any way, even if there exist values above it, to keep things simple and
 stable. We may want to improve this later, or at least have the 
 initialization functions check if there are values above it.
 
-# Passing curved coefficients as initial values for ergm() #
-
-For a curved model, initial curved parameters cannot be passed in the
-theta0 argument and must be embedded in the formula. This prevents
-coef() of an ergm fit from being used as initial value for another
-ergm run for the same model if the model has curved terms. A function
-enformulate.curved() works around this by constructing suitable
-inputs, but a more consistent solution is desirable.

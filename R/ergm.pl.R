@@ -19,25 +19,37 @@
 #'   of statistics of the model, specifying (positionally) the
 #'   coefficients of the offset statistics; elements corresponding to
 #'   free parameters are ignored.
+#' @param ignore.offset If \code{FALSE} (the default), columns
+#'   corresponding to terms enclosed in \code{offset()} are not
+#'   returned with others but are instead processed by multiplying
+#'   them by their corresponding coefficients (which are fixed, by
+#'   virtue of being offsets) and the results stored in a separate
+#'   column.
 #'
-#' @return \code{ergm.pl} returns a list containing: \itemize{ 
-#' \item `xmat` : the compressed and possibly sampled matrix of change statistics
-#' \item `xmat.full` : as `xmat` but with offset terms
-#' \item `zy` : the corresponding vector of responses,
-#'   i.e. tie values
-#' \item `foffset` : combined effect of offset terms
-#' \item `wend` : the vector of weights for `xmat` and `zy`
-#' \item `numobs` : the number of dyads}
+#' @return \code{ergm.pl} returns a list containing:
+#'
+#' \item{xmat}{the compressed and possibly sampled matrix of change
+#'   statistics}
+#'
+#' \item{xmat.full}{as `xmat` but with offset terms}
+#'
+#' \item{zy}{the corresponding vector of responses, i.e. tie values}
+#'
+#' \item{foffset}{if `ignore.offset==FALSE`, the combined offset statistics multiplied by their parameter values}
+#'
+#' \item{wend}{the vector of weights for `xmat`
+#'   and `zy`}
+#'
 #' @keywords internal
 #' @export
 ergm.pl<-function(nw, fd, m, theta.offset=NULL,
-                  control,
-                  verbose=FALSE) {
-  Clist <- ergm.Cprepare(nw, m)
-  bip <- Clist$bipartite
-  n <- Clist$n
+                    control, ignore.offset=FALSE,
+                    verbose=FALSE) {
+  on.exit(ergm_Cstate_clear())
+
+  state <- ergm_state(nw, model=m)
   d <- sum(fd)
-  el <- as.edgelist(NVL(cbind(Clist$tails, Clist$heads), matrix(,0,2)), n, directed=TRUE, bipartite=FALSE, loops=TRUE) # This will be filtered by fd anyway.
+  el <- as.edgelist(state)
   elfd <- as.rlebdm(el) & fd
   e <- sum(elfd)
 
@@ -49,28 +61,20 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
     stop("The maximum number of unique dyad types times the number of statistics exceeds 32 bit limits, so the MPLE cannot proceed; try reducing either MPLE.max.dyad.types or the number of terms in the model.")
   }
 
-  z <- .C("MPLE_wrapper",
-          as.integer(Clist$tails), as.integer(Clist$heads),
-          as.integer(Clist$nedges),
-          as.double(to_ergm_Cdouble(fd)),
-          as.integer(n), 
-          as.integer(Clist$dir),     as.integer(bip),
-          as.integer(Clist$nterms), 
-          as.character(Clist$fnamestring), as.character(Clist$snamestring),
-          as.double(Clist$inputs),
-          y = integer(maxNumDyadTypes),
-          x = double(maxNumDyadTypes*Clist$nstats),
-          weightsvector = integer(maxNumDyadTypes),
-          as.integer(maxDyads),
-          as.integer(maxNumDyadTypes),
-          PACKAGE="ergm")
+  z <- .Call("MPLE_wrapper",
+             state,
+             # MPLE settings
+             as.double(to_ergm_Cdouble(fd)),
+             as.integer(maxDyads),
+             as.integer(maxNumDyadTypes),
+             PACKAGE="ergm")
   uvals <- z$weightsvector!=0
   if (verbose) {
     message(paste("MPLE covariate matrix has", sum(uvals), "rows."))
   }
   zy <- z$y[uvals]
   wend <- as.numeric(z$weightsvector[uvals])
-  xmat <- matrix(z$x, ncol=Clist$nstats, byrow=TRUE)[uvals,,drop=FALSE]
+  xmat <- matrix(z$x, ncol=nparam(m,canonical=TRUE), byrow=TRUE)[uvals,,drop=FALSE]
   colnames(xmat) <- param_names(m,canonical=TRUE)
   rm(z,uvals)
 
@@ -83,27 +87,20 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
     xmat <- xmat[zy==0,,drop=FALSE]
     zy <- zy[zy==0]
 
+    ## Run a whitelist PL over all of the toggleable edges in the network.
     maxNumDyadTypes <- min(maxNumDyadTypes, e)
 
-    z <- .C("MPLE_wrapper",
-            as.integer(Clist$tails), as.integer(Clist$heads),
-            as.integer(Clist$nedges),
-            as.numeric(to_ergm_Cdouble(elfd)),
-            as.integer(n), 
-            as.integer(Clist$dir),     as.integer(bip),
-            as.integer(Clist$nterms), 
-            as.character(Clist$fnamestring), as.character(Clist$snamestring),
-            as.double(Clist$inputs),
-            y = integer(maxNumDyadTypes),
-            x = double(maxNumDyadTypes*Clist$nstats),
-            weightsvector = integer(maxNumDyadTypes),
-            as.integer(.Machine$integer.max), # maxDyads
-            as.integer(maxNumDyadTypes),
-            PACKAGE="ergm")
+    z <- .Call("MPLE_wrapper",
+               state,
+               # MPLE settings
+               as.double(to_ergm_Cdouble(elfd)),
+               as.integer(.Machine$integer.max), # maxDyads
+               as.integer(maxNumDyadTypes),
+               PACKAGE="ergm")
     uvals <- z$weightsvector!=0
     zy.e <- z$y[uvals]
     wend.e <- as.numeric(z$weightsvector[uvals])
-    xmat.e <- matrix(z$x, ncol=Clist$nstats, byrow=TRUE)[uvals,,drop=FALSE]
+    xmat.e <- matrix(z$x, ncol=nparam(m,canonical=TRUE), byrow=TRUE)[uvals,,drop=FALSE]
     colnames(xmat.e) <- param_names(m,canonical=TRUE)
     rm(z,uvals)
 
@@ -122,24 +119,17 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
 
   #
   # Adjust for the offset
-  # =======================
-  # Helper function
-  # A is a matrix. V is a column vector that may contain Infs
-  # computes A %*% V, counting 0*Inf as 0
-  # May be slow if there are many rows. Use C here?
-  multiply.with.inf <- function(A,V) {
-    cbind(sapply(seq_len(nrow(A)), function(i) sum(V * A[i,], na.rm=TRUE)))
-  }
+  #
 
   xmat.full <- xmat
 
-  if(any(m$etamap$offsettheta)){
+  if(any(m$etamap$offsettheta) && !ignore.offset){
     if(any(is.na(theta.offset[m$etamap$offsettheta]))){
       stop("Offset terms without offset coefficients specified!")
     }
     # Compute the offset's effect.
-    foffset <- multiply.with.inf(xmat[,m$etamap$offsettheta,drop=FALSE], 
-                                 cbind(theta.offset[m$etamap$offsettheta])) 
+    foffset <- .multiply.with.inf(xmat[,m$etamap$offsetmap,drop=FALSE], 
+                                  cbind(ergm.eta(theta.offset,m$etamap)[m$etamap$offsetmap]))
     
     # Remove offset covariate columns.
     xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE] 
@@ -154,6 +144,6 @@ ergm.pl<-function(nw, fd, m, theta.offset=NULL,
     foffset <- rep(0, length=length(zy))
   }
   
-  list(xmat=xmat, zy=zy, foffset=foffset, wend=wend, numobs=round(sum(wend)),
+  list(xmat=xmat, zy=zy, foffset=foffset, wend=wend,
        xmat.full=xmat.full)
 }

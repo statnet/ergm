@@ -33,6 +33,8 @@
 #' 
 #' \item{`gw.cutoff`}{In geometrically weighted terms (`gwesp`, `gwdegree`, etc.) the highest number of shared partners, degrees, etc. for which to compute the statistic. This usually defaults to 30.}
 #'
+#' \item{`cache.sp`}{Whether the [`gwesp`], [`dgwesp`], and similar terms need should use a cache for the dyadwise number of shared partners. This usually improves performance significantly and therefore defaults to `TRUE`, but it can be disabled.}
+#'
 #' }
 #'
 #' @name ergm-options

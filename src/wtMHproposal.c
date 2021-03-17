@@ -8,67 +8,92 @@
  *  Copyright 2003-2020 Statnet Commons
  */
 #include "ergm_wtMHproposal.h"
-
+#include "ergm_Rutil.h"
 
 /*********************
  void WtMHProposalInitialize
 
  A helper function to process the MH_* related initialization.
 *********************/
-WtMHProposal *WtMHProposalInitialize(
-	     char *MHProposaltype, char *MHProposalpackage, 
-	       double *inputs,
-	     int fVerbose,
-	     WtNetwork *nwp){
+WtMHProposal *WtMHProposalInitialize(SEXP pR, WtNetwork *nwp, void **aux_storage){
   WtMHProposal *MHp = Calloc(1, WtMHProposal);
+  MHp->R = pR;
 
-  char *fn, *sn;
-  int i;
-  for (i = 0; MHProposaltype[i] != ' ' && MHProposaltype[i] != 0; i++);
-  MHProposaltype[i] = 0;
+  MHp->i_func=MHp->p_func=MHp->f_func=NULL;
+  MHp->u_func=NULL;
+  MHp->storage=NULL;
+  
   /* Extract the required string information from the relevant sources */
-  fn = Calloc(i+4, char);
+  const char *fname = FIRSTCHAR(getListElement(pR, "name")),
+    *sn = FIRSTCHAR(getListElement(pR, "pkgname"));
+  char *fn = Calloc(strlen(fname)+4, char);
   fn[0]='M';
   fn[1]='H';
   fn[2]='_';
-  for(int j=0;j<i;j++)
-    fn[j+3]=MHProposaltype[j];
-  fn[i+3]='\0';
-  /* fn is now the string 'MH_[name]', where [name] is MHProposaltype */
-  for (i = 0; MHProposalpackage[i] != ' ' && MHProposalpackage[i] != 0; i++);
-  MHProposalpackage[i] = 0;
-  sn = Calloc(i+1, char);
-  sn=strncpy(sn,MHProposalpackage,i);
-  sn[i]='\0';
+  strcpy(fn+3, fname);
   
   /* Search for the MH proposal function pointer */
-  MHp->func=(void (*)(WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
-  if(MHp->func==NULL){
-    error("Error in MH_* initialization: could not find function %s in "
+  // Old-style name:
+  MHp->p_func=(void (*)(WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+  if(MHp->p_func==NULL){
+    // New-style name:
+    fn[1] = 'p';
+    MHp->p_func=(void (*)(WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+    if(MHp->p_func==NULL){    
+      error("Error in the proposal initialization: could not find function %s in "
 	  "namespace for package %s."
 	  "Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
+    }
   }
 
-  MHp->inputs=inputs;
-  
-  MHp->discord=NULL;
+  // Optional functions
+  fn[1] = 'i';
+  MHp->i_func=(void (*)(WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+  fn[1] = 'u';
+  MHp->u_func=(void (*)(Vertex tail, Vertex head, double weight, WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+  fn[1] = 'f';
+  MHp->f_func=(void (*)(WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+  fn[1] = 'x';
+  MHp->x_func=(void (*)(unsigned int type, void *data, WtMHProposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+
+  SEXP tmp = getListElement(pR, "inputs");
+  MHp->inputs=length(tmp) ? REAL(tmp) : NULL;
+  tmp = getListElement(pR, "iinputs");
+  MHp->iinputs=length(tmp) ? INTEGER(tmp) : NULL;
 
   /*Clean up by freeing sn and fn*/
   Free(fn);
-  Free(sn);
 
+  MHp->aux_storage = aux_storage;
+  SEXP aux_slotsR = getListElement(pR,"aux.slots");
+  if(length(aux_slotsR)){
+    MHp->aux_slots = (unsigned int *) INTEGER(aux_slotsR);
+  }else MHp->aux_slots = NULL;
+  
   MHp->ntoggles=0;
-  (*(MHp->func))(MHp, nwp); /* Call MH proposal function to initialize */
+  if(MHp->i_func){
+    // New-style initialization
+    (*(MHp->i_func))(MHp, nwp);
+  }else{
+    // Old-style initialization
+    (*(MHp->p_func))(MHp, nwp); /* Call MH proposal function to initialize */
+  }
+  
   if(MHp->ntoggles==MH_FAILED){
     REprintf("MH proposal function's initial network configuration is one from which no toggle(s) can be proposed.\n");
     MHp->toggletail = MHp->togglehead = NULL; // To be safe.
     MHp->toggleweight = NULL;
-    WtMHProposalDestroy(MHp);
+    MHp->u_func = NULL; // Important, since the callback was never installed.
+    WtMHProposalDestroy(MHp, nwp);
     return NULL;
   }
   MHp->toggletail = (Vertex *)Calloc(MHp->ntoggles, Vertex);
   MHp->togglehead = (Vertex *)Calloc(MHp->ntoggles, Vertex);
   MHp->toggleweight = (double *)Calloc(MHp->ntoggles, double);
+
+  if(MHp->u_func){
+    AddOnWtNetworkEdgeChange(nwp, (OnWtNetworkEdgeChange) MHp->u_func, MHp, 0); // Need to insert at the start.
+  }
 
   return MHp;
 }
@@ -78,14 +103,15 @@ WtMHProposal *WtMHProposalInitialize(
 
  A helper function to free memory allocated by WtMHProposalInitialize.
 *********************/
-void WtMHProposalDestroy(WtMHProposal *MHp){
+void WtMHProposalDestroy(WtMHProposal *MHp, WtNetwork *nwp){
   if(!MHp) return;
-  if(MHp->discord){
-    for(WtNetwork **nwp=MHp->discord; *nwp!=NULL; nwp++){
-      WtNetworkDestroy(*nwp);
-    }
-    Free(MHp->discord);
+  if(MHp->u_func) DeleteOnWtNetworkEdgeChange(nwp, (OnWtNetworkEdgeChange) MHp->u_func, MHp);
+  if(MHp->f_func) (*(MHp->f_func))(MHp, nwp);
+  if(MHp->storage){
+    Free(MHp->storage);
+    MHp->storage=NULL;
   }
+  MHp->aux_storage=NULL;
   Free(MHp->toggletail);
   Free(MHp->togglehead);
   Free(MHp->toggleweight);

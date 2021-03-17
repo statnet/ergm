@@ -8,40 +8,45 @@
  *  Copyright 2003-2020 Statnet Commons
  */
 #include "MCMC.h"
+#include "ergm_model.h"
 #include "ergm_changestat.h"
+#include "ergm_state.h"
+#include "ergm_util.h"
 
-MCMCStatus Godfather(Edge n_changes, Vertex *tails, Vertex *heads, int *weights,
-	       Network *nwp, Model *m, double *stats){
+MCMCStatus Godfather(ErgmState *s, Edge n_changes, Vertex *tails, Vertex *heads, int *weights, double *stats){
+  Network *nwp = s->nwp;
+  Model *m = s->m;
 
-  stats+=m->n_stats;
-  
-  for (unsigned int termi=0; termi < m->n_terms; termi++)
-    m->termarray[termi].dstats = m->workspace;
-  
   /* Doing this one change at a time saves a lot of changes... */
   for(Edge e=0; e<n_changes; e++){
-    ModelTerm *mtp = m->termarray;
-    double *statspos=stats;
-    Vertex tail = tails[e], head = heads[e];
+    Vertex t=TAIL(e), h=HEAD(e);
 
-    if(tail==0){
+    if(t==0){
+      memcpy(stats+m->n_stats, stats, m->n_stats*sizeof(double));
       stats+=m->n_stats;
       continue;
     }
     
+    Rboolean edgeflag = IS_OUTEDGE(t,h);
     if(weights){
-      if(IS_OUTEDGE(tail,head)==weights[e])
+      if(edgeflag==weights[e])
 	continue;
     }
-    
-    for (unsigned int termi=0; termi < m->n_terms; termi++, mtp++){
-      (*(mtp->d_func))(1, &tail, &head, 
-		       mtp, nwp);  /* Call d_??? function */
-      for (unsigned int i=0; i < mtp->nstats; i++,statspos++)
-	*statspos += mtp->dstats[i];
-    }
-    
-    TOGGLE(tail,head);
+
+    EXEC_THROUGH_TERMS_INTO(m, stats, {
+	if(mtp->c_func){
+	  ZERO_ALL_CHANGESTATS();
+	  (*(mtp->c_func))(t, h,
+			   mtp, nwp, edgeflag);  /* Call c_??? function */
+	}else if(mtp->d_func){
+	  (*(mtp->d_func))(1, &t, &h,
+			   mtp, nwp);  /* Call d_??? function */
+	}
+        addonto(dstats, mtp->dstats, N_CHANGE_STATS);
+      });
+
+    /* Update network */
+    ToggleKnownEdge(t, h, nwp, edgeflag);
   } 
 
   return MCMC_OK;
@@ -59,39 +64,38 @@ MCMCStatus Godfather(Edge n_changes, Vertex *tails, Vertex *heads, int *weights,
  find the changestats that result from starting from an empty network
  and then adding all of the edges to make up an observed network of interest.
 *****************/
-void Godfather_wrapper(int *n_edges, int *tails, int *heads,
-		       int *n_nodes, int *dflag, int *bipartite, 
-		       int *nterms, char **funnames, char **sonames, double *inputs,
-		       int *total_changes, int *changetails, int *changeheads, int *changeweights,
-		       double *changestats, 
-		       int *maxedges,
-		       int *newnetworktails, 
-		       int *newnetworkheads, 
-		       int *fVerbose, 
-		       int *status){
-  Vertex nmax;
-  /* Edge n_networks; */
-  Network *nwp;
-  Model *m;
-  
-  nmax = (Edge)abs(*maxedges);
-
+SEXP Godfather_wrapper(SEXP stateR,
+                       // Godfather settings
+                       SEXP changetails, SEXP changeheads, SEXP changeweights,
+                       SEXP end_network,
+                       SEXP verbose){
   GetRNGstate();  /* R function enabling uniform RNG */
+  ErgmState *s = ErgmStateInit(stateR, ERGM_STATE_NO_INIT_PROP);
+  Model *m = s->m;
 
-  m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
+  /* (# 0-sentinels) + 1 is the number of output rows. */
+  unsigned int nstatrows = 1;
+  for(int *ct = INTEGER(changetails), *cte = ct+length(changetails); ct < cte ; ct++) if(*ct==0) nstatrows++;
 
-  /* Form the network */
-  nwp=NetworkInitialize((Vertex*)tails, (Vertex*)heads, n_edges[0], 
-                          *n_nodes, *dflag, *bipartite, 0, 0, NULL);
-  
-  *status = Godfather(abs(*total_changes), (Vertex*)changetails, (Vertex*)changeheads, *total_changes<0? NULL : changeweights,
-		      nwp, m, changestats);
-  
+  SEXP stats = PROTECT(allocVector(REALSXP, m->n_stats*nstatrows));
+  memcpy(REAL(stats), s->stats, m->n_stats*sizeof(double));
+
+  SEXP status = PROTECT(ScalarInteger(Godfather(s, length(changetails), (Vertex*)INTEGER(changetails), (Vertex*)INTEGER(changeheads),
+                                                length(changeweights)==0? NULL : INTEGER(changeweights), REAL(stats))));
+
+  const char *outn[] = {"status", "s", "state", ""};
+  SEXP outl = PROTECT(mkNamed(VECSXP, outn));
+  SET_VECTOR_ELT(outl, 0, status);
+  SET_VECTOR_ELT(outl, 1, stats);
+
   /* record new generated network to pass back to R */
-  if(*status == MCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
-    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList((Vertex*)newnetworktails+1,(Vertex*)newnetworkheads+1,nwp,nmax-1);
-  
-  ModelDestroy(m);
-  NetworkDestroy(nwp);
-  PutRNGstate();
+  if(asInteger(status) == MCMC_OK && asInteger(end_network)){
+    s->stats = REAL(stats) + (nstatrows-1)*m->n_stats;
+    SET_VECTOR_ELT(outl, 2, ErgmStateRSave(stateR, s));
+  }
+
+  ErgmStateDestroy(s);
+  PutRNGstate();  /* Disable RNG before returning */
+  UNPROTECT(3);
+  return outl;
 }

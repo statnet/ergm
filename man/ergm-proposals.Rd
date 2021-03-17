@@ -16,6 +16,9 @@
 \alias{InitErgmProposal.CondOutDegreeDist}
 \alias{InitErgmProposal.ConstantEdges}
 \alias{InitErgmProposal.TNT}
+\alias{InitErgmProposal.StratTNT}
+\alias{InitErgmProposal.BDTNT}
+\alias{InitErgmProposal.BDStratTNT}
 \alias{InitErgmProposal.randomtoggle}
 \alias{InitErgmProposal.randomtoggleNonObserved}
 \alias{InitErgmProposal.NonObservedTNT}
@@ -23,9 +26,6 @@
 \alias{InitErgmProposal.CondB2Degree}
 \alias{InitErgmProposal.CondInDegree}
 \alias{InitErgmProposal.CondOutDegree}
-\alias{InitErgmProposal.blockdiag}
-\alias{InitErgmProposal.blockdiagNonObserved}
-\alias{InitErgmProposal.blockdiagTNT}
 \alias{InitErgmProposal.CondDegreeMix}
 \alias{InitErgmProposal.fixedas}
 \alias{InitErgmProposal.fixallbut}
@@ -34,7 +34,6 @@
 \alias{InitErgmProposal.nobetweengroupties}
 
 \alias{NonObservedTNT}
-\alias{InitErgmProposal.blockdiagNonObservedTNT}
 \alias{InitErgmProposal.fixallbutTNT} 
 \alias{InitErgmProposal.fixedasTNT}
 
@@ -60,6 +59,11 @@
         	This is useful for improving performance in sparse networks,
         	because it gives at least 50\% chance of proposing a toggle of an existing edge.
         }
+
+        \item{InitErgmProposal.StratTNT}{Stratifies proposals by mixing type on a given vertex attribute;
+            within each mixing type, proposals are stratified by edge status as in \code{TNT}.
+            Arguments should generally be passed in via the \code{\link{strat}} hint.
+        }
              
 }
 
@@ -67,20 +71,6 @@
 
 
     \describe{
-
-         \item{InitErgmProposal.blockdiag}{MHp for \eqn{constraints= ~blockdiag}. Select a diagonal block according to the weight, then randomly select a dayd within the block for the toggle proposal.
-        }
-        \item{InitErgmProposal.blockdiagNonObserved}{MHp for \eqn{constraints= ~blockdiag+observed}. Similar to InitErgmProposal.blockdiag, but
-        applied only to missing dyads.
-        }
-        
-         \item{InitErgmProposal.blockdiagNonObservedTNT}{Similar to InitErgmProposal.blockdiagNonObserved, except that it selects ties and non-ties for proposed toggles (in the block by construction) with equal probability.  Like the unconstrained TNT proposal, this is useful for improving performance in sparse networks.
-        }
-        
-        
-        \item{InitErgmProposal.blockdiagTNT}{MHp for \eqn{constraints= ~blockdiag}. Similar to InitErgmProposal.blockdiag, except that it selects ties
-        and non-ties for proposed toggles (in the block by construction) with equal probability.  Like the unconstrained TNT proposal, this is useful for improving performance in sparse networks.
-        }
         
          \item{InitErgmProposal.CondB1Degree}{MHp for \eqn{constraints= ~b1degrees}. For bipartite networks, randomly select an edge {B1i, B2j} and an empty dyad with the same node B1i, {B1i, B2k}, and propose to toggle both {B1i, B2j} and {B1i, B2k}. This ensures that the degrees of individual nodes in mode 1 are preserved.
         }
@@ -122,6 +112,22 @@
         \item{InitErgmProposal.CondInDegree}{MHp for \eqn{constraints= ~idegrees}. For directed networks, randomly select two dyads with a common head node, one having an edge one not, and propose to swap the tie from one tail to the other.
         }
         \item{InitErgmProposal.CondOutDegree}{MHp for \eqn{constraints= ~odegrees}. For directed networks, randomly select two dyads with a common tail node, one having an edge and one not, and propose to swap the tie from one head to the other.
+        }
+
+        \item{InitErgmProposal.BDTNT}{Implements a TNT proposal with an upper bound on degree.  
+                    Optionally constrains certain mixing types on a specified attribute.  The upper
+                    bound on degree is specified via the \code{\link{bd}} constraint's \code{maxout} argument
+                    (which must be a single number for \code{BDTNT}), and the constraints on mixing type
+                    are specified via the \code{\link{blocks}} constraint.  Directed networks are not supported by 
+                    \code{BDTNT} at this time.                    
+        }
+
+        \item{InitErgmProposal.BDStratTNT}{Implements a TNT proposal with an upper bound on degree, with proposed
+                    toggles stratified by mixing type on a specified vertex attribute.  Optionally constrains certain
+                    mixing types on a(nother) specified attribute.  The upper bound on degree is specified via the 
+                    \code{\link{bd}} constraint's \code{maxout} argument (which must be a single number for \code{BDStratTNT});
+                    the constraints on mixing type are specified via the \code{\link{blocks}} constraint; the stratification
+                    is specified via the \code{\link{strat}} hint.  Directed networks are not supported by \code{BDStratTNT} at this time.
         }
 
        }}
