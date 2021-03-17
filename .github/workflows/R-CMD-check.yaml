@@ -16,16 +16,16 @@ env:
   PRIVATE: ''
 
 jobs:
-  Remove-Old-Artifacts:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    steps:
-    - name: Remove old artifacts
-      uses: c-hive/gha-remove-artifacts@v1.2.0
-      with:
-        age: '1 month'
-        skip-recent: 8
+## Remove-Old-Artifacts:
+##   runs-on: ubuntu-latest
+##   timeout-minutes: 10
+##
+##   steps:
+##   - name: Remove old artifacts
+##     uses: c-hive/gha-remove-artifacts@v1.2.0
+##     with:
+##       age: '1 month'
+##       skip-recent: 8
 
   Set-Matrix-Private:
     runs-on: ubuntu-latest
