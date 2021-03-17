@@ -385,6 +385,12 @@
       \item{
         Control lists can now be specified as plain lists with sublists allocated by argument name. Function \code{\link{snctrl}} can provide completion in base \R, RStudio, and elsewhere.
       }
+      \item{
+        ERGM now checks for whether an MPLE exists and warns the user if not. (Thanks to Christian Schmidt (PSU).)
+      }
+      \item{
+        Arguments to \code{\link{ergm}} terms can now be specified a little bit more flexibly; e.g., one can specify an unnamed argument after a named argument, as one can in an R function call.
+      }
     }
   }
 
@@ -392,7 +398,7 @@
   \subsection{BUG FIXES}{
     \itemize{
       \item{
-        The package functions now work more reliably when loaded but not attached and invoked via \code{::}.
+        The package functions now work more reliably when loaded but not attached but rather invoked via \code{::}.
       }
       \item{
         The \code{\link{Dyads}} operator constraint now works correctly on undirected networks.
@@ -413,7 +419,10 @@
         In \code{\link{ddsp}}, \code{\link{dnsp}}, \code{\link{dgwdsp}}, and \code{\link{dgwnsp}}, the \code{"RTP"} (reciprocated transitive partners) implementation has been fixed.
       }
       \item{
-        Miscellaneous documentation fixes.
+        Term initialization error messages are now somewhat cleaner and more informative.
+      }
+      \item{
+        Miscellaneous documentation fixes and CRAN warning fixes.
       }
     }
   }

@@ -34,7 +34,8 @@ Imports:
     rlang (>= 0.3.4),
     dplyr,
     memoise,
-    tibble (>= 2.1.1)
+    tibble (>= 2.1.1),
+    rcdd (>= 1.2-2)
 Suggests:
     lattice (>= 0.20.38),
     latticeExtra (>= 0.6.28),

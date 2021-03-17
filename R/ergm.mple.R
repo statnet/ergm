@@ -85,6 +85,9 @@ ergm.mple<-function(nw, fd, m, init=NULL,
                 ignore.offset=MPLEtype=="logitreg",
                 verbose=verbose)
 
+  # test whether the MPLE actually exists
+  mple.existence(pl=pl)
+
   message("Maximizing the pseudolikelihood.")
   if(MPLEtype=="penalized"){
    if(verbose) message("Using penalized MPLE.")
@@ -203,3 +206,43 @@ ergm.mple<-function(nw, fd, m, init=NULL,
      class="ergm")
 }
 
+#' Test whether the MPLE exists
+#'
+#' The \code{mple.existence} function tests whether the MPLE actually exists. The code
+#' applies the approach introduced by Konis (2007).
+#'
+#' Konis shows that the MPLE doesn't exist if data may be separated in the sense that
+#' there exists a vector beta such that
+#'    beta > (T(A^+_{ij})-T(A^-_{ij})) <0  when Aij= 0, and
+#'    beta > (T(A^+_{ij})-T(A^-_{ij})) >0  when Aij= 1.
+#' Here T(A^+_{ij})-T(A^-_{ij}) is the change
+#' statistic of an adjacency matrix A. He derives that finding such beta
+#' can be posed as a linear programming problem. In particular,
+#' maximize (e' X)beta,
+#' subject to X beta >= 0   (1)
+#' where e is a vector of ones, and X is the design matrix (T(A^+_ij)-T(A^-_ij)),
+#' where each element in a row that corresponds to a dyad with no tie, i.e.,Aij= 0,
+#' is being multiplied by -1. If there exist a beta such that (1) has a solution,
+#' then the data is separable and the MPLE does not exist.
+#'
+#' @param pl An ergm.pl-object
+#'
+#' @references Konis K (2007).  "Linear Programming Algorithms for Detecting Separated
+#' Data in Binary LogisticRegression Models (Ph.D. Thesis)." _Worcester College, Oxford University_.
+#' \url{https://ora.ox.ac.uk/objects/uuid:8f9ee0d0-d78e-4101-9ab4-f9cbceed2a2a}
+#' @noRd
+mple.existence <- function(pl) {
+#' @importFrom rcdd lpcdd
+  X <- pl$xmat
+  y <- pl$zy
+  y[y==0] <- -1
+  X.bar <- y*X # A
+  e_n <- rep(1, nrow(X.bar))
+  obj <- e_n%*%X.bar # C
+  obj <- as.vector(obj)
+  H.rep <- cbind(rep(0,nrow(X.bar)),  rep(0,nrow(X.bar)), X.bar)
+  linp <- lpcdd(H.rep, obj, minimize=F)
+  if(linp$solution.type == "DualInconsistent"){
+    warning("The MPLE does not exist!")
+  }
+}
