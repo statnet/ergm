@@ -33,7 +33,7 @@ cat("mean=",mu,", var=",sig^2,", corr=",rho,"\neta=(",paste(theta,collapse=","),
 s<-simulate(testnet3d~sum+mutual("product")+sum(pow=2), nsim=1000, reference=~StdNormal, response="w", coef=theta,
             output="stats", control=control.simulate(MCMC.burnin=10000))
 
-cat("Simulated mean (statsonly):",mean(s[,1])/6,"\n",sep="")
+cat("Simulated mean (stats only):",mean(s[,1])/6,"\n",sep="")
 
 s.full<-simulate(testnet3d~sum+mutual("product")+sum(pow=2), nsim=1000, reference=~StdNormal, response="w",
                  coef=theta, output='network', control=control.simulate(MCMC.burnin=10000))

@@ -1,7 +1,7 @@
 data(florentine)
 
 test_that("Simulation for passthrough() and .submodel() and .summary()", {
-  text <- capture.output(out <- simulate(flomarriage~edges+degree(0)+absdiff("wealth")+passthrough(~edges+degree(0)+absdiff("wealth"))+submodel.test(~edges+degree(0)+absdiff("wealth"))+summary.test(~edges+degree(0)+absdiff("wealth")), statsonly=TRUE, nsim=20, control=control.simulate.formula(MCMC.burnin=0, MCMC.interval=1), coef=numeric(10)))
+  text <- capture.output(out <- simulate(flomarriage~edges+degree(0)+absdiff("wealth")+passthrough(~edges+degree(0)+absdiff("wealth"))+submodel.test(~edges+degree(0)+absdiff("wealth"))+summary.test(~edges+degree(0)+absdiff("wealth")), output="stats", nsim=20, control=control.simulate.formula(MCMC.burnin=0, MCMC.interval=1), coef=numeric(10)))
   text.out <- matrix(scan(textConnection(paste(text, collapse="")),quiet=TRUE),byrow=TRUE,ncol=3)
   text.out <- text.out[nrow(text.out)-nrow(out)+seq_len(nrow(out)),]
   
@@ -17,7 +17,7 @@ sameg <- outer(g,g,"==")
 test_that("Simulation for NodematchFilter() and F()", {
   out <- simulate(samplike~nodematch("group")+odegree(0:5, by="group", homophily=TRUE)+idegree(0:5, by="group", homophily=TRUE)+localtriangle(sameg)+
                     NodematchFilter(~edges+odegree(0:5)+idegree(0:5)+triangle,"group")+
-                    F(~edges+odegree(0:5)+idegree(0:5)+triangle,~nodematch("group")), statsonly=TRUE, nsim=20, control=control.simulate.formula(MCMC.burnin=0, MCMC.interval=1), coef=numeric(42))
+                    F(~edges+odegree(0:5)+idegree(0:5)+triangle,~nodematch("group")), output="stats", nsim=20, control=control.simulate.formula(MCMC.burnin=0, MCMC.interval=1), coef=numeric(42))
 
   expect_equivalent(out[,1:14],out[,15:28])
   expect_equivalent(out[,1:14],out[,29:42])
