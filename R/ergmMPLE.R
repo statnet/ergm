@@ -145,7 +145,7 @@
 #' mplearray$predictor[1:8,1:8,]
 #' mplearray$weights[1:8,1:8]
 #'
-#' if(require(ergm.multi)){
+#' if(require(tergm)){
 #' # Constraints are handled:
 #' faux.mesa.high%v%"block" <- seq_len(network.size(faux.mesa.high)) %/% 4
 #' mplearray <- ergmMPLE(faux.mesa.high~edges, constraints=~blockdiag("block"), output="array")

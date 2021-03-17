@@ -129,7 +129,7 @@ test_that("Summary for the B() operator with nonzero criteria",{
 
 test_that("Summary for the B() operator with interval criteria",{
   summ <- summary(zach~B(~edges+triangles+degree(0:5), ~ininterval(3,5,c(FALSE,FALSE))), response="contexts")
-  expect_equivalent(summ, summary(ergm.multi::network_view(zach, ~ contexts>=3 & contexts<=5)~edges+triangles+degree(0:5)))
+  expect_equivalent(summ, summary(zach~edges+triangles+degree(0:5), response= ~ contexts>=3 & contexts<=5))
 })
 
 test_that("Valued Label() summary", {

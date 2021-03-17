@@ -303,7 +303,7 @@
       }
 
       \item{
-        \code{blockdiag} constraint has been moved to \pkg{\link[=ergm.multi:ergm.multi-package]{ergm.multi}} package.
+        \code{blockdiag} constraint has been moved to \pkg{\link[=tergm:tergm-package]{tergm}} package.
       }
     }
   }
