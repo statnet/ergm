@@ -8,11 +8,6 @@ static void (*fun)(MHProposal *,Network *) = NULL;
 if(fun==NULL) fun = (void (*)(MHProposal *,Network *)) R_FindSymbol("Mi_StratTNT", "ergm", NULL);
 fun(MHp,nwp);
 }
-void Mi_BDTNT(MHProposal *MHp, Network *nwp){
-static void (*fun)(MHProposal *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(MHProposal *,Network *)) R_FindSymbol("Mi_BDTNT", "ergm", NULL);
-fun(MHp,nwp);
-}
 void Mi_BDStratTNT(MHProposal *MHp, Network *nwp){
 static void (*fun)(MHProposal *,Network *) = NULL;
 if(fun==NULL) fun = (void (*)(MHProposal *,Network *)) R_FindSymbol("Mi_BDStratTNT", "ergm", NULL);
@@ -21,11 +16,6 @@ fun(MHp,nwp);
 void Mf_StratTNT(MHProposal *MHp, Network *nwp){
 static void (*fun)(MHProposal *,Network *) = NULL;
 if(fun==NULL) fun = (void (*)(MHProposal *,Network *)) R_FindSymbol("Mf_StratTNT", "ergm", NULL);
-fun(MHp,nwp);
-}
-void Mf_BDTNT(MHProposal *MHp, Network *nwp){
-static void (*fun)(MHProposal *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(MHProposal *,Network *)) R_FindSymbol("Mf_BDTNT", "ergm", NULL);
 fun(MHp,nwp);
 }
 void Mf_BDStratTNT(MHProposal *MHp, Network *nwp){
