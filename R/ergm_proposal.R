@@ -84,7 +84,7 @@ prune.ergm_conlist <- function(conlist){
       }
     }
   }
-  conlist
+  structure(conlist, class="ergm_conlist")
 }
 
 
@@ -270,75 +270,18 @@ ergm_conlist.formula <- function(object, nw){
     names(conlist)[length(conlist)] <- conname
   }
   
-  conlist <- prune.ergm_conlist(conlist)
-  
-  structure(conlist, class="ergm_conlist")
+  prune.ergm_conlist(conlist)
 }
 
 c.ergm_conlist <- function(...){
-  NextMethod() %>% prune.ergm_conlist() %>% structure(class="ergm_conlist")
+  NextMethod() %>% prune.ergm_conlist()
 }
 
 `[.ergm_conlist` <- function(x, ...){
   structure(NextMethod(), class="ergm_conlist")
 }
 
-#' @describeIn ergm_proposal `object` argument is an ERGM constraint formula.
-#' @param weights Specifies the method used to allocate probabilities of being
-#' proposed to dyads; options are "TNT", "StratTNT", "TNT10", "random", "nonobserved" and
-#' "default"; default="default"
-#' @param class The class of the proposal; choices include "c", "f", and "d"
-#' default="c".
-#' @param constraints A one-sided formula specifying one or more constraints on
-#' the support of the distribution of the networks being simulated. See the
-#' documentation for a similar argument for \code{\link{ergm}} and see
-#' [list of implemented constraints][ergm-constraints] for more information.
-#' @export
-ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~sparse), weights="default", class="c", reference=~Bernoulli, ...) {
-  NVL(hints) <- trim_env(~sparse)
-
-  if(is(reference, "formula")){
-    f <- locate_prefixed_function(reference[[2]], "InitErgmReference", "Reference distribution")
-
-    if(is.call(reference[[2]])){
-      ref.call <- list(f, lhs.nw=nw)
-      ref.call <- c(ref.call,as.list(reference[[2]])[-1])
-    }else{
-      ref.call <- list(f, lhs.nw=nw)
-    }
-    ref <- eval(as.call(ref.call),environment(reference))
-    class(ref) <- "ergm_reference"
-  }else if(is(reference, "ergm_reference")){
-    ref <- reference
-  }else stop("Invalid reference= argument.")
-
-  if(length(object)==3){
-    lhs <- object[[2]]
-    if(is.character(lhs)){
-      name <- object[[2]]
-    }else{
-      name <- try(eval_lhs.formula(object), silent=TRUE)
-      if(is(name, "try-error") || !is.character(name)) stop("Constraints formula must be either one-sided or have a string expression as its LHS.")
-    }
-    object <- object[-2]
-  }else if(length(hints)==3){
-    lhs <- hints[[2]]
-    if(is.character(lhs)){
-      name <- hints[[2]]
-    }else{
-      name <- try(eval_lhs.formula(hints), silent=TRUE)
-      if(is(name, "try-error") || !is.character(name)) stop("Constraints formula must be either one-sided or have a string expression as its LHS.")
-    }
-    hints <- hints[-2]
-  }else name <- NULL
-  
-  if("constraints" %in% names(arguments)){
-    conlist <- prune.ergm_conlist(arguments$constraints)
-    class(conlist) <- "ergm_conlist"
-  }else{
-    conlist <- c(ergm_conlist(object, nw), ergm_conlist(hints, nw))
-  }
-
+select_ergm_proposal <- function(conlist, class, ref, name, weights){
   candidates <- ergm_proposal_table()
   candidates <- candidates[candidates$Class==class & candidates$Reference==ref$name & if(is.null(weights) || weights=="default") TRUE else candidates$Weights==weights, , drop=FALSE]
   if(!is.null(name)) candidates <- candidates[candidates$Proposal==name, , drop=FALSE]
@@ -389,7 +332,6 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~sparse)
     proposals %>% transpose %>% map(add_score) %>% compact %>% transpose %>% map_if(~!is.list(.[[1]]), unlist) %>% as_tibble
   }
 
-  
   # Try the specific constraint combination.
   qualifying.specific <- if(all(sapply(conlist, `[[`, "sign")==+1)) score_proposals(candidates, conlist) # If all constraints are conjunctive...
 
@@ -406,12 +348,70 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~sparse)
   qualifying <- bind_rows(qualifying.general, qualifying.specific)
 
   if(nrow(qualifying)<1){
-    connames <- list_rhs.formula(object) %>% map_chr(deparse)
-    stop("The combination of class (",class,"), model constraints and hints (",paste.and(sQuote(connames)),"), reference measure (",deparse(ult(reference)),"), proposal weighting (",weights,"), and conjunctions and disjunctions is not implemented. ", "Check your arguments for typos. ")
+    stop("The combination of class (",class,"), model constraints and hints (",paste.and(sQuote(unique(names(conlist)))),"), reference measure (",deparse(ult(ref$name)),"), proposal weighting (",weights,"), and conjunctions and disjunctions is not implemented. ", "Check your arguments for typos. ")
   }
 
   proposal <- qualifying[which.max(qualifying$Score),]
   if(proposal$Unmet!="") message("Best valid proposal ", sQuote(proposal$Proposal), " cannot take into account hint(s) ", proposal$Unmet, ".")
+  proposal
+}
+
+#' @describeIn ergm_proposal `object` argument is an ERGM constraint formula.
+#' @param weights Specifies the method used to allocate probabilities of being
+#' proposed to dyads; options are "TNT", "StratTNT", "TNT10", "random", "nonobserved" and
+#' "default"; default="default"
+#' @param class The class of the proposal; choices include "c", "f", and "d"
+#' default="c".
+#' @param constraints A one-sided formula specifying one or more constraints on
+#' the support of the distribution of the networks being simulated. See the
+#' documentation for a similar argument for \code{\link{ergm}} and see
+#' [list of implemented constraints][ergm-constraints] for more information.
+#' @export
+ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~sparse), weights="default", class="c", reference=~Bernoulli, ...) {
+  NVL(hints) <- trim_env(~sparse)
+
+  if(is(reference, "formula")){
+    f <- locate_prefixed_function(reference[[2]], "InitErgmReference", "Reference distribution")
+
+    if(is.call(reference[[2]])){
+      ref.call <- list(f, lhs.nw=nw)
+      ref.call <- c(ref.call,as.list(reference[[2]])[-1])
+    }else{
+      ref.call <- list(f, lhs.nw=nw)
+    }
+    ref <- eval(as.call(ref.call),environment(reference))
+    class(ref) <- "ergm_reference"
+  }else if(is(reference, "ergm_reference")){
+    ref <- reference
+  }else stop("Invalid reference= argument.")
+
+  if(length(object)==3){
+    lhs <- object[[2]]
+    if(is.character(lhs)){
+      name <- object[[2]]
+    }else{
+      name <- try(eval_lhs.formula(object), silent=TRUE)
+      if(is(name, "try-error") || !is.character(name)) stop("Constraints formula must be either one-sided or have a string expression as its LHS.")
+    }
+    object <- object[-2]
+  }else if(length(hints)==3){
+    lhs <- hints[[2]]
+    if(is.character(lhs)){
+      name <- hints[[2]]
+    }else{
+      name <- try(eval_lhs.formula(hints), silent=TRUE)
+      if(is(name, "try-error") || !is.character(name)) stop("Constraints formula must be either one-sided or have a string expression as its LHS.")
+    }
+    hints <- hints[-2]
+  }else name <- NULL
+
+  if("constraints" %in% names(arguments)){
+    conlist <- prune.ergm_conlist(arguments$constraints)
+  }else{
+    conlist <- c(ergm_conlist(object, nw), ergm_conlist(hints, nw))
+  }
+
+  proposal <- select_ergm_proposal(conlist, class, ref, name, weights)
 
   name<-proposal$Proposal
   arguments$constraints<-conlist
