@@ -44,11 +44,9 @@
 }
 
 MH_I_FN(Mi_StratTNT);
-MH_I_FN(Mi_BDTNT);
 MH_I_FN(Mi_BDStratTNT);
 
 MH_F_FN(Mf_StratTNT);
-MH_F_FN(Mf_BDTNT);
 MH_F_FN(Mf_BDStratTNT);
 
 typedef struct {
@@ -69,22 +67,6 @@ typedef struct {
   
   int CD;
 } StratTNTStorage;
-
-typedef struct {
-  NodeList *nodelist;
-  
-  HashEL *hash; // All edges in the network.
-  
-  int tailmaxl; // Will the tail change the maximality status if the current proposal is accepted?  
-  int headmaxl; // ditto head
-  
-  Dyad currentdyads; // Number of dyads that can be selected in the current network.
-  Dyad proposeddyads; // As above, but if the proposal is accepted.
-    
-  int bound; // Single upper bound on degree.
-
-  int CD;
-} BDTNTStorage;
 
 typedef struct {
   NodeList *nodelist;

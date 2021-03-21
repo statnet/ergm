@@ -134,67 +134,6 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   proposal
 }
 
-InitErgmProposal.BDTNT <- function(arguments, nw) {
-  # BDTNT does not currently support directed networks
-  if(is.directed(nw)) {
-    ergm_Init_abort(sQuote("BDTNT"), " only supports undirected networks.")
-  }
-  
-  # bound defaults to network.size - 1, which is effectively no bound (could be made smaller in the bipartite case, but oh well)
-  bound <- NVL(arguments$maxout, arguments$constraints$bd$maxout, network.size(nw) - 1L)
-  if(is.na(bound)) bound <- network.size(nw) - 1L
-
-  # if blocks has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
-  if(is.null(arguments$constraints$blocks) || any(!unlist(lapply(arguments[c("attr", "levels", "levels2", "b1levels", "b2levels")], is.null)))) {
-    arguments$constraints$blocks <- InitErgmConstraint.blocks(nw, attr = arguments[["attr"]], levels = arguments[["levels"]], levels2 = NVL(arguments[["levels2"]], FALSE), b1levels = arguments[["b1levels"]], b2levels = arguments[["b2levels"]])
-  }
-
-  nodecov <- arguments$constraints$blocks$nodecov
-  amat <- arguments$constraints$blocks$amat
-
-  if(is.bipartite(nw)) {
-    nodecov[-seq_len(nw %n% "bipartite")] <- nodecov[-seq_len(nw %n% "bipartite")] + NROW(amat)
-    pairs_mat <- matrix(FALSE, nrow = NROW(amat) + NCOL(amat), ncol = NROW(amat) + NCOL(amat))
-    pairs_mat[seq_len(NROW(amat)), -seq_len(NROW(amat))] <- amat
-  } else if(!is.directed(nw)) {
-    pairs_mat <- amat
-    pairs_mat[lower.tri(pairs_mat, diag = FALSE)] <- FALSE
-  } else {
-    pairs_mat <- amat
-  }
-  
-  allowed.attrs <- which(pairs_mat, arr.ind = TRUE)
-  allowed.tails <- allowed.attrs[,1]
-  allowed.heads <- allowed.attrs[,2]  
-
-  nlevels <- NROW(pairs_mat)
-  nodecountsbycode <- tabulate(nodecov, nbins = nlevels)
-  
-  if(!is.directed(nw) && !is.bipartite(nw)) {
-    pairs_mat <- pairs_mat | t(pairs_mat)
-  }
-  
-  pairs_to_keep <- (allowed.tails != allowed.heads & nodecountsbycode[allowed.tails] > 0 & nodecountsbycode[allowed.heads] > 0) | (allowed.tails == allowed.heads & nodecountsbycode[allowed.tails] > 1)
-  allowed.tails <- allowed.tails[pairs_to_keep]
-  allowed.heads <- allowed.heads[pairs_to_keep]
-  
-  nmixtypes <- length(allowed.tails)
-  
-  proposal <- list(name = "BDTNT", 
-                   inputs = NULL, # passed by name below
-                   bound = as.integer(bound),
-                   nlevels = as.integer(nlevels),
-                   nodecountsbycode = as.integer(nodecountsbycode),
-                   nmixtypes = as.integer(nmixtypes),
-                   allowed.tails = as.integer(allowed.tails - 1L),
-                   allowed.heads = as.integer(allowed.heads - 1L),
-                   nodecov = as.integer(nodecov - 1L),
-                   amat = as.integer(t(pairs_mat)),
-                   skip_bd = TRUE)
-                   
-  proposal
-}
-
 InitErgmProposal.StratTNT <- function(arguments, nw) {
   # if strat has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
   if(is.null(arguments$constraints$strat) || any(!unlist(lapply(arguments[c("attr", "pmat", "empirical")], is.null)))) {

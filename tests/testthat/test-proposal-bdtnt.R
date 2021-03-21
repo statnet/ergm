@@ -289,53 +289,53 @@ test_that("BDTNT constrains bipartite appropriately", {
   expect_true(summary(nws ~ edges) > 20)
 })
 
-test_that("BDTNT handles undirected arguments correctly", {
+test_that("BDStratTNT handles undirected arguments correctly", {
   nw <- network.initialize(100, dir=FALSE)
   nw %v% "bd_attr" <- rep(1:3, length.out=100)
 
-  nws <- simulate(nw ~ edges, coef = c(0), control = list(MCMC.prop.weights = "BDTNT"))
+  nws <- simulate(nw ~ edges, coef = c(0), control = list(MCMC.prop.weights = "BDStratTNT"))
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
   
-  nws <- simulate(nw ~ edges, coef = c(0), control = list(MCMC.prop.weights = "BDTNT", MCMC.prop.args = list(attr = ~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,8)),3,3))))
+  nws <- simulate(nw ~ edges, coef = c(0), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,8)),3,3))))
   expect_true(summary(nws ~ nodemix(~bd_attr, levels2=1)) == 0)
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-1)) > 0))
 
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout=1), control = list(MCMC.prop.weights = "BDTNT", MCMC.prop.args = list(attr = ~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,8)),3,3))))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout=1), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,8)),3,3))))
   expect_true(summary(nws ~ nodemix(~bd_attr, levels2=1)) == 0)
   expect_true(all(summary(nws ~ nodefactor(~bd_attr, levels=TRUE)) > 0))
   expect_true(summary(nws ~ concurrent) == 0)
 
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,8)),3,3)), control = list(MCMC.prop.weights = "BDTNT", MCMC.prop.args = list(attr = ~bd_attr, levels2 = matrix(c(FALSE,TRUE,FALSE,TRUE,rep(FALSE,5)),3,3))))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,8)),3,3)), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(FALSE,TRUE,FALSE,TRUE,rep(FALSE,5)),3,3))))
   expect_true(summary(nws ~ nodemix(~bd_attr, levels2=2)) == 0)  
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-2)) > 0))
   
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout=1) + blocks(~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,8)),3,3)), control = list(MCMC.prop.weights = "BDTNT", MCMC.prop.args = list(attr = ~bd_attr, levels2 = matrix(c(FALSE,TRUE,FALSE,TRUE,rep(FALSE,5)),3,3))))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout=1) + blocks(~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,8)),3,3)), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(FALSE,TRUE,FALSE,TRUE,rep(FALSE,5)),3,3))))
   expect_true(summary(nws ~ nodemix(~bd_attr, levels2=2)) == 0)  
   expect_true(all(summary(nws ~ nodefactor(~bd_attr, levels=TRUE)) > 0))
   expect_true(summary(nws ~ concurrent) == 0)
 })
 
-test_that("BDTNT handles bipartite arguments correctly", {
+test_that("BDStratTNT handles bipartite arguments correctly", {
   nw <- network.initialize(100, dir=FALSE, bip=30)
   nw %v% "bd_attr" <- c(rep(1:3, length.out=30), rep(6:10, length.out=70))
 
-  nws <- simulate(nw ~ edges, coef = c(0), control = list(MCMC.prop.weights = "BDTNT"))
+  nws <- simulate(nw ~ edges, coef = c(0), control = list(MCMC.prop.weights = "BDStratTNT"))
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=TRUE)) > 0))
   
-  nws <- simulate(nw ~ edges, coef = c(0), control = list(MCMC.prop.weights = "BDTNT", MCMC.prop.args = list(attr = ~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,14)),nrow=3,ncol=5))))
+  nws <- simulate(nw ~ edges, coef = c(0), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,14)),nrow=3,ncol=5))))
   expect_true(summary(nws ~ nodemix(~bd_attr, levels2=1)) == 0)
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-1)) > 0))
 
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout = 1), control = list(MCMC.prop.weights = "BDTNT", MCMC.prop.args = list(attr = ~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,14)),nrow=3,ncol=5))))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout = 1), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,14)),nrow=3,ncol=5))))
   expect_true(summary(nws ~ nodemix(~bd_attr, levels2=1)) == 0)
   expect_true(all(summary(nws ~ nodefactor(~bd_attr, levels=TRUE)) > 0))
   expect_true(summary(nws ~ concurrent) == 0)
   
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,14)),nrow=3,ncol=5)), control = list(MCMC.prop.weights = "BDTNT", MCMC.prop.args = list(attr = ~bd_attr, levels2 = matrix(c(FALSE,TRUE,FALSE,FALSE,rep(FALSE,11)),nrow=3,ncol=5))))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~blocks(~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,14)),nrow=3,ncol=5)), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(FALSE,TRUE,FALSE,FALSE,rep(FALSE,11)),nrow=3,ncol=5))))
   expect_true(summary(nws ~ nodemix(~bd_attr, levels2=2)) == 0)  
   expect_true(all(summary(nws ~ nodemix(~bd_attr, levels2=-2)) > 0))
 
-  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout = 1) + blocks(~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,14)),nrow=3,ncol=5)), control = list(MCMC.prop.weights = "BDTNT", MCMC.prop.args = list(attr = ~bd_attr, levels2 = matrix(c(FALSE,TRUE,FALSE,FALSE,rep(FALSE,11)),nrow=3,ncol=5))))
+  nws <- simulate(nw ~ edges, coef = c(0), constraints = ~bd(maxout = 1) + blocks(~bd_attr, levels2 = matrix(c(TRUE,rep(FALSE,14)),nrow=3,ncol=5)), control = list(MCMC.prop.weights = "BDStratTNT", MCMC.prop.args = list(blocks_attr = ~bd_attr, levels2 = matrix(c(FALSE,TRUE,FALSE,FALSE,rep(FALSE,11)),nrow=3,ncol=5))))
   expect_true(summary(nws ~ nodemix(~bd_attr, levels2=2)) == 0)  
   expect_true(all(summary(nws ~ nodefactor(~bd_attr, levels=TRUE)) > 0))
   expect_true(summary(nws ~ concurrent) == 0)

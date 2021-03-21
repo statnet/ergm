@@ -132,7 +132,7 @@
       }
 
       \item{
-        A family of MCMC proposals, \code{\link{BDTNT}}, \code{\link{BDStratTNT}}, and others, has been implemented, allowing for highly efficient MCMC sampling for some special cases of bounded degree and block-level stratification among the dyads.
+        An MCMC proposal \code{\link{BDStratTNT}} has been implemented, allowing for highly efficient MCMC sampling for some special cases of bounded degree and block-level stratification among the dyads.
       }
 
       \item{

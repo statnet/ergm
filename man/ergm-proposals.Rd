@@ -17,7 +17,6 @@
 \alias{InitErgmProposal.ConstantEdges}
 \alias{InitErgmProposal.TNT}
 \alias{InitErgmProposal.StratTNT}
-\alias{InitErgmProposal.BDTNT}
 \alias{InitErgmProposal.BDStratTNT}
 \alias{InitErgmProposal.randomtoggle}
 \alias{InitErgmProposal.randomtoggleNonObserved}
@@ -112,14 +111,6 @@
         \item{InitErgmProposal.CondInDegree}{MHp for \eqn{constraints= ~idegrees}. For directed networks, randomly select two dyads with a common head node, one having an edge one not, and propose to swap the tie from one tail to the other.
         }
         \item{InitErgmProposal.CondOutDegree}{MHp for \eqn{constraints= ~odegrees}. For directed networks, randomly select two dyads with a common tail node, one having an edge and one not, and propose to swap the tie from one head to the other.
-        }
-
-        \item{InitErgmProposal.BDTNT}{Implements a TNT proposal with an upper bound on degree.  
-                    Optionally constrains certain mixing types on a specified attribute.  The upper
-                    bound on degree is specified via the \code{\link{bd}} constraint's \code{maxout} argument
-                    (which must be a single number for \code{BDTNT}), and the constraints on mixing type
-                    are specified via the \code{\link{blocks}} constraint.  Directed networks are not supported by 
-                    \code{BDTNT} at this time.                    
         }
 
         \item{InitErgmProposal.BDStratTNT}{Implements a TNT proposal with an upper bound on degree, with proposed

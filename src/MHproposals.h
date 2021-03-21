@@ -15,7 +15,6 @@
 MH_P_FN(MH_randomtoggle);
 MH_P_FN(MH_TNT);
 MH_P_FN(MH_BDStratTNT);
-MH_P_FN(MH_BDTNT);
 MH_P_FN(MH_StratTNT);
 MH_P_FN(MH_TNT10);
 MH_P_FN(MH_ConstantEdges);
