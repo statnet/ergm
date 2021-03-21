@@ -23,6 +23,8 @@ control.ergm(
   MPLE.nonident.tol = 1e-10,
   MPLE.covariance.samplesize = 500,
   MPLE.covariance.method = "invHess",
+  MPLE.covariance.sim.burnin = 1028,
+  MPLE.covariance.sim.interval = 1028,
   MPLE.constraints.ignore = FALSE,
   MCMC.prop = trim_env(~sparse),
   MCMC.prop.weights = "default",
@@ -304,6 +306,12 @@ returns the covariance estimate obtained from the glm()-function. \code{Godambe}
 covariance matrix using the Godambe-matrix (Schmid and Hunter (2020)). This method is recommended
 for dyad-dependent models. Alternatively, \code{bootstrap} estimates standard deviations using a parametric
 bootstrapping approach (see Schmid and Desmarais (2017)).}
+
+\item{MPLE.covariance.sim.burnin}{Number of proposals before any MCMC sampling is done to simulate
+networks for the MPLE covariance methods "Godambe" and "bootstrap".}
+
+\item{MPLE.covariance.sim.interval}{Number of proposals between simulated networks for the MPLE covariance
+methods "Godambe" and "bootstrap".}
 
 \item{MPLE.constraints.ignore}{If \code{TRUE}, MPLE will ignore all
 dyad-independent constraints except for those due to attributes

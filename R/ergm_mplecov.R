@@ -41,9 +41,11 @@ ergm_mplecov <- function(pl,nw, fd, m, init=init, theta.mple, invHess,  control=
   
   # get sample size from control.ergm
   R <- control$MPLE.covariance.samplesize
+  mple.burnin <- control$MPLE.covariance.sim.burnin
+  mple.interval <- control$MPLE.covariance.sim.interval
   
   # Simulate R networks
-  sim.mple <- simulate(m, nsim=R, coef=theta.mple, basis=nw, control=control.simulate.formula(MCMC.burnin=5000, MCMC.interval=3000))
+  sim.mple <- simulate(m, nsim=R, coef=theta.mple, basis=nw, control=control.simulate.formula(MCMC.burnin=mple.burnin, MCMC.interval=mple.interval))
   
   X <- pl$xmat
   num.variables <- ncol(pl$xmat)
