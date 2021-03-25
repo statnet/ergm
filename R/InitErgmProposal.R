@@ -65,6 +65,11 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
     arguments$constraints$blocks <- InitErgmConstraint.blocks(nw, attr = arguments[["blocks_attr"]], levels = arguments[["levels"]], levels2 = NVL(arguments[["levels2"]], FALSE), b1levels = arguments[["b1levels"]], b2levels = arguments[["b2levels"]])
   }
 
+  # check for old name
+  if(is.null(arguments$constraints$strat) && !is.null(arguments$constraints$Strat)) {
+    arguments$constraints$strat <- arguments$constraints$Strat
+  }
+
   # if strat has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
   if(is.null(arguments$constraints$strat) || any(!unlist(lapply(arguments[c("strat_attr", "pmat", "empirical")], is.null)))) {
     arguments$constraints$strat <- InitErgmConstraint.strat(nw, attr = arguments[["strat_attr"]], pmat = arguments[["pmat"]], empirical = arguments[["empirical"]])
