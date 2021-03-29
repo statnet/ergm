@@ -676,18 +676,36 @@ NULL
 #' @keywords datasets
 NULL
 
-#' Target statistics and model fit to a hypothetical network population based on 
-#' egocentric data on cohabitation 
+#' Target statistics and model fit to a hypothetical 50,000-node network population with
+#' 50,000 nodes based on egocent
 #' 
-#' This dataset consists of three objects,
-#' a mixing matrix, a vector of targets for sufficient statistics, and a 
-#' data.frame of model-derived weights for a network dataset in which only
-#' egocentric reports about partnerships are observed:
+#' This dataset consists of three objects, each derived from the National Survey
+#' of Family Growth (NSFG) (\url{https://www.cdc.gov/nchs/nsfg/index.htm}).
+#' The full dataset cannot be released publicly, so some aspects of these objects
+#' are simulated based on the real data, as described below.
+#' These objects may be used to illustrate that network modeling may be performed
+#' using data that are collected on egos only, i.e., without directly observing
+#' information about alters in a network except for information reported from egos.
+#' The (unobserved, true) network involves cohabitation relationships in a population 
+#' of individuals aged 18 to 45.  Only monogamous relationships are allowed; that 
+#' is, no individual has more than one connection in the network.
+#' The objects in this dataset may be used to
+#' construct a network of 50,000 nodes resembling the original network.
 #' 
+#' The three objects are
 #' \describe{ 
-#' \item{cohab_MixMat}{Mixing matrix for 50K pop (explain)} 
+#' \item{cohab_MixMat}{Mixing matrix on 'race'.  Based on ego reports of the race
+#' of their partners, this matrix gives counts of ego-alter ties by the race of each
+#' individual for the hypothetical 50,000-node network.  Each entry is based on the
+#' corresponding entry in the true NSFG mixing matrix, scaled to a network of size
+#' 50,000 and rounded to the nearest integer } 
+#' \item{cohab_PopWts}{Data frame of demographic characteristics.  Individuals are
+#' classified according to five variables:  age in years, 
+#' race (), 
+#' sex (Male or Female), 
+#' sexual identity (), 
+#' and number of partners (0 or 1)}
 #' \item{cohab_TargetStats}{Vector of target statistics for 50K pop (explain)}
-#' \item{cohab_PopWts}{Data frame including model-derived weights (explain)}
 #' }
 #' 
 #' (Insert explanation here regarding how these objects were created.)
@@ -701,9 +719,10 @@ NULL
 #' @references Krivitsky, P.N., Hunter, D.R., Morris, M., and Klumb, C. (2011).
 #' \emph{ergm 4.0: New Features and Improvements}. 
 #' 
-#' Group, Stat N. (2011). \emph{Another Relevant Article about this Dataset}.
-#' @source Group, Stat N. (2011). \emph{Another Relevant Article about this 
-#' Dataset}.
+#' National Center for Health Statistics (NCHS). (2020). 2006-2015 National 
+#' Survey of Family Growth Public-Use Data and Documentation. Hyattsville, MD: 
+#' CDC National Center for Health Statistics. 
+#' Retrieved from \url{https://www.cdc.gov/nchs/nsfg/index.htm}
 #' @keywords datasets
 NULL
 
