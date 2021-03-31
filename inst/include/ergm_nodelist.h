@@ -6,9 +6,119 @@
 #include "ergm_changestat.h"
 
 typedef struct {
-  Vertex ***nodes;
-  int **attrcounts;
+  Vertex *nodes;
+  int length;
   int *nodepos;
+} NL;
+
+static inline NL *NLInitialize(int nnodes, int *nodepos) {
+  NL *nodelist = Calloc(1, NL);
+  nodelist->nodes = Calloc(nnodes + 1, Vertex);
+  nodelist->nodepos = nodepos;
+  return nodelist;
+}
+
+static inline void NLDestroy(NL *nodelist) {
+  Free(nodelist->nodes);
+  Free(nodelist);
+}
+
+static inline void NLInsert(NL *nodelist, Vertex node) {
+  nodelist->length++;
+  nodelist->nodes[nodelist->length] = node;
+  nodelist->nodepos[node] = nodelist->length;  
+}
+
+static inline void NLDelete(NL *nodelist, Vertex node) {
+  nodelist->nodes[nodelist->nodepos[node]] = nodelist->nodes[nodelist->length];
+  nodelist->nodepos[nodelist->nodes[nodelist->length]] = nodelist->nodepos[node];
+  nodelist->nodepos[node] = 0;
+  nodelist->length--;
+}
+
+static inline void NLToggleKnown(NL *nodelist, Vertex node, int nodeflag) {
+  if(nodeflag) {
+    NLDelete(nodelist, node);
+  } else {
+    NLInsert(nodelist, node);
+  }
+}
+
+static inline void NLPut2Dyad(Vertex *tail, Vertex *head, NL *tails, NL *heads, Dyad dyadindex, int diagonal, int directed) {
+  int tailcount = tails->length;
+  int headcount = heads->length;
+
+  int tailindex;
+  int headindex;
+  
+  if(diagonal) {
+    if(directed) {
+      dyadindex /= 2;
+    }
+    tailindex = dyadindex / tailcount;
+    headindex = dyadindex % (headcount - 1);
+    if(tailindex == headindex) {
+      headindex = headcount - 1;
+    }                  
+  } else {
+    dyadindex /= 2;
+    tailindex = dyadindex / headcount;
+    headindex = dyadindex % headcount;        
+  }
+  
+  // 1-based indexing in NLs
+  tailindex++;
+  headindex++;
+  
+  if(tails->nodes[tailindex] < heads->nodes[headindex] || directed) {
+    *tail = tails->nodes[tailindex];
+    *head = heads->nodes[headindex];
+  } else {
+    *tail = heads->nodes[headindex];
+    *head = tails->nodes[tailindex];      
+  }
+}
+
+static inline Dyad NL2DyadCount(NL *one, NL *two, int diagonal, int directed) {
+  if(diagonal) {
+    if(directed) {
+      return (Dyad)2*one->length*(two->length - 1);
+    } else {
+      return (Dyad)one->length*(two->length - 1);      
+    }
+  } else {
+    return (Dyad)2*one->length*two->length;
+  }
+}
+
+static inline Dyad NLDyadCount(NL *one, NL *two, int diagonal, int directed) {
+  if(diagonal) {
+    if(directed) {
+      return (Dyad)one->length*(two->length - 1);
+    } else {
+      return (Dyad)one->length*(two->length - 1)/2;      
+    }
+  } else {
+    return (Dyad)one->length*two->length;
+  }
+}
+
+static inline int NLDyadCountPositive(NL *one, NL *two, int diagonal) {
+  if(diagonal) {
+    return one->length > 1;
+  } else {
+    return one->length > 0 && two->length > 0;
+  }
+}
+
+typedef struct {
+  NL ***tails;
+  NL ***heads;
+  NL ***boths;
+  
+  int *tailpos;
+  int *headpos;
+  int *bothpos;
   
   int *strat_tails;
   int *strat_heads;
@@ -21,128 +131,136 @@ typedef struct {
   
   int *lengths;
   
+  int *strat_diagonal;
+  int *bd_diagonal;
+  
   int directed;
 
   int strat_nlevels;
   int bd_nlevels;
 } NodeList;
 
-static inline NodeList *NodeListInitialize(int bound, int *strat_vattr, int strat_nlevels, int strat_nmixtypes, int *strat_tails, int *strat_heads, int *strat_attrcounts,
-                                           int *bd_vattr, int bd_nlevels, int nondiag_bd_nmixtypes, int diag_bd_nmixtypes, int *bd_tails, int *bd_heads, int *bd_attrcounts, 
+static inline NodeList *NodeListInitialize(int maxout, int maxin, int *strat_vattr, int strat_nlevels, int strat_nmixtypes, int *strat_tails, int *strat_heads,
+                                           int *bd_vattr, int bd_nlevels, int *bd_mixtypes, int *bd_tails, int *bd_heads,
                                            int *jointattrcounts, Network *nwp) {
   NodeList *nodelist = Calloc(1, NodeList);
   nodelist->directed = DIRECTED;
-  
-  if(!strat_vattr) {
-    strat_nlevels = 1;
-    nodelist->strat_tails = Calloc(1, int);
-    nodelist->strat_heads = Calloc(1, int);
-    nodelist->strat_vattr = Calloc(N_NODES, int);
-  } else {
-    nodelist->strat_tails = Calloc(strat_nmixtypes, int);
-    nodelist->strat_heads = Calloc(strat_nmixtypes, int);
-    nodelist->strat_vattr = Calloc(N_NODES, int);
-    memcpy(nodelist->strat_tails, strat_tails, strat_nmixtypes*sizeof(int));
-    memcpy(nodelist->strat_heads, strat_heads, strat_nmixtypes*sizeof(int));
-    memcpy(nodelist->strat_vattr, strat_vattr, N_NODES*sizeof(int));
+
+  nodelist->strat_diagonal = Calloc(strat_nmixtypes, int);
+  for(int i = 0; i < strat_nmixtypes; i++) {
+    nodelist->strat_diagonal[i] = (strat_tails[i] == strat_heads[i]);
   }
-  nodelist->strat_vattr--; // decrement so node indices line up correctly
-  
-  nodelist->lengths = Calloc(2, int);
-  if(!bd_vattr) {
-    bd_nlevels = 1;
-    nodelist->bd_tails = Calloc(1, int);
-    nodelist->bd_heads = Calloc(1, int);
-    nodelist->bd_vattr = Calloc(N_NODES, int);
-    nodelist->lengths[0] = 1;
-    nodelist->lengths[1] = 1;
-  } else {
-    nodelist->bd_tails = Calloc(nondiag_bd_nmixtypes, int);
-    nodelist->bd_heads = Calloc(nondiag_bd_nmixtypes, int);
-    nodelist->bd_vattr = Calloc(N_NODES, int);
-    memcpy(nodelist->bd_tails, bd_tails, nondiag_bd_nmixtypes*sizeof(int));
-    memcpy(nodelist->bd_heads, bd_heads, nondiag_bd_nmixtypes*sizeof(int));
-    memcpy(nodelist->bd_vattr, bd_vattr, N_NODES*sizeof(int));
-    nodelist->lengths[0] = nondiag_bd_nmixtypes;
-    nodelist->lengths[1] = diag_bd_nmixtypes;
+
+  nodelist->bd_diagonal = Calloc(bd_mixtypes[0], int);
+  for(int i = 0; i < bd_mixtypes[0]; i++) {
+    nodelist->bd_diagonal[i] = (bd_tails[i] == bd_heads[i]);
   }
-  nodelist->bd_vattr--; // decrement so node indices line up correctly
-  
-  Vertex ***nodes = Calloc(strat_nlevels, Vertex **);
-  for(int i = 0; i < strat_nlevels; i++) {
-    nodes[i] = Calloc(bd_nlevels, Vertex *);
-    for(int j = 0; j < bd_nlevels; j++) {
-      nodes[i][j] = Calloc(jointattrcounts ? jointattrcounts[i*bd_nlevels + j] : strat_attrcounts ? strat_attrcounts[i] : bd_attrcounts[j], Vertex);
-    }
-  }
-  
-  int **attrcounts = Calloc(strat_nlevels, int *);
-  for(int i = 0; i < strat_nlevels; i++) {
-    attrcounts[i] = Calloc(bd_nlevels, int);
-  }
-  
-  int *nodepos = Calloc(N_NODES, int);
-  nodepos--;
-  
-  for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
-    if(IN_DEG[vertex] + OUT_DEG[vertex] < bound) {
-      int strat_val = nodelist->strat_vattr[vertex];
-      int bd_val = nodelist->bd_vattr[vertex];
-      nodes[strat_val][bd_val][attrcounts[strat_val][bd_val]] = vertex;
-      nodepos[vertex] = attrcounts[strat_val][bd_val];
-      attrcounts[strat_val][bd_val]++;
-    }
-  }
-  
-  nodelist->nodes = nodes;
-  nodelist->attrcounts = attrcounts;
-  nodelist->nodepos = nodepos;
-  
+
+  nodelist->strat_tails = strat_tails;
+  nodelist->strat_heads = strat_heads;
+
+  nodelist->bd_tails = bd_tails;
+  nodelist->bd_heads = bd_heads;
+
+  nodelist->lengths = bd_mixtypes;
+
+  nodelist->strat_vattr = strat_vattr - 1; // decrement so node indices line up correctly  
+  nodelist->bd_vattr = bd_vattr - 1; // decrement so node indices line up correctly
+
   nodelist->strat_nlevels = strat_nlevels;
   nodelist->bd_nlevels = bd_nlevels;
+
+  nodelist->bothpos = Calloc(N_NODES + 1, int);
+  nodelist->tailpos = DIRECTED ? Calloc(N_NODES + 1, int) : nodelist->bothpos;  
+  nodelist->headpos = DIRECTED ? Calloc(N_NODES + 1, int) : nodelist->bothpos;  
   
+  nodelist->boths = Calloc(strat_nlevels, NL **);
+  nodelist->tails = DIRECTED ? Calloc(strat_nlevels, NL **) : nodelist->boths;
+  nodelist->heads = DIRECTED ? Calloc(strat_nlevels, NL **) : nodelist->boths;
+  
+  for(int i = 0; i < strat_nlevels; i++) {
+    nodelist->boths[i] = Calloc(bd_nlevels, NL *);
+    if(DIRECTED) {
+      nodelist->tails[i] = Calloc(bd_nlevels, NL *);
+      nodelist->heads[i] = Calloc(bd_nlevels, NL *);
+    }
+    for(int j = 0; j < bd_nlevels; j++) {
+      nodelist->boths[i][j] = NLInitialize(jointattrcounts[i*bd_nlevels + j], nodelist->bothpos);
+      if(DIRECTED) {
+        nodelist->tails[i][j] = NLInitialize(jointattrcounts[i*bd_nlevels + j], nodelist->tailpos);
+        nodelist->heads[i][j] = NLInitialize(jointattrcounts[i*bd_nlevels + j], nodelist->headpos);
+      }
+    }
+  }
+  
+  for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
+    int strat_val = nodelist->strat_vattr[vertex];
+    int bd_val = nodelist->bd_vattr[vertex];
+    
+    if(DIRECTED) {
+      if(IN_DEG[vertex] < maxin && OUT_DEG[vertex] < maxout) {
+        NLInsert(nodelist->boths[strat_val][bd_val], vertex);        
+      } else if(OUT_DEG[vertex] < maxout) {
+        NLInsert(nodelist->tails[strat_val][bd_val], vertex);
+      } else if(IN_DEG[vertex] < maxin) {
+        NLInsert(nodelist->heads[strat_val][bd_val], vertex);
+      }        
+    } else if(IN_DEG[vertex] + OUT_DEG[vertex] < maxout) {
+      NLInsert(nodelist->boths[strat_val][bd_val], vertex);        
+    }
+  }
+
   return nodelist;
 }
 
 static inline Dyad NodeListDyadCount(NodeList *nodelist, int stratmixingtype) {
-  int *tailcounts = nodelist->attrcounts[nodelist->strat_tails[stratmixingtype]];
-  int *headcounts = nodelist->attrcounts[nodelist->strat_heads[stratmixingtype]];
+  NL **tailboths = nodelist->boths[nodelist->strat_tails[stratmixingtype]];
+  NL **headboths = nodelist->boths[nodelist->strat_heads[stratmixingtype]];
+  
+  NL **tails = nodelist->tails[nodelist->strat_tails[stratmixingtype]];
+  NL **heads = nodelist->heads[nodelist->strat_heads[stratmixingtype]];
+  
   int *tailtypes = nodelist->bd_tails;
   int *headtypes = nodelist->bd_heads;
-  int diagonal = nodelist->strat_tails[stratmixingtype] == nodelist->strat_heads[stratmixingtype];
-  int length = nodelist->lengths[diagonal];
-  int directed = nodelist->directed;
 
+  int diagonal = nodelist->strat_diagonal[stratmixingtype];
+  
   Dyad dyadcount = 0;
-  for(int i = 0; i < length; i++) {
-    if(diagonal && tailtypes[i] == headtypes[i]) {
-      if(directed) {
-        dyadcount += (Dyad)tailcounts[tailtypes[i]]*(headcounts[headtypes[i]] - 1);
-      } else {
-        dyadcount += (Dyad)tailcounts[tailtypes[i]]*(headcounts[headtypes[i]] - 1)/2;
-      }
+  for(int i = 0; i < nodelist->lengths[diagonal]; i++) {
+    if(nodelist->directed) {
+      dyadcount += NLDyadCount(tailboths[tailtypes[i]], headboths[headtypes[i]], diagonal && nodelist->bd_diagonal[i], TRUE);
+      dyadcount += NLDyadCount(tailboths[tailtypes[i]], heads[headtypes[i]], FALSE, TRUE);
+      dyadcount += NLDyadCount(tails[tailtypes[i]], headboths[headtypes[i]], FALSE, TRUE);
+      dyadcount += NLDyadCount(tails[tailtypes[i]], heads[headtypes[i]], FALSE, TRUE);        
     } else {
-      dyadcount += (Dyad)tailcounts[tailtypes[i]]*headcounts[headtypes[i]];
+      dyadcount += NLDyadCount(tails[tailtypes[i]], heads[headtypes[i]], diagonal && nodelist->bd_diagonal[i], nodelist->directed);
     }
   }
   return dyadcount;
 }
 
 static inline int NodeListDyadCountPositive(NodeList *nodelist, int stratmixingtype) {
-  int *tailcounts = nodelist->attrcounts[nodelist->strat_tails[stratmixingtype]];
-  int *headcounts = nodelist->attrcounts[nodelist->strat_heads[stratmixingtype]];
+  NL **tailboths = nodelist->boths[nodelist->strat_tails[stratmixingtype]];
+  NL **headboths = nodelist->boths[nodelist->strat_heads[stratmixingtype]];
+  
+  NL **tails = nodelist->tails[nodelist->strat_tails[stratmixingtype]];
+  NL **heads = nodelist->heads[nodelist->strat_heads[stratmixingtype]];
+  
   int *tailtypes = nodelist->bd_tails;
   int *headtypes = nodelist->bd_heads;
-  int diagonal = nodelist->strat_tails[stratmixingtype] == nodelist->strat_heads[stratmixingtype];
-  int length = nodelist->lengths[diagonal];
 
-  for(int i = 0; i < length; i++) {
-    if(diagonal && tailtypes[i] == headtypes[i]) {
-      if(tailcounts[tailtypes[i]] > 1) {
-        return TRUE;
+  int diagonal = nodelist->strat_diagonal[stratmixingtype];
+  
+  for(int i = 0; i < nodelist->lengths[diagonal]; i++) {
+    if(nodelist->directed) {
+      if(NLDyadCountPositive(tailboths[tailtypes[i]], headboths[headtypes[i]], diagonal && nodelist->bd_diagonal[i]) ||
+         NLDyadCountPositive(tailboths[tailtypes[i]], heads[headtypes[i]], FALSE) ||
+         NLDyadCountPositive(tails[tailtypes[i]], headboths[headtypes[i]], FALSE) ||
+         NLDyadCountPositive(tails[tailtypes[i]], heads[headtypes[i]], FALSE)) {
+           return TRUE;
       }
     } else {
-      if(tailcounts[tailtypes[i]] > 0 && headcounts[headtypes[i]] > 0) {
+      if(NLDyadCountPositive(tails[tailtypes[i]], heads[headtypes[i]], diagonal && nodelist->bd_diagonal[i])) {
         return TRUE;
       }
     }
@@ -150,97 +268,85 @@ static inline int NodeListDyadCountPositive(NodeList *nodelist, int stratmixingt
   return FALSE;
 }
 
-static inline void NodeListToggleKnown(Vertex node, NodeList *nodelist, int nodeflag) {
-  Vertex *nodevec = nodelist->nodes[nodelist->strat_vattr[node]][nodelist->bd_vattr[node]];
-  int *nodepos = nodelist->nodepos;
-  int *length = &nodelist->attrcounts[nodelist->strat_vattr[node]][nodelist->bd_vattr[node]];
-  
-  if(nodeflag) { // present; remove node from the list
-    nodevec[nodepos[node]] = nodevec[*length - 1];  // move last node into node's position
-    nodepos[nodevec[*length - 1]] = nodepos[node];  // update formerly last node's position
-    (*length)--;  // update length
-  } else { // absent; add node to the list
-    nodevec[*length] = node;  // place node in last position
-    nodepos[node] = *length;  // set position for node
-    (*length)++;  // update length  
-  }
-}
-
 static inline void NodeListToggleKnownIf(Vertex tail, Vertex head, NodeList *nodelist, int nodeflag, int tailcondition, int headcondition) {
   if(tailcondition) {
-    NodeListToggleKnown(tail, nodelist, nodeflag);
+    if(nodelist->directed && (nodelist->bothpos[tail] || nodelist->headpos[tail])) {
+      NLToggleKnown(nodelist->boths[nodelist->strat_vattr[tail]][nodelist->bd_vattr[tail]], tail, nodelist->bothpos[tail]);          
+      NLToggleKnown(nodelist->heads[nodelist->strat_vattr[tail]][nodelist->bd_vattr[tail]], tail, nodelist->headpos[tail]);              
+    } else {
+      NLToggleKnown(nodelist->tails[nodelist->strat_vattr[tail]][nodelist->bd_vattr[tail]], tail, nodeflag);        
+    }
   }
+
   if(headcondition) {
-    NodeListToggleKnown(head, nodelist, nodeflag);
+    if(nodelist->directed && (nodelist->bothpos[head] || nodelist->tailpos[head])) {
+      NLToggleKnown(nodelist->boths[nodelist->strat_vattr[head]][nodelist->bd_vattr[head]], head, nodelist->bothpos[head]);          
+      NLToggleKnown(nodelist->tails[nodelist->strat_vattr[head]][nodelist->bd_vattr[head]], head, nodelist->tailpos[head]);          
+    } else {
+      NLToggleKnown(nodelist->heads[nodelist->strat_vattr[head]][nodelist->bd_vattr[head]], head, nodeflag);
+    }
   }
 }
 
 static inline void NodeListGetRandWithCount(Vertex *tail, Vertex *head, NodeList *nodelist, int stratmixingtype, Dyad dyadcount) {    
-  Vertex **tails = nodelist->nodes[nodelist->strat_tails[stratmixingtype]];
-  Vertex **heads = nodelist->nodes[nodelist->strat_heads[stratmixingtype]];
+  NL **tailboths = nodelist->boths[nodelist->strat_tails[stratmixingtype]];
+  NL **headboths = nodelist->boths[nodelist->strat_heads[stratmixingtype]];
+  
+  NL **tails = nodelist->tails[nodelist->strat_tails[stratmixingtype]];
+  NL **heads = nodelist->heads[nodelist->strat_heads[stratmixingtype]];
 
-  int *tailattrs = nodelist->bd_tails;
-  int *headattrs = nodelist->bd_heads;
+  int *tailtypes = nodelist->bd_tails;
+  int *headtypes = nodelist->bd_heads;
 
-  int *tailcounts = nodelist->attrcounts[nodelist->strat_tails[stratmixingtype]];
-  int *headcounts = nodelist->attrcounts[nodelist->strat_heads[stratmixingtype]];
-
-  int diagonal = nodelist->strat_tails[stratmixingtype] == nodelist->strat_heads[stratmixingtype];
-  int length = nodelist->lengths[diagonal];
-
-  int directed = nodelist->directed;
+  int diagonal = nodelist->strat_diagonal[stratmixingtype];
                                               
   Dyad dyadindex = 2*dyadcount*unif_rand();
 
-  for(int i = 0; i < length; i++) {
+  for(int i = 0; i < nodelist->lengths[diagonal]; i++) {
     Dyad dyadsthistype;
-
-    int tailcount = tailcounts[tailattrs[i]];
-    int headcount = headcounts[headattrs[i]];
-
-    // doubled for efficiency below
-    if(diagonal && tailattrs[i] == headattrs[i]) {
-      if(directed) {
-        dyadsthistype = (Dyad)2*tailcount*(headcount - 1);                    
-      } else {
-        dyadsthistype = (Dyad)tailcount*(headcount - 1);          
-      }
-    } else {
-      dyadsthistype = (Dyad)2*tailcount*headcount;
-    }
     
-    if(dyadindex < dyadsthistype) {
-      int tailindex;
-      int headindex;
-      
-      if(diagonal && tailattrs[i] == headattrs[i]) {
-        if(directed) {
-          dyadindex /= 2;
-        }
-        tailindex = dyadindex / tailcount;
-        headindex = dyadindex % (headcount - 1);
-        if(tailindex == headindex) {
-          headindex = headcount - 1;
-        }                  
+    if(nodelist->directed) {
+      dyadsthistype = NL2DyadCount(tailboths[tailtypes[i]], headboths[headtypes[i]], diagonal && nodelist->bd_diagonal[i], TRUE);
+      if(dyadindex < dyadsthistype) {
+        NLPut2Dyad(tail, head, tailboths[tailtypes[i]], headboths[headtypes[i]], dyadindex, diagonal && nodelist->bd_diagonal[i], TRUE);
+        return;
       } else {
-        dyadindex /= 2;
-        tailindex = dyadindex / headcount;
-        headindex = dyadindex % headcount;        
+        dyadindex -= dyadsthistype;  
       }
 
-      if(tails[tailattrs[i]][tailindex] < heads[headattrs[i]][headindex] || directed) {
-        *tail = tails[tailattrs[i]][tailindex];
-        *head = heads[headattrs[i]][headindex];
+      dyadsthistype = NL2DyadCount(tailboths[tailtypes[i]], heads[headtypes[i]], FALSE, TRUE);
+      if(dyadindex < dyadsthistype) {
+        NLPut2Dyad(tail, head, tailboths[tailtypes[i]], heads[headtypes[i]], dyadindex, FALSE, TRUE);
+        return;
       } else {
-        *tail = heads[headattrs[i]][headindex];
-        *head = tails[tailattrs[i]][tailindex];          
+        dyadindex -= dyadsthistype;  
+      }
+
+      dyadsthistype = NL2DyadCount(tails[tailtypes[i]], headboths[headtypes[i]], FALSE, TRUE);
+      if(dyadindex < dyadsthistype) {
+        NLPut2Dyad(tail, head, tails[tailtypes[i]], headboths[headtypes[i]], dyadindex, FALSE, TRUE);
+        return;
+      } else {
+        dyadindex -= dyadsthistype;  
       }
       
-      return;
+      dyadsthistype = NL2DyadCount(tails[tailtypes[i]], heads[headtypes[i]], FALSE, TRUE);
+      if(dyadindex < dyadsthistype) {
+        NLPut2Dyad(tail, head, tails[tailtypes[i]], heads[headtypes[i]], dyadindex, FALSE, TRUE);
+        return;
+      } else {
+        dyadindex -= dyadsthistype;  
+      }
     } else {
-      dyadindex -= dyadsthistype;
+      dyadsthistype = NL2DyadCount(tails[tailtypes[i]], heads[headtypes[i]], diagonal && nodelist->bd_diagonal[i], nodelist->directed);
+      if(dyadindex < dyadsthistype) {
+        NLPut2Dyad(tail, head, tails[tailtypes[i]], heads[headtypes[i]], dyadindex, diagonal && nodelist->bd_diagonal[i], nodelist->directed);
+        return;
+      } else {
+        dyadindex -= dyadsthistype;  
+      }        
     }
-  } 
+  }
 }
 
 static inline void NodeListGetRand(Vertex *tail, Vertex *head, NodeList *nodelist, int stratmixingtype) {
@@ -250,65 +356,65 @@ static inline void NodeListGetRand(Vertex *tail, Vertex *head, NodeList *nodelis
 static inline void NodeListDestroy(NodeList *nodelist) {
   for(int i = 0; i < nodelist->strat_nlevels; i++) {
     for(int j = 0; j < nodelist->bd_nlevels; j++) {
-      Free(nodelist->nodes[i][j]);
+      NLDestroy(nodelist->boths[i][j]);
+      if(nodelist->directed) {
+        NLDestroy(nodelist->tails[i][j]);
+        NLDestroy(nodelist->heads[i][j]);
+      }
     }
-    Free(nodelist->nodes[i]);
   }
-  Free(nodelist->nodes);
   
-  for(int i = 0; i < nodelist->strat_nlevels; i++) {
-    Free(nodelist->attrcounts[i]);
+  Free(nodelist->bothpos);
+  if(nodelist->directed) {
+    Free(nodelist->tailpos);
+    Free(nodelist->headpos);
   }
-  Free(nodelist->attrcounts);
-
-  nodelist->nodepos++;
-  Free(nodelist->nodepos);  
-  Free(nodelist->strat_tails);  
-  Free(nodelist->strat_heads);  
-  Free(nodelist->bd_tails);  
-  Free(nodelist->bd_heads);  
-  nodelist->strat_vattr++;
-  Free(nodelist->strat_vattr);
-  nodelist->bd_vattr++;
-  Free(nodelist->bd_vattr);
-  Free(nodelist->lengths);  
+  
+  Free(nodelist->strat_diagonal);
+  Free(nodelist->bd_diagonal);
+  
   Free(nodelist);
 }
 
-
 static inline Dyad NodeListDyadCountOnToggle(Vertex tail, Vertex head, NodeList *nodelist, int stratmixingtype, int change, int tailcondition, int headcondition) {
-  int *tailcounts = nodelist->attrcounts[nodelist->strat_tails[stratmixingtype]];
-  int *headcounts = nodelist->attrcounts[nodelist->strat_heads[stratmixingtype]];
-  int *tailtypes = nodelist->bd_tails;
-  int *headtypes = nodelist->bd_heads;
-  int diagonal = nodelist->strat_tails[stratmixingtype] == nodelist->strat_heads[stratmixingtype];
-  int length = nodelist->lengths[diagonal];
-  int directed = nodelist->directed;
-  
   if(tailcondition) {
-    nodelist->attrcounts[nodelist->strat_vattr[tail]][nodelist->bd_vattr[tail]] += change;
-  }
-  if(headcondition) {
-    nodelist->attrcounts[nodelist->strat_vattr[head]][nodelist->bd_vattr[head]] += change;
-  }
-  Dyad dyadcount = 0;
-  for(int i = 0; i < length; i++) {
-    if(diagonal && tailtypes[i] == headtypes[i]) {
-      if(directed) {
-        dyadcount += (Dyad)tailcounts[tailtypes[i]]*(headcounts[headtypes[i]] - 1);
-      } else {
-        dyadcount += (Dyad)tailcounts[tailtypes[i]]*(headcounts[headtypes[i]] - 1)/2;
-      }
+    if(nodelist->directed && (nodelist->bothpos[tail] || nodelist->headpos[tail])) {
+      nodelist->boths[nodelist->strat_vattr[tail]][nodelist->bd_vattr[tail]]->length += change;          
+      nodelist->heads[nodelist->strat_vattr[tail]][nodelist->bd_vattr[tail]]->length -= change;              
     } else {
-      dyadcount += (Dyad)tailcounts[tailtypes[i]]*headcounts[headtypes[i]];
+      nodelist->tails[nodelist->strat_vattr[tail]][nodelist->bd_vattr[tail]]->length += change;        
     }
   }
-  if(tailcondition) {
-    nodelist->attrcounts[nodelist->strat_vattr[tail]][nodelist->bd_vattr[tail]] -= change;
-  }
+
   if(headcondition) {
-    nodelist->attrcounts[nodelist->strat_vattr[head]][nodelist->bd_vattr[head]] -= change;
+    if(nodelist->directed && (nodelist->bothpos[head] || nodelist->tailpos[head])) {
+      nodelist->boths[nodelist->strat_vattr[head]][nodelist->bd_vattr[head]]->length += change;        
+      nodelist->tails[nodelist->strat_vattr[head]][nodelist->bd_vattr[head]]->length -= change;        
+    } else {
+      nodelist->heads[nodelist->strat_vattr[head]][nodelist->bd_vattr[head]]->length += change;
+    }
   }
+
+  Dyad dyadcount = NodeListDyadCount(nodelist, stratmixingtype);
+
+  if(tailcondition) {
+    if(nodelist->directed && (nodelist->bothpos[tail] || nodelist->headpos[tail])) {
+      nodelist->boths[nodelist->strat_vattr[tail]][nodelist->bd_vattr[tail]]->length -= change;          
+      nodelist->heads[nodelist->strat_vattr[tail]][nodelist->bd_vattr[tail]]->length += change;              
+    } else {
+      nodelist->tails[nodelist->strat_vattr[tail]][nodelist->bd_vattr[tail]]->length -= change;        
+    }
+  }
+
+  if(headcondition) {
+    if(nodelist->directed && (nodelist->bothpos[head] || nodelist->tailpos[head])) {
+      nodelist->boths[nodelist->strat_vattr[head]][nodelist->bd_vattr[head]]->length -= change;        
+      nodelist->tails[nodelist->strat_vattr[head]][nodelist->bd_vattr[head]]->length += change;        
+    } else {
+      nodelist->heads[nodelist->strat_vattr[head]][nodelist->bd_vattr[head]]->length -= change;
+    }
+  }
+
   return dyadcount;
 }
 

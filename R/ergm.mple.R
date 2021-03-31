@@ -248,17 +248,25 @@ ergm.mple<-function(nw, fd, m, init=NULL,
 #' \url{https://ora.ox.ac.uk/objects/uuid:8f9ee0d0-d78e-4101-9ab4-f9cbceed2a2a}
 #' @noRd
 mple.existence <- function(pl) {
-#' @importFrom rcdd lpcdd
+#' @importFrom lpSolveAPI make.lp set.column set.objfn set.constr.type set.rhs set.bounds lp.control
   X <- pl$xmat
   y <- pl$zy
   y[y==0] <- -1
-  X.bar <- y*X # A
+  X.bar <- y*X
   e_n <- rep(1, nrow(X.bar))
-  obj <- e_n%*%X.bar # C
-  obj <- as.vector(obj)
-  H.rep <- cbind(rep(0,nrow(X.bar)),  rep(0,nrow(X.bar)), X.bar)
-  linp <- lpcdd(H.rep, obj, minimize=F)
-  if(linp$solution.type == "DualInconsistent"){
+  obj <- e_n%*%X.bar 
+  lprec <- make.lp(nrow=nrow(X.bar), ncol=length(obj)) # set constraint and decision variables
+  for(k in 1:length(c(obj))){
+    status <- set.column(lprec, k, X.bar[,k])
+  }
+  status <- set.objfn(lprec, c( obj) )
+  status <- set.constr.type(lprec, rep(">=", NROW(X.bar)))
+  status <- set.rhs(lprec,  rep(0, NROW(X.bar)))
+  status <- set.bounds(lprec, lower = rep(-Inf, length(obj)), upper = rep(Inf, length(obj)))
+  control <- lp.control(lprec, pivoting = "firstindex", sense = "max",
+                        simplextype = c("primal", "primal"))
+  status <- solve(lprec)
+  if(status == 3){
     warning("The MPLE does not exist!")
   }
 }

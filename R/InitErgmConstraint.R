@@ -164,7 +164,7 @@ InitErgmConstraint.bd<-function(lhs.nw, attribs=NULL, maxout=NA, maxin=NA, minou
      ergm_Init_abort(paste("Bounded degrees constraint takes at most 5 arguments; ",nargs()-1," given.",sep=""))
    if(...length()) ergm_Init_abort(paste0("Unrecognised argument(s) ", paste.and(names(list(...)), oq="'", cq="'"),"."))
 
-   if(!is.directed(lhs.nw) && is.null(attribs) && length(maxout) == 1 && is.na(maxin) && is.na(minout) && is.na(minin)) {
+   if(is.null(attribs) && length(maxout) == 1 && length(maxin) == 1 && is.na(minout) && is.na(minin)) {
      constrain <- "bdmax"
    } else {
      constrain <- "bd"
@@ -247,11 +247,7 @@ InitErgmConstraint.blocks <- function(lhs.nw, attr = NULL, levels = NULL, levels
     
   }  
 
-  if(is.directed(lhs.nw)) {
-    constrain <- "blocksdir"
-  } else {
-    constrain <- "blocks"
-  }
+  constrain <- "blocks"
   
   n <- as.integer(network.size(lhs.nw))
 

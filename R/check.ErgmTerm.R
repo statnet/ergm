@@ -102,6 +102,8 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
     ergm_Init_abort("Term may not be used with ",message,".")
   }
 
+  # Construct a dummy function that copies all its arguments into a
+  # list and sets an attribute indicating whether they are missing.
   f <- function(){
     ..n <- names(formals())
     ..l <- structure(vector("list", length(..n)), names=..n)
@@ -113,8 +115,11 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
     structure(..l, missing=..m)
   }
 
+  # Set the argument names and their defaults (if not required).
   formals(f) <- replace(structure(defaultvalues, names = varnames), required, list(quote(expr=)))
-  ergm_Init_try(out <- do.call(f, arglist, envir=baseenv()))
+  # Now, try calling it with the arglist.
+  ergm_Init_try(out <- do.call(f, arglist, envir=baseenv(), quote=TRUE))
+  # out is now a list containing elements of arglist in the correct order and defaults filled in.
 
   for(m in seq_along(out)){
     name <- names(out)[m]
