@@ -54,12 +54,14 @@ ergm.initialfit<-function(init, initial.is.final,
                           m, reference=~Bernoulli, method = NULL,
                           MPLEtype="glm",
                           control=NULL, proposal=NULL, proposal.obs=NULL,
-                          verbose=FALSE, ...) {
+                          constraints=NULL, verbose=FALSE, ...) {
   # Respect init elements that are not offsets if it's only a starting value.
   if(!initial.is.final){ 
     m$etamap$offsettheta[!is.na(init)] <- TRUE
   }
-
+  
+  nw.network <- nw
+  
   if(initial.is.final || any(is.na(init))){
     # If we aren't running MCMC after this or not all of init has been
     # supplied by the user, use MPLE.   
@@ -75,7 +77,7 @@ ergm.initialfit<-function(init, initial.is.final,
                     ergm.mple(nw, fd, m, MPLEtype=MPLEtype,
                               init=init, 
                               control=control,
-                              verbose=verbose, ...)
+                              verbose=verbose, nw.network=nw.network, constraints=constraints, ...)
                   },
                   zeros = structure(list(coef=.constrain_init(m, ifelse(is.na(init),0,init))),class="ergm"),
                   CD = ergm.CD.fixed(.constrain_init(m, ifelse(is.na(init),0,init)),

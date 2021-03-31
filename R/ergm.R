@@ -782,6 +782,7 @@ ergm <- function(formula, response=NULL,
                                 control=control,
                                 proposal=proposal,
                                 proposal.obs=proposal.obs,
+                                constraints=constraints,
                                 verbose=if(MCMCflag) FALSE else verbose,
                                 ...)
 

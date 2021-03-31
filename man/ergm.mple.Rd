@@ -16,6 +16,8 @@ ergm.mple(
   save.xmat = TRUE,
   control = NULL,
   verbose = FALSE,
+  nw.network = NULL,
+  constraints = NULL,
   ...
 )
 
@@ -58,6 +60,8 @@ functions and limited argument name checking.}
 
 \item{verbose}{whether this and the C routines should be verbose (T
 or F); default=FALSE}
+
+\item{nw.network}{response \code{\link{network}}}
 
 \item{\dots}{additional parameters passed from within; all will be
 ignored}

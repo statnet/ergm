@@ -26,6 +26,14 @@
 #'   Clist.miss,
 #' @param verbose whether this and the C routines should be verbose (T
 #'   or F); default=FALSE
+#' 
+#' @param nw.network response [`network`]
+#' 
+#' @param constraints {A formula specifying one or more constraints
+#' on the support of the distribution of the networks being modeled,
+#' using syntax similar to the \code{formula} argument, on the
+#' right-hand side.
+#' 
 #' @return \code{ergm_mplecov} returns a list either
 #'   containing a Godambe covariance matrix or a diagonal matrix with bootstrap variances.
 #' 
@@ -37,7 +45,7 @@
 #' Pseudolikelihood for ERGMs" _Working Paper_.
 #' @noRd
 ergm_mplecov <- function(pl,nw, fd, m, init=init, theta.mple, invHess,  control=NULL,
-                         verbose=FALSE){
+                         verbose=FALSE, nw.network=NULL, constraints=NULL){
   
   # get sample size from control.ergm
   R <- control$MPLE.covariance.samplesize
@@ -45,7 +53,8 @@ ergm_mplecov <- function(pl,nw, fd, m, init=init, theta.mple, invHess,  control=
   mple.interval <- control$MPLE.covariance.sim.interval
   
   # Simulate R networks
-  sim.mple <- simulate(m, nsim=R, coef=theta.mple, basis=nw, control=control.simulate.formula(MCMC.burnin=mple.burnin, MCMC.interval=mple.interval))
+  sim.mple <- simulate(m, nsim=R, coef=theta.mple, basis=nw.network, control=control.simulate.formula(MCMC.burnin=mple.burnin, MCMC.interval=mple.interval),
+                       constraints=constraints)
   
   X <- pl$xmat
   num.variables <- ncol(pl$xmat)

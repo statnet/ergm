@@ -54,6 +54,14 @@
 #'
 #' @param verbose whether this and the C routines should be verbose (T
 #'   or F); default=FALSE
+#' 
+#' @param constraints {A formula specifying one or more constraints
+#' on the support of the distribution of the networks being modeled,
+#' using syntax similar to the \code{formula} argument, on the
+#' right-hand side.
+#' 
+#' @param nw.network response [`network`]
+#' 
 #' @param \dots additional parameters passed from within; all will be
 #'   ignored
 #' @return \code{ergm.mple} returns an ergm object as a list
@@ -75,7 +83,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
                     save.glm=TRUE,
                     save.xmat=TRUE,
 		    control=NULL,
-                    verbose=FALSE,
+                    verbose=FALSE, nw.network=NULL,constraints=NULL,
                     ...) {
   message("Starting maximum pseudolikelihood estimation (MPLE):")
   message("Evaluating the predictor and response matrix.")
@@ -122,7 +130,7 @@ ergm.mple<-function(nw, fd, m, init=NULL,
        control$MPLE.covariance.method=="bootstrap"){ 
       invHess <- summary(glm.result$value)$cov.unscaled
       mple.cov <- ergm_mplecov(pl=pl,nw=nw, fd=fd, m=m, init=init, theta.mple=glm.result$value$coef, invHess=invHess, 
-                               verbose=verbose, control=control)
+                               verbose=verbose, control=control, nw.network=nw.network, constraints=constraints)
     }
     
     # error handling for glm results
