@@ -92,7 +92,7 @@ test_dind_constr(y0, ~observed, Mmin, Mmax) # in the block OR unobserved
 
 # Set up:
 data(sampson)
-fix_g <- coef(ergm(samplike~edges, constraints=~Dyads(~nodematch("group")), control=control.ergm(force.main=TRUE))) # Test MCMC.
+fix_g <- coef(ergm(samplike~edges, constraints=~Dyads(~nodematch("group")), control=control.ergm(force.main=TRUE, seed=0))) # Test MCMC.
 vary_g <- coef(ergm(samplike~edges, constraints=~Dyads(vary=~nodematch("group"))))
 fix_g_and_c <- coef(ergm(samplike~edges, constraints=~Dyads(~nodematch("group")+nodematch("cloisterville"))))
 fix_g_vary_c <- coef(ergm(samplike~edges, constraints=~Dyads(~nodematch("group"),~nodematch("cloisterville"))))
