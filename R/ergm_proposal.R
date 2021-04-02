@@ -283,7 +283,7 @@ ergm_conlist.formula <- function(object, nw){
     con$sign <- consign
     NVL(con$priority) <- Inf
     NVL(con$constrain) <- conname
-    if(!con$dependence){
+    if(!con$dependence && con$priority==Inf){
       con$constrain <- if(con$sign < 0) ".dyads" # If disjunctive, override specific in favour of general.
                        else unique(c(con$constrain,".dyads")) # FIXME: should .dyads go first?
     }
