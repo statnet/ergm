@@ -181,7 +181,14 @@ ergm_proposal.character <- function(object, arguments, nw, ..., reference=~Berno
   arguments$reference <- reference
 
   f <- locate_prefixed_function(name, if(is.valued(nw)) "InitWtErgmProposal" else "InitErgmProposal", "Metropolis-Hastings proposal")
-  proposal <- eval(as.call(list(f, arguments, nw)))
+
+  prop.call <-
+    if((argnames <- names(formals(eval(f))))[1]=="nw"){
+      if(! "..."%in%argnames) stop("New-type InitErgmProposal ", sQuote(format(f)), " must have a ... argument.")
+      as.call(list(f, nw, arguments))
+    }else as.call(list(f, arguments, nw))
+
+  proposal <- eval(prop.call)
 
   storage.mode(proposal$inputs) <- "double"
   storage.mode(proposal$iinputs) <- "integer"
