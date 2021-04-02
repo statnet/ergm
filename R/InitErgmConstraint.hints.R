@@ -1,25 +1,29 @@
-InitErgmConstraint.TNT<-function(lhs.nw, ...){
+InitErgmConstraint.TNT<-function(nw, arglist, ...){
   .Deprecate_once("sparse")
-  InitErgmConstraint.sparse(lhs.nw, ...)
+  InitErgmConstraint.sparse(nw, arglist, ...)
 }
 
-InitErgmConstraint.sparse<-function(lhs.nw, ...){
-   if(length(list(...)))
-     ergm_Init_abort(paste(sQuote("sparse"),"hint does not take arguments at this time."))
-   list(dependence = FALSE, priority=10, impliedby=c("sparse", "edges", "degrees", "edges", "idegrees", "odegrees", "b1degrees", "b2degrees", "idegreedist", "odegreedist", "degreedist", "b1degreedist", "b2degreedist"), constrain="sparse")
+InitErgmConstraint.sparse<-function(nw, arglist, ...){
+  a <- check.ErgmTerm(nw, arglist)
+  list(dependence = FALSE, priority=10, impliedby=c("sparse", "edges", "degrees", "edges", "idegrees", "odegrees", "b1degrees", "b2degrees", "idegreedist", "odegreedist", "degreedist", "b1degreedist", "b2degreedist"), constrain="sparse")
 }
 
-InitErgmConstraint.Strat<-function(lhs.nw, ...){
+InitErgmConstraint.Strat<-function(nw, arglist, ...){
   .Deprecate_once("strat")
-  InitErgmConstraint.strat(lhs.nw, ...)
+  InitErgmConstraint.strat(nw, arglist, ...)
 }
 
-InitErgmConstraint.strat <- function(lhs.nw, attr=NULL, pmat=NULL, empirical=NULL, ...) {
-  if(...length()) ergm_Init_abort(paste0("Unrecognised argument(s) ", paste.and(names(list(...)), oq="'", cq="'"),".")) 
+InitErgmConstraint.strat <- function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("attr", "pmat", "empirical"),
+                      vartypes = c(ERGM_VATTR_SPEC, "matrix", "logical"),
+                      defaultvalues = list(NULL, NULL, FALSE),
+                      required = c(TRUE, FALSE, FALSE))
+  attr <- a$attr; pmat <- a$pmat; empirical <- a$empirical
 
-  if(is.bipartite(lhs.nw)) {
-    strat_row_nodecov <- NVL2(attr, ergm_get_vattr(attr, lhs.nw, bip="b1"), rep(1, lhs.nw %n% "bipartite"))
-    strat_col_nodecov <- NVL2(attr, ergm_get_vattr(attr, lhs.nw, bip="b2"), rep(1, network.size(lhs.nw) - (lhs.nw %n% "bipartite")))
+  if(is.bipartite(nw)) {
+    strat_row_nodecov <- NVL2(attr, ergm_get_vattr(attr, nw, bip="b1"), rep(1, nw %n% "bipartite"))
+    strat_col_nodecov <- NVL2(attr, ergm_get_vattr(attr, nw, bip="b2"), rep(1, network.size(nw) - (nw %n% "bipartite")))
 
     strat_row_levels <- sort(unique(strat_row_nodecov))
     strat_col_levels <- sort(unique(strat_col_nodecov))
@@ -30,7 +34,7 @@ InitErgmConstraint.strat <- function(lhs.nw, attr=NULL, pmat=NULL, empirical=NUL
     strat_col_nodecov <- match(strat_col_nodecov, strat_col_levels)
     strat_nodecov <- c(strat_row_nodecov, strat_col_nodecov + length(strat_row_levels))
   } else {
-    strat_row_nodecov <- NVL2(attr, ergm_get_vattr(attr, lhs.nw), rep(1, network.size(lhs.nw)))
+    strat_row_nodecov <- NVL2(attr, ergm_get_vattr(attr, nw), rep(1, network.size(nw)))
     strat_col_nodecov <- strat_row_nodecov
 
     strat_row_levels <- sort(unique(strat_row_nodecov))
@@ -49,7 +53,7 @@ InitErgmConstraint.strat <- function(lhs.nw, attr=NULL, pmat=NULL, empirical=NUL
     ergm_Init_abort(sQuote("pmat"), " does not have the correct dimensions for ", sQuote("Strat_attr"), ".")    
   }
   
-  if(!is.bipartite(lhs.nw) && !is.directed(lhs.nw)) {
+  if(!is.bipartite(nw) && !is.directed(nw)) {
     # for undirected unipartite, symmetrize pmat and then set the sub-diagonal to zero
     pmat <- (pmat + t(pmat))/2
     pmat[lower.tri(pmat)] <- 0
@@ -61,7 +65,7 @@ InitErgmConstraint.strat <- function(lhs.nw, attr=NULL, pmat=NULL, empirical=NUL
   headattrs <- prob_inds[,2]
   probvec <- pmat[prob_inds]
   
-  if(is.bipartite(lhs.nw)) {
+  if(is.bipartite(nw)) {
     headattrs <- headattrs + length(strat_row_levels)
   }
 
@@ -76,12 +80,10 @@ InitErgmConstraint.strat <- function(lhs.nw, attr=NULL, pmat=NULL, empirical=NUL
   ## may wish to add check that if pmat[i,j] > 0 then at least one dyad  
   indmat <- matrix(-1L, nrow=length(strat_levels), ncol=length(strat_levels))
   indmat[cbind(tailattrs, headattrs)] <- seq_along(tailattrs) - 1L  # zero-based for C code
-  if(!is.bipartite(lhs.nw) && !is.directed(lhs.nw)) {
+  if(!is.bipartite(nw) && !is.directed(nw)) {
     # symmetrize for undirected unipartite
     indmat[cbind(headattrs, tailattrs)] <- seq_along(tailattrs) - 1L
   }
-  
-  empirical_flag <- as.logical(NVL(empirical, FALSE))
 
   list(dependence = FALSE, 
        priority = 10, 
@@ -94,6 +96,6 @@ InitErgmConstraint.strat <- function(lhs.nw, attr=NULL, pmat=NULL, empirical=NUL
        nodeindicesbycode = nodeindicesbycode,
        nodecov = strat_nodecov,
        indmat = indmat,
-       empirical = empirical_flag,
+       empirical = empirical,
        constrain = "strat")
 }
