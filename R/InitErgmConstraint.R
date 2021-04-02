@@ -31,25 +31,6 @@
 #
 ##########################################################################################
 
-#' Get multiple vertex attributes at once and paste them together.
-#'
-#' @param x,na.omit,null.na,unlist see [network::get.vertex.attribute()].
-#' @param attrnames a character vector of one or more vertex attribute
-#'   names; see [network::get.vertex.attribute()].
-#' @param sep an optional character vector of length 1 to use as a
-#'   separator for attribute values.
-#'
-#' @return If `sep` is `NULL`, a list with an element for each element
-#'   of `attrnames` containing the vertex attribute vector for that
-#'   attribute. Otherwise, if a character vector, convert the
-#'   attribute values to strings and join them with `sep` as the
-#'   separator.
-get.vertex.attributes <- function(x, attrnames, na.omit = FALSE, null.na = TRUE, unlist=TRUE, sep=NULL){
-  a <- lapply(attrnames, get.vertex.attribute, x=x, na.omit=na.omit, null.na=null.na, unlist=unlist)
-  if(!is.null(sep)) a <- do.call(paste, c(a, sep=sep))
-  a
-}
-
 # Baseline constraint incorporating network attributes such as
 # directedness, bipartitedness, and self-loops.
 InitErgmConstraint..attributes <- function(lhs.nw, ...){
