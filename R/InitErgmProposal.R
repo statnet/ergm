@@ -47,7 +47,7 @@ InitErgmProposal.randomtoggle <- function(arguments, nw){
   list(name = "randomtoggle", dyadgen = ergm_dyadgen_select(arguments, nw))
 }
 
-InitErgmProposal.TNT <- function(arguments, nw){
+InitErgmProposal.TNT <- function(nw, arguments, ...){
   list(name = "TNT", dyadgen = ergm_dyadgen_select(arguments, nw))
 }
 
