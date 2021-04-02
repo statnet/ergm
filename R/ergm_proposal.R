@@ -248,15 +248,28 @@ ergm_conlist.formula <- function(object, nw){
     if(constraint==".") next
 
     f <- locate_prefixed_function(constraint, "InitErgmConstraint", "Sample space constraint")
-    
-    if(is.call(constraint)){
-      conname <- as.character(constraint[[1]])
-      init.call<-list(f, lhs.nw=nw)
-      init.call<-c(init.call,as.list(constraint)[-1])
+
+    if(names(formals(eval(f)))[1]=="lhs.nw"){
+      if(is.call(constraint)){
+        conname <- as.character(constraint[[1]])
+        init.call<-list(f, lhs.nw=nw)
+        init.call<-c(init.call,as.list(constraint)[-1])
+      }else{
+        conname <- as.character(constraint)
+        init.call <- list(f, lhs.nw=nw)
+      }
     }else{
-      conname <- as.character(constraint)
-      init.call <- list(f, lhs.nw=nw)
+      if(is.call(constraint)){
+        conname <- as.character(constraint[[1]])
+        args <- constraint
+        args[[1]] <- as.name("list")
+      }else{
+        conname <- as.character(constraint)
+        args <- list()
+      }
+      init.call <- list(f, nw, args)
     }
+
     con <- eval(as.call(init.call), environment(object))
     NVL(con$dependence) <- TRUE
     if(con$dependence && consign < 0) stop("Only dyad-independent costraints can have negative signs.")
@@ -373,12 +386,23 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~sparse)
   if(is(reference, "formula")){
     f <- locate_prefixed_function(reference[[2]], "InitErgmReference", "Reference distribution")
 
-    if(is.call(reference[[2]])){
-      ref.call <- list(f, lhs.nw=nw)
-      ref.call <- c(ref.call,as.list(reference[[2]])[-1])
+    if(names(formals(eval(f)))[1]=="lhs.nw"){
+      if(is.call(reference[[2]])){
+        ref.call <- list(f, lhs.nw=nw)
+        ref.call <- c(ref.call,as.list(reference[[2]])[-1])
+      }else{
+        ref.call <- list(f, lhs.nw=nw)
+      }
     }else{
-      ref.call <- list(f, lhs.nw=nw)
+      if(is.call(reference[[2]])){
+        args <- reference[[2]]
+        args[[1]] <- as.name("list")
+      }else{
+        args <- list()
+      }
+      ref.call <- list(f, nw, args)
     }
+
     ref <- eval(as.call(ref.call),environment(reference))
     class(ref) <- "ergm_reference"
   }else if(is(reference, "ergm_reference")){
