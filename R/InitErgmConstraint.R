@@ -136,8 +136,8 @@ InitErgmConstraint.bd<-function(nw, arglist, ...){
                       defaultvalues = list(NULL, NA_integer_, NA_integer_, NA_integer_, NA_integer_),
                       required = c(FALSE, FALSE, FALSE, FALSE, FALSE))
 
-   if(is.null(a$attribus) && length(a$maxout) == 1 && length(a$maxin) == 1 && is.na(a$minout) && is.na(a$minin)) {
-     constrain <- "bdmax"
+   if(is.null(a$attribs) && length(a$maxout) == 1 && length(a$maxin) == 1 && is.na(a$minout) && is.na(a$minin)) {
+     constrain <- c("bd","bdmax")
    } else {
      constrain <- "bd"
    }

@@ -283,6 +283,10 @@ ergm_conlist.formula <- function(object, nw){
     con$sign <- consign
     NVL(con$priority) <- Inf
     NVL(con$constrain) <- conname
+    if(!con$dependence){
+      con$constrain <- if(con$sign < 0) ".dyads" # If disjunctive, override specific in favour of general.
+                       else unique(c(con$constrain,".dyads")) # FIXME: should .dyads go first?
+    }
 #' @import memoise
     if(is.function(con$free_dyads) && !is.memoised(con$free_dyads)) con$free_dyads <- memoise(con$free_dyads)
 
@@ -329,43 +333,32 @@ select_ergm_proposal <- function(conlist, class, ref, name, weights){
   # proposals = the proposal table
   # constraints = an ergm_conlist
   score_proposals <- function(proposals, conlist){
-    constraints <- map_dbl(conlist, "priority")
-    names(constraints) <- map_chr(conlist, "constrain", .default="")
-    constraints <- constraints[! names(constraints) %in% c("",".attributes")]
+    conlist <- conlist[names(conlist)!=".attributes"]
+    priorities <- map_dbl(conlist, "priority")
+    wanted <- map(conlist, "constrain")
+    allwanted <- unlist(wanted)
 
     add_score <- function(proposal){
       propcon <- proposal$Constraints
       does <- propcon$does
       can <- propcon$can
-      wanted <- names(constraints)
+      knows <- c(does, can)
 
-      if(any(! does%in%wanted)) return(NULL) # Proposal has an unwanted constraint.
+      if(any(! does%in%allwanted)) return(NULL) # Proposal has an unwanted constraint.
 
-      unmet <- setdiff(wanted, c(does,can))
+      unmet <- map_lgl(wanted, ~!any(. %in% knows))
+      wanted <- wanted[unmet]
       # Penalised proposal score.
-      proposal$Unmet <- if(length(unmet)) paste.and(sQuote(unmet)) else ""
-      proposal$UnmetScore <- sum(constraints[match(unmet, wanted)])
+      proposal$Unmet <- if(length(wanted)) wanted %>% map_chr(paste0, collapse="/") %>% sQuote %>% paste.and else ""
+      proposal$UnmetScore <- sum(priorities[unmet])
       proposal$Score <- proposal$Priority - proposal$UnmetScore
       if(proposal$Score==-Inf) return(NULL)
       proposal
     }
-    proposals %>% transpose %>% map(add_score) %>% compact %>% transpose %>% map_if(~!is.list(.[[1]]), unlist) %>% as_tibble
+    proposals %>% transpose %>% map(add_score) %>% compact %>% transpose %>% map(simplify_simple,toNA="keep") %>% as_tibble
   }
 
-  # Try the specific constraint combination.
-  qualifying.specific <- if(all(sapply(conlist, `[[`, "sign")==+1)) score_proposals(candidates, conlist) # If all constraints are conjunctive...
-
-  # Try the general dyad-independent constraint combination.
-  qualifying.general <- {
-    conlist.general <- lapply(conlist, function(con){
-      if(con$priority==Inf && !con$dependence) con$constrain <- ".dyads"
-      con
-    })
-    score_proposals(candidates, conlist.general)
-  }
-
-  #' @importFrom dplyr bind_rows
-  qualifying <- bind_rows(qualifying.general, qualifying.specific)
+  qualifying <- score_proposals(candidates, conlist)
 
   if(nrow(qualifying)<1){
     stop("The combination of class (",class,"), model constraints and hints (",paste.and(sQuote(unique(names(conlist)))),"), reference measure (",deparse(ult(ref$name)),"), proposal weighting (",weights,"), and conjunctions and disjunctions is not implemented. ", "Check your arguments for typos. ")

@@ -32,7 +32,6 @@ Imports:
     rle,
     purrr (>= 0.3.2),
     rlang (>= 0.3.4),
-    dplyr,
     memoise,
     tibble (>= 2.1.1)
 Suggests:
