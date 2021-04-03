@@ -18,7 +18,7 @@
 #include "ergm_Rutil.h"
 #include "ergm_BDStrat_proposals.h"
 #include "ergm_hash_edgelist.h"
-#include "ergm_nodelist.h"
+#include "ergm_BDStratBlocks.h"
 
 /*********************
  void MH_randomtoggle
@@ -120,20 +120,20 @@ MH_I_FN(Mi_BDStratTNT) {
   sto->strat_vattr = INTEGER(getListElement(MHp->R, "strat_vattr"));
   sto->bd_vattr = INTEGER(getListElement(MHp->R, "bd_vattr"));
     
-  sto->nodelist = NodeListInitialize(sto->maxout, 
-                                     sto->maxin,
-                                     sto->strat_vattr, 
-                                     sto->nstratlevels, 
-                                     sto->nmixtypes, 
-                                     INTEGER(getListElement(MHp->R, "strattailattrs")), 
-                                     INTEGER(getListElement(MHp->R, "stratheadattrs")), 
-                                     sto->bd_vattr, 
-                                     nbdlevels, 
-                                     INTEGER(getListElement(MHp->R, "bd_mixtypes")), 
-                                     INTEGER(getListElement(MHp->R, "bd_tails")), 
-                                     INTEGER(getListElement(MHp->R, "bd_heads")), 
-                                     INTEGER(getListElement(MHp->R, "nodecountsbypairedcode")), 
-                                     nwp);
+  sto->blocks = BDStratBlocksInitialize(sto->maxout, 
+                                        sto->maxin,
+                                        sto->strat_vattr, 
+                                        sto->nstratlevels, 
+                                        sto->nmixtypes, 
+                                        INTEGER(getListElement(MHp->R, "strattailattrs")), 
+                                        INTEGER(getListElement(MHp->R, "stratheadattrs")), 
+                                        sto->bd_vattr, 
+                                        nbdlevels, 
+                                        INTEGER(getListElement(MHp->R, "bd_mixtypes")), 
+                                        INTEGER(getListElement(MHp->R, "bd_tails")), 
+                                        INTEGER(getListElement(MHp->R, "bd_heads")), 
+                                        INTEGER(getListElement(MHp->R, "nodecountsbypairedcode")), 
+                                        nwp);
     
   sto->strat_vattr--; // so node indices line up correctly
   sto->bd_vattr--; // so node indices line up correctly  
@@ -185,7 +185,7 @@ MH_I_FN(Mi_BDStratTNT) {
   double *currentprobvec = Calloc(sto->nmixtypes, double);  
   for(int i = 0; i < sto->nmixtypes; i++) {
     // if any edges or dyads of this type are toggleable
-    if(sto->hash[i]->list->nedges > 0 || NodeListDyadCountPositive(sto->nodelist, i)) {
+    if(sto->hash[i]->list->nedges > 0 || BDStratBlocksDyadCountPositive(sto->blocks, i)) {
       currentprobvec[i] = sto->originalprobvec[i];
       sto->currentcumprob += sto->originalprobvec[i];
     }
@@ -216,7 +216,7 @@ MH_P_FN(MH_BDStratTNT) {
   // number of edges of this mixing type
   int nedgestype = sto->hash[sto->stratmixingtype]->list->nedges;
   
-  Dyad ndyadstype = NodeListDyadCount(sto->nodelist, sto->stratmixingtype);
+  Dyad ndyadstype = BDStratBlocksDyadCount(sto->blocks, sto->stratmixingtype);
   
   int edgeflag;
   
@@ -226,7 +226,7 @@ MH_P_FN(MH_BDStratTNT) {
     edgeflag = TRUE;
   } else {
     // select a random BD toggleable dyad of strat mixing type sto->stratmixingtype and propose toggling it
-    NodeListGetRandWithCount(Mtail, Mhead, sto->nodelist, sto->stratmixingtype, ndyadstype);
+    BDStratBlocksGetRandWithCount(Mtail, Mhead, sto->blocks, sto->stratmixingtype, ndyadstype);
     edgeflag = IS_OUTEDGE(*Mtail, *Mhead);
   }
   
@@ -234,7 +234,7 @@ MH_P_FN(MH_BDStratTNT) {
   sto->headmaxl = (DIRECTED ? IN_DEG[*Mhead] : IN_DEG[*Mhead] + OUT_DEG[*Mhead]) == sto->maxin - 1 + edgeflag;
   
   // compute proposed dyad count for current mixing type (only)
-  Dyad proposeddyadstype = NodeListDyadCountOnToggle(*Mtail, *Mhead, sto->nodelist, sto->stratmixingtype, edgeflag ? 1 : -1, sto->tailmaxl, sto->headmaxl);
+  Dyad proposeddyadstype = BDStratBlocksDyadCountOnToggle(*Mtail, *Mhead, sto->blocks, sto->stratmixingtype, sto->tailmaxl, sto->headmaxl);
   
   ComputeChangesToToggleability(Mtail, Mhead, edgeflag, sto);
   
@@ -273,7 +273,7 @@ MH_U_FN(Mu_BDStratTNT) {
   HashELToggleKnown(tail, head, sto->hash[sto->stratmixingtype], edgeflag);
 
   // update nodelists as needed
-  NodeListToggleKnownIf(tail, head, sto->nodelist, !edgeflag, sto->tailmaxl, sto->headmaxl);
+  BDStratBlocksToggleIf(tail, head, sto->blocks, sto->tailmaxl, sto->headmaxl);
   
   // if any strat mixing types have changed toggleability status, update prob info accordingly
   if(sto->nmixtypestoupdate > 0) {
@@ -288,7 +288,7 @@ MH_F_FN(Mf_BDStratTNT) {
   // Free all the things
   GET_STORAGE(BDStratTNTStorage, sto);
 
-  NodeListDestroy(sto->nodelist);    
+  BDStratBlocksDestroy(sto->blocks);    
   
   for(int i = 0; i < sto->nmixtypes; i++) {
     HashELDestroy(sto->hash[i]);
