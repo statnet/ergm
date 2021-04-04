@@ -372,3 +372,15 @@ trim_env_const_formula <- function(x, keep=NULL){
 
   if(needs_env) x else trim_env(x, keep)
 }
+
+#' Test if the object is a matrix that is symmetric and positive definite.
+#' @param x the object to be tested.
+#' @param tol the tolerance for the reciprocal condition number.
+#' @noRd
+is.SPD <- function(x, tol = .Machine$double.eps){
+  is.matrix(x) &&
+    nrow(x) == ncol(x) &&
+    all(x == t(x)) &&
+    rcond(x) >= tol &&
+    all(eigen(x, symmetric=TRUE, only.values=TRUE)$values > 0)
+}

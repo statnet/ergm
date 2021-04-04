@@ -301,7 +301,10 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
   netsumm<-summary(model,nw)[!offset.indicators]
   target.stats <- vector.namesmatch(target.stats, names(netsumm))
   stats <- netsumm-target.stats
-  control$invcov <- diag(1/(nparam(model, canonical=TRUE) - noffset), nparam(model, canonical=TRUE) - noffset)
+  invcov.dim <- nparam(model, canonical=TRUE) - noffset
+  NVL(control$invcov) <- diag(1/invcov.dim, invcov.dim)
+  if(!is.SPD(control$invcov) || nrow(control$invcov) != invcov.dim)
+    stop(sQuote("control$invcov"), " parameter should be a square matrix of dimension equal to the number of non-offset statistics")
 
   nstepss <-
     (if(is.function(control$SAN.nsteps.alloc)) control$SAN.nsteps.alloc(control$SAN.maxit) else control$SAN.nsteps.alloc) %>%
