@@ -101,13 +101,13 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   }
   
   ## Obtain simulation setting arguments in terms of ergm_state.
-  sim_settings <- do.call(stats::simulate, c(simulate(object, coef=from, nsim=1, constraints=constraints, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(FALSE, "first"), ..., do.sim=FALSE), do.sim=FALSE))
+  sim_settings <- do.call(stats::simulate, c(simulate(object, coef=from, nsim=1, reference=reference, constraints=constraints, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(FALSE, "first"), ..., do.sim=FALSE), do.sim=FALSE))
   nw.state <- sim_settings$object
   stats <- matrix(NA, control$nsteps, nparam(nw.state,canonical=TRUE))
 
   obs <- !is.null(.handle.auto.constraints(basis, constraints, obs.constraints, target.stats)$constraints.obs)
   if(obs){
-    sim_settings.obs <- do.call(stats::simulate, c(simulate(object, coef=from, nsim=1, constraints=obs.constraints, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(TRUE, "first"), ..., do.sim=FALSE), do.sim=FALSE))
+    sim_settings.obs <- do.call(stats::simulate, c(simulate(object, coef=from, nsim=1, reference=reference, constraints=obs.constraints, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(TRUE, "first"), ..., do.sim=FALSE), do.sim=FALSE))
     nw.state.obs <- sim_settings.obs$object
     stats.obs <- matrix(NA, control$nsteps, nparam(nw.state.obs,canonical=TRUE))
   }else
