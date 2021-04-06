@@ -353,7 +353,7 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
   A simplified version of WtChangeStats for exactly one change.
 */
 void WtChangeStats1(Vertex tail, Vertex head, double weight,
-                    WtNetwork *nwp, WtModel *m, double edgeweight){
+                    WtNetwork *nwp, WtModel *m, double edgestate){
   memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */
 
   /* Make a pass through terms with c_functions. */
@@ -362,7 +362,7 @@ void WtChangeStats1(Vertex tail, Vertex head, double weight,
         mtp->dstats = dstats; /* Stuck the change statistic here.*/
         if(mtp->c_func){
           (*(mtp->c_func))(tail, head, weight,
-                           mtp, nwp, edgeweight);  /* Call c_??? function */
+                           mtp, nwp, edgestate);  /* Call c_??? function */
         }else if(mtp->d_func){
           (*(mtp->d_func))(1, &tail, &head, &weight,
                            mtp, nwp);  /* Call d_??? function */

@@ -40,15 +40,15 @@
      number of toggles produced by one input toggle.
 */
 
-#define MAP_TOGGLE_FN(a) static inline unsigned int (a) (Vertex tail, Vertex head, Rboolean edgeflag, struct StoreAuxnet_s *auxnet, Vertex *tails, Vertex *heads)
+#define MAP_TOGGLE_FN(a) static inline unsigned int (a) (Vertex tail, Vertex head, Rboolean edgestate, struct StoreAuxnet_s *auxnet, Vertex *tails, Vertex *heads)
 
 typedef struct StoreAuxnet_s{Network *inwp, *onwp;
   ModelTerm *mtp;
 } StoreAuxnet;
 
-#define MAP_TOGGLE(name, tail, head, edgeflag, auxnet, tails, heads) map_toggle_ ## name(tail, head, edgeflag, auxnet, tails, heads)
+#define MAP_TOGGLE(name, tail, head, edgestate, auxnet, tails, heads) map_toggle_ ## name(tail, head, edgestate, auxnet, tails, heads)
 
-#define MAP_TOGGLE_THEN(name, tail, head, edgeflag, auxnet, tails, heads) if(MAP_TOGGLE(name, tail, head, edgeflag, auxnet, tails, heads))
+#define MAP_TOGGLE_THEN(name, tail, head, edgestate, auxnet, tails, heads) if(MAP_TOGGLE(name, tail, head, edgestate, auxnet, tails, heads))
 
 #define I_AUXNET(init_onwp)                                     \
   ALLOC_AUX_STORAGE(1, StoreAuxnet, auxnet);			\
@@ -74,14 +74,14 @@ typedef struct StoreAuxnet_s{Network *inwp, *onwp;
                                                                         \
     Vertex tails[map_toggle_maxtoggles_ ## name], heads[map_toggle_maxtoggles_ ## name]; \
     if(map_toggle_maxtoggles_ ## name == 1){ /* One of these should get optimized away by the compiler. */ \
-      MAP_TOGGLE_THEN(name, tail, head, edgeflag, auxnet, tails, heads){ \
+      MAP_TOGGLE_THEN(name, tail, head, edgestate, auxnet, tails, heads){ \
         double *tmp = m->workspace;                                     \
         m->workspace = CHANGE_STAT;                                     \
         ChangeStats1(*tails, *heads, auxnet->onwp, m, IS_OUTEDGE(*tails, *heads, auxnet->onwp)); \
         m->workspace = tmp;                                             \
       }                                                                 \
     }else{                                                              \
-      unsigned int ntoggles = MAP_TOGGLE(name, tail, head, edgeflag, auxnet, tails, heads); \
+      unsigned int ntoggles = MAP_TOGGLE(name, tail, head, edgestate, auxnet, tails, heads); \
       if(ntoggles){                                                     \
         double *tmp = m->workspace;                                     \
         m->workspace = CHANGE_STAT;                                     \

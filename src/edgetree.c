@@ -175,9 +175,9 @@ int ToggleEdge (Vertex tail, Vertex head, Network *nwp)
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-void ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgeflag) 
+void ToggleKnownEdge (Vertex tail, Vertex head, Network *nwp, Rboolean edgestate)
 {
-  if (edgeflag){
+  if (edgestate){
     DeleteEdgeFromTrees(tail,head,nwp);
   }else{
     AddEdgeToTrees(tail,head,nwp);

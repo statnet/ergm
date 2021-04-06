@@ -83,7 +83,7 @@ typedef struct {
 } BDStratTNTStorage;
 
 // determines which strat mixing types (if any) will have a change in toggleability status if we make the proposed toggle
-static inline void ComputeChangesToToggleability(Vertex *tail, Vertex *head, int edgeflag, BDStratTNTStorage *sto) {
+static inline void ComputeChangesToToggleability(Vertex *tail, Vertex *head, int edgestate, BDStratTNTStorage *sto) {
   // here we compute the proposedcumprob, checking only those
   // mixing types that can be influenced by toggles made on 
   // the current mixing type

@@ -158,15 +158,15 @@ void DyadGenDestroy(DyadGen *gen){
 }
 
 
-void DyadGenUpdate(Vertex tail, Vertex head, DyadGen *gen, Network *nwp, Rboolean edgeflag){
+void DyadGenUpdate(Vertex tail, Vertex head, DyadGen *gen, Network *nwp, Rboolean edgestate){
   if(gen->sleeping) return;
-  if(edgeflag) UnsrtELDelete(tail, head, gen->intersect); // Deleting
+  if(edgestate) UnsrtELDelete(tail, head, gen->intersect); // Deleting
   else UnsrtELInsert(tail, head, gen->intersect); // Inserting
 }
 
 
-void WtDyadGenUpdate(Vertex tail, Vertex head, double weight, DyadGen *gen, WtNetwork *nwp, double edgeweight){
+void WtDyadGenUpdate(Vertex tail, Vertex head, double weight, DyadGen *gen, WtNetwork *nwp, double edgestate){
   if(gen->sleeping) return;
-  if(edgeweight!=0 && weight==0) UnsrtELDelete(tail, head, gen->intersect); // Deleting
-  else if(edgeweight==0 && weight!=0) UnsrtELInsert(tail, head, gen->intersect); // Inserting
+  if(edgestate!=0 && weight==0) UnsrtELDelete(tail, head, gen->intersect); // Deleting
+  else if(edgestate==0 && weight!=0) UnsrtELInsert(tail, head, gen->intersect); // Inserting
 }

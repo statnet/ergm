@@ -13,6 +13,6 @@
  changestat: d_indices
 *****************/
 C_CHANGESTAT_FN(c_indices) { 
-    CHANGE_STAT[0] += edgeflag ? -(int)tail : (int)tail;
-    CHANGE_STAT[1] += edgeflag ? -(int)head : (int)head;
+    CHANGE_STAT[0] += edgestate ? -(int)tail : (int)tail;
+    CHANGE_STAT[1] += edgestate ? -(int)head : (int)head;
 }

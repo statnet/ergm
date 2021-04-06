@@ -32,8 +32,8 @@ DyadGen *DyadGenInitialize(DyadGenType type, void *dyads, void *track_nwp);
 DyadGen *DyadGenInitializeR(SEXP pR, void *any_nwp, Rboolean el);
 void DyadGenDestroy(DyadGen *gen);
 
-void DyadGenUpdate(Vertex tail, Vertex head, DyadGen *gen, Network *nwp, Rboolean edgeflag);
-void WtDyadGenUpdate(Vertex tail, Vertex head, double weight, DyadGen *gen, WtNetwork *nwp, double edgeweight);
+void DyadGenUpdate(Vertex tail, Vertex head, DyadGen *gen, Network *nwp, Rboolean edgestate);
+void WtDyadGenUpdate(Vertex tail, Vertex head, double weight, DyadGen *gen, WtNetwork *nwp, double edgestate);
 
 static inline void DyadGenRandDyad(Vertex *tail, Vertex *head, DyadGen *gen){
   switch(gen->type){

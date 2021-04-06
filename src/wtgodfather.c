@@ -20,7 +20,7 @@ MCMCStatus WtGodfather(WtErgmState *s, Edge n_changes, Vertex *tails, Vertex *he
   /* Doing this one change at a time saves a lot of changes... */
   for(Edge e=0; e<n_changes; e++){
     Vertex t = tails[e], h = heads[e];
-    double w = weights[e], edgeweight;
+    double w = weights[e], edgestate;
 
     if(t==0){
       memcpy(stats+m->n_stats, stats, m->n_stats*sizeof(double));
@@ -28,14 +28,14 @@ MCMCStatus WtGodfather(WtErgmState *s, Edge n_changes, Vertex *tails, Vertex *he
       continue;
     }
     
-    if((edgeweight=GETWT(t,h))==w)
+    if((edgestate=GETWT(t,h))==w)
       continue;
 
     WtEXEC_THROUGH_TERMS_INTO(m, stats, {
 	if(mtp->c_func){
 	  ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(t, h, w,
-			   mtp, nwp, edgeweight);  /* Call c_??? function */
+			   mtp, nwp, edgestate);  /* Call c_??? function */
 	}else if(mtp->d_func){
 	  (*(mtp->d_func))(1, &t, &h, &w,
 			   mtp, nwp);  /* Call d_??? function */

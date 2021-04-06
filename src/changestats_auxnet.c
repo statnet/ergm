@@ -141,7 +141,7 @@ U_CHANGESTAT_FN(u__blockdiag_net){
   int *b = IINPUT_PARAM-1; // tail and head are indexed from 1.
 
   if(b[tail]==b[head])
-    ToggleKnownEdge(tail, head, auxnet->onwp, edgeflag);
+    ToggleKnownEdge(tail, head, auxnet->onwp, edgestate);
 }
 
 F_CHANGESTAT_FN(f__blockdiag_net){
@@ -211,9 +211,9 @@ U_CHANGESTAT_FN(u__filter_formula_net){
   GET_AUX_STORAGE(StoreAuxnet, auxnet);
   Model *m = STORAGE;
 
-  ChangeStats1(tail, head, nwp, m, edgeflag);
+  ChangeStats1(tail, head, nwp, m, edgestate);
   if(*(m->workspace)!=0){
-    if(edgeflag) DeleteEdgeFromTrees(tail,head,auxnet->onwp);
+    if(edgestate) DeleteEdgeFromTrees(tail,head,auxnet->onwp);
     else AddEdgeToTrees(tail,head,auxnet->onwp);
   }
 }
@@ -289,7 +289,7 @@ U_CHANGESTAT_FN(u__subgraph_net){
     st = thmap[0][head];
     sh = thmap[1][tail];
   }
-  if(st!=0 && sh!=0) ToggleKnownEdge(st, sh, auxnet->onwp, edgeflag);
+  if(st!=0 && sh!=0) ToggleKnownEdge(st, sh, auxnet->onwp, edgestate);
 }
 
 F_CHANGESTAT_FN(f__subgraph_net){

@@ -111,8 +111,8 @@ static inline void UnsrtELInsert(Vertex tail, Vertex head, UnsrtEL *el){
 }
 
 // helper function for cleaner client code
-static inline void UnsrtELToggleKnown(Vertex tail, Vertex head, UnsrtEL *el, int edgeflag) {
-  if(edgeflag) {
+static inline void UnsrtELToggleKnown(Vertex tail, Vertex head, UnsrtEL *el, int edgestate) {
+  if(edgestate) {
     UnsrtELDelete(tail, head, el);
   } else {
     UnsrtELInsert(tail, head, el);
