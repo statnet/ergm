@@ -131,3 +131,11 @@ test_that("SAN offsets work with curved terms", {
     y <- san(x ~ edges + offset(gwnsp) + gwesp, target.stats=c(100, 15:1, rep(0, 15)), offset.coef=c(-Inf,1))
     expect_true(all(summary(y ~ gwnsp) == rep(0, 30)))
 })
+
+test_that("san incorporates SAN.invcov= control parameter correctly", {
+  nw <- network.initialize(n, directed=FALSE)
+  nw0 <- san(nw~edges+edges, target.stats=c(0,n), control=control.san(SAN.invcov=diag(c(10000,1)),SAN.maxit=1,SAN.nsteps=n*4))
+  nwn <- san(nw~edges+edges, target.stats=c(0,n), control=control.san(SAN.invcov=diag(c(1,10000)),SAN.maxit=1,SAN.nsteps=n*4))
+  expect_equal(network.edgecount(nw0), 0)
+  expect_equal(network.edgecount(nwn), n)
+})
