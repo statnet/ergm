@@ -29,7 +29,7 @@ param_names.default <- function(object, ...){
 
 #' @describeIn ergm_model Parameter names of the model.
 #'
-#' @template canonical
+#' @template test/canonical
 #' @export
 param_names.ergm_model <- function(object, canonical=FALSE, ...){
     if(canonical) object$coef.names
