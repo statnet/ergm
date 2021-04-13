@@ -101,13 +101,13 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   }
   
   ## Obtain simulation setting arguments in terms of ergm_state.
-  sim_settings <- do.call(stats::simulate, c(simulate(object, coef=from, nsim=1, reference=reference, constraints=constraints, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(FALSE, "first"), ..., do.sim=FALSE), do.sim=FALSE))
+  sim_settings <- do.call(stats::simulate, c(simulate(object, coef=from, nsim=1, reference=reference, constraints=list(constraints, obs.constraints), observational=FALSE, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(FALSE, "first"), ..., do.sim=FALSE), do.sim=FALSE))
   nw.state <- sim_settings$object
   stats <- matrix(NA, control$nsteps, nparam(nw.state,canonical=TRUE))
 
   obs <- !is.null(.handle.auto.constraints(basis, constraints, obs.constraints, target.stats)$constraints.obs)
   if(obs){
-    sim_settings.obs <- do.call(stats::simulate, c(simulate(object, coef=from, nsim=1, reference=reference, constraints=obs.constraints, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(TRUE, "first"), ..., do.sim=FALSE), do.sim=FALSE))
+    sim_settings.obs <- do.call(stats::simulate, c(simulate(object, coef=from, nsim=1, reference=reference, constraints=list(constraints, obs.constraints), observational=TRUE, output="ergm_state", verbose=max(verbose-1,0), basis = basis, control=gen_control(TRUE, "first"), ..., do.sim=FALSE), do.sim=FALSE))
     nw.state.obs <- sim_settings.obs$object
     stats.obs <- matrix(NA, control$nsteps, nparam(nw.state.obs,canonical=TRUE))
   }else
@@ -240,9 +240,8 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   p.pos.full <- c(0,cumsum(nparam(m, canonical=TRUE, byterm=TRUE, offset=FALSE)))
   rng <- function(x, from, to) if(to>=from) x[from:to]
   
-  tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats); nw <- tmp$nw; constraints <- tmp$constraints; constraints.obs <- tmp$constraints.obs
-
-  if(!is.dyad.independent(ergm_conlist(constraints,nw), ergm_conlist(constraints.obs,nw))) stop("Bridge sampling with dyad-independent start does not work with dyad-dependent constraints.")
+  tmp <- .handle.auto.constraints(nw, constraints, obs.constraints, target.stats); nw <- tmp$nw
+  if(!is.dyad.independent(ergm_conlist(tmp$constraints,nw), ergm_conlist(tmp$constraints.obs,nw))) stop("Bridge sampling with dyad-independent start does not work with dyad-dependent constraints.")
 
   # If target.stats are given, then we need between passed network and
   # target stats, if any. It also means that the dyad-independent
@@ -280,7 +279,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
     if(length(object)==3) dind[[2]] <- object[[2]] else dind <- dind[-2]
   }
 
-  ergm.dind<-suppressMessages(suppressWarnings(ergm(dind,estimate="MPLE",constraints=constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef = offset.dind)))
+  ergm.dind<-suppressMessages(suppressWarnings(ergm(dind,estimate="MPLE",constraints=constraints,obs.constraints=obs.constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE, term.options=control$term.options, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef = offset.dind)))
   
   if(is.null(coef.dind)){
     coef.dind <- coef(ergm.dind)[!ergm.dind$etamap$offsettheta]
@@ -314,7 +313,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
     target.stats[m$etamap$offsetmap] <- summary(m, nw)[m$etamap$offsetmap]
   }
 
-  br<-ergm.bridge.llr(form.aug, constraints=constraints, from=from, to=to, basis=basis, target.stats=target.stats, control=control)
+  br<-ergm.bridge.llr(form.aug, constraints=constraints, obs.constraints=obs.constraints, from=from, to=to, basis=basis, target.stats=target.stats, control=control)
   
   if(llkonly) llk.dind + br$llr
   else c(br,llk.dind=llk.dind, llk=llk.dind + br$llr)
