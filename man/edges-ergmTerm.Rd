@@ -16,16 +16,6 @@ edges (i.e. nonzero values) in the network. For undirected networks, \code{edges
 is equal to \code{kstar(1)}; for directed networks, edges is equal to both
 \code{ostar(1)} and \code{istar(1)}.
 }
-\seealso{
-Other dyad-independent: 
-\code{\link{absdiff-ergmTerm}}
-
-Other directed: 
-\code{\link{absdiff-ergmTerm}}
-
-Other undirected: 
-\code{\link{absdiff-ergmTerm}}
-}
 \concept{directed}
 \concept{dyad-independent}
 \concept{undirected}
