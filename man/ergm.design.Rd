@@ -4,12 +4,14 @@
 \alias{ergm.design}
 \title{Obtain the set of informative dyads based on the network structure.}
 \usage{
-ergm.design(nw, verbose = FALSE)
+ergm.design(nw, verbose = FALSE, ...)
 }
 \arguments{
 \item{nw}{a \code{\link{network}} object.}
 
 \item{verbose}{verbosity; currently ignored.}
+
+\item{...}{term options.}
 }
 \value{
 \code{ergm.design} returns a \code{\link{rlebdm}} of

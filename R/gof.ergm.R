@@ -236,7 +236,7 @@ gof.formula <- function(object, ...,
 
   proposal <- if(inherits(constraints, "ergm_proposal")) constraints
                 else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
-                                   nw=nw, weights=control$MCMC.prop.weights, class="c"## ,reference=reference
+                                   nw=nw, weights=control$MCMC.prop.weights, class="c", term.options=control$term.options## ,reference=reference
                                    )
 
   if(is.null(coef)){

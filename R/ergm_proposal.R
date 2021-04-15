@@ -173,9 +173,10 @@ ergm_proposal.ergm_proposal<-function(object,...) return(object)
 #' @param nw The network object originally given to \code{\link{ergm}}
 #'   via 'formula'
 #' @param arguments A list of parameters used by the InitErgmProposal routines
+#' @template term_options
 #' @template reference
 #' @export
-ergm_proposal.character <- function(object, arguments, nw, ..., reference=~Bernoulli){
+ergm_proposal.character <- function(object, arguments, nw, ..., reference=~Bernoulli, term.options=list()){
   name<-object
 
   arguments$reference <- reference
@@ -185,7 +186,7 @@ ergm_proposal.character <- function(object, arguments, nw, ..., reference=~Berno
   prop.call <-
     if((argnames <- names(formals(eval(f))))[1]=="nw"){
       if(! "..."%in%argnames) stop("New-type InitErgmProposal ", sQuote(format(f)), " must have a ... argument.")
-      as.call(list(f, nw, arguments))
+      termCall(f, arguments, nw, term.options, ...)
     }else as.call(list(f, arguments, nw))
 
   proposal <- eval(prop.call)
@@ -240,7 +241,7 @@ ergm_conlist <- function(object, ...) UseMethod("ergm_conlist")
 
 ergm_conlist.NULL <- function(object, ...) NULL
 
-ergm_conlist.formula <- function(object, nw){
+ergm_conlist.formula <- function(object, nw, ..., term.options=list()){
   ## Construct a list of constraints and arguments from the formula.
   conlist<-list()
   constraints<-list_rhs.formula(object)
@@ -266,15 +267,8 @@ ergm_conlist.formula <- function(object, nw){
         init.call <- list(f, lhs.nw=nw)
       }
     }else{
-      if(is.call(constraint)){
-        conname <- as.character(constraint[[1]])
-        args <- constraint
-        args[[1]] <- as.name("list")
-      }else{
-        conname <- as.character(constraint)
-        args <- list()
-      }
-      init.call <- list(f, nw, args)
+      conname <- as.character(if(is.name(constraint)) constraint else constraint[[1]])
+      init.call <- termCall(f, constraint, nw, term.options, ...)
     }
 
     con <- eval(as.call(init.call), environment(object))
@@ -380,7 +374,7 @@ select_ergm_proposal <- function(conlist, class, ref, name, weights){
 #' documentation for a similar argument for \code{\link{ergm}} and see
 #' [list of implemented constraints][ergm-constraints] for more information.
 #' @export
-ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~sparse), weights="default", class="c", reference=~Bernoulli, ...) {
+ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~sparse), weights="default", class="c", reference=~Bernoulli, ..., term.options=list()) {
   NVL(hints) <- trim_env(~sparse)
 
   if(is(reference, "formula")){
@@ -394,13 +388,7 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~sparse)
         ref.call <- list(f, lhs.nw=nw)
       }
     }else{
-      if(is.call(reference[[2]])){
-        args <- reference[[2]]
-        args[[1]] <- as.name("list")
-      }else{
-        args <- list()
-      }
-      ref.call <- list(f, nw, args)
+      ref.call <- termCall(f, reference[[2]], nw, term.options, ...)
     }
 
     ref <- eval(as.call(ref.call),environment(reference))
@@ -432,7 +420,7 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~sparse)
   if("constraints" %in% names(arguments)){
     conlist <- prune.ergm_conlist(arguments$constraints)
   }else{
-    conlist <- c(ergm_conlist(object, nw), ergm_conlist(hints, nw))
+    conlist <- c(ergm_conlist(object, nw, term.options=term.options, ...), ergm_conlist(hints, nw, term.options=term.options, ...))
   }
 
   proposal <- select_ergm_proposal(conlist, class, ref, name, weights)
@@ -440,7 +428,7 @@ ergm_proposal.formula <- function(object, arguments, nw, hints=trim_env(~sparse)
   name<-proposal$Proposal
   arguments$constraints<-conlist
   ## Hand it off to the class character method.
-  ergm_proposal(name, arguments, nw, reference=ref)
+  ergm_proposal(name, arguments, nw, reference=ref, ..., term.options=term.options)
 }
 
 
@@ -474,7 +462,7 @@ ergm_proposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NUL
   if(is.null(nw)) nw<-object$network
   if(is.null(reference)) reference<-object$reference
 
-  ergm_proposal(constraints,arguments=arguments,nw=nw,weights=weights,class=class,reference=reference)
+  ergm_proposal(constraints,arguments=arguments,nw=nw,weights=weights,class=class,reference=reference, ...)
 }
 
 DyadGenType <- list(RandDyadGen=0L, WtRandDyadGen=1L, RLEBDM1DGen=2L, WtRLEBDM1DGen=3L, EdgeListGen=4L, WtEdgeListGen=5L)

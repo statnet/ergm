@@ -50,7 +50,7 @@ initialization of each model term.}
 
 \item{\dots}{additional parameters for model formulation}
 
-\item{term.options}{a list of optional settings such as calculation tuning options to be passed to the \code{InitErgmTerm} functions.}
+\item{term.options}{A list of additional arguments to be passed to term initializers. See \code{\link[=term.options]{? term.options}}.}
 
 \item{extra.aux}{a list of auxiliary request formulas required elsewhere; if named, the resulting \code{slots.extra.aux} will also be named.}
 
