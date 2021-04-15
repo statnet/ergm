@@ -6,7 +6,7 @@
 #include "ergm_unsorted_edgelist.h"
 #include "ergm_weighted_population.h"
 #include "ergm_hash_edgelist.h"
-#include "ergm_nodelist.h"
+#include "ergm_BDStratBlocks.h"
 
 #define OUTVAL_NET(e,n) ((n)->outedges[(e)].value)
 #define INVAL_NET(e,n) ((n)->inedges[(e)].value)
@@ -43,33 +43,12 @@
   } \
 }
 
-MH_I_FN(Mi_StratTNT);
 MH_I_FN(Mi_BDStratTNT);
 
-MH_F_FN(Mf_StratTNT);
 MH_F_FN(Mf_BDStratTNT);
 
 typedef struct {
-  NodeList *nodelist;
-  
-  UnsrtEL **els;
-
-  WtPop *wtp;
-  
-  Dyad *ndyadstype;
-
-  int **indmat;
-  
-  int *vattr;
-
-  int nmixtypes;
-  int currentmixingtype;
-  
-  int CD;
-} StratTNTStorage;
-
-typedef struct {
-  NodeList *nodelist;
+  BDStratBlocks *blocks;
 
   HashEL **hash;
   
@@ -85,7 +64,9 @@ typedef struct {
   
   WtPop *wtp;
   
-  int bound;
+  int maxout;
+  int maxin;
+  
   int nmixtypes;
   
   int *strat_vattr;
@@ -102,7 +83,7 @@ typedef struct {
 } BDStratTNTStorage;
 
 // determines which strat mixing types (if any) will have a change in toggleability status if we make the proposed toggle
-static inline void ComputeChangesToToggleability(Vertex *tail, Vertex *head, int edgeflag, BDStratTNTStorage *sto) {
+static inline void ComputeChangesToToggleability(Vertex *tail, Vertex *head, int edgestate, BDStratTNTStorage *sto) {
   // here we compute the proposedcumprob, checking only those
   // mixing types that can be influenced by toggles made on 
   // the current mixing type
@@ -111,12 +92,15 @@ static inline void ComputeChangesToToggleability(Vertex *tail, Vertex *head, int
   // avoid these somewhat expensive checks in the typical case
   // where you have enough submaximal nodes that you cannot
   // be exhausting any mixing types of toggleable dyads
-  if(sto->nodelist->attrcounts[sto->strat_vattr[*tail]][sto->bd_vattr[*tail]] <= 2 || sto->nodelist->attrcounts[sto->strat_vattr[*head]][sto->bd_vattr[*head]] <= 2) {
+  if((sto->blocks->tails[sto->strat_vattr[*tail]][sto->bd_vattr[*tail]]->length <= 2 &&
+      sto->blocks->boths[sto->strat_vattr[*tail]][sto->bd_vattr[*tail]]->length <= 2) || 
+     (sto->blocks->heads[sto->strat_vattr[*head]][sto->bd_vattr[*head]]->length <= 2 && 
+      sto->blocks->boths[sto->strat_vattr[*head]][sto->bd_vattr[*head]]->length <= 2)) {
     // temporarily set tail and head toggleability to what it would be in the proposed network
-    NodeListToggleKnownIf(*tail, *head, sto->nodelist, !edgeflag, sto->tailmaxl, sto->headmaxl);
+    BDStratBlocksToggleIf(*tail, *head, sto->blocks, sto->tailmaxl, sto->headmaxl);
     
     // how many strat types do we need to check?
-    int ntocheck = (sto->strat_vattr[*tail] == sto->strat_vattr[*head]) ? sto->nstratlevels : 2*sto->nstratlevels;
+    int ntocheck = ((!sto->blocks->directed) && (sto->strat_vattr[*tail] == sto->strat_vattr[*head])) ? sto->nstratlevels : 2*sto->nstratlevels;
 
     for(int i = 0; i < ntocheck; i++) {
       // find the index of the i'th strat type we need to check, by looking it up in the indmat
@@ -132,7 +116,7 @@ static inline void ComputeChangesToToggleability(Vertex *tail, Vertex *head, int
       int toggle_curr = WtPopGetWt(infl_i, sto->wtp) > 0;
       
       // will we be able to toggle this mixing type in the proposed network? 
-      int toggle_prop = sto->hash[infl_i]->list->nedges > 0 || NodeListDyadCountPositive(sto->nodelist, infl_i);
+      int toggle_prop = sto->hash[infl_i]->list->nedges > 0 || BDStratBlocksDyadCountPositive(sto->blocks, infl_i);
       
       // will there be a change in toggleability status?
       int change = toggle_curr - toggle_prop;
@@ -144,8 +128,9 @@ static inline void ComputeChangesToToggleability(Vertex *tail, Vertex *head, int
         sto->nmixtypestoupdate++;        
       }
     }
+    
     // restore tail and head toggleability to their current status
-    NodeListToggleKnownIf(*tail, *head, sto->nodelist, edgeflag, sto->tailmaxl, sto->headmaxl);
+    BDStratBlocksToggleIf(*tail, *head, sto->blocks, sto->tailmaxl, sto->headmaxl);
   }
 }
 

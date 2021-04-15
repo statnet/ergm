@@ -100,18 +100,18 @@ D_CHANGESTAT_FN(d_altostar) {
  Changescores for inhomogeneous Bernoulli graphs
 *****************/
 D_CHANGESTAT_FN(d_berninhom) {
-  int edgeflag, i;
+  int edgestate, i;
   Vertex tail, head, n;
 
   n=N_NODES;
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
-    edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+    edgestate = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
     /*Lower trianglization of adjacency matrix implies ith element corresponds
     to (row-1) + (col-1)*(n-1) - choose(col,2).*/
-    /*Rprintf("head=%ld, tail=%ld, cell=%ld, nstats=%d, state=%d\n",head,tail, (head-1)+(tail-1)*(n-1)-tail*(tail-1)/2-1, nstats, edgeflag);
+    /*Rprintf("head=%ld, tail=%ld, cell=%ld, nstats=%d, state=%d\n",head,tail, (head-1)+(tail-1)*(n-1)-tail*(tail-1)/2-1, nstats, edgestate);
     Rprintf("\tdstats content=%f\n",CHANGE_STAT[(head-1)+(tail-1)*(n-1)-tail*(tail-1)/2-1]);*/
-    CHANGE_STAT[(head-1)+(tail-1)*(n-1)-tail*(tail-1)/2-1] += edgeflag ? - 1 : 1;
+    CHANGE_STAT[(head-1)+(tail-1)*(n-1)-tail*(tail-1)/2-1] += edgestate ? - 1 : 1;
     TOGGLE_IF_MORE_TO_COME(i);
   }
   UNDO_PREVIOUS_TOGGLES(i);
@@ -123,7 +123,7 @@ D_CHANGESTAT_FN(d_berninhom) {
 D_CHANGESTAT_FN(d_biduration)
 {
   Vertex tail, head, tailtail, tailhead;
-  int i, k, nprevedge, edgeflag, discord, lookmore;
+  int i, k, nprevedge, edgestate, discord, lookmore;
   Vertex /* nb2, */ nb1;
   double change=0.0;
 
@@ -146,7 +146,7 @@ D_CHANGESTAT_FN(d_biduration)
   
   FOR_EACH_TOGGLE(i) {
     /*Get the initial state of the edge and its reflection*/
-    edgeflag=IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+    edgestate=IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
     if(tail > head){
       tailtail = head;
       tailhead = tail;
@@ -155,7 +155,7 @@ D_CHANGESTAT_FN(d_biduration)
       tailhead = head;
     }
     // 1 = edge removed -1 = edge added
-    discord = edgeflag ? 1 : -1;
+    discord = edgestate ? 1 : -1;
     
     // Rprintf("nprevedge %d\n", nprevedge);    
     k=1;
@@ -187,10 +187,10 @@ D_CHANGESTAT_FN(d_biduration)
         /*change is the number of edges dissolved*/
         CHANGE_STAT[0] += (double)change;
         // if(change!=0){
-          // Rprintf("tail %d head %d tailtail %d tailhead %d edgeflag %d beta %f\n",
-          //	      tail,head,tailtail,tailhead, edgeflag, (double)(mtp->attrib[lookmore]));
-          // Rprintf("edgeflag %d change %f discord %d\n",
-          //	      edgeflag, change, discord);
+          // Rprintf("tail %d head %d tailtail %d tailhead %d edgestate %d beta %f\n",
+          //	      tail,head,tailtail,tailhead, edgestate, (double)(mtp->attrib[lookmore]));
+          // Rprintf("edgestate %d change %f discord %d\n",
+          //	      edgestate, change, discord);
         // }
       }else{
         ++k;
@@ -208,7 +208,7 @@ D_CHANGESTAT_FN(d_bimix){
 
   int matchvaltail, matchvalhead;
   Vertex tail, head, /* nnodes, */ nstats;
-  int i, j, edgeflag=0;
+  int i, j, edgestate=0;
 
   nstats = N_CHANGE_STATS;
   /* nnodes = (N_INPUT_PARAMS)-2*nstats; */
@@ -233,11 +233,11 @@ D_CHANGESTAT_FN(d_bimix){
       // matchvaltail = matchvalhead;
       // matchvalhead = matchswap;
     // }       
-    edgeflag=IS_OUTEDGE(tail, head);
+    edgestate=IS_OUTEDGE(tail, head);
     for (j=0; j<nstats; j++) {
       if(matchvaltail==INPUT_PARAM[nstats+j] &&
 	      matchvalhead==INPUT_PARAM[       j]
-      ){CHANGE_STAT[j] += edgeflag ? -1.0 : 1.0;}
+      ){CHANGE_STAT[j] += edgestate ? -1.0 : 1.0;}
 	  }
     TOGGLE_IF_MORE_TO_COME(i);
   }
@@ -408,13 +408,13 @@ D_CHANGESTAT_FN(d_degreep_w_homophily)
  changestat: d_dissolve
 *****************/
 D_CHANGESTAT_FN(d_dissolve) {
-  int edgeflag, i;
+  int edgestate, i;
   Vertex tail, head;
   
   CHANGE_STAT[0] = 0.0;
   FOR_EACH_TOGGLE(i) {
-      edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
-      CHANGE_STAT[0] += edgeflag ? - 1 : 1;
+      edgestate = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+      CHANGE_STAT[0] += edgestate ? - 1 : 1;
     TOGGLE_IF_MORE_TO_COME(i);
     }
   UNDO_PREVIOUS_TOGGLES(i);
@@ -425,7 +425,7 @@ D_CHANGESTAT_FN(d_dissolve) {
 *****************/
 D_CHANGESTAT_FN(d_duration) {
   Vertex tail, head, tailtail, tailhead;
-  int i, k, ntailedge, edgeflag, discord, lookmore;
+  int i, k, ntailedge, edgestate, discord, lookmore;
   int ndyads, nnodes;
   double change=0.0;
   
@@ -436,7 +436,7 @@ D_CHANGESTAT_FN(d_duration) {
   CHANGE_STAT[0] = 0.0;
   FOR_EACH_TOGGLE(i) {
     /*Get the initial state of the edge and its reflection*/
-    edgeflag=IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+    edgestate=IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
     if(!nwp->directed_flag && tail < head){
       tailtail = head;
       tailhead = tail;
@@ -444,7 +444,7 @@ D_CHANGESTAT_FN(d_duration) {
       tailtail = tail;
       tailhead = head;
     }
-    discord = edgeflag ? 1 : -1;
+    discord = edgestate ? 1 : -1;
     
     k=0;
     lookmore=1;
@@ -812,32 +812,32 @@ D_CHANGESTAT_FN(d_gwb2){
 D_CHANGESTAT_FN(d_heideriandynamic)  {
   long int nnodes;
   Vertex tail, head;
-  int i, edgeflag, edgeflagheadtail;
-  int edgeflagp, edgeflagheadtailp;
+  int i, edgestate, edgestateheadtail;
+  int edgestatep, edgestateheadtailp;
   
   nnodes = ((long int)(INPUT_PARAM[0]));
   CHANGE_STAT[0] = 0.0;
   FOR_EACH_TOGGLE(i) {
     /*Get the initial edge state*/
-    edgeflag=IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
-    edgeflagheadtail = IS_OUTEDGE(head, tail);
+    edgestate=IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+    edgestateheadtail = IS_OUTEDGE(head, tail);
     /*Get the prior edge state*/
-    edgeflagp  =(int)(INPUT_PARAM[1+(tail-1)+(head-1)*nnodes]);
-    edgeflagheadtailp=(int)(INPUT_PARAM[1+(head-1)+(tail-1)*nnodes]);
+    edgestatep  =(int)(INPUT_PARAM[1+(tail-1)+(head-1)*nnodes]);
+    edgestateheadtailp=(int)(INPUT_PARAM[1+(head-1)+(tail-1)*nnodes]);
 
-    // if(edgeflagp != edgeflagheadtailp){
-      // if(edgeflagheadtail!=edgeflag){ CHANGE_STAT[0] += 1.0; }
+    // if(edgestatep != edgestateheadtailp){
+      // if(edgestateheadtail!=edgestate){ CHANGE_STAT[0] += 1.0; }
     // }else{
-      // if(edgeflagheadtail==edgeflag){ CHANGE_STAT[0] -= 1.0; }
+      // if(edgestateheadtail==edgestate){ CHANGE_STAT[0] -= 1.0; }
     // }      
-    if(edgeflagp != edgeflagheadtailp){
-      if(edgeflag != edgeflagheadtail){ 
+    if(edgestatep != edgestateheadtailp){
+      if(edgestate != edgestateheadtail){
         CHANGE_STAT[0] += 1.0;
       }else{
         CHANGE_STAT[0] -= 1.0;
       }
     }
-    // Rprintf("tail %d head %d edgeflagp %d  edgeflagheadtailp %d edgeflag %d edgeflagheadtail %d dstats %f\n",tail,head,edgeflagp,edgeflagheadtailp, edgeflag, edgeflagheadtail,  CHANGE_STAT[0] );
+    // Rprintf("tail %d head %d edgestatep %d  edgestateheadtailp %d edgestate %d edgestateheadtail %d dstats %f\n",tail,head,edgestatep,edgestateheadtailp, edgestate, edgestateheadtail,  CHANGE_STAT[0] );
     TOGGLE_IF_MORE_TO_COME(i);
   }
   UNDO_PREVIOUS_TOGGLES(i);
@@ -853,14 +853,14 @@ D_CHANGESTAT_FN(d_hiertriad) {
   Edge e;
   Vertex tail, head, node3;
   double pos3;
-  int /* edgeflag, */ i;
+  int /* edgestate, */ i;
   
   CHANGE_STAT[0] = 0.0;
   FOR_EACH_TOGGLE(i) {
-    /* edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)); */
+    /* edgestate = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)); */
     tail = TAIL(i); head=HEAD(i);
     
-    // Rprintf("tail %d head %d edgeflag %d\n",tail,head, edgeflag);
+    // Rprintf("tail %d head %d edgestate %d\n",tail,head, edgestate);
     STEP_THROUGH_OUTEDGES(head, e, node3) {
       if (IS_OUTEDGE(tail, node3)){
         pos3 = numposthree (node3, nwp);
@@ -891,14 +891,14 @@ D_CHANGESTAT_FN(d_hiertriaddegree) {
   Edge e;
   Vertex tail, head, node3, ideg;
   double pos3;
-  int /* edgeflag, */ i;
+  int /* edgestate, */ i;
   
   CHANGE_STAT[0] = 0.0;
   FOR_EACH_TOGGLE(i) {
-    /* edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)); */
+    /* edgestate = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)); */
     tail = TAIL(i); head=HEAD(i);
     
-    // Rprintf("tail %d head %d edgeflag %d\n",tail,head, edgeflag);
+    // Rprintf("tail %d head %d edgestate %d\n",tail,head, edgestate);
     STEP_THROUGH_OUTEDGES(head, e, node3) {
       if (IS_OUTEDGE(tail, node3)){
         ideg = IN_DEG[node3];
@@ -952,7 +952,7 @@ double numposthree (Vertex head, Network *nwp) {
  changestat: d_icvar
 *****************/
 D_CHANGESTAT_FN(d_icvar)  {
-  int i, edgeflag, ichange, change;
+  int i, edgestate, ichange, change;
   Vertex nnodes, tail, head, *id;
   
   id=IN_DEG;
@@ -960,14 +960,14 @@ D_CHANGESTAT_FN(d_icvar)  {
   
   change = 0;
   FOR_EACH_TOGGLE(i) {
-      edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
-      if(edgeflag){
+      edgestate = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+      if(edgestate){
         ichange = -(2*(nnodes*(id[head]-1) - N_EDGES+1) + nnodes - 1);
       }else{
         ichange =   2*(nnodes* id[head]    - N_EDGES  ) + nnodes - 1;
       }
       // Rprintf("tail %d head %d nnodes %d  N_EDGES %d id[head] %d  ic %d\n",tail,head, nnodes,  N_EDGES, id[head], ichange);
-      // change += edgeflag ? (-ichange) : ichange;
+      // change += edgestate ? (-ichange) : ichange;
       change += ichange;
       TOGGLE_IF_MORE_TO_COME(i);
   }
@@ -979,7 +979,7 @@ D_CHANGESTAT_FN(d_icvar)  {
  changestat: d_idc
 *****************/
 D_CHANGESTAT_FN(d_idc)  {
-  int i, edgeflag, ichange, change;
+  int i, edgestate, ichange, change;
   Vertex k, nnodes, maxidegree0, maxidegree1;
   Vertex tail, head, *id;
   
@@ -988,8 +988,8 @@ D_CHANGESTAT_FN(d_idc)  {
   
   change = 0;
   FOR_EACH_TOGGLE(i) {
-      edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
-      if(edgeflag){
+      edgestate = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+      if(edgestate){
         maxidegree0 = id[head];
         maxidegree1 = id[head]-1;
         for (k=1; k<=nnodes; k++){
@@ -1022,12 +1022,12 @@ D_CHANGESTAT_FN(d_intransitivedynamic)  {
   long int nnodes;
   Vertex tail, head, node3;
   double change;
-  int i, edgeflag;
+  int i, edgestate;
   
   nnodes = ((long int)(INPUT_PARAM[0]));
   CHANGE_STAT[0] = 0.0;
   FOR_EACH_TOGGLE(i) {
-    edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+    edgestate = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
     change = 0.0;
     STEP_THROUGH_OUTEDGES(head, e, node3) {
       if (node3 != tail){
@@ -1069,8 +1069,8 @@ D_CHANGESTAT_FN(d_intransitivedynamic)  {
         }
       }
     }
-    CHANGE_STAT[0] += edgeflag ? -change : change;
-    // Rprintf("tail %d head %d edgeflag %d change %f\n",tail,head, edgeflag, change);
+    CHANGE_STAT[0] += edgestate ? -change : change;
+    // Rprintf("tail %d head %d edgestate %d change %f\n",tail,head, edgestate, change);
     TOGGLE_IF_MORE_TO_COME(i);
   }
   UNDO_PREVIOUS_TOGGLES(i);
@@ -1080,7 +1080,7 @@ D_CHANGESTAT_FN(d_intransitivedynamic)  {
  changestat: d_intransitivity
 *****************/
 D_CHANGESTAT_FN(d_intransitivity) {
-  int i, edgeflag, a, b, c, d, e, edgecount, t300, 
+  int i, edgestate, a, b, c, d, e, edgecount, t300,
   t210, t120C, t120U, t120D, t201, t030C, t030T, t111U, 
   t111D, t021C, t021U, t021D, t102, t012 /*, t003 */ ;
   Vertex node3, tail, head;
@@ -1089,7 +1089,7 @@ D_CHANGESTAT_FN(d_intransitivity) {
   if (nwp->directed_flag) {
     // directed version
     FOR_EACH_TOGGLE(i) {
-      edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+      edgestate = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
       t300 = 0;
       t210 = 0;
       t120C = 0;  t120U = 0;   t120D = 0;  t201 = 0;
@@ -1239,13 +1239,13 @@ D_CHANGESTAT_FN(d_intransitivity) {
       // t003 = -(t300+t210+t120C+t120U+t120D+t201+t030C+t030T);
       // t003 = t003-(t111U+t111D+t021C+t021U+t021D+t102+t012);
       b = t021C+t030C+t111D+t111U+t120C+t201+t210;
-      CHANGE_STAT[0] += edgeflag ? -(double)b : (double)b;
+      CHANGE_STAT[0] += edgestate ? -(double)b : (double)b;
       TOGGLE_IF_MORE_TO_COME(i);
     }
   }else{
     // undirected
     FOR_EACH_TOGGLE(i) {
-      edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+      edgestate = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
       t300 = 0; t201 = 0; t102 = 0; t012 = 0;
 
       if (MIN_OUTEDGE(head) != 0 || MIN_INEDGE(head) != 0 ||
@@ -1285,7 +1285,7 @@ D_CHANGESTAT_FN(d_intransitivity) {
       
       /* t003 = -(t102+t201+t300); */
       b = t300;
-      CHANGE_STAT[0] += edgeflag ? -(double)b : (double)b;
+      CHANGE_STAT[0] += edgestate ? -(double)b : (double)b;
       TOGGLE_IF_MORE_TO_COME(i);
     } // i loop
   }
@@ -1333,7 +1333,7 @@ D_CHANGESTAT_FN(d_kappa)  {
  "mono, poly mixing matrix"
 *****************/
 D_CHANGESTAT_FN(d_monopolymixmat) {
-  int edgeflag, i;
+  int edgestate, i;
   Edge e;
   Vertex tail, head, Fdeg, Mdeg, otherF, otherM;
   /* m/p means monogamous/polygamous; F/M means female/male */
@@ -1343,15 +1343,15 @@ D_CHANGESTAT_FN(d_monopolymixmat) {
 
   CHANGE_STAT[0] = CHANGE_STAT[1] = CHANGE_STAT[2] = 0.0;
   FOR_EACH_TOGGLE(i) {
-    edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+    edgestate = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
     Fdeg = od[tail];
     Mdeg = id[head];
     /* Calculate contribution from change of (F,M) edge only */
-    mFmM = (Fdeg==0 && Mdeg==0) - (Fdeg==1 && Mdeg==1 && edgeflag);
-    mFpM = (Fdeg==0 && Mdeg>0) - (Fdeg==1 && Mdeg>1 && edgeflag); 
-    pFmM = (Mdeg==0 && Fdeg>0) - (Mdeg==1 && Fdeg>1 && edgeflag);
+    mFmM = (Fdeg==0 && Mdeg==0) - (Fdeg==1 && Mdeg==1 && edgestate);
+    mFpM = (Fdeg==0 && Mdeg>0) - (Fdeg==1 && Mdeg>1 && edgestate);
+    pFmM = (Mdeg==0 && Fdeg>0) - (Mdeg==1 && Fdeg>1 && edgestate);
     /* Now calculate contribution from other partners of F or M */
-    if(Fdeg - edgeflag == 1) {/* Only case that concerns us */
+    if(Fdeg - edgestate == 1) {/* Only case that concerns us */
       for(e = EdgetreeMinimum(nwp->outedges, tail);
       (otherM = nwp->outedges[e].value) != 0 && otherM == head;
       e = EdgetreeSuccessor(nwp->outedges, e)); /* This finds otherM */
@@ -1362,7 +1362,7 @@ D_CHANGESTAT_FN(d_monopolymixmat) {
         pFmM += (Fdeg==1 ? 1 : -1);
       }
     }
-    if(Mdeg - edgeflag == 1) {/* Similarly for Mdeg */
+    if(Mdeg - edgestate == 1) {/* Similarly for Mdeg */
       for(e = EdgetreeMinimum(nwp->inedges, head);
       (otherF = nwp->inedges[e].value) != 0 && otherF == tail;
       e = EdgetreeSuccessor(nwp->inedges, e)); /* This finds otherF */
@@ -1399,16 +1399,16 @@ D_CHANGESTAT_FN(d_simmeliandynamic)  {
   Edge e;
   long int nnodes;
   Vertex tail, head, node3, change;
-  int i, edgeflag, edgeflagheadtail;
+  int i, edgestate, edgestateheadtail;
   
   nnodes = ((long int)(INPUT_PARAM[0]));
   CHANGE_STAT[0] = 0.0;
   FOR_EACH_TOGGLE(i) {
     /*Get the initial edge state*/
-    edgeflag=IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
-    edgeflagheadtail =  !IS_OUTEDGE(head, tail);
+    edgestate=IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+    edgestateheadtail =  !IS_OUTEDGE(head, tail);
     
-    if(!edgeflagheadtail){
+    if(!edgestateheadtail){
       /*Check to see if this will form a Simmelian */
       change = 0;
       STEP_THROUGH_OUTEDGES(head, e, node3) {
@@ -1429,7 +1429,7 @@ D_CHANGESTAT_FN(d_simmeliandynamic)  {
       }
       
       change = 6*change;
-      CHANGE_STAT[0] += edgeflag ? -(double)change : (double)change;
+      CHANGE_STAT[0] += edgestate ? -(double)change : (double)change;
     }
     TOGGLE_IF_MORE_TO_COME(i);
   }
@@ -1441,7 +1441,7 @@ D_CHANGESTAT_FN(d_simmeliandynamic)  {
   Changescores for inhomogeneous Bernoulli graphs
 *****************/
 D_CHANGESTAT_FN(d_spatial) {
-  int edgeflag, i;
+  int edgestate, i;
   Vertex tail, head, n;
   double llr,pb,alpha,gamma;
 
@@ -1451,11 +1451,11 @@ D_CHANGESTAT_FN(d_spatial) {
   gamma=INPUT_PARAM[2];
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
-    edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+    edgestate = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
     /*Lower trianglization of adjacency matrix implies ith element corresponds
     to (row-1) + (col-1)*(n-1) - choose(col,2).*/
     llr = -log(((1+exp(pb))*pow(1+exp(alpha)*(INPUT_PARAM[2+(head-1)+(tail-1)*(n-1)-tail*(tail-1)/2]),exp(gamma)))/exp(pb)-1);
-    CHANGE_STAT[0] += edgeflag ? - llr : llr;
+    CHANGE_STAT[0] += edgestate ? - llr : llr;
     TOGGLE_IF_MORE_TO_COME(i);
   }
   UNDO_PREVIOUS_TOGGLES(i);
@@ -1470,12 +1470,12 @@ D_CHANGESTAT_FN(d_transitivedynamic)  {
   long int nnodes;
   Vertex tail, head, node3;
   double change;
-  int i, edgeflag;
+  int i, edgestate;
   
   nnodes = ((long int)(INPUT_PARAM[0]));
   CHANGE_STAT[0] = 0.0;
   FOR_EACH_TOGGLE(i) {
-    edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+    edgestate = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
     change = 0.0;
     STEP_THROUGH_OUTEDGES(head, e, node3) {
       if (node3 != tail) {
@@ -1518,8 +1518,8 @@ D_CHANGESTAT_FN(d_transitivedynamic)  {
       }
     }
     
-    CHANGE_STAT[0] += edgeflag ? -change : change;
-    // Rprintf("tail %d head %d edgeflag %d change %f\n",tail,head, edgeflag, change);
+    CHANGE_STAT[0] += edgestate ? -change : change;
+    // Rprintf("tail %d head %d edgestate %d change %f\n",tail,head, edgestate, change);
     TOGGLE_IF_MORE_TO_COME(i);
   }
   UNDO_PREVIOUS_TOGGLES(i);
@@ -1530,7 +1530,7 @@ D_CHANGESTAT_FN(d_transitivedynamic)  {
 *****************/
 D_CHANGESTAT_FN(d_transitivity) 
 {
-  int i, edgeflag, a, b, c, d, e, edgecount, t300, 
+  int i, edgestate, a, b, c, d, e, edgecount, t300,
   t210, t120C, t120U, t120D, t201, t030C, t030T, t111U, 
   t111D, t021C, t021U, t021D, t102, t012, t003;
   Vertex node3, tail, head;
@@ -1540,7 +1540,7 @@ D_CHANGESTAT_FN(d_transitivity)
   if (nwp->directed_flag) {
     // directed version
     FOR_EACH_TOGGLE(i) {
-      edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+      edgestate = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
       t300 = 0;
       t210 = 0;
       t120C = 0;  t120U = 0;   t120D = 0;  t201 = 0;
@@ -1688,13 +1688,13 @@ D_CHANGESTAT_FN(d_transitivity)
       t003 = -(t300+t210+t120C+t120U+t120D+t201+t030C+t030T);
       t003 = t003-(t111U+t111D+t021C+t021U+t021D+t102+t012);
       b = t003+t012+t021U+t021D+t102+t030T+t120U+t120D+t300;
-      CHANGE_STAT[0] += edgeflag ? -(double)b : (double)b;
+      CHANGE_STAT[0] += edgestate ? -(double)b : (double)b;
       TOGGLE_IF_MORE_TO_COME(i);
     }
   } else {
     // undirected
     FOR_EACH_TOGGLE(i) {
-      edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+      edgestate = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
       t300 = 0; t201 = 0; t102 = 0; t012 = 0;
 
       if (MIN_OUTEDGE(head) != 0 || MIN_INEDGE(head) != 0 ||
@@ -1734,7 +1734,7 @@ D_CHANGESTAT_FN(d_transitivity)
 
       t003 = (t102+t201+t300);
       b = -t300; 
-      CHANGE_STAT[0] += edgeflag ? -(double)b : (double)b;
+      CHANGE_STAT[0] += edgestate ? -(double)b : (double)b;
       TOGGLE_IF_MORE_TO_COME(i);
     } // i loop
   }

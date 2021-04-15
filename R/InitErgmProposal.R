@@ -47,27 +47,32 @@ InitErgmProposal.randomtoggle <- function(arguments, nw){
   list(name = "randomtoggle", dyadgen = ergm_dyadgen_select(arguments, nw))
 }
 
-InitErgmProposal.TNT <- function(arguments, nw){
+InitErgmProposal.TNT <- function(nw, arguments, ...){
   list(name = "TNT", dyadgen = ergm_dyadgen_select(arguments, nw))
 }
 
 InitErgmProposal.BDStratTNT <- function(arguments, nw) {
-  if(is.directed(nw)) {
-    ergm_Init_abort("BDStratTNT does not support directed networks")
-  }
+  # maxout defaults to network.size - 1, which is effectively no bound (could be made smaller in the bipartite case, but oh well)
+  maxout <- NVL(arguments$maxout, arguments$constraints$bd$maxout, network.size(nw) - 1L)
+  if(is.na(maxout)) maxout <- network.size(nw) - 1L
 
-  # bound defaults to network.size - 1, which is effectively no bound (could be made smaller in the bipartite case, but oh well)
-  bound <- NVL(arguments$maxout, arguments$constraints$bd$maxout, network.size(nw) - 1L)
-  if(is.na(bound)) bound <- network.size(nw) - 1L
+  # maxin defaults to network.size - 1, which is effectively no bound (could be made smaller in the bipartite case, but oh well)
+  maxin <- NVL(arguments$maxin, arguments$constraints$bd$maxin, network.size(nw) - 1L)
+  if(is.na(maxin)) maxin <- network.size(nw) - 1L
 
   # if blocks has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
   if(is.null(arguments$constraints$blocks) || any(!unlist(lapply(arguments[c("blocks_attr", "levels", "levels2", "b1levels", "b2levels")], is.null)))) {
-    arguments$constraints$blocks <- InitErgmConstraint.blocks(nw, attr = arguments[["blocks_attr"]], levels = arguments[["levels"]], levels2 = NVL(arguments[["levels2"]], FALSE), b1levels = arguments[["b1levels"]], b2levels = arguments[["b2levels"]])
+    arguments$constraints$blocks <- InitErgmConstraint.blocks(nw, list(attr = arguments[["blocks_attr"]], levels = arguments[["levels"]], levels2 = NVL(arguments[["levels2"]], FALSE), b1levels = arguments[["b1levels"]], b2levels = arguments[["b2levels"]]))
+  }
+
+  # check for old name
+  if(is.null(arguments$constraints$strat) && !is.null(arguments$constraints$Strat)) {
+    arguments$constraints$strat <- arguments$constraints$Strat
   }
 
   # if strat has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
-  if(is.null(arguments$constraints$strat) || any(!unlist(lapply(arguments[c("Strat_attr", "pmat", "empirical")], is.null)))) {
-    arguments$constraints$strat <- InitErgmConstraint.strat(nw, attr = arguments[["Strat_attr"]], pmat = arguments[["pmat"]], empirical = arguments[["empirical"]])
+  if(is.null(arguments$constraints$strat) || any(!unlist(lapply(arguments[c("strat_attr", "pmat", "empirical")], is.null)))) {
+    arguments$constraints$strat <- InitErgmConstraint.strat(nw, list(attr = arguments[["strat_attr"]], pmat = arguments[["pmat"]], empirical = NVL(arguments[["empirical"]],FALSE)))
   }
 
   nodecov <- arguments$constraints$blocks$nodecov
@@ -102,8 +107,8 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
   
   bd_offdiag_pairs <- which(allowed.tails != allowed.heads)  
   
-  bd_tails <- c(allowed.tails, if(!is.bipartite(nw)) allowed.heads[bd_offdiag_pairs])
-  bd_heads <- c(allowed.heads, if(!is.bipartite(nw)) allowed.tails[bd_offdiag_pairs])
+  bd_tails <- c(allowed.tails, if(!is.bipartite(nw) && !is.directed(nw)) allowed.heads[bd_offdiag_pairs])
+  bd_heads <- c(allowed.heads, if(!is.bipartite(nw) && !is.directed(nw)) allowed.tails[bd_offdiag_pairs])
 
   ## number of BD mixtypes that need to be considered when strat mixing type is off-diag and on-diag, respectively
   bd_mixtypes <- c(length(bd_tails), length(allowed.tails))
@@ -121,7 +126,8 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
                    strat_vattr = as.integer(arguments$constraints$strat$nodecov - 1L),
                    indmat = as.integer(t(arguments$constraints$strat$indmat)),
                    nodecountsbypairedcode = as.integer(nodecountsbypairedcode),
-                   bound = as.integer(bound),
+                   maxout = as.integer(maxout),
+                   maxin = as.integer(maxin),
                    bd_levels = as.integer(nlevels),
                    bd_vattr = as.integer(nodecov - 1L),
                    bd_tails = as.integer(bd_tails - 1L),
@@ -130,29 +136,6 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
                    empirical_flag = as.integer(arguments$constraints$strat$empirical),
                    amat = as.integer(t(pairs_mat)),
                    skip_bd = TRUE)
-
-  proposal
-}
-
-InitErgmProposal.StratTNT <- function(arguments, nw) {
-  # if strat has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
-  if(is.null(arguments$constraints$strat) || any(!unlist(lapply(arguments[c("attr", "pmat", "empirical")], is.null)))) {
-    arguments$constraints$strat <- InitErgmConstraint.strat(nw, attr = arguments[["attr"]], pmat = arguments[["pmat"]], empirical = arguments[["empirical"]])
-  }
-
-  ## subtract one from attr codes for greater convenience re. C's zero-based indexing  
-  proposal <- list(name = "StratTNT", 
-                   inputs = NULL, # passed by name below
-                   nmixtypes = as.integer(arguments$constraints$strat$nmixtypes),
-                   tailattrs = as.integer(arguments$constraints$strat$tailattrs - 1L),
-                   headattrs = as.integer(arguments$constraints$strat$headattrs - 1L),
-                   probvec = as.double(arguments$constraints$strat$probvec),
-                   nlevels = as.integer(arguments$constraints$strat$nlevels),
-                   nodecountsbycode = as.integer(arguments$constraints$strat$nodecountsbycode),
-                   nodeindicesbycode = as.integer(arguments$constraints$strat$nodeindicesbycode),
-                   nodecov = as.integer(arguments$constraints$strat$nodecov - 1L),
-                   indmat = as.integer(t(arguments$constraints$strat$indmat)),
-                   empirical = as.integer(arguments$constraints$strat$empirical))
 
   proposal
 }

@@ -16,7 +16,6 @@
 \alias{InitErgmProposal.CondOutDegreeDist}
 \alias{InitErgmProposal.ConstantEdges}
 \alias{InitErgmProposal.TNT}
-\alias{InitErgmProposal.StratTNT}
 \alias{InitErgmProposal.BDStratTNT}
 \alias{InitErgmProposal.randomtoggle}
 \alias{InitErgmProposal.randomtoggleNonObserved}
@@ -57,11 +56,6 @@
         	by edge status: those having ties and those having no ties (hence T/NT).  
         	This is useful for improving performance in sparse networks,
         	because it gives at least 50\% chance of proposing a toggle of an existing edge.
-        }
-
-        \item{InitErgmProposal.StratTNT}{Stratifies proposals by mixing type on a given vertex attribute;
-            within each mixing type, proposals are stratified by edge status as in \code{TNT}.
-            Arguments should generally be passed in via the \code{\link{strat}} hint.
         }
              
 }
@@ -113,12 +107,11 @@
         \item{InitErgmProposal.CondOutDegree}{MHp for \eqn{constraints= ~odegrees}. For directed networks, randomly select two dyads with a common tail node, one having an edge and one not, and propose to swap the tie from one head to the other.
         }
 
-        \item{InitErgmProposal.BDStratTNT}{Implements a TNT proposal with an upper bound on degree, with proposed
-                    toggles stratified by mixing type on a specified vertex attribute.  Optionally constrains certain
-                    mixing types on a(nother) specified attribute.  The upper bound on degree is specified via the 
-                    \code{\link{bd}} constraint's \code{maxout} argument (which must be a single number for \code{BDStratTNT});
-                    the constraints on mixing type are specified via the \code{\link{blocks}} constraint; the stratification
-                    is specified via the \code{\link{strat}} hint.  Directed networks are not supported by \code{BDStratTNT} at this time.
+        \item{InitErgmProposal.BDStratTNT}{Implements a TNT proposal with any subset of the following features: (1) an upper
+                    bound on degree, specified via the \code{\link{bd}} constraint's \code{maxout} and/or \code{maxin} arguments 
+                    (which must be single numbers for \code{BDStratTNT}); (2) stratification of proposals according to mixing type
+                    on a vertex attribute, specified via the \code{\link{strat}} hint; (3) fixation of specified mixing types on
+                    a(nother) vertex attribute, specified via the \code{\link{blocks}} constraint.
         }
 
        }}

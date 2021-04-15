@@ -18,7 +18,7 @@
 #include "ergm_Rutil.h"
 #include "ergm_BDStrat_proposals.h"
 #include "ergm_hash_edgelist.h"
-#include "ergm_nodelist.h"
+#include "ergm_BDStratBlocks.h"
 
 /*********************
  void MH_randomtoggle
@@ -107,7 +107,10 @@ MH_I_FN(Mi_BDStratTNT) {
 
   sto->CD = getListElement(getListElement(MHp->R, "flags"), "CD") != R_NilValue;
   
-  sto->bound = asInteger(getListElement(MHp->R, "bound"));
+  sto->maxout = asInteger(getListElement(MHp->R, "maxout"));
+  sto->maxin = asInteger(getListElement(MHp->R, "maxin"));  
+  if(!DIRECTED) sto->maxin = sto->maxout;
+  
   sto->nmixtypes = asInteger(getListElement(MHp->R, "nmixtypes"));
   sto->nstratlevels = asInteger(getListElement(MHp->R, "nattrcodes"));
   int nbdlevels = asInteger(getListElement(MHp->R, "bd_levels"));
@@ -115,25 +118,22 @@ MH_I_FN(Mi_BDStratTNT) {
   sto->mixtypestoupdate = Calloc(sto->nmixtypes, int);
   
   sto->strat_vattr = INTEGER(getListElement(MHp->R, "strat_vattr"));
-
   sto->bd_vattr = INTEGER(getListElement(MHp->R, "bd_vattr"));
     
-  sto->nodelist = NodeListInitialize(sto->bound, 
-                                     sto->strat_vattr, 
-                                     sto->nstratlevels, 
-                                     sto->nmixtypes, 
-                                     INTEGER(getListElement(MHp->R, "strattailattrs")), 
-                                     INTEGER(getListElement(MHp->R, "stratheadattrs")), 
-                                     NULL, 
-                                     sto->bd_vattr, 
-                                     nbdlevels, 
-                                     INTEGER(getListElement(MHp->R, "bd_mixtypes"))[0], 
-                                     INTEGER(getListElement(MHp->R, "bd_mixtypes"))[1], 
-                                     INTEGER(getListElement(MHp->R, "bd_tails")), 
-                                     INTEGER(getListElement(MHp->R, "bd_heads")), 
-                                     NULL,
-                                     INTEGER(getListElement(MHp->R, "nodecountsbypairedcode")), 
-                                     nwp);
+  sto->blocks = BDStratBlocksInitialize(sto->maxout, 
+                                        sto->maxin,
+                                        sto->strat_vattr, 
+                                        sto->nstratlevels, 
+                                        sto->nmixtypes, 
+                                        INTEGER(getListElement(MHp->R, "strattailattrs")), 
+                                        INTEGER(getListElement(MHp->R, "stratheadattrs")), 
+                                        sto->bd_vattr, 
+                                        nbdlevels, 
+                                        INTEGER(getListElement(MHp->R, "bd_mixtypes")), 
+                                        INTEGER(getListElement(MHp->R, "bd_tails")), 
+                                        INTEGER(getListElement(MHp->R, "bd_heads")), 
+                                        INTEGER(getListElement(MHp->R, "nodecountsbypairedcode")), 
+                                        nwp);
     
   sto->strat_vattr--; // so node indices line up correctly
   sto->bd_vattr--; // so node indices line up correctly  
@@ -185,7 +185,7 @@ MH_I_FN(Mi_BDStratTNT) {
   double *currentprobvec = Calloc(sto->nmixtypes, double);  
   for(int i = 0; i < sto->nmixtypes; i++) {
     // if any edges or dyads of this type are toggleable
-    if(sto->hash[i]->list->nedges > 0 || NodeListDyadCountPositive(sto->nodelist, i)) {
+    if(sto->hash[i]->list->nedges > 0 || BDStratBlocksDyadCountPositive(sto->blocks, i)) {
       currentprobvec[i] = sto->originalprobvec[i];
       sto->currentcumprob += sto->originalprobvec[i];
     }
@@ -201,7 +201,7 @@ MH_I_FN(Mi_BDStratTNT) {
   }
 
   for(Vertex vertex = 1; vertex <= N_NODES; vertex++) {
-    if(IN_DEG[vertex] + OUT_DEG[vertex] > sto->bound) {
+    if(DIRECTED ? (IN_DEG[vertex] > sto->maxin || OUT_DEG[vertex] > sto->maxout) : (IN_DEG[vertex] + OUT_DEG[vertex] > sto->maxout)) {
       error("degree bound is violated by initial network; proposal cannot proceed");
     }
   }
@@ -216,29 +216,27 @@ MH_P_FN(MH_BDStratTNT) {
   // number of edges of this mixing type
   int nedgestype = sto->hash[sto->stratmixingtype]->list->nedges;
   
-  Dyad ndyadstype = NodeListDyadCount(sto->nodelist, sto->stratmixingtype);
+  Dyad ndyadstype = BDStratBlocksDyadCount(sto->blocks, sto->stratmixingtype);
   
-  int edgeflag;
+  int edgestate;
   
   if((unif_rand() < 0.5 && nedgestype > 0) || ndyadstype == 0) {
     // propose toggling off an existing edge of strat mixing type sto->stratmixingtype
     HashELGetRand(Mtail, Mhead, sto->hash[sto->stratmixingtype]);    
-    edgeflag = TRUE;
+    edgestate = TRUE;
   } else {
     // select a random BD toggleable dyad of strat mixing type sto->stratmixingtype and propose toggling it
-    NodeListGetRandWithCount(Mtail, Mhead, sto->nodelist, sto->stratmixingtype, ndyadstype);
-
-    // now check if the dyad we drew is already an edge or not
-    edgeflag = IS_OUTEDGE(Mtail[0],Mhead[0]);
+    BDStratBlocksGetRandWithCount(Mtail, Mhead, sto->blocks, sto->stratmixingtype, ndyadstype);
+    edgestate = IS_OUTEDGE(*Mtail, *Mhead);
   }
   
-  sto->tailmaxl = IN_DEG[Mtail[0]] + OUT_DEG[Mtail[0]] == sto->bound - 1 + edgeflag;
-  sto->headmaxl = IN_DEG[Mhead[0]] + OUT_DEG[Mhead[0]] == sto->bound - 1 + edgeflag;
+  sto->tailmaxl = (DIRECTED ? OUT_DEG[*Mtail] : IN_DEG[*Mtail] + OUT_DEG[*Mtail]) == sto->maxout - 1 + edgestate;
+  sto->headmaxl = (DIRECTED ? IN_DEG[*Mhead] : IN_DEG[*Mhead] + OUT_DEG[*Mhead]) == sto->maxin - 1 + edgestate;
   
   // compute proposed dyad count for current mixing type (only)
-  Dyad proposeddyadstype = NodeListDyadCountOnToggle(*Mtail, *Mhead, sto->nodelist, sto->stratmixingtype, edgeflag ? 1 : -1, sto->tailmaxl, sto->headmaxl);
+  Dyad proposeddyadstype = BDStratBlocksDyadCountOnToggle(*Mtail, *Mhead, sto->blocks, sto->stratmixingtype, sto->tailmaxl, sto->headmaxl);
   
-  ComputeChangesToToggleability(Mtail, Mhead, edgeflag, sto);
+  ComputeChangesToToggleability(Mtail, Mhead, edgestate, sto);
   
   double prob_weight = sto->currentcumprob/sto->proposedcumprob;
   
@@ -252,7 +250,7 @@ MH_P_FN(MH_BDStratTNT) {
   //   given to toggleable strat mixing types may be different in the current and proposed networks, and thus the probability
   //   to select the current strat mixing type may be different in the current and proposed networks
   
-  if(edgeflag) {
+  if(edgestate) {
     MHp->logratio = log(prob_weight*(((nedgestype == 1 ? 1.0 : 0.5)/proposeddyadstype))/(((ndyadstype == 0 ? 1.0/nedgestype : (0.5/nedgestype) + (sto->tailmaxl || sto->headmaxl ? 0.0 : 0.5/ndyadstype)))));
   } else {
     MHp->logratio = log(prob_weight*((proposeddyadstype == 0 ? 1.0/(nedgestype + 1) : (0.5/(nedgestype + 1)) + (sto->tailmaxl || sto->headmaxl ? 0.0 : 0.5/proposeddyadstype))/((nedgestype == 0 ? 1.0 : 0.5)/ndyadstype)));
@@ -261,25 +259,27 @@ MH_P_FN(MH_BDStratTNT) {
 
 MH_U_FN(Mu_BDStratTNT) {
   GET_STORAGE(BDStratTNTStorage, sto);
+  
   if(sto->CD) {
     sto->stratmixingtype = sto->indmat[sto->strat_vattr[tail]][sto->strat_vattr[head]];
 
-    sto->tailmaxl = IN_DEG[tail] + OUT_DEG[tail] == sto->bound - 1 + edgeflag;
-    sto->headmaxl = IN_DEG[head] + OUT_DEG[head] == sto->bound - 1 + edgeflag;
+    sto->tailmaxl = (DIRECTED ? OUT_DEG[tail] : IN_DEG[tail] + OUT_DEG[tail]) == sto->maxout - 1 + edgestate;
+    sto->headmaxl = (DIRECTED ? IN_DEG[head] : IN_DEG[head] + OUT_DEG[head]) == sto->maxin - 1 + edgestate;
 
-    ComputeChangesToToggleability(&tail, &head, edgeflag, sto);    
+    ComputeChangesToToggleability(&tail, &head, edgestate, sto);
   }
+  
   // update edgelist
-  HashELToggleKnown(tail, head, sto->hash[sto->stratmixingtype], edgeflag);
+  HashELToggleKnown(tail, head, sto->hash[sto->stratmixingtype], edgestate);
 
   // update nodelists as needed
-  NodeListToggleKnownIf(tail, head, sto->nodelist, !edgeflag, sto->tailmaxl, sto->headmaxl);
+  BDStratBlocksToggleIf(tail, head, sto->blocks, sto->tailmaxl, sto->headmaxl);
   
   // if any strat mixing types have changed toggleability status, update prob info accordingly
   if(sto->nmixtypestoupdate > 0) {
     sto->currentcumprob = sto->proposedcumprob;
     for(int i = 0; i < sto->nmixtypestoupdate; i++) {
-      WtPopSetWt(sto->mixtypestoupdate[i], edgeflag ? sto->originalprobvec[sto->mixtypestoupdate[i]] : 0, sto->wtp);          
+      WtPopSetWt(sto->mixtypestoupdate[i], edgestate ? sto->originalprobvec[sto->mixtypestoupdate[i]] : 0, sto->wtp);
     }
   }
 }
@@ -288,7 +288,7 @@ MH_F_FN(Mf_BDStratTNT) {
   // Free all the things
   GET_STORAGE(BDStratTNTStorage, sto);
 
-  NodeListDestroy(sto->nodelist);    
+  BDStratBlocksDestroy(sto->blocks);    
   
   for(int i = 0; i < sto->nmixtypes; i++) {
     HashELDestroy(sto->hash[i]);
@@ -301,156 +301,6 @@ MH_F_FN(Mf_BDStratTNT) {
 
   Free(sto->mixtypestoupdate);  
 
-  WtPopDestroy(sto->wtp);
-  // MHp->storage itself should be Freed by MHProposalDestroy
-}
-
-/********************
-    MH_StratTNT
-********************/
-
-// struct definition in ergm_BDStrat_proposals.h
-
-MH_I_FN(Mi_StratTNT) {
-  // process the inputs and initialize all the edgelists in storage; set MHp->ntoggles to 1
-  MHp->ntoggles = 1;
-
-  // used during initialization only; not retained in storage
-  int nlevels = asInteger(getListElement(MHp->R, "nlevels"));
-
-  ALLOC_STORAGE(1, StratTNTStorage, sto);
-
-  sto->vattr = INTEGER(getListElement(MHp->R, "nodecov"));
-  
-  sto->CD = getListElement(getListElement(MHp->R, "flags"), "CD") != R_NilValue;
-  
-  sto->nmixtypes = asInteger(getListElement(MHp->R, "nmixtypes"));
-  
-  sto->nodelist = NodeListInitialize(N_NODES - 1, // i.e. no bound on degree
-                                     sto->vattr, 
-                                     nlevels, 
-                                     sto->nmixtypes, 
-                                     INTEGER(getListElement(MHp->R, "tailattrs")), 
-                                     INTEGER(getListElement(MHp->R, "headattrs")), 
-                                     INTEGER(getListElement(MHp->R, "nodecountsbycode")),
-                                     NULL, 0, 0, 0, NULL, NULL, NULL, NULL, nwp);
-  
-  sto->els = Calloc(sto->nmixtypes, UnsrtEL *);
-  for(int i = 0; i < sto->nmixtypes; i++) {
-    sto->els[i] = UnsrtELInitialize(0, NULL, NULL, FALSE);
-  }
-  
-  sto->indmat = Calloc(nlevels, int *);
-  sto->indmat[0] = INTEGER(getListElement(MHp->R, "indmat"));
-  for(int i = 1; i < nlevels; i++) {
-    sto->indmat[i] = sto->indmat[i - 1] + nlevels;
-  }
-  
-  sto->vattr--; // decrement so node indices line up correctly
-  EXEC_THROUGH_NET_EDGES(tail, head, e, {
-    int index = sto->indmat[sto->vattr[tail]][sto->vattr[head]];
-    if(index >= 0) {
-      UnsrtELInsert(tail, head, sto->els[index]);
-    }      
-  });
-    
-  int empirical_flag = asInteger(getListElement(MHp->R, "empirical"));
-  if(empirical_flag) {
-    double *probvec = Calloc(sto->nmixtypes, double);
-    for(int i = 0; i < sto->nmixtypes; i++) {
-      probvec[i] = sto->els[i]->nedges;
-    }
-    sto->wtp = WtPopInitialize(sto->nmixtypes, probvec);
-    Free(probvec);
-  } else {
-    sto->wtp = WtPopInitialize(sto->nmixtypes, REAL(getListElement(MHp->R, "probvec")));
-  }
-
-  // zero total proposal probability is an error
-  if(WtPopSumWts(sto->wtp) == 0) {
-    MHp->ntoggles = MH_FAILED;
-    return;
-  }
-  
-  sto->ndyadstype = Calloc(sto->nmixtypes, Dyad);
-  for(int i = 0; i < sto->nmixtypes; i++) {
-    sto->ndyadstype[i] = NodeListDyadCount(sto->nodelist, i);
-    // positive proposal probability with zero dyads is an error;
-    // note that we may wish to relax this condition
-    if(sto->ndyadstype[i] == 0 && WtPopGetWt(i, sto->wtp) > 0) {
-      MHp->ntoggles = MH_FAILED;
-      return;        
-    }
-  }
-}
-
-MH_P_FN(MH_StratTNT) {
-  GET_STORAGE(StratTNTStorage, sto);
-  
-  // sample a strat mixing type on which to make a proposal
-  sto->currentmixingtype = WtPopGetRand(sto->wtp);
-  
-  // number of edges of this mixing type
-  int nedgestype = sto->els[sto->currentmixingtype]->nedges;
-  
-  // number of dyads of this mixing type
-  Dyad ndyadstype = sto->ndyadstype[sto->currentmixingtype];
-  
-  BD_LOOP({
-    if(unif_rand() < 0.5 && nedgestype > 0) {
-      // select an existing edge of type sto->currentmixingtype at random, and propose toggling it off
-      UnsrtELGetRand(Mtail, Mhead, sto->els[sto->currentmixingtype]);
-      
-      // logratio is essentially copied from TNT, because the probability of 
-      // choosing this particular mixing type cancels upon taking the ratio;
-      // still need to count only edges and dyads of the appropriate mixing type, though
-      MHp->logratio = log((nedgestype == 1 ? 1.0/(0.5*ndyadstype + 0.5) :
-                           nedgestype / ((double) ndyadstype + nedgestype)));
-    } else {
-      // select a dyad of type sto->currentmixingtype and propose toggling it
-      NodeListGetRandWithCount(Mtail, Mhead, sto->nodelist, sto->currentmixingtype, ndyadstype);
-
-      if(IS_OUTEDGE(Mtail[0],Mhead[0])) {
-        // pick a new edge from the edgelist uniformly at random so we know its index
-        // and hence don't have to look up the index of the edge tail -> head; this gives
-        // the same probability of picking each existing edge as if we used the tail -> head
-        // edge, but also allows us to keep the edgelists unsorted (at the cost of generating
-        // an extra random index in this case)
-        UnsrtELGetRand(Mtail, Mhead, sto->els[sto->currentmixingtype]);
-
-        MHp->logratio = log((nedgestype == 1 ? 1.0/(0.5*ndyadstype + 0.5) :
-                             nedgestype / ((double) ndyadstype + nedgestype)));
-      }else{                        
-        MHp->logratio = log((nedgestype == 0 ? 0.5*ndyadstype + 0.5 :
-                             1.0 + (ndyadstype)/((double) nedgestype + 1)));
-      }
-    }
-  });
-}
-
-MH_U_FN(Mu_StratTNT) {
-  // add or remove edge from appropriate edgelist
-  GET_STORAGE(StratTNTStorage, sto);
-  if(sto->CD) {
-    sto->currentmixingtype = sto->indmat[sto->vattr[tail]][sto->vattr[head]];
-  }
-  UnsrtELToggleKnown(tail, head, sto->els[sto->currentmixingtype], edgeflag);
-}
-
-MH_F_FN(Mf_StratTNT) {
-  // Free all the things
-  GET_STORAGE(StratTNTStorage, sto);
-
-  for(int i = 0; i < sto->nmixtypes; i++) {
-    UnsrtELDestroy(sto->els[i]);
-  }
-
-  NodeListDestroy(sto->nodelist);
-
-  Free(sto->els);
-  Free(sto->ndyadstype);
-  Free(sto->indmat);
-  
   WtPopDestroy(sto->wtp);
   // MHp->storage itself should be Freed by MHProposalDestroy
 }

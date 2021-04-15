@@ -896,7 +896,7 @@ ergm <- function(formula, response=NULL,
   mainfit$obs.constraints <- obs.constraints
   
   # unless the main fitting algorithm passes back a modified control
-  if (is.null(mainfit$control)) mainfit$control<-control
+  NVL(mainfit$control) <- control
   
   mainfit$reference<-reference
   mainfit$estimate <- estimate

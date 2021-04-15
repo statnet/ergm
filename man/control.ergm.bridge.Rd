@@ -5,13 +5,16 @@
 \title{Auxiliary for Controlling ergm.bridge}
 \usage{
 control.ergm.bridge(
-  nsteps = 20,
-  MCMC.burnin = 10000,
-  MCMC.interval = 100,
-  MCMC.samplesize = 10000,
-  obs.MCMC.samplesize = MCMC.samplesize,
+  nsteps = 16,
+  MCMC.burnin = MCMC.interval * 128,
+  MCMC.burnin.between = max(ceiling(MCMC.burnin/sqrt(nsteps)), MCMC.interval * 16),
+  MCMC.interval = 128,
+  MCMC.samplesize = 16384,
+  obs.MCMC.burnin = obs.MCMC.interval * 128,
+  obs.MCMC.burnin.between = max(ceiling(obs.MCMC.burnin/sqrt(nsteps)),
+    obs.MCMC.interval * 16),
   obs.MCMC.interval = MCMC.interval,
-  obs.MCMC.burnin = MCMC.burnin,
+  obs.MCMC.samplesize = MCMC.samplesize,
   MCMC.prop = trim_env(~sparse),
   MCMC.prop.weights = "default",
   MCMC.prop.args = list(),
@@ -34,13 +37,15 @@ control.ergm.bridge(
 \item{MCMC.burnin}{Number of proposals before any MCMC sampling is done. It
 typically is set to a fairly large number.}
 
+\item{MCMC.burnin.between}{Number of proposals between the bridges; typically, less and less is needed as the number of steps decreases.}
+
 \item{MCMC.interval}{Number of proposals between sampled statistics.}
 
 \item{MCMC.samplesize}{Number of network statistics, randomly drawn from a
 given distribution on the set of all networks, returned by the
 Metropolis-Hastings algorithm.}
 
-\item{obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.samplesize}{The \code{obs}
+\item{obs.MCMC.burnin, obs.MCMC.burnin.between, obs.MCMC.interval, obs.MCMC.samplesize}{The \code{obs}
 versions of these arguments are for the unobserved data simulation
 algorithm.}
 

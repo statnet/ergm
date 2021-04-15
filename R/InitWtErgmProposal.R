@@ -59,7 +59,7 @@ InitWtErgmProposal.DistRLE <- function(arguments, nw) {
                         Unif = c(0, a, b),
                         DiscUnif = c(1, a, b),
                         StdNormal = c(2, 0, 1),
-                        Poisson = c(3, 0),
+                        Poisson = c(3, 1),
                         Binomial = c(4, trials, 0.5),
                         Bernoulli = c(4, 1, 0.5)))
   proposal <- list(name = "DistRLE", inputs=c(to_ergm_Cdouble(as.rlebdm(arguments$constraints)),inputs), pkgname="ergm")

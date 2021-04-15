@@ -433,6 +433,25 @@ static const double __ac_HASH_UPPER = 0.77;
 #define KHASH_INIT(name, khkey_t, khval_t, kh_is_map, __hash_func, __hash_equal, __extra_data) \
   KHASH_INIT2(name, static kh_inline klib_unused, khkey_t, khval_t, kh_is_map, __hash_func, __hash_equal, __extra_data)
 
+/* NB: note that macros __hash_func(key) and __hash_equal(key) can both access elements in __extra_data (and the hash object in general) as "h->".
+
+For example, if the key is a double* with fixed array length l, a hash set can be defined along the lines of:
+
+static kh_inline khint_t __kh_hash_dvec(double *x, size_t l){
+  ... implementation ...
+}
+#define kh_hash_dvec(key) __kh_hash_dvec(key, h->l)
+
+static kh_inline khint_t __kh_cmp_dvec(double *x, size_t l){
+  ... implementation ...
+}
+#define kh_cmp_dvec(key) __kh_cmp_dvec(key, h->l)
+
+KHASH_INIT(doublevec, double*, , false, kh_hash_dvec, kh_cmp_vec, size_t l)
+
+*/
+
+
 /* --- BEGIN OF HASH FUNCTIONS --- */
 
 /*! @function

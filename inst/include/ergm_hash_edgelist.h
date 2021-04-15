@@ -63,8 +63,8 @@ static inline void HashELDelete(Vertex tail, Vertex head, HashEL *hash) {
   UnsrtELDeleteAt(index, hash->list);
 }
 
-static inline void HashELToggleKnown(Vertex tail, Vertex head, HashEL *hash, int edgeflag) {
-  if(edgeflag) {
+static inline void HashELToggleKnown(Vertex tail, Vertex head, HashEL *hash, int edgestate) {
+  if(edgestate) {
     HashELDelete(tail, head, hash);
   } else {
     HashELInsert(tail, head, hash);
