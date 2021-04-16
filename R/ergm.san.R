@@ -106,8 +106,8 @@ san.default <- function(object,...)
 #'
 #' @templateVar mycontrol control.san
 #' @template control
+#' @template verbose
 #'
-#' @param verbose Logical or numeric giving the level of verbosity. Higher values produce more verbose output.
 #' @param offset.coef A vector of offset coefficients; these must be passed in by the user.  
 #' Note that these should be the same set of coefficients one would pass to \code{ergm} via 
 #' its \code{offset.coef} argument.

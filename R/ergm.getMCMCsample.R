@@ -24,10 +24,10 @@
 #'
 #' @templateVar mycontrols [control.ergm()], [control.simulate.ergm()], etc.
 #' @template control2
+#' @template verbose
 #'
 #' @param theta the (possibly curved) parameters of the model.
 #' @param eta the natural parameters of the model; by default constructed from `theta`.
-#' @param verbose verbosity level.
 #' @param ... additional arugments.
 #'
 #' @return

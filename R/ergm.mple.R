@@ -51,9 +51,8 @@
 #'
 #' @templateVar mycontrol control.ergm
 #' @template control
+#' @template verbose
 #'
-#' @param verbose whether this and the C routines should be verbose (T
-#'   or F); default=FALSE
 #' @param \dots additional parameters passed from within; all will be
 #'   ignored
 #' @return \code{ergm.mple} returns an ergm object as a list

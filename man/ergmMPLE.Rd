@@ -33,8 +33,11 @@ meaning. The more generic utility \code{\link[=snctrl]{snctrl()}} (StatNet ConTR
 also provides argument completion for the available control
 functions and limited argument name checking.}
 
-\item{verbose}{Logical; if \code{TRUE}, the program will print out some
-additional information.}
+\item{verbose}{A logical or an integer to control the amount of
+progress and diagnostic information to be printed. \code{FALSE}/\code{0}
+produces minimal output, wit higher values producing more
+detail. Note that very high values (5+) may significantly slow
+down processing.}
 
 \item{\dots}{Additional arguments, to be passed to lower-level functions.}
 }

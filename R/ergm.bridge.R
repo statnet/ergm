@@ -32,7 +32,7 @@
 #' @param basis An optional \code{\link[network]{network}} object to
 #'   start the Markov chain.  If omitted, the default is the
 #'   left-hand-side of the \code{object}.
-#' @param verbose Logical: If TRUE, print detailed information.
+#' @template verbose
 #' @param \dots Further arguments to \code{ergm.bridge.llr} and
 #'   \code{\link{simulate.formula.ergm}}.
 #' @param llronly Logical: If TRUE, only the estiamted log-ratio will

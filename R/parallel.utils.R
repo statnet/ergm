@@ -204,8 +204,7 @@ NULL
 #'   parameter values from which the parallel settings should be read;
 #'   can also be [`NULL`], in which case an existing cluster is used
 #'   if started, or no cluster otherwise.
-#' @param verbose logical, should detailed status info be printed to
-#'   console?
+#' @template verbose
 #' @param stop_on_exit An [`environment`] or `NULL`. If an
 #'   `environment`, defaulting to that of the calling function, the
 #'   cluster will be stopped when the calling the frame in question

@@ -79,10 +79,9 @@
 #'
 #' @templateVar mycontrol control.ergm
 #' @template control
-#'
-#' @param verbose Logical; if \code{TRUE}, the program will print out some
-#' additional information.
+#' @template verbose
 #' @template expand.bipartite
+#'
 #' @param \dots Additional arguments, to be passed to lower-level functions.
 #' @return
 #' 

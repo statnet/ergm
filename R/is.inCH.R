@@ -79,7 +79,7 @@
 #' @param p A \eqn{d}-dimensional vector or a matrix with \eqn{d} columns
 #' @param M An \eqn{r} by \eqn{d} matrix.  Each row of \code{M} is a
 #' \eqn{d}-dimensional vector.
-#' @param verbose A logical vector indicating whether to print progress
+#' @template verbose
 #' @param \dots arguments passed directly to linear program solver
 #' @return Logical, telling whether \code{p} is (or all rows of \code{p} are)
 #' in the closed convex hull of the points in \code{M}.

@@ -104,9 +104,8 @@
 #'
 #' @templateVar mycontrols [control.simulate.ergm()] or [control.simulate.formula()]
 #' @template control2
+#' @template verbose
 #'
-#' @param verbose Logical: If TRUE, extra information is printed as the Markov
-#' chain progresses.
 #' @param \dots Further arguments passed to or used by methods.
 #' 
 #' @param do.sim Logical: If `FALSE`, do not proceed to the simulation

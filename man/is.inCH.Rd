@@ -13,7 +13,11 @@ is.inCH(p, M, verbose = FALSE, ...)
 \item{M}{An \eqn{r} by \eqn{d} matrix.  Each row of \code{M} is a
 \eqn{d}-dimensional vector.}
 
-\item{verbose}{A logical vector indicating whether to print progress}
+\item{verbose}{A logical or an integer to control the amount of
+progress and diagnostic information to be printed. \code{FALSE}/\code{0}
+produces minimal output, wit higher values producing more
+detail. Note that very high values (5+) may significantly slow
+down processing.}
 
 \item{\dots}{arguments passed directly to linear program solver}
 }

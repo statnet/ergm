@@ -49,7 +49,11 @@ statistics are not returned.}
 \item{changes.only}{Whether to return network statistics or only
 their changes relative to the initial network.}
 
-\item{verbose}{Whether to print progress messages.}
+\item{verbose}{A logical or an integer to control the amount of
+progress and diagnostic information to be printed. \code{FALSE}/\code{0}
+produces minimal output, wit higher values producing more
+detail. Note that very high values (5+) may significantly slow
+down processing.}
 
 \item{control}{A list of control parameters for algorithm tuning,
 typically constructed with \code{\link[=control.ergm.godfather]{control.ergm.godfather()}}. Its documentation
