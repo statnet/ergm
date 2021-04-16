@@ -563,12 +563,12 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.NR.reltol=sqrt(.Machine$double.eps),
                        obs.MCMC.mul=1/4,
                        obs.MCMC.samplesize.mul=sqrt(obs.MCMC.mul),
-                       obs.MCMC.samplesize=round(MCMC.samplesize*obs.MCMC.samplesize.mul),
+                       obs.MCMC.samplesize=EVL(round(MCMC.samplesize*obs.MCMC.samplesize.mul)),
                        obs.MCMC.effectiveSize=NVL3(MCMC.effectiveSize, .*obs.MCMC.mul),
                        obs.MCMC.interval.mul=sqrt(obs.MCMC.mul),
-                       obs.MCMC.interval=round(MCMC.interval*obs.MCMC.interval.mul),
+                       obs.MCMC.interval=EVL(round(MCMC.interval*obs.MCMC.interval.mul)),
                        obs.MCMC.burnin.mul=sqrt(obs.MCMC.mul),
-                       obs.MCMC.burnin=round(MCMC.burnin*obs.MCMC.burnin.mul),
+                       obs.MCMC.burnin=EVL(round(MCMC.burnin*obs.MCMC.burnin.mul)),
                        obs.MCMC.prop=MCMC.prop, obs.MCMC.prop.weights=MCMC.prop.weights, obs.MCMC.prop.args=MCMC.prop.args,
                        obs.MCMC.impute.min_informative = function(nw) network.size(nw)/4,
                        obs.MCMC.impute.default_density = function(nw) 2/network.size(nw),
@@ -734,7 +734,7 @@ handle.control.toplevel<-function(myname, ...){
 }
 
 SCALABLE_MCMC_CONTROLS <- c("MCMC.burnin", "MCMC.interval")
-STATIC_MCMC_CONTROLS <- c("MCMC.samplesize", "MCMC.prop", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.maxedges", "term.options", "obs.MCMC.mul", "obs.MCMC.samplesize.mul", "obs.MCMC.samplesize", "obs.MCMC.interval.mul", "obs.MCMC.interval", "obs.MCMC.burnin.mul", "obs.MCMC.burnin", "obs.MCMC.prop", "obs.MCMC.prop.weights", "obs.MCMC.prop.args", "term.options")
+STATIC_MCMC_CONTROLS <- c("MCMC.samplesize", "MCMC.prop", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.maxedges", "term.options", "obs.MCMC.mul", "obs.MCMC.samplesize.mul", "obs.MCMC.samplesize", "obs.MCMC.interval.mul", "obs.MCMC.interval", "obs.MCMC.burnin.mul", "obs.MCMC.burnin", "obs.MCMC.prop", "obs.MCMC.prop.weights", "obs.MCMC.prop.args")
 ADAPTIVE_MCMC_CONTROLS <- c("MCMC.effectiveSize", "MCMC.effectiveSize.damp", "MCMC.effectiveSize.maxruns", "MCMC.effectiveSize.burnin.pval", "obs.MCMC.effectiveSize")
 PARALLEL_MCMC_CONTROLS <- c("parallel","parallel.type","parallel.version.check")
 MPLE_CONTROLS <- c("MPLE.max.dyad.types","MPLE.samplesize","MPLE.type","MPLE.maxit")

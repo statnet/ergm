@@ -1,6 +1,6 @@
 Package: ergm
-Version: 4.0-6118
-Date: 2021-03-13
+Version: 4.0-6185
+Date: 2021-04-16
 Title: Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
              person("Mark S.", "Handcock", role=c("aut"), email="handcock@stat.ucla.edu"),
@@ -18,38 +18,37 @@ Authors@R: c(
              person("Christian", "Schmid", role=c("ctb"), email="cxs5700@psu.edu"))
 Depends:
     R (>= 3.5),
-    network (>= 1.17)
+    network (>= 1.17.0)
 Imports:
-    robustbase (>= 0.93.5),
-    coda (>= 0.19.2),
-    trust (>= 0.1.7),
-    Matrix (>= 1.2.17),
-    lpSolveAPI (>= 5.5.2.0-17.7),
-    parallel,
-    methods,
-    MASS (>= 7.3.51.4),
+    robustbase (>= 0.93.7),
+    coda (>= 0.19.4),
+    trust (>= 0.1.8),
+    Matrix (>= 1.3.2),
+    lpSolveAPI (>= 5.5.2.0.17.7),
+    MASS (>= 7.3.53.1),
     statnet.common (>= 4.5.0),
-    rle,
-    purrr (>= 0.3.2),
-    rlang (>= 0.3.4),
-    dplyr,
-    memoise,
-    tibble (>= 2.1.1)
+    rle (>= 0.9.2),
+    purrr (>= 0.3.4),
+    rlang (>= 0.4.10),
+    memoise (>= 2.0.0),
+    tibble (>= 3.1.0),
+    parallel,
+    methods
 Suggests:
-    lattice (>= 0.20.38),
-    latticeExtra (>= 0.6.28),
-    sna (>= 2.4),
-    snow,
-    latentnet (>= 2.9.0),
-    rmarkdown (>= 1.12),
-    knitr (>= 1.22),
-    Rmpi (>= 0.6.9),
-    testthat (>= 2.1.1),
-    magrittr,
-    tergm,
+    lattice (>= 0.20.41),
+    latticeExtra (>= 0.6.29),
+    sna (>= 2.6),
+    snow (>= 0.4.3),
+    latentnet (>= 2.10.5),
+    rmarkdown,
+    knitr,
+    Rmpi (>= 0.6.9.1),
+    testthat (>= 3.0.2),
+    magrittr (>= 2.0.1),
+    tergm (>= 4.0.0),
     ergm.count (>= 4.0),
-    ergm.userterms,
-    networkDynamic
+    ergm.userterms (>= 3.10.0),
+    networkDynamic (>= 0.10.1)
 SystemRequirements: OpenMPI
 BugReports: https://github.com/statnet/ergm/issues
 Description: An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGMs). 'ergm' is a part of the Statnet suite of packages for network analysis.

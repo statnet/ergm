@@ -166,10 +166,11 @@ meaning. The more generic utility \code{\link[=snctrl]{snctrl()}} (StatNet ConTR
 also provides argument completion for the available control
 functions and limited argument name checking.}
 
-\item{verbose}{A \code{logical} or an integer: if this is
-\code{TRUE}/\code{1}, the program will print out additional
-information about the progress of estimation and
-simulation. Higher values produce more verbosity.}
+\item{verbose}{A logical or an integer to control the amount of
+progress and diagnostic information to be printed. \code{FALSE}/\code{0}
+produces minimal output, wit higher values producing more
+detail. Note that very high values (5+) may significantly slow
+down processing.}
 
 \item{\dots}{Additional
 arguments, to be passed to lower-level functions.}

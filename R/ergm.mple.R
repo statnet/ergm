@@ -51,6 +51,7 @@
 #'
 #' @templateVar mycontrol control.ergm
 #' @template control
+#' @template verbose
 #'
 #' @param verbose whether this and the C routines should be verbose (T
 #'   or F); default=FALSE

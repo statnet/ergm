@@ -41,10 +41,10 @@
 #'   statistics are not returned.
 #' @param changes.only Whether to return network statistics or only
 #'   their changes relative to the initial network.
-#' @param verbose Whether to print progress messages.
 #'
 #' @templateVar mycontrol control.ergm.godfather
 #' @template control
+#' @template verbose
 #'
 #' @return If \code{end.network==FALSE} (the default), an
 #'   \code{\link{mcmc}} object with the requested network statistics

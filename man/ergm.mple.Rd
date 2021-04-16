@@ -58,8 +58,11 @@ meaning. The more generic utility \code{\link[=snctrl]{snctrl()}} (StatNet ConTR
 also provides argument completion for the available control
 functions and limited argument name checking.}
 
-\item{verbose}{whether this and the C routines should be verbose (T
-or F); default=FALSE}
+\item{verbose}{A logical or an integer to control the amount of
+progress and diagnostic information to be printed. \code{FALSE}/\code{0}
+produces minimal output, wit higher values producing more
+detail. Note that very high values (5+) may significantly slow
+down processing.}
 
 \item{nw.network}{response \code{\link{network}}}
 

@@ -47,7 +47,7 @@ InitErgmProposal.randomtoggle <- function(arguments, nw){
   list(name = "randomtoggle", dyadgen = ergm_dyadgen_select(arguments, nw))
 }
 
-InitErgmProposal.TNT <- function(arguments, nw){
+InitErgmProposal.TNT <- function(nw, arguments, ...){
   list(name = "TNT", dyadgen = ergm_dyadgen_select(arguments, nw))
 }
 
@@ -62,7 +62,7 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
 
   # if blocks has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
   if(is.null(arguments$constraints$blocks) || any(!unlist(lapply(arguments[c("blocks_attr", "levels", "levels2", "b1levels", "b2levels")], is.null)))) {
-    arguments$constraints$blocks <- InitErgmConstraint.blocks(nw, attr = arguments[["blocks_attr"]], levels = arguments[["levels"]], levels2 = NVL(arguments[["levels2"]], FALSE), b1levels = arguments[["b1levels"]], b2levels = arguments[["b2levels"]])
+    arguments$constraints$blocks <- InitErgmConstraint.blocks(nw, list(attr = arguments[["blocks_attr"]], levels = arguments[["levels"]], levels2 = NVL(arguments[["levels2"]], FALSE), b1levels = arguments[["b1levels"]], b2levels = arguments[["b2levels"]]))
   }
 
   # check for old name
@@ -72,7 +72,7 @@ InitErgmProposal.BDStratTNT <- function(arguments, nw) {
 
   # if strat has not already been initialized, or if related arguments are passed directly to the proposal, (re)initialize it now
   if(is.null(arguments$constraints$strat) || any(!unlist(lapply(arguments[c("strat_attr", "pmat", "empirical")], is.null)))) {
-    arguments$constraints$strat <- InitErgmConstraint.strat(nw, attr = arguments[["strat_attr"]], pmat = arguments[["pmat"]], empirical = arguments[["empirical"]])
+    arguments$constraints$strat <- InitErgmConstraint.strat(nw, list(attr = arguments[["strat_attr"]], pmat = arguments[["pmat"]], empirical = NVL(arguments[["empirical"]],FALSE)))
   }
 
   nodecov <- arguments$constraints$blocks$nodecov

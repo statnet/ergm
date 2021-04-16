@@ -27,9 +27,9 @@ MCMCStatus Godfather(ErgmState *s, Edge n_changes, Vertex *tails, Vertex *heads,
       continue;
     }
     
-    Rboolean edgeflag = IS_OUTEDGE(t,h);
+    Rboolean edgestate = IS_OUTEDGE(t,h);
     if(weights){
-      if(edgeflag==weights[e])
+      if(edgestate==weights[e])
 	continue;
     }
 
@@ -37,7 +37,7 @@ MCMCStatus Godfather(ErgmState *s, Edge n_changes, Vertex *tails, Vertex *heads,
 	if(mtp->c_func){
 	  ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(t, h,
-			   mtp, nwp, edgeflag);  /* Call c_??? function */
+			   mtp, nwp, edgestate);  /* Call c_??? function */
 	}else if(mtp->d_func){
 	  (*(mtp->d_func))(1, &t, &h,
 			   mtp, nwp);  /* Call d_??? function */
@@ -46,7 +46,7 @@ MCMCStatus Godfather(ErgmState *s, Edge n_changes, Vertex *tails, Vertex *heads,
       });
 
     /* Update network */
-    ToggleKnownEdge(t, h, nwp, edgeflag);
+    ToggleKnownEdge(t, h, nwp, edgestate);
   } 
 
   return MCMC_OK;

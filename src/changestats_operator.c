@@ -25,7 +25,7 @@ D_CHANGESTAT_FN(d_passthrough_term){
 C_CHANGESTAT_FN(c_passthrough_term){
   GET_STORAGE(Model, m);
 
-  ChangeStats1(tail, head, nwp, m, edgeflag);
+  ChangeStats1(tail, head, nwp, m, edgestate);
 
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
@@ -92,7 +92,7 @@ U_CHANGESTAT_FN(u__summary_term){
   GET_STORAGE(Model, m);
   GET_AUX_STORAGE(double, stats);
 
-  ChangeStats1(tail, head, nwp, m, edgeflag);
+  ChangeStats1(tail, head, nwp, m, edgestate);
   addonto(stats, m->workspace, m->n_stats);
 }
 
@@ -146,7 +146,7 @@ U_CHANGESTAT_FN(u__submodel_and_summary_term){
   GET_AUX_STORAGE(StoreModelAndStats, storage);
   Model *m = storage->m;
 
-  ChangeStats1(tail, head, nwp, m, edgeflag);
+  ChangeStats1(tail, head, nwp, m, edgestate);
   addonto(storage->stats, m->workspace, m->n_stats);
 }
 
@@ -192,7 +192,7 @@ C_CHANGESTAT_FN(c_Sum){
 
   for(unsigned int i=0; i<nms; i++){
     Model *m = ms[i];
-    ChangeStats1(tail, head, nwp, m, edgeflag);
+    ChangeStats1(tail, head, nwp, m, edgestate);
     for(unsigned int j=0; j<m->n_stats; j++)
       for(unsigned int k=0; k<N_CHANGE_STATS; k++)
 	CHANGE_STAT[k] += m->workspace[j]* *(wts++);

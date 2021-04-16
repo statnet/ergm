@@ -59,13 +59,12 @@
 #'
 #' @templateVar mycontrols [control.gof.formula()] or [control.gof.ergm()]
 #' @template control2
+#' @template verbose
 #'
 #' @param unconditional logical; if \code{TRUE}, the simulation is
 #' unconditional on the observed dyads.  if not \code{TRUE}, the simulation is
 #' conditional on the observed dyads. This is primarily used internally when
 #' the network has missing data and a conditional GoF is produced.
-#' @param verbose Provide verbose information on the progress of the
-#' simulation.
 #' @return \code{\link{gof}}, \code{\link{gof.ergm}}, and
 #' \code{\link{gof.formula}} return an object of class \code{gof.ergm}, which inherits from class `gof`.  This
 #' is a list of the tables of statistics and \eqn{p}-values.  This is typically
@@ -236,7 +235,7 @@ gof.formula <- function(object, ...,
 
   proposal <- if(inherits(constraints, "ergm_proposal")) constraints
                 else ergm_proposal(constraints,arguments=control$MCMC.prop.args,
-                                   nw=nw, weights=control$MCMC.prop.weights, class="c"## ,reference=reference
+                                   nw=nw, weights=control$MCMC.prop.weights, class="c", term.options=control$term.options## ,reference=reference
                                    )
 
   if(is.null(coef)){

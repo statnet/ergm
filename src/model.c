@@ -323,14 +323,14 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
   /* Make a pass through terms with c_functions. */
   int toggle;
   FOR_EACH_TOGGLE(toggle){
-    Rboolean edgeflag = IS_OUTEDGE(tails[toggle], heads[toggle]);
+    Rboolean edgestate = IS_OUTEDGE(tails[toggle], heads[toggle]);
 
     ergm_PARALLEL_FOR_LIMIT(m->n_terms)    
     EXEC_THROUGH_TERMS_INTO(m, m->workspace, {
 	if(mtp->c_func){
 	  if(ntoggles!=1) ZERO_ALL_CHANGESTATS();
 	  (*(mtp->c_func))(tails[toggle], heads[toggle],
-			   mtp, nwp, edgeflag);  /* Call d_??? function */
+			   mtp, nwp, edgestate);  /* Call d_??? function */
 	  if(ntoggles!=1){
             addonto(dstats, mtp->dstats, N_CHANGE_STATS);
 	  }
@@ -339,7 +339,7 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
 
     /* Execute storage updates */
     IF_MORE_TO_COME(toggle){
-      TOGGLE_KNOWN(tails[toggle],heads[toggle], edgeflag);
+      TOGGLE_KNOWN(tails[toggle],heads[toggle], edgestate);
     }
   }
   /* Undo previous storage updates and toggles */
@@ -353,7 +353,7 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
   A simplified version of WtChangeStats for exactly one change.
 */
 void ChangeStats1(Vertex tail, Vertex head,
-                  Network *nwp, Model *m, Rboolean edgeflag){
+                  Network *nwp, Model *m, Rboolean edgestate){
   memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */
 
   /* Make a pass through terms with c_functions. */
@@ -362,7 +362,7 @@ void ChangeStats1(Vertex tail, Vertex head,
         mtp->dstats = dstats; /* Stuck the change statistic here.*/
         if(mtp->c_func){
           (*(mtp->c_func))(tail, head,
-                           mtp, nwp, edgeflag);  /* Call c_??? function */
+                           mtp, nwp, edgestate);  /* Call c_??? function */
         }else if(mtp->d_func){
           (*(mtp->d_func))(1, &tail, &head,
                            mtp, nwp);  /* Call d_??? function */

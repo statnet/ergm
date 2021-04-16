@@ -43,10 +43,6 @@
 #  ...and if the minimum is strictly negative, return FALSE because the point
 #  is not in the CH in that case.
 
-## Note: p can be a matrix. In that case, every row of p is checked.
-
-is.inCH_message_periodic <- once(message, expire_after=20)
-
 #' Determine whether a vector is in the closure of the convex hull of some
 #' sample of vectors
 #' 
@@ -83,7 +79,7 @@ is.inCH_message_periodic <- once(message, expire_after=20)
 #' @param p A \eqn{d}-dimensional vector or a matrix with \eqn{d} columns
 #' @param M An \eqn{r} by \eqn{d} matrix.  Each row of \code{M} is a
 #' \eqn{d}-dimensional vector.
-#' @param verbose A logical vector indicating whether to print progress
+#' @template verbose
 #' @param \dots arguments passed directly to linear program solver
 #' @return Logical, telling whether \code{p} is (or all rows of \code{p} are)
 #' in the closed convex hull of the points in \code{M}.
@@ -100,111 +96,40 @@ is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly 
 
   if (!is.matrix(M)) 
     stop("Second argument must be a matrix.")
-  if (ncol(p) != ncol(M)) 
+  if ((d <- ncol(p)) != ncol(M))
     stop("Number of columns in matrix (2nd argument) is not equal to dimension ",
          "of first argument.")
 
-  if(nrow(M)==1){
+  if((n <- nrow(M)) == 1L){
     for(i in seq_len(nrow(p))){
       if(!isTRUE(all.equal(p[i,], M, check.attributes = FALSE))) return(FALSE)
     }
     return(TRUE)
   }
 
-  ##
-  ## NOTE: PCA code has been moved to .Hummel.steplength().
-  ##
+  #' @importFrom lpSolveAPI make.lp set.column set.objfn set.constr.type set.rhs set.bounds get.objective
 
-  if(getRversion()=="3.6.0" && .Platform$OS.type=="unix") is.inCH_message_periodic("NOTE: Messages ",sQuote("Error in mcexit(0L)..."), " may appear; please disregard them.")
+  # Set up the optimisation problem: the following are common for all rows of p.
+  L <- cbind(1, M)
+  lprec <- make.lp(n, d+1)
+  for(k in seq_len(d+1)) set.column(lprec, k, L[,k])
+  set.constr.type(lprec, rep.int(2L, n)) # 2 = ">="
+  set.rhs(lprec,  numeric(n))
+  set.bounds(lprec, lower = rep.int(-1, d+1L), upper = rep.int(1, d+1L))
 
-  timeout <- 1
-  for(i in seq_len(nrow(p))){
-    ############################################
-    # USE lpSolveAPI PACKAGE:
-    #' @importFrom lpSolveAPI make.lp set.column set.objfn set.constr.type set.rhs set.bounds get.objective
+  for(i in seq_len(nrow(p))){ # Iterate over test points.
 
-    ## This works around what appears to be a bug in lpsolve library
-    ## that causes the process the process to reproducibly hang on
-    ## some inputs. After a time limit, the call is terminated and
-    ## re-attempted after randomly shifting p and M (preserving
-    ## whether one is in the convex hull of the other).
+    # Set the objective function in terms of p and solve the problem.
+    set.objfn(lprec, c(1, p[i,]))
+    solve(lprec)
 
-    ## TODO: Parametrize the timeout settings and/or figure out what's
-    ## wrong with lpSolve().
-
-    repeat{
-      # ## New code using R package lpSolveAPI by column
-      ans <- forkTimeout({
-        L <- cbind(1, M)
-        q <- c(1, p[i,])
-        lprec <- make.lp(nrow=NROW(L), ncol=length(q)) # set constraint and decision variables
-        for(k in 1:length(c(q))){
-          set.column(lprec, k, L[,k])
-        }
-        set.objfn(lprec, c( q) )
-        set.constr.type(lprec, rep(">=", NROW(L)))
-        set.rhs(lprec,  rep(0, NROW(L)))
-        set.bounds(lprec, lower = rep(-1, length(c(q))), upper = rep(1, length(c(q))))
-        solve(lprec) # solve problem
-        get.objective(lprec)# get the value of the objective function
-      }, timeout=timeout, unsupported="silent", onTimeout=list(objval=NA))
-
-      if(is.na(ans)){
-        # Perturb p and M.
-        shift <- rnorm(1)
-        M <- M + shift
-        p <- p + shift
-        # Increase timeout, in case it's actually a difficult problem.
-        timeout <- timeout*2
-      }else{
-        # Reduce the timeout by a little bit.
-        timeout <- max(timeout/2^(1/5),1)
-        break
-      }
+    # If the objective function (min) is not zero, the point p[i,] is not in the CH of M.
+    if(get.objective(lprec)){
+      if(verbose>1) message(sprintf("is.inCH: iter= %d, outside hull.",i))
+      return(FALSE)
     }
-
-   if(ans!=0){
-    if(verbose>1) message(sprintf("is.inCH: iter= %d, outside hull.",i))
-    return(FALSE)  #if the min is not zero, the point p[i,] is not in the CH of the points M
-   }
   }
+
   if(verbose>1) message(sprintf("is.inCH: iter= %d, inside hull.",i))
   return(TRUE) # If all points passed the test, return TRUE.
-
-## Old code using R-package lpSolve
-#    ans <- forkTimeout({
-#      L <- cbind(1, M)
-#      q <- c(1, p[i,])
-#      lp(objective.in = c(-q, q),
-#          const.mat = rbind( c(q, -q), cbind(L, -L)),
-#          const.dir = "<=",
-#          const.rhs = c(1, rep(0, NROW(L))),
-#          ...
-#          )
-#    }, timeout=timeout, unsupported="silent", onTimeout=list(objval=NA)) #if time out, return NA
-
-##############################################
-## USE solveLP FUNCTION FROM linprog PACKAGE (deprecated)
-## From help for function 'solveLP' in package 'linprog':
-##     Minimizes (or maximizes) c'x, subject to A x <= b and x >= 0.
-#  ans <- solveLP (cvec = c(-q, q),
-#                  bvec = c(1, rep(0, NROW(L))),
-#                  Amat= rbind( c(q, -q), cbind(L, -L)),
-#                  ...
-#                  )
-#  if(ans$opt==0)return(TRUE)  #if the min is zero, the point p is in the CH of the points M
-#  else return(FALSE)              
-
-### OLD CODE USING Rglpk PACKAGE (deprecated)
-#  R = NROW(M)
-#  C=length(p)+1
-#	ans <- Rglpk_solve_LP(obj=c(p,-1), 
-#	                      mat=cbind(rbind(p,M),-1),
-#	                      dir=as.vector(rep("<=",R+1)), 
-#	                      rhs=as.vector(c(1,rep(0,R))),
-#	                      max=TRUE, 
-#	                      bounds=list(lower=list(ind=1:C,val=rep(-Inf,C))))
-#  if(ans$optimum==0)return(TRUE)  #if the max is zero, the point p is in the CH of the points M
-#  else return(FALSE)
-
 }

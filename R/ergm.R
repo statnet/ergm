@@ -225,11 +225,7 @@
 #'
 #' @templateVar mycontrol control.ergm
 #' @template control
-#'
-#' @param verbose A `logical` or an integer: if this is
-#'   \code{TRUE}/\code{1}, the program will print out additional
-#'   information about the progress of estimation and
-#'   simulation. Higher values produce more verbosity.
+#' @template verbose
 #'
 #' @param \dots Additional
 #' arguments, to be passed to lower-level functions.
@@ -576,7 +572,7 @@ ergm <- function(formula, response=NULL,
     warn(paste0("The default Bernoulli reference distribution operates in the binary (",sQuote("response=NULL"),") mode only. Did you specify the ",sQuote("reference")," argument?"))
   }
     
-    proposal <- ergm_proposal(constraints, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference)
+    proposal <- ergm_proposal(constraints, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference, term.options=control$term.options)
   }else proposal <- constraints
   
   if (verbose) message(sQuote(paste0(proposal$pkgname,":MH_",proposal$name)),".")
@@ -589,7 +585,7 @@ ergm <- function(formula, response=NULL,
   if(!is(obs.constraints, "ergm_proposal")){
     if(!is.null(constraints.obs)){
       if (verbose) message("Initializing constrained Metropolis-Hastings proposal: ", appendLF=FALSE)
-      proposal.obs <- ergm_proposal(constraints.obs, hints=control$obs.MCMC.prop, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference)
+      proposal.obs <- ergm_proposal(constraints.obs, hints=control$obs.MCMC.prop, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, term.options=control$term.options)
       if (verbose) message(sQuote(paste0(proposal.obs$pkgname,":MH_",proposal.obs$name)), appendLF=FALSE)
       
       if(!is.null(proposal.obs$auxiliaries)){
@@ -897,7 +893,7 @@ ergm <- function(formula, response=NULL,
   mainfit$obs.constraints <- obs.constraints
   
   # unless the main fitting algorithm passes back a modified control
-  if (is.null(mainfit$control)) mainfit$control<-control
+  NVL(mainfit$control) <- control
   
   mainfit$reference<-reference
   mainfit$estimate <- estimate

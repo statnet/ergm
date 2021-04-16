@@ -106,8 +106,8 @@ san.default <- function(object,...)
 #'
 #' @templateVar mycontrol control.san
 #' @template control
+#' @template verbose
 #'
-#' @param verbose Logical or numeric giving the level of verbosity. Higher values produce more verbose output.
 #' @param offset.coef A vector of offset coefficients; these must be passed in by the user.  
 #' Note that these should be the same set of coefficients one would pass to \code{ergm} via 
 #' its \code{offset.coef} argument.
@@ -199,7 +199,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   tmp <- .handle.auto.constraints(nw, constraints, NULL, NULL)
   nw <- tmp$nw; constraints <- tmp$constraints
 
-  proposal<-ergm_proposal(constraints,arguments=control$SAN.prop.args,nw=nw, hints=control$SAN.prop, weights=control$SAN.prop.weights, class="c",reference=reference)
+  proposal<-ergm_proposal(constraints,arguments=control$SAN.prop.args,nw=nw, hints=control$SAN.prop, weights=control$SAN.prop.weights, class="c",reference=reference, term.options=control$term.options)
   model <- ergm_model(formula, nw, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
   proposal$aux.slots <- model$slots.extra.aux$proposal
 
@@ -270,7 +270,7 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
                 tmp <- .handle.auto.constraints(nw, constraints, NULL, NULL)
                 nw <- tmp$nw; constraints <- tmp$constraints
                 ergm_proposal(constraints,arguments=control$SAN.prop.args,
-                              nw=nw, hints=control$SAN.prop, weights=control$SAN.prop.weights, class="c",reference=reference)
+                              nw=nw, hints=control$SAN.prop, weights=control$SAN.prop.weights, class="c",reference=reference, term.options=control$term.options)
               }
 
   if(length(proposal$auxiliaries) && !length(model$slots.extra.aux$proposal))
@@ -301,7 +301,10 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
   netsumm<-summary(model,nw)[!offset.indicators]
   target.stats <- vector.namesmatch(target.stats, names(netsumm))
   stats <- netsumm-target.stats
-  control$invcov <- diag(1/(nparam(model, canonical=TRUE) - noffset), nparam(model, canonical=TRUE) - noffset)
+  invcov.dim <- nparam(model, canonical=TRUE) - noffset
+  NVL(control$SAN.invcov) <- diag(1/invcov.dim, invcov.dim)
+  if(!is.SPD(control$SAN.invcov) || nrow(control$SAN.invcov) != invcov.dim)
+    stop(sQuote("control$SAN.invcov"), " parameter should be a square matrix of dimension equal to the number of non-offset statistics")
 
   nstepss <-
     (if(is.function(control$SAN.nsteps.alloc)) control$SAN.nsteps.alloc(control$SAN.maxit) else control$SAN.nsteps.alloc) %>%
@@ -339,7 +342,7 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
     # Ensure no statistic has weight 0:
     diag(invcov)[abs(diag(invcov))<.Machine$double.eps] <- min(diag(invcov)[abs(diag(invcov))>=.Machine$double.eps],1)
     invcov <- invcov / sum(diag(invcov)) # Rescale for consistency.
-    control$invcov <- invcov
+    control$SAN.invcov <- invcov
     
     if(verbose){
       message("SAN summary statistics:")
@@ -349,7 +352,7 @@ san.ergm_model <- function(object, reference=~Bernoulli, constraints=~., target.
       message("Difference: SAN target.stats - Goal target.stats =")
       message_print(stats)
       message("New statistics scaling =")
-      message_print(diag(control$invcov))
+      message_print(diag(control$SAN.invcov))
       message("Scaled Mahalanobis distance = ", mahalanobis(stats, 0, invcov, inverted=TRUE))
     }
     
@@ -420,7 +423,7 @@ ergm_SAN_slave <- function(state, tau,control,verbose,..., nsteps=NULL, samplesi
             as.double(deInf(tau)),
             as.integer(samplesize),
             as.integer(nsteps),
-            as.double(control$invcov),
+            as.double(control$SAN.invcov),
             statindices=as.integer(statindices - 1),
             offsetindices=as.integer(offsetindices - 1),
             offsets=as.double(deInf(offsets)),
@@ -433,7 +436,7 @@ ergm_SAN_slave <- function(state, tau,control,verbose,..., nsteps=NULL, samplesi
             as.double(deInf(tau)),
             as.integer(samplesize),
             as.integer(nsteps),
-            as.double(control$invcov),
+            as.double(control$SAN.invcov),
             statindices=as.integer(statindices - 1),
             offsetindices=as.integer(offsetindices - 1),
             offsets=as.double(deInf(offsets)),

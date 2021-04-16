@@ -84,16 +84,16 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
   
   check.control.class("logLik.ergm", "logLik.ergm")
   handle.control.toplevel("logLik.ergm", ...)
- 
-  control.transfer <- c("MCMC.samplesize", SCALABLE_MCMC_CONTROLS, STATIC_MCMC_CONTROLS, PARALLEL_MCMC_CONTROLS, MPLE_CONTROLS)
+
+  bridge.names <- names(formals(control.ergm.bridge))
+  control.bridge <- control[intersect(bridge.names, names(control))]
+  control.transfer <- intersect(c("MCMC.samplesize", SCALABLE_MCMC_CONTROLS, STATIC_MCMC_CONTROLS, PARALLEL_MCMC_CONTROLS, MPLE_CONTROLS), bridge.names)
   for(arg in control.transfer)
-    if(is.null(control[[arg]]))
-      control[arg] <- list(object$control[[arg]])
+    if(is.null(control.bridge[[arg]]))
+      control.bridge[[arg]] <- object$control[[arg]]
 
   control.null <- control
-  control <- set.control.class("control.ergm.bridge")
-  # "object" has an element control.
-  loglik.control<-control
+  control.bridge <- do.call(control.ergm.bridge, control.bridge)
   
   out<-with(object,
             {
@@ -108,10 +108,10 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
     ## If dyad-dependent but not valued and has a dyad-independent constraint, bridge from a dyad-independent model.
     else if(is.dyad.independent(object$constrained, object$constrained.obs)
                    && !is.valued(object))
-      ergm.bridge.dindstart.llk(formula,reference=reference,constraints=constraints,obs.constraints=obs.constraints,coef=coef(object),target.stats=object$target.stats,control=loglik.control,llkonly=FALSE,...)
+      ergm.bridge.dindstart.llk(formula,reference=reference,constraints=constraints,obs.constraints=obs.constraints,coef=coef(object),target.stats=object$target.stats,control=control.bridge,llkonly=FALSE,...)
     ## If valued or has dyad-dependent constraint, bridge from the null model (reference measure).
     else
-      ergm.bridge.0.llk(formula,reference=reference,constraints=constraints,obs.constraints=obs.constraints,coef=coef(object),target.stats=object$target.stats,control=loglik.control,llkonly=FALSE,basis=object$network,...)
+      ergm.bridge.0.llk(formula,reference=reference,constraints=constraints,obs.constraints=obs.constraints,coef=coef(object),target.stats=object$target.stats,control=control.bridge,llkonly=FALSE,basis=object$network,...)
   }
   )
 

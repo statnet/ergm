@@ -104,9 +104,8 @@
 #'
 #' @templateVar mycontrols [control.simulate.ergm()] or [control.simulate.formula()]
 #' @template control2
+#' @template verbose
 #'
-#' @param verbose Logical: If TRUE, extra information is printed as the Markov
-#' chain progresses.
 #' @param \dots Further arguments passed to or used by methods.
 #' 
 #' @param do.sim Logical: If `FALSE`, do not proceed to the simulation
@@ -293,7 +292,7 @@ simulate_formula <- function(object, ..., basis=eval_lhs.formula(object)) {
   # auxiliary requests could be passed to ergm_model().
   proposal <- if(inherits(constraints, "ergm_proposal")) constraints
                 else ergm_proposal(constraints,arguments=if(observational) control$obs.MCMC.prop.args else control$MCMC.prop.args,
-                                   nw=nw, hints=if(observational) control$obs.MCMC.prop else control$MCMC.prop, weights=if(observational) control$obs.MCMC.prop.weights else control$MCMC.prop.weights, class="c",reference=reference)
+                                   nw=nw, hints=if(observational) control$obs.MCMC.prop else control$MCMC.prop, weights=if(observational) control$obs.MCMC.prop.weights else control$MCMC.prop.weights, class="c",reference=reference, term.options=control$term.options)
   
   # Prepare inputs to ergm.getMCMCsample
   m <- ergm_model(object, nw, extra.aux=list(proposal=proposal$auxiliaries), term.options=control$term.options)
@@ -410,7 +409,7 @@ simulate.ergm_model <- function(object, nsim=1, seed=NULL,
                 tmp <- .handle.auto.constraints(nw0, constraints[[1]], constraints[[2]], NULL)
                 nw0 <- tmp$nw; constraints <- if(observational) tmp$constraints.obs else tmp$constraints
                 ergm_proposal(constraints,arguments=control$MCMC.prop.args,
-                              nw=nw0, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, class="c",reference=reference)
+                              nw=nw0, hints=control$MCMC.prop, weights=control$MCMC.prop.weights, class="c",reference=reference, term.options=control$term.options)
               }
 
   if(length(proposal$auxiliaries) && !length(m$slots.extra.aux$proposal))

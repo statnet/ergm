@@ -11,7 +11,14 @@
 \usage{
 ergm_proposal(object, ...)
 
-\method{ergm_proposal}{character}(object, arguments, nw, ..., reference = ~Bernoulli)
+\method{ergm_proposal}{character}(
+  object,
+  arguments,
+  nw,
+  ...,
+  reference = ~Bernoulli,
+  term.options = list()
+)
 
 \method{ergm_proposal}{formula}(
   object,
@@ -21,7 +28,8 @@ ergm_proposal(object, ...)
   weights = "default",
   class = "c",
   reference = ~Bernoulli,
-  ...
+  ...,
+  term.options = list()
 )
 
 \method{ergm_proposal}{ergm}(
@@ -50,6 +58,8 @@ via 'formula'}
 the reference measure (\eqn{h(y)}) to be used.
 See help for \link[=ergm-references]{ERGM reference measures} implemented in the
 \strong{\link[=ergm-package]{ergm}} package.}
+
+\item{term.options}{A list of additional arguments to be passed to term initializers. See \code{\link[=term.options]{? term.options}}.}
 
 \item{weights}{Specifies the method used to allocate probabilities of being
 proposed to dyads; options are "TNT", "StratTNT", "TNT10", "random", "nonobserved" and

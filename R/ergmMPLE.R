@@ -79,10 +79,9 @@
 #'
 #' @templateVar mycontrol control.ergm
 #' @template control
-#'
-#' @param verbose Logical; if \code{TRUE}, the program will print out some
-#' additional information.
+#' @template verbose
 #' @template expand.bipartite
+#'
 #' @param \dots Additional arguments, to be passed to lower-level functions.
 #' @return
 #' 
@@ -196,14 +195,14 @@ ergmMPLE <- function(formula, constraints=~., obs.constraints=~-observed, fitmod
     conlist <- prune.ergm_conlist(control$MCMC.prop.args$constraints)
     class(conlist) <- "ergm_conlist"
   }else{
-    conlist <- ergm_conlist(constraints, nw)
+    conlist <- ergm_conlist(constraints, nw, term.options=control$term.options)
   }
 
   if("constraints" %in% names(control$obs.MCMC.prop.args)){
     conlist.obs <- prune.ergm_conlist(control$obs.MCMC.prop.args$constraints)
     class(conlist.obs) <- "ergm_conlist"
   }else{
-    conlist.obs <- ergm_conlist(constraints.obs, nw)
+    conlist.obs <- ergm_conlist(constraints.obs, nw, term.options=control$term.options)
   }
 
   fd <- as.rlebdm(conlist, conlist.obs, which="informative")

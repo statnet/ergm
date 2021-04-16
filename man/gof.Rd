@@ -86,8 +86,11 @@ control parameters and their meaning. The more generic utility
 for the available control functions and limited argument name
 checking.}
 
-\item{verbose}{Provide verbose information on the progress of the
-simulation.}
+\item{verbose}{A logical or an integer to control the amount of
+progress and diagnostic information to be printed. \code{FALSE}/\code{0}
+produces minimal output, wit higher values producing more
+detail. Note that very high values (5+) may significantly slow
+down processing.}
 
 \item{unconditional}{logical; if \code{TRUE}, the simulation is
 unconditional on the observed dyads.  if not \code{TRUE}, the simulation is

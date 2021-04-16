@@ -24,7 +24,7 @@ WtD_CHANGESTAT_FN(d_wtpassthrough_term){
 WtC_CHANGESTAT_FN(c_wtpassthrough_term){
   GET_STORAGE(WtModel, m);
 
-  WtChangeStats1(tail, head, weight, nwp, m, edgeweight);
+  WtChangeStats1(tail, head, weight, nwp, m, edgestate);
 
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
 }
@@ -72,7 +72,7 @@ WtC_CHANGESTAT_FN(c_import_binary_term_sum){
   ChangeStats1(tail, head, mynwp, m, FALSE); // mynwp is a dummy network that is always empty.
 
   for(unsigned int i=0; i<N_CHANGE_STATS; i++)
-    CHANGE_STAT[i] = m->workspace[i]*(weight-edgeweight);
+    CHANGE_STAT[i] = m->workspace[i]*(weight-edgestate);
 }
 
 /* WtZ_CHANGESTAT_FN(z_import_binary_term_sum) is not meaningful. */
@@ -108,8 +108,8 @@ WtC_CHANGESTAT_FN(c_import_binary_term_nonzero){
   GET_STORAGE(Model, m);
   
 
-  if((weight!=0)!=(edgeweight!=0)){ // If going from 0 to nonzero or vice versa...
-    ChangeStats1(tail, head, bnwp, m, edgeweight!=0);
+  if((weight!=0)!=(edgestate!=0)){ // If going from 0 to nonzero or vice versa...
+    ChangeStats1(tail, head, bnwp, m, edgestate!=0);
   }
   
   memcpy(CHANGE_STAT, m->workspace, N_CHANGE_STATS*sizeof(double));
@@ -157,7 +157,7 @@ WtC_CHANGESTAT_FN(c_import_binary_term_form){
   Network *bnwp = storage->nwp;
   GET_STORAGE(Model, m);
 
-  WtChangeStats1(tail, head, weight, nwp, storage->m, edgeweight);
+  WtChangeStats1(tail, head, weight, nwp, storage->m, edgestate);
   
   if(*(storage->m->workspace)!=0){ // If the binary view changes...
     ChangeStats1(tail, head, bnwp, m, IS_OUTEDGE(tail, head, bnwp));
@@ -200,7 +200,7 @@ WtI_CHANGESTAT_FN(i__binary_nonzero_net){
 WtU_CHANGESTAT_FN(u__binary_nonzero_net){
   GET_AUX_STORAGE(Network, bnwp);
 
-  if((weight!=0)!=(edgeweight!=0)){ // If going from 0 to nonzero or vice versa...
+  if((weight!=0)!=(edgestate!=0)){ // If going from 0 to nonzero or vice versa...
     ToggleEdge(tail, head, bnwp);
   }
 }
@@ -246,7 +246,7 @@ WtU_CHANGESTAT_FN(u__binary_formula_net){
   WtModel *m = storage->m;
   Network *bnwp = storage->nwp;
 
-  WtChangeStats1(tail, head, weight, nwp, m, edgeweight);
+  WtChangeStats1(tail, head, weight, nwp, m, edgestate);
   switch((int) *(m->workspace)){
   case  0: break;
   case -1: DeleteEdgeFromTrees(tail,head,bnwp); break;
@@ -285,7 +285,7 @@ WtU_CHANGESTAT_FN(u__wtsubmodel_and_summary_term){
   GET_AUX_STORAGE(StoreWtModelAndStats, storage);
   WtModel *m = storage->m;
 
-  WtChangeStats1(tail, head, weight, nwp, m, edgeweight);
+  WtChangeStats1(tail, head, weight, nwp, m, edgestate);
   addonto(storage->stats, m->workspace, m->n_stats);
 }
 
@@ -332,7 +332,7 @@ WtC_CHANGESTAT_FN(c_wtSum){
 
   for(unsigned int i=0; i<nms; i++){
     WtModel *m = ms[i];
-    WtChangeStats1(tail, head, weight, nwp, m, edgeweight);
+    WtChangeStats1(tail, head, weight, nwp, m, edgestate);
     for(unsigned int j=0; j<m->n_stats; j++)
       for(unsigned int k=0; k<N_CHANGE_STATS; k++)
 	CHANGE_STAT[k] += m->workspace[j]* *(wts++);

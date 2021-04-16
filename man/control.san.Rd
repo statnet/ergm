@@ -37,8 +37,8 @@ set to \verb{SAN.tau*(iterations left after this one)}.}
 \item{SAN.invcov}{Initial inverse covariance matrix used to
 calculate Mahalanobis distance in determining how far a proposed
 MCMC move is from the \code{target.stats} vector.  If \code{NULL},
-initially set to the identity matrix, then during subsequent runs
-estimated empirically.}
+initially set to the identity matrix. In either case, during
+subsequent runs, it is estimated empirically.}
 
 \item{SAN.invcov.diag}{Whether to only use the diagonal of the
 covariance matrix. It seems to work better in practice.}

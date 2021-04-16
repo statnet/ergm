@@ -99,7 +99,7 @@ void WtModelDestroy(WtNetwork *nwp, WtModel *m);
    to an array of WtModelTerm structures.  */
 
 void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, WtModel *m);
-void WtChangeStats1(Vertex tail, Vertex head, double weight, WtNetwork *nwp, WtModel *m, double edgeweight);
+void WtChangeStats1(Vertex tail, Vertex head, double weight, WtNetwork *nwp, WtModel *m, double edgestate);
 void WtZStats(WtNetwork *nwp, WtModel *m, Rboolean skip_s);
 void WtEmptyNetworkStats(WtModel *m, Rboolean skip_s);
 void WtSummStats(Edge n_edges, Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, WtModel *m);
