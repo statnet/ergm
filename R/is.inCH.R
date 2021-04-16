@@ -96,44 +96,40 @@ is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly 
 
   if (!is.matrix(M)) 
     stop("Second argument must be a matrix.")
-  if (ncol(p) != ncol(M)) 
+  if ((d <- ncol(p)) != ncol(M))
     stop("Number of columns in matrix (2nd argument) is not equal to dimension ",
          "of first argument.")
 
-  if(nrow(M)==1){
+  if((n <- nrow(M)) == 1L){
     for(i in seq_len(nrow(p))){
       if(!isTRUE(all.equal(p[i,], M, check.attributes = FALSE))) return(FALSE)
     }
     return(TRUE)
   }
 
-  ##
-  ## NOTE: PCA code has been moved to .Hummel.steplength().
-  ##
+  #' @importFrom lpSolveAPI make.lp set.column set.objfn set.constr.type set.rhs set.bounds get.objective
 
-  for(i in seq_len(nrow(p))){
-    ############################################
-    # USE lpSolveAPI PACKAGE:
-    #' @importFrom lpSolveAPI make.lp set.column set.objfn set.constr.type set.rhs set.bounds get.objective
+  # Set up the optimisation problem: the following are common for all rows of p.
+  L <- cbind(1, M)
+  lprec <- make.lp(n, d+1)
+  for(k in seq_len(d+1)) set.column(lprec, k, L[,k])
+  set.constr.type(lprec, rep.int(2L, n)) # 2 = ">="
+  set.rhs(lprec,  numeric(n))
+  set.bounds(lprec, lower = rep.int(-1, d+1L), upper = rep.int(1, d+1L))
 
-        L <- cbind(1, M)
-        q <- c(1, p[i,])
-        lprec <- make.lp(nrow=NROW(L), ncol=length(q)) # set constraint and decision variables
-        for(k in 1:length(c(q))){
-          set.column(lprec, k, L[,k])
-        }
-        set.objfn(lprec, c( q) )
-        set.constr.type(lprec, rep(">=", NROW(L)))
-        set.rhs(lprec,  rep(0, NROW(L)))
-        set.bounds(lprec, lower = rep(-1, length(c(q))), upper = rep(1, length(c(q))))
-        solve(lprec) # solve problem
-        ans <- get.objective(lprec)# get the value of the objective function
+  for(i in seq_len(nrow(p))){ # Iterate over test points.
 
-   if(ans!=0){
-    if(verbose>1) message(sprintf("is.inCH: iter= %d, outside hull.",i))
-    return(FALSE)  #if the min is not zero, the point p[i,] is not in the CH of the points M
-   }
+    # Set the objective function in terms of p and solve the problem.
+    set.objfn(lprec, c(1, p[i,]))
+    solve(lprec)
+
+    # If the objective function (min) is not zero, the point p[i,] is not in the CH of M.
+    if(get.objective(lprec)){
+      if(verbose>1) message(sprintf("is.inCH: iter= %d, outside hull.",i))
+      return(FALSE)
+    }
   }
+
   if(verbose>1) message(sprintf("is.inCH: iter= %d, inside hull.",i))
   return(TRUE) # If all points passed the test, return TRUE.
 }
